@@ -10,9 +10,11 @@
   global object allocate_string (uintL len);
   global object allocate_iarray (uintB flags, uintC rank, tint type);
   #ifdef TYPECODES
+  global object allocate_lrecord (uintB rectype, uintL reclen, tint type);
   global object allocate_srecord_ (uintW flags_rectype, uintC reclen, tint type);
   global object allocate_xrecord_ (uintW flags_rectype, uintC reclen, uintC recxlen, tint type);
   #else
+  global object allocate_lrecord_ (uintB rectype, uintL reclen);
   global object allocate_srecord_ (uintW flags_rectype, uintC reclen);
   global object allocate_xrecord_ (uintW flags_rectype, uintC reclen, uintC recxlen);
   #endif
@@ -108,7 +110,7 @@ local inline object allocate_weakkvt_low (uintL len, object type) {
  #else
   #define SETTFL  ptr->tfl = vrecord_tfl(Rectype_WeakKVT,len)
  #endif
-  allocate(weakkvt_type,true,need,WeakKVT,ptr,{
+  allocate(lrecord_type,true,need,WeakKVT,ptr,{
     SETTFL;
     ptr->wkvt_cdr = O(all_weakkvtables);
     ptr->wkvt_type = type;
@@ -339,6 +341,41 @@ global object allocate_iarray (uintB flags, uintC rank, tint type) {
   #undef SETTFL
 }
 
+# UP: allocates Long-Record
+# allocate_lrecord(rectype,reclen,type)
+# > sintB rectype: further type-info
+# > uintL reclen: length
+# > tint type: type-info
+# < result: LISP-object Record (elements are initialized with NIL)
+# can trigger GC
+#ifdef TYPECODES
+global object allocate_lrecord (uintB rectype, uintL reclen, tint type)
+{
+  ASSERT((sintB)rectype >= rectype_longlimit);
+  var uintL need = size_lrecord(reclen);
+  allocate(type,true,need,Lrecord,ptr,{
+    ptr->tfl = lrecord_tfl(rectype,reclen); # store type and length
+    if (reclen > 0) {
+      var gcv_object_t* p = &ptr->recdata[0];
+      dotimespL(reclen,reclen, { *p++ = NIL; } ); # initialize elements with NIL
+    }
+  });
+}
+#else
+global object allocate_lrecord_ (uintB rectype, uintL reclen)
+{
+  ASSERT((sintB)rectype >= rectype_longlimit);
+  var uintL need = size_lrecord(reclen);
+  allocate(type,true,need,Lrecord,ptr,{
+    ptr->tfl = lrecord_tfl(rectype,reclen); # store type and length
+    if (reclen > 0) {
+      var gcv_object_t* p = &ptr->recdata[0];
+      dotimespL(reclen,reclen, { *p++ = NIL; } ); # initialize elements with NIL
+    }
+  });
+}
+#endif
+
 # UP, provides simple-record
 # allocate_srecord_(flags_rectype,reclen,type)
 # > uintW flags_rectype: flags, further typeinfo
@@ -349,11 +386,11 @@ global object allocate_iarray (uintB flags, uintC rank, tint type) {
 #ifdef TYPECODES
 global object allocate_srecord_ (uintW flags_rectype, uintC reclen, tint type)
 {
-  ASSERT((sintB)(flags_rectype >> (BIG_ENDIAN_P ? 0 : 8)) < rectype_limit);
+  ASSERT((sintB)(flags_rectype >> (BIG_ENDIAN_P ? 8 : 0)) < rectype_limit);
   var uintL need = size_srecord(reclen);
   allocate(type,true,need,Srecord,ptr,{
     # store flags, type:
-    *(uintW*)pointerplus(ptr,offsetof(record_,recflags)) = flags_rectype;
+    *(uintW*)pointerplus(ptr,offsetof(record_,rectype)) = flags_rectype;
     ptr->reclength = reclen; # store length
     var gcv_object_t* p = &ptr->recdata[0];
     dotimespC(reclen,reclen, { *p++ = NIL; } ); # initialize elements with NIL
@@ -381,11 +418,12 @@ global object allocate_srecord_ (uintW flags_rectype, uintC reclen) {
 #ifdef TYPECODES
 global object allocate_xrecord_ (uintW flags_rectype, uintC reclen,
                                  uintC recxlen, tint type) {
-  ASSERT((sintB)(flags_rectype >> (BIG_ENDIAN_P ? 0 : 8)) >= rectype_limit);
+  ASSERT((sintB)(flags_rectype >> (BIG_ENDIAN_P ? 8 : 0)) >= rectype_limit
+         && (sintB)(flags_rectype >> (BIG_ENDIAN_P ? 8 : 0)) < rectype_longlimit);
   var uintL need = size_xrecord(reclen,recxlen);
   allocate(type,true,need,Xrecord,ptr,{
     # store flags, type:
-    *(uintW*)pointerplus(ptr,offsetof(record_,recflags)) = flags_rectype;
+    *(uintW*)pointerplus(ptr,offsetof(record_,rectype)) = flags_rectype;
     ptr->reclength = reclen; ptr->recxlength = recxlen; # store lengths
     var gcv_object_t* p = &ptr->recdata[0];
     dotimesC(reclen,reclen, { *p++ = NIL; } ); # initialize elements with NIL
@@ -589,9 +627,9 @@ global object make_ratio (object num, object den) {
  #ifdef SPVW_MIXED
   # see allocate_xrecord
   #ifdef TYPECODES
-   #define SETTFL                                               \
-     *(uintW*)pointerplus(ptr,offsetof(record_,recflags)) =     \
-       ((uintW)Rectype_Ratio << (BIG_ENDIAN_P ? 0 : 8));        \
+   #define SETTFL                                              \
+     *(uintW*)pointerplus(ptr,offsetof(record_,rectype)) =     \
+       ((uintW)Rectype_Ratio << (BIG_ENDIAN_P ? 8 : 0));       \
      ptr->reclength = 2; ptr->recxlength = 0
   #else
   var uintL tfl = xrecord_tfl(Rectype_Ratio,(positivep(num) ? 0 : 0xFF),2,0);
@@ -619,9 +657,9 @@ global object make_complex (object real, object imag) {
  #ifdef SPVW_MIXED
   # see allocate_xrecord
   #ifdef TYPECODES
-   #define SETTFL                                               \
-     *(uintW*)pointerplus(ptr,offsetof(record_,recflags)) =     \
-       ((uintW)Rectype_Complex << (BIG_ENDIAN_P ? 0 : 8));      \
+   #define SETTFL                                              \
+     *(uintW*)pointerplus(ptr,offsetof(record_,rectype)) =     \
+       ((uintW)Rectype_Complex << (BIG_ENDIAN_P ? 8 : 0));     \
      ptr->reclength = 2; ptr->recxlength = 0
   #else
    #define SETTFL ptr->tfl = xrecord_tfl(Rectype_Complex,0,2,0)

@@ -125,7 +125,7 @@
   do { var gcv_object_t* p = &((Iarray)ptr)->data; update(p); } while(0)
 #define do_update_sistring()  \
   do { var gcv_object_t* p = &((Sistring)ptr)->data; update(p); } while(0)
-#define do_update_record()                                                \
+#define do_update_sxrecord()                                              \
   do {                                                                    \
     # on update of pointers, the hash-tables are invalidated              \
     # (because the hash function of an object depends on its address,     \
@@ -150,6 +150,14 @@
       dotimespC(count,count, { update(p); p++; } );                       \
     }                                                                     \
   }} while(0)
+#define do_update_lrecord()                             \
+  do {                                                  \
+    var uintC count = lrecord_length((Lrecord)ptr);     \
+    if (count != 0) {                                   \
+      var gcv_object_t* p = &((Record)ptr)->recdata[0]; \
+      dotimespC(count,count, { update(p); p++; } );     \
+    }                                                   \
+  } while(0)
 # updates the object at 'ptr', whose typecode is given by 'type_expr'
 # and advances ptr:
 #ifdef SPVW_MIXED
@@ -183,8 +191,11 @@
        case_ovector: # non-simple array: update data vector                \
          do_update_iarray();                                               \
          break;                                                            \
-       case_record: # Record: update all pointers                          \
-         do_update_record();                                               \
+       case_sxrecord: # Record: update all pointers                        \
+         do_update_sxrecord();                                             \
+         break;                                                            \
+       case_lrecord: # Lrecord: update all pointers                        \
+         do_update_lrecord();                                              \
          break;                                                            \
        default:  # all others contain no pointer that need update          \
          break; # -> do nothing                                            \
@@ -240,7 +251,10 @@
          # these contain no pointers that need update -> do nothing        \
          break;                                                            \
        default: # Record: update all pointers                              \
-         do_update_record();                                               \
+         if (record_type((Record)ptr) < rectype_longlimit)                 \
+           do_update_sxrecord();                                           \
+         else                                                              \
+           do_update_lrecord();                                            \
          break;                                                            \
      }                                                                     \
      # advance to the next object                                          \
@@ -287,13 +301,21 @@
      }                                                                  \
      ptr = newptr; # advance to the next object                         \
    } while(0)
- #define update_record(type_expr)  # ignores type_expr                 \
-   do {                                                                \
-     var uintL laenge = objsize_record((void*)ptr); # determine length \
-     var aint newptr = ptr+laenge; # pointer to the next object        \
-     # Record: update all pointers                                     \
-     do_update_record();                                               \
-     ptr = newptr; # advance to the next object                        \
+ #define update_sxrecord(type_expr)  # ignores type_expr                 \
+   do {                                                                  \
+     var uintL laenge = objsize_sxrecord((void*)ptr); # determine length \
+     var aint newptr = ptr+laenge; # pointer to the next object          \
+     # Record: update all pointers                                       \
+     do_update_sxrecord();                                               \
+     ptr = newptr; # advance to the next object                          \
+   } while(0)
+ #define update_lrecord(type_expr)  # ignores type_expr                 \
+   do {                                                                 \
+     var uintL laenge = objsize_lrecord((void*)ptr); # determine length \
+     var aint newptr = ptr+laenge; # pointer to the next object         \
+     # Record: update all pointers                                      \
+     do_update_lrecord();                                               \
+     ptr = newptr; # advance to the next object                         \
    } while(0)
  #define update_varobjects()                                           \
    for_each_varobject_page(page,{                                      \
@@ -309,7 +331,8 @@
        case_mdarray: case_obvector: case_ob2vector: case_ob4vector:    \
        case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: \
        case_ovector: update_page(page,update_iarray); break;           \
-       case_record: update_page(page,update_record); break;            \
+       case_sxrecord: update_page(page,update_sxrecord); break;        \
+       case_lrecord: update_page(page,update_lrecord); break;          \
        default: # all others contain no pointer that need update       \
          break; # -> do nothing                                        \
      }                                                                 \

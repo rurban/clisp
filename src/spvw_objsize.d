@@ -97,6 +97,9 @@
 #define size_iarray(size)  # non-simple array, with                           \
   # size = dimension number + (1 if fill-pointer) + (1 if displaced-offset)   \
   Varobject_aligned_size(offsetofa(iarray_,dims),sizeof(uintL),(uintL)(size))
+#define size_lrecord(length)  # Long-Record                     \
+  Varobject_aligned_size(offsetofa(record_,recdata),            \
+                         sizeof(gcv_object_t),(uintL)(length))
 #define size_srecord(length)  # Simple-Record                   \
   Varobject_aligned_size(offsetofa(record_,recdata),            \
                          sizeof(gcv_object_t),(uintL)(length))
@@ -236,7 +239,6 @@ local uintL objsize (void* addr) {
     case_Rectype_Sb16vector_above;
     case_Rectype_Sb32vector_above;
     case_Rectype_Svector_above;
-    case_Rectype_WeakKVT_above;
     case_Rectype_mdarray_above;
     case_Rectype_obvector_above;
     case_Rectype_ob2vector_above;
@@ -323,7 +325,6 @@ local uintL objsize (void* addr) {
     case_s8string:
       return size_s8string(sstring_length((S8string)addr));
    #endif
-    case_weakkvt: # weak-key-value-table
     case_svector: # simple-vector
       return size_svector(svector_length((Svector)addr));
     case_mdarray: case_obvector: case_ob2vector: case_ob4vector:
@@ -331,11 +332,14 @@ local uintL objsize (void* addr) {
     case_ovector: # non-simple array
       return objsize_iarray(addr);
     case_record: # Record
-      if (record_type((Record)addr) < rectype_limit)
-        return size_srecord(srecord_length((Srecord)addr));
-      else
-        return size_xrecord(xrecord_length((Xrecord)addr),
-                            xrecord_xlength((Xrecord)addr));
+      if (record_type((Record)addr) < rectype_longlimit) {
+        if (record_type((Record)addr) < rectype_limit)
+          return size_srecord(srecord_length((Srecord)addr));
+        else
+          return size_xrecord(xrecord_length((Xrecord)addr),
+                              xrecord_xlength((Xrecord)addr));
+      } else
+        return size_lrecord(lrecord_length((Lrecord)addr));
     case_bignum: # Bignum
       return size_bignum(bignum_length((Bignum)addr));
   #ifdef TYPECODES
@@ -397,12 +401,15 @@ inline local uintL objsize_sb32vector (void* addr) { # simple-32bit-vector
 inline local uintL objsize_svector (void* addr) { # simple-vector
   return size_svector(svector_length((Svector)addr));
 }
-inline local uintL objsize_record (void* addr) { # Record
+inline local uintL objsize_sxrecord (void* addr) { # Record
   if (record_type((Record)addr) < rectype_limit)
     return size_srecord(srecord_length((Srecord)addr));
   else
     return size_xrecord(xrecord_length((Xrecord)addr),
                         xrecord_xlength((Xrecord)addr));
+}
+inline local uintL objsize_lrecord (void* addr) { # Lrecord
+  return size_lrecord(lrecord_length((Lrecord)addr));
 }
 inline local uintL objsize_bignum (void* addr) { # Bignum
   return size_bignum(bignum_length((Bignum)addr));
@@ -443,14 +450,16 @@ local void init_objsize_table (void) {
       objsize_table[heapnr] = &objsize_sb32vector; break;
      case_sstring:
       objsize_table[heapnr] = &objsize_sstring; break;
-     case_svector: case_weakkvt:
+     case_svector:
       objsize_table[heapnr] = &objsize_svector; break;
      case_mdarray: case_obvector: case_ob2vector: case_ob4vector:
      case_ob8vector: case_ob16vector: case_ob32vector: case_ostring:
      case_ovector:
       objsize_table[heapnr] = &objsize_iarray; break;
-     case_record:
-      objsize_table[heapnr] = &objsize_record; break;
+     case_sxrecord:
+      objsize_table[heapnr] = &objsize_sxrecord; break;
+     case_lrecord:
+      objsize_table[heapnr] = &objsize_lrecord; break;
      case_bignum:
       objsize_table[heapnr] = &objsize_bignum; break;
     #ifndef IMMEDIATE_FFLOAT

@@ -6666,8 +6666,6 @@ local void prin_object_dispatch (const gcv_object_t* stream_, object obj) {
     case_b32vector:
     case_vector: # (vector t)
       pr_vector(stream_,obj); break;
-    case_weakkvt: # weak key-value table
-      pr_weakkvt(stream_,obj); break;
     case_mdarray: # generic array
       pr_array(stream_,obj); break;
     case_closure: # Closure
@@ -6683,6 +6681,7 @@ local void prin_object_dispatch (const gcv_object_t* stream_, object obj) {
       pr_stream(stream_,obj); break;
 #endif
     case_orecord: # OtherRecord
+    case_lrecord: # LongRecord
       pr_orecord(stream_,obj); break;
     case_char: # Character
       pr_character(stream_,obj); break;
@@ -8413,8 +8412,6 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
     case Rectype_b32vector: case Rectype_Sb32vector: # 32bit-vector
     case Rectype_vector: case Rectype_Svector: # (vector t)
       pr_vector(stream_,obj); break;
-    case Rectype_WeakKVT: # weak key-value table
-      pr_weakkvt(stream_,obj); break;
     case Rectype_mdarray: # generic Array
       pr_array(stream_,obj); break;
     case Rectype_Closure: # Closure
@@ -8927,6 +8924,9 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
         LEVEL_END;
       } else
         write_sstring_case(stream_,O(printstring_broken_weakpointer));
+      break;
+    case Rectype_WeakKVT: # weak key-value table
+      pr_weakkvt(stream_,obj);
       break;
     case Rectype_Finalizer: # #<FINALIZER>
       CHECK_PRINT_READABLY(obj);
