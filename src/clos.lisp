@@ -1920,8 +1920,8 @@
          #'(lambda (method) (method-applicable-p method req-args))
          methods))
       (when (null methods)
-        (return-from slow-funcall-gf (apply #'no-applicable-method gf args))
-      )
+        (return-from slow-funcall-gf
+          (no-method-caller 'no-applicable-method gf)))
       ;; 2. Sort the applicable methods by precedence order:
       (setq methods (sort-applicable-methods methods req-args arg-order))
       ;; 3. Apply method combination:
@@ -1931,7 +1931,8 @@
             (primary-methods before-methods after-methods around-methods)
           (partition-method-list methods)
         (when (null primary-methods)
-          (return-from slow-funcall-gf (apply #'no-primary-method gf args)))
+          (return-from slow-funcall-gf
+            (no-method-caller 'no-primary-method gf)))
         ;; combine methods into an "effective method" :
         (labels ((ef-1 (primary-methods before-methods after-methods around-methods)
                    (if (null around-methods)
@@ -2318,10 +2319,11 @@
             (BLOCK ,block-name
               ,form
               ,@(if maybe-no-applicable
-                  `((funcall '%NO-APPLICABLE-METHOD ',gf))))))))))
+                  `((funcall 'no-method-caller 'no-applicable-method
+                             ',gf))))))))))
 
-(defun %no-applicable-method (gf)
-  (lambda (args) (no-applicable-method gf args)))
+(defun no-method-caller (no-method-name gf)
+  (lambda (&rest args) (apply no-method-name gf args)))
 
 ;; Our EQUAL hash-function looks into cons-trees only upto depth 4.
 ;; A tuple of at most 16 elements can be turned into such a tree.
@@ -2381,139 +2383,142 @@
 ;;; for the same EQL and class restrictions as the given arguments,
 ;;; therefore compute dispatch is already taken care of.
 (defun compute-effective-method (gf &rest args)
-  (tagbody restart-compute
-    (return-from compute-effective-method
-      (let* ((signature (gf-signature gf))
-             (req-anz (sig-req-num signature))
-             (req-vars (gensym-list req-anz))
-             (req-args (subseq args 0 req-anz))
-             (restp (gf-sig-restp signature))
-             (rest-var (if restp (gensym)))
-             (apply-fun (if restp 'APPLY 'FUNCALL))
-             (apply-args `(,@req-vars ,@(if restp `(,rest-var) '())))
-             (lambdalist `(,@req-vars ,@(if restp `(&REST ,rest-var) '())))
-             (opt-vars '())
-             (key-vars '())
-             (lambdalist-keypart '())
-             (arg-order (gf-argorder gf))
-             (methods (gf-methods gf)))
-        ;; Determine the effective method:
-        ;; 1. Select the applicable methods:
-        (setq methods
-              (remove-if-not #'(lambda (method)
-                                 (method-applicable-p method req-args))
-                             methods))
-        (when (null methods)
-          (apply #'no-applicable-method gf args)
-          (go restart-compute))
-        ;; 28.1.6.4., 28.1.6.5.: Keyword arguments in generic functions
-        (when restp
-          ;; The generic function has &REST or &KEY, thus try all methods.
-          ;; "If the lambda-list of ... the generic function definition
-          ;;  contains &allow-other-keys, all keyword arguments are accepted."
-          (unless (sig-allow-p signature)
-            ;; "The specific set of keyword arguments accepted ...
-            ;;  varies according to the applicable methods."
-            (let ((signatures (mapcar #'std-method-signature methods)))
-              ;; "A method that has &rest but not &key does not affect the
-              ;;   set of acceptable keyword arguments."
-              (setq signatures (delete-if-not #'sig-keys-p signatures))
-              ;; No method with &key ==> no restriction on the arguments
-              (unless (null signatures)
-                ;; "If the lambda-list of any applicable method ... contains
-                ;;  &allow-other-keys, all keyword arguments are accepted."
-                (unless (some #'sig-allow-p signatures)
-                  ;; "The set of keyword arguments accepted for a
-                  ;;  particular call is the union of the keyword
-                  ;;  arguments accepted by all applicable methods and
-                  ;;  the keyword arguments mentioned after &key in the
-                  ;;  generic function definition."
-                  (let ((keywords
-                         (remove-duplicates
-                          (append (sig-keywords signature)
-                                  (mapcap #'sig-keywords signatures))
-                            :from-end t)))
-                    (setq opt-vars (gensym-list (sig-opt-num signature)))
-                    (setq key-vars (gensym-list keywords))
-                    (setq lambdalist-keypart
-                          `(&KEY
-                            ,@(mapcar #'(lambda (kw var) `((,kw ,var)))
-                                      keywords key-vars)))))))))
-        ;; 2. Sort the applicable methods by precedence order:
-        (setq methods (sort-applicable-methods methods req-args arg-order))
-        ;; 3. Apply method combination:
-        ;; only the STANDARD method combination is implemented.
-        ;; split up into individual method types.
-        (multiple-value-bind
-              (primary-methods before-methods after-methods around-methods)
-            (partition-method-list methods)
-          (when (null primary-methods)
-            (apply #'no-primary-method gf args)
-            (go restart-compute))
-          ;; combine methods into an "effective method":
-          (labels ((ef-1 (primary-methods before-methods after-methods around-methods)
-                     (if (null around-methods)
-                       (ef-2 primary-methods before-methods after-methods)
-                       (let* ((1method (first around-methods))
-                              (1function (std-method-function 1method)))
-                         (if (std-method-wants-next-method-p 1method)
-                           (let ((next-ef
-                                     (ef-1 primary-methods before-methods after-methods (rest around-methods))))
-                             `(,apply-fun ',1function
-                                          #'(LAMBDA ,lambdalist ,next-ef)
-                                          ,@apply-args))
-                           `(,apply-fun ',1function ,@apply-args)))))
-                   (ef-2 (primary-methods before-methods after-methods)
-                     (let ((next-ef (ef-3 primary-methods after-methods)))
-                       (if (null before-methods)
-                         next-ef
-                         `(PROGN
-                            ,@(mapcar
-                                #'(lambda (method)
-                                    `(,apply-fun ',(std-method-function method)
-                                                 ,@apply-args))
-                                before-methods) ; most-specific-first
-                            ,next-ef))))
-                   (ef-3 (primary-methods after-methods)
-                     (let ((next-ef (ef-4 primary-methods)))
-                       (if (null after-methods)
-                         next-ef
-                         `(MULTIPLE-VALUE-PROG1
-                            ,next-ef
-                            ,@(mapcar
-                                #'(lambda (method)
-                                    `(,apply-fun ',(std-method-function method)
-                                                 ,@apply-args))
-                                (reverse after-methods)))))) ; most-specific-last
-                   (ef-4 (primary-methods)
-                     (let* ((1method (first primary-methods))
-                            (1function (std-method-function 1method)))
-                       (if (std-method-wants-next-method-p 1method)
-                         (let ((next-ef-fun (ef-5 (rest primary-methods))))
-                           `(,apply-fun ',1function ,next-ef-fun ,@apply-args))
-                         `(,apply-fun ',1function ,@apply-args))))
-                   (ef-5 (primary-methods)
-                     (if (null primary-methods)
-                       'NIL ; no function, NEXT-METHOD-P reacts on it
-                       `#'(LAMBDA ,lambdalist ,(ef-4 primary-methods)))))
-            (let* ((ef-form (ef-1 primary-methods before-methods after-methods around-methods))
-                   (ef-fun (if (and (eq (car ef-form) apply-fun)
-                                    (equal (cddr ef-form) apply-args)
-                                    (null lambdalist-keypart))
-                             (cadr ef-form)
-                             `#'(LAMBDA
-                                  ,@(if (null opt-vars)
-                                      `(,(append lambdalist lambdalist-keypart)
-                                        ,@(if key-vars `((DECLARE (IGNORE ,@key-vars)))))
-                                      `(,lambdalist
-                                        (APPLY #'(LAMBDA (&OPTIONAL ,@opt-vars ,@lambdalist-keypart)
-                                                   (DECLARE (IGNORE ,@opt-vars ,@key-vars)))
-                                               ,rest-var)))
-                                  ,ef-form))))
-              ; (eval ef-fun)                                 ; interpreted
-              ; (eval `(LOCALLY (DECLARE (COMPILE)) ,ef-fun)) ; compiled
-              (eval `(LET () (DECLARE (COMPILE) (INLINE FUNCALL APPLY))
-                          ,ef-fun)))))))))
+  (let* ((signature (gf-signature gf))
+         (req-anz (sig-req-num signature))
+         (req-vars (gensym-list req-anz))
+         (req-args (subseq args 0 req-anz))
+         (restp (gf-sig-restp signature))
+         (rest-var (if restp (gensym)))
+         (apply-fun (if restp 'APPLY 'FUNCALL))
+         (apply-args `(,@req-vars ,@(if restp `(,rest-var) '())))
+         (lambdalist `(,@req-vars ,@(if restp `(&REST ,rest-var) '())))
+         (opt-vars '())
+         (key-vars '())
+         (lambdalist-keypart '())
+         (arg-order (gf-argorder gf))
+         (methods (gf-methods gf)))
+    ;; Determine the effective method:
+    ;; 1. Select the applicable methods:
+    (setq methods
+          (remove-if-not #'(lambda (method)
+                             (method-applicable-p method req-args))
+                         methods))
+    (when (null methods)
+      (return-from compute-effective-method
+        (no-method-caller 'no-applicable-method gf)))
+    ;; 28.1.6.4., 28.1.6.5.: Keyword arguments in generic functions
+    (when restp
+      ;; The generic function has &REST or &KEY, thus try all methods.
+      ;; "If the lambda-list of ... the generic function definition
+      ;;  contains &allow-other-keys, all keyword arguments are accepted."
+      (unless (sig-allow-p signature)
+        ;; "The specific set of keyword arguments accepted ...
+        ;;  varies according to the applicable methods."
+        (let ((signatures (mapcar #'std-method-signature methods)))
+          ;; "A method that has &rest but not &key does not affect the
+          ;;   set of acceptable keyword arguments."
+          (setq signatures (delete-if-not #'sig-keys-p signatures))
+          ;; No method with &key ==> no restriction on the arguments
+          (unless (null signatures)
+            ;; "If the lambda-list of any applicable method ... contains
+            ;;  &allow-other-keys, all keyword arguments are accepted."
+            (unless (some #'sig-allow-p signatures)
+              ;; "The set of keyword arguments accepted for a
+              ;;  particular call is the union of the keyword
+              ;;  arguments accepted by all applicable methods and
+              ;;  the keyword arguments mentioned after &key in the
+              ;;  generic function definition."
+              (let ((keywords
+                     (remove-duplicates
+                      (append (sig-keywords signature)
+                              (mapcap #'sig-keywords signatures))
+                      :from-end t)))
+                (setq opt-vars (gensym-list (sig-opt-num signature)))
+                (setq key-vars (gensym-list keywords))
+                (setq lambdalist-keypart
+                      `(&KEY
+                        ,@(mapcar #'(lambda (kw var) `((,kw ,var)))
+                                  keywords key-vars)))))))))
+    ;; 2. Sort the applicable methods by precedence order:
+    (setq methods (sort-applicable-methods methods req-args arg-order))
+    ;; 3. Apply method combination:
+    ;; only the STANDARD method combination is implemented.
+    ;; split up into individual method types.
+    (multiple-value-bind
+          (primary-methods before-methods after-methods around-methods)
+        (partition-method-list methods)
+      (when (null primary-methods)
+        (return-from compute-effective-method
+          (no-method-caller 'no-primary-method gf)))
+      ;; combine methods into an "effective method":
+      (labels ((ef-1 (primary-methods before-methods after-methods
+                                      around-methods)
+                 (if (null around-methods)
+                   (ef-2 primary-methods before-methods after-methods)
+                   (let* ((1method (first around-methods))
+                          (1function (std-method-function 1method)))
+                     (if (std-method-wants-next-method-p 1method)
+                       (let ((next-ef
+                              (ef-1 primary-methods before-methods
+                                    after-methods (rest around-methods))))
+                         `(,apply-fun ',1function
+                                      #'(LAMBDA ,lambdalist ,next-ef)
+                                      ,@apply-args))
+                       `(,apply-fun ',1function ,@apply-args)))))
+               (ef-2 (primary-methods before-methods after-methods)
+                 (let ((next-ef (ef-3 primary-methods after-methods)))
+                   (if (null before-methods)
+                     next-ef
+                     `(PROGN
+                        ,@(mapcar
+                           #'(lambda (method)
+                               `(,apply-fun ',(std-method-function method)
+                                            ,@apply-args))
+                           before-methods) ; most-specific-first
+                        ,next-ef))))
+               (ef-3 (primary-methods after-methods)
+                 (let ((next-ef (ef-4 primary-methods)))
+                   (if (null after-methods)
+                       next-ef
+                       `(MULTIPLE-VALUE-PROG1 ,next-ef
+                          ,@(mapcar
+                             #'(lambda (method)
+                                 `(,apply-fun ',(std-method-function method)
+                                              ,@apply-args))
+                             (reverse after-methods)))))) ; most-specific-last
+               (ef-4 (primary-methods)
+                 (let* ((1method (first primary-methods))
+                        (1function (std-method-function 1method)))
+                   (if (std-method-wants-next-method-p 1method)
+                       (let ((next-ef-fun (ef-5 (rest primary-methods))))
+                         `(,apply-fun ',1function ,next-ef-fun ,@apply-args))
+                       `(,apply-fun ',1function ,@apply-args))))
+               (ef-5 (primary-methods)
+                 (if (null primary-methods)
+                     'NIL ; no function, NEXT-METHOD-P reacts on it
+                     `#'(LAMBDA ,lambdalist ,(ef-4 primary-methods)))))
+        (let* ((ef-form (ef-1 primary-methods before-methods after-methods
+                              around-methods))
+               (ef-fun (if (and (eq (car ef-form) apply-fun)
+                                (equal (cddr ef-form) apply-args)
+                                (null lambdalist-keypart))
+                         (cadr ef-form)
+                         `#'(LAMBDA
+                                ,@(if (null opt-vars)
+                                    `(,(append lambdalist lambdalist-keypart)
+                                      ,@(if key-vars
+                                          `((DECLARE (IGNORE ,@key-vars)))))
+                                    `(,lambdalist
+                                      (APPLY #'(LAMBDA (&OPTIONAL ,@opt-vars
+                                                        ,@lambdalist-keypart)
+                                                 (DECLARE (IGNORE ,@opt-vars
+                                                                  ,@key-vars)))
+                                             ,rest-var)))
+                              ,ef-form))))
+          ;; (eval ef-fun)                                 ; interpreted
+          ;; (eval `(LOCALLY (DECLARE (COMPILE)) ,ef-fun)) ; compiled
+          (eval `(LET () (DECLARE (COMPILE) (INLINE FUNCALL APPLY))
+                      ,ef-fun)))))))
 
 ; runtime-support for CALL-NEXT-METHOD.
 (defun %call-next-method (method next-methods original-args new-args)
