@@ -262,48 +262,49 @@ she will get the output
 only for the languages for which &clisp; itself is already
 localized.</para>
 
-<para>The language &clisp; uses to communicate with the user can be
- either <function>ENGLISH</function> or <function>DEUTSCH</function>
- (i.e., German) or <function>FRANCAIS</function> (i.e., French) or
- <function>ESPA&Ntilde;OL</function> (i.e., Spanish) or
- <function>NEDERLANDS</function> (i.e. Dutch).  More languages
- can be defined through the macro <emphasis
- role="strong"><function>i18n:deflanguage</function></emphasis>:
- <literal role="sexp">(<function>i18n:deflanguage</function>
+<para>The language &clisp; uses to communicate with the user can be one of
+<simplelist columns="1">
+ <member><constant>ENGLISH</constant></member>
+ <member><constant>DEUTSCH</constant> (i.e., German)</member>
+ <member><constant>FRAN&Ccedil;AIS</constant> (i.e., French)</member>
+ <member><constant>ESPA&Ntilde;OL</constant> (i.e., Spanish)</member>
+ <member><constant>NEDERLANDS</constant> (i.e. Dutch)</member>
+</simplelist></para>
+
+<para>This is controlled by the &symbol-macro; <emphasis
+ role="strong"><varname>CUSTOM:*CURRENT-LANGUAGE*</varname></emphasis>,
+ which can be set at run time as well as using <ulink
+ url="clisp.html#opt-lang"><option>-L</option></ulink> start-up option.
+ If you wish to change the <ulink url="clisp.html#opt-locale">locale
+ directory</ulink> at run time too, you can do that by
+ setting <varname>CUSTOM:*CURRENT-LANGUAGE*</varname> to a cons cell,
+ whose &car; is the language (a symbol, one of the above), and whose
+ &cdr; is the new locale directory.</para>
+
+<para>More languages can be defined through the macro <emphasis
+ role="strong"><function>I18N:DEFLANGUAGE</function></emphasis>:
+ <literal role="sexp">(<function>I18N:DEFLANGUAGE</function>
  <replaceable>lang</replaceable>)</literal>.  For such an additional
  language to take effect, you must install the corresponding message
  catalog, or translate the messages yourself, using &ggettext; and
  &emacs; (or &xemacs;) po-mode.</para>
 
-<para>The macros <function>ENGLISH</function>,
- <function>DEUTSCH</function>, <function>FRANCAIS</function> produce
- strings that depends on the language: <literal role="sexp">(ENGLISH
- <replaceable>english-string</replaceable> DEUTSCH
- <replaceable>deutsch-string</replaceable> FRANCAIS
- <replaceable>francais-string</replaceable>)</literal> -
- and all permutations of this - evaluates all of
- <replaceable>english-string</replaceable>,
- <replaceable>deutsch-string</replaceable>,
- <replaceable>francais-string</replaceable>
- in no particular order and returns the evaluation result corresponding
- to the user language, be it among these three or not.</para>
-
 <para>This works only for strings.  For arbitrary language-dependent
  Lisp objects, you define one through the macro <emphasis
- role="strong"><function>i18n:definternational</function></emphasis>:
- <literal role="sexp">(<function>i18n:definternational</function>
+ role="strong"><function>I18N:DEFINTERNATIONAL</function></emphasis>:
+ <literal role="sexp">(<function>I18N:DEFINTERNATIONAL</function>
  &symbol-r; &optional-amp;
  (<replaceable>default-language</replaceable> &t;))</literal> and add
  language-dependent values through the macro <emphasis
- role="strong"><function>i18n:deflocalized</function></emphasis>:
- <literal role="sexp">(<function>i18n:deflocalized</function>
+ role="strong"><function>I18N:DEFLOCALIZED</function></emphasis>:
+ <literal role="sexp">(<function>I18N:DEFLOCALIZED</function>
  &symbol-r; &lang-r; <replaceable>value-form</replaceable>)</literal></para>
 
 <para>(One such form for each language.  Languages without an assigned
  value will be treated like the default-language.)  You can then access
  the localized value by calling <emphasis
- role="strong"><function>i18n:localized</function></emphasis>: <literal
- role="sexp">(<function>i18n:localized</function>
+ role="strong"><function>I18N:LOCALIZED</function></emphasis>: <literal
+ role="sexp">(<function>I18N:LOCALIZED</function>
  &symbol-r; &optional-amp; &lang-r;)</literal></para>
 
 </section>
