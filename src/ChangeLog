@@ -1,5 +1,10 @@
 2001-07-13  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (bitbuff_is_I): fixed the bin i/o for (signed-byte n)
+	with n>32 on LITTLE_ENDIAN architecture
+
+2001-07-12  Sam Steingold  <sds@gnu.org>
+
 	abstracted some code
 	* stream.d (bitbuff_iu_I, bitbuff_is_I): new functions
 	(read-integer): use them
