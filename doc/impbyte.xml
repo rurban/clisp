@@ -1188,15 +1188,15 @@ letters:
 <informaltable id="instr-tagbody-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
- <row><entry><literal role="sexp">(TAGBODY-OPEN &n-r;
+ <row><entry><literal role="sexp">(TAGBODY-OPEN &m-r;
              <replaceable>label&sub-1;</replaceable> ...
              <replaceable>label&sub-n;</replaceable>)</literal></entry>
       <entry>Create a &tagbody; frame.</entry>
-      <entry>Fetch &consts;[&n-r;], this is a &simple-vector-t; with
-             &m-r; elements, then decode &m-r; label operands.
-             Create a &tagbody; frame, &STACK; -= 3+&m-r;, &SP; -= 1+&jbs;.
+      <entry>Fetch &consts;[&m-r;], this is a &simple-vector-t; with
+             &n-r; elements, then decode &n-r; label operands.
+             Create a &tagbody; frame, &STACK; -= 3+&n-r;, &SP; -= 1+&jbs;.
              The third object in the &tagbody; frame is
-             &cons;(&consts;[&n-r;],frame-pointer) (the &tbc-r;)
+             &cons;(&consts;[&m-r;],frame-pointer) (the &tbc-r;)
              Upon a &go; to tag &lab-r; of this frame, execution
              will continue at
               <replaceable>label<subscript>l</subscript></replaceable>.
