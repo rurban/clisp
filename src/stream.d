@@ -17394,6 +17394,36 @@ LISPFUN(set_stream_external_format,2,1,norest,nokey,0,NIL)
     skipSTACK(3);
   }
 
+#ifdef UNICODE
+
+# Changes a terminal stream's external format.
+# > stream: a stream
+# > encoding: an encoding
+# can trigger GC
+  global void set_terminalstream_external_format (object stream, object encoding);
+  global void set_terminalstream_external_format(stream,encoding)
+    var object stream;
+    var object encoding;
+    {
+      if (builtin_stream_p(stream)
+          && TheStream(stream)->strmtype == strmtype_terminal
+          && eq(TheStream(stream)->strm_encoding,O(terminal_encoding))
+         ) {
+        # This is the only place which is allowed to modify the terminal
+        # stream's encoding.
+        # The terminal stream's end-of-line coding is hardwired, therefore we
+        # don't neet to do the equivalent of fill_pseudofuns_unbuffered here.
+        ChannelStream_fini(stream);
+        TheStream(stream)->strm_encoding = encoding;
+        ChannelStream_init(stream);
+      } else {
+        pushSTACK(stream); pushSTACK(encoding);
+        funcall(L(set_stream_external_format),2);
+      }
+    }
+
+#endif
+
 # UP: Stellt fest, ob ein Stream "interaktiv" ist, d.h. ob Input vom Stream
 # vermutlich von einem vorher ausgegebenen Prompt abhängen wird.
 # interactive_stream_p(stream)

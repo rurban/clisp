@@ -11333,6 +11333,15 @@ typedef struct {
   #define write_ascii_char(stream_,ch)  write_char(stream_,code_char(as_chart(ch)))
 # wird verwendet von LISPARIT, IO, DEBUG, Macro TERPRI
 
+#ifdef UNICODE
+# Changes a terminal stream's external format.
+# > stream: a stream
+# > encoding: an encoding
+# can trigger GC
+  extern void set_terminalstream_external_format (object stream, object encoding);
+# used by ENCODING
+#endif
+
 # UP: Stellt fest, ob ein Stream "interaktiv" ist, d.h. ob Input vom Stream
 # vermutlich von einem vorher ausgegebenen Prompt abhängen wird.
 # interactive_stream_p(stream)
