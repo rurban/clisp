@@ -22,6 +22,14 @@
 (in-package "POSIX")
 
 ;;; ============================================================
+#+unix (progn
+(export
+ '(utmpx utmpx-type utmpx-user utmpx-id utmpx-line utmpx-pid utmpx-host utmpx-tv
+   endutxent getutxent getutxid getutxline pututxline setutxent))
+(defstruct (utmpx (:constructor make-utmpx (type user id line pid host tv)))
+  type user id line pid host tv)
+)
+;;; ============================================================
 (defmacro with-stream-lock ((stream &rest options) &body body)
   "Lock the stream, execute the body, unlock the stream."
   `(unwind-protect (progn (stream-lock ,stream t ,@options) ,@body)
