@@ -4542,6 +4542,8 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  <listitem><simpara>&loop; is implemented</simpara></listitem></varlistentry>
 <varlistentry><term><constant>:CLOS</constant></term>
  <listitem><simpara>&clos; is implemented</simpara></listitem></varlistentry>
+<varlistentry><term><constant>:MOP</constant></term>
+ <listitem><simpara>&mop; is implemented</simpara></listitem></varlistentry>
 <varlistentry><term><constant>:WIN32</constant></term>
  <listitem><simpara>if &hw; = PC (clone) and &os; = &win32;
   (Windows 95/98/NT/Me/2000/XP)</simpara></listitem></varlistentry>

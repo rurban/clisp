@@ -94,6 +94,7 @@ User visible changes
   See <http://clisp.cons.org/impnotes.html#mop-chap> for details,
   and <http://clisp.cons.org/impnotes.html#mop-clisp> for a list
   of differences between CLISP and "The Art of the Metaobject Protocol".
+  *FEATURES* now contains :MOP.
 
 * CLISP now supports programming with case sensitive symbols. This is the
   default when CLISP is started with the new command line option "-modern".
