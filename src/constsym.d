@@ -1531,7 +1531,7 @@ LISPSYM(LLallow_other_keys,"&ALLOW-OTHER-KEYS",lisp) /* lambda list marker in EV
 LISPSYM(LLrest,"&REST",lisp) /* lambda list marker in EVAL */
 LISPSYM(LLaux,"&AUX",lisp) /* lambda list marker in EVAL */
 LISPSYM(LLbody,"&BODY",lisp) /* lambda list marker in EVAL */
-LISPSYM(macro,"MACRO",ext) /* marker in EVAL, as type in PREDTYPE */
+LISPSYM(macro,"MACRO",system) /* marker in EVAL, type in PREDTYPE */
 LISPSYM(special,"SPECIAL",lisp) /* declaration-specifier in EVAL */
 LISPSYM(source,"SOURCE",system) /* declaration-specifier in EVAL */
 LISPSYM(optimize,"OPTIMIZE",lisp) /* declaration-specifier in EVAL */
