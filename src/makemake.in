@@ -1802,17 +1802,17 @@ fi
 # target${HEXE}.
 if [ $HSYS != win32msvc -a $HSYS != win32bc ] ; then
   echotab_to_HEXE () {
-  echotab "$1 $2 -o $3${HEXE}"
+    echotab "$1 $2 -o $3${HEXE}"
   }
 else
   if [ $HSYS = win32msvc ] ; then
     echotab_to_HEXE () {
-    echotab "$1 $2 /Fe$3${HEXE}"
+      echotab "$1 $2 /Fe$3${HEXE}"
     }
   fi
   if [ $HSYS = win32bc ] ; then
     echotab_to_HEXE () {
-    echotab "$1 -e$3${HEXE} $2"
+      echotab "$1 -e$3${HEXE} $2"
     }
   fi
 fi
