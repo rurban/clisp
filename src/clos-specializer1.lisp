@@ -13,23 +13,15 @@
 
 (defvar *<specializer>-defclass*
   '(defclass specializer (standard-stablehash metaobject)
-     (($direct-generic-functions ; weak-list or weak-hash-table of GFs that use
-                                ; this specializer
-        :initform nil)
-      ($direct-methods          ; weak-list or weak-hash-table of methods that
+     (($direct-methods          ; weak-list or weak-hash-table of methods that
                                 ; use this specializer
         :initform nil))
      (:fixed-slot-locations)))
 
 ;; Fixed slot locations.
-(defconstant *<specializer>-direct-generic-functions-location* 2)
-(defconstant *<specializer>-direct-methods-location* 3)
+(defconstant *<specializer>-direct-methods-location* 2)
 
 ;; Preliminary accessors.
-(defun specializer-direct-generic-functions-table (object)
-  (sys::%record-ref object *<specializer>-direct-generic-functions-location*))
-(defun (setf specializer-direct-generic-functions-table) (new-value object)
-  (setf (sys::%record-ref object *<specializer>-direct-generic-functions-location*) new-value))
 (defun specializer-direct-methods-table (object)
   (sys::%record-ref object *<specializer>-direct-methods-location*))
 (defun (setf specializer-direct-methods-table) (new-value object)
@@ -42,7 +34,6 @@
   (unless *classes-finished*
     ; Bootstrapping: Simulate the effect of #'%shared-initialize.
     (when (eq situation 't) ; called from initialize-instance?
-      (setf (specializer-direct-generic-functions-table specializer) nil)
       (setf (specializer-direct-methods-table specializer) nil)))
   specializer)
 
@@ -58,13 +49,15 @@
 (defvar *<eql-specializer>-class-version* (make-class-version))
 
 ;; Fixed slot locations.
-(defconstant *<eql-specializer>-singleton-location* 4)
+(defconstant *<eql-specializer>-singleton-location* 3)
 
 ;; Preliminary accessors.
 (defun eql-specializer-singleton (object)
   (sys::%record-ref object *<eql-specializer>-singleton-location*))
 (defun (setf eql-specializer-singleton) (new-value object)
   (setf (sys::%record-ref object *<eql-specializer>-singleton-location*) new-value))
+
+(defconstant *<eql-specializer>-instance-size* 4)
 
 ;; Initialization of an <eql-specializer> instance.
 (defun shared-initialize-<eql-specializer> (specializer situation &rest args
@@ -89,7 +82,7 @@
   ;; Don't add functionality here! This is a preliminary definition that is
   ;; replaced with #'make-instance later.
   (declare (ignore class))
-  (let ((specializer (allocate-metaobject-instance *<eql-specializer>-class-version* 5)))
+  (let ((specializer (allocate-metaobject-instance *<eql-specializer>-class-version* *<eql-specializer>-instance-size*)))
     (apply #'initialize-instance-<eql-specializer> specializer args)))
 
 ;; Type test.

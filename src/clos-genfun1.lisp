@@ -15,7 +15,7 @@
 (defparameter *<funcallable-standard-class>-class-version*
   (class-current-version <funcallable-standard-class>))
 
-(defconstant *<funcallable-standard-class>-instance-size* 27)
+(defconstant *<funcallable-standard-class>-instance-size* 26)
 
 (defun make-instance-<funcallable-standard-class> (metaclass &rest args
                                                    &key name

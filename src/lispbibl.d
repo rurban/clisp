@@ -5574,7 +5574,6 @@ typedef struct {
   SRECORD_HEADER
   gcv_object_t inst_class_version       _attribute_aligned_object_; # indirect pointer to a CLOS-class
   gcv_object_t hashcode                 _attribute_aligned_object_; # GC invariant hash code
-  gcv_object_t direct_generic_functions _attribute_aligned_object_; # set of GFs that use this specializer
   gcv_object_t direct_methods           _attribute_aligned_object_; # set of methods that use this specializer
   gcv_object_t classname                _attribute_aligned_object_; # a symbol
   gcv_object_t direct_superclasses      _attribute_aligned_object_; # direct superclasses
