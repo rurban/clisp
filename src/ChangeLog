@@ -1,3 +1,7 @@
+2002-07-15  Sam Steingold  <sds@gnu.org>
+
+	* _distmakefile (clisp): new target for installing locally
+
 2002-07-13  Sam Steingold  <sds@gnu.org>
 
 	ported DIR-KEY to cygwin32

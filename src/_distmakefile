@@ -68,6 +68,13 @@ full/lisp.run : @@FULL_FILES@@
 	$(CC) $(CFLAGS) @@FULL_LIBS@@ -o full/lisp.run
 
 #endif
+clisp: src/clisp.c
+#ifdef UNIX_BINARY_DISTRIB
+	./hardcode -DLISPLIBDIR='`pwd`' -DLOCALEDIR='`pwd`/locale' clisp clisp
+#else /* new executable */
+	$(CC) $(CFLAGS) -DLISPLIBDIR='"'`pwd`'"' -DLOCALEDIR='"'`pwd`/locale'"' src/clisp.c -o clisp
+#endif
+
 install : install-bin install-man install-doc
 
 install-bin : all force
