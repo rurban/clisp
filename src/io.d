@@ -4022,7 +4022,7 @@ LISPFUNN(structure_reader,3) { # reads #S
         var object clas = get(name,S(closclass));
         if (boundp(clas)) {
           # clas must be a <structure-class> instance:
-          if_classp(clas, {
+          if_defined_class_p(clas, {
             if (srecord_length(TheClass(clas)) > built_in_class_length)
               if (mconsp(TheClass(clas)->current_version)) {
                 # fetch constructor-function:
@@ -8118,7 +8118,7 @@ local void pr_structure_default (const gcv_object_t* stream_, object structure)
     pushSTACK(clas);
     # stack layout: structure, name, clas.
     # clas must be an instance of <structure-class> !
-    if_classp(clas, ; , goto bad_clas; );
+    if_defined_class_p(clas, ; , goto bad_clas; );
     if (srecord_length(TheClass(clas)) <= built_in_class_length) goto bad_clas;
     if (matomp(TheClass(clas)->current_version)) {
      bad_clas:

@@ -821,7 +821,7 @@
     (apply #'shared-initialize instance added-slots initargs))
   #| ;; MOP p. 57, 61, 64, 67.
      ;; This is not needed, because the tests for <metaobject> in
-     ;; reinitialize-instance-<class> and
+     ;; reinitialize-instance-<defined-class> and
      ;; make-instances-obsolete-<semi-standard-class>-nonrecursive
      ;; prevent metaobject instances from being updated.
   (:method ((instance metaobject) added-slots discarded-slots

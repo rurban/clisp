@@ -13,10 +13,10 @@
                 nil ; $direct-generic-functions
                 nil ; $direct-methods
                 nil ; $classname
+                nil ; $direct-subclasses
                 nil ; $direct-superclasses
                 nil ; $all-superclasses
                 nil ; $precedence-list
-                nil ; $direct-subclasses
                 nil ; $direct-slots
                 nil ; $slots
                 nil ; $slot-location-table

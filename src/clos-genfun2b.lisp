@@ -654,7 +654,7 @@
     ; Check the method-class.
     (unless method-class-p
       (setq method-class <standard-method>))
-    (unless (class-p method-class)
+    (unless (defined-class-p method-class)
       (error (TEXT "(~S ~S) for generic function ~S: The ~S argument should be a class, not ~S")
              (if (eq situation 't) 'initialize-instance 'shared-initialize)
              'standard-generic-function (funcallable-name gf)

@@ -213,7 +213,7 @@ local object valid_type1 (object name) {
         }
       }
     }
-  } else if_classp(name, {
+  } else if_defined_class_p(name, {
     if (eq(name,O(class_list)))
       { name = S(list); goto expanded_unconstrained; }
     if (eq(name,O(class_null)))

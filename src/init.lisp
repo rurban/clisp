@@ -467,7 +467,8 @@
           slot-makunbound-using-class
           standard-instance-access funcallable-standard-instance-access
           ;; MOP for classes
-          class built-in-class structure-class standard-class
+          class forward-referenced-class
+          built-in-class structure-class standard-class
           class-name class-direct-superclasses class-precedence-list
           class-direct-subclasses class-direct-slots class-slots
           class-direct-default-initargs class-default-initargs class-prototype

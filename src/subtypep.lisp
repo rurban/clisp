@@ -1300,7 +1300,7 @@
         ((FUNCTION #+FFI FFI::FOREIGN-FUNCTION)
          ;; FUNCTION is not a category of its own, because of GENERIC-FUNCTION.
          'STANDARD-OBJECT)
-        (t (cond ((clos::class-p type)
+        (t (cond ((clos::defined-class-p type)
                   (if (clos::structure-class-p type)
                     'STRUCTURE-OBJECT
                     'STANDARD-OBJECT))
@@ -1624,7 +1624,7 @@
               (TEXT "~S: type specification ~S is only valid for declaration, not for discrimination")
               'subtypep type))
            (t (typespec-error 'subtypep type))))
-        ((clos::class-p type)
+        ((clos::defined-class-p type)
          (if (and (clos::built-in-class-p type)
                   (eq (get (clos:class-name type) 'CLOS::CLOSCLASS) type))
            (canonicalize-type (clos:class-name type))

@@ -13,7 +13,7 @@
 ;; initialized, but must be done in a _primary_ initialize-instance method,
 ;; so that it doesn't interfere with :after/:around methods that a user could
 ;; install. See MOP p. 60.
-(defmethod initialize-instance ((class class) &rest args)
+(defmethod initialize-instance ((class defined-class) &rest args)
   (declare (ignore args))
   (call-next-method) ; == (apply #'shared-initialize class 't args)
   (install-class-direct-accessors class)
@@ -53,8 +53,10 @@
   (setf (sys::%record-ref class *<class>-classname-location*) new-value))
 ;; MOP p. 76
 (defgeneric class-name (class)
-  (:method ((class class))
+  (:method ((class defined-class))
     (check-class-initialized class 1)
+    (class-classname class))
+  (:method ((class forward-referenced-class))
     (class-classname class)))
 ; No extended method check because this GF is specified in ANSI CL.
 ;(initialize-extended-method-check #'class-name)
@@ -74,36 +76,6 @@
     new-value))
 (initialize-extended-method-check #'(setf class-name))
 
-;; MOP p. 76
-(defgeneric class-direct-superclasses (class)
-  (:method ((class class))
-    (check-class-initialized class 2)
-    (sys::%record-ref class *<class>-direct-superclasses-location*)))
-(initialize-extended-method-check #'class-direct-superclasses)
-;; Not in MOP.
-(defun (setf class-direct-superclasses) (new-value class)
-  (accessor-typecheck class 'class '(setf class-direct-superclasses))
-  (setf (sys::%record-ref class *<class>-direct-superclasses-location*) new-value))
-
-;; Not in MOP.
-(defun class-all-superclasses (class)
-  (accessor-typecheck class 'class 'class-all-superclasses)
-  (sys::%record-ref class *<class>-all-superclasses-location*))
-(defun (setf class-all-superclasses) (new-value class)
-  (accessor-typecheck class 'class '(setf class-all-superclasses))
-  (setf (sys::%record-ref class *<class>-all-superclasses-location*) new-value))
-
-;; MOP p. 76
-(defgeneric class-precedence-list (class)
-  (:method ((class class))
-    (check-class-finalized class 3)
-    (sys::%record-ref class *<class>-precedence-list-location*)))
-(initialize-extended-method-check #'class-precedence-list)
-;; Not in MOP.
-(defun (setf class-precedence-list) (new-value class)
-  (accessor-typecheck class 'class '(setf class-precedence-list))
-  (setf (sys::%record-ref class *<class>-precedence-list-location*) new-value))
-
 ;; Not in MOP.
 (defun class-direct-subclasses-table (class)
   (accessor-typecheck class 'class 'class-direct-subclasses-table)
@@ -113,85 +85,132 @@
   (setf (sys::%record-ref class *<class>-direct-subclasses-location*) new-value))
 ;; MOP p. 76
 (defgeneric class-direct-subclasses (class)
-  (:method ((class class))
+  (:method ((class defined-class))
     (check-class-initialized class 2)
+    (list-direct-subclasses class))
+  (:method ((class forward-referenced-class))
     (list-direct-subclasses class)))
+
+;; MOP p. 76
+(defgeneric class-direct-superclasses (class)
+  (:method ((class defined-class))
+    (check-class-initialized class 2)
+    (sys::%record-ref class *<defined-class>-direct-superclasses-location*))
+  (:method ((class forward-referenced-class))
+    ;; Broken MOP. Any use of this method is a bug.
+    (warn (TEXT "~S being called on ~S, but class ~S is not yet defined.")
+          'class-direct-superclasses class (class-classname class))
+    '()))
+(initialize-extended-method-check #'class-direct-superclasses)
+;; Not in MOP.
+(defun (setf class-direct-superclasses) (new-value class)
+  (accessor-typecheck class 'defined-class '(setf class-direct-superclasses))
+  (setf (sys::%record-ref class *<defined-class>-direct-superclasses-location*) new-value))
+
+;; Not in MOP.
+(defun class-all-superclasses (class)
+  (accessor-typecheck class 'defined-class 'class-all-superclasses)
+  (sys::%record-ref class *<defined-class>-all-superclasses-location*))
+(defun (setf class-all-superclasses) (new-value class)
+  (accessor-typecheck class 'defined-class '(setf class-all-superclasses))
+  (setf (sys::%record-ref class *<defined-class>-all-superclasses-location*) new-value))
+
+;; MOP p. 76
+(defgeneric class-precedence-list (class)
+  (:method ((class defined-class))
+    (check-class-finalized class 3)
+    (sys::%record-ref class *<defined-class>-precedence-list-location*)))
+(initialize-extended-method-check #'class-precedence-list)
+;; Not in MOP.
+(defun (setf class-precedence-list) (new-value class)
+  (accessor-typecheck class 'defined-class '(setf class-precedence-list))
+  (setf (sys::%record-ref class *<defined-class>-precedence-list-location*) new-value))
 
 ;; MOP p. 75
 (defgeneric class-direct-slots (class)
-  (:method ((class class))
+  (:method ((class defined-class))
     (check-class-initialized class 2)
-    (sys::%record-ref class *<class>-direct-slots-location*)))
+    (sys::%record-ref class *<defined-class>-direct-slots-location*))
+  (:method ((class forward-referenced-class))
+    ;; Broken MOP. Any use of this method is a bug.
+    (warn (TEXT "~S being called on ~S, but class ~S is not yet defined.")
+          'class-direct-slots class (class-classname class))
+    '()))
 (initialize-extended-method-check #'class-direct-slots)
 ;; Not in MOP.
 (defun (setf class-direct-slots) (new-value class)
-  (accessor-typecheck class 'class '(setf class-direct-slots))
-  (setf (sys::%record-ref class *<class>-direct-slots-location*) new-value))
+  (accessor-typecheck class 'defined-class '(setf class-direct-slots))
+  (setf (sys::%record-ref class *<defined-class>-direct-slots-location*) new-value))
 
 ;; MOP p. 77
 (defgeneric class-slots (class)
-  (:method ((class class))
+  (:method ((class defined-class))
     (check-class-finalized class 5)
-    (sys::%record-ref class *<class>-slots-location*)))
+    (sys::%record-ref class *<defined-class>-slots-location*)))
 (initialize-extended-method-check #'class-slots)
 ;; Not in MOP.
 (defun (setf class-slots) (new-value class)
-  (accessor-typecheck class 'class '(setf class-slots))
-  (setf (sys::%record-ref class *<class>-slots-location*) new-value))
+  (accessor-typecheck class 'defined-class '(setf class-slots))
+  (setf (sys::%record-ref class *<defined-class>-slots-location*) new-value))
 
 ;; Not in MOP.
 (defun class-slot-location-table (class)
-  (accessor-typecheck class 'class 'class-slot-location-table)
-  (sys::%record-ref class *<class>-slot-location-table-location*))
+  (accessor-typecheck class 'defined-class 'class-slot-location-table)
+  (sys::%record-ref class *<defined-class>-slot-location-table-location*))
 (defun (setf class-slot-location-table) (new-value class)
-  (accessor-typecheck class 'class '(setf class-slot-location-table))
-  (setf (sys::%record-ref class *<class>-slot-location-table-location*) new-value))
+  (accessor-typecheck class 'defined-class '(setf class-slot-location-table))
+  (setf (sys::%record-ref class *<defined-class>-slot-location-table-location*) new-value))
 
 ;; MOP p. 75
 (defgeneric class-direct-default-initargs (class)
-  (:method ((class class))
+  (:method ((class defined-class))
     (check-class-initialized class 2)
-    (sys::%record-ref class *<class>-direct-default-initargs-location*)))
+    (sys::%record-ref class *<defined-class>-direct-default-initargs-location*))
+  (:method ((class forward-referenced-class))
+    ;; Broken MOP. Any use of this method is a bug.
+    (warn (TEXT "~S being called on ~S, but class ~S is not yet defined.")
+          'class-direct-default-initargs class (class-classname class))
+    '()))
 (initialize-extended-method-check #'class-direct-default-initargs)
 ;; Not in MOP.
 (defun (setf class-direct-default-initargs) (new-value class)
-  (accessor-typecheck class 'class '(setf class-direct-default-initargs))
-  (setf (sys::%record-ref class *<class>-direct-default-initargs-location*) new-value))
+  (accessor-typecheck class 'defined-class '(setf class-direct-default-initargs))
+  (setf (sys::%record-ref class *<defined-class>-direct-default-initargs-location*) new-value))
 
 ;; MOP p. 75
 (defgeneric class-default-initargs (class)
-  (:method ((class class))
+  (:method ((class defined-class))
     (check-class-finalized class 6)
-    (sys::%record-ref class *<class>-default-initargs-location*)))
+    (sys::%record-ref class *<defined-class>-default-initargs-location*)))
 (initialize-extended-method-check #'class-default-initargs)
 ;; Not in MOP.
 (defun (setf class-default-initargs) (new-value class)
-  (accessor-typecheck class 'class '(setf class-default-initargs))
-  (setf (sys::%record-ref class *<class>-default-initargs-location*) new-value))
+  (accessor-typecheck class 'defined-class '(setf class-default-initargs))
+  (setf (sys::%record-ref class *<defined-class>-default-initargs-location*) new-value))
 
 ;; Not in MOP.
 (defun class-documentation (class)
-  (accessor-typecheck class 'class 'class-documentation)
-  (sys::%record-ref class *<class>-documentation-location*))
+  (accessor-typecheck class 'defined-class 'class-documentation)
+  (sys::%record-ref class *<defined-class>-documentation-location*))
 (defun (setf class-documentation) (new-value class)
-  (accessor-typecheck class 'class '(setf class-documentation))
-  (setf (sys::%record-ref class *<class>-documentation-location*) new-value))
+  (accessor-typecheck class 'defined-class '(setf class-documentation))
+  (setf (sys::%record-ref class *<defined-class>-documentation-location*) new-value))
 
 ;; Not in MOP.
 (defun class-listeners (class)
-  (accessor-typecheck class 'class 'class-listeners)
-  (sys::%record-ref class *<class>-listeners-location*))
+  (accessor-typecheck class 'defined-class 'class-listeners)
+  (sys::%record-ref class *<defined-class>-listeners-location*))
 (defun (setf class-listeners) (new-value class)
-  (accessor-typecheck class 'class '(setf class-listeners))
-  (setf (sys::%record-ref class *<class>-listeners-location*) new-value))
+  (accessor-typecheck class 'defined-class '(setf class-listeners))
+  (setf (sys::%record-ref class *<defined-class>-listeners-location*) new-value))
 
 ;; Not in MOP.
 (defun class-initialized (class)
-  (accessor-typecheck class 'class 'class-initialized)
-  (sys::%record-ref class *<class>-initialized-location*))
+  (accessor-typecheck class 'defined-class 'class-initialized)
+  (sys::%record-ref class *<defined-class>-initialized-location*))
 (defun (setf class-initialized) (new-value class)
-  (accessor-typecheck class 'class '(setf class-initialized))
-  (setf (sys::%record-ref class *<class>-initialized-location*) new-value))
+  (accessor-typecheck class 'defined-class '(setf class-initialized))
+  (setf (sys::%record-ref class *<defined-class>-initialized-location*) new-value))
 
 ;; Not in MOP.
 (defun class-subclass-of-stablehash-p (class)
@@ -324,7 +343,7 @@
 
 ;; Not in MOP.
 (defgeneric compute-direct-slot-definition-initargs (class &rest slot-spec)
-  (:method ((class class) &rest slot-spec)
+  (:method ((class defined-class) &rest slot-spec)
     slot-spec))
 
 ;;; ===========================================================================
@@ -333,8 +352,10 @@
 
 ;; MOP p. 76
 (defgeneric class-finalized-p (class)
-  (:method ((class class))
+  (:method ((class defined-class))
     (= (class-initialized class) 6))
+  (:method ((class forward-referenced-class))
+    nil)
   ;; CLISP extension: Convenience method on symbols.
   (:method ((name symbol))
     (class-finalized-p (find-class name))))
@@ -345,7 +366,7 @@
   (:method ((class semi-standard-class))
     (finalize-class class t))
   ;; CLISP extension: No-op method on other classes.
-  (:method ((class class))
+  (:method ((class defined-class))
     class)
   ;; CLISP extension: Convenience method on symbols.
   (:method ((name symbol))
@@ -354,31 +375,31 @@
 
 ;; MOP p. 38
 (defgeneric compute-class-precedence-list (class)
-  (:method ((class class))
-    (compute-class-precedence-list-<class> class)))
+  (:method ((class defined-class))
+    (compute-class-precedence-list-<defined-class> class)))
 
 ;; Not in MOP.
 (defgeneric compute-effective-slot-definition-initargs (class direct-slot-definitions)
-  (:method ((class class) direct-slot-definitions)
-    (compute-effective-slot-definition-initargs-<class> class direct-slot-definitions)))
+  (:method ((class defined-class) direct-slot-definitions)
+    (compute-effective-slot-definition-initargs-<defined-class> class direct-slot-definitions)))
 
 ;; MOP p. 42
 (defgeneric compute-effective-slot-definition (class slotname direct-slot-definitions)
-  (:method ((class class) slotname direct-slot-definitions)
-    (compute-effective-slot-definition-<class> class slotname direct-slot-definitions)))
+  (:method ((class defined-class) slotname direct-slot-definitions)
+    (compute-effective-slot-definition-<defined-class> class slotname direct-slot-definitions)))
 
 ;; MOP p. 43
 (defgeneric compute-slots (class)
   (:method ((class semi-standard-class))
-    (compute-slots-<class>-primary class))
+    (compute-slots-<defined-class>-primary class))
   (:method :around ((class semi-standard-class))
     (compute-slots-<slotted-class>-around class
       #'(lambda (c) (call-next-method c)))))
 
 ;; MOP p. 39
 (defgeneric compute-default-initargs (class)
-  (:method ((class class))
-    (compute-default-initargs-<class> class)))
+  (:method ((class defined-class))
+    (compute-default-initargs-<defined-class> class)))
 
 ;;; ===========================================================================
 
@@ -439,12 +460,12 @@
 
 ;; MOP p. 86
 (defgeneric reader-method-class (class direct-slot &rest initargs)
-  (:method ((class class) direct-slot &rest initargs)
+  (:method ((class defined-class) direct-slot &rest initargs)
     (declare (ignore direct-slot initargs))
     <standard-reader-method>))
 
 ;; MOP p. 103
 (defgeneric writer-method-class (class direct-slot &rest initargs)
-  (:method ((class class) direct-slot &rest initargs)
+  (:method ((class defined-class) direct-slot &rest initargs)
     (declare (ignore direct-slot initargs))
     <standard-writer-method>))

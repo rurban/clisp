@@ -10,15 +10,22 @@
 ;;; Lift the initialization protocol.
 
 (defmethod shared-initialize ((class class) situation &rest args
+                              &key name)
+  (declare (ignore name))
+  (apply #'shared-initialize-<class> class situation args))
+
+;;; ===========================================================================
+
+(defmethod shared-initialize ((class defined-class) situation &rest args
                               &key name direct-superclasses direct-slots
                                    direct-default-initargs documentation)
   (declare (ignore name direct-superclasses direct-slots
                    direct-default-initargs documentation))
-  (apply #'shared-initialize-<class> class situation args))
+  (apply #'shared-initialize-<defined-class> class situation args))
 
-(defmethod reinitialize-instance ((class class) &rest args
+(defmethod reinitialize-instance ((class defined-class) &rest args
                                   &key &allow-other-keys)
-  (apply #'reinitialize-instance-<class> class args))
+  (apply #'reinitialize-instance-<defined-class> class args))
 
 ;;; ===========================================================================
 

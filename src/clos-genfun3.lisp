@@ -99,7 +99,7 @@
     (error-of-type 'program-error
       (TEXT "~S: the name of a function must be a symbol, not ~S")
       'ensure-generic-function-using-class funname))
-  (unless (class-p generic-function-class)
+  (unless (defined-class-p generic-function-class)
     (if (symbolp generic-function-class)
       (setq generic-function-class (find-class generic-function-class))
       (error (TEXT "~S for generic-function ~S: generic-function-class ~S is neither a class or a symbol")
@@ -111,7 +111,7 @@
   (setq all-keys (copy-list all-keys))
   (remf all-keys ':generic-function-class)
   (when method-class-p
-    (unless (class-p method-class)
+    (unless (defined-class-p method-class)
       (if (symbolp method-class)
         (setq method-class (find-class method-class))
         (error (TEXT "~S for generic-function ~S: method-class ~S is neither a class or a symbol")

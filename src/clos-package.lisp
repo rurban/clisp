@@ -40,7 +40,8 @@
     sys::make-signature         ; defined in functions.lisp
     sys::sig-req-num sys::sig-opt-num sys::sig-rest-p ; likewise
     sys::sig-keys-p sys::sig-keywords sys::sig-allow-p ; likewise
-    ;; clos::class-p clos:class-of clos:find-class ; defined in predtype.d
+    ;; clos::class-p clos::defined-class-p ; defined in predtype.d
+    ;; clos:class-of clos:find-class ; defined in predtype.d
     ;; clos::typep-class        ; defined in predtype.d
     ;; clos::structure-object-p ; defined in record.d
     ;; clos::std-instance-p clos::allocate-std-instance ; defined in record.d
@@ -124,7 +125,8 @@
           slot-makunbound-using-class
           standard-instance-access funcallable-standard-instance-access
           ;; MOP for classes
-          class built-in-class structure-class standard-class
+          class forward-referenced-class
+          built-in-class structure-class standard-class
           class-name class-direct-superclasses class-precedence-list
           class-direct-subclasses class-direct-slots class-slots
           class-direct-default-initargs class-default-initargs class-prototype
