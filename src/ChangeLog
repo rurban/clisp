@@ -1,5 +1,9 @@
 2005-02-07  Bruno Haible  <bruno@clisp.org>
 
+	* foreign.d (object_handle(): Fix the GCTRIGGER statement.
+
+2005-02-07  Bruno Haible  <bruno@clisp.org>
+
 	* spvw_sigsegv.d (print_mem_stats): Fix fprintf statements for 64-bit
 	platforms.
 
