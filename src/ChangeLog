@@ -3,6 +3,8 @@
 	* modules/berkeley-db/bdb.c (time_stamp): new function
 	(CLOSE_ERRFILE): call time_stamp() before fclose()
 	(my_fopen): call time_stamp() after fopen()
+	* modules/berkeley-db/configure.in: check for gettimeofday(),
+	localtime() and strftime()
 
 2004-08-04  Sam Steingold  <sds@gnu.org>
 

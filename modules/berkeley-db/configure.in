@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for Berkeley-DB
-dnl Copyright (C) 2003  Sam Steingold <sds@gnu.org>
+dnl Copyright (C) 2003-2004  Sam Steingold <sds@gnu.org>
 dnl GNU GPL2
 
 AC_PREREQ(2.57)
@@ -23,6 +23,7 @@ AC_SEARCH_LIBS(db_env_create, db)
 if test "$ac_cv_search_db_env_create" = "no"; then
   AC_MSG_ERROR([cannot find Berkeley-DB library])
 fi
+AC_CHECK_FUNCS(gettimeofday localtime strftime)
 
 AC_MSG_NOTICE([ * Berkeley-DB (Output):])
 AC_CONFIG_FILES(Makefile link.sh)
