@@ -1298,6 +1298,12 @@
 
 (defconstant *STATE-MASK-VECTOR*
   '#(:shift :lock :control :mod-1 :mod-2 :mod-3 :mod-4 :mod-5 :button-1 :button-2 :button-3 :button-4 :button-5))
+(defconstant *GCONTEXT-COMPONENTS*
+  '(:DRAWABLE :FUNCTION :PLANE-MASK :FOREGROUND :BACKGROUND
+    :LINE-WIDTH :LINE-STYLE :CAP-STYLE :JOIN-STYLE :FILL-STYLE
+    :FILL-RULE :ARC-MODE :TILE :STIPPLE :TS-X :TS-Y :FONT
+    :SUBWINDOW-MODE :EXPOSURES :CLIP-X :CLIP-Y :CLIP-MASK
+    :CLIP-ORDERING :DASH-OFFSET :DASHES :CACHE-P))
 
 ;; What has that to do with graphics?!
 (defparameter *keyword-package* (find-package :keyword))
