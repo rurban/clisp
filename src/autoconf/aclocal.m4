@@ -11604,9 +11604,10 @@ dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 AC_PREREQ(2.57)
 
 AC_DEFUN([CL_RLIMIT],
-[AC_CHECK_FUNCS(setrlimit)dnl
-AC_CHECK_FUNCS(getrlimit)dnl
+[AC_CHECK_FUNCS(getrlimit setrlimit)dnl
 if test $ac_cv_func_setrlimit = yes; then
+AC_CHECK_SIZEOF(rlim_t,,[#include <stdio.h>
+#include <sys/resource.h>])
 CL_PROTO([getrlimit], [
 CL_PROTO_TRY([
 #include <stdlib.h>
