@@ -2054,7 +2054,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 
 <listitem><para>Run and try it:
 
-<programlisting>$ base+linux/lisp.run -M base+linux/lispinit.mem &gt; (linux::stat "/tmp")</programlisting></para></listitem>
+<programlisting>$ base+linux/lisp.run -M base+linux/lispinit.mem -x '(linux:stat "/tmp")'</programlisting></para></listitem>
 
 </orderedlist>
 
