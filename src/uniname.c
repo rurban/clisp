@@ -24,11 +24,7 @@
 #include "uniname.h"
 
 #include <assert.h>
-#ifdef HAVE_STDBOOL_H
-#  include <stdbool.h>
-#else
-#  include "stdbool.h"
-#endif
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 

@@ -1,3 +1,11 @@
+2002-06-03  Sam Steingold  <sds@gnu.org>
+
+	build process: tweak 2002-05-30 patch: instead of relying on
+	HAVE_*_H, add "." to the include path (-I.) and #include <...>
+	* makemake.in (XCFLAGS): add -I. when STDBOOL_H and STDINT_H
+	are non-void
+	* lispbibl.d, uniname.c, unitypes.h: #include <...>
+
 2002-05-31  Sam Steingold  <sds@gnu.org>
 
 	tweaked the last two win32 patches
