@@ -1,5 +1,11 @@
 2004-04-25  Bruno Haible  <bruno@clisp.org>
 
+	* utils/clispload.lsp (*expected-failures*): Add IMAGPART.4,
+	MAKE-INSTANCES-OBSOLETE.2, TYPES.7B, TYPES.7C, USER-CLASS-DISJOINTNESS,
+	USER-CLASS-DISJOINTNESS-2, TAC-3.16. Remove SHARED-INITIALIZE.ERROR.4.
+
+2004-04-25  Bruno Haible  <bruno@clisp.org>
+
 	Add keyword argument checking to UPDATE-INSTANCE-FOR-REDEFINED-CLASS
 	and UPDATE-INSTANCE-FOR-DIFFERENT-CLASS.
 	* clos-class5.lisp (*update-instance-for-redefined-class-table*,
