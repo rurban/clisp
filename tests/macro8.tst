@@ -104,3 +104,13 @@ halibut
 (ecase 'otherwise
   (otherwise 4))
 4
+
+;; Issue MACRO-FUNCTION-ENVIRONMENT:YES
+(macrolet ((foo (&environment env)
+              (if (macro-function 'bar env)
+                 ''yes
+                 ''no)))
+   (list (foo)
+         (macrolet ((bar () :beep))
+            (foo))))
+(no yes)

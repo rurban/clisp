@@ -94,9 +94,8 @@
       (multiple-value-bind (a b c) (fenv-search (car form) (svref env 1))
         (declare (ignore c))
         (cond ((eq a 'system::macro) (values (funcall b form env) t))
-              ((macro-function (car form))
-               (values (funcall (macro-function (car form)) form env) t)
-              )
+              ((macro-function (car form) env)
+               (values (funcall (macro-function (car form) env) form env) t))
               (t (values form nil))
       ) )
       (if (symbolp form)
@@ -1343,7 +1342,7 @@ for-value   NIL oder T
           ;(machine-instance 0 0 nil nil nil)
           ;(machine-type 0 0 nil nil nil)
           ;(machine-version 0 0 nil nil nil)
-          (macro-function 1 0 nil nil nil)
+          (macro-function 1 1 nil nil nil)
           (macroexpand 1 1 nil nil nil)
           (macroexpand-1 1 1 nil nil nil)
           (make-array 1 0 nil (:adjustable :element-type :initial-element :initial-contents :fill-pointer :displaced-to :displaced-index-offset) nil)
@@ -3145,22 +3144,23 @@ der Docstring (oder NIL).
               (declare (ignore b))
               (if (null a)
                 ; nicht lokal definiert
-                (let ((handler (gethash fun c-form-table)))
+                (let ((handler (gethash fun c-form-table))
+                      (env (vector *venv* *fenv*)))
                   (if handler ; Behandlungsfunktion gefunden?
                     ; also (symbolp fun)
-                    (if (or (and (special-operator-p fun) (not (macro-function fun)))
-                            (not (declared-notinline fun))
-                        )
+                    (if (or (and (special-operator-p fun)
+                                 (not (macro-function fun env)))
+                            (not (declared-notinline fun)))
                       (funcall handler) ; ja -> aufrufen
-                      (if (macro-function fun)
-                        (c-form (macroexpand-1 *form* (vector *venv* *fenv*))) ; -> expandieren
+                      (if (macro-function fun env)
+                        (c-form (macroexpand-1 *form* env)) ; -> expandieren
                         ; normaler Aufruf globaler Funktion
                         (c-GLOBAL-FUNCTION-CALL fun)
                     ) )
                     ; nein -> jedenfalls keine Special-Form (die sind ja
                     ; alle in der Tabelle).
                     (if (and (symbolp fun) (macro-function fun)) ; globaler Macro ?
-                      (c-form (macroexpand-1 *form* (vector *venv* *fenv*))) ; -> expandieren
+                      (c-form (macroexpand-1 *form* env)) ; -> expandieren
                       ; globale Funktion
                       (if (and (equal fun (fnode-name *func*))
                                (not (declared-notinline fun))

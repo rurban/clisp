@@ -16,6 +16,9 @@ User visible changes
 * Conforming to ANSI CL issues <KEYWORD-ARGUMENT-NAME-PACKAGE:ANY> and
   <MULTIPLE-VALUE-SETQ-ORDER:LIKE-SETF-OF-VALUES>.
 
+* Conforming to ANSI CL Issue <MACRO-FUNCTION-ENVIRONMENT:YES>
+  MACRO-FUNCTION now takes an optional second argument ENV.
+
 * When CLISP is invoked with an "-a" option, *features* contain :ANSI-CL.
 
 * Weak pointers are implemented. New functions MAKE-WEAK-POINTER,
