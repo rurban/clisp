@@ -1476,12 +1476,12 @@ performance considerations.
 <section id="num-dict"><title>The Numbers Dictionary
    <ulink url="&clhs;/Body/sec_the_numbers_dictionary.html">[CLHS-12.2]</ulink></title>
 
-<formalpara><title>Function &upgraded-complex-part-type;</title>
+<formalpara id="ucpt"><title>Function &upgraded-complex-part-type;</title>
 <para>When the argument is not a &recog-subt; or &real-t;,
- &upgraded-complex-part-type; &signal;s an &error-t;,
- otherwise it returns &real-t;, since a &complex-t; number in
- &clisp; can always have &realpart; and &imagpart; of any type.
-</para></formalpara>
+ &upgraded-complex-part-type; &signal;s an &error-t;, otherwise it
+ returns its argument (even though a &complex-t; number in &clisp; can
+ always have &realpart; and &imagpart; of any type) because it allows
+ the most precise type inference.</para></formalpara>
 
 <formalpara id="default-float-format">
  <title>Variable &default-float-format;</title>
