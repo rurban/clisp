@@ -1556,20 +1556,15 @@ performance considerations.
 <section id="fixnum-lim"><title>Fixnum Limits
   <ulink url="&clhs;/Body/convar_most-p_ative-fixnum.html">[CLHS]</ulink></title>
 
- <table id="fixnum-lim-table" frame="all"><title>Fixnum limits</title>
-  <tgroup cols="4" colsep="1" rowsep="1" align="center">&cpu-type-header;
-   <tbody>
-    <row><entry>&most-positive-fixnum;</entry>
-     <entry namest="b16" nameend="b32" align="center"
-            >2<superscript>24</superscript>-1 = 16777215</entry>
-     <entry>2<superscript>32</superscript>-1 = 4294967295</entry></row>
-    <row><entry>&most-negative-fixnum;</entry>
-     <entry namest="b16" nameend="b32" align="center"
-            >-2<superscript>24</superscript> = -16777216</entry>
-     <entry>-2<superscript>32</superscript> = -4294967296</entry></row>
- </tbody></tgroup></table>
-
-</section>
+<table id="fixnum-lim-table" frame="all"><title>Fixnum limits</title>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">&cpu-type-header;<tbody>
+   <row><entry>&most-positive-fixnum;</entry>
+    <entry>2<superscript>24</superscript>-1 = 16777215</entry>
+    <entry>2<superscript>32</superscript>-1 = 4294967295</entry></row>
+   <row><entry>&most-negative-fixnum;</entry>
+    <entry>-2<superscript>24</superscript> = -16777216</entry>
+    <entry>-2<superscript>32</superscript> = -4294967296</entry></row>
+</tbody></tgroup></table></section>
 
 <section id="float-lim"><title>Float Limits
   <ulink url="&clhs;/Body/convar_most-p_d-long-float.html">[CLHS]</ulink></title>
@@ -2247,22 +2242,17 @@ and the international alphabetic characters from the character set:
    <ulink url="&clhs;/Body/sec_15-1-1.html">[CLHS-15.1.1]</ulink></title>
 
 <table id="array-limit-table" frame="all"><title>Array limits</title>
- <tgroup cols="4" colsep="1" rowsep="1" align="center">&cpu-type-header;
- <tbody>
- <row><entry>&array-rank-limit;</entry>
-      <entry namest="b16" nameend="b64" align="center"
-            >2<superscript>12</superscript> = 4096</entry></row>
- <row><entry>&array-dimension-limit;</entry>
-      <entry namest="b16" nameend="b32" align="center"
-            >2<superscript>24</superscript>-1 = 16777215</entry>
-      <entry>2<superscript>32</superscript>-1 = 4294967295</entry></row>
- <row><entry>&array-total-size-limit;</entry>
-      <entry namest="b16" nameend="b32" align="center"
-            >2<superscript>24</superscript>-1 = 16777215</entry>
-      <entry>2<superscript>32</superscript>-1 = 4294967295</entry></row>
-</tbody></tgroup></table>
-
-</section>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">&cpu-type-header;<tbody>
+   <row><entry>&array-rank-limit;</entry>
+    <entry namest="b32" nameend="b64" align="center"
+           >2<superscript>12</superscript> = 4096</entry></row>
+   <row><entry>&array-dimension-limit;</entry>
+    <entry>2<superscript>24</superscript>-1 = 16777215</entry>
+    <entry>2<superscript>32</superscript>-1 = 4294967295</entry></row>
+   <row><entry>&array-total-size-limit;</entry>
+    <entry>2<superscript>24</superscript>-1 = 16777215</entry>
+    <entry>2<superscript>32</superscript>-1 = 4294967295</entry></row>
+</tbody></tgroup></table></section>
 
 <section id="array-dict"><title>The Arrays Dictionary
    <ulink url="&clhs;/Body/sec_the_arrays_dictionary.html">[CLHS-15.2]</ulink></title>
@@ -2270,7 +2260,7 @@ and the international alphabetic characters from the character set:
 <formalpara><title>Function &adjust-array; for displaced arrays</title>
 <para>An array to which another array is displaced should not be shrunk
  (using &adjust-array;) in such a way that the other array points into
- void space.  This is not checked at the time &adjust-array; is
+ void space.  This cannot be checked at the time &adjust-array; is
  called!</para></formalpara>
 
 </section>
