@@ -1,9 +1,17 @@
 # CLISP .gdbinit
 set language c
 
-define base
+define boot
   file lisp.run
   set args -B . -M lispinit.mem -q -norc
+end
+document boot
+         debug the boot linking set
+end
+
+define base
+  file base/lisp.run
+  set args -B . -M base/lispinit.mem -q -norc
 end
 document base
          debug the base linking set
@@ -24,7 +32,7 @@ define interpreted
   set args -B . -M interpreted.mem -q -norc
 end
 document interpreted
-         debug the base linking set with the interpreted memory image
+         debug the boot linking set with the interpreted memory image
 end
 
 define zout

@@ -1,5 +1,10 @@
 2005-01-12  Sam Steingold  <sds@gnu.org>
 
+	* .gdbinit (boot): new command (formerly know as "base")
+	(base): new command (similar to full)
+
+2005-01-12  Sam Steingold  <sds@gnu.org>
+
 	added FEATUREP (http://clrfi.alu.org/clrfi/clrfi-1-featurep)
 	* io.d (interpret_feature): STACK_1 may not be a stream
 	(FEATUREP): implemented
