@@ -25,16 +25,30 @@
 
 ;; =================== Initialization and Reinitialization ===================
 
-(defun make-generic-function (generic-function-class funname lambda-list argument-precedence-order method-combination method-class declspecs documentation
+(defun make-generic-function (generic-function-class caller whole-form funname lambda-list argument-precedence-order method-combination method-class declspecs documentation user-defined-args
                               &rest methods)
-  (let ((gf (make-generic-function-instance generic-function-class
+  (when user-defined-args
+    ;; Provide good error messages. The error message from
+    ;; MAKE-INSTANCE later is unintelligible.
+    (let ((valid-keywords (class-valid-initialization-keywords generic-function-class)))
+      (unless (eq valid-keywords 'T)
+        (dolist (option user-defined-args)
+          (unless (member (first option) valid-keywords)
+            (error-of-type 'ext:source-program-error
+              :form whole-form
+              :detail option
+              (TEXT "~S ~S: invalid ~S option ~S")
+              caller funname 'defgeneric option))))))
+  (let ((gf (apply #'make-generic-function-instance generic-function-class
               :name funname
               :lambda-list lambda-list
               :argument-precedence-order argument-precedence-order
               :method-class method-class
               :method-combination method-combination
               :declarations declspecs
-              :documentation documentation)))
+              :documentation documentation
+              (mapcan #'(lambda (option) (list (first option) (rest option)))
+                      user-defined-args))))
     (dolist (method methods) (std-add-method gf method))
     gf))
 
@@ -158,9 +172,9 @@
 ;; For GENERIC-FLET, GENERIC-LABELS
 ;; like make-generic-function, only that the dispatch-code is
 ;; installed immediately.
-(defun make-generic-function-now (generic-function-class funname lambda-list argument-precedence-order method-combination method-class declspecs documentation
+(defun make-generic-function-now (generic-function-class caller whole-form funname lambda-list argument-precedence-order method-combination method-class declspecs documentation user-defined-args
                                   &rest methods)
-  (let ((gf (apply #'make-generic-function generic-function-class funname lambda-list argument-precedence-order method-combination method-class declspecs documentation methods)))
+  (let ((gf (apply #'make-generic-function generic-function-class caller whole-form funname lambda-list argument-precedence-order method-combination method-class declspecs documentation user-defined-args methods)))
     (install-dispatch gf)
     gf))
 ||#
@@ -240,7 +254,8 @@
 ;; 5. method-class-form,
 ;; 6. declspecs,
 ;; 7. docstring,
-;; 8. method-forms.
+;; 8. user-defined-args,
+;; 9. method-forms.
 (defun analyze-defgeneric (caller whole-form funname lambdalist options)
   (setq funname (sys::check-function-name funname caller))
   ;; Parse the lambdalist:
@@ -252,7 +267,8 @@
         (method-classes nil)
         (argorders nil)
         (declares nil)
-        (docstrings nil))
+        (docstrings nil)
+        (user-defined-args))
     (dolist (option options)
       (unless (listp option)
         (error-of-type 'ext:source-program-error
@@ -364,11 +380,27 @@
         (:METHOD
          (push (analyze-method-description caller whole-form funname (rest option))
                method-forms))
-        (t (error-of-type 'ext:source-program-error
-             :form whole-form
-             :detail option
-             (TEXT "~S ~S: invalid syntax in ~S option: ~S")
-             caller funname 'defgeneric option))))
+        ((:LAMBDA-LIST :DECLARATIONS)
+         (error-of-type 'ext:source-program-error
+           :form whole-form
+           :detail option
+           (TEXT "~S ~S: invalid ~S option: ~S")
+           caller funname 'defgeneric option))
+        (t
+         (let ((optionkey (first option)))
+           (if (symbolp optionkey)
+             (if (assoc optionkey user-defined-args)
+               (error-of-type 'ext:source-program-error
+                 :form whole-form
+                 :detail options
+                 (TEXT "~S ~S: Only one ~S option is allowed.")
+                 caller funname optionkey)
+               (push option user-defined-args))
+             (error-of-type 'ext:source-program-error
+               :form whole-form
+               :detail option
+               (TEXT "~S ~S: invalid syntax in ~S option: ~S")
+               caller funname 'defgeneric option))))))
     ;; Check :argument-precedence-order :
     (multiple-value-bind (signature argument-precedence-order argorder)
         (check-gf-lambdalist+argorder lambdalist (rest argorders) argorders
@@ -410,6 +442,7 @@
                 (cdr declares)
                 ;; docstring or nil
                 (car docstrings)
+                (nreverse user-defined-args)
                 ;; list of the method-forms
                 (mapcar #'(lambda (method-initargs-forms)
                             `(MAKE-METHOD-INSTANCE ,method-class-form
@@ -437,15 +470,31 @@
 
 (defmacro defgeneric (&whole whole-form
                       funname lambda-list &rest options)
-  (multiple-value-bind (generic-function-class-form signature argument-precedence-order method-combination-lambda method-class-form declspecs docstring method-forms)
+  (multiple-value-bind (generic-function-class-form signature argument-precedence-order method-combination-lambda method-class-form declspecs docstring user-defined-args method-forms)
       (analyze-defgeneric 'defgeneric whole-form funname lambda-list options)
-    (let ((generic-function-class-var (gensym)))
+    (let ((generic-function-class-var (gensym))
+          (generic-function-class-keywords-var (gensym)))
       `(LET ()
          (DECLARE (SYS::IN-DEFUN ,funname))
          (COMPILER::EVAL-WHEN-COMPILE
            (COMPILER::C-DEFUN ',funname ',signature nil 'DEFGENERIC))
          ;; NB: no (SYSTEM::REMOVE-OLD-DEFINITIONS ',funname)
-         (LET ((,generic-function-class-var ,generic-function-class-form))
+         (LET* ((,generic-function-class-var ,generic-function-class-form)
+                ,@(if user-defined-args
+                    `((,generic-function-class-keywords-var
+                        (CLASS-VALID-INITIALIZATION-KEYWORDS ,generic-function-class-var)))))
+           ;; Provide good error messages. The error message from
+           ;; ENSURE-GENERIC-FUNCTION (actually MAKE-INSTANCE) later is unintelligible.
+           ,@(if user-defined-args
+               `((UNLESS (EQ ,generic-function-class-keywords-var 'T)
+                   ,@(mapcar #'(lambda (option)
+                                 `(UNLESS (MEMBER ',(first option) ,generic-function-class-keywords-var)
+                                    (ERROR-OF-TYPE 'EXT:SOURCE-PROGRAM-ERROR
+                                      :FORM ',whole-form
+                                      :DETAIL ',option
+                                      (TEXT "~S ~S: invalid option ~S")
+                                      'DEFGENERIC ',funname ',option)))
+                             user-defined-args))))
            (APPLY #'ENSURE-GENERIC-FUNCTION ',funname
              ;; Here we pass :GENERIC-FUNCTION-CLASS, :ARGUMENT-PRECEDENCE-ORDER,
              ;; :METHOD-CLASS, :DOCUMENTATION also if the corresponding option
@@ -461,6 +510,10 @@
              :DOCUMENTATION ',docstring
              :DECLARATIONS ',declspecs
              'METHODS (LIST ,@method-forms)
+             ;; Pass user-defined initargs of the generic-function-class.
+             ,@(mapcan #'(lambda (option)
+                           (list `',(first option) `',(rest option)))
+                       user-defined-args)
              ;; Pass the default initargs of the generic-function class, in
              ;; order to erase leftovers from the previous definition.
              (MAPCAP #'(LAMBDA (X) (LIST (FIRST X) (FUNCALL (THIRD X))))
@@ -478,12 +531,12 @@
     (callinfo reqnum optnum restp keywords allowp)))
 
 (defun make-generic-function-form (caller whole-form funname lambda-list options)
-  (multiple-value-bind (generic-function-class-form signature argument-precedence-order method-combination-lambda method-class-form declspecs docstring method-forms)
+  (multiple-value-bind (generic-function-class-form signature argument-precedence-order method-combination-lambda method-class-form declspecs docstring user-defined-args method-forms)
       (analyze-defgeneric caller whole-form funname lambda-list options)
     (declare (ignore signature))
     (let ((generic-function-class-var (gensym)))
       `(LET ((,generic-function-class-var ,generic-function-class-form))
-         (MAKE-GENERIC-FUNCTION ,generic-function-class-var ',funname ',lambda-list ',argument-precedence-order (,method-combination-lambda ,generic-function-class-var) ,method-class-form ',declspecs ',docstring
+         (MAKE-GENERIC-FUNCTION ,generic-function-class-var ',caller ',whole-form ',funname ',lambda-list ',argument-precedence-order (,method-combination-lambda ,generic-function-class-var) ,method-class-form ',declspecs ',docstring ',user-defined-args
                                 ,@method-forms)))))
 
 #| GENERIC-FUNCTION is a TYPE (and a COMMON-LISP symbol) in ANSI CL,

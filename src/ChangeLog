@@ -1,5 +1,20 @@
 2004-09-19  Bruno Haible  <bruno@clisp.org>
 
+	Support for user-defined DEFGENERIC options.
+	* clos-genfun3.lisp (make-generic-function): Add caller, whole-form,
+	user-defined-args arguments. Perform checking of generic-function
+	options.
+	(analyze-defgeneric): Accept generic-function options that depend on
+	the generic-function class. Remove the generic-function option checking
+	from here. Return an additional value user-defined-args.
+	(defgeneric): Perform checking of generic-function options at
+	execution time.
+	(make-generic-function-form): Update.
+	* clos-genfun4.lisp (initialize-instance@generic-function): Remove
+	&allow-other-keys.
+
+2004-09-19  Bruno Haible  <bruno@clisp.org>
+
 	Support for user-defined DEFCLASS slot options.
 	* clos-slotdef1.lisp (initialize-instance-<slot-definition>): Call
 	%initialize-instance, to initialize user-defined slots.

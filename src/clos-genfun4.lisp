@@ -39,8 +39,7 @@
                                      documentation
                                      declarations
                                      declare
-                                     ((methods methods) nil) ; from DEFGENERIC
-                                &allow-other-keys)
+                                     ((methods methods) nil)) ; from DEFGENERIC
   (declare (ignore name lambda-list argument-precedence-order method-class
                    method-combination documentation declarations declare
                    methods))

@@ -1617,6 +1617,12 @@ T
   (list (eq obj obj2) (slot-value obj2 'a) (slot-value obj2 'b)))
 error
 
+;; Check that invalid generic-function options are rejected.
+(defgeneric foo126 (x y) (:lambda-list x))
+ERROR
+(defgeneric foo127 (x y) (:declarations (optimize (speed 3))))
+ERROR
+
 (let ((gf1 (defgeneric no-app-meth-gf-01 ()))
       (gf2 (defgeneric no-app-meth-gf-02 (x)))
       (gf3 (defgeneric no-app-meth-gf-03 (x y))))
