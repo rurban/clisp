@@ -1,3 +1,10 @@
+2004-03-18  Sam Steingold  <sds@gnu.org>
+
+	* io.d (circle_p): when SYS::*PRINT-CIRCLE-TABLE* is NIL, assume
+	that the the object has no circularities and print it normally
+	(pr_enter_2): bind SYS::*PRINT-CIRCLE-TABLE* to NIL when there
+	are no circularities but *PRINT-READABLY* is non-NIL
+
 2004-02-19  Sam Steingold  <sds@gnu.org>
 
 	make package errors automatically recoverable

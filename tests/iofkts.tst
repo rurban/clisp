@@ -749,6 +749,33 @@ MY-PPRINT-LOGICAL
   (write-to-string '(bar foo :boo 1) :pretty t :escape t))
 "(?BAR? ?FOO? ?:BOO? ?1?)"
 
+(defun object-out (obj out)
+  ;; have to pass NIL as object to PPRINT-LOGICAL-BLOCK
+  ;; because PPRINT-LOGICAL-BLOCK requires a list!
+  (pprint-logical-block (out nil :prefix "#[" :suffix "]")
+    (let ((cl (class-of obj)))
+      (write (class-name cl) :stream out)
+      (loop :for slotdef :in (clos::class-slots cl)
+        :for slot = (clos::slotdef-name slotdef)
+        :when (and slot (slot-boundp obj slot))
+        :do (write-char #\space out) (pprint-newline :fill out)
+        (write slot :stream out)
+        (write-char #\space out) (pprint-newline :fill out)
+        (write (slot-value obj slot) :stream out)))))
+OBJECT-OUT
+
+(let ((x (progn (defclass c1 () (a b c)) (defclass c2 (c1) (aa bb cc))
+                (make-instance 'c2)))
+      (*print-pretty* t))
+  (setf (slot-value x 'b) 123
+        (slot-value x 'cc) 42)
+  (with-output-to-string (out) (object-out x out)))
+"#[C2 B 123 CC 42]"
+
+(let ((*print-readably* t))
+  (with-output-to-string (out) (pprint-linear out (list 'a 'b 'c))))
+"(A B C)"
+
 ;; local variables:
 ;; eval: (make-local-variable 'write-file-functions)
 ;; eval: (remove-hook 'write-file-functions 'delete-trailing-whitespace t)
