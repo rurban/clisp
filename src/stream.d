@@ -16974,23 +16974,6 @@ LISPFUN(read_byte_no_hang,1,2,norest,nokey,0,NIL) {
   }
 }
 
-/* byte-swap the bit vector
- cannot use elt_nreverse since we need a _byte_ swap
- and bv is a _bit_ vector */
-local inline void byte_swap (object bv, uintL size) {
-  var uintL count = floor(size,2);
-  if (count > 0) {
-    var uintB* ptr1 = &TheSbvector(bv)->data[0];
-    var uintB* ptr2 = &TheSbvector(bv)->data[size-1];
-    dotimespL(count,count, {
-      var uintB x1 = *ptr1;
-      var uintB x2 = *ptr2;
-      *ptr1 = x2; *ptr2 = x1;
-      ptr1++; ptr2--;
-    });
-  }
-}
-
 # (READ-INTEGER stream element-type [endianness [eof-error-p [eof-value]]])
 # is a generalized READ-BYTE.
 LISPFUN(read_integer,2,3,norest,nokey,0,NIL) {
@@ -17010,8 +16993,8 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL) {
   if (!(read_byte_array(&STACK_5,&STACK_0,0,bytesize) == bytesize))
     goto eof;
   bitbuffer = STACK_0;
-  if (endianness)
-    byte_swap(bitbuffer,bytesize);
+  if (endianness) /* byte swap */
+    elt_nreverse(bitbuffer,0,bytesize);
   { # The data is now in little-endian order. Convert it to an integer.
     var object result;
     switch (eltype.kind) {
@@ -17059,8 +17042,8 @@ LISPFUN(read_float,2,3,norest,nokey,0,NIL) {
   if (!(read_byte_array(&STACK_5,&STACK_0,0,bytesize) == bytesize))
     goto eof;
   bitbuffer = STACK_0;
-  if (BIG_ENDIAN_P ? !endianness : endianness)
-    byte_swap(bitbuffer,bytesize);
+  if (BIG_ENDIAN_P ? !endianness : endianness) /* byte swap */
+    elt_nreverse(bitbuffer,0,bytesize);
   # The data is now in machine-dependent order. Convert it to a float.
   switch (bytesize) {
     case sizeof(ffloatjanus):
@@ -17144,8 +17127,8 @@ LISPFUN(write_integer,3,1,norest,nokey,0,NIL) {
     default: NOTREACHED;
   }
   # The data is now in little-endian order.
-  if (endianness)
-    byte_swap(bitbuffer,bytesize);
+  if (endianness) /* byte swap */
+    elt_nreverse(bitbuffer,0,bytesize);
   # Write the data.
   write_byte_array(&STACK_3,&STACK_0,0,bytesize);
   FREE_DYNAMIC_8BIT_VECTOR(STACK_0);
@@ -17215,8 +17198,8 @@ LISPFUN(write_float,3,1,norest,nokey,0,NIL) {
     default: NOTREACHED;
   }
   # The data is now in machine-dependent order.
-  if (BIG_ENDIAN_P ? !endianness : endianness)
-    byte_swap(bitbuffer,bytesize);
+  if (BIG_ENDIAN_P ? !endianness : endianness) /* byte swap */
+    elt_nreverse(bitbuffer,0,bytesize);
   # Write the data.
   write_byte_array(&STACK_3,&STACK_0,0,bytesize);
   FREE_DYNAMIC_8BIT_VECTOR(STACK_0);
