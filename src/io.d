@@ -149,10 +149,17 @@ local void syntax_table_put_notinline (object table, chart c, uintB value) {
 }
 #else
  # A simple-bit-vector with char_code_limit bytes.
-#define allocate_syntax_table()  allocate_bit_vector(Atype_8Bit,char_code_limit)
-#define syntax_table_get(table,c)  TheSbvector(table)->data[as_cint(c)]
-#define syntax_table_put(table,c,value)  (TheSbvector(table)->data[as_cint(c)] = (value))
+#define allocate_syntax_table()         \
+  allocate_bit_vector(Atype_8Bit,char_code_limit)
+#define syntax_table_get(table,c)       \
+  TheSbvector(table)->data[as_cint(c)]
+#define syntax_table_put(table,c,value) \
+  (TheSbvector(table)->data[as_cint(c)] = (value))
 #endif
+#define syntax_readtable_get(rt,c)     \
+  syntax_table_get(TheReadtable(rt)->readtable_syntax_table,c)
+#define syntax_readtable_put(rt,c,v)   \
+  syntax_table_put(TheReadtable(rt)->readtable_syntax_table,c,v)
 
 # standard(original) syntaxtable(readtable)  for read characters:
 local const uintB orig_syntax_table [small_char_code_limit] = {
@@ -600,8 +607,8 @@ LISPFUN(set_syntax_from_char,2,2,norest,nokey,0,NIL)
       var chart to_c = char_code(to_char);
       var chart from_c = char_code(from_char);
       # copy syntaxcode:
-      syntax_table_put(TheReadtable(to_readtable)->readtable_syntax_table,to_c,
-        syntax_table_get(TheReadtable(from_readtable)->readtable_syntax_table,from_c));
+      syntax_readtable_put(to_readtable,to_c,
+                           syntax_readtable_get(from_readtable,from_c));
       # copy macro-function/vector:
       var object entry = perchar_table_get(TheReadtable(STACK_0)->readtable_macro_table,from_c);
       if (simple_vector_p(entry))
@@ -711,7 +718,7 @@ LISPFUN(get_macro_character,1,1,norest,nokey,0,NIL)
     var chart c = char_code(ch);
     # Test the Syntaxcode:
     var object nontermp = NIL; # non-terminating-p Flag
-    switch (syntax_table_get(TheReadtable(readtable)->readtable_syntax_table,c)) {
+    switch (syntax_readtable_get(readtable,c)) {
       case syntax_nt_macro: nontermp = T;
       case syntax_t_macro: # nontermp = NIL;
         # c is a macro-character.
@@ -956,7 +963,7 @@ nonreturning_function(local, fehler_charread, (object ch, const object* stream_)
          {var object readtable;                                        \
           get_readtable(readtable = );                                 \
           scode_assignment # fetch syntaxcode from table               \
-            syntax_table_get(TheReadtable(readtable)->readtable_syntax_table,char_code(ch0)); \
+            syntax_readtable_get(readtable,char_code(ch0));            \
         }}                                                             \
     }
 
@@ -1015,7 +1022,7 @@ nonreturning_function(local, fehler_eof, (const object* stream_)) {
           {var object readtable;                                           \
            get_readtable(readtable = );                                    \
            if (!((scode_assignment # fetch Syntaxcode from table           \
-                    syntax_table_get(TheReadtable(readtable)->readtable_syntax_table,char_code(ch0))) \
+                    syntax_readtable_get(readtable,char_code(ch0)))        \
                  == syntax_whitespace))                                    \
              # no Whitespace -> push back last read character              \
              { unread_char(stream_,ch0); ch_assignment ch0; break; }       \
@@ -1039,8 +1046,7 @@ local object wpeek_char_eof (const object* stream_) {
     var object readtable;
     get_readtable(readtable = );
     if (!(( # fetch Syntaxcode from table
-           syntax_table_get(TheReadtable(readtable)->readtable_syntax_table,
-                            char_code(ch)))
+           syntax_readtable_get(readtable,char_code(ch)))
           == syntax_whitespace)) {
       # no Whitespace -> push back last read character
       unread_char(stream_,ch); return ch;
@@ -1331,7 +1337,7 @@ local void read_token_1 (const object* stream_, object ch, uintWL scode) {
         }
         # no -> token is finished normally
         goto ende;
-      default: NOTREACHED
+      default: NOTREACHED;
     }
   }
  ende:
@@ -1848,7 +1854,7 @@ local void case_convert_token (uintL start_index, uintL end_index,
         }
       }
       break;
-    default: NOTREACHED
+    default: NOTREACHED;
   }
 }
 
@@ -2010,7 +2016,7 @@ local object read_internal (const object* stream_) {
       case syntax_constituent: # read Token: A Token starts with character ch.
         read_token_1(stream_,ch,scode); # finish reading of Token
         break;
-      default: NOTREACHED
+      default: NOTREACHED;
     }
   }
   # reading of Token finished
@@ -2057,7 +2063,7 @@ local object read_internal (const object* stream_) {
           result = read_float(base,info.sign,string,info.index1,
                               info.index4,info.index2,info.index3);
           break;
-        default: NOTREACHED
+        default: NOTREACHED;
       }
       unwind_HANDLER_frame();
       return result;
@@ -3042,7 +3048,7 @@ local Values radix_2 (uintWL base) {
       pushSTACK(S(read));
       fehler(stream_error,
              GETTEXT("~ from ~: token ~ after #$ is not a rational number in base ~"));
-    default: NOTREACHED
+    default: NOTREACHED;
   }
 }
   # UP: for #B #O #X
@@ -5411,7 +5417,7 @@ local void write_sstring_case (const object* stream_, object string) {
         write_sstring(stream_,string);
       }
       break;
-    default: NOTREACHED
+    default: NOTREACHED;
   }
 }
 
@@ -5497,7 +5503,7 @@ global object cons_ssstring (void) {
     indent = posfixnum_to_L(Symbol_value(S(prin_indentation)));
   pushSTACK(make_ssstring(50+indent));
   if (indent > 0) {
-    var object sstring = TheIarray(STACK_0)->data; 
+    var object sstring = TheIarray(STACK_0)->data;
     dotimesL(indent,indent, {
       TheSstring(sstring)->data[TheIarray(STACK_0)->dims[1]++] = ascii(' ');
     });
@@ -5532,7 +5538,7 @@ local uintL pprint_prefix (const object *stream_) {
     # output in wr_ch_pphelp()
     # if ((stream_ != NULL) && (add != 0))
     #   spaces(stream_,indent);
-  } 
+  }
 #ifdef IO_DEBUG
   printf("pprint_prefix(%s): %d\n",(stream_==NULL?"null":"valid"),len);
 #endif
@@ -6676,7 +6682,7 @@ local void prin_object_dispatch (const object* stream_, object obj) {
       pr_symbol(stream_,obj); break;
     case_cons: # Cons
       pr_cons(stream_,obj); break;
-      default: NOTREACHED
+      default: NOTREACHED;
    }
 #else
   if (orecordp(obj))
@@ -6696,7 +6702,7 @@ local void prin_object_dispatch (const object* stream_, object obj) {
   else if (systemp(obj))
     pr_system(stream_,obj);
   else
-    NOTREACHED
+    NOTREACHED;
 #endif
 }
 
@@ -6817,7 +6823,7 @@ local void pr_symbol_part (const object* stream_, object string,
               break;
             case case_invert:
               break;
-            default: NOTREACHED
+            default: NOTREACHED;
           }
         count--; if (count == 0) break; # string finished -> end of loop
         c = *charptr++; # the next character
@@ -6853,7 +6859,7 @@ local void pr_symbol_part (const object* stream_, object string,
               break;
             case case_invert:
               break;
-            default: NOTREACHED
+            default: NOTREACHED;
         }
         count--; if (count == 0) break; # string finished -> end of loop
         c = as_chart(*charptr++); # the next character
