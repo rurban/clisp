@@ -1,3 +1,13 @@
+2004-10-08  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	Usable control of sharing of FFI pointer validity (aka extent)
+	* foreign.d (set_foreign_pointer): fix GC-safety bug; allow both
+	entities to be foreign objects other than just foreign-pointer;
+	return initial (modified) entity, which is incompatible with SETF
+	requirements, but very handy.
+	* foreign1.lisp (SETF FOREIGN-POINTER): remove
+	(SET-FOREIGN-POINTER): export
+
 2004-10-07  Bruno Haible  <bruno@clisp.org>
 
 	* clos-class1.lisp (shared-initialize-<class>): A clos::direct-slots
