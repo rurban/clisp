@@ -15753,7 +15753,7 @@ local int previous_line_virtual (int count, int key) {
       if (rl_point) rl_point--;
       else return 0;
     } while (count--);
-    rl_point += col;
+    rl_point += col+1;
   } else if (count < 0)
     return next_line_virtual(-count,key);
   # else rl_variable_dumper(1);
