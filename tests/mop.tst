@@ -14,7 +14,7 @@
 #-(or CLISP ALLEGRO LISPWORKS)
 T
 
-#-(or CMU18 OpenMCL)
+#-(or CMU18 OpenMCL LISPWORKS)
 (progn
   (defstruct rectangle1 (x 0.0) (y 0.0))
   (defclass counted1-class (structure-class)
@@ -25,7 +25,7 @@ T
   (slot-value (find-class 'counted1-rectangle) 'counter)
   (make-instance 'counted1-rectangle)
   (slot-value (find-class 'counted1-rectangle) 'counter))
-#-(or CMU18 OpenMCL)
+#-(or CMU18 OpenMCL LISPWORKS)
 1
 
 #-CMU18
@@ -59,7 +59,7 @@ T
 (1 1 2 2)
 
 ;; Check that the slot :accessor option works also on structure-class.
-#-OpenMCL
+#-(or OpenMCL LISPWORKS)
 (progn
   (defclass structure01 () ((x :initarg :x :accessor structure01-x))
     (:metaclass structure-class))
@@ -67,5 +67,5 @@ T
     (list (typep #'structure01-x 'generic-function)
           (structure01-x object)
           (progn (incf (structure01-x object)) (structure01-x object)))))
-#-OpenMCL
+#-(or OpenMCL LISPWORKS)
 (t 17 18)
