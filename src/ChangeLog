@@ -1,3 +1,8 @@
+2000-07-27  Bruno Haible  <haible@clisp.cons.org>
+
+        * predtype.d (eql): When comparing long-floats, also compare the sign.
+          Reported by Bernard Urban <Bernard.Urban@meteo.fr>.
+
 2000-07-26  Bruno Haible  <haible@clisp.cons.org>
 
         * makemake.in (DESTDIR): Renamed from 'install_root'.
