@@ -141,11 +141,8 @@ int main (int argc, char* argv[]) {
   /* error checking should work after file closing, but it does not */
   if (ferror(infile))
     { perror(infilenamebuffer); exit(__LINE__); }
-  if (fflush(outfile) || ferror(outfile))
+  if (ferror(outfile) || fclose(outfile))
     { perror(outfilenamebuffer); exit(__LINE__); }
-  /* close files: */
-  fclose(infile);
-  fclose(outfile);
   exit(0); /* OK */
 }
 

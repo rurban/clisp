@@ -1508,13 +1508,8 @@ int main (int argc, char* argv[])
   # Main job.
   convert(infile,outfile,infilename);
   # Clean up.
-  if (ferror(infile) || fflush(outfile) || ferror(outfile)) {
-    fclose(infile);
-    fclose(outfile);
+  if (ferror(infile) || ferror(outfile) || fclose(outfile))
     exit(1);
-  }
-  fclose(infile);
-  fclose(outfile);
   exit(0);
 }
 
