@@ -129,7 +129,7 @@ T
 
 (with-output-to-string (s)
   (princ (make-condition 'test3
-           #-ANSI-CL :format-string #+ANSI-CL :format-control "And How! -- ~S"
+           :format-control "And How! -- ~S"
            :format-arguments '(23)) s))
 "And How! -- 23"
 
