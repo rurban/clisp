@@ -27,7 +27,7 @@ local handle_fault_result_t handle_fault (aint address, int verbose);
 
 # Simulate an mmap for the given heap, of length map_len.
 # map_len must be a positive multiple of physpagesize.
-  local int selfmade_mmap (Heap* heap, uintL map_len, uintL offset);
+  local int selfmade_mmap (Heap* heap, uintL map_len, off_t offset);
 
 #endif
 
@@ -67,9 +67,9 @@ local void xmmprotect (aint addr, uintL len, int prot);
                      # or      SPVW_MIXED_BLOCKS_STAGGERED
 
 # subroutine for reading a page from the mem-file.
-local int handle_mmap_fault (uintL offset, aint address, uintB* memfile_page);
+local int handle_mmap_fault (off_t offset, aint address, uintB* memfile_page);
 local int handle_mmap_fault(offset,address,memfile_page)
-  var uintL offset;
+  var off_t offset;
   var aint address;
   var uintB* memfile_page;
   {
@@ -79,7 +79,7 @@ local int handle_mmap_fault(offset,address,memfile_page)
     }
     # Fetch the page from the file.
     var Handle handle = mem.memfile_handle;
-    var sintL orig_offset = 0;
+    var off_t orig_offset = 0;
     # If loadmem() is still reading from the memfile, we must be careful
     # to restore the handle's file position. (This could be avoided under
     # UNIX by using dup(), but not on WIN32_NATIVE.)
@@ -96,13 +96,13 @@ local int handle_mmap_fault(offset,address,memfile_page)
       return -1;
     }
     if (lseek(handle,offset,SEEK_SET) < 0) {
-      fprintf(stderr,"selfmade_mmap: lseek(0x%x) failed.",offset);
+      fprintf(stderr,"selfmade_mmap: lseek(0x%lx) failed.",(unsigned long)offset);
       errno_out(OS_errno);
       return -1;
     }
     #ifdef DEBUG_SPVW
-    fprintf(stderr,"selfmade_mmap: address=0x%x <-- offset=0x%x\n",
-            address,offset);
+    fprintf(stderr,"selfmade_mmap: address=0x%lx <-- offset=0x%lx\n",
+            address,(unsigned long)offset);
     #endif
     var sintL res;
     #ifdef WIN32_NATIVE
@@ -113,13 +113,13 @@ local int handle_mmap_fault(offset,address,memfile_page)
     res = full_read(handle,(void*)address,physpagesize);
     #endif
     if (res != physpagesize) {
-      fprintf(stderr,"selfmade_mmap: full_read(offset=0x%x,count=%d) failed, returned %d.",offset,physpagesize,res);
+      fprintf(stderr,"selfmade_mmap: full_read(offset=0x%lx,count=%d) failed, returned %d.",(unsigned long)offset,physpagesize,res);
       if (res < 0) errno_out(OS_errno);
       return -1;
     }
     if (mem.memfile_still_being_read) {
       if (lseek(handle,orig_offset,SEEK_SET) < 0) {
-        fprintf(stderr,"selfmade_mmap: lseek(0x%x) failed.",orig_offset);
+        fprintf(stderr,"selfmade_mmap: lseek(0x%lx) failed.",(unsigned long)orig_offset);
         errno_out(OS_errno);
         return -1;
       }
@@ -449,11 +449,11 @@ global bool handle_fault_range(prot,start_address,end_address)
 
 #ifdef SELFMADE_MMAP
 
-local int selfmade_mmap (Heap* heap, uintL map_len, uintL offset);
+local int selfmade_mmap (Heap* heap, uintL map_len, off_t offset);
 local int selfmade_mmap(heap,map_len,offset)
   var Heap* heap;
   var uintL map_len;
-  var uintL offset;
+  var off_t offset;
   {
     var uintL pagecount = map_len>>physpageshift;
     var uintB* pages = MALLOC(pagecount,uintB);
