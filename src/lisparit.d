@@ -1,6 +1,6 @@
 /*
  * Arithmetics for CLISP
- * Bruno Haible 1990-2002
+ * Bruno Haible 1990-2004
  * Sam Steingold 1998-2004
  * German comments translated into English: Stefan Kain 2002-12-23
  */
@@ -10,6 +10,8 @@
 #define LISPARIT  /* in the following not only macros, but also functions */
 
 #undef LF         /* LF here does not mean 'Linefeed', but 'LongFloat' */
+#undef truncate   /* undo a possible "#define truncate truncate64" from LFS */
+#undef ftruncate  /* undo a possible "#define ftruncate ftruncate64" from LFS */
 
 
 /* UP: decides over number equality
