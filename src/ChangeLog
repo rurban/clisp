@@ -1,5 +1,19 @@
 1999-05-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Allows streams to have an unknown line position.
+        * lispbibl.d (get_line_position): Can trigger GC. Can return NIL.
+        * stream.d (get_line_position): Likewise.
+          (MAKE-STRING-OUTPUT-STREAM): Allow LINE-POSITION argument to be NIL.
+        * io.d (pr_enter_1): Update.
+        * format.lsp (format-tabulate): If the stream's line position is
+          unknown, output 2 spaces.
+          (do-format-justification): If the stream's line position is unknown,
+          assume it is 0.
+        * compiler.lsp (disassemble-closure): If the stream's line position is
+          unknown, output 2 spaces.
+
+1999-05-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d (stream_line_number): Can trigger GC.
         * stream.d (stream_line_number): Likewise.
         * io.d (read_delimited_list: Update.

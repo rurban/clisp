@@ -1497,18 +1497,21 @@
   (if (null colinc) (setq colinc 1))
   (let* ((new-colnum (max colnum 0))
          (new-colinc (max colinc 1)) ; >0
-         (pos (sys::line-position stream))) ; aktuelle Position, Fixnum >=0
+         (pos (sys::line-position stream))) ; aktuelle Position, Fixnum >=0 oder NIL
     (if atsign-modifier
       (format-padding
-        (+ new-colnum (mod (- (+ pos new-colnum)) new-colinc))
+        (if pos (+ new-colnum (mod (- (+ pos new-colnum)) new-colinc)) new-colnum)
         #\Space stream
       )
-      (if (< pos new-colnum)
-        (format-padding (- new-colnum pos) #\Space stream)
-        (unless (zerop colinc)
-          (format-padding (+ colinc (mod (- new-colnum pos) (- colinc)))
-                          #\Space stream
-) ) ) ) ) )
+      (if pos
+        (if (< pos new-colnum)
+          (format-padding (- new-colnum pos) #\Space stream)
+          (unless (zerop colinc)
+            (format-padding (+ colinc (mod (- new-colnum pos) (- colinc)))
+                            #\Space stream
+        ) ) )
+        (format-padding 2 #\Space stream)
+) ) ) )
 
 ; ~*, CLTL S.399, CLtL2 S. 598
 (defun format-goto (stream colon-modifier atsign-modifier &optional (index nil))
@@ -1807,7 +1810,7 @@
       (format-justified-segments mincol colinc minpad
         colon-modifier atsign-modifier piecelist)
       (when (and check-on-line-overflow
-                 (> (+ pos width (or supplementary-need 0))
+                 (> (+ (or pos 0) width (or supplementary-need 0))
                     (or line-length #|(sys::line-length stream)|# 72)
             )    )
         (write-string firstpiece stream)

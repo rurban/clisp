@@ -6272,9 +6272,12 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             # noch ein normaler Stream
             { dynamic_bind(S(prin_l1),Fixnum_0); # SYS::*PRIN-L1* an 0 binden
               dynamic_bind(S(prin_lm),Fixnum_0); # SYS::*PRIN-LM* an 0 binden
-              # SYS::*PRIN-L1* auf dessen Line-Position setzen:
-              Symbol_value(S(prin_l1)) = get_line_position(*stream_);
               pushSTACK(obj); # Objekt retten
+              # SYS::*PRIN-L1* auf dessen Line-Position setzen:
+              {var object linepos = get_line_position(*stream_);
+               if (!posfixnump(linepos)) { linepos = Fixnum_0; }
+               Symbol_value(S(prin_l1)) = linepos;
+              }
               pushSTACK(make_pphelp_stream()); # neuer PPHELP-Stream, Line-Position = 0
               TheStream(STACK_0)->strmflags |= (TheStream(*stream_)->strmflags & bit(strmflags_reval_bit_B)); # READ-EVAL-Bit übernehmen
               # Objekt auf den neuen Stream ausgeben:
@@ -9673,7 +9676,7 @@ LISPFUN(write_unreadable,3,0,norest,key,2, (kw(type),kw(identity)) )
 
 LISPFUN(line_position,0,1,norest,nokey,0,NIL)
 # (SYS::LINE-POSITION [stream]), Hilfsfunktion für FORMAT ~T,
-# liefert die Position eines (Output-)Streams in der momentanen Zeile.
+# liefert die Position eines (Output-)Streams in der momentanen Zeile, oder NIL.
   { test_ostream(); # Output-Stream überprüfen
     value1 = get_line_position(popSTACK()); mv_count=1; # Line-Position als Wert
   }
