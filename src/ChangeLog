@@ -1,3 +1,8 @@
+2005-01-10  Bruno Haible  <bruno@clisp.org>
+
+	* stream.d (fresh_line): Add special code to care for the case that
+	*standard-output* and *error-output* are aliased.
+
 2005-01-09  Bruno Haible  <bruno@clisp.org>
 
 	* configure: Document and implement options --bindir, --libdir,
