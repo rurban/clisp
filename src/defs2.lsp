@@ -43,7 +43,7 @@
 
 ;; Interpretierte Funktion in Lambda-Ausdruck umwandeln, CLtL2 S. 682
 (defun function-lambda-expression (obj)
-  (cond ((and (compiled-function-p obj) (functionp obj)) ; SUBR oder compilierte Closure?
+  (cond ((compiled-function-p obj) ; SUBR oder compilierte Closure?
          (values nil t nil)
         )
         ((sys::closurep obj) ; interpretierte Closure?
