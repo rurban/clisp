@@ -2050,55 +2050,51 @@ LISPFUNN(charset_range,3)
 
 # Initialize the encodings which depend on environment variables.
 # init_dependent_encodings();
-  global void init_dependent_encodings (void);
-  global void init_dependent_encodings()
-    {
-      #ifdef UNICODE
-        extern const char* argv_encoding_file; # override for *default-file-encoding*
-        extern const char* argv_encoding_pathname; # override for *pathname-encoding*
-        extern const char* argv_encoding_terminal; # override for *terminal-encoding*
-        extern const char* argv_encoding_foreign; # override for *foreign-encoding*
-        extern const char* argv_encoding_misc; # override for *misc-encoding*
-        begin_system_call();
-        var const char* locale_encoding = locale_charset(); # depends on environment variables
-        end_system_call();
-        pushSTACK(encoding_from_name(locale_encoding));
-        # Initialize each encoding as follows: If the corresponding -E....
-        # option was not given, use the locale dependent locale_charset().
-        # If it was given, use that, and if the specified encoding was invalid,
-        # use a default encoding that does not depend on the locale.
-        O(default_file_encoding) =
-          (argv_encoding_file ? encoding_from_name(argv_encoding_file)
-           : STACK_0);
-        O(pathname_encoding) =
-          (argv_encoding_pathname ? encoding_from_name(argv_encoding_pathname)
-           : STACK_0);
-        #if defined(WIN32_NATIVE)
-        {
-          var char *enc = argv_encoding_terminal;
-          var char buf[2+10+1];
-          if (enc == NULL)
-            sprintf(enc=buf,"CP%u",GetOEMCP());
-          O(terminal_encoding) = encoding_from_name(enc);
-        }
-        #else
-        O(terminal_encoding) =
-          (argv_encoding_terminal ? encoding_from_name(argv_encoding_terminal)
-           : STACK_0);
-        #endif
-        #if defined(HAVE_FFI) || defined(HAVE_AFFI)
-        O(foreign_encoding) =
-          (argv_encoding_foreign ? encoding_from_name(argv_encoding_foreign)
-           : STACK_0);
-        #endif
-        O(misc_encoding) =
-          (argv_encoding_misc ? encoding_from_name(argv_encoding_misc)
-           : STACK_0);
-        skipSTACK(1);
-      #else
-        O(default_file_encoding) = encoding_from_name(NULL);
-      #endif
-    }
+global void init_dependent_encodings(void) {
+#ifdef UNICODE
+  extern const char* argv_encoding_file; # override for *default-file-encoding*
+  extern const char* argv_encoding_pathname; # override for *pathname-encoding*
+  extern const char* argv_encoding_terminal; # override for *terminal-encoding*
+  extern const char* argv_encoding_foreign; # override for *foreign-encoding*
+  extern const char* argv_encoding_misc; # override for *misc-encoding*
+  begin_system_call();
+  var const char* locale_encoding = locale_charset(); # depends on environment variables
+  end_system_call();
+  pushSTACK(encoding_from_name(locale_encoding));
+  # Initialize each encoding as follows: If the corresponding -E....
+  # option was not given, use the locale dependent locale_charset().
+  # If it was given, use that, and if the specified encoding was invalid,
+  # use a default encoding that does not depend on the locale.
+  O(default_file_encoding) =
+    (argv_encoding_file ? encoding_from_name(argv_encoding_file) : STACK_0);
+  O(pathname_encoding) =
+    (argv_encoding_pathname ? encoding_from_name(argv_encoding_pathname)
+     : STACK_0);
+ #if defined(WIN32_NATIVE)
+  { # cf libiconv/libcharset/lib/localcharset.c locale_charset()
+    var char *enc = argv_encoding_terminal;
+    var char buf[2+10+1];
+    if (enc == NULL)
+      sprintf(enc=buf,"CP%u",GetOEMCP());
+    O(terminal_encoding) = encoding_from_name(enc);
+  }
+ #else
+  O(terminal_encoding) =
+    (argv_encoding_terminal ? encoding_from_name(argv_encoding_terminal)
+     : STACK_0);
+ #endif
+ #if defined(HAVE_FFI) || defined(HAVE_AFFI)
+  O(foreign_encoding) =
+    (argv_encoding_foreign ? encoding_from_name(argv_encoding_foreign)
+     : STACK_0);
+ #endif
+  O(misc_encoding) =
+    (argv_encoding_misc ? encoding_from_name(argv_encoding_misc) : STACK_0);
+  skipSTACK(1);
+#else # no UNICODE
+  O(default_file_encoding) = encoding_from_name(NULL);
+#endif
+}
 
 # =============================================================================
 #                                 Accessors
