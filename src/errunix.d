@@ -355,9 +355,12 @@
         if (EPIPE < sys_nerr) {
         errormsg_table[EPIPE].name = "EPIPE";
         errormsg_table[EPIPE].msg =
-          ENGLISH ? "Broken pipe" :
-          DEUTSCH ? "Output versackt" :
-          FRANCAIS ? "Rupture du tuyau" :
+          # Note that these "translations" exploit that CLISP only catches
+          # SIGPIPEs from subprocesses. Other pipes lead to a deadly signal
+          # and never to this error message.
+          ENGLISH ? "Broken pipe, child process terminated" :
+          DEUTSCH ? "Rohrbruch, Tochterprozess beendet" :
+          FRANCAIS ? "Rupture du tuyau, processus fils terminé" :
           "";
         }
         #endif

@@ -111,6 +111,8 @@
     #define signal_acknowledge(sig,handler)  signal(sig,SIG_ACK)
     # Das Verhalten von Signalen bei System-Calls ist OK:
     #define SIGNAL  signal
+    # Ein Signal veranlassen.
+    extern int raise (int sig);
   #endif
   #ifdef WATCOM
     #include <signal.h>
