@@ -27,15 +27,13 @@
 /*    \  --<------                   --<------                      /    # */
 /*     -------------------<-----------------------------------------     # */
 
+#include <stdlib.h>
+
 #include <stdio.h>
 #define fopen_read_ascii  "r"
 #define fopen_write_ascii  "w"
 #define fputc  putc
 #define fgetc  getc
-
-#ifdef __cplusplus
-extern "C" void exit(int);
-#endif
 
 int main (int argc, char* argv[])
 { char infilenamebuffer[1000];
