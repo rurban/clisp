@@ -319,7 +319,7 @@
 ; SHARP-COMMA-CONFUSION:REMOVE                               no
 ; SHARP-O-FOOBAR:CONSEQUENCES-UNDEFINED                      yes
 ; SHARP-STAR-DELIMITER:NORMAL-DELIMITER                      yes
-; SHARPSIGN-PLUS-MINUS-PACKAGE:KEYWORD                       no
+; SHARPSIGN-PLUS-MINUS-PACKAGE:KEYWORD                       yes
 ; SLOT-MISSING-VALUES:SPECIFY                                yes
 ; SLOT-VALUE-METACLASSES:LESS-MINIMAL                        yes
 ; SPECIAL-FORM-P-MISNOMER:RENAME                             yes

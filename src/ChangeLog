@@ -1,3 +1,14 @@
+1998-09-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * spvw.d (init_object_tab): Put only keywords into *features*.
+        * clos.lsp: Likewise. Don't export CLOS.
+        * compiler.lsp: Likewise. Don't export COMPILER.
+        * loop.lsp: Likewise.
+        * editor.lsp: Likewise. Don't export EDITOR.
+        * init.lsp: Don't import/export the contents of *features*.
+        * io.d (interpret_feature): Search in *features* by EQ.
+          (feature): Bind *package*.
+
 1998-09-09  Sam Steingold  <sds@goems.com>
 
 	* user1.lsp: replaced `*prompt-with-package*' with `*prompt*' with
