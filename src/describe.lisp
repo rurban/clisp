@@ -161,7 +161,7 @@ to print the corresponding values, or T for all of them.")
       #+FFI
       (FFI::FOREIGN-VARIABLE
        (format stream (TEXT "a foreign variable of foreign type ~S.")
-               (deparse-c-type (sys::%record-ref obj 3))))
+               (ffi::deparse-c-type (sys::%record-ref obj 3))))
       (BYTE
        (format stream (TEXT "a byte specifier, denoting the ~S bits starting at bit position ~S of an integer.")
                (byte-size obj) (byte-position obj)))
@@ -433,10 +433,10 @@ to print the corresponding values, or T for all of them.")
       #+FFI
       (FFI::FOREIGN-FUNCTION
        (format stream (TEXT "a foreign function of foreign type ~S.")
-               (deparse-c-type (vector 'ffi::c-function
-                                       (sys::%record-ref obj 2)
-                                       (sys::%record-ref obj 3)
-                                       (sys::%record-ref obj 4)))))
+               (ffi::deparse-c-type (vector 'ffi::c-function
+                                            (sys::%record-ref obj 2)
+                                            (sys::%record-ref obj 3)
+                                            (sys::%record-ref obj 4)))))
       (COMPILED-FUNCTION ; SUBR
        (format stream (TEXT "a built-in system function."))
        (multiple-value-bind (name req opt rest-p keywords other-keys)

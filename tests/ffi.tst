@@ -19,3 +19,10 @@ TRIGGER
 (with-foreign-object (x '(c-array-ptr int) (vector -4 6 7))
   (ffi::foreign-value x))
 #(-4 6 7)
+
+(let ((v (ffi:allocate-deep 'triv (make-triv :i 42))))
+  (prog1
+      (list (typeof (ffi::foreign-value v))
+            (slot (ffi::foreign-value v) 'i))
+    (foreign-free v)))
+((C-STRUCT NIL (I INT)) 42)

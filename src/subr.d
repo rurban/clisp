@@ -1215,12 +1215,13 @@ LISPFUNN(rexx_reply,3)
 #endif
 /* ---------- FOREIGN ---------- */
 #ifdef DYNAMIC_FFI
-LISPFUNN(validp,1)
+LISPFUNNR(validp,1)
+LISPFUNNR(unsigned_foreign_address,1)
+LISPFUNNR(foreign_address_unsigned,1)
+LISPFUNNR(foreign_address,1)
 LISPFUNN(sizeof,1)
 LISPFUNN(bitsizeof,1)
 LISPFUNN(lookup_foreign_variable,2)
-LISPFUNN(unsigned_foreign_address,1)
-LISPFUNN(foreign_address_unsigned,1)
 LISPFUNN(foreign_value,1)
 LISPFUNN(set_foreign_value,2)
 LISPFUNN(foreign_type,1)

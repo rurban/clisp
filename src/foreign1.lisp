@@ -22,7 +22,8 @@
           c-function c-ptr c-ptr-null c-array-ptr
           def-c-enum def-c-struct element deref slot cast typeof
           sizeof bitsizeof c-var-address offset
-          validp foreign-address-null
+          validp foreign-address-null foreign-value
+          foreign-address foreign-address-unsigned unsigned-foreign-address
           with-foreign-object with-c-var with-foreign-string
           foreign-allocate allocate-deep allocate-shallow foreign-free
           foreign-address foreign-variable foreign-function))
