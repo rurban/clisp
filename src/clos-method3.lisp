@@ -97,6 +97,11 @@
     (:method ((method standard-method))
       (std-method-generic-function method))))
 (initialize-extended-method-check #'method-generic-function)
+;; Not in MOP.
+(let ((*allow-making-generic* t))
+  (defgeneric (setf method-generic-function) (new-gf method)
+    (:method (new-gf (method standard-method))
+      (setf (std-method-generic-function method) new-gf))))
 
 (defgeneric function-keywords (method)
   (:method ((method standard-method))
