@@ -585,10 +585,12 @@
                              (setq writers (nreverse writers))
                              (dolist (funname readers)
                                (push `(DEFMETHOD ,funname ((OBJECT ,name))
+                                        (DECLARE (COMPILE))
                                         (SLOT-VALUE OBJECT ',slot-name))
                                      accessor-def-forms))
                              (dolist (funname writers)
                                (push `(DEFMETHOD ,funname (NEW-VALUE (OBJECT ,name))
+                                        (DECLARE (COMPILE))
                                         (SETF (SLOT-VALUE OBJECT ',slot-name) NEW-VALUE))
                                      accessor-def-forms))
                              `(LIST
