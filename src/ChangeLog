@@ -1,3 +1,7 @@
+2000-11-10  Bruno Haible  <haible@clisp.cons.org>
+
+        * makemake.in: Increase optimization for SUNPRO compilers to O3.
+
 2000-11-08  Bruno Haible  <haible@clisp.cons.org>
 
         * pathname.d (delete_file_if_exists) [WIN32_NATIVE]: Treat
