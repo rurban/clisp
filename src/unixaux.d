@@ -109,18 +109,13 @@ global unsigned int ualarm (unsigned int value, unsigned int interval) {
 #ifdef UNIX # EMUNIX und RISCOS brauchen das nicht
 
 # Ein Wrapper um die open-Funktion.
-  global int nonintr_open (OPEN_CONST char* path, int flags, mode_t mode);
-  global int nonintr_open(path,flags,mode)
-    var OPEN_CONST char* path;
-    var int flags;
-    var mode_t mode;
-    {
-      var int retval;
-      do {
-        retval = open(path,flags,mode);
-      } while ((retval < 0) && (errno == EINTR));
-      return retval;
-    }
+global int nonintr_open (char* path, int flags, mode_t mode)
+{
+  var int retval;
+  do { retval = open(path,flags,mode);
+  } while ((retval < 0) && (errno == EINTR));
+  return retval;
+}
 
 # Ein Wrapper um die close-Funktion.
   global int nonintr_close (int fd);
