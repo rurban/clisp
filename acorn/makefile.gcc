@@ -1,6 +1,6 @@
 # -*- Makefile -*- for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host david as the output of the command:
+# This file was created on host SSTEINGOLD as the output of the command:
 # ./makemake acorn gcc
 
 # -------------- Start of configurable section --------------------
@@ -410,6 +410,7 @@ lisp.query \
 lisp.reploop \
 lisp.dribble \
 lisp.complete \
+lisp.pprint \
 lisp.describe \
 lisp.room \
 lisp.edit \
@@ -459,6 +460,7 @@ fas.query \
 fas.reploop \
 fas.dribble \
 fas.complete \
+fas.pprint \
 fas.describe \
 fas.room \
 fas.edit \
@@ -513,6 +515,7 @@ stage.lisp.query \
 stage.lisp.reploop \
 stage.lisp.dribble \
 stage.lisp.complete \
+stage.lisp.pprint \
 stage.lisp.describe \
 stage.lisp.room \
 stage.lisp.edit \
@@ -562,6 +565,7 @@ stage.fas.query \
 stage.fas.reploop \
 stage.fas.dribble \
 stage.fas.complete \
+stage.fas.pprint \
 stage.fas.describe \
 stage.fas.room \
 stage.fas.edit \
@@ -586,6 +590,7 @@ makemake : in.makemake
 
 Makefile : makemake
 	./makemake acorn gcc > Makefile.tmp
+	$(MV) Makefile Makefile~
 	$(MV) Makefile.tmp Makefile
 
 init : comment5 ansidecl varbrace txt2c ccmp2c modprep $(DFILES) h.modules
@@ -1794,6 +1799,9 @@ fas.dribble : lisp.dribble lisp mem.halfcomp
 fas.complete : lisp.complete lisp mem.halfcomp
 	$(RUN) -m 1000KW -M mem.halfcomp -q -c complete.lisp
 
+fas.pprint : lisp.pprint lisp mem.halfcomp
+	$(RUN) -m 1000KW -M mem.halfcomp -q -c pprint.lisp
+
 fas.describe : lisp.describe lisp mem.halfcomp
 	$(RUN) -m 1000KW -M mem.halfcomp -q -c describe.lisp
 
@@ -1957,6 +1965,9 @@ stage.lisp.dribble : lisp.dribble
 stage.lisp.complete : lisp.complete
 	$(LN_S) lisp.complete stage
 
+stage.lisp.pprint : lisp.pprint
+	$(LN_S) lisp.pprint stage
+
 stage.lisp.describe : lisp.describe
 	$(LN_S) lisp.describe stage
 
@@ -2100,6 +2111,9 @@ stage.fas.dribble : stage.lisp.dribble lisp stage.mem.testinit
 
 stage.fas.complete : stage.lisp.complete lisp stage.mem.testinit
 	$(RUN) -M stage.mem.testinit -q -c stage.complete.lisp
+
+stage.fas.pprint : stage.lisp.pprint lisp stage.mem.testinit
+	$(RUN) -M stage.mem.testinit -q -c stage.pprint.lisp
 
 stage.fas.describe : stage.lisp.describe lisp stage.mem.testinit
 	$(RUN) -M stage.mem.testinit -q -c stage.describe.lisp
