@@ -1,16 +1,17 @@
 2002-09-22  Arseny Slobodjuck <ampy@ich.dvo.ru>
 
 	Bring (directory) to compliance with new win32 shortcut handling.
-	* pathname.d [WIN32_NATIVE]
-	(resolve_shell_shortcut): changed parameters and symantic to
-	lower level (symlink is based on shortcuts which is implementation
-	method).
+	* pathname.d [WIN32_NATIVE]:
+	(resolve_shell_shortcut): changed parameters and symantics to
+	lower level (symlink is based on shortcuts which is
+	an implementation method).
 	(resolve_shell_symlink): use it, work as old
 	resolve_shell_shortcut did.
 	(assure_dir_exists): renamed a call to it.
-        (directory_search_scandir): now handles shortcuts specially.
+	(directory_search_scandir): now handles shortcuts specially.
 
 2002-09-21  John Hinsdale <hin@alma.com>
+
 	* module/oracle/Makefile.in: better Oracle -I path for v8.0.5
 
 2002-09-20  Sam Steingold  <sds@gnu.org>
@@ -53,7 +54,7 @@
 2002-09-20  Stefan Kain  <stefan.kain@freenet.de>
 
 	* constsym.d, subr.d, encoding.d, predtype.d, intlog.d:
-	* charstrg.d, arihppa.d: translated all comments
+	* charstrg.d, arihppa.d, array.d: translated all comments
 
 2002-09-20  John Hinsdale <hin@alma.com>
 
