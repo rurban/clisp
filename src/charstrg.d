@@ -318,7 +318,7 @@ local bool alphap (chart ch)
 {
   var cint c = as_cint(ch);
  #ifdef UNICODE
-  return (unicode_attribute(c) == 3 ? true : false);
+  return (unicode_attribute(c) == 3);
  #else
   if (c < 0x41) goto no; if (c <= 0x5A) goto yes;
   if (c < 0x61) goto no; if (c <= 0x7A) goto yes;
@@ -366,10 +366,9 @@ global bool alphanumericp (chart ch)
 {
  #ifdef UNICODE
   var cint c = as_cint(ch);
-  return (unicode_attribute(c) >= 2 ? true : false);
+  return (unicode_attribute(c) >= 2);
  #else
-  if (numericp(ch)) return true;
-  return alphap(ch);
+  return (numericp(ch) || alphap(ch));
  #endif
 }
 
