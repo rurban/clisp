@@ -2342,13 +2342,26 @@ for-value   NIL or T
                   :value (system::get-setf-symbol symbol)
                   :form `(SYSTEM::GET-SETF-SYMBOL ',symbol)))))
 
+(defun proclaimed-inline-p (fun)
+  (eq (get (get-funname-symbol fun) 'inlinable) 'inline))
+
 ;; we need to check *known-functions* to make sure that the side-effect
 ;; class is computed correctly
 (defun f-side-effect (fun)
-  ;; for NOTINLINE functions, side effects are unpredictable!
-  (if (and (symbolp fun) (declared-notinline fun)) *seclass-dirty*
-      (let ((kf (assoc fun *known-functions* :test #'equal)))
-        (if kf (fourth kf) (function-side-effect fun)))))
+  (multiple-value-bind (seclass fdef name) (function-side-effect fun)
+    ;; for NOTINLINE functions, side effects are unpredictable!
+    (if (declared-notinline name) *seclass-dirty*
+      (let ((kf (assoc name *known-functions* :test #'equal)))
+        (if kf (fourth kf) ; defined in this compilation unit, use the seclass!
+          (if (equal *seclass-dirty* seclass) *seclass-dirty*
+            ;; seclass is not dirty ==> function is defined
+            (if (or (proclaimed-inline-p name)     ; inlined
+                    (subr-info fdef) ; SUBR
+                    (null name)      ; anonymous
+                    (let ((pack (symbol-package (get-funname-symbol name))))
+                      (or (null pack) (package-lock pack))))
+              seclass
+              *seclass-dirty*)))))))
 
 ;; global function call, normal (notinline): (fun {form}*)
 (defun c-NORMAL-FUNCTION-CALL (fun) ; fun is a symbol or (SETF symbol)
