@@ -330,20 +330,16 @@ if test -n "$do_config"; then
     export CC
   fi
   if test -z "$INPLACE"; then
-    # Create subdirectories for: readline po termcap,
+    # Create subdirectories for: po
     # and fill them.
-    # - termcap, po: Because the Makefile carefully uses $(srcdir), only
+    # - po: Because the Makefile carefully uses $(srcdir), only
     #   a few files need to be linked over.
-    # - readline: The Makefiles use VPATH=$(srcdir), which
-    #   is not portable, hence all files need to be linked over.
-    for subdir in readline po termcap; do
+    for subdir in po; do
       if [ -d src/$subdir ] ; then
         maybe_mkdir "${ABS_DIRNAME}/${subdir}";
       fi
     done
-    for f in readline readline/doc readline/examples readline/support \
-             readline/shlib po
-    do
+    for f in po; do
       if [ -d src/$f ] ; then
         maybe_mkdir "${ABS_DIRNAME}/${f}";
         ( cd src
@@ -351,8 +347,7 @@ if test -n "$do_config"; then
         )
       fi
     done
-    for f in configure unixconf.h.in makemake.in VERSION \
-             termcap/configure termcap/Makefile.in ; do
+    for f in configure unixconf.h.in makemake.in VERSION ; do
       maybe_link src/$f $ABS_DIRNAME/$f;
     done
   fi
@@ -400,7 +395,7 @@ if test -n "$do_config"; then
   done
   # Prepare the configure files.
   chmod a+x $ABS_DIRNAME/configure
-  for subdir in readline ${FFI_DIRS} libcharset sigsegv; do
+  for subdir in ${FFI_DIRS} libcharset sigsegv; do
     if test -d $ABS_DIRNAME/$subdir; then
       chmod a+x $ABS_DIRNAME/$subdir/configure
     fi
@@ -415,32 +410,6 @@ if test -n "$do_config"; then
   fi
   ${CONFIG_SHELL-/bin/sh} configure $subdir_srcdir_args \
       $subdir_configure_args --cache-file=config.cache
-  for subdir in readline; do
-    if test -d $subdir; then
-      # readline is not even configurable in C++ mode.
-      if test $subdir = readline; then
-        if grep 'cl_cv_prog_cc_cplusplus.*yes' $ABS_DIRNAME/config.cache > /dev/null ; then
-          continue;
-        fi
-      fi
-      echo "executing $DIRNAME/$subdir/configure ..."
-      (cd $subdir
-       if test -n "$INPLACE" -o $subdir = readline; then
-         subdir_srcdir_args=''
-       else
-         subdir_srcdir_args="--srcdir=$RREL_SRCDIR/src/$subdir"
-       fi
-       if test $subdir = readline; then
-         subdir_cache_args=''
-       else
-         subdir_cache_args="--cache-file=../config.cache"
-       fi
-       ${CONFIG_SHELL-/bin/sh} configure $subdir_srcdir_args \
-          $subdir_configure_args $subdir_cache_args
-       cd ..
-      )
-    fi
-  done
   if [ "$do_ffi" = "yes" ]; then
     for subdir in ${FFI_DIRS}; do
       if test -d $subdir; then
@@ -465,34 +434,6 @@ if test -n "$do_config"; then
   cd ..
 fi
 
-# Determine recommended makemake arguments.
-if grep 'ac_cv_func_tgetent.*no' $ABS_DIRNAME/config.cache > /dev/null \
-   && grep 'ac_cv_lib_termcap_tgetent.*no' $ABS_DIRNAME/config.cache > /dev/null \
-   && grep 'ac_cv_lib_ncurses_tgetent.*no' $ABS_DIRNAME/config.cache > /dev/null ; then
-  # On Unix systems lacking libtermcap and libncurses (rarely seen), we do not
-  # use our included termcap library because the user would have to install
-  # /etc/termcap.  The user should better do that before compiling clisp.
-  makemake_args="--with-no-termcap-ncurses --with-noreadline $makemake_args"
-else
-  if grep 'cl_cv_prog_cc_cplusplus.*yes' $ABS_DIRNAME/config.cache > /dev/null ; then
-    makemake_args="--with-noreadline $makemake_args"
-  else
-    if test -d $ABS_DIRNAME/readline; then
-      makemake_args="--with-readline $makemake_args"
-    else
-      makemake_args="--with-noreadline $makemake_args"
-    fi
-  fi
-fi
-if grep 'cl_cv_prog_cc_cplusplus.*yes' $ABS_DIRNAME/config.cache > /dev/null ; then
-  makemake_args="--with-nogettext $makemake_args"
-else
-  if test -d $ABS_DIRNAME/po; then
-    makemake_args="--with-gettext $makemake_args"
-  else
-    makemake_args="--with-nogettext $makemake_args"
-  fi
-fi
 if test -d $ABS_DIRNAME/avcall -a -d $ABS_DIRNAME/callback; then
   (cd $ABS_DIRNAME/avcall && make) &&
   (cd $ABS_DIRNAME/callback && make) &&

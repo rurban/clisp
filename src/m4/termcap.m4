@@ -23,6 +23,7 @@ else
   if test -z "$LIBTERMCAP"; then
     AC_CHECK_LIB(termcap,tgetent, LIBTERMCAP="-ltermcap")
   fi
+  if test -z "$LIBTERMCAP"; then LIBTERMCAP="broken"; fi
 fi
 AC_SUBST(LIBTERMCAP)
 ])

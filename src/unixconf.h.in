@@ -93,6 +93,10 @@
 /* Define if you have <ldap.h>. */
 #undef HAVE_LDAP_H
 
+/* CL_READLINE */
+/* Define if you have <readline/readline.h>. */
+#undef HAVE_READLINE_READLINE_H
+
 /* CL_TERM */
 /* Define if you have <termios.h>. */
 #undef HAVE_TERMIOS_H
