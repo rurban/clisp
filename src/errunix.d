@@ -50,6 +50,17 @@
         # good English messages and good translations. The if cascade
         # is not the most efficient code, but this function is not time
         # critical.
+          # Errors in multibyte functions:
+          # Test EILSEQ first, because some systems do not define it,
+          # in which case iconv supplies a default value.  If that default
+          # matches another errno, then we prefer to use the message for
+          # that other errno rather than this message.
+          #ifdef EILSEQ
+          if (errcode == EILSEQ) {
+            errormsg->name = "EILSEQ";
+            errormsg->msg = GETTEXTL("Invalid multibyte or wide character");
+          }
+          #endif
           # Common UNIX errors:
           #ifdef EPERM
           if (errcode == EPERM) {
@@ -257,13 +268,6 @@
           if (errcode == ERANGE) {
             errormsg->name = "ERANGE";
             errormsg->msg = GETTEXTL("Result too large");
-          }
-          #endif
-          # Errors in multibyte functions:
-          #ifdef EILSEQ
-          if (errcode == EILSEQ && EILSEQ != EINVAL) {
-            errormsg->name = "EILSEQ";
-            errormsg->msg = GETTEXTL("Invalid multibyte or wide character");
           }
           #endif
           # Errors related to non-blocking I/O and interrupt I/O:
