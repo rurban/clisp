@@ -1152,6 +1152,7 @@ LISPSYM(simple_stream_error,"SIMPLE-STREAM-ERROR",system) # als Typ für ERROR   
 LISPSYM(simple_end_of_file,"SIMPLE-END-OF-FILE",system) # als Typ für ERROR                             |
 LISPSYM(simple_reader_error,"SIMPLE-READER-ERROR",system) # als Typ für ERROR                           |
 LISPSYM(simple_file_error,"SIMPLE-FILE-ERROR",system) # als Typ für ERROR                               |
+LISPSYM(simple_os_error,"SIMPLE-OS-ERROR",system) # als Typ für ERROR                                   |
 LISPSYM(simple_storage_condition,"SIMPLE-STORAGE-CONDITION",system) # als Typ für ERROR                 |
 LISPSYM(simple_warning,"SIMPLE-WARNING",lisp) # als Typ für ERROR                                     --+
 LISPSYM(Kinstance,"INSTANCE",keyword) # als make-condition-Argument für ERROR
