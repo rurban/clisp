@@ -47,9 +47,13 @@ if the destination does not exist, it is created."
                 (mx-array) "Incompatible dimensions: ~Dx~D vs ~Dx~D"
                 d0 d1 (mxGetM mx-array) (mxGetN mx-array))
         (setq mx-array (mxCreateDoubleMatrix d0 d1 mxREAL)))
+    (assert (mxGetData mx-array) (mx-array) "~S: there is no data in ~S"
+            'copy-mxArray-to-lisp mx-array)
+    (unless (mxGetData mx-array)
+      (error "~S: there is no data in ~S" 'copy-mxArray-to-lisp mx-array))
     (loop :for i :from 0 :below d0 :do
       (loop :for j :from 0 :below d1 :do
-        (setf (mx-aref mx-array i j d0)
+        (setf (mx-aref-r mx-array i j d0)
               (coerce (aref lisp-mx i j) 'double-float))))
     mx-array))
 
@@ -64,6 +68,8 @@ if the destination does not exist, it is created."
 the dimensions should be compatible.
 if the destination does not exist, it is created."
   (let ((d0 (mxGetM mx-array)) (d1 (mxGetN mx-array)))
+    (assert (mxGetData mx-array) (mx-array) "~S: there is no data in ~S"
+            'copy-mxArray-to-lisp mx-array)
     (if lisp-mx
         (assert (and (= d0 (array-dimension lisp-mx 0))
                      (= d1 (array-dimension lisp-mx 1)))
@@ -73,7 +79,7 @@ if the destination does not exist, it is created."
     (loop :for i :from 0 :below d0 :do
       (loop :for j :from 0 :below d1 :do
         (setf (aref lisp-mx i j)
-              (mx-aref mx-array i j d0))))
+              (mx-aref-r mx-array i j d0))))
     lisp-mx))
 
 (defun copy-matlab-to-lisp (var &optional lisp-mx
