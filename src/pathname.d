@@ -2531,7 +2531,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               consp(dir) && eq(Car(dir),S(Kabsolute)) &&
               # Cdr(dir) might not be a cons, e.g., "/foo" ==
               # #S(pathname :directory (:absolute) :name "foo")
-              consp(Cdr(dir)) && !nullp(Cdr(Cdr(dir))) &&
+              consp(Cdr(dir)) && consp(Cdr(Cdr(dir))) &&
               stringp(dev) &&
               string_eqcomp_ci(Car(Cdr(dir)),0,dev,0,vector_length(dev))) {
             # path = (:ABSOLUTE "cygdrive" "drive" "dir1" ...) ===>
