@@ -32,7 +32,7 @@
   (:arguments) (:return-type uint32))
 
 ;; create an icon
-(c-lines "<winuser.h>~%")
+;;(c-lines "<winuser.h>~%")
 (def-c-enum image_type
   (IMAGE_BITMAP 0) IMAGE_ICON IMAGE_CURSOR IMAGE_ENHMETAFILE)
 (def-c-enum load_options
@@ -46,7 +46,7 @@
   (LR_LOADREALSIZE 128)
   (LR_LOADMAP3DCOLORS 4096)
   (LR_CREATEDIBSECTION 8192)
-  (LR_COPYFROMRESOURCE 0x4000)
+  (LR_COPYFROMRESOURCE #x4000)
   (LR_SHARED 32768))
 (def-call-out LoadImageA (:library "User32.dll")
   (:arguments (application-instance-handle c-pointer)
