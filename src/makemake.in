@@ -547,14 +547,14 @@ else
   NEXT='/'
 fi
 if [ $HOS = dos -o $HOS = os2 -o $HOS = win32 ] ; then
-  # Replace '/' by '\':
+  # Replace '/' with '\':
   PARENT_=`echol $PARENT | sed -e 's,/,\\\\,g'`
   NEXT_=`echol $NEXT | sed -e 's,/,\\\\,g'`
 else
   PARENT_=$PARENT
   NEXT_=$NEXT
 fi
-# Replace '\' by '\\':
+# Replace '\' with '\\':
 #PARENT_2=`echol $PARENT_ | sed -e 's,\\\\,\\\\\\\\,g'`
 if [ $HSYS = win32gcc ] ; then
   PARENT_M="$PARENT"
@@ -567,7 +567,7 @@ fi
 UTILDIR="${SRCTOPDIR}utils${NEXT}"
 DOCDIR="${SRCTOPDIR}doc${NEXT}"
 if [ $HOS = dos -o $HOS = os2 -o $HOS = win32 ] ; then
-  # Replace '/' by '\':
+  # Replace '/' with '\':
   SRCTOPDIR_=`echol $SRCTOPDIR | sed -e 's,/,\\\\,g'`
   UTILDIR_=`echol $UTILDIR | sed -e 's,/,\\\\,g'`
   DOCDIR_=`echol $DOCDIR | sed -e 's,/,\\\\,g'`
@@ -2189,7 +2189,7 @@ if [ $TSYS != win32msvc ] ; then
       *hppa) g='-' ;;
       *)     g='' ;;
     esac
-    # In ari68020.d the dollars must be replaced, and \# replaced by # :
+    # In ari68020.d the dollars must be replaced, and \# replaced with # :
     case $f in
       ari68020*)
         if [ $AS_UNDERSCORE = false ] ; then
@@ -2848,7 +2848,7 @@ if [ $HOS = unix ] && [ $CROSS = false ] ; then
     XCC_CREATESHARED_=`echo "$XCC_CREATESHARED" | sed -e 's,\\$,$$,g'`
     if [ "$TSYSOS" = cygwin32 ] ; then
       # Cygwin32 doesn't mark real executables as being executables,
-      # so replace "test -x " by "test -r ".
+      # so replace "test -x " with "test -r ".
       echotab "sed -e 's%@with_dynamic_modules@%$with_dynamic_modules%' -e 's%@createsharedlib@%$XCC_CREATESHARED_%' -e 's, -x \"\\\$\$, -r \"\$\$,g' < ${SRCDIR}${f}.in > ${f}"
     else
       echotab "sed -e 's%@with_dynamic_modules@%$with_dynamic_modules%' -e 's%@createsharedlib@%$XCC_CREATESHARED_%' < ${SRCDIR}${f}.in > ${f}"
