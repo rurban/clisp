@@ -1,5 +1,7 @@
 2000-03-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lisparit.d: Don't use invalid syntax "## ".
+
         * clhs.lsp: The code lives in package SYSTEM, not LISP.
           Bind *package* while reading clhs.txt.
           Verify that the COMMON-LISP symbol is an exported one.
