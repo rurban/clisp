@@ -2283,25 +2283,43 @@ Ratio and Complex (only if SPVW_MIXED).
     #define oint_type_shift 0
     #define oint_type_len 16
     #define oint_type_mask 0x000000000000FFFFUL
-    #define oint_addr_shift 0
-    #define oint_addr_len 64
-    #define oint_addr_mask 0xFFFFFFFFFFFFFFFFUL
     #define oint_data_shift 16
     #define oint_data_len 32
     #define oint_data_mask 0x0000FFFFFFFF0000UL
+    #define garcol_bit_o 63
+    #define oint_addr_shift 0
+    #define oint_addr_len 64
+    #define oint_addr_mask 0xFFFFFFFFFFFFFFFFUL
   #else
     # For pointers, the address takes the full word (with type info in the
     # lowest two bits). For immediate objects, we use 24 bits for the data
-    # (but exclude the highest bit, which is the garcol_bit).
-    #define oint_type_shift 0
-    #define oint_type_len 8
-    #define oint_type_mask 0x0000007FUL
+    # (but exclude the highest available bit, which is the garcol_bit).
+    #if !(defined(SPARC) && defined(UNIX_LINUX))
+      #define oint_type_shift 0
+      #define oint_type_len 8
+      #define oint_type_mask 0x0000007FUL
+      #define oint_data_shift 7
+      #define oint_data_len 24
+      #define oint_data_mask 0x7FFFFF80UL
+      #define garcol_bit_o 31
+    #elif defined(SPARC) && defined(UNIX_LINUX)
+      # On Sparc-Linux, malloc()ed addresses are of the form 0x0....... or
+      # 0xe........ Bits 31..29 are therefore part of an address and cannot
+      # be used as garcol_bit. We therefore choose bit 28 as garcol_bit.
+      # Now, the 24 data bits of an immediate value must not intersect the
+      # garcol_bit, so we use bits 27..4 for that (we could use bits 26..3
+      # as well).
+      #define oint_type_shift 0
+      #define oint_type_len 32
+      #define oint_type_mask 0xE000000FUL
+      #define oint_data_shift 4
+      #define oint_data_len 24
+      #define oint_data_mask 0x0FFFFFF0UL
+      #define garcol_bit_o 28
+    #endif
     #define oint_addr_shift 0
     #define oint_addr_len 32
     #define oint_addr_mask 0xFFFFFFFFUL
-    #define oint_data_shift 7
-    #define oint_data_len 24
-    #define oint_data_mask 0x7FFFFF80UL
   #endif
 #elif defined(WIDE_HARD)
   #if defined(DECALPHA) && (defined(UNIX_OSF) || defined(UNIX_LINUX))
@@ -2837,16 +2855,16 @@ Ratio and Complex (only if SPVW_MIXED).
 # Note that cons and varobject cannot have the same encoding mod 8
 # (otherwise gc_mark:up wouldn't work).
 # So, here are the encodings.
-#   machine         ......00   encodes pointers, offset 0
-#   subr            ......10   encodes pointers, offset 2
-#   varobject       ......01   offset 1, the pointers are == 0 mod 4
-#   cons            .....011   offset 3, the pointers are == 0 mod 8
-#   immediate       .....111
-#     fixnum        ..00s111   s = sign bit
-#     sfloat        ..01s111   s = sign bit
-#     char          ..100111
-#     read-label    ..110111
-#     system        ..111111
+#   machine           ... .00   encodes pointers, offset 0
+#   subr              ... .10   encodes pointers, offset 2
+#   varobject         ... .01   offset 1, the pointers are == 0 mod 4
+#   cons              ... 011   offset 3, the pointers are == 0 mod 8
+#   immediate         ... 111
+#     fixnum          00s 111   s = sign bit
+#     sfloat          01s 111   s = sign bit
+#     char            100 111
+#     read-label      110 111
+#     system          111 111
 # Varobjects all start with a word containing the type (1 byte) and a length
 # field (up to 24 bits).
 
@@ -2857,15 +2875,22 @@ Ratio and Complex (only if SPVW_MIXED).
   #define cons_bias       3  # mod 8
   #define immediate_bias  7  # mod 8
 
+# Immediate objects have a second type field.
+  #if defined(SPARC) && defined(UNIX_LINUX)
+    #define imm_type_shift  29
+  #else
+    #define imm_type_shift  3
+  #endif
+
 # The types of immediate objects.
-  #define fixnum_type      ((0 << 3) + immediate_bias)
-  #define sfloat_type      ((2 << 3) + immediate_bias)
-  #define char_type        ((4 << 3) + immediate_bias)
-  #define read_label_type  ((6 << 3) + immediate_bias)
-  #define system_type      ((7 << 3) + immediate_bias)
+  #define fixnum_type      ((0 << imm_type_shift) + immediate_bias)
+  #define sfloat_type      ((2 << imm_type_shift) + immediate_bias)
+  #define char_type        ((4 << imm_type_shift) + immediate_bias)
+  #define read_label_type  ((6 << imm_type_shift) + immediate_bias)
+  #define system_type      ((7 << imm_type_shift) + immediate_bias)
 
 # The sign bit, for immediate numbers only.
-  #define sign_bit_t  3
+  #define sign_bit_t  (0 + imm_type_shift)
   #define sign_bit_o  (sign_bit_t+oint_type_shift)
 # Distinction between fixnums and bignums.
   #define bignum_bit_o  1
@@ -2886,7 +2911,7 @@ Ratio and Complex (only if SPVW_MIXED).
   #define type_zero_oint(type)  ((oint)(tint)(type) << oint_type_shift)
 
 # The GC bit. Addresses may not have this bit set.
-  #define garcol_bit_o  (oint_addr_len-1)  # only set during garbage collection
+  # define garcol_bit_o  (already defined above)  # only set during garbage collection
 
 # Test for immediate object.
 # immediate_object_p(obj)
@@ -5907,7 +5932,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
     #endif
   #else
     #define immediate_number_p(obj)  \
-      ((as_oint(obj) & 0x27) == (fixnum_type&sfloat_type))
+      ((as_oint(obj) & ((4 << imm_type_shift) | immediate_bias)) == (fixnum_type&sfloat_type))
     #define numberp(obj)  \
       (immediate_number_p(obj) \
        || (varobjectp(obj)     \
@@ -6232,7 +6257,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   #ifdef TYPECODES
     #define charp(obj)  (typecode(obj)==char_type)
   #else
-    #define charp(obj)  ((as_oint(obj) & 0x3F) == char_type)
+    #define charp(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias)) == char_type)
   #endif
 
 # Test for base character
@@ -6259,10 +6284,10 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   #define machinep(obj)  ((as_oint(obj) & 3) == machine_bias)
 
 # Test auf Read-Label
-  #define read_label_p(obj)  ((as_oint(obj) & 0x3F) == read_label_type)
+  #define read_label_p(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias)) == read_label_type)
 
 # Test auf System-Pointer
-  #define systemp(obj)  ((as_oint(obj) & 0x3F) == system_type)
+  #define systemp(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias)) == system_type)
 
 #endif
 
@@ -6277,7 +6302,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
       }
   #else
     #define if_realp(obj,statement1,statement2)  \
-      if (((as_oint(obj) & 0x27) == fixnum_type) \
+      if (((as_oint(obj) & ((4 << imm_type_shift) | immediate_bias)) == fixnum_type) \
           || (varobjectp(obj)                    \
               && ((uintB)(Record_type(obj)-Rectype_Bignum) <= Rectype_Ratio-Rectype_Bignum) \
          )   )                                   \
@@ -6299,7 +6324,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
       }
   #else
     #define if_rationalp(obj,statement1,statement2)  \
-      if (((as_oint(obj) & 0x37) == fixnum_type)         \
+      if (((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias)) == fixnum_type) \
           || (varobjectp(obj)                            \
               && ((Record_type(obj) == Rectype_Bignum)   \
                   || (Record_type(obj) == Rectype_Ratio) \
@@ -6316,7 +6341,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
       )
   #else
     #define integerp(obj)  \
-     (((as_oint(obj) & 0x37) == fixnum_type)                       \
+     (((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias)) == fixnum_type) \
       || (varobjectp(obj) && (Record_type(obj) == Rectype_Bignum)) \
      )
   #endif
@@ -6325,14 +6350,14 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   #ifdef TYPECODES
     #define fixnump(obj)  ((typecode(obj) & ~bit(sign_bit_t)) == fixnum_type)
   #else
-    #define fixnump(obj)  ((as_oint(obj) & 0x37) == fixnum_type)
+    #define fixnump(obj)  ((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias)) == fixnum_type)
   #endif
 
 # Test auf Fixnum >=0
   #ifdef TYPECODES
     #define posfixnump(obj)  (typecode(obj) == fixnum_type)
   #else
-    #define posfixnump(obj)  ((as_oint(obj) & 0x3F) == fixnum_type)
+    #define posfixnump(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias)) == fixnum_type)
   #endif
 
 # Test auf Bignum
@@ -6369,7 +6394,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
        ) == (sfloat_type&ffloat_type&dfloat_type&lfloat_type))
   #else
     #define floatp(obj)  \
-      (((as_oint(obj) & 0x37) == sfloat_type) \
+      (((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias)) == sfloat_type) \
        || (varobjectp(obj)                    \
            && ((uintB)(Record_type(obj)-Rectype_Lfloat) <= Rectype_Ffloat-Rectype_Lfloat) \
       )   )
@@ -6379,7 +6404,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   #ifdef TYPECODES
     #define short_float_p(obj)  ((typecode(obj) & ~bit(sign_bit_t)) == sfloat_type)
   #else
-    #define short_float_p(obj)  ((as_oint(obj) & 0x37) == sfloat_type)
+    #define short_float_p(obj)  ((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias)) == sfloat_type)
   #endif
 
 # Test auf Single-Float
@@ -9562,11 +9587,11 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
     #define FB1  (garcol_bit_t>TB0 ? TB0 : TB1)
   #else
     #define FB6  garcol_bit_o
-    #define FB5  30
-    #define FB4  29
-    #define FB3  28
-    #define FB2  27
-    #define FB1  26
+    #define FB5  (garcol_bit_o-1)
+    #define FB4  (garcol_bit_o-2)
+    #define FB3  (garcol_bit_o-3)
+    #define FB2  (garcol_bit_o-4)
+    #define FB1  (garcol_bit_o-5)
   #endif
 # davon abhängig:
   #define frame_bit_t    FB6  # garcol_bit als FRAME-Kennzeichen
