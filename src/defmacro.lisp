@@ -98,7 +98,7 @@ returns, for a macro definition macrodef = (name lambdalist . body),
 3. lambda list
 4. docstring (or NIL, if not there)
 
- (MAKE-MACRO-EXPANDER macrodef)
+ (MAKE-MACRO-EXPANDER macrodef &optional env)
 returns, for a macro definition macrodef = (name lambdalist . body),
 the actual object #<MACRO expander> for the FENV.
 |#
@@ -444,5 +444,12 @@ the actual object #<MACRO expander> for the FENV.
              lambdalist
              docstring)))))))
 
-(defun make-macro-expander (macrodef)
-  (make-macro (eval (make-macro-expansion macrodef))))
+(defun make-macro-expander (macrodef &optional
+                            (env (vector (and (boundp '*venv*) *venv*)
+                                         (and (boundp '*fenv*) *fenv*)
+                                         (and (boundp '*benv*) *benv*)
+                                         (and (boundp '*genv*) *genv*)
+                                         (if (boundp '*denv*) *denv*
+                                             *toplevel-denv*))))
+  (make-macro ;; CLTL1: (eval (make-macro-expansion macrodef))
+   (evalhook (make-macro-expansion macrodef) nil nil env)))

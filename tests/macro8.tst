@@ -385,6 +385,19 @@ FEXPAND-1
       (mexpand a-sm))))
 (A-SM NIL)
 
+;; <http://www.lisp.org/HyperSpec/Body/speope_fletcm_scm_macrolet.html>
+;; The macro-expansion functions defined by macrolet are defined in the
+;; lexical environment in which the macrolet form appears
+(symbol-macrolet ((foo 12))
+  (macrolet ((bar (x) `(+ ,x ,(1+ foo))))
+    (bar 10)))
+23
+
+(symbol-macrolet ((foo 12))
+  (macrolet ((bar (x) (+ x foo)))
+    (bar 10)))
+22
+
 ;; <https://sourceforge.net/tracker/index.php?func=detail&aid=678194&group_id=1355&atid=101355>
 (defmacro my-typeof (place &environment env)
   (let ((exp-place (macroexpand place env)))
