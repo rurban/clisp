@@ -8097,6 +8097,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 
 # Wandelt einen String in einen ASCIZ-String im C-Stack um.
 # with_string_0(string,asciz,statement);
+# with_sstring_0(simple_string,asciz,statement);
 # copies the contents of string (which should be a Lisp string) to a safe area
 # (zero-terminating it), binds the variable asciz pointing to it, and
 # executes the statement.
@@ -8105,6 +8106,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
     { var char* ascizvar = TheAsciz(string_to_asciz(string)); \
       statement                                               \
     }
+  #define with_sstring_0  with_string_0
 #else
   #define with_string_0(string,ascizvar,statement)  \
     { var uintL ascizvar##_len;                                  \
@@ -8120,8 +8122,23 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
       }                                                          \
       FREE_DYNAMIC_ARRAY(ascizvar##_data);                       \
     }}
+  #define with_sstring_0(string,ascizvar,statement)  \
+    { var object ascizvar##_string = (string);                      \
+      var uintL ascizvar##_len = Sstring_length(ascizvar##_string); \
+      var uintB* ptr1 = &TheSstring(ascizvar##_string)->data[0];    \
+     {var DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_len+1);    \
+      {var uintB* ptr2 = &ascizvar##_data[0];                       \
+       var uintL count;                                             \
+       dotimesL(count,ascizvar##_len, { *ptr2++ = *ptr1++; } );     \
+       *ptr2 = '\0';                                                \
+      }                                                             \
+      {var char* ascizvar = (char*) &ascizvar##_data[0];            \
+       statement                                                    \
+      }                                                             \
+      FREE_DYNAMIC_ARRAY(ascizvar##_data);                          \
+    }}
 #endif
-# wird verwendet von MISC, FOREIGN
+# wird verwendet von PATHNAME, MISC, FOREIGN
 
 # In some foreign modules, we call library functions that can do callbacks.
 # When we pass a parameter to such a library function, maybe it first does a
@@ -8132,6 +8149,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 
 # Wandelt einen String in einen String im C-Stack um.
 # with_string(string,charptr,len,statement);
+# with_sstring(simple_string,charptr,len,statement);
 # copies the contents of string (which should be a Lisp string) to a safe area,
 # binds the variable charptr pointing to it and the variable len to its length,
 # and executes the statement.
@@ -8148,7 +8166,21 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
       }                                                      \
       FREE_DYNAMIC_ARRAY(charptrvar##_data);                 \
     }}
-# wird verwendet von
+  #define with_sstring(string,charptrvar,lenvar,statement)  \
+    { var object charptrvar##_string = (string);                        \
+      var uintL charptrvar##_len = Sstring_length(charptrvar##_string); \
+      var uintB* ptr1 = &TheSstring(charptrvar##_string)->data[0];      \
+     {var DYNAMIC_ARRAY(charptrvar##_data,uintB,lenvar);                \
+      {var uintB* ptr2 = &charptrvar##_data[0];                         \
+       var uintL count;                                                 \
+       dotimesL(count,lenvar, { *ptr2++ = *ptr1++; } );                 \
+      }                                                                 \
+      {var char* charptrvar = (char*) &charptrvar##_data[0];            \
+       statement                                                        \
+      }                                                                 \
+      FREE_DYNAMIC_ARRAY(charptrvar##_data);                            \
+    }}
+# wird verwendet von PATHNAME
 
 # UP: Liefert eine Tabelle aller Zirkularitäten innerhalb eines Objekts.
 # (Eine Zirkularität ist ein in diesem Objekt enthaltenes Teil-Objekt,
