@@ -16,11 +16,8 @@ dnl  Makefile     ---<make>--->> lisp.run, lispinit.mem
 dnl
 dnl
 AC_PREREQ(2.57)
-AC_INIT(GNU CLISP,no_version_known_bug,http://clisp.cons.org/,clisp)
+AC_INIT(GNU CLISP, m4_normalize(esyscmd([if test -f version.sh; then . ./version.sh; else . ../version.sh; fi; echo "${VERSION_NUMBER} (${RELEASE_DATE})"])), http://clisp.cons.org/, clisp)
 AC_CONFIG_SRCDIR(lispbibl.d)
-. $srcdir/../version.sh
-PACKAGE_VERSION="$VERSION_NUMBER ($RELEASE_DATE)"
-PACKAGE_STRING="$PACKAGE_NAME $PACKAGE_VERSION"
 AC_COPYRIGHT([GNU CLISP Copyright 1989-2005 by Bruno Haible and others
 GNU CLISP is distributed under the GNU GPL, see file COPYRIGHT])dnl
 AC_REVISION([$Id$])dnl
