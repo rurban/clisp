@@ -10,6 +10,9 @@ User visible changes
   symbols GENERIC-FLET and GENERIC-LABELS are not exported from the
   COMMON-LISP package any more.
 
+* Conforming to ANSI CL issues <KEYWORD-ARGUMENT-NAME-PACKAGE:ANY> and
+  <MULTIPLE-VALUE-SETQ-ORDER:LIKE-SETF-OF-VALUES>.
+
 * When CLISP is invoked with an "-a" option, *features* contain :ANSI-CL.
 
 * Weak pointers are implemented. New functions MAKE-WEAK-POINTER,
@@ -162,7 +165,7 @@ Important note
 User visible changes
 --------------------
 
-* Conforming to ANSI CL issue <SETF-MULTIPLE-STORE-VARIABLES:ALLOW>: 
+* Conforming to ANSI CL issue <SETF-MULTIPLE-STORE-VARIABLES:ALLOW>:
   multiple values in ASSERT, ROTATEF, SHIFTF &c.
 
 * Conforming to ANSI CL issue <SETF-OF-VALUES:ADD>: `values' can take
@@ -177,8 +180,8 @@ User visible changes
   SET-MACRO-CHARACTER, SET-DISPATCH-MACRO-CHARACTER. The latter two now
   accept a symbol instead of a function.
 
-* X3J13 vote <103> = writeup <IN-PACKAGE-FUNCTIONALITY:MAR89-X3J13> is 
-  implemented: COMMON-LISP:IN-PACKAGE is now a macro. LISP:IN-PACKAGE retains 
+* X3J13 vote <103> = writeup <IN-PACKAGE-FUNCTIONALITY:MAR89-X3J13> is
+  implemented: COMMON-LISP:IN-PACKAGE is now a macro. LISP:IN-PACKAGE retains
   the old semantics as a function.
   The syntaxes (IN-PACKAGE "FOO") and (IN-PACKAGE :FOO) work with both
   variations.
@@ -211,8 +214,8 @@ User visible changes
   are implemented: COMMONP and COMPILER-LET are not exported from package
   COMMON-LISP any more.
 
-* X3J13 vote <138> = writeup <PEEK-CHAR-READ-CHAR-ECHO:FIRST-READ-CHAR> is 
-  implemented: PEEK-CHAR does less side effects than READ-CHAR followed by 
+* X3J13 vote <138> = writeup <PEEK-CHAR-READ-CHAR-ECHO:FIRST-READ-CHAR> is
+  implemented: PEEK-CHAR does less side effects than READ-CHAR followed by
   UNREAD-CHAR would do.
 
 * X3J13 writeup <SHARPSIGN-PLUS-MINUS-PACKAGE:KEYWORD> is implemented:
@@ -889,13 +892,13 @@ User visible changes
 * During directory search, symbolic link loops are now ignored instead
   of resulting in an error. Thanks to Dan Stanger.
 
-* Fixed a CLOS bug: REMOVE-METHOD didn't work. 
+* Fixed a CLOS bug: REMOVE-METHOD didn't work.
   Thanks to Roger Kehr <kehr@iti.informatik.th-darmstadt.de>.
 
 * Fixed a bug in the compiler: A (MULTIPLE-VALUE-SETQ vars valform)
   or (MULTIPLE-VALUE-BIND vars valform ...) form was miscompiled if
   valform is known to produce a single value.
-  Thanks to Paul Graham <pg@das.harvard.edu>.  
+  Thanks to Paul Graham <pg@das.harvard.edu>.
 
 * Fixed at least two bugs in the LOOP macro: FOR-AS-ACROSS clauses could
   result in AREF signalling an out-of-bounds error at the end of the vector.
