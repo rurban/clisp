@@ -16046,13 +16046,13 @@ LISPFUN(socket_status,1,2,norest,nokey,0,NIL)
 
    restart_select:
     begin_system_call();
-    { var int ret, index;
-      var fd_set readfds, writefds, exceptfds;
+    { var fd_set readfds, writefds, exceptfds;
       var object all = STACK_2;
       FD_ZERO(&readfds); FD_ZERO(&writefds); FD_ZERO(&exceptfds);
       if (listp(all)) {
         object list = all;
-        for(index = 0; !nullp(list); list = Cdr(list)) {
+        int index = 0;
+        for(; !nullp(list); list = Cdr(list)) {
           if (!listp(list)) fehler_list(list);
           HANDLE_SET(Car(list));
           if (++index > FD_SETSIZE) {
@@ -16064,16 +16064,14 @@ LISPFUN(socket_status,1,2,norest,nokey,0,NIL)
                    );
           }}
       } else { HANDLE_SET(all); }
-      ret = select(FD_SETSIZE,&readfds,&writefds,&exceptfds,timeout_ptr);
-      if (ret < 0) {
-        if (sock_errno_is(EINTR)) {
-          end_system_call(); goto restart_select;
-        }
+      if (select(FD_SETSIZE,&readfds,&writefds,&exceptfds,timeout_ptr) < 0) {
+        if (sock_errno_is(EINTR)) { end_system_call(); goto restart_select; }
         if (!sock_errno_is(EBADF)) { SOCK_error(); }
       }
       if (listp(all)) {
         object list = all;
-        for(; !nullp(list); list = Cdr(list)) {
+        int index = 0;
+        for(; !nullp(list); list = Cdr(list), index++) {
           HANDLE_ISSET(Car(list),value1);
           pushSTACK(value1);
         }
@@ -16499,43 +16497,50 @@ LISPFUNN(built_in_stream_element_type,1)
         #endif
           # CHARACTER or ([UN]SIGNED-BYTE n)
           eltype = TheStream(stream)->strm_eltype; break;
-        case strmtype_twoway:
-        case strmtype_echo:
-          stream = TheStream(stream)->strm_twoway_input;
-          eltype = TheStream(stream)->strm_eltype; break;
         #ifdef SOCKET_STREAMS
         case strmtype_twoway_socket:
           # CHARACTER or ([UN]SIGNED-BYTE n)
           stream = TheStream(stream)->strm_twoway_socket_input;
           eltype = TheStream(stream)->strm_eltype; break;
         #endif
+        case strmtype_twoway:
+        case strmtype_echo: {
+          object istream = TheStream(stream)->strm_twoway_input,
+            ostream = TheStream(stream)->strm_twoway_output,
+            itype = TheStream(istream)->strm_eltype,
+            otype = TheStream(ostream)->strm_eltype;
+          if (nullp(itype)) eltype = otype;
+          else if (nullp(otype)) eltype = itype;
+          else {
+#define DEOR(o) (consp(o)&&eq(Car(o),S(or)) ? Cdr(o) : pushSTACK(o),listof(1))
+            pushSTACK(DEOR(itype));
+            pushSTACK(DEOR(otype));
+#undef DEOR
+            funcall(L(append),2);
+            pushSTACK(value1);
+            pushSTACK(S(Ktest));
+            pushSTACK(L(equal));
+            funcall(L(remove_duplicates),3);
+            eltype = value1;
+          }
+        }
+        break;
         # dann die allgemeinen Streams:
         #ifdef GENERIC_STREAMS
         case strmtype_generic:
         #endif
-        default:
-          {
-            var uintB flags = TheStream(stream)->strmflags;
-            if (flags & strmflags_by_B) {
-              if (flags & strmflags_ch_B) {
-                # (OR CHARACTER INTEGER)
-                pushSTACK(S(or)); pushSTACK(S(character)); pushSTACK(S(integer));
-                eltype = listof(3);
-              } else {
-                # INTEGER
-                eltype = S(integer);
-              }
-            } else {
-              if (flags & strmflags_ch_B) {
-                # CHARACTER
-                eltype = S(character);
-              } else {
-                # NIL
-                eltype = NIL;
-              }
-            }
-          }
-          break;
+        default: {
+          var uintB flags = TheStream(stream)->strmflags;
+          if (flags & strmflags_by_B) {
+            if (flags & strmflags_ch_B) { # (OR CHARACTER INTEGER)
+              pushSTACK(S(or)); pushSTACK(S(character)); pushSTACK(S(integer));
+              eltype = listof(3);
+            } else eltype = S(integer);
+          } else
+            if (flags & strmflags_ch_B) eltype = S(character);
+            else eltype = NIL;
+        }
+        break;
       }
     }
     value1 = eltype; mv_count=1;
