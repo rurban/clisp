@@ -1,5 +1,10 @@
 2004-01-15  Sam Steingold  <sds@gnu.org>
 
+	* cpcre.c (PCRE-COMPILE, PCRE-EXEC): do not accept :UTF8 &
+	:NO-UTF8-CHECK, always do Unicode
+
+2004-01-15  Sam Steingold  <sds@gnu.org>
+
 	* encoding.d (encoding_from_name): issue a warning (using libc
 	stdio because Lisp i/o is not yet available) if the requested
 	encoding cannot be found
