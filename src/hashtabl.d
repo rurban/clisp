@@ -1083,7 +1083,7 @@ local uintL prepare_resize (object maxcount, object mincount_threshold,
   pushSTACK(maxcount); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_hashtable_size)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(maxcount);
-  check_value(type_error,GETTEXT("Hash table size ~ too large"));
+  check_value(type_error,GETTEXT("Hash table size ~S too large"));
   maxcount = value1;
   mincount_threshold = popSTACK(); weak = popSTACK(); /* restore */
   goto prepare_resize_restart;
@@ -1128,7 +1128,7 @@ local object resize (object ht, object maxcount) {
         /* There is not enough room!! */
         pushSTACK(ht);          /* hash-table */
         fehler(serious_condition,
-               GETTEXT("internal error occured while resizing ~"));
+               GETTEXT("internal error occured while resizing ~S"));
       }
       count--;
       *KVptr++ = nextkey; *KVptr++ = nextvalue; /* file in new vector */
@@ -1225,7 +1225,7 @@ local gcv_object_t check_weak (gcv_object_t weak) {
   pushSTACK(NIL); pushSTACK(S(Kkey)); pushSTACK(S(Kvalue));
   pushSTACK(S(Keither)); pushSTACK(S(Kboth));
   pushSTACK(weak); pushSTACK(TheSubr(subr_self)->name);
-  check_value(type_error,GETTEXT("~: argument ~ should be ~, ~, ~, ~ or ~."));
+  check_value(type_error,GETTEXT("~S: argument ~S should be ~S, ~S, ~S, ~S or ~S."));
   weak = value1;
   goto check_weak_restart;
 }
@@ -1271,7 +1271,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
       pushSTACK(O(type_hashtable_test)); /* TYPE-ERROR slot EXPECTED-TYPE */
       pushSTACK(test); pushSTACK(S(Ktest));
       pushSTACK(S(make_hash_table));
-      check_value(type_error,GETTEXT("~: illegal ~ argument ~"));
+      check_value(type_error,GETTEXT("~S: illegal ~S argument ~S"));
       STACK_3 = value1;
       goto check_test_restart;
     }
@@ -1287,7 +1287,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
         pushSTACK(O(type_posfixnum)); /* TYPE-ERROR slot EXPECTED-TYPE */
         pushSTACK(size); pushSTACK(S(Ksize));
         pushSTACK(S(make_hash_table));
-        check_value(type_error,GETTEXT("~: ~ argument should be a fixnum >=0, not ~"));
+        check_value(type_error,GETTEXT("~S: ~S argument should be a fixnum >=0, not ~S"));
         STACK_2 = value1;
         goto check_size;
       }
@@ -1309,7 +1309,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
           pushSTACK(O(type_hashtable_rehash_size)); /* EXPECTED-TYPE */
           pushSTACK(STACK_(1+3)); pushSTACK(S(Krehash_size));
           pushSTACK(S(make_hash_table));
-          check_value(type_error,GETTEXT("~: ~ argument should be an integer or a float > 1, not ~"));
+          check_value(type_error,GETTEXT("~S: ~S argument should be an integer or a float > 1, not ~S"));
           STACK_1 = value1;
           goto check_rehash_size;
         }
@@ -1352,7 +1352,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
         pushSTACK(O(type_hashtable_rehash_threshold)); /* TYPE-ERROR slot EXPECTED-TYPE */
         pushSTACK(STACK_1); pushSTACK(S(Krehash_threshold));
         pushSTACK(S(make_hash_table));
-        check_value(type_error,GETTEXT("~: ~ argument should be a real between 0 and 1, not ~"));
+        check_value(type_error,GETTEXT("~S: ~S argument should be a real between 0 and 1, not ~S"));
         STACK_0 = value1;
         goto check_rehash_threshold;
       });
@@ -1432,7 +1432,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
             pushSTACK(ht); /* hash-table */
             pushSTACK(S(make_hash_table));
             fehler(serious_condition,
-                   GETTEXT("~: internal error while building ~"));
+                   GETTEXT("~S: internal error while building ~S"));
           }
           next = Car(STACK_1); /* restore next */
           hash_store(Car(next),Cdr(next)); /* make entry */
@@ -1474,7 +1474,7 @@ local object check_hashtable (object obj) {
     pushSTACK(S(hash_table)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: argument ~ is not a hash table"));
+    check_value(type_error,GETTEXT("~S: argument ~S is not a hash table"));
     obj = value1;
   }
   return obj;

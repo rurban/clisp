@@ -44,7 +44,7 @@ DEFUN(REGEXP::REGEXP-COMPILE, pattern &key EXTENDED IGNORE-CASE NEWLINE NOSUB)
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(asciz_to_string(buf,GLO(misc_encoding)));
     pushSTACK(pattern); pushSTACK(TheSubr(subr_self)->name);
-    check_value(error,"~ (~): ~");
+    check_value(error,"~S (~S): ~S");
     pattern = value1;
     goto restart_regcomp;
   }

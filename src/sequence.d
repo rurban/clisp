@@ -233,7 +233,7 @@ local object valid_type (object name) {
   pushSTACK(name); # TYPE-ERROR slot DATUM
   pushSTACK(O(type_recognizable_sequence_type));# TYPE-ERROR slot EXPECTED-TYPE
   pushSTACK(name);
-  fehler(type_error,GETTEXT("There are no sequences of type ~"));
+  fehler(type_error,GETTEXT("There are no sequences of type ~S"));
 }
 
 # UP: liefert den Typdescriptor einer Sequence
@@ -289,7 +289,7 @@ nonreturning_function(local, fehler_sequence, (object obj)) {
   pushSTACK(obj);         /* TYPE-ERROR slot DATUM */
   pushSTACK(S(sequence)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(S(sequence)); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not a ~"));
+  fehler(type_error,GETTEXT("~S: ~S is not a ~S"));
 }
 /* UP: return the type descriptor for the sequence, or report an error
  get_valid_seq_type(seq)
@@ -319,7 +319,7 @@ nonreturning_function(local, fehler_seqtype_length,
   }
   pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,
-         GETTEXT("~: sequence type forces length ~, but result has length ~"));
+         GETTEXT("~S: sequence type forces length ~S, but result has length ~S"));
 }
 /* check whether the computed_length CL matches seqtype_length STL */
 #define SEQTYPE_LENGTH_MATCH(cl,stl)                            \
@@ -330,7 +330,7 @@ nonreturning_function(local, fehler_posint, (object kw, object obj)) {
   pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_posinteger)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ should be an integer >=0, not ~"));
+  fehler(type_error,GETTEXT("~S: ~S should be an integer >=0, not ~S"));
 }
 
 # Macro: Trägt NIL als Defaultwert eines Parameters in den Stack ein:
@@ -374,7 +374,7 @@ nonreturning_function(local, fehler_posint, (object kw, object obj)) {
       pushSTACK(end); pushSTACK(kwptr[1]);
       pushSTACK(start); pushSTACK(kwptr[0]);
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~: ~ = ~ should not be greater than ~ = ~"));
+      fehler(error,GETTEXT("~S: ~S = ~S should not be greater than ~S = ~S"));
     }
   }
 
@@ -401,7 +401,7 @@ nonreturning_function(local, fehler_posint, (object kw, object obj)) {
       pushSTACK(end); pushSTACK(kwptr[1]);
       pushSTACK(start); pushSTACK(kwptr[0]);
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~: ~ = ~ should not be greater than ~ = ~"));
+      fehler(error,GETTEXT("~S: ~S = ~S should not be greater than ~S = ~S"));
     }
   }
 
@@ -546,7 +546,7 @@ local void seq_check_index (object seq, object index) {
     pushSTACK(index);             # TYPE-ERROR slot DATUM
     pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
     pushSTACK(index); pushSTACK(S(elt));
-    fehler(type_error,GETTEXT("~: the index should be a fixnum >=0, not ~"));
+    fehler(type_error,GETTEXT("~S: the index should be a fixnum >=0, not ~S"));
   }
   if (vectorp(seq)) { # vector ==>
     # check index against active length (may be smaller than total size)
@@ -829,7 +829,7 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
       pushSTACK(seq); funcall(seq_length(typdescr),1); # (SEQ-LENGTH seq)
       if (!(posfixnump(value1))) { # sollte ein Fixnum >=0 sein
         pushSTACK(value1); pushSTACK(S(nreverse));
-        fehler(error,GETTEXT("~: bad length ~"));
+        fehler(error,GETTEXT("~S: bad length ~S"));
       }
       {
         var uintL len = posfixnum_to_L(value1); # len
@@ -943,14 +943,14 @@ LISPFUN(make_sequence,seclass_default,2,0,norest,key,2,
         pushSTACK(size);               # TYPE-ERROR slot DATUM
         pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(size); pushSTACK(S(make_sequence));
-        fehler(type_error,GETTEXT("~: size should be an integer >=0, not ~"));
+        fehler(type_error,GETTEXT("~S: size should be an integer >=0, not ~S"));
       }
       # initial-element bei Strings defaultmäßig ergänzen:
       if (!boundp(STACK_2)) { /* :initial-element not supplied? */
         if (boundp(STACK_1)) { /* :update without :initial-element -> Error */
           pushSTACK(S(make_sequence));
           fehler(error,
-                 GETTEXT("~: :update must not be specified without :initial-element"));
+                 GETTEXT("~S: :update must not be specified without :initial-element"));
         }
         else if (posfixnump(seq_type(typdescr))) { /* type name integer? (means byte-vector) */
           STACK_2 = Fixnum_0; # initial-element := 0
@@ -1145,7 +1145,7 @@ LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
           var object len = NEXT(ptr); # nächste Länge
           if (!(posfixnump(len))) {
             pushSTACK(len); pushSTACK(S(concatenate));
-            fehler(error,GETTEXT("~: bad length ~"));
+            fehler(error,GETTEXT("~S: bad length ~S"));
           }
           total_length = I_I_plus_I(total_length,len); # total_length = total_length + len
         });
@@ -2003,7 +2003,7 @@ LISPFUN(replace,seclass_default,2,0,norest,key,4,
 nonreturning_function(global, fehler_both_tests, (void)) {
   pushSTACK(TheSubr(subr_self)->name);
   fehler(error,
-         GETTEXT("~: Must not specify both arguments to :TEST and :TEST-NOT"));
+         GETTEXT("~S: Must not specify both arguments to :TEST and :TEST-NOT"));
 }
 
 # UP: Überprüft die :TEST, :TEST-NOT - Argumente
@@ -2122,7 +2122,7 @@ nonreturning_function(global, fehler_both_tests, (void)) {
       if (!(posfixnump(bvsize))) { # Fixnum?
         pushSTACK(*(stackptr STACKop 0)); # sequence
         pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,GETTEXT("~: sequence ~ is too long"));
+        fehler(error,GETTEXT("~S: sequence ~S is too long"));
       }
       bvl = posfixnum_to_L(bvsize); # Länge des Bitvektors als Longword
     }
@@ -2591,7 +2591,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
       # size = (- end start), ein Integer >=0
       if (!(posfixnump(size))) {
         pushSTACK(*(stackptr STACKop 0)); # sequence
-        fehler(error,GETTEXT("too long sequence ~"));
+        fehler(error,GETTEXT("too long sequence ~S"));
       }
       bvl = posfixnum_to_L(size);
     }

@@ -76,7 +76,7 @@ nonreturning_function(local, fehler_ffi_nocall, (object ffinfo))
   {
     pushSTACK(ffinfo); pushSTACK(TheSubr(subr_self)->name);
     fehler(error,
-           GETTEXT("~: Unsupported call mechanism: ~")
+           GETTEXT("~S: Unsupported call mechanism: ~S")
           );
   }
 
@@ -85,7 +85,7 @@ nonreturning_function(local, fehler_ffi_proto, (object ffinfo))
     pushSTACK(ffinfo);
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,
-           GETTEXT("~: Bad function prototype: ~")
+           GETTEXT("~S: Bad function prototype: ~S")
           );
   }
 
@@ -94,7 +94,7 @@ nonreturning_function(local, fehler_ffi_argcount, (object ffinfo))
     pushSTACK(ffinfo);
     pushSTACK(TheSubr(subr_self)->name);
     fehler(program_error,
-           GETTEXT("~: Wrong number of arguments for prototype ~")
+           GETTEXT("~S: Wrong number of arguments for prototype ~S")
           );
   }
 
@@ -104,7 +104,7 @@ nonreturning_function(local, fehler_ffi_argtype, (object obj, object type, objec
     pushSTACK(fixnump(type) ? S(integer) : T); # TYPE-ERROR slot EXPECTED-TYPE
     pushSTACK(obj); pushSTACK(ffinfo); pushSTACK(TheSubr(subr_self)->name);
     fehler(type_error,
-           GETTEXT("~: Bad argument for prototype ~: ~")
+           GETTEXT("~S: Bad argument for prototype ~S: ~S")
           );
   }
 
@@ -113,7 +113,7 @@ nonreturning_function(local, fehler_ffi_arg, (object obj))
   {
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     fehler(control_error,
-           GETTEXT("~: Bad argument: ~")
+           GETTEXT("~S: Bad argument: ~S")
           );
   }
 
@@ -134,7 +134,7 @@ local aint convert_address(obj, offset)
       pushSTACK(S(unsigned_byte)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             GETTEXT("~: ~ is not a valid address")
+             GETTEXT("~S: ~S is not a valid address")
             );
     }
     if (boundp(offset)) {
