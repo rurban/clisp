@@ -9,11 +9,14 @@
 //
 // --------------------------------------------------------------------------------
 //
+// Revision 1.20  1999-04-04  bruno
+// - Modifications for UNICODE.
+//
 // Revision 1.19  1998-10-19  bruno
 // - Use the macro `nonreturning_function', not `nonreturning'.
 //
 // Revision 1.18  1997-06-22  bruno
-// - replace first preprocessing by CCMP2C; then only comments need to be
+// - replace first preprocessing with CCMP2C; then only comments need to be
 //   stripped before e2d can be applied.
 // - compilation in WIDE mode works now (use `eq', not `==' to compare objects)
 // - fixed buggy ESLOT4 macro (make_xatom wants a `Display*', not an `object')
@@ -564,16 +567,23 @@ local int isa_struct_p (object type, object obj)
 // generic test for unbound values, NIL will be threaten as unbound.
 #define gunboundp(X) (eq (X,unbound) || eq (X,NIL))
 
+// with_string_0, make_string, string_to_asciz now need an encoding.
+// Here are some predefined ones (only defined and only needed with UNICODE).
+#define pathname_encoding() (C_pathname_encoding(),value1)
+  extern void C_pathname_encoding (void);
+#define misc_encoding() (C_misc_encoding(),value1)
+  extern void C_misc_encoding (void);
+
 // with_stringable_0 is much like with_string_0, but a symbol is also
 // allowed as argument. This macro does type checking and may raise an error.
 // Furthermore the code generated is wrapped around a do{}while(0). All macros
 // from lispbibl.d do not do that. :-(
 //
-#define with_stringable_0_tc(obj, cvar, body)			\
+#define with_stringable_0_tc(obj, encoding, cvar, body)		\
   do{								\
     object wsa0_temp = symbolp(obj)?Symbol_name (obj):obj;	\
     if (stringp (wsa0_temp))					\
-      {with_string_0 (wsa0_temp, cvar, body);}			\
+      {with_string_0 (wsa0_temp, encoding, cvar, body);}	\
     else							\
       {								\
 	pushSTACK (obj);					\
@@ -1293,7 +1303,7 @@ local Font get_font (object self)
 	  // Ok there is a name ... so try to open the font
 	  dpy  = (pushSTACK (STACK_1),pop_display ());
 	  // XXX
-	  with_string_0 (*namef, name,
+	  with_string_0 (*namef, misc_encoding (), name,
 			 {
 			   begin_call ();
 			   font = XLoadFont (dpy, name);
@@ -1339,7 +1349,7 @@ local Atom get_xatom_general (Display *dpy, object obj, int internp)
 {
   Atom xatom;
 
-  with_stringable_0_tc (obj, atom_name,
+  with_stringable_0_tc (obj, misc_encoding (), atom_name,
     {
       begin_call ();	
         xatom = XInternAtom (dpy, atom_name, !internp);
@@ -1416,7 +1426,7 @@ local void enum_error (char *name, int value, int count)
 {
   funcall (L(list), count);
   pushSTACK (value1);
-  pushSTACK (make_string (name, asciz_length (name)));
+  pushSTACK (asciz_to_string (name, misc_encoding ()));
   pushSTACK (fixnum (count));
   pushSTACK (fixnum (value));
   fehler (error, "Ouch! ~ is not in [0;~], is it?\n"
@@ -1702,7 +1712,7 @@ local object make_xatom (Display *dpy, Atom atom)
   end_call ();
 
   pushSTACK (subr_self);
-  pushSTACK (make_string (atom_name, asciz_length (atom_name)));
+  pushSTACK (asciz_to_string (atom_name, misc_encoding ()));
   pushSTACK (`KEYWORD`);
   funcall (L(intern), 2);
   subr_self = popSTACK ();
@@ -2032,7 +2042,7 @@ defun XLIB:OPEN-DISPLAY (0, 0, rest, nokey, 0, NIL)
 	      pushSTACK (`(OR NULL STRING)`);
 	      my_standard_type_error (`XLIB::OPEN-DISPLAY`);
 	    }
-	  display_name = TheAsciz (string_to_asciz (STACK_0));
+	  display_name = TheAsciz (string_to_asciz (STACK_0, misc_encoding ()));
 	}
       skipSTACK (1);
     }
@@ -2092,7 +2102,7 @@ defun XLIB:OPEN-DISPLAY (0, 0, rest, nokey, 0, NIL)
 
     unless (dpy)
       {
-        pushSTACK (make_string (cname, asciz_length (cname)));					// display name
+        pushSTACK (asciz_to_string (cname, misc_encoding ()));					// display name
         pushSTACK (TheSubr(subr_self)->name);			       				// function name
         fehler (error, ("~: Cannot open display ~."));						// raise error
       }
@@ -2129,13 +2139,13 @@ defun XLIB:OPEN-DISPLAY (0, 0, rest, nokey, 0, NIL)
 defun XLIB:DISPLAY-AUTHORIZATION-DATA (1) // OK
 {
   skipSTACK (1);
-  value1 = make_string (NULL, 0); mv_count = 1;
+  value1 = allocate_string (0); mv_count = 1;
 }
 
 defun XLIB:DISPLAY-AUTHORIZATION-NAME (1) // OK
 {
   skipSTACK (1);
-  value1 = make_string (NULL, 0); mv_count = 1;
+  value1 = allocate_string (0); mv_count = 1;
 }
  
 defun XLIB:DISPLAY-BITMAP-FORMAT (1) // OK
@@ -2316,7 +2326,7 @@ defun XLIB:DISPLAY-VENDOR (1) // OK
 {
   Display *dpy = pop_display ();
   char *s = ServerVendor (dpy);
-  pushSTACK (make_string (s, asciz_length (s)));
+  pushSTACK (asciz_to_string (s, misc_encoding ()));
   pushSTACK (make_uint32 (VendorRelease (dpy)));
   value2 = popSTACK ();
   value1 = popSTACK ();
@@ -2480,9 +2490,9 @@ defun XLIB:DISPLAY-HOST (1)
     continue;
 
   if (s == name)
-    value1 = make_string ("localhost", 9);
+    value1 = ascii_to_string ("localhost");
   else
-    value1 = make_string (name, s - name);
+    value1 = make_string (name, s - name, misc_encoding ());
 
   mv_count = 1;
 }
@@ -4525,18 +4535,34 @@ void general_draw_text (int image_p)
     }
 #else
   
-  char *str;
   Display *dpy;
   Drawable da = get_drawable_and_display (STACK_9, &dpy);
   GC gcon = get_gcontext (STACK_8);
   int x = get_sint16 (STACK_7);
   int y = get_sint16 (STACK_6);
   int len = vector_length (STACK_5);
-  str = TheAsciz (STACK_5); /* ,Asciz' irrefuehrend */
+  if (!simple_string_p(STACK_5)) { NOTIMPLEMENTED }
 
-  begin_call ();
-  (image_p ? XDrawImageString : XDrawString) (dpy, da, gcon, x, y, str, len);
-  end_call ();
+#ifdef UNICODE
+  SstringDispatch(STACK_5,
+    { XChar2b* str = (XChar2b*) &TheSstring(STACK_5)->data[0];
+      begin_call ();
+      (image_p ? XDrawImageString16 : XDrawString16) (dpy, da, gcon, x, y, str, len);
+      end_call ();
+    },
+    { char* str = (char*) &TheSmallSstring(STACK_5)->data[0];
+      begin_call ();
+      (image_p ? XDrawImageString : XDrawString) (dpy, da, gcon, x, y, str, len);
+      end_call ();
+    });
+#else
+  { char* str = (char*) &TheSstring(STACK_5)->data[0];
+    begin_call ();
+    (image_p ? XDrawImageString : XDrawString) (dpy, da, gcon, x, y, str, len);
+    end_call ();
+  }
+#endif
+
   value1 = NIL; mv_count = 0;
   skipSTACK (10);
 #endif
@@ -4559,23 +4585,6 @@ defun XLIB:DRAW-GLYPHS (5, 0, norest, key, 5,
 {
   general_draw_text (0);
 }
-
-#if 0
-{
-  
-  char *str = TheAsciz (STACK_5); /* `Asciz` irrefuehrend */
-  int len = vector_length (STACK_5);
-  
-  XDrawString (get_display_xxof (STACK_9),
-	       get_drawable (STACK_9),
-	       get_gcontext (STACK_8),
-	       get_sint16 (STACK_7),
-	       get_sint16 (STACK_6),
-	       str, len);
-  value1 = NIL; mv_count = 0;
-  skipSTACK (10);
-}
-#endif
 
 defun XLIB:DRAW-IMAGE-GLYPH (5, 0, norest, key, 3, (:TRANSLATE :WIDTH :SIZE)) 
 {UNDEFINED}
@@ -5037,7 +5046,7 @@ defun XLIB:OPEN-FONT (2)
   
   if (stringp (STACK_0))
     {
-      with_string_0 (STACK_0, font_name,
+      with_string_0 (STACK_0, misc_encoding (), font_name,
 		     {
 		       begin_call ();				// 
 		       font = XLoadFont (dpy, font_name); 	// Load the font
@@ -5121,7 +5130,7 @@ defun XLIB:FONT-PATH (1, 0, norest, key, 1, (:RESULT-TYPE)) // [OK]
   end_call ();
   
   for (i = 0; i < npathen; i++)
-    pushSTACK (make_string (pathen[i], asciz_length (pathen[i])));
+    pushSTACK (asciz_to_string (pathen[i], misc_encoding ()));
   funcall (L(list), npathen);
 
   begin_call ();
@@ -5169,7 +5178,7 @@ defun XLIB:FONT-PATH-SETTER (2)
 	pushSTACK (fixnum (i));	// index
 	funcall (L(elt), 2);
 	if (stringp (value1))
-	  { with_string_0 (value1, frob,
+	  { with_string_0 (value1, misc_encoding (), frob,
 		 	 {
 			   uintL j;
 			   j = asciz_length (frob)+1;    // das ist bloed, denn laenge ist ja schon bekannt 8-(
@@ -5217,7 +5226,7 @@ defun XLIB:LIST-FONT-NAMES (2, 0, norest, key, 2, (:MAX-FONTS :RESULT-TYPE)) // 
 
   if (stringp (STACK_2))
     {
-      with_string_0 (STACK_2, pattern,
+      with_string_0 (STACK_2, misc_encoding (), pattern,
 	{
 	  begin_call ();
 	  if (names = XListFonts (dpy, pattern, max_fonts, &count))
@@ -5225,7 +5234,7 @@ defun XLIB:LIST-FONT-NAMES (2, 0, norest, key, 2, (:MAX-FONTS :RESULT-TYPE)) // 
 	      end_call ();
 	      
 	      for (i = 0; i < count; i++)
-		pushSTACK (make_string (names[i], asciz_length (names[i])));
+		pushSTACK (asciz_to_string (names[i], misc_encoding ()));
 	      
 	      begin_call ();
 	      XFreeFontNames (names);
@@ -5266,14 +5275,14 @@ defun XLIB:LIST-FONTS (2, 0, norest, key, 2, (:MAX-FONTS :RESULT-TYPE))
   if (stringp (STACK_2))
     {
       begin_call ();
-      with_string_0 (STACK_2, pattern,
+      with_string_0 (STACK_2, misc_encoding (), pattern,
 	{
 	  if (names = XListFontsWithInfo (dpy, pattern, max_fonts, &count, &infos))
 	    {
 	      end_call ();
       
 	      for (i = 0; i < count; i++)
-		pushSTACK (make_font_with_info (*dpyf, 0, make_string (names[i], asciz_length (names[i])), infos+i));
+		pushSTACK (make_font_with_info (*dpyf, 0, asciz_to_string (names[i], misc_encoding ()), infos+i));
 
 	      begin_call ();
 	      XFreeFontNames (names);
@@ -5363,7 +5372,7 @@ defun XLIB:FONT-PROPERTIES (1)
       atom_name = XGetAtomName (dpy, font_struct->properties[i].name);
       end_call ();
       
-      pushSTACK (make_string (atom_name, asciz_length (atom_name)));
+      pushSTACK (asciz_to_string (atom_name, misc_encoding ()));
       pushSTACK (`KEYWORD`);
       funcall (L(intern), 2);
       pushSTACK (value1);
@@ -5497,15 +5506,29 @@ defun XLIB:TEXT-EXTENTS (2, 0, norest, key, 3, (:START :END :TRANSLATE))
       XFontStruct *font_info = get_font_info_and_display (STACK_4, 0);
       int start = gunboundp (STACK_2) ? 0 : get_uint16 (STACK_2);
       int end   = gunboundp (STACK_1) ? vector_length (STACK_3) : get_uint16 (STACK_1);
-      char *string = TheAsciz (STACK_3);
-
       int dir;
       int font_ascent, font_descent;
       XCharStruct overall;
 
-      begin_call ();
-      XTextExtents (font_info, string + start, end - start, &dir, &font_ascent, &font_descent, &overall);
-      end_call ();
+#ifdef UNICODE
+      SstringDispatch(STACK_3,
+        { XChar2b* string = (XChar2b*) &TheSstring(STACK_3)->data[0];
+          begin_call();
+          XTextExtents16 (font_info, string + start, end - start, &dir, &font_ascent, &font_descent, &overall);
+          end_call();
+        },
+        { char* string = (char*) &TheSmallSstring(STACK_3)->data[0];
+          begin_call();
+          XTextExtents (font_info, string + start, end - start, &dir, &font_ascent, &font_descent, &overall);
+          end_call();
+        });
+#else
+      { char* string = (char*) &TheSstring(STACK_3)->data[0];
+        begin_call();
+        XTextExtents (font_info, string + start, end - start, &dir, &font_ascent, &font_descent, &overall);
+        end_call();
+      }
+#endif
 
       pushSTACK (make_sint32 (overall.width));    // width
       pushSTACK (make_sint16 (overall.ascent));	  // ascent
@@ -5550,12 +5573,27 @@ defun XLIB:TEXT-WIDTH (2, 0, norest, key, 3, (:START :END :TRANSLATE))
       int start = gunboundp (STACK_2) ? 0 : get_uint16 (STACK_2);
       int end   = gunboundp (STACK_1) ? vector_length (STACK_3) : get_uint16 (STACK_1);
       int w;
-      char *string = TheAsciz (STACK_3);
 
-      begin_call ();
-      w = XTextWidth (font_info, string+start, end-start);
-      end_call ();
-       
+#ifdef UNICODE
+      SstringDispatch(STACK_3,
+        { XChar2b* string = (XChar2b*) &TheSstring(STACK_3)->data[0];
+          begin_call();
+          w = XTextWidth16 (font_info, string+start, end-start);
+          end_call();
+        },
+        { char* string = (char*) &TheSmallSstring(STACK_3)->data[0];
+          begin_call();
+          w = XTextWidth (font_info, string+start, end-start);
+          end_call();
+        });
+#else
+      { char* string = (char*) &TheSstring(STACK_3)->data[0];
+        begin_call();
+        w = XTextWidth (font_info, string+start, end-start);
+        end_call();
+      }
+#endif
+
       value1 = make_sint32 (w);
       value2 = NIL;
       mv_count = 2;
@@ -5745,7 +5783,7 @@ defun XLIB:ALLOC-COLOR (2)
     {
       XColor exact_color;
 
-      with_stringable_0_tc (STACK_0, name,
+      with_stringable_0_tc (STACK_0, misc_encoding (), name,
         {
 	  begin_call ();
 	  if (XAllocNamedColor (dpy, cm, name, &color, &exact_color))
@@ -5962,7 +6000,7 @@ defun XLIB:LOOKUP-COLOR (2)	// [OK]
   Colormap  cm = get_colormap_and_display (STACK_1, &dpy);
   XColor exact_color, screen_color;
 
-  with_stringable_0_tc (STACK_0, name,
+  with_stringable_0_tc (STACK_0, misc_encoding (), name,
     {
       begin_call ();
       if (XLookupColor (dpy, cm, name, &exact_color, &screen_color))
@@ -6283,7 +6321,7 @@ defun XLIB:ATOM-NAME (2) /* OK */
   name = XGetAtomName (dpy, atom);
   end_call ();
   
-  pushSTACK (make_string (name, asciz_length (name)));
+  pushSTACK (asciz_to_string (name, misc_encoding ()));
   pushSTACK (`KEYWORD`);
   funcall (L (intern), 2);
   mv_count = 1;
@@ -6521,7 +6559,7 @@ defun XLIB:GET-PROPERTY (2, 0, norest, key, 6, (:TYPE :START :END :DELETE-P :RES
       
 	{
 	  char *name = XGetAtomName (display, actual_type_return);
-	  pushSTACK (make_string (name, asciz_length (name)));
+	  pushSTACK (asciz_to_string (name, misc_encoding ()));
 	  pushSTACK (`KEYWORD`);
 	  funcall (L(intern), 2);
 	  pushSTACK (value1);
@@ -6559,7 +6597,7 @@ defun XLIB:LIST-PROPERTIES (1, 0, norest, key, 1, (:RESULT-TYPE)) //OK
       begin_call ();
         name = XGetAtomName (dpy, props[i]);
       end_call ();
-      pushSTACK (make_string (name, asciz_length (name)));
+      pushSTACK (asciz_to_string (name, misc_encoding ()));
       pushSTACK (`KEYWORD`);
       funcall (L(intern), 2);
       pushSTACK (value1);
@@ -8542,7 +8580,7 @@ defun XLIB:LIST-EXTENSIONS (1, 0, norest, key, 1, (:RESULT-TYPE))
     {
       int i;
       for (i = 0; i < n; i++)
-	pushSTACK (make_string (extlist[i], asciz_length (extlist[i])));
+	pushSTACK (asciz_to_string (extlist[i], misc_encoding ()));
       funcall (L(list), n);
       coerce_it (STACK_0);
       
@@ -8565,7 +8603,7 @@ defun XLIB:QUERY-EXTENSION (2)
   
   pushSTACK (STACK_1); dpy = pop_display ();
 
-  with_stringable_0_tc (STACK_0, name,
+  with_stringable_0_tc (STACK_0, misc_encoding (), name,
     {
       begin_call ();
       r = XQueryExtension (dpy, name, &opcode, &event, &error);
@@ -9171,7 +9209,7 @@ defun XPM:READ-FILE-TO-PIXMAP (2, 0, norest, key, 2, (:SHAPE-MASK-P :PIXMAP-P))
   funcall (L(namestring), 1);
   STACK_3 = value1;
   
-  with_string_0 (STACK_3, filename,
+  with_string_0 (STACK_3, pathname_encoding (), filename,
     {
       begin_call();
       r = XpmReadFileToPixmap (dpy, da, filename,
