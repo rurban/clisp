@@ -5,6 +5,8 @@
 *.exe
 *.i.c
 *.i
+*.opt
+*.pdb
 avcall
 avcall.h
 callback
