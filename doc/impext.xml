@@ -2069,7 +2069,7 @@ In other words, each pair is:
 
 <para>&clisp; comes with some extension macros, mostly defined in the
  file <filename>macros3.lisp</filename> and loaded from the file
- <filename>init.lisp</filename> during <command>make</command>:</para>
+ <filename>init.lisp</filename> during &make;:</para>
 
 <formalpara id="ethe"><title>Macro &ethe;</title>
 <para><literal role="sexp">(&ethe; &val-type-r; &form-r;)</literal>
@@ -4798,7 +4798,7 @@ Compiled, it will have inlined the library function calls.
  &clisp-cmd; is a shell script because a &c-lang; compiler cannot be
  assumed to be installed on this platform.  If you do have a &c-lang;
  compiler installed, build &clisp; from the source yourself;
- <command>make install</command> will install &clisp-cmd; as a real
+ <command>&make; install</command> will install &clisp-cmd; as a real
  executable.</simpara></listitem>
 <listitem><para>On some platforms, the first line which specifies the
  interpreter is limited in length:
