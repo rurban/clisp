@@ -1516,79 +1516,83 @@ local object lambdabody_source (object lambdabody) {
   return unbound;
 }
 
-# UP: Inserts an implicit BLOCK in a lambda body.
-# add_implicit_block();
-# > STACK_1: function name
-# > STACK_0: lambda body
-# > value1: body
-# > value2: list of decl-specs
-# > value3: Doc-String or NIL
-# < STACK_0: new lambda body
-# can trigger GC
-  local void add_implicit_block (void)
+/* UP: Inserts an implicit BLOCK in a lambda body.
+ add_implicit_block();
+ > STACK_1: function name
+ > STACK_0: lambda body
+ > value1: body
+ > value2: list of decl-specs
+ > value3: Doc-String or NIL
+ < STACK_0: new lambda body
+ can trigger GC */
+local void add_implicit_block (void)
+{ /* Replace lambdabody with
+ (cons (car lambdabody) ; lambda list
+       (multiple-value-bind (body-rest declarations docstring)
+           (sys::parse-body (cdr lambdabody) t) ; body
+         (append (if declarations (list (cons 'DECLARE declarations)))
+                 (if docstring (list docstring))
+                 (list (list* 'BLOCK (function-block-name name)
+                       body-rest))))) */
+  var object new_body;
+  pushSTACK(value2);            /* declarations */
+  pushSTACK(value3);            /* docstring */
+  pushSTACK(funname_blockname(STACK_(1+2))); /* blockname */
+  pushSTACK(value1);                         /* body-rest */
+  { /* stack layout: name, lambdabody, declarations, docstring,
+                     blockname, body-rest. */
+    var object tmp = allocate_cons();
+    Cdr(tmp) = popSTACK(); Car(tmp) = STACK_0;
+    STACK_0 = tmp;
+  }
   {
-    # Replace lambdabody by
-    # (cons (car lambdabody) (add-implicit-block name (cdr lambdabody))):
-    var object new_body;
-    pushSTACK(value2); # declarations
-    pushSTACK(value3); # docstring
-    pushSTACK(funname_blockname(STACK_(1+2))); # blockname
-    pushSTACK(value1); # body-rest
-    # stack layout: name, lambdabody, declarations, docstring, blockname, body-rest.
+    var object tmp = allocate_cons();
+    Car(tmp) = S(block); Cdr(tmp) = STACK_0;
+    STACK_0 = tmp;
+  }
+  { /* stack layout: name, lambdabody, declarations, docstring, block-form. */
+    var object tmp = allocate_cons();
+    Car(tmp) = popSTACK();
+    new_body = tmp;
+  }
+  /* stack layout: name, lambdabody, declarations, docstring. */
+  if (nullp(STACK_0)) {
+    skipSTACK(1);
+  } else {
+    pushSTACK(new_body);
+    var object tmp = allocate_cons();
+    Cdr(tmp) = popSTACK(); Car(tmp) = popSTACK();
+    new_body = tmp;
+  }
+  /* stack layout: name, lambdabody, declarations. */
+  if (nullp(STACK_0)) {
+    STACK_0 = new_body;
+  } else {
+    pushSTACK(new_body);
+    {
+      var object tmp = allocate_cons();
+      Car(tmp) = S(declare); Cdr(tmp) = STACK_1;
+      STACK_1 = tmp;
+    }
     {
       var object tmp = allocate_cons();
       Cdr(tmp) = popSTACK(); Car(tmp) = STACK_0;
       STACK_0 = tmp;
     }
-    {
-      var object tmp = allocate_cons();
-      Car(tmp) = S(block); Cdr(tmp) = STACK_0;
-      STACK_0 = tmp;
-    }
-    # stack layout: name, lambdabody, declarations, docstring, block-form.
-    {
-      var object tmp = allocate_cons();
-      Car(tmp) = popSTACK();
-      new_body = tmp;
-    }
-    # stack layout: name, lambdabody, declarations, docstring.
-    if (nullp(STACK_0)) {
-      skipSTACK(1);
-    } else {
-      pushSTACK(new_body);
-      var object tmp = allocate_cons();
-      Cdr(tmp) = popSTACK(); Car(tmp) = popSTACK();
-      new_body = tmp;
-    }
-    # stack layout: name, lambdabody, declarations.
-    if (nullp(STACK_0)) {
-      STACK_0 = new_body;
-    } else {
-      pushSTACK(new_body);
-      {
-        var object tmp = allocate_cons();
-        Car(tmp) = S(declare); Cdr(tmp) = STACK_1;
-        STACK_1 = tmp;
-      }
-      {
-        var object tmp = allocate_cons();
-        Cdr(tmp) = popSTACK(); Car(tmp) = STACK_0;
-        STACK_0 = tmp;
-      }
-    }
-    # stack layout: name, lambdabody, new-body.
-    {
-      var object tmp = allocate_cons();
-      Cdr(tmp) = popSTACK(); Car(tmp) = Car(STACK_0);
-      STACK_0 = tmp;
-    }
   }
+  { /* stack layout: name, lambdabody, new-body. */
+    var object tmp = allocate_cons();
+    Cdr(tmp) = popSTACK(); Car(tmp) = Car(STACK_0);
+    STACK_0 = tmp;
+  }
+}
 
 LISPFUNNR(add_implicit_block,2)
-{ /* inserts an implicit BLOCK in the BODY */
-  parse_dd(STACK_0);
+{ /* (ADD-IMPLICIT-BLOCK name (lambda-list . lambda-body))
+     inserts an implicit BLOCK in the BODY */
+  parse_dd(Cdr(STACK_0));       /* just the lambda-body */
   add_implicit_block();
-  mv_count = 1;
+  VALUES1(STACK_0);
   skipSTACK(2);
 }
 LISPFUNNR(function_block_name,1)
