@@ -5,6 +5,7 @@
 SHELL = /bin/sh
 MAKE = make
 AUTOCONF = autoconf
+AUTOHEADER = autoheader
 CP = cp
 RM = rm -f
 
@@ -16,10 +17,10 @@ autoconf/aclocal.m4 : $(wildcard m4/*.m4)
 configures : configure config.h.in
 
 configure : configure.in autoconf/aclocal.m4
-	$(AUTOCONF) --include autoconf
+	$(AUTOCONF) --include=autoconf
 
 config.h.in : configure.in autoconf/aclocal.m4
-	autoheader --include autoconf
+	$(AUTOHEADER) --include=autoconf
 
 config.h.msvc : config.h.in
 	sed -e 's/#undef HAVE_SETLOCALE/#define HAVE_SETLOCALE 1/' -e 's/#undef HAVE_STDDEF_H/#define HAVE_STDDEF_H 1/' -e 's/#undef HAVE_STDLIB_H/#define HAVE_STDLIB_H 1/' -e 's/#undef HAVE_STRING_H/#define HAVE_STRING_H 1/' < $< > $@
