@@ -7781,6 +7781,7 @@ typedef struct strm_i_buffered_extrafields_struct {
       #endif
       # position incrementieren:
       BufferedStream_position(stream) += 1;
+      printf("\nA: "); object_out(TheStream(stream)->strm_bitbuffer);
       # in Zahl umwandeln:
       return (*finisher)(stream,bitsize,bytesize);
      eof: # EOF erreicht
@@ -7832,6 +7833,7 @@ typedef struct strm_i_buffered_extrafields_struct {
         BufferedStream_bitindex(stream) = count;
         # position incrementieren:
         BufferedStream_position(stream) += 1;
+        printf("\nB: "); object_out(TheStream(stream)->strm_bitbuffer);
         # in Zahl umwandeln:
         return (*finisher)(stream,bitsize,1);
        eof1:
@@ -7906,6 +7908,7 @@ typedef struct strm_i_buffered_extrafields_struct {
       BufferedStream_bitindex(stream) = count;
       # position incrementieren:
       BufferedStream_position(stream) += 1;
+      printf("\nC: "); object_out(TheStream(stream)->strm_bitbuffer);
       # in Zahl umwandeln:
       return (*finisher)(stream,bitsize,bytesize);
      eof: # EOF erreicht
