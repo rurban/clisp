@@ -672,46 +672,49 @@
             (setq old-class (cv-class old-version)))
           (locally (declare (compile))
             (sys::%handler-bind
-                ;; If an error occurs during the class redefinition, switch back
-                ;; to the old definition, so that existing instances can continue
-                ;; to be used.
-                ((ERROR #'(lambda (condition)
-                            (declare (ignore condition))
-                            (let ((tmp-direct-superclasses (class-direct-superclasses class)))
-                              ;; Restore the class using the backup copy.
-                              (let ((new-version (class-current-version class)))
-                                (dotimes (i (sys::%record-length class))
-                                  (setf (sys::%record-ref class i) (sys::%record-ref old-class i)))
-                                (setf (class-current-version class) new-version))
-                              ;; Restore the direct-subclasses pointers.
-                              (dolist (super tmp-direct-superclasses)
-                                (remove-direct-subclass-internal super class))
-                              (dolist (super old-direct-superclasses)
-                                (add-direct-subclass-internal super class))
-                              ;; Restore the finalized-direct-subclasses pointers.
-                              (dolist (super tmp-direct-superclasses)
-                                (when (semi-standard-class-p super)
-                                  (remove-finalized-direct-subclass super class)))
-                              (when (>= (class-initialized class) 6)
-                                (dolist (super old-direct-superclasses)
-                                  (when (semi-standard-class-p super)
-                                    (add-finalized-direct-subclass super class))))
-                              ;; Restore the accessor methods.
-                              (add-accessor-methods old-direct-accessors)
-                              (setf (class-direct-accessors class) old-direct-accessors)))))
-              (apply #'shared-initialize ; => #'shared-initialize-<built-in-class>
-                                         ;    #'shared-initialize-<standard-class>
-                                         ;    #'shared-initialize-<structure-class>
-                     class
-                     nil
-                     `(,@(if direct-slots-p (list 'direct-slots direct-slots) '())
-                       ,@all-keys))
-              ;; If the class could be finalized (although not a "must"),
-              ;; keep it finalized and don't unfinalize it.
-              (when (>= (class-initialized class) 6)
-                (setq must-be-finalized t))
-              (update-subclasses-for-redefined-class class
-                was-finalized must-be-finalized old-direct-superclasses)))
+             #'(lambda ()
+                 (apply #'shared-initialize
+                                ; => #'shared-initialize-<built-in-class>
+                                ;    #'shared-initialize-<standard-class>
+                                ;    #'shared-initialize-<structure-class>
+                        class nil
+                        `(,@(if direct-slots-p
+                                (list 'direct-slots direct-slots) '())
+                          ,@all-keys))
+                 ;; If the class could be finalized (although not a "must"),
+                 ;; keep it finalized and don't unfinalize it.
+                 (when (>= (class-initialized class) 6)
+                   (setq must-be-finalized t))
+                 (update-subclasses-for-redefined-class
+                  class was-finalized must-be-finalized
+                  old-direct-superclasses))
+             ;; If an error occurs during the class redefinition,
+             ;; switch back to the old definition, so that existing
+             ;; instances can continue to be used.
+             'ERROR #'(lambda (condition)
+                        (declare (ignore condition))
+                        (let ((tmp-direct-superclasses (class-direct-superclasses class)))
+                          ;; Restore the class using the backup copy.
+                          (let ((new-version (class-current-version class)))
+                            (dotimes (i (sys::%record-length class))
+                              (setf (sys::%record-ref class i) (sys::%record-ref old-class i)))
+                            (setf (class-current-version class) new-version))
+                          ;; Restore the direct-subclasses pointers.
+                          (dolist (super tmp-direct-superclasses)
+                            (remove-direct-subclass-internal super class))
+                          (dolist (super old-direct-superclasses)
+                            (add-direct-subclass-internal super class))
+                          ;; Restore the finalized-direct-subclasses pointers.
+                          (dolist (super tmp-direct-superclasses)
+                            (when (semi-standard-class-p super)
+                              (remove-finalized-direct-subclass super class)))
+                          (when (>= (class-initialized class) 6)
+                            (dolist (super old-direct-superclasses)
+                              (when (semi-standard-class-p super)
+                                (add-finalized-direct-subclass super class))))
+                          ;; Restore the accessor methods.
+                          (add-accessor-methods old-direct-accessors)
+                          (setf (class-direct-accessors class) old-direct-accessors)))))
           (let ((new-class-precedence-list
                   (and (>= (class-initialized class) 6) (class-precedence-list class))))
             (unless (equal old-class-precedence-list new-class-precedence-list)
