@@ -3359,6 +3359,8 @@ if [ $CROSS = false ] ; then
 fi
 
 if [ ${HSYSOS} = cygwin ]; then
+  echol "full/lisp.exe : full"
+  echol
   echol "setup.hint : full/lisp.exe"
   echotab "echo 'sdesc: an ANSI Common Lisp implementation' > setup.hint"
   echotab 'REQ=''; for f in `cygcheck full/lisp.exe`; do echo "* "$$f; f=`cygpath -u $$f`; REQ=$${REQ}" "`cygcheck -f $$f|sed "s/-.*//"`; done; echo "="$${REQ}; echo "requires:"$${REQ} >> setup.hint'
@@ -3373,7 +3375,7 @@ if [ ${HSYSOS} = cygwin ]; then
   echotab "echo 'recommended: libsigsegv http://sourceforge.net/projects/libsigsegv' >> cygwin.README"
   echotab "echo '' >> cygwin.README"
   echotab "echo 'builds \"out of the box\" on cygwin:' >> cygwin.README"
-  echotab "echo './configure$makemake_args --install build-cygwin' >> cygwin.README"
+  echotab "echo './configure$makemake_args --build --install build-cygwin' >> cygwin.README"
   echotab "echo 'will configure, build and install CLISP' >> cygwin.README"
   echotab "echo 'see unix/INSTALL for details' >> cygwin.README"
   echotab "echo '' >> cygwin.README"
