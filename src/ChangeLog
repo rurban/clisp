@@ -1,7 +1,9 @@
 2005-03-27  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/configure.in: use CL_RLIMIT instead of
-	chevking for getrlimit() and setrlimit() explicitly
+	checking for getrlimit() and setrlimit() explicitly
+	* modules/syscalls/calls.c (I_to_rlim, rlim_to_I): new functions
+	(POSIX::RLIMIT, POSIX::SET-RLIMIT, check_rlimit): use them
 
 2005-03-25  Sam Steingold  <sds@gnu.org>
 
