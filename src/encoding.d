@@ -1,6 +1,6 @@
 /*
  * Encodings (character sets and conversions) for CLISP
- * Bruno Haible 1998-2002
+ * Bruno Haible 1998-2004
  * Sam Steingold 1998-2002
  */
 
@@ -198,6 +198,9 @@ global uintL uni16_wcslen (object encoding, const chart* src,
         var chart c = char_code(action);
         if (as_cint(c) < 0x10000)
           result += 2;
+      } else {
+        /* Increment result, so that it doesn't come out as 0. */
+        result++;
       }
     }
   }
@@ -1518,6 +1521,9 @@ global uintL nls_wcslen (object encoding, const chart* src,
               && (cvtable[as_cint(c)>>8][as_cint(c)&0xFF] != 0
                   || chareq(c,ascii(0))))
             result++;
+        } else {
+          /* Increment result, so that it doesn't come out as 0. */
+          result++;
         }
       }
      });
@@ -1592,6 +1598,9 @@ global uintL nls_asciiext_wcslen (object encoding, const chart* src,
               && (cvtable[as_cint(c)>>8][as_cint(c)&0xFF] != 0
                   || chareq(c,ascii(0))))
             result++;
+        } else {
+          /* Increment result, so that it doesn't come out as 0. */
+          result++;
         }
       }
     });
