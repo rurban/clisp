@@ -652,6 +652,15 @@ FOO
            (type-of (change-class c 'c1))))))
 ((C2 C1) (C1 C1))
 
+;; Check that change-class uses its initargs.
+(progn
+  (defclass c7 () ((name :initarg :name)))
+  (defclass c8 () ((people :initarg :people) name))
+  (let ((x (make-instance 'c7 :name 'queen-mary)))
+    (change-class x 'c8 :people 700)
+    (list (slot-value x 'name) (slot-value x 'people))))
+(QUEEN-MARY 700)
+
 ;; Check that a GC collects the forward pointer left over by change-class.
 #+CLISP
 (progn

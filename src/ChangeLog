@@ -1,3 +1,31 @@
+2004-04-25  Bruno Haible  <bruno@clisp.org>
+
+	Add keyword argument checking to UPDATE-INSTANCE-FOR-REDEFINED-CLASS
+	and UPDATE-INSTANCE-FOR-DIFFERENT-CLASS.
+	* clos-class5.lisp (*update-instance-for-redefined-class-table*,
+	*update-instance-for-different-class-table*): New variables.
+	(note-uirc-change, note-uidc-change): New functions.
+	(defun note-si-change): Update also
+	*update-instance-for-redefined-class-table* and
+	*update-instance-for-different-class-table*.
+	(valid-reinitialize-instance-keywords): New function, extracted from
+	initial-reinitialize-instance.
+	(valid-update-instance-for-redefined-class-keywords,
+	valid-update-instance-for-different-class-keywords,
+	check-initialization-argument-list): New functions.
+	(initial-reinitialize-instance): Call
+	valid-reinitialize-instance-keywords.
+	(update-instance-for-different-class): Call
+	valid-update-instance-for-different-class-keywords and check the
+	initargs.
+	(update-instance-for-redefined-class): Call
+	valid-update-instance-for-redefined-class-keywords and check the
+	initargs.
+	* clos-genfun3.lisp (|#'update-instance-for-redefined-class|,
+	|#'update-instance-for-different-class|): New variables.
+	(std-add-method, std-remove-method): Conditionally call
+	note-uirc-change, note-uidc-change.
+
 2004-05-12  Sam Steingold  <sds@gnu.org>
 
 	* array.d (fehler_array, test_array): removed
