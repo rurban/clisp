@@ -112,7 +112,12 @@
 #define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, siginfo_t* sip, ucontext_t* ucp
 #define SIGSEGV_FAULT_ADDRESS  sip->si_addr
 #define SIGSEGV_FAULT_CONTEXT  ucp
+#if (defined(sparc) || defined(__sparc))
 #define SIGSEGV_FAULT_STACKPOINTER  ucp->uc_mcontext.gregs[REG_O6]
+#endif
+#if (defined(i386) || defined(__i386))
+#define SIGSEGV_FAULT_STACKPOINTER  ucp->uc_mcontext.gregs[ESP]
+#endif
 #define SIGSEGV_FAULT_ADDRESS_FROM_SIGINFO
 #define SIGSEGV_ALL_SIGNALS  FAULT_HANDLER(SIGSEGV)
 #endif
