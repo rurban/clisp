@@ -588,13 +588,12 @@ global void init_reader (void) {
                     Array_type_string);
 }
 
-LISPFUNN(defio,2)
 # (SYS::%DEFIO dispatch-reader vector-index) post-initialises the I/O.
-  {
-    O(dispatch_reader) = STACK_1;
-    O(dispatch_reader_index) = STACK_0;
-    value1 = NIL; mv_count=0; skipSTACK(2);
-  }
+LISPFUNN(defio,2) {
+  O(dispatch_reader) = STACK_1;
+  O(dispatch_reader_index) = STACK_0;
+  value1 = NIL; mv_count=0; skipSTACK(2);
+}
 
 
 # =============================================================================
@@ -910,41 +909,40 @@ LISPFUN(get_dispatch_macro_character,2,1,norest,nokey,0,NIL)
 
 #define RTCase(rt) ((uintW)posfixnum_to_L(TheReadtable(rt)->readtable_case))
 
-LISPFUNN(readtable_case,1)
 # (READTABLE-CASE readtable), CLTL2 S. 549
-  {
-    var object readtable = popSTACK(); # Readtable
-    check_readtable(readtable);
-    value1 = (&O(rtcase_0))[RTCase(readtable)];
-    mv_count=1;
-  }
+LISPFUNN(readtable_case,1) {
+  var object readtable = popSTACK(); # Readtable
+  check_readtable(readtable);
+  value1 = (&O(rtcase_0))[RTCase(readtable)];
+  mv_count=1;
+}
 
-LISPFUNN(set_readtable_case,2)
 # (SYSTEM::SET-READTABLE-CASE readtable value), CLTL2 p. 549
-  {
-    var object value = popSTACK();
-    var object readtable = popSTACK(); # Readtable
-    check_readtable(readtable);
-    # convert symbol value into an index by searching in table O(rtcase..):
-    var const object* ptr = &O(rtcase_0);
-    var object rtcase = Fixnum_0;
-    var uintC count;
-    dotimesC(count,4, {
-      if (eq(*ptr,value))
-        goto found;
-      ptr++; rtcase = fixnum_inc(rtcase,1);
-    });
-    # invalid value
-    pushSTACK(value);          # TYPE-ERROR slot DATUM
-    pushSTACK(O(type_rtcase)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(O(rtcase_3)); pushSTACK(O(rtcase_2)); pushSTACK(O(rtcase_1)); pushSTACK(O(rtcase_0));
-    pushSTACK(value);
-    pushSTACK(S(set_readtable_case));
-    fehler(type_error,GETTEXT("~: new value ~ should be ~, ~, ~ or ~."));
-   found: # found in  table
-    TheReadtable(readtable)->readtable_case = rtcase;
-    value1 = value; mv_count=1;
-  }
+LISPFUNN(set_readtable_case,2) {
+  var object value = popSTACK();
+  var object readtable = popSTACK(); # Readtable
+  check_readtable(readtable);
+  # convert symbol value into an index by searching in table O(rtcase..):
+  var const object* ptr = &O(rtcase_0);
+  var object rtcase = Fixnum_0;
+  var uintC count;
+  dotimesC(count,4, {
+    if (eq(*ptr,value))
+      goto found;
+    ptr++; rtcase = fixnum_inc(rtcase,1);
+  });
+  # invalid value
+  pushSTACK(value);          # TYPE-ERROR slot DATUM
+  pushSTACK(O(type_rtcase)); # TYPE-ERROR slot EXPECTED-TYPE
+  pushSTACK(O(rtcase_3)); pushSTACK(O(rtcase_2));
+  pushSTACK(O(rtcase_1)); pushSTACK(O(rtcase_0));
+  pushSTACK(value);
+  pushSTACK(S(set_readtable_case));
+  fehler(type_error,GETTEXT("~: new value ~ should be ~, ~, ~ or ~."));
+ found: # found in  table
+  TheReadtable(readtable)->readtable_case = rtcase;
+  value1 = value; mv_count=1;
+}
 
 # =============================================================================
 # some auxiliary routines and macros for READ and PRINT
@@ -2617,29 +2615,27 @@ local object read_delimited_list_recursive (const object* stream_, object endch,
 #   #'(lambda (stream char)
 #       (read-delimited-list #\) stream t :dot-allowed t)
 # )   )
-LISPFUNN(lpar_reader,2) # reads (
-  {
-    var object* stream_ = test_stream_arg(STACK_1);
-    # read List after '(' until ')', Dot allowed:
-    value1 = read_delimited_list(stream_,ascii_char(')'),dot_value);
-    mv_count=1;
-    skipSTACK(2);
-  }
+LISPFUNN(lpar_reader,2) { # reads (
+  var object* stream_ = test_stream_arg(STACK_1);
+  # read List after '(' until ')', Dot allowed:
+  value1 = read_delimited_list(stream_,ascii_char(')'),dot_value);
+  mv_count=1;
+  skipSTACK(2);
+}
 
 # #| ( ( |#
 # (set-macro-character #\)
 #   #'(lambda (stream char)
 #       (error "~ of ~: ~ at the beginning of object" 'read stream char)
 # )   )
-LISPFUNN(rpar_reader,2) # reads )
-  {
-    var object* stream_ = test_stream_arg(STACK_1);
-    pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-    pushSTACK(STACK_(0+1)); # char
-    pushSTACK(*stream_); # stream
-    pushSTACK(S(read));
-    fehler(stream_error,GETTEXT("~ from ~: an object cannot start with ~"));
-  }
+LISPFUNN(rpar_reader,2) { # reads )
+  var object* stream_ = test_stream_arg(STACK_1);
+  pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+  pushSTACK(STACK_(0+1)); # char
+  pushSTACK(*stream_); # stream
+  pushSTACK(S(read));
+  fehler(stream_error,GETTEXT("~ from ~: an object cannot start with ~"));
+}
 
 # (set-macro-character #\"
 #   #'(lambda (stream char)
@@ -2662,88 +2658,87 @@ LISPFUNN(rpar_reader,2) # reads )
 #         ) ) )
 #         (if *read-suppress* nil (coerce buffer 'simple-string))
 # )   ) )
-LISPFUNN(string_reader,2) # reads "
-  {
-    var object* stream_ = test_stream_arg(STACK_1);
-    var object delim_char = STACK_0;
-    if (terminal_stream_p(*stream_)) {
-      dynamic_bind(S(terminal_read_open_object),S(string));
-      pushSTACK(*stream_);
-      pushSTACK(delim_char);
-      stream_ = &(STACK_1);
-    }
-    # stack layout: stream, char.
-    if (test_value(S(read_suppress))) { # *READ-SUPPRESS* /= NIL ?
-      # yes -> only read ahead of string:
-      loop {
-        # read next character:
-        var object ch;
-        var uintWL scode;
-        read_char_syntax(ch = ,scode = ,stream_);
-        if (scode == syntax_eof) # EOF -> error
-          goto fehler_eof;
-        if (eq(ch,STACK_0)) # same character as char -> finished
-          break;
-        if (scode == syntax_single_esc) { # Single-Escape-Character?
-          # yes -> read another character:
-          read_char_syntax(ch = ,scode = ,stream_);
-          if (scode == syntax_eof) # EOF -> error
-            goto fehler_eof;
-        }
-      }
-      value1 = NIL; # NIL as value
-    } else {
-      # no -> really read String
-      get_buffers(); # two empty Buffers on the Stack
-      # stack layout: stream, char, Buffer, anotherBuffer.
-      loop {
-        # read next character:
-        var object ch;
-        var uintWL scode;
-        read_char_syntax(ch = ,scode = ,stream_);
-        if (scode == syntax_eof) # EOF -> error
-          goto fehler_eof;
-        if (eq(ch,STACK_2)) # same character as char -> finished
-          break;
-        if (scode == syntax_single_esc) { # Single-Escape-Character?
-          # yes -> read another character:
-          read_char_syntax(ch = ,scode = ,stream_);
-          if (scode == syntax_eof) # EOF -> error
-            goto fehler_eof;
-        }
-        # push character ch into Buffer:
-        ssstring_push_extend(STACK_1,char_code(ch));
-      }
-      # copy Buffer and convert it into Simple-String:
-      {
-        var object string;
-        #ifndef TYPECODES
-        if (TheStream(*stream_)->strmflags & bit(strmflags_immut_bit_B))
-          string = coerce_imm_ss(STACK_1);
-        else
-        #endif
-          string = copy_string(STACK_1);
-        value1 = string;
-      }
-      # free Buffer for reuse:
-      O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
-    }
-    if (terminal_stream_p(*stream_)) {
-      skipSTACK(2);
-      dynamic_unbind(); # S(terminal_read_open_object)
-    }
-    mv_count=1; skipSTACK(2);
-    return;
-   fehler_eof:
-    if (terminal_stream_p(*stream_)) {
-      skipSTACK(2);
-      dynamic_unbind(); # S(terminal_read_open_object)
-    }
-    pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-    pushSTACK(*stream_); # Stream
-    pushSTACK(S(read));
-    fehler(end_of_file,GETTEXT("~: input stream ~ ends within a string"));
+LISPFUNN(string_reader,2) { # reads "
+  var object* stream_ = test_stream_arg(STACK_1);
+  var object delim_char = STACK_0;
+  if (terminal_stream_p(*stream_)) {
+    dynamic_bind(S(terminal_read_open_object),S(string));
+    pushSTACK(*stream_);
+    pushSTACK(delim_char);
+    stream_ = &(STACK_1);
   }
+  # stack layout: stream, char.
+  if (test_value(S(read_suppress))) { # *READ-SUPPRESS* /= NIL ?
+    # yes -> only read ahead of string:
+    loop {
+      # read next character:
+      var object ch;
+      var uintWL scode;
+      read_char_syntax(ch = ,scode = ,stream_);
+      if (scode == syntax_eof) # EOF -> error
+        goto fehler_eof;
+      if (eq(ch,STACK_0)) # same character as char -> finished
+        break;
+      if (scode == syntax_single_esc) { # Single-Escape-Character?
+        # yes -> read another character:
+        read_char_syntax(ch = ,scode = ,stream_);
+        if (scode == syntax_eof) # EOF -> error
+          goto fehler_eof;
+      }
+    }
+    value1 = NIL; # NIL as value
+  } else {
+    # no -> really read String
+    get_buffers(); # two empty Buffers on the Stack
+    # stack layout: stream, char, Buffer, anotherBuffer.
+    loop {
+      # read next character:
+      var object ch;
+      var uintWL scode;
+      read_char_syntax(ch = ,scode = ,stream_);
+      if (scode == syntax_eof) # EOF -> error
+        goto fehler_eof;
+      if (eq(ch,STACK_2)) # same character as char -> finished
+        break;
+      if (scode == syntax_single_esc) { # Single-Escape-Character?
+        # yes -> read another character:
+        read_char_syntax(ch = ,scode = ,stream_);
+        if (scode == syntax_eof) # EOF -> error
+          goto fehler_eof;
+      }
+      # push character ch into Buffer:
+      ssstring_push_extend(STACK_1,char_code(ch));
+    }
+    # copy Buffer and convert it into Simple-String:
+    {
+      var object string;
+     #ifndef TYPECODES
+      if (TheStream(*stream_)->strmflags & bit(strmflags_immut_bit_B))
+        string = coerce_imm_ss(STACK_1);
+      else
+     #endif
+        string = copy_string(STACK_1);
+      value1 = string;
+    }
+    # free Buffer for reuse:
+    O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
+  }
+  if (terminal_stream_p(*stream_)) {
+    skipSTACK(2);
+    dynamic_unbind(); # S(terminal_read_open_object)
+  }
+  mv_count=1; skipSTACK(2);
+  return;
+ fehler_eof:
+  if (terminal_stream_p(*stream_)) {
+    skipSTACK(2);
+    dynamic_unbind(); # S(terminal_read_open_object)
+  }
+  pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+  pushSTACK(*stream_); # Stream
+  pushSTACK(S(read));
+  fehler(end_of_file,GETTEXT("~: input stream ~ ends within a string"));
+}
 
 # reads an Object and creates a list with two elements.
 # list2_reader(stream_);
@@ -2766,11 +2761,10 @@ local Values list2_reader (const object* stream_) {
 #   #'(lambda (stream char)
 #       (list 'QUOTE (read stream t nil t))
 # )   )
-LISPFUNN(quote_reader,2) # reads '
-  {
-    var object* stream_ = test_stream_arg(STACK_1);
-    STACK_0 = S(quote); return_Values list2_reader(stream_);
-  }
+LISPFUNN(quote_reader,2) { # reads '
+  var object* stream_ = test_stream_arg(STACK_1);
+  STACK_0 = S(quote); return_Values list2_reader(stream_);
+}
 
 # (set-macro-character #\;
 #   #'(lambda (stream char)
@@ -2780,16 +2774,15 @@ LISPFUNN(quote_reader,2) # reads '
 #       ) )
 #       (values)
 # )   )
-LISPFUNN(line_comment_reader,2) # reads ;
-  {
-    var object* stream_ = test_stream_arg(STACK_1);
-    loop {
-      var object ch = read_char(stream_); # read character
-      if (eq(ch,eof_value) || eq(ch,ascii_char(NL)))
-        break;
-    }
-    value1 = NIL; mv_count=0; skipSTACK(2); # return no values
+LISPFUNN(line_comment_reader,2) { # reads ;
+  var object* stream_ = test_stream_arg(STACK_1);
+  loop {
+    var object ch = read_char(stream_); # read character
+    if (eq(ch,eof_value) || eq(ch,ascii_char(NL)))
+      break;
   }
+  value1 = NIL; mv_count=0; skipSTACK(2); # return no values
+}
 
 # ------------------------- READ-Dispatch-Macros ------------------------------
 
@@ -2827,11 +2820,10 @@ local object* test_no_infix (void) {
 #       (when n (error ...))
 #       (list 'FUNCTION (read stream t nil t))
 # )   )
-LISPFUNN(function_reader,3) # reads #'
-  {
-    var object* stream_ = test_no_infix(); # n must be NIL
-    STACK_0 = S(function); return_Values list2_reader(stream_);
-  }
+LISPFUNN(function_reader,3) { # reads #'
+  var object* stream_ = test_no_infix(); # n must be NIL
+  STACK_0 = S(function); return_Values list2_reader(stream_);
+}
 
 # (set-dispatch-macro-character #\# #\|
 #   #'(lambda (stream sub-char n) ; with (not (eql sub-char #\#))
@@ -2856,53 +2848,52 @@ LISPFUNN(function_reader,3) # reads #'
 #       ) )
 #       (values)
 # )   )
-LISPFUNN(comment_reader,3) # reads #|
-  {
-    var object* stream_ = test_no_infix(); # n must be NIL
-    var uintL depth = 0;
-    var object ch;
-   loop1:
-    ch = read_char(stream_);
-   loop2:
+LISPFUNN(comment_reader,3) { # reads #|
+  var object* stream_ = test_no_infix(); # n must be NIL
+  var uintL depth = 0;
+  var object ch;
+ loop1:
+  ch = read_char(stream_);
+ loop2:
+  if (eq(ch,eof_value)) # EOF -> Error
+    goto fehler_eof;
+  else if (eq(ch,STACK_0)) {
+    # sub-char has been read
+    ch = read_char(stream_); # next character
+    if (eq(ch,eof_value)) # EOF -> Error
+      goto fehler_eof;
+    else if (eq(ch,ascii_char('#'))) {
+      # sub-char and '#' has been read -> decrease depth:
+      if (depth==0)
+        goto fertig;
+      depth--;
+      goto loop1;
+    } else
+      goto loop2;
+  } else if (eq(ch,ascii_char('#'))) {
+    # '#' has been read
+    ch = read_char(stream_); # next character
     if (eq(ch,eof_value)) # EOF -> Error
       goto fehler_eof;
     else if (eq(ch,STACK_0)) {
-      # sub-char has been read
-      ch = read_char(stream_); # next character
-      if (eq(ch,eof_value)) # EOF -> Error
-        goto fehler_eof;
-      else if (eq(ch,ascii_char('#'))) {
-        # sub-char and '#' has been read -> decrease depth:
-        if (depth==0)
-          goto fertig;
-        depth--;
-        goto loop1;
-      } else
-        goto loop2;
-    } else if (eq(ch,ascii_char('#'))) {
-      # '#' has been read
-      ch = read_char(stream_); # next character
-      if (eq(ch,eof_value)) # EOF -> Error
-        goto fehler_eof;
-      else if (eq(ch,STACK_0)) {
-        # '#' and sub-char has been read -> increase depth:
-        depth++;
-        goto loop1;
-      } else
-        goto loop2;
-    } else
+      # '#' and sub-char has been read -> increase depth:
+      depth++;
       goto loop1;
-   fehler_eof:
-    pushSTACK(STACK_1); # STREAM-ERROR slot STREAM
-    pushSTACK(STACK_(0+1)); # sub-char
-    pushSTACK(STACK_(0+2)); # sub-char
-    pushSTACK(STACK_(1+3)); # Stream
-    pushSTACK(S(read));
-    fehler(end_of_file,
-           GETTEXT("~: input stream ~ ends within a comment #$ ... $#"));
-   fertig:
-    value1 = NIL; mv_count=0; skipSTACK(2); # return no values
-  }
+    } else
+      goto loop2;
+  } else
+    goto loop1;
+ fehler_eof:
+  pushSTACK(STACK_1); # STREAM-ERROR slot STREAM
+  pushSTACK(STACK_(0+1)); # sub-char
+  pushSTACK(STACK_(0+2)); # sub-char
+  pushSTACK(STACK_(1+3)); # Stream
+  pushSTACK(S(read));
+  fehler(end_of_file,
+         GETTEXT("~: input stream ~ ends within a comment #$ ... $#"));
+ fertig:
+  value1 = NIL; mv_count=0; skipSTACK(2); # return no values
+}
 
 # (set-dispatch-macro-character #\# #\\
 #   #'(lambda (stream sub-char n)
@@ -2960,99 +2951,98 @@ LISPFUNN(comment_reader,3) # reads #|
 #                     ) )
 #             ) ) ) )
 # )   ) ) ) )
-LISPFUNN(char_reader,3) # reads #\
-  {
-    # stack layout: Stream, sub-char, n.
-    var object* stream_ = test_stream_arg(STACK_2);
-    # read Token, with Dummy-Character '\' as start of Token:
-    read_token_1(stream_,ascii_char('\\'),syntax_single_esc);
-    # finished at once, when *READ-SUPPRESS* /= NIL:
-    if (test_value(S(read_suppress))) {
-      value1 = NIL; mv_count=1; skipSTACK(3); # NIL as value
-      return;
-    }
-    case_convert_token_1();
-    # determine Font:
-    if (!nullp(STACK_0)) # n=NIL -> Default-Font 0
-      if (!eq(STACK_0,Fixnum_0)) {
-        pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-        pushSTACK(STACK_(0+1)); # n
-        pushSTACK(*stream_); # Stream
-        pushSTACK(S(read));
-        fehler(stream_error,GETTEXT("~ from ~: font number ~ for character is too large, should be = 0"));
-      }
-    # Font ready.
-    var object token = O(token_buff_1); # read Token as Semi-Simple-String
-    var uintL len = TheIarray(token)->dims[1]; # lengh = Fill-Pointer
-    var object hstring = O(displaced_string); # auxiliary string
-    TheIarray(hstring)->data = token; # Data-vector := O(token_buff_1)
-    token = TheIarray(token)->data; # Normal-Simple-String with Token
-    var uintL pos = 0; # current Position in Token
-    # do not search for bits since this interferes with
-    # Unicode names which contain hyphens
-    var uintL sub_len = len-pos; # Length of Character name
-    if (sub_len == 1) { # character name consists of one letter
-      var chart code = TheSstring(token)->data[pos]; # (char token pos)
-      value1 = code_char(code); mv_count=1; skipSTACK(3);
-      return;
-    }
-    TheIarray(hstring)->dims[0] = pos; # Displaced-Offset := pos
-    /* TheIarray(hstring)->totalsize =          */
-    /*   TheIarray(hstring)->dims[1] = sub_len; */ # Length := len-pos
-    # hstring = (subseq token pos hyphen) = remaining Charactername
-    # Test for Character-Came "CODExxxx" (xxxx Decimalnumber <256):
-    if (sub_len > 4) {
-      TheIarray(hstring)->totalsize =
-        TheIarray(hstring)->dims[1] = 4;
-      # hstring = (subseq token pos (+ pos 4))
-      if (!string_equal(hstring,O(charname_prefix))) # = "Code" ?
-        goto not_codexxxx; # no -> continue
-      # decipher Decimal number:
-      var uintL code = 0; # so far read xxxx (<char_code_limit)
-      var uintL index = pos+4;
-      var const chart* charptr = &TheSstring(token)->data[index];
-      loop {
-        if (index == len) # reached end of Token?
-          break;
-        var cint c = as_cint(*charptr++); # next Character
-        # is to be digit:
-        if (!((c>='0') && (c<='9')))
-          goto not_codexxxx;
-        code = 10*code + (c-'0'); # add digit
-        # code is to be < char_code_limit:
-        if (code >= char_code_limit)
-          goto not_codexxxx;
-        index++;
-      }
-      # Charactername was of type Typ "Codexxxx" with code = xxxx < char_code_limit
-      value1 = code_char(as_chart(code)); mv_count=1; skipSTACK(3);
-      return;
-    }
-  not_codexxxx:
-    # Test for Pseudo-Character-Name ^X:
-    if ((sub_len == 2) && chareq(TheSstring(token)->data[pos],ascii('^'))) {
-      var cint code = as_cint(TheSstring(token)->data[pos+1])-64;
-      if (code < 32) {
-        value1 = ascii_char(code); mv_count=1; skipSTACK(3);
-        return;
-      }
-    }
-    # Test for Charactername like NAME-CHAR:
-    TheIarray(hstring)->totalsize =
-      TheIarray(hstring)->dims[1] = sub_len; # Length := len-pos
-    var object ch = name_char(hstring); # search Character with this Name
-    if (nullp(ch)) { # not found -> Error
-      pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-      pushSTACK(copy_string(hstring)); # copy Charactername
-      pushSTACK(*stream_); # Stream
-      pushSTACK(S(read));
-      fehler(stream_error,
-             GETTEXT("~ from ~: there is no character with name ~"));
-    }
-    # found
-    value1 = ch; mv_count=1; skipSTACK(3);
+LISPFUNN(char_reader,3) { # reads #\
+  # stack layout: Stream, sub-char, n.
+  var object* stream_ = test_stream_arg(STACK_2);
+  # read Token, with Dummy-Character '\' as start of Token:
+  read_token_1(stream_,ascii_char('\\'),syntax_single_esc);
+  # finished at once, when *READ-SUPPRESS* /= NIL:
+  if (test_value(S(read_suppress))) {
+    value1 = NIL; mv_count=1; skipSTACK(3); # NIL as value
     return;
   }
+  case_convert_token_1();
+  # determine Font:
+  if (!nullp(STACK_0)) # n=NIL -> Default-Font 0
+    if (!eq(STACK_0,Fixnum_0)) {
+      pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+      pushSTACK(STACK_(0+1)); # n
+      pushSTACK(*stream_); # Stream
+      pushSTACK(S(read));
+      fehler(stream_error,GETTEXT("~ from ~: font number ~ for character is too large, should be = 0"));
+    }
+  # Font ready.
+  var object token = O(token_buff_1); # read Token as Semi-Simple-String
+  var uintL len = TheIarray(token)->dims[1]; # lengh = Fill-Pointer
+  var object hstring = O(displaced_string); # auxiliary string
+  TheIarray(hstring)->data = token; # Data-vector := O(token_buff_1)
+  token = TheIarray(token)->data; # Normal-Simple-String with Token
+  var uintL pos = 0; # current Position in Token
+  # do not search for bits since this interferes with
+  # Unicode names which contain hyphens
+  var uintL sub_len = len-pos; # Length of Character name
+  if (sub_len == 1) { # character name consists of one letter
+    var chart code = TheSstring(token)->data[pos]; # (char token pos)
+    value1 = code_char(code); mv_count=1; skipSTACK(3);
+    return;
+  }
+  TheIarray(hstring)->dims[0] = pos; # Displaced-Offset := pos
+  /* TheIarray(hstring)->totalsize =          */
+  /*   TheIarray(hstring)->dims[1] = sub_len; */ # Length := len-pos
+  # hstring = (subseq token pos hyphen) = remaining Charactername
+  # Test for Character-Came "CODExxxx" (xxxx Decimalnumber <256):
+  if (sub_len > 4) {
+    TheIarray(hstring)->totalsize =
+      TheIarray(hstring)->dims[1] = 4;
+    # hstring = (subseq token pos (+ pos 4))
+    if (!string_equal(hstring,O(charname_prefix))) # = "Code" ?
+      goto not_codexxxx; # no -> continue
+    # decipher Decimal number:
+    var uintL code = 0; # so far read xxxx (<char_code_limit)
+    var uintL index = pos+4;
+    var const chart* charptr = &TheSstring(token)->data[index];
+    loop {
+      if (index == len) # reached end of Token?
+        break;
+      var cint c = as_cint(*charptr++); # next Character
+      # is to be digit:
+      if (!((c>='0') && (c<='9')))
+        goto not_codexxxx;
+      code = 10*code + (c-'0'); # add digit
+      # code is to be < char_code_limit:
+      if (code >= char_code_limit)
+        goto not_codexxxx;
+      index++;
+    }
+    # Charactername was of type Typ "Codexxxx" with code = xxxx < char_code_limit
+    value1 = code_char(as_chart(code)); mv_count=1; skipSTACK(3);
+    return;
+  }
+ not_codexxxx:
+  # Test for Pseudo-Character-Name ^X:
+  if ((sub_len == 2) && chareq(TheSstring(token)->data[pos],ascii('^'))) {
+    var cint code = as_cint(TheSstring(token)->data[pos+1])-64;
+    if (code < 32) {
+      value1 = ascii_char(code); mv_count=1; skipSTACK(3);
+      return;
+    }
+  }
+  # Test for Charactername like NAME-CHAR:
+  TheIarray(hstring)->totalsize =
+    TheIarray(hstring)->dims[1] = sub_len; # Length := len-pos
+  var object ch = name_char(hstring); # search Character with this Name
+  if (nullp(ch)) { # not found -> Error
+    pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+    pushSTACK(copy_string(hstring)); # copy Charactername
+    pushSTACK(*stream_); # Stream
+    pushSTACK(S(read));
+    fehler(stream_error,
+           GETTEXT("~ from ~: there is no character with name ~"));
+  }
+  # found
+  value1 = ch; mv_count=1; skipSTACK(3);
+  return;
+}
 
 # (defun radix-1 (stream sub-char n base)
 #   (let ((token (read-token stream)))
@@ -3135,26 +3125,23 @@ local Values radix_1 (uintWL base) {
 # (set-dispatch-macro-character #\# #\B
 #   #'(lambda (stream sub-char n) (radix-1 stream sub-char n 2))
 # )
-LISPFUNN(binary_reader,3) # reads #B
-  {
-    return_Values radix_1(2);
-  }
+LISPFUNN(binary_reader,3) { # reads #B
+  return_Values radix_1(2);
+}
 
 # (set-dispatch-macro-character #\# #\O
 #   #'(lambda (stream sub-char n) (radix-1 stream sub-char n 8))
 # )
-LISPFUNN(octal_reader,3) # reads #O
-  {
-    return_Values radix_1(8);
-  }
+LISPFUNN(octal_reader,3) { # reads #O
+  return_Values radix_1(8);
+}
 
 # (set-dispatch-macro-character #\# #\X
 #   #'(lambda (stream sub-char n) (radix-1 stream sub-char n 16))
 # )
-LISPFUNN(hexadecimal_reader,3) # reads #X
-  {
-    return_Values radix_1(16);
-  }
+LISPFUNN(hexadecimal_reader,3) { # reads #X
+  return_Values radix_1(16);
+}
 
 # (set-dispatch-macro-character #\# #\R
 #   #'(lambda (stream sub-char n)
@@ -3166,37 +3153,36 @@ LISPFUNN(hexadecimal_reader,3) # reads #X
 #         ) )
 #         (progn (read-token stream) nil)
 # )   ) )
-LISPFUNN(radix_reader,3) # reads #R
-  {
-    var object* stream_ = test_stream_arg(STACK_2);
-    read_token(stream_); # read Token
-    # finished at once when *READ-SUPPRESS* /= NIL:
-    if (test_value(S(read_suppress))) {
-      value1 = NIL; mv_count=1; skipSTACK(3); # NIL as value
-      return;
-    }
-    # check n:
-    if (nullp(STACK_0)) {
-      pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-      pushSTACK(*stream_); # Stream
-      pushSTACK(S(read));
-      fehler(stream_error,
-             GETTEXT("~ from ~: the number base must be given between #"" and R"));
-    }
-    var uintL base;
-    # n must be a Fixnum between 2 and 36 (inclusive):
-    if (posfixnump(STACK_0) &&
-        (base = posfixnum_to_L(STACK_0), (base >= 2) && (base <= 36))) {
-      return_Values radix_2(base); # interprete Token as rational number
-    } else {
-      pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-      pushSTACK(STACK_(0+1)); # n
-      pushSTACK(*stream_); # Stream
-      pushSTACK(S(read));
-      fehler(stream_error,
-             GETTEXT("~ from ~: The base ~ given between #"" and R should lie between 2 and 36"));
-    }
+LISPFUNN(radix_reader,3) { # reads #R
+  var object* stream_ = test_stream_arg(STACK_2);
+  read_token(stream_); # read Token
+  # finished at once when *READ-SUPPRESS* /= NIL:
+  if (test_value(S(read_suppress))) {
+    value1 = NIL; mv_count=1; skipSTACK(3); # NIL as value
+    return;
   }
+  # check n:
+  if (nullp(STACK_0)) {
+    pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+    pushSTACK(*stream_); # Stream
+    pushSTACK(S(read));
+    fehler(stream_error,
+           GETTEXT("~ from ~: the number base must be given between #"" and R"));
+  }
+  var uintL base;
+  # n must be a Fixnum between 2 and 36 (inclusive):
+  if (posfixnump(STACK_0) &&
+      (base = posfixnum_to_L(STACK_0), (base >= 2) && (base <= 36))) {
+    return_Values radix_2(base); # interprete Token as rational number
+  } else {
+    pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+    pushSTACK(STACK_(0+1)); # n
+    pushSTACK(*stream_); # Stream
+    pushSTACK(S(read));
+    fehler(stream_error,
+           GETTEXT("~ from ~: The base ~ given between #"" and R should lie between 2 and 36"));
+  }
+}
 
 # (set-dispatch-macro-character #\# #\C
 #   #'(lambda (stream sub-char n)
@@ -3213,36 +3199,35 @@ LISPFUNN(radix_reader,3) # reads #R
 #               (apply #'complex h)
 #               (error "~: Wrong Syntax for complex Number: #C~" 'read h)
 # )   ) ) ) ) )
-LISPFUNN(complex_reader,3) # reads #C
-  {
-    var object* stream_ = test_no_infix(); # n must be NIL
-    var object obj = read_recursive_no_dot(stream_); # read next Object
-    # finished at once when *READ-SUPPRESS* /= NIL:
-    if (test_value(S(read_suppress))) {
-      value1 = NIL; mv_count=1; skipSTACK(2); # NIL as value
-      return;
-    }
-    obj = make_references(obj); # unentangle references untimely
-    # check, if this is a 2-elemnt List of real numbers:
-    if (!consp(obj)) goto bad; # obj must be a Cons !
-    {
-      var object obj2 = Cdr(obj);
-      if (!consp(obj2)) goto bad; # obj2 must be a Cons!
-      if (!nullp(Cdr(obj2))) goto bad; # with (cdr obj2) = nil !
-      if_realp(Car(obj), ; , goto bad; ); # and (car obj) being a real number!
-      if_realp(Car(obj2), ; , goto bad; ); # and (car obj2) being a real number!
-      # execute (apply #'COMPLEX obj):
-      apply(L(complex),0,obj);
-      mv_count=1; skipSTACK(2); return; # value1 as value
-    }
-   bad:
-    pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-    pushSTACK(obj); # Object
-    pushSTACK(*stream_); # Stream
-    pushSTACK(S(read));
-    fehler(stream_error,
-           GETTEXT("~ from ~: bad syntax for complex number: #C~"));
+LISPFUNN(complex_reader,3) { # reads #C
+  var object* stream_ = test_no_infix(); # n must be NIL
+  var object obj = read_recursive_no_dot(stream_); # read next Object
+  # finished at once when *READ-SUPPRESS* /= NIL:
+  if (test_value(S(read_suppress))) {
+    value1 = NIL; mv_count=1; skipSTACK(2); # NIL as value
+    return;
   }
+  obj = make_references(obj); # unentangle references untimely
+  # check, if this is a 2-elemnt List of real numbers:
+  if (!consp(obj)) goto bad; # obj must be a Cons !
+  {
+    var object obj2 = Cdr(obj);
+    if (!consp(obj2)) goto bad; # obj2 must be a Cons!
+    if (!nullp(Cdr(obj2))) goto bad; # with (cdr obj2) = nil !
+    if_realp(Car(obj), ; , goto bad; ); # and (car obj) being a real number!
+    if_realp(Car(obj2), ; , goto bad; ); # and (car obj2) being a real number!
+    # execute (apply #'COMPLEX obj):
+    apply(L(complex),0,obj);
+    mv_count=1; skipSTACK(2); return; # value1 as value
+  }
+ bad:
+  pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+  pushSTACK(obj); # Object
+  pushSTACK(*stream_); # Stream
+  pushSTACK(S(read));
+  fehler(stream_error,
+         GETTEXT("~ from ~: bad syntax for complex number: #C~"));
+}
 
 # (set-dispatch-macro-character #\# #\:
 #   #'(lambda (stream sub-char n)
@@ -3254,56 +3239,53 @@ LISPFUNN(complex_reader,3) # reads #C
 #           [verify, if also no Package-Marker occurs in the Token.]
 #           (make-symbol token)
 # )   ) ) )
-LISPFUNN(uninterned_reader,3) # reads #:
-  {
-    var object* stream_ = test_stream_arg(STACK_2);
-    # when *READ-SUPPRESS* /= NIL, read form and return NIL:
-    if (test_value(S(read_suppress))) {
-      read_recursive(stream_);
-      value1 = NIL; mv_count=1; skipSTACK(3); return;
-    }
-    # read next character:
-    {
-      var object ch;
-      var uintWL scode;
-      read_char_syntax(ch = ,scode = ,stream_);
-      if (scode == syntax_eof) # EOF -> Error
-        fehler_eof_innen(stream_);
-      if (scode > syntax_constituent) {
-        # no character, that is allowed at beginning of Token -> Error
-        pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-        pushSTACK(*stream_); # Stream
-        pushSTACK(S(read));
-        fehler(stream_error,GETTEXT("~ from ~: token expected after #:"));
-      }
-      # read Token until the end:
-      read_token_1(stream_,ch,scode);
-      case_convert_token_1();
-    }
-    if (!nullp(popSTACK())) # n/=NIL -> Error
-      fehler_dispatch_zahl();
-    # copy Token and convert into Simple-String:
-    var object string = coerce_imm_ss(O(token_buff_1));
-    # test for Package-Marker:
-    {
-      var object buff_2 = O(token_buff_2); # Attribut-Code-Buffer
-      var uintL len = TheIarray(buff_2)->dims[1]; # length = Fill-Pointer
-      if (len > 0) {
-        var uintB* attrptr = &TheSbvector(TheIarray(buff_2)->data)->data[0];
-        # Test, if one of the len Attribut-Codes starting at attrptr and afterwards is an a_pack_m:
-        dotimespL(len,len, { if (*attrptr++ == a_pack_m) goto fehler_dopp; } );
-      }
-    }
-    # build uninterned Symbol with this Name:
-    value1 = make_symbol(string); mv_count=1; skipSTACK(2); return;
-   fehler_dopp:
-    pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-    pushSTACK(string); # Token
-    pushSTACK(*stream_); # Stream
-    pushSTACK(S(read));
-    fehler(stream_error,
-           GETTEXT("~ from ~: token ~ after #: should contain no colon"));
+LISPFUNN(uninterned_reader,3) { # reads #:
+  var object* stream_ = test_stream_arg(STACK_2);
+  # when *READ-SUPPRESS* /= NIL, read form and return NIL:
+  if (test_value(S(read_suppress))) {
+    read_recursive(stream_);
+    value1 = NIL; mv_count=1; skipSTACK(3); return;
   }
+  { # read next character:
+    var object ch;
+    var uintWL scode;
+    read_char_syntax(ch = ,scode = ,stream_);
+    if (scode == syntax_eof) # EOF -> Error
+      fehler_eof_innen(stream_);
+    if (scode > syntax_constituent) {
+      # no character, that is allowed at beginning of Token -> Error
+      pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+      pushSTACK(*stream_); # Stream
+      pushSTACK(S(read));
+      fehler(stream_error,GETTEXT("~ from ~: token expected after #:"));
+    }
+    # read Token until the end:
+    read_token_1(stream_,ch,scode);
+    case_convert_token_1();
+  }
+  if (!nullp(popSTACK())) # n/=NIL -> Error
+    fehler_dispatch_zahl();
+  # copy Token and convert into Simple-String:
+  var object string = coerce_imm_ss(O(token_buff_1));
+  { # test for Package-Marker:
+    var object buff_2 = O(token_buff_2); # Attribut-Code-Buffer
+    var uintL len = TheIarray(buff_2)->dims[1]; # length = Fill-Pointer
+    if (len > 0) {
+      var uintB* attrptr = &TheSbvector(TheIarray(buff_2)->data)->data[0];
+      # Test, if one of the len Attribut-Codes starting at attrptr and afterwards is an a_pack_m:
+      dotimespL(len,len, { if (*attrptr++ == a_pack_m) goto fehler_dopp; } );
+    }
+  }
+  # build uninterned Symbol with this Name:
+  value1 = make_symbol(string); mv_count=1; skipSTACK(2); return;
+ fehler_dopp:
+  pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+  pushSTACK(string); # Token
+  pushSTACK(*stream_); # Stream
+  pushSTACK(S(read));
+  fehler(stream_error,
+         GETTEXT("~ from ~: token ~ after #: should contain no colon"));
+}
 
 # (set-dispatch-macro-character #\# #\*
 #   #'(lambda (stream sub-char n)
@@ -3338,81 +3320,80 @@ LISPFUNN(uninterned_reader,3) # reads #:
 #               )
 #               bv
 # )   ) ) ) ) )
-LISPFUNN(bit_vector_reader,3) # reads #*
-  {
-    var object* stream_ = test_stream_arg(STACK_2);
-    read_token(stream_); # read Token
-    # finished at once, if *READ-SUPPRESS* /= NIL:
-    if (test_value(S(read_suppress))) {
-      value1 = NIL; mv_count=1; skipSTACK(3); # NIL as value
-      return;
-    }
-    # Test, if no Escape-character and only 0s and 1s are used:
-    if (token_escape_flag) {
-     fehler_nur01:
+LISPFUNN(bit_vector_reader,3) { # reads #*
+  var object* stream_ = test_stream_arg(STACK_2);
+  read_token(stream_); # read Token
+  # finished at once, if *READ-SUPPRESS* /= NIL:
+  if (test_value(S(read_suppress))) {
+    value1 = NIL; mv_count=1; skipSTACK(3); # NIL as value
+    return;
+  }
+  # Test, if no Escape-character and only 0s and 1s are used:
+  if (token_escape_flag) {
+  fehler_nur01:
+    pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+    pushSTACK(*stream_); # Stream
+    pushSTACK(S(read));
+    fehler(stream_error,
+           GETTEXT("~ from ~: only zeroes and ones are allowed after #*"));
+  }
+  var object buff_1 = O(token_buff_1); # Character-Buffer
+  var uintL len = TheIarray(buff_1)->dims[1]; # length = Fill-Pointer
+  if (len > 0) {
+    var const chart* charptr = &TheSstring(TheIarray(buff_1)->data)->data[0];
+    var uintL count;
+    dotimespL(count,len, {
+      var chart c = *charptr++; # next Character
+      if (!(chareq(c,ascii('0')) || chareq(c,ascii('1')))) # only '0' and '1' are OK
+        goto fehler_nur01;
+    });
+  }
+  # check n:
+  var uintL n; # Length of Bitvectors
+  if (nullp(STACK_0)) {
+    n = len; # Defaultvalue is the Tokenlength
+  } else {
+    # n specified, an Integer >=0.
+    n = (posfixnump(STACK_0) ? posfixnum_to_L(STACK_0) # Fixnum -> value
+         : bitm(oint_data_len)-1); # Bignum -> big value
+    if (n<len) {
       pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+      pushSTACK(STACK_(0+1)); # n
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
       fehler(stream_error,
-             GETTEXT("~ from ~: only zeroes and ones are allowed after #*"));
+             GETTEXT("~ from ~: bit vector is longer than the explicitly given length ~"));
     }
-    var object buff_1 = O(token_buff_1); # Character-Buffer
-    var uintL len = TheIarray(buff_1)->dims[1]; # length = Fill-Pointer
-    if (len > 0) {
-      var const chart* charptr = &TheSstring(TheIarray(buff_1)->data)->data[0];
-      var uintL count;
-      dotimespL(count,len, {
-        var chart c = *charptr++; # next Character
-        if (!(chareq(c,ascii('0')) || chareq(c,ascii('1')))) # only '0' and '1' are OK
-          goto fehler_nur01;
-      });
+    if ((n>0) && (len==0)) {
+      pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+      pushSTACK(STACK_(0+1)); # n
+      pushSTACK(*stream_); # Stream
+      pushSTACK(S(read));
+      fehler(stream_error,
+             GETTEXT("~ from ~: must specify element of bit vector of length ~"));
     }
-    # check n:
-    var uintL n; # Length of Bitvectors
-    if (nullp(STACK_0)) {
-      n = len; # Defaultvalue is the Tokenlength
-    } else {
-      # n specified, an Integer >=0.
-      n = (posfixnump(STACK_0) ? posfixnum_to_L(STACK_0) # Fixnum -> value
-                               : bitm(oint_data_len)-1); # Bignum -> big value
-      if (n<len) {
-        pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-        pushSTACK(STACK_(0+1)); # n
-        pushSTACK(*stream_); # Stream
-        pushSTACK(S(read));
-        fehler(stream_error,
-               GETTEXT("~ from ~: bit vector is longer than the explicitly given length ~"));
-      }
-      if ((n>0) && (len==0)) {
-        pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-        pushSTACK(STACK_(0+1)); # n
-        pushSTACK(*stream_); # Stream
-        pushSTACK(S(read));
-        fehler(stream_error,
-               GETTEXT("~ from ~: must specify element of bit vector of length ~"));
-      }
-    }
-    # create new Bit-Vector with length n:
-    var object bv = allocate_bit_vector(Atype_Bit,n);
-    # and fill the Bits into it:
-    buff_1 = O(token_buff_1);
-    {
-      var const chart* charptr = &TheSstring(TheIarray(buff_1)->data)->data[0];
-      var chart ch; # last character ('0' or '1')
-      var uintL index = 0;
-      while (index < n) {
-        if (index < len)
-          ch = *charptr++; # possibly, fetch next Character
-        if (chareq(ch,ascii('0'))) {
-          sbvector_bclr(bv,index); # Null -> delete Bit
-        } else {
-          sbvector_bset(bv,index); # Eins -> set Bit
-        }
-        index++;
-      }
-    }
-    value1 = bv; mv_count=1; skipSTACK(3); # bv as value
   }
+  # create new Bit-Vector with length n:
+  var object bv = allocate_bit_vector(Atype_Bit,n);
+  # and fill the Bits into it:
+  buff_1 = O(token_buff_1);
+  {
+    var const chart* charptr = &TheSstring(TheIarray(buff_1)->data)->data[0];
+    var chart ch; # last character ('0' or '1')
+    var uintL index = 0;
+    while (index < n) {
+      if (index < len)
+        ch = *charptr++; # possibly, fetch next Character
+      if (chareq(ch,ascii('0'))) {
+        sbvector_bclr(bv,index); # Null -> delete Bit
+      } else {
+        sbvector_bset(bv,index); # Eins -> set Bit
+      }
+      index++;
+    }
+  }
+  value1 = bv; mv_count=1; skipSTACK(3); # bv as value
+}
 
 # (set-dispatch-macro-character #\# #\(
 #   #'(lambda (stream sub-char n)
@@ -3442,61 +3423,59 @@ LISPFUNN(bit_vector_reader,3) # reads #*
 #               )
 #               v
 # )   ) ) ) ) )
-LISPFUNN(vector_reader,3) # reads #(
-  {
-    var object* stream_ = test_stream_arg(STACK_2);
-    # read List until parenthese, Dot is not allowed:
-    var object elements = read_delimited_list(stream_,ascii_char(')'),eof_value);
-    # already finished when *READ-SUPPRESS* /= NIL:
-    if (test_value(S(read_suppress))) {
-      value1 = NIL; mv_count=1; skipSTACK(3); # NIL as value
-      return;
-    }
-    var uintL len = llength(elements); # Listlength
-    # check n:
-    var uintL n; # Length of Vector
-    if (nullp(STACK_0)) {
-      n = len; # Defaultvalue is the length of the Token
-    } else {
-      # specify n, an Integer >=0.
-      n = (posfixnump(STACK_0) ? posfixnum_to_L(STACK_0) # Fixnum -> value
-                               : bitm(oint_data_len)-1); # Bignum -> big value
-      if (n<len) {
-        pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-        pushSTACK(STACK_(0+1)); # n
-        pushSTACK(*stream_); # Stream
-        pushSTACK(S(read));
-        fehler(stream_error,
-               GETTEXT("~ from ~: vector is longer than the explicitly given length ~"));
-      }
-      if ((n>0) && (len==0)) {
-        pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-        pushSTACK(STACK_(0+1)); # n
-        pushSTACK(*stream_); # Stream
-        pushSTACK(S(read));
-        fehler(stream_error,
-               GETTEXT("~ from ~: must specify element of vector of length ~"));
-      }
-    }
-    # create new Vector with Length n:
-    pushSTACK(elements); # save List
-    var object v = allocate_vector(n);
-    elements = popSTACK(); # retrieve List
-    # und fill it with the Elements:
-    {
-      var object* vptr = &TheSvector(v)->data[0];
-      var object el; # last Element
-      var uintL index = 0;
-      while (index < n) {
-        if (index < len) {
-          el = Car(elements); elements = Cdr(elements); # possibly fetch next Element
-        }
-        *vptr++ = el;
-        index++;
-      }
-    }
-    value1 = v; mv_count=1; skipSTACK(3); # v as value
+LISPFUNN(vector_reader,3) { # reads #(
+  var object* stream_ = test_stream_arg(STACK_2);
+  # read List until parenthese, Dot is not allowed:
+  var object elements = read_delimited_list(stream_,ascii_char(')'),eof_value);
+  # already finished when *READ-SUPPRESS* /= NIL:
+  if (test_value(S(read_suppress))) {
+    value1 = NIL; mv_count=1; skipSTACK(3); # NIL as value
+    return;
   }
+  var uintL len = llength(elements); # Listlength
+  # check n:
+  var uintL n; # Length of Vector
+  if (nullp(STACK_0)) {
+    n = len; # Defaultvalue is the length of the Token
+  } else {
+    # specify n, an Integer >=0.
+    n = (posfixnump(STACK_0) ? posfixnum_to_L(STACK_0) # Fixnum -> value
+         : bitm(oint_data_len)-1); # Bignum -> big value
+    if (n<len) {
+      pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+      pushSTACK(STACK_(0+1)); # n
+      pushSTACK(*stream_); # Stream
+      pushSTACK(S(read));
+      fehler(stream_error,
+             GETTEXT("~ from ~: vector is longer than the explicitly given length ~"));
+    }
+    if ((n>0) && (len==0)) {
+      pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+      pushSTACK(STACK_(0+1)); # n
+      pushSTACK(*stream_); # Stream
+      pushSTACK(S(read));
+      fehler(stream_error,
+             GETTEXT("~ from ~: must specify element of vector of length ~"));
+    }
+  }
+  # create new Vector with Length n:
+  pushSTACK(elements); # save List
+  var object v = allocate_vector(n);
+  elements = popSTACK(); # retrieve List
+  { # and fill it with the Elements:
+    var object* vptr = &TheSvector(v)->data[0];
+    var object el; # last Element
+    var uintL index = 0;
+    while (index < n) {
+      if (index < len) { # possibly fetch next Element
+        el = Car(elements); elements = Cdr(elements);
+      }
+      *vptr++ = el;
+      index++;
+    }
+  }
+  value1 = v; mv_count=1; skipSTACK(3); # v as value
+}
 
 # (set-dispatch-macro-character #\# #\A
 #   #'(lambda (stream sub-char n)
@@ -3526,85 +3505,84 @@ LISPFUNN(vector_reader,3) # reads #(
 #             ) ) )
 #             (make-array (nreverse dims) :element-type eltype :initial-contents cont)
 # )   ) ) ) )
-LISPFUNN(array_reader,3) # reads #A
-  {
-    var object* stream_ = test_stream_arg(STACK_2);
-    # stack layout: stream, sub-char, n.
-    if (test_value(S(read_suppress))) { # *READ-SUPPRESS* /= NIL ?
-      # yes -> skip next Object:
-      read_recursive_no_dot(stream_);
-      value1 = NIL; mv_count=1; skipSTACK(3); return;
-    }
-    if (nullp(STACK_0)) { # n not specified?
-      # yes -> read List (eltype dims contents):
-      var object obj = read_recursive_no_dot(stream_); # read List
-      obj = make_references(obj); # unentangle references
-      # (this is harmless, since we don't use this #A-Syntax
-      # for Arrays with Elementtyp T, and Byte-Arrays contain no references.)
-      if (!consp(obj)) goto bad;
-      {
-        var object obj2 = Cdr(obj);
-        if (!consp(obj2)) goto bad;
-        var object obj3 = Cdr(obj2);
-        if (!consp(obj3)) goto bad;
-        if (!nullp(Cdr(obj3))) goto bad;
-        # call (MAKE-ARRAY dims :element-type eltype :initial-contents contents):
-        STACK_2 = Car(obj2); STACK_1 = S(Kelement_type); STACK_0 = Car(obj);
-        pushSTACK(S(Kinitial_contents)); pushSTACK(Car(obj3));
-        goto call_make_array;
-      }
-     bad:
-      pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-      pushSTACK(obj); # Object
-      pushSTACK(*stream_); # Stream
-      pushSTACK(S(read));
-      fehler(stream_error,GETTEXT("~ from ~: bad syntax for array: #A~"));
-    }
-    # n specifies the Rank of the Arrays.
-    # read content:
-    {
-      dynamic_bind(S(backquote_level),NIL); # bind SYS::*BACKQUOTE-LEVEL* to NIL
-      var object contents = read_recursive_no_dot(stream_);
-      dynamic_unbind();
-      pushSTACK(contents); pushSTACK(contents);
-    }
-    STACK_4 = NIL; # dims := '()
-    # stack layout: dims, -, rank, subcontents, contents.
-    # determine Dimensions and Element-type:
-    if (eq(STACK_2,Fixnum_0)) { # rank=0 ?
-      STACK_2 = S(t); # yes -> eltype := 'T
-    } else {
-      var object i = Fixnum_0; # former nesting depth
-      loop {
-        pushSTACK(STACK_1); funcall(L(length),1); # (LENGTH subcontents)
-        # push on dims:
-        STACK_3 = value1;
-        {
-          var object new_cons = allocate_cons();
-          Car(new_cons) = STACK_3; Cdr(new_cons) = STACK_4;
-          STACK_4 = new_cons;
-        }
-        # increase depth:
-        i = fixnum_inc(i,1); if (eql(i,STACK_2)) break;
-        # first Element of subcontents for the following Dimensions:
-        if (!eq(STACK_3,Fixnum_0)) { # (only if (length subcontents) >0)
-          pushSTACK(STACK_1); pushSTACK(Fixnum_0); funcall(L(elt),2);
-          STACK_1 = value1; # subcontents := (ELT subcontents 0)
-        }
-      }
-      nreverse(STACK_4); # reverse List dims
-      # determine eltype according to innermost subcontents:
-      STACK_2 = (stringp(STACK_1) ? S(character) :          # String: CHARACTER
-                 bit_vector_p(Atype_Bit,STACK_1) ? S(bit) : # Bitvector: BIT
-                 S(t));                                     # else (Liste): T
-    }
-    # stack layout: dims, -, eltype, -, contents.
-    # call MAKE-ARRAY:
-    STACK_3 = S(Kelement_type); STACK_1 = S(Kinitial_contents);
-    call_make_array:
-    funcall(L(make_array),5);
-    mv_count=1; return;
+LISPFUNN(array_reader,3) { # reads #A
+  var object* stream_ = test_stream_arg(STACK_2);
+  # stack layout: stream, sub-char, n.
+  if (test_value(S(read_suppress))) { # *READ-SUPPRESS* /= NIL ?
+    # yes -> skip next Object:
+    read_recursive_no_dot(stream_);
+    value1 = NIL; mv_count=1; skipSTACK(3); return;
   }
+  if (nullp(STACK_0)) { # n not specified?
+    # yes -> read List (eltype dims contents):
+    var object obj = read_recursive_no_dot(stream_); # read List
+    obj = make_references(obj); # unentangle references
+    # (this is harmless, since we don't use this #A-Syntax
+    # for Arrays with Elementtyp T, and Byte-Arrays contain no references.)
+    if (!consp(obj)) goto bad;
+    {
+      var object obj2 = Cdr(obj);
+      if (!consp(obj2)) goto bad;
+      var object obj3 = Cdr(obj2);
+      if (!consp(obj3)) goto bad;
+      if (!nullp(Cdr(obj3))) goto bad;
+      # call (MAKE-ARRAY dims :element-type eltype :initial-contents contents):
+      STACK_2 = Car(obj2); STACK_1 = S(Kelement_type); STACK_0 = Car(obj);
+      pushSTACK(S(Kinitial_contents)); pushSTACK(Car(obj3));
+      goto call_make_array;
+    }
+  bad:
+    pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+    pushSTACK(obj); # Object
+    pushSTACK(*stream_); # Stream
+    pushSTACK(S(read));
+    fehler(stream_error,GETTEXT("~ from ~: bad syntax for array: #A~"));
+  }
+  # n specifies the Rank of the Arrays.
+  # read content:
+  {
+    dynamic_bind(S(backquote_level),NIL); # bind SYS::*BACKQUOTE-LEVEL* to NIL
+    var object contents = read_recursive_no_dot(stream_);
+    dynamic_unbind();
+    pushSTACK(contents); pushSTACK(contents);
+  }
+  STACK_4 = NIL; # dims := '()
+  # stack layout: dims, -, rank, subcontents, contents.
+  # determine Dimensions and Element-type:
+  if (eq(STACK_2,Fixnum_0)) { # rank=0 ?
+    STACK_2 = S(t); # yes -> eltype := 'T
+  } else {
+    var object i = Fixnum_0; # former nesting depth
+    loop {
+      pushSTACK(STACK_1); funcall(L(length),1); # (LENGTH subcontents)
+      # push on dims:
+      STACK_3 = value1;
+      {
+        var object new_cons = allocate_cons();
+        Car(new_cons) = STACK_3; Cdr(new_cons) = STACK_4;
+        STACK_4 = new_cons;
+      }
+      # increase depth:
+      i = fixnum_inc(i,1); if (eql(i,STACK_2)) break;
+      # first Element of subcontents for the following Dimensions:
+      if (!eq(STACK_3,Fixnum_0)) { # (only if (length subcontents) >0)
+        pushSTACK(STACK_1); pushSTACK(Fixnum_0); funcall(L(elt),2);
+        STACK_1 = value1; # subcontents := (ELT subcontents 0)
+      }
+    }
+    nreverse(STACK_4); # reverse List dims
+    # determine eltype according to innermost subcontents:
+    STACK_2 = (stringp(STACK_1) ? S(character) :          # String: CHARACTER
+               bit_vector_p(Atype_Bit,STACK_1) ? S(bit) : # Bitvector: BIT
+               S(t));                                     # else (List): T
+  }
+  # stack layout: dims, -, eltype, -, contents.
+  # call MAKE-ARRAY:
+  STACK_3 = S(Kelement_type); STACK_1 = S(Kinitial_contents);
+ call_make_array:
+  funcall(L(make_array),5);
+  mv_count=1; return;
+}
 
 # Errormessage for #. and #, because of *READ-EVAL*.
 # fehler_read_eval_forbidden(&stream,obj); english: erro_read_eval_forbidden(&stream,obj);
@@ -3632,24 +3610,23 @@ nonreturning_function(local, fehler_read_eval_forbidden, (object* stream_, objec
 #             )
 #             (eval h)
 # )   ) ) ) )
-LISPFUNN(read_eval_reader,3) # reads #.
-  {
-    var object* stream_ = test_stream_arg(STACK_2);
-    var object obj = read_recursive_no_dot(stream_); # read Form
-    # if *READ-SUPPRESS* /= NIL ==> finished immediately:
-    if (test_value(S(read_suppress))) {
-      value1 = NIL; mv_count=1; skipSTACK(3);
-      return;
-    }
-    if (!nullp(popSTACK())) # n/=NIL -> Error
-      fehler_dispatch_zahl();
-    obj = make_references(obj); # unentangle references
-    # either *READ-EVAL* or the Stream must allow the Evaluation.
-    if (!(test_value(S(read_eval)) || stream_get_read_eval(*stream_)))
-      fehler_read_eval_forbidden(stream_,obj);
-    eval_noenv(obj); # evaluate Form
-    mv_count=1; skipSTACK(2); # only 1 value back
+LISPFUNN(read_eval_reader,3) { # reads #.
+  var object* stream_ = test_stream_arg(STACK_2);
+  var object obj = read_recursive_no_dot(stream_); # read Form
+  # if *READ-SUPPRESS* /= NIL ==> finished immediately:
+  if (test_value(S(read_suppress))) {
+    value1 = NIL; mv_count=1; skipSTACK(3);
+    return;
   }
+  if (!nullp(popSTACK())) # n/=NIL -> Error
+    fehler_dispatch_zahl();
+  obj = make_references(obj); # unentangle references
+  # either *READ-EVAL* or the Stream must allow the Evaluation.
+  if (!(test_value(S(read_eval)) || stream_get_read_eval(*stream_)))
+    fehler_read_eval_forbidden(stream_,obj);
+  eval_noenv(obj); # evaluate Form
+  mv_count=1; skipSTACK(2); # only 1 value back
+}
 
 # (set-dispatch-macro-character #\# #\,
 #   #'(lambda (stream sub-char n)
@@ -3662,33 +3639,32 @@ LISPFUNN(read_eval_reader,3) # reads #.
 #             )
 #             (if sys::*compiling* (make-load-time-eval h) (eval h))
 # )   ) ) ) )
-LISPFUNN(load_eval_reader,3) # reads #,
-  {
-    var object* stream_ = test_stream_arg(STACK_2);
-    var object obj = read_recursive_no_dot(stream_); # read Form
-    # finished immediately, when *READ-SUPPRESS* /= NIL:
-    if (test_value(S(read_suppress))) {
-      value1 = NIL; mv_count=1; skipSTACK(3);
-      return;
-    }
-    if (!nullp(popSTACK())) # n/=NIL -> Error
-      fehler_dispatch_zahl();
-    obj = make_references(obj); # unentangle references
-    if (test_value(S(compiling))) {
-      # In Compiler:
-      pushSTACK(obj);
-      var object newobj = allocate_loadtimeeval(); # Load-time-Eval-Object
-      TheLoadtimeeval(newobj)->loadtimeeval_form = popSTACK(); # with obj as Form
-      value1 = newobj;
-    } else {
-      # In Interpreter:
-      # either *READ-EVAL* or the Stream must allow the Evaluation.
-      if (!(test_value(S(read_eval)) || stream_get_read_eval(*stream_)))
-        fehler_read_eval_forbidden(stream_,obj);
-      eval_noenv(obj); # evaluate Form
-    }
-    mv_count=1; skipSTACK(2); # only 1 value back
+LISPFUNN(load_eval_reader,3) { # reads #,
+  var object* stream_ = test_stream_arg(STACK_2);
+  var object obj = read_recursive_no_dot(stream_); # read Form
+  # finished immediately, when *READ-SUPPRESS* /= NIL:
+  if (test_value(S(read_suppress))) {
+    value1 = NIL; mv_count=1; skipSTACK(3);
+    return;
   }
+  if (!nullp(popSTACK())) # n/=NIL -> Error
+    fehler_dispatch_zahl();
+  obj = make_references(obj); # unentangle references
+  if (test_value(S(compiling))) {
+    # In Compiler:
+    pushSTACK(obj);
+    var object newobj = allocate_loadtimeeval(); # Load-time-Eval-Object
+    TheLoadtimeeval(newobj)->loadtimeeval_form = popSTACK(); # with obj as Form
+    value1 = newobj;
+  } else {
+    # In Interpreter:
+    # either *READ-EVAL* or the Stream must allow the Evaluation.
+    if (!(test_value(S(read_eval)) || stream_get_read_eval(*stream_)))
+      fehler_read_eval_forbidden(stream_,obj);
+    eval_noenv(obj); # evaluate Form
+  }
+  mv_count=1; skipSTACK(2); # only 1 value back
+}
 
 # (set-dispatch-macro-character #\# #\=
 #   #'(lambda (stream sub-char n)
@@ -3775,91 +3751,88 @@ local object lookup_label (void) {
          GETTEXT("~ from ~: the value of ~ has been altered arbitrarily, it is not an alist: ~"));
 }
 
-LISPFUNN(label_definition_reader,3) # reads #=
-  {
-    # when *READ-SUPPRESS* /= NIL, #n= is treated as comment:
-    if (test_value(S(read_suppress))) {
-      value1 = NIL; mv_count=0; skipSTACK(3); # no values
-      return;
-    }
-    # create Label and lookup in Table:
-    var object lookup = lookup_label();
-    if (consp(lookup)) {
-      # found -> has already been there -> error:
-      pushSTACK(STACK_2); # STREAM-ERROR slot STREAM
-      pushSTACK(STACK_(0+1)); # n
-      pushSTACK(STACK_(2+2)); # Stream
-      pushSTACK(S(read));
-      fehler(stream_error,
-             GETTEXT("~ from ~: label #~= may not be defined twice"));
-    } else {
-      # lookup = label, not jeopardized by GC.
-      # (push (setq h (cons label label)) sys::*read-reference-table*) :
-      var object* stream_ = test_stream_arg(STACK_2);
-      {
-        var object new_cons = allocate_cons();
-        Car(new_cons) = Cdr(new_cons) = lookup; # h = (cons label label)
-        pushSTACK(new_cons); # save h
-      }
-      {
-        var object new_cons = allocate_cons(); # new List-Cons
-        Car(new_cons) = STACK_0;
-        Cdr(new_cons) = Symbol_value(S(read_reference_table));
-        Symbol_value(S(read_reference_table)) = new_cons;
-      }
-      var object obj = read_recursive_no_dot(stream_); # read Objekt
-      var object h = popSTACK();
-      if (eq(obj,Car(h))) { # read Objekt = (car h) = label ?
-        # yes -> cyclic Definition -> Error
-        pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-        pushSTACK(STACK_(0+1)); # n
-        pushSTACK(STACK_(0+2)); # n
-        pushSTACK(*stream_); # Stream
-        pushSTACK(S(read));
-        fehler(stream_error,GETTEXT("~ from ~: #~= #~#"" is illegal"));
-      }
-      # insert read Objekt as (cdr h):
-      Cdr(h) = obj;
-      value1 = obj; mv_count=1; skipSTACK(3); # obj as value
-    }
+LISPFUNN(label_definition_reader,3) { # reads #=
+  # when *READ-SUPPRESS* /= NIL, #n= is treated as comment:
+  if (test_value(S(read_suppress))) {
+    value1 = NIL; mv_count=0; skipSTACK(3); # no values
+    return;
   }
+  # create Label and lookup in Table:
+  var object lookup = lookup_label();
+  if (consp(lookup)) {
+    # found -> has already been there -> error:
+    pushSTACK(STACK_2); # STREAM-ERROR slot STREAM
+    pushSTACK(STACK_(0+1)); # n
+    pushSTACK(STACK_(2+2)); # Stream
+    pushSTACK(S(read));
+    fehler(stream_error,
+           GETTEXT("~ from ~: label #~= may not be defined twice"));
+  } else {
+    # lookup = label, not jeopardized by GC.
+    # (push (setq h (cons label label)) sys::*read-reference-table*) :
+    var object* stream_ = test_stream_arg(STACK_2);
+    {
+      var object new_cons = allocate_cons();
+      Car(new_cons) = Cdr(new_cons) = lookup; # h = (cons label label)
+      pushSTACK(new_cons); # save h
+    }
+    {
+      var object new_cons = allocate_cons(); # new List-Cons
+      Car(new_cons) = STACK_0;
+      Cdr(new_cons) = Symbol_value(S(read_reference_table));
+      Symbol_value(S(read_reference_table)) = new_cons;
+    }
+    var object obj = read_recursive_no_dot(stream_); # read Objekt
+    var object h = popSTACK();
+    if (eq(obj,Car(h))) { # read Objekt = (car h) = label ?
+      # yes -> cyclic Definition -> Error
+      pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+      pushSTACK(STACK_(0+1)); # n
+      pushSTACK(STACK_(0+2)); # n
+      pushSTACK(*stream_); # Stream
+      pushSTACK(S(read));
+      fehler(stream_error,GETTEXT("~ from ~: #~= #~#"" is illegal"));
+    }
+    # insert read Objekt as (cdr h):
+    Cdr(h) = obj;
+    value1 = obj; mv_count=1; skipSTACK(3); # obj as value
+  }
+}
 
-LISPFUNN(label_reference_reader,3) # reads ##
-  {
-    # when *READ-SUPPRESS* /= NIL, finished immediately:
-    if (test_value(S(read_suppress))) {
-      value1 = NIL; mv_count=1; skipSTACK(3);
-      return;
-    }
-    # construct Label and lookup in Table:
-    var object lookup = lookup_label();
-    if (consp(lookup)) {
-      # found -> return Label as read object:
-      value1 = Car(lookup); mv_count=1; skipSTACK(3);
-    } else {
-      # not found
-      pushSTACK(STACK_2); # STREAM-ERROR slot STREAM
-      pushSTACK(STACK_(0+1)); # n
-      pushSTACK(STACK_(2+2)); # Stream
-      pushSTACK(S(read));
-      fehler(stream_error,GETTEXT("~ from ~: undefined label #~#"));
-    }
+LISPFUNN(label_reference_reader,3) { # reads ##
+  # when *READ-SUPPRESS* /= NIL, finished immediately:
+  if (test_value(S(read_suppress))) {
+    value1 = NIL; mv_count=1; skipSTACK(3);
+    return;
   }
+  # construct Label and lookup in Table:
+  var object lookup = lookup_label();
+  if (consp(lookup)) {
+    # found -> return Label as read object:
+    value1 = Car(lookup); mv_count=1; skipSTACK(3);
+  } else {
+    # not found
+    pushSTACK(STACK_2); # STREAM-ERROR slot STREAM
+    pushSTACK(STACK_(0+1)); # n
+    pushSTACK(STACK_(2+2)); # Stream
+    pushSTACK(S(read));
+    fehler(stream_error,GETTEXT("~ from ~: undefined label #~#"));
+  }
+}
 
 # (set-dispatch-macro-character #\# #\<
 #   #'(lambda (stream sub-char n)
 #       (error "~ of ~: Objects printed as #<...> cannot be reread again."
 #               'read stream
 # )   ) )
-LISPFUNN(not_readable_reader,3) # reads #<
-  {
-    var object* stream_ = test_stream_arg(STACK_2);
-    pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-    pushSTACK(*stream_); # Stream
-    pushSTACK(S(read));
-    fehler(stream_error,
-           GETTEXT("~ from ~: objects printed as #<...> cannot be read back in"));
-  }
+LISPFUNN(not_readable_reader,3) { # reads #<
+  var object* stream_ = test_stream_arg(STACK_2);
+  pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+  pushSTACK(*stream_); # Stream
+  pushSTACK(S(read));
+  fehler(stream_error,
+         GETTEXT("~ from ~: objects printed as #<...> cannot be read back in"));
+}
 
 # (dolist (ch '(#\) #\Space #\Newline #\Linefeed #\Backspace #\Rubout #\Tab #\Return #\Page))
 #   (set-dispatch-macro-character #\# ch
@@ -3867,16 +3840,15 @@ LISPFUNN(not_readable_reader,3) # reads #<
 #         (error "~ of ~: Because of ~ as # printed Objects cannot be reread."
 #                 'read stream '*print-level*
 # ) )   ) )
-LISPFUNN(syntax_error_reader,3) # reads #) and #whitespace
-  {
-    var object* stream_ = test_stream_arg(STACK_2);
-    pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-    pushSTACK(S(print_level));
-    pushSTACK(*stream_); # Stream
-    pushSTACK(S(read));
-    fehler(stream_error,
-           GETTEXT("~ from ~: objects printed as #"" in view of ~ cannot be read back in"));
-  }
+LISPFUNN(syntax_error_reader,3) { # reads #) and #whitespace
+  var object* stream_ = test_stream_arg(STACK_2);
+  pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+  pushSTACK(S(print_level));
+  pushSTACK(*stream_); # Stream
+  pushSTACK(S(read));
+  fehler(stream_error,
+         GETTEXT("~ from ~: objects printed as #"" in view of ~ cannot be read back in"));
+}
 
 # Auxiliary function for #+ and #- :
 # (defun interpret-feature (feature)
@@ -3995,10 +3967,9 @@ local Values feature (uintWL sollwert) {
 #               (read stream t nil t)
 #               (values)
 # )   ) ) ) ) )
-LISPFUNN(feature_reader,3) # reads #+
-  {
-    return_Values feature(0);
-  }
+LISPFUNN(feature_reader,3) { # reads #+
+  return_Values feature(0);
+}
 
 # (set-dispatch-macro-character #\# #\-
 #   #'(lambda (stream sub-char n)
@@ -4013,10 +3984,9 @@ LISPFUNN(feature_reader,3) # reads #+
 #             )
 #             (read stream t nil t)
 # )   ) ) ) )
-LISPFUNN(not_feature_reader,3) # reads #-
-  {
-    return_Values feature(~0);
-  }
+LISPFUNN(not_feature_reader,3) { # reads #-
+  return_Values feature(~0);
+}
 
 # (set-dispatch-macro-character #\# #\S
 #   #'(lambda (stream char n)
@@ -4059,192 +4029,190 @@ LISPFUNN(not_feature_reader,3) # reads #-
 #         (t (let ((kw (intern (symbol-name (car args)) (find-package "KEYWORD"))))
 #              (list* kw (cadr args) (structure-arglist-expand name (cddr args)))
 # ) )     )  )
-LISPFUNN(structure_reader,3) # reads #S
+LISPFUNN(structure_reader,3) { # reads #S
+  var object* stream_ = test_no_infix(); # n must be NIL
+  # when *READ-SUPPRESS* /= NIL, only read one object:
+  if (test_value(S(read_suppress))) {
+    read_recursive_no_dot(stream_); # read Objekt and throw away,
+    value1 = NIL; mv_count=1; skipSTACK(2); return; # NIL as value
+  }
+  # bind SYS::*BACKQUOTE-LEVEL* to NIL and read object:
+  dynamic_bind(S(backquote_level),NIL);
+  var object args = read_recursive_no_dot(stream_);
+  dynamic_unbind();
+  # check read List:
+  if (atomp(args)) {
+    pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+    pushSTACK(args); # Arguments
+    pushSTACK(*stream_); # Stream
+    pushSTACK(S(read));
+    fehler(stream_error,
+           GETTEXT("~ from ~: #S must be followed by the type and the contents of the structure, not ~"));
+  }
   {
-    var object* stream_ = test_no_infix(); # n must be NIL
-    # when *READ-SUPPRESS* /= NIL, only read one object:
-    if (test_value(S(read_suppress))) {
-      read_recursive_no_dot(stream_); # read Objekt and throw away,
-      value1 = NIL; mv_count=1; skipSTACK(2); return; # NIL as value
-    }
-    # bind SYS::*BACKQUOTE-LEVEL* to NIL and read object:
-    dynamic_bind(S(backquote_level),NIL);
-    var object args = read_recursive_no_dot(stream_);
-    dynamic_unbind();
-    # check read List:
-    if (atomp(args)) {
+    var object name = Car(args); # Type of Structure
+    STACK_0 = args = Cdr(args); # save Restlist
+    # Stack Structure: Stream, remaining Args.
+    if (!symbolp(name)) { # Type must be a Symbol !
       pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-      pushSTACK(args); # Arguments
+      pushSTACK(name);
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
       fehler(stream_error,
-             GETTEXT("~ from ~: #S must be followed by the type and the contents of the structure, not ~"));
+             GETTEXT("~ from ~: the type of a structure should be a symbol, not ~"));
     }
-    {
-      var object name = Car(args); # Type of Structure
-      STACK_0 = args = Cdr(args); # save Restlist
-      # Stack Structure: Stream, remaining Args.
-      if (!symbolp(name)) { # Type must be a Symbol !
+    pushSTACK(name);
+    # Stack Structure: Stream, remaining Args, name.
+    if (eq(name,S(hash_table))) { # Symbol HASH-TABLE ?
+      # yes -> treat specially, no Structure:
+      # Hash-Tabelle
+      # Remaining Argumentlist must be a Cons:
+      if (!consp(args)) {
+        pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+        pushSTACK(*stream_); # Stream
+        pushSTACK(S(read));
+        fehler(stream_error,GETTEXT("~ from ~: bad HASH-TABLE"));
+      }
+      # (MAKE-HASH-TABLE :TEST (car args) :INITIAL-CONTENTS (cdr args))
+      pushSTACK(S(Ktest)); # :TEST
+      pushSTACK(Car(args)); # Test (Symbol)
+      pushSTACK(S(Kinitial_contents)); # :INITIAL-CONTENTS
+      pushSTACK(Cdr(args)); # Aliste ((Key_1 . Value_1) ... (Key_n . Value_n))
+      funcall(L(make_hash_table),4); # build Hash-Table
+      mv_count=1; # value1 as value
+      skipSTACK(3); return;
+    }
+    if (eq(name,S(random_state))) { # Symbol RANDOM-STATE ?
+      # yes -> treat specially, no Structure:
+      # Random-State
+      # Remaining Argumentlist must be a Cons with NIL as CDR and
+      # a Simple-Bit-Vector of length 64 as CAR:
+      if (!(consp(args)
+            && nullp(Cdr(args))
+            && simple_bit_vector_p(Atype_Bit,Car(args))
+            && (Sbvector_length(Car(args)) == 64))) {
+        pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+        pushSTACK(name);
+        pushSTACK(*stream_); # Stream
+        pushSTACK(S(read));
+        fehler(stream_error,GETTEXT("~ from ~: bad ~"));
+      }
+      STACK_0 = Car(args); # save Simple-Bit-Vector
+      var object ergebnis = allocate_random_state(); # new Random-State
+      The_Random_state(ergebnis)->random_state_seed = popSTACK(); # fill
+      value1 = ergebnis; mv_count=1; skipSTACK(2); return;
+    }
+    if (eq(name,S(pathname))) { # Symbol PATHNAME ?
+      # yes -> treat specially, no Structure:
+      STACK_1 = make_references(args); pushSTACK(L(make_pathname));
+    }
+   #ifdef LOGICAL_PATHNAMES
+    else if (eq(name,S(logical_pathname))) { # Symbol LOGICAL-PATHNAME ?
+      # yes -> treat specially, no Structure:
+      STACK_1 = make_references(args); pushSTACK(L(make_logical_pathname));
+    }
+   #endif
+    else if (eq(name,S(byte))) { # Symbol BYTE ?
+      # yes -> treat specially, no Structure:
+      pushSTACK(S(make_byte));
+    }
+    else {
+      # execute (GET name 'SYS::DEFSTRUCT-DESCRIPTION):
+      var object description = get(name,S(defstruct_description));
+      if (eq(description,unbound)) { # nothing found?
+        # Structure of this Type undefined
         pushSTACK(*stream_); # STREAM-ERROR slot STREAM
         pushSTACK(name);
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
         fehler(stream_error,
-               GETTEXT("~ from ~: the type of a structure should be a symbol, not ~"));
+               GETTEXT("~ from ~: no structure of type ~ has been defined"));
       }
-      pushSTACK(name);
-      # Stack Structure: Stream, remaining Args, name.
-      if (eq(name,S(hash_table))) { # Symbol HASH-TABLE ?
-        # yes -> treat specially, no Structure:
-        # Hash-Tabelle
-        # Remaining Argumentlist must be a Cons:
-        if (!consp(args)) {
-          pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-          pushSTACK(*stream_); # Stream
-          pushSTACK(S(read));
-          fehler(stream_error,GETTEXT("~ from ~: bad HASH-TABLE"));
-        }
-        # (MAKE-HASH-TABLE :TEST (car args) :INITIAL-CONTENTS (cdr args))
-        pushSTACK(S(Ktest)); # :TEST
-        pushSTACK(Car(args)); # Test (Symbol)
-        pushSTACK(S(Kinitial_contents)); # :INITIAL-CONTENTS
-        pushSTACK(Cdr(args)); # Aliste ((Key_1 . Value_1) ... (Key_n . Value_n))
-        funcall(L(make_hash_table),4); # build Hash-Table
-        mv_count=1; # value1 as value
-        skipSTACK(3); return;
-      }
-      if (eq(name,S(random_state))) { # Symbol RANDOM-STATE ?
-        # yes -> treat specially, no Structure:
-        # Random-State
-        # Remaining Argumentlist must be a Cons with NIL as CDR and
-        # a Simple-Bit-Vector of length 64 as CAR:
-        if (!(consp(args)
-              && nullp(Cdr(args))
-              && simple_bit_vector_p(Atype_Bit,Car(args))
-              && (Sbvector_length(Car(args)) == 64))) {
-          pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-          pushSTACK(name);
-          pushSTACK(*stream_); # Stream
-          pushSTACK(S(read));
-          fehler(stream_error,GETTEXT("~ from ~: bad ~"));
-        }
-        STACK_0 = Car(args); # save Simple-Bit-Vector
-        var object ergebnis = allocate_random_state(); # new Random-State
-        The_Random_state(ergebnis)->random_state_seed = popSTACK(); # fill
-        value1 = ergebnis; mv_count=1; skipSTACK(2); return;
-      }
-      if (eq(name,S(pathname))) { # Symbol PATHNAME ?
-        # yes -> treat specially, no Structure:
-        STACK_1 = make_references(args); pushSTACK(L(make_pathname));
-      }
-      #ifdef LOGICAL_PATHNAMES
-      else if (eq(name,S(logical_pathname))) { # Symbol LOGICAL-PATHNAME ?
-        # yes -> treat specially, no Structure:
-        STACK_1 = make_references(args); pushSTACK(L(make_logical_pathname));
-      }
-      #endif
-      else if (eq(name,S(byte))) { # Symbol BYTE ?
-        # yes -> treat specially, no Structure:
-        pushSTACK(S(make_byte));
-      }
-      else {
-        # execute (GET name 'SYS::DEFSTRUCT-DESCRIPTION):
-        var object description = get(name,S(defstruct_description));
-        if (eq(description,unbound)) { # nothing found?
-          # Structure of this Type undefined
-          pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-          pushSTACK(name);
-          pushSTACK(*stream_); # Stream
-          pushSTACK(S(read));
-          fehler(stream_error,
-                 GETTEXT("~ from ~: no structure of type ~ has been defined"));
-        }
-        # description must be a Simple-Vector of length >=4:
-        if (!(simple_vector_p(description) && (Svector_length(description) >= 4))) {
-          pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-          pushSTACK(name);
-          pushSTACK(S(defstruct_description));
-          pushSTACK(*stream_); # Stream
-          pushSTACK(S(read));
-          fehler(stream_error,GETTEXT("~ from ~: bad ~ for ~"));
-        }
-        # fetch constructor-function:
-        var object constructor = # (svref description 2)
-          TheSvector(description)->data[2];
-        if (nullp(constructor)) {
-          pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-          pushSTACK(name);
-          pushSTACK(*stream_); # Stream
-          pushSTACK(S(read));
-          fehler(stream_error,
-                 GETTEXT("~ from ~: structures of type ~ cannot be read in, missing constructor function"));
-        }
-    # call constructor-function with adapted Argumentlist:
-        pushSTACK(constructor);
-      }
-    }
-    # stack layout: Stream, remaining Args, name, constructor.
-    var uintC argcount = 0; # number of arguments for constructor
-    loop { # process remaining Argumentlist,
-           # push Arguments for constructor on STACK:
-      check_STACK();
-      args = *(stream_ STACKop -1); # remaining Args
-      if (nullp(args)) # no more -> Arguments in STACK are ready
-        break;
-      if (atomp(args)) {
-       dotted:
+      # description must be a Simple-Vector of length >=4:
+      if (!(simple_vector_p(description) && (Svector_length(description) >= 4))) {
         pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-        pushSTACK(*(stream_ STACKop -2)); # name
+        pushSTACK(name);
+        pushSTACK(S(defstruct_description));
+        pushSTACK(*stream_); # Stream
+        pushSTACK(S(read));
+        fehler(stream_error,GETTEXT("~ from ~: bad ~ for ~"));
+      }
+      # fetch constructor-function:
+      var object constructor = # (svref description 2)
+        TheSvector(description)->data[2];
+      if (nullp(constructor)) {
+        pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+        pushSTACK(name);
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
         fehler(stream_error,
-               GETTEXT("~ from ~: a structure ~ may not contain a component \".\""));
+               GETTEXT("~ from ~: structures of type ~ cannot be read in, missing constructor function"));
       }
-      {
-        var object slot = Car(args);
-        if (!symbolp(slot)) {
-          pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-          pushSTACK(*(stream_ STACKop -2)); # name
-          pushSTACK(slot);
-          pushSTACK(*stream_); # Stream
-          pushSTACK(S(read));
-          fehler(stream_error,
-                 GETTEXT("~ from ~: ~ is not a symbol, not a slot name of structure ~"));
-        }
-        if (nullp(Cdr(args))) {
-          pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-          pushSTACK(*(stream_ STACKop -2)); # name
-          pushSTACK(slot);
-          pushSTACK(*stream_); # Stream
-          pushSTACK(S(read));
-          fehler(stream_error,
-                 GETTEXT("~ from ~: missing value of slot ~ in structure ~"));
-        }
-        if (matomp(Cdr(args)))
-          goto dotted;
-        {
-          var object kw = intern_keyword(Symbol_name(slot)); # Slotname as Keyword
-          pushSTACK(kw); # Keyword into STACK
-        }
-      }
-      args = *(stream_ STACKop -1); # again the same remaining Args
-      args = Cdr(args);
-      pushSTACK(Car(args)); # Slot-value into STACK
-      *(stream_ STACKop -1) = Cdr(args); # shorten Arglist
-      argcount += 2; # and count
-      if (argcount == 0) {
-        # Argument-Counter has become too big
-        pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-        pushSTACK(*(stream_ STACKop -2)); # name
-        pushSTACK(*stream_); # Stream
-        pushSTACK(S(read));
-        fehler(stream_error,
-               GETTEXT("~ from ~: too many slots for structure ~"));
-      }
+      # call constructor-function with adapted Argumentlist:
+      pushSTACK(constructor);
     }
-    funcall(*(stream_ STACKop -3),argcount); # call constructor
-    mv_count=1; skipSTACK(4); return; # value1 as value
   }
+  # stack layout: Stream, remaining Args, name, constructor.
+  var uintC argcount = 0; # number of arguments for constructor
+  loop { # process remaining Argumentlist,
+    # push Arguments for constructor on STACK:
+    check_STACK();
+    args = *(stream_ STACKop -1); # remaining Args
+    if (nullp(args)) # no more -> Arguments in STACK are ready
+      break;
+    if (atomp(args)) {
+    dotted:
+      pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+      pushSTACK(*(stream_ STACKop -2)); # name
+      pushSTACK(*stream_); # Stream
+      pushSTACK(S(read));
+      fehler(stream_error,
+             GETTEXT("~ from ~: a structure ~ may not contain a component \".\""));
+    }
+    {
+      var object slot = Car(args);
+      if (!symbolp(slot)) {
+        pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+        pushSTACK(*(stream_ STACKop -2)); # name
+        pushSTACK(slot);
+        pushSTACK(*stream_); # Stream
+        pushSTACK(S(read));
+        fehler(stream_error,
+               GETTEXT("~ from ~: ~ is not a symbol, not a slot name of structure ~"));
+      }
+      if (nullp(Cdr(args))) {
+        pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+        pushSTACK(*(stream_ STACKop -2)); # name
+        pushSTACK(slot);
+        pushSTACK(*stream_); # Stream
+        pushSTACK(S(read));
+        fehler(stream_error,
+               GETTEXT("~ from ~: missing value of slot ~ in structure ~"));
+      }
+      if (matomp(Cdr(args)))
+        goto dotted;
+      {
+        var object kw = intern_keyword(Symbol_name(slot)); # Slotname as Keyword
+        pushSTACK(kw); # Keyword into STACK
+      }
+    }
+    args = *(stream_ STACKop -1); # again the same remaining Args
+    args = Cdr(args);
+    pushSTACK(Car(args)); # Slot-value into STACK
+    *(stream_ STACKop -1) = Cdr(args); # shorten Arglist
+    argcount += 2; # and count
+    if (argcount == 0) {
+      # Argument-Counter has become too big
+      pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+      pushSTACK(*(stream_ STACKop -2)); # name
+      pushSTACK(*stream_); # Stream
+      pushSTACK(S(read));
+      fehler(stream_error,GETTEXT("~ from ~: too many slots for structure ~"));
+    }
+  }
+  funcall(*(stream_ STACKop -3),argcount); # call constructor
+  mv_count=1; skipSTACK(4); return; # value1 as value
+}
 
 # (set-dispatch-macro-character #\# #\Y
 #   #'(lambda (stream sub-char arg)
@@ -4303,118 +4271,114 @@ local uintB hexziffer (object ch, uintWL scode) {
  badchar: fehler_closure_badchar();
 }
 
-LISPFUNN(closure_reader,3) # liest #Y
-  {
-    var object* stream_ = test_stream_arg(STACK_2);
-    # when n=0 read an Encoding:
-    if (eq(STACK_0,Fixnum_0)) {
-      dynamic_bind(S(read_suppress),NIL); # bind *READ-SUPPRESS* to NIL
-      dynamic_bind(S(packagestern),O(charset_package)); # bind *PACKAGE* to #<PACKAGE CHARSET>
-      var object expr = read_recursive_no_dot(stream_); # read expression
-      dynamic_unbind();
-      dynamic_unbind();
-      expr = make_references(expr); # unentangle references
-      pushSTACK(*stream_); pushSTACK(expr); pushSTACK(S(Kinput));
-      funcall(L(set_stream_external_format),3); # (SYS::SET-STREAM-EXTERNAL-FORMAT stream expr :input)
-      value1 = NIL; mv_count=0; skipSTACK(3); return; # no values
-    }
-    # when *READ-SUPPRESS* /= NIL, only read one Object:
-    if (test_value(S(read_suppress))) {
-      read_recursive_no_dot(stream_); # read Object, and throw away
-      value1 = NIL; mv_count=1; skipSTACK(3); return; # NIL as value
-    }
-    # according to n :
-    if (nullp(STACK_0)) {
-      # n=NIL -> read Closure:
-      var object obj = read_recursive_no_dot(stream_); # read Object
-      if (!(consp(obj) && mconsp(Cdr(obj)))) { # length >=2 ?
-        pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-        pushSTACK(obj);
-        pushSTACK(*stream_); # Stream
-        pushSTACK(S(read));
-        fehler(stream_error,
-               GETTEXT("~ from ~: object #Y~ has not the syntax of a compiled closure"));
-      }
-      skipSTACK(3);
-      # execute (SYS::%MAKE-CLOSURE (first obj) (second obj) (cddr obj)):
-      pushSTACK(Car(obj)); obj = Cdr(obj); # 1. Argument
-      pushSTACK(Car(obj)); obj = Cdr(obj); # 2. Argument
-      pushSTACK(obj); # 3. Argument
-      funcall(L(make_closure),3);
-      mv_count=1; # value1 as value
-    } else {
-      # n specified -> read Codevector:
-      # Syntax: #nY(b1 ... bn), where n is a Fixnum >=0 and b1,...,bn
-      # are Fixnums >=0, <256 in Base 16  (with one or two digits).
-      # e.g. #9Y(0 4 F CD 6B8FD1e4 5)
-      # n is an Integer >=0.
-      var uintL n =
-        (posfixnump(STACK_0) ? posfixnum_to_L(STACK_0) # Fixnum -> value
-                             : bitm(oint_data_len)-1); # Bignum -> big value
-      # get new Bit-Vector with n Bytes:
-      STACK_1 = allocate_bit_vector(Atype_8Bit,n);
-      # stack layout: Stream, Codevektor, n.
-      var object ch;
-      var uintWL scode;
-      # skip Whitespace:
-      do {
-        read_char_syntax(ch = ,scode = ,stream_); # read character
-      } until (!(scode == syntax_whitespace));
-      # '(' must follow:
-      if (!eq(ch,ascii_char('(')))
-        fehler_closure_badchar();
-      {
-        var uintL index = 0;
-        until (index==n) {
-          # skip Whitespace:
-          do {
-            read_char_syntax(ch = ,scode = ,stream_); # read character
-          } until (!(scode == syntax_whitespace));
-          # Hex-digit must follow:
-          var uintB zif = hexziffer(ch,scode);
-          # read next Character:
-          read_char_syntax(ch = ,scode = ,stream_);
-          if (scode == syntax_eof) # EOF -> Error
-            fehler_eof_innen(stream_);
-          if ((scode == syntax_whitespace) || eq(ch,ascii_char(')'))) {
-            # Whitespace or closing parenthese
-            # will be pushed back to Stream:
-            unread_char(stream_,ch);
-          } else {
-            # it must be a second Hex-digit
-            zif = 16*zif + hexziffer(ch,scode); # add to first Hex-digit
-            # (no whitespace is demanded after the second Hex-digit.)
-          }
-          # zif = read Byte. write into Codevector:
-          TheSbvector(STACK_1)->data[index] = zif;
-          index++;
-        }
-      }
-      # skip Whitespace:
-      do {
-        read_char_syntax(ch = ,scode = ,stream_); # read character
-      } until (!(scode == syntax_whitespace));
-      # ')' must follow:
-      if (!eq(ch,ascii_char(')')))
-        fehler_closure_badchar();
-      #if BIG_ENDIAN_P
-      # convert Header from Little-Endian to Big-Endian:
-      {
-        var Sbvector v = TheSbvector(STACK_1);
-        swap(uintB, v->data[CCV_SPDEPTH_1], v->data[CCV_SPDEPTH_1+1]);
-        swap(uintB, v->data[CCV_SPDEPTH_JMPBUFSIZE], v->data[CCV_SPDEPTH_JMPBUFSIZE+1]);
-        swap(uintB, v->data[CCV_NUMREQ], v->data[CCV_NUMREQ+1]);
-        swap(uintB, v->data[CCV_NUMOPT], v->data[CCV_NUMOPT+1]);
-        if (v->data[CCV_FLAGS] & bit(7)) {
-          swap(uintB, v->data[CCV_NUMKEY], v->data[CCV_NUMKEY+1]);
-          swap(uintB, v->data[CCV_KEYCONSTS], v->data[CCV_KEYCONSTS+1]);
-        }
-      }
-      #endif
-      # Codevector as value:
-      value1 = STACK_1; mv_count=1; skipSTACK(3);
-    }
+LISPFUNN(closure_reader,3) { # read #Y
+  var object* stream_ = test_stream_arg(STACK_2);
+  # when n=0 read an Encoding:
+  if (eq(STACK_0,Fixnum_0)) {
+    dynamic_bind(S(read_suppress),NIL); # bind *READ-SUPPRESS* to NIL
+    dynamic_bind(S(packagestern),O(charset_package)); # bind *PACKAGE* to #<PACKAGE CHARSET>
+    var object expr = read_recursive_no_dot(stream_); # read expression
+    dynamic_unbind();
+    dynamic_unbind();
+    expr = make_references(expr); # unentangle references
+    pushSTACK(*stream_); pushSTACK(expr); pushSTACK(S(Kinput));
+    funcall(L(set_stream_external_format),3); # (SYS::SET-STREAM-EXTERNAL-FORMAT stream expr :input)
+    value1 = NIL; mv_count=0; skipSTACK(3); return; # no values
   }
+  # when *READ-SUPPRESS* /= NIL, only read one Object:
+  if (test_value(S(read_suppress))) {
+    read_recursive_no_dot(stream_); # read Object, and throw away
+    value1 = NIL; mv_count=1; skipSTACK(3); return; # NIL as value
+  }
+  # according to n :
+  if (nullp(STACK_0)) {
+    # n=NIL -> read Closure:
+    var object obj = read_recursive_no_dot(stream_); # read Object
+    if (!(consp(obj) && mconsp(Cdr(obj)))) { # length >=2 ?
+      pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+      pushSTACK(obj);
+      pushSTACK(*stream_); # Stream
+      pushSTACK(S(read));
+      fehler(stream_error,
+             GETTEXT("~ from ~: object #Y~ has not the syntax of a compiled closure"));
+    }
+    skipSTACK(3);
+    # execute (SYS::%MAKE-CLOSURE (first obj) (second obj) (cddr obj)):
+    pushSTACK(Car(obj)); obj = Cdr(obj); # 1. Argument
+    pushSTACK(Car(obj)); obj = Cdr(obj); # 2. Argument
+    pushSTACK(obj); # 3. Argument
+    funcall(L(make_closure),3);
+    mv_count=1; # value1 as value
+  } else {
+    # n specified -> read Codevector:
+    # Syntax: #nY(b1 ... bn), where n is a Fixnum >=0 and b1,...,bn
+    # are Fixnums >=0, <256 in Base 16  (with one or two digits).
+    # e.g. #9Y(0 4 F CD 6B8FD1e4 5)
+    # n is an Integer >=0.
+    var uintL n =
+      (posfixnump(STACK_0) ? posfixnum_to_L(STACK_0) # Fixnum -> value
+       : bitm(oint_data_len)-1); # Bignum -> big value
+    # get new Bit-Vector with n Bytes:
+    STACK_1 = allocate_bit_vector(Atype_8Bit,n);
+    # stack layout: Stream, Codevektor, n.
+    var object ch;
+    var uintWL scode;
+    # skip Whitespace:
+    do { read_char_syntax(ch = ,scode = ,stream_); # read character
+    } while (scode == syntax_whitespace);
+    # '(' must follow:
+    if (!eq(ch,ascii_char('(')))
+      fehler_closure_badchar();
+    {
+      var uintL index = 0;
+      until (index==n) {
+        # skip Whitespace:
+        do { read_char_syntax(ch = ,scode = ,stream_); # read character
+        } while (scode == syntax_whitespace);
+        # Hex-digit must follow:
+        var uintB zif = hexziffer(ch,scode);
+        # read next Character:
+        read_char_syntax(ch = ,scode = ,stream_);
+        if (scode == syntax_eof) # EOF -> Error
+          fehler_eof_innen(stream_);
+        if ((scode == syntax_whitespace) || eq(ch,ascii_char(')'))) {
+          # Whitespace or closing parenthese
+          # will be pushed back to Stream:
+          unread_char(stream_,ch);
+        } else {
+          # it must be a second Hex-digit
+          zif = 16*zif + hexziffer(ch,scode); # add to first Hex-digit
+          # (no whitespace is demanded after the second Hex-digit.)
+        }
+        # zif = read Byte. write into Codevector:
+        TheSbvector(STACK_1)->data[index] = zif;
+        index++;
+      }
+    }
+    # skip Whitespace:
+    do { read_char_syntax(ch = ,scode = ,stream_); # read character
+    } while (scode == syntax_whitespace);
+    # ')' must follow:
+    if (!eq(ch,ascii_char(')')))
+      fehler_closure_badchar();
+   #if BIG_ENDIAN_P
+    # convert Header from Little-Endian to Big-Endian:
+    {
+      var Sbvector v = TheSbvector(STACK_1);
+      swap(uintB, v->data[CCV_SPDEPTH_1], v->data[CCV_SPDEPTH_1+1]);
+      swap(uintB, v->data[CCV_SPDEPTH_JMPBUFSIZE], v->data[CCV_SPDEPTH_JMPBUFSIZE+1]);
+      swap(uintB, v->data[CCV_NUMREQ], v->data[CCV_NUMREQ+1]);
+      swap(uintB, v->data[CCV_NUMOPT], v->data[CCV_NUMOPT+1]);
+      if (v->data[CCV_FLAGS] & bit(7)) {
+        swap(uintB, v->data[CCV_NUMKEY], v->data[CCV_NUMKEY+1]);
+        swap(uintB, v->data[CCV_KEYCONSTS], v->data[CCV_KEYCONSTS+1]);
+      }
+    }
+   #endif
+    # Codevector as value:
+    value1 = STACK_1; mv_count=1; skipSTACK(3);
+  }
+}
 
 # (set-dispatch-macro-character #\# #\"
 #   #'(lambda (stream sub-char n)
@@ -4427,20 +4391,19 @@ LISPFUNN(closure_reader,3) # liest #Y
 #       (let ((obj (read stream t nil t))) ; String read
 #         (unless *read-suppress* (pathname obj))
 # )   ) )
-LISPFUNN(clisp_pathname_reader,3) # reads #"
-  {
-    test_no_infix(); # n must be NIL
-    # stack layout: Stream, sub-char #\".
-    var object string = # read String, that starts with "
-      (funcall(L(string_reader),2),value1);
-    # when *READ-SUPPRESS* /= NIL, finished immediately:
-    if (test_value(S(read_suppress))) {
-      value1 = NIL; mv_count=1; return; # NIL as value
-    }
-    # construct (pathname string) = (values (parse-namestring string)) :
-    pushSTACK(string); funcall(L(parse_namestring),1); # (PARSE-NAMESTRING string)
-    mv_count=1; # only one value
+LISPFUNN(clisp_pathname_reader,3) { # reads #"
+  test_no_infix(); # n must be NIL
+  # stack layout: Stream, sub-char #\".
+  var object string = # read String, that starts with "
+    (funcall(L(string_reader),2),value1);
+  # when *READ-SUPPRESS* /= NIL, finished immediately:
+  if (test_value(S(read_suppress))) {
+    value1 = NIL; mv_count=1; return; # NIL as value
   }
+  # construct (pathname string) = (values (parse-namestring string)) :
+  pushSTACK(string); funcall(L(parse_namestring),1); # (PARSE-NAMESTRING string)
+  mv_count=1; # only one value
+}
 
 # (set-dispatch-macro-character #\# #\P
 #   #'(lambda (stream sub-char n)
@@ -4457,29 +4420,28 @@ LISPFUNN(clisp_pathname_reader,3) # reads #"
 #               (error "~ of ~: Wrong Syntax for Pathname: #P~"
 #                      'read stream obj
 # )   ) ) ) ) ) )
-LISPFUNN(ansi_pathname_reader,3) # reads #P
-  {
-    var object* stream_ = test_no_infix(); # n must be NIL
-    var object obj = read_recursive_no_dot(stream_); # read next Object
-    # when *READ-SUPPRESS* /= NIL, finished immediately:
-    if (test_value(S(read_suppress))) {
-      value1 = NIL; mv_count=1; skipSTACK(2); return;
-    }
-    obj = make_references(obj); # and unentangle references untimely (unnessecary?)
-    if (!stringp(obj)) # obj must be a String!
-      goto bad;
-    # create (pathname obj) = (values (parse-namestring obj)) :
-    pushSTACK(obj); funcall(L(parse_namestring),1); # (PARSE-NAMESTRING obj)
-    mv_count=1; skipSTACK(2); return; # only one value
-   bad:
-    pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-    pushSTACK(obj); # Object
-    pushSTACK(*stream_); # Stream
-    pushSTACK(S(read));
-    fehler(stream_error,GETTEXT("~ from ~: bad syntax for pathname: #P~"));
+LISPFUNN(ansi_pathname_reader,3) { # reads #P
+  var object* stream_ = test_no_infix(); # n must be NIL
+  var object obj = read_recursive_no_dot(stream_); # read next Object
+  # when *READ-SUPPRESS* /= NIL, finished immediately:
+  if (test_value(S(read_suppress))) {
+    value1 = NIL; mv_count=1; skipSTACK(2); return;
   }
+  obj = make_references(obj); # and unentangle references untimely (unnessecary?)
+  if (!stringp(obj)) # obj must be a String!
+    goto bad;
+  # create (pathname obj) = (values (parse-namestring obj)) :
+  pushSTACK(obj); funcall(L(parse_namestring),1); # (PARSE-NAMESTRING obj)
+  mv_count=1; skipSTACK(2); return; # only one value
+ bad:
+  pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+  pushSTACK(obj); # Object
+  pushSTACK(*stream_); # Stream
+  pushSTACK(S(read));
+  fehler(stream_error,GETTEXT("~ from ~: bad syntax for pathname: #P~"));
+}
 
-#ifdef UNIX
+#if defined(UNIX) || defined(WIN32_NATIVE)
 
 # (set-dispatch-macro-character #\# #\!
 #   #'(lambda (stream sub-char n)
@@ -4488,17 +4450,16 @@ LISPFUNN(ansi_pathname_reader,3) # reads #P
 #       (read-line stream)
 #       (values)
 # )   )
-LISPFUNN(unix_executable_reader,3) # reads #!
-  {
-    var object* stream_ = test_no_infix(); # n must be NIL
-    # stack layout: Stream, sub-char #\!.
-    loop {
-      var object ch = read_char(stream_); # read character
-      if (eq(ch,eof_value) || eq(ch,ascii_char(NL)))
-        break;
-    }
-    value1 = NIL; mv_count=0; skipSTACK(2); # return no values
+LISPFUNN(unix_executable_reader,3) { # reads #!
+  var object* stream_ = test_no_infix(); # n must be NIL
+  # stack layout: Stream, sub-char #\!.
+  loop {
+    var object ch = read_char(stream_); # read character
+    if (eq(ch,eof_value) || eq(ch,ascii_char(NL)))
+      break;
   }
+  value1 = NIL; mv_count=0; skipSTACK(2); # return no values
+}
 
 #endif
 
@@ -4572,225 +4533,212 @@ local Values read_w (object whitespace_p) {
   }
 }
 
-LISPFUN(read,0,4,norest,nokey,0,NIL)
 # (READ [input-stream [eof-error-p [eof-value [recursive-p]]]]), CLTL p. 375
-  {
-    return_Values read_w(NIL); # whitespace-p := NIL
-  }
+LISPFUN(read,0,4,norest,nokey,0,NIL) {
+  return_Values read_w(NIL); # whitespace-p := NIL
+}
 
-LISPFUN(read_preserving_whitespace,0,4,norest,nokey,0,NIL)
 # (READ-PRESERVING-WHITESPACE [input-stream [eof-error-p [eof-value [recursive-p]]]]),
 # CLTL p. 376
-  {
-    return_Values read_w(T); # whitespace-p := T
-  }
+LISPFUN(read_preserving_whitespace,0,4,norest,nokey,0,NIL) {
+  return_Values read_w(T); # whitespace-p := T
+}
 
-LISPFUN(read_delimited_list,1,2,norest,nokey,0,NIL)
 # (READ-DELIMITED-LIST char [input-stream [recursive-p]]), CLTL p. 377
-  {
-    # check char:
-    var object ch = STACK_2;
-    if (!charp(ch))
-      fehler_char(ch);
-    # check input-stream:
-    test_istream(&STACK_1);
-    # check for recursive-p-Argument:
-    var object recursive_p = popSTACK();
-    # stack layout: char, input-stream.
-    if (eq(recursive_p,unbound) || nullp(recursive_p)) {
-      # non-recursive call
-      var object* stream_ = &STACK_0;
-      # bind SYS::*READ-REFERENCE-TABLE* to empty Table NIL:
-      dynamic_bind(S(read_reference_table),NIL);
-      # bind SYS::*BACKQUOTE-LEVEL* to NIL:
-      dynamic_bind(S(backquote_level),NIL);
-      var object obj = read_delimited_list(stream_,ch,eof_value); # read List
-      obj = make_references(obj); # unentangle references
-      dynamic_unbind();
-      dynamic_unbind();
-      value1 = obj; # List as value
-    } else {
-      # recursive call
-      value1 = read_delimited_list(&STACK_0,ch,eof_value);
-    }
-    # (read List both times, no Dotted List allowed.)
-    mv_count=1; skipSTACK(2);
+LISPFUN(read_delimited_list,1,2,norest,nokey,0,NIL) {
+  # check char:
+  var object ch = STACK_2;
+  if (!charp(ch))
+    fehler_char(ch);
+  # check input-stream:
+  test_istream(&STACK_1);
+  # check for recursive-p-Argument:
+  var object recursive_p = popSTACK();
+  # stack layout: char, input-stream.
+  if (eq(recursive_p,unbound) || nullp(recursive_p)) {
+    # non-recursive call
+    var object* stream_ = &STACK_0;
+    # bind SYS::*READ-REFERENCE-TABLE* to empty Table NIL:
+    dynamic_bind(S(read_reference_table),NIL);
+    # bind SYS::*BACKQUOTE-LEVEL* to NIL:
+    dynamic_bind(S(backquote_level),NIL);
+    var object obj = read_delimited_list(stream_,ch,eof_value); # read List
+    obj = make_references(obj); # unentangle references
+    dynamic_unbind();
+    dynamic_unbind();
+    value1 = obj; # List as value
+  } else {
+    # recursive call
+    value1 = read_delimited_list(&STACK_0,ch,eof_value);
   }
+  # (read List both times, no Dotted List allowed.)
+  mv_count=1; skipSTACK(2);
+}
 
-LISPFUN(read_line,0,4,norest,nokey,0,NIL)
 # (READ-LINE [input-stream [eof-error-p [eof-value [recursive-p]]]]),
 # CLTL p. 378
 # This implementation always returns a simple string, if end-of-stream
-# is not encountered immediately.  Code in debug.io depends on this.
-  {
-    # check input-stream:
-    var object* stream_ = &STACK_3;
-    test_istream(stream_);
-    get_buffers(); # two empty Buffers on Stack
-    if (!read_line(stream_,&STACK_1)) { # read line
-      # End of Line
+# is not encountered immediately.  Code in debug.d depends on this.
+LISPFUN(read_line,0,4,norest,nokey,0,NIL) {
+  # check input-stream:
+  var object* stream_ = &STACK_3;
+  test_istream(stream_);
+  get_buffers(); # two empty Buffers on Stack
+  if (!read_line(stream_,&STACK_1)) { # read line
+    # End of Line
+    # copy Buffer and convert into Simple-String:
+    value1 = copy_string(STACK_1);
+    # free Buffer for reuse:
+    O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
+    value2 = NIL; mv_count=2; # NIL as 2. value
+    skipSTACK(4); return;
+  } else {
+    # End of File
+    # Buffer empty?
+    if (TheIarray(STACK_1)->dims[1] == 0) { # Length (Fill-Pointer) = 0 ?
+      # free Buffer for reuse:
+      O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
+      # treat EOF specially:
+      value2 = T;
+      return_Values eof_handling(2);
+    } else {
       # copy Buffer and convert into Simple-String:
       value1 = copy_string(STACK_1);
       # free Buffer for reuse:
       O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
-      value2 = NIL; mv_count=2; # NIL as 2. value
+      value2 = T; mv_count=2; # T as 2. value
       skipSTACK(4); return;
-    } else {
-      # End of File
-      # Buffer empty?
-      if (TheIarray(STACK_1)->dims[1] == 0) { # Length (Fill-Pointer) = 0 ?
-        # free Buffer for reuse:
-        O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
-        # treat EOF specially:
-        value2 = T;
-        return_Values eof_handling(2);
-      } else {
-        # copy Buffer and convert into Simple-String:
-        value1 = copy_string(STACK_1);
-        # free Buffer for reuse:
-        O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
-        value2 = T; mv_count=2; # T as 2. value
-        skipSTACK(4); return;
-      }
     }
   }
+}
 
-LISPFUN(read_char,0,4,norest,nokey,0,NIL)
 # (READ-CHAR [input-stream [eof-error-p [eof-value [recursive-p]]]]),
 # CLTL p. 379
-  {
-    # check input-stream:
-    var object* stream_ = &STACK_3;
-    test_istream(stream_);
-    var object ch = read_char(stream_); # read Character
-    if (eq(ch,eof_value)) {
-      return_Values eof_handling(1);
-    } else {
-      value1 = ch; mv_count=1; skipSTACK(4); return; # ch as value
-    }
+LISPFUN(read_char,0,4,norest,nokey,0,NIL) {
+  # check input-stream:
+  var object* stream_ = &STACK_3;
+  test_istream(stream_);
+  var object ch = read_char(stream_); # read Character
+  if (eq(ch,eof_value)) {
+    return_Values eof_handling(1);
+  } else {
+    value1 = ch; mv_count=1; skipSTACK(4); return; # ch as value
   }
+}
 
-LISPFUN(unread_char,1,1,norest,nokey,0,NIL)
 # (UNREAD-CHAR char [input-stream]), CLTL p. 379
-  {
-    # check input-stream:
-    var object* stream_ = &STACK_0;
-    test_istream(stream_);
-    var object ch = STACK_1; # char
-    if (!charp(ch)) # must be a character
-      fehler_char(ch);
-    unread_char(stream_,ch); # push back char to Stream
-    value1 = NIL; mv_count=1; skipSTACK(2); # NIL as value
-  }
+LISPFUN(unread_char,1,1,norest,nokey,0,NIL) {
+  # check input-stream:
+  var object* stream_ = &STACK_0;
+  test_istream(stream_);
+  var object ch = STACK_1; # char
+  if (!charp(ch)) # must be a character
+    fehler_char(ch);
+  unread_char(stream_,ch); # push back char to Stream
+  value1 = NIL; mv_count=1; skipSTACK(2); # NIL as value
+}
 
-LISPFUN(peek_char,0,5,norest,nokey,0,NIL)
 # (PEEK-CHAR [peek-type [input-stream [eof-error-p [eof-value [recursive-p]]]]]),
 # CLTL p. 379
-  {
-    # check input-stream:
-    var object* stream_ = &STACK_3;
-    test_istream(stream_);
-    # distinction of cases by peek-type:
-    var object peek_type = STACK_4;
-    if (eq(peek_type,unbound) || nullp(peek_type)) {
-      # Default NIL: peek one character
-      var object ch = peek_char(stream_);
+LISPFUN(peek_char,0,5,norest,nokey,0,NIL) {
+  # check input-stream:
+  var object* stream_ = &STACK_3;
+  test_istream(stream_);
+  # distinction of cases by peek-type:
+  var object peek_type = STACK_4;
+  if (eq(peek_type,unbound) || nullp(peek_type)) {
+    # Default NIL: peek one character
+    var object ch = peek_char(stream_);
+    if (eq(ch,eof_value))
+      goto eof;
+    value1 = ch; mv_count=1; skipSTACK(5); return; # ch as value
+  } else if (eq(peek_type,T)) {
+    # T: Whitespace-Peek
+    var object ch = wpeek_char_eof(stream_);
+    if (eq(ch,eof_value))
+      goto eof;
+    value1 = ch; mv_count=1; skipSTACK(5); return; # ch as value
+  } else if (charp(peek_type)) {
+    # peek-type is a Character
+    var object ch;
+    loop {
+      ch = read_char(stream_); # read character
       if (eq(ch,eof_value))
         goto eof;
-      value1 = ch; mv_count=1; skipSTACK(5); return; # ch as value
-    } else if (eq(peek_type,T)) {
-      # T: Whitespace-Peek
-      var object ch = wpeek_char_eof(stream_);
-      if (eq(ch,eof_value))
-        goto eof;
-      value1 = ch; mv_count=1; skipSTACK(5); return; # ch as value
-    } else if (charp(peek_type)) {
-      # peek-type is a Character
-      var object ch;
-      loop {
-        ch = read_char(stream_); # read character
-        if (eq(ch,eof_value))
-          goto eof;
-        if (eq(ch,peek_type)) # the preset End-character?
-          break;
-      }
-      unread_char(stream_,ch); # push back character
-      value1 = ch; mv_count=1; skipSTACK(5); return; # ch as value
-    } else {
-      pushSTACK(peek_type);        # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_peektype)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(peek_type);
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: peek type should be NIL or T or a character, not ~"));
+      if (eq(ch,peek_type)) # the preset End-character?
+        break;
     }
-   eof: # EOF
-    eof_handling(1); skipSTACK(1); return;
+    unread_char(stream_,ch); # push back character
+    value1 = ch; mv_count=1; skipSTACK(5); return; # ch as value
+  } else {
+    pushSTACK(peek_type);        # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_peektype)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(peek_type);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: peek type should be NIL or T or a character, not ~"));
   }
+ eof: # EOF
+  eof_handling(1); skipSTACK(1); return;
+}
 
-LISPFUN(listen,0,1,norest,nokey,0,NIL)
 # (LISTEN [input-stream]), CLTL p. 380
-  {
-    test_istream(&STACK_0); # check input-stream
-    if (ls_avail_p(listen_char(popSTACK()))) {
-      value1 = T; mv_count=1; # value T
-    } else {
-      value1 = NIL; mv_count=1; # value NIL
-    }
+LISPFUN(listen,0,1,norest,nokey,0,NIL) {
+  test_istream(&STACK_0); # check input-stream
+  if (ls_avail_p(listen_char(popSTACK()))) {
+    value1 = T; mv_count=1; # value T
+  } else {
+    value1 = NIL; mv_count=1; # value NIL
   }
+}
 
-LISPFUNN(read_char_will_hang_p,1)
 # (READ-CHAR-WILL-HANG-P input-stream)
 # tests whether READ-CHAR-NO-HANG will return immediately without reading a
 # character, but accomplishes this without actually calling READ-CHAR-NO-HANG,
 # thus avoiding the need for UNREAD-CHAR and preventing side effects.
-  {
-    test_istream(&STACK_0); # check input-stream
-    value1 = (ls_wait_p(listen_char(popSTACK())) ? T : NIL); mv_count=1;
-  }
+LISPFUNN(read_char_will_hang_p,1) {
+  test_istream(&STACK_0); # check input-stream
+  value1 = (ls_wait_p(listen_char(popSTACK())) ? T : NIL); mv_count=1;
+}
 
-LISPFUN(read_char_no_hang,0,4,norest,nokey,0,NIL)
 # (READ-CHAR-NO-HANG [input-stream [eof-error-p [eof-value [recursive-p]]]]),
 # CLTL p. 380
-  {
-    # check input-stream:
-    var object* stream_ = &STACK_3;
-    test_istream(stream_);
-    var object stream = *stream_;
-    if (builtin_stream_p(stream)
-        ? !(TheStream(stream)->strmflags & bit(strmflags_rd_ch_bit_B))
-        : !instanceof(stream,O(class_fundamental_input_stream)))
-      fehler_illegal_streamop(S(read_char_no_hang),stream);
-    var signean status = listen_char(stream);
-    if (ls_eof_p(status)) { # EOF ?
+LISPFUN(read_char_no_hang,0,4,norest,nokey,0,NIL) {
+  # check input-stream:
+  var object* stream_ = &STACK_3;
+  test_istream(stream_);
+  var object stream = *stream_;
+  if (builtin_stream_p(stream)
+      ? !(TheStream(stream)->strmflags & bit(strmflags_rd_ch_bit_B))
+      : !instanceof(stream,O(class_fundamental_input_stream)))
+    fehler_illegal_streamop(S(read_char_no_hang),stream);
+  var signean status = listen_char(stream);
+  if (ls_eof_p(status)) { # EOF ?
+    return_Values eof_handling(1);
+  } else if (ls_avail_p(status)) { # character available
+    var object ch = read_char(stream_); # read Character
+    if (eq(ch,eof_value)) { # query for EOF, for safety reasons
       return_Values eof_handling(1);
-    } else if (ls_avail_p(status)) { # character available
-      var object ch = read_char(stream_); # read Character
-      if (eq(ch,eof_value)) { # query for EOF, for safety reasons
-        return_Values eof_handling(1);
-      } else {
-        value1 = ch; mv_count=1; skipSTACK(4); return; # ch as value
-      }
-    } else { # ls_wait_p(status) # no character available
-      # instead of waiting, return NIL as value, immediately:
-      value1 = NIL; mv_count=1; skipSTACK(4); return;
+    } else {
+      value1 = ch; mv_count=1; skipSTACK(4); return; # ch as value
     }
+  } else { # ls_wait_p(status) # no character available
+    # instead of waiting, return NIL as value, immediately:
+    value1 = NIL; mv_count=1; skipSTACK(4); return;
   }
+}
 
-LISPFUN(clear_input,0,1,norest,nokey,0,NIL)
 # (CLEAR-INPUT [input-stream]), CLTL p. 380
-  {
-    test_istream(&STACK_0); # check input-stream
-    clear_input(popSTACK());
-    value1 = NIL; mv_count=1; # value NIL
-  }
+LISPFUN(clear_input,0,1,norest,nokey,0,NIL) {
+  test_istream(&STACK_0); # check input-stream
+  clear_input(popSTACK());
+  value1 = NIL; mv_count=1; # value NIL
+}
 
-LISPFUN(read_from_string,1,2,norest,key,3,\
-        (kw(preserve_whitespace),kw(start),kw(end)) )
 # (READ-FROM-STRING string [eof-error-p [eof-value [:preserve-whitespace]
 #                   [:start] [:end]]]),
 # CLTL p. 380
-# Methode:
+# Method:
 # (defun read-from-string (string &optional (eof-error-p t) (eof-value nil)
 #                          &key (start 0) (end nil) (preserve-whitespace nil)
 #                          &aux index)
@@ -4801,7 +4749,7 @@ LISPFUN(read_from_string,1,2,norest,key,3,\
 #     ) )
 #     index
 # ) )
-# oder macroexpandiert:
+# or macroexpanded:
 # (defun read-from-string (string &optional (eof-error-p t) (eof-value nil)
 #                          &key (start 0) (end nil) (preserve-whitespace nil))
 #   (let ((stream (make-string-input-stream string start end)))
@@ -4814,7 +4762,7 @@ LISPFUN(read_from_string,1,2,norest,key,3,\
 #       )
 #       (system::string-input-stream-index stream)
 # ) ) )
-# oder vereinfacht:
+# or simplified:
 # (defun read-from-string (string &optional (eof-error-p t) (eof-value nil)
 #                          &key (start 0) (end nil) (preserve-whitespace nil))
 #   (let ((stream (make-string-input-stream string start end)))
@@ -4824,168 +4772,168 @@ LISPFUN(read_from_string,1,2,norest,key,3,\
 #       )
 #       (system::string-input-stream-index stream)
 # ) ) )
-  {
-    # stack layout: string, eof-error-p, eof-value, preserve-whitespace, start, end.
-    # process :preserve-whitespace-Argument:
-    var object preserve_whitespace = STACK_2;
-    if (eq(preserve_whitespace,unbound))
-      preserve_whitespace = NIL;
-    # call MAKE-STRING-INPUT-STREAM with Arguments string, start, end:
-    STACK_2 = STACK_5; # string
-    if (eq(STACK_1,unbound))
-      STACK_1 = Fixnum_0; # start has Default 0
-    if (eq(STACK_0,unbound))
-      STACK_0 = NIL; # end has Default NIL
-    STACK_5 = preserve_whitespace;
-    funcall(L(make_string_input_stream),3);
-    # stack layout: preserve-whitespace, eof-error-p, eof-value.
-    pushSTACK(STACK_1); pushSTACK(STACK_1);
-    STACK_3 = STACK_2 = value1;
-    # stack layout: preserve-whitespace, stream, stream, eof-error-p, eof-value.
-    pushSTACK(NIL); read_w(STACK_5); # READ respectively READ-PRESERVE-WHITESPACE
-    # stack layout: preserve-whitespace, stream.
-    STACK_1 = value1; # read Objekt
-    funcall(L(string_input_stream_index),1); # (SYS::STRING-INPUT-STREAM-INDEX stream)
-    value2 = value1; value1 = popSTACK(); # Index as 2., Objekt as 1. value
-    mv_count=2;
-  }
+LISPFUN(read_from_string,1,2,norest,key,3,
+        (kw(preserve_whitespace),kw(start),kw(end)) ) {
+  # stack layout: string, eof-error-p, eof-value, preserve-whitespace, start, end.
+  # process :preserve-whitespace-Argument:
+  var object preserve_whitespace = STACK_2;
+  if (eq(preserve_whitespace,unbound))
+    preserve_whitespace = NIL;
+  # call MAKE-STRING-INPUT-STREAM with Arguments string, start, end:
+  STACK_2 = STACK_5; # string
+  if (eq(STACK_1,unbound))
+    STACK_1 = Fixnum_0; # start has Default 0
+  if (eq(STACK_0,unbound))
+    STACK_0 = NIL; # end has Default NIL
+  STACK_5 = preserve_whitespace;
+  funcall(L(make_string_input_stream),3);
+  # stack layout: preserve-whitespace, eof-error-p, eof-value.
+  pushSTACK(STACK_1); pushSTACK(STACK_1);
+  STACK_3 = STACK_2 = value1;
+  # stack layout: preserve-whitespace, stream, stream, eof-error-p, eof-value.
+  pushSTACK(NIL); read_w(STACK_5); # READ respectively READ-PRESERVE-WHITESPACE
+  # stack layout: preserve-whitespace, stream.
+  STACK_1 = value1; # read Object
+  funcall(L(string_input_stream_index),1); # (SYS::STRING-INPUT-STREAM-INDEX stream)
+  value2 = value1; value1 = popSTACK(); # Index as 2., Object as 1. value
+  mv_count=2;
+}
 
-LISPFUN(parse_integer,1,0,norest,key,4,\
-        (kw(start),kw(end),kw(radix),kw(junk_allowed)) )
 # (PARSE-INTEGER string [:start] [:end] [:radix] [:junk-allowed]), CLTL p. 381
+LISPFUN(parse_integer,1,0,norest,key,4,
+        (kw(start),kw(end),kw(radix),kw(junk_allowed)) ) {
+  # process :junk-allowed-Argument:
+  var bool junk_allowed;
   {
-    # process :junk-allowed-Argument:
-    var bool junk_allowed;
-    {
-      var object arg = popSTACK();
-      if (eq(arg,unbound) || nullp(arg))
-        junk_allowed = false;
-      else
-        junk_allowed = true;
-    }
-    # junk_allowed = value of :junk-allowed-Argument.
-    # process :radix-Argument:
-    var uintL base;
-    {
-      var object arg = popSTACK();
-      if (eq(arg,unbound)) {
-        base = 10; # Default 10
+    var object arg = popSTACK();
+    if (eq(arg,unbound) || nullp(arg))
+      junk_allowed = false;
+    else
+      junk_allowed = true;
+  }
+  # junk_allowed = value of :junk-allowed-Argument.
+  # process :radix-Argument:
+  var uintL base;
+  {
+    var object arg = popSTACK();
+    if (eq(arg,unbound)) {
+      base = 10; # Default 10
+    } else {
+      if (posfixnump(arg) &&
+          (base = posfixnum_to_L(arg), ((base >= 2) && (base <= 36)))) {
+        # OK
       } else {
-        if (posfixnump(arg) &&
-            (base = posfixnum_to_L(arg), ((base >= 2) && (base <= 36)))) {
-          # OK
-        } else {
-          pushSTACK(arg);           # TYPE-ERROR slot DATUM
-          pushSTACK(O(type_radix)); # TYPE-ERROR slot EXPECTED-TYPE
-          pushSTACK(arg); # base
-          pushSTACK(S(Kradix));
-          pushSTACK(TheSubr(subr_self)->name);
-          fehler(type_error,
-                 GETTEXT("~: ~ argument should be an integer between 2 and 36, not ~"));
-        }
+        pushSTACK(arg);           # TYPE-ERROR slot DATUM
+        pushSTACK(O(type_radix)); # TYPE-ERROR slot EXPECTED-TYPE
+        pushSTACK(arg); # base
+        pushSTACK(S(Kradix));
+        pushSTACK(TheSubr(subr_self)->name);
+        fehler(type_error,
+               GETTEXT("~: ~ argument should be an integer between 2 and 36, not ~"));
       }
     }
-    # base = value of :radix-argument.
-    # check string, :start and :end:
-    var stringarg arg;
-    var object string = test_string_limits_ro(&arg);
-    # STACK is not cleared up.
-    var uintL start = arg.index; # value of :start-argument
-    var uintL len = arg.len; # number of the addressed characters
-    var const chart* charptr;
-    unpack_sstring_alloca(arg.string,arg.len,arg.offset+arg.index, charptr=);
-    # loop variables:
-    var uintL index = start;
-    var uintL count = len;
-    var uintL start_offset;
-    var uintL end_offset;
-    # and now:
-    #   string : the string,
-    #   arg.string : its data-vector (a simple-string),
-    #   start : index of the first character in the string
-    #   charptr : pointer in the data-vector of the next character,
-    #   index : index in the string,
-    #   count : the number of remaining characters.
-    var signean sign;
-    {
-      var chart c; # the last character read
-      # step 1: skip whitespace
-      loop {
+  }
+  # base = value of :radix-argument.
+  # check string, :start and :end:
+  var stringarg arg;
+  var object string = test_string_limits_ro(&arg);
+  # STACK is not cleared up.
+  var uintL start = arg.index; # value of :start-argument
+  var uintL len = arg.len; # number of the addressed characters
+  var const chart* charptr;
+  unpack_sstring_alloca(arg.string,arg.len,arg.offset+arg.index, charptr=);
+  # loop variables:
+  var uintL index = start;
+  var uintL count = len;
+  var uintL start_offset;
+  var uintL end_offset;
+  # and now:
+  #   string : the string,
+  #   arg.string : its data-vector (a simple-string),
+  #   start : index of the first character in the string
+  #   charptr : pointer in the data-vector of the next character,
+  #   index : index in the string,
+  #   count : the number of remaining characters.
+  var signean sign;
+  {
+    var chart c; # the last character read
+    # step 1: skip whitespace
+    loop {
+      if (count==0) # the string has already ended?
+        goto badsyntax;
+      c = *charptr; # the next character
+      if (!(orig_syntax_table_get(c) == syntax_whitespace)) # no whitespace?
+        break;
+      charptr++; index++; count--; # skip whitespace
+    }
+    # step 2: read the sign
+    sign = 0; # sign := positive
+    switch (as_cint(c)) {
+      case '-': sign = -1; # sign := negative
+      case '+': # sign found
+        charptr++; index++; count--; # skip
         if (count==0) # the string has already ended?
           goto badsyntax;
-        c = *charptr; # the next character
-        if (!(orig_syntax_table_get(c) == syntax_whitespace)) # no whitespace?
-          break;
-        charptr++; index++; count--; # skip whitespace
-      }
-      # step 2: read the sign
-      sign = 0; # sign := positive
-      switch (as_cint(c)) {
-        case '-': sign = -1; # sign := negative
-        case '+': # sign found
-          charptr++; index++; count--; # skip
-          if (count==0) # the string has already ended?
-            goto badsyntax;
-        default: break;
-      }
+      default: break;
     }
-    # done with sign, still should be (count>0).
-    start_offset = arg.offset + index;
-    # now:  start_offset = offset of the first digit in the data vector
-    # step 3: read digits
-    loop {
-      var cint c = as_cint(*charptr); # the next character
-      # check the digits: (digit-char-p (code-char c) base) ?
-      # (cf. DIGIT-CHAR-P in CHARSTRG.D)
-      if (c > 'z') break; # too large -> no
-      if (c >= 'a') { c -= 'a'-'A'; } # upcase 'a'<= char <='z'
-      # now $00 <= c <= $60.
-      if (c < '0') break;
-      # $30 <= c <= $60 convert to the numeric value
-      if (c <= '9')
-        c = c - '0';
-      else if (c >= 'A')
-        c = c - 'A' + 10;
-      else
-        break;
-      # now 0 =< c <=41 is the numeric value of the digit
-      if (c >= (uintB)base) # only valid if 0 <= c < base.
-        break;
-      # *charptr is a valid digit.
-      charptr++; index++; count--; # skip
-      if (count==0)
-        break;
-    }
-    # done with the digit.
-    end_offset = arg.offset + index;
-    # now:  end_offset = offset after the last digit in the data-vector.
-    if (start_offset == end_offset) # there were no digits?
-      goto badsyntax;
-    # step 4: skip the final whitespace
-    if (!junk_allowed) { # if junk_allowed, nothing is to be done
-      while (!(count==0)) {
-        var chart c = *charptr; # the next character
-        if (!(orig_syntax_table_get(c) == syntax_whitespace)) # no whitespace?
-          goto badsyntax;
-        charptr++; index++; count--; # skip whitespace
-      }
-    }
-    # step 5: convert the sequence of digits into a number
-    value1 = read_integer(base,sign,arg.string,start_offset,end_offset);
-    value2 = fixnum(index);
-    mv_count=2; return;
-   badsyntax: # illegal character
-    if (!junk_allowed) { # signal an error
-      pushSTACK(unbound); # STREAM-ERROR slot STREAM
-      pushSTACK(string);
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(stream_error,
-             GETTEXT("~: string ~ does not have integer syntax"));
-    }
-    value1 = NIL;
-    value2 = fixnum(index);
-    mv_count=2; return;
   }
+  # done with sign, still should be (count>0).
+  start_offset = arg.offset + index;
+  # now:  start_offset = offset of the first digit in the data vector
+  # step 3: read digits
+  loop {
+    var cint c = as_cint(*charptr); # the next character
+    # check the digits: (digit-char-p (code-char c) base) ?
+    # (cf. DIGIT-CHAR-P in CHARSTRG.D)
+    if (c > 'z') break; # too large -> no
+    if (c >= 'a') { c -= 'a'-'A'; } # upcase 'a'<= char <='z'
+    # now $00 <= c <= $60.
+    if (c < '0') break;
+    # $30 <= c <= $60 convert to the numeric value
+    if (c <= '9')
+      c = c - '0';
+    else if (c >= 'A')
+      c = c - 'A' + 10;
+    else
+      break;
+    # now 0 =< c <=41 is the numeric value of the digit
+    if (c >= (uintB)base) # only valid if 0 <= c < base.
+      break;
+    # *charptr is a valid digit.
+    charptr++; index++; count--; # skip
+    if (count==0)
+      break;
+  }
+  # done with the digit.
+  end_offset = arg.offset + index;
+  # now:  end_offset = offset after the last digit in the data-vector.
+  if (start_offset == end_offset) # there were no digits?
+    goto badsyntax;
+  # step 4: skip the final whitespace
+  if (!junk_allowed) { # if junk_allowed, nothing is to be done
+    while (!(count==0)) {
+      var chart c = *charptr; # the next character
+      if (!(orig_syntax_table_get(c) == syntax_whitespace)) # no whitespace?
+        goto badsyntax;
+      charptr++; index++; count--; # skip whitespace
+    }
+  }
+  # step 5: convert the sequence of digits into a number
+  value1 = read_integer(base,sign,arg.string,start_offset,end_offset);
+  value2 = fixnum(index);
+  mv_count=2; return;
+ badsyntax: # illegal character
+  if (!junk_allowed) { # signal an error
+    pushSTACK(unbound); # STREAM-ERROR slot STREAM
+    pushSTACK(string);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(stream_error,
+           GETTEXT("~: string ~ does not have integer syntax"));
+  }
+  value1 = NIL;
+  value2 = fixnum(index);
+  mv_count=2; return;
+}
 
 
 # =============================================================================
@@ -8358,23 +8306,22 @@ local void pr_structure_default (const object* stream_, object structure) {
 }
 
 # This is the default-function, which is called by CLOS:PRINT-OBJECT:
-LISPFUNN(print_structure,2)
-  {
-    # stack layout: structure, stream.
-    var object structure = STACK_1;
-    if (!structurep(structure)) {
-      pushSTACK(structure);           # TYPE-ERROR slot DATUM
-      pushSTACK(S(structure_object)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(structure); # structure
-      pushSTACK(TheSubr(subr_self)->name); # function name
-      fehler(type_error,GETTEXT("~: ~ is not a structure"));
-    }
-    if (!streamp(STACK_0))
-      fehler_stream(STACK_0);
-    pr_enter(&STACK_0,structure,&pr_structure_default);
-    skipSTACK(2);
-    value1 = NIL; mv_count=1;
+LISPFUNN(print_structure,2) {
+  # stack layout: structure, stream.
+  var object structure = STACK_1;
+  if (!structurep(structure)) {
+    pushSTACK(structure);           # TYPE-ERROR slot DATUM
+    pushSTACK(S(structure_object)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(structure); # structure
+    pushSTACK(TheSubr(subr_self)->name); # function name
+    fehler(type_error,GETTEXT("~: ~ is not a structure"));
   }
+  if (!streamp(STACK_0))
+    fehler_stream(STACK_0);
+  pr_enter(&STACK_0,structure,&pr_structure_default);
+  skipSTACK(2);
+  value1 = NIL; mv_count=1;
+}
 
 #                 -------- machine pointer --------
 
@@ -9707,8 +9654,7 @@ local void test_ostream (void) {
   }
 }
 
-LISPFUNN(whitespacep,1) # (SYS::WHITESPACEP CHAR)
-{
+LISPFUNN(whitespacep,1) { # (SYS::WHITESPACEP CHAR)
   var object ch = popSTACK();
   value1 = NIL;
   if (charp(ch)) {
@@ -9719,9 +9665,8 @@ LISPFUNN(whitespacep,1) # (SYS::WHITESPACEP CHAR)
   mv_count=1;
 }
 
-LISPFUN(write_spaces,1,1,norest,nokey,0,NIL)
 # (SYS::WRITE-SPACES num &optional stream)
-{
+LISPFUN(write_spaces,1,1,norest,nokey,0,NIL) {
   test_ostream();
   if (!posfixnump(STACK_1)) fehler_posfixnum(STACK_1);
   spaces(&STACK_0,STACK_1);
@@ -9732,12 +9677,11 @@ LISPFUN(write_spaces,1,1,norest,nokey,0,NIL)
 
 # ---------------------- Pretty Printer ----------------------
 
-LISPFUN(pprint_indent,2,1,norest,nokey,0,NIL)
 # (PPRINT-INDENT relative-to n &optional stream) ==> NIL
 # relative-to---either :block or :current.
 # n          ---a real.
 # stream     ---an output stream designator. The default is standard output.
-{
+LISPFUN(pprint_indent,2,1,norest,nokey,0,NIL) {
   test_ostream();
   # check the indentation increment
   var int offset=0;
@@ -9797,11 +9741,10 @@ typedef enum {
   PPRINT_NEWLINE_MANDATORY
 } pprint_newline_t;
 
-LISPFUN(pprint_newline,1,1,norest,nokey,0,NIL)
 # (PPRINT-NEWLINE kind &optional stream) ==> NIL
 # kind  ---one of :linear, :fill, :miser, or :mandatory.
 # stream---a stream designator. The default is standard output.
-{
+LISPFUN(pprint_newline,1,1,norest,nokey,0,NIL) {
   test_ostream();
   var pprint_newline_t ppn_type = PPRINT_NEWLINE_MANDATORY;
   if (eq(S(Klinear),STACK_1))         ppn_type = PPRINT_NEWLINE_LINEAR;
@@ -9867,9 +9810,8 @@ local void pprin_object_dispatch (const object* stream_,object obj) {
   LEVEL_END;
 }
 
-LISPFUNN(ppprint_logical_block,3)
 # (%PPRINT-LOGICAL-BLOCK function object stream)
-{
+LISPFUNN(ppprint_logical_block,3) {
   test_ostream();
   if (listp(STACK_1)) {
     var object stream = STACK_0;
@@ -9885,11 +9827,10 @@ LISPFUNN(ppprint_logical_block,3)
   mv_count=1;
 }
 
-LISPFUNN(pcirclep,2)
 # (%CIRCLEP object stream)
 # return the appropriate read label or NIL
 # called from PPRINT-POP
-{
+LISPFUNN(pcirclep,2) {
   test_ostream();
   # var circle_info_t ci;
   if (!circle_p(STACK_1,NULL) || !PPHELP_STREAM_P(STACK_0)) # &ci
@@ -9904,11 +9845,10 @@ LISPFUNN(pcirclep,2)
   mv_count = 1;
 }
 
-LISPFUN(format_tabulate,3,2,norest,nokey,0,NIL)
 # (format-tabulate stream colon-modifier atsign-modifier
 #                  &optional (colnum 1) (colinc 1))
 # see format.lisp
-{
+LISPFUN(format_tabulate,3,2,norest,nokey,0,NIL) {
   swap(object,STACK_0,STACK_4); # get the stream into STACK_0
   test_ostream();
  #define COL_ARG(x) (eq(x,unbound) || nullp(x) ? Fixnum_1 : \
@@ -9998,23 +9938,22 @@ local void write_up (void) {
   dotimesC(bindcount,bindcount, { dynamic_unbind(); } );
 }
 
-LISPFUN(write,1,0,norest,key,17,\
-        (kw(case),kw(level),kw(length),kw(gensym),kw(escape),kw(radix),\
-         kw(base),kw(array),kw(circle),kw(pretty),kw(closure),kw(readably),\
-         kw(lines),kw(miser_width),kw(pprint_dispatch),
-         kw(right_margin),kw(stream)))
 # (WRITE object [:stream] [:escape] [:radix] [:base] [:circle] [:pretty]
 #               [:level] [:length] [:case] [:gensym] [:array] [:closure]
 #               [:readably] [:lines] [:miser-width] [:pprint-dispatch]
 #               [:right-margin]),
 # CLTL p. 382
-  {
-    # stack layout: object, Print-Variablen-Arguments, Stream-Argument.
-    test_ostream(); # check Output-Stream
-    write_up(); # execute WRITE
-    skipSTACK(print_vars_anz+1);
-    value1 = popSTACK(); mv_count=1; # object as value
-  }
+LISPFUN(write,1,0,norest,key,17,
+        (kw(case),kw(level),kw(length),kw(gensym),kw(escape),kw(radix),
+         kw(base),kw(array),kw(circle),kw(pretty),kw(closure),kw(readably),
+         kw(lines),kw(miser_width),kw(pprint_dispatch),
+         kw(right_margin),kw(stream))) {
+  # stack layout: object, Print-Variablen-Arguments, Stream-Argument.
+  test_ostream(); # check Output-Stream
+  write_up(); # execute WRITE
+  skipSTACK(print_vars_anz+1);
+  value1 = popSTACK(); mv_count=1; # object as value
+}
 
 # (defun prin1 (object &optional stream)
 #   (test-output-stream stream)
@@ -10035,14 +9974,13 @@ local void prin1_up (void) {
   dynamic_unbind();
 }
 
-LISPFUN(prin1,1,1,norest,nokey,0,NIL)
 # (PRIN1 object [stream]), CLTL p. 383
-  {
-    test_ostream(); # check Output-Stream
-    prin1_up(); # execute PRIN1
-    skipSTACK(1);
-    value1 = popSTACK(); mv_count=1; # object as value
-  }
+LISPFUN(prin1,1,1,norest,nokey,0,NIL) {
+  test_ostream(); # check Output-Stream
+  prin1_up(); # execute PRIN1
+  skipSTACK(1);
+  value1 = popSTACK(); mv_count=1; # object as value
+}
 
 # (defun print (object &optional stream)
 #   (test-output-stream stream)
@@ -10053,16 +9991,15 @@ LISPFUN(prin1,1,1,norest,nokey,0,NIL)
 #   (write-char #\Space stream)
 #   object
 # )
-LISPFUN(print,1,1,norest,nokey,0,NIL)
 # (PRINT object [stream]), CLTL p. 383
-  {
-    test_ostream(); # check Output-Stream
-    terpri(&STACK_0); # new line
-    prin1_up(); # execute PRIN1
-    write_ascii_char(&STACK_0,' '); # add Space
-    skipSTACK(1);
-    value1 = popSTACK(); mv_count=1; # object as value
-  }
+LISPFUN(print,1,1,norest,nokey,0,NIL) {
+  test_ostream(); # check Output-Stream
+  terpri(&STACK_0); # new line
+  prin1_up(); # execute PRIN1
+  write_ascii_char(&STACK_0,' '); # add Space
+  skipSTACK(1);
+  value1 = popSTACK(); mv_count=1; # object as value
+}
 
 # (defun pprint (object &optional stream)
 #   (test-output-stream stream)
@@ -10072,21 +10009,20 @@ LISPFUN(print,1,1,norest,nokey,0,NIL)
 #   )
 #   (values)
 # )
-LISPFUN(pprint,1,1,norest,nokey,0,NIL)
 # (PPRINT object [stream]), CLTL p. 383
-  {
-    test_ostream(); # check Output-Stream
-    terpri(&STACK_0); # new line
-    var object obj = STACK_1;
-    var object* stream_ = &STACK_0;
-    dynamic_bind(S(print_pretty),T); # bind *PRINT-PRETTY* to T
-    dynamic_bind(S(print_escape),T); # bind *PRINT-ESCAPE* to T
-    prin1(stream_,obj); # print object
-    dynamic_unbind();
-    dynamic_unbind();
-    skipSTACK(2);
-    value1 = NIL; mv_count=0; # no values
-  }
+LISPFUN(pprint,1,1,norest,nokey,0,NIL) {
+  test_ostream(); # check Output-Stream
+  terpri(&STACK_0); # new line
+  var object obj = STACK_1;
+  var object* stream_ = &STACK_0;
+  dynamic_bind(S(print_pretty),T); # bind *PRINT-PRETTY* to T
+  dynamic_bind(S(print_escape),T); # bind *PRINT-ESCAPE* to T
+  prin1(stream_,obj); # print object
+  dynamic_unbind();
+  dynamic_unbind();
+  skipSTACK(2);
+  value1 = NIL; mv_count=0; # no values
+}
 
 # (defun princ (object &optional stream)
 #   (test-output-stream stream)
@@ -10110,14 +10046,13 @@ local void princ_up (void) {
   dynamic_unbind();
 }
 
-LISPFUN(princ,1,1,norest,nokey,0,NIL)
 # (PRINC object [stream]), CLTL p. 383
-  {
-    test_ostream(); # check Output-Stream
-    princ_up(); # execute PRINC
-    skipSTACK(1);
-    value1 = popSTACK(); mv_count=1; # object as value
-  }
+LISPFUN(princ,1,1,norest,nokey,0,NIL) {
+  test_ostream(); # check Output-Stream
+  princ_up(); # execute PRINC
+  skipSTACK(1);
+  value1 = popSTACK(); mv_count=1; # object as value
+}
 
 # (defun write-to-string (object &rest args
 #                                &key escape radix base circle pretty level
@@ -10127,57 +10062,53 @@ LISPFUN(princ,1,1,norest,nokey,0,NIL)
 #   (with-output-to-string (stream)
 #     (apply #'write object :stream stream args)
 # ) )
-LISPFUN(write_to_string,1,0,norest,key,16,\
-        (kw(case),kw(level),kw(length),kw(gensym),kw(escape),kw(radix),\
-         kw(base),kw(array),kw(circle),kw(pretty),kw(closure),kw(readably),\
-         kw(lines),kw(miser_width),kw(pprint_dispatch),kw(right_margin)))
 # (WRITE-TO-STRING object [:escape] [:radix] [:base] [:circle] [:pretty]
 #                         [:level] [:length] [:case] [:gensym] [:array]
 #                         [:closure] [:readably] [:lines] [:miser-width]
 #                         [:pprint-dispatch] [:right-margin]),
 # CLTL p. 383
-  {
-    pushSTACK(make_string_output_stream()); # String-Output-Stream
-    write_up(); # execute WRITE
-    value1 = get_output_stream_string(&STACK_0); mv_count=1; # Result-String as value
-    skipSTACK(1+print_vars_anz+1);
-  }
+LISPFUN(write_to_string,1,0,norest,key,16,
+        (kw(case),kw(level),kw(length),kw(gensym),kw(escape),kw(radix),
+         kw(base),kw(array),kw(circle),kw(pretty),kw(closure),kw(readably),
+         kw(lines),kw(miser_width),kw(pprint_dispatch),kw(right_margin))) {
+  pushSTACK(make_string_output_stream()); # String-Output-Stream
+  write_up(); # execute WRITE
+  value1 = get_output_stream_string(&STACK_0); mv_count=1; # Result-String as value
+  skipSTACK(1+print_vars_anz+1);
+}
 
 # (defun prin1-to-string (object)
 #   (with-output-to-string (stream) (prin1 object stream))
 # )
-LISPFUNN(prin1_to_string,1)
 # (PRIN1-TO-STRING object), CLTL p. 383
-  {
-    pushSTACK(make_string_output_stream()); # String-Output-Stream
-    prin1_up(); # execute PRIN1
-    value1 = get_output_stream_string(&STACK_0); mv_count=1; # Result-String as value
-    skipSTACK(2);
-  }
+LISPFUNN(prin1_to_string,1) {
+  pushSTACK(make_string_output_stream()); # String-Output-Stream
+  prin1_up(); # execute PRIN1
+  value1 = get_output_stream_string(&STACK_0); mv_count=1; # Result-String as value
+  skipSTACK(2);
+}
 
 # (defun princ-to-string (object)
 #   (with-output-to-string (stream) (princ object stream))
 # )
-LISPFUNN(princ_to_string,1)
 # (PRINC-TO-STRING object), CLTL p. 383
-  {
-    pushSTACK(make_string_output_stream()); # String-Output-Stream
-    princ_up(); # execute PRINC
-    value1 = get_output_stream_string(&STACK_0); mv_count=1; # Result-String as value
-    skipSTACK(2);
-  }
+LISPFUNN(princ_to_string,1) {
+  pushSTACK(make_string_output_stream()); # String-Output-Stream
+  princ_up(); # execute PRINC
+  value1 = get_output_stream_string(&STACK_0); mv_count=1; # Result-String as value
+  skipSTACK(2);
+}
 
-LISPFUN(write_char,1,1,norest,nokey,0,NIL)
 # (WRITE-CHAR character [stream]), CLTL p. 384
-  {
-    test_ostream(); # check Output-Stream
-    var object ch = STACK_1; # character-Argument
-    if (!charp(ch))
-      fehler_char(ch);
-    write_char(&STACK_0,ch);
-    value1 = ch; mv_count=1; # ch (not jeopardized by GC) as value
-    skipSTACK(2);
-  }
+LISPFUN(write_char,1,1,norest,nokey,0,NIL) {
+  test_ostream(); # check Output-Stream
+  var object ch = STACK_1; # character-Argument
+  if (!charp(ch))
+    fehler_char(ch);
+  write_char(&STACK_0,ch);
+  value1 = ch; mv_count=1; # ch (not jeopardized by GC) as value
+  skipSTACK(2);
+}
 
 # UP: for WRITE-STRING and WRITE-LINE:
 # checks the Arguments and prints a sub-string to stream.
@@ -10200,118 +10131,109 @@ local void write_string_up (void) {
   write_sstring_ab(&STACK_1,arg.string,arg.offset+arg.index,arg.len);
 }
 
-LISPFUN(write_string,1,1,norest,key,2, (kw(start),kw(end)) )
 # (WRITE-STRING string [stream] [:start] [:end]), CLTL p. 384
-  {
-    write_string_up(); # check and print
-    value1 = popSTACK(); mv_count=1; skipSTACK(1); # string as value
-  }
+LISPFUN(write_string,1,1,norest,key,2, (kw(start),kw(end)) ) {
+  write_string_up(); # check and print
+  value1 = popSTACK(); mv_count=1; skipSTACK(1); # string as value
+}
 
-LISPFUN(write_line,1,1,norest,key,2, (kw(start),kw(end)) )
 # (WRITE-LINE string [stream] [:start] [:end]), CLTL p. 384
-  {
-    write_string_up(); # check and print
-    terpri(&STACK_1); # new line
-    value1 = popSTACK(); mv_count=1; skipSTACK(1); # string as value
-  }
+LISPFUN(write_line,1,1,norest,key,2, (kw(start),kw(end)) ) {
+  write_string_up(); # check and print
+  terpri(&STACK_1); # new line
+  value1 = popSTACK(); mv_count=1; skipSTACK(1); # string as value
+}
 
-LISPFUN(terpri,0,1,norest,nokey,0,NIL)
 # (TERPRI [stream]), CLTL p. 384
-  {
-    test_ostream(); # check Output-Stream
-    terpri(&STACK_0); # new line
-    value1 = NIL; mv_count=1; skipSTACK(1); # NIL as value
-  }
+LISPFUN(terpri,0,1,norest,nokey,0,NIL) {
+  test_ostream(); # check Output-Stream
+  terpri(&STACK_0); # new line
+  value1 = NIL; mv_count=1; skipSTACK(1); # NIL as value
+}
 
-LISPFUN(fresh_line,0,1,norest,nokey,0,NIL)
 # (FRESH-LINE [stream]), CLTL p. 384
-  {
-    test_ostream(); # check Output-Stream
-    if (eq(get_line_position(STACK_0),Fixnum_0)) { # Line-Position = 0 ?
-      value1 = NIL; mv_count=1; # yes -> NIL as value
-    } else {
-      terpri(&STACK_0); # no -> new line
-      value1 = T; mv_count=1; # and T as value
-    }
-    skipSTACK(1);
+LISPFUN(fresh_line,0,1,norest,nokey,0,NIL) {
+  test_ostream(); # check Output-Stream
+  if (eq(get_line_position(STACK_0),Fixnum_0)) { # Line-Position = 0 ?
+    value1 = NIL; mv_count=1; # yes -> NIL as value
+  } else {
+    terpri(&STACK_0); # no -> new line
+    value1 = T; mv_count=1; # and T as value
   }
+  skipSTACK(1);
+}
 
-LISPFUN(finish_output,0,1,norest,nokey,0,NIL)
 # (FINISH-OUTPUT [stream]), CLTL p. 384
-  {
-    test_ostream(); # check Output-Stream
-    finish_output(popSTACK()); # bring Output to the destination
-    value1 = NIL; mv_count=1; # NIL as value
-  }
+LISPFUN(finish_output,0,1,norest,nokey,0,NIL) {
+  test_ostream(); # check Output-Stream
+  finish_output(popSTACK()); # bring Output to the destination
+  value1 = NIL; mv_count=1; # NIL as value
+}
 
-LISPFUN(force_output,0,1,norest,nokey,0,NIL)
 # (FORCE-OUTPUT [stream]), CLTL p. 384
-  {
-    test_ostream(); # check Output-Stream
-    force_output(popSTACK()); # bring output to destination
-    value1 = NIL; mv_count=1; # NIL as value
-  }
+LISPFUN(force_output,0,1,norest,nokey,0,NIL) {
+  test_ostream(); # check Output-Stream
+  force_output(popSTACK()); # bring output to destination
+  value1 = NIL; mv_count=1; # NIL as value
+}
 
-LISPFUN(clear_output,0,1,norest,nokey,0,NIL)
 # (CLEAR-OUTPUT [stream]), CLTL p. 384
-  {
-    test_ostream(); # check Output-Stream
-    clear_output(popSTACK()); # delete output
-    value1 = NIL; mv_count=1; # NIL as value
-  }
+LISPFUN(clear_output,0,1,norest,nokey,0,NIL) {
+  test_ostream(); # check Output-Stream
+  clear_output(popSTACK()); # delete output
+  value1 = NIL; mv_count=1; # NIL as value
+}
 
-LISPFUN(write_unreadable,3,0,norest,key,2, (kw(type),kw(identity)) )
 # (SYSTEM::WRITE-UNREADABLE function object stream [:type] [:identity]),
 # ref. CLtL2 p. 580
+LISPFUN(write_unreadable,3,0,norest,key,2, (kw(type),kw(identity)) ) {
+  var bool flag_fun = false;
+  var bool flag_type = false;
+  var bool flag_id = false;
   {
-    var bool flag_fun = false;
-    var bool flag_type = false;
-    var bool flag_id = false;
-    {
-      var object arg = popSTACK(); # :identity - Argument
-      if (!(eq(arg,unbound) || nullp(arg)))
-        flag_id = true;
-    }
-    {
-      var object arg = popSTACK(); # :type - Argument
-      if (!(eq(arg,unbound) || nullp(arg)))
-        flag_type = true;
-    }
-    if (!nullp(STACK_2))
-      flag_fun = true;
-    test_ostream(); # check Output-Stream
-    CHECK_PRINT_READABLY(STACK_1);
-    var object* stream_ = &STACK_0;
-    UNREADABLE_START;
-    if (flag_type) {
-      JUSTIFY_LAST(!flag_fun && !flag_id);
-      # print (TYPE-OF object) :
-      pushSTACK(*(stream_ STACKop 1)); funcall(L(type_of),1);
-      prin1(stream_,value1);
-      if (flag_fun || flag_id)
-        JUSTIFY_SPACE;
-    }
-    if (flag_fun) {
-      JUSTIFY_LAST(!flag_id);
-      funcall(*(stream_ STACKop 2),0); # (FUNCALL function)
-    }
-    if (flag_id) {
-      if (flag_fun)
-        JUSTIFY_SPACE;
-      JUSTIFY_LAST(true);
-      pr_hex6(stream_,*(stream_ STACKop 1));
-    }
-    JUSTIFY_END_ENG;
-    UNREADABLE_END;
-    skipSTACK(3);
-    value1 = NIL; mv_count=1;
+    var object arg = popSTACK(); # :identity - Argument
+    if (!(eq(arg,unbound) || nullp(arg)))
+      flag_id = true;
   }
+  {
+    var object arg = popSTACK(); # :type - Argument
+    if (!(eq(arg,unbound) || nullp(arg)))
+      flag_type = true;
+  }
+  if (!nullp(STACK_2))
+    flag_fun = true;
+  test_ostream(); # check Output-Stream
+  CHECK_PRINT_READABLY(STACK_1);
+  var object* stream_ = &STACK_0;
+  UNREADABLE_START;
+  if (flag_type) {
+    JUSTIFY_LAST(!flag_fun && !flag_id);
+    # print (TYPE-OF object) :
+    pushSTACK(*(stream_ STACKop 1)); funcall(L(type_of),1);
+    prin1(stream_,value1);
+    if (flag_fun || flag_id)
+      JUSTIFY_SPACE;
+  }
+  if (flag_fun) {
+    JUSTIFY_LAST(!flag_id);
+    funcall(*(stream_ STACKop 2),0); # (FUNCALL function)
+  }
+  if (flag_id) {
+    if (flag_fun)
+      JUSTIFY_SPACE;
+    JUSTIFY_LAST(true);
+    pr_hex6(stream_,*(stream_ STACKop 1));
+  }
+  JUSTIFY_END_ENG;
+  UNREADABLE_END;
+  skipSTACK(3);
+  value1 = NIL; mv_count=1;
+}
 
-LISPFUN(line_position,0,1,norest,nokey,0,NIL)
 # (SYS::LINE-POSITION [stream]), Auxiliary function for FORMAT ~T,
 # returns the position of an (Output-)Stream in the current line, or NIL.
-  {
-    test_ostream(); # check Output-Stream
-    value1 = get_line_position(popSTACK()); mv_count=1;
-  }
+LISPFUN(line_position,0,1,norest,nokey,0,NIL) {
+  test_ostream(); # check Output-Stream
+  value1 = get_line_position(popSTACK()); mv_count=1;
+}
 
