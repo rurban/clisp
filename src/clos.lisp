@@ -771,6 +771,9 @@
   ;; store new documentation:
   (when documentation (sys::%set-documentation name 'TYPE documentation))
   (let ((class (find-class name nil)))
+    (when (and class (not (eq (class-name class) name)))
+      ;; Ignore the old class if the given name is not its "proper name".
+      (setq class nil))
     (when (and class (not (and (eq metaclass <standard-class>)
                                (eq metaclass (class-of class)))))
       (unless (eq metaclass (class-of class)) ; mixing DEFSTRUCT & DEFCLASS
