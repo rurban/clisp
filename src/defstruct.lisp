@@ -26,8 +26,12 @@
 
    slotlist is a packed description of the slots of a structure:
    slotlist = ({slot}*)
-   slot = #(name initargs offset initer default type readonly var)
-   with name being the slotname
+   slot = #(name initargs offset initer default type readonly)
+   where name is the slotname,
+         initargs is a list containing the initialization argument,
+              or NIL for the pseudo-slot containing the structure name in
+              named structures,
+         offset is the location of the slot in any instance,
          default is the default value:
               either a constant, that evaluates to the default value,
               or a form (a symbol or a list (SVREF ...)), that yields
@@ -37,27 +41,24 @@
          readonly = NIL or = T specifying, if this slot is readonly, i.e.
               after the construction of the Structure the slot cannot be
                changed with (setf ...) anymore.
-         var  is the dummy variable used in constructors, it is NIL when
-              the slot describes structure name for named structures
-              (see also pr_structure_default() in io.d)
-   if type = T, the Structure-Name occupies the slot 0, but is not itemized
+         (See also pr_structure_default() in io.d.)
+   if type = T, the Structure-Name occupies the slot 0, but is not mentioned
      in the slotlist, because there is nothing to do for its initialization.
 |#
 
-(defun make-ds-slot (name initargs offset initer default type readonly
-                     &optional (dummy (make-symbol (symbol-name name))))
-  (vector name initargs offset initer default type readonly dummy))
-(proclaim '(inline ds-slot-name ds-slot-var))
+(defun make-ds-slot (name initargs offset initer default type readonly)
+  (vector name initargs offset initer default type readonly))
+(proclaim '(inline ds-slot-name))
 (defun ds-slot-name (slot) (svref slot 0))
-;(defun ds-slot-initargs (slot) (svref slot 1)) ; only used in clos.lisp
+(proclaim '(inline ds-slot-initargs))
+(defun ds-slot-initargs (slot) (svref slot 1)) ; used in clos.lisp
 (defmacro ds-slot-offset (slot) `(svref ,slot 2))
 (defmacro ds-slot-initer (slot) `(svref ,slot 3)) ; used in clos.lisp
 (defmacro ds-slot-default (slot) `(svref ,slot 4))
 (defmacro ds-slot-type (slot) `(svref ,slot 5))
 (defmacro ds-slot-readonly (slot) `(svref ,slot 6))
-(defun ds-slot-var (slot) (svref slot 7))
 (defun copy-ds-slot (slot) (sys::%copy-simple-vector slot))
-(defmacro ds-real-slot-p (slot) `(ds-slot-var ,slot))
+(defmacro ds-real-slot-p (slot) `(not (null (ds-slot-initargs ,slot))))
 
 #| auxiliary function for both constructors:
    (ds-arg-default arg slot)
@@ -67,17 +68,18 @@
 
 (defun ds-arg-default (arg slot)
   (let ((default (ds-slot-default slot)))
-    ;; default is either constant or function or symbol
-    (if (constantp default)
-        `(,arg ,default)
-        `(,arg (FUNCALL ,default)))))
+    `(,arg
+      ;; default is either constant or function or symbol
+      ,(if (constantp default)
+         default
+         `(FUNCALL ,default)))))
 
 #| auxiliary function for both constructors:
    (ds-make-constructor-body type name names size slotlist get-var)
    returns the expression, that creates and fills a structure
    of given type.
 |#
-(defun ds-make-constructor-body (type name names size slotlist get-var)
+(defun ds-make-constructor-body (type name names size slotlist varlist)
   (if (and (or (eq type 'VECTOR) (eq type 'LIST))
            (do ((slotlistr slotlist (cdr slotlistr))
                 (index 0 (1+ index)))
@@ -85,11 +87,11 @@
              (unless (eq (ds-slot-offset (car slotlistr)) index)
                (return nil))))
     ;; optimize the simple case
-    `(,type ,@(mapcar #'(lambda (slot)
+    `(,type ,@(mapcar #'(lambda (slot var)
                           (if (ds-real-slot-p slot)
-                            `(THE ,(ds-slot-type slot) ,(funcall get-var slot))
+                            `(THE ,(ds-slot-type slot) ,var)
                             `(QUOTE ,(ds-slot-default slot))))
-                       slotlist))
+                       slotlist varlist))
     `(LET ((OBJECT
              ,(cond ((eq type 'T) `(%MAKE-STRUCTURE ,names ,size))
                     ((eq type 'LIST) `(MAKE-LIST ,size))
@@ -97,7 +99,7 @@
                      `(MAKE-ARRAY ,size :ELEMENT-TYPE ',(second type)))
                     (t `(MAKE-ARRAY ,size)))))
        ,@(mapcar
-          #'(lambda (slot &aux (offset (ds-slot-offset slot)))
+          #'(lambda (slot var &aux (offset (ds-slot-offset slot)))
               `(SETF
                 ,(cond ((eq type 'T)
                         `(%STRUCTURE-REF ',name OBJECT ,offset) )
@@ -107,9 +109,9 @@
                         `(SVREF OBJECT ,offset) )
                        (t `(AREF OBJECT ,offset) ))
                 ,(if (ds-real-slot-p slot)
-                   `(THE ,(ds-slot-type slot) ,(funcall get-var slot))
+                   `(THE ,(ds-slot-type slot) ,var)
                    `(QUOTE ,(ds-slot-default slot)))))
-           slotlist)
+           slotlist varlist)
        OBJECT)))
 
 #| auxiliary function for ds-make-boa-constructor:
@@ -205,20 +207,26 @@
                   (nreverse slotinitlist)))))
       `(DEFUN ,constructorname ,new-arglist
          ,(ds-make-constructor-body type name names size slotlist
-                                    #'ds-slot-name)))))
+                                    (mapcar #'ds-slot-name slotlist))))))
 
 #| (ds-make-keyword-constructor descriptor type name names size slotlist)
    returns the form, that defines the keyword-constructor. |#
 (defun ds-make-keyword-constructor (descriptor type name names size slotlist)
-  `(DEFUN ,descriptor
-     (&KEY
-      ,@(mapcan
-          #'(lambda (slot)
-              (if (ds-real-slot-p slot)
-                (list (ds-arg-default (ds-slot-var slot) slot))
-                '()))
-          slotlist))
-     ,(ds-make-constructor-body type name names size slotlist #'ds-slot-var)))
+  (let ((varlist
+          (mapcar #'(lambda (slot)
+                      (if (ds-real-slot-p slot)
+                        (make-symbol (symbol-name (ds-slot-name slot)))
+                        nil))
+                  slotlist)))
+    `(DEFUN ,descriptor
+       (&KEY
+        ,@(mapcan
+            #'(lambda (slot var)
+                (if (ds-real-slot-p slot)
+                  (list (ds-arg-default var slot))
+                  '()))
+            slotlist varlist))
+       ,(ds-make-constructor-body type name names size slotlist varlist))))
 
 #| (ds-make-pred predname type name name-offset)
    returns the form, that creates the type-test-predicate for
@@ -615,13 +623,13 @@
     (unless (eq type-option 'T)
       (when named-option
         (push
-          (make-ds-slot nil ; tag for the type recognition slot
+          ; the type recognition pseudo-slot
+          (make-ds-slot nil
                         '()
                         (setq initial-offset-option initial-offset)
                         (cons 'NIL name) name ; "default value" = name
                         'SYMBOL ; type = symbol
-                        T       ; read-only
-                        NIL)    ; no dummy variable
+                        T)      ; read-only
           slotlist)
         (incf initial-offset)))
     ;; the slots are situated behind initial-offset.
@@ -677,7 +685,8 @@
                                   (cons 'NIL (eval default))
                                   ;; default is a gensym
                                   (cons (add-unquote default) 'NIL))
-                                default type read-only) ; defstruct specific
+                                ;; The following are defstruct specific.
+                                default type read-only)
                   slotlist)))
         (incf offset))
       (setq size offset))
