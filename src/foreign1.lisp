@@ -263,6 +263,18 @@
             (setf (svref c-type 1) (parse-c-type (second typespec)))))
         (t (invalid typespec))))))
 
+;; Primitive types (symbols) can be safely inlined at compile-time.
+;; Handle (parse-c-type 'uint8) as well as
+;; (def-c-type PGconn c-pointer) (parse-c-type 'pgconn)
+(define-compiler-macro parse-c-type (&whole form typespec &optional name)
+  (when (and (not name)
+	     (typep typespec '(CONS (EQL QUOTE) (CONS SYMBOL NULL))))
+    (let* ((typespec (second typespec))
+	   (internal (gethash typespec *c-type-table* 0)))
+      (when (symbolp internal)
+	(return-from parse-c-type `',internal))))
+  form)
+
 (defun parse-options (options keywords whole)
   (let ((alist '()))
     (dolist (option options)
