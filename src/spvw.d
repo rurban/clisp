@@ -3376,6 +3376,88 @@ nonreturning_function(global, quit, (void)) {
 
 #include "spvw_memfile.c"
 
+/* ------------------------ dll loading ----------------------------------- */
+#if defined(DYNAMIC_MODULES) || defined(DYNAMIC_FFI)
+
+/* open the dynamic library
+ libname is the name of the library
+ returns a handle suitable for find_name()
+ calls dlopen() or LoadLibrary() */
+global void * libopen (const char* libname)
+{
+ #if defined(WIN32_NATIVE)
+  return (void*)LoadLibrary(libname);
+ #else
+  /* FIXME: On UNIX_DARWIN, need to search for the library in /usr/lib */
+  return dlopen(libname,RTLD_NOW);
+ #endif
+}
+
+#if defined(WIN32_NATIVE)
+/* #include <psapi.h> */
+/* support older woe32 incarnations:
+   fEnumProcessModules is 1 until the first call,
+   it is NULL if this woe32 does not have EnumProcessModules(),
+   and it points to EnumProcessModules() when it is present */
+typedef BOOL (WINAPI * EnumProcessModules_t)
+  (HANDLE hProcess,HMODULE* lphModule,DWORD cb,LPDWORD lpcbNeeded);
+static EnumProcessModules_t fEnumProcessModules = (EnumProcessModules_t)1;
+#endif
+
+/* find the name in the dynamic library handle
+ calls dlsym() or GetProcAddress()
+ handle is an object returned by libopen()
+        or NULL, which means emulate RTLD_DEFAULT on UNIX_FREEBSD
+        and WIN32_NATIVE by searching through all libraries
+ name is the name of the function (or variable) in the library */
+global void* find_name (void *handle, const char *name)
+{
+  var void *ret = NULL;
+ #if defined(UNIX_FREEBSD) && !defined(RTLD_DEFAULT)
+  /* FreeBSD 4.0 doesn't support RTLD_DEFAULT, so we simulate it by
+     searching the executable and the libc. */
+  if (handle == NULL) {
+    /* Search the executable. */
+    ret = dlsym(NULL,name);
+    if (ret == NULL) {
+      /* Search the libc. */
+      if (libc_handle == NULL)
+        libc_handle = dlopen("libc.so",RTLD_LAZY);
+      if (libc_handle != NULL)
+        ret = dlsym(libc_handle,name);
+    }
+  } else
+    ret = dlsym(handle,name);
+ #elif defined(WIN32_NATIVE)
+  if (handle == NULL) { /* RTLD_DEFAULT -- search all modules */
+    HANDLE cur_proc;
+    HMODULE *modules;
+    DWORD needed, i;
+    if ((EnumProcessModules_t)1 == fEnumProcessModules) {
+      /* first call: try to load EnumProcessModules */
+      HMODULE psapi = LoadLibrary("psapi.dll");
+      if (psapi == NULL) fEnumProcessModules = NULL;
+      else fEnumProcessModules =
+        (EnumProcessModules_t)GetProcAddress(psapi,"EnumProcessModules");
+    }
+    if (NULL != fEnumProcessModules) {
+      cur_proc = GetCurrentProcess();
+      if (!fEnumProcessModules(cur_proc,NULL,0,&needed)) OS_error();
+      modules = (HMODULE*)alloca(needed);
+      if (!fEnumProcessModules(cur_proc,modules,needed,&needed)) OS_error();
+      for (i=0; i < needed/sizeof(HMODULE); i++)
+        if ((ret = (void*)GetProcAddress(modules[i],name)))
+          break;
+    } else ret = NULL;
+  } else ret = (void*)GetProcAddress((HMODULE)handle,name);
+ #else
+  ret = dlsym(handle,name);
+ #endif
+  return ret;
+}
+
+#endif
+
 # -----------------------------------------------------------------------------
 #                       Dynamic Loading of Modules
 
@@ -3387,7 +3469,6 @@ nonreturning_function(local, fehler_dlerror,
                       (const char* func, const char* symbol,
                        const char* errstring)) {
   end_system_call();
-  if (errstring == NULL) { errstring = "Unknown error"; }
   pushSTACK(asciz_to_string(errstring,O(misc_encoding)));
   if (symbol != NULL)
     { pushSTACK(asciz_to_string(symbol,O(internal_encoding))); }
@@ -3395,17 +3476,35 @@ nonreturning_function(local, fehler_dlerror,
   pushSTACK(TheSubr(subr_self)->name);
   fehler(error, (symbol == NULL ? "~S: ~S -> ~S" : "~S: ~S(~S) -> ~S"));
 }
+
+#if !defined(HAVE_DLERROR)
+#define dlerror()  "Unknown error"
+#endif
+
+/* find the symbol, signal an error if not found
+ format: a format string with a single %s, substituted with ...
+ modname: the name of the module
+ libhandle: the dll handle, returned by libopen()
+ returns: non-NULL pointer to the symbol in the library */
+local void* get_module_symbol (const char* format, const char* modname,
+                               void* libhandle) {
+  var char * symbolbuf = alloca(strlen(format)+strlen(modname));
+  sprintf(symbolbuf,format,modname);
+  var void * ret = find_name(libhandle,symbolbuf);
+  if (ret == NULL) fehler_dlerror("dlsym",symbolbuf,dlerror());
+  return ret;
+}
+
 global void dynload_modules (const char * library, uintC modcount,
                              const char * const * modnames) {
   var void* libhandle;
   begin_system_call();
   # Open the library.
-  libhandle = dlopen(library,RTLD_NOW);
+  libhandle = libopen(library);
   if (libhandle == NULL) fehler_dlerror("dlopen",NULL,dlerror());
   end_system_call();
   if (modcount > 0) {
     # What's the longest module name? What's their total size?
-    var uintL max_modname_length = 0;
     var uintL total_modname_length = 0;
     begin_system_call();
     {
@@ -3413,17 +3512,14 @@ global void dynload_modules (const char * library, uintC modcount,
       var uintC count;
       dotimespC(count,modcount,{
         var uintL len = asciz_length(*modnameptr);
-        if (len > max_modname_length) { max_modname_length = len; }
         total_modname_length += len+1;
         modnameptr++;
       });
     }
     { # Make room for the module descriptors.
-      var module_t* modules = (module_t*) malloc(modcount*sizeof(module_t)+total_modname_length);
-      if (modules==NULL) fehler_dlerror("malloc",NULL,"out of memory");
+      var module_t* modules = (module_t*) my_malloc(modcount*sizeof(module_t)+total_modname_length);
       {
         var char* modnamebuf = (char*)(&modules[modcount]);
-        var DYNAMIC_ARRAY(symbolbuf,char,8+max_modname_length+21+1);
         var const char * const * modnameptr = modnames;
         var module_t* module = modules;
         var uintC count;
@@ -3437,66 +3533,18 @@ global void dynload_modules (const char * library, uintC modcount,
             var const char * ptr = modname;
             until ((*modnamebuf++ = *ptr++) == '\0') {}
           }
-          { # Find the addresses of some C data in the shared library:
-            sprintf(symbolbuf,"module__%s__subr_tab",modname);
-            module->stab = (subr_t*) ((char*) dlsym(libhandle,symbolbuf) + varobjects_misaligned);
-            err = dlerror();
-            if (err) fehler_dlerror("dlsym",symbolbuf,err);
-          }
-          {
-            sprintf(symbolbuf,"module__%s__subr_tab_size",modname);
-            module->stab_size = (const uintC*) dlsym(libhandle,symbolbuf);
-            err = dlerror();
-            if (err) fehler_dlerror("dlsym",symbolbuf,err);
-          }
-          {
-            sprintf(symbolbuf,"module__%s__object_tab",modname);
-            module->otab = (gcv_object_t*) dlsym(libhandle,symbolbuf);
-            err = dlerror();
-            if (err) fehler_dlerror("dlsym",symbolbuf,err);
-          }
-          {
-            sprintf(symbolbuf,"module__%s__object_tab_size",modname);
-            module->otab_size = (const uintC*) dlsym(libhandle,symbolbuf);
-            err = dlerror();
-            if (err) fehler_dlerror("dlsym",symbolbuf,err);
-          }
+          /* Find the addresses of some C data in the shared library: */
+          module->stab = (subr_t*) ((char*) get_module_symbol("module__%s__subr_tab",modname,libhandle) + varobjects_misaligned);
+          module->stab_size = (const uintC*) get_module_symbol("module__%s__subr_tab_size",modname,libhandle);
+          module->otab = (gcv_object_t*) get_module_symbol("module__%s__object_tab",modname,libhandle);
+          module->otab_size = (const uintC*) get_module_symbol("module__%s__object_tab_size",modname,libhandle);
           module->initialized = false;
-          {
-            sprintf(symbolbuf,"module__%s__subr_tab_initdata",modname);
-            module->stab_initdata = (const subr_initdata_t*)
-              dlsym(libhandle,symbolbuf);
-            err = dlerror();
-            if (err) fehler_dlerror("dlsym",symbolbuf,err);
-          }
-          {
-            sprintf(symbolbuf,"module__%s__object_tab_initdata",modname);
-            module->otab_initdata = (const object_initdata_t*)
-              dlsym(libhandle,symbolbuf);
-            err = dlerror();
-            if (err) fehler_dlerror("dlsym",symbolbuf,err);
-          }
-          { # Find the addresses of some C functions in the shared library:
-            sprintf(symbolbuf,"module__%s__init_function_1",modname);
-            module->initfunction1 = (void (*) (module_t*))
-              dlsym(libhandle,symbolbuf);
-            err = dlerror();
-            if (err) fehler_dlerror("dlsym",symbolbuf,err);
-          }
-          {
-            sprintf(symbolbuf,"module__%s__init_function_2",modname);
-            module->initfunction2 = (void (*) (module_t*))
-              dlsym(libhandle,symbolbuf);
-            err = dlerror();
-            if (err) fehler_dlerror("dlsym",symbolbuf,err);
-          }
-          {
-            sprintf(symbolbuf,"module__%s__fini_function",modname);
-            module->finifunction = (void (*) (module_t*))
-              dlsym(libhandle,symbolbuf);
-            err = dlerror();
-            if (err) fehler_dlerror("dlsym",symbolbuf,err);
-          }
+          module->stab_initdata = (const subr_initdata_t*) get_module_symbol("module__%s__subr_tab_initdata",modname,libhandle);
+          module->otab_initdata = (const object_initdata_t*) get_module_symbol("module__%s__object_tab_initdata",modname,libhandle);
+          /* Find the addresses of some C functions in the shared library: */
+          module->initfunction1 = (void (*) (module_t*)) get_module_symbol("module__%s__init_function_1",modname,libhandle);
+          module->initfunction2 = (void (*) (module_t*)) get_module_symbol("module__%s__init_function_2",modname,libhandle);
+          module->finifunction = (void (*) (module_t*)) get_module_symbol("module__%s__fini_function",modname,libhandle);
           module->next = NULL;
           modnameptr++; module++;
         });
