@@ -7838,7 +7838,7 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
   } while(0)
 /* the libc alternative turns out to be ~3-5% slower
 #define copy_mem_o(dest,orig,len)                                       \
-    do { begin_system_call(); memcpy(dest,orig,len*sizeof(object));     \
+    do { begin_system_call(); memcpy(dest,orig,(len)*sizeof(object));   \
     end_system_call(); } while(0)
 #define copy_mem_b(dest,orig,len)                       \
     do { begin_system_call(); memcpy(dest,orig,len);    \
