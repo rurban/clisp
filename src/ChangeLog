@@ -1,3 +1,8 @@
+1998-11-05  Sam Steingold  <sds@goems.com>
+
+	* type.lsp (canonicalize-type): handle `SIGNED-BYTE' and
+	  `UNSIGNED-BYTE', thus recognize them as subtypes of `INTEGER'.
+
 1998-11-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Replace STRING-CHAR with CHARACTER.
