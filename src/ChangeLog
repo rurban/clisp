@@ -1,3 +1,7 @@
+2003-03-12  Jörg Höhle  <Joerg-Cyril.Hoehle@t-systems.com>
+
+	* time.d: [TIME_WIN32]: use GetSystemTimeAsFileTime, not ftime()
+
 2003-03-11  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 543072 ]: make-encoding :input-action on bad input (again)
