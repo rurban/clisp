@@ -1986,7 +1986,7 @@
           (progn
             (formatter-stop-linear)
             `((SETQ ,*args* ,(formatter-whole-args n))))))
-      (progn
+      (let ((n `(OR ,n 0)))
         (formatter-stop-linear)
         `((SETQ ,*args* (NTHCDR ,n ,(formatter-whole-args 0))))))
     (if backward-p
@@ -1994,7 +1994,7 @@
       ;; (setq args (nthcdr (max (- (length whole-args) (length args) n) 0) whole-args))
       (if (and (numberp n) *formatter-linear-args*)
         (formatter-goto-arg t nil (- *formatter-linear-position* n))
-        (progn
+        (let ((n (if (numberp n) n `(OR ,n 1))))
           (formatter-stop-linear)
           `((SETQ ,*args* ,(if *formatter-linear-args*
                              `(NTHCDR (MAX (- ,*formatter-linear-position* ,n) 0) ,(formatter-whole-args 0))
@@ -2004,7 +2004,7 @@
       (if (and (numberp n) (<= n 100) *formatter-linear-args*)
         (do ((l '() (cons (formatter-next-arg) l)) (i 0 (1+ i)))
             ((>= i n) (nreverse l)))
-        (progn
+        (let ((n (if (numberp n) n `(OR ,n 1))))
           (formatter-stop-linear)
           `((SETQ ,*args* (NTHCDR ,n ,*args*))))))))
 (defun list-backward (n whole-list list) ; ABI
