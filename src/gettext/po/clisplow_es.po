@@ -225,7 +225,7 @@ msgstr "No fue posible determinar el final de la pila SP!\n"
 #
 msgid ""
 "\n"
-"WARNING: No initialisation file specified.\n"
+"WARNING: No initialization file specified.\n"
 msgstr ""
 "\n"
 "ATENCIÓN: No se ha especificado ningún fichero de inicialización.\n"
@@ -388,19 +388,19 @@ msgstr "Intentando obtener más espacio a través de un GC ...\n"
 #
 #
 #
-msgid "operating system error during load of initialisation file `%s'\n"
+msgid "operating system error during load of initialization file `%s'\n"
 msgstr "error del sistema operativo durante la carga del fichero de inicialización `%s'\n"
 
-msgid "Cannot map the initialisation file into memory."
+msgid "Cannot map the initialization file into memory."
 msgstr "No puedo escribir el fichero de inicialización en memoria."
 
-msgid "operating system error during load of initialisation file\n"
+msgid "operating system error during load of initialization file\n"
 msgstr "error del sistema operativo durante la carga del fichero de inicialización\n"
 
-msgid "initialisation file was not created by this version of LISP\n"
+msgid "initialization file was not created by this version of LISP\n"
 msgstr "el fichero de inicialización no fue creado con esta versión de LISP\n"
 
-msgid "not enough memory for initialisation\n"
+msgid "not enough memory for initialization\n"
 msgstr "no hay memoria suficiente para la inicialización\n"
 
 msgid "Operation not permitted"

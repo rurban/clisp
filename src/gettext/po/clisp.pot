@@ -545,7 +545,7 @@ msgstr ""
 #: spvw.d:2624
 msgid ""
 "\n"
-"WARNING: No initialisation file specified.\n"
+"WARNING: No initialization file specified.\n"
 msgstr ""
 
 #: spvw.d:2628 spvw.d:2643
@@ -717,23 +717,23 @@ msgid "disk full"
 msgstr ""
 
 #: spvw_memfile.d:763
-msgid "operating system error during load of initialisation file `%s'\n"
+msgid "operating system error during load of initialization file `%s'\n"
 msgstr ""
 
 #: spvw_memfile.d:1235
-msgid "Cannot map the initialisation file into memory."
+msgid "Cannot map the initialization file into memory."
 msgstr ""
 
 #: spvw_memfile.d:1514
-msgid "operating system error during load of initialisation file\n"
+msgid "operating system error during load of initialization file\n"
 msgstr ""
 
 #: spvw_memfile.d:1520
-msgid "initialisation file was not created by this version of LISP\n"
+msgid "initialization file was not created by this version of LISP\n"
 msgstr ""
 
 #: spvw_memfile.d:1524
-msgid "not enough memory for initialisation\n"
+msgid "not enough memory for initialization\n"
 msgstr ""
 
 #: eval.d:554
@@ -1949,7 +1949,7 @@ msgid "~: dimensions ~ produce too large total-size"
 msgstr ""
 
 #: array.d:4570
-msgid "~: ambiguous, more than one initialisation specified"
+msgid "~: ambiguous, more than one initialization specified"
 msgstr ""
 
 #: array.d:4582
