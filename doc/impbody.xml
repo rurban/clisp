@@ -2385,7 +2385,7 @@ and the international alphabetic characters from the character set:
 
 <formalpara><title>Function &string-width;</title>
  <para><literal role="sexp">(&string-width; &string-r;
- &key-amp; &start-r; &end-r;)</literal>
+   &key-amp; &start-r; &end-r;)</literal>
   returns the number of screen columns occupied by &string-r;.
   This is computed as the sum of all &char-width;s
   of all of the &string-r;'s characters.</para></formalpara></section>
@@ -4549,26 +4549,22 @@ functions are provided:
     <entry>&symbol-macro; handler</entry></row>
 <!-- #ifdef FOREIGN -->
  <row><entry><literal>#&lt;&foreign-pointer-t; #x...&gt;</literal></entry>
-    <entry>foreign pointer
-      <emphasis>(Platform dependent: &unix;, &win32;, &amiga;
-         platforms only.)</emphasis>
-     </entry></row>
+  <entry>foreign pointer <emphasis>(Platform dependent: &unix;,
+    &win32;, &amiga; platforms only.)</emphasis>
+ </entry></row>
 <!-- #endif -->
 <!-- #ifdef DYNAMIC_FFI -->
  <row><entry><literal>#&lt;&foreign-address-t; #x...&gt;</literal></entry>
-    <entry>foreign address
-     <emphasis>(Platform dependent: &unix;, &win32;, &amiga; platforms only.)</emphasis>
-    </entry></row>
+  <entry>foreign address <emphasis>(Platform dependent: &unix;,
+    &win32;, &amiga; platforms only.)</emphasis></entry></row>
  <row><entry><literal>#&lt;&foreign-variable;
-       &name-r; #x...&gt;</literal></entry>
-    <entry>foreign variable
-     <emphasis>(Platform dependent: &unix;, &win32;, &amiga; platforms only.)</emphasis>
-    </entry></row>
+    &name-r; #x...&gt;</literal></entry>
+  <entry>foreign variable <emphasis>(Platform dependent: &unix;,
+    &win32;, &amiga; platforms only.)</emphasis></entry></row>
  <row><entry><literal>#&lt;&foreign-function;
-       &name-r; #x...&gt;</literal></entry>
-    <entry>foreign function
-     <emphasis>(Platform dependent: &unix;, &win32;, &amiga; platforms only.)</emphasis>
-    </entry></row>
+    &name-r; #x...&gt;</literal></entry>
+  <entry>foreign function <emphasis>(Platform dependent: &unix;,
+    &win32;, &amiga; platforms only.)</emphasis></entry></row>
 <!-- #endif -->
  <row><entry><literal>#&lt;UNBOUND&gt;</literal></entry>
     <entry>"value" of a symbol without value, "value" of an unsupplied
