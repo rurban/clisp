@@ -7687,6 +7687,8 @@ local void pr_weakkvt (const gcv_object_t* stream_, object wkvt) {
   UNREADABLE_START;
   JUSTIFY_LAST(false);
   prin_object(stream_,S(weak_kvtable));
+  JUSTIFY_SPACE; JUSTIFY_LAST(false);
+  prin_object(stream_,TheWeakKVT(*wkvt_)->wkvt_type);
   if (!nullpSv(print_array)) {
     pr_kvtable(stream_,wkvt_,len,len);
   } else {
