@@ -62,7 +62,7 @@ The keyword argument OUT specifies the output for log messages."
            (when out
              (format out "~&;; running [~s~{ ~s~}]..." (car command) args)
              (force-output (if (eq out t) *standard-output* out)))
-           (run-program (car command) :arguments args)
+           (run-program (car command) :arguments args :wait nil)
            (when out
              (format out "done~%")))
           ((format t "~s: no browser specified; please point your browser at

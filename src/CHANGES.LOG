@@ -26,6 +26,8 @@ User visible changes
 * ANSI CL compliance: macro HANDLER-BIND invokes all handlers
   for the condition, not just the first one.
 
+* RUN-SHELL-COMMAND and RUN-PROGRAM now accept a :WAIT argument.
+
 2.25.1 (2001-04-06)
 ===================
 
