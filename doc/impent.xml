@@ -614,7 +614,7 @@
 <!ENTITY y-r "<replaceable>y</replaceable>">
 
 <!-- *** quickstart *** -->
-<!ENTITY args "<link linkend='script-exec'><varname>EXT:*ARGS*</varname></link>">
+<!ENTITY args "<olink targetdoc='impnotes' targetptr='script-exec'><varname>EXT:*ARGS*</varname></olink>">
 <!ENTITY clisp-cmd "<command>clisp</command>">
 <!ENTITY interp-args "<replaceable>interpreter-arguments</replaceable>">
 <!ENTITY interp-r "<replaceable>interpreter</replaceable>">
