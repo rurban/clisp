@@ -2386,8 +2386,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
       var uintC count;
       /* the special-references first: */
       dotimesC(count,spec_count, {
-        /* binding with "value" specdecl: */
-        pushSTACK(specdecl);
+        pushSTACK(specdecl); /* preliminary "binding value" */
         pushSTACK_symbolwithflags(*varptr++,wbit(active_bit_o)); /* make a note of binding as being active */
       });
       frame_pointer = args_end_pointer;
