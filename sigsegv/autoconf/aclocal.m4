@@ -312,7 +312,7 @@ changequote(,)dnl
   c1 | c2 | c32 | c34 | c38 | c4 )
     host_cpu=convex
     ;;
-  arm*)
+  arm* )
     host_cpu=arm
     ;;
 changequote([,])dnl
@@ -1996,7 +1996,7 @@ AC_MSG_RESULT($objdir)
 
 ## FIXME: this should be a separate macro
 ##
-AC_ARG_WITH(pic,
+AC_ARG_WITH(pic, 
 [  --with-pic              try to use only PIC/non-PIC objects [default=use both]],
 pic_mode="$withval", pic_mode=default)
 test -z "$pic_mode" && pic_mode=default
