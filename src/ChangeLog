@@ -1,5 +1,10 @@
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
+	* .gdbinit (ansi_tests): Remove unneeded *disassemble-use-live-process*
+	setting.
+
+2005-01-23  Bruno Haible  <bruno@clisp.org>
+
 	* compiler.lisp (process-declarations): Add syntax check for most other
 	declaration types.
 
