@@ -823,13 +823,15 @@ global object stringof (uintL len) {
     if (len < 0x10000) {
       var uintBWL flavour = smallest_string_flavour(&TheSnstring(new_string)->data[0],len);
       if (flavour == Sstringtype_8Bit) {
+        pushSTACK(new_string);
         var object copied_string = allocate_s8string(len);
-        copy_32bit_8bit(&TheS32string(new_string)->data[0],
+        copy_32bit_8bit(&TheS32string(popSTACK())->data[0],
                         &TheS8string(copied_string)->data[0],len);
         new_string = copied_string;
       } else if (flavour == Sstringtype_16Bit) {
+        pushSTACK(new_string);
         var object copied_string = allocate_s16string(len);
-        copy_32bit_16bit(&TheS32string(new_string)->data[0],
+        copy_32bit_16bit(&TheS32string(popSTACK())->data[0],
                          &TheS16string(copied_string)->data[0],len);
         new_string = copied_string;
       }
