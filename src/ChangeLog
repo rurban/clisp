@@ -1,5 +1,11 @@
 2004-05-11  Bruno Haible  <bruno@clisp.org>
 
+	* lfloat.d (LF_shorten_LF, LF_LF_plus_LF, LF_square_LF, LF_LF_mal_LF,
+	LF_LF_durch_LF, I_to_LF): Cast LF_exp_high+1 down to 32 bits.
+	Needed for 64-bit platforms.
+
+2004-05-11  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (bit_test): Make it work on SPARC64.
 	* genclisph.d (main): Update accordingly.
 
