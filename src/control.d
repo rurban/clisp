@@ -229,7 +229,7 @@ LISPSPECFORM(setq, 0,0,body)
         pushSTACK(symbol); /* save symbol */
         eval(Car(body)); /* evaluate next form */
         symbol = popSTACK();
-        setq(symbol,value1); /* execute assignment */
+        value1 = setq(symbol,value1); /* execute assignment */
         body = popSTACK();
       } while (consp(body));
       /* value1 is the last evaluation result. */
