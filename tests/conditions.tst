@@ -111,20 +111,20 @@ CHECK-SUPERCLASSES
 ;;;
 ;;; Defining conditions.
 ;;;
-(progn (define-condition test () ()) t)
-T
+(define-condition test () ())
+TEST
 
 (check-superclasses 'test '())
 (nil nil)
 
-(progn (define-condition test2 (test) ()) t)
-T
+(define-condition test2 (test) ())
+TEST2
 
 (check-superclasses 'test2 '(test))
 (nil nil)
 
-(progn (define-condition test3 (test2 simple-condition) ()) t)
-T
+(define-condition test3 (test2 simple-condition) ())
+TEST3
 
 (check-superclasses 'test3 '(test2 test simple-condition))
 (nil nil)
@@ -141,18 +141,17 @@ NIL
 ;;;
 ;;; :REPORT option to DEFINE-CONDITION
 ;;;
-(progn (define-condition test4 (test3)
-         ()
-         (:report (lambda (condition stream)
-                    (format stream "Yow! -- ~S" (type-of condition)))))
-       t)
-T
+(define-condition test4 (test3)
+  ()
+  (:report (lambda (condition stream)
+             (format stream "Yow! -- ~S" (type-of condition)))))
+TEST4
 
 (with-output-to-string (s) (princ (make-condition 'test4) s))
 "Yow! -- TEST4"
 
-(progn (define-condition test5 (test4) ()) t)
-T
+(define-condition test5 (test4) ())
+TEST5
 
 (with-output-to-string (s) (princ (make-condition 'test5) s))
 "Yow! -- TEST5"
@@ -166,14 +165,13 @@ T
 ;;;
 ;;; Condition slots.
 ;;;
-(progn (define-condition test6 (test4)
-         ((foo :initarg :foo :initform 23 :accessor test6-foo))
-         (:report (lambda (condition stream)
-                    (format stream "~S -- ~S"
-                            (type-of condition)
-                            (test6-foo condition)))))
-       t)
-T
+(define-condition test6 (test4)
+  ((foo :initarg :foo :initform 23 :accessor test6-foo))
+  (:report (lambda (condition stream)
+             (format stream "~S -- ~S"
+                     (type-of condition)
+                     (test6-foo condition)))))
+TEST6
 
 (test6-foo (make-condition 'test6))
 23
