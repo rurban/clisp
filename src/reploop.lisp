@@ -472,6 +472,7 @@ Continue       :c       switch off single step mode, continue evaluation
   (force-output *debug-io*)
 
   (tagbody
+    (makunbound '*terminal-read-stream*)
     (clear-input *debug-io*) ; because the user did not expect a break loop
     (let* ((*break-count* (1+ *break-count*))
            (stream (make-synonym-stream '*debug-io*))

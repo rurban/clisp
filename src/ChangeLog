@@ -1,3 +1,12 @@
+2003-01-21  Sam Steingold  <sds@gnu.org>
+
+	permit multiple forms in one line of interactive input
+	* reploop.lisp (break-loop): makunbound *TERMINAL-READ-STREAM*
+	when clearing *DEBUG-IO*
+	* debug.d (break_driver): ditto
+	(read_form): do not discard unprocessed input after the first form
+	in the first line (in *TERMINAL-READ-STREAM*)
+
 2003-01-21  Mirian Crzig Lennox  <mirian@cosmic.com>
 
 	* backquote.lisp, defmacro.lisp: translated all comments
