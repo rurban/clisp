@@ -1,3 +1,8 @@
+2004-02-12  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (input_stream_p, output_stream_p): for
+	SYNONYM-STREAMs, return the value for the underlying stream
+
 2004-02-11  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in: fixed cygwin package creation
