@@ -1,35 +1,41 @@
 2001-01-02  Bruno Haible  <haible@clisp.cons.org>
 
-        * lispbibl.d (HAS_HOST): Set to 1 for PATHNAME_WIN32.
-        * pathname.d (legal_hostchar): Add a definition for PATHNAME_WIN32.
-          (PARSE-NAMESTRING): For PATHNAME_WIN32, parse hosts in \\hostname
-          syntax.
-          (host_namestring_parts): For PATHNAME_WIN32, use \\hostname syntax.
-          (USER-HOMEDIR-PATHNAME): Add dummy definition for PATHNAME_WIN32.
+	* lispbibl.d (HAS_HOST): Set to 1 for PATHNAME_WIN32.
+	* pathname.d (legal_hostchar): Add a definition for PATHNAME_WIN32.
+	(PARSE-NAMESTRING): For PATHNAME_WIN32, parse hosts in \\hostname
+	  syntax.
+	(host_namestring_parts): For PATHNAME_WIN32, use \\hostname syntax.
+	(USER-HOMEDIR-PATHNAME): Add dummy definition for PATHNAME_WIN32.
+
+2001-01-03  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (assure_dir_exists, change_default):
+	Use `directory_namestring' instead of
+	`directory_namestring_parts'+`string_concat'.
 
 2000-12-28  Bruno Haible  <haible@clisp.cons.org>
 
-        * makemake.in: encoding.o depends on libcharset.h.
-          (libcharset.h): New rule.
-        * encoding.d: Include libcharset.h.
-          (encoding_from_name): Argument is now canonicalized like
-          locale_charset(), not like X11.
-          (init_dependent_encodings): Call locale_charset().
-        * spvw_ctype.d (locale_charset): Remove variable.
-          (init_ctype): Remove initialization of locale_charset.
-        * constsym.d: Add JOHAB and AIX specific encoding.
+	* makemake.in: encoding.o depends on libcharset.h.
+	(libcharset.h): New rule.
+	* encoding.d: Include libcharset.h.
+	(encoding_from_name): Argument is now canonicalized like
+	  locale_charset(), not like X11.
+	(init_dependent_encodings): Call locale_charset().
+	* spvw_ctype.d (locale_charset): Remove variable.
+	(init_ctype): Remove initialization of locale_charset.
+	* constsym.d: Add JOHAB and AIX specific encoding.
 
 2000-12-29  Bruno Haible  <haible@clisp.cons.org>
 
-        * utils/gen-uninames: New file.
-        * Makefile.devel (all): Depend on src/uninames.c.
-          (src/uninames.c): New rule.
-        * makemake.in (UNICODE_INCLUDES): Add uninames.
-        * charstrg.d: Include uninames.c.
-          (unicode_name_word, unicode_name_word_lookup): New functions.
-          (jamo_initial_short_name, jamo_medial_short_name,
-           jamo_final_short_name): New tables.
-          (char_name, name_char): Add support for Unicode character names.
+	* utils/gen-uninames: New file.
+	* Makefile.devel (all): Depend on src/uninames.c.
+	(src/uninames.c): New rule.
+	* makemake.in (UNICODE_INCLUDES): Add uninames.
+	* charstrg.d: Include uninames.c.
+	(unicode_name_word, unicode_name_word_lookup): New functions.
+	(jamo_initial_short_name, jamo_medial_short_name,
+	 jamo_final_short_name): New tables.
+	(char_name, name_char): Add support for Unicode character names.
 
 2000-12-21  Sam Steingold  <sds@gnu.org>
 
