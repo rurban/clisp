@@ -1,5 +1,14 @@
 2003-05-14  Sam Steingold  <sds@gnu.org>
 
+	stdio handles are now duped before being inserted into LISP
+	streams, so they are never closed on user request
+	* stream.d (handle_to_stream): new function
+	(make_standard_input, make_standard_output): new macro
+	(make_terminal_io, init_standard_io): use them
+	(init_streamvars): use handle_to_stream()
+
+2003-05-14  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (handle_dup): new global function
 	(LAUNCH, DUPLICATE-HANDLE): use it
 	* lispbibl.d (handle_dup1): new macro
