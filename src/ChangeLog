@@ -1,5 +1,11 @@
 2002-12-11  Sam Steingold  <sds@gnu.org>
 
+	* debug.d (break_driver): restore back_trace before
+	unwind()/reset() when the error is not continuable;
+	use const and p_backtrace_t as appropriate
+
+2002-12-11  Sam Steingold  <sds@gnu.org>
+
 	DRIBBLE now works by redefining *TERMINAL-IO* instead of a host
 	of i/o variables; new type DRIBBLE-STREAM
 	* dribble.lisp: full rewrite
