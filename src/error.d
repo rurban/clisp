@@ -895,12 +895,59 @@ nonreturning_function(global, fehler_streamtype, (object obj, object type)) {
 }
 
 /* Report an error when the argument is not an encoding:
- > obj: the bad argument */
-nonreturning_function(global, fehler_encoding, (object obj)) {
-  pushSTACK(obj); /* TYPE-ERROR slot DATUM */
-  pushSTACK(S(encoding)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: argument ~ is not a character set"));
+ > obj: the (possibly) bad argument
+ > default: what to return for :DEFAULT
+ > keyword_p: true if the object comes from the :EXTERNAL-FORMAT argument
+ < encoding
+ can trigger GC */
+global object check_encoding (object arg, const gcv_object_t *e_default,
+                              bool keyword_p) {
+ restart:
+  if (!boundp(arg) || eq(arg,S(Kdefault)))
+    return *e_default;
+  if (encodingp(arg))
+    return arg;
+ #ifdef UNICODE
+  if (symbolp(arg) && constantp(TheSymbol(arg))
+      && encodingp(Symbol_value(arg)))
+    return Symbol_value(arg);
+  #ifdef HAVE_GOOD_ICONV
+  if (stringp(arg)) {   /* (make-encoding :charset arg) */
+    pushSTACK(arg);     /* :charset */
+    pushSTACK(unbound); /* :line-terminator */
+    pushSTACK(unbound); /* :input-error-action */
+    pushSTACK(unbound); /* :output-error-action */
+    pushSTACK(unbound); /* :if-does-not-exist */
+    C_make_encoding();
+    return value1;
+  }
+  #endif
+ #else
+  /* This is a hack to get away without an error. */
+  if (symbolp(arg) && eq(Symbol_package(arg),O(charset_package)))
+    return O(default_file_encoding);
+ #endif
+  if (eq(arg,S(Kunix)) || eq(arg,S(Kmac)) || eq(arg,S(Kdos))) {
+    /* (make-encoding :charset default-file-encoding :line-terminator arg) */
+    pushSTACK(*e_default); /* :charset */
+    pushSTACK(arg);        /* :line-terminator */
+    pushSTACK(unbound);    /* :input-error-action */
+    pushSTACK(unbound);    /* :output-error-action */
+    pushSTACK(unbound);    /* :if-does-not-exist */
+    C_make_encoding();
+    return value1;
+  }
+  pushSTACK(NIL); /* PLACE */
+  pushSTACK(arg);                     /* TYPE-ERROR slot DATUM */
+  pushSTACK(O(type_external_format)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(arg);
+  if (keyword_p) pushSTACK(S(Kexternal_format));
+  pushSTACK(TheSubr(subr_self)->name);
+  check_value(type_error,
+              keyword_p ? GETTEXT("~: illegal ~ argument ~")
+              : GETTEXT("~: argument ~ is not a character set"));
+  arg = value1;
+  goto restart;
 }
 
 /* error-message, if an argument is not a Function:
