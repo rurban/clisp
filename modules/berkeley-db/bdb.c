@@ -1,6 +1,6 @@
 /*
  * CLISP: Berkeley-DB <http://www.sleepycat.com/docs/api_c/>
- * Copyright (C) 2003-2004 by Sam Steingold
+ * Copyright (C) 2003-2005 by Sam Steingold
  */
 
 /* have to undefing UNICODE _here_ because clisp.h will #include <windows.h> */

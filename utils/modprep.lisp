@@ -1,7 +1,7 @@
 ;;; MODPREP - CLISP module preprocessor
 ;;;
 ;;; Copyright (C) 1998 Bruno Haible (20.9.1998, 10.-11.10.1998) [C]
-;;; Copyright (C) 2003 by Sam Steingold [lisp]
+;;; Copyright (C) 2003-2005 by Sam Steingold [lisp]
 ;;; This is Free Software, covered by the GNU GPL (v2)
 ;;; See http://www.gnu.org/copyleft/gpl.html
 #| This preprocessor generates all necessary tables for a CLISP module.

@@ -1,6 +1,6 @@
 /*
  * CLISP: directory key: win32 registry, LDAP, Gnome-config
- * Copyright (C) 2000-2003 by Sam Steingold
+ * Copyright (C) 2000-2005 by Sam Steingold
  */
 
 /* have to undefing UNICODE _here_ because clisp.h will #include <windows.h> */

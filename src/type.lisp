@@ -1,6 +1,7 @@
 ;;;; TYPEP und Verwandtes
 ;;;; Michael Stoll, 21. 10. 1988
 ;;;; Bruno Haible, 10.6.1989
+;;;; Sam Steingold 2000-2005
 
 ;;; Datenstrukturen für TYPEP:
 ;;; - Ein Type-Specifier-Symbol hat auf seiner Propertyliste unter dem

@@ -1,5 +1,5 @@
 ;; Foreign functions provided by the win32 system libraries
-;; Sam Steingold 2003
+;; Sam Steingold 2003-2005
 
 (defpackage "WIN32"
   (:nicknames "WOE32" "W32")

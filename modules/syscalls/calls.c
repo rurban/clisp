@@ -1,6 +1,6 @@
 /*
  * system calls
- * Copyright (C) 2003-2004 Sam Steingold
+ * Copyright (C) 2003-2005 Sam Steingold
  * Copyright (C) 2005 Bruno Haible
  * Copyright (C) 2005 Arseny Slobodyuk
  * GPL2

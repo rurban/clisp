@@ -1,6 +1,6 @@
 ;;; Parsing ordinary lambda lists
 ;;; Bruno Haible 1988-2004
-;;; Sam Steingold 1999-2001
+;;; Sam Steingold 1999-2005
 
 (in-package "SYSTEM")
 

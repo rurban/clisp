@@ -1,9 +1,11 @@
-# Streams for CLISP
-# Bruno Haible 1990-2005
-# Sam Steingold 1998-2004
-# Generic Streams: Marcus Daniels 8.4.1994
-# SCREEN package for Win32: Arseny Slobodjuck 2001-02-14
-# German comments translated into English: Stefan Kain 2001-11-02
+/*
+ * Streams for CLISP
+ * Bruno Haible 1990-2005
+ * Sam Steingold 1998-2005
+ * Generic Streams: Marcus Daniels 8.4.1994
+ * SCREEN package for Win32: Arseny Slobodjuck 2001-02-14
+ * German comments translated into English: Stefan Kain 2001-11-02
+ */
 
 #include "lispbibl.c"
 #include "arilev0.c" # for R_sign
