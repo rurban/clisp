@@ -29,12 +29,14 @@
 
 (defun main (filename destdir)
  (declare (type string filename destdir))
- #+UNICODE (setq *default-file-encoding* charset:iso-8859-1)
+ #+UNICODE (setq *default-file-encoding* charset:utf-8)
  (with-open-file (file filename :direction :input)
   (with-open-file (pot (concatenate 'string destdir "/" filename ".pot")
-                       :direction :output)
+                       :direction :output
+                       #+UNICODE :external-format #+UNICODE charset:iso-8859-1)
     (with-open-file (en (concatenate 'string destdir "/" filename ".en")
-                        :direction :output)
+                        :direction :output
+                        #+UNICODE :external-format #+UNICODE charset:iso-8859-1)
       (let ((all (make-broadcast-stream pot en))
             (lineno 0) ; number of the line (usually = (1- (sys::line-number file)))
             (line nil) (pos nil))
