@@ -130,6 +130,7 @@ fi
 link_dep() {
   echol "$1 : $2";
   echotab "-\$(LN_S) $2 $1";
+  echol
 }
 
 # Handle --help and --version arguments.
@@ -2278,19 +2279,13 @@ echol
 if [ -n "${SRCDIR}" ] ; then
   if [ ${HOS} = unix -o ${HSYS} = win32gcc ] ; then
     for f in $DFILES $ARI_ASMD $SP_ASMD ; do
-      echol "${f}.d : ${SRCDIR}${f}.d"
-      echotab "-\$(LN_S) ${SRCDIR}${f}.d ${f}.d"
-      echol
+      link_dep "${f}.d" "${SRCDIR}${f}.d"
     done
-    for f in $UNICODE_INCLUDES $NLS_INCLUDES ; do
-      echol "${f}.c : ${SRCDIR}${f}.c"
-      echotab "-\$(LN_S) ${SRCDIR}${f}.c ${f}.c"
-      echol
+    for f in $UNICODE_INCLUDES $NLS_INCLUDES w32shell; do
+      link_dep "${f}.c" "${SRCDIR}${f}.c"
     done
     for f in ${UNICODE_EXTRA} version.h modules.h ; do
-      echol "${f} : ${SRCDIR}${f}"
-      echotab "-\$(LN_S) ${SRCDIR}${f} ${f}"
-      echol
+      link_dep "${f}" "${SRCDIR}${f}"
     done
     echol
   fi
@@ -2447,6 +2442,9 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   fi
   if [ $f = foreign ] ; then
     dependsc=$dependsc' avcall.h callback.h'
+  fi
+  if [ $f = pathname -a ${TOS} = win32 ]; then
+    dependsc=$dependsc' w32shell.c'
   fi
   flags=$XCFLAGS
   if [ $f = foreign ] ; then
@@ -2757,9 +2755,7 @@ for f in $LPARTS ; do
     echol
   else
     if [ -n "${SRCDIR}" ] ; then
-      echol "${f}.lisp : ${SRCDIR}${f}.lisp"
-      echotab "-\$(LN_S) ${SRCDIR}${f}.lisp ${f}.lisp"
-      echol
+      link_dep "${f}.lisp" "${SRCDIR}${f}.lisp"
     fi
   fi
 done
@@ -3099,9 +3095,7 @@ done
 
 if [ $TOS = unix ] ; then
   for f in MAGIC.add ; do
-    echol "${f} : ${SRCTOPDIR}unix${NEXT}${f}"
-    echotab "-\$(LN_S) ${SRCTOPDIR}unix${NEXT}${f} ${f}"
-    echol
+    link_dep "${f}" "${SRCTOPDIR}unix${NEXT}${f}"
   done
 fi
 
@@ -3177,9 +3171,19 @@ done
 echol
 
 if [ $CROSS = false ] ; then
-
-  echol "clisp : clisp.c"
-  echotab "builddir=\"${PWDCMD}\"; \$(CC) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"'"\$\$builddir"'\"' -DLOCALEDIR='\"'"\$\$builddir/locale"'\"' clisp.c -o clisp"
+  DRIVER_DEP=''; DRIVER_RES='';
+  if [ $HOS = win32 ]; then
+    DRIVER_RES=' clispres.o';
+    DRIVER_DEP=${DRIVER_RES}' w32shell.c';
+    echol "clispres.o : clisp.rc"
+    echotab "windres -i clisp.rc -o clispres.o"
+    echol
+    echol "clisp.rc :"
+    echotab 'echo "MAINICON ICON \"clisp.ico\"" > clisp.rc'
+    echol
+  fi
+  echol "clisp : clisp.c${DRIVER_DEP}"
+  echotab "builddir=\"${PWDCMD}\"; \$(CC) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"'"\$\$builddir"'\"' -DLOCALEDIR='\"'"\$\$builddir/locale"'\"' clisp.c${DRIVER_RES} ${LIBS} -o clisp"
   echol
   if [ $HOS = unix ] ; then
     echol "install : install-bin install-man install-doc"
@@ -3665,7 +3669,7 @@ if [ $TOS = unix ] ; then
   echotab "-\$(RM) MAGIC.add"
 fi
 echotab "-\$(RMRF) data"
-echotab "-\$(RM) comment5${HEXE} ansidecl${HEXE} varbrace${HEXE} ccpaux${HEXE} deema${HEXE} txt2c${HEXE} ccmp2c${HEXE} modprep${HEXE} clisp${HEXE}"
+echotab "-\$(RM) comment5${HEXE} ansidecl${HEXE} varbrace${HEXE} ccpaux${HEXE} deema${HEXE} txt2c${HEXE} ccmp2c${HEXE} modprep${HEXE} clisp${HEXE} clisp.rc"
 echol
 cat <<!!
 # clean6 lets us go back to "makemake > Makefile".

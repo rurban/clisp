@@ -12411,19 +12411,29 @@ global void symbol_value_check_lock (object caller, object symbol);
 extern void init_packages (void);
 # is used by SPVW
 
-# ##################### PATHBIBL for PATHNAME.D ############################ #
+#if defined(WIN32_NATIVE)
+/*=================== win32 shell (w32shell.c) =====================*/
 
-#ifdef WIN32_NATIVE
-/* UP: ultimate shortcut megaresolver
+/* shell_quote() - surround dangerous strings with double quotes.
+ escape quotes and backslashes.
+ dest should be twice as large as source
+  + 2 (for quotes) + 1 for zero byte + 1 for possible endslash */
+int shell_quote (char * dest, const char * source);
+/* used by PATHNAME and the driver clisp.exe */
+
+/* real_path() - the ultimate shortcut megaresolver
    style inspired by directory_search_scandir
  > namein: filename pointing to file or directory
             wildcards (only asterisk) may appear only as filename
  < nameout: filename with directory and file shortcuts resolved
              on failure holds filename resolved so far
  < result:  true if resolving succeeded */
-extern bool TrueName (LPCSTR namein, LPSTR nameout);
-/* used by SPVW for loadmem() */
+extern BOOL real_path (LPCSTR namein, LPSTR nameout);
+/* used by PATHNAME, SPVW [for loadmem()] and the driver clisp.exe */
+
 #endif
+
+# ##################### PATHBIBL for PATHNAME.D ############################ #
 
 # UP: Gives the directory-namestring in OS-format of a halfway checked
 #     pathname assuming that the directory of the pathname exists.
