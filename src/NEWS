@@ -435,7 +435,7 @@ User visible changes
   + macros FFI:WITH-FOREIGN-STRING, and macro FFI:WITH-C-PLACE,
     see <http://clisp.cons.org/impnotes.html#foreign-stack-string> and
     <http://clisp.cons.org/impnotes.html#with-c-place>.
-  Thanks to Jorg Hohle <hoehle@users.sourceforge.net>.
+  Thanks to Jörg Höhle <hoehle@users.sourceforge.net>.
   + FFI:DEF-CALL-OUT and FFI:DEF-C-VAR now accept a :LIBRARY option which
     allows you to specify the dynamic library which contains the object.
     See <http://clisp.cons.org/impnotes.html#def-call-out> and
@@ -1488,7 +1488,7 @@ Portability
 
 * Added AmigaOS support for the socket functions. It's not perfect, but
   sufficient for writing socket clients.
-  Thanks to Jorg Hohle.
+  Thanks to Jörg Höhle.
 
 * Port to Win32 using msvc5. (Previously only msvc4 was supported.)
 
@@ -1511,7 +1511,7 @@ Other modifications
   temporary linking set.
   Suggested by Gilbert Baumann <unk6@rz.uni-karlsruhe.de>.
 
-* Compiling IFs with no else part now produce better code (Jorg Hohle).
+* Compiling IFs with no else part now produce better code (Jörg Höhle).
 
 * Speed up I/O to *STANDARD-INPUT*, *STANDARD-OUTPUT* and *TERMINAL-IO*:
   If standard input is redirected from a file, the input side of *TERMINAL-IO*
@@ -1621,7 +1621,7 @@ Other modifications
 
 * Reduced the number of conses allocated by calling APPLY on a function with
   both &KEY and &REST.
-  Thanks to Jorg Hohle.
+  Thanks to Jörg Höhle.
 
 * The CLX documentation can now be viewed in ghostview.
   Thanks to Karl M. Hegbloom <karlheg@inetarena.com>.
@@ -1815,7 +1815,7 @@ Portability
 * Support for immutable objects now works on Linux/ELF. It did already work
   on Linux/a.out.
 
-* Updated Amiga support. Thanks to Jorg Hohle <Joerg.Hoehle@gmd.de>.
+* Updated Amiga support. Thanks to Jörg Höhle <Joerg.Hoehle@gmd.de>.
 
 * Updated Acorn support. Thanks to Peter Burwood <clisp@arcangel.dircon.co.uk>.
 
@@ -1848,7 +1848,7 @@ Other modifications
   "#!/usr/local/bin/clisp" in the first line and doing a "chmod a+x".
 
 * The read-eval-print loop now calls FORCE-OUTPUT after outputting the prompt.
-  Thanks to Jorg Hohle <Joerg.Hoehle@gmd.de>.
+  Thanks to Jörg Höhle <Joerg.Hoehle@gmd.de>.
 
 * Support for immutable objects now also works in the WIDE tagging scheme.
 
@@ -1980,7 +1980,7 @@ Other modifications
 * The compiler now recognizes more function calls as inlinable: Cases like
   (FUNCALL (LAMBDA ...) ...), (DECLAIM (INLINE F)) (MAPCAR #'F ...)
   are now compiled as inline function calls. Previously you had to write
-  (FUNCTION (LAMBDA ...)) explicitly. Suggested by Jorg Hohle.
+  (FUNCTION (LAMBDA ...)) explicitly. Suggested by Jörg Höhle.
 
 * "makemake" now supports the --srcdir, --prefix and --exec-prefix options.
 
@@ -2160,7 +2160,7 @@ Portability
 
 * Foreign function interface: Fixed a couple of possible bugs in the low-level
   foreign function call routine for i386/486/586, m680x0, SPARC CPUs.
-  Thanks to Jorg Hohle.
+  Thanks to Jörg Höhle.
 
 * Small fixes for SCO.
 
@@ -2402,7 +2402,7 @@ User visible changes
 * X3J13 vote <132> is implemented: Synonym streams to file streams are
   allowed as pathnames.
 
-* Amiga version: SCREEN package is implemented. Thanks to Jorg Hohle.
+* Amiga version: SCREEN package is implemented. Thanks to Jörg Höhle.
 
 * The debugger emits some more messages to *DEBUG-IO*, not *ERROR-OUTPUT*.
 
@@ -2517,7 +2517,7 @@ Portability
 
 * More Sinix support. Thanks to Manfred Weichel.
 
-* Updated support for AmigaOS. Thanks to Jorg Hohle.
+* Updated support for AmigaOS. Thanks to Jörg Höhle.
 
 * Some modification for the sake of gcc-2.6.
 
@@ -2602,7 +2602,7 @@ Other modifications
 User visible changes
 --------------------
 
-* French support is now complete. Thanks to Jorg Hohle.
+* French support is now complete. Thanks to Jörg Höhle.
 
 * The user interface language (english, german or french) can now be chosen
   at startup time through a command line option. The constant *LANGUAGE* has
@@ -2716,7 +2716,7 @@ Other modifications
 * Speedup SUBLIS and NSUBLIS.
 
 * Let all known versions of gcc2 emit dbra instructions for loops.
-  Thanks to Jorg Hohle.
+  Thanks to Jörg Höhle.
 
 * Renamed condition.lsp to conditio.lsp.
 
