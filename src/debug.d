@@ -209,7 +209,7 @@ local Values read_form(void)
          && (pushSTACK(T), pushSTACK(Car(strm_list)),
              pushSTACK(NIL), pushSTACK(eof_value),
              funcall(L(peek_char),4), !eq(value1,eof_value)))
-        ? STACK_0 : unbound;
+        ? STACK_0 : (gcv_object_t)unbound;
       skipSTACK(1); /* drop old_trs */
     }
    #endif
