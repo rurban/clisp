@@ -789,8 +789,8 @@ local uintC generation;
             gen0_start += physpagesize;
             physpage++;
           } while (gen0_start < gen0_end);
-          FREE_DYNAMIC_ARRAY(cache_buffer);
         }
+        FREE_DYNAMIC_ARRAY(cache_buffer);
       }
     }
 
