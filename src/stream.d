@@ -3567,13 +3567,19 @@ local bool regular_handle_p (Handle handle) {
 # > handle1: Handle of the first open device
 # > handle2: Handle of the second open device
 # < result: true if handle1 and handle2 are exchangeable
+#define SAME_HANDLE_P_OUT(x)  do { /*printf x; fflush(stdout);*/ } while(0)
 local bool same_handle_p (Handle handle1, Handle handle2) {
  #if defined(UNIX)
   var struct stat statbuf1;
   var struct stat statbuf2;
   begin_system_call();
+  SAME_HANDLE_P_OUT(("\nsame_handle_p(%d,%d)\n",handle1,handle2));
   if (!( fstat(handle1,&statbuf1) ==0)) { OS_error(); }
   if (!( fstat(handle2,&statbuf2) ==0)) { OS_error(); }
+  SAME_HANDLE_P_OUT(("dev: 0x%lx 0x%lx  ino: 0x%lx 0x%lx  mode: 0x%x 0x%x\n",
+                     statbuf1.st_dev,statbuf2.st_dev,
+                     statbuf1.st_ino,statbuf2.st_ino,
+                     statbuf1.st_mode,statbuf2.st_mode));
   if (statbuf1.st_dev == statbuf2.st_dev
       && statbuf1.st_ino == statbuf2.st_ino) {
     /* handle1 and handle2 point to the same inode. */
@@ -3582,8 +3588,10 @@ local bool same_handle_p (Handle handle1, Handle handle2) {
       /* handle1 and handle2 are exchangeable only if they are positioned
          at the same file position. */
       var off_t pos1 = lseek(handle1,0,SEEK_CUR);
+      SAME_HANDLE_P_OUT(("pos1: %ld\n",pos1));
       if (pos1 >= 0) {
         var off_t pos2 = lseek(handle2,0,SEEK_CUR);
+        SAME_HANDLE_P_OUT(("pos2: %ld\n",pos2));
         if (pos2 >= 0) {
           end_system_call();
           return (pos1 == pos2);
@@ -3599,6 +3607,7 @@ local bool same_handle_p (Handle handle1, Handle handle2) {
  #endif
  #if defined(WIN32_NATIVE)
   /* Same handle? */
+  SAME_HANDLE_P_OUT(("\nsame_handle_p(0x%lx,0x%lx)\n",handle1,handle2));
   if (handle1 == handle2)
     return true;
   /* Same handle type? */
@@ -3607,6 +3616,7 @@ local bool same_handle_p (Handle handle1, Handle handle2) {
   var DWORD filetype2;
   filetype1 = GetFileType(handle1);
   filetype2 = GetFileType(handle2);
+  SAME_HANDLE_P_OUT(("GetFileType: 0x%lx  0x%lx\n",filetype1,filetype2));
   if (filetype1 == filetype2) {
     if (filetype1 == FILE_TYPE_DISK) {
       /* handle1 and handle2 are both files. */
@@ -3614,6 +3624,16 @@ local bool same_handle_p (Handle handle1, Handle handle2) {
       var BY_HANDLE_FILE_INFORMATION fileinfo2;
       if (!GetFileInformationByHandle(handle1,&fileinfo1)) { OS_error(); }
       if (!GetFileInformationByHandle(handle2,&fileinfo2)) { OS_error(); }
+      SAME_HANDLE_P_OUT(("GetFileInformationByHandle:\n vol: 0x%lx  0x%lx\n"
+                         " index: 0x%x,0x%x  0x%x,0x%x\n attr: 0x%lx  0x%lx\n"
+                         " size: 0x%x,0x%x  0x%x,0x%x\n",
+                         fileinfo1.dwVolumeSerialNumber,
+                         fileinfo2.dwVolumeSerialNumber,
+                         fileinfo1.nFileIndexHigh,fileinfo1.nFileIndexLow,
+                         fileinfo2.nFileIndexHigh,fileinfo2.nFileIndexLow,
+                         fileinfo1.dwFileAttributes,fileinfo2.dwFileAttributes,
+                         fileinfo1.nFileSizeHigh,fileinfo1.nFileSizeLow,
+                         fileinfo2.nFileSizeHigh,fileinfo2.nFileSizeLow));
       end_system_call();
       #define TIME_EQ(ft1,ft2)  \
         ((ft1).dwLowDateTime == (ft2).dwLowDateTime \
@@ -3634,18 +3654,24 @@ local bool same_handle_p (Handle handle1, Handle handle2) {
     } else if (filetype1 == FILE_TYPE_CHAR) {
       /* Same console? */
       var DWORD console_mode;
-      if (GetConsoleMode(handle1,&console_mode)
-          && GetConsoleMode(handle2,&console_mode)) {
-        end_system_call();
-        return true;
+      SAME_HANDLE_P_OUT(("FILE_TYPE_CHAR\n"));
+      if (GetConsoleMode(handle1,&console_mode)) {
+        SAME_HANDLE_P_OUT(("console_mode1: 0x%lx\n",console_mode));
+        if (GetConsoleMode(handle2,&console_mode)) {
+          SAME_HANDLE_P_OUT(("console_mode2: 0x%lx\n",console_mode));
+          end_system_call();
+          return true;
+        }
       }
-    }
+    } else
+      SAME_HANDLE_P_OUT(("neither FILE_TYPE_CHAR nor FILE_TYPE_DISK\n"));
     /* Cannot determine equality. Assume they are different. */
   }
   end_system_call();
   return false;
  #endif
 }
+#undef SAME_HANDLE_P_OUT
 
 
 # Channel-Streams
