@@ -115,10 +115,6 @@
   ;; subclasses.
   USER-CLASS-DISJOINTNESS-2 TAC-3.16
 
-  ;; Paul Dietz assumes that HOST-NAMESTRING's first value is always a string.
-  ;; In CLISP, on Unix, HOST-NAMESTRING always returns NIL.
-  HOST-NAMESTRING.1 HOST-NAMESTRING.2
-
   ;; Paul Dietz assumes that (PARSE-NAMESTRING "") returns a pathname with
   ;; directory NIL.
   ;; In CLISP the resulting directory is (:RELATIVE).
