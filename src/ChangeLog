@@ -1,5 +1,15 @@
 2002-04-01  Sam Steingold  <sds@gnu.org>
 
+	Rework the 2002-03-30 patch: use SOCKET-STREAM-SHUTDOWN instead
+	of CLOSE :DIRECTION
+	* gray.lisp, subrkw.d: reverted CLOSE
+	* subr.d, constsym.d: added SOCKET-STREAM-SHUTDOWN
+	* stream.d (SOCKET-STREAM-SHUTDOWN): implemented
+	(builtin_stream_close_partial): removed
+	(built_in_stream_close): reverted
+
+2002-04-01  Sam Steingold  <sds@gnu.org>
+
 	uncouple OPEN-STREAM-P from INPUT-STREAM-P/OUTPUT-STREAM-P
 	* lispbibl.d (strmflags_open_bit_B): new bit (0)
 	(strmflags_open_B): use it, not the top 4 bits

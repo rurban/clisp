@@ -972,6 +972,9 @@ LISPFUNN(socket_stream_port,1)
 LISPFUNN(socket_stream_host,1)
 LISPFUN(socket_stream_peer,1,1,norest,nokey,0,NIL)
 LISPFUN(socket_stream_local,1,1,norest,nokey,0,NIL)
+#ifdef HAVE_SHUTDOWN
+LISPFUNN(socket_stream_shutdown,2)
+#endif
 #ifndef WIN32_NATIVE
 LISPFUNN(socket_stream_handle,1)
 #endif
@@ -985,7 +988,7 @@ LISPFUNN(built_in_stream_set_element_type,2)
 LISPFUNN(stream_external_format,1)
 LISPFUN(set_stream_external_format,2,1,norest,nokey,0,NIL)
 LISPFUNN(interactive_stream_p,1)
-LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(direction)) )
+LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(close)) )
 LISPFUN(read_byte,1,2,norest,nokey,0,NIL)
 LISPFUNN(read_byte_lookahead,1)
 LISPFUNN(read_byte_will_hang_p,1)
