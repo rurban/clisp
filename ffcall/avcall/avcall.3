@@ -1,4 +1,4 @@
-.TH AVCALL 3 "25 October 1997"
+.TH AVCALL 3 "14 January 2001"
 .SH NAME
 avcall \- build a C argument list incrementally and call a C function on it.
 .SH SYNOPSIS
@@ -194,6 +194,14 @@ and
 work only if the C compiler has a working
 .B long long
 64-bit integer type.
+
+(4) The struct types used in
+.B av_start_struct(\|)
+and
+.B av_struct(\|)
+must only contain (signed or unsigned) int, long, long long or pointer fields.
+Struct types containing (signed or unsigned) char, short, float, double or
+other structs are not supported.
 
 .SH SEE ALSO
 .BR stdarg (3),
