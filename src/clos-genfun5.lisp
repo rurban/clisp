@@ -140,6 +140,16 @@
   (:method ((gf standard-generic-function))
     (check-generic-function-initialized gf)
     (funcallable-name gf)))
+;; MOP p. 92
+(defgeneric (setf generic-function-name) (new-value generic-function)
+  (:method (new-value (gf standard-generic-function))
+    (unless (sys::function-name-p new-value)
+      (error-of-type 'type-error
+        :datum new-value :expected-type '(or symbol (cons (eql setf) (cons symbol null)))
+        (TEXT "~S: The name of a generic function must be a function name, not ~S")
+        '(setf generic-function-name) new-value))
+    (reinitialize-instance gf :name new-value)
+    new-value))
 
 ;; MOP p. 80
 (defgeneric generic-function-methods (generic-function)
