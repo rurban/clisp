@@ -152,7 +152,7 @@
 ;; (textdomaindir domain) returns the message catalog directory
 ;; for the given domain.
 
-(defsetf textdomain set-textdomain)
-(defsetf textdomaindir set-textdomaindir)
+(defsetf textdomain i18n::set-textdomain)
+(defsetf textdomaindir i18n::set-textdomaindir)
 
 ;; ----------------------------------------------------------------------------
