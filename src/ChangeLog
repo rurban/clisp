@@ -1,3 +1,10 @@
+2003-08-02  Wolfgang Jenkner <wjenkner@inode.at>
+	    Sam Steingold  <sds@gnu.org>
+
+	* condition.lisp (assert): fixed bug a whereby two adjacent
+	ASSERTs would redefine ASSERT-RESTART-PROMPT and thus use the
+	same closure when in fact they are prompting for different places
+
 2003-08-02  Sam Steingold  <sds@gnu.org>
 
 	use system-wide regex implementation when it is available
