@@ -20,18 +20,14 @@ msgstr "Ne peux pas rendre la valeur d'un symbole dépendant du thread."
 
 #: spvw.d:487
 msgid ""
-"\n"
 "*** - Program stack overflow. RESET"
 msgstr ""
-"\n"
 "*** - Débordement de pile de programme : RAZ"
 
 #: spvw.d:498
 msgid ""
-"\n"
 "*** - Lisp stack overflow. RESET"
 msgstr ""
-"\n"
 "*** - Débordement de pile Lisp : RAZ"
 
 #: spvw.d:617
@@ -218,12 +214,12 @@ msgid "Default action is an interactive read-eval-print loop.\n"
 msgstr ""
 
 #: spvw.d:1874
-msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB\n"
-msgstr "syntaxe pour %s: nnnnnnn ou nnnnKB ou nMB\n"
+msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB"
+msgstr "syntaxe pour %s: nnnnnnn ou nnnnKB ou nMB"
 
 #: spvw.d:1878
-msgid "%s out of range\n"
-msgstr "%s n'est pas entre les bornes\n"
+msgid "%s out of range"
+msgstr "%s n'est pas entre les bornes"
 
 #: spvw.d:1891
 msgid "memory size"
@@ -234,28 +230,26 @@ msgid "stack size"
 msgstr "taille de pile"
 
 #: spvw.d:2028
-msgid "CLISP: -a is deprecated, use -ansi\n"
+msgid "CLISP: -a is deprecated, use -ansi"
 msgstr ""
 
 #: spvw.d:2274
-msgid "Return value of malloc() = %x is not compatible with type code distribution.\n"
-msgstr "La valeur de malloc() = %x n'est pas compatible avec le codage des types.\n"
+msgid "Return value of malloc() = %x is not compatible with type code distribution."
+msgstr "La valeur de malloc() = %x n'est pas compatible avec le codage des types."
 
 #: spvw.d:2280
-msgid "Only %d bytes available.\n"
-msgstr "Seuls %d octets libres.\n"
+msgid "Only %d bytes available."
+msgstr "Seuls %d octets libres."
 
 #: spvw.d:2523
-msgid "Could not determine the end of the SP stack!\n"
-msgstr "Impossible de savoir où se termine la pile SP!\n"
+msgid "Could not determine the end of the SP stack!"
+msgstr "Impossible de savoir où se termine la pile SP!"
 
 #: spvw.d:2756
 msgid ""
-"\n"
-"WARNING: No initialization file specified.\n"
+"WARNING: No initialization file specified."
 msgstr ""
-"\n"
-"AVERTISSEMENT : Pas de fichier d'initialisation.\n"
+"AVERTISSEMENT : Pas de fichier d'initialisation."
 
 #: spvw.d:2757 spvw.d:2767
 msgid "Please try: "
@@ -264,22 +258,19 @@ msgstr "Essayez: "
 #: spvw.d:2766
 #, fuzzy
 msgid ""
-"\n"
-"WARNING: No installation directory specified.\n"
+"WARNING: No installation directory specified."
 msgstr ""
-"\n"
-"AVERTISSEMENT : Pas de fichier d'initialisation.\n"
+"AVERTISSEMENT : Pas de fichier d'initialisation."
 
 #: spvw.d:2918
 msgid ""
-"\n"
 "WARNING: no such package: "
 msgstr ""
 
 #: spvw.d:2998
 #, fuzzy
-msgid "%s: Not enough memory for Lisp.\n"
-msgstr "Il n'y a pas assez de mémoire pour LISP.\n"
+msgid "%s: Not enough memory for Lisp."
+msgstr "Il n'y a pas assez de mémoire pour LISP."
 
 #: spvw.d:3045 reploop.lisp:682
 msgid "Bye."
@@ -291,23 +282,19 @@ msgstr "Pour terminer, tapez une touche..."
 
 #: spvw_alloca.d:47
 msgid ""
-"\n"
 "*** - Virtual memory exhausted. RESET"
 msgstr ""
-"\n"
 "*** - La mémoire virtuelle est épuisée : RAZ"
 
 #: spvw_alloca.d:49
 msgid ""
-"\n"
 "*** - Memory exhausted. RESET"
 msgstr ""
-"\n"
 "*** - La mémoire est épuisée : RAZ"
 
 #: spvw_mmap.d:66 spvw_mmap.d:196 spvw_mmap.d:355 spvw_multimap.d:160
 #, fuzzy
-msgid "Cannot map memory to address 0x%x .\n"
+msgid "Cannot map memory to address 0x%x ."
 msgstr "Ne peux pas placer de la mémoire à l'adresse 0x%x ."
 
 #: spvw_mmap.d:169
@@ -327,8 +314,8 @@ msgid "MapViewOfFileEx(addr=0x%x,off=0x%x) failed."
 msgstr "MapViewOfFileEx(addr=0x%x,off=0x%x) a échoué."
 
 #: spvw_mmap.d:238
-msgid "MapViewOfFileEx() returned 0x%x instead of 0x%x.\n"
-msgstr "MapViewOfFileEx() rend 0x%x au lieu de 0x%x.\n"
+msgid "MapViewOfFileEx() returned 0x%x instead of 0x%x."
+msgstr "MapViewOfFileEx() rend 0x%x au lieu de 0x%x."
 
 #: spvw_mmap.d:252
 msgid "VirtualFree() failed."
@@ -355,13 +342,13 @@ msgstr "Ne peux pas effacer %s ."
 
 #: spvw_multimap.d:216
 #, fuzzy
-msgid "** WARNING: ** Too little free disk space for <%s>.\n"
-msgstr "** AVERTISSEMENT : ** Trop peu de place disque restante sur %s .\n"
+msgid "** WARNING: ** Too little free disk space for <%s>."
+msgstr "** AVERTISSEMENT : ** Trop peu de place disque restante sur %s ."
 
 #: spvw_multimap.d:217
 #, fuzzy
-msgid "Please restart LISP with less memory (option -m).\n"
-msgstr "Prière de relancer LISP avec moins de mémoire (option -m).\n"
+msgid "Please restart LISP with less memory (option -m)."
+msgstr "Prière de relancer LISP avec moins de mémoire (option -m)."
 
 #: spvw_multimap.d:225
 #, fuzzy
@@ -379,8 +366,8 @@ msgid "Cannot close <%s>."
 msgstr "Ne peux pas fermer %s ."
 
 #: spvw_multimap.d:324
-msgid "Recompile your operating system with SYSV IPC support.\n"
-msgstr "Recompilez votre système opérationnel tel qu'il comprenne IPC SYSV.\n"
+msgid "Recompile your operating system with SYSV IPC support."
+msgstr "Recompilez votre système opérationnel tel qu'il comprenne IPC SYSV."
 
 #: spvw_multimap.d:336
 #, fuzzy
@@ -407,15 +394,13 @@ msgstr "mprotect() ne fonctionne pas."
 
 #: spvw_sigsegv.d:29
 msgid ""
-"\n"
-"SIGSEGV cannot be cured. Fault address = 0x%x.\n"
+"SIGSEGV cannot be cured. Fault address = 0x%x."
 msgstr ""
-"\n"
-"SIGSEGV ne peut être relevé. Adresse fautive = 0x%x.\n"
+"SIGSEGV ne peut être relevé. Adresse fautive = 0x%x."
 
 #: spvw_sigsegv.d:63
-msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!\n"
-msgstr "Scénario Apollo 13 : Réparation de débordement de pile a échoué. Au prochain débordement de pile, ça cassera!!!\n"
+msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!"
+msgstr "Scénario Apollo 13 : Réparation de débordement de pile a échoué. Au prochain débordement de pile, ça cassera!!!"
 
 #: spvw_sigint.d:69 spvw_sigint.d:132
 msgid "Ctrl-C: User break"
@@ -432,15 +417,13 @@ msgstr "Il n'y a plus de place pour des objets LISP."
 
 #: spvw_allocate.d:49
 msgid ""
-"\n"
 "*** - No more room for LISP objects: RESET"
 msgstr ""
-"\n"
 "*** - Il n'y a plus de place pour des objets LISP : RAZ"
 
 #: spvw_allocate.d:248 spvw_allocate.d:311 spvw_allocate.d:391
-msgid "Trying to make room through a GC...\n"
-msgstr "Essayons de faire de la place par un GC...\n"
+msgid "Trying to make room through a GC..."
+msgstr "Essayons de faire de la place par un GC..."
 
 #: spvw_memfile.d:243
 msgid "disk full"
@@ -448,28 +431,23 @@ msgstr "Disque plein."
 
 #: spvw_memfile.d:783
 #, fuzzy
-msgid "%s: operating system error during load of initialization file `%s'\n"
-msgstr "Erreur système pendant le chargement du fichier d'initialisation `%s'.\n"
+msgid "%s: operating system error during load of initialization file `%s'"
+msgstr "Erreur système pendant le chargement du fichier d'initialisation `%s'."
 
 #: spvw_memfile.d:1250
 #, fuzzy
 msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "Ne peux placer le fichier d'initialisation en mémoire."
 
-#: spvw_memfile.d:1522
-#, fuzzy
-msgid "%s: operating system error during load of initialization file `%s'"
-msgstr "Erreur système pendant le chargement du fichier d'initialisation `%s'.\n"
-
 #: spvw_memfile.d:1527
 #, fuzzy
-msgid "%s: initialization file `%s' was not created by this version of CLISP\n"
-msgstr "Le fichier d'initialisation ne provient pas de cette version de LISP.\n"
+msgid "%s: initialization file `%s' was not created by this version of CLISP"
+msgstr "Le fichier d'initialisation ne provient pas de cette version de LISP."
 
 #: spvw_memfile.d:1530
 #, fuzzy
-msgid "%s: not enough memory for initialization\n"
-msgstr "Il n'y a pas assez de mémoire pour l'initialisation.\n"
+msgid "%s: not enough memory for initialization"
+msgstr "Il n'y a pas assez de mémoire pour l'initialisation."
 
 #: eval.d:837
 msgid "EVAL: variable ~ has no value"
@@ -827,15 +805,15 @@ msgid "~: illegal ~ argument ~"
 msgstr "~ : Argument incorrect pour ~ : ~"
 
 #: encoding.d:2319
-msgid "WARNING: %s: no encoding %s, using ASCII\n"
+msgid "WARNING: %s: no encoding %s, using ASCII"
 msgstr ""
 
 #: encoding.d:2323
-msgid "WARNING: %s: no encoding %s, using UTF-8\n"
+msgid "WARNING: %s: no encoding %s, using UTF-8"
 msgstr ""
 
 #: encoding.d:2388
-msgid "WARNING: *FOREIGN-ENCODING*: reset to ASCII\n"
+msgid "WARNING: *FOREIGN-ENCODING*: reset to ASCII"
 msgstr ""
 
 #: encoding.d:2455
@@ -2234,58 +2212,44 @@ msgstr "~: ~ n'est pas une pointeur vers un environnement EVAL/APPLY."
 
 #: debug.d:1066
 msgid ""
-"\n"
 "APPLY frame with breakpoint for call "
 msgstr ""
-"\n"
 "«frame» APPLY avec point d'interception pour l'application "
 
 #: debug.d:1070
 msgid ""
-"\n"
 "APPLY frame for call "
 msgstr ""
-"\n"
 "«frame» APPLY pour l'application "
 
 #: debug.d:1088
 msgid ""
-"\n"
 "EVAL frame with breakpoint for form "
 msgstr ""
-"\n"
 "«frame» EVAL avec point d'interception pour la forme "
 
 #: debug.d:1092
 msgid ""
-"\n"
 "EVAL frame for form "
 msgstr ""
-"\n"
 "«frame» EVAL pour la forme "
 
 #: debug.d:1098
 msgid ""
-"\n"
 "frame binding variables (~ = dynamically):"
 msgstr ""
-"\n"
 "Le «frame» de liaison de variables (~ signifiant dynamique) lie :"
 
 #: debug.d:1115
 msgid ""
-"\n"
 "CALLBACK frame"
 msgstr ""
-"\n"
 "«frame» CALLBACK"
 
 #: debug.d:1120
 msgid ""
-"\n"
 "frame binding variables "
 msgstr ""
-"\n"
 "«frame» de liaison de variables "
 
 #: debug.d:1123 debug.d:1149
@@ -2294,50 +2258,38 @@ msgstr " lie (~ signifiant dynamiquement) :"
 
 #: debug.d:1145
 msgid ""
-"\n"
 "frame binding functions "
 msgstr ""
-"\n"
 "«frame» de liaison de fonctions "
 
 #: debug.d:1168 debug.d:1238
 msgid ""
-"\n"
 "  Next environment: "
 msgstr ""
-"\n"
 "  prochain environnement : "
 
 #: debug.d:1194
 msgid ""
-"\n"
 "compiled tagbody frame for "
 msgstr ""
-"\n"
 "«frame» TAGBODY compilé pour "
 
 #: debug.d:1198
 msgid ""
-"\n"
 "compiled block frame for "
 msgstr ""
-"\n"
 "«frame» BLOCK compilé pour "
 
 #: debug.d:1204
 msgid ""
-"\n"
 "block frame "
 msgstr ""
-"\n"
 "«frame» BLOCK "
 
 #: debug.d:1207
 msgid ""
-"\n"
 "nested block frame "
 msgstr ""
-"\n"
 "«frame» BLOCK dépilé "
 
 #: debug.d:1212
@@ -2346,18 +2298,14 @@ msgstr " pour "
 
 #: debug.d:1217
 msgid ""
-"\n"
 "tagbody frame "
 msgstr ""
-"\n"
 "«frame» TAGBODY "
 
 #: debug.d:1220
 msgid ""
-"\n"
 "nested tagbody frame "
 msgstr ""
-"\n"
 "«frame» TAGBODY dépilé "
 
 #: debug.d:1225
@@ -2370,44 +2318,32 @@ msgstr "~: L'environnement n'est pas une liste d'association."
 
 #: debug.d:1267
 msgid ""
-"\n"
 "catch frame for tag "
 msgstr ""
-"\n"
 "«frame» CATCH pour l'étiquette "
 
 #: debug.d:1272
 msgid ""
-"\n"
 "handler frame for conditions"
 msgstr ""
-"\n"
 "«frame» HANDLER pour les conditions"
 
 #: debug.d:1285
 msgid ""
-"\n"
 "unwind-protect frame"
 msgstr ""
-"\n"
 "«frame» UNWIND-PROTECT"
 
 #: debug.d:1289
 msgid ""
-"\n"
-"\n"
 "driver frame"
 msgstr ""
-"\n"
-"\n"
 "«driver frame»"
 
 #: debug.d:1293 debug.d:1298 debug.d:1303 debug.d:1308 debug.d:1313 debug.d:1318 debug.d:1325
 msgid ""
-"\n"
 "frame binding environments"
 msgstr ""
-"\n"
 "«frame» de liaison d'environnements"
 
 #: debug.d:1340
@@ -3823,8 +3759,8 @@ msgstr ""
 
 #: macros2.lisp:33
 #, lisp-format
-msgid "~%New ~S: "
-msgstr "~%Nouveau ~S : "
+msgid "New ~S: "
+msgstr "Nouveau ~S : "
 
 #: macros2.lisp:50
 msgid "Retry"
@@ -4228,8 +4164,8 @@ msgstr "Il manque la borne fermante '~A'."
 
 #: format.lisp:312
 #, lisp-format
-msgid "~%Current point in control string:"
-msgstr "~%Position dans la chaîne de contrôle :"
+msgid "Current point in control string:"
+msgstr "Position dans la chaîne de contrôle :"
 
 #: format.lisp:348
 #, fuzzy, lisp-format
@@ -4371,8 +4307,8 @@ msgstr "~S : La forme spéciale ~S ne peut pas être tracée."
 
 #: trace.lisp:196
 #, lisp-format
-msgid "~&;; Tracing ~:[function~;macro~] ~S."
-msgstr "~&;; Traçage ~:[de la fonction~;du macro~] ~S."
+msgid ";; Tracing ~:[function~;macro~] ~S."
+msgstr ";; Traçage ~:[de la fonction~;du macro~] ~S."
 
 #: trace.lisp:327
 #, lisp-format
@@ -4431,13 +4367,13 @@ msgstr " dans les lignes ~D..~D"
 
 #: compiler.lisp:1743
 #, fuzzy, lisp-format
-msgid "~%WARNING~@[ in ~A~]~A :~%"
-msgstr "~%AVERTISSEMENT~@[ dans la fonction ~S~]~A :~%"
+msgid "WARNING~@[ in ~A~]~A :~%"
+msgstr "AVERTISSEMENT~@[ dans la fonction ~S~]~A :~%"
 
 #: compiler.lisp:1763
 #, fuzzy, lisp-format
-msgid "~%ERROR~@[ in ~S~]~A :~%~?"
-msgstr "~%ERREUR~@[ dans la fonction ~S~]~A :~%~?"
+msgid "ERROR~@[ in ~S~]~A :~%~?"
+msgstr "ERREUR~@[ dans la fonction ~S~]~A :~%~?"
 
 #: compiler.lisp:1897
 #, lisp-format
@@ -4485,12 +4421,9 @@ msgstr "Liste pointée d'arguments pour la fonction ~S : ~S"
 #: compiler.lisp:2506
 #, fuzzy, lisp-format
 msgid ""
-"~S was called with ~S~:[~; or more~] arguments, ~\n"
-"                     but it requires ~:[~:[from ~S to ~S~;~S~]~;~\n"
-"                     at least ~*~S~] argument~:p."
+"~S was called with ~S~:[~; or more~] arguments, but it requires ~:[~:[from ~S to ~S~;~S~]~;at least ~*~S~] argument~:p."
 msgstr ""
-"~S est appelé avec ~S ~:[~;ou plus d'~]arguments mais a besoin ~\n"
-"                         ~:[de ~:[~S à ~S~;~S~]~;d'au moins ~*~S~] arguments."
+"~S est appelé avec ~S ~:[~;ou plus d'~]arguments mais a besoin ~:[de ~:[~S à ~S~;~S~]~;d'au moins ~*~S~] arguments."
 
 #: compiler.lisp:2519
 #, lisp-format
@@ -4748,67 +4681,57 @@ msgstr "Ni lambda-expression ni fonction : ~S"
 
 #: compiler.lisp:10224
 #, lisp-format
-msgid "~%[~s was defined~a]"
+msgid "[~s was defined~a]"
 msgstr ""
 
 #: compiler.lisp:10231
 #, lisp-format
-msgid "~%There were errors in the following functions:~%~{~<~%~:; ~S~>~^~}"
-msgstr "~%Il y a des erreurs dans les fonctions :~%~{~<~%~:; ~S~>~^~}"
+msgid "There were errors in the following functions:~%~{~<~%~:; ~S~>~^~}"
+msgstr "Il y a des erreurs dans les fonctions :~%~{~<~%~:; ~S~>~^~}"
 
 #: compiler.lisp:10237
 #, lisp-format
-msgid "~%The following functions were used but not defined:~%~{~<~%~:; ~S~>~^~}"
-msgstr "~%Les fonctions suivantes sont utilisées mais non définies :~%~{~<~%~:; ~S~>~^~}"
+msgid "The following functions were used but not defined:~%~{~<~%~:; ~S~>~^~}"
+msgstr "Les fonctions suivantes sont utilisées mais non définies :~%~{~<~%~:; ~S~>~^~}"
 
 #: compiler.lisp:10245
 #, lisp-format
-msgid "~%The following special variables were not defined:~%~{~<~%~:; ~S~>~^~}"
-msgstr "~%Les variables utilisées comme SPECIAL ne sont pas définies :~%~{~<~%~:; ~S~>~^~}"
+msgid "The following special variables were not defined:~%~{~<~%~:; ~S~>~^~}"
+msgstr "Les variables utilisées comme SPECIAL ne sont pas définies :~%~{~<~%~:; ~S~>~^~}"
 
 #: compiler.lisp:10248
 #, lisp-format
-msgid "~%The following special variables were defined too late:~%~{~<~%~:; ~S~>~^~}"
-msgstr "~%Les variables déclarées SPECIAL sont définies trop tard :~%~{~<~%~:; ~S~>~^~}"
+msgid "The following special variables were defined too late:~%~{~<~%~:; ~S~>~^~}"
+msgstr "Les variables déclarées SPECIAL sont définies trop tard :~%~{~<~%~:; ~S~>~^~}"
 
 #: compiler.lisp:10251
 #, fuzzy, lisp-format
-msgid "~%The following functions were used but are deprecated:~%~:{~<~%~:; ~S~@[ (use ~S instead)~]~>~^~}"
-msgstr "~%Les fonctions suivantes sont utilisées mais sont découragées :~%~{~<~%~:; ~S~>~^~}"
+msgid "The following functions were used but are deprecated:~%~:{~<~%~:; ~S~@[ (use ~S instead)~]~>~^~}"
+msgstr "Les fonctions suivantes sont utilisées mais sont découragées :~%~{~<~%~:; ~S~>~^~}"
 
 #: compiler.lisp:10255
 #, lisp-format
-msgid "~%~D error~:P, ~D warning~:P"
-msgstr "~%~D erreur~:P, ~D avertissement~:P"
+msgid "~D error~:P, ~D warning~:P"
+msgstr "~D erreur~:P, ~D avertissement~:P"
 
 #: compiler.lisp:10399
 #, lisp-format
-msgid "~&Listing of compilation of file ~A~%on ~@? by ~A, version ~A"
-msgstr "~&Listage de la compilation du fichier ~A~%le ~@? par ~A, version ~A"
+msgid "Listing of compilation of file ~A~%on ~@? by ~A, version ~A"
+msgstr "Listage de la compilation du fichier ~A~%le ~@? par ~A, version ~A"
 
 #: compiler.lisp:10426
 #, lisp-format
-msgid "~%Compiling file ~A ..."
-msgstr "~%Compilation du fichier ~A..."
-
-#: compiler.lisp:10469
-#, lisp-format
-msgid "~&~%Wrote file ~A"
-msgstr ""
+msgid "Compiling file ~A ..."
+msgstr "Compilation du fichier ~A..."
 
 #: compiler.lisp:10471 compiler.lisp:10479
 #, lisp-format
-msgid "~%Wrote file ~A"
+msgid "Wrote file ~A"
 msgstr ""
 
 #: compiler.lisp:10474
 #, lisp-format
-msgid "~&~%Deleted file ~A"
-msgstr ""
-
-#: compiler.lisp:10476
-#, lisp-format
-msgid "~%Deleted file ~A"
+msgid "Deleted file ~A"
 msgstr ""
 
 #: compiler.lisp:10516
@@ -4818,13 +4741,13 @@ msgstr "Déassemblage de la fonction "
 
 #: compiler.lisp:10525
 #, fuzzy, lisp-format
-msgid "~%~S required argument~:P"
-msgstr "~%~S arguments nécessaires"
+msgid "~S required argument~:P"
+msgstr "~S arguments nécessaires"
 
 #: compiler.lisp:10526
 #, fuzzy, lisp-format
-msgid "~%~S optional argument~:P~%"
-msgstr "~%~S arguments facultatifs"
+msgid "~S optional argument~:P"
+msgstr "~S arguments facultatifs"
 
 #: compiler.lisp:10528
 msgid "Rest parameter"
@@ -4836,7 +4759,7 @@ msgstr "Pas de paramètre &REST"
 
 #: compiler.lisp:10532
 #, fuzzy, lisp-format
-msgid "~%~S keyword parameter~:P: "
+msgid "~S keyword parameter~:P: "
 msgstr " mot~P-clé : "
 
 #: compiler.lisp:10539
@@ -4849,17 +4772,17 @@ msgstr "Pas de mot-clé"
 
 #: compiler.lisp:10557
 #, lisp-format
-msgid "~%reads special variable~P: ~{~S~^ ~}"
+msgid "reads special variable~P: ~{~S~^ ~}"
 msgstr ""
 
 #: compiler.lisp:10560
 #, lisp-format
-msgid "~%writes special variable~P: ~{~S~^ ~}"
+msgid "writes special variable~P: ~{~S~^ ~}"
 msgstr ""
 
 #: compiler.lisp:10562
 #, lisp-format
-msgid "~%~S byte-code instruction~:P:"
+msgid "~S byte-code instruction~:P:"
 msgstr ""
 
 #: defs2.lisp:89
@@ -5499,18 +5422,18 @@ msgstr "~S : Ce «restart» ne peut prendre le contrôle en dialogue car il manque 
 
 #: condition.lisp:1041
 #, lisp-format
-msgid "~%Use instead~@[ of ~S~]: "
+msgid "Use instead~@[ of ~S~]: "
 msgstr ""
 
 #: condition.lisp:1049
 #, fuzzy, lisp-format
-msgid "~%Use instead of ~S [value ~D of ~D]: "
-msgstr "~%Nouveau ~S [valeur ~D de ~D]: "
+msgid "Use instead of ~S [value ~D of ~D]: "
+msgstr "Nouveau ~S [valeur ~D de ~D]: "
 
 #: condition.lisp:1050
 #, lisp-format
-msgid "~%New ~S [value ~D of ~D]: "
-msgstr "~%Nouveau ~S [valeur ~D de ~D]: "
+msgid "New ~S [value ~D of ~D]: "
+msgstr "Nouveau ~S [valeur ~D de ~D]: "
 
 #: condition.lisp:1309 condition.lisp:1398
 #, lisp-format
@@ -5582,23 +5505,22 @@ msgstr "[*package* invalide]"
 
 #: reploop.lisp:114
 #, lisp-format
-msgid "~&Reset *PACKAGE* to ~s"
+msgid "Reset *PACKAGE* to ~s"
 msgstr ""
 
 #: reploop.lisp:179
 msgid ""
-"\n"
 "Enter the limit for max. frames to print or ':all' for all: "
 msgstr ""
 
 #: reploop.lisp:184
 #, fuzzy, lisp-format
-msgid "~&~A is not a number. Try again."
+msgid "~A is not a number. Try again."
 msgstr "~ : ~ n'est pas un nombre à 8 bits."
 
 #: reploop.lisp:202
 #, lisp-format
-msgid "~&Printed ~D frames"
+msgid "Printed ~D frames"
 msgstr ""
 
 #: reploop.lisp:224
@@ -5607,7 +5529,7 @@ msgstr "Valeurs : "
 
 #: reploop.lisp:237
 #, lisp-format
-msgid "~%Last error is: >> ~A <<"
+msgid "Last error is: >> ~A <<"
 msgstr ""
 
 #: reploop.lisp:243
@@ -5775,8 +5697,8 @@ msgstr "classe"
 
 #: describe.lisp:148
 #, lisp-format
-msgid "~%Slots:"
-msgstr "~%Composants:"
+msgid "Slots:"
+msgstr "Composants:"
 
 #: describe.lisp:155
 #, lisp-format
@@ -5785,8 +5707,8 @@ msgstr "aucune valeur"
 
 #: describe.lisp:158
 #, lisp-format
-msgid "~%No slots."
-msgstr "~%Aucun composant."
+msgid "No slots."
+msgstr "Aucun composant."
 
 #: describe.lisp:165
 #, fuzzy, lisp-format
@@ -5835,8 +5757,8 @@ msgstr "un expanseur de macro de symbole."
 
 #: describe.lisp:187 describe.lisp:323 describe.lisp:494
 #, lisp-format
-msgid "~%For more information, evaluate ~{~S~^ or ~}."
-msgstr "~%Pour obtenir davantage d'information, évaluez ~{~S~^ ou ~}."
+msgid "For more information, evaluate ~{~S~^ or ~}."
+msgstr "Pour obtenir davantage d'information, évaluez ~{~S~^ ou ~}."
 
 #: describe.lisp:192
 #, lisp-format
@@ -5890,8 +5812,8 @@ msgstr "une structure de type ~S."
 
 #: describe.lisp:223
 #, lisp-format
-msgid "~%As such, it is also a structure of type ~{~S~^, ~}."
-msgstr "~%En tant que telle, c'est aussi une structure de type ~{~S~^, ~}."
+msgid "As such, it is also a structure of type ~{~S~^, ~}."
+msgstr "En tant que telle, c'est aussi une structure de type ~{~S~^, ~}."
 
 #: describe.lisp:231
 #, lisp-format
@@ -6025,8 +5947,8 @@ msgstr "."
 
 #: describe.lisp:321
 #, lisp-format
-msgid "~%Documentation as a ~a:~%~a"
-msgstr "~%Documentation en tant que ~A : ~A"
+msgid "Documentation as a ~a:~%~a"
+msgstr "Documentation en tant que ~A : ~A"
 
 #: describe.lisp:327
 #, lisp-format
@@ -6080,23 +6002,23 @@ msgstr "un caractère"
 
 #: describe.lisp:355
 #, lisp-format
-msgid "~%Unicode name: ~A"
-msgstr "~%Nom Unicode : ~A"
+msgid "Unicode name: ~A"
+msgstr "Nom Unicode : ~A"
 
 #: describe.lisp:356
 #, lisp-format
-msgid "~%It is not defined by the Unicode standard."
-msgstr "~%Il n'est pas défini dans le standard Unicode."
+msgid "It is not defined by the Unicode standard."
+msgstr "Il n'est pas défini dans le standard Unicode."
 
 #: describe.lisp:357
 #, lisp-format
-msgid "~%It is a ~:[non-~;~]printable character."
-msgstr "~%C'est un caractère ~:[non ~;~]imprimable."
+msgid "It is a ~:[non-~;~]printable character."
+msgstr "C'est un caractère ~:[non ~;~]imprimable."
 
 #: describe.lisp:360
 #, lisp-format
-msgid "~%Its use is non-portable."
-msgstr "~%Il n'est pas portable de l'utiliser."
+msgid "Its use is non-portable."
+msgstr "Il n'est pas portable de l'utiliser."
 
 #: describe.lisp:362
 #, lisp-format
@@ -6115,8 +6037,8 @@ msgstr ". Il porte aussi les noms ~{~A~^, ~}"
 
 #: describe.lisp:377
 #, lisp-format
-msgid "~%It "
-msgstr "~%Il "
+msgid "It "
+msgstr "Il "
 
 #: describe.lisp:379
 #, fuzzy, lisp-format
@@ -6259,28 +6181,28 @@ msgstr "une fonction ~:[interprét~;compil~]ée."
 
 #: describe.lisp:499
 #, lisp-format
-msgid "~%argument list: ~:S"
-msgstr "~%Liste des arguments: ~:S"
+msgid "argument list: ~:S"
+msgstr "Liste des arguments: ~:S"
 
 #: describe.lisp:502
 #, lisp-format
-msgid "~%documentation: ~A"
-msgstr "~%Documentation: ~A"
+msgid "documentation: ~A"
+msgstr "Documentation: ~A"
 
 #: describe.lisp:508
 #, lisp-format
-msgid "~&~%~A [see above]"
-msgstr "~&~%~A [voir en haut]"
+msgid "~A [see above]"
+msgstr "~A [voir en haut]"
 
 #: describe.lisp:511
 #, lisp-format
-msgid "~&~%~A is "
-msgstr "~&~%~A est "
+msgid "~A is "
+msgstr "~A est "
 
 #: describe.lisp:514
 #, fuzzy, lisp-format
-msgid "~&Documentation:"
-msgstr "~%Documentation: ~A"
+msgid "Documentation:"
+msgstr "Documentation: ~A"
 
 #: describe.lisp:548
 #, fuzzy, lisp-format
@@ -6298,8 +6220,8 @@ msgstr "total"
 
 #: room.lisp:59
 #, lisp-format
-msgid "~%Bytes permanently allocated:   ~9D~%Bytes currently in use:        ~9D~%Bytes available until next GC: ~9D~%"
-msgstr "~%Allocation permanente:                   ~9D~%Octets couramment utilisés:              ~9D~%Octets disponibles jusqu'au prochain GC: ~9D~%"
+msgid "Bytes permanently allocated:   ~9D~%Bytes currently in use:        ~9D~%Bytes available until next GC: ~9D"
+msgstr "Allocation permanente:                   ~9D~%Octets couramment utilisés:              ~9D~%Octets disponibles jusqu'au prochain GC: ~9D"
 
 #: edit.lisp:28
 msgid "No external editor installed."
@@ -6491,8 +6413,8 @@ msgstr "Le déplacement ~S n'est pas de type FIXNUM"
 
 #: affi1.lisp:180
 #, lisp-format
-msgid "~&;; redefining foreign library function ~S~%;;  from ~S to ~S~%"
-msgstr "~&;; Redéfinition de la fonction étrangère ~S~%;;  de ~S en ~S~%"
+msgid ";; redefining foreign library function ~S~%;;  from ~S to ~S"
+msgstr ";; Redéfinition de la fonction étrangère ~S~%;;  de ~S en ~S"
 
 #: affi1.lisp:199
 #, lisp-format
