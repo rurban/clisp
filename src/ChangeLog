@@ -1,3 +1,10 @@
+2001-08-25  Bruno Haible  <haible@clisp.cons.org>
+
+	* makemake.in (gettext_datadirname_sedcommand): Remove.
+	(datadir): Always set to $(prefix)/share.
+	(localesed): Update.
+	(clean5): Also remove the varbrace executable.
+
 2001-08-27  Sam Steingold  <sds@gnu.org>
 
 	* init.lisp (load): when checking whether FILENAME names a
