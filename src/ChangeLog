@@ -1,5 +1,10 @@
 2005-01-31  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (get_standard_output_file_stream): reuse
+	terminal_stream only if it is still open
+
+2005-01-31  Sam Steingold  <sds@gnu.org>
+
 	print diagnostics instead of usage on argument error
 	* spvw.d (arg_error, ILLEGAL_ARG): added
 	(parse_options): call them instead of usage()
