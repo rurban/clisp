@@ -300,8 +300,7 @@ LISPFUNN(funtabref,1)
     var uintL i;
     if (posfixnump(arg) # sollte ein Fixnum >=0
         && (i = posfixnum_to_L(arg),
-            i < FUNTAB_length+FUNTABR_length # und < Tabellenlänge sein
-       )   ) {
+            i < FUNTAB_length+FUNTABR_length)) { # und < Tabellenlänge sein
       # Name des indizierten Elements der Tabelle:
       value1 = (i < FUNTAB_length
                 ? FUNTAB[i]                # aus FUNTAB1/2
@@ -406,9 +405,7 @@ LISPFUNN(subr_info,1)
                   list_to_mv(Symbol_value(S(trace_values)), # wieder Werte bilden
                              fehler_mv_zuviel(framecode(STACK_(0+3))==TRAPPED_EVAL_frame_info
                                               ? S(eval)
-                                              : S(apply)
-                                             );
-                            );
+                                              : S(apply)););
                   dynamic_unbind(); # Bindung auflösen
                 }
               }
@@ -502,30 +499,29 @@ LISPFUNN(subr_info,1)
 # UP: "unwindet" den STACK bis zum nächsten DRIVER_FRAME und
 # springt in die entsprechende Top-Level-Schleife.
 # reset();
-  nonreturning_function(global, reset, (void));
-  global void reset()
-    {
-      # Beim Auflösen von UNWIND-PROTECT-Frames keine Werte retten:
-      value1 = NIL; mv_count=0;
-      unwind_protect_to_save.fun = (restart)&reset;
-      loop {
-        # Hört der STACK hier auf?
-        if (eq(STACK_0,nullobj) && eq(STACK_1,nullobj)) {
-          driver(); quit(); # STACK völlig weg -> Neustart
-        }
-        if (framecode(STACK_0) & bit(frame_bit_t)) {
-          # Bei STACK_0 beginnt ein Frame
-          if (framecode(STACK_0) == DRIVER_frame_info) # DRIVER_FRAME ?
-            break; # ja -> gefunden
-          unwind(); # Frame auflösen
-        } else {
-          # STACK_0 enthält ein normales LISP-Objekt
-          skipSTACK(1);
-        }
-      }
-      # Bei STACK_0 beginnt ein Driver-Frame.
-      enter_frame_at_STACK();
+nonreturning_function(global, reset, (void));
+global void reset() {
+  # Beim Auflösen von UNWIND-PROTECT-Frames keine Werte retten:
+  value1 = NIL; mv_count=0;
+  unwind_protect_to_save.fun = (restart)&reset;
+  loop {
+    # Hört der STACK hier auf?
+    if (eq(STACK_0,nullobj) && eq(STACK_1,nullobj)) {
+      driver(); quit(); # STACK völlig weg -> Neustart
     }
+    if (framecode(STACK_0) & bit(frame_bit_t)) {
+    # Bei STACK_0 beginnt ein Frame
+      if (framecode(STACK_0) == DRIVER_frame_info) # DRIVER_FRAME ?
+        break; # ja -> gefunden
+      unwind(); # Frame auflösen
+    } else {
+      # STACK_0 enthält ein normales LISP-Objekt
+      skipSTACK(1);
+    }
+  }
+  # Bei STACK_0 beginnt ein Driver-Frame.
+  enter_frame_at_STACK();
+}
 
 # UP: bindet dynamisch die Symbole der Liste symlist
 # an die Werte aus der Liste vallist.
@@ -533,48 +529,43 @@ LISPFUNN(subr_info,1)
 # > symlist, vallist: zwei Listen
 # Es wird genau ein Variablenbindungsframe aufgebaut.
 # verändert STACK
-  global void progv (object symlist, object vallist);
-  global void progv(symlist,vallist)
-    var object symlist;
-    var object vallist;
-    {
-      # Platz auf dem STACK verlangen:
-      get_space_on_STACK(llength(symlist)*2*sizeof(object));
-      # Frame aufbauen:
-      var object* top_of_frame = STACK; # Pointer übern Frame
-      var object symlistr = symlist;
-      while (consp(symlistr)) { # Symbolliste durchgehen
-        var object sym = Car(symlistr);
-        if (!symbolp(sym))
-          fehler_kein_symbol(S(progv),sym);
-        if (constantp(TheSymbol(sym))) {
-          pushSTACK(sym);
-          pushSTACK(S(progv));
-          fehler(program_error,
-                 GETTEXT("~: ~ is a constant, cannot be bound dynamically")
-                );
-        }
-        pushSTACK(Symbol_value(sym)); # alter Wert der Variablen
-        pushSTACK(sym); # Variable
-        symlistr = Cdr(symlistr);
-      }
-      finish_frame(DYNBIND);
-      # Frame fertig aufgebaut, nun die Werte der Variablen verändern:
-      while (consp(symlist)) {
-        if (atomp(vallist)) {
-          # Wertliste kürzer als Symbolliste
-          # -> alle weiteren "Werte" sind #<UNBOUND>
-          do {
-            Symbol_value(Car(symlist)) = unbound;
-            symlist = Cdr(symlist);
-          } while (consp(symlist));
-          break;
-        }
-        # Symbol bekommt neuen Wert:
-        Symbol_value(Car(symlist)) = Car(vallist);
-        symlist = Cdr(symlist); vallist = Cdr(vallist);
-      }
+global void progv (object symlist, object vallist) {
+  # Platz auf dem STACK verlangen:
+  get_space_on_STACK(llength(symlist)*2*sizeof(object));
+  # Frame aufbauen:
+  var object* top_of_frame = STACK; # Pointer übern Frame
+  var object symlistr = symlist;
+  while (consp(symlistr)) { # Symbolliste durchgehen
+    var object sym = Car(symlistr);
+    if (!symbolp(sym))
+      fehler_kein_symbol(S(progv),sym);
+    if (constantp(TheSymbol(sym))) {
+      pushSTACK(sym);
+      pushSTACK(S(progv));
+      fehler(program_error,
+             GETTEXT("~: ~ is a constant, cannot be bound dynamically"));
     }
+    pushSTACK(Symbol_value(sym)); # alter Wert der Variablen
+    pushSTACK(sym); # Variable
+    symlistr = Cdr(symlistr);
+  }
+  finish_frame(DYNBIND);
+  # Frame fertig aufgebaut, nun die Werte der Variablen verändern:
+  while (consp(symlist)) {
+    if (atomp(vallist)) {
+    # Wertliste kürzer als Symbolliste
+    # -> alle weiteren "Werte" sind #<UNBOUND>
+      do {
+        Symbol_value(Car(symlist)) = unbound;
+        symlist = Cdr(symlist);
+      } while (consp(symlist));
+      break;
+    }
+    # Symbol bekommt neuen Wert:
+    Symbol_value(Car(symlist)) = Car(vallist);
+    symlist = Cdr(symlist); vallist = Cdr(vallist);
+  }
+}
 
 # UP: Löst die dynamische Schachtelung im STACK auf bis zu dem Frame
 # (ausschließlich), auf den upto zeigt, und springt diesen dann an.
@@ -584,52 +575,46 @@ LISPFUNN(subr_info,1)
 # verändert STACK,SP
 # can trigger GC
 # Springt dann den gefundenen Frame an.
-  nonreturning_function(global, unwind_upto, (object* upto_frame));
-  global void unwind_upto(upto_frame)
-    var object* upto_frame;
-    {
-      unwind_protect_to_save.fun        = &unwind_upto;
-      unwind_protect_to_save.upto_frame = upto_frame;
-      until (STACK == upto_frame) { # am Ziel-Frame angelangt?
-        if (framecode(STACK_0) & bit(frame_bit_t)) { # liegt ein Frame vor?
-          unwind(); # ja -> auflösen
-          # (Sollte dies ein Unwind-Protect-Frame sein, so wird danach wieder
-          # unwind_upto(upto_frame) aufgerufen, und wir sind wieder hier.)
-        } else {
-          skipSTACK(1); # nein -> einfach weiter
-        }
-      }
-      # Nun zeigt STACK auf den gefundenen FRAME.
-      enter_frame_at_STACK();
+nonreturning_function(global, unwind_upto, (object* upto_frame));
+global void unwind_upto(object *upto_frame) {
+  unwind_protect_to_save.fun        = &unwind_upto;
+  unwind_protect_to_save.upto_frame = upto_frame;
+  until (STACK == upto_frame) { # am Ziel-Frame angelangt?
+    if (framecode(STACK_0) & bit(frame_bit_t)) { # liegt ein Frame vor?
+      unwind(); # ja -> auflösen
+      # (Sollte dies ein Unwind-Protect-Frame sein, so wird danach wieder
+      # unwind_upto(upto_frame) aufgerufen, und wir sind wieder hier.)
+    } else {
+      skipSTACK(1); # nein -> einfach weiter
     }
+  }
+  # Nun zeigt STACK auf den gefundenen FRAME.
+  enter_frame_at_STACK();
+}
 
 # UP: throwt zum Tag tag und übergibt dabei die Werte mv_count/mv_space.
 # Kommt nur dann zurück, wenn es keinen CATCH-Frame dieses Tags gibt.
 # throw_to(tag);
-  global void throw_to (object tag);
-  global void throw_to(tag)
-    var object tag;
-    {
-      # Suche nach Catch-Frame mit Tag =tag:
-      var object* FRAME = STACK;
-      loop { # Suche im Stack ab FRAME nach einem CATCH-Frame mit demselben Tag:
-        if (eq(FRAME_(0),nullobj)) # Stackende?
-          return; # ja -> kein passendes Catch vorhanden -> Rücksprung
-        if (framecode(FRAME_(0)) & bit(frame_bit_t)) {
-          # Frame gefunden
-          if ((framecode(FRAME_(0)) == CATCH_frame_info) # Catch-Frame?
-              && eq(FRAME_(frame_tag),tag) # mit demselben Tag?
-             )
-            break; # ja -> Suchschleife fertig
-          # Frame übergehen:
-          FRAME = topofframe(FRAME_(0));
-        } else {
-          FRAME skipSTACKop 1;
-        }
-      }
-      # FRAME zeigt auf den untersten CATCH-Frame mit demselben Tag
-      unwind_upto(FRAME); # bis dorthin auflösen, dann anspringen
+global void throw_to (object tag) {
+  # Suche nach Catch-Frame mit Tag =tag:
+  var object* FRAME = STACK;
+  loop { # Suche im Stack ab FRAME nach einem CATCH-Frame mit demselben Tag:
+    if (eq(FRAME_(0),nullobj)) # Stackende?
+      return; # ja -> kein passendes Catch vorhanden -> Rücksprung
+    if (framecode(FRAME_(0)) & bit(frame_bit_t)) {
+      # Frame gefunden
+      if ((framecode(FRAME_(0)) == CATCH_frame_info) # Catch-Frame?
+          && eq(FRAME_(frame_tag),tag)) # mit demselben Tag?
+        break; # ja -> Suchschleife fertig
+      # Frame übergehen:
+      FRAME = topofframe(FRAME_(0));
+    } else {
+      FRAME skipSTACKop 1;
     }
+  }
+  # FRAME zeigt auf den untersten CATCH-Frame mit demselben Tag
+  unwind_upto(FRAME); # bis dorthin auflösen, dann anspringen
+}
 
 # UP: Ruft alle Handler zur Condition cond auf. Kommt nur zurück, wenn keiner
 # dieser Handler sich zuständig fühlt (d.h. wenn jeder Handler zurückkehrt).
@@ -726,19 +711,16 @@ global void invoke_handlers (object cond) {
 # funnamep(obj)
 # > obj: Objekt
 # < ergebnis: true falls Funktionsname
-  global bool funnamep (object obj);
-  global bool funnamep(obj)
-    var object obj;
-    {
-      if (symbolp(obj))
-        return true;
-      if (consp(obj) && eq(Car(obj),S(setf))) {
-        obj = Cdr(obj);
-        if (consp(obj) && nullp(Cdr(obj)) && symbolp(Car(obj)))
-          return true;
-      }
-      return false;
-    }
+global bool funnamep (object obj) {
+  if (symbolp(obj))
+    return true;
+  if (consp(obj) && eq(Car(obj),S(setf))) {
+    obj = Cdr(obj);
+    if (consp(obj) && nullp(Cdr(obj)) && symbolp(Car(obj)))
+      return true;
+  }
+  return false;
+}
 
 # UP: Liefert den Wert eines Symbols in einem Environment.
 # sym_value(symbol,venv)
@@ -821,13 +803,10 @@ global void invoke_handlers (object cond) {
 # sym_macrop(symbol)
 # > symbol: Symbol
 # < ergebnis: true falls sym einen Symbol-Macro darstellt
-  global bool sym_macrop (object sym);
-  global bool sym_macrop(sym)
-    var object sym;
-    {
-      var object val = sym_value(sym,aktenv.var_env);
-      return (symbolmacrop(val) ? true : false);
-    }
+global bool sym_macrop (object sym) {
+  var object val = sym_value(sym,aktenv.var_env);
+  return (symbolmacrop(val) ? true : false);
+}
 
 # UP: Setzt den Wert eines Symbols im aktuellen Environment.
 # setq(symbol,value);
@@ -984,41 +963,31 @@ global void invoke_handlers (object cond) {
 # > form: Form
 # < mv_count/mv_space: Werte
 # can trigger GC
-  global Values eval_5env (object form, object var_env, object fun_env, object block_env, object go_env, object decl_env);
-  global Values eval_5env(form,var_env,fun_env,block_env,go_env,decl_env)
-    var object form;
-    var object var_env;
-    var object fun_env;
-    var object block_env;
-    var object go_env;
-    var object decl_env;
-    {
-      # Environments binden:
-      make_ENV5_frame();
-      # aktuelle Environments setzen:
-      aktenv.var_env = var_env;
-      aktenv.fun_env = fun_env;
-      aktenv.block_env = block_env;
-      aktenv.go_env = go_env;
-      aktenv.decl_env = decl_env;
-      # Form auswerten:
-      eval(form);
-      # Environment-Frame auflösen:
-      unwind();
-      return; # fertig
-    }
+global Values eval_5env (object form, object var_env, object fun_env,
+                         object block_env, object go_env, object decl_env) {
+  # Environments binden:
+  make_ENV5_frame();
+  # aktuelle Environments setzen:
+  aktenv.var_env = var_env;
+  aktenv.fun_env = fun_env;
+  aktenv.block_env = block_env;
+  aktenv.go_env = go_env;
+  aktenv.decl_env = decl_env;
+  # Form auswerten:
+  eval(form);
+  # Environment-Frame auflösen:
+  unwind();
+  return; # fertig
+}
 
 # UP: Wertet eine Form in einem leeren Environment aus.
 # eval_noenv(form);
 # > form: Form
 # < mv_count/mv_space: Werte
 # can trigger GC
-  global Values eval_noenv (object form);
-  global Values eval_noenv(form)
-    var object form;
-    {
-      return_Values eval_5env(form,NIL,NIL,NIL,NIL,O(top_decl_env));
-    }
+global Values eval_noenv (object form) {
+  return_Values eval_5env(form,NIL,NIL,NIL,NIL,O(top_decl_env));
+}
 
 # UP: "nestet" ein FUN-Environment, d.h. schreibt alle aktiven Bindungen
 # aus dem Stack in neu allozierte Vektoren.
@@ -1110,8 +1079,7 @@ global void invoke_handlers (object cond) {
           var uintL count = 0;
           var object* bindingsptr = &FRAME_(frame_bindings); # Pointer auf die erste Bindung
           until ((count>=anzahl) # alle ungenesteten Bindungen durch?
-                 || (as_oint(*(bindingsptr STACKop 0)) & wbit(active_bit_o)) # aktive Bindung entdeckt?
-                ) {
+                 || (as_oint(*(bindingsptr STACKop 0)) & wbit(active_bit_o))) { # aktive Bindung entdeckt?
             # nein -> weitersuchen:
             bindingsptr skipSTACKop varframe_binding_size;
             count++;
@@ -1297,7 +1265,7 @@ global void invoke_handlers (object cond) {
 # nest_aktenv()
 # < environment* ergebnis: Pointer auf die Environments im STACK
 # changes STACK, can trigger GC
-  #define nest_aktenv()  nest_env(&aktenv)
+#define nest_aktenv()  nest_env(&aktenv)
 
 # UP: Ergänzt ein Deklarations-Environment um ein decl-spec.
 # augment_decl_env(declspec,env)
@@ -1508,8 +1476,7 @@ global void invoke_handlers (object cond) {
             # ja -> mehr als ein Doc-String ist zuviel:
             pushSTACK(STACK_4); # formlist
             fehler(source_program_error,
-                   GETTEXT("Too many documentation strings in ~")
-                  );
+                   GETTEXT("Too many documentation strings in ~"));
           }
           STACK_1 = form; # neuer Doc-String
           body = body_rest;
@@ -1524,8 +1491,7 @@ global void invoke_handlers (object cond) {
               #   (and (consp d) (eq (car d) 'COMPILE) (null (cdr d)))
               if (consp(declspec)
                   && eq(Car(declspec),S(compile))
-                  && nullp(Cdr(declspec))
-                 )
+                  && nullp(Cdr(declspec)))
                 compile_decl = true;
             }
             # Diese Deklaration auf STACK_(0+2) consen:
@@ -1573,60 +1539,53 @@ global void invoke_handlers (object cond) {
 # > evalhook_value: Wert für *EVALHOOK*
 # > applyhook_value: Wert für *APPLYHOOK*
 # verändert STACK
-  global void bindhooks (object evalhook_value, object applyhook_value);
-  global void bindhooks(evalhook_value,applyhook_value)
-    var object evalhook_value;
-    var object applyhook_value;
-    {
-      # Frame aufbauen:
-      {
-        var object* top_of_frame = STACK; # Pointer übern Frame
-        pushSTACK(Symbol_value(S(evalhookstern)));  # alter Wert von *EVALHOOK*
-        pushSTACK(S(evalhookstern));                # *EVALHOOK*
-        pushSTACK(Symbol_value(S(applyhookstern))); # alter Wert von *APPLYHOOK*
-        pushSTACK(S(applyhookstern));               # *APPLYHOOK*
-        finish_frame(DYNBIND);
-      }
-      # Frame fertig aufgebaut, nun die Werte der Variablen verändern:
-      Symbol_value(S(evalhookstern)) = evalhook_value; # (SETQ *EVALHOOK* evalhook_value)
-      Symbol_value(S(applyhookstern)) = applyhook_value; # (SETQ *APPLYHOOK* applyhook_value)
-    }
+global void bindhooks (object evalhook_value, object applyhook_value) {
+  # Frame aufbauen:
+  {
+    var object* top_of_frame = STACK; # Pointer übern Frame
+    pushSTACK(Symbol_value(S(evalhookstern)));  # alter Wert von *EVALHOOK*
+    pushSTACK(S(evalhookstern));                # *EVALHOOK*
+    pushSTACK(Symbol_value(S(applyhookstern))); # alter Wert von *APPLYHOOK*
+    pushSTACK(S(applyhookstern));               # *APPLYHOOK*
+    finish_frame(DYNBIND);
+  }
+  # Frame fertig aufgebaut, nun die Werte der Variablen verändern:
+  Symbol_value(S(evalhookstern)) = evalhook_value; # (SETQ *EVALHOOK* evalhook_value)
+  Symbol_value(S(applyhookstern)) = applyhook_value; # (SETQ *APPLYHOOK* applyhook_value)
+}
 
 # UP: bindet *EVALHOOK* und *APPLYHOOK* dynamisch an NIL.
 # bindhooks_NIL();
 # verändert STACK
-  #define bindhooks_NIL()  bindhooks(NIL,NIL)
+#define bindhooks_NIL()  bindhooks(NIL,NIL)
 
 # UP: Bestimmt den Source-Lambdabody eines Lambdabody.
 # lambdabody_source(lambdabody)
 # > lambdabody: Lambdabody (ein Cons)
 # < ergebnis: Source-Lambdabody (unbound falls keine Source angegeben)
-  local object lambdabody_source (object lambdabody);
-  local object lambdabody_source(lambdabody)
-    var object lambdabody;
-    {
-      var object body = Cdr(lambdabody);
-      # body = ((DECLARE (SOURCE ...) ...) ...) ?
-      if (consp(body)) {
-        var object form = Car(body); # erste Form
-        # form = (DECLARE (SOURCE ...) ...) ?
-        if (consp(form) && eq(Car(form),S(declare))) {
-          var object declspecs = Cdr(form);
-          # declspecs = ((SOURCE ...) ...) ?
-          if (consp(declspecs)) {
-            var object declspec = Car(declspecs);
-            # declspec = (SOURCE ...) ?
-            if (consp(declspec) && eq(Car(declspec),S(source))) {
-              var object declspecr = Cdr(declspec);
-              if (consp(declspecr))
-                # Source gefunden
-                return Car(declspecr);
-            }
-          }
+local object lambdabody_source (object lambdabody) {
+  var object body = Cdr(lambdabody);
+  # body = ((DECLARE (SOURCE ...) ...) ...) ?
+  if (consp(body)) {
+    var object form = Car(body); # erste Form
+    # form = (DECLARE (SOURCE ...) ...) ?
+    if (consp(form) && eq(Car(form),S(declare))) {
+      var object declspecs = Cdr(form);
+      # declspecs = ((SOURCE ...) ...) ?
+      if (consp(declspecs)) {
+        var object declspec = Car(declspecs);
+        # declspec = (SOURCE ...) ?
+        if (consp(declspec) && eq(Car(declspec),S(source))) {
+          var object declspecr = Cdr(declspec);
+          if (consp(declspecr))
+             # Source gefunden
+            return Car(declspecr);
         }
       }
-      return unbound;
     }
+  }
+  return unbound;
+}
 
 # UP: Fügt einen impliziten BLOCK in einen Lambdabody ein.
 # add_implicit_block();
@@ -1720,8 +1679,7 @@ global void invoke_handlers (object cond) {
       if (atomp(lambdabody)) {
         pushSTACK(name);
         fehler(source_program_error,
-               GETTEXT("FUNCTION: lambda-list for ~ is missing")
-              );
+               GETTEXT("FUNCTION: lambda-list for ~ is missing"));
       }
       # und der CAR muss eine Liste sein:
       {
@@ -1730,8 +1688,7 @@ global void invoke_handlers (object cond) {
           pushSTACK(lambdalist);
           pushSTACK(name);
           fehler(source_program_error,
-                 GETTEXT("FUNCTION: lambda-list for ~ should be a list, not ~")
-                );
+                 GETTEXT("FUNCTION: lambda-list for ~ should be a list, not ~"));
         }
       }
       pushSTACK(name);
@@ -1843,8 +1800,7 @@ global void invoke_handlers (object cond) {
           if (atomp(declspec)) {
             pushSTACK(declspec);
             fehler(source_program_error,
-                   GETTEXT("FUNCTION: illegal declaration ~")
-                  );
+                   GETTEXT("FUNCTION: illegal declaration ~"));
           }
           # SPECIAL-Deklaration verarbeiten:
           if (eq(Car(declspec),S(special))) { # SPECIAL-Deklaration ?
@@ -1854,8 +1810,7 @@ global void invoke_handlers (object cond) {
               if (!symbolp(sym)) {
                 pushSTACK(sym);
                 fehler(source_program_error,
-                       GETTEXT("FUNCTION: ~ is not a symbol, cannot be declared SPECIAL")
-                      );
+                       GETTEXT("FUNCTION: ~ is not a symbol, cannot be declared SPECIAL"));
               }
               # Symbol im STACK ablegen:
               check_STACK(); pushSTACK(sym); spec_count++; var_count++;
@@ -1937,8 +1892,7 @@ global void invoke_handlers (object cond) {
                 # varspec ist zu lang
                 pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
                 fehler(source_program_error,
-                       GETTEXT("FUNCTION: too long variable specification after &OPTIONAL: ~")
-                      );
+                       GETTEXT("FUNCTION: too long variable specification after &OPTIONAL: ~"));
               }
               item = Car(item_rest); # drittes Listenelement: svar
               if (!symbolp(item))
@@ -1978,13 +1932,11 @@ global void invoke_handlers (object cond) {
       NEXT_ITEM(badLLkey,badLLkey,key,badLLkey,aux,ende);
       pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
       fehler(source_program_error,
-             GETTEXT("FUNCTION: &REST var must be followed by &KEY or &AUX or end of list: ~")
-            );
+             GETTEXT("FUNCTION: &REST var must be followed by &KEY or &AUX or end of list: ~"));
      badrest:
       pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
       fehler(source_program_error,
-             GETTEXT("FUNCTION: &REST must be followed by a variable: ~")
-            );
+             GETTEXT("FUNCTION: &REST must be followed by a variable: ~"));
      key: # &KEY-Parameter abarbeiten, auf dem STACK ablegen
           # und Init-Formen in die Closure stecken:
       TheIclosure(*closure_)->clos_keywords = NIL; # keywords:=NIL
@@ -2034,8 +1986,7 @@ global void invoke_handlers (object cond) {
               pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
               pushSTACK(keyword);
               fehler(source_program_error,
-                     GETTEXT("FUNCTION: ~ in ~ is not a symbol")
-                    );
+                     GETTEXT("FUNCTION: ~ in ~ is not a symbol"));
             }
             item = Cdr(item); # (var)
             if (!(consp(item) && matomp(Cdr(item))))
@@ -2090,15 +2041,13 @@ global void invoke_handlers (object cond) {
      fehler_keyspec:
       pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
       fehler(source_program_error,
-             GETTEXT("FUNCTION: incorrect variable specification after &KEY: ~")
-            );
+             GETTEXT("FUNCTION: incorrect variable specification after &KEY: ~"));
      allow: # &ALLOW-OTHER-KEYS abarbeiten:
       TheIclosure(*closure_)->clos_allow_flag = T; # Flag auf T setzen
       NEXT_ITEM(badLLkey,badLLkey,badLLkey,badLLkey,aux,ende);
       pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
       fehler(source_program_error,
-             GETTEXT("FUNCTION: &ALLOW-OTHER-KEYS must be followed by &AUX or end of list: ~")
-            );
+             GETTEXT("FUNCTION: &ALLOW-OTHER-KEYS must be followed by &AUX or end of list: ~"));
      aux: # &AUX-Parameter abarbeiten, auf dem STACK ablegen und
           # Init-Formen in die Closure stecken:
       loop {
@@ -2132,8 +2081,7 @@ global void invoke_handlers (object cond) {
               # varspec ist zu lang
               pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
               fehler(source_program_error,
-                     GETTEXT("FUNCTION: too long variable specification after &AUX: ~")
-                    );
+                     GETTEXT("FUNCTION: too long variable specification after &AUX: ~"));
             }
           } else {
             init_form = NIL; # Default-Init
@@ -2155,32 +2103,27 @@ global void invoke_handlers (object cond) {
       pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
       pushSTACK(item);
       fehler(source_program_error,
-             GETTEXT("FUNCTION: badly placed lambda-list keyword ~: ~")
-            );
+             GETTEXT("FUNCTION: badly placed lambda-list keyword ~: ~"));
      fehler_symbol:
       pushSTACK(item);
       fehler(source_program_error,
-             GETTEXT("FUNCTION: ~ is not a symbol, may not be used as a variable")
-            );
+             GETTEXT("FUNCTION: ~ is not a symbol, may not be used as a variable"));
      fehler_constant:
       pushSTACK(item);
       fehler(program_error,
-             GETTEXT("FUNCTION: ~ is a constant, may not be used as a variable")
-            );
+             GETTEXT("FUNCTION: ~ is a constant, may not be used as a variable"));
      ende: # Listenende erreicht
       #undef NEXT_ITEM
       if (((uintL)~(uintL)0 > lp_limit_1) && (var_count > lp_limit_1)) { # Zu viele Parameter?
         pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
         fehler(source_program_error,
-               GETTEXT("FUNCTION: too many parameters in the lambda-list ~")
-              );
+               GETTEXT("FUNCTION: too many parameters in the lambda-list ~"));
       }
       # Da nun var_count <= lp_limit_1, passen alle counts in ein uintC.
       if (!nullp(lambdalist)) { # Lambda-Liste eine Dotted List?
         pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
         fehler(source_program_error,
-               GETTEXT("FUNCTION: a dot in a lambda-list is allowed only for macros, not here: ~")
-              );
+               GETTEXT("FUNCTION: a dot in a lambda-list is allowed only for macros, not here: ~"));
       }
       # Variablen zu einem Vektor zusammenfassen und in die Closure,
       # Variablenflags zu einem Byte-Vektor zusammenfassen und in die Closure:
@@ -2250,52 +2193,38 @@ global void invoke_handlers (object cond) {
 # fehler_specialform(caller,funname);
 # > caller: Aufrufer (ein Symbol)
 # > funname: ein Symbol
-  nonreturning_function(local, fehler_specialform, (object caller, object funname));
-  local void fehler_specialform(caller,funname)
-    var object caller;
-    var object funname;
-    {
-      pushSTACK(funname); # Wert für Slot NAME von CELL-ERROR
-      pushSTACK(funname);
-      pushSTACK(caller);
-      fehler(undefined_function,
-             GETTEXT("~: ~ is a special operator, not a function")
-            );
-    }
+nonreturning_function(local,fehler_specialform,(object caller,object funname));
+local void fehler_specialform(object caller,object funname) {
+  pushSTACK(funname); # CELL-ERROR slot NAME
+  pushSTACK(funname);
+  pushSTACK(caller);
+  fehler(undefined_function,
+         GETTEXT("~: ~ is a special operator, not a function"));
+}
 
 # Fehler, wenn aufzurufendes Symbol ein Macro ist.
 # fehler_macro(caller,funname);
 # > caller: Aufrufer (ein Symbol)
 # > funname: ein Symbol
-  nonreturning_function(local, fehler_macro, (object caller, object funname));
-  local void fehler_macro(caller,funname)
-    var object caller;
-    var object funname;
-    {
-      pushSTACK(funname); # Wert für Slot NAME von CELL-ERROR
-      pushSTACK(funname);
-      pushSTACK(caller);
-      fehler(undefined_function,
-             GETTEXT("~: ~ is a macro, not a function")
-            );
-    }
+nonreturning_function(local, fehler_macro, (object caller, object funname));
+local void fehler_macro(object caller,object funname) {
+  pushSTACK(funname); # CELL-ERROR slot NAME
+  pushSTACK(funname);
+  pushSTACK(caller);
+  fehler(undefined_function,GETTEXT("~: ~ is a macro, not a function"));
+}
 
 # Fehlermeldung wegen undefinierter Funktion.
 # fehler_undefined(caller,funname);
 # > caller: Aufrufer (ein Symbol)
 # > funname: Symbol oder (SETF symbol)
-  nonreturning_function(local, fehler_undefined, (object caller, object funname));
-  local void fehler_undefined(caller,funname)
-    var object caller;
-    var object funname;
-    {
-      pushSTACK(funname); # Wert für Slot NAME von CELL-ERROR
-      pushSTACK(funname);
-      pushSTACK(caller);
-      fehler(undefined_function,
-             GETTEXT("~: the function ~ is undefined")
-            );
-    }
+nonreturning_function(local,fehler_undefined,(object caller,object funname));
+local void fehler_undefined(object caller,object funname) {
+  pushSTACK(funname); # CELL-ERROR slot NAME
+  pushSTACK(funname);
+  pushSTACK(caller);
+  fehler(undefined_function,GETTEXT("~: the function ~ is undefined"));
+}
 
 # UP: Wandelt ein Argument in eine Funktion um.
 # coerce_function(obj)
@@ -2340,8 +2269,7 @@ global void invoke_handlers (object cond) {
         pushSTACK(obj);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(error,
-               GETTEXT("~: ~ is not a function")
-              );
+               GETTEXT("~: ~ is not a function"));
       }
     }
 
@@ -2395,69 +2323,55 @@ global void invoke_handlers (object cond) {
 # Fehlermeldung bei unpaarigen Keyword-Argumenten
 # fehler_key_unpaarig(fun);
 # > fun: Funktion
-  nonreturning_function(local, fehler_key_unpaarig, (object fun));
-  local void fehler_key_unpaarig(fun)
-    var object fun;
-    {
-      pushSTACK(fun);
-      fehler(program_error,
-             GETTEXT("EVAL/APPLY: keyword arguments for ~ should occur pairwise")
-            );
-    }
+nonreturning_function(local, fehler_key_unpaarig, (object fun));
+local void fehler_key_unpaarig(object fun) {
+  pushSTACK(fun);
+  fehler(program_error,
+         GETTEXT("EVAL/APPLY: keyword arguments for ~ should occur pairwise"));
+}
 
 # Fehlermeldung bei zu vielen Keyword-Argumenten
 # fehler_key_zuviel(fun);
 # > fun: Funktion
-  nonreturning_function(local, fehler_key_zuviel, (object fun));
-  local void fehler_key_zuviel(fun)
-    var object fun;
-    {
-      pushSTACK(fun);
-      fehler(program_error,
-             GETTEXT("EVAL/APPLY: too many arguments given to ~")
-            );
-    }
+nonreturning_function(local, fehler_key_zuviel, (object fun));
+local void fehler_key_zuviel(object fun) {
+  pushSTACK(fun);
+  fehler(program_error,
+         GETTEXT("EVAL/APPLY: too many arguments given to ~"));
+}
 
 # Fehlermeldung bei fehlerhaftem Keyword
 # fehler_key_notkw(kw);
 # > kw: Nicht-Symbol
-  nonreturning_function(local, fehler_key_notkw, (object kw));
-  local void fehler_key_notkw(kw)
-    var object kw;
-    {
-      pushSTACK(kw); # Wert für Slot DATUM von KEYWORD-ERROR
-      pushSTACK(S(symbol)); # Wert für Slot EXPECTED-TYPE von KEYWORD-ERROR
-      pushSTACK(kw);
-      fehler(keyword_error,
-             GETTEXT("EVAL/APPLY: ~ is not a symbol")
-            );
-    }
+nonreturning_function(local, fehler_key_notkw, (object kw));
+local void fehler_key_notkw(object kw) {
+  pushSTACK(kw); # KEYWORD-ERROR slot DATUM
+  pushSTACK(S(symbol)); # KEYWORD-ERROR slot EXPECTED-TYPE
+  pushSTACK(kw);
+  fehler(keyword_error,
+         GETTEXT("EVAL/APPLY: ~ is not a symbol"));
+}
 
 # Fehlermeldung bei fehlerhaftem Keyword
 # fehler_key_badkw(fun,kw,kwlist);
 # > fun: Funktion
 # > kw: unzulässiges Keyword
 # > kwlist: Liste der zugelassenen Keywords
-  nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kwlist));
-  local void fehler_key_badkw(fun,kw,kwlist)
-    var object fun;
-    var object kw;
-    var object kwlist;
-    {
-      pushSTACK(kw); # Wert für Slot DATUM von KEYWORD-ERROR
-      pushSTACK(kwlist);
-      pushSTACK(kwlist);
-      pushSTACK(fun);
-      pushSTACK(kw);
-      {
-        var object type = allocate_cons();
-        Car(type) = S(member); Cdr(type) = STACK_3;
-        STACK_3 = type; # `(MEMBER ,@kwlist) = Wert für Slot EXPECTED-TYPE von KEYWORD-ERROR
-      }
-      fehler(keyword_error,
-             GETTEXT("EVAL/APPLY: keyword ~ is illegal for ~. The possible keywords are ~")
-            );
-    }
+nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kwlist));
+local void fehler_key_badkw(object fun,object kw,object kwlist) {
+  pushSTACK(kw); # KEYWORD-ERROR slot DATUM
+  pushSTACK(kwlist);
+  pushSTACK(kwlist);
+  pushSTACK(fun);
+  pushSTACK(kw);
+  {
+    var object type = allocate_cons();
+    Car(type) = S(member); Cdr(type) = STACK_3;
+    STACK_3 = type; # `(MEMBER ,@kwlist) = KEYWORD-ERROR slot EXPECTED-TYPE
+  }
+  fehler(keyword_error,
+         GETTEXT("EVAL/APPLY: keyword ~ is illegal for ~. The possible keywords are ~"));
+}
 
 # Test auf unerlaubte Keywords
 # check_for_illegal_keywords(allow_flag,fehler_statement);
@@ -2553,8 +2467,7 @@ global void invoke_handlers (object cond) {
       {
         var object* top_of_frame = args_pointer; # Pointer übern Frame
         pushSTACK(closure);
-        finish_entry_frame(APPLY,&!my_jmp_buf,,
-          {
+        finish_entry_frame(APPLY,&!my_jmp_buf,,{
             if (mv_count==0) { # nach Wiedereintritt: Form übergeben?
               closure = STACK_(frame_closure); # selben APPLY nochmals versuchen
               args_pointer = topofframe(STACK_0);
@@ -2563,8 +2476,7 @@ global void invoke_handlers (object cond) {
               setSTACK(STACK = topofframe(STACK_0)); # STACK aufräumen # oder unwind() ??
               eval_noenv(value1); return; # übergebene Form evaluieren
             }
-          }
-          );
+          });
       }
       var object* closure_ = &STACK_(frame_closure); # Pointer auf die Closure
       var object* frame_pointer; # Pointer in den Frame
@@ -2651,8 +2563,7 @@ global void invoke_handlers (object cond) {
             if (argcount < count) {
               pushSTACK(TheIclosure(closure)->clos_name);
               fehler(program_error,
-                     GETTEXT("EVAL/APPLY: too few arguments given to ~")
-                    );
+                     GETTEXT("EVAL/APPLY: too few arguments given to ~"));
             }
             argcount -= count;
             dotimespC(count,count, {
@@ -2727,14 +2638,12 @@ global void invoke_handlers (object cond) {
        optional_ende:
         # &KEY-Parameter und &REST-Parameter vorbereiten:
         if (numberp(TheIclosure(closure)->clos_keywords) # keyword eine Zahl?
-            && nullp(TheIclosure(closure)->clos_rest_flag) # und kein Rest-Parameter?
-           ) {
+            && nullp(TheIclosure(closure)->clos_rest_flag)) { # und kein Rest-Parameter?
           # ja -> weder &KEY noch &REST angegeben
           if (argcount>0) { # noch Argumente da -> Fehler
             pushSTACK(TheIclosure(closure)->clos_name);
             fehler(program_error,
-                   GETTEXT("EVAL/APPLY: too many arguments given to ~")
-                  );
+                   GETTEXT("EVAL/APPLY: too many arguments given to ~"));
           }
         } else {
           # &KEY oder &REST vorhanden.
@@ -2781,8 +2690,7 @@ global void invoke_handlers (object cond) {
                 { fehler_key_badkw(TheIclosure(closure)->clos_name,
                                    bad_keyword,
                                    TheIclosure(closure)->clos_keywords);
-                }
-                );
+                });
               #undef for_every_keyword
               # Jetzt die Key-Werte zuordnen und die Key-Inits auswerten:
               var uintC count = posfixnum_to_L(TheIclosure(closure)->clos_key_anz);
@@ -3028,14 +2936,14 @@ global void invoke_handlers (object cond) {
 #           ----------------------- E V A L -----------------------
 
 # später:
-  local Values eval1 (object form);
-  local Values eval_fsubr (object fun, object args);
-  local Values eval_applyhook (object fun);
-  local Values eval_subr (object fun);
-  local Values eval_closure (object fun);
-  #ifdef DYNAMIC_FFI
-  local Values eval_ffunction (object fun);
-  #endif
+local Values eval1 (object form);
+local Values eval_fsubr (object fun, object args);
+local Values eval_applyhook (object fun);
+local Values eval_subr (object fun);
+local Values eval_closure (object fun);
+#ifdef DYNAMIC_FFI
+local Values eval_ffunction (object fun);
+#endif
 
 # UP: Wertet eine Form im aktuellen Environment aus.
 # eval(form);
@@ -3101,27 +3009,24 @@ global void invoke_handlers (object cond) {
 # > form: Form
 # < mv_count/mv_space: Werte
 # can trigger GC
-  global Values eval_no_hooks (object form);
-  global Values eval_no_hooks(form)
-    var object form;
+global Values eval_no_hooks (object form) {
+  var sp_jmp_buf my_jmp_buf;
+  # EVAL-Frame aufbauen:
+  {
+    var object* top_of_frame = STACK; # Pointer übern Frame
+    pushSTACK(form); # Form
+    finish_entry_frame(EVAL,&!my_jmp_buf,,
     {
-      var sp_jmp_buf my_jmp_buf;
-      # EVAL-Frame aufbauen:
-      {
-        var object* top_of_frame = STACK; # Pointer übern Frame
-        pushSTACK(form); # Form
-        finish_entry_frame(EVAL,&!my_jmp_buf,,
-          {
-            if (mv_count==0) { # nach Wiedereintritt: Form übergeben?
-              form = STACK_(frame_form); # selbe Form nochmal evaluieren
-            } else {
-              form = STACK_(frame_form) = value1; # übergebene Form evaluieren
-            }
-          });
+      if (mv_count==0) { # nach Wiedereintritt: Form übergeben?
+        form = STACK_(frame_form); # selbe Form nochmal evaluieren
+      } else {
+        form = STACK_(frame_form) = value1; # übergebene Form evaluieren
       }
-      # weiterevaluieren, *APPLYHOOK* als NIL betrachten:
-      pushSTACK(NIL); eval1(form);
-    }
+    });
+  }
+  # weiterevaluieren, *APPLYHOOK* als NIL betrachten:
+  pushSTACK(NIL); eval1(form);
+}
 
 # UP: Wertet eine Form im aktuellen Environment aus.
 # Nimmt dabei auf *EVALHOOK* keine Rücksicht, und erwartet den Wert von
@@ -3142,12 +3047,10 @@ global void invoke_handlers (object cond) {
           # Form ist Symbol
           value1 = sym_value(form,aktenv.var_env); # Wert im aktuellen Environment
           if (eq(value1,unbound)) {
-            pushSTACK(form); # Wert für Slot NAME von CELL-ERROR
+            pushSTACK(form); # CELL-ERROR slot NAME
             pushSTACK(form);
-            fehler(unbound_variable,
-                   GETTEXT("EVAL: variable ~ has no value")
-                  );
-          } elif (symbolmacrop(value1)) { # Symbol-Macro?
+            fehler(unbound_variable,GETTEXT("EVAL: variable ~ has no value"));
+          } else if (symbolmacrop(value1)) { # Symbol-Macro?
             # ja -> expandieren und erneut evaluieren:
             skipSTACK(1); # Wert von *APPLYHOOK* vergessen
             check_SP(); check_STACK();
@@ -3245,8 +3148,7 @@ global void invoke_handlers (object cond) {
             pushSTACK(fun);
             pushSTACK(S(eval));
             fehler(source_program_error,
-                   GETTEXT("~: ~ is not a function name")
-                  );
+                   GETTEXT("~: ~ is not a function name"));
           }
         }
       }
@@ -3324,8 +3226,7 @@ global void invoke_handlers (object cond) {
             pushSTACK(form);
             pushSTACK(Car(form));
             fehler(source_program_error,
-                   GETTEXT("EVAL: too few parameters for special-form ~: ~")
-                  );
+                   GETTEXT("EVAL: too few parameters for special-form ~: ~"));
           }
         fehler_zuviel: # Argumentliste args ist am Schluss nicht NIL
           if (atomp(args)) goto fehler_dotted;
@@ -3338,8 +3239,7 @@ global void invoke_handlers (object cond) {
             pushSTACK(form);
             pushSTACK(Car(form));
             fehler(source_program_error,
-                   GETTEXT("EVAL: too many parameters for special-form ~: ~")
-                  );
+                   GETTEXT("EVAL: too many parameters for special-form ~: ~"));
           }
         fehler_dotted: # Argumentliste args endet mit Atom /= NIL
           # STACK bis zum aufrufenden EVAL-Frame aufräumen:
@@ -3351,8 +3251,7 @@ global void invoke_handlers (object cond) {
             pushSTACK(form);
             pushSTACK(Car(form));
             fehler(source_program_error,
-                   GETTEXT("EVAL: dotted parameter list for special operator ~: ~")
-                  );
+                   GETTEXT("EVAL: dotted parameter list for special operator ~: ~"));
           }
         #undef REQ_PAR
       }
@@ -3375,78 +3274,67 @@ global void invoke_handlers (object cond) {
 # < mv_count/mv_space: Werte
 # verändert STACK
 # can trigger GC
-  local Values eval_applyhook(fun)
-    var object fun;
-    {
-      var object args = popSTACK(); # Argumentliste
-      var object applyhook_value = popSTACK(); # Wert von *APPLYHOOK*
-      check_SP();
-      # *EVALHOOK*, *APPLYHOOK* an NIL binden:
-      bindhooks_NIL();
-      #ifndef X3J13_005
-      # (FUNCALL *APPLYHOOK* fun args env) ausführen:
-      pushSTACK(fun); # Funktion als 1. Argument
-      pushSTACK(args); # Argumentliste als 2. Argument
-      pushSTACK(applyhook_value); # Funktion retten
-      {
-        var environment* stack_env = nest_aktenv(); # Environments in den Stack,
-        var object env = allocate_vector(5); # in neu allozierten Vektor
-        *(environment*)(&TheSvector(env)->data[0]) = *stack_env; # hineinschieben
-        skipSTACK(5);
-      }
-      applyhook_value = popSTACK(); # Funktion zurück
-      pushSTACK(env); # gesamtes Environment als 3. Argument
-      funcall(applyhook_value,3);
-      #else
-      # (FUNCALL *APPLYHOOK* fun args) ausführen:
-      pushSTACK(fun); # Funktion als 1. Argument
-      pushSTACK(args); # Argumentliste als 2. Argument
-      funcall(applyhook_value,2);
-      #endif
-      # alte Werte von *EVALHOOK*, *APPLYHOOK* zurück:
-      unwind();
-      # EVAL-Frame auflösen:
-      unwind();
-    }
+local Values eval_applyhook(object fun) {
+  var object args = popSTACK(); # Argumentliste
+  var object applyhook_value = popSTACK(); # Wert von *APPLYHOOK*
+  check_SP();
+  # *EVALHOOK*, *APPLYHOOK* an NIL binden:
+  bindhooks_NIL();
+  #ifndef X3J13_005
+  # (FUNCALL *APPLYHOOK* fun args env) ausführen:
+  pushSTACK(fun); # Funktion als 1. Argument
+  pushSTACK(args); # Argumentliste als 2. Argument
+  pushSTACK(applyhook_value); # Funktion retten
+  {
+    var environment* stack_env = nest_aktenv(); # Environments in den Stack,
+    var object env = allocate_vector(5); # in neu allozierten Vektor
+    *(environment*)(&TheSvector(env)->data[0]) = *stack_env; # hineinschieben
+    skipSTACK(5);
+  }
+  applyhook_value = popSTACK(); # Funktion zurück
+  pushSTACK(env); # gesamtes Environment als 3. Argument
+  funcall(applyhook_value,3);
+  #else
+  # (FUNCALL *APPLYHOOK* fun args) ausführen:
+  pushSTACK(fun); # Funktion als 1. Argument
+  pushSTACK(args); # Argumentliste als 2. Argument
+  funcall(applyhook_value,2);
+  #endif
+  # alte Werte von *EVALHOOK*, *APPLYHOOK* zurück:
+  unwind();
+  # EVAL-Frame auflösen:
+  unwind();
+}
 
 # In EVAL: Fehler bei zu wenig Argumenten
-  nonreturning_function(local, fehler_eval_zuwenig, (object fun));
-  local void fehler_eval_zuwenig(fun)
-    var object fun;
-    {
-      var object form = STACK_(frame_form); # Form
-      pushSTACK(form);
-      pushSTACK(fun);
-      fehler(source_program_error,
-             GETTEXT("EVAL: too few arguments given to ~: ~")
-            );
-    }
+nonreturning_function(local, fehler_eval_zuwenig, (object fun));
+local void fehler_eval_zuwenig(object fun) {
+  var object form = STACK_(frame_form); # Form
+  pushSTACK(form);
+  pushSTACK(fun);
+  fehler(source_program_error,
+         GETTEXT("EVAL: too few arguments given to ~: ~"));
+}
 
 # In EVAL: Fehler bei zu vielen Argumenten
-  nonreturning_function(local, fehler_eval_zuviel, (object fun));
-  local void fehler_eval_zuviel(fun)
-    var object fun;
-    {
-      var object form = STACK_(frame_form); # Form
-      pushSTACK(form);
-      pushSTACK(fun);
-      fehler(source_program_error,
-             GETTEXT("EVAL: too many arguments given to ~: ~")
-            );
-    }
+nonreturning_function(local, fehler_eval_zuviel, (object fun));
+local void fehler_eval_zuviel(object fun) {
+  var object form = STACK_(frame_form); # Form
+  pushSTACK(form);
+  pushSTACK(fun);
+  fehler(source_program_error,
+         GETTEXT("EVAL: too many arguments given to ~: ~"));
+}
 
 # In EVAL: Fehler bei punktierter Argumentliste
-  nonreturning_function(local, fehler_eval_dotted, (object fun));
-  local void fehler_eval_dotted(fun)
-    var object fun;
-    {
-      var object form = STACK_(frame_form); # Form
-      pushSTACK(form);
-      pushSTACK(fun);
-      fehler(source_program_error,
-             GETTEXT("EVAL: argument list given to ~ is dotted: ~")
-            );
-    }
+nonreturning_function(local, fehler_eval_dotted, (object fun));
+local void fehler_eval_dotted(object fun) {
+  var object form = STACK_(frame_form); # Form
+  pushSTACK(form);
+  pushSTACK(fun);
+  fehler(source_program_error,
+         GETTEXT("EVAL: argument list given to ~ is dotted: ~"));
+}
 
 # In EVAL: Wendet ein SUBR auf eine Argumentliste an, räumt den STACK auf
 # und liefert die Werte.
@@ -4149,41 +4037,39 @@ global void invoke_handlers (object cond) {
 # < mv_count/mv_space: Werte
 # verändert STACK
 # can trigger GC
-  local Values eval_ffunction(ffun)
-    var object ffun;
-    {
-      var object args = popSTACK(); # Argumentliste
-      skipSTACK(1); # Wert von *APPLYHOOK* vergessen
-      # STACK-Aufbau: EVAL-Frame.
-      # (ffun arg ...) --> (FFI::FOREIGN-CALL-OUT ffun arg ...)
-      check_SP(); check_STACK();
-      pushSTACK(ffun); # Foreign-Funktion als 1. Argument
-      {
-        var object* args_pointer = args_end_pointer; # Pointer über die Argumente
-        var uintC args_on_stack = 1; # Anzahl der Argumente
-        while (consp(args)) {
-          pushSTACK(Cdr(args)); # Listenrest retten
-          eval(Car(args)); # nächstes Element auswerten
-          args = STACK_0; STACK_0 = value1; # Auswertungsergebnis in den STACK
-          args_on_stack += 1;
-          if (((uintL)~(uintL)0 > ca_limit_1) && (args_on_stack > ca_limit_1)) {
-            set_args_end_pointer(args_pointer);
-            fehler_eval_zuviel(popSTACK());
-          }
-        }
-        funcall(L(foreign_call_out),args_on_stack);
+local Values eval_ffunction(object ffun) {
+  var object args = popSTACK(); # Argumentliste
+  skipSTACK(1); # Wert von *APPLYHOOK* vergessen
+  # STACK-Aufbau: EVAL-Frame.
+  # (ffun arg ...) --> (FFI::FOREIGN-CALL-OUT ffun arg ...)
+  check_SP(); check_STACK();
+  pushSTACK(ffun); # Foreign-Funktion als 1. Argument
+  {
+    var object* args_pointer = args_end_pointer; # Pointer über die Argumente
+    var uintC args_on_stack = 1; # Anzahl der Argumente
+    while (consp(args)) {
+      pushSTACK(Cdr(args)); # Listenrest retten
+      eval(Car(args)); # nächstes Element auswerten
+      args = STACK_0; STACK_0 = value1; # Auswertungsergebnis in den STACK
+      args_on_stack += 1;
+      if (((uintL)~(uintL)0 > ca_limit_1) && (args_on_stack > ca_limit_1)) {
+        set_args_end_pointer(args_pointer);
+        fehler_eval_zuviel(popSTACK());
       }
-      unwind(); # EVAL-Frame auflösen
-      return; # fertig
     }
+    funcall(L(foreign_call_out),args_on_stack);
+  }
+  unwind(); # EVAL-Frame auflösen
+  return; # fertig
+}
 #endif
 
 
 #          ----------------------- A P P L Y -----------------------
 
 # später:
-  local Values apply_subr (object fun, uintC args_on_stack, object other_args);
-  local Values apply_closure (object fun, uintC args_on_stack, object other_args);
+local Values apply_subr (object fun, uintC args_on_stack, object other_args);
+local Values apply_closure(object fun, uintC args_on_stack, object other_args);
 
 # UP: Wendet eine Funktion auf ihre Argumente an.
 # apply(function,args_on_stack,other_args);
@@ -4273,57 +4159,43 @@ global void invoke_handlers (object cond) {
         pushSTACK(O(type_designator_function)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(fun);
         pushSTACK(S(apply));
-        fehler(type_error,
-               GETTEXT("~: ~ is not a function name")
-              );
+        fehler(type_error,GETTEXT("~: ~ is not a function name"));
       }
     }
 
 # Fehler wegen punktierter Argumentliste
 # > name: Name der Funktion
-  nonreturning_function(local, fehler_apply_dotted, (object name));
-  local void fehler_apply_dotted(name)
-    var object name;
-    {
-      pushSTACK(name);
-      fehler(program_error,
-             GETTEXT("APPLY: argument list given to ~ is dotted")
-            );
-    }
+nonreturning_function(local, fehler_apply_dotted, (object name));
+local void fehler_apply_dotted(object name) {
+  pushSTACK(name);
+  fehler(program_error,GETTEXT("APPLY: argument list given to ~ is dotted"));
+}
 
 # Fehler wegen zu vielen Argumenten
 # > name: Name der Funktion
-  nonreturning_function(local, fehler_apply_zuviel, (object name));
-  local void fehler_apply_zuviel(name)
-    var object name;
-    {
-      pushSTACK(name);
-      fehler(program_error,
-             GETTEXT("APPLY: too many arguments given to ~")
-            );
-    }
+nonreturning_function(local, fehler_apply_zuviel, (object name));
+local void fehler_apply_zuviel(object name) {
+  pushSTACK(name);
+  fehler(program_error,GETTEXT("APPLY: too many arguments given to ~"));
+}
 
 # Fehler wegen zu wenig Argumenten
 # > name: Name der Funktion
-  nonreturning_function(local, fehler_apply_zuwenig, (object name));
-  local void fehler_apply_zuwenig(name)
-    var object name;
-    {
-      pushSTACK(name);
-      fehler(program_error,
-             GETTEXT("APPLY: too few arguments given to ~")
-            );
-    }
+nonreturning_function(local, fehler_apply_zuwenig, (object name));
+local void fehler_apply_zuwenig(object name) {
+  pushSTACK(name);
+  fehler(program_error,GETTEXT("APPLY: too few arguments given to ~"));
+}
 
 # Fehler wegen zu vielen Argumenten für ein SUBR
 # > fun: Funktion, ein SUBR
-  nonreturning_function(local, fehler_subr_zuviel, (object fun));
-  #define fehler_subr_zuviel(fun)  fehler_apply_zuviel(TheSubr(fun)->name)
+nonreturning_function(local, fehler_subr_zuviel, (object fun));
+#define fehler_subr_zuviel(fun)  fehler_apply_zuviel(TheSubr(fun)->name)
 
 # Fehler wegen zu wenig Argumenten für ein SUBR
 # > fun: Funktion, ein SUBR
-  nonreturning_function(local, fehler_subr_zuwenig, (object fun));
-  #define fehler_subr_zuwenig(fun)  fehler_apply_zuwenig(TheSubr(fun)->name)
+nonreturning_function(local, fehler_subr_zuwenig, (object fun));
+#define fehler_subr_zuwenig(fun)  fehler_apply_zuwenig(TheSubr(fun)->name)
 
 # In APPLY: Wendet ein SUBR auf eine Argumentliste an, räumt den STACK auf
 # und liefert die Werte.
@@ -4675,13 +4547,13 @@ global void invoke_handlers (object cond) {
 
 # Fehler wegen zu vielen Argumenten für eine Closure
 # > closure: Funktion, eine Closure
-  nonreturning_function(local, fehler_closure_zuviel, (object closure));
-  #define fehler_closure_zuviel(closure)  fehler_apply_zuviel(closure)
+nonreturning_function(local, fehler_closure_zuviel, (object closure));
+#define fehler_closure_zuviel(closure)  fehler_apply_zuviel(closure)
 
 # Fehler wegen zu wenig Argumenten für eine Closure
 # > closure: Funktion, eine Closure
-  nonreturning_function(local, fehler_closure_zuwenig, (object closure));
-  #define fehler_closure_zuwenig(closure)  fehler_apply_zuwenig(closure)
+nonreturning_function(local, fehler_closure_zuwenig, (object closure));
+#define fehler_closure_zuwenig(closure)  fehler_apply_zuwenig(closure)
 
 # In APPLY: Wendet eine Closure auf eine Argumentliste an, räumt den STACK auf
 # und liefert die Werte.
@@ -5116,8 +4988,8 @@ global void invoke_handlers (object cond) {
 #        ----------------------- F U N C A L L -----------------------
 
 # später:
-  local Values funcall_subr (object fun, uintC args_on_stack);
-  local Values funcall_closure (object fun, uintC args_on_stack);
+local Values funcall_subr (object fun, uintC args_on_stack);
+local Values funcall_closure (object fun, uintC args_on_stack);
 
 # UP: Wendet eine Funktion auf ihre Argumente an.
 # funcall(function,argcount);
@@ -5205,9 +5077,7 @@ global void invoke_handlers (object cond) {
         pushSTACK(O(type_designator_function)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(fun);
         pushSTACK(S(funcall));
-        fehler(type_error,
-               GETTEXT("~: ~ is not a function name")
-              );
+        fehler(type_error,GETTEXT("~: ~ is not a function name"));
       }
     }
 
@@ -6771,11 +6641,9 @@ global void invoke_handlers (object cond) {
             var object symbol = TheCclosure(closure)->clos_consts[n];
             # Der Compiler hat schon überprüft, dass es ein Symbol ist.
             if (eq(Symbol_value(symbol),unbound)) {
-              pushSTACK(symbol); # Wert für Slot NAME von CELL-ERROR
+              pushSTACK(symbol); # CELL-ERROR slot NAME
               pushSTACK(symbol);
-              fehler(unbound_variable,
-                     GETTEXT("symbol ~ has no value")
-                    );
+              fehler(unbound_variable,GETTEXT("symbol ~ has no value"));
             }
             value1 = Symbol_value(symbol); mv_count=1;
           }
@@ -6787,11 +6655,9 @@ global void invoke_handlers (object cond) {
             var object symbol = TheCclosure(closure)->clos_consts[n];
             # Der Compiler hat schon überprüft, dass es ein Symbol ist.
             if (eq(Symbol_value(symbol),unbound)) {
-              pushSTACK(symbol); # Wert für Slot NAME von CELL-ERROR
+              pushSTACK(symbol); # CELL-ERROR slot NAME
               pushSTACK(symbol);
-              fehler(unbound_variable,
-                     GETTEXT("symbol ~ has no value")
-                    );
+              fehler(unbound_variable,GETTEXT("symbol ~ has no value"));
             }
             pushSTACK(Symbol_value(symbol));
           }
@@ -6805,8 +6671,7 @@ global void invoke_handlers (object cond) {
             if (constantp(TheSymbol(symbol))) {
               pushSTACK(symbol);
               fehler(error,
-                     GETTEXT("assignment to constant symbol ~ is impossible")
-                    );
+                     GETTEXT("assignment to constant symbol ~ is impossible"));
             }
             Symbol_value(symbol) = value1; mv_count=1;
           }
@@ -7431,8 +7296,7 @@ global void invoke_handlers (object cond) {
                 pushSTACK(fun);
                 pushSTACK(S(multiple_value_call));
                 fehler(program_error,
-                       GETTEXT("~: too many arguments given to ~")
-                      );
+                       GETTEXT("~: too many arguments given to ~"));
               }
               # Funktion anwenden, Stack anheben bis unter die Funktion:
               funcall(fun,argcount);
@@ -7609,8 +7473,7 @@ global void invoke_handlers (object cond) {
               pushSTACK(TheSvector(tag_vector)->data[l]); # Marke l
               pushSTACK(S(go));
               fehler(control_error,
-                     GETTEXT("(~ ~): the tagbody of the tags ~ has already been left")
-                    );
+                     GETTEXT("(~ ~): the tagbody of the tags ~ has already been left"));
             }
             # Übergabewert an den Tagbody:
             # Bei CTAGBODY-Frames 1+l als Fixnum,
@@ -7618,8 +7481,7 @@ global void invoke_handlers (object cond) {
             var object* FRAME = uTheFramepointer(Cdr(tagbody_cons));
             value1 = (framecode(FRAME_(0)) == CTAGBODY_frame_info
                       ? fixnum(1+l)
-                      : FRAME_(frame_bindings+2*l+1)
-                     );
+                      : FRAME_(frame_bindings+2*l+1));
             mv_count=1;
             # Bis zum Tagbody-Frame unwinden, dann seine Routine anspringen,
             # die zum Label l springt:
@@ -7646,8 +7508,7 @@ global void invoke_handlers (object cond) {
               pushSTACK(TheSvector(tag_vector)->data[l]); # Marke l
               pushSTACK(S(go));
               fehler(control_error,
-                     GETTEXT("(~ ~): the tagbody of the tags ~ has already been left")
-                    );
+                     GETTEXT("(~ ~): the tagbody of the tags ~ has already been left"));
             }
             # Übergabewert an den Tagbody:
             # Bei CTAGBODY-Frames 1+l als Fixnum.
@@ -7710,8 +7571,7 @@ global void invoke_handlers (object cond) {
             pushSTACK(tag);
             pushSTACK(S(throw));
             fehler(control_error,
-                   GETTEXT("~: there is no CATCHer for tag ~")
-                  );
+                   GETTEXT("~: there is no CATCHer for tag ~"));
           }
         # ------------------- (13) UNWIND-PROTECT -----------------------
         CASE cod_uwp_open:               # (UNWIND-PROTECT-OPEN label)
@@ -7734,9 +7594,7 @@ global void invoke_handlers (object cond) {
           # unwind_protect_to_save ist zu retten und am Schluss anzuspringen.
           #if STACKCHECKC
           if (!(framecode(STACK_0) == UNWIND_PROTECT_frame_info)) {
-            fehler(serious_condition,
-                   GETTEXT("STACK corrupted")
-                  );
+            fehler(serious_condition,GETTEXT("STACK corrupted"));
           }
           #endif
           # Frame auflösen:
@@ -8080,8 +7938,7 @@ global void invoke_handlers (object cond) {
           {
             var uintL i;
             if (!(posfixnump(index) &&
-                  ((i = posfixnum_to_L(index)) < Svector_length(vec))
-               ) )
+                  ((i = posfixnum_to_L(index)) < Svector_length(vec))))
               goto svref_kein_index;
             value1 = TheSvector(vec)->data[i]; # indiziertes Element als Wert
             mv_count = 1;
@@ -8096,8 +7953,7 @@ global void invoke_handlers (object cond) {
           {
             var uintL i;
             if (!(posfixnump(index) &&
-                  ((i = posfixnum_to_L(index)) < Svector_length(vec))
-               ) )
+                  ((i = posfixnum_to_L(index)) < Svector_length(vec))))
               goto svref_kein_index;
             value1 = TheSvector(vec)->data[i] = popSTACK(); # neues Element hineinstecken
             mv_count = 1;
@@ -8118,9 +7974,7 @@ global void invoke_handlers (object cond) {
           pushSTACK(STACK_(1+2)); # vec
           pushSTACK(STACK_(0+3)); # index
           pushSTACK(S(svref));
-          fehler(type_error,
-                 GETTEXT("~: ~ is not a correct index into ~")
-                );
+          fehler(type_error,GETTEXT("~: ~ is not a correct index into ~"));
         }
         CASE cod_list:                   # (LIST n)
           {
@@ -8194,8 +8048,7 @@ global void invoke_handlers (object cond) {
         # Incrementieren. Speziell optimiert für Fixnums >=0.
         #define INC(arg,statement)  \
           { if (posfixnump(arg) # Fixnum >= 0 und < most-positive-fixnum ? \
-                && !eq(arg,fixnum(bitm(oint_data_len)-1))                  \
-               )                                                           \
+                && !eq(arg,fixnum(bitm(oint_data_len)-1)))                 \
               { arg = fixnum_inc(arg,1); statement; }                      \
               else                                                         \
               { with_saved_context(                                        \
@@ -8731,8 +8584,7 @@ global void invoke_handlers (object cond) {
           pushSTACK(fixnum(byteptr-&codeptr->data[0]-1)); # fehlerhafte Bytenummer
           pushSTACK(closure); # Closure
           fehler(serious_condition,
-                 GETTEXT("undefined bytecode in ~ at byte ~")
-                );
+                 GETTEXT("undefined bytecode in ~ at byte ~"));
         #undef L_operand
         #undef S_operand
         #undef U_operand
@@ -8740,16 +8592,12 @@ global void invoke_handlers (object cond) {
         #undef CASE
       }
      fehler_zuviele_werte:
-      fehler(error,
-             GETTEXT("too many return values")
-            );
+      fehler(error,GETTEXT("too many return values"));
      #if STACKCHECKC
      fehler_STACK_putt:
       pushSTACK(fixnum(byteptr-&codeptr->data[0])); # PC
       pushSTACK(closure); # FUNC
-      fehler(serious_condition,
-             GETTEXT("Corrupted STACK in ~ at byte ~")
-            );
+      fehler(serious_condition,GETTEXT("Corrupted STACK in ~ at byte ~"));
      #endif
      finished:
       #undef FREE_JMPBUF_on_SP
