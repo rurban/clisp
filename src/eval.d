@@ -129,15 +129,15 @@
     _(position_if), _(position_if_not), _(count), _(count_if),
     _(count_if_not), _(mismatch), _(search), _(sort), _(stable_sort),
     _(merge),
-    # STREAM : 23 SUBRs
+    # STREAM : 24 SUBRs
     _(file_stream_p), _(make_synonym_stream), _(synonym_stream_p),
     _(broadcast_stream_p), _(concatenated_stream_p), _(make_two_way_stream),
     _(two_way_stream_p), _(make_echo_stream), _(echo_stream_p),
     _(make_string_input_stream), _(string_input_stream_index),
     _(make_string_output_stream), _(get_output_stream_string),
     _(make_string_push_stream), _(string_stream_p), _(input_stream_p),
-    _(output_stream_p), _(stream_element_type), _(close), _(read_byte),
-    _(write_byte), _(file_position), _(file_length),
+    _(output_stream_p), _(stream_element_type), _(stream_external_format),
+    _(close), _(read_byte), _(write_byte), _(file_position), _(file_length),
     # SYMBOL : 15 SUBRs
     _(putd), _(proclaim_constant), _(get), _(getf), _(get_properties),
     _(putplist), _(put), _(remprop), _(symbol_package), _(symbol_plist),
@@ -160,7 +160,7 @@
     _(set_long_float_digits), _(log2), _(log10),
     # sonstige:
     };
-  # Das waren 529-43 SUBRs.
+  # Das waren 530-43 SUBRs.
   # Nun FUNTABR :
   local const Subr FUNTABR[] = {
     # SPVW : 0 SUBRs

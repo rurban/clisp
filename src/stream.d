@@ -12807,6 +12807,13 @@ LISPFUNN(stream_element_type,1)
     value1 = eltype; mv_count=1;
   }}
 
+LISPFUNN(stream_external_format,1)
+# (STREAM-EXTERNAL-FORMAT stream)
+  { var object stream = popSTACK();
+    if (!streamp(stream)) { fehler_stream(stream); }
+    value1 = S(Kdefault); mv_count=1; # 1 Wert :DEFAULT
+  }
+
 # UP: Stellt fest, ob ein Stream "interaktiv" ist, d.h. ob Input vom Stream
 # vermutlich von einem vorher ausgegebenen Prompt abhängen wird.
 # interactive_stream_p(stream)

@@ -1,5 +1,15 @@
 1998-10-31  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * pathname.d (OPEN): Add keyword argument :EXTERNAL-FORMAT.
+        * stream.d (STREAM-EXTERNAL-FORMAT): New function.
+        * eval.d (FUNTAB): Add stream-external-format.
+        * compiler.lsp (funtab): Add stream-external-format.
+          (subr-info): Update for OPEN and STREAM-EXTERNAL-FORMAT.
+        * init.lsp: Export STREAM-EXTERNAL-FORMAT from package LISP.
+        * defs3.lsp: Export STREAM-EXTERNAL-FORMAT from package COMMON-LISP.
+
+1998-10-31  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * constobj.d (O(version)): Bump version number.
 
 1998-10-31  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
