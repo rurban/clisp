@@ -80,8 +80,9 @@ If anything else, printed.")
 ;; Help-function:
 (defvar *key-bindings* nil)     ; list of key-bindings and help strings
 (defun help ()
-  (dolist (s (reverse (remove-if-not #'stringp *key-bindings*)))
-    (write-string s #|*debug-io*|#)))
+  (dolist (s *key-bindings*)
+    (when (stringp s)
+      (write-string s #|*debug-io*|#))))
 
 (defvar *saved-debug-package* *common-lisp-user-package*)
 (defvar *saved-debug-readtable* (copy-readtable nil))
@@ -442,15 +443,14 @@ Continue       :c       switch off single step mode, continue evaluation
           (princ may-continue *debug-io*)))))
 
   (when condition
-    (let ((restarts (remove may-continue (compute-restarts condition))))
+    (let ((restarts (remove may-continue (compute-restarts condition)))
+          (restarts-help (if may-continue
+                             (TEXT "The following restarts are available, too:")
+                             (TEXT "The following restarts are available:"))))
       (when restarts
         (when interactive-p
           (terpri *debug-io*)
-          (write-string
-            (if may-continue
-              (TEXT "The following restarts are available, too:")
-              (TEXT "The following restarts are available:"))
-            *debug-io*))
+          (write-string restarts-help *debug-io*))
         (let ((counter 0))
           (dolist (restart restarts)
             (let* ((command
@@ -468,7 +468,8 @@ Continue       :c       switch off single step mode, continue evaluation
                        #'(lambda () (invoke-restart-interactively restart))))
                commandsr)))
           (terpri *debug-io*)
-          (setq commandsr (nreverse commandsr))))))
+          (setq commandsr (cons (string-concat (string #\Newline) restarts-help)
+                                (nreverse commandsr)))))))
   (force-output *debug-io*)
 
   (tagbody
@@ -489,7 +490,8 @@ Continue       :c       switch off single step mode, continue evaluation
            (*debug-mode* 4)
            (*debug-frame*
             (frame-down-1 (frame-up-1 *frame-limit1* *debug-mode*)
-                          *debug-mode*)))
+                          *debug-mode*))
+           (commands-list (commands may-continue commandsr)))
       (driver
        ;; build driver frame and repeat #'lambda (infinitely; ...)
        #'(lambda ()
@@ -499,7 +501,7 @@ Continue       :c       switch off single step mode, continue evaluation
                    (same-env-as *debug-frame*
                      #'(lambda ()
                          (if (read-eval-print ; read-eval-print INPUT-line
-                              prompt (commands may-continue commandsr))
+                              prompt commands-list)
                              ;; T -> #<EOF>
                              ;; NIL -> form is already evaluated;
                              ;;        result has been printed
@@ -576,7 +578,10 @@ Continue       :c       switch off single step mode, continue evaluation
              (*frame-limit1* (frame-limit1 11))
              (*frame-limit2* (frame-limit2))
              (*debug-mode* 4)
-             (*debug-frame* (frame-down-1 (frame-up-1 *frame-limit1* *debug-mode*) *debug-mode*)))
+             (*debug-frame*
+              (frame-down-1 (frame-up-1 *frame-limit1* *debug-mode*)
+                            *debug-mode*))
+             (commands-list (commands nil (commands4))))
         (fresh-line #|*debug-io*|#)
         (write-string (TEXT "step ") #|*debug-io*|#)
         (write *step-level* #|:stream *debug-io*|#)
@@ -597,7 +602,7 @@ Continue       :c       switch off single step mode, continue evaluation
                               ;; is valid/equal for/to *debug-frame*
                               #'(lambda ()
                                   (if (read-eval-print ; get/read INPUT-line
-                                       prompt (commands nil (commands4)))
+                                       prompt commands-list)
                                       ;; T -> #<EOF>
                                       (go continue)
                                       ;; NIL -> form is already evaluated;

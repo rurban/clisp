@@ -1,3 +1,15 @@
+2002-10-17  Sam Steingold  <sds@gnu.org>
+
+	* debug.d (read_form): do not nreverse STACK_2 before binding
+	SYS::*KEY-BINDINGS*, since this destructively modifies commandsr
+	in reploop.lisp
+	* reploop.lisp (help): avoid much consing by not calling REVERSE +
+	REMOVE-IF-NOT, this also simplifies the logic everywhere and makes
+	the help message appear in the same order for different invocations
+	(break-loop): push the restart announcement onto commandsr
+	(break-loop, step-hook-fn): compute the command list just once,
+	instead of for each READ-EVAL-PRINT invocation
+
 2002-10-16  Sam Steingold  <sds@gnu.org>
 
 	* complete.lisp (completion): respect (readtable-case *readtable*)
