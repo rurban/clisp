@@ -2104,7 +2104,9 @@ PARAMS="intparam floatparam";
 PARAMS_H="";
 line="init :"
 for parf in ${PARAMS}; do
-  line=$line" "${parf}.h;
+  if [ ${TOS} != win32 ] ; then
+    line=$line" "${parf}.h;
+  fi
   PARAMS_H=${PARAMS_H}" "${parf}.h;
 done
 if [ $XCC_UNUSABLE_CPP = true ] ; then
