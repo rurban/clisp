@@ -172,11 +172,11 @@
   #define FF_minus1  make_FF(-1,FF_exp_mid+1,bit(FF_mant_len))
 #else
 # Single Float 0.0 :
-  #define FF_0  O(FF_zero)
+  #define FF_0  (object)O(FF_zero)
 # Single Float 1.0 :
-  #define FF_1  O(FF_one)
+  #define FF_1  (object)O(FF_one)
 # Single Float -1.0 :
-  #define FF_minus1  O(FF_minusone)
+  #define FF_minus1  (object)O(FF_minusone)
 #endif
 
 # Double float (DF) : 1 Langwort, indirekt:
@@ -206,11 +206,11 @@
     #define DF_vz_type  (dfloat_type|bit(vorz_bit_t))
 #endif
 # Double Float 0.0 :
-  #define DF_0  O(DF_zero)
+  #define DF_0  (object)O(DF_zero)
 # Double Float 1.0 :
-  #define DF_1  O(DF_one)
+  #define DF_1  (object)O(DF_one)
 # Double Float -1.0 :
-  #define DF_minus1  O(DF_minusone)
+  #define DF_minus1  (object)O(DF_minusone)
 
 # Long float (LF) : 1 Langwort, indirekt:
 #             Bits 30..24: Typinfo und Vorzeichen

@@ -1883,7 +1883,7 @@ LISPFUN(charset_range,3,1,norest,nokey,0,NIL) {
     fehler_posfixnum(STACK_0);
   VALUES1(i1 <= i2 ?
           Encoding_range(encoding)(encoding,i1,i2,maxintervals) :
-          O(empty_string));
+          (object)O(empty_string));
   skipSTACK(4);
 }
 
@@ -2358,10 +2358,11 @@ global void init_dependent_encodings(void) {
      If it was given, use that, and if the specified encoding was invalid,
      use a default encoding that does not depend on the locale. */
   O(default_file_encoding) =
-    (argv_encoding_file ? encoding_from_name(argv_encoding_file) : STACK_0);
+    (argv_encoding_file ? encoding_from_name(argv_encoding_file)
+     : (object)STACK_0);
   O(pathname_encoding) =
     (argv_encoding_pathname ? encoding_from_name(argv_encoding_pathname)
-     : STACK_0);
+     : (object)STACK_0);
  #if defined(WIN32_NATIVE)
   { /* cf libiconv/libcharset/lib/localcharset.c locale_charset() */
     var const char *enc = argv_encoding_terminal;
@@ -2373,15 +2374,16 @@ global void init_dependent_encodings(void) {
  #else
   O(terminal_encoding) =
     (argv_encoding_terminal ? encoding_from_name(argv_encoding_terminal)
-     : STACK_0);
+     : (object)STACK_0);
  #endif
  #if defined(HAVE_FFI) || defined(HAVE_AFFI)
   O(foreign_encoding) =
     (argv_encoding_foreign ? encoding_from_name(argv_encoding_foreign)
-     : STACK_0);
+     : (object)STACK_0);
  #endif
   O(misc_encoding) =
-    (argv_encoding_misc ? encoding_from_name(argv_encoding_misc) : STACK_0);
+    (argv_encoding_misc ? encoding_from_name(argv_encoding_misc)
+     : (object)STACK_0);
   skipSTACK(1);
 #else /* no UNICODE */
   O(default_file_encoding) = encoding_from_name(NULL);

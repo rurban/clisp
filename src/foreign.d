@@ -1023,7 +1023,7 @@ global object convert_from_foreign(fvd,data)
           return value1;
         } elif (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
           # Use the union's first component.
-          return convert_from_foreign(fvdlen > 2 ? TheSvector(fvd)->data[2] : NIL, data);
+          return convert_from_foreign(fvdlen > 2 ? (object)TheSvector(fvd)->data[2] : NIL, data);
         } elif (eq(fvdtype,S(c_array)) && (fvdlen > 1)) {
           pushSTACK(fvd);
           # Allocate the resulting array: (MAKE-ARRAY dims :element-type ...)
@@ -1182,7 +1182,7 @@ local bool foreign_with_pointers_p(fvd)
           return false;
         } elif (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
           # Use the union's first component.
-          return foreign_with_pointers_p(fvdlen > 2 ? TheSvector(fvd)->data[2] : NIL);
+          return foreign_with_pointers_p(fvdlen > 2 ? (object)TheSvector(fvd)->data[2] : NIL);
         } elif ((eq(fvdtype,S(c_array)) && (fvdlen > 1)) || (eq(fvdtype,S(c_array_max)) && (fvdlen == 3))) {
           var uintL i;
           for (i = 2; i < fvdlen; i++)
@@ -1791,7 +1791,7 @@ local void convert_to_foreign(fvd,obj,data)
           return;
         } elif (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
           # Use the union's first component.
-          convert_to_foreign(fvdlen > 2 ? TheSvector(fvd)->data[2] : NIL,obj,data);
+          convert_to_foreign(fvdlen > 2 ? (object)TheSvector(fvd)->data[2] : NIL,obj,data);
           return;
         } elif (eq(fvdtype,S(c_array)) && (fvdlen > 1)) {
           var object eltype = TheSvector(fvd)->data[1];

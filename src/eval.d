@@ -7360,7 +7360,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var gcv_object_t* FRAME = uTheFramepointer(Cdr(tagbody_cons));
             VALUES1(framecode(FRAME_(0)) == CTAGBODY_frame_info
                    ? fixnum(1+l)
-                   : FRAME_(frame_bindings+2*l+1));
+                   : (object)FRAME_(frame_bindings+2*l+1));
             # unwind upto Tagbody-Frame, then jump to its Routine,
             # which then jumps to Label l:
             #ifndef FAST_SP

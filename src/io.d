@@ -5646,8 +5646,8 @@ local void klammer_auf (const gcv_object_t* stream_) {
   } else { # Pretty-Print-Help-Stream
     var object pos = # position for closing parenthesis
       (!nullpSv(print_rpars) /* *PRINT-RPARS* /= NIL ? */
-       ? TheStream(stream)->strm_pphelp_lpos # yes -> current Position (Fixnum>=0)
-       : NIL);                               # no -> NIL
+       ? (object)TheStream(stream)->strm_pphelp_lpos # yes -> current Position (Fixnum>=0)
+       : NIL);                                       # no -> NIL
     dynamic_bind(S(prin_rpar),pos); # bind SYS::*PRIN-RPAR* to it
     write_ascii_char(stream_,'(');
   }
@@ -9780,7 +9780,8 @@ LISPFUN(format_tabulate,3,2,norest,nokey,0,NIL) {
   swap(object,STACK_0,STACK_4); # get the stream into STACK_0
   test_ostream();
  #define COL_ARG(x) (missingp(x) ? Fixnum_1 : \
-                     (posfixnump(x) ? x : (fehler_posfixnum(x),Fixnum_1)))
+                     (posfixnump(x) ? (object)x : \
+                     (fehler_posfixnum(x),nullobj)))
   STACK_1 = COL_ARG(STACK_1);
   STACK_4 = COL_ARG(STACK_4);
  #undef COL_ARG

@@ -51,7 +51,7 @@ LISPFUNN(set_current_language,1) {
 # (SYS::TEXT english) returns the message in the current language
 LISPFUNN(text,1) {
  #ifndef GNU_GETTEXT
-  VALUES1(ENGLISH ? STACK_0 : NIL);
+  VALUES1(ENGLISH ? (object)STACK_0 : NIL);
  #else
   if (!stringp(STACK_0)) fehler_string(STACK_0);
   with_string_0(STACK_0,Symbol_value(S(ascii)),asciz, {

@@ -695,7 +695,7 @@ LISPFUNN(std_instance_p,1) {
 
 # returns (CLOS:CLASS-OF object). Is especially efficient for CLOS-objects.
 #define class_of(obj)  \
-    (instancep(obj) ? TheInstance(obj)->inst_class            \
+    (instancep(obj) ? (object)TheInstance(obj)->inst_class    \
                     : (pushSTACK(obj), C_class_of(), value1))
 
 # error-message if an object is not a class.
@@ -1343,7 +1343,7 @@ LISPFUN(pmake_instance,1,0,rest,nokey,0,NIL) {
       pushSTACK(value1);
       if (argcount>0) { # (rotatef STACK_0 ... STACK_(2*argcount))
         var uintC count;
-        var gcv_object_t* ptr = &(STACK_0);
+        var gcv_object_t* ptr = &STACK_0;
         dotimespC(count,2*argcount,
         { *ptr = *(ptr STACKop 1); ptr skipSTACKop 1; });
         *ptr = value1;
