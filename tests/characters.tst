@@ -652,3 +652,11 @@ CHAR-HYPER-BIT
 (char-name #\Space) "Space"
 
 (char-name #\Newline) "Newline"
+
+(let ((wrong-codes nil))
+  (dotimes (code char-code-limit)
+    (let ((c (code-char code)))
+      (unless (eql c (name-char (char-name c)))
+        (push code wrong-codes))))
+  wrong-codes)
+NIL

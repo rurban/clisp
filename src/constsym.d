@@ -1175,6 +1175,9 @@ LISPSYM(array_total_size_limit,"ARRAY-TOTAL-SIZE-LIMIT",lisp) # als Konstante in
 LISPSYM(subtype_integer,"SUBTYPE-INTEGER",system) # als Funktion für ARRAY
 LISPSYM(char_cod_limit,"CHAR-CODE-LIMIT",lisp) # als Konstante in CHARSTRG
 LISPSYM(base_char_cod_limit,"BASE-CHAR-CODE-LIMIT",lisp) # als Konstante in CHARSTRG
+#if defined(UNICODE) && defined(AWFULLY_SLOW)
+LISPSYM(unicode_attributes_line,"UNICODE-ATTRIBUTES-LINE",system) # als Funktion in CHARSTRG
+#endif
 LISPSYM(designator,"DESIGNATOR",lisp) # als Typ für CHARSTRG
 LISPSYM(class_slots,"CLASS-SLOTS",clos) # als Funktion für RECORD
 LISPSYM(slotdef_location,"SLOTDEF-LOCATION",clos) # als Funktion für RECORD

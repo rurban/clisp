@@ -1,5 +1,5 @@
 # Funktionen für Characters und Strings für CLISP
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2000
 
 #include "lispbibl.c"
 
@@ -1197,10 +1197,99 @@ static const cint nop_page[256] = {
 # Zum Namen charname_table[i] gehört der Code charname_table_codes[i]
 # (für 0 <= i < charname_table_length).
 
+#ifdef UNICODE
+
+# Table of Unicode character names, derived from UnicodeData.txt.
+#include "uninames.c"
+
+# Returns the word with a given index.
+  local const char* unicode_name_word (uintWL index, uintL* lengthp);
+  local const char* unicode_name_word(index,lengthp)
+    var uintWL index;
+    var uintL* lengthp;
+    {
+      ASSERT(index < UNICODE_CHARNAME_NUM_WORDS);
+      # Binary search for i with
+      #   unicode_name_by_length[i].ind_offset <= index
+      # and
+      #   index < unicode_name_by_length[i+1].ind_offset
+      var uintL i1 = 0;
+      var uintL i2 = sizeof(unicode_name_by_length)/sizeof(unicode_name_by_length[0]) - 1;
+      while (i2-i1 > 1) {
+        var uintL i = (i1+i2)>>1;
+        if (unicode_name_by_length[i].ind_offset <= index)
+          i1 = i;
+        else
+          i2 = i;
+      }
+      var uintL i = i1;
+      ASSERT(unicode_name_by_length[i].ind_offset <= index
+             && index < unicode_name_by_length[i+1].ind_offset);
+      *lengthp = i;
+      return &unicode_name_words[unicode_name_by_length[i].extra_offset + (index-unicode_name_by_length[i].ind_offset)*i];
+    }
+
+# Looks up the index of a word.
+  local sintL unicode_name_word_lookup (const char* word, uintL length);
+  local sintL unicode_name_word_lookup(word,length)
+    var const char* word;
+    var uintL length;
+    {
+      if (length > 0 && length < sizeof(unicode_name_by_length)/sizeof(unicode_name_by_length[0]) - 1) {
+        # Binary search among the words of given length.
+        var uintL extra_offset = unicode_name_by_length[length].extra_offset;
+        var uintL i0 = unicode_name_by_length[length].ind_offset;
+        var uintL i1 = i0;
+        var uintL i2 = unicode_name_by_length[length+1].ind_offset;
+        while (i2-i1 > 0) {
+          var uintL i = (i1+i2)>>1;
+          var const char* p = &unicode_name_words[extra_offset + (i-i0)*length];
+          var const char* w = word;
+          var uintL n = length;
+          loop {
+            if (*p < *w) {
+              if (i1 == i)
+                return -1;
+              # Note here: i1 < i < i2.
+              i1 = i;
+              break;
+            }
+            if (*p > *w) {
+              # Note here: i1 <= i < i2.
+              i2 = i;
+              break;
+            }
+            p++; w++; n--;
+            if (n == 0)
+              return i;
+          }
+        }
+      }
+      return -1;
+    }
+
+# Auxiliary tables for Hangul syllable names, see the Unicode 3.0 book,
+# sections 3.11 and 4.4.
+static const char jamo_initial_short_name[19][3] = {
+  "G", "GG", "N", "D", "DD", "R", "M", "B", "BB", "S", "SS", "", "J", "JJ",
+  "C", "K", "T", "P", "H"
+};
+static const char jamo_medial_short_name[21][4] = {
+  "A", "AE", "YA", "YAE", "EO", "E", "YEO", "YE", "O", "WA", "WAE", "OE", "YO",
+  "U", "WEO", "WE", "WI", "YU", "EU", "YI", "I"
+};
+static const char jamo_final_short_name[28][3] = {
+  "", "G", "GG", "GS", "N", "NI", "NH", "D", "L", "LG", "LM", "LB", "LS", "LT",
+  "LP", "LH", "M", "B", "BS", "S", "SS", "NG", "J", "C", "K", "T", "P", "H"
+};
+
+#endif
+
 # UP: Liefert den Namen eines Zeichens.
 # char_name(code)
 # > chart code: Code eines Zeichens
 # < ergebnis: Simple-String (Name dieses Zeichens) oder NIL
+# can trigger GC
   global object char_name (chart code);
   global object char_name(code)
     var chart code;
@@ -1218,6 +1307,103 @@ static const cint nop_page[256] = {
       }
       # nicht gefunden
       #ifdef UNICODE
+      # Try to find the long name, from UnicodeData.txt. It is the second
+      # semicolon separated field from (sys::unicode-attributes-line c).
+      #ifdef AWFULLY_SLOW
+      {
+        pushSTACK(fixnum(c));
+        funcall(S(unicode_attributes_line),1);
+        var object line = value1;
+        if (!nullp(line)) {
+          var uintL len = Sstring_length(line);
+          var uintL i1;
+          var uintL i2;
+          for (i1 = 0; i1 < len; i1++)
+            if (chareq(TheSstring(line)->data[i1],ascii(';'))) {
+              i1++;
+              for (i2 = i1; i2 < len; i2++)
+                if (chareq(TheSstring(line)->data[i2],ascii(';'))) {
+                  if (!chareq(TheSstring(line)->data[i1],ascii('<'))) {
+                    var object name = subsstring(line,i1,i2);
+                    # Replace ' ' with '_':
+                    var uintL count = i2-i1;
+                    if (count > 0) {
+                      var chart* ptr = &TheSstring(name)->data[0];
+                      dotimespL(count,count, {
+                        if (chareq(*ptr,ascii(' ')))
+                          *ptr = ascii('_');
+                        ptr++;
+                      });
+                    }
+                    return name;
+                  }
+                  break;
+                }
+              break;
+            }
+        }
+      }
+      #else
+      # Here is a much faster implementation.
+      if (c >= 0xAC00 && c <= 0xD7A3) {
+        # Special case for Hangul syllables. Keeps the tables small.
+        var char buf[16+7];
+        var char* ptr;
+        memcpy(buf,"HANGUL_SYLLABLE_",16);
+        ptr = buf+16;
+        var uintL tmp = c - 0xAC00;
+        var uintL index3 = tmp % 28; tmp = tmp / 28;
+        var uintL index2 = tmp % 21; tmp = tmp / 21;
+        var uintL index1 = tmp;
+        var const char* q;
+        q = jamo_initial_short_name[index1];
+        while (*q != '\0') { *ptr++ = *q++; }
+        q = jamo_medial_short_name[index2];
+        while (*q != '\0') { *ptr++ = *q++; }
+        q = jamo_final_short_name[index3];
+        while (*q != '\0') { *ptr++ = *q++; }
+        return n_char_to_string(buf,ptr-buf,Symbol_value(S(ascii)));
+      } else {
+        var const uint16* words;
+        {
+          # Binary search in unicode_code_to_name.
+          var uintL i1 = 0;
+          var uintL i2 = sizeof(unicode_code_to_name)/sizeof(unicode_code_to_name[0]);
+          loop {
+            var uintL i = (i1+i2)>>1;
+            if (unicode_code_to_name[i].code == c) {
+              words = &unicode_names[unicode_code_to_name[i].name];
+              break;
+            } else if (unicode_code_to_name[i].code < c) {
+              if (i1 == i) {
+                words = NULL;
+                break;
+              }
+              # Note here: i1 < i < i2.
+              i1 = i;
+            } else if (unicode_code_to_name[i].code > c) {
+              # Note here: i1 <= i < i2.
+              i2 = i;
+            }
+          }
+        }
+        if (words != NULL) {
+          # Found it in unicode_code_to_name. Now concatenate the words.
+          var char buf[UNICODE_CHARNAME_MAX_LENGTH];
+          var char* ptr = buf;
+          loop {
+            var uintL wordlen;
+            var const char* word = unicode_name_word(*words>>1,&wordlen);
+            do { *ptr++ = *word++; } while (--wordlen > 0);
+            if ((*words & 1) == 0)
+              break;
+            *ptr++ = '_';
+            words++;
+          }
+          return n_char_to_string(buf,ptr-buf,Symbol_value(S(ascii)));
+        }
+      }
+      #endif
       # CLHS (glossary "name" 5) specifies that all non-graphic characters have
       # a name. Let's give a name to all of them, it's more uniform (and avoids
       # printer errors).
@@ -1260,16 +1446,18 @@ static const cint nop_page[256] = {
         var uintL len;
         var uintL offset;
         string = unpack_string_ro(string,&len,&offset);
-        if (len == 5) {
+        if (len > 1 && len <= UNICODE_CHARNAME_MAX_LENGTH) {
           var const chart* charptr;
           unpack_sstring_alloca(string,len,offset, charptr=);
-          if (chareq(charptr[0],ascii('U')) || chareq(charptr[0],ascii('u'))) {
+          # Test for Uxxxx syntax.
+          if (len == 5
+              && (chareq(charptr[0],ascii('U')) || chareq(charptr[0],ascii('u')))) {
             # Hexadezimalzahl entziffern:
             var uintL code = 0;
             var uintL index = 1;
-            charptr++;
+            var const chart* tmpcharptr = charptr+1;
             loop {
-              var cint c = as_cint(*charptr++); # nächstes Character
+              var cint c = as_cint(*tmpcharptr++); # nächstes Character
               # soll Hexadezimalziffer sein:
               if (c > 'f') break;
               if (c >= 'a') { c -= 'a'-'A'; }
@@ -1287,6 +1475,131 @@ static const cint nop_page[256] = {
                 # This also avoids us special-casing the #\Uxxxx syntax in io.d.
                 /* if (!graphic_char_p(as_chart(code))) */
                 return code_char(as_chart(code));
+              }
+            }
+          }
+          # Test for word1_word2_... syntax.
+          {
+            var char buf[UNICODE_CHARNAME_MAX_LENGTH];
+            var char* ptr = buf;
+            loop {
+              var cint c = as_cint(*charptr++);
+              if (!(c >= ' ' && c <= '~'))
+                break;
+              *ptr++ = (char)(c >= 'a' && c <= 'z' ? c-'a'+'A' : c);
+              if (--len == 0)
+                goto filled_buf;
+            }
+            if (FALSE) {
+             filled_buf:
+              # Convert the constituents to uint16 words.
+              var uint16 words[UNICODE_CHARNAME_MAX_WORDS];
+              var uint16* wordptr = words;
+              {
+                var const char* p1 = buf;
+                loop {
+                  var const char* p2 = p1;
+                  while (p2 < ptr && *p2 != '_') p2++;
+                  var sintL word = unicode_name_word_lookup(p1,p2-p1);
+                  if (word < 0)
+                    break;
+                  if (wordptr == &words[UNICODE_CHARNAME_MAX_WORDS])
+                    break;
+                  *wordptr++ = word;
+                  if (p2 == ptr)
+                    goto filled_words;
+                  p1 = p2+1;
+                  # Special case for Hangul syllables. Keeps the tables small.
+                  if (wordptr == &words[2]
+                      && words[0] == UNICODE_CHARNAME_WORD_HANGUL
+                      && words[1] == UNICODE_CHARNAME_WORD_SYLLABLE) {
+                    # Split the last word [p1..ptr) into three parts:
+                    # 1) [BCDGHJKMNPRST]
+                    # 2) [AEIOUWY]
+                    # 3) [BCDGHIJKLMNPST]
+                    var const char* p2 = p1;
+                    while (p2 < ptr
+                           && (*p2=='B' || *p2=='C' || *p2=='D' || *p2=='G'
+                               || *p2=='H' || *p2=='J' || *p2=='K' || *p2=='M'
+                               || *p2=='N' || *p2=='P' || *p2=='R' || *p2=='S'
+                               || *p2=='T'))
+                      p2++;
+                    var const char* p3 = p2;
+                    while (p3 < ptr
+                           && (*p3=='A' || *p3=='E' || *p3=='I' || *p3=='O'
+                               || *p3=='U' || *p3=='W' || *p3=='Y'))
+                      p3++;
+                    var const char* p4 = p3;
+                    while (p4 < ptr
+                           && (*p4=='B' || *p4=='C' || *p4=='D' || *p4=='G'
+                               || *p4=='H' || *p4=='I' || *p4=='J' || *p4=='K'
+                               || *p4=='L' || *p4=='M' || *p4=='N' || *p4=='P'
+                               || *p4=='S' || *p4=='T'))
+                      p4++;
+                    if (p4 == ptr) {
+                      var uintL n1 = p2-p1;
+                      var uintL n2 = p3-p2;
+                      var uintL n3 = p4-p3;
+                      if (n1 <= 2 && (n2 >= 1 && n2 <= 3) && n3 <= 2) {
+                        var uintL index1;
+                        for (index1 = 0; index1 < 19; index1++)
+                          if (memcmp(jamo_initial_short_name[index1],p1,n1)==0
+                              && jamo_initial_short_name[index1][n1] == '\0') {
+                            var uintL index2;
+                            for (index2 = 0; index2 < 21; index2++)
+                              if (memcmp(jamo_medial_short_name[index2],p2,n2)==0
+                                  && jamo_medial_short_name[index2][n2] == '\0') {
+                                var uintL index3;
+                                for (index3 = 0; index3 < 28; index3++)
+                                  if (memcmp(jamo_final_short_name[index3],p3,n3)==0
+                                      && jamo_final_short_name[index3][n3] == '\0') {
+                                    return code_char(as_chart(0xAC00 + (index1*21+index2)*28+index3));
+                                  }
+                                break;
+                              }
+                            break;
+                          }
+                      }
+                    }
+                  }
+                }
+              }
+              if (FALSE) {
+               filled_words:
+                # Multiply by 2, to simplify later comparisons.
+                var uintL words_length = wordptr - words;
+                {
+                  var sintL i = words_length-1;
+                  words[i] = 2*words[i];
+                  for (; --i >= 0; )
+                    words[i] = 2*words[i] + 1;
+                }
+                # Binary search in unicode_name_to_code.
+                var uintL i1 = 0;
+                var uintL i2 = sizeof(unicode_name_to_code)/sizeof(unicode_name_to_code[0]);
+                loop {
+                  var uintL i = (i1+i2)>>1;
+                  var const uint16* w = words;
+                  var const uint16* p = &unicode_names[unicode_name_to_code[i].name];
+                  var uintL n = words_length;
+                  loop {
+                    if (*p < *w) {
+                      if (i1 == i)
+                        goto name_not_found;
+                      # Note here: i1 < i < i2.
+                      i1 = i;
+                      break;
+                    } else if (*p > *w) {
+                      # Note here: i1 <= i < i2.
+                      i2 = i;
+                      break;
+                    }
+                    p++; w++; n--;
+                    if (n == 0)
+                      return code_char(as_chart(unicode_name_to_code[i].code));
+                  }
+                }
+               name_not_found:;
               }
             }
           }

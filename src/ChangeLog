@@ -1,3 +1,15 @@
+2000-12-29  Bruno Haible  <haible@clisp.cons.org>
+
+        * utils/gen-uninames: New file.
+        * Makefile.devel (all): Depend on src/uninames.c.
+          (src/uninames.c): New rule.
+        * makemake.in (UNICODE_INCLUDES): Add uninames.
+        * charstrg.d: Include uninames.c.
+          (unicode_name_word, unicode_name_word_lookup): New functions.
+          (jamo_initial_short_name, jamo_medial_short_name,
+           jamo_final_short_name): New tables.
+          (char_name, name_char): Add support for Unicode character names.
+
 2000-12-21  Sam Steingold  <sds@gnu.org>
 
 	* dirkey.d: made the second half of the file GC safe

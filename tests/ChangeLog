@@ -1,3 +1,7 @@
+2000-12-29  Bruno Haible  <haible@clisp.cons.org>
+
+        * characters.tst: Add exhaustive test for char-name and name-char.
+
 2000-03-31  Bruno Haible  <haible@clisp.cons.org>
 
         Renamed all *.lsp files to *.lisp.

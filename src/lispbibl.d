@@ -10592,6 +10592,7 @@ typedef struct {
 # char_name(code)
 # > chart code: Code eines Zeichens
 # < ergebnis: Simple-String (Name dieses Zeichens) oder NIL
+# can trigger GC
   extern object char_name (chart code);
 # wird verwendet von IO
 
@@ -10682,7 +10683,7 @@ typedef struct {
 # with 0 <= start <= end <= Sstring_length(string)
 # < object result: (subseq string start end), a freshly created normal-simple-string
   extern object subsstring (object string, uintL start, uintL end);
-# wird verwendet von PATHNAME
+# wird verwendet von CHARSTRG, PATHNAME
 
 # UP: bildet einen aus mehreren Strings zusammengehängten String.
 # string_concat(argcount)

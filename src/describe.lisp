@@ -584,6 +584,7 @@ to print the corresponding values, or T for all of them.")
 ) ) ) )
 
 ; Return the line associated with a Unicode code in the Unicode data file.
+; Returns a simple-string or nil. Also used by the CHAR-NANE function.
 (defun unicode-attributes-line (code)
   (with-open-file (f (unicode-data-file) :direction :input
                                          :element-type 'character
