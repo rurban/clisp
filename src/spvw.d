@@ -1910,6 +1910,10 @@ local void print_banner ()
                 argv_encoding_foreign = *argptr++;
               else if (asciz_equal(&arg[2],"misc"))
                 argv_encoding_misc = *argptr++;
+              else if (arg[2] == '\0')
+                argv_encoding_file = argv_encoding_pathname =
+                  argv_encoding_terminal = argv_encoding_foreign =
+                  argv_encoding_misc = *argptr++;
               else
                 usage(1);
               break;
