@@ -104,6 +104,9 @@ User visible changes
 * Fixed a bug in the LOOP macro: OF-TYPE was not supported in numeric
   accumulation clauses (COUNT/SUM/MAXIMIZE/MINIMIZE).
 
+* Fixed a bug in the LOOP macro: The FOR clauses FROM/TO/BY can now be given
+  in any order.
+
 * Fixed a bug: (UPGRADED-ARRAY-ELEMENT-TYPE 'STANDARD-CHAR) returned T instead
   of STRING-CHAR.
 
