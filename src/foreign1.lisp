@@ -35,7 +35,7 @@
   (import (intern "*FFI-MODULE*" "COMPILER"))
   (import (intern "FINALIZE-COUTPUT-FILE" "COMPILER"))
   (import (intern "TEXT" "SYSTEM")) ; messages
-  (import (intern "SYMBOL-KEYWORD" "SYSTEM"))
+  (import (intern "SYMBOL-TO-KEYWORD" "SYSTEM"))
   (import (intern "CHECK-SYMBOL" "SYSTEM")) ; error checking
   (import (intern "FOREIGN-FUNCTION-IN-ARG-COUNT" "SYSTEM")) ; called by SYS::FUNCTION-SIGNATURE
 )
@@ -159,7 +159,7 @@
                               (setq h (clos::class-kconstructor h)))
                        ;; h is the keyword constructor for the structure
                        `(,h ,@(mapcan #'(lambda (s v)
-                                          (list (symbol-keyword s) v))
+                                          (list (symbol-to-keyword s) v))
                                       slots vars))
                        ;; no keyword constructor found ->
                        ;; use CLOS:SLOT-VALUE instead

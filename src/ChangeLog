@@ -1,5 +1,16 @@
 2005-01-20  Bruno Haible  <bruno@clisp.org>
 
+	* init.lisp (symbol-to-keyword): Renamed from symbol-keyword.
+	* defmacro.lisp (analyze-key): Update.
+	* lambdalist.lisp (analyze-lambdalist,
+	analyze-generic-function-lambdalist, analyze-defsetf-lambdalist):
+	Update.
+	* type.lisp (%the): Update.
+	* defstruct.lisp (defstruct): Update.
+	* foreign1.lisp (c-struct-constructor): Update.
+
+2005-01-20  Bruno Haible  <bruno@clisp.org>
+
 	* stream.d (terminal_stream_p): Avoid crash when the stream is a
 	Gray stream.
 

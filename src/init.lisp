@@ -670,7 +670,7 @@
 
 (proclaim '(special *keyword-package*))
 (setq *keyword-package* (find-package "KEYWORD"))
-(defun symbol-keyword (s) (intern (symbol-name s) *keyword-package*))
+(defun symbol-to-keyword (s) (intern (symbol-name s) *keyword-package*))
 
 (proclaim '(special *fenv*))
 ;; *FENV* = the current function environment during expansion of a form.
