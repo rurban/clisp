@@ -6,7 +6,7 @@
                       # für divu in GET-UNIVERSAL-TIME,
                       # für mulu32 in GET-INTERNAL-RUN-TIME, GET-INTERNAL-REAL-TIME
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                          Zeitmessung
 
 # Variablen für Zeitmessung:
@@ -221,24 +221,20 @@
 # UP: Liefert die Real-Time
 # get_real_time()
 # < internal_time* ergebnis: absolute Zeit
-  global internal_time* get_real_time (void);
-  global internal_time* get_real_time()
+  global void get_real_time (internal_time*);
+  global void get_real_time(internal_time* it)
     {
      #ifdef HAVE_GETTIMEOFDAY
-      static union { struct timeval tv; internal_time it; } real_time;
       begin_system_call();
-      if (!( gettimeofday(&real_time.tv,NULL) ==0)) { OS_error(); }
+      if (gettimeofday((struct timeval *)it,NULL) != 0) { OS_error(); }
       end_system_call();
-      return &real_time.it;
      #elif defined(HAVE_FTIME)
-      static internal_time it;
       var struct timeb timebuf;
       begin_system_call();
       ftime(&timebuf);
       end_system_call();
-      it.tv_sec = timebuf.time;
-      it.tv_usec = (uintL)(timebuf.millitm) * (ticks_per_second/1000);
-      return &it;
+      it->tv_sec = timebuf.time;
+      it->tv_usec = (uintL)(timebuf.millitm) * (ticks_per_second/1000);
      #endif
     }
 
@@ -278,10 +274,9 @@
 # UP: Liefert die Real-Time
 # get_real_time()
 # < internal_time* ergebnis: absolute Zeit
-  global internal_time* get_real_time (void);
-  global internal_time* get_real_time()
-    { static internal_time it;
-      var struct timeb timebuf;
+  global void get_real_time (internal_time*);
+  global void get_real_time(internal_time* it)
+    { var struct timeb timebuf;
       begin_system_call();
       ftime(&timebuf);
       end_system_call();
@@ -291,18 +286,19 @@
         + (ULONGLONG)134774 * (ULONGLONG)86400 * (ULONGLONG)ticks_per_second
         + (ULONGLONG)timebuf.time * (ULONGLONG)ticks_per_second
         + (ULONGLONG)timebuf.millitm * (ULONGLONG)(ticks_per_second/1000);
-      it.dwLowDateTime = (uint32)ticks;
-      it.dwHighDateTime = (uint32)(ticks>>32);
+      it->dwLowDateTime = (uint32)ticks;
+      it->dwHighDateTime = (uint32)(ticks>>32);
       #else
       var internal_time t1 = { 0xD53E8000, 0x19DB1DE };
       var internal_time t2;
       var internal_time t3;
-      mulu32(timebuf.time,ticks_per_second,t1.dwHighDateTime=,t1.dwLowDateTime=);
-      mulu32(timebuf.millitm,ticks_per_second/1000,t2.dwHighDateTime=,t2.dwLowDateTime=);
+      mulu32(timebuf.time,ticks_per_second,t1.dwHighDateTime=,
+             t1.dwLowDateTime=);
+      mulu32(timebuf.millitm,ticks_per_second/1000,t2.dwHighDateTime=,
+             t2.dwLowDateTime=);
       add_internal_time(t1,t2, it);
       add_internal_time(it,t3, it);
       #endif
-      return &it;
     }}
 
 # UP: Liefert die Run-Time
@@ -328,8 +324,9 @@
           # that "Run time" and "Real time" are always the same and draw their
           # conclusions from it.)
           end_system_call();
-         {var internal_time* real_time = get_real_time();
-          sub_internal_time(*real_time,realstart_time, *runtime);
+         {var internal_time real_time;
+          get_real_time(&real_time)
+          sub_internal_time(real_time,realstart_time, *runtime);
         }}
     }
 
@@ -356,9 +353,10 @@
      #endif
      #ifdef TIME_UNIX
       # Real-Time holen:
-      var internal_time* real_time = get_real_time();
-      tm->realtime.tv_sec = real_time->tv_sec - realstart_time.tv_sec;
-      tm->realtime.tv_usec = real_time->tv_usec;
+      var internal_time real_time;
+      get_real_time(&real_time);
+      tm->realtime.tv_sec = real_time.tv_sec - realstart_time.tv_sec;
+      tm->realtime.tv_usec = real_time.tv_usec;
       # Run-Time holen:
       get_run_time(&tm->runtime);
      #endif
@@ -368,8 +366,9 @@
      #endif
      #ifdef TIME_WIN32
       # Real-Time holen:
-      var internal_time* real_time = get_real_time();
-      sub_internal_time(*real_time,realstart_time, tm->realtime);
+      var internal_time real_time;
+      get_real_time(&real_time);
+      sub_internal_time(real_time,realstart_time, tm->realtime);
       # Run-Time holen:
       get_run_time(&tm->runtime);
      #endif
@@ -535,7 +534,7 @@
       run_time_restart(); # Run-Time-Stoppuhr loslaufen lassen
       #endif
       #if defined(TIME_UNIX) || defined(TIME_WIN32)
-      realstart_time = *(get_real_time()); # Zeitzähler jetzt, beim Systemstart
+      get_real_time(&realstart_time); # Zeitzähler jetzt, beim Systemstart
       #endif
       #ifdef TIME_RELATIVE
       # Start-Zeit holen und merken:
@@ -586,7 +585,7 @@
       #endif
     }
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #                            Zeitfunktionen
 
 #ifdef TIME_AMIGAOS
@@ -707,9 +706,12 @@
      #endif
      #ifdef TIME_2
       #ifdef TIME_UNIX
-       var uintL real_time = (get_real_time())->tv_sec; # Sekunden
+       var uintL real_time; # Sekunden
+       var internal_time it;
+       get_real_time(&it);
        # real_time sind Sekunden seit 1.1.1970
-       real_time = 2208988800UL+real_time; # 25567*24*60*60 Sekunden zwischen 1.1.1900 und 1.1.1970
+       # 25567*24*60*60 Sekunden zwischen 1.1.1900 und 1.1.1970
+       real_time = 2208988800UL + it.tv_sec;
       #endif
       #ifdef TIME_WIN32
        var internal_time offset = # difference between 1.1.1601 and 1.1.1900
@@ -720,10 +722,13 @@
        #else
          { 0xFDE04000, 0x14F373B };
        #endif
-       var internal_time* internal_real_time = get_real_time();
+       var internal_time internal_real_time;
        var uintL real_time;
-       sub_internal_time(*internal_real_time,offset, *internal_real_time);
-       divu_6432_3232(internal_real_time->dwHighDateTime,internal_real_time->dwLowDateTime,ticks_per_second, real_time=,);
+       get_real_time(&internal_real_time);
+       sub_internal_time(internal_real_time,offset,internal_real_time);
+       divu_6432_3232(internal_real_time.dwHighDateTime,
+                      internal_real_time.dwLowDateTime,
+                      ticks_per_second, real_time=,);
       #endif
      #endif
      return real_time;
@@ -852,22 +857,24 @@ LISPFUNN(get_internal_real_time,0)
   }
 #endif
 #ifdef TIME_2
-  { var internal_time* tp = get_real_time(); # Real-Time absolut
+  { var internal_time tp; # Real-Time absolut
+    get_real_time(&tp);
     #ifdef TIME_UNIX
-     # in Mikrosekunden umwandeln: tp->tv_sec * ticks_per_second + tp->tv_usec
+     # in Mikrosekunden umwandeln: tp.tv_sec * ticks_per_second + tp.tv_usec
      #ifdef intQsize
-     value1 = UQ_to_I((uintQ)(tp->tv_sec) * ticks_per_second + (uintQ)(tp->tv_usec));
+     value1 = UQ_to_I((uintQ)(tp.tv_sec) * ticks_per_second +
+                      (uintQ)(tp.tv_usec));
      #else
      {var uintL real_time_hi;
       var uintL real_time_lo;
-      mulu32(tp->tv_sec,ticks_per_second, real_time_hi=,real_time_lo=);
-      if ((real_time_lo += tp->tv_usec) < tp->tv_usec) { real_time_hi += 1; }
+      mulu32(tp.tv_sec,ticks_per_second, real_time_hi=,real_time_lo=);
+      if ((real_time_lo += tp.tv_usec) < tp.tv_usec) { real_time_hi += 1; }
       value1 = L2_to_I(real_time_hi,real_time_lo);
      }
      #endif
     #endif
     #ifdef TIME_WIN32
-     value1 = L2_to_I(tp->dwHighDateTime,tp->dwLowDateTime);
+     value1 = L2_to_I(tp.dwHighDateTime,tp.dwLowDateTime);
     #endif
     mv_count=1;
   }
