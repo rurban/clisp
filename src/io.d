@@ -3505,8 +3505,13 @@ LISPFUNN(read_eval_reader,3) { # reads #.
     fehler_dispatch_zahl();
   obj = make_references(obj); # unentangle references
   # either *READ-EVAL* or the Stream must allow the Evaluation.
-  if (nullpSv(read_eval) && !stream_get_read_eval(*stream_))
-    fehler_read_eval_forbidden(stream_,obj);
+  if (nullpSv(read_eval)) {
+    pushSTACK(obj);
+    var bool allowed = stream_get_read_eval(*stream_);
+    obj = popSTACK();
+    if (!allowed)
+      fehler_read_eval_forbidden(stream_,obj);
+  }
   eval_noenv(obj); # evaluate Form
   mv_count=1; skipSTACK(2); # only 1 value back
 }
@@ -3542,8 +3547,13 @@ LISPFUNN(load_eval_reader,3) { # reads #,
   } else {
     # In Interpreter:
     # either *READ-EVAL* or the Stream must allow the Evaluation.
-    if (nullpSv(read_eval) && !stream_get_read_eval(*stream_))
-      fehler_read_eval_forbidden(stream_,obj);
+    if (nullpSv(read_eval)) {
+      pushSTACK(obj);
+      var bool allowed = stream_get_read_eval(*stream_);
+      obj = popSTACK();
+      if (!allowed)
+        fehler_read_eval_forbidden(stream_,obj);
+    }
     eval_noenv(obj); # evaluate Form
   }
   mv_count=1; skipSTACK(2); # only 1 value back
@@ -8855,8 +8865,13 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
       break;
     case Rectype_Loadtimeeval: # #.form
       if (!nullpSv(print_readably))
-        if (nullpSv(read_eval) && !stream_get_read_eval(*stream_))
-          fehler_print_readably(obj);
+        if (nullpSv(read_eval)) {
+          pushSTACK(obj);
+          var bool allowed = stream_get_read_eval(*stream_);
+          obj = popSTACK();
+          if (!allowed)
+            fehler_print_readably(obj);
+        }
       pr_sharp_dot(stream_,TheLoadtimeeval(obj)->loadtimeeval_form);
       break;
     case Rectype_Symbolmacro: # #<SYMBOL-MACRO expansion>
@@ -9527,8 +9542,13 @@ local maygc void pr_subr (const gcv_object_t* stream_, object obj) {
   # #<SYSTEM-FUNCTION name> bzw. #<ADD-ON-SYSTEM-FUNCTION name>
   # bzw. #.(SYSTEM::%FIND-SUBR 'name)
   if (!nullpSv(print_readably)) {
-    if (nullpSv(read_eval) && !stream_get_read_eval(*stream_))
-      fehler_print_readably(obj);
+    if (nullpSv(read_eval)) {
+      pushSTACK(obj);
+      var bool allowed = stream_get_read_eval(*stream_);
+      obj = popSTACK();
+      if (!allowed)
+        fehler_print_readably(obj);
+    }
     pushSTACK(obj); # save obj
     var gcv_object_t* obj_ = &STACK_0; # and memorize, where it is
     write_ascii_char(stream_,'#'); write_ascii_char(stream_,'.');

@@ -14073,15 +14073,15 @@ extern maygc object stream_line_number (object stream);
 # stream_get_read_eval(stream)
 # > stream: a stream
 # < result: true if read-eval is allowed from the stream, else false
-extern bool stream_get_read_eval (object stream);
+extern maygc bool stream_get_read_eval (object stream);
 # used by IO
 
 # Function: Changes the read-eval state of a stream.
 # stream_set_read_eval(stream,value);
 # > stream: a stream
 # > value: true if read-eval shall be allowed from the stream, else false
-extern void stream_set_read_eval (object stream, bool value);
-# used by IO
+extern maygc void stream_set_read_eval (object stream, bool value);
+# used by
 
 #if defined(UNIX) && !defined(NEXTAPP)
   # UP: return terminal to normal mode
