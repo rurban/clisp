@@ -1429,18 +1429,16 @@
           #endif
       }
       # mindestens bn_minlength Digits, mache ein Bignum
-      var object newnum = allocate_bignum(len,sign_of_sintD(MSDptr[0]));
+      var object newnum = allocate_bignum(len,(sintB)sign_of_sintD(MSDptr[0]));
       # neues Bignum mit dem Inhalt der NDS füllen:
       copy_loop_up(MSDptr,&TheBignum(newnum)->data[0],len);
       return newnum;
     }
 
 # Bignum-Überlauf melden:
-  nonreturning_function(local, BN_ueberlauf, (void)) {
-    fehler(arithmetic_error,
-           GETTEXT("bignum overflow")
-          );
-  }
+nonreturning_function(local, BN_ueberlauf, (void)) {
+  fehler(arithmetic_error,GETTEXT("bignum overflow"));
+}
 
 # Normalized Unsigned Digit Sequence to Integer
 # NUDS_to_I(MSDptr,len)
