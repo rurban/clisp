@@ -1,3 +1,12 @@
+1999-05-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * clos.lsp (same-specializers-p): New function.
+          (specializers-agree-p): Use it.
+          (dispatching-arg-p, single-dispatching-arg, dispatching-arg-type):
+          New functions.
+          (no-applicable-method, no-primary-method): Signal a type-error if
+          there is only one dispatching argument.
+
 1999-05-03  Sam Steingold  <sds@goems.com>
 
 	* pathname.d (file_stat): use `built_in_stream_open_p' instead of
