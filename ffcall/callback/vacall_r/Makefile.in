@@ -126,7 +126,10 @@ vacall-rs6000.lo : $(srcdir)/vacall-rs6000-aix.old.s $(srcdir)/vacall-rs6000-aix
 	esac; \
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-rs6000-$${syntax}.s ; \
 	cp vacall-rs6000-$${syntax}.lo vacall-rs6000.lo ; rm -f vacall-rs6000-$${syntax}.lo ; \
-	if test -f vacall-rs6000-$${syntax}.o; then mv vacall-rs6000-$${syntax}.o vacall-rs6000.o; fi
+	if test -f vacall-rs6000-$${syntax}.o; then cp vacall-rs6000-$${syntax}.o vacall-rs6000.o; fi
+# Note that vacall-rs6000-${syntax}.o is kept in place, because in some cases
+# vacall-rs6000-${syntax}.lo contains a symbolic reference to it and therefore
+# libtool may want to access it.
 
 vacall-m88k.lo : $(srcdir)/vacall-m88k.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-m88k.s
