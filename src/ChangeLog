@@ -1,3 +1,25 @@
+2004-05-23  Bruno Haible  <bruno@clisp.org>
+
+	Many improvements to BACKQUOTE.
+	* backquote.lisp (BQ-NCONCABLE): Remove macro. Now cleaned up by the
+	macroexpander.
+	(bq-expand): Don't test *backquote-optimize* any more. Call
+	bq-append-multiple.
+	(bq-transform): Call bq-list.
+	(*backquote-optimize[12345]*): New variables, replacing
+	*backquote-optimize*.
+	(bq-splicing-p, bq-non-splicing): New functions.
+	(bq-cons, bq-list, bq-append, bq-nconc): New functions.
+	(bq-append-multiple): New function.
+	(bq-optimize-for-list): Remove function.
+	(bq-optimize-for-vector): Take the optimized list as arguments. Several
+	fixes.
+	(bq-optimize-append, bq-optimize-list*, bq-optimize-list, bq-eval,
+	bq-constant-p, eval-self-p, maybe-quote, maybe-unquote,
+	quoted-bq-operator-p, bq-reduce-nesting): Remove functions.
+	(backquote-cons): Call bq-cons.
+	(backquote-append): Call bq-append.
+
 2004-05-09  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (hash_lookup_builtin, hash_lookup_builtin_with_rehash):
