@@ -71,6 +71,9 @@ clisp \- Common Lisp language interpreter and compiler
 .B \-interactive-debug
 ]
 [
+.B \-repl
+]
+[
 .B \-w
 ]
 [
@@ -109,7 +112,7 @@ clisp \- Common Lisp language interpreter and compiler
 ]
 [
 .B \-x
-.I expression
+.I expressions
 ]
 [
 .I lispfile
@@ -330,8 +333,14 @@ and allow interactive handling of
 and friends.
 
 .TP
+.B \-repl
+Start an interactive read-eval-print loop after processing the
+.BR \-c ", " \-x ", and " lispfile
+option.
+
+.TP
 .B \-w
-Wait for keypress after program termination.
+Wait for a keypress after program termination.
 
 .TP
 .B \-I
@@ -477,8 +486,10 @@ is
 the standard input is used instead of a file.
 If
 .I lispfile
-is an empty string
-.B "",
+is the empty string
+.B ""
+or
+.B "--"
 the rest of the arguments is still available in
 .I "*args*",
 for parsing by the

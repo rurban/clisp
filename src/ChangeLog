@@ -1,3 +1,10 @@
+2003-03-18  Sam Steingold  <sds@gnu.org>
+
+	* spvw.d (main): allow multiple -x options
+	-repl forces REPL after -c/-x/exec
+	option "--" terminates option processing; set *ARGS* earlier
+	* _clisp.c (main): "-r" for "-repl"
+
 2003-03-14  Sam Steingold  <sds@gnu.org>
 
 	function (SETF FFI:VALIDP) invalidates foreign objects
