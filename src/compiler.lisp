@@ -6768,9 +6768,9 @@ for-value   NIL or T
                         (return-from c-TYPEP
                           (c-form `(TYPEP ,objform
                                     ',(funcall h (list type))))))
-                      ((get type 'SYS::DEFSTRUCT-DESCRIPTION)
+                      ((setq h (get type 'SYS::DEFSTRUCT-DESCRIPTION))
                         (return-from c-TYPEP
-                          (c-form `(SYS::%STRUCTURE-TYPE-P ',type ,objform))))
+                          (c-form (sys::ds-typep-expansion objform type h))))
                       ((and (setq h (get type 'CLOS::CLOSCLASS))
                             (clos::class-p h)
                             (eq (clos:class-name h) type))

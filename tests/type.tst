@@ -537,6 +537,15 @@ foo
   (list y z))
 ((FOO 123 NIL NIL) (FOO 123 321 NIL))
 
+(defstruct (foo70 (:type (vector (unsigned-byte 8)))) x y)
+foo70
+(type-of (make-foo70 :x 12 :y 5))
+(SIMPLE-ARRAY (UNSIGNED-BYTE 8) (2))
+(type-of (make-foo70 :x -1 :y 1))
+ERROR
+(typep (make-foo70 :x 12 :y 5) 'foo70)
+t
+
 (defstruct (foo71 (:type list) (:initial-offset 5)))
 foo71
 (defstruct (foo72 (:type list) (:initial-offset 2) (:include foo71)))
