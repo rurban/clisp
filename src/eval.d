@@ -8347,13 +8347,8 @@ global Values funcall (object fun, uintC args_on_stack)
       #ifndef FAST_DISPATCH
       default:
       #endif
-        # undefined Code
-        #if defined(GNU) && defined(FAST_SP)
-          # foil -fomit-frame-pointer, herewith allow utilization of
-          # %sp resp. %esp  as private_SP :
-          alloca(1);
-        #endif
-        pushSTACK(fixnum(byteptr-&codeptr->data[0]-1)); # erroneous byte-number
+        /* undefined Code */
+        pushSTACK(fixnum(byteptr-&codeptr->data[0]-1)); /* bad byte number */
         pushSTACK(closure); # Closure
         fehler(serious_condition,
                GETTEXT("undefined bytecode in ~ at byte ~"));
