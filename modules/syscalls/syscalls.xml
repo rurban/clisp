@@ -450,6 +450,25 @@
   <listitem><simpara>calls &getsid;</simpara></listitem></varlistentry>
  <varlistentry id="setsid"><term><code>(POSIX:SETSID)</code></term>
   <listitem><simpara>calls &setsid;</simpara></listitem></varlistentry>
+ <varlistentry id="endutxent"><term><code>(POSIX:ENDUTXENT)</code></term>
+  <listitem><simpara>calls &endutxent;</simpara></listitem></varlistentry>
+ <varlistentry id="getutxent"><term><code>(POSIX:GETUTXENT
+    &optional-amp; utmpx)</code></term>
+  <listitem><simpara>calls &getutxent;, returns a &structure-object-t; of
+    type <type>utmpx</type>, which can be passed to subsequent calls to
+    this function and re-used.</simpara></listitem></varlistentry>
+ <varlistentry id="getutxid"><term><code>(POSIX:GETUTXID id)</code></term>
+  <listitem><simpara>calls &getutxid;,
+    the argument is filled and returned</simpara></listitem></varlistentry>
+ <varlistentry id="getutxline"><term><code>(POSIX:GETUTXLINE line)</code></term>
+  <listitem><simpara>calls &getutxline;,
+    the argument is filled and returned</simpara></listitem></varlistentry>
+ <varlistentry id="pututxline"><term><code>(POSIX:PUTUTXLINE
+    utmpx)</code></term>
+  <listitem><simpara>calls &pututxline;,
+    the argument is filled and returned</simpara></listitem></varlistentry>
+ <varlistentry id="setutxent"><term><code>(POSIX:SETUTXENT)</code></term>
+  <listitem><simpara>calls &setutxent;</simpara></listitem></varlistentry>
 </variablelist>
 
 </section>

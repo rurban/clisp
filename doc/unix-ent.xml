@@ -112,6 +112,12 @@
 <!ENTITY setpgrp "<ulink url='&unix-f;/setpgrp.html'><function>setpgrp</function></ulink>">
 <!ENTITY getsid "<ulink url='&unix-f;/getsid.html'><function>getsid</function></ulink>">
 <!ENTITY setsid "<ulink url='&unix-f;/setsid.html'><function>setsid</function></ulink>">
+<!ENTITY endutxent "<ulink url='&unix-f;/endutxent.html'><function>endutxent</function></ulink>">
+<!ENTITY getutxent "<ulink url='&unix-f;/getutxent.html'><function>getutxent</function></ulink>">
+<!ENTITY getutxid "<ulink url='&unix-f;/getutxid.html'><function>getutxid</function></ulink>">
+<!ENTITY getutxline "<ulink url='&unix-f;/getutxline.html'><function>getutxline</function></ulink>">
+<!ENTITY pututxline "<ulink url='&unix-f;/pututxline.html'><function>pututxline</function></ulink>">
+<!ENTITY setutxent "<ulink url='&unix-f;/setutxent.html'><function>setutxent</function></ulink>">
 
 <!-- header files -->
 <!ENTITY unix-b "&unix-top;/basedefs">
@@ -121,6 +127,7 @@
 <!ENTITY socket-h "<ulink url='&unix-b;/syssocket.h.html'><filename>&lt;sys/socket.h&gt;</filename></ulink>">
 <!ENTITY syslog-h "<ulink url='&unix-b;/syslog.h.html'><filename>&lt;syslog.h&gt;</filename></ulink>">
 <!ENTITY fcntl-h "<ulink url='&unix-b;/fcntl.h.html'><filename>&lt;fcntl.h&gt;</filename></ulink>">
+<!ENTITY utmpx-h "<ulink url='&unix-b;/utmpx.h.html'><filename>&lt;utmpx.h&gt;</filename></ulink>">
 <!ENTITY env-var "<ulink url='&unix-b;/xbd_chap08.html'>environment variable</ulink>">
 <!ENTITY file-des "<ulink url='&unix-b;/xbd_chap03.html#tag_03_165'>file descriptor</ulink>">
 <!ENTITY locale "<replaceable><ulink url='&unix-b;/xbd_chap07.html'>LOCALE</ulink></replaceable>">
