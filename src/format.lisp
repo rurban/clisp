@@ -2067,9 +2067,7 @@
                              forms)))
                     (FORMAT-CALL-USER-FUNCTION     ; #\/
                      (let* ((func (car (pop arglist)))
-                            (argsvars
-                             (mapcar #'(lambda (arg) (declare (ignore arg)) (gensym))
-                                     arglist))
+                            (argsvars (gensym-list arglist))
                             (inner-form
                              `(,func STREAM ,(formatter-next-arg) ,colon-p
                                ,atsign-p ,@argsvars)))
@@ -2320,7 +2318,7 @@
                                (RETURN-FROM ,(if colon-p (formatter-terminate-all) (formatter-terminate))))
                              forms)))
                     (FORMAT-CALL                   ; #\!
-                     (let* ((argsvars (mapcar #'(lambda (arg) (declare (ignore arg)) (gensym)) arglist))
+                     (let* ((argsvars (gensym-list arglist))
                             (inner-form
                              `(FUNCALL ,(formatter-next-arg)
                                STREAM ,(formatter-next-arg) ,colon-p ,atsign-p
