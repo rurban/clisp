@@ -234,11 +234,24 @@ DEFUN(BDB:DBE-CREATE,&key :PASSWORD :ENCRYPT    \
   wrap_finalize(dbe,NIL,`BDB::MKDBE`,``BDB::DBE-CLOSE``);
 }
 
+static void time_stamp (FILE* out, char* prefix) {
+  fputs(prefix,out);
+#if defined(HAVE_GETTIMEOFDAY) && defined(HAVE_LOCALTIME) && defined(HAVE_STRFTIME)
+  { char str[80]; struct timeval tv; gettimeofday(&tv,NULL);
+    strftime(str,80," [%Y-%m-%d %a %H:%M:%S %Z]",localtime(&tv.tv_sec));
+    fputs(str,out);
+  }
+#else
+  fprintf(out," [%s:%d: FIXME time_stamp()]",__FILE__,__LINE__);
+#endif
+  fputs("\n",out);
+}
+
 #define CLOSE_ERRFILE(o)     do {                               \
     FILE *errfile;                                              \
     begin_system_call(); o->get_errfile(o,&errfile);            \
     if (errfile && (errfile != stdout) && (errfile != stderr))  \
-      fclose(errfile);                                          \
+      { time_stamp(errfile,"closed"); fclose(errfile); }        \
     end_system_call();                                          \
   } while(0)
 DEFUN(BDB:DBE-CLOSE, dbe)
@@ -333,6 +346,7 @@ static FILE* my_fopen (object path) {
   with_string_0(physical_namestring(path),GLO(pathname_encoding),pathz,{
       begin_system_call();
       ret = fopen(pathz,"w");
+      time_stamp(ret,"opened");
       end_system_call();
     });
   return ret;
