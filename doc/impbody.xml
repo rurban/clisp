@@ -4315,9 +4315,7 @@ functions are provided:</para>
    &string-class;s (denoting <link linkend="iconv">iconv()</link> based
    encodings), the symbol &default-k;, and the &line-term; keywords
    <constant>:unix</constant>, <constant>:mac</constant>,
-   <constant>:dos</constant>.  The default encoding is
-   <link linkend="def-file-enc"
-     ><varname>custom:*default-file-encoding*</varname></link>.
+   <constant>:dos</constant>.  The default encoding is &def-file-enc;.
   </simpara></listitem></varlistentry>
  <varlistentry id="buffered"><term><constant>:buffered</constant></term>
   <listitem><para>&nil;, &t;, or &default-k;.
@@ -4325,11 +4323,10 @@ functions are provided:</para>
    <listitem><simpara>for functions that create &socket-stream;s and
     <link linkend="pipe">pipes</link>, &default-k; is
     equivalent to &nil;;</simpara></listitem>
-   <listitem><simpara>for functions that <link
-    linkend="open">open</link> files, &default-k;
-    means that buffered file streams will be returned for regular files
-    and (on Unix) block-devices, and unbuffered file streams for special
-    files.</simpara></listitem>
+   <listitem><simpara>for functions that <link linkend="open">open</link>
+    files, &default-k; means that buffered file streams will be returned
+    for regular files and (on Unix) block-devices, and unbuffered file
+    streams for special files.</simpara></listitem>
   </itemizedlist>
 </para></listitem></varlistentry>
 </variablelist>
