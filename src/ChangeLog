@@ -1,3 +1,11 @@
+2004-07-10  Bruno Haible  <bruno@clisp.org>
+
+	* clos-genfun3.lisp (do-defgeneric): Remove function.
+	(defgeneric): Expand into a call to ensure-generic-function instead of
+	do-defgeneric.
+	* clos-genfun5.lisp (ensure-generic-function-using-class): Define using
+	allow-making-generic.
+
 2004-08-31  Sam Steingold  <sds@gnu.org>
 
 	* describe.lisp (describe-object@integer): do not use TYPE-OF to
