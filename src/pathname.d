@@ -1315,7 +1315,7 @@ local boolean legal_logical_word_char(ch)
 # Verfolgt eine Kette von Synonym-Streams, solange bis bei einem File-Stream
 # angelangt.
 # as_file_stream(stream)
-# > stream: Stream
+# > stream: Builtin-Stream
 # < stream: File-Stream
 # > subr_self: Aufrufer (ein SUBR)
   local object as_file_stream (object stream);
@@ -1326,7 +1326,7 @@ local boolean legal_logical_word_char(ch)
         { if (TheStream(s)->strmtype == strmtype_file) { return s; }
           if (!(TheStream(s)->strmtype == strmtype_synonym)) break;
           s = Symbol_value(TheStream(stream)->strm_synonym_symbol);
-          if (!streamp(s)) break;
+          if (!builtin_stream_p(s)) break;
         }
       fehler_pathname_designator(stream);
     }
@@ -1769,7 +1769,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
           value2 = STACK_1; mv_count=2; # 2. Wert start
           skipSTACK(5); return;
         }
-      if (streamp(thing)) # Stream?
+      if (builtin_stream_p(thing)) # Stream?
         { thing = as_file_stream(thing);
           test_file_stream_named(thing);
           value1 = TheStream(thing)->strm_file_name; # 1. Wert: Filename
@@ -7416,7 +7416,7 @@ LISPFUN(namestring,1,1,norest,nokey,0,NIL)
 LISPFUNN(truename,1)
 # (TRUENAME pathname), CLTL S. 413
   { var object pathname = popSTACK(); # pathname-Argument
-    if (streamp(pathname))
+    if (builtin_stream_p(pathname))
       # Stream -> extra behandeln:
       { # muss File-Stream sein:
         pathname = as_file_stream(pathname);
@@ -7457,7 +7457,7 @@ LISPFUNN(truename,1)
 LISPFUNN(probe_file,1)
 # (PROBE-FILE filename), CLTL S. 424
   { var object pathname = popSTACK(); # pathname-Argument
-    if (streamp(pathname))
+    if (builtin_stream_p(pathname))
       # Stream -> extra behandeln:
       { # muss File-Stream sein:
         pathname = as_file_stream(pathname);
@@ -7673,7 +7673,7 @@ LISPFUNN(probe_directory,1)
 LISPFUNN(delete_file,1)
 # (DELETE-FILE filename), CLTL S. 424
   { var object pathname = popSTACK(); # pathname-Argument
-    if (streamp(pathname))
+    if (builtin_stream_p(pathname))
       # Stream -> extra behandeln:
       { var object stream = as_file_stream(pathname); # muss File-Stream sein
         test_file_stream_named(stream);
@@ -7784,7 +7784,7 @@ LISPFUNN(delete_file,1)
 LISPFUNN(rename_file,2)
 # (RENAME-FILE filename newname), CLTL S. 423
   { var object filename = STACK_1; # filename-Argument
-    if (streamp(filename))
+    if (builtin_stream_p(filename))
       # Stream -> extra behandeln:
       { # muss File-Stream sein:
         filename = as_file_stream(filename);
@@ -8338,7 +8338,7 @@ LISPFUN(open,1,0,norest,key,6,\
         (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),kw(external_format),kw(buffered)) )
 # (OPEN filename :direction :element-type :if-exists :if-does-not-exist :external-format :buffered)
   { var object filename = STACK_6; # filename
-    if (streamp(filename))
+    if (builtin_stream_p(filename))
       { # muss File-Stream sein:
         filename = as_file_stream(filename);
         test_file_stream_named(filename);
@@ -10218,7 +10218,7 @@ LISPFUNN(file_write_date,1)
     var WIN32_FIND_DATA filedata;
     #endif
     var object pathname = popSTACK(); # pathname-Argument
-    if (streamp(pathname))
+    if (builtin_stream_p(pathname))
       # Stream -> extra behandeln:
       { # muss File-Stream sein:
         pathname = as_file_stream(pathname);
@@ -10362,7 +10362,7 @@ LISPFUNN(file_write_date,1)
 LISPFUNN(file_author,1)
 # (FILE-AUTHOR file), CLTL S. 424
   { var object pathname = popSTACK(); # pathname-Argument
-    if (streamp(pathname))
+    if (builtin_stream_p(pathname))
       # Stream -> extra behandeln:
       { # muss File-Stream sein:
         pathname = as_file_stream(pathname);
@@ -11059,7 +11059,7 @@ LISPFUN(file_stat,1,1,norest,nokey,0,NIL)
   var object file = popSTACK();
   struct stat buf;
 
-  if (streamp(file)) {
+  if (builtin_stream_p(file)) {
     pushSTACK(file);
     funcall(L(open_stream_p),1);
     if (nullp(value1)) {        # closed stream

@@ -1100,7 +1100,8 @@ LISPFUNN(make_synonym_stream,1)
 LISPFUNN(synonym_stream_p,1)
 # (SYS::SYNONYM-STREAM-P stream) == (TYPEP stream 'SYNONYM-STREAM)
   { var object arg = popSTACK();
-    value1 = (streamp(arg) && (TheStream(arg)->strmtype == strmtype_synonym)
+    value1 = (builtin_stream_p(arg)
+              && (TheStream(arg)->strmtype == strmtype_synonym)
               ? T
               : NIL
              );
@@ -1110,9 +1111,12 @@ LISPFUNN(synonym_stream_p,1)
 LISPFUNN(synonym_stream_symbol,1)
 # (SYNONYM-STREAM-SYMBOL stream), CLtL2 S. 507
   { var object stream = popSTACK();
-    if (!streamp(stream)) { fehler_stream(stream); }
-    if (!(TheStream(stream)->strmtype == strmtype_synonym))
-      { fehler_streamtype(stream,S(synonym_stream)); }
+    if (!(builtin_stream_p(stream) && (TheStream(stream)->strmtype == strmtype_synonym)))
+      { if (!streamp(stream))
+          { fehler_stream(stream); }
+          else
+          { fehler_streamtype(stream,S(synonym_stream)); }
+      }
     value1 = TheStream(stream)->strm_synonym_symbol; mv_count=1;
   }
 
@@ -1309,7 +1313,8 @@ LISPFUN(make_broadcast_stream,0,0,rest,nokey,0,NIL)
 LISPFUNN(broadcast_stream_p,1)
 # (SYS::BROADCAST-STREAM-P stream) == (TYPEP stream 'BROADCAST-STREAM)
   { var object arg = popSTACK();
-    value1 = (streamp(arg) && (TheStream(arg)->strmtype == strmtype_broad)
+    value1 = (builtin_stream_p(arg)
+              && (TheStream(arg)->strmtype == strmtype_broad)
               ? T
               : NIL
              );
@@ -1319,9 +1324,12 @@ LISPFUNN(broadcast_stream_p,1)
 LISPFUNN(broadcast_stream_streams,1)
 # (BROADCAST-STREAM-STREAMS stream), CLtL2 S. 507
   { var object stream = popSTACK();
-    if (!streamp(stream)) { fehler_stream(stream); }
-    if (!(TheStream(stream)->strmtype == strmtype_broad))
-      { fehler_streamtype(stream,S(broadcast_stream)); }
+    if (!(builtin_stream_p(stream) && (TheStream(stream)->strmtype == strmtype_broad)))
+      { if (!streamp(stream))
+          { fehler_stream(stream); }
+          else
+          { fehler_streamtype(stream,S(broadcast_stream)); }
+      }
     # Liste der Streams sicherheitshalber kopieren
     value1 = copy_list(TheStream(stream)->strm_broad_list); mv_count=1;
   }
@@ -1540,7 +1548,8 @@ LISPFUN(make_concatenated_stream,0,0,rest,nokey,0,NIL)
 LISPFUNN(concatenated_stream_p,1)
 # (SYS::CONCATENATED-STREAM-P stream) == (TYPEP stream 'CONCATENATED-STREAM)
   { var object arg = popSTACK();
-    value1 = (streamp(arg) && (TheStream(arg)->strmtype == strmtype_concat)
+    value1 = (builtin_stream_p(arg)
+              && (TheStream(arg)->strmtype == strmtype_concat)
               ? T
               : NIL
              );
@@ -1550,9 +1559,12 @@ LISPFUNN(concatenated_stream_p,1)
 LISPFUNN(concatenated_stream_streams,1)
 # (CONCATENATED-STREAM-STREAMS stream), CLtL2 S. 507
   { var object stream = popSTACK();
-    if (!streamp(stream)) { fehler_stream(stream); }
     if (!(TheStream(stream)->strmtype == strmtype_concat))
-      { fehler_streamtype(stream,S(concatenated_stream)); }
+      { if (!streamp(stream))
+          { fehler_stream(stream); }
+          else
+          { fehler_streamtype(stream,S(concatenated_stream)); }
+      }
     # Liste der Streams sicherheitshalber kopieren:
     value1 = copy_list(TheStream(stream)->strm_concat_totallist); mv_count=1;
   }
@@ -1799,7 +1811,8 @@ LISPFUNN(make_two_way_stream,2)
 LISPFUNN(two_way_stream_p,1)
 # (SYS::TWO-WAY-STREAM-P stream) == (TYPEP stream 'TWO-WAY-STREAM)
   { var object arg = popSTACK();
-    value1 = (streamp(arg) && (TheStream(arg)->strmtype == strmtype_twoway)
+    value1 = (builtin_stream_p(arg)
+              && (TheStream(arg)->strmtype == strmtype_twoway)
               ? T
               : NIL
              );
@@ -1809,18 +1822,24 @@ LISPFUNN(two_way_stream_p,1)
 LISPFUNN(two_way_stream_input_stream,1)
 # (TWO-WAY-STREAM-INPUT-STREAM stream), CLtL2 S. 507
   { var object stream = popSTACK();
-    if (!streamp(stream)) { fehler_stream(stream); }
     if (!(TheStream(stream)->strmtype == strmtype_twoway))
-      { fehler_streamtype(stream,S(two_way_stream)); }
+      { if (!streamp(stream))
+          { fehler_stream(stream); }
+          else
+          { fehler_streamtype(stream,S(two_way_stream)); }
+      }
     value1 = TheStream(stream)->strm_twoway_input; mv_count=1;
   }
 
 LISPFUNN(two_way_stream_output_stream,1)
 # (TWO-WAY-STREAM-OUTPUT-STREAM stream), CLtL2 S. 507
   { var object stream = popSTACK();
-    if (!streamp(stream)) { fehler_stream(stream); }
     if (!(TheStream(stream)->strmtype == strmtype_twoway))
-      { fehler_streamtype(stream,S(two_way_stream)); }
+      { if (!streamp(stream))
+          { fehler_stream(stream); }
+          else
+          { fehler_streamtype(stream,S(two_way_stream)); }
+      }
     value1 = TheStream(stream)->strm_twoway_output; mv_count=1;
   }
 
@@ -1940,7 +1959,8 @@ LISPFUNN(make_echo_stream,2)
 LISPFUNN(echo_stream_p,1)
 # (SYS::ECHO-STREAM-P stream) == (TYPEP stream 'ECHO-STREAM)
   { var object arg = popSTACK();
-    value1 = (streamp(arg) && (TheStream(arg)->strmtype == strmtype_echo)
+    value1 = (builtin_stream_p(arg)
+              && (TheStream(arg)->strmtype == strmtype_echo)
               ? T
               : NIL
              );
@@ -1950,18 +1970,24 @@ LISPFUNN(echo_stream_p,1)
 LISPFUNN(echo_stream_input_stream,1)
 # (ECHO-STREAM-INPUT-STREAM stream), CLtL2 S. 507
   { var object stream = popSTACK();
-    if (!streamp(stream)) { fehler_stream(stream); }
     if (!(TheStream(stream)->strmtype == strmtype_echo))
-      { fehler_streamtype(stream,S(echo_stream)); }
+      { if (!streamp(stream))
+          { fehler_stream(stream); }
+          else
+          { fehler_streamtype(stream,S(echo_stream)); }
+      }
     value1 = TheStream(stream)->strm_twoway_input; mv_count=1;
   }
 
 LISPFUNN(echo_stream_output_stream,1)
 # (ECHO-STREAM-OUTPUT-STREAM stream), CLtL2 S. 507
   { var object stream = popSTACK();
-    if (!streamp(stream)) { fehler_stream(stream); }
     if (!(TheStream(stream)->strmtype == strmtype_echo))
-      { fehler_streamtype(stream,S(echo_stream)); }
+      { if (!streamp(stream))
+          { fehler_stream(stream); }
+          else
+          { fehler_streamtype(stream,S(echo_stream)); }
+      }
     value1 = TheStream(stream)->strm_twoway_output; mv_count=1;
   }
 
@@ -2102,7 +2128,7 @@ LISPFUNN(string_input_stream_index,1)
 # (SYSTEM::STRING-INPUT-STREAM-INDEX string-input-stream) liefert den Index
   { var object stream = popSTACK(); # Argument
     # muss ein String-Input-Stream sein:
-    if (!(streamp(stream) && (TheStream(stream)->strmtype == strmtype_str_in)))
+    if (!(builtin_stream_p(stream) && (TheStream(stream)->strmtype == strmtype_str_in)))
       { pushSTACK(stream);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(error,
@@ -2221,7 +2247,7 @@ LISPFUNN(get_output_stream_string,1)
 # (GET-OUTPUT-STREAM-STRING string-output-stream), CLTL S. 330
   { var object stream = STACK_0; # Argument
     # muss ein String-Output-Stream sein:
-    if (!(streamp(stream) && (TheStream(stream)->strmtype == strmtype_str_out)))
+    if (!(builtin_stream_p(stream) && (TheStream(stream)->strmtype == strmtype_str_out)))
       { # stream in STACK_0
         pushSTACK(TheSubr(subr_self)->name);
         fehler(error,
@@ -2290,7 +2316,7 @@ LISPFUNN(make_string_push_stream,1)
 LISPFUNN(string_stream_p,1)
 # (SYS::STRING-STREAM-P stream) == (TYPEP stream 'STRING-STREAM)
   { var object arg = popSTACK();
-    if (streamp(arg))
+    if (builtin_stream_p(arg))
       { switch (TheStream(arg)->strmtype)
           { case strmtype_str_in:   # String-Input-Stream
             case strmtype_str_out:  # String-Output-Stream
@@ -2543,7 +2569,7 @@ LISPFUNN(buffered_input_stream_index,1)
 # (SYSTEM::BUFFERED-INPUT-STREAM-INDEX buffered-input-stream) liefert den Index
   { var object stream = popSTACK(); # Argument
     # muss ein Buffered-Input-Stream sein:
-    if (!(streamp(stream) && (TheStream(stream)->strmtype == strmtype_buff_in)))
+    if (!(builtin_stream_p(stream) && (TheStream(stream)->strmtype == strmtype_buff_in)))
       { pushSTACK(stream);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(error,
@@ -2838,15 +2864,18 @@ LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL)
 
 LISPFUNN(generic_stream_controller,1)
   { var object stream = popSTACK();
-    if (!streamp(stream)) { fehler_stream(stream); }
-    if (!(   eq(TheStream(stream)->strm_rd_by,P(rd_by_generic))
+    if (!(builtin_stream_p(stream)
+          && eq(TheStream(stream)->strm_rd_by,P(rd_by_generic))
           && eq(TheStream(stream)->strm_wr_by,P(wr_by_generic))))
-      { pushSTACK(stream);
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,
-               GETTEXT("~: stream must be a generic-stream, not ~")
-              );
-      }
+      { if (!streamp(stream))
+          { fehler_stream(stream); }
+          else
+          { pushSTACK(stream);
+            pushSTACK(TheSubr(subr_self)->name);
+            fehler(error,
+                   GETTEXT("~: stream must be a generic-stream, not ~")
+                  );
+      }   }
     value1=TheStream(stream)->strm_controller_object;
     mv_count=1;
   }
@@ -2872,8 +2901,9 @@ LISPFUNN(make_generic_stream,1)
 LISPFUNN(generic_stream_p,1)
   { var object stream = popSTACK();
     if (!streamp(stream)) { fehler_stream(stream); }
-    if ((eq(TheStream(stream)->strm_rd_by,P(rd_by_generic))
-      && eq(TheStream(stream)->strm_wr_by,P(wr_by_generic))))
+    if (builtin_stream_p(stream)
+        && eq(TheStream(stream)->strm_rd_by,P(rd_by_generic))
+        && eq(TheStream(stream)->strm_wr_by,P(wr_by_generic)))
       { value1 = T; mv_count=1; }
     else
       { value1 = NIL; mv_count=1; }
@@ -7840,7 +7870,7 @@ typedef struct strm_i_buffered_extrafields_struct {
 LISPFUNN(file_stream_p,1)
 # (SYS::FILE-STREAM-P stream) == (TYPEP stream 'FILE-STREAM)
   { var object arg = popSTACK();
-    if (streamp(arg) && (TheStream(arg)->strmtype == strmtype_file))
+    if (builtin_stream_p(arg) && (TheStream(arg)->strmtype == strmtype_file))
       { value1 = T; }
       else
       { value1 = NIL; }
@@ -10245,13 +10275,15 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL)
     var object flag = popSTACK();
     var object stream = popSTACK();
     if (!streamp(stream)) { fehler_stream(stream); }
-    while (TheStream(stream)->strmtype == strmtype_synonym) # Synonym-Stream verfolgen
+    while (builtin_stream_p(stream)
+           && TheStream(stream)->strmtype == strmtype_synonym) # Synonym-Stream verfolgen
       { var object sym = TheStream(stream)->strm_synonym_symbol;
         stream = Symbol_value(sym);
         if (!streamp(stream)) { fehler_value_stream(sym); }
       }
     value1 = NIL;
-    if (TheStream(stream)->strmtype == strmtype_terminal)
+    if (builtin_stream_p(stream)
+        && TheStream(stream)->strmtype == strmtype_terminal)
       # der Terminal-Stream
       { if (!nullp(TheStream(stream)->strm_terminal_isatty))
           # Terminal
@@ -10292,7 +10324,8 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL)
     var object flag = popSTACK();
     var object stream = popSTACK();
     if (!streamp(stream)) { fehler_stream(stream); }
-    while (TheStream(stream)->strmtype == strmtype_synonym) # Synonym-Stream verfolgen
+    while (builtin_stream_p(stream)
+           && TheStream(stream)->strmtype == strmtype_synonym) # Synonym-Stream verfolgen
       { var object sym = TheStream(stream)->strm_synonym_symbol;
         stream = Symbol_value(sym);
         if (!streamp(stream)) { fehler_value_stream(sym); }
@@ -10302,10 +10335,11 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL)
     value1 = NIL;
    {var LONG new_mode = (nullp(flag) ? 0 : 1);
     var LONG success;
-    if ((TheStream(stream)->strmtype == strmtype_terminal) # der Terminal-Stream
-        || (TheStream(stream)->strmtype == strmtype_file # ein ungebufferter File-Stream
-            && !ChannelStream_buffered(stream)
-       )   )
+    if (builtin_stream_p(stream)
+        && ((TheStream(stream)->strmtype == strmtype_terminal) # der Terminal-Stream
+            || (TheStream(stream)->strmtype == strmtype_file # ein ungebufferter File-Stream
+                && !ChannelStream_buffered(stream)
+       )   )   )
       { if (!nullp(TheStream(stream)->strm_isatty))
           { if (TheStream(stream)->strmtype == strmtype_terminal)
               # Terminal
@@ -10428,7 +10462,7 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL)
   local void check_window_stream (object stream);
   local void check_window_stream(stream)
     var object stream;
-    { if (streamp(stream)
+    { if (builtin_stream_p(stream)
           && (TheStream(stream)->strmtype == strmtype_window)
          )
         return;
@@ -13474,7 +13508,7 @@ LISPFUNN(make_printer_stream,0)
       var object handlobj;
       { var Handle handle = TheHandle(handlobj);
         #ifdef PIPES2
-        if (streamp(TheStream(stream)->strm_pipe_other))
+        if (builtin_stream_p(TheStream(stream)->strm_pipe_other))
           # Der andere Pipe-Stream ist noch offen. Wir dürfen nicht pclose()
           # aufrufen, da das ein waitpid() ausführt.
           { TheStream(TheStream(stream)->strm_pipe_other)->strm_pipe_other = NIL;
@@ -14415,14 +14449,18 @@ LISPFUNN(make_x11socket_stream,2)
 LISPFUNN(listen_byte,1)
 # (SYS::LISTEN-BYTE stream)
   { var object stream = popSTACK();
-    if (!streamp(stream)) { fehler_stream(stream); }
-    if (!eq(TheStream(stream)->strm_rd_by,P(rd_by_iau8_unbuffered)))
-      { pushSTACK(stream);
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,
-               GETTEXT("~: stream must be a socket-stream, not ~")
-              );
-      }
+    if (!(builtin_stream_p(stream)
+          && eq(TheStream(stream)->strm_rd_by,P(rd_by_iau8_unbuffered))
+       ) )
+      { if (!streamp(stream))
+          { fehler_stream(stream); }
+          else
+          { pushSTACK(stream);
+            pushSTACK(TheSubr(subr_self)->name);
+            fehler(error,
+                   GETTEXT("~: stream must be a socket-stream, not ~")
+                  );
+      }   }
     value1 = (ls_avail_p(UnbufferedStreamLow_listen(stream)(stream)) ? T : NIL);
     mv_count=1;
   }
@@ -14458,17 +14496,20 @@ LISPFUNN(listen_byte,1)
   local void test_n_bytes_args(index_,count_)
     var uintL* index_;
     var uintL* count_;
-    { if (!streamp(STACK_3)) { fehler_stream(STACK_3); }
-      {var object stream = STACK_3;
-       if (!(   eq(TheStream(stream)->strm_rd_by,P(rd_by_iau8_unbuffered))
+    { {var object stream = STACK_3;
+       if (!(builtin_stream_p(stream)
+             && eq(TheStream(stream)->strm_rd_by,P(rd_by_iau8_unbuffered))
              && eq(TheStream(stream)->strm_wr_by,P(wr_by_iau8_unbuffered))
           ) )
-         { pushSTACK(stream);
-           pushSTACK(TheSubr(subr_self)->name);
-           fehler(error,
-                  GETTEXT("~: stream must be a socket-stream, not ~")
-                 );
-      }  }
+         { if (!streamp(stream))
+             { fehler_stream(stream); }
+             else
+             { pushSTACK(stream);
+               pushSTACK(TheSubr(subr_self)->name);
+               fehler(error,
+                      GETTEXT("~: stream must be a socket-stream, not ~")
+                     );
+      }  }   }
       {var object vector = STACK_2;
        if (!(general_byte_vector_p(vector) # Bit/Byte-Vektor?
              && ((Iarray_flags(vector) & arrayflags_atype_mask) == Atype_8Bit) # 8Bit
@@ -14726,7 +14767,7 @@ LISPFUN(socket_server,0,1,norest,nokey,0,NIL)
       { sock = INVALID_SOCKET; port = 0; goto doit; }
     if (posfixnump(STACK_0))
       { sock = INVALID_SOCKET; port = posfixnum_to_L(STACK_0); goto doit; }
-    if (streamp(STACK_0))
+    if (builtin_stream_p(STACK_0))
       { var object stream = STACK_0;
         switch (TheStream(stream)->strmtype)
           { case strmtype_twoway_socket:
@@ -14910,7 +14951,7 @@ local object test_socket_stream(obj,check_open)
   var object obj;
   var boolean check_open;
   {
-    if (streamp(obj))
+    if (builtin_stream_p(obj))
       { switch (TheStream(obj)->strmtype)
           { case strmtype_twoway_socket:
               obj = TheStream(obj)->strm_twoway_socket_input;
@@ -16804,7 +16845,7 @@ LISPFUN(write_integer,3,1,norest,nokey,0,NIL)
   local object check_open_file_stream(obj)
     var object obj;
     { loop
-        { if (!streamp(obj)) goto fehler_bad_obj; # Stream ?
+        { if (!builtin_stream_p(obj)) goto fehler_bad_obj; # Stream ?
           if (TheStream(obj)->strmtype == strmtype_synonym) # Synonym-Stream verfolgen
             { var object sym = TheStream(obj)->strm_synonym_symbol;
               obj = Symbol_value(sym);

@@ -5269,7 +5269,7 @@ typedef struct { XRECORD_HEADER
 
 #endif
 
-# Streams
+# Streams with metaclass BUILT-IN-CLASS
 typedef struct {
                  #ifdef case_stream
                  VAROBJECT_HEADER # Selbstpointer für GC
@@ -5303,6 +5303,7 @@ typedef struct {
                  object strm_other[unspecified]; # typspezifische Komponenten
                }
         *  Stream;
+# The macro TheStream actually means TheBuiltinStream.
 #define strm_len  ((sizeof(*(Stream)0)-offsetofa(record_,recdata))/sizeof(object)-unspecified)
 #define stream_length(ptr)  xrecord_length(ptr)
 #define stream_xlength(ptr)  xrecord_xlength(ptr)
@@ -6260,13 +6261,16 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
       (orecordp(obj) && (Record_type(obj) == Rectype_Structure))
   #endif
 
-# Test auf Stream
+# Test auf Builtin-Stream
   #ifdef case_stream
-    #define streamp(obj)  (typecode(obj)==stream_type)
+    #define builtin_stream_p(obj)  (typecode(obj)==stream_type)
   #else
-    #define streamp(obj)  \
+    #define builtin_stream_p(obj)  \
       (orecordp(obj) && (Record_type(obj) == Rectype_Stream))
   #endif
+
+# Test auf Stream
+  #define streamp(obj)  builtin_stream_p(obj)
 
 # Test auf Package
   #define packagep(obj)  \
@@ -6357,7 +6361,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   #define socket_server_p(obj)  \
     (orecordp(obj) && (Record_type(obj) == Rectype_Socket_Server))
   #define socket_stream_p(obj)  \
-    (streamp(obj) && (TheStream(obj)->strmtype==strmtype_socket))
+    (builtin_stream_p(obj) && (TheStream(obj)->strmtype==strmtype_socket))
 #endif
 
 #ifdef YET_ANOTHER_RECORD
