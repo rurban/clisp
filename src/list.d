@@ -670,7 +670,16 @@ LISPFUNNR(nthcdr,2)
 { /* (NTHCDR integer list), CLTL p. 267 */
   var uintL count = get_integer_truncate(STACK_1);
   var object list = STACK_0;
-  while (count--) { list = cdr(list); } /* count CDRs */
+  dotimesL(count,count, {
+    if (consp(list))
+      /* Walk list. */
+      list = Cdr(list);
+    else if (nullp(list))
+      /* End of list reached. */
+      break;
+    else
+      fehler_list(list);
+  });
   VALUES1(list);
   skipSTACK(2);
 }
