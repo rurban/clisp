@@ -92,7 +92,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
-"POT-Creation-Date: 1998-08-09 13:42:57 EDT\n"
+"POT-Creation-Date: 1998-08-09 16:06:00 EDT\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -5032,7 +5032,7 @@ msgstr "~S redefine la constante ~S. Su valor anterior era ~S."
 
 #: macros1.lsp:167
 #, fuzzy
-msgid "Bad syntax in ~S: ~S."
+msgid "Invalid syntax in ~S form: ~S."
 msgstr "Sintaxis inválida en LET/LET*: ~S"
 
 #: macros1.lsp:285 places.lsp:401 places.lsp:668
