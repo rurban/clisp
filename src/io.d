@@ -8362,8 +8362,9 @@ LISPFUNN(print_structure,2)
                 skipSTACK(1);
               } else {
                 STACK_0 = obj; # String
-                if (test_value(S(print_escape)) ||
-                    test_value(S(print_readably))) { # print "#P"
+                if (test_value(S(print_escape))
+                    || test_value(S(print_readably))) {
+                  # print "#P"
                   write_ascii_char(stream_,'#'); write_ascii_char(stream_,'P');
                 }
                 pr_string(stream_,STACK_0); # print the string
