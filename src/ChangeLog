@@ -1,3 +1,15 @@
+2004-06-10  Bruno Haible  <bruno@clisp.org>
+
+	Add error checking for effective-method options.
+	* clos-methcomb2.lisp (check-em-arguments-option,
+	check-em-generic-function-option): New functions, extracted from
+	define-method-combination.
+	(check-em-duplicates-option): New function.
+	(compute-effective-method-as-function-form): Call
+	check-em-arguments-option and check-em-duplicates-option.
+	(define-method-combination): Use check-em-arguments-option and
+	check-em-generic-function-option.
+
 2004-05-30  Bruno Haible  <bruno@clisp.org>
 
 	* clos-print.lisp (print-object): Add methods for slot-definition and

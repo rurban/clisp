@@ -121,6 +121,63 @@
                  'defgeneric gf-name options combination err))))
       (apply checker options))))
 
+; Check the effective-method option (:ARGUMENTS ...).
+; Returns two values:
+; 1. the arguments-lambda-list,
+; 2. the list of variables contained therein.
+(defun check-em-arguments-option (option caller name)
+  (let* ((arguments-lambda-list (cdr option))
+         (arguments-lambda-list-without-whole
+           (if (and (consp arguments-lambda-list)
+                    (eq (car arguments-lambda-list) '&WHOLE)
+                    (consp (cdr arguments-lambda-list)))
+             (cddr arguments-lambda-list)
+             arguments-lambda-list)))
+    (multiple-value-bind (reqvars optvars optinits optsvars rest
+                          keyp keywords keyvars keyinits keysvars
+                          allowp auxvars auxinits)
+        (analyze-lambdalist arguments-lambda-list-without-whole
+          #'(lambda (errorstring &rest arguments)
+              (error-of-type (if (eq caller 'define-method-combination)
+                               'sys::source-program-error
+                               'program-error)
+                (TEXT "~S ~S: invalid ~S lambda-list: ~A")
+                caller name ':arguments
+                (apply #'format nil errorstring arguments))))
+       (declare (ignore optinits keyp keywords keyinits allowp auxinits))
+       (values
+         arguments-lambda-list
+         (remove 0 (append (if (eq (first arguments-lambda-list) '&WHOLE)
+                             (list (second arguments-lambda-list))
+                             '())
+                           reqvars optvars optsvars (list rest)
+                           keyvars keysvars auxvars))))))
+
+; Check the effective-method option (:GENERIC-FUNCTION ...).
+; Returns the generic-function variable contained therein.
+(defun check-em-generic-function-option (option caller name)
+  (unless (and (consp (cdr option)) (symbolp (cadr option)) (null (cddr option)))
+    (error-of-type (if (eq caller 'define-method-combination)
+                     'sys::source-program-error
+                     'program-error)
+      (TEXT "~S ~S: Invalid syntax for ~S option: ~S")
+      caller name ':generic-function option))
+  (cadr option))
+
+; Check the effective-method option (:DUPLICATES ...).
+; Returns an alist of methods and its method group names.
+(defun check-em-duplicates-option (option caller name)
+  (unless (and (proper-list-p (cdr option))
+               (every #'(lambda (x)
+                          (and (consp x)
+                               (typep (car x) <method>)
+                               (symbolp (cdr x))))
+                      (cdr option)))
+    (error-of-type 'program-error
+      (TEXT "~S ~S: Invalid syntax for ~S option: ~S")
+      caller name ':duplicates option))
+  (cdr option))
+
 ;; Adds the function-macro definitions of CALL-NEXT-METHOD and NEXT-METHOD-P.
 (defun add-next-method-local-functions (self cont req-dummies rest-dummy body)
   `(SYSTEM::FUNCTION-MACRO-LET
@@ -440,8 +497,14 @@
     ;; Build a function form around the inner form:
     (build-effective-method-function-form gf combination methods
       effective-method-form
-      (cdr (assoc ':ARGUMENTS effective-method-options))
-      (cdr (assoc ':DUPLICATES effective-method-options)))))
+      (let ((option (assoc ':ARGUMENTS effective-method-options)))
+        (if option
+          (check-em-arguments-option option 'compute-discriminating-function gf)
+          '()))
+      (let ((option (assoc ':DUPLICATES effective-method-options)))
+        (if option
+          (check-em-duplicates-option option 'compute-discriminating-function gf)
+          '())))))
 
 ;;; ----------------------- Standard Method Combination -----------------------
 
@@ -996,40 +1059,14 @@ Long-form options are a list of method-group specifiers,
                  (method-variable (gensym "METHOD-")))
              (when (and (consp body) (consp (car body))
                         (eq (caar body) ':ARGUMENTS))
-               (setq arguments-lambda-list (cdar body))
-               (let ((arguments-lambda-list-without-whole
-                       (if (and (consp arguments-lambda-list)
-                                (eq (car arguments-lambda-list) '&WHOLE)
-                                (consp (cdr arguments-lambda-list)))
-                         (cddr arguments-lambda-list)
-                         arguments-lambda-list)))
-                 (multiple-value-bind (reqvars optvars optinits optsvars rest
-                                       keyp keywords keyvars keyinits keysvars
-                                       allowp auxvars auxinits)
-                     (analyze-lambdalist arguments-lambda-list-without-whole
-                       #'(lambda (errorstring &rest arguments)
-                           (error-of-type 'sys::source-program-error
-                             (TEXT "~S ~S: invalid ~S lambda-list: ~A")
-                             'define-method-combination name ':arguments
-                             (apply #'format nil errorstring arguments))))
-                   (declare (ignore optinits keyp keywords keyinits allowp auxinits))
-                   (setq arguments-variables
-                         (remove 0 (append (if (eq (first arguments-lambda-list) '&WHOLE)
-                                             (list (second arguments-lambda-list))
-                                             '())
-                                           reqvars optvars optsvars (list rest)
-                                           keyvars keysvars auxvars)))))
+               (multiple-value-setq (arguments-lambda-list arguments-variables)
+                   (check-em-arguments-option (car body) 'define-method-combination name))
                (setq body (cdr body)))
              (when (and (consp body) (consp (car body))
                         (eq (caar body) ':GENERIC-FUNCTION))
-               (let ((option (cdar body)))
-                 (unless (and (consp option) (symbolp (car option))
-                              (null (cdr option)))
-                   (error-of-type 'sys::source-program-error
-                     (TEXT "~S ~S: Invalid syntax for ~S option: ~S")
-                     'define-method-combination name ':generic-function (car body)))
-                 (setq user-gf-variable (car option))
-                 (setq body (cdr body))))
+               (setq user-gf-variable
+                     (check-em-generic-function-option (car body) 'define-method-combination name))
+               (setq body (cdr body)))
              (multiple-value-bind (body-rest declarations documentation)
                  (sys::parse-body body t)
                (when arguments-variables
