@@ -1048,7 +1048,7 @@ local object LF_LF_mal_LF (object x1, object x2)
       /* shift the first n+1 Digits by 1 bit to the left: */
       shift1left_loop_down(&midptr[1],len+1);
       /* decrement exponent: */
-      if ((TheLfloat(y)->expo)-- == LF_exp_low-1) {
+      if (--(TheLfloat(y)->expo) == LF_exp_low-1) {
         end_arith_call();
         RESTORE_NUM_STACK /* restore num_stack */
         if (underflow_allowed()) {
