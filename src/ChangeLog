@@ -1,3 +1,11 @@
+2003-12-19  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 842910 ]: Compiler bug in OPTIMIZE-LABEL
+	* compiler.lisp (optimize-label): ignore unused labels
+	(optimize-short): do not LABEL-SUBST to unused labels
+	(optimize-value): do not discard references to an impossible
+	label when it is the same as the definite label
+
 2003-12-18  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (appease_form): new function
