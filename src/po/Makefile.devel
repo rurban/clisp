@@ -159,7 +159,7 @@ $(patsubst %,%.po.merged,$(OTHER_LINGUAS)) : %.po.merged : %.po.new %.po $(PACKA
 
 MSGATTRIB = msgattrib -w 1000
 
-clisplow.pot : $(SOURCES_POT2) ../VERSION po_header
+clisplow.pot : $(SOURCES_POT2) ../../version.sh po_header
 	(./po_header t ; cat $(SOURCES_POT2)) > clisplow.pox
 	$(MSGUNIQ) clisplow.pox -o $@
 	$(RM) clisplow.pox
