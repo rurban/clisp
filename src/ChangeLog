@@ -1,5 +1,17 @@
 2004-05-23  Sam Steingold  <sds@gnu.org>
 
+	allow () to match NIL in destructuring lambda lists
+	* utils/clispload.lsp (regression-test::*expected-failures*):
+	removed MACROLET.39
+	* defmacro.lisp (%null-tests): proclaim SPECIAL
+	(empty-pattern): new function
+	(analyze1): treat () as an empty pattern, not symbol NIL
+	(make-macro-expansion): bind %NULL-TESTS and call them
+	* places.lisp (define-setf-expander, defsetf): ditto
+	* macros2.lisp (deftype): ditto
+
+2004-05-23  Sam Steingold  <sds@gnu.org>
+
 	* clos-class0.lisp (print-object): avoid a compilation warning
 
 2004-05-22  Sam Steingold  <sds@gnu.org>

@@ -187,6 +187,7 @@
         (let ((SYSTEM::%ARG-COUNT 0)
               (SYSTEM::%MIN-ARGS 0)
               (SYSTEM::%RESTP nil)
+              (SYSTEM::%NULL-TESTS nil)
               (SYSTEM::%LET-LIST nil)
               (SYSTEM::%KEYWORD-TESTS nil)
               (SYSTEM::%DEFAULT-FORM nil)
@@ -201,7 +202,8 @@
                 (mainform
                   `(LET* ,(nreverse SYSTEM::%LET-LIST)
                      ,@(if declarations `(,(cons 'DECLARE declarations)))
-                     ,@SYSTEM::%KEYWORD-TESTS
+                     ,@(nreverse SYSTEM::%NULL-TESTS)
+                     ,@(nreverse SYSTEM::%KEYWORD-TESTS)
                      (BLOCK ,accessfn ,@body-rest)
                    )
                ))
@@ -273,6 +275,7 @@
                            (SYSTEM::%ARG-COUNT 0)
                            (SYSTEM::%MIN-ARGS 0)
                            (SYSTEM::%RESTP nil)
+                           (SYSTEM::%NULL-TESTS nil)
                            (SYSTEM::%LET-LIST nil)
                            (SYSTEM::%KEYWORD-TESTS nil)
                            (SYSTEM::%DEFAULT-FORM nil))
@@ -288,7 +291,8 @@
                          ,@declarations
                          (LET* ,(nreverse SYSTEM::%LET-LIST)
                            ,@declarations
-                           ,@SYSTEM::%KEYWORD-TESTS
+                           ,@(nreverse SYSTEM::%NULL-TESTS)
+                           ,@(nreverse SYSTEM::%KEYWORD-TESTS)
                            (BLOCK ,accessfn ,@body-rest)
                        ) )
                  )) )
@@ -1030,7 +1034,7 @@ Variables affected: `custom:*floating-point-contagion-ansi*´,
  `custom:*floating-point-rational-contagion-ansi*´, `custom:*phase-ansi*´,
  `custom:*merge-pathnames-ansi*´, `custom:*print-pathnames-ansi*´,
  `custom:*print-space-char-ansi*´, `custom:*parse-namestring-ansi*´,
- `custom:*print-empty-arrays-ansi*,
+ `custom:*print-empty-arrays-ansi*´,
  `custom:*sequence-count-ansi*´, `custom:*coerce-fixnum-char-ansi*´.
 Invoking CLISP with `-ansi´ sets this to T.
 Invoking CLISP with `-traditional´ sets this to NIL.")

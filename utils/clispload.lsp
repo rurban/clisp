@@ -38,14 +38,6 @@
   CL-CONSTANT-SYMBOLS.1
   CONSTANTP.10
 
-  ;; Paul Dietz assumes that NIL in place of a variable is equivalent to
-  ;; #:IGNORE, i.e. it matches any object and discards it.
-  ;; I argue that destructuring works in tree-like manner, where the atoms are
-  ;; leaves. NIL being an atom, it is a tree leaf and represents a variable.
-  ;; Since NIL as a variable cannot be bound - it is a constant -, NIL in a
-  ;; macro argument list is invalid.
-  MACROLET.39
-
   ;; Paul Dietz assumes that the qualifiers of methods are checked only
   ;; at run time, when the effective method is determined.
   ;; I argue that the description of DEFMETHOD allows qualifier checking to
