@@ -33,8 +33,8 @@ options:
     main INSTALL file for how to get them.
        --with-readline         the (readline-4.1 based) readline lib
        --with-noreadline       no readline library
-       --with-gettext          internationalization library gettext-0.10.27
-       --with-nogettext        static internationalization (en,de,fr only)
+       --with-gettext          internationalization library gettext-0.10.38
+       --with-nogettext        static internationalization (en only)
        --with-termcap          termcap-1.3 library (needed only on cygwin32)
        --without-unicode       no Unicode character set, only 8-bit characters
        --with-dynamic-ffi      a foreign language interface
@@ -59,8 +59,8 @@ EOP
 #  where PACKAGE is one of
 #        readline         the (readline-4.1 based) readline library
 #        noreadline       no readline library
-#        gettext          internationalization library gettext-0.10.27
-#        nogettext        static internationalization (en,de,fr only)
+#        gettext          internationalization library gettext-0.10.38
+#        nogettext        static internationalization (en only)
 #        unicode          Unicode character set
 #        termcap          termcap-1.3 library (needed only on cygwin32)
 #        dynamic-ffi      a dynamic foreign language interface
