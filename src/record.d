@@ -942,6 +942,8 @@ LISPFUNNR(slot_exists_p,2) {
 LISPFUNN(pchange_class,3) {
   var bool do_copy_p = !nullp(popSTACK());
   /* STACK: instance, new-class */
+  instance_un_realloc(STACK_0);
+  instance_un_realloc(STACK_1);
   do_allocate_instance(STACK_0);
   pushSTACK(value1); /* the new object, to be filled in Lisp */
   if (do_copy_p) {
