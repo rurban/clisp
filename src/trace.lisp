@@ -48,7 +48,7 @@
   "Use indentation in addition to numbering to indicate the trace level.")
 
 (proclaim '(special *trace-function* *trace-args* *trace-form* *trace-values*))
-(defvar *traced-functions* nil) ; list of currently traced function-names
+(defvar *traced-functions* nil) ; list of currently traced function-names ; ABI
 ;; So long as a function-name funname [resp. more exactly: the Symbol
 ;; symbol = (get-funname-symbol funname)] are traced, the Property
 ;; sys::traced-definition contains the old content of the function-cell, the
@@ -61,6 +61,7 @@
 ;;       (eq (symbol-function symbol) (get symbol 'sys::tracing-definition)))
 ;; ===>   (member funname *traced-functions* :test #'equal)
 ;; <==>   (get symbol 'sys::traced-definition)
+
 (defvar *trace-level* 0) ; nesting depth for Trace-Output
 
 (labels ((subclosure-pos (closure name)
@@ -94,10 +95,10 @@
                       (subclosure-pos clo (car spe))))
                 ((endp (cdr spe)) (values clo pos)))))
 
-  (defun %local-get (spec)
+  (defun %local-get (spec) ; ABI
     (multiple-value-bind (clo pos) (local-helper spec)
       (sys::%record-ref clo pos)))
-  (defun %local-set (new-def spec)
+  (defun %local-set (new-def spec) ; ABI
     (unless (closurep new-def)
       (error-of-type 'type-error
         :datum new-def :expected-type 'closure
@@ -119,8 +120,8 @@ CLOSURE must be compiled."
   "Modify the local definition (LABELS or FLET).
 This will not work with closures that use lexical variables!"
   (let ((store (gensym "LOCAL-")))
-    (values nil nil `(,store) `(%local-set ,store ',spec)
-            `(%local-get ,spec))))
+    (values nil nil `(,store) `(%LOCAL-SET ,store ',spec)
+            `(%LOCAL-GET ,spec))))
 
 ;; check whether the object might name a local (LABELS or FLET) function
 (defun local-function-name-p (obj)
@@ -139,16 +140,16 @@ This will not work with closures that use lexical variables!"
 
 (defmacro trace (&rest funs)
   (if (null funs)
-    '*traced-functions*
+    '*TRACED-FUNCTIONS*
     (cons 'append
       (mapcar (lambda (fun)
                 (cond ((or (function-name-p fun) (local-function-name-p fun))
                        (let ((trr (make-tracer :name fun)))
                          (check-traceable fun trr 'trace)
-                         `(trace1 ,trr)))
+                         `(TRACE1 ,trr)))
                       ((let ((trr (apply #'make-tracer :name fun)))
                          (check-traceable (first fun) trr 'trace)
-                         `(trace1 ,trr)))))
+                         `(TRACE1 ,trr)))))
               funs))))
 
 ;; check whether the FUNNAME can be traced,
@@ -177,7 +178,7 @@ This will not work with closures that use lexical variables!"
   (check-redefinition funname caller "function")
   trr)
 
-(defun trace1 (trr)
+(defun trace1 (trr) ; ABI
   (let ((macro-flag (macrop (tracer-cur-def trr)))
         (sig (when (tracer-local-p trr)
                (sig-to-list (get-signature (tracer-cur-def trr))))))
@@ -307,10 +308,10 @@ This will not work with closures that use lexical variables!"
       (write-string ", " *trace-output*))))
 
 (defmacro untrace (&rest funs)
-  `(mapcan #'untrace1
-    ,(if (null funs) `(copy-list *traced-functions*) `',funs)))
+  `(MAPCAN #'UNTRACE1
+     ,(if (null funs) `(COPY-LIST *TRACED-FUNCTIONS*) `',funs)))
 
-(defun untrace1 (funname)
+(defun untrace1 (funname) ; ABI
   (let* ((trr (check-traceable funname (make-tracer :name funname) 'untrace))
          (symbol (tracer-symb trr))
          (old-definition (get symbol 'sys::traced-definition)))

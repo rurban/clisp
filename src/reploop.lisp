@@ -572,11 +572,11 @@ Continue       :c       switch off single step mode, continue evaluation
 ;;;--------------------------------------------------------------------------
 ;;;        convenient Stepper. (runs only if compiled!)
 
-(defvar *step-level* 0 "current Step-depth")
-(defvar *step-quit* most-positive-fixnum "critical Step-depth")
+(defvar *step-level* 0 "current Step-depth") ; ABI
+(defvar *step-quit* most-positive-fixnum "critical Step-depth") ; ABI
 ;; the stepper wakes up, as soon as *step-level* <= *step-quit*
 
-(defvar *step-watch* nil)               ; terminating condition
+(defvar *step-watch* nil)               ; terminating condition ; ABI
 
 (defmacro step (form)
   "(STEP form), CLTL p. 441"

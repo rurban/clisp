@@ -40,14 +40,14 @@
 ;; Definition in assembler (see CONTROL.Q)
 |#
 
-(defun macro-call-error (macro-form)
+(defun macro-call-error (macro-form) ; ABI
   (error-of-type 'source-program-error
     :form macro-form
     :detail macro-form
     (TEXT "The macro ~S may not be called with ~S arguments: ~S")
     (car macro-form) (1- (length macro-form)) macro-form))
 
-(defun macro-nonnull-element-error (macro-form macro-name element)
+(defun macro-nonnull-element-error (macro-form macro-name element) ; ABI
   (error-of-type 'source-program-error
     :form macro-form
     :detail element

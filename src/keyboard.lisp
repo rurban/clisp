@@ -10,7 +10,7 @@
 (defmacro with-keyboard (&body body)
   `(SYS::EXEC-WITH-KEYBOARD (FUNCTION (LAMBDA () (PROGN ,@body))))
 )
-(defun exec-with-keyboard (fun)
+(defun exec-with-keyboard (fun) ; ABI
   #+WIN32 ; *keyboard-input* existiert schon
     (funcall fun)
   #+UNIX

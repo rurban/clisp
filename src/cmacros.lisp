@@ -47,7 +47,7 @@
   (if (symbolp name) (get name 'compiler-macro)
       (get (second name) 'compiler-macro-setf)))
 
-(defun (setf compiler-macro-function) (newf name &optional environment)
+(defun (setf compiler-macro-function) (newf name &optional environment) ; ABI
   (declare (ignore environment))
   (setq name (check-function-name name '(setf compiler-macro-function)))
   (if (symbolp name) (setf (get name 'compiler-macro) newf)

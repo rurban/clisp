@@ -80,17 +80,17 @@
          ',symbol))))
 ; For inhibiting warnings about redefining constants when the old and the new
 ; value are the same string / bit vector:
-(defmacro constant-eql (new-form new-value old-value)
+(defmacro constant-eql (new-form new-value old-value) ; ABI
   (declare (ignore new-form))
   `(EQL ,new-value ,old-value))
 ; If new-value is known to be an immutable string / bit vector and old-value
 ; is the same string / bit vector, this can return T by using EQUAL instead of
 ; EQL.
-(defun loose-constant-eql (new-value old-value)
+(defun loose-constant-eql (new-value old-value) ; ABI
   (and (equal (type-of new-value) (type-of old-value))
        (equal new-value old-value)))
 ; The redefinition warning.
-(defun constant-warning (symbol form)
+(defun constant-warning (symbol form) ; ABI
   (warn (TEXT "~S redefines the constant ~S. Its old value was ~S.")
         form symbol (symbol-value symbol)))
 

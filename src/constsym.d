@@ -37,6 +37,11 @@
 
 /* which expander is used must be specified in the main file. */
 
+/* The marker 'ABI' means that although the symbol is not exported from one
+   of the public packages (COMMON-LISP, CLOS, EXT, FFI), it can be referred
+   to from user compiled .fas files, because it occurs as part of macro
+   expansions. */
+
 LISPSYM(nil,"NIL",lisp)
 LISPSYM(t,"T",lisp)
 
@@ -91,15 +96,15 @@ LISPSYM(subr_info,"SUBR-INFO",system)
 LISPSYM(add_implicit_block,"ADD-IMPLICIT-BLOCK",system)
 LISPSYM(function_block_name,"FUNCTION-BLOCK-NAME",system)
 /* ---------- ARRAY ---------- */
-LISPSYM(copy_simple_vector,"%COPY-SIMPLE-VECTOR",system)
+LISPSYM(copy_simple_vector,"%COPY-SIMPLE-VECTOR",system) /* ABI */
 LISPSYM(vector,"VECTOR",lisp)
 LISPSYM(aref,"AREF",lisp)
-LISPSYM(store,"STORE",system)
+LISPSYM(store,"STORE",system) /* ABI */
 LISPSYM(svref,"SVREF",lisp)
-LISPSYM(svstore,"SVSTORE",system)
-LISPSYM(psvstore,"%SVSTORE",system)
+LISPSYM(svstore,"SVSTORE",system) /* ABI */
+LISPSYM(psvstore,"%SVSTORE",system) /* ABI */
 LISPSYM(row_major_aref,"ROW-MAJOR-AREF",lisp)
-LISPSYM(row_major_store,"ROW-MAJOR-STORE",system)
+LISPSYM(row_major_store,"ROW-MAJOR-STORE",system) /* ABI */
 LISPSYM(array_element_type,"ARRAY-ELEMENT-TYPE",lisp)
 LISPSYM(array_rank,"ARRAY-RANK",lisp)
 LISPSYM(array_dimension,"ARRAY-DIMENSION",lisp)
@@ -124,7 +129,7 @@ LISPSYM(bit_orc2,"BIT-ORC2",lisp)
 LISPSYM(bit_not,"BIT-NOT",lisp)
 LISPSYM(array_has_fill_pointer_p,"ARRAY-HAS-FILL-POINTER-P",lisp)
 LISPSYM(fill_pointer,"FILL-POINTER",lisp)
-LISPSYM(set_fill_pointer,"SET-FILL-POINTER",system)
+LISPSYM(set_fill_pointer,"SET-FILL-POINTER",system) /* ABI */
 LISPSYM(vector_push,"VECTOR-PUSH",lisp)
 LISPSYM(vector_pop,"VECTOR-POP",lisp)
 LISPSYM(vector_push_extend,"VECTOR-PUSH-EXTEND",lisp)
@@ -147,7 +152,7 @@ LISPSYM(graphic_char_p,"GRAPHIC-CHAR-P",lisp)
 LISPSYM(char_width,"CHAR-WIDTH",ext)
 LISPSYM(string_char_p,"STRING-CHAR-P",ext)
 #if (base_char_code_limit < char_code_limit)
-LISPSYM(base_char_p,"BASE-CHAR-P",system)
+LISPSYM(base_char_p,"BASE-CHAR-P",system) /* ABI */
 #endif
 LISPSYM(alpha_char_p,"ALPHA-CHAR-P",lisp)
 LISPSYM(upper_case_p,"UPPER-CASE-P",lisp)
@@ -178,8 +183,8 @@ LISPSYM(int_char,"INT-CHAR",ext)
 LISPSYM(char_name,"CHAR-NAME",lisp)
 LISPSYM(char,"CHAR",lisp)
 LISPSYM(schar,"SCHAR",lisp)
-LISPSYM(store_char,"STORE-CHAR",system)
-LISPSYM(store_schar,"STORE-SCHAR",system)
+LISPSYM(store_char,"STORE-CHAR",system) /* ABI */
+LISPSYM(store_schar,"STORE-SCHAR",system) /* ABI */
 LISPSYM(string_gleich,"STRING=",lisp)
 LISPSYM(string_ungleich,"STRING/=",lisp)
 LISPSYM(string_kleiner,"STRING<",lisp)
@@ -216,7 +221,7 @@ LISPSYM(fdefinition,"FDEFINITION",lisp)
 LISPSYM(boundp,"BOUNDP",lisp)
 LISPSYM(fboundp,"FBOUNDP",lisp)
 LISPSYM(special_operator_p,"SPECIAL-OPERATOR-P",lisp)
-LISPSYM(set,"SET-SYMBOL-VALUE",system)
+LISPSYM(set,"SET-SYMBOL-VALUE",system) /* ABI */
 LISPSYM(makunbound,"MAKUNBOUND",lisp)
 LISPSYM(fmakunbound,"FMAKUNBOUND",lisp)
 LISPSYM(apply,"APPLY",lisp)
@@ -246,7 +251,7 @@ LISPSYM(function_name_p,"FUNCTION-NAME-P",system)
 LISPSYM(check_function_name,"CHECK-FUNCTION-NAME",system)
 LISPSYM(check_symbol,"CHECK-SYMBOL",system)
 LISPSYM(parse_body,"PARSE-BODY",system)
-LISPSYM(keyword_test,"KEYWORD-TEST",system)
+LISPSYM(keyword_test,"KEYWORD-TEST",system) /* ABI */
 LISPSYM(xor,"XOR",ext)
 /* ---------- DEBUG ---------- */
 LISPSYM(read_form,"READ-FORM",system)
@@ -272,26 +277,26 @@ LISPSYM(proom,"%ROOM",system)
 LISPSYM(gc,"GC",ext)
 /* ---------- ENCODING ---------- */
 LISPSYM(make_encoding,"MAKE-ENCODING",ext)
-LISPSYM(encodingp,"ENCODINGP",system)
+LISPSYM(encodingp,"ENCODINGP",system) /* ABI */
 LISPSYM(charset_typep,"CHARSET-TYPEP",system)
 LISPSYM(encoding_line_terminator,"ENCODING-LINE-TERMINATOR",ext)
 #ifdef UNICODE
 LISPSYM(encoding_charset,"ENCODING-CHARSET",ext)
 LISPSYM(charset_range,"CHARSET-RANGE",system)
 #endif
-LISPSYM(default_file_encoding,"DEFAULT-FILE-ENCODING",system)
-LISPSYM(set_default_file_encoding,"SET-DEFAULT-FILE-ENCODING",system)
+LISPSYM(default_file_encoding,"DEFAULT-FILE-ENCODING",system) /* ABI */
+LISPSYM(set_default_file_encoding,"SET-DEFAULT-FILE-ENCODING",system) /* ABI */
 #ifdef UNICODE
-LISPSYM(pathname_encoding,"PATHNAME-ENCODING",system)
-LISPSYM(set_pathname_encoding,"SET-PATHNAME-ENCODING",system)
-LISPSYM(terminal_encoding,"TERMINAL-ENCODING",system)
-LISPSYM(set_terminal_encoding,"SET-TERMINAL-ENCODING",system)
+LISPSYM(pathname_encoding,"PATHNAME-ENCODING",system) /* ABI */
+LISPSYM(set_pathname_encoding,"SET-PATHNAME-ENCODING",system) /* ABI */
+LISPSYM(terminal_encoding,"TERMINAL-ENCODING",system) /* ABI */
+LISPSYM(set_terminal_encoding,"SET-TERMINAL-ENCODING",system) /* ABI */
 #if defined(HAVE_FFI) || defined(HAVE_AFFI)
-LISPSYM(foreign_encoding,"FOREIGN-ENCODING",system)
-LISPSYM(set_foreign_encoding,"SET-FOREIGN-ENCODING",system)
+LISPSYM(foreign_encoding,"FOREIGN-ENCODING",system) /* ABI */
+LISPSYM(set_foreign_encoding,"SET-FOREIGN-ENCODING",system) /* ABI */
 #endif
-LISPSYM(misc_encoding,"MISC-ENCODING",system)
-LISPSYM(set_misc_encoding,"SET-MISC-ENCODING",system)
+LISPSYM(misc_encoding,"MISC-ENCODING",system) /* ABI */
+LISPSYM(set_misc_encoding,"SET-MISC-ENCODING",system) /* ABI */
 #endif
 LISPSYM(convert_string_from_bytes,"CONVERT-STRING-FROM-BYTES",ext)
 LISPSYM(convert_string_to_bytes,"CONVERT-STRING-TO-BYTES",ext)
@@ -299,13 +304,13 @@ LISPSYM(convert_string_to_bytes,"CONVERT-STRING-TO-BYTES",ext)
 LISPSYM(error,"ERROR",lisp)
 LISPSYM(defclcs,"%DEFCLCS",system)
 LISPSYM(cerror_of_type,"CERROR-OF-TYPE",system)
-LISPSYM(error_of_type,"ERROR-OF-TYPE",system)
+LISPSYM(error_of_type,"ERROR-OF-TYPE",system) /* ABI */
 LISPSYM(invoke_debugger,"INVOKE-DEBUGGER",lisp)
 LISPSYM(clcs_signal,"SIGNAL",lisp)
 /* ---------- HASHTABL ---------- */
 LISPSYM(make_hash_table,"MAKE-HASH-TABLE",lisp)
 LISPSYM(gethash,"GETHASH",lisp)
-LISPSYM(puthash,"PUTHASH",system)
+LISPSYM(puthash,"PUTHASH",system) /* ABI */
 LISPSYM(remhash,"REMHASH",lisp)
 LISPSYM(maphash,"MAPHASH",lisp)
 LISPSYM(clrhash,"CLRHASH",lisp)
@@ -316,12 +321,12 @@ LISPSYM(hash_table_size,"HASH-TABLE-SIZE",lisp)
 LISPSYM(hash_table_test,"HASH-TABLE-TEST",lisp)
 LISPSYM(fasthash_stable_p,"FASTHASH-STABLE-P",system)
 LISPSYM(stablehash_stable_p,"STABLEHASH-STABLE-P",system)
-LISPSYM(hash_table_iterator,"HASH-TABLE-ITERATOR",system)
-LISPSYM(hash_table_iterate,"HASH-TABLE-ITERATE",system)
+LISPSYM(hash_table_iterator,"HASH-TABLE-ITERATOR",system) /* ABI */
+LISPSYM(hash_table_iterate,"HASH-TABLE-ITERATE",system) /* ABI */
 LISPSYM(hash_table_weak_p,"HASH-TABLE-WEAK-P",ext)
-LISPSYM(set_hash_table_weak_p,"(SETF HASH-TABLE-WEAK-P)",system)
+LISPSYM(set_hash_table_weak_p,"(SETF HASH-TABLE-WEAK-P)",system) /* ABI */
 LISPSYM(hash_table_warn_if_needs_rehash_after_gc,"HASH-TABLE-WARN-IF-NEEDS-REHASH-AFTER-GC",ext)
-LISPSYM(set_hash_table_warn_if_needs_rehash_after_gc,"(SETF HASH-TABLE-WARN-IF-NEEDS-REHASH-AFTER-GC)",system)
+LISPSYM(set_hash_table_warn_if_needs_rehash_after_gc,"(SETF HASH-TABLE-WARN-IF-NEEDS-REHASH-AFTER-GC)",system) /* ABI */
 LISPSYM(class_gethash,"CLASS-GETHASH",clos)
 LISPSYM(class_tuple_gethash,"CLASS-TUPLE-GETHASH",clos)
 LISPSYM(sxhash,"SXHASH",lisp)
@@ -335,7 +340,7 @@ LISPSYM(make_dispatch_macro_character,"MAKE-DISPATCH-MACRO-CHARACTER",lisp)
 LISPSYM(set_dispatch_macro_character,"SET-DISPATCH-MACRO-CHARACTER",lisp)
 LISPSYM(get_dispatch_macro_character,"GET-DISPATCH-MACRO-CHARACTER",lisp)
 LISPSYM(readtable_case,"READTABLE-CASE",lisp)
-LISPSYM(set_readtable_case,"SET-READTABLE-CASE",system)
+LISPSYM(set_readtable_case,"SET-READTABLE-CASE",system) /* ABI */
 LISPSYM(lpar_reader,"LPAR-READER",system)
 LISPSYM(rpar_reader,"RPAR-READER",system)
 LISPSYM(quote_reader,"QUOTE-READER",system)
@@ -381,7 +386,7 @@ LISPSYM(read_char_no_hang,"READ-CHAR-NO-HANG",lisp)
 LISPSYM(clear_input,"CLEAR-INPUT",lisp)
 LISPSYM(read_from_string,"READ-FROM-STRING",lisp)
 LISPSYM(parse_integer,"PARSE-INTEGER",lisp)
-LISPSYM(print_structure,"PRINT-STRUCTURE",system)
+LISPSYM(print_structure,"PRINT-STRUCTURE",system) /* ABI */
 LISPSYM(write,"WRITE",lisp)
 LISPSYM(prin1,"PRIN1",lisp)
 LISPSYM(print,"PRINT",lisp)
@@ -389,7 +394,7 @@ LISPSYM(pprint,"PPRINT",lisp)
 LISPSYM(pprint_dispatch,"PPRINT-DISPATCH",lisp) /* used in io.d */
 LISPSYM(pprint_indent,"PPRINT-INDENT",lisp)
 LISPSYM(pprint_newline,"PPRINT-NEWLINE",lisp)
-LISPSYM(ppprint_logical_block,"%PPRINT-LOGICAL-BLOCK",system)
+LISPSYM(ppprint_logical_block,"%PPRINT-LOGICAL-BLOCK",system) /* ABI */
 LISPSYM(pcirclep,"%CIRCLEP",system) /* for PPRINT-POP */
 LISPSYM(princ,"PRINC",lisp)
 LISPSYM(write_to_string,"WRITE-TO-STRING",lisp)
@@ -403,8 +408,8 @@ LISPSYM(fresh_line,"FRESH-LINE",lisp)
 LISPSYM(finish_output,"FINISH-OUTPUT",lisp)
 LISPSYM(force_output,"FORCE-OUTPUT",lisp)
 LISPSYM(clear_output,"CLEAR-OUTPUT",lisp)
-LISPSYM(write_unreadable,"WRITE-UNREADABLE",system)
-LISPSYM(line_position,"LINE-POSITION",system)
+LISPSYM(write_unreadable,"WRITE-UNREADABLE",system) /* ABI */
+LISPSYM(line_position,"LINE-POSITION",system) /* ABI */
 LISPSYM(whitespacep,"WHITESPACEP",system)
 LISPSYM(write_spaces,"WRITE-SPACES",system)
 /* ---------- LIST ---------- */
@@ -456,7 +461,7 @@ LISPSYM(ninth,"NINTH",lisp)
 LISPSYM(tenth,"TENTH",lisp)
 LISPSYM(rest,"REST",lisp)
 LISPSYM(nthcdr,"NTHCDR",lisp)
-LISPSYM(conses_p,"CONSES-P",system)
+LISPSYM(conses_p,"CONSES-P",system) /* ABI */
 LISPSYM(last,"LAST",lisp)
 LISPSYM(list,"LIST",lisp)
 LISPSYM(liststern,"LIST*",lisp)
@@ -468,14 +473,14 @@ LISPSYM(copy_tree,"COPY-TREE",lisp)
 LISPSYM(revappend,"REVAPPEND",lisp)
 LISPSYM(nconc,"NCONC",lisp)
 LISPSYM(nreconc,"NRECONC",lisp)
-LISPSYM(list_nreverse,"LIST-NREVERSE",system)
+LISPSYM(list_nreverse,"LIST-NREVERSE",system) /* ABI */
 LISPSYM(butlast,"BUTLAST",lisp)
 LISPSYM(nbutlast,"NBUTLAST",lisp)
 LISPSYM(ldiff,"LDIFF",lisp)
 LISPSYM(rplaca,"RPLACA",lisp)
-LISPSYM(prplaca,"%RPLACA",system)
+LISPSYM(prplaca,"%RPLACA",system) /* ABI */
 LISPSYM(rplacd,"RPLACD",lisp)
-LISPSYM(prplacd,"%RPLACD",system)
+LISPSYM(prplacd,"%RPLACD",system) /* ABI */
 LISPSYM(subst,"SUBST",lisp)
 LISPSYM(subst_if,"SUBST-IF",lisp)
 LISPSYM(subst_if_not,"SUBST-IF-NOT",lisp)
@@ -484,7 +489,7 @@ LISPSYM(nsubst_if,"NSUBST-IF",lisp)
 LISPSYM(nsubst_if_not,"NSUBST-IF-NOT",lisp)
 LISPSYM(sublis,"SUBLIS",lisp)
 LISPSYM(nsublis,"NSUBLIS",lisp)
-LISPSYM(memq,"MEMQ",system)
+LISPSYM(memq,"MEMQ",system) /* ABI */
 LISPSYM(member,"MEMBER",lisp)
 LISPSYM(member_if,"MEMBER-IF",lisp)
 LISPSYM(member_if_not,"MEMBER-IF-NOT",lisp)
@@ -531,16 +536,16 @@ LISPSYM(address_of,"ADDRESS-OF",system)
 LISPSYM(code_address_of,"CODE-ADDRESS-OF",system)
 LISPSYM(program_id,"PROGRAM-ID",system)
 #endif
-LISPSYM(ansi,"ANSI",system)
-LISPSYM(set_ansi,"SET-ANSI",system)
+LISPSYM(ansi,"ANSI",system) /* ABI */
+LISPSYM(set_ansi,"SET-ANSI",system) /* ABI */
 LISPSYM(module_info,"MODULE-INFO",ext)
 #if defined(DYNAMIC_FFI) && (defined(WIN32_NATIVE) || defined(HAVE_DLOPEN))
 LISPSYM(Kffi,"FFI",keyword)
 #endif
 LISPSYM(argv,"ARGV",ext)
 /* ---------- I18N ---------- */
-LISPSYM(current_language,"CURRENT-LANGUAGE",system)
-LISPSYM(set_current_language,"SET-CURRENT-LANGUAGE",system)
+LISPSYM(current_language,"CURRENT-LANGUAGE",system) /* ABI */
+LISPSYM(set_current_language,"SET-CURRENT-LANGUAGE",system) /* ABI */
 LISPSYM(text,"TEXT",system)
 LISPSYM(i18n_gettext,"GETTEXT",i18n)
 LISPSYM(i18n_ngettext,"NGETTEXT",i18n)
@@ -565,12 +570,12 @@ LISPSYM(get_universal_time,"GET-UNIVERSAL-TIME",lisp)
 LISPSYM(default_time_zone,"DEFAULT-TIME-ZONE",system)
 #endif
 LISPSYM(sleep,"%SLEEP",system)
-LISPSYM(time,"%%TIME",system)
+LISPSYM(time,"%%TIME",system) /* ABI */
 LISPSYM(delta4,"DELTA4",system)
 /* ---------- PACKAGE ---------- */
 LISPSYM(make_symbol,"MAKE-SYMBOL",lisp)
 LISPSYM(find_package,"FIND-PACKAGE",lisp)
-LISPSYM(pfind_package,"%FIND-PACKAGE",system)
+LISPSYM(pfind_package,"%FIND-PACKAGE",system) /* ABI */
 LISPSYM(package_name,"PACKAGE-NAME",lisp)
 LISPSYM(package_nicknames,"PACKAGE-NICKNAMES",lisp)
 LISPSYM(rename_package,"RENAME-PACKAGE",lisp)
@@ -579,9 +584,9 @@ LISPSYM(package_used_by_list,"PACKAGE-USED-BY-LIST",lisp)
 LISPSYM(package_shadowing_symbols,"PACKAGE-SHADOWING-SYMBOLS",lisp)
 LISPSYM(package_lock,"PACKAGE-LOCK",ext)
 LISPSYM(package_case_sensitive_p,"PACKAGE-CASE-SENSITIVE-P",ext)
-LISPSYM(package_documentation,"PACKAGE-DOCUMENTATION",system)
-LISPSYM(set_package_documentation,"(SETF PACKAGE-DOCUMENTATION)",system)
-LISPSYM(set_package_lock,"(SETF PACKAGE-LOCK)",system)
+LISPSYM(package_documentation,"PACKAGE-DOCUMENTATION",system) /* ABI */
+LISPSYM(set_package_documentation,"(SETF PACKAGE-DOCUMENTATION)",system) /* ABI */
+LISPSYM(set_package_lock,"(SETF PACKAGE-LOCK)",system) /* ABI */
 LISPSYM(symbol_value_lock,"SYMBOL-VALUE-LOCK",system)
 LISPSYM(check_package_lock,"CHECK-PACKAGE-LOCK",system)
 LISPSYM(list_all_packages,"LIST-ALL-PACKAGES",lisp)
@@ -597,15 +602,15 @@ LISPSYM(shadow,"SHADOW",lisp)
 LISPSYM(use_package,"USE-PACKAGE",lisp)
 LISPSYM(unuse_package,"UNUSE-PACKAGE",lisp)
 LISPSYM(make_package,"MAKE-PACKAGE",lisp)
-LISPSYM(pin_package,"%IN-PACKAGE",system)
+LISPSYM(pin_package,"%IN-PACKAGE",system) /* ABI */
 /* LISPSYM(in_package,"IN-PACKAGE",lisp) */
 LISPSYM(delete_package,"DELETE-PACKAGE",lisp)
 LISPSYM(find_all_symbols,"FIND-ALL-SYMBOLS",lisp)
-LISPSYM(map_symbols,"MAP-SYMBOLS",system)
-LISPSYM(map_external_symbols,"MAP-EXTERNAL-SYMBOLS",system)
-LISPSYM(map_all_symbols,"MAP-ALL-SYMBOLS",system)
-LISPSYM(package_iterator,"PACKAGE-ITERATOR",system)
-LISPSYM(package_iterate,"PACKAGE-ITERATE",system)
+LISPSYM(map_symbols,"MAP-SYMBOLS",system) /* ABI */
+LISPSYM(map_external_symbols,"MAP-EXTERNAL-SYMBOLS",system) /* ABI */
+LISPSYM(map_all_symbols,"MAP-ALL-SYMBOLS",system) /* ABI */
+LISPSYM(package_iterator,"PACKAGE-ITERATOR",system) /* ABI */
+LISPSYM(package_iterate,"PACKAGE-ITERATE",system) /* ABI */
 /* ---------- PATHNAME ---------- */
 LISPSYM(parse_namestring,"PARSE-NAMESTRING",lisp)
 LISPSYM(pathname,"PATHNAME",lisp)
@@ -674,8 +679,8 @@ LISPSYM(dynload_modules,"DYNLOAD-MODULES",system)
 #ifdef HAVE_DISASSEMBLER
 LISPSYM(program_name,"PROGRAM-NAME",system)
 #endif
-LISPSYM(lib_directory,"LIB-DIRECTORY",system)
-LISPSYM(set_lib_directory,"SET-LIB-DIRECTORY",system)
+LISPSYM(lib_directory,"LIB-DIRECTORY",system) /* ABI */
+LISPSYM(set_lib_directory,"SET-LIB-DIRECTORY",system) /* ABI */
 /* ---------- PREDTYPE ---------- */
 LISPSYM(eq,"EQ",lisp)
 LISPSYM(eql,"EQL",lisp)
@@ -694,13 +699,13 @@ LISPSYM(closurep,"CLOSUREP",system)
 LISPSYM(listp,"LISTP",lisp)
 LISPSYM(proper_list_p,"PROPER-LIST-P",ext)
 LISPSYM(integerp,"INTEGERP",lisp)
-LISPSYM(fixnump,"FIXNUMP",system)
+LISPSYM(fixnump,"FIXNUMP",system) /* ABI */
 LISPSYM(rationalp,"RATIONALP",lisp)
 LISPSYM(floatp,"FLOATP",lisp)
-LISPSYM(short_float_p,"SHORT-FLOAT-P",system)
-LISPSYM(single_float_p,"SINGLE-FLOAT-P",system)
-LISPSYM(double_float_p,"DOUBLE-FLOAT-P",system)
-LISPSYM(long_float_p,"LONG-FLOAT-P",system)
+LISPSYM(short_float_p,"SHORT-FLOAT-P",system) /* ABI */
+LISPSYM(single_float_p,"SINGLE-FLOAT-P",system) /* ABI */
+LISPSYM(double_float_p,"DOUBLE-FLOAT-P",system) /* ABI */
+LISPSYM(long_float_p,"LONG-FLOAT-P",system) /* ABI */
 LISPSYM(realp,"REALP",lisp)
 LISPSYM(complexp,"COMPLEXP",lisp)
 LISPSYM(streamp,"STREAMP",lisp)
@@ -709,12 +714,12 @@ LISPSYM(random_state_p,"RANDOM-STATE-P",lisp)
 LISPSYM(readtablep,"READTABLEP",lisp)
 LISPSYM(hash_table_p,"HASH-TABLE-P",lisp)
 LISPSYM(pathnamep,"PATHNAMEP",lisp)
-LISPSYM(logical_pathname_p,"LOGICAL-PATHNAME-P",system)
+LISPSYM(logical_pathname_p,"LOGICAL-PATHNAME-P",system) /* ABI */
 LISPSYM(characterp,"CHARACTERP",lisp)
 LISPSYM(functionp,"FUNCTIONP",lisp)
 LISPSYM(packagep,"PACKAGEP",lisp)
 LISPSYM(arrayp,"ARRAYP",lisp)
-LISPSYM(simple_array_p,"SIMPLE-ARRAY-P",system)
+LISPSYM(simple_array_p,"SIMPLE-ARRAY-P",system) /* ABI */
 LISPSYM(bit_vector_p,"BIT-VECTOR-P",lisp)
 LISPSYM(vectorp,"VECTORP",lisp)
 LISPSYM(simple_vector_p,"SIMPLE-VECTOR-P",lisp)
@@ -722,16 +727,16 @@ LISPSYM(simple_string_p,"SIMPLE-STRING-P",lisp)
 LISPSYM(simple_bit_vector_p,"SIMPLE-BIT-VECTOR-P",lisp)
 LISPSYM(type_of,"TYPE-OF",lisp)
 LISPSYM(defclos,"%DEFCLOS",clos)
-LISPSYM(class_p,"CLASS-P",clos)
+LISPSYM(class_p,"CLASS-P",clos) /* ABI */
 LISPSYM(class_of,"CLASS-OF",clos)
 LISPSYM(find_class,"FIND-CLASS",clos)
-LISPSYM(typep_class,"TYPEP-CLASS",clos)
+LISPSYM(typep_class,"TYPEP-CLASS",clos) /* ABI */
 LISPSYM(expand_deftype,"EXPAND-DEFTYPE",system)
 LISPSYM(coerce,"COERCE",lisp)
 LISPSYM(note_new_structure_class,"NOTE-NEW-STRUCTURE-CLASS",system)
 LISPSYM(note_new_standard_class,"NOTE-NEW-STANDARD-CLASS",system)
 LISPSYM(heap_statistics,"HEAP-STATISTICS",system)
-LISPSYM(gc_statistics,"GC-STATISTICS",system)
+LISPSYM(gc_statistics,"GC-STATISTICS",system) /* ABI */
 LISPSYM(list_statistics,"LIST-STATISTICS",system)
 LISPSYM(heap_statistics_statistics,"HEAP-STATISTICS-STATISTICS",system)
 LISPSYM(gc_statistics_statistics,"GC-STATISTICS-STATISTICS",system)
@@ -740,36 +745,36 @@ LISPSYM(record_ref,"%RECORD-REF",system)
 LISPSYM(record_store,"%RECORD-STORE",system)
 LISPSYM(record_length,"%RECORD-LENGTH",system)
 LISPSYM(pstructure_ref,"%%STRUCTURE-REF",system)
-LISPSYM(structure_ref,"%STRUCTURE-REF",system)
-LISPSYM(structure_store,"%STRUCTURE-STORE",system)
-LISPSYM(make_structure,"%MAKE-STRUCTURE",system)
+LISPSYM(structure_ref,"%STRUCTURE-REF",system) /* ABI */
+LISPSYM(structure_store,"%STRUCTURE-STORE",system) /* ABI */
+LISPSYM(make_structure,"%MAKE-STRUCTURE",system) /* ABI */
 LISPSYM(copy_structure,"COPY-STRUCTURE",lisp)
-LISPSYM(structure_type_p,"%STRUCTURE-TYPE-P",system)
+LISPSYM(structure_type_p,"%STRUCTURE-TYPE-P",system) /* ABI */
 LISPSYM(closure_name,"CLOSURE-NAME",system)
 LISPSYM(closure_codevec,"CLOSURE-CODEVEC",system)
 LISPSYM(closure_consts,"CLOSURE-CONSTS",system)
 LISPSYM(make_code_vector,"MAKE-CODE-VECTOR",system)
 LISPSYM(make_closure,"%MAKE-CLOSURE",system)
-LISPSYM(make_constant_initfunction,"MAKE-CONSTANT-INITFUNCTION",system)
+LISPSYM(make_constant_initfunction,"MAKE-CONSTANT-INITFUNCTION",system) /* ABI */
 LISPSYM(constant_initfunction_p,"CONSTANT-INITFUNCTION-P",system)
 LISPSYM(closure_set_seclass,"CLOSURE-SET-SECLASS",system)
 LISPSYM(set_funcallable_instance_function,"SET-FUNCALLABLE-INSTANCE-FUNCTION",clos)
-LISPSYM(copy_generic_function,"%COPY-GENERIC-FUNCTION",system)
+LISPSYM(copy_generic_function,"%COPY-GENERIC-FUNCTION",system) /* ABI */
 LISPSYM(generic_function_effective_method_function,"GENERIC-FUNCTION-EFFECTIVE-METHOD-FUNCTION",system)
 LISPSYM(make_load_time_eval,"MAKE-LOAD-TIME-EVAL",system)
-LISPSYM(make_symbol_macro,"MAKE-SYMBOL-MACRO",system)
+LISPSYM(make_symbol_macro,"MAKE-SYMBOL-MACRO",system) /* ABI */
 LISPSYM(symbol_macro_p,"SYMBOL-MACRO-P",system)
 LISPSYM(symbol_macro_expand,"SYMBOL-MACRO-EXPAND",ext)
-LISPSYM(make_macro,"MAKE-MACRO",system)
+LISPSYM(make_macro,"MAKE-MACRO",system) /* ABI */
 LISPSYM(macrop,"MACROP",system)
 LISPSYM(macro_expander,"MACRO-EXPANDER",system)
 LISPSYM(make_function_macro,"MAKE-FUNCTION-MACRO",system)
 LISPSYM(function_macro_p,"FUNCTION-MACRO-P",system)
-LISPSYM(function_macro_function,"FUNCTION-MACRO-FUNCTION",system)
+LISPSYM(function_macro_function,"FUNCTION-MACRO-FUNCTION",system) /* ABI */
 LISPSYM(function_macro_expander,"FUNCTION-MACRO-EXPANDER",system)
 LISPSYM(finalize,"FINALIZE",ext)
-LISPSYM(structure_object_p,"STRUCTURE-OBJECT-P",clos)
-LISPSYM(std_instance_p,"STD-INSTANCE-P",clos)
+LISPSYM(structure_object_p,"STRUCTURE-OBJECT-P",clos) /* ABI */
+LISPSYM(std_instance_p,"STD-INSTANCE-P",clos) /* ABI */
 LISPSYM(funcallable_instance_p,"FUNCALLABLE-INSTANCE-P",clos)
 LISPSYM(allocate_metaobject_instance,"ALLOCATE-METAOBJECT-INSTANCE",clos)
 LISPSYM(allocate_std_instance,"ALLOCATE-STD-INSTANCE",clos)
@@ -796,11 +801,11 @@ LISPSYM(pchange_class,"%CHANGE-CLASS",clos)
 LISPSYM(make_weak_pointer,"MAKE-WEAK-POINTER",ext)
 LISPSYM(weak_pointer_p,"WEAK-POINTER-P",ext)
 LISPSYM(weak_pointer_value,"WEAK-POINTER-VALUE",ext)
-LISPSYM(set_weak_pointer_value,"(SETF WEAK-POINTER-VALUE)",system)
+LISPSYM(set_weak_pointer_value,"(SETF WEAK-POINTER-VALUE)",system) /* ABI */
 LISPSYM(make_weak_list,"MAKE-WEAK-LIST",ext)
 LISPSYM(weak_list_p,"WEAK-LIST-P",ext)
 LISPSYM(weak_list_list,"WEAK-LIST-LIST",ext)
-LISPSYM(set_weak_list_list,"(SETF WEAK-LIST-LIST)",system)
+LISPSYM(set_weak_list_list,"(SETF WEAK-LIST-LIST)",system) /* ABI */
 LISPSYM(make_weak_and_relation,"MAKE-WEAK-AND-RELATION",ext)
 LISPSYM(weak_and_relation_p,"WEAK-AND-RELATION-P",ext)
 LISPSYM(weak_and_relation_list,"WEAK-AND-RELATION-LIST",ext)
@@ -811,31 +816,31 @@ LISPSYM(make_weak_mapping,"MAKE-WEAK-MAPPING",ext)
 LISPSYM(weak_mapping_p,"WEAK-MAPPING-P",ext)
 LISPSYM(weak_mapping_pair,"WEAK-MAPPING-PAIR",ext)
 LISPSYM(weak_mapping_value,"WEAK-MAPPING-VALUE",ext)
-LISPSYM(set_weak_mapping_value,"(SETF WEAK-MAPPING-VALUE)",system)
+LISPSYM(set_weak_mapping_value,"(SETF WEAK-MAPPING-VALUE)",system) /* ABI */
 LISPSYM(make_weak_and_mapping,"MAKE-WEAK-AND-MAPPING",ext)
 LISPSYM(weak_and_mapping_p,"WEAK-AND-MAPPING-P",ext)
 LISPSYM(weak_and_mapping_pair,"WEAK-AND-MAPPING-PAIR",ext)
 LISPSYM(weak_and_mapping_value,"WEAK-AND-MAPPING-VALUE",ext)
-LISPSYM(set_weak_and_mapping_value,"(SETF WEAK-AND-MAPPING-VALUE)",system)
+LISPSYM(set_weak_and_mapping_value,"(SETF WEAK-AND-MAPPING-VALUE)",system) /* ABI */
 LISPSYM(make_weak_or_mapping,"MAKE-WEAK-OR-MAPPING",ext)
 LISPSYM(weak_or_mapping_p,"WEAK-OR-MAPPING-P",ext)
 LISPSYM(weak_or_mapping_pair,"WEAK-OR-MAPPING-PAIR",ext)
 LISPSYM(weak_or_mapping_value,"WEAK-OR-MAPPING-VALUE",ext)
-LISPSYM(set_weak_or_mapping_value,"(SETF WEAK-OR-MAPPING-VALUE)",system)
+LISPSYM(set_weak_or_mapping_value,"(SETF WEAK-OR-MAPPING-VALUE)",system) /* ABI */
 LISPSYM(make_weak_alist,"MAKE-WEAK-ALIST",ext)
 LISPSYM(weak_alist_p,"WEAK-ALIST-P",ext)
 LISPSYM(weak_alist_type,"WEAK-ALIST-TYPE",ext)
 LISPSYM(weak_alist_contents,"WEAK-ALIST-CONTENTS",ext)
-LISPSYM(set_weak_alist_contents,"(SETF WEAK-ALIST-CONTENTS)",system)
+LISPSYM(set_weak_alist_contents,"(SETF WEAK-ALIST-CONTENTS)",system) /* ABI */
 LISPSYM(weak_alist_assoc,"WEAK-ALIST-ASSOC",ext)
 LISPSYM(weak_alist_rassoc,"WEAK-ALIST-RASSOC",ext)
 LISPSYM(weak_alist_value,"WEAK-ALIST-VALUE",ext)
-LISPSYM(set_weak_alist_value,"(SETF WEAK-ALIST-VALUE)",system)
+LISPSYM(set_weak_alist_value,"(SETF WEAK-ALIST-VALUE)",system) /* ABI */
 /* ---------- SEQUENCE ---------- */
-LISPSYM(sequencep,"SEQUENCEP",system)
+LISPSYM(sequencep,"SEQUENCEP",system) /* ABI */
 LISPSYM(defseq,"%DEFSEQ",system)
 LISPSYM(elt,"ELT",lisp)
-LISPSYM(setelt,"(SETF ELT)",system)
+LISPSYM(setelt,"(SETF ELT)",system) /* ABI */
 LISPSYM(subseq,"SUBSEQ",lisp)
 LISPSYM(copy_seq,"COPY-SEQ",lisp)
 LISPSYM(length,"LENGTH",lisp)
@@ -889,28 +894,28 @@ LISPSYM(sequence_count_ansi,"*SEQUENCE-COUNT-ANSI*",custom)
 /* ---------- STREAM ---------- */
 LISPSYM(symbol_stream,"SYMBOL-STREAM",system)
 LISPSYM(make_synonym_stream,"MAKE-SYNONYM-STREAM",lisp)
-LISPSYM(synonym_stream_p,"SYNONYM-STREAM-P",system)
+LISPSYM(synonym_stream_p,"SYNONYM-STREAM-P",system) /* ABI */
 LISPSYM(synonym_stream_symbol,"SYNONYM-STREAM-SYMBOL",lisp)
 LISPSYM(make_broadcast_stream,"MAKE-BROADCAST-STREAM",lisp)
-LISPSYM(broadcast_stream_p,"BROADCAST-STREAM-P",system)
+LISPSYM(broadcast_stream_p,"BROADCAST-STREAM-P",system) /* ABI */
 LISPSYM(broadcast_stream_streams,"BROADCAST-STREAM-STREAMS",lisp)
 LISPSYM(make_concatenated_stream,"MAKE-CONCATENATED-STREAM",lisp)
-LISPSYM(concatenated_stream_p,"CONCATENATED-STREAM-P",system)
+LISPSYM(concatenated_stream_p,"CONCATENATED-STREAM-P",system) /* ABI */
 LISPSYM(concatenated_stream_streams,"CONCATENATED-STREAM-STREAMS",lisp)
 LISPSYM(make_two_way_stream,"MAKE-TWO-WAY-STREAM",lisp)
-LISPSYM(two_way_stream_p,"TWO-WAY-STREAM-P",system)
+LISPSYM(two_way_stream_p,"TWO-WAY-STREAM-P",system) /* ABI */
 LISPSYM(two_way_stream_input_stream,"TWO-WAY-STREAM-INPUT-STREAM",lisp)
 LISPSYM(two_way_stream_output_stream,"TWO-WAY-STREAM-OUTPUT-STREAM",lisp)
 LISPSYM(make_echo_stream,"MAKE-ECHO-STREAM",lisp)
-LISPSYM(echo_stream_p,"ECHO-STREAM-P",system)
+LISPSYM(echo_stream_p,"ECHO-STREAM-P",system) /* ABI */
 LISPSYM(echo_stream_input_stream,"ECHO-STREAM-INPUT-STREAM",lisp)
 LISPSYM(echo_stream_output_stream,"ECHO-STREAM-OUTPUT-STREAM",lisp)
 LISPSYM(make_string_input_stream,"MAKE-STRING-INPUT-STREAM",lisp)
-LISPSYM(string_input_stream_index,"STRING-INPUT-STREAM-INDEX",system)
+LISPSYM(string_input_stream_index,"STRING-INPUT-STREAM-INDEX",system) /* ABI */
 LISPSYM(make_string_output_stream,"MAKE-STRING-OUTPUT-STREAM",lisp)
 LISPSYM(get_output_stream_string,"GET-OUTPUT-STREAM-STRING",lisp)
-LISPSYM(make_string_push_stream,"MAKE-STRING-PUSH-STREAM",system)
-LISPSYM(string_stream_p,"STRING-STREAM-P",system)
+LISPSYM(make_string_push_stream,"MAKE-STRING-PUSH-STREAM",system) /* ABI */
+LISPSYM(string_stream_p,"STRING-STREAM-P",system) /* ABI */
 LISPSYM(make_buffered_input_stream,"MAKE-BUFFERED-INPUT-STREAM",ext)
 LISPSYM(buffered_input_stream_index,"BUFFERED-INPUT-STREAM-INDEX",system)
 LISPSYM(make_buffered_output_stream,"MAKE-BUFFERED-OUTPUT-STREAM",ext)
@@ -919,13 +924,13 @@ LISPSYM(generic_stream_controller,"GENERIC-STREAM-CONTROLLER",gstream)
 LISPSYM(make_generic_stream,"MAKE-GENERIC-STREAM",gstream)
 LISPSYM(generic_stream_p,"GENERIC-STREAM-P",gstream)
 #endif
-LISPSYM(file_stream_p,"FILE-STREAM-P",system)
+LISPSYM(file_stream_p,"FILE-STREAM-P",system) /* ABI */
 #ifdef KEYBOARD
 LISPSYM(make_keyboard_stream,"MAKE-KEYBOARD-STREAM",system)
 #endif
 LISPSYM(terminal_raw,"TERMINAL-RAW",system)
 #ifdef SCREEN
-LISPSYM(make_window,"MAKE-WINDOW",screen)
+LISPSYM(make_window,"MAKE-WINDOW",screen) /* ABI */
 LISPSYM(window_size,"WINDOW-SIZE",screen)
 LISPSYM(window_cursor_position,"WINDOW-CURSOR-POSITION",screen)
 LISPSYM(set_window_cursor_position,"SET-WINDOW-CURSOR-POSITION",screen)
@@ -981,7 +986,7 @@ LISPSYM(stream_element_type_eq,"STREAM-ELEMENT-TYPE-EQ",system)
 LISPSYM(built_in_stream_element_type,"BUILT-IN-STREAM-ELEMENT-TYPE",system)
 LISPSYM(built_in_stream_set_element_type,"BUILT-IN-STREAM-SET-ELEMENT-TYPE",system)
 LISPSYM(stream_external_format,"STREAM-EXTERNAL-FORMAT",lisp)
-LISPSYM(set_stream_external_format,"SET-STREAM-EXTERNAL-FORMAT",system)
+LISPSYM(set_stream_external_format,"SET-STREAM-EXTERNAL-FORMAT",system) /* ABI */
 LISPSYM(interactive_stream_p,"INTERACTIVE-STREAM-P",lisp)
 LISPSYM(built_in_stream_close,"BUILT-IN-STREAM-CLOSE",system)
 LISPSYM(read_byte,"READ-BYTE",lisp)
@@ -1000,16 +1005,16 @@ LISPSYM(line_number,"LINE-NUMBER",system)
 LISPSYM(allow_read_eval,"ALLOW-READ-EVAL",system)
 LISPSYM(defgray,"%DEFGRAY",system)
 /* ---------- SYMBOL ---------- */
-LISPSYM(putd,"%PUTD",system)
+LISPSYM(putd,"%PUTD",system) /* ABI */
 LISPSYM(find_subr,"%FIND-SUBR",system)
-LISPSYM(proclaim_constant,"%PROCLAIM-CONSTANT",system)
+LISPSYM(proclaim_constant,"%PROCLAIM-CONSTANT",system) /* ABI */
 LISPSYM(get,"GET",lisp)
 LISPSYM(getf,"GETF",lisp)
-LISPSYM(putf,"%PUTF",system)
+LISPSYM(putf,"%PUTF",system) /* ABI */
 LISPSYM(remf,"%REMF",system)
 LISPSYM(get_properties,"GET-PROPERTIES",lisp)
-LISPSYM(putplist,"%PUTPLIST",system)
-LISPSYM(put,"%PUT",system)
+LISPSYM(putplist,"%PUTPLIST",system) /* ABI */
+LISPSYM(put,"%PUT",system) /* ABI */
 LISPSYM(remprop,"REMPROP",lisp)
 LISPSYM(symbol_package,"SYMBOL-PACKAGE",lisp)
 LISPSYM(symbol_plist,"SYMBOL-PLIST",lisp)
@@ -1121,7 +1126,7 @@ LISPSYM(fakultaet,"!",ext)
 LISPSYM(exquo,"EXQUO",ext)
 LISPSYM(mod_expt,"MOD-EXPT",ext)
 LISPSYM(long_float_digits,"LONG-FLOAT-DIGITS",ext)
-LISPSYM(set_long_float_digits,"(SETF LONG-FLOAT-DIGITS)",system)
+LISPSYM(set_long_float_digits,"(SETF LONG-FLOAT-DIGITS)",system) /* ABI */
 LISPSYM(log2,"LOG2",system)
 LISPSYM(log10,"LOG10",system)
 /* ---------- FOREIGN ---------- */
@@ -1129,36 +1134,36 @@ LISPSYM(log10,"LOG10",system)
 LISPSYM(validp,"VALIDP",ffi)
 LISPSYM(set_validp,"SET-VALIDP",ffi)
 LISPSYM(set_foreign_pointer,"SET-FOREIGN-POINTER",ffi)
-LISPSYM(sizeof,"%SIZEOF",ffi)
-LISPSYM(bitsizeof,"%BITSIZEOF",ffi)
-LISPSYM(lookup_foreign_variable,"LOOKUP-FOREIGN-VARIABLE",ffi)
+LISPSYM(sizeof,"%SIZEOF",ffi) /* ABI */
+LISPSYM(bitsizeof,"%BITSIZEOF",ffi) /* ABI */
+LISPSYM(lookup_foreign_variable,"LOOKUP-FOREIGN-VARIABLE",ffi) /* ABI */
 LISPSYM(unsigned_foreign_address,"UNSIGNED-FOREIGN-ADDRESS",ffi)
 LISPSYM(foreign_address_unsigned,"FOREIGN-ADDRESS-UNSIGNED",ffi)
 LISPSYM(foreign_value,"FOREIGN-VALUE",ffi)
 LISPSYM(set_foreign_value,"SET-FOREIGN-VALUE",ffi)
-LISPSYM(foreign_type,"FOREIGN-TYPE",ffi)
-LISPSYM(element,"%ELEMENT",ffi)
-LISPSYM(deref,"%DEREF",ffi)
-LISPSYM(slot,"%SLOT",ffi)
-LISPSYM(cast,"%CAST",ffi)
-LISPSYM(offset,"%OFFSET",ffi)
-LISPSYM(exec_on_stack,"EXEC-ON-STACK",ffi)
+LISPSYM(foreign_type,"FOREIGN-TYPE",ffi) /* ABI */
+LISPSYM(element,"%ELEMENT",ffi) /* ABI */
+LISPSYM(deref,"%DEREF",ffi) /* ABI */
+LISPSYM(slot,"%SLOT",ffi) /* ABI */
+LISPSYM(cast,"%CAST",ffi) /* ABI */
+LISPSYM(offset,"%OFFSET",ffi) /* ABI */
+LISPSYM(exec_on_stack,"EXEC-ON-STACK",ffi) /* ABI */
 LISPSYM(call_with_foreign_string,"CALL-WITH-FOREIGN-STRING",ffi)
 LISPSYM(foreign_allocate,"FOREIGN-ALLOCATE",ffi)
 LISPSYM(foreign_free,"FOREIGN-FREE",ffi)
-LISPSYM(lookup_foreign_function,"LOOKUP-FOREIGN-FUNCTION",ffi)
+LISPSYM(lookup_foreign_function,"LOOKUP-FOREIGN-FUNCTION",ffi) /* ABI */
 LISPSYM(foreign_call_out,"FOREIGN-CALL-OUT",ffi)
 #if defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
-LISPSYM(foreign_library,"FOREIGN-LIBRARY",ffi)
-LISPSYM(foreign_library_variable,"FOREIGN-LIBRARY-VARIABLE",ffi)
-LISPSYM(foreign_library_function,"FOREIGN-LIBRARY-FUNCTION",ffi)
+LISPSYM(foreign_library,"FOREIGN-LIBRARY",ffi) /* ABI */
+LISPSYM(foreign_library_variable,"FOREIGN-LIBRARY-VARIABLE",ffi) /* ABI */
+LISPSYM(foreign_library_function,"FOREIGN-LIBRARY-FUNCTION",ffi) /* ABI */
 #endif  /* WIN32_NATIVE || HAVE_DLOPEN */
 #endif  /* DYNAMIC_FFI */
 /* ---------- ZTHREAD ---------- */
 #ifdef MULTITHREAD
 LISPSYM(make_process,"MAKE-PROCESS",mt)
 LISPSYM(process_wait,"PROCESS-WAIT",mt)
-LISPSYM(call_with_timeout,"CALL-WITH-TIMEOUT",mt)
+LISPSYM(call_with_timeout,"CALL-WITH-TIMEOUT",mt) /* ABI */
 LISPSYM(process_yield,"PROCESS-YIELD",mt)
 LISPSYM(process_kill,"PROCESS-KILL",mt)
 LISPSYM(process_interrupt,"PROCESS-INTERRUPT",mt)
@@ -1428,7 +1433,7 @@ LISPSYM(coerce_to_condition,"COERCE-TO-CONDITION",system) /* function for ERROR 
 LISPSYM(cerror,"CERROR",lisp) /* function for ERROR */
 LISPSYM(check_value,"CHECK-VALUE",system) /* function for ERROR */
 LISPSYM(correctable_error,"CORRECTABLE-ERROR",system) /* function for ERROR */
-LISPSYM(prompt_for_new_value,"PROMPT-FOR-NEW-VALUE",system) /* ditto */
+LISPSYM(prompt_for_new_value,"PROMPT-FOR-NEW-VALUE",system) /* function for ERROR */ /* ABI */
 LISPSYM(continue,"CONTINUE",lisp) /* restart for ERROR */
 LISPSYM(break_on_signals,"*BREAK-ON-SIGNALS*",lisp) /* variable for ERROR */
 LISPSYM(safe_typep,"SAFE-TYPEP",system) /* function for ERROR */
@@ -1579,15 +1584,15 @@ LISPSYM(print_rpars,"*PRINT-RPARS*",custom) /* IO variable */
 LISPSYM(print_indent_lists,"*PRINT-INDENT-LISTS*",custom) /* IO variable */
 LISPSYM(print_pretty_fill,"*PRINT-PRETTY-FILL*",custom) /* IO variable */
 LISPSYM(print_circle_table,"*PRINT-CIRCLE-TABLE*",system) /* IO variable */
-LISPSYM(prin_level,"*PRIN-LEVEL*",system) /* IO variable */
+LISPSYM(prin_level,"*PRIN-LEVEL*",system) /* IO variable */ /* ABI */
 LISPSYM(prin_lines,"*PRIN-LINES*",system) /* IO variable */
-LISPSYM(prin_line_prefix,"*PRIN-LINE-PREFIX*",system) /* IO variable */
-LISPSYM(prin_miserp,"*PRIN-MISERP*",system) /* IO variable */
+LISPSYM(prin_line_prefix,"*PRIN-LINE-PREFIX*",system) /* IO variable */ /* ABI */
+LISPSYM(prin_miserp,"*PRIN-MISERP*",system) /* IO variable */ /* ABI */
 LISPSYM(prin_pprinter,"*PRIN-PPRINTER*",system) /* IO variable */
-LISPSYM(prin_indentation,"*PRIN-INDENTATION*",system) /* IO variable */
+LISPSYM(prin_indentation,"*PRIN-INDENTATION*",system) /* IO variable */ /* ABI */
 LISPSYM(prin_bqlevel,"*PRIN-BQLEVEL*",system) /* IO variable */
-LISPSYM(prin_stream,"*PRIN-STREAM*",system) /* IO variable */
-LISPSYM(prin_linelength,"*PRIN-LINELENGTH*",system) /* IO variable */
+LISPSYM(prin_stream,"*PRIN-STREAM*",system) /* IO variable */ /* ABI */
+LISPSYM(prin_linelength,"*PRIN-LINELENGTH*",system) /* IO variable */ /* ABI */
 LISPSYM(prin_l1,"*PRIN-L1*",system) /* IO variable */
 LISPSYM(prin_lm,"*PRIN-LM*",system) /* IO variable */
 LISPSYM(prin_rpar,"*PRIN-RPAR*",system) /* IO variable */
@@ -1597,8 +1602,8 @@ LISPSYM(prin_jblocks,"*PRIN-JBLOCKS*",system) /* IO variable */
 LISPSYM(prin_jbstrings,"*PRIN-JBSTRINGS*",system) /* IO variable */
 LISPSYM(prin_jbmodus,"*PRIN-JBMODUS*",system) /* IO variable */
 LISPSYM(prin_jblpos,"*PRIN-JBLPOS*",system) /* IO variable */
-LISPSYM(format_tabulate,"FORMAT-TABULATE",system) /* see io.d and format.lisp */
-LISPSYM(load_forms,"*LOAD-FORMS*",system) /* see IO, COMPILER, LOADFORM */
+LISPSYM(format_tabulate,"FORMAT-TABULATE",system) /* see io.d and format.lisp */ /* ABI */
+LISPSYM(load_forms,"*LOAD-FORMS*",system) /* see IO, COMPILER, LOADFORM */ /* ABI */
 LISPSYM(terminal_read_open_object,"*TERMINAL-READ-OPEN-OBJECT*",system) /* IO */
 LISPSYM(terminal_read_stream,"*TERMINAL-READ-STREAM*",system) /* IO */
 LISPSYM(backquote,"BACKQUOTE",system) /* marker in IO */
@@ -1729,7 +1734,7 @@ LISPSYM(recurse_count_gc_statistics,"*RECURSE-COUNT-GC-STATISTICS*",system) /* v
 LISPSYM(traced_definition,"TRACED-DEFINITION",system) /* property in SYMBOL */
 LISPSYM(gensym_counter,"*GENSYM-COUNTER*",lisp) /* variable in SYMBOL */
 LISPSYM(pprint_first_newline,"*PPRINT-FIRST-NEWLINE*",custom) /* io.d:pr_enter_1() */
-LISPSYM(inhibit_floating_point_underflow,"*INHIBIT-FLOATING-POINT-UNDERFLOW*",system) /* variable in LISPARIT */
+LISPSYM(inhibit_floating_point_underflow,"*INHIBIT-FLOATING-POINT-UNDERFLOW*",system) /* variable in LISPARIT */ /* ABI */
 LISPSYM(warn_on_floating_point_contagion,"*WARN-ON-FLOATING-POINT-CONTAGION*",custom)
 LISPSYM(floating_point_contagion_ansi,"*FLOATING-POINT-CONTAGION-ANSI*",custom)
 LISPSYM(warn_on_floating_point_rational_contagion,"*WARN-ON-FLOATING-POINT-RATIONAL-CONTAGION*",custom)

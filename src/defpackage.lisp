@@ -166,15 +166,15 @@
     )
     sym
 ) )
-(defun shadowing-import-cerror (string packname calling-packname)
+(defun shadowing-import-cerror (string packname calling-packname) ; ABI
   (let ((sym (find-symbol-cerror string packname calling-packname)))
     (shadowing-import (or sym '(NIL)) calling-packname)
 ) )
-(defun import-cerror (string packname calling-packname)
+(defun import-cerror (string packname calling-packname) ; ABI
   (let ((sym (find-symbol-cerror string packname calling-packname)))
     (import (or sym '(NIL)) calling-packname)
 ) )
-(defun intern-export (string-list packname)
+(defun intern-export (string-list packname) ; ABI
   (export (mapcar #'(lambda (string) (intern string packname)) string-list)
           packname
 ) )

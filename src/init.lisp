@@ -522,7 +522,7 @@
                                        :value-type 'list
                                        :test 'stablehash-equal :warn-if-needs-rehash-after-gc t :size 1000)) ; :weak :key
 (sys::%putd 'sys::%set-documentation
-  (function sys::%set-documentation (lambda (symbol doctype value)
+  (function sys::%set-documentation (lambda (symbol doctype value) ; ABI
     #| ;; cannot use due to bootstrapping
       (if value
         (setf (getf (gethash symbol *documentation*) doctype) value)
@@ -574,7 +574,7 @@
         (system::%set-documentation symbol 'sys::file cur-file))))))
 
 (sys::%putd 'sys::remove-old-definitions
-  (function sys::remove-old-definitions (lambda (symbol)
+  (function sys::remove-old-definitions (lambda (symbol) ; ABI
     ;; removes the old function-definitions of a symbol
     (when (special-operator-p symbol)
       (error-of-type 'error
@@ -597,12 +597,12 @@
 
 ;; THE-ENVIRONMENT as in SCHEME
 (sys::%putd '%the-environment
-  (function %the-environment (lambda (form env)
+  (function %the-environment (lambda (form env) ; ABI
     (declare (ignore form))
     (sys::svstore env 0 (svref (svref env 0) 2)) ; nuke *evalhook* binding
     env)))
 (sys::%putd '%uncompilable
-  (function %uncompilable (lambda (form)
+  (function %uncompilable (lambda (form) ; ABI
     (error-of-type 'source-program-error
       :form form
       :detail form
@@ -617,7 +617,7 @@
 ;; The toplevel environment
 (proclaim '(special *toplevel-environment*))
 (setq *toplevel-environment* (eval '(the-environment)))
-(proclaim '(special *toplevel-denv*))
+(proclaim '(special *toplevel-denv*)) ; ABI
 (setq *toplevel-denv* (svref *toplevel-environment* 4))
 
 ;;; functions for expansion of macros within a piece of code
