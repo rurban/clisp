@@ -132,19 +132,19 @@
   `(PROGN
      (EXPORT '(,name
                ,@(mapcan
-                  #'(lambda (slot-spec)
-                      (when (consp slot-spec)
-                        (let ((symbols '()))
-                          (do ((slot-options (cdr slot-spec)
-                                             (cddr slot-options)))
-                              ((endp slot-options))
-                            (when (sys::memq (first slot-options)
-                                             '(:READER :WRITER :ACCESSOR))
-                              (push (sys::function-block-name
-                                     (second slot-options))
-                                    symbols)))
-                          (nreverse symbols))))
-                  slot-specs)))
+                   #'(lambda (slot-spec)
+                       (when (consp slot-spec)
+                         (let ((symbols '()))
+                           (do ((slot-options (cdr slot-spec)
+                                              (cddr slot-options)))
+                               ((endp slot-options))
+                             (when (sys::memq (first slot-options)
+                                              '(:READER :WRITER :ACCESSOR))
+                               (push (sys::function-block-name
+                                       (second slot-options))
+                                     symbols)))
+                           (nreverse symbols))))
+                   slot-specs)))
      (CL:DEFINE-CONDITION ,name ,parent-types ,slot-specs ,@options)))
 
 ;; Macros for the method-combination namespace.
@@ -166,8 +166,8 @@
 (cl:defmacro def-c-enum (name &rest items)
   `(PROGN
      (EXPORT '(,name ,@(mapcar
-                        #'(lambda (item) (if (consp item) (first item) item))
-                        items)))
+                         #'(lambda (item) (if (consp item) (first item) item))
+                         items)))
      (FFI:DEF-C-ENUM ,name ,@items)))
 
 #+FFI
