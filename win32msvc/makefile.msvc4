@@ -1502,8 +1502,8 @@ callback.lib : ..\ffcall\callback\callback.lib
 iconv.h : ..\libiconv\include\iconv.h
 	-$(LN_S) ..\libiconv\include\iconv.h iconv.h
 
-iconv.lib : ..\libiconv\src\iconv.lib
-	-$(LN_S) ..\libiconv\src\iconv.lib iconv.lib
+iconv.lib : ..\libiconv\lib\iconv.lib
+	-$(LN_S) ..\libiconv\lib\iconv.lib iconv.lib
 
 sigsegv.h : ..\sigsegv\sigsegv.h
 	-$(LN_S) ..\sigsegv\sigsegv.h sigsegv.h
