@@ -956,11 +956,15 @@
                        xclauses))))))
 )
 
-(defmacro restart-case (form &rest restart-clauses)
-  (expand-restart-case 'restart-case restart-clauses form))
+(defmacro restart-case (form &rest restart-clauses &environment env)
+  (expand-restart-case 'restart-case restart-clauses
+                       (macroexpand form env)))
 
-(defmacro with-restarts (restart-clauses &body body)
-  (expand-restart-case 'with-restarts restart-clauses `(PROGN ,@body)))
+(defmacro with-restarts (restart-clauses &body body &environment env)
+  (expand-restart-case 'with-restarts restart-clauses
+                       (if (cdr body)
+                           (cons 'PROGN body)
+                           (macroexpand (car body) env))))
 
 ;; WITH-SIMPLE-RESTART, CLtL2 p. 902
 (defmacro with-simple-restart ((name format-string &rest format-arguments) &body body)

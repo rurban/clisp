@@ -1,3 +1,8 @@
+2003-03-29  Sam Steingold  <sds@gnu.org>
+
+	* condition.lisp (restart-case, with-restarts): macroexpand
+	`restartable-form' to associate the restarts with this condition
+
 2003-03-28  Sam Steingold  <sds@gnu.org>
 
 	do not print system structure definitions
