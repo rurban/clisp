@@ -50,7 +50,7 @@
   ptr->function = (lisp_function_t)(&C_##name_);                        \
   ptr->name = S_help_(S_##name_);                                       \
   ptr->keywords = NIL; /* preliminary */                                \
-  ptr->argtype = (uintW)subr_argtype(req_anz_,opt_anz_,subr_##rest_flag_,subr_##key_flag_); \
+  ptr->argtype = (uintW)subr_argtype(req_anz_,opt_anz_,subr_##rest_flag_,subr_##key_flag_,NULL); \
   ptr->req_anz = req_anz_;                                              \
   ptr->opt_anz = opt_anz_;                                              \
   ptr->rest_flag = (uintB)subr_##rest_flag_;                            \
