@@ -1,5 +1,10 @@
 2002-01-18  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (stream_char_p): removed (good only for "basic streams")
+	(handle_isset, stream_reset_eltype): look at strm_eltype directly
+
+2002-01-18  Sam Steingold  <sds@gnu.org>
+
 	support #! UNIX scripts on WIN32 too
 	* io.d, constsym.d, spvw.d, subr.d (UNIX-EXECUTABLE-READER):
 	define on WIN32_NATIVE too
