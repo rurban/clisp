@@ -4133,7 +4133,8 @@ effects when being loaded, this is important as well.
 <variablelist>
  <varlistentry><term>&verbose-k; &t;</term>
   <listitem><simpara>causes &load; to emit a short message that a file is
-   being loaded.  The default is &load-verbose-var;, which is initially &t;.
+   being loaded.  The default is &load-verbose-var;, which is initially
+   &t;, but can be changed by the &opt-v; option.
   </simpara></listitem></varlistentry>
  <varlistentry><term>&print-k; &t;</term>
   <listitem><simpara>causes &load; to print the value of each form.  The
@@ -4150,8 +4151,9 @@ effects when being loaded, this is important as well.
   The compiled code is executed at once and - in contrast to <link
   linkend="compilefile"><function>COMPILE-FILE</function></link> - not
   written to a file.
-  The default is <firstterm>&load-comp;</firstterm>,
-  which is initially &nil;.</simpara></listitem></varlistentry>
+  The default is <firstterm>&load-comp;</firstterm>, which is initially
+  &nil;, but can be changed by the &opt-C; option.
+ </simpara></listitem></varlistentry>
  <varlistentry><term>&extra-file-types-k; &list-t;</term>
   <listitem><simpara>Specifies the additional file types considered for
   loading, in addition to <firstterm>&source-types;</firstterm>

@@ -39,10 +39,9 @@ extension, &mem-file; extension is automatically added).
    &package-var; in the image being saved, and defaults to the current
    value of &package-var;.</simpara></listitem></varlistentry>
 </variablelist>
-You can use this memory image with the
-<olink targetdoc="man" targetptr="opt-memfile"><option>-M</option></olink>
-option.  On &unix; systems, you may compress it with &gnu; &gzip;
-to save disk space.</para>
+You can use this memory image with the &opt-M; option.
+On &unix; systems, you may compress it with &gnu; &gzip; to save disk
+space.</para>
 
 </section>
 
@@ -1917,7 +1916,7 @@ returns two values:
  <para>Everything described in the section will work verbatim on &win32;
   when using &cygwin; or &mingw;, <emphasis>except</emphasis> for one
   thing - you will need to replace the <filename>run</filename>
-  extension in <filename>lisp.run</filename> with the &win32; executable
+  extension in &lisp-run; with the &win32; executable
   extension <filename>exe</filename>.</para>
  <para>For historical reasons, all examples appear to assume &unix; and
   use the <filename>run</filename> file type (<quote>extension</quote>)
@@ -1995,16 +1994,15 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 <varlistentry><term>all the <filename>FILES</filename></term>
  <listitem><simpara>listed in <filename>makevars</filename>
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>lisp.run</filename></term>
+<varlistentry><term>&lisp-run;</term>
  <listitem><simpara>the executable</simpara></listitem></varlistentry>
 <varlistentry><term>&lispinit;</term>
  <listitem><simpara>the &mem-image;</simpara></listitem></varlistentry>
 </variablelist></para></formalpara>
 
-<para>To run a &clisp; contained in some &linkset;
- <filename>dir</filename>, call
- <command><replaceable>dir</replaceable>/lisp.run -M
- <replaceable>dir</replaceable>/lispinit.mem</command></para>
+<para>To run a &clisp; contained in some &linkset; &directory-r;, call
+ <command>&directory-r;/lisp.run -M &directory-r;/lispinit.mem</command>
+ or <command>clisp &opt-K; &directory-r;</command>.</para>
 
 <formalpara id="modset"><title>&modset;</title>
  <para>A <firstterm>&modset;<indexterm id="modseti" significance="preferred">
@@ -2032,7 +2030,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 <varlistentry><term><envar>NEW_LIBS</envar></term>
  <listitem><simpara>the space-separated list of files or
   &c-lang; compiler switches that need to be passed to the &c-lang;
-  compiler when linking the lisp.run belonging to a new &linkset;.
+  compiler when linking the &lisp-run; belonging to a new &linkset;.
  </simpara></listitem></varlistentry>
 <varlistentry><term><envar>NEW_MODULES</envar></term>
  <listitem><simpara>the space-separated list of the module names
@@ -4361,14 +4359,13 @@ Compiled, it will have inlined the library function calls.
    There is no workaround: You have to keep the interpreter pathname
    and arguments short.</para></listitem>
 <listitem><simpara>On Solaris and HP-UX, only the first
- <replaceable>interpreter-arg</replaceable> is passed to the
- &interp-r;.  In order to pass more than one option (for example,
- <option>-Msomewhere.mem</option> and <option>-C</option>) to &clisp;,
- separate them by hard spaces (ISO Latin-1 character 160) instead of
- normal spaces.  (But the separator between &interp-r; and &interp-args;
- must still be a normal space!) &clisp; will split the &interp-args; at
- hard spaces and at normal spaces.</simpara></listitem>
-</itemizedlist>
+ <replaceable>interpreter-arg</replaceable> is passed to the &interp-r;.
+ In order to pass more than one option (for example, &opt-M; and
+ &opt-C;) to &clisp;, separate them by hard spaces (ISO Latin-1
+ character 160) instead of normal spaces.  (But the separator between
+ &interp-r; and &interp-args; must still be a normal space!) &clisp;
+ will split the &interp-args; both at hard spaces and at normal spaces.
+</simpara></listitem></itemizedlist>
 
 <formalpara id="script-exec"><title>Script execution</title>
 <para><itemizedlist><listitem><simpara>The script should contain Lisp
@@ -4391,10 +4388,9 @@ Compiled, it will have inlined the library function calls.
    <keycombo>&ctrl;<keysym>C</keysym></keycombo> interrupts will
    terminate the execution of the Lisp script with an error status
    (using &exit-on-error;).</simpara></listitem>
- <listitem><simpara>If you wish the script's contents to be compiled
-  during loading, add
-  <olink targetdoc="man" targetptr="opt-load-comp"><option>-C</option></olink>
-  to the &interp-args;.</simpara></listitem></itemizedlist>
+  <listitem><simpara>If you wish the script's contents to be compiled
+    during loading, add &opt-C; to the &interp-args;.
+ </simpara></listitem></itemizedlist>
  See also <olink targetdoc="man" targetptr="opt-exec-file">the manual</olink>.
 </para></formalpara>
 
