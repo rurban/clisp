@@ -301,6 +301,7 @@ local bool equal_fvd (object fvd1, object fvd2)
           obj = TheSvector(fvd1)->data[0];
           if ((len >= 2) && (eq(obj,S(c_array)) || eq(obj,S(c_array_max))
                              || eq(obj,S(c_ptr)) || eq(obj,S(c_ptr_null))
+                             || eq(obj,S(c_pointer))
                              || eq(obj,S(c_array_ptr)))) {
             var uintL i;
             for (i = 2; i < len; i++)
@@ -349,14 +350,16 @@ local bool equalp_fvd (object fvd1, object fvd2)
       && simple_vector_p(fvd2) && (Svector_length(fvd2) > 0)) {
     var object fvd2type = TheSvector(fvd2)->data[0];
     if (eq(fvd2type,S(c_ptr)) || eq(fvd2type,S(c_ptr_null))
-        || eq(fvd2type,S(c_array_ptr)) || eq(fvd2type,S(c_function)))
+        || eq(fvd2type,S(c_pointer)) || eq(fvd2type,S(c_array_ptr))
+        || eq(fvd2type,S(c_function)))
       return true;
   }
   if (eq(fvd2,S(c_pointer))
       && simple_vector_p(fvd1) && (Svector_length(fvd1) > 0)) {
     var object fvd1type = TheSvector(fvd1)->data[0];
     if (eq(fvd1type,S(c_ptr)) || eq(fvd1type,S(c_ptr_null))
-        || eq(fvd1type,S(c_array_ptr)) || eq(fvd1type,S(c_function)))
+        || eq(fvd1type,S(c_pointer)) || eq(fvd1type,S(c_array_ptr))
+        || eq(fvd1type,S(c_function)))
       return true;
   }
   return equal_fvd(fvd1,fvd2);
@@ -742,7 +745,8 @@ local void foreign_layout (object fvd)
         data_size = sizeof(void*); data_alignment = alignof(void*);
         data_splittable = true; return;
       } else if ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null))
-                  || eq(fvdtype,S(c_array_ptr))) && (fvdlen == 2)) {
+                  || eq(fvdtype,S(c_pointer)) || eq(fvdtype,S(c_array_ptr)))
+                 && (fvdlen == 2)) {
         data_size = sizeof(void*); data_alignment = alignof(void*);
         data_splittable = true; return;
       }
@@ -1157,6 +1161,22 @@ global object convert_from_foreign (object fvd, const void* data)
         else
           return convert_from_foreign(TheSvector(fvd)->data[1],
                                       *(void* const*)data);
+      } else if (eq(fvdtype,S(c_pointer)) && (fvdlen == 2)) {
+        if (*(void* const*)data == NULL)
+          return NIL;
+        else {
+          var const uintP address = (uintP)(*(void* const *) data);
+          pushSTACK(TheSvector(fvd)->data[1]);
+          pushSTACK(make_faddress(O(fp_zero),address));
+          var object fvar = allocate_fvariable();
+          record_flags_replace(TheFvariable(fvar), 0);
+          TheFvariable(fvar)->fv_name    = NIL; /* no name known */
+          TheFvariable(fvar)->fv_address = popSTACK();
+          fvd = popSTACK();
+          TheFvariable(fvar)->fv_size    = (foreign_layout(fvd), fixnum(data_size));
+          TheFvariable(fvar)->fv_type    = fvd;
+          return fvar;
+        }
       } else if (eq(fvdtype,S(c_array_ptr)) && (fvdlen == 2)) {
         if (*(void* const*)data == NULL)
           return NIL;
@@ -1229,6 +1249,8 @@ local bool foreign_with_pointers_p (object fvd)
       } else if ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null))
                   || eq(fvdtype,S(c_array_ptr))) && (fvdlen == 2)) {
         return true;
+      } else if (eq(fvdtype,S(c_pointer)) && (fvdlen == 2)) {
+        return false;
       }
     }
   }
@@ -1984,6 +2006,19 @@ local void convert_to_foreign (object fvd, object obj, void* data)
         *(void**)data = p;
         convert_to_foreign(fvd,obj,p);
         return;
+      } else if (eq(fvdtype,S(c_pointer)) && (fvdlen == 2)) {
+        if (faddressp(obj)) {
+          *(void**)data = Faddress_value(obj);
+          return;
+        } else if (fvariablep(obj)) {
+          fvd = TheSvector(fvd)->data[1];
+          if (equal_fvd(fvd,TheFvariable(obj)->fv_type)) {
+            obj = TheFvariable(obj)->fv_address;
+            *(void**)data = Faddress_value(obj);
+            return;
+          } else goto bad_obj;
+        } else if (nullp(obj)) { *(void**)data = NULL; return; }
+        else goto bad_obj;
       } else if (eq(fvdtype,S(c_array_ptr)) && (fvdlen == 2)) {
         if (nullp(obj)) {
           *(void**)data = NULL;
@@ -2856,6 +2891,7 @@ local void do_av_start (uintWL flags, object result_fvd, av_alist * alist,
     } else if (eq(result_fvdtype,S(c_function))
                || eq(result_fvdtype,S(c_ptr))
                || eq(result_fvdtype,S(c_ptr_null))
+               || eq(result_fvdtype,S(c_pointer))
                || eq(result_fvdtype,S(c_array_ptr))) {
       av_start_ptr(*alist,address,void*,result_address);
     } else {
@@ -2962,6 +2998,7 @@ local void do_av_arg (uintWL flags, object arg_fvd, av_alist * alist,
     } else if (eq(arg_fvdtype,S(c_function))
                || eq(arg_fvdtype,S(c_ptr))
                || eq(arg_fvdtype,S(c_ptr_null))
+               || eq(arg_fvdtype,S(c_pointer))
                || eq(arg_fvdtype,S(c_array_ptr))) {
       av_ptr(*alist,void*,*(void**)arg_address);
     } else {
@@ -3287,6 +3324,7 @@ local void do_va_start (uintWL flags, object result_fvd, va_alist alist,
     else if (eq(result_fvdtype,S(c_function))
                || eq(result_fvdtype,S(c_ptr))
                || eq(result_fvdtype,S(c_ptr_null))
+               || eq(result_fvdtype,S(c_pointer))
                || eq(result_fvdtype,S(c_array_ptr))) {
       va_start_ptr(alist,void*);
     } else {
@@ -3405,6 +3443,7 @@ local void* do_va_arg (uintWL flags, object arg_fvd, va_alist alist)
     } else if (eq(arg_fvdtype,S(c_function))
                || eq(arg_fvdtype,S(c_ptr))
                || eq(arg_fvdtype,S(c_ptr_null))
+               || eq(arg_fvdtype,S(c_pointer))
                || eq(arg_fvdtype,S(c_array_ptr))) {
       alist->tmp._ptr = va_arg_ptr(alist,void*);
       return &alist->tmp._ptr;
@@ -3509,6 +3548,7 @@ local void do_va_return (uintWL flags, object result_fvd, va_alist alist, void* 
     } else if (eq(result_fvdtype,S(c_function))
                || eq(result_fvdtype,S(c_ptr))
                || eq(result_fvdtype,S(c_ptr_null))
+               || eq(result_fvdtype,S(c_pointer))
                || eq(result_fvdtype,S(c_array_ptr))) {
       va_return_ptr(alist,void*,*(void**)result_address);
     } else
