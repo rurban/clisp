@@ -127,7 +127,7 @@ global object read_rational (uintWL base, signean sign, object string,
   {
     var uintL index3_1 = index3+1; /* index of the first denominator digit */
     var object x = /* denominator */
-      DIGITS_to_I(&TheSstring(string)->data[index3_1],index2-index3_1,
+      DIGITS_to_I(&TheSnstring(string)->data[index3_1],index2-index3_1,
                   (uintD)base);
     if (eq(x,Fixnum_0)) /* catch division by 0 */
       divide_0();
@@ -135,7 +135,7 @@ global object read_rational (uintWL base, signean sign, object string,
   }
   {
     var object x = /* numerator */
-      DIGITS_to_I(&TheSstring(string)->data[index1],index3-index1,(uintD)base);
+      DIGITS_to_I(&TheSnstring(string)->data[index1],index3-index1,(uintD)base);
     if (!(sign==0))
       x = I_minus_I(x); /* incl. sign */
     return I_posI_durch_RA(x,popSTACK()); /* numerator/denominator */
@@ -169,7 +169,7 @@ global object read_float (uintWL base, signean sign, object string,
   var uintL exp_len = index2-index4; /* number of digits of exponent */
   if (exp_len > 0) {
     /* points to the exponent marker: */
-    var const chart* ptr = &TheSstring(string)->data[index4];
+    var const chart* ptr = &TheSnstring(string)->data[index4];
     exp_marker = *ptr++; exp_len--; /* skip exponent marker (as capital
                                        latter, converted by the caller) */
     var signean exp_sign = 0; /* exponent-sign */
@@ -194,7 +194,7 @@ global object read_float (uintWL base, signean sign, object string,
   string = STACK_0; STACK_0 = exponent;
   /* mantissa: */
   var object mantisse = /* mantissa as integer */
-    DIGITS_to_I(&TheSstring(string)->data[index1],index4-index1,(uintD)base);
+    DIGITS_to_I(&TheSnstring(string)->data[index1],index4-index1,(uintD)base);
   exponent = popSTACK();
   /* mantissa (integer) and exponent (rational >0) inelegant to multiply: */
   if (RA_integerp(exponent)) {
@@ -257,10 +257,10 @@ global void print_integer (object z, uintWL base, const gcv_object_t* stream_)
     var uintL need = digits_need(len,base);
     var DYNAMIC_STRING(digits,need);
     pushSTACK(digits);
-    var DIGITS erg; erg.LSBptr = &TheSstring(digits)->data[need];
+    var DIGITS erg; erg.LSBptr = &TheSnstring(digits)->data[need];
     UDS_to_DIGITS(MSDptr,len,(uintD)base,&erg); /* conversion into digits */
     /* print digits: */
-    write_char_array(stream_,&STACK_0,erg.MSBptr-&TheSstring(digits)->data[0],
+    write_char_array(stream_,&STACK_0,erg.MSBptr-&TheSnstring(digits)->data[0],
                      erg.len);
     FREE_DYNAMIC_STRING(STACK_0);
     skipSTACK(1);

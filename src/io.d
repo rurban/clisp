@@ -25,7 +25,7 @@ global char* clisp_type_of (object o) {
 global void sstring_printf (object sstr, uintL len, uintL offset) {
   uintL index;
   ASSERT(simple_string_p(sstr));
-  simple_array_to_storage(sstr);
+  sstring_un_realloc(sstr);
   printf("<%d/%d\"",len,offset);
   for(index=offset;index<len;index++)
     printf("%c",as_cint(schar(sstr,index))); # FIXME: should use terminal_encoding
@@ -1400,7 +1400,7 @@ local bool test_potential_number_syntax (uintWL* base_, token_info_t* info) {
   {
     var object buff = O(token_buff_1); # Semi-Simple String
     len = TheIarray(buff)->dims[1]; # length = Fill-Pointer
-    charptr0 = &TheSstring(TheIarray(buff)->data)->data[0]; # characters from this point on
+    charptr0 = &TheSnstring(TheIarray(buff)->data)->data[0]; # characters from this point on
     buff = O(token_buff_2); # Semi-Simple Byte-Vektor
     attrptr0 = &TheSbvector(TheIarray(buff)->data)->data[0]; # attributecodes from this point on
   }
@@ -1750,7 +1750,7 @@ local void upcase_token (void) {
   var object string = O(token_buff_1); # Semi-Simple-String
   var uintL len = TheIarray(string)->dims[1]; # Fill-Pointer
   if (len > 0) {
-    var chart* charptr = &TheSstring(TheIarray(string)->data)->data[0];
+    var chart* charptr = &TheSnstring(TheIarray(string)->data)->data[0];
     dotimespL(len,len, { *charptr = up_case(*charptr); charptr++; } );
   }
 }
@@ -1765,7 +1765,7 @@ local void upcase_token (void) {
 local void case_convert_token (uintL start_index, uintL end_index,
                                uintW direction) {
   var chart* charptr =
-    &TheSstring(TheIarray(O(token_buff_1))->data)->data[start_index];
+    &TheSnstring(TheIarray(O(token_buff_1))->data)->data[start_index];
   var uintB* attrptr =
     &TheSbvector(TheIarray(O(token_buff_2))->data)->data[start_index];
   var uintL len = end_index - start_index;
@@ -2898,7 +2898,7 @@ LISPFUNN(char_reader,3) { # reads #\\
   # Unicode names which contain hyphens
   var uintL sub_len = len-pos; # Length of Character name
   if (sub_len == 1) { # character name consists of one letter
-    var chart code = TheSstring(token)->data[pos]; # (char token pos)
+    var chart code = TheSnstring(token)->data[pos]; # (char token pos)
     VALUES1(code_char(code)); skipSTACK(3);
     return;
   }
@@ -2916,7 +2916,7 @@ LISPFUNN(char_reader,3) { # reads #\\
     # decipher Decimal number:
     var uintL code = 0; # so far read xxxx (<char_code_limit)
     var uintL index = pos+4;
-    var const chart* charptr = &TheSstring(token)->data[index];
+    var const chart* charptr = &TheSnstring(token)->data[index];
     for (; index != len; index++) { /* not reached end of Token? */
       var cint c = as_cint(*charptr++); # next Character
       # is to be digit:
@@ -2933,8 +2933,8 @@ LISPFUNN(char_reader,3) { # reads #\\
   }
  not_codexxxx:
   # Test for Pseudo-Character-Name ^X:
-  if ((sub_len == 2) && chareq(TheSstring(token)->data[pos],ascii('^'))) {
-    var cint code = as_cint(TheSstring(token)->data[pos+1])-64;
+  if ((sub_len == 2) && chareq(TheSnstring(token)->data[pos],ascii('^'))) {
+    var cint code = as_cint(TheSnstring(token)->data[pos+1])-64;
     if (code < 32) {
       VALUES1(ascii_char(code)); skipSTACK(3);
       return;
@@ -2984,7 +2984,7 @@ local Values radix_2 (uintWL base) {
   switch (test_number_syntax(&base,&string,&info)) {
     case 1: # Integer
       # is last Character a dot?
-      if (chareq(TheSstring(string)->data[info.index2-1],ascii('.')))
+      if (chareq(TheSnstring(string)->data[info.index2-1],ascii('.')))
         # yes -> Decimal-Integer, not in Base base
         goto not_rational;
       # test_number_syntax finished already in step 3,
@@ -3252,7 +3252,7 @@ LISPFUNN(bit_vector_reader,3) { # reads #*
   var object buff_1 = O(token_buff_1); # Character-Buffer
   var uintL len = TheIarray(buff_1)->dims[1]; # length = Fill-Pointer
   if (len > 0) {
-    var const chart* charptr = &TheSstring(TheIarray(buff_1)->data)->data[0];
+    var const chart* charptr = &TheSnstring(TheIarray(buff_1)->data)->data[0];
     var uintL count;
     dotimespL(count,len, {
       var chart c = *charptr++; # next Character
@@ -3290,7 +3290,7 @@ LISPFUNN(bit_vector_reader,3) { # reads #*
   # and fill the Bits into it:
   buff_1 = O(token_buff_1);
   {
-    var const chart* charptr = &TheSstring(TheIarray(buff_1)->data)->data[0];
+    var const chart* charptr = &TheSnstring(TheIarray(buff_1)->data)->data[0];
     var chart ch; # last character ('0' or '1')
     var uintL index = 0;
     for (; index < n; index++) {
@@ -5048,7 +5048,7 @@ global void write_sstring (const gcv_object_t* stream_, object string) {
 # can trigger GC
 global void write_string (const gcv_object_t* stream_, object string) {
   if (simple_string_p(string)) { # Simple-String
-    simple_array_to_storage(string);
+    sstring_un_realloc(string);
     write_sstring(stream_,string);
   } else { # non-simpler String
     var uintL len = vector_length(string); # length
@@ -5521,7 +5521,7 @@ local uintL pphelp_string_width (object string) {
   var uintL len = TheIarray(string)->dims[1]; # length = fill-pointer
   if (len > 0) {
     string = TheIarray(string)->data; # mutable simple-string
-    var const chart* charptr = &TheSstring(string)->data[0];
+    var const chart* charptr = &TheSnstring(string)->data[0];
     dotimespL(len,len, {
       width += char_width(*charptr); charptr++;
     });
@@ -5618,7 +5618,7 @@ local void klammer_zu (const gcv_object_t* stream_) {
       if (len < need) # line too short ?
         goto new_line; # yes -> start new line
       lastline = TheIarray(lastline)->data; # last line, Normal-Simple-String
-      var chart* charptr = &TheSstring(lastline)->data[0];
+      var chart* charptr = &TheSnstring(lastline)->data[0];
       # test, if (need) number of spaces are ahead:
       {
         var uintL count;
@@ -6411,7 +6411,7 @@ local void pr_enter_1 (const gcv_object_t* stream_, object obj,
         { var object firststring = Car(Cdr(STACK_0)); # first line
           if (stringp(firststring)
               && ((TheIarray(firststring)->dims[1] == 0) # empty?
-                  || chareq(TheSstring(TheIarray(firststring)->data)->data[0],
+                  || chareq(TheSnstring(TheIarray(firststring)->data)->data[0],
                             ascii(NL)))) # or Newline at the beginning?
             skip_first_nl = true;
         }

@@ -1,3 +1,98 @@
+2004-02-18  Bruno Haible  <bruno@clisp.org>
+
+	Make HAVE_SMALL_SSTRING work also in TYPECODES mode.
+	* lispbibl.d (HAVE_SMALL_SSTRING): Define also if TYPECODES or
+	SPVW_PURE is defined.
+	(if_HAVE_SMALL_SSTRING): New macro.
+	(SSTRING_HEADER): New macro.
+	(sstring_, Sstring): Define using SSTRING_HEADER, without 'data' field.
+	(STRUCT_SSTRING): Use SSTRING_HEADER instead of LRECORD_HEADER.
+	(snstring_): New type, renamed from sstring_.
+	(Snstring): New type, renamed from Sstring.
+	(sstring_length): Change definition.
+	(sstringrecord_tfl, sstring_tfl): New macros.
+	(sstringflags_forwarded_B, sstring_reallocatedp): New macros.
+	(sstring_eltype): New macro.
+	(Sstringtype_8Bit, Sstringtype_16Bit, Sstringtype_32Bit): New macros.
+	(sstring_immutable, sstring_flags): New macros.
+	(sstringflags_backpointer_B, sstringflags_relocated_B): New macros.
+	(sistring_): Renamed from siarray_. Use SSTRING_HEADER instead of
+	VAROBJECT_HEADER.
+	(Sistring): Renamed from Siarray.
+	(sistring_data_offset): New macro.
+	(TheSnstring, TheSistring): New macros.
+	(TheSiarray): Remove macro.
+	(allocate_imm_s8string, allocate_imm_s32string): Also declare if
+	TYPECODES.
+	(DYNAMIC_STRING): Update.
+	(allocate_imm_string): Also declare if TYPECODES.
+	(reallocate_small_string): Change meaning of newtype argument.
+	(with_sstring_0, with_sstring): Update.
+	(sstring_un_realloc): Renamed from simple_array_to_storage. Make it
+	work if TYPECODES.
+	(sstring_un_realloc1): Renamed from simple_array_to_storage1. Make it
+	work if TYPECODES.
+	(array_total_size, SstringCase, sstring_normal_p): Update.
+	(unpack_sstring_alloca): Update.
+	(coerce_imm_ss): Declare also if TYPECODES.
+	(check_sstring_mutable): Make it work if TYPECODES.
+	* genclisph.d (main): Emit SSTRING_HEADER. Update sstring_. Emit
+	snstring_. Update sstring_length. Emit sstring_eltype. Update
+	with_sstring_0, STRUCT_SSTRING, unpack_sstring_alloca.
+	* spvw_debug.d (string_out): Update.
+	* spvw_global.d (init_mem_heaptypes): Change type of sstring_type heap.
+	* spvw_objsize.d (size_sistring): Renamed from size_siarray. Define
+	also for TYPECODES.
+	(objsize_s8string, objsize_s16string, objsize_s32string): New
+	functions.
+	(objsize_sstring, objsize): Support all simple-string variants.
+	* spvw_update.d (do_update_sistring, update_sstring): New macros.
+	(update_varobject, update_varobjects): Handle simple-string as well.
+	* spvw_garcol.d (UNREALLOC): Update.
+	(down_sistring, up_sistring): New macros.
+	(gc_mark): Use them.
+	* spvw_genera1.d (walk_area_sistring, walk_area_sstring): New macros.
+	(walk_area, build_old_generation_cache): Walk through the indirect
+	pointer of reallocated simple strings.
+	* spvw_typealloc.d (allocate_s8string): Update.
+	(allocate_imm_s8string): Define also if TYPECODES. Update.
+	(allocate_s16string, allocate_imm_s16string, allocate_s32string):
+	Update.
+	(allocate_imm_s32string): Define also if TYPECODES. Update.
+	(reallocate_small_string): Update.
+	* charstrg.d (unpack_string_ro, sstring_store, sstring_store_array,
+	stringof, copy_string, coerce_ss): Update.
+	(coerce_imm_ss): Define also if TYPECODES.
+	(coerce_normal_ss, coerce_imm_normal_ss, SYS::STRING-INFO, char_name,
+	CHAR, SCHAR, SYSTEM::STORE-CHAR, SYSTEM::STORE-SCHAR): Update.
+	(test_string_limits_rw): Define as a function also for TYPECODES.
+	(test_stringsymchar_arg, MAKE-STRING, nstring_upcase, string_upcase,
+	STRING-UPCASE, nstring_downcase, string_downcase, STRING-DOWNCASE,
+	nstring_capitalize, STRING-CAPITALIZE, subsstring, SUBSTRING,
+	string_concat): Update.
+	* array.d (vector_length, iarray_displace, iarray_displace_check,
+	array_displace_check, test_index, subscripts_to_index,
+	storagevector_store, ROW-MAJOR-AREF, SYS::ROW-MAJOR-STORE,
+	ARRAY-DIMENSION, array_dimensions, ARRAY-IN-BOUNDS-P,
+	ARRAY-ROW-MAJOR-INDEX, elt_copy_T_Char, elt_copy_Char_Char, elt_fill,
+	elt_reverse, VECTOR-PUSH-EXTEND, ssstring_push_extend,
+	ssstring_append_extend, make_storagevector, initial_contents_aux,
+	ADJUST-ARRAY): Update.
+	* encoding.d (n_char_to_string, n_char_to_string_, string_to_asciz_,
+	CONVERT-STRING-FROM-BYTES): Update.
+	* pathname.d (common_case, test_optional_host, copy_upcase, all_digits,
+	PARSE-NAMESTRING, wildcard_match): Update.
+	* stream.d (read_char_array, rd_ch_array_str_in, wr_ch_array_str_out,
+	wr_ch_array_pphelp, rd_ch_array_buffered, lisp_completion): Update.
+	* io.d (sstring_printf, test_potential_number_syntax, upcase_token,
+	case_convert_token, char_reader, radix_2, bit_vector_reader,
+	write_string, pphelp_string_width, klammer_zu, pr_enter_1): Update.
+	* package.d (test_package_arg, DELETE-PACKAGE): Update.
+	* debug.d (read_form): Update.
+	* error.d (fehler_sstring_immutable): Define also if TYPECODES.
+	* lisparit.d (read_rational, read_float, print_integer): Update.
+	* foreign.d (convert_from_foreign_array_fill): Update.
+
 2004-02-16  Bruno Haible  <bruno@clisp.org>
 
 	Clean up instance forward pointers during garbage collection.

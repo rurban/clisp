@@ -149,21 +149,16 @@ global object allocate_s8string (uintL len) {
   var uintL need = size_s8string(len); # needed memory in bytes
   #ifdef HAVE_SMALL_SSTRING
   # Some uprounding, for reallocate_small_string to work.
-  if (size_s8string(1) < size_siarray(0)
-      && need < size_siarray(0) && len > 0)
-    need = size_siarray(0);
+  if (size_s8string(1) < size_sistring(0)
+      && need < size_sistring(0) && len > 0)
+    need = size_sistring(0);
   #endif
- #ifdef TYPECODES
-  #define SETTFL  ptr->length = len
- #else
-  #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_S8string,len)
- #endif
+  #define SETTFL  ptr->tfl = sstring_tfl(Sstringtype_8Bit,0,0,len)
   allocate(sstring_type,true,need,S8string,ptr,
     { SETTFL; }); # no further initialization
   #undef SETTFL
 }
 
-#ifndef TYPECODES
 # UP, provides immutable 8-bit character string
 # allocate_imm_s8string(len)
 # > len: length of the string (in characters)
@@ -171,12 +166,11 @@ global object allocate_s8string (uintL len) {
 # can trigger GC
 global object allocate_imm_s8string (uintL len) {
   var uintL need = size_s8string(len); # needed memory in bytes
- #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_Imm_S8string,len)
+  #define SETTFL  ptr->tfl = sstring_tfl(Sstringtype_8Bit,1,0,len)
   allocate(sstring_type,true,need,S8string,ptr,
     { SETTFL; }); # no further initialization
- #undef SETTFL
+  #undef SETTFL
 }
-#endif
 
 #endif /* !UNICODE || HAVE_SMALL_SSTRING */
 
@@ -190,10 +184,10 @@ global object allocate_imm_s8string (uintL len) {
 global object allocate_s16string (uintL len) {
   var uintL need = size_s16string(len); # needed memory in bytes
   # Some uprounding, for reallocate_small_string to work.
-  if (size_s16string(1) < size_siarray(0)
-      && need < size_siarray(0) && len > 0)
-    need = size_siarray(0);
-  #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_S16string,len)
+  if (size_s16string(1) < size_sistring(0)
+      && need < size_sistring(0) && len > 0)
+    need = size_sistring(0);
+  #define SETTFL  ptr->tfl = sstring_tfl(Sstringtype_16Bit,0,0,len)
   allocate(sstring_type,true,need,S16string,ptr,
     { SETTFL; }); # no further initialization
   #undef SETTFL
@@ -206,10 +200,10 @@ global object allocate_s16string (uintL len) {
 # can trigger GC
 global object allocate_imm_s16string (uintL len) {
   var uintL need = size_s16string(len); # needed memory in bytes
- #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_Imm_S16string,len)
+  #define SETTFL  ptr->tfl = sstring_tfl(Sstringtype_16Bit,1,0,len)
   allocate(sstring_type,true,need,S16string,ptr,
     { SETTFL; }); # no further initialization
- #undef SETTFL
+  #undef SETTFL
 }
 
 #endif /* HAVE_SMALL_SSTRING */
@@ -223,17 +217,12 @@ global object allocate_imm_s16string (uintL len) {
 # can trigger GC
 global object allocate_s32string (uintL len) {
   var uintL need = size_s32string(len); # needed memory in bytes
- #ifdef TYPECODES
-  #define SETTFL  ptr->length = len
- #else
-  #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_S32string,len)
- #endif
+  #define SETTFL  ptr->tfl = sstring_tfl(Sstringtype_32Bit,0,0,len)
   allocate(sstring_type,true,need,S32string,ptr,
     { SETTFL; }); # no further initialization
   #undef SETTFL
 }
 
-#ifndef TYPECODES
 # UP, provides immutable 32-bit character string
 # allocate_imm_s32string(len)
 # > len: length of the string (in characters)
@@ -241,43 +230,42 @@ global object allocate_s32string (uintL len) {
 # can trigger GC
 global object allocate_imm_s32string (uintL len) {
   var uintL need = size_s32string(len); # needed memory in bytes
- #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_Imm_S32string,len)
+  #define SETTFL  ptr->tfl = sstring_tfl(Sstringtype_32Bit,1,0,len)
   allocate(sstring_type,true,need,S32string,ptr,
     { SETTFL; }); # no further initialization
- #undef SETTFL
+  #undef SETTFL
 }
-#endif
 
 #endif /* UNICODE */
 
 #ifdef HAVE_SMALL_SSTRING
 
-# UP: Changes the allocation of a Small-String to an Siarray, while
+# UP: Changes the allocation of a Small-String to an Sistring, while
 # copying the contents to a fresh normal string.
 # reallocate_small_string(string)
 # > string: a nonempty Small-String
-# > newtype: new wider string type, Rectype_S16string or Rectype_S32string
-# < result: an Siarray pointing to a wider String
+# > newtype: new wider string type, Sstringtype_16Bit or Sstringtype_32Bit
+# < result: an Sistring pointing to a wider String
 # can trigger GC
-global object reallocate_small_string (object string, sintBWL newtype) {
+global object reallocate_small_string (object string, uintB newtype) {
   var uintL len = Sstring_length(string); # known to be > 0
  #ifdef DEBUG_SPVW
-  var uintL size = objsize(ThePointer(string));
+  var uintL size = objsize(TheSstring(string));
  #endif
   pushSTACK(string);
   var object newstring =
-    (newtype == Rectype_S32string
+    (newtype == Sstringtype_32Bit
      ? allocate_s32string(len)
      : allocate_s16string(len));
   string = popSTACK();
-  var sintB oldtype = Record_type(string);
-  if (newtype == Rectype_S32string) {
+  var uintB oldtype = sstring_eltype(TheSstring(string));
+  if (newtype == Sstringtype_32Bit) {
     SstringCase(string,
       { copy_8bit_32bit(&TheS8string(string)->data[0],&TheS32string(newstring)->data[0],len); },
       { copy_16bit_32bit(&TheS16string(string)->data[0],&TheS32string(newstring)->data[0],len); },
       abort();
       );
-  } else if (newtype == Rectype_S16string) {
+  } else if (newtype == Sstringtype_16Bit) {
     SstringCase(string,
       { copy_8bit_16bit(&TheS8string(string)->data[0],&TheS16string(newstring)->data[0],len); },
       abort();,
@@ -286,28 +274,35 @@ global object reallocate_small_string (object string, sintBWL newtype) {
   } else
     abort();
   set_break_sem_1(); # forbid interrupts
-  var Siarray ptr;
-  #ifdef TYPECODES
-    ptr = (Siarray)upointer(string);
-  #else
-    ptr = (Siarray)TheRecord(string);
-  #endif
-  var object mutated_string = bias_type_pointer_object(varobject_bias,Array_type_string,ptr); # mutation!
-  var uintL xlength = /* objsize(string) == objsize(mutated_string) !! */
-    (oldtype == Rectype_S8string ? size_s8string(len) : size_s16string(len))
-    - size_siarray(0);
-  ptr->GCself = mutated_string; # works only if SPVW_MIXED!
+  var Sistring ptr = (Sistring)TheSstring(string);
+  # Ensure that objsize(string) == objsize(mutated_string) !!
+  var uintL xlength;
+  if (oldtype == Sstringtype_8Bit) {
+    var uintL size = size_s8string(len);
+    # Some uprounding, for reallocate_small_string to work.
+    if (size_s8string(1) < size_sistring(0)
+        && size < size_sistring(0) && len > 0)
+      size = size_sistring(0);
+    xlength = size - size_sistring(0);
+  } else {
+    var uintL size = size_s16string(len);
+    # Some uprounding, for reallocate_small_string to work.
+    if (size_s16string(1) < size_sistring(0)
+        && size < size_sistring(0) && len > 0)
+      size = size_sistring(0);
+    xlength = size - size_sistring(0);
+  }
  #ifdef TYPECODES
-  ptr->recflags = 0; ptr->rectype = Rectype_reallocstring; ptr->reclength = 1; ptr->recxlength = xlength;
+  ptr->tfl = sstring_tfl(newtype,0,sstringflags_forwarded_B,xlength);
  #else
-  ptr->tfl = xrecord_tfl(Rectype_reallocstring,0,1,xlength);
+  ptr->tfl = sstringrecord_tfl(Rectype_reallocstring,0,xlength);
  #endif
   ptr->data = newstring;
   clr_break_sem_1(); # permit interrupts again
  #ifdef DEBUG_SPVW
-  if (size != objsize(ThePointer(mutated_string))) abort();
+  if (size != objsize(TheSstring(string))) abort();
  #endif
-  return mutated_string;
+  return string;
 }
 
 #endif

@@ -368,7 +368,9 @@
       var uintL heapnr;
       for (heapnr=0; heapnr<heapcount; heapnr++) {
         switch (heapnr) {
+          #ifndef HAVE_SMALL_SSTRING
           case_sstring:
+          #endif
           case_sbvector:
           case_sb2vector:
           case_sb4vector:
@@ -382,6 +384,9 @@
           case_dfloat:
           case_lfloat:
             mem.heaptype[heapnr] = 2; break;
+          #ifdef HAVE_SMALL_SSTRING
+          case_sstring: /* because of the reallocated simple-strings */
+          #endif
           case_ostring:
           case_obvector:
           case_ob2vector:
