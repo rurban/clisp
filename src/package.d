@@ -2203,7 +2203,8 @@ local void in_make_package (void) {
   /* check nicknames and maybe adjust: */
   pushSTACK(STACK_2);
   while (mconsp(STACK_0)) {
-    Car(STACK_0) = correct_packname(Car(STACK_0),true);
+    var object correct_nick = correct_packname(Car(STACK_0),true);
+    Car(STACK_0) = correct_nick;
     STACK_0 = Cdr(STACK_0);
   }
   skipSTACK(1);
