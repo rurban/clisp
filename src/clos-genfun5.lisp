@@ -12,18 +12,18 @@
 
 ;;; Lift the initialization protocol.
 
-(defmethod initialize-instance ((gf standard-generic-function) &rest args
-                                &key name
-                                     lambda-list
-                                     argument-precedence-order
-                                     method-class
-                                     method-combination
-                                     documentation
-                                     declarations
-                                     &allow-other-keys)
+(defmethod shared-initialize ((gf standard-generic-function) situation &rest args
+                              &key name
+                                   lambda-list
+                                   argument-precedence-order
+                                   method-class
+                                   method-combination
+                                   documentation
+                                   declarations
+                                   &allow-other-keys)
   (declare (ignore name lambda-list argument-precedence-order method-class
                    method-combination documentation declarations))
-  (apply #'initialize-instance-<standard-generic-function> gf args))
+  (apply #'shared-initialize-<standard-generic-function> gf situation args))
 
 ;; ----------------------------------------------------------------------------
 
