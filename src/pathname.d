@@ -10844,14 +10844,42 @@ LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
 
 #endif
 
+/* stringlist_to_asciizlist (stringlist, encoding)
+ convert a stringlist to list of asciz strings
+ and places it on the stack.
+ returns total length of all asciiz strings including zeros
+   and listlength (if the pointer is not NULL)
+ adds one element to STACK
+ can trigger GC */
+local int stringlist_to_asciizlist (object stringlist,
+                                    gcv_object_t *encoding_,
+                                    uintL *listlength) {
+  var int length = 0;
+  var int listlen = 0;
+  pushSTACK(NIL)/*result head*/; pushSTACK(NIL)/*result tail*/;
+  pushSTACK(stringlist);
+  while (consp(STACK_0/*stringlist tail*/)) {
+    var object tmp = allocate_cons();
+    if (nullp(STACK_2/*result*/)) STACK_1 = STACK_2 = tmp;
+    else { Cdr(STACK_1/*result tail*/) = tmp; STACK_1 = tmp; }
+    tmp = check_string(Car(STACK_0));
+    tmp = string_to_asciz(tmp,*encoding_);
+    length += Sbvector_length(tmp) + 1;
+    Car(STACK_1) = tmp;
+    STACK_0 = Cdr(STACK_0);
+    listlen++;
+  }
+  if (listlength) *listlength = listlen;
+  skipSTACK(2); /* drop stringlist and result tail */
+  return length;
+}
+
 #ifdef WIN32_NATIVE
 
 /* shell_quote
-
-   surrounds dangerous strings with double quotes. quotes quotes.
-   dest should be twice as large as source
-    + 2 (for quotes) + 1 for zero byte + 1 for poss endslash */
-
+ surrounds dangerous strings with double quotes. quotes quotes.
+ dest should be twice as large as source
+  + 2 (for quotes) + 1 for zero byte + 1 for poss endslash */
 local int shell_quote (char * dest, const char * source) {
   var const char * characters = " &<>|^\t";
   /* Chars other than command separators are actual only when command
@@ -10879,31 +10907,6 @@ local int shell_quote (char * dest, const char * source) {
   return dcp - dest;
 }
 
-/* stringlist_to_asciizlist (stringlist, encoding)
-
-   convert a stringlist to list of asciiz strings
-   and places it on the stack.
-   returns total length of all asciiz strings including zeros
-     and listlength (if the pointer is not NULL)*/
-
-local int stringlist_to_asciizlist (object stringlist, object encoding, int * listlength) {
-  var int length = 0;
-  var int listlen = 0; 
-  pushSTACK(S(nil));
-  var object curtail = S(nil);
-  var object curcons = stringlist;
-  while (consp(curcons)) {
-    if (nullp(curtail)) curtail = STACK_0 = allocate_cons();
-    else curtail = Cdr(curtail) = allocate_cons();
-    Car(curtail) = string_to_asciz(check_string(Car(curcons)),encoding);
-    length += Sbvector_length(Car(curtail)) + 1;
-    curcons = Cdr(curcons);
-    listlen++;
-  }
-  if (listlength) *listlength = listlen;
-  return length;
-}
-
 /* (LAUNCH executable [:arguments] [:wait] [:input] [:output] [:error])
    Launches a program.
    :arguments : a list of strings
@@ -10912,7 +10915,6 @@ local int stringlist_to_asciizlist (object stringlist, object encoding, int * li
      or terminal-streams. see stream_lend_handle() in stream.d for full list
      of supported streams
      returns: exit code (zero when (nullp wait))  */
-
 LISPFUN(launch,seclass_default,1,0,norest,key,6,
         (kw(arguments),kw(wait),kw(input),kw(output),kw(error),kw(priority))) {
   var object command_arg = check_string(STACK_6);
@@ -10920,7 +10922,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
   var object error_arg = STACK_1;
   var object output_arg = STACK_2;
   var object input_arg = STACK_3;
-  var object wait_arg = STACK_4;
+  var bool wait_p = !missingp(STACK_4);
   var object arg_arg = STACK_5;
   var int handletype; # TODO: check it
   var DWORD pry = NORMAL_PRIORITY_CLASS;
@@ -10935,7 +10937,6 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,GETTEXT("~: illegal ~ argument ~"));
     }
-  if (!boundp(wait_arg)) wait_arg = S(t);
   if (!boundp(arg_arg)) arg_arg = S(nil);
   else if (!consp(arg_arg)) fehler_list(arg_arg);
   var Handle hinput =
@@ -10954,14 +10955,16 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
   var object cmdlist_cons = allocate_cons();
   Car(cmdlist_cons) = command_arg; Cdr(cmdlist_cons) = arg_arg;
   pushSTACK(cmdlist_cons);
-  var int command_len = stringlist_to_asciizlist(STACK_0,O(misc_encoding),NULL);
+  var int command_len =
+    stringlist_to_asciizlist(STACK_0,&O(misc_encoding),NULL);
   /* STACK: cmdlist, ascizcmdlist */
   var DYNAMIC_ARRAY(command_data,char,command_len*2);
   /* command_len is multiplied by 2 for quoting sake */
   var int command_pos = 0;
   while (!nullp(STACK_0)) {
     if (command_pos > 0) command_data[command_pos++] = ' ';
-    command_pos += shell_quote(command_data+command_pos,TheAsciz(Car(STACK_0)));
+    command_pos += shell_quote(command_data+command_pos,
+                               TheAsciz(Car(STACK_0)));
     ASSERT(command_pos < command_len*2);
     STACK_0 = Cdr(STACK_0);
   }
@@ -10986,7 +10989,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
   prochandle = pinfo.hProcess;
   FREE_DYNAMIC_ARRAY(command_data);
   var DWORD exitcode = 0;
-  if (!nullp(wait_arg)) {
+  if (wait_p) {
     /* Wait until it terminates, get its exit status code. */
     switch (WaitForSingleObject(prochandle,INFINITE)) {
       case WAIT_FAILED:
@@ -10995,16 +10998,20 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
         break;
       default: NOTREACHED;
     }
-    if (!GetExitCodeProcess(prochandle,&exitcode)) { end_system_call(); OS_error(); }
+    if (!GetExitCodeProcess(prochandle,&exitcode))
+      { end_system_call(); OS_error(); }
   }
 
   /* we can safely close handle of a running process - no problem */
   if (!CloseHandle(prochandle)) { end_system_call(); OS_error(); }
 
   /* so with our copy of the child's handles */
-  if (hinput!=stdin_handle && !CloseHandle(hinput)) { end_system_call(); OS_error(); }
-  if (houtput!=stdout_handle && !CloseHandle(houtput)) { end_system_call(); OS_error(); }
-  if (houtput!=stderr_handle && !CloseHandle(herror)) { end_system_call(); OS_error(); }
+  if (hinput!=stdin_handle && !CloseHandle(hinput))
+    { end_system_call(); OS_error(); }
+  if (houtput!=stdout_handle && !CloseHandle(houtput))
+    { end_system_call(); OS_error(); }
+  if (houtput!=stderr_handle && !CloseHandle(herror))
+    { end_system_call(); OS_error(); }
 
   end_system_call();
   VALUES1(sfixnum(exitcode));
@@ -11012,27 +11019,23 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
 }
 
 /* (SHELL-EXECUTE verb filename parameters defaultdir)
-
    ShellExecute wrapper
-
    See ShellExecute description at
    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/
      platform/Shell/reference/functions/shellexecute.asp
-
-   verb: usually nil (for default), "edit", "explore", "open", "print", "properties"
+   verb: usually nil (for default),
+         "edit", "explore", "open", "print", "properties"
    filename: filename or url to open
    parameters: list of arguments
    defaultdir: default directory for application (can be nil)
-
-   returns: nil, but can signal an os error*/
-
+   returns: nil, but can signal an OS error*/
 LISPFUN(shell_execute,seclass_default,0,4,norest,nokey,0,NIL) {
   var object verb_arg = STACK_3;
   var object filename_arg = check_string(STACK_2);
   var object parameters_arg = STACK_1;
   var object defaultdir_arg = STACK_0;
   var int verb_len = 0;
-  if (nullp(verb_arg)) pushSTACK(S(nil)); 
+  if (nullp(verb_arg)) pushSTACK(S(nil));
   else {
     pushSTACK(string_to_asciz(check_string(verb_arg),O(misc_encoding)));
     verb_len = Sbvector_length(STACK_0);
@@ -11042,13 +11045,14 @@ LISPFUN(shell_execute,seclass_default,0,4,norest,nokey,0,NIL) {
       O(misc_encoding)));
   filename_len = Sbvector_length(STACK_0);
   var int parameters_len =
-    stringlist_to_asciizlist(parameters_arg,O(misc_encoding),NULL);
+    stringlist_to_asciizlist(parameters_arg,&O(misc_encoding),NULL);
   /* list of asciiz strings is in the STACK */
   var DYNAMIC_ARRAY(parameters,char,parameters_len*2);
   var int parameter_pos = 0;
   while (!nullp(STACK_0)) {
     if (parameter_pos > 0) parameters[parameter_pos++] = ' ';
-    parameter_pos += shell_quote(parameters+parameter_pos,TheAsciz(Car(STACK_0)));
+    parameter_pos +=
+      shell_quote(parameters+parameter_pos,TheAsciz(Car(STACK_0)));
     ASSERT(parameter_pos < parameters_len*2);
     STACK_0 = Cdr(STACK_0);
   }
@@ -11057,7 +11061,7 @@ LISPFUN(shell_execute,seclass_default,0,4,norest,nokey,0,NIL) {
   if (nullp(defaultdir_arg)) pushSTACK(S(nil));
   else {
     pushSTACK(string_to_asciz(check_string(defaultdir_arg),
-      O(misc_encoding)));
+                              O(misc_encoding)));
     defaultdir_len = Sbvector_length(STACK_0);
   }
   /* STACK: verb/nil, filename, defaultdir/nil */
@@ -11072,11 +11076,11 @@ LISPFUN(shell_execute,seclass_default,0,4,norest,nokey,0,NIL) {
     for (sp=TheAsciz(STACK_0),dp=defaultdir;(*dp = *sp);sp++,dp++);
   begin_system_call();
   var DWORD result = (DWORD) ShellExecute(NULL,
-    nullp(STACK_2)?NULL:verb,
-    filename,
-    parameters_len?parameters:NULL,
-    nullp(STACK_0)?NULL:defaultdir,
-    SW_SHOWNORMAL);
+                                          nullp(STACK_2)?NULL:verb,
+                                          filename,
+                                          parameters_len?parameters:NULL,
+                                          nullp(STACK_0)?NULL:defaultdir,
+                                          SW_SHOWNORMAL);
   end_system_call();
   if (result <= 32) OS_error();
   FREE_DYNAMIC_ARRAY(defaultdir);
@@ -11087,57 +11091,65 @@ LISPFUN(shell_execute,seclass_default,0,4,norest,nokey,0,NIL) {
   VALUES1(S(nil));
 }
 
-#endif 
+#endif
 
 #if defined(UNIX) || defined(RISCOS)
 
 LISPFUN(launch,seclass_default,1,0,norest,key,6,
         (kw(arguments),kw(wait),kw(input),kw(output),kw(error),kw(priority))) {
-  var object command_arg = check_string(STACK_6);
+  STACK_6 = check_string(STACK_6); /* command_arg */
   var object priority_arg = STACK_0;
-  var object error_arg = STACK_1;
-  var object output_arg = STACK_2;
-  var object input_arg = STACK_3;
-  var object wait_arg = STACK_4;
-  var object arg_arg = STACK_5;
+  var bool wait_p = !missingp(STACK_4);
   var int handletype;
-  if (!boundp(wait_arg)) wait_arg = S(t);
-  if (!boundp(arg_arg)) arg_arg = S(nil);
-  var Handle hinput = handle_dup1((boundp(input_arg) && !eq(input_arg,S(Kterminal)))?
-    stream_lend_handle(input_arg,true,&handletype):0);
-  var Handle houtput = handle_dup1((boundp(output_arg) && !eq(output_arg,S(Kterminal)))?
-    stream_lend_handle(output_arg,false,&handletype):1);
-  var Handle herror = handle_dup1((boundp(error_arg) && !eq(error_arg,S(Kterminal)))?
-    stream_lend_handle(error_arg,false,&handletype):2);
+  var Handle hinput = /* STACK_3 == input_stream_arg */
+    handle_dup1((boundp(STACK_3) && !eq(STACK_3,S(Kterminal)))
+                ? stream_lend_handle(STACK_3,true,&handletype)
+                : stdin_handle);
+  var Handle houtput = /* STACK_2 == output_stream_arg */
+    handle_dup1((boundp(STACK_2) && !eq(STACK_2,S(Kterminal)))
+                ? stream_lend_handle(STACK_2,false,&handletype)
+                : stdout_handle);
+  var Handle herror = /* STACK_1 == error_stream_arg */
+    handle_dup1((boundp(STACK_1) && !eq(STACK_1,S(Kterminal)))
+                ? stream_lend_handle(STACK_1,false,&handletype)
+                : stderr_handle);
   var int exit_code = -1;
   pushSTACK(allocate_cons());
-  Car(STACK_0) = string_to_asciz(command_arg,O(pathname_encoding)); 
-  var int command_arg_len = Sbvector_length(Car(STACK_0));
-  var int argbuf_len = 0,arglist_count = 0;
-  argbuf_len = command_arg_len+1+stringlist_to_asciizlist(arg_arg,O(misc_encoding),&arglist_count);
+  Car(STACK_0) = string_to_asciz(STACK_(6+1)/*command_arg*/,
+                                 O(pathname_encoding));
+  var uintL command_arg_len = Sbvector_length(Car(STACK_0));
+  var uintL argbuf_len = 0, arglist_count = 0;
+  { /* argument list */
+    var object arg_arg = STACK_(5+1);
+    if (boundp(arg_arg))
+      arg_arg = check_list(STACK_(5+1));
+    if (!nullp(arg_arg))
+      argbuf_len = command_arg_len + 1 +
+        stringlist_to_asciizlist(arg_arg,&O(misc_encoding),&arglist_count);
+  }
   /* STACK: (list asciiz-command), asciiz-arg-list */
   Cdr(STACK_1) = STACK_0;
   skipSTACK(1);
   /* STACK: (cons asciiz-command asciiz-arg-list) */
   var DYNAMIC_ARRAY(argv,char*,1+(uintL)arglist_count+1);
   var DYNAMIC_ARRAY(argvdata,char,argbuf_len);
-  curcons = STACK_0;
+  var object curcons = STACK_0;
   var char** argvptr = &argv[0];
   var char* argvdataptr = &argvdata[0];
   while (consp(curcons)) {
     var uintL len = Sbvector_length(Car(curcons));
-    var char* ptr = TheAsciz(Car(curcons));  
+    var char* ptr = TheAsciz(Car(curcons));
     *argvptr++ = argvdataptr; /* fill into argv */
     dotimespL(len,len, { *argvdataptr++ = *ptr++; } ); /* and copy */
     curcons = Cdr(curcons);
   };
-  *argvptr = NULL; /* and conclude with nullpointer */
+  *argvptr = NULL; /* and conclude with null */
   skipSTACK(1);
   /* STACK: -- */
   begin_system_call();
   begin_want_sigcld();
   var int child = vfork();
-  if (child == 0) {/* What ?! I am a clone ?! */
+  if (child == 0) {/* What ?! I am the clone ?! */
     if (dup2(hinput,0) < 0) _exit(-1);
     if (hinput > 2) close(hinput);
     if (dup2(houtput,1) < 0) _exit(-1);
@@ -11148,12 +11160,10 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
     perror("Unable to start program");
     _exit(-1);
   } else if (child < 0) {
-  /* TODO:
-     FIXME: no easy way to be aware of dup2 or
-     exec failures */
+    /* TODO: FIXME: no easy way to be aware of dup2 or exec failures */
     OS_error();
   }
-  if (!nullp(wait_arg)) {
+  if (wait_p) {
     var int status = wait2(child);
     exit_code = WEXITSTATUS(status);
   }
