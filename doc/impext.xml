@@ -2307,15 +2307,14 @@ returns two values:
  <varlistentry><term><literal role="sexp"
     >(<function>SCREEN:WINDOW-SIZE</function> &ws-r;)</literal></term>
   <listitem><simpara>returns the window's size, as two values:
-   height (= y<subscript>max</subscript>+1) and width (=
-   x<subscript>max</subscript>+1).
+   height (= y&sub-max;+1) and width (= x&sub-max;+1).
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal role="sexp"
  >(<function>SCREEN:WINDOW-CURSOR-POSITION</function> &ws-r;)</literal></term>
   <listitem><simpara>returns the position of the cursor in the window,
-   as two values: line (&ge;0, &le;y<subscript>max</subscript>, 0 means
-   top), column (&ge;0, &le;x<subscript>max</subscript>, 0 means left
-   margin).</simpara></listitem></varlistentry>
+   as two values: line (&ge;0, &le;y&sub-max;, 0 means top), column
+   (&ge;0, &le;x&sub-max;, 0 means left margin).
+ </simpara></listitem></varlistentry>
  <varlistentry><term><literal role="sexp"
     >(<function>SCREEN:SET-WINDOW-CURSOR-POSITION</function>
       &ws-r; <replaceable>line</replaceable>
@@ -3269,8 +3268,8 @@ only.</subtitle>
    disable further references to this address from Lisp.
    This is currently not done automatically.
    If the given pointer is already invalid, &foreign-free; (currently)
-   signals an &error-t;. This may change to make it easier to integrate
-   with &finalize;.</simpara>
+   &signal;s an &error-t;. This may change to make it easier to
+   integrate with &finalize;.</simpara>
    <simpara>Function &foreign-allocate; is a lower-level interface as it
    requires an internal &c-lang; type descriptor as returned by
    &parse-c-type;.</simpara></listitem></varlistentry>
@@ -5183,10 +5182,9 @@ where &string-r; is the name of the &env-var;.
 When &string-r; is omitted or &nil;, all the &env-var;s and their values
 are returned in an &alist;.</para>
 
-<para>You can change the value of existing &env-var;s or create new
- ones using <literal role="sexp">(&setf; (&getenv;
- &string-r;) <replaceable>new-value</replaceable>)</literal>.</para>
-</section>
+<para>You can change the value of existing &env-var;s or create new ones
+ using <literal role="sexp">(&setf; (&getenv; &string-r;) &nval-r;)</literal>.
+</para></section>
 
 <section id="separate-io"><title>Extensions-2.10. Other</title>
 

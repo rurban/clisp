@@ -27,8 +27,7 @@
   <ulink url="&clhs;/Body/sec_1-4-2.html">[CLHS-1.4.2]</ulink></title>
 
 <para>Safety settings are ignored; therefore where the standard uses the
- phrase <quote>should signal an error</quote>,
- an &error-t; is &signal;ed.</para>
+ phrase <quote>should signal an error</quote>, an &err-sig;.</para>
 
 </section>
 
@@ -353,7 +352,8 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
   (#.&most-negative-fixnum;))</literal></simpara></listitem>
  <listitem><simpara>&rational-t;, &short-float-t;, &single-float-t;,
   &double-float-t;, &long-float-t;, &complex-t;</simpara></listitem>
- <listitem><simpara>&character-t;, &base-char-t;, &standard-char-t;</simpara></listitem>
+ <listitem><simpara>&character-t;, &base-char-t;,
+   &standard-char-t;</simpara></listitem>
  <listitem><simpara><literal role="type">(&array-t; &eltype-r;
   &dimensions-r;)</literal>, <literal role="type">(&simple-array-t;
   &eltype-r; &dimensions-r;)</literal></simpara></listitem>
@@ -369,7 +369,8 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
  <listitem><simpara><literal role="type">(&bit-vector-t;
   &size-r;)</literal>, <literal role="type">(&simple-bit-vector-t;
   &size-r;)</literal></simpara></listitem>
- <listitem><simpara>&function-t;, &compiled-function-t;, &standard-generic-function-t;</simpara></listitem>
+ <listitem><simpara>&function-t;, &compiled-function-t;,
+   &standard-generic-function-t;</simpara></listitem>
  <listitem><simpara>&stream-t;, &file-stream-t;, &synonym-stream-t;,
   &broadcast-stream-t;, &concatenated-stream-t;, &two-way-stream-t;,
   &echo-stream-t;, &string-stream-t;</simpara></listitem>
@@ -558,8 +559,7 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
 
 <formalpara id="fle"><title>Function &function-lambda-expression;</title>
 <para>The &name-r; of a &foreign-function; is a <emphasis>string</emphasis>
-(the name of the underlying &c-lang; function), not a lisp
-<ulink url="&clhs;/Body/glo_f.html#function_name">function name</ulink>.
+(the name of the underlying &c-lang; function), not a lisp &funname;.
 </para></formalpara>
 
 <formalpara><title>Macro &destructuring-bind;</title>
@@ -3090,7 +3090,7 @@ is not a defined logical host yet, we proceed as follows:
  the pathname &path-r;, not its &truename;, and returns the absolute
  pathname it actually removed or &nil; if &path-r; did not exist.
  When &path-r; points to a file which is currently open in &clisp;, an
- &error-t; is &signal;ed.</para></formalpara>
+ &err-sig;.</para></formalpara>
 
 <section id="dir"><title>Function &directory;</title>
 
@@ -3139,7 +3139,7 @@ pointing to non-existent files and can take the following values:
  <listitem><simpara>discard the bad directory entries
 </simpara></listitem></varlistentry>
 <varlistentry><term>&error-k;</term>
- <listitem><simpara>&signal; an &error-t; on bad directory entries
+ <listitem><simpara>an &err-sig; on bad directory entries
    (this corresponds to the default behavior of &directory; in &cmucl;)
 </simpara></listitem></varlistentry>
 <varlistentry><term><constant>:KEEP</constant></term>
@@ -4278,8 +4278,7 @@ effects when being loaded, this is important as well.
       <listitem><simpara>&warn; and <link linkend="load-paths">look
          for another matching file</link>
     </simpara></listitem></varlistentry></variablelist>
-    If no file can be loaded and &if-does-not-exist; is non-&nil;,
-    an &error-t; is &signal;ed.
+    If no file can be loaded and &if-does-not-exist; is non-&nil;, an &err-sig;.
     The default is <firstterm>&load-obs;</firstterm>,
     which is initially &nil;.</para></listitem></varlistentry>
 </variablelist>

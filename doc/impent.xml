@@ -23,21 +23,30 @@
 <!-- *** literals *** -->
 <!ENTITY abort-k "<constant>:ABORT</constant>">
 <!ENTITY absolute-k "<constant>:ABSOLUTE</constant>">
+<!ENTITY accessor-k "<constant>:ACCESSOR</constant>">
 <!ENTITY all-k "<constant>:ALL</constant>">
 <!ENTITY alloca-k "<constant>:ALLOCA</constant>">
+<!ENTITY allocation-k "<constant>:ALLOCATION</constant>">
 <!ENTITY append-k "<constant>:APPEND</constant>">
+<!ENTITY argument-precedence-order-k "<constant>:ARGUMENT-PRECEDENCE-ORDER</constant>">
 <!ENTITY arguments-k "<constant>:ARGUMENTS</constant>">
 <!ENTITY both-k "<constant>:BOTH</constant>">
 <!ENTITY c-k "<constant>:C</constant>">
 <!ENTITY c-NULL "<constant>NULL</constant>">
 <!ENTITY case-sensitive-k "<constant>:CASE-SENSITIVE</constant>">
+<!ENTITY class-k "<constant>:CLASS</constant>">
 <!ENTITY compiling-k "<constant>:COMPILING</constant>">
 <!ENTITY control-k "<constant>:CONTROL</constant>">
 <!ENTITY copy-k "<constant>:COPY</constant>">
 <!ENTITY count-k "<constant>:COUNT</constant>">
 <!ENTITY current-k "<constant>:CURRENT</constant>">
+<!ENTITY declarations-k "<constant>:DECLARATIONS</constant>">
 <!ENTITY default-k "<constant>:DEFAULT</constant>">
+<!ENTITY direct-default-initargs-k "<constant>:DIRECT-DEFAULT-INITARGS</constant>">
+<!ENTITY direct-slots-k "<constant>:DIRECT-SLOTS</constant>">
+<!ENTITY direct-superclasses-k "<constant>:DIRECT-SUPERCLASSES</constant>">
 <!ENTITY direction-k "<constant>:DIRECTION</constant>">
+<!ENTITY documentation-k "<constant>:DOCUMENTATION</constant>">
 <!ENTITY echo-k "<constant>:ECHO</constant>">
 <!ENTITY either-k "<constant>:EITHER</constant>">
 <!ENTITY end-k "<constant>:END</constant>">
@@ -45,6 +54,9 @@
 <!ENTITY error-k "<constant>:ERROR</constant>">
 <!ENTITY external-k "<constant>:EXTERNAL</constant>">
 <!ENTITY extra-file-types-k "<constant>:EXTRA-FILE-TYPES</constant>">
+<!ENTITY function-k "<constant>:FUNCTION</constant>">
+<!ENTITY gf-k "<constant>:GENERIC-FUNCTION</constant>">
+<!ENTITY gf-class-k "<constant>:GENERIC-FUNCTION-CLASS</constant>">
 <!ENTITY home-k "<constant>:HOME</constant>">
 <!ENTITY hyper-k "<constant>:HYPER</constant>">
 <!ENTITY if-does-not-exist "<constant>:IF-DOES-NOT-EXIST</constant>">
@@ -54,31 +66,45 @@
 <!ENTITY in-out-k "<constant>:IN-OUT</constant>">
 <!ENTITY include-k "<constant>:INCLUDE</constant>">
 <!ENTITY inherit-k "<constant>:INHERIT</constant>">
+<!ENTITY initarg-k "<constant>:INITARG</constant>">
+<!ENTITY initargs-k "<constant>:INITARGS</constant>">
+<!ENTITY initform-k "<constant>:INITFORM</constant>">
+<!ENTITY initfunction-k "<constant>:INITFUNCTION</constant>">
+<!ENTITY initial-methods-k "<constant>:INITIAL-METHODS</constant>">
 <!ENTITY input-k "<constant>:INPUT</constant>">
+<!ENTITY instance-k "<constant>:INSTANCE</constant>">
 <!ENTITY io-k "<constant>:IO</constant>">
 <!ENTITY key-k "<constant>:KEY</constant>">
+<!ENTITY lambda-list-k "<constant>:LAMBDA-LIST</constant>">
 <!ENTITY lang-k "<link linkend='c-flavor'><constant>:LANGUAGE</constant></link>">
 <!ENTITY library-k "<constant>:LIBRARY</constant>">
 <!ENTITY malloc-free-k "<constant>:MALLOC-FREE</constant>">
 <!ENTITY merge-k "<constant>:MERGE</constant>">
 <!ENTITY meta-k "<constant>:META</constant>">
 <!ENTITY metaclass-k "<constant>:METACLASS</constant>">
-<!ENTITY newest-k "<constant>:NEWEST</constant>">
+<!ENTITY method-class-k "<constant>:METHOD-CLASS</constant>">
+<!ENTITY method-combination-k "<constant>:METHOD-COMBINATION</constant>">
 <!ENTITY name-k "<constant>:NAME</constant>">
+<!ENTITY newest-k "<constant>:NEWEST</constant>">
 <!ENTITY none-k "<constant>:NONE</constant>">
 <!ENTITY obsolete-action-k "<constant>:OBSOLETE-ACTION</constant>">
-<!ENTITY overwrite-k "<constant>:OVERWRITE</constant>">
 <!ENTITY out-k "<constant>:OUT</constant>">
-<!ENTITY output-k "<constant>:OUTPUT</constant>">
 <!ENTITY outfile-k "<constant>:OUTPUT-FILE</constant>">
+<!ENTITY output-k "<constant>:OUTPUT</constant>">
+<!ENTITY overwrite-k "<constant>:OVERWRITE</constant>">
 <!ENTITY parent-k "<constant>:PARENT</constant>">
 <!ENTITY previous-k "<constant>:PRECIOUS</constant>">
-<!ENTITY print-k "<constant>:PRINT</constant>">
 <!ENTITY print-function-k "<constant>:PRINT-FUNCTION</constant>">
-<!ENTITY ro-k "<constant>:READ-ONLY</constant>">
+<!ENTITY print-k "<constant>:PRINT</constant>">
+<!ENTITY qualifiers-k "<constant>:QUALIFIERS</constant>">
+<!ENTITY reader-k "<constant>:READER</constant>">
+<!ENTITY readers-k "<constant>:READERS</constant>">
 <!ENTITY relative-k "<constant>:RELATIVE</constant>">
 <!ENTITY ret-type-k "<constant>:RETURN-TYPE</constant>">
+<!ENTITY ro-k "<constant>:READ-ONLY</constant>">
 <!ENTITY root-k "<constant>:ROOT</constant>">
+<!ENTITY slotdef-k "<constant>:SLOT-DEFINITION</constant>">
+<!ENTITY specializers-k "<constant>:SPECIALIZERS</constant>">
 <!ENTITY start-k "<constant>:START</constant>">
 <!ENTITY stdc-k "<constant>:STDC</constant>">
 <!ENTITY stdc-sc-k "<constant>:STDC-STDCALL</constant>">
@@ -93,6 +119,8 @@
 <!ENTITY warnings-k "<constant>:WARNINGS</constant>">
 <!ENTITY wild-inferiors-k "<constant>:WILD-INFERIORS</constant>">
 <!ENTITY wild-k "<constant>:WILD</constant>">
+<!ENTITY writer-k "<constant>:WRITER</constant>">
+<!ENTITY writers-k "<constant>:WRITERS</constant>">
 <!ENTITY zero "<literal>0</literal>">
 
 <!ENTITY dos-k "<constant>:DOS</constant>">
@@ -459,6 +487,7 @@
 <!-- *** variable names *** -->
 <!ENTITY addr-r "<replaceable>address</replaceable>">
 <!ENTITY arg-r "<replaceable>argument</replaceable>">
+<!ENTITY args-r "<replaceable>arguments</replaceable>">
 <!ENTITY b-r "<replaceable>b</replaceable>">
 <!ENTITY base-r "<replaceable>base</replaceable>">
 <!ENTITY bc-r "<replaceable>block-cons</replaceable>">
@@ -467,6 +496,7 @@
 <!ENTITY case-sensitive-r "<replaceable>case-sensitive</replaceable>">
 <!ENTITY ch-r "<replaceable>char</replaceable>">
 <!ENTITY class-r "<replaceable>class</replaceable>">
+<!ENTITY classes-r "<replaceable>classes</replaceable>">
 <!ENTITY cname-r "<replaceable>c-name</replaceable>">
 <!ENTITY command-r "<replaceable>command</replaceable>">
 <!ENTITY cont-r "<replaceable>contents</replaceable>">
@@ -475,6 +505,7 @@
 <!ENTITY ctype-r "<replaceable>c-type</replaceable>">
 <!ENTITY ctypei-r "<replaceable>c-type-internal</replaceable>">
 <!ENTITY declaration-r "<replaceable>declaration</replaceable>">
+<!ENTITY dependent-r "<replaceable>dependent</replaceable>">
 <!ENTITY digits-r "<replaceable>digits</replaceable>">
 <!ENTITY dimensions-r "<replaceable>dimensions</replaceable>">
 <!ENTITY direction-r "<replaceable>direction</replaceable>">
@@ -482,17 +513,22 @@
 <!ENTITY eltype-r "<replaceable>element-type</replaceable>">
 <!ENTITY encoding-r "<replaceable>encoding</replaceable>">
 <!ENTITY end-r "<replaceable>end</replaceable>">
-<!ENTITY env-r "<replaceable>env</replaceable>">
+<!ENTITY env-r "<replaceable>environment</replaceable>">
 <!ENTITY eof-ep "<replaceable>eof-error-p</replaceable>">
 <!ENTITY eof-v "<replaceable>eof-value</replaceable>">
 <!ENTITY f-r "<replaceable>f</replaceable>">
 <!ENTITY filename-r "<replaceable>filename</replaceable>">
 <!ENTITY form-r "<replaceable>form</replaceable>">
 <!ENTITY func-r "<replaceable>function</replaceable>">
+<!ENTITY funcname-r "<replaceable>function-name</replaceable>">
+<!ENTITY gf-r "<replaceable>generic-function</replaceable>">
 <!ENTITY hash-f "<replaceable>hash-function</replaceable>">
 <!ENTITY host-r "<replaceable>host</replaceable>">
 <!ENTITY hw "<replaceable>hardware</replaceable>">
 <!ENTITY i-r "<replaceable>i</replaceable>">
+<!ENTITY initargs-r "<replaceable>initargs</replaceable>">
+<!ENTITY initform-r "<replaceable>initform</replaceable>">
+<!ENTITY instance-r "<replaceable>instance</replaceable>">
 <!ENTITY int-r "<replaceable>integer</replaceable>">
 <!ENTITY item-r "<replaceable>item</replaceable>">
 <!ENTITY k-r "<replaceable>k</replaceable>">
@@ -508,14 +544,21 @@
 <!ENTITY lc-r "<replaceable>lc</replaceable>">
 <!ENTITY len-r "<replaceable>length</replaceable>">
 <!ENTITY list-r "<replaceable>list</replaceable>">
+<!ENTITY location-r "<replaceable>location</replaceable>">
 <!ENTITY m-r "<replaceable>m</replaceable>">
 <!ENTITY match-r "<replaceable>match</replaceable>">
 <!ENTITY maxdim-r "<replaceable>maxdimension</replaceable>">
+<!ENTITY mc-r "<replaceable>method-combination</replaceable>">
+<!ENTITY metaobject-r "<replaceable>metaobject</replaceable>">
+<!ENTITY method-r "<replaceable>method</replaceable>">
+<!ENTITY methods-r "<replaceable>methods</replaceable>">
 <!ENTITY mode-r "<replaceable>mode</replaceable>">
 <!ENTITY n-r "<replaceable>n</replaceable>">
 <!ENTITY name-r "<replaceable>name</replaceable>">
+<!ENTITY nname-r "<replaceable>new-name</replaceable>">
 <!ENTITY no-hang "<replaceable>no-hang</replaceable>">
 <!ENTITY number-r "<replaceable>number</replaceable>">
+<!ENTITY nval-r "<replaceable>new-value</replaceable>">
 <!ENTITY object-r "<replaceable>object</replaceable>">
 <!ENTITY offset-r "<replaceable>offset</replaceable>">
 <!ENTITY option-r "<replaceable>option</replaceable>">
@@ -529,15 +572,26 @@
 <!ENTITY real-r "<replaceable>real</replaceable>">
 <!ENTITY sequence-r "<replaceable>sequence</replaceable>">
 <!ENTITY size-r "<replaceable>size</replaceable>">
+<!ENTITY slot-r "<replaceable>slot</replaceable>">
+<!ENTITY slotdef-r "<replaceable>slot-definition</replaceable>">
+<!ENTITY esd-r "<replaceable>effective-slot-definition</replaceable>">
+<!ENTITY dsd-r "<replaceable>direct-slot-definition</replaceable>">
+<!ENTITY slot-name-r "<replaceable>slot-name</replaceable>">
 <!ENTITY sose-r "<replaceable>socket-server</replaceable>">
 <!ENTITY sost-r "<replaceable>socket-stream</replaceable>">
 <!ENTITY source-r "<replaceable>source</replaceable>">
+<!ENTITY spec-lalist-r "<replaceable>spec-lambda-list</replaceable>">
+<!ENTITY specializer-r "<replaceable>specializer</replaceable>">
 <!ENTITY start-r "<replaceable>start</replaceable>">
 <!ENTITY stream-r "<replaceable>stream</replaceable>">
 <!ENTITY string-r "<replaceable>string</replaceable>">
 <!ENTITY sub-1 "<subscript>1</subscript>">
 <!ENTITY sub-2 "<subscript>2</subscript>">
+<!ENTITY sub-l "<subscript>l</subscript>">
+<!ENTITY sub-max "<subscript>max</subscript>">
 <!ENTITY sub-n "<subscript>n</subscript>">
+<!ENTITY subclass-r "<replaceable>subclass</replaceable>">
+<!ENTITY superclass-r "<replaceable>superclass</replaceable>">
 <!ENTITY symbol-r "<replaceable>symbol</replaceable>">
 <!ENTITY tag-r "<replaceable>tag</replaceable>">
 <!ENTITY target-r "<replaceable>target</replaceable>">
@@ -701,3 +755,5 @@
 <!ENTITY charset-ascii "<link linkend='charset-ASCII'>ASCII character set</link>">
 <!ENTITY ascii-pl-ext "a platform specific extension of the &charset-ascii;">
 <!ENTITY ascii-iso-ext "an extension of the &charset-ascii;, suitable for the">
+<!ENTITY err-sig "&error-t; is &signal;led">
+<!ENTITY sig-err "&signal;s an &error-t;">
