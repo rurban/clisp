@@ -370,14 +370,16 @@ LISPSPECFORM(prog2, 2,0,body)
  > body: whole Body
  can trigger GC */
 local maygc bool parse_doc_decl (object body, bool permit_doc_string) {
+  pushSTACK(body);
   var bool to_compile = parse_dd(body);
   if (!permit_doc_string && !nullp(value3)) {
     pushSTACK(value1); pushSTACK(value2); pushSTACK(value3); /* save */
-    pushSTACK(NIL); pushSTACK(body);
+    pushSTACK(NIL); pushSTACK(STACK_(0+3+1));
     STACK_1 = CLSTEXT("doc-string is not allowed here and will be ignored: ~S");
     funcall(S(warn),2);
     value3 = popSTACK(); value2 = popSTACK(); value1 = popSTACK();
   }
+  skipSTACK(1);
   return to_compile;
 }
 
