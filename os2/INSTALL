@@ -4,7 +4,7 @@ Installation on OS/2:
 1. Get and install EMX.
    EMX is Eberhard Mattes' Unix emulation for DOS and OS/2. You can get it
    by anonymous ftp from ftp.uni-stuttgart.de or ftp-os2.cdrom.com.
-   You will need EMX 0.8d or newer, preferrably EMX 0.8f or newer.
+   You will need EMX 0.9c or newer.
 
 2. Make sure that \EMX\BIN is in your path, before any directory that
    contains programs named CPP.EXE or AS.EXE. Set the environment variables
@@ -45,10 +45,6 @@ Installation on OS/2:
    Copy some OS/2 specific files into SRC:
 
          OS2\COPYX.CMD
-
-   If you are using emx 0.9b or older, add the option -DHAVE_SYS_EMX_H to
-   the definitions of CFLAGS in src/makefile, src\readline\makefile,
-   src\newreadline\makefile.
 
 5. Go to directory
 
