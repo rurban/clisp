@@ -3452,13 +3452,14 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
     <varlistentry><term>&socket-stream; or &socket-server;</term>
      <listitem><simpara>Returns &t; if a connection on the
       &socket-server; is available; or &input-k;, &output-k; or &io-k;
-      if some input/output is possible on the &socket-stream;
+      if some input/output is possible on the &socket-stream;,
+      or &error-k; when i/o will cause an error.
      </simpara></listitem></varlistentry>
     <varlistentry><term><literal role="sexp">(&socket-stream;
-       . <replaceable>direction</replaceable>)</literal></term>
+       . &direction-r;)</literal></term>
      <listitem><simpara>Return the appropriate keyword (&input-k;,
-      &output-k; or &io-k;) if some input/output is possible on the
-      &socket-stream; in the specified <replaceable>direction</replaceable>
+      &output-k; or &io-k;, or &error-k;) if some input/output is
+      possible on the &socket-stream; in the specified &direction-r;
       (which should be one of &input-k;, &output-k; or &io-k;).
      </simpara></listitem></varlistentry>
     <varlistentry><term>a list of the above</term>
@@ -3525,11 +3526,11 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    basically return the arguments given to the function which created
    the &sost-r;.</simpara></listitem></varlistentry>
  <varlistentry id="sost-shut"><term><literal role="sexp">(&sost-shut;
-    &sost-r; <replaceable>direction</replaceable>)</literal></term>
+    &sost-r; &direction-r;)</literal></term>
   <listitem><simpara>Some Internet protocols, such as HTTP, provide for
-   closing the connection in one direction using &shutdown;.
+   closing the connection in one &direction-r; using &shutdown;.
    This function provides an interface to this &unix; system call.
-   <replaceable>direction</replaceable> can be &input-k; or &output-k;.
+   &direction-r; can be &input-k; or &output-k;.
    Note that you should still call &close; after you are done with your
    &sost-r;; this is best accomplished by using &with-open-stream;.</simpara>
    <para>All &socket-stream;s are &io-k; streams (i.e., both
@@ -3541,9 +3542,9 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    <listitem><simpara>a stream is an &input-k; stream
     (i.e., &input-stream-p; returns &t;)</simpara></listitem></itemizedlist>
    the stream can be read from (e.g., with &read-char; or &read-byte;).
-   This is not the case for a &socket-stream; which was shut down in
-   the &input-k; direction: it is still open (for output) but it cannot
-   be read from.</para></listitem></varlistentry>
+   This is <emphasis>not</emphasis> the case for a &socket-stream; which
+   was shut down in the &input-k; direction: it is still open (for
+   output) but it cannot be read from.</para></listitem></varlistentry>
  <varlistentry id="so-opt"><term><literal role="sexp">(&so-opt;
     &sose-r; &rest-amp; {&option-r;}*)</literal></term>
   <listitem><simpara>Query and, optionally, set socket options using
@@ -4177,8 +4178,7 @@ future).</para>
   <listitem><simpara>Open the directory key under &dkey-r;, which should
    be either an open directory key or a valid &dk-t;.
    The meaning of the &direction-k; and &if-does-not-exist; keyword
-   arguments is the same as for &open;.
-  </simpara></listitem></varlistentry>
+   arguments is the same as for &open;.</simpara></listitem></varlistentry>
  <varlistentry id="dir-key-close"><term><literal
    role="sexp">(&dkey-close; &dkey-r;)</literal></term>
   <listitem><simpara>Close the directory key.  The preferred way is to
