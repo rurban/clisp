@@ -1,5 +1,10 @@
 2004-01-20  Bruno Haible  <bruno@clisp.org>
 
+	* po/clisp-xgettext (d-parse-string): Recognize \n as newline inside a
+	C string.
+
+2004-01-20  Bruno Haible  <bruno@clisp.org>
+
 	Remove support for MSDOS and OS/2, using EMX.
 	* os2: Remove directory.
 	* msdos.d: Remove file.
