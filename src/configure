@@ -2548,7 +2548,7 @@ mkdir conftest.d
 cd conftest.d
 ln ../conftest.y conftest.z 2>&5
 data=`cat conftest.z 2>/dev/null`
-if test $data = "blabla" ; then
+if test "$data" = "blabla" ; then
   # conftest.z contains the correct data -- good!
   cl_cv_prog_hln="ln"
 else
@@ -21148,7 +21148,7 @@ cat conftest.$ac_ext >&5
 fi
 rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
 if test "$ac_cv_search_tgetent" = no; then
-  for ac_lib in ncurses curses termcap; do
+  for ac_lib in ncurses termcap; do
     LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
     cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
