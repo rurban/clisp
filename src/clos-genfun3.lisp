@@ -197,46 +197,57 @@
     (error-of-type 'sys::source-program-error
       (TEXT "~S: the name of a function must be a symbol, not ~S")
       'defmethod funname))
-  (multiple-value-bind (method sig)
+  (multiple-value-bind (method-initargs-forms signature)
       (analyze-method-description 'defmethod funname method-description)
     `(LET ()
       (COMPILER::EVAL-WHEN-COMPILE
-       (COMPILER::C-DEFUN ',funname ,sig nil 'defmethod))
-      (DO-DEFMETHOD ',funname ,method))))
+       (COMPILER::C-DEFUN ',funname ,signature nil 'defmethod))
+      (DO-DEFMETHOD ',funname (LIST ,@method-initargs-forms)))))
 
-(defun do-defmethod (funname method)
-  (std-add-method
-    (if (fboundp funname)
-      (let ((gf (fdefinition funname)))
-        (if (typep-class gf <generic-function>)
-          gf
-          (error-of-type 'error
-            (TEXT "~S: ~S does not name a generic function")
-            'defmethod funname)))
-      (setf (fdefinition funname)
-            ;; Create a GF compatible with the given method signature.
-            (let* ((m-lambdalist (std-method-lambda-list method))
-                   (m-signature (std-method-signature method))
-                   (req-num (sig-req-num m-signature))
-                   (opt-num (sig-opt-num m-signature))
-                   (rest-p (sig-rest-p m-signature))
-                   (gf-lambdalist (append (subseq m-lambdalist 0 req-num)
-                                          (if (> opt-num 0)
-                                            (cons '&OPTIONAL
-                                              (mapcar #'(lambda (item) (if (consp item) (first item) item))
-                                                      (subseq m-lambdalist (+ req-num 1) (+ req-num 1 opt-num))))
-                                            '())
-                                          (if rest-p
-                                            (list '&REST
-                                                  (let ((i (position '&REST m-lambdalist)))
-                                                    (if i (nth (+ i 1) m-lambdalist) (gensym))))
-                                            '()))))
-                ; gf-lambdalist's signature is
-                ; (make-signature :req-num req-num :opt-num opt-num :rest-p rest-p).
-                (make-fast-gf funname gf-lambdalist (subseq m-lambdalist 0 req-num)))))
-    method)
-  method)
-
+(defun do-defmethod (funname method-or-initargs)
+  (let* ((gf
+           (if (fboundp funname)
+             (let ((gf (fdefinition funname)))
+               (if (typep-class gf <generic-function>)
+                 gf
+                 (error-of-type 'error
+                   (TEXT "~S: ~S does not name a generic function")
+                   'defmethod funname)))
+             (setf (fdefinition funname)
+                   ;; Create a GF compatible with the given method signature.
+                   (multiple-value-bind (m-lambdalist m-signature)
+                       (if (listp method-or-initargs)
+                         (values (getf method-or-initargs ':lambda-list)
+                                 (getf method-or-initargs 'signature))
+                         (values (std-method-lambda-list method-or-initargs)
+                                 (std-method-signature method-or-initargs)))
+                     (let* ((req-num (sig-req-num m-signature))
+                            (opt-num (sig-opt-num m-signature))
+                            (rest-p (sig-rest-p m-signature))
+                            (gf-lambdalist (append (subseq m-lambdalist 0 req-num)
+                                                   (if (> opt-num 0)
+                                                     (cons '&OPTIONAL
+                                                       (mapcar #'(lambda (item) (if (consp item) (first item) item))
+                                                               (subseq m-lambdalist (+ req-num 1) (+ req-num 1 opt-num))))
+                                                     '())
+                                                   (if rest-p
+                                                     (list '&REST
+                                                           (let ((i (position '&REST m-lambdalist)))
+                                                             (if i (nth (+ i 1) m-lambdalist) (gensym))))
+                                                     '()))))
+                         ; gf-lambdalist's signature is
+                         ; (make-signature :req-num req-num :opt-num opt-num :rest-p rest-p).
+                         (make-fast-gf funname gf-lambdalist (subseq m-lambdalist 0 req-num)))))))
+         (method
+           (if (listp method-or-initargs)
+             ;; During bootstrap, the only used method-class is <standard-method>.
+             ;; After bootstrap, make-instance-<standard-method> is the same
+             ;; as the general make-instance.
+             (apply #'make-instance-<standard-method> (std-gf-default-method-class gf)
+                    method-or-initargs)
+             method-or-initargs)))
+    (std-add-method gf method)
+    method))
 
 ;;; (DECLAIM-METHOD function-name qualifier* spec-lambda-list)
 ;; does the compile-time side effects of
@@ -247,11 +258,11 @@
     (error-of-type 'sys::source-program-error
       (TEXT "~S: the name of a function must be a symbol, not ~S")
       'declaim-method funname))
-  (multiple-value-bind (method sig)
+  (multiple-value-bind (method-initargs-forms signature)
       (analyze-method-description 'defmethod funname method-description)
-    (declare (ignore method))
+    (declare (ignore method-initargs-forms))
     `(COMPILER::EVAL-WHEN-COMPILE
-       (COMPILER::C-DEFUN ',funname ,sig nil 'defmethod))))
+       (COMPILER::C-DEFUN ',funname ,signature nil 'defmethod))))
 
 
 ;;; For DEFGENERIC, GENERIC-FUNCTION, GENERIC-FLET, GENERIC-LABELS,
@@ -328,8 +339,10 @@
              (TEXT "~S ~S: The only valid method class name is ~S : ~S")
              caller funname 'standard-method option)))
         (:METHOD
-         (push (analyze-method-description caller funname (rest option))
-               method-forms))
+         (let ((method-initargs-forms
+                 (analyze-method-description caller funname (rest option))))
+           (push `(MAKE-INSTANCE-<STANDARD-METHOD> <STANDARD-METHOD> ,@method-initargs-forms)
+                 method-forms)))
         (t (error-of-type 'sys::source-program-error
              (TEXT "~S ~S: invalid syntax in ~S option: ~S")
              caller funname 'defstruct option))))
