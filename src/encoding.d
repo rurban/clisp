@@ -170,6 +170,146 @@ global void uni16le_wcstombs(encoding,stream,srcp,srcend,destp,destend)
   }   }
 
 # -----------------------------------------------------------------------------
+#                              Unicode-32 encoding
+
+# Unicode-32 encoding in two flavours:
+# The big-endian format,
+# the little-endian format.
+
+# min. bytes per character = 4
+# max. bytes per character = 4
+
+global uintL uni32_mblen (object encoding, const uintB* src, const uintB* srcend);
+global void uni32be_mbstowcs (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
+global void uni32le_mbstowcs (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
+global uintL uni32_wcslen (object encoding, const chart* src, const chart* srcend);
+global void uni32be_wcstombs (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
+global void uni32le_wcstombs (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
+
+# Bytes to characters.
+
+# Error when a non-Unicode16 character was encountered.
+# fehler_uni32_invalid(encoding,code);
+  nonreturning_function(local, fehler_uni32_invalid, (object encoding, uint32 code));
+  local void fehler_uni32_invalid(encoding,code)
+    var object encoding;
+    var uint32 code;
+    { var uintC count;
+      pushSTACK(TheEncoding(encoding)->enc_charset);
+      dotimespC(count,8, { pushSTACK(ascii_char(hex_table[code&0x0F])); code = code>>4; });
+      fehler(error,
+             DEUTSCH ? "Zeichen #x$$$$$$$$ in ~ Konversion, kein Unicode-16, sorry" :
+             ENGLISH ? "character #x$$$$$$$$ in ~ conversion, not a Unicode-16, sorry" :
+             FRANCAIS ? "caractère #x$$$$$$$$ pendant conversion ~, pas un Unicode-16, désolé" :
+             ""
+            );
+    }
+
+global uintL uni32_mblen(encoding,src,srcend)
+  var object encoding;
+  var const uintB* src;
+  var const uintB* srcend;
+  { return floor(srcend-src,4); }
+
+global void uni32be_mbstowcs(encoding,stream,srcp,srcend,destp,destend)
+  var object encoding;
+  var object stream;
+  var const uintB* *srcp;
+  var const uintB* srcend;
+  var chart* *destp;
+  var chart* destend;
+  { var const uintB* src = *srcp;
+    var chart* dest = *destp;
+    var uintL count = floor(srcend-src,4);
+    if (count > destend-dest) { count = destend-dest; }
+    if (count > 0)
+      { dotimespL(count,count,
+          { var uint32 ch = ((uint32)src[0] << 24) | ((uint32)src[1] << 16)
+                            | ((uint32)src[2] << 8) | (uint32)src[3];
+            if (ch > char_code_limit-1) { fehler_uni32_invalid(encoding,ch); }
+            *dest++ = as_chart(ch);
+            src += 4;
+          });
+        *srcp = src;
+        *destp = dest;
+  }   }
+
+global void uni32le_mbstowcs(encoding,stream,srcp,srcend,destp,destend)
+  var object encoding;
+  var object stream;
+  var const uintB* *srcp;
+  var const uintB* srcend;
+  var chart* *destp;
+  var chart* destend;
+  { var const uintB* src = *srcp;
+    var chart* dest = *destp;
+    var uintL count = floor(srcend-src,4);
+    if (count > destend-dest) { count = destend-dest; }
+    if (count > 0)
+      { dotimespL(count,count,
+          { var uint32 ch = (uint32)src[0] | ((uint32)src[1] << 8)
+                            | ((uint32)src[2] << 16) | ((uint32)src[3] << 24);
+            if (ch > char_code_limit-1) { fehler_uni32_invalid(encoding,ch); }
+            *dest++ = as_chart(ch);
+            src += 4;
+          });
+        *srcp = src;
+        *destp = dest;
+  }   }
+
+# Characters to bytes.
+
+global uintL uni32_wcslen(encoding,src,srcend)
+  var object encoding;
+  var const chart* src;
+  var const chart* srcend;
+  { return (srcend-src)*4; }
+
+global void uni32be_wcstombs(encoding,stream,srcp,srcend,destp,destend)
+  var object encoding;
+  var object stream;
+  var const chart* *srcp;
+  var const chart* srcend;
+  var uintB* *destp;
+  var uintB* destend;
+  { var const chart* src = *srcp;
+    var uintB* dest = *destp;
+    var uintL count = floor(destend-dest,4);
+    if (count > srcend-src) { count = srcend-src; }
+    if (count > 0)
+      { dotimespL(count,count,
+          { var cint ch = as_cint(*src++);
+            dest[0] = 0; dest[1] = 0;
+            dest[2] = (uintB)(ch>>8); dest[3] = (uintB)ch;
+            dest += 4;
+          });
+        *srcp = src;
+        *destp = dest;
+  }   }
+
+global void uni32le_wcstombs(encoding,stream,srcp,srcend,destp,destend)
+  var object encoding;
+  var object stream;
+  var const chart* *srcp;
+  var const chart* srcend;
+  var uintB* *destp;
+  var uintB* destend;
+  { var const chart* src = *srcp;
+    var uintB* dest = *destp;
+    var uintL count = floor(destend-dest,4);
+    if (count > srcend-src) { count = srcend-src; }
+    if (count > 0)
+      { dotimespL(count,count,
+          { var cint ch = as_cint(*src++);
+            dest[0] = (uintB)ch; dest[1] = (uintB)(ch>>8);
+            dest[2] = 0; dest[3] = 0;
+            dest += 4;
+          });
+        *srcp = src;
+        *destp = dest;
+  }   }
+
+# -----------------------------------------------------------------------------
 #                                UTF-8 encoding
 
 # See http://www.stonehand.com/unicode/standard/fss-utf.html
@@ -1283,6 +1423,32 @@ LISPFUNN(charset_range,3)
         TheEncoding(encoding)->max_bytes_per_char = 2;
         define_constant(symbol,encoding);
       }
+      { var object symbol = S(unicode_32_big_endian);
+        var object encoding = allocate_encoding();
+        TheEncoding(encoding)->enc_eol = S(Kunix);
+        TheEncoding(encoding)->enc_charset = symbol;
+        TheEncoding(encoding)->enc_mblen    = P(uni32_mblen);
+        TheEncoding(encoding)->enc_mbstowcs = P(uni32be_mbstowcs);
+        TheEncoding(encoding)->enc_wcslen   = P(uni32_wcslen);
+        TheEncoding(encoding)->enc_wcstombs = P(uni32be_wcstombs);
+        TheEncoding(encoding)->enc_range    = P(all_range);
+        TheEncoding(encoding)->min_bytes_per_char = 4;
+        TheEncoding(encoding)->max_bytes_per_char = 4;
+        define_constant(symbol,encoding);
+      }
+      { var object symbol = S(unicode_32_little_endian);
+        var object encoding = allocate_encoding();
+        TheEncoding(encoding)->enc_eol = S(Kunix);
+        TheEncoding(encoding)->enc_charset = symbol;
+        TheEncoding(encoding)->enc_mblen    = P(uni32_mblen);
+        TheEncoding(encoding)->enc_mbstowcs = P(uni32le_mbstowcs);
+        TheEncoding(encoding)->enc_wcslen   = P(uni32_wcslen);
+        TheEncoding(encoding)->enc_wcstombs = P(uni32le_wcstombs);
+        TheEncoding(encoding)->enc_range    = P(all_range);
+        TheEncoding(encoding)->min_bytes_per_char = 4;
+        TheEncoding(encoding)->max_bytes_per_char = 4;
+        define_constant(symbol,encoding);
+      }
       { var object symbol = S(utf_8);
         var object encoding = allocate_encoding();
         TheEncoding(encoding)->enc_eol = S(Kunix);
@@ -1338,6 +1504,7 @@ LISPFUNN(charset_range,3)
       }
       # Now some aliases.
       define_constant(S(unicode_16),Symbol_value(S(unicode_16_big_endian))); # network byte order = big endian
+      define_constant(S(unicode_32),Symbol_value(S(unicode_32_big_endian))); # network byte order = big endian
       #endif
       # Initialize O(default_encoding):
         #ifdef UNICODE
