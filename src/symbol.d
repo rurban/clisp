@@ -62,24 +62,23 @@ global object get (object symbol, object key) {
 }
 
 LISPFUNN(putd,2)
-# (SYS::%PUTD symbol function)
-  {
-    var object symbol = check_symbol(STACK_1);
-    var object fun = STACK_0;
-    # fun muss SUBR, FSUBR, Closure oder #<MACRO expander> sein,
-    # Lambda-Ausdruck ist nicht mehr gültig.
-    if (functionp(fun) || fsubrp(fun))
-      goto ok;
-    elif (macrop(fun)) # #<MACRO expander> ist ok
-      goto ok;
-    elif (consp(fun) && eq(Car(fun),S(lambda))) { # eine Lambda-Expression?
-      fehler_lambda_expression(S(putd),fun);
-    }
-    fehler_function(fun);
-   ok: # fun korrekt, in die Funktionszelle stecken:
-    VALUES1(popSTACK()); /* return function-Argument */
-    Symbol_function(popSTACK()) = fun;
+{/* (SYS::%PUTD symbol function) */
+  var object symbol = check_symbol(STACK_1);
+  var object fun = STACK_0;
+  /* fun must be a SUBR, FSUBR, Closure or #<MACRO expander>,
+     not a lambda-expression. */
+  if (functionp(fun) || fsubrp(fun))
+    goto ok;
+  else if (macrop(fun)) /* #<MACRO expander> is ok */
+    goto ok;
+  else if (consp(fun) && eq(Car(fun),S(lambda))) { /* Lambda-Expression? */
+    fehler_lambda_expression(S(putd),fun);
   }
+  fun = check_function(fun);
+ ok: /* fun is correct, store in the function slot: */
+  VALUES1(popSTACK()); /* return the function argument */
+  Symbol_function(popSTACK()) = fun;
+}
 
 LISPFUNN(find_subr,1)
 # (SYS::%FIND-SUBR symbol)

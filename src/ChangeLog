@@ -1,3 +1,49 @@
+2003-05-20  Sam Steingold  <sds@gnu.org>
+
+	even more errors are now recoverable
+	* control.d (FUNCTION): use check_funname() and
+	check_fdefinition() instead of signalling errors
+	(fehler_undef_function): removed
+	(SYMBOL-FUNCTION, FDEFINITION): use check_fdefinition()
+	instead of fehler_undef_function()
+	(check_setq_body): GC-unsafe due to using
+	check_symbol_non_constant() instead of test_symbol_non_constant()
+	(SET, MAKUNBOUND, MULTIPLE-VALUE-SETQ): use
+	check_symbol_non_constant() instead of test_symbol_non_constant()
+	(check_varspec): new function
+	(make_variable_frame, COMPILER-LET): use it, also use
+	check_symbol_non_constant() instead of test_symbol_non_constant()
+	(PROGV): progv() is GC-unsafe now
+	(PROCLAIM): use check_funname() instead of fehler_kein_symbol()
+	* error.d (fehler_kein_symbol): removed
+	(check_symbol_non_constant): replaces test_symbol_non_constant()
+	(check_symbol_special, check_fdefinition): new functions
+	(check_function): replaces fehler_function()
+	* eval.d (progv): GC-unsafe due to using
+	check_symbol_non_constant() instead of test_symbol_non_constant()
+	(get_closure): use check_symbol_non_constant()
+	instead of test_symbol_non_constant()
+	(fehler_undefined): removed
+	(coerce_function, eval1, apply, funcall): use check_fdefinition()
+	instead of fehler_undefined()
+	(interpret_bytecode_) [cod_symbol_function]:
+	[cod_const_symbol_function, cod_const_symbol_function_push]:
+	[cod_const_symbol_function_store]:
+	use check_symbol() and check_fdefinition()
+	instead of fehler_kein_symbol() and fehler_undefined()
+	* foreign.d (EXEC-ON-STACK, CALL-WITH-FOREIGN-STRING):
+	use check_function() instead of fehler_function()
+	* lispbibl.d (progv): documented as GC-unsafe
+	(fehler_undef_function, fehler_kein_symbol, fehler_function)
+	(test_symbol_non_constant): removed
+	(check_symbol_non_constant, check_fdefinition, check_function): added
+	(COERCE): use use check_fdefinition()
+	instead of fehler_undef_function()
+	* record.d (MAKE-MACRO, MAKE-FUNCTION-MACRO): use check_function()
+	instead of fehler_function()
+	* sequence.d (seq_boolop): ditto
+	* symbol.d (%PUTD): ditto
+
 2003-05-18  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	Solve problems with CLHS and INSPECT on win32
@@ -8,12 +54,12 @@
 2003-05-18  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	* pathname.d (LAUNCH) [WIN32_NATIVE]: small fixes.
-	(LAUNCH) [UNIX || RISCOS]: implemented for these 
+	(LAUNCH) [UNIX || RISCOS]: implemented for these
 	systems (like EXECUTE). Moved out of HAVE_SHELL.
 	* subr.d (LAUNCH): changed conditionals for declaration.
 	* subrkw.d: ditto.
 	* constsym.d: ditto.
-	
+
 2003-05-16  Sam Steingold  <sds@gnu.org>
 
 	* dribble.lisp (check-dribble-stream): new function

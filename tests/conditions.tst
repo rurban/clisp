@@ -478,6 +478,72 @@ check-use-value
 (check-use-value fboundp cons "CONS") t
 (check-use-value fdefinition cons "CONS") t
 
+(handler-bind ((error (lambda (c) (princ c) (terpri) (use-value '+))))
+  (eval '(function "+")))
+#.#'+
+
+(defun use-value-string->symbol (c)
+  (princ c) (terpri)
+  (use-value (intern (string-upcase (type-error-datum c)))))
+use-value-string->symbol
+
+;; progv
+(handler-bind ((type-error #'use-value-string->symbol))
+  (progv '("foo") '(123) foo))
+123
+
+(defconstant const-var 10) const-var
+
+(handler-bind ((program-error (lambda (c) (princ c) (terpri) (use-value 'zz))))
+  (progv '(const-var) '(123) zz))
+123
+
+(handler-bind ((type-error #'use-value-string->symbol))
+  (multiple-value-setq (a "foo") (values 123 321))
+  (list foo a))
+(321 123)
+
+(handler-bind ((program-error (lambda (c) (princ c) (terpri) (use-value 'zz))))
+  (setq const-var 125)
+  zz)
+125
+
+(handler-bind ((program-error
+                (lambda (c) (princ c) (terpri) (use-value '(zz 48)))))
+  (let (("foo" 32)) zz))
+48
+
+(handler-bind ((program-error
+                (lambda (c) (princ c) (terpri) (use-value 'zz))))
+  (let ((const-var 64)) zz))
+64
+
+(handler-bind ((type-error #'use-value-string->symbol))
+  ((lambda (x "y") (+ x y)) 1 3))
+4
+
+(handler-bind ((type-error #'use-value-string->symbol))
+  ((lambda (x &optional ("y" 10)) (+ x y)) 1 3))
+4
+
+(handler-bind ((type-error #'use-value-string->symbol))
+  ((lambda (x &key ("y" 10)) (+ x y)) 1 :y 3))
+4
+
+(handler-bind ((type-error #'use-value-string->symbol))
+  ((lambda (x &aux ("y" 10)) (+ x y)) 1))
+11
+
+(handler-bind ((type-error #'use-value-string->symbol))
+  (let ((f (lambda ("a" &optional "b" ("c" 1) &rest "d"
+                    &key "e" ("f" 2) ("g" 3 "gp") (("hk" "ha") 4 "hp")
+                    ("i" 5 "ip")
+                    &aux ("j" 6))
+             (list a b c '&rest d 'e e 'f f 'g g gp 'h ha hp 'i i ip 'j j))))
+    (print f)
+    (funcall f 11 22 33 :e 44 :g 55 'hk 66)))
+(11 22 33 &REST (:E 44 :G 55 HK 66) E 44 F 2 G 55 T H 66 T I 5 NIL J 6)
+
 ;; make-hash-table
 (flet ((mht (test) (make-hash-table :test test)))
   (check-use-value mht eql bazonk :test equalp)) t

@@ -1960,7 +1960,7 @@ LISPFUNNR(coerce,2)
           if (functionmacrop(value1))
             VALUES1(TheFunctionMacro(value1)->functionmacro_function);
           else
-            fehler_undef_function(S(coerce),fun);
+            VALUES1(check_fdefinition(fun,S(coerce)));
         }
         skipSTACK(2); return;
       }

@@ -530,15 +530,22 @@ nonreturning_function(global, reset, (void)) {
  progv(symlist,vallist);
  > symlist, vallist: two lists
  Exactly one variable binding frame is constructed.
- changes STACK */
+ changes STACK
+ can trigger GC */
 global void progv (object symlist, object vallist) {
+  /* check symlist */
+  var uintL llen = 0;
+  pushSTACK(symlist); pushSTACK(vallist);
+  for (pushSTACK(symlist); consp(STACK_0); STACK_0 = Cdr(STACK_0), llen++)
+    Car(STACK_0) = check_symbol_non_constant(Car(STACK_0),S(progv));
+  skipSTACK(1); vallist = popSTACK(); symlist = popSTACK();
   /* demand room on STACK: */
-  get_space_on_STACK(llength(symlist)*2*sizeof(gcv_object_t));
+  get_space_on_STACK(llen * 2 * sizeof(gcv_object_t));
   /* build frame: */
   var gcv_object_t* top_of_frame = STACK; /* Pointer to Frame */
   var object symlistr = symlist;
   while (consp(symlistr)) { /* loop over symbol list */
-    var object sym = test_symbol_non_constant(S(progv),Car(symlistr));
+    var object sym = Car(symlistr);
     pushSTACK(Symbol_value(sym)); /* old value of the variables */
     pushSTACK(sym); /* variable */
     symlistr = Cdr(symlistr);
@@ -1503,7 +1510,7 @@ global void bindhooks (object evalhook_value, object applyhook_value) {
 # UP: Determines the source-lambdabody of a lambda body.
 # lambdabody_source(lambdabody)
 # > lambdabody: Lambdabody (a Cons)
-# < result: Source-Lambdabody (unbound if no is source specified)
+# < result: Source-Lambdabody (unbound if no source specified)
 local object lambdabody_source (object lambdabody) {
   var object body = Cdr(lambdabody);
   # body = ((DECLARE (SOURCE ...) ...) ...) ?
@@ -1703,7 +1710,8 @@ global object get_closure (object lambdabody, object name, bool blockp,
     STACK_0 = closure;
     /* stack layout: closure. */
     closure_ = &STACK_0; /* Pointer to the Closure in the STACK */
-    pushSTACK(lambdalist); pushSTACK(declarations);
+    pushSTACK(lambdalist); pushSTACK(lambdalist); pushSTACK(lambdalist);
+    pushSTACK(declarations);
   }
   { /* nest Environments and put them nested in the closure: */
     var gcv_environment_t* stack_env = nest_env(env);
@@ -1717,7 +1725,8 @@ global object get_closure (object lambdabody, object name, bool blockp,
     /* keywords:=0, as long as &KEY is missing: */
     TheIclosure(closure)->clos_keywords = Fixnum_0;
   }
-  /* stack layout: closure, lambdalist, declarations. */
+  /* stack layout:
+     closure, lambdalist, lalist-save, lalist-rest, declarations */
   var uintL spec_count = 0; /* number of dynamic references */
   var uintL req_count  = 0; /* number of required-parameters */
   var uintL opt_count  = 0; /* number of optional-parameters */
@@ -1743,9 +1752,11 @@ global object get_closure (object lambdabody, object name, bool blockp,
         while (consp(declspecrest)) {
           var object sym = Car(declspecrest);
           if (!symbolp(sym)) {
-            pushSTACK(S(special)); pushSTACK(sym); pushSTACK(S(function));
-            fehler(source_program_error,
-                   GETTEXT("~: ~ is not a symbol, cannot be declared ~"));
+            pushSTACK(declarations); pushSTACK(declspec); /* save */
+            pushSTACK(declspecrest);
+            sym = check_symbol_special(sym,S(function));
+            declspecrest = popSTACK(); Car(declspecrest) = sym;
+            declspec = popSTACK(); declarations = popSTACK(); /* restore */
           }
           /* push Symbol on STACK: */
           check_STACK(); pushSTACK(sym); spec_count++; var_count++;
@@ -1762,18 +1773,21 @@ global object get_closure (object lambdabody, object name, bool blockp,
       declarations = popSTACK();
     }
   }
-  var object lambdalist = *(closure_ STACKop -1); /* remaining lambda list */
+  /* stack layout:
+     closure, lambdalist, lalist-save, lalist-rest [special symbols]* */
+  var gcv_object_t *lalist_ = closure_ STACKop -2; /* remaining lambda list */
+  var gcv_object_t *lalist_save_ = closure_ STACKop -3; /* save fixed items */
   var object item; /* element of the lambda list */
   /* Macro:
      NEXT_ITEM(&OPTIONAL_label,&REST_label,&KEY_label,
                &ALLOW-OTHER-KEYS_label,&AUX_label,Ende_label)
      shortens the rest of the lambda list, moves the next Element to "item"
      and in case of one of the 6 specified lambda-list-markers, it jumps to
-     the respective locations. */
+     the respective locations. */                                       \
   #define NEXT_ITEM(opt_label,rest_label,key_label,allow_label,aux_label,end_label) \
-    { if (atomp(lambdalist)) goto end_label; /* Lambda-List finished? */ \
-      item = Car(lambdalist); /* next Element */                        \
-      lambdalist = Cdr(lambdalist); /* shorten List */                  \
+    { if (atomp(*lalist_)) goto end_label; /* Lambda-List finished? */  \
+      item = Car(*lalist_); *lalist_save_ = *lalist_; /* next element */ \
+      *lalist_ = Cdr(*lalist_); /* shorten List */                      \
       if (eq(item,S(LLoptional)))         goto opt_label;   /* &OPTIONAL ? */ \
       if (eq(item,S(LLrest)))             goto rest_label;  /* &REST ? */ \
       if (eq(item,S(LLkey)))              goto key_label;   /* &KEY ? */ \
@@ -1784,7 +1798,8 @@ global object get_closure (object lambdabody, object name, bool blockp,
  req: /* process required-parameter push on STACK: */
   while (1) {
     NEXT_ITEM(opt,rest,key,badLLkey,aux,ende);
-    test_symbol_non_constant(S(function),item);
+    item = check_symbol_non_constant(item,S(function));
+    Car(*lalist_save_) = item;
     /* push Variable on STACK: */
     check_STACK();
     pushSTACK(item); pushSTACK(Fixnum_0); req_count++; var_count++;
@@ -1800,14 +1815,18 @@ global object get_closure (object lambdabody, object name, bool blockp,
        the svar_bit. Returns also init (or NIL) in init_form. */
     check_STACK();
     if (atomp(item)) {
-      test_symbol_non_constant(S(function),item);
+      item = check_symbol_non_constant(item,S(function));
+      Car(*lalist_save_) = item;
       /* push variable on STACK: */
       pushSTACK(item); pushSTACK(Fixnum_0); opt_count++; var_count++;
       init_form = NIL; /* Default-Init */
     } else {
-      var object item_rest = Cdr(item);
+      var object item_rest = item;
       /* first list-element: var */
-      item = test_symbol_non_constant(S(function),Car(item));
+      pushSTACK(item_rest);
+      item = check_symbol_non_constant(Car(item),S(function));
+      item_rest = popSTACK(); Car(item_rest) = item;
+      item_rest = Cdr(item_rest);
       /* push variable on STACK: */
       pushSTACK(item); pushSTACK(Fixnum_0); opt_count++; var_count++;
       if (consp(item_rest)) {
@@ -1821,7 +1840,10 @@ global object get_closure (object lambdabody, object name, bool blockp,
                    GETTEXT("~: variable specification after ~ too long: ~"));
           }
           /* third list-element: svar */
-          item = test_symbol_non_constant(S(function),Car(item_rest));
+          pushSTACK(init_form); pushSTACK(item_rest);
+          item = check_symbol_non_constant(Car(item_rest),S(function));
+          item_rest = popSTACK(); Car(item_rest) = item;
+          init_form = popSTACK();
           /* set svar-bit for var: */
           STACK_0 = fixnum_inc(STACK_0,bit(svar_bit));
           /* push variable on STACK: */
@@ -1831,7 +1853,7 @@ global object get_closure (object lambdabody, object name, bool blockp,
         init_form = NIL; /* Default-Init */
     }
     /* push init_form in front of (clos_opt_inits closure) : */
-    pushSTACK(lambdalist); pushSTACK(init_form);
+    pushSTACK(init_form);
     {
       var object new_cons = allocate_cons();
       Car(new_cons) = popSTACK();
@@ -1839,11 +1861,11 @@ global object get_closure (object lambdabody, object name, bool blockp,
       Cdr(new_cons) = TheIclosure(closure)->clos_opt_inits;
       TheIclosure(closure)->clos_opt_inits = new_cons;
     }
-    lambdalist = popSTACK();
   }
  rest: /* process &REST-parameter and push on Stack: */
   NEXT_ITEM(badrest,badrest,badrest,badrest,badrest,badrest);
-  test_symbol_non_constant(S(function),item);
+  item = check_symbol_non_constant(item,S(function));
+  Car(*lalist_save_) = item;
   /* push variable on STACK: */
   pushSTACK(item); pushSTACK(Fixnum_0); var_count++;
   /* set Rest-Flag to T: */
@@ -1873,40 +1895,40 @@ global object get_closure (object lambdabody, object name, bool blockp,
        init (or NIL) in init_form. */
     check_STACK();
     if (atomp(item)) {
-      test_symbol_non_constant(S(function),item);
+      item = check_symbol_non_constant(item,S(function));
+      Car(*lalist_save_) = item;
       /* push variable on STACK: */
       pushSTACK(item); pushSTACK(Fixnum_0); key_count++; var_count++;
       /* fetch Keyword: */
-      pushSTACK(lambdalist);
       keyword = intern_keyword(Symbol_name(item));
-      lambdalist = popSTACK();
       /* Default-Init: */
       init_form = NIL;
     } else {
-      var object item_rest = Cdr(item); /* ([init [svar]]) */
+      var object item_rest = item; /* (item [init [svar]]) */
       item = Car(item); /* first list-element: var or (key var) */
+      pushSTACK(item_rest); /* save */
       if (atomp(item)) {
-        test_symbol_non_constant(S(function),item); /* item = var */
+        item = check_symbol_non_constant(item,S(function)); /* item = var */
         /* push variable on STACK: */
+        item_rest = popSTACK(); /* restore */
+        Car(item_rest) = item; item_rest = Cdr(item_rest); /*([init [svar]])*/
         pushSTACK(item); pushSTACK(Fixnum_0); key_count++; var_count++;
         /* fetch Keyword: */
-        pushSTACK(item_rest); pushSTACK(lambdalist);
+        pushSTACK(item_rest); /* save */
         keyword = intern_keyword(Symbol_name(item));
-        lambdalist = popSTACK(); item_rest = popSTACK();
+        item_rest = popSTACK(); /* restore */
       } else {
+        pushSTACK(item);
         /* item = (key var) */
-        keyword = Car(item); /* key */
-        /* should be a Symbol (formerly: Keyword) : */
-        if (!symbolp(keyword)) {
-          pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
-          pushSTACK(keyword); pushSTACK(S(function));
-          fehler(source_program_error,
-                 GETTEXT("~: ~ in ~ is not a symbol"));
-        }
+        keyword = check_symbol(Car(item)); /* key */
+        item = popSTACK(); Car(item) = keyword;
         item = Cdr(item); /* (var) */
         if (!(consp(item) && matomp(Cdr(item))))
           goto fehler_keyspec;
-        item = test_symbol_non_constant(S(function),Car(item)); /* var */
+        pushSTACK(keyword); pushSTACK(item); /* save */
+        item = check_symbol_non_constant(Car(item),S(function)); /* var */
+        Car(popSTACK()) = item; keyword = popSTACK(); /* restore */
+        item_rest = popSTACK(); item_rest = Cdr(item_rest); /*([init [svar]])*/
         /* push variable on STACK: */
         pushSTACK(item); pushSTACK(Fixnum_0); key_count++; var_count++;
       }
@@ -1917,7 +1939,10 @@ global object get_closure (object lambdabody, object name, bool blockp,
           if (mconsp(Cdr(item_rest)))
             goto fehler_keyspec;
           /* third list-element: svar */
-          item = test_symbol_non_constant(S(function),Car(item_rest));
+          pushSTACK(init_form); pushSTACK(keyword); pushSTACK(item_rest);
+          item = check_symbol_non_constant(Car(item_rest),S(function));
+          item_rest = popSTACK(); Car(item_rest) = item;
+          keyword = popSTACK(); init_form = popSTACK(); /* restore */
           /* set svar-Bit in var: */
           STACK_0 = fixnum_inc(STACK_0,bit(svar_bit));
           /* push variable on STACK: */
@@ -1928,7 +1953,7 @@ global object get_closure (object lambdabody, object name, bool blockp,
     }
     /* push keyword in front of (clos_keywords closure) and
        push init_form in front of (clos_key_inits closure) : */
-    pushSTACK(lambdalist); pushSTACK(init_form); pushSTACK(keyword);
+    pushSTACK(init_form); pushSTACK(keyword);
     {
       var object new_cons = allocate_cons();
       Car(new_cons) = popSTACK();
@@ -1943,7 +1968,6 @@ global object get_closure (object lambdabody, object name, bool blockp,
       Cdr(new_cons) = TheIclosure(closure)->clos_key_inits;
       TheIclosure(closure)->clos_key_inits = new_cons;
     }
-    lambdalist = popSTACK();
   }
  fehler_keyspec:
   pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
@@ -1969,14 +1993,16 @@ global object get_closure (object lambdabody, object name, bool blockp,
        Returns also init (or NIL) in init_form. */
     check_STACK();
     if (atomp(item)) {
-      test_symbol_non_constant(S(function),item);
+      item = check_symbol_non_constant(item,S(function));
+      Car(*lalist_save_) = item;
       /* push variable on STACK: */
       pushSTACK(item); pushSTACK(Fixnum_0); aux_count++; var_count++;
       init_form = NIL; /* Default-Init */
     } else {
-      var object item_rest = Cdr(item);
+      var object item_rest = item; pushSTACK(item_rest);
       /* first list-element: var */
-      item = test_symbol_non_constant(S(function),Car(item));
+      item = check_symbol_non_constant(Car(item),S(function));
+      item_rest = popSTACK(); Car(item_rest) = item; item_rest = Cdr(item_rest);
       /* push variable on STACK: */
       pushSTACK(item); pushSTACK(Fixnum_0); aux_count++; var_count++;
       if (consp(item_rest)) {
@@ -1991,7 +2017,7 @@ global object get_closure (object lambdabody, object name, bool blockp,
         init_form = NIL; /* Default-Init */
     }
     /* push init_form in front of (clos_aux_inits closure) : */
-    pushSTACK(lambdalist); pushSTACK(init_form);
+    pushSTACK(init_form);
     {
       var object new_cons = allocate_cons();
       Car(new_cons) = popSTACK();
@@ -1999,7 +2025,6 @@ global object get_closure (object lambdabody, object name, bool blockp,
       Cdr(new_cons) = TheIclosure(closure)->clos_aux_inits;
       TheIclosure(closure)->clos_aux_inits = new_cons;
     }
-    lambdalist = popSTACK();
   }
   /* Collected error messages: */
  badLLkey:
@@ -2017,7 +2042,7 @@ global object get_closure (object lambdabody, object name, bool blockp,
            GETTEXT("~: too many parameters in the lambda-list ~"));
   }
   /* var_count <= lp_limit_1, therefore all counts fit in an uintC. */
-  if (!nullp(lambdalist)) { /* is Lambda-List a Dotted List? */
+  if (!nullp(*lalist_)) { /* is Lambda-List a Dotted List? */
     pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
     pushSTACK(S(function));
     fehler(source_program_error,
@@ -2078,8 +2103,8 @@ global object get_closure (object lambdabody, object name, bool blockp,
   nreverse(TheIclosure(closure)->clos_keywords);
   nreverse(TheIclosure(closure)->clos_key_inits);
   nreverse(TheIclosure(closure)->clos_aux_inits);
-  /* stack layout: closure, lambdalist. */
-  skipSTACK(2);
+  /* stack layout: closure, lambdalist, lalist-save, lalist-rest */
+  skipSTACK(4);
   return closure;
 }
 
@@ -2106,57 +2131,46 @@ nonreturning_function(local, fehler_macro, (object caller, object funname)) {
   fehler(undefined_function,GETTEXT("~: ~ is a macro, not a function"));
 }
 
-# error-message  because of undefined function.
-# fehler_undefined(caller,funname);
-# > caller: caller (a symbol)
-# > funname: symbol or (SETF symbol)
-nonreturning_function(local, fehler_undefined, (object caller, object funname)) {
-  pushSTACK(funname); # CELL-ERROR slot NAME
-  pushSTACK(funname);
-  pushSTACK(caller);
-  fehler(undefined_function,GETTEXT("~: the function ~ is undefined"));
-}
-
-# UP: Alters argument to a function.
-# coerce_function(obj)
-# > obj: object
-# < result: object as function (SUBR or Closure)
-# can trigger GC
-  global object coerce_function (object obj);
-  global object coerce_function(obj)
-    var object obj;
-    {
-      # obj should be a symbol, a SUBR or a Closure.
-      if (functionp(obj)) {
-        return obj; # function is OK
-      } elif (symbolp(obj)) {
-        var object fdef = Symbol_function(obj);
-        if (functionp(fdef))
-          return fdef;
-        elif (orecordp(fdef)) {
-          switch (Record_type(fdef)) {
-            case Rectype_Fsubr:
-              fehler_specialform(TheSubr(subr_self)->name,obj);
-            case Rectype_Macro:
-              fehler_macro(TheSubr(subr_self)->name,obj);
-            default: NOTREACHED;
-          }
-        } else
-          fehler_undefined(TheSubr(subr_self)->name,obj);
-      } elif (funnamep(obj)) {
-        var object symbol = get(Car(Cdr(obj)),S(setf_function)); # (get ... 'SYS::SETF-FUNCTION)
-        if (!symbolp(symbol)) # should be (uninterned) symbol
-          fehler_undefined(TheSubr(subr_self)->name,obj);
-        var object fdef = Symbol_function(symbol);
-        if (functionp(fdef))
-          return fdef;
-        else
-          fehler_undefined(TheSubr(subr_self)->name,obj);
-      } elif (consp(obj) && eq(Car(obj),S(lambda))) { # Cons (LAMBDA . ...) ?
-        fehler_lambda_expression(TheSubr(subr_self)->name,obj);
-      } else
-        fehler_function(obj);
+/* UP: Alters argument to a function.
+ coerce_function(obj)
+ > obj: object
+ < result: object as function (SUBR or Closure)
+ can trigger GC */
+global object coerce_function (object obj)
+{ /* obj should be a symbol, a SUBR or a Closure. */
+  if (functionp(obj)) {
+    return obj; /* function is OK */
+  } else if (symbolp(obj)) {
+    var object fdef = Symbol_function(obj);
+    if (functionp(fdef))
+      return fdef;
+    else if (orecordp(fdef)) {
+      switch (Record_type(fdef)) {
+        case Rectype_Fsubr:
+          fehler_specialform(TheSubr(subr_self)->name,obj);
+        case Rectype_Macro:
+          fehler_macro(TheSubr(subr_self)->name,obj);
+        default: NOTREACHED;
+      }
+    } else
+      return check_fdefinition(obj,TheSubr(subr_self)->name);
+  } else if (funnamep(obj)) {
+    /* this could have be done easier but we inline the checks -
+       symbolp and functionp for performance reasons */
+    var object symbol = get(Car(Cdr(obj)),S(setf_function)); /* (get ... 'SYS::SETF-FUNCTION) */
+    if (!symbolp(symbol)) { /* should be symbol */
+      pushSTACK(obj); symbol = check_symbol(symbol); obj = popSTACK();
     }
+    var object fdef = Symbol_function(symbol);
+    if (functionp(fdef))
+      return fdef;
+    else
+      return check_fdefinition(obj,TheSubr(subr_self)->name);
+  } else if (consp(obj) && eq(Car(obj),S(lambda))) { /* (LAMBDA . ...) ? */
+    fehler_lambda_expression(TheSubr(subr_self)->name,obj);
+  } else
+    return check_function(obj);
+}
 
 #ifdef DEBUG_EVAL
 
@@ -2951,9 +2965,11 @@ local Values eval1 (object form)
               goto undef;
           }
           break;
-          default:
-          undef:
-            fehler_undefined(S(eval),Car(form));
+          default: undef: {
+            pushSTACK(Cdr(form));
+            var object fun = check_fdefinition(Car(form),S(eval));
+            apply(fun,0,popSTACK());
+          }
         }
       } else if (consp(fun) && eq(Car(fun),S(lambda))) {
         /* lambda-expression? */
@@ -3969,7 +3985,10 @@ global Values apply (object fun, uintC args_on_stack, object other_args)
   }
   return;
  undef:
-  fehler_undefined(S(apply),fun);
+  pushSTACK(other_args);
+  fun = check_fdefinition(fun,S(apply));
+  other_args = popSTACK();
+  goto apply_restart;
 }
 
 # Error because of dotted argument-list
@@ -4877,7 +4896,8 @@ global Values funcall (object fun, uintC args_on_stack)
   }
   return;
  undef:
-  fehler_undefined(S(funcall),fun);
+  fun = check_fdefinition(fun,S(funcall));
+  goto funcall_restart;
 }
 
 # In FUNCALL: Applies a SUBR to arguments, cleans up STACK
@@ -7663,10 +7683,18 @@ global Values funcall (object fun, uintC args_on_stack)
           }
           goto next_byte;
         {var object symbol;
+#define CHECK_FDEF()                                                    \
+          if (!symbolp(symbol))                                         \
+            with_saved_back_trace(L(symbol_function),-1,                \
+                                  symbol = check_symbol(symbol));       \
+          if (!boundp(Symbol_function(symbol)))                         \
+            /* (symbol may be not the actual function-name, for e.g.    \
+               (FUNCTION FOO) shows as (SYMBOL-FUNCTION '#:|(SETF FOO)|), \
+               but that should be enough for the error message.) */     \
+            check_fdefinition(symbol,S(symbol_function))
         CASE cod_symbol_function:        # (SYMBOL-FUNCTION)
           symbol = value1;
-          if (!symbolp(symbol)) goto csf_kein_symbol;
-          if (!boundp(Symbol_function(symbol))) goto csf_unbound;
+          CHECK_FDEF();
           VALUES1(Symbol_function(symbol));
           goto next_byte;
         CASE cod_const_symbol_function:  # (CONST&SYMBOL-FUNCTION n)
@@ -7675,8 +7703,7 @@ global Values funcall (object fun, uintC args_on_stack)
             U_operand(n);
             symbol = TheCclosure(closure)->clos_consts[n];
           }
-          if (!symbolp(symbol)) goto csf_kein_symbol;
-          if (!boundp(Symbol_function(symbol))) goto csf_unbound;
+          CHECK_FDEF();
           VALUES1(Symbol_function(symbol));
           goto next_byte;
         CASE cod_const_symbol_function_push: # (CONST&SYMBOL-FUNCTION&PUSH n)
@@ -7685,8 +7712,7 @@ global Values funcall (object fun, uintC args_on_stack)
             U_operand(n);
             symbol = TheCclosure(closure)->clos_consts[n];
           }
-          if (!symbolp(symbol)) goto csf_kein_symbol;
-          if (!boundp(Symbol_function(symbol))) goto csf_unbound;
+          CHECK_FDEF();
           pushSTACK(Symbol_function(symbol));
           goto next_byte;
         CASE cod_const_symbol_function_store: # (CONST&SYMBOL-FUNCTION&STORE n k)
@@ -7695,21 +7721,13 @@ global Values funcall (object fun, uintC args_on_stack)
             U_operand(n);
             symbol = TheCclosure(closure)->clos_consts[n];
           }
-          if (!symbolp(symbol)) goto csf_kein_symbol;
-          if (!boundp(Symbol_function(symbol))) goto csf_unbound;
+          CHECK_FDEF();
           {
             var uintL k;
             U_operand(k);
             STACK_(k) = value1 = Symbol_function(symbol); mv_count=1;
           }
           goto next_byte;
-        csf_kein_symbol:
-          fehler_kein_symbol(S(symbol_function),symbol);
-        csf_unbound:
-          # (symbol poss. not the actual function-name, for
-          # e.g. (FUNCTION FOO) is converted to (SYMBOL-FUNCTION '#:|(SETF FOO)|),
-          # but that should be enough for the error message.)
-          fehler_undefined(S(symbol_function),symbol);
         }
         {var object vec; var object index;
         CASE cod_svref:                  # (SVREF)

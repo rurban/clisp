@@ -2592,7 +2592,7 @@ LISPFUNN(offset,3) {
 # With an initarg, CLISP allocates an arbitrarily complex structure on the
 # stack. Without one, all it does is like a single calloc(1,sizeof(fvd))!
 LISPFUN(exec_on_stack,seclass_default,2,1,norest,nokey,0,NIL) {
-  if (!functionp(STACK_2)) { fehler_function(STACK_2); }
+  STACK_2 = check_function(STACK_2);
   var bool init = boundp(STACK_0); # Passing NIL is also an initialization
   var object fvd = STACK_1;
   foreign_layout(fvd);
@@ -2664,7 +2664,7 @@ LISPFUNN(call_with_foreign_string,6)
 {
   if (!posfixnump(STACK_0)) fehler_posfixnum(STACK_0);
   var uintL zeroes = posfixnum_to_L(popSTACK());
-  if (!functionp(STACK_4)) fehler_function(STACK_4);
+  STACK_4 = check_function(STACK_4);
  #ifdef UNICODE
   STACK_3 = check_encoding(STACK_3,&O(foreign_encoding),false);
  #else

@@ -54,38 +54,33 @@ LISPSPECFORM(function, 1,1,nobody)
  either (FUNCTION symbol)
      or (FUNCTION (LAMBDA . lambdabody))
      or (FUNCTION name (LAMBDA . lambdabody)) */
-  var object funname; /* function name (symbol or Lambdabody) */
-  if (!boundp(STACK_0)) {
-    /* 1 argument */
-    funname = STACK_1;
-    if (funnamep(funname)) {
-      /* (FUNCTION symbol) - syntax
-         search symbol in the current function-environment: */
-      var object fun = sym_function(funname,aktenv.fun_env);
-      /* return SUBR or closure or foreign-function, else error: */
+  if (!boundp(STACK_0)) { /* 1 argument */
+    var object name = STACK_1;
+    if (consp(name) && eq(Car(name),S(lambda))) {
+      VALUES1(get_closure(Cdr(name),S(Klambda),false,&aktenv));
+    } else {
+      STACK_1 = check_funname(source_program_error,S(function),STACK_1);
+      var object fun = sym_function(STACK_1,aktenv.fun_env);
       if (!functionp(fun)) {
         if (functionmacrop(fun))
           fun = TheFunctionMacro(fun)->functionmacro_function;
-        else {
-          pushSTACK(funname); /* CELL-ERROR Slot NAME */
-          pushSTACK(funname);
-          pushSTACK(S(function));
-          fehler(undefined_function,GETTEXT("~: undefined function ~"));
-        }
+        else
+          fun = check_fdefinition(STACK_1,S(function));
       }
-      VALUES1(fun); skipSTACK(2); return;
+      VALUES1(fun);
     }
-    STACK_1 = S(Klambda); /* :LAMBDA as default name */
   } else { /* 2 arguments */
-    STACK_1 = check_funname(source_program_error,S(function),STACK_1); /*1st*/
-    funname = STACK_0; /* second argument, hopefully lambda expression */
+    STACK_1 = check_funname(source_program_error,S(function),STACK_1);
+    while (!(consp(STACK_0) && eq(Car(STACK_0),S(lambda)))) {
+      pushSTACK(NIL); /* no PLACE */
+      pushSTACK(STACK_1); pushSTACK(S(function));
+      check_value(source_program_error,
+                  GETTEXT("~: ~ should be a lambda expression"));
+      STACK_0 = value1;
+    }
+    VALUES1(get_closure(Cdr(STACK_0),STACK_1,false,&aktenv));
   }
-  if (!(consp(funname) && eq(Car(funname),S(lambda)))) /* (LAMBDA . ...) */
-    funname = check_funname(source_program_error,S(function),funname);
-  /* lambda expression
-     in the current environment, convert into a closure: */
-  VALUES1(get_closure(Cdr(funname),STACK_1,false,&aktenv));
-  skipSTACK(2); return;
+  skipSTACK(2);
 }
 
 /* error-message, if a symbol has no value.
@@ -126,24 +121,12 @@ LISPFUNNR(symbol_value,1)
   mv_count=1;
 }
 
-/* error-message because of undefined function.
- fehler_undef_function(caller,symbol);
- > caller: Caller (a symbol)
- > symbol: symbol or (SETF symbol) */
-nonreturning_function(global, fehler_undef_function,
-                      (object caller, object symbol)) {
-  pushSTACK(symbol); /* CELL-ERROR Slot NAME */
-  pushSTACK(symbol);
-  pushSTACK(caller);
-  fehler(undefined_function,GETTEXT("~: ~ has no global function definition"));
-}
-
 LISPFUNNR(symbol_function,1)
 { /* (SYMBOL-FUNCTION symbol), CLTL p. 90 */
   var object symbol = check_symbol(popSTACK());
   var object val = Symbol_function(symbol);
   if (!boundp(val))
-    fehler_undef_function(S(symbol_function),symbol);
+    val = check_fdefinition(symbol,S(symbol_function));
   VALUES1(val);
 }
 
@@ -162,13 +145,15 @@ local object funname_to_symbol (object symbol) {
 LISPFUNNR(fdefinition,1)
 { /* (FDEFINITION funname), CLTL2 p. 120 */
   var object symbol = funname_to_symbol(STACK_0);
-  var object funname = popSTACK();
-  if (!symbolp(symbol)) /* should be a symbol */
-    fehler_undef_function(S(fdefinition),funname); /* otherwise undefined */
-  var object val = Symbol_function(symbol);
-  if (!boundp(val))
-    fehler_undef_function(S(fdefinition),funname);
-  VALUES1(val);
+  if (!symbolp(symbol))
+    VALUES1(check_fdefinition(STACK_0,TheSubr(subr_self)->name));
+  else {
+    var object val = Symbol_function(symbol);
+    if (!boundp(val))
+      val = check_fdefinition(STACK_0,TheSubr(subr_self)->name);
+    VALUES1(val);
+  }
+  skipSTACK(1);
 }
 
 LISPFUNNR(boundp,1)
@@ -194,30 +179,33 @@ LISPFUNNF(special_operator_p,1)
 /* UP: Check the body of a SETQ- or PSETQ-form.
  > caller: Caller (a symbol)
  > STACK_0: Body
- < result: true if symbol-macros have to be expanded. */
+ < result: true if symbol-macros have to be expanded.
+ can trigger GC */
 local bool check_setq_body (object caller) {
-  var object body = STACK_0;
-  while (consp(body)) {
-    var object symbol = test_symbol_non_constant(caller,Car(body));
-    if (sym_macrop(symbol))
+  pushSTACK(STACK_0); /* save body */
+  while (consp(STACK_0)) {
+    Car(STACK_0) = check_symbol_non_constant(Car(STACK_0),caller);
+    if (sym_macrop(Car(STACK_0))) {
+      skipSTACK(1); /* drop body */
       return true;
-    body = Cdr(body);
-    if (atomp(body)) {
-      if (!nullp(body))
-        goto fehler_dotted;
-      /* The whole body is still in STACK_0. */
-      pushSTACK(caller);
-      fehler(source_program_error,
-             GETTEXT("~ called with odd number of arguments: ~"));
     }
-    body = Cdr(body);
+    STACK_0 = Cdr(STACK_0);
+    if (atomp(STACK_0)) {
+      if (!nullp(STACK_0))
+        goto fehler_dotted;
+      pushSTACK(STACK_1); pushSTACK(TheFsubr(subr_self)->name);
+      fehler(source_program_error,
+             GETTEXT("~: odd number of arguments: ~"));
+    }
+    STACK_0 = Cdr(STACK_0);
   }
   /* body is finished. */
-  if (!nullp(body)) {
+  if (!nullp(STACK_0)) {
    fehler_dotted: /* The whole body is still in STACK_0. */
-    pushSTACK(caller);
+    pushSTACK(STACK_1); pushSTACK(TheFsubr(subr_self)->name);
     fehler(source_program_error,GETTEXT("dotted list given to ~ : ~"));
   }
+  skipSTACK(1); /* drop body */
   return false;
 }
 
@@ -241,9 +229,8 @@ LISPSPECFORM(setq, 0,0,body)
         body = popSTACK();
       } while (consp(body));
       /* value1 is the last evaluation result. */
-    } else {
+    } else
       value1 = NIL; /* default value at (SETQ) */
-    }
     mv_count=1;
   }
 }
@@ -285,7 +272,7 @@ LISPSPECFORM(psetq, 0,0,body)
 
 LISPFUNN(set,2)
 { /* (SETF (SYMBOL-VALUE symbol) value) = (SET symbol value), CLTL p. 92 */
-  var object symbol = test_symbol_non_constant(S(set),STACK_1);
+  var object symbol = check_symbol_non_constant(STACK_1,S(set));
   if (symbolmacrop(Symbol_value(symbol))) { /* symbol-macro? */
     /* Evaluate `(SETF ,expansion (QUOTE ,value)) */
     pushSTACK(S(setf));
@@ -300,7 +287,7 @@ LISPFUNN(set,2)
 
 LISPFUNN(makunbound,1)
 { /* (MAKUNBOUND symbol), CLTL p. 92 */
-  var object symbol = test_symbol_non_constant(S(makunbound),popSTACK());
+  var object symbol = check_symbol_non_constant(popSTACK(),S(makunbound));
   Symbol_value(symbol) = unbound;
   VALUES1(symbol);
 }
@@ -416,6 +403,16 @@ local Values compile_eval_form (void)
   funcall(value1,0);
 }
 
+/* signal a correctable error for a broken LET variable spec
+ can trigger GC */
+local object check_varspec (object varspec, object caller) {
+  pushSTACK(NIL);     /* no PLACE */
+  pushSTACK(varspec); pushSTACK(caller);
+  check_value(source_program_error,
+              GETTEXT("~: illegal variable specification ~"));
+  return value1;
+}
+
 /* UP for LET, LET*, LOCALLY, MULTIPLE-VALUE-BIND, SYMBOL-MACROLET:
  Analyzes the variables and declarations, builds up a variable binding-
  frame and extends VENV and poss. also DENV by a frame.
@@ -447,9 +444,15 @@ local void make_variable_frame (object caller, object varspecs,
           while (consp( declspec = Cdr(declspec) )) {
             var object declsym = Car(declspec); /* next special item */
             if (!symbolp(declsym)) { /* should be a symbol */
-              pushSTACK(declsym);
-              pushSTACK(caller);
-              fehler(source_program_error,GETTEXT("~: ~ is not a symbol, but was declared SPECIAL"));
+              pushSTACK(value1); pushSTACK(value2);          /* save */
+              pushSTACK(caller); pushSTACK(varspecs);        /* save */
+              pushSTACK(declarations); pushSTACK(declspecs); /* save */
+              pushSTACK(declspec);                           /* save */
+              declsym = check_symbol_special(declsym,caller);
+              declspec = popSTACK(); Car(declspec) = declspec;   /* restore */
+              declspecs = popSTACK(); declarations = popSTACK(); /* restore */
+              varspecs = popSTACK(); caller = popSTACK();        /* restore */
+              value2 = popSTACK(); value1 = popSTACK();          /* restore */
             }
             /* store special-declared symbol in stack: */
             pushSTACK(specdecl); /* SPECDECL as "value" */
@@ -471,6 +474,7 @@ local void make_variable_frame (object caller, object varspecs,
           /* split up in symbol and init: */
           var object symbol;
           var object init;
+         retry_check_varspec:
           if (symbolp(varspec) && !eq(caller,S(symbol_macrolet))) {
             symbol = varspec; init = unbound;
           } else if /* one-/two-element list, with symbol as CAR ? */
@@ -486,10 +490,14 @@ local void make_variable_frame (object caller, object varspecs,
                    && (init = NIL, true))))) {
             /* now init = Car(varspec) or = NIL */
           } else {
-            pushSTACK(Car(varspecs));
-            pushSTACK(caller);
-            fehler(source_program_error,
-                   GETTEXT("~: illegal variable specification ~"));
+            pushSTACK(value1); pushSTACK(value2);         /* save */
+            pushSTACK(caller); pushSTACK(declarations);   /* save */
+            pushSTACK(varspecs); /* save */
+            varspec = check_varspec(Car(varspecs),caller);
+            varspecs = popSTACK(); Car(varspecs) = varspec; /* restore */
+            declarations = popSTACK(); caller = popSTACK(); /* restore */
+            value2 = popSTACK(); value1 = popSTACK();       /* restore */
+            goto retry_check_varspec;
           }
           pushSTACK(init); /* init and */
           pushSTACK_symbolwithflags(symbol,0); /* store variable */
@@ -539,10 +547,14 @@ local void make_variable_frame (object caller, object varspecs,
             /* static binding */
           } else {
             if (constantp(TheSymbol(symbol))) {
-              pushSTACK(symbol);
-              pushSTACK(caller);
-              fehler(program_error,
-                     GETTEXT("~: ~ is a constant, cannot be bound"));
+              pushSTACK(value1); pushSTACK(value2);   /* save */
+              pushSTACK(caller); pushSTACK(varspecs); /* save */
+              pushSTACK(declarations);
+              symbol = check_symbol_non_constant(symbol,caller);
+              declarations = popSTACK(); varspecs = popSTACK(); /* restore */
+              caller = popSTACK();
+              value2 = popSTACK(); value1 = popSTACK();         /* restore */
+              STACK_1 = symbol;
             }
             if (specdecled || special_var_p(TheSymbol(symbol))) {
               /* bind dynamically */
@@ -737,26 +749,30 @@ LISPSPECFORM(compiler_let, 1,0,body)
   while (consp(varspecs)) {
     var object varspec = Car(varspecs);
     var object symbol;
-    if (consp(varspec)) {
-      /* varspec is a Cons */
-      symbol = test_symbol_non_constant(S(compiler_let),Car(varspec));
+   retry_check_varspec:
+    if (consp(varspec)) { /* varspec is a Cons */
+      pushSTACK(varspec); pushSTACK(varspecs); /* save */
+      symbol = check_symbol_non_constant(Car(varspec),S(compiler_let));
+      varspecs = popSTACK(); varspec = popSTACK(); /* restore */
       varspec = Cdr(varspec);
       if (consp(varspec) && nullp(Cdr(varspec))) {
         varspec = Car(varspec); /* Initform = second list element */
       } else if (nullp(varspec)) { /* allowed by X3J13 vote <182> */
         /* varspec = NIL; */ /* Initform = NIL */
       } else {
-        pushSTACK(Car(varspecs));
-        pushSTACK(S(compiler_let));
-        fehler(source_program_error,
-               GETTEXT("~: illegal variable specification ~"));
+        pushSTACK(varspecs); /* save */
+        varspec = check_varspec(Car(varspecs),S(compiler_let));
+        varspecs = popSTACK(); Car(varspecs) = varspec; /* restore */
+        goto retry_check_varspec;
       }
       pushSTACK(Cdr(varspecs));
       eval_noenv(varspec); /* evaluate initform */
       varspecs = STACK_0;
       STACK_0 = value1; /* and into the stack */
     } else {
-      symbol = test_symbol_non_constant(S(compiler_let),varspec);
+      pushSTACK(varspecs); /* save */
+      symbol = check_symbol_non_constant(varspec,S(compiler_let));
+      varspecs = popSTACK(); /* restore */
       pushSTACK(NIL); /* NIL as value into the stack */
       varspecs = Cdr(varspecs);
     }
@@ -799,11 +815,14 @@ LISPSPECFORM(progv, 2,0,body)
 { /* (PROGV symbollist valuelist {form}), CLTL p. 112 */
   STACK_2 = (eval(STACK_2),value1); /* evaluate symbol list */
   var object valuelist = (eval(STACK_1),value1); /* evaluate value list */
-  var object body = popSTACK();
-  skipSTACK(1);
-  progv(popSTACK(),valuelist); /* build frame */
-  implicit_progn(body,NIL); /* evaluate body */
+  var object varlist = STACK_2;
+  STACK_2 = STACK_0; /* save body */
+  skipSTACK(2);
+  var gcv_object_t *body_ = &STACK_0;
+  progv(varlist,valuelist); /* build frame */
+  implicit_progn(*body_,NIL); /* evaluate body */
   unwind(); /* unwind frame */
+  skipSTACK(1); /* drop body */
 }
 
 /* error-message at FLET/LABELS, if there is no function specification.
@@ -1791,43 +1810,40 @@ LISPSPECFORM(multiple_value_bind, 2,0,body)
 
 LISPSPECFORM(multiple_value_setq, 2,0,nobody)
 { /* (MULTIPLE-VALUE-SETQ ({var}) form), CLTL p. 136 */
-  {
-    var object varlist = STACK_1;
-    /* peruse variable list: */
-    while (consp(varlist)) {
-      var object symbol =       /* next variable */
-        test_symbol_non_constant(S(multiple_value_setq),Car(varlist));
-      if (sym_macrop(symbol)) /* and not a symbol-macro */
-        goto expand;
-      varlist = Cdr(varlist);
+  /* check variable list: */
+  pushSTACK(STACK_1); /* variable list */
+  while (consp(STACK_0)) {
+    Car(STACK_0) = /* next variable */
+      check_symbol_non_constant(Car(STACK_0),S(multiple_value_setq));
+    if (sym_macrop(Car(STACK_0))) { /* symbol-macro */
+      /* turn MULTIPLE-VALUE-SETQ into MULTIPLE-VALUE-SETF */
+      STACK_0 = STACK_1; STACK_1 = STACK_2; STACK_2 = S(multiple_value_setf);
+      var object newform = listof(3);
+      eval(newform);
+      return;
     }
+    STACK_0 = Cdr(STACK_0);
   }
-  if (false) {
-   expand:
-    pushSTACK(STACK_0); STACK_1 = STACK_2; STACK_2 = S(multiple_value_setf);
-    var object newform = listof(3); /* turn MULTIPLE-VALUE-SETQ into MULTIPLE-VALUE-SETF */
-    eval(newform);
-  } else {
-    eval(popSTACK()); /* evaluate form */
-    var object varlist = popSTACK();
-    var gcv_object_t* args_end = args_end_pointer;
-    mv_to_STACK(); /* write values into the stack (eases access) */
-    /* peruse variable-list: */
-    var gcv_object_t* mvptr = args_end;
-    var uintC count = mv_count; /* number of values that are still available */
-    while (consp(varlist)) {
-      var object value;
-      if (count>0) {
-        value = NEXT(mvptr); count--; /* next value */
-      } else {
-        value = NIL; /* NIL, if all values are consumed */
-      }
-      setq(Car(varlist),value); /* assign to the next variable */
-      varlist = Cdr(varlist);
+  skipSTACK(1); /* drop variable list tail */
+  eval(popSTACK()); /* evaluate form */
+  var object varlist = popSTACK();
+  var gcv_object_t* args_end = args_end_pointer;
+  mv_to_STACK(); /* write values into the stack (eases access) */
+  /* peruse variable-list: */
+  var gcv_object_t* mvptr = args_end;
+  var uintC count = mv_count; /* number of values that are still available */
+  while (consp(varlist)) {
+    var object value;
+    if (count>0) {
+      value = NEXT(mvptr); count--; /* next value */
+    } else {
+      value = NIL; /* NIL, if all values are consumed */
     }
-    set_args_end_pointer(args_end); /* clean up STACK */
-    mv_count=1; /* last value1 as only value */
+    setq(Car(varlist),value); /* assign to the next variable */
+    varlist = Cdr(varlist);
   }
+  set_args_end_pointer(args_end); /* clean up STACK */
+  mv_count=1; /* last value1 as the only value */
 }
 
 LISPSPECFORM(catch, 1,0,body)
@@ -2071,9 +2087,8 @@ LISPFUNN(proclaim,1)
   } else if (eq(decltype,S(inline)) || eq(decltype,S(notinline))) {
     pushSTACK(decltype); /* INLINE, NOTINLINE */
     while (consp( STACK_1/*declspec*/ = Cdr(STACK_1/*declspec*/) )) {
-      var object symbol = Car(STACK_1/*declspec*/);
-      if (!funnamep(symbol))
-        fehler_kein_symbol(S(proclaim),symbol);
+      var object symbol = check_funname(source_program_error,S(proclaim),
+                                        Car(STACK_1/*declspec*/));
       /*(SYS::%PUT (SYS::GET-FUNNAME-SYMBOL symbol) 'SYS::INLINABLE decltype)*/
       pushSTACK(symbol); funcall(S(get_funname_symbol),1); pushSTACK(value1);
       pushSTACK(S(inlinable)); pushSTACK(STACK_2)/*decltype*/;

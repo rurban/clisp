@@ -538,11 +538,9 @@ LISPFUNN(symbol_macro_expand,1) {
 /* (SYS::MAKE-MACRO expander) returns a Macro object with the given expander
  function. */
 LISPFUNN(make_macro,1) {
+  STACK_0 = check_function(STACK_0);
   var object m = allocate_macro();
-  var object arg = popSTACK();
-  if (!functionp(arg))
-    fehler_function(arg);
-  TheMacro(m)->macro_expander = arg;
+  TheMacro(m)->macro_expander = popSTACK();
   VALUES1(m);
 }
 
@@ -576,21 +574,12 @@ LISPFUNN(macro_expander,1) {
 /* (SYS::MAKE-FUNCTION-MACRO function expander) returns a FunctionMacro object
  for the given function and with the given expander function. */
 LISPFUNN(make_function_macro,2) {
+  STACK_0 = check_function(STACK_0);
+  STACK_1 = check_function(STACK_1);
   var object m = allocate_functionmacro();
-  {
-    var object arg = STACK_1;
-    if (!functionp(arg))
-      fehler_function(arg);
-    TheFunctionMacro(m)->functionmacro_function = arg;
-  }
-  {
-    var object arg = STACK_0;
-    if (!functionp(arg))
-      fehler_function(arg);
-    TheFunctionMacro(m)->functionmacro_macro_expander = arg;
-  }
+  TheFunctionMacro(m)->functionmacro_macro_expander = popSTACK();
+  TheFunctionMacro(m)->functionmacro_function = popSTACK();
   VALUES1(m);
-  skipSTACK(2);
 }
 
 /* (SYS::FUNCTION-MACRO-P object) tests for a FunctionMacro. */
