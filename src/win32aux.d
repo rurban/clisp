@@ -749,7 +749,7 @@ global int read_helper (HANDLE fd, void* buf, int nbyte, bool partial_p) {
 # input and standard output (both must be inheritable).
   global BOOL MyCreateProcess (LPCTSTR CommandLine, HANDLE StdInput, HANDLE StdOutput, LPPROCESS_INFORMATION ProcessInformation);
   global BOOL MyCreateProcess(CommandLine,StdInput,StdOutput,ProcessInformation)
-    var LPTSTR CommandLine;
+    var LPCTSTR CommandLine;
     var HANDLE StdInput;
     var HANDLE StdOutput;
     var LPPROCESS_INFORMATION ProcessInformation;
@@ -786,6 +786,7 @@ global int read_helper (HANDLE fd, void* buf, int nbyte, bool partial_p) {
       #else
         abort_dummy = 1/0;
       #endif
+      exit(-1); # to turn off warning
     }
 
 
