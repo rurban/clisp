@@ -5875,8 +5875,10 @@ typedef struct strm_i_buffered_extrafields_t {
 # Accessors.
 #define FileStream_name(stream)  TheStream(stream)->strm_file_name
 #define FileStream_truename(stream)  TheStream(stream)->strm_file_truename
-#define BufferedStream_channel(stream)  TheStream(stream)->strm_buffered_channel
+#define BufferedStream_channel(stream) TheStream(stream)->strm_buffered_channel
 #define BufferedStream_buffer(stream)  TheStream(stream)->strm_buffered_buffer
+#define BufferedStream_buffer_address(stream,shift) \
+  (&TheSbvector(BufferedStream_buffer(stream))->data[shift])
 #define BufferedStreamLow_fill(stream)  \
   ((strm_buffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_fill
 #define BufferedStreamLow_flush(stream)  \
@@ -5970,8 +5972,8 @@ typedef struct strm_i_buffered_extrafields_t {
 local uintL low_fill_buffered_handle (object stream) {
   begin_system_call();
   var sintL result = # fill Buffer
-    full_read(TheHandle(TheStream(stream)->strm_buffered_channel), # Handle
-              &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[0], # Bufferaddress
+    full_read(TheHandle(BufferedStream_channel(stream)),
+              BufferedStream_buffer_address(stream,0),
               strm_buffered_bufflen);
   end_system_call();
   if (result<0) # error occurred?
@@ -5997,8 +5999,8 @@ local uintL low_fill_buffered_handle (object stream) {
 local void low_flush_buffered_handle (object stream, uintL bufflen) {
   begin_system_call();
   var sintL result = # write Buffer
-    full_write(TheHandle(TheStream(stream)->strm_buffered_channel), # Handle
-               &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[0], # Bufferaddress
+    full_write(TheHandle(BufferedStream_channel(stream)),
+               BufferedStream_buffer_address(stream,0),
                bufflen);
   if (result==bufflen) { # everything written correctly
     end_system_call(); BufferedStream_modified(stream) = false;
@@ -6046,7 +6048,7 @@ local void buffered_full_flush (object stream) {
   # first, position back, then write.
   if (BufferedStream_blockpositioning(stream)) {
     begin_system_call();
-    handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
+    handle_lseek(stream,BufferedStream_channel(stream),
                  -(long)strm_buffered_bufflen,SEEK_CUR,); # positioning back
     end_system_call();
   }
@@ -6061,7 +6063,7 @@ local void buffered_full_flush (object stream) {
 local void buffered_half_flush (object stream) {
   if (BufferedStream_blockpositioning(stream)) {
     begin_system_call();
-    handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
+    handle_lseek(stream,BufferedStream_channel(stream),
                  BufferedStream_buffstart(stream),SEEK_SET,); # positioning back
     end_system_call();
   }
@@ -6098,9 +6100,9 @@ local uintB* buffered_nextbyte (object stream) {
       goto eofsector;
   }
   # Bufferdata entirely valid
-  if (!(index == strm_buffered_bufflen)) { # index = bufflen ?
+  if (index != strm_buffered_bufflen) { # index = bufflen ?
     # no, so 0 <= index < strm_buffered_bufflen -> OK
-    return &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[index];
+    return BufferedStream_buffer_address(stream,index);
   }
   # Buffer must be newly filled.
   if (BufferedStream_modified(stream))
@@ -6116,7 +6118,7 @@ local uintB* buffered_nextbyte (object stream) {
         BufferedStream_index(stream) = 0; # Index := 0
         BufferedStream_modified(stream) = false; # Buffer unmodified
         BufferedStream_eofindex(stream) = eofindex_all_valid; # eofindex := all_valid
-        return &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[0];
+        return BufferedStream_buffer_address(stream,0);
       }
     } else {
       result = 0;
@@ -6131,7 +6133,7 @@ local uintB* buffered_nextbyte (object stream) {
   if (index == eofindex)
     return (uintB*)NULL; # EOF reached
   else
-    return &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[index];
+    return BufferedStream_buffer_address(stream,index);
 }
 
 # UP: Prepares the writing of a Byte at EOF.
@@ -6155,7 +6157,7 @@ local uintB* buffered_eofbyte (object stream) {
   }
   # increase eofindex:
   BufferedStream_eofindex(stream) += 1;
-  return &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[BufferedStream_index(stream)];
+  return BufferedStream_buffer_address(stream,BufferedStream_index(stream));
 }
 
 # UP: Writes a Byte to a Byte-based File-Stream.
@@ -6214,8 +6216,7 @@ local void position_file_buffered (object stream, uintL position) {
   # Now modified_flag is deleted.
   if (!BufferedStream_blockpositioning(stream)) { # Positioning:
     begin_system_call();
-    handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
-                 position,SEEK_SET,);
+    handle_lseek(stream,BufferedStream_channel(stream),position,SEEK_SET,);
     end_system_call();
     BufferedStream_buffstart(stream) = position;
     BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
@@ -6227,7 +6228,7 @@ local void position_file_buffered (object stream, uintL position) {
     {
       var uintL newposition;
       begin_system_call();
-      handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
+      handle_lseek(stream,BufferedStream_channel(stream),
                    floor(position,strm_buffered_bufflen)*strm_buffered_bufflen,SEEK_SET,newposition=);
       end_system_call();
       BufferedStream_buffstart(stream) = newposition;
@@ -6308,8 +6309,7 @@ local const uintB* write_byte_array_buffered (object stream,
       - BufferedStream_index(stream); # > 0 !
     if (next > remaining)
       next = remaining;
-    # copy next Bytes in the Buffer:
-    {
+    { # copy next Bytes in the Buffer:
       var uintL count;
       dotimespL(count,next, {
         var uintB b = *byteptr++; # next Byte
@@ -6322,7 +6322,7 @@ local const uintB* write_byte_array_buffered (object stream,
     remaining = remaining - next;
     # increment index
     BufferedStream_index(stream) += next;
-  } until (remaining == 0);
+  } while (remaining != 0);
   if (false) {
   eof_reached: # Write at EOF, eofindex = index
     do { # Still remaining>0 Bytes to file.
@@ -6343,15 +6343,16 @@ local const uintB* write_byte_array_buffered (object stream,
       if (next > remaining)
         next = remaining;
       # copy the next bytes in the buffer:
-      memcpy(&TheSbvector(TheStream(stream)->strm_buffered_buffer)
-             ->data[BufferedStream_index(stream)],byteptr,next);
+      memcpy(BufferedStream_buffer_address
+             (stream,BufferedStream_index(stream)),
+             byteptr,next);
       byteptr += next;
       BufferedStream_modified(stream) = true;
       remaining = remaining - next;
       # increment index and eofindex
       BufferedStream_index(stream) += next;
       BufferedStream_eofindex(stream) += next;
-    } until (remaining == 0);
+    } while (remaining != 0);
   }
   return byteptr;
 }
@@ -7304,8 +7305,7 @@ local void logical_position_file_end (object stream) {
   var uintL eofbytes; # EOF-Position, measured in Bytes
   # position to the End:
   begin_system_call();
-  handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
-               0,SEEK_END,eofbytes=);
+  handle_lseek(stream,BufferedStream_channel(stream),0,SEEK_END,eofbytes=);
   end_system_call();
   # calculate logical Position and correct eofbytes:
   var uintL position; # logical Position
@@ -7344,7 +7344,7 @@ local void logical_position_file_end (object stream) {
     {
       var uintL buffstart;
       begin_system_call();
-      handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
+      handle_lseek(stream,BufferedStream_channel(stream),
                    floor(eofbytes,strm_buffered_bufflen)*strm_buffered_bufflen,
                    SEEK_SET,buffstart=);
       end_system_call();
@@ -7481,7 +7481,7 @@ local object make_buffered_stream (uintB type, direction_t direction,
     ChannelStream_buffered(stream) = true;
     ChannelStream_init(stream);
     if (!nullp(handle)) { # Handle=NIL -> Rest already initialized with NIL, finished
-      TheStream(stream)->strm_buffered_channel = handle; # enter Handle
+      BufferedStream_channel(stream) = handle; # enter Handle
       BufferedStream_regular(stream) = handle_regular;
       BufferedStream_blockpositioning(stream) = handle_blockpositioning;
       BufferedStream_buffstart(stream) = 0; # buffstart := 0
@@ -7491,7 +7491,7 @@ local object make_buffered_stream (uintB type, direction_t direction,
         var object buffer =
           allocate_bit_vector(Atype_8Bit,strm_buffered_bufflen);
         stream = popSTACK();
-        TheStream(stream)->strm_buffered_buffer = buffer;
+        BufferedStream_buffer(stream) = buffer;
       }
       BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
       BufferedStream_index(stream) = 0; # index := 0
@@ -7623,12 +7623,11 @@ global object make_file_stream (direction_t direction, bool append_flag,
     if (handle_regular && !handle_fresh) {
       var uintL position;
       begin_system_call();
-      handle_lseek(stream,TheStream(stream)->strm_buffered_channel,
-                   0,SEEK_CUR,position=);
+      handle_lseek(stream,BufferedStream_channel(stream),0,SEEK_CUR,position=);
       end_system_call();
       position_file_buffered(stream,position);
     }
-    if (!nullp(TheStream(stream)->strm_buffered_channel)
+    if (!nullp(BufferedStream_channel(stream))
         && !(eltype.kind == eltype_ch) && (eltype.size < 8)) {
       # Type b
       # read eofposition:
@@ -7722,7 +7721,7 @@ local void buffered_flush_everything (object stream) {
 # can trigger GC
 local void finish_output_buffered (object stream) {
   # Handle=NIL (Stream already closed) -> finished:
-  if (nullp(TheStream(stream)->strm_buffered_channel))
+  if (nullp(BufferedStream_channel(stream)))
     return;
   # no File with write-access -> nothing to do:
   if (!(TheStream(stream)->strmflags & strmflags_wr_B))
@@ -7736,7 +7735,7 @@ local void finish_output_buffered (object stream) {
    #ifdef UNIX
     #ifdef HAVE_FSYNC
     begin_system_call();
-    if (!( fsync(TheHandle(TheStream(stream)->strm_buffered_channel)) ==0)) {
+    if (fsync(TheHandle(BufferedStream_channel(stream)))) {
       end_system_call(); OS_filestream_error(stream);
     }
     end_system_call();
@@ -7745,7 +7744,7 @@ local void finish_output_buffered (object stream) {
     if (!nullp(TheStream(stream)->strm_file_truename)) { # avoid closing stdout_handle
     #ifdef MSDOS
      # duplicate File-Handle and close:
-      var uintW handle = TheHandle(TheStream(stream)->strm_buffered_channel);
+      var uintW handle = TheHandle(BufferedStream_channel(stream));
       begin_system_call();
       var sintW handle2 = dup(handle);
       if (handle2 < 0) { end_system_call(); OS_filestream_error(stream); }
@@ -7755,7 +7754,7 @@ local void finish_output_buffered (object stream) {
     #ifdef RISCOS # || MSDOS, if we hadn't something better already
      # close File (DOS writes physically):
       begin_system_call();
-      if ( CLOSE(TheHandle(TheStream(stream)->strm_buffered_channel)) <0) {
+      if ( CLOSE(TheHandle(BufferedStream_channel(stream))) <0) {
         end_system_call(); OS_filestream_error(stream);
       }
       end_system_call();
@@ -7781,14 +7780,14 @@ local void finish_output_buffered (object stream) {
       skipSTACK(1);
       stream = popSTACK(); # restore stream
       # enter new Handle:
-      TheStream(stream)->strm_buffered_channel = handlobj;
+      BufferedStream_channel(stream) = handlobj;
     #endif
     #ifdef AMIGAOS
      #if 0 # Some Devices don't tolerate, if opened Files are
            # closed and reopened. E.g. this has a special meaning
            # for Pipes.
       begin_system_call();
-      var Handle handle = TheHandle(TheStream(stream)->strm_buffered_channel);
+      var Handle handle = TheHandle(BufferedStream_channel(stream));
       if (!IsInteractive(handle)) {
         # close File (OS writes physically):
         Close(handle);
@@ -7807,7 +7806,7 @@ local void finish_output_buffered (object stream) {
         skipSTACK(1);
         stream = popSTACK(); # restore stream
         # enter new Handle:
-        TheHandle(TheStream(stream)->strm_buffered_channel) = handle;
+        TheHandle(BufferedStream_channel(stream)) = handle;
       } else {
         end_system_call();
       }
@@ -7842,8 +7841,8 @@ local void finish_output_buffered (object stream) {
 # > stream : (open) File-Stream.
 # changed in stream: all Components except name and truename
 local void closed_buffered (object stream) {
-  TheStream(stream)->strm_buffered_channel = NIL; # Handle becomes invalid
-  TheStream(stream)->strm_buffered_buffer = NIL; # free Buffer
+  BufferedStream_channel(stream) = NIL; # Handle becomes invalid
+  BufferedStream_buffer(stream) = NIL; # free Buffer
   BufferedStream_buffstart(stream) = 0; # delete buffstart (unnecessary)
   BufferedStream_eofindex(stream) = eofindex_all_invalid; # delete eofindex (unnecessary)
   BufferedStream_index(stream) = 0; # delete index (unnecessary)
@@ -7865,7 +7864,7 @@ local void closed_buffered (object stream) {
 # changed in stream: all Components except name and truename
 local void close_buffered (object stream) {
   # Handle=NIL (Stream already closed) -> finished:
-  if (nullp(TheStream(stream)->strm_buffered_channel))
+  if (nullp(BufferedStream_channel(stream)))
     return;
   # Flush pending Output in the iconv-Descriptor:
   oconv_unshift_output_buffered(stream);
@@ -7873,7 +7872,7 @@ local void close_buffered (object stream) {
   buffered_flush_everything(stream);
   # Now the modified_flag is deleted.
   # close File:
-  ChannelStreamLow_close(stream)(stream,TheStream(stream)->strm_buffered_channel);
+  ChannelStreamLow_close(stream)(stream,BufferedStream_channel(stream));
   ChannelStream_fini(stream);
   # make Components invalid (close_dummys comes later):
   closed_buffered(stream);
@@ -13463,8 +13462,8 @@ local void low_flush_buffered_pipe (object stream, uintL bufflen) {
   begin_system_call();
   writing_to_subprocess = true;
   var sintL result = # flush Buffer
-    full_write(TheHandle(TheStream(stream)->strm_buffered_channel), # Handle
-               &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[0], # Bufferaddress
+    full_write(TheHandle(BufferedStream_channel(stream)),
+               BufferedStream_buffer_address(stream,0),
                bufflen);
   writing_to_subprocess = false;
   if (result == bufflen) { # everything was written correctly
@@ -14444,8 +14443,8 @@ LISPFUNN(write_n_bytes,4) {
 local uintL low_fill_buffered_socket (object stream) {
   var sintL result;
   SYSCALL(result,
-    sock_read(TheSocket(TheStream(stream)->strm_buffered_channel), # Handle
-              &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[0], # Bufferaddress
+    sock_read(TheSocket(BufferedStream_channel(stream)),
+              BufferedStream_buffer_address(stream,0),
               strm_buffered_bufflen));
   return result;
 }
@@ -14462,8 +14461,8 @@ local void low_flush_buffered_socket (object stream, uintL bufflen) {
   writing_to_subprocess = true;
  #endif
   var sintL result = # flush Buffer
-    sock_write(TheSocket(TheStream(stream)->strm_buffered_channel), # Handle
-               &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[0], # Bufferaddress
+    sock_write(TheSocket(BufferedStream_channel(stream)),
+               BufferedStream_buffer_address(stream,0),
                bufflen);
  #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
   writing_to_subprocess = false;
@@ -15541,7 +15540,8 @@ LISPFUNN(built_in_stream_set_element_type,2) {
                 if (ChannelStream_buffered(stream)) {
                   if ((BufferedStream_index(stream) > 0)
                       && (BufferedStream_position(stream) > 0)
-                      && (TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[BufferedStream_index(stream)-1] == b)) {
+                      && (*BufferedStream_buffer_address
+                          (stream,BufferedStream_index(stream)-1) == b)) {
                     # decrement index und position:
                     BufferedStream_index(stream) -= 1;
                     BufferedStream_position(stream) -= 1;
@@ -16002,7 +16002,7 @@ global void closed_all_files (void) {
   while (consp(streamlist)) {
     var object stream = Car(streamlist); # a Stream from the list
     if (TheStream(stream)->strmtype == strmtype_file) { # File-Stream ?
-      if (!nullp(TheStream(stream)->strm_buffered_channel)) # with Handle /= NIL ?
+      if (!nullp(BufferedStream_channel(stream))) # with Handle /= NIL ?
         # yes: Stream still open
         closed_buffered(stream);
     }
@@ -17002,7 +17002,7 @@ local object check_open_file_stream (object obj) {
     goto fehler_bad_obj;
   if ((TheStream(obj)->strmflags & strmflags_open_B) == 0) # Stream open ?
     goto fehler_bad_obj;
-  if (nullp(TheStream(obj)->strm_buffered_channel)) # and Handle /= NIL ?
+  if (nullp(BufferedStream_channel(obj))) # and Handle /= NIL ?
     goto fehler_bad_obj;
   return obj; # yes -> OK
  fehler_bad_obj:
