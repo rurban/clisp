@@ -92,6 +92,8 @@ User visible changes
 
 * Fixed a bug in FILE-POSITION after UNREAD-CHAR (or PEEK-CHAR).
 
+* Fixed a bug in bit operations on multi-dimensional arrays.
+
 * CLISP/MIT-CLX now compiles CLOCC CLUE/CLIO.
   See <http://clocc.sourceforge.net/clocc/src/gui/clue/> and
   <http://clisp.cons.org/impnotes.html#included-modules>.
