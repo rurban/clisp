@@ -1,5 +1,11 @@
 2001-11-28  Sam Steingold  <sds@gnu.org>
 
+	* configure, makemake.in, lndir: the idiom `cd $path; pwd` breaks
+	down when cd prints something -- redirect its output to /dev/null
+	From William Harold Newman <william.newman@airmail.net>
+
+2001-11-28  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (wild_char_p): new macro
 	(PARSE-NAMESTRING, MAKE-PATHNAME, wild_p): use it
 
