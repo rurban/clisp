@@ -69,9 +69,8 @@ or large in-memory data structures.
 <variablelist>
 
 	<!-- IS-CGI -->
-<varlistentry><term><literal role="sexp">(FASTCGI:IS-CGI)</literal></term>
-<listitem>
-<simpara>
+<varlistentry><term><code>(FASTCGI:IS-CGI)</code></term>
+<listitem><simpara>
 Returns &t; if the &clisp; program has been launched as a traditional
 CGI rather than in &fastcgi-link;.  In traditional CGI, program I/O is
 via operating system environment variables and standard file streams.
@@ -81,8 +80,8 @@ the &fastcgi-link; protocol.
 
 	<!-- ACCEPT -->
 <varlistentry><term>
-<literal role="sexp">(FASTCGI:ACCEPT)</literal> <replaceable>cgi-forms</replaceable>
-<literal role="sexp">(FASTCGI:FINISH)</literal>
+<code>(FASTCGI:ACCEPT)</code> <replaceable>cgi-forms</replaceable>
+<code>(FASTCGI:FINISH)</code>
 </term>
 <listitem>
 <simpara>
@@ -106,10 +105,9 @@ A typical &fastcgi-link; top-level server loop looks like:
 </para></listitem></varlistentry>
 
 	<!-- GETENV -->
-<varlistentry><term><literal role="sexp">(FASTCGI:GETENV
-<replaceable>varname</replaceable>)</literal></term>
-<listitem>
-<simpara>
+<varlistentry><term><code>(FASTCGI:GETENV
+<replaceable>varname</replaceable>)</code></term>
+<listitem><simpara>
 Use in place of &getenv; to get the value of the environment variable
 named <replaceable>varname</replaceable>, which should be a string.
 Unlike &getenv;, which accesses the actual host operating system environment,
@@ -124,10 +122,9 @@ list of useful variables.  You must first have called
 <function>FINISH</function>.  </simpara></listitem></varlistentry>
 
 	<!-- WRITE-STDOUT -->
-<varlistentry><term><literal role="sexp">(FASTCGI:WRITE-STDOUT
-&string-r;)</literal></term>
-<listitem>
-<simpara>
+<varlistentry><term><code>(FASTCGI:WRITE-STDOUT
+&string-r;)</code></term>
+<listitem><simpara>
 Use in place of standard Lisp calls which print to standard output
 (i.e., as part of the &http; response).
 You must first have called <function>ACCEPT</function> and not yet have
@@ -135,10 +132,9 @@ called <function>FINISH</function>.
 </simpara></listitem></varlistentry>
 
 	<!-- WRITE-STDERR -->
-<varlistentry><term><literal role="sexp">(FASTCGI:WRITE-STDERR
-&string-r;)</literal></term>
-<listitem>
-<simpara>
+<varlistentry><term><code>(FASTCGI:WRITE-STDERR
+&string-r;)</code></term>
+<listitem><simpara>
 Use in place of standard Lisp calls which print to
 standard error. Rather than being part of
 the &http; response, data written to standard error are usually
@@ -147,9 +143,8 @@ for diagnostic purposes.
 </simpara></listitem></varlistentry>
 
 	<!-- SLURP-STDIN -->
-<varlistentry><term><literal role="sexp">(FASTCGI:SLURP-STDIN)</literal></term>
-<listitem>
-<simpara>
+<varlistentry><term><code>(FASTCGI:SLURP-STDIN)</code></term>
+<listitem><simpara>
 Reads in the entirety of standard input and returns it as a string.
 This is usually done for &http; requests with
 <literal>METHOD="post"</literal>, when the data are passed to the CGI
@@ -159,10 +154,9 @@ in pieces, which could be a problem, say, for &http; uploads of very large files
 </simpara></listitem></varlistentry>
 
 	<!-- OUT -->
-<varlistentry><term><literal role="sexp">(FASTCGI:OUT
-<replaceable>tree</replaceable>)</literal></term>
-<listitem>
-<simpara>
+<varlistentry><term><code>(FASTCGI:OUT
+<replaceable>tree</replaceable>)</code></term>
+<listitem><simpara>
 Like <function>WRITE-STDOUT</function>, except that
 <replaceable>tree</replaceable>
 may be an arbitrarily nested list structure containing (at the leaves)

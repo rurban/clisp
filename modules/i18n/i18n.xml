@@ -15,15 +15,15 @@ maintainer.</para>
 package.</para>
 
 <variablelist>
- <varlistentry id="gettext"><term><literal role="sexp">(&gettext;
-    &msgid; &optional-amp; &domain; &category;)</literal></term>
+ <varlistentry id="gettext"><term><code>(&gettext;
+    &msgid; &optional-amp; &domain; &category;)</code></term>
   <listitem><simpara>returns the translation of the message &msgid;,
     in the given &domain;, depending on the given &category;.
     &msgid; should be an &ascii; string, and is normally the English message.
  </simpara></listitem></varlistentry>
- <varlistentry id="ngettext"><term><literal role="sexp">(&ngettext;
+ <varlistentry id="ngettext"><term><code>(&ngettext;
     &msgid; <replaceable>msgid_plural</replaceable>
-    &n-r; &optional-amp; &domain; &category;)</literal></term>
+    &n-r; &optional-amp; &domain; &category;)</code></term>
   <listitem><simpara>returns the plural form of the translation for of
     &msgid; and &n-r; in the given &domain;, depending on the given
     &category;.  &msgid; and <replaceable>msgid_plural</replaceable>
@@ -42,24 +42,23 @@ The notion of &domain; allows several Lisp programs running in the same
 image to request translations independently of each other.</para>
 
 <formalpara id="textdomain"><title>Function &textdomain;</title>
-<para><literal role="sexp">(&textdomain;)</literal> is a
-&place; that returns the default &domain;, used when no &domain;
-argument is passed to the &gettext; and &ngettext; functions.
-It is &setf;able.
-<literal role="sexp">(&setf; &textdomain;)</literal> is usually used
+<para><code>(&textdomain;)</code> is a &place; that returns the default
+ &domain;, used when no &domain; argument is passed to the &gettext; and
+ &ngettext; functions.  It is &setf;able.
+<code>(&setf; &textdomain;)</code> is usually used
 during the startup phase of a program.
 Note that the default &domain; is not saved in a &mem-image;.
-The use of <literal role="sexp">(&setf; &textdomain;)</literal> is
+The use of <code>(&setf; &textdomain;)</code> is
 recommended only for programs that are so simple that they will never
 need more than one &domain;.</para></formalpara>
 
 <formalpara id="textdomaindir"><title>Function &textdomaindir;</title>
-<para><literal role="sexp">(&textdomaindir; &domain;)</literal>
+<para><code>(&textdomaindir; &domain;)</code>
 is a &place; that returns the base directory, called
 <filename>TEXTDOMAINDIR</filename> above, where the message
 catalogs for the given &domain; are assumed to be installed.
 It is &setf;able.
-<literal role="sexp">(&setf; &textdomaindir;)</literal> is usually used
+<code>(&setf; &textdomaindir;)</code> is usually used
 during the startup phase of a program, and should be used because only
 the program knows where its message catalogs are installed.
 Note that the <filename>TEXTDOMAINDIR</filename>s
@@ -212,21 +211,20 @@ she will get the output
 <section id="i18n-locale"><title>Locale</title>
 
 <variablelist>
-<varlistentry id="set-locale"><term><literal role="sexp">(&set-locale;
-   &optional-amp; &category; &locale;)</literal></term>
+<varlistentry id="set-locale"><term><code>(&set-locale;
+   &optional-amp; &category; &locale;)</code></term>
  <listitem><simpara>This is an interface to &setlocale;.</simpara>
   <simpara>When &locale; is missing or &nil;, return the current one.</simpara>
   <simpara>When &category; is missing or &nil;, return all categories
    as a &list-t;.</simpara></listitem></varlistentry>
 
-<varlistentry id="locale-conv"><term><literal
-   role="sexp">(&locale-conv;)</literal></term>
+<varlistentry id="locale-conv"><term><code>(&locale-conv;)</code></term>
  <listitem><simpara>This is an interface to &localeconv;.</simpara>
   <simpara>Returns a <type>I18N:LOCALE-CONV</type>
    structure.</simpara></listitem></varlistentry>
 
-<varlistentry id="lang-info"><term><literal role="sexp">(&lang-info;
-   &optional-amp; &item-r;)</literal></term>
+<varlistentry id="lang-info"><term><code>(&lang-info;
+   &optional-amp; &item-r;)</code></term>
  <listitem><simpara>This is an interface to &nl_langinfo; (&unix;)
    and <function>GetLocaleInfo</function> (&win32;).</simpara>
   <simpara>When &item-r; is missing or &nil;,

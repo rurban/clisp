@@ -11,9 +11,9 @@ such as your local &regex-h; manual and &emacs; info pages.</para>
  symbol <constant>:REGEXP</constant>.</simpara>
 
 <variablelist id="re-api"><title>API</title>
-<varlistentry id="re-match"><term><literal
-    role="sexp">(&re-match; &pattern-r; &string-r; &key-amp;
-   (&start-k; 0) &end-k; &re-cflags-opts; &re-eflags-opts;)</literal></term>
+<varlistentry id="re-match"><term><code>(&re-match; &pattern-r;
+   &string-r; &key-amp; (&start-k; 0) &end-k; &re-cflags-opts;
+   &re-eflags-opts;)</code></term>
  <listitem><para>This macro returns as first value a &match-t; structure
   containing the indices of the start and end of the first match for the
   &reg-exp; &pattern-r; in &string-r;; or &nil; if there is no match.
@@ -21,8 +21,8 @@ such as your local &regex-h; manual and &emacs; info pages.</para>
   <literal>"\(...\)"</literal> group in &pattern-r;, in the
   order that the open parentheses appear in &pattern-r;.
   If &start-r; is non-&nil;, the search starts at that index in &string-r;.
-  If &end-r; is non-&nil;, only <literal role="sexp">(&subseq;
-  &string-r; &start-r; &end-r;)</literal> is considered.
+  If &end-r; is non-&nil;, only <code>(&subseq; &string-r; &start-r;
+  &end-r;)</code> is considered.
   <example id="ex-re-match"><title>&re-match;</title>
    <programlisting>
     (&re-match; "quick" "The quick brown fox jumped quickly.")
@@ -39,24 +39,22 @@ such as your local &regex-h; manual and &emacs; info pages.</para>
 </para></listitem></varlistentry>
 
 <varlistentry id="re-match-access">
- <term><literal role="sexp">(&re-match-start; &match-r;)</literal></term>
- <term><literal role="sexp">(&re-match-end; &match-r;)</literal></term>
+ <term><code>(&re-match-start; &match-r;)</code></term>
+ <term><code>(&re-match-end; &match-r;)</code></term>
  <listitem><simpara>Return the start and end the &match-r;; &setf;-able.
 </simpara></listitem></varlistentry>
 
-<varlistentry id="re-match-string"><term><literal
-    role="sexp">(&re-match-string; &string-r; &match-r;)</literal></term>
+<varlistentry id="re-match-string">
+ <term><code>(&re-match-string; &string-r; &match-r;)</code></term>
  <listitem><simpara>Extracts the substring of &string-r; corresponding
   to the given pair of start and end indices of &match-r;.
   The result is shared with &string-r;.
   If you want a freshly consed &string-t;, use &copy-seq; or
-  <literal role="sexp">(&coerce; (&re-match-string; ...)
-  '&simple-string-t;)</literal>.
+  <code>(&coerce; (&re-match-string; ...) '&simple-string-t;)</code>.
 </simpara></listitem></varlistentry>
 
-<varlistentry id="re-regexp-quote"><term><literal
-    role="sexp">(&re-regexp-quote; &string-r; &optional-amp;
-   <replaceable>extended</replaceable>)</literal></term>
+<varlistentry id="re-regexp-quote"><term><code>(&re-regexp-quote;
+   &string-r; &optional-amp; <replaceable>extended</replaceable>)</code></term>
  <listitem><para>This function returns a &reg-exp; &string-t;
   that matches exactly &string-r; and nothing else.
   This allows you to request an exact string match when calling a
@@ -72,38 +70,36 @@ such as your local &regex-h; manual and &emacs; info pages.</para>
   quote <keysym>#\+</keysym> and <keysym>#\?</keysym>.
 </para></listitem></varlistentry>
 
-<varlistentry id="re-regexp-compile"><term><literal
-    role="sexp">(&re-regexp-compile; &string-r; &key-amp;
-   &re-cflags-opts;)</literal></term>
+<varlistentry id="re-regexp-compile"><term><code>(&re-regexp-compile;
+   &string-r; &key-amp; &re-cflags-opts;)</code></term>
  <listitem><simpara>Compile the &reg-exp; &string-r; into an
   object suitable for &re-regexp-exec;.</simpara></listitem></varlistentry>
 
-<varlistentry id="re-regexp-exec"><term><literal
-    role="sexp">(&re-regexp-exec; &pattern-r; &string-r; &key-amp;
-     (&start-k; 0) &end-k; &re-eflags-opts;)</literal></term>
+<varlistentry id="re-regexp-exec"><term><code>(&re-regexp-exec;
+     &pattern-r; &string-r; &key-amp; (&start-k; 0) &end-k;
+     &re-eflags-opts;)</code></term>
  <listitem><simpara>Execute the &pattern-r;, which must be a compiled
    &reg-exp; returned by &re-regexp-compile;, against the
    appropriate portion of the &string-r;.</simpara>
-  <simpara>Negative &end-r; means <literal role="sexp">(&plus; (&length;
-    &string-r;) &end-r;)</literal></simpara>
+  <simpara>Negative &end-r; means <code>(&plus; (&length;
+    &string-r;) &end-r;)</code></simpara>
   <simpara>Returns &match-t; structures as multiple values (one for each
    subexpression which successfully matched and one for the whole pattern),
    unless <literal>:BOOLEAN</literal> was non-&nil;, in which case
    return &t; as an indicator of success, but do not allocate anything.
 </simpara></listitem></varlistentry>
 
-<varlistentry id="re-regexp-split"><term><literal
-    role="sexp">(&re-regexp-split;  &pattern-r; &string-r; &key-amp;
-     (&start-k; 0) &end-k; &re-cflags-opts; &re-eflags-opts;)</literal></term>
+<varlistentry id="re-regexp-split"><term><code>(&re-regexp-split;
+     &pattern-r; &string-r; &key-amp; (&start-k; 0) &end-k;
+     &re-cflags-opts; &re-eflags-opts;)</code></term>
  <listitem><simpara>Return a list of substrings of &string-r; (all
   sharing the structure with &string-r;) separated by &pattern-r; (a
   &reg-exp; &string-t; or a return value of &re-regexp-compile;)
  </simpara></listitem></varlistentry>
 
-<varlistentry id="re-with-loop-split"><term><literal
-    role="sexp">(&re-with-loop-split; (&var-r; &stream-r; &pattern-r;
-     &key-amp; (&start-k; 0) &end-k; &re-cflags-opts; &re-eflags-opts;)
-     &body-amp; &body-r;)</literal></term>
+<varlistentry id="re-with-loop-split"><term><code>(&re-with-loop-split;
+     (&var-r; &stream-r; &pattern-r; &key-amp; (&start-k; 0) &end-k;
+     &re-cflags-opts; &re-eflags-opts;) &body-amp; &body-r;)</code></term>
  <listitem><simpara>Read lines from &stream-r;, split them with
   &re-regexp-split; on &pattern-r;, and bind the resulting list to
   &var-r;.</simpara></listitem></varlistentry>

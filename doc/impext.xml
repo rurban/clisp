@@ -18,8 +18,8 @@
 <listitem><simpara><link linkend="modinit">Initialize
    modules</link>.</simpara></listitem>
 <listitem id="init-hooks"><simpara>Run all functions in &init-hooks;
-  like this: <literal role="sexp">(&mapc; #'&funcall;
-   &init-hooks;)</literal>.</simpara></listitem>
+  like this: <code>(&mapc; #'&funcall; &init-hooks;)</code>.
+</simpara></listitem>
 <listitem><simpara>Say <quote>hi</quote> unless suppressed by &opt-v;.
 </simpara></listitem></orderedlist></listitem>
 <listitem><para>Handle command line options: file
@@ -31,8 +31,8 @@
 <listitem><orderedlist numeration="arabic" inheritnum="inherit">
   <title>Finalization</title>
 <listitem id="fini-hooks"><simpara>Run all functions in &fini-hooks;
-  like this: <literal role="sexp">(&mapc; #'&funcall;
-   &fini-hooks;)</literal>.</simpara></listitem>
+  like this: <code>(&mapc; #'&funcall; &fini-hooks;)</code>.
+</simpara></listitem>
 <listitem><simpara>Call &fresh-line; on the standard
   streams.</simpara></listitem>
 <listitem><simpara>Say <quote>bye</quote> unless suppressed by &opt-v;.
@@ -49,10 +49,9 @@
 
 <section id="image"><title>Saving an Image</title>
 
-<para>The function
-  <literal role="sexp">(<function>EXT:SAVEINITMEM</function>
-    &optional-amp; (&filename-r; "lispinit.mem")
-    &key-amp; :QUIET :INIT-FUNCTION :LOCKED-PACKAGES :START-PACKAGE)</literal>
+<para>The function <code>(<function>EXT:SAVEINITMEM</function>
+  &optional-amp; (&filename-r; "lispinit.mem") &key-amp;
+  :QUIET :INIT-FUNCTION :LOCKED-PACKAGES :START-PACKAGE)</code>
 saves the running &clisp;'s memory to the file &filename-r;;
 extension &mem-file; is recommended (when &filename-r; does not have an
 extension, &mem-file; extension is automatically added).
@@ -90,12 +89,12 @@ space.</para>
 
 <section id="quit"><title>Quitting &clisp;</title>
 
-<para>The functions <literal role="sexp">(<function>EXT:EXIT</function>
- [<replaceable>errorp</replaceable>])</literal>, <literal
- role="sexp">(<function>EXT:QUIT</function>
- [<replaceable>errorp</replaceable>])</literal> and <literal
- role="sexp">(<function>EXT:BYE</function>
- [<replaceable>errorp</replaceable>])</literal> - all synonymous -
+<para>The functions <code>(<function>EXT:EXIT</function>
+ [<replaceable>errorp</replaceable>])</code>,
+ <code>(<function>EXT:QUIT</function>
+  [<replaceable>errorp</replaceable>])</code> and
+ <code>(<function>EXT:BYE</function>
+  [<replaceable>errorp</replaceable>])</code> - all synonymous -
  terminate &clisp;.  If <replaceable>errorp</replaceable> is non-&nil;,
  &clisp; aborts with the supplied numeric error status, i.e.,
  the OS environment is informed that the &clisp; session did not
@@ -152,7 +151,7 @@ English, German, French, Spanish, Dutch and Russian.
  <firstterm>&deflang;<indexterm id="deflang" significance="preferred">
    <primary id="deflang-i"><function>DEFLANGUAGE</function>
  </primary></indexterm></firstterm>:
- <literal role="sexp">(&deflang; &lang-r;)</literal>.
+ <code>(&deflang; &lang-r;)</code>.
  For such an additional language to take effect, you must install the
  corresponding message catalog, or translate the messages yourself,
  using &ggettext; and &emacs; (or &xemacs;) po-mode.</para>
@@ -162,22 +161,21 @@ English, German, French, Spanish, Dutch and Russian.
  <firstterm>&def-i-l;<indexterm id="def-i-l" significance="preferred">
    <primary id="def-i-l-i"><function>DEFINTERNATIONAL</function>
  </primary></indexterm></firstterm>:
- <literal role="sexp">(&def-i-l; &symbol-r; &optional-amp;
- (<replaceable>default-language</replaceable> &t;))</literal> and add
+ <code>(&def-i-l; &symbol-r; &optional-amp;
+ (<replaceable>default-language</replaceable> &t;))</code> and add
  language-dependent values through the macro
  <firstterm>&defloc;<indexterm id="defloc" significance="preferred">
    <primary id="defloc-i"><function>DEFLOCALIZED</function>
  </primary></indexterm></firstterm>:
- <literal role="sexp">(&defloc; &symbol-r; &lang-r;
-  <replaceable>value-form</replaceable>)</literal>
+ <code>(&defloc; &symbol-r; &lang-r;
+  <replaceable>value-form</replaceable>)</code>
  (One such form for each language.  Languages without an assigned
  value will be treated like the default-language.)
  You can then access the localized value by calling
  <firstterm>&localized;<indexterm id="localized" significance="preferred">
    <primary id="localized-i"><function>LOCALIZED</function>
  </primary></indexterm></firstterm>:
- <literal role="sexp">(&localized; &symbol-r; &optional-amp;
-  &lang-r;)</literal></para>
+ <code>(&localized; &symbol-r; &optional-amp; &lang-r;)</code></para>
 
 </section>
 
@@ -650,9 +648,8 @@ English, German, French, Spanish, Dutch and Russian.
 
 <section id="make-encoding"><title>Function &make-encoding;.</title>
 
-<para>The function
-  <literal role="sexp">(&make-encoding; &key-amp; :CHARSET
-     :LINE-TERMINATOR :INPUT-ERROR-ACTION :OUTPUT-ERROR-ACTION)</literal>
+<para>The function <code>(&make-encoding; &key-amp; :CHARSET
+     :LINE-TERMINATOR :INPUT-ERROR-ACTION :OUTPUT-ERROR-ACTION)</code>
  returns an &encoding;. The <constant>:CHARSET</constant> argument may be
  an encoding, a string, or &default-k;.
  The possible values for the &line-term; argument are the
@@ -678,13 +675,11 @@ English, German, French, Spanish, Dutch and Russian.
 <subtitle>Platform dependent: Only in &clisp; built
  &with; compile-time flag &unicode;.</subtitle>
 
-<para>The function <literal role="sexp">(&enc-charset;
- &encoding-r;)</literal> returns the charset of the &encoding-r;,
- as a &symbol-t; or a &string-t;.</para>
+<para>The function <code>(&enc-charset; &encoding-r;)</code> returns the
+ charset of the &encoding-r;, as a &symbol-t; or a &string-t;.</para>
 
-<warning><para><literal role="sexp">(&string; (&enc-charset;
-   &encoding-r;))</literal> is not necessarily a valid MIME name.
-</para></warning>
+<warning><para><code>(&string; (&enc-charset; &encoding-r;))</code> is
+  not necessarily a valid MIME name.</para></warning>
 
 </section>
 
@@ -754,18 +749,16 @@ their corresponding byte vector representation according to that encoding.
 
 <variablelist>
 
-<varlistentry><term><literal role="sexp"
-    >(<function>EXT:CONVERT-STRING-FROM-BYTES</function>
+<varlistentry><term><code>(<function>EXT:CONVERT-STRING-FROM-BYTES</function>
       <replaceable>byte-vector</replaceable> &encoding-r;
-      &key-amp; &start-k; &end-k;)</literal></term>
+      &key-amp; &start-k; &end-k;)</code></term>
  <listitem><simpara>converts the subsequence of
   <replaceable>byte-vector</replaceable> from &start-r; to &end-r; to a
   &string-t;, according to the given &encoding-r;, and returns the
   resulting string.</simpara></listitem></varlistentry>
 
-<varlistentry><term><literal role="sexp"
-    >(<function>EXT:CONVERT-STRING-TO-BYTES</function>
-      &string-r; &encoding-r; &key-amp; &start-k; &end-k;)</literal></term>
+<varlistentry><term><code>(<function>EXT:CONVERT-STRING-TO-BYTES</function>
+      &string-r; &encoding-r; &key-amp; &start-k; &end-k;)</code></term>
  <listitem><simpara>converts the subsequence of &string-r; from
   &start-r; to &end-r; to a &unsigned-byte-vec;,
   according to the given &encoding-r;, and returns the resulting byte
@@ -786,22 +779,19 @@ their corresponding byte vector representation according to that encoding.
  The programmer interface:</para>
 
 <variablelist>
- <varlistentry><term><literal
-    role="sexp">(<function>gstream:make-generic-stream</function>
-                 <replaceable>controller</replaceable>)</literal></term>
+ <varlistentry><term><code>(<function>gstream:make-generic-stream</function>
+                 <replaceable>controller</replaceable>)</code></term>
   <listitem><simpara>returns a generic stream.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>gstream:generic-stream-controller</function>
-                 &stream-r;)</literal></term>
+ <varlistentry><term><code>(<function>gstream:generic-stream-controller</function>
+                 &stream-r;)</code></term>
   <listitem><simpara>returns a private object to which generic stream
    methods dispatch.  The typical usage is to retrieve the object
    originally provided by the user in
    <function>gstream:make-generic-stream</function>.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>gstream:generic-stream-p</function>
-                 &stream-r;)</literal></term>
+ <varlistentry><term><code>(<function>gstream:generic-stream-p</function>
+                 &stream-r;)</code></term>
   <listitem><simpara>determines whether a stream is a generic stream,
    returning &t; if it is, &nil; otherwise.
   </simpara></listitem></varlistentry>
@@ -816,72 +806,60 @@ their corresponding byte vector representation according to that encoding.
  controller and some number of arguments.</para>
 
 <variablelist>
- <varlistentry><term><literal
-    role="sexp">(<function>gstream:generic-stream-read-char</function>
-                 <replaceable>controller</replaceable>)</literal></term>
+ <varlistentry><term><code>(<function>gstream:generic-stream-read-char</function>
+                 <replaceable>controller</replaceable>)</code></term>
   <listitem><simpara> Returns and consumes the next character, &nil; at
     end of file.  Takes one argument, the controller object.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>gstream:generic-stream-peek-char</function>
-                 <replaceable>controller</replaceable>)</literal></term>
+ <varlistentry><term><code>(<function>gstream:generic-stream-peek-char</function>
+                 <replaceable>controller</replaceable>)</code></term>
   <listitem><simpara> Returns the next character, &nil; at end of file.  A
    second value indicates whether the side effects associated with
    consuming the character were executed: &t; means that a full
    &read-char; was done, &nil; means that no side effects were done.
    Takes one argument, the controller object.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>gstream:generic-stream-read-byte</function>
-                 <replaceable>controller</replaceable>)</literal></term>
+ <varlistentry><term><code>(<function>gstream:generic-stream-read-byte</function>
+                 <replaceable>controller</replaceable>)</code></term>
   <listitem><simpara>Returns and consumes the next integer, &nil; at end
    of file.  Takes one argument, the controller object.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp"
-   >(<function>gstream:generic-stream-read-char-will-hang-p</function>
-     <replaceable>controller</replaceable>)</literal></term>
+ <varlistentry><term><code>(<function>gstream:generic-stream-read-char-will-hang-p</function>
+     <replaceable>controller</replaceable>)</code></term>
   <listitem><simpara>This generic function is used to query the stream's
    input status.  It returns &nil; if
    <function>gstream:generic-stream-read-char</function> and
    <function>gstream:generic-stream-peek-char</function> will certainly
    return immediately.  Otherwise it returns true.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>gstream:generic-stream-write-char</function>
-                 <replaceable>controller</replaceable> &ch-r;)</literal></term>
+ <varlistentry><term><code>(<function>gstream:generic-stream-write-char</function>
+                 <replaceable>controller</replaceable> &ch-r;)</code></term>
   <listitem><simpara>The first argument is the controller object.
    The second argument is the character to be written.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>gstream:generic-stream-write-byte</function>
+ <varlistentry><term><code>(<function>gstream:generic-stream-write-byte</function>
                  <replaceable>controller</replaceable>
-                 <replaceable>by</replaceable>)</literal></term>
+                 <replaceable>by</replaceable>)</code></term>
   <listitem><simpara>The first argument is the controller object.
    The second argument is the integer to be written.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>gstream:generic-stream-write-string</function>
+ <varlistentry><term><code>(<function>gstream:generic-stream-write-string</function>
                  <replaceable>controller</replaceable>
-                 &string-r; &start-r; &len-r;)</literal></term>
+                 &string-r; &start-r; &len-r;)</code></term>
   <listitem><simpara>Writes the subsequence of &string-r; starting from
    &start-r; of length &len-r;.
    The first argument is the controller object.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>gstream:generic-stream-clear-input</function>
-                 <replaceable>controller</replaceable>)</literal></term>
-  <term><literal role="sexp"
-   >(<function>gstream:generic-stream-clear-output</function>
-     <replaceable>controller</replaceable>)</literal></term>
-  <term><literal role="sexp"
-   >(<function>gstream:generic-stream-finish-output</function>
-     <replaceable>controller</replaceable>)</literal></term>
-  <term><literal role="sexp"
-   >(<function>gstream:generic-stream-force-output</function>
-     <replaceable>controller</replaceable>)</literal></term>
-  <term><literal role="sexp"
-   >(<function>gstream:generic-stream-close</function>
-     <replaceable>controller</replaceable>)</literal></term>
+ <varlistentry><term><code>(<function>gstream:generic-stream-clear-input</function>
+                 <replaceable>controller</replaceable>)</code></term>
+  <term><code>(<function>gstream:generic-stream-clear-output</function>
+     <replaceable>controller</replaceable>)</code></term>
+  <term><code>(<function>gstream:generic-stream-finish-output</function>
+     <replaceable>controller</replaceable>)</code></term>
+  <term><code>(<function>gstream:generic-stream-force-output</function>
+     <replaceable>controller</replaceable>)</code></term>
+  <term><code>(<function>gstream:generic-stream-close</function>
+     <replaceable>controller</replaceable>)</code></term>
   <listitem><simpara>Take one argument, the controller object.
  </simpara></listitem></varlistentry>
 </variablelist>
@@ -906,18 +884,17 @@ their corresponding byte vector representation according to that encoding.
 
 <variablelist><title>Weak Pointer API</title>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:MAKE-WEAK-POINTER</function>
-   &value-r;)</literal></term>
+ <term><code>(<function>EXT:MAKE-WEAK-POINTER</function>
+   &value-r;)</code></term>
  <listitem><simpara>returns a &fresh; &weak-pointer; referring to
    &value-r;.</simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:WEAK-POINTER-P</function>
-   &object-r;)</literal></term>
+ <term><code>(<function>EXT:WEAK-POINTER-P</function> &object-r;)</code></term>
  <listitem><simpara>returns true if the &object-r; is of type
    &weak-pointer;.</simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:WEAK-POINTER-VALUE</function>
-   <replaceable>weak-pointer</replaceable>)</literal></term>
+ <term><code>(<function>EXT:WEAK-POINTER-VALUE</function>
+   <replaceable>weak-pointer</replaceable>)</code></term>
  <listitem><simpara>returns two values: The original value and &t;,
    if the value has not yet been &gc;ed, else &nil; and &nil;.
    It is &setf;-able: you can change the value that the weak pointer
@@ -941,24 +918,22 @@ their corresponding byte vector representation according to that encoding.
 
 <variablelist><title>Weak List API</title>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:MAKE-WEAK-LIST</function>
-   &list-r;)</literal></term>
+ <term><code>(<function>EXT:MAKE-WEAK-LIST</function> &list-r;)</code></term>
  <listitem><simpara>creates a &weak-list; pointing to each of the
    elements in the given &list-r;.</simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:WEAK-LIST-P</function>
-   &object-r;)</literal></term>
+ <term><code>(<function>EXT:WEAK-LIST-P</function> &object-r;)</code></term>
  <listitem><simpara>returns true if the &object-r; is of type
    &weak-list;.</simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:WEAK-LIST-LIST</function>
-   <replaceable>weak-list</replaceable>)</literal></term>
+ <term><code>(<function>EXT:WEAK-LIST-LIST</function>
+   <replaceable>weak-list</replaceable>)</code></term>
  <listitem><simpara>returns a &list-t; of those objects from the
    <replaceable>weak-list</replaceable> that are still
    alive.</simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(&setf; (<function>EXT:WEAK-LIST-LIST</function>
-   <replaceable>weak-list</replaceable>) &list-r;)</literal></term>
+ <term><code>(&setf; (<function>EXT:WEAK-LIST-LIST</function>
+   <replaceable>weak-list</replaceable>) &list-r;)</code></term>
  <listitem><simpara>replaces the list of objects stored by the
    <replaceable>weak-list</replaceable>.</simpara></listitem></varlistentry>
 </variablelist>
@@ -983,18 +958,18 @@ their corresponding byte vector representation according to that encoding.
 
 <variablelist><title>Weak <quote>And</quote> Relation API</title>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:MAKE-WEAK-AND-RELATION</function>
-   &list-r;)</literal></term>
+ <term><code>(<function>EXT:MAKE-WEAK-AND-RELATION</function>
+   &list-r;)</code></term>
  <listitem><simpara>creates a &weak-and-relation; between the objects in
    the given &list-r;.</simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:WEAK-AND-RELATION-P</function>
-   &object-r;)</literal></term>
+ <term><code>(<function>EXT:WEAK-AND-RELATION-P</function>
+   &object-r;)</code></term>
  <listitem><simpara>returns true if the &object-r; is of type
    &weak-and-relation;.</simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:WEAK-AND-RELATION-LIST</function>
-   <replaceable>weak-and-relation</replaceable>)</literal></term>
+ <term><code>(<function>EXT:WEAK-AND-RELATION-LIST</function>
+   <replaceable>weak-and-relation</replaceable>)</code></term>
  <listitem><simpara>returns the list of objects stored in the
    <replaceable>weak-and-relation</replaceable>. The returned list must not
    be destructively modified.</simpara></listitem></varlistentry>
@@ -1018,18 +993,18 @@ their corresponding byte vector representation according to that encoding.
 
 <variablelist><title>Weak <quote>Or</quote> Relation API</title>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:MAKE-WEAK-OR-RELATION</function>
-   &list-r;)</literal></term>
+ <term><code>(<function>EXT:MAKE-WEAK-OR-RELATION</function>
+   &list-r;)</code></term>
  <listitem><simpara>creates a &weak-or-relation; between the objects in
    the given &list-r;.</simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:WEAK-OR-RELATION-P</function>
-   &object-r;)</literal></term>
+ <term><code>(<function>EXT:WEAK-OR-RELATION-P</function>
+   &object-r;)</code></term>
  <listitem><simpara>returns true if the &object-r; is of type
    &weak-or-relation;.</simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:WEAK-OR-RELATION-LIST</function>
-   <replaceable>weak-or-relation</replaceable>)</literal></term>
+ <term><code>(<function>EXT:WEAK-OR-RELATION-LIST</function>
+   <replaceable>weak-or-relation</replaceable>)</code></term>
  <listitem><simpara>returns the list of objects stored in the
    <replaceable>weak-or-relation</replaceable>. The returned list must not
    be destructively modified.</simpara></listitem></varlistentry>
@@ -1052,29 +1027,29 @@ their corresponding byte vector representation according to that encoding.
 
 <variablelist><title>Weak Association API</title>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:MAKE-WEAK-MAPPING</function>
-   &key-r; &value-r;)</literal></term>
+ <term><code>(<function>EXT:MAKE-WEAK-MAPPING</function>
+   &key-r; &value-r;)</code></term>
  <listitem><simpara>creates a &weak-mapping;.
 </simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:WEAK-MAPPING-P</function>
-   &object-r;)</literal></term>
+ <term><code>(<function>EXT:WEAK-MAPPING-P</function>
+   &object-r;)</code></term>
  <listitem><simpara>returns true if the object is of type
    &weak-mapping;.</simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:WEAK-MAPPING-PAIR</function>
-   <replaceable>weak-mapping</replaceable>)</literal></term>
+ <term><code>(<function>EXT:WEAK-MAPPING-PAIR</function>
+   <replaceable>weak-mapping</replaceable>)</code></term>
  <listitem><simpara>returns three values: the original key, the original
    value, and &t;, if the key has not yet been &gc;ed, else &nil;, &nil;,
    &nil;.</simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:WEAK-MAPPING-VALUE</function>
-   <replaceable>weak-mapping</replaceable>)</literal></term>
+ <term><code>(<function>EXT:WEAK-MAPPING-VALUE</function>
+   <replaceable>weak-mapping</replaceable>)</code></term>
  <listitem><simpara>returns the value, if the key has not yet been &gc;ed,
    else &nil;.</simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(&setf; (<function>EXT:WEAK-MAPPING-VALUE</function>
-   <replaceable>weak-mapping</replaceable>) &value-r;)</literal></term>
+ <term><code>(&setf; (<function>EXT:WEAK-MAPPING-VALUE</function>
+   <replaceable>weak-mapping</replaceable>) &value-r;)</code></term>
  <listitem><simpara>replaces the value stored in the
    <replaceable>weak-mapping</replaceable>. It has no effect when the
    key has already been &gc;ed.</simpara></listitem></varlistentry>
@@ -1095,31 +1070,31 @@ their corresponding byte vector representation according to that encoding.
 
 <variablelist><title>Weak <quote>And</quote> Mapping API</title>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:MAKE-WEAK-AND-MAPPING</function>
-   &keys-r; &value-r;)</literal></term>
+ <term><code>(<function>EXT:MAKE-WEAK-AND-MAPPING</function>
+   &keys-r; &value-r;)</code></term>
  <listitem><simpara>creates a &weak-and-mapping; between the &keys-r;
    objects in the given list and the given &value-r;.
    The &keys-r; list must be non-empty.</simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:WEAK-AND-MAPPING-P</function>
-   &object-r;)</literal></term>
+ <term><code>(<function>EXT:WEAK-AND-MAPPING-P</function>
+   &object-r;)</code></term>
  <listitem><simpara>returns true if the &object-r; is of type
    &weak-and-mapping;.</simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:WEAK-AND-MAPPING-PAIR</function>
-   <replaceable>weak-and-mapping</replaceable>)</literal></term>
+ <term><code>(<function>EXT:WEAK-AND-MAPPING-PAIR</function>
+   <replaceable>weak-and-mapping</replaceable>)</code></term>
  <listitem><simpara>returns three values: the list of keys, the value,
    and &t;, if none of the keys have been &gc;ed, else &nil;, &nil;, &nil;.
    The returned keys list must not be destructively modified.
 </simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:WEAK-AND-MAPPING-VALUE</function>
-   <replaceable>weak-and-mapping</replaceable>)</literal></term>
+ <term><code>(<function>EXT:WEAK-AND-MAPPING-VALUE</function>
+   <replaceable>weak-and-mapping</replaceable>)</code></term>
  <listitem><simpara>returns the value, if none of the keys have been
    &gc;ed, else &nil;.</simpara></listitem></varlistentry>
-<varlistentry> <term><literal role="sexp">(&setf;
+<varlistentry> <term><code>(&setf;
    (<function>EXT:WEAK-AND-MAPPING-VALUE</function>
-   <replaceable>weak-and-mapping</replaceable>) &value-r;)</literal></term>
+   <replaceable>weak-and-mapping</replaceable>) &value-r;)</code></term>
  <listitem><simpara>replaces the value stored in the
    <replaceable>weak-and-mapping</replaceable>. It has no effect when
    some key has already been &gc;ed.</simpara></listitem></varlistentry>
@@ -1144,33 +1119,32 @@ their corresponding byte vector representation according to that encoding.
 
 <variablelist><title>Weak <quote>Or</quote> Mapping API</title>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:MAKE-WEAK-OR-MAPPING</function>
-   &keys-r; &value-r;)</literal></term>
+ <term><code>(<function>EXT:MAKE-WEAK-OR-MAPPING</function>
+   &keys-r; &value-r;)</code></term>
  <listitem><simpara> creates a &weak-or-mapping; between the
    &keys-r; objects in the given list and the given
    &value-r;. The &keys-r; list must be
    non-empty.</simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:WEAK-OR-MAPPING-P</function>
-   &object-r;)</literal></term>
+ <term><code>(<function>EXT:WEAK-OR-MAPPING-P</function>
+   &object-r;)</code></term>
  <listitem><simpara>returns true if the &object-r; is of type
    &weak-or-mapping;.</simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:WEAK-OR-MAPPING-PAIR</function>
-   <replaceable>weak-or-mapping</replaceable>)</literal></term>
+ <term><code>(<function>EXT:WEAK-OR-MAPPING-PAIR</function>
+   <replaceable>weak-or-mapping</replaceable>)</code></term>
  <listitem><simpara>returns three values: the list of keys, the value,
    and &t;, if the keys have not yet been &gc;ed, else &nil;, &nil;, &nil;.
    The returned keys list must not be destructively modified.
 </simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:WEAK-OR-MAPPING-VALUE</function>
-   <replaceable>weak-or-mapping</replaceable>)</literal></term>
+ <term><code>(<function>EXT:WEAK-OR-MAPPING-VALUE</function>
+   <replaceable>weak-or-mapping</replaceable>)</code></term>
  <listitem><simpara>returns the value, if the keys have not yet been &gc;ed,
    else &nil;.</simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(&setf;
-   (<function>EXT:WEAK-OR-MAPPING-VALUE</function>
-   <replaceable>weak-or-mapping</replaceable>) &value-r;)</literal></term>
+ <term><code>(&setf; (<function>EXT:WEAK-OR-MAPPING-VALUE</function>
+   <replaceable>weak-or-mapping</replaceable>) &value-r;)</code></term>
  <listitem><simpara>replaces the value stored in the
    <replaceable>weak-or-mapping</replaceable>. It has no effect when the
    keys have already been &gc;ed.</simpara></listitem></varlistentry>
@@ -1228,70 +1202,63 @@ In other words, each pair is:
 
 <variablelist><title>Weak Association List API</title>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:MAKE-WEAK-ALIST</function>
-   :type :initial-contents)</literal></term>
+ <term><code>(<function>EXT:MAKE-WEAK-ALIST</function>
+   :type :initial-contents)</code></term>
  <listitem><simpara>creates a &weak-alist;. The &type-r; argument
    must be one of the four aforementioned types; the default is &key-k;.
    The <replaceable>initial-contents</replaceable> argument must be an
    &alist;.</simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:WEAK-ALIST-P</function>
-   &object-r;)</literal></term>
+ <term><code>(<function>EXT:WEAK-ALIST-P</function> &object-r;)</code></term>
  <listitem><simpara>returns true if the &object-r; is of type
    &weak-alist;.</simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:WEAK-ALIST-TYPE</function>
-   <replaceable>weak-alist</replaceable>)</literal></term>
+ <term><code>(<function>EXT:WEAK-ALIST-TYPE</function>
+   <replaceable>weak-alist</replaceable>)</code></term>
  <listitem><simpara>returns the type of the
    <replaceable>weak-alist</replaceable>.</simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:WEAK-ALIST-CONTENTS</function>
-   <replaceable>weak-alist</replaceable>)</literal></term>
+ <term><code>(<function>EXT:WEAK-ALIST-CONTENTS</function>
+   <replaceable>weak-alist</replaceable>)</code></term>
  <listitem><simpara>returns an &alist; that corresponds to the current
    contents of the <replaceable>weak-alist</replaceable>.
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&setf;
-   (<function>EXT:WEAK-ALIST-CONTENTS</function>
+<varlistentry><term><code>(&setf; (<function>EXT:WEAK-ALIST-CONTENTS</function>
    <replaceable>weak-alist</replaceable>)
-   <replaceable>contents</replaceable>)</literal></term>
+   <replaceable>contents</replaceable>)</code></term>
  <listitem><simpara>replaces the contents of a
    <replaceable>weak-alist</replaceable>. The
    <replaceable>contents</replaceable> argument must be an
    &alist;.</simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:WEAK-ALIST-ASSOC</function>
-   &item-r;
+ <term><code>(<function>EXT:WEAK-ALIST-ASSOC</function> &item-r;
    <replaceable>weak-alist</replaceable>
-   [:test] [:test-not] [:key])</literal></term>
+   [:test] [:test-not] [:key])</code></term>
  <listitem><simpara>is equivalent to
-   <literal role="sexp">(&assoc; &item-r;
-    (<function>EXT:WEAK-ALIST-CONTENTS</function>
+   <code>(&assoc; &item-r; (<function>EXT:WEAK-ALIST-CONTENTS</function>
     <replaceable>weak-alist</replaceable>)
-    [:test] [:test-not] [:key])</literal>.
+    [:test] [:test-not] [:key])</code>.
 </simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:WEAK-ALIST-RASSOC</function>
-   &item-r; <replaceable>weak-alist</replaceable>
-   [:test] [:test-not] [:key])</literal></term>
+ <term><code>(<function>EXT:WEAK-ALIST-RASSOC</function> &item-r;
+   <replaceable>weak-alist</replaceable>
+   [:test] [:test-not] [:key])</code></term>
  <listitem><simpara>is equivalent to
-   <literal role="sexp">(&rassoc; &item-r;
-    (<function>EXT:WEAK-ALIST-CONTENTS</function>
+   <code>(&rassoc; &item-r; (<function>EXT:WEAK-ALIST-CONTENTS</function>
     <replaceable>weak-alist</replaceable>)
-    [:test] [:test-not] [:key])</literal>.
+    [:test] [:test-not] [:key])</code>.
 </simpara></listitem></varlistentry>
 <varlistentry>
- <term><literal role="sexp">(<function>EXT:WEAK-ALIST-VALUE</function>
-   &item-r; <replaceable>weak-alist</replaceable>
-   [:test] [:test-not])</literal></term>
+ <term><code>(<function>EXT:WEAK-ALIST-VALUE</function> &item-r;
+   <replaceable>weak-alist</replaceable> [:test] [:test-not])</code></term>
  <listitem><simpara>is equivalent to
-   <literal role="sexp">(&cdr; (<function>EXT:WEAK-LIST-ASSOC</function>
+   <code>(&cdr; (<function>EXT:WEAK-LIST-ASSOC</function>
     &item-r; <replaceable>weak-alist</replaceable>
-    [:test] [:test-not])</literal>.
+    [:test] [:test-not]))</code>.
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&setf;
-   (<function>EXT:WEAK-ALIST-VALUE</function> &item-r;
-   <replaceable>weak-alist</replaceable> [:test] [:test-not])
-   &value-r;)</literal></term>
+<varlistentry><term><code>(&setf; (<function>EXT:WEAK-ALIST-VALUE</function>
+   &item-r; <replaceable>weak-alist</replaceable> [:test] [:test-not])
+   &value-r;)</code></term>
  <listitem><simpara>replaces the value stored for &item-r; in
    a <replaceable>weak-alist</replaceable>.  When a pair with the given
    &item-r; as key does not exist or has already been &gc;ed, a new pair
@@ -1361,21 +1328,16 @@ In other words, each pair is:
 
 <section id="final"><title>Finalization</title>
 
-<para>Calling
- <literal role="sexp">(&finalize; &object-r; &func-r;)</literal>
+<para>Calling <code>(&finalize; &object-r; &func-r;)</code>
  has the effect that when the specified object is being &gc;ed,
- <literal role="sexp">(&funcall; &func-r; &object-r;)</literal>
- will be executed.</para>
+ <code>(&funcall; &func-r; &object-r;)</code> will be executed.</para>
 
-<para>Calling
- <literal role="sexp">(&finalize; &object-r; &func-r;
-                       <replaceable>guardian</replaceable>)</literal>
+<para>Calling <code>(&finalize; &object-r; &func-r;
+  <replaceable>guardian</replaceable>)</code>
  has a similar effect, but only as long as the
  <replaceable>guardian</replaceable> has not been &gc;ed:
- when &object-r; is being &gc;ed,
- <literal role="sexp">(&funcall; &func-r; &object-r;
-                       <replaceable>guardian</replaceable>)</literal>
- will be executed.
+ when &object-r; is being &gc;ed, <code>(&funcall; &func-r;
+ &object-r; <replaceable>guardian</replaceable>)</code> will be executed.
  If the <replaceable>guardian</replaceable> is &gc;ed before &object-r;
  is, nothing happens.</para>
 
@@ -1516,7 +1478,7 @@ In other words, each pair is:
  <filename>init.lisp</filename> during &make;:</para>
 
 <formalpara id="ethe"><title>Macro &ethe;</title>
-<para><literal role="sexp">(&ethe; &val-type-r; &form-r;)</literal>
+<para><code>(&ethe; &val-type-r; &form-r;)</code>
  enforces a type check in both interpreted and compiled code.
  </para></formalpara>
 
@@ -1618,7 +1580,7 @@ here <function>WITH-FOO</function> does not receive the
 
 <para>The user-customizable variables are located in the package
  &custom-pac; and thus can be listed using
- <literal role="sexp">(&apropos; "" "CUSTOM")</literal>:
+ <code>(&apropos; "" "CUSTOM")</code>:
  <simplelist type="horiz" columns="2">
   <member>&ansi;</member>
   <member><varname>CUSTOM:*APPLYHOOK*</varname></member>
@@ -1716,8 +1678,7 @@ here <function>WITH-FOO</function> does not receive the
                    (symbol-macrolet ((z 3))
                      (baz z)))))
 </programlisting>
-returns two values:
-<literal role="sexp">(locally (print 3))</literal> (the expansion) and
+returns two values: <code>(locally (print 3))</code> (the expansion) and
 &t; (an indicator that some expansion has actually been done).</para>
 
 <para>This is sometimes called a <quote>code walker</quote>,
@@ -1735,15 +1696,14 @@ returns two values:
 <subtitle>Platform dependent: &unix;, &win32; platforms only.</subtitle>
 
 <variablelist>
- <varlistentry><term><literal
-    role="sexp">(<function>SCREEN:MAKE-WINDOW</function>)</literal></term>
+ <varlistentry><term><code>(<function>SCREEN:MAKE-WINDOW</function>)</code></term>
   <listitem><simpara>returns a <type>WINDOW-STREAM</type>.
     As long as this stream is open, the terminal is in cbreak/noecho mode.
     &terminal-io-var; should not be used for input or output during this
     time.  (Use &with-kbd; and &kbd-in; instead.)
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp"
-    >(<function>SCREEN:WITH-WINDOW</function> . &body-r;)</literal></term>
+ <varlistentry><term><code>(<function>SCREEN:WITH-WINDOW</function> .
+    &body-r;)</code></term>
   <listitem><simpara>binds
     <firstterm>&scr-win;<indexterm id="scr-win" significance="preferred">
       <primary id="scr-win-i"><varname>*WINDOW*</varname>
@@ -1752,58 +1712,57 @@ returns two values:
     The stream is guaranteed to be closed when the body is left.
     During its execution, &terminal-io-var; should not be used, as above.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp"
-    >(<function>SCREEN:WINDOW-SIZE</function> &ws-r;)</literal></term>
+ <varlistentry><term><code>(<function>SCREEN:WINDOW-SIZE</function>
+    &ws-r;)</code></term>
   <listitem><simpara>returns the window's size, as two values:
    height (= y&sub-max;+1) and width (= x&sub-max;+1).
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp"
- >(<function>SCREEN:WINDOW-CURSOR-POSITION</function> &ws-r;)</literal></term>
+ <varlistentry><term><code>(<function>SCREEN:WINDOW-CURSOR-POSITION</function>
+    &ws-r;)</code></term>
   <listitem><simpara>returns the position of the cursor in the window,
    as two values: line (&ge;0, &le;y&sub-max;, 0 means top), column
    (&ge;0, &le;x&sub-max;, 0 means left margin).
  </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp"
-    >(<function>SCREEN:SET-WINDOW-CURSOR-POSITION</function>
-      &ws-r; <replaceable>line</replaceable>
-      <replaceable>column</replaceable>)</literal></term>
+ <varlistentry><term><code>(<function>SCREEN:SET-WINDOW-CURSOR-POSITION</function>
+    &ws-r; <replaceable>line</replaceable>
+      <replaceable>column</replaceable>)</code></term>
   <listitem><simpara>sets the position of the cursor in the window.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp"
-    >(<function>SCREEN:CLEAR-WINDOW</function> &ws-r;)</literal></term>
+ <varlistentry><term><code>(<function>SCREEN:CLEAR-WINDOW</function>
+    &ws-r;)</code></term>
   <listitem><simpara>clears the window's contents and puts the cursor
     in the upper left corner.</simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp"
-    >(<function>SCREEN:CLEAR-WINDOW-TO-EOT</function> &ws-r;)</literal></term>
+ <varlistentry><term><code>(<function>SCREEN:CLEAR-WINDOW-TO-EOT</function>
+    &ws-r;)</code></term>
   <listitem><simpara>clears the window's contents from the cursor
     position to the end of window.</simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp"
-    >(<function>SCREEN:CLEAR-WINDOW-TO-EOL</function> &ws-r;)</literal></term>
+ <varlistentry><term><code>(<function>SCREEN:CLEAR-WINDOW-TO-EOL</function>
+    &ws-r;)</code></term>
   <listitem><simpara>clears the window's contents from the cursor
     position to the end of line.</simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp"
-     >(<function>SCREEN:DELETE-WINDOW-LINE</function> &ws-r;)</literal></term>
+ <varlistentry><term><code>(<function>SCREEN:DELETE-WINDOW-LINE</function>
+    &ws-r;)</code></term>
   <listitem><simpara>removes the cursor's line, moves the lines below
     it up by one line and clears the window's last line.
  </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp"
-    >(<function>SCREEN:INSERT-WINDOW-LINE</function> &ws-r;)</literal></term>
+ <varlistentry><term><code>(<function>SCREEN:INSERT-WINDOW-LINE</function>
+    &ws-r;)</code></term>
   <listitem><simpara>inserts a line at the cursor's line, moving the
     lines below it down by one line.</simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp"
-    >(<function>SCREEN:HIGHLIGHT-ON</function> &ws-r;)</literal></term>
+ <varlistentry><term><code>(<function>SCREEN:HIGHLIGHT-ON</function>
+    &ws-r;)</code></term>
   <listitem><simpara>switches highlighted output on.
  </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp"
-    >(<function>SCREEN:HIGHLIGHT-OFF</function> &ws-r;)</literal></term>
+ <varlistentry><term><code>(<function>SCREEN:HIGHLIGHT-OFF</function>
+    &ws-r;)</code></term>
   <listitem><simpara>switches highlighted output off.
  </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp"
-    >(<function>SCREEN:WINDOW-CURSOR-ON</function> &ws-r;)</literal></term>
+ <varlistentry><term><code>(<function>SCREEN:WINDOW-CURSOR-ON</function>
+    &ws-r;)</code></term>
   <listitem><simpara>makes the cursor visible, a cursor block in most
     implementations.</simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp"
-    >(<function>SCREEN:WINDOW-CURSOR-OFF</function> &ws-r;)</literal></term>
+ <varlistentry><term><code>(<function>SCREEN:WINDOW-CURSOR-OFF</function>
+    &ws-r;)</code></term>
   <listitem><simpara>makes the cursor invisible, in implementations
     where this is possible.</simpara></listitem></varlistentry>
 </variablelist>
@@ -2031,8 +1990,8 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 
 <section id="modinfo"><title>Function &modinfo;</title>
 
-<para>Function <literal role="sexp">(&modinfo; &optional-amp; &name-r;
-  <replaceable>verbose</replaceable>)</literal> allows one to inquire
+<para>Function <code>(&modinfo; &optional-amp; &name-r;
+  <replaceable>verbose</replaceable>)</code> allows one to inquire
  about what modules are available in the currently running image.
  When called without arguments, it returns the list of module names,
  starting with <quote>clisp</quote>.  When &name-r; is supplied and
@@ -2058,11 +2017,10 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 (&dlopen; is required), and that <option>--with-dynamic-modules</option>
 precludes some efficiency optimizations which are on by default.</para></note>
 
-<para>Function <literal role="sexp">(&mod-dynload; &filename-r;
- ({&name-r;}+))</literal> loads a shared object file or library
- containing a number of named external &clisp; modules.
- This facility cannot be used to &dlopen; and access arbitrary shared
- libraries.</para>
+<para>Function <code>(&mod-dynload; &filename-r; ({&name-r;}+))</code>
+ loads a shared object file or library containing a number of named
+ external &clisp; modules.  This facility cannot be used to &dlopen; and
+ access arbitrary shared libraries.</para>
 
 <para>External modules for &clisp; are those which contain a
  <literal>module__&name-r;__subr_tab</literal>, among others.
@@ -2130,10 +2088,10 @@ DEFUN(MY-PACKAGE:MY-FUNCTION-NAME, arg1 arg2 &key-amp; FOO BAR) {
   pushSTACK(``MY-PACKAGE::MY-FUNCTION-NAME``); /* double `` means FUNCTION */
   VALUES1(listof(7)); /* cons up a new list and clean up the STACK */
 }</programlisting>
-Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
- T)</literal> will return <literal role="data">(A 12 T 0
- MY-PACKAGE::SOME-SYMBOL #(:THIS :IS :A :VECTOR)
- #&lt;ADD-ON-SYSTEM-FUNCTION MY-PACKAGE:MY-FUNCTION-NAME&gt;)</literal>
+Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
+ return <literal role="data">(A 12 T 0 MY-PACKAGE::SOME-SYMBOL #(:THIS
+  :IS :A :VECTOR) #&lt;ADD-ON-SYSTEM-FUNCTION
+  MY-PACKAGE:MY-FUNCTION-NAME&gt;)</literal>
 (assuming you &export;ed <literal>MY-FUNCTION-NAME</literal> from
  <quote role="package">MY-PACKAGE</quote>).</para>
 
@@ -2311,7 +2269,7 @@ only.</subtitle>
 
 <para>All symbols relating to the foreign function interface are
  exported from the package &ffi-pac;.  To use them,
- <literal role="sexp">(&use-package; &ffi-pac;)</literal>.</para>
+ <code>(&use-package; &ffi-pac;)</code>.</para>
 
 <para>Special &ffi-pac; forms may appear anywhere in the Lisp file.</para>
 
@@ -2324,29 +2282,29 @@ only.</subtitle>
 <variablelist><title>special &ffi-pac; forms; &name-r; is any Lisp
    &symbol-t;; &cname-r; is a &string-t;.</title>
 <varlistentry id="def-c-type">
- <term><literal role="sexp">(&def-c-type; &name-r; &ctype-r;)</literal></term>
+ <term><code>(&def-c-type; &name-r; &ctype-r;)</code></term>
  <listitem><simpara>This form makes &name-r; a shortcut for &ctype-r;.
    Note that &ctype-r; may already refer to name.
    Forward declarations of types are not possible, however.
 </simpara></listitem></varlistentry>
 
-<varlistentry id="def-c-var"><term><literal role="sexp">(&def-c-var; &name-r;
-   {&option-r;}*)</literal></term>
+<varlistentry id="def-c-var"><term><code>(&def-c-var; &name-r;
+   {&option-r;}*)</code></term>
 <listitem><simpara>This form defines a &foreign-variable-t;.
   &name-r; is the Lisp name, a regular Lisp &symbol-t;.</simpara>
  <variablelist id="def-c-var-opts"><title>Options for &def-c-var;</title>
-<varlistentry><term><literal role="sexp">(&name-k; &cname-r;)</literal></term>
+<varlistentry><term><code>(&name-k; &cname-r;)</code></term>
  <listitem><simpara>specifies the name as seen from &c-lang;, as a
    string.  If not specified, it is derived from the print name of
    the Lisp name.</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&type-k; &ctype-r;)</literal></term>
+<varlistentry><term><code>(&type-k; &ctype-r;)</code></term>
  <listitem><simpara>specifies the variable's foreign type.
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&ro-k; &boolean-t;)</literal></term>
+<varlistentry><term><code>(&ro-k; &boolean-t;)</code></term>
  <listitem><simpara>If this option is specified and non-&nil;,
    it will be impossible to change the variable's value from within
    Lisp (using &setq; or similar).</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(:ALLOC &allocation;)</literal></term>
+<varlistentry><term><code>(:ALLOC &allocation;)</code></term>
  <listitem><simpara>This option can be either &none-k; or
    &malloc-free-k; and defaults to &none-k;.  If it is
    &malloc-free-k;, any values of type &c-string;, &c-ptr;,
@@ -2359,7 +2317,7 @@ only.</subtitle>
    This is dangerous (just think of overwriting a string with a
    longer one or storing some data in a &c-NULL; pointer...)  and
    deprecated.</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&library-k; &name-r;)</literal></term>
+<varlistentry><term><code>(&library-k; &name-r;)</code></term>
  <listitem><simpara>Specifies the (optional) dynamic library
    which contains the variable.</simpara>
   <simpara>&name-r; should <emphasis>evaluate</emphasis> to a &string-t;
@@ -2367,32 +2325,30 @@ only.</subtitle>
    or <constant>:NEXT</constant>.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
 
-<varlistentry id="def-call-out"><term><literal role="sexp">(&def-call-out;
-              &name-r; {&option-r;}*)</literal></term>
+<varlistentry id="def-call-out"><term><code>(&def-call-out;
+              &name-r; {&option-r;}*)</code></term>
 <listitem><simpara>This form defines a named call-out function (a
  foreign function called from Lisp: control flow temporarily leaves Lisp).
  </simpara><variablelist id="def-call-out-opts">
   <title>Options for &def-call-out;</title>
-<varlistentry><term><literal role="sexp">(&name-k; &cname-r;)</literal></term>
+<varlistentry><term><code>(&name-k; &cname-r;)</code></term>
 <listitem><simpara>Any Lisp function call to <function>#'&name-r;</function>
   is redirected to call the &c-lang; function &cname-r;.
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&arguments-k;
-   {(&arg-r; &ctype-r; [&param-mode; [&allocation;]])}*)</literal></term>
- <term><literal role="sexp">(&ret-type-k; &ctype-r;
-   [&allocation;])</literal></term>
+<varlistentry><term><code>(&arguments-k;
+   {(&arg-r; &ctype-r; [&param-mode; [&allocation;]])}*)</code></term>
+ <term><code>(&ret-type-k; &ctype-r; [&allocation;])</code></term>
  <listitem><simpara>Argument list and return value, see
    <xref linkend="allocation"/> and <xref linkend="param-mode"/>.
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&lang-k; &lang-r;)</literal></term>
+<varlistentry><term><code>(&lang-k; &lang-r;)</code></term>
  <listitem><simpara>See <xref linkend="c-flavor"/>.
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(:BUILT-IN
-   &boolean-t;)</literal></term>
+<varlistentry><term><code>(:BUILT-IN &boolean-t;)</code></term>
  <listitem><simpara>When the function is a &c-lang; built-in, the full
    prototype will be output (unless suppressed by &ffi-out-fun;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&library-k; &name-r;)</literal></term>
+<varlistentry><term><code>(&library-k; &name-r;)</code></term>
  <listitem><simpara>Specifies the (optional) dynamic library
    which contains the function.</simpara>
   <simpara>&name-r; should <emphasis>evaluate</emphasis> to a &string-t;,
@@ -2400,46 +2356,45 @@ only.</subtitle>
    or <constant>:NEXT</constant>.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
 
-<varlistentry id="def-call-in"><term><literal role="sexp">(&def-call-in;
-              &name-r; {&option-r;}*)</literal></term>
+<varlistentry id="def-call-in"><term><code>(&def-call-in;
+              &name-r; {&option-r;}*)</code></term>
 <listitem><simpara>This form defines a named call-in function (i.e., a Lisp
  function called from the foreign language: control flow temporary
  enters Lisp)</simpara><variablelist id="def-call-in-opts">
   <title>Options for &def-call-in;</title>
-<varlistentry><term><literal role="sexp">(&name-k; &cname-r;)</literal></term>
+<varlistentry><term><code>(&name-k; &cname-r;)</code></term>
  <listitem><simpara>Any &c-lang; function call to the &c-lang; function
    &cname-r; is redirected to call the &cl; function
    <function>#'&name-r;</function>.</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&arguments-k;
-   {(&arg-r; &ctype-r; [&param-mode; [&allocation;]])}*)</literal></term>
- <term><literal role="sexp">(&ret-type-k; &ctype-r;
-   [&allocation;])</literal></term>
+<varlistentry><term><code>(&arguments-k;
+   {(&arg-r; &ctype-r; [&param-mode; [&allocation;]])}*)</code></term>
+ <term><code>(&ret-type-k; &ctype-r; [&allocation;])</code></term>
  <listitem><simpara>Argument list and return value, see
    <xref linkend="allocation"/> and <xref linkend="param-mode"/>.
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(&lang-k; &lang-r;)</literal></term>
+<varlistentry><term><code>(&lang-k; &lang-r;)</code></term>
  <listitem><simpara>See <xref linkend="c-flavor"/>.
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
 
-<varlistentry id="def-c-call-out"><term><literal role="sexp">(&def-c-call-out;
-        &name-r; {&option-r;}*)</literal></term>
+<varlistentry id="def-c-call-out"><term><code>(&def-c-call-out;
+        &name-r; {&option-r;}*)</code></term>
 <listitem><simpara>This is equivalent to &def-call-out; with
    &lang-k; &stdc-k;.  <emphasis>deprecated</emphasis>.
    </simpara></listitem></varlistentry>
 
-<varlistentry id="def-c-call-in"><term><literal role="sexp">(&def-c-call-in;
-        &name-r; {&option-r;}*)</literal></term>
+<varlistentry id="def-c-call-in"><term><code>(&def-c-call-in;
+        &name-r; {&option-r;}*)</code></term>
 <listitem><simpara>This is equivalent to &def-call-in; with
    &lang-k; &stdc-k;.  <emphasis>deprecated</emphasis>.
    </simpara></listitem></varlistentry>
 
-<varlistentry id="def-c-struct"><term><literal role="sexp">(&def-c-struct;
-   &name-r; (&symbol-r; &ctype-r;)*)</literal></term>
+<varlistentry id="def-c-struct"><term><code>(&def-c-struct;
+   &name-r; (&symbol-r; &ctype-r;)*)</code></term>
  <listitem><para>This form defines &name-r; to be both a
   &structure-class; and a foreign &c-lang; type with the given slots.
   If this class representation overhead is not needed one should consider
-  writing <literal role="sexp">(&def-c-type; &name-r; (&c-struct;
-  {&list-t; | &vector-t;} (&symbol-r; &ctype-r;)*))</literal> instead.
+  writing <code>(&def-c-type; &name-r; (&c-struct;
+  {&list-t; | &vector-t;} (&symbol-r; &ctype-r;)*))</code> instead.
   &name-r; is a &symbol-t; (structure name) or a &list-t; whose &first;
   element is the structure name and the &rest; is options.
   Two options are supported at this time:
@@ -2454,54 +2409,52 @@ only.</subtitle>
     <term><constant>:EXTERNAL</constant></term>
     <listitem><simpara>means that this structure is defined in a
       &c-file; file that you include with, e.g.,
-      <literal role="sexp">(&c-lines; "#include &lt;filename.h&gt;")</literal>.
+      <code>(&c-lines; "#include &lt;filename.h&gt;")</code>.
   </simpara></listitem></varlistentry></variablelist>
   These options determine how the struct is written to the &c-file;.
 </para></listitem></varlistentry>
 
-<varlistentry id="def-c-enum"><term><literal role="sexp">(&def-c-enum;
-   &name-r; {&symbol-r; | (&symbol-r; [&value-r;])}*)</literal></term>
+<varlistentry id="def-c-enum"><term><code>(&def-c-enum;
+   &name-r; {&symbol-r; | (&symbol-r; [&value-r;])}*)</code></term>
  <listitem><simpara>This form defines &symbol-r;s
   as constants, similarly to the &c-lang; declaration <type>enum {
   &symbol-r; [= &value-r;], ... };</type></simpara>
-<simpara>You can use
- <literal role="sexp">(<function>FFI:ENUM-FROM-VALUE</function> &name-r;
-  &value-r;)</literal> and
- <literal role="sexp">(<function>FFI:ENUM-TO-VALUE</function> &name-r;
-  &symbol-r;)</literal> to convert between the numeric and symbolic
+<simpara>You can use <code>(<function>FFI:ENUM-FROM-VALUE</function>
+  &name-r; &value-r;)</code> and
+ <code>(<function>FFI:ENUM-TO-VALUE</function> &name-r;
+  &symbol-r;)</code> to convert between the numeric and symbolic
  representations (of course, the latter function boils down to
  &symbol-value; plus a check that the &symbol-r; is indeed a constant
  defined in the &def-c-enum; &name-r;).</simpara></listitem></varlistentry>
 
-<varlistentry id="c-lines"><term><literal role="sexp">(&c-lines;
-  &fmt-r; {&arg-r;}*)</literal></term>
+<varlistentry id="c-lines"><term><code>(&c-lines; &fmt-r;
+   {&arg-r;}*)</code></term>
  <listitem><simpara>This form outputs the string
-   <literal role="sexp">(&format; &nil; &fmt-r; {&arg-r;}*)</literal>
+   <code>(&format; &nil; &fmt-r; {&arg-r;}*)</code>
    to the &c-lang; output file.
    This is usually used to include the relevant header files,
    see <xref linkend="def-c-struct-external"/>
    and <xref linkend="ffi-extern-output"/>.
  </simpara></listitem></varlistentry>
 
-<varlistentry id="c-init"><term><literal role="sexp">(&c-init-once;
-   &fmt-r; {&arg-r;}*)</literal></term>
- <term><literal role="sexp">(&c-init-always; &fmt-r;
-   {&arg-r;}*)</literal></term>
+<varlistentry id="c-init"><term><code>(&c-init-once;
+   &fmt-r; {&arg-r;}*)</code></term>
+ <term><code>(&c-init-always; &fmt-r; {&arg-r;}*)</code></term>
  <listitem><simpara>These forms add &c-lang; code
-   <literal role="sexp">(&format; &nil; &fmt-r; {&arg-r;}*)</literal>
+   <code>(&format; &nil; &fmt-r; {&arg-r;}*)</code>
    to the appropriate <link linkend="modinit">initialization function</link>.
 </simpara></listitem></varlistentry>
 
-<varlistentry id="c-fini"><term><literal role="sexp">(&c-fini;
-   &fmt-r; {&arg-r;}*)</literal></term>
+<varlistentry id="c-fini"><term><code>(&c-fini;
+   &fmt-r; {&arg-r;}*)</code></term>
  <listitem><simpara>This form adds &c-lang; code
-   <literal role="sexp">(&format; &nil; &fmt-r; {&arg-r;}*)</literal>
+   <code>(&format; &nil; &fmt-r; {&arg-r;}*)</code>
    to the <link linkend="modfini">finalization function</link>.
 </simpara></listitem></varlistentry>
 
-<varlistentry id="element"><term><literal role="sexp">(&element;
+<varlistentry id="element"><term><code>(&element;
      &cplace-r; <replaceable>index&sub-1;</replaceable> ...
-     <replaceable>index&sub-n;</replaceable>)</literal></term>
+     <replaceable>index&sub-n;</replaceable>)</code></term>
 <listitem><simpara>Array element: If &cplace-r; is of foreign type
   <literal role="type">(&c-array; &ctype-r;
   (<replaceable>dim&sub-1;</replaceable>
@@ -2510,22 +2463,21 @@ only.</subtitle>
   &lt; <replaceable>dim&sub-1;</replaceable>, ..., 0
   &le; <replaceable>index&sub-n;</replaceable> &lt;
   <replaceable>dim&sub-n;</replaceable>, this will be
-  the &place; corresponding to <literal role="sexp">(&aref;
+  the &place; corresponding to <code>(&aref;
   &cplace-r; <replaceable>index&sub-1;</replaceable>
-  ... <replaceable>index&sub-n;</replaceable>)</literal> or
+  ... <replaceable>index&sub-n;</replaceable>)</code> or
   <varname>&cplace-r;[<replaceable>index&sub-1;</replaceable>]...[<replaceable>index&sub-n;</replaceable>]</varname>.
   It is a &place; of type &ctype-r;.
   If &cplace-r; is of foreign type <literal role="type">(&c-array-max;
   &ctype-r; <replaceable>dim</replaceable>)</literal> and 0 &le;
   <replaceable>index</replaceable> &lt; <replaceable>dim</replaceable>,
-  this will be the &place; corresponding to <literal role="sexp">(&aref;
-  &cplace-r; <replaceable>index</replaceable>)</literal> or
+  this will be the &place; corresponding to <code>(&aref;
+  &cplace-r; <replaceable>index</replaceable>)</code> or
   <varname>&cplace-r;[<replaceable>index</replaceable>]</varname>.
   It is a &place; of type &ctype-r;.
 </simpara></listitem></varlistentry>
 
-<varlistentry id="deref"><term><literal role="sexp">(&deref;
-                &cplace-r;)</literal></term>
+<varlistentry id="deref"><term><code>(&deref; &cplace-r;)</code></term>
 <listitem><simpara>Dereference pointer: If
   &cplace-r; is of foreign type
   <literal role="type">(&c-ptr; &ctype-r;)</literal>,
@@ -2537,8 +2489,8 @@ only.</subtitle>
   the &cplace-r; may not be &c-NULL;.
 </simpara></listitem></varlistentry>
 
-<varlistentry id="slot"><term><literal role="sexp">(&slot;
-       &cplace-r; <replaceable>slot-name</replaceable>)</literal></term>
+<varlistentry id="slot"><term><code>(&slot; &cplace-r;
+   <replaceable>slot-name</replaceable>)</code></term>
 <listitem><simpara>Struct or union component: If &cplace-r; is of
   foreign type <literal role="type">(&c-struct; &class-r;
   ... (<replaceable>slot-name</replaceable> &ctype-r;) ...)</literal> or
@@ -2547,53 +2499,51 @@ only.</subtitle>
   this will be of type &ctype-r;.
   </simpara></listitem></varlistentry>
 
-<varlistentry id="cast"><term><literal role="sexp">(&cast;
-           &cplace-r; &ctype-r;)</literal></term>
+<varlistentry id="cast"><term><code>(&cast;
+           &cplace-r; &ctype-r;)</code></term>
 <listitem><simpara>Type change: A &place; denoting the same memory
   locations as the original &cplace-r;, but of type &ctype-r;.
  </simpara></listitem></varlistentry>
 
-<varlistentry id="offset"><term><literal role="sexp">(&offset;
-           &cplace-r; &offset-r; &ctype-r;)</literal></term>
+<varlistentry id="offset"><term><code>(&offset;
+           &cplace-r; &offset-r; &ctype-r;)</code></term>
 <listitem><simpara>Type change and displacement: return a &place; denoting
   a memory locations displaced from the original &cplace-r; by an
   &offset-r; counted in bytes, with type &ctype-r;.
   This can be used to resize an array, e.g. of &ctype-r;
   <literal role="type">(&c-array; <type>uint16</type> &n-r;)</literal>
-  via <literal role="sexp">(&offset; &cplace-r; 0
-  '(&c-array; <type>uint16</type> &k-r;))</literal>.
+  via <code>(&offset; &cplace-r; 0 '(&c-array; <type>uint16</type>
+   &k-r;))</code>.
  </simpara></listitem></varlistentry>
 
-<varlistentry id="c-var-addr"><term><literal role="sexp">(&c-var-addr;
-           &cplace-r;)</literal></term>
+<varlistentry id="c-var-addr"><term><code>(&c-var-addr;
+           &cplace-r;)</code></term>
 <listitem><simpara>Return the address of &cplace-r; as a Lisp object of
   type &foreign-address-t;.  This is useful as an argument
   to foreign functions expecting a parameter of &c-lang; type &c-pointer;.
  </simpara></listitem></varlistentry>
 
-<varlistentry id="c-var-object"><term><literal role="sexp">(&c-var-object;
-   &cplace-r;)</literal></term>
+<varlistentry id="c-var-object"><term><code>(&c-var-object;
+   &cplace-r;)</code></term>
  <listitem><simpara>Return the &foreign-variable-t; object underlying the
    &cplace-r;.  This is also an acceptable argument type to a &c-pointer;
    declaration.</simpara></listitem></varlistentry>
 
-<varlistentry id="typeof"><term><literal role="sexp">(&typeof;
-    &cplace-r;)</literal></term>
+<varlistentry id="typeof"><term><code>(&typeof;
+    &cplace-r;)</code></term>
  <listitem><simpara>returns the &ctype-r; corresponding to the &cplace-r;.
 </simpara></listitem></varlistentry>
 
-<varlistentry id="sizeof">
- <term><literal role="sexp">(&sizeof; &ctype-r;)</literal></term>
- <term><literal role="sexp">(&sizeof; &cplace-r;)</literal></term>
+<varlistentry id="sizeof"><term><code>(&sizeof; &ctype-r;)</code></term>
+ <term><code>(&sizeof; &cplace-r;)</code></term>
  <listitem><simpara>The first form returns the size and alignment of the
    &c-lang; type &ctype-r;, measured in bytes.</simpara>
   <simpara>The second form returns the size and alignment of the
    &c-lang; type of &cplace-r;, measured in bytes.
 </simpara></listitem></varlistentry>
 
-<varlistentry id="bitsizeof">
- <term><literal role="sexp">(&bitsizeof; &ctype-r;)</literal></term>
- <term><literal role="sexp">(&bitsizeof; &cplace-r;)</literal></term>
+<varlistentry id="bitsizeof"><term><code>(&bitsizeof; &ctype-r;)</code></term>
+ <term><code>(&bitsizeof; &cplace-r;)</code></term>
  <listitem><simpara>The first form returns the size and alignment of the
    &c-lang; type &ctype-r;, measured in bits.</simpara>
   <simpara>The second form returns the size and alignment of the
@@ -2601,17 +2551,15 @@ only.</subtitle>
 </simpara></listitem></varlistentry>
 
 <varlistentry id="fa-null">
- <term><literal role="sexp">(&foreign-address-null; &f-ent;)</literal></term>
+ <term><code>(&foreign-address-null; &f-ent;)</code></term>
 <listitem><simpara>This predicate returns &t; if the
   &f-ent; refers to the &c-NULL; address (and thus &f-ent; should
   probably not be passed to most foreign functions).
 </simpara></listitem></varlistentry>
 
 <varlistentry id="faddr-u">
- <term><literal role="sexp">(&foreign-address-unsigned;
-   &f-ent;)</literal></term>
- <term><literal role="sexp">(&unsigned-foreign-address;
-   &number-r;)</literal></term>
+ <term><code>(&foreign-address-unsigned; &f-ent;)</code></term>
+ <term><code>(&unsigned-foreign-address; &number-r;)</code></term>
  <listitem><simpara>&foreign-address-unsigned; returns the &integer-t;
    address embodied in the Lisp object of type &foreign-address-t;,
    &foreign-pointer-t;, &foreign-variable-t; or &foreign-function-t;.</simpara>
@@ -2620,13 +2568,12 @@ only.</subtitle>
 </simpara></listitem></varlistentry>
 
 <varlistentry id="faddr">
- <term><literal role="sexp">(&foreign-address; &f-ent;)</literal></term>
+ <term><code>(&foreign-address; &f-ent;)</code></term>
  <listitem><simpara>&foreign-address; is both a type name and a
    selector/constructor function. It is the Lisp object type
    corresponding to a &c-pointer; external type declaration, e.g. a
-   call-out function with <literal role="sexp">(&ret-type-k;
-    &c-pointer;)</literal> yields a Lisp object of type
-   &foreign-address-t;.</simpara>
+   call-out function with <code>(&ret-type-k; &c-pointer;)</code> yields
+   a Lisp object of type &foreign-address-t;.</simpara>
   <simpara>The function extracts the object of type &foreign-address-t;
    living within any &foreign-variable-t; or &foreign-function-t; object.
    If the &f-ent; already is a &foreign-address-t;, it returns it.
@@ -2637,9 +2584,8 @@ only.</subtitle>
    &unsigned-foreign-address; must be used for that purpose.
 </simpara></listitem></varlistentry>
 
-<varlistentry id="dffi-make-var">
- <term><literal role="sexp">(&foreign-variable; &f-ent; &ctypei-r;
-   &key-amp; &name-r;)</literal></term>
+<varlistentry id="dffi-make-var"><term><code>(&foreign-variable; &f-ent;
+   &ctypei-r; &key-amp; &name-r;)</code></term>
  <listitem><simpara> This constructor creates a new &foreign-variable-t;
    from the given &foreign-address-t; or &foreign-variable-t; and the
    internal &c-lang; type descriptor (as obtained from &parse-c-type;).
@@ -2648,17 +2594,16 @@ only.</subtitle>
    of the &foreign-variable-t; object, as in <literal
     role="data">#&lt;&foreign-variable-t; "foo" #x0ADD4E55&gt;</literal>.
    In effect, this is similar to &cast; (or rather
-   <literal role="sexp">(&offset; ... 0 ...)</literal> for places),
+   <code>(&offset; ... 0 ...)</code> for places),
    except that it works with &foreign-address; objects and allows
    caching of the internal &c-lang; types.</simpara></listitem></varlistentry>
 
-<varlistentry id="dffi-make-func">
- <term><literal role="sexp">(&foreign-function; &f-ent; &ctypei-r;
-   &key-amp; &name-r;)</literal></term>
+<varlistentry id="dffi-make-func"><term><code>(&foreign-function;
+   &f-ent; &ctypei-r; &key-amp; &name-r;)</code></term>
  <listitem><simpara>This constructor creates a &foreign-function-t;
    from the given &foreign-address-t; or &foreign-function-t; and the
    internal &c-lang; type descriptor (as obtained from
-   <literal role="sexp">(&parse-c-type; '(&c-function; ...))</literal>,
+   <code>(&parse-c-type; '(&c-function; ...))</code>,
    in which case it is important to specify the &lang-k; because the
    expressions are likely to be evaluated at run time, outside the &comp-unit;).
    &name-r;, a &string-t;, is mostly useful for documentation and
@@ -2668,50 +2613,46 @@ only.</subtitle>
    It is inherited from the given &foreign-function-t; object when
    available.</simpara></listitem></varlistentry>
 
-<varlistentry id="validp">
-  <term><literal role="sexp">(&validp; &f-ent;)</literal></term>
-  <term><literal role="sexp">(&setf; (&validp; &f-ent;)
-    &value-r;)</literal></term>
+<varlistentry id="validp"><term><code>(&validp; &f-ent;)</code></term>
+  <term><code>(&setf; (&validp; &f-ent;) &value-r;)</code></term>
 <listitem><simpara>This predicate returns &nil; if the &f-ent;
   (e.g. the Lisp equivalent of a &c-pointer;) refers to a pointer
   which is invalid because it comes from a previous Lisp session.
   It returns &t; if &f-ent; can be used within the current Lisp process
   (thus it returns &t; for all non-foreign arguments).</simpara>
  <simpara>You can invalidate a foreign object using
-  <literal role="sexp">(&setf; &validp;)</literal>.
+  <code>(&setf; &validp;)</code>.
   You cannot resurrect a zombie, nor can you kill a non-foreign
   object.</simpara></listitem></varlistentry>
 
-<varlistentry id="fptr">
- <term><literal role="sexp">(&foreign-pointer; &f-ent;)</literal></term>
+<varlistentry id="fptr"><term><code>(&foreign-pointer; &f-ent;)</code></term>
  <listitem><simpara>&foreign-pointer; returns the &foreign-pointer-t;
    associated with the Lisp object of type &foreign-address-t;,
    &foreign-pointer-t;, &foreign-variable-t; or
    &foreign-function-t;.</simpara></listitem></varlistentry>
 
-<varlistentry>
- <term><literal role="sexp">(&set-foreign-pointer; &f-ent; {&f-ent; |
-   &copy-k;})</literal></term>
- <listitem><simpara><literal role="sexp">&set-foreign-pointer;</literal>
-   changes the &foreign-pointer-t; associated with the Lisp object of
-   type &foreign-address-t;, &foreign-variable-t; or &foreign-function-t; to
-   that of the other entity. With &copy-k;, a &fresh; &foreign-pointer-t; is
-   allocated.
-   The original &f-ent; still points to the same object and is returned. This
-   is particularly useful with <literal role="sexp">(&setf;
-  &validp;)</literal>, see <link linkend='ex-dffi-validity'>example section</link>.</simpara></listitem></varlistentry>
+<varlistentry><term><code>(&set-foreign-pointer; &f-ent; {&f-ent; |
+   &copy-k;})</code></term>
+ <listitem><simpara>&set-foreign-pointer; changes the
+   &foreign-pointer-t; associated with the Lisp object of type
+   &foreign-address-t;, &foreign-variable-t; or &foreign-function-t; to
+   that of the other entity.
+   With &copy-k;, a &fresh; &foreign-pointer-t; is allocated.
+   The original &f-ent; still points to the same object and is returned.
+   This is particularly useful with <code>(&setf; &validp;)</code>,
+   see <xref linkend="ex-dffi-validity"/>.</simpara></listitem></varlistentry>
 
 <varlistentry id="foreign-stack">
-  <term><literal role="sexp">(&with-foreign-object; (&var-r; &ctype-r;
-      [<replaceable>initarg</replaceable>]) &body-r;)</literal></term>
-  <term><literal role="sexp">(&with-c-var; (&var-r; &ctype-r;
-      [<replaceable>initarg</replaceable>]) &body-r;)</literal></term>
+  <term><code>(&with-foreign-object; (&var-r; &ctype-r;
+      [<replaceable>initarg</replaceable>]) &body-r;)</code></term>
+  <term><code>(&with-c-var; (&var-r; &ctype-r;
+      [<replaceable>initarg</replaceable>]) &body-r;)</code></term>
 <listitem><simpara>These forms allocate space on the &c-lang; execution
   stack, bind respectively a &foreign-variable-t; object or
   a local &symbol-macro; to &var-r; and execute &body-r;.</simpara>
   <simpara>When <replaceable>initarg</replaceable> is not supplied,
-  they allocate space only for <literal role="sexp">(&sizeof;
-  &ctype-r;)</literal> bytes.  This space is filled with zeroes.  E.g.,
+  they allocate space only for <code>(&sizeof;
+  &ctype-r;)</code> bytes.  This space is filled with zeroes.  E.g.,
   using a &ctype-r; of &c-string; or even <literal role="type">(&c-ptr;
   (&c-array; <type>uint8</type> 32))</literal> (!) both allocate place
   for a single pointer, initialized to &c-NULL;.</simpara>
@@ -2728,27 +2669,25 @@ only.</subtitle>
  </para></listitem></varlistentry>
 
 <varlistentry id="foreign-value">
- <term><literal role="sexp">(&foreign-value; &foreign-variable;)</literal></term>
- <term><literal role="sexp">(&setf; (&foreign-value; &foreign-variable;)
-  ...)</literal></term>
+ <term><code>(&foreign-value; &foreign-variable;)</code></term>
+ <term><code>(&setf; (&foreign-value; &foreign-variable;) ...)</code></term>
  <listitem><simpara>This functions converts the reference to a &c-lang;
   data structure which the &foreign-variable; describes, to Lisp. Such a
   reference is typically obtained from &allocate-shallow;,
-  &allocate-deep;, &foreign-allocate; or via a <literal
-  role="sexp">(&c-pointer; &ctype-r;)</literal> &c-lang; type
-  description. Alternatively, macros like &with-c-place; or &with-c-var;
-  and the concept of foreign &place; hide many uses of this
-  function.</simpara>
+  &allocate-deep;, &foreign-allocate; or via a <code>(&c-pointer;
+  &ctype-r;)</code> &c-lang; type description.
+  Alternatively, macros like &with-c-place; or &with-c-var; and the
+  concept of foreign &place; hide many uses of this function.</simpara>
  <simpara>The &setf; form performs conversion from Lisp to &c-lang;,
-  following to the &foreign-variable;'s type
-  description.</simpara></listitem></varlistentry>
+  following to the &foreign-variable;'s type description.
+</simpara></listitem></varlistentry>
 
 <varlistentry id="foreign-stack-string">
- <term><literal role="sexp">(&with-foreign-string;
+ <term><code>(&with-foreign-string;
    (&f-addr; <replaceable>char-count</replaceable>
     <replaceable>byte-count</replaceable> &string-r;
     &key-amp; &encoding-r; <replaceable>null-terminated-p</replaceable>
-    &start-r; &end-r;) &body-amp; &body-r;)</literal></term>
+    &start-r; &end-r;) &body-amp; &body-r;)</code></term>
  <listitem><simpara>This forms converts a Lisp &string-r; according to
    the &encoding-r;, allocating space on the &c-lang; execution stack.
    &encoding-r; can be any &encoding;, e.g.
@@ -2779,23 +2718,21 @@ only.</subtitle>
 </para></listitem></varlistentry>
 
 <varlistentry id="c-type-parse">
- <term><literal role="sexp">(&parse-c-type; &ctype-r;)</literal></term>
- <term><literal role="sexp">(&deparse-c-type; &ctypei-r;)</literal></term>
+ <term><code>(&parse-c-type; &ctype-r;)</code></term>
+ <term><code>(&deparse-c-type; &ctypei-r;)</code></term>
  <listitem><simpara>Convert between the external (&list-t;) and internal
    (&vector-t;) &c-lang; type representations (used by &describe;).
 </simpara></listitem></varlistentry>
 
-<varlistentry id="foreign-heap">
- <term><literal role="sexp">(&allocate-shallow; &ctype-r;
-   &key-amp; &count-k; &ro-k;)</literal></term>
- <term><literal role="sexp">(&allocate-deep; &ctype-r; &cont-r;
-   &key-amp; &count-k; &ro-k;)</literal></term>
- <term><literal role="sexp">(&foreign-free; &f-ent;
-   &key-amp; :FULL)</literal></term>
- <term><literal role="sexp">(&foreign-allocate; &ctypei-r;
-   &key-amp; :INITIAL-CONTENTS &count-k; &ro-k;)</literal></term>
+<varlistentry id="foreign-heap"><term><code>(&allocate-shallow;
+   &ctype-r; &key-amp; &count-k; &ro-k;)</code></term>
+ <term><code>(&allocate-deep; &ctype-r; &cont-r;
+   &key-amp; &count-k; &ro-k;)</code></term>
+ <term><code>(&foreign-free; &f-ent; &key-amp; :FULL)</code></term>
+ <term><code>(&foreign-allocate; &ctypei-r;
+   &key-amp; :INITIAL-CONTENTS &count-k; &ro-k;)</code></term>
  <listitem><simpara>Macro &allocate-shallow; allocates
-   <literal role="sexp">(&sizeof; &ctype-r;)</literal>
+   <code>(&sizeof; &ctype-r;)</code>
    bytes on the &c-lang; heap and zeroes them out (like &calloc;).
    When &count-k; is supplied, &ctype-r; is substituted with
    <literal role="type">(&c-array; &ctype-r; &count-r;)</literal>,
@@ -2810,17 +2747,16 @@ only.</subtitle>
   <simpara>&allocate-deep; will call &c-lang; &malloc; as many times
    as necessary to build a structure on the &c-lang; heap of the given
    &ctype-r;, initialized from the given &cont-r;.</simpara>
-  <simpara>E.g., <literal role="sexp">(&allocate-deep; '&c-string;
-    "ABCDE")</literal> performs 2 allocations: one for a &c-lang;
-   pointer to a string, another for the contents of that string.
-   This would be useful in conjunction with a <type>char**</type>
-   &c-lang; type declaration.  <literal role="sexp">(&allocate-shallow;
-    '&c-string;)</literal> allocates room for a single pointer
-   (probably 4 bytes).</simpara>
-  <simpara><literal role="sexp">(&allocate-deep; '&character-t;
-    "ABCDEF" :count 10)</literal> allocates and initializes room for the
-   type <literal role="type">(&c-array-max; &character-t; 10)</literal>,
-   corresponding to <type>char*</type> or, more specifically,
+  <simpara>E.g., <code>(&allocate-deep; '&c-string; "ABCDE")</code>
+    performs 2 allocations: one for a &c-lang; pointer to a string,
+    another for the contents of that string.  This would be useful in
+    conjunction with a <type>char**</type> &c-lang; type
+    declaration.  <code>(&allocate-shallow; '&c-string;)</code>
+    allocates room for a single pointer (probably 4 bytes).</simpara>
+  <simpara><code>(&allocate-deep; '&character-t; "ABCDEF" :count
+    10)</code> allocates and initializes room for the type <literal
+    role="type">(&c-array-max; &character-t; 10)</literal>,
+    corresponding to <type>char*</type> or, more specifically,
    <type>char[10]</type> in &c-lang;.</simpara>
   <simpara>Function &foreign-free; deallocates memory at the address
    held by the given &f-ent;. If <constant>:FULL</constant> is supplied
@@ -2829,19 +2765,17 @@ only.</subtitle>
   <simpara>If given a &foreign-function-t; object that corresponds to a
    &clisp; callback, deallocates it.  Callbacks are automatically
    created each time you pass a Lisp function via the &ffi-pac;.</simpara>
-  <simpara>Use <literal role="sexp">(&setf; &validp;)</literal> to
-   disable further references to this address from Lisp.
-   This is currently not done automatically.
-   If the given pointer is already invalid, &foreign-free; (currently)
-   &signal;s an &error-t;. This may change to make it easier to
-   integrate with &finalize;.</simpara>
+  <simpara>Use <code>(&setf; &validp;)</code> to disable further
+   references to this address from Lisp.  This is currently not done
+   automatically.  If the given pointer is already invalid,
+   &foreign-free; (currently) &signal;s an &error-t;. This may change to
+   make it easier to integrate with &finalize;.</simpara>
    <simpara>Function &foreign-allocate; is a lower-level interface as it
    requires an internal &c-lang; type descriptor as returned by
    &parse-c-type;.</simpara></listitem></varlistentry>
 
-<varlistentry id="with-c-place">
- <term><literal role="sexp">(&with-c-place; (&var-r; &f-ent;)
-   &body-r;)</literal></term>
+<varlistentry id="with-c-place"><term><code>(&with-c-place; (&var-r; &f-ent;)
+   &body-r;)</code></term>
  <listitem><simpara>Create a &place; out of the given &foreign-variable-t;
   object so operations on places (e.g. &cast;, &deref;, &slot; etc.) can
   be used within &body-r;.  &with-c-var; appears as a composition of
@@ -3027,9 +2961,8 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
     (&ret-type-k; <replaceable>r-c-type</replaceable> [&allocation;])
     (&lang-k; &lang-r;))</literal></term>
  <listitem><simpara>This type designates a &c-lang; function that can be
-  called according to the given prototype <literal
-  role="sexp">(<replaceable>r-c-type</replaceable> (*)
-  (<replaceable>a-c-type&sub-1;</replaceable>, ...))</literal>.
+  called according to the given prototype <code>(<replaceable>r-c-type</replaceable> (*)
+  (<replaceable>a-c-type&sub-1;</replaceable>, ...))</code>.
   Conversion between &c-lang; functions and Lisp functions
   is transparent, and &c-NULL;/&nil; is recognized and
   accepted.</simpara></listitem></varlistentry>
@@ -3083,11 +3016,10 @@ If this macro has not been called in the current &comp-unit;
  foreign language module.  They can nevertheless be evaluated and
  modified through &setq;, just as normal variables can, except that the
  range of allowed values is limited according to the variable's foreign
- type.  Note that for a foreign variable &x-r; the form <literal
- role="sexp">(&eql; &x-r; &x-r;)</literal> is not necessarily true,
- since every time &x-r; is evaluated its foreign value is converted to a
- &fresh; Lisp value.  Foreign variables are defined using
- &def-c-var;.</para>
+ type.  Note that for a foreign variable &x-r; the form <code>(&eql;
+ &x-r; &x-r;)</code> is not necessarily true, since every time &x-r; is
+ evaluated its foreign value is converted to a &fresh; Lisp value.
+ Foreign variables are defined using &def-c-var;.</para>
 
 </section>
 
@@ -3509,8 +3441,8 @@ $ ln -s ../sort1.o sort1.o
 Add <filename>sort1.o</filename> to <envar>NEW_LIBS</envar>
 and <envar>NEW_FILES</envar> in &link-sh;.
 Create a file <filename>package.lisp</filename> containing the
-form <literal role="sexp">(&defpackage; "FFI-TEST" (:use &cl-pac;
-&ffi-pac;))</literal> and add <filename>package.lisp</filename>
+form <code>(&defpackage; "FFI-TEST" (:use &cl-pac;
+&ffi-pac;))</code> and add <filename>package.lisp</filename>
 to &mod-preload; in &link-sh;.
 Proceed:
 
@@ -3713,7 +3645,7 @@ disabled at once upon close by sharing their &foreign-pointer; using
 <formalpara><title>Another Foreign Function Interface</title>
 <para>All symbols relating to the simple foreign function interface are
  exported from the package &affi-pac;. To use them,
- <literal role="sexp">(&use-package; "AFFI")</literal>.</para>
+ <code>(&use-package; "AFFI")</code>.</para>
 </formalpara>
 
 <section id="affi-design"><title>Design issues</title>
@@ -3739,49 +3671,45 @@ separate.</para>
 
 <para>These are the &affi-pac; forms:</para>
 
-<para><literal role="sexp">(declare-library-base
- <replaceable>keyword-base</replaceable> &lib-name;)</literal></para>
+<para><code>(declare-library-base
+ <replaceable>keyword-base</replaceable> &lib-name;)</code></para>
 
-<para><literal role="sexp">(require-library-functions &lib-name;
- [(:import {<replaceable>string-name</replaceable>}*)])</literal></para>
+<para><code>(require-library-functions &lib-name;
+ [(:import {<replaceable>string-name</replaceable>}*)])</code></para>
 
-<para><literal role="sexp">(open-library
- <replaceable>base-symbol</replaceable>)</literal></para>
+<para><code>(open-library <replaceable>base-symbol</replaceable>)</code></para>
 
-<para><literal role="sexp">(close-library
- <replaceable>base-symbol</replaceable>)</literal></para>
+<para><code>(close-library <replaceable>base-symbol</replaceable>)</code></para>
 
-<para><literal role="sexp">(with-open-library
- (<replaceable>base-symbol</replaceable> |
- &lib-name;) {&form-r;}*)</literal></para>
+<para><code>(with-open-library (<replaceable>base-symbol</replaceable> |
+ &lib-name;) {&form-r;}*)</code></para>
 
-<para><literal role="sexp">(defflibfun
- <replaceable>function-name</replaceable>
+<para><code>(defflibfun <replaceable>function-name</replaceable>
  <replaceable>base-symbol</replaceable>
  &offset-r; <replaceable>mask</replaceable>
  <replaceable>result-type</replaceable>
- {<replaceable>argument-type</replaceable>}*)</literal></para>
+ {<replaceable>argument-type</replaceable>}*)</code></para>
 
-<para><literal role="sexp">(declare-library-function
+<para><code>(declare-library-function
  <replaceable>function-name</replaceable>
- &lib-name; {&option-r;}*)</literal></para>
+ &lib-name; {&option-r;}*)</code></para>
 
-<para><literal role="sexp">(flibcall <replaceable>function-name</replaceable>
- {&arg-r;}*)</literal></para>
+<para><code>(flibcall <replaceable>function-name</replaceable>
+ {&arg-r;}*)</code></para>
 
-<para><literal role="sexp">(mlibcall <replaceable>function-name</replaceable>
- {&arg-r;}*)</literal></para>
+<para><code>(mlibcall <replaceable>function-name</replaceable>
+ {&arg-r;}*)</code></para>
 
-<para><literal role="sexp">(mem-read &addr-r;
-  <replaceable>result-type</replaceable> [&offset-r;])</literal></para>
+<para><code>(mem-read &addr-r;
+  <replaceable>result-type</replaceable> [&offset-r;])</code></para>
 
-<para><literal role="sexp">(mem-write &addr-r;
- &type-r; &value-r; [&offset-r;])</literal></para>
+<para><code>(mem-write &addr-r; &type-r; &value-r;
+ [&offset-r;])</code></para>
 
-<para><literal role="sexp">(mem-write-vector &addr-r;
-  <replaceable>vector</replaceable> [&offset-r;])</literal></para>
+<para><code>(mem-write-vector &addr-r;
+  <replaceable>vector</replaceable> [&offset-r;])</code></para>
 
-<para><literal role="sexp">(nzero-pointer-p &value-r;)</literal></para>
+<para><code>(nzero-pointer-p &value-r;)</code></para>
 
 <para>Except for <function>with-open-library</function>,
 <function>declare-library-function</function> and
@@ -3836,7 +3764,7 @@ non-&c-NULL; pointers in all recognized representations
 <section id="affi-libs"><title>Foreign Libraries</title>
 
 <para><function>declare-library-base</function> ought to be wrapped in an
-<literal role="sexp">(&eval-when; (compile eval load) ...)</literal>
+<code>(&eval-when; (compile eval load) ...)</code>
 form and come before any function is referenced, because the library
 base symbol must be known.</para>
 
@@ -3943,20 +3871,20 @@ between <function>*</function> and &external-k; is the following:
 on the input and the ability to use &finalize; for resource-tracking on
 the output side.</para>
 
-<para><literal role="sexp">(declare-library-function &name-r;
- &lib-name; {&option-r;}*)</literal>
+<para><code>(declare-library-function &name-r; &lib-name;
+ {&option-r;}*)</code>
 
 <variablelist>
  <varlistentry><term>&option-r; ::==</term>
  <listitem><informaltable id="affi-dec-lib-fun-opt-bnf" frame="all" role="bnf">
   <tgroup cols="2" colsep="1" rowsep="1" align="left"><tbody>
-  <row><entry/><entry><literal role="sexp">(:offset
-    <replaceable>library-offset</replaceable>)</literal></entry></row>
-  <row><entry>|</entry><entry><literal role="sexp">(&arguments-k;
+  <row><entry/><entry><code>(:offset
+    <replaceable>library-offset</replaceable>)</code></entry></row>
+  <row><entry>|</entry><entry><code>(&arguments-k;
     {(&arg-r; <replaceable>&affi-pac;-type</replaceable>
-      <replaceable>register</replaceable>)}*)</literal></entry></row>
-  <row><entry>|</entry><entry><literal role="sexp">(:return-type
-    <replaceable>&affi-pac;-type</replaceable>)</literal></entry></row>
+      <replaceable>register</replaceable>)}*)</code></entry></row>
+  <row><entry>|</entry><entry><code>(:return-type
+    <replaceable>&affi-pac;-type</replaceable>)</code></entry></row>
 </tbody></tgroup></informaltable></listitem></varlistentry>
 <varlistentry><term><replaceable>register</replaceable> ::==</term>
  <listitem><simpara><constant>:d0</constant> | <constant>:d1</constant>
@@ -3975,8 +3903,8 @@ inlined.</para>
 
 <section id="affi-memory-access"><title>Memory access</title>
 
-<para><literal role="sexp">(affi:mem-read &addr-r; &type-r;
-  &offset-r;)</literal> can read 8, 16 and 32 bit
+<para><code>(affi:mem-read &addr-r; &type-r;
+  &offset-r;)</code> can read 8, 16 and 32 bit
 signed or unsigned integers (&affi-pac; types <type>-4</type>,
 <type>-2</type>, <type>-1</type>, <type>1</type>, <type>2</type>,
 <type>4</type>), a pointer (<type>*</type>), a &c-NULL;-terminated
@@ -3985,14 +3913,14 @@ string (<type>string</type>) or, if the type argument is of type
 &external-k; is not an acceptable type as no object can be created by
 using <function>affi:mem-read</function>.</para>
 
-<para><literal role="sexp">(affi:mem-write &addr-r; &type-r; &value-r;
-[&offset-r;])</literal> writes integers (&affi-pac;
+<para><code>(affi:mem-write &addr-r; &type-r; &value-r;
+[&offset-r;])</code> writes integers (&affi-pac;
 type <type>-4</type>, <type>-2</type>, <type>-1</type>, <type>1</type>,
 <type>2</type> and <type>4</type>) or pointer values (type
 <type>*</type>), but not vectors to the specified memory address.</para>
 
-<para><literal role="sexp">(affi:mem-write-vector &addr-r;
-  <replaceable>vector</replaceable> [&offset-r;])</literal> can write
+<para><code>(affi:mem-write-vector &addr-r;
+  <replaceable>vector</replaceable> [&offset-r;])</code> can write
 memory from the given vector (of type &string-t; or &unsigned-byte-vec;).
 </para>
 
@@ -4153,37 +4081,34 @@ Compiled, it will have inlined the library function calls.
 <!-- #ifdef SOCKET_STREAMS -->
 
 <variablelist>
- <varlistentry id="sose"><term><literal role="sexp">(&sose; &optional-amp;
-                 [<replaceable>port-or-socket</replaceable>])</literal></term>
+ <varlistentry id="sose"><term><code>(&sose; &optional-amp;
+                 [<replaceable>port-or-socket</replaceable>])</code></term>
   <listitem><simpara>This function creates a socket an binds a port to
     the socket.  The server exists to watch for client connect attempts.
     The optional argument is either a port (positive &fixnum-t;) or a
     &socket-stream; (from whose peer the connections will be made).
  </simpara></listitem></varlistentry>
- <varlistentry id="sose-close"><term><literal role="sexp">(&sose-close;
-                 &sose-r;)</literal></term>
+ <varlistentry id="sose-close"><term><code>(&sose-close; &sose-r;)</code></term>
   <listitem><simpara>Closes down the server socket.
     <link linkend="close">Just like streams</link>,
     &socket-server;s are closed at &gc;ion.  You should not rely on
     this however, because &gc;ion times are not deterministic.
  </simpara></listitem></varlistentry>
- <varlistentry id="sose-hopo">
-  <term><literal role="sexp">(&sose-host; &sose-r;)</literal></term>
-  <term><literal role="sexp">(&sose-port; &sose-r;)</literal></term>
+ <varlistentry id="sose-hopo"><term><code>(&sose-host; &sose-r;)</code></term>
+  <term><code>(&sose-port; &sose-r;)</code></term>
   <listitem><simpara>Returns the host mask indicating which hosts can
     connect to this server and the port which was bound using &sose;.
  </simpara></listitem></varlistentry>
- <varlistentry id="so-wait"><term><literal role="sexp">(&so-wait;
-    &sose-r; &timeout-opt;)</literal></term>
+ <varlistentry id="so-wait"><term><code>(&so-wait;
+    &sose-r; &timeout-opt;)</code></term>
   <listitem id="timeout-opt"><simpara>Wait for a fixed time for a
     connection on the &sose-r; (a &socket-server;).
     Without a timeout argument, &so-wait; blocks indefinitely.
     When timeout is zero, poll.
     Returns &t; when a connection is available (i.e., &so-accept; will
     not block) and &nil; on timeout.</simpara></listitem></varlistentry>
- <varlistentry id="so-accept"><term><literal role="sexp">(&so-accept;
-    &sose-r; &key-amp; &eltype; &extfmt; &buffered;
-    &timeout-k;)</literal></term>
+ <varlistentry id="so-accept"><term><code>(&so-accept; &sose-r;
+    &key-amp; &eltype; &extfmt; &buffered; &timeout-k;)</code></term>
   <listitem id="timeout-k"><simpara>Creates the server-side two-way
     &socket-stream; for the connection.
    Waits for an attempt to connect to the server for no more than
@@ -4192,18 +4117,18 @@ Compiled, it will have inlined the library function calls.
    <literal role="data">(sec . usec)</literal>).
    &signal;s an &error-t; if no connection is made in that time.
   </simpara></listitem></varlistentry>
- <varlistentry id="so-connect"><term><literal role="sexp">(&so-connect;
+ <varlistentry id="so-connect"><term><code>(&so-connect;
     <replaceable>port</replaceable> &optional-amp; [&host-r;] &key-amp;
-    &eltype; &extfmt; &buffered; &timeout-k;)</literal></term>
+    &eltype; &extfmt; &buffered; &timeout-k;)</code></term>
   <listitem><simpara>Attempts to create a client-side two-way
    &socket-stream;.  Blocks until the server accepts the connection, for
    no more than &timeout-k; seconds.  If it is 0, returns immediately
    and (probably) blocks on the next i/o operation (you can use
    &so-status; to check whether it will actually block).
   </simpara></listitem></varlistentry>
- <varlistentry id="so-status"><term><literal role="sexp">(&so-status;
+ <varlistentry id="so-status"><term><code>(&so-status;
                  <replaceable>socket-stream-or-list</replaceable>
-                 &timeout-opt;)</literal></term>
+                 &timeout-opt;)</code></term>
   <listitem><simpara>Checks whether it is possible to read from or write
    to a &socket-stream; or whether a connection is available on a
    &socket-server; without blocking.</simpara>
@@ -4266,8 +4191,7 @@ Compiled, it will have inlined the library function calls.
      <listitem><simpara>Returns the appropriate status, as defined
        above (&io-k; status for &socket-stream;)
     </simpara></listitem></varlistentry>
-    <varlistentry><term><literal role="sexp">(&socket-stream;
-       . &direction-r;)</literal></term>
+    <varlistentry><term><code>(&socket-stream; . &direction-r;)</code></term>
      <listitem><simpara>Return the status in the specified direction
     </simpara></listitem></varlistentry>
     <varlistentry><term>a list of the above</term>
@@ -4290,13 +4214,13 @@ Compiled, it will have inlined the library function calls.
     return, then the second value is positive.</simpara>
  </listitem></varlistentry>
  <varlistentry id="sost-hopo">
-  <term><literal role="sexp">(&sost-host; &sost-r;)</literal></term>
-  <term><literal role="sexp">(&sost-port; &sost-r;)</literal></term>
+  <term><code>(&sost-host; &sost-r;)</code></term>
+  <term><code>(&sost-port; &sost-r;)</code></term>
   <listitem><simpara>These two functions return information about the
     &socket-stream;.</simpara></listitem></varlistentry>
- <varlistentry id="service-port"><term><literal role="sexp">(&service-port;
+ <varlistentry id="service-port"><term><code>(&service-port;
                  &optional-amp; <replaceable>service-name</replaceable>
-                 (<replaceable>protocol</replaceable> "tcp"))</literal></term>
+                 (<replaceable>protocol</replaceable> "tcp"))</code></term>
   <listitem><simpara>A convenience function for looking up a port given
    the service name.  It returns the servent struct as &mul-val;
    (name, list of aliases, port, protocol) for the given
@@ -4305,8 +4229,8 @@ Compiled, it will have inlined the library function calls.
    <literal role="type">(&simple-vector-t; 4)</literal>
    if <replaceable>service-name</replaceable> is not given or is
    &default-k; or &nil;.</simpara></listitem></varlistentry>
- <varlistentry id="sost-peer"><term><literal role="sexp">(&sost-peer;
-    &sost-r; [<replaceable>do-not-resolve-p</replaceable>])</literal></term>
+ <varlistentry id="sost-peer"><term><code>(&sost-peer;
+    &sost-r; [<replaceable>do-not-resolve-p</replaceable>])</code></term>
   <listitem><simpara>Given a &socket-stream;, this function returns the
    name of the host on the opposite side of the connection and its port
    number; the server-side can use this to see who connected.</simpara>
@@ -4314,8 +4238,8 @@ Compiled, it will have inlined the library function calls.
    resolution is disabled and just the IP address is returned, without
    the <acronym>FQDN</acronym> (Fully Qualified Domain Name).
    </simpara></listitem></varlistentry>
- <varlistentry id="sost-local"><term><literal role="sexp">(&sost-local;
-    &sost-r; [<replaceable>do-not-resolve-p</replaceable>])</literal></term>
+ <varlistentry id="sost-local"><term><code>(&sost-local;
+    &sost-r; [<replaceable>do-not-resolve-p</replaceable>])</code></term>
   <listitem><simpara>The dual to &sost-peer; - same information,
    host name and port number, but for the local host.
    The difference from &sost-host; and &sost-port; is that this function
@@ -4323,8 +4247,8 @@ Compiled, it will have inlined the library function calls.
    other two are just accessors to the internal data structure, and
    basically return the arguments given to the function which created
    the &sost-r;.</simpara></listitem></varlistentry>
- <varlistentry id="sost-shut"><term><literal role="sexp">(&sost-shut;
-    &sost-r; &direction-r;)</literal></term>
+ <varlistentry id="sost-shut"><term><code>(&sost-shut; &sost-r;
+    &direction-r;)</code></term>
   <listitem><simpara>Some Internet protocols, such as &http;, provide for
    closing the connection in one &direction-r; using &shutdown;.
    This function provides an interface to this &unix; system call.
@@ -4343,15 +4267,15 @@ Compiled, it will have inlined the library function calls.
      returns &t;)</simpara></listitem></itemizedlist>
    the &stream-t; can be read from (e.g., with &read-char; or &read-byte;).
  </para></listitem></varlistentry>
- <varlistentry id="so-opt"><term><literal role="sexp">(&so-opt;
-    &sose-r; &rest-amp; {&option-r;}*)</literal></term>
+ <varlistentry id="so-opt"><term><code>(&so-opt; &sose-r; &rest-amp;
+    {&option-r;}*)</code></term>
   <listitem><simpara>Query and, optionally, set socket options using
    &getsockopt; and &setsockopt;.
    An &option-r; is a keyword, optionally followed by the new value.
    When the new value is not supplied, &setsockopt; is not called.
    For each option the old (or current, if new value was not supplied)
-   value is returned. E.g., <literal role="sexp">(&so-opt; &sose-r;
-   :SO-LINGER 1 :SO-RCVLOWAT)</literal> returns 2 values: &nil;, the old
+   value is returned. E.g., <code>(&so-opt; &sose-r;
+   :SO-LINGER 1 :SO-RCVLOWAT)</code> returns 2 values: &nil;, the old
    value of the <constant>:SO-LINGER</constant> option, and 1, the
    current value of the <constant>:SO-RCVLOWAT</constant> option.
   </simpara></listitem></varlistentry>
@@ -4445,8 +4369,8 @@ Compiled, it will have inlined the library function calls.
    &load-pathname-var;).</simpara></listitem>
   <listitem><simpara>Before it is loaded, the variable &args; is bound
    to a list of strings, representing the arguments given to the Lisp
-   script (i.e., <envar>$1</envar> in &sh; becomes <literal
-   role="sexp">(&first; &args;)</literal> etc).</simpara></listitem>
+   script (i.e., <envar>$1</envar> in &sh; becomes <code>(&first;
+     &args;)</code> etc).</simpara></listitem>
   <listitem><simpara>The standard &unix; i/o facilities (see &stdio-h;)
     are used: &standard-input-var; is bound to &stdin;,
     &standard-output-var; to &stdout;, and
@@ -4617,9 +4541,9 @@ bash$
 <variablelist>
 <!-- #ifdef UNIX -->
 <varlistentry><term>Platform dependent: &unix; platforms only.</term>
- <listitem><simpara><literal role="sexp">(&exec; &program-r;
+ <listitem><simpara><code>(&exec; &program-r;
        <replaceable>arg&sub-1;</replaceable>
-       <replaceable>arg&sub-2;</replaceable> ...)</literal>
+       <replaceable>arg&sub-2;</replaceable> ...)</code>
    executes an external program.
    Its name is &program-r; (a full pathname).
    It is given the strings <replaceable>arg&sub-1;</replaceable>,
@@ -4629,12 +4553,11 @@ bash$
 
 <!-- #ifdef HAVE_SHELL -->
 <varlistentry><term>Platform dependent: &unix;, &win32; platforms only.</term>
- <listitem><simpara><literal role="sexp">(&shell; [&command-r;])</literal>
+ <listitem><simpara><code>(&shell; [&command-r;])</code>
    calls the operating system's shell, the value of the &env-var;
    <envar>SHELL</envar> on &unix; and <envar>COMSPEC</envar> on &win32;.
-   <literal role="sexp">(&shell;)</literal> calls the shell
-   for interactive use.
-   <literal role="sexp">(&shell; &command-r;)</literal> calls the shell
+   <code>(&shell;)</code> calls the shell for interactive use.
+   <code>(&shell; &command-r;)</code> calls the shell
    only for execution of the one given &command-r;.
  </simpara></listitem></varlistentry>
 <!-- #endif -->
@@ -4645,16 +4568,16 @@ bash$
  <listitem><simpara>The functions &run-cmd; and &run-prog; are the
    general interface to &shell; and the above:</simpara>
 
-  <simpara><literal role="sexp">(&run-cmd; &command-r; &key-amp;
+  <simpara><code>(&run-cmd; &command-r; &key-amp;
     <constant>:MAY-EXEC</constant> <constant>:INDIRECTP</constant>
-    &input-k; &output-k; &if-output-exists; &wait-k;)</literal>
+    &input-k; &output-k; &if-output-exists; &wait-k;)</code>
    runs a shell command (including shell built-in commands,
    like <command>DIR</command> on &win32;
    and <command>for/do/done</command> on &unix;).</simpara>
 
-  <simpara><literal role="sexp">(&run-prog; &program-r; &key-amp;
+  <simpara><code>(&run-prog; &program-r; &key-amp;
     <constant>:MAY-EXEC</constant> <constant>:INDIRECTP</constant>
-    &arguments-k; &input-k; &output-k; &if-output-exists; &wait-k;)</literal>
+    &arguments-k; &input-k; &output-k; &if-output-exists; &wait-k;)</code>
    runs an external program.</simpara>
 
   <variablelist>
@@ -4708,7 +4631,7 @@ bash$
 <!-- #ifdef WIN32 -->
    <varlistentry><term><constant>:INDIRECTP</constant></term>
     <listitem><simpara>use a shell to run the command, e.g.,
-    <literal role="sexp">(&run-prog; "dir" :indirectp &t;)</literal>
+    <code>(&run-prog; "dir" :indirectp &t;)</code>
     will run the shell built-in command <command>DIR</command>.
     This argument defaults to &t; for &run-cmd; and to &nil; for &run-prog;.
     (&win32; only).</simpara></listitem></varlistentry>
@@ -4732,21 +4655,21 @@ bash$
 <variablelist>
 <varlistentry><term>Platform dependent: &unix;, &win32; platforms only.</term>
 <listitem><variablelist>
- <varlistentry><term><literal role="sexp">(&mk-pipe-in;
-    &command-r; &key-amp; &eltype; &extfmt; &buffered;)</literal></term>
+ <varlistentry><term><code>(&mk-pipe-in; &command-r; &key-amp; &eltype;
+    &extfmt; &buffered;)</code></term>
 <listitem><simpara>returns an &in-s; that will supply the output
   from the execution of the given operating system command.
   </simpara></listitem></varlistentry>
 
-<varlistentry><term><literal role="sexp">(&mk-pipe-out;
-   &command-r; &key-amp; &eltype; &extfmt; &buffered;)</literal></term>
+<varlistentry><term><code>(&mk-pipe-out; &command-r; &key-amp; &eltype;
+   &extfmt; &buffered;)</code></term>
 <listitem><simpara>returns an &out-s; that will pass its output as
    input to the execution of the given operating system command.
   </simpara></listitem></varlistentry>
 
 <!-- #ifdef PIPES2 -->
-<varlistentry><term><literal role="sexp">(&mk-pipe-io;
-   &command-r; &key-amp; &eltype; &extfmt; &buffered;)</literal></term>
+<varlistentry><term><code>(&mk-pipe-io; &command-r; &key-amp; &eltype;
+   &extfmt; &buffered;)</code></term>
 <listitem><simpara>returns three values.
   The first value is a &bidi-s; that will simultaneously pass its output
   as input to the execution of the given operating system command and
@@ -4799,13 +4722,13 @@ bash$
  processes from their parent process.</para>
 
 <para>You can access your OS &env-var;s using the function
-<literal role="sexp">(&getenv; &optional-amp; &string-r;)</literal>,
+<code>(&getenv; &optional-amp; &string-r;)</code>,
 where &string-r; is the name of the &env-var;.
 When &string-r; is omitted or &nil;, all the &env-var;s and their values
 are returned in an &alist;.</para>
 
 <para>You can change the value of existing &env-var;s or create new ones
- using <literal role="sexp">(&setf; (&getenv; &string-r;) &nval-r;)</literal>.
+ using <code>(&setf; (&getenv; &string-r;) &nval-r;)</code>.
 </para></section>
 
 <section id="separate-io"><title>Other</title>

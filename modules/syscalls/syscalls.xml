@@ -30,9 +30,8 @@
    <filename>${windir}/system32/etc/hosts</filename> on a &win32; system).
   </para><simpara>This is an interface to &gethostbyname;/&gethostbyaddr;.
  </simpara></listitem></varlistentry>
- <varlistentry id="file-stat"><term><literal
-      role="sexp">(<function>POSIX:FILE-STAT</function> &path-r;
-      &optional-amp; <replaceable>link-p</replaceable>)</literal></term>
+ <varlistentry id="file-stat"><term><code>(<function>POSIX:FILE-STAT</function>
+    &path-r; &optional-amp; <replaceable>link-p</replaceable>)</code></term>
   <listitem><para>Return the <type>FILE-STAT</type> structure.
    &path-r; can be a &stream-t;, a &pathname-t;, a &string-t; or a
    &number-t; (on a &unix; system, meaning &file-des;).
@@ -92,16 +91,15 @@
     &win32;) is returned.
    </simpara><simpara>[&unix; systems only at this time, patches are welcome.]
  </simpara></listitem></varlistentry>
- <varlistentry id="set-file-stat"><term><literal
-   role="sexp">(<function>POSIX:SET-FILE-STAT</function> &path-r;
+ <varlistentry id="set-file-stat">
+  <term><code>(<function>POSIX:SET-FILE-STAT</function> &path-r;
     &key-amp; &mode-r; <replaceable>uid</replaceable>
-    <replaceable>gid</replaceable>)</literal></term>
+    <replaceable>gid</replaceable>)</code></term>
   <listitem><simpara>Set some file attributes using &chmod; and &chown;.
    </simpara><simpara>[&unix; systems only at this time, patches ar welcome.]
  </simpara></listitem></varlistentry>
- <varlistentry id="stat-vfs"><term><literal
-      role="sexp">(<function>POSIX:STAT-VFS</function>
-    &path-r;)</literal></term>
+ <varlistentry id="stat-vfs"><term><code>(<function>POSIX:STAT-VFS</function>
+    &path-r;)</code></term>
  <listitem><para>Return the <type>STAT-VFS</type> structure.
    &path-r; can be a &stream-t;, a &pathname-t;, a &string-t; or a
    &number-t; (on a &unix; system, meaning &file-des;).
@@ -144,17 +142,15 @@
    All slots are read-only.
   </para><simpara>[&unix; systems only at this time, patches are welcome.]
  </simpara></listitem></varlistentry>
- <varlistentry id="file-info"><term><literal
-    role="sexp">(<function>OS:FILE-INFO</function>
-    &path-r;)</literal></term>
+ <varlistentry id="file-info"><term><code>(<function>OS:FILE-INFO</function>
+    &path-r;)</code></term>
  <listitem><simpara>Return the <type>FILE-INFO</type> structure.
    &path-r; should be a &path-des;. The 8 slots are attributes, ctime,
    atime, wtime, high and low sizes, name and short name.
    </simpara><simpara>[&win32; systems only at this time, patches are welcome.]
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>POSIX:USER-DATA</function>
-    &optional-amp; <replaceable>user</replaceable>)</literal></term>
+ <varlistentry><term><code>(<function>POSIX:USER-DATA</function>
+    &optional-amp; <replaceable>user</replaceable>)</code></term>
  <listitem><simpara>Return the <type>PASSWD</type> structure (name,
    encoded password, UID, GID, full name, home directory, shell).
    When <replaceable>user</replaceable> is &nil;, return all users.
@@ -165,51 +161,38 @@
    <filename>c:\command.com</filename> for DOS) is returned.
    </simpara><simpara>[&unix; systems only at this time, patches are welcome.]
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-   role="sexp">(<function>POSIX:UNAME</function>)</literal></term>
+ <varlistentry><term><code>(<function>POSIX:UNAME</function>)</code></term>
   <listitem><simpara>Return a structure describing the OS, derived from
     &uname;.</simpara></listitem></varlistentry>
- <varlistentry>
-  <term><literal role="sexp">(<function>POSIX:SYSCONF</function>
-    &optional-amp; &what-r;)</literal></term>
-  <term><literal role="sexp">(<function>POSIX:CONFSTR</function>
-    &optional-amp; &what-r;)</literal></term>
+ <varlistentry><term><code>(<function>POSIX:SYSCONF</function>
+    &optional-amp; &what-r;)</code></term>
+  <term><code>(<function>POSIX:CONFSTR</function>
+    &optional-amp; &what-r;)</code></term>
   <listitem><simpara>Return the specified configuration parameter or a
     list of all available parameters (when &what-r; is missing or
     &nil;), by calling &sysconf; and &confstr; respectively.
  </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(<function>POSIX:LIMITS</function>
-    &optional-amp; &what-r;)</literal></term>
+ <varlistentry><term><code>(<function>POSIX:LIMITS</function>
+    &optional-amp; &what-r;)</code></term>
   <listitem><simpara>Return the current and the maximal limits as two
     values when &what-r; is specified or a list of all available limits
     when &what-r; is missing or &nil;, by calling &getrlimit;.
  </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-   role="sexp">(<function>POSIX:USAGE</function>)</literal></term>
+ <varlistentry><term><code>(<function>POSIX:USAGE</function>)</code></term>
   <listitem><simpara>Return 2 structures describing the resource usage by
     the lisp process and its children, derived from &getrusage;.
   </simpara></listitem></varlistentry>
  <varlistentry>
-   <term><literal role="sexp">(<function>POSIX:ERF</function>
-       &real-r;)</literal></term>
-   <term><literal role="sexp">(<function>POSIX:ERFC</function>
-       &real-r;)</literal></term>
-   <term><literal role="sexp">(<function>POSIX:J0</function>
-       &real-r;)</literal></term>
-   <term><literal role="sexp">(<function>POSIX:J1</function>
-       &real-r;)</literal></term>
-   <term><literal role="sexp">(<function>POSIX:JN</function>
-       &int-r; &real-r;)</literal></term>
-   <term><literal role="sexp">(<function>POSIX:Y0</function>
-       &real-r;)</literal></term>
-   <term><literal role="sexp">(<function>POSIX:Y1</function>
-       &real-r;)</literal></term>
-   <term><literal role="sexp">(<function>POSIX:YN</function>
-       &int-r; &real-r;)</literal></term>
-   <term><literal role="sexp">(<function>POSIX:GAMMA</function>
-       &real-r;)</literal></term>
-   <term><literal role="sexp">(<function>POSIX:LGAMMA</function>
-       &real-r;)</literal></term>
+   <term><code>(<function>POSIX:ERF</function> &real-r;)</code></term>
+   <term><code>(<function>POSIX:ERFC</function> &real-r;)</code></term>
+   <term><code>(<function>POSIX:J0</function> &real-r;)</code></term>
+   <term><code>(<function>POSIX:J1</function> &real-r;)</code></term>
+   <term><code>(<function>POSIX:JN</function> &int-r; &real-r;)</code></term>
+   <term><code>(<function>POSIX:Y0</function> &real-r;)</code></term>
+   <term><code>(<function>POSIX:Y1</function> &real-r;)</code></term>
+   <term><code>(<function>POSIX:YN</function> &int-r; &real-r;)</code></term>
+   <term><code>(<function>POSIX:GAMMA</function> &real-r;)</code></term>
+   <term><code>(<function>POSIX:LGAMMA</function> &real-r;)</code></term>
  <listitem><simpara>Compute the error functions, Bessel functions and
    Gamma.  These functions are required by the POSIX standard and should
    be available in <filename>libm.so</filename>.</simpara>
@@ -218,9 +201,9 @@
     at the &double-float-t; level.</simpara></warning>
  </listitem></varlistentry>
  <varlistentry id="stream-lock"><term>
-   <literal role="sexp">(<function>POSIX:STREAM-LOCK</function> &stream-r;
+   <code>(<function>POSIX:STREAM-LOCK</function> &stream-r;
     <replaceable>lock-p</replaceable> &key-amp;
-    (:BLOCK &t;) (:SHARED &nil;) (:START 0) (:END &nil;))</literal></term>
+    (:BLOCK &t;) (:SHARED &nil;) (:START 0) (:END &nil;))</code></term>
   <listitem><simpara>This is an interface to the &fcntl; system call.
    It sets or removes a file lock for the (portion of the) file associated
    with &stream-r;, depending on <replaceable>lock-p</replaceable>.
@@ -233,27 +216,26 @@
    an <emphasis>exclusive</emphasis> (i.e., <emphasis>write</emphasis>,
    or non-<replaceable>shared</replaceable>) lock.
  </simpara></listitem></varlistentry>
- <varlistentry id="mknod"><term><literal
-   role="sexp">(<function>POSIX:MKNOD</function> &path-r; &type-r;
-    &mode-r;)</literal></term>
+ <varlistentry id="mknod"><term><code>(<function>POSIX:MKNOD</function>
+    &path-r; &type-r; &mode-r;)</code></term>
  <listitem><simpara>Create a special file using &mknod;.
    Use <literal>:FIFO</literal> to create pipes
    and <literal>:SOCK</literal> to create sockets.
  </simpara></listitem></varlistentry>
- <varlistentry id="convert-modes"><term><literal role="sexp"
-   >(<function>POSIX:CONVERT-MODE</function> &mode-r;)</literal></term>
+ <varlistentry id="convert-modes">
+  <term><code>(<function>POSIX:CONVERT-MODE</function> &mode-r;)</code></term>
  <listitem><simpara>Convert between numeric, (e.g., <literal>0644</literal>)
-   and symbolic (e.g., <literal role="sexp">(:RUSR :WUSR :RGRP :ROTH)</literal>)
+   and symbolic (e.g., <literal role="data">(:RUSR :WUSR :RGRP :ROTH)</literal>)
    file modes.</simpara></listitem></varlistentry>
- <varlistentry id="umask"><term><literal role="sexp"
-    >(<function>UMASK</function> &mode-r;)</literal></term>
+ <varlistentry id="umask"><term><code>(<function>UMASK</function>
+    &mode-r;)</code></term>
  <listitem><simpara>Change process mask using &umask;.
  </simpara></listitem></varlistentry>
  <varlistentry id="copy-file"><term>
-   <literal role="sexp">(<function>POSIX:COPY-FILE</function>
+   <code>(<function>POSIX:COPY-FILE</function>
     <replaceable>source-path</replaceable>
     <replaceable>destination-path</replaceable>
-    &key-amp; :METHOD :PRESERVE :IF-EXISTS :IF-DOES-NOT-EXIST)</literal></term>
+    &key-amp; :METHOD :PRESERVE :IF-EXISTS :IF-DOES-NOT-EXIST)</code></term>
   <listitem><simpara>This is an interface to the &symlink;
     (when <replaceable>method</replaceable> is <constant>:SYMLINK</constant>),
     &link; (when it is <constant>:HARDLINK</constant>), and &rename;
@@ -264,46 +246,45 @@
     <replaceable>destination-path</replaceable> may be wild.
  </simpara></listitem></varlistentry>
  <varlistentry id="dup-handle"><term>
-   <literal role="sexp">(<function>POSIX:DUPLICATE-HANDLE</function>
+   <code>(<function>POSIX:DUPLICATE-HANDLE</function>
     <replaceable>fd1</replaceable>
-    &optional-amp; <replaceable>fd2</replaceable>)</literal></term>
+    &optional-amp; <replaceable>fd2</replaceable>)</code></term>
   <listitem><simpara>This is an interface to the &dup; system calls on
    &unix; systems and to <function>DuplicateHandle</function> system
    call on &win32;.</simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(OS:SHORTCUT-INFO
-    &path-r;)</literal></term>
+ <varlistentry><term><code>(OS:SHORTCUT-INFO &path-r;)</code></term>
   <listitem><simpara>Return information about a &win32; shortcut
     (<filename>#P".lnk"</filename>) file contents in a
     <type>SHORTCUT-INFO</type> structure.</simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(OS:MAKE-SHORTCUT
-    &path-r; &key-amp; :WORKING-DIRECTORY :ARGUMENTS :SHOW-COMMAND :ICON
-    :DESCRIPTION :HOT-KEY :PATH)</literal></term>
+ <varlistentry><term><code>(OS:MAKE-SHORTCUT &path-r; &key-amp;
+    :WORKING-DIRECTORY :ARGUMENTS :SHOW-COMMAND :ICON :DESCRIPTION
+    :HOT-KEY :PATH)</code></term>
   <listitem><simpara>Create (or modify the properties of an existing one)
     a &win32; shortcut (<filename>#P".lnk"</filename>) file.
  </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(OS:SYSTEM-INFO)</literal></term>
+ <varlistentry><term><code>(OS:SYSTEM-INFO)</code></term>
   <listitem><simpara>Return &win32; system information in a
     <type>SYSTEM-INFO</type> structure.</simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(OS:VERSION)</literal></term>
+ <varlistentry><term><code>(OS:VERSION)</code></term>
   <listitem><simpara>Return &win32; version information in a
     <type>VERSION</type> structure.</simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(OS:MEMORY-STATUS)</literal></term>
+ <varlistentry><term><code>(OS:MEMORY-STATUS)</code></term>
   <listitem><simpara>Return &win32; memory status information in a
     <type>MEMORY-STATUS</type> structure.</simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(POSIX:CRYPT &key-r;
-    <replaceable>salt</replaceable>)</literal></term>
+ <varlistentry><term><code>(POSIX:CRYPT &key-r;
+    <replaceable>salt</replaceable>)</code></term>
   <listitem><simpara>Call &crypt;, arguments are &string-t;s.
  </simpara></listitem></varlistentry>
  <varlistentry>
-  <term><literal role="sexp">(POSIX:ENCRYPT <replaceable>block</replaceable>
-    <replaceable>decrypt-p</replaceable>)</literal></term>
-  <term><literal role="sexp">(POSIX:SETKEY &key-r;)</literal></term>
+  <term><code>(POSIX:ENCRYPT <replaceable>block</replaceable>
+    <replaceable>decrypt-p</replaceable>)</code></term>
+  <term><code>(POSIX:SETKEY &key-r;)</code></term>
   <listitem><simpara>Call &encrypt; and &setkey;, respectively.
     <replaceable>block</replaceable> and &key-r; are of type
     <literal role="type">(&vector; (&unsigned-byte-t; 8) 8)</literal>.
     <replaceable>decrypt-p</replaceable> is &boolean-t;.
  </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(OS:PHYSICAL-MEMORY)</literal></term>
+ <varlistentry><term><code>(OS:PHYSICAL-MEMORY)</code></term>
   <listitem><simpara>Return 2 values: total and available physical memory.
    </simpara><simpara>Works on both &unix; and &win32;.
  </simpara></listitem></varlistentry>

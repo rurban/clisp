@@ -59,60 +59,54 @@ and is supported by most &cl; implementations currently in use.</para>
 </variablelist>
 
 <variablelist><title>General generic functions defined on streams</title>
- <varlistentry><term><literal role="sexp">(&stream-element-type;
-    &stream-r;)</literal></term>
+ <varlistentry><term><code>(&stream-element-type; &stream-r;)</code></term>
   <listitem><simpara>Returns the stream's element type, normally a
    subtype of &character-t; or &integer-t;.</simpara>
   <simpara>The method for &fu-st-char; returns &character-t;.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">((&setf; &stream-element-type;)
-    <replaceable>new-element-type</replaceable> &stream-r;)</literal></term>
+ <varlistentry><term><code>((&setf; &stream-element-type;)
+    <replaceable>new-element-type</replaceable> &stream-r;)</code></term>
   <listitem><simpara>Changes the stream's element type.</simpara>
    <simpara>The default method &signal;s an &error-t;.</simpara>
    <simpara>This function is a &clisp; extension (see <xref
     linkend="stream-eltype"/>).</simpara>
    </listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(&close;
-    &stream-r; &key-amp; &abort-k;)</literal></term>
+ <varlistentry><term><code>(&close; &stream-r; &key-amp;
+    &abort-k;)</code></term>
   <listitem><simpara>Closes the stream and flushes any associated buffers.
    </simpara><simpara>When you define a primary method on this
     function, do not forget to &call-next-method;.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(&open-stream-p;
-    &stream-r;)</literal></term>
+ <varlistentry><term><code>(&open-stream-p; &stream-r;)</code></term>
   <listitem><simpara>Returns true before the stream has been closed, and
     &nil; after the stream has been closed.</simpara>
    <simpara>You do not need to add methods to this function.</simpara>
    </listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>GRAY:STREAM-POSITION</function>
-    &stream-r; <replaceable>position</replaceable>)</literal></term>
+ <varlistentry><term><code>(<function>GRAY:STREAM-POSITION</function>
+    &stream-r; <replaceable>position</replaceable>)</code></term>
   <listitem><simpara>Just like &file-position;, but &nil;
     <replaceable>position</replaceable> means inquire.</simpara>
    &need-defmethod;</listitem></varlistentry>
 </variablelist>
 
 <variablelist><title>generic functions for character input</title>
- <varlistentry id="st-rc"><term><literal
-    role="sexp">(&st-rc; &stream-r;)</literal></term>
+ <varlistentry id="st-rc"><term><code>(&st-rc; &stream-r;)</code></term>
   <listitem><simpara>If a character was pushed back using &st-uc;,
    returns and consumes it.  Otherwise returns and consumes the next
    character from the stream. Returns &eof-k; if the &eos; is reached.
    </simpara>&need-defmethod;</listitem></varlistentry>
- <varlistentry id="st-uc"><term><literal
-    role="sexp">(&st-uc; &stream-r; &ch-r;)</literal></term>
+ <varlistentry id="st-uc"><term><code>(&st-uc; &stream-r; &ch-r;)</code></term>
   <listitem><simpara>Pushes &ch-r;, which must be the last character
    read from the &stream-r;, back onto the front of the &stream-r;.
    </simpara>&need-defmethod;</listitem></varlistentry>
- <varlistentry id="st-rcnh"><term><literal
-    role="sexp">(&st-rcnh; &stream-r;)</literal></term>
+ <varlistentry id="st-rcnh"><term><code>(&st-rcnh; &stream-r;)</code></term>
   <listitem><simpara>Returns a character or &eof-k;, like &st-rc;, if
    that would return immediately.  If &st-rc;'s value is not available
    immediately, returns &nil; instead of waiting.</simpara><simpara>
    The default method simply calls &st-rc;; this is sufficient for streams
    whose &st-rc; method never blocks.</simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp"
-   >(<function>GRAY:STREAM-PEEK-CHAR</function> &stream-r;)</literal></term>
+ <varlistentry><term><code>(<function>GRAY:STREAM-PEEK-CHAR</function>
+    &stream-r;)</code></term>
   <listitem><simpara>If a character was pushed back using &st-uc;,
    returns it.  Otherwise returns the next character from the stream,
    avoiding any side effects &st-rc; would do.  Returns &eof-k; if the
@@ -120,8 +114,8 @@ and is supported by most &cl; implementations currently in use.</para>
   <simpara>The default method calls &st-rc; and &st-uc;; this is
    sufficient for streams whose &st-rc; method has no
    side-effects.</simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp"
-   >(<function>GRAY:STREAM-LISTEN</function> &stream-r;)</literal></term>
+ <varlistentry><term><code>(<function>GRAY:STREAM-LISTEN</function>
+    &stream-r;)</code></term>
   <listitem><simpara>If a character was pushed back using &st-uc;,
    returns it.  Otherwise returns the next character from the stream, if
    already available.  If no character is available immediately, or if
@@ -129,18 +123,16 @@ and is supported by most &cl; implementations currently in use.</para>
   <simpara>The default method calls &st-rcnh; and &st-uc;; this is
    sufficient for streams whose &st-rc; method has no
    side-effects.</simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>GRAY:STREAM-READ-CHAR-WILL-HANG-P</function>
-                 &stream-r;)</literal></term>
+ <varlistentry><term><code>(<function>GRAY:STREAM-READ-CHAR-WILL-HANG-P</function>
+    &stream-r;)</code></term>
   <listitem><simpara>Returns &nil; if &st-rc; will return immediately.
    Otherwise it returns true.</simpara>
   <simpara>The default method calls &st-rcnh; and &st-uc;; this is
    sufficient for streams whose &st-rc; method has no side-effects.</simpara>
   <simpara>This function is a &clisp; extension (see &rcwhp;).</simpara>
   </listitem></varlistentry>
- <varlistentry><term><literal role="sexp"
-   >(<function>GRAY:STREAM-READ-CHAR-SEQUENCE</function> &stream-r;
-   &sequence-r; &optional-amp; [&start-r; [&end-r;]])</literal></term>
+ <varlistentry><term><code>(<function>GRAY:STREAM-READ-CHAR-SEQUENCE</function> &stream-r;
+   &sequence-r; &optional-amp; [&start-r; [&end-r;]])</code></term>
   <listitem><simpara>Fills the subsequence of &sequence-r; specified by
    &start-k; and &end-k; with characters consecutively read from &stream-r;.
    Returns the index of the first element of &sequence-r; that was not
@@ -149,22 +141,21 @@ and is supported by most &cl; implementations currently in use.</para>
   <simpara>&sequence-r; is an &array-t; of &character-t;s, i.e. a &string-t;.
    &start-r; is a nonnegative &integer-t; and defaults to &zero;.
    &end-r; is a nonnegative &integer-t; or &nil; and defaults to &nil;,
-   which stands for <literal role="sexp">(&length; &sequence-r;)</literal>.
+   which stands for <code>(&length; &sequence-r;)</code>.
   </simpara><simpara>The default method repeatedly calls &st-rc;; this
    is always sufficient if speed does not matter.</simpara>
   <simpara>This function is a &clisp; extension (see
    &rd-ch-seq;).</simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp"
-   >(<function>GRAY:STREAM-READ-LINE</function> &stream-r;)</literal></term>
+ <varlistentry><term><code>(<function>GRAY:STREAM-READ-LINE</function>
+    &stream-r;)</code></term>
   <listitem><simpara>Reads a line of characters, and return two values:
    the line (a &string-t;, without the terminating &nl-s; character),
    and a &boolean-t; value which is true if the line was terminated by
    &eos; instead of &nl-s;.</simpara>
   <simpara>The default method repeatedly calls &st-rc;; this
    is always sufficient.</simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>GRAY:STREAM-CLEAR-INPUT</function>
-                 &stream-r;)</literal></term>
+ <varlistentry><term><code>(<function>GRAY:STREAM-CLEAR-INPUT</function>
+    &stream-r;)</code></term>
   <listitem><simpara>Clears all pending interactive input from the
    &stream-r;, and returns true if some pending input was removed.</simpara>
   <simpara>The default method does nothing and returns &nil;; this is
@@ -172,60 +163,50 @@ and is supported by most &cl; implementations currently in use.</para>
 </variablelist>
 
 <variablelist><title>generic functions for character output</title>
- <varlistentry id="st-wc"><term><literal
-    role="sexp">(&st-wc; &stream-r; &ch-r;)</literal></term>
+ <varlistentry id="st-wc"><term><code>(&st-wc; &stream-r; &ch-r;)</code></term>
   <listitem><simpara>Writes &ch-r;.
    </simpara>&need-defmethod;</listitem></varlistentry>
- <varlistentry id="st-lc"><term><literal
-    role="sexp">(&st-lc; &stream-r;)</literal></term>
+ <varlistentry id="st-lc"><term><code>(&st-lc; &stream-r;)</code></term>
   <listitem><simpara>Returns the column number where the next character
    would be written (&zero; stands for the first column),
     or &nil; if that is not meaningful for this stream.
    </simpara>&need-defmethod;</listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>GRAY:STREAM-START-LINE-P</function>
-                 &stream-r;)</literal></term>
+ <varlistentry><term><code>(<function>GRAY:STREAM-START-LINE-P</function>
+                 &stream-r;)</code></term>
   <listitem><simpara>Returns true if the next character would be
    written at the start of a new line.</simpara>
   <simpara>The default method calls &st-lc; and compares its result with
    0; this is sufficient for streams whose &st-lc; never returns &nil;.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>GRAY:STREAM-WRITE-CHAR-SEQUENCE</function>
-                 &stream-r; &sequence-r;
-                 &optional-amp; [&start-r; [&end-r;]])</literal></term>
+ <varlistentry><term><code>(<function>GRAY:STREAM-WRITE-CHAR-SEQUENCE</function>
+    &stream-r; &sequence-r; &optional-amp; [&start-r; [&end-r;]])</code></term>
   <listitem><simpara>Outputs the subsequence of &sequence-r; specified
    by &start-k; and &end-k; to &stream-r;.</simpara>
   <simpara>&sequence-r; is an &array-t; of &character-t;s, i.e. a &string-t;.
    &start-r; is a nonnegative &integer-t; and defaults to 0.
    &end-r; is a nonnegative integer or &nil; and defaults to &nil;,
-   which stands for <literal role="sexp">(&length; &sequence-r;)</literal>.
+   which stands for <code>(&length; &sequence-r;)</code>.
   </simpara><simpara>The default method repeatedly calls &st-wc;; this
    is always sufficient if speed does not matter.
   </simpara><simpara>This function is a &clisp; extension
    (see &wr-ch-seq;).</simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>GRAY:STREAM-WRITE-STRING</function>
-                 &stream-r; &string-r;
-                 &optional-amp; [&start-r; [&end-r;]])</literal></term>
+ <varlistentry><term><code>(<function>GRAY:STREAM-WRITE-STRING</function>
+    &stream-r; &string-r; &optional-amp; [&start-r; [&end-r;]])</code></term>
   <listitem><simpara>Outputs the subsequence of &string-r; specified by
    &start-k; and &end-k; to &stream-r;.  Returns &string-r;.</simpara>
    <simpara>&string-r; is a string.  &start-r; is a nonnegative integer
    and default to 0.  &end-r; is a nonnegative integer or &nil; and
-   defaults to &nil;, which stands for <literal role="sexp">(&length;
-   &string-r;)</literal>.</simpara>
-  <simpara>The default method calls
+   defaults to &nil;, which stands for <code>(&length; &string-r;)</code>.
+   </simpara><simpara>The default method calls
    <function>GRAY:STREAM-WRITE-CHAR-SEQUENCE</function>;
    this is always sufficient.</simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>GRAY:STREAM-TERPRI</function>
-                 &stream-r;)</literal></term>
+ <varlistentry><term><code>(<function>GRAY:STREAM-TERPRI</function>
+                 &stream-r;)</code></term>
   <listitem><simpara>Outputs a &nl-s; character.</simpara>
   <simpara>The default method calls &st-wc;; this is always
    sufficient.</simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>GRAY:STREAM-FRESH-LINE</function>
-                 &stream-r;)</literal></term>
+ <varlistentry><term><code>(<function>GRAY:STREAM-FRESH-LINE</function>
+                 &stream-r;)</code></term>
   <listitem><simpara>Possibly outputs a &nl-s; character, so as to ensure
    that the next character would be written at the start of a new line.
    Returns true if it did output a &nl-s; character.</simpara>
@@ -233,28 +214,24 @@ and is supported by most &cl; implementations currently in use.</para>
    <function>GRAY:STREAM-START-LINE-P</function> and then
    <function>GRAY:STREAM-TERPRI</function> if necessary; this is always
    sufficient.</simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>GRAY:STREAM-FINISH-OUTPUT</function>
-                 &stream-r;)</literal></term>
+ <varlistentry><term><code>(<function>GRAY:STREAM-FINISH-OUTPUT</function>
+                 &stream-r;)</code></term>
   <listitem><simpara>Ensures that any buffered output has reached its
    destination, and then returns.</simpara>
   <simpara>The default method does nothing.</simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>GRAY:STREAM-FORCE-OUTPUT</function>
-                 &stream-r;)</literal></term>
+ <varlistentry><term><code>(<function>GRAY:STREAM-FORCE-OUTPUT</function>
+                 &stream-r;)</code></term>
   <listitem><simpara>Brings any buffered output on its way towards its
    destination, and returns without waiting until it has reached its
    destination.</simpara>
   <simpara>The default method does nothing.</simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>GRAY:STREAM-CLEAR-OUTPUT</function>
-                 &stream-r;)</literal></term>
+ <varlistentry><term><code>(<function>GRAY:STREAM-CLEAR-OUTPUT</function>
+                 &stream-r;)</code></term>
   <listitem><simpara>Attempts to discard any buffered output which has
    not yet reached its destination.</simpara>
   <simpara>The default method does nothing.</simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>GRAY:STREAM-ADVANCE-TO-COLUMN</function>
-                 &stream-r; <replaceable>column</replaceable>)</literal></term>
+ <varlistentry><term><code>(<function>GRAY:STREAM-ADVANCE-TO-COLUMN</function>
+                 &stream-r; <replaceable>column</replaceable>)</code></term>
   <listitem><simpara>Ensures that the next character will be written at
    <replaceable>column</replaceable> at least.</simpara>
   <simpara>The default method outputs an appropriate amount of space
@@ -263,13 +240,11 @@ and is supported by most &cl; implementations currently in use.</para>
 </variablelist>
 
 <variablelist><title>generic functions for binary input</title>
- <varlistentry id="st-rb"><term><literal
-    role="sexp">(&st-rb; &stream-r;)</literal></term>
+ <varlistentry id="st-rb"><term><code>(&st-rb; &stream-r;)</code></term>
   <listitem><simpara>Returns and consumes the next integer from the
    stream. Returns &eof-k; if the &eos; is reached.</simpara>
    &need-defmethod;</listitem></varlistentry>
- <varlistentry id="st-rbla"><term><literal
-    role="sexp">(&st-rbla; &stream-r;)</literal></term>
+ <varlistentry id="st-rbla"><term><code>(&st-rbla; &stream-r;)</code></term>
   <listitem><simpara>To be called only if &stream-r;'s
    &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
    Returns &t; if &st-rb; would return immediately with an
@@ -278,9 +253,8 @@ and is supported by most &cl; implementations currently in use.</para>
    immediately, returns &nil; instead of waiting.</simpara>
    &need-defmethod;<simpara>This function is a &clisp; extension (see
    &rbla;).</simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>GRAY:STREAM-READ-BYTE-WILL-HANG-P</function>
-                 &stream-r;)</literal></term>
+ <varlistentry><term><code>(<function>GRAY:STREAM-READ-BYTE-WILL-HANG-P</function>
+                 &stream-r;)</code></term>
   <listitem><simpara>To be called only if &stream-r;'s
    &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
    Returns &nil; if &st-rb; will return immediately.
@@ -288,9 +262,8 @@ and is supported by most &cl; implementations currently in use.</para>
    <simpara>The default method calls &st-rbla;; this is always sufficient.
    </simpara><simpara>This function is a &clisp; extension (see &rbwhp;).
  </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>GRAY:STREAM-READ-BYTE-NO-HANG</function>
-                 &stream-r;)</literal></term>
+ <varlistentry><term><code>(<function>GRAY:STREAM-READ-BYTE-NO-HANG</function>
+                 &stream-r;)</code></term>
   <listitem><simpara>To be called only if &stream-r;'s
    &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
    Returns an &integer-t; or &eof-k;, like &st-rb;, if that would
@@ -300,10 +273,9 @@ and is supported by most &cl; implementations currently in use.</para>
     this is always sufficient.</simpara>
    <simpara>This function is a &clisp; extension (see &rbnh;).
  </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>GRAY:STREAM-READ-BYTE-SEQUENCE</function>
+ <varlistentry><term><code>(<function>GRAY:STREAM-READ-BYTE-SEQUENCE</function>
      &stream-r; &sequence-r; &optional-amp;
-      [&start-r; [&end-r; [&no-hang; [&interactive-r;]]]])</literal></term>
+      [&start-r; [&end-r; [&no-hang; [&interactive-r;]]]])</code></term>
   <listitem><simpara>Fills the subsequence of &sequence-r; specified by
     &start-k; and &end-k; with integers consecutively read from &stream-r;.
     Returns the index of the first element of &sequence-r; that was not
@@ -311,7 +283,7 @@ and is supported by most &cl; implementations currently in use.</para>
    </simpara><simpara>&sequence-r; is an &array-t; of &integer-t;s.
     &start-r; is a nonnegative &integer-t; and defaults to 0.
     &end-r; is a nonnegative &integer-t; or &nil; and defaults to &nil;,
-    which stands for <literal role="sexp">(&length; &sequence-r;)</literal>.
+    which stands for <code>(&length; &sequence-r;)</code>.
     If &no-hang; is true, the function should avoid blocking and instead fill
     only as many elements as are immediately available. If &no-hang; is false
     and &interactive-r; is true, the function can block for reading the first
@@ -323,21 +295,19 @@ and is supported by most &cl; implementations currently in use.</para>
 </variablelist>
 
 <variablelist><title>generic functions for binary output</title>
- <varlistentry><term><literal
-    role="sexp">(<function>GRAY:STREAM-WRITE-BYTE</function>
-                 &stream-r; &int-r;)</literal></term>
+ <varlistentry><term><code>(<function>GRAY:STREAM-WRITE-BYTE</function>
+                 &stream-r; &int-r;)</code></term>
   <listitem><simpara>Writes &int-r;.</simpara>
    &need-defmethod;</listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>GRAY:STREAM-WRITE-BYTE-SEQUENCE</function>
+ <varlistentry><term><code>(<function>GRAY:STREAM-WRITE-BYTE-SEQUENCE</function>
      &stream-r; &sequence-r; &optional-amp;
-      [&start-r; [&end-r; [&no-hang;]]])</literal></term>
+      [&start-r; [&end-r; [&no-hang;]]])</code></term>
   <listitem><simpara>Outputs the subsequence of &sequence-r; specified
     by &start-k; and &end-k; to &stream-r;</simpara>
    <simpara>&sequence-r; is an &array-t; of &integer-t;s.
     &start-r; is a nonnegative &integer-t; and defaults to 0.
     &end-r; is a nonnegative &integer-t; or &nil; and defaults to &nil;,
-    which stands for <literal role="sexp">(&length; &sequence-r;)</literal>.
+    which stands for <code>(&length; &sequence-r;)</code>.
     If &no-hang; is true, the function should avoid blocking and instead output
     only as many elements as it can immediately proceed. If &no-hang; is false
     and &interactive-r; is true, the function can block for writing the first
@@ -396,7 +366,7 @@ and is supported by most &cl; implementations currently in use.</para>
 <warning><para>Note that, due to buffering, one must call &force-output;
  when done with the &fill-stream; (and before changing the indent variable).
  The former is done automatically by the macro
-<literal role="sexp">(with-fill-stream (fill target-stream ...) ...)</literal>.</para></warning>
+<code>(with-fill-stream (fill target-stream ...) ...)</code>.</para></warning>
 
 <example id="ex-fill-stream"><title>Example of &fill-stream; usage</title>
  <programlisting language="lisp">
