@@ -1,5 +1,11 @@
 1998-12-31  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
+        * defs1.lsp (union, nunion, intersection, nintersection,
+          set-difference, nset-difference): Rewrite to use iteration instead
+          of recursion.
+
+1998-12-31  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
+
         * loop.lsp (expand-loop): Fix bug introduced by 1998-12-21 patch.
 
 1998-12-22  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
