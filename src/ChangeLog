@@ -1,3 +1,8 @@
+2004-12-11  Bruno Haible  <bruno@clisp.org>
+
+	* macros3.lisp (expand-LETF*, expand-LETF): Handle symbol-macros
+	correctly.
+
 2004-12-08  Bruno Haible  <bruno@clisp.org>
 
 	* utils/gctrigger.d: New file.
