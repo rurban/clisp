@@ -6564,7 +6564,7 @@ global Values funcall (object fun, uintC args_on_stack)
           var object vallist = value1; # value-list
           var object symlist = popSTACK(); # symbol-list
           pushSP((aint)STACK); # push STACK into SP
-          progv(symlist,vallist); # build frame
+          with_saved_context( progv(symlist,vallist); ); # build frame
         }
         goto next_byte;
       # ------------------- (4) Stackoperations -----------------------
