@@ -1,8 +1,14 @@
 2003-04-02  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d, dfloat.d, ffloat.d: check DOUBLE_DIV0_EXCEPTION &c
+	with defined(), not the value itself, since, as per unixconf.h,
+	they are either defined to 1 or not defined at all
+
+2003-04-02  Sam Steingold  <sds@gnu.org>
+
 	New generic function CLOS:CLASS-PROTOTYPE from MOP
 	* clos.lisp (class-prototype): implemented, exported from CLOS -
-	but _not_ COMMON-LISP
+	but _not_ from COMMON-LISP
 	(standard-class): added slot PROTO
 	* lispbibl.d (Class): ditto
 

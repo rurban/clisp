@@ -1028,7 +1028,7 @@ local object DF_DF_mal_DF (object x1, object x2) {
      increase the exponent by 1.
    if the quotient is <2^54 , round the last bit away. On rounding
      overflow, shift by one further bit to the right, increment exponent. */
-#if defined(FAST_DOUBLE) && !DOUBLE_DIV0_EXCEPTION && !defined(I80386)
+#if defined(FAST_DOUBLE) && !defined(DOUBLE_DIV0_EXCEPTION) && !defined(I80386)
 local object DF_DF_durch_DF (object x1, object x2) {
   double_to_DF(DF_to_double(x1) / DF_to_double(x2), return ,
                true, true, /* catch Overflow and subnormal number */
