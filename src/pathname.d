@@ -932,6 +932,8 @@ nonreturning_function(local, fehler_file_stream_unnamed, (object stream)) {
 #ifndef LOGICAL_PATHNAMES
 #define lslashp(c)   pslashp(c)
 #endif
+#define dotp(c)      chareq(c,ascii('.'))
+#define starp(c)     chareq(c,ascii('*'))
 
 /* UP: add a character to an ASCII string and return as a Lisp string
  can trigger GC */
@@ -1039,7 +1041,7 @@ local object parse_logical_word (zustand* z, bool subdirp) {
   while (z->count) {
     ch = schar(STACK_2,z->index); /* next character */
     if (!legal_logical_word_char(ch)) {
-      if (chareq(ch,ascii('*'))) {
+      if (starp(ch)) {
         if (last_was_star) {
           if (subdirp && (z->index - startz.index == 1))
             seen_starstar = true;
@@ -1063,7 +1065,7 @@ local object parse_logical_word (zustand* z, bool subdirp) {
   }
   if (len==0)
     return NIL;
-  else if ((len==1) && chareq(schar(STACK_2,startz.index),ascii('*')))
+  else if ((len==1) && starp(schar(STACK_2,startz.index)))
     return S(Kwild);
   else if ((len==2) && seen_starstar)
     return S(Kwild_inferiors);
@@ -1094,23 +1096,28 @@ local bool all_digits (object string) {
   return true;
 }
 
-/* test whether the string contains semicolons,
+/* test whether the string contains semicolons (and the rest being valid!),
  thus appearing to be a logical pathname
  > string: storage vector, a normal-simple-string
  < result: true if the string contains semicolons */
 local bool looks_logical_p (object string) {
   var uintL len = Sstring_length(string);
+  var bool logical_p = false;
   if (len > 0) {
     SstringDispatch(string,X, {
       var const cintX* charptr = &((SstringX)TheVarobject(string))->data[0];
-      dotimespL(len,len, {
-        var chart ch = as_chart(*charptr++);
-        if (semicolonp(ch))
-          return true;
-      });
+      do {
+        var chart ch = up_case(as_chart(*charptr++));
+        if (!legal_logical_word_char(ch)) {
+          if (semicolonp(ch))
+            logical_p = true;
+          else if (!colonp(ch) && !dotp(ch) && !starp(ch))
+            return false; /* invalid logical pathname char */
+        }
+      } while (--len);
     });
   }
-  return false;
+  return logical_p;
 }
 
 /* Attempt to parse a logical host name string, starting at a given state.
@@ -1280,7 +1287,7 @@ local uintL parse_logical_pathnamestring (zustand z) {
   { /* parse Name: */
     var object name = parse_logical_word(&z,false);
     TheLogpathname(STACK_1)->pathname_name = name;
-    if ((z.count > 0) && chareq(schar(STACK_2,z.index),ascii('.'))) {
+    if ((z.count > 0) && dotp(schar(STACK_2,z.index))) {
       var zustand z_name = z;
       /* skip Character '.' : */
       Z_SHIFT(z,1);
@@ -1288,7 +1295,7 @@ local uintL parse_logical_pathnamestring (zustand z) {
       var object type = parse_logical_word(&z,false);
       TheLogpathname(STACK_1)->pathname_type = type;
       if (!nullp(type)) {
-        if ((z.count > 0) && chareq(schar(STACK_2,z.index),ascii('.'))) {
+        if ((z.count > 0) && dotp(schar(STACK_2,z.index))) {
           var zustand z_type = z;
           /* skip Character '.' : */
           Z_SHIFT(z,1);
@@ -1609,7 +1616,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
           goto no_drivespec; /* string already through ? */
         ch = TheSstring(STACK_1)->data[z.index]; /* next character */
         ch = up_case(ch); /* as capital letter */
-        if (chareq(ch,ascii('*'))) {
+        if (starp(ch)) {
           /* ch = '*' -> Device := :WILD */
           device = S(Kwild);
         } else if ((as_cint(ch) >= 'A') && (as_cint(ch) <= 'Z')) {
@@ -1775,7 +1782,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
      #if defined(PATHNAME_UNIX) || defined(PATHNAME_WIN32)
       #if defined(UNIX_CYGWIN32)
         if (z.count > 1 && !nullpSv(device_prefix)
-            && chareq(schar(STACK_2,z.index+1),ascii(':'))) {
+            && colonp(schar(STACK_2,z.index+1))) {
           /* if string starts with 'x:', treat it as a device */
           var chart ch = down_case(schar(STACK_2,z.index));
           if ((as_cint(ch) >= 'a') && (as_cint(ch) <= 'z')) {
@@ -3089,9 +3096,9 @@ local bool legal_logical_word (object obj) {
     var bool last_was_star = false;
     dotimespL(len,len, {
       var chart cc = as_chart(*charptr++);
-      if (!(legal_logical_word_char(cc) || chareq(cc,ascii('*'))))
+      if (!(legal_logical_word_char(cc) || starp(cc)))
         return false;
-      if (chareq(cc,ascii('*'))) {
+      if (starp(cc)) {
         if (last_was_star)
           return false; /* adjacent '*' are forbidden */
         last_was_star = true;
@@ -3143,7 +3150,7 @@ local bool legal_type (object obj) {
       var const cintX* charptr = &((SstringX)TheVarobject(obj))->data[0];
       dotimespL(len,len, {
         var chart cc = as_chart(*charptr++);
-        if (chareq(cc,ascii('.')) || !legal_namechar(cc))
+        if (dotp(cc) || !legal_namechar(cc))
           return false;
       });
     });
@@ -3620,7 +3627,7 @@ local bool word_wild_p (object obj, bool dirp) {
       SstringDispatch(obj,X, {
         var const cintX* charptr = &((SstringX)TheVarobject(obj))->data[0];
         dotimespL(len,len, {
-          if (chareq(as_chart(*charptr++),ascii('*')))
+          if (starp(as_chart(*charptr++)))
             return true;
         });
       });
@@ -3831,7 +3838,7 @@ local bool wildcard_match_ab (uintL m_count, const chart* m_ptr,
     if (chareq(c,ascii('?'))) { /* wildcard '?' */
       if (b_count==0) return false; /* at least one character still has to come */
       b_count--; b_ptr++; /* it will be ignored */
-    } else if (chareq(c,ascii('*')))
+    } else if (starp(c))
       break; /* wildcard '*' later */
     else { /* everything else must match exactly: */
       if (b_count==0) return false;
@@ -3851,7 +3858,7 @@ local bool wildcard_match_ab (uintL m_count, const chart* m_ptr,
       if (b_count==0) return false;
       b_count--; b_ptr++;
     }
-    else if (!chareq(c,ascii('*')))
+    else if (!starp(c))
       break;
   }
   /* c = next non-wildcard-character. Search it. */
@@ -4094,7 +4101,7 @@ local void wildcard_diff_ab (object pattern, object sample,
       return;
     }
     cc = schar(pattern,m_index++);
-    if (chareq(cc,ascii('*')))
+    if (starp(cc))
       break;
     if (b_index == Sstring_length(sample))
       return;
@@ -4127,7 +4134,7 @@ local void wildcard_diff_ab (object pattern, object sample,
     if (m_index == Sstring_length(pattern)
         ? b_index == Sstring_length(sample)
         : (cc = schar(pattern,m_index),
-           chareq(cc,ascii('*')) || chareq(cc,ascii('?'))
+           starp(cc) || chareq(cc,ascii('?'))
            || (b_index < Sstring_length(sample)
                && equal_pathchar(schar(sample,b_index),cc)))) {
       /* wildcard_diff_ab() recursive call, with extended previous: */
@@ -4571,7 +4578,7 @@ local object translate_nametype_aux (gcv_object_t* subst, object pattern,
       pattern = *pattern_;
       while (index != len) {
         cc = schar(pattern,index);
-        if ((chareq(cc,ascii('*')) /* wildcard for arbitrary many characters */
+        if ((starp(cc) /* wildcard for arbitrary many characters */
              || (!logical && singlewild_char_p(cc))) /* wildcard for exactly one character */
             && mconsp(*subst))
           break;
@@ -5489,7 +5496,7 @@ local object OSdirnamestring (object namestring) {
     goto ok;
   if (len==1) goto ok; /* "\" means Root -> do not discard */
   ch = TheSstring(namestring)->data[len-2];
-  if (chareq(ch,ascii('\\')) || chareq(ch,ascii(':'))) /* '\' or ':' before it */
+  if (chareq(ch,ascii('\\')) || colonp(ch)) /* '\' or ':' before it */
     goto ok; /* -> means parent -> do not discard */
   /* discard '\' at the end: */
   namestring = subsstring(namestring,0,len-1);
