@@ -2578,6 +2578,7 @@ LISPFUNN(offset,3) {
   }
   STACK_1 = check_sint32(STACK_1);
   foreign_layout(STACK_0);
+  fvar = STACK_2;
   var uintL size = data_size;
   var uintL alignment = data_alignment;
   { /* Allocate a new foreign address. */
