@@ -7148,6 +7148,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         var bool case_sensitive = false;
         var object curr_pack = get_current_package();
         if (accessiblep(sym,curr_pack) &&
+            # print PACK::SYMBOL even when the symbol is accessble
+            # this is for writing compiled files
             nullp(Symbol_value(S(print_symbols_long)))) {
           # Falls Symbol accessible und nicht verdeckt,
           # keinen Packagenamen und keine Packagemarker ausgeben.
@@ -7174,6 +7176,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             home = popSTACK(); # Home-Package zurück
             case_sensitive = pack_casesensitivep(home);
             if (externalp(STACK_0,home) &&
+                # the "raison d'etre" of *PRINT-SYMBOLS-LONG* is FAS files,
+                # so it forces even external symbols to be printed with "::"
                 nullp(Symbol_value(S(print_symbols_long))))
               goto one_marker; # ja -> 1 Packagemarker
             write_ascii_char(stream_,':'); # sonst 2 Packagemarker
