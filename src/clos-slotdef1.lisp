@@ -83,6 +83,7 @@
      (:fixed-slot-locations)))
 
 ;; Information about a slot that is still significant at runtime.
+(defvar <effective-slot-definition> 'effective-slot-definition)
 (defvar *<effective-slot-definition>-defclass*
   '(defclass effective-slot-definition (slot-definition)
      (($location     :type (or null integer cons)
@@ -416,6 +417,16 @@
 (defun effective-slot-definition-class (class &rest initargs)
   (declare (ignore class initargs))
   'standard-effective-slot-definition)
+
+;; Type test.
+(defun effective-slot-definition-p (object)
+  (and (std-instance-p object)
+       (let ((cv (sys::%record-ref object 0)))
+         ; Treat the most frequent case first, for speed and bootstrapping.
+         (cond ((eq cv *<standard-effective-slot-definition>-class-version*) t)
+               (t ; Now a slow, but general instanceof test.
+                 (gethash <effective-slot-definition>
+                          (class-all-superclasses (class-of object))))))))
 
 ;; Type test.
 (defun standard-effective-slot-definition-p (object)
