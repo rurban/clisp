@@ -290,6 +290,10 @@
      ((subclass-of-stablehash-p ; true if <standard-stablehash> or
                            ; <structure-stablehash> is among the superclasses
         :type boolean)
+      (direct-accessors    ; automatically generated accessor methods
+                           ; (as plist)
+        :type list
+        :initform '())
       (valid-initargs      ; list of valid initargs
         :type list)
       (instance-size       ; number of local slots of the direct instances + 1
@@ -298,14 +302,19 @@
 
 ;; Fixed slot locations.
 (defconstant *<slotted-class>-subclass-of-stablehash-p-location* 16)
-(defconstant *<slotted-class>-valid-initargs-location* 17)
-(defconstant *<slotted-class>-instance-size-location* 18)
+(defconstant *<slotted-class>-direct-accessors-location* 17)
+(defconstant *<slotted-class>-valid-initargs-location* 18)
+(defconstant *<slotted-class>-instance-size-location* 19)
 
 ;; Preliminary accessors.
 (defun class-subclass-of-stablehash-p (object)
   (sys::%record-ref object *<slotted-class>-subclass-of-stablehash-p-location*))
 (defun (setf class-subclass-of-stablehash-p) (new-value object)
   (setf (sys::%record-ref object *<slotted-class>-subclass-of-stablehash-p-location*) new-value))
+(defun class-direct-accessors (object)
+  (sys::%record-ref object *<slotted-class>-direct-accessors-location*))
+(defun (setf class-direct-accessors) (new-value object)
+  (setf (sys::%record-ref object *<slotted-class>-direct-accessors-location*) new-value))
 (defun class-valid-initargs (object)
   (sys::%record-ref object *<slotted-class>-valid-initargs-location*))
 (defun (setf class-valid-initargs) (new-value object)
@@ -319,6 +328,10 @@
 (defun shared-initialize-<slotted-class> (class situation &rest args
                                           &key &allow-other-keys)
   (apply #'shared-initialize-<class> class situation args)
+  (unless *classes-finished*
+    ; Bootstrapping: Simulate the effect of #'%shared-initialize.
+    (when (eq situation 't) ; called from initialize-instance?
+      (setf (class-direct-accessors class) '())))
   ; The following slots are initialized by the subclass' shared-initialize:
   ;   subclass-of-stablehash-p
   ;   valid-initargs
@@ -339,7 +352,7 @@
 (defvar *<structure-class>-class-version* (make-class-version))
 
 ;; Fixed slot locations.
-(defconstant *<structure-class>-names-location* 19)
+(defconstant *<structure-class>-names-location* 20)
 
 ;; Preliminary accessors.
 (defun class-names (object)
@@ -347,7 +360,7 @@
 (defun (setf class-names) (new-value object)
   (setf (sys::%record-ref object *<structure-class>-names-location*) new-value))
 
-(defconstant *<structure-class>-instance-size* 20)
+(defconstant *<structure-class>-instance-size* 21)
 
 ;;; ===========================================================================
 
@@ -360,10 +373,6 @@
      ((current-version     ; most recent class-version, points back to this
                            ; class
         :type simple-vector)
-      (direct-accessors    ; automatically generated accessor methods
-                           ; (as plist)
-        :type list
-        :initform '())
       (fixed-slot-locations ; flag whether to guarantee same slot locations
                            ; in all subclasses
         )
@@ -380,8 +389,7 @@
 (defvar *<standard-class>-class-version* (make-class-version))
 
 ;; Fixed slot locations.
-(defconstant *<standard-class>-current-version-location* 19)
-(defconstant *<standard-class>-direct-accessors-location* 20)
+(defconstant *<standard-class>-current-version-location* 20)
 (defconstant *<standard-class>-fixed-slot-locations-location* 21)
 (defconstant *<standard-class>-instantiated-location* 22)
 (defconstant *<standard-class>-finalized-direct-subclasses-location* 23)
@@ -392,10 +400,6 @@
   (sys::%record-ref object *<standard-class>-current-version-location*))
 (defun (setf class-current-version) (new-value object)
   (setf (sys::%record-ref object *<standard-class>-current-version-location*) new-value))
-(defun class-direct-accessors (object)
-  (sys::%record-ref object *<standard-class>-direct-accessors-location*))
-(defun (setf class-direct-accessors) (new-value object)
-  (setf (sys::%record-ref object *<standard-class>-direct-accessors-location*) new-value))
 (defun class-fixed-slot-locations (object)
   (sys::%record-ref object *<standard-class>-fixed-slot-locations-location*))
 (defun (setf class-fixed-slot-locations) (new-value object)
