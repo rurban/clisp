@@ -157,6 +157,12 @@ fsstnd='' # supported styles: gnu, gnu_ext, suse, redhat, debian, *bsd
 MODULES=''
 CP='cp -p'
 LN_S='ln -s'
+if [ "$HSYSOS" = beos ] ; then
+  # The BeOS 5 filesystem has only symbolic links, no hard links.
+  LN_HARD='ln -s'
+else
+  LN_HARD='ln'
+fi
 HLN='ln'
 
 # NLS nuisances.
@@ -2391,7 +2397,7 @@ if [ -n "$USE_GETTEXT" ] ; then
   if [ $HOS = unix ] ; then
     echotab "if test -d locale; then rm -rf locale; fi"
     echotab "mkdir locale"
-    echotab "(cd po && \$(MAKE) && \$(MAKE) install datadir=.. localedir='\$\$(datadir)/locale' INSTALL_DATA=ln) || (rm -rf locale ; exit 1)"
+    echotab "(cd po && \$(MAKE) && \$(MAKE) install datadir=.. localedir='\$\$(datadir)/locale' INSTALL_DATA='$LN_HARD') || (rm -rf locale ; exit 1)"
   else
     echotab "mkdir locale"
     my_eval `grep ALL_LINGUAS= src/configure.in`
