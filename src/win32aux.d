@@ -33,6 +33,13 @@
 # Winsock library initialization flag
   local bool winsock_initialized = 0;
 
+/* Early/late error print function. The problem of early/late errors is
+   complex, this is a simple kind of temporary solution */
+local void earlylate_asciz_error (const char * description, bool fatal_p) {
+  full_write(stderr_handle,description,strlen(description));
+  if (fatal_p) _exit(1); /* FIXME: no finalization, no closing files! */
+}
+
 # Initialization.
   global void init_win32 (void);
   global void init_win32()
@@ -542,17 +549,6 @@ global int read_helper (HANDLE fd, void* buf, int nbyte, bool partial_p) {
       }
       return done;
     }
-
-   global void earlylate_asciz_error (const char * description, bool fatal_p);
-   global void earlylate_asciz_error (description,fatal_p)
-     const char * description;
-     bool fatal_p;
-     {
-       full_write(stderr_handle,description,strlen(description));
-       if (fatal_p) _exit(1); # no finalization
-                              # no closing files
-                              # that should be solved
-     }
 
 # Reading from a socket.
   # This is the non-interruptible routine.
