@@ -11,6 +11,270 @@
             );
     }
 
+# karatsuba_threshold = Länge, ab der die Karatsuba-Multiplikation bevorzugt
+# wird. Der Break-Even-Point bestimmt sich aus Zeitmessungen.
+# Als Test dient (progn (time (! 5000)) nil), das viele kleine und einige
+# ganz große Multiplikationen durchführt. Miss die Runtime.
+# Unter Linux mit einem 80486:      Auf einer Sparc 2:
+# threshold  time in 0.01 sec.
+#      5        125
+#      6        116
+#      7        107
+#      8        101
+#      9         99
+#     10         98
+#     11         97
+#     12         96
+#     13         97
+#     14         97
+#     15         97
+#     16         98
+#     17         98
+#     18         98
+#     19         98
+#     20         99
+#     25        103
+#     30        109
+#     40        115
+#     50        122
+#     70        132
+#    100        151
+#    150        164
+#    250        183
+#    500        203
+#   1000        203
+# Das Optimum scheint bei karatsuba_threshold = 12 zu liegen.
+# Da das Optimum aber vom Verhältnis
+#         Zeit für uintD-Multiplikation / Zeit für uintD-Addition
+# abhängt und die gemessenen Zeiten auf eine Unterschreitung des Optimums
+# empfindlicher reagieren als auf eine Überschreitung des Optimums,
+# sind wir vorsichtig und wählen einen Wert etwas über dem Optimum:
+#define karatsuba_threshold  16
+
+# Quadriert eine Unsigned-Digit-sequence.
+# UDS_square_UDS(len1,LSDptr1, MSDptr=,len=,LSDptr=);
+# quadriert die UDS ../len1/LSDptr1.
+# Dabei sollte len1>0 sein.
+# Ergebnis ist die UDS MSDptr/len/LSDptr, mit len=2*len1, im Stack.
+# Dabei wird num_stack erniedrigt.
+  #define UDS_square_UDS(len1,LSDptr1, MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung)  \
+    { var uintL len_from_UDSmal = 2*(uintL)(len1);                                                 \
+      var uintD* LSDptr_from_UDSmal;                                                               \
+      if ((intWCsize < 32) && (len_from_UDSmal > (uintL)(bitc(intWCsize)-1))) { mal_ueberlauf(); } \
+      unused (len_zuweisung len_from_UDSmal);                                                      \
+      num_stack_need(len_from_UDSmal,MSDptr_zuweisung,LSDptr_zuweisung LSDptr_from_UDSmal =);      \
+      square_2loop_down((LSDptr1),(len1),LSDptr_from_UDSmal);                                      \
+    }
+
+# Quadrier-Doppelschleife:
+# Quadriert eine UDS und legt das Ergebnis in einer anderen UDS ab.
+# square_2loop_down(sourceptr,len,destptr);
+# quadriert die UDS  sourceptr[-len..-1]  (len1>0)
+# und legt das Ergebnis in der UDS  destptr[-2*len..-1]  ab.
+# Unterhalb von destptr werden 2*len Digits Platz benötigt.
+  local void square_2loop_down (const uintD* sourceptr, uintC len,
+                                uintD* destptr);
+  local void square_2bigloop_down (const uintD* sourceptr, uintC len,
+                                   uintD* destptr);
+  local void square_2loop_down(sourceptr,len,destptr)
+    var const uintD* sourceptr;
+    var uintC len;
+    var uintD* destptr;
+    { if (len==1)
+        { var uintD digit = sourceptr[-1];
+          #if HAVE_DD
+          var uintDD prod = muluD(digit,digit);
+          destptr[-1] = lowD(prod); destptr[-2] = highD(prod);
+          #else
+          muluD(digit,digit, destptr[-2] =, destptr[-1] =);
+          #endif
+        }
+      elif (len < karatsuba_threshold)
+        # Multiplikation nach Schulmethode
+        { # Gemischte Produkte:
+          # 2*(  x[n-1..1] * x[0] * b^1
+          #    + x[n-1..2] * x[1] * b^3
+          #    + ...
+          #    + x[n-1..n-1] * x[n-2] * b^(2*n-3))
+          { var const uintD* sourceptr1 = sourceptr;
+            var uintD* destptr2 = destptr;
+            *--destptr2 = 0;
+           {var uintC count = len-1;
+            { var uintD digit = *--sourceptr1;
+              mulu_loop_down(digit,sourceptr1,destptr2,count);
+            }
+            { var uintD* destptr1 = destptr - (len+1);
+              while (--count > 0)
+                { destptr2 -= 2;
+                 {var uintD digit = *--sourceptr1;
+                  var uintD carry = muluadd_loop_down(digit,sourceptr1,destptr2,count);
+                  *--destptr1 = carry;
+                }}
+             {var uintD carry = shift1left_loop_down(destptr-1,2*len-2);
+              destptr1[-1] = (carry==0 ? 0 : 1);
+          }}}}
+          # Quadrate:
+          len = 2*len;
+          do { len -= 2;
+              {var uintD digit = *--sourceptr;
+               #if HAVE_DD
+               var uintDD prod = muluD(digit,digit);
+               var uintDD accu = highlowDD(destptr[-2],destptr[-1]);
+               accu += prod;
+               destptr[-1] = lowD(accu); destptr[-2] = highD(accu);
+               destptr -= 2;
+               if (accu < prod) { inc_loop_down(destptr,len); }
+               #else
+               var uintD hi;
+               var uintD lo;
+               var uintD tmp;
+               muluD(digit,digit, hi=,lo=);
+               tmp = destptr[-1] + lo; destptr[-1] = tmp;
+               if (tmp < lo) hi++;
+               tmp = destptr[-2] + hi; destptr[-2] = tmp;
+               destptr -= 2;
+               if (tmp < hi) { inc_loop_down(destptr,len); }
+               #endif
+             }} while (len > 0);
+        }
+      else # len groß
+        # Karatsuba-Quadrierung
+        # (ausgelagert, um die eigentliche Quadrierfunktion nicht
+        # durch zu viele Registervariablen zu belasten):
+        square_2bigloop_down(sourceptr,len,destptr);
+    }
+  local void square_2bigloop_down(sourceptr,len,destptr)
+    var const uintD* sourceptr;
+    var uintC len;
+    var uintD* destptr;
+    # Karatsuba-Quadrierung
+    { # Es ist 2 <= len.
+      SAVE_NUM_STACK
+      var uintC prod_len = 2*len;
+      var uintD* prod_LSDptr = destptr;
+      var uintC k_hi = floor(len,2); # Länge der High-Teile: floor(len/2) >0
+      var uintC k_lo = len - k_hi; # Länge der Low-Teile: ceiling(len/2) >0
+      # Es gilt k_hi <= k_lo <= len, k_lo + k_hi = len.
+      # Summe x1+x0 berechnen:
+      var uintD* sum_MSDptr;
+      var uintC sum_len = k_lo; # = max(k_lo,k_hi)
+      var uintD* sum_LSDptr;
+      num_stack_need(sum_len+1,sum_MSDptr=,sum_LSDptr=);
+      sum_MSDptr++; # 1 Digit vorne als Reserve
+      {var uintD carry = # Hauptteile von x1 und x0 addieren:
+         add_loop_down(sourceptr-k_lo,sourceptr,sum_LSDptr,k_hi);
+       if (!(k_lo==k_hi))
+         # noch k_lo-k_hi = 1 Digits abzulegen
+         { sum_MSDptr[0] = sourceptr[-(uintP)k_lo]; # = sourceptr[-(uintP)k_hi-1]
+           if (!(carry==0)) { if (++(sum_MSDptr[0]) == 0) carry=1; else carry=0; }
+         }
+       if (carry) { *--sum_MSDptr = 1; sum_len++; }
+      }
+      # Platz für Produkte x0*x0, x1*x1:
+      { var uintC prodhi_len = 2*k_hi;
+        var uintD* prodhi_LSDptr = prod_LSDptr - 2*k_lo;
+        # prod_MSDptr/2*len/prod_LSDptr wird zuerst die beiden
+        # Produkte x1*x1 in prod_MSDptr/2*k_hi/prodhi_LSDptr
+        #      und x0*x0 in prodhi_LSDptr/2*k_lo/prod_LSDptr,
+        # dann das Produkt (b^k*x1+x0)*(b^k*x1+x0) enthalten.
+        # Platz fürs Produkt (x1+x0)*(x1+x0) belegen:
+       {var uintD* prodmid_MSDptr;
+        var uintC prodmid_len = 2*sum_len;
+        var uintD* prodmid_LSDptr;
+        num_stack_need(prodmid_len,prodmid_MSDptr=,prodmid_LSDptr=);
+        # Produkt (x1+x0)*(x1+x0) berechnen:
+        square_2loop_down(sum_LSDptr,sum_len,prodmid_LSDptr);
+        # Das Produkt beansprucht  2*k_lo + (0 oder 1) <= 2*sum_len = prodmid_len  Digits.
+        # Produkt x0*x0 berechnen:
+        square_2loop_down(sourceptr,k_lo,prod_LSDptr);
+        # Produkt x1*x1 berechnen:
+        square_2loop_down(sourceptr-k_lo,k_hi,prodhi_LSDptr);
+        # Und x1*x1 abziehen:
+        {var uintD carry =
+           subfrom_loop_down(prodhi_LSDptr,prodmid_LSDptr,prodhi_len);
+         # Carry um maximal prodmid_len-prodhi_len Digits weitertragen:
+         if (!(carry==0))
+           { dec_loop_down(prodmid_LSDptr-prodhi_len,prodmid_len-prodhi_len); }
+        }
+        # Und x0*x0 abziehen:
+        {var uintD carry =
+           subfrom_loop_down(prod_LSDptr,prodmid_LSDptr,2*k_lo);
+         # Falls Carry: Produkt beansprucht 2*k_lo+1 Digits.
+         # Carry um maximal 1 Digit weitertragen:
+         if (!(carry==0)) { prodmid_LSDptr[-2*(uintP)k_lo-1] -= 1; }
+        }
+        # prodmid_LSDptr[-prodmid_len..-1] enthält nun 2*x0*x1.
+        # Dies ist < 2 * b^k_lo * b^k_hi = 2 * b^len,
+        # passt also in len+1 Digits.
+        # prodmid_len, wenn möglich, um maximal 2 verkleinern:
+        # (benutzt prodmid_len >= 2*k_lo >= len >= 2)
+        if (prodmid_MSDptr[0]==0)
+          { prodmid_len--;
+            if (prodmid_MSDptr[1]==0) { prodmid_len--; }
+          }
+        # Nun ist k_lo+prodmid_len <= 2*len .
+        # (Denn es war prodmid_len = 2*sum_len <= 2*(k_lo+1)
+        #  <= len+3, und nach 2-maliger Verkleinerung jedenfalls
+        #  prodmid_len <= len+1. Wegen k_lo < len also
+        #  k_lo + prodmid_len <= (len-1)+(len+1) = 2*len.)
+        # prodmid*b^k = 2*x0*x1*b^k zu prod = x1*x1*b^(2*k) + x0*x0 addieren:
+        {var uintD carry =
+           addto_loop_down(prodmid_LSDptr,prod_LSDptr-k_lo,prodmid_len);
+         if (!(carry==0))
+           { inc_loop_down(prod_LSDptr-(k_lo+prodmid_len),prod_len-(k_lo+prodmid_len)); }
+      }}}
+      RESTORE_NUM_STACK
+    }
+
+# (* x x), wo x ein Integer ist. Ergebnis Integer.
+# kann GC auslösen
+  # Methode:
+  # x=0 -> Ergebnis 0
+  # x Fixnum -> direkt quadrieren
+  # sonst: zu WS machen, quadrieren.
+  local object I_square_I (object x);
+  local object I_square_I(x)
+    var object x;
+    { if (eq(x,Fixnum_0))
+        { return Fixnum_0; }
+      if (I_fixnump(x))
+        { var sint32 x_ = FN_to_L(x);
+         #if (oint_data_len+1 > intLsize)
+          # nur falls x ein Integer mit höchstens 32 Bit ist:
+          if (((sint32)FN_sign(x) ^ x_) >= 0)
+         #endif
+         {# Wert direkt quadrieren:
+          var uint32 hi;
+          var uint32 lo;
+          mulu32((uint32)x_,(uint32)x_,hi=,lo=); # erst unsigned multiplizieren
+          if (x_ < 0) { hi -= 2*(uint32)x_; } # dann Korrektur für Vorzeichen
+          return L2_to_I(hi,lo);
+        }}
+     {SAVE_NUM_STACK # num_stack retten
+      var uintD* xMSDptr;
+      var uintC xlen;
+      var uintD* xLSDptr;
+      var uintD* ergMSDptr;
+      var uintC erglen;
+      var uintD* ergLSDptr;
+      I_to_NDS_nocopy(x, xMSDptr = , xlen = , xLSDptr = );
+      begin_arith_call();
+      erglen = 2*xlen;
+      if ((intWCsize < 32) && (erglen > (uintL)(bitc(intWCsize)-1))) { mal_ueberlauf(); }
+      num_stack_need(erglen, ergMSDptr = , ergLSDptr = );
+      { var uintC len = xlen;
+        var uintD MSD = xMSDptr[0];
+        if (MSD == 0) { ergMSDptr[0] = 0; ergMSDptr[1] = 0; len--; }
+        square_2loop_down(xLSDptr,len,ergLSDptr);
+        if ((sintD)MSD < 0)
+          { subfrom_loop_down(xLSDptr,ergLSDptr-xlen,xlen);
+            subfrom_loop_down(xLSDptr,ergLSDptr-xlen,xlen);
+      }   }
+      end_arith_call();
+      RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
+      return DS_to_I(ergMSDptr,erglen);
+    }}
+
 # Multipliziert zwei Unsigned-Digit-sequences.
 # UDS_UDS_mal_UDS(len1,LSDptr1, len2,LSDptr2, MSDptr=,len=,LSDptr=);
 # multipliziert die UDS ../len1/LSDptr1 und ../len2/LSDptr2.
@@ -39,45 +303,6 @@
   local void mulu_2bigloop_down (const uintD* sourceptr1, uintC len1,
                                  const uintD* sourceptr2, uintC len2,
                                  uintD* destptr);
-  # karatsuba_threshold = Länge, ab der die Karatsuba-Multiplikation bevorzugt
-  # wird. Der Break-Even-Point bestimmt sich aus Zeitmessungen.
-  # Als Test dient (progn (time (! 5000)) nil), das viele kleine und einige
-  # ganz große Multiplikationen durchführt. Miss die Runtime.
-  # Unter Linux mit einem 80486:      Auf einer Sparc 2:
-  # threshold  time in 0.01 sec.
-  #      5        125
-  #      6        116
-  #      7        107
-  #      8        101
-  #      9         99
-  #     10         98
-  #     11         97
-  #     12         96
-  #     13         97
-  #     14         97
-  #     15         97
-  #     16         98
-  #     17         98
-  #     18         98
-  #     19         98
-  #     20         99
-  #     25        103
-  #     30        109
-  #     40        115
-  #     50        122
-  #     70        132
-  #    100        151
-  #    150        164
-  #    250        183
-  #    500        203
-  #   1000        203
-  # Das Optimum scheint bei karatsuba_threshold = 12 zu liegen.
-  # Da das Optimum aber vom Verhältnis
-  #         Zeit für uintD-Multiplikation / Zeit für uintD-Addition
-  # abhängt und die gemessenen Zeiten auf eine Unterschreitung des Optimums
-  # empfindlicher reagieren als auf eine Überschreitung des Optimums,
-  # sind wir vorsichtig und wählen einen Wert etwas über dem Optimum:
-  #define karatsuba_threshold  16
   local void mulu_2loop_down(sourceptr1,len1,sourceptr2,len2,destptr)
     var const uintD* sourceptr1;
     var uintC len1;
@@ -478,7 +703,7 @@
         { if (I_oddp(STACK_0)) # b ungerade?
             { STACK_1 = I_I_mal_I(STACK_2,STACK_1); } # c:=a*c
           STACK_0 = I_I_ash_I(STACK_0,Fixnum_minus1); # b := (ash b -1) = (floor b 2)
-          STACK_2 = I_I_mal_I(STACK_2,STACK_2); # a:=a*a
+          STACK_2 = I_square_I(STACK_2); # a:=a*a
         }
       skipSTACK(1);
      {var object c = popSTACK();
@@ -492,14 +717,14 @@
     { pushSTACK(x); pushSTACK(y);
       # Stackaufbau: a, b.
       while (!I_oddp(y))
-        { var object a = STACK_1; STACK_1 = I_I_mal_I(a,a); # a:=a*a
+        { STACK_1 = I_square_I(STACK_1); # a:=a*a
           STACK_0 = y = I_I_ash_I(STACK_0,Fixnum_minus1); # b := (ash b -1)
         }
       pushSTACK(STACK_1); # c:=a
       # Stackaufbau: a, b, c.
       until (eq(y=STACK_1,Fixnum_1)) # Solange b/=1
         { STACK_1 = I_I_ash_I(y,Fixnum_minus1); # b := (ash b -1)
-         {var object a = STACK_2; STACK_2 = a = I_I_mal_I(a,a); # a:=a*a
+         {var object a = STACK_2 = I_square_I(STACK_2); # a:=a*a
           if (I_oddp(STACK_1)) { STACK_0 = I_I_mal_I(a,STACK_0); } # evtl. c:=a*c
         }}
       {var object erg = STACK_0; skipSTACK(3); return erg; }

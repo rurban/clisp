@@ -610,7 +610,7 @@
             pushSTACK(y); pushSTACK(y);
        }}} } # Stackaufbau: x, y, c, a.
        until ((n = n>>1) == 0)
-         { var object a = STACK_0; STACK_0 = a = I_I_mal_I(a,a);
+         { var object a = STACK_0 = I_square_I(STACK_0);
            if (!((n & bit(0)) == 0)) { STACK_1 = I_I_mal_I(a,STACK_1); }
          }
        {var object temp = STACK_1; skipSTACK(2); # temp = y^n
