@@ -12806,19 +12806,6 @@ nonreturning_function(extern, fehler_stringsize, (uintL size));
  > obj: the erroneous argument */
 nonreturning_function(extern, fehler_class, (object obj));
 
-# Error message, if an argument isn't a stream:
-# fehler_stream(obj);
-# > obj: the faulty argument
-nonreturning_function(extern, fehler_stream, (object obj));
-# is used by IO, STREAM, DEBUG
-
-# Error message, if an argument isn't a stream of the requested stream-type:
-# fehler_streamtype(obj,type);
-# > obj: the faulty argument
-# > type: requested stream-type
-nonreturning_function(extern, fehler_streamtype, (object obj, object type));
-# is used by STREAM
-
 /* Report an error when the argument is not an encoding:
  check_encoding(obj,&default,keyword_p)
  > obj: the (possibly) bad argument
@@ -13394,6 +13381,21 @@ nonreturning_function(extern, fehler_both_tests, (void));
 # is used by LIST, SEQUENCE, WEAK
 
 # ###################### STRMBIBL for STREAM.D ############################# #
+
+/* Error message, if an argument isn't a stream:
+ check_stream_replacement(obj);
+ > obj: not a stream
+ < obj: a stream
+ can trigger GC */
+extern object check_stream_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_stream (object obj) {
+  if (!streamp(obj))
+    obj = check_stream_replacement(obj);
+  return obj;
+}
+#endif
+/* is used by IO, STREAM, DEBUG */
 
 /* parse timeout argument
  sec = posfixnum or (SEC . USEC) or (SEC USEC) or float or ratio or nil/unbound
