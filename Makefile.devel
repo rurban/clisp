@@ -194,7 +194,7 @@ ANSITESTS_CVS_REPOSITORY = gcl/ansi-tests
 update-ansi-tests:
 	if test -d ansi-tests; then \
 	  cd ansi-tests && \
-	  cvs -d "$(ANSITESTS_CVS_ROOT)" update -d -P; \
+	  cvs -d update -d -P; \
 	else \
 	  cvs -d "$(ANSITESTS_CVS_ROOT)" checkout $(ANSITESTS_CVS_REPOSITORY); \
 	  mv $(ANSITESTS_CVS_REPOSITORY) ansi-tests; \
