@@ -456,7 +456,7 @@
             (write-string (ENGLISH " is finished."))
             (terpri))
         (setq host (string-upcase host))
-        (set-logical-pathname-translations host (read fi))
+        (set-logical-pathname-translations host (eval (read fi)))
         (when *load-verbose*
           (fresh-line) (write-string ";; ")
           (write-string (ENGLISH "Defined logical host "))
