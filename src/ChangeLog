@@ -1,5 +1,12 @@
 1999-04-07  Sam Steingold  <sds@goems.com>
 
+	Implemented ANSI CL issue KEYWORD-ARGUMENT-NAME-PACKAGE:ANY.
+	* eval.d (get_closure, check_for_illegal_keywords): accept symbols
+	as keywords.
+	* compiler.lsp (analyze-lambdalist): accept symbols as keywords.
+
+1999-04-07  Sam Steingold  <sds@goems.com>
+
 	* compiler.lsp (c-FORMAT): signal an error when the stream
 	argument is missing.
 	* describe.lsp (describe-object): call `documentation'.
