@@ -471,15 +471,15 @@ global object read_byte (object stream) {
      #ifdef UNICODE
       var object enc = TheStream(stream)->strm_encoding;
       var chart ch = char_code(TheStream(stream)->strm_rd_ch_last);
-      var uint8 buf[4]; # are there characters longer than 4 bytes?!
-      var uint8 char_len = cslen(enc,&ch,1);
+      var uintB buf[4]; # are there characters longer than 4 bytes?!
+      var uintL char_len = cslen(enc,&ch,1);
       cstombs(enc,&ch,1,buf,char_len);
       var uint8 code = buf[0];
       if (char_len == 1) { # the char was just one byte
         TheStream(stream)->strmflags &= ~strmflags_unread_B;
         TheStream(stream)->strm_rd_ch_last = NIL;
       } else { # encode the rest
-        var const uint8* cbuf = buf+1; # skip the first byte
+        var const uintB* cbuf = buf+1; # skip the first byte
         var chart* cptr = &ch;
         Encoding_mbstowcs(enc)(enc,stream,&cbuf,buf+char_len,&cptr,cptr+1);
         TheStream(stream)->strm_rd_ch_last = code_char(*cptr);
