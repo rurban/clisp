@@ -5,7 +5,7 @@
 # Simple usage:
 #        ./makemake [--with-PACKAGE] [debug] > Makefile
 
-hyperspec=${CLHSROOT:-http://www.harlequin.com/education/books/HyperSpec};
+hyperspec=${CLHSROOT:-"http://www.harlequin.com/education/books/HyperSpec"}
 
 info_help () {
 cat << EOP
@@ -2655,8 +2655,8 @@ fi
 if [ $TOS = win32 ] ; then
   CONFIG=cfgwin32
 fi
-if [ $TOS = unix -a $CROSS = false ] ; then
-  if [ "$HSYSOS" = sunos ] ; then
+if [ $TOS = unix ] ; then
+  if [ $CROSS = false -a "$HSYSOS" = sunos ] ; then
     CONFIG=cfgsunux
   fi
   if test -z "$CONFIG"; then
@@ -2667,7 +2667,9 @@ for f in $LPARTS ; do
   if [ $f = config ] ; then
     echol "${f}.lsp : ${SRCDIR}${CONFIG}.lsp"
     echotab "\$(CP) ${SRCDIR}${CONFIG}.lsp ${f}.lsp"
-    echotab "echo '(setq *clhs-root-default* \"${hyperspec}\")' >> ${f}.lsp"
+    if [ $TOS = unix ] ; then
+      echotab "echo '(setq *clhs-root-default* \"${hyperspec}\")' >> ${f}.lsp"
+    fi
     echol
   else
     if [ -n "${SRCDIR}" ] ; then

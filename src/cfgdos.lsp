@@ -83,3 +83,4 @@
 You can set the environment variable `CLHSROOT' or redefine this function
 in ~/.clisprc.  On win32 you can also use the Registry."
   (or (sys::getenv "CLHSROOT") *clhs-root-default*))
+(setq *clhs-root-default* "http://www.harlequin.com/education/books/HyperSpec")
