@@ -1,6 +1,6 @@
 DTDVER=4.1.2
 IMPNOTES=impnotes.xml cl-ent.xml clhs-ent.xml impbody.xml impent.xml \
-	impext.xml impissue.xml
+	impext.xml impissue.xml impbyte.xml
 RM=/bin/rm -f
 # DOC=$(shell pwd)
 
