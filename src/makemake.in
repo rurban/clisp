@@ -224,6 +224,11 @@ while test -z "$endofargs"; do
       ;;
     --hyperspec=*)
       hyperspec=`echol "$1" | sed 's/-*hyperspec=//'`
+      case "$hyperspec" in
+        *://*) ;;
+        /*) hyperspec=file:${hyperspec} ;;
+        *)  hyperspec=file:/./${hyperspec} ;;
+      esac
       shift
       ;;
     *) endofargs=1 ;;
