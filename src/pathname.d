@@ -1564,9 +1564,7 @@ local object parse_logical_word (zustand* z, bool subdirp) {
   # and, if subdirp, a ';' ?
   var bool last_was_star = false;
   var bool seen_starstar = false;
-  loop {
-    if (z->count == 0)
-      break;
+  while (z->count) {
     ch = schar(STACK_2,z->index); # next character
     if (!legal_logical_word_char(ch)) {
       if (chareq(ch,ascii('*'))) {
@@ -2180,9 +2178,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
         ch = TheSstring(STACK_1)->data[z.index];
         if (!slashp(ch)) goto no_hostspec;
         Z_SHIFT(z,1);
-        loop {
-          if (z.count==0)
-            break;
+        while (z.count) {
           ch = TheSstring(STACK_1)->data[z.index];
           if (!legal_hostchar(ch))
             break;
@@ -5597,9 +5593,7 @@ local object translate_nametype_aux (gcv_object_t* subst, object pattern,
       var chart cc;
       # search next wildcard-character:
       pattern = *pattern_;
-      loop {
-        if (index == len)
-          break;
+      while (index != len) {
         cc = schar(pattern,index);
         if ((chareq(cc,ascii('*')) # wildcard for arbitrary many characters
              || (!logical && singlewild_char_p(cc))) # wildcard for exactly one character

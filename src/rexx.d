@@ -510,9 +510,7 @@ LISPFUNN(rexx_reply,3)
             return false;
         }
         var uintC nr = 1; # wir probieren verschiedene Ports
-        loop {
-          if (!(rexxPort == NULL))
-            break;
+        while (rexxPort == NULL) {
           var bool existent;
           rexxPortName[NRPOSITION] = '0' + nr;
           begin_system_call();
