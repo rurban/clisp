@@ -768,10 +768,6 @@ freshline:
 new line but at beginning   same line, but spaced out
 new line and over two tabs-*"
 
-(FORMAT NIL "Type ~:C to ~A." (SET-CHAR-BIT #\D :CONTROL T)
-"delete all your files")
-"Type Control-D to delete all your files."
-
 (SETQ N 3)
 3
 
@@ -957,35 +953,6 @@ NIL
 (FORMAT NIL "**~@c**" #\SPACE)
 "**#\\Space**"
 
-#-AKCL (FORMAT NIL "**~c**" #\C-SPACE)
-#+(or XCL ALLEGRO) "** **"
-#+CLISP            "**C- **"
-#+LUCID            "**C-Space**"
-#-(or XCL CLISP AKCL LUCID ALLEGRO) UNKNOWN
-
-#-AKCL (FORMAT NIL "**~:c**" #\C-SPACE)
-#-AKCL "**Control-Space**"
-
-#-AKCL (FORMAT NIL "**~:@c**" #\C-SPACE)
-#-AKCL "**Control-Space**"
-
-#-AKCL (FORMAT NIL "**~@c**" #\C-SPACE)
-#-AKCL "**#\\Control-Space**"
-
-#-AKCL (FORMAT NIL "**~c**" #\C-A)
-#+(or XCL ALLEGRO) "**A**"
-#+(or CLISP LUCID) "**C-A**"
-#-(or XCL CLISP AKCL LUCID ALLEGRO) UNKNOWN
-
-#-AKCL (FORMAT NIL "**~:c**" #\C-A)
-#-AKCL "**Control-A**"
-
-#-AKCL (FORMAT NIL "**~:@c**" #\C-A)
-#-AKCL "**Control-A**"
-
-#-AKCL (FORMAT NIL "**~@c**" #\C-A)
-#-AKCL "**#\\Control-A**"
-
 (FORMAT NIL "**~c**" #\A)
 "**A**"
 
@@ -1017,26 +984,6 @@ NIL
 #+XCL "**#\\**"
 #+CLISP (FORMAT NIL "**~@c**" (CODE-CHAR 27))
 #+CLISP "**#\\Escape**"
-
-#+XCL (FORMAT NIL "**~c**" (CODE-CHAR 26 1))
-#+XCL "****"
-#+CLISP (FORMAT NIL "**~c**" (CODE-CHAR 27 1))
-#+CLISP "**C-**"
-
-#+XCL (FORMAT NIL "**~:c**" (CODE-CHAR 26 1))
-#+XCL "**Control-**"
-#+CLISP (FORMAT NIL "**~:c**" (CODE-CHAR 27 1))
-#+CLISP "**Control-Escape**"
-
-#+XCL (FORMAT NIL "**~:@c**" (CODE-CHAR 26 1))
-#+XCL "**Control-**"
-#+CLISP (FORMAT NIL "**~:@c**" (CODE-CHAR 27 1))
-#+CLISP "**Control-Escape**"
-
-#+XCL (FORMAT NIL "**~@c**" (CODE-CHAR 26 1))
-#+XCL "**#\\Control-**"
-#+CLISP (FORMAT NIL "**~@c**" (CODE-CHAR 27 1))
-#+CLISP "**#\\Control-Escape**"
 
 (progn (fmakunbound 'foo)
        (makunbound 'liste)
