@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
-"POT-Creation-Date: 2000-03-02 15:06:13 CET\n"
+"POT-Creation-Date: 2000-03-03 22:56:47 CET\n"
 "PO-Revision-Date: 2000-03-02 14:48:21 CET\n"
 "Last-Translator: Bruno Haible <haible@clisp.cons.org>\n"
 "Language-Team: French <fr@li.org>\n"
@@ -3628,7 +3628,7 @@ msgid "Invalid keyword-value-pair: ~S ~S"
 msgstr "Mot-clé illégal ~S, valeur ~S"
 
 #: defmacro.lsp:54
-msgid "The macro ~S may not be called with ~S arguments"
+msgid "The macro ~S may not be called with ~S arguments: ~S"
 msgstr "Le macro ~S ne peut pas être appelé avec ~S arguments : ~S"
 
 #: defmacro.lsp:125 defmacro.lsp:150 defmacro.lsp:295
@@ -5554,7 +5554,7 @@ msgid "on the ~:[posi~;nega~]tive imaginary axis"
 msgstr "sur la partie ~:[posi~;nega~]tive de l'axe imaginaire"
 
 #: describe.lsp:326
-msgid "in ~:[~:[first~;fourth~]~;~:[second~;third~]~] the quadrant"
+msgid "in the ~:[~:[first~;fourth~]~;~:[second~;third~]~] quadrant"
 msgstr "dans le ~:[~:[premier~;quatrième~]~;~:[deuxième~;troisième~]~] quartier"
 
 #: describe.lsp:328

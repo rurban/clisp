@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
-"POT-Creation-Date: 2000-03-02 15:06:13 CET\n"
-"PO-Revision-Date: 2000-03-02 15:06:13 CET\n"
+"POT-Creation-Date: 2000-03-03 22:56:47 CET\n"
+"PO-Revision-Date: 2000-03-03 22:56:47 CET\n"
 "Last-Translator: Automatically generated <haible@laplace.ilog.fr>\n"
 "Language-Team: Template <xx@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -3555,7 +3555,7 @@ msgid "Invalid keyword-value-pair: ~S ~S"
 msgstr ""
 
 #: defmacro.lsp:54
-msgid "The macro ~S may not be called with ~S arguments"
+msgid "The macro ~S may not be called with ~S arguments: ~S"
 msgstr ""
 
 #: defmacro.lsp:125 defmacro.lsp:150 defmacro.lsp:295
@@ -5432,7 +5432,7 @@ msgid "on the ~:[posi~;nega~]tive imaginary axis"
 msgstr ""
 
 #: describe.lsp:326
-msgid "in ~:[~:[first~;fourth~]~;~:[second~;third~]~] the quadrant"
+msgid "in the ~:[~:[first~;fourth~]~;~:[second~;third~]~] quadrant"
 msgstr ""
 
 #: describe.lsp:328

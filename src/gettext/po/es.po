@@ -97,7 +97,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
-"POT-Creation-Date: 2000-03-02 15:06:13 CET\n"
+"POT-Creation-Date: 2000-03-03 22:56:47 CET\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -5067,8 +5067,8 @@ msgid "Invalid keyword-value-pair: ~S ~S"
 msgstr "Par argumento clave y valor inválido: ~S ~S"
 
 #: defmacro.lsp:54
-msgid "The macro ~S may not be called with ~S arguments"
-msgstr "La macro ~S no puede ser invocada con ~S argumentos"
+msgid "The macro ~S may not be called with ~S arguments: ~S"
+msgstr "La macro ~S no puede ser invocada con ~S argumentos: ~S"
 
 #: defmacro.lsp:125 defmacro.lsp:150 defmacro.lsp:295
 msgid "The rest of the lambda list will be ignored."
@@ -7418,7 +7418,8 @@ msgid "on the ~:[posi~;nega~]tive imaginary axis"
 msgstr "en el eje imaginario ~:[posi~;nega~]tivo"
 
 #: describe.lsp:326
-msgid "in ~:[~:[first~;fourth~]~;~:[second~;third~]~] the quadrant"
+#, fuzzy
+msgid "in the ~:[~:[first~;fourth~]~;~:[second~;third~]~] quadrant"
 msgstr "en el ~:[~:[primer~;cuarto~]~;~:[segundo~;tercer~]~] cuadrante"
 
 # Si es lo que me imagino, tal vez sería mejor poner "del plano complejo".

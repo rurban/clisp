@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
-"POT-Creation-Date: 2000-03-02 14:59:09 CET\n"
-"PO-Revision-Date: 2000-03-02 15:08:07 CET\n"
+"POT-Creation-Date: 2000-03-03 22:49:33 CET\n"
+"PO-Revision-Date: 2000-03-03 22:58:32 CET\n"
 "Last-Translator: Automatically generated <haible@laplace.ilog.fr>\n"
 "Language-Team: English <en@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -3628,8 +3628,8 @@ msgid "Invalid keyword-value-pair: ~S ~S"
 msgstr "Invalid keyword-value-pair: ~S ~S"
 
 #: defmacro.lsp:54
-msgid "The macro ~S may not be called with ~S arguments"
-msgstr "The macro ~S may not be called with ~S arguments"
+msgid "The macro ~S may not be called with ~S arguments: ~S"
+msgstr "The macro ~S may not be called with ~S arguments: ~S"
 
 #: defmacro.lsp:125 defmacro.lsp:150 defmacro.lsp:295
 msgid "The rest of the lambda list will be ignored."
@@ -5554,8 +5554,8 @@ msgid "on the ~:[posi~;nega~]tive imaginary axis"
 msgstr "on the ~:[posi~;nega~]tive imaginary axis"
 
 #: describe.lsp:326
-msgid "in ~:[~:[first~;fourth~]~;~:[second~;third~]~] the quadrant"
-msgstr "in ~:[~:[first~;fourth~]~;~:[second~;third~]~] the quadrant"
+msgid "in the ~:[~:[first~;fourth~]~;~:[second~;third~]~] quadrant"
+msgstr "in the ~:[~:[first~;fourth~]~;~:[second~;third~]~] quadrant"
 
 #: describe.lsp:328
 msgid " of the Gaussian number plane."
