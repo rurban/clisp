@@ -11,6 +11,7 @@ AC_PREREQ(2.13)
 AC_DEFUN([CL_READLINE],[dnl
 AC_REQUIRE([CL_TERMCAP])dnl
 if test $ac_cv_search_tgetent != no ; then
+  AC_LIB_LINKFLAGS_BODY(readline)
   AC_CHECK_HEADERS(readline/readline.h)
   if test $ac_cv_header_readline_readline_h = yes ; then
     AC_SEARCH_LIBS(readline, readline)
