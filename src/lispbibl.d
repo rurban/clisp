@@ -1,7 +1,7 @@
 # Main include-file for CLISP
-# Bruno Haible 1990-2001
+# Bruno Haible 1990-2002
 # Marcus Daniels 11.11.1994
-# Sam Steingold 1998-2001
+# Sam Steingold 1998-2002
 # German comments translated into English: Stefan Kain 2001-09-24
 
 # Flags intended to be set through CFLAGS:
@@ -1258,7 +1258,7 @@ typedef signed int  signean;
   #ifdef LONGJMP_RETURNS
     # _longjmp(jmpbuf,value) can return if jmpbuf is invalid.
     #undef longjmp
-    #define longjmp(x,y)  (_longjmp(x,y), fehler_notreached(__FILE__,__LINE__))
+    #define longjmp(x,y)  (_longjmp(x,y), NOTREACHED)
   #endif
 #endif
 # A longgjmp() can only be called using an `int'.
@@ -3494,7 +3494,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #define case_symbol     case symbol_type # Symbol
   #define case_record     case_closure: _case_structure _case_stream _case_ratio _case_complex case_orecord: case_instance # Record general
   #if /* !defined(NO_symbolflags) && */ (oint_symbolflags_shift==oint_type_shift)
-  #define case_symbolflagged  # Symbol mit Flags \
+  #define case_symbolflagged  # Symbol with Flags \
                           case symbol_type: \
                           case symbol_type|bit(active_bit): \
                           case symbol_type|bit(dynam_bit): \
