@@ -2,7 +2,7 @@
 
 	IPropertyStorage interface on WIN32_NATIVE.
 	* makemake.in: add liboleaut32 to libraries on cygwin.
-	* modules/calls.c (StgOpenStorageExFuncType): new type.
+	* modules/syscalls/calls.c (StgOpenStorageExFuncType): new type.
 	(StgOpenStorageExFunc, ole32): new global static variables.
 	(module__syscalls__init_function_2): load ole32.dll and
 	  get the StgOpenStorageEx address.
@@ -21,8 +21,8 @@
 	* sequence.d (valid_type1): Expect the type on the stack. Write back
 	the expanded type.
 	(valid_type): Likewise.
-	(MAKE-SEQUENCE, coerce_sequence, SYSTEM::COERCED-SUBSEQ, CONCATENATE,
-	MAP, MERGE): Update. Invoke SEQTYPE_LENGTH_MATCH only if the
+	(MAKE-SEQUENCE, coerce_sequence, SYSTEM::COERCED-SUBSEQ, CONCATENATE)
+	(MAP, MERGE): Update. Invoke SEQTYPE_LENGTH_MATCH only if the
 	type-length is an integer. At the end, verify using TYPEP.
 	* predtype.d (COERCE): Try coerce_sequence also for non-atom types.
 
@@ -46,8 +46,8 @@
 
 2004-12-05  Bruno Haible  <bruno@clisp.org>
 
-	* lispbibl.d (init_packages, unread_char, write_byte_array,
-	write_char_array): Mark as "can trigger GC".
+	* lispbibl.d (init_packages, unread_char, write_byte_array)
+	(write_char_array): Mark as "can trigger GC".
 	(convert_to_foreign_mallocing, convert_to_foreign_nomalloc): Likewise.
 	* spvw_language.d (CLSTEXT, CLOTEXT): Likewise.
 	* charstrg.d (subsstring): Mark as "can trigger GC".
