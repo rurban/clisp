@@ -9,7 +9,7 @@
   (:case-sensitive t) (:use))
 
 (eval-when (compile eval)
-  (load "../exporting")
+  (require "exporting" "../exporting")
   (make-exporting "MATLAB"
     cl:compile cl:defconstant cl:eval cl:load
     ffi:cast ffi:char ffi:character ffi:c-array ffi:c-array-max ffi:boolean

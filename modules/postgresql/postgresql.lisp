@@ -8,7 +8,7 @@
   (:use))
 
 (eval-when (compile eval)
-  (load "../exporting")
+  (require "exporting" "../exporting")
   (make-exporting "SQL"
     cl:compile cl:eval cl:load cl:defconstant
     ffi:bitsizeof ffi:boolean ffi:char ffi:character ffi:c-array

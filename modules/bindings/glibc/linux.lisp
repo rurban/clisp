@@ -14,7 +14,7 @@
 
 (eval-when (compile eval)
   ;; so that we don't need to prefix everything with "lisp:" or "ffi:".
-  (load "../../exporting")
+  (require "exporting" "../../exporting")
   (make-exporting "LINUX"
     cl:aref cl:ash cl:coerce cl:compile cl:defconstant cl:dotimes cl:eval
     cl:fill cl:floor cl:gensym cl:let cl:load cl:load-time-value cl:logand

@@ -7,7 +7,7 @@
   (:use))
 
 (eval-when (compile eval)
-  (load "../../exporting")
+  (require "exporting" "../../exporting")
   (make-exporting "WIN32"
     cl:compile cl:defconstant cl:eval cl:load
     ffi:cast ffi:char ffi:character ffi:c-array ffi:c-array-max
