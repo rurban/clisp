@@ -610,7 +610,7 @@ vector does not need to be scanned for pointers).</para>
  </simpara></listitem></varlistentry>
  <varlistentry><term>&venv-const;*</term>
   <listitem><simpara>At most one object, representing the closed-up
-   variables, representing the variables of the lexical environment in
+   variables, representing the variables of the &lex-env; in
    which this function was defined.  It is a &simple-vector-t;, which
    looks like this: <literal role="data">#(<replaceable>next</replaceable>
    <replaceable>value&sub-1;</replaceable> ...
@@ -623,14 +623,14 @@ vector does not need to be scanned for pointers).</para>
   </simpara></listitem></varlistentry>
  <varlistentry><term>&block-const;*</term>
   <listitem><simpara>Objects representing closed-up &block; tags,
-   representing the &block; tags of the lexical environment in which
+   representing the &block; tags of the &lex-env; in which
    this function was defined.  Each is a &cons-t; containing in the
    &cdr; part: either a frame pointer to the block frame, or &disabled;.
    The &car; is the block's name, only for error message purposes.
   </simpara></listitem></varlistentry>
  <varlistentry><term>&tagbody-const;*</term>
   <listitem><simpara>Objects representing closed-up &tagbody; tags,
-   representing the &tagbody; tags of the lexical environment in which
+   representing the &tagbody; tags of the &lex-env; in which
    this function was defined.  Each is a &cons-t; containing in the
    &cdr; part: either a frame pointer to the &tagbody; frame, or
    &disabled; if the &tagbody; has already been left.  The &car; is a
@@ -653,7 +653,7 @@ the function is called <emphasis>autonomous</emphasis>.
 This is the case if the function does not refer to lexical variables,
 blocks or tags defined in compile code outside of the function.
 In particular, it is the case if the function is defined in a null
-lexical environment.</para>
+&lex-env;.</para>
 
 <para>If some &venv-const;, &block-const;, or &tagbody-const; are
 present, the function (a "closure") is created at runtime.
@@ -1021,7 +1021,7 @@ letters:
 </tbody></tgroup></informaltable>
 </section>
 
-<section id="instr-env"><title>Instructions for lexical environment,
+<section id="instr-env"><title>Instructions for &lex-env;,
    creation of closures</title>
 <informaltable id="instr-env-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
@@ -1039,7 +1039,7 @@ letters:
              values undefined</entry></row>
  <row><entry><literal role="byte">(COPY-CLOSURE &m-r; &n-r;)</literal></entry>
       <entry>Create a closure by copying the prototype and filling in
-             the lexical environment.</entry>
+             the &lex-env;.</entry>
       <entry>&f-r; := copy-function(&consts;[&m-r;]).
              For &i-r;=0,..,&n-r;-1:
                  &f-r;_&consts;[i] := *(&STACK;+&n-r;-1-&i-r;).
