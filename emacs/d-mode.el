@@ -10,6 +10,29 @@
 (require 'cc-mode)
 (require 'cl)                   ; `subst'
 
+(defun d-mode-current-defun-function ()
+  "Return the name of the current function."
+  (save-excursion
+    (d-mode-beg-of-defun)
+    (cond ((looking-at "LISPFUN")
+           (search-forward "(")
+           (let ((c-name (buffer-substring-no-properties
+                          (point) (scan-sexps (point) 1))))
+             (set-buffer (find-file-noselect "constsym.d"))
+             (save-excursion
+               (goto-char (point-min))
+               (search-forward (concat "LISPSYM(" c-name ","))
+               (buffer-substring-no-properties
+                (1+ (point)) (1- (scan-sexps (point) 1))))))
+          ((looking-at "\\(local\\|global\\)")
+           (search-forward "(") (forward-char -1)
+           (let ((beg (scan-sexps (point) -1)))
+             (buffer-substring-no-properties beg (scan-sexps beg 1))))
+          ((looking-at "nonreturning_function")
+           (search-forward "(") (search-forward "(") (forward-char -1)
+           (let ((beg (scan-sexps (point) -1)))
+             (buffer-substring-no-properties beg (scan-sexps beg 1)))))))
+
 (defun d-mode-beg-of-defun ()
   "A valid value for `beginning-of-defun-function' for `d-mode'."
   (re-search-backward
@@ -43,7 +66,7 @@ The point should be on the prototype and the definition should follow."
   (save-excursion (back-to-indentation) (if (looking-at "# ") 0 [0])))
 
 (defvar d-font-lock-extra-types
-  '(nconc (list "bool" "object" "chart" "[otac]int" "signean"
+  '(nconc (list "bool" "object" "chart" "[otac]int" "signean" "scint"
            "[su]?int[BCL0-9]*" "Values" "fsubr_function" "lisp_function")
     c-font-lock-extra-types)
   "Extra types to be fontified as such.")
@@ -114,6 +137,8 @@ Beware - this will modify the original C-mode too!"
                       (setq make "make") "makefile-gcc")
                      (t "<makefile>"))))
          (concat make " -f " makefile " " target)))
+  (set (make-local-variable 'add-log-current-defun-function)
+       'd-mode-current-defun-function)
   (setf (cdr (assq 'cpp-macro c-offsets-alist)) 'd-mode-indent-sharp)
   ;; (setq defun-prompt-regexp
   ;; "^\\(LISPFUNN?(.*) \\|\\(local\\|global\\|nonreturning_function\\) .*\\)")
