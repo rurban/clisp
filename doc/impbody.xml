@@ -176,8 +176,8 @@
 <formalpara><title><literal role="sexp">(ext:eval-env
  <replaceable>form</replaceable> &optional-amp;
  <replaceable>env</replaceable>)</literal></title>
-<para>evaluates a form in a given lexical environment, just if the form
- had been part of the program text that environment came from.
+<para>evaluates a form in a given lexical environment, just as if the
+ form had been a part of the program that the environment came from.
 </para></formalpara>
 
 </section>
@@ -1424,7 +1424,7 @@ executes a compiled version of form.</para>
 </section>
 
 <section><title>Fixnum Limits
-   <ulink url="&clhs;/Body/convar_most-p_ative-fixnum.html">[CLHS]</ulink></title>
+<ulink url="&clhs;/Body/convar_most-p_ative-fixnum.html">[CLHS]</ulink></title>
 
 <table frame="all"><title>Platform dependent</title>
  <tgroup cols="4" colsep="1" rowsep="1" align="center">
@@ -1446,7 +1446,7 @@ executes a compiled version of form.</para>
 </section>
 
 <section><title>Float Limits
-   <ulink url="&clhs;/Body/convar_most-p_d-long-float.html">[CLHS]</ulink></title>
+<ulink url="&clhs;/Body/convar_most-p_d-long-float.html">[CLHS]</ulink></title>
 
 <para>Together with &pi;, the other long float constants
  &least-negative-long-float; &least-negative-normalized-long-float;
