@@ -1,3 +1,7 @@
+2002-03-17  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (merge-extension): merged the two versions
+
 2002-02-27  Sam Steingold  <sds@gnu.org>
 
 	* hashweak.tst: test weak hash tables
