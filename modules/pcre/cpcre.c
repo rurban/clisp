@@ -116,7 +116,7 @@ DEFUN(PCRE:PCRE-COMPILE,string &key :STUDY :IGNORE-CASE :MULTILINE :DOTALL \
   const char *error_message;
   int error_offset;
   pcre *compiled_pattern;
-  gcv_object_t *string = &STACK_(13), *cmp;
+  gcv_object_t *string = &STACK_(13);
  pcre_compile_restart:
   with_string_0(check_string(*string),Symbol_value(S(utf_8)),pattern, {
       begin_system_call();
@@ -133,8 +133,8 @@ DEFUN(PCRE:PCRE-COMPILE,string &key :STUDY :IGNORE-CASE :MULTILINE :DOTALL \
     *string = value1;
     goto pcre_compile_restart;
   }
-  pushSTACK(allocate_fpointer(compiled_pattern)); cmp = &STACK_0;
-  pushSTACK(*cmp); pushSTACK(``PCRE::PCRE-FREE``); funcall(L(finalize),2);
+  pushSTACK(allocate_fpointer(compiled_pattern));
+  pushSTACK(STACK_0); pushSTACK(``PCRE::PCRE-FREE``); funcall(L(finalize),2);
   if (study) {
     pcre_extra *pe;
     begin_system_call();
