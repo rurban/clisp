@@ -236,9 +236,11 @@ ERROR
 ((LAMBDA (X) (DECLARE (SYSTEM::IN-DEFUN FOO)) (BLOCK FOO (LIST X)))
  #(NIL NIL NIL NIL ((DECLARATION OPTIMIZE DECLARATION)))
  foo)
+#+CMU
+((lambda (x) (block foo (list x))) nil foo)
 #+SBCL
 (NIL T FOO)
-#-(or CLISP SBCL)
+#-(or CLISP CMU SBCL)
 NIL
 
 (compile 'foo) foo
@@ -246,9 +248,11 @@ NIL
 (multiple-value-list (function-lambda-expression #'foo))
 #+CLISP
 ((lambda (x) (list x)) t foo)
+#+CMU
+((lambda (x) (block foo (list x))) nil foo)
 #+SBCL
 (NIL T FOO)
-#-(or CLISP SBCL)
+#-(or CLISP CMU SBCL)
 NIL
 
 (fmakunbound 'foo) foo

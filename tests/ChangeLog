@@ -1,3 +1,10 @@
+2004-04-17  Bruno Haible  <bruno@clisp.org>
+
+	Add support for CMUCL 18e.
+	* tests.lisp, clos.tst, format.tst, iofkts.tst, lambda.tst, mop.tst,
+	streams.tst, streamslong.tst, symbols.tst, type.tst: Update for
+	CMUCL 18e/x86.
+
 2004-04-27  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (run-all-tests) [CLISP]: bind

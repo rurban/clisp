@@ -16,7 +16,7 @@
 ;; <http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&th=e0c06a88910db64b&rnum=1>
 ;; appears to imply otherwise; we follow the opinion of the users.
 (defun close-1 (s)
-  #-SBCL
+  #-(or CMU SBCL)
   (let* ((i (input-stream-p s))
          (o (output-stream-p s))
          (e (stream-element-type s))
@@ -27,7 +27,7 @@
          (equal e (stream-element-type s))
          (equal f (stream-external-format s))
          c))
-  #+SBCL
+  #+(or CMU SBCL)
   (close s))
 close-1
 
@@ -841,8 +841,8 @@ T
                       (make-string-input-stream "bar")
                       (make-string-input-stream "baz")
                       (make-string-input-stream "zot")))
-#-SBCL CHARACTER
-#+SBCL BASE-CHAR
+#-(or CMU SBCL) CHARACTER
+#+(or CMU SBCL) BASE-CHAR
 
 (let ((s (make-string-output-stream :element-type nil)))
   (list (typep #\z (stream-element-type s))
