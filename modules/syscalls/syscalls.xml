@@ -271,8 +271,7 @@
   <listitem><simpara>Return &win32; memory status information in a
     <type>MEMORY-STATUS</type> structure.</simpara></listitem></varlistentry>
  <varlistentry><term><code>(OS:FILE-PROPERTIES filename set
-    &key-amp; :initid &allow-other-keys-amp;
-    [specifier value|:INITID init-id]*))</code></term>
+    &key-amp; :INITID &allow-other-keys-amp;)</code></term>
   <listitem><para>Wrapper for the &win32;
     <function>IPropertyStorage</function> functionality.
     <variablelist><varlistentry><term>&filename-r;</term>
@@ -359,7 +358,7 @@
              <member><constant>:UI4</constant></member>
              <member><constant>:UI8</constant></member>
              <member><constant>:UINT</constant></member></simplelist>
-            <type>FILETIME</type>s are converted to/from universal
+            <type>FILETIME</type>s are converted to/from the universal
             time format, while <type>DATE</type>s are not.
        </para></listitem></varlistentry></variablelist>
     </para></listitem></varlistentry></variablelist>
