@@ -939,6 +939,7 @@ LISPFUNN(socket_server_host,1)
 LISPFUN(socket_accept,1,0,norest,key,3,\
         (kw(element_type),kw(external_format),kw(buffered)) )
 LISPFUN(socket_wait,1,2,norest,nokey,0,NIL)
+LISPFUN(socket_status,1,2,norest,nokey,0,NIL)
 LISPFUN(socket_connect,1,1,norest,key,3,\
         (kw(element_type),kw(external_format),kw(buffered)) )
 LISPFUNN(socket_stream_port,1)
