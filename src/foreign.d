@@ -106,8 +106,13 @@ LISPFUNN(set_validp,2)
   if (eq(fp,nullobj)) /* permit new_value=true ? */
     fehler_foreign_object(arg);
   if (fp_validp(TheFpointer(fp))) {
-    if (!new_value)
+    if (!new_value) {
+      if (eq(fp,O(fp_zero))) {
+        pushSTACK(TheSubr(subr_self)->name);
+        fehler(error,GETTEXT("~: must not invalidate sole FFI session pointer"));
+      }
       mark_fp_invalid(TheFpointer(fp));
+    }
   } else if (new_value) {
     pushSTACK(fp); pushSTACK(TheSubr(subr_self)->name);
     fehler(error,GETTEXT("~: cannot resurrect the zombie ~"));

@@ -1,5 +1,10 @@
 2003-04-28  Jörg Höhle  <hoehle@users.sourceforge.net>
 
+	* foreign.d (SETF FFI:VALIDP): prevent from invalidating unique
+	session FFI pointer
+
+2003-04-28  Jörg Höhle  <hoehle@users.sourceforge.net>
+
 	* stream.d (stream_lend_handle): strm_keyboard_handle only
 	present when #define KEYBOARD
 
