@@ -155,9 +155,8 @@ local object valid_type1 (object name) {
     if (eq(name,S(simple_string)) || eq(name,S(base_string))
         || eq(name,S(simple_base_string)))
       { name = S(string); goto expanded_unconstrained; }
-    if (eq(name,S(bit_vector))) { goto expanded_unconstrained; }
-    if (eq(name,S(simple_bit_vector)))
-      { name = S(bit_vector); goto expanded_unconstrained; }
+    if (eq(name,S(bit_vector)) || eq(name,S(simple_bit_vector)))
+      { name = fixnum(1); goto expanded_unconstrained; }
     if (eq(name,S(array)) || eq(name,S(simple_array)))
       { name = S(vector); goto expanded_unconstrained; }
     goto expanded_unconstrained; # sonstige Symbole können DEFSTRUCT-Typen sein
@@ -172,7 +171,7 @@ local object valid_type1 (object name) {
             || eq(name1,S(base_string)) || eq(name1,S(simple_base_string)))
           { name = S(string); goto expanded_maybe_constrained; }
         if (eq(name1,S(bit_vector)) || eq(name1,S(simple_bit_vector)))
-          { name = S(bit_vector); goto expanded_maybe_constrained; }
+          { name = fixnum(1); goto expanded_maybe_constrained; }
         if (false) {
          expanded_maybe_constrained:
           if (consp(name2) && integerp(Car(name2)))
@@ -206,8 +205,6 @@ local object valid_type1 (object name) {
               name = S(vector); goto expanded;
             } else if (atype==Atype_Char) { # (VECTOR CHARACTER)
               name = S(string); goto expanded;
-            } else if (atype==Atype_Bit) { # (VECTOR BIT)
-              name = S(bit_vector); goto expanded;
             } else if (atype == Atype_NIL) { /* (VECTOR NIL) */
               name = Fixnum_0; goto expanded;
             } else { # (VECTOR (UNSIGNED-BYTE n))
@@ -277,14 +274,14 @@ local object get_seq_type (object seq) {
         break;
       case Array_type_sstring:
         name = S(string); break; # Typ STRING
-      case Array_type_sbvector: case Array_type_bvector:
-        name = S(bit_vector); break; # Typ BIT-VECTOR
+      case Array_type_sbvector:
       case Array_type_sb2vector:
       case Array_type_sb4vector:
       case Array_type_sb8vector:
       case Array_type_sb16vector:
       case Array_type_sb32vector: # Typ n, bedeutet (VECTOR (UNSIGNED-BYTE n))
         name = fixnum(bit(sbNvector_atype(seq))); break;
+      case Array_type_bvector:
       case Array_type_b2vector:
       case Array_type_b4vector:
       case Array_type_b8vector:
@@ -2405,8 +2402,8 @@ nonreturning_function(global, fehler_both_tests, (void)) {
       } else
         goto other;
     }
-    elif (eq(type,S(vector)) || eq(type,S(string)) || eq(type,S(bit_vector)) || posfixnump(type)) {
-      # Typ [GENERAL-]VECTOR, STRING, BIT-VECTOR, Byte-VECTOR
+    elif (eq(type,S(vector)) || eq(type,S(string)) || posfixnump(type)) {
+      # Typ [GENERAL-]VECTOR, STRING, (UNSIGNED-BYTE n)-VECTOR
       # Noch überprüfen, ob sequence wirklich ein Vektor ist.
       var object sequence = *(stackptr STACKop 0);
       if (!(vectorp(sequence)))

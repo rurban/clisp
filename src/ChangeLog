@@ -1,3 +1,10 @@
+2004-09-30  Bruno Haible  <bruno@clisp.org>
+
+	* sequence.d (valid_type1, get_seq_type): Use sequence type 1 instead
+	of BIT-VECTOR.
+	(delete_help): Simplify accordingly.
+	* defseq.lisp (BIT-VECTOR): Remove. Replaced by sequence type 1.
+
 2004-09-29  Bruno Haible  <bruno@clisp.org>
 
 	* defmacro.lisp (macro-nonnull-element-error): New function.
