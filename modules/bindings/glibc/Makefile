@@ -1,4 +1,4 @@
-# Makefile for CLISP module set linuxlibc6
+# Makefile for CLISP module set bindings/glibc
 
 CC =
 CFLAGS =
