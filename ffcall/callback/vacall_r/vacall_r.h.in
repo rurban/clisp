@@ -353,9 +353,11 @@ typedef struct
   void*          raddr;
   enum __VAtype  rtype;
   unsigned long  rsize;
-#if defined(__i386__) && 1
+#if defined(__i386__) || (defined(__rs6000__) && defined(__MACH__) && defined(__APPLE__))
   /* Filler word, needed if the numbers of words up to now in this structure */
-  /* is odd (because on MSVC, alignof(double) = 8, normally = 4).            */
+  /* is odd (because on MSVC, alignof(double) = 8, normally = 4; similarly,  */
+  /* on MacOS X, the Apple compiler has alignof(double) = 8 whereas the      */
+  /* standard GCC has alignof(double) = 4.                                   */
   __vaword       filler1;
 #endif
   /* temporary storage for return value */
