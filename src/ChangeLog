@@ -1,3 +1,10 @@
+2002-03-16  Joerg-Cyril Hoehle  <Joerg-Cyril.Hoehle@t-systems.com>
+
+	* describe.lisp (describe-object): FOREIGN-POINTER is present
+	when UNIX or DIR-KEY are present too;
+	handle FOREIGN-FUNCTION only under FUNCTION, not undet T too, and
+	print its full foreign type
+
 2002-03-15  Sam Steingold  <sds@gnu.org>
 
 	minor error reporting unification
