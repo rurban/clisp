@@ -201,21 +201,17 @@
   #define my_open_mask  0644
   #define Handle  uintW  # Typ eines File-Deskriptors
   extern_C long lseek (int fd, long offset, int whence); # siehe LSEEK(2V)
-  #define RETRWTYPE ssize_t
-  #define RW_BUF_T  void*
-  #define RW_SIZE_T size_t
-  #define WRITE_CONST
-  extern_C RETRWTYPE read (int fd, RW_BUF_T buf, RW_SIZE_T nbyte); # siehe READ(2V)
-  extern_C RETRWTYPE write (int fd, WRITE_CONST RW_BUF_T buf, RW_SIZE_T nbyte); # siehe WRITE(2V)
+  extern_C ssize_t read (int fd, void* buf, size_t nbyte); # siehe READ(2V)
+  extern_C ssize_t write (int fd, /*const*/ void* buf, size_t nbyte); # siehe WRITE(2V)
   extern_C int close (int fd); # siehe CLOSE(2V)
   # siehe <unistd.h>
   #define OPEN open
   #define CLOSE close
   # Wrapper um die System-Aufrufe, die Teilergebnisse und evtl. EINTR behandeln:
-  extern_C RETRWTYPE read_helper (int fd, RW_BUF_T buf, RW_SIZE_T nbyte, bool partial_p);
+  extern_C ssize_t read_helper (int fd, void* buf, size_t nbyte, bool partial_p);
   #define safe_read(f,b,n)  read_helper(f,b,n,true)
   #define full_read(f,b,n)  read_helper(f,b,n,false)
-  extern_C RETRWTYPE full_write (int fd, WRITE_CONST RW_BUF_T buf, RW_SIZE_T nbyte);
+  extern_C ssize_t full_write (int fd, const void* buf, size_t nbyte);
 # wird verwendet von STREAM, PATHNAME, SPVW, MISC
 
 # Terminal-Abfragen, Abfragen der Fenster-Größe:

@@ -1,5 +1,47 @@
 2003-10-01  Bruno Haible  <bruno@clisp.org>
 
+	Assume some more POSIX functions are properly declared.
+	* m4/gethostname.m4 (CL_GETHOSTNAME): Remove prototype check.
+	* m4/mprotect.m4 (CL_MPROTECT): Remove prototype check.
+	* m4/readlink.m4 (CL_READLINK): Remove prototype check.
+	* m4/read-write.m4: Remove file.
+	* m4/shmat.m4: Remove file.
+	* m4/shm-rmid.m4 (CL_SHM_RMID): Use void* instead of RETSHMATTYPE.
+	* m4/shm.m4 (CL_SHM): Don't require CL_SHMAT.
+	* m4/signal.m4 (CL_SIGPROCMASK): Remove macro.
+	* m4/stat.m4 (CL_FSTAT, CL_STAT): Remove macros.
+	(CL_LSTAT): Remove prototype check.
+	* m4/termios.m4 (CL_TERM): Remove tcsetattr prototype check.
+	* configure.in: Remove invocations of CL_SIGPROCMASK, CL_FSTAT,
+	CL_STAT, CL_READ_WRITE, CL_WRITE.
+	* unix.d: Comment out declarations of mprotect(), sigprocmask(),
+	sigemptyset(), sigaddset(), readlink(), stat(), lstat(), fstat(),
+	read(), write(), tcgetattr(), tcsetattr(), tcdrain(), tcflush(),
+	gethostname().
+	(read_helper): Use ssize_t instead of RETRWTYPE. Use void* instead of
+	RW_BUF_T. Use size_t instead of RW_SIZE_T.
+	(full_write): Likewise. Use const instead of WRITE_CONST.
+	* amiga.d (RW_BUF_T): Remove definition. Use void* instead.
+	* amigaaux.d: Use void* instead of RW_BUF_T.
+	* acorn.d (RETRWTYPE): Remove definition. Use ssize_t instead.
+	(RW_BUF_T): Remove definition. Use void* instead.
+	(RW_SIZE_T): Remove definition. Use size_t instead.
+	(WRITE_CONST): Remove definition.
+	* msdos.d (RW_BUF_T): Remove definition. Use void* instead.
+	(RETRWTYPE): Remove definition. Use ssize_t instead.
+	(RW_SIZE_T): Remove definition. Use size_t instead.
+	(WRITE_CONST): Remove definition.
+	* win32.d (RW_BUF_T, GETHOSTNAME_SIZE_T, MPROTECT_CONST): Remove macros.
+	* unixaux.d (read_helper): Use ssize_t instead of RETRWTYPE. Use void*
+	instead of RW_BUF_T. Use size_t instead of RW_SIZE_T.
+	(full_write): Likewise. Use const instead of WRITE_CONST.
+	(sock_write): Use const instead of WRITE_CONST.
+	* socket.d: Comment out declaration of gethostname().
+	* spvw_memfile.d: Use void* instead of RW_BUF_T.
+	* spvw_mmap.d (mprotect): Drop MPROTECT_CONST.
+
+2003-10-01  Bruno Haible  <bruno@clisp.org>
+
 	Improve support for large off_t and large ino_t.
 	* configure.in: Check size of 'ino_t'.
 	* lispbibl.d (UQ_to_I): Declare also if sizeof(ino_t) > 4.

@@ -34,11 +34,11 @@ int main ()
   int id = shmget(IPC_PRIVATE,pagesize,IPC_CREAT|0600);
   if (id<0)
     { exit(1); }
-  if (shmat(id,(RETSHMATTYPE)addr1,0) == (RETSHMATTYPE)(-1))
+  if (shmat(id,(void*)addr1,0) == (void*)(-1))
     { shmctl(id,IPC_RMID,NULL); exit(1); }
   if (shmctl(id,IPC_RMID,NULL) < 0)
     { exit(1); }
-  if (shmat(id,(RETSHMATTYPE)addr2,0) == (RETSHMATTYPE)(-1))
+  if (shmat(id,(void*)addr2,0) == (void*)(-1))
     { shmctl(id,IPC_RMID,NULL); exit(1); }
   shmctl(id,IPC_RMID,NULL);
   exit(0);

@@ -58,7 +58,7 @@
 
 #ifndef WIN32
   #ifdef HAVE_GETHOSTNAME
-    extern_C int gethostname (char* name, GETHOSTNAME_SIZE_T namelen);
+    /* extern_C int gethostname (char* name, size_t namelen); */
   #endif
   #ifdef HAVE_SYS_UTSNAME_H
     #include <sys/utsname.h>

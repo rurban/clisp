@@ -227,7 +227,7 @@ global void savemem (object stream)
   gar_col();
 #define WRITE(buf,len)                                                  \
   do { begin_system_call();                                             \
-    {var sintL ergebnis = full_write(handle,(RW_BUF_T)buf,len);         \
+    {var sintL ergebnis = full_write(handle,(void*)buf,len);            \
       if (ergebnis != (sintL)(len)) {                                   \
         end_system_call();                                              \
         builtin_stream_close(&STACK_0);                                 \
@@ -818,7 +818,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
    #endif
     #define READ(buf,len)                                               \
       do { begin_system_call();                                         \
-        {var sintL ergebnis = full_read(handle,(RW_BUF_T)buf,len);      \
+        {var sintL ergebnis = full_read(handle,(void*)buf,len);         \
           end_system_call();                                            \
           if (ergebnis<0) goto abort1;                                  \
           if (ergebnis != (sintL)(len)) goto abort2;                    \

@@ -70,22 +70,6 @@ dnl A/UX has <termios.h> but is lacking tcgetattr etc.
 CL_LINK_CHECK([tcgetattr], cl_cv_func_tcgetattr,
 [#include <termios.h>], [struct termios t; tcgetattr(0,&t);],
 AC_DEFINE(HAVE_TCGETATTR,,[have tcgetattr(), either as a function or as a macro defined by <termios.h>]))dnl
-if test $cl_cv_func_tcgetattr = yes; then
-CL_PROTO([tcsetattr], [
-AC_TRY_COMPILE([
-#include <termios.h>
-#ifndef tcsetattr
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-int tcsetattr (int, int, struct termios *);
-#else
-int tcsetattr ();
-#endif
-#endif
-], [], cl_cv_proto_tcsetattr_arg3="", cl_cv_proto_tcsetattr_arg3="const")
-], [extern int tcsetattr (int, int, $cl_cv_proto_tcsetattr_arg3 struct termios *);])
-AC_DEFINE_UNQUOTED(TCSETATTR_CONST,$cl_cv_proto_tcsetattr_arg3,[declaration of tcsetattr() needs const])
-fi
 CL_LINK_CHECK([TCSAFLUSH in termios.h], cl_cv_decl_TCSAFLUSH,
 [#include <termios.h>], [int x = TCSAFLUSH;],
 AC_DEFINE(HAVE_TCSAFLUSH,,[<termios.h> defines TCSAFLUSH]))dnl

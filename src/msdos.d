@@ -165,9 +165,8 @@
   #   bzw. O_BINARY im 2. Argument angeben.) Daher ein setmode() nötig.
   #define Handle  uintW  # Typ eines File-Deskriptors
   extern off_t lseek (int fd, off_t offset, int whence); # siehe LSEEK(2V)
-  #define RW_BUF_T  void*
-  extern int read (int fd, RW_BUF_T buf, size_t nbyte); # siehe READ(2V)
-  extern int write (int fd, const RW_BUF_T buf, size_t nbyte); # siehe WRITE(2V)
+  extern int read (int fd, void* buf, size_t nbyte); # siehe READ(2V)
+  extern int write (int fd, const void* buf, size_t nbyte); # siehe WRITE(2V)
   extern int close (int fd); # siehe CLOSE(2V)
   extern int dup (int fd); # siehe DUP(2V)
   extern int fsync (int fd); # siehe FSYNC(2)
@@ -175,13 +174,10 @@
   extern int select (int width, fd_set* readfds, fd_set* writefds, fd_set* exceptfds,
                      struct timeval * timeout); # siehe SELECT(2)
   # Wrapper um die System-Aufrufe, die Teilergebnisse und evtl. EINTR behandeln:
-  extern int read_helper (int fd, RW_BUF_T buf, size_t nbyte, bool partial_p);
+  extern int read_helper (int fd, void* buf, size_t nbyte, bool partial_p);
   #define safe_read(f,b,n)  read_helper(f,b,n,true)
   #define full_read(f,b,n)  read_helper(f,b,n,false)
-  extern int full_write (int fd, const RW_BUF_T buf, size_t nbyte);
-  #define RETRWTYPE int      # für unixaux.d
-  #define RW_SIZE_T size_t   # für unixaux.d
-  #define WRITE_CONST const  # für unixaux.d
+  extern int full_write (int fd, const void* buf, size_t nbyte);
   #define OPEN open
   #define CLOSE close
 # wird verwendet von STREAM, PATHNAME, SPVW, MISC
