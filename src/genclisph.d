@@ -1313,7 +1313,6 @@ int main()
    printf("extern object allocate_s8string (uintL len);\n");
    printf("#define allocate_string(len)  allocate_s8string(len)\n");
  #endif
-   printf("gcv_object_t* slot_up (void);\n");
  #ifdef asciz_length
    #if defined(GNU) && (SAFETY < 2) && (__GNUC__ >= 2)
      printf("#define asciz_length(a)  ((uintL)__builtin_strlen(a))\n");
