@@ -1,3 +1,21 @@
+2004-02-19  Sam Steingold  <sds@gnu.org>
+
+	make package errors automatically recoverable
+	* error.d (prepare_error): new function
+	(fehler, check_value): use it
+	(correctable_error): new function
+	* lispbibl.d (correctable_error): prototype
+	* constobj.d (query_string_*): removed
+	* constsym.d (correctable_error, prompt_for_new_value, continue): added
+	* package.d (query_user, prepare_query_user): removed
+	(unintern, query_intern_conflict, export, use_package):
+	use correctable_error() instead of query_user()
+	(correct_packname): use correctable_error(): for NAME, CONTINUE
+	means reuse existing package, for NICKNAME - discard the nickname
+	(in_make_package): delete duplicate and NIL nicknames
+	* condition.lisp (correctable-error): new function
+	(check-value): bind *active-restarts* directly
+
 2004-03-17  Sam Steingold  <sds@gnu.org>
 
 	* configure.in (AC_INIT): release 2.33

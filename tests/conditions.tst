@@ -654,3 +654,77 @@ bar 41
                (format s "~1Txyzzy: My f1 is ~A" (my-f1 c)))))
   (princ-to-string (make-condition 'xyzzy :f1-is "a silly string")))
 " xyzzy: My f1 is a silly string"
+
+;; check all invocations of correctable-error in package.d
+(let* ((p1 (make-package "PACK-1" :use nil))
+       (p2 (make-package "PACK-2" :use nil))
+       (p3 (make-package "PACK-3" :use nil))
+       (p4 (make-package "PACK-4" :use nil))
+       (p5 (make-package "PACK-5" :use nil))
+       (bar-name (symbol-name (gensym "BAR-")))
+       (foo1 (intern "FOO" p1)) (foo2 (intern "FOO" p2))
+       (bar1 (intern bar-name p1)) (bar2 (intern bar-name p2))
+       (bar3 (intern bar-name p3)) (bar4 (intern bar-name p4))
+       (s12 (intern "SYM-1" p2)) (s22 (intern "SYM-2" p2))
+       (s13 (intern "SYM-1" p3)) (s23 (intern "SYM-2" p3))
+       (s14 (intern "SYM-1" p4)) (s24 (intern "SYM-2" p4))
+       (s15 (intern "SYM-1" p5)) (s25 (intern "SYM-2" p5)))
+  (export (list s12 s22) p2)
+  (export (list s13 s23) p3)
+  (export (list s14 s24) p4)
+  (handler-bind ((package-error
+                  (lambda (c) (princ c) (terpri) (invoke-restart :pack-3))))
+    (use-package (list p2 p3 p4) p1))
+  (assert (null (set-exclusive-or (list p2 p3 p4) (package-use-list p1))))
+  (assert (eq (find-symbol "SYM-1" p1) s13))
+  (assert (eq (find-symbol "SYM-2" p1) s23))
+  (handler-bind ((package-error
+                  (lambda (c) (princ c) (terpri) (invoke-restart 'import))))
+    (export s15 p1))
+  (assert (eq (find-symbol "SYM-1" p1) s15))
+  (handler-bind ((package-error
+                  (lambda (c) (princ c) (terpri) (invoke-restart :pack-2))))
+    (export foo2 p2))
+  (assert (eq (find-symbol "FOO" p1) foo2))
+  (assert (null (set-exclusive-or (list bar1 bar2 bar3 bar4)
+                                  (find-all-symbols bar-name))))
+  (handler-bind ((package-error
+                  (lambda (c) (princ c) (terpri) (invoke-restart :pack-1))))
+    (export bar2 p2))
+  (assert (eq (find-symbol bar-name p1) bar1))
+  (export bar3 p3)
+  (export bar4 p4)
+  (handler-bind ((package-error
+                  (lambda (c) (princ c) (terpri) (invoke-restart :pack-4))))
+    (unintern bar1 p1))
+  (assert (eq (find-symbol bar-name p1) bar4))
+  (delete-package p5)
+  (handler-bind ((package-error (lambda (c) (princ c) (terpri) (continue c))))
+    (delete-package p2) (delete-package p3) (delete-package p4))
+  (delete-package p1))
+T
+
+(let ((p1 (make-package "PACK" :use nil)) p2 p3 p4
+      (bar-name (symbol-name (gensym "BAR-"))))
+  (handler-bind ((package-error
+                  (lambda (c) (princ c) (terpri) (invoke-restart 'continue))))
+    (assert (eq p1 (make-package "PACK"))))
+  (handler-bind ((package-error
+                  (lambda (c)
+                    (princ c) (terpri)
+                    (invoke-restart 'read "KCAP"))))
+    (setq p2 (make-package "PACK")))
+  (assert (string= "KCAP" (package-name p2)))
+  (handler-bind ((package-error
+                  (lambda (c) (princ c) (terpri) (invoke-restart 'continue))))
+    (setq p3 (make-package "FOO" :nicknames (list "CL" bar-name "KCAP"))))
+  (assert (equal (list bar-name) (package-nicknames p3)))
+  (handler-bind ((package-error
+                  (lambda (c)
+                    (princ c) (terpri)
+                    (invoke-restart 'read "ZOT"))))
+    (setq p4 (make-package "QUUX" :nicknames (list "CL" bar-name "KCAP"))))
+  (assert (equal (list "ZOT") (package-nicknames p4)))
+  (delete-package p1) (delete-package p2)
+  (delete-package p3) (delete-package p4))
+T
