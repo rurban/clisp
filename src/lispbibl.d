@@ -9163,7 +9163,7 @@ extern struct subr_tab_ {
 # For SAVEMEM/LOADMEM we have a table of all such pseudofunctions.
 typedef const void *  Pseudofun; # assume function pointers fit in a void*
 
-# Declaraion of the tables of relocatable pointers:
+# Declaration of the tables of relocatable pointers:
 #define PSEUDO  PSEUDO_A
 extern struct pseudocode_tab_ {
   #include "pseudofun.c"

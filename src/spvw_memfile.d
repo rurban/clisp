@@ -1219,7 +1219,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
                 if (offset_pages[pagenr].old_page_start != ~0L) { abort(); }
                 offset_pages[pagenr].old_page_start = old_page_start;
                 offset_pages[pagenr].offset_page_o = offset_page_o;
-                      pagenr++;
+                pagenr++;
               } while (pagenr < pagenr_of(old_page_end & addr_mask));
             }
             old_page_ptr++; new_page_ptr++;
@@ -1321,8 +1321,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
       if (fsize < file_offset) goto abort2;
      #endif
     }
-    #endif  /* HAVE_MMAP) || SELFMADE_MMAP */
-   #endif  /* SPVW_PURE_BLOCKS) || SPVW_MIXED_BLOCKS_STAGGERED */
+    #endif  /* HAVE_MMAP || SELFMADE_MMAP */
+   #endif  /* SPVW_PURE_BLOCKS || SPVW_MIXED_BLOCKS_STAGGERED */
    #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
     { /* read objects of variable length: */
       var uintL len = header._mem_varobjects_end - header._mem_varobjects_start;
@@ -1397,7 +1397,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
        #undef update_unrealloc
        #undef update_page
       }
-     #endif  /* SPVW_PURE_BLOCKS) || SINGLEMAP_MEMORY_RELOCATE */
+     #endif  /* SPVW_PURE_BLOCKS || SINGLEMAP_MEMORY_RELOCATE */
    #ifdef SINGLEMAP_MEMORY_RELOCATE
     else /* i.e. if (offset_heaps_all_zero) */
    #endif
@@ -1516,7 +1516,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
       mem.last_gcend_space1 = 0;
      #endif
     }
-   #endif /* SPVW_PURE_BLOCKS) || TRIVIALMAP_MEMORY || GENERATIONAL_GC */
+   #endif /* SPVW_PURE_BLOCKS || TRIVIALMAP_MEMORY || GENERATIONAL_GC */
     FREE_DYNAMIC_ARRAY(old_modules);
     begin_system_call(); free(offset_subrs); end_system_call();
   }
