@@ -14844,63 +14844,126 @@ local object test_socket_stream (object obj, bool check_open) {
   fehler(type_error,GETTEXT("~: argument ~ is not a SOCKET-STREAM"));
 }
 
-# check whether the object is a socket (socket-stream or socket-server)
-# and return its socket handle
-local SOCKET socket_handle (object obj, bool check_open) {
+# check whether the object is a handle stream or a socket-server
+# and return its socket-like handle(s)
+local void stream_handles (object obj, bool check_open, bool* char_p,
+                           SOCKET* in_sock, SOCKET* out_sock) {
   if (socket_server_p(obj)) {
     if (check_open) test_socket_server(obj,true);
-    return TheSocket(TheSocketServer(obj)->socket_handle);
-  } else {
-    obj = test_socket_stream(obj,check_open);
-    return SocketChannel(obj);
+    if (in_sock) *in_sock = TheSocket(TheSocketServer(obj)->socket_handle);
+    return;
+  }
+  check_stream(obj);
+  if (!(TheStream(obj)->strmflags & strmflags_open_B)) {
+    pushSTACK(obj);       # TYPE-ERROR slot DATUM
+    pushSTACK(S(stream)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(S(stream));
+    pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,GETTEXT("~: argument ~ is not an open ~"));
+  }
+  switch (TheStream(obj)->strmtype) {
+    case strmtype_terminal:
+      if (in_sock)  *in_sock  = (SOCKET)stdin_handle;
+      if (out_sock) *out_sock = (SOCKET)stdout_handle;
+      if (char_p) *char_p = true;
+      return;
+    case strmtype_twoway_socket:
+      obj = TheStream(obj)->strm_twoway_socket_input;
+      if (in_sock)  *in_sock  = SocketChannel(obj);
+      if (out_sock) *out_sock = SocketChannel(obj);
+      if (char_p) *char_p = eq(TheStream(obj)->strm_eltype,S(character));
+      return;
+    case strmtype_socket:
+      if (in_sock  && input_stream_p(obj))  *in_sock  = SocketChannel(obj);
+      if (out_sock && output_stream_p(obj)) *out_sock = SocketChannel(obj);
+      if (char_p) *char_p = eq(TheStream(obj)->strm_eltype,S(character));
+      return;
+    case strmtype_echo:
+    case strmtype_twoway:
+      stream_handles(TheStream(obj)->strm_twoway_input,
+                     check_open,char_p,in_sock,NULL);
+      stream_handles(TheStream(obj)->strm_twoway_output,
+                     check_open,NULL,NULL,out_sock);
+      return;
+   #ifdef PIPES
+    case strmtype_pipe_in:
+      if (in_sock)
+        *in_sock  = (SOCKET)TheHandle(TheStream(obj)->strm_ichannel);
+      if (char_p) *char_p = eq(TheStream(obj)->strm_eltype,S(character));
+      return;
+    case strmtype_pipe_out:
+      if (out_sock)
+        *out_sock = (SOCKET)TheHandle(TheStream(obj)->strm_ochannel);
+      return;
+   #endif
+    case strmtype_file: {
+      var Handle handle =
+        TheHandle(ChannelStream_buffered(obj) ? BufferedStream_channel(obj)
+                  : ChannelStream_ichannel(obj));
+      if (in_sock  && input_stream_p(obj))  *in_sock  = (SOCKET)handle;
+      if (out_sock && output_stream_p(obj)) *out_sock = (SOCKET)handle;
+      if (char_p) *char_p = eq(TheStream(obj)->strm_eltype,S(character));
+      return;
+    }
+    default: fehler_illegal_streamop(TheSubr(subr_self)->name,obj);
   }
 }
 
 # set the appropriate fd_sets for the socket,
 # either a socket-server, a socket-stream or a (socket . direction)
 # see socket_status() for details
-# "socket" must be a "single-channel" stream (e.g., not a 2-way pipe)
-local void handle_set (object socket, fd_set *readfds, fd_set *writefds,
-                       fd_set *errorfds) {
+# return the number of handles set
+local uintL handle_set (object socket, fd_set *readfds, fd_set *writefds,
+                        fd_set *errorfds) {
   object sock = (consp(socket) ? Car(socket) : socket);
   direction_t dir = (consp(socket)?check_direction(Cdr(socket)):DIRECTION_IO);
-  SOCKET handle = socket_handle(sock,true);
-  FD_SET(handle,errorfds);
-  if (socket_server_p(sock)) {
-    if (READ_P(dir)) FD_SET(handle,readfds);
-  } else { # sock is a socket stream
-    if (READ_P(dir)  && input_stream_p(sock))  FD_SET(handle,readfds);
-    if (WRITE_P(dir) && output_stream_p(sock)) FD_SET(handle,writefds);
+  SOCKET in_sock = INVALID_SOCKET, out_sock = INVALID_SOCKET;
+  uintL ret = 0;
+  stream_handles(sock,true,NULL,
+                 READ_P(dir)  ? &in_sock  : NULL,
+                 WRITE_P(dir) ? &out_sock : NULL);
+  if (in_sock != INVALID_SOCKET) {
+    ret++;
+    FD_SET(in_sock,errorfds);
+    FD_SET(in_sock,readfds);
   }
+  if (out_sock != INVALID_SOCKET) {
+    ret++;
+    FD_SET(out_sock,errorfds);
+    FD_SET(out_sock,writefds);
+  }
+  return ret;
 }
 
 # check the appropriate fd_sets for the socket,
 # either a socket-server, a socket-stream or a (socket . direction)
 # see socket_status() for details
-# "socket" must be a "single-channel" stream (e.g., not a 2-way pipe)
 # can trigger GC
 local object handle_isset (object socket, fd_set *readfds, fd_set *writefds,
                            fd_set *errorfds) {
   object sock = (consp(socket) ? Car(socket) : socket);
   direction_t dir = (consp(socket)?check_direction(Cdr(socket)):DIRECTION_IO);
-  SOCKET handle = socket_handle(sock,true);
-  if (FD_ISSET(handle,errorfds)) return S(Kerror);
-  else {
-    if (socket_server_p(sock)) {
-      return FD_ISSET(handle,readfds) ? T : NIL;
-    } else {
-      bool wr = WRITE_P(dir) && FD_ISSET(handle,writefds),
-        rd = (READ_P(dir) && FD_ISSET(handle,readfds)
-              && (ls_avail_p(eq(TheStream(sock)->strm_eltype,S(character))
-                             ? listen_char(sock)
-                             : listen_byte(sock))));
-      if      ( rd && !wr) return S(Kinput);
-      else if (!rd &&  wr) return S(Koutput);
-      else if ( rd &&  wr) return S(Kio);
-      else                 return NIL;
-    }
+  SOCKET in_sock = INVALID_SOCKET, out_sock = INVALID_SOCKET;
+  bool char_p = true, rd = false, wr = false;
+  stream_handles(sock,true,&char_p,
+                 READ_P(dir)  ? &in_sock  : NULL,
+                 WRITE_P(dir) ? &out_sock : NULL);
+  if (in_sock != INVALID_SOCKET) {
+    if (FD_ISSET(in_sock,errorfds)) return S(Kerror);
+    if (socket_server_p(sock))
+      return FD_ISSET(in_sock,readfds) ? T : NIL;
+    rd = FD_ISSET(in_sock,readfds)
+      && (ls_avail_p(char_p ? listen_char(sock) : listen_byte(sock)));
   }
-  return NIL;
+  if (out_sock != INVALID_SOCKET) {
+    if (FD_ISSET(out_sock,errorfds)) return S(Kerror);
+    wr = FD_ISSET(out_sock,writefds);
+  }
+  if      ( rd && !wr) return S(Kinput);
+  else if (!rd &&  wr) return S(Koutput);
+  else if ( rd &&  wr) return S(Kio);
+  else                 return NIL;
 }
 #undef READ_P
 #undef WRITE_P
@@ -14910,8 +14973,9 @@ local object handle_isset (object socket, fd_set *readfds, fd_set *writefds,
 #   -- socket [socket-stream or socket-server]
 #   -- (socket . direction) [direction is :input or :output or :io (default)]
 #   -- list of the above
-# returns either a single symbol :error/:input/:output/:io
-# (when a single socket was given) or a list of such symbols.
+# returns either a single symbol :ERROR/:INPUT/:OUTPUT/:IO (for streams)
+#         or T/NIL (for socket-servers) - when a single object was given -
+#      or a list of such symbols.
 # will cons the list (and thus can trigger GC) in the latter case.
 LISPFUN(socket_status,1,2,norest,nokey,0,NIL) {
  #if defined(HAVE_SELECT) || defined(WIN32_NATIVE)
@@ -14930,8 +14994,8 @@ LISPFUN(socket_status,1,2,norest,nokey,0,NIL) {
     var int index = 0;
     for(; !nullp(list); list = Cdr(list)) {
       if (!listp(list)) fehler_list(list);
-      handle_set(Car(list),&readfds,&writefds,&errorfds);
-      if (++index > FD_SETSIZE) {
+      index += handle_set(Car(list),&readfds,&writefds,&errorfds);
+      if (index > FD_SETSIZE) {
         pushSTACK(fixnum(FD_SETSIZE));
         pushSTACK(all);
         pushSTACK(S(socket_status));
