@@ -35,6 +35,28 @@ else
 fi
 }
 
+# mkdirparent DIR creates the parent directory of DIR.
+# Synonymous to  mkdir -p `dirname DIR`
+# This is taken from Noah Friedman's mkinstalldirs script, with modifications.
+mkdirparent () {
+DIR="$1"
+DIR=`echo "$DIR" | sed -e 's,/*$,,'`
+defaultIFS=' 	
+'
+IFS="${IFS-${defaultIFS}}"
+oIFS="${IFS}"
+IFS='%'
+set - `echo ${DIR} | sed -e 's,/,%,g' -e 's,^%,/,'`
+IFS="${oIFS}"
+pathcomp=''
+while test $# -gt 1 ; do
+  pathcomp="${pathcomp}${1}"
+  shift
+  test -d "${pathcomp}" || mkdir "${pathcomp}"
+  pathcomp="${pathcomp}/"
+done
+}
+
 if test -r "$SRC"; then
   :
 else
@@ -46,6 +68,8 @@ if test -r "$DST"; then
   echo "$0: destination already exists: $DST" 1>&2
   exit 1
 fi
+
+mkdirparent "$DST"
 
 for f in `cd "$SRC" ; find . -type d -print`; do
   mkdir "$DST"`echo "$f" | sed -e 's,^\.,,'`

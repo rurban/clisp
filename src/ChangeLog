@@ -1,5 +1,10 @@
 1998-10-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lndir: Add code to perform the equivalent of "mkdir -p".
+          (mkdirparent): New function.
+
+1998-10-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * makemake.in: If SRCDIR is empty, emit "./lndir" instead of "lndir".
 
 1998-10-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
