@@ -19,7 +19,7 @@
 ;;   - Recursive calls by subroutine-call JSR, for tail-recursion
 ;;     JMPTAIL (corresponds to PSETQ with following jump)
 ;;   - Improvement for the call of a function with Rest-Parameters via APPLY
-;; Bruno Haible, Februar-March 1992:
+;; Bruno Haible, February-March 1992:
 ;;   - more detailed seclass, better PSETQ
 ;;   - better Constant Folding
 ;;   - Cross-Compilation
@@ -31,7 +31,7 @@
 ;;   - GENERIC-FLET, GENERIC-LABELS
 ;;   - Inline-Compilation of (APPLY (FUNCTION ...) ...)
 ;; Bruno Haible, 09.06.1996:
-;;   - Bytecode plattform-independent
+;;   - Bytecode platform-independent
 ;; Bruno Haible, 04.12.1998:
 ;;   - Optimization of generic functions by RETGF
 ;; further plans:
@@ -2719,8 +2719,8 @@ for-value   NIL or T
                                      (symbol-name (second funname)) ")")
             (symbol-package (second funname)))))
 
-;; returns a function name, that is composed by the package and the printname
-;; of a given function name, a hyphen and a suffix.
+;; returns a function name, that is composed by the package and the
+;; printname of a given function name, a hyphen and a suffix.
 (defun symbol-suffix (funname suffix)
   ;; We have 8 cases:
   ;;
