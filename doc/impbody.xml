@@ -4342,6 +4342,9 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <varlistentry><term>&unix-k;</term>
  <listitem><simpara>if &os; = &unix; (in this case the &hw; is irrelevant!)
 </simpara></listitem></varlistentry>
+<varlistentry><term><constant>:MACOS</constant></term>
+ <listitem><simpara>if &os; = MacOS X (in that case &unix-k; is also present)
+</simpara></listitem></varlistentry>
 <varlistentry><term><constant>:CYGWIN</constant></term>
  <listitem><simpara>if &clisp; is using the &cygwin; &unix;
    compatibility layer on top of &win32;
