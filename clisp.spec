@@ -38,6 +38,7 @@ URL:          http://clisp.cons.org/
 Packager:     Sam Steingold <sds@gnu.org>
 Provides:     clisp, ansi-cl
 Distribution: Red Hat GNU/Linux
+BuildRoot:    %{_tmppath}/%{name}-root
 %description
 %(cat SUMMARY)
 
@@ -68,9 +69,8 @@ echo "Uncomment 'configure' in 'clisp.spec' if you want to build";
 #    --with-module=bindings/glibc --with-module=clx/new-clx \
 #    --with-module=syscalls --build %{builddir}
 %install
-echo "Uncomment 'make install' in 'clisp.spec' if you want to install";
-# cd %{builddir}
-# make install
+cd %{builddir}
+make DESTDIR=$RPM_BUILD_ROOT install
 
 # create the source tar, necessary for source RPMs
 # this has to be done just once - uncomment if you want it
@@ -78,13 +78,12 @@ echo "Uncomment 'make install' in 'clisp.spec' if you want to install";
 #make -f Makefile.devel src-distrib
 #ln /tmp/%{name}-%{version}.tar.bz2 /usr/src/redhat/SOURCES/
 %clean
-echo "Uncomment removing builddir in 'clisp.spec' if you want a cleanup"
-#rm -rf %{builddir}
+rm -rf $RPM_BUILD_ROOT
 %files
 %{prefix}/bin/clisp
 %{prefix}/lib/clisp/
 %{prefix}/share/doc/%{name}-%{version}/
-%{prefix}/share/man/man1/clisp.1
+%{prefix}/share/man/man1/clisp.1.gz
 %{prefix}/share/locale/de/LC_MESSAGES/clisp.mo
 %{prefix}/share/locale/de/LC_MESSAGES/clisplow.mo
 %{prefix}/share/locale/en/LC_MESSAGES/clisp.mo
