@@ -4945,8 +4945,8 @@ nonreturning_function(local, fehler_print_readably, (object obj)) {
          GETTEXT("~S: Despite ~S, ~S cannot be printed readably."));
 }
 #define CHECK_PRINT_READABLY(obj)               \
-      if (!nullpSv(print_readably))        \
-        fehler_print_readably(obj);
+  if (!nullpSv(print_readably))                 \
+    fehler_print_readably(obj);
 
 # error message for inadmissible value of *PRINT-CASE*.
 # fehler_print_case(); english: error_print_case();
@@ -8252,19 +8252,25 @@ local void pr_machine (const gcv_object_t* stream_, object obj) {
 # < stream: stream
 # can trigger GC
 local void pr_system (const gcv_object_t* stream_, object obj) {
-  CHECK_PRINT_READABLY(obj);
-  if (!boundp(obj))
-    write_sstring_case(stream_,O(printstring_unbound));
-  else if (eq(obj,specdecl)) # #<SPECIAL REFERENCE>
-    write_sstring_case(stream_,O(printstring_special_reference));
-  else if (eq(obj,disabled)) # #<DISABLED POINTER>
-    write_sstring_case(stream_,O(printstring_disabled_pointer));
-  else if (eq(obj,dot_value)) # #<DOT>
-    write_sstring_case(stream_,O(printstring_dot));
-  else if (eq(obj,eof_value)) # #<END OF FILE>
-    write_sstring_case(stream_,O(printstring_eof));
-  else # #<SYSTEM-POINTER #x...>
-    pr_hex6_obj(stream_,obj,O(printstring_system));
+  if (nullpSv(print_readably)) {
+    if (!boundp(obj))
+      write_sstring_case(stream_,O(printstring_unbound));
+    else if (eq(obj,specdecl)) # #<SPECIAL REFERENCE>
+      write_sstring_case(stream_,O(printstring_special_reference));
+    else if (eq(obj,disabled)) # #<DISABLED POINTER>
+      write_sstring_case(stream_,O(printstring_disabled_pointer));
+    else if (eq(obj,dot_value)) # #<DOT>
+      write_sstring_case(stream_,O(printstring_dot));
+    else if (eq(obj,eof_value)) # #<END OF FILE>
+      write_sstring_case(stream_,O(printstring_eof));
+    else # #<SYSTEM-POINTER #x...>
+      pr_hex6_obj(stream_,obj,O(printstring_system));
+  } else {
+    if (!boundp(obj))
+      write_sstring_case(stream_,O(printstring_unbound_readably));
+    else
+      fehler_print_readably(obj);
+  }
 }
 
 # UP: prints  read-label to stream.

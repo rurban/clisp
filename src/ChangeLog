@@ -1,5 +1,10 @@
 2004-10-18  Sam Steingold  <sds@gnu.org>
 
+	* io.d (pr_system): permit readable output for #<UNBOUND>
+	* constobj.d (printstring_unbound_readably): added
+
+2004-10-18  Sam Steingold  <sds@gnu.org>
+
 	* clos-genfun3.lisp (defgeneric): when the function is being
 	TRACEd, UNTRACE it to avoid an error
 
