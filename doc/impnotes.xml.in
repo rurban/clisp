@@ -46,7 +46,7 @@
   <surname>Haible</surname></author>
  <author id="sds"><honorific>Dr</honorific> <firstname>Sam</firstname>
   <surname>Steingold</surname></author>
- <abstract><para>These notes describe the &gnu; &clisp; - and &ansi-cl;
+ <abstract><para>These notes describe the &gnu; &clisp; - an &ansi-cl;
    implementation.</para>
   <para>Bugs both in these notes and in &clisp; itself should be
    reported to the mailing list &clisp-list;.</para></abstract>
