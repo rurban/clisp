@@ -14852,9 +14852,11 @@ LISPFUNNR(stream_external_format,1)
      #endif
         VALUES1(TheStream(stream)->strm_encoding); break;
       case strmtype_broad:
-        pushSTACK(broadcast_stream_last(stream));
-        funcall(L(stream_external_format),1);
-        return;
+        stream = broadcast_stream_last(stream);
+        if (streamp(stream)) {
+          pushSTACK(stream); funcall(L(stream_external_format),1);
+          return;
+        } /* empty => FALLTHROUGH*/
       default:
         VALUES1(S(Kdefault)); break;
     }

@@ -5,6 +5,7 @@
 	* error.d (check_string): ditto
 	* stream.d (input_stream_p, output_stream_p): for
 	SYNONYM-STREAMs, return the value for the underlying stream
+	(STREAM-EXTERNAL-FORMAT): handle empty BROADCAST-STREAMs
 
 2004-02-11  Sam Steingold  <sds@gnu.org>
 
