@@ -222,7 +222,7 @@ that can be executed more efficiently.</para>
  <listitem><simpara>Sets the size of the program stack
    (<olink targetdoc="impnotes" targetptr="vm"><literal>SP</literal></olink>)
    &clisp; allocates for itself.  The syntax is the same as for
-   <link linkend="opt-memsize"><option>-m</option></link>.
+   <option><link linkend="opt-memsize">-m</link></option>.
    Default is one eighth of <replaceable>mem-size</replaceable>.
    The argument is constrained between 40 KB and 8 MB.
 </simpara></listitem></varlistentry>
@@ -357,8 +357,8 @@ that can be executed more efficiently.</para>
  <listitem><simpara>Comply with the &ansi-cl; specification
    even where &clisp; has been traditionally different.
    It sets the symbol macro <varname>*ansi*</varname> to &t;.
-   See <olink targetdoc="impnotes" targetptr="ansi">"Maximum ANSI CL
-   compliance"</olink> for details.</simpara></listitem></varlistentry>
+   See <olink targetdoc="impnotes" targetptr="ansi"/> for details.
+</simpara></listitem></varlistentry>
 
 <varlistentry id="opt-traditional"><term><option>-traditional</option></term>
  <listitem><simpara>Traditional: reverses the residual effects of
@@ -382,8 +382,9 @@ that can be executed more efficiently.</para>
 </simpara></listitem></varlistentry>
 
 <varlistentry id="opt-norc"><term><option>-norc</option></term>
- <listitem><simpara>Normally &clisp; loads a user <quote>run control</quote>
-   (RC) file on startup (this happens after the
+ <listitem><simpara>Normally &clisp; loads the user
+   <ulink url="http://www.faqs.org/docs/artu/ch10s03.html"><quote>run
+     control</quote> (RC)</ulink> file on startup (this happens after the
    <option><link linkend="opt-load-comp">-C</link></option> option is
    processed).
    The file loaded is
@@ -479,8 +480,8 @@ that can be executed more efficiently.</para>
 </simpara></listitem></varlistentry>
 
 <varlistentry><term>(&apropos; &name-r;)</term>
- <listitem><simpara><olink targetdoc="impnotes" targetptr="apropos">list the
-    symbols</olink> related to &name-r;.
+ <listitem><simpara><olink targetdoc="impnotes" targetptr="apropos">list
+    the symbols</olink> related to &name-r;.
 </simpara></listitem></varlistentry>
 
 <varlistentry><term>(exit)</term><term>(quit)</term><term>(bye)</term>
@@ -545,8 +546,8 @@ that can be executed more efficiently.</para>
 <!-- #if defined(WIN32_NATIVE) -->
 <term><filename>lisp.exe</filename></term>
 <!-- #endif -->
-<listitem><simpara>main executable
-   (runtime)</simpara></listitem></varlistentry>
+<listitem><simpara>main executable (runtime)
+</simpara></listitem></varlistentry>
 
 <varlistentry><term><filename>lispinit.mem</filename></term>
 <listitem><simpara>initial &mem-img;</simpara></listitem></varlistentry>
@@ -689,9 +690,9 @@ that can be executed more efficiently.</para>
 following information:</para>
 
 <orderedlist>
- <listitem><simpara>What is your platform (<command>"uname -a"</command>
-   on a Unix system)?  Compiler version?
-   GLIBC version (on GNU/Linux)?</simpara></listitem>
+ <listitem><simpara>What is your platform (<command>&uname-u; -a</command>
+   on a &unix; system)?  Compiler version?
+   &glibc; version (on &gnu;/&linux;)?</simpara></listitem>
  <listitem><simpara>Where did you get the sources?  When?
    (Absolute dates are preferred over the relative ones).</simpara></listitem>
  <listitem><simpara>How did you build &clisp;? (What command, options &amp;c.)
