@@ -1442,6 +1442,7 @@ LISPSYM(default_pathname_defaults,"*DEFAULT-PATHNAME-DEFAULTS*",lisp) /* variabl
 LISPSYM(merge_pathnames_ansi,"*MERGE-PATHNAMES-ANSI*",custom) /* variable in PATHNAME */
 LISPSYM(print_pathnames_ansi,"*PRINT-PATHNAMES-ANSI*",custom) /* variable in IO */
 LISPSYM(print_space_char_ansi,"*PRINT-SPACE-CHAR-ANSI*",custom) /* variable in IO */
+LISPSYM(print_empty_arrays_ansi,"*PRINT-EMPTY-ARRAYS-ANSI*",custom) /* variable in IO */
 LISPSYM(parse_namestring_ansi,"*PARSE-NAMESTRING-ANSI*",custom) /* variable in PATHNAME */
 #ifdef PATHNAME_NOEXT
 LISPSYM(parse_namestring_dot_file,"*PARSE-NAMESTRING-DOT-FILE*",custom) /* variable in PATHNAME */
