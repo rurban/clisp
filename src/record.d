@@ -479,11 +479,12 @@ LISPFUNN(set_funcallable_instance_function,2)
   VALUES1(closure); skipSTACK(2);
 }
 
-/* check_generic_function(obj)
+/* check_genericlambda_function(obj)
  > obj: an object
- < result: a generic function, either the same as obj or a replacement
+ < result: a function with a code vector produced by %GENERIC-FUNCTION-LAMBDA,
+           either the same as obj or a replacement
  can trigger GC */
-local object check_generic_function_replacement (object obj) {
+local object check_genericlambda_function_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj); /* TYPE-ERROR slot DATUM */
@@ -492,12 +493,12 @@ local object check_generic_function_replacement (object obj) {
     pushSTACK(TheSubr(subr_self)->name); /* function name */
     check_value(type_error,GETTEXT("~S: ~S is not a ~S"));
     obj = value1;
-  } while (!genericfunctionp(obj));
+  } while (!genericlambda_function_p(obj));
   return obj;
 }
-local inline object check_generic_function (object obj) {
-  if (!genericfunctionp(obj))
-    obj = check_generic_function_replacement(obj);
+local inline object check_genericlambda_function (object obj) {
+  if (!genericlambda_function_p(obj))
+    obj = check_genericlambda_function_replacement(obj);
   return obj;
 }
 
@@ -507,7 +508,7 @@ LISPFUNN(copy_generic_function,2) {
   /* Note: closure's clos_consts[0] is a simple-vector #(NIL c1 ... cn) where
      c1,...,cn are constant objects, and NIL is the placeholder to be replaced
      with the passed venv. */
-  var object oldclos = check_generic_function(STACK_0);
+  var object oldclos = check_genericlambda_function(STACK_0);
   var object vector = TheCclosure(oldclos)->clos_consts[0];
   if (!(simple_vector_p(vector)
         && (Svector_length(vector) > 0)
@@ -538,7 +539,7 @@ LISPFUNN(copy_generic_function,2) {
    generic-function has already been called, i.e. that the dispatch has
    already been installed. */
 LISPFUNN(generic_function_effective_method_function,1) {
-  var object oldclos = STACK_0 = check_generic_function(STACK_0);
+  var object oldclos = STACK_0 = check_genericlambda_function(STACK_0);
   /* allocate closure of equal length: */
   var object newclos = allocate_cclosure_copy(oldclos);
   oldclos = STACK_0;

@@ -1319,11 +1319,6 @@ LISPFUNNF(functionp,1)
   VALUES_IF(subrp(arg) || closurep(arg) || ffunctionp(arg));
 }
 
-LISPFUNNR(generic_function_p,1)
-{ /* (CLOS::GENERIC-FUNCTION-P object) */
-  VALUES_IF(genericfunctionp(STACK_0)); skipSTACK(1);
-}
-
 LISPFUNNF(packagep,1)
 { /* (PACKAGEP object), CLTL p. 76 */
   VALUES_IF(packagep(STACK_0)); skipSTACK(1);
