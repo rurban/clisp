@@ -1,3 +1,7 @@
+2004-08-18  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (PC386): Define also on Cygwin.
+
 2004-08-18  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (SSHUP): replaced gnudist and cons with podval
