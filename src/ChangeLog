@@ -1,5 +1,13 @@
 2002-03-21  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #[ 531879 ]: eval-when and top-forms
+	* init.lisp (%expand-form): do not conflate COMPILE and
+	:COMPILE-TOPLEVEL situations
+	* compiler.lisp (c-EVAL-WHEN): do not conflate LOAD with
+	:LOAD-TOLEVEL and COMPILE with :COMPILE-TOPLEVEL
+
+2002-03-21  Sam Steingold  <sds@gnu.org>
+
 	* configure (--with-debug): new option: pass "debug" to makemake
 	* clisp.spec: updated
 
