@@ -7443,17 +7443,44 @@ for-value   NIL or T
 ;; :TEST (COMPLEMENT foo) ==> :TEST-NOT foo
 ;; :TEST-NOT (COMPLEMENT foo) ==> :TEST foo
 (defun c-TEST/TEST-NOT ()
-  (let ((*form* *form*) modified)
-    (do ((pos *form* (cdr pos)) (idx 0 (1+ idx)))
-        ((null pos))
-      (when (and (or (eq (car pos) :test) (eq (car pos) :test-not))
-                 (inlinable-function-operation-form-p
-                  (second pos) 'COMPLEMENT))
-        (unless modified
-          (setq modified t *form* (copy-list *form*) pos (nthcdr idx *form*)))
-        (setf (car pos) (case (car pos) (:test :test-not) (:test-not :test))
-              (cadr pos) (second (cadr pos)))))
-    (c-GLOBAL-FUNCTION-CALL (car *form*))))
+  (let ((fun (first *form*)))
+    (multiple-value-bind (name req-num opt-num rest-p key-p keywords allow-p)
+        (function-signature fun)
+      (declare (ignore name rest-p key-p allow-p))
+      ;; This optimization assumes opt-num = 0.
+      (assert (and (= opt-num 0) (memq ':TEST keywords) (memq ':TEST-NOT keywords)))
+      ;; Replace the first occurrence of a (:TEST testform) or
+      ;; (:TEST-NOT testform), respectively.
+      ;; Do nothing if the call will produce errors at runtime, such as if
+      ;; :TEST and :TEST-NOT are both specified.
+      ;; Do nothing if the optimization would modify the semantics, such as if
+      ;; :TEST or :TEST-NOT is specified more than once.
+      (let ((*form* *form*))
+        (when (and (>= (length *form*) (+ 1 req-num))
+                   (evenp (- (length *form*) (+ 1 req-num))))
+          (let ((pos-TEST nil)
+                (pos-TEST-NOT nil))
+            (do* ((pos (+ 1 req-num) (+ pos 2))
+                  (rest (nthcdr pos *form*) (cddr rest)))
+                 ((endp rest))
+              (let ((key-form (first rest)))
+                (when (c-constantp key-form)
+                  (let ((key (c-constant-value key-form)))
+                    (case key
+                      (:TEST (setq pos-TEST (if pos-TEST -1 pos)))
+                      (:TEST-NOT (setq pos-TEST-NOT (if pos-TEST-NOT -1 pos))))))))
+            (when (and (or pos-TEST pos-TEST-NOT)
+                       (not (and pos-TEST pos-TEST-NOT)) ; both specified?
+                       (not (eql pos-TEST -1)) ; duplicate :TEST?
+                       (not (eql pos-TEST-NOT -1))) ; duplicate :TEST-NOT?
+              (let* ((pos (or pos-TEST pos-TEST-NOT))
+                     (testform (nth (+ pos 1) *form*)))
+                (when (inlinable-function-operation-form-p testform 'COMPLEMENT)
+                  (setq *form* (append (subseq *form* 0 pos)
+                                       (list* (if pos-TEST ':TEST-NOT ':TEST)
+                                              (second testform)
+                                              (nthcdr (+ pos 2) *form*)))))))))
+        (c-GLOBAL-FUNCTION-CALL fun)))))
 
 ;; Recognizes a constant byte specifier and returns it, or NIL.
 (defun c-constant-byte-p (form)
