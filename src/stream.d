@@ -6146,7 +6146,7 @@ local uintB* buffered_nextbyte (object stream, bool no_hang) {
         || (TheStream(stream)->strmflags & strmflags_rd_B)) {
       result = BufferedStreamLow_fill(stream)(stream,no_hang);
       if (result == 0 && !BufferedStream_have_eof_p(stream))
-        return (uintB*)-1; /* hang case */
+        return no_hang ? (uintB*)-1 : NULL; /* hang case */
     } else
       result = 0;
     BufferedStream_index(stream) = index = 0;
