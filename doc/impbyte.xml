@@ -1181,9 +1181,9 @@ letters:
              &STACK; += 3, &SP; += 2+&jbs;.</entry></row>
  <row><entry><literal role="sexp">(THROW)</literal></entry>
       <entry>Non-local exit to a &catch; frame.</entry>
-      <entry><replaceable>tag</replaceable> := *&STACK;++.
+      <entry>&tag-r; := *&STACK;++.
              Search the innermost &catch; frame with tag
-             <replaceable>tag</replaceable> on the &STACK;, unwind the
+             &tag-r; on the &STACK;, unwind the
              stack up to it, pass it values.</entry></row>
 </tbody></tgroup></table>
 
