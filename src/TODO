@@ -136,6 +136,7 @@ and you cannot even probe it! (with either probe-file or probe-directory)
 
 
 --with-dynamic-modules ==> link errors:
+gcc -I. -fPIC -x none -Wl,-export-dynamic -shared -o dynmod/lib-i18n.dll gettext.o
 gettext.o(.text+0x7f):i18n/gettext.c:2296: undefined reference to `_I_to_L'
 gettext.o(.text+0xcb):i18n/gettext.c:2301: undefined reference to `_STACK'
 gettext.o(.text+0xd2):i18n/gettext.c:2301: undefined reference to `_symbol_tab_data'
