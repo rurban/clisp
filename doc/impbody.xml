@@ -1108,20 +1108,24 @@ performance considerations.
 <section id="pack-dict"><title>The Packages Dictionary
    <ulink url="&clhs;/Body/sec_the_packa_s_dictionary.html">[CLHS-11.2]</ulink></title>
 
-<section id="make-pack"><title>Function &make-package;</title>
-
-<para>For &make-package;, the default value of the &use-k; argument is
- <literal role="data">(&cl-pac;)</literal>.
-</para>
-
+<section id="package-case"><title>Package Case-Sensitivity</title>
 <para>&make-package; accepts a keyword argument &case-sensitive-k;.
  Similarly, &defpackage; accepts an option &case-sensitive-k;.
- When its value is non-&nil;, the package will be case sensitive, i.e.,
- the reader will not case-convert symbol names before looking them up or
- creating them in this package.
+ When its value is non-&nil;, the package will be <firstterm>case
+ sensitive</firstterm>, i.e., the reader will not case-convert symbol
+ names before looking them up or creating them in this package.
  The package names are still subject to
  <code>(&readtable-case; &readtable-var;)</code>, though.</para>
 </section>
+
+<section id="make-pack"><title>Function &make-package;</title>
+<para>For &make-package;, the default value of the &use-k; argument is
+ <literal role="data">(&cl-pac;)</literal>.</para></section>
+
+<section id="defpack"><title>Macro &defpackage;</title>
+<para>When the package being defined already exists, it is modified to
+ conform with the new definition, except for the &case-sensitive-k;
+ option which is immutable.</para></section>
 
 <section id="re-export"><title>Function &re-export;</title>
 
@@ -4025,8 +4029,7 @@ warning, you need to fix the source code of the incriminated method.</para>
  <constant>:INVERT</constant>, it applies to the package name and the
  symbol name of a symbol separately (not to the entire token at once).
  An alternative to the use of &readtable-case; is the use of the
- <link linkend="make-pack">&case-sensitive-k;</link> option of
- &make-package; and &defpackage;.</para>
+ &case-sensitive-k; option of &make-package; and &defpackage;.</para>
 
 </section>
 
