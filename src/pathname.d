@@ -9502,10 +9502,10 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL) {
   else if (stringp(pathname)) { # make sure it ends with a slash
     var uintL len, offset;
     var object str = unpack_string_ro(pathname,&len,&offset);
-    var cint ch;
+    var chart ch;
     SstringDispatch(str,
-    { ch = as_cint(TheSstring(str)->data[len+offset-1]); },
-    { ch = TheSmallSstring(str)->data[len+offset-1]; });
+    { ch = TheSstring(str)->data[len+offset-1]; },
+    { ch = as_chart(TheSmallSstring(str)->data[len+offset-1]); });
     if (!slashp(ch)) {
       pushSTACK(pathname);
      #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
