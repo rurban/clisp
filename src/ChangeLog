@@ -40,7 +40,7 @@
 
 1999-03-20  Sam Steingold  <sds@gnu.org>
 
-	* describe.lsp (describe-onject): handle foreign functions correctly.
+	* describe.lsp (describe-object): handle foreign functions correctly.
 
 1999-03-19  Sam Steingold  <sds@gnu.org>
 
@@ -50,7 +50,7 @@
 1999-03-18  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lsp (*deprecated-functions-list*): new variable.
-	(note-function-used): uset it.
+	(note-function-used): use it.
 	* describe.lsp (describe-object): warn about deprecated functions.
 	* predtype.d (class-of): fsubr is a function, not T.
 	* constobj.d: print SPECIAL-OPERATOR instead of SPECIAL-FORM.
