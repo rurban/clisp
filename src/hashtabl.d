@@ -93,10 +93,6 @@
 #define leer  unbound
 #define nix   unbound
 
-/* Rotates a hashcode x by n bits to the left (0<n<32).
- rotate_left(n,x) */
-#define rotate_left(n,x)  (((x) << (n)) | ((x) >> (32-(n))))
-
 #define HT_GOOD_P(ht)                                   \
   (posfixnump(TheHashtable(ht)->ht_size) &&             \
    posfixnump(TheHashtable(ht)->ht_maxcount) &&         \
@@ -108,6 +104,10 @@
    simple_vector_p(TheHashtable(ht)->ht_ntable) &&      \
    (vector_length(TheHashtable(ht)->ht_ntable) ==       \
     posfixnum_to_L(TheHashtable(ht)->ht_maxcount)))
+
+/* Rotates a hashcode x by n bits to the left (0<n<32).
+ rotate_left(n,x) */
+#define rotate_left(n,x)  (((x) << (n)) | ((x) >> (32-(n))))
 
 /* mixes two hashcodes.
  one is rotated by 5 bits, then the other one is XOR-ed to it. */
@@ -929,8 +929,8 @@ local object rehash (object ht) {
       *--Nptr = freelist; freelist = index;
     }
   }
-  TheHashtable(ht)->ht_freelist = freelist; /* save frelist */
-  TheHashtable(ht)->ht_count = count; /* save number of pairs for consistency*/
+  TheHashtable(ht)->ht_freelist = freelist; /* save freelist */
+  TheHashtable(ht)->ht_count = count; /* save number of pairs for consistency */
   mark_ht_valid(TheHashtable(ht)); /* hashtable is now completely organized */
   return ht;
 }
@@ -1015,7 +1015,8 @@ local bool hash_lookup (object ht, object obj, gcv_object_t** KVptr_,
  > value: value
  > gcv_object_t* Iptr: arbitrary element of the "list", that belongs to key */
 #define hash_store(key,value)                                           \
-  do { var uintL index = posfixnum_to_L(freelist);    /* free index */  \
+  do {                                                                  \
+    var uintL index = posfixnum_to_L(freelist);    /* free index */     \
     var gcv_object_t* Nptr = /* address of the free entry in next-vector */ \
       &TheSvector(TheHashtable(ht)->ht_ntable)->data[index];            \
     /* address of the free entries in key-value-vector: */              \
@@ -1040,7 +1041,7 @@ local bool hash_lookup (object ht, object obj, gcv_object_t** KVptr_,
  prepare_resize(maxcount,mincount_threshold)
  > maxcount: wished new size MAXCOUNT
  > mincount_threshold: short-float MINCOUNT-THRESHOLD
- > weak: :KEY or :VALUE or :EITHER or :BOTH
+ > weak: NIL or :KEY or :VALUE or :EITHER or :BOTH
  < result: maxcount
  < stack-layout: MAXCOUNT, SIZE, MINCOUNT,
                 index-vector, next-vector, key-value-vector.
@@ -1164,7 +1165,8 @@ local object resize (object ht, object maxcount) {
  (especially for the user-defined tables, where hashcode can trigger GC!)
  can trigger GC */
 #define hash_prepare_store(hash_pos,key_pos)                            \
-  do { ht = STACK_(hash_pos);                                           \
+  do {                                                                  \
+    ht = STACK_(hash_pos);                                              \
     freelist = TheHashtable(ht)->ht_freelist;                           \
     if (eq(freelist,nix)) { /* free-list = empty "list" ? */            \
       var uintB flags = record_flags(TheHashtable(ht));                 \
