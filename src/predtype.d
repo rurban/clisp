@@ -1660,6 +1660,8 @@ LISPFUNNR(type_of,1)
           value1 = S(macro); break;
         case Rectype_FunctionMacro: /* FunctionMacro */
           value1 = S(function_macro); break;
+        case Rectype_BigReadLabel: /* BigReadLabel -> READ-LABEL */
+          value1 = S(read_label); break;
         case Rectype_Encoding: /* Encoding */
           value1 = S(encoding); break;
        #ifdef FOREIGN
@@ -1967,6 +1969,7 @@ LISPFUNNR(class_of,1)
         case Rectype_GlobalSymbolmacro: /* Global-Symbol-Macro -> <t> */
         case Rectype_Macro: /* Macro -> <t> */
         case Rectype_FunctionMacro: /* FunctionMacro -> <t> */
+        case Rectype_BigReadLabel: /* BigReadLabel -> <t> */
         case Rectype_Encoding: /* Encoding -> <t> */
        #ifdef FOREIGN
         case Rectype_Fpointer: /* Foreign-Pointer-Wrapping -> <t> */
@@ -2600,6 +2603,7 @@ enum { /* The values of this enumeration are 0,1,2,...
   enum_hs_global_symbol_macro,
   enum_hs_macro,
   enum_hs_function_macro,
+  enum_hs_big_read_label,
   enum_hs_encoding,
  #ifdef FOREIGN
   enum_hs_foreign_pointer,
@@ -2942,6 +2946,8 @@ local void heap_statistics_mapper (void* arg, object obj, uintM bytelen)
           pighole = &locals->builtins[(int)enum_hs_macro]; break;
         case Rectype_FunctionMacro: /* FunctionMacro */
           pighole = &locals->builtins[(int)enum_hs_function_macro]; break;
+        case Rectype_BigReadLabel: /* BigReadLabel */
+          pighole = &locals->builtins[(int)enum_hs_big_read_label]; break;
         case Rectype_Encoding: /* Encoding */
           pighole = &locals->builtins[(int)enum_hs_encoding]; break;
        #ifdef FOREIGN

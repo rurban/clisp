@@ -258,6 +258,7 @@
   LISPOBJ(hs_global_symbol_macro,"EXT::GLOBAL-SYMBOL-MACRO")
   LISPOBJ(hs_macro,"SYS::MACRO")
   LISPOBJ(hs_function_macro,"EXT::FUNCTION-MACRO")
+  LISPOBJ(hs_big_read_label,"SYS::READ-LABEL")
   LISPOBJ(hs_encoding,"EXT::ENCODING")
   #ifdef FOREIGN
   LISPOBJ(hs_foreign_pointer,"EXT::FOREIGN-POINTER")

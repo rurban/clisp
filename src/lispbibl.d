@@ -4251,6 +4251,7 @@ typedef xrecord_ *  Xrecord;
          Rectype_GlobalSymbolmacro,
          Rectype_Macro,
          Rectype_FunctionMacro,
+         Rectype_BigReadLabel,
          Rectype_Encoding,
          Rectype_Fpointer,              # only used #ifdef FOREIGN
          #ifdef DYNAMIC_FFI
@@ -5228,6 +5229,13 @@ typedef struct {
 } *  FunctionMacro;
 #define functionmacro_length  ((sizeof(*(FunctionMacro)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
+# BigReadLabel
+typedef struct {
+  XRECORD_HEADER
+  gcv_object_t brl_value _attribute_aligned_object_;
+} *  BigReadLabel;
+#define bigreadlabel_length  ((sizeof(*(BigReadLabel)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
+
 # Encoding
 typedef struct {
   XRECORD_HEADER
@@ -5998,10 +6006,14 @@ typedef enum {
     type_data_object(system_type, ((uintL)(n)<<1) + bit(0))
   #define small_read_label_integer_p(obj)  \
     (posfixnump(obj) && (posfixnum_to_L(obj) < bit(oint_data_len-2)))
+  #define small_read_label_value(obj)  \
+    fixnum((as_oint(obj) >> (oint_data_shift+1)) & (bit(oint_data_len-2)-1))
 #else
   #define make_small_read_label(n)  \
     type_data_object(small_read_label_type, (uintL)(n))
   #define small_read_label_integer_p(obj)  posfixnump(obj)
+  #define small_read_label_value(obj)  \
+    fixnum((as_oint(obj) >> oint_data_shift) & (bit(oint_data_len)-1))
 #endif
 
 # Machine pointers:
@@ -6154,6 +6166,7 @@ typedef enum {
   #define TheGlobalSymbolmacro(obj)  ((GlobalSymbolmacro)(type_pointable(orecord_type,obj)))
   #define TheMacro(obj)  ((Macro)(type_pointable(orecord_type,obj)))
   #define TheFunctionMacro(obj)  ((FunctionMacro)(type_pointable(orecord_type,obj)))
+  #define TheBigReadLabel(obj)  ((BigReadLabel)(type_pointable(orecord_type,obj)))
   #define TheEncoding(obj)  ((Encoding)(type_pointable(orecord_type,obj)))
   #ifdef FOREIGN
   #define TheFpointer(obj)  ((Fpointer)(type_pointable(orecord_type,obj)))
@@ -6313,6 +6326,7 @@ typedef enum {
   #define TheGlobalSymbolmacro(obj)  ((GlobalSymbolmacro)(ngci_pointable(obj)-varobject_bias))
   #define TheMacro(obj)  ((Macro)(ngci_pointable(obj)-varobject_bias))
   #define TheFunctionMacro(obj)  ((FunctionMacro)(ngci_pointable(obj)-varobject_bias))
+  #define TheBigReadLabel(obj)  ((BigReadLabel)(ngci_pointable(obj)-varobject_bias))
   #define TheEncoding(obj)  ((Encoding)(ngci_pointable(obj)-varobject_bias))
   #ifdef FOREIGN
   #define TheFpointer(obj)  ((Fpointer)(ngci_pointable(obj)-varobject_bias))
@@ -6903,6 +6917,10 @@ typedef enum {
 # Test for FunctionMacro
 #define functionmacrop(obj)  \
   (orecordp(obj) && (Record_type(obj) == Rectype_FunctionMacro))
+
+# Test for BigReadLabel
+#define big_read_label_p(obj)  \
+  (orecordp(obj) && (Record_type(obj) == Rectype_BigReadLabel))
 
 # Test for Encoding
 #define encodingp(obj)  \
@@ -9051,6 +9069,14 @@ extern maygc object allocate_iarray (uintB flags, uintC rank, tint type);
 #define allocate_functionmacro()  \
   allocate_xrecord(0,Rectype_FunctionMacro,functionmacro_length,0,orecord_type)
 # is used by RECORD
+
+# UP: allocates a BigReadLabel
+# allocate_big_read_label()
+# < result: a fresh BigReadLabel
+# can trigger GC
+#define allocate_big_read_label()  \
+  allocate_xrecord(0,Rectype_BigReadLabel,bigreadlabel_length,0,orecord_type)
+# is used by IO
 
 # UP: allocates an Encoding
 # allocate_encoding()

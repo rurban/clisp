@@ -1321,6 +1321,25 @@ global object subst_circ (gcv_object_t* ptr, object alist);
             default: ;
           }
           #endif
+          if (Record_type(obj) == Rectype_BigReadLabel) {
+            # BigReadLabel
+            # Search read-label obj in the alist:
+            var object alist = env->alist;
+            while (consp(alist)) {
+              var object acons = Car(alist);
+              if (eq(Car(acons),obj)) {
+                # Found.
+                # Replace *ptr = obj = (car acons) with (cdr acons), but
+                # leave the mark bit untouched:
+                *ptr = (marked(ptr) ? with_mark_bit(Cdr(acons)) : (object)Cdr(acons));
+                return;
+              }
+              alist = Cdr(alist);
+            }
+            # not found -> abort
+            env->bad = obj;
+            longjmp(env->abbruch_context,true);
+          }
           if (mlb_add(&env->bitmap,obj)) # object already marked?
             return;
           # On replacement of Read-Labels in Hash-Tables their structure
@@ -1350,14 +1369,14 @@ global object subst_circ (gcv_object_t* ptr, object alist);
             case_small_read_label:
               # Small-Read-Label
               {
-                # search Read-Label obj in the Alist:
+                # Search read-label obj in the alist:
                 var object alist = env->alist;
                 while (consp(alist)) {
                   var object acons = Car(alist);
                   if (eq(Car(acons),obj)) {
-                    # found
-                    # replace *ptr = obj = (car acons) with (cdr acons) ,
-                    # but leave the mark bit untouched:
+                    # Found.
+                    # Replace *ptr = obj = (car acons) with (cdr acons), but
+                    # leave the mark bit untouched:
                     *ptr = (marked(ptr) ? with_mark_bit(Cdr(acons)) : (object)Cdr(acons));
                     return;
                   }
@@ -1507,6 +1526,25 @@ global object subst_circ (gcv_object_t* ptr, object alist);
             default: ;
           }
           #endif
+          if (Record_type(obj) == Rectype_BigReadLabel) {
+            # BigReadLabel
+            # Search read-label obj in the alist:
+            var object alist = subst_circ_alist;
+            while (consp(alist)) {
+              var object acons = Car(alist);
+              if (eq(Car(acons),obj)) {
+                # Found.
+                # Replace *ptr = obj = (car acons) with (cdr acons):
+                *ptr = Cdr(acons);
+                return;
+              }
+              alist = Cdr(alist);
+            }
+            # not found -> abort
+            subst_circ_bad = obj;
+            begin_longjmp_call();
+            longjmp(subst_circ_jmpbuf,true);
+          }
           # traverse all elements:
           {
             var uintC len = Record_nonweak_length(obj);
@@ -1529,13 +1567,13 @@ global object subst_circ (gcv_object_t* ptr, object alist);
             case_small_read_label:
               # Small-Read-Label
               {
-                # search Read-Label obj in the Alist:
+                # Search read-label obj in the alist:
                 var object alist = subst_circ_alist;
                 while (consp(alist)) {
                   var object acons = Car(alist);
                   if (eq(Car(acons),obj)) {
-                    # found
-                    # replace *ptr = obj = (car acons) with (cdr acons) :
+                    # Found.
+                    # Replace *ptr = obj = (car acons) with (cdr acons):
                     *ptr = Cdr(acons);
                     return;
                   }
@@ -1681,6 +1719,25 @@ global object subst_circ (gcv_object_t* ptr, object alist);
             default: ;
           }
           #endif
+          if (Record_type(obj) == Rectype_BigReadLabel) {
+            # BigReadLabel
+            # Search read-label obj in the alist:
+            var object alist = subst_circ_alist;
+            while (consp(alist)) {
+              var object acons = Car(alist);
+              if (eq(Car(acons),obj)) {
+                # Found.
+                # Replace *ptr = obj = (car acons) with (cdr acons), but
+                # leave the mark bit untouched:
+                *ptr = (marked(ptr) ? with_mark_bit(Cdr(acons)) : (object)Cdr(acons));
+                return;
+              }
+              alist = Cdr(alist);
+            }
+            # not found -> abort
+            subst_circ_bad = obj;
+            longjmp(subst_circ_jmpbuf,true);
+          }
           if (marked(TheRecord(obj))) # object already marked?
             return;
           mark(TheRecord(obj)); # mark
@@ -1711,14 +1768,14 @@ global object subst_circ (gcv_object_t* ptr, object alist);
             case_small_read_label:
               # Small-Read-Label
               {
-                # search Read-Label obj in the Alist:
+                # Search read-label obj in the Alist:
                 var object alist = subst_circ_alist;
                 while (consp(alist)) {
                   var object acons = Car(alist);
                   if (eq(Car(acons),obj)) {
-                    # found
-                    # replace *ptr = obj = (car acons) with (cdr acons) ,
-                    # but leave the mark bit untouched:
+                    # Found.
+                    # Replace *ptr = obj = (car acons) with (cdr acons), but
+                    # leave the mark bit untouched:
                     *ptr = (marked(ptr) ? with_mark_bit(Cdr(acons)) : (object)Cdr(acons));
                     return;
                   }
@@ -1820,6 +1877,8 @@ global object subst_circ (gcv_object_t* ptr, object alist);
             default: ;
           }
           #endif
+          if (Record_type(obj) == Rectype_BigReadLabel)
+            return;
           if (!marked(TheRecord(obj))) # already unmarked?
             return;
           unmark(TheRecord(obj)); # unmark

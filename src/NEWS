@@ -206,6 +206,8 @@ User visible changes
     contain a host specification.
   + The PRINT-UNREADABLE macro prints extraneous spaces if
     CUSTOM:*PRINT-UNREADABLE-ANSI* is true.
+  + In the #n= and #n# reader syntax, the integer n may now be larger than
+    7 digits.
   Thanks to Paul F. Dietz <dietz@dls.net> and his ANSI compliance
   suite, which helped detect some of these deficiencies.
   Thanks to Yuji Minejima <ggb01164@nifty.ne.jp> and his ANSI compliance
