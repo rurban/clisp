@@ -1,5 +1,12 @@
 2004-06-10  Bruno Haible  <bruno@clisp.org>
 
+	* init.lisp: Export method, standard-method, method-function,
+	method-generic-function, method-lambda-list, method-specializers,
+	method-qualifiers, accessor-method-slot-definition.
+	* clos-package.lisp: Likewise.
+
+2004-06-10  Bruno Haible  <bruno@clisp.org>
+
 	* clos-method1.lisp (standard-method): Renamed function slot to
 	fast-function. Add function slot.
 	(initialize-instance-<standard-method>): Accept either :function or
