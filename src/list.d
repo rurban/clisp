@@ -1287,7 +1287,21 @@ LISPFUN(nsubst_if_not,3,0,norest,key,1, (kw(key)) )
     var object* stackptr;
     { var object alist = *(stackptr STACKop 3);
       while (consp(alist))
-        { if (mconsp(Car(alist))) # atomare Listenelemente überspringen
+        { # How to treat atoms in the list?
+          # a. One can ignore them.
+          # b. One can signal an error on them.
+          # c. One can signal an error only for non-NIL atoms.
+          # Obviously (b) is best, because it provides the best possible
+          # error checking. But CLtL2 and CLHS both contain a "note" that
+          # suggests to some people that atoms are ignored, therefore I
+          # assume that there is code outside which assumes this behaviour,
+          # and we must not signal an error on it.
+          # Note: To other people this note suggests that only NILs are
+          # ignored, and they suggest (c). This is inconsistent with the
+          # definition of "association list" in the CLHS glossary and with
+          # the general use of alists as lookup tables.
+          # Therefore we implement (a).
+          if (mconsp(Car(alist))) # atomare Listenelemente überspringen
             { pushSTACK(alist); # Listenrest ((u . v) ...) retten
               # Testen, ob die zweiargumentige Testfunktion
               # *(stackptr-3) (eine Adresse!), angewandt auf u und das
