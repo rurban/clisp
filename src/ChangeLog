@@ -1,3 +1,8 @@
+1998-11-21  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
+
+        Avoid a Purify(TM) warning.
+        * intbyte.d (ldb_extract): Only access newMSDptr[0] if really needed.
+
 1998-12-31  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
         * defs1.lsp (union, nunion, intersection, nintersection,
