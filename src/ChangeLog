@@ -1,5 +1,11 @@
 2004-12-09  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/rawsock.c (check_struct_data, SOCKADDR-FAMILY)
+	(optional_sockaddr_argument, BIND, CONNECT, RECVMSG, SENDMSG, SENDTO):
+	avoid warnings on AMD64 by using socklen_t instead of size_t
+
+2004-12-09  Sam Steingold  <sds@gnu.org>
+
 	* modules/rawsock/rawsock.c (htonl, htons, ntohl, ntohs): implemented
 	* modules/rawsock/sock.lisp (htonl, htons, ntohl, ntohs): exported
 
