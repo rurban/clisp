@@ -34,175 +34,188 @@ L7:
 	movel a2@,a0
 	jbsr a0@
 	movel d0,a1
-	movel a2@(12),d2
-	moveq #16,d3
+	movel a2@(12),a0
+	movel a0,d2
+	moveq #1,d3
+	cmpl a0,d3
+	jeq L9
+	tstl a0
+	jeq L68
+	moveq #2,d3
+	cmpl a0,d3
+	jeq L69
+	moveq #3,d3
+	cmpl a0,d3
+	jeq L69
+	moveq #4,d3
+	cmpl a0,d3
+	jeq L69
+	moveq #5,d3
+	cmpl a0,d3
+	jeq L70
+	moveq #6,d3
+	cmpl a0,d3
+	jeq L70
+	moveq #7,d3
+	cmpl a0,d3
+	jeq L68
+	moveq #8,d3
+	cmpl a0,d3
+	jeq L68
+	moveq #9,d3
+	cmpl a0,d3
+	jeq L68
+	moveq #10,d3
+	cmpl a0,d3
+	jeq L68
+	moveq #-11,d3
+	addl d3,d2
+	moveq #1,d3
 	cmpl d2,d3
-	jcs L35
-LI57:
-	movew pc@(L57-LI57-2:b,d2:l:2),d2
-	jmp pc@(2,d2:w)
-	.even
-L57:
-	.word L37-L57
-	.word L35-L57
-	.word L34-L57
-	.word L34-L57
-	.word L34-L57
-	.word L36-L57
-	.word L36-L57
-	.word L37-L57
-	.word L37-L57
-	.word L37-L57
-	.word L37-L57
-	.word L38-L57
-	.word L38-L57
-	.word L22-L57
-	.word L27-L57
-	.word L37-L57
-	.word L31-L57
-	.even
-L22:
+	jcc L71
+	moveq #13,d3
+	cmpl a0,d3
+	jne L32
 	movel a2@(4),d2
 	btst #6,d2
-	jeq L23
+	jeq L33
 	movel a2@(8),a0
 	fmoves fp0,a0@
-	jra L35
+	jra L9
 	.even
-L23:
+L33:
 	btst #5,d2
-	jeq L25
+	jeq L35
 	movel a2@(8),a0
 	movel d1,sp@-
 	movel d0,sp@-
 	fmoved sp@+,fp1
 	fmoves fp1,a0@
-	jra L35
+	jra L9
 	.even
-L25:
+L35:
 	movel a2@(8),a0
 	movel d0,a0@
-	jra L35
+	jra L9
 	.even
-L27:
+L32:
+	moveq #14,d3
+	cmpl a0,d3
+	jne L38
 	btst #6,a2@(7)
-	jeq L28
+	jeq L39
 	movel a2@(8),a0
 	fmoved fp0,a0@
-	jra L35
+	jra L9
 	.even
-L28:
+L39:
 	movel a2@(8),a0
 	movel d0,a0@
 	movel d1,a0@(4)
-	jra L35
+	jra L9
 	.even
-L31:
+L38:
+	moveq #15,d3
+	cmpl a0,d3
+	jeq L68
+	moveq #16,d3
+	cmpl a0,d3
+	jne L9
 	movel a2@(4),d2
 	btst #9,d2
-	jeq L32
+	jeq L45
 	movel a2@(16),d0
-	moveq #2,d3
-	cmpl d0,d3
-	jeq L36
-	jcs L41
 	moveq #1,d3
 	cmpl d0,d3
-	jeq L34
-	jra L32
-	.even
-L41:
-	moveq #4,d3
-	cmpl d0,d3
-	jeq L37
-	moveq #8,d3
-	cmpl d0,d3
-	jeq L38
-	jra L32
-	.even
-L34:
+	jne L46
+L69:
 	movel a2@(8),a0
 	movew a1,d3
 	moveb d3,a0@
-	jra L35
+	jra L9
 	.even
-L36:
+L46:
+	moveq #2,d3
+	cmpl d0,d3
+	jne L49
+L70:
 	movel a2@(8),a0
 	movew a1,a0@
-	jra L35
+	jra L9
 	.even
-L37:
+L49:
+	moveq #4,d3
+	cmpl d0,d3
+	jne L51
+L68:
 	movel a2@(8),a0
 	movel a1,a0@
-	jra L35
+	jra L9
 	.even
-L38:
+L51:
+	moveq #8,d3
+	cmpl d0,d3
+	jne L45
+L71:
 	movel a2@(8),a0
 	movel a1,a0@
 	movel a2@(8),a0
 	movel d1,a0@(4)
-	jra L35
-	.even
-L32:
-	btst #0,d2
-	jeq L35
-	movel a2@(16),d0
-	moveq #2,d3
-	cmpl d0,d3
-	jeq L45
-	jcs L54
-	moveq #1,d3
-	cmpl d0,d3
-	jeq L44
-	jra L48
-	.even
-L54:
-	moveq #4,d3
-	cmpl d0,d3
-	jeq L46
-	moveq #8,d3
-	cmpl d0,d3
-	jeq L47
-	jra L48
-	.even
-L44:
-	movel a2@(8),a0
-	moveb a1@,a0@
-	jra L35
+	jra L9
 	.even
 L45:
+	btst #0,d2
+	jeq L9
+	movel a2@(16),d0
+	moveq #1,d3
+	cmpl d0,d3
+	jne L55
+	movel a2@(8),a0
+	moveb a1@,a0@
+	jra L9
+	.even
+L55:
+	moveq #2,d3
+	cmpl d0,d3
+	jne L57
 	movel a2@(8),a0
 	movew a1@,a0@
-	jra L35
+	jra L9
 	.even
-L46:
+L57:
+	moveq #4,d3
+	cmpl d0,d3
+	jne L59
 	movel a2@(8),a0
 	movel a1@,a0@
-	jra L35
+	jra L9
 	.even
-L47:
+L59:
+	moveq #8,d3
+	cmpl d0,d3
+	jne L61
 	movel a2@(8),a0
 	movel a1@,a0@
 	movel a2@(8),a0
 	movel a1@(4),a0@(4)
-	jra L35
+	jra L9
 	.even
-L48:
+L61:
 	addql #3,d0
 	lsrl #2,d0
 	subql #1,d0
-	jmi L35
+	jmi L9
 	lea a1@(d0:l:4),a1
 	.even
-L51:
+L65:
 	movel a2@(8),a0
 	movel a1@,a0@(d0:l:4)
 	subql #4,a1
-	dbra d0,L51
+	dbra d0,L65
 	clrw d0
 	subql #1,d0
-	jcc L51
-L35:
+	jcc L65
+L9:
 	lea sp@(1024),sp
 	clrl d0
 	moveml sp@+,#0xc0c

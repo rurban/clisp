@@ -24,112 +24,110 @@ ___vacall_r:
 	calls (a1)
 	ld.w 12(fp),ap
 	add.w #8,sp
-	ld.w -16(fp),a1
-	ltu.w #15,a1
-	jbra.t L1
-	shf #2,a1
-	ld.w L29(a1),a1
-	jmp (a1)
-.text 2
-L29:
-	ds.w L2
-	ds.w L3
-	ds.w L4
-	ds.w L5
-	ds.w L6
-	ds.w L7
-	ds.w L16
-	ds.w L16
-	ds.w L16
-	ds.w L16
-	ds.w L12
-	ds.w L13
-	ds.w L14
-	ds.w L15
-	ds.w L16
-	ds.w L17
-.text
-.align 2
-L2:
-	rtn
-L3:
-L4:
+	ld.w -16(fp),s1
+	eq.w #0,s1
+	jbrs.t L2
+	eq.w #1,s1
+	jbrs.t L42
+	eq.w #2,s1
+	jbrs.f L5
+L42:
 	ld.b -8(fp),s1
 	cvtb.w s1,s0
 	rtn
 L5:
+	eq.w #3,s1
+	jbrs.f L7
 	ld.b -8(fp),s1
-	jbr L31
-L6:
+	jbr L43
+L7:
+	eq.w #4,s1
+	jbrs.f L9
 	ld.h -8(fp),s1
 	cvth.w s1,s0
 	rtn
-L7:
+L9:
+	eq.w #5,s1
+	jbrs.f L11
 	ld.h -8(fp),s1
-	jbr L32
-L12:
-L13:
-	ld.l -8(fp),s0
+	jbr L44
+L11:
+	eq.w #6,s1
+	jbrs.t L45
+	eq.w #7,s1
+	jbrs.t L45
+	eq.w #8,s1
+	jbrs.t L45
+	eq.w #9,s1
+	jbrs.t L45
+	eq.w #10,s1
+	jbrs.t L46
+	ld.w -16(fp),s1
+	eq.w #11,s1
+	jbrs.f L23
+L46:
+	ld.w -4(fp),s0
 	rtn
-L14:
+L23:
+	eq.w #12,s1
+	jbrs.f L25
 	ld.s -8(fp),s0
 	rtn
-L15:
+L25:
+	eq.w #13,s1
+	jbrs.f L27
 	ld.d -8(fp),s0
 	rtn
-L16:
+L27:
+	eq.w #14,s1
+	jbrs.f L29
+L45:
 	ld.w -8(fp),s0
 	rtn
-L17:
+L29:
+	eq.w #15,s1
+	jbrs.f L2
 	ld.w -28(fp),s2
 	mov.w s2,s1
 	and #1,s1
 	eq.w #0,s1
-	jbrs.t L18
+	jbrs.t L32
 	ld.w -20(fp),s0
 	rtn
-L18:
+L32:
 	mov.w s2,s1
 	and #1024,s1
 	eq.w #0,s1
-	jbrs.t L19
+	jbrs.t L2
 	ld.w -12(fp),s1
-	eq.w #2,s1
-	jbrs.t L23
-	ltu.w #2,s1
-	jbrs.t L28
 	eq.w #1,s1
-	jbrs.t L22
-	rtn
-L28:
-	eq.w #4,s1
-	jbrs.t L24
-	eq.w #8,s1
-	jbrs.t L25
-	rtn
-L22:
+	jbrs.f L35
 	ld.w -20(fp),a1
 	ld.b (a1),s1
-L31:
+L43:
 	mov.w s1,s0
 	and #0xff,s0
 	rtn
-L23:
+L35:
+	eq.w #2,s1
+	jbrs.f L37
 	ld.w -20(fp),a1
 	ld.h (a1),s1
-L32:
+L44:
 	mov.w s1,s0
 	and #0xffff,s0
 	rtn
-L24:
+L37:
+	eq.w #4,s1
+	jbrs.f L39
 	ld.w -20(fp),a1
 	ld.w (a1),s0
 	rtn
-L25:
+L39:
+	eq.w #8,s1
+	jbrs.f L2
 	ld.w -20(fp),a1
 	ld.l (a1),s0
-L19:
-	rtn
-L1:
+L2:
 	rtn
 	ds.h 0

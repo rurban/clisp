@@ -13,9 +13,6 @@ ___gnu_compiled_c:
 LC0:
 	.word	_vacall_function
 	.align	0
-LC1:
-	.word	L30
-	.align	0
 	.global	_vacall
 _vacall:
 	@ args = 4, pretend = 0, frame = 48
@@ -38,98 +35,96 @@ _vacall:
 	ldr	r3, [pc, #LC0 - . - 8]
 	mov	lr, pc
 	ldr	pc, [r3, #0]
-	ldr	r2, [sp, #12]
-	cmp	r2, #15
-	bhi	L2
-	ldr	r3, [pc, #LC1 - . - 8]
-	ldr	pc, [r3, r2, asl #2]	@ table jump, label L30
-L30:
-	.word	L2
-	.word	L6
-	.word	L5
-	.word	L6
-	.word	L7
-	.word	L8
-	.word	L17
-	.word	L17
-	.word	L17
-	.word	L17
-	.word	L14
-	.word	L14
-	.word	L15
-	.word	L16
-	.word	L17
-	.word	L18
-L5:
-	ldrb	r3, [sp, #20]
-	mov	r3, r3, asl #24
-	mov	r0, r3, asr #24
-	b	L2
+	ldr	r3, [sp, #12]
+	cmp	r3, #0
+	beq	L3
+	cmp	r3, #1
+	beq	L41
+	cmp	r3, #2
+	ldreqb	r3, [sp, #20]
+	moveq	r3, r3, asl #24
+	moveq	r0, r3, asr #24
+	beq	L3
 L6:
+	cmp	r3, #3
+	bne	L8
+L41:
 	ldrb	r0, [sp, #20]	@ zero_extendqisi2
-	b	L2
-L7:
-	ldr	r3, [sp, #20]	@ movhi
-	mov	r3, r3, asl #16
-	mov	r0, r3, asr #16
-	b	L2
+	b	L3
 L8:
-	ldr	r3, [sp, #20]	@ movhi
-	b	L32
-L14:
+	cmp	r3, #4
+	ldreq	r3, [sp, #20]	@ movhi
+	moveq	r3, r3, asl #16
+	moveq	r0, r3, asr #16
+	beq	L3
+L10:
+	cmp	r3, #5
+	ldreq	r3, [sp, #20]	@ movhi
+	beq	L42
+L12:
+	cmp	r3, #6
+	beq	L43
+	cmp	r3, #7
+	beq	L43
+	cmp	r3, #8
+	beq	L43
+	cmp	r3, #9
+	beq	L43
+	sub	r3, r3, #10
+	cmp	r3, #1
+	ldrls	r0, [sp, #20]
+	ldrls	r1, [sp, #24]
+	bls	L3
+L22:
+	ldr	r3, [sp, #12]
+	cmp	r3, #12
+	ldfeqs	f0, [sp, #20]
+	beq	L3
+L24:
+	cmp	r3, #13
+	ldfeqd	f0, [sp, #20]
+	beq	L3
+L26:
+	cmp	r3, #14
+	bne	L28
+L43:
 	ldr	r0, [sp, #20]
-	ldr	r1, [sp, #24]
-	b	L2
-L15:
-	ldfs	f0, [sp, #20]
-	b	L2
-L16:
-	ldfd	f0, [sp, #20]
-	b	L2
-L17:
-	ldr	r0, [sp, #20]
-	b	L2
-L18:
+	b	L3
+L28:
+	cmp	r3, #15
+	bne	L3
 	ldr	r3, [sp, #0]
 	tst	r3, #1
 	ldrne	r0, [sp, #8]
-	bne	L2
-L19:
+	bne	L3
+L31:
 	tst	r3, #1024
-	beq	L2
+	beq	L3
 	ldr	r3, [sp, #16]
-	cmp	r3, #2
-	beq	L24
-	bhi	L29
 	cmp	r3, #1
-	beq	L23
-	b	L2
-L29:
-	cmp	r3, #4
-	beq	L25
-	cmp	r3, #8
-	beq	L26
-	b	L2
-L23:
-	ldr	r3, [sp, #8]
-	ldrb	r0, [r3, #0]	@ zero_extendqisi2
-	b	L2
-L24:
+	ldreq	r3, [sp, #8]
+	ldreqb	r0, [r3, #0]	@ zero_extendqisi2
+	beq	L3
+L34:
+	cmp	r3, #2
+	bne	L36
 	ldr	r3, [sp, #8]
 	ldr	r3, [r3, #0]	@ movhi
-L32:
+L42:
 	mov	r3, r3, asl #16
 	mov	r0, r3, lsr #16
-	b	L2
-L25:
-	ldr	r3, [sp, #8]
-	ldr	r0, [r3, #0]
-	b	L2
-L26:
-	ldr	r3, [sp, #8]
-	ldr	r0, [r3, #0]
-	ldr	r1, [r3, #4]
-L2:
+	b	L3
+L36:
+	cmp	r3, #4
+	ldreq	r3, [sp, #8]
+	ldreq	r0, [r3, #0]
+	beq	L3
+L38:
+	cmp	r3, #8
+	ldreq	r3, [sp, #8]
+	ldreq	r0, [r3, #0]
+	ldreq	r1, [r3, #4]
+L3:
 	ldr	r3, [sp, #28]
 	str	r3, [sp, #48]
 	add	sp, sp, #48
