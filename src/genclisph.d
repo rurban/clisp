@@ -1346,7 +1346,11 @@ global int main()
     #ifdef TYPECODES
       printf1("#define S_help_(name)  (type_constpointer_object(%d,&symbol_tab.name))\n",(tint)symbol_type);
     #else
-      printf1("#define S_help_(name)  as_object((oint)&symbol_tab.name+%d)\n",varobject_bias);
+      #if defined(OBJECT_STRUCT)
+        printf1("#define S_help_(name)  as_object((oint)&symbol_tab.name+%d)\n",varobject_bias);
+      #else
+        printf1("#define S_help_(name)  objectplus(&symbol_tab.name,%d)\n",varobject_bias);
+      #endif
     #endif
   #else
     printf1("#define symbol_tab_addr ((struct symbol_tab_ *)type_zero_oint(%d))\n",(tint)symbol_type);
