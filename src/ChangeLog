@@ -1,5 +1,9 @@
 2003-02-28  Sam Steingold  <sds@gnu.org>
 
+	ANSI CL compliance issues
+	* clos.lisp (generic-function): commented out the macro definition:
+	GENERIC-FUNCTION is a TYPE (and a COMMON-LISP symbol) in ANSI CL,
+	but not a macro, so this definition violates the standard
 	* type.lisp (canonicalize-type): canonicalize MOD, SIGNED-BYTE,
 	and UNSIGNED-BYTE to an inclusive interval
 
