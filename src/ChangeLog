@@ -1,3 +1,9 @@
+2003-10-26  Bruno Haible  <bruno@clisp.org>
+
+	Make DEBUG_GCSAFETY work with generational GC.
+	* spvw_heap.d (old_new_pointer_t): Change type of field 'o' to
+	gcv_object_t.
+
 2003-10-25  Bruno Haible  <bruno@clisp.org>
 
 	Make DEBUG_GCSAFETY work with g++ 3.3.x.
