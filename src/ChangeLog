@@ -44,7 +44,12 @@
 
 2003-05-15  Jörg Höhle  <hoehle@users.sourceforge.net>
 
-	* modules/bindings/linuxlibc6/linux.lisp (errno): works now
+	* modules/bindings/linuxlibc6/linux.lisp [LINUX]: several fixes
+	(errno, putpwent, c-struct group): fixed
+	(getpwent, fgetpwent, getpwuid, getpwnam): return c-ptr-null
+	(getgrent, fgetgrent, getgrgid, getgrnam): return c-ptr-null
+	(readdir): return c-ptr-null
+	(seed48): fixed arg, but extern prototyping is still broken
 
 2003-05-14  Sam Steingold  <sds@gnu.org>
 
