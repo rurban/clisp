@@ -33,7 +33,7 @@ Release:      %{release}
 #Icon:         clisp.png
 Copyright:    GPL
 Group:        development/languages
-Source:       ftp://cvs2.cons.org/pub/lisp/clisp/source/latest/
+Source:       ftp://ftp.gnu.org/pub/gnu/clisp/release/latest/
 URL:          http://clisp.cons.org/
 Packager:     Sam Steingold <sds@gnu.org>
 Provides:     clisp, ansi-cl
