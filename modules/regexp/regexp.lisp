@@ -11,7 +11,9 @@
 
 (in-package "REGEXP")
 
-; Common OS definitions:
+(default-foreign-language :stdc)
+
+;; Common OS definitions:
 (def-c-type size_t uint)
 
 #|
@@ -111,32 +113,28 @@ extern void regfree (regex_t *preg);
    Free dynamically allocated space used by PREG.
 
 
-(def-c-call-out regcomp (:arguments (preg (c-ptr regex_t) :out)
-                                    (pattern c-string)
-                                    (cflags int)
-                        )
-                        (:return-type int)
-)
-(def-c-call-out regexec (:arguments (preg (c-ptr regex_t))
-                                    (string c-string)
-                                    (nmatch size_t)
-                                    (pmatch (c-ptr (c-array regmatch_t 0)))
-                                    (eflags int)
-                        )
-                        (:return-type int)
-)
-(def-c-call-out regerror (:arguments (errcode int)
-                                     (preg (c-ptr regex_t))
-                                     (errbuf (c-ptr character))
-                                     (errbuf_size size_t)
-                         )
-                         (:return-type size_t)
-)
-(def-c-call-out regfree (:arguments (preg (c-ptr regex_t)))
-                        (:return-type nil)
-)
+(def-call-out regcomp
+    (:arguments (preg (c-ptr regex_t) :out)
+                (pattern c-string)
+                (cflags int))
+  (:return-type int))
+(def-call-out regexec
+    (:arguments (preg (c-ptr regex_t))
+                (string c-string)
+                (nmatch size_t)
+                (pmatch (c-ptr (c-array regmatch_t 0)))
+                (eflags int))
+  (:return-type int))
+(def-call-out regerror
+    (:arguments (errcode int)
+                (preg (c-ptr regex_t))
+                (errbuf (c-ptr character))
+                (errbuf_size size_t))
+  (:return-type size_t))
+(def-call-out regfree (:arguments (preg (c-ptr regex_t)))
+  (:return-type nil))
 
-|#
+;|#
 
 ;; This interface is not exactly adapted to our needs. We introduce
 ;; slightly modified functions.
@@ -146,31 +144,25 @@ extern int regexec (const regex_t *preg, const char *string, size_t nmatch,
                     regmatch_t pmatch[], int eflags);
 extern const char *mregerror (int errcode, const regex_t *preg);,
 extern void mregfree (regex_t *preg);
-|#
+;|#
 
 (eval-when (compile load eval) (defconstant num-matches 10))
-(def-c-call-out mregcomp (:arguments (ppreg (c-ptr regex_t-ptr) :out)
-                                     (pattern c-string)
-                                     (cflags int)
-                         )
-                         (:return-type int)
-)
-(def-c-call-out regexec (:arguments (preg regex_t-ptr)
-                                    (string c-string)
-                                    (nmatch size_t)
-                                    (pmatch (c-ptr (c-array regmatch_t #.num-matches)) :out)
-                                    (eflags int)
-                        )
-                        (:return-type int)
-)
-(def-c-call-out mregerror (:arguments (errcode int)
-                                      (preg regex_t-ptr)
-                          )
-                          (:return-type c-string :malloc-free)
-)
-(def-c-call-out mregfree (:arguments (preg regex_t-ptr))
-                         (:return-type nil)
-)
+(def-call-out mregcomp
+    (:arguments (ppreg (c-ptr regex_t-ptr) :out)
+                (pattern c-string)
+                (cflags int))
+  (:return-type int))
+(def-call-out regexec
+    (:arguments (preg regex_t-ptr)
+                (string c-string)
+                (nmatch size_t)
+                (pmatch (c-ptr (c-array regmatch_t #.num-matches)) :out)
+                (eflags int))
+  (:return-type int))
+(def-call-out mregerror (:arguments (errcode int) (preg regex_t-ptr))
+  (:return-type c-string :malloc-free))
+(def-call-out mregfree (:arguments (preg regex_t-ptr))
+  (:return-type nil))
 ; cflags values
 (defconstant REG_EXTENDED 1)
 (defconstant REG_ICASE    2)

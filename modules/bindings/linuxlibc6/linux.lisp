@@ -11,23 +11,21 @@
 
 ;; This requires linking with NEW_LIBS='linux.o -lm'.
 
-
 (in-package "LISP")
 
+(ffi:default-foreign-language :stdc)
+
 (eval-when (compile eval)
-  ; A temporary package, case-insensitive, so that we don't need to prefix
-  ; everything with "lisp:" or "ffi:".
+  ;; A temporary package, case-insensitive, so that we don't need to prefix
+  ;; everything with "lisp:" or "ffi:".
   (defpackage "LINUX-AUX"
-    (:use "LISP" "FFI")
-  )
-)
+    (:use "LISP" "FFI")))
 
 (eval-when (compile eval)
-  (in-package "LINUX-AUX")
-)
+  (in-package "LINUX-AUX"))
 
 (eval-when (compile eval)
-  ; Symbols to be substituted
+  ;; Symbols to be substituted
   (defconstant substitution
     '((linux::aref . lisp:aref)
       (linux::AREF . lisp:aref)
@@ -128,7 +126,7 @@
     (exporting "def-c-enum")
     (exporting "def-c-struct")
     (exporting "def-c-var")
-    (exporting "def-c-call-out")
+    (exporting "def-call-out")
     (normal "c-lines")
     (normal "eval-when")
   )
@@ -403,9 +401,7 @@
 
 ; ------------------------------ <errnos.h> -----------------------------------
 
-(def-c-call-out __errno_location (:arguments)
-                                 (:return-type (c-ptr int))
-)
+(def-call-out __errno_location (:arguments) (:return-type (c-ptr int)))
 ;; (define-symbol-macro errno (deref (foreign-value (__errno_location))))
 (def-c-var errno (:type ffi:int))
 
@@ -623,724 +619,421 @@
 (defconstant EXIT_FAILURE 1)
 (defconstant EXIT_SUCCESS 0)
 
-(def-c-call-out __ctype_get_mb_cur_max (:arguments)
-                                       (:return-type int)
-)
+(def-call-out __ctype_get_mb_cur_max (:arguments) (:return-type int))
 (define-symbol-macro MB_CUR_MAX (__ctype_get_mb_cur_max))
 
-(def-c-call-out atof (:arguments (nptr c-string))
-                     (:return-type double-float)
-)
-(def-c-call-out atoi (:arguments (nptr c-string))
-                     (:return-type int)
-)
-(def-c-call-out atol (:arguments (nptr c-string))
-                     (:return-type long)
-)
-(def-c-call-out atoll (:arguments (nptr c-string))
-                      (:return-type longlong)
-)
-(def-c-call-out strtod (:arguments (nptr c-string)
-                                   (endptr (c-ptr c-string) :out)
-                       )
-                       (:return-type double-float)
-)
-(def-c-call-out strtof (:arguments (nptr c-string)
-                                   (endptr (c-ptr c-string) :out)
-                       )
-                       (:return-type single-float)
-)
-(def-c-call-out strtol (:arguments (nptr c-string)
-                                   (endptr (c-ptr c-string) :out)
-                                   (base int)
-                       )
-                       (:return-type long)
-)
-(def-c-call-out strtoul (:arguments (nptr c-string)
-                                    (endptr (c-ptr c-string) :out)
-                                    (base int)
-                        )
-                        (:return-type ulong)
-)
-(def-c-call-out strtoq (:arguments (nptr c-string)
-                                   (endptr (c-ptr c-string) :out)
-                                   (base int)
-                       )
-                       (:return-type longlong)
-)
-(def-c-call-out strtouq (:arguments (nptr c-string)
-                                    (endptr (c-ptr c-string) :out)
-                                    (base int)
-                        )
-                        (:return-type ulonglong)
-)
-(def-c-call-out strtoll (:arguments (nptr c-string)
-                                    (endptr (c-ptr c-string) :out)
-                                    (base int)
-                        )
-                        (:return-type longlong)
-)
-(def-c-call-out strtoull (:arguments (nptr c-string)
-                                     (endptr (c-ptr c-string) :out)
-                                     (base int)
-                         )
-                         (:return-type ulonglong)
-)
+(def-call-out atof (:arguments (nptr c-string)) (:return-type double-float))
+(def-call-out atoi (:arguments (nptr c-string)) (:return-type int))
+(def-call-out atol (:arguments (nptr c-string)) (:return-type long))
+(def-call-out atoll (:arguments (nptr c-string)) (:return-type longlong))
+(def-call-out strtod
+    (:arguments (nptr c-string) (endptr (c-ptr c-string) :out))
+  (:return-type double-float))
+(def-call-out strtof
+    (:arguments (nptr c-string) (endptr (c-ptr c-string) :out))
+  (:return-type single-float))
+(def-call-out strtol
+    (:arguments (nptr c-string) (endptr (c-ptr c-string) :out) (base int))
+  (:return-type long))
+(def-call-out strtoul
+    (:arguments (nptr c-string) (endptr (c-ptr c-string) :out) (base int))
+  (:return-type ulong))
+(def-call-out strtoq
+    (:arguments (nptr c-string) (endptr (c-ptr c-string) :out) (base int))
+  (:return-type longlong))
+(def-call-out strtouq
+    (:arguments (nptr c-string) (endptr (c-ptr c-string) :out) (base int))
+  (:return-type ulonglong))
+(def-call-out strtoll
+    (:arguments (nptr c-string) (endptr (c-ptr c-string) :out) (base int))
+  (:return-type longlong))
+(def-call-out strtoull
+    (:arguments (nptr c-string) (endptr (c-ptr c-string) :out) (base int))
+  (:return-type ulonglong))
 
-(def-c-call-out l64a (:arguments (n long))
-                     (:return-type c-string :none)
-)
+(def-call-out l64a (:arguments (n long)) (:return-type c-string :none))
+(def-call-out a64l (:arguments (s c-string)) (:return-type long))
+(def-call-out random (:arguments) (:return-type int32_t))
+(def-call-out srandom (:arguments (seed uint)) (:return-type nil))
+(def-call-out initstate
+    (:arguments (seed uint) (statebuf c-pointer) (statelen size_t))
+  (:return-type c-pointer))
+(def-call-out setstate (:arguments (statebuf c-pointer))
+  (:return-type c-pointer))
 
-(def-c-call-out a64l (:arguments (s c-string))
-                     (:return-type long)
-)
-
-(def-c-call-out random (:arguments)
-                       (:return-type int32_t)
-)
-(def-c-call-out srandom (:arguments (seed uint))
-                        (:return-type nil)
-)
-(def-c-call-out initstate (:arguments (seed uint) (statebuf c-pointer) (statelen size_t))
-                          (:return-type c-pointer)
-)
-(def-c-call-out setstate (:arguments (statebuf c-pointer))
-                         (:return-type c-pointer)
-)
-
-;(def-c-struct random_data ...)
-(def-c-call-out random_r (:arguments (buf c-pointer) (result (c-ptr int32_t) :out))
-                         (:return-type int)
-)
-(def-c-call-out srandom_r (:arguments (seed uint) (buf c-pointer))
-                          (:return-type int)
-)
-(def-c-call-out initstate_r (:arguments (seed uint) (statebuf c-pointer) (statelen size_t) (buf c-pointer))
-                            (:return-type int)
-)
-(def-c-call-out setstate_r (:arguments (statebuf c-pointer) (buf c-pointer))
-                           (:return-type int)
-)
-
-(def-c-call-out rand (:arguments)
-                     (:return-type int)
-)
-(def-c-call-out srand (:arguments (seed uint))
-                      (:return-type nil)
-)
-(def-c-call-out rand_r (:arguments (seed (c-ptr uint)))
-                       (:return-type int)
-)
-
-(def-c-call-out drand48 (:arguments)
-                        (:return-type double-float)
-)
-(def-c-call-out erand48 (:arguments (xsubi (c-ptr (c-array ushort 3))))
-                        (:return-type double-float)
-)
-(def-c-call-out lrand48 (:arguments)
-                        (:return-type long)
-)
-(def-c-call-out nrand48 (:arguments (xsubi (c-ptr (c-array ushort 3))))
-                        (:return-type long)
-)
-(def-c-call-out mrand48 (:arguments)
-                        (:return-type long)
-)
-(def-c-call-out jrand48 (:arguments (xsubi (c-ptr (c-array ushort 3))))
-                        (:return-type long)
-)
-(def-c-call-out srand48 (:arguments (seedval long))
-                        (:return-type nil)
-)
-(def-c-call-out seed48 (:arguments (seed16v (c-ptr (c-array ushort 3))))
-                       (:return-type (c-ptr (c-array ushort 3)) :none)
-)
-(def-c-call-out lcong48 (:arguments (param (c-ptr (c-array ushort 7))))
-                        (:return-type nil)
-)
-
-(def-c-call-out drand48_r (:arguments (buffer c-pointer) (result (c-ptr double-float) :out))
-                          (:return-type int)
-)
-(def-c-call-out erand48_r (:arguments (xsubi (c-ptr (c-array ushort 3))) (buffer c-pointer) (result (c-ptr double-float) :out))
-                          (:return-type int)
-)
-(def-c-call-out lrand48_r (:arguments (buffer c-pointer) (result (c-ptr long) :out))
-                          (:return-type int)
-)
-(def-c-call-out nrand48_r (:arguments (xsubi (c-ptr (c-array ushort 3))) (buffer c-pointer) (result (c-ptr long) :out))
-                          (:return-type int)
-)
-(def-c-call-out mrand48_r (:arguments (buffer c-pointer) (result (c-ptr long) :out))
-                          (:return-type int)
-)
-(def-c-call-out jrand48_r (:arguments (xsubi (c-ptr (c-array ushort 3))) (buffer c-pointer) (result (c-ptr long) :out))
-                          (:return-type int)
-)
-(def-c-call-out srand48_r (:arguments (seedval long) (buffer c-pointer))
-                          (:return-type int)
-)
-(def-c-call-out seed48_r (:arguments (seed16v (c-ptr (c-array ushort 3))) (buffer c-pointer))
-                         (:return-type int)
-)
-(def-c-call-out lcong48_r (:arguments (param (c-ptr (c-array ushort 7))) (buffer c-pointer))
-                          (:return-type int)
-)
-
-(def-c-call-out malloc (:arguments (size size_t))
-                       (:return-type c-pointer)
-)
-(def-c-call-out realloc (:arguments (ptr c-pointer) (size size_t))
-                        (:return-type c-pointer)
-)
-(def-c-call-out calloc (:arguments (nmemb size_t) (size size_t))
-                       (:return-type c-pointer)
-)
-(def-c-call-out free (:arguments (ptr c-pointer))
-                     (:return-type nil)
-)
-(def-c-call-out cfree (:arguments (ptr c-pointer))
-                      (:return-type nil)
-)
-(def-c-call-out valloc (:arguments (size size_t))
-                       (:return-type c-pointer)
-)
-
-(def-c-call-out abort (:arguments)
-                      (:return-type nil)
-)
-
-(def-c-call-out atexit (:arguments (func (c-function (:arguments))))
-                       (:return-type int)
-)
-
-(def-c-call-out on_exit (:arguments (func (c-function (:arguments (status int) (arg c-pointer)))) (arg c-pointer))
-                        (:return-type int)
-)
-
-(def-c-call-out exit (:arguments (status int))
-                     (:return-type nil)
-)
-
-(def-c-call-out getenv (:arguments (name c-string))
-                       (:return-type c-string)
-)
-
-(def-c-call-out putenv (:arguments (string c-string))
-                       (:return-type int)
-)
-
-(def-c-call-out setenv (:arguments (name c-string) (value c-string) (replace boolean))
-                       (:return-type int)
-)
-(def-c-call-out unsetenv (:arguments (name c-string))
-                         (:return-type nil)
-)
-
-(def-c-call-out clearenv (:arguments)
-                         (:return-type int)
-)
-
-(def-c-call-out mktemp
-    (:arguments (template c-string :in :alloca)) ; actually :in-out
-  (:return-type c-string))
-(def-c-call-out mkstemp
-    (:arguments (template c-string :in-out :alloca))
+;; (def-c-struct random_data ...)
+(def-call-out random_r
+    (:arguments (buf c-pointer) (result (c-ptr int32_t) :out))
+  (:return-type int))
+(def-call-out srandom_r
+    (:arguments (seed uint) (buf c-pointer))
+  (:return-type int))
+(def-call-out initstate_r
+    (:arguments (seed uint) (statebuf c-pointer)
+                (statelen size_t) (buf c-pointer))
+  (:return-type int))
+(def-call-out setstate_r (:arguments (statebuf c-pointer) (buf c-pointer))
   (:return-type int))
 
-(def-c-call-out system (:arguments (command c-string))
-                       (:return-type int)
-)
-(def-c-call-out system? (:arguments (null c-string))
-                        (:return-type boolean)
-                        (:name "system")
-)
+(def-call-out rand (:arguments)  (:return-type int))
+(def-call-out srand (:arguments (seed uint)) (:return-type nil))
+(def-call-out rand_r (:arguments (seed (c-ptr uint))) (:return-type int))
 
-(def-c-call-out canonicalize_file_name (:arguments (name c-string))
-                                       (:return-type c-string :malloc-free)
-)
+(def-call-out drand48 (:arguments) (:return-type double-float))
+(def-call-out erand48 (:arguments (xsubi (c-ptr (c-array ushort 3))))
+  (:return-type double-float))
+(def-call-out lrand48 (:arguments) (:return-type long))
+(def-call-out nrand48 (:arguments (xsubi (c-ptr (c-array ushort 3))))
+  (:return-type long))
+(def-call-out mrand48 (:arguments) (:return-type long))
+(def-call-out jrand48 (:arguments (xsubi (c-ptr (c-array ushort 3))))
+  (:return-type long))
+(def-call-out srand48 (:arguments (seedval long))
+  (:return-type nil))
+(def-call-out seed48 (:arguments (seed16v (c-ptr (c-array ushort 3))))
+  (:return-type (c-ptr (c-array ushort 3)) :none))
+(def-call-out lcong48 (:arguments (param (c-ptr (c-array ushort 7))))
+  (:return-type nil))
 
-(def-c-call-out realpath
+(def-call-out drand48_r
+    (:arguments (buffer c-pointer) (result (c-ptr double-float) :out))
+  (:return-type int))
+(def-call-out erand48_r
+    (:arguments (xsubi (c-ptr (c-array ushort 3))) (buffer c-pointer)
+                (result (c-ptr double-float) :out))
+  (:return-type int))
+(def-call-out lrand48_r
+    (:arguments (buffer c-pointer) (result (c-ptr long) :out))
+  (:return-type int))
+(def-call-out nrand48_r
+    (:arguments (xsubi (c-ptr (c-array ushort 3))) (buffer c-pointer)
+                (result (c-ptr long) :out))
+  (:return-type int))
+(def-call-out mrand48_r
+    (:arguments (buffer c-pointer) (result (c-ptr long) :out))
+  (:return-type int))
+(def-call-out jrand48_r
+    (:arguments (xsubi (c-ptr (c-array ushort 3))) (buffer c-pointer)
+                (result (c-ptr long) :out))
+  (:return-type int))
+(def-call-out srand48_r (:arguments (seedval long) (buffer c-pointer))
+  (:return-type int))
+(def-call-out seed48_r
+    (:arguments (seed16v (c-ptr (c-array ushort 3))) (buffer c-pointer))
+  (:return-type int))
+(def-call-out lcong48_r
+    (:arguments (param (c-ptr (c-array ushort 7))) (buffer c-pointer))
+  (:return-type int))
+
+(def-call-out malloc (:arguments (size size_t))
+  (:return-type c-pointer))
+(def-call-out realloc (:arguments (ptr c-pointer) (size size_t))
+  (:return-type c-pointer))
+(def-call-out calloc (:arguments (nmemb size_t) (size size_t))
+  (:return-type c-pointer))
+(def-call-out free (:arguments (ptr c-pointer)) (:return-type nil))
+(def-call-out cfree (:arguments (ptr c-pointer)) (:return-type nil))
+(def-call-out valloc (:arguments (size size_t)) (:return-type c-pointer))
+
+(def-call-out abort (:arguments) (:return-type nil))
+
+(def-call-out atexit (:arguments (func (c-function (:arguments))))
+  (:return-type int))
+
+(def-call-out on_exit
+    (:arguments (func (c-function (:arguments (status int) (arg c-pointer))))
+                (arg c-pointer))
+  (:return-type int))
+
+(def-call-out exit (:arguments (status int)) (:return-type nil))
+
+(def-call-out getenv (:arguments (name c-string)) (:return-type c-string))
+
+(def-call-out putenv (:arguments (string c-string)) (:return-type int))
+
+(def-call-out setenv
+    (:arguments (name c-string) (value c-string) (replace boolean))
+  (:return-type int))
+(def-call-out unsetenv (:arguments (name c-string)) (:return-type nil))
+
+(def-call-out clearenv (:arguments) (:return-type int))
+
+(def-call-out mktemp
+    (:arguments (template c-string :in :alloca)) ; actually :in-out
+  (:return-type c-string))
+(def-call-out mkstemp (:arguments (template c-string :in-out :alloca))
+  (:return-type int))
+
+(def-call-out system (:arguments (command c-string)) (:return-type int))
+(def-call-out system? (:arguments (null c-string))
+  (:return-type boolean) (:name "system"))
+
+(def-call-out canonicalize_file_name (:arguments (name c-string))
+  (:return-type c-string :malloc-free))
+
+(def-call-out realpath
     (:arguments (name c-string)
                 (resolved (c-ptr (c-array-max char #.PATH_MAX)) :out :alloca))
   (:return-type (c-ptr (c-array-max char #.PATH_MAX))))
 
-(def-c-type comparison_fn_t (c-function (:arguments (p1 c-pointer) (p2 c-pointer))
-                                        (:return-type int)
-)                           )
+(def-c-type comparison_fn_t
+    (c-function (:arguments (p1 c-pointer) (p2 c-pointer))
+                (:return-type int)))
 
-(def-c-call-out bsearch (:arguments (key c-pointer) (base c-pointer) (nmemb size_t) (size size_t) (compar comparison_fn_t))
-                        (:return-type c-pointer)
-)
+(def-call-out bsearch
+    (:arguments (key c-pointer) (base c-pointer) (nmemb size_t)
+                (size size_t) (compar comparison_fn_t))
+  (:return-type c-pointer))
 
-(def-c-call-out qsort (:arguments (base c-pointer) (nmemb size_t) (size size_t) (compar comparison_fn_t))
-                      (:return-type nil)
-)
+(def-call-out qsort
+    (:arguments (base c-pointer) (nmemb size_t) (size size_t)
+                (compar comparison_fn_t))
+  (:return-type nil))
 
-(def-c-call-out abs (:arguments (x int))
-                    (:return-type int)
-)
-(def-c-call-out labs (:arguments (x long))
-                     (:return-type long)
-)
-(def-c-call-out llabs (:arguments (x longlong))
-                      (:return-type longlong)
-)
+(def-call-out abs (:arguments (x int)) (:return-type int))
+(def-call-out labs (:arguments (x long)) (:return-type long))
+(def-call-out llabs (:arguments (x longlong)) (:return-type longlong))
 
-(def-c-call-out div (:arguments (numer int) (denom int))
-                    (:return-type div_t)
-)
-(def-c-call-out ldiv (:arguments (numer long) (denom long))
-                     (:return-type ldiv_t)
-)
-(def-c-call-out lldiv (:arguments (numer longlong) (denom longlong))
-                      (:return-type lldiv_t))
+(def-call-out div (:arguments (numer int) (denom int)) (:return-type div_t))
+(def-call-out ldiv (:arguments (numer long) (denom long))
+  (:return-type ldiv_t))
+(def-call-out lldiv (:arguments (numer longlong) (denom longlong))
+  (:return-type lldiv_t))
+(def-call-out ecvt
+    (:arguments (value double-float) (ndigit size_t)
+                (decpt (c-ptr int) :out) (sign (c-ptr int) :out))
+  (:return-type c-string :none))
+(def-call-out fcvt
+    (:arguments (value double-float) (ndigit size_t)
+                (decpt (c-ptr int) :out) (sign (c-ptr int) :out))
+  (:return-type c-string :none))
+;(def-call-out gcvt
+;    (:arguments (value double-float) (ndigit size_t)
+;                (buf (c-array character) :out)) ; ??
+;  (:return-type c-string))
 
-(def-c-call-out ecvt (:arguments (value double-float) (ndigit size_t) (decpt (c-ptr int) :out) (sign (c-ptr int) :out))
-                     (:return-type c-string :none)
-)
-(def-c-call-out fcvt (:arguments (value double-float) (ndigit size_t) (decpt (c-ptr int) :out) (sign (c-ptr int) :out))
-                     (:return-type c-string :none)
-)
-;(def-c-call-out gcvt (:arguments (value double-float) (ndigit size_t) (buf (c-array character) :out)) ; ??
-;                (:return-type c-string)
-;)
+(def-call-out mblen (:arguments (s c-string) (n size_t)) (:return-type int))
+(def-call-out mbtowc
+    (:arguments (pwc (c-ptr wchar_t) :out) (s c-string) (n size_t))
+  (:return-type int))
+;(def-call-out wctomb ; ??
+;    (:arguments (s (c-ptr (c-array character 10)) :out) (wchar wchar_t))
+;  (:return-type int))
 
-(def-c-call-out mblen (:arguments (s c-string) (n size_t))
-                      (:return-type int)
-)
-(def-c-call-out mbtowc (:arguments (pwc (c-ptr wchar_t) :out) (s c-string) (n size_t))
-                       (:return-type int)
-)
-;(def-c-call-out wctomb (:arguments (s (c-ptr (c-array character 10)) :out) (wchar wchar_t)) ; ??
-;                       (:return-type int)
-;)
+;(def-call-out mbstowcs ; ??
+;    (:arguments (pwcs (c-ptr (c-array wchar_t)) :out) (s c-string) (n size_t))
+;  (:return-type size_t))
+;(def-call-out wcstombs ; ??
+;    (:arguments (s c-string :out) (pwcs (c-ptr (c-array wchar_t))) (n size_t))
+;  (:return-type size_t))
 
-;(def-c-call-out mbstowcs (:arguments (pwcs (c-ptr (c-array wchar_t)) :out) (s c-string) (n size_t)) ; ??
-;                         (:return-type size_t)
-;)
-;(def-c-call-out wcstombs (:arguments (s c-string :out) (pwcs (c-ptr (c-array wchar_t))) (n size_t)) ; ??
-;                         (:return-type size_t)
-;)
+(def-call-out rpmatch (:arguments (response c-string)) (:return-type int))
 
-(def-c-call-out rpmatch (:arguments (response c-string))
-                        (:return-type int)
-)
-
-;(def-c-call-out getsubopt (:arguments (optionp (c-ptr c-string)) (tokens (c-array-ptr c-string)) (valuep (c-ptr c-string))) ; ??
-;                          (:return-type int)
-;)
+;(def-call-out getsubopt ; ??
+;    (:arguments (optionp (c-ptr c-string)) (tokens (c-array-ptr c-string))
+;                (valuep (c-ptr c-string)))
+;  (:return-type int))
 
 ; ============================== <ctype.h> ====================================
 
-(def-c-call-out isalnum (:arguments (c int))
-                        (:return-type boolean)
-)
-(def-c-call-out isalpha (:arguments (c int))
-                        (:return-type boolean)
-)
-(def-c-call-out iscntrl (:arguments (c int))
-                        (:return-type boolean)
-)
-(def-c-call-out isdigit (:arguments (c int))
-                        (:return-type boolean)
-)
-(def-c-call-out islower (:arguments (c int))
-                        (:return-type boolean)
-)
-(def-c-call-out isgraph (:arguments (c int))
-                        (:return-type boolean)
-)
-(def-c-call-out isprint (:arguments (c int))
-                        (:return-type boolean)
-)
-(def-c-call-out ispunct (:arguments (c int))
-                        (:return-type boolean)
-)
-(def-c-call-out isspace (:arguments (c int))
-                        (:return-type boolean)
-)
-(def-c-call-out isupper (:arguments (c int))
-                        (:return-type boolean)
-)
-(def-c-call-out isxdigit (:arguments (c int))
-                         (:return-type boolean)
-)
-(def-c-call-out isblank (:arguments (c int))
-                        (:return-type boolean)
-)
+(def-call-out isalnum (:arguments (c int)) (:return-type boolean))
+(def-call-out isalpha (:arguments (c int)) (:return-type boolean))
+(def-call-out iscntrl (:arguments (c int)) (:return-type boolean))
+(def-call-out isdigit (:arguments (c int)) (:return-type boolean))
+(def-call-out islower (:arguments (c int)) (:return-type boolean))
+(def-call-out isgraph (:arguments (c int)) (:return-type boolean))
+(def-call-out isprint (:arguments (c int)) (:return-type boolean))
+(def-call-out ispunct (:arguments (c int)) (:return-type boolean))
+(def-call-out isspace (:arguments (c int)) (:return-type boolean))
+(def-call-out isupper (:arguments (c int)) (:return-type boolean))
+(def-call-out isxdigit (:arguments (c int)) (:return-type boolean))
+(def-call-out isblank (:arguments (c int)) (:return-type boolean))
 
-(def-c-call-out tolower (:arguments (c int))
-                        (:return-type int)
-)
-(def-c-call-out toupper (:arguments (c int))
-                        (:return-type int)
-)
+(def-call-out tolower (:arguments (c int)) (:return-type int))
+(def-call-out toupper (:arguments (c int)) (:return-type int))
 
-(def-c-call-out isascii (:arguments (c int))
-                        (:return-type boolean)
-)
-(def-c-call-out toascii (:arguments (c int))
-                        (:return-type int)
-)
+(def-call-out isascii (:arguments (c int)) (:return-type boolean))
+(def-call-out toascii (:arguments (c int)) (:return-type int))
 
-(def-c-call-out _tolower (:arguments (c int))
-                         (:return-type int)
-)
-(def-c-call-out _toupper (:arguments (c int))
-                         (:return-type int)
-)
+(def-call-out _tolower (:arguments (c int)) (:return-type int))
+(def-call-out _toupper (:arguments (c int)) (:return-type int))
 
-; =============================== <math.h> ====================================
+;;; =============================== <math.h> =================================
 
-; ----------------------------- <mathcalls.h> ---------------------------------
+;;; ----------------------------- <mathcalls.h> ------------------------------
+;;; double-float
+(def-call-out acos (:arguments (x double-float)) (:return-type double-float))
+(def-call-out asin (:arguments (x double-float)) (:return-type double-float))
+(def-call-out atan (:arguments (x double-float)) (:return-type double-float))
+(def-call-out atan2 (:arguments (y double-float) (x double-float))
+  (:return-type double-float))
+(def-call-out cos (:arguments (x double-float)) (:return-type double-float))
+(def-call-out sin (:arguments (x double-float)) (:return-type double-float))
+(def-call-out tan (:arguments (x double-float)) (:return-type double-float))
 
-(def-c-call-out acos (:arguments (x double-float))
-                     (:return-type double-float)
-)
-(def-c-call-out asin (:arguments (x double-float))
-                     (:return-type double-float)
-)
-(def-c-call-out atan (:arguments (x double-float))
-                     (:return-type double-float)
-)
-(def-c-call-out atan2 (:arguments (y double-float) (x double-float))
-                      (:return-type double-float)
-)
-(def-c-call-out cos (:arguments (x double-float))
-                    (:return-type double-float)
-)
-(def-c-call-out sin (:arguments (x double-float))
-                    (:return-type double-float)
-)
-(def-c-call-out tan (:arguments (x double-float))
-                    (:return-type double-float)
-)
+(def-call-out cosh (:arguments (x double-float)) (:return-type double-float))
+(def-call-out sinh (:arguments (x double-float)) (:return-type double-float))
+(def-call-out tanh (:arguments (x double-float)) (:return-type double-float))
+(def-call-out acosh (:arguments (x double-float)) (:return-type double-float))
+(def-call-out asinh (:arguments (x double-float)) (:return-type double-float))
+(def-call-out atanh (:arguments (x double-float)) (:return-type double-float))
 
-(def-c-call-out cosh (:arguments (x double-float))
-                     (:return-type double-float)
-)
-(def-c-call-out sinh (:arguments (x double-float))
-                     (:return-type double-float)
-)
-(def-c-call-out tanh (:arguments (x double-float))
-                     (:return-type double-float)
-)
-(def-c-call-out acosh (:arguments (x double-float))
-                      (:return-type double-float)
-)
-(def-c-call-out asinh (:arguments (x double-float))
-                      (:return-type double-float)
-)
-(def-c-call-out atanh (:arguments (x double-float))
-                      (:return-type double-float)
-)
+(def-call-out exp (:arguments (x double-float)) (:return-type double-float))
+(def-call-out frexp (:arguments (x double-float) (exp (c-ptr int) :out))
+  (:return-type double-float))
+(def-call-out ldexp (:arguments (x double-float) (exp int))
+  (:return-type double-float))
+(def-call-out log (:arguments (x double-float)) (:return-type double-float))
+(def-call-out log10 (:arguments (x double-float)) (:return-type double-float))
+(def-call-out expm1 (:arguments (x double-float)) (:return-type double-float))
+(def-call-out log1p (:arguments (x double-float)) (:return-type double-float))
+(def-call-out logb (:arguments (x double-float)) (:return-type double-float))
 
-(def-c-call-out exp (:arguments (x double-float))
-                    (:return-type double-float)
-)
-(def-c-call-out frexp (:arguments (x double-float) (exp (c-ptr int) :out))
-                      (:return-type double-float)
-)
-(def-c-call-out ldexp (:arguments (x double-float) (exp int))
-                      (:return-type double-float)
-)
-(def-c-call-out log (:arguments (x double-float))
-                    (:return-type double-float)
-)
-(def-c-call-out log10 (:arguments (x double-float))
-                      (:return-type double-float)
-)
-(def-c-call-out expm1 (:arguments (x double-float))
-                      (:return-type double-float)
-)
-(def-c-call-out log1p (:arguments (x double-float))
-                      (:return-type double-float)
-)
-(def-c-call-out logb (:arguments (x double-float))
-                     (:return-type double-float)
-)
+(def-call-out modf
+    (:arguments (x double-float) (iptr (c-ptr double-float) :out))
+  (:return-type double-float))
 
-(def-c-call-out modf (:arguments (x double-float) (iptr (c-ptr double-float) :out))
-                     (:return-type double-float)
-)
+(def-call-out pow (:arguments (x double-float) (y double-float))
+  (:return-type double-float))
+(def-call-out sqrt (:arguments (x double-float)) (:return-type double-float))
+(def-call-out cbrt (:arguments (x double-float)) (:return-type double-float))
 
-(def-c-call-out pow (:arguments (x double-float) (y double-float))
-                    (:return-type double-float)
-)
-(def-c-call-out sqrt (:arguments (x double-float))
-                     (:return-type double-float)
-)
-(def-c-call-out cbrt (:arguments (x double-float))
-                     (:return-type double-float)
-)
+(def-call-out ceil (:arguments (x double-float)) (:return-type double-float))
+(def-call-out fabs (:arguments (x double-float)) (:return-type double-float))
+(def-call-out floor (:arguments (x double-float)) (:return-type double-float))
+(def-call-out fmod (:arguments (x double-float) (y double-float))
+  (:return-type double-float))
 
-(def-c-call-out ceil (:arguments (x double-float))
-                     (:return-type double-float)
-)
-(def-c-call-out fabs (:arguments (x double-float))
-                     (:return-type double-float)
-)
-(def-c-call-out floor (:arguments (x double-float))
-                      (:return-type double-float)
-)
-(def-c-call-out fmod (:arguments (x double-float) (y double-float))
-                     (:return-type double-float)
-)
+(def-call-out isinf (:arguments (x double-float)) (:return-type boolean))
+(def-call-out finite (:arguments (x double-float)) (:return-type boolean))
+(def-call-out copysign (:arguments (x double-float) (y double-float))
+  (:return-type double-float))
+(def-call-out scalbn (:arguments (x double-float) (n int))
+  (:return-type double-float))
+(def-call-out drem (:arguments (x double-float) (y double-float))
+  (:return-type double-float))
+(def-call-out significand (:arguments (x double-float))
+  (:return-type double-float))
 
-(def-c-call-out isinf (:arguments (x double-float))
-                      (:return-type boolean)
-)
-(def-c-call-out finite (:arguments (x double-float))
-                       (:return-type boolean)
-)
-(def-c-call-out copysign (:arguments (x double-float) (y double-float))
-                         (:return-type double-float)
-)
-(def-c-call-out scalbn (:arguments (x double-float) (n int))
-                       (:return-type double-float)
-)
-(def-c-call-out drem (:arguments (x double-float) (y double-float))
-                     (:return-type double-float)
-)
-(def-c-call-out significand (:arguments (x double-float))
-                            (:return-type double-float)
-)
+(def-call-out isnan (:arguments (x double-float)) (:return-type boolean))
+(def-call-out ilogb (:arguments (x double-float)) (:return-type int))
+(def-call-out hypot (:arguments (x double-float) (y double-float))
+  (:return-type double-float))
 
-(def-c-call-out isnan (:arguments (x double-float))
-                      (:return-type boolean)
-)
-(def-c-call-out ilogb (:arguments (x double-float))
-                      (:return-type int)
-)
-(def-c-call-out hypot (:arguments (x double-float) (y double-float))
-                      (:return-type double-float)
-)
+(def-call-out erf (:arguments (x double-float)) (:return-type double-float))
+(def-call-out erfc (:arguments (x double-float)) (:return-type double-float))
+(def-call-out gamma (:arguments (x double-float)) (:return-type double-float))
+(def-call-out j0 (:arguments (x double-float)) (:return-type double-float))
+(def-call-out j1 (:arguments (x double-float)) (:return-type double-float))
+(def-call-out jn (:arguments (n int) (x double-float))
+  (:return-type double-float))
+(def-call-out lgamma (:arguments (x double-float)) (:return-type double-float))
+(def-call-out y0 (:arguments (x double-float)) (:return-type double-float))
+(def-call-out y1 (:arguments (x double-float)) (:return-type double-float))
+(def-call-out yn (:arguments (n int) (x double-float))
+  (:return-type double-float))
+;(def-call-out gamma_r
+;    (:arguments (x double-float) (iptr (c-ptr double-float) :out))
+;  (:return-type double-float))
+;(def-call-out lgamma_r
+;    (:arguments (x double-float) (iptr (c-ptr double-float) :out))
+;  (:return-type double-float))
+(def-call-out rint (:arguments (x double-float)) (:return-type double-float))
+(def-call-out scalb (:arguments (x double-float) (n double-float))
+  (:return-type double-float))
+(def-call-out nextafter (:arguments (x double-float) (y double-float))
+  (:return-type double-float))
+(def-call-out remainder (:arguments (x double-float) (y double-float))
+  (:return-type double-float))
 
-(def-c-call-out erf (:arguments (x double-float))
-                    (:return-type double-float)
-)
-(def-c-call-out erfc (:arguments (x double-float))
-                     (:return-type double-float)
-)
-(def-c-call-out gamma (:arguments (x double-float))
-                      (:return-type double-float)
-)
-(def-c-call-out j0 (:arguments (x double-float))
-                   (:return-type double-float)
-)
-(def-c-call-out j1 (:arguments (x double-float))
-                   (:return-type double-float)
-)
-(def-c-call-out jn (:arguments (n int) (x double-float))
-                   (:return-type double-float)
-)
-(def-c-call-out lgamma (:arguments (x double-float))
-                       (:return-type double-float)
-)
-(def-c-call-out y0 (:arguments (x double-float))
-                   (:return-type double-float)
-)
-(def-c-call-out y1 (:arguments (x double-float))
-                   (:return-type double-float)
-)
-(def-c-call-out yn (:arguments (n int) (x double-float))
-                   (:return-type double-float)
-)
-;(def-c-call-out gamma_r (:arguments (x double-float)
-;                                    (iptr (c-ptr double-float) :out))
-;                        (:return-type double-float))
-;(def-c-call-out lgamma_r (:arguments (x double-float)
-;                                     (iptr (c-ptr double-float) :out))
-;                         (:return-type double-float))
-(def-c-call-out rint (:arguments (x double-float))
-                     (:return-type double-float)
-)
-(def-c-call-out scalb (:arguments (x double-float) (n double-float))
-                      (:return-type double-float)
-)
-(def-c-call-out nextafter (:arguments (x double-float) (y double-float))
-                          (:return-type double-float)
-)
-(def-c-call-out remainder (:arguments (x double-float) (y double-float))
-                          (:return-type double-float)
-)
+;;; ----------------------------- <mathcalls.h> ------------------------------
+;;; single-float
+(def-call-out acosf (:arguments (x single-float)) (:return-type single-float))
+(def-call-out asinf (:arguments (x single-float)) (:return-type single-float))
+(def-call-out atanf (:arguments (x single-float)) (:return-type single-float))
+(def-call-out atan2f (:arguments (y single-float) (x single-float))
+  (:return-type single-float))
+(def-call-out cosf (:arguments (x single-float)) (:return-type single-float))
+(def-call-out sinf (:arguments (x single-float)) (:return-type single-float))
+(def-call-out tanf (:arguments (x single-float)) (:return-type single-float))
 
-; ----------------------------- <mathcalls.h> ---------------------------------
+(def-call-out coshf (:arguments (x single-float)) (:return-type single-float))
+(def-call-out sinhf (:arguments (x single-float)) (:return-type single-float))
+(def-call-out tanhf (:arguments (x single-float)) (:return-type single-float))
+(def-call-out acoshf (:arguments (x single-float)) (:return-type single-float))
+(def-call-out asinhf (:arguments (x single-float)) (:return-type single-float))
+(def-call-out atanhf (:arguments (x single-float)) (:return-type single-float))
 
-(def-c-call-out acosf (:arguments (x single-float))
-                      (:return-type single-float)
-)
-(def-c-call-out asinf (:arguments (x single-float))
-                      (:return-type single-float)
-)
-(def-c-call-out atanf (:arguments (x single-float))
-                      (:return-type single-float)
-)
-(def-c-call-out atan2f (:arguments (y single-float) (x single-float))
-                       (:return-type single-float)
-)
-(def-c-call-out cosf (:arguments (x single-float))
-                     (:return-type single-float)
-)
-(def-c-call-out sinf (:arguments (x single-float))
-                     (:return-type single-float)
-)
-(def-c-call-out tanf (:arguments (x single-float))
-                     (:return-type single-float)
-)
+(def-call-out expf (:arguments (x single-float)) (:return-type single-float))
+(def-call-out frexpf (:arguments (x single-float) (exp (c-ptr int) :out))
+  (:return-type single-float))
+(def-call-out ldexpf (:arguments (x single-float) (exp int))
+  (:return-type single-float))
+(def-call-out logf (:arguments (x single-float)) (:return-type single-float))
+(def-call-out log10f (:arguments (x single-float)) (:return-type single-float))
+(def-call-out expm1f (:arguments (x single-float)) (:return-type single-float))
+(def-call-out log1pf (:arguments (x single-float)) (:return-type single-float))
+(def-call-out logbf (:arguments (x single-float)) (:return-type single-float))
 
-(def-c-call-out coshf (:arguments (x single-float))
-                      (:return-type single-float)
-)
-(def-c-call-out sinhf (:arguments (x single-float))
-                      (:return-type single-float)
-)
-(def-c-call-out tanhf (:arguments (x single-float))
-                      (:return-type single-float)
-)
-(def-c-call-out acoshf (:arguments (x single-float))
-                       (:return-type single-float)
-)
-(def-c-call-out asinhf (:arguments (x single-float))
-                       (:return-type single-float)
-)
-(def-c-call-out atanhf (:arguments (x single-float))
-                       (:return-type single-float)
-)
+(def-call-out modff
+    (:arguments (x single-float) (iptr (c-ptr single-float) :out))
+  (:return-type single-float))
 
-(def-c-call-out expf (:arguments (x single-float))
-                     (:return-type single-float)
-)
-(def-c-call-out frexpf (:arguments (x single-float) (exp (c-ptr int) :out))
-                       (:return-type single-float)
-)
-(def-c-call-out ldexpf (:arguments (x single-float) (exp int))
-                       (:return-type single-float)
-)
-(def-c-call-out logf (:arguments (x single-float))
-                     (:return-type single-float)
-)
-(def-c-call-out log10f (:arguments (x single-float))
-                       (:return-type single-float)
-)
-(def-c-call-out expm1f (:arguments (x single-float))
-                       (:return-type single-float)
-)
-(def-c-call-out log1pf (:arguments (x single-float))
-                       (:return-type single-float)
-)
-(def-c-call-out logbf (:arguments (x single-float))
-                      (:return-type single-float)
-)
+(def-call-out powf (:arguments (x single-float) (y single-float))
+  (:return-type single-float))
+(def-call-out sqrtf (:arguments (x single-float)) (:return-type single-float))
+(def-call-out cbrtf (:arguments (x single-float)) (:return-type single-float))
 
-(def-c-call-out modff (:arguments (x single-float) (iptr (c-ptr single-float) :out))
-                      (:return-type single-float)
-)
+(def-call-out ceilf (:arguments (x single-float)) (:return-type single-float))
+(def-call-out fabsf (:arguments (x single-float)) (:return-type single-float))
+(def-call-out floorf (:arguments (x single-float)) (:return-type single-float))
+(def-call-out fmodf (:arguments (x single-float) (y single-float))
+  (:return-type single-float))
 
-(def-c-call-out powf (:arguments (x single-float) (y single-float))
-                     (:return-type single-float)
-)
-(def-c-call-out sqrtf (:arguments (x single-float))
-                      (:return-type single-float)
-)
-(def-c-call-out cbrtf (:arguments (x single-float))
-                      (:return-type single-float)
-)
+(def-call-out isinff (:arguments (x single-float)) (:return-type boolean))
+(def-call-out finitef (:arguments (x single-float)) (:return-type boolean))
+(def-call-out copysignf (:arguments (x single-float) (y single-float))
+  (:return-type single-float))
+(def-call-out scalbnf (:arguments (x single-float) (n int))
+  (:return-type single-float))
+(def-call-out dremf (:arguments (x single-float) (y single-float))
+  (:return-type single-float))
+(def-call-out significandf (:arguments (x single-float))
+  (:return-type single-float))
 
-(def-c-call-out ceilf (:arguments (x single-float))
-                      (:return-type single-float)
-)
-(def-c-call-out fabsf (:arguments (x single-float))
-                      (:return-type single-float)
-)
-(def-c-call-out floorf (:arguments (x single-float))
-                       (:return-type single-float)
-)
-(def-c-call-out fmodf (:arguments (x single-float) (y single-float))
-                      (:return-type single-float)
-)
+(def-call-out isnanf (:arguments (x single-float)) (:return-type boolean))
+(def-call-out ilogbf (:arguments (x single-float)) (:return-type int))
+(def-call-out hypotf (:arguments (x single-float) (y single-float))
+  (:return-type single-float))
 
-(def-c-call-out isinff (:arguments (x single-float))
-                       (:return-type boolean)
-)
-(def-c-call-out finitef (:arguments (x single-float))
-                        (:return-type boolean)
-)
-(def-c-call-out copysignf (:arguments (x single-float) (y single-float))
-                          (:return-type single-float)
-)
-(def-c-call-out scalbnf (:arguments (x single-float) (n int))
-                        (:return-type single-float)
-)
-(def-c-call-out dremf (:arguments (x single-float) (y single-float))
-                      (:return-type single-float)
-)
-(def-c-call-out significandf (:arguments (x single-float))
-                             (:return-type single-float)
-)
+(def-call-out erff (:arguments (x single-float)) (:return-type single-float))
+(def-call-out erfcf (:arguments (x single-float)) (:return-type single-float))
+(def-call-out gammaf (:arguments (x single-float)) (:return-type single-float))
+(def-call-out j0f (:arguments (x single-float)) (:return-type single-float))
+(def-call-out j1f (:arguments (x single-float)) (:return-type single-float))
+(def-call-out jnf (:arguments (n int) (x single-float))
+  (:return-type single-float))
+(def-call-out lgammaf (:arguments (x single-float))
+  (:return-type single-float))
+(def-call-out y0f (:arguments (x single-float)) (:return-type single-float))
+(def-call-out y1f (:arguments (x single-float)) (:return-type single-float))
+(def-call-out ynf (:arguments (n int) (x single-float))
+  (:return-type single-float))
+;(def-call-out gammaf_r
+;    (:arguments (x single-float) (iptr (c-ptr single-float) :out))
+;  (:return-type single-float))
+;(def-call-out lgammaf_r
+;    (:arguments (x single-float) (iptr (c-ptr single-float) :out))
+;  (:return-type single-float))
+(def-call-out rintf (:arguments (x single-float)) (:return-type single-float))
+(def-call-out scalbf (:arguments (x single-float) (n single-float))
+  (:return-type single-float))
+(def-call-out nextafterf (:arguments (x single-float) (y single-float))
+  (:return-type single-float))
+(def-call-out remainderf (:arguments (x single-float) (y single-float))
+  (:return-type single-float))
 
-(def-c-call-out isnanf (:arguments (x single-float))
-                       (:return-type boolean)
-)
-(def-c-call-out ilogbf (:arguments (x single-float))
-                       (:return-type int)
-)
-(def-c-call-out hypotf (:arguments (x single-float) (y single-float))
-                       (:return-type single-float)
-)
-
-(def-c-call-out erff (:arguments (x single-float))
-                     (:return-type single-float)
-)
-(def-c-call-out erfcf (:arguments (x single-float))
-                      (:return-type single-float)
-)
-(def-c-call-out gammaf (:arguments (x single-float))
-                       (:return-type single-float)
-)
-(def-c-call-out j0f (:arguments (x single-float))
-                    (:return-type single-float)
-)
-(def-c-call-out j1f (:arguments (x single-float))
-                    (:return-type single-float)
-)
-(def-c-call-out jnf (:arguments (n int) (x single-float))
-                    (:return-type single-float)
-)
-(def-c-call-out lgammaf (:arguments (x single-float))
-                        (:return-type single-float)
-)
-(def-c-call-out y0f (:arguments (x single-float))
-                    (:return-type single-float)
-)
-(def-c-call-out y1f (:arguments (x single-float))
-                    (:return-type single-float)
-)
-(def-c-call-out ynf (:arguments (n int) (x single-float))
-                    (:return-type single-float)
-)
-;(def-c-call-out gammaf_r (:arguments (x single-float)
-;                                     (iptr (c-ptr single-float) :out))
-;                         (:return-type single-float))
-;(def-c-call-out lgammaf_r (:arguments (x single-float)
-;                                      (iptr (c-ptr single-float) :out))
-;                          (:return-type single-float))
-(def-c-call-out rintf (:arguments (x single-float))
-                      (:return-type single-float)
-)
-(def-c-call-out scalbf (:arguments (x single-float) (n single-float))
-                       (:return-type single-float)
-)
-(def-c-call-out nextafterf (:arguments (x single-float) (y single-float))
-                           (:return-type single-float)
-)
-(def-c-call-out remainderf (:arguments (x single-float) (y single-float))
-                           (:return-type single-float)
-)
-
-; ------------------------------- <math.h> ------------------------------------
+;;; ------------------------------- <math.h> ---------------------------------
 
 (def-c-var signgam (:type int))
 
@@ -1360,7 +1053,7 @@
 (defconstant M_SQRT2     1.41421356237309504880d0)
 (defconstant M_SQRT1_2   0.70710678118654752440d0)
 
-; ============================= <posix_opt.h> =================================
+;;; ============================= <posix_opt.h> ==============================
 
 (defconstant _POSIX_JOB_CONTROL t)
 (defconstant _POSIX_SAVED_IDS t)
@@ -1382,9 +1075,9 @@
 (defconstant _POSIX_THREAD_SAFE_FUNCTIONS t)
 (defconstant _POSIX_THREAD_PRIORITY_SCHEDULING t)
 
-; ============================== <unistd.h> ===================================
+;;; ============================== <unistd.h> ================================
 
-; ------------------------------ <unistd.h> -----------------------------------
+;;; ------------------------------ <unistd.h> --------------------------------
 
 (defconstant _POSIX_VERSION 199309)
 (defconstant _POSIX2_C_VERSION 199912)
@@ -1410,168 +1103,129 @@
 (defconstant X_OK 1)
 (defconstant F_OK 0)
 
-(def-c-call-out access (:arguments (name c-string) (type int))
-                       (:return-type int)
-)
+(def-call-out access (:arguments (name c-string) (type int))
+  (:return-type int))
 
-(def-c-call-out euidaccess (:arguments (name c-string) (type int))
-                           (:return-type int)
-)
+(def-call-out euidaccess (:arguments (name c-string) (type int))
+  (:return-type int))
 
 (defconstant SEEK_SET 0)
 (defconstant SEEK_CUR 1)
 (defconstant SEEK_END 2)
 
-(def-c-call-out lseek (:arguments (fd int) (offset off_t) (whence int))
-                      (:return-type off_t)
-)
+(def-call-out lseek (:arguments (fd int) (offset off_t) (whence int))
+  (:return-type off_t))
 
-(def-c-call-out close (:arguments (fd int))
-                      (:return-type int)
-)
+(def-call-out close (:arguments (fd int)) (:return-type int))
 
-(def-c-call-out read (:arguments (fd int) (buf c-pointer) (nbytes size_t))
-                     (:return-type ssize_t)
-                     (:name "full_read")
-)
-(def-c-call-out write (:arguments (fd int) (buf c-pointer) (nbytes size_t))
-                      (:return-type ssize_t)
-                      (:name "full_write")
-)
+(def-call-out read (:arguments (fd int) (buf c-pointer) (nbytes size_t))
+  (:return-type ssize_t) (:name "full_read"))
+(def-call-out write (:arguments (fd int) (buf c-pointer) (nbytes size_t))
+  (:return-type ssize_t) (:name "full_write"))
 
-(def-c-call-out pipe (:arguments (pipedes (c-ptr (c-array int 2)) :out))
-                     (:return-type int)
-)
+(def-call-out pipe (:arguments (pipedes (c-ptr (c-array int 2)) :out))
+  (:return-type int))
 
-(def-c-call-out alarm (:arguments (seconds uint))
-                      (:return-type uint)
-)
+(def-call-out alarm (:arguments (seconds uint)) (:return-type uint))
 
-(def-c-call-out sleep (:arguments (seconds uint))
-                      (:return-type uint)
-)
+(def-call-out sleep (:arguments (seconds uint)) (:return-type uint))
 
-(def-c-call-out ualarm (:arguments (value uint) (interval uint))
-                       (:return-type uint)
-)
+(def-call-out ualarm (:arguments (value uint) (interval uint))
+  (:return-type uint))
 
-(def-c-call-out usleep (:arguments (useconds uint))
-                       (:return-type nil)
-)
+(def-call-out usleep (:arguments (useconds uint)) (:return-type nil))
 
-(def-c-call-out pause (:arguments)
-                      (:return-type int)
-)
+(def-call-out pause (:arguments) (:return-type int))
 
-(def-c-call-out chown (:arguments (file c-string) (owner uid_t) (group gid_t))
-                      (:return-type int)
-)
-(def-c-call-out fchown (:arguments (fd int) (owner uid_t) (group gid_t))
-                       (:return-type int)
-)
-;(def-c-call-out lchown (:arguments (file c-string) (owner uid_t) (group gid_t))
-;                       (:return-type int)
-;) ; is a stub (see <gnu/stubs.h>)
+(def-call-out chown (:arguments (file c-string) (owner uid_t) (group gid_t))
+  (:return-type int))
+(def-call-out fchown (:arguments (fd int) (owner uid_t) (group gid_t))
+  (:return-type int))
+;(def-call-out lchown (:arguments (file c-string) (owner uid_t) (group gid_t))
+;  (:return-type int)) ; is a stub (see <gnu/stubs.h>)
 
-(def-c-call-out chdir (:arguments (path c-string))
-                      (:return-type int)
-)
-(def-c-call-out fchdir (:arguments (fd int))
-                       (:return-type int)
-)
+(def-call-out chdir (:arguments (path c-string)) (:return-type int))
+(def-call-out fchdir (:arguments (fd int)) (:return-type int))
 
-;(def-c-call-out getcwd (:arguments (buf c-string :out) (size size_t)) ; ??
-;                       (:return-type c-string)
-;)
+;(def-call-out getcwd (:arguments (buf c-string :out) (size size_t)) ; ??
+;  (:return-type c-string))
 
-(def-c-call-out get_current_dir_name (:arguments)
-                                     (:return-type c-string :malloc-free)
-)
+(def-call-out get_current_dir_name (:arguments)
+  (:return-type c-string :malloc-free))
 
-;(def-c-call-out getwd (:arguments (buf c-string :out)) ; ??
-;                      (:return-type c-string)
-;)
+;(def-call-out getwd (:arguments (buf c-string :out)) ; ??
+;  (:return-type c-string))
 
-(def-c-call-out dup (:arguments (fd int))
-                    (:return-type int)
-)
+(def-call-out dup (:arguments (fd int)) (:return-type int))
 
-(def-c-call-out dup2 (:arguments (fd int) (fd2 int))
-                     (:return-type int)
-)
+(def-call-out dup2 (:arguments (fd int) (fd2 int)) (:return-type int))
 
 (def-c-var environ (:type (c-array-ptr c-string)) (:read-only t))
 
-;(def-c-call-out execve (:arguments (path c-string) (argv c-pointer) (envp c-pointer)) ; ??
-;                       (:return-type int)
-;)
-;(def-c-call-out fexecve (:arguments (fd int) (argv c-pointer) (envp c-pointer)) ; ??
-;                        (:return-type int)
-;) ; is a stub (see <gnu/stubs.h>)
-;(def-c-call-out execv (:arguments (path c-string) (argv c-pointer)) ; ??
-;                      (:return-type int)
-;)
-(def-c-call-out execle0 (:arguments (path c-string) (argv0 c-string) (null c-string) (envp c-pointer))
-                        (:return-type int)
-                        (:name "execle")
-)
-(def-c-call-out execle1 (:arguments (path c-string) (argv0 c-string) (argv1 c-string) (null c-string) (envp c-pointer))
-                        (:return-type int)
-                        (:name "execle")
-)
-(def-c-call-out execle2 (:arguments (path c-string) (argv0 c-string) (argv1 c-string) (argv2 c-string) (null c-string) (envp c-pointer))
-                        (:return-type int)
-                        (:name "execle")
-)
-(def-c-call-out execle3 (:arguments (path c-string) (argv0 c-string) (argv1 c-string) (argv2 c-string) (argv3 c-string) (null c-string) (envp c-pointer))
-                        (:return-type int)
-                        (:name "execle")
-)
-(def-c-call-out execl0 (:arguments (path c-string) (argv0 c-string) (null c-string))
-                       (:return-type int)
-                       (:name "execl")
-)
-(def-c-call-out execl1 (:arguments (path c-string) (argv0 c-string) (argv1 c-string) (null c-string))
-                       (:return-type int)
-                       (:name "execl")
-)
-(def-c-call-out execl2 (:arguments (path c-string) (argv0 c-string) (argv1 c-string) (argv2 c-string) (null c-string))
-                       (:return-type int)
-                       (:name "execl")
-)
-(def-c-call-out execl3 (:arguments (path c-string) (argv0 c-string) (argv1 c-string) (argv2 c-string) (argv3 c-string) (null c-string))
-                       (:return-type int)
-                       (:name "execl")
-)
-;(def-c-call-out execvp (:arguments (path c-string) (argv c-pointer)) ; ??
-;                       (:return-type int)
-;)
-(def-c-call-out execlp0 (:arguments (path c-string) (argv0 c-string) (null c-string))
-                        (:return-type int)
-                        (:name "execlp")
-)
-(def-c-call-out execlp1 (:arguments (path c-string) (argv0 c-string) (argv1 c-string) (null c-string))
-                        (:return-type int)
-                        (:name "execlp")
-)
-(def-c-call-out execlp2 (:arguments (path c-string) (argv0 c-string) (argv1 c-string) (argv2 c-string) (null c-string))
-                        (:return-type int)
-                        (:name "execlp")
-)
-(def-c-call-out execlp3 (:arguments (path c-string) (argv0 c-string) (argv1 c-string) (argv2 c-string) (argv3 c-string) (null c-string))
-                        (:return-type int)
-                        (:name "execlp")
-)
+;(def-call-out execve
+;    (:arguments (path c-string) (argv c-pointer) (envp c-pointer)) ; ??
+;  (:return-type int))
+;(def-call-out fexecve
+;    (:arguments (fd int) (argv c-pointer) (envp c-pointer)) ; ??
+;  (:return-type int)) ; is a stub (see <gnu/stubs.h>)
+;(def-call-out execv (:arguments (path c-string) (argv c-pointer)) ; ??
+;  (:return-type int))
 
-(def-c-call-out nice (:arguments (increment int))
-                     (:return-type int)
-)
+(def-call-out execle0
+    (:arguments (path c-string) (argv0 c-string) (null c-string)
+                (envp c-pointer))
+  (:return-type int) (:name "execle"))
+(def-call-out execle1
+    (:arguments (path c-string) (argv0 c-string) (argv1 c-string)
+                (null c-string) (envp c-pointer))
+  (:return-type int) (:name "execle"))
+(def-call-out execle2
+    (:arguments (path c-string) (argv0 c-string) (argv1 c-string)
+                (argv2 c-string) (null c-string) (envp c-pointer))
+  (:return-type int) (:name "execle"))
+(def-call-out execle3
+    (:arguments (path c-string) (argv0 c-string) (argv1 c-string)
+                (argv2 c-string) (argv3 c-string) (null c-string)
+                (envp c-pointer))
+  (:return-type int) (:name "execle"))
+(def-call-out execl0
+    (:arguments (path c-string) (argv0 c-string) (null c-string))
+  (:return-type int) (:name "execl"))
+(def-call-out execl1
+    (:arguments (path c-string) (argv0 c-string) (argv1 c-string)
+                (null c-string))
+  (:return-type int) (:name "execl"))
+(def-call-out execl2
+    (:arguments (path c-string) (argv0 c-string) (argv1 c-string)
+                (argv2 c-string) (null c-string))
+  (:return-type int) (:name "execl"))
+(def-call-out execl3
+    (:arguments (path c-string) (argv0 c-string) (argv1 c-string)
+                (argv2 c-string) (argv3 c-string) (null c-string))
+  (:return-type int) (:name "execl"))
+;(def-call-out execvp (:arguments (path c-string) (argv c-pointer)) ; ??
+;  (:return-type int))
+(def-call-out execlp0
+    (:arguments (path c-string) (argv0 c-string) (null c-string))
+  (:return-type int) (:name "execlp"))
+(def-call-out execlp1
+    (:arguments (path c-string) (argv0 c-string) (argv1 c-string)
+                (null c-string))
+  (:return-type int) (:name "execlp"))
+(def-call-out execlp2
+    (:arguments (path c-string) (argv0 c-string) (argv1 c-string)
+                (argv2 c-string) (null c-string))
+  (:return-type int) (:name "execlp"))
+(def-call-out execlp3
+    (:arguments (path c-string) (argv0 c-string) (argv1 c-string)
+                (argv2 c-string) (argv3 c-string) (null c-string))
+  (:return-type int) (:name "execlp"))
 
-(def-c-call-out _exit (:arguments (status int))
-                      (:return-type nil)
-)
+(def-call-out nice (:arguments (increment int)) (:return-type int))
 
-; ----------------------------- <confname.h> ----------------------------------
+(def-call-out _exit (:arguments (status int)) (:return-type nil))
+
+;;; ----------------------------- <confname.h> -------------------------------
 
 (def-c-enum pathconf-name
   _PC_LINK_MAX
@@ -1719,121 +1373,55 @@
   _CS_PATH
 )
 
-; ------------------------------ <unistd.h> -----------------------------------
+;;; ------------------------------ <unistd.h> --------------------------------
 
-(def-c-call-out pathconf (:arguments (path c-string) (name int))
-                         (:return-type long)
-)
-(def-c-call-out fpathconf (:arguments (fd int) (name int))
-                          (:return-type long)
-)
+(def-call-out pathconf (:arguments (path c-string) (name int))
+  (:return-type long))
+(def-call-out fpathconf (:arguments (fd int) (name int)) (:return-type long))
 
-(def-c-call-out sysconf (:arguments (name int))
-                        (:return-type long)
-)
+(def-call-out sysconf (:arguments (name int)) (:return-type long))
 
-;(def-c-call-out confstr (:arguments (name int) (buf c-pointer) (len size_t)) ; ??
-;                        (:return-type size_t)
-;)
+;(def-call-out confstr
+;    (:arguments (name int) (buf c-pointer) (len size_t)) ; ??
+;  (:return-type size_t))
 
-(def-c-call-out getpid (:arguments)
-                       (:return-type pid_t)
-)
+(def-call-out getpid (:arguments) (:return-type pid_t))
+(def-call-out getppid (:arguments) (:return-type pid_t))
+(def-call-out getpgrp (:arguments) (:return-type pid_t))
+(def-call-out setpgid (:arguments (pid pid_t) (pgid pid_t)) (:return-type int))
+(def-call-out getpgid (:arguments (pid pid_t)) (:return-type pid_t))
+(def-call-out setpgrp (:arguments) (:return-type int))
+(def-call-out setsid (:arguments) (:return-type pid_t))
+(def-call-out getsid (:arguments (pid pid_t)) (:return-type pid_t))
+(def-call-out getuid (:arguments) (:return-type uid_t))
+(def-call-out geteuid (:arguments) (:return-type uid_t))
+(def-call-out getgid (:arguments) (:return-type gid_t))
+(def-call-out getegid (:arguments) (:return-type gid_t))
 
-(def-c-call-out getppid (:arguments)
-                        (:return-type pid_t)
-)
+;(def-call-out getgroups
+;    (:arguments (size int) (list (c-ptr (c-array gid_t ??)) :out)) ; ??
+;  (:return-type int))
 
-(def-c-call-out getpgrp (:arguments)
-                        (:return-type pid_t)
-)
+(def-call-out group_member (:arguments (gid gid_t)) (:return-type boolean))
+(def-call-out setuid (:arguments (uid uid_t)) (:return-type int))
+(def-call-out setreuid (:arguments (ruid uid_t) (euid uid_t))
+  (:return-type int))
+(def-call-out seteuid (:arguments (uid uid_t)) (:return-type int))
+(def-call-out setgid (:arguments (gid gid_t)) (:return-type int))
+(def-call-out setregid (:arguments (rgid gid_t) (egid gid_t))
+  (:return-type int))
+(def-call-out setegid (:arguments (gid gid_t)) (:return-type int))
 
-(def-c-call-out setpgid (:arguments (pid pid_t) (pgid pid_t))
-                        (:return-type int)
-)
-
-(def-c-call-out getpgid (:arguments (pid pid_t))
-                        (:return-type pid_t)
-)
-
-(def-c-call-out setpgrp (:arguments)
-                        (:return-type int)
-)
-
-(def-c-call-out setsid (:arguments)
-                       (:return-type pid_t)
-)
-
-(def-c-call-out getsid (:arguments (pid pid_t))
-                       (:return-type pid_t)
-)
-
-(def-c-call-out getuid (:arguments)
-                       (:return-type uid_t)
-)
-
-(def-c-call-out geteuid (:arguments)
-                        (:return-type uid_t)
-)
-
-(def-c-call-out getgid (:arguments)
-                       (:return-type gid_t)
-)
-
-(def-c-call-out getegid (:arguments)
-                        (:return-type gid_t)
-)
-
-;(def-c-call-out getgroups (:arguments (size int) (list (c-ptr (c-array gid_t ??)) :out)) ; ??
-;                          (:return-type int)
-;)
-
-(def-c-call-out group_member (:arguments (gid gid_t))
-                             (:return-type boolean)
-)
-
-(def-c-call-out setuid (:arguments (uid uid_t))
-                       (:return-type int)
-)
-
-(def-c-call-out setreuid (:arguments (ruid uid_t) (euid uid_t))
-                         (:return-type int)
-)
-
-(def-c-call-out seteuid (:arguments (uid uid_t))
-                        (:return-type int)
-)
-
-(def-c-call-out setgid (:arguments (gid gid_t))
-                       (:return-type int)
-)
-
-(def-c-call-out setregid (:arguments (rgid gid_t) (egid gid_t))
-                         (:return-type int)
-)
-
-(def-c-call-out setegid (:arguments (gid gid_t))
-                        (:return-type int)
-)
-
-(def-c-call-out fork (:arguments)
-                     (:return-type pid_t)
-)
-
-(def-c-call-out vfork (:arguments)
-                      (:return-type pid_t)
-)
+(def-call-out fork (:arguments) (:return-type pid_t))
+(def-call-out vfork (:arguments) (:return-type pid_t))
 
 (c-lines "#include <sys/wait.h>~%")
 
-(def-c-call-out wait
-    (:arguments (status (c-ptr int) :out :alloca))
+(def-call-out wait (:arguments (status (c-ptr int) :out :alloca))
   (:return-type pid_t))
 
-(def-c-call-out waitpid
-    (:arguments (pid pid_t)
-                (status (c-ptr int) :out :alloca)
-                (options int))
+(def-call-out waitpid
+    (:arguments (pid pid_t) (status (c-ptr int) :out :alloca) (options int))
   (:return-type pid_t))
 
 ;; --------------- <bits/waitstatus.h> ---------------
@@ -1849,63 +1437,43 @@
 (defun W_STOPCODE (sig) (logior (ash sig 8) #x7f))
 
 
-(def-c-call-out ttyname (:arguments (fd int))
-                        (:return-type c-string)
-)
-;(def-c-call-out ttyname_r (:arguments (fd int) (buf c-pointer) (buflen size_t)) ; ??
-;                          (:return-type int)
-;)
+(def-call-out ttyname (:arguments (fd int)) (:return-type c-string))
+;(def-call-out ttyname_r
+;    (:arguments (fd int) (buf c-pointer) (buflen size_t)) ; ??
+;  (:return-type int))
 
-(def-c-call-out isatty (:arguments (fd int))
-                       (:return-type boolean)
-)
+(def-call-out isatty (:arguments (fd int)) (:return-type boolean))
+(def-call-out ttyslot (:arguments) (:return-type int))
 
-(def-c-call-out ttyslot (:arguments)
-                        (:return-type int)
-)
+(def-call-out link (:arguments (from c-string) (to c-string))
+  (:return-type int))
 
-(def-c-call-out link (:arguments (from c-string) (to c-string))
-                     (:return-type int)
-)
+(def-call-out symlink (:arguments (from c-string) (to c-string))
+  (:return-type int))
 
-(def-c-call-out symlink (:arguments (from c-string) (to c-string))
-                        (:return-type int)
-)
+;(def-call-out readlink
+;    (:arguments (path c-string) (buf c-pointer) (len size_t)) ; ??
+;  (:return-type int))
 
-;(def-c-call-out readlink (:arguments (path c-string) (buf c-pointer) (len size_t)) ; ??
-;                         (:return-type int)
-;)
+(def-call-out unlink (:arguments (path c-string)) (:return-type int))
 
-(def-c-call-out unlink (:arguments (path c-string))
-                       (:return-type int)
-)
+(def-call-out rmdir (:arguments (path c-string)) (:return-type int))
 
-(def-c-call-out rmdir (:arguments (path c-string))
-                      (:return-type int)
-)
+(def-call-out tcgetpgrp (:arguments (fd int)) (:return-type pid_t))
 
-(def-c-call-out tcgetpgrp (:arguments (fd int))
-                          (:return-type pid_t)
-)
+(def-call-out tcsetpgrp (:arguments (fd int) (pgrp_id pid_t))
+  (:return-type int))
 
-(def-c-call-out tcsetpgrp (:arguments (fd int) (pgrp_id pid_t))
-                          (:return-type int)
-)
+(def-call-out getlogin (:arguments) (:return-type c-string))
+;(def-call-out getlogin_r (:arguments (name c-pointer) (name_len size_t)) ; ??
+;  (:return-type c-string))
 
-(def-c-call-out getlogin (:arguments)
-                         (:return-type c-string)
-)
-;(def-c-call-out getlogin_r (:arguments (name c-pointer) (name_len size_t)) ; ??
-;                           (:return-type c-string)
-;)
+;; this is a stub (see <gnu/stubs.h>):
+;; (def-call-out setlogin (:arguments (name c-string)) (:return-type int))
 
-;(def-c-call-out setlogin (:arguments (name c-string))
-;                         (:return-type int)
-;) ; is a stub (see <gnu/stubs.h>)
-
-(def-c-call-out getopt (:arguments (argc int) (argv c-pointer) (opts c-string)) ; ??
-                       (:return-type int)
-)
+;(def-call-out getopt
+;    (:arguments (argc int) (argv c-pointer) (opts c-string)) ; ??
+;  (:return-type int))
 (def-c-var opterr (:type int))
 (def-c-var optind (:type int))
 (def-c-var optopt (:type int))
@@ -1914,118 +1482,85 @@
 ;; defined in <asm/param.h>
 (eval-when (load compile eval)
   (defconstant MAXHOSTNAMELEN 64))
-(def-c-call-out gethostname
+(def-call-out gethostname
     (:arguments (name (c-ptr (c-array-max char #.MAXHOSTNAMELEN)) :out :alloca)
                 (len size_t))
   (:return-type int))
 
-(def-c-call-out sethostname
-    (:arguments (name c-string) (len size_t))
+(def-call-out sethostname (:arguments (name c-string) (len size_t))
   (:return-type int))
 
-(def-c-call-out gethostid (:arguments)
-  (:return-type long))
+(def-call-out gethostid (:arguments) (:return-type long))
 
-(def-c-call-out sethostid
-    (:arguments (id long))
-  (:return-type int))
+(def-call-out sethostid (:arguments (id long)) (:return-type int))
 
-(def-c-call-out getdomainname
+(def-call-out getdomainname
     (:arguments (name (c-ptr (c-array-max char #.MAXHOSTNAMELEN)) :out :alloca)
                 (len size_t))
   (:return-type int))
 
-(def-c-call-out setdomainname
-    (:arguments (name c-string) (len size_t))
+(def-call-out setdomainname (:arguments (name c-string) (len size_t))
   (:return-type int))
 
-(def-c-call-out fsync (:arguments (fd int))
-                      (:return-type int)
-)
+(def-call-out fsync (:arguments (fd int)) (:return-type int))
 
-(def-c-call-out vhangup (:arguments)
-                        (:return-type int)
-)
+(def-call-out vhangup (:arguments) (:return-type int))
 
-;(def-c-call-out revoke (:arguments (file c-string))
-;                       (:return-type int)
-;) ; is a stub (see <gnu/stubs.h>)
+;(def-call-out revoke (:arguments (file c-string))
+;  (:return-type int)) ; is a stub (see <gnu/stubs.h>)
 
-;(def-c-call-out profil (:arguments (sample_buffer c-pointer) (size size_t) (offset size_t) (scale uint)) ; ??
-;                       (:return-type int)
-;)
+;(def-call-out profil
+;    (:arguments (sample_buffer c-pointer) (size size_t) (offset size_t)
+;                (scale uint)) ; ??
+;  (:return-type int))
 
-(def-c-call-out acct (:arguments (name c-string))
-                     (:return-type int)
-)
+(def-call-out acct (:arguments (name c-string)) (:return-type int))
 
-(def-c-call-out chroot (:arguments (path c-string))
-                       (:return-type int)
-)
+(def-call-out chroot (:arguments (path c-string)) (:return-type int))
 
-(def-c-call-out getusershell (:arguments)
-                             (:return-type c-string)
-)
-(def-c-call-out endusershell (:arguments)
-                             (:return-type nil)
-)
-(def-c-call-out setusershell (:arguments)
-                             (:return-type nil)
-)
+(def-call-out getusershell (:arguments) (:return-type c-string))
+(def-call-out endusershell (:arguments) (:return-type nil))
+(def-call-out setusershell (:arguments) (:return-type nil))
 
-(def-c-call-out getpass (:arguments (prompt c-string))
-                        (:return-type c-string)
-)
+(def-call-out getpass (:arguments (prompt c-string)) (:return-type c-string))
 
-(def-c-call-out daemon (:arguments (nochdir boolean) (noclose boolean))
-                       (:return-type int)
-)
+(def-call-out daemon (:arguments (nochdir boolean) (noclose boolean))
+  (:return-type int))
 
-(def-c-call-out sync (:arguments)
-                     (:return-type int)
-)
+(def-call-out sync (:arguments) (:return-type int))
 
-(def-c-call-out getpagesize (:arguments)
-                            (:return-type size_t)
-)
+(def-call-out getpagesize (:arguments) (:return-type size_t))
 
-(def-c-call-out truncate (:arguments (file c-string) (length off_t))
-                         (:return-type int)
-)
-(def-c-call-out ftruncate (:arguments (fd int) (length off_t))
-                          (:return-type int)
-)
+(def-call-out truncate (:arguments (file c-string) (length off_t))
+  (:return-type int))
+(def-call-out ftruncate (:arguments (fd int) (length off_t))
+  (:return-type int))
 
-(def-c-call-out getdtablesize (:arguments)
-                              (:return-type int)
-)
+(def-call-out getdtablesize (:arguments) (:return-type int))
 
-(def-c-call-out brk (:arguments (end_data_segment c-pointer))
-                    (:return-type int)
-)
-(def-c-call-out sbrk (:arguments (delta ptrdiff_t))
-                     (:return-type int)
-)
+(def-call-out brk (:arguments (end_data_segment c-pointer))
+  (:return-type int))
+(def-call-out sbrk (:arguments (delta ptrdiff_t)) (:return-type int))
 
-(def-c-call-out fdatasync (:arguments (fd int))
-                          (:return-type int)
-)
+(def-call-out fdatasync (:arguments (fd int)) (:return-type int))
 
-;(def-c-call-out crypt (:arguments (key c-string) (salt c-string))
-;                      (:return-type c-string))
-;(def-c-call-out setkey (:arguments (key c-string))
-;                       (:return-type nil))
-;(def-c-call-out encrypt (:arguments (block (c-ptr (c-array character 64)))
-;                                    (edflag boolean))
-;                        (:return-type nil))
+;; these require linking with -lcrypt
+;(def-call-out crypt (:arguments (key c-string) (salt c-string))
+;  (:return-type c-string))
+;(def-call-out setkey (:arguments (key c-string)) (:return-type nil))
+;(def-call-out encrypt
+;    (:arguments (block (c-ptr (c-array character 64))) (edflag boolean))
+;  (:return-type nil))
 
-;(def-c-call-out swab (:arguments (from c-pointer) (to c-pointer) (n ssize_t)) ; ??
-;                     (:return-type nil)
-;)
+;;; ========================= <string.h> =========================
+;; do we need these at all?
+;(def-call-out swab
+;    (:arguments (from c-pointer) (to c-pointer) (n ssize_t))
+;  (:return-type nil))
 
-; ============================== <fcntl.h> ====================================
+;;; ============================== <fcntl.h> =================================
 
-; ---------------------------- <linux/fcntl.h> --------------------------------
+;;; ---------------------------- <linux/fcntl.h> -----------------------------
 
 (defconstant O_ACCMODE    #o003)
 (defconstant O_RDONLY       #o0)
@@ -2073,49 +1608,44 @@
   (l_len off_t)
   (l_pid pid_t))
 
-(def-c-call-out flock
-    (:arguments (fd int) (cmd int))
-  (:return-type int))
+(def-call-out flock (:arguments (fd int) (cmd int)) (:return-type int))
 
 ;; ------------------------------ <fcntl.h> ---------------------------------
 
 (defconstant FNDELAY O_NDELAY)
 
-(def-c-call-out fcntl2          ; 2 args
+(def-call-out fcntl2          ; 2 args
     (:arguments (fd int) (cmd int))
   (:return-type int)
   (:name "fcntl"))
-(def-c-call-out fcntl3l         ; 3 args, 3rd = long
+(def-call-out fcntl3l         ; 3 args, 3rd = long
     (:arguments (fd int) (cmd int) (arg long))
   (:return-type int)
   (:name "fcntl"))
-(def-c-call-out fcntl3f         ; 3 args, 3rd = struct flock
+(def-call-out fcntl3f         ; 3 args, 3rd = struct flock
     (:arguments (fd int) (cmd int)
                 (lock (c-ptr flock) :in-out :alloca))
   (:return-type int)
   (:name "fcntl"))
 
-(def-c-call-out open (:arguments (filename c-string) (flags int) (mode mode_t))
-                     (:return-type int)
-)
+(def-call-out open (:arguments (filename c-string) (flags int) (mode mode_t))
+  (:return-type int))
 
-(def-c-call-out creat (:arguments (filename c-string) (mode mode_t))
-                      (:return-type int)
-)
+(def-call-out creat (:arguments (filename c-string) (mode mode_t))
+  (:return-type int))
 
 (defconstant F_ULOCK 0)
 (defconstant F_LOCK  1)
 (defconstant F_TLOCK 2)
 (defconstant F_TEST  3)
-(def-c-call-out lockf (:arguments (fd int) (cmd int) (len off_t))
-                      (:return-type int)
-)
+(def-call-out lockf (:arguments (fd int) (cmd int) (len off_t))
+  (:return-type int))
 
-; ============================= <sys/stat.h> ==================================
+;;; ============================= <sys/stat.h> ===============================
 
 (c-lines "#include <sys/stat.h>~%")
 
-; ------------------------------ <statbuf.h> ----------------------------------
+;;; ------------------------------ <statbuf.h> -------------------------------
 
 (def-c-struct stat
   (st_dev dev_t)
@@ -2184,49 +1714,43 @@
 (defconstant DEFFILEMODE (logior S_IRUSR S_IWUSR S_IRGRP S_IWGRP S_IROTH S_IWOTH))
 (defconstant S_BLKSIZE 512)
 
-(def-c-call-out stat (:arguments (filename c-string) (stat_buf (c-ptr stat) :out))
-                     (:return-type int)
-)
+(def-call-out stat
+    (:arguments (filename c-string) (stat_buf (c-ptr stat) :out))
+  (:return-type int))
 
-(def-c-call-out fstat (:arguments (fildes int) (stat_buf (c-ptr stat) :out))
-                      (:return-type int)
-)
+(def-call-out fstat
+    (:arguments (fildes int) (stat_buf (c-ptr stat) :out))
+  (:return-type int))
 
-(def-c-call-out lstat (:arguments (filename c-string) (stat_buf (c-ptr stat) :out))
-                      (:return-type int)
-)
+(def-call-out lstat
+    (:arguments (filename c-string) (stat_buf (c-ptr stat) :out))
+  (:return-type int))
 
-(def-c-call-out chmod (:arguments (path c-string) (mode mode_t))
-                      (:return-type int)
-)
+(def-call-out chmod (:arguments (path c-string) (mode mode_t))
+  (:return-type int))
 
-(def-c-call-out fchmod (:arguments (fildes int) (mode mode_t))
-                       (:return-type int)
-)
+(def-call-out fchmod (:arguments (fildes int) (mode mode_t))
+  (:return-type int))
 
-(def-c-call-out umask (:arguments (mask mode_t))
-                      (:return-type mode_t)
-)
+(def-call-out umask (:arguments (mask mode_t))
+  (:return-type mode_t))
 
-(def-c-call-out mkdir (:arguments (path c-string) (mode mode_t))
-                      (:return-type int)
-)
+(def-call-out mkdir (:arguments (path c-string) (mode mode_t))
+  (:return-type int))
 
-(def-c-call-out mknod (:arguments (path c-string) (mode mode_t) (dev dev_t))
-                      (:return-type int)
-)
+(def-call-out mknod (:arguments (path c-string) (mode mode_t) (dev dev_t))
+  (:return-type int))
 
-(def-c-call-out mkfifo (:arguments (path c-string) (mode mode_t))
-                       (:return-type int)
-)
+(def-call-out mkfifo (:arguments (path c-string) (mode mode_t))
+  (:return-type int))
 
-; ============================== <stdio.h> ====================================
+;;; ============================== <stdio.h> =================================
 
-; ---------------------------- <_G_config.h> ----------------------------------
+;;; ---------------------------- <_G_config.h> -------------------------------
 
 (def-c-type _G_fpos_t off_t)
 
-; ------------------------------ <libio.h> ------------------------------------
+;;; ------------------------------ <libio.h> ---------------------------------
 
 (def-c-type _IO_pos_t _G_fpos_t)
 
@@ -2257,220 +1781,131 @@
 (define-symbol-macro stdout _IO_stdout_)
 (define-symbol-macro stderr _IO_stderr_)
 
-(def-c-call-out clearerr (:arguments (fp c-pointer))
-                         (:return-type nil)
-)
-(def-c-call-out fclose (:arguments (fp c-pointer))
-                       (:return-type int)
-)
-(def-c-call-out feof (:arguments (fp c-pointer))
-                     (:return-type int)
-)
-(def-c-call-out ferror (:arguments (fp c-pointer))
-                       (:return-type int)
-)
-(def-c-call-out fflush (:arguments (fp c-pointer))
-                       (:return-type int)
-)
-(def-c-call-out fgetc (:arguments (fp c-pointer))
-                      (:return-type int)
-)
-(def-c-call-out fgetpos (:arguments (fp c-pointer) (pos (c-ptr fpos_t) :out))
-                        (:return-type int)
-)
-;(def-c-call-out fgets (:arguments (buf c-pointer) (size int) (fp c-pointer)) ; ??
-;                      (:return-type c-string)
-;)
-(def-c-call-out fopen (:arguments (path c-string) (mode c-string))
-                      (:return-type c-pointer)
-)
-(def-c-call-out fprintf0 (:arguments (fp c-pointer) (format c-string))
-                         (:return-type int)
-                         (:name "fprintf")
-)
-(def-c-call-out fprintf1i (:arguments (fp c-pointer) (format c-string) (arg int))
-                          (:return-type int)
-                          (:name "fprintf")
-)
-(def-c-call-out fprintf1l (:arguments (fp c-pointer) (format c-string) (arg long))
-                          (:return-type int)
-                          (:name "fprintf")
-)
-(def-c-call-out fprintf1d (:arguments (fp c-pointer) (format c-string) (arg double-float))
-                          (:return-type int)
-                          (:name "fprintf")
-)
-(def-c-call-out fputc (:arguments (c int) (fp c-pointer))
-                      (:return-type int)
-)
-(def-c-call-out fputs (:arguments (str c-string) (fp c-pointer))
-                      (:return-type int)
-)
-;(def-c-call-out fread (:arguments (ptr c-pointer) (size size_t) (nmemb size_t) (fp c-pointer)) ; ??
-;                      (:return-type size_t)
-;)
-;(def-c-call-out freopen (:arguments (path c-string) (mode c-string) (fp c-pointer :in-out)) ; ??
-;                        (:return-type c-pointer)
-;)
-(def-c-call-out fscanf0 (:arguments (fp c-pointer) (format c-string))
-                        (:return-type int)
-                        (:name "fscanf")
-)
-(def-c-call-out fscanf1i (:arguments (fp c-pointer) (format c-string) (arg (c-ptr int) :out))
-                         (:return-type int)
-                         (:name "fscanf")
-)
-(def-c-call-out fscanf1l (:arguments (fp c-pointer) (format c-string) (arg (c-ptr long) :out))
-                         (:return-type int)
-                         (:name "fscanf")
-)
-(def-c-call-out fscanf1d (:arguments (fp c-pointer) (format c-string) (arg (c-ptr double-float) :out))
-                         (:return-type int)
-                         (:name "fscanf")
-)
-(def-c-call-out fseek (:arguments (fp c-pointer) (offset long) (whence int))
-                      (:return-type int)
-)
-(def-c-call-out fsetpos (:arguments (fp c-pointer) (pos (c-ptr fpos_t)))
-                        (:return-type int)
-)
-(def-c-call-out ftell (:arguments (fp c-pointer))
-                      (:return-type long)
-)
-;(def-c-call-out fwrite (:arguments (ptr c-pointer) (size size_t) (nmemb size_t) (fp c-pointer)) ; ??
-;                       (:return-type size_t)
-;)
-(def-c-call-out getc (:arguments (fp c-pointer))
-                     (:return-type int)
-)
-(def-c-call-out getchar (:arguments)
-                        (:return-type int)
-)
-;(def-c-call-out gets (:arguments (buf c-pointer)) ; ??
-;                     (:return-type c-string)
-;)
-(def-c-call-out perror (:arguments (s c-string))
-                       (:return-type nil)
-)
-(def-c-call-out printf0 (:arguments (format c-string))
-                        (:return-type int)
-                        (:name "printf")
-)
-(def-c-call-out printf1i (:arguments (format c-string) (arg int))
-                         (:return-type int)
-                         (:name "printf")
-)
-(def-c-call-out printf1l (:arguments (format c-string) (arg long))
-                         (:return-type int)
-                         (:name "printf")
-)
-(def-c-call-out printf1d (:arguments (format c-string) (arg double-float))
-                         (:return-type int)
-                         (:name "printf")
-)
-(def-c-call-out putc (:arguments (c int) (fp c-pointer))
-                     (:return-type int)
-)
-(def-c-call-out putchar (:arguments (c int))
-                        (:return-type int)
-)
-(def-c-call-out puts (:arguments (str c-string))
-                     (:return-type int)
-)
-(def-c-call-out remove (:arguments (path c-string))
-                       (:return-type int)
-)
-(def-c-call-out rename (:arguments (old c-string) (new c-string))
-                       (:return-type int)
-)
-(def-c-call-out rewind (:arguments (fp c-pointer))
-                       (:return-type nil)
-)
-(def-c-call-out scanf0 (:arguments (format c-string))
-                       (:return-type int)
-                       (:name "scanf")
-)
-(def-c-call-out scanf1i (:arguments (format c-string) (arg (c-ptr int) :out))
-                        (:return-type int)
-                        (:name "scanf")
-)
-(def-c-call-out scanf1l (:arguments (format c-string) (arg (c-ptr long) :out))
-                        (:return-type int)
-                        (:name "scanf")
-)
-(def-c-call-out scanf1d (:arguments (format c-string) (arg (c-ptr double-float) :out))
-                        (:return-type int)
-                        (:name "scanf")
-)
-(def-c-call-out setbuf (:arguments (fp c-pointer) (buf c-pointer))
-                       (:return-type nil)
-)
-(def-c-call-out setlinebuf (:arguments (fp c-pointer))
-                           (:return-type nil)
-)
-(def-c-call-out setbuffer (:arguments (fp c-pointer) (buf c-pointer) (size int))
-                          (:return-type nil)
-)
-(def-c-call-out setvbuf (:arguments (fp c-pointer) (buf c-pointer) (mode int) (size size_t))
-                        (:return-type int)
-)
-;(def-c-call-out sprintf0 (:arguments (str c-pointer :out) (format c-string)) ; ??
-;                         (:return-type int)
-;                         (:name "sprintf")
-;)
-(def-c-call-out sscanf0 (:arguments (str c-string) (format c-string))
-                        (:return-type int)
-                        (:name "sscanf")
-)
-(def-c-call-out sscanf1i (:arguments (str c-string) (format c-string) (arg (c-ptr int) :out))
-                         (:return-type int)
-                         (:name "sscanf")
-)
-(def-c-call-out sscanf1l (:arguments (str c-string) (format c-string) (arg (c-ptr long) :out))
-                         (:return-type int)
-                         (:name "sscanf")
-)
-(def-c-call-out sscanf1d (:arguments (str c-string) (format c-string) (arg (c-ptr double-float) :out))
-                         (:return-type int)
-                         (:name "sscanf")
-)
-(def-c-call-out tmpfile (:arguments)
-                        (:return-type c-pointer)
-)
-(def-c-call-out tmpnam (:arguments (s c-string :in :alloca)) ; :in-out ??
-                       (:return-type c-string)
-)
-(def-c-call-out tmpnam_r (:arguments (s c-string :in :alloca)) ; :in-out ??
-                         (:return-type c-string)
-)
-(def-c-call-out tempnam (:arguments (dir c-string) (prefix c-string))
-                        (:return-type c-string :malloc-free)
-)
-(def-c-call-out ungetc (:arguments (c int) (fp c-pointer))
-                       (:return-type int)
-)
-(def-c-call-out fcloseall (:arguments)
-                          (:return-type int)
-)
-(def-c-call-out fdopen (:arguments (fildes int) (mode c-string))
-                       (:return-type c-pointer)
-)
-(def-c-call-out fileno (:arguments (fp c-pointer))
-                       (:return-type int)
-)
-(def-c-call-out popen (:arguments (command c-string) (mode c-string))
-                      (:return-type c-pointer)
-)
-(def-c-call-out pclose (:arguments (fp c-pointer))
-                       (:return-type int)
-)
+(def-call-out clearerr (:arguments (fp c-pointer)) (:return-type nil))
+(def-call-out fclose (:arguments (fp c-pointer)) (:return-type int))
+(def-call-out feof (:arguments (fp c-pointer)) (:return-type int))
+(def-call-out ferror (:arguments (fp c-pointer)) (:return-type int))
+(def-call-out fflush (:arguments (fp c-pointer)) (:return-type int))
+(def-call-out fgetc (:arguments (fp c-pointer)) (:return-type int))
+(def-call-out fgetpos (:arguments (fp c-pointer) (pos (c-ptr fpos_t) :out))
+  (:return-type int))
+;(def-call-out fgets (:arguments (buf c-pointer) (size int) (fp c-pointer))
+;  (:return-type c-string)) ; ??
+(def-call-out fopen (:arguments (path c-string) (mode c-string))
+  (:return-type c-pointer))
+(def-call-out fprintf0 (:arguments (fp c-pointer) (format c-string))
+  (:return-type int) (:name "fprintf"))
+(def-call-out fprintf1i (:arguments (fp c-pointer) (format c-string) (arg int))
+  (:return-type int) (:name "fprintf"))
+(def-call-out fprintf1l
+    (:arguments (fp c-pointer) (format c-string) (arg long))
+  (:return-type int)
+  (:name "fprintf"))
+(def-call-out fprintf1d
+    (:arguments (fp c-pointer) (format c-string) (arg double-float))
+  (:return-type int) (:name "fprintf"))
+(def-call-out fputc (:arguments (c int) (fp c-pointer))
+  (:return-type int))
+(def-call-out fputs (:arguments (str c-string) (fp c-pointer))
+  (:return-type int))
+;(def-call-out fread ; ??
+;    (:arguments (ptr c-pointer) (size size_t) (nmemb size_t) (fp c-pointer))
+;  (:return-type size_t))
+;(def-call-out freopen
+;    (:arguments (path c-string) (mode c-string) (fp c-pointer :in-out)) ; ??
+;  (:return-type c-pointer))
+(def-call-out fscanf0 (:arguments (fp c-pointer) (format c-string))
+  (:return-type int)
+  (:name "fscanf"))
+(def-call-out fscanf1i
+    (:arguments (fp c-pointer) (format c-string) (arg (c-ptr int) :out))
+  (:return-type int) (:name "fscanf"))
+(def-call-out fscanf1l
+    (:arguments (fp c-pointer) (format c-string) (arg (c-ptr long) :out))
+  (:return-type int) (:name "fscanf"))
+(def-call-out fscanf1d
+    (:arguments (fp c-pointer) (format c-string)
+                (arg (c-ptr double-float) :out))
+  (:return-type int) (:name "fscanf"))
+(def-call-out fseek (:arguments (fp c-pointer) (offset long) (whence int))
+  (:return-type int))
+(def-call-out fsetpos (:arguments (fp c-pointer) (pos (c-ptr fpos_t)))
+  (:return-type int))
+(def-call-out ftell (:arguments (fp c-pointer)) (:return-type long))
+;(def-call-out fwrite ; ??
+;    (:arguments (ptr c-pointer) (size size_t) (nmemb size_t) (fp c-pointer))
+;  (:return-type size_t))
+(def-call-out getc (:arguments (fp c-pointer)) (:return-type int))
+(def-call-out getchar (:arguments) (:return-type int))
+;(def-call-out gets (:arguments (buf c-pointer)) (:return-type c-string)); ??
+(def-call-out perror (:arguments (s c-string)) (:return-type nil))
+(def-call-out printf0 (:arguments (format c-string))
+  (:return-type int) (:name "printf"))
+(def-call-out printf1i (:arguments (format c-string) (arg int))
+  (:return-type int) (:name "printf") )
+(def-call-out printf1l (:arguments (format c-string) (arg long))
+  (:return-type int) (:name "printf"))
+(def-call-out printf1d (:arguments (format c-string) (arg double-float))
+  (:return-type int) (:name "printf"))
+(def-call-out putc (:arguments (c int) (fp c-pointer)) (:return-type int))
+(def-call-out putchar (:arguments (c int)) (:return-type int))
+(def-call-out puts (:arguments (str c-string)) (:return-type int))
+(def-call-out remove (:arguments (path c-string)) (:return-type int))
+(def-call-out rename (:arguments (old c-string) (new c-string))
+  (:return-type int))
+(def-call-out rewind (:arguments (fp c-pointer)) (:return-type nil))
+(def-call-out scanf0 (:arguments (format c-string))
+  (:return-type int) (:name "scanf"))
+(def-call-out scanf1i (:arguments (format c-string) (arg (c-ptr int) :out))
+  (:return-type int) (:name "scanf"))
+(def-call-out scanf1l (:arguments (format c-string) (arg (c-ptr long) :out))
+  (:return-type int) (:name "scanf"))
+(def-call-out scanf1d
+    (:arguments (format c-string) (arg (c-ptr double-float) :out))
+  (:return-type int) (:name "scanf"))
+(def-call-out setbuf (:arguments (fp c-pointer) (buf c-pointer))
+  (:return-type nil))
+(def-call-out setlinebuf (:arguments (fp c-pointer)) (:return-type nil))
+(def-call-out setbuffer (:arguments (fp c-pointer) (buf c-pointer) (size int))
+  (:return-type nil))
+(def-call-out setvbuf
+    (:arguments (fp c-pointer) (buf c-pointer) (mode int) (size size_t))
+  (:return-type int))
+;(def-call-out sprintf0 (:arguments (str c-pointer :out) (format c-string))
+;  (:return-type int) (:name "sprintf")) ; ??
+(def-call-out sscanf0 (:arguments (str c-string) (format c-string))
+  (:return-type int) (:name "sscanf"))
+(def-call-out sscanf1i
+    (:arguments (str c-string) (format c-string) (arg (c-ptr int) :out))
+  (:return-type int) (:name "sscanf"))
+(def-call-out sscanf1l
+    (:arguments (str c-string) (format c-string) (arg (c-ptr long) :out))
+  (:return-type int) (:name "sscanf"))
+(def-call-out sscanf1d
+    (:arguments (str c-string) (format c-string)
+                (arg (c-ptr double-float) :out))
+  (:return-type int) (:name "sscanf"))
+(def-call-out tmpfile (:arguments) (:return-type c-pointer))
+(def-call-out tmpnam (:arguments (s c-string :in :alloca)) ; :in-out ??
+  (:return-type c-string))
+(def-call-out tmpnam_r (:arguments (s c-string :in :alloca)) ; :in-out ??
+  (:return-type c-string))
+(def-call-out tempnam (:arguments (dir c-string) (prefix c-string))
+  (:return-type c-string :malloc-free))
+(def-call-out ungetc (:arguments (c int) (fp c-pointer))
+  (:return-type int))
+(def-call-out fcloseall (:arguments) (:return-type int))
+(def-call-out fdopen (:arguments (fildes int) (mode c-string))
+  (:return-type c-pointer))
+(def-call-out fileno (:arguments (fp c-pointer)) (:return-type int))
+(def-call-out popen (:arguments (command c-string) (mode c-string))
+  (:return-type c-pointer))
+(def-call-out pclose (:arguments (fp c-pointer)) (:return-type int))
 
-(def-c-call-out ctermid (:arguments (null c-string)) ; ??
-                        (:return-type c-string)
-)
-(def-c-call-out cuserid (:arguments (null c-string)) ; ??
-                        (:return-type c-string)
-)
+(def-call-out ctermid (:arguments (null c-string)) ; ??
+  (:return-type c-string))
+(def-call-out cuserid (:arguments (null c-string)) ; ??
+  (:return-type c-string))
 
 ; getdelim
 ; getline
@@ -2481,9 +1916,9 @@
 
 ; and lots of lock/unlock functions
 
-; ============================== <dirent.h> ===================================
+;;; ============================== <dirent.h> ================================
 
-; ----------------------------- <direntry.h> ----------------------------------
+;;; ----------------------------- <direntry.h> -------------------------------
 
 (def-c-struct dirent
   (d_ino long)
@@ -2493,7 +1928,7 @@
   (d_name (c-array-max character #.(lisp:+ NAME_MAX 1)))
 )
 
-; ------------------------------ <dirent.h> -----------------------------------
+;;; ------------------------------ <dirent.h> --------------------------------
 
 (defconstant DT_UNKNOWN 0)
 (defconstant DT_FIFO 1)
@@ -2512,60 +1947,46 @@
     ; components unknown
 ) )
 
-(def-c-call-out opendir (:arguments (name c-string))
-                        (:return-type c-pointer)
-)
+(def-call-out opendir (:arguments (name c-string)) (:return-type c-pointer))
+(def-call-out closedir (:arguments (dirp c-pointer)) (:return-type int))
+(def-call-out readdir (:arguments (dirp c-pointer))
+  (:return-type (c-ptr dirent)))
+(def-call-out readdir_r
+    (:arguments (dirp c-pointer) (entry (c-ptr dirent) :out :alloca)
+                (result (c-ptr (c-ptr dirent)) :out :alloca)) ; ??
+  (:return-type int))
 
-(def-c-call-out closedir (:arguments (dirp c-pointer))
-                         (:return-type int)
-)
+(def-call-out rewinddir (:arguments (dirp c-pointer)) (:return-type nil))
 
-(def-c-call-out readdir (:arguments (dirp c-pointer))
-                        (:return-type (c-ptr dirent))
-)
-(def-c-call-out readdir_r (:arguments (dirp c-pointer) (entry (c-ptr dirent) :out :alloca) (result (c-ptr (c-ptr dirent)) :out :alloca)) ; ??
-                          (:return-type int)
-)
-
-(def-c-call-out rewinddir (:arguments (dirp c-pointer))
-                          (:return-type nil)
-)
-
-(def-c-call-out dirfd (:arguments (dirp c-pointer))
-                      (:return-type int)
-)
+(def-call-out dirfd (:arguments (dirp c-pointer)) (:return-type int))
 
 (defconstant MAXNAMLEN 255)
 
-(def-c-call-out seekdir (:arguments (dirp c-pointer) (pos off_t))
-                        (:return-type nil)
-)
+(def-call-out seekdir (:arguments (dirp c-pointer) (pos off_t))
+  (:return-type nil))
 
-(def-c-call-out telldir (:arguments (dirp c-pointer))
-                        (:return-type off_t)
-)
+(def-call-out telldir (:arguments (dirp c-pointer)) (:return-type off_t))
 
-(def-c-call-out scandir (:arguments (dir c-string)
-                                    (namelist (c-ptr (c-ptr (c-ptr dirent))) :out)
-                                    (select (c-function (:arguments (d c-string))
-                                                        (:return-type boolean)
-                                    )       )
-                                    (compar (c-function (:arguments (d1 (c-ptr (c-ptr dirent))) (d2 (c-ptr (c-ptr dirent))))
-                                                        (:return-type int)
-                                    )       )
-                        )
-                        (:return-type int)
-)
+(def-call-out scandir
+    (:arguments (dir c-string)
+                (namelist (c-ptr (c-ptr (c-ptr dirent))) :out)
+                (select (c-function (:arguments (d c-string))
+                                    (:return-type boolean)))
+                (compar (c-function (:arguments (d1 (c-ptr (c-ptr dirent)))
+                                                (d2 (c-ptr (c-ptr dirent))))
+                                    (:return-type int))))
+  (:return-type int))
 
-(def-c-call-out alphasort (:arguments (d1 (c-ptr (c-ptr dirent))) (d2 (c-ptr (c-ptr dirent))))
-                          (:return-type int)
-)
+(def-call-out alphasort
+    (:arguments (d1 (c-ptr (c-ptr dirent))) (d2 (c-ptr (c-ptr dirent))))
+  (:return-type int))
 
-;(def-c-call-out getdirentries (:arguments (fd int) (buf c-pointer) (nbytes size_t) (basep (c-ptr off_t) :in-out))
-;                              (:return-type ssize_t)
-;)
+;(def-call-out getdirentries
+;    (:arguments (fd int) (buf c-pointer) (nbytes size_t)
+;                (basep (c-ptr off_t) :in-out))
+;  (:return-type ssize_t))
 
-; ================================ <pwd.h> ====================================
+;;; ================================ <pwd.h> =================================
 
 (def-c-struct passwd
   (pw_name c-string)
@@ -2577,53 +1998,32 @@
   (pw_shell c-string)
 )
 
-;(def-c-call-out __pwdopen (:arguments)
-;                          (:return-type c-pointer))
+;(def-call-out __pwdopen (:arguments) (:return-type c-pointer))
+;(def-call-out __pwdread (:arguments (stream c-pointer) (p c-pointer))
+;  (:return-type (c-ptr passwd)))
+;(def-call-out __pwdalloc (:arguments) (:return-type c-pointer))
+;(def-call-out __pwdscan
+;    (:arguments (p c-pointer)
+;                (selector (c-function (:arguments (pwd (c-ptr passwd)))
+;                                      (:return-type int))))
+;  (:return-type (c-ptr passwd)))
 
-;(def-c-call-out __pwdread (:arguments (stream c-pointer) (p c-pointer))
-;                          (:return-type (c-ptr passwd)))
+(def-call-out setpwent (:arguments) (:return-type nil))
+(def-call-out endpwent (:arguments) (:return-type nil))
+(def-call-out getpwent (:arguments) (:return-type (c-ptr passwd)))
+(def-call-out fgetpwent (:arguments (stream c-pointer))
+  (:return-type (c-ptr passwd)))
+(def-call-out putpwent (:arguments (c-ptr passwd) (stream c-pointer))
+  (:return-type int))
 
-;(def-c-call-out __pwdalloc (:arguments)
-;                           (:return-type c-pointer))
+(def-call-out getpwuid (:arguments (uid uid_t)) (:return-type (c-ptr passwd)))
 
-;(def-c-call-out __pwdscan (:arguments (p c-pointer)
-;                                      (selector
-;                                       (c-function
-;                                        (:arguments (pwd (c-ptr passwd)))
-;                                        (:return-type int))))
-;                          (:return-type (c-ptr passwd)))
-
-(def-c-call-out setpwent (:arguments)
-                         (:return-type nil)
-)
-
-(def-c-call-out endpwent (:arguments)
-                         (:return-type nil)
-)
-
-(def-c-call-out getpwent (:arguments)
-                         (:return-type (c-ptr passwd))
-)
-
-(def-c-call-out fgetpwent (:arguments (stream c-pointer))
-                          (:return-type (c-ptr passwd))
-)
-
-(def-c-call-out putpwent (:arguments (c-ptr passwd) (stream c-pointer))
-                         (:return-type int)
-)
-
-(def-c-call-out getpwuid (:arguments (uid uid_t))
-                         (:return-type (c-ptr passwd))
-)
-
-(def-c-call-out getpwnam (:arguments (name c-string))
-                         (:return-type (c-ptr passwd))
-)
+(def-call-out getpwnam (:arguments (name c-string))
+  (:return-type (c-ptr passwd)))
 
 ; ... lots of reentrant variants ...
 
-; ================================ <grp.h> ====================================
+;;; ================================ <grp.h> =================================
 
 (def-c-struct group
   (gr_name c-string)
@@ -2632,66 +2032,47 @@
   (gr_mem (c-ptr c-string)) ; ??
 )
 
-;(def-c-call-out __grpopen (:arguments)
-;                          (:return-type c-pointer))
+;(def-call-out __grpopen (:arguments) (:return-type c-pointer))
 
-;(def-c-call-out __grpread (:arguments (stream c-pointer) (p c-pointer))
-;                          (:return-type (c-ptr group)))
+;(def-call-out __grpread (:arguments (stream c-pointer) (p c-pointer))
+;  (:return-type (c-ptr group)))
 
-;(def-c-call-out __grpalloc (:arguments)
-;                           (:return-type c-pointer))
+;(def-call-out __grpalloc (:arguments) (:return-type c-pointer))
 
-;(def-c-call-out __grpscan (:arguments (p c-pointer)
-;                                      (selector
-;                                       (c-function
-;                                        (:arguments (grp (c-ptr passwd)))
-;                                        (:return-type int))))
-;                          (:return-type (c-ptr group)))
+;(def-call-out __grpscan
+;    (:arguments (p c-pointer)
+;                (selector (c-function (:arguments (grp (c-ptr passwd)))
+;                                      (:return-type int))))
+;  (:return-type (c-ptr group)))
 
-(def-c-call-out setgrent (:arguments)
-                         (:return-type nil)
-)
-
-(def-c-call-out endgrent (:arguments)
-                         (:return-type nil)
-)
-
-(def-c-call-out getgrent (:arguments)
-                         (:return-type (c-ptr group))
-)
-
-(def-c-call-out fgetgrent (:arguments (stream c-pointer))
-                          (:return-type (c-ptr group))
-)
-
-(def-c-call-out getgrgid (:arguments (gid gid_t))
-                         (:return-type (c-ptr group))
-)
-
-(def-c-call-out getgrnam (:arguments (name c-string))
-                         (:return-type (c-ptr group))
-)
+(def-call-out setgrent (:arguments) (:return-type nil))
+(def-call-out endgrent (:arguments) (:return-type nil))
+(def-call-out getgrent (:arguments) (:return-type (c-ptr group)))
+(def-call-out fgetgrent (:arguments (stream c-pointer))
+  (:return-type (c-ptr group)))
+(def-call-out getgrgid (:arguments (gid gid_t))
+  (:return-type (c-ptr group)))
+(def-call-out getgrnam (:arguments (name c-string))
+  (:return-type (c-ptr group)))
 
 ; ... lots of reentrant variants ...
 
-(def-c-call-out setgroups (:arguments (n size_t) (groups (c-ptr gid_t)))
-                          (:return-type int)
-)
+(def-call-out setgroups (:arguments (n size_t) (groups (c-ptr gid_t)))
+  (:return-type int))
 
-(def-c-call-out initgroups (:arguments (user c-string) (group gid_t))
-                           (:return-type int)
-)
+(def-call-out initgroups (:arguments (user c-string) (group gid_t))
+  (:return-type int))
 
-; ============================ <sys/utsname.h> ================================
+;;; ============================ <sys/utsname.h> =============================
 
-; ---------------------------- <utsnamelen.h> ---------------------------------
+;;; ---------------------------- <utsnamelen.h> ------------------------------
 
 (eval-when (load compile eval)
   (defconstant _UTSNAME_LENGTH 65)
   (defconstant _UTSNAME_DOMAIN_LENGTH _UTSNAME_LENGTH)
 )
 
-; ---------------------------- <sys/utsname.h> --------------------------------
+;;; ---------------------------- <sys/utsname.h> -----------------------------
 
 (eval-when (load compile eval)
   (defconstant _UTSNAME_NODENAME_LENGTH _UTSNAME_LENGTH)
@@ -2708,13 +2089,13 @@
 
 (defconstant SYS_NMLN _UTSNAME_LENGTH)
 
-(def-c-call-out uname (:arguments (utsbuf (c-ptr utsname) :out))
+(def-call-out uname (:arguments (utsbuf (c-ptr utsname) :out))
                       (:return-type int)
 )
 
-; ============================= <termios.h> ===================================
+;;; ============================= <termios.h> ================================
 
-; ----------------------------- <termbits.h> ----------------------------------
+;;; ----------------------------- <termbits.h> -------------------------------
 
 (def-c-type cc_t uchar)
 (def-c-type speed_t uint)
@@ -2873,69 +2254,60 @@
 (defconstant TCSADRAIN       1)
 (defconstant TCSAFLUSH       2)
 
-; ----------------------------- <termios.h> -----------------------------------
+;;; ----------------------------- <termios.h> --------------------------------
 
 (defmacro CCEQ (val c) `(and (= ,c ,val) (/= ,val _POSIX_VDISABLE)))
 
-(def-c-call-out cfgetospeed (:arguments (termios_p (c-ptr termios)))
-                            (:return-type speed_t)
-)
+(def-call-out cfgetospeed (:arguments (termios_p (c-ptr termios)))
+  (:return-type speed_t))
 
-(def-c-call-out cfgetispeed (:arguments (termios_p (c-ptr termios)))
-                            (:return-type speed_t)
-)
+(def-call-out cfgetispeed (:arguments (termios_p (c-ptr termios)))
+  (:return-type speed_t))
 
-(def-c-call-out cfsetospeed (:arguments (termios_p (c-ptr termios) :in-out) (speed speed_t))
-                            (:return-type int)
-)
+(def-call-out cfsetospeed
+    (:arguments (termios_p (c-ptr termios) :in-out) (speed speed_t))
+  (:return-type int))
 
-(def-c-call-out cfsetispeed (:arguments (termios_p (c-ptr termios) :in-out) (speed speed_t))
-                            (:return-type int)
-)
+(def-call-out cfsetispeed
+    (:arguments (termios_p (c-ptr termios) :in-out) (speed speed_t))
+  (:return-type int))
 
-(def-c-call-out cfsetspeed (:arguments (termios_p (c-ptr termios) :in-out) (speed speed_t))
-                           (:return-type int)
-)
+(def-call-out cfsetspeed
+    (:arguments (termios_p (c-ptr termios) :in-out) (speed speed_t))
+  (:return-type int))
 
-(def-c-call-out tcgetattr (:arguments (fildes int) (termios_p (c-ptr termios) :out))
-                          (:return-type int)
-)
+(def-call-out tcgetattr
+    (:arguments (fildes int) (termios_p (c-ptr termios) :out))
+  (:return-type int))
 
-(def-c-call-out tcsetattr (:arguments (fildes int) (optional_actions int) (termios_p (c-ptr termios)))
-                          (:return-type int)
-)
+(def-call-out tcsetattr
+    (:arguments (fildes int) (optional_actions int)
+                (termios_p (c-ptr termios)))
+  (:return-type int))
 
-(def-c-call-out cfmakeraw (:arguments (t (c-ptr termios) :in-out))
-                          (:return-type nil)
-)
+(def-call-out cfmakeraw (:arguments (t (c-ptr termios) :in-out))
+  (:return-type nil))
 
-(def-c-call-out tcsendbreak (:arguments (fildes int) (duration int))
-                            (:return-type int)
-)
+(def-call-out tcsendbreak (:arguments (fildes int) (duration int))
+  (:return-type int))
 
-(def-c-call-out tcdrain (:arguments (fildes int))
-                        (:return-type int)
-)
+(def-call-out tcdrain (:arguments (fildes int)) (:return-type int))
 
-(def-c-call-out tcflush (:arguments (fildes int) (queue_selector int))
-                        (:return-type int)
-)
+(def-call-out tcflush (:arguments (fildes int) (queue_selector int))
+  (:return-type int))
 
-(def-c-call-out tcflow (:arguments (fildes int) (action int))
-                       (:return-type int)
-)
+(def-call-out tcflow (:arguments (fildes int) (action int))
+  (:return-type int))
 
-; ------------------------- <sys/ttydefaults.h> -------------------------------
+;;; ------------------------- <sys/ttydefaults.h> ----------------------------
 
-; lots of old stuff
+;; lots of old stuff
 
-; ============================== <string.h> ===================================
+;;; ============================== <string.h> ================================
 
-(def-c-call-out strerror (:arguments (errnum int))
-                         (:return-type c-string :none)
-)
+(def-call-out strerror (:arguments (errnum int)) (:return-type c-string :none))
 
-; ============================= <sys/ioctl.h> =================================
+;;; ============================= <sys/ioctl.h> ==============================
 
 ;;; --------------------------- <bits/ioctl-types.h> -------------------------
 
@@ -2979,16 +2351,16 @@
 (defconstant N_STRIP         4)
 (defconstant N_AX25          5)
 
-; ------------------------- <sys/ttydefaults.h> -------------------------------
+;;; ------------------------- <sys/ttydefaults.h> ----------------------------
 
 ; lots of old stuff
 
 ;;; ----------------------------- <sys/ioctl.h> ------------------------------
 
-(def-c-call-out ioctl-set-int
+(def-call-out ioctl-set-int
     (:arguments (fd int) (request int) (arg int))
   (:return-type int) (:name "ioctl"))
-(def-c-call-out ioctl-get-int
+(def-call-out ioctl-get-int
     (:arguments (fd int) (request int) (arg (c-ptr int) :out :alloca))
   (:return-type int) (:name "ioctl"))
 
@@ -3086,55 +2458,46 @@ and SIG_IGN do anyway, by other means ... They are just sugar, really.
 ;;; --------------------------------- <signal.h> -----------------------------
 
 ;; sigsetops (3)
-(def-c-call-out sigemptyset
-    (:arguments (sigs (c-ptr sigset_t) :out :alloca))
+(def-call-out sigemptyset (:arguments (sigs (c-ptr sigset_t) :out :alloca))
   (:return-type int))
 
-(def-c-call-out sigfillset
-    (:arguments (sigs (c-ptr sigset_t) :out :alloca))
+(def-call-out sigfillset (:arguments (sigs (c-ptr sigset_t) :out :alloca))
   (:return-type int))
 
-(def-c-call-out sigaddset
-    (:arguments (sigset (c-ptr sigset_t) :in-out :alloca)
-                (sig int))
+(def-call-out sigaddset
+    (:arguments (sigset (c-ptr sigset_t) :in-out :alloca) (sig int))
   (:return-type int))
 
-(def-c-call-out sigdelset
-    (:arguments (sigset (c-ptr sigset_t) :in-out :alloca)
-                (sig int))
+(def-call-out sigdelset
+    (:arguments (sigset (c-ptr sigset_t) :in-out :alloca) (sig int))
   (:return-type int))
 
-(def-c-call-out sigismember
-    (:arguments (sigset (c-ptr sigset_t) :in :alloca)
-                (sig int))
+(def-call-out sigismember
+    (:arguments (sigset (c-ptr sigset_t) :in :alloca) (sig int))
   (:return-type int))
 
-(def-c-call-out sigprocmask-set-n-save
+(def-call-out sigprocmask-set-n-save
     (:arguments (how int)
                 (sigset (c-ptr sigset_t) :in :alloca)
                 (newset (c-ptr sigset_t) :out :alloca))
-  (:name "sigprocmask")
-  (:return-type int))
+  (:return-type int) (:name "sigprocmask"))
 
-(def-c-call-out sigprocmask-set
+(def-call-out sigprocmask-set
     (:arguments (how int) ; can be: SIG_BLOCK SIG_UNBLOCK SIG_SETMASK
                 (sigset (c-ptr sigset_t) :in :alloca)
                 (null c-string))
-  (:name "sigprocmask")
+  (:return-type int) (:name "sigprocmask"))
+
+(def-call-out sigpending (:arguments (sigset (c-ptr sigset_t) :out :alloca))
   (:return-type int))
 
-(def-c-call-out sigpending
-    (:arguments (sigset (c-ptr sigset_t) :out :alloca))
-  (:return-type int))
-
-(def-c-call-out sigsuspend
-    (:arguments (mask (c-ptr sigset_t) :in :alloca))
+(def-call-out sigsuspend (:arguments (mask (c-ptr sigset_t) :in :alloca))
   (:return-type int))
 
 ;; int sigaction (int signum, const struct sigaction *act,
 ;;                struct sigaction *oldact);
 
-(def-c-call-out sigaction-new
+(def-call-out sigaction-new
     (:arguments (sig int)
                 (act (c-ptr sigaction) :in :alloca)
                 (null c-string)) ;nil
@@ -3142,7 +2505,7 @@ and SIG_IGN do anyway, by other means ... They are just sugar, really.
   (:return-type int))
 ;; e.g.: (sigaction-new SIGINT newhandler nil) => 0
 
-(def-c-call-out sigaction-old
+(def-call-out sigaction-old
     (:arguments (sig int)
                 (null c-string) ; nil
                 (oact (c-ptr sigaction) :out :alloca))
@@ -3150,7 +2513,7 @@ and SIG_IGN do anyway, by other means ... They are just sugar, really.
   (:return-type int))
 ;; e.g.: (nth-value 1 (sigaction-old SIGINT nil)) => oldhandler
 
-(def-c-call-out sigaction-query
+(def-call-out sigaction-query
     ;; if 2nd & 3rd args are null, query if signal SIG is valid
     (:arguments (sig int)
                 (null1 c-string) ; nil
@@ -3160,23 +2523,11 @@ and SIG_IGN do anyway, by other means ... They are just sugar, really.
 ;; e.g.: (linux:sigaction-query linux:SIGINT nil nil) => 0
 
 ;; miscellaneous signal stuff
-(def-c-call-out kill
-    (:arguments (pid pid_t) (sig int))
+(def-call-out kill (:arguments (pid pid_t) (sig int)) (:return-type int))
+(def-call-out raise (:arguments (sig int)) (:return-type int))
+(def-call-out sigpause (:arguments (sig int)) (:return-type int))
+(def-call-out killpg (:arguments (pgrp pid_t) (sig int))
   (:return-type int))
-
-(def-c-call-out raise
-    (:arguments (sig int))
-  (:return-type int))
-
-(def-c-call-out sigpause
-    (:arguments (sig int))
-  (:return-type int))
-
-(def-c-call-out killpg
-    (:arguments (pgrp pid_t)
-                (sig int))
-  (:return-type int))
-
 
 ;;; ==========================================================================
 ;;; clean up

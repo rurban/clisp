@@ -1,5 +1,19 @@
 2002-03-10  Sam Steingold  <sds@gnu.org>
 
+	The default foreign language is now ANSI C, not K&R C
+	* foreign1.lisp (DEF-C-CALL-OUT, DEF-C-CALL-IN): deprecated
+	(*foreign-language*): new variable
+	(default-foreign-language): new exported macro (set it)
+	(parse-c-function): use it
+	* compiler.lisp (with-compilation-unit): bind it
+	* init.lisp (load): ditto
+	* bindings/linuxlibc5/linux.lisp, bindings/linuxlibc6/linux.lisp
+	* postgresql632/postgresql.lisp, postgresql642/postgresql.lisp
+	* regexp/regexp.lisp, wildcard/wildcard.lisp: use DEF-CALL-OUT
+	instead of DEF-C-CALL-OUT and call DEFAULT-FOREIGN-LANGUAGE
+
+2002-03-10  Sam Steingold  <sds@gnu.org>
+
 	IPv6 portability suggested by Bruno
 	* socket.d (s6_addr16): define if not defined yet
 	(S6_ADDR16): accessor helper
