@@ -1,5 +1,10 @@
 2005-01-21  Sam Steingold  <sds@gnu.org>
 
+	* spvw_fault.d (handle_read_fault): fixed the mingw build by using
+	OS_set_errno(0) instead of errno=0
+
+2005-01-21  Sam Steingold  <sds@gnu.org>
+
 	* control.d (make_variable_frame): fixed the check whether the
 	variable is special
 
