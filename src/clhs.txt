@@ -223,7 +223,7 @@
    (char= "fun_chareqcm__ar-not-lessp.html")
    (char> "fun_chareqcm__ar-not-lessp.html")
    (char>= "fun_chareqcm__ar-not-lessp.html")
-   (character "fun_character.html" "syscla_character.html_character.html")
+   (character "fun_character.html" "syscla_character.html")
    (characterp "fun_characterp.html")
    (check-type "mac_check-type.html")
    (cis "fun_cis.html")
