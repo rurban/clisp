@@ -1,3 +1,7 @@
+2001-08-05  Bruno Haible  <haible@clisp.cons.org>
+
+	* package.d (export_symbol_from): Fix GC safety bug.
+
 2001-08-13  Sam Steingold  <sds@gnu.org>
 
 	use unix file utilities and forward slashes with win32gcc
