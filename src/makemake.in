@@ -1663,7 +1663,7 @@ case "$fsstnd" in
     echol "lispdocdir = \$(docdir)${NEXT_}packages${NEXT_}clisp"
     ;;
   redhat)
-    echol "lispdocdir = \$(docdir)${NEXT_}clisp-`cat ../src/VERSION`"
+    echol "lispdocdir = \$(docdir)${NEXT_}clisp-`cat ${SRCDIR}VERSION`"
     ;;
   debian | gnu_ext | *bsd)
     echol "lispdocdir = \$(docdir)${NEXT_}clisp"
@@ -3074,7 +3074,7 @@ for f in $TXT_FILES ; do
     fi
   fi
   if [ $f = clisp.html -a $HOS != win32 ] ; then
-    line=$line" | sed -e 's,=\"CLHSROOT/,=\"${hyperspec}/,' -e 's,VERSION,`cat VERSION`,'"
+    line=$line" | sed -e 's,=\"CLHSROOT/,=\"${hyperspec}/,' -e \"s,VERSION,\`cat VERSION\`,\""
   fi
   if [ $f = distmakefile ] ; then
     line=$line" | (libs=''; for f in modules.o lisp.a \$(LIBS); do case \$\$f in -*) libs=\"\$\$libs \$\$f\";; *) libs=\"\$\$libs\"' base/'\"\$\$f\";; esac; done; files=''; for f in modules.o ${FILES}; do files=\"\$\$files\"' base/'\"\$\$f\"; done; sed -e \"s,@@BASE_LIBS@@,\$\$libs,g\" -e \"s,@@BASE_FILES@@,\$\$files,g\")"
@@ -3464,7 +3464,7 @@ if [ $HOS = win32 ] ; then
   echotab "nroff -man clisp.1 > clisp.man"
   if [ $HOS = win32 ] ; then
     for f in clisp.html ; do
-      echotab "sed -e 's,=\"CLHSROOT/,=\"${hyperspec}/,' -e 's,VERSION,`cat VERSION`,' < $f > $f.new"
+      echotab "sed -e 's,=\"CLHSROOT/,=\"${hyperspec}/,' -e \"s,VERSION,\`cat VERSION\`,\" < $f > $f.new"
       echotab "mv $f.new $f"
     done
   fi
