@@ -138,6 +138,7 @@
           effective-slot-definition-class
           compute-default-initargs
           validate-superclass add-direct-subclass remove-direct-subclass
+          standard-accessor-method
           standard-reader-method standard-writer-method
           reader-method-class writer-method-class
           ensure-class ensure-class-using-class
