@@ -52,7 +52,7 @@
    PANIC_ENVIRONMENT REGION_INIT TXN_NOSYNC TXN_WRITE_NOSYNC YIELDCPU
    VERB_CHKPOINT VERB_DEADLOCK VERB_RECOVERY VERB_REPLICATION
    VERB_WAITSFOR VERBOSE)</literal></term>
- <listitem><para>Set some environment options using <simplelist>
+ <listitem><para>Set some environment options using <simplelist columns="4">
     <member>&DBE_set_flags;</member>
     <member>&DBE_set_verbose;</member>
     <member>&DBE_set_tmp_dir;</member>
@@ -171,7 +171,7 @@
    If &error-k; is &nil; and the record is not found, no &err-sig;,
    instead <constant>:NOTFOUND</constant> is returned.
    <constant>:ACTION</constant> should be one of
-   <simplelist><member><constant>:DB_CONSUME</constant></member>
+   <simplelist columns="2"><member><constant>:DB_CONSUME</constant></member>
     <member><constant>:DB_CONSUME_WAIT</constant></member>
     <member><constant>:DB_GET_BOTH</constant></member>
     <member><constant>:DB_SET_RECNO</constant></member></simplelist>.
@@ -180,7 +180,7 @@
    &key-amp; AUTO_COMMIT ACTION TRANSACTION)</literal></term>
 <listitem><para>Store items into a database (&DB_put;).
   <constant>:ACTION</constant> should be one of
-  <simplelist><member><constant>:DB_APPEND</constant></member>
+  <simplelist columns="3"><member><constant>:DB_APPEND</constant></member>
    <member><constant>:DB_NODUPDATA</constant></member>
    <member><constant>:DB_NOOVERWRITE</constant></member></simplelist>.
 </para></listitem></varlistentry>
@@ -193,7 +193,7 @@
    THREAD TRUNCATE AUTO_COMMIT TRANSACTION)</literal></term>
  <listitem><para>Open a database (&DB_open;).
    <constant>:TYPE</constant> should be one of
-   <simplelist><member><constant>:BTREE</constant></member>
+   <simplelist columns="2"><member><constant>:BTREE</constant></member>
     <member><constant>:HASH</constant></member>
     <member><constant>:QUEUE</constant></member>
     <member><constant>:RECNO</constant></member>
@@ -260,7 +260,7 @@
    RE_DELIM RE_LEN RE_PAD RE_SOURCE
    CHKSUM ENCRYPT TXN_NOT_DURABLE DUP DUPSORT RECNUM REVSPLITOFF
    RENUMBER SNAPSHOT)</literal></term>
- <listitem><para>Set some database options using <simplelist>
+ <listitem><para>Set some database options using <simplelist columns="4">
     <member>&DB_set_errfile;</member>
     <member>&DB_set_encrypt;</member>
     <member>&DB_set_cachesize;</member>
@@ -429,7 +429,7 @@
    <constant>:NOTFOUND</constant> or <constant>:KEYEMPTY</constant>
    is returned instead.
    <replaceable>action</replaceable> should be one of
-   <simplelist><member><constant>:DB_CURRENT</constant></member>
+   <simplelist columns="4"><member><constant>:DB_CURRENT</constant></member>
     <member><constant>:DB_FIRST</constant></member>
     <member><constant>:DB_GET_BOTH</constant></member>
     <member><constant>:DB_GET_BOTH_RANGE</constant></member>
