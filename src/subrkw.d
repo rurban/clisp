@@ -176,6 +176,8 @@ s(make_pipe_io_stream)
 v(4, (kw(element_type),kw(external_format),kw(buffered),kw(timeout)) )
 s(socket_accept)
 s(socket_connect)
+v(4, (kw(direction),kw(element_type),kw(external_format),kw(buffered)) )
+s(make_stream)
 #endif
 v(1, (kw(abort)) )
 s(built_in_stream_close)

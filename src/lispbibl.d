@@ -12743,6 +12743,19 @@ extern void clear_output (object stream);
 extern object get_line_position (object stream);
 # is used by IO, DEBUG
 
+/* UP: give away corresponding underlying handle
+ making sure buffers were flushed. One can then use the
+ handle outside of stream object as far as the latter
+ is not used and not GCed.
+ stream_lend_handle(stream, inputp, handletype)
+ > stream: stream for handle to extract
+ > inputp: whether its input or output side is requested.
+ < int * handletype 0:reserved, 1:file, 2:socket
+ < Handle result - extracted handle
+ can trigger GC */
+extern Handle stream_lend_handle (object stream, bool inputp, int * handletype);
+/* used by STREAM */
+
 /* Function: Reads several bytes from a stream.
  read_byte_array(&stream,&bytearray,start,len,no_hang)
  > stream: stream (on the STACK)
