@@ -1,5 +1,11 @@
 2002-05-29  Sam Steingold  <sds@gnu.org>
 
+	* unitypes.h (uint8_t) [__OpenBSD__/__i386__]: defined in
+	<i386/types.h>, not in the standard <stdint.h>
+	From William Harold Newman <william.newman@airmail.net>
+
+2002-05-29  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (UNICODE_EXTRA): new variable (fixed the build
 	broken by addition of streq.h cjk.h uniwidth.h width.c)
 
