@@ -1873,63 +1873,93 @@
     (setf (class-fixed-slot-locations class) fixed-slot-locations))
   (setf (class-prototype class) nil)
   ; Try to finalize it.
-  (finalize-class class nil)
+  (when (finalizable-p class)
+    (finalize-inheritance class))
   ; Done.
   class)
 
 ;; ------------- Finalizing an instance of <semi-standard-class> -------------
 
+;; Tests whether a class can be finalized, by recursing on the
+;; direct-superclasses list. May call finalize-inheritance on some of the
+;; superclasses.
+;; Returns T if all the direct-superclasses could be finalized.
+;; Returns NIL if this is not possible, and as second value a list from the
+;; direct-superclass that couldn't be finalized up to the forward-reference
+;; that is not yet defined.
+(defun finalizable-p (class &optional (stack nil))
+  (assert (defined-class-p class))
+  (when (memq class stack)
+    (error-of-type 'program-error
+      (TEXT "~S: class definition circularity: ~S depends on itself")
+      'defclass class))
+  (let ((stack (cons class stack)))
+    (do ((superclassesr (class-direct-superclasses class) (cdr superclassesr)))
+        ((endp superclassesr))
+      (let ((superclass (car superclassesr)))
+        (unless (defined-class-p superclass)
+          (unless (forward-reference-to-class-p superclass)
+            (error (TEXT "~S has a direct-superclasses element ~S, which is invalid.")
+                   class superclass))
+          (let ((real-superclass
+                  (or (find-class (class-name superclass) nil)
+                      (return-from finalizable-p (values nil (list superclass))))))
+            ;; Changed from forward-reference-to-class to defined-class.
+            (check-allowed-superclass class real-superclass)
+            (setf (car superclassesr) real-superclass)
+            (remove-direct-subclass superclass class)
+            (add-direct-subclass real-superclass class)
+            (setq superclass real-superclass)))
+        (assert (defined-class-p superclass))
+        (unless (>= (class-initialized superclass) 6) ; not already finalized?
+          ;; Here we get only for instances of STANDARD-CLASS, since instances
+          ;; of BUILT-IN-CLASS and STRUCTURE-CLASS are already finalized when
+          ;; they are constructed.
+          (multiple-value-bind (done failure-cause) (finalizable-p superclass stack)
+            (unless done
+              ;; Finalization of a superclass was impossible.
+              (return-from finalizable-p (values nil (cons superclass failure-cause)))))
+          ;; Now finalize the superclass. (We could also do this later, from
+          ;; inside finalize-inheritance, but then we would need some extra
+          ;; bookkeeping to ensure that the running time for a class hierarchy
+          ;; like this
+          ;;                     A1
+          ;;                    /  \
+          ;;                   B1  C1
+          ;;                    \  /
+          ;;                     A2
+          ;;                    /  \
+          ;;                   B2  C2
+          ;;                    \  /
+          ;;                     A3
+          ;;                    ....
+          ;;                   A(n-1)
+          ;;                    /  \
+          ;;                B(n-1) C(n-1)
+          ;;                    \  /
+          ;;                     An
+          ;; is linear, not exponential, in the number of classes.)
+          (finalize-inheritance superclass)))))
+  t)
+
 ;; Preliminary.
 (defun finalize-inheritance (class)
-  (finalize-class class t))
+  (finalize-inheritance-<semi-standard-class> class))
 
-;; Try to finalize a given class, given as a class name or class object.
-;; Return the finalized class object on success, or nil when the class could
-;; not yet be finalized.
-;; When force-p is non-nil, signal an error when finalization is impossible.
-;; As a side effect of finalization, symbols in (class-direct-superclasses) are
-;; replaced with class objects, and the (class-precedence-list class) is
-;; computed.
-(defun finalize-class (class
-                       &optional force-p
-                                 ; The stack of classes being finalized now:
-                                 (finalizing-now nil))
-  (when (or (defined-class-p class)
-            (setq class
-                  (find-class (if (forward-reference-to-class-p class) (class-name class) class)
-                              force-p)))
-    (if (>= (class-initialized class) 6) ; already finalized?
-      class
-      (progn
-        ;; Here we get only for instances of STANDARD-CLASS, since instances
-        ;; of BUILT-IN-CLASS and STRUCTURE-CLASS are already finalized when
-        ;; they are constructed.
-        (when (memq class finalizing-now)
-          (error-of-type 'program-error
-            (TEXT "~S: class definition circularity: ~S depends on itself")
-            'defclass class))
-        (let ((finalizing-now (cons class finalizing-now)))
-          (do ((superclassesr (class-direct-superclasses class) (cdr superclassesr)))
-              ((endp superclassesr))
-            (let* ((superclass (car superclassesr))
-                   (finalized-superclass
-                     (finalize-class superclass force-p finalizing-now)))
-              (unless finalized-superclass
-                ;; Finalization of a superclass was impossible. force-p must
-                ;; be nil here, otherwise an error was signaled already. So we
-                ;; have to return nil as well.
-                (return-from finalize-class nil))
-              (unless (eq superclass finalized-superclass)
-                ; changed from forward-referenced-class to defined-class
-                (assert (not (defined-class-p superclass)))
-                (assert (defined-class-p finalized-superclass))
-                (check-allowed-superclass class finalized-superclass)
-                (setf (car superclassesr) finalized-superclass)
-                (remove-direct-subclass superclass class)
-                (add-direct-subclass finalized-superclass class)))))
-        ;; Now compute the class-precedence-list.
-        (finalize-instance-semi-standard-class class)
-        class))))
+(defun finalize-inheritance-<semi-standard-class> (class)
+  (multiple-value-bind (done failure-cause) (finalizable-p class)
+    (unless done
+      (let ((pretty-cause (mapcar #'class-pretty (cons class failure-cause))))
+        (error (TEXT "~S: Cannot finalize class ~S. ~:{Class ~S inherits from class ~S. ~}Class ~S is not yet defined.")
+               'finalize-inheritance (first pretty-cause)
+               (mapcar #'list pretty-cause (rest pretty-cause))
+               (car (last pretty-cause))))))
+  ;; Now we know that all direct superclasses are finalized.
+  (when (boundp 'class-finalized-p)
+    (assert (every #'class-finalized-p (class-direct-superclasses class))))
+  ;; Now compute the class-precedence-list.
+  (finalize-instance-semi-standard-class class)
+  class)
 
 (defun finalize-instance-semi-standard-class (class
        &aux (direct-superclasses (class-direct-superclasses class))
@@ -2068,7 +2098,7 @@
       ;; The class remains finalized.
       (finalize-inheritance class)
       ;; The class becomes unfinalized. If it has an instantiated subclass, the
-      ;; subclass' finalize-class invocation will re-finalize this one.
+      ;; subclass' finalize-inheritance invocation will re-finalize this one.
       (dolist (super (class-direct-superclasses class))
         (when (semi-standard-class-p super)
           (remove-finalized-direct-subclass super class))))))

@@ -1758,13 +1758,6 @@ any dependents of the class metaobject will be updated by calling
    on the class metaobject will be true.
 </simpara></listitem></varlistentry></variablelist>
 
-<note>&clisp-only;<simpara>In some situations, the implementation
-  finalizes a class without being forced to do so, i.e. ahead of time.
-  In these cases &finalize-inheritance; is not called (because it would
-  have to signal an error if finalization is not yet possible).
-  Therefore custom methods on &finalize-inheritance; may have no
-  effect.</simpara></note>
-
 <variablelist><title>Methods</title>
 <varlistentry><term><literal role="method">(&finalize-inheritance;
    (&class-r; &standard-class;))</literal></term>
@@ -5504,8 +5497,6 @@ cache of the dependent when it is updated.</para>
 <itemizedlist id="mop-not-in-clisp"><title>Not implemented in &clisp;</title>
 <listitem><para>The generic function &make-method-lambda; is not implemented.
   See <xref linkend="mop-gf-invocation"/>.</para></listitem>
-<listitem><para>Custom methods on &finalize-inheritance; sometimes have
-  no effect. See <xref linkend="finalize-inheritance"/>.</para></listitem>
 </itemizedlist>
 
 <itemizedlist id="mop-clisp-different">

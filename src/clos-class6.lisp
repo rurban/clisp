@@ -368,7 +368,7 @@
 ;; MOP p. 54
 (defgeneric finalize-inheritance (class)
   (:method ((class semi-standard-class))
-    (finalize-class class t))
+    (finalize-inheritance-<semi-standard-class> class))
   ;; CLISP extension: No-op method on other classes.
   (:method ((class defined-class))
     class)
