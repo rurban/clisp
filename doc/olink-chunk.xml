@@ -11,8 +11,6 @@
   multi-file version for web pages
  </targetsetinfo>
 
- <sitemap>
-  <document targetdoc="impnotes">&imp-targets;</document>
-  <document targetdoc="man" baseuri="clisp.html">&man-targets;</document>
- </sitemap>
+ <document targetdoc="impnotes">&imp-targets;</document>
+ <document targetdoc="man" baseuri="clisp.html">&man-targets;</document>
 </targetset>
