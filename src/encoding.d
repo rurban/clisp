@@ -1661,7 +1661,7 @@ LISPFUNN(charset_range,3)
         var uintL bytelen = cslen(encoding,srcptr,len);
         pushSTACK(encoding);
         pushSTACK(string);
-        var object newasciz = allocate_bit_vector((bytelen+1)*8);
+        var object newasciz = allocate_bit_vector(Atype_8Bit,bytelen+1);
         string = popSTACK();
         encoding = popSTACK();
         unpack_sstring_alloca(string,len,offset, srcptr=);
@@ -1675,7 +1675,7 @@ LISPFUNN(charset_range,3)
       var object obj;
       {
         pushSTACK(obj); # String retten
-        var object newasciz = allocate_bit_vector((vector_length(obj)+1)*8);
+        var object newasciz = allocate_bit_vector(Atype_8Bit,vector_length(obj)+1);
         obj = popSTACK(); # String zurück
         {
           var uintL len;

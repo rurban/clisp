@@ -2188,17 +2188,27 @@ Simple-Bit-Vector, Simple-String, Simple-Vector are the "simple" arrays.
 The non-simple ones are represented by a Iarray, yet the type code gives
 some information about the rank, the representation and the element type:
 
-                                |   "simple"    | "not simple" |
-                                |   Sarray      |    Iarray    |
-  ------------------------------+---------------+--------------+
-   (vector bit/[un]signed-byte) | sbvector_type | bvector_type |
-  ------------------------------+---------------+--------------+
-   (vector character)           | sstring_type  | string_type  |
-  ------------------------------+---------------+--------------+
-   (vector t)                   | svector_type  | vector_type  |
-  ------------------------------+---------------+--------------+
-   array of dimension /= 1      |     --        | mdarray_type |
-  ------------------------------+---------------+--------------+
+                                |    "simple"     |  "not simple"  |
+                                |    Sarray       |     Iarray     |
+  ------------------------------+-----------------+----------------+
+   (vector bit)                 | sbvector_type   | bvector_type   |
+  ------------------------------+-----------------+----------------+
+   (vector (unsigned-byte 2))   | sb2vector_type  | b2vector_type  |
+  ------------------------------+-----------------+----------------+
+   (vector (unsigned-byte 4))   | sb4vector_type  | b4vector_type  |
+  ------------------------------+-----------------+----------------+
+   (vector (unsigned-byte 8))   | sb8vector_type  | b8vector_type  |
+  ------------------------------+-----------------+----------------+
+   (vector (unsigned-byte 16))  | sb16vector_type | b16vector_type |
+  ------------------------------+-----------------+----------------+
+   (vector (unsigned-byte 32))  | sb32vector_type | b32vector_type |
+  ------------------------------+-----------------+----------------+
+   (vector character)           | sstring_type    | string_type    |
+  ------------------------------+-----------------+----------------+
+   (vector t)                   | svector_type    | vector_type    |
+  ------------------------------+-----------------+----------------+
+   array of dimension /= 1      |       --        |  mdarray_type  |
+  ------------------------------+-----------------+----------------+
 
 2.4.3. Other varobjects
 
@@ -3098,9 +3108,19 @@ Ratio and Complex (only if SPVW_MIXED).
   #define instance_type   (               BTB3|BTB2     |BTB0) # 0x0D  # %00001101  ; CLOS instance
   #define mdarray_type    (               BTB3|BTB2|BTB1|BTB0) # 0x0F  # %00001111  ; other array (rank/=1 or other eltype)
   #define sbvector_type   (          BTB4                    ) # 0x10  # %00010000  ; simple-bit-vector
+  #define sb2vector_type  (          BTB4               |BTB0) # 0x11  # %00010001  ; simple (VECTOR (UNSIGNED-BYTE 2))
+  #define sb4vector_type  (          BTB4          |BTB1     ) # 0x12  # %00010010  ; simple (VECTOR (UNSIGNED-BYTE 4))
+  #define sb8vector_type  (          BTB4          |BTB1|BTB0) # 0x13  # %00010011  ; simple (VECTOR (UNSIGNED-BYTE 8))
+  #define sb16vector_type (          BTB4     |BTB2          ) # 0x14  # %00010100  ; simple (VECTOR (UNSIGNED-BYTE 16))
+  #define sb32vector_type (          BTB4     |BTB2     |BTB0) # 0x15  # %00010101  ; simple (VECTOR (UNSIGNED-BYTE 32))
   #define sstring_type    (          BTB4     |BTB2|BTB1     ) # 0x16  # %00010110  ; simple-string
   #define svector_type    (          BTB4     |BTB2|BTB1|BTB0) # 0x17  # %00010111  ; simple-vector
   #define bvector_type    (          BTB4|BTB3               ) # 0x18  # %00011000  ; non-simple bit-vector
+  #define b2vector_type   (          BTB4|BTB3          |BTB0) # 0x19  # %00011001  ; non-simple (VECTOR (UNSIGNED-BYTE 2))
+  #define b4vector_type   (          BTB4|BTB3     |BTB1     ) # 0x1A  # %00011010  ; non-simple (VECTOR (UNSIGNED-BYTE 4))
+  #define b8vector_type   (          BTB4|BTB3     |BTB1|BTB0) # 0x1B  # %00011011  ; non-simple (VECTOR (UNSIGNED-BYTE 8))
+  #define b16vector_type  (          BTB4|BTB3|BTB2          ) # 0x1C  # %00011100  ; non-simple (VECTOR (UNSIGNED-BYTE 16))
+  #define b32vector_type  (          BTB4|BTB3|BTB2     |BTB0) # 0x1D  # %00011101  ; non-simple (VECTOR (UNSIGNED-BYTE 32))
   #define string_type     (          BTB4|BTB3|BTB2|BTB1     ) # 0x1E  # %00011110  ; non-simple string
   #define vector_type     (          BTB4|BTB3|BTB2|BTB1|BTB0) # 0x1F  # %00011111  ; non-simple (VECTOR T)
   #define fixnum_type     (     BTB5                         ) # 0x20  # %00100000  ; fixnum
@@ -3297,15 +3317,30 @@ Ratio and Complex (only if SPVW_MIXED).
   #define case_machine    case machine_type   # Maschinenpointer
   #define case_sstring    case sstring_type   # Simple-String
   #define case_ostring    case string_type    # Other String
-  #define case_sbvector   case sbvector_type  # Simple-Bit-Vector
-  #define case_obvector   case bvector_type   # Other Bit/Byte-Vector
+  #define case_sbvector   case sbvector_type   # Simple-Bit-Vector
+  #define case_obvector   case bvector_type    # Other Bit-Vector
+  #define case_sb2vector  case sb2vector_type  # Simple-2Bit-Vector
+  #define case_ob2vector  case b2vector_type   # Other 2Bit-Vector
+  #define case_sb4vector  case sb4vector_type  # Simple-4Bit-Vector
+  #define case_ob4vector  case b4vector_type   # Other 4Bit-Vector
+  #define case_sb8vector  case sb8vector_type  # Simple-8Bit-Vector
+  #define case_ob8vector  case b8vector_type   # Other 8Bit-Vector
+  #define case_sb16vector case sb16vector_type # Simple-16Bit-Vector
+  #define case_ob16vector case b16vector_type  # Other 16Bit-Vector
+  #define case_sb32vector case sb32vector_type # Simple-32Bit-Vector
+  #define case_ob32vector case b32vector_type  # Other 32Bit-Vector
   #define case_svector    case svector_type   # Simple-(General-)Vector
   #define case_ovector    case vector_type    # Other (General-)Vector
   #define case_mdarray    case mdarray_type   # sonstiger Array
   #define case_string     case_sstring: case_ostring # String allgemein
   #define case_bvector    case_sbvector: case_obvector # Bit-Vector allgemein
+  #define case_b2vector   case_sb2vector: case_ob2vector # 2Bit-Vector allgemein
+  #define case_b4vector   case_sb4vector: case_ob4vector # 4Bit-Vector allgemein
+  #define case_b8vector   case_sb8vector: case_ob8vector # 8Bit-Vector allgemein
+  #define case_b16vector  case_sb16vector: case_ob16vector # 16Bit-Vector allgemein
+  #define case_b32vector  case_sb32vector: case_ob32vector # 32Bit-Vector allgemein
   #define case_vector     case_svector: case_ovector # (General-)Vector allgemein
-  #define case_array      case_string: case_bvector: case_vector: case_mdarray # Array allgemein
+  #define case_array      case_string: case_bvector: case_b2vector: case_b4vector: case_b8vector: case_b16vector: case_b32vector: case_vector: case_mdarray # Array allgemein
   #define case_closure    case closure_type   # Closure
   #ifdef structure_type
   #define case_structure  case structure_type # Structure
@@ -3492,7 +3527,7 @@ typedef varobject_ *  Varobject;
 #   Extended-Records have room for up to 255 elements and 255 extra (non-Lisp)
 #   elements.
 # Long-Records are recognized by their type field:
-#   rectype == Rectype_Sbvector,
+#   rectype == Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector,
 #              Rectype_Sstring, Rectype_Imm_Sstring, Rectype_Imm_SmallSstring,
 #              Rectype_Svector.
 # The others are partitioned into:
@@ -3610,16 +3645,26 @@ typedef xrecord_ *  Xrecord;
          Rectype_Hashtable = rectype_limit,
          #ifndef TYPECODES
                           # Here the arrays start.
-         Rectype_vector,           /* 1 */ # Iarray, not Srecord/Xrecord
-         Rectype_bvector,          /* 2 */ # Iarray, not Srecord/Xrecord
-         Rectype_Sbvector,         /* 3 */ # Sbvector, not Srecord/Xrecord
-           rectype_unused1,        /* 4 */
-         Rectype_Svector,          /* 5 */ # Svector, not Srecord/Xrecord
-         Rectype_Sstring,          /* 6 */ # Sstring, not Srecord/Xrecord
-         Rectype_Imm_Sstring,      /* 7 */ # immutable Sstring, not Srecord/Xrecord
-         Rectype_Imm_SmallSstring, /* 8 */ # immutable SmallSstring, not Srecord/Xrecord, only used #ifdef HAVE_SMALL_SSTRING
-         Rectype_string,           /* 9 */ # Iarray, not Srecord/Xrecord
-         Rectype_mdarray,         /* 10 */ # Iarray, not Srecord/Xrecord
+         Rectype_vector,            /* 1 */ # Iarray, not Srecord/Xrecord
+         Rectype_bvector,           /* 2 */ # Iarray, not Srecord/Xrecord
+         Rectype_b2vector,          /* 3 */ # Iarray, not Srecord/Xrecord
+         Rectype_b4vector,          /* 4 */ # Iarray, not Srecord/Xrecord
+         Rectype_b8vector,          /* 5 */ # Iarray, not Srecord/Xrecord
+         Rectype_b16vector,         /* 6 */ # Iarray, not Srecord/Xrecord
+         Rectype_b32vector,         /* 7 */ # Iarray, not Srecord/Xrecord
+           rectype_unused1,         /* 8 */
+         Rectype_Svector,           /* 9 */ # Svector, not Srecord/Xrecord
+         Rectype_Sbvector,         /* 10 */ # Sbvector, not Srecord/Xrecord
+         Rectype_Sb2vector,        /* 11 */ # Sbvector, not Srecord/Xrecord
+         Rectype_Sb4vector,        /* 12 */ # Sbvector, not Srecord/Xrecord
+         Rectype_Sb8vector,        /* 13 */ # Sbvector, not Srecord/Xrecord
+         Rectype_Sb16vector,       /* 14 */ # Sbvector, not Srecord/Xrecord
+         Rectype_Sb32vector,       /* 15 */ # Sbvector, not Srecord/Xrecord
+         Rectype_Sstring,          /* 16 */ # Sstring, not Srecord/Xrecord
+         Rectype_Imm_Sstring,      /* 17 */ # immutable Sstring, not Srecord/Xrecord
+         Rectype_Imm_SmallSstring, /* 18 */ # immutable SmallSstring, not Srecord/Xrecord, only used #ifdef HAVE_SMALL_SSTRING
+         Rectype_string,           /* 19 */ # Iarray, not Srecord/Xrecord
+         Rectype_mdarray,          /* 20 */ # Iarray, not Srecord/Xrecord
                           # Here the arrays end.
                           # Here the numbers start.
          Rectype_Bignum,                # Bignum, not Srecord/Xrecord
@@ -4144,38 +4189,57 @@ typedef iarray_ *  Iarray;
   #define arrayflags_dispoffset_bit  4 # gesetzt, wenn Platz für den
                                        # Displaced-Offset vorhanden ist
                                        # (<==> Array adjustable oder displaced)
-  #define arrayflags_notbytep_bit    3 # gelöscht bei Byte-Vektoren
   #define arrayflags_atype_mask  0x07  # Maske für Elementtyp
 # Elementtypen von Arrays in Bits 2..0 der flags:
   # Die ersten sind so gewählt, dass 2^Atype_nBit = n ist.
-  #define Atype_Bit    0         # arrayflags_notbytep_bit gesetzt!
+  #define Atype_Bit    0
   #define Atype_2Bit   1
   #define Atype_4Bit   2
   #define Atype_8Bit   3
   #define Atype_16Bit  4
   #define Atype_32Bit  5
-  #define Atype_T      6         # arrayflags_notbytep_bit gesetzt!
-  #define Atype_Char   7         # arrayflags_notbytep_bit gesetzt!
+  #define Atype_T      6
+  #define Atype_Char   7
 
 # Typ von Arrays:
   #ifdef TYPECODES
     #define Array_type(obj)  typecode(obj)
-    #define Array_type_bvector   bvector_type      # Iarray
-    #define Array_type_string    string_type       # Iarray
-    #define Array_type_vector    vector_type       # Iarray
-    #define Array_type_mdarray   mdarray_type      # Iarray
-    #define Array_type_sbvector  sbvector_type     # Sbvector
-    #define Array_type_sstring   sstring_type      # Sstring
-    #define Array_type_svector   svector_type      # Svector
+    #define Array_type_bvector     bvector_type      # Iarray
+    #define Array_type_b2vector    b2vector_type     # Iarray
+    #define Array_type_b4vector    b4vector_type     # Iarray
+    #define Array_type_b8vector    b8vector_type     # Iarray
+    #define Array_type_b16vector   b16vector_type    # Iarray
+    #define Array_type_b32vector   b32vector_type    # Iarray
+    #define Array_type_string      string_type       # Iarray
+    #define Array_type_vector      vector_type       # Iarray
+    #define Array_type_mdarray     mdarray_type      # Iarray
+    #define Array_type_sbvector    sbvector_type     # Sbvector
+    #define Array_type_sb2vector   sb2vector_type    # Sbvector
+    #define Array_type_sb4vector   sb4vector_type    # Sbvector
+    #define Array_type_sb8vector   sb8vector_type    # Sbvector
+    #define Array_type_sb16vector  sb16vector_type   # Sbvector
+    #define Array_type_sb32vector  sb32vector_type   # Sbvector
+    #define Array_type_sstring     sstring_type      # Sstring
+    #define Array_type_svector     svector_type      # Svector
   #else
     #define Array_type(obj)  Record_type(obj)
-    #define Array_type_bvector   Rectype_bvector   # Iarray
-    #define Array_type_string    Rectype_string    # Iarray
-    #define Array_type_vector    Rectype_vector    # Iarray
-    #define Array_type_mdarray   Rectype_mdarray   # Iarray
-    #define Array_type_sbvector  Rectype_Sbvector  # Sbvector
-    #define Array_type_sstring   Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring   # Sstring, SmallSstring
-    #define Array_type_svector   Rectype_Svector   # Svector
+    #define Array_type_bvector     Rectype_bvector     # Iarray
+    #define Array_type_b2vector    Rectype_b2vector    # Iarray
+    #define Array_type_b4vector    Rectype_b4vector    # Iarray
+    #define Array_type_b8vector    Rectype_b8vector    # Iarray
+    #define Array_type_b16vector   Rectype_b16vector   # Iarray
+    #define Array_type_b32vector   Rectype_b32vector   # Iarray
+    #define Array_type_string      Rectype_string      # Iarray
+    #define Array_type_vector      Rectype_vector      # Iarray
+    #define Array_type_mdarray     Rectype_mdarray     # Iarray
+    #define Array_type_sbvector    Rectype_Sbvector    # Sbvector
+    #define Array_type_sb2vector   Rectype_Sb2vector   # Sbvector
+    #define Array_type_sb4vector   Rectype_Sb4vector   # Sbvector
+    #define Array_type_sb8vector   Rectype_Sb8vector   # Sbvector
+    #define Array_type_sb16vector  Rectype_Sb16vector  # Sbvector
+    #define Array_type_sb32vector  Rectype_Sb32vector  # Sbvector
+    #define Array_type_sstring     Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring   # Sstring, SmallSstring
+    #define Array_type_svector     Rectype_Svector     # Svector
   #endif
 
 # Packages
@@ -4958,12 +5022,12 @@ typedef struct {
   #endif
   #define TheDfloat(obj)  ((Dfloat)(types_pointable(dfloat_type|bit(sign_bit_t),obj)))
   #define TheLfloat(obj)  ((Lfloat)(types_pointable(lfloat_type|bit(sign_bit_t),obj)))
-  #define TheSarray(obj)  ((Sarray)(types_pointable(sbvector_type|sstring_type|svector_type,obj)))
-  #define TheSbvector(obj)  ((Sbvector)(types_pointable(sbvector_type,obj)))
-  #define TheCodevec(obj)  ((Codevec)TheSbvector(obj))
+  #define TheSarray(obj)  ((Sarray)(types_pointable(sbvector_type|sb2vector_type|sb4vector_type|s8bvector_type|sb16vector_type|sb32vector_type|sstring_type|svector_type,obj)))
+  #define TheSbvector(obj)  ((Sbvector)(types_pointable(sbvector_type|sb2vector_type|sb4vector_type|s8bvector_type|sb16vector_type|sb32vector_type,obj)))
+  #define TheCodevec(obj)  ((Codevec)(types_pointable(s8bvector_type,obj)))
   #define TheSstring(obj)  ((Sstring)(types_pointable(sstring_type,obj)))
   #define TheSvector(obj)  ((Svector)(types_pointable(svector_type,obj)))
-  #define TheIarray(obj)  ((Iarray)(types_pointable(mdarray_type|bvector_type|string_type|vector_type,obj)))
+  #define TheIarray(obj)  ((Iarray)(types_pointable(mdarray_type|bvector_type|b2vector_type|b4vector_type|b8vector_type|b16vector_type|b32vector_type|string_type|vector_type,obj)))
   #define TheRecord(obj)  ((Record)(types_pointable(closure_type|structure_type|stream_type|orecord_type|instance_type,obj)))
   #define TheSrecord(obj)  ((Srecord)(types_pointable(closure_type|structure_type|orecord_type|instance_type,obj)))
   #define TheXrecord(obj)  ((Xrecord)(types_pointable(stream_type|orecord_type,obj)))
@@ -5019,7 +5083,11 @@ typedef struct {
   #define TheVarobject(obj)  \
     ((Varobject)                                                                                 \
      (types_pointable                                                                            \
-      (sbvector_type|sstring_type|svector_type|mdarray_type|bvector_type|string_type|vector_type \
+      (sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type\
+       |sstring_type|svector_type                                                                \
+       |mdarray_type                                                                             \
+       |bvector_type|b2vector_type|b4vector_type|b8vector_type|b16vector_type|b32vector_type     \
+       |string_type|vector_type \
        |closure_type|structure_type|stream_type|orecord_type|symbol_type                         \
        |bignum_type|ffloat_type|dfloat_type|lfloat_type|bit(sign_bit_t),                         \
        obj                                                                                       \
@@ -5027,7 +5095,11 @@ typedef struct {
   # Objekt, das einen Pointer in den Speicher darstellt:
   #define ThePointer(obj)  \
     (types_pointable                                                                            \
-     (sbvector_type|sstring_type|svector_type|mdarray_type|bvector_type|string_type|vector_type \
+     (sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type\
+      |sstring_type|svector_type                                                                \
+      |mdarray_type                                                                             \
+      |bvector_type|b2vector_type|b4vector_type|b8vector_type|b16vector_type|b32vector_type     \
+      |string_type|vector_type \
       |closure_type|structure_type|stream_type|orecord_type|symbol_type|cons_type               \
       |bignum_type|ffloat_type|dfloat_type|lfloat_type|ratio_type|complex_type|bit(sign_bit_t), \
       obj                                                                                       \
@@ -5249,10 +5321,10 @@ typedef struct {
     #define vectorp(obj)  \
       ((tint)(typecode(obj) - sbvector_type) <= (tint)(vector_type - sbvector_type))
   #else
-    # cases: Rectype_Sbvector, Rectype_Svector, Rectype_[Imm_][Small]String,
-    #        Rectype_bvector, Rectype_vector, Rectype_string
+    # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String,
+    #        Rectype_bvector, Rectype_b[2|4|8|16|32]vector, Rectype_vector, Rectype_string
     #define vectorp(obj)  \
-      (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= 9-1))
+      (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= 19-1))
   #endif
 
 # Test auf simple-vector oder simple-bit-vector oder simple-string
@@ -5260,9 +5332,9 @@ typedef struct {
     #define simplep(obj)  \
       ((tint)(typecode(obj) - sbvector_type) <= (tint)(svector_type - sbvector_type))
   #else
-    # cases: Rectype_Sbvector, Rectype_Svector, Rectype_[Imm_][Small]String
+    # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String
     #define simplep(obj)  \
-      (varobjectp(obj) && ((uintB)(Record_type(obj) - 3) <= 8-3))
+      (varobjectp(obj) && ((uintB)(Record_type(obj) - 9) <= 18-9))
   #endif
 
 # Test eines Array auf simple-vector oder simple-bit-vector oder simple-string
@@ -5270,9 +5342,9 @@ typedef struct {
     #define array_simplep(obj)  \
       ((typecode(obj) & bit(notsimple_bit_t)) == 0)
   #else
-    # cases: Rectype_Sbvector, Rectype_Svector, Rectype_[Imm_][Small]String
+    # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String
     #define array_simplep(obj)  \
-      ((uintB)(Record_type(obj) - 3) <= 8-3)
+      ((uintB)(Record_type(obj) - 9) <= 18-9)
   #endif
 
 # Test auf simple-vector
@@ -5304,7 +5376,7 @@ typedef struct {
   #else
     # cases: Rectype_[Imm_][Small]String
     #define simple_string_p(obj)  \
-      (varobjectp(obj) && ((uintB)(Record_type(obj) - 6) <= 8-6))
+      (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) <= 18-16))
   #endif
 
 # Test auf string
@@ -5314,55 +5386,29 @@ typedef struct {
   #else
     # cases: Rectype_[Imm_][Small]String, Rectype_string
     #define stringp(obj)  \
-      (varobjectp(obj) && ((uintB)(Record_type(obj) - 6) <= 9-6))
+      (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) <= 19-16))
   #endif
 
-# Test auf simple-bit-vector
+# Test auf simple-bit[n]-vector
   #ifdef TYPECODES
-    #define simple_bit_vector_p(obj)  \
-      (typecode(obj) == sbvector_type)
+    #define simple_bit_vector_p(atype,obj)  \
+      (typecode(obj) == sbvector_type+(atype))
   #else
-    # cases: Rectype_Sbvector
-    #define simple_bit_vector_p(obj)  \
-      (varobjectp(obj) && (Record_type(obj) == Rectype_Sbvector))
+    # cases: Rectype_Sb[2^n]vector
+    #define simple_bit_vector_p(atype,obj)  \
+      (varobjectp(obj) && (Record_type(obj) == Rectype_Sbvector+(atype)))
   #endif
 
-# Test auf bit-vector
+# Test auf bit[n]-vector
   #ifdef TYPECODES
-    #define bit_vector_p(obj)  \
-      ((typecode(obj) == sbvector_type)                                  \
-       || ((typecode(obj) == bvector_type)                               \
-           && ((Iarray_flags(obj) & arrayflags_atype_mask) == Atype_Bit) \
-      )   )
+    #define bit_vector_p(atype,obj)  \
+      ((typecode(obj) & ~bit(notsimple_bit_t)) == sbvector_type+(atype))
   #else
-    #define bit_vector_p(obj)  \
-      (varobjectp(obj)                                                       \
-       && ((Record_type(obj) == Rectype_Sbvector)                            \
-           || ((Record_type(obj) == Rectype_bvector)                         \
-               && ((Iarray_flags(obj) & arrayflags_atype_mask) == Atype_Bit) \
-      )   )   )
-  #endif
-
-# Test auf byte-vector
-  #ifdef TYPECODES
-    #define byte_vector_p(obj)  \
-      ((typecode(obj) & ~bit(notsimple_bit_t)) == sbvector_type)
-  #else
-    # cases: Rectype_Sbvector, Rectype_bvector
-    #define byte_vector_p(obj)  \
-      (varobjectp(obj) && \
-       ((Record_type(obj) & ~(Rectype_Sbvector ^ Rectype_bvector)) == (Rectype_Sbvector & Rectype_bvector)) \
+    # cases: Rectype_Sb[2^n]vector, Rectype_b[2^n]vector
+    #define bit_vector_p(atype,obj)  \
+      (varobjectp(obj) \
+       && ((Record_type(obj) & ~(Rectype_Sbvector ^ Rectype_bvector)) == (Rectype_Sbvector & Rectype_bvector) + (atype)) \
       )
-  #endif
-
-# Test auf byte-vector, ausgenommen simple-bit-vector
-  #ifdef TYPECODES
-    #define general_byte_vector_p(obj)  \
-      (typecode(obj) == bvector_type)
-  #else
-    # cases: Rectype_bvector
-    #define general_byte_vector_p(obj)  \
-      (varobjectp(obj) && (Record_type(obj) == Rectype_bvector))
   #endif
 
 # Test auf Array allgemein
@@ -5370,11 +5416,11 @@ typedef struct {
     #define arrayp(obj)  \
       ((tint)(typecode(obj) - mdarray_type) <= (tint)(vector_type - mdarray_type))
   #else
-    # cases: Rectype_Sbvector, Rectype_Svector, Rectype_[Imm_][Small]String,
-    #        Rectype_bvector, Rectype_vector, Rectype_string,
+    # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String,
+    #        Rectype_bvector, Rectype_b[2|4|8|16|32]vector, Rectype_vector, Rectype_string,
     #        Rectype_mdarray
     #define arrayp(obj)  \
-      (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= 10-1))
+      (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= 20-1))
   #endif
 
 # Test auf Array, der kein Vector ist (Typbyte %100)
@@ -5424,7 +5470,7 @@ typedef struct {
   # entweder eine Liste (der Lambdabody bei interpretierten Closures)
   # oder ein Simple-Bit-Vector (der Codevektor bei compilierten Closures).
   #define cclosurep(obj)  \
-    (closurep(obj) && simple_bit_vector_p(TheClosure(obj)->clos_codevec))
+    (closurep(obj) && simple_bit_vector_p(Atype_8Bit,TheClosure(obj)->clos_codevec))
 
 # Test auf generische Funktion
   #define genericfunctionp(obj)  \
@@ -5825,10 +5871,20 @@ typedef struct {
   #define case_Rectype_Closure_above
   #define case_Rectype_Instance_above
   #define case_Rectype_Sbvector_above
+  #define case_Rectype_Sb2vector_above
+  #define case_Rectype_Sb4vector_above
+  #define case_Rectype_Sb8vector_above
+  #define case_Rectype_Sb16vector_above
+  #define case_Rectype_Sb32vector_above
   #define case_Rectype_Sstring_above
   #define case_Rectype_Svector_above
   #define case_Rectype_mdarray_above
   #define case_Rectype_obvector_above
+  #define case_Rectype_ob2vector_above
+  #define case_Rectype_ob4vector_above
+  #define case_Rectype_ob8vector_above
+  #define case_Rectype_ob16vector_above
+  #define case_Rectype_ob32vector_above
   #define case_Rectype_ostring_above
   #define case_Rectype_ovector_above
   #define case_Rectype_Bignum_above
@@ -5841,6 +5897,11 @@ typedef struct {
   # Composite cases:
   #define case_Rectype_string_above
   #define case_Rectype_bvector_above
+  #define case_Rectype_b2vector_above
+  #define case_Rectype_b4vector_above
+  #define case_Rectype_b8vector_above
+  #define case_Rectype_b16vector_above
+  #define case_Rectype_b32vector_above
   #define case_Rectype_vector_above
   #define case_Rectype_array_above
   #define case_Rectype_number_above
@@ -5853,6 +5914,16 @@ typedef struct {
     case Rectype_Instance: goto case_instance;
   #define case_Rectype_Sbvector_above  \
     case Rectype_Sbvector: goto case_sbvector;
+  #define case_Rectype_Sb2vector_above  \
+    case Rectype_Sb2vector: goto case_sb2vector;
+  #define case_Rectype_Sb4vector_above  \
+    case Rectype_Sb4vector: goto case_sb4vector;
+  #define case_Rectype_Sb8vector_above  \
+    case Rectype_Sb8vector: goto case_sb8vector;
+  #define case_Rectype_Sb16vector_above  \
+    case Rectype_Sb16vector: goto case_sb16vector;
+  #define case_Rectype_Sb32vector_above  \
+    case Rectype_Sb32vector: goto case_sb32vector;
   #define case_Rectype_Sstring_above  \
     case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: goto case_sstring;
   #define case_Rectype_Svector_above  \
@@ -5861,6 +5932,16 @@ typedef struct {
     case Rectype_mdarray: goto case_mdarray;
   #define case_Rectype_obvector_above  \
     case Rectype_bvector: goto case_obvector;
+  #define case_Rectype_ob2vector_above  \
+    case Rectype_b2vector: goto case_ob2vector;
+  #define case_Rectype_ob4vector_above  \
+    case Rectype_b4vector: goto case_ob4vector;
+  #define case_Rectype_ob8vector_above  \
+    case Rectype_b8vector: goto case_ob8vector;
+  #define case_Rectype_ob16vector_above  \
+    case Rectype_b16vector: goto case_ob16vector;
+  #define case_Rectype_ob32vector_above  \
+    case Rectype_b32vector: goto case_ob32vector;
   #define case_Rectype_ostring_above  \
     case Rectype_string: goto case_ostring;
   #define case_Rectype_ovector_above  \
@@ -5884,11 +5965,26 @@ typedef struct {
     case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: case Rectype_string: goto case_string;
   #define case_Rectype_bvector_above  \
     case Rectype_Sbvector: case Rectype_bvector: goto case_bvector;
+  #define case_Rectype_b2vector_above  \
+    case Rectype_Sb2vector: case Rectype_b2vector: goto case_b2vector;
+  #define case_Rectype_b4vector_above  \
+    case Rectype_Sb4vector: case Rectype_b4vector: goto case_b4vector;
+  #define case_Rectype_b8vector_above  \
+    case Rectype_Sb8vector: case Rectype_b8vector: goto case_b8vector;
+  #define case_Rectype_b16vector_above  \
+    case Rectype_Sb16vector: case Rectype_b16vector: goto case_b16vector;
+  #define case_Rectype_b32vector_above  \
+    case Rectype_Sb32vector: case Rectype_b32vector: goto case_b32vector;
   #define case_Rectype_vector_above  \
     case Rectype_Svector: case Rectype_vector: goto case_vector;
   #define case_Rectype_array_above  \
     case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: case Rectype_string: \
     case Rectype_Sbvector: case Rectype_bvector: \
+    case Rectype_Sb2vector: case Rectype_b2vector: \
+    case Rectype_Sb4vector: case Rectype_b4vector: \
+    case Rectype_Sb8vector: case Rectype_b8vector: \
+    case Rectype_Sb16vector: case Rectype_b16vector: \
+    case Rectype_Sb32vector: case Rectype_b32vector: \
     case Rectype_Svector: case Rectype_vector:   \
     case Rectype_mdarray:                        \
       goto case_array;
@@ -7072,13 +7168,14 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   extern object allocate_vector (uintL len);
 # wird verwendet von ARRAY, IO, EVAL, PACKAGE, CONTROL, HASHTABL
 
-# UP, beschafft Bit-Vektor
-# allocate_bit_vector(len)
-# > len: Länge des Bitvektors (in Bits)
-# < ergebnis: neuer Bitvektor (LISP-Objekt)
+# Function: Allocates a bit/byte vector.
+# allocate_bit_vector(atype,len)
+# > uintB atype: Atype_nBit
+# > uintL len: length (number of n-bit blocks)
+# < ergebnis: fresh simple bit/byte-vector of the given length
 # can trigger GC
-  extern object allocate_bit_vector (uintL len);
-# wird verwendet von ARRAY, IO, RECORD, LISPARIT, STREAM
+  extern object allocate_bit_vector (uintB atype, uintL len);
+# wird verwendet von ARRAY, IO, RECORD, LISPARIT, STREAM, CLX
 
 # Macro: Allocates a bit-vector on the stack, with dynamic extent.
 #   { var DYNAMIC_BIT_VECTOR(obj,len);
@@ -7095,8 +7192,8 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
       uintL objvar##_len = (len);                   \
       var object objvar = O(dynamic_bit_vector);    \
       O(dynamic_bit_vector) = NIL;                  \
-      if (!(simple_bit_vector_p(objvar) && (Sbvector_length(objvar) >= objvar##_len))) \
-        objvar = allocate_bit_vector(objvar##_len);
+      if (!(simple_bit_vector_p(Atype_Bit,objvar) && (Sbvector_length(objvar) >= objvar##_len))) \
+        objvar = allocate_bit_vector(Atype_Bit,objvar##_len);
     #define FREE_DYNAMIC_BIT_VECTOR(objvar)  \
       O(dynamic_bit_vector) = objvar;
   #else
@@ -9833,10 +9930,10 @@ typedef struct {
   extern object copy_svector (object vector);
 # used by IO
 
-# Function: Copies a simple-bit-vector.
+# Function: Copies a simple-bit/byte-vector.
 # copy_sbvector(vector)
-# > vector: simple-bit-vector
-# < result: fresh simple-bit-vector with the same contents
+# > vector: simple-bit/byte-vector
+# < result: fresh simple-bit/byte-vector with the same contents
 # can trigger GC
   extern object copy_sbvector (object vector);
 # used by RECORD
@@ -9859,15 +9956,6 @@ typedef struct {
 # can trigger GC
   extern uintB eltype_code (object element_type);
 # wird verwendet von SEQUENCE
-
-# Function: Allocates a byte vector.
-# allocate_byte_vector(atype,len)
-# > uintB atype: Atype_nBit
-# > uintL len: length (number of n-bit blocks)
-# < result: fresh semi-simple byte-vector of the given length
-# can trigger GC
-  extern object allocate_byte_vector (uintB atype, uintL len);
-# wird verwendet von CLX
 
 # Function: Creates a simple-vector with given elements.
 # vectorof(len)

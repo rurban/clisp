@@ -2189,7 +2189,7 @@ LISPFUNN(subr_info,1)
       }
       # Variablen zu einem Vektor zusammenfassen und in die Closure,
       # Variablenflags zu einem Byte-Vektor zusammenfassen und in die Closure:
-      pushSTACK(allocate_bit_vector(intBsize*(var_count-spec_count))); # Byte-Vektor erzeugen
+      pushSTACK(allocate_bit_vector(Atype_8Bit,var_count-spec_count)); # Byte-Vektor erzeugen
       var object vars = allocate_vector(var_count); # Vektor erzeugen
       var object varflags = popSTACK();
       # Variablen in den Vektor schreiben (letzte hinten, erste vorne):
@@ -3796,7 +3796,7 @@ LISPFUNN(subr_info,1)
       check_SP(); check_STACK();
       pushSTACK(closure); # Closure retten
       var object* closure_ = &STACK_0; # und merken, wo sie sitzt
-      if (simple_bit_vector_p(TheClosure(closure)->clos_codevec)) {
+      if (simple_bit_vector_p(Atype_8Bit,TheClosure(closure)->clos_codevec)) {
         # closure ist eine compilierte Closure
         var object* STACKbefore = STACK;
         var object codevec = TheCclosure(closure)->clos_codevec; # Code-Vektor
@@ -4716,7 +4716,7 @@ LISPFUNN(subr_info,1)
         pushSTACK(closure); trace_call(closure,'A','C'); closure = popSTACK();
       }
       #endif
-      if (simple_bit_vector_p(TheClosure(closure)->clos_codevec)) {
+      if (simple_bit_vector_p(Atype_8Bit,TheClosure(closure)->clos_codevec)) {
         # closure ist eine compilierte Closure
         #if STACKCHECKC
         var object* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer über die Argumente
@@ -5576,7 +5576,7 @@ LISPFUNN(subr_info,1)
         pushSTACK(closure); trace_call(closure,'F','C'); closure = popSTACK();
       }
       #endif
-      if (simple_bit_vector_p(TheClosure(closure)->clos_codevec)) {
+      if (simple_bit_vector_p(Atype_8Bit,TheClosure(closure)->clos_codevec)) {
         # closure ist eine compilierte Closure
         #if STACKCHECKC
         var object* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer über die Argumente

@@ -438,7 +438,9 @@ local void affi_call_argsa(address, ffinfo, args, count)
                   #endif
                   case_Rectype_string_above;
                   case_Rectype_Symbol_above;
-                  case_Rectype_obvector_above;
+                  case_Rectype_ob8vector_above;
+                  case_Rectype_ob16vector_above;
+                  case_Rectype_ob32vector_above;
                   case Rectype_Fpointer:
                     if (!(accept & ACCEPT_ADDR_ARG))
                       goto bad_arg;
@@ -451,16 +453,15 @@ local void affi_call_argsa(address, ffinfo, args, count)
                     goto bad_arg;
                 }
                 break;
-              case_obvector:
+              case_ob8vector:
+              case_ob16vector:
+              case_ob32vector:
                 if (!(accept & ACCEPT_UBVECTOR_ARG))
                   goto bad_arg;
                 {
-                  var uintBWL bsize = Iarray_flags(arg) & arrayflags_atype_mask;
-                  if (!((bsize==Atype_8Bit) || (bsize==Atype_16Bit) || (bsize==Atype_32Bit)))
-                    goto bad_arg;
                   var uintL index = 0;
                   arg = iarray_displace_check(arg,0,&index); # UNSAFE
-                  *thing = (aint)&TheSbvector(TheIarray(arg)->data)->data[index];
+                  *thing = (aint)&TheSbvector(arg)->data[index];
                 }
                 break;
               default:
@@ -575,16 +576,31 @@ LISPFUN(mem_read,2,1,norest,nokey,0,NIL)
         #endif
       }
       value1 = into;
-    } elif (!bit_vector_p(into) && general_byte_vector_p(into)) {
+    } elif (bit_vector_p(Atype_8Bit,into)) {
       # copy memory into a LISP unsigned-byte vector
-      var uintBWL size = Iarray_flags(into) & arrayflags_atype_mask;
-      if (!((size==Atype_8Bit) || (size==Atype_16Bit) || (size==Atype_32Bit)))
-        goto fehler_type;
       var uintL length = vector_length(into);
       if (length > 0) {
         var uintL index = 0;
-        var object dv = iarray_displace_check(into,length,&index);
-        bytecopy(&TheSbvector(TheIarray(dv)->data)->data[index],(void*)address,length,bit(size));
+        var object dv = array_displace_check(into,length,&index);
+        bytecopy(&TheSbvector(dv)->data[index],(void*)address,length,8);
+      }
+      value1 = into;
+    } elif (bit_vector_p(Atype_16Bit,into)) {
+      # copy memory into a LISP unsigned-byte vector
+      var uintL length = vector_length(into);
+      if (length > 0) {
+        var uintL index = 0;
+        var object dv = array_displace_check(into,length,&index);
+        bytecopy(&TheSbvector(dv)->data[index],(void*)address,length,16);
+      }
+      value1 = into;
+    } elif (bit_vector_p(Atype_32Bit,into)) {
+      # copy memory into a LISP unsigned-byte vector
+      var uintL length = vector_length(into);
+      if (length > 0) {
+        var uintL index = 0;
+        var object dv = array_displace_check(into,length,&index);
+        bytecopy(&TheSbvector(dv)->data[index],(void*)address,length,32);
       }
       value1 = into;
     } else {
@@ -669,16 +685,29 @@ LISPFUN(mem_write_vector,2,1,norest,nokey,0,NIL)
       var uintL bytelength = cslen(O(foreign_encoding),charptr,length);
       cstombs(O(foreign_encoding),charptr,length,(uintB*)address,bytelength);
       ((uintB*)address)[bytelength] = '\0'; # and zero-terminate memory!
-    } elif (!bit_vector_p(from) && general_byte_vector_p(from)) {
+    } elif (bit_vector_p(Atype_8Bit,from)) {
       # copy memory into a LISP unsigned-byte vector
-      var uintBWL size = Iarray_flags(from) & arrayflags_atype_mask;
-      if (!((size==Atype_8Bit) || (size==Atype_16Bit) || (size==Atype_32Bit)))
-        goto fehler_type;
       var uintL length = vector_length(from);
       if (length > 0) {
         var uintL index = 0;
-        var object dv = iarray_displace_check(from,length,&index);
-        bytecopy((void*)address,&TheSbvector(TheIarray(dv)->data)->data[index],length,bit(size));
+        var object dv = array_displace_check(from,length,&index);
+        bytecopy((void*)address,&TheSbvector(dv)->data[index],length,8);
+      }
+    } elif (bit_vector_p(Atype_16Bit,from)) {
+      # copy memory into a LISP unsigned-byte vector
+      var uintL length = vector_length(from);
+      if (length > 0) {
+        var uintL index = 0;
+        var object dv = array_displace_check(from,length,&index);
+        bytecopy((void*)address,&TheSbvector(dv)->data[index],length,16);
+      }
+    } elif (bit_vector_p(Atype_32Bit,from)) {
+      # copy memory into a LISP unsigned-byte vector
+      var uintL length = vector_length(from);
+      if (length > 0) {
+        var uintL index = 0;
+        var object dv = array_displace_check(from,length,&index);
+        bytecopy((void*)address,&TheSbvector(dv)->data[index],length,32);
       }
     } else {
      fehler_type:

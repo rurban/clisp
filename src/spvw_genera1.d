@@ -165,7 +165,7 @@ local uintC generation;
               while (objptr < physpage_end)                          \
                 walk_area_symbol(objptr,physpage_end,walkfun);       \
               break;                                                 \
-            case_mdarray: case_obvector: case_ostring: case_ovector: \
+            case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector: \
               # Arrays, die nicht simple sind:                       \
               while (objptr < physpage_end)                          \
                 walk_area_iarray(objptr,physpage_end,walkfun);       \
@@ -194,7 +194,7 @@ local uintC generation;
                       { case_symbolwithflags: # Symbol                             \
                           walk_area_symbol(objptr,physpage_end,walkfun);           \
                           break;                                                   \
-                        case_mdarray: case_obvector: case_ostring: case_ovector:   \
+                        case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector: \
                           # Arrays, die nicht simple sind:                         \
                           walk_area_iarray(objptr,physpage_end,walkfun);           \
                           break;                                                   \
@@ -223,6 +223,11 @@ local uintC generation;
                   { switch (record_type((Record)objptr)) # Typ des nächsten Objekts \
                       { case Rectype_mdarray:                                       \
                         case Rectype_bvector:                                       \
+                        case Rectype_b2vector:                                      \
+                        case Rectype_b4vector:                                      \
+                        case Rectype_b8vector:                                      \
+                        case Rectype_b16vector:                                     \
+                        case Rectype_b32vector:                                     \
                         case Rectype_string:                                        \
                         case Rectype_vector:                                        \
                           # Arrays, die nicht simple sind:                          \
@@ -232,13 +237,18 @@ local uintC generation;
                           walk_area_svector(objptr,physpage_end,walkfun);           \
                           break;                                                    \
                         case Rectype_Sbvector:                                      \
+                        case Rectype_Sb2vector:                                     \
+                        case Rectype_Sb4vector:                                     \
+                        case Rectype_Sb8vector:                                     \
+                        case Rectype_Sb16vector:                                    \
+                        case Rectype_Sb32vector:                                    \
                         case Rectype_Sstring: case Rectype_Imm_Sstring:             \
                         case Rectype_Imm_SmallSstring:                              \
                         case Rectype_Bignum:                                        \
                         case Rectype_Ffloat:                                        \
                         case Rectype_Dfloat:                                        \
                         case Rectype_Lfloat:                                        \
-                          # simple-bit-vector, simple-string, bignum, float         \
+                          # simple-byte-vector, simple-string, bignum, float        \
                           objptr += objsize((Varobject)objptr);                     \
                           break;                                                    \
                         default: # Srecord/Xrecord                                  \
@@ -420,7 +430,7 @@ local uintC generation;
                   }
                   if (!(objptr == gen0_end)) abort();
                   break;
-                case_mdarray: case_obvector: case_ostring: case_ovector: # nicht-simple Arrays:
+                case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector: # nicht-simple Arrays:
                   physpage->continued_addr = (object*)gen0_start; # irrelevant
                   physpage->continued_count = 0;
                   physpage->firstobject = gen0_start;
@@ -576,7 +586,7 @@ local uintC generation;
                     }
                     break;
                   #endif
-                  case_mdarray: case_obvector: case_ostring: case_ovector: # nicht-simple Arrays:
+                  case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector: # nicht-simple Arrays:
                     {
                       var aint nextptr = objptr + objsize((Iarray)objptr);
                       # Hier ist gen0_start-physpagesize <= objptr < gen0_start.
@@ -643,10 +653,20 @@ local uintC generation;
                     switch (record_type((Record)objptr)) {
                       case_Rectype_mdarray_above;
                       case_Rectype_obvector_above;
+                      case_Rectype_ob2vector_above;
+                      case_Rectype_ob4vector_above;
+                      case_Rectype_ob8vector_above;
+                      case_Rectype_ob16vector_above;
+                      case_Rectype_ob32vector_above;
                       case_Rectype_ostring_above;
                       case_Rectype_ovector_above;
                       case_Rectype_Svector_above;
                       case Rectype_Sbvector:
+                      case Rectype_Sb2vector:
+                      case Rectype_Sb4vector:
+                      case Rectype_Sb8vector:
+                      case Rectype_Sb16vector:
+                      case Rectype_Sb32vector:
                       case Rectype_Sstring: case Rectype_Imm_Sstring:
                       case Rectype_Imm_SmallSstring:
                       case Rectype_Bignum:

@@ -417,6 +417,11 @@
               goto m_end; # nein -> war zwar schon da, aber unberücksichtigt lassen
           goto m_end;
         case_bvector: # Bit-Vector
+        case_b2vector: # 2Bit-Vector
+        case_b4vector: # 4Bit-Vector
+        case_b8vector: # 8Bit-Vector
+        case_b16vector: # 16Bit-Vector
+        case_b32vector: # 32Bit-Vector
         case_string: # String
         case_bignum: # Bignum
         #ifndef WIDE
@@ -482,6 +487,11 @@
             #ifndef TYPECODES
             case_Rectype_Symbol_above;
             case_Rectype_bvector_above;
+            case_Rectype_b2vector_above;
+            case_Rectype_b4vector_above;
+            case_Rectype_b8vector_above;
+            case_Rectype_b16vector_above;
+            case_Rectype_b32vector_above;
             case_Rectype_string_above;
             case_Rectype_Bignum_above;
             case_Rectype_Ffloat_above;
@@ -698,6 +708,11 @@
           mark(TheSymbol(obj)); # markieren
           goto m_end;
         case_bvector: # Bit-Vector
+        case_b2vector: # 2Bit-Vector
+        case_b4vector: # 4Bit-Vector
+        case_b8vector: # 8Bit-Vector
+        case_b16vector: # 16Bit-Vector
+        case_b32vector: # 32Bit-Vector
         case_string: # String
         case_bignum: # Bignum
         #ifndef WIDE
@@ -773,6 +788,11 @@
             #ifndef TYPECODES
             case_Rectype_Symbol_above;
             case_Rectype_bvector_above;
+            case_Rectype_b2vector_above;
+            case_Rectype_b4vector_above;
+            case_Rectype_b8vector_above;
+            case_Rectype_b16vector_above;
+            case_Rectype_b32vector_above;
             case_Rectype_string_above;
             case_Rectype_Bignum_above;
             case_Rectype_Ffloat_above;
@@ -871,6 +891,11 @@
           get_circ_unmark(Car(obj),env); # CAR demarkieren (rekursiv)
           obj = Cdr(obj); goto entry; # CDR demarkieren (tail-end-rekursiv)
         case_bvector: # Bit-Vector
+        case_b2vector: # 2Bit-Vector
+        case_b4vector: # 4Bit-Vector
+        case_b8vector: # 8Bit-Vector
+        case_b16vector: # 16Bit-Vector
+        case_b32vector: # 32Bit-Vector
         case_string: # String
         case_symbol:
           # Symbol demarkieren. Wertzelle etc. für PRINT unwesentlich.
@@ -938,6 +963,11 @@
           switch (Record_type(obj)) {
             #ifndef TYPECODES
             case_Rectype_bvector_above;
+            case_Rectype_b2vector_above;
+            case_Rectype_b4vector_above;
+            case_Rectype_b8vector_above;
+            case_Rectype_b16vector_above;
+            case_Rectype_b32vector_above;
             case_Rectype_string_above;
             case_Rectype_Symbol_above;
             case_Rectype_Bignum_above;
@@ -1083,6 +1113,11 @@
               case_Rectype_mdarray_above;
               case_Rectype_ovector_above;
               case_Rectype_bvector_above;
+              case_Rectype_b2vector_above;
+              case_Rectype_b4vector_above;
+              case_Rectype_b8vector_above;
+              case_Rectype_b16vector_above;
+              case_Rectype_b32vector_above;
               case_Rectype_string_above;
               case_Rectype_number_above;
               case_Rectype_Symbol_above;
@@ -1143,6 +1178,11 @@
             ptr = &TheCons(obj)->cdr; goto enter_subst;
           case_machine: # Maschinenpointer
           case_bvector: # Bit-Vektor
+          case_b2vector: # 2Bit-Vektor
+          case_b4vector: # 4Bit-Vektor
+          case_b8vector: # 8Bit-Vektor
+          case_b16vector: # 16Bit-Vektor
+          case_b32vector: # 32Bit-Vektor
           case_string: # String
           case_char: # Character
           case_subr: # SUBR
@@ -1262,6 +1302,11 @@
               case_Rectype_mdarray_above;
               case_Rectype_ovector_above;
               case_Rectype_bvector_above;
+              case_Rectype_b2vector_above;
+              case_Rectype_b4vector_above;
+              case_Rectype_b8vector_above;
+              case_Rectype_b16vector_above;
+              case_Rectype_b32vector_above;
               case_Rectype_string_above;
               case_Rectype_number_above;
               case_Rectype_Symbol_above;
@@ -1315,6 +1360,11 @@
             ptr = &TheCons(obj)->cdr; goto enter_subst;
           case_machine: # Maschinenpointer
           case_bvector: # Bit-Vektor
+          case_b2vector: # 2Bit-Vektor
+          case_b4vector: # 4Bit-Vektor
+          case_b8vector: # 8Bit-Vektor
+          case_b16vector: # 16Bit-Vektor
+          case_b32vector: # 32Bit-Vektor
           case_string: # String
           case_char: # Character
           case_subr: # SUBR
@@ -1428,6 +1478,11 @@
               case_Rectype_mdarray_above;
               case_Rectype_ovector_above;
               case_Rectype_bvector_above;
+              case_Rectype_b2vector_above;
+              case_Rectype_b4vector_above;
+              case_Rectype_b8vector_above;
+              case_Rectype_b16vector_above;
+              case_Rectype_b32vector_above;
               case_Rectype_string_above;
               case_Rectype_number_above;
               case_Rectype_Symbol_above;
@@ -1490,6 +1545,11 @@
             ptr = &TheCons(obj)->cdr; goto enter_subst;
           case_machine: # Maschinenpointer
           case_bvector: # Bit-Vektor
+          case_b2vector: # 2Bit-Vektor
+          case_b4vector: # 4Bit-Vektor
+          case_b8vector: # 8Bit-Vektor
+          case_b16vector: # 16Bit-Vektor
+          case_b32vector: # 32Bit-Vektor
           case_string: # String
           case_char: # Character
           case_subr: # SUBR
@@ -1554,6 +1614,11 @@
               case_Rectype_mdarray_above;
               case_Rectype_ovector_above;
               case_Rectype_bvector_above;
+              case_Rectype_b2vector_above;
+              case_Rectype_b4vector_above;
+              case_Rectype_b8vector_above;
+              case_Rectype_b16vector_above;
+              case_Rectype_b32vector_above;
               case_Rectype_string_above;
               case_Rectype_number_above;
               case_Rectype_Symbol_above;
@@ -1581,6 +1646,11 @@
           case_system: # Frame-Pointer oder Read-Label oder System
           case_machine: # Maschinenpointer
           case_bvector: # Bit-Vektor
+          case_b2vector: # 2Bit-Vektor
+          case_b4vector: # 4Bit-Vektor
+          case_b8vector: # 8Bit-Vektor
+          case_b16vector: # 16Bit-Vektor
+          case_b32vector: # 32Bit-Vektor
           case_string: # String
           case_char: # Character
           case_subr: # SUBR
