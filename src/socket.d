@@ -415,7 +415,7 @@ global SOCKET create_server_socket (hd, sock, port)
     # in case there are TIME_WAIT or CLOSE_WAIT sockets hanging around on
     # the port. (Sockets in LISTEN or ESTABLISHED state on the same port
     # will still yield an error.)
-    if (setsockopt(sk, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag)) < 0)
+    if (setsockopt(sk, SOL_SOCKET, SO_REUSEADDR, (SETSOCKOPT_ARG_T)&flag, sizeof(flag)) < 0)
       return INVALID_SOCKET;
 
     # Bind it to the desired port.
