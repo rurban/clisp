@@ -1582,6 +1582,7 @@ local void gc_unmarkcheck (void) {
     #endif
     # No more gc_mark operations from here on.
     clean_weakpointers(all_weakpointers);
+    inside_gc = true;
     # All active objects are marked now:
     # active objects of variable length and active two-pointer-objects carry
     # in their first byte a set mark bit, active SUBRs carry
@@ -1735,6 +1736,9 @@ local void gc_unmarkcheck (void) {
       # finally, the conses are relocated and simultaneously, all
       # pointers to them (at present, maintained in lists!) are updated.
       for_each_cons_page_reversed(page, { gc_morris2(page); } );
+      #endif
+      inside_gc = false;
+      #ifdef MORRIS_GC
       for_each_cons_page(page, { gc_morris3(page); } );
       #endif
     # now, all active objects are provided with correct content (all
@@ -2228,6 +2232,7 @@ local void gc_unmarkcheck (void) {
     gc_signalblock_on(); # disable signals during Garbage Collection
     gc_timer_on();
     CHECK_GC_UNMARKED(); CHECK_NULLOBJ();
+    inside_gc = true;
     {
       var uintL heapnr;
       for (heapnr=0; heapnr<heapcount; heapnr++)
@@ -2311,6 +2316,7 @@ local void gc_unmarkcheck (void) {
     recalc_space(true);
     free_delayed_pages();
     free_some_unused_pages();
+    inside_gc = false;
     CHECK_AVL_CONSISTENCY();
     CHECK_GC_CONSISTENCY();
     CHECK_GC_UNMARKED(); CHECK_NULLOBJ();
