@@ -1,3 +1,7 @@
+2002-03-21  Sam Steingold  <sds@gnu.org>
+
+	* configure (--with-debug): new option: pass "debug" to makemake
+
 2002-03-21  Will Newton  <will@misconception.org.uk>
 
 	When compiling with -O2 or better, the configure test for pcc
