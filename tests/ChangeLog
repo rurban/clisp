@@ -1,5 +1,12 @@
 2004-08-04  Bruno Haible  <bruno@clisp.org>
 
+	* alltest.tst, clos.tst, format.tst, hashlong.tst, symbol10.tst,
+	type.tst: Update for CMUCL 19a.
+	* macro8.tst: Fix CMUCL specific typo.
+	* mop.tst: Make some tests work on CMUCL and SBCL.
+
+2004-08-04  Bruno Haible  <bruno@clisp.org>
+
 	* clos.tst: Mark the :fixed-slot-locations tests as clisp-specific.
 	* streamslong.tst: Mark a test as clisp-specific.
 

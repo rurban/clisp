@@ -144,7 +144,7 @@ T
 
 ;; depends on (UPGRADED-COMPLEX-PART-TYPE '(EQL 0))
 (TYPEP #C(0 1) '(COMPLEX (EQL 0)))
-#+CLISP NIL #+(or CMU SBCL) T #-(or CLISP CMU SBCL) UNKNOWN
+#+(or CLISP CMU19) NIL #+(or CMU18 SBCL) T #-(or CLISP CMU SBCL) UNKNOWN
 
 #| ; depends on (upgraded-array-element-type 'SYMBOL) !
  (TYPEP '#(A B C D) (QUOTE (VECTOR SYMBOL 4)))
@@ -432,28 +432,28 @@ TYPEOF-TYPEP-SUBTYPE
 (SPECIAL-OPERATOR NIL NIL)
 
 (typeof-typep-subtype #'car 'compiled-function)
-#-SBCL (COMPILED-FUNCTION T T)
-#+SBCL (FUNCTION T T)
+#-(or SBCL CMU) (COMPILED-FUNCTION T T)
+#+(or SBCL CMU) (FUNCTION T T)
 
 (typeof-typep-subtype #'car 'function)
-#-SBCL (COMPILED-FUNCTION T T)
-#+SBCL (FUNCTION T T)
+#-(or SBCL CMU) (COMPILED-FUNCTION T T)
+#+(or SBCL CMU) (FUNCTION T T)
 
 (typeof-typep-subtype #'car 'generic-function)
-#-SBCL (COMPILED-FUNCTION NIL NIL)
-#+SBCL (FUNCTION NIL NIL)
+#-(or SBCL CMU) (COMPILED-FUNCTION NIL NIL)
+#+(or SBCL CMU) (FUNCTION NIL NIL)
 
 (typeof-typep-subtype #'compile 'compiled-function)
-#-SBCL (COMPILED-FUNCTION T T)
-#+SBCL (FUNCTION T T)
+#-(or SBCL CMU) (COMPILED-FUNCTION T T)
+#+(or SBCL CMU) (FUNCTION T T)
 
 (typeof-typep-subtype #'compile 'function)
-#-SBCL (COMPILED-FUNCTION T T)
-#+SBCL (FUNCTION T T)
+#-(or SBCL CMU) (COMPILED-FUNCTION T T)
+#+(or SBCL CMU) (FUNCTION T T)
 
 (typeof-typep-subtype #'compile 'generic-function)
-#-SBCL (COMPILED-FUNCTION NIL NIL)
-#+SBCL (FUNCTION NIL NIL)
+#-(or SBCL CMU) (COMPILED-FUNCTION NIL NIL)
+#+(or SBCL CMU) (FUNCTION NIL NIL)
 
 (typeof-typep-subtype #'print-object 'compiled-function)
 #-(or CMU SBCL) (STANDARD-GENERIC-FUNCTION NIL NIL)

@@ -32,7 +32,7 @@ A
           (list slot-name operation new-value new-value-p)))
   (list (slot-boundp a 'abcd) cache
         (slot-value a 'abcd) cache))
-(#+CMU (ABCD SLOT-BOUNDP NIL NIL) #-CMU T
+(#+CMU18 (ABCD SLOT-BOUNDP NIL NIL) #-CMU18 T
  (ABCD SLOT-BOUNDP NIL NIL) (ABCD SLOT-VALUE NIL NIL) (ABCD SLOT-VALUE NIL NIL))
 
 (x-val a)
