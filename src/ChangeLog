@@ -1,3 +1,32 @@
+1999-01-02  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * lispbibl.d (I_to_uint8, I_to_sint8, I_to_uint16, I_to_sint16,
+           I_to_uint32, I_to_sint32): Define always.
+        * predtype.d (elt_compare_T_T, elt_compare_T_Char, elt_compare_T_Bit,
+           elt_compare_T_2Bit, elt_compare_T_4Bit, elt_compare_T_8Bit,
+           elt_compare_T_16Bit, elt_compare_T_32Bit, elt_compare_Char_Char,
+           elt_compare_Bit_Bit, elt_compare_Bit_2Bit, elt_compare_Bit_4Bit,
+           elt_compare_Bit_8Bit, elt_compare_Bit_16Bit, elt_compare_Bit_32Bit,
+           elt_compare_2Bit_2Bit, elt_compare_2Bit_4Bit, elt_compare_2Bit_8Bit,
+           elt_compare_2Bit_16Bit, elt_compare_2Bit_32Bit,
+           elt_compare_4Bit_4Bit, elt_compare_4Bit_8Bit,
+           elt_compare_4Bit_16Bit, elt_compare_4Bit_32Bit,
+           elt_compare_8Bit_8Bit, elt_compare_8Bit_16Bit,
+           elt_compare_8Bit_32Bit, elt_compare_16Bit_16Bit,
+           elt_compare_16Bit_32Bit, elt_compare_32Bit_32Bit, elt_compare):
+          New functions.
+          (equalp): Rewrite the comparison code for arrays, to ignore the
+          array element type.
+        * realelem.d (hashcode4_uint32): New function.
+        * hashtabl.d (hashcode4_string): Remove function.
+          (hashcode4_char, hashcode4_vector_T, hashcode4_vector_Char,
+           hashcode4_vector_Bit, hashcode4_vector_2Bit, hashcode4_vector_4Bit,
+           hashcode4_vector_8Bit, hashcode4_vector_16Bit,
+           hashcode4_vector_32Bit, hashcode4_vector): New functions.
+          (hashcode4_atom): For arrays, return a hash code independent of the
+          array element type. For characters, multi-dimensional arrays,
+          pathnames, and records, return a hash code consistent with EQUALP.
+
 1999-01-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * pathname.d (host_match): Treat muster=NIL as wild.

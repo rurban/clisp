@@ -94,6 +94,9 @@ User visible changes
   MAKE-TWO-WAY-STREAM, MAKE-ECHO-STREAM now verify that their arguments are
   input streams or output streams, respectively.
 
+* The function EQUALP now ignores the element type of arrays and looks only
+  at the array contents, as specified by ANSI CL.
+
 * The *FEATURES* list now contains the symbol CLTL2 instead of the symbol
   CLTL1.
 
@@ -115,6 +118,9 @@ User visible changes
 
 * Fixed a bug: The function CERROR signalled an error if more than two
   arguments were given and the second argument was a condition.
+
+* Fixed a bug: Hash tables with test #'EQUALP did not work correctly when the
+  keys are characters, multi-dimensional arrays or pathnames.
 
 * The function VALUES-LIST now verifies that its argument is a proper list.
 

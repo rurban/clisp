@@ -497,29 +497,171 @@
 # hashcode4(obj)
 # Er ist nur bis zur nächsten GC oder der nächsten Modifizierung des Objekts
 # gültig.
-# Aus (equalp X Y) folgt (= (hashcode3 X) (hashcode3 Y)).
+# Aus (equalp X Y) folgt (= (hashcode4 X) (hashcode4 Y)).
   local uint32 hashcode4 (object obj);
 # Hilfsfunktionen bei bekanntem Typ:
-  # String -> Länge, erste max. 31 Zeichen, letztes Zeichen verwerten,
-  # aber alles case-insensitive.
-  local uint32 hashcode4_string (object obj);
-  local uint32 hashcode4_string(obj)
-    var object obj;
-    { var uintL len;
-      var uintB* ptr = unpack_string(obj,&len); # ab ptr kommen len Zeichen
-      var uint32 bish_code = 0x33DAE11FUL + len; # Länge verwerten
-      if (len > 0)
-        { bish_code ^= (uint32)up_case(ptr[len-1]); # letztes Zeichen dazu
-         {var uintC count = (len <= 31 ? len : 31); # min(len,31)
-          dotimespC(count,count,
-            { var uint32 next_code = (uint32)up_case(*ptr++); # nächstes Zeichen
+  # Character -> case-insensitive.
+  #define hashcode4_char(c)  (0xCAAEACEFUL + (uint32)up_case(c))
+  # Number: Mischung aus Exponent, Länge, erste 32 Bit
+  extern uint32 hashcode4_real (object obj); # siehe REALELEM.D
+  extern uint32 hashcode4_uint32 (uint32 x); # siehe REALELEM.D
+  # Vektoren: komponentenweise ansehen
+  local uint32 hashcode4_vector_T (object dv, uintL index, uintL count, uint32 bish_code);
+  local uint32 hashcode4_vector_Char (object dv, uintL index, uintL count, uint32 bish_code);
+  local uint32 hashcode4_vector_Bit (object dv, uintL index, uintL count, uint32 bish_code);
+  local uint32 hashcode4_vector_2Bit (object dv, uintL index, uintL count, uint32 bish_code);
+  local uint32 hashcode4_vector_4Bit (object dv, uintL index, uintL count, uint32 bish_code);
+  local uint32 hashcode4_vector_8Bit (object dv, uintL index, uintL count, uint32 bish_code);
+  local uint32 hashcode4_vector_16Bit (object dv, uintL index, uintL count, uint32 bish_code);
+  local uint32 hashcode4_vector_32Bit (object dv, uintL index, uintL count, uint32 bish_code);
+  local uint32 hashcode4_vector (object dv, uintL index, uintL count, uint32 bish_code);
+  local uint32 hashcode4_vector_T(dv,index,count,bish_code)
+    var object dv;
+    var uintL index;
+    var uintL count;
+    var uint32 bish_code;
+    { if (count > 0)
+        { check_SP();
+         {var const object* ptr = &TheSvector(dv)->data[index];
+          dotimespL(count,count,
+            { var uint32 next_code = hashcode4(*ptr++); # Hashcode der nächsten Komponente
               bish_code = misch(bish_code,next_code); # dazunehmen
             });
         }}
       return bish_code;
     }
-  # Number: Mischung aus Exponent, Länge, erste 32 Bit
-  extern uint32 hashcode4_real (object obj); # siehe REALELEM.D
+  local uint32 hashcode4_vector_Char(dv,index,count,bish_code)
+    var object dv;
+    var uintL index;
+    var uintL count;
+    var uint32 bish_code;
+    { if (count > 0)
+        { var const uintB* ptr = &TheSstring(dv)->data[index];
+          dotimespL(count,count,
+            { var uint32 next_code = hashcode4_char(*ptr++); # nächstes Zeichen
+              bish_code = misch(bish_code,next_code); # dazunehmen
+            });
+        }
+      return bish_code;
+    }
+  local uint32 hashcode4_vector_Bit(dv,index,count,bish_code)
+    var object dv;
+    var uintL index;
+    var uintL count;
+    var uint32 bish_code;
+    { if (count > 0)
+        { var const uintB* ptr = &TheSbvector(dv)->data[index/8];
+          dotimespL(count,count,
+            { var uint32 next_code = hashcode4_uint32((*ptr >> ((~index)%8)) & (bit(1)-1)); # nächstes Byte
+              bish_code = misch(bish_code,next_code); # dazunehmen
+              index++;
+              ptr += ((index%8)==0);
+            });
+        }
+      return bish_code;
+    }
+  local uint32 hashcode4_vector_2Bit(dv,index,count,bish_code)
+    var object dv;
+    var uintL index;
+    var uintL count;
+    var uint32 bish_code;
+    { if (count > 0)
+        { var const uintB* ptr = &TheSbvector(TheIarray(dv)->data)->data[index/4];
+          dotimespL(count,count,
+            { var uint32 next_code = hashcode4_uint32((*ptr >> ((~index)%4)) & (bit(2)-1)); # nächstes Byte
+              bish_code = misch(bish_code,next_code); # dazunehmen
+              index++;
+              ptr += ((index%4)==0);
+            });
+        }
+      return bish_code;
+    }
+  local uint32 hashcode4_vector_4Bit(dv,index,count,bish_code)
+    var object dv;
+    var uintL index;
+    var uintL count;
+    var uint32 bish_code;
+    { if (count > 0)
+        { var const uintB* ptr = &TheSbvector(TheIarray(dv)->data)->data[index/2];
+          dotimespL(count,count,
+            { var uint32 next_code = hashcode4_uint32((*ptr >> ((~index)%2)) & (bit(4)-1)); # nächstes Byte
+              bish_code = misch(bish_code,next_code); # dazunehmen
+              index++;
+              ptr += ((index%2)==0);
+            });
+        }
+      return bish_code;
+    }
+  local uint32 hashcode4_vector_8Bit(dv,index,count,bish_code)
+    var object dv;
+    var uintL index;
+    var uintL count;
+    var uint32 bish_code;
+    { if (count > 0)
+        { var const uintB* ptr = &TheSbvector(TheIarray(dv)->data)->data[index];
+          dotimespL(count,count,
+            { var uint32 next_code = hashcode4_uint32(*ptr++); # nächstes Byte
+              bish_code = misch(bish_code,next_code); # dazunehmen
+            });
+        }
+      return bish_code;
+    }
+  local uint32 hashcode4_vector_16Bit(dv,index,count,bish_code)
+    var object dv;
+    var uintL index;
+    var uintL count;
+    var uint32 bish_code;
+    { if (count > 0)
+        { var const uint16* ptr = &((uint16*)&TheSbvector(TheIarray(dv)->data)->data[0])[index];
+          dotimespL(count,count,
+            { var uint32 next_code = hashcode4_uint32(*ptr++); # nächstes Byte
+              bish_code = misch(bish_code,next_code); # dazunehmen
+            });
+        }
+      return bish_code;
+    }
+  local uint32 hashcode4_vector_32Bit(dv,index,count,bish_code)
+    var object dv;
+    var uintL index;
+    var uintL count;
+    var uint32 bish_code;
+    { if (count > 0)
+        { var const uint32* ptr = &((uint32*)&TheSbvector(TheIarray(dv)->data)->data[0])[index];
+          dotimespL(count,count,
+            { var uint32 next_code = hashcode4_uint32(*ptr++); # nächstes Byte
+              bish_code = misch(bish_code,next_code); # dazunehmen
+            });
+        }
+      return bish_code;
+    }
+  local uint32 hashcode4_vector(dv,index,count,bish_code)
+    var object dv;
+    var uintL index;
+    var uintL count;
+    var uint32 bish_code;
+    { switch (Array_type(dv))
+        { case Array_type_svector: # Simple-Vector
+            return hashcode4_vector_T(dv,index,count,bish_code);
+          case Array_type_sbvector: # Simple-Bit-Vector
+            return hashcode4_vector_Bit(dv,index,count,bish_code);
+          case Array_type_sstring: # Simple-String
+            return hashcode4_vector_Char(dv,index,count,bish_code);
+          case Array_type_bvector: # Byte-Vector
+            switch (Iarray_flags(dv) /* & arrayflags_atype_mask */ )
+              { case Atype_2Bit:
+                  return hashcode4_vector_2Bit(dv,index,count,bish_code);
+                case Atype_4Bit:
+                  return hashcode4_vector_4Bit(dv,index,count,bish_code);
+                case Atype_8Bit:
+                  return hashcode4_vector_8Bit(dv,index,count,bish_code);
+                case Atype_16Bit:
+                  return hashcode4_vector_16Bit(dv,index,count,bish_code);
+                case Atype_32Bit:
+                  return hashcode4_vector_32Bit(dv,index,count,bish_code);
+                default: NOTREACHED
+              }
+          default: NOTREACHED
+    }   }
   # Atom -> Fallunterscheidung nach Typ
   local uint32 hashcode4_atom (object obj);
   local uint32 hashcode4_atom(obj)
@@ -541,91 +683,104 @@
             { return hashcode4_real(obj); }
         }
       else
-        { var tint type = typecode(obj) # Typinfo
-                          & ~bit(notsimple_bit_t); # ob simple oder nicht, ist irrelevant
-          if (type == (sbvector_type & ~bit(notsimple_bit_t))) # Bit-Vektor ?
-            { return hashcode_bvector(obj); } # komponentenweise ansehen
-          if (type == (sstring_type & ~bit(notsimple_bit_t))) # String ?
-            { return hashcode4_string(obj); } # komponentenweise ansehen
-          if (xpathnamep(obj))
-            # Pathname -> komponentenweise ansehen:
-            { check_SP();
-             {var uint32 bish_code = 0xB0DD939EUL;
-              var object* ptr = &((Record)ThePathname(obj))->recdata[0];
-              var uintC count;
-              dotimespC(count,Xrecord_length(obj),
-                { var uint32 next_code = hashcode_pathcomp(*ptr++); # Hashcode der nächsten Komponente
-                  bish_code = misch(bish_code,next_code); # dazunehmen
-                });
-              return bish_code;
-            }}
-          if (structurep(obj))
-            # Structure -> komponentenweise ansehen:
-            { check_SP();
-             {var uint32 bish_code = 0x03168B8D;
-              var object* ptr = &TheStructure(obj)->recdata[0];
-              var uintC count;
-              dotimesC(count,Structure_length(obj),
-                { var uint32 next_code = hashcode4(*ptr++); # Hashcode der nächsten Komponente
-                  bish_code = misch(bish_code,next_code); # dazunehmen
-                });
-              return bish_code;
-            }}
-          # sonst: EQ-Hashcode nehmen (bei Characters ist ja EQL == EQ)
-          return hashcode1(obj);
-        }
+      switch (typecode(obj))
       #else
-      if (orecordp(obj))
-        switch (Record_type(obj))
-          { case Rectype_Ratio:
-            case Rectype_Ffloat: case Rectype_Dfloat: case Rectype_Lfloat:
-            case Rectype_Bignum:
-              goto case_real;
-            case Rectype_Complex:
-              { var uint32 code1 = hashcode4_real(TheComplex(obj)->c_real);
-                var uint32 code2 = hashcode4_real(TheComplex(obj)->c_imag);
-                # Wichtig beim Kombinieren, wegen "complex canonicalization":
-                # Ist imagpart=0.0, so ist der Hashcode = hashcode4_real(realpart).
-                return code1 ^ rotate_left(5,code2);
-              }
-            case Rectype_Sbvector: case Rectype_bvector:
-              return hashcode_bvector(obj);
-            case Rectype_Sstring: case Rectype_string:
-              return hashcode4_string(obj);
-            case Rectype_Pathname:
-            #ifdef LOGICAL_PATHNAMES
-            case Rectype_Logpathname:
-            #endif
-              # Pathname -> komponentenweise ansehen:
-              { check_SP();
-               {var uint32 bish_code = 0xB0DD939EUL;
-                var object* ptr = &((Record)ThePathname(obj))->recdata[0];
-                var uintC count;
-                dotimespC(count,Xrecord_length(obj),
-                  { var uint32 next_code = hashcode_pathcomp(*ptr++); # Hashcode der nächsten Komponente
-                    bish_code = misch(bish_code,next_code); # dazunehmen
-                  });
-                return bish_code;
-              }}
-            case Rectype_Structure:
-              # Structure -> komponentenweise ansehen:
-              { check_SP();
-               {var uint32 bish_code = 0x03168B8D;
-                var object* ptr = &TheStructure(obj)->recdata[0];
-                var uintC count;
-                dotimesC(count,Structure_length(obj),
-                  { var uint32 next_code = hashcode4(*ptr++); # Hashcode der nächsten Komponente
-                    bish_code = misch(bish_code,next_code); # dazunehmen
-                  });
-                return bish_code;
-              }}
-            default:
-              break;
-          }
+      if (orecordp(obj)) { goto case_orecord; }
       elif (immediate_number_p(obj))
         { case_real: return hashcode4_real(obj); }
-      return hashcode1(obj);
+      elif (charp(obj)) { goto case_char; }
+      else { return hashcode1(obj); }
+      switch (0)
       #endif
+        { case_bvector: # Bit/Byte-Vektor
+          case_string: # String
+          case_vector: # (VECTOR T)
+            # komponentenweise ansehen:
+            { var uintL len = vector_length(obj); # Länge
+              var uintL index = 0;
+              var object dv = array_displace_check(obj,len,&index);
+              # dv der Datenvektor, index ist der Index in den Datenvektor.
+              var uint32 bish_code = 0x724BD24EUL + len; # Länge verwerten
+              return hashcode4_vector(dv,index,len,bish_code);
+            }
+          case_mdarray: # Array vom Rang /=1
+            # Rang und Dimensionen, dann komponentenweise ansehen:
+            { var uint32 bish_code = 0xF1C90A73UL;
+              { var uintC rank = Iarray_rank(obj);
+                var uintL* dimptr = &TheIarray(obj)->dims[0];
+                if (Iarray_flags(obj) & bit(arrayflags_dispoffset_bit))
+                  dimptr++;
+                dotimesC(rank,rank,
+                  { var uint32 next_code = (uint32)(*dimptr++);
+                    bish_code = misch(bish_code,next_code);
+                  });
+              }
+              { var uintL len = TheIarray(obj)->totalsize;
+                var uintL index = 0;
+                var object dv = iarray_displace_check(obj,len,&index);
+                return hashcode4_vector(dv,index,len,bish_code);
+            } }
+          #ifdef TYPECODES
+          _case_structure
+          _case_stream
+          #endif
+          case_orecord:
+            switch (Record_type(obj))
+              { case_Rectype_bvector_above;
+                case_Rectype_string_above;
+                case_Rectype_vector_above;
+                case_Rectype_mdarray_above;
+                case_Rectype_Closure_above;
+                case_Rectype_Instance_above;
+                #ifndef TYPECODES
+                case_Rectype_Symbol_above;
+                case Rectype_Ratio:
+                case Rectype_Ffloat: case Rectype_Dfloat: case Rectype_Lfloat:
+                case Rectype_Bignum:
+                  goto case_real;
+                case Rectype_Complex:
+                  { var uint32 code1 = hashcode4_real(TheComplex(obj)->c_real);
+                    var uint32 code2 = hashcode4_real(TheComplex(obj)->c_imag);
+                    # Wichtig beim Kombinieren, wegen "complex canonicalization":
+                    # Ist imagpart=0.0, so ist der Hashcode = hashcode4_real(realpart).
+                    return code1 ^ rotate_left(5,code2);
+                  }
+                #endif
+                default: ;
+              }
+            # Flags, Typ, Komponenten ansehen:
+            { var uintC len = Record_length(obj);
+              var uint32 bish_code = 0x03168B8D + (Record_flags(obj) << 24) + (Record_type(obj) << 16) + len;
+              if (len > 0)
+                { check_SP();
+                 {var const object* ptr = &TheRecord(obj)->recdata[0];
+                  var uintC count;
+                  dotimespC(count,len,
+                    { var uint32 next_code = hashcode4(*ptr++); # Hashcode der nächsten Komponente
+                      bish_code = misch(bish_code,next_code); # dazunehmen
+                    });
+                }}
+              if (Record_type(obj) >= rectype_limit)
+                { var uintC xlen = Xrecord_xlength(obj);
+                  if (xlen > 0)
+                    { var const uintB* ptr = (uintB*)&TheRecord(obj)->recdata[len];
+                      dotimespC(xlen,xlen,
+                        { var uint32 next_code = *ptr++; # nächstes Byte
+                          bish_code = misch(bish_code,next_code); # dazunehmen
+                        });
+                }   }
+              return bish_code;
+            }
+          case_char: # Character
+            return hashcode4_char(char_code(obj));
+          #ifndef TYPECODES
+          case_symbol: # Symbol
+          #endif
+          case_closure: # Closure
+          case_instance: # Instance
+            # EQ-Hashcode nehmen
+            return hashcode1(obj);
+        }
     }
 # Cons -> Inhalt bis zur Tiefe 4 ansehen:
 # Jeweils Hashcode des CAR und Hashcode des CDR bestimmen
@@ -1687,7 +1842,7 @@ LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL)
             # mehrdimensionaler Array -> nur Rang verwerten
             return Iarray_rank(obj) + 0xAAFAFAAEUL;
           case_structure: # Structure
-            # nur Structure-Typ (Liste (name_1 name_2 ... . name_n)) verwerten
+            # nur Structure-Typ (Liste (name_1 name_2 ... name_n)) verwerten
             { check_SP();
               return sxhash(TheStructure(obj)->structure_types) + 0xAD2CD2AEUL;
             }
