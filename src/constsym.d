@@ -1129,6 +1129,7 @@ LISPSYM(error_output,"*ERROR-OUTPUT*",lisp) # als Variable in STREAM
 LISPSYM(trace_output,"*TRACE-OUTPUT*",lisp) # als Variable in STREAM
 #ifdef GENERIC_STREAMS
 LISPSYM(generic_stream_rdch,"GENERIC-STREAM-READ-CHAR",lisp) # als Funktion für STREAM
+LISPSYM(generic_stream_pkch,"GENERIC-STREAM-PEEK-CHAR",lisp) # als Funktion für STREAM
 LISPSYM(generic_stream_listen,"GENERIC-STREAM-LISTEN",lisp) # als Funktion für STREAM
 LISPSYM(generic_stream_clear_input,"GENERIC-STREAM-CLEAR-INPUT",lisp) # als Funktion für STREAM
 LISPSYM(generic_stream_wrch,"GENERIC-STREAM-WRITE-CHAR",lisp) # als Funktion für STREAM

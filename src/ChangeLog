@@ -1,3 +1,26 @@
+1998-06-04  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
+        * lispbibl.d (Stream): New field strm_pk_ch.
+        * stream.d (pk_ch_Pseudofun): New type.
+          (pk_ch): New macro.
+          (pk_ch_dummy): New function.
+          (peek_char): Call the stream's pk_ch function.
+          (close_dummys, make_handle_stream, make_keyboard_stream,
+          make_terminal_stream_, SCREEN:MAKE-WINDOW, make_file_stream,
+          make_synonym_stream, make_broadcast_stream, make_concatenated_stream,
+          make_twoway_stream, make_echo_stream, MAKE-STRING-INPUT-STREAM,
+          make_string_output_stream, SYS::MAKE-STRING-PUSH-STREAM,
+          make_pphelp_stream, MAKE-BUFFERED-INPUT-STREAM,
+          MAKE-BUFFERED-OUTPUT-STREAM, make_printer_stream,
+          MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM, MAKE-PIPE-IO-STREAM,
+          SYS::MAKE-SOCKET-STREAM, make_socket_stream, MAKE-GENERIC-STREAM):
+          Set the strm_pk_ch field.
+          (pk_ch_synonym, pk_ch_concat, pk_ch_twoway, pk_ch_generic): New
+          functions.
+        * pseudofun.d: Update.
+        * gstream.lsp: Export GENERIC-STREAM-PEEK-CHAR.
+          (generic-stream-peek-char): New generic function.
+
 1998-06-03  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
         * clos.lsp (slot-unbound): Signal SLOT-UNBOUND instead of ERROR.

@@ -1459,8 +1459,18 @@ CLOS methods on the following CLOS generic functions. The function
 take a controller and some number of arguments.
 <DL>
   <DT><CODE>(generic-stream-read-char    <VAR>controller</VAR>)</CODE></DT>
+  <DD>   Returns and consumes the next character, <CODE>nil</CODE> at end of file.
+         Takes one argument, the controller object.
+  </DD>
+  <DT><CODE>(generic-stream-peek-char    <VAR>controller</VAR>)</CODE></DT>
+  <DD>   Returns the next character, <CODE>nil</CODE> at end of file. A second value
+         indicates whether the side effects associated with consuming the
+         character were executed: <CODE>t</CODE> means that a full <CODE>read-char</CODE> was done,
+         <CODE>nil</CODE> means that no side effects were done.
+         Takes one argument, the controller object.
+  </DD>
   <DT><CODE>(generic-stream-read-byte    <VAR>controller</VAR>)</CODE></DT>
-  <DD>   These generic functions should return <CODE>nil</CODE> at end of file.
+  <DD>   Returns and consumes the next integer, <CODE>nil</CODE> at end of file.
          Takes one argument, the controller object.
   </DD>
   <DT><A name=generic-stream-listen></A>
