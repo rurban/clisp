@@ -1,9 +1,13 @@
-dnl  AUTOCONF configuration for regex
-dnl  Bruno Haible 18.4.1995
-dnl
-AC_INIT(regexp.lisp)
-AC_CONFIG_HEADER(config.h)
+dnl AUTOCONF configuration for regex
+dnl Bruno Haible 18.4.1995
+dnl Sam Steingold 2003-07-28
 
+AC_PREREQ(2.57)
+AC_INIT(regexp, 1.0, clisp-list)
+AC_CONFIG_SRCDIR(regexp.lisp)
+AC_CONFIG_HEADERS(config.h)
+
+AC_MSG_NOTICE([ * Regexp (Checks)])
 AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_GCC_TRADITIONAL
@@ -14,4 +18,8 @@ CL_STDC_HEADERS
 AC_CHECK_HEADERS(string.h)
 AC_FUNC_ALLOCA
 
-AC_OUTPUT(Makefile)
+AC_MSG_NOTICE([ * Regexp (Output)])
+AC_CONFIG_FILES(Makefile)
+AC_OUTPUT
+
+AC_MSG_NOTICE([ * Regexp (Done)])
