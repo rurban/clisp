@@ -16,7 +16,7 @@ FFIILLEE TTYYPPEESS
        **..cc    The C code after preprocessing by ansidecl.
 
 
-       **..llsspp  The source files for lisp code.
+       **..lliisspp The source files for lisp code.
 
 
        **..ffaass  Compiled lisp code. Now platform-independent.
@@ -297,7 +297,7 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
            External routines for the arithmetic system, written
-               in  assembly language:
+           in  assembly language:
 
                aarrii6688000000..dd          written  in  68000  assembler,
                                    MIT syntax
@@ -338,7 +338,7 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
            External routines for accessing the stack,  written
-               in  assembly language:
+           in  assembly language:
 
                sspp6688000000..dd           written  in  68000  assembler,
                                    MIT syntax
@@ -368,23 +368,23 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
        Lisp source files:
 
 
-           iinniitt..llsspp
+           iinniitt..lliisspp
                   first file to be loaded, loads everything else
 
-           ddeeffsseeqq..llsspp
+           ddeeffsseeqq..lliisspp
                   defines   the  usual  sequence  types  for  the
                   generic sequence functions
 
-           bbaacckkqquuoott..llsspp
+           bbaacckkqquuoottee..lliisspp
                   implements the backquote read macro
 
-           ddeeffmmaaccrroo..llsspp
+           ddeeffmmaaccrroo..lliisspp
                   implements _d_e_f_m_a_c_r_o
 
-           mmaaccrrooss11..llsspp
+           mmaaccrrooss11..lliisspp
                   the most important macros
 
-           mmaaccrrooss22..llsspp
+           mmaaccrrooss22..lliisspp
                   some other macros
 
 
@@ -400,58 +400,58 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
-           ddeeffss11..llsspp
+           ddeeffss11..lliisspp
                   miscellaneous definitions
 
-           ttiimmeezzoonnee..llsspp
+           ttiimmeezzoonnee..lliisspp
                   site-dependent definition of time zone,  except
                   for Unix
 
-           ppllaacceess..llsspp
+           ppllaacceess..lliisspp
                   macros using places, definitions of most places
 
-           ffllooaattpprrii..llsspp
+           ffllooaattpprriinntt..lliisspp
                   printing floating point numbers in base 10
 
-           ttyyppee..llsspp
+           ttyyppee..lliisspp
                   functions working with type specifiers:  _t_y_p_e_p,
                   _s_u_b_t_y_p_e_p
 
-           ddeeffssttrruucc..llsspp
+           ddeeffssttrruucctt..lliisspp
                   implements the _d_e_f_s_t_r_u_c_t macro
 
-           ffoorrmmaatt..llsspp
+           ffoorrmmaatt..lliisspp
                   implements _f_o_r_m_a_t
 
-           uusseerr11..llsspp
+           uusseerr11..lliisspp
                   user interface, from the system's point of view
 
-           uusseerr22..llsspp
+           uusseerr22..lliisspp
                   user interface, from the user's point of view
 
-           ttrraaccee..llsspp
+           ttrraaccee..lliisspp
                   tracer
 
-           mmaaccrrooss33..llsspp
+           mmaaccrrooss33..lliisspp
                   (optional) the macros _l_e_t_f, _l_e_t_f_* and _e_t_h_e.
 
-           ccoonnffiigg..llsspp
+           ccoonnffiigg..lliisspp
                   (user  written)  site-dependent  configuration,
                   may be a link to one of the following:
 
-                  ccffggssuunnuuxx..llsspp   for Unix, using SunOS
+                  ccffggssuunnuuxx..lliisspp  for Unix, using SunOS
 
-                  ccffgguunniixx..llsspp    for any other Unix
+                  ccffgguunniixx..lliisspp   for any other Unix
 
-                  ccffggaammiiggaa..llsspp   for Amiga
+                  ccffggaammiiggaa..lliisspp  for Amiga
 
-                  ccffggddooss..llsspp     for OS/2 version
+                  ccffggddooss..lliisspp    for OS/2 version
 
-                  ccffggwwiinn3322..llsspp   for WinNT/Win95 version
+                  ccffggwwiinn3322..lliisspp  for WinNT/Win95 version
 
-                  ccffggaaccoorrnn..llsspp   for Acorn, using RiscOS
+                  ccffggaaccoorrnn..lliisspp  for Acorn, using RiscOS
 
-           ccoommppiilleerr..llsspp
+           ccoommppiilleerr..lliisspp
                   compiles lisp code to bytecode
 
 
@@ -466,41 +466,41 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
-           ddiissaasssseemm..llsspp
+           ddiissaasssseemm..lliisspp
                   disassembles machine code
 
-           ddeeffss22..llsspp
+           ddeeffss22..lliisspp
                   miscellaneous CLtL2 compatible definitions
 
-           lloooopp..llsspp
+           lloooopp..lliisspp
                   implements a CLtL2/dpANS compatible LOOP macro
 
-           ccllooss..llsspp
+           ccllooss..lliisspp
                   implements  a  subset of the Common Lisp Object
                   System
 
-           ccoonnddiittiioo..llsspp
+           ccoonnddiittiioonn..lliisspp
                   implements the Common Lisp Condition System
 
-           ddeeffss33..llsspp
+           ddeeffss33..lliisspp
                   more CLtL2 compatible definitions
 
-           ggssttrreeaamm..llsspp
+           ggssttrreeaamm..lliisspp
                   generic stream default methods
 
-           ffoorreeiiggnn11..llsspp
+           ffoorreeiiggnn11..lliisspp
                   foreign language interface
 
-           ssccrreeeenn..llsspp
+           ssccrreeeenn..lliisspp
                   the screen access package
 
-           rreexxxx11..llsspp
+           rreexxxx11..lliisspp
                   for Amiga, an interface to Rexx
 
-           eeddiittoorr..llsspp
+           eeddiittoorr..lliisspp
                   (optional) the screen editor
 
-           ssppaanniisshh..llsspp
+           ssppaanniisshh..lliisspp
                   spanish user messages
 
 
