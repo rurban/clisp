@@ -1,3 +1,8 @@
+1999-03-30  Jörg Höhle  <hoehle@tzd.telekom.de>
+
+        * rexx.d (rexx_getmsg): return (handle command :RESULT)
+          if ARexx OPTIONS RESULTS requested on incoming command.
+
 1999-04-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Improve handling of /proc/self/fd/* files on Linux.
