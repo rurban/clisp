@@ -1,3 +1,7 @@
+2003-07-30  Sam Steingold  <sds@gnu.org>
+
+	* genclisph.d (charp): enabled
+
 2003-07-29  Sam Steingold  <sds@gnu.org>
 
 	* genclisph.d (to_time_t_) [UNIX_CYGWIN32]: export
