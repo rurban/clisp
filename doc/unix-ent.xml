@@ -48,4 +48,5 @@
 <!ENTITY unix-u "&unix-top;/utilities">
 <!ENTITY cat "<ulink url='&unix-u;/cat.html'><command>cat</command></ulink>">
 <!ENTITY chmod "<ulink url='&unix-u;/chmod.html'><command>chmod</command></ulink>">
+<!ENTITY iconv-u "<ulink url='&unix-u;/iconv.html'><command>iconv</command></ulink>">
 <!ENTITY ls "<ulink url='&unix-u;/ls.html'><command>ls</command></ulink>">

@@ -398,13 +398,11 @@ localized.</para>
       the 21-bit &unicode; character set. Every character in the 16-bit
       basic multilingual plane is represented as two bytes, and the
       rarely used remaining characters need four bytes per character.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-UTF-7"><simpara><literal>UTF-7</literal>,
       the 21-bit &unicode; character set. This is a stateful 7-bit encoding.
       Not all ASCII characters represent themselves.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
 <!-- #endif /* GNU_LIBICONV */ -->
   <listitem id="charset-JAVA"><simpara><literal>JAVA</literal>,
       the 21-bit &unicode; character set.
@@ -496,8 +494,7 @@ localized.</para>
   <listitem id="charset-KOI8-RU"><simpara><literal>KOI8-RU</literal>,
       an extension of the ASCII character set, suitable for the
       Russian language.
-      This character set is only available on platforms with &gnu;
-      libiconv.</simpara></listitem>
+      &charset-libiconv;</simpara></listitem>
 <!-- #endif /* GNU_LIBICONV */ -->
   <listitem><simpara><literal>JIS_X0201</literal>,
       a character set for the Japanese language.
@@ -665,8 +662,7 @@ localized.</para>
       a platform specific extension of the ASCII character set,
       gratuitously incompatible with ISO-8859-8,
       suitable for the Hebrew language.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
 <!-- #endif /* GNU_LIBICONV */ -->
   <listitem id="charset-WINDOWS-1256"><simpara><literal>WINDOWS-1256</literal>
    = <literal>CP1256</literal>,
@@ -682,8 +678,7 @@ localized.</para>
    = <literal>CP1258</literal>,
       a platform specific extension of the ASCII character set,
       meant to be suitable for the Vietnamese language.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
 <!-- #endif /* GNU_LIBICONV */ -->
   <listitem id="charset-HP-ROMAN8"><simpara><literal>HP-ROMAN8</literal>,
       a platform specific extension of the ASCII character set.
@@ -694,151 +689,123 @@ localized.</para>
 <!-- #ifdef GNU_LIBICONV -->
   <listitem id="charset-EUC-JP"><simpara><literal>EUC-JP</literal>,
       a multibyte character set for the Japanese language.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-SHIFT-JIS"><simpara><literal>SHIFT-JIS</literal>,
       a multibyte character set for the Japanese language.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-CP932"><simpara><literal>CP932</literal>,
       a Microsoft variant of <literal>SHIFT-JIS</literal>.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-ISO-2022-JP"><simpara><literal>ISO-2022-JP</literal>,
       a stateful 7-bit multibyte character set for the Japanese language.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-ISO-2022-JP-2"><simpara><literal>ISO-2022-JP-2</literal>,
       a stateful 7-bit multibyte character set for the Japanese language.
-      This character set is only available on platforms with &gnu; libc 2.3
-      or newer or &gnu; libiconv.</simpara></listitem>
+      This character set is only available on platforms with &glibc; 2.3
+      or newer or &libiconv;.</simpara></listitem>
   <listitem id="charset-ISO-2022-JP-1"><simpara><literal>ISO-2022-JP-1</literal>,
       a stateful 7-bit multibyte character set for the Japanese language.
-      This character set is only available on platforms with &gnu; libiconv.
-    </simpara></listitem>
+      &charset-libiconv;</simpara></listitem>
   <listitem id="charset-EUC-CN"><simpara><literal>EUC-CN</literal>,
       a multibyte character set for simplified Chinese.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-HZ"><simpara><literal>HZ</literal>,
       a stateful 7-bit multibyte character set for simplified Chinese.
-      This character set is only available on platforms with &gnu; libiconv.
-    </simpara></listitem>
+      &charset-libiconv;</simpara></listitem>
   <listitem id="charset-GBK"><simpara><literal>GBK</literal>,
       a multibyte character set for Chinese,
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-CP936"><simpara><literal>CP936</literal>,
       a Microsoft variant of <literal>GBK</literal>.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-GB18030"><simpara><literal>GB18030</literal>,
       a multibyte character set for Chinese,
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-EUC-TW"><simpara><literal>EUC-TW</literal>,
       a multibyte character set for traditional Chinese.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-BIG5"><simpara><literal>BIG5</literal>,
       a multibyte character set for traditional Chinese.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-CP950"><simpara><literal>CP950</literal>,
       a Microsoft variant of <literal>BIG5</literal>.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-BIG5-HKSCS"><simpara><literal>BIG5-HKSCS</literal>,
       a multibyte character set for traditional Chinese.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-ISO-2022-CN"><simpara><literal>ISO-2022-CN</literal>,
       a stateful 7-bit multibyte character set for Chinese.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-ISO-2022-CN-EXT"><simpara><literal>ISO-2022-CN-EXT</literal>,
       a stateful 7-bit multibyte character set for Chinese.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-EUC-KR"><simpara><literal>EUC-KR</literal>,
       a multibyte character set for Korean.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-CP949"><simpara><literal>CP949</literal>,
       a Microsoft variant of <literal>EUC-KR</literal>.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-ISO-2022-KR"><simpara><literal>ISO-2022-KR</literal>,
       a stateful 7-bit multibyte character set for Korean.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-JOHAB"><simpara><literal>JOHAB</literal>,
       a multibyte character set for Korean used mostly on &dos;.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-ARMSCII-8"><simpara><literal>ARMSCII-8</literal>,
       an extension of the ASCII character set, suitable for Armenian.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-GEORGIAN-ACADEMY"><simpara><literal>GEORGIAN-ACADEMY</literal>,
       an extension of the ASCII character set, suitable for Georgian.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-GEORGIAN-PS"><simpara><literal>GEORGIAN-PS</literal>,
       an extension of the ASCII character set, suitable for Georgian.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-TIS-620"><simpara><literal>TIS-620</literal>,
       an extension of the ASCII character set, suitable for Thai.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-MULELAO-1"><simpara><literal>MULELAO-1</literal>,
       an extension of the ASCII character set, suitable for Laotian.
-      This character set is only available on platforms with &gnu; libiconv.
-    </simpara></listitem>
+      &charset-libiconv;</simpara></listitem>
   <listitem id="charset-CP1133"><simpara><literal>CP1133</literal>,
       an extension of the ASCII character set, suitable for Laotian.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-VISCII"><simpara><literal>VISCII</literal>,
       an extension of the ASCII character set, suitable for Vietnamese.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
   <listitem id="charset-TCVN"><simpara><literal>TCVN</literal>,
       an extension of the ASCII character set, suitable for Vietnamese.
-      This character set is only available on platforms with &gnu; libc
-      or &gnu; libiconv.</simpara></listitem>
+      &charset-glibc-libiconv;</simpara></listitem>
 <!-- #endif /* GNU_LIBICONV */ -->
 </itemizedlist>
 
 <!-- #ifdef /* HAVE_ICONV */ -->
 <variablelist>
 <varlistentry id="iconv"><term>Platform dependent: Only on &gnu; systems
-     with glibc-2.2 or better and other systems (&unix; and &win32;)
-     on which the &gnu; libiconv &c-lang; library has been installed</term>
+     with &glibc; 2.2 or better and other systems (&unix; and &win32;)
+     on which the &libiconv; &c-lang; library has been installed</term>
 <listitem><simpara>The character sets provided by the library function
  &iconv; can also be used as encodings.  To create such an encoding,
- call &make-encoding; with the character set name (a string) as
- <constant>:charset</constant> argument.</simpara>
+ call &make-encoding; with the character set name (a string) as the
+ <constant>:CHARSET</constant> argument.</simpara>
 
 <simpara>These encodings are not assigned to global variables, since
  there is no portable way to get the list of all character sets
  supported by &iconv;.</simpara>
 
 <simpara>On &gnu; systems (such as GNU/Linux and GNU/Hurd) and on
- systems with &gnu; libiconv you get this list by calling the
- <emphasis>program</emphasis> iconv: <command>iconv --list</command>.
+ systems with &libiconv; you get this list by calling the
+ <emphasis>program</emphasis> &iconv-u;: <command>iconv -l</command>.
  </simpara>
 
 <simpara>When an encoding is available both as a &enc-built-in; and
  through &iconv;, the &enc-built-in; is used, because it is more
  efficient and available across all platforms.</simpara>
 
-<simpara>The reason we use only &gnu; glibc-2.2 or &gnu; libiconv is
+<simpara>The reason we use only &glibc; 2.2 or &libiconv; is
  that the other &iconv; implementations are broken in various ways and
  we do not want deal with random &clisp; crashes caused by those bugs.
  If your system supplies an &iconv; implementation which passes the
- &gnu; libiconv's test suite, please report that to
+ &libiconv;'s test suite, please report that to
  <email>clisp-list@sf.net</email> and a future &clisp; version will use
  &iconv; on your system.</simpara>
 
