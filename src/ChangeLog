@@ -1,5 +1,9 @@
 2002-02-26  Sam Steingold  <sds@gnu.org>
 
+	* error.d (signal_and_debug): avoid a GCC warning
+
+2002-02-26  Sam Steingold  <sds@gnu.org>
+
 	lib dir can now be changed at run-time
 	* constsym.d, subr.d (set_lib_directory); added
 	* constobj.d (lib_dir): new object
