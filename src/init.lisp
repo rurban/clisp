@@ -562,7 +562,7 @@
 (proclaim '(special *load-truename* custom:*suppress-check-redefinition*
             *current-source-file*))
 (setq *load-truename* nil
-      custom:*suppress-check-redefinition* t
+      custom:*suppress-check-redefinition* nil
       *current-source-file* nil)
 
 (sys::%putd 'sys::check-redefinition
