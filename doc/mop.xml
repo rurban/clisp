@@ -286,7 +286,9 @@ combination metaobjects.</para></note>
  <title>Inheritance Structure of Metaobject Classes</title>
 
 <para>The inheritance structure of the specified metaobject classes is
- shown in <xref linkend="mop-inherit-struct"/>.  The class of every class
+ shown in <xref linkend="mop-inherit-struct"/> and in the
+ <ulink url='mop-classes-all.gif'>class inheritance diagram</ulink>.
+ The class of every class
  shown is &standard-class; except for the classes &t-t; and &function-t;,
  which are instances of the class &built-in-class;, and the classes
  &generic-function-t; and &standard-generic-function-t;, which are
@@ -837,6 +839,11 @@ requirement.  Other ordering relationships in the keyword arguments to
 <para>The result of the call to &ensure-class; is returned as the result
 of evaluating or executing the &defclass; form.</para>
 </section><!-- mop-cl-defclass -->
+
+<section><title>Inheritance Structure of Class Metaobject Classes</title>
+
+<!-- img src="mop-classes-class.gif" -->
+</section>
 
 <section id="mop-cl-readers">
  <title>Introspection: Readers for Class Metaobjects</title>
@@ -2113,6 +2120,11 @@ any dependents of the class metaobject will be updated by calling
 
 <section id="mop-sd"><title>Slot Definitions</title>
 
+<section><title>Inheritance Structure of Slot Definition Metaobject Classes</title>
+
+<!-- img src="mop-classes-slotdef.gif" -->
+</section>
+
 <section id="mop-sd-readers">
  <title>Introspection: Readers for Slot Definition Metaobjects</title>
 
@@ -2419,6 +2431,11 @@ restrictions.</para>
 </section><!-- mop-sd -->
 
 <section id="mop-gf"><title>Generic Functions</title>
+
+<section><title>Inheritance Structure of Generic Function Metaobject Classes</title>
+
+<!-- img src="mop-classes-genfun.gif" -->
+</section>
 
 <section id="mop-gf-readers">
  <title>Introspection: Readers for Generic Function Metaobjects</title>
@@ -3427,6 +3444,11 @@ override the system's definitions.</para>
 
 <section id="mop-meth"><title>Methods</title>
 
+<section><title>Inheritance Structure of Method Metaobject Classes</title>
+
+<!-- img src="mop-classes-method.gif" -->
+</section>
+
 <section id="mop-meth-mo-readers">
  <title>Introspection: Readers for Method Metaobjects</title>
 
@@ -4055,6 +4077,11 @@ method during initialization.</para></simplesect>
 
 <section id="mop-specializers"><title>Specializers</title>
 
+<section><title>Inheritance Structure of Specializer Metaobject Classes</title>
+
+<!-- img src="mop-classes-specializer.gif" -->
+</section>
+
 <section id="mop-spec-readers"><title>Introspection</title>
 
 <!-- begin specializer basic introspection -->
@@ -4315,6 +4342,12 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
 </section><!-- mop-specializers -->
 
 <section id="mop-meth-comb"><title>Method Combinations</title>
+
+<section><title>Inheritance Structure of Method Combination Metaobject Classes</title>
+
+<!-- img src="mop-classes-methcomb.gif" -->
+</section>
+
 <section id="mop-meth-comb-customize"><title>Customization</title>
 
 <!-- begin method-combination advanced customization -->
