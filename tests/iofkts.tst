@@ -691,6 +691,20 @@ T
                             (prin1-to-string (make-symbol st))))))
 t
 
+;; <http://www.lisp.org/HyperSpec/Issues/iss273-writeup.html>
+(with-output-to-string (*standard-output*)
+  (LET ((RESULT '()) (TABWIDTH 12))
+    (DOLIST (SYMBOL '(|x| |FoObAr| |fOo|))
+      (LET ((TAB -1))
+        (FORMAT T "~&")
+        (DOLIST (ESCAPE '(T NIL))
+          (DOLIST (CASE '(:UPCASE :DOWNCASE :CAPITALIZE))
+            (FORMAT T "~VT" (* (INCF TAB) TABWIDTH))
+            (WRITE SYMBOL :ESCAPE ESCAPE :CASE CASE)))))))
+" |x|        |x|         |x|         x           x           x
+ |FoObAr|   |FoObAr|    |FoObAr|    FoObAr      foobar      Foobar
+ |fOo|      |fOo|       |fOo|       fOo         foo         foo"
+
 ;; local variables:
 ;; eval: (make-local-variable 'write-file-functions)
 ;; eval: (remove-hook 'write-file-functions 'delete-trailing-whitespace t)
