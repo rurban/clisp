@@ -1,3 +1,20 @@
+2004-12-19  Bruno Haible  <bruno@clisp.org>
+
+	More powerful optimizations on places.
+	* places.lisp (occurs-in-p, commuting-forms-p,
+	simple-occurrence-in-basic-block-p, optimized-wrap-let*,
+	optimized-wrap-multiple-value-bind): New functions.
+	(push): Don't use simple-assignment-p, subst-in-form, sublis-in-form.
+	Instead use optimized-wrap-let*.
+	(pop): Likewise.
+	(pushnew): Likewise.
+	(remf): Don't use simple-assignment-p, subst-in-form. Instead simplify
+	differently in all cases.
+	(define-modify-macro): Don't use simple-assignment-p, subst-in-form.
+	Instead use optimized-wrap-let*.
+	(setf): Fix condition leading to error message. Don't use subst-in-form.
+	Instead use optimized-wrap-let*.
+
 2004-12-23  Sam Steingold  <sds@gnu.org>
 
 	* modules/matlab/matlab.lisp: added many mx functions

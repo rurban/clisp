@@ -536,3 +536,15 @@ ERROR
 (macroexpand-1 '(setf (values l) (foo)))
 (VALUES (SETQ L (FOO)))
 |#
+
+;; Check that the PUSH macroexpander doesn't blindly call subst or sublis.
+
+(define-setf-expander bothvars (x y)
+  (let ((g (gensym)))
+    (values '() '() (list g) `(progn (setq ,x ,g ,y ,g)) x)))
+BOTHVARS
+(let (a b)
+  (setf (bothvars a b) '())
+  (push (make-array 2) (bothvars a b))
+  (eq a b))
+T
