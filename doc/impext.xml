@@ -1114,7 +1114,7 @@ N. Gray to X3J13.</para>
  <varlistentry><term><literal
     role="sexp">(<function>GRAY:STREAM-WRITE-CHAR-SEQUENCE</function>
                  &stream-r; &sequence-r;
-                 &optional-amp; [&start-r; [&end-r; ]])</literal></term>
+                 &optional-amp; [&start-r; [&end-r;]])</literal></term>
   <listitem><simpara>Outputs the subsequence of &sequence-r; specified
    by &start-k; and &end-k; to &stream-r;.</simpara>
   <simpara>&sequence-r; is an &array-t; of &character-t;s, i.e. a &string-t;.
