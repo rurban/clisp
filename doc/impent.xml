@@ -153,7 +153,7 @@
 
 <!-- *** local *** -->
 <!ENTITY absolute-pathname "<link linkend='absolute-pathname'><function>EXT:ABSOLUTE-PATHNAME</function></link>">
-<!ENTITY ansi "<olink targetdoc='impnotes' targetptr='ansi'><varname>CUSTOM:mpex*ANSI*</varname></olink>">
+<!ENTITY ansi "<olink targetdoc='impnotes' targetptr='ansi'><varname>CUSTOM:*ANSI*</varname></olink>">
 <!ENTITY ansi-opt "<olink targetdoc='man' targetptr='opt-ansi'><option>-ansi</option></olink>">
 <!ENTITY apropos-do-more "<link linkend='apropos'><varname>CUSTOM:*APROPOS-DO-MORE*</varname></link>">
 <!ENTITY apropos-matcher "<link linkend='apropos'><varname>CUSTOM:*APROPOS-MATCHER*</varname></link>">
