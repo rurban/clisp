@@ -1,5 +1,9 @@
 2004-10-30  Bruno Haible  <bruno@clisp.org>
 
+	* unixaux.d (select): Fix wrong argument order passed to poll().
+
+2004-10-30  Bruno Haible  <bruno@clisp.org>
+
 	* stream.d (listen_handle, rd_ch_keyboard,
 	low_listen_unbuffered_socket): Rename local variable handle_menge to
 	handle_set.
