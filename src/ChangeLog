@@ -1,3 +1,10 @@
+2004-10-12  Bruno Haible  <bruno@clisp.org>
+
+	* clos-methcomb2.lisp (compute-effective-method-<generic-function>):
+	Renamed from compute-effective-method-<standard-generic-function>.
+	* clos-genfun4.lisp (compute-effective-method): Generalize method from
+	<standard-generic-function> to <generic-function>.
+
 2004-10-16  Bruno Haible  <bruno@clisp.org>
 
 	Mark functions that are part of the .fas file ABI.
