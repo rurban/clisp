@@ -1761,7 +1761,7 @@ containing:</para>
  <replaceable>module-dir</replaceable> ...</command> runs the linking
  set in <replaceable>source-dir</replaceable>, with the module in
  <replaceable>module-dir</replaceable> loaded.  More than one module can
- be specified. If &clisp; has been built with the configuration option
+ be specified.  If &clisp; has been built with the configuration option
  <option>--with-dynamic-modules</option>, the loading will be performed
  through dynamic loading.  Otherwise - this is much slower - a temporary
  linking set will be created and deleted afterwards.  Note that dynamic
@@ -1771,9 +1771,9 @@ containing:</para>
 
 <section><title>Example</title>
 
-<para>To link in the FFI bindings for the Linux operating system, the
- following steps are needed.  (Step 1 and step 2 need not be executed in
- this order.)</para>
+<para>To link in the FFI bindings for the GNU/Linux operating system,
+ the following steps are needed.  (Step 1 and step 2 need not be
+ executed in this order.)</para>
 
 <orderedlist numeration="arabic">
 <listitem><para>Create a new module set:
@@ -1786,15 +1786,15 @@ containing:</para>
    with
 <programlisting>NEW_LIBS="$file_list -lm"</programlisting>
 
-   Modify the newly created <function>linux/link.sh</function> to load
-   <function>linux.fas</function> before saving the memory image:
+   Modify the newly created <filename>linux/link.sh</filename> to load
+   <filename>linux.fas</filename> before saving the memory image:
    replace
 <programlisting>TO_LOAD=''</programlisting>
    with
 <programlisting>TO_LOAD='/<replaceable>somewhere</replaceable>/bindings/linux.fas'</programlisting></para></listitem>
 
-<listitem><para>Compile <function>linux.lisp</function>, creating
-  <function>linux.c</function>:
+<listitem><para>Compile <filename>linux.lisp</filename>, creating
+  <filename>linux.c</filename>:
 
 <programlisting>$ clisp -c /<replaceable>somewhere</replaceable>/bindings/linux.lisp</programlisting></para></listitem>
 
@@ -3614,9 +3614,10 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    the &clisp; executables so that clicking on them would make &clisp;
    execute the appropriate code.
   </simpara></listitem></varlistentry>
- <varlistentry><term>Linux with <option>CONFIG_BINFMT_MISC=y</option></term>
+ <varlistentry><term>Linux kernel with
+               <option>CONFIG_BINFMT_MISC=y</option></term>
   <listitem><simpara>Associate the extensions <filename>fas</filename>
-   and <filename>lsp</filename> with &clisp;; then you can make the
+   and <filename>lisp</filename> with &clisp;; then you can make the
    files executable and run them from the command line.
   </simpara></listitem></varlistentry>
  <varlistentry><term>Amiga</term>
@@ -3628,9 +3629,9 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
   </simpara></listitem></varlistentry>
 </variablelist>
 
-<para>These three techniques apply to a single <filename>lsp</filename>
+<para>These three techniques apply to a single <filename>lisp</filename>
  or <filename>fas</filename> file.  If your application is made up of
- several <filename>lsp</filename> or <filename>fas</filename> files, you
+ several <filename>lisp</filename> or <filename>fas</filename> files, you
  can simply concatenate them (using <function>cat</function>(1)) into
  one file; the techniques then apply to that concatenated file.</para>
 
@@ -3638,7 +3639,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
 <!-- #ifdef UNIX -->
 <varlistentry><term>Platform dependent: &unix; platforms only.</term>
 <listitem><para>On Unix, a text file (<filename>fas</filename> or
- <filename>lsp</filename>) can be made executable by adding a first line
+ <filename>lisp</filename>) can be made executable by adding a first line
  of the form
  <programlisting>#!<replaceable>interpreter</replaceable> [<replaceable>interpreter-args</replaceable>]</programlisting>
  and using <command>chmod</command>(1) to make the script executable.
