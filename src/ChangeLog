@@ -1,3 +1,8 @@
+2002-03-02  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
+	* spvw_language.d (current_language_o): typo: argument should be
+	`uintL', not `uint'
+
 2002-03-02  Sam Steingold  <sds@gnu.org>
 
 	* package.d (%SET-PACKAGE-LOCK): do not barf
@@ -272,7 +277,7 @@
 	(DEF-C-VAR, DEF-CALL-IN): use COMPILE situation
 	instead of COMPILE-ONCE-ONLY
 
-2002-02-17  Arseny Slobodjuck <ampy@ich.dvo.ru>
+2002-02-17  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	smooth Ctrl-C, Ctrl-Break handling not depending on whether
 	interrupted thread is alive when temp_interrupt_handler executes
@@ -833,7 +838,7 @@
 
 	* compiler.lisp (version) [CROSS]: updated (19071996 --> 20010726)
 
-2001-12-20  Arseny Slobodjuck <ampy@ich.dvo.ru>
+2001-12-20  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	* lispbibl.d (OS_error): use asciz_out_s(), not asciz_out_1(),
 	to output a string
@@ -1037,7 +1042,7 @@
 
 	* stream.d: translated the comments
 
-2001-10-28  Arseny Slobodjuck <ampy@ich.dvo.ru>
+2001-10-28  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 	    Sam Steingold  <sds@gnu.org>
 
 	* stream.d (SCREEN) [WIN32_NATIVE]: w95/98 bug fixes
@@ -1113,7 +1118,7 @@
 	(main): when argv_execute_file is "", do not call LOAD,
 	just set EXT:*ARGS*
 
-2001-10-05  Arseny Slobodjuck <ampy@ich.dvo.ru>
+2001-10-05  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 	    Sam Steingold  <sds@gnu.org>
 
 	Work with terminal/console encoding more directly in win32.
@@ -1126,7 +1131,7 @@
 	(init_win32): ditto
 	(lowlevel_full_read, full_write) [UNICODE]: don't translate
 
-2001-10-05  Arseny Slobodjuck <ampy@ich.dvo.ru>
+2001-10-05  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 	    Sam Steingold  <sds@gnu.org>
 
 	move win32 console attributes to non-GC-ed area to ensure
@@ -1841,7 +1846,7 @@
 
 	* pathname.d (PARSE-NAMESTRING): Verify consp before accessing Cdr.
 
-2001-07-31  Arseny Slobodjuck <ampy@crosswinds.net>
+2001-07-31  Arseny Slobodjuck  <ampy@crosswinds.net>
 	    Sam Steingold  <sds@gnu.org>
 
 	* stream.d [WIN32_NATIVE]
@@ -2113,7 +2118,7 @@
 	* compiler.lisp (*load-forms*): new variable
 	(compile-file): bind it
 
-2001-07-18  Arseny Slobodjuck <ampy@crosswinds.net>
+2001-07-18  Arseny Slobodjuck  <ampy@crosswinds.net>
 	    Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (legal_namechar): PATHNAME_WIN32:
@@ -3390,7 +3395,7 @@
 
 	* places.lisp (PROGN, LOCALLY, IF): New defsetf expanders.
 
-2001-02-17  Arseny Slobodjuck <ampy@crosswinds.net>
+2001-02-17  Arseny Slobodjuck  <ampy@crosswinds.net>
             Bruno Haible  <haible@clisp.cons.org>
 
 	* lispbibl.d (SCREEN): Also define on WIN32_NATIVE.
