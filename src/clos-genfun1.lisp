@@ -192,6 +192,9 @@
     (:fixed-slot-locations t)
     (:generic-accessors nil)))
 
+(defun std-gf-undeterminedp (gf)
+  (eq (std-gf-signature gf) (sys::%unbound)))
+
 ;; Preliminary.
 ;; During bootstrapping, only <standard-generic-function> instances are used.
 (defun generic-function-methods (gf)
@@ -200,6 +203,8 @@
   (std-gf-default-method-class gf))
 (defun generic-function-signature (gf)
   (std-gf-signature gf))
+(defun generic-function-undeterminedp (gf)
+  (std-gf-undeterminedp gf))
 (defun generic-function-method-combination (gf)
   (std-gf-method-combination gf))
 (defun generic-function-argorder (gf)
@@ -218,6 +223,7 @@
 (defvar |#'generic-function-methods| nil)
 (defvar |#'generic-function-method-class| nil)
 (defvar |#'generic-function-signature| nil)
+(defvar |#'generic-function-undeterminedp| nil)
 (defvar |#'generic-function-method-combination| nil)
 (defvar |#'generic-function-argorder| nil)
 (defvar |#'generic-function-declarations| nil)
@@ -244,6 +250,12 @@
           (eq gf |#'compute-effective-method|))
     (std-gf-signature gf)
     (generic-function-signature gf)))
+
+(defun safe-gf-undeterminedp (gf)
+  (if (or (eq gf #'generic-function-undeterminedp) ; for bootstrapping
+          (eq gf |#'generic-function-undeterminedp|))
+    (std-gf-undeterminedp gf)
+    (generic-function-undeterminedp gf)))
 
 (defun safe-gf-method-combination (gf)
   (if (or (eq gf #'generic-function-method-combination) ; for bootstrapping

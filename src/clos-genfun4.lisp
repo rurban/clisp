@@ -88,7 +88,7 @@
   (:method ((gf t) &rest args)
     (let* ((methods (safe-gf-methods gf))
            (dispatching-arg
-             (if (eq (std-gf-signature gf) (sys::%unbound))
+             (if (safe-gf-undeterminedp gf)
                nil
                (let ((reqnum (sig-req-num (safe-gf-signature gf))))
                  (single-dispatching-arg reqnum methods)))))
@@ -110,7 +110,7 @@
   (:method ((gf t) (combination method-combination) (group-name symbol) (group-filter function) &rest args)
     (let* ((methods (remove-if-not group-filter (safe-gf-methods gf)))
            (dispatching-arg
-             (if (eq (std-gf-signature gf) (sys::%unbound))
+             (if (safe-gf-undeterminedp gf)
                nil
                (let ((reqnum (sig-req-num (safe-gf-signature gf))))
                  (single-dispatching-arg reqnum methods)))))
@@ -133,7 +133,7 @@
     (let* ((methods (remove-if-not #'null (safe-gf-methods gf)
                                    :key #'method-qualifiers))
            (dispatching-arg
-             (if (eq (std-gf-signature gf) (sys::%unbound))
+             (if (safe-gf-undeterminedp gf)
                nil
                (let ((reqnum (sig-req-num (safe-gf-signature gf))))
                  (single-dispatching-arg reqnum methods)))))
@@ -404,6 +404,24 @@
                'generic-function-lambda-list gf))
       (std-gf-signature gf))))
 (setq |#'generic-function-signature| #'generic-function-signature)
+
+;; Not in MOP.
+(let ((*allow-making-generic* t))
+  (defgeneric generic-function-undeterminedp (generic-function)
+    (:method ((gf generic-function))
+      ;; It's a pity that this is not a MOP function. So we have to catch errors
+      ;; in order to peek into the state of a generic function.
+      (block nil
+        (sys::%handler-bind
+            ((ERROR #'(lambda (condition)
+                        (declare (ignore condition))
+                        (return t))))
+          (generic-function-lambda-list gf)
+          nil)))
+    (:method ((gf standard-generic-function))
+      (check-generic-function-initialized gf)
+      (std-gf-undeterminedp gf))))
+(setq |#'generic-function-undeterminedp| #'generic-function-undeterminedp)
 
 ;; MOP p. 80
 (let ((*allow-making-generic* t))
