@@ -139,13 +139,13 @@
 
 ;; Preliminary.
 (defun compute-discriminating-function (gf)
-  (compute-discriminating-function-<standard-generic-function> gf))
+  (compute-discriminating-function-<generic-function> gf))
 
-(defun compute-discriminating-function-<standard-generic-function> (gf)
+(defun compute-discriminating-function-<generic-function> (gf)
   (multiple-value-bind (bindings lambdabody) (compute-dispatch gf)
     (let ((preliminary
-           (eval `(LET ,bindings
-                    (DECLARE ,@(safe-gf-declspecs gf) (COMPILE))
+            (eval `(LET ,bindings
+                     (DECLARE ,@(safe-gf-declspecs gf) (COMPILE))
                      (%GENERIC-FUNCTION-LAMBDA ,@lambdabody)))))
       (assert (<= (sys::%record-length preliminary) 3))
       preliminary)))
@@ -1213,7 +1213,7 @@
   (let ((dispatch
           (funcall (cond ((or (eq gf |#'compute-discriminating-function|) ; for bootstrapping
                               (eq gf |#'compute-applicable-methods-using-classes|))
-                          #'compute-discriminating-function-<standard-generic-function>)
+                          #'compute-discriminating-function-<generic-function>)
                          (t #'compute-discriminating-function))
                    gf)))
     ; Some checks, to guarantee that user-defined methods on
