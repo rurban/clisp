@@ -6,26 +6,26 @@
  <ulink url="http://www.zlib.org">ZLIB</ulink>.</para>
 
 <variablelist>
-<varlistentry><term><literal role="sexp">(zlib:z-version)</literal></term>
+<varlistentry><term><literal role="sexp">(ZLIB:Z-VERSION)</literal></term>
  <listitem><simpara>Return the string version of underlying library.
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(zlib:compress source
+<varlistentry><term><literal role="sexp">(ZLIB:COMPRESS source
    &key-amp; level)</literal></term>
  <listitem><simpara>Compress the source &vector-t;.
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(zlib:uncompress
+<varlistentry><term><literal role="sexp">(ZLIB:UNCOMPRESS
    source destination-length)</literal></term>
  <listitem><simpara>Uncompress the &vector-t; (returned
    by <function>ZLIB:COMPRESS</function>).</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(zlib:compress-bound
+<varlistentry><term><literal role="sexp">(ZLIB:COMPRESS-BOUND
    source-length)</literal></term>
  <listitem><simpara>Return the maximum length of the return value
    of <function>ZLIB:COMPRESS</function>.</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(zlib:error-string
+<varlistentry><term><literal role="sexp">(ZLIB:ERROR-STRING
    errno)</literal></term>
  <listitem><simpara>Return a descriptive string for the supplied error
    code.</simpara></listitem></varlistentry>
-<varlistentry><term><classname>zlib:zerror</classname></term>
+<varlistentry><term><classname>ZLIB:ZERROR</classname></term>
  <listitem><simpara>An &error-t; sometimes &signal;ed
    by <function>ZLIB:COMPRESS</function>
    and <function>ZLIB:UNCOMPRESS</function>.
