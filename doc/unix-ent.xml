@@ -75,6 +75,7 @@
 <!ENTITY setrlimit "<ulink url='&unix-f;/setrlimit.html'><function>setrlimit</function></ulink>">
 <!ENTITY setsockopt "<ulink url='&unix-f;/setsockopt.html'><function>setsockopt</function></ulink>">
 <!ENTITY shutdown "<ulink url='&unix-f;/shutdown.html'><function>shutdown</function></ulink>">
+<!ENTITY sockatmark "<ulink url='&unix-f;/sockatmark.html'><function>sockatmark</function></ulink>">
 <!ENTITY socket "<ulink url='&unix-f;/socket.html'><function>socket</function></ulink>">
 <!ENTITY socketpair "<ulink url='&unix-f;/socketpair.html'><function>socketpair</function></ulink>">
 <!ENTITY stat "<ulink url='&unix-f;/stat.html'><function>stat</function></ulink>">
