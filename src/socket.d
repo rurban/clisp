@@ -870,17 +870,15 @@ LISPFUN(socket_service_port,seclass_read,0,2,norest,nokey,0,NIL)
  can trigger GC */
 {
   var object protocol = popSTACK();
-  var object serv = popSTACK();
-  var struct servent * se;
   var const char * proto;
-
   if (missingp(protocol))
     proto = "tcp";
-  else if (stringp(protocol))
-    proto = TheAsciz(string_to_asciz(protocol,Symbol_value(S(ascii))));
   else
-    fehler_string(protocol);
+    proto = TheAsciz(string_to_asciz(check_string(protocol),
+                                     Symbol_value(S(ascii))));
 
+  var object serv = popSTACK();
+  var struct servent * se;
   if (missingp(serv) || eq(serv,S(Kdefault))) {
     var uintL count = 0;
     #if !defined(WIN32) && !defined(UNIX_CYGWIN32)

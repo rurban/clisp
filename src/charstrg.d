@@ -898,6 +898,7 @@ global object copy_string (object string) {
  < ergebnis: Simple-String with the same characters
  can trigger GC */
 global object coerce_ss (object obj) {
+ start:
  #ifdef TYPECODES
   switch (typecode(obj))
  #else
@@ -917,8 +918,9 @@ global object coerce_ss (object obj) {
       /* other string, copy it */
       return copy_string(obj);
      default:
-       fehler_string(obj);
+       break;
     }
+  obj = check_string(obj); goto start;
 }
 
 #ifndef TYPECODES
@@ -929,6 +931,7 @@ global object coerce_ss (object obj) {
  can trigger GC */
 global object coerce_imm_ss (object obj)
 {
+ start:
   if (orecordp(obj))
     switch (Record_type(obj)) {
       #ifdef UNICODE
@@ -1056,7 +1059,7 @@ global object coerce_imm_ss (object obj)
       default:
         break;
     }
-  fehler_string(obj);
+  obj = check_string(obj); goto start;
 }
 #endif
 
@@ -1068,6 +1071,7 @@ global object coerce_imm_ss (object obj)
  can trigger GC */
 global object coerce_normal_ss (object obj)
 {
+ start:
   if (orecordp(obj))
    restart_it:
     switch (Record_type(obj)) {
@@ -1089,7 +1093,7 @@ global object coerce_normal_ss (object obj)
       default:
         break;
     }
-  fehler_string(obj);
+  obj = check_string(obj); goto start;
 }
 #endif
 
@@ -1102,6 +1106,7 @@ global object coerce_normal_ss (object obj)
  can trigger GC */
 global object coerce_imm_normal_ss (object obj)
 {
+ start:
   if (orecordp(obj))
     switch (Record_type(obj)) {
       case Rectype_Imm_S32string:
@@ -1134,7 +1139,7 @@ global object coerce_imm_normal_ss (object obj)
       default:
         break;
     }
-  fehler_string(obj);
+  obj = check_string(obj); goto start;
 }
 #endif
 #endif
@@ -1447,26 +1452,13 @@ global object name_char (object string) {
   return NIL;
 }
 
-/* UP: checks a character that is to be inserted into a string
- test_char_arg()
- > STACK_0: argument
- < result: argument as character
- increases STACK by 1 */
-local object test_char_arg (void) {
-  var object arg = popSTACK(); /* argument */
-  if (charp(arg)) {
-    return arg;
-  } else
-    fehler_char(arg);
-}
-
 LISPFUNNF(standard_char_p,1)
 { /* (STANDARD-CHAR-P char), CLTL p. 234
   (standard-char-p char) ==
    (or (char= char #\Newline) (char<= #\Space char #\~))
  Standard-Chars have a code c, with
        $20 <= c <= $7E or c = NL. */
-  var object arg = test_char_arg();
+  var object arg = check_char(popSTACK());
   var chart ch = char_code(arg);
   var cint c = as_cint(ch);
   VALUES_IF((('~' >= c) && (c >= ' ')) || (c == NL));
@@ -1474,40 +1466,40 @@ LISPFUNNF(standard_char_p,1)
 
 LISPFUNNF(graphic_char_p,1)
 { /* (GRAPHIC-CHAR-P char), CLTL p. 234 */
-  var object arg = test_char_arg();
+  var object arg = check_char(popSTACK());
   VALUES_IF(graphic_char_p(char_code(arg)));
 }
 
 LISPFUNN(char_width,1) /* (CHAR-WIDTH char) */
 {
-  var object arg = test_char_arg();
+  var object arg = check_char(popSTACK());
   VALUES1(fixnum(char_width(char_code(arg))));
 }
 
 LISPFUNNF(string_char_p,1)
 { /* (STRING-CHAR-P char), CLTL p. 235 - all characters are string-chars. */
-  var object arg = test_char_arg();
+  var object arg = check_char(popSTACK());
   VALUES1(T);
 }
 
 #if (base_char_code_limit < char_code_limit)
 LISPFUNN(base_char_p,1) /* (SYSTEM::BASE-CHAR-P char) */
 {
-  var object arg = test_char_arg();
+  var object arg = check_char(popSTACK());
   VALUES_IF(as_cint(char_code(arg)) < base_char_code_limit);
 }
 #endif
 
 LISPFUNNF(alpha_char_p,1)
 { /* (ALPHA-CHAR-P char), CLTL p. 235 - test with ALPHAP. */
-  var object arg = test_char_arg();
+  var object arg = check_char(popSTACK());
   VALUES_IF(alphap(char_code(arg)));
 }
 
 LISPFUNNF(upper_case_p,1)
 { /* (UPPER-CASE-P char), CLTL p. 235: upper-case-characters are those with
   a code c with 0 <= c < $100, that are different from (downcase char) . */
-  var object arg = test_char_arg();
+  var object arg = check_char(popSTACK());
   var chart ch = char_code(arg);
   VALUES_IF(!chareq(down_case(ch),ch));
 }
@@ -1515,7 +1507,7 @@ LISPFUNNF(upper_case_p,1)
 LISPFUNNF(lower_case_p,1)
 { /* (LOWER-CASE-P char), CLTL p. 235: lower-case-characters are those with
   a code c with 0 <= c < $100, that are different from (upcase char) . */
-  var object arg = test_char_arg();
+  var object arg = check_char(popSTACK());
   var chart ch = char_code(arg);
   VALUES_IF(!chareq(up_case(ch),ch));
 }
@@ -1525,7 +1517,7 @@ LISPFUNNF(both_case_p,1)
  (both-case-p char) == (or (upper-case-p char) (lower-case-p char))
  both-case-characters are those with a code c with 0 <= c < $100.
  For them (downcase char) and (upcase char) are different. */
-  var object arg = test_char_arg();
+  var object arg = check_char(popSTACK());
   var chart ch = char_code(arg);
   VALUES_IF(!chareq(down_case(ch),up_case(ch)));
 }
@@ -1560,7 +1552,7 @@ LISPFUN(digit_char_p,seclass_foldable,1,1,norest,nokey,0,NIL)
  if radix>=10: c must be >= '0' and <= '9' or
                   (upcase c) must be >= 'A' and < 'A'-10+radix , else NIL. */
   var uintWL radix = test_radix_arg(); /* basis >=2, <=36 */
-  var object arg = test_char_arg();
+  var object arg = check_char(popSTACK());
   var chart ch = char_code(arg);
   var cint c = as_cint(ch);
  #ifdef UNICODE
@@ -1641,7 +1633,7 @@ LISPFUN(digit_char_p,seclass_foldable,1,1,norest,nokey,0,NIL)
 LISPFUNNF(alphanumericp,1)
 { /* (ALPHANUMERICP char), CLTL p. 236 alphanumeric characters are the
    digits '0',...,'9' and the alphabetic characters. */
-  var object arg = test_char_arg();
+  var object arg = check_char(popSTACK());
   VALUES_IF(alphanumericp(char_code(arg)));
 }
 
@@ -1882,7 +1874,7 @@ LISPFUN(char_not_lessp,seclass_foldable,1,0,rest,nokey,0,NIL)
 
 LISPFUNNF(char_code,1)
 { /* (CHAR-CODE char), CLTL p. 239 */
-  var object arg = test_char_arg();
+  var object arg = check_char(popSTACK());
   VALUES1(fixnum(as_cint(char_code(arg)))); /* ascii-code as fixnum */
 }
 
@@ -1924,13 +1916,13 @@ LISPFUNNR(character,1)
 
 LISPFUNNF(char_upcase,1)
 { /* (CHAR-UPCASE char), CLTL p. 241 */
-  var object arg = test_char_arg();
+  var object arg = check_char(popSTACK());
   VALUES1(code_char(up_case(char_code(arg)))); /* convert into uppercase letters */
 }
 
 LISPFUNNF(char_downcase,1)
 { /* (CHAR-DOWNCASE char), CLTL p. 241 */
-  var object arg = test_char_arg();
+  var object arg = check_char(popSTACK());
   VALUES1(code_char(down_case(char_code(arg)))); /* convert into lowercase letters */
 }
 
@@ -1966,7 +1958,7 @@ LISPFUN(digit_char,seclass_foldable,1,1,norest,nokey,0,NIL)
 
 LISPFUNNF(char_int,1)
 { /* (CHAR-INT char), CLTL p. 242 */
-  var object arg = test_char_arg();
+  var object arg = check_char(popSTACK());
   VALUES1(fixnum(as_cint(char_code(arg))));
 }
 
@@ -1991,7 +1983,7 @@ LISPFUNNF(int_char,1)
 
 LISPFUNNF(char_name,1)
 { /* (CHAR-NAME char), CLTL p. 242 */
-  var object arg = test_char_arg();
+  var object arg = check_char(popSTACK());
   VALUES1(char_name(char_code(arg)));
 }
 
@@ -2128,9 +2120,7 @@ local uintL test_index_arg (uintL len)
 
 LISPFUNNR(char,2)
 { /* (CHAR string index), CLTL p. 300 */
-  var object string = STACK_1;
-  if (!stringp(string))
-    fehler_string(string);
+  var object string = check_string(STACK_1);
   var uintL len;
   var uintL offset = 0;
   /* Don't use unpack_string_ro() -- we need (array-dimension string 0),
@@ -2162,10 +2152,9 @@ LISPFUNN(store_char,3)
 /* (SYSTEM::STORE-CHAR string index newchar)
  = (SETF (CHAR string index) newchar), CLTL p. 300 */
 {
-  var object newchar = test_char_arg(); /* newchar-Argument */
+  STACK_2 = check_string(STACK_2); /* string-argument */
+  var object newchar = check_char(popSTACK()); /* newchar-Argument */
   var object string = STACK_1; /* string-argument */
-  if (!stringp(string)) /* must be a string */
-    fehler_string(string);
   var uintL len;
   var uintL offset = 0;
   /* Don't use unpack_string_rw() -- we need (array-dimension string 0),
@@ -2188,7 +2177,7 @@ LISPFUNN(store_schar,3)
 /* (SYSTEM::STORE-SCHAR simple-string index newchar)
  = (SETF (SCHAR simple-string index) newchar), CLTL p. 300 */
 {
-  var object newchar = test_char_arg(); /* newchar-argument */
+  var object newchar = check_char(popSTACK()); /* newchar-argument */
   var object string = STACK_1; /* string-argument */
   if (!simple_string_p(string)) /* must be a simple-string */
     fehler_sstring(string);
@@ -2239,13 +2228,12 @@ global object test_vector_limits (stringarg* arg) {
  > STACK_0: optional :end-argument
  < stringarg arg: description of the argument
  < result: string-argument
- increases STACK by 3 */
+ increases STACK by 3
+ can trigger GC */
 global object test_string_limits_ro (stringarg* arg) {
   /* check string-argument: */
-  var object string = STACK_2;
-  if (!stringp(string))
-    fehler_string(string);
-  arg->string = unpack_string_ro(string,&arg->len,&arg->offset);
+  STACK_2 = check_string(STACK_2);
+  arg->string = unpack_string_ro(STACK_2,&arg->len,&arg->offset);
   return test_vector_limits(arg);
 }
 
@@ -3392,13 +3380,13 @@ global object string_concat (uintC argcount) {
   var uintL total_length = 0;
   if (argcount > 0) {
     var gcv_object_t* argptr = args_pointer;
-    var uintC count;
-    dotimespC(count,argcount, {
+    var uintC count = argcount;
+    do {
       var object arg = NEXT(argptr); /* next argument */
       if (!stringp(arg))
-        fehler_string(arg);
+        NEXT(argptr) = arg = check_string(arg);
       total_length += vector_length(arg);
-    });
+    } while (--count);
   }
   /* total_length is now the total length. */
   var object new_string = allocate_string(total_length); /* new string */

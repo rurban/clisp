@@ -1590,13 +1590,10 @@ global int main()
 # printf("typedef enum { condition, serious_condition, error, program_error, source_program_error, control_error, arithmetic_error, division_by_zero, floating_point_overflow, floating_point_underflow, cell_error, unbound_variable, undefined_function, unbound_slot, type_error, keyword_error, charset_type_error, package_error, print_not_readable, parse_error, stream_error, end_of_file, reader_error, file_error, storage_condition, interrupt_condition, warning, } condition_t;\n");
 # printf("nonreturning_function(extern, fehler, (condition_t errortype, const char * errorstring));\n");
 # printf("nonreturning_function(extern, fehler_list, (object obj));\n");
-# printf("nonreturning_function(extern, fehler_symbol, (object obj));\n");
 # printf("nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));\n");
 # printf("nonreturning_function(extern, fehler_vector, (object obj));\n");
 # printf("nonreturning_function(extern, fehler_char, (object obj));\n");
-# printf("nonreturning_function(extern, fehler_string, (object obj));\n");
 # printf("nonreturning_function(extern, fehler_sstring, (object obj));\n");
-  printf("#define check_char(obj)  if (!charp(obj)) { fehler_char(obj); }\n");
   printf("#define check_uint8(obj)  if (!uint8_p(obj)) { fehler_uint8(obj); }\n");
   printf("#define check_sint8(obj)  if (!sint8_p(obj)) { fehler_sint8(obj); }\n");
   printf("#define check_uint16(obj)  if (!uint16_p(obj)) { fehler_uint16(obj); }\n");

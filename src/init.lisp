@@ -189,12 +189,9 @@
    special type ftype function inline notinline ignore ignorable optimize speed
    space safety compilation-speed debug declaration dynamic-extent compile
    ;; exports from condition.lisp
-   handler-bind                  ; pre-drawn for compiler.lisp
-   find-restart compute-restarts ; pre-drawn for user1.lisp
-   invoke-restart-interactively  ; dito
-   restart                       ; avoid conflict with user1.lisp
-   continue                      ; avoid conflict with user1.lisp
-   end-of-file                   ; avoid conflict with init.lisp, user2.lisp
+   make-condition               ; pre-drawn for clos.lisp
+   handler-bind                 ; pre-drawn for compiler.lisp
+   end-of-file restart          ; avoid conflict with defs2.lisp
    ;; types for error-of-type:
    condition warning serious-condition error storage-condition type-error
    program-error control-error package-error print-not-readable parse-error
