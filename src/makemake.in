@@ -2280,8 +2280,8 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   if [ $f = spvw ] ; then
     dependsc=$dependsc' version.h'
   fi
-  if [ $f = foreign -a $HOS != win32 ] ; then
-    dependsc=$dependsc" avcall${NEXT}avcall.h callback${NEXT}callback.h"
+  if [ $f = foreign ] ; then
+    dependsc=$dependsc' avcall.h callback.h'
   fi
   flags=$XCFLAGS
   if [ $f = stream -o $f = noreadline ] ; then
@@ -2440,14 +2440,14 @@ fi
 if [ -n "$with_dynamic_ffi" ] ; then
   for f in avcall callback; do
     if [ $HOS = unix ] ; then
-      echol "$f/lib$f.a :"
-      echotab "cd $f && \$(MAKE) && \$(MAKE) check"
-      echol
-      echol "lib$f.a : $f/lib$f.a"
-      echotab "-\$(LN) $f/lib$f.a lib$f.a"
+      echol "$f.h lib$f.a :"
+      echotab "builddir=\"\`pwd\`\"; cd $f && \$(MAKE) && \$(MAKE) minicheck && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
       echol
     fi
     if [ $HOS = win32 ] ; then
+      echol "$f.h : ${SRCTOPDIR_M}ffcall${NEXT_M}$f${NEXT_M}$f.h"
+      echotab "-\$(LN) ${SRCTOPDIR_}ffcall${NEXT_}$f${NEXT_}$f.h $f.h"
+      echol
       echol "$f.lib : ${SRCTOPDIR_M}ffcall${NEXT_M}$f${NEXT_M}$f.lib"
       echotab "-\$(LN) ${SRCTOPDIR_}ffcall${NEXT_}$f${NEXT_}$f.lib $f.lib"
       echol
@@ -3403,11 +3403,11 @@ clean1 : clean0
 !!
 if [ $HOS = win32 ] ; then
 cat <<!!
-	-\$(RM) sigsegv.lib
+	-\$(RM) sigsegv.lib avcall.lib callback.lib
 !!
 else
 cat <<!!
-	-\$(RM) libsigsegv.*
+	-\$(RM) libsigsegv.* libavcall.* libcallback.*
 !!
 fi
 cat <<!!
@@ -3431,6 +3431,12 @@ clean3 : clean2
 clean4 : clean3
 	-\$(RM) \$(CFILES)
 !!
+if [ -n "$with_dynamic_ffi" ] ; then
+cat <<!!
+	-\$(RM) avcall.h
+	-\$(RM) callback.h vacall_r.h trampoline_r.h
+!!
+fi
 if [ $TERMINAL = readline ] ; then
 cat <<!!
 	cd ${READLINEDIR} && \$(MAKE) clean
