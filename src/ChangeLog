@@ -11,21 +11,21 @@
 	(gcinvariant_hashcode2stable_p): New function.
 	(hashcode3_cons0, hashcode3_cons1, hashcode3_cons2, hashcode3_cons3):
 	Mark as inline.
-	(gcinvariant_hashcode3_cons0_p, gcinvariant_hashcode3_cons1_p,
-	gcinvariant_hashcode3_cons2_p, gcinvariant_hashcode3_cons3_p,
-	gcinvariant_hashcode3_p): New functions.
-	(hashcode3stable_atom, hashcode3stable_cons0, hashcode3stable_cons1,
-	hashcode3stable_cons2, hashcode3stable_cons3, hashcode3stable): New
+	(gcinvariant_hashcode3_cons0_p, gcinvariant_hashcode3_cons1_p)
+	(gcinvariant_hashcode3_cons2_p, gcinvariant_hashcode3_cons3_p)
+	(gcinvariant_hashcode3_p): New functions.
+	(hashcode3stable_atom, hashcode3stable_cons0, hashcode3stable_cons1)
+	(hashcode3stable_cons2, hashcode3stable_cons3, hashcode3stable): New
 	functions.
-	(gcinvariant_hashcode3stable_atom_p,
-	gcinvariant_hashcode3stable_cons0_p,
-	gcinvariant_hashcode3stable_cons1_p,
-	gcinvariant_hashcode3stable_cons2_p,
-	gcinvariant_hashcode3stable_cons3_p, gcinvariant_hashcode3stable_p):
+	(gcinvariant_hashcode3stable_atom_p)
+	(gcinvariant_hashcode3stable_cons0_p)
+	(gcinvariant_hashcode3stable_cons1_p)
+	(gcinvariant_hashcode3stable_cons2_p)
+	(gcinvariant_hashcode3stable_cons3_p, gcinvariant_hashcode3stable_p):
 	New functions.
-	(gcinvariant_hashcode4_cons0_p, gcinvariant_hashcode4_cons1_p,
-	gcinvariant_hashcode4_cons2_p, gcinvariant_hashcode4_cons3_p,
-	gcinvariant_hashcode4_p): New functions.
+	(gcinvariant_hashcode4_cons0_p, gcinvariant_hashcode4_cons1_p)
+	(gcinvariant_hashcode4_cons2_p, gcinvariant_hashcode4_cons3_p)
+	(gcinvariant_hashcode4_p): New functions.
 	(gcinvariant_Pseudofun): New type.
 	(gcinvariantfn): New macro.
 	(hashcode_gc_invariant_p): Use an indirection through gcinvariantfn.
@@ -40,8 +40,8 @@
 	gcinvariant_hashcode* functions.
 	* init.lisp: Export fasthash-eql, stablehash-eql, fasthash-equal,
 	stablehash-equal from EXT.
-	* defs1.lisp (ext:fasthash-eql, ext:stablehash-eql, ext:fasthash-equal,
-	ext:stablehash-equal): New function aliases.
+	* defs1.lisp (ext:fasthash-eql, ext:stablehash-eql, ext:fasthash-equal)
+	(ext:stablehash-equal): New function aliases.
 
 2004-05-12  Bruno Haible  <bruno@clisp.org>
 
@@ -61,8 +61,8 @@
 	[GENERATIONAL_GC]: Set update_hashtable_invalid to false.
 	* spvw_memfile.d: Update.
 	* hashtabl.d (hashcode1stable): New function.
-	(htflags_test_eq_B, htflags_test_eql_B, htflags_test_equal_B,
-	htflags_test_equalp_B, htflags_stablehash_B): New macros.
+	(htflags_test_eq_B, htflags_test_eql_B, htflags_test_equal_B)
+	(htflags_test_equalp_B, htflags_stablehash_B): New macros.
 	(hashcode_raw): Use hashcode1 only for FASTHASH-EQ.
 	(hashcode_builtin): Likewise.
 	(hash_lookup_builtin): Update.
