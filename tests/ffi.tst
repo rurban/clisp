@@ -583,10 +583,10 @@ MAKE-FOREIGN-STRING
   (list
    (def-call-out c-malloc (:arguments (l long))
      (:name "malloc") (:language :stdc) (:return-type c-pointer)
-     (:library libc))
+     (:library libc))    ; use allocate-shallow or allocate-deep instead!
    (def-call-out c-free (:arguments (p c-pointer))
      (:name "free") (:language :stdc) (:return-type nil)
-     (:library libc))))
+     (:library libc))))  ; use foreign-free instead!
 (c-malloc c-free)
 
 ;; this is ugly and inefficient; if you find yourself doing this,
