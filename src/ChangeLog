@@ -1,5 +1,10 @@
 2004-04-11  Bruno Haible  <bruno@clisp.org>
 
+	* stream.d (lisp_completion): Ensure that local variables are not
+	clobbered through longjmp.
+
+2004-04-11  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (correctable_error): Document.
 	* error.d (correctable_error): Expand and correct documentation.
 
