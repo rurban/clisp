@@ -3135,7 +3135,7 @@ or (setq my_struct (deref (slot my_struct 'n)))
 
 <example id="dffi-extern-func1"><title>Calling an external function</title>
 
-<para>On &ansi; &c-lang; systems, &stdlib-h; contains the declarations:
+<para>On ANSI &c-lang; systems, &stdlib-h; contains the declarations:
 
 <programlisting>
 typedef struct {
@@ -3331,6 +3331,34 @@ $ base+sort/lisp.run -M base+sort/lispinit.mem -i sort2 sorttest
 $ rm -r base+sort
 </programlisting></para></example>
 
+<example id="ex-call-in-dll">
+ <title>Calling Lisp from &c-lang; dynamically</title>
+
+<para>Create a dynamic library <filename>lispdll</filename>
+ (<filename>#P".dll"</filename> on &win32;,
+  <filename>#P".so"</filename> on &unix;)
+  with the following function:<programlisting>
+typedef int (*LispFunc)(int parameter);
+int CallInFunc(LispFunc f) {
+  return f(5)+11;
+}
+</programlisting>
+  and call it from Lisp:
+  <programlisting>
+(ffi:def-call-out callout
+  (:name "CallInFunc")
+  (:library "lispdll.dll")
+  (:arguments (function-arg
+               (ffi:c-function (:arguments (number ffi:int))
+                               (:return-type ffi:int) (:language :stdc))))
+  (:return-type ffi:int)
+  (:language :stdc))
+> (defun f (x) (* x 2))
+F
+> (callout #'f)
+21
+</programlisting></para></example>
+
 <example id="dffi-gethostname"><title>Variable size arguments:
   calling &gethostname; from &clisp;</title>
 
@@ -3351,7 +3379,7 @@ $ rm -r base+sort
  array of up to <replaceable>namelen</replaceable> characters,
  regardless of what the poor <type>char*</type> &c-lang; prototype says,
  to be used like a &c-lang; <type>string</type> (0-termination).
- &unix; specifies that "kost names are limited to HOST_NAME_MAX bytes",
+ &unix; specifies that "host names are limited to HOST_NAME_MAX bytes",
  which is, of course, system dependent, but it appears that 256 is a
  common value.</para>
 
