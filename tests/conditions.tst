@@ -1,3 +1,4 @@
+;;;; -*- Lisp -*-
 ;;;; Test suite for the Common Lisp condition system
 ;;;; Written by David Gadbois <gadbois@cs.utexas.edu> 30.11.1993
 
@@ -399,5 +400,24 @@ NIL
              (return-from foo 23)))))))
 NIL
 
+;;; from GCL ansi-test by Paul F. Dietz
+(multiple-value-list
+ (with-simple-restart (foo "zzz")
+   (invoke-restart 'foo)))
+(nil t)
 
+(multiple-value-list
+ (flet ((%f nil (invoke-restart 'foo)))
+   (with-simple-restart (foo "zzz") (%f))))
+(nil t)
 
+(multiple-value-list
+ (with-simple-restart (nil "")
+   (invoke-restart (first (compute-restarts)))))
+(nil t)
+
+(restart-case
+    (invoke-restart 'foo)
+  (foo () :test (lambda (c) (declare (ignore c)) nil) 'bad)
+  (foo () 'good))
+good
