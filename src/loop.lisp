@@ -12,8 +12,6 @@
 
 ;; Parser auxiliary functions
 
-(eval-when (compile load eval)
-
 ;; (loop-keywordp obj) determines whether OBJ is a loop keyword,
 ;; and then returns the appropriate unique symbol, otherwise NIL.
 (defun loop-keywordp (obj)
@@ -186,6 +184,12 @@
 
 #+CLISP (remprop 'loop-initialization 'sys::defstruct-description)
 
+(proclaim '(inline li-vars))
+(defun li-vars (li)
+  (case (li-specform li)
+    ((MULTIPLE-VALUE-BIND) (first (li-bindings li)))
+    ((LET) (mapcar #'first (li-bindings li)))))
+
 ; (wrap-initializations initializations form) wickelt eine (umgedrehte!)
 ; Liste von Initialisierungen um form herum und liefert die neue Form.
 (defun wrap-initializations (initializations form)
@@ -213,6 +217,7 @@
         (already-within-main nil) ; im zweiten Teil von {variables}* {main}* ?
         (*helpvars* (make-array 1 :fill-pointer 0 :adjustable t))
         (*last-it* nil)
+        (var-list nil)          ; all variables seen so far
         (acculist-var nil) ; Akkumulationsvariable für collect, append etc.
         (accuvar-tailvar-alist nil) ; alist of (accu-var . tail-var)
         (accunum-var nil) ; Akkumulationsvariable für count, sum etc.
@@ -579,6 +584,12 @@
                                ;; Calls to note-initialization must temporarily be suspended.
                                (when (li-endtest-forms initialization)
                                  (setq seen-endtest t))
+                               (dolist (var (li-vars initialization))
+                                 (when (memq var var-list)
+                                   (error-of-type 'source-program-error
+                                     (TEXT "~S: duplicate iteration variable ~S")
+                                     'loop var))
+                                 (push var var-list))
                                (push initialization initializations)))
                         (loop
                           (multiple-value-bind (pattern new-declspecs) (parse-var-typespec)
@@ -603,7 +614,11 @@
                                        (push `(,step-function-var ,step-function-form)
                                              bindings))
                                      (note-initialization
-                                       (make-endtest `(WHEN (ENDP ,var) (LOOP-FINISH))))
+                                      (make-endtest
+                                       `(WHEN (,(if (eq preposition 'IN)
+                                                    'ENDP 'ATOM)
+                                                ,var)
+                                          (LOOP-FINISH))))
                                      (note-initialization
                                        (make-loop-init
                                          :specform 'LET
@@ -1028,8 +1043,6 @@
 (defun loop-finish-error ()
   (error (TEXT "~S is not possible here")
          '(loop-finish)))
-
-)
 
 ;; Run-Time-Support:
 

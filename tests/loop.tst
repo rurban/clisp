@@ -84,6 +84,10 @@
 2 
 3 "
 
+;; ON ends on ATOM, not ENDP
+(loop for x on '(1 2 . 3) collect x) 
+((1 2 . 3) (2 . 3))
+
 (loop for i below 5
       for j = 10 then i
       collect j)
