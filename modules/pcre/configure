@@ -2728,7 +2728,8 @@ done
 
 
 
-for ac_header in pcre.h
+
+for ac_header in pcre.h pcre/pcre.h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if eval "test \"\${$as_ac_Header+set}\" = set"; then
@@ -2872,13 +2873,13 @@ if test `eval echo '${'$as_ac_Header'}'` = yes; then
   cat >>confdefs.h <<_ACEOF
 #define `echo "HAVE_$ac_header" | $as_tr_cpp` 1
 _ACEOF
-
+ break
 fi
 
 done
 
-if test "$ac_cv_header_pcre_h" = "no"; then
-  { { echo "$as_me:$LINENO: error: cannot find PCRE headers" >&5
+if test "$ac_cv_header_pcre_h" = "no" -a "$ac_cv_header_pcre_pcre_h" = "no";
+then { { echo "$as_me:$LINENO: error: cannot find PCRE headers" >&5
 echo "$as_me: error: cannot find PCRE headers" >&2;}
    { (exit 1); exit 1; }; }
 fi
