@@ -6,12 +6,11 @@
 SHELL = /bin/sh
 RM = rm -f
 
-# From: Bruno Haible <haible@ilog.fr>
-# my reason for writing "gmsgfmt" (although GNU gettext installs it as
+# My reason for writing "gmsgfmt" (although GNU gettext installs it as
 # "msgfmt") is to force an error if Solaris msgfmt would be used. Either
 # this, or one should put a comment in the Makefile.devel saying
 # "This Makefile needs GNU make and GNU msgfmt (from the GNU gettext package)."
-GMSGFMT = ~haible/arch/i386-linux/bin/gmsgfmt --statistics
+GMSGFMT = gmsgfmt --statistics
 
 all : tmp pot gmo
 
