@@ -279,6 +279,7 @@ local void show_stack (const char* title,int nn) {
   # RETURN VALUES
   #   realpath() returns a pointer to the resolved_path on success.
   #   On failure, it returns NULL and sets errno to indicate the error.
+  #define realpath my_realpath # there is no consensus on realpath declaration
   local char* realpath (char* path, char* resolved_path);
   #include <sys/os.h>
   local char* realpath(path,resolved_path)
@@ -5139,14 +5140,14 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL)
     var object beispiel;
     var bool logical;
     {
-      # muster mit O(directory_default) vergleichen:
+      # compare muster with O(directory_default):
       if (eq(Car(muster),S(Krelative)) && nullp(Cdr(muster)))
         return true;
-      # Startpoint matchen:
+      # match startpoint:
       if (!eq(Car(muster),Car(beispiel)))
         return false;
       muster = Cdr(muster); beispiel = Cdr(beispiel);
-      # subdirs matchen:
+      # match subdirs:
       return directory_match_ab(muster,beispiel,logical);
     }
   local bool nametype_match(muster,beispiel,logical)
@@ -5255,7 +5256,6 @@ LISPFUNN(pathname_match_p,2)
   # can trigger GC
 
   # Here you need not Lisp or C, but PROLOG!
-
   # (PUSH previous solutions)
   #define push_solution()  \
     { var object new_cons = allocate_cons(); \
@@ -5276,90 +5276,76 @@ LISPFUNN(pathname_match_p,2)
 
 #if defined(PATHNAME_NOEXT) || defined(LOGICAL_PATHNAMES)
 
-  local void wildcard_diff (object muster, object beispiel, const object* previous, object* solutions);
-
-  # rekursive Implementation wegen Backtracking:
-  local void wildcard_diff_ab (object muster, object beispiel, uintL m_index, uintL b_index, const object* previous, object* solutions);
-
-  local void wildcard_diff(muster,beispiel,previous,solutions)
-    var object muster;
-    var object beispiel;
-    var const object* previous;
-    var object* solutions;
-    {
-      ASSERT(sstring_normal_p(muster));
-      ASSERT(sstring_normal_p(beispiel));
-      wildcard_diff_ab(muster,beispiel,0,0,previous,solutions);
+# recursive implementation because of backtracking:
+local void wildcard_diff_ab (object muster, object beispiel,
+                             uintL m_index, uintL b_index,
+                             const object* previous, object* solutions) {
+  var chart c;
+  loop {
+    if (m_index == Sstring_length(muster)) {
+      if (b_index == Sstring_length(beispiel))
+        push_solution();
+      return;
     }
-
-  local void wildcard_diff_ab(muster,beispiel,m_index,b_index,previous,solutions)
-    var object muster;
-    var object beispiel;
-    var uintL m_index;
-    var uintL b_index;
-    var const object* previous;
-    var object* solutions;
-    {
-      var chart c;
-      loop {
-        if (m_index == Sstring_length(muster)) {
-          if (b_index == Sstring_length(beispiel))
-            push_solution();
-          return;
-        }
-        c = TheSstring(muster)->data[m_index++];
-        if (chareq(c,ascii('*')))
-          break;
-        if (b_index == Sstring_length(beispiel))
-          return;
-        if (chareq(c,ascii('?'))) {
-          # recursive call to wildcard_diff_ab(), with extended previous:
-          c = TheSstring(beispiel)->data[b_index++];
-          pushSTACK(muster); pushSTACK(beispiel);
-          {
-            var object new_string = allocate_string(1);
-            TheSstring(new_string)->data[0] = c;
-            pushSTACK(new_string);
-          }
-          {
-            var object new_cons = allocate_cons();
-            Car(new_cons) = STACK_0; Cdr(new_cons) = *previous;
-            STACK_0 = new_cons; # (CONS ... previous)
-          }
-          wildcard_diff_ab(STACK_2,STACK_1,m_index,b_index,&STACK_0,solutions);
-          skipSTACK(3);
-          return;
-        } else {
-          if (!equal_pathchar(TheSstring(beispiel)->data[b_index++],c))
-            return;
-        }
+    c = TheSstring(muster)->data[m_index++];
+    if (chareq(c,ascii('*')))
+      break;
+    if (b_index == Sstring_length(beispiel))
+      return;
+    if (chareq(c,ascii('?'))) {
+    # recursive call to wildcard_diff_ab(), with extended previous:
+      c = TheSstring(beispiel)->data[b_index++];
+      pushSTACK(muster); pushSTACK(beispiel);
+      {
+        var object new_string = allocate_string(1);
+        TheSstring(new_string)->data[0] = c;
+        pushSTACK(new_string);
       }
-      var uintL b_start_index = b_index;
-      loop {
-        # Um weniger zu consen, die Fälle abfangen, wo wildcard_diff_ab()
-        # gar nichts tut:
-        if (m_index == Sstring_length(muster)
-            ? b_index == Sstring_length(beispiel)
-            : (c = TheSstring(muster)->data[m_index],
-               chareq(c,ascii('*')) || chareq(c,ascii('?'))
-               || (b_index < Sstring_length(beispiel)
-                   && equal_pathchar(TheSstring(beispiel)->data[b_index],c)
-           )  )   ) {
-          # wildcard_diff_ab() rekursiv aufrufen, mit erweitertem previous:
-          pushSTACK(muster); pushSTACK(beispiel);
-          pushSTACK(subsstring(beispiel,b_start_index,b_index)); # (SUBSTRING beispiel b_start_index b_index)
-          var object new_cons = allocate_cons();
-          Car(new_cons) = STACK_0; Cdr(new_cons) = *previous;
-          STACK_0 = new_cons; # (CONS ... previous)
-          wildcard_diff_ab(STACK_2,STACK_1,m_index,b_index,&STACK_0,solutions);
-          skipSTACK(1);
-          beispiel = popSTACK(); muster = popSTACK();
-        }
-        if (b_index == Sstring_length(beispiel))
-          break;
-        b_index++;
+      {
+        var object new_cons = allocate_cons();
+        Car(new_cons) = STACK_0; Cdr(new_cons) = *previous;
+        STACK_0 = new_cons; # (CONS ... previous)
       }
+      wildcard_diff_ab(STACK_2,STACK_1,m_index,b_index,&STACK_0,solutions);
+      skipSTACK(3);
+      return;
+    } else {
+      if (!equal_pathchar(TheSstring(beispiel)->data[b_index++],c))
+        return;
     }
+  }
+  var uintL b_start_index = b_index;
+  loop {
+    # to reduce consing, intercept cases when wildcard_diff_ab() does nothing
+    if (m_index == Sstring_length(muster)
+        ? b_index == Sstring_length(beispiel)
+        : (c = TheSstring(muster)->data[m_index],
+           chareq(c,ascii('*')) || chareq(c,ascii('?'))
+           || (b_index < Sstring_length(beispiel)
+               && equal_pathchar(TheSstring(beispiel)->data[b_index],c)))) {
+      # wildcard_diff_ab() recursive call, with extended previous:
+      pushSTACK(muster); pushSTACK(beispiel);
+      # (SUBSTRING beispiel b_start_index b_index)
+      pushSTACK(subsstring(beispiel,b_start_index,b_index));
+      var object new_cons = allocate_cons();
+      Car(new_cons) = STACK_0; Cdr(new_cons) = *previous;
+      STACK_0 = new_cons; # (CONS ... previous)
+      wildcard_diff_ab(STACK_2,STACK_1,m_index,b_index,&STACK_0,solutions);
+      skipSTACK(1);
+      beispiel = popSTACK(); muster = popSTACK();
+    }
+    if (b_index == Sstring_length(beispiel))
+      break;
+    b_index++;
+  }
+}
+
+local void wildcard_diff (object muster, object beispiel,
+                          const object* previous, object* solutions) {
+  ASSERT(sstring_normal_p(muster));
+  ASSERT(sstring_normal_p(beispiel));
+  wildcard_diff_ab(muster,beispiel,0,0,previous,solutions);
+}
 
 #endif
 
