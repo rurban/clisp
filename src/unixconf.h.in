@@ -681,6 +681,8 @@
 #undef HAVE_DLOPEN
 /* Define as const if the declaration of dlerror() needs const. */
 #define DLERROR_CONST
+/* Define as const if the declaration of dlsym() needs const. */
+#define DLSYM_CONST
 
 
 /* OS services */
