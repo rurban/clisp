@@ -100,15 +100,17 @@ if echo 'rs\tuv' | grep t > /dev/null 2> /dev/null; then
     echo "$*"
   }
 else
-  if false; then
+  if type printf >/dev/null 2>/dev/null; then
     # The "Single Unix Specification" (which also adheres to this broken
     # "echo") recommends the following workaround.
-    # Alas, it doesn't work on OpenStep V4.2, because `print' is missing.
     echol () {
       printf '%s\n' "$*"
     }
   else
-    # So we use this one.
+    # This one looks harmless, but in Solaris /bin/sh, when called inside
+    # shell backquote `...`, it prefixes every character with a backslash!
+    # Therefore we use this only as a last resort, if `printf' is missing
+    # (for example, on OpenStep V4.2).
 echol () {
 cat <<ECHOVAL_END
 $*
