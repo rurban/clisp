@@ -41,6 +41,9 @@ check-xgcd
 (expt -5s0 2s0) #c(25s0 0s0)
 (expt -5f0 2f0) #c(25f0 0f0)
 (expt -5d0 2d0) #c(25d0 0d0)
+(log 8d0 2d0)   3.0d0
+(log 8f0 2f0)   3.0f0
+(log 8s0 2s0)   3.0s0
 
 (cis 10) #c(-0.8390715 -0.5440211)
 
