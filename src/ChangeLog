@@ -1,5 +1,19 @@
 2004-03-21  Bruno Haible  <bruno@clisp.org>
 
+	* clos-class2.lisp (finalize-class): Renamed from class-finalize.
+	(initialize-instance-standard-class): Update.
+	* clos-class5.lisp (finalize-inheritance): Update.
+	* record.d (do_allocate_instance, CLOS::%MAKE-INSTANCE): Update.
+
+	* clos-class2.lisp (ensure-class): Treat metaclasses that are
+	subclasses of <standard-class> like <standard-class> itself. For
+	other metaclasses, invoke FIND-CLASS with force-p = t.
+
+	* clos-class2.lisp (subclassp): Finalize the class before accessing
+	its superclasses table.
+
+2004-03-21  Bruno Haible  <bruno@clisp.org>
+
 	* clos-slots2.lisp (slot-unbound): Quote the slot-name in the place.
 
 	* clos-class2.lisp (DEFCLASS): Don't emit code to FIND-CLASS the

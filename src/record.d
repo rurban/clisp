@@ -827,7 +827,7 @@ local Values do_allocate_instance (object clas) {
     pushSTACK(clas); /* save for ALLOCATE-STD-INSTANCE */
     if (nullp(TheClass(clas)->precedence_list)) { /* finalize */
       pushSTACK(clas); pushSTACK(T);
-      funcall(S(class_finalize),2);
+      funcall(S(finalize_class),2);
     }
     /* (CLOS::ALLOCATE-STD-INSTANCE class (class-instance-size class)) */
     pushSTACK(TheClass(clas)->instance_size);
@@ -1401,7 +1401,7 @@ LISPFUN(pmake_instance,seclass_default,1,0,rest,nokey,0,NIL) {
     var object clas = Before(rest_args_pointer);
     if (nullp(TheClass(clas)->precedence_list)) { /* finalize */
       pushSTACK(clas); pushSTACK(T);
-      funcall(S(class_finalize),2);
+      funcall(S(finalize_class),2);
       clas = Before(rest_args_pointer);
     }
     var object l = TheClass(clas)->default_initargs;

@@ -52,6 +52,12 @@
   proto)                   ; class prototype - an instance
                            ; or (added . discarded) slots for old definitions
 
+;; CLtL2 28.1.4., ANSI CL 4.3.7. Integrating Types and Classes
+(defun subclassp (class1 class2)
+  (unless (class-precedence-list class1) (finalize-class class1 t))
+  (values
+    (gethash class2 (class-all-superclasses class1)))) ; T or (default) NIL
+
 ;; Access to slots of instances of the class <class> is done by means of the
 ;; defstruct-defined accessors, hence there are no bootstrapping-problems here.
 
@@ -340,43 +346,6 @@
                           (class-slots old-class)
                           :test #'eq :key #'slotdef-name)))
 
-;; Try to finalize a given class, given as a class name or class object.
-;; Return the finalized class object on success, or nil when the class could
-;; not yet be finalized.
-;; When force-p is non-nil, signal an error when finalization is impossible.
-;; As a side effect of finalization, symbols in (class-direct-superclasses) are
-;; replaced with class objects, and the (class-precedence-list class) is
-;; computed.
-(defun class-finalize (class
-                       &optional force-p
-                                 ; The stack of classes being finalized now:
-                                 (finalizing-now nil))
-  (when (or (class-p class) (setq class (find-class class force-p)))
-    (if (class-precedence-list class) ; already finalized?
-      class
-      (progn
-        ;; Here we get only for instances of STANDARD-CLASS, since instances
-        ;; of BUILT-IN-CLASS and STRUCTURE-CLASS are already finalized when
-        ;; they are constructed.
-        (when (memq class finalizing-now)
-          (error-of-type 'sys::source-program-error
-            (TEXT "~S: class definition circularity: ~S depends on itself")
-            'defclass class))
-        (let ((finalizing-now (cons class finalizing-now)))
-          (do ((superclassesr (class-direct-superclasses class) (cdr superclassesr)))
-              ((endp superclassesr))
-            (let ((finalized-superclass
-                    (class-finalize (car superclassesr) force-p finalizing-now)))
-              (unless finalized-superclass
-                ;; Finalization of a superclass was impossible. force-p must
-                ;; be nil here, otherwise an error was signaled already. So we
-                ;; have to return nil as well.
-                (return-from class-finalize nil))
-              (setf (car superclassesr) finalized-superclass))))
-        ;; Now compute the class-precedence-list.
-        (finalize-instance-standard-class class)
-        class))))
-
 (defun ensure-class (name &rest all-keys
                           &key (metaclass <standard-class>)
                                (direct-superclasses '())
@@ -386,11 +355,12 @@
                           &allow-other-keys)
   ;; Store new documentation:
   (when documentation (sys::%set-documentation name 'TYPE documentation))
-  (let ((class (find-class name nil)))
+  (let ((a-standard-class-p (subclassp metaclass <standard-class>))
+        (class (find-class name nil)))
     (when (and class (not (eq (class-name class) name)))
       ;; Ignore the old class if the given name is not its "proper name".
       (setq class nil))
-    (when (and class (not (and (eq metaclass <standard-class>)
+    (when (and class (not (and a-standard-class-p
                                (eq metaclass (class-of class)))))
       (unless (eq metaclass (class-of class)) ; mixing DEFSTRUCT & DEFCLASS
         (warn (TEXT "Cannot redefine ~S with a different metaclass ~S")
@@ -401,18 +371,21 @@
     ;; See which direct superclasses are already defined.
     (setq direct-superclasses
           (mapcar #'(lambda (c)
-                      (if (class-p c) c (or (find-class c nil) c)))
+                      (if (class-p c)
+                        c
+                        (or (find-class c (not a-standard-class-p)) c)))
                   direct-superclasses))
     (if class
       (progn
         ;; Normalize the (class-direct-superclasses class) in the same way as
         ;; the direct-superclasses argument, so that we can compare the two
         ;; lists using EQUAL.
-        (do ((l (class-direct-superclasses class) (cdr l)))
-            ((atom l))
-          (let ((c (car l)))
-            (unless (class-p c)
-              (setf (car l) (or (find-class c nil) c)))))
+        (when (and a-standard-class-p (null (class-precedence-list class)))
+          (do ((l (class-direct-superclasses class) (cdr l)))
+              ((atom l))
+            (let ((c (car l)))
+              (unless (class-p c)
+                (setf (car l) (or (find-class c nil) c))))))
         ;; Trivial changes (that can occur when loading the same code twice)
         ;; do not require updating the instances:
         ;; changed slot-options :initform, :documentation,
@@ -521,8 +494,6 @@
 
 ;; --------------- Creation of an instance of <standard-class> ---------------
 
-(let (unbound) (declare (compile)) ; unbound = #<unbound>
-(defun def-unbound (x) (declare (compile)) (setq unbound x))
 (defun make-instance-standard-class
     (metaclass &rest args
      &key name (direct-superclasses '()) (direct-slots '())
@@ -531,6 +502,7 @@
   (declare (ignore direct-superclasses direct-slots direct-default-initargs))
   (let ((class (make-standard-class :classname name :metaclass metaclass)))
     (apply #'initialize-instance-standard-class class args)))
+
 (defun initialize-instance-standard-class
     (class &key (direct-superclasses '()) (direct-slots '())
      (direct-default-initargs '()) &allow-other-keys)
@@ -538,8 +510,48 @@
   (setf (class-direct-slots class) direct-slots)
   (setf (class-direct-default-initargs class) direct-default-initargs)
   (setf (class-precedence-list class) nil) ; mark as not yet finalized
-  (class-finalize class nil) ; try to finalize it
+  (finalize-class class nil) ; try to finalize it
   class)
+
+;; Try to finalize a given class, given as a class name or class object.
+;; Return the finalized class object on success, or nil when the class could
+;; not yet be finalized.
+;; When force-p is non-nil, signal an error when finalization is impossible.
+;; As a side effect of finalization, symbols in (class-direct-superclasses) are
+;; replaced with class objects, and the (class-precedence-list class) is
+;; computed.
+(defun finalize-class (class
+                       &optional force-p
+                                 ; The stack of classes being finalized now:
+                                 (finalizing-now nil))
+  (when (or (class-p class) (setq class (find-class class force-p)))
+    (if (class-precedence-list class) ; already finalized?
+      class
+      (progn
+        ;; Here we get only for instances of STANDARD-CLASS, since instances
+        ;; of BUILT-IN-CLASS and STRUCTURE-CLASS are already finalized when
+        ;; they are constructed.
+        (when (memq class finalizing-now)
+          (error-of-type 'sys::source-program-error
+            (TEXT "~S: class definition circularity: ~S depends on itself")
+            'defclass class))
+        (let ((finalizing-now (cons class finalizing-now)))
+          (do ((superclassesr (class-direct-superclasses class) (cdr superclassesr)))
+              ((endp superclassesr))
+            (let ((finalized-superclass
+                    (finalize-class (car superclassesr) force-p finalizing-now)))
+              (unless finalized-superclass
+                ;; Finalization of a superclass was impossible. force-p must
+                ;; be nil here, otherwise an error was signaled already. So we
+                ;; have to return nil as well.
+                (return-from finalize-class nil))
+              (setf (car superclassesr) finalized-superclass))))
+        ;; Now compute the class-precedence-list.
+        (finalize-instance-standard-class class)
+        class))))
+
+(let (unbound) (declare (compile)) ; unbound = #<unbound>
+(defun def-unbound (x) (declare (compile)) (setq unbound x))
 (defun finalize-instance-standard-class
     (class &aux (direct-superclasses (class-direct-superclasses class))
      (name (class-name class)))
@@ -1028,11 +1040,6 @@
   (def-unbound
     (sys::%record-ref (allocate-std-instance <standard-object> 3) 2)))
 
-
-;; CLtL2 28.1.4., ANSI CL 4.3.7. Integrating Types and Classes
-(defun subclassp (class1 class2)
-  (values
-   (gethash class2 (class-all-superclasses class1)))) ; T or (default) NIL
 
 ;;; install built-in-classes
 ;; table 28-1, CLtL2 p. 783
