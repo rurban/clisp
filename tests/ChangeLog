@@ -1,3 +1,7 @@
+2005-03-28  Sam Steingold  <sds@gnu.org>
+
+	* ffi.tst (c-self): test the :DOCUMENTATION option to DEF-CALL-OUT
+
 2005-03-26  Sam Steingold  <sds@gnu.org>
 
 	* excepsit.tst ("sys:foo.bar."): fixed the test (parse-namestring

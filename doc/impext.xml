@@ -2361,6 +2361,9 @@ bash$ ./build-dir/clisp &opt-K; full
   <simpara>&name-r; should <emphasis>evaluate</emphasis> to a &string-t;
    or, depending on the underlying &dlsym; implementation, &default-k;
    or <constant>:NEXT</constant>.</simpara></listitem></varlistentry>
+<varlistentry><term><code>(&documentation-k; &string-r;)</code></term>
+ <listitem><simpara>Specifies the (optional) variable documentation.
+</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
 
 <varlistentry id="def-call-out"><term><code>(&def-call-out;
@@ -2392,6 +2395,9 @@ bash$ ./build-dir/clisp &opt-K; full
   <simpara>&name-r; should <emphasis>evaluate</emphasis> to a &string-t;,
    or, depending on the underlying &dlsym; implementation, &default-k;
    or <constant>:NEXT</constant>.</simpara></listitem></varlistentry>
+<varlistentry><term><code>(&documentation-k; &string-r;)</code></term>
+ <listitem><simpara>Specifies the (optional) function documentation.
+</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
 
 <varlistentry id="def-call-in"><term><code>(&def-call-in;
