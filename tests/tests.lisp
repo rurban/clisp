@@ -239,7 +239,8 @@
                   #+XCL             "tread"
                                     "type"
                   #+CLISP           "weak"
-                  #+(or CLISP LISPWORKS) "hashweak"))
+                  #+(or CLISP ALLEGRO CMU19 OpenMCL LISPWORKS) "weakhash"
+                  #+(or CLISP LISPWORKS) "weakhash2"))
       (with-accumulating-errors (error-count total-count) (run-test ff)))
     (with-accumulating-errors (error-count total-count)
       (run-test "bind" :eval-method :eval :logname "bind-eval"))
