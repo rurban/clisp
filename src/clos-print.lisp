@@ -51,7 +51,9 @@
   (:method ((object method-combination) stream)
     (print-object-<method-combination> object stream))
   (:method ((object standard-method) stream)
-    (print-object-<standard-method> object stream)))
+    (print-object-<standard-method> object stream))
+  (:method ((object funcallable-standard-object) stream)
+    (print-object-<funcallable-standard-object> object stream)))
 
 ;; Another DEFSTRUCT hook.
 (defun defstruct-remove-print-object-method (name)
