@@ -1,6 +1,10 @@
 2003-07-30  Sam Steingold  <sds@gnu.org>
 
 	* genclisph.d (charp): enabled
+	* modules/syscalls/calls.c (FILE-INFO, MAKE-SHORTCUT)
+	(SHORTCUT-INFO) [WIN32_NATIVE, UNIX_CYGWIN32]: new functions
+	* modules/syscalls/posix.lisp (file-info, shortcut-info)
+	[WIN32_NATIVE, UNIX_CYGWIN32]: new structures
 
 2003-07-29  Sam Steingold  <sds@gnu.org>
 
