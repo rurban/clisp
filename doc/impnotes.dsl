@@ -77,7 +77,7 @@
 (define %stylesheet% "impnotes.css")
 (define %use-id-as-filename% #t)
 (define %funcsynopsis-decoration% #t)
-(define %link-mailto-url% "clisp-list@sf.net")
+(define %link-mailto-url% "mailto:clisp-list@sf.net")
 (define %section-autolabel% #t)
 (define %graphic-extensions%
   '("gif" "png" "jpg" "jpeg" "tif" "tiff" "eps" "epsf" ))
