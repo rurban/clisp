@@ -2978,11 +2978,11 @@ for f in $DOC ; do
 done
 
 if [ $TERMINAL = readline ] ; then
-  echol "${SRCDIR}readline${NEXT_M}doc${NEXT_M}rluserman.dvi :"
-  echotab "cd ${SRCDIR}readline${NEXT_}doc && \$(MAKE) rluserman.dvi"
+  echol "${SRCDIR}oldoldreadline${NEXT_M}doc${NEXT_M}rluserman.dvi :"
+  echotab "cd ${SRCDIR}oldoldreadline${NEXT_}doc && \$(MAKE) rluserman.dvi"
   echol
-  echol "readline.dvi : ${SRCDIR}readline${NEXT_M}doc${NEXT_M}rluserman.dvi"
-  echotab "-\$(LN) ${SRCDIR}readline${NEXT_}doc${NEXT_}rluserman.dvi readline.dvi"
+  echol "readline.dvi : ${SRCDIR}oldoldreadline${NEXT_M}doc${NEXT_M}rluserman.dvi"
+  echotab "-\$(LN) ${SRCDIR}oldoldreadline${NEXT_}doc${NEXT_}rluserman.dvi readline.dvi"
   echol
 fi
 
