@@ -1,3 +1,8 @@
+2005-01-28  Bruno Haible  <bruno@clisp.org>
+
+	* makemake.in (check-fresh-line): Reduce the scope of the test on
+	Woe32.
+
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
 	* clos-methcomb2.lisp (build-effective-method-function-form): Don't
