@@ -5215,6 +5215,7 @@ typedef struct {
   gcv_object_t all_superclasses;    # all superclasses, including itself
   gcv_object_t precedence_list;     # ordered list of all superclasses
   gcv_object_t slot_location_table; # hashtable slotname -> where the slot is located
+  gcv_object_t direct_subclasses; /* direct subclasses - list */
   # from here on only for metaclass = <standard-class> or metaclass = <structure-class>
   gcv_object_t slots;
   gcv_object_t default_initargs;

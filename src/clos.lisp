@@ -417,7 +417,8 @@
   direct-superclasses ; list of all direct superclasses
   all-superclasses ; hash table of all superclasses (incl. the class itself)
   precedence-list ; ordered list of all superclasses (with the class itself first)
-  (slot-location-table empty-ht)) ; hash table slotname -> location of the slot
+  (slot-location-table empty-ht) ; hash table slotname -> location of the slot
+  direct-subclasses) ; list of all direct subclasses
 
 (defstruct (built-in-class (:inherit class) (:conc-name "CLASS-")))
 (proclaim '(notinline built-in-class-p))
@@ -715,6 +716,16 @@
   (readonly nil))                       ; ds-slot-readonly
 ||#
 
+(defun obsolete-class (class)
+  (let ((name (class-name class)))
+    (when (symbol-package name)
+      (warn (TEXT "~S: Class ~S (or its ancestor) is being redefined, instances are obsolete")
+            'defclass name)
+      (mapc #'obsolete-class (class-direct-subclasses class))
+      (remprop name 'CLOSCLASS)
+      (sys::%set-documentation name 'TYPE '())
+      (setf (class-name class) (gensym "OBSOLETE-CLASS-")))))
+
 (defun ensure-class (name &rest all-keys
                           &key (metaclass <standard-class>)
                                (direct-superclasses '())
@@ -760,21 +771,7 @@
           (when documentation (setf (documentation name 'TYPE) documentation))
           ;; modified class as value:
           (return-from ensure-class class))
-        (progn
-          (warn (TEXT "~S: Class ~S is being redefined, instances are obsolete")
-                'defclass name)
-          ;; traverse all symbols in order to peruse the subclasses.
-          ;; should be more elegant??
-          (let ((subclass-names (list name)))
-            (do-all-symbols (sym)
-              (let ((c (get sym 'CLOSCLASS)))
-                (when (and c (subclassp c class))
-                  (pushnew sym subclass-names))))
-            (dolist (sym subclass-names)
-              (let ((c (get sym 'CLOSCLASS)))
-                (setf (class-name c) (gensym "OBSOLETE-CLASS-"))
-                (remprop sym 'CLOSCLASS)
-                (sys::%set-documentation sym 'TYPE '())))))))
+        (obsolete-class class)))
     (when documentation (sys::%set-documentation name 'TYPE documentation))
     (setf (find-class name)
           (apply (cond ((eq metaclass <standard-class>)
@@ -852,6 +849,8 @@
   (setf (class-direct-slots class) direct-slots)
   (setf (class-slots class) (std-compute-slots class))
   (setf (class-slot-location-table class) (make-hash-table :test #'eq))
+  (dolist (cl direct-superclasses)
+    (pushnew class (class-direct-subclasses cl)))
   (setf (class-instance-size class) 1) ; Index 0 is occupied by the class
   (let ((shared-index (std-layout-slots class (class-slots class))))
     (when (plusp shared-index)
@@ -1159,6 +1158,8 @@
           (std-compute-cpl class direct-superclasses))
     (setf (class-all-superclasses class)
           (std-compute-superclasses (class-precedence-list class)))
+    (dolist (cl direct-superclasses)
+      (pushnew class (class-direct-subclasses cl)))
     class))
 
 
@@ -1213,6 +1214,8 @@
             (mapcar #'(lambda (slot)
                         (cons (slotdef-name slot) (slotdef-location slot)))
                     slots)))
+  (dolist (cl direct-superclasses)
+    (pushnew class (class-direct-subclasses cl)))
   (setf (class-instance-size class) size)
   (setf (class-slots class) slots)
   ;; When called via ENSURE-CLASS,
