@@ -2651,9 +2651,7 @@ dnl AC_CHECK_FUNCS(fchmod)
 dnl ])dnl
 dnl dnl
 AC_DEFUN(CL_RENAME,
-[AC_CHECK_FUNCS(rename)dnl
-if test $ac_cv_func_rename = yes; then
-CL_PROTO([rename], [
+[CL_PROTO([rename], [
 CL_PROTO_CONST([
 #include <stdlib.h>
 #ifdef HAVE_UNISTD_H
@@ -2664,7 +2662,6 @@ CL_PROTO_CONST([
 cl_cv_proto_rename_arg1)
 ], [extern int rename ($cl_cv_proto_rename_arg1 char*, $cl_cv_proto_rename_arg1 char*);])
 AC_DEFINE_UNQUOTED(RENAME_CONST,$cl_cv_proto_rename_arg1)
-fi
 ])dnl
 dnl
 AC_DEFUN(CL_UNLINK,

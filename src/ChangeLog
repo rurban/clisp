@@ -1,5 +1,11 @@
 1999-08-14  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Assume rename() is available.
+        * aclocal.m4 (CL_RENAME): Don't test for rename.
+        * unixconf.h.in: Don't define HAVE_RENAME.
+        * unix.d: Assume rename exists.
+        * unixaux.d (rename): Remove function.
+
         Assume <stdlib.h> exists.
         * aclocal.m4 (CL_ACCESSFLAGS, CL_OPENFLAGS, RL_TERM, CL_MEMSET,
            CL_MALLOC, CL_FREE, CL_SIGPROCMASK, CL_SIGNAL_REINSTALL,

@@ -233,7 +233,7 @@ CL_READ_WRITE
 CL_WRITE
                       dnl DEFS WRITE_CONST
 CL_RENAME
-                      dnl DEFS HAVE_RENAME, RENAME_CONST
+                      dnl DEFS RENAME_CONST
 CL_UNLINK
                       dnl DEFS UNLINK_CONST
 CL_FSYNC
