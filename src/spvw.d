@@ -46,11 +46,11 @@
 
 # table of all SUBRs: out-sourced to SPVWTABF
 # size of this table:
-#define subr_anz  (sizeof(subr_tab)/sizeof(subr_))
+#define subr_anz  (sizeof(subr_tab)/sizeof(subr_t))
 
 # table of all FSUBRs: moved to CONTROL
 # size of this table:
-#define fsubr_anz  (sizeof(fsubr_tab)/sizeof(fsubr_))
+#define fsubr_anz  (sizeof(fsubr_tab)/sizeof(fsubr_t))
 
 # tables of all relocatable pointers: moved to STREAM
 # size of these tables:
@@ -78,17 +78,17 @@ local struct pseudofun_tab_ { object pointer[pseudofun_anz]; } pseudofun_tab;
 #ifdef MAP_MEMORY_TABLES
   local uintC total_subr_anz;
   #define for_all_subrs(statement)                                      \
-    do { var subr_* ptr = (subr_*)&subr_tab; # traverse subr_tab        \
+    do { var subr_* ptr = (subr_t*)&subr_tab; /* traverse subr_tab */   \
          var uintC count;                                               \
          dotimesC(count,total_subr_anz, { statement; ptr++; } );        \
     } while(0)
 #else
   #define for_all_subrs(statement)                      \
-    do { var module_* module; # traverse modules        \
+    do { var module_t* module; /* traverse modules */   \
          for_modules(all_modules,{                      \
            if (module->initialized)                     \
              if (*module->stab_size > 0) {              \
-               var subr_* ptr = module->stab;           \
+               var subr_t* ptr = module->stab;          \
                var uintC count;                         \
                dotimespC(count,*module->stab_size,      \
                          { statement; ptr++; } );       \
@@ -116,7 +116,7 @@ local struct pseudofun_tab_ { object pointer[pseudofun_anz]; } pseudofun_tab;
 
 # Traverse object_tab:
 #define for_all_constobjs(statement)                                    \
-  do { var module_* module; # loop over modules                         \
+  do { var module_t* module; # loop over modules                         \
        for_modules(all_modules,{                                        \
          if (module->initialized)                                       \
            if (*module->otab_size > 0) {                                \
@@ -305,9 +305,9 @@ local int exitcode;
   global void* STACK_bound; # STACK-growth-limit
 
   # the lexical environment:
-  global environment aktenv;
+  global environment_t aktenv;
 
-  global unwind_protect_caller unwind_protect_to_save;
+  global unwind_protect_caller_t unwind_protect_to_save;
 
   # variables for passing of information to the top of the handler:
   global handler_args_t handler_args;
@@ -315,7 +315,7 @@ local int exitcode;
   # As only whole regions of handlers are deactivated and activated again,
   # we treat the handlers on deactivation apartly, but we maintain
   # a list of the STACK-regions, in which the handlers are deactivated.
-  global stack_range* inactive_handlers = NULL;
+  global stack_range_t* inactive_handlers = NULL;
   # A handler counts as inactiv if and only if:
   # low_limit <= handler < high_limit
   # is true for one of the regions listed in inactive_handlers:
@@ -323,7 +323,7 @@ local int exitcode;
   #define for_all_threadobjs(statement)                         \
     do { var object* objptr = (object*)&aktenv;                 \
          var uintC count;                                       \
-         dotimespC(count,sizeof(environment)/sizeof(object),    \
+         dotimespC(count,sizeof(environment_t)/sizeof(object),  \
            { statement; objptr++; });                           \
     } while(0)
 
@@ -340,14 +340,14 @@ local int exitcode;
   # Set of threads.
   #define MAXNTHREADS  128
   local uintC nthreads = 0;
-  local thread_* allthreads[MAXNTHREADS];
+  local thread_t* allthreads[MAXNTHREADS];
 
   # Number of symbol values currently in use in every thread.
   local uintL num_symvalues = 0;
   # Maximum number of symbol values in every thread before new thread-local
   # storage must be added.
   # = floor(round_up(thread_size(num_symvalues),mmap_pagesize)
-  #         -offsetofa(thread_,_symvalues),sizeof(object))
+  #         -offsetofa(thread_t,_symvalues),sizeof(object))
   local uintL maxnum_symvalues;
 
   # Initialization.
@@ -355,12 +355,12 @@ local void init_multithread (void) {
   xthread_init();
   xmutex_init(&allthreads_lock);
   maxnum_symvalues = floor(((thread_size(0)+mmap_pagesize-1)&-mmap_pagesize)
-                           -offsetofa(thread_,_symvalues),sizeof(object));
+                           -offsetofa(thread_t,_symvalues),sizeof(object));
 }
 
   # Create a new thread.
-local thread_* create_thread (void* sp) {
-  var thread_* thread;
+local thread_t* create_thread (void* sp) {
+  var thread_t* thread;
   xmutex_lock(&allthreads_lock);
   if (nthreads >= MAXNTHREADS) { thread = NULL; goto done; }
   thread = sp_to_thread(sp);
@@ -382,7 +382,7 @@ local thread_* create_thread (void* sp) {
 }
 
   # Delete a thread.
-local void delete_thread (thread_* thread) {
+local void delete_thread (thread_t* thread) {
   xmutex_lock(&allthreads_lock);
   ASSERT(thread->_index < nthreads);
   ASSERT(allthreads[thread->_index] == thread);
@@ -392,9 +392,9 @@ local void delete_thread (thread_* thread) {
 }
 
   #define for_all_threads(statement)                            \
-    do { var thread_** _pthread = &allthreads[nthreads];        \
+    do { var thread_t** _pthread = &allthreads[nthreads];        \
          while (_pthread != &allthreads[0])                     \
-           { var thread_* thread = *--_pthread; statement; }    \
+           { var thread_t* thread = *--_pthread; statement; }    \
     } while(0)
 
   # Add a new symbol value.
@@ -778,7 +778,7 @@ local subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz,
   asciz_out(GETTEXTL("Unknown signature of a SUBR" NLstring));
   quit_sofort(1);
 }
-# set the argtype of a subr_ *ptr
+# set the argtype of a subr_t *ptr
 #define SUBR_SET_ARGTYPE(ptr)                                           \
   ptr->argtype = (uintW)subr_argtype(ptr->req_anz,ptr->opt_anz,         \
                                      (subr_rest_t)(ptr->rest_flag),     \
@@ -813,7 +813,7 @@ local void init_subr_tab_1 (void) {
   # lispbibl.d normally takes care of this, using a gcc __attribute__.
   # But __attribute__((aligned(4))) is ignored for some GCC targets,
   # so we check it here for safety.
-  if (alignof(subr_) < 4) {
+  if (alignof(subr_t) < 4) {
     asciz_out("Alignment of SUBRs is less than 4. NO_TYPECODES requires it to be at least 4." NLstring);
     asciz_out("Recompile CLISP with -DNO_TYPECODES." NLstring);
     abort();
@@ -826,13 +826,13 @@ local void init_subr_tab_1 (void) {
   #endif
   #if !NIL_IS_CONSTANT
   { # initialize the name-slot first:
-    var subr_* ptr = (subr_*)&subr_tab; # traverse subr_tab
+    var subr_t* ptr = (subr_t*)&subr_tab; # traverse subr_tab
      #define LISPFUN  LISPFUN_E
        #include "subr.c"
      #undef LISPFUN
   }
   { # and initialize the keywords-slot temporarily:
-    var subr_* ptr = (subr_*)&subr_tab; # traverse subr_tab
+    var subr_t* ptr = (subr_t*)&subr_tab; # traverse subr_tab
     var uintC count = subr_anz;
     dotimesC(count,subr_anz, { ptr->keywords = NIL; ptr++; });
   }
@@ -840,23 +840,23 @@ local void init_subr_tab_1 (void) {
   # Because of SPVWTABF all slots except keywords and argtype
   # are already initialized.
   { # now initialize the argtype-slot:
-    var subr_* ptr = (subr_*)&subr_tab; # traverse subr_tab
+    var subr_t* ptr = (subr_t*)&subr_tab; # traverse subr_tab
     var uintC count;
     dotimesC(count,subr_anz,{ SUBR_SET_ARGTYPE(ptr); ptr++; });
   }
  #else
   { # initialize all slots except keywords:
-    var subr_* ptr = (subr_*)&subr_tab; # traverse subr_tab
+    var subr_t* ptr = (subr_t*)&subr_tab; # traverse subr_tab
     #define LISPFUN  LISPFUN_D
       #include "subr.c"
     #undef LISPFUN
   }
  #endif
   {
-    var module_* module;
+    var module_t* module;
     for_modules(all_other_modules,{
       if (*module->stab_size > 0) {
-        var subr_* ptr = module->stab; # traverse subr_tab
+        var subr_t* ptr = module->stab; # traverse subr_tab
         var uintC count;
         dotimespC(count,*module->stab_size,{ SUBR_SET_ARGTYPE(ptr); ptr++; });
       }
@@ -864,18 +864,18 @@ local void init_subr_tab_1 (void) {
   }
  #ifdef MAP_MEMORY_TABLES
   { # ditto, copy other tables tino the mapped region:
-    var subr_* newptr = (subr_*)&subr_tab;
-    var module_* module;
+    var subr_t* newptr = (subr_t*)&subr_tab;
+    var module_t* module;
     main_module.stab = newptr; newptr += subr_anz;
     for_modules(all_other_modules,{
       if (*module->stab_size > 0) {
-        var subr_* oldptr = module->stab;
+        var subr_t* oldptr = module->stab;
         var uintC count;
         module->stab = newptr;
         dotimespC(count,*module->stab_size, { *newptr++ = *oldptr++; } );
       }
     });
-    ASSERT(newptr == (subr_*)&subr_tab + total_subr_anz);
+    ASSERT(newptr == (subr_t*)&subr_tab + total_subr_anz);
   }
  #endif
 }
@@ -907,7 +907,7 @@ local void init_symbol_tab_1 (void) {
 }
 # initialize object_tab:
 local void init_object_tab_1 (void) {
-  var module_* module;
+  var module_t* module;
  #if defined(INIT_OBJECT_TAB) && NIL_IS_CONSTANT # object_tab already pre-initialized?
   for_modules(all_other_modules,{
     if (*module->otab_size > 0) {
@@ -931,11 +931,11 @@ local void init_object_tab_1 (void) {
 }
 # initialize other modules coarsely:
 local void init_other_modules_1 (void) {
-  var module_* module;
+  var module_t* module;
   for_modules(all_other_modules, {
     # fill pointer in the subr-table with NIL, for GC to become possible:
     if (*module->stab_size > 0) {
-      var subr_* ptr = module->stab;
+      var subr_t* ptr = module->stab;
       var uintC count;
       dotimespC(count,*module->stab_size,
       { ptr->name = NIL; ptr->keywords = NIL; ptr++; });
@@ -1055,13 +1055,13 @@ local void init_symbol_functions (void) {
       uintW req_anz;
       uintW opt_anz;
       uintW body_flag;
-    } fsubr_data;
-    local const fsubr_data fsubr_data_tab[] = {
+    } fsubr_data_t;
+    local const fsubr_data_t fsubr_data_tab[] = {
       #include "fsubr.c"
     };
     #undef LISPSPECFORM
-    var const fsubr_* ptr1 = (const fsubr_ *)&fsubr_tab; # traverse fsubr_tab
-    var const fsubr_data * ptr2 = &fsubr_data_tab[0]; # traverse fsubr_data_tab
+    var const fsubr_t* ptr1 = (const fsubr_t *)&fsubr_tab; # traverse fsubr_tab
+    var const fsubr_data_t * ptr2 = &fsubr_data_tab[0]; # traverse fsubr_data_tab
     var uintC count;
     dotimesC(count,fsubr_anz,{
       var object sym = fsubr_name(ptr2);
@@ -1075,7 +1075,7 @@ local void init_symbol_functions (void) {
     });
   }
   { # enter SUBRs:
-    var subr_* ptr = (subr_*)&subr_tab; # traverse subr_tab
+    var subr_t* ptr = (subr_t*)&subr_tab; # traverse subr_tab
     var uintC count;
     dotimesC(count,subr_anz,{
       Symbol_function(ptr->name) = subr_tab_ptr_as_object(ptr);
@@ -1416,10 +1416,10 @@ local void initmem (void) {
 local void loadmem (const char* filename); # see below
 # initialization of the other, not yet initialized modules:
 local void init_other_modules_2 (void);
-local void init_module_2 (module_* module) {
+local void init_module_2 (module_t* module) {
   # pre-initialize subr_tab, object_tab, so that GC becomes possible:
   if (*module->stab_size > 0) {
-    var subr_* ptr = module->stab; # traverse subr_tab
+    var subr_t* ptr = module->stab; # traverse subr_tab
     var uintC count;
     dotimespC(count,*module->stab_size,
     { ptr->name = NIL; ptr->keywords = NIL; ptr++; });
@@ -1433,7 +1433,7 @@ local void init_module_2 (module_* module) {
   module->initialized = true;
   # enter Subr-symbols:
   if (*module->stab_size > 0) {
-    var subr_* subr_ptr = module->stab;
+    var subr_t* subr_ptr = module->stab;
     var const subr_initdata_t* init_ptr = module->stab_initdata;
     var uintC count;
     dotimespC(count,*module->stab_size,{
@@ -1475,7 +1475,7 @@ local void init_module_2 (module_* module) {
   (*module->initfunction1)(module);
 }
 local void init_other_modules_2 (void) {
-  var module_* module; # traverse modules
+  var module_t* module; # traverse modules
   for_modules(all_other_modules,{
     if (!module->initialized)
       init_module_2(module);
@@ -2112,7 +2112,7 @@ global int main (argc_t argc, char* argv[]) {
  #ifdef MAP_MEMORY_TABLES
   { # calculate total_subr_anz:
     var uintC total = 0;
-    var module_* module;
+    var module_t* module;
     for_modules(all_modules, { total += *module->stab_size; } );
     total_subr_anz = total;
   }
@@ -2221,7 +2221,7 @@ global int main (argc_t argc, char* argv[]) {
       multimap(case_symbolflagged: , 0, memneed, false);
     }
     # set subr_tab to address 0:
-    if ( zeromap(&subr_tab,round_up(total_subr_anz*sizeof(subr_),pagesize)) <0)
+    if (zeromap(&subr_tab,round_up(total_subr_anz*sizeof(subr_t),pagesize)) <0)
       goto no_mem;
     #else
     # multimap symbol_tab and subr_tab:
@@ -2271,7 +2271,7 @@ global int main (argc_t argc, char* argv[]) {
            mem.heaps[typecode(as_object((oint)&tab))].heap_limit += map_len; \
       } while(0)
     map_tab(symbol_tab,sizeof(symbol_tab));
-    map_tab(subr_tab,total_subr_anz*sizeof(subr_));
+    map_tab(subr_tab,total_subr_anz*sizeof(subr_t));
     #endif
     #ifdef TRIVIALMAP_MEMORY
     # initialize all heaps as empty.
@@ -2627,7 +2627,7 @@ global int main (argc_t argc, char* argv[]) {
  #endif
   init_other_modules_2(); # initialize modules yet uninitialized
   { # final module initializations:
-    var module_* module; # loop over modules
+    var module_t* module; # loop over modules
     for_modules(all_other_modules,{
       if (module->initfunction2)
         # call initialization function:
@@ -3023,13 +3023,13 @@ global void dynload_modules (const char * library, uintC modcount,
       });
     }
     { # Make room for the module descriptors.
-      var module_* modules = (module_*) malloc(modcount*sizeof(module_)+total_modname_length);
+      var module_t* modules = (module_t*) malloc(modcount*sizeof(module_t)+total_modname_length);
       if (modules==NULL) fehler_dlerror("malloc",NULL,"out of memory");
       {
         var char* modnamebuf = (char*)(&modules[modcount]);
         var DYNAMIC_ARRAY(symbolbuf,char,8+max_modname_length+21+1);
         var const char * const * modnameptr = modnames;
-        var module_* module = modules;
+        var module_t* module = modules;
         var uintC count;
         dotimespC(count,modcount,{
           var const char * modname = *modnameptr;
@@ -3043,7 +3043,7 @@ global void dynload_modules (const char * library, uintC modcount,
           }
           { # Find the addresses of some C data in the shared library:
             sprintf(symbolbuf,"module__%s__subr_tab",modname);
-            module->stab = (subr_*) dlsym(libhandle,symbolbuf);
+            module->stab = (subr_t*) dlsym(libhandle,symbolbuf);
             err = dlerror();
             if (err) fehler_dlerror("dlsym",symbolbuf,err);
           }
@@ -3082,14 +3082,14 @@ global void dynload_modules (const char * library, uintC modcount,
           }
           { # Find the addresses of some C functions in the shared library:
             sprintf(symbolbuf,"module__%s__init_function_1",modname);
-            module->initfunction1 = (void (*) (module_*))
+            module->initfunction1 = (void (*) (module_t*))
               dlsym(libhandle,symbolbuf);
             err = dlerror();
             if (err) fehler_dlerror("dlsym",symbolbuf,err);
           }
           {
             sprintf(symbolbuf,"module__%s__init_function_2",modname);
-            module->initfunction2 = (void (*) (module_*))
+            module->initfunction2 = (void (*) (module_t*))
               dlsym(libhandle,symbolbuf);
             err = dlerror();
             if (err) fehler_dlerror("dlsym",symbolbuf,err);
@@ -3101,32 +3101,32 @@ global void dynload_modules (const char * library, uintC modcount,
       }
       end_system_call();
       { # We found all the necessary symbols. Now register the modules.
-        var module_* module = modules;
+        var module_t* module = modules;
         var uintC mcount = modcount;
         while (mcount-- > 0) {
           add_module(module);
           # pre-initialization, cf. init_subr_tab_1.
           if (*module->stab_size > 0) {
-            var subr_* ptr = module->stab; # peruse subr_tab
+            var subr_t* ptr = module->stab; # peruse subr_tab
             var uintC count;
             dotimespC(count,*module->stab_size,
             { SUBR_SET_ARGTYPE(ptr); ptr++; });
           }
          #if (defined(MULTIMAP_MEMORY) || defined(SINGLEMAP_MEMORY)) && defined(MAP_MEMORY_TABLES)
           {
-            var subr_* newptr = (subr_*)&subr_tab + total_subr_anz;
+            var subr_t* newptr = (subr_t*)&subr_tab + total_subr_anz;
             var uintC count = *module->stab_size;
             if (count > 0) {
               {
-                var uintL old_map_len = round_up(total_subr_anz*sizeof(subr_),map_pagesize);
-                var uintL new_map_len = round_up((total_subr_anz+count)*sizeof(subr_),map_pagesize);
+                var uintL old_map_len = round_up(total_subr_anz*sizeof(subr_t),map_pagesize);
+                var uintL new_map_len = round_up((total_subr_anz+count)*sizeof(subr_t),map_pagesize);
                 if (old_map_len < new_map_len) {
                   if (zeromap((void*)((aint)&subr_tab+old_map_len),new_map_len-old_map_len) <0)
                     fehler_dlerror("zeromap",NULL,"out of memory for subr_tab");
                 }
               }
               {
-                var subr_* oldptr = module->stab;
+                var subr_t* oldptr = module->stab;
                 module->stab = newptr;
                 dotimespC(count,count, {
                   *newptr = *oldptr++;
@@ -3144,7 +3144,7 @@ global void dynload_modules (const char * library, uintC modcount,
             # newly laoded Shared-Library, so are surely not yet
             # multi-mapped.
             var aint subr_tab_start = round_down((aint)module->stab,pagesize);
-            var aint subr_tab_end = round_up((aint)module->stab+(*module->stab_size)*sizeof(subr_),pagesize);
+            var aint subr_tab_end = round_up((aint)module->stab+(*module->stab_size)*sizeof(subr_t),pagesize);
             multimap(case_machine: case_subr: , subr_tab_start, subr_tab_end-subr_tab_start, true);
             if (false)
               no_mem:
@@ -3157,7 +3157,7 @@ global void dynload_modules (const char * library, uintC modcount,
         }
       }
       { # Now start the modules' life.
-        var module_* module = modules;
+        var module_t* module = modules;
         var uintC count;
         dotimespC(count,modcount,{
           if (module->initfunction2)

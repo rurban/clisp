@@ -22,14 +22,14 @@ global var uintC module_count =
   extern uintC subr_tab_data_size;
   extern uintC object_tab_size;
   #define MODULE(module_name)  \
-    extern subr_ module__##module_name##__subr_tab[]; \
+    extern subr_t module__##module_name##__subr_tab[]; \
     extern uintC module__##module_name##__subr_tab_size; \
     extern object module__##module_name##__object_tab[]; \
     extern uintC module__##module_name##__object_tab_size; \
     extern subr_initdata_t module__##module_name##__subr_tab_initdata[]; \
     extern object_initdata_t module__##module_name##__object_tab_initdata[]; \
-    extern void module__##module_name##__init_function_1(struct module_ *); \
-    extern void module__##module_name##__init_function_2(struct module_ *);
+    extern void module__##module_name##__init_function_1(struct module_t *); \
+    extern void module__##module_name##__init_function_2(struct module_t *);
   #include "modules.h"
   #undef MODULE
   #ifdef DYNAMIC_MODULES
@@ -37,9 +37,9 @@ global var uintC module_count =
   #else
     #define _NEXT_NULL
   #endif
-  global module_ modules[] = {
+  global module_t modules[] = {
     { "clisp",
-      (subr_*)&subr_tab_data, &subr_tab_data_size,
+      (subr_t*)&subr_tab_data, &subr_tab_data_size,
       (object*)&object_tab, &object_tab_size,
       true, NULL, NULL, NULL, NULL
       _NEXT_NULL

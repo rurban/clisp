@@ -9554,7 +9554,7 @@ defun XPM:READ-FILE-TO-PIXMAP (2, 0, norest, key, 2, (:SHAPE-MASK-P :PIXMAP-P))
 }
 ##endif
 
-void module__clx__init_function_2 (module_ *module)
+void module__clx__init_function_2 (module_t *module)
 {
   // setze doch `XLIB::*DISPLAYS*` auf NIL !
 #if 0

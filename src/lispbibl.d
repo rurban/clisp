@@ -1681,8 +1681,8 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
   # Choose typecodes on 64-bit machines (because there's enough room for type
   # bits), but not on 32-bit machines (because a 16 MB limit is ridiculous
   # today), except if the CPU cannot address more than 16 MB anyway.
-  # NO_TYPECODES will normally not work if alignof(subr_) = alignof(long) < 4,
-  # but with egcs-1.1 or newer we can force alignof(subr_) = 4.
+  # NO_TYPECODES will normally not work if alignof(subr_t) = alignof(long) < 4,
+  # but with egcs-1.1 or newer we can force alignof(subr_t) = 4.
   #if defined(WIDE) || defined(MC68000) || ((alignment_long < 4) && !defined(GNU))
     #define TYPECODES
   #else
@@ -5101,7 +5101,7 @@ typedef struct {
   typedef Values fsubr_function_t (void);
 # The addesses of these C-functions are jumped to directly
 # For SAVEMEM/LOADMEM there is a table containing all FSUBRs.
-  typedef fsubr_function_t * fsubr_;
+  typedef fsubr_function_t * fsubr_t;
 # Signature of FSUBRs in the Lisp-way:
 #         argtype          short for the argument type     fsubr_argtype_t
 #         req_anz          number of required parameters   uintW
@@ -5142,15 +5142,15 @@ typedef struct {
       # __attribute__ ((aligned (4))) below is not sufficient with gcc-2.95.2.
       uintW dummy;
     #endif
-  } subr_
+  } subr_t
     #if defined(NO_TYPECODES) && (alignment_long < 4) && defined(GNU)
       # Force all Subrs to be allocated with a 4-byte alignment. GC needs this.
       __attribute__ ((aligned (4)))
     #endif
     ;
-  typedef subr_ *  Subr;
+  typedef subr_t *  Subr;
 # GC needs information where objects are in here:
-  #define subr_const_offset  offsetof(subr_,name)
+  #define subr_const_offset  offsetof(subr_t,name)
   #define subr_const_anz     2
 # the rest_flag component is a uintB, while we really mean:
   typedef enum {
@@ -8520,28 +8520,28 @@ typedef struct {
 } object_initdata_t;
 
 # Table resp. List of Modules:
-typedef struct module_ {
+typedef struct module_t {
   const char* name; # Name
-  subr_* stab; const uintC* stab_size; # a separate subr_tab
+  subr_t* stab; const uintC* stab_size; # a separate subr_tab
   object* otab; const uintC* otab_size; # a separate object_tab
   bool initialized;
   # Data for Initialization:
   const subr_initdata_t* stab_initdata;
   const object_initdata_t* otab_initdata;
   # Functions for Initialization
-  void (*initfunction1) (struct module_ *); # only once
-  void (*initfunction2) (struct module_ *); # always at start up
+  void (*initfunction1) (struct module_t *); # only once
+  void (*initfunction2) (struct module_t *); # always at start up
   #ifdef DYNAMIC_MODULES
-    struct module_ * next; # linked List
+    struct module_t * next; # linked List
   #endif
-} module_;
+} module_t;
 #ifdef DYNAMIC_MODULES
-  extern module_ modules[]; # List-Start
+  extern module_t modules[]; # List-Start
   BEGIN_DECLS
-  extern void add_module (module_ * new_module);
+  extern void add_module (module_t * new_module);
   END_DECLS
 #else
-  extern module_ modules[]; # 1+module_count entries, then an empty entry
+  extern module_t modules[]; # 1+module_count entries, then an empty entry
 #endif
 
 #ifdef HAVE_DYNLOAD
@@ -9148,7 +9148,7 @@ re-enters the corresponding top-level loop.
   #ifndef MULTITHREAD
     #define value1  mv_space[0]
   #else
-    # The first value mv_space[0] is moved to the beginning of struct thread_:
+    # The first value mv_space[0] is moved to the beginning of struct thread_t:
     #define value1  (current_thread()->_value1)
     #define VALUE1_EXTRA # and thus has to be treated extra every time...
   #endif
@@ -9384,11 +9384,11 @@ typedef struct {
   object block_env; # Block-Environment
   object go_env;    # Tagbody/Go-Environment
   object decl_env;  # Declarations-Environment
-} environment;
+} environment_t;
 
 # The current Environment:
 #ifndef MULTITHREAD
-  extern environment aktenv;
+  extern environment_t aktenv;
 #else
   #define aktenv  (current_thread()->_aktenv)
 #endif
@@ -9397,18 +9397,18 @@ typedef struct {
 # and makes a single Environment out of them.
 # make_STACK_env(venv,fenv,benv,genv,denv, env5 = );
 # > object venv,fenv,benv,genv,denv: 5 single Environments
-# < environment* env5: pointer to the Environment on the Stack
+# < environment_t* env5: pointer to the Environment on the Stack
 #ifdef STACK_UP
   #define make_STACK_env(venv,fenv,benv,genv,denv,env5_allocation)      \
     do { pushSTACK(venv); pushSTACK(fenv); pushSTACK(benv);             \
          pushSTACK(genv); pushSTACK(denv);                              \
-         env5_allocation &STACKblock_(environment,0); } while(0)
+         env5_allocation &STACKblock_(environment_t,0); } while(0)
 #endif
 #ifdef STACK_DOWN
   #define make_STACK_env(venv,fenv,benv,genv,denv,env5_allocation)      \
     do { pushSTACK(denv); pushSTACK(genv); pushSTACK(benv);             \
          pushSTACK(fenv); pushSTACK(venv);                              \
-         env5_allocation &STACKblock_(environment,0); } while(0)
+         env5_allocation &STACKblock_(environment_t,0); } while(0)
 #endif
 
 # Frameinfobits in Frames:
@@ -9921,9 +9921,9 @@ typedef /* nonreturning */ void (*restart)(object* upto_frame);
 typedef struct {
   restart fun;
   object* upto_frame;
-} unwind_protect_caller;
+} unwind_protect_caller_t;
 #ifndef MULTITHREAD
-  extern unwind_protect_caller unwind_protect_to_save;
+  extern unwind_protect_caller_t unwind_protect_to_save;
 #else
   #define unwind_protect_to_save  (current_thread()->_unwind_protect_to_save)
 #endif
@@ -9978,13 +9978,13 @@ typedef struct {
 #else
   #define handler_args  (current_thread()->_handler_args)
 #endif
-typedef struct stack_range {
-  struct stack_range * next;
+typedef struct stack_range_t {
+  struct stack_range_t * next;
   object* low_limit;
   object* high_limit;
-} stack_range;
+} stack_range_t;
 #ifndef MULTITHREAD
-  extern stack_range* inactive_handlers;
+  extern stack_range_t* inactive_handlers;
 #else
   #define inactive_handlers  (current_thread()->_inactive_handlers)
 #endif
@@ -10043,7 +10043,7 @@ extern object nest_fun (object env);
 # > environment* env: Pointer to five single Environments
 # < environment* result: Pointer to the Environments on the STACK
 # modifies STACK, can trigger GC
-extern environment* nest_env (environment* env);
+extern environment_t* nest_env (environment_t* env);
 # is used by Macro nest_aktenv
 
 # UP: Nests the current environments (ie. writes all information
@@ -10118,7 +10118,7 @@ extern bool parse_dd (object formlist, object venv, object fenv);
 #        end->decl_env = DENV.
 # < result: Closure
 # can trigger GC
-extern object get_closure (object lambdabody, object name, bool blockp, environment* env);
+extern object get_closure (object lambdabody, object name, bool blockp, environment_t* env);
 # is used by CONTROL, SYMBOL, PREDTYPE
 
 # UP: Converts an argument to a function.
@@ -10562,8 +10562,8 @@ extern object array_dimensions (object array);
 # > array: indirect array of rank r
 # > struct { uintL dim; uintL dimprod; } dims_sizes[r]: room for the result
 # < for i=1,...r:  dims_sizes[r-i] = { Dim_i, Dim_i * ... * Dim_r }
-typedef struct { uintL dim; uintL dimprod; }  array_dim_size;
-extern void iarray_dims_sizes (object array, array_dim_size* dims_sizes);
+typedef struct { uintL dim; uintL dimprod; }  array_dim_size_t;
+extern void iarray_dims_sizes (object array, array_dim_size_t* dims_sizes);
 # used by IO
 
 # Function: Returns the total-size of an array.
@@ -11932,8 +11932,8 @@ extern object expand_deftype (object type_spec, bool once_p);
 # UP: Makes a statistic about the action of a GC.
 # with_gc_statistics(fun);
 # > fun: Function that does a GC
-typedef void gc_function (void);
-extern void with_gc_statistics (gc_function* fun);
+typedef void gc_function_t (void);
+extern void with_gc_statistics (gc_function_t* fun);
 # is used by SPVW
 
 # ###################### SEQBIBL for SEQUENCE.D ############################ #
@@ -11957,8 +11957,8 @@ extern Values coerce_sequence (object sequence, object result_type,
 # > fun: Function, fun(arg,element) may trigger GC
 # > arg: arbitrary given argument
 # can trigger GC
-typedef void map_sequence_function (void* arg, object element);
-extern void map_sequence (object obj, map_sequence_function* fun, void* arg);
+typedef void map_sequence_function_t (void* arg, object element);
+extern void map_sequence (object obj, map_sequence_function_t* fun, void* arg);
 # is used by ARRAY
 
 # Error, if both :TEST, :TEST-NOT - argumente have been given.
@@ -12802,7 +12802,7 @@ extern object decimal_string (object x);
         void* _SP_bound;
       #endif
       void* _STACK_bound;
-      unwind_protect_caller _unwind_protect_to_save;
+      unwind_protect_caller_t _unwind_protect_to_save;
       #ifdef NEED_temp_mv_count
         uintC _temp_mv_count;
       #endif
@@ -12827,23 +12827,23 @@ extern object decimal_string (object x);
       uintC _index; # this thread's index in allthreads[]
     # Used for exception handling only:
       handler_args_t _handler_args;
-      stack_range* _inactive_handlers;
+      stack_range_t* _inactive_handlers;
     # Big, rarely used arrays come last:
       object _mv_space [mv_limit-1];
     # Now the lisp objects (seen by the GC).
       # The Lisp object representing this thread:
       object _lthread;
       # The lexical environment:
-      environment _aktenv;
+      environment_t _aktenv;
       # The values of per-thread symbols:
       object _symvalues[unspecified];
-  } thread_;
+  } thread_t;
   #define thread_size(nsymvalues)  \
-    (offsetofa(thread_,_symvalues)+nsymvalues*sizeof(object))
+    (offsetofa(thread_t,_symvalues)+nsymvalues*sizeof(object))
   #define thread_objects_offset(nsymvalues)  \
-    (offsetof(thread_,_lthread))
+    (offsetof(thread_t,_lthread))
   #define thread_objects_anz(nsymvalues)  \
-    ((offsetofa(thread_,_symvalues)-offsetof(thread_,_lthread))/sizeof(object)+(nsymvalues))
+    ((offsetofa(thread_t,_symvalues)-offsetof(thread_t,_lthread))/sizeof(object)+(nsymvalues))
 
 # Size of a single thread's stack region. Must be a power of 2.
   #define THREAD_SP_SHIFT  22  # 4 MB should be sufficient, and leaves room
@@ -12869,21 +12869,21 @@ extern object decimal_string (object x);
   #ifdef SP_DOWN
     #ifndef MORRIS_GC
       #define sp_to_thread(sp)  \
-        (thread_*)((aint)(sp) & minus_bit(THREAD_SP_SHIFT))
+        (thread_t*)((aint)(sp) & minus_bit(THREAD_SP_SHIFT))
     #else
       # Morris GC doesn't like the backpointers to have garcol_bit set.
       #define sp_to_thread(sp)  \
-        (thread_*)((aint)(sp) & (minus_bit(THREAD_SP_SHIFT) & ~wbit(garcol_bit_o)))
+        (thread_t*)((aint)(sp) & (minus_bit(THREAD_SP_SHIFT) & ~wbit(garcol_bit_o)))
     #endif
   #endif
   #ifdef SP_UP
     #define sp_to_thread(sp)  \
-      (thread_*)(((aint)(sp) | (bit(THREAD_SP_SHIFT)-1)) - 0x1FFFF)
+      (thread_t*)(((aint)(sp) | (bit(THREAD_SP_SHIFT)-1)) - 0x1FFFF)
   #endif
 # Returns a pointer to the current thread structure.
-  typedef thread_* current_thread_function (void);
+  typedef thread_t* current_thread_function (void);
   extern inline const current_thread_function current_thread;
-  extern inline thread_* current_thread (void)
+  extern inline thread_t* current_thread (void)
   { return sp_to_thread(roughly_SP()); }
 
 #endif

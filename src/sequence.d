@@ -1184,10 +1184,10 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
 # > fun: Funktion, fun(arg,element) darf GC auslösen
 # > arg: beliebiges vorgegebenes Argument
 # can trigger GC
-  global void map_sequence (object obj, map_sequence_function* fun, void* arg);
+  global void map_sequence (object obj, map_sequence_function_t* fun, void* arg);
   global void map_sequence(obj,fun,arg)
     var object obj;
-    var map_sequence_function* fun;
+    var map_sequence_function_t* fun;
     var void* arg;
     { var object typdescr = get_valid_seq_type(obj);
       pushSTACK(typdescr);

@@ -257,7 +257,7 @@
       header._intDsize = intDsize;
       header._module_count = module_count;
       {
-        var module_* module;
+        var module_t* module;
         module_names_size = 0;
         for_modules(all_modules, {
           module_names_size += asciz_length(module->name)+1;
@@ -294,7 +294,7 @@
       {
         var DYNAMIC_ARRAY(module_names_buffer,char,module_names_size);
         var char* ptr2 = &module_names_buffer[0];
-        var module_* module;
+        var module_t* module;
         var uintC count;
         for_modules(all_modules, {
           var const char* ptr1 = module->name;
@@ -313,12 +313,12 @@
       # write for each module subr_addr, subr_anz, object_anz,
       # subr_tab, object_tab:
       {
-        var module_* module;
+        var module_t* module;
         for_modules(all_modules, {
-          WRITE(&module->stab,sizeof(subr_*));
+          WRITE(&module->stab,sizeof(subr_t*));
           WRITE(module->stab_size,sizeof(uintC));
           WRITE(module->otab_size,sizeof(uintC));
-          WRITE(module->stab,*module->stab_size*sizeof(subr_));
+          WRITE(module->stab,*module->stab_size*sizeof(subr_t));
           WRITE(module->otab,*module->otab_size*sizeof(object));
         });
       }
@@ -728,11 +728,11 @@
     {
       var void* addr = fsubrptr->function;
       var uintC i = fsubr_anz;
-      var fsubr_* p = &((fsubr_*)(&old_fsubr_tab))[fsubr_anz];
+      var fsubr_t* p = &((fsubr_t*)(&old_fsubr_tab))[fsubr_anz];
       until (i==0) {
         i--;
         if ((void*) *--p == addr) {
-          fsubrptr->function = ((const fsubr_ *)(&fsubr_tab))[i];
+          fsubrptr->function = ((const fsubr_t *)(&fsubr_tab))[i];
           break;
         }
       }
@@ -958,16 +958,16 @@
         end_system_call();
         if (offset_subrs==NULL) goto abort3;
         # read module names and compare with the existing modules:
-        var DYNAMIC_ARRAY(old_modules,module_*,1+header._module_count);
+        var DYNAMIC_ARRAY(old_modules,module_t*,1+header._module_count);
         {
           var DYNAMIC_ARRAY(module_names_buffer,char,header._module_names_size);
           READ(module_names_buffer,header._module_names_size);
           {
-            var module_* * old_module = &old_modules[0];
+            var module_t* * old_module = &old_modules[0];
             var const char* old_name = &module_names_buffer[0];
             var uintC count;
             dotimespC(count,1+header._module_count, {
-              var module_* module;
+              var module_t* module;
               for_modules(all_modules, {
                 if (asciz_equal(old_name,module->name))
                   goto found_module;
@@ -990,14 +990,14 @@
         # for each module read subr_addr, subr_anz, object_anz, subr_tab,
         # object_tab :
         {
-          var module_* * old_module = &old_modules[0];
+          var module_t* * old_module = &old_modules[0];
           var offset_subrs_t* offset_subrs_ptr = &offset_subrs[0];
           var uintC count;
           dotimespC(count,1+header._module_count, {
-            var subr_* old_subr_addr;
+            var subr_t* old_subr_addr;
             var uintC old_subr_anz;
             var uintC old_object_anz;
-            READ(&old_subr_addr,sizeof(subr_*));
+            READ(&old_subr_addr,sizeof(subr_t*));
             READ(&old_subr_anz,sizeof(uintC));
             READ(&old_object_anz,sizeof(uintC));
             if (!(old_subr_anz == *(*old_module)->stab_size)) goto abort2;
@@ -1006,10 +1006,10 @@
             offset_subrs_ptr->high_o = as_oint(subr_tab_ptr_as_object(old_subr_addr+old_subr_anz));
             offset_subrs_ptr->offset_o = as_oint(subr_tab_ptr_as_object((*old_module)->stab)) - offset_subrs_ptr->low_o;
             if (old_subr_anz > 0) {
-              var DYNAMIC_ARRAY(old_subr_tab,subr_,old_subr_anz);
-              READ(old_subr_tab,old_subr_anz*sizeof(subr_));
-              var subr_* ptr1 = old_subr_tab;
-              var subr_* ptr2 = (*old_module)->stab;
+              var DYNAMIC_ARRAY(old_subr_tab,subr_t,old_subr_anz);
+              READ(old_subr_tab,old_subr_anz*sizeof(subr_t));
+              var subr_t* ptr1 = old_subr_tab;
+              var subr_t* ptr2 = (*old_module)->stab;
               var uintC count;
               dotimespC(count,old_subr_anz, {
                 if (!(   (ptr1->req_anz == ptr2->req_anz)

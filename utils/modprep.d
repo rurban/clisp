@@ -1279,7 +1279,7 @@ local Fundef* get_fundef_aux (const char* funname, Signature* sig, VectorString*
     var char* initstring = concat3(packname,":",printname);
     var char* tagbuf = (char*) xmalloc(3*strlen(initstring)+10);
     var char* q = tagbuf;
-    strcpy(q,"subr_");
+    strcpy(q,"subr_t");
     q += strlen(q);
     {
       var const char* p;
@@ -2118,7 +2118,7 @@ local void output_tables2 (FILE* stream)
           print_condition(stream,fdef->condition);
           print_nl(stream);
         }
-        fprintf(stream,"  subr_ _%s;",fdef->tag);
+        fprintf(stream,"  subr_t _%s;",fdef->tag);
         print_nl(stream);
         if (!is_true_condition(fdef->condition)) {
           fprintf(stream,"#endif");
@@ -2161,7 +2161,7 @@ local void output_tables2 (FILE* stream)
   print_nl(stream);
   fprintf(stream,"};");
   print_nl(stream);
-  fprintf(stream,"uintC module__%s__subr_tab_size = ((char*)&%s._dummy_to_avoid_trailing_comma_in_initializer-(char*)&%s)/sizeof(subr_);",modname,subr_tab,subr_tab);
+  fprintf(stream,"uintC module__%s__subr_tab_size = ((char*)&%s._dummy_to_avoid_trailing_comma_in_initializer-(char*)&%s)/sizeof(subr_t);",modname,subr_tab,subr_tab);
   print_nl(stream);
   print_nl(stream);
   fprintf(stream,"struct {");
@@ -2219,7 +2219,7 @@ local void output_tables2 (FILE* stream)
   fprintf(stream,"};");
   print_nl(stream);
   print_nl(stream);
-  fprintf(stream,"void module__%s__init_function_1 (module_* module)",modname);
+  fprintf(stream,"void module__%s__init_function_1 (module_t* module)",modname);
   print_nl(stream);
   fprintf(stream,"{");
   print_nl(stream);
@@ -2280,7 +2280,7 @@ local void output_tables2 (FILE* stream)
   fprintf(stream,"}");
   print_nl(stream);
   print_nl(stream);
-  fprintf(stream,"void module__%s__init_function_2 (module_* module)",modname);
+  fprintf(stream,"void module__%s__init_function_2 (module_t* module)",modname);
   print_nl(stream);
   fprintf(stream,"{");
   print_nl(stream);

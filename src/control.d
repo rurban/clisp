@@ -496,9 +496,9 @@ LISPSPECFORM(prog2, 2,0,body)
       # Die ganze Form aus dem EVAL-Frame im Stack holen:
       pushSTACK(STACK_(frame_form)); # als 1. Argument
       {
-        var environment* stack_env = nest_aktenv(); # aktuelles Environment nesten, auf den STACK legen
+        var environment_t* stack_env = nest_aktenv(); # aktuelles Environment nesten, auf den STACK legen
         #if !defined(STACK_UP)
-        var environment my_env;
+        var environment_t my_env;
         my_env = *stack_env; # und hierher übertragen
         skipSTACK(5); # und wieder vom STACK nehmen
         pushSTACK(my_env.var_env); # 2. Argument
@@ -2313,9 +2313,9 @@ LISPSPECFORM(load_time_value, 1,1,nobody)
 # > subr_self: Aufrufer (ein SUBR)
 # < env5: 5 Komponenten des Environments
 # erhöht STACK um 1
-  local void test_optional_env_arg (environment* env5);
+  local void test_optional_env_arg (environment_t* env5);
   local void test_optional_env_arg(env5)
-    var environment* env5;
+    var environment_t* env5;
     {
       var object env = popSTACK(); # env-Argument
       if (eq(env,unbound)) { # nicht angegeben -> leeres Environment
@@ -2345,7 +2345,7 @@ LISPSPECFORM(load_time_value, 1,1,nobody)
 LISPFUN(evalhook,3,1,norest,nokey,0,NIL)
 # (EVALHOOK form evalhookfn applyhookfn [env]), CLTL S. 323
   {
-    var environment env5;
+    var environment_t env5;
     test_optional_env_arg(&env5); # env-Argument nach env5
     var object applyhookfn = popSTACK();
     var object evalhookfn = popSTACK();
@@ -2364,7 +2364,7 @@ LISPFUN(evalhook,3,1,norest,nokey,0,NIL)
 LISPFUN(applyhook,4,1,norest,nokey,0,NIL)
 # (APPLYHOOK function args evalhookfn applyhookfn [env]), CLTL S. 323
   {
-    var environment env5;
+    var environment_t env5;
     test_optional_env_arg(&env5); # env-Argument nach env5
     var object applyhookfn = popSTACK();
     var object evalhookfn = popSTACK();
