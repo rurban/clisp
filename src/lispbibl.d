@@ -5520,6 +5520,7 @@ typedef struct {
   gcv_object_t direct_superclasses     _attribute_aligned_object_; # direct superclasses
   gcv_object_t all_superclasses        _attribute_aligned_object_; # all superclasses, including itself
   gcv_object_t precedence_list         _attribute_aligned_object_; # ordered list of all superclasses
+  gcv_object_t direct_subclasses       _attribute_aligned_object_; # weak-list or weak-hash-table of all direct subclasses
   gcv_object_t direct_slots            _attribute_aligned_object_;
   gcv_object_t slots                   _attribute_aligned_object_;
   gcv_object_t slot_location_table     _attribute_aligned_object_; # hashtable slotname -> where the slot is located
