@@ -287,3 +287,19 @@
         (eq (class-of class) (class-of superclass))
         ;; CLISP specific extension:
         (subclassp (class-of class) (class-of superclass)))))
+
+;;; ===========================================================================
+
+;;; Subclass relationship change notification
+
+;; MOP p. 32
+(fmakunbound 'add-direct-subclass)
+(defgeneric add-direct-subclass (class subclass)
+  (:method ((class class) (subclass class))
+    (add-direct-subclass-internal class subclass)))
+
+;; MOP p. 90
+(fmakunbound 'remove-direct-subclass)
+(defgeneric remove-direct-subclass (class subclass)
+  (:method ((class class) (subclass class))
+    (remove-direct-subclass-internal class subclass)))

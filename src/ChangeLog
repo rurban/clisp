@@ -1,3 +1,15 @@
+2004-05-29  Bruno Haible  <bruno@clisp.org>
+
+	* init.lisp: Export add-direct-subclass, remove-direct-subclass.
+	* clos-package.lisp: Likewise.
+	* clos-class3.lisp (add-direct-superclass-internal): Renamed from
+	add-direct-superclass.
+	(remove-direct-superclass-internal): Renamed from
+	remove-direct-superclass.
+	(add-direct-superclass, remove-direct-superclass): New functions.
+	* clos-class6.lisp (add-direct-superclass, remove-direct-superclass):
+	New generic functions.
+
 2004-06-24  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/bdb.c (DB-GET-OPTIONS, DB-SET-OPTIONS): added
