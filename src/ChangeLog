@@ -1,3 +1,10 @@
+1999-06-25  Sam Steingold  <sds@goems.com>
+
+	* describe.lsp (apropos): print the macro for symbol-macro, no
+	evaluation.
+	(describe-object): ditto.
+	Also, describe CAR & CDR for a simple cons.
+
 1999-06-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Don't use Unicode API on Win32. It does not work on Win95.
