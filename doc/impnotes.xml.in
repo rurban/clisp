@@ -27,7 +27,7 @@
  * lambda-key (&amp;)  == literal
  * declaration (ftype) == literal
  * package (CL-USER)   == quote role="package"
- a first mention of an object should be marked with <emphasis role="first">
+ a first mention of an object should be marked with <firstterm>
  -->
 
 <book id="impnotes-top"><title>Implementation Notes for &gnu; &clisp;.</title>
@@ -128,6 +128,8 @@ and
 &imp-byte;
 
 &gfdl-text;
+
+<index id="idx"/>
 
 <bibliography id="references">
  <title>References</title>

@@ -295,8 +295,10 @@ localized.</para>
   (i.e. Russian)</member>
 </simplelist></para>
 
-<para>This is controlled by the &symbol-macro; <emphasis
- role="first">&curr-lang;</emphasis>,
+<para>This is controlled by the &symbol-macro;
+ <firstterm>&curr-lang;<indexterm id="curr-lang" significance="preferred">
+   <primary id="curr-lang-i"><varname>*CURRENT-LANGUAGE*</varname>
+ </primary></indexterm></firstterm>,
  which can be set at run time as well as using <ulink
  url="clisp.html#opt-lang"><option>-L</option></ulink> start-up option.
  If you wish to change the <ulink url="clisp.html#opt-locale">locale
@@ -305,31 +307,36 @@ localized.</para>
  (a &symbol-t;, one of the above), and whose
  &cdr; is the new locale directory.</para>
 
-<para>More languages can be defined through the macro <emphasis
- role="first"><function>I18N:DEFLANGUAGE</function></emphasis>:
- <literal role="sexp">(<function>I18N:DEFLANGUAGE</function>
- <replaceable>lang</replaceable>)</literal>.  For such an additional
- language to take effect, you must install the corresponding message
- catalog, or translate the messages yourself, using &ggettext; and
- &emacs; (or &xemacs;) po-mode.</para>
+<para>More languages can be defined through the macro
+ <firstterm>&deflang;<indexterm id="deflang" significance="preferred">
+   <primary id="deflang-i"><function>DEFLANGUAGE</function>
+ </primary></indexterm></firstterm>:
+ <literal role="sexp">(&deflang; &lang-r;)</literal>.
+ For such an additional language to take effect, you must install the
+ corresponding message catalog, or translate the messages yourself,
+ using &ggettext; and &emacs; (or &xemacs;) po-mode.</para>
 
 <para>This works only for strings.  For arbitrary language-dependent
- Lisp objects, you define one through the macro <emphasis
- role="first"><function>I18N:DEFINTERNATIONAL</function></emphasis>:
- <literal role="sexp">(<function>I18N:DEFINTERNATIONAL</function>
- &symbol-r; &optional-amp;
+ Lisp objects, you define one through the macro
+ <firstterm>&def-i-l;<indexterm id="def-i-l" significance="preferred">
+   <primary id="def-i-l-i"><function>DEFINTERNATIONAL</function>
+ </primary></indexterm></firstterm>:
+ <literal role="sexp">(&def-i-l; &symbol-r; &optional-amp;
  (<replaceable>default-language</replaceable> &t;))</literal> and add
- language-dependent values through the macro <emphasis
- role="first"><function>I18N:DEFLOCALIZED</function></emphasis>:
- <literal role="sexp">(<function>I18N:DEFLOCALIZED</function>
- &symbol-r; &lang-r; <replaceable>value-form</replaceable>)</literal></para>
-
-<para>(One such form for each language.  Languages without an assigned
- value will be treated like the default-language.)  You can then access
- the localized value by calling <emphasis
- role="first"><function>I18N:LOCALIZED</function></emphasis>: <literal
- role="sexp">(<function>I18N:LOCALIZED</function>
- &symbol-r; &optional-amp; &lang-r;)</literal></para>
+ language-dependent values through the macro
+ <firstterm>&defloc;<indexterm id="defloc" significance="preferred">
+   <primary id="defloc-i"><function>DEFLOCALIZED</function>
+ </primary></indexterm></firstterm>:
+ <literal role="sexp">(&defloc; &symbol-r; &lang-r;
+  <replaceable>value-form</replaceable>)</literal>
+ (One such form for each language.  Languages without an assigned
+ value will be treated like the default-language.)
+ You can then access the localized value by calling
+ <firstterm>&localized;<indexterm id="localized" significance="preferred">
+   <primary id="localized-i"><function>LOCALIZED</function>
+ </primary></indexterm></firstterm>:
+ <literal role="sexp">(&localized; &symbol-r; &optional-amp;
+  &lang-r;)</literal></para>
 
 </section>
 
@@ -1438,7 +1445,7 @@ N. Gray to X3J13.</para>
 
 <section id="prompt"><title>Extensions-1.8. The Prompt</title>
 
-<para>The variable <emphasis role="first">&prompt;</emphasis> controls
+<para>The variable <firstterm>&prompt;</firstterm> controls
  the appearance of the prompt.  When its value is a function, it is
  called and its value is printed with &princ;.  Otherwise, the value
  itself is printed with &princ;.  The default value of &prompt; prints
@@ -1711,94 +1718,77 @@ returns two values:
 
 <variablelist>
  <varlistentry><term><literal
-    role="sexp">(<function>screen:make-window</function>)</literal></term>
-  <listitem><simpara>returns a "window stream".  As long as this stream
-   is open, the terminal is in cbreak/noecho mode.  &terminal-io-var;
-   should not be used for input or output during this time.
-   (Use &with-kbd; and &kbd-in; instead.)
+    role="sexp">(<function>SCREEN:MAKE-WINDOW</function>)</literal></term>
+  <listitem><simpara>returns a <type>WINDOW-STREAM</type>.
+    As long as this stream is open, the terminal is in cbreak/noecho mode.
+    &terminal-io-var; should not be used for input or output during this
+    time.  (Use &with-kbd; and &kbd-in; instead.)
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>screen:with-window</function>
-                 . &body-r;)</literal></term>
-  <listitem><simpara>binds <emphasis
-   role="first"><varname>screen:*window*</varname></emphasis> to a
-   window stream and executes &body-r;.  The stream is guaranteed to be
-   closed when the body is left.  During its execution,
-   &terminal-io-var; should not be used, as above.
+ <varlistentry><term><literal role="sexp"
+    >(<function>SCREEN:WITH-WINDOW</function> . &body-r;)</literal></term>
+  <listitem><simpara>binds
+    <firstterm>&scr-win;<indexterm id="scr-win" significance="preferred">
+      <primary id="scr-win-i"><varname>*WINDOW*</varname>
+    </primary></indexterm></firstterm>
+    to a window stream and executes &body-r;.
+    The stream is guaranteed to be closed when the body is left.
+    During its execution, &terminal-io-var; should not be used, as above.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>screen:window-size</function>
-                 <replaceable>window-stream</replaceable>)</literal></term>
+ <varlistentry><term><literal role="sexp"
+    >(<function>SCREEN:WINDOW-SIZE</function> &ws-r;)</literal></term>
   <listitem><simpara>returns the window's size, as two values:
    height (= y<subscript>max</subscript>+1) and width (=
    x<subscript>max</subscript>+1).
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>screen:window-cursor-position</function>
-                 <replaceable>window-stream</replaceable>)</literal></term>
+ <varlistentry><term><literal role="sexp"
+ >(<function>SCREEN:WINDOW-CURSOR-POSITION</function> &ws-r;)</literal></term>
   <listitem><simpara>returns the position of the cursor in the window,
    as two values: line (&ge;0, &le;y<subscript>max</subscript>, 0 means
    top), column (&ge;0, &le;x<subscript>max</subscript>, 0 means left
    margin).</simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>screen:set-window-cursor-position</function>
-                 <replaceable>window-stream</replaceable>
-                 <replaceable>line</replaceable>
-                 <replaceable>column</replaceable>)</literal></term>
+ <varlistentry><term><literal role="sexp"
+    >(<function>SCREEN:SET-WINDOW-CURSOR-POSITION</function>
+      &ws-r; <replaceable>line</replaceable>
+      <replaceable>column</replaceable>)</literal></term>
   <listitem><simpara>sets the position of the cursor in the window.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>screen:clear-window</function>
-                 <replaceable>window-stream</replaceable>)</literal></term>
-  <listitem><simpara>clears the window's contents and puts the cursor in
-   the upper left corner.
-  </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>screen:clear-window-to-eot</function>
-                 <replaceable>window-stream</replaceable>)</literal></term>
+ <varlistentry><term><literal role="sexp"
+    >(<function>SCREEN:CLEAR-WINDOW</function> &ws-r;)</literal></term>
+  <listitem><simpara>clears the window's contents and puts the cursor
+    in the upper left corner.</simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp"
+    >(<function>SCREEN:CLEAR-WINDOW-TO-EOT</function> &ws-r;)</literal></term>
   <listitem><simpara>clears the window's contents from the cursor
-   position to the end of window.
-  </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>screen:clear-window-to-eol</function>
-                 <replaceable>window-stream</replaceable>)</literal></term>
+    position to the end of window.</simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp"
+    >(<function>SCREEN:CLEAR-WINDOW-TO-EOL</function> &ws-r;)</literal></term>
   <listitem><simpara>clears the window's contents from the cursor
-   position to the end of line.
-  </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>screen:delete-window-line</function>
-                 <replaceable>window-stream</replaceable>)</literal></term>
-  <listitem><simpara>removes the cursor's line, moves the lines below it
-   up by one line and clears the window's last line.
-  </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>screen:insert-window-line</function>
-                 <replaceable>window-stream</replaceable>)</literal></term>
+    position to the end of line.</simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp"
+     >(<function>SCREEN:DELETE-WINDOW-LINE</function> &ws-r;)</literal></term>
+  <listitem><simpara>removes the cursor's line, moves the lines below
+    it up by one line and clears the window's last line.
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp"
+    >(<function>SCREEN:INSERT-WINDOW-LINE</function> &ws-r;)</literal></term>
   <listitem><simpara>inserts a line at the cursor's line, moving the
-   lines below it down by one line.
-  </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>screen:highlight-on</function>
-                 <replaceable>window-stream</replaceable>)</literal></term>
+    lines below it down by one line.</simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp"
+    >(<function>SCREEN:HIGHLIGHT-ON</function> &ws-r;)</literal></term>
   <listitem><simpara>switches highlighted output on.
-  </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>screen:highlight-off</function>
-                 <replaceable>window-stream</replaceable>)</literal></term>
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp"
+    >(<function>SCREEN:HIGHLIGHT-OFF</function> &ws-r;)</literal></term>
   <listitem><simpara>switches highlighted output off.
-  </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>screen:window-cursor-on</function>
-                 <replaceable>window-stream</replaceable>)</literal></term>
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp"
+    >(<function>SCREEN:WINDOW-CURSOR-ON</function> &ws-r;)</literal></term>
   <listitem><simpara>makes the cursor visible, a cursor block in most
-   implementations.
-  </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>screen:window-cursor-off</function>
-                 <replaceable>window-stream</replaceable>)</literal></term>
+    implementations.</simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp"
+    >(<function>SCREEN:WINDOW-CURSOR-OFF</function> &ws-r;)</literal></term>
   <listitem><simpara>makes the cursor invisible, in implementations
-   where this is possible.
-  </simpara></listitem></varlistentry>
+    where this is possible.</simpara></listitem></varlistentry>
 </variablelist>
 </section>
 <!-- #endif -->
@@ -1853,7 +1843,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
        <listitem><simpara>libraries to use when linking
    </simpara></listitem></varlistentry>
  <varlistentry><term><envar>X_LIBS</envar></term>
-       <listitem><simpara>additional X window system libraries to use
+       <listitem><simpara>additional &X; libraries to use
    </simpara></listitem></varlistentry>
  <varlistentry><term><envar>RANLIB</envar></term>
        <listitem><simpara>the ranlib command
@@ -4542,10 +4532,12 @@ bash$
 
 <section id="hardcopy"><title>Printing</title>
 
-<para>The macro <emphasis
- role="first"><function>EXT:WITH-OUTPUT-TO-PRINTER</function></emphasis>:
+<para>The macro
+ <firstterm>&with-print;<indexterm id="with-print" significance="preferred">
+   <primary id="with-print-i">WITH-OUTPUT-TO-PRINTER<function></function>
+ </primary></indexterm></firstterm>:
 <programlisting>
-(ext:with-output-to-printer (&var-r; [&extfmt;])
+(&with-print; (&var-r; [&extfmt;])
   {&declaration-r;}*
   {&form-r;}*)
 </programlisting>
@@ -4719,12 +4711,14 @@ are returned in an &alist;.</para>
 <!-- #ifdef UNIX -->
 <varlistentry><term>Platform dependent: &unix; platforms only.</term>
 <listitem><para>When running under the &X;, you can create
-  a &bidi-s;, which uses a new dedicated xterm, using the function <emphasis
-  role="first"><function>EXT:MAKE-XTERM-IO-STREAM</function></emphasis>:
+  a &bidi-s;, which uses a new dedicated xterm, using the function
+  <firstterm>&mk-xterm-io;<indexterm id="mk-xterm" significance="preferred">
+    <primary id="mk-xterm-i"><function>MAKE-XTERM-IO-STREAM</function>
+  </primary></indexterm></firstterm>:
 <programlisting>
   (&setq; &error-output-var;
     (&setq; &debug-io-var;
-      (ext:make-xterm-io-stream)))
+      (&mk-xterm-io;)))
 </programlisting></para></listitem></varlistentry>
 <!-- #endif -->
 </variablelist>
