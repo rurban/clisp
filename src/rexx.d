@@ -360,7 +360,7 @@ LISPFUNN(rexx_wait_input,0)
                     { pushSTACK(allocate_fpointer(rexxmsg));
                       pushSTACK(L_to_I(result1));
                       if (rexxLostArgstr)
-                        { pushSTACK(make_string(rexxLostArgstr,LengthArgstring(rexxLostArgstr),O(misc_encoding)));
+                        { pushSTACK(n_char_to_string((char*)rexxLostArgstr,LengthArgstring(rexxLostArgstr),O(misc_encoding)));
                           handle_lost_argstr();
                           return listof(3);
                         }
@@ -391,7 +391,7 @@ LISPFUNN(rexx_wait_input,0)
                       # Resource-tracking beendet, ab hier wieder GC möglich
                       # Ergebnis ist 2/3-elementige Liste (Msg-ID "Msg-string" [:RESULT])
                       pushSTACK(Car(new_cons));
-                      pushSTACK(make_string(rexxmsg->rm_Args[0],LengthArgstring(rexxmsg->rm_Args[0]),O(misc_encoding)));
+                      pushSTACK(n_char_to_string((char*)rexxmsg->rm_Args[0],LengthArgstring(rexxmsg->rm_Args[0]),O(misc_encoding)));
                       if (rexxmsg->rm_Action & RXFF_RESULT)
                         # Client is actually interested in RESULT string
                         { pushSTACK(S(Kresult));

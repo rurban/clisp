@@ -1404,10 +1404,10 @@ global int main()
   printf("#define LISPFUN_F(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { (lisp_function)(&C_##name), nullobj, nullobj, 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, },\n");
   printf("#define LISPFUN  LISPFUN_B\n");
 # #ifdef UNICODE
-#   printf("extern object make_string (const uintB* charptr, uintL len, object encoding);\n");
+#   printf("extern object n_char_to_string (const char* charptr, uintL len, object encoding);\n");
 # #else
-#   printf("#define make_string(charptr,len,encoding)  make_string_(charptr,len)\n");
-#   printf("extern object make_string_ (const uintB* charptr, uintL len);\n");
+#   printf("#define n_char_to_string(charptr,len,encoding)  n_char_to_string_(charptr,len)\n");
+#   printf("extern object n_char_to_string_ (const char* charptr, uintL len);\n");
 # #endif
 # #ifdef UNICODE
 #   printf("extern object asciz_to_string (const char * asciz, object encoding);\n");
