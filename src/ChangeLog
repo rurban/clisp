@@ -7,8 +7,8 @@
 
 	* sequence.d (valid_type1): Call SYS::SUBTYPE-SEQUENCE as a last
 	chance to determine the sequence type.
-	* type.lisp (subtype-sequence, type-of-sequence, sequence-type-union,
-	sequence-type-intersection): New functions.
+	* type.lisp (subtype-sequence, type-of-sequence, sequence-type-union)
+	(sequence-type-intersection): New functions.
 
 2004-09-30  Bruno Haible  <bruno@clisp.org>
 
