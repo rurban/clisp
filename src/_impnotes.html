@@ -185,7 +185,127 @@ details.
 <h2><a name="intro"></a><a href="CLHSROOT/Body/chap-1.html">
     Chapter 1: Introduction</a></h2>
 
-<p>No notes.
+<h3><a href="CLHSROOT/Body/sec_1-4-1-3.html">
+    1.4.1.3 Special Symbols</a></h3>
+
+<p>The final delimiter of an interactive stream: On Unix, the user has to
+   type Ctrl-D at the beginning of a line. On DOS or Win32, the user has to
+   type Ctrl-Z, followed by Return. This final delimiter is never actually
+   seen by programs; no need to test for #\^D or #\^Z - use
+   <a href="CLHSROOT/Body/fun_read-char-no-hang.html"><code>read-char-no-hang</code></a>
+   to check for end of stream. Calling
+   <a href="CLHSROOT/Body/fun_clear-input.html"><code>clear-input</code></a>
+   on the stream removes the end-of-stream state, thus making it available
+   for further input.
+
+<p>A newline character can be entered by the user by pressing the
+   <em>Newline</em> or <em>Enter</em> key.
+
+<h3><a href="CLHSROOT/Body/sec_1-4-2.html">
+    1.4.2 Error Terminology</a></h3>
+
+<p>Safety settings are ignored; therefore where the standard uses the
+   phrase ``should signal an error'', an error is signaled.
+
+<h3><a href="CLHSROOT/Body/sec_1-4-4-5.html">
+    1.4.4.5 Class Precedence Lists</a></h3>
+
+The class precedence lists of the system classes
+<a href="CLHSROOT/Body/syscla_class.html"><code>class</code></a>,
+<a href="CLHSROOT/Body/syscla_built-in-class.html"><code>built-in-class</code></a>,
+<a href="CLHSROOT/Body/syscla_structure-class.html"><code>structure-class</code></a>,
+<a href="CLHSROOT/Body/syscla_standard-class.html"><code>standard-class</code></a>,
+<a href="CLHSROOT/Body/syscla_standard-method.html"><code>standard-method</code></a>
+contain the class
+<a href="CLHSROOT/Body/cla_structure-object.html"><code>structure-object</code></a>
+instead of the class
+<a href="CLHSROOT/Body/cla_standard-object.html"><code>standard-object</code></a>.
+
+<h3><a href="CLHSROOT/Body/sec_1-9.html">
+    1.9 Symbols in the COMMON-LISP Package</a></h3>
+
+<p>Symbols missing from the COMMON-LISP package:
+
+<ul>
+ <li><a href="CLHSROOT/Body/var_stprint-linesst.html">
+     <code>*print-lines*</code></a>
+ <li><a href="CLHSROOT/Body/var_stprint-miser-widthst.html">
+     <code>*print-miser-width*</code></a>
+ <li><a href="CLHSROOT/Body/var_stprint-p_t-dispatchst.html">
+     <code>*print-pprint-dispatch*</code></a>
+ <li><a href="CLHSROOT/Body/stagenfun_all_ate-instance.html">
+     <code>allocate-instance</code></a>
+ <li><a href="CLHSROOT/Body/locmac_call-m__make-method.html">
+     <code>call-method</code></a>
+ <li><a href="CLHSROOT/Body/stagenfun_change-class.html">
+     <code>change-class</code></a>
+ <li><a href="CLHSROOT/Body/stagenfun_doc_umentationcp.html">
+     <code>compiler-macro</code></a>
+ <li><a href="CLHSROOT/Body/acc_compiler-_cro-function.html">
+     <code>compiler-macro-function</code></a>
+ <li><a href="CLHSROOT/Body/fun_copy-pprint-dispatch.html">
+     <code>copy-pprint-dispatch</code></a>
+ <li><a href="CLHSROOT/Body/mac_define-compiler-macro.html">
+     <code>define-compiler-macro</code></a>
+ <li><a href="CLHSROOT/Body/mac_define-me_-combination.html">
+     <code>define-method-combination</code></a>
+ <li><a href="CLHSROOT/Body/fun_ensure-ge_ric-function.html">
+     <code>ensure-generic-function</code></a>
+ <li><a href="CLHSROOT/Body/fun_invalid-method-error.html">
+     <code>invalid-method-error</code></a>
+ <li><a href="CLHSROOT/Body/stagenfun_mak_ces-obsolete.html">
+     <code>make-instances-obsolete</code></a>
+ <li><a href="CLHSROOT/Body/stagenfun_make-load-form.html">
+     <code>make-load-form</code></a>
+ <li><a href="CLHSROOT/Body/fun_make-load_saving-slots.html">
+     <code>make-load-form-saving-slots</code></a>
+ <li><a href="CLHSROOT/Body/locmac_call-m__make-method.html">
+     <code>make-method</code></a>
+ <li><a href="CLHSROOT/Body/syscla_method-combination.html">
+     <code>method-combination</code></a>
+ <li><a href="CLHSROOT/Body/fun_method-co_nation-error.html">
+     <code>method-combination-error</code></a>
+ <li><a href="CLHSROOT/Body/fun_pprint-dispatch.html">
+     <code>pprint-dispatch</code></a>
+ <li><a href="CLHSROOT/Body/locmac_pprint_st-exhausted.html">
+     <code>pprint-exit-if-list-exhausted</code></a>
+ <li><a href="CLHSROOT/Body/fun_pprint-fi_rint-tabular.html">
+     <code>pprint-fill</code></a>
+ <li><a href="CLHSROOT/Body/fun_pprint-indent.html">
+     <code>pprint-indent</code></a>
+ <li><a href="CLHSROOT/Body/fun_pprint-fi_rint-tabular.html">
+     <code>pprint-linear</code></a>
+ <li><a href="CLHSROOT/Body/mac_pprint-logical-block.html">
+     <code>pprint-logical-block</code></a>
+ <li><a href="CLHSROOT/Body/fun_pprint-newline.html">
+     <code>pprint-newline</code></a>
+ <li><a href="CLHSROOT/Body/locmac_pprint-pop.html">
+     <code>pprint-pop</code></a>
+ <li><a href="CLHSROOT/Body/fun_pprint-tab.html">
+     <code>pprint-tab</code></a>
+ <li><a href="CLHSROOT/Body/fun_pprint-fi_rint-tabular.html">
+     <code>pprint-tabular</code></a>
+ <li><a href="CLHSROOT/Body/fun_set-pprint-dispatch.html">
+     <code>set-pprint-dispatch</code></a>
+ <li><a href="CLHSROOT/Body/fun_simple-co_at-arguments.html">
+     <code>simple-condition-format-control</code></a>
+ <li><a href="CLHSROOT/Body/contyp_style-warning.html">
+     <code>style-warning</code></a>
+ <li><a href="CLHSROOT/Body/contyp_unbound-slot.html">
+     <code>unbound-slot</code></a>
+ <li><a href="CLHSROOT/Body/fun_unbound-slot-instance.html">
+     <code>unbound-slot-instance</code></a>
+ <li><a href="CLHSROOT/Body/stagenfun_upd_ferent-class.html">
+     <code>update-instance-for-different-class</code></a>
+ <li><a href="CLHSROOT/Body/stagenfun_upd_efined-class.html">
+     <code>update-instance-for-redefined-class</code></a>
+ <li><a href="CLHSROOT/Body/fun_upgraded-_ex-part-type.html">
+     <code>upgraded-complex-part-type</code></a>
+ <li><a href="CLHSROOT/Body/mac_with-compilation-unit.html">
+     <code>with-compilation-unit</code></a>
+ <li><a href="CLHSROOT/Body/mac_with-package-iterator.html">
+     <code>with-package-iterator</code></a>
+</ul>
 
 <h2><a name="syntax"></a><a href="CLHSROOT/Body/chap-2.html">
     Chapter 2: Syntax</a></h2>
@@ -196,6 +316,8 @@ details.
 <p>A &#34;reserved token&#34;, i.e. a token that has potential number
 syntax but cannot be interpreted as a number, is interpreted as symbol
 when being read.
+
+<p>When creating a symbol from a token, no character attributes are removed.
 
 <h3><a href="CLHSROOT/Body/sec_2-3-5.html">
     2.3.5 Valid Patterns for Tokens</a></h3>
@@ -209,7 +331,7 @@ syntax. (What's the purpose of this check?) So we consider tokens like
 <h3><a href="CLHSROOT/Body/sec_2-4-5.html">
     2.4.5 Double-Quote</a></h3>
 
-<p>All attributes of the accumulated characters are removed.
+<p>When a string is read, no character attributes are removed.
 
 <h3><a href="CLHSROOT/Body/sec_2-4-6.html">
     2.4.6 Backquote</a></h3>
@@ -226,6 +348,16 @@ syntax. (What's the purpose of this check?) So we consider tokens like
 <P>Multiple backquote combinations like <CODE>,,@</CODE> or
 <CODE>,@,@</CODE> are not implemented. Their use would be confusing
 anyway.
+
+<h3><a href="CLHSROOT/Body/sec_2-4-8.html">
+    2.4.8 Sharpsign</a></h3>
+
+Reader macros are also defined for the following:
+<table>
+  <tr><td><code>#,</code> <td>load-time evaluation
+  <tr><td><code>#Y</code> <td>function objects and file encoding
+  <tr><td><code>#"</code> <td>pathname
+</table>
 
 <h2><a name="eval"></a><a href="CLHSROOT/Body/chap-3.html">
     Chapter 3: Evaluation and Compilation</a></h2>
@@ -253,6 +385,11 @@ been part of the program text that environment came from.
     3.2.1 Compiler Terminology</a></h3>
 
 <p>CLISP compiles to platform-independent byte-code.
+
+<h3><a href="CLHSROOT/Body/sec_3-2-4-2-2.html">
+    3.2.4.2.2 Definition of Similarity</a></h3>
+
+<p>Hash-tables are externalizable objects.
 
 <h3><a href="CLHSROOT/Body/sec_3-3.html">
     3.3 Declarations</a></h3>
@@ -311,6 +448,12 @@ interpreted code. No type check is done in compiled code.
   <var>value-type</var> <var>form</var>)</code> enforces a type
   check in both interpreted and compiled code.
 </dl>
+
+<h3><a href="CLHSROOT/Body/sec_3-4-6.html">
+    3.4.6 Boa Lambda Lists</a></h3>
+
+<p>The initial value of an <code>&amp;aux</code> variable in a boa lambda
+list is the value of the corresponding slot's initial form.
 
 <h3><a href="CLHSROOT/Body/sec_the_evalu_n_dictionary.html">
     3.8 The Evaluation and Compilation Dictionary</a></h3>
@@ -630,11 +773,77 @@ information than is likely to be useful to a human reader.
 <P><a href="CLHSROOT/Body/stagenfun_doc_umentationcp.html">
 <code>documentation</code></a> still has the CLtL1 implementation.
 
-<P><a href="CLHSROOT/Body/sec_4-3-6.html">Redefining
-classes</a> is not supported.  The function
+<h3><a href="CLHSROOT/Body/sec_4-3-1-1.html">
+    4.3.1.1 Standard Metaclasses</a></h3>
+
+<p>Among those classes listed in
+<a href="CLHSROOT/Body/sec_4-3-7.html#classtypecorrespondence">Figure 4-8</a>,
+only the following are instances of
+<a href="CLHSROOT/Body/syscla_built-in-class.html"><code>built-in-class</code></a>:
+<ul>
+  <li><a href="CLHSROOT/Body/syscla_t.html"><code>t</code></a>,
+  <li><a href="CLHSROOT/Body/syscla_character.html"><code>character</code></a>,
+  <li><a href="CLHSROOT/Body/syscla_number.html"><code>number</code></a>,
+      <a href="CLHSROOT/Body/syscla_complex.html"><code>complex</code></a>,
+      <a href="CLHSROOT/Body/syscla_real.html"><code>real</code></a>,
+      <a href="CLHSROOT/Body/syscla_float.html"><code>float</code></a>,
+      <a href="CLHSROOT/Body/syscla_rational.html"><code>rational</code></a>,
+      <a href="CLHSROOT/Body/syscla_ratio.html"><code>ratio</code></a>,
+      <a href="CLHSROOT/Body/syscla_integer.html"><code>integer</code></a>,
+  <li><a href="CLHSROOT/Body/syscla_sequence.html"><code>sequence</code></a>,
+  <li><a href="CLHSROOT/Body/syscla_array.html"><code>array</code></a>,
+      <a href="CLHSROOT/Body/syscla_vector.html"><code>vector</code></a>,
+      <a href="CLHSROOT/Body/syscla_bit-vector.html"><code>bit-vector</code></a>,
+      <a href="CLHSROOT/Body/syscla_string.html"><code>string</code></a>,
+  <li><a href="CLHSROOT/Body/syscla_list.html"><code>list</code></a>,
+      <a href="CLHSROOT/Body/syscla_cons.html"><code>cons</code></a>,
+  <li><a href="CLHSROOT/Body/syscla_symbol.html"><code>symbol</code></a>,
+      <a href="CLHSROOT/Body/syscla_null.html"><code>null</code></a>,
+  <li><a href="CLHSROOT/Body/syscla_function.html"><code>function</code></a>,
+      <a href="CLHSROOT/Body/syscla_generic-function.html"><code>generic-function</code></a>,
+      <a href="CLHSROOT/Body/syscla_standa_ric-function.html"><code>standard-generic-function</code></a>,
+  <li><a href="CLHSROOT/Body/syscla_hash-table.html"><code>hash-table</code></a>,
+  <li><a href="CLHSROOT/Body/syscla_package.html"><code>package</code></a>,
+  <li><a href="CLHSROOT/Body/syscla_pathname.html"><code>pathname</code></a>,
+      <a href="CLHSROOT/Body/syscla_logical-pathname.html"><code>logical-pathname</code></a>,
+  <li><a href="CLHSROOT/Body/syscla_random-state.html"><code>random-state</code></a>,
+  <li><a href="CLHSROOT/Body/syscla_readtable.html"><code>readtable</code></a>,
+  <li><a href="CLHSROOT/Body/syscla_stream.html"><code>stream</code></a>,
+      <a href="CLHSROOT/Body/syscla_synonym-stream.html"><code>synonym-stream</code></a>,
+      <a href="CLHSROOT/Body/syscla_broadcast-stream.html"><code>broadcast-stream</code></a>,
+      <a href="CLHSROOT/Body/syscla_concatenated-stream.html"><code>concatenated-stream</code></a>,
+      <a href="CLHSROOT/Body/syscla_two-way-stream.html"><code>two-way-stream</code></a>,
+      <a href="CLHSROOT/Body/syscla_echo-stream.html"><code>echo-stream</code></a>,
+      <a href="CLHSROOT/Body/syscla_string-stream.html"><code>string-stream</code></a>,
+      <a href="CLHSROOT/Body/syscla_file-stream.html"><code>file-stream</code></a>.
+</ul>
+
+<h3><a href="CLHSROOT/Body/sec_4-3-2.html">
+    4.3.2 Defining Classes</a></h3>
+
+<p><a href="CLHSROOT/Body/mac_defclass.html"><code>defclass</code></a>
+supports the <code>:metaclass</code> option.
+Possible values are
+<a href="CLHSROOT/Body/syscla_standard-class.html"><code>standard-class</code></a>
+(the default) and
+<a href="CLHSROOT/Body/syscla_structure-class.html"><code>structure-class</code></a>
+(which creates structure classes, like
+<a href="CLHSROOT/Body/mac_defstruct.html"><code>defstruct</code></a> does).
+
+<h3><a href="CLHSROOT/Body/sec_4-3-6.html">
+    4.3.6 Redefining Classes</a></h3>
+
+<P>Redefining classes is not supported.  The function
 <a href="CLHSROOT/Body/stagenfun_upd_efined-class.html">
 <code>update-instance-for-redefined-class</code></a> is not
 implemented.
+
+<h3><a href="CLHSROOT/Body/sec_4-3-7.html">
+    4.3.7 Integrating Types and Classes</a></h3>
+
+<p>The class
+<a href="CLHSROOT/Body/syscla_method-combination.html"><code>method-combination</code></a>
+is not implemented.
 
 <h2><a name="data"></a><a href="CLHSROOT/Body/chap-5.html">
     Chapter 5: Data and Control Flow</a></h2>
@@ -1157,6 +1366,13 @@ is therefore equivalent to <code>(restart-case (progn
 </code>{<var>form</var>}*<code>)</code>
 {<var>restart-clause</var>}*<code>)</code>.
 
+<H3><a href="CLHSROOT/Body/sec_9-1-3-1-3.html">
+    9.1.3.1.3 Embedded Newlines in Condition Reports</a></H3>
+
+The error message prefix for the first line is "*** - ". There is no prefix
+for subsequent error lines. The aesthetics of condition reports containing
+an object that requires newlines when pretty printing is enabled is undefined.
+
 <H3><a href="CLHSROOT/Body/sec_the_condi_s_dictionary.html">
     9.2. The Conditions Dictionary</a></H3>
 
@@ -1218,10 +1434,6 @@ nearly obsolete.
 <h2><a name="packages"></a><a href="CLHSROOT/Body/chap-11.html">
     Chapter 11: Packages</a></h2>
 
-<p>The package <code>SYSTEM</code> has the nicknames
-<code>&#34;SYS&#34;</code> and, additionally,
-<code>&#34;COMPILER&#34;</code>.
-
 <p>The ANSI packages
 <UL>
  <LI> <code>COMMON-LISP</code> with nickname <code>&#34;CL&#34;</code> and
@@ -1232,13 +1444,51 @@ nearly obsolete.
 <p>are implemented. The package <code>COMMON-LISP</code> exports only
 those symbols from the ANSI CL standard that are actually implemented.
 
+<H3><a href="CLHSROOT/Body/sec_11-1-2-2.html">
+    11.1.2.2 The COMMON-LISP-USER Package</a></H3>
+
+The <a href="CLHSROOT/Body/sec_11-1-2-2.html"><code>COMMON-LISP-USER</code></a>
+package uses only the
+<a href="CLHSROOT/Body/sec_11-1-2-1.html"><code>COMMON-LISP</code></a> package.
+
+<H3><a href="CLHSROOT/Body/sec_11-1-2-4.html">
+    11.1.2.4 Implementation-Defined Packages</a></H3>
+
+The following additional packages exist:
+<ul>
+  <li><b><code>LISP</code></b> exports all symbols needed for a CLtL1/CltL2
+      environment, excluding CLOS.
+  <li><b><code>CLOS</code></b> exports all CLOS specific symbols needed for a
+      CLtL1/CltL2 environment.
+  <li><b><code>USER</code></b> is the default user's package for a CLtL1/CltL2
+      environment.
+  <li><b><code>SYSTEM</code></b>, with nicknames <b><code>SYS</code></b> and
+      <b><code>COMPILER</code></b>, has no exported symbols. It defines many
+      system internals.
+  <li><b><code>CHARSET</code></b> defines and exports some character sets,
+      for use with <code>make-encoding</code> and
+      as <code>:external-format</code> argument.
+  <li><b><code>FFI</code></b> implements the <a href="#dffi">foreign function
+      interface</a>. Not present on all platforms.
+  <li><b><code>SCREEN</code></b> defines an API for <a href="#screen">random
+      screen access</a>. Not present on all platforms.
+</ul>
+All pre-existing packages except <code>USER</code> and
+<code>COMMON-LISP-USER</code> belong to the implementation, in the sense that
+doing side-effects on them or on their symbols causes undefined behaviour.
+
 <H3><a href="CLHSROOT/Body/sec_the_packa_s_dictionary.html">
     11.2. The Packages Dictionary</a></H3>
 
-<p>For <a href="CLHSROOT/Body/fun_make-package.html">
-<code>make-package</code></a>, the default value of the
-<code>:use</code> argument is <code>(&#34;LISP&#34;
-&#34;CLOS&#34;)</code>.
+<h4><a href="CLHSROOT/Body/fun_make-package.html">
+    <code>make-package</code></a></h4>
+
+<p>For
+<a href="CLHSROOT/Body/fun_make-package.html"><code>common-lisp:make-package</code></a>,
+the default value of the
+<code>:use</code> argument is <code>(&#34;COMMON-LISP&#34;)</code>.
+For <code>lisp:make-package</code>, the default value of the
+<code>:use</code> argument is <code>(&#34;LISP&#34; &#34;CLOS&#34;)</code>.
 
 <p>The ANSI CL macro <a href="CLHSROOT/Body/mac_defpackage.html">
 <code>defpackage</code></a> is implemented.
@@ -1276,8 +1526,19 @@ partition</a>&#34;)
 <code>short-float</code>, <code>single-float</code>,
 <code>double-float</code> and <code>long-float</code>.
 
+<H3><a href="CLHSROOT/Body/sec_12-1-1-3-2.html">
+    12.1.1.3.2 Byte Operations on Integers</a></H3>
+
+Byte specifiers are objects of type <code>byte</code>, not integers.
+
+<H3><a href="CLHSROOT/Body/sec_12-1-3-3.html">
+    12.1.3.3 Rule of Float Substitutability</a></H3>
+
+When a mathematical function may return an exact (rational) or
+inexact (floating-point) result, it always returns the exact result.
+
 <H3><a href="CLHSROOT/Body/sec_12-1-4.html">
-    12.1.4 Floating-point Computations.</a></H3>
+    12.1.4 Floating-point Computations</a></H3>
 
 <p>There are four floating point types: short-float, single-float,
 double-float and long-float:
@@ -1548,6 +1809,16 @@ with at least <var>digits</var> mantissa digits. The following holds:
 href="#lfd"><code>(lisp:long-float-digits)</code></a> is changed. They
 are variables, not constants.
 
+<h4><a href="CLHSROOT/Body/contyp_floati_id-operation.html">
+    floating-point-invalid-operation</a></h4>
+
+This condition is never signaled by the implementation.
+
+<h4><a href="CLHSROOT/Body/contyp_floati_oint-inexact.html">
+    floating-point-inexact</a></h4>
+
+This condition is never signaled by the implementation.
+
 
 <h2><a name="characters"></a><a href="CLHSROOT/Body/chap-13.html">
     Chapter 13: Characters</a></h2>
@@ -1689,23 +1960,7 @@ The following are semi-standard characters:
 </DL>
 <!-- #endif -->
 
-<H3>Newline.</H3>
-
 <P><code>#\Newline</code> is the delimiter between lines.
-
-<!-- #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0)) -->
-<P><DL>
-<DT><EM>Platform dependent: DOS, OS/2, Win32 platforms only.</EM>
-<DD>When writing to a file, <code>#\Newline</code> is converted to
-CR/LF. (This is the usual convention on DOS.) For example,
-<code>#\Return #\Newline</code> is written as CR/CR/LF.
-</DL>
-<!-- #endif -->
-
-<p>When reading from a file, CR/LF is converted to <code>#\Newline</code>
-(the usual convention on DOS), and CR not followed by LF is converted to
-<code>#\Newline</code> as well (the usual convertion on MacOS, also used
-by some programs on Win32).
 
 <H3>Additional Named Characters</H3>
 
@@ -1789,6 +2044,85 @@ only.</EM>
     on return from <code>(read-char *keyboard-input*)</code>.
 </DL>
 <!-- #endif -->
+
+<h3><a href="CLHSROOT/Body/sec_13-1-2-1.html">
+    13.1.2.1 Character Scripts</a></h3>
+
+The only defined character script is the type
+<a href="CLHSROOT/Body/syscla_character.html"><code>character</code></a>
+itself.
+
+<h3><a href="CLHSROOT/Body/sec_13-1-3.html">
+    13.1.3 Character Attributes</a></h3>
+
+Characters have no implementation-defined attributes. All characters
+are simple characters.
+
+<h3><a href="CLHSROOT/Body/sec_13-1-4-1.html">
+    13.1.4.1 Graphic Characters</a></h3>
+
+The graphic characters are those Unicode characters which are defined
+by the Unicode standard, excluding the ranges U0000..U001F and U007F..U009F.
+
+<h3><a href="CLHSROOT/Body/sec_13-1-4-2.html">
+    13.1.4.2 Alphabetic Characters</a></h3>
+
+The alphabetic characters are those Unicode characters which are defined
+as letters by the Unicode standard.
+
+<h3><a href="CLHSROOT/Body/sec_13-1-4-3-4.html">
+    13.1.4.3.4 Case of Implementation-Defined Characters</a></h3>
+
+The characters with case are those Unicode characters <var>c</var>, for which
+the upper case mapping <var>uc</var> and the lower case mapping <var>lc</var>
+have the following properties:
+<ul>
+  <li><var>uc</var> and <var>lc</var> are different,
+  <li><var>c</var> is one of <var>uc</var> and <var>lc</var>,
+  <li>the upper case mapping of <var>uc</var> and of <var>lc</var> is <var>uc</var>,
+  <li>the lower case mapping of <var>uc</var> and of <var>lc</var> is <var>lc</var>.
+</ul>
+The titlecase property of Unicode characters has no equivalent in Common Lisp.
+
+<h3><a href="CLHSROOT/Body/sec_13-1-4-4.html">
+    13.1.4.4 Numeric Characters</a></h3>
+
+The numeric characters are those Unicode characters which are defined
+as digits by the Unicode standard.
+
+<h3><a href="CLHSROOT/Body/sec_13-1-6.html">
+    13.1.6 Ordering of Characters</a></h3>
+
+The characters are ordered according to their Unicode code.
+
+<h3><a href="CLHSROOT/Body/sec_13-1-8.html">
+    13.1.8 Treatment of Newline during Input and Output</a></h3>
+
+<!-- #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0)) -->
+<DL>
+<DT><EM>Platform dependent: DOS, OS/2, Win32 platforms only.</EM>
+<DD>When writing to a file, <code>#\Newline</code> is converted to
+CR/LF. (This is the usual convention on DOS.) For example,
+<code>#\Return #\Newline</code> is written as CR/CR/LF.
+</DL>
+<!-- #endif -->
+
+<p>When reading from a file, CR/LF is converted to <code>#\Newline</code>
+(the usual convention on DOS), and CR not followed by LF is converted to
+<code>#\Newline</code> as well (the usual convertion on MacOS, also used
+by some programs on Win32).
+
+<h3><a href="CLHSROOT/Body/sec_13-1-9.html">
+    13.1.9 Character Encodings</a></h3>
+
+The integer returned by
+<a href="CLHSROOT/Body/fun_char-int.html"><code>char-int</code></a>
+is the same as the character's code.
+
+<h3><a href="CLHSROOT/Body/sec_13-1-10.html">
+    13.1.10 Character Encodings</a></h3>
+
+<!-- TODO Lots of stuff to be added here -->
 
 <h3><a href="CLHSROOT/Body/sec_the_chara_s_dictionary.html">
     13.2. The Characters Dictionary</a></h3>
@@ -2006,6 +2340,9 @@ of course <a href="CLHSROOT/Body/typ_bit.html"><code>bit</code></a> and <a
 href="CLHSROOT/Body/syscla_character.html_character.html">
 <code>character</code></a>.
 
+<h3><a href="CLHSROOT/Body/sec_15-1-1.html">
+    15.1.1 Array Elements</a></h3>
+
 <p><table border=1>
 <tr><th><th>16-bit or 32-bit CPU<th>64-bit CPU
 <tr><th><a href="CLHSROOT/Body/convar_array-rank-limit.html">
@@ -2054,6 +2391,9 @@ national rules. Example: <code>&#34;o&#34;</code> &lt;
 <p><code>(doseq (<var>var</var> <var>seqform</var>
 [<var>resultform</var>]) {<var>declaration</var>}*
 {<var>tag</var>|<var>statement</var>}* )</code>
+
+<code>doseq</code> forms are
+<a href="CLHSROOT/Body/glo_i.html#iteration_form"><em>iteration forms</em></a>.
 
 <H3><a href="CLHSROOT/Body/sec_the_seque_s_dictionary.html">
     17.3. The Sequences Dictionary</a></H3>
@@ -2124,6 +2464,9 @@ argument is ignored.
   {<var>declaration</var>}* {<var>tag</var>|<var>statement</var>}*
 )
 </code></PRE>
+
+<code>dohash</code> forms are
+<a href="CLHSROOT/Body/glo_i.html#iteration_form"><em>iteration forms</em></a>.
 
 
 <h2><a name="filenames"></a><a href="CLHSROOT/Body/chap-19.html">
@@ -3019,6 +3362,12 @@ to <code>(cd)</code>.  <code>(setf (default-directory)
 <a href="CLHSROOT/Body/syscla_two-way-stream.html">
 <code>two-way-stream</code></a> are implemented.
 
+<h3><a href="CLHSROOT/Body/sec_21-1-1-1-3.html">
+    21.1.1.1.3 Interactive Streams</a></h3>
+
+<p>Interactive streams are those whose next input might depend from a
+prompt one might output.
+
 <H3>terminal interaction.</H3>
 
 <!-- #ifdef GNU_READLINE -->
@@ -3375,9 +3724,68 @@ for special files.
 <code>:line-terminator</code> argument are the keywords
 <code>:unix</code>, <code>:mac</code>, <code>:dos</code>.
 
+<h4><a href="CLHSROOT/Body/syscla_broadcast-stream.html">
+    broadcast-stream</a></h4>
+
+<a href="CLHSROOT/Body/fun_input-str_put-stream-p.html"><code>input-stream-p</code></a>
+and
+<a href="CLHSROOT/Body/fun_interactive-stream-p.html"><code>interactive-stream-p</code></a>
+return false for
+<a href="CLHSROOT/Body/glo_b.html#broadcast_stream">broadcast streams</a>.
 
 <h2><a name="printer"></a><a href="CLHSROOT/Body/chap-22.html">
     Chapter 22: Printer</a></h2>
+
+<h3><a href="CLHSROOT/Body/sec_22-1-1-1.html">
+    22.1.1.1 Multiple Possible Textual Representations</a></h3>
+
+<P>An additional variable
+<STRONG><code>lisp:*print-closure*</code></STRONG> controls whether
+compiled and interpreted functions (closures) are output in detailed
+form. If <code>*print-closure*</code> not <code>eq</code> to
+<code>nil</code>, compiled closures are output in <code>#Y</code> syntax
+the reader understands. <code>*print-closure*</code> is initially set to
+<code>nil</code>.
+
+<P>An additional variable
+<STRONG><code>lisp:*print-rpars*</code></STRONG> controls the output of
+right (closing) parentheses. If <code>*print-rpars*</code> not
+<code>eq</code> to <code>nil</code>, closing parentheses which don't fit
+onto the same line as the the corresponding opening parenthesis are
+output just below their corresponding opening parenthesis, in the same
+column.  <code>*print-rpars*</code> is initially set to <code>t</code>.
+
+<P>An additional variable
+<STRONG><code>lisp:*print-indent-lists*</code></STRONG> controls the
+indentation of lists that span more than one line. It specifies by how
+many characters items within the list will be indented relative to the
+beginning of the list.  <code>*print-indent-lists*</code> is initially
+set to <code>2</code>.
+
+<h3><a href="CLHSROOT/Body/sec_22-1-3-7.html">
+    22.1.3.7 Printing Other Vectors</a></h3>
+
+When <a href="CLHSROOT/Body/var_stprint-readablyst.html"><code>*print-readably*</code></a>
+is true, other vectors are written as follows: If the element-type is
+<a href="CLHSROOT/Body/syscla_t.html"><code>t</code></a>, the syntax
+<code>#(<var>x<sub>0</sub></var> ... <var>x<sub>n-1</sub></var>)</code>
+is used. Otherwise, the syntax
+<code>#A(<var>element-type</var> <var>dimensions</var> <var>contents</var>)</code>
+is used.
+
+<h3><a href="CLHSROOT/Body/sec_22-1-3-8.html">
+    22.1.3.8 Printing Other Arrays</a></h3>
+
+When <a href="CLHSROOT/Body/var_stprint-readablyst.html"><code>*print-readably*</code></a>
+is true, other arrays are written as follows: If the element-type is
+<a href="CLHSROOT/Body/syscla_t.html"><code>t</code></a>, the syntax
+<code>#<var>rank</var>A <var>contents</var></code>
+is used. Otherwise, the syntax
+<code>#A(<var>element-type</var> <var>dimensions</var> <var>contents</var>)</code>
+is used.
+
+<h3><a href="CLHSROOT/Body/sec_22-2-1-3.html">
+    22.2.1.3 Compiling Format Strings</a></h3>
 
 <p>The ANSI CL macro <a href="CLHSROOT/Body/mac_formatter.html">
 <code>formatter</code></a> is implemented.
@@ -3532,29 +3940,6 @@ output much faster.
 
 <p><a href="CLHSROOT/Body/var_stprint-arrayst.html">
 <code>*print-array*</code></a> is initially set to <code>t</code>.
-
-<P>An additional variable
-<STRONG><code>lisp:*print-closure*</code></STRONG> controls whether
-compiled and interpreted functions (closures) are output in detailed
-form. If <code>*print-closure*</code> not <code>eq</code> to
-<code>nil</code>, compiled closures are output in <code>#Y</code> syntax
-the reader understands. <code>*print-closure*</code> is initially set to
-<code>nil</code>.
-
-<P>An additional variable
-<STRONG><code>lisp:*print-rpars*</code></STRONG> controls the output of
-right (closing) parentheses. If <code>*print-rpars*</code> not
-<code>eq</code> to <code>nil</code>, closing parentheses which don't fit
-onto the same line as the the corresponding opening parenthesis are
-output just below their corresponding opening parenthesis, in the same
-column.  <code>*print-rpars*</code> is initially set to <code>t</code>.
-
-<P>An additional variable
-<STRONG><code>lisp:*print-indent-lists*</code></STRONG> controls the
-indentation of lists that span more than one line. It specifies by how
-many characters items within the list will be indented relative to the
-beginning of the list.  <code>*print-indent-lists*</code> is initially
-set to <code>2</code>.
 
 <P>The ANSI CL macro
 <a href="CLHSROOT/Body/mac_with-stan_rd-io-syntax.html">
@@ -3747,6 +4132,9 @@ string input stream.
 <code>disassemble</code></a>, but also by the declaration
 <code>(compile)</code>.
 
+<h4><a href="CLHSROOT/Body/fun_compile-file.html">
+    compile-file</a></h4>
+
 <P><code>(compile-file <var>input-file</var> [:output-file] [:listing]
                          [:warnings] [:verbose] [:print])</code>
 
@@ -3806,6 +4194,11 @@ files are generated:
 <a href="CLHSROOT/Body/var_stcompile_e-truenamest.html">
 <code>*compile-file-truename*</code></a> are implemented.
 
+<h4><a href="CLHSROOT/Body/fun_compile-file-pathname.html">
+    compile-file-pathname</a></h4>
+
+The default for the <code>:output-file</code> argument is <code>t</code>,
+which means <code>#&#34;.fas&#34;</code>.
 
 <h4><a href="CLHSROOT/Body/fun_providecm_require.html">
     require</a></h4>
@@ -3994,13 +4387,6 @@ and you can leave the function call with specified values by using
 functions <code>(setf <var>symbol</var>)</code> and to macros, but not
 to locally defined functions and macros.
 
-<h4>space</h4>
-
-<P>The macro <code><STRONG>space</STRONG></code> is like the macro
-<code>time</code>: <code>(space <var>form</var>)</code> evaluates the
-<var>form</var>, and, as a side effect, outputs information about the
-memory allocations caused by this evaluation.
-
 <h4><a href="CLHSROOT/Body/fun_inspect.html">
     inspect</a></h4>
 
@@ -4009,6 +4395,13 @@ memory allocations caused by this evaluation.
 as an add-on from the <a
 href="http://ftp2.cons.org/pub/lisp/clisp/contrib/">contrib</a>
 directory.)
+
+<h4>space</h4>
+
+<P>The macro <code><STRONG>space</STRONG></code> is like the macro
+<code>time</code>: <code>(space <var>form</var>)</code> evaluates the
+<var>form</var>, and, as a side effect, outputs information about the
+memory allocations caused by this evaluation.
 
 <h4><a href="CLHSROOT/Body/fun_room.html">
     room</a></h4>
@@ -4022,12 +4415,23 @@ collection occurs.
 garbage collection and its return value has the same meaning as the
 second value of <code>room</code>.
 
+<h4><a href="CLHSROOT/Body/mac_time.html">
+    time</a></h4>
+
+<p>The timing data printed by the macro <code>time</code> includes: The
+real time (elapsed time), the run time (processor time for this process),
+the number of bytes allocated (use the <code>space</code> macro for more
+detailed analysis), and the number of GCs performed, if any.
+
 <h4><a href="CLHSROOT/Body/fun_ed.html">
     ed</a></h4>
 
 <P>The function <code><STRONG>ed</STRONG></code> calls the external
 editor specified by the variable <code><STRONG>*editor*</STRONG></code>
-(see <code>config.lsp</code>).
+(see <code>config.lsp</code>). If the argument is a function name
+which was defined in the current session (not loaded from a file),
+the program text to be edited is a pretty-printed version (without comments)
+of the text which was used to define the function.
 
 <h4>time</h4>
 
@@ -4065,6 +4469,10 @@ but (as float or rational number) it should be a multiple of
 <!-- #endif -->
 </DL>
 
+<p><a href="CLHSROOT/Body/fun_get-internal-run-time.html"><code>get-internal-run-time</code></a>
+returns the amount of run time consumed by the current clisp process since
+its startup.
+
 <h4>machine</h4>
 <DL>
 <!-- #ifdef MACHINE_KNOWN -->
@@ -4081,6 +4489,22 @@ but (as float or rational number) it should be a multiple of
   file.
 <!-- #endif -->
 </DL>
+
+<h4><a href="CLHSROOT/Body/fun_aproposcm_apropos-list.html">
+    apropos, apropos-list</a></h4>
+
+The search performed by
+<a href="CLHSROOT/Body/fun_aproposcm_apropos-list.html"><code>apropos</code></a>
+and
+<a href="CLHSROOT/Body/fun_aproposcm_apropos-list.html"><code>apropos-list</code></a>
+is case-insensitive.
+
+<h4><a href="CLHSROOT/Body/fun_dribble.html">
+    dribble</a></h4>
+
+If <a href="CLHSROOT/Body/fun_dribble.html"><code>dribble</code></a> is called
+with an argument, and dribbling is already enabled, a warning is printed,
+and the new dribbling request is ignored.
 
 <h2><a name="glossary"></a><a href="CLHSROOT/Body/chap-26.html">
     Chapter 26: Glossary</a></h2>
@@ -4864,89 +5288,6 @@ vote.
  <dt><a href="CLHSROOT/Issues/iss366.html">
      WITH-STANDARD-IO-SYNTAX-READTABLE:X3J13-MAR-91</a> <dd>yes
 </dl>
-
-<p>Symbols missing from the COMMON-LISP package:
-
-<ul>
- <li><a href="CLHSROOT/Body/var_stprint-linesst.html">
-     <code>*print-lines*</code></a>
- <li><a href="CLHSROOT/Body/var_stprint-miser-widthst.html">
-     <code>*print-miser-width*</code></a>
- <li><a href="CLHSROOT/Body/var_stprint-p_t-dispatchst.html">
-     <code>*print-pprint-dispatch*</code></a>
- <li><a href="CLHSROOT/Body/stagenfun_all_ate-instance.html">
-     <code>allocate-instance</code></a>
- <li><a href="CLHSROOT/Body/locmac_call-m__make-method.html">
-     <code>call-method</code></a>
- <li><a href="CLHSROOT/Body/stagenfun_change-class.html">
-     <code>change-class</code></a>
- <li><a href="CLHSROOT/Body/stagenfun_doc_umentationcp.html">
-     <code>compiler-macro</code></a>
- <li><a href="CLHSROOT/Body/acc_compiler-_cro-function.html">
-     <code>compiler-macro-function</code></a>
- <li><a href="CLHSROOT/Body/fun_copy-pprint-dispatch.html">
-     <code>copy-pprint-dispatch</code></a>
- <li><a href="CLHSROOT/Body/mac_define-compiler-macro.html">
-     <code>define-compiler-macro</code></a>
- <li><a href="CLHSROOT/Body/mac_define-me_-combination.html">
-     <code>define-method-combination</code></a>
- <li><a href="CLHSROOT/Body/fun_ensure-ge_ric-function.html">
-     <code>ensure-generic-function</code></a>
- <li><a href="CLHSROOT/Body/fun_invalid-method-error.html">
-     <code>invalid-method-error</code></a>
- <li><a href="CLHSROOT/Body/stagenfun_mak_ces-obsolete.html">
-     <code>make-instances-obsolete</code></a>
- <li><a href="CLHSROOT/Body/stagenfun_make-load-form.html">
-     <code>make-load-form</code></a>
- <li><a href="CLHSROOT/Body/fun_make-load_saving-slots.html">
-     <code>make-load-form-saving-slots</code></a>
- <li><a href="CLHSROOT/Body/locmac_call-m__make-method.html">
-     <code>make-method</code></a>
- <li><a href="CLHSROOT/Body/syscla_method-combination.html">
-     <code>method-combination</code></a>
- <li><a href="CLHSROOT/Body/fun_method-co_nation-error.html">
-     <code>method-combination-error</code></a>
- <li><a href="CLHSROOT/Body/fun_pprint-dispatch.html">
-     <code>pprint-dispatch</code></a>
- <li><a href="CLHSROOT/Body/locmac_pprint_st-exhausted.html">
-     <code>pprint-exit-if-list-exhausted</code></a>
- <li><a href="CLHSROOT/Body/fun_pprint-fi_rint-tabular.html">
-     <code>pprint-fill</code></a>
- <li><a href="CLHSROOT/Body/fun_pprint-indent.html">
-     <code>pprint-indent</code></a>
- <li><a href="CLHSROOT/Body/fun_pprint-fi_rint-tabular.html">
-     <code>pprint-linear</code></a>
- <li><a href="CLHSROOT/Body/mac_pprint-logical-block.html">
-     <code>pprint-logical-block</code></a>
- <li><a href="CLHSROOT/Body/fun_pprint-newline.html">
-     <code>pprint-newline</code></a>
- <li><a href="CLHSROOT/Body/locmac_pprint-pop.html">
-     <code>pprint-pop</code></a>
- <li><a href="CLHSROOT/Body/fun_pprint-tab.html">
-     <code>pprint-tab</code></a>
- <li><a href="CLHSROOT/Body/fun_pprint-fi_rint-tabular.html">
-     <code>pprint-tabular</code></a>
- <li><a href="CLHSROOT/Body/fun_set-pprint-dispatch.html">
-     <code>set-pprint-dispatch</code></a>
- <li><a href="CLHSROOT/Body/fun_simple-co_at-arguments.html">
-     <code>simple-condition-format-control</code></a>
- <li><a href="CLHSROOT/Body/contyp_style-warning.html">
-     <code>style-warning</code></a>
- <li><a href="CLHSROOT/Body/contyp_unbound-slot.html">
-     <code>unbound-slot</code></a>
- <li><a href="CLHSROOT/Body/fun_unbound-slot-instance.html">
-     <code>unbound-slot-instance</code></a>
- <li><a href="CLHSROOT/Body/stagenfun_upd_ferent-class.html">
-     <code>update-instance-for-different-class</code></a>
- <li><a href="CLHSROOT/Body/stagenfun_upd_efined-class.html">
-     <code>update-instance-for-redefined-class</code></a>
- <li><a href="CLHSROOT/Body/fun_upgraded-_ex-part-type.html">
-     <code>upgraded-complex-part-type</code></a>
- <li><a href="CLHSROOT/Body/mac_with-compilation-unit.html">
-     <code>with-compilation-unit</code></a>
- <li><a href="CLHSROOT/Body/mac_with-package-iterator.html">
-     <code>with-package-iterator</code></a>
-</ul>
 
 <!-- ======================================================= -->
 <br><hr><br>
