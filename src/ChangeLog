@@ -1,5 +1,62 @@
 1998-12-18  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (strm_len): Correct definition, was one too large if
+          not compiling with gcc.
+          (stream_xlength, Stream_xlength): New macros.
+          (allocate_stream): One more argument.
+        * spvw_typealloc.d (allocate_stream): Likewise.
+        * stream.d (make_handle_stream, make_keyboard_stream,
+          make_terminal_stream_, SYS::MAKE-WINDOW): One more argument to
+          `allocate-stream'.
+          (strm_file_extrafields_struct, strm_ch_file_extrafields_struct,
+          strm_i_file_extrafields_struct): New structures.
+          (strm_file_buffstart): Remove macro.
+          (FileStream_buffstart): New macro.
+          (strm_file_eofindex): Remove macro.
+          (FileStream_eofindex, eofindex_all_valid, eofindex_all_invalid): New
+          macros.
+          (strm_file_index): Remove macro.
+          (FileStream_index): New macro.
+          (modified_flag, set_modified_flag, reset_modified_flag): Remove
+          macros.
+          (FileStream_modified): New macro.
+          (strm_file_position): Remove macro.
+          (FileStream_position): New macro.
+          (strm_ch_file_lineno): Remove macro.
+          (FileStream_lineno): New macro.
+          (strm_file_bitsize): Remove macro.
+          (FileStream_bitsize): New macro.
+          (strm_file_bitindex): Remove macto.
+          (FileStream_bitindex): New macro.
+          (strm_file_eofposition): Remove macro.
+          (FileStream_eofposition): New macro.
+          (strm_file_buffer, strm_file_bitbuffer): Change.
+          (b_file_finish_flush, b_file_half_flush, b_file_flush,
+          b_file_nextbyte, b_file_eofbyte, b_file_writebyte, position_b_file,
+          rd_ch_ch_file, write_b_file, write_char_array_ch_file,
+          position_i_file, rd_by_iax_file, rd_by_ibx_file, rd_by_icx_file,
+          wr_by_ia, wr_by_ib, wr_by_ic, wr_by_ixu_file, wr_by_ixs_file,
+          write_byte_array_iau8_file, position_file_start, position_file,
+          position_file_end): Use new macros.
+          (make_file_stream): One more argument to `allocate_stream'. Use new
+          macros.
+          (file_flush, finish_output_file, closed_file): Use new macros.
+          (make_synonym_stream, make_broadcast_stream,
+          make_concatenated_stream, make_twoway_stream, make_echo_stream,
+          MAKE-STRING-INPUT-STREAM, make_string_output_stream,
+          SYSTEM::MAKE-STRING-PUSH-STREAM, make_pphelp_stream,
+          MAKE-BUFFERED-INPUT-STREAM, MAKE-BUFFERED-OUTPUT-STREAM,
+          make_printer_stream, MAKE-PIPE-INPUT-STREAM,
+          MAKE-PIPE-OUTPUT-STREAM, MAKE-PIPE-IO-STREAM,
+          SYS::MAKE-SOCKET-STREAM, make_socket_stream, MAKE-GENERIC-STREAM):
+          One more argument to `allocate_stream'.
+          (STREAM-ELEMENT-TYPE, read_byte_array, write_byte_array,
+          read_char_array, FILE-POSITION, FILE-LENGTH, SYS::LINE-NUMBER): Use
+          new macros.
+        * io.d (pr_stream): Adjust printing of character streams.
+
+1998-12-18  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
+
         * makemake.in (echol): Partially revert the 1998-10-14 change. The
           Openstep hack doesn't work on Solaris.
 

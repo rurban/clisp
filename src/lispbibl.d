@@ -5163,9 +5163,11 @@ typedef struct {
                  object strm_other[unspecified]; # typspezifische Komponenten
                }
         *  Stream;
-#define strm_len  ((sizeof(*(Stream)0)-offsetofa(record_,recdata))/sizeof(object))
+#define strm_len  ((sizeof(*(Stream)0)-offsetofa(record_,recdata))/sizeof(object)-unspecified)
 #define stream_length(ptr)  xrecord_length(ptr)
+#define stream_xlength(ptr)  xrecord_xlength(ptr)
 #define Stream_length(obj)  stream_length(TheStream(obj))
+#define Stream_xlength(obj)  stream_xlength(TheStream(obj))
 # Bitmaske in den Flags:
   #define strmflags_open_B   0xF0  # gibt an, ob der Stream offen ist
   #define strmflags_reval_bit_B  2  # gesetzt, falls Read-Eval erlaubt ist
@@ -5252,7 +5254,7 @@ typedef struct {
 # weitere typspezifische Komponenten:
   #define strm_file_name       strm_other[3] # Filename, ein Pathname oder NIL
   #define strm_file_truename   strm_other[4] # Truename, ein nicht-Logical Pathname oder NIL
-  #define strm_file_handle     strm_other[2] # Handle, ein Fixnum >=0, <2^16
+  #define strm_file_handle     strm_other[2] # eingepacktes Handle
   #define strm_ch_file_lineno  strm_other[8] # Zeilennummer beim Lesen, ein Fixnum >0
   #define strm_synonym_symbol  strm_other[0]
   #define strm_broad_list      strm_other[0] # Liste von Streams
@@ -7791,17 +7793,18 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # wird verwendet von RECORD
 
 # UP, beschafft Stream
-# allocate_stream(strmflags,strmtype,reclen)
+# allocate_stream(strmflags,strmtype,reclen,recxlen)
 # > uintB strmflags: Flags
 # > uintB strmtype: nähere Typinfo
-# > uintC reclen: Länge
+# > uintC reclen: Länge in Objekten
+# > uintC recxlen: Extra-Länge in Bytes
 # < ergebnis: LISP-Objekt Stream (Elemente werden mit NIL initialisiert)
 # kann GC auslösen
   #ifdef case_stream
-    #define allocate_stream(strmflags,strmtype,reclen)  \
-      allocate_xrecord(strmflags,strmtype,reclen,0,stream_type)
+    #define allocate_stream(strmflags,strmtype,reclen,recxlen)  \
+      allocate_xrecord(strmflags,strmtype,reclen,recxlen,stream_type)
   #else
-    extern object allocate_stream (uintB strmflags, uintB strmtype, uintC reclen);
+    extern object allocate_stream (uintB strmflags, uintB strmtype, uintC reclen, uintC recxlen);
   #endif
 # wird verwendet von STREAM
 

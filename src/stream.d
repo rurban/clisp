@@ -1638,7 +1638,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
       pushSTACK(handle); # Handle retten
       #endif
      {# Stream allozieren:
-      var object stream = allocate_stream(flags,strmtype_handle,strm_handle_len);
+      var object stream = allocate_stream(flags,strmtype_handle,strm_handle_len,0);
       # und füllen:
       if (direction & bit(0))
         { TheStream(stream)->strm_rd_by = P(rd_by_handle);
@@ -2848,7 +2848,7 @@ local object make_key_event(event)
      #endif
      {# neuen Stream allozieren:
       var object stream =
-        allocate_stream(strmflags_rd_ch_B,strmtype_keyboard,strm_len+strm_keyboard_len);
+        allocate_stream(strmflags_rd_ch_B,strmtype_keyboard,strm_len+strm_keyboard_len,0);
         # Flags: nur READ-CHAR erlaubt
       # und füllen:
       var Stream s = TheStream(stream);
@@ -3015,7 +3015,7 @@ LISPFUNN(make_keyboard_stream,0)
   local object make_terminal_stream_()
     { # neuen Stream allozieren:
       var object stream =
-        allocate_stream(strmflags_ch_B,strmtype_terminal,strm_len+0);
+        allocate_stream(strmflags_ch_B,strmtype_terminal,strm_len+0,0);
         # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
       # und füllen:
       var Stream s = TheStream(stream);
@@ -3715,7 +3715,7 @@ LISPFUNN(make_keyboard_stream,0)
       { pushSTACK(allocate_handle(stdout_handle));
         pushSTACK(allocate_handle(stdin_handle));
        {var object stream =
-          allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal1_len);
+          allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal1_len,0);
         # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
         # und füllen:
         var Stream s = TheStream(stream);
@@ -3801,7 +3801,7 @@ LISPFUNN(make_keyboard_stream,0)
             pushSTACK(make_ssstring(80)); # Zeilenbuffer allozieren
             # neuen Stream allozieren:
            {var object stream =
-              allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal3_len);
+              allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal3_len,0);
               # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
             # und füllen:
             var Stream s = TheStream(stream);
@@ -3834,7 +3834,7 @@ LISPFUNN(make_keyboard_stream,0)
           { pushSTACK(make_ssstring(80)); # Zeilenbuffer allozieren
             # neuen Stream allozieren:
            {var object stream =
-              allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal2_len);
+              allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal2_len,0);
               # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
             # und füllen:
             var Stream s = TheStream(stream);
@@ -3861,7 +3861,7 @@ LISPFUNN(make_keyboard_stream,0)
         # Baue einen TERMINAL1-Stream:
         { # neuen Stream allozieren:
           var object stream =
-            allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal1_len);
+            allocate_stream(strmflags_ch_B,strmtype_terminal,strm_terminal1_len,0);
             # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
           # und füllen:
           var Stream s = TheStream(stream);
@@ -4703,7 +4703,7 @@ uintW v_put(ch)
 
 LISPFUNN(make_window,0)
   { var object stream =
-      allocate_stream(strmflags_wr_ch_B,strmtype_window,strm_len+0);
+      allocate_stream(strmflags_wr_ch_B,strmtype_window,strm_len+0,0);
       # Flags: nur WRITE-CHAR erlaubt
     # und füllen:
     var Stream s = TheStream(stream);
@@ -4872,7 +4872,7 @@ local int COLS;  # Anzahl Spalten, Anzahl Zeichen pro Zeile
 
 LISPFUNN(make_window,0)
   { var object stream =
-      allocate_stream(strmflags_wr_ch_B,strmtype_window,strm_len+0);
+      allocate_stream(strmflags_wr_ch_B,strmtype_window,strm_len+0,0);
       # Flags: nur WRITE-CHAR erlaubt
     # und füllen:
     var Stream s = TheStream(stream);
@@ -6713,7 +6713,7 @@ typedef struct { uintB** image; # image[y][x] ist das Zeichen an Position (x,y)
 
 LISPFUNN(make_window,0)
   { var object stream =
-      allocate_stream(strmflags_wr_ch_B,strmtype_window,strm_len+1);
+      allocate_stream(strmflags_wr_ch_B,strmtype_window,strm_len+1,0);
       # Flags: nur WRITE-CHAR erlaubt
     # und füllen:
     var Stream s = TheStream(stream);
@@ -6937,7 +6937,7 @@ LISPFUNN(window_cursor_off,1)
 
 LISPFUNN(make_window,0)
   { var object stream =
-      allocate_stream(strmflags_wr_ch_B,strmtype_window,strm_len+1);
+      allocate_stream(strmflags_wr_ch_B,strmtype_window,strm_len+1,0);
       # Flags: nur WRITE-CHAR erlaubt
     # und füllen:
     var Stream s = TheStream(stream);
@@ -7119,7 +7119,7 @@ LISPFUNN(window_cursor_off,1)
 LISPFUNN(make_window,0)
   { finish_output_terminal(var_stream(S(terminal_io),strmflags_wr_ch_B)); # evtl. wartendes NL jetzt ausgeben
    {var object stream =
-      allocate_stream(strmflags_wr_ch_B,strmtype_window,strm_len+0);
+      allocate_stream(strmflags_wr_ch_B,strmtype_window,strm_len+0,0);
       # Flags: nur WRITE-CHAR erlaubt
     # und füllen:
     var Stream s = TheStream(stream);
@@ -7249,60 +7249,90 @@ LISPFUNN(window_cursor_off,1)
 # (Dies bewirkte z.B. beim Einlesen eines 408 KByte- Files auf dem Atari
 # eine Beschleunigung um einen Faktor 2.7 von 500 sec auf 180 sec.)
 
-# Zusätzliche Komponenten:
-  # define strm_file_name       strm_other[3] # Filename, ein Pathname oder NIL
-  # define strm_file_truename   strm_other[4] # Truename, ein nicht-Logical Pathname oder NIL
-  # define strm_file_handle     strm_other[2] # Handle, ein Fixnum >=0, <2^16
-  #define strm_file_buffstart   strm_other[0] # Buffer-Startposition, ein Fixnum >=0
-  #define strm_file_bufflen     4096          # Bufferlänge (Zweierpotenz <2^16)
-  #define strm_file_buffer      strm_other[1] # eigener Buffer,
-                                # ein Simple-String der Länge strm_file_bufflen
-  #define strm_file_eofindex    strm_other[5] # Index darin, bis wo die
-                                # Daten gültig sind (für EOF-Erkennung)
-  #define strm_file_index       strm_other[6] # Fixnum mit Index im Buffer
-                                              # (>=0, <=STRM_FILE_BUFFLEN)
-                                              # und Modified-Flag in Bit 16.
-  # eofindex = NIL: Bufferdaten ganz ungültig, index=0.
-  # eofindex Fixnum: 0 <= index <= eofindex <= strm_file_bufflen.
-  # eofindex = T: Bufferdaten ganz gültig, 0 <= index <= strm_file_bufflen.
-  # buffstart = (Nummer des Sectors) * strm_file_bufflen,
-  #             falls Read-Zugriff erlaubt.
-  # Beim Betriebssystem ist das File 'handle' i.a. (aber nicht immer!) ans Ende
-  #   des aktuellen Buffers positioniert:
-  #   bei eofindex = T: buffstart + strm_file_bufflen,
-  #   bei eofindex Fixnum: buffstart + eofindex,
-  #   bei eofindex = NIL: buffstart.
-  # Modified-Flag abfragen und verändern:
-  #define modified_flag(stream)  \
-    (as_oint(TheStream(stream)->strm_file_index) & wbit(16+oint_data_shift))
-  #define set_modified_flag(stream)  \
-    TheStream(stream)->strm_file_index = \
-      as_object(as_oint(TheStream(stream)->strm_file_index) | wbit(16+oint_data_shift))
-  #define reset_modified_flag(stream)  \
-    TheStream(stream)->strm_file_index = \
-      as_object(as_oint(TheStream(stream)->strm_file_index) & ~wbit(16+oint_data_shift))
-# Bis hierher wird ein File aus Bytes à 8 Bits aufgebaut gedacht.
-# Logisch ist es jedoch aus anderen Einheiten aufgebaut:
-  #define strm_file_position    strm_other[7] # Position, ein Fixnum >=0
-  # Bei File-Streams mit element-type = CHARACTER (ch_file)
-  #   belegt jedes Character 1 Byte.
-  # define strm_ch_file_lineno  strm_other[8] # Zeilennummer beim Lesen, ein Fixnum >0
-  # Bei File-Streams mit element-type = INTEGER ("Byte-Files")
-  #   belegt jeder Integer immer dieselbe Anzahl Bits.
-  #define strm_file_bitsize     strm_other[8] # Anzahl der Bits, ein Fixnum >0 und <intDsize*uintWC_max
-  #define strm_file_bitbuffer   strm_other[9] # Buffer, ein Simple-Bit-Vector
-                                              # mit ceiling(bitsize/8)*8 Bits
-  #   Ist diese Anzahl nicht durch 8 teilbar, so ist bitindex der Index
-  #   im aktuellen Byte:
-  #define strm_file_bitindex    strm_other[10] # Index im Byte, ein Fixnum >=0 und <=8
-  #   8*index+bitindex ist die Anzahl der gelesenen Bits des Buffers.
-  #   Die Bits sind in der Reihenfolge Bit0,...,Bit7 angeordnet.
-  #   Ist Bitsize<8, so wird beim Schließen des Files die Länge des Files
-  #   (gemessen in Bits) als .L am Anfang des Files abgelegt, die Daten
-  #   fangen also erst beim 5. Byte an.
-  #define strm_file_eofposition  strm_other[11] # Position des logischen EOF, ein Fixnum >=0
-# Bei geschlossenen File-Streams sind nur die Komponenten name und truename
-# relevant.
+# Additional fields:
+  # define strm_file_name       strm_other[3] # Filename, a pathname or NIL
+  # define strm_file_truename   strm_other[4] # Truename, ein non-logical pathname or NIL
+  # define strm_file_handle     strm_other[2] # a wrapped Handle
+  #define strm_file_bufflen     4096          # buffer length, a power of 2, <2^16
+  #define strm_file_buffer      strm_other[0] # our own buffer, a simple-string
+                                              # with strm_file_bufflen bytes
+  #define strm_file_extrafields strm_other[5] # here some binary fields begin
+#define strm_file_length  (strm_len+5)
+
+# Additional binary (not GCed) fields:
+typedef struct strm_file_extrafields_struct {
+  uintL buffstart;              # start position of buffer
+  sintL eofindex;               # index up to which the data is valid
+                                # (for recognizing EOF)
+  #define eofindex_all_invalid  (-1)
+  #define eofindex_all_valid    (-2)
+  uintL index;                  # index into buffer (>=0, <=strm_file_bufflen)
+  boolean modified;             # TRUE if the buffer contains modified data, else FALSE
+  # Three cases:
+  #  eofindex = eofindex_all_invalid: buffer contents completely invalid,
+  #                                   index = 0.
+  #  eofindex >= 0: 0 <= index <= eofindex <= strm_file_bufflen.
+  #  eofindex = eofindex_all_valid: buffer contents completely valid,
+  #                                 0 <= index <= strm_file_bufflen.
+  # buffstart = (sector number) * strm_file_bufflen, if read access permitted.
+  # The position of handle, known to the OS, set via lseek, is normally (but
+  # not always!) the end of the current buffer:
+  #   if eofindex = eofindex_all_valid: buffstart + strm_file_bufflen,
+  #   if eofindex >= 0: buffstart + eofindex,
+  #   if eofindex = eofindex_all_invalid: buffstart.
+# Up to now a file is considered built from bytes à 8 bits.
+# Logically, it is built up from other units:
+  uintL position;               # position in logical units
+} strm_file_extrafields_struct;
+
+# For file streams with element type CHARACTER (ch_file)
+# every character is 1 byte.
+typedef struct strm_ch_file_extrafields_struct {
+  strm_file_extrafields_struct _parent;
+  uintL lineno;   # line number during read, >0
+} strm_ch_file_extrafields_struct;
+
+# For file streams with element type INTEGER ("byte files") every integer
+# uses the same amount of bits.
+typedef struct strm_i_file_extrafields_struct {
+  strm_file_extrafields_struct _parent;
+  uintL bitsize;                # number of bits, >0, <intDsize*uintWC_max
+  #define strm_file_bitbuffer   strm_other[1] # buffer, a simple-bit-vector
+                                              # with ceiling(bitsize/8)*8 bits
+  # If bitsize is not a multiple of 8:
+  uintL bitindex;               # index in the current byte, >=0, <=8
+  # The buffer contains 8*index+bitindex bits. The bits are ordered in the
+  # order bit0,....,bit7. If bitsize<8, the length of the file (measured in
+  # bits) is stored in the first 4 bytes of the files when the file is closed.
+  # The actual data then begins in the 5th byte.
+  uintL eofposition;            # position of logical EOF
+} strm_i_file_extrafields_struct;
+
+# In closed file streams only the fields `name' and `truename' are relevant.
+
+# Accessors.
+#define FileStream_name(stream)  TheStream(stream)->strm_file_name
+#define FileStream_truename(stream)  TheStream(stream)->strm_file_truename
+#define FileStream_handle(stream)  TheStream(stream)->strm_file_handle
+#define FileStream_buffer(stream)  TheStream(stream)->strm_file_buffer
+#define FileStream_buffstart(stream)  \
+  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_file_extrafields)->buffstart
+#define FileStream_eofindex(stream)  \
+  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_file_extrafields)->eofindex
+#define FileStream_index(stream)  \
+  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_file_extrafields)->index
+#define FileStream_modified(stream)  \
+  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_file_extrafields)->modified
+#define FileStream_position(stream)  \
+  ((strm_file_extrafields_struct*)&TheStream(stream)->strm_file_extrafields)->position
+#define FileStream_lineno(stream)  \
+  ((strm_ch_file_extrafields_struct*)&TheStream(stream)->strm_file_extrafields)->lineno
+#define FileStream_bitsize(stream)  \
+  ((strm_i_file_extrafields_struct*)&TheStream(stream)->strm_file_extrafields)->bitsize
+#define FileStream_bitindex(stream)  \
+  ((strm_i_file_extrafields_struct*)&TheStream(stream)->strm_file_extrafields)->bitindex
+#define FileStream_eofposition(stream)  \
+  ((strm_i_file_extrafields_struct*)&TheStream(stream)->strm_file_extrafields)->eofposition
 
 # File-Stream allgemein
 # =====================
@@ -7385,7 +7415,7 @@ LISPFUNN(window_cursor_off,1)
                   );
       if (ergebnis==bufflen)
         # alles korrekt geschrieben
-        { end_system_call(); reset_modified_flag(stream); }
+        { end_system_call(); FileStream_modified(stream) = FALSE; }
         else
         # Nicht alles geschrieben
         {
@@ -7406,7 +7436,7 @@ LISPFUNN(window_cursor_off,1)
           end_system_call();
           # Nicht alles geschrieben, wohl wegen voller Diskette.
           # Um Inkonsistenzen zu vermeiden, muss man das File schließen.
-          reset_modified_flag(stream); # Hierbei gehen Daten verloren!
+          FileStream_modified(stream) = FALSE; # Hierbei gehen Daten verloren!
           pushSTACK(stream);
           stream_close(&STACK_0); # File schließen
           clr_break_sem_4(); # keine UNIX-Operation mehr aktiv
@@ -7448,13 +7478,11 @@ LISPFUNN(window_cursor_off,1)
     var object stream;
     { if (!((TheStream(stream)->strmflags & strmflags_rd_B) == 0))
         { begin_system_call();
-          file_lseek(stream,posfixnum_to_L(TheStream(stream)->strm_file_buffstart),SEEK_SET,); # Zurückpositionieren
+          file_lseek(stream,FileStream_buffstart(stream),SEEK_SET,); # Zurückpositionieren
           end_system_call();
         }
       # eofindex Bytes schreiben:
-      b_file_finish_flush(stream,
-                          posfixnum_to_L(TheStream(stream)->strm_file_eofindex)
-                         );
+      b_file_finish_flush(stream,FileStream_eofindex(stream));
     }
 
 # UP: Schreibt den modifizierten Buffer zurück.
@@ -7465,7 +7493,7 @@ LISPFUNN(window_cursor_off,1)
   local void b_file_flush (object stream);
   local void b_file_flush(stream)
     var object stream;
-    { if (eq(TheStream(stream)->strm_file_eofindex,T)) # Buffer ganz gültig ?
+    { if (FileStream_eofindex(stream) == eofindex_all_valid) # Buffer ganz gültig ?
         { b_file_full_flush(stream); }
         else
         { b_file_half_flush(stream); }
@@ -7481,11 +7509,11 @@ LISPFUNN(window_cursor_off,1)
   local uintB* b_file_nextbyte (object stream);
   local uintB* b_file_nextbyte(stream)
     var object stream;
-    { var object eofindex = TheStream(stream)->strm_file_eofindex;
-      var object index = TheStream(stream)->strm_file_index;
-      if (!eq(eofindex,T))
+    { var sintL eofindex = FileStream_eofindex(stream);
+      var uintL index = FileStream_index(stream);
+      if (!(eofindex == eofindex_all_valid))
         # Bufferdaten nur halb gültig
-        { if (eq(eofindex,NIL))
+        { if (eofindex == eofindex_all_invalid)
             # Bufferdaten ganz ungültig
             { goto reread; }
             else
@@ -7493,15 +7521,14 @@ LISPFUNN(window_cursor_off,1)
             { goto eofsector; }
         }
       # Bufferdaten ganz gültig
-      if (!((uintW)posfixnum_to_L(index) == strm_file_bufflen)) # index = bufflen ?
+      if (!(index == strm_file_bufflen)) # index = bufflen ?
         # nein, also 0 <= index < strm_file_bufflen -> OK
-        { return &TheSstring(TheStream(stream)->strm_file_buffer)->data[(uintW)posfixnum_to_L(index)]; }
+        { return &TheSstring(TheStream(stream)->strm_file_buffer)->data[index]; }
       # Buffer muss neu gefüllt werden.
-      if (modified_flag(stream))
+      if (FileStream_modified(stream))
         # Zuvor muss der Buffer hinausgeschrieben werden:
         { b_file_full_flush(stream); }
-      TheStream(stream)->strm_file_buffstart =
-        fixnum_inc(TheStream(stream)->strm_file_buffstart,strm_file_bufflen);
+      FileStream_buffstart(stream) += strm_file_bufflen;
       reread: # Ab hier den Buffer neu lesen:
       { var sintL ergebnis;
         if ((TheStream(stream)->strmflags & strmflags_rd_B) == 0)
@@ -7516,22 +7543,24 @@ LISPFUNN(window_cursor_off,1)
             end_system_call();
             if (ergebnis==strm_file_bufflen)
               # der ganze Buffer wurde gefüllt
-              { TheStream(stream)->strm_file_index = Fixnum_0; # Index := 0, Buffer unmodifiziert
-                TheStream(stream)->strm_file_eofindex = T; # eofindex := T
+              { FileStream_index(stream) = 0; # Index := 0
+                FileStream_modified(stream) = FALSE; # Buffer unmodifiziert
+                FileStream_eofindex(stream) = eofindex_all_valid; # eofindex := all_valid
                 return &TheSstring(TheStream(stream)->strm_file_buffer)->data[0];
               }
             if (ergebnis<0) { OS_filestream_error(stream); } # Fehler aufgetreten?
           }
         # Es wurden ergebnis (< strm_file_bufflen) Bytes gelesen.
         # Nicht der ganze Buffer wurde gefüllt -> EOF ist erreicht.
-        TheStream(stream)->strm_file_index = index = Fixnum_0; # Index := 0, Buffer unmodifiziert
-        TheStream(stream)->strm_file_eofindex = eofindex = fixnum(ergebnis); # eofindex := ergebnis
+        FileStream_index(stream) = index = 0; # Index := 0
+        FileStream_modified(stream) = FALSE; # Buffer unmodifiziert
+        FileStream_eofindex(stream) = eofindex = ergebnis; # eofindex := ergebnis
       }
       eofsector: # eofindex ist ein Fixnum, d.h. EOF tritt in diesem Sector auf.
-      if ((uintW)posfixnum_to_L(index) == (uintW)posfixnum_to_L(eofindex))
+      if (index == eofindex)
         { return (uintB*)NULL; } # EOF erreicht
         else
-        { return &TheSstring(TheStream(stream)->strm_file_buffer)->data[(uintW)posfixnum_to_L(index)]; }
+        { return &TheSstring(TheStream(stream)->strm_file_buffer)->data[index]; }
     }
 
 # UP: Bereitet das Schreiben eines Bytes am EOF vor.
@@ -7544,21 +7573,19 @@ LISPFUNN(window_cursor_off,1)
   local uintB* b_file_eofbyte(stream)
     var object stream;
     { # EOF. Es ist eofindex=index.
-      if (eq(TheStream(stream)->strm_file_eofindex,
-             fixnum(strm_file_bufflen)
-         )  )
+      if (FileStream_eofindex(stream) == strm_file_bufflen)
         # eofindex = strm_file_bufflen
         { # Buffer muss neu gefüllt werden. Da nach ihm sowieso EOF kommt,
           # genügt es, ihn hinauszuschreiben:
-          if (modified_flag(stream)) { b_file_half_flush(stream); }
-          TheStream(stream)->strm_file_buffstart =
-            fixnum_inc(TheStream(stream)->strm_file_buffstart,strm_file_bufflen);
-          TheStream(stream)->strm_file_eofindex = Fixnum_0; # eofindex := 0
-          TheStream(stream)->strm_file_index = Fixnum_0; # index := 0, unmodifiziert
+          if (FileStream_modified(stream)) { b_file_half_flush(stream); }
+          FileStream_buffstart(stream) += strm_file_bufflen;
+          FileStream_eofindex(stream) = 0; # eofindex := 0
+          FileStream_index(stream) = 0; # index := 0
+          FileStream_modified(stream) = FALSE; # unmodifiziert
         }
       # eofindex erhöhen:
-      TheStream(stream)->strm_file_eofindex = fixnum_inc(TheStream(stream)->strm_file_eofindex,1);
-      return &TheSstring(TheStream(stream)->strm_file_buffer)->data[(uintW)posfixnum_to_L(TheStream(stream)->strm_file_index)];
+      FileStream_eofindex(stream) += 1;
+      return &TheSstring(TheStream(stream)->strm_file_buffer)->data[FileStream_index(stream)];
     }
 
 # UP: Schreibt ein Byte auf einen Byte-basierten File-Stream.
@@ -7576,10 +7603,10 @@ LISPFUNN(window_cursor_off,1)
         else
         { ptr = b_file_eofbyte(stream); } # EOF -> 1 Byte Platz machen
       # nächstes Byte in den Buffer schreiben:
-      *ptr = b; set_modified_flag(stream);
+      *ptr = b; FileStream_modified(stream) = TRUE;
       no_modification:
       # index incrementieren:
-      TheStream(stream)->strm_file_index = fixnum_inc(TheStream(stream)->strm_file_index,1);
+      FileStream_index(stream) += 1;
     }
 
 # File-Stream, Byte-basiert (b_file)
@@ -7611,61 +7638,57 @@ LISPFUNN(window_cursor_off,1)
     var object stream;
     var uintL position;
     { # Liegt die neue Position im selben Sector?
-      { var object eofindex = TheStream(stream)->strm_file_eofindex;
-        var uintL newindex = position - posfixnum_to_L(TheStream(stream)->strm_file_buffstart);
+      { var sintL eofindex = FileStream_eofindex(stream);
+        var uintL newindex = position - FileStream_buffstart(stream);
         if (newindex
-            <= (eq(eofindex,T) ? strm_file_bufflen :
-                (!eq(eofindex,NIL)) ? posfixnum_to_L(eofindex) :
+            <= ((eofindex == eofindex_all_valid) ? strm_file_bufflen :
+                (!(eofindex == eofindex_all_invalid)) ? eofindex :
                 0
            )   )
           { # ja -> brauche nur index zu verändern:
-            # (Dabei aber das modified_flag erhalten!)
-            TheStream(stream)->strm_file_index =
-              (modified_flag(stream)
-               ? fixnum(bit(16)+newindex)
-               : fixnum(newindex)
-              );
+            FileStream_index(stream) = newindex;
             return;
       }   }
       # evtl. Buffer hinausschreiben:
-      if (modified_flag(stream)) { b_file_flush(stream); }
+      if (FileStream_modified(stream)) { b_file_flush(stream); }
       # Nun ist modified_flag gelöscht.
       if ((TheStream(stream)->strmflags & strmflags_rd_B) == 0)
         { # Positionieren:
           begin_system_call();
           file_lseek(stream,position,SEEK_SET,);
           end_system_call();
-          TheStream(stream)->strm_file_buffstart = fixnum(position);
-          TheStream(stream)->strm_file_eofindex = NIL; # eofindex := NIL
-          TheStream(stream)->strm_file_index = Fixnum_0; # index := 0, unmodifiziert
+          FileStream_buffstart(stream) = position;
+          FileStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
+          FileStream_index(stream) = 0; # index := 0
+          FileStream_modified(stream) = FALSE; # unmodifiziert
         }
         else
-        { var uintL oldposition = posfixnum_to_L(TheStream(stream)->strm_file_buffstart)
-                                  + posfixnum_to_L(TheStream(stream)->strm_file_index);
+        { var uintL oldposition = FileStream_buffstart(stream) + FileStream_index(stream);
           # Positionieren:
           { var uintL newposition;
             begin_system_call();
             file_lseek(stream,floor(position,strm_file_bufflen)*strm_file_bufflen,SEEK_SET,newposition=);
             end_system_call();
-            TheStream(stream)->strm_file_buffstart = fixnum(newposition);
+            FileStream_buffstart(stream) = newposition;
           }
           # Sector lesen:
-          TheStream(stream)->strm_file_eofindex = NIL; # eofindex := NIL
-          TheStream(stream)->strm_file_index = Fixnum_0; # index := 0, unmodifiziert
+          FileStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
+          FileStream_index(stream) = 0; # index := 0
+          FileStream_modified(stream) = FALSE; # unmodifiziert
           { var uintL newindex = position % strm_file_bufflen; # gewünschter Index im Sector
             if (!(newindex==0)) # Position zwischen Sectoren -> brauche nichts zu lesen
               { b_file_nextbyte(stream);
                 # Jetzt ist index=0.
                 # index auf (position mod bufflen) setzen, vorher überprüfen:
-               {var object eofindex = TheStream(stream)->strm_file_eofindex;
-                # Es muss entweder eofindex=T oder 0<=newindex<=eofindex sein:
-                if (!(eq(eofindex,T) || (newindex <= posfixnum_to_L(eofindex))))
+               {var sintL eofindex = FileStream_eofindex(stream);
+                # Es muss entweder eofindex=all_valid oder 0<=newindex<=eofindex sein:
+                if (!((eofindex == eofindex_all_valid) || (newindex <= eofindex)))
                   # Fehler. Aber erst an die alte Position zurückpositionieren:
                   { check_SP();
                     position_b_file(stream,oldposition); # zurückpositionieren
                     fehler_position_beyond_EOF(stream);
                   }
-                TheStream(stream)->strm_file_index = fixnum(newindex);
+                FileStream_index(stream) = newindex;
         } }   }}
     }
 
@@ -7687,13 +7710,13 @@ LISPFUNN(window_cursor_off,1)
       # nächstes Zeichen holen:
      {var object ch = code_char(*charptr); # Character aus dem Buffer holen
       # index und position incrementieren:
-      TheStream(stream)->strm_file_index = fixnum_inc(TheStream(stream)->strm_file_index,1);
-      TheStream(stream)->strm_file_position = fixnum_inc(TheStream(stream)->strm_file_position,1);
+      FileStream_index(stream) += 1;
+      FileStream_position(stream) += 1;
       # ch = nächstes Zeichen
       if (!eq(ch,code_char(CR))) # Ist es CR ?
         { # nein -> OK
           if (eq(ch,code_char(NL))) # Ist es NL, dann lineno incrementieren
-            { TheStream(stream)->strm_ch_file_lineno = fixnum_inc(TheStream(stream)->strm_ch_file_lineno,1); }
+            { FileStream_lineno(stream) += 1; }
           return ch;
         }
       # ja -> nächstes Zeichen auf LF untersuchen
@@ -7701,10 +7724,10 @@ LISPFUNN(window_cursor_off,1)
       if (charptr == (uintB*)NULL) { return ch; } # EOF -> bleibt CR
       if (!(*charptr == LF)) { return ch; } # kein LF -> bleibt CR
       # LF übergehen, index und position incrementieren:
-      TheStream(stream)->strm_file_index = fixnum_inc(TheStream(stream)->strm_file_index,1);
-      TheStream(stream)->strm_file_position = fixnum_inc(TheStream(stream)->strm_file_position,1);
+      FileStream_index(stream) += 1;
+      FileStream_position(stream) += 1;
       # lineno incrementieren:
-      TheStream(stream)->strm_ch_file_lineno = fixnum_inc(TheStream(stream)->strm_ch_file_lineno,1);
+      FileStream_lineno(stream) += 1;
       # NL als Ergebnis:
       return code_char(NL);
     }}
@@ -7735,7 +7758,7 @@ LISPFUNN(window_cursor_off,1)
     var uintB b;
     { b_file_writebyte(stream,b);
       # position incrementieren:
-      TheStream(stream)->strm_file_position = fixnum_inc(TheStream(stream)->strm_file_position,1);
+      FileStream_position(stream) += 1;
     }
 
 # WRITE-CHAR - Pseudofunktion für File-Streams für Characters
@@ -7791,59 +7814,55 @@ LISPFUNN(window_cursor_off,1)
       do # Noch remaining>0 Bytes abzulegen.
         { ptr = b_file_nextbyte(stream);
           if (ptr == (uintB*)NULL) goto eof_reached;
-         {var object eofindex = TheStream(stream)->strm_file_eofindex;
+         {var sintL eofindex = FileStream_eofindex(stream);
           var uintL next = # so viel wie noch in den Buffer oder bis EOF passt
-            (eq(eofindex,T) ? strm_file_bufflen : posfixnum_to_L(eofindex))
-            - (uintW)posfixnum_to_L(TheStream(stream)->strm_file_index); # > 0 !
+            ((eofindex==eofindex_all_valid) ? strm_file_bufflen : eofindex)
+            - FileStream_index(stream); # > 0 !
           if (next > remaining) { next = remaining; }
           # next Bytes in den Buffer kopieren:
           {var uintL count;
            dotimespL(count,next,
              { var uintB b = *strptr++; # nächstes Byte
-               if (!(*ptr == b)) { *ptr = b; set_modified_flag(stream); } # in den Buffer
+               if (!(*ptr == b)) { *ptr = b; FileStream_modified(stream) = TRUE;; } # in den Buffer
                ptr++;
              });
           }
           remaining = remaining - next;
           # index incrementieren:
-          TheStream(stream)->strm_file_index =
-            fixnum_inc(TheStream(stream)->strm_file_index,next);
+          FileStream_index(stream) += next;
         }}
         until (remaining == 0);
       if (FALSE)
         eof_reached: # Schreiben am EOF, eofindex = index
         do # Noch remaining>0 Bytes abzulegen.
           { var uintL next = # so viel wie noch Platz im Buffer ist
-              strm_file_bufflen
-              - (uintW)posfixnum_to_L(TheStream(stream)->strm_file_index);
+              strm_file_bufflen - FileStream_index(stream);
             if (next==0)
               { # Buffer muss neu gefüllt werden. Da nach ihm sowieso EOF kommt,
                 # genügt es, ihn hinauszuschreiben:
-                if (modified_flag(stream)) { b_file_half_flush(stream); }
-                TheStream(stream)->strm_file_buffstart =
-                  fixnum_inc(TheStream(stream)->strm_file_buffstart,strm_file_bufflen);
-                TheStream(stream)->strm_file_eofindex = Fixnum_0; # eofindex := 0
-                TheStream(stream)->strm_file_index = Fixnum_0; # index := 0, unmodifiziert
+                if (FileStream_modified(stream)) { b_file_half_flush(stream); }
+                FileStream_buffstart(stream) += strm_file_bufflen;
+                FileStream_eofindex(stream) = 0; # eofindex := 0
+                FileStream_index(stream) = 0; # index := 0
+                FileStream_modified(stream) = FALSE; # unmodifiziert
                 # Dann nochmals versuchen:
                 next = strm_file_bufflen;
               }
             if (next > remaining) { next = remaining; }
             # next Bytes in den Buffer kopieren:
             {var uintL count;
-             ptr = &TheSstring(TheStream(stream)->strm_file_buffer)->data[(uintW)posfixnum_to_L(TheStream(stream)->strm_file_index)];
+             ptr = &TheSstring(TheStream(stream)->strm_file_buffer)->data[FileStream_index(stream)];
              dotimespL(count,next, { *ptr++ = *strptr++; } );
-             set_modified_flag(stream);
+             FileStream_modified(stream) = TRUE;
             }
             remaining = remaining - next;
             # index und eofindex incrementieren:
-            TheStream(stream)->strm_file_index =
-              fixnum_inc(TheStream(stream)->strm_file_index,next);
-            TheStream(stream)->strm_file_eofindex =
-              fixnum_inc(TheStream(stream)->strm_file_eofindex,next);
+            FileStream_index(stream) += next;
+            FileStream_eofindex(stream) += next;
           }
           until (remaining == 0);
       # position incrementieren:
-      TheStream(stream)->strm_file_position = fixnum_inc(TheStream(stream)->strm_file_position,len);
+      FileStream_position(stream) += len;
       wr_ss_lpos(stream,strptr,len); # Line-Position aktualisieren
       return strptr;
     }
@@ -7889,7 +7908,7 @@ LISPFUNN(window_cursor_off,1)
     var object stream;
     var uintL position;
     { var uintB flags = TheStream(stream)->strmflags;
-      var uintL bitsize = posfixnum_to_L(TheStream(stream)->strm_file_bitsize);
+      var uintL bitsize = FileStream_bitsize(stream);
       var uintL position_bits = position * bitsize;
       if ((flags & strmflags_i_B) == strmflags_ib_B)
         { position_bits += sizeof(uintL)*8; } # Header berücksichtigen
@@ -7903,15 +7922,15 @@ LISPFUNN(window_cursor_off,1)
           ||
           # Liegt die angesprochene Position im letzten Byte, aber zu weit?
           (((flags & strmflags_i_B) == strmflags_ib_B)
-           && (position > posfixnum_to_L(TheStream(stream)->strm_file_eofposition))
+           && (position > FileStream_eofposition(stream))
          ))
         # Fehler. Aber erst an die alte Position zurückpositionieren:
-        { var uintL oldposition = posfixnum_to_L(TheStream(stream)->strm_file_position);
+        { var uintL oldposition = FileStream_position(stream);
           check_SP();
           position_i_file(stream,oldposition); # zurückpositionieren
           fehler_position_beyond_EOF(stream);
         }
-      TheStream(stream)->strm_file_bitindex = fixnum(position_bits%8);
+      FileStream_bitindex(stream) = position_bits%8;
     }
 
 # UP für READ-BYTE auf File-Streams für Integers, Art u :
@@ -8092,7 +8111,7 @@ LISPFUNN(window_cursor_off,1)
   local object rd_by_iax_file(stream,finisher)
     var object stream;
     var rd_by_ix_I* finisher;
-    { var uintL bitsize = posfixnum_to_L(TheStream(stream)->strm_file_bitsize);
+    { var uintL bitsize = FileStream_bitsize(stream);
       var uintL bytesize = bitsize/8;
       # genügend viele Bytes in den Bitbuffer übertragen:
      {var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_file_bitbuffer)->data[bytesize];
@@ -8103,14 +8122,14 @@ LISPFUNN(window_cursor_off,1)
           # nächstes Byte holen:
           *--bitbufferptr = *ptr;
           # index incrementieren:
-          TheStream(stream)->strm_file_index = fixnum_inc(TheStream(stream)->strm_file_index,1);
+          FileStream_index(stream) += 1;
         });
       # position incrementieren:
-      TheStream(stream)->strm_file_position = fixnum_inc(TheStream(stream)->strm_file_position,1);
+      FileStream_position(stream) += 1;
       # in Zahl umwandeln:
       return (*finisher)(stream,bitsize,bytesize);
       eof: # EOF erreicht
-      position_b_file(stream,posfixnum_to_L(TheStream(stream)->strm_file_position)*bytesize);
+      position_b_file(stream,FileStream_position(stream)*bytesize);
       return eof_value;
     }}
 
@@ -8124,11 +8143,11 @@ LISPFUNN(window_cursor_off,1)
     var object stream;
     var rd_by_ix_I* finisher;
     { # Nur bei position < eofposition gibt's was zu lesen:
-      if (eq(TheStream(stream)->strm_file_position,TheStream(stream)->strm_file_eofposition))
+      if (FileStream_position(stream) == FileStream_eofposition(stream))
         goto eof;
-      { var uintL bitsize = posfixnum_to_L(TheStream(stream)->strm_file_bitsize); # bitsize (>0, <8)
+      { var uintL bitsize = FileStream_bitsize(stream); # bitsize (>0, <8)
         # genügend viele Bits in den Bitbuffer übertragen:
-        var uintL bitindex = posfixnum_to_L(TheStream(stream)->strm_file_bitindex);
+        var uintL bitindex = FileStream_bitindex(stream);
         var uintL count = bitindex + bitsize;
         var uint8 bit_akku;
         var uintB* ptr = b_file_nextbyte(stream);
@@ -8139,7 +8158,7 @@ LISPFUNN(window_cursor_off,1)
         # Von bit_akku sind die Bits (bitshift-1)..0 gültig.
         if (count > 8)
           { # index incrementieren, da gerade *ptr verarbeitet:
-            TheStream(stream)->strm_file_index = fixnum_inc(TheStream(stream)->strm_file_index,1);
+            FileStream_index(stream) += 1;
             count -= 8; # Noch count (>0) Bits zu holen.
            {var uintB* ptr = b_file_nextbyte(stream);
             if (ptr == (uintB*)NULL) goto eof1;
@@ -8149,14 +8168,14 @@ LISPFUNN(window_cursor_off,1)
           }}# Von bit_akku sind alle 8 Bits gültig.
         # 8 Bit abspeichern:
         TheSbvector(TheStream(stream)->strm_file_bitbuffer)->data[0] = bit_akku;
-        TheStream(stream)->strm_file_bitindex = fixnum(count);
+        FileStream_bitindex(stream) = count;
         # position incrementieren:
-        TheStream(stream)->strm_file_position = fixnum_inc(TheStream(stream)->strm_file_position,1);
+        FileStream_position(stream) += 1;
         # in Zahl umwandeln:
         return (*finisher)(stream,bitsize,1);
         eof1:
           # Wieder zurückpositionieren:
-          position_i_file(stream,posfixnum_to_L(TheStream(stream)->strm_file_position));
+          position_i_file(stream,FileStream_position(stream));
       }
       eof: # EOF erreicht gewesen
         return eof_value;
@@ -8171,19 +8190,19 @@ LISPFUNN(window_cursor_off,1)
   local object rd_by_icx_file(stream,finisher)
     var object stream;
     var rd_by_ix_I* finisher;
-    { var uintL bitsize = posfixnum_to_L(TheStream(stream)->strm_file_bitsize);
+    { var uintL bitsize = FileStream_bitsize(stream);
       var uintL bytesize = ceiling(bitsize,8);
       # genügend viele Bits in den Bitbuffer übertragen:
       var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_file_bitbuffer)->data[bytesize];
       var uintL count = bitsize;
-      var uintL bitshift = posfixnum_to_L(TheStream(stream)->strm_file_bitindex);
+      var uintL bitshift = FileStream_bitindex(stream);
       var uintB* ptr = b_file_nextbyte(stream);
       if (ptr == (uintB*)NULL) goto eof;
       if (bitshift==0)
         { loop
             { *--bitbufferptr = *ptr; # 8 Bits holen und abspeichern
               # index incrementieren, da gerade *ptr verarbeitet:
-              TheStream(stream)->strm_file_index = fixnum_inc(TheStream(stream)->strm_file_index,1);
+              FileStream_index(stream) += 1;
               count -= 8;
               # Noch count (>0) Bits zu holen.
               ptr = b_file_nextbyte(stream);
@@ -8201,7 +8220,7 @@ LISPFUNN(window_cursor_off,1)
           count -= bitshift;
           loop
             { # index incrementieren, da gerade *ptr verarbeitet:
-              TheStream(stream)->strm_file_index = fixnum_inc(TheStream(stream)->strm_file_index,1);
+              FileStream_index(stream) += 1;
               # Von bit_akku sind die Bits (bitshift-1)..0 gültig.
               # Noch count (>0) Bits zu holen.
              {var uintB* ptr = b_file_nextbyte(stream);
@@ -8215,13 +8234,13 @@ LISPFUNN(window_cursor_off,1)
               bit_akku = bit_akku>>8;
             }
         }
-      TheStream(stream)->strm_file_bitindex = fixnum(count);
+      FileStream_bitindex(stream) = count;
       # position incrementieren:
-      TheStream(stream)->strm_file_position = fixnum_inc(TheStream(stream)->strm_file_position,1);
+      FileStream_position(stream) += 1;
       # in Zahl umwandeln:
       return (*finisher)(stream,bitsize,bytesize);
       eof: # EOF erreicht
-      position_i_file(stream,posfixnum_to_L(TheStream(stream)->strm_file_position));
+      position_i_file(stream,FileStream_position(stream));
       return eof_value;
     }
 
@@ -8236,7 +8255,7 @@ LISPFUNN(window_cursor_off,1)
       var uintL count;
       dotimespL(count,bytesize, { b_file_writebyte(stream,*--bitbufferptr); } );
       # position incrementieren:
-      TheStream(stream)->strm_file_position = fixnum_inc(TheStream(stream)->strm_file_position,1);
+      FileStream_position(stream) += 1;
     }
 
 # UP für WRITE-BYTE auf File-Streams für Integers, Art b :
@@ -8246,7 +8265,7 @@ LISPFUNN(window_cursor_off,1)
     var object stream;
     var uintL bitsize;
     var uintL bytesize;
-    { var uintL bitshift = posfixnum_to_L(TheStream(stream)->strm_file_bitindex);
+    { var uintL bitshift = FileStream_bitindex(stream);
       var uint16 bit_akku = (uint16)(TheSbvector(TheStream(stream)->strm_file_bitbuffer)->data[0])<<bitshift;
       var uintL count = bitsize;
       var uintB* ptr = b_file_nextbyte(stream);
@@ -8272,14 +8291,14 @@ LISPFUNN(window_cursor_off,1)
               if (diff == 0) goto no_modification;
               *ptr ^= diff;
             }
-          set_modified_flag(stream);
+          FileStream_modified(stream) = TRUE;
           no_modification: ;
         }
-      TheStream(stream)->strm_file_bitindex = fixnum(count);
+      FileStream_bitindex(stream) = count;
       # position und evtl. eofposition incrementieren:
-      if (eq(TheStream(stream)->strm_file_eofposition,TheStream(stream)->strm_file_position))
-        { TheStream(stream)->strm_file_eofposition = fixnum_inc(TheStream(stream)->strm_file_eofposition,1); }
-      TheStream(stream)->strm_file_position = fixnum_inc(TheStream(stream)->strm_file_position,1);
+      if (FileStream_eofposition(stream) == FileStream_position(stream))
+        { FileStream_eofposition(stream) += 1; }
+      FileStream_position(stream) += 1;
     }
 
 # UP für WRITE-BYTE auf File-Streams für Integers, Art c :
@@ -8290,7 +8309,7 @@ LISPFUNN(window_cursor_off,1)
     var uintL bitsize;
     var uintL bytesize;
     { var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_file_bitbuffer)->data[bytesize];
-      var uintL bitshift = posfixnum_to_L(TheStream(stream)->strm_file_bitindex);
+      var uintL bitshift = FileStream_bitindex(stream);
       var uintL count = bitsize;
       var uint16 bit_akku;
       var uintB* ptr = b_file_nextbyte(stream);
@@ -8319,12 +8338,12 @@ LISPFUNN(window_cursor_off,1)
               if (diff == 0) goto no_modification;
               *ptr ^= diff;
             }
-          set_modified_flag(stream);
+          FileStream_modified(stream) = TRUE;
           no_modification: ;
         }
-      TheStream(stream)->strm_file_bitindex = fixnum(count);
+      FileStream_bitindex(stream) = count;
       # position incrementieren:
-      TheStream(stream)->strm_file_position = fixnum_inc(TheStream(stream)->strm_file_position,1);
+      FileStream_position(stream) += 1;
     }
 
 # Typ wr_by_ix: eines dieser drei Unterprogramme:
@@ -8344,7 +8363,7 @@ LISPFUNN(window_cursor_off,1)
       if (!integerp(obj)) { fehler_wr_integer(stream,obj); }
       if (!positivep(obj)) { fehler_bad_integer(stream,obj); }
       # obj ist jetzt ein Integer >=0
-     {var uintL bitsize = posfixnum_to_L(TheStream(stream)->strm_file_bitsize);
+     {var uintL bitsize = FileStream_bitsize(stream);
       var uintL bytesize = ceiling(bitsize,8);
       # obj in den Bitbuffer übertragen:
       { var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_file_bitbuffer)->data[bytesize];
@@ -8420,7 +8439,7 @@ LISPFUNN(window_cursor_off,1)
     { # obj überprüfen:
       if (!integerp(obj)) { fehler_wr_integer(stream,obj); }
       # obj ist jetzt ein Integer
-     {var uintL bitsize = posfixnum_to_L(TheStream(stream)->strm_file_bitsize);
+     {var uintL bitsize = FileStream_bitsize(stream);
       var uintL bytesize = ceiling(bitsize,8);
       # obj in den Bitbuffer übertragen:
       { var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_file_bitbuffer)->data[bytesize];
@@ -8575,59 +8594,55 @@ LISPFUNN(window_cursor_off,1)
       do # Noch remaining>0 Bytes abzulegen.
         { ptr = b_file_nextbyte(stream);
           if (ptr == (uintB*)NULL) goto eof_reached;
-         {var object eofindex = TheStream(stream)->strm_file_eofindex;
+         {var sintL eofindex = FileStream_eofindex(stream);
           var uintL next = # so viel wie noch in den Buffer oder bis EOF passt
-            (eq(eofindex,T) ? strm_file_bufflen : posfixnum_to_L(eofindex))
-            - (uintW)posfixnum_to_L(TheStream(stream)->strm_file_index); # > 0 !
+            ((eofindex==eofindex_all_valid) ? strm_file_bufflen : eofindex)
+            - FileStream_index(stream); # > 0 !
           if (next > remaining) { next = remaining; }
           # next Bytes in den Buffer kopieren:
           {var uintL count;
            dotimespL(count,next,
              { var uintB b = *byteptr++; # nächstes Byte
-               if (!(*ptr == b)) { *ptr = b; set_modified_flag(stream); } # in den Buffer
+               if (!(*ptr == b)) { *ptr = b; FileStream_modified(stream) = TRUE; } # in den Buffer
                ptr++;
              });
           }
           remaining = remaining - next;
           # index incrementieren:
-          TheStream(stream)->strm_file_index =
-            fixnum_inc(TheStream(stream)->strm_file_index,next);
+          FileStream_index(stream) += next;
         }}
         until (remaining == 0);
       if (FALSE)
         eof_reached: # Schreiben am EOF, eofindex = index
         do # Noch remaining>0 Bytes abzulegen.
           { var uintL next = # so viel wie noch Platz im Buffer ist
-              strm_file_bufflen
-              - (uintW)posfixnum_to_L(TheStream(stream)->strm_file_index);
+              strm_file_bufflen - FileStream_index(stream);
             if (next==0)
               { # Buffer muss neu gefüllt werden. Da nach ihm sowieso EOF kommt,
                 # genügt es, ihn hinauszuschreiben:
-                if (modified_flag(stream)) { b_file_half_flush(stream); }
-                TheStream(stream)->strm_file_buffstart =
-                  fixnum_inc(TheStream(stream)->strm_file_buffstart,strm_file_bufflen);
-                TheStream(stream)->strm_file_eofindex = Fixnum_0; # eofindex := 0
-                TheStream(stream)->strm_file_index = Fixnum_0; # index := 0, unmodifiziert
+                if (FileStream_modified(stream)) { b_file_half_flush(stream); }
+                FileStream_buffstart(stream) += strm_file_bufflen;
+                FileStream_eofindex(stream) = 0; # eofindex := 0
+                FileStream_index(stream) = 0; # index := 0
+                FileStream_modified(stream) = FALSE; # unmodifiziert
                 # Dann nochmals versuchen:
                 next = strm_file_bufflen;
               }
             if (next > remaining) { next = remaining; }
             # next Bytes in den Buffer kopieren:
             {var uintL count;
-             ptr = &TheSstring(TheStream(stream)->strm_file_buffer)->data[(uintW)posfixnum_to_L(TheStream(stream)->strm_file_index)];
+             ptr = &TheSstring(TheStream(stream)->strm_file_buffer)->data[FileStream_index(stream)];
              dotimespL(count,next, { *ptr++ = *byteptr++; } );
-             set_modified_flag(stream);
+             FileStream_modified(stream) = TRUE;
             }
             remaining = remaining - next;
             # index und eofindex incrementieren:
-            TheStream(stream)->strm_file_index =
-              fixnum_inc(TheStream(stream)->strm_file_index,next);
-            TheStream(stream)->strm_file_eofindex =
-              fixnum_inc(TheStream(stream)->strm_file_eofindex,next);
+            FileStream_index(stream) += next;
+            FileStream_eofindex(stream) += next;
           }
           until (remaining == 0);
       # position incrementieren:
-      TheStream(stream)->strm_file_position = fixnum_inc(TheStream(stream)->strm_file_position,len);
+      FileStream_position(stream) += len;
       return byteptr;
     }
 
@@ -8648,10 +8663,10 @@ LISPFUNN(window_cursor_off,1)
       switch (TheStream(stream)->strmflags & strmflags_i_B)
         { case strmflags_ib_B: case strmflags_ic_B:
             # Integer-Stream der Art b,c
-            TheStream(stream)->strm_file_bitindex = Fixnum_0; # bitindex := 0
+            FileStream_bitindex(stream) = 0; # bitindex := 0
           default: break;
         }
-      TheStream(stream)->strm_file_position = Fixnum_0; # position := 0
+      FileStream_position(stream) = 0; # position := 0
       TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
       TheStream(stream)->strmflags &= ~strmflags_unread_B;
     }
@@ -8669,7 +8684,7 @@ LISPFUNN(window_cursor_off,1)
       if (flags & strmflags_i_B) # Integer-Stream ?
         { if ((flags & strmflags_i_B) == strmflags_ia_B)
             # Art a
-            { var uintL bitsize = posfixnum_to_L(TheStream(stream)->strm_file_bitsize);
+            { var uintL bitsize = FileStream_bitsize(stream);
               position_b_file(stream,position*(bitsize/8));
             }
             else
@@ -8682,7 +8697,7 @@ LISPFUNN(window_cursor_off,1)
           TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
           TheStream(stream)->strmflags &= ~strmflags_unread_B;
         }
-      TheStream(stream)->strm_file_position = fixnum(position);
+      FileStream_position(stream) = position;
     }
 
 # UP: Positioniert einen (offenen) File-Stream ans Ende.
@@ -8693,7 +8708,7 @@ LISPFUNN(window_cursor_off,1)
   local void position_file_end(stream)
     var object stream;
     { # evtl. Buffer hinausschreiben:
-      if (modified_flag(stream)) { b_file_flush(stream); }
+      if (FileStream_modified(stream)) { b_file_flush(stream); }
      {var uintL eofbytes; # EOF-Position, gemessen in Bytes
       # ans Ende positionieren:
       begin_system_call();
@@ -8704,7 +8719,7 @@ LISPFUNN(window_cursor_off,1)
         var uintL eofbits = 0; # Bit-Ergänzung zu eofbytes
         var uintB flags = TheStream(stream)->strmflags;
         if (flags & strmflags_i_B) # Integer-Stream ?
-          { var uintL bitsize = posfixnum_to_L(TheStream(stream)->strm_file_bitsize);
+          { var uintL bitsize = FileStream_bitsize(stream);
             if ((flags & strmflags_i_B) == strmflags_ia_B)
               # Art a
               { var uintL bytesize = bitsize/8;
@@ -8715,7 +8730,7 @@ LISPFUNN(window_cursor_off,1)
               # Art b
               { eofbytes -= sizeof(uintL); # Header berücksichtigen
                 # Ist die gemerkte EOF-Position plausibel?
-                position = posfixnum_to_L(TheStream(stream)->strm_file_eofposition);
+                position = FileStream_eofposition(stream);
                 if (!(ceiling(position*bitsize,8)==eofbytes)) # ja -> verwende sie
                   { position = floor(eofbytes*8,bitsize); } # nein -> rechne sie neu aus
                 # Rechne eofbytes und eofbits neu aus:
@@ -8739,9 +8754,10 @@ LISPFUNN(window_cursor_off,1)
             begin_system_call();
             file_lseek(stream,eofbytes,SEEK_SET,);
             end_system_call();
-            TheStream(stream)->strm_file_buffstart = fixnum(eofbytes);
-            TheStream(stream)->strm_file_eofindex = NIL; # eofindex := NIL
-            TheStream(stream)->strm_file_index = Fixnum_0; # index := 0, unmodifiziert
+            FileStream_buffstart(stream) = eofbytes;
+            FileStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
+            FileStream_index(stream) = 0; # index := 0
+            FileStream_modified(stream) = FALSE; # unmodifiziert
           }
           else
           { # auf den Anfang des letzten Sectors positionieren:
@@ -8749,28 +8765,29 @@ LISPFUNN(window_cursor_off,1)
               begin_system_call();
               file_lseek(stream,floor(eofbytes,strm_file_bufflen)*strm_file_bufflen,SEEK_SET,buffstart=);
               end_system_call();
-              TheStream(stream)->strm_file_buffstart = fixnum(buffstart);
+              FileStream_buffstart(stream) = buffstart;
             }
             # Sector lesen:
-            TheStream(stream)->strm_file_eofindex = NIL; # eofindex := NIL
-            TheStream(stream)->strm_file_index = Fixnum_0; # index := 0, unmodifiziert
+            FileStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
+            FileStream_index(stream) = 0; # index := 0
+            FileStream_modified(stream) = FALSE; # unmodifiziert
             { var uintL eofindex = eofbytes % strm_file_bufflen;
               if (!((eofindex==0) && (eofbits==0))) # EOF am Sectorende -> brauche nichts zu lesen
                 { b_file_nextbyte(stream);
                   # Jetzt ist index=0. index und eofindex setzen:
-                  TheStream(stream)->strm_file_index = fixnum(eofindex);
+                  FileStream_index(stream) = eofindex;
                   if (!(eofbits==0)) { eofindex += 1; }
-                  TheStream(stream)->strm_file_eofindex = fixnum(eofindex);
+                  FileStream_eofindex(stream) = eofindex;
             }   }
           }
         switch (flags & strmflags_i_B)
           { case strmflags_ib_B: case strmflags_ic_B:
               # Integer-Stream der Art b,c
-              TheStream(stream)->strm_file_bitindex = fixnum(eofbits);
+              FileStream_bitindex(stream) = eofbits;
             default: break;
           }
         # position setzen:
-        TheStream(stream)->strm_file_position = fixnum(position);
+        FileStream_position(stream) = position;
         TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
         TheStream(stream)->strmflags &= ~strmflags_unread_B;
     }}}
@@ -8836,19 +8853,17 @@ LISPFUNN(window_cursor_off,1)
        # Art von Integer-Streams:
        var uintB art;
        # Länge:
-       var uintC len = strm_len; # Das hat jeder Stream
-       len += 8; # Das haben alle File-Streams
+       var uintC xlen = sizeof(strm_file_extrafields_struct); # Das haben alle File-Streams
        if (type==strmtype_ch_file)
-         { len += 1; } # Das haben die File-Streams für Characters
+         { xlen = sizeof(strm_ch_file_extrafields_struct); } # Das haben die File-Streams für Characters
        elif (type>=strmtype_iu_file)
-         { len += 2; # Das haben die File-Streams für Integers
+         { xlen = sizeof(strm_i_file_extrafields_struct); # Das haben die File-Streams für Integers maximal
            {var uintL bitsize = posfixnum_to_L(eltype_size);
             if ((bitsize%8)==0)
               { art = strmflags_ia_B; } # Art a
               else
-              { len += 1; # Arten b,c
-                if (bitsize<8)
-                  { art = strmflags_ib_B; len += 1; } # Art b
+              { if (bitsize<8)
+                  { art = strmflags_ib_B; } # Art b
                   else
                   { art = strmflags_ic_B; } # Art c
            }  }
@@ -8858,7 +8873,7 @@ LISPFUNN(window_cursor_off,1)
        pushSTACK(handle); # Handle retten
        #endif
       {# Stream allozieren:
-       var object stream = allocate_stream(flags,type,len);
+       var object stream = allocate_stream(flags,type,strm_file_length,xlen);
        # und füllen:
        # Komponenten aller Streams:
        switch (type)
@@ -8924,22 +8939,23 @@ LISPFUNN(window_cursor_off,1)
        TheStream(stream)->strm_file_name = popSTACK(); # Filename eintragen
        if (!nullp(handle)) # Handle=NIL -> Rest bereits mit NIL initialisiert, fertig
          { TheStream(stream)->strm_file_handle = handle; # Handle eintragen
-           TheStream(stream)->strm_file_buffstart = Fixnum_0; # buffstart := 0
+           FileStream_buffstart(stream) = 0; # buffstart := 0
            # Buffer allozieren:
            pushSTACK(stream);
           {var object buffer = allocate_string(strm_file_bufflen); # neuer String
            stream = popSTACK();
            TheStream(stream)->strm_file_buffer = buffer;
           }
-           TheStream(stream)->strm_file_eofindex = NIL; # eofindex := NIL
-           TheStream(stream)->strm_file_index = Fixnum_0; # index := 0, Buffer unmodifiziert
-           TheStream(stream)->strm_file_position = Fixnum_0; # position := 0
+           FileStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
+           FileStream_index(stream) = 0; # index := 0
+           FileStream_modified(stream) = FALSE; # Buffer unmodifiziert
+           FileStream_position(stream) = 0; # position := 0
            if (type==strmtype_ch_file)
              # File-Stream für Characters
-             { TheStream(stream)->strm_ch_file_lineno = Fixnum_1; }
+             { FileStream_lineno(stream) = 1; }
            elif (type>=strmtype_iu_file)
              # File-Stream für Integers
-             { TheStream(stream)->strm_file_bitsize = eltype_size;
+             { FileStream_bitsize(stream) = posfixnum_to_L(eltype_size);
                # Bitbuffer allozieren:
                pushSTACK(stream);
               {var object bitbuffer = allocate_bit_vector(ceiling(posfixnum_to_L(eltype_size),8)*8);
@@ -8948,7 +8964,7 @@ LISPFUNN(window_cursor_off,1)
               }
                if (!(art==strmflags_ia_B))
                  # Arten b,c
-                 { TheStream(stream)->strm_file_bitindex = Fixnum_0; # bitindex := 0
+                 { FileStream_bitindex(stream) = 0; # bitindex := 0
                    if (art==strmflags_ib_B)
                      # Art b
                      { # eofposition lesen:
@@ -8959,7 +8975,7 @@ LISPFUNN(window_cursor_off,1)
                            if (ptr == (uintB*)NULL) goto too_short;
                            eofposition |= ((*ptr) << count);
                            # index incrementieren, da gerade *ptr verarbeitet:
-                           TheStream(stream)->strm_file_index = fixnum_inc(TheStream(stream)->strm_file_index,1);
+                           FileStream_index(stream) += 1;
                          }
                        if (FALSE)
                          { too_short:
@@ -8989,8 +9005,7 @@ LISPFUNN(window_cursor_off,1)
                                  );
                          }
                        # Auf die gelesene EOF-Position verlassen wir uns jetzt!
-                       TheStream(stream)->strm_file_eofposition =
-                         fixnum(eofposition);
+                       FileStream_eofposition(stream) = eofposition;
              }   }   }
            # Liste der offenen File-Streams um stream erweitern:
            pushSTACK(stream);
@@ -9016,7 +9031,7 @@ LISPFUNN(window_cursor_off,1)
       if ((TheStream(stream)->strmflags & strmflags_i_B) == strmflags_ib_B)
         if (TheStream(stream)->strmflags & strmflags_wr_by_B) # nur falls nicht Read-Only
           { position_b_file(stream,0); # an Position 0 positionieren
-           {var uintL eofposition = posfixnum_to_L(TheStream(stream)->strm_file_eofposition);
+           {var uintL eofposition = FileStream_eofposition(stream);
             var uintC count;
             dotimespC(count,sizeof(uintL),
               { b_file_writebyte(stream,(uintB)eofposition);
@@ -9024,7 +9039,7 @@ LISPFUNN(window_cursor_off,1)
               });
           }}
       # evtl. Buffer hinausschreiben:
-      if (modified_flag(stream)) { b_file_flush(stream); }
+      if (FileStream_modified(stream)) { b_file_flush(stream); }
       # Nun ist das modified_flag gelöscht.
     }
 
@@ -9119,11 +9134,10 @@ LISPFUNN(window_cursor_off,1)
           }
       #endif
       # und neu positionieren:
-     {var uintL position = posfixnum_to_L(TheStream(stream)->strm_file_buffstart)
-                           + posfixnum_to_L(TheStream(stream)->strm_file_index);
-      TheStream(stream)->strm_file_buffstart = Fixnum_0; # buffstart := 0
-      TheStream(stream)->strm_file_index = Fixnum_0; # index := 0
-      TheStream(stream)->strm_file_eofindex = NIL; # eofindex := NIL
+     {var uintL position = FileStream_buffstart(stream) + FileStream_index(stream);
+      FileStream_buffstart(stream) = 0; # buffstart := 0
+      FileStream_index(stream) = 0; # index := 0
+      FileStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
       position_b_file(stream,position);
      }# Komponenten position, ..., lastchar bleiben unverändert
     }
@@ -9145,12 +9159,13 @@ LISPFUNN(window_cursor_off,1)
     var object stream;
     { TheStream(stream)->strm_file_handle = NIL; # Handle wird ungültig
       TheStream(stream)->strm_file_buffer = NIL; # Buffer freimachen
-      TheStream(stream)->strm_file_buffstart = NIL; # buffstart löschen (unnötig)
-      TheStream(stream)->strm_file_eofindex = NIL; # eofindex löschen (unnötig)
-      TheStream(stream)->strm_file_index = NIL; # index löschen (unnötig)
-      TheStream(stream)->strm_file_position = NIL; # position löschen (unnötig)
+      FileStream_buffstart(stream) = 0; # buffstart löschen (unnötig)
+      FileStream_eofindex(stream) = eofindex_all_invalid; # eofindex löschen (unnötig)
+      FileStream_index(stream) = 0; # index löschen (unnötig)
+      FileStream_modified(stream) = FALSE; # modified_flag löschen (unnötig)
+      FileStream_position(stream) = 0; # position löschen (unnötig)
       if (TheStream(stream)->strmflags & strmflags_i_B)
-        { TheStream(stream)->strm_file_bitsize = NIL; # bitsize löschen (unnötig)
+        { FileStream_bitsize(stream) = 0; # bitsize löschen (unnötig)
           TheStream(stream)->strm_file_bitbuffer = NIL; # Bitbuffer freimachen
         }
     }
@@ -9384,7 +9399,7 @@ LISPFUNN(file_stream_p,1)
     var object symbol;
     { pushSTACK(symbol); # Symbol retten
      {var object stream = # neuer Stream, alle Operationen erlaubt
-        allocate_stream(strmflags_open_B,strmtype_synonym,strm_len+1);
+        allocate_stream(strmflags_open_B,strmtype_synonym,strm_len+1,0);
       TheStream(stream)->strm_rd_by = P(rd_by_synonym);
       TheStream(stream)->strm_wr_by = P(wr_by_synonym);
       TheStream(stream)->strm_rd_ch = P(rd_ch_synonym);
@@ -9564,7 +9579,7 @@ LISPFUNN(synonym_stream_symbol,1)
     var object list;
     { pushSTACK(list); # list retten
      {var object stream = # neuer Stream, nur WRITEs erlaubt
-        allocate_stream(strmflags_wr_B,strmtype_broad,strm_len+1);
+        allocate_stream(strmflags_wr_B,strmtype_broad,strm_len+1,0);
       TheStream(stream)->strm_rd_by = P(rd_by_dummy);
       TheStream(stream)->strm_wr_by = P(wr_by_broad);
       TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
@@ -9774,7 +9789,7 @@ LISPFUNN(broadcast_stream_streams,1)
     var object list;
     { pushSTACK(list); # list retten
      {var object stream = # neuer Stream, nur READs erlaubt
-        allocate_stream(strmflags_rd_B,strmtype_concat,strm_len+2);
+        allocate_stream(strmflags_rd_B,strmtype_concat,strm_len+2,0);
       TheStream(stream)->strm_rd_by = P(rd_by_concat);
       TheStream(stream)->strm_wr_by = P(wr_by_dummy);
       TheStream(stream)->strm_rd_ch = P(rd_ch_concat);
@@ -9973,7 +9988,7 @@ LISPFUNN(concatenated_stream_streams,1)
     var object output_stream;
     { pushSTACK(input_stream); pushSTACK(output_stream); # Streams retten
      {var object stream = # neuer Stream, alle Operationen erlaubt
-        allocate_stream(strmflags_open_B,strmtype_twoway,strm_len+2);
+        allocate_stream(strmflags_open_B,strmtype_twoway,strm_len+2,0);
       TheStream(stream)->strm_rd_by = P(rd_by_twoway);
       TheStream(stream)->strm_wr_by = P(wr_by_twoway);
       TheStream(stream)->strm_rd_ch = P(rd_ch_twoway);
@@ -10080,7 +10095,7 @@ LISPFUNN(two_way_stream_output_stream,1)
     { pushSTACK(input_stream); pushSTACK(output_stream); # Streams retten
      {var uintB flags = strmflags_open_B;
       var object stream = # neuer Stream, alle Operationen erlaubt
-        allocate_stream(flags,strmtype_echo,strm_len+2);
+        allocate_stream(flags,strmtype_echo,strm_len+2,0);
       TheStream(stream)->strm_rd_by = P(rd_by_echo);
       TheStream(stream)->strm_wr_by = P(wr_by_twoway);
       TheStream(stream)->strm_rd_ch = P(rd_ch_echo);
@@ -10223,7 +10238,7 @@ LISPFUN(make_string_input_stream,1,2,norest,nokey,0,NIL)
     var object end_arg = fixnum_inc(start_arg,len); # end-Argument (Fixnum >=0)
     pushSTACK(string); # String retten
     { var object stream = # neuer Stream, nur READ-CHAR erlaubt
-        allocate_stream(strmflags_rd_ch_B,strmtype_str_in,strm_len+3);
+        allocate_stream(strmflags_rd_ch_B,strmtype_str_in,strm_len+3,0);
       TheStream(stream)->strm_rd_by = P(rd_by_dummy);
       TheStream(stream)->strm_wr_by = P(wr_by_dummy);
       TheStream(stream)->strm_rd_ch = P(rd_ch_str_in);
@@ -10317,7 +10332,7 @@ LISPFUNN(string_input_stream_index,1)
     { # kleinen Semi-Simple-String der Länge 50 allozieren:
       pushSTACK(make_ssstring(50));
      {var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
-        allocate_stream(strmflags_wr_ch_B,strmtype_str_out,strm_len+1);
+        allocate_stream(strmflags_wr_ch_B,strmtype_str_out,strm_len+1,0);
       TheStream(stream)->strm_rd_by = P(rd_by_dummy);
       TheStream(stream)->strm_wr_by = P(wr_by_dummy);
       TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
@@ -10436,7 +10451,7 @@ LISPFUNN(make_string_push_stream,1)
                );
     }  }
     {var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
-       allocate_stream(strmflags_wr_ch_B,strmtype_str_push,strm_len+1);
+       allocate_stream(strmflags_wr_ch_B,strmtype_str_push,strm_len+1,0);
      TheStream(stream)->strm_rd_by = P(rd_by_dummy);
      TheStream(stream)->strm_wr_by = P(wr_by_dummy);
      TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
@@ -10537,7 +10552,7 @@ LISPFUNN(string_stream_p,1)
       pushSTACK(new_cons);
      }
      {var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
-        allocate_stream(strmflags_wr_ch_B,strmtype_pphelp,strm_len+2);
+        allocate_stream(strmflags_wr_ch_B,strmtype_pphelp,strm_len+2,0);
       TheStream(stream)->strm_rd_by = P(rd_by_dummy);
       TheStream(stream)->strm_wr_by = P(wr_by_dummy);
       TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
@@ -10703,7 +10718,7 @@ LISPFUNN(string_stream_p,1)
 LISPFUNN(make_buffered_input_stream,2)
 # (MAKE-BUFFERED-INPUT-STREAM fun mode)
   { var object stream = # neuer Stream, nur READ-CHAR erlaubt
-      allocate_stream(strmflags_rd_ch_B,strmtype_buff_in,strm_len+5);
+      allocate_stream(strmflags_rd_ch_B,strmtype_buff_in,strm_len+5,0);
     TheStream(stream)->strm_rd_by = P(rd_by_dummy);
     TheStream(stream)->strm_wr_by = P(wr_by_dummy);
     TheStream(stream)->strm_rd_ch = P(rd_ch_buff_in);
@@ -10836,7 +10851,7 @@ LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL)
     # kleinen Semi-Simple-String der Länge 50 allozieren:
     pushSTACK(make_ssstring(50));
    {var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
-      allocate_stream(strmflags_wr_ch_B,strmtype_buff_out,strm_len+2);
+      allocate_stream(strmflags_wr_ch_B,strmtype_buff_out,strm_len+2,0);
     TheStream(stream)->strm_rd_by = P(rd_by_dummy);
     TheStream(stream)->strm_wr_by = P(wr_by_dummy);
     TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
@@ -10896,7 +10911,7 @@ LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL)
     { pushSTACK(allocate_cons()); # Cons für Liste
       pushSTACK(allocate_handle(Handle_NULL)); # Handle-Verpackung
      {var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
-        allocate_stream(strmflags_wr_ch_B,strmtype_printer,strm_len+1);
+        allocate_stream(strmflags_wr_ch_B,strmtype_printer,strm_len+1,0);
       set_break_sem_4();
       begin_system_call();
       {var Handle handle = Open("PRT:",MODE_NEWFILE);
@@ -11104,7 +11119,7 @@ LISPFUNN(make_pipe_input_stream,1)
     pushSTACK(UL_to_I(child));
     # Stream allozieren:
     { var object stream = # neuer Stream, nur READ-CHAR und READ-BYTE erlaubt
-        allocate_stream(strmflags_rd_B,strmtype_pipe_in,strm_len+4);
+        allocate_stream(strmflags_rd_B,strmtype_pipe_in,strm_len+4,0);
       TheStream(stream)->strm_rd_by = P(rd_by_pipe_in);
       TheStream(stream)->strm_wr_by = P(wr_by_dummy);
       TheStream(stream)->strm_rd_ch = P(rd_ch_pipe_in);
@@ -11285,7 +11300,7 @@ LISPFUNN(make_pipe_output_stream,1)
     pushSTACK(UL_to_I(child));
     # Stream allozieren:
     { var object stream = # neuer Stream, nur WRITE-CHAR und WRITE-BYTE erlaubt
-        allocate_stream(strmflags_wr_B,strmtype_pipe_out,strm_len+4);
+        allocate_stream(strmflags_wr_B,strmtype_pipe_out,strm_len+4,0);
       TheStream(stream)->strm_rd_by = P(rd_by_dummy);
       TheStream(stream)->strm_wr_by = P(wr_by_pipe_out);
       TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
@@ -11457,7 +11472,7 @@ LISPFUNN(make_pipe_io_stream,1)
     pushSTACK(allocate_handle(out_handles[1]));
     # Input-Stream allozieren:
     { var object stream = # neuer Stream, nur READ-CHAR erlaubt
-        allocate_stream(strmflags_rd_ch_B,strmtype_pipe_in,strm_len+4);
+        allocate_stream(strmflags_rd_ch_B,strmtype_pipe_in,strm_len+4,0);
       TheStream(stream)->strm_rd_by = P(rd_by_dummy);
       TheStream(stream)->strm_wr_by = P(wr_by_dummy);
       TheStream(stream)->strm_rd_ch = P(rd_ch_pipe_in);
@@ -11475,7 +11490,7 @@ LISPFUNN(make_pipe_io_stream,1)
     }
     # Output-Stream allozieren:
     { var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
-        allocate_stream(strmflags_wr_ch_B,strmtype_pipe_out,strm_len+4);
+        allocate_stream(strmflags_wr_ch_B,strmtype_pipe_out,strm_len+4,0);
       TheStream(stream)->strm_rd_by = P(rd_by_dummy);
       TheStream(stream)->strm_wr_by = P(wr_by_dummy);
       TheStream(stream)->strm_rd_ch = P(rd_ch_dummy);
@@ -11799,7 +11814,7 @@ LISPFUNN(make_x11socket_stream,2)
     pushSTACK(allocate_socket(handle));
     # Stream allozieren:
     {var object stream = # neuer Stream, alles erlaubt
-       allocate_stream(strmflags_open_B,strmtype_x11socket,strm_len+4);
+       allocate_stream(strmflags_open_B,strmtype_x11socket,strm_len+4,0);
      TheStream(stream)->strm_rd_by = P(rd_by_x11socket);
      TheStream(stream)->strm_wr_by = P(wr_by_x11socket);
      TheStream(stream)->strm_rd_ch = P(rd_ch_x11socket);
@@ -11953,7 +11968,7 @@ local object make_socket_stream(handle,host,port)
   { pushSTACK(allocate_socket(handle));
     # Stream allozieren:
    {var object stream = # neuer Stream, alles erlaubt
-      allocate_stream(strmflags_open_B,strmtype_socket,strm_len+5);
+      allocate_stream(strmflags_open_B,strmtype_socket,strm_len+5,0);
     TheStream(stream)->strm_rd_by = P(rd_by_socket);
     TheStream(stream)->strm_wr_by = P(wr_by_socket);
     TheStream(stream)->strm_rd_ch = P(rd_ch_socket);
@@ -12474,7 +12489,7 @@ LISPFUNN(generic_stream_controller,1)
 
 LISPFUNN(make_generic_stream,1)
   { var object stream =
-      allocate_stream(strmflags_open_B,strmtype_generic,strm_len+1);
+      allocate_stream(strmflags_open_B,strmtype_generic,strm_len+1,0);
     TheStream(stream)->strm_rd_by = P(rd_by_generic);
     TheStream(stream)->strm_wr_by = P(wr_by_generic);
     TheStream(stream)->strm_rd_ch = P(rd_ch_generic);
@@ -12788,13 +12803,13 @@ LISPFUNN(stream_element_type,1)
             case strmtype_iu_file:
               # (UNSIGNED-BYTE bitsize)
               pushSTACK(S(unsigned_byte));
-              pushSTACK(TheStream(stream)->strm_file_bitsize);
+              pushSTACK(UL_to_I(FileStream_bitsize(stream)));
               eltype = listof(2);
               break;
             case strmtype_is_file:
               # (SIGNED-BYTE bitsize)
               pushSTACK(S(signed_byte));
-              pushSTACK(TheStream(stream)->strm_file_bitsize);
+              pushSTACK(UL_to_I(FileStream_bitsize(stream)));
               eltype = listof(2);
               break;
             # dann die allgemeinen Streams:
@@ -13524,15 +13539,15 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
         }
       #endif
       elif (eq(TheStream(stream)->strm_rd_by,P(rd_by_iau_file)) # file
-            && eq(TheStream(stream)->strm_file_bitsize,fixnum(8)) # eltype = (UNSIGNED-BYTE 8)
+            && (FileStream_bitsize(stream)==8) # eltype = (UNSIGNED-BYTE 8)
            )
         { dotimespL(len,len,
             { var uintB* ptr = b_file_nextbyte(stream);
               if (ptr == (uintB*)NULL) break;
               *byteptr++ = *ptr;
               # index und position incrementieren:
-              TheStream(stream)->strm_file_index = fixnum_inc(TheStream(stream)->strm_file_index,1);
-              TheStream(stream)->strm_file_position = fixnum_inc(TheStream(stream)->strm_file_position,1);
+              FileStream_index(stream) += 1;
+              FileStream_position(stream) += 1;
             });
           return byteptr;
         }
@@ -13592,7 +13607,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
         }
       #endif
       elif (eq(TheStream(stream)->strm_wr_by,P(wr_by_iau_file)) # file
-            && eq(TheStream(stream)->strm_file_bitsize,fixnum(8)) # eltype = (UNSIGNED-BYTE 8)
+            && (FileStream_bitsize(stream)==8) # eltype = (UNSIGNED-BYTE 8)
            )
         { return write_byte_array_iau8_file(stream,byteptr,len); }
       else # keine Optimierung möglich
@@ -13737,21 +13752,21 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               if (ptr == (uintB*)NULL) break; # EOF -> fertig
              {var uintB ch = *ptr;
               # index und position incrementieren:
-              TheStream(stream)->strm_file_index = fixnum_inc(TheStream(stream)->strm_file_index,1);
-              TheStream(stream)->strm_file_position = fixnum_inc(TheStream(stream)->strm_file_position,1);
+              FileStream_index(stream) += 1;
+              FileStream_position(stream) += 1;
               # CR/LF -> NL umwandeln:
               if (ch==CR)
                 { # nächstes Zeichen auf LF untersuchen
                   ptr = b_file_nextbyte(stream);
                   if (!(ptr == (uintB*)NULL) && (*ptr == LF))
                     { # index und position incrementieren:
-                      TheStream(stream)->strm_file_index = fixnum_inc(TheStream(stream)->strm_file_index,1);
-                      TheStream(stream)->strm_file_position = fixnum_inc(TheStream(stream)->strm_file_position,1);
+                      FileStream_index(stream) += 1;
+                      FileStream_position(stream) += 1;
                       ch = NL;
                 }   }
               if (ch==NL)
                 # lineno incrementieren:
-                { TheStream(stream)->strm_ch_file_lineno = fixnum_inc(TheStream(stream)->strm_ch_file_lineno,1); }
+                { FileStream_lineno(stream) += 1; }
               *charptr++ = ch; len--;
             }}
           TheStream(stream)->strm_rd_ch_last =
@@ -13909,7 +13924,7 @@ LISPFUN(file_position,1,1,norest,nokey,0,NIL)
     stream = check_open_file_stream(stream); # stream überprüfen
     if (eq(position,unbound))
       # position nicht angegeben -> Position als Wert:
-      { value1 = TheStream(stream)->strm_file_position; mv_count=1; }
+      { value1 = UL_to_I(FileStream_position(stream)); mv_count=1; }
       else
       { if (eq(position,S(Kstart)))
           # :START -> an den Anfang positionieren:
@@ -13942,14 +13957,14 @@ LISPFUNN(file_length,1)
   { var object stream = popSTACK();
     stream = check_open_file_stream(stream); # stream überprüfen
     # Position merken:
-   {var object position = TheStream(stream)->strm_file_position;
+   {var uintL position = FileStream_position(stream);
     # ans Ende positionieren:
     position_file_end(stream);
     # Ende-Position merken:
-    {var object endposition = TheStream(stream)->strm_file_position;
+    {var uintL endposition = FileStream_position(stream);
      # an die alte Position zurückpositionieren:
-     position_file(stream,posfixnum_to_L(position));
-     value1 = endposition; mv_count=1; # Ende-Position als Wert
+     position_file(stream,position);
+     value1 = UL_to_I(endposition); mv_count=1; # Ende-Position als Wert
   }}}
 
 LISPFUNN(file_string_length,2)
@@ -13996,8 +14011,8 @@ LISPFUNN(line_number,1)
   { var object stream = popSTACK();
     if (!streamp(stream)) { fehler_stream(stream); } # stream überprüfen
     value1 = (TheStream(stream)->strmtype == strmtype_ch_file
-              ? TheStream(stream)->strm_ch_file_lineno # aktuelle Zeilennummer
-              : NIL                                    # NIL falls unbekannt
+              ? UL_to_I(FileStream_lineno(stream)) # aktuelle Zeilennummer
+              : NIL                                # NIL falls unbekannt
              );
     mv_count=1;
   }
