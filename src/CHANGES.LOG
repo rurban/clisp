@@ -2,9 +2,9 @@
 User visible changes
 --------------------
 
-* As per ANSI CL issue GENERIC-FLET-POORLY-DESIGNED:DELETE,
-  `clos:generic-flet' and `clos:generic-labels' are not exported from CLOS
-  anymore.
+* Conforming to ANSI CL issue <GENERIC-FLET-POORLY-DESIGNED:DELETE>: The
+  symbols GENERIC-FLET and GENERIC-LABELS are not exported from the
+  COMMON-LISP package any more.
 
 * When CLISP is invoked with an "-a" option, *features* contain :ANSI-CL
   and :IEEE-FLOATING-POINT.
