@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: clisp 1999-04-03\n"
-"POT-Creation-Date: 1999-07-19 19:58:47 CEST\n"
-"PO-Revision-Date: 1999-04-22 10:40:09 MEST\n"
+"Project-Id-Version: clisp 1999-07-19\n"
+"POT-Creation-Date: 1999-07-20 16:11:34 CEST\n"
+"PO-Revision-Date: 1999-07-20 02:15:56 MEST\n"
 "Last-Translator: Bruno Haible <haible@clisp.cons.org>\n"
 "Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -241,7 +241,7 @@ msgstr "À bientôt!"
 
 #: constobj.d:857
 msgid "Press a key to terminate..."
-msgstr ""
+msgstr "Pour terminer, tapez une touche..."
 
 #: constobj.d:862
 msgid ""
@@ -726,9 +726,8 @@ msgid "FUNCTION: &REST must be followed by a variable: ~"
 msgstr "FUNCTION: Une variable doit suivre &REST : ~"
 
 #: eval.d:1931
-#, fuzzy
 msgid "FUNCTION: ~ in ~ is not a symbol"
-msgstr "FUNCTION: ~ dans ~ n'est pas un mot-clé."
+msgstr "FUNCTION: ~ dans ~ n'est pas un symbole."
 
 #: eval.d:1979
 msgid "FUNCTION: incorrect variable specification after &KEY: ~"
@@ -787,9 +786,8 @@ msgid "EVAL/APPLY: too many arguments given to ~"
 msgstr "EVAL/APPLY: Trop d'arguments pour ~."
 
 #: eval.d:2310
-#, fuzzy
 msgid "EVAL/APPLY: ~ is not a symbol"
-msgstr "EVAL/APPLY: ~ n'est pas un mot-clé."
+msgstr "EVAL/APPLY: ~ n'est pas un symbole."
 
 #: eval.d:2334
 msgid "EVAL/APPLY: keyword ~ is illegal for ~. The possible keywords are ~"
@@ -1072,14 +1070,12 @@ msgid "~: illegal :LINE-TERMINATOR argument ~"
 msgstr "~ : ~ n'est pas permis comme argument pour :LINE-TERMINATOR."
 
 #: encoding.d:1316
-#, fuzzy
 msgid "~: illegal :INPUT-ERROR-ACTION argument ~"
-msgstr "~ : ~ n'est pas permis comme argument pour :DIRECTION."
+msgstr "~ : ~ n'est pas permis comme argument pour :INPUT-ERROR-ACTION."
 
 #: encoding.d:1328
-#, fuzzy
 msgid "~: illegal :OUTPUT-ERROR-ACTION argument ~"
-msgstr "~ : ~ n'est pas permis comme argument pour :DIRECTION."
+msgstr "~ : ~ n'est pas permis comme argument pour :OUTPUT-ERROR-ACTION."
 
 #: encoding.d:1371
 msgid "~: argument ~ is not a character set"
@@ -1271,16 +1267,15 @@ msgstr "~ : La commande doit être de type STRING et non ~."
 
 #: pathname.d:10988
 msgid "~: library directory is not known, use a command line option to specify it"
-msgstr ""
+msgstr "~ : Le répertoire de librairie est inconnu. Utilisez une option de ligne de commande pour le spécifier."
 
 #: stream.d:221 stream.d:15023
 msgid "~ on ~ is illegal"
 msgstr "~ de/sur ~ est impossible."
 
 #: stream.d:449 stream.d:654
-#, fuzzy
 msgid "Return value ~ of call to ~ should be an integer between ~ and ~."
-msgstr "~ : L'argument ~ doit être un entier entre 2 et 36, pas ~"
+msgstr "La valeur ~ retournée par ~ devrait être un entier entre ~ et ~."
 
 #: stream.d:555
 msgid "~: the last character read from ~ was not ~"
@@ -1495,13 +1490,12 @@ msgid "~: The ~ of ~ cannot be changed from ~ to ~."
 msgstr "~ : Le ~ de ~ ne peux pas être changé de ~ en ~."
 
 #: stream.d:16303
-#, fuzzy
 msgid "Return value ~ of call to ~ is not a string."
-msgstr "La valeur de ~ n'est pas de type STREAM : ~"
+msgstr "La valeur ~ retournée par ~ n'est pas une chaîne."
 
 #: stream.d:16752
 msgid "Return value ~ of call to ~ is not a fixnum >= 0 or NIL."
-msgstr ""
+msgstr "La valeur ~ retournée par ~ n'est pas un petit entier >= 0 ou NIL."
 
 #: stream.d:16770
 msgid "~ needs an ~ with a bit size being a multiple of 8, not ~"
@@ -2184,9 +2178,8 @@ msgid "~: This is not a generic function: ~"
 msgstr "~ : Ceci n'est pas une fonction générique : ~"
 
 #: record.d:435
-#, fuzzy
 msgid "~: This is not a prototype of a generic function: ~"
-msgstr "~ : Ceci n'est pas une fonction générique : ~"
+msgstr "~ : Ceci n'est pas un prototype d'une fonction générique : ~"
 
 #: record.d:576
 msgid "~: ~ is not a weak pointer"
@@ -2197,9 +2190,8 @@ msgid "~: ~ is not a class"
 msgstr "~ : ~ n'est pas une classe."
 
 #: record.d:674
-#, fuzzy
-msgid "ALLOCATE-INITIALIZE: keyword argument list ~ has an odd length"
-msgstr "SHARED-INITIALIZE : La liste de mots clé ~ est de longueur impaire."
+msgid "ALLOCATE-INSTANCE: keyword argument list ~ has an odd length"
+msgstr "ALLOCATE-INSTANCE : La liste de mots clé ~ est de longueur impaire."
 
 #: record.d:865
 msgid ""
@@ -2227,7 +2219,7 @@ msgstr "MAKE-INSTANCE : La liste de mots clé ~ est de longueur impaire."
 
 #: record.d:1300
 msgid "~ method for ~ returned ~"
-msgstr ""
+msgstr "La méthode de ~ pour ~ a retourné ~."
 
 #: sequence.d:219
 msgid "There are no sequences of type ~"
@@ -3453,7 +3445,7 @@ msgstr "~ : ~ n'est pas une bibliothèque."
 
 #: amigaaux.d:186
 msgid "This version of CLISP runs only in low address memory.\n"
-msgstr ""
+msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 #: init.lsp:347
 msgid "~S is a special form and may not be redefined."
@@ -3552,14 +3544,12 @@ msgid "illegal syntax in FLET/LABELS: ~S"
 msgstr "syntaxe incorrecte dans FLET/LABELS : ~S"
 
 #: init.lsp:1278
-#, fuzzy
 msgid "Loading file "
-msgstr ";; Chargement du fichier "
+msgstr "Chargement du fichier "
 
 #: init.lsp:1305
-#, fuzzy
 msgid "Loading of file "
-msgstr ";; Le fichier "
+msgstr "Le fichier "
 
 #: init.lsp:1307
 msgid " is finished."
@@ -4354,9 +4344,8 @@ msgstr ""
 "                               ~%Seul~:[s sont permis ~{~S~#[~; et ~S~:;, ~]~}~; est permis ~{~S~}~]."
 
 #: compiler.lsp:3548
-#, fuzzy
 msgid "argument ~S to function ~S is not a symbol"
-msgstr "L'argument ~S pour la fonction ~S n'est pas un mot-clé."
+msgstr "L'argument ~S pour la fonction ~S n'est pas un symbole."
 
 #: compiler.lsp:4205
 msgid ""
@@ -4495,9 +4484,8 @@ msgid "Too few arguments to ~S"
 msgstr "Trop peu d'arguments pour ~S"
 
 #: compiler.lsp:8377
-#, fuzzy
 msgid "The ~S destination is invalid (not NIL or T or a stream or a string with fill-pointer): ~S"
-msgstr "L'argument de destination n'est ni NIL, ni T, ni un «stream» ni une chaîne : ~S"
+msgstr "La destination de ~S est invalide (ni NIL, ni T, ni un «stream», ni une chaîne avec pointeur de remplissage): ~S"
 
 #: compiler.lsp:11861
 msgid "Name of function to be compiled must be a symbol, not ~S"
@@ -5049,7 +5037,7 @@ msgstr "~S : Le composant ~S de ~S n'a pas de valeur."
 
 #: clos.lsp:4032
 msgid "~S method for ~S returned ~S"
-msgstr ""
+msgstr "La méthode de ~ pour ~ a retourné ~."
 
 #: conditio.lsp:80
 msgid "~S: the name of a condition must be a symbol, not ~S"
@@ -5156,9 +5144,8 @@ msgid "Got bad response from ~S: ~S"
 msgstr "Mauvaise réponse par ~S : ~S"
 
 #: amigasock.lsp:30
-#, fuzzy
 msgid "~S: ~S is not a SOCKET-SERVER"
-msgstr "~ : ~ n'est pas un SOCKET-SERVER"
+msgstr "~S : ~S n'est pas un SOCKET-SERVER"
 
 #: runprog.lsp:162
 msgid "~S: File ~S already exists"
@@ -5324,7 +5311,7 @@ msgstr "constante"
 
 #: describe.lsp:46
 msgid "symbol-macro"
-msgstr ""
+msgstr "macro de symbole"
 
 #: describe.lsp:47
 msgid "variable"
@@ -5339,18 +5326,16 @@ msgid "class"
 msgstr "classe"
 
 #: describe.lsp:134
-#, fuzzy
 msgid "~%Slots:"
-msgstr "~%~v,vtComposants:"
+msgstr "~%Composants:"
 
 #: describe.lsp:141
 msgid "unbound"
 msgstr "aucune valeur"
 
 #: describe.lsp:144
-#, fuzzy
 msgid "~%No slots."
-msgstr "~%~v,vtAucun composant."
+msgstr "~%Aucun composant."
 
 #: describe.lsp:151
 msgid "a foreign pointer"
@@ -5366,7 +5351,7 @@ msgstr "une variable étrangère de type étranger ~S."
 
 #: describe.lsp:161
 msgid "a foreign function taking foreign types ~:S and returning foreign type ~S."
-msgstr ""
+msgstr "une fonction étrangère qui prend des arguments de types étrangers ~:S et rend une valeur de type étranger ~S."
 
 #: describe.lsp:165
 msgid "a byte specifier, denoting the ~S bits starting at bit position ~S of an integer."
@@ -5381,14 +5366,12 @@ msgid "a load-time evaluation promise."
 msgstr "une promesse d'évaluation au moment du chargement."
 
 #: describe.lsp:172
-#, fuzzy
 msgid "a symbol macro handler."
-msgstr "un interpréteur de forme spéciale."
+msgstr "un expanseur de macro de symbole."
 
 #: describe.lsp:174
-#, fuzzy
 msgid "an encoding."
-msgstr "un «cons»."
+msgstr "un codage."
 
 #: describe.lsp:179
 msgid "a GC-invisible pointer to ~S."
@@ -5523,14 +5506,12 @@ msgid "."
 msgstr "."
 
 #: describe.lsp:301
-#, fuzzy
 msgid "~%Documentation as a ~a:~%~a"
-msgstr "~%~v,vtDocumentation: ~A"
+msgstr "~%Documentation en tant que ~A : ~A"
 
 #: describe.lsp:303 describe.lsp:442
-#, fuzzy
 msgid "~%For more information, evaluate ~{~S~^ or ~}."
-msgstr "~%~v,vtPour obtenir davantage d'information, évaluez ~{~S~^ ou ~}."
+msgstr "~%Pour obtenir davantage d'information, évaluez ~{~S~^ ou ~}."
 
 #: describe.lsp:307
 msgid "an integer, uses ~S bit~:p, is represented as a ~(~A~)."
@@ -5574,11 +5555,11 @@ msgstr "un caractère"
 
 #: describe.lsp:335
 msgid "~%Unicode name: ~A"
-msgstr ""
+msgstr "~%Nom Unicode : ~A"
 
 #: describe.lsp:336
 msgid "~%It is not defined by the Unicode standard."
-msgstr ""
+msgstr "~%Il n'est pas défini dans le standard Unicode."
 
 #: describe.lsp:337
 msgid "~%It is a ~:[non-~;~]printable character."
@@ -5601,9 +5582,8 @@ msgid ". It has the nicknames ~{~A~^, ~}"
 msgstr ". Il porte aussi les noms ~{~A~^, ~}"
 
 #: describe.lsp:357
-#, fuzzy
 msgid "~%It "
-msgstr "~%~v,vtIl "
+msgstr "~%Il "
 
 #: describe.lsp:359
 msgid "imports the external symbols of the package~:[~;s~] ~{~A~^, ~} and "
@@ -5614,14 +5594,12 @@ msgid "exports ~:[no symbols~;the symbols~:*~{~<~%~:; ~S~>~^~}~%~]"
 msgstr "~:[n'exporte pas de symboles~;exporte les symboles~:*~{~<~%~:; ~S~>~^~}~%~]"
 
 #: describe.lsp:366
-#, fuzzy
 msgid "exports ~[no symbols~:;~:*~:d symbols~]"
-msgstr "~[n'exporte pas de symboles~:;exporte~:* ~d symboles ~]"
+msgstr "~[n'exporte pas de symboles~:;exporte~:* ~d symboles~]"
 
 #: describe.lsp:369
-#, fuzzy
 msgid " to the package~:[~;s~] ~{~A~^, ~}"
-msgstr "vers le~:[ paquetage~;s paquetages~] ~{~A~^, ~}"
+msgstr " vers le~:[ paquetage~;s paquetages~] ~{~A~^, ~}"
 
 #: describe.lsp:372
 msgid ", but no package uses these exports"
@@ -5684,33 +5662,28 @@ msgid "a~:[n interpret~; compil~]ed function."
 msgstr "une fonction ~:[interprét~;compil~]ée."
 
 #: describe.lsp:445
-#, fuzzy
 msgid "~%argument list: ~:S"
-msgstr "~%~v,vtListe des arguments: ~S"
+msgstr "~%Liste des arguments: ~:S"
 
 #: describe.lsp:448
-#, fuzzy
 msgid "~%documentation: ~A"
-msgstr "~%~v,vtDocumentation: ~A"
+msgstr "~%Documentation: ~A"
 
 #: describe.lsp:453
-#, fuzzy
 msgid "~&~%~A [see above]"
-msgstr "~%~v,vt~S [voir en haut]"
+msgstr "~&~%~A [voir en haut]"
 
 #: describe.lsp:456
-#, fuzzy
 msgid "~&~%~A is "
-msgstr "~%~v,vt~a est "
+msgstr "~&~%~A est "
 
 #: describe.lsp:520
 msgid "~S: ~S is not a function."
 msgstr "~S : ~S n'est pas une fonction."
 
 #: describe.lsp:549
-#, fuzzy
 msgid "~%Argument list: "
-msgstr "~%~v,vtListe des arguments : "
+msgstr "~%Liste des arguments : "
 
 #: room.lsp:17
 msgid "~S: argument must be ~S, ~S or ~S, not ~S"
@@ -5873,3 +5846,7 @@ msgstr "~S : L'argument doit être un symbole ou une chaîne et non ~S."
 
 #~ msgid " ..."
 #~ msgstr " ..."
+
+#, fuzzy
+#~ msgid "Return value ~ of call to ~ is not of type ~."
+#~ msgstr "La valeur de ~ n'est pas de type STREAM : ~"
