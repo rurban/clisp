@@ -99,7 +99,7 @@
 <!ENTITY fcntl-h "<ulink url='&unix-b;/fcntl.h.html'><filename>&lt;fcntl.h&gt;</filename></ulink>">
 <!ENTITY env-var "<ulink url='&unix-b;/xbd_chap08.html'>environment variable</ulink>">
 <!ENTITY file-des "<ulink url='&unix-b;/xbd_chap03.html#tag_03_165'>file descriptor</ulink>">
-<!ENTITY locale "<replaceable><ulink url='&unix-b;/xbd_chap07.html'>locale</ulink></replaceable>">
+<!ENTITY locale "<replaceable><ulink url='&unix-b;/xbd_chap07.html'>LOCALE</ulink></replaceable>">
 <!ENTITY reg-exp "<ulink url='&unix-b;/xbd_chap09.html'>regular expression</ulink>">
 
 <!-- utilities -->
