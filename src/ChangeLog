@@ -1,3 +1,10 @@
+2004-03-22  Sam Steingold  <sds@gnu.org>
+
+	* clisp.spec: removed anti-RPM comments
+	(Source): updated
+	(version): do not use absolute path
+	(mysrc): do not hard-code `current'
+
 2004-03-22  Bruno Haible  <bruno@clisp.org>
 
 	* charstrg.d (test_2_stringsym_limits): Move the test for nil-vector to
