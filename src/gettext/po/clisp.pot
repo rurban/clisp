@@ -428,15 +428,15 @@ msgid "Couldn't determine the end of the SP stack!\n"
 msgstr ""
 
 #: spvw.d:2696
-msgid "                    Amiga version: Jörg Höhle                     \n"
+msgid "                    Amiga version: Jörg Höhle\n"
 msgstr ""
 
 #: spvw.d:2706
-msgid "                    RISCOS port: Peter Burwood, Bruno Haible      \n"
+msgid "                    RISCOS port: Peter Burwood, Bruno Haible\n"
 msgstr ""
 
 #: spvw.d:2716
-msgid "                    DOS port: Jürgen Weber, Bruno Haible          \n"
+msgid "                    DOS port: Jürgen Weber, Bruno Haible\n"
 msgstr ""
 
 #: spvw.d:2743

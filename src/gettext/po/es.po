@@ -869,15 +869,15 @@ msgstr "No fue posible determinar el final de la pila SP!\n"
 # perfecta, ... - cll
 #
 #: spvw.d:2696
-msgid "                    Amiga version: Jörg Höhle                     \n"
+msgid "                    Amiga version: Jörg Höhle\n"
 msgstr "                    Versión para Amiga: Jörg Höhle\n"
 
 #: spvw.d:2706
-msgid "                    RISCOS port: Peter Burwood, Bruno Haible      \n"
+msgid "                    RISCOS port: Peter Burwood, Bruno Haible\n"
 msgstr "                    Versión para RISCOS: Peter Burwood, Bruno Haible\n"
 
 #: spvw.d:2716
-msgid "                    DOS port: Jürgen Weber, Bruno Haible          \n"
+msgid "                    DOS port: Jürgen Weber, Bruno Haible\n"
 msgstr "                    Versión para DOS: Jürgen Weber, Bruno Haible\n"
 
 # "AVISO: No se ha especificado un fichero de inicializacion.\n" - lsg
