@@ -57,7 +57,7 @@ CLASS="command"
 > version 2.30.</H2
 ><SPAN
 CLASS="date"
->Last modified: 2002-09-23<BR></SPAN
+>Last modified: 2002-09-26<BR></SPAN
 ><H3
 CLASS="author"
 ><A
@@ -2320,9 +2320,13 @@ TARGET="_top"
 CLASS="function"
 >CLEAR-INPUT</TT
 ></A
-> on the stream removes the <TT
+> on the stream removes the <A
+HREF="http://www.lisp.org/HyperSpec/Body/glo_e.html#end_of_file"
+TARGET="_top"
+><TT
 CLASS="literal"
 >end-of-stream</TT
+></A
 > state,
  thus making it available for further input.</P
 ><P
@@ -3488,6 +3492,117 @@ CLASS="function"
 ><P
 ALIGN="justify"
 >Constants may not be bound dynamically or lexically.</P
+><DIV
+CLASS="formalpara"
+><P
+><A
+NAME="spe-var-p"><B
+>Function <A
+HREF="#spe-var-p"
+><TT
+CLASS="function"
+>EXT:SPECIAL-VARIABLE-P</TT
+></A
+>. </B
+>You can use the function <TT
+CLASS="sexp"
+>(<A
+HREF="#spe-var-p"
+><TT
+CLASS="function"
+>EXT:SPECIAL-VARIABLE-P</TT
+></A
+>
+  <TT
+CLASS="replaceable"
+><I
+>symbol</I
+></TT
+> <A
+HREF="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
+TARGET="_top"
+><TT
+CLASS="literal"
+>&#38;OPTIONAL</TT
+></A
+> <TT
+CLASS="replaceable"
+><I
+>env</I
+></TT
+>)</TT
+> to check whether the
+ symbol is a special variable.  <TT
+CLASS="replaceable"
+><I
+>env</I
+></TT
+> of <A
+HREF="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
+TARGET="_top"
+><TT
+CLASS="constant"
+>NIL</TT
+></A
+> or omitted means use
+ the global environment, <A
+HREF="http://www.lisp.org/HyperSpec/Body/convar_t.html"
+TARGET="_top"
+><TT
+CLASS="constant"
+>T</TT
+></A
+> means use current lexical environment.
+ You can also obtain the current lexical environment using the macro
+ <A
+HREF="#the-env"
+><TT
+CLASS="function"
+>EXT:THE-ENVIRONMENT</TT
+></A
+> (interpreted code only).
+ This function will always return <A
+HREF="http://www.lisp.org/HyperSpec/Body/convar_t.html"
+TARGET="_top"
+><TT
+CLASS="constant"
+>T</TT
+></A
+> for global special
+ variables and constants.
+ Note that this function will not work in compiled code as you expect:
+ when call with <A
+HREF="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
+TARGET="_top"
+><TT
+CLASS="constant"
+>NIL</TT
+></A
+> <TT
+CLASS="replaceable"
+><I
+>env</I
+></TT
+>, it will be called at run time and check
+ for globally special variables, but when <TT
+CLASS="replaceable"
+><I
+>env</I
+></TT
+> is <A
+HREF="http://www.lisp.org/HyperSpec/Body/convar_t.html"
+TARGET="_top"
+><TT
+CLASS="constant"
+>T</TT
+></A
+>, it will be
+ called at <I
+CLASS="emphasis"
+>compile time</I
+> and the value will be used
+ as a constant in the code.</P
+></DIV
 ></DIV
 ><DIV
 CLASS="section"
@@ -34629,9 +34744,13 @@ CLASS="replaceable"
 >stream</I
 ></TT
 >))</TT
->: When the <TT
+>: When the <A
+HREF="http://www.lisp.org/HyperSpec/Body/glo_e.html#end_of_file"
+TARGET="_top"
+><TT
 CLASS="literal"
 >end-of-stream</TT
+></A
 > is reached, <A
 HREF="http://www.lisp.org/HyperSpec/Body/fun_listen.html"
 TARGET="_top"
@@ -34669,9 +34788,13 @@ HREF="#rcwhp"
 CLASS="function"
 >EXT:READ-CHAR-WILL-HANG-P</TT
 ></A
-> is not a good mean to test for <TT
+> is not a good mean to test for <A
+HREF="http://www.lisp.org/HyperSpec/Body/glo_e.html#end_of_file"
+TARGET="_top"
+><TT
 CLASS="literal"
 >end-of-stream</TT
+></A
 >:
   If <A
 HREF="#rcwhp"
@@ -34698,9 +34821,13 @@ CLASS="replaceable"
 ><I
 >stream</I
 ></TT
-> is already at <TT
+> is already at <A
+HREF="http://www.lisp.org/HyperSpec/Body/glo_e.html#end_of_file"
+TARGET="_top"
+><TT
 CLASS="literal"
 >end-of-stream</TT
+></A
 >, or will deliver
   more characters.</P
 ></DD
@@ -34805,9 +34932,13 @@ CLASS="classname"
    Returns <TT
 CLASS="constant"
 >:EOF</TT
-> if the <TT
+> if the <A
+HREF="http://www.lisp.org/HyperSpec/Body/glo_e.html#end_of_file"
+TARGET="_top"
+><TT
 CLASS="literal"
 >end-of-stream</TT
+></A
 > is already known to be reached.
    If <A
 HREF="http://www.lisp.org/HyperSpec/Body/fun_read-byte.html"
@@ -34969,9 +35100,13 @@ TARGET="_top"
 CLASS="classname"
 >INTEGER</TT
 ></A
-> or does <TT
+> or does <A
+HREF="http://www.lisp.org/HyperSpec/Body/glo_e.html#end_of_file"
+TARGET="_top"
+><TT
 CLASS="literal"
 >end-of-stream</TT
+></A
 > handling, like <A
 HREF="http://www.lisp.org/HyperSpec/Body/fun_read-byte.html"
 TARGET="_top"
@@ -36123,7 +36258,7 @@ CLASS="filename"
 > and <TT
 CLASS="constant"
 >:ERROR</TT
-> to signal and <A
+> to signal an <A
 HREF="http://www.lisp.org/HyperSpec/Body/fun_error.html"
 TARGET="_top"
 ><TT
@@ -36138,7 +36273,11 @@ TARGET="_top"
 CLASS="function"
 >WARN</TT
 ></A
-> and look for another matching file.
+> and <A
+HREF="#load-paths"
+>look
+   for another matching file</A
+>.
    If no file can be loaded and <TT
 CLASS="constant"
 >:IF-DOES-NOT-EXIST</TT
@@ -49500,9 +49639,13 @@ CLASS="function"
    character from the stream. Returns <TT
 CLASS="constant"
 >:EOF</TT
-> if the <TT
+> if the <A
+HREF="http://www.lisp.org/HyperSpec/Body/glo_e.html#end_of_file"
+TARGET="_top"
+><TT
 CLASS="literal"
 >end-of-stream</TT
+></A
 > is reached.
    </P
 ><P
@@ -49652,9 +49795,13 @@ CLASS="function"
 CLASS="constant"
 >:EOF</TT
 > if the
-   <TT
+   <A
+HREF="http://www.lisp.org/HyperSpec/Body/glo_e.html#end_of_file"
+TARGET="_top"
+><TT
 CLASS="literal"
 >end-of-stream</TT
+></A
 > is reached.</P
 ><P
 ALIGN="justify"
@@ -49705,9 +49852,13 @@ CLASS="function"
 >,
    returns it.  Otherwise returns the next character from the stream, if
    already available.  If no character is available immediately, or if
-   <TT
+   <A
+HREF="http://www.lisp.org/HyperSpec/Body/glo_e.html#end_of_file"
+TARGET="_top"
+><TT
 CLASS="literal"
 >end-of-stream</TT
+></A
 > is reached, returns <A
 HREF="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 TARGET="_top"
@@ -49986,9 +50137,13 @@ ALIGN="justify"
 CLASS="keysym"
 >#\Newline</SPAN
 > character), and a boolean
-   value which is true if the line was terminated by <TT
+   value which is true if the line was terminated by <A
+HREF="http://www.lisp.org/HyperSpec/Body/glo_e.html#end_of_file"
+TARGET="_top"
+><TT
 CLASS="literal"
 >end-of-stream</TT
+></A
 > instead of <SPAN
 CLASS="keysym"
 >#\Newline</SPAN
@@ -50632,9 +50787,13 @@ ALIGN="justify"
    stream. Returns <TT
 CLASS="constant"
 >:EOF</TT
-> if the <TT
+> if the <A
+HREF="http://www.lisp.org/HyperSpec/Body/glo_e.html#end_of_file"
+TARGET="_top"
+><TT
 CLASS="literal"
 >end-of-stream</TT
+></A
 > is reached.</P
 ><P
 ALIGN="justify"
@@ -50718,9 +50877,13 @@ CLASS="classname"
 > result.  Returns <TT
 CLASS="constant"
 >:EOF</TT
-> if the <TT
+> if the <A
+HREF="http://www.lisp.org/HyperSpec/Body/glo_e.html#end_of_file"
+TARGET="_top"
+><TT
 CLASS="literal"
 >end-of-stream</TT
+></A
 > is already
    known to be reached.  If <A
 HREF="#st-rb"
@@ -64917,6 +65080,103 @@ CLASS="constant"
 > direction: it is still open (for output) but it cannot
    be read from.</P
 ></DD
+><DT
+><A
+NAME="so-opt"><TT
+CLASS="sexp"
+>(<A
+HREF="#so-opt"
+><TT
+CLASS="function"
+>SOCKET:SOCKET-OPTIONS</TT
+></A
+>
+    <TT
+CLASS="replaceable"
+><I
+>socket-server</I
+></TT
+> <A
+HREF="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
+TARGET="_top"
+><TT
+CLASS="literal"
+>&#38;REST</TT
+></A
+> {<TT
+CLASS="replaceable"
+><I
+>option</I
+></TT
+>}*)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Query and, optionally, set socket options using
+   <A
+HREF="http://www.opengroup.org/onlinepubs/007904975/functions/getsockopt.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>getsockopt</TT
+></A
+> and <A
+HREF="http://www.opengroup.org/onlinepubs/007904975/functions/setsockopt.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>setsockopt</TT
+></A
+>.
+   An <TT
+CLASS="replaceable"
+><I
+>option</I
+></TT
+> is a keyword, optionally followed by the new value.
+   When the new value is not supplied, <A
+HREF="http://www.opengroup.org/onlinepubs/007904975/functions/setsockopt.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>setsockopt</TT
+></A
+> is not called.
+   For each option the old (or current, if new value was not supplied)
+   value is returned. E.g., <TT
+CLASS="sexp"
+>(<A
+HREF="#so-opt"
+><TT
+CLASS="function"
+>SOCKET:SOCKET-OPTIONS</TT
+></A
+> <TT
+CLASS="replaceable"
+><I
+>socket-server</I
+></TT
+>
+   :SO-LINGER 1 :SO-RCVLOWAT)</TT
+> returns 2 values: <A
+HREF="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
+TARGET="_top"
+><TT
+CLASS="constant"
+>NIL</TT
+></A
+>, the old
+   value of the <TT
+CLASS="constant"
+>:SO-LINGER</TT
+> option, and 1, the
+   current value of the <TT
+CLASS="constant"
+>:SO-RCVLOWAT</TT
+> option.
+  </P
+></DD
 ></DL
 ></DIV
 ></DIV
@@ -68147,12 +68407,12 @@ CLASS="literal"
 >&#38;REST</TT
 ></A
 >
-    <TT
+    {<TT
 CLASS="replaceable"
 ><I
->options</I
+>option</I
 ></TT
->) <A
+>}*) <A
 HREF="http://www.lisp.org/HyperSpec/Body/sec_3-4-4.html"
 TARGET="_top"
 ><TT
@@ -68189,15 +68449,15 @@ CLASS="replaceable"
 > and <TT
 CLASS="replaceable"
 ><I
->options</I
+>option</I
 ></TT
->), bind
-   it to <TT
+>s), bind it to <TT
 CLASS="replaceable"
 ><I
 >variable</I
 ></TT
->, execute <TT
+>,
+   execute <TT
 CLASS="replaceable"
 ><I
 >body</I
@@ -68209,7 +68469,7 @@ CLASS="function"
 >LDAP:DIR-KEY-CLOSE</TT
 ></A
 >.
-  </P
+ </P
 ></DD
 ><DT
 ><TT
