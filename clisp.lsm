@@ -13,7 +13,7 @@ Author:         haible@clisp.cons.org (Bruno Haible),
                 michael@rhein.iam.uni-bonn.de (Michael Stoll),
                 marcus@sysc.pdx.edu (Marcus Daniels),
                 sds@gnu.org (Sam Steingold)
-Maintainer:     sds@gnu.org (Sam Steingold)
+Maintained-by:  sds@gnu.org (Sam Steingold)
 Primary-site:   ftp://sunsite.unc.edu:/pub/Linux/devel/lang/lisp/
                 clisp-2.31.tar.bz2
                 clisp-2.31.tar.gz
