@@ -307,21 +307,21 @@ local bool all_digits_dots (const char* host) {
 #endif
 
 /* for syscalls and rawsock modules */
-typedef int (*host_fn_t) (void* addr, int addrlen, int family, void* opts);
+typedef int (*host_fn_t) (const void* addr, int addrlen, int family, void* opts);
 /* call FN on host/size/opts if HOST is an IP address */
-local int with_host (char* host, host_fn_t fn, void* opts) {
+local int with_host (const char* host, host_fn_t fn, void* opts) {
 #ifdef HAVE_INET_PTON
  #ifdef HAVE_IPV6
   {
     var struct in6_addr inaddr;
     if (inet_pton(AF_INET6,host,&inaddr) > 0)
-      return fn((void*)&inaddr,sizeof(struct in6_addr),AF_INET6,opts);
+      return fn(&inaddr,sizeof(struct in6_addr),AF_INET6,opts);
   }
  #endif
   {
     var struct in_addr inaddr;
     if (inet_pton(AF_INET,host,&inaddr) > 0)
-      return fn((void*)&inaddr,sizeof(struct in_addr),AF_INET,opts);
+      return fn(&inaddr,sizeof(struct in_addr),AF_INET,opts);
   }
 #else
   /* if numeric host name then try to parse it as such; do the number check
@@ -329,29 +329,31 @@ local int with_host (char* host, host_fn_t fn, void* opts) {
   if (all_digits_dots(host)) {
     var uint32 hostinetaddr = inet_addr(host) INET_ADDR_SUFFIX ;
     if (!(hostinetaddr == ((uint32) -1)))
-      return fn((void*)&hostinetaddr,sizeof(uint32),AF_INET,opts);
+      return fn(&hostinetaddr,sizeof(uint32),AF_INET,opts);
   }
 #endif
   return fn(host,0,0,opts);
 }
 
-local int string_to_addr1 (void* addr, int addrlen, int family, void* ret) {
+local int string_to_addr1 (const void* addr, int addrlen, int family, void* ret) {
   *(object*)ret = (addrlen
                    ? LEbytes_to_UI(addrlen,(const uintB*)addr)
-                   : asciz_to_string((char*)addr,O(misc_encoding)));
+                   : asciz_to_string((const char*)addr,O(misc_encoding)));
   (void)family; /* ignore */
   return 0;
 }
-global object string_to_addr (char* name) {
+global object string_to_addr (const char* name) {
   object ret;
   begin_system_call();
   with_host(name,&string_to_addr1,&ret);
   end_system_call();
   return ret;
 }
-local int resolve_host1 (void* addr, int addrlen, int family, void* ret) {
+local int resolve_host1 (const void* addr, int addrlen, int family, void* ret) {
   *(struct hostent**)ret =
-    (addrlen ? gethostbyaddr(addr,addrlen,family) : gethostbyname(addr));
+    (addrlen
+     ? gethostbyaddr(addr,addrlen,family)
+     : gethostbyname((const char*)addr));
   return 0;
 }
 global struct hostent* resolve_host (object arg) {

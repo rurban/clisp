@@ -2123,7 +2123,7 @@ int main(int argc, char* argv[])
   printf("extern object file_stream_truename (object s);\n");
   printf("extern object open_file_stream_handle (object stream, Handle *fd);\n");
   printf("extern object addr_to_string (short type, char *addr);\n");
-  printf("extern object string_to_addr (char *name);\n");
+  printf("extern object string_to_addr (const char *name);\n");
   printf("extern struct hostent* resolve_host (object arg);\n");
   printf("#define strm_buffered_bufflen %d\n",strm_buffered_bufflen);
 #if notused
