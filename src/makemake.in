@@ -1220,9 +1220,9 @@ fi
 #        THEN use static library distribution
 #        ELSE use BINARY_DISTRIB
 if [ $CROSS = false ] ; then
-  # Distinguish good SunOS 4 from the SunOS 5 garbage called "Solaris 2":
   case "$host_os" in
     solaris*)
+      # Distinguish good SunOS 4 from the SunOS 5 garbage called "Solaris 2":
       # We need a lot of libraries. To check which libraries are necessary, do
       #   % cd /usr/lib
       #   % foreach f (lib*.a)
