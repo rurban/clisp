@@ -1,3 +1,8 @@
+2004-07-14  John Hinsdale <hin@alma.com>
+
+	* modules/oracle/orafns.c: On SQL error, truncate echoed bind
+	parameters for readability and to avoid buffer overflows.
+
 2004-07-14  Sam Steingold  <sds@gnu.org>
 
 	* genclisph.d (main): export mark_fp_invalid()
