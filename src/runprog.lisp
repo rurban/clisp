@@ -35,21 +35,23 @@
          )
          #+UNIX
          (shell-quote (string) ; surround a string by single quotes
-           (let ((qchar nil) ; last quote character: nil or #\' or #\"
-                 (qstring (make-array 10 :element-type 'character
-                                         :adjustable t :fill-pointer 0)))
-             (map nil #'(lambda (c)
-                          (let ((q (if (eql c #\') #\" #\')))
-                            (unless (eql qchar q)
-                              (when qchar (vector-push-extend qchar qstring))
-                              (vector-push-extend (setq qchar q) qstring)
-                            )
-                            (vector-push-extend c qstring)))
-                      string
-             )
-             (when qchar (vector-push-extend qchar qstring))
-             qstring
-         ) )
+           (if (eql (length string) 0)
+             "''"
+             (let ((qchar nil) ; last quote character: nil or #\' or #\"
+                   (qstring (make-array 10 :element-type 'character
+                                           :adjustable t :fill-pointer 0)))
+               (map nil #'(lambda (c)
+                            (let ((q (if (eql c #\') #\" #\')))
+                              (unless (eql qchar q)
+                                (when qchar (vector-push-extend qchar qstring))
+                                (vector-push-extend (setq qchar q) qstring)
+                              )
+                              (vector-push-extend c qstring)))
+                        string
+               )
+               (when qchar (vector-push-extend qchar qstring))
+               qstring
+         ) ) )
          #+OS/2
          (shell-simple-quote (string)
            string
@@ -102,9 +104,25 @@
          ) )
          #+WIN32
          (shell-quote (string) ; full protection
-           (let ((qstring (make-array 10 :element-type 'character
+           (let ((quote-around
+                   (or (eql (length string) 0)
+                       (some #'(lambda (c)
+                                 (or ; space?
+                                     (<= (char-code c) 32)
+                                     ; special delimiter?
+                                     (eql c #\&)
+                                     (eql c #\<)
+                                     (eql c #\>)
+                                     (eql c #\|)
+                                     (eql c #\^)
+                               ) )
+                             string)))
+                 (qstring (make-array 10 :element-type 'character
                                          :adjustable t :fill-pointer 0))
                  (backslashes 0))
+             (when quote-around
+               (vector-push-extend #\" qstring)
+             )
              (map nil #'(lambda (c)
                           (when (eql c #\")
                             (dotimes (i (+ backslashes 1))
@@ -117,7 +135,13 @@
                         ) )
                       string
              )
-             (shell-simple-quote qstring)
+             (when quote-around
+               (dotimes (i backslashes)
+                 (vector-push-extend #\\ qstring)
+               )
+               (vector-push-extend #\" qstring)
+             )
+             qstring
          ) )
          ; conversion to a string that works for a pathname as well
          (xstring (object)
