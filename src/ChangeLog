@@ -1,3 +1,11 @@
+2003-08-13  Bruno Haible  <bruno@clisp.org>
+
+	* arilev1e.d (and_test_loop_up, test_loop_up): Change return type from
+	'bool' to 'int', for compatibility with the existing assembly code.
+	* arilev1c.d (and_test_loop_up, test_loop_up): Likewise.
+	* arilev1i.d (and_test_loop_up, test_loop_up): Likewise.
+	Reported by Russ Ross <rgr22@cl.cam.ac.uk>.
+
 2003-08-12  Sam Steingold  <sds@gnu.org>
 
 	* modules/dirkey/dirkey.c, modules/syscalls/calls.c:
