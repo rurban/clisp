@@ -4198,8 +4198,8 @@ for-value   NIL or T
 ;; NAME is function name, ARGS are arguments, APPLY-ARGS are APPLY arguments
 ;; ARGS == 0 means non-funcall context
 ;; this adds an unknown function to the `*unknown-functions*' list
-;;  an unknown function is (NAME (LINENO1 . LINENO2) . (ARGS . APPLY-ARGS))
-;;  or (NAME (LINENO1 . LINENO2)) if non-funcall context
+;;  an unknown function is (NAME C-SOURCE-POINT . (ARGS . APPLY-ARGS))
+;;  or (NAME C-SOURCE-POINT) if non-funcall context
 (defun note-function-used (name args apply-args)
   (unless (fboundp name)
     (if *compiling-from-file*
@@ -4265,8 +4265,8 @@ for-value   NIL or T
   (when *compiling* ; c-DEFUN can also be called by the Expander!
     (when *compiling-from-file*
       (let ((kf (assoc symbol *known-functions* :test #'equal)))
-        (when (and kf (equal (current-function) symbol))
-          ;; the check (equal (current-function) symbol) cuts off
+        (when (and kf (equal (current-function)))
+          ;; the check (equal (current-function)) cuts off
           ;; `defmethod' forms, which can appear many times in the
           ;; same file.  we could have made a special effort, like this:
           ;;  (let ((def (and (fboundp symbol) (fdefinition symbol))))
@@ -11183,7 +11183,7 @@ The function make-closure is required.
 ;;; for `set-difference'
 (defun match-known-unknown-functions (uf kf)
   ;; uf: (function c-source-point arglist . apply-arglist)
-  ;; kf: (function c-source-point signature)
+  ;; kf: (function c-source-point . signature)
   (when (equal (car uf) (car kf))
     (let ((*compile-file-lineno1* (c-source-point-lineno1 (second uf)))
           (*compile-file-lineno2* (c-source-point-lineno2 (second uf)))
