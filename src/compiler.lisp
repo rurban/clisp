@@ -4261,12 +4261,12 @@ for-value   NIL or T
             *constant-special-vars*))))
 
 ;; DEFUN when compiling
-(defun c-DEFUN (symbol signature &optional lambdabody)
+(defun c-DEFUN (symbol signature &optional lambdabody (type 'defun))
   (when *compiling* ; c-DEFUN can also be called by the Expander!
     (when *compiling-from-file*
       (let ((kf (assoc symbol *known-functions* :test #'equal)))
-        (when (and kf (equal (current-function)))
-          ;; the check (equal (current-function)) cuts off
+        (when (and kf (eq type 'defun))
+          ;; the check (eq type 'defun) cuts off
           ;; `defmethod' forms, which can appear many times in the
           ;; same file.  we could have made a special effort, like this:
           ;;  (let ((def (and (fboundp symbol) (fdefinition symbol))))
