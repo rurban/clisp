@@ -230,7 +230,7 @@ DEFUN(POSIX:BOGOMIPS,)
 #undef VAL_D
 #undef VAL_ID
 
-#if defined(HAVE_CRYPT)
+#if defined(HAVE_CRYPT) && !defined(WIN32_NATIVE)
 DEFUN(POSIX::CRYPT, key salt) {
   char *result;
   STACK_0 = check_string(STACK_0);
@@ -281,7 +281,7 @@ static void get_block (char block[64], object vector) {
   }
 }
 #endif
-#if defined(HAVE_ENCRYPT)
+#if defined(HAVE_ENCRYPT) && !defined(WIN32_NATIVE)
 /* the inverse of get_block(): move data from block to vector,
  which is known to be a (VECTOR BIT) */
 static void set_block (char block[64], object vector) {
@@ -307,7 +307,7 @@ DEFUN(POSIX::ENCRYPT, block flag) {
   VALUES1(popSTACK());
 }
 #endif
-#if defined(HAVE_SETKEY)
+#if defined(HAVE_SETKEY) && !defined(WIN32_NATIVE)
 DEFUN(POSIX::SETKEY, key) {
   char block[64];
   get_block(block,popSTACK());
