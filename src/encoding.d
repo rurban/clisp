@@ -2483,9 +2483,9 @@ LISPFUNN(set_misc_encoding,1) {
 LISPFUN(convert_string_from_bytes,seclass_read,2,0,norest,key,2,
         (kw(start),kw(end)) ) {
   /* Stack layout: array, encoding, start, end. */
-  var object array = STACK_3;
-  if (!vectorp(array)) fehler_vector(array); /* check array */
+  if (!vectorp(STACK_3)) fehler_vector(STACK_3); /* check array */
   STACK_2 = check_encoding(STACK_2,DEFAULT_ENC,false);
+  var object array = STACK_3;
   STACK_3 = STACK_2; /* encoding */
   STACK_2 = array; /* array */
   /* Stack layout: encoding, array, start, end. */
@@ -2547,8 +2547,8 @@ LISPFUN(convert_string_from_bytes,seclass_read,2,0,norest,key,2,
 LISPFUN(convert_string_to_bytes,seclass_read,2,0,norest,key,2,
         (kw(start),kw(end)) ) {
   /* Stack layout: string, encoding, start, end. */
-  var object string = STACK_3;
   STACK_2 = check_encoding(STACK_2,DEFAULT_ENC,false);
+  var object string = STACK_3;
   STACK_3 = STACK_2; /* encoding */
   STACK_2 = string; /* string */
   /* Stack layout: encoding, string, start, end. */

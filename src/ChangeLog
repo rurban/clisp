@@ -1,3 +1,9 @@
+2004-10-05  Sam Steingold  <sds@gnu.org>
+
+	* encoding.d (CONVERT-STRING-FROM-BYTES, CONVERT-STRING-TO-BYTES):
+	check_encoding() can trigger GC
+	Reported by Jörg Höhle
+
 2004-10-05  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* foreign.d (fehler_foreign_variable, fehler_foreign_function):
