@@ -200,8 +200,8 @@ src/FILES : src/FILES.1
 src/VERSION : src/version.h
 	fgrep _NUMBER src/version.h | sed 's/^.*_NUMBER "\(.*\)"$$/\1/' > src/VERSION
 
-src/uninames.h : utils/unicode/ftp.unicode.org/UnicodeData.txt utils/gen-uninames
-	$${CLISP} utils/gen-uninames utils/unicode/ftp.unicode.org/UnicodeData.txt src/uninames.h
+src/uninames.h : utils/unicode/UnicodeDataFull.txt utils/gen-uninames
+	$${CLISP} utils/gen-uninames utils/unicode/UnicodeDataFull.txt src/uninames.h
 
 src/asmi386.h : src/asmi386.hh
 	sed -e 's,//.*$$,,' < src/asmi386.hh > src/asmi386.h

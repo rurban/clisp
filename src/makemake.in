@@ -2605,8 +2605,8 @@ if [ $TOS = win32 ] ; then
   done
 fi
 
-DATA_FILES="UnicodeData.txt clhs.txt"
-DATA_FILES_TOP_PATH="utils${NEXT_}unicode${NEXT_}ftp.unicode.org${NEXT_}UnicodeData.txt src${NEXT_}clhs.txt"
+DATA_FILES="UnicodeDataFull.txt clhs.txt"
+DATA_FILES_TOP_PATH="utils${NEXT_}unicode${NEXT_}ftp.unicode.org${NEXT_}UnicodeDataFull.txt src${NEXT_}clhs.txt"
 data_target="data :"
 for f in ${DATA_FILES_TOP_PATH}; do
   data_target="${data_target} ${SRCTOPDIR_}${f}"
@@ -3444,7 +3444,7 @@ if [ $HSYS = acorn ] ; then
   echotab "\$(CP) el.clisp-indent ^.!Clisp.el.clisp-indent"
   echotab "\$(CP) lisp.clisp-indent ^.!Clisp.lisp.clisp-indent"
   echotab "\$(CP) txt.clhs ^.!Clisp.txt.clhs"
-  echotab "\$(CP) txt.UnicodeData ^.!Clisp.txt.UnicodeData"
+  echotab "\$(CP) txt.UnicodeDataFull ^.!Clisp.txt.UnicodeDataFull"
   echotab "settype ^.!Clisp.html.clisp FAF"
   echotab "-cdir ^.!Clisp.txt"
   for f in $DOC; do
