@@ -1,0 +1,192 @@
+
+                        CLISP sources coding style
+                        ==========================
+
+Lisp developers are individualists, and every individualist tends to have
+his own preferred coding style. Nevertheless, on projects like CLISP where
+several people come together to hack the same source, it is necessary to
+adhere to a common coding style, so that other developers enjoy reading
+your code.
+
+A common coding style is a compromise for all participants, and it is also
+an exercise in tolerance. When I contribute code to Linux, I adhere to the
+Linux coding style (/usr/src/linux/Documentation/CodingStyle - very
+recommended reading). When I contribute to GCC, I follow the GNU coding style
+("info standards"), although I get nauseas when I look at the result.
+When I write for XFree86, I follow their style; it's a somewhat neutral one.
+
+As a general rule, don't reformat entire files other people have written;
+that will make the other developers spit. Instead, adhere to the particular
+file's predominant style (even if it is not the same as the general style
+used in the project).
+
+A lot of good advice about naming conventions and placement and contents of
+comments can be found in other places; therefore I skip these issues here.
+I'll mention only one rule about
+
+                          Special variables
+                          -----------------
+
+All variables which are subject to 'defvar', 'defparameter' or 'declare
+special' (even if only locally in a function) must be surrounded by asterisks.
+I had once in a program a special variable called 'line', and it caused me
+an hour of debugging time at least. I will not make this mistake again...
+
+                              Tabs
+                              ----
+
+In CLISP source, except for Makefiles and ChangeLog files, we don't use tabs.
+This is because they have no functional advantage, and make "diff" output
+harder to read and understand. And also, because some editors on Windows have
+a default tab width of 4, whereas on Unix, the common consensus is a tab width
+of 8. If you are using Emacs and want to contribute to CLISP, the best way to
+ensure that you don't send us tabs by mistake is to add the following lines
+to your $HOME/.emacs file:
+
+    ; Tabs are anachronistic.
+    (setq-default indent-tabs-mode nil)
+
+                             Lisp indentation
+                             ----------------
+
+We try to keep things in 79 columns, because that's the default width of
+Emacs windows.
+
+We use an indentation of two spaces - regardless whether it's for body
+forms of 'let' and 'progn', or for the arguments of functions or macros.
+
+Parentheses are set in one of two styles. The more mainstream one is to
+add closing parens at the end of the last line, like this:
+
+(defun get-funname-symbol (funname)
+  (if (atom funname)
+    funname
+    (get-setf-symbol (second funname))))
+
+Then there is also the "Bruno style". Its characteristic is that closing
+parentheses are located either on the same line as the corresponding opening
+paren, or on extra lines containing only closing parentheses:
+
+(defun get-funname-symbol (funname)
+  (if (atom funname)
+    funname
+    (get-setf-symbol (second funname))
+) )
+
+This one is less mainstream, but it permits me to "see" the structure of a
+large expression more easily. And it also requires fewer editor operations
+in order to swap the two legs of the 'if' expression.
+
+'multiple-value-bind' expressions are indented specially: If the values-
+producing form doesn't fit on the same line, it is indented by 4 spaces,
+in order to distinguish it from the following progn-like sequence of forms:
+
+    (multiple-value-bind (vr vl sv se ge)
+        (get-setf-expansion (first arglist) env)
+      (setq bindlist (nreconc (mapcar #'list vr vl) bindlist))
+      (setf (cadr tail) (list 'MULTIPLE-VALUE-BIND lv ge nil))
+      ...
+
+In 'if' expressions both legs are indented by the same amount: two spaces.
+
+If you are using Emacs and want to use its indenter, you have to teach it
+about Common Lisp. By default, in Lisp mode, it indents for Emacs Lisp.
+(This is also the reason for its 4-then-2 'if' expression indentation: in
+Emacs Lisp, the second subform of 'if' is the 'true' case, whereas the third
+and subsequent subforms together make up the 'else' case. Common Lisp does
+not have this irregularity.)
+
+To get Common Lisp indentation, add the following to your $HOME/.emacs file:
+
+         ;; Common Lisp indentation.
+         (load-library "cl-indent")
+         (add-hook 'lisp-mode-hook
+           (lambda ()
+             (setq lisp-indent-function 'common-lisp-indent-function)
+         ) )
+         ;; Additional definitions by Pierpaolo Bernardi.
+         (defun cl-indent (sym indent)
+           (put sym 'common-lisp-indent-function
+             (if (symbolp indent)
+               (get indent 'common-lisp-indent-function)
+               indent
+         ) ) )
+         (cl-indent 'if '1)
+         (cl-indent 'defclass '((&whole 4 &rest (&whole 2 &rest 1))
+                                &rest (&whole 2 &rest 1)))
+         (cl-indent 'defgeneric 'defun)
+         (cl-indent 'defmethod '(4 4 (&whole 4 &rest 1) &body))
+         (cl-indent 'generic-flet 'flet)
+         (cl-indent 'generic-labels 'labels)
+         (cl-indent 'symbol-macrolet 'multiple-value-bind)
+         (cl-indent 'with-accessors 'multiple-value-bind)
+         (cl-indent 'with-added-methods '((1 4 ((&whole 1))) (2 &body)))
+         (cl-indent 'with-slots 'multiple-value-bind)
+         (cl-indent 'handler-bind '((&whole 4 &rest 1) 2 &body))
+         (cl-indent 'handler-case '((1 4) (&whole 2 ((0 1) (1 3) (2 &body)))))
+         (cl-indent 'define-condition '((1 6)
+                                        (2 6 ((&whole 1)))
+                                        (3 4 ((&whole 1)))
+                                        (4 &body)))
+         (cl-indent 'restart-bind '(((&whole 2 (0 1) (&whole 1))) (2 &body)))
+         (cl-indent 'restart-case '((1 4) (&whole 2 ((0 1) (&whole 1)))))
+         (cl-indent 'with-condition-restarts '((1 4 ((&whole 1))) (2 &body)))
+         (cl-indent 'with-simple-restart '((1 4 ((&whole 1))) (2 &body)))
+
+More special rules for macros may be needed; watch out responsibly yourself.
+
+                               C style
+                               -------
+
+Most of the C code of CLISP is stored in files with extension '.d'. It _is_
+C code, but the file will be preprocessed a bit.
+
+A comment until end of line is introduced by '# '. Other '#' signs, not
+followed by a space, have the usual C meaning.
+
+Preprocessor commands can start at any column, not necessarily at the first
+column of a line.
+
+These 'var' symbols that you encounter in every function introduce variable
+declarations. We use one variable per declaration; the C syntax rules make
+declarations of multiple variables on the same line hard to read and hard
+to edit. 'var' is a preprocessor symbol which expands to nothing. Writing
+'var' not only makes it human reader to understand the code; it also allows
+you to mix declarations and statements freely, without the need for
+additional braces.
+
+We have a few macros defined in lispbibl.d: 'elif' means 'else if',
+'until' means 'while not'. 'loop' introduces a loop which can be exited
+only via 'break'; it's equivalent to 'for(;;)'.
+
+                              C indentation
+                              -------------
+
+The general style is similar to K&R style or Linux kernel style, with a
+tab width of 2 spaces. A typical 'if' or 'while' statement looks like this:
+
+      while (consp(keylistr)) {
+        if (eq(item,Car(keylistr)))
+          goto found;
+        keylistr = Cdr(keylistr);
+      }
+
+When statements have to span lines, split them before the operator; this
+is what the GNU standards recommend:
+
+            if (mconsp(Car(alist)) && simple_string_p(Car(Car(alist)))
+                && string_equal(line,Car(Car(alist)))
+               ) {
+
+You can't use Emacs to indent .d files, because the Emacs indenter interprets
+'# ' as the start of a preprocessor command, with disastrous effects. Use
+Emacs 'text-mode' instead.
+
+                            German comments
+                            ---------------
+
+When CLISP was written, it was not anticipated to have wide distribution.
+We are sorry about the German comments. If you are a native German speaker,
+you are welcome to faithfully translate them to English. If not, then
+please leave them alone and wait for someone to translate them to English.
+
