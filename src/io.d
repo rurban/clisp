@@ -7,7 +7,7 @@
 #include "arilev0.c" # for Division in pr_uint
 
 # IO_DEBUG must be undefined in the code comitted to CVS
-#define IO_DEBUG 0
+# define IO_DEBUG 0
 #ifdef IO_DEBUG
 #include <stdio.h>
 global object car (object o) { return Car(o); }
@@ -8761,9 +8761,9 @@ local void pr_orecord (const object* stream_, object obj) {
       pr_hex6_obj(stream_,obj,O(printstring_readtable));
       break;
     case Rectype_Pathname:
-#if 0
+     #ifdef IO_DEBUG
       pr_record_descr(stream_,obj,S(pathname),true,O(pathname_slotlist));
-#else
+     #else
       pushSTACK(obj); # pathname
       # call (NAMESTRING pathname)
       pushSTACK(obj); funcall(L(namestring),1); obj = value1;
@@ -8809,7 +8809,7 @@ local void pr_orecord (const object* stream_, object obj) {
         pr_string(stream_,STACK_0); # print the string
       }
       skipSTACK(1);
-#endif
+     #endif
       break;
 #ifdef LOGICAL_PATHNAMES
     case Rectype_Logpathname:
