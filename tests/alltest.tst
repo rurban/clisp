@@ -1,21 +1,26 @@
-;*******************************************************************************
-;*                      Kurztest        XCL                                    *
-;*******************************************************************************
-;Kap. 1 Einfuehrung
-;-------------------------------------------------------------------------------
-;Kap. 2  Datentypen
-;-------------------------------------------------------------------------------
-;Kap. 3  Gueltigkeitsbereiche
-;-------------------------------------------------------------------------------
-;Kap. 4  Typspezifier
-;-------------------------------------------------------------------------------
-;
-;deftype, COERCE, TYPE-OF
-;
-;Kap. 5  Programmstrukturen
-;-------------------------------------------------------------------------------
-;
-;Lambda-Listen
+;; -*- Lisp -*-
+;;*****************************************************************************
+;;*                    short test      XCL                                    *
+;;*****************************************************************************
+
+;; Chapter 1  Introduction
+;; -----------------------
+
+;; Chapter 2  Data Types
+;; ---------------------
+
+;; Chapter 3  Valid Values
+;; -----------------------
+
+;; Chapter 4  Type specifiers
+;; --------------------------
+;;
+;; deftype, COERCE, TYPE-OF
+
+;; Chapter 5  Program Structure
+;; ----------------------------
+
+;; lambda lists
 ((LAMBDA (A B) (+ A (* B 3))) 4 5)
 19
 
@@ -65,8 +70,8 @@ T
 
 ;DEFVAR, DEFCONSTANT, DEFPARAMETER, eval-when
 
-;Kap 6 Praedikate
-;-------------------------------------------------------------------------------
+;; Chapter 6  Predicates
+;; ---------------------
 
 (TYPEP (QUOTE NIL) (QUOTE NULL))
 T
@@ -1322,6 +1327,23 @@ T
 #+ALLEGRO "2.220446049250313d-16"
 #+CMU "5.551115123125784d-17"
 #-(or XCL CLISP ALLEGRO CMU) UNKNOWN
+
+;; http://www.lisp.org/HyperSpec/Body/convar_short-_tive-epsilon.html
+(defun test-pos-epsilon (<EPSILON>)
+  (= (float 1 <EPSILON>) (+ (float 1 <EPSILON>) <EPSILON>)))
+test-pos-epsilon
+(test-pos-epsilon short-float-epsilon)  nil
+(test-pos-epsilon single-float-epsilon) nil
+(test-pos-epsilon double-float-epsilon) nil
+(test-pos-epsilon long-float-epsilon)   nil
+
+(defun test-neg-epsilon (<EPSILON>)
+  (= (float 1 <EPSILON>) (- (float 1 <EPSILON>) <EPSILON>)))
+test-neg-epsilon
+(test-neg-epsilon short-float-negative-epsilon)  nil
+(test-neg-epsilon single-float-negative-epsilon) nil
+(test-neg-epsilon double-float-negative-epsilon) nil
+(test-neg-epsilon long-float-negative-epsilon)   nil
 
 (/ 1 0)
 ERROR

@@ -1,3 +1,7 @@
+2001-12-22  Sam Steingold  <sds@gnu.org>
+
+	* alltest.tst (test-pos-epsilon, test-neg-epsilon): new functions
+
 2001-12-20  Sam Steingold  <sds@gnu.org>
 
 	* clos.tst: added WITH-SLOTS tests
