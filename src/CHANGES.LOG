@@ -87,6 +87,37 @@ Portability
 
 * CLISP now works on SPARC/Linux with glibc 2.2 when built with SAFETY=3.
 
+
+2.29 (2002-07-25)
+=================
+
+User visible changes [this is a bug-fix/portability release]
+--------------------
+
+* INSPECT: fixed bugs in HTML generation, Content-Length header,
+  removing incorrect package on exit, help in nested inspect sessions.
+
+* COMPILE-FILE: fixed :VERBOSE NIL handling.
+
+* DESCRIBE: handles DIR-KEY now.
+
+* (LAMBDA () (DEFMETHOD ...)) now works.
+
+* Fixed RETURN-FROM in deep nesting.
+
+* Fixed crash on errors in module initialization.
+
+* COMPILER-MACROs can now expand to special forms.
+
+* EVAL-WHEN now distinguishes between COMPILE and :COMPILE-TOPLEVEL
+  and between LOAD and :LOAD-TOLEVEL.
+
+Portability
+-----------
+
+* CLISP now builds with GCC-3.1 out of the box.
+
+
 2.28 (2002-03-03)
 =================
 
@@ -142,6 +173,7 @@ User visible changes
 
 * Fixed a bug: LDIFF now handles dotted lists correctly.
 
+
 2.27 (2001-07-17)
 =================
 
@@ -172,6 +204,7 @@ User visible changes
 
 * Fixed binary I/O for streams with element type longer than one byte,
   but not a whole number of bytes.
+
 
 2.26 (2001-05-23)
 =================
@@ -220,6 +253,7 @@ User visible changes
 * The compiler now checks the signature of function calls
   for all functions, not just the inlined built-ins.
 
+
 2.25.1 (2001-04-06)
 ===================
 
@@ -242,6 +276,7 @@ User visible changes [this is a bug-fix only release]
   non-NIL directory part.
 
 * Fixed --without-unicode build.
+
 
 2.25 (2001-03-15)
 =================
