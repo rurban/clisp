@@ -9,6 +9,11 @@
 ;; Set *package*.
 (in-package :cl-test)
 
+;; for ENSURE-DIRECTORIES-EXIST.8
+(when (ext:probe-directory "scratch/")
+  (mapc #'delete-file (directory "scratch/*"))
+  (ext:delete-dir "scratch/"))
+
 ;; The expected failures.
 (setq regression-test::*expected-failures* '(
 
@@ -76,12 +81,6 @@
   ;; In CLISP (atan 1L0) is more than long-float-epsilon apart from (/ pi 4).
   ATAN.11 ATAN.13
 
-  ;; Paul Dietz assumes that arithmetic operations combining 1.0 and a short-
-  ;; float yield a short-float. However, the ANSI CL rule of floating-point
-  ;; contagion says that it must return a single-float, and CLISP in *ANSI*
-  ;; mode implements this.
-  *.27
-
   ;; In CLISP rounding errors cause (let ((c #C(97748.0s0 0.0s0))) (/ c c))
   ;; to be different from #C(1.0s0 0.0s0).
   /.8
@@ -108,16 +107,13 @@
 
   ; To be revisited:
   ; CHANGE-CLASS.1.11 CHANGE-CLASS.3.2 CHANGE-CLASS.ERROR.4
-  ; MAKE-PATHNAME.8 MAKE-PATHNAME.11 MAKE-PATHNAME-ERROR-ABSOLUTE-UP
-  ; MAKE-PATHNAME-ERROR-ABSOLUTE-BACK
-  ; MAKE-PATHNAME-ERROR-RELATIVE-WILD-INFERIORS-UP
-  ; MAKE-PATHNAME-ERROR-RELATIVE-WILD-INFERIORS-BACK WILD-PATHNAME-P.23
-  ; WILD-PATHNAME-P.24 WILD-PATHNAME-P.25 MERGE-PATHNAMES.2
-  ; MERGE-PATHNAMES.3 MERGE-PATHNAMES.4 MERGE-PATHNAMES.6
-  ; MERGE-PATHNAMES.7 ENSURE-DIRECTORIES-EXIST.8
+  ; MAKE-INSTANCES-OBSOLETE.2 TYPES.7B TYPES.7C
+  ; USER-CLASS-DISJOINTNESS USER-CLASS-DISJOINTNESS-2 TAC-3.16
+  ; PRINT.SYMBOL.PREFIX.3 PRINT.SYMBOL.PREFIX.8 PRINT.SYMBOL.PREFIX.10
+  ; PRINT.STRING.NIL.1 PRINT.STRING.NIL.2
 
-  ; Evident CLISP bugs:
-  ; TYPE-OF.1
+  ;; test bug: PROBE-FILE on directory:
+  ENSURE-DIRECTORIES-EXIST.8
 ))
 
 ;; A few tests call DISASSEMBLE. Make it work without user intervention.
