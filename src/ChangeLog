@@ -40,6 +40,7 @@
 	DEFINE-SETF-EXPANDER instead of DEFINE-SETF-METHOD
 	* modules/clx/mit-clx/resource.lisp (initialize-resource-database):
 	WM-RESOURCES is not exported from XLIB
+	* modules/clx/mit-clx/package.lisp: added IN-PACKAGE statement
 
 2001-06-07  Sam Steingold  <sds@gnu.org>
 
