@@ -1,3 +1,9 @@
+2004-10-18  Sam Steingold  <sds@gnu.org>
+
+	* fill-out.lisp (right-margin, fill-stream-text-indent): new functions
+	(fill-stream, fill-stream-flush-buffer): use them
+	(fill-stream-line-position): renamed from LINE-POS
+
 2004-10-16  Bruno Haible  <bruno@clisp.org>
 
 	* clos-class3.lisp (defclass): Remove a level of quoting for the slot
