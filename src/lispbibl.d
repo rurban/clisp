@@ -1066,7 +1066,7 @@
 #define ASSERT(expr)  do { if (!(expr)) NOTREACHED; } while(0)
 
 # alloca()
-#if defined(GNU) && !defined(RISCOS) && !defined(CONVEX)
+#if defined(GNU) && !defined(RISCOS) && !defined(CONVEX) && !defined(UNIX_CYGWIN32)
   #define alloca  __builtin_alloca
 #elif defined(MICROSOFT)
   #include <malloc.h>
