@@ -1130,6 +1130,7 @@ LISPSYM(simple_undefined_function,"SIMPLE-UNDEFINED-FUNCTION",system) # als Typ 
 LISPSYM(simple_unbound_slot,"SIMPLE-UNBOUND-SLOT",system) # als Typ für ERROR                           |
 LISPSYM(simple_type_error,"SIMPLE-TYPE-ERROR",lisp) # als Typ für ERROR                                 |
 LISPSYM(simple_keyword_error,"SIMPLE-KEYWORD-ERROR",system) # als Typ für ERROR                         |
+LISPSYM(simple_charset_type_error,"SIMPLE-CHARSET-TYPE-ERROR",lisp) # als Typ für ERROR                 |
 LISPSYM(simple_package_error,"SIMPLE-PACKAGE-ERROR",system) # als Typ für ERROR                         |
 LISPSYM(simple_print_not_readable,"SIMPLE-PRINT-NOT-READABLE",system) # als Typ für ERROR               |
 LISPSYM(simple_parse_error,"SIMPLE-PARSE-ERROR",system) # als Typ für ERROR                             |

@@ -1,5 +1,17 @@
 1999-03-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (conditiontype): Add charset_type_error.
+        * conditio.lsp (charset-type-error, simple-charset-type-error): New
+          condition types.
+          (%defclcs call): Add simple-charset-type-error.
+        * constsym.d (simple_*_error): Add simple_charset_type_error.
+        * error.d (end_error): Treat simple_charset_type_error like
+          simple_type_error.
+        * encoding.d (fehler_unencodable): Signal an error of type
+          charset_type_error.
+
+1999-03-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Integrate types and encodings.
         * lispbibl.d (Encoding): Add enc_range field.
           (encoding_length): Increment by 1.
