@@ -2,7 +2,8 @@
 
 	* version.h: 2.29 is released
 
-2002-07-22  Sam Steingold  <sds@gnu.org>
+2002-07-25  Sam Steingold  <sds@gnu.org>
+            Bruno Haible <bruno@clisp.org>
 
 	fixed the (compile nil (lambda () ... #'(lambda ...))) bug
 	* compiler.lisp (symbol-suffix): also work when funname is NIL,
