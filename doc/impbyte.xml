@@ -1,9 +1,265 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<part id="bytecode"><title>The &clisp; bytecode specification</title>
+<part id="internals"><title>Internals of the &clisp; Implementation</title>
+
+<chapter id="gc"><title>Overview of &clisp;'s Garbage Collection</title>
+
+<para>Knowing that most &malloc; implementations are buggy and/or slow,
+and because &clisp; needs to perform garbage collection, &clisp; has its
+own memory management subsystem in files <filename>spvw*.d</filename>.</para>
+
+<section><title>&clisp; objects</title>
+
+<itemizedlist><title>Three kinds of storage are distinguished:</title>
+ <listitem><simpara>&clisp; data (the "heap"), i.e. storage which contains
+  Lisp objects and is managed by the garbage collector.</simpara></listitem>
+ <listitem><simpara>&clisp; stack (called &STACK;), contains &clisp;
+  objects</simpara></listitem>
+ <listitem><simpara>&c-lang; data (including program text, data,
+  &malloc;ed memory)</simpara></listitem>
+</itemizedlist>
+
+<para>A &clisp; object is one word, containing a tag (partial type
+information) and either immediate data (e.g. fixnums or short floats) or
+a pointer to storage.  Pointers to &c-lang; data have tag = machine_type
+= 0, pointers to &clisp; stack have tag = system_type, most other pointers
+point to &clisp; data.</para>
+
+<para>Let's turn to these &clisp; objects that consume regular &clisp;
+memory.  Every &clisp; object has a size which is determined when the
+object is allocated (using one of the <function>allocate_*()</function>
+routines). The size can be computed from the type tag and - if necessary
+- the length field of the object's header. The length field always
+contains the number of elements of the object. The number of bytes is
+given by the function <function>objsize()</function>.</para>
+
+<para>&clisp; objects which contain exactly 2 &clisp; objects
+(i.e. &cons-class;es, &complex-class; numbers, &ratio-class;s) are
+stored in a separate area and occupy 2 words each.
+All other &clisp; objects have "varying length" (well, more precisely,
+not a fixed length) and include a word for garbage collection purposes
+at their beginning.</para>
+
+<para>The garbage collector is invoked when an
+<function>allocate_*()</function> request cannot be fulfilled.
+It marks all objects which are "live" (may be reached from the "roots"),
+compacts these objects and unmarks them.  Non-live objects are lost;
+their storage is reclaimed.</para>
+
+<para>2-pointer objects are compacted by a simple hole-filling
+algorithm: fill the most-left object into the most-right hole, and so
+on, until the objects are contiguous at the right and the hole is
+contiguous at the left.</para>
+
+<para>Variable-length objects are compacted by sliding them down (their
+address decreases).</para>
+
+</section>
+
+<section><title>Memory Models</title>
+
+<para>There are 6 memory models. Which one is used, depends on the
+operating system.</para>
+
+<variablelist><title>Memory Models</title>
+<varlistentry><term>SPVW_MIXED_BLOCKS_OPPOSITE</term>
+ <listitem><para>The heap consists of one block of fixed length
+  (allocated at startup).
+  The variable-length objects are allocated from the left, the 2-pointer
+  objects are allocated from the right.
+  There is a hole between them.
+  When the hole shrinks to 0, &gc; is invoked.
+  &gc; slides the variable-length objects to the left and concentrates
+  the 2-pointer objects at the right end of the block again.
+  When no more room is available, some reserve area beyond the right end
+  of the block is halved, and the 2-pointer objects are moved to the
+  right accordingly.
+  <variablelist><title>overview</title>
+   <varlistentry><term>(+)</term>
+    <listitem><simpara>Simple management.
+    </simpara></listitem></varlistentry>
+   <varlistentry><term>(+)</term>
+    <listitem><simpara>No fragmentation at all.
+    </simpara></listitem></varlistentry>
+   <varlistentry><term>(-)</term>
+    <listitem><simpara>The total heap size is limited.
+    </simpara></listitem></varlistentry></variablelist>
+ </para></listitem></varlistentry>
+
+<varlistentry><term>SPVW_MIXED_BLOCKS_OPPOSITE &amp; TRIVIALMAP_MEMORY</term>
+ <listitem><para>The heap consists of two big blocks, one for
+  variable-length objects and one for 2-pointer objects.
+  The former one has a hole to the right and is extensible to the right,
+  the latter one has a hole to the left and is extensible to the left.
+  Similar to the previous model, except that the hole is unmapped.
+  <variablelist><title>overview</title>
+   <varlistentry><term>(+)</term>
+    <listitem><simpara>Total heap size grows depending on the
+     application's needs.</simpara></listitem></varlistentry>
+   <varlistentry><term>(+)</term>
+    <listitem><simpara>No fragmentation at all.
+    </simpara></listitem></varlistentry>
+   <varlistentry><term>(*)</term>
+    <listitem><simpara>Works only when SINGLEMAP_MEMORY is
+     possible as well.</simpara></listitem></varlistentry></variablelist>
+ </para></listitem></varlistentry>
+
+<varlistentry><term>SPVW_MIXED_BLOCKS_STAGGERED &amp; TRIVIALMAP_MEMORY</term>
+ <listitem><para>The heap consists of two big blocks, one for
+  variable-length objects and one for 2-pointer objects.
+  Both have a hole to the right, but are extensible to the right.
+  <variablelist><title>overview</title>
+   <varlistentry><term>(+)</term>
+    <listitem><simpara>Total heap size grows depending on the
+     application's needs.</simpara></listitem></varlistentry>
+   <varlistentry><term>(+)</term>
+    <listitem><simpara>No fragmentation at all.
+    </simpara></listitem></varlistentry>
+   <varlistentry><term>(*)</term>
+    <listitem><simpara>Works only when SINGLEMAP_MEMORY is
+     possible as well.</simpara></listitem></varlistentry></variablelist>
+ </para></listitem></varlistentry>
+
+<varlistentry><term>SPVW_MIXED_PAGES</term>
+ <listitem><para>The heap consists of many small pages (usually around 8 KB).
+  There are two kinds of pages: one for 2-pointer objects, one for
+  variable-length objects. The set of all pages of a fixed kind is
+  called a "Heap".  Each page has its hole (free space) at its end.
+  For every heap, the pages are kept sorted according to the size of
+  their hole, using AVL trees.  Garbage collection is invoked when the
+  used space has grown by 25% since the last GC; until that point new
+  pages are allocated from the operating system. The GC compacts the
+  data in each page separately: data is moved to the left. Emptied pages
+  are given back to the OS.  If the holes then make up more than 25% of
+  the occupied storage, a second GC turn moves objects across pages, from
+  nearly empty ones to nearly full ones, with the aim to free as many
+  pages as possible.
+  <variablelist><title>overview</title>
+   <varlistentry><term>(-)</term>
+    <listitem><simpara>every allocation requires AVL tree operations,
+     thus slower</simpara></listitem></varlistentry>
+   <varlistentry><term>(+)</term>
+    <listitem><simpara>Total heap size grows depending on the
+     application's needs.</simpara></listitem></varlistentry>
+   <varlistentry><term>(+)</term>
+    <listitem><simpara>Works on operating systems which do not provide
+     large contiguous areas.</simpara></listitem></varlistentry></variablelist>
+ </para></listitem></varlistentry>
+
+<varlistentry><term>SPVW_PURE_PAGES</term>
+ <listitem><para>Just like SPVW_MIXED_PAGES, except that every page
+  contains data of only a single type tag, i.e. there is a Heap for
+  every type tag.
+  <variablelist><title>overview</title>
+   <varlistentry><term>(-)</term>
+    <listitem><simpara>every allocation requires AVL tree operations,
+     thus slower</simpara></listitem></varlistentry>
+   <varlistentry><term>(+)</term>
+    <listitem><simpara>Total heap size grows depending on the
+     application's needs.</simpara></listitem></varlistentry>
+   <varlistentry><term>(+)</term>
+    <listitem><simpara>Works on operating systems which do not provide
+     large contiguous areas.</simpara></listitem></varlistentry>
+   <varlistentry><term>(-)</term>
+    <listitem><simpara>More fragmentation because objects of different
+    type never fit into the same page.</simpara></listitem></varlistentry>
+ </variablelist></para></listitem></varlistentry>
+
+<varlistentry><term>SPVW_PURE_BLOCKS</term>
+ <listitem><para>There is a big block of storage for each type tag.
+  Each of these blocks has its data to the left and the hole to the
+  right, but these blocks are extensible to the right (because there is
+  enough room between them).
+  A garbage collection is triggered when the allocation amount since the
+  last GC reaches 50% of the amount of used space at the last GC, but at
+  least 512 KB.
+  The garbage collection cleans up each block separately: data is moved left.
+  <variablelist><title>overview</title>
+   <varlistentry><term>(+)</term>
+    <listitem><simpara>Total heap size grows depending on the
+     application's needs.</simpara></listitem></varlistentry>
+   <varlistentry><term>(+)</term>
+    <listitem><simpara>No 16 MB total size limit.
+    </simpara></listitem></varlistentry>
+   <varlistentry><term>(*)</term>
+    <listitem><simpara>Works only in combination with SINGLEMAP_MEMORY.
+    </simpara></listitem></varlistentry></variablelist>
+ </para></listitem></varlistentry></variablelist>
+
+<para>The following combinations of memory model and mmap tricks are
+possible:</para>
+
+<table frame="all"><title>With TYPECODES (the number indicates the order
+  in which the respective models have been developed:</title>
+<tgroup cols="6" colsep="1" rowsep="1" align="center">
+<thead><row><entry/><entry>no MAP_MEMORY</entry>
+ <entry>TRIVIALMAP_MEMORY</entry><entry>SINGLEMAP_MEMORY</entry>
+ <entry>MULTIMAP_MEMORY</entry><entry>GENERATIONAL_GC</entry></row></thead>
+<tbody><row><entry>SPVW_MIXED_BLOCKS_OPPOSITE</entry><entry>1</entry>
+      <entry>10</entry><entry/><entry>2</entry><entry>9</entry></row>
+<row><entry>SPVW_MIXED_BLOCKS_STAGGERED</entry>
+     <entry/><entry>7</entry><entry/><entry/><entry>8</entry></row>
+<row><entry>SPVW_PURE_BLOCKS</entry>
+     <entry/><entry/><entry>5</entry><entry/><entry>6</entry></row>
+<row><entry>SPVW_MIXED_PAGES</entry>
+     <entry>3</entry><entry/><entry/><entry/><entry/></row>
+<row><entry>SPVW_PURE_PAGES</entry>
+     <entry>4</entry><entry/><entry/><entry/><entry/></row>
+</tbody></tgroup></table>
+
+<table frame="all"><title>With no TYPECODES</title>
+<tgroup cols="4" colsep="1" rowsep="1" align="center">
+<thead><row><entry/><entry>no MAP_MEMORY</entry>
+ <entry>TRIVIALMAP_MEMORY</entry><entry>GENERATIONAL_GC</entry></row></thead>
+<tbody><row><entry>SPVW_MIXED_BLOCKS_OPPOSITE</entry>
+      <entry>*</entry><entry>*</entry><entry>*</entry></row>
+<row><entry>SPVW_MIXED_BLOCKS_STAGGERED</entry>
+     <entry/><entry>*</entry><entry>*</entry></row>
+<row><entry>SPVW_MIXED_PAGES</entry><entry>*</entry><entry/><entry/></row>
+</tbody></tgroup></table>
+
+</section>
+
+<section><title>The burden of GC upon the rest of CLISP:</title>
+
+<para>Every subroutine marked with <emphasis>can trigger GC</emphasis>
+may invoke &gc;.
+&gc; moves all the &clisp; objects and updates the pointers.
+But the &gc; looks only on the &STACK; and not in the &c-lang;
+variables. (Anything else would not be portable.)
+Therefore at every "unsafe" point, i.e. every call to such a subroutine,
+all the &c-lang; variables of type <type>object</type>
+<emphasis>MUST BE ASSUMED TO BECOME GARBAGE</emphasis>.
+(Except for <type>object</type>s that are known to be unmovable,
+ e.g. immediate data or <type>Subr</type>s.)
+Pointers inside &clisp; data (e.g. to the characters of a &string-class;
+or to the elements of a &simple-vector-type;) become
+<emphasis>INVALID</emphasis> as well.</para>
+
+<para>The workaround is usually to allocate all the needed &clisp; data
+first and do the rest of the computation with &c-lang; variables,
+without calling unsafe routines, and without worrying about &gc;.</para>
+</section>
+
+<section><title>Foreign Pointers</title>
+
+<para>Pointers to &c-lang; functions and to &malloc;ed data can be
+hidden in &clisp; objects of type machine_type; &gc; will not modify its
+value.  But one should not dare to assume that a &c-lang; stack pointer
+or the address of a &c-lang; function in a shared library satisfies the
+same requirements.</para>
+
+<para>If another pointer is to be viewed as a &clisp; object, it is best
+to box it, e.g. in a &simple-bit-vector-type; or in an
+<type>Fpointer</type> (using <function>allocate_fpointer()</function>.)</para>
+
+</section>
+</chapter>
+
+<chapter id="bytecode"><title>The &clisp; bytecode specification</title>
 <subtitle>Last modified: 19 September 1998.</subtitle>
 
-<chapter id="byte-intro"><title>Introduction</title>
+<section id="byte-intro"><title>Introduction</title>
 
 <para>The &clisp; compiler compiles &cl; programs into instruction codes
 for a virtual processor.  This bytecode is optimized for saving space in
@@ -37,9 +293,9 @@ of this approach, compared to native code compilation, are:
    impossible for the compiler writer to introduce CPU dependent bugs.
  </simpara></listitem></itemizedlist>
 </para>
-</chapter>
+</section>
 
-<chapter id="vm"><title>The virtual machine</title>
+<section id="vm"><title>The virtual machine</title>
 
 <para>The bytecode can be thought of as being interpreted by a virtual
 processor.  The engine which actually interprets the bytecode (the
@@ -51,16 +307,16 @@ first time said function is called.</para>
 <para>The virtual machine is a stack machine with two stacks:
 <variablelist>
  <varlistentry><term>&STACK;</term>
-  <listitem><simpara>a stack for Lisp objects and frames.
+  <listitem><simpara>a stack for &clisp; objects and frames.
   </simpara></listitem></varlistentry>
  <varlistentry><term>&SP;</term>
   <listitem><simpara>a stack for other data and pointers.
 </simpara></listitem></varlistentry></variablelist></para>
 
 <para>This two-stack architecture permits to save an unlimited number of
-Lisp objects on the &STACK; (needed for handling of Common Lisp multiple
+&clisp; objects on the &STACK; (needed for handling of &cl; multiple
 values), without consing.  Also, in a world with a compacting
-no-ambiguous-roots garbage collector, &STACK; must only hold Lisp
+no-ambiguous-roots garbage collector, &STACK; must only hold &clisp;
 objects, and &SP; can hold all the other data belonging to a frame,
 which would not fit into &STACK; without tagging/untagging
 overhead.</para>
@@ -84,11 +340,11 @@ adapted to &cl; multiple values:
   <listitem><simpara>an unsigned integer.
   </simpara></listitem></varlistentry>
  <varlistentry><term>&value1;</term>
-  <listitem><simpara>the first value, a Lisp object.
+  <listitem><simpara>the first value, a &clisp; object.
   If <literal>&mv-count;</literal> = 0, this is &nil;.
   </simpara></listitem></varlistentry>
  <varlistentry><term>&mv-space;</term>
-  <listitem><simpara>all values except the first one, an array of Lisp
+  <listitem><simpara>all values except the first one, an array of &clisp;
   objects.</simpara></listitem></varlistentry>
 </variablelist></para>
 
@@ -100,12 +356,12 @@ constant, &jbs;.  This is a CPU-dependent number, the value of
 <varname>system::*jmpbuf-size*</varname>.  In &c-lang;, it is defined as
 <literal>ceiling(sizeof(jmp_buf),sizeof(void*))</literal>.</para>
 
-</chapter>
+</section>
 
-<chapter id="comp-fun"><title>The structure of compiled functions</title>
+<section id="comp-fun"><title>The structure of compiled functions</title>
 
 <para>A compiled function consists of two objects: The function itself,
-containing the references to all Lisp objects needed for the bytecode,
+containing the references to all &clisp; objects needed for the bytecode,
 and a byte vector containing only immediate data, including the bytecode
 proper.</para>
 
@@ -130,8 +386,8 @@ vector does not need to be scanned for pointers).</para>
    This field is immutable.</simpara></listitem></varlistentry>
  <varlistentry><term>&consts;[]</term>
   <listitem><simpara>The remaining fields in the function object are
-   references to other Lisp objects.  These references are immutable,
-   which is why they are called "constants".  (The referenced Lisp
+   references to other &clisp; objects.  These references are immutable,
+   which is why they are called "constants".  (The referenced &clisp;
    objects can be mutable objects, such as conses or vectors, however.)
   </simpara></listitem></varlistentry>
 </variablelist></para>
@@ -261,9 +517,9 @@ nevertheless, through the use of &load-time-value;.)</para>
    </simpara></listitem></varlistentry>
 </variablelist></para>
 
-</chapter>
+</section>
 
-<chapter id="intr-struct">
+<section id="intr-struct">
    <title>The general structure of the instructions</title>
 
 <para>All instructions consist of one byte, denoting the opcode, and
@@ -301,9 +557,9 @@ letters:
    the signed numeric operand.
   </simpara></listitem></varlistentry>
 </variablelist></para>
-</chapter>
+</section>
 
-<chapter id="intr-set"><title>The instruction set</title>
+<section id="intr-set"><title>The instruction set</title>
 
 <section id="instr-const"><title>Instructions for constants</title>
 
@@ -1253,6 +1509,7 @@ operands) for the following frequent instructions:</para>
       <entry>0 &le; &n-r; &lt; 8</entry></row>
 </tbody></tgroup></table>
 
+</section>
 </section>
 </chapter>
 </part>
