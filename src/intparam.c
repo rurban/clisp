@@ -19,12 +19,12 @@
 #undef ushort
 #undef uchar
 
+#include <stdlib.h>             /* for exit(3) */
+
 #if !(defined(__STDC__) || defined(__cplusplus))
 /* Only for use in function parameter lists and as function return type. */
 #define void
 #endif
-
-#define loop  while(1)
 
 typedef int boolean;
 #define TRUE  1
@@ -113,8 +113,8 @@ void main1(void) {
 #define get_integer_bitsize(type,where)  \
   { type x = 1;                                 \
     int bits = 0;                               \
-    loop                                        \
-      { if (x==0) break;                        \
+    while(1) {                                  \
+      if (x==0) break;                          \
         x = x+x;                                \
         bits++;                                 \
         if (bits==1000) { bits = -1; break; }   \
