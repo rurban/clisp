@@ -3722,7 +3722,7 @@ local inline void* find_name (void *handle, char *name)
   begin_system_call();
  #if defined(AMIGAOS)
  #elif defined(WIN32_NATIVE)
-  ret = GetProcAddress(handle,name);
+  ret = (void*)GetProcAddress((HMODULE)handle,name);
  #else
   ret = dlsym(handle,name);
  #endif
@@ -3977,7 +3977,7 @@ global void exit_ffi (void) {
      #if defined(AMIGAOS)
       CloseLibrary(libaddr);
      #elif defined(WIN32_NATIVE)
-      FreeLibrary(libaddr);
+      FreeLibrary((HMODULE)libaddr);
      #else
       dlclose(libaddr);
      #endif
