@@ -171,7 +171,7 @@
    ;; Macros:
    deftype defun defvar defparameter defconstant and or psetq setf psetf shiftf
    rotatef define-modify-macro defsetf define-setf-expander
-   prog1 prog2 when unless cond
+   prog1 prog2 when unless cond nth-value function-lambda-expression
    case typecase otherwise ; otherwise is the marker for the catchall-clause
    return loop do do* dolist dotimes prog prog* multiple-value-list
    multiple-value-bind multiple-value-setq defmacro remf do-symbols
