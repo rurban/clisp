@@ -94,12 +94,8 @@ or
 #ifdef AMIGAOS
       lisp.run           main program
 #endif
-#ifdef MSDOS
+#ifdef OS2
       lisp.exe           main program
-#ifndef OS2
-      lisp_1mb.exe       main program, use this one if you have
-                         only 1 or 2 MB of RAM
-#endif
 #endif
 #ifdef RISCOS
       lisp               main program
@@ -115,7 +111,7 @@ or
       clisp.man          manual page
 #endif
       clisp.html         manual page in HTML format
-#ifdef MSDOS
+#ifdef OS2
       clisp.dvi          manual page in dvi format
 #endif
       impnotes.html      implementation notes
@@ -123,7 +119,7 @@ or
       clreadline.3       line editing manual page in Unix man format
       clreadline.man     line editing manual page
       clreadline.html    line editing manual page in HTML format
-#ifdef MSDOS
+#ifdef OS2
       clreadline.dvi     line editing manual page in dvi format
 #endif
 #endif
@@ -134,17 +130,9 @@ or
       emx.exe            DOS extender emx for running clisp under DOS or OS/2
       emx-user.doc       emx applications user's guide
       emx-faq.doc        frequently asked questions about emx applications
-#ifdef EMUNIX_PORTABEL
       emx.dll            OS/2 dynamic link library containing emx
       emxlibc.dll        OS/2 dynamic link library containing the emx libc
-#endif
       termcap.dat        terminal capabilities database
-#endif
-#if defined(MSDOS) && !defined(OS2)
-      rsx.exe            DOS extender rsx for running clisp under Windows
-      rsx-read.txt       general description of rsx
-      rsx.hlp            general documentation for rsx
-      delay.exe          auxiliary program for running clisp under Windows
 #endif
 #ifdef RISCOS
       !Run               run file for CLISP
@@ -167,23 +155,18 @@ or
 and - to your convenience, if you like reading source -
 
       *.lsp              the source of lispinit.mem
-#if !defined(MSDOS)
+#if !defined(OS2)
       *.fas              the same files, already compiled
 #endif
 #endif
 
-#ifdef MSDOS
+#ifdef OS2
 
 Hardware requirements:
 ----------------------
 
-#ifndef OS2
-This DOS version of CLISP requires an 80386 (SX or DX) or an 80486 CPU
-and at least 1 MB of RAM.
-#else
 This OS/2 version of CLISP requires an 80386 (SX or DX) or an 80486 CPU,
 running OS/2 2.0.
-#endif
 It also runs on a Pentium; the results CLISP produces are not affected by
 the Intel Pentium's division bug.
 
@@ -290,7 +273,7 @@ timezone.lsp.
 #endif
 Then start
 
-#if defined(MSDOS) || defined(WIN32_NATIVE)
+#if defined(OS2) || defined(WIN32_NATIVE)
          lisp.exe -M lispinit.mem
 #endif
 #ifdef AMIGAOS
@@ -359,7 +342,7 @@ I would suggest /usr/local/lib/lisp :
    mv base/lisp.run /usr/local/lib/lisp
    mv base/lispinit.mem /usr/local/lib/lisp
 #endif
-#if defined(MSDOS) || defined(WIN32_NATIVE)
+#if defined(OS2) || defined(WIN32_NATIVE)
 Assuming D:\LIB\LISP :
 
    mkdir d:\lib\lisp
@@ -367,7 +350,7 @@ Assuming D:\LIB\LISP :
    copy lispinit.mem d:\lib\lisp
 #endif
 
-#if defined(MSDOS) || defined(WIN32_NATIVE)
+#if defined(OS2) || defined(WIN32_NATIVE)
 And create a batch file that starts lisp:
 
 #ifndef OS2
@@ -411,65 +394,6 @@ and try
    man clisp
 #endif
 
-#if defined(MSDOS) && !defined(OS2)
-
-Installation under Microsoft Windows:
--------------------------------------
-
-CLISP also runs in the DOS box of Microsoft Windows 3.1.
-To achieve this, the following additional steps are necessary:
-
-1. Get and install
-     ftp://clisp.cons.org/pub/lisp/clisp/binaries/dos/clisp.zip
-   as described above.
-
-2. If rsx.exe is not already contained in clisp.zip,
-   get and install RSX in, for instance, c:\rsx.
-     ftp://ftp.uni-bielefeld.de/pub/systems/msdos/misc/rsx510b.zip
-
-3. Call the PIF editor and input the following:
-
-   Program:                c:\rsx\bin\rsx.exe
-   Program title:          COMMON LISP
-   Program parameters:     -Ra c:\lib\lisp\lisp.exe -M c:\lib\lisp\lispinit.mem -B c:\lib\lisp\
-                           (maybe after -Ra add also -Rs1024)
-   Start directory:        e:\lisp  (or whatever)
-   Screen:                 Text
-   Memory requirements:    requires:  500      maximum:  640
-   EMS memory:             requires:    0      maximum:    0
-   XMS memory:             requires: 1024      maximum:   -1
-   Display:                [as you like]
-   Quit_closes_window:     [as you like]
-   Execution:              [as you like]
-   other_options:          [as you like]
-
-   (You will probably choose the directory which contains your lisp programs
-   as start directory, instead of e:\lisp.)
-
-   Save it under the name WINCLISP.PIF.
-
-4. In the program manager, in a suitable group:
-
-   Menu "File" -> "New" -> "Program", window "program properties".
-   Input there:
-
-   Description:            COMMON LISP
-   Command line:           winclisp.pif
-   Start directory:        e:\lisp
-   Key combination:        Ctrl+Alt+Shift+L      [as you like]
-
-Clicking with the mouse on the such created icon or pressing the key
-combination given above in the program manager will now start CLISP.
-
-Remarks:
-
-* Cut & Paste in DOS boxes (via menu "Edit" -> "Mark" resp.
-  menu "Edit" -> "Insert") inserts an <Enter> at the end. Therefore one
-  cannot re-edit a pasted line.
-
-* But the editing facilities mentioned in CLISP.MAN and READLINE.DVI work.
-
-#endif
 #ifdef AMIGAOS
 
 Note:
@@ -537,7 +461,7 @@ On bigger problems, e.g. core dumps, please send a description of the error
 #ifdef AMIGAOS
 On bigger problems, e.g. "guru"s, please send a description of the error
 #endif
-#ifdef MSDOS
+#ifdef OS2
 On bigger problems, e.g. register dumps, please send a description of the error
 #endif
 #ifdef RISCOS
@@ -569,15 +493,6 @@ information and archives on the homepage http://clisp.cons.org/.
 Acknowledgement:
 ----------------
 
-#ifdef MSDOS
-If you find CLISP fast and bug-free and you like using it, a gift of $25
-(or any amount you like) will be appreciated. Most DOS software costs
-something, so you will probably already be used to paying.
-
-If not, feel free to send us suggestions for improvement. Or grab the
-source of CLISP, improve it yourself and send us your patches.
-
-#endif
 We are indebted to
   * Guy L. Steele and many others for the Common Lisp specification.
 #ifdef UNIX
