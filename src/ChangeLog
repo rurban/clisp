@@ -1,3 +1,12 @@
+2002-06-29  Sam Steingold  <sds@gnu.org>
+
+	implemented feature request [ 575303 ]: quit to top-level in debugger
+	* reploop.lisp (debug-quit): new function
+	(commands1): document `Quit/:q'
+	(break-loop, step-hook-fn): handle it (as `abort-to-top')
+	* control.d (UNWIND-TO-TOP): new function
+	* constsym.d, subr.d (unwind_to_top): ditto
+
 2002-06-28  Sam Steingold  <sds@gnu.org>
 
 	* configure: work around the ulimit bug in cygwin /bin/sh
@@ -67,7 +76,7 @@
 2002-06-25  Sam Steingold  <sds@gnu.org>
 
 	* charstrg.d (STRING-INFO): new function
-	* constsym.d, subr.d (string_info): added
+	* constsym.d, subr.d (string_info): ditto
 
 2002-06-25  Sam Steingold  <sds@gnu.org>
 
@@ -129,7 +138,7 @@
 
 	new built-in MEMQ == MEMBER :TEST #'EQ
 	* list.d (MEMQ): new function (uses memq)
-	* constsym.d, subr.d (memq): define
+	* constsym.d, subr.d (memq): ditto
 	* clos.lisp, compiler.lisp, defstruct.lisp, describe.lisp:
 	* init.lisp, type.lisp: use it instead of MEMBER :TEST #'EQ
 
@@ -1122,7 +1131,7 @@
 	* encoding.d (MAKE-ENCODING): when the iconv charset is already
 	built-in use it instead of iconv
 	(ENCODING-CHARSET): new function
-	* constsym.d, subr.d: added encoding_charset
+	* constsym.d, subr.d: ditto
 	* init.lisp: export ENCODING-CHARSET
 
 2002-05-21  Sam Steingold  <sds@gnu.org>
