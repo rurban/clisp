@@ -107,7 +107,7 @@
     _(hash_table_p), _(pathnamep), _(logical_pathname_p), _(characterp),
     _(functionp), _(generic_function_p), _(packagep), _(arrayp),
     _(simple_array_p), _(bit_vector_p), _(vectorp), _(simple_vector_p),
-    _(simple_string_p), _(simple_bit_vector_p), _(commonp), _(type_of),
+    _(simple_string_p), _(simple_bit_vector_p), _(type_of),
     _(class_of), _(find_class), _(coerce),
     # RECORD : 23 SUBRs
     _(record_ref), _(record_store), _(record_length), _(structure_ref),

@@ -147,7 +147,7 @@ T
 NIL
 
 (TYPEP X (QUOTE COMMON))
-#-ANSI-CL T #+ANSI-CL ERROR
+ERROR
 
 (SUBTYPEP (QUOTE CHARACTER) (QUOTE NUMBER))
 NIL
@@ -2091,7 +2091,7 @@ T
     (maphash #'(lambda (key value) (push (list key value) all-entries))
              hash-table)
     (with-hash-table-iterator (generator-fn hash-table)
-      (loop     
+      (loop
         (multiple-value-bind (more? key value) (generator-fn)
           (unless more? (return))
           (unless (eql value (gethash key hash-table unique))
