@@ -4378,8 +4378,7 @@ local void bitbuff_ixs_sub (object stream, object bitbuffer,
   # obj is an integer
   # transfer obj into the bitbuffer:
   {
-    var uintB* bitbufferptr =
-      TheSbvector(TheStream(stream)->strm_bitbuffer)->data;
+    var uintB* bitbufferptr = TheSbvector(bitbuffer)->data;
     var uintL count = bytesize;
     var uintL sign = (sintL)R_sign(obj);
     if (fixnump(obj)) {
