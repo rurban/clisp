@@ -126,7 +126,7 @@ made available.
 
 from Lisp-string notation to internal representation
 ----------------------------------------------------
-NO swapping. "foo.lsp" means file type "lsp" and file name "foo".
+NO swapping. "foo.lisp" means file type "lisp" and file name "foo".
 This is pseudo-BNF:
 
 legal character ::= any ISO latin-1 graphic character >= ' ' except
