@@ -1,5 +1,11 @@
 2004-04-19  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (quit): do (FRESH-LINE *ERROR-OUTPUT*) before (WRITE-LINE
+	"Bye") because in batch mode *ERROR-OUTPUT* and *STANDARD-OUTPUT*
+	are separate
+
+2004-04-19  Sam Steingold  <sds@gnu.org>
+
 	* eval.d (CHECK_FDEF): use the return value of
 	check_fdefinition() instead of Symbol_function(symbol)
 
