@@ -37,9 +37,14 @@
 
 (in-package "COMMON-LISP")
 (export '(trace untrace))
+(export '(custom::*trace-indent*) "CUSTOM")
 (in-package "EXT")
-(export '(*trace-function* *trace-args* *trace-form* *trace-values*))
+(export '(*trace-function* *trace-args* *trace-form* *trace-values*
+          custom::*trace-indent*))
 (in-package "SYSTEM")
+
+(defvar *trace-indent* nil
+  "Use indentation in addition to numbering to indicate the trace level.")
 
 (proclaim '(special *trace-function* *trace-args* *trace-form* *trace-values*))
 (defvar *traced-functions* nil) ; list of currently traced function-names
@@ -66,7 +71,10 @@
                 (error (TEXT "~s: no local name ~s in ~s")
                        'local name closure))
              (setq obj (sys::%record-ref closure pos))
-             (when (and (closurep obj) (eq nm (closure-name obj)))
+             (when (and (closurep obj)
+                        (or (eq (closure-name obj) nm)
+                            (eq (closure-name obj)
+                                (concat-pnames "TRACED-" nm))))
                (return pos))))
          (force-cclosure (name)
            (let ((closure (fdefinition name)))
@@ -91,7 +99,7 @@
     (unless (closurep new-def)
       (error-of-type 'type-error
         :datum new-def :expected-type 'closure
-        (TEXT "~S: ~S must be a closure") `((setf local) ,@spec)) new-def)
+        (TEXT "~S: ~S must be a closure") `(setf (local ,@spec) ,new-def)))
     (multiple-value-bind (clo pos) (local-helper spec)
       (sys::%record-store clo pos
          (if (compiled-function-p new-def) new-def
@@ -249,6 +257,8 @@ This will not work with closures that use lexical variables!"
 ;; Output before call, uses *trace-level* and *trace-form*
 (defun trace-pre-output ()
   (%funcall '#,#'terpri *trace-output*)
+  (when *trace-indent*
+    (%funcall '#,#'write-spaces *trace-level* *trace-output*))
   (%funcall '#,#'write *trace-level* :stream *trace-output* :base 10 :radix t)
   (%funcall '#,#'write-string " Trace: " *trace-output*)
   (%funcall '#,#'prin1 *trace-form* *trace-output*))
@@ -256,6 +266,8 @@ This will not work with closures that use lexical variables!"
 (defun trace-post-output ()
   (declare (inline car cdr consp atom))
   (%funcall '#,#'terpri *trace-output*)
+  (when *trace-indent*
+    (%funcall '#,#'write-spaces *trace-level* *trace-output*))
   (%funcall '#,#'write *trace-level* :stream *trace-output* :base 10 :radix t)
   (%funcall '#,#'write-string " Trace: " *trace-output*)
   (%funcall '#,#'write (car *trace-form*) :stream *trace-output*)
