@@ -114,10 +114,10 @@ minitests.s : $(srcdir)/minitests.c $(srcdir)/tests.c callback.h vacall_r.h tram
 minitests : minitests.o libcallback.la
 	$(LIBTOOL_LINK) $(CC) $(CFLAGS) @GCC_X_NONE@ minitests.o libcallback.la -o minitests
 
-minicheck-subdirs : force
-	cd @subdir@; $(MAKE) minicheck
+check-subdirs : force
+	cd @subdir@; $(MAKE) check
 
-minicheck : all minicheck-subdirs minitests
+check : all check-subdirs minitests
 	./minitests > minitests.out
 	uniq -u < minitests.out > minitests.output.$(HOST)
 	test '!' -s minitests.output.$(HOST)
@@ -131,10 +131,10 @@ tests.s : $(srcdir)/tests.c callback.h vacall_r.h trampoline_r.h
 tests : tests.o libcallback.la
 	$(LIBTOOL_LINK) $(CC) $(CFLAGS) @GCC_X_NONE@ tests.o libcallback.la -o tests
 
-check-subdirs : force
-	cd @subdir@; $(MAKE) check
+extracheck-subdirs : force
+	cd @subdir@; $(MAKE) extracheck
 
-check : all check-subdirs tests
+extracheck : all extracheck-subdirs tests
 	./tests > tests.out
 	uniq -u < tests.out > tests.output.$(HOST)
 	test '!' -s tests.output.$(HOST)
