@@ -48,6 +48,10 @@ User visible changes
 * When built with readline, CLISP will describe the current function
   when you hit TAB after a #\Space.
 
+* MAKE-ENCODING now checks whether the iconv charset is valid, and
+  signals an error if it is invalid unless given the :IF-DOES-NOT-EXIST
+  NIL argument.
+
 * Fixed a bug: Conversion from bytes to string did not work for the encoding
   (MAKE-ENCODING :CHARSET CHARSET:UNICODE-32-LITTLE-ENDIAN
                  :INPUT-ERROR-ACTION :IGNORE).
