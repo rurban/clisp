@@ -65,7 +65,8 @@ ACCESS        (lambda (seq pointer) ...) -> value
               returns the element in SEQ the pointer is pointing to.
 ACCESS-SET    (lambda (seq pointer value) ...) ->
               sets the element where the pointer is pointing to in SEQ, to the
-              specified value. Works only for pointers that move from left to right!
+              specified value. Works only for pointers that move from left to
+              right!
 COPY          (lambda (pointer) ...) -> pointer
               returns a copy of the Pointer to SEQ (because UPD and FE-UPD
               can operate destructively on the pointers)
@@ -2071,46 +2072,56 @@ nonreturning_function(global, fehler_both_tests, (void)) {
     test_start_end_1(&O(kwpair_start),&*(stackptr STACKop -3));
   }
 
-# UP: führt eine Sequence-Filter-Operation aus.
-# Eine Sequence wird durchlaufen und dabei in einem Bit-Vektor abgespeichert,
-# welche Elemente dem Test genügen. Dann wird eine Routine aufgerufen, die
-# den Rest erledigt.
-# > Stackaufbau:
+# UP: Prepares a sequence filtering operation.
+# > Stack layout:
 #     ... sequence [stackptr] from-end start end key ... count typdescr [STACK]
-# > stackptr: Pointer in den Stack
-# > up_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
-#           > stackptr: derselbe Pointer in den Stack,
-#           > x: Argument
-#           < true, falls der Test erfüllt ist, false sonst.
-# > help_fun: Adresse einer Hilfsroutine, die den Rest erledigt.
-#   Spezifiziert durch:
-#       > stackptr: Pointer in den Stack,
+# > stackptr: Pointer into the stack
+# < Stack layout:
+#     ... sequence [stackptr] from-end start end key ... count typdescr,
+#     l [STACK].
+# can trigger GC
+  local void seq_prepare_filterop (gcv_object_t* stackptr)
+  {
+    # COUNT argument must be NIL oder an integer >= 0:
+    test_count_arg();
+    # Determine l = (SEQ-LENGTH sequence):
+    pushSTACK(*(stackptr STACKop 0)); # sequence
+    funcall(seq_length(STACK_(0+1)),1); # (SEQ-LENGTH sequence)
+    pushSTACK(value1); # put l into the stack
+    # Default value for END is l:
+    if (nullp(*(stackptr STACKop -3))) { # end=NIL ?
+      *(stackptr STACKop -3) = STACK_0; # yes -> end:=l
+      # Then check start and end again:
+      test_start_end(&O(kwpair_start),&*(stackptr STACKop -3));
+    }
+    # Now all arguments are checked.
+  }
+
+# UP: Executes a sequence filtering operation.
+# It traverses a sequence and stores in a bit vector which elements satisfy
+# the test. Then a routine is called which does the rest.
+# > Stack layout:
+#     ... sequence [stackptr] from-end start end key ... count typdescr [STACK]
+# > stackptr: Pointer into the stack
+# > up_fun: address of test function with the following specification:
+#           > stackptr: the same pointer into the stack
+#           > x: argument
+#           < true, if the test is satisfied, false otherwise.
+# > help_fun: address of a helper routine which does the rest. Specification:
+#       > stackptr: pointer into the stack
 #         *(stackptr+0)=sequence, *(stackptr-2)=start, *(stackptr-3)=end,
 #       > STACK_2: typdescr,
-#       > STACK_1: Länge l der Sequence,
-#       > STACK_0: Bit-Vektor bv,
-#       > bvl: Länge des Bit-Vektors (= end - start),
-#       > dl: Anzahl der im Bit-Vektor gesetzten Bits,
-#       < ergebnis: Ergebnis
-# < mv_space/mv_count: Werte
+#       > STACK_1: length l of the sequence,
+#       > STACK_0: bit vector bv,
+#       > bvl: length of the bit vector (= end - start),
+#       > dl: number of bits that are set in the bit vector,
+#       < result: result
+# < mv_space/mv_count: values
 # can trigger GC
-  # help_function sei der Typ der Adresse einer solchen Hilfsfunktion:
+  # help_function is defined to be the type of such a helper function:
   typedef object (*help_function) (gcv_object_t* stackptr, uintL bvl, uintL dl);
   local Values seq_filterop (gcv_object_t* stackptr, up_function up_fun, help_function help_fun)
   {
-    # COUNT-Argument muss NIL oder ein Integer >= 0 sein:
-    test_count_arg();
-    # l = (SEQ-LENGTH sequence) bestimmen:
-    pushSTACK(*(stackptr STACKop 0)); # sequence
-    funcall(seq_length(STACK_(0+1)),1); # (SEQ-LENGTH sequence)
-    pushSTACK(value1); # l in den Stack
-    # Defaultwert für END ist l:
-    if (nullp(*(stackptr STACKop -3))) { # end=NIL ?
-      *(stackptr STACKop -3) = STACK_0; # ja -> end:=l
-      # Dann nochmals start und end überprüfen:
-      test_start_end(&O(kwpair_start),&*(stackptr STACKop -3));
-    }
-    # Nun sind alle Argumente überprüft.
     pushSTACK(*(stackptr STACKop 0)); # sequence
     pushSTACK(*(stackptr STACKop -4)); # key
     # (- end start) bestimmen und neuen Bitvektor allozieren:
@@ -2434,6 +2445,161 @@ nonreturning_function(global, fehler_both_tests, (void)) {
     return remove_help(stackptr,bvl,dl); # DELETE wie REMOVE behandeln
   }
 
+# UP: Executes a REMOVE operation.
+# > Stack layout:
+#     ... sequence [stackptr] from-end start end key ... count typdescr [STACK]
+# > stackptr: Pointer into the stack
+# > up_fun: address of test function with the following specification:
+#           > stackptr: the same pointer into the stack
+#           > x: argument
+#           < true, if the test is satisfied, false otherwise.
+  local Values remove_op (gcv_object_t* stackptr, up_function up_fun)
+  {
+    seq_prepare_filterop(stackptr);
+    # Stack layout:
+    #   ... sequence [stackptr] from-end start end key ... count typdescr,
+    #   l [STACK].
+    if (nullp(*(stackptr STACKop -1)) && eq(seq_type(STACK_(0+1)),S(list))) {
+      # from-end is not specified, and the sequence type is LIST.
+      # In this case we don't need to allocate a bit vector.
+      pushSTACK(NIL); # result1 := NIL
+      pushSTACK(*(stackptr STACKop 0)); # result2 := sequence
+      pushSTACK(*(stackptr STACKop 0)); # sequence
+      pushSTACK(*(stackptr STACKop -2)); # start
+      funcall(seq_init_start(STACK_(0+3+2)),2); # (SEQ-INIT-START sequence start)
+      pushSTACK(value1); # =: pointer
+      pushSTACK(STACK_(1+4)); # countdown := count
+      # Stack layout: ..., count, typdescr,
+      #               l, result1, result2, pointer, countdown [STACK].
+      var uintL bvl; # length of relevant portion
+      {
+        var object bvsize = I_I_minus_I(*(stackptr STACKop -3),*(stackptr STACKop -2));
+        # bvsize = (- end start), an integer >=0
+        if (!(posfixnump(bvsize))) { # fixnum?
+          pushSTACK(*(stackptr STACKop 0)); # sequence
+          pushSTACK(TheSubr(subr_self)->name);
+          fehler(error,GETTEXT("~: sequence ~ is too long"));
+        }
+        bvl = posfixnum_to_L(bvsize);
+      }
+      for (; bvl > 0; bvl--) {
+        if (!nullp(STACK_(1+5)) && eq(STACK_0,Fixnum_0))
+          # count/=NIL and countdown=0 -> can terminate loop
+          break;
+        # Test next element:
+        pushSTACK(*(stackptr STACKop 0)); # sequence
+        pushSTACK(STACK_(1+1)); # pointer
+        funcall(seq_access(STACK_(0+5+2)),2); # (SEQ-ACCESS sequence pointer)
+        funcall_key(*(stackptr STACKop -4)); # (FUNCALL key ...)
+        if ((*up_fun)(stackptr,value1)) {
+          # Test fulfilled.
+          # result1 := (nreconc (ldiff result2 pointer) result1)
+          pushSTACK(STACK_2); pushSTACK(STACK_(1+1)); funcall(L(ldiff),2);
+          STACK_3 = nreconc(value1,STACK_3);
+          # result2 := (setq pointer (cdr pointer))
+          pointer_update(STACK_1,*(stackptr STACKop 0),STACK_(0+5));
+          STACK_2 = STACK_1;
+          if (!nullp(STACK_(1+5))) { # if count/=NIL:
+            decrement(STACK_0); # (decf countdown)
+          }
+        } else {
+          # Test failed.
+          # (setq pointer (cdr pointer))
+          pointer_update(STACK_1,*(stackptr STACKop 0),STACK_(0+5));
+        }
+      }
+      # Return (nreconc result1 result2):
+      VALUES1(nreconc(STACK_3,STACK_2));
+      skipSTACK(5);
+    } else {
+      # Use a bit vector for doing the filtering.
+      return_Values seq_filterop(stackptr,up_fun,&remove_help);
+    }
+  }
+
+# UP: Executes a DELETE operation.
+# > Stack layout:
+#     ... sequence [stackptr] from-end start end key ... count typdescr [STACK]
+# > stackptr: Pointer into the stack
+# > up_fun: address of test function with the following specification:
+#           > stackptr: the same pointer into the stack
+#           > x: argument
+#           < true, if the test is satisfied, false otherwise.
+  local Values delete_op (gcv_object_t* stackptr, up_function up_fun)
+  {
+    seq_prepare_filterop(stackptr);
+    # Stack layout:
+    #   ... sequence [stackptr] from-end start end key ... count typdescr,
+    #   l [STACK].
+    if (nullp(*(stackptr STACKop -1)) && eq(seq_type(STACK_(0+1)),S(list))) {
+      # from-end is not specified, and the sequence type is LIST.
+      # In this case we don't need to allocate a bit vector.
+      pushSTACK(*(stackptr STACKop 0)); # result := sequence
+      pushSTACK(*(stackptr STACKop 0)); # sequence
+      pushSTACK(*(stackptr STACKop -2)); # start
+      funcall(seq_init_start(STACK_(0+2+2)),2); # (SEQ-INIT-START sequence start)
+      pushSTACK(value1); # =: pointer
+      if (eq(*(stackptr STACKop -2),Fixnum_0)) # start=0 ?
+        pushSTACK(NIL); # last := NIL
+      else {
+        pushSTACK(*(stackptr STACKop 0)); # sequence
+        pushSTACK(fixnum_inc(*(stackptr STACKop -2),-1)); # start-1
+        funcall(seq_init_start(STACK_(0+3+2)),2); # (SEQ-INIT-START sequence start-1)
+        pushSTACK(value1); # =: last
+      }
+      pushSTACK(STACK_(1+4)); # countdown := count
+      # Stack layout: ..., count, typdescr,
+      #               l, result, pointer, last, countdown [STACK].
+      var uintL bvl; # length of relevant portion
+      {
+        var object bvsize = I_I_minus_I(*(stackptr STACKop -3),*(stackptr STACKop -2));
+        # bvsize = (- end start), an integer >=0
+        if (!(posfixnump(bvsize))) { # fixnum?
+          pushSTACK(*(stackptr STACKop 0)); # sequence
+          pushSTACK(TheSubr(subr_self)->name);
+          fehler(error,GETTEXT("~: sequence ~ is too long"));
+        }
+        bvl = posfixnum_to_L(bvsize);
+      }
+      for (; bvl > 0; bvl--) {
+        if (!nullp(STACK_(1+5)) && eq(STACK_0,Fixnum_0))
+          # count/=NIL and countdown=0 -> can terminate loop
+          break;
+        # Test next element:
+        pushSTACK(*(stackptr STACKop 0)); # sequence
+        pushSTACK(STACK_(2+1)); # pointer
+        funcall(seq_access(STACK_(0+5+2)),2); # (SEQ-ACCESS sequence pointer)
+        funcall_key(*(stackptr STACKop -4)); # (FUNCALL key ...)
+        if ((*up_fun)(stackptr,value1)) {
+          # Test fulfilled.
+          if (!nullp(STACK_1)) { # last/=NIL?
+            # (cdr last) := (setq pointer (cdr pointer))
+            pointer_update(STACK_2,*(stackptr STACKop 0),STACK_(0+5));
+            Cdr(STACK_1) = STACK_2;
+          } else {
+            # result := (setq pointer (cdr pointer))
+            pointer_update(STACK_2,*(stackptr STACKop 0),STACK_(0+5));
+            STACK_3 = STACK_2;
+          }
+          if (!nullp(STACK_(1+5))) { # if count/=NIL:
+            decrement(STACK_0); # (decf countdown)
+          }
+        } else {
+          # Test failed.
+          # last := pointer, (setq pointer (cdr pointer))
+          STACK_1 = STACK_2;
+          pointer_update(STACK_2,*(stackptr STACKop 0),STACK_(0+5));
+        }
+      }
+      # Return result:
+      VALUES1(STACK_3);
+      skipSTACK(5);
+    } else {
+      # Use a bit vector for doing the filtering.
+      return_Values seq_filterop(stackptr,up_fun,&delete_help);
+    }
+  }
+
 LISPFUN(remove,seclass_default,2,0,norest,key,7,
         (kw(from_end),kw(start),kw(end),kw(key),kw(test),kw(test_not),kw(count)) )
 # (REMOVE item sequence [:from-end] [:start] [:end] [:key] [:test] [:test-not] [:count]),
@@ -2442,7 +2608,7 @@ LISPFUN(remove,seclass_default,2,0,norest,key,7,
     var gcv_object_t* stackptr = &STACK_7;
     var up_function up_fun = test_test_args(stackptr); # Testfunktion
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-    seq_filterop(stackptr,up_fun,&remove_help); # Filtern
+    remove_op(stackptr,up_fun);
     skipSTACK(2+7+1);
   }
 
@@ -2453,7 +2619,7 @@ LISPFUN(remove_if,seclass_default,2,0,norest,key,5,
   {
     var gcv_object_t* stackptr = &STACK_5;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-    seq_filterop(stackptr,&up_if,&remove_help); # Filtern
+    remove_op(stackptr,&up_if);
     skipSTACK(2+5+1);
   }
 
@@ -2464,7 +2630,7 @@ LISPFUN(remove_if_not,seclass_default,2,0,norest,key,5,
   {
     var gcv_object_t* stackptr = &STACK_5;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-    seq_filterop(stackptr,&up_if_not,&remove_help); # Filtern
+    remove_op(stackptr,&up_if_not);
     skipSTACK(2+5+1);
   }
 
@@ -2476,7 +2642,7 @@ LISPFUN(delete,seclass_default,2,0,norest,key,7,
     var gcv_object_t* stackptr = &STACK_7;
     var up_function up_fun = test_test_args(stackptr); # Testfunktion
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-    seq_filterop(stackptr,up_fun,&delete_help); # Filtern
+    delete_op(stackptr,up_fun);
     skipSTACK(2+7+1);
   }
 
@@ -2487,7 +2653,7 @@ LISPFUN(delete_if,seclass_default,2,0,norest,key,5,
   {
     var gcv_object_t* stackptr = &STACK_5;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-    seq_filterop(stackptr,&up_if,&delete_help); # Filtern
+    delete_op(stackptr,&up_if);
     skipSTACK(2+5+1);
   }
 
@@ -2498,7 +2664,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
   {
     var gcv_object_t* stackptr = &STACK_5;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-    seq_filterop(stackptr,&up_if_not,&delete_help); # Filtern
+    delete_op(stackptr,&up_if_not);
     skipSTACK(2+5+1);
   }
 
@@ -3043,6 +3209,82 @@ LISPFUN(delete_duplicates,seclass_default,1,0,norest,key,6,
     return popSTACK(); # sequence2 als Ergebnis
   }
 
+# UP: Executes a SUBSTITUTE operation.
+# > Stack layout:
+#     ... sequence [stackptr] from-end start end key ... count typdescr [STACK]
+# > stackptr: Pointer into the stack, *(stackptr+2)=newitem,
+#   *(stackptr+0)=sequence
+# > up_fun: address of test function with the following specification:
+#           > stackptr: the same pointer into the stack
+#           > x: argument
+#           < true, if the test is satisfied, false otherwise.
+  local Values substitute_op (gcv_object_t* stackptr, up_function up_fun)
+  {
+    seq_prepare_filterop(stackptr);
+    # Stack layout:
+    #   ... sequence [stackptr] from-end start end key ... count typdescr,
+    #   l [STACK].
+    if (nullp(*(stackptr STACKop -1)) && eq(seq_type(STACK_(0+1)),S(list))) {
+      # from-end is not specified, and the sequence type is LIST.
+      # In this case we don't need to allocate a bit vector.
+      pushSTACK(NIL); # result1 := NIL
+      pushSTACK(*(stackptr STACKop 0)); # result2 := sequence
+      pushSTACK(*(stackptr STACKop 0)); # sequence
+      pushSTACK(*(stackptr STACKop -2)); # start
+      funcall(seq_init_start(STACK_(0+3+2)),2); # (SEQ-INIT-START sequence start)
+      pushSTACK(value1); # =: pointer
+      pushSTACK(STACK_(1+4)); # countdown := count
+      # Stack layout: ..., count, typdescr,
+      #               l, result1, result2, pointer, countdown [STACK].
+      var uintL bvl; # length of relevant portion
+      {
+        var object bvsize = I_I_minus_I(*(stackptr STACKop -3),*(stackptr STACKop -2));
+        # bvsize = (- end start), an integer >=0
+        if (!(posfixnump(bvsize))) { # fixnum?
+          pushSTACK(*(stackptr STACKop 0)); # sequence
+          pushSTACK(TheSubr(subr_self)->name);
+          fehler(error,GETTEXT("~: sequence ~ is too long"));
+        }
+        bvl = posfixnum_to_L(bvsize);
+      }
+      for (; bvl > 0; bvl--) {
+        if (!nullp(STACK_(1+5)) && eq(STACK_0,Fixnum_0))
+          # count/=NIL and countdown=0 -> can terminate loop
+          break;
+        # Test next element:
+        pushSTACK(*(stackptr STACKop 0)); # sequence
+        pushSTACK(STACK_(1+1)); # pointer
+        funcall(seq_access(STACK_(0+5+2)),2); # (SEQ-ACCESS sequence pointer)
+        funcall_key(*(stackptr STACKop -4)); # (FUNCALL key ...)
+        if ((*up_fun)(stackptr,value1)) {
+          # Test fulfilled.
+          # result1 := (cons newitem (nreconc (ldiff result2 pointer) result1))
+          pushSTACK(STACK_2); pushSTACK(STACK_(1+1)); funcall(L(ldiff),2);
+          STACK_3 = nreconc(value1,STACK_3);
+          var object new_cons = allocate_cons();
+          Car(new_cons) = *(stackptr STACKop 2); Cdr(new_cons) = STACK_3;
+          STACK_3 = new_cons;
+          # result2 := (setq pointer (cdr pointer))
+          pointer_update(STACK_1,*(stackptr STACKop 0),STACK_(0+5));
+          STACK_2 = STACK_1;
+          if (!nullp(STACK_(1+5))) { # if count/=NIL:
+            decrement(STACK_0); # (decf countdown)
+          }
+        } else {
+          # Test failed.
+          # (setq pointer (cdr pointer))
+          pointer_update(STACK_1,*(stackptr STACKop 0),STACK_(0+5));
+        }
+      }
+      # Return (nreconc result1 result2):
+      VALUES1(nreconc(STACK_3,STACK_2));
+      skipSTACK(5);
+    } else {
+      # Use a bit vector for doing the filtering.
+      seq_filterop(stackptr,up_fun,&substitute_help);
+    }
+  }
+
 LISPFUN(substitute,seclass_default,3,0,norest,key,7,
         (kw(from_end),kw(start),kw(end),kw(key),kw(test),
          kw(test_not),kw(count)) )
@@ -3052,7 +3294,7 @@ LISPFUN(substitute,seclass_default,3,0,norest,key,7,
   var gcv_object_t* stackptr = &STACK_7;
   var up_function up_fun = test_test_args(stackptr); # Testfunktion
   seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-  seq_filterop(stackptr,up_fun,&substitute_help); # Filtern
+  substitute_op(stackptr,up_fun);
   skipSTACK(3+7+1);
 }
 
@@ -3063,7 +3305,7 @@ LISPFUN(substitute_if,seclass_default,3,0,norest,key,5,
  CLTL p. 255 */
   var gcv_object_t* stackptr = &STACK_5;
   seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-  seq_filterop(stackptr,&up_if,&substitute_help); # Filtern
+  substitute_op(stackptr,&up_if);
   skipSTACK(3+5+1);
 }
 
@@ -3074,7 +3316,7 @@ LISPFUN(substitute_if_not,seclass_default,3,0,norest,key,5,
  CLTL p. 255 */
   var gcv_object_t* stackptr = &STACK_5;
   seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-  seq_filterop(stackptr,&up_if_not,&substitute_help); # Filtern
+  substitute_op(stackptr,&up_if_not);
   skipSTACK(3+5+1);
 }
 
@@ -3151,10 +3393,11 @@ LISPFUN(substitute_if_not,seclass_default,3,0,norest,key,5,
 # can trigger GC
   local Values nsubstitute_op (gcv_object_t* stackptr, up_function up_fun)
   {
-    if (!(nullp(*(stackptr STACKop -1)))) # from-end abfragen
+    if (!(nullp(*(stackptr STACKop -1)))) { # from-end abfragen
       # from-end ist angegeben -> Bit-Vector erzeugen und dann ersetzen:
+      seq_prepare_filterop(stackptr);
       return_Values seq_filterop(stackptr,up_fun,&nsubstitute_fe_help);
-    else {
+    } else {
       # from-end ist nicht angegeben
       # COUNT-Argument muss NIL oder ein Integer >= 0 sein:
       test_count_arg();
