@@ -2248,19 +2248,13 @@ and the international alphabetic characters from the character set:
             >2<superscript>12</superscript> = 4096</entry></row>
  <row><entry>&array-dimension-limit;</entry>
       <entry namest="b16" nameend="b32" align="center"
-            >2<superscript>24</superscript> = 16777216</entry>
-      <entry>2<superscript>32</superscript> = 4294967296</entry></row>
+            >2<superscript>24</superscript>-1 = 16777215</entry>
+      <entry>2<superscript>32</superscript>-1 = 4294967295</entry></row>
  <row><entry>&array-total-size-limit;</entry>
       <entry namest="b16" nameend="b32" align="center"
-            >2<superscript>24</superscript> = 16777216</entry>
-      <entry>2<superscript>32</superscript> = 4294967296</entry></row>
+            >2<superscript>24</superscript>-1 = 16777215</entry>
+      <entry>2<superscript>32</superscript>-1 = 4294967295</entry></row>
 </tbody></tgroup></table>
-
-<note><para>Note that &array-dimension-limit; and &array-total-size-limit;
- are not &fixnum-t;s (they are equal to
- <literal role="sexp">(&pl1; &most-positive-fixnum;)</literal>),
- contrary to the &ansi-cl; Issue <ulink url="&clhs;/Issues/iss014.html"
- >ARRAY-DIMENSION-LIMIT-IMPLICATIONS:ALL-FIXNUM</ulink>.</para></note>
 
 </section>
 

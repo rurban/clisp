@@ -1190,10 +1190,10 @@ local void init_symbol_values (void) {
   # define_variable(S(read_default_float_format),); # *READ-DEFAULT-FLOAT-FORMAT*
   # define_variable(S(random_state),);            # *RANDOM-STATE*
   # for ARRAY:
-  define_constant_UL1(S(array_total_size_limit),arraysize_limit_1); # ARRAY-TOTAL-SIZE-LIMIT := arraysize_limit_1 + 1
-  define_constant_UL1(S(array_dimension_limit),arraysize_limit_1); # ARRAY-DIMENSION-LIMIT := arraysize_limit_1 + 1
-  define_constant_UL1(S(string_dimension_limit),stringsize_limit_1); # SYSTEM::STRING-DIMENTION-LIMIT := stringsize_limit_1 + 1
-  define_constant_UL1(S(array_rank_limit),arrayrank_limit_1); # ARRAY-RANK-LIMIT := arrayrank_limit_1 + 1
+  define_constant(S(array_total_size_limit),fixnum(arraysize_limit_1+1)); # ARRAY-TOTAL-SIZE-LIMIT := arraysize_limit_1 + 1
+  define_constant(S(array_dimension_limit),fixnum(arraysize_limit_1+1)); # ARRAY-DIMENSION-LIMIT := arraysize_limit_1 + 1
+  define_constant_UL1(S(string_dimension_limit),stringsize_limit_1); # SYSTEM::STRING-DIMENSION-LIMIT := stringsize_limit_1 + 1
+  define_constant(S(array_rank_limit),fixnum(arrayrank_limit_1+1)); # ARRAY-RANK-LIMIT := arrayrank_limit_1 + 1
   # for CHARSTRG:
   define_constant(S(char_cod_limit),fixnum(char_code_limit)); # CHAR-CODE-LIMIT
   define_constant(S(base_char_cod_limit),fixnum(base_char_code_limit)); # BASE-CHAR-CODE-LIMIT

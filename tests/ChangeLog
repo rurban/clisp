@@ -1,3 +1,8 @@
+2004-03-27  Bruno Haible  <bruno@clisp.org>
+
+	* array.tst: array-total-size-limit and array-dimension-limit are
+	now = most-positive-fixnum.
+
 2004-03-23  Sam Steingold  <sds@gnu.org>
 
 	* iofkts.tst (*print-readably*): fixed symbol printing test to

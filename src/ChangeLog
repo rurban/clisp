@@ -1,5 +1,11 @@
 2004-03-27  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (arraysize_limit_1): Reduce value by 1.
+	* spvw.d (init_symbol_values): Initialize array-total-size-limit,
+	array-dimension-limit and array-rank-limit as fixnums.
+
+2004-03-27  Bruno Haible  <bruno@clisp.org>
+
 	ANSI CL compliance.
 	* clos.lisp (std-find-method): Check the specializers argument.
 	(analyze-method-description): Update.

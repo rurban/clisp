@@ -24,7 +24,7 @@
      &call-next-method; in compiled code (items 11,12)
      </simpara></listitem></varlistentry>
  <varlistentry id="iss013"><term><ulink url="&clhs;/Issues/iss013.html">ARGUMENTS-UNDERSPECIFIED:SPECIFY</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss014"><term><ulink url="&clhs;/Issues/iss014.html">ARRAY-DIMENSION-LIMIT-IMPLICATIONS:ALL-FIXNUM</ulink></term>&no;</varlistentry>
+ <varlistentry id="iss014"><term><ulink url="&clhs;/Issues/iss014.html">ARRAY-DIMENSION-LIMIT-IMPLICATIONS:ALL-FIXNUM</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss015"><term><ulink url="&clhs;/Issues/iss015.html">ARRAY-TYPE-ELEMENT-TYPE-SEMANTICS:UNIFY-UPGRADING</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss016"><term><ulink url="&clhs;/Issues/iss016.html">ASSERT-ERROR-TYPE:ERROR</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss017"><term><ulink url="&clhs;/Issues/iss017.html">ASSOC-RASSOC-IF-KEY</ulink></term>&yes;</varlistentry>
