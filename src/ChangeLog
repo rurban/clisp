@@ -1,5 +1,12 @@
 2002-10-13  Sam Steingold  <sds@gnu.org>
 
+	a character is a package designator too
+	* package.d (test_package_arg, test_stringsym_arg)
+	(DELETE-PACKAGE): convert characters to singleton strings
+	(%SET-PACKAGE-LOCK): adapt to now triggering GC test_package_arg()
+
+2002-10-13  Sam Steingold  <sds@gnu.org>
+
 	* sequence.d (MAKE-SEQUENCE): do not init strings with #\Space,
 	keep the #\Null's from MAKE-STRING
 
