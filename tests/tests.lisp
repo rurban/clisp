@@ -90,7 +90,9 @@
                                   (concatenate 'string (subseq seq pos (+ pos 10)) "...")
                                   (subseq seq pos))))
                          (format log "~%Differ at position ~:D: ~S vs ~S~%CORRECT: ~S~%~7A: ~S~%"
-                                 pos (elt result pos) (elt my-result pos)
+                                 pos
+                                 (if (< pos (length result)) (elt result pos) 'end-of-sequence)
+                                 (if (< pos (length my-result)) (elt my-result pos) 'end-of-sequence)
                                  (pretty-tail-10 result)
                                  lisp-implementation-type
                                  (pretty-tail-10 my-result)))))))))))
