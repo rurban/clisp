@@ -1,5 +1,12 @@
 2004-03-14  Bruno Haible  <bruno@clisp.org>
 
+	Remove special casing of germanic plural in messages.
+	* compiler.lisp (test-argument-syntax): Test the list length against 1
+	inside the English format string, not outside.
+	* describe.lisp (describe-object): Likewise.
+
+2004-03-14  Bruno Haible  <bruno@clisp.org>
+
 	* control.d: Use "\n" instead of NLstring.
 	* error.d: Likewise.
 	* errwin32.d: Likewise.
@@ -23327,114 +23334,3 @@
 1997-10-08  Jörg Höhle  <Joerg.Hoehle@zeus.gmd.de>
 
 	* eval.d (interpret_bytecode (cod_throw)): Tweak message.
-
-1997-10-06  Jörg Höhle  <Joerg.Hoehle@zeus.gmd.de>
-
-	* cfgamiga.lsp (machine-instance): Prefix with "localhost".
-	* erramiga.d (error200_msg_table): Add some translations.
-
-1997-09-30  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-
-	* utils/gcc-cccp/Makefile.msvc: Set stack size for cccp.exe.
-	* asmi386.sh: For the sake of msvc5, which assembles relative
-	  addresses in an unpredictable way, turn jump tables into absolute,
-	  not relative, addresses.
-
-1997-09-28  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-
-	* charstrg.d (copy_string, NSTRING-UPCASE, NSTRING-DOWNCASE)
-	(NSTRING-CAPITALIZE): Make reentrant and multithread-safe.
-
-1997-09-28  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-
-	Stack overflow robustness on Win32:
-	* lispbibl.d (NO_SP_CHECK, NOCOST_SP_CHECK): New macros. SP checks
-	  are enabled if AMIGAOS || (WIN32_NATIVE && !CAN_HANDLE_WP_FAULT).
-	* spvw.d (do_gar_col_simple, do_gar_col): If WIN32_NATIVE &&
-	  CAN_HANDLE_WP_FAULT, check for stack overflow just before GC,
-	  because a stack overflow during GC would be unrecoverable.
-	* spvw.d (subst_circ_mark, stack_overflow_handler)
-	(main_exception_filter): Put in the right #ifdefs.
-	* spvw.d (stack_overflow_stack): New variable.
-	(main): Set it.
-
-1997-09-28  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-
-	* lispbibl.d (map_heap_function): Renamed from mapper_function.
-	(map_heap_objects): Change declaration.
-	* spvw.d (map_heap_objects): Likewise.
-
-1997-09-28  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-
-	* array.d (initial_contents_locals): New structure.
-	(initial_contents_aux): Make reentrant and multithread-safe.
-	* lispbibl.d (map_sequence): Declare.
-	* sequence.d (map_sequence): New function.
-
-1997-09-28  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-
-	* spvw.d (everything_ready): Remove unused variable.
-
-1997-09-28  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-
-	Use `const' qualifier when possible, especially on constant arrays.
-	This allows constant arrays to be put into the raw data section.
-	* arilev1c.d (copy_loop_up, copy_loop_down, or_loop_up, xor_loop_up)
-	(and_loop_up, eqv_loop_up, nand_loop_up, nor_loop_up, andc2_loop_up)
-	(orc2_loop_up, and_test_loop_up, test_loop_up, compare_loop_up)
-	(add_loop_down, addto_loop_down, sub_loop_down, subx_loop_down)
-	(subfrom_loop_down, shiftleftcopy_loop_down, shiftrightcopy_loop_up)
-	(mulu_loop_down, muluadd_loop_down, mulusub_loop_down)
-	(divucopy_loop_up): Use `const'.
-	* arilev1e.d (copy_loop_up, copy_loop_down, or_loop_up, xor_loop_up)
-	(and_loop_up, eqv_loop_up, nand_loop_up, nor_loop_up, andc2_loop_up)
-	(orc2_loop_up, and_test_loop_up, test_loop_up, compare_loop_up)
-	(add_loop_down, addto_loop_down, sub_loop_down, subx_loop_down)
-	(subfrom_loop_down, shiftleftcopy_loop_down, shiftrightcopy_loop_up)
-	(mulu_loop_down, muluadd_loop_down, mulusub_loop_down)
-	(divucopy_loop_up): Use `const'.
-	* arilev1i.d (copy_loop_up, copy_loop_down, or_loop_up, xor_loop_up)
-	(and_loop_up, eqv_loop_up, nand_loop_up, nor_loop_up, andc2_loop_up)
-	(orc2_loop_up, and_test_loop_up, test_loop_up, compare_loop_up)
-	(add_loop_down, addto_loop_down, sub_loop_down, subx_loop_down)
-	(subfrom_loop_down, shiftleftcopy_loop_down, shiftrightcopy_loop_up)
-	(mulu_loop_down, muluadd_loop_down, mulusub_loop_down)
-	(divucopy_loop_up): Use `const'.
-	* array.d (type_table): Use `const'.
-	* charstrg.d (up_case_table, down_case_table, charname_table_codes)
-	(char_name, name_char): Use `const'.
-	* control.d (fsubr_tab): Use `const'.
-	* debug.d (frame_up_table, frame_down_table, test_mode_arg): Use
-	  `const'.
-	* eval.d (FUNTAB, FUNTABR, cod_labels): Use `const'.
-	* graph.d (EGA_colors, gr_colors, g320x200x16_regs, g320x200x16_info)
-	(g640x200x16_regs, g640x200x16_info, g640x350x16_regs)
-	(g640x350x16_info, g640x480x16_regs, g640x480x16_info)
-	(g320x200x256_regs, g320x200x256_info, g320x240x256_regs)
-	(g320x240x256_info, g320x400x256_regs, g320x400x256_info)
-	(g360x480x256_regs, g360x480x256_info, g640x480x2_regs)
-	(g640x480x2_info, g640x480x256_regs, g640x480x256_info)
-	(g800x600x256_regs, g800x600x256_info, g1024x768x256_regs)
-	(g1024x768x256_info, default_red, default_green, default_blue)
-	(color16, et4000_set_regs, set_regs, mono_colors, EGA_colors)
-	(VGA_colors, gr_colors, font, gr_text, GRAPH-INIT): Use `const'.
-	* hashtabl.d (tuple_half_1, tuple_half_2): Use `const'.
-	* intmal.d (mulu_2loop_down, mulu_2bigloop_down, fakul_table): Use
-	  `const'.
-	* intprint.d (table, UDS_to_DIGITS): Use `const'.
-	* io.d (orig_syntax_table, orig_readtable, SET-READTABLE-CASE)
-	(attribute_table, char_reader, pr_character, pr_stream): Use `const'.
-	* lisparit.d (pi_mantisse, ln2_mantisse, ln10_mantisse): Use `const'.
-	* lispbibl.d (fsubr_tab): Use `const'.
-	* predtype.d (init_hs_locals_rest): Use `const'.
-	* realrand.d (multiplier): Use `const'.
-	* sequence.d (test_start_end, test_start_end_1): Use `const'.
-	* spvw.d (pname_table, package_index_table, init_symbol_tab_2)
-	(fsubr_data_tab, object_initstring_tab, features_initstring)
-	(init_object_tab, banner, banner2, banner3, main)
-	(loadmem_aktualisiere, copyright_notice): Use `const'.
-
-1997-09-27  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-
-	* acspecific.m4 (AC_FUNC_VFORK): Fix so that it works right when
-	  cross-compiling.
