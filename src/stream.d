@@ -14311,11 +14311,14 @@ local object handle_to_stream (Handle fd, object direction, object buff_p,
     var char buf[20];
     begin_system_call();
     sprintf(buf,"/dev/fd/%d",fd);
+    end_system_call();
     pushSTACK(ascii_to_string(buf)); funcall(L(pathname),1);
     STACK_5 = value1;
   }
   { /* check that direction is compatible with the handle */
+    begin_system_call();
     var int fcntl_flags = fcntl(fd,F_GETFL,0);
+    end_system_call();
     if (fcntl_flags < 0)
       OS_error();
     if (   (READ_P(dir)  && ((fcntl_flags & O_ACCMODE) == O_WRONLY))
