@@ -1290,7 +1290,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
 
 /* UP: check whenter OBJ ends a proper list */
 #define ENDP(obj,caller) (consp(obj) ? false : nullp(obj) ? true : \
-                          (subr_self = caller, fehler_proper_list(obj), 0))
+                          (fehler_proper_list(obj,caller), 0))
 
 /* We build the functions MAPCAR, MAPLIST, MAPCAN, MAPCON in two versions:
  The first one builds the list in reversed order, then has to reverse it.
