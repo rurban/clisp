@@ -8312,6 +8312,10 @@ extern uintL asciz_length (const char * asciz);
 extern bool asciz_equal (const char * asciz1, const char * asciz2);
 # is used by STREAM
 
+/* allocate memory and check for success */
+global void* my_malloc (size_t size);
+/* used by FOREIGN and modules */
+
 #if defined(GNU) && (SAFETY < 2)
   #ifdef HAVE_BUILTIN_STRLEN
     #define asciz_length(a)  ((uintL)__builtin_strlen(a))
