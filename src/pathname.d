@@ -1514,8 +1514,10 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
         #ifdef HAVE_SMALL_SSTRING
         SstringCase(string,{ Z_SUB(z,string); },{ Z_SUB(z,string); },{},{ Z_SUB(z,string); });
         #endif
+        pushSTACK(string);
         var zustand tmp = z;
         var object host = parse_logical_host_prefix(&tmp,string);
+        string = popSTACK();
         DOUT("parse-namestring:",string);
         DOUT("parse-namestring:",host);
         if (!nullp(host)
