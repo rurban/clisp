@@ -1,5 +1,13 @@
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
+	* clos-methcomb2.lisp (build-effective-method-function-form): Don't
+	use the single method's fast-function as effective-method if the
+	effective-method must also do keyword argument checking or if the
+	method occurs among the duplicates set of the method-combination.
+	Found by Paul Dietz's ansi-tests test suite.
+
+2005-01-23  Bruno Haible  <bruno@clisp.org>
+
 	Make it possible to macroexpand a TRACE form referring to functions
 	that are not yet defined.
 	* trace.lisp (trace): Move the check-traceable to execution time.

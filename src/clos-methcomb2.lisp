@@ -451,15 +451,22 @@
                                              duplicates)
   (multiple-value-bind (lambdalist lambdalist-keypart firstforms apply-fun apply-args macrodefs)
       (effective-method-code-bricks generic-function methods duplicates)
-    (declare (ignore lambdalist-keypart))
     (let* ((declarations (method-combination-declarations combination))
            (ef-fun
-             (if (and (consp effective-method-form)
+             (if (and ;; Optimize the special but frequent case of
+                      ;; effective-method-form = `(CALL-METHOD ,method ...)
+                      ;; where CALL-METHOD would expand to a single call
+                      ;; without needing a next-methods argument and the outer
+                      ;; LAMBDA does not need to do keyword argument checking.
+                      (consp effective-method-form)
                       (eq (first effective-method-form) 'CALL-METHOD)
                       (consp (cdr effective-method-form))
                       (typep-class (second effective-method-form) <standard-method>)
-                      (std-method-fast-function (second effective-method-form))
-                      (not (std-method-wants-next-method-p (second effective-method-form))))
+                      (let ((method (second effective-method-form)))
+                        (and (std-method-fast-function method)
+                             (not (std-method-wants-next-method-p method))
+                             (null (assoc method duplicates :test #'eq))))
+                      (null lambdalist-keypart))
                (std-method-fast-function (second effective-method-form))
                (let ((wrapped-ef-form
                        `(MACROLET ,macrodefs
