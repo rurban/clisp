@@ -1,3 +1,8 @@
+2004-09-23  Bruno Haible  <bruno@clisp.org>
+
+	* sequence.d (REVERSE): Fix wrong index check when the argument is a
+	displaced vector. Fixes bug introduced on 1999-11-08.
+
 2004-09-18  Bruno Haible  <bruno@clisp.org>
 
 	* pathname.d (signal_type_error): New function.
