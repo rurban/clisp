@@ -10520,411 +10520,75 @@ local uintC generation;
 
 #if defined(SELFMADE_MMAP) || defined(GENERATIONAL_GC)
 
-  local void install_segv_handler (void);
+  # Put a breakpoint here if you want to catch CLISP just before it dies.
+  global void sigsegv_handler_failed(address)
+    var void* address;
+    { asciz_out_1(DEUTSCH ? NLstring "SIGSEGV kann nicht behoben werden. Fehler-Adresse = 0x%x." NLstring :
+                  ENGLISH ? NLstring "SIGSEGV cannot be cured. Fault address = 0x%x." NLstring :
+                  FRANCAIS ? NLstring "SIGSEGV ne peut être relevé. Adresse fautive = 0x%x." NLstring :
+                  "",
+                  address
+                 );
+    }
 
-  #ifdef UNIX_NEXTSTEP
-
-    # Die Fehler-Adresse bekommen wir als subcode zu einer Mach-Exception.
-    # Dazu läuft ein Thread, der am Exception-Port horcht.
-
-    #include <mach/exception.h>
-    #include <mach/exc_server.h>
-    #include <mach/cthreads.h>
-
-    # Die Behandlungs-Methode, wird von exc_server() aufgerufen:
-    global kern_return_t catch_exception_raise (port_t exception_port, port_t thread, port_t task, int exception, int code, int subcode);
-    local boolean exception_handled = FALSE;
-    global kern_return_t catch_exception_raise(exception_port,thread,task,exception,code,subcode)
-      var port_t exception_port;
-      var port_t thread;
-      var port_t task;
-      var int exception;
-      var int code;
-      var int subcode;
-      { set_break_sem_0();
-        if ((exception == EXC_BAD_ACCESS)
-            # siehe <mach/exception.h>:
-            #   Could not access memory
-            #   Code contains kern_return_t describing error.
-            #   Subcode contains bad memory address.
-            && (handle_fault((aint)subcode) == handler_done)
-           )
-          { exception_handled = TRUE; clr_break_sem_0(); return KERN_SUCCESS; }
-          else
-          { exception_handled = FALSE; clr_break_sem_0(); return KERN_FAILURE; }
-      }
-
-    local port_t main_thread_port;
-    local port_t old_exception_port;
-    local port_t new_exception_port;
-
-    # Haupt-Funktion des Threads:
-    local any_t exception_thread_main (void* dummy);
-    local any_t exception_thread_main(dummy)
-      var void* dummy;
-      { var char in_msg_data[excMaxRequestSize]; # siehe <mach/exc_server.h>
-        var char out_msg_data[excMaxReplySize]; # siehe <mach/exc_server.h>
-        #define in_msg  (*((msg_header_t*)&in_msg_data[0]))
-        #define out_msg  (*((msg_header_t*)&out_msg_data[0]))
-        var kern_return_t retval;
-        loop
-          { # Auf Message am Exception-Port warten:
-            in_msg.msg_size = excMaxRequestSize;
-            in_msg.msg_local_port = new_exception_port;
-            retval = msg_receive(&in_msg,MSG_OPTION_NONE,0);
-            if (!(retval==KERN_SUCCESS))
-              { asciz_out("Mach msg_receive didn't succeed." NLstring); abort(); }
-            # Exception-Handler 1 aufrufen, der liefert in out_msg eine Antwort:
-            if (!exc_server(&in_msg,&out_msg))
-              { asciz_out("Mach exc_server didn't succeed." NLstring); abort(); }
-            # Antwort weiterleiten:
-            retval = msg_send(&out_msg,MSG_OPTION_NONE,0);
-            if (!(retval==KERN_SUCCESS))
-              { asciz_out("Mach msg_send didn't succeed." NLstring); abort(); }
-            # Rückgabewert von handle_fault() anschauen:
-            if (exception_handled)
-              { exception_handled = FALSE; }
-              else
-              { # Exception-Handler 2 aufrufen:
-                in_msg.msg_remote_port = old_exception_port;
-                in_msg.msg_local_port = main_thread_port;
-                retval = msg_send(&in_msg,MSG_OPTION_NONE,0);
-                if (!(retval==KERN_SUCCESS))
-                  { asciz_out("Mach msg_send to old_exception_port didn't succeed." NLstring); abort(); }
-              }
-      }   }
-
-    local void install_segv_handler()
-      { local var boolean already_installed = FALSE;
-        if (already_installed)
-          return;
-        # Alten Exception-Port retten:
-        if (!(task_get_exception_port(task_self(),&old_exception_port)==KERN_SUCCESS))
-          { asciz_out("Mach task_get_exception_port fails." NLstring); abort(); }
-        # Neuen Exception-Port installieren:
-        if (!(port_allocate(task_self(),&new_exception_port)==KERN_SUCCESS))
-          { asciz_out("Mach port_allocate fails." NLstring); abort(); }
-        if (!(task_set_exception_port(task_self(),new_exception_port)==KERN_SUCCESS))
-          { asciz_out("Mach task_set_exception_port fails." NLstring); abort(); }
-        # Exception-Behandlungs-Thread aufsetzen:
-        cthread_detach(cthread_fork(&exception_thread_main,NULL));
-        already_installed = TRUE;
-      }
-
-  #else
-
-    # Put a breakpoint here if you want to catch CLISP just before it dies.
-    global void sigsegv_handler_failed(address)
-      var char* address;
-      { asciz_out_1(DEUTSCH ? NLstring "SIGSEGV kann nicht behoben werden. Fehler-Adresse = 0x%x." NLstring :
-                    ENGLISH ? NLstring "SIGSEGV cannot be cured. Fault address = 0x%x." NLstring :
-                    FRANCAIS ? NLstring "SIGSEGV ne peut être relevé. Adresse fautive = 0x%x." NLstring :
-                    "",
-                    address
-                   );
-      }
-
-    #ifdef UNIX
-
-      local void install_sigsegv_handler (int sig);
-
-      # Signal-Handler für Signal SIGSEGV u.ä.:
-      local void sigsegv_handler (FAULT_HANDLER_ARGLIST)
-        { var char* address = (char*)(FAULT_ADDRESS);
-          set_break_sem_0();
-          switch (handle_fault((aint)address))
-            { case handler_done:
-                # erfolgreich
-                #if (defined(USE_SIGACTION) ? defined(SIGACTION_NEED_REINSTALL) : defined(SIGNAL_NEED_REINSTALL))
-                install_sigsegv_handler(sig);
-                #endif
-                break;
-              case handler_immutable:
-                if (sig == SIGSEGV)
-                  {
-                    #ifdef IMMUTABLE
-                    #if (defined(USE_SIGACTION) ? defined(SIGACTION_NEED_REINSTALL) : defined(SIGNAL_NEED_REINSTALL))
-                    install_sigsegv_handler(sig);
-                    #endif
-                    clear_break_sems(); # Sehr gefährlich!!
-                    # gerade blockierte Signale entblockieren:
-                    #ifdef HAVE_SIGACTION
-                      #if defined(SIGNALBLOCK_POSIX)
-                      { var sigset_t sigblock_mask;
-                        sigemptyset(&sigblock_mask);
-                        sigaddset(&sigblock_mask,sig);
-                        sigaddset(&sigblock_mask,SIGINT);
-                        sigaddset(&sigblock_mask,SIGALRM);
-                        #ifdef SIGWINCH
-                        sigaddset(&sigblock_mask,SIGWINCH);
-                        #endif
-                        sigprocmask(SIG_UNBLOCK,&sigblock_mask,NULL);
-                      }
-                      #elif defined(SIGNALBLOCK_SYSV)
-                        sigrelse(sig);
-                        sigrelse(SIGINT);
-                        sigrelse(SIGALRM);
-                        #ifdef SIGWINCH
-                        sigrelse(SIGWINCH);
-                        #endif
-                      #elif defined(SIGNALBLOCK_BSD)
-                      { var sigset_t sigblock_mask = sigblock(0);
-                        sigblock_mask &= ~sigmask(sig);
-                        sigblock_mask &= ~sigmask(SIGINT);
-                        sigblock_mask &= ~sigmask(SIGALRM);
-                        #ifdef SIGWINCH
-                        sigblock_mask &= ~sigmask(SIGWINCH);
-                        #endif
-                        sigsetmask(sigblock_mask);
-                      }
-                      #endif
-                    #else
-                      #if (defined(USE_SIGACTION) ? defined(SIGACTION_NEED_UNBLOCK) : defined(SIGNAL_NEED_UNBLOCK)) # Unter SunOS4 nötig.
-                      sigsetmask(sigblock(0) & ~sigmask(sig));
-                      #endif
-                    #endif
-                    #ifdef HAVE_SAVED_STACK
-                    # STACK auf einen sinnvollen Wert setzen:
-                    if (!(saved_STACK==NULL)) { setSTACK(STACK = saved_STACK); }
-                    #endif
-                    # Über 'fehler' in eine Break-Schleife springen:
-                    fehler_immutable();
-                    #endif
-                  }
-                /* fallthrough */
-              case handler_failed:
-                # erfolglos
-                sigsegv_handler_failed(address);
-                # Der Default-Handler wird uns in den Debugger führen.
-                SIGNAL(sig,SIG_DFL);
-                break;
-            }
-          clr_break_sem_0();
-        }
-
-      # Signal-Handler sorgfältig installieren:
-      local void install_sigsegv_handler(sig)
-        var int sig;
-        {
-          #ifdef HAVE_SIGACTION
-            struct sigaction action;
-            action.sa_handler = (signal_handler)&sigsegv_handler;
-            # Während einer SIGSEGV-Behandlung sollten alle Signale blockiert
-            # sein, deren Behandlung auf Lisp-Objekte zugreifen muß.
-            sigemptyset(&action.sa_mask);
-            sigaddset(&action.sa_mask,SIGINT);
-            sigaddset(&action.sa_mask,SIGALRM);
-            #ifdef SIGWINCH
-            sigaddset(&action.sa_mask,SIGWINCH);
-            #endif
-            # Eventuell muß das Betriebssystem dem Handler
-            # ein "siginfo_t" übergeben:
-            action.sa_flags =
-                              #ifdef FAULT_ADDRESS_FROM_SIGINFO
-                              SA_SIGINFO |
-                              #endif
-                              0;
-            sigaction(sig,&action,(struct sigaction *)0);
-          #else
-            SIGNAL(sig,&sigsegv_handler);
-          #endif
-        }
-
-      # Alle Signal-Handler installieren:
-      local void install_segv_handler()
-        {
-          #define FAULT_HANDLER(sig)  install_sigsegv_handler(sig);
-          WP_SIGNAL
-          #undef FAULT_HANDLER
-        }
-
-    #endif # UNIX
-
-    #ifdef WIN32_NATIVE
-
-      local LONG sigsegv_handler (char* address);
-      local LONG sigsegv_handler(address)
-        var char* address;
-        { set_break_sem_0();
-          switch (handle_fault((aint)address))
-            { case handler_done:
-                # erfolgreich
-                clr_break_sem_0();
-                return EXCEPTION_CONTINUE_EXECUTION;
-              case handler_immutable:
-                #ifdef IMMUTABLE
-                clear_break_sems(); # Sehr gefährlich!!
-                #ifdef HAVE_SAVED_STACK
+  # Signal-Handler für Signal SIGSEGV u.ä.:
+  local int sigsegv_handler (void* fault_address)
+    { set_break_sem_0();
+      switch (handle_fault((aint)fault_address))
+        { case handler_done:
+            # erfolgreich
+            clr_break_sem_0();
+            return 1;
+          case handler_immutable:
+            #ifdef IMMUTABLE
+              sigsegv_leave_handler(); # gerade blockierte Signale entblockieren
+              clear_break_sems(); # Sehr gefährlich!!
+              #if defined(SIGNALBLOCK_BSD)
+              sigsetmask(0);
+              #endif
+              #ifdef HAVE_SAVED_STACK
                 # STACK auf einen sinnvollen Wert setzen:
                 if (!(saved_STACK==NULL)) { setSTACK(STACK = saved_STACK); }
-                #endif
-                # Über 'fehler' in eine Break-Schleife springen:
-                fehler_immutable();
-                #endif
-                /* fallthrough */
-              case handler_failed:
-                # erfolglos
-                clr_break_sem_0();
-                sigsegv_handler_failed(address);
-                return EXCEPTION_CONTINUE_SEARCH;
-            }
-          return EXCEPTION_CONTINUE_SEARCH;
+              #endif
+              # Über 'fehler' in eine Break-Schleife springen:
+              fehler_immutable();
+            #endif
+            /* fallthrough */
+          case handler_failed:
+            # erfolglos
+            sigsegv_handler_failed(fault_address);
+            # Der Default-Handler wird uns in den Debugger führen.
+          default:
+            clr_break_sem_0();
+            return 0;
         }
+    }
 
-    #endif # WIN32_NATIVE
-
-  #endif # !UNIX_NEXTSTEP
+  # Alle Signal-Handler installieren:
+  local void install_segv_handler (void);
+  local void install_segv_handler()
+    { sigsegv_install_handler(&sigsegv_handler); }
 
 #endif # SELFMADE_MMAP || GENERATIONAL_GC
 
-#ifdef WIN32_NATIVE
+#ifdef NOCOST_SP_CHECK
 
-  #ifdef NOCOST_SP_CHECK
-  # Stack overflow handling is tricky:
-  # First, we must catch a STATUS_STACK_OVERFLOW exception. This is signalled
-  # when the guard page at the end of the stack has been touched. The operating
-  # system remaps the page with protection PAGE_READWRITE and only then calls
-  # our exception handler. Actually, it's even more complicated: The stack has
-  # the following layout:
-  #
-  #         |                             |guard|----------stack-----------|
-  #
-  # and when the guard page is touched, the system maps it PAGE_READWRITE and
-  # allocates a new guard page below it:
-  #
-  #         |                       |guard|-------------stack--------------|
-  #
-  # Only when no new guard page can be allocated (because the maximum stack
-  # size has been reached), will we see an exception.
-  #
-  #         |guard|-------------------------stack--------------------------|
-  #
-  # Second, we must reinstall the guard page. Otherwise, on the next stack
-  # overflow, the application will simply crash (on WinNT: silently, on Win95:
-  # with an error message box and freezing the system).
-  # But since we don't know where %esp points to during the exception handling,
-  # we must first leave the exception handler, before we can restore the guard
-  # page. And %esp must be made to point to a reasonable value before we do
-  # this.
-  #
-  # Note: On WinNT, the guard page has protection PAGE_READWRITE|PAGE_GUARD.
-  # On Win95, which doesn't know PAGE_GUARD, it has protection PAGE_NOACCESS.
-  #
-  local void stack_overflow_handler (aint faulting_page_address);
-  local void* stack_overflow_stack;
-  local void stack_overflow_handler(faulting_page_address)
-    var aint faulting_page_address;
-    { var MEMORY_BASIC_INFORMATION info;
-      var DWORD oldprot;
-      var aint base;
-      var aint address;
-      # First get stack's base address.
-      if (!(VirtualQuery((void*)faulting_page_address,&info,sizeof(info)) == sizeof(info)))
-        goto failed;
-      base = (aint)info.AllocationBase;
-      # Now search for the first existing page.
-      address = base;
-      loop
-        { if (!(VirtualQuery((void*)address,&info,sizeof(info)) == sizeof(info)))
-            goto failed;
-          if (!(address == (aint)info.BaseAddress)) goto failed;
-          if (!(info.State == MEM_FREE))
-            { if (!((aint)info.AllocationBase == base)) goto failed;
-              if (info.State == MEM_COMMIT) break;
-            }
-          address = (aint)info.BaseAddress + info.RegionSize;
+  local void stackoverflow_handler (int emergency);
+  local void stackoverflow_handler(emergency)
+    var int emergency;
+    { if (emergency)
+        { asciz_out(DEUTSCH ? "Szenario Apollo 13: Stack-Überlauf-Behandlung ging schief. Beim nächsten Stack-Überlauf kracht's!!!" NLstring :
+                    ENGLISH ? "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!" NLstring :
+                    FRANCAIS ? "Scénario Apollo 13 : Réparation de débordement de pile a échoué. Au prochain débordement de pile, ça cassera!!!" NLstring :
+                    ""
+                   );
         }
-      # Now add the PAGE_GUARD bit to the first existing page.
-      # On WinNT this works...
-      if (VirtualProtect(info.BaseAddress,0x1000,info.Protect|PAGE_GUARD,&oldprot))
-        goto ok;
-      if (GetLastError() == ERROR_INVALID_PARAMETER)
-        # ... but on Win95 we need this:
-        if (VirtualProtect(info.BaseAddress,0x1000,PAGE_NOACCESS,&oldprot))
-          goto ok;
-      failed:
-      asciz_out(DEUTSCH ? "Szenario Apollo 13: Stack-Überlauf-Behandlung ging schief. Beim nächsten Stack-Überlauf kracht's!!!" NLstring :
-                ENGLISH ? "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!" NLstring :
-                FRANCAIS ? "Scénario Apollo 13 : Réparation de débordement de pile a échoué. Au prochain débordement de pile, ça cassera!!!" NLstring :
-                ""
-               );
-      ok:
       SP_ueber();
     }
-  #endif
 
-  # This is the stack overflow and page fault handler.
-  local LONG WINAPI main_exception_filter (EXCEPTION_POINTERS* ExceptionInfo);
-  local LONG WINAPI main_exception_filter(ExceptionInfo)
-    var EXCEPTION_POINTERS* ExceptionInfo;
-    { if (0
-          #ifdef NOCOST_SP_CHECK
-          || ExceptionInfo->ExceptionRecord->ExceptionCode == STATUS_STACK_OVERFLOW
-          #endif
-          #if defined(SELFMADE_MMAP) || defined(GENERATIONAL_GC)
-          || ExceptionInfo->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION
-          #endif
-         )
-        {
-          #if 0 # for debugging only
-          asciz_out("Exception!" NLstring);
-          asciz_out_1("Code = 0x%x" NLstring,
-                      ExceptionInfo->ExceptionRecord->ExceptionCode);
-          asciz_out_1("Flags = 0x%x" NLstring,
-                      ExceptionInfo->ExceptionRecord->ExceptionFlags);
-          asciz_out_1("Address = 0x%x" NLstring,
-                      ExceptionInfo->ExceptionRecord->ExceptionAddress);
-          asciz_out("Params:");
-          { var DWORD i;
-            for (i = 0; i < ExceptionInfo->ExceptionRecord->NumberParameters; i++)
-              { asciz_out_1(" 0x%x,",ExceptionInfo->ExceptionRecord->ExceptionInformation[i]); }
-          }
-          asciz_out(NLstring "Registers:" NLstring);
-          asciz_out_1("eip = 0x%x" NLstring, ExceptionInfo->ContextRecord->Eip);
-          asciz_out_1("eax = 0x%x, ",        ExceptionInfo->ContextRecord->Eax);
-          asciz_out_1("ebx = 0x%x, ",        ExceptionInfo->ContextRecord->Ebx);
-          asciz_out_1("ecx = 0x%x, ",        ExceptionInfo->ContextRecord->Ecx);
-          asciz_out_1("edx = 0x%x" NLstring, ExceptionInfo->ContextRecord->Edx);
-          asciz_out_1("esi = 0x%x, ",        ExceptionInfo->ContextRecord->Esi);
-          asciz_out_1("edi = 0x%x, ",        ExceptionInfo->ContextRecord->Edi);
-          asciz_out_1("ebp = 0x%x, ",        ExceptionInfo->ContextRecord->Ebp);
-          asciz_out_1("esp = 0x%x" NLstring, ExceptionInfo->ContextRecord->Esp);
-          #endif
-          if (ExceptionInfo->ExceptionRecord->NumberParameters == 2)
-            {
-              #ifdef NOCOST_SP_CHECK
-              if (ExceptionInfo->ExceptionRecord->ExceptionCode == STATUS_STACK_OVERFLOW)
-                { var char* address = (char*)(ExceptionInfo->ExceptionRecord->ExceptionInformation[1]);
-                  # Restart the program, giving it a sane value for %esp.
-                  var aint faulting_page_address = (aint)address & -0x1000;
-                  var aint new_safe_esp = (aint)stack_overflow_stack - 8;
-                  ExceptionInfo->ContextRecord->Esp = new_safe_esp;
-                  # Let's call stack_overflow_handler(faulting_page_address).
-                  ExceptionInfo->ContextRecord->Eip = (aint)&stack_overflow_handler;
-                  *(aint*)(new_safe_esp+4) = faulting_page_address; # pass 1 argument
-                  return EXCEPTION_CONTINUE_EXECUTION;
-                }
-              else
-              #endif
-              #if defined(SELFMADE_MMAP) || defined(GENERATIONAL_GC)
-              if (ExceptionInfo->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION)
-                { # ExceptionInfo->ExceptionRecord->ExceptionInformation[0] is 1 if
-                  # it's a write access, 0 if it's a read access. But we don't need
-                  # this info because handle_fault() is clever enough.
-                  var char* address = (char*)(ExceptionInfo->ExceptionRecord->ExceptionInformation[1]);
-                  return sigsegv_handler(address);
-                }
-              else
-              #endif
-              ;
-            }
-        }
-      return EXCEPTION_CONTINUE_SEARCH;
-    }
+#endif
 
-  # This installs the stack overflow and page fault handler.
-  local void install_segv_handler()
-    { SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)&main_exception_filter); }
+#ifdef WIN32_NATIVE
 
   # This is the Ctrl-C handler. It is executed in the main thread and must
   # not return!
@@ -12572,7 +12236,8 @@ local uintC generation;
             # handler itself. This cannot be somewhere in the regular stack,
             # because we want to unwind the stack in case of stack overflow.
             { var aint size = 0x4000; # 16 KB should be enough
-              stack_overflow_stack = (void*)(((aint)alloca(size) + size) & ~3);
+              var void* room = alloca(size);
+              stackoverflow_install_handler(&stackoverflow_handler,(void*)room,size);
             }
             #endif
           #endif

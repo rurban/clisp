@@ -1192,6 +1192,20 @@ if [ -n "$USE_TERMCAP" ] ; then
   LIBS=$XCL_TERMCAPLIB' '$LIBS
 fi
 
+USE_SIGSEGV=''
+if [ $HOS = unix -o $HOS = win32 ] ; then
+  USE_SIGSEGV=yes
+  if [ $HOS = unix ] ; then
+    # use symbolic link
+    XCL_SIGSEGVLIB='libsigsegv.a'
+    FILES=$FILES' libsigsegv.a'
+  fi
+  if [ $HOS = win32 ] ; then
+    XCL_SIGSEGVLIB='sigsegv.lib'
+  fi
+  LIBS=$XCL_SIGSEGVLIB' '$LIBS
+fi
+
 CPARTS='        spvw spvwtabf spvwtabs spvwtabo'
 CPARTS=$CPARTS' eval control'
 CPARTS=$CPARTS' pathname stream'
@@ -1230,6 +1244,9 @@ done
 EVERY_INCLUDES_H=''
 if [ -n "$GETTEXTLIB" ] ; then
   EVERY_INCLUDES_H=$EVERY_INCLUDES_H' libintl.h'
+fi
+if [ -n "$USE_SIGSEGV" ] ; then
+  EVERY_INCLUDES_H=$EVERY_INCLUDES_H' sigsegv.h'
 fi
 
 OTHER_INCLUDES=' constpack avl sort subrkw bytecode'
@@ -2360,6 +2377,28 @@ if [ -n "$USE_TERMCAP" ] ; then
 
 fi
 
+for f in sigsegv; do
+  if [ $HOS = unix ] ; then
+    echol "$f/$f.h $f/lib$f.a :"
+    echotab "cd $f && \$(MAKE) && \$(MAKE) check"
+    echol
+    echol "$f.h : $f/$f.h"
+    echotab "-\$(LN) $f/$f.h $f.h"
+    echol
+    echol "lib$f.a : $f/lib$f.a"
+    echotab "-\$(LN) $f/lib$f.a lib$f.a"
+    echol
+  fi
+  if [ $HOS = win32 ] ; then
+    echol "$f.h : ${SRCTOPDIR_M}$f${NEXT_M}$f.h"
+    echotab "-\$(LN) ${SRCTOPDIR_M}$f${NEXT_M}$f.h $f.h"
+    echol
+    echol "$f.lib : ${SRCTOPDIR_M}$f${NEXT_M}$f.lib"
+    echotab "-\$(LN) ${SRCTOPDIR_M}$f${NEXT_M}$f.lib $f.lib"
+    echol
+  fi
+done
+
 if [ $TOS = win32 ] ; then
   for f in $SYSLIBS ; do
     echol "$f :"
@@ -2368,7 +2407,7 @@ if [ $TOS = win32 ] ; then
   done
 fi
 
-echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_FFILIBS} ${XCL_READLINELIB} ${XCL_GETTEXTLIB} ${XCL_TERMCAPLIB}${SYSLIBS}"
+echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_FFILIBS} ${XCL_READLINELIB} ${XCL_GETTEXTLIB} ${XCL_TERMCAPLIB} ${XCL_SIGSEGVLIB}${SYSLIBS}"
 if [ $HOS != dos -a $HOS != os2 -a $HOS != win32 ] ; then
   if [ $XCC_GCC = true -a -n "$SOLARIS_LINKING" ] ; then
     # Dynamically linking on Solaris 2.[23] is a pain.

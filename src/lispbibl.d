@@ -1721,6 +1721,11 @@
 
 #endif # UNIX || DJUNIX || EMUNIX || WATCOM || WIN32
 
+#if defined(UNIX) || defined(WIN32_NATIVE)
+  # Support for fault handling.
+  #include "sigsegv.h"
+#endif
+
 #ifdef AMIGAOS
   # Behandlung von AMIGAOS-Fehlern
   # OS_error();
@@ -2973,7 +2978,7 @@ Ratio and Complex (only if SPVW_MIXED).
 
 
 # Art des Einlesens des .mem-Files.
-#if defined(VIRTUAL_MEMORY) && (defined(SINGLEMAP_MEMORY) /* || defined(TRIVIALMAP_MEMORY) */) && !defined(HAVE_MMAP) && defined(CAN_HANDLE_WP_FAULT) && (SAFETY < 3) && !defined(NO_SELFMADE_MMAP)
+#if defined(VIRTUAL_MEMORY) && (defined(SINGLEMAP_MEMORY) /* || defined(TRIVIALMAP_MEMORY) */) && !defined(HAVE_MMAP) && defined(HAVE_SIGSEGV_RECOVERY) && (SAFETY < 3) && !defined(NO_SELFMADE_MMAP)
   # Zwischen Programmstart und der ersten vollen GC wird das .mem-File
   # seitenweise, nach Bedarf, eingelesen. Ohne mmap() geht das, wenn man
   # SIGSEGV selber abfängt.
@@ -2985,7 +2990,7 @@ Ratio and Complex (only if SPVW_MIXED).
 
 
 # Art der Garbage Collection: normal oder generational.
-#if defined(VIRTUAL_MEMORY) && (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || (defined(MULTIMAP_MEMORY) && defined(UNIX_LINUX))) && defined(HAVE_WORKING_MPROTECT) && defined(CAN_HANDLE_WP_FAULT) && (SAFETY < 3) && !defined(NO_GENERATIONAL_GC)
+#if defined(VIRTUAL_MEMORY) && (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || (defined(MULTIMAP_MEMORY) && defined(UNIX_LINUX))) && defined(HAVE_WORKING_MPROTECT) && defined(HAVE_SIGSEGV_RECOVERY) && (SAFETY < 3) && !defined(NO_GENERATIONAL_GC)
   # Für "generational garbage collection" sind einige Voraussetzungen nötig.
   # Unter Linux geht es erst ab Linux 1.1.52, das wird in makemake überprüft.
   #define GENERATIONAL_GC
@@ -7766,7 +7771,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   # Für den SP ist das Betriebssystem verantwortlich.
   # Woher sollen wir einen vernünftigen Wert für SP_bound bekommen?
   #define NO_SP_CHECK
-#elif defined(WIN32_NATIVE) && defined(CAN_HANDLE_WP_FAULT)
+#elif defined(HAVE_STACK_OVERFLOW_RECOVERY)
   # Erkennung von SP-Überlauf durch eine Guard-Page.
   #define NOCOST_SP_CHECK
 #endif

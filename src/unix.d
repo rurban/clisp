@@ -142,6 +142,9 @@
     extern_C int mprotect (MPROTECT_CONST MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot); # siehe MPROTECT(2)
   #endif
   # Mögliche Werte von prot: PROT_NONE, PROT_READ, PROT_READ_WRITE.
+  #ifndef PROT_NONE
+    #define PROT_NONE  0
+  #endif
   #define PROT_READ_WRITE  (PROT_READ | PROT_WRITE)
   #ifdef HAVE_SHM
     #include <sys/types.h>
@@ -310,71 +313,6 @@
   #ifndef SPVW_MIXED_BLOCKS
   # Wir haben das Glück, mit read() nur in den C-Stack und in Strings zu
   # schreiben, nicht jedoch in eventuell mprotect-geschützte Bereiche.
-  #endif
-  #if defined(UNIX_LINUX) && defined(I80386)
-    #define FAULT_HANDLER_ARGLIST  int sig, unsigned long more
-    #define FAULT_ADDRESS  ((unsigned long *) &more) [21]
-    #define WP_SIGNAL  FAULT_HANDLER(SIGSEGV)
-    #define CAN_HANDLE_WP_FAULT
-  #endif
-  #if defined(UNIX_NETBSD) || defined(UNIX_FREEBSD)
-    #define FAULT_HANDLER_ARGLIST  int sig, int code, void* scp, char* addr
-    #define FAULT_ADDRESS  addr
-    #define WP_SIGNAL FAULT_HANDLER(SIGBUS)
-    #define CAN_HANDLE_WP_FAULT
-    #ifndef PROT_NONE
-      #define PROT_NONE 0x00
-    #endif
-  #endif
-  #if defined(UNIX_LINUX) && defined(SPARC)
-    #define FAULT_HANDLER_ARGLIST  int sig, int code, void* scp, char* addr
-    #define FAULT_ADDRESS  addr
-    #define WP_SIGNAL  FAULT_HANDLER(SIGSEGV)
-    #define CAN_HANDLE_WP_FAULT
-  #endif
-  #if defined(UNIX_SUNOS4)
-    #define FAULT_HANDLER_ARGLIST  int sig, int code, void* scp, char* addr
-    #define FAULT_ADDRESS  addr
-    #define WP_SIGNAL  FAULT_HANDLER(SIGSEGV) FAULT_HANDLER(SIGBUS)
-    #define CAN_HANDLE_WP_FAULT
-  #endif
-  #if defined(UNIX_SUNOS5)
-    #include <siginfo.h>
-    #define FAULT_HANDLER_ARGLIST  int sig, siginfo_t* sip, void* ucp
-    #define FAULT_ADDRESS  sip->si_addr
-    #define FAULT_ADDRESS_FROM_SIGINFO
-    #define WP_SIGNAL  FAULT_HANDLER(SIGSEGV)
-    #define CAN_HANDLE_WP_FAULT
-  #endif
-  #if defined(UNIX_IRIX5)
-    #define FAULT_HANDLER_ARGLIST  int sig, int code, struct sigcontext *scp
-    #define FAULT_ADDRESS  scp->sc_badvaddr
-    #define WP_SIGNAL  FAULT_HANDLER(SIGSEGV)
-    #define CAN_HANDLE_WP_FAULT
-  #endif
-  #if defined(UNIX_OSF)
-    #define FAULT_HANDLER_ARGLIST  int sig, int code, struct sigcontext *scp
-    #define FAULT_ADDRESS  scp->sc_traparg_a0
-    #define WP_SIGNAL  FAULT_HANDLER(SIGSEGV)
-    #define CAN_HANDLE_WP_FAULT
-  #endif
-  #if defined(UNIX_AIX)
-    #define FAULT_HANDLER_ARGLIST  int sig, int code, struct sigcontext *scp
-    #define FAULT_ADDRESS  scp->sc_jmpbuf.jmp_context.o_vaddr
-    #define WP_SIGNAL  FAULT_HANDLER(SIGSEGV)
-    #define CAN_HANDLE_WP_FAULT
-  #endif
-  #if defined(UNIX_SINIX) && defined(MIPS)
-    #define FAULT_HANDLER_ARGLIST  int sig, int code, unsigned int * sip
-    #define FAULT_ADDRESS  sip[34]  # the first 32 words are a `struct siginfo'
-    #define WP_SIGNAL  FAULT_HANDLER(SIGSEGV) FAULT_HANDLER(SIGBUS)
-    # Unfortunately, this doesn't work. sip[34] apparently contains some
-    # address relating to the operand of the faulting instruction, but not
-    # the exact effective address that causes the fault.
-    # not define CAN_HANDLE_WP_FAULT
-  #endif
-  #if defined(UNIX_NEXTSTEP)
-    #define CAN_HANDLE_WP_FAULT
   #endif
 # wird verwendet von SPVW
 
