@@ -125,24 +125,13 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
                 (+ *prin-indentation* *print-indent-lists*)
                 0)))
       (when (and ,pre *prin-line-prefix*)
-        (error (TEXT "~S: cannot supply both ~S (~S) and ~S (~S)")
-               'pprint-logical-block :prefix ,pre
-               :per-line-prefix *prin-line-prefix*))
+        (pprint-logical-block-both-error ,pre))
       (when (and ,pre (not (stringp ,pre)))
-        (error-of-type 'type-error
-          :datum ,pre :expected-type 'string
-          (TEXT "~S: ~S must be a string, not ~S")
-          'pprint-logical-block :prefix ,pre))
+        (pprint-logical-block-prefix-not-string-error ,pre))
       (when (and ,suf (not (stringp ,suf)))
-        (error-of-type 'type-error
-          :datum ,suf :expected-type 'string
-          (TEXT "~S: ~S must be a string, not ~S")
-          'pprint-logical-block :suffix ,suf))
+        (pprint-logical-block-suffix-not-string-error ,suf))
       (when (and *prin-line-prefix* (not (stringp *prin-line-prefix*)))
-        (error-of-type 'type-error
-          :datum *prin-line-prefix* :expected-type 'string
-          (TEXT "~S: ~S must be a string, not ~S")
-          'pprint-logical-block :prefix *prin-line-prefix*))
+        (pprint-logical-block-prefix-not-string-error *prin-line-prefix*))
       (%pprint-logical-block
        (lambda (,out obj)
          (declare (ignorable obj))
@@ -170,6 +159,20 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
                   (pprint-newline :fill ,out)
                   (write-string ,suf ,out))))))
        ,object ,out))))
+(defun pprint-logical-block-both-error (prefix) ; ABI
+  (error (TEXT "~S: cannot supply both ~S (~S) and ~S (~S)")
+         'pprint-logical-block ':prefix prefix
+         ':per-line-prefix *prin-line-prefix*))
+(defun pprint-logical-block-prefix-not-string-error (prefix) ; ABI
+  (error-of-type 'type-error
+    :datum prefix :expected-type 'string
+    (TEXT "~S: ~S must be a string, not ~S")
+    'pprint-logical-block ':prefix prefix))
+(defun pprint-logical-block-suffix-not-string-error (suffix) ; ABI
+  (error-of-type 'type-error
+    :datum suffix :expected-type 'string
+    (TEXT "~S: ~S must be a string, not ~S")
+    'pprint-logical-block ':suffix suffix))
 
 ;; ---------------------- utilities ----------------------
 
