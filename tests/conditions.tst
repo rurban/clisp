@@ -466,8 +466,6 @@ good
   (foo () 'good))
 good
 
-(defun princ-error (c) (format t "[~A]: ~A~%" (type-of c) c)) princ-error
-
 ;; restarts
 (defmacro check-use-value (fun good bad &key (type 'type-error) (test 'eql))
   `(handler-bind ((,type (lambda (c) (princ-error c) (use-value ',good))))
