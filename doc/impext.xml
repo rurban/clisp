@@ -3480,24 +3480,34 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
   <listitem><simpara>Returns the port which was bound using
    &sose;.</simpara></listitem></varlistentry>
  <varlistentry id="so-wait"><term><literal role="sexp">(&so-wait; &sose-r;
-                 &timeout-arg;)</literal></term>
-  <listitem id="timeout"><simpara>Wait for a fixed time for a connection
+                 &timeout-opt;)</literal></term>
+  <listitem id="timeout-opt"><simpara>Wait for a fixed time for a connection
    on the &sose-r; (a &socket-server;).
    Without a timeout argument, &so-wait; blocks indefinitely.
    When timeout is zero, poll.</simpara></listitem></varlistentry>
  <varlistentry id="so-accept"><term><literal role="sexp">(&so-accept;
-          &sose-r; &key-amp; &eltype; &extfmt; &buffered;)</literal></term>
-  <listitem><simpara>Creates the server-side two-way stream for the connection.
+                 &sose-r; &key-amp; &eltype; &extfmt; &buffered;
+                 &timeout-k;)</literal></term>
+  <listitem id="timeout-k"><simpara>Creates the server-side two-way
+   stream for the connection.
+   Waits for an attempt to connect to the server for no more than
+   &timeout-k; seconds (which may be a non-negative real number or a
+   list <literal role="sexp">(sec usec)</literal> or a pair
+   <literal role="sexp">(sec . usec)</literal>).
+   Signals an &error; if no connection is made in that time.
   </simpara></listitem></varlistentry>
  <varlistentry id="so-connect"><term><literal role="sexp">(&so-connect;
     <replaceable>port</replaceable> &optional-amp; [&host-r;] &key-amp;
-    &eltype; &extfmt; &buffered;)</literal></term>
-  <listitem><simpara>Attempts to create a client-side two-way &socket-stream;.
-   Blocks until the server accepts the connections.
+    &eltype; &extfmt; &buffered; &timeout-k;)</literal></term>
+  <listitem><simpara>Attempts to create a client-side two-way
+   &socket-stream;.  Blocks until the server accepts the connection, for
+   no more than &timeout-k; seconds.  If it is 0, returns immediately
+   and (probably) blocks on the next i/o operation (you can use
+   &so-status; to check whether it will actually block).
   </simpara></listitem></varlistentry>
  <varlistentry id="so-status"><term><literal role="sexp">(&so-status;
                  <replaceable>socket-stream-or-list</replaceable>
-                 &timeout-arg;)</literal></term>
+                 &timeout-opt;)</literal></term>
   <listitem><simpara>Checks whether it is possible to read from or write
    to a &socket-stream; or whether a connection is available on a
    &socket-server; without blocking.
