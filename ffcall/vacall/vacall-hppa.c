@@ -1,7 +1,7 @@
 /* vacall function for hppa CPU */
 
 /*
- * Copyright 1995-1999 Bruno Haible, <bruno@clisp.org>
+ * Copyright 1995-2004 Bruno Haible, <bruno@clisp.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -40,7 +40,7 @@
 #endif
 
 #ifdef REENTRANT
-#define vacall __vacall_r
+#define __vacall __vacall_r
 register struct { void (*vacall_function) (void*,va_alist); void* arg; }
          *	env	__asm__("%r29");
 #endif
@@ -62,8 +62,8 @@ register __vaword iret1	__asm__("%r28");
 register __vaword iret2	__asm__("%r29");
 
 void /* the return type is variable, not void! */
-vacall (__vaword word1, __vaword word2, __vaword word3, __vaword word4,
-        __vaword firstword)
+__vacall (__vaword word1, __vaword word2, __vaword word3, __vaword word4,
+          __vaword firstword)
 {
   /* gcc-2.6.3 source says: When a parameter is passed in a register,
    * stack space is still allocated for it.

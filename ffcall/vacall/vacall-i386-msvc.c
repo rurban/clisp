@@ -4,9 +4,9 @@
 #include "asmi386.h"
 TEXT()
 	ALIGN(2)
-GLOBL(C(vacall))
-	DECLARE_FUNCTION(vacall)
-FUNBEGIN(vacall)
+GLOBL(C(__vacall))
+	DECLARE_FUNCTION(__vacall)
+FUNBEGIN(__vacall)
 	INSN2(sub,l	,NUM(36),R(esp))
 	INSN2(mov,l	,NUM(0),X4 MEM(esp))
 	INSN2(lea,l	,X4 MEM_DISP(esp,40),R(ecx))
