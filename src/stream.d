@@ -4032,6 +4032,7 @@ local void ChannelStream_init (object stream) {
         ChannelStream_iconvdesc(stream) =
           open_iconv(CLISP_INTERNAL_CHARSET,charset_asciz,
                      TheEncoding(encoding)->enc_charset);
+        end_system_call();
       } else {
         ChannelStream_iconvdesc(stream) = (iconv_t)0;
       }
@@ -4040,6 +4041,7 @@ local void ChannelStream_init (object stream) {
         ChannelStream_oconvdesc(stream) =
           open_iconv(charset_asciz,CLISP_INTERNAL_CHARSET,
                      TheEncoding(encoding)->enc_charset);
+        end_system_call();
       } else {
         ChannelStream_oconvdesc(stream) = (iconv_t)0;
       }
