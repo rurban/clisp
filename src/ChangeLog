@@ -1,5 +1,9 @@
 2001-08-30  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (nonreturning_function): [MICROSOFT] __declspec(noreturn)
+
+2001-08-30  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (MERGE-PATHNAMES): when physical directories do not
 	match, check for unbound directory in pathname
 
