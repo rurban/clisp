@@ -72,10 +72,11 @@
       (cons (second (second form)) (cddr form))
       form))
 
-(defmacro define-compiler-macro (&whole form name args &body body)
+(defmacro define-compiler-macro (&whole whole-form
+                                 name args &body body)
   (declare (ignore name args body))
   (multiple-value-bind (expansion name lambdalist docstring)
-      (sys::make-macro-expansion (cdr form) 'strip-funcall-form)
+      (sys::make-macro-expansion (cdr whole-form) whole-form 'strip-funcall-form)
     (declare (ignore lambdalist))
     (sys::check-redefinition name 'define-compiler-macro
                              (and (compiler-macro-function name)

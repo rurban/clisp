@@ -43,10 +43,13 @@
 (defun macro-call-error (macro-form)
   (error-of-type 'source-program-error
     :form macro-form
+    :detail macro-form
     (TEXT "The macro ~S may not be called with ~S arguments: ~S")
     (car macro-form) (1- (length macro-form)) macro-form))
 
 (proclaim '(special
+        %whole-form ;; the whole source form being macroexpanded or compiled
+
         %restp ;; indicates whether &REST/&BODY/&KEY was given,
                ;; and therefore the number of arguments is unbound.
 
@@ -93,14 +96,14 @@ creates a testform from %restp, %min-args, %arg-count, which indicates
 during evaluation whether the variable value of the symbol can be a
 function call for the macro.
 
- (MAKE-MACRO-EXPANSION macrodef)
+ (MAKE-MACRO-EXPANSION macrodef whole-form)
 returns, for a macro definition macrodef = (name lambdalist . body),
 1. the macro-expander as the program text (FUNCTION ... (LAMBDA ..)),
 2. name, a symbol
 3. lambda list
 4. docstring (or NIL, if not there)
 
- (MAKE-MACRO-EXPANDER macrodef &optional env)
+ (MAKE-MACRO-EXPANDER macrodef whole-form &optional env)
 returns, for a macro definition macrodef = (name lambdalist . body),
 the actual object #<MACRO expander> for the FENV.
 |#
@@ -115,7 +118,8 @@ the actual object #<MACRO expander> for the FENV.
     (cond ((symbolp (car listr)) (setq %let-list (cons `(,(car listr) nil) %let-list)))
           ((atom (car listr))
            (error-of-type 'source-program-error
-             :form (car listr)
+             :form %whole-form
+             :detail (car listr)
              (TEXT "in macro ~S: ~S may not be used as &AUX variable.")
              name (car listr)))
           (t (setq %let-list
@@ -125,7 +129,8 @@ the actual object #<MACRO expander> for the FENV.
   (when (and (consp (cdr item)) (consp (cddr item)))
     (unless (symbolp (caddr item))
       (error-of-type 'source-program-error
-        :form (caddr item)
+        :form %whole-form
+        :detail (caddr item)
         (TEXT "~S: invalid supplied-p variable ~S")
         name (caddr item)))
     (third item)))
@@ -217,7 +222,8 @@ the actual object #<MACRO expander> for the FENV.
 (defun analyze-rest (lambdalistr restexp name)
   (if (atom lambdalistr)
       (error-of-type 'source-program-error
-        :form lambdalistr
+        :form %whole-form
+        :detail lambdalistr
         (TEXT "The lambda list of macro ~S is missing a variable after &REST/&BODY.")
         name))
   (let ((restvar (car lambdalistr))
@@ -227,7 +233,8 @@ the actual object #<MACRO expander> for the FENV.
            (setq %let-list (cons `(,restvar ,restexp) %let-list)))
           ((atom restvar)
            (error-of-type 'source-program-error
-             :form restvar
+             :form %whole-form
+             :detail restvar
              (TEXT "The lambda list of macro ~S contains an illegal variable after &REST/&BODY: ~S")
              name restvar))
           (t
@@ -273,12 +280,13 @@ the actual object #<MACRO expander> for the FENV.
    (cons (cdr h) (cdr exp))
    (list 'cdr exp)))
 
-(defun empty-pattern (name accessexp &aux (g (gensym)))
+(defun empty-pattern (name accessexp wholevar &aux (g (gensym)))
   (setq %let-list (cons `(,g ,(cons-car accessexp)) %let-list)
         %null-tests (cons
                      `(if ,g
                        (error-of-type 'source-program-error
-                         :form ,g
+                         :form ,wholevar
+                         :detail ,g
                          (TEXT "~S: ~S does not match lambda list element ~:S")
                          ',name ,g '()))
                      %null-tests)))
@@ -292,7 +300,8 @@ the actual object #<MACRO expander> for the FENV.
        (when listr
          (unless (symbolp listr)
            (error-of-type 'source-program-error
-             (form listr)
+             :form %whole-form
+             :detail listr
              (TEXT "The lambda list of macro ~S contains an illegal &REST variable: ~S")
              name listr))
          (setq %let-list (cons `(,listr ,accessexp) %let-list))
@@ -307,7 +316,8 @@ the actual object #<MACRO expander> for the FENV.
                  (setq listr (cdr listr)) ; pop &WHOLE
                  (analyze1 (car listr) wholevar name wholevar)))
              (error-of-type 'source-program-error
-               (form listr)
+               :form %whole-form
+               :detail listr
                (TEXT "The lambda list of macro ~S contains an invalid &WHOLE: ~S")
                name listr)))
           ((eq item '&OPTIONAL)
@@ -339,14 +349,15 @@ the actual object #<MACRO expander> for the FENV.
              (cond ((symbolp item) (setq item (list item %default-form)))
                    ((and (consp item) (eql (length item) 1))
                     (setq item (list (car item) %default-form)))))
-           (cond ((null item) (empty-pattern name accessexp))
+           (cond ((null item) (empty-pattern name accessexp wholevar))
                  ((symbolp item)
                   (setq %let-list (cons `(,item ,(cons-car accessexp))
                                         %let-list)))
                  ((atom item)
                   #1=
                   (error-of-type 'source-program-error
-                    :form item
+                    :form %whole-form
+                    :detail item
                     (TEXT "The lambda list of macro ~S contains an invalid element ~S")
                     name item))
                  ((symbolp (car item))
@@ -378,7 +389,7 @@ the actual object #<MACRO expander> for the FENV.
           (t ; required arguments
            (setq %min-args (1+ %min-args))
            (setq %arg-count (1+ %arg-count))
-           (cond ((null item) (empty-pattern name accessexp))
+           (cond ((null item) (empty-pattern name accessexp wholevar))
                  ((symbolp item)
                   (setq %let-list (cons `(,item ,(cons-car accessexp)) %let-list)))
                  ((atom item)
@@ -394,7 +405,8 @@ the actual object #<MACRO expander> for the FENV.
                     (rplaca (cdr (assoc g1 %let-list))
                             `(if ,test
                                  (error-of-type 'source-program-error
-                                   :form ,g
+                                   :form ,wholevar
+                                   :detail ,g
                                    (TEXT "~S: ~S does not match lambda list element ~:S")
                                    ',name ,g ',item)
                                  ,g)))))
@@ -414,7 +426,8 @@ the actual object #<MACRO expander> for the FENV.
                 (nreconc l2 (cddr l1))))
            (cadr listr)))
         (error-of-type 'source-program-error
-          :form lambdalist
+          :form %whole-form
+          :detail lambdalist
           (TEXT "In the lambda list of macro ~S, &ENVIRONMENT must be followed by a non-NIL symbol: ~S")
           name lambdalist)))))
 
@@ -427,65 +440,70 @@ the actual object #<MACRO expander> for the FENV.
           (t `(NOT (<= ,(+ header %min-args)
                        ,len ,(+ header %arg-count)))))))
 
-(defun make-macro-expansion (macrodef &optional pre-process)
+(defun make-macro-expansion (macrodef whole-form &optional pre-process)
   (when (atom macrodef)
     (error-of-type 'source-program-error
       :form macrodef
+      :detail macrodef
       (TEXT "Cannot define a macro from that: ~S")
       macrodef))
   (unless (symbolp (car macrodef))
     (error-of-type 'source-program-error
-      :form (car macrodef)
+      :form macrodef
+      :detail (car macrodef)
       (TEXT "The name of a macro must be a symbol, not ~S")
       (car macrodef)))
   (when (atom (cdr macrodef))
     (error-of-type 'source-program-error
-      :form (cdr macrodef)
+      :form macrodef
+      :detail (cdr macrodef)
       (TEXT "Macro ~S is missing a lambda list.")
       (car macrodef)))
   (let ((name (car macrodef))
         (lambdalist (cadr macrodef))
         (body (cddr macrodef)))
     (multiple-value-bind (body-rest declarations docstring) (parse-body body t)
-      (if declarations (setq declarations
-                             (list (cons 'DECLARE declarations))))
-      (multiple-value-bind (newlambdalist envvar)
-          (remove-env-arg lambdalist name)
-        (let ((%arg-count 0) (%min-args 0) (%restp nil) (%null-tests nil)
-              (%let-list nil) (%keyword-tests nil) (%default-form nil))
-          (analyze1 newlambdalist '(CDR <MACRO-FORM>) name '<MACRO-FORM>)
-          (let ((lengthtest (make-length-test '<MACRO-FORM>))
-                (mainform `(LET* ,(nreverse %let-list)
-                             ,@declarations
-                             ,@(nreverse %null-tests)
-                             ,@(nreverse %keyword-tests)
-                             (BLOCK ,name ,@body-rest))))
-            (if lengthtest
-              (setq mainform
-                    `(IF ,lengthtest
-                       (MACRO-CALL-ERROR <MACRO-FORM>)
-                       ,mainform)))
-            (values
-             `(FUNCTION ,name
-                (LAMBDA (<MACRO-FORM> ,(or envvar '<ENV-ARG>))
-                (DECLARE (CONS <MACRO-FORM>))
-                ,@(if envvar
-                    declarations ;; possibly contains a (declare (ignore envvar))
-                    '((DECLARE (IGNORE <ENV-ARG>))))
-                ,@(if docstring (list docstring))
-                ,@(if pre-process
-                    `((setq <MACRO-FORM> (,pre-process <MACRO-FORM>))))
-                ,mainform))
-             name
-             lambdalist
-             docstring)))))))
+      (if declarations
+        (setq declarations (list (cons 'DECLARE declarations))))
+      (let ((%whole-form whole-form))
+        (multiple-value-bind (newlambdalist envvar)
+            (remove-env-arg lambdalist name)
+          (let ((%arg-count 0) (%min-args 0) (%restp nil) (%null-tests nil)
+                (%let-list nil) (%keyword-tests nil) (%default-form nil))
+            (analyze1 newlambdalist '(CDR <MACRO-FORM>) name '<MACRO-FORM>)
+            (let ((lengthtest (make-length-test '<MACRO-FORM>))
+                  (mainform `(LET* ,(nreverse %let-list)
+                               ,@declarations
+                               ,@(nreverse %null-tests)
+                               ,@(nreverse %keyword-tests)
+                               (BLOCK ,name ,@body-rest))))
+              (if lengthtest
+                (setq mainform
+                      `(IF ,lengthtest
+                         (MACRO-CALL-ERROR <MACRO-FORM>)
+                         ,mainform)))
+              (values
+                `(FUNCTION ,name
+                   (LAMBDA (<MACRO-FORM> ,(or envvar '<ENV-ARG>))
+                   (DECLARE (CONS <MACRO-FORM>))
+                   ,@(if envvar
+                       declarations ;; possibly contains a (declare (ignore envvar))
+                       '((DECLARE (IGNORE <ENV-ARG>))))
+                   ,@(if docstring (list docstring))
+                   ,@(if pre-process
+                       `((setq <MACRO-FORM> (,pre-process <MACRO-FORM>))))
+                   ,mainform))
+               name
+               lambdalist
+               docstring))))))))
 
-(defun make-macro-expander (macrodef &optional
+(defun make-macro-expander (macrodef whole-form
+                            &optional
                             (env (vector (and (boundp '*venv*) *venv*)
                                          (and (boundp '*fenv*) *fenv*)
                                          (and (boundp '*benv*) *benv*)
                                          (and (boundp '*genv*) *genv*)
                                          (if (boundp '*denv*) *denv*
                                              *toplevel-denv*))))
-  (make-macro ;; CLTL1: (eval (make-macro-expansion macrodef))
-   (evalhook (make-macro-expansion macrodef) nil nil env)))
+  (make-macro ;; CLTL1: (eval (make-macro-expansion macrodef whole-form))
+   (evalhook (make-macro-expansion macrodef whole-form) nil nil env)))

@@ -40,9 +40,9 @@
 
 ;; helper
 (defmacro program-error-reporter (caller)
-  `#'(lambda (form errorstring &rest arguments)
-       (error-of-type 'ext:source-program-error
-         :form form
+  `#'(lambda (detail errorstring &rest arguments)
+       (declare (ignore detail))
+       (error-of-type 'program-error
          (TEXT "~S: ~A") ,caller
          (apply #'format nil errorstring arguments))))
 
@@ -50,29 +50,31 @@
 (defun extract-lambda-list (specialized-lambda-list)
   (nth-value 0
     (decompose-specialized-lambda-list
-     specialized-lambda-list
-     (program-error-reporter 'extract-lambda-list))))
+      specialized-lambda-list
+      (program-error-reporter 'extract-lambda-list))))
 
 ;; MOP p. 53
 (defun extract-specializer-names (specialized-lambda-list)
   (nth-value 1
     (decompose-specialized-lambda-list
-     specialized-lambda-list
-     (program-error-reporter 'extract-specializer-names))))
+      specialized-lambda-list
+      (program-error-reporter 'extract-specializer-names))))
 
 ;;; For DEFMETHOD, DEFGENERIC, GENERIC-FUNCTION, GENERIC-FLET,
 ;;;     GENERIC-LABELS, WITH-ADDED-METHODS
 ;; caller: symbol
+;; whole-form: whole source form
 ;; funname: function name, symbol or (SETF symbol)
 ;; description: (qualifier* spec-lambda-list {declaration|docstring}* form*)
 ;; ==> method-initargs-forms, signature
-(defun analyze-method-description (caller funname description)
+(defun analyze-method-description (caller whole-form funname description)
   ;; Collect the qualifiers:
   (let ((qualifiers nil))
     (loop
       (when (atom description)
         (error-of-type 'ext:source-program-error
-          :form description
+          :form whole-form
+          :detail description
           (TEXT "~S ~S: missing lambda list")
           caller funname))
       (when (listp (car description)) (return))
@@ -83,9 +85,10 @@
           (body (cdr description)))
       (multiple-value-bind (lambda-list spec-list ignorable-req-vars)
           (decompose-specialized-lambda-list specialized-lambda-list
-            #'(lambda (form errorstring &rest arguments)
+            #'(lambda (detail errorstring &rest arguments)
                 (error-of-type 'ext:source-program-error
-                  :form form
+                  :form whole-form
+                  :detail detail
                   (TEXT "~S ~S: ~A")
                   caller funname
                   (apply #'format nil errorstring arguments))))
@@ -101,7 +104,8 @@
                                         (null (cddr specializer-name)))
                                    `(INTERN-EQL-SPECIALIZER ,(second specializer-name)))
                                   (t (error-of-type 'ext:source-program-error
-                                       :form specializer-name
+                                       :form whole-form
+                                       :detail specializer-name
                                        (TEXT "~S ~S: Invalid specializer ~S in lambda list ~S")
                                        caller funname specializer-name specialized-lambda-list))))
                         spec-list)))
@@ -117,9 +121,10 @@
                                 keyp keywords keyvars keyinits keysvars
                                 allowp auxvars auxinits)
               (analyze-lambdalist lambda-list
-                #'(lambda (form errorstring &rest arguments)
+                #'(lambda (detail errorstring &rest arguments)
                     (error-of-type 'ext:source-program-error
-                      :form form
+                      :form whole-form
+                      :detail detail
                       (TEXT "~S ~S: ~A")
                       caller funname
                       (apply #'format nil errorstring arguments))))

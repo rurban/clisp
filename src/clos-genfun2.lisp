@@ -18,14 +18,15 @@
 ;; 1. the lambda-list's signature,
 ;; 2. the argument-precedence-order, as a list of variables,
 ;; 3. the argument-precedence-order, as a list of numbers from 0 to reqnum-1.
-;; Reports errors through errfunc (a function taking an error format string
-;; and format string arguments).
+;; Reports errors through errfunc (a function taking a detail object, an
+;; error format string and format string arguments).
 (defun check-gf-lambdalist+argorder (lambdalist argument-precedence-order argument-precedence-order-p errfunc)
   ;; Check the lambda-list.
   (multiple-value-bind (reqvars optvars rest keyp keywords keyvars allowp)
       (sys::analyze-generic-function-lambdalist lambdalist
-        #'(lambda (form errorstring &rest arguments)
-            (funcall errfunc form (TEXT "Invalid generic function lambda-list: ~A")
+        #'(lambda (detail errorstring &rest arguments)
+            (funcall errfunc detail
+                     (TEXT "Invalid generic function lambda-list: ~A")
                      (apply #'format nil errorstring arguments))))
     (declare (ignore keyvars))
     (let ((reqnum (length reqvars))
@@ -45,7 +46,8 @@
             (let ((indices
                     (mapcar #'(lambda (x)
                                 (or (position x reqvars)
-                                    (funcall errfunc x (TEXT "Incorrect ~S argument: ~S is not one of the required parameters: ~S")
+                                    (funcall errfunc x
+                                             (TEXT "Incorrect ~S argument: ~S is not one of the required parameters: ~S")
                                              ':argument-precedence-order x argument-precedence-order)))
                             argument-precedence-order)))
               ;; Is argument-precedence-order a permutation of reqvars?
@@ -60,7 +62,8 @@
               (unless (eql (length indices) reqnum) ; surjective?
                 (let ((missing (set-difference
                                 reqvars argument-precedence-order)))
-                  (funcall errfunc missing (TEXT "Incorrect ~S argument: The variables ~S are missing in ~S")
+                  (funcall errfunc missing
+                           (TEXT "Incorrect ~S argument: The variables ~S are missing in ~S")
                            ':argument-precedence-order
                            missing argument-precedence-order)))
               (values signature argument-precedence-order indices)))
@@ -92,8 +95,8 @@
     (multiple-value-setq (signature argument-precedence-order argorder)
         (check-gf-lambdalist+argorder lambda-list
           argument-precedence-order argument-precedence-order-p
-          #'(lambda (form errorstring &rest arguments)
-              (declare (ignore form))
+          #'(lambda (detail errorstring &rest arguments)
+              (declare (ignore detail))
               (error (TEXT "(~S ~S) for generic function ~S: ~A")
                      (if (eq situation 't) 'initialize-instance 'shared-initialize)
                      'standard-generic-function (funcallable-name gf)

@@ -132,12 +132,14 @@
 (defsetf slot-value set-slot-value)
 
 ;; WITH-SLOTS
-(defmacro with-slots (slot-entries instance-form &body body)
+(defmacro with-slots (&whole whole-form
+                      slot-entries instance-form &body body)
   (let ((vars '())
         (slots '()))
     (unless (listp slot-entries)
       (error-of-type 'ext:source-program-error
-        :form slot-entries
+        :form whole-form
+        :detail slot-entries
         (TEXT "~S: not a list of slots: ~S")
         'with-slots slot-entries))
     (dolist (slot slot-entries)
@@ -145,18 +147,21 @@
         (when (consp slot)
           (unless (eql (length slot) 2)
             (error-of-type 'ext:source-program-error
-              :form slot
+              :form whole-form
+              :detail slot
               (TEXT "~S: invalid slot and variable specification ~S")
               'with-slots slot))
           (setq var (first slot) slot (second slot))
           (unless (symbolp var)
             (error-of-type 'ext:source-program-error
-              :form var
+              :form whole-form
+              :detail var
               (TEXT "~S: variable ~S should be a symbol")
               'with-slots var)))
         (unless (symbolp slot)
           (error-of-type 'ext:source-program-error
-            :form slot
+            :form whole-form
+            :detail slot
             (TEXT "~S: slot name ~S should be a symbol")
             'with-slots slot))
         (push var vars)
@@ -172,26 +177,31 @@
              ,@body-rest))))))
 
 ;; WITH-ACCESSORS
-(defmacro with-accessors (slot-entries instance-form &body body)
+(defmacro with-accessors (&whole whole-form
+                          slot-entries instance-form &body body)
   (unless (listp slot-entries)
     (error-of-type 'ext:source-program-error
-      form slot-entries
+      :form whole-form
+      :detail slot-entries
       (TEXT "~S: not a list of slots: ~S")
       'with-accessors slot-entries))
   (dolist (slot-entry slot-entries)
     (unless (and (consp slot-entry) (eql (length slot-entry) 2))
       (error-of-type 'ext:source-program-error
-        :form slot-entry
+        :form whole-form
+        :detail slot-entry
         (TEXT "~S: invalid slot and accessor specification ~S")
         'with-accessors slot-entry))
     (unless (symbolp (first slot-entry))
       (error-of-type 'ext:source-program-error
-        :form (first slot-entry)
+        :form whole-form
+        :detail (first slot-entry)
         (TEXT "~S: variable ~S should be a symbol")
         'with-accessors (first slot-entry)))
     (unless (symbolp (second slot-entry))
       (error-of-type 'ext:source-program-error
-        :form (second slot-entry)
+        :form whole-form
+        :detail (second slot-entry)
         (TEXT "~S: accessor name ~S should be a symbol")
         'with-accessors (second slot-entry))))
   (multiple-value-bind (body-rest declarations) (sys::parse-body body)
