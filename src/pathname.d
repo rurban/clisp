@@ -3658,6 +3658,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
     # check pathname and defaults:
     # (coerce defaults 'pathname):
     var object d_path = test_default_pathname(STACK_0);
+    if (eq(unbound,STACK_0)) STACK_0 = d_path;
     pushSTACK(d_path);
     DOUT("merge-pathnames:",d_path);
     # stack layout: 0: d_path; 1: d_original; 2: pathname
