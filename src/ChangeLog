@@ -1,3 +1,8 @@
+2000-03-30  Bruno Haible  <haible@clisp.cons.org>
+
+        * stream.d (oconv_unshift_output_unbuffered_,
+          oconv_unshift_output_buffered_): Remove junk after #undef.
+
 2000-03-29  Sam Steingold  <sds@gnu.org>
 
 	concatenated-stream-streams compiles with ANSI now
