@@ -99,7 +99,6 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
 
 ;; ---------------------- pprint-logical-block ----------------------
 
-;; FIXME: handle *print-circle*, *print-length*
 (defmacro pprint-logical-block ((stream-symbol object
                                  &key prefix per-line-prefix suffix)
                                 &body body)
@@ -107,6 +106,7 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
                ((t) '*terminal-io*)
                ((nil) *standard-output*)
                (otherwise stream-symbol)))
+        (idx (gensym "PPLB-IDX-"))
         (pre (gensym "PPLB-PREF-"))
         (suf (gensym "PPLB-SUFF-")))
     `(let ((,pre ,prefix)
@@ -142,17 +142,30 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
           'pprint-logical-block :prefix 'string *prin-line-prefix*))
       (%pprint-logical-block
        (lambda (,out obj)
-         (macrolet ((pprint-pop ()
-                      ;; FIXME: dotted lists &c
-                      '(pop obj))
-                    (pprint-exit-if-list-exhausted ()
-                      '(unless obj (go pprint-logical-block-end))))
-           (when ,pre
-             (write-string ,pre ,out)
-             (pprint-indent :current 0 ,out))
-           (tagbody ,@body
-            pprint-logical-block-end
-              (when ,suf (write-string ,suf ,out)))))
+         (let ((,idx 0))
+           (macrolet ((pprint-pop ()
+                        '(cond
+                          ((and *print-length* (>= ,idx *print-length*))
+                           (write-string "..." ,out)
+                           (go pprint-logical-block-end))
+                          ((and (/= 0 ,idx) (%circlep obj ,out))
+                           (go pprint-logical-block-end))
+                          ((listp obj) (incf ,idx) (pop obj))
+                          (t (write-string ". " ,out)
+                           (write obj :stream ,out)
+                           (go pprint-logical-block-end))))
+                      (pprint-exit-if-list-exhausted ()
+                        '(unless obj (go pprint-logical-block-end))))
+             (incf *prin-level*)
+             (when ,pre
+               (write-string ,pre ,out)
+               (pprint-indent :current 0 ,out))
+             (tagbody ,@body
+              pprint-logical-block-end
+                (when ,suf
+                  ;; to avoid suffix being attached to the last string
+                  (pprint-newline :fill ,out)
+                  (write-string ,suf ,out))))))
        ,object ,out))))
 
 ;; ---------------------- utilities ----------------------

@@ -1,3 +1,16 @@
+2001-09-20  Sam Steingold  <sds@gnu.org>
+
+	PPRINT-LOGICAL-BLOCK supports *PRINT-CIRCLE* and *PRINT-LENGTH*
+	* pprint.lisp (pprint-pop): handle *PRINT-LENGTH* & *PRINT-CIRCLE*
+	* constsym.d, subr.d (pcirclep): added
+	* io.d (double_dots): do not set *PRIN-LINES* to :END
+	(string_fit_line_p): take a third arg offset
+	(pr_enter_1): do not print TAB before NL
+	(pprin_object, pprin_object_dispatch): new pr_routine_t
+	(pprint_lisp): removed
+	(%PPRINT-LOGICAL-BLOCK): use pprin_object instead of pprint_lisp
+	(%CIRCLEP): new LISPFUNN
+
 2001-09-19  Sam Steingold  <sds@gnu.org>
 
 	* io.d (format_tab): ASSERT that the return value is >=0

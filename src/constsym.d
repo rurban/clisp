@@ -364,6 +364,7 @@ LISPSYM(pprint_dispatch,"PPRINT-DISPATCH",lisp) # used in io.d
 LISPSYM(pprint_indent,"PPRINT-INDENT",lisp)
 LISPSYM(pprint_newline,"PPRINT-NEWLINE",lisp)
 LISPSYM(ppprint_logical_block,"%PPRINT-LOGICAL-BLOCK",system)
+LISPSYM(pcirclep,"%CIRCLEP",system) # for PPRINT-POP
 LISPSYM(princ,"PRINC",lisp)
 LISPSYM(write_to_string,"WRITE-TO-STRING",lisp)
 LISPSYM(prin1_to_string,"PRIN1-TO-STRING",lisp)
