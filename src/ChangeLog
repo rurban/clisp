@@ -1,3 +1,9 @@
+2002-05-08  Sam Steingold  <sds@gnu.org>
+
+	* gettext/po/Makefile.devel: use msguniq from GNU gettext 0.11
+	instead of clisp-msguniq
+	(clisp-msguniq): removed
+
 2002-05-07  Bruno Haible  <bruno@clisp.org>
 
 	* compiler.lisp (SP-depth): Insert a verification that each label is a
