@@ -6640,11 +6640,11 @@ lisp.
 <a name="options"></a><h3>Extensions-1.9. Command Line Options</h3>
 
 <p>CLISP executables (<em>lisp.run</em> and <em>clisp</em> on UNIX
-systems, <em>lisp.exe</em> on Win32) accept the following
-platform-independent command line options:
+systems, <em>lisp.exe</em> on Win32, etc) accept the following
+command line options:
 
 <dl>
- <dt><strong>--help</strong>
+ <dt><strong>--help</strong>, <strong>-h</strong>
   <dd>Print the program usage and exit.  Use this option to find out about
   the possible platform-specific options available on your platform.
  <dt><strong>--version</strong>
@@ -6657,16 +6657,40 @@ platform-independent command line options:
   <dd>Do not print the banner.
  <dt><strong>-M file.mem</strong>
   <dd>Use this memory image.
- <dt><strong>-m size</strong>
-  <dd>Memory size (<em>size</em> = xxxxxxxB or xxxxKB or xMB).
+ <dt><strong>-m memsize</strong>
+  <dd>The amount of memory to grab on startup.  <em>memsize</em> is
+  xxxxxxxB or xxxxKB or xMB, but more than 100K.  CLISP is not likely to
+  use all the memory due to garbage collection.  Ignored on most
+  platforms.
+ <dt><strong>-s stacksize</strong>
+  <dd>The size of the stack CLISP allocates for itself. The syntax is
+  the same as for <em>memsize</em>, between 40K and 8M, default is one
+  eighth of <EM>memsize</EM>.  Some platforms only.
+ <dt><strong>-t tempdir</strong>
+  <dd>Specifies the directory where the temporary core file is to be
+  held.  This option takes precedence over the environment variable
+  <code>TMPDIR</code>.  Some platforms only.
+ <dt><strong>-K linking-set</strong>
+  <dd>Specifies the linking set to be run. This is a directory
+  containing at least a main executable and an initial memory
+  image.  Possible values are <code>base</code>, <code>full</code>.
+  The default is <code>base</code>.
+ <dt><strong>-B lisplibdir</strong>
+  <dd>Specifies the installation directory.  This is the directory
+  containing the linking sets and other data files.  On UNIX systems
+  this option should not be necessary, because the installation
+  directory is already built-in in the <code>clisp</code> executable.
  <dt><strong>-L language</strong>
   <dd>Set the user interface <a href="#language">language</a>
   (default: English).
  <dt><strong>-N nlsdir</strong>
-  <dd>NLS catalog directory.
+  <dd>NLS catalog directory.  CLISP will look for its message catalogs
+  in <code>nlsdir/language/LC_MESSAGES/clisp.mo</code>.
  <dt><strong>-I</strong>
   <dd>Be <em>ILISP</em>-friendly.  ILISP is an alternative Emacs
-  interface to Common Lisps.
+  interface to Common Lisps.  Currently the only effects of this are
+  that unnecessary prompts are not suppressed and the GNU readline
+  library treats Tab as a normal self-inserting character.
  <dt><strong>-C</strong>
   <dd>Set <a href="#loadfile"><code>lisp:*load-compiling*</code></a> to
   <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>.
