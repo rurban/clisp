@@ -1,3 +1,5 @@
+;; -*- lisp -*-
+
 (setf string "test-pathname.abc" symbol 'test-pathname.abc)
 test-pathname.abc
 
@@ -651,23 +653,28 @@ FIXME
 #S(LOGICAL-PATHNAME :HOST "CL-LIBRARY" :DEVICE NIL :DIRECTORY (:ABSOLUTE "FOO")
    :NAME "BAR" :TYPE "BAZ" :VERSION 3)
 
-(defun foo (x)
-  (let ((path (make-pathname
-               :defaults (make-pathname :directory
-                                        '(:relative :wild-inferiors)
-                                        :type x :case :common)
-               :host "CL-LIBRARY" :case :common)))
-    (string= x (pathname-type path))))
+(defun foo (x host)
+  (let ((dflt (make-pathname :directory '(:relative :wild-inferiors)
+                             :type x :case :common)))
+    (if host
+        (make-pathname :defaults dflt :host host :case :common)
+        (make-pathname :defaults dflt :case :common))))
 foo
+
+;; :defaults arg is not subject to :case conversion
+(string= "c" (pathname-type (foo "c" nil) :case :common))
+t
+(string= "C" (pathname-type (foo "C" nil) :case :common))
+t
+
+;; :case is ignored for logical pathnames
+(string= "C" (pathname-type (foo "c" "CLOCC") :case :common))
+t
+(string= "c" (pathname-type (foo "C" "CLOCC") :case :common))
+t
 
 (namestring (logical-pathname "foo:bar;baz"))
 "FOO:BAR;BAZ"
-
-(foo "c")
-t
-
-(foo "C")
-t
 
 (let* ((foo (copy-seq "abcdefghijkl"))
        (bar (make-array 5 :displaced-to foo :displaced-index-offset 2
@@ -677,10 +684,7 @@ t
   (equalp path (make-pathname :directory (pathname-directory path))))
 t
 
-; this contradicts the above FOO test
-; KMP wants FOO to return NIL
-; see make-pathname in pathname.d (search for KMP_IS_RIGHT)
-;(string= (namestring (make-pathname :name "FOO" :case :common
-;                                    :defaults #P"/home/kent/"))
-;         (namestring #P"/home/kent/foo"))
-;t
+(string= (namestring (make-pathname :name "FOO" :case :common
+                                    :defaults #P"/home/kent/"))
+         (namestring #P"/home/kent/foo"))
+t
