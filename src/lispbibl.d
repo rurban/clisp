@@ -1,7 +1,7 @@
-# Haupt-Include-File für CLISP
+# Main include-file for CLISP
 # Bruno Haible 1990-2001
 # Marcus Daniels 11.11.1994
-
+# Sam Steingold 1998-2001
 
 # Flags intended to be set through CFLAGS:
 #   Readline library:
@@ -24,12 +24,13 @@
 #     NO_MORRIS_GC, NO_GENERATIONAL_GC
 
 
-# Implementation ist auf folgende Rechner, Betriebssysteme und C-Compiler
-# vorbereitet. (Nur ungefähre Liste, Genaues siehe PLATFORMS.)
-# Maschine     Hersteller         Betriebssystem                C-Compiler    erkennbar an
-# AMIGA        Commodore          AMIGA-OS (AMIGADOS)           GNU           amiga oder AMIGA, __GNUC__, evtl. MC68000 oder AMIGA3000
-# beliebig     beliebig           UNIX                          GNU           unix, __GNUC__, ...
-# beliebig     beliebig           UNIX                          CC            unix, ...
+# Implementation is prepared for the following computers,
+# operating systems and c-compilers
+# (Only a rough listing, check the file PLATFORMS for further details.)
+# Machine      Producer           Operating system              C-Compiler    recognized through
+# AMIGA        Commodore          AMIGA-OS (AMIGADOS)           GNU           amiga or AMIGA, __GNUC__, maybe MC68000 or AMIGA3000
+# any          any                UNIX                          GNU           unix, __GNUC__, ...
+# any          any                UNIX                          CC            unix, ...
 # Amiga 3000   Commodore          Amiga UNIX 2.1 SVR4.0         GNU           unix, __unix__, AMIX, __AMIX__, __svr4__, m68k, __m68k__, __motorola__, __GNUC__
 # SUN-3        Sun                SUN-OS3 (UNIX BSD 4.2)        GNU           sun, unix, mc68020, __GNUC__
 # SUN-3        Sun                SUN-OS4 (UNIX SUNOS 4.1)      GNU           sun, unix, mc68020, __GNUC__
@@ -40,7 +41,7 @@
 # SUN-4        Sun                SUN-OS5 (UNIX Solaris)        GCC           sun, unix, sparc, __GNUC__
 # UltraSparc   Sun                Solaris 7 (UNIX SUNOS 5.7)    CC            sun, unix, __sparc, __sparcv9
 # UltraSparc   Sun                Solaris 7 (UNIX SUNOS 5.7)    GCC           sun, unix, __sparc, __arch64__, __GNUC__
-# IBM-PC/386   beliebig           SUN-OS5 (UNIX Solaris)        GCC           sun, unix, __svr4__, i386, __GNUC__
+# IBM-PC/386   any           	  SUN-OS5 (UNIX Solaris)        GCC           sun, unix, __svr4__, i386, __GNUC__
 # HP9000-300   Hewlett-Packard    NetBSD 0.9 (UNIX BSD 4.3)     GNU           unix, __NetBSD__, mc68000, __GNUC__
 # HP9000-300   Hewlett-Packard    HP-UX 8.0 (UNIX SYS V)        GNU           [__]hpux, [__]unix, [__]hp9000s300, mc68000, __GNUC__
 # HP9000-800   Hewlett-Packard    HP-UX 8.0 (UNIX SYS V)        GNU           [__]hpux, [__]unix, [__]hp9000s800
@@ -52,7 +53,7 @@
 # DEC Alpha    DEC                OSF/1 1.3                     cc            [unix,] __unix__, __osf__, __alpha
 # DEC Alpha    DEC                OSF/1 1.3                     GNU           unix, __unix__, __osf__, __alpha, __alpha__, _LONGLONG
 # Apple MacII  Apple              A/UX (UNIX SYS V 2)           GNU           [__]unix, [__]AUX, [__]macII, [__]m68k, mc68020, mc68881, __GNUC__
-# NeXT         NeXT               NeXTstep 3.1 (UNIX)           cc            NeXT, m68k; NEXTAPP für NeXTstep-Applikation
+# NeXT         NeXT               NeXTstep 3.1 (UNIX)           cc            NeXT, m68k; NEXTAPP for NeXTstep Application
 # PowerPC      Apple              Mach 3.0 + MkLinux            GNU           unix, __powerpc__, __PPC__, _ARCH_PPC, _CALL_SYSV, __ELF__, __linux__
 # PowerPC      Apple              Mach + Rhapsody               cc            __MACH__, __APPLE__, __ppc[__], __GNUC__, __APPLE_CC__
 # PowerPC      Apple              Mach + MacOS X                cc            __MACH__, __APPLE__, __ppc__, __GNUC__, __APPLE_CC__
@@ -60,26 +61,26 @@
 # Sequent      Sequent            PTX V4.1.3                    GNU           unix, i386, _SEQUENT_, __svr4__, __GNUC__
 # Convex C2    Convex             ConvexOS 10.1                 GNU           __convex__, __GNUC__
 # IBM RS/6000  IBM                AIX 3.2                       GNU           _AIX, _AIX32, _IBMR2, __CHAR_UNSIGNED__, __GNUC__
-# IBM-PC/386   beliebig           LINUX (freies UNIX)           GNU           unix, linux, i386, __GNUC__
-# IBM-PC/386   beliebig           386BSD 0.1 (UNIX BSD 4.2)     GNU           unix, __386BSD__, i386, __GNUC__
-# IBM-PC/386   beliebig           NetBSD 0.9 (UNIX BSD 4.3)     GNU           unix, __NetBSD__, i386, __GNUC__
-# IBM-PC/386   beliebig           EMX 0.9c (UNIXlike auf OS/2)  GNU           [unix,] i386, __GNUC__, __EMX__
-# IBM-PC/386   beliebig           Cygwin32 auf WinNT/Win95      GNU           _WIN32, __WINNT__, __CYGWIN32__, __POSIX__, _X86_, i386, __GNUC__
-# IBM-PC/386   beliebig           Mingw32 auf WinNT/Win95       GNU           _WIN32, __WINNT__, __MINGW32__, _X86_, i386, __GNUC__
-# IBM-PC/386   beliebig           WinNT/Win95                   MSVC4.0,5.0   _WIN32, _M_IX86, _MSC_VER
-# IBM-PC/386   beliebig           WinNT/Win95                   Borland 5.0   __WIN32__, _M_IX86, __TURBOC__, __BORLANDC__
-# IBM-PC/386   beliebig           WinNT/Win95 und Cygwin32      GNU           _WIN32, __WINNT__, __CYGWIN32__, __POSIX__, __i386__, _X86_, __GNUC__
-# IBM-PC/586   beliebig           BeOS 5                        GNU           __BEOS__, __INTEL__, __i386__, _X86_, __GNUC__
-# IBM-PC/586   beliebig           HP NUE/ski, Linux             GNU           unix, linux, __ia64[__], __GNUC__, __LP64__
+# IBM-PC/386   any                LINUX (freies UNIX)           GNU           unix, linux, i386, __GNUC__
+# IBM-PC/386   any                386BSD 0.1 (UNIX BSD 4.2)     GNU           unix, __386BSD__, i386, __GNUC__
+# IBM-PC/386   any                NetBSD 0.9 (UNIX BSD 4.3)     GNU           unix, __NetBSD__, i386, __GNUC__
+# IBM-PC/386   any                EMX 0.9c (UNIXlike on OS/2)   GNU           [unix,] i386, __GNUC__, __EMX__
+# IBM-PC/386   any                Cygwin32 on WinNT/Win95       GNU           _WIN32, __WINNT__, __CYGWIN32__, __POSIX__, _X86_, i386, __GNUC__
+# IBM-PC/386   any                Mingw32 on WinNT/Win95        GNU           _WIN32, __WINNT__, __MINGW32__, _X86_, i386, __GNUC__
+# IBM-PC/386   any                WinNT/Win95                   MSVC4.0,5.0   _WIN32, _M_IX86, _MSC_VER
+# IBM-PC/386   any                WinNT/Win95                   Borland 5.0   __WIN32__, _M_IX86, __TURBOC__, __BORLANDC__
+# IBM-PC/386   any           WinNT/Win95 and Cygwin32      GNU           _WIN32, __WINNT__, __CYGWIN32__, __POSIX__, __i386__, _X86_, __GNUC__
+# IBM-PC/586   any                BeOS 5                        GNU           __BEOS__, __INTEL__, __i386__, _X86_, __GNUC__
+# IBM-PC/586   any                HP NUE/ski, Linux             GNU           unix, linux, __ia64[__], __GNUC__, __LP64__
 # RM400        Siemens-Nixdorf    SINIX-N 5.42                  c89           unix, mips, MIPSEB, host_mips, sinix, SNI, _XPG_IV
 # Acorn        Risc PC            RISC OS 3.x                   GNU           [__]arm, [__]riscos, __GNUC__
 # Acorn        Risc PC            RISC OS 3.x                   Norcroft      [__]arm, [__]riscos
 # APPLE IIGS   Apple              ??                            ??
-# Für ANSI-C-Compiler: verwende Präprozessoren comment5, ansidecl
-#   (und evtl. gcc-cpp, ccpaux).
+# For ANSI-C-Compiler: use pre-processors comment5, ansidecl
+#   (and maybe gcc-cpp, ccpaux).
 
 
-# diese Maschine: AMIGA oder ACORN oder OS2 oder WIN32 oder GENERIC_UNIX
+# this machine: AMIGA or ACORN or OS2 or WIN32 or GENERIC_UNIX
 #if (defined(__unix) || defined(__unix__) || defined(_AIX) || defined(sinix) || defined(__MACH__) || defined(__POSIX__) || defined(__NetBSD__) || defined(__BEOS__)) && !defined(unix)
   #define unix
 #endif
@@ -94,19 +95,19 @@
   #define OS2
 #endif
 #if (defined(_WIN32) && (defined(_MSC_VER) || defined(__MINGW32__))) || (defined(__WIN32__) && defined(__BORLANDC__))
-  #undef WIN32  # wg. __MINGW32__
+  #undef WIN32  # because of __MINGW32__
   #define WIN32
 #endif
 #if !(defined(AMIGA) || defined(ACORN) || defined(OS2) || defined(WIN32))
   #if defined(unix)
     #define GENERIC_UNIX
   #else
-    #error "Unknown machine type -- Maschine neu einstellen!"
+    #error "Unknown machine type -- set machine again!"
   #endif
 #endif
-# Zusätzliche Spezifikation der Maschine:
+# additional specification of the machine:
 #ifdef OS2
-  #define PC386 # IBMPC-Kompatibler mit 80386/80486-Prozessor
+  #define PC386 # IBMPC-compatible with 80386/80486-processor
 #endif
 #ifdef GENERIC_UNIX
   #if (defined(sun) && defined(unix) && defined(sun386))
@@ -122,7 +123,7 @@
     #define SUN4
   #endif
   #if defined(sparc) || defined(__sparc__)
-    # evtl. SUN4_29 falls nur Adressen <2^29 unterstützt werden.
+    # maybe SUN4_29 if only addresses <2^29 are supported
   #endif
   #if defined(hp9000s800) || defined(__hp9000s800)
     #define HP8XX
@@ -132,7 +133,7 @@
 # Determine the processor:
 # MC680X0 == all processors of the Motorola 68000 series
 # MC680Y0 == all processors of the Motorola 68000 series, starting at MC68020
-# SPARC == the Sun SPARC prozessor
+# SPARC == the Sun SPARC processor
 # HPPA == all processors of the HP Precision Architecture
 # MIPS == all processors of the MIPS series
 # M88000 == all processors of the Motorola 88000 series
@@ -215,14 +216,14 @@
 #endif
 
 
-# Auswahl des Betriebssystems:
+# Selection of the operating system
 #ifdef AMIGA
   #define AMIGAOS
 #endif
 #if (defined(riscos) || defined(__riscos)) && !defined(unix)
   #define RISCOS  # Acorn RISC OS
   #ifndef __GNUC__
-    #define RISCOS_CCBUG  # Bug in Norcrofts C-Compiler umgehen
+    #define RISCOS_CCBUG  # work around a bug in Norcroft's C-Compiler
   #endif
 #endif
 #ifdef WIN32
@@ -259,25 +260,25 @@
     #endif
   #endif
   #if defined(MIPS) && (defined(ultrix) || defined(__ultrix))
-    #define UNIX_DEC_ULTRIX  # DEC's (oder IBM's ?) RISC/OS Ultrix auf DEC MIPS
+    #define UNIX_DEC_ULTRIX  # DEC's (or IBM's ?) RISC/OS Ultrix on DEC MIPS
     #ifdef __GNUC__
-      #define UNIX_DEC_ULTRIX_GCCBUG  # GCC 2.3.3 Bug umgehen
+      #define UNIX_DEC_ULTRIX_GCCBUG  # work around a bug in GCC 2.3.3
     #endif
   #endif
   #if defined(MIPS) && defined(sinix) # && defined(SNI)
     #define UNIX_SINIX # Siemens is nix
   #endif
   #if defined(USL) || (defined(__svr4__) && defined(I80386) && !defined(__sun))
-    # Eine Reihe von 386er Unixen (alle unter verschiedenem Namen) stammen
-    # von USL SysV R 4 ab:
+    # A couple of Unices for 386s (all running under different names)
+    # derive from USL SysV R 4:
     #   386 UHC UNIX System V release 4
     #   Consensys System V 4.2
     #   Onsite System V 4.2
     #   SINIX-Z
     #   DYNIX/ptx V4.1.3
     #   SunOS 5
-    #define UNIX_SYSV_USL  # Unix System V R 4 von der AT&T-Tochter USL
-    #define UNIX_SYSV_UHC_1 # Behandlung analog HPPA && UNIX_HPUX
+    #define UNIX_SYSV_USL  # Unix System V R 4 by AT&T's subsidiary USL
+    #define UNIX_SYSV_UHC_1 # treat like HPPA && UNIX_HPUX
     #ifdef SNI
       #define UNIX_SINIX # Siemens is nix
     #endif
@@ -295,14 +296,14 @@
     #define UNIX_OSF  # OSF/1
   #endif
   #ifdef AUX
-    #define UNIX_AUX  # Apple A/UX, ein aufgepäppeltes SVR2
+    #define UNIX_AUX  # Apple A/UX, a spiced-up SVR2
   #endif
   #ifdef NeXT
     #define UNIX_NEXTSTEP  # NeXTstep
-    # define NEXTAPP       # Definiere dies, um eine NeXTstep-GUI-Applikation
-                           # zu bekommen.
-    #define MAYBE_NEXTAPP  # kleiner Hack, damit die .mem Files zwischen
-                           # clisp mit NEXTAPP und ohne NEXTAPP kompatibel sind
+    # define NEXTAPP       # Define this to get a NeXTstep-GUI application
+
+    #define MAYBE_NEXTAPP  # a little hack, to make the .mem files between
+                           # CLISP with NEXTAPP and without NEXTAPP compatible
   #endif
   #if defined(__APPLE__) && defined(__MACH__)
     #define UNIX_MACOSX  # MacOS X
@@ -314,10 +315,10 @@
     #define UNIX_CONVEX  # ConvexOS
   #endif
   #ifdef __MINT__
-    #define UNIX_MINT  # MiNT (UNIXlike auf Atari)
+    #define UNIX_MINT  # MiNT (UNIXlike on Atari)
   #endif
   #ifdef __CYGWIN32__
-    #define UNIX_CYGWIN32  # Cygwin32 (UNIXlike auf WinNT/Win95)
+    #define UNIX_CYGWIN32  # Cygwin32 (UNIXlike on WinNT/Win95)
   #endif
   #ifdef __BEOS__
     #define UNIX_BEOS  # BeOS (UNIXlike)
@@ -326,23 +327,23 @@
 #ifdef OS2
   #define MSDOS
   #ifdef __EMX__
-    #define EMUNIX  # UNIX-Emulation auf OS2-Basis von Eberhard Mattes
-    # Nur noch emx >= 0.9c wird unterstützt.
+    #define EMUNIX  # UNIX-emulation baed on OS2 by Eberhard Mattes
+    # Only emx >= 0.9c is still supported.
   #endif
 #endif
 
 
-# Eigenschaften von Compiler und Umgebung abfragen:
+# Determine properties of compiler and environment:
 #if defined(UNIX)
-  #include "unixconf.h"  # von configure erzeugte Konfiguration
-  #include "intparam.h"  # von machine erzeugte Integertyp-Charakteristika
+  #include "unixconf.h"  # configuration generated by configure
+  #include "intparam.h"  # integer-type characteristics created by the machine
 #elif defined(AMIGA) || defined(ACORN) || defined(OS2) || defined(WIN32)
   #define char_bitsize 8
   #define short_bitsize 16
   #if defined(ACORN) || defined(OS2) || defined(WIN32)
     #define int_bitsize 32
   #else
-    #define int_bitsize 0 # wird nicht benötigt
+    #define int_bitsize 0 # not required
   #endif
   #if defined(AMIGA) || defined(ACORN) || defined(OS2) || (defined(WIN32) && defined(I80386))
     #define long_bitsize 32
@@ -350,8 +351,8 @@
     #define long_bitsize 64
   #endif
   #ifdef __GNUC__
-    #if (__GNUC__ >= 2) # GCC 2 hat inzwischen funktionierenden `long long' Typ
-      #if !(defined(__m68k__) && (__GNUC__ == 2) && (__GNUC_MINOR__ <= 7)) # außer auf MC680X0
+    #if (__GNUC__ >= 2) # GCC 2 got a working 'long long' type meanwhile.
+      #if !(defined(__m68k__) && (__GNUC__ == 2) && (__GNUC_MINOR__ <= 7)) # except on MC680X0
         #define HAVE_LONGLONG
         #define long_long_bitsize 64
       #endif
@@ -384,27 +385,27 @@
 #endif
 
 
-# Genauere Klassifikation des Betriebssystems:
-  #if defined(UNIX) && defined(SIGNALBLOCK_BSD) && !defined(SIGNALBLOCK_SYSV)
-    #define UNIX_BSD  # BSD Unix
-  #endif
-  #if (defined(SUN3) || defined(SUN386) || defined(SUN4)) && defined(HAVE_MMAP) && defined(HAVE_VADVISE)
-    #define UNIX_SUNOS4  # Sun OS Version 4
-  #endif
-  #if (defined(SUN4) || (defined(I80386) && defined(__svr4__) && defined(__sun))) && !defined(HAVE_VADVISE) # && !defined(HAVE_GETPAGESIZE)
-    #define UNIX_SUNOS5  # Sun OS Version 5.[1-5] (Solaris 2)
-  #endif
-  #if defined(UNIX_MACOSX) && !defined(HAVE_MSYNC)
-    #define UNIX_RHAPSODY  # MacOS X Server, a.k.a. Rhapsody
-  #endif
-  #if defined(UNIX_MACOSX) && defined(HAVE_MSYNC)
-    #define UNIX_DARWIN  # MacOS X, a.k.a. Darwin
-  #endif
+# A more precise classification of the operating system:
+#if defined(UNIX) && defined(SIGNALBLOCK_BSD) && !defined(SIGNALBLOCK_SYSV)
+  #define UNIX_BSD  # BSD Unix
+#endif
+#if (defined(SUN3) || defined(SUN386) || defined(SUN4)) && defined(HAVE_MMAP) && defined(HAVE_VADVISE)
+  #define UNIX_SUNOS4  # Sun OS Version 4
+#endif
+#if (defined(SUN4) || (defined(I80386) && defined(__svr4__) && defined(__sun))) && !defined(HAVE_VADVISE) # && !defined(HAVE_GETPAGESIZE)
+  #define UNIX_SUNOS5  # Sun OS Version 5.[1-5] (Solaris 2)
+#endif
+#if defined(UNIX_MACOSX) && !defined(HAVE_MSYNC)
+  #define UNIX_RHAPSODY  # MacOS X Server, a.k.a. Rhapsody
+#endif
+#if defined(UNIX_MACOSX) && defined(HAVE_MSYNC)
+  #define UNIX_DARWIN  # MacOS X, a.k.a. Darwin
+#endif
 
 
-# Auswahl des Zeichensatzes:
+# Choose the character set:
 #if defined(UNIX) || defined(AMIGA) || defined(ACORN) || defined(WIN32)
-  #define ISOLATIN_CHS  # ISO 8859-1, siehe isolatin.chs
+  #define ISOLATIN_CHS  # ISO 8859-1, see isolatin.chs
   # Most Unix systems today support the ISO Latin-1 character set, in
   # particular because they have X11 and the X11 fonts are in ISO Latin-1.
   # Exceptions below.
@@ -422,22 +423,22 @@
 #endif
 #ifdef HP8XX
   #undef ISOLATIN_CHS
-  #define HPROMAN8_CHS  # HP-Roman8, siehe hproman8.chs
-  # unter X-Term aber: #define ISOLATIN_CHS ??
+  #define HPROMAN8_CHS  # HP-Roman8, see hproman8.chs
+  # under X-Term however: #define ISOLATIN_CHS ??
 #endif
 #ifdef UNIX_NEXTSTEP
   #undef ISOLATIN_CHS
-  #define NEXTSTEP_CHS  # NeXTstep, siehe nextstep.chs
+  #define NEXTSTEP_CHS  # NeXTstep, see nextstep.chs
 #endif
 #ifdef OS2
-  #define IBMPC_CHS  # IBM PC, siehe ibmpc.chs
+  #define IBMPC_CHS  # IBM PC, see ibmpc.chs
 #endif
 #if !(defined(ISOLATIN_CHS) || defined(HPROMAN8_CHS) || defined(NEXTSTEP_CHS) || defined(IBMPC_CHS))
-  #define ASCII_CHS  # Default: Nur Ascii-Zeichensatz ohne Sonderzeichen
+  #define ASCII_CHS  # Default: plain ASCII charset without special chars
 #endif
 
 
-# Auswahl des Compilers:
+# Choose the compiler:
 #if defined(__GNUC__)
   #define GNU
 #endif
@@ -457,12 +458,13 @@
 #endif
 
 
-# Auswahl der Floating-Point-Fähigkeiten:
-# FAST_DOUBLE sollte definiert werden, wenn ein Floating-Point-Coprozessor
-# vorhanden ist, dessen 'double'-Typ IEEE-Floating-Points mit 64 Bits sind.
-# FAST_FLOAT sollte definiert werden, wenn ein Floating-Point-Coprozessor
-# vorhanden ist, dessen 'float'-Typ IEEE-Floating-Points mit 32 Bits sind,
-# und der C-Compiler auch 'float'- und nicht 'double'-Operationen generiert.
+# Selection of floating-point capabilities:
+# FAST_DOUBLE should be defined if there is a floating-point coprocessor
+# with a 'double'-type IEEE-Floating-Points with 64 Bits.
+# FAST_FLOAT should be defined if there is a floating-point co-processor
+# with a 'float'-type IEEE-Floating-Points with 32 Bits,
+# and a C-Compiler that generates 'float'-operations
+# instead of 'double'-operations
 #ifdef SPARC
   #define FAST_DOUBLE
   #define FAST_FLOAT
@@ -480,15 +482,17 @@
   #define FAST_FLOAT
 #endif
 #if defined(I80386) && (defined(UNIX_LINUX) || defined(UNIX_NEXTSTEP) || defined(UNIX_GNU))
-  # Linux hat einen funktionierenden Floating-Point-Coprozessor-Emulator.
-  # NeXTstep läuft sowieso nur mit Floating-Point-Coprozessor.
-  # GNU läuft sowieso nur ab i486, mit eingebautem Floating-Point-Coprozessor.
-  # Aber auf Intel-Pentium-Prozessoren ist die FPU fehlerhaft.
+  # Linux has a working emulator for a floating-point coprocessor.
+  # NeXTstep only works with a floating-point coprocessor.
+  # GNU only runs with an i486 (or better),
+  # with a built-in floating-point-coprocessor.
+  # But the Intel-Pentium processor had a faulty FPU.
   #define FAST_DOUBLE
   #define FAST_FLOAT
 #endif
 #ifdef ARM
-  # Bei Integers ist der Prozessor Little-Endian, bei Double-Floats Big-Endian!
+  # The processor is Little-Endian with Integers
+  # but Big-Endian with double-floats!
   #undef FAST_DOUBLE
 #endif
 #ifdef NO_FAST_DOUBLE
@@ -499,29 +503,29 @@
 #endif
 
 
-# Auswahl der Sprache:
-  #ifdef ENGLISH
-    #undef ENGLISH
-    #define ENGLISH 1
-    #define LANGUAGE_STATIC
-  #endif
+# Selection of the language:
+#ifdef ENGLISH
+  #undef ENGLISH
+  #define ENGLISH 1
+  #define LANGUAGE_STATIC
+#endif
 
 
-# Auswahl der Sicherheitsstufe:
-# SAFETY=0 : alle Optimierungen eingeschaltet
-# SAFETY=1 : alle Optimierungen, aber noch STACKCHECKs
-# SAFETY=2 : nur einfache Assembler-Unterstützung
-# SAFETY=3 : keine Optimierungen
-  #ifndef SAFETY
-    #define SAFETY 0
-  #endif
-  #if SAFETY >= 3
-    #define NO_ASM
-    #define NO_FAST_DISPATCH
-  #endif
+# Selection of the safety-level:
+# SAFETY=0 : all optimizations are turned on
+# SAFETY=1 : all optimizatiosn, but still STACKCHECKs
+# SAFETY=2 : only simple nur assembler-support
+# SAFETY=3 : no optimization
+#ifndef SAFETY
+  #define SAFETY 0
+#endif
+#if SAFETY >= 3
+  #define NO_ASM
+  #define NO_FAST_DISPATCH
+#endif
 
 
-# Name des Compilers: siehe constobj.d: software_version_string
+# Name of the compiler: see constobj.d: software_version_string
 
 
 # We don't support pre-ANSI-C compilers any more.
@@ -529,92 +533,92 @@
   #error "An ANSI C or C++ compiler is required to compile CLISP!"
 #endif
 
-# Der Acorn ANSI-C Compiler für ARM unter RISCOS hat "char" == "unsigned char".
-  #if defined(ARM) && defined(RISCOS) && !defined(GNU)
-    #define __CHAR_UNSIGNED__
-  #endif
+# The Acorn ANSI-C compiler for ARM under RISCOS has "char" == "unsigned char".
+#if defined(ARM) && defined(RISCOS) && !defined(GNU)
+  #define __CHAR_UNSIGNED__
+#endif
 
 # gcc-2.7.2 has a bug: it interprets `const' as meaning `not modified by
 # other parts of the program', and thus miscompiles at least justify_empty_2
 # and pr_enter_1 in io.d.
-  #if defined(GNU) && (__GNUC__ == 2) && (__GNUC_MINOR__ == 7)
-    #undef const
-    #define const
-    #define __const const
-    # We define __const to const, not to empty, to avoid warnings on
-    # UNIX_RHAPSODY, which unconditionally defines __const to const when
-    # <sys/cdefs.h> is included via <setjmp.h> below.
-    #ifdef MULTITHREAD
-      #warning "Multithreading will not be efficient because of a workaround to a gcc bug."
-      #warning "Get a newer version of gcc."
-    #endif
+#if defined(GNU) && (__GNUC__ == 2) && (__GNUC_MINOR__ == 7)
+  #undef const
+  #define const
+  #define __const const
+  # We define __const to const, not to empty, to avoid warnings on
+  # UNIX_RHAPSODY, which unconditionally defines __const to const when
+  # <sys/cdefs.h> is included via <setjmp.h> below.
+  #ifdef MULTITHREAD
+    #warning "Multithreading will not be efficient because of a workaround to a gcc bug."
+    #warning "Get a newer version of gcc."
   #endif
+#endif
 
-# Eine Eigenschaft des Prozessors:
-# Die Reihenfolge, in der Worte/Langworte in Bytes abgelegt werden.
-  #if defined(short_little_endian) || defined(int_little_endian) || defined(long_little_endian)
-    # Z80, VAX, I80386, DECALPHA, MIPSEL, IA64, ...:
-    # Low Byte zuunterst, High Byte an höherer Adresse
-    #if defined(BIG_ENDIAN_P)
-      #error "Bogus BIG_ENDIAN_P -- BIG_ENDIAN_P neu einstellen!"
-    #endif
-    #define BIG_ENDIAN_P  0
+# A property of the processor:
+# The sequence in which words/long-words are being put into bytes
+#if defined(short_little_endian) || defined(int_little_endian) || defined(long_little_endian)
+  # Z80, VAX, I80386, DECALPHA, MIPSEL, IA64, ...:
+  # Low Byte is the lowest, High Byte in a higher address
+  #if defined(BIG_ENDIAN_P)
+    #error "Bogus BIG_ENDIAN_P -- set BIG_ENDIAN_P again!"
   #endif
-  #if defined(short_big_endian) || defined(int_big_endian) || defined(long_big_endian)
-    # MC680X0, SPARC, HPPA, MIPSEB, M88000, RS6000, S390, ...:
-    # High Byte zuunterst, Low Byte an höherer Adresse (leichter zu lesen)
-    #if defined(BIG_ENDIAN_P)
-      #error "Bogus BIG_ENDIAN_P -- BIG_ENDIAN_P neu einstellen!"
-    #endif
-    #define BIG_ENDIAN_P  1
+  #define BIG_ENDIAN_P  0
+#endif
+#if defined(short_big_endian) || defined(int_big_endian) || defined(long_big_endian)
+  # MC680X0, SPARC, HPPA, MIPSEB, M88000, RS6000, S390, ...:
+  # High Byte is the lowest, Low Byte is a higher adress (easier to read)
+  #if defined(BIG_ENDIAN_P)
+    #error "Bogus BIG_ENDIAN_P -- set BIG_ENDIAN_P again"
   #endif
-  #if !defined(BIG_ENDIAN_P)
-    #error "Bogus BIG_ENDIAN_P -- BIG_ENDIAN_P neu einstellen!"
-  #endif
+  #define BIG_ENDIAN_P  1
+#endif
+#if !defined(BIG_ENDIAN_P)
+  #error "Bogus BIG_ENDIAN_P -- set BIG_ENDIAN_P again!"
+#endif
 
 # A property of the processor (and C compiler): The alignment of C functions.
 # (See gcc's machine descriptions, macro FUNCTION_BOUNDARY, for information.)
-  #if defined(IA64)
-    #define C_CODE_ALIGNMENT  16
-    #define log2_C_CODE_ALIGNMENT  4
-  #endif
-  #if defined(DECALPHA)
-    #define C_CODE_ALIGNMENT  8
-    #define log2_C_CODE_ALIGNMENT  3
-  #endif
-  #if (defined(I80386) && defined(GNU)) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(ARM) || defined(S390)
-    # When using gcc on i386, this assumes that -malign-functions has not been
-    # used to specify an alignment smaller than 4 bytes.
-    #define C_CODE_ALIGNMENT  4
-    #define log2_C_CODE_ALIGNMENT  2
-  #endif
-  #if defined(HPPA)
-    # A function pointer on hppa is either
-    #   - a code pointer == 0 mod 4, or
-    #   - a pointer to a two-word structure (first word: a code pointer,
-    #     second word: a value which will be put in register %r19),
-    #     incremented by 2, hence == 2 mod 4.
-    # The current compilers only emit the second kind of function pointers,
-    # hence we can assume that all function pointers are == 2 mod 4.
-    #define C_CODE_ALIGNMENT  2
-    #define log2_C_CODE_ALIGNMENT  1
-  #endif
-  #if defined(MC680X0) || defined(CONVEX)
-    #define C_CODE_ALIGNMENT  2
-    #define log2_C_CODE_ALIGNMENT  1
-  #endif
-  #if !defined(C_CODE_ALIGNMENT) # e.g. (defined(I80386) && defined(MICROSOFT))
-    #define C_CODE_ALIGNMENT  1
-    #define log2_C_CODE_ALIGNMENT  0
-  #endif
+#if defined(IA64)
+  #define C_CODE_ALIGNMENT  16
+  #define log2_C_CODE_ALIGNMENT  4
+#endif
+#if defined(DECALPHA)
+  #define C_CODE_ALIGNMENT  8
+  #define log2_C_CODE_ALIGNMENT  3
+#endif
+#if (defined(I80386) && defined(GNU)) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(ARM) || defined(S390)
+  # When using gcc on i386, this assumes that -malign-functions has not been
+  # used to specify an alignment smaller than 4 bytes.
+  #define C_CODE_ALIGNMENT  4
+  #define log2_C_CODE_ALIGNMENT  2
+#endif
+#if defined(HPPA)
+  # A function pointer on hppa is either
+  #   - a code pointer == 0 mod 4, or
+  #   - a pointer to a two-word structure (first word: a code pointer,
+  #     second word: a value which will be put in register %r19),
+  #     incremented by 2, hence == 2 mod 4.
+  # The current compilers only emit the second kind of function pointers,
+  # hence we can assume that all function pointers are == 2 mod 4.
+  #define C_CODE_ALIGNMENT  2
+  #define log2_C_CODE_ALIGNMENT  1
+#endif
+#if defined(MC680X0) || defined(CONVEX)
+  #define C_CODE_ALIGNMENT  2
+  #define log2_C_CODE_ALIGNMENT  1
+#endif
+#if !defined(C_CODE_ALIGNMENT) # e.g. (defined(I80386) && defined(MICROSOFT))
+  #define C_CODE_ALIGNMENT  1
+  #define log2_C_CODE_ALIGNMENT  0
+#endif
 
 
 # Flags for the system's include files.
-  #ifdef MULTITHREAD
-    #if defined(UNIX_LINUX) || defined(UNIX_SUNOS5)
-      #define _REENTRANT
-    #endif
+#ifdef MULTITHREAD
+  #if defined(UNIX_LINUX) || defined(UNIX_SUNOS5)
+    #define _REENTRANT
   #endif
+#endif
 
 
 # Width of object representation:
@@ -632,260 +636,269 @@
 #if (defined(WIDE_HARD) || defined(WIDE_SOFT)) && !defined(WIDE)
   #define WIDE
 #endif
-# Nun ist defined(WIDE) == defined(WIDE_HARD) || defined(WIDE_SOFT)
+# Now: defined(WIDE) == defined(WIDE_HARD) || defined(WIDE_SOFT)
 
 
 # Global register declarations.
 # They must occur before any system include files define any inline function,
 # which is the case on UNIX_DGUX and UNIX_LINUX.
-  #if defined(GNU) && !defined(__cplusplus) && !defined(MULTITHREAD) && (SAFETY < 2)
-    # Overview of use of registers in gcc terminology:
-    # fixed: mentioned in FIXED_REGISTERS
-    # used:  mentioned in CALL_USED_REGISTERS but not FIXED_REGISTERS (i.e. caller-saved)
-    # save:  otherwise (i.e. call-preserved, callee-saved)
-    #
-    #               STACK    mv_count  value1   subr_self
-    # MC680X0       used
-    # I80386        save
-    # SPARC         fixed    fixed     fixed    used
-    # MIPS
-    # HPPA          save     save      save     save
-    # M88000        save     save      save
-    # ARM           save
-    # DECALPHA      save     save      save
-    # CONVEX                 used      used     used     (??)
-    # IA64
-    # S390          save
-    #
-    # Special notes:
-    # - If STACK is in a "used"/"save" register, it needs to be saved into
-    #   saved_STACK upon begin_call(), so that asynchronous interrupts will
-    #   be able to restore it.
-    # - All of the "used" registers need to be backuped upon begin_call()
-    #   and restored during end_call().
-    # - All of the "save" registers need to be backuped upon begin_callback()
-    #   and restored during end_callback().
-    # - When the interpreter does a longjmp(), the registers STACK, mv_count,
-    #   value1 may need to be temporarily saved. This is highly machine
-    #   dependent and is indicated by the NEED_temp_xxxx macros.
-    # - CONVEX hasn't been tested for a long time.
-    #
-    # Register for STACK.
-      #if defined(MC680X0)
-        #define STACK_register  "a4"  # höchstes Adressregister nach sp=A7,fp=A6/A5
-      #endif
-      #if defined(I80386) && !defined(UNIX_BEOS) && !defined(DYNAMIC_MODULES)
-        # On BeOS, everything is compiled as PIC, whence %ebx is already booked.
-        # Ist DYNAMIC_MODULES definiert, werden externe Module als PIC
-        # compiliert, weswegen dann %ebx schon verbraucht ist.
-        #if (__GNUC__ >= 2) # Die Namen der Register haben sich verändert
-          #define STACK_register  "%ebx"  # eines der call-saved Register ohne spezielle Hardware-Befehle
-        #else
-          #define STACK_register  "bx"
-        #endif
-      #endif
-      #if defined(SPARC)
-        #define STACK_register  "%g5"  # ein globales Register
-      #endif
-      #if defined(HPPA) && (__GNUC__*100 + __GNUC_MINOR__ >= 2*100+7) # earlier gcc versions than 2.7 had bugs
-        #define STACK_register  "%r10"  # eines der allgemeinen Register %r5..%r18
-      #endif
-      #if defined(M88000)
-        #define STACK_register  "%r14"  # eines der allgemeinen Register %r14..%r25
-      #endif
-      #if defined(ARM)
-        #define STACK_register  "%r8"  # eines der allgemeinen Register %r4..%r8
-      #endif
-      #if defined(DECALPHA)
-        #define STACK_register  "$9"  # eines der allgemeinen Register $9..$14
-      #endif
-      #if defined(S390)
-        #define STACK_register  "9"  # eines der allgemeinen Register %r8..%r9
-      #endif
-      # What about NEED_temp_STACK ?? Needed if STACK is in a "used" register??
-    # Register for mv_count.
-      #if defined(SPARC)
-        #define mv_count_register  "%g6"
-        #if defined(UNIX_NETBSD)
-          #define NEED_temp_mv_count
-        #endif
-      #endif
-      #if defined(HPPA)
-        #define mv_count_register  "%r11"  # eines der allgemeinen Register %r5..%r18
-        #define NEED_temp_mv_count
-      #endif
-      #if defined(M88000)
-        #define mv_count_register  "%r15"  # eines der allgemeinen Register %r14..%r25
-        #define NEED_temp_mv_count
-      #endif
-      #if defined(DECALPHA)
-        #define mv_count_register  "$10"  # eines der allgemeinen Register $9..$14
-        #define NEED_temp_mv_count
-      #endif
-      #if defined(CONVEX)
-        #define mv_count_register  "s5"
-      #endif
-    # Register for value1.
-    #if !defined(WIDE_SOFT)
-      #if defined(SPARC)
-        #define value1_register  "%g7"
-        #if defined(UNIX_NETBSD)
-          #define NEED_temp_value1
-        #endif
-      #endif
-      #if defined(HPPA)
-        #define value1_register  "%r12"  # eines der allgemeinen Register %r5..%r18
+#if defined(GNU) && !defined(__cplusplus) && !defined(MULTITHREAD) && (SAFETY < 2)
+  # Overview of use of registers in gcc terminology:
+  # fixed: mentioned in FIXED_REGISTERS
+  # used:  mentioned in CALL_USED_REGISTERS but not FIXED_REGISTERS
+  #                     (i.e. caller-saved)
+  # save:  otherwise (i.e. call-preserved, callee-saved)
+  #
+  #               STACK    mv_count  value1   subr_self
+  # MC680X0       used
+  # I80386        save
+  # SPARC         fixed    fixed     fixed    used
+  # MIPS
+  # HPPA          save     save      save     save
+  # M88000        save     save      save
+  # ARM           save
+  # DECALPHA      save     save      save
+  # CONVEX                 used      used     used     (??)
+  # IA64
+  # S390          save
+  #
+  # Special notes:
+  # - If STACK is in a "used"/"save" register, it needs to be saved into
+  #   saved_STACK upon begin_call(), so that asynchronous interrupts will
+  #   be able to restore it.
+  # - All of the "used" registers need to be backuped upon begin_call()
+  #   and restored during end_call().
+  # - All of the "save" registers need to be backuped upon begin_callback()
+  #   and restored during end_callback().
+  # - When the interpreter does a longjmp(), the registers STACK, mv_count,
+  #   value1 may need to be temporarily saved. This is highly machine
+  #   dependent and is indicated by the NEED_temp_xxxx macros.
+  # - CONVEX hasn't been tested for a long time.
+  #
+  # Register for STACK.
+  #if defined(MC680X0)
+    #define STACK_register "a4" # highest address register after sp=A7,fp=A6/A5
+  #endif
+  #if defined(I80386) && !defined(UNIX_BEOS) && !defined(DYNAMIC_MODULES)
+    # On BeOS, everything is compiled as PIC, whence %ebx is already booked.
+    # If DYNAMIC_MODULES is defined, external modules are compuled as PIC,
+    # which is why %ebx is already in use.
+    #if (__GNUC__ >= 2) # The register names have changed
+      #define STACK_register  "%ebx"  # one of the call-saved registers without special hardware commands
+    #else
+      #define STACK_register  "bx"
+    #endif
+  #endif
+  #if defined(SPARC)
+    #define STACK_register  "%g5"  # a global register
+  #endif
+  #if defined(HPPA) && (__GNUC__*100 + __GNUC_MINOR__ >= 2*100+7) # gcc versions earlier than 2.7 had bugs
+    #define STACK_register  "%r10"  # one of the general registers %r5..%r18
+  #endif
+  #if defined(M88000)
+    #define STACK_register  "%r14"  # one of the general registers %r14..%r25
+  #endif
+  #if defined(ARM)
+    #define STACK_register  "%r8"   # one of the general registers %r4..%r8
+  #endif
+  #if defined(DECALPHA)
+    #define STACK_register  "$9"    # one of the general egisters $9..$14
+  #endif
+  #if defined(S390)
+    #define STACK_register  "9"     # one of the general registes %r8..%r9
+  #endif
+  # What about NEED_temp_STACK ?? Needed if STACK is in a "used" register??
+  # Register for mv_count.
+  #if defined(SPARC)
+    #define mv_count_register  "%g6"
+    #if defined(UNIX_NETBSD)
+      #define NEED_temp_mv_count
+    #endif
+  #endif
+  #if defined(HPPA)
+    #define mv_count_register  "%r11"  # one of the general registers %r5..%r18
+    #define NEED_temp_mv_count
+  #endif
+  #if defined(M88000)
+    #define mv_count_register  "%r15" # one of the general registers %r14..%r25
+    #define NEED_temp_mv_count
+  #endif
+  #if defined(DECALPHA)
+    #define mv_count_register  "$10"  # one of the general registers $9..$14
+    #define NEED_temp_mv_count
+  #endif
+  #if defined(CONVEX)
+    #define mv_count_register  "s5"
+  #endif
+  # Register for value1.
+  #if !defined(WIDE_SOFT)
+    #if defined(SPARC)
+      #define value1_register  "%g7"
+      #if defined(UNIX_NETBSD)
         #define NEED_temp_value1
-      #endif
-      #if defined(M88000)
-        #define value1_register  "%r16"  # eines der allgemeinen Register %r14..%r25
-        #define NEED_temp_value1
-      #endif
-      #if defined(DECALPHA)
-        #define value1_register  "$11"  # eines der allgemeinen Register $9..$14
-        #define NEED_temp_value1
-      #endif
-      #if defined(CONVEX)
-        #define value1_register  "s6"
       #endif
     #endif
-    # Register for subr_self.
-    #if !defined(WIDE_SOFT)
-      #if defined(SPARC)
-        #define subr_self_register  "%g4"  # ein globales Register
-        # Neuerdings - bei gcc 2.3 - ist %g4 offenbar ein Scratch-Register.
-        # Ab libc.so.1.6.1 (in getwd()) macht das Probleme.
-        # Deswegen ist oben HAVE_SAVED_subr_self definiert.
-      #endif
-      #if defined(HPPA)
-        #define subr_self_register  "%r13"  # eines der allgemeinen Register %r5..%r18
-      #endif
-      #if defined(CONVEX)
-        #define subr_self_register  "s7"
-      #endif
+    #if defined(HPPA)
+      #define value1_register  "%r12"  # one of the general registers %r5..%r18
+      #define NEED_temp_value1
     #endif
-    # Declare the registers now (before any system include file which could
-    # contain some inline functions).
+    #if defined(M88000)
+      #define value1_register  "%r16"  # one of the general registers %r14..%r25
+      #define NEED_temp_value1
+    #endif
+    #if defined(DECALPHA)
+      #define value1_register  "$11"  # one of the general registers $9..$14
+      #define NEED_temp_value1
+    #endif
+    #if defined(CONVEX)
+      #define value1_register  "s6"
+    #endif
+  #endif
+  # Register for subr_self.
+  #if !defined(WIDE_SOFT)
+    #if defined(SPARC)
+      #define subr_self_register  "%g4"  # a global register
+      # %g4 seems to be a scratch-register as of lately with gcc 2.3
+      # This causes problems with libc.so.1.6.1 (and higher) (in getwd())
+      # That's why HAVE_SAVED_subr_self has been defined above.
+    #endif
+    #if defined(HPPA)
+      #define subr_self_register  "%r13"  # one of the general registers  %r5..%r18
+    #endif
+    #if defined(CONVEX)
+      #define subr_self_register  "s7"
+    #endif
+  #endif
+  # Declare the registers now (before any system include file which could
+  # contain some inline functions).
+  #ifdef STACK_register
+    register long STACK_reg __asm__(STACK_register);
+  #endif
+  #ifdef mv_count_register
+    register long mv_count_reg __asm__(mv_count_register);
+  #endif
+  #ifdef value1_register
+    register long value1_reg __asm__(value1_register);
+  #endif
+  #ifdef subr_self_register
+    register long subr_self_reg __asm__(subr_self_register);
+  #endif
+  # Saving "save" registers.
+  #if (defined(I80386) && !defined(DYNAMIC_MODULES)) || defined(HPPA) || defined(M88000) || defined(ARM) || defined(DECALPHA) || defined(S390)
+    #define HAVE_SAVED_REGISTERS
+    struct registers {
       #ifdef STACK_register
-        register long STACK_reg __asm__(STACK_register);
+        long STACK_register_contents;
       #endif
       #ifdef mv_count_register
-        register long mv_count_reg __asm__(mv_count_register);
+        long mv_count_register_contents;
       #endif
       #ifdef value1_register
-        register long value1_reg __asm__(value1_register);
+        long value1_register_contents;
       #endif
       #ifdef subr_self_register
-        register long subr_self_reg __asm__(subr_self_register);
+        long subr_self_register_contents;
       #endif
-    # Saving "save" registers.
-    #if (defined(I80386) && !defined(DYNAMIC_MODULES)) || defined(HPPA) || defined(M88000) || defined(ARM) || defined(DECALPHA) || defined(S390)
-      #define HAVE_SAVED_REGISTERS
-      struct registers {
-        #ifdef STACK_register
-          long STACK_register_contents;
-        #endif
-        #ifdef mv_count_register
-          long mv_count_register_contents;
-        #endif
-        #ifdef value1_register
-          long value1_register_contents;
-        #endif
-        #ifdef subr_self_register
-          long subr_self_register_contents;
-        #endif
-      };
-      #ifndef MULTITHREAD
-        extern struct registers * callback_saved_registers;
-      #else
-        #define callback_saved_registers  (current_thread()->_callback_saved_registers)
-      #endif
-      #ifdef STACK_register
-        #define SAVE_STACK_register(registers)     registers->STACK_register_contents = STACK_reg;
-        #define RESTORE_STACK_register(registers)  STACK_reg = registers->STACK_register_contents;
-      #else
-        #define SAVE_STACK_register(registers)
-        #define RESTORE_STACK_register(registers)
-      #endif
-      #ifdef mv_count_register
-        #define SAVE_mv_count_register(registers)     registers->mv_count_register_contents = mv_count_reg;
-        #define RESTORE_mv_count_register(registers)  mv_count_reg = registers->mv_count_register_contents;
-      #else
-        #define SAVE_mv_count_register(registers)
-        #define RESTORE_mv_count_register(registers)
-      #endif
-      #ifdef value1_register
-        #define SAVE_value1_register(registers)     registers->value1_register_contents = value1_reg;
-        #define RESTORE_value1_register(registers)  value1_reg = registers->value1_register_contents;
-      #else
-        #define SAVE_value1_register(registers)
-        #define RESTORE_value1_register(registers)
-      #endif
-      #ifdef subr_self_register
-        #define SAVE_subr_self_register(registers)     registers->subr_self_register_contents = subr_self_reg;
-        #define RESTORE_subr_self_register(registers)  subr_self_reg = registers->subr_self_register_contents;
-      #else
-        #define SAVE_subr_self_register(registers)
-        #define RESTORE_subr_self_register(registers)
-      #endif
-      #define SAVE_REGISTERS(inner_statement)  \
-        { var struct registers * registers = alloca(sizeof(struct registers)); \
-          SAVE_STACK_register(registers);                                      \
-          SAVE_mv_count_register(registers);                                   \
-          SAVE_value1_register(registers);                                     \
-          SAVE_subr_self_register(registers);                                  \
-          inner_statement;                                                     \
-          { var object* top_of_frame = STACK;                                  \
-            pushSTACK(as_object((aint)callback_saved_registers));              \
-            finish_frame(CALLBACK);                                            \
-          }                                                                    \
-          callback_saved_registers = registers;                                \
-        }
-      #define RESTORE_REGISTERS(inner_statement)  \
-        { var struct registers * registers = callback_saved_registers;           \
-          if (!(framecode(STACK_0) == CALLBACK_frame_info)) abort();             \
-          callback_saved_registers = (struct registers *)(aint)as_oint(STACK_1); \
-          skipSTACK(2);                                                          \
-          inner_statement;                                                       \
-          RESTORE_STACK_register(registers);                                     \
-          RESTORE_mv_count_register(registers);                                  \
-          RESTORE_value1_register(registers);                                    \
-          RESTORE_subr_self_register(registers);                                 \
-        }
+    };
+    #ifndef MULTITHREAD
+      extern struct registers * callback_saved_registers;
+    #else
+      #define callback_saved_registers  (current_thread()->_callback_saved_registers)
     #endif
-    # Saving the STACK (for asynchronous interrupts).
-      # If STACK is a global variable or lies in a register which is left
-      # untouched by operating system and library (this is the case on SUN4),
-      # we don't need to worry about it.
-      #if defined(STACK_register) && !defined(SUN4)
-        #define HAVE_SAVED_STACK
-      #endif
-    # Saving "used" registers.
-      #if defined(mv_count_register) && 0
-        #define HAVE_SAVED_mv_count
-      #endif
-      #if defined(value1_register) && 0
-        #define HAVE_SAVED_value1
-      #endif
-      #if defined(subr_self_register) && defined(SPARC)
-        #define HAVE_SAVED_subr_self
-      #endif
+    #ifdef STACK_register
+      #define SAVE_STACK_register(registers)     \
+              registers->STACK_register_contents = STACK_reg;
+      #define RESTORE_STACK_register(registers)  \
+              STACK_reg = registers->STACK_register_contents;
+    #else
+      #define SAVE_STACK_register(registers)
+      #define RESTORE_STACK_register(registers)
+    #endif
+    #ifdef mv_count_register
+      #define SAVE_mv_count_register(registers)     \
+              registers->mv_count_register_contents = mv_count_reg;
+      #define RESTORE_mv_count_register(registers)  \
+              mv_count_reg = registers->mv_count_register_contents;
+    #else
+      #define SAVE_mv_count_register(registers)
+      #define RESTORE_mv_count_register(registers)
+    #endif
+    #ifdef value1_register
+      #define SAVE_value1_register(registers)     \
+              registers->value1_register_contents = value1_reg;
+      #define RESTORE_value1_register(registers)  \
+              value1_reg = registers->value1_register_contents;
+    #else
+      #define SAVE_value1_register(registers)
+      #define RESTORE_value1_register(registers)
+    #endif
+    #ifdef subr_self_register
+      #define SAVE_subr_self_register(registers)     \
+              registers->subr_self_register_contents = subr_self_reg;
+      #define RESTORE_subr_self_register(registers)  \
+              subr_self_reg = registers->subr_self_register_contents;
+    #else
+      #define SAVE_subr_self_register(registers)
+      #define RESTORE_subr_self_register(registers)
+    #endif
+    #define SAVE_REGISTERS(inner_statement)  \
+      { var struct registers * registers = alloca(sizeof(struct registers)); \
+        SAVE_STACK_register(registers);                                      \
+        SAVE_mv_count_register(registers);                                   \
+        SAVE_value1_register(registers);                                     \
+        SAVE_subr_self_register(registers);                                  \
+        inner_statement;                                                     \
+        { var object* top_of_frame = STACK;                                  \
+          pushSTACK(as_object((aint)callback_saved_registers));              \
+          finish_frame(CALLBACK);                                            \
+        }                                                                    \
+        callback_saved_registers = registers;                                \
+      }
+    #define RESTORE_REGISTERS(inner_statement)  \
+      { var struct registers * registers = callback_saved_registers;          \
+        if (!(framecode(STACK_0) == CALLBACK_frame_info)) abort();            \
+        callback_saved_registers = (struct registers *)(aint)as_oint(STACK_1);\
+        skipSTACK(2);                                                         \
+        inner_statement;                                                      \
+        RESTORE_STACK_register(registers);                                    \
+        RESTORE_mv_count_register(registers);                                 \
+        RESTORE_value1_register(registers);                                   \
+        RESTORE_subr_self_register(registers);                                \
+      }
   #endif
-  #ifndef HAVE_SAVED_REGISTERS
-    #define SAVE_REGISTERS(inner_statement)
-    #define RESTORE_REGISTERS(inner_statement)
+  # Saving the STACK (for asynchronous interrupts).
+  # If STACK is a global variable or lies in a register which is left
+  # untouched by operating system and library (this is the case on SUN4),
+  # we don't need to worry about it.
+  #if defined(STACK_register) && !defined(SUN4)
+    #define HAVE_SAVED_STACK
   #endif
+  # Saving "used" registers.
+  #if defined(mv_count_register) && 0
+    #define HAVE_SAVED_mv_count
+  #endif
+  #if defined(value1_register) && 0
+    #define HAVE_SAVED_value1
+  #endif
+  #if defined(subr_self_register) && defined(SPARC)
+    #define HAVE_SAVED_subr_self
+  #endif
+#endif
+#ifndef HAVE_SAVED_REGISTERS
+  #define SAVE_REGISTERS(inner_statement)
+  #define RESTORE_REGISTERS(inner_statement)
+#endif
 
 
-# ###################### Macros zu C ##################### #
+# ###################### Macros for C ##################### #
 
 #if !defined(UNIXCONF)
-  # Um einen Typ vom Wert void weiterzureichen: return_void(...);
+  # To return a type of value void: return_void(...);
   #ifdef GNU
-    #define return_void  return # 'return void;' ist zulässig
+    #define return_void  return # 'return void;' is admissible
   #else
     # In general it is not legal to return `void' values.
-    #define return_void  # Kein 'return' für Expressions vom Typ 'void' verwenden.
+    #define return_void  # Don't use 'return' for expressions of type 'void'.
   #endif
 #endif
 #if defined(GNU) && defined(__GNUG__)
@@ -897,7 +910,7 @@
   #define inline      # inline foo() {...} --> foo() {...}
 #endif
 
-# Definitionen für C++-Compiler:
+# Definititions for C++-Compilers:
 #ifdef __cplusplus
   #define BEGIN_DECLS  extern "C" {
   #define END_DECLS    }
@@ -906,351 +919,352 @@
   #define END_DECLS
 #endif
 
-# Leere Macro-Argumente:
-# Manche Compiler (z.B. der cc von HP-UX) interpretieren einen Macro-Aufruf
-# foo(arg1,...,argn,) offenbar als äquivalent zu foo(arg1,...,argn), was einen
-# Fehler ergibt. _EMA_ steht für "empty macro argument". Es wird durch
-# CC_NEED_DEEMA eingefügt, jeweils zwischen Komma und schließende Klammer.
-# Außerdem ist es beim Durchreichen möglicherweise leerer Argumente an andere
-# Macros nötig.
-  #define _EMA_
+# Empty macro-arguments:
+# Some compilers (ie. cc under HP-UX) seem to interpret a macro call
+# foo(arg1,...,argn,) as equivalent to foo(arg1,...,argn), which will
+# yield an error. _EMA_ stands for "empty macro argument".
+# It will be inserted by CC_NEED_DEEMA,
+# each time bewteen comma and closing parentheses.
+# It is also needed when potentially empty arguments
+# are returned to other macros
 
-# Zusammenhängen zweier macroexpandierter Tokens:
-# Beispiel:
+#define _EMA_
+
+# Concatenation of two macro-expanded tokens:
+# Example:
 #   #undef x
 #   #define y 16
-#   CONCAT(x,y)        ==>  'x16' (nicht 'xy' !)
-  #define CONCAT_(xxx,yyy)  xxx##yyy
-  #define CONCAT3_(aaa,bbb,ccc)  aaa##bbb##ccc
-  #define CONCAT4_(aaa,bbb,ccc,ddd)  aaa##bbb##ccc##ddd
-  #define CONCAT5_(aaa,bbb,ccc,ddd,eee)  aaa##bbb##ccc##ddd##eee
-  #define CONCAT6_(aaa,bbb,ccc,ddd,eee,fff)  aaa##bbb##ccc##ddd##eee##fff
-  #define CONCAT7_(aaa,bbb,ccc,ddd,eee,fff,ggg)  aaa##bbb##ccc##ddd##eee##fff##ggg
-  #define CONCAT(xxx,yyy)  CONCAT_(xxx,yyy)
-  #define CONCAT3(aaa,bbb,ccc)  CONCAT3_(aaa,bbb,ccc)
-  #define CONCAT4(aaa,bbb,ccc,ddd)  CONCAT4_(aaa,bbb,ccc,ddd)
-  #define CONCAT5(aaa,bbb,ccc,ddd,eee)  CONCAT5_(aaa,bbb,ccc,ddd,eee)
-  #define CONCAT6(aaa,bbb,ccc,ddd,eee,fff)  CONCAT6_(aaa,bbb,ccc,ddd,eee,fff)
-  #define CONCAT7(aaa,bbb,ccc,ddd,eee,fff,ggg)  CONCAT7_(aaa,bbb,ccc,ddd,eee,fff,ggg)
+#   CONCAT(x,y)        ==>  'x16' (not 'xy' !)
+#define CONCAT_(xxx,yyy)  xxx##yyy
+#define CONCAT3_(aaa,bbb,ccc)  aaa##bbb##ccc
+#define CONCAT4_(aaa,bbb,ccc,ddd)  aaa##bbb##ccc##ddd
+#define CONCAT5_(aaa,bbb,ccc,ddd,eee)  aaa##bbb##ccc##ddd##eee
+#define CONCAT6_(aaa,bbb,ccc,ddd,eee,fff)  aaa##bbb##ccc##ddd##eee##fff
+#define CONCAT7_(aaa,bbb,ccc,ddd,eee,fff,ggg)  aaa##bbb##ccc##ddd##eee##fff##ggg
+#define CONCAT(xxx,yyy)  CONCAT_(xxx,yyy)
+#define CONCAT3(aaa,bbb,ccc)  CONCAT3_(aaa,bbb,ccc)
+#define CONCAT4(aaa,bbb,ccc,ddd)  CONCAT4_(aaa,bbb,ccc,ddd)
+#define CONCAT5(aaa,bbb,ccc,ddd,eee)  CONCAT5_(aaa,bbb,ccc,ddd,eee)
+#define CONCAT6(aaa,bbb,ccc,ddd,eee,fff)  CONCAT6_(aaa,bbb,ccc,ddd,eee,fff)
+#define CONCAT7(aaa,bbb,ccc,ddd,eee,fff,ggg)  CONCAT7_(aaa,bbb,ccc,ddd,eee,fff,ggg)
 
-# Generierung von Sprungzielen (goto-Marken) in Macros:
+# Generation of goto-tag macros:
 # GENTAG(end)  ==>  end116
-# Damit kann ein Macro, der Marken definiert, mehr als einmal pro Funktion,
-# aber immer noch nur einmal pro Source-Zeile benutzt werden.
-  #define GENTAG(xxx)  CONCAT(xxx,__LINE__)
+# This allows a macro defining marks to be used more than once per function
+# but still only once per source-line.
+#define GENTAG(xxx)  CONCAT(xxx,__LINE__)
 
-# Umwandlung von Tokens in Strings:
+# Converting tokens to strings:
 # STRING(token)  ==>  "token"
 #define STRING(token) #token
 #define STRINGIFY(token) STRING(token)
 
-# Storage-Class-Specifier in Top-Level-Deklarationen:
-# für Variablen:
-#   global           überall sichtbare Variable
-#   local            nur im File (lokal) sichtbare Variable
-#   extern           Verweis auf woanders definierte Variable
-# für Funktionen:
-#   global           überall sichtbare Funktion
-#   local            nur im File (lokal) sichtbare Funktion
-#   extern           Verweis auf woanders definierte Funktion
-#   extern_C         Verweis auf woanders definierte C-Funktion
-#   nonreturning     Funktion, die nie zurückkommt
-  #define global
-  #define local  static
+# Storage-Class-Specifier in top-level-declarations:
+# for variables:
+#   global           globally visible variable
+#   local            variable that is only visible in the file (local)
+#   extern           pointer to a variable that's defined externally
+# for functions:
+#   global           globally visible function
+#   local            function that is only visible in the file (local)
+#   extern           pointer to a function that's defined externally
+#   extern_C         pointer to a c-function that's defined externally
+#   nonreturning     funtion that will never return
+#define global
+#define local  static
 # #define extern extern
-  #ifdef __cplusplus
-    #define extern_C  extern "C"
-  #else
-    #define extern_C  extern
-  #endif
+#ifdef __cplusplus
+  #define extern_C  extern "C"
+#else
+  #define extern_C  extern
+#endif
 
-# Declaration of a function which never returns:
+# Declaration of a function that will never return (nonreturning function)
 # nonreturning_function(extern,abort,(void)); == extern void abort (void);
-# Works for function declarations and function definitions.
-  #ifdef GNU
-    #if (__GNUC__ >= 3) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 7))
-      # Note:
-      #   storclass __attribute__((__noreturn__)) void funname arguments
-      #     works in gcc 2.95 or newer, and in g++ 2.7.2 or newer.
-      #   storclass void __attribute__((__noreturn__)) funname arguments
-      #     works in gcc 2.7.2 or newer and in g++ 2.7.2 or newer.
-      #   storclass void funname arguments __attribute__((__noreturn__))
-      #     works in gcc 2.7.2 or newer and in g++ 2.7.2 or newer, but
-      #     only when followed by a semicolon, not in a function definition.
-      #define nonreturning_function(storclass,funname,arguments)  \
-        storclass void __attribute__((__noreturn__)) funname arguments
-    #else
-      #define nonreturning_function(storclass,funname,arguments)  \
-        storclass void funname arguments
-    #endif
-  #elif defined(MICROSOFT)
-      #define nonreturning_function(storclass,funname,arguments)  \
-        __declspec(noreturn) storclass void funname arguments
+#ifdef GNU
+  #if (__GNUC__ >= 3) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 7))
+    # Note:
+    #   storclass __attribute__((__noreturn__)) void funname arguments
+    #     works in gcc 2.95 or newer, and in g++ 2.7.2 or newer.
+    #   storclass void __attribute__((__noreturn__)) funname arguments
+    #     works in gcc 2.7.2 or newer and in g++ 2.7.2 or newer.
+    #   storclass void funname arguments __attribute__((__noreturn__))
+    #     works in gcc 2.7.2 or newer and in g++ 2.7.2 or newer, but
+    #     only when followed by a semicolon, not in a function definition.
+    #define nonreturning_function(storclass,funname,arguments)  \
+      storclass void __attribute__((__noreturn__)) funname arguments
   #else
     #define nonreturning_function(storclass,funname,arguments)  \
       storclass void funname arguments
   #endif
+#elif defined(MICROSOFT)
+  #define nonreturning_function(storclass,funname,arguments)  \
+    __declspec(noreturn) storclass void funname arguments
+#else
+  #define nonreturning_function(storclass,funname,arguments)  \
+    storclass void funname arguments
+#endif
 
-# Storage-Class-Specifier in Deklarationen an Blockanfängen:
-# var                       leitet Variablendeklarationen ein
-  #define var
+# Storage-Class-Specifier in declarations at the beginning of a block:
+# var                       will lead a variable declaration
+#define var
 
-# Adresse des ersten Elements eines Arrays: &!array
-# (Wenn klar werden soll, dass man die Adresse des ganzen Arrays übergibt.
-# Wenn man &array schreibt, ist das genau genommen ein Typfehler.)
+# Address of the first element of an array: &!array
+# (To clarify that the address of the whole array is given.
+# If you write &array, it is a type-error to be precise.)
 
-# Verallgemeinerte if-Anweisung:
+# Generalized if-statement:
 # if (cond1) ... {elif (condi) ...} [else ...]
-  #define elif  else if
+#define elif  else if
 
-# Endlosschleife, nur mit  break;  oder  return...;  zu verlassen:
-  #define loop  while (1)
+# Infinite loop, can only be left with break;  or  return...;:
+#define loop  while (1)
 
-# Umgekehrte Abbruchbedingung in Schleifen:
-# Erlaubt   until (expression) statement
-# und       do statement until (expression);
-  #define until(expression)  while(!(expression))
+# Reverted stop condition in loops:
+# Allows   until (expression) statement
+# and      do statement until (expression);
+#define until(expression)  while(!(expression))
 
-# Fallunterscheidung über einen Wert >=0
+# Case-statement for a value >=0
 # switchu (expression) ...
-  #ifdef GNU # wird so besser optimiert
-    #define switchu(expression)  switch ((unsigned int)(expression))
-  #else
-    #define switchu  switch
-  #endif
+#ifdef GNU # for better optimization
+  #define switchu(expression)  switch ((unsigned int)(expression))
+#else
+  #define switchu  switch
+#endif
 
-# Ignorieren eines Wertes (statt einer Zuweisung an eine Variable)
+# Ignoring of a value (instead of assigning it to a variable)
 # unused ...
-  #ifdef GNU # um eine gcc-Warnung "statement with no effect" zu vermeiden
-    #define unused  (void)
-  #else
-    #define unused
-  #endif
+#ifdef GNU # to prevent a gcc-warning "statement with no effect"
+  #define unused  (void)
+#else
+  #define unused
+#endif
 
 # Ignore C++ keyword.
-  #define export export_sym
+#define export export_sym
 
-# Vertauschen zweier Variableninhalte:  swap(register int, x1, x2);
-  #define swap(swap_type,swap_var1,swap_var2)  \
-    { var swap_type swap_temp;                                             \
-      swap_temp = swap_var1; swap_var1 = swap_var2; swap_var2 = swap_temp; \
-    }
+# Swap the contents of to variables:  swap(register int, x1, x2);
+#define swap(swap_type,swap_var1,swap_var2)  \
+  { var swap_type swap_temp;                                             \
+    swap_temp = swap_var1; swap_var1 = swap_var2; swap_var2 = swap_temp; \
+  } while (0)
 
-# Kennzeichnung einer unerreichten Programmstelle: NOTREACHED
-  #define NOTREACHED  fehler_notreached(__FILE__,__LINE__);
+# Marking a program line that has not been reached: NOTREACHED
+#define NOTREACHED  fehler_notreached(__FILE__,__LINE__);
 
-# Überprüfung eines arithmetischen Ausdrucks: ASSERT(expr)
-  #define ASSERT(expr)  { if (!(expr)) { NOTREACHED } }
+# Asserting an arithmetic expression: ASSERT(expr)
+#define ASSERT(expr)  { if (!(expr)) { NOTREACHED } }
 
 # alloca()
-  #if defined(GNU) && !defined(RISCOS) && !defined(CONVEX)
-    #define alloca  __builtin_alloca
-  #elif defined(MICROSOFT)
-    #include <malloc.h>
-    #define alloca _alloca
-  #elif defined(HAVE_ALLOCA_H) || defined(RISCOS)
-    #include <alloca.h>
-    #ifndef alloca # Manche definieren 'alloca' als Macro...
-      #if !(defined(UNIX_OSF) || defined(UNIX_DEC_ULTRIX) || defined(RISCOS))
-        # OSF/1 V3 declares `alloca' as returning char*, but in OSF/1 V4
-        # it returns void*. I don't know how to distinguish the two.
-        extern_C void* alloca (int size); # siehe MALLOC(3V)
-      #endif
+#if defined(GNU) && !defined(RISCOS) && !defined(CONVEX)
+  #define alloca  __builtin_alloca
+#elif defined(MICROSOFT)
+  #include <malloc.h>
+  #define alloca _alloca
+#elif defined(HAVE_ALLOCA_H) || defined(RISCOS)
+  #include <alloca.h>
+  #ifndef alloca # Manche definieren 'alloca' als Macro...
+    #if !(defined(UNIX_OSF) || defined(UNIX_DEC_ULTRIX) || defined(RISCOS))
+      # OSF/1 V3 declares `alloca' as returning char*, but in OSF/1 V4
+      # it returns void*. I don't know how to distinguish the two.
+      extern_C void* alloca (int size); # see MALLOC(3V)
     #endif
-  #elif defined(_AIX)
-    #pragma alloca /* AIX requires this to be the first thing in the file. */
-  #elif defined(BORLAND)
-    #include <malloc.h> # definiert 'alloca' als Macro
-  #elif !defined(NO_ALLOCA)
-    extern_C void* alloca (int size); # siehe MALLOC(3V)
   #endif
+#elif defined(_AIX)
+  #pragma alloca /* AIX requires this to be the first thing in the file. */
+#elif defined(BORLAND)
+  #include <malloc.h> # defines  'alloca' as macro
+#elif !defined(NO_ALLOCA)
+  extern_C void* alloca (int size); # see MALLOC(3V)
+#endif
 
-# Synonym für Byte, Word, Longword:
+# Synonyms for Byte, Word, Longword:
 # SBYTE   = signed 8 bit integer
 # UBYTE   = unsigned 8 bit int
 # SWORD   = signed 16 bit int
 # UWORD   = unsigned 16 bit int
 # SLONG   = signed 32 bit int
 # ULONG   = unsigned 32 bit int
-# Hingegen wird "char" nur in der Bedeutung eines Elements eines Strings
-# verwendet. Nie wird mit einem "char" wirklich gerechnet; das könnte von
-# __CHAR_UNSIGNED__ abhängen!
-  #if (char_bitsize==8)
-    #ifdef __CHAR_UNSIGNED__
-      typedef signed char  SBYTE;
-    #else
+# On the other hand, "char" is only used as an element of a string
+# You never really compute with a "char"; it might depend on
+# __CHAR_UNSIGNED___!
+#if (char_bitsize==8)
+  #ifdef __CHAR_UNSIGNED__
+    typedef signed char  SBYTE;
+  #else
       typedef char         SBYTE;
-    #endif
-    typedef unsigned char  UBYTE;
-  #else
-    #error "No 8 bit integer type? -- Welcher Integer-Typ hat 8 Bit?"
   #endif
-  #if (short_bitsize==16)
-    typedef short          SWORD;
-    typedef unsigned short UWORD;
-  #else
-    #error "No 16 bit integer type? -- Welcher Integer-Typ hat 16 Bit?"
-  #endif
-  #if (long_bitsize==32)
-    typedef long           SLONG;
-    typedef unsigned long  ULONG;
-  #elif (int_bitsize==32)
-    typedef int            SLONG;
-    typedef unsigned int   ULONG;
-  #else
-    #error "No 32 bit integer type? -- Welcher Integer-Typ hat 32 Bit?"
-  #endif
-  #if (long_bitsize==64)
-    typedef long           SLONGLONG;
-    typedef unsigned long  ULONGLONG;
-    #undef HAVE_LONGLONG
-    #define HAVE_LONGLONG
-  #elif defined(HAVE_LONGLONG)
-   #if defined(long_long_bitsize) && (long_long_bitsize==64)
-    typedef long long           SLONGLONG;
-    typedef unsigned long long  ULONGLONG;
-   #else # unbrauchbarer Typ
-    #undef HAVE_LONGLONG
-   #endif
-  #elif defined(MICROSOFT)
-    typedef __int64           SLONGLONG;
-    typedef unsigned __int64  ULONGLONG;
-    #define HAVE_LONGLONG
-  #endif
-  #if defined(WIDE) && !defined(HAVE_LONGLONG)
-    #error "No 64 bit integer type? -- Welcher Integer-Typ hat 64 Bit?"
-  #endif
+  typedef unsigned char  UBYTE;
+#else
+  #error "No 8 bit integer type? -- Which Interger-type has 8 Bit?"
+#endif
+#if (short_bitsize==16)
+  typedef short          SWORD;
+  typedef unsigned short UWORD;
+#else
+  #error "No 16 bit integer type? -- Which Integer-type has 16 Bit?"
+#endif
+#if (long_bitsize==32)
+  typedef long           SLONG;
+  typedef unsigned long  ULONG;
+#elif (int_bitsize==32)
+  typedef int            SLONG;
+  typedef unsigned int   ULONG;
+#else
+  #error "No 32 bit integer type? -- Which Integer-type has 32 Bit?"
+#endif
+#if (long_bitsize==64)
+  typedef long           SLONGLONG;
+  typedef unsigned long  ULONGLONG;
+  #undef HAVE_LONGLONG
+  #define HAVE_LONGLONG
+#elif defined(HAVE_LONGLONG)
+ #if defined(long_long_bitsize) && (long_long_bitsize==64)
+  typedef long long           SLONGLONG;
+  typedef unsigned long long  ULONGLONG;
+ #else # useledd type
+  #undef HAVE_LONGLONG
+ #endif
+#elif defined(MICROSOFT)
+  typedef __int64           SLONGLONG;
+  typedef unsigned __int64  ULONGLONG;
+  #define HAVE_LONGLONG
+#endif
+#if defined(WIDE) && !defined(HAVE_LONGLONG)
+  #error "No 64 bit integer type? -- Which Integer-type has 64 Bit?"
+#endif
 
-# Wahrheitswerte:
-  #include "stdbool.h"
+# boolean values:
+#include "stdbool.h"
 
-# Typ für Vorzeichenwerte, Vergleichsergebnisse, dreiwertige enum's
-# mit Werten +1, 0, -1
-  typedef signed int  signean;
-  #define signean_plus    1 # +1
-  #define signean_null    0 #  0
-  #define signean_minus  -1 # -1
+# Type for signed values, results of comparisons, tertiary enums
+# with values +1, 0, -1
+typedef signed int  signean;
+#define signean_plus    1 # +1
+#define signean_null    0 #  0
+#define signean_minus  -1 # -1
 
-# Nullpointer
-  #ifdef __cplusplus
-    #define NULL  0
-  #else
-    #define NULL  ((void*) 0L)
-  #endif
+# Null pointers
+#ifdef __cplusplus
+  #define NULL  0
+#else
+  #define NULL  ((void*) 0L)
+#endif
 
-# Den Offset einer Komponente 'ident' in einem Struct vom Typ 'type' bestimmen:
-# 0 als Pointer auf 'type' auffassen, dorthin ein Struct 'type' legen und
-# von dessen Komponente 'ident' die Adresse bestimmen und als Zahl liefern:
-  #if !(defined(HAVE_OFFSETOF) || defined(__MINGW32__) || (defined(BORLAND) && defined(WIN32)))
-    #undef offsetof
-    #define offsetof(type,ident)  ((ULONG)&(((type*)0)->ident))
-  #else
-    #include <stddef.h>
-  #endif
-# Den Offset eines Arrays 'ident' in einem Struct vom Typ 'type' bestimmen:
-  #define offsetofa(type,ident)  offsetof(type,ident[0])
+# Determine the offset of a component 'ident' in a struct of the type 'type':
+# See 0 as pointer to 'type', put a struct 'type' there and determine the
+# address of its component 'ident' and return it as number:
+#if !(defined(HAVE_OFFSETOF) || defined(__MINGW32__) || (defined(BORLAND) && defined(WIN32)))
+  #undef offsetof
+  #define offsetof(type,ident)  ((ULONG)&(((type*)0)->ident))
+#else
+  #include <stddef.h>
+#endif
+# Determine the offset of an array 'ident' in a truct of the type 'type':
+#define offsetofa(type,ident)  offsetof(type,ident[0])
 
 # alignof(type) is a constant expression, returning the alignment of type.
-  #ifdef __cplusplus
-    template <class type> struct alignof_helper { char slot1; type slot2; };
-    #define alignof(type)  offsetof(alignof_helper<type>, slot2)
-  #else
-    #define alignof(type)  offsetof(struct { char slot1; type slot2; }, slot2)
-  #endif
+#ifdef __cplusplus
+  template <class type> struct alignof_helper { char slot1; type slot2; };
+  #define alignof(type)  offsetof(alignof_helper<type>, slot2)
+#else
+  #define alignof(type)  offsetof(struct { char slot1; type slot2; }, slot2)
+#endif
 
-# Unspezifizierte Länge von Arrays in Structures:
+# Unspecified length of arrays in structures:
 # struct { ...; ...; type x[unspecified]; }
-# Statt sizeof(..) muss man dann aber immer offsetof(..,x) schreiben.
-  #if defined(GNU) # GNU-C kann Arrays der Länge 0
-    #define unspecified 0
-  #elif 0
-    # Üblicherweise lässt man die Arraygrenze weg:
-    #define unspecified
-  #else
-    # Jedoch die HP-UX- und IRIX-Compiler lassen sich nur damit befriedigen:
-    #define unspecified 1
+# Instead of sizeof(..) you'll always have to use offsetof(..,x).
+#if defined(GNU) # GNU-C is able to work with arrays of length 0
+  #define unspecified 0
+#elif 0
+  # Usually one would omit the array's limit
+  #define unspecified
+#else
+  # However, HP-UX- and IRIX-compilers will only work with this:
+  #define unspecified 1
+#endif
+
+# Pointer arithmetics: add a given offset (measured in bytes)
+# to a pointer.
+#if !(defined(GNU) || (pointer_bitsize > 32))
+  # Cheap way:
+  #define pointerplus(pointer,offset)  ((void*)((ULONG)(pointer)+(offset)))
+#else
+  # Essential for GNU-C for initialization of static-variables
+  # (must be a bug in 'c-typeck.c' in 'initializer_constant_valid_p'):
+  # The only correct way, if sizeof(ULONG) < sizeof(void*):
+  #define pointerplus(pointer,offset)  ((UBYTE*)(pointer)+(offset))
+#endif
+
+# Bit number n (0<=n<32)
+#define bit(n)  (1L<<(n))
+# Bit number n (0<n<=32) mod 2^32
+#define bitm(n)  (2L<<((n)-1))
+# Bit-test of bit n in x, n constant, x an oint:
+#if !defined(SPARC)
+  #define bit_test(x,n)  ((x) & bit(n))
+#else
+  # On SPARC-processors, long constants are slower than shifts.
+  #if !defined(GNU)
+    #define bit_test(x,n)  \
+      ((n)<12 ? ((x) & bit(n)) : ((sint32)((uint32)(x) << (31-(n))) < 0))
+  #else # the GNU-compiler will optimize boolean expressions better this way:
+    #define bit_test(x,n)  \
+      (   ( ((n)<12) && ((x) & bit(n)) )                           \
+       || ( ((n)>=12) && ((sint32)((uint32)(x) << (31-(n))) < 0) ) \
+      )
   #endif
+#endif
+# Minus bit number n (0<=n<32)
+#define minus_bit(n)  (-1L<<(n))
+# Minus bit number n (0<n<=32) mod 2^32
+#define minus_bitm(n)  (-2L<<((n)-1))
 
-# Pointer-Arithmetik: einen gegebenen Offset (gemessen in Bytes)
-# zu einem Pointer addieren.
-  #if !(defined(GNU) || (pointer_bitsize > 32))
-    # Billige Methode:
-    #define pointerplus(pointer,offset)  ((void*)((ULONG)(pointer)+(offset)))
-  #else
-    # Für GNU-C beim Initialisieren von static-Variablen unerlässlich
-    # (muss ein Bug in 'c-typeck.c' in 'initializer_constant_valid_p' sein):
-    # Das einzig Richtige, falls sizeof(ULONG) < sizeof(void*):
-    #define pointerplus(pointer,offset)  ((UBYTE*)(pointer)+(offset))
-  #endif
+# floor(a,b) yields for a>=0, b>0  floor(a/b).
+# b should be a 'constant expression'.
+#define floor(a_from_floor,b_from_floor)  ((a_from_floor) / (b_from_floor))
 
-# Bit Nummer n (0<=n<32)
-  #define bit(n)  (1L<<(n))
-# Bit Nummer n (0<n<=32) mod 2^32
-  #define bitm(n)  (2L<<((n)-1))
-# Bit-Test von Bit n in x, n konstant, x ein oint:
-  #if !defined(SPARC)
-    #define bit_test(x,n)  ((x) & bit(n))
-  #else
-    # Auf SPARC-Prozessoren sind lange Konstanten langsamer als Shifts.
-    #if !defined(GNU)
-      #define bit_test(x,n)  \
-        ((n)<12 ? ((x) & bit(n)) : ((sint32)((uint32)(x) << (31-(n))) < 0))
-    #else # der GNU-Compiler optimiert boolean-Expressions so besser:
-      #define bit_test(x,n)  \
-        (   ( ((n)<12) && ((x) & bit(n)) )                           \
-         || ( ((n)>=12) && ((sint32)((uint32)(x) << (31-(n))) < 0) ) \
-        )
-    #endif
-  #endif
-# Minus Bit Nummer n (0<=n<32)
-  #define minus_bit(n)  (-1L<<(n))
-# Minus Bit Nummer n (0<n<=32) mod 2^32
-  #define minus_bitm(n)  (-2L<<((n)-1))
+# ceiling(a,b) yields for a>=0, b>0  ceiling(a/b) = floor((a+b-1)/b).
+# b should be a 'constant expression'.
+#define ceiling(a_from_ceiling,b_from_ceiling)  \
+  (((a_from_ceiling) + (b_from_ceiling) - 1) / (b_from_ceiling))
 
-# floor(a,b) liefert für a>=0, b>0  floor(a/b).
-# b sollte eine 'constant expression' sein.
-  #define floor(a_from_floor,b_from_floor)  ((a_from_floor) / (b_from_floor))
+# round_down(a,b) rounds a>=0 so that b>0 divides it.
+# b should be a 'constant expression'.
+#define round_down(a_from_round,b_from_round)  \
+  (floor(a_from_round,b_from_round)*(b_from_round))
 
-# ceiling(a,b) liefert für a>=0, b>0  ceiling(a/b) = floor((a+b-1)/b).
-# b sollte eine 'constant expression' sein.
-  #define ceiling(a_from_ceiling,b_from_ceiling)  \
-    (((a_from_ceiling) + (b_from_ceiling) - 1) / (b_from_ceiling))
+# round_up(a,b) rounds a>=0 so that b>0 divides it.
+# b should be a 'constant expression'.
+#define round_up(a_from_round,b_from_round)  \
+  (ceiling(a_from_round,b_from_round)*(b_from_round))
 
-# round_down(a,b) rundet a>=0 so ab, dass es durch b>0 teilbar ist.
-# b sollte eine 'constant expression' sein.
-  #define round_down(a_from_round,b_from_round)  \
-    (floor(a_from_round,b_from_round)*(b_from_round))
-
-# round_up(a,b) rundet a>=0 so auf, dass es durch b>0 teilbar ist.
-# b sollte eine 'constant expression' sein.
-  #define round_up(a_from_round,b_from_round)  \
-    (ceiling(a_from_round,b_from_round)*(b_from_round))
-
-# nicht-lokale Ausgänge
-  #include <setjmp.h>
-  #if defined(UNIX) && defined(HAVE__JMP) && !defined(UNIX_LINUX) && !defined(UNIX_GNU) && !defined(UNIX_BEOS)
-    # Folgende Routinen sind effizienter (hantieren nicht mit Signal-Masken):
-    #undef setjmp
+# non-local exits
+#include <setjmp.h>
+#if defined(UNIX) && defined(HAVE__JMP) && !defined(UNIX_LINUX) && !defined(UNIX_GNU) && !defined(UNIX_BEOS)
+  # The following routines are more efficient (don't use with signal-masks):
+  #undef setjmp
+  #undef longjmp
+  #define setjmp  _setjmp
+  #define longjmp  _longjmp
+  #ifdef LONGJMP_RETURNS
+    # _longjmp(jmpbuf,value) can return if jmpbuf is invalid.
     #undef longjmp
-    #define setjmp  _setjmp
-    #define longjmp  _longjmp
-    #ifdef LONGJMP_RETURNS
-      # _longjmp(jmpbuf,value) kann zurückkehren, wenn jmpbuf ungültig ist.
-      #undef longjmp
-      #define longjmp(x,y)  (_longjmp(x,y), fehler_notreached(__FILE__,__LINE__))
-    #endif
+    #define longjmp(x,y)  (_longjmp(x,y), fehler_notreached(__FILE__,__LINE__))
   #endif
-# Mit longjmp() kann man nur ein `int' übergeben.
-# Wenn wir nun ein `long' übergeben wollen und sizeof(int) < sizeof(long) ist,
-# brauchen wir eine globale Variable:
-  #if (int_bitsize == long_bitsize)
-    #define setjmpl(x)  setjmp(x)
-    #define longjmpl(x,y)  longjmp(x,y)
-  #else # (int_bitsize < long_bitsize)
-    extern long jmpl_value;
-    #define setjmpl(x)  (setjmp(x) ? jmpl_value : 0)
-    #define longjmpl(x,y)  (jmpl_value = (y), longjmp(x,1))
-  #endif
+#endif
+# A longgjmp() can only be called using an `int'.
+# But if we want to use a `long' and if sizeof(int) < sizeof(long),
+# we'll need a global variable:
+#if (int_bitsize == long_bitsize)
+  #define setjmpl(x)  setjmp(x)
+  #define longjmpl(x,y)  longjmp(x,y)
+#else # (int_bitsize < long_bitsize)
+  extern long jmpl_value;
+  #define setjmpl(x)  (setjmp(x) ? jmpl_value : 0)
+  #define longjmpl(x,y)  (jmpl_value = (y), longjmp(x,1))
+#endif
 
 # An alloca() replacement, used for DYNAMIC_ARRAY and SAVE_NUM_STACK.
 # See spvw_alloca.d.
@@ -1261,306 +1275,305 @@
   extern void freea (void* ptr);
 #endif
 
-# Dynamisch allozierte Arrays mit dynamic extent:
-# Beispiel:
-#     { var DYNAMIC_ARRAY(my_array,uintL,n);
-#       ...
-#       FREE_DYNAMIC_ARRAY(my_array);
-#     }
-# Vorsicht: Je nach Implementierung ist my_array entweder der Array selbst
-# oder ein Pointer auf den Array! Immer nur my_array als Expression verwenden!
-  #if defined(GNU)
-    # verkraftet dynamisch allozierte Arrays im Maschinenstack
-    # { var uintL my_array[n]; ... }
+# Dynamically allocated array with dynamic extent:
+# Example:
+#     var DYNAMIC_ARRAY(my_array,uintL,n);
+#     ...
+#     FREE_DYNAMIC_ARRAY(my_array);
+# Attention: depending on your implementation my_array is either the array
+# itself or a pointer to the array! Always use my_array only as expression!
+#if defined(GNU)
+  # can deal with dynamically allocated arrays in the maschine stack
+  # { var uintL my_array[n]; ... }
+  #define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  \
+    arrayeltype arrayvar[arraysize]
+  #define FREE_DYNAMIC_ARRAY(arrayvar)
+  #ifdef DECALPHA # GCC 2.5.5 Bug umgehen
+    #undef DYNAMIC_ARRAY
     #define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  \
-      arrayeltype arrayvar[arraysize]
-    #define FREE_DYNAMIC_ARRAY(arrayvar)
-    #ifdef DECALPHA # GCC 2.5.5 Bug umgehen
-      #undef DYNAMIC_ARRAY
-      #define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  \
-        arrayeltype arrayvar[(arraysize)+1]
-    #endif
-  #elif (defined(UNIX) && (defined(HAVE_ALLOCA_H) || defined(_AIX) || !defined(NO_ALLOCA))) || defined(BORLAND) || defined(MICROSOFT) || defined(RISCOS)
-    # Platz im Maschinenstack reservieren.
-    # { var uintL* my_array = (uintL*)alloca(n*sizeof(uintL)); ... }
-    #define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  \
-      arrayeltype* arrayvar = (arrayeltype*)alloca((arraysize)*sizeof(arrayeltype))
-    #define FREE_DYNAMIC_ARRAY(arrayvar)
-    # kein Errorcheck??
-  #else
-    # Platz woanders reservieren und dann wieder freigeben.
-    # { var uintL* my_array = (uintL*)malloc(n*sizeof(uintL)); ... free(my_array); }
-    #define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  \
-      arrayeltype* arrayvar = (arrayeltype*)malloca((arraysize)*sizeof(arrayeltype))
-    #define FREE_DYNAMIC_ARRAY(arrayvar)  freea(arrayvar)
+      arrayeltype arrayvar[(arraysize)+1]
   #endif
+#elif (defined(UNIX) && (defined(HAVE_ALLOCA_H) || defined(_AIX) || !defined(NO_ALLOCA))) || defined(BORLAND) || defined(MICROSOFT) || defined(RISCOS)
+  # Allocate space in machine stack.
+  # { var uintL* my_array = (uintL*)alloca(n*sizeof(uintL)); ... }
+  #define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  \
+    arrayeltype* arrayvar = (arrayeltype*)alloca((arraysize)*sizeof(arrayeltype))
+  #define FREE_DYNAMIC_ARRAY(arrayvar)
+  # no error check??
+#else
+  # Allocate space somewhere else and then free it.
+  # { var uintL* my_array = (uintL*)malloc(n*sizeof(uintL)); ... free(my_array); }
+  #define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  \
+    arrayeltype* arrayvar = (arrayeltype*)malloca((arraysize)*sizeof(arrayeltype))
+  #define FREE_DYNAMIC_ARRAY(arrayvar)  freea(arrayvar)
+#endif
 
-# Signed/Unsigned-Integer-Typen mit vorgegebener Mindestgröße:
-  typedef UBYTE   uint1;   # unsigned 1 bit Integer
-  typedef SBYTE   sint1;   # signed 1 bit Integer
-  typedef UBYTE   uint2;   # unsigned 2 bit Integer
-  typedef SBYTE   sint2;   # signed 2 bit Integer
-  typedef UBYTE   uint3;   # unsigned 3 bit Integer
-  typedef SBYTE   sint3;   # signed 3 bit Integer
-  typedef UBYTE   uint4;   # unsigned 4 bit Integer
-  typedef SBYTE   sint4;   # signed 4 bit Integer
-  typedef UBYTE   uint5;   # unsigned 5 bit Integer
-  typedef SBYTE   sint5;   # signed 5 bit Integer
-  typedef UBYTE   uint6;   # unsigned 6 bit Integer
-  typedef SBYTE   sint6;   # signed 6 bit Integer
-  typedef UBYTE   uint7;   # unsigned 7 bit Integer
-  typedef SBYTE   sint7;   # signed 7 bit Integer
-  typedef UBYTE   uint8;   # unsigned 8 bit Integer
-  typedef SBYTE   sint8;   # signed 8 bit Integer
-  typedef UWORD   uint9;   # unsigned 9 bit Integer
-  typedef SWORD   sint9;   # signed 9 bit Integer
-  typedef UWORD   uint10;  # unsigned 10 bit Integer
-  typedef SWORD   sint10;  # signed 10 bit Integer
-  typedef UWORD   uint11;  # unsigned 11 bit Integer
-  typedef SWORD   sint11;  # signed 11 bit Integer
-  typedef UWORD   uint12;  # unsigned 12 bit Integer
-  typedef SWORD   sint12;  # signed 12 bit Integer
-  typedef UWORD   uint13;  # unsigned 13 bit Integer
-  typedef SWORD   sint13;  # signed 13 bit Integer
-  typedef UWORD   uint14;  # unsigned 14 bit Integer
-  typedef SWORD   sint14;  # signed 14 bit Integer
-  typedef UWORD   uint15;  # unsigned 15 bit Integer
-  typedef SWORD   sint15;  # signed 15 bit Integer
-  typedef UWORD   uint16;  # unsigned 16 bit Integer
-  typedef SWORD   sint16;  # signed 16 bit Integer
-  typedef ULONG   uint17;  # unsigned 17 bit Integer
-  typedef SLONG   sint17;  # signed 17 bit Integer
-  typedef ULONG   uint18;  # unsigned 18 bit Integer
-  typedef SLONG   sint18;  # signed 18 bit Integer
-  typedef ULONG   uint19;  # unsigned 19 bit Integer
-  typedef SLONG   sint19;  # signed 19 bit Integer
-  typedef ULONG   uint20;  # unsigned 20 bit Integer
-  typedef SLONG   sint20;  # signed 20 bit Integer
-  typedef ULONG   uint21;  # unsigned 21 bit Integer
-  typedef SLONG   sint21;  # signed 21 bit Integer
-  typedef ULONG   uint22;  # unsigned 22 bit Integer
-  typedef SLONG   sint22;  # signed 22 bit Integer
-  typedef ULONG   uint23;  # unsigned 23 bit Integer
-  typedef SLONG   sint23;  # signed 23 bit Integer
-  typedef ULONG   uint24;  # unsigned 24 bit Integer
-  typedef SLONG   sint24;  # signed 24 bit Integer
-  typedef ULONG   uint25;  # unsigned 25 bit Integer
-  typedef SLONG   sint25;  # signed 25 bit Integer
-  typedef ULONG   uint26;  # unsigned 26 bit Integer
-  typedef SLONG   sint26;  # signed 26 bit Integer
-  typedef ULONG   uint27;  # unsigned 27 bit Integer
-  typedef SLONG   sint27;  # signed 27 bit Integer
-  typedef ULONG   uint28;  # unsigned 28 bit Integer
-  typedef SLONG   sint28;  # signed 28 bit Integer
-  typedef ULONG   uint29;  # unsigned 29 bit Integer
-  typedef SLONG   sint29;  # signed 29 bit Integer
-  typedef ULONG   uint30;  # unsigned 30 bit Integer
-  typedef SLONG   sint30;  # signed 30 bit Integer
-  typedef ULONG   uint31;  # unsigned 31 bit Integer
-  typedef SLONG   sint31;  # signed 31 bit Integer
-  typedef ULONG   uint32;  # unsigned 32 bit Integer
-  typedef SLONG   sint32;  # signed 32 bit Integer
-  #ifdef HAVE_LONGLONG
+# Signed/Unsigned-Integer-types with given minumum size:
+typedef UBYTE   uint1;   # unsigned 1 bit Integer
+typedef SBYTE   sint1;   # signed 1 bit Integer
+typedef UBYTE   uint2;   # unsigned 2 bit Integer
+typedef SBYTE   sint2;   # signed 2 bit Integer
+typedef UBYTE   uint3;   # unsigned 3 bit Integer
+typedef SBYTE   sint3;   # signed 3 bit Integer
+typedef UBYTE   uint4;   # unsigned 4 bit Integer
+typedef SBYTE   sint4;   # signed 4 bit Integer
+typedef UBYTE   uint5;   # unsigned 5 bit Integer
+typedef SBYTE   sint5;   # signed 5 bit Integer
+typedef UBYTE   uint6;   # unsigned 6 bit Integer
+typedef SBYTE   sint6;   # signed 6 bit Integer
+typedef UBYTE   uint7;   # unsigned 7 bit Integer
+typedef SBYTE   sint7;   # signed 7 bit Integer
+typedef UBYTE   uint8;   # unsigned 8 bit Integer
+typedef SBYTE   sint8;   # signed 8 bit Integer
+typedef UWORD   uint9;   # unsigned 9 bit Integer
+typedef SWORD   sint9;   # signed 9 bit Integer
+typedef UWORD   uint10;  # unsigned 10 bit Integer
+typedef SWORD   sint10;  # signed 10 bit Integer
+typedef UWORD   uint11;  # unsigned 11 bit Integer
+typedef SWORD   sint11;  # signed 11 bit Integer
+typedef UWORD   uint12;  # unsigned 12 bit Integer
+typedef SWORD   sint12;  # signed 12 bit Integer
+typedef UWORD   uint13;  # unsigned 13 bit Integer
+typedef SWORD   sint13;  # signed 13 bit Integer
+typedef UWORD   uint14;  # unsigned 14 bit Integer
+typedef SWORD   sint14;  # signed 14 bit Integer
+typedef UWORD   uint15;  # unsigned 15 bit Integer
+typedef SWORD   sint15;  # signed 15 bit Integer
+typedef UWORD   uint16;  # unsigned 16 bit Integer
+typedef SWORD   sint16;  # signed 16 bit Integer
+typedef ULONG   uint17;  # unsigned 17 bit Integer
+typedef SLONG   sint17;  # signed 17 bit Integer
+typedef ULONG   uint18;  # unsigned 18 bit Integer
+typedef SLONG   sint18;  # signed 18 bit Integer
+typedef ULONG   uint19;  # unsigned 19 bit Integer
+typedef SLONG   sint19;  # signed 19 bit Integer
+typedef ULONG   uint20;  # unsigned 20 bit Integer
+typedef SLONG   sint20;  # signed 20 bit Integer
+typedef ULONG   uint21;  # unsigned 21 bit Integer
+typedef SLONG   sint21;  # signed 21 bit Integer
+typedef ULONG   uint22;  # unsigned 22 bit Integer
+typedef SLONG   sint22;  # signed 22 bit Integer
+typedef ULONG   uint23;  # unsigned 23 bit Integer
+typedef SLONG   sint23;  # signed 23 bit Integer
+typedef ULONG   uint24;  # unsigned 24 bit Integer
+typedef SLONG   sint24;  # signed 24 bit Integer
+typedef ULONG   uint25;  # unsigned 25 bit Integer
+typedef SLONG   sint25;  # signed 25 bit Integer
+typedef ULONG   uint26;  # unsigned 26 bit Integer
+typedef SLONG   sint26;  # signed 26 bit Integer
+typedef ULONG   uint27;  # unsigned 27 bit Integer
+typedef SLONG   sint27;  # signed 27 bit Integer
+typedef ULONG   uint28;  # unsigned 28 bit Integer
+typedef SLONG   sint28;  # signed 28 bit Integer
+typedef ULONG   uint29;  # unsigned 29 bit Integer
+typedef SLONG   sint29;  # signed 29 bit Integer
+typedef ULONG   uint30;  # unsigned 30 bit Integer
+typedef SLONG   sint30;  # signed 30 bit Integer
+typedef ULONG   uint31;  # unsigned 31 bit Integer
+typedef SLONG   sint31;  # signed 31 bit Integer
+typedef ULONG   uint32;  # unsigned 32 bit Integer
+typedef SLONG   sint32;  # signed 32 bit Integer
+#ifdef HAVE_LONGLONG
   typedef ULONGLONG  uint33;  # unsigned 33 bit Integer
   typedef SLONGLONG  sint33;  # signed 33 bit Integer
   typedef ULONGLONG  uint48;  # unsigned 48 bit Integer
   typedef SLONGLONG  sint48;  # signed 48 bit Integer
   typedef ULONGLONG  uint64;  # unsigned 64 bit Integer
   typedef SLONGLONG  sint64;  # signed 64 bit Integer
-  #endif
-  #define exact_uint_size_p(n) (((n)==char_bitsize)||((n)==short_bitsize)||((n)==int_bitsize)||((n)==long_bitsize))
-  #define signed_int_with_n_bits(n) CONCAT(sint,n)
-  #define unsigned_int_with_n_bits(n) CONCAT(uint,n)
-# Verwende 'uintn' und 'sintn' für Integers mit genau vorgegebener Breite.
-# exact_uint_size_p(n) gibt an, ob der uint mit n Bits auch wirklich
-# nur n Bits hat.
+#endif
+#define exact_uint_size_p(n) (((n)==char_bitsize)||((n)==short_bitsize)||((n)==int_bitsize)||((n)==long_bitsize))
+#define signed_int_with_n_bits(n) CONCAT(sint,n)
+#define unsigned_int_with_n_bits(n) CONCAT(uint,n)
+# Use 'uintn' and 'sintn' for Integers with exactly specified width.
+# exact_uint_size_p(n) specifies, whether the uint with n Bits has really
+# only n Bits.
 
-# Ab hier bedeuten 'uintX' und 'sintX' unsigned bzw. signed integer -
-# Typen der Wortbreite X (X=B,W,L,Q).
-  #define intBsize 8
+# 'uintX' and 'sintX' mean unsigned bzw. signed integer - types with
+# wordsize X (X=B,W,L,Q) here as well.
+#define intBsize 8
   typedef signed_int_with_n_bits(intBsize)    sintB;
   typedef unsigned_int_with_n_bits(intBsize)  uintB;
-  #define intWsize 16
+#define intWsize 16
   typedef signed_int_with_n_bits(intWsize)    sintW;
   typedef unsigned_int_with_n_bits(intWsize)  uintW;
-  #define intLsize 32
+#define intLsize 32
   typedef signed_int_with_n_bits(intLsize)    sintL;
   typedef unsigned_int_with_n_bits(intLsize)  uintL;
-  #if defined(DECALPHA) || defined(MIPS64) || defined(SPARC64) || defined(IA64)
-    # Maschine hat echte 64-Bit-Zahlen in Hardware.
-    #define intQsize 64
-    typedef signed_int_with_n_bits(intQsize)    sintQ;
-    typedef unsigned_int_with_n_bits(intQsize)  uintQ;
-    typedef sintQ  sintL2;
-    typedef uintQ  uintL2;
-  #else
-    # Emuliere 64-Bit-Zahlen mit Hilfe von zwei 32-Bit-Zahlen.
-    typedef struct { sintL hi; uintL lo; } sintL2; # signed integer mit 64 Bit
-    typedef struct { uintL hi; uintL lo; } uintL2; # unsigned integer mit 64 Bit
-  #endif
-# Verwende 'uintX' und 'sintX' für Integers mit ungefähr vorgegebener Breite
-# und möglichst geringem Speicherplatz.
+#if defined(DECALPHA) || defined(MIPS64) || defined(SPARC64) || defined(IA64)
+  # Mashine has real 64-Bit-numbers in hardware.
+  #define intQsize 64
+  typedef signed_int_with_n_bits(intQsize)    sintQ;
+  typedef unsigned_int_with_n_bits(intQsize)  uintQ;
+  typedef sintQ  sintL2;
+  typedef uintQ  uintL2;
+#else
+  # Emulate 64-Bit-numbers using two 32-Bit-numbers.
+  typedef struct { sintL hi; uintL lo; } sintL2; # signed 64 Bit integer
+  typedef struct { uintL hi; uintL lo; } uintL2; # unsigned 64 Bit integer
+#endif
+# Use 'uintX' and 'sintX' for Integers with approximately given width
+# and a minumum of storage space.
 
-# Ab hier bedeuten 'uintP' und 'sintP' unsigned bzw. signed integer - Typen,
-# die so breit sind wie ein void* - Pointer.
-  typedef signed_int_with_n_bits(pointer_bitsize)    sintP;
-  typedef unsigned_int_with_n_bits(pointer_bitsize)  uintP;
+# From here on 'uintP' and 'sintP' are unsigned or signed integer types,
+# which are as wide as void* - pointers
+typedef signed_int_with_n_bits(pointer_bitsize)    sintP;
+typedef unsigned_int_with_n_bits(pointer_bitsize)  uintP;
 
-# Ab hier bedeuten 'uintXY' und 'sintXY' unsigned bzw. signed integer -
-# Typen der Wortbreite X oder Y (X,Y=B,W,L).
-  #if (defined(MC680X0) && !defined(HPUX_ASSEMBLER)) || defined(VAX)
-    # Der 68000 hat gute uintB-, uintW-, uintL-Verarbeitung, insbesondere
-    # DBRA-Befehle für uintW.
-    #define intBWsize intBsize
-    #define intWLsize intWsize
-    #define intBWLsize intBsize
-  #elif (defined(MC680X0) && defined(HPUX_ASSEMBLER)) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(CONVEX) || defined(S390)
-    # Der Sparc-Prozessor kann mit uintB und uintW schlecht rechnen.
-    # Anderen 32-Bit-Prozessoren geht es genauso.
-    #define intBWsize intWsize
-    #define intWLsize intLsize
-    #define intBWLsize intLsize
-  #elif defined(I80386)
-    # Wird auf einem 80386 mit uintB und uintW gerechnet, so gibt das viele
-    # Zero-Extends, die - da es zu wenig Register gibt - andere Variablen
-    # unnötigerweise in den Speicher schieben.
-    #define intBWsize intWsize
-    #define intWLsize intLsize
-    #define intBWLsize intLsize
-  #elif defined(ARM)
-    # Der ARM kann mit uintB und uintW sehr schlecht rechnen.
-    #define intBWsize intBsize
-    #define intWLsize intLsize
-    #define intBWLsize intLsize
-  #elif defined(DECALPHA) || defined(IA64)
-    # Auch 64-Bit-Prozessoren können mit uintB und uintW schlecht rechnen.
-    #define intBWsize intWsize
-    #define intWLsize intLsize
-    #define intBWLsize intLsize
-  #else
-    #error "Preferred integer sizes depend on CPU -- readjust intBWsize, intWLsize, intBWLsize!"
-  #endif
-  typedef signed_int_with_n_bits(intBWsize)    sintBW;
-  typedef unsigned_int_with_n_bits(intBWsize)  uintBW;
-  typedef signed_int_with_n_bits(intWLsize)    sintWL;
-  typedef unsigned_int_with_n_bits(intWLsize)  uintWL;
-  typedef signed_int_with_n_bits(intBWLsize)    sintBWL;
-  typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
-# Verwende 'uintXY' und 'sintXY' für Integers mit vorgegebener Mindestbreite,
-# mit denen sich leicht rechnen lässt.
+# From here on 'uintXY' and 'sintXY' mean unsigned or signed integer types,
+# with word sizes X or Y (X,Y=B,W,L).
+#if (defined(MC680X0) && !defined(HPUX_ASSEMBLER)) || defined(VAX)
+  # The 68000 offers good processing of uintB and uintW, especially
+  # DBRA-commands for uintW.
+  #define intBWsize intBsize
+  #define intWLsize intWsize
+  #define intBWLsize intBsize
+#elif (defined(MC680X0) && defined(HPUX_ASSEMBLER)) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(CONVEX) || defined(S390)
+  # The Sparc-processor computes rather badly with uintB and uintW.
+  # Other 32-Bit-processoren have similar weaknesses.
+  #define intBWsize intWsize
+  #define intWLsize intLsize
+  #define intBWLsize intLsize
+#elif defined(I80386)
+  # If you compute uising uintB and uintW on a 80386, there will be many
+  # Zero-Extends, that will - because there aren't enough registers - load
+  # other variables into memory, which is rather unnecessary.
+  #define intBWsize intWsize
+  #define intWLsize intLsize
+  #define intBWLsize intLsize
+#elif defined(ARM)
+  # The ARM computes very badly when it uses uintB and uintW.
+  #define intBWsize intBsize
+  #define intWLsize intLsize
+  #define intBWLsize intLsize
+#elif defined(DECALPHA) || defined(IA64)
+  # 64-bit processors also compute badly with uintB and uintW.
+  #define intBWsize intWsize
+  #define intWLsize intLsize
+  #define intBWLsize intLsize
+#else
+  #error "Preferred integer sizes depend on CPU -- readjust intBWsize, intWLsize, intBWLsize!"
+#endif
+typedef signed_int_with_n_bits(intBWsize)     sintBW;
+typedef unsigned_int_with_n_bits(intBWsize)   uintBW;
+typedef signed_int_with_n_bits(intWLsize)     sintWL;
+typedef unsigned_int_with_n_bits(intWLsize)   uintWL;
+typedef signed_int_with_n_bits(intBWLsize)    sintBWL;
+typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
+# Use 'uintXY' and 'sintXY' for integers with given minumum width,
+# that allow easy computations.
 
-# Schleife, die ein Statement eine gewisse Anzahl mal ausführt:
-# dotimesW(countvar,count,statement);  falls count in ein uintW passt,
-# dotimesL(countvar,count,statement);  falls count nur in ein uintL passt,
-# dotimespW(countvar,count,statement);  falls count in ein uintW passt und >0 ist,
-# dotimespL(countvar,count,statement);  falls count nur in ein uintL passt und >0 ist.
-# Die Variable countvar muss bereits deklariert sein, vom Typ uintW bzw. uintL
-# und wird durch diese Anweisung verändert!
-# Sie darf in statement nicht verwendet werden!
-# Die Expression count wird nur einmal (zu Beginn) ausgewertet.
-  #if defined(GNU) && defined(MC680X0) && !defined(HPUX_ASSEMBLER)
-    # GNU-C auf einem 680X0 lässt sich dazu überreden, den DBRA-Befehl zu verwenden:
-    #define fast_dotimesW
-    # Um zu entscheiden, wie man GNU-C am besten dazu überredet, betrachte man
-    # den Code, der für spvw.d:gc_markphase() produziert wird.
-    # Oder ein kleines Testprogramm (dbratest.c), das mit
-    # "gcc -O6 -da -S dbratest.c" compiliert wird, und betrachte dbratest.s
-    # und dbratest.c.flow sowie dbratest.c.combine.
-    #if (__GNUC__<2) # GNU C Version 1
-      #define dotimesW_(countvar_from_dotimesW,count_from_dotimesW,statement_from_dotimesW)  \
-        { countvar_from_dotimesW = (count_from_dotimesW);     \
-          if (!(countvar_from_dotimesW==0))                   \
-            { countvar_from_dotimesW--;                       \
-              do {statement_from_dotimesW}                    \
-                 until ((sintW)--countvar_from_dotimesW==-1); \
-        }   }
-      #define dotimespW_(countvar_from_dotimespW,count_from_dotimespW,statement_from_dotimespW)  \
-        { countvar_from_dotimespW = (count_from_dotimespW)-1;                         \
-          do {statement_from_dotimespW} until ((sintW)--countvar_from_dotimespW==-1); \
-        }
-    #else
-      #define dotimesW_(countvar_from_dotimesW,count_from_dotimesW,statement_from_dotimesW)  \
-        { countvar_from_dotimesW = (count_from_dotimesW);        \
-          if (!(countvar_from_dotimesW==0))                      \
-            { countvar_from_dotimesW--;                          \
-              do {statement_from_dotimesW}                       \
-                 until ((sintW)(--countvar_from_dotimesW)+1==0); \
-        }   }
-      #define dotimespW_(countvar_from_dotimespW,count_from_dotimespW,statement_from_dotimespW)  \
-        { countvar_from_dotimespW = (count_from_dotimespW)-1;                            \
-          do {statement_from_dotimespW} until ((sintW)(--countvar_from_dotimespW)+1==0); \
-        }
-    #endif
+# Loop that will excute as statement a certain number of times:
+# dotimesW(countvar,count,statement);  if count fits into a uintW,
+# dotimesL(countvar,count,statement);  if  count only fits into a uintL,
+# dotimespW(countvar,count,statement);  if count fits into a uintW and is >0,
+# dotimespL(countvar,count,statement);  if count fits only into a uintL and is >0.
+# The variable countvar has to be priorly declared, be of type uintW or uintL,
+# and will be changed by this expression.
+# It must not be used in the statement itself!
+# The expression count will only be evaluated once (at the beginning).
+#if defined(GNU) && defined(MC680X0) && !defined(HPUX_ASSEMBLER)
+  # GNU-C on a 680X0 can be persuaded to use the DBRA-instruction:
+  #define fast_dotimesW
+  # To find out, what the best was to 'persuade' GNU-C is, check the
+  # code, that'll be generated for spvw.d:gc_markphase().
+  # Or a small test program (dbratest.c), that is compiled with
+  # "gcc -O6 -da -S dbratest.c", and take a look at dbratest.s
+  # and dbratest.c.flow as well as dbratest.c.combine.
+  #if (__GNUC__<2) # GNU C Version 1
+    #define dotimesW_(countvar_from_dotimesW,count_from_dotimesW,statement_from_dotimesW)  \
+      { countvar_from_dotimesW = (count_from_dotimesW);     \
+        if (!(countvar_from_dotimesW==0))                   \
+          { countvar_from_dotimesW--;                       \
+            do {statement_from_dotimesW}                    \
+               until ((sintW)--countvar_from_dotimesW==-1); \
+      }   }
+    #define dotimespW_(countvar_from_dotimespW,count_from_dotimespW,statement_from_dotimespW)  \
+      { countvar_from_dotimespW = (count_from_dotimespW)-1;                         \
+        do {statement_from_dotimespW} until ((sintW)--countvar_from_dotimespW==-1); \
+      }
   #else
     #define dotimesW_(countvar_from_dotimesW,count_from_dotimesW,statement_from_dotimesW)  \
-      { countvar_from_dotimesW = (count_from_dotimesW);         \
-        until (countvar_from_dotimesW==0)                       \
-          {statement_from_dotimesW; countvar_from_dotimesW--; } \
-      }
-    #define dotimespW_(countvar_from_dotimespW,count_from_dotimespW,statement_from_dotimespW)  \
-      { countvar_from_dotimespW = (count_from_dotimespW);                   \
-        do {statement_from_dotimespW} until (--countvar_from_dotimespW==0); \
-      }
-  #endif
-  #if defined(GNU) && defined(MC680X0) && !defined(HPUX_ASSEMBLER)
-    # GNU-C auf einem 680X0 lässt sich dazu überreden, den DBRA-Befehl
-    # auf intelligente Weise zu verwenden:
-    #define fast_dotimesL
-    #define dotimesL_(countvar_from_dotimesL,count_from_dotimesL,statement_from_dotimesL)  \
-      { countvar_from_dotimesL = (count_from_dotimesL);           \
-        if (!(countvar_from_dotimesL==0))                         \
-          { countvar_from_dotimesL--;                             \
-            do {statement_from_dotimesL}                          \
-               until ((sintL)(--countvar_from_dotimesL) == -1);   \
+      { countvar_from_dotimesW = (count_from_dotimesW);        \
+        if (!(countvar_from_dotimesW==0))                      \
+          { countvar_from_dotimesW--;                          \
+            do {statement_from_dotimesW}                       \
+               until ((sintW)(--countvar_from_dotimesW)+1==0); \
       }   }
-    #define dotimespL_(countvar_from_dotimespL,count_from_dotimespL,statement_from_dotimespL)  \
-      { countvar_from_dotimespL = (count_from_dotimespL)-1;                             \
-        do {statement_from_dotimespL} until ((sintL)(--countvar_from_dotimespL) == -1); \
+    #define dotimespW_(countvar_from_dotimespW,count_from_dotimespW,statement_from_dotimespW)  \
+      { countvar_from_dotimespW = (count_from_dotimespW)-1;                            \
+        do {statement_from_dotimespW} until ((sintW)(--countvar_from_dotimespW)+1==0); \
       }
   #endif
-  #ifndef dotimesL_
-    #define dotimesL_(countvar_from_dotimesL,count_from_dotimesL,statement_from_dotimesL)  \
-      { countvar_from_dotimesL = (count_from_dotimesL);         \
-        until (countvar_from_dotimesL==0)                       \
-          {statement_from_dotimesL; countvar_from_dotimesL--; } \
-      }
-    #define dotimespL_(countvar_from_dotimespL,count_from_dotimespL,statement_from_dotimespL)  \
-      { countvar_from_dotimespL = (count_from_dotimespL);                   \
-        do {statement_from_dotimespL} until (--countvar_from_dotimespL==0); \
-      }
-  #endif
-  #if defined(GNU) && defined(__OPTIMIZE__)
-    # Es ist mir nun schon zweimal passiert, dass ich dotimesL auf eine
-    # Variable vom Typ uintC angewandt habe. Damit Jörg und Marcus nicht
-    # mehr suchen müssen, überprüfe ich das jetzt.
-    # Der Dummy-Aufruf wird, wenn's gut geht, von gcc wegoptimiert.
-    # Ansonsten bekommt man einen Fehler beim Linken.
-    #define dotimes_check_sizeof(countvar,type)  \
-      if (!(sizeof(countvar)==sizeof(type))) { dotimes_called_with_count_of_wrong_size(); }
-    extern void dotimes_called_with_count_of_wrong_size (void); # nicht existente Funktion
-  #else
-    #define dotimes_check_sizeof(countvar,type)
-  #endif
-  #define dotimesW(countvar_from_dotimesW,count_from_dotimesW,statement_from_dotimesW) \
-    { dotimes_check_sizeof(countvar_from_dotimesW,uintW); \
-      dotimesW_(countvar_from_dotimesW,count_from_dotimesW,statement_from_dotimesW); \
+#else
+  #define dotimesW_(countvar_from_dotimesW,count_from_dotimesW,statement_from_dotimesW)  \
+    { countvar_from_dotimesW = (count_from_dotimesW);         \
+      until (countvar_from_dotimesW==0)                       \
+        {statement_from_dotimesW; countvar_from_dotimesW--; } \
     }
-  #define dotimespW(countvar_from_dotimespW,count_from_dotimespW,statement_from_dotimespW) \
-    { dotimes_check_sizeof(countvar_from_dotimespW,uintW); \
-      dotimespW_(countvar_from_dotimespW,count_from_dotimespW,statement_from_dotimespW); \
+  #define dotimespW_(countvar_from_dotimespW,count_from_dotimespW,statement_from_dotimespW)  \
+    { countvar_from_dotimespW = (count_from_dotimespW);                   \
+      do {statement_from_dotimespW} until (--countvar_from_dotimespW==0); \
     }
-  #define dotimesL(countvar_from_dotimesL,count_from_dotimesL,statement_from_dotimesL) \
-    { dotimes_check_sizeof(countvar_from_dotimesL,uintL); \
-      dotimesL_(countvar_from_dotimesL,count_from_dotimesL,statement_from_dotimesL); \
+#endif
+#if defined(GNU) && defined(MC680X0) && !defined(HPUX_ASSEMBLER)
+  # GNU-C on a 680X0 can be 'persuaded' to use the DBRA-instruction
+  # in an intelligent manner:
+  #define fast_dotimesL
+  #define dotimesL_(countvar_from_dotimesL,count_from_dotimesL,statement_from_dotimesL)  \
+    { countvar_from_dotimesL = (count_from_dotimesL);           \
+      if (!(countvar_from_dotimesL==0))                         \
+        { countvar_from_dotimesL--;                             \
+          do {statement_from_dotimesL}                          \
+             until ((sintL)(--countvar_from_dotimesL) == -1);   \
+    }   }
+  #define dotimespL_(countvar_from_dotimespL,count_from_dotimespL,statement_from_dotimespL)  \
+    { countvar_from_dotimespL = (count_from_dotimespL)-1;                             \
+      do {statement_from_dotimespL} until ((sintL)(--countvar_from_dotimespL) == -1); \
     }
-  #define dotimespL(countvar_from_dotimespL,count_from_dotimespL,statement_from_dotimespL) \
-    { dotimes_check_sizeof(countvar_from_dotimespL,uintL); \
-      dotimespL_(countvar_from_dotimespL,count_from_dotimespL,statement_from_dotimespL); \
+#endif
+#ifndef dotimesL_
+  #define dotimesL_(countvar_from_dotimesL,count_from_dotimesL,statement_from_dotimesL)  \
+    { countvar_from_dotimesL = (count_from_dotimesL);         \
+      until (countvar_from_dotimesL==0)                       \
+        {statement_from_dotimesL; countvar_from_dotimesL--; } \
     }
+  #define dotimespL_(countvar_from_dotimespL,count_from_dotimespL,statement_from_dotimespL)  \
+    { countvar_from_dotimespL = (count_from_dotimespL);                   \
+      do {statement_from_dotimespL} until (--countvar_from_dotimespL==0); \
+    }
+#endif
+#if defined(GNU) && defined(__OPTIMIZE__)
+  # It happened twice to me that I used dotimesL on a
+  # variable of type uintC. I check for that now, so that
+  # Joerg and Marcus won't have to search for that anymore.
+  # The GCC will optimize the dummy-call away, if things go by plan.
+  # If not, you'll see a linker error.
+  #define dotimes_check_sizeof(countvar,type)  \
+    if (!(sizeof(countvar)==sizeof(type))) { dotimes_called_with_count_of_wrong_size(); }
+  extern void dotimes_called_with_count_of_wrong_size (void); # nicht existente Funktion
+#else
+  #define dotimes_check_sizeof(countvar,type)
+#endif
+#define dotimesW(countvar_from_dotimesW,count_from_dotimesW,statement_from_dotimesW) \
+  { dotimes_check_sizeof(countvar_from_dotimesW,uintW); \
+    dotimesW_(countvar_from_dotimesW,count_from_dotimesW,statement_from_dotimesW); \
+  }
+#define dotimespW(countvar_from_dotimespW,count_from_dotimespW,statement_from_dotimespW) \
+  { dotimes_check_sizeof(countvar_from_dotimespW,uintW); \
+    dotimespW_(countvar_from_dotimespW,count_from_dotimespW,statement_from_dotimespW); \
+  }
+#define dotimesL(countvar_from_dotimesL,count_from_dotimesL,statement_from_dotimesL) \
+  { dotimes_check_sizeof(countvar_from_dotimesL,uintL); \
+    dotimesL_(countvar_from_dotimesL,count_from_dotimesL,statement_from_dotimesL); \
+  }
+#define dotimespL(countvar_from_dotimespL,count_from_dotimespL,statement_from_dotimespL) \
+  { dotimes_check_sizeof(countvar_from_dotimespL,uintL); \
+    dotimespL_(countvar_from_dotimespL,count_from_dotimespL,statement_from_dotimespL); \
+  }
 # doconsttimes(count,statement);
-# führt statement count mal aus (count mal der Code!),
-# wobei count eine constant-expression >=0, <=8 ist.
-  #define doconsttimes(count_from_doconsttimes,statement_from_doconsttimes)  \
+# executes a statement count timess (count times the code!),
+# where count is a constant-expression >=0, <=8.
+#define doconsttimes(count_from_doconsttimes,statement_from_doconsttimes)  \
     { if (0 < (count_from_doconsttimes)) { statement_from_doconsttimes; } \
       if (1 < (count_from_doconsttimes)) { statement_from_doconsttimes; } \
       if (2 < (count_from_doconsttimes)) { statement_from_doconsttimes; } \
@@ -1571,10 +1584,10 @@
       if (7 < (count_from_doconsttimes)) { statement_from_doconsttimes; } \
     }
 # DOCONSTTIMES(count,macroname);
-# ruft count mal den Macro macroname auf (count mal der Code!),
-# wobei count eine constant-expression >=0, <=8 ist.
-# Dabei bekommt macroname der Reihe nach die Werte 0,...,count-1 übergeben.
-  #define DOCONSTTIMES(count_from_DOCONSTTIMES,macroname_from_DOCONSTTIMES)  \
+# calls the macro macroname count times (count times the code!),
+# where count is a constant-expression >=0, <=8.
+# And macroname will get the values 0,...,count-1 in sequence.
+#define DOCONSTTIMES(count_from_DOCONSTTIMES,macroname_from_DOCONSTTIMES)  \
     { if (0 < (count_from_DOCONSTTIMES)) { macroname_from_DOCONSTTIMES((0 < (count_from_DOCONSTTIMES) ? 0 : 0)); } \
       if (1 < (count_from_DOCONSTTIMES)) { macroname_from_DOCONSTTIMES((1 < (count_from_DOCONSTTIMES) ? 1 : 0)); } \
       if (2 < (count_from_DOCONSTTIMES)) { macroname_from_DOCONSTTIMES((2 < (count_from_DOCONSTTIMES) ? 2 : 0)); } \
@@ -1585,65 +1598,65 @@
       if (7 < (count_from_DOCONSTTIMES)) { macroname_from_DOCONSTTIMES((7 < (count_from_DOCONSTTIMES) ? 7 : 0)); } \
     }
 
-# Ab hier bedeutet uintC einen unsigned-Integer-Typ, mit dem sich besonders
-# leicht zählen lässt. Teilmengenrelation: uintW <= uintC <= uintL.
-  #define intCsize intWLsize
-  #define uintC uintWL
-  #define sintC sintWL
-  #if (intCsize==intWsize)
-    #define dotimesC dotimesW
-    #define dotimespC dotimespW
-  #endif
-  #if (intCsize==intLsize)
-    #define dotimesC dotimesL
-    #define dotimespC dotimespL
-  #endif
-# Verwende 'uintC' für Zähler, die meist klein sind.
+# From here on  uintC means an unsigned integer type, that'll allow
+# easy counting. Subset relation: uintW <= uintC <= uintL.
+#define intCsize intWLsize
+#define uintC uintWL
+#define sintC sintWL
+#if (intCsize==intWsize)
+  #define dotimesC dotimesW
+  #define dotimespC dotimespW
+#endif
+#if (intCsize==intLsize)
+  #define dotimesC dotimesL
+  #define dotimespC dotimespL
+#endif
+# Use 'uintC' for counters, which are small most of the time.
 
-# Die Arithmetik benutzt "Digit Sequences" aus "Digits".
-# Das sind unsigned ints mit intDsize Bits (sollte =8 oder =16 oder =32 sein).
-# Falls HAVE_DD: "Doppel-Digits" sind unsigned ints mit 2*intDsize<=32 Bits.
-  #if defined(MC680X0) && !defined(MC680Y0)
-    #define intDsize 16
-    #define intDDsize 32  # = 2*intDsize
-    #define log2_intDsize  4  # = log2(intDsize)
-  #elif defined(MC680Y0) || defined(I80386) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(VAX) || defined(CONVEX) || defined(ARM) || defined(DECALPHA) || defined(IA64) || defined(S390)
-    #define intDsize 32
-    #define intDDsize 64  # = 2*intDsize
-    #define log2_intDsize  5  # = log2(intDsize)
-  #else
-    #error "Preferred digit size depends on CPU -- Größe intDsize neu einstellen!"
-  #endif
-  typedef unsigned_int_with_n_bits(intDsize)  uintD;
-  typedef signed_int_with_n_bits(intDsize)    sintD;
-  #if (intDDsize<=32) || ((intDDsize<=64) && (defined(DECALPHA) || defined(MIPS64) || defined(SPARC64) || defined(IA64)))
-    #define HAVE_DD 1
-    typedef unsigned_int_with_n_bits(intDDsize)  uintDD;
-    typedef signed_int_with_n_bits(intDDsize)    sintDD;
-  #else
-    #define HAVE_DD 0
-  #endif
+# The arithmetics use "digit sequences" from "digits".
+# They are unsigned ints with intDsize bits (should be =8 or =16 or =32).
+# If  HAVE_DD: "double-digits" are unsigned ints with 2*intDsize<=32 bits.
+#if defined(MC680X0) && !defined(MC680Y0)
+  #define intDsize 16
+  #define intDDsize 32  # = 2*intDsize
+  #define log2_intDsize  4  # = log2(intDsize)
+#elif defined(MC680Y0) || defined(I80386) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(VAX) || defined(CONVEX) || defined(ARM) || defined(DECALPHA) || defined(IA64) || defined(S390)
+  #define intDsize 32
+  #define intDDsize 64  # = 2*intDsize
+  #define log2_intDsize  5  # = log2(intDsize)
+#else
+  #error "Preferred digit size depends on CPU -- readjust intDsize!"
+#endif
+typedef unsigned_int_with_n_bits(intDsize)  uintD;
+typedef signed_int_with_n_bits(intDsize)    sintD;
+#if (intDDsize<=32) || ((intDDsize<=64) && (defined(DECALPHA) || defined(MIPS64) || defined(SPARC64) || defined(IA64)))
+  #define HAVE_DD 1
+  typedef unsigned_int_with_n_bits(intDDsize)  uintDD;
+  typedef signed_int_with_n_bits(intDDsize)    sintDD;
+#else
+  #define HAVE_DD 0
+#endif
 
-# Auch einige andere Kürzel wie 'oint', 'tint', 'aint', 'cint' werden noch
-# für entsprechende Integer-Typen verwendet werden:
-#   Integertyp     enthält Information äquivalent zu
-#      oint           LISP-Objekt
-#      tint           Typcode eines LISP-Objekts
-#      aint           Adresse eines LISP-Objekts
-#      cint           LISP-Character
+# Other acronyms like 'oint', 'tint', 'aint', 'cint' will be used
+# for the corresponding Integer-types:
+#   Integer type      contains information equivalent to
+#      oint           LISP object
+#      tint           type code of a LISP object
+#      aint           address of a LISP object
+#      cint           LISP character
 
-# Üblicherweise ist sizeof(oint) = sizeof(aint) = sizeof(uintL) = 32 Bit.
-# Bei Modell WIDE ist sizeof(oint) > sizeof(uintL).
-# Modell WIDE_HARD steht für sizeof(aint) > sizeof(uintL).
-#   Dieses Modell muss dann gewählt werden, wenn
-#   sizeof(void*) > sizeof(uintL) = 32 Bit ist. Es setzt
-#   sizeof(long) = sizeof(void*) = 64 Bit voraus, denn einige 64-Bit-Zahlen
-#   tauchen als Präprozessor-Konstanten auf.
-# Modell WIDE_SOFT steht für sizeof(oint) = 64 Bit und sizeof(aint) = 32 Bit.
-#   Dieses Modell kann auf jeder 32-Bit-Maschine gewählt werden, wenn der
-#   Compiler (soft- oder hardwaremäßige) 64-Bit-Zahlen hat. Es muss dann
-#   gewählt werden, wenn ansonsten nicht genug Platz für die Typbits in einem
-#   32-Bit-Pointer wäre.
+# Usually sizeof(oint) = sizeof(aint) = sizeof(uintL) = 32 Bit.
+# Under the model WIDE sizeof(oint) is > sizeof(uintL).
+# Model WIDE_HARD stands for sizeof(aint) > sizeof(uintL).
+#   This model is to be chosen if the following holds true:
+#   sizeof(void*) > sizeof(uintL) = 32 bit ist. It also requires that
+#   sizeof(long) = sizeof(void*) = 64 bit, because some 64-bit numbers
+#   appear as pre-processor constants.
+# Model WIDE_SOFT szands for sizeof(oint) = 64 bit and sizeof(aint) = 32 bit.
+#   This modell can be chosen on any 32-Bit-Maschine, if the
+#   compiler has 64-bit numbers (in software or hardware). You'll also need to
+#   choose it, if there wouldn't be enough space for the type-bits in a
+#   32-bit pointer.
 # Model NO_TYPECODES stands for sizeof(oint) = sizeof(aint), and only minimal
 #   type information is stored in a pointer. All heap allocated objects
 #   (except conses) must contain the complete type and a length field in the
@@ -1670,17 +1683,17 @@
 
 #ifdef WIDE_SOFT
   #ifdef GNU
-    # Benutze die GNU-C-Erweiterungen, um die breiten oints als structs aufzufassen.
+    # Use the GNU-C extensions, to regard the wide oints as structs.
     #define WIDE_STRUCT
   #endif
-  # Bestimmt die Anordnung der Teile eines oints:
-  #define WIDE_ENDIANNESS true  # so ist's effizienter
+  # defines the arrangement of an oint's elements:
+  #define WIDE_ENDIANNESS true  # more efficient this way
 #endif
 
 #if defined(GNU) && (SAFETY >= 3)
   #if (__GNUC__ >= 2)
-    #if (__GNUC_MINOR__ >= 7) # gcc-2.6.3 Bug umgehen
-      # Typüberprüfungen durch den C-Compiler
+    #if (__GNUC_MINOR__ >= 7) # circumvent gcc-2.6.3 bug
+      # Typechecking by the C-compiler
       #define OBJECT_STRUCT
       #if !(defined(MC680X0) || defined(ARM)) # only if struct_alignment==1
         #define CHART_STRUCT
@@ -1690,28 +1703,28 @@
 #endif
 
 
-# ###################### Betriebssystem-Routinen ##################### #
+# ###################### OS-related routines  ##################### #
 
-# allgemein standardisierte Konstanten für Steuerzeichen:
-  #define BS    8  #  #\Backspace     Backspace
-  #define TAB   9  #  #\Tab           Tabulator
-  #define LF   10  #  #\Linefeed      Zeilenvorschub
-  #define CR   13  #  #\Return        Carriage return, zum Zeilenanfang
-  #define PG   12  #  #\Page          Form Feed, neue Seite
+# general standard constants for control chars:
+#define BS    8  #  #\Backspace     Backspace
+#define TAB   9  #  #\Tab           Tabulator
+#define LF   10  #  #\Linefeed      linefeed
+#define CR   13  #  #\Return        carriage return
+#define PG   12  #  #\Page          form feed, new page
 
 #ifdef AMIGAOS
 
 #include "amiga.c"
 
-# statement im Unterbrechungsfalle (Ctrl-C gedrückt) ausführen:
+# execute statement in case of an interruption (Ctrl-C pressed):
 # interruptp(statement);
-  #define interruptp(statement) \
-    { # Ctrl-C-Signal abfragen und löschen:                             \
+#define interruptp(statement) \
+    { # Ctrl-C signal test and delete:                                  \
       if (SetSignal(0L,(ULONG)(SIGBREAKF_CTRL_C)) & (SIGBREAKF_CTRL_C)) \
         { statement }                                                   \
     }
-  # vgl. AMIGA.D und exec.library/SetSignal
-# wird verwendet von EVAL, IO, SPVW, STREAM
+# see AMIGA.D and exec.library/SetSignal
+# used by EVAL, IO, SPVW, STREAM
 
 #endif # AMIGAOS
 
@@ -1719,35 +1732,35 @@
 
 #include "acorn.c"
 
-# Unterbrechungen noch nicht implementiert.
-  #define interruptp(statement)
+# Interruptions not yet implemented
+#define interruptp(statement)
 
 #endif # RISCOS
 
 #if defined(UNIX) || defined(EMUNIX) || defined(WIN32)
 
 #ifdef UNIX
-#include "unix.c"
+  #include "unix.c"
 #endif
 #ifdef MSDOS
-#include "msdos.c"
+  #include "msdos.c"
 #endif
 #ifdef WIN32_NATIVE
-#include "win32.c"
+  #include "win32.c"
 #endif
 
-# statement im Unterbrechungsfalle ausführen:
+# execute statement on interrupt:
 # interruptp(statement);
- #if defined(UNIX) || defined(EMUNIX) || defined(WIN32_NATIVE)
-  # Eine Tastatur-Unterbrechung (Signal SIGINT, erzeugt durch Ctrl-C)
-  # wird eine Sekunde lang aufgehoben. In dieser Zeit kann sie mittels
-  # 'interruptp' auf fortsetzbare Art behandelt werden. Nach Ablauf dieser
-  # Zeit wird das Programm nichtfortsetzbar unterbrochen.
+#if defined(UNIX) || defined(EMUNIX) || defined(WIN32_NATIVE)
+  # A keyboard interrupt (signal SIGINT, generated by Ctrl-C)
+  # is pending for one second. It can be treated with 'interruptp' in
+  # a continuing manner in that time. After this time has passed, the
+  # program will be interrupted and can't be continued..
   #define PENDING_INTERRUPTS
   extern uintB interrupt_pending;
   #define interruptp(statement)  if (interrupt_pending) { statement; }
- #endif
-# wird verwendet von EVAL, IO, SPVW, STREAM
+#endif
+# used by EVAL, IO, SPVW, STREAM
 
 #endif # UNIX || EMUNIX || WIN32
 
@@ -1756,48 +1769,48 @@
   #include "sigsegv.h"
 #endif
 
-# Consensys und Solaris: "#define DS 3", "#define SP ESP", "#define EAX 11".
+# Consensys and Solaris: "#define DS 3", "#define SP ESP", "#define EAX 11".
 # Grr...
-  #undef DS
-  #undef SP
-  #undef EAX
-# 386BSD macht "#define CBLOCK 64". Grr...
-  #undef CBLOCK
+#undef DS
+#undef SP
+#undef EAX
+# 386BSD does "#define CBLOCK 64". Grr...
+#undef CBLOCK
 # AIX 3.2.5 does "#define hz 100". Grr...
-  #undef hz
+#undef hz
 # MacOS X does "#define TIME_ABSOLUTE 0x00" and "#define TIME_RELATIVE 0x01".
 # Grr...
-  #undef TIME_ABSOLUTE
-  #undef TIME_RELATIVE
+#undef TIME_ABSOLUTE
+#undef TIME_RELATIVE
 
 #ifdef AMIGAOS
-  # Behandlung von AMIGAOS-Fehlern
+  # Handling of AMIGAOS-errors
   # OS_error();
-  # > IoErr(): Fehlercode
+  # > IoErr(): error code
     nonreturning_function(extern, OS_error, (void));
-  # wird verwendet von SPVW, STREAM, PATHNAME
+  # used by SPVW, STREAM, PATHNAME
 #endif
 #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
-  # Behandlung von UNIX-Fehlern
+  # Handling of UNIX errors
   # OS_error();
-  # > int errno: Fehlercode
+  # > int errno: error code
     nonreturning_function(extern, OS_error, (void));
-  # wird verwendet von SPVW, STREAM, PATHNAME, GRAPH
+  # used by SPVW, STREAM, PATHNAME, GRAPH
 #endif
 #if defined(WIN32_NATIVE)
-  # Behandlung von Win32-Fehlern
+  # Handling of Win32 errors
   # OS_error();
-  # > GetLastError(): Fehlercode
+  # > GetLastError(): error code
     nonreturning_function(extern, OS_error, (void));
-  # Behandlung von Winsock-Fehlern
+  # Handling of Winsock errors
   # SOCK_error();
-  # > WSAGetLastError(): Fehlercode
+  # > WSAGetLastError(): error code
     nonreturning_function(extern, SOCK_error, (void));
 #endif
 #if defined(DEBUG_OS_ERROR)
   # Show the file and line number of the caller of OS_error(). For debugging.
   #define OS_error()  \
-    (asciz_out_1("\n[%s:",__FILE__),asciz_out_1("%d] ",__LINE__),(OS_error)())
+    (asciz_out_1("\n[%s:",__FILE__), asciz_out_1("%d] ",__LINE__), (OS_error)())
 #endif
 
 #ifdef MULTITHREAD
@@ -1810,335 +1823,334 @@
 
 #endif
 
-# ##################### Weitere System-Abhängigkeiten ##################### #
+# ##################### Further system-dependencies ##################### #
 
-# Erst solche, die bis auf die Lisp-Ebene hin sichtbar sind:
+# At first dependencies that are visible to the LISP-level:
 
 # Einstellung der Tabelle von Zeichennamen:
-  #ifdef AMIGA
-    #define AMIGA_CHARNAMES
-  #endif
-  #ifdef MSDOS
-    #define MSDOS_CHARNAMES
-  #endif
-  #ifdef WIN32
-    #define WIN32_CHARNAMES
-  #endif
-  #if defined(UNIX) || defined(RISCOS)
-    #define UNIX_CHARNAMES
-  #endif
-# Bei Erweiterung: CONSTOBJ, CHARSTRG, FORMAT.LISP erweitern.
+#ifdef AMIGA
+  #define AMIGA_CHARNAMES
+#endif
+#ifdef MSDOS
+  #define MSDOS_CHARNAMES
+#endif
+#ifdef WIN32
+  #define WIN32_CHARNAMES
+#endif
+#if defined(UNIX) || defined(RISCOS)
+  #define UNIX_CHARNAMES
+#endif
+# When changed: extend CONSTOBJ, CHARSTRG, FORMAT.LISP.
 
 # Whether to link with GNU libiconv, for character set conversion.
-  #if 1
-    # When glibc-2.2 comes out, we can use glibc's iconv(). Until then, prefer
-    # libiconv.
-    #define GNU_LIBICONV
-  #endif
-# When changed: nothing to do.
+#if 1
+  # When glibc-2.2 comes out, we can use glibc's iconv(). Until then, prefer
+  # libiconv.  FIXME: glibc-2.2 is out!!!
+  #define GNU_LIBICONV
+#endif
+# When changed: do nothing
 
-# Ob wir die GNU gettext-Library für Internationalisierung benutzen:
-  #if !defined(LANGUAGE_STATIC) && !defined(__cplusplus) && (defined(ISOLATIN_CHS) || defined(IBMPC_CHS)) && !defined(NO_GETTEXT)
-    # Wenn nur eine Sprache gewünscht ist, brauchen wir kein gettext.
-    # Mit einem C++-Compiler ist die gettext-Library nicht compilierbar.
-    # Ist der Zeichensatz nicht ISOLATIN oder IBMPC, lässt sich spanish.lisp
-    # weder laden noch compilieren.
-    #define GNU_GETTEXT
-  #endif
-# Bei Erweiterung: Nichts weiter zu tun.
+# Whether to use the GNU gettext library for internationalization:
+#if !defined(LANGUAGE_STATIC) && !defined(__cplusplus) && (defined(ISOLATIN_CHS) || defined(IBMPC_CHS)) && !defined(NO_GETTEXT)
+  # If only one language is needed, we don't have to use gettext.
+  # The gettext library cannot be compiled with a C++-Compiler.
+  # If the character set is not ISOLATIN nor IBMPC, spanish.lisp
+  # cannot be loaded nor compiled.
+  #define GNU_GETTEXT
+#endif
+# When changed: do nothing
 
-# Ob ein Stream *KEYBOARD-INPUT* gebildet wird,
-# und ob er für den Stream *TERMINAL-IO* verwendet wird:
-  #if defined(MSDOS) || ((defined(UNIX) && !defined(NEXTAPP) || defined(MAYBE_NEXTAPP)) && !defined(NO_TERMCAP_NCURSES)) || defined(RISCOS) || defined(WIN32_NATIVE)
-    #define KEYBOARD
-    #if 0
-      #define TERMINAL_USES_KEYBOARD
-    #endif
+# Whether to create a stream *KEYBOARD-INPUT*
+# and whether it will be used for the stream *TERMINAL-IO*:
+#if defined(MSDOS) || ((defined(UNIX) && !defined(NEXTAPP) || defined(MAYBE_NEXTAPP)) && !defined(NO_TERMCAP_NCURSES)) || defined(RISCOS) || defined(WIN32_NATIVE)
+  #define KEYBOARD
+  #if 0
+    #define TERMINAL_USES_KEYBOARD
   #endif
-# Bei Erweiterung: STREAM, USER1.LISP erweitern.
+#endif
+# When changed: extend stream.d, keyboard.lisp
 
-# Ob wir die GNU Readline-Library für *TERMINAL-IO* benutzen:
-  #if ((defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS)) && !defined(__cplusplus) && !defined(NO_READLINE)
-    # Mit einem C++-Compiler ist die Readline-Library nicht compilierbar.
-    #define GNU_READLINE
-  #endif
-# Bei Erweiterung: READLINE erweitern.
+# Whether to use the GNU readline library for *TERMINAL-IO*:
+#if ((defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS)) && !defined(__cplusplus) && !defined(NO_READLINE)
+  # The readline library cannot be compiled with a C++-compiler.
+  #define GNU_READLINE
+#endif
+# When changed: extend READLINE.
 
-# Ob es Window-Streams und eine Package SCREEN gibt:
-  #if defined(MSDOS) || defined(WIN32_NATIVE) || ((defined(UNIX) && !defined(NEXTAPP) || defined(MAYBE_NEXTAPP)) && !defined(NO_TERMCAP_NCURSES))
-    #define SCREEN
-  #endif
-# Bei Erweiterung: STREAM erweitern (viel Arbeit!).
+# Whether there are Window-streams and a package SCREEN:
+#if defined(MSDOS) || defined(WIN32_NATIVE) || ((defined(UNIX) && !defined(NEXTAPP) || defined(MAYBE_NEXTAPP)) && !defined(NO_TERMCAP_NCURSES))
+  #define SCREEN
+#endif
+# When changed: extend stream.d (loads of work!).
 
-# Ob es Pipe-Streams gibt:
+# Whether there are Pipe-streams:
+#if defined(UNIX) || defined(EMUNIX) || defined(WIN32_NATIVE)
+  #define PIPES
   #if defined(UNIX) || defined(EMUNIX) || defined(WIN32_NATIVE)
-    #define PIPES
-    #if defined(UNIX) || defined(EMUNIX) || defined(WIN32_NATIVE)
-      #define PIPES2  # bidirektionale Pipes
-    #endif
+    #define PIPES2  # bidirectional pipes
   #endif
-# Bei Erweiterung: STREAM und USER2.LISP erweitern.
+#endif
+# When changed: extend stream.d and runprog.lisp.
 
 # If the system has sockets, we support socket streams:
-  # We assume that if we have gethostbyname(), we have a networking OS
-  # (Unix or Win32). Then we decide independently about UNIX domain connections
-  # and TCP/IP connections.
-  #if defined(HAVE_GETHOSTBYNAME) # implies defined(UNIX) || defined(WIN32_NATIVE)
-    #ifdef HAVE_SYS_UN_H  # have <sys/un.h> and Unix domain sockets?
-      #define UNIXCONN  # use Unix domain sockets
-    #endif
-    #if defined(HAVE_NETINET_IN_H) || defined(WIN32_NATIVE)  # have <netinet/in.h> ?
-      #define TCPCONN  # use TCP/IP sockets
-    #endif
-    # Now, which kinds of socket streams:
-    #define X11SOCKETS  # works even without TCPCONN (very young Linux)
-    #ifdef TCPCONN
-      #define SOCKET_STREAMS
-    #endif
+# We assume that if we have gethostbyname(), we have a networking OS
+# (Unix or Win32). Then we decide independently about UNIX domain connections
+# and TCP/IP connections.
+#if defined(HAVE_GETHOSTBYNAME) # ==> defined(UNIX) || defined(WIN32_NATIVE)
+  #ifdef HAVE_SYS_UN_H  # have <sys/un.h> and Unix domain sockets?
+    #define UNIXCONN  # use Unix domain sockets
   #endif
-# Bei Erweiterung: STREAM, SOCKET erweitern.
+  #if defined(HAVE_NETINET_IN_H) || defined(WIN32_NATIVE)  # have <netinet/in.h> ?
+    #define TCPCONN  # use TCP/IP sockets
+  #endif
+  # Now, which kinds of socket streams:
+  #define X11SOCKETS  # works even without TCPCONN (very young Linux)
+  #ifdef TCPCONN
+    #define SOCKET_STREAMS
+  #endif
+#endif
+# When changed: extend stream.d, socket.d
 
 # Whether there are generic streams:
-  #if 1
-    #define GENERIC_STREAMS
-  #endif
-# Bei Erweiterung: Nichts weiter zu tun.
+#if 1
+  #define GENERIC_STREAMS
+#endif
+# When changed: do nothing
 
-# Ob die für die Funktionen MACHINE-TYPE, MACHINE-VERSION, MACHINE-INSTANCE
-# benötigte Information vom Betriebssystem geholt werden kann:
-  #if defined(UNIX) || defined(WIN32_NATIVE)
-    #define MACHINE_KNOWN
-  #endif
-# Bei Erweiterung: MISC, SOCKET erweitern.
+# Whether the OS provides the required information for then
+# functions  MACHINE-TYPE, MACHINE-VERSION, MACHINE-INSTANCE
+#if defined(UNIX) || defined(WIN32_NATIVE)
+  #define MACHINE_KNOWN
+#endif
+# When changed: extend misc.d, socket.d
 
-# Ob es LOGICAL-PATHNAMEs gibt:
-  #if 1
-    #define LOGICAL_PATHNAMES
-  #endif
-# Bei Erweiterung: Nichts weiter zu tun.
+# Whether there are LOGICAL-PATHNAMEs:
+#if 1
+  #define LOGICAL_PATHNAMES
+#endif
+# When changed: do nothing
 
-# Ob die Funktion USER-HOMEDIR-PATHNAME existiert:
-  #if defined(UNIX) || defined(RISCOS) || defined(WIN32)
-    #define USER_HOMEDIR
-  #endif
-# Bei Erweiterung: PATHNAME erweitern.
+# Whether the function USER-HOMEDIR-PATHNAME exists:
+#if defined(UNIX) || defined(RISCOS) || defined(WIN32)
+  #define USER_HOMEDIR
+#endif
+# When changed: extend pathname.d
 
-# Ob ein Stream *PRINTER-OUTPUT* bzw. eine Funktion MAKE-PRINTER-STREAM
-# zur Verfügung gestellt werden:
+# Whether a stream *PRINTER-OUTPUT* or a function MAKE-PRINTER-STREAM
+# are provided:
+#ifdef AMIGAOS
+  #define PRINTER_AMIGAOS
+#endif
+# Whether there are Printer-streams:
+#ifdef PRINTER_AMIGAOS
+  #define PRINTER
+#endif
+# When changed: extend stream.d
+
+# Whethter external communication via Rexx is supported.
   #ifdef AMIGAOS
-    #define PRINTER_AMIGAOS
-  #endif
-# Ob es Printer-Streams gibt:
-  #ifdef PRINTER_AMIGAOS
-    #define PRINTER
-  #endif
-# Bei Erweiterung: STREAM erweitern.
+  #define REXX
+  # define REXX_SERVER  # not yet ?JCH?
+#endif
+# When changed: extend REXX.
 
-# Ob externe Kommunikation via Rexx unterstützt wird.
-  #ifdef AMIGAOS
-    #define REXX
-    # define REXX_SERVER  # noch nicht ?JCH?
-  #endif
-# Bei Erweiterung: REXX erweitern.
+# Whether the operating system manages an environment that associates Strings
+# with Strings
+#if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32)
+  #define HAVE_ENVIRONMENT
+#endif
+# When changed: do nothing
 
-# Ob das Betriebssystem ein Environment verwaltet, das Strings zu Strings
-# assoziiert:
-  #if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32)
-    #define HAVE_ENVIRONMENT
-  #endif
-# Bei Erweiterung: Nichts weiter zu tun.
+# Whether the operating system has a preferred command-interpreter:
+#if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
+  #define HAVE_SHELL
+#endif
+# When changed: extend pathname.d
 
-# Ob das Betriebssystem einen bevorzugten Kommando-Interpreter hat:
-  #if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
-    #define HAVE_SHELL
-  #endif
-# Bei Erweiterung: PATHNAME erweitern.
+# Whethter a foreign function interface is provided:
+#if (defined(UNIX) && !defined(UNIX_BINARY_DISTRIB)) || defined(DYNAMIC_FFI)
+  #define HAVE_FFI
+#endif
+#if defined(AMIGAOS)
+  #define HAVE_AFFI # Amiga-specific FFI
+#endif
+# When changed: ??
 
-# Ob ein Foreign Function Interface zur Verfügung gestellt wird:
-  #if (defined(UNIX) && !defined(UNIX_BINARY_DISTRIB)) || defined(DYNAMIC_FFI)
-    #define HAVE_FFI
-  #endif
-  #if defined(AMIGAOS)
-    #define HAVE_AFFI # Amiga specific FFI
-  #endif
-# Bei Erweiterung: ??
+# Whether an external disassembler is provided:
+#if defined(UNIX)
+  #define HAVE_DISASSEMBLER
+#endif
+# When changed: extend pathname.d
 
-# Ob ein externer Disassembler zur Verfügung steht:
-  #if defined(UNIX)
-    #define HAVE_DISASSEMBLER
-  #endif
-# Bei Erweiterung: PATHNAME erweitern.
+# Now the ones that are only relevant internally:
 
-# Dann die, die nur intern bedeutsam sind:
+# Whether the GC closes files that aren't referenced any longer:
+#if defined(UNIX) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32)
+  #define GC_CLOSES_FILES
+#endif
+# When changed: do nothing
 
-# Ob die GC nicht mehr referenzierte Files schließt:
-  #if defined(UNIX) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32)
-    #define GC_CLOSES_FILES
+# How time is measured:
+#ifdef MSDOS
+  #define TIME_MSDOS
+#endif
+#ifdef AMIGAOS
+  #define TIME_AMIGAOS
+#endif
+#ifdef RISCOS
+  #define TIME_RISCOS
+#endif
+#ifdef UNIX
+  #if defined(HAVE_GETTIMEOFDAY) || defined(HAVE_FTIME)
+    #define TIME_UNIX
+  #elif defined(HAVE_TIMES_CLOCK)
+    #define TIME_UNIX_TIMES
   #endif
-# Bei Erweiterung: nichts zu tun.
+#endif
+#ifdef WIN32_NATIVE
+  #define TIME_WIN32
+#endif
+#if defined(TIME_MSDOS) || defined(TIME_AMIGAOS) || defined(TIME_UNIX_TIMES) || defined(TIME_RISCOS)
+  # There's only a medium time resolution, so you can use 32-bit numbers
+  # to store the time-differences without any problems.
+  #define TIME_1
+  # We fetch the time once on system sart. All further times are taken
+  # relatively to that one.
+  #define TIME_RELATIVE
+#endif
+#if defined(TIME_UNIX) || defined(TIME_WIN32)
+  # The time resolution is so high that you need two 32-bit numbers to
+  # measure time differences: seconds and and fractions of seconds.
+  #define TIME_2
+  # In this case we can use absolute and relative times for measurements.
+  #define TIME_ABSOLUTE
+#endif
+# When changed: extend time.d
 
-# Wie die Zeitmessungen durchgeführt werden:
-  #ifdef MSDOS
-    #define TIME_MSDOS
-  #endif
-  #ifdef AMIGAOS
-    #define TIME_AMIGAOS
-  #endif
-  #ifdef RISCOS
-    #define TIME_RISCOS
-  #endif
-  #ifdef UNIX
-    #if defined(HAVE_GETTIMEOFDAY) || defined(HAVE_FTIME)
-      #define TIME_UNIX
-    #elif defined(HAVE_TIMES_CLOCK)
-      #define TIME_UNIX_TIMES
-    #endif
-  #endif
-  #ifdef WIN32_NATIVE
-    #define TIME_WIN32
-  #endif
-  #if defined(TIME_MSDOS) || defined(TIME_AMIGAOS) || defined(TIME_UNIX_TIMES) || defined(TIME_RISCOS)
-    # Die Zeitauflösung ist nur mittel, so dass man für Zeitdifferenz-Messungen
-    # ohne weiteres eine 32-Bit-Zahl nehmen kann.
-    #define TIME_1
-    # Wir holen die Uhrzeit einmal beim System-Start. Alle weiteren
-    # Uhrzeiten werden relativ zu dieser genommen.
-    #define TIME_RELATIVE
-  #endif
-  #if defined(TIME_UNIX) || defined(TIME_WIN32)
-    # Die Zeitauflösung ist so hoch, dass man für Zeitdifferenz-Messungen gleich
-    # zwei 32-Bit-Zahlen braucht: Sekunden und Sekundenbruchteile.
-    #define TIME_2
-    # In diesem Fall können wir auch gleich immer mit absoluten und genauen
-    # Uhrzeiten rechnen.
-    #define TIME_ABSOLUTE
-  #endif
-# Bei Erweiterung: TIME erweitern.
+# Whether the function SYS::%SLEEP gets one or two arguments:
+#if defined(TIME_MSDOS) || defined(TIME_AMIGAOS) || defined(TIME_RISCOS)
+  #define SLEEP_1
+#endif
+#if defined(TIME_UNIX) || defined(TIME_WIN32) || defined(TIME_UNIX_TIMES)
+  #define SLEEP_2
+#endif
+# When changed: extend time.d and defs1.lisp
 
-# Ob die Funktion SYS::%SLEEP ein oder zwei Argumente übergeben bekommt:
-  #if defined(TIME_MSDOS) || defined(TIME_AMIGAOS) || defined(TIME_RISCOS)
-    #define SLEEP_1
-  #endif
-  #if defined(TIME_UNIX) || defined(TIME_WIN32) || defined(TIME_UNIX_TIMES)
-    #define SLEEP_2
-  #endif
-# Bei Erweiterung: TIME, DEFS1.LISP erweitern.
+# Whether the operating system can give us the run-time, or whether we'll have
+# to accumulate it ourselves (which can be biased under multitasking-operating
+# systems: AMIGAOS can't give that information, RISCOS??):
+#if defined(UNIX) || defined(WIN32_NATIVE)
+  #define HAVE_RUN_TIME
+#endif
+# When changed: extend time.d
 
-# Ob das Betriebssystem uns die Run-Time liefern kann, oder ob wir sie
-# selber akkumulieren müssen (was bei Multitasking-Betriebssystemen ein wenig
-# verfälschend ist: AMIGAOS kann diese Information nicht liefern, RISCOS??):
-  #if defined(UNIX) || defined(WIN32_NATIVE)
-    #define HAVE_RUN_TIME
-  #endif
-# Bei Erweiterung: TIME erweitern.
+# Whether the operating system provides virtual memory.
+#if defined(UNIX) || defined(EMUNIX) || defined(WIN32)
+  #define VIRTUAL_MEMORY
+#endif
+# When changed: do nothing
 
-# Ob das Betriebssystem Virtual Memory zur Verfügung stellt.
-  #if defined(UNIX) || defined(EMUNIX) || defined(WIN32)
-    #define VIRTUAL_MEMORY
-  #endif
-# Bei Erweiterung: nichts zu tun.
+# Whether the operating system is capable of sending interruptions
+# (Ctrl-C and others) as signal:
+#if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
+  #define HAVE_SIGNALS
+#endif
+# Whether we can even react to asynchronous signals:
+# (At WIDE_SOFT writing a pointer is usually no elementary operation anymore!)
+#if defined(WIDE_SOFT) && !(defined(GNU) && defined(SPARC))
+  #define NO_ASYNC_INTERRUPTS
+#endif
+#if defined(NO_ASYNC_INTERRUPTS) && defined(MULTITHREAD)
+  #error "No multithreading possible with this memory model!"
+#endif
+# When changed: extend SPVW, write a interruptp().
 
-# Ob das Betriebssystem Unterbrechungen (Ctrl-C o.ä.) als Signal auszuliefern
-# in der Lage ist:
-  #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
-    #define HAVE_SIGNALS
-  #endif
-# Ob wir auf asynchrone Signale auch reagieren können:
-# (Bei WIDE_SOFT ist das Schreiben eines Pointers i.a. keine Elementar-Operation mehr!)
-  #if defined(WIDE_SOFT) && !(defined(GNU) && defined(SPARC))
-    #define NO_ASYNC_INTERRUPTS
-  #endif
-  #if defined(NO_ASYNC_INTERRUPTS) && defined(MULTITHREAD)
-    #error "No multithreading possible with this memory model!"
-  #endif
-# Bei Erweiterung: SPVW erweitern, interruptp() schreiben.
+# Flavors of Pathname-management:
+#ifdef AMIGAOS
+  #define PATHNAME_AMIGAOS
+#endif
+#ifdef MSDOS
+  #define PATHNAME_OS2
+#endif
+#ifdef RISCOS
+  #define PATHNAME_RISCOS
+#endif
+#ifdef UNIX
+  #define PATHNAME_UNIX
+#endif
+#ifdef WIN32
+  #define PATHNAME_WIN32
+#endif
+# Components of pathnames:
+#if defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2)
+  #define HAS_HOST      0
+  #define HAS_DEVICE    1
+  #define HAS_VERSION   0
+#endif
+#ifdef PATHNAME_WIN32
+  #define HAS_HOST      1
+  #define HAS_DEVICE    1
+  #define HAS_VERSION   0
+#endif
+#ifdef PATHNAME_UNIX
+  #define HAS_HOST      0
+  #define HAS_DEVICE    0
+  #define HAS_VERSION   0
+#endif
+#ifdef PATHNAME_RISCOS
+  #define HAS_HOST      1
+  #define HAS_DEVICE    1
+  #define HAS_VERSION   0
+  #define FLIP_NAME_TYPE # Flip name and type towards the OS
+#endif
+# Handling of the file "extension" (pathname-type):
+#if defined(PATHNAME_RISCOS)
+  #define PATHNAME_EXT  # Name and Type are separated, so no limitation of the length
+#endif
+#if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+  #define PATHNAME_NOEXT  # no explicit extension.
+#endif
+# Whether "//" at the beginning of a pathname has to remain (and not to be shortened to "/"):
+#ifdef UNIX_CYGWIN32
+  #define PATHNAME_UNIX_UNC
+#endif
+# When changed: extend pathname.d
 
-# Arten der Pathname-Verwaltung:
-  #ifdef AMIGAOS
-    #define PATHNAME_AMIGAOS
-  #endif
-  #ifdef MSDOS
-    #define PATHNAME_OS2
-  #endif
-  #ifdef RISCOS
-    #define PATHNAME_RISCOS
-  #endif
-  #ifdef UNIX
-    #define PATHNAME_UNIX
-  #endif
-  #ifdef WIN32
-    #define PATHNAME_WIN32
-  #endif
-# Die Komponenten von Pathnames:
-  #if defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2)
-    #define HAS_HOST      0
-    #define HAS_DEVICE    1
-    #define HAS_VERSION   0
-  #endif
-  #ifdef PATHNAME_WIN32
-    #define HAS_HOST      1
-    #define HAS_DEVICE    1
-    #define HAS_VERSION   0
-  #endif
-  #ifdef PATHNAME_UNIX
-    #define HAS_HOST      0
-    #define HAS_DEVICE    0
-    #define HAS_VERSION   0
-  #endif
-  #ifdef PATHNAME_RISCOS
-    #define HAS_HOST      1
-    #define HAS_DEVICE    1
-    #define HAS_VERSION   0
-    #define FLIP_NAME_TYPE # Name und Type zum Betriebssystem hin vertauschen
-  #endif
-# Handhabung der File "Extension" (pathname-type):
-  #if defined(PATHNAME_RISCOS)
-    #define PATHNAME_EXT  # Name und Type getrennt, aber keine Längenbegrenzung
-  #endif
-  #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-    #define PATHNAME_NOEXT  # Keine explizite Extension.
-  #endif
-# Ob "//" am Anfang eines Pathname erhalten bleiben muss (nicht zu "/" verkürzen):
-  #ifdef UNIX_CYGWIN32
-    #define PATHNAME_UNIX_UNC
-  #endif
-# Bei Erweiterung: PATHNAME erweitern.
+# Whether there is a type FOREIGN (a wrap for several pointers):
+#if defined(UNIX) || defined(DYNAMIC_FFI) || defined(AMIGAOS) || defined(DIR_KEY)
+  # (Used by FFI and by CLX.)
+  #define FOREIGN  void*
+#endif
+# When changed: do nothing
 
-# Ob es einen Typ FOREIGN gibt (eine Verpackung für diverse Pointer):
-  #if defined(UNIX) || defined(DYNAMIC_FFI) || defined(AMIGAOS) || defined(DIR_KEY)
-    # (Wird benutzt vom FFI und von CLX.)
-    #define FOREIGN  void*
-  #endif
-# Bei Erweiterung: Nichts weiter zu tun.
+# Whether the STACK is checked at certain key points:
+#define STACKCHECKS  (SAFETY >= 1) # when SUBRs and FSUBRs are called
+#define STACKCHECKC  (SAFETY >= 1) # when compiled closures are interpreted
+#define STACKCHECKR  (SAFETY >= 1) # in the reader
+#define STACKCHECKP  (SAFETY >= 1) # in the printer
+# When changed: do nothing
 
-# Ob an diversen Schlüsselstellen der STACK überprüft wird:
-  #define STACKCHECKS  (SAFETY >= 1) # beim Aufruf von SUBRs und FSUBRs
-  #define STACKCHECKC  (SAFETY >= 1) # beim Abinterpretieren compilierter Closures
-  #define STACKCHECKR  (SAFETY >= 1) # im Reader
-  #define STACKCHECKP  (SAFETY >= 1) # im Printer
-# Bei Veränderung: Nichts weiter zu tun.
+# Whether we try to initialize subr_tab statitically.
+#if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT))
+  #define INIT_SUBR_TAB
+#endif
+# NB: This has to be defined so external modules can work.
+# When changed: do nothing
 
-# Ob subr_tab statisch zu initialisieren versucht wird.
-  #if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT))
-    #define INIT_SUBR_TAB
-  #endif
-# NB: Das muss definiert sein, damit externe Module funktionieren.
-# Bei Veränderung: Nichts weiter zu tun.
+# Whether we try to initialize symbol_tab statically.
+# (Make initialization easier, but there is not enough space for the
+# compilation of SPVWTABS under ANSI-C on the Amiga.
+# EMX 0.9c (gcc-2.7.2.1) says "Virtual memory exhausted".)
+#if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(AMIGA) || defined(EMUNIX))
+  #define INIT_SYMBOL_TAB
+#endif
+# When changed: nothing to do
 
-# Ob symbol_tab statisch zu initialisieren versucht wird.
-# (Es macht die Initialisierung einfacher, aber bei GNU-C auf einem Amiga
-# reicht der Platz zum Compilieren von SPVWTABS nicht.
-# EMX 0.9c (gcc-2.7.2.1) meldet "Virtual memory exhausted".)
-  #if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT)) && !(defined(AMIGA) || defined(EMUNIX))
-    #define INIT_SYMBOL_TAB
-  #endif
-# Bei Veränderung: Nichts weiter zu tun.
-
-# Ob object_tab statisch zu initialisieren versucht wird.
-  #if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT))
-    #define INIT_OBJECT_TAB
-  #endif
-# Bei Veränderung: Nichts weiter zu tun.
+# Whether we try to initialize object_tab statically
+#if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT))
+  #define INIT_OBJECT_TAB
+#endif
+# When changed: do nothing
 
 
 # Feature dependent include files.
@@ -2148,7 +2160,7 @@
 #endif
 
 
-# ############### Liste von implementierten CLtL2-Features ################ #
+# ############### List of implemented CLtL2-features ################ #
 
 #undef  X3J13_003
 #define X3J13_005  # 18.5.1993
@@ -2158,7 +2170,7 @@
 #define X3J13_175  # 25.7.1993
 
 
-# ##################### Speicherstruktur von Objekten ##################### #
+# ##################### Memory representation of objects #################### #
 
 /*
 
@@ -2201,7 +2213,7 @@ finite number of special values, such as #<UNBOUND>.)
 
 2.2. SUBRs
 
-They are immediate in the sense that they don't move (they don't need to,
+They are immediate in the sense that they don not move (they do not need to,
 because they are allocated statically), but they have to traversed by GC.
 
 2.3. Pairs
@@ -2259,26 +2271,26 @@ Ratio and Complex (only if SPVW_MIXED).
 
 */
 
-# ######################## LISP-Objekte allgemein ######################### #
+# ######################## LISP-objects in general ######################### #
 
 #if !defined(WIDE_SOFT)
 
-# Ein Objektpointer ist erst einmal ein leerer Pointer (damit man in C nichts
-# Unbeabsichtigtes mit ihm machen kann):
+  # An object pointer if an empty pointer to begin with (so you cannot do
+  # anything unwanted with it in C):
   #ifdef OBJECT_STRUCT
     typedef struct { uintP one; } object;
   #else
     typedef  void *  object;
   #endif
-# Aber in der Repräsentation steckt eine Adresse und Typbits.
+  # But there are  an address and type bits in the representation.
 
-# Ein (unsigned) Integer von der Größe eines Objekts:
+  # An (unsigned) Integer of the object's size:
   typedef  uintP  oint;
   typedef  sintP  soint;
 
 #else # defined(WIDE_SOFT)
 
-# Ein Objekt besteht aus getrennten 32 Bit Adresse und 32 Bit Typinfo.
+  # An object consists of a separated 32 bit address and a 32 bit type info.
   typedef  uint64  oint;
   typedef  sint64  soint;
   #ifdef WIDE_STRUCT
@@ -2301,27 +2313,27 @@ Ratio and Complex (only if SPVW_MIXED).
 
 #endif
 
-# Es muss sizeof(object) = sizeof(oint) gelten!
+# sizeof(object) = sizeof(oint) must hold true!
 
-# Umwandlungen zwischen object und oint:
+# conversion between object and oint:
 # as_oint(expr)   object --> oint
 # as_object(x)    oint --> object
-  #if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
-    #define as_oint(expr)  ((expr).one)
-    #if 1
-      #define as_object(o)  ((object){one:(o)})
-    #else
-      extern __inline__ object as_object (register oint o)
-        { register object obj; obj.one = o; return obj; }
-    #endif
+#if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
+  #define as_oint(expr)  ((expr).one)
+  #if 1
+    #define as_object(o)  ((object){one:(o)})
   #else
-    #define as_oint(expr)  (oint)(expr)
-    #define as_object(o)  (object)(o)
+    extern __inline__ object as_object (register oint o)
+      { register object obj; obj.one = o; return obj; }
   #endif
+#else
+  #define as_oint(expr)  (oint)(expr)
+  #define as_object(o)  (object)(o)
+#endif
 
-# Aufteilung eines oint in Typbits und Adresse:
-# Stets ist  oint_type_mask  subset  (2^oint_type_len-1)<<oint_type_shift
-# und        oint_addr_mask superset (2^oint_addr_len-1)<<oint_addr_shift .
+# Separation of an oint in type bits and address:
+# oint_type_mask  is always subset  (2^oint_type_len-1)<<oint_type_shift
+# and  oint_addr_mask superset (2^oint_addr_len-1)<<oint_addr_shift .
 #if !defined(TYPECODES)
   #if defined(WIDE_HARD)
     # This is probably not really useful...
@@ -2388,7 +2400,7 @@ Ratio and Complex (only if SPVW_MIXED).
 #elif defined(WIDE_HARD)
   #if defined(DECALPHA) && (defined(UNIX_OSF) || defined(UNIX_LINUX))
     # UNIX_OSF:
-    #   Gewöhnliche Pointer liegen im Bereich 1*2^32..2*2^32.
+    #   Ordinary pointers are in the range 1*2^32..2*2^32.
     #   Code address range:    0x000000012xxxxxxx
     #   Malloc address range:  0x000000014xxxxxxx
     #   Shared libraries:      0x000003FFCxxxxxxx
@@ -2399,8 +2411,8 @@ Ratio and Complex (only if SPVW_MIXED).
     #   Shared libraries:      0x0000015555xxxxxx
     #   Virtual address limit: 0x0000040000000000
     #if defined(NO_SINGLEMAP)
-      # Wenn MAP_MEMORY nicht gefordert ist, ist das das sicherste.
-      # Bits 63..48 = Typcode, Bits 47..0 = Adresse
+      # If MAP_MEMORY is not demanded, this is the safes.
+      # Bits 63..48 = type code, Bits 47..0 = address
       #define oint_type_shift 48
       #define oint_type_len 16
       #define oint_type_mask 0xFFFF000000000000UL
@@ -2411,8 +2423,8 @@ Ratio and Complex (only if SPVW_MIXED).
       #define oint_data_len 32
       #define oint_data_mask 0x00000000FFFFFFFFUL
     #else
-      # Bits 63..33 = Typcode, Bits 32..0 = Adresse
-      #if 1 # Was ist besser??
+      # Bits 63..33 = type code, bits 32..0 = address
+      #if 1 # what is better??
         #define oint_type_shift 32
         #define oint_type_len 32
       #else
@@ -2429,7 +2441,7 @@ Ratio and Complex (only if SPVW_MIXED).
     #endif
   #endif
   #if defined(MIPS64)
-    # Bits 63..32 = Typcode, Bits 31..0 = Adresse
+    # Bits 63..32 = type code, bits 31..0 = adress
     #define oint_type_shift 32
     #define oint_type_len 32
     #define oint_type_mask 0xFFFFFFFF00000000UL
@@ -2443,8 +2455,8 @@ Ratio and Complex (only if SPVW_MIXED).
   #if defined(SPARC64)
     # Virtual address limit on some systems: -2^43..2^43.
     #if defined(NO_SINGLEMAP)
-      # Wenn MAP_MEMORY nicht gefordert ist, ist das das sicherste.
-      # Bits 63..48 = Typcode, Bits 47..0 = Adresse
+      # If MAP_MEMORY isn't demanded, this is the safest.
+      # Bits 63..48 = type code, bits 47..0 = address
       #define oint_type_shift 48
       #define oint_type_len 16
       #define oint_type_mask 0xFFFF000000000000UL
@@ -2455,7 +2467,7 @@ Ratio and Complex (only if SPVW_MIXED).
       #define oint_data_len 32
       #define oint_data_mask 0x00000000FFFFFFFFUL
     #else
-      # Bits 63..32 = Typcode, Bits 31..0 = Adresse
+      # Bits 63..32 = type code, bits 31..0 = address
       #define oint_type_shift 32
       #define oint_type_len 32
       #define oint_type_mask 0xFFFFFFFF00000000UL
@@ -2477,7 +2489,7 @@ Ratio and Complex (only if SPVW_MIXED).
     # STACK_ADDRESS_RANGE  = 0x9FFFFFFFFF000000UL (region 4)
     #if defined(NO_SINGLEMAP)
       # Wenn MAP_MEMORY nicht gefordert ist, ist das das sicherste.
-      # Bits 63..48 = Typcode, Bits 47..0 = Adresse
+      # Bits 63..48 = Typcode, Bits 47..0 = Adress
       #define oint_type_shift 48
       #define oint_type_len 16
       #define oint_type_mask 0x1FFF000000000000UL
@@ -2488,7 +2500,7 @@ Ratio and Complex (only if SPVW_MIXED).
       #define oint_data_len 32
       #define oint_data_mask 0x00000000FFFFFFFFUL
     #else
-      # Bits 63..32 = Typcode, Bits 31..0 = Adresse
+      # Bits 63..32 = Typcode, Bits 31..0 = Adress
       #define oint_type_shift 32
       #define oint_type_len 32
       #define oint_type_mask 0x1FFFFFFF00000000UL
@@ -2501,9 +2513,9 @@ Ratio and Complex (only if SPVW_MIXED).
     #endif
   #endif
 #elif defined(WIDE_SOFT)
-  # Getrennte 32-Bit-Wörter für Typcode und Adresse.
+  # separate one 32-bit word for typcode and adress.
   #if WIDE_ENDIANNESS
-    # Bits 63..32 = Typcode, Bits 31..0 = Adresse
+    # Bits 63..32 = Typcode, Bits 31..0 = Adress
     #define oint_type_shift 32
     #define oint_type_len 32
     #define oint_type_mask 0xFFFFFFFF00000000ULL
@@ -2511,7 +2523,7 @@ Ratio and Complex (only if SPVW_MIXED).
     #define oint_addr_len 32
     #define oint_addr_mask 0x00000000FFFFFFFFULL
   #else # umgekehrt ist es etwas langsamer:
-    # Bits 63..32 = Adresse, Bits 31..0 = Typcode
+    # Bits 63..32 = Adress, Bits 31..0 = Typcode
     #define oint_type_shift 0
     #define oint_type_len 32
     #define oint_type_mask 0x00000000FFFFFFFFULL
@@ -2549,7 +2561,7 @@ Ratio and Complex (only if SPVW_MIXED).
   # You can add more platforms here provided that
   # 1. you need it,
   # 2. it works.
-  # Bits 31..24 = Typcode, Bits 23..0 = Adresse
+  # Bits 31..24 = Typcode, Bits 23..0 = Adress
   #define oint_type_shift 24
   #define oint_type_len 8
   #define oint_type_mask 0xFF000000UL
@@ -2562,28 +2574,28 @@ Ratio and Complex (only if SPVW_MIXED).
   #error "TYPECODES maybe not supported any more on this platform. Try defining TRY_TYPECODES_1 or TRY_TYPECODES_2, or use -DNO_TYPECODES."
 #endif
 
-# Meist nutzen wir den ganzen Platz einer Adresse für die Daten von Fixnums etc.
-# Stets ist  [oint_data_shift..oint_data_shift+oint_data_len-1] subset
+# Generally we use all of the space of an address for the data of Fixnums etc.
+# Always     [oint_data_shift..oint_data_shift+oint_data_len-1] subset
 #            [oint_addr_shift..oint_addr_shift+oint_addr_len-1],
-# also       oint_data_len <= oint_addr_len,
-# aber auch  oint_data_len <= intLsize = 32 .
+# thus       oint_data_len <= oint_addr_len,
+# but also   oint_data_len <= intLsize = 32 .
 #ifndef oint_data_len
   #define oint_data_shift oint_addr_shift
   #define oint_data_len oint_addr_len
   #define oint_data_mask oint_addr_mask
 #endif
 
-# Integertyp für Typbits:
-  typedef unsigned_int_with_n_bits(oint_type_len)  tint;
+# Integer type for typebits:
+typedef unsigned_int_with_n_bits(oint_type_len)  tint;
 
-# Integertyp für Adressen:
-  typedef unsigned_int_with_n_bits(oint_addr_len)  aint;
-  typedef signed_int_with_n_bits(oint_addr_len)  saint;
+# Integer type for addresses:
+typedef unsigned_int_with_n_bits(oint_addr_len)  aint;
+typedef signed_int_with_n_bits(oint_addr_len)  saint;
 
-# Anzahl der Bits, um die eine Adresse zuletzt noch geshiftet wird:
-  #ifndef addr_shift
-    #define addr_shift 0
-  #endif
+# Number of bits by which an address is finally being shifted:
+#ifndef addr_shift
+  #define addr_shift 0
+#endif
 
 # Verify the values w.r.t. the autoconfigured CODE_ADDRESS_RANGE and
 # MALLOC_ADDRESS_RANGE values.
@@ -2596,113 +2608,114 @@ Ratio and Complex (only if SPVW_MIXED).
   #endif
 #endif
 
-# Maske der Bits eines tint, die wirklich zum Typ gehören:
+# Bismask of a tint, which really belong to the type:
 # tint_type_mask = oint_type_mask >> oint_type_shift
-# (eine Constant Expression, in der keine 'long long's vorkommen!)
-  #ifdef WIDE_SOFT
-    #define tint_type_mask  (bitm(oint_type_len)-1)
-  #else
-    #define tint_type_mask  (oint_type_mask >> oint_type_shift)
-  #endif
+# (a constant expression, without any 'long long's in it!)
+#ifdef WIDE_SOFT
+  #define tint_type_mask  (bitm(oint_type_len)-1)
+#else
+  #define tint_type_mask  (oint_type_mask >> oint_type_shift)
+#endif
 
-# Um zu einem object/oint etwas zu addieren:
+# To add something to an object/oint:
 # objectplus(obj,offset)
-  #if !(defined(WIDE_SOFT) || defined(OBJECT_STRUCT))
-    #define objectplus(obj,offset)  ((object)pointerplus(obj,offset))
-  #else # defined(WIDE_SOFT) || defined(OBJECT_STRUCT)
-    #define objectplus(obj,offset)  as_object(as_oint(obj)+(soint)(offset))
-  #endif
+#if !(defined(WIDE_SOFT) || defined(OBJECT_STRUCT))
+  #define objectplus(obj,offset)  ((object)pointerplus(obj,offset))
+#else # defined(WIDE_SOFT) || defined(OBJECT_STRUCT)
+  #define objectplus(obj,offset)  as_object(as_oint(obj)+(soint)(offset))
+#endif
 
-# Bitoperationen auf Größen vom Typ oint:
-# ...wbit... statt ...bit..., "w" = "wide".
-  #if !defined(WIDE_SOFT)
-    #define wbit  bit
-    #define wbitm  bitm
-    #define wbit_test  bit_test
-    #define minus_wbit  minus_bit
-  #else
-    #define wbit(n)  (1LL<<(n))
-    #define wbitm(n)  (2LL<<((n)-1))
-    #define wbit_test(x,n)  ((x) & wbit(n))
-    #define minus_wbit(n)  (-1LL<<(n))
-  #endif
+# Bit operations on sizes of type oint:
+# ...wbit... instead of ...bit..., "w" = "wide".
+#if !defined(WIDE_SOFT)
+  #define wbit  bit
+  #define wbitm  bitm
+  #define wbit_test  bit_test
+  #define minus_wbit  minus_bit
+#else
+  #define wbit(n)  (1LL<<(n))
+  #define wbitm(n)  (2LL<<((n)-1))
+  #define wbit_test(x,n)  ((x) & wbit(n))
+  #define minus_wbit(n)  (-1LL<<(n))
+#endif
 
 #ifdef TYPECODES
 
-# Typinfo:
-# typecode(object) und mtypecode(object) liefern den Typcode eines
-# Objektes obj. Bei mtypecode muss er dazu im Speicher liegen.
+  # Type info:
+  # typecode(object) and mtypecode(object) yield the type code of
+  # an object obj. For mtypecode it has to be in memory.
   #if !(exact_uint_size_p(oint_type_len) && (tint_type_mask == bit(oint_type_len)-1))
     #define typecode(expr)  \
       ((tint)(as_oint(expr) >> oint_type_shift) & (oint_type_mask >> oint_type_shift))
     #define mtypecode(expr)  typecode(expr)
   #else
-    # Der Typ 'tint' hat genau oint_type_len Bits, und tint_type_mask = 2^oint_type_len-1.
-    # Also kann man sich das ANDen sparen.
-    # Allerdings ist auf einem 68000 ein ROL.L #8 schneller, auf einer SPARC ein Shift.
+    # The type 'tint' has exactly oint_type_len bits,
+    # and tint_type_mask = 2^oint_type_len-1.
+    # So it's not necessary for you to AND.
+    # On the other hand on a 68000 a ROL.L #8 is faster,
+    # as is a shift on a SPARC.
+    #define typecode(expr)  ((tint)(as_oint(expr) >> oint_type_shift))
+    #if defined(MC68000) && defined(GNU) && !defined(NO_ASM) && (oint_type_shift==24) && (oint_type_len==8)
+      # GNU C on a 68000, replace LSR.L #24 with ROL.L #8 :
+      #undef typecode
       #define typecode(expr)  \
-        ((tint)(as_oint(expr) >> oint_type_shift))
-      #if defined(MC68000) && defined(GNU) && !defined(NO_ASM) && (oint_type_shift==24) && (oint_type_len==8)
-        # GNU C auf einem 68000, ersetze LSR.L #24 durch ROL.L #8 :
-        #undef typecode
-        #define typecode(expr)  \
-          ({var tint __typecode;                                               \
-            __asm__ ("roll #8,%0" : "=d" (__typecode) : "0" (as_oint(expr)) ); \
-            __typecode;                                                        \
-           })
+        ({var tint __typecode;                                               \
+          __asm__ ("roll #8,%0" : "=d" (__typecode) : "0" (as_oint(expr)) ); \
+          __typecode;                                                        \
+         })
       #elif defined(SPARC) && !defined(WIDE)
-        #undef typecode
-        #define typecode(expr)  \
-          ((as_oint(expr) << (32-oint_type_len-oint_type_shift)) >> (32-oint_type_len))
-      #elif defined(WIDE) && defined(WIDE_STRUCT)
-        #undef typecode
-        #define typecode(expr)  ((expr).both.type)
-      #endif
-    # Außerdem kann man Zugriffe im Speicher auch ohne Shift machen:
-      #if !defined(WIDE) && (((oint_type_shift==24) && BIG_ENDIAN_P) || ((oint_type_shift==0) && !BIG_ENDIAN_P))
-        #define mtypecode(expr)  (*(tint*)&(expr))
-        #define fast_mtypecode
-      #elif !defined(WIDE) && (((oint_type_shift==24) && !BIG_ENDIAN_P) || ((oint_type_shift==0) && BIG_ENDIAN_P))
-        #define mtypecode(expr)  (*((tint*)&(expr)+3))
-        #define fast_mtypecode
-      #elif defined(WIDE)
-        #ifdef WIDE_STRUCT
-          #define mtypecode(expr)  ((expr).both.type)
-        #elif (oint_type_len==16)
-          #if (oint_type_shift==0) == BIG_ENDIAN_P
-            #define mtypecode(expr)  (*((tint*)&(expr)+3))
-          #else # (oint_type_shift==48) == BIG_ENDIAN_P
-            #define mtypecode(expr)  (*(tint*)&(expr))
-          #endif
-        #elif (oint_type_len==32)
-          #if (oint_type_shift==0) == BIG_ENDIAN_P
-            #define mtypecode(expr)  (*((tint*)&(expr)+1))
-          #else # (oint_type_shift==32) == BIG_ENDIAN_P
-            #define mtypecode(expr)  (*(tint*)&(expr))
-          #endif
+      #undef typecode
+      #define typecode(expr)  \
+        ((as_oint(expr) << (32-oint_type_len-oint_type_shift)) >> (32-oint_type_len))
+    #elif defined(WIDE) && defined(WIDE_STRUCT)
+      #undef typecode
+      #define typecode(expr)  ((expr).both.type)
+    #endif
+    # Furthermre you can do accesses in memory without shift:
+    #if !defined(WIDE) && (((oint_type_shift==24) && BIG_ENDIAN_P) || ((oint_type_shift==0) && !BIG_ENDIAN_P))
+      #define mtypecode(expr)  (*(tint*)&(expr))
+      #define fast_mtypecode
+    #elif !defined(WIDE) && (((oint_type_shift==24) && !BIG_ENDIAN_P) || ((oint_type_shift==0) && BIG_ENDIAN_P))
+      #define mtypecode(expr)  (*((tint*)&(expr)+3))
+      #define fast_mtypecode
+    #elif defined(WIDE)
+      #ifdef WIDE_STRUCT
+        #define mtypecode(expr)  ((expr).both.type)
+      #elif (oint_type_len==16)
+        #if (oint_type_shift==0) == BIG_ENDIAN_P
+          #define mtypecode(expr)  (*((tint*)&(expr)+3))
+        #else # (oint_type_shift==48) == BIG_ENDIAN_P
+          #define mtypecode(expr)  (*(tint*)&(expr))
         #endif
-        #define fast_mtypecode
-      #else # keine Optimierung möglich
-        #define mtypecode(expr)  typecode(expr)
+      #elif (oint_type_len==32)
+        #if (oint_type_shift==0) == BIG_ENDIAN_P
+          #define mtypecode(expr)  (*((tint*)&(expr)+1))
+        #else # (oint_type_shift==32) == BIG_ENDIAN_P
+          #define mtypecode(expr)  (*(tint*)&(expr))
+        #endif
       #endif
+      #define fast_mtypecode
+    #else # no optimization is possible
+      #define mtypecode(expr)  typecode(expr)
+    #endif
   #endif
 
-# Extraktion des Adressfelds ohne Typinfo:
-# untype(obj)
+  # Extraction of the address field without type info.
+  # untype(obj)
   #if defined(WIDE) && defined(WIDE_STRUCT)
     #define untype(expr)  ((expr).both.addr)
   #elif !(defined(SPARC) && (oint_addr_len+oint_addr_shift<32))
     #define untype(expr)    \
       ((aint)(as_oint(expr) >> oint_addr_shift) & (aint)(oint_addr_mask >> oint_addr_shift))
   #else
-    # Auf einem SPARC-Prozessor sind lange Konstanten langsamer als Shifts:
-    # Evtl. kann man sich ein ANDen sparen.
+    # On a SPARC processor long constants are slower than shifts:
+    # Eventually one does not need to use AND here.
     #define untype(expr)  \
       ((aint)((as_oint(expr) << (32-oint_addr_len-oint_addr_shift)) >> (32-oint_addr_len)))
   #endif
 
-# Objekt aus Typinfo und Adressfeld:
-# type_untype_object(type,address)
+  # Object from type info and address field:
+  # type_untype_object(type,address)
   #if defined(WIDE) && defined(WIDE_STRUCT)
     #if BIG_ENDIAN_P==WIDE_ENDIANNESS
       #define type_untype_object(type,address)  ((object){{(tint)(type),(aint)(address)}})
@@ -2713,25 +2726,25 @@ Ratio and Complex (only if SPVW_MIXED).
     #define type_untype_object(type,address)  \
       (as_object(  ((oint)(tint)(type) << oint_type_shift) + \
                    ((oint)(aint)(address) << oint_addr_shift) ))
-  #else # bei oint_addr_shift=0 braucht man nicht zu schieben:
+  #else # you don't have to shift at oint_addr_shift=0:
     #if defined(WIDE_SOFT)
-      # Vorsicht: Konversion von address zum oint durch Zero-Extend!
+      # Beware: Conversion of  address to oint through Zero-Extend!
       #define type_untype_object(type,address)              \
         objectplus((oint)(aint)(address),(oint)(tint)(type)<<oint_type_shift)
     #elif defined(OBJECT_STRUCT)
       #define type_untype_object(type,address)              \
         as_object((oint)pointerplus((address),(oint)(tint)(type)<<oint_type_shift))
-    #else # Normalfall
-      # Damit das für gcc-2.5.8 ein gültiger Initialisierer ist (NIL_IS_CONSTANT),
-      # darf man nicht vom Pointer zum oint und dann wieder zum Pointer casten,
-      # sondern muss im Bereich der Pointer bleiben.
+    #else # normal case
+      # In order for this to be a valid initialiser under gcc-2.5.8
+      # (NIL_IS_CONSTANT), you must not cast from pointer to oint and then
+      # back to pointer, and you'll have to stay in the pointer's range..
       #define type_untype_object(type,address)              \
         as_object(pointerplus((address),(oint)(tint)(type)<<oint_type_shift))
     #endif
   #endif
 
-# Objekt aus Typinfo und direkten Daten (als "Adresse"):
-# type_data_object(type,data)
+  # Object from type info and direct data (as "address"):
+  # type_data_object(type,data)
   #if defined(WIDE) && defined(WIDE_STRUCT)
     #if BIG_ENDIAN_P==WIDE_ENDIANNESS
       #define type_data_object(type,data)  ((object){{(tint)(type),(aint)(data)}})
@@ -2742,14 +2755,14 @@ Ratio and Complex (only if SPVW_MIXED).
     #define type_data_object(type,data)  \
       (as_object(  ((oint)(tint)(type) << oint_type_shift) + \
                    ((oint)(aint)(data) << oint_addr_shift) ))
-  #else # bei oint_addr_shift=0 braucht man nicht zu schieben:
+  #else # at oint_addr_shift=0 you don't have to shift:
     #define type_data_object(type,data)  \
       (as_object( ((oint)(tint)(type) << oint_type_shift) + (oint)(aint)(data) ))
   #endif
 
-# Extraktion der Adresse ohne Typinfo:
-# upointer(obj)
-# (upointer steht für "untyped pointer".)
+  # Extraction of the address without type info:
+  # upointer(obj)
+  # (upointer means "untyped pointer".)
   #if (addr_shift==0)
     #define upointer  untype
   #else
@@ -2758,28 +2771,28 @@ Ratio and Complex (only if SPVW_MIXED).
     #define upointer(obj)  (untype(obj)<<addr_shift)
   #endif
 
-# Objekt aus Typinfo und Adresse:
-# type_pointer_object(type,address)
+  # Object from type info and address:
+  # type_pointer_object(type,address)
   #if (addr_shift==0)
-    # (Kein Cast auf aint, damit NIL als Initializer zu gebrauchen ist.)
+    # (No cast to aint, so NIL can be used to initialize.)
     #define type_pointer_object(type,address)  \
       type_untype_object(type,address)
   #elif defined(WIDE_SOFT) && !defined(WIDE_STRUCT)
     #define type_pointer_object(type,address)  \
       type_untype_object(type,(aint)(address)>>addr_shift)
-  #else # effizienter,
-    # setzt aber voraus, dass address durch 2^addr_shift teilbar ist:
+  #else # more efficient,
+    # but this means that, you bust be able to device address by 2^addr_shift:
     #define type_pointer_object(type,address)  \
       (as_object(  ((oint)(tint)(type) << oint_type_shift) + \
                    ((oint)(aint)(address) << (oint_addr_shift-addr_shift)) ))
   #endif
 
-# Objekt aus konstanter Typinfo und konstanter Adresse:
-# type_constpointer_object(type,address)
+  # Object from constant type info and constant address:
+  # type_constpointer_object(type,address)
   #define type_constpointer_object(type,address)  type_pointer_object(type,address)
 
-# oint aus konstanter Typinfo und Adresse = 0:
-# type_zero_oint(type)
+  # oint from constant type info and address = 0:
+  # type_zero_oint(type)
   #if defined(WIDE_SOFT) && defined(WIDE_STRUCT)
     #define type_zero_oint(type)  as_oint(type_untype_object(type,0))
   #else
@@ -2865,37 +2878,37 @@ Ratio and Complex (only if SPVW_MIXED).
   #define gcinvariant_object_p(obj)  \
     (((as_oint(obj) & 1) == 0) || immediate_object_p(obj))
 
-#endif
+#endif # TYPECODES
 
 
 #if (oint_addr_shift == 0) && (addr_shift == 0) && defined(TYPECODES) && !defined(WIDE_SOFT) && !(defined(SUN3) && !defined(UNIX_SUNOS4) && !defined(WIDE_SOFT))
-# Falls die Adressbits die unteren sind und nicht WIDE_SOFT,
-# ist evtl. Memory-Mapping möglich.
+# If the address bits are the lower ones and not WIDE_SOFT,
+# memory mapping may be possible.
 
   #if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)) && !defined(MULTIMAP_MEMORY) && !(defined(UNIX_SINIX) || defined(UNIX_AIX)) && !defined(NO_SINGLEMAP)
-    # Zugriff auf Lisp-Objekte wird vereinfacht dadurch, dass jedes Lisp-Objekt
-    # an eine Adresse gelegt wird, das seine Typinformation bereits enthält.
-    # Funktioniert aber nicht auf SINIX und AIX.
+    # Access to LISP-objects is made easier by putting each LISP-object
+    # to an address that already contains its type information.
+    # But this does not owrk on SINIX and AIX.
       #define SINGLEMAP_MEMORY
   #endif
 
   #if defined(UNIX_SUNOS4) && !defined(MULTIMAP_MEMORY) && !defined(SINGLEMAP_MEMORY) && !defined(NO_MULTIMAP_FILE)
-    # Zugriff auf Lisp-Objekte geschieht mittels Memory-Mapping: Jede Speicher-
-    # seite ist unter mehreren Adressen zugreifbar.
+    # Access to Lisp-objects is done through memory-mapping: Each
+    # memory page can be accessed at several addresses.
       #define MULTIMAP_MEMORY
       #define MULTIMAP_MEMORY_VIA_FILE
   #endif
 
   #if defined(HAVE_SHM) && !defined(MULTIMAP_MEMORY) && !defined(SINGLEMAP_MEMORY) && !defined(NO_MULTIMAP_SHM)
-    # Zugriff auf Lisp-Objekte geschieht mittels Memory-Mapping: Jede Speicher-
-    # seite ist unter mehreren Adressen zugreifbar.
+    # Access to Lisp-objects is done through memory-mapping: Each
+    # memory page can be accessed at several addresses.
       #define MULTIMAP_MEMORY
       #define MULTIMAP_MEMORY_VIA_SHM
   #endif
 
   #if defined(UNIX_LINUX) && !defined(MULTIMAP_MEMORY) && !defined(SINGLEMAP_MEMORY) && !defined(NO_MULTIMAP_FILE)
-    # Zugriff auf Lisp-Objekte geschieht mittels Memory-Mapping: Jede Speicher-
-    # seite ist unter mehreren Adressen zugreifbar.
+     # Access to Lisp-objects is done through memory-mapping: Each
+     # memory page can be accessed at several addresses.
       #define MULTIMAP_MEMORY
       #define MULTIMAP_MEMORY_VIA_FILE
   #endif
@@ -2907,49 +2920,49 @@ Ratio and Complex (only if SPVW_MIXED).
 #endif
 
 #if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)) && !defined(MAP_MEMORY) && !(defined(UNIX_HPUX) || defined(UNIX_AIX)) && !defined(NO_TRIVIALMAP)
-  # mmap() erlaubt eine flexiblere Art der Speicherverwaltung als malloc().
-  # Es ist kein wirkliches Memory-Mapping, sondern nur eine bequemere Art,
-  # zwei große Speicherblöcke zu verwalten.
-  # Funktioniert aber nicht auf HP-UX 9 und AIX.
+  # mmap() allows a more flexibke way of memory management than malloc().
+  # It's not really memory-mapping, but a more comfortable way to
+  # manage two large memory blocks.
+  # But is doesn't work on HP-UX 9 and AIX.
   #define TRIVIALMAP_MEMORY
 #endif
 
 
-# Art des Einlesens des .mem-Files.
+# Way to read the.mem-Files.
 #if defined(VIRTUAL_MEMORY) && (defined(SINGLEMAP_MEMORY) /* || defined(TRIVIALMAP_MEMORY) */) && !defined(HAVE_MMAP) && defined(HAVE_SIGSEGV_RECOVERY) && (SAFETY < 3) && !defined(NO_SELFMADE_MMAP)
-  # Zwischen Programmstart und der ersten vollen GC wird das .mem-File
-  # seitenweise, nach Bedarf, eingelesen. Ohne mmap() geht das, wenn man
-  # SIGSEGV selber abfängt.
-  # Das funktioniert mit SINGLEMAP_MEMORY || TRIVIALMAP_MEMORY, bringt aber
-  # nur bei SINGLEMAP_MEMORY etwas. (Bei TRIVIALMAP_MEMORY muss loadmem
-  # das ganze mem-File einlesen, um alle Pointer zu relozieren.)
+  # The .mem-file will be read in, by pages, if required, between the program
+  # start and the first full GC. You can do that without mmap() if you
+  # catch the SIGSEGV yourself.
+  # This works with SINGLEMAP_MEMORY || TRIVIALMAP_MEMORY, but will only bring
+  # a real benefit with SINGLEMAP_MEMORY. (With TRIVIALMAP_MEMORY loadmem
+  # has to read in the whole mem-file to relocate all pointers.)
   #define SELFMADE_MMAP
 #endif
 
 
-# Art der Garbage Collection: normal oder generational.
+# Flavor of the garbage collection: normal or generational.
 #if defined(VIRTUAL_MEMORY) && (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || (defined(MULTIMAP_MEMORY) && defined(UNIX_LINUX))) && defined(HAVE_WORKING_MPROTECT) && defined(HAVE_SIGSEGV_RECOVERY) && !defined(UNIX_IRIX) && (SAFETY < 3) && !defined(NO_GENERATIONAL_GC)
-  # Für "generational garbage collection" sind einige Voraussetzungen nötig.
-  # Unter Linux geht es erst ab Linux 1.1.52, das wird in makemake überprüft.
+  # "generational garbage collection" has some requirements.
+  # With Linux, it will only work with 1.1.52, and higher, which will be checked in makemake.
   # On IRIX 6, it worked in the past, but leads to core dumps now. Reason unknown. FIXME!
   #define GENERATIONAL_GC
 #endif
 
 
 #ifdef MAP_MEMORY
-  # Evtl. sind einige Typbit-Kombinationen nicht erlaubt.
+  # Some type-bit combinations might not be allowed
   #ifdef vm_addr_mask
     #define tint_allowed_type_mask  ((oint_type_mask & vm_addr_mask) >> oint_type_shift)
   #endif
 #endif
 
 
-# Der Typ `object' liegt nun vollständig fest.
+# The type `object' is now fully defined.
 #ifdef WIDE_STRUCT
   #ifdef GENERATIONAL_GC
-    # Die Generational GC kann es nicht brauchen, dass ein einzelner
-    # Objektpointer sich auf zwei Seiten erstreckt.
-    # Erzwinge daher  alignof(object) = sizeof(object).
+    # The generational GC can't deal with an object-pointer that points
+    # towards two sides.
+    # Thus we enforce alignof(object) = sizeof(object).
     #define _attribute_aligned_object_  __attribute__ ((aligned(8)))
   #else
     #define _attribute_aligned_object_
@@ -2958,13 +2971,13 @@ Ratio and Complex (only if SPVW_MIXED).
 #endif
 
 
-# Objekte variabler Länge müssen an durch 2 (o.ä.) teilbaren Adressen liegen:
+# Objects with variable length must reside at addresses that are divisable by 2
 #if defined(VAX) # ?? gcc/config/vax/vax.h sagt: Alignment = 4
   #define varobject_alignment  1
 #endif
 #if defined(MC680X0)
   #if !(addr_shift==0)
-    #define varobject_alignment  bit(addr_shift)  # wegen der gedrängten Typcodeverteilung
+    #define varobject_alignment  bit(addr_shift)  # because of the condensed distriubution of typecodes
   #else
     #define varobject_alignment  2
   #endif
@@ -2983,26 +2996,26 @@ Ratio and Complex (only if SPVW_MIXED).
   #undef varobject_alignment
   #define varobject_alignment  8
 #endif
-# varobject_alignment sollte definiert sein:
+# varobject_alignment should be defined:
 #ifndef varobject_alignment
-  #error "varobject_alignment depends on CPU -- varobject_alignment neu einstellen!!"
+  #error "varobject_alignment depends on CPU -- readjust varobject_alignment!!"
 #endif
-# varobject_alignment sollte eine Zweierpotenz sein:
+# varobject_alignment should be a power of 2:
 #if !((varobject_alignment & (varobject_alignment-1)) ==0)
-  #error "Bogus varobject_alignment -- varobject_alignment neu einstellen!!"
+  #error "Bogus varobject_alignment -- readjust varobject_alignment!!"
 #endif
 # varobject_alignment sollte ein Vielfaches von 2^addr_shift sein:
 #if (varobject_alignment % bit(addr_shift))
-  #error "Bogus varobject_alignment -- varobject_alignment neu einstellen!!"
+  #error "Bogus varobject_alignment -- readjust varobject_alignment!!"
 #endif
 
 
 #ifdef TYPECODES
 
-# Es folgt die Festlegung der einzelnen Typbits und Typcodes.
+# Now we'll define the various type bits and type codes.
 
-# Feststellen, ob ein Typ bei GC keine Veränderung erfährt
-# (z.B. weil er keinen Pointer darstellt):
+# Determine whether a type isn't changed by the GC
+# (ie. if it's not a pointer):
   #if 0 && defined(GNU)
     #define gcinvariant_type_p(type)  \
       ({var bool _erg;                         \
@@ -3022,10 +3035,10 @@ Ratio and Complex (only if SPVW_MIXED).
   #define tint_allowed_type_mask  tint_type_mask
 #endif
 
-# Wir haben 7 bis 8 Typbits zur Verfügung: TB7, [TB6,] TB5, TB4, ..., TB0.
-# Alle müssen in tint_allowed_type_mask und damit auch in tint_type_mask
-# gesetzt sein. Wir verteilen sie unter der Annahme, dass in tint_type_mask
-# höchstens ein Bit fehlt. TB6 wird, falls nicht benutzbar, auf -1 gesetzt.
+# There are 7 to 8 type bits available: TB7, [TB6,] TB5, TB4, ..., TB0.
+# All of them have to be set in tint_allowed_type_mask and thus in tint_type_mask as well
+# We distribute them assume that only one bit is missing in tint_type_mask.
+# TB6 will be set to -1, if it can't be used.
 #if ((0xFF & ~tint_allowed_type_mask) == 0)
   #define TB7 7
   #define TB6 6
@@ -3045,13 +3058,13 @@ Ratio and Complex (only if SPVW_MIXED).
   #define TB1 1
   #define TB0 0
 #else
-  # Manchem Bit müssen wir aus dem Weg gehen:
+  # Some bits have to be avoided
   #define tint_avoid  ((bitm(oint_type_len)-1) & ~tint_allowed_type_mask)
-  # tint_avoid darf höchstens ein Bit enthalten:
+  # tint_avoid must only contain one bit:
   #if (tint_avoid & (tint_avoid-1))
     #error "Bogus oint_type_mask -- oint_type_mask has more than one extraneous bit!!"
   #endif
-  # tint_avoid besteht aus genau einem Bit, das es zu vermeiden gilt.
+  # tint_avoid consists of exactly one bit that has to be avoided.
   #if (tint_avoid > bit(0))
     #define TB0 0
   #else
@@ -3103,7 +3116,7 @@ Ratio and Complex (only if SPVW_MIXED).
   #endif
 #endif
 
-# Bitmasken zu den Typbits:
+# bit masks for the type bits:
   #define BTB0  bit(TB0)
   #define BTB1  bit(TB1)
   #define BTB2  bit(TB2)
@@ -3118,10 +3131,10 @@ Ratio and Complex (only if SPVW_MIXED).
 #ifdef STANDARD_8BIT_TYPECODES
 
 #if defined(I80386) && defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE == 0)
-  # Bei 0x60000000 sitzen die Shared-Libraries.
-  # Bei 0x50000000 (Linux 1.2) bzw. 0x40000000 (Linux 2.0) sitzen diverse
-  # mmap-Seiten, z.B. von setlocale() oder gettext() alloziert.
-  # Deswegen brauchen wir die Typcode-Verteilung nur ein wenig zu ändern.
+  # At 0x60000000 there are the shared-libraries.
+  # At 0x50000000 (Linux 1.2) resp. 0x40000000 (Linux 2.0) there are several
+  # mmap-pages,for example ones allocated  by setlocale() or gettext().
+  # Therefore we only have to do a few changes to the distribution of the type codes.
 #endif
 
 #if defined(I80386) && defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)
@@ -3130,54 +3143,54 @@ Ratio and Complex (only if SPVW_MIXED).
 #endif
 
 #if (defined(MC680X0) || (defined(SPARC) && !defined(SUN4_29))) && defined(UNIX_LINUX)
-  # Bei 0x50000000 sitzen die Shared Libraries.
-  # Deswegen brauchen wir die Typcode-Verteilung aber nicht zu ändern.
+  # At 0x50000000 there are shared libraries located.
+  # But this doesn't mean we have to change the type code distribiton.
 #endif
 
 #if (defined(MIPS) || defined(RS6000)) && defined(UNIX_LINUX)
-  # Bei 0x2AAAB000 sitzen die Shared Libraries.
-  # Deswegen brauchen wir die Typcode-Verteilung aber nicht zu ändern.
+  # At 0x2AAAB000 there are shared libraries located.
+  # But this doesn't mean we have to change the type code distribiton.
 #endif
 
 #if defined(DECALPHA) && defined(UNIX_OSF) && !(defined(NO_SINGLEMAP) || defined(NO_TRIVIALMAP))
-# mmap() geht nur mit Adressen >=0, <2^38, aber da gewöhnliche Pointer im
-# Bereich 1*2^32..2*2^32 liegen, bleiben uns nur die Bits 37..33 als Typbits.
+# mmap() only works with addresses >=0, <2^38, but since ordinary pointers are in the range
+# 1*2^32..2*2^32, only the Bits 37..33 remain as type-bits.
 #endif
 
 #if defined(SPARC64) && defined(UNIX_LINUX)
-  # Bei 0x70000000 sitzen die Shared Libraries.
-  # Deswegen brauchen wir die Typcode-Verteilung aber nicht zu ändern.
+  # At 0x70000000 there are shared libraries located.
+  # But this doesn't mean we have to change the type code distribiton.
 #endif
 
-# Typbits:
+# Type bits:
 # in Typcodes (tint):
-  #define garcol_bit_t     TB7  # gesetzt nur während der Garbage Collection!
+  #define garcol_bit_t     TB7  # only set during GC
   #if (TB6 >= 0)
-    #define cons_bit_t     TB6  # gesetzt nur bei CONS
+    #define cons_bit_t     TB6  # only set for CONS
   #endif
-  #define number_bit_t     TB5  # gesetzt nur bei Zahlen
-  #define notsimple_bit_t  TB3  # bei Arrays: gelöscht bei Simple-Arrays
-  #define sign_bit_t       TB0  # Vorzeichen bei reellen Zahlen (gesetzt <==> Zahl <0)
+  #define number_bit_t     TB5  # only set for numbers
+  #define notsimple_bit_t  TB3  # for arrays: deleted for simple arrays
+  #define sign_bit_t       TB0  # Sign for real numbers (set <==> number <0)
   #define float_bit_t      TB1
   #define float1_bit_t     TB3
   #define float2_bit_t     TB2
   #define ratio_bit_t      TB3
   #define bignum_bit_t     TB2
 # in Objekten (oint):
-  #define garcol_bit_o     (garcol_bit_t+oint_type_shift)    # gesetzt nur während der Garbage Collection!
+  #define garcol_bit_o     (garcol_bit_t+oint_type_shift)    # only set during the garbage collection!
   #if (TB6 >= 0)
-    #define cons_bit_o     (cons_bit_t+oint_type_shift)      # gesetzt nur bei CONS
+    #define cons_bit_o     (cons_bit_t+oint_type_shift)      # only set for cons CONS
   #endif
-  #define number_bit_o     (number_bit_t+oint_type_shift)    # gesetzt nur bei Zahlen
-  #define notsimple_bit_o  (notsimple_bit_t+oint_type_shift) # bei Arrays: gelöscht bei Simple-Arrays
-  #define sign_bit_o       (sign_bit_t+oint_type_shift)      # Vorzeichen bei reellen Zahlen
+  #define number_bit_o     (number_bit_t+oint_type_shift)    # only set for nimbers
+  #define notsimple_bit_o  (notsimple_bit_t+oint_type_shift) # for arrays: deleted for simple arrays
+  #define sign_bit_o       (sign_bit_t+oint_type_shift)      # Sign for real numbers
   #define float_bit_o      (float_bit_t+oint_type_shift)
   #define float1_bit_o     (float1_bit_t+oint_type_shift)
   #define float2_bit_o     (float2_bit_t+oint_type_shift)
   #define ratio_bit_o      (ratio_bit_t+oint_type_shift)
   #define bignum_bit_o     (bignum_bit_t+oint_type_shift)
 
-# konstante Typcodes:
+# constant type codes:
   #define machine_type    (0)                                  # 0x00  # %00000000  ; machine pointer
   #define subr_type       (                              BTB0) # 0x01  # %00000001  ; SUBR
   #define char_type       (                         BTB1     ) # 0x02  # %00000010  ; character
@@ -3223,25 +3236,25 @@ Ratio and Complex (only if SPVW_MIXED).
   #define cons_type       (BTB6                              ) # 0x40  # %01000000  ; cons
   #endif
 
-# Bits für Symbole in VAR/FUN-Frames (im LISP-Stack):
-# sitzen nicht im oint_type-Teil, sondern im oint_addr-Teil.
-  #define active_bit  0  # gesetzt: Bindung ist aktiv
-  #define dynam_bit   1  # gesetzt: Bindung ist dynamisch
-  #define svar_bit    2  # gesetzt: nächster Parameter ist supplied-p-Parameter für diesen
+# Bits for symbols in VAR/FUN-Frames (in LISP-Stack):
+# aren't in the oint_type-part, but in the oint_addr-part.
+  #define active_bit  0  # set: binding is active
+  #define dynam_bit   1  # set: binding is dynamic
+  #define svar_bit    2  # set: next parameter is supplied-p-parameter for this
 #if (varobject_alignment >= bit(3))
   #define oint_symbolflags_shift  oint_addr_shift
 #else
-  #define NO_symbolflags # active_bit, dynam_bit, svar_bit haben im Symbol keinen Platz
+  #define NO_symbolflags # there's no space in the symbol for active_bit, dynam_bit, svar_bit
 #endif
 
 #ifndef WIDE
-  # Typ ist GC-invariant, wenn
-  # Typinfobyte >=0, <= system_type oder >= fixnum_type, < bignum_type.
+  # type is GC-invariant, if
+  # type-info-byte >=0, <= system_type oder >= fixnum_type, < bignum_type.
     #define gcinvariant_type_p(type)  \
       (((type) & ~(BTB5|BTB1|BTB0)) == 0)
 #else
-  # Typ ist GC-invariant, wenn
-  # Typinfobyte eines von 0x00..0x03,0x20..0x23,0x26..0x27 ist.
+  # type is GC-invariant, if
+  # type-info-byte is one of 0x00..0x03,0x20..0x23,0x26..0x27 ist.
     #define gcinvariant_type_p(type)  \
       ((((type)>>(TB0+1))<0x14) && ((bit((type)>>(TB0+1)) & 0xFFF4FFFCUL) == 0))
 #endif
@@ -3259,147 +3272,145 @@ Ratio and Complex (only if SPVW_MIXED).
 
 #else # no TYPECODES
 
-# Bits für Symbole in VAR/FUN-Frames (im LISP-Stack):
-# sitzen nicht im oint_type-Teil, sondern im oint_data-Teil.
-  #define active_bit  0  # gesetzt: Bindung ist aktiv
-  #define dynam_bit   1  # gesetzt: Bindung ist dynamisch
-  #define svar_bit    2  # gesetzt: nächster Parameter ist supplied-p-Parameter für diesen
-#define NO_symbolflags # active_bit, dynam_bit, svar_bit haben im Symbol keinen Platz
+# Bits for symbols in VAR/FUN-Frames (on LISP-Stack):
+# are not located in the oint_type-part, but in the oint_data-part.
+  #define active_bit  0  # set: binding is active
+  #define dynam_bit   1  # set: binding is dynamic
+  #define svar_bit    2  # set: next parameter is supplied-p-parameter for this one
+#define NO_symbolflags # there's no space in the symbol for active_bit, dynam_bit, svar_bit
 
-# Bits für Symbole in den Flags:
-  #define constant_bit_f  0  # zeigt an, ob das Symbol eine Konstante ist
-  #define special_bit_f   1  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
+# Bits for symbols in the flags:
+  #define constant_bit_f  0  # shows, whether the symbol is a constant
+  #define special_bit_f   1  # shows, whether the symbol has been proclaimed SPECIAL
 
-#endif
+#endif # TYPECODES
 
 
-# Was von einer Adresse auch wirklich auf den Adressbus geschickt wird:
+# What's really being sent from an address to the address-bus
 #if defined(MC68000)
-  #define hardware_addressbus_mask  0x00FFFFFFUL  # 68000 wirft 8 Bits weg
+  #define hardware_addressbus_mask  0x00FFFFFFUL  # 68000 drops 8
 #elif defined(SUN3) && !defined(UNIX_SUNOS4)
   #define hardware_addressbus_mask  0x0FFFFFFFUL  # SUN3 unter SunOS 3.5 wirft 4 Bits weg
 #else
-  #define hardware_addressbus_mask  ~0UL  # Default: nichts wird weggeworfen
+  #define hardware_addressbus_mask  ~0UL  # Default: nothing is dropped
 #endif
-# Durch geschicktes Memory-Mapping braucht man bestimmte Bits
-# nicht mehr auszumaskieren, bevor man auf die Adresse zugreift:
+# Clever memory-mapping spares us from masking out of certain
+# bits before on accesses the address
 #define addressbus_mask  hardware_addressbus_mask
 #ifdef MAP_MEMORY
   #if defined(SUN4_29)
-    # Durchs Memory-Mapping sind jetzt die Bits 28..24 einer Adresse redundant.
+    # Memory-mapping makes the bits bits 28..24 of an address redundant now.
     #undef addressbus_mask
     #define addressbus_mask  0xE0FFFFFFUL
   #elif defined(DECALPHA) && defined(UNIX_OSF)
-    # Durchs Memory-Mapping sind jetzt die Bits 39..33 einer Adresse redundant.
+    # Memory-mapping makes the bits 39..33 of an address redundant now.
     #undef addressbus_mask
     #define addressbus_mask  0xFFFFFF01FFFFFFFFUL
   #elif !defined(WIDE_SOFT)
-    # Durchs Memory-Mapping sind jetzt die Bits 31..24 einer Adresse redundant.
+    # Memory-mapping makes the bits 31..24 of an addsress redundant now.
     #undef addressbus_mask
-    #define addressbus_mask  oint_addr_mask  # meist = 0x00FFFFFFUL
+    #define addressbus_mask  oint_addr_mask  # most of the time it's = 0x00FFFFFFUL
   #endif
 #endif
 
 
 #if defined(SINGLEMAP_MEMORY) && (((system_type*1UL << oint_type_shift) & addressbus_mask) == 0)
-  # Auch der STACK liegt in einem Singlemap-Bereich, Typinfo system_type.
+  # The STACK resides in a singlemap-area as well, Typinfo system_type.
   #define SINGLEMAP_MEMORY_STACK
 #endif
 
 
 #ifdef oint_symbolflags_shift
   #if defined(SINGLEMAP_MEMORY) && (oint_symbolflags_shift==oint_type_shift)
-    # Da wir die symbol_tab nicht multimappen können, müssen wir auf extra Bits
-    # im Typcode von Symbolen verzichten.
+    # Since we can't multimap the symbol_tab, we can't use extrabits in
+    # a symbol's typecode.
     #undef oint_symbolflags_shift
     #define NO_symbolflags
   #endif
 #endif
 #ifdef NO_symbolflags
-  #define oint_symbolflags_shift  -1 # ungültiger Wert
+  #define oint_symbolflags_shift  -1 # invalid value
 #endif
 
 
-# ################### Methode der Speicherverwaltung ###################### #
+# ################### Methods for memory management ###################### #
 
-# SPVW_BLOCKS : Speicherverwaltung mit wenigen Speicherblöcken
-# SPVW_PAGES  : Speicherverwaltung mit vielen Speicherseiten
-# SPVW_MIXED  : Objekte verschiedenen Typs in derselben Seite/demselben Block
-#               möglich
-# SPVW_PURE   : Jeder Speicherblock/jede Speicherseite enthält nur Objekte
-#               ein und desselben Typs
+# SPVW_BLOCKS : Memory management with few memory blocks
+# SPVW_PAGES  : Memory management with many memory blocks
+# SPVW_MIXED  : Objects of mixed types are possible on the same page or block
+# SPVW_PURE   : Every memory block/every memory page contains only objects
+#               of exactly one type
 #if defined(MAP_MEMORY) || defined(TRIVIALMAP_MEMORY)
-  # Multimapping einzelner Pages ist noch nicht implementiert.??
-  # Singlemapping einzelner Pages ist noch nicht implementiert.??
-  # Verwendet man mmap() als malloc()-Ersatz, braucht man keine einzelnen Pages.
+  # Multimapping of single pages isn't implemented yet.??
+  # Singlemapping of single pages isn't implemented yet.??
+  # If you use mmap() as malloc()-replacement, single pages aren't needed.
   #define SPVW_BLOCKS
 #elif defined(AMIGA) || defined(VIRTUAL_MEMORY)
-  # Auf dem Amiga sollte man nicht zu viel Speicher auf einmal holen.
-  # Auf Unix-Systemen kann man nachträglich immer noch Speicher holen,
-  # man sollte aber die Daten wenn möglich in wenigen Pages konzentrieren.
+  # You shouldn't fetch too much memory at once on an Amgia.
+  # On Unix-systems you can still fetch more memory afterwards,
+  # but you should concentrate the data - if possible - on few pages.
   #define SPVW_PAGES
 #else
   #define SPVW_BLOCKS
 #endif
 #if defined(MULTIMAP_MEMORY)
-  # MULTIMAP_MEMORY -> Mixed Pages dienen besserer Speicher-Ausnutzung.
+  # MULTIMAP_MEMORY -> Mixed pages allow a better usage of memory.
   #define SPVW_MIXED
 #elif defined(SINGLEMAP_MEMORY)
-  # SINGLEMAP_MEMORY -> Nur Pure Pages/Blocks sinnvoll, denn
-  # die Adresse einer Page bestimmt den Typ der Objekte, die sie enthält.
+  # SINGLEMAP_MEMORY -> Ony pure pages/blocks make sense, since
+  # the address of a page determines the type ot he objects it contains.
   #define SPVW_PURE
 #elif !defined(TYPECODES) || defined(MC68000) || defined(SUN3) || defined(AMIGA) || defined(SPVW_BLOCKS) || defined(TRIVIALMAP_MEMORY)
-  # !TYPECODES -> es gibt keine wirklichen typecodes, nur Cons und Varobject.
-  # MC68000 oder SUN3 -> type_pointable(...) kostet nichts oder nur wenig.
-  # AMIGA -> nur endlich viel Speicher, Mixed Pages nutzen ihn besser.
-  # SPVW_BLOCKS -> SPVW_PURE_BLOCKS nur für SINGLEMAP_MEMORY implementiert.
-  # TRIVIALMAP_MEMORY -> Nicht viele Blöcke möglich, da wenig Adressraum.
+  # !TYPECODES -> there aren't real typecodes, only Cons and Varobject.
+  # MC68000 or SUN3 -> type_pointable(...) costs little or nothing.
+  # AMIGA -> memory is limited, mixed pages make better usage of it.
+  # SPVW_BLOCKS -> SPVW_PURE_BLOCKS is only implemented for SINGLEMAP_MEMORY.
+  # TRIVIALMAP_MEMORY -> not many blocks available, small adress space.
   #define SPVW_MIXED
-#elif 1 # vorläufig! ??
+#elif 1 # provisionally!??
   #define SPVW_MIXED
 #endif
 #if !(defined(SPVW_BLOCKS) || defined(SPVW_PAGES))
-  #error "SPVW_BLOCKS/SPVW_PAGES neu einstellen!"
+  #error "readjust SPVW_BLOCKS/SPVW_PAGES!"
 #endif
 #if !(defined(SPVW_MIXED) || defined(SPVW_PURE))
-  #error "SPVW_MIXED/SPVW_PURE neu einstellen!"
+  #error "readjust SPVW_MIXED/SPVW_PURE!"
 #endif
 #if (defined(SPVW_BLOCKS) && defined(SPVW_PURE)) != defined(SINGLEMAP_MEMORY)
-  #error "SINGLEMAP_MEMORY impliziert SPVW_PURE_BLOCKS und umgekehrt!"
+  #error "SINGLEMAP_MEMORY <==> SPVW_PURE_BLOCKS!"
 #endif
 #if (defined(SPVW_BLOCKS) && defined(SPVW_MIXED)) < defined(TRIVIALMAP_MEMORY)
-  #error "TRIVIALMAP_MEMORY impliziert SPVW_MIXED_BLOCKS!"
+  #error "TRIVIALMAP_MEMORY ==> SPVW_MIXED_BLOCKS!"
 #endif
 #if (defined(SPVW_BLOCKS) && (defined(SPVW_PURE) || defined(SPVW_MIXED))) < defined(GENERATIONAL_GC)
-  #error "GENERATIONAL_GC impliziert SPVW_PURE_BLOCKS oder SPVW_MIXED_BLOCKS_STAGGERED oder SPVW_MIXED_BLOCKS_OPPOSITE!"
+  #error "GENERATIONAL_GC ==> SPVW_PURE_BLOCKS or SPVW_MIXED_BLOCKS_STAGGERED or SPVW_MIXED_BLOCKS_OPPOSITE!"
 #endif
 #if (defined(SPVW_BLOCKS) && (defined(SPVW_PURE) || defined(SPVW_MIXED))) < defined(SELFMADE_MMAP)
-  #error "SELFMADE_MMAP impliziert SPVW_PURE_BLOCKS oder SPVW_MIXED_BLOCKS_STAGGERED!"
+  #error "SELFMADE_MMAP ==> SPVW_PURE_BLOCKS or SPVW_MIXED_BLOCKS_STAGGERED!"
 #endif
 
-# Algorithmus nach Morris, der die Conses kompaktiert, ohne sie dabei
-# durcheinanderzuwürfeln:
+# Algortihm by Morris, that compacts Conses without mixing them up:
 #if defined(SPVW_BLOCKS) && defined(VIRTUAL_MEMORY) && !defined(NO_MORRIS_GC)
-  # Morris-GC ist zu empfehlen, weil es die Lokalität erhält.
+  # Morris-GC is recommended, as it preserves the locality.
   #define MORRIS_GC
 #endif
 
-# Lege subr_tab und symbol_tab per Memory-Mapping an vorgegebene Adressen.
-# (Die Morris-GC verwendet bei MULTIMAP_MEMORY den Macro upointer(). Bei
-# &symbol_tab = 0x20000000 wäre upointer(NIL)=0. Mist!)
+# Put subr_tab and symbol_tab to given addresses through memory-mapping.
+# (The Morris-GC uses the macro upointer() for MULTIMAP_MEMORY. For
+# &symbol_tab = 0x20000000 it'd be upointer(NIL)=0. Darn!)
 #if defined(MAP_MEMORY) && !defined(WIDE_SOFT) && !(defined(MULTIMAP_MEMORY) && defined(MORRIS_GC))
   #define MAP_MEMORY_TABLES
 #endif
 
 
-# ################# Fallunterscheidungen nach Typcodes #################### #
+# ################# definitions of cases after type codes ################## #
 
 #ifdef TYPECODES
 
-# Einzuleiten durch switch (typecode(obj)), danach wie in einer
-# switch-Anweisung beliebig viele case-Labels.
-# Beispiel:  switch (typecode(arg)) { case_string: ...; break; ... }
-  #define case_machine    case machine_type   # Maschinenpointer
+# Has to start with switch (typecode(obj)), after that it's like a
+# switch-statement with arbitrarily many case-labels.
+# Example:  switch (typecode(arg)) { case_string: ...; break; ... }
+  #define case_machine    case machine_type   # machine-pointer
   #define case_sstring    case sstring_type   # Simple-String
   #define case_ostring    case string_type    # Other String
   #define case_sbvector   case sbvector_type   # Simple-Bit-Vector
@@ -3416,33 +3427,33 @@ Ratio and Complex (only if SPVW_MIXED).
   #define case_ob32vector case b32vector_type  # Other 32Bit-Vector
   #define case_svector    case svector_type   # Simple-(General-)Vector
   #define case_ovector    case vector_type    # Other (General-)Vector
-  #define case_mdarray    case mdarray_type   # sonstiger Array
-  #define case_string     case_sstring: case_ostring # String allgemein
-  #define case_bvector    case_sbvector: case_obvector # Bit-Vector allgemein
-  #define case_b2vector   case_sb2vector: case_ob2vector # 2Bit-Vector allgemein
-  #define case_b4vector   case_sb4vector: case_ob4vector # 4Bit-Vector allgemein
-  #define case_b8vector   case_sb8vector: case_ob8vector # 8Bit-Vector allgemein
-  #define case_b16vector  case_sb16vector: case_ob16vector # 16Bit-Vector allgemein
-  #define case_b32vector  case_sb32vector: case_ob32vector # 32Bit-Vector allgemein
-  #define case_vector     case_svector: case_ovector # (General-)Vector allgemein
-  #define case_array      case_string: case_bvector: case_b2vector: case_b4vector: case_b8vector: case_b16vector: case_b32vector: case_vector: case_mdarray # Array allgemein
+  #define case_mdarray    case mdarray_type   # other Array
+  #define case_string     case_sstring: case_ostring # general string
+  #define case_bvector    case_sbvector: case_obvector # general bit vector
+  #define case_b2vector   case_sb2vector: case_ob2vector # general 2bit vector
+  #define case_b4vector   case_sb4vector: case_ob4vector # general 4bit vector
+  #define case_b8vector   case_sb8vector: case_ob8vector # general 8bit vector
+  #define case_b16vector  case_sb16vector: case_ob16vector # general 16bit vector
+  #define case_b32vector  case_sb32vector: case_ob32vector # general 32bit vector
+  #define case_vector     case_svector: case_ovector # general vector
+  #define case_array      case_string: case_bvector: case_b2vector: case_b4vector: case_b8vector: case_b16vector: case_b32vector: case_vector: case_mdarray # general Array
   #define case_closure    case closure_type   # Closure
   #ifdef structure_type
   #define case_structure  case structure_type # Structure
   #define _case_structure case_structure:
   #else
-  #define structure_type  orecord_type        # Structures sind OtherRecords
+  #define structure_type  orecord_type        # Structures are OtherRecords
   #define _case_structure
   #endif
   #ifdef stream_type
   #define case_stream     case stream_type    # Stream
   #define _case_stream    case_stream:
   #else
-  #define stream_type     orecord_type        # Streams sind OtherRecords
+  #define stream_type     orecord_type        # Streams are OtherRecords
   #define _case_stream
   #endif
   #define case_orecord    case orecord_type   # Other Record
-  #define case_instance   case instance_type  # CLOS-Instanz
+  #define case_instance   case instance_type  # CLOS-Instance
   #define case_char       case char_type      # Character
   #define case_subr       case subr_type      # SUBR
   #define case_system     case system_type    # Frame-Pointer, Read-Label, System
@@ -3474,7 +3485,7 @@ Ratio and Complex (only if SPVW_MIXED).
   #endif
   #define case_number     case_real: case_complex # Number
   #define case_symbol     case symbol_type # Symbol
-  #define case_record     case_closure: _case_structure _case_stream _case_ratio _case_complex case_orecord: case_instance # Record allgemein
+  #define case_record     case_closure: _case_structure _case_stream _case_ratio _case_complex case_orecord: case_instance # Record general
   #if /* !defined(NO_symbolflags) && */ (oint_symbolflags_shift==oint_type_shift)
   #define case_symbolflagged  # Symbol mit Flags \
                           case symbol_type: \
@@ -3486,7 +3497,7 @@ Ratio and Complex (only if SPVW_MIXED).
                           case symbol_type|bit(svar_bit)|bit(dynam_bit): \
                           case symbol_type|bit(svar_bit)|bit(dynam_bit)|bit(active_bit)
   #else
-  #define case_symbolflagged  case_symbol # Symbol mit Flags
+  #define case_symbolflagged  case_symbol # Symbol with flags
   #endif
   #define case_cons       case cons_type # Cons
 
@@ -3498,23 +3509,23 @@ Ratio and Complex (only if SPVW_MIXED).
 #endif
 
 
-# ################## Speicheraufbau von LISP-Objekten ##################### #
+# ################## Structure of memory of LISP objects#################### #
 
-# uintWC ist der Integer-Typ für die Längen von Bignum, Lfloat, Iarray.
-# Teilmengenrelation: uintW <= uintWC <= uintC.
-  #ifdef TYPECODES
-    #define intWCsize intCsize
-    typedef uintC uintWC;
-    typedef sintC sintWC;
-  #else
-    # Type and sign are stored in the heap - only 16 bits for the length.
-    #define intWCsize intWsize
-    typedef uintW uintWC;
-    typedef sintW sintWC;
-  #endif
-# uintWCoverflow(x) stellt fest, ob nach Ausführen eines x++ ein Overflow
-# eingetreten ist.
-  #define uintWCoverflow(x)  ((intWCsize<intLsize) && ((uintWC)(x)==0))
+# uintWC is the Integer type for the lengths of Bignum, Lfloat, Iarray.
+# Subset relation: uintW <= uintWC <= uintC.
+#ifdef TYPECODES
+  #define intWCsize intCsize
+  typedef uintC uintWC;
+  typedef sintC sintWC;
+#else
+  # Type and sign are stored in the heap - only 16 bits for the length.
+  #define intWCsize intWsize
+  typedef uintW uintWC;
+  typedef sintW sintWC;
+#endif
+# uintWCoverflow(x) check, if there has been an overflow after the execution
+# of an x++.
+#define uintWCoverflow(x)  ((intWCsize<intLsize) && ((uintWC)(x)==0))
 
 # ---------------------- Objects with two pointers ---------------------- #
 # They contain just the two pointers, no header. The type must already be
@@ -3535,28 +3546,28 @@ Ratio and Complex (only if SPVW_MIXED).
 # GC, when it moves an object, takes care not to modify the typecode of
 # this first word (except the GC bit, which it temporarily uses).
 
-# Typ der Header-Flags:
-  #if (oint_type_len<=8) && !defined(ARM) && !defined(DECALPHA) && !defined(IA64)
-    # Zugriff auf ein einzelnes Byte möglich
-    #define hfintsize  intBsize
-    typedef uintB  hfint;
-  #else
-    # Zugriff auf ein ganzes Wort
-    #define hfintsize  intLsize
-    typedef uintL  hfint;
-  #endif
+# Type of the header flags:
+#if (oint_type_len<=8) && !defined(ARM) && !defined(DECALPHA) && !defined(IA64)
+  # Access to an individual byte is possible
+  #define hfintsize  intBsize
+  typedef uintB  hfint;
+#else
+  # access to a full word
+  #define hfintsize  intLsize
+  typedef uintL  hfint;
+#endif
 
-# Objekt variabler Länge
+# Objecs with variable length
 #ifdef TYPECODES
   #define VAROBJECT_HEADER  \
                union {                                              \
-                 object _GCself;  # Selbstpointer für GC            \
+                 object _GCself;  # Self pointer for GC             \
                  hfint flags[sizeof(object)/sizeof(hfint)]; # Flags \
                } header;
 #else
   #define VAROBJECT_HEADER  \
-               object GCself;  # Selbstpointer für GC \
-               uintL tfl;      # Type, Flags, Länge
+               object GCself;  # Self pointer for GC \
+               uintL tfl;      # type, flags, length
 #endif
 typedef struct {
   VAROBJECT_HEADER
@@ -3564,33 +3575,33 @@ typedef struct {
 typedef varobject_ *  Varobject;
 #ifdef TYPECODES
   #define GCself  header._GCself
-  # Der Typcode ist im Byte ((Varobject)p)->header_flags enthalten.
-    #if !(oint_type_len>=hfintsize ? oint_type_shift%hfintsize==0 : floor(oint_type_shift,hfintsize)==floor(oint_type_shift+oint_type_len-1,hfintsize))
-      #error "Bogus header_flags -- header_flags neu definieren!"
-    #endif
-    #if BIG_ENDIAN_P
-      #define header_flags  header.flags[sizeof(object)/sizeof(hfint)-1-floor(oint_type_shift,hfintsize)]
-    #else
-      #define header_flags  header.flags[floor(oint_type_shift,hfintsize)]
-    #endif
-    # Es gilt  mtypecode(((Varobject)p)->GCself) =
-    # (((Varobject)p)->header_flags >> (oint_type_shift%hfintsize)) & tint_type_mask
-    # Bits für Symbole im Selbstpointer (siehe oben):
-    # define constant_bit_t  ...  # zeigt an, ob das Symbol eine Konstante ist
-    # define special_bit_t   ...  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
-    #define constant_bit_hf  (constant_bit_t+(oint_type_shift%hfintsize))
-    #define special_bit_hf  (special_bit_t+(oint_type_shift%hfintsize))
+  # The typecode can be found in the byte ((Varobject)p)->header_flags.
+  #if !(oint_type_len>=hfintsize ? oint_type_shift%hfintsize==0 : floor(oint_type_shift,hfintsize)==floor(oint_type_shift+oint_type_len-1,hfintsize))
+    #error "Bogus header_flags -- redefine header_flags!"
+  #endif
+  #if BIG_ENDIAN_P
+    #define header_flags  header.flags[sizeof(object)/sizeof(hfint)-1-floor(oint_type_shift,hfintsize)]
+  #else
+    #define header_flags  header.flags[floor(oint_type_shift,hfintsize)]
+  #endif
+  # it applies  mtypecode(((Varobject)p)->GCself) =
+  # (((Varobject)p)->header_flags >> (oint_type_shift%hfintsize)) & tint_type_mask
+  # Symbols in the self pointer (see above):
+  # define constant_bit_t  ...  # shows whether the symbol is a constant
+  # define special_bit_t   ...  # shows whether the symbol is proclaimed SPECIAL
+  #define constant_bit_hf  (constant_bit_t+(oint_type_shift%hfintsize))
+  #define special_bit_hf  (special_bit_t+(oint_type_shift%hfintsize))
 #else
   # Three possible layouts of type, flags, length:
   #   8 bits type, 24 bits length [Lrecord]
   #   8 bits type, 8 bits flags, 16 bits length [Srecord]
   #   8 bits type, 8 bits flags, 8 bits length, 8 bits xlength [Xrecord]
-    #define lrecord_tfl(type,length)  \
-      ((uintL)(uintB)(type)+((uintL)(length)<<8))
-    #define srecord_tfl(type,flags,length)  \
-      ((uintL)(uintB)(type)+((uintL)(uintB)(flags)<<8)+((uintL)(length)<<16))
-    #define xrecord_tfl(type,flags,length,xlength)  \
-      ((uintL)(uintB)(type)+((uintL)(uintB)(flags)<<8)+((uintL)(uintB)(length)<<16)+((uintL)(uintB)(xlength)<<24))
+  #define lrecord_tfl(type,length)  \
+    ((uintL)(uintB)(type)+((uintL)(length)<<8))
+  #define srecord_tfl(type,flags,length)  \
+    ((uintL)(uintB)(type)+((uintL)(uintB)(flags)<<8)+((uintL)(length)<<16))
+  #define xrecord_tfl(type,flags,length,xlength)  \
+    ((uintL)(uintB)(type)+((uintL)(uintB)(flags)<<8)+((uintL)(uintB)(length)<<16)+((uintL)(uintB)(xlength)<<24))
   #define varobject_type(ptr) ((sintB)((ptr)->tfl & 0xFF))
   #if defined(__GNUC__) && (__GNUC__ == 2) && ((__GNUC_MINOR__ == 8) || (__GNUC_MINOR__ == 90))
     # Work around a gcc bug present (at least) in gcc-2.8.1 on hppa and
@@ -3598,7 +3609,7 @@ typedef varobject_ *  Varobject;
     #undef varobject_type
     #define varobject_type(ptr) ((sintB)((sintL)((ptr)->tfl) & 0xFF))
   #endif
-  # Bits for symbols in the flags:
+    # Bits for symbols in the flags:
     #define header_flags  tfl
     #define constant_bit_hf  (constant_bit_f+8)
     #define special_bit_hf  (special_bit_f+8)
@@ -3620,46 +3631,46 @@ typedef varobject_ *  Varobject;
 #   - Extended-Records, if rectype >= rectype_limit.
 
 typedef struct {
-  VAROBJECT_HEADER # Selbstpointer für GC
+  VAROBJECT_HEADER # self-pointer for GC
   #ifdef TYPECODES
-    uintB recflags;  # bei OtherRecord: Flags
-    sintB rectype;   # bei OtherRecord: Untertyp
-    uintW recfiller; # Länge u.a.
+    uintB recflags;  # for OtherRecord: flags
+    sintB rectype;   # for OtherRecord: sub-type
+    uintW recfiller; # length and others
   #endif
-  object recdata[unspecified]; # Elemente
+  object recdata[unspecified]; # elements
 } record_;
 typedef record_ *  Record;
-# Zugriff auf type, flags:
-  #ifdef TYPECODES
-    #define record_type(ptr)  ((ptr)->rectype)
-  #else
-    #define record_type(ptr)  varobject_type(ptr)
-  #endif
-  #define Record_type(obj)  record_type(TheRecord(obj))
-  #ifdef TYPECODES
-    #define record_flags(ptr)  ((ptr)->recflags)
-  #else
-    #define record_flags(ptr)  (((ptr)->tfl >> 8) & 0xFF)
-  #endif
-  #define Record_flags(obj)  record_flags(TheRecord(obj))
-  #ifdef TYPECODES
-    #define record_flags_clr(ptr,bits)  ((ptr)->recflags &= ~(bits))
-    #define record_flags_set(ptr,bits)  ((ptr)->recflags |= (bits))
-    #define record_flags_replace(ptr,newflags)  ((ptr)->recflags = (newflags))
-  #else
-    #define record_flags_clr(ptr,bits)  ((ptr)->tfl &= ~((uintL)(bits) << 8))
-    #define record_flags_set(ptr,bits)  ((ptr)->tfl |= ((uintL)(bits) << 8))
-    #define record_flags_replace(ptr,newflags)  \
-      ((ptr)->tfl ^= (((ptr)->tfl ^ (uintL)(newflags)<<8) & 0xFF00))
-  #endif
+# access to type, flags:
+#ifdef TYPECODES
+  #define record_type(ptr)  ((ptr)->rectype)
+#else
+  #define record_type(ptr)  varobject_type(ptr)
+#endif
+#define Record_type(obj)  record_type(TheRecord(obj))
+#ifdef TYPECODES
+  #define record_flags(ptr)  ((ptr)->recflags)
+#else
+  #define record_flags(ptr)  (((ptr)->tfl >> 8) & 0xFF)
+#endif
+#define Record_flags(obj)  record_flags(TheRecord(obj))
+#ifdef TYPECODES
+  #define record_flags_clr(ptr,bits)  ((ptr)->recflags &= ~(bits))
+  #define record_flags_set(ptr,bits)  ((ptr)->recflags |= (bits))
+  #define record_flags_replace(ptr,newflags)  ((ptr)->recflags = (newflags))
+#else
+  #define record_flags_clr(ptr,bits)  ((ptr)->tfl &= ~((uintL)(bits) << 8))
+  #define record_flags_set(ptr,bits)  ((ptr)->tfl |= ((uintL)(bits) << 8))
+  #define record_flags_replace(ptr,newflags)  \
+    ((ptr)->tfl ^= (((ptr)->tfl ^ (uintL)(newflags)<<8) & 0xFF00))
+#endif
 
 #ifdef TYPECODES
   #define LRECORD_HEADER  \
-                 VAROBJECT_HEADER # Selbstpointer für GC \
-                 uintL length;    # Länge
+                 VAROBJECT_HEADER # self-pointer for GC \
+                 uintL length;    # length
 #else
   #define LRECORD_HEADER  \
-                 VAROBJECT_HEADER # Selbstpointer für GC, tfl
+                 VAROBJECT_HEADER # self-pointer for GC, tfl
 #endif
 typedef struct {
   LRECORD_HEADER
@@ -3673,17 +3684,17 @@ typedef lrecord_ *  Lrecord;
 
 #ifdef TYPECODES
   #define SRECORD_HEADER  \
-                 VAROBJECT_HEADER # Selbstpointer für GC      \
-                 uintB recflags;  # Flags                     \
-                 sintB rectype;   # Untertyp, < rectype_limit \
-                 uintW reclength; # Länge in Objekten
+                 VAROBJECT_HEADER # self-pointer GC      \
+                 uintB recflags;  # flags                     \
+                 sintB rectype;   # subtype, < rectype_limit \
+                 uintW reclength; # lengths in objects
 #else
   #define SRECORD_HEADER  \
-                 VAROBJECT_HEADER # Selbstpointer für GC, tfl
+                 VAROBJECT_HEADER # self-pointer for GC, tfl
 #endif
 typedef struct {
   SRECORD_HEADER
-  object recdata[unspecified]; # Elemente, reclength Stück
+  object recdata[unspecified]; # reclength elements
 } srecord_;
 typedef srecord_ *  Srecord;
 #ifdef TYPECODES
@@ -3695,19 +3706,19 @@ typedef srecord_ *  Srecord;
 
 #ifdef TYPECODES
   #define XRECORD_HEADER  \
-                 VAROBJECT_HEADER  # Selbstpointer für GC       \
-                 uintB recflags;   # Flags                      \
-                 sintB rectype;    # Untertyp, >= rectype_limit \
-                 uintB reclength;  # Länge in Objekten          \
-                 uintB recxlength; # Länge der Extra-Elemente
+                 VAROBJECT_HEADER  # self-pointer for GC       \
+                 uintB recflags;   # flags                      \
+                 sintB rectype;    # subtype, >= rectype_limit \
+                 uintB reclength;  # lengths in objects          \
+                 uintB recxlength; # lengths of the extra objects
 #else
   #define XRECORD_HEADER  \
-                 VAROBJECT_HEADER  # Selbstpointer für GC, tfl
+                 VAROBJECT_HEADER  # self-pointer for GC, tfl
 #endif
 typedef struct {
   XRECORD_HEADER
-  object recdata[unspecified];  # Elemente, reclength Stück
-  # uintB  recxdata[unspecified]; # Extra-Elemente, recxlength Stück
+  object recdata[unspecified];  #  reclength elements
+  # uintB  recxdata[unspecified]; # recxlength extra elements
 } xrecord_;
 typedef xrecord_ *  Xrecord;
 #ifdef TYPECODES
@@ -3816,8 +3827,8 @@ typedef struct {
   #ifdef SPVW_MIXED
   XRECORD_HEADER
   #endif
-  object rt_num; # Zähler, Integer
-  object rt_den; # Nenner, Integer >0
+  object rt_num; # numerator, Integer
+  object rt_den; # denominator, Integer >0
 } ratio_;
 typedef ratio_ *  Ratio;
 
@@ -3826,162 +3837,162 @@ typedef struct {
   #ifdef SPVW_MIXED
   XRECORD_HEADER
   #endif
-  object c_real; # Realteil, reelle Zahl
-  object c_imag; # Imaginärteil, reelle Zahl
+  object c_real; # real part, real number
+  object c_imag; # imaginary part, real number
 } complex_;
 typedef complex_ *  Complex;
 
 # Symbol
 typedef struct {
   VAROBJECT_HEADER
-  object symvalue;    # Wertzelle
-  object symfunction; # Funktiondefinitionszelle
-  object proplist;    # Property-Liste
+  object symvalue;    # value cell
+  object symfunction; # funktion definition cell
+  object proplist;    # property list
   object pname;       # Printname
-  object homepackage; # Home-Package oder NIL
+  object homepackage; # Home-Package or NIL
 } symbol_;
 typedef symbol_ *  Symbol;
 #define symbol_objects_offset  offsetof(symbol_,symvalue)
 
-# Jedes Keyword ist eine Konstante.
+# Every keyword is a constant.
 
-# Test, ob ein Symbol ein Keyword ist:
+# Tests whether a symbol is a keyword:
   #define keywordp(sym)  \
     (eq(TheSymbol(sym)->homepackage,O(keyword_package)))
 
-# Bei Konstanten ist das Special-Bit bedeutungslos (denn Konstanten
-# können bei uns weder lexikalisch noch dynamisch gebunden werden).
+# For constants, the special-bit is meaningless (since constants
+# can't be bound lexically nor dynamically).
 
-# Test, ob ein Symbol eine Konstante ist:
+# Tests whether a symbol is a constant:
   #define constantp(sym)  \
     (((sym)->header_flags) & bit(constant_bit_hf))
 
-# Test, ob ein Symbol eine SPECIAL-proklamierte Variable ist:
+# Tests whethter a symbol is a SPECIAL-proclaimed variable:
   #define special_var_p(sym)  \
     (((sym)->header_flags) & bit(special_bit_hf))
 
-# Constant-Flag eines Symbols setzen:
+# Set the constant-flag of a symbol:
   #define set_const_flag(sym)  \
     (((sym)->header_flags) |= bit(constant_bit_hf))
 
-# Constant-Flag eines Symbols löschen:
+# Delete the constant-flag of a symbol:
 # (Symbol darf kein Keyword sein, vgl. spvw.d:case_symbolwithflags)
   #define clear_const_flag(sym)  \
     (((sym)->header_flags) &= ~bit(constant_bit_hf))
 
-# Special-Flag eines Symbols setzen:
+# Set the special-flag of a symbol:
   #define set_special_flag(sym)  \
     (((sym)->header_flags) |= bit(special_bit_hf))
 
-# Special-Flag eines Symbols löschen:
+# Delete the special-flag of a Symbols:
   #define clear_special_flag(sym)  \
     (((sym)->header_flags) &= ~bit(special_bit_hf))
 
-# Symbol als Konstante mit gegebenem Wert val definieren.
-# val darf keine GC auslösen!
+# Define symbol as constant with given value val.
+# val must not trigger the GC!
   #define define_constant(sym,val)  \
     {var Symbol sym_from_define_constant = TheSymbol(sym); \
      set_const_flag(sym_from_define_constant);             \
      sym_from_define_constant->symvalue = (val);           \
     }
 
-# Symbol als Variable mit gegebenem Initialisierungswert val definieren.
-# val darf keine GC auslösen!
+# Define symbol as variable and initialize it with a given value val.
+# val must not trigger the GC!
   #define define_variable(sym,val)  \
     {var Symbol sym_from_define_variable = TheSymbol(sym); \
      set_special_flag(sym_from_define_variable);           \
      sym_from_define_variable->symvalue = (val);           \
     }
 
-# Flagbits in einem Symbol entfernen:
-  #if defined(NO_symbolflags)
-    #define symbol_without_flags(symbol)  symbol
-  #elif (oint_symbolflags_shift==oint_type_shift)
-    #define symbol_without_flags(symbol)  \
-      as_object(as_oint(symbol) & (type_zero_oint(symbol_type) | oint_addr_mask))
-  #else
-    #define symbol_without_flags(symbol)  \
-      as_object(as_oint(symbol) & ~((wbit(active_bit)|wbit(dynam_bit)|wbit(svar_bit))<<oint_symbolflags_shift))
-  #endif
+# Remove flag-bits of a symbol:
+#if defined(NO_symbolflags)
+  #define symbol_without_flags(symbol)  symbol
+#elif (oint_symbolflags_shift==oint_type_shift)
+  #define symbol_without_flags(symbol)  \
+    as_object(as_oint(symbol) & (type_zero_oint(symbol_type) | oint_addr_mask))
+#else
+  #define symbol_without_flags(symbol)  \
+    as_object(as_oint(symbol) & ~((wbit(active_bit)|wbit(dynam_bit)|wbit(svar_bit))<<oint_symbolflags_shift))
+#endif
 
 # Characters
 
 # Integer type holding the data of a character:
-  #ifdef UNICODE
-    #define char_int_len 16
-  #else
-    #define char_int_len 8
-  #endif
-  #define char_int_limit  (1UL<<char_int_len)
-  typedef unsigned_int_with_n_bits(char_int_len)  cint;
-  #define char_code_limit  char_int_limit
+#ifdef UNICODE
+  #define char_int_len 16
+#else
+  #define char_int_len 8
+#endif
+#define char_int_limit  (1UL<<char_int_len)
+typedef unsigned_int_with_n_bits(char_int_len)  cint;
+#define char_code_limit  char_int_limit
 # Converting an integral code to a character:
-  #define int_char(int_from_int_char)  \
-    type_data_object(char_type,(aint)(cint)(int_from_int_char))
+#define int_char(int_from_int_char)  \
+  type_data_object(char_type,(aint)(cint)(int_from_int_char))
 # Converting a character to an integral code:
-  #if !((oint_data_shift==0) && (char_int_len<=oint_data_len) && (exact_uint_size_p(char_int_len)))
-    #ifdef TYPECODES
-      #define char_int(char_from_char_int)  \
-        ((cint)(untype(char_from_char_int)))
-    #else
-      #define char_int(char_from_char_int)  \
-        ((cint)(as_oint(char_from_char_int)>>oint_data_shift))
-    #endif
-  #else
-    # If oint_data_shift=0, untype needs not to shift. If also
-    # char_int_len<=oint_data_len, and if a cint has exactly char_int_len
-    # bits, untype needs not to AND.
+#if !((oint_data_shift==0) && (char_int_len<=oint_data_len) && (exact_uint_size_p(char_int_len)))
+  #ifdef TYPECODES
     #define char_int(char_from_char_int)  \
-      ((cint)as_oint(char_from_char_int))
+      ((cint)(untype(char_from_char_int)))
+  #else
+    #define char_int(char_from_char_int)  \
+      ((cint)(as_oint(char_from_char_int)>>oint_data_shift))
   #endif
+#else
+  # If oint_data_shift=0, untype needs not to shift. If also
+  # char_int_len<=oint_data_len, and if a cint has exactly char_int_len
+  # bits, untype needs not to AND.
+  #define char_int(char_from_char_int)  \
+    ((cint)as_oint(char_from_char_int))
+#endif
 # Characters can therefore be compared for equality using EQ, this is an
 # oint comparison, among the characters a comparison of their integral code.
 
 # A standalone character. Prefer `chart' to `cint' wherever possible because
 # it is typesafe. sizeof(chart) = sizeof(cint).
-  #ifdef CHART_STRUCT
-    typedef struct { cint one; } chart;
-  #else
-    typedef cint chart;
-  #endif
+#ifdef CHART_STRUCT
+  typedef struct { cint one; } chart;
+#else
+  typedef cint chart;
+#endif
 # Conversions between both:
 # as_cint(ch)   chart --> cint
 # as_chart(c)   cint --> chart
-  #ifdef CHART_STRUCT
-    #define as_cint(ch)  ((ch).one)
-    #if 1
-      #define as_chart(c)  ((chart){one:(c)})
-    #else
-      extern __inline__ chart as_chart (register cint c)
-        { register chart ch; ch.one = c; return ch; }
-    #endif
+#ifdef CHART_STRUCT
+  #define as_cint(ch)  ((ch).one)
+  #if 1
+    #define as_chart(c)  ((chart){one:(c)})
   #else
-    #define as_cint(ch)  (ch)
-    #define as_chart(c)  (c)
+    extern __inline__ chart as_chart (register cint c)
+      { register chart ch; ch.one = c; return ch; }
   #endif
+#else
+  #define as_cint(ch)  (ch)
+  #define as_chart(c)  (c)
+#endif
 # Conversion chart --> object.
-  #define code_char(ch)  int_char(as_cint(ch))
+#define code_char(ch)  int_char(as_cint(ch))
 # Conversion object --> chart.
-  #define char_code(obj)  as_chart(char_int(obj))
+#define char_code(obj)  as_chart(char_int(obj))
 # Comparison operations.
-  #define chareq(ch1,ch2)  (as_cint(ch1) == as_cint(ch2))
-  #define charlt(ch1,ch2)  (as_cint(ch1) < as_cint(ch2))
-  #define chargt(ch1,ch2)  (as_cint(ch1) > as_cint(ch2))
+#define chareq(ch1,ch2)  (as_cint(ch1) == as_cint(ch2))
+#define charlt(ch1,ch2)  (as_cint(ch1) < as_cint(ch2))
+#define chargt(ch1,ch2)  (as_cint(ch1) > as_cint(ch2))
 
 # Conversion standard char (in ASCII encoding) --> chart.
-  #define ascii(x)  as_chart((uintB)(x))
+#define ascii(x)  as_chart((uintB)(x))
 # Conversion standard char (in ASCII encoding) --> object.
-  #define ascii_char(x)  code_char(ascii(x))
+#define ascii_char(x)  code_char(ascii(x))
 
 # Small characters are those whose code is < small_char_code_limit.
-  #define small_char_int_len 8
-  #define small_char_int_limit  (1UL<<small_char_int_len)
-  typedef unsigned_int_with_n_bits(small_char_int_len)  scint;
-  #define small_char_code_limit  small_char_int_limit
+#define small_char_int_len 8
+#define small_char_int_limit  (1UL<<small_char_int_len)
+typedef unsigned_int_with_n_bits(small_char_int_len)  scint;
+#define small_char_code_limit  small_char_int_limit
 
 # Base characters.
-  #define base_char_int_len char_int_len
-  #define base_char_code_limit  char_code_limit
+#define base_char_int_len char_int_len
+#define base_char_code_limit  char_code_limit
 # The BASE-CHAR type is defined as (upgraded-array-element-type 'standard-char),
 # i.e. the element-type of arrays created with (make-array 'standard-char ...).
 # Since it defeats the purpose of UNICODE to have different 8-bit and 16-bit
@@ -3989,70 +4000,70 @@ typedef symbol_ *  Symbol;
 
 # Fixnums
 
-# fixnum(x) ist ein Fixnum mit Wert x>=0.
-# x eine Expression mit 0 <= x < 2^oint_data_len.
-# (Sollte eigentlich posfixnum(x) heißen.)
-  #define fixnum(x)  type_data_object(fixnum_type,x)
+# fixnum(x) is a fixnum with value x>=0.
+# x is an expression with 0 <= x < 2^oint_data_len.
+# (Should really be called posfixnum(x).)
+#define fixnum(x)  type_data_object(fixnum_type,x)
 
-# Fixnum_0 ist die Zahl 0, Fixnum_1 ist die Zahl 1,
-# Fixnum_minus1 ist die Zahl -1
-  #define Fixnum_0  fixnum(0)
-  #define Fixnum_1  fixnum(1)
-  #define Fixnum_minus1  type_data_object( fixnum_type | bit(sign_bit_t), bitm(oint_data_len)-1 )
+# Fixnum_0 is the number 0, Fixnum_1 is the number 1,
+# Fixnum_minus1 is the number -1
+#define Fixnum_0  fixnum(0)
+#define Fixnum_1  fixnum(1)
+#define Fixnum_minus1  type_data_object( fixnum_type | bit(sign_bit_t), bitm(oint_data_len)-1 )
 
-# Wert eines nichtnegativen Fixnum:
+# Value of a non-negative fixnum:
 # posfixnum_to_L(obj)
-# Ergebnis ist >= 0, < 2^oint_data_len.
-  #if !(defined(SPARC) && (oint_data_len+oint_data_shift<32))
-    #define posfixnum_to_L(obj)  \
-      ((uintL)((as_oint(obj)&((oint)wbitm(oint_data_len+oint_data_shift)-1))>>oint_data_shift))
-  #else
-    # Auf einem SPARC-Prozessor sind lange Konstanten langsamer als Shifts:
-    #define posfixnum_to_L(obj)  \
-      ((uintL)((as_oint(obj) << (32-oint_data_len-oint_data_shift)) >> (32-oint_data_len)))
-  #endif
+# result is >= 0, < 2^oint_data_len.
+#if !(defined(SPARC) && (oint_data_len+oint_data_shift<32))
+  #define posfixnum_to_L(obj)  \
+    ((uintL)((as_oint(obj)&((oint)wbitm(oint_data_len+oint_data_shift)-1))>>oint_data_shift))
+#else
+  # Long constants are slower than shifts on a SPARC-processor:
+  #define posfixnum_to_L(obj)  \
+    ((uintL)((as_oint(obj) << (32-oint_data_len-oint_data_shift)) >> (32-oint_data_len)))
+#endif
 
-# Wert eines negativen Fixnum:
+# Value of a negative fixnum:
 # negfixnum_to_L(obj)
-# Ergebnis ist >= - 2^oint_data_len, < 0.
-  #define negfixnum_to_L(obj)  (posfixnum_to_L(obj) | (-bitm(oint_data_len)))
+# Result is >= - 2^oint_data_len, < 0.
+#define negfixnum_to_L(obj)  (posfixnum_to_L(obj) | (-bitm(oint_data_len)))
 
-# Betrag eines negativen Fixnum:
+# Absolute value of a negative fixnum:
 # negfixnum_abs_L(obj)
 # Ergebnis ist > 0, <= 2^oint_data_len.
-# Vorsicht: Wraparound bei oint_data_len=intLsize möglich!
-  #define negfixnum_abs_L(obj)  \
-    ((uintL)((as_oint(fixnum_inc(Fixnum_minus1,1))-as_oint(obj))>>oint_data_shift))
+# Beware: Possible wraparound at oint_data_len=intLsize!
+#define negfixnum_abs_L(obj)  \
+  ((uintL)((as_oint(fixnum_inc(Fixnum_minus1,1))-as_oint(obj))>>oint_data_shift))
 
-# Wert eines Fixnum, obj sollte eine Variable sein:
+# Value of a fixnum, obj should be a variable:
 # fixnum_to_L(obj)
-# Ergebnis ist >= - 2^oint_data_len, < 2^oint_data_len und vom Typ sintL.
-# Die Verwendung dieses Macros ist nur bei oint_data_len+1 <= intLsize sinnvoll!
-  #if (oint_data_len>=intLsize)
-    # Kein Platz mehr fürs Vorzeichenbit, daher fixnum_to_L = posfixnum_to_L = negfixnum_to_L !
-    #define fixnum_to_L(obj)  (sintL)posfixnum_to_L(obj)
-  #elif (sign_bit_o == oint_data_len+oint_data_shift)
+# Result is >= - 2^oint_data_len, < 2^oint_data_len und vom Typ sintL.
+# This macro should only be used for oint_data_len+1 <= intLsize!
+#if (oint_data_len>=intLsize)
+  # No space left for the sign-bit, thus fixnum_to_L = posfixnum_to_L = negfixnum_to_L !
+  #define fixnum_to_L(obj)  (sintL)posfixnum_to_L(obj)
+#elif (sign_bit_o == oint_data_len+oint_data_shift)
+  #define fixnum_to_L(obj)  \
+    (((sintL)as_oint(obj) << (intLsize-1-sign_bit_o)) >> (intLsize-1-sign_bit_o+oint_data_shift))
+#else
+  #if !defined(SPARC)
     #define fixnum_to_L(obj)  \
-      (((sintL)as_oint(obj) << (intLsize-1-sign_bit_o)) >> (intLsize-1-sign_bit_o+oint_data_shift))
+      (sintL)( ((((sintL)as_oint(obj) >> sign_bit_o) << (intLsize-1)) >> (intLsize-1-oint_data_len)) \
+              |((uintL)((as_oint(obj) & ((oint)wbitm(oint_data_len+oint_data_shift)-1)) >> oint_data_shift)) \
+             )
   #else
-    #if !defined(SPARC)
-      #define fixnum_to_L(obj)  \
-        (sintL)( ((((sintL)as_oint(obj) >> sign_bit_o) << (intLsize-1)) >> (intLsize-1-oint_data_len)) \
-                |((uintL)((as_oint(obj) & ((oint)wbitm(oint_data_len+oint_data_shift)-1)) >> oint_data_shift)) \
-               )
-    #else
-      # Auf einem SPARC-Prozessor sind lange Konstanten langsamer als Shifts:
-      #define fixnum_to_L(obj)  \
-        (sintL)( ((((sintL)as_oint(obj) >> sign_bit_o) << (intLsize-1)) >> (intLsize-1-oint_data_len)) \
-                |(((uintL)as_oint(obj) << (intLsize-oint_data_len-oint_data_shift)) >> (intLsize-oint_data_len)) \
-               )
-    #endif
+    # Long constants are slower than shifts on a SPARC-processor:
+    #define fixnum_to_L(obj)  \
+      (sintL)( ((((sintL)as_oint(obj) >> sign_bit_o) << (intLsize-1)) >> (intLsize-1-oint_data_len)) \
+              |(((uintL)as_oint(obj) << (intLsize-oint_data_len-oint_data_shift)) >> (intLsize-oint_data_len)) \
+             )
   #endif
+#endif
 
 #ifdef intQsize
-# Wert eines Fixnum, obj sollte eine Variable sein:
-# fixnum_to_Q(obj)
-# Ergebnis ist >= - 2^oint_data_len, < 2^oint_data_len.
+  # Value of a fixnum, obj should be a variable:
+  # fixnum_to_Q(obj)
+  # Result is >= - 2^oint_data_len, < 2^oint_data_len.
   #if (sign_bit_o == oint_data_len+oint_data_shift)
     #define fixnum_to_Q(obj)  \
       (((sintQ)as_oint(obj) << (intQsize-1-sign_bit_o)) >> (intQsize-1-sign_bit_o+oint_data_shift))
@@ -4064,51 +4075,51 @@ typedef symbol_ *  Symbol;
   #endif
 #endif
 
-# Zu einem nichtnegativen Fixnum eine Konstante addieren, vorausgesetzt,
-# das Ergebnis ist wieder ein nichtnegatives Fixnum:
+# Add a constant to a non-negative fixnum, given that
+# the result is a non-negative fixnum as well:
 # fixnum_inc(obj,delta)
-# > obj: ein Fixnum
-# > delta: eine Konstante
-# < ergebnis: erhöhtes Fixnum
-  #define fixnum_inc(obj,delta)  \
+# > obj: a fixnum
+# > delta: a constant
+# < result: incremented fixnum
+#define fixnum_inc(obj,delta)  \
     objectplus(obj, (soint)(delta) << oint_data_shift)
 
-# posfixnum(x) ist ein Fixnum mit Wert x>=0.
-  #define posfixnum(x)  fixnum_inc(Fixnum_0,x)
+# posfixnum(x) is a fixnum with value x>=0.
+#define posfixnum(x)  fixnum_inc(Fixnum_0,x)
 
-# negfixnum(x) ist ein Fixnum mit Wert x<0.
-# (Vorsicht, wenn x unsigned ist!)
-  #define negfixnum(x)  fixnum_inc(fixnum_inc(Fixnum_minus1,1),x)
+# negfixnum(x) is a fixnum with value x<0.
+# (Beware if x is unsigned!)
+#define negfixnum(x)  fixnum_inc(fixnum_inc(Fixnum_minus1,1),x)
 
-# sfixnum(x) ist ein Fixnum mit Wert x,
-# x eine Constant-Expression mit -2^oint_data_len <= x < 2^oint_data_len.
-  #define sfixnum(x) ((x)>=0 ? posfixnum(x) : negfixnum(x))
+# sfixnum(x) is a fixnum with value x,
+# x is a constant-expression with -2^oint_data_len <= x < 2^oint_data_len.
+#define sfixnum(x) ((x)>=0 ? posfixnum(x) : negfixnum(x))
 
-# Aus einem Character ein Fixnum >=0 machen (wie bei char-int):
-  #ifdef WIDE_STRUCT
-    #define char_to_fixnum(obj)  \
-      type_data_object(fixnum_type,untype(obj))
-  #else
-    #define char_to_fixnum(obj)  \
-      objectplus(obj,type_zero_oint(fixnum_type)-type_zero_oint(char_type))
-  #endif
+# Convert a character into a fixnum >=0 (like with char-int):
+#ifdef WIDE_STRUCT
+  #define char_to_fixnum(obj)  \
+    type_data_object(fixnum_type,untype(obj))
+#else
+  #define char_to_fixnum(obj)  \
+    objectplus(obj,type_zero_oint(fixnum_type)-type_zero_oint(char_type))
+#endif
 
-# Aus einem passenden Fixnum >=0 ein Character machen (wie bei int-char):
-  #ifdef WIDE_STRUCT
-    #define fixnum_to_char(obj)  \
-      type_data_object(char_type,untype(obj))
-  #else
-    #define fixnum_to_char(obj)  \
-      objectplus(obj,type_zero_oint(char_type)-type_zero_oint(fixnum_type))
-  #endif
+# Make a character from a fitting fixnum >=0 (like with int-char):
+#ifdef WIDE_STRUCT
+  #define fixnum_to_char(obj)  \
+    type_data_object(char_type,untype(obj))
+#else
+  #define fixnum_to_char(obj)  \
+    objectplus(obj,type_zero_oint(char_type)-type_zero_oint(fixnum_type))
+#endif
 
 # Bignums
 typedef struct {
-  VAROBJECT_HEADER  # Selbstpointer für GC
+  VAROBJECT_HEADER  # self-pointer for GC
   #ifdef TYPECODES
-  uintC length;     # Länge in Digits
+  uintC length;     # length in digits
   #endif
-  uintD data[unspecified]; # Zahl in Zweierkomplementdarstellung
+  uintD data[unspecified]; # number as its two's complement representation
 } bignum_;
 typedef bignum_ *  Bignum;
 # The length is actually an uintWC.
@@ -4120,32 +4131,32 @@ typedef bignum_ *  Bignum;
 #define Bignum_length(obj)  bignum_length(TheBignum(obj))
 
 # Single-Floats
-typedef uint32 ffloat; # 32-Bit-Float im IEEE-Format
+typedef uint32 ffloat; # 32-Bit-Float in IEEE-format
 typedef union {
-  ffloat eksplicit;    # Wert, explizit
+  ffloat eksplicit;    # Value, explicit
   #ifdef FAST_FLOAT
-  float machine_float; # Wert, als C-'float'
+  float machine_float; # Value, as C-'float'
   #endif
 } ffloatjanus;
 #ifndef WIDE
 typedef struct {
-  VAROBJECT_HEADER            # Selbstpointer für GC
-  ffloatjanus representation; # Wert
+  VAROBJECT_HEADER            # self-pointer for GC
+  ffloatjanus representation; # Value
 } ffloat_;
 typedef ffloat_ *  Ffloat;
 #define ffloat_value(obj)  (TheFfloat(obj)->float_value)
 #else
-# Der Float-Wert wird im Pointer selbst untergebracht, wie bei Short-Floats.
+# The float-value is stored in the pointer itself, like short-floats.
 #define ffloat_value(obj)  ((ffloat)untype(obj))
 #endif
 
 # Double-Floats
-typedef # 64-Bit-Float im IEEE-Format:
+typedef # 64-Bit-Float in IEEE-format:
         #ifdef intQsize
-          # Sign/Exponent/Mantisse
+          # Sign/Exponent/Mantissa
           uint64
         #else
-          # Sign/Exponent/MantisseHigh und MantisseLow
+          # Sign/Exponent/MantissaHigh and MantissaLow
           #if BIG_ENDIAN_P || defined(ARM)
             struct {uint32 semhi,mlo;}
           #else
@@ -4154,14 +4165,14 @@ typedef # 64-Bit-Float im IEEE-Format:
         #endif
   dfloat;
 typedef union {
-  dfloat eksplicit;      # Wert, explizit
+  dfloat eksplicit;      # Value, explicit
   #ifdef FAST_DOUBLE
-  double machine_double; # Wert, als C-'double'
+  double machine_double; # Value, as C-'double'
   #endif
 } dfloatjanus;
 typedef struct {
-  VAROBJECT_HEADER            # Selbstpointer für GC
-  dfloatjanus representation; # Wert
+  VAROBJECT_HEADER            # self-pointer for GC
+  dfloatjanus representation; # value
 } dfloat_;
 typedef dfloat_ *  Dfloat;
 
@@ -4170,12 +4181,12 @@ typedef dfloat_ *  Dfloat;
 
 # Long-Floats
 typedef struct {
-  VAROBJECT_HEADER   # Selbstpointer für GC
+  VAROBJECT_HEADER   # Self-pointer for GC
   #ifdef TYPECODES
-  uintC  len;        # Länge der Mantisse in Digits
+  uintC  len;        # length of the mantissa in digits
   #endif
-  uint32 expo;       # Exponent
-  uintD  data[unspecified]; # Mantisse
+  uint32 expo;       # exponent
+  uintD  data[unspecified]; # mantissa
 } lfloat_;
 typedef lfloat_ *  Lfloat;
 # The length is actually an uintWC.
@@ -4186,182 +4197,182 @@ typedef lfloat_ *  Lfloat;
 #endif
 #define Lfloat_length(obj)  lfloat_length(TheLfloat(obj))
 
-# Simple-Array (umfasst einfache eindimensionale Arrays:
-# Simple-Bit-Vector, Simple-String, Simple-Vector)
+# simple array (cover simple linear arrays:
+# simple bit vector, simple string, simple vector)
 typedef struct {
-  LRECORD_HEADER # Selbstpointer für GC, Länge in Elementen
+  LRECORD_HEADER # Self-pointer for GC, length in elements
 } sarray_;
 typedef sarray_ *  Sarray;
 #define sarray_length(ptr)  lrecord_length(ptr)
 #define Sarray_length(obj)  sarray_length(TheSarray(obj))
 
-# Simple-Bit-Vektor
+# simple bit vector
 typedef struct {
-  LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
-  uint8  data[unspecified]; # Bits, in Bytes unterteilt
+  LRECORD_HEADER # self-pointer for GC, length in bits
+  uint8  data[unspecified]; # Bits, divided into bytes
 } sbvector_;
 typedef sbvector_ *  Sbvector;
 #define sbvector_length(ptr)  sarray_length(ptr)
 #define Sbvector_length(obj)  sbvector_length(TheSbvector(obj))
 
-# Simple-String (a.k.a. "normal simple string")
+# simple string (a.k.a. "normal simple string")
 typedef struct {
-  LRECORD_HEADER # Selbstpointer für GC, Länge in Characters
+  LRECORD_HEADER # self-pointer for GC, lenth in characters
   chart  data[unspecified]; # Characters
 } sstring_;
 typedef sstring_ *  Sstring;
 #define sstring_length(ptr)  sarray_length(ptr)
 #define Sstring_length(obj)  sstring_length(TheSstring(obj))
 
-# Simple-String with only one byte per character (a.k.a. "small simple string")
+# simple string with only one byte per character (a.k.a. "small simple string")
 #if !defined(TYPECODES) && defined(UNICODE) && ((defined(GNU) && !defined(RISCOS) && !defined(CONVEX)) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(BORLAND) || defined(MICROSOFT))
 #define HAVE_SMALL_SSTRING
 typedef struct {
-  LRECORD_HEADER # Selbstpointer für GC, Länge in Characters
+  LRECORD_HEADER # selfpointer for GC, length in Characters
   scint  data[unspecified]; # Characters
 } small_sstring_;
 typedef small_sstring_ *  SmallSstring;
-# use sstring_length and Sstring_length for the accessing the length
+# use sstring_length and Sstring_length for accessing the length
 #endif
 
-# Simple-Vector
+# simple vector
 typedef struct {
-  LRECORD_HEADER # Selbstpointer für GC, Länge in Objekten
-  object data[unspecified]; # Elemente
+  LRECORD_HEADER # self-pointer for GC, length in objects
+  object data[unspecified]; # elements
 } svector_;
 typedef svector_ *  Svector;
 #define svector_length(ptr)  sarray_length(ptr)
 #define Svector_length(obj)  svector_length(TheSvector(obj))
 
-# nicht-simpler, indirekter Array
+# non-simple indirect Array
 typedef struct {
-  VAROBJECT_HEADER  # Selbstpointer für GC
+  VAROBJECT_HEADER  # self-pointer for GC
   #ifdef TYPECODES
-  uintB flags;      # Flags
-                    # dann ein Byte unbenutzt
-  uintC rank;       # Rang n
+  uintB flags;      # flags
+                    # one bit unusued
+  uintC rank;       # rank n
   #endif
-  object data;      # Datenvektor
-  uintL totalsize;  # Totalsize = Produkt der n Dimensionen
+  object data;      # data vector
+  uintL totalsize;  # totalsize = product of the n dimensions
   uintL dims[unspecified]; # evtl. displaced-offset,
-                           # n Dimensionen,
-                           # evtl. Fill-Pointer
+                           # n dimensions,
+                           # evtl. fill-pointer
 } iarray_;
 typedef iarray_ *  Iarray;
 #define iarray_data_offset  offsetof(iarray_,data)
 # The rank is actually an uintWC.
-# Zugriff auf Rang, Flags:
-  #ifdef TYPECODES
-    #define iarray_rank(ptr)  ((ptr)->rank)
-  #else
-    #define iarray_rank(ptr)  srecord_length(ptr)
-  #endif
-  #define Iarray_rank(obj)  iarray_rank(TheIarray(obj))
-  #ifdef TYPECODES
-    #define iarray_flags(ptr)  ((ptr)->flags)
-  #else
-    #define iarray_flags(ptr)  record_flags(ptr)
-  #endif
-  #define Iarray_flags(obj)  iarray_flags(TheIarray(obj))
-  #ifdef TYPECODES
-    #define iarray_flags_clr(ptr,bits)  ((ptr)->flags &= ~(bits))
-    #define iarray_flags_set(ptr,bits)  ((ptr)->flags |= (bits))
-    #define iarray_flags_replace(ptr,newflags)  ((ptr)->flags = (newflags))
-  #else
-    #define iarray_flags_clr(ptr,bits)  record_flags_clr(ptr,bits)
-    #define iarray_flags_set(ptr,bits)  record_flags_set(ptr,bits)
-    #define iarray_flags_replace(ptr,newflags)  record_flags_replace(ptr,newflags)
-  #endif
+# access Rang, Flags:
+#ifdef TYPECODES
+  #define iarray_rank(ptr)  ((ptr)->rank)
+#else
+  #define iarray_rank(ptr)  srecord_length(ptr)
+#endif
+#define Iarray_rank(obj)  iarray_rank(TheIarray(obj))
+#ifdef TYPECODES
+  #define iarray_flags(ptr)  ((ptr)->flags)
+#else
+  #define iarray_flags(ptr)  record_flags(ptr)
+#endif
+#define Iarray_flags(obj)  iarray_flags(TheIarray(obj))
+#ifdef TYPECODES
+  #define iarray_flags_clr(ptr,bits)  ((ptr)->flags &= ~(bits))
+  #define iarray_flags_set(ptr,bits)  ((ptr)->flags |= (bits))
+  #define iarray_flags_replace(ptr,newflags)  ((ptr)->flags = (newflags))
+#else
+  #define iarray_flags_clr(ptr,bits)  record_flags_clr(ptr,bits)
+  #define iarray_flags_set(ptr,bits)  record_flags_set(ptr,bits)
+  #define iarray_flags_replace(ptr,newflags) record_flags_replace(ptr,newflags)
+#endif
 # Bits in den Flags:
-  #define arrayflags_adjustable_bit  7 # gesetzt, wenn Array adjustable
-  #define arrayflags_fillp_bit       6 # gesetzt, wenn Fill-Pointer vorhanden (nur bei n=1 möglich)
-  #define arrayflags_displaced_bit   5 # gesetzt, wenn Array displaced
-  #define arrayflags_dispoffset_bit  4 # gesetzt, wenn Platz für den
-                                       # Displaced-Offset vorhanden ist
-                                       # (<==> Array adjustable oder displaced)
-  #define arrayflags_atype_mask  0x07  # Maske für Elementtyp
-# Elementtypen von Arrays in Bits 2..0 der flags:
-  # Die ersten sind so gewählt, dass 2^Atype_nBit = n ist.
-  #define Atype_Bit    0
-  #define Atype_2Bit   1
-  #define Atype_4Bit   2
-  #define Atype_8Bit   3
-  #define Atype_16Bit  4
-  #define Atype_32Bit  5
-  #define Atype_T      6
-  #define Atype_Char   7
+#define arrayflags_adjustable_bit  7 # set, if array is adjustable
+#define arrayflags_fillp_bit       6 # set, if a fill-pointer exists (only possible for n=1)
+#define arrayflags_displaced_bit   5 # set, if array is displaced
+#define arrayflags_dispoffset_bit  4 # set, if there is space for the
+                                     # displaced-offset
+                                     # (<==> array adjustable or displaced)
+#define arrayflags_atype_mask  0x07  # mask for the element-type
+# Element-types of arrays in Bits 2..0 of its flags:
+# The first ones are chosen, so that 2^Atype_nBit = n.
+#define Atype_Bit    0
+#define Atype_2Bit   1
+#define Atype_4Bit   2
+#define Atype_8Bit   3
+#define Atype_16Bit  4
+#define Atype_32Bit  5
+#define Atype_T      6
+#define Atype_Char   7
 
-# Typ von Arrays:
-  #ifdef TYPECODES
-    #define Array_type(obj)  typecode(obj)
-    #define Array_type_bvector     bvector_type      # Iarray
-    #define Array_type_b2vector    b2vector_type     # Iarray
-    #define Array_type_b4vector    b4vector_type     # Iarray
-    #define Array_type_b8vector    b8vector_type     # Iarray
-    #define Array_type_b16vector   b16vector_type    # Iarray
-    #define Array_type_b32vector   b32vector_type    # Iarray
-    #define Array_type_string      string_type       # Iarray
-    #define Array_type_vector      vector_type       # Iarray
-    #define Array_type_mdarray     mdarray_type      # Iarray
-    #define Array_type_sbvector    sbvector_type     # Sbvector
-    #define Array_type_sb2vector   sb2vector_type    # Sbvector
-    #define Array_type_sb4vector   sb4vector_type    # Sbvector
-    #define Array_type_sb8vector   sb8vector_type    # Sbvector
-    #define Array_type_sb16vector  sb16vector_type   # Sbvector
-    #define Array_type_sb32vector  sb32vector_type   # Sbvector
-    #define Array_type_sstring     sstring_type      # Sstring
-    #define Array_type_svector     svector_type      # Svector
-    # Array_type_simple_bit_vector(atype)
-    # maps Atype_[n]Bit to Array_type_sb[n]vector. Depends on TB0, TB1, TB2.
-    # The formula works because there are only 4 possible cases:
-    #  (TB0,TB1,TB2)   formula
-    #    (0, 1, 2)      atype
-    #    (0, 1, 3)      atype + (atype & -4)
-    #    (0, 2, 3)      atype + (atype & -2)
-    #    (1, 2, 3)      atype + (atype & -1) = atype << 1
-    #define Array_type_simple_bit_vector(atype)  \
-      (Array_type_sbvector + ((atype)<<TB0) + ((atype)&(bit(TB0+1)-bit(TB1))) + ((atype)&(bit(TB1+1)-bit(TB2))))
-  #else
-    #define Array_type(obj)  Record_type(obj)
-    #define Array_type_bvector     Rectype_bvector     # Iarray
-    #define Array_type_b2vector    Rectype_b2vector    # Iarray
-    #define Array_type_b4vector    Rectype_b4vector    # Iarray
-    #define Array_type_b8vector    Rectype_b8vector    # Iarray
-    #define Array_type_b16vector   Rectype_b16vector   # Iarray
-    #define Array_type_b32vector   Rectype_b32vector   # Iarray
-    #define Array_type_string      Rectype_string      # Iarray
-    #define Array_type_vector      Rectype_vector      # Iarray
-    #define Array_type_mdarray     Rectype_mdarray     # Iarray
-    #define Array_type_sbvector    Rectype_Sbvector    # Sbvector
-    #define Array_type_sb2vector   Rectype_Sb2vector   # Sbvector
-    #define Array_type_sb4vector   Rectype_Sb4vector   # Sbvector
-    #define Array_type_sb8vector   Rectype_Sb8vector   # Sbvector
-    #define Array_type_sb16vector  Rectype_Sb16vector  # Sbvector
-    #define Array_type_sb32vector  Rectype_Sb32vector  # Sbvector
-    #define Array_type_sstring     Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring   # Sstring, SmallSstring
-    #define Array_type_svector     Rectype_Svector     # Svector
-  #endif
+# array-types
+#ifdef TYPECODES
+  #define Array_type(obj)  typecode(obj)
+  #define Array_type_bvector     bvector_type      # Iarray
+  #define Array_type_b2vector    b2vector_type     # Iarray
+  #define Array_type_b4vector    b4vector_type     # Iarray
+  #define Array_type_b8vector    b8vector_type     # Iarray
+  #define Array_type_b16vector   b16vector_type    # Iarray
+  #define Array_type_b32vector   b32vector_type    # Iarray
+  #define Array_type_string      string_type       # Iarray
+  #define Array_type_vector      vector_type       # Iarray
+  #define Array_type_mdarray     mdarray_type      # Iarray
+  #define Array_type_sbvector    sbvector_type     # Sbvector
+  #define Array_type_sb2vector   sb2vector_type    # Sbvector
+  #define Array_type_sb4vector   sb4vector_type    # Sbvector
+  #define Array_type_sb8vector   sb8vector_type    # Sbvector
+  #define Array_type_sb16vector  sb16vector_type   # Sbvector
+  #define Array_type_sb32vector  sb32vector_type   # Sbvector
+  #define Array_type_sstring     sstring_type      # Sstring
+  #define Array_type_svector     svector_type      # Svector
+  # Array_type_simple_bit_vector(atype)
+  # maps Atype_[n]Bit to Array_type_sb[n]vector. Depends on TB0, TB1, TB2.
+  # The formula works because there are only 4 possible cases:
+  #  (TB0,TB1,TB2)   formula
+  #    (0, 1, 2)      atype
+  #    (0, 1, 3)      atype + (atype & -4)
+  #    (0, 2, 3)      atype + (atype & -2)
+  #    (1, 2, 3)      atype + (atype & -1) = atype << 1
+  #define Array_type_simple_bit_vector(atype)  \
+    (Array_type_sbvector + ((atype)<<TB0) + ((atype)&(bit(TB0+1)-bit(TB1))) + ((atype)&(bit(TB1+1)-bit(TB2))))
+#else
+  #define Array_type(obj)  Record_type(obj)
+  #define Array_type_bvector     Rectype_bvector     # Iarray
+  #define Array_type_b2vector    Rectype_b2vector    # Iarray
+  #define Array_type_b4vector    Rectype_b4vector    # Iarray
+  #define Array_type_b8vector    Rectype_b8vector    # Iarray
+  #define Array_type_b16vector   Rectype_b16vector   # Iarray
+  #define Array_type_b32vector   Rectype_b32vector   # Iarray
+  #define Array_type_string      Rectype_string      # Iarray
+  #define Array_type_vector      Rectype_vector      # Iarray
+  #define Array_type_mdarray     Rectype_mdarray     # Iarray
+  #define Array_type_sbvector    Rectype_Sbvector    # Sbvector
+  #define Array_type_sb2vector   Rectype_Sb2vector   # Sbvector
+  #define Array_type_sb4vector   Rectype_Sb4vector   # Sbvector
+  #define Array_type_sb8vector   Rectype_Sb8vector   # Sbvector
+  #define Array_type_sb16vector  Rectype_Sb16vector  # Sbvector
+  #define Array_type_sb32vector  Rectype_Sb32vector  # Sbvector
+  #define Array_type_sstring     Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring   # Sstring, SmallSstring
+  #define Array_type_svector     Rectype_Svector     # Svector
+#endif
 # Determining the atype of a [simple-]bit-array:
-  #define sbNvector_atype(obj)  \
-    type_bits_to_atype(Array_type(obj) - Array_type_sbvector)
-  #define bNvector_atype(obj)  \
-    type_bits_to_atype(Array_type(obj) - Array_type_bvector)
-  #ifdef TYPECODES
-    # There are only 4 cases:
-    #  (TB0,TB1,TB2)   formula
-    #    (0, 1, 2)      type
-    #    (0, 1, 3)      (type + (type & 3)) >> 1 = type - ((type & -8) >> 1)
-    #    (0, 2, 3)      (type + (type & 1)) >> 1 = type - ((type & -4) >> 1)
-    #    (1, 2, 3)      type >> 1                = type - ((type & -2) >> 1)
-    #if TB2 > 2
-      #define type_bits_to_atype(type)  \
-        (((type) + ((type)&(bit(6-TB0-TB1-TB2)-1))) >> 1)
-    #else
-      #define type_bits_to_atype(type)  (type)
-    #endif
+#define sbNvector_atype(obj)  \
+  type_bits_to_atype(Array_type(obj) - Array_type_sbvector)
+#define bNvector_atype(obj)  \
+  type_bits_to_atype(Array_type(obj) - Array_type_bvector)
+#ifdef TYPECODES
+  # There are only 4 cases:
+  #  (TB0,TB1,TB2)   formula
+  #    (0, 1, 2)      type
+  #    (0, 1, 3)      (type + (type & 3)) >> 1 = type - ((type & -8) >> 1)
+  #    (0, 2, 3)      (type + (type & 1)) >> 1 = type - ((type & -4) >> 1)
+  #    (1, 2, 3)      type >> 1                = type - ((type & -2) >> 1)
+  #if TB2 > 2
+    #define type_bits_to_atype(type)  \
+      (((type) + ((type)&(bit(6-TB0-TB1-TB2)-1))) >> 1)
   #else
     #define type_bits_to_atype(type)  (type)
   #endif
+#else
+  #define type_bits_to_atype(type)  (type)
+#endif
 
 # Packages
 typedef struct {
@@ -4375,12 +4386,12 @@ typedef struct {
   object pack_nicknames;
 } *  Package;
 #define package_length  ((sizeof(*(Package)0)-offsetofa(record_,recdata))/sizeof(object))
-# Manche Packages sind case-sensitive.
-  #define mark_pack_casesensitive(obj)  record_flags_set(ThePackage(obj),bit(0))
-  #define pack_casesensitivep(obj)  (!((record_flags(ThePackage(obj)) & bit(0)) == 0))
-# Mit gelöschten Packages darf man nichts anstellen.
-  #define mark_pack_deleted(obj)  record_flags_set(ThePackage(obj),bit(7))
-  #define pack_deletedp(obj)  (!((record_flags(ThePackage(obj)) & bit(7)) == 0))
+# Some packages are case-sensitive.
+#define mark_pack_casesensitive(obj)  record_flags_set(ThePackage(obj),bit(0))
+#define pack_casesensitivep(obj)  (!((record_flags(ThePackage(obj)) & bit(0)) == 0))
+# do not do anything with deleted packages.
+#define mark_pack_deleted(obj)  record_flags_set(ThePackage(obj),bit(7))
+#define pack_deletedp(obj)  (!((record_flags(ThePackage(obj)) & bit(7)) == 0))
 
 # Hash-Tables
 typedef struct {
@@ -4400,17 +4411,17 @@ typedef struct {
   object ht_mincount;
 } *  Hashtable;
 #define hashtable_length  ((sizeof(*(Hashtable)0)-offsetofa(record_,recdata))/sizeof(object))
-# Markiere eine Hash-Table als neu zu reorganisieren:
+# Mark a Hash Table as new to reorganize
 # mark_ht_invalid(TheHashtable(ht));
-  #ifdef GENERATIONAL_GC
-    #define mark_ht_invalid(ptr)  (ptr)->ht_lastrehash = unbound
-    #define mark_ht_valid(ptr)  (ptr)->ht_lastrehash = O(gc_count)
-    #define ht_validp(ptr)  eq((ptr)->ht_lastrehash,O(gc_count))
-  #else
-    #define mark_ht_invalid(ptr)  record_flags_set(ptr,bit(7))
-    #define mark_ht_valid(ptr)  record_flags_clr(ptr,bit(7))
-    #define ht_validp(ptr)  ((record_flags(ptr) & bit(7)) == 0)
-  #endif
+#ifdef GENERATIONAL_GC
+  #define mark_ht_invalid(ptr)  (ptr)->ht_lastrehash = unbound
+  #define mark_ht_valid(ptr)  (ptr)->ht_lastrehash = O(gc_count)
+  #define ht_validp(ptr)  eq((ptr)->ht_lastrehash,O(gc_count))
+#else
+  #define mark_ht_invalid(ptr)  record_flags_set(ptr,bit(7))
+  #define mark_ht_valid(ptr)  record_flags_clr(ptr,bit(7))
+  #define ht_validp(ptr)  ((record_flags(ptr) & bit(7)) == 0)
+#endif
 
 # Readtables
 typedef struct {
@@ -4567,7 +4578,7 @@ typedef struct {
 #endif
 
 #ifdef FOREIGN
-# Foreign-Pointer-Verpackung
+# foreign pointer wrap
 typedef struct {
   XRECORD_HEADER
   void* fp_pointer;
@@ -4583,7 +4594,7 @@ typedef struct {
 
 #ifdef DYNAMIC_FFI
 
-# Foreign-Adressen
+# foreign adresses
 typedef struct {
   XRECORD_HEADER
   object fa_base;
@@ -4592,7 +4603,7 @@ typedef struct {
 #define faddress_length  1
 #define faddress_xlength  (sizeof(*(Faddress)0)-offsetofa(record_,recdata)-faddress_length*sizeof(object))
 
-# Foreign-Variables
+# foreign variables
 typedef struct {
   XRECORD_HEADER
   object fv_name;
@@ -4602,7 +4613,7 @@ typedef struct {
 } * Fvariable;
 #define fvariable_length  ((sizeof(*(Fvariable)0)-offsetofa(record_,recdata))/sizeof(object))
 
-# Foreign-Functions
+# foreign functions
 typedef struct {
   XRECORD_HEADER
   object ff_name;
@@ -4615,7 +4626,7 @@ typedef struct {
 
 #endif
 
-# Weak-Pointer
+# weak pointer
 typedef struct {
   XRECORD_HEADER
   object wp_cdr;   # active weak-pointers form a chained list
@@ -4626,12 +4637,12 @@ typedef struct {
 #define weakpointer_length  0
 #define weakpointer_xlength  (sizeof(*(Weakpointer)0)-offsetofa(record_,recdata)-weakpointer_length*sizeof(object))
 
-# Finalisierer
+# Finalizer
 typedef struct {
   XRECORD_HEADER
-  object fin_alive;    # nur solange dieses Objekt lebt
-  object fin_trigger;  # der Tod dieses Objekts wird abgewartet
-  object fin_function; # dann wird diese Funktion aufgerufen
+  object fin_alive;    # only if this object is alive
+  object fin_trigger;  # wait for the death of this object
+  object fin_function; # then this function is called
   object fin_cdr;
 } * Finalizer;
 #define finalizer_length  ((sizeof(*(Finalizer)0)-offsetofa(record_,recdata))/sizeof(object))
@@ -4695,16 +4706,16 @@ typedef struct {
 # Streams with metaclass BUILT-IN-CLASS
 typedef struct {
   #ifdef case_stream
-    VAROBJECT_HEADER # Selbstpointer für GC
-    uintB strmflags; # Flags
-    uintB strmtype;  # Untertyp (als sintB >=0 !)
-    uintB reclength; # Länge in Objekten
-    uintB recxlength; # Länge der Extra-Elemente
+    VAROBJECT_HEADER # self-pointer for GC
+    uintB strmflags; # flags
+    uintB strmtype;  # subtype (as sintB >=0 !)
+    uintB reclength; # length in object
+    uintB recxlength; # lengths of the extra-elements
   #else
-    # Muss strmflags und strmtype aus Platzgründen in einem Fixnum
-    # in recdata[0] unterbringen.
+    # Because of space requirements, I have to put strmflags and strmtype
+    # into a fixnum in recdata[0].
     #if !((oint_addr_len+oint_addr_shift>=24) && (8>=oint_addr_shift))
-      #error "No room for stream flags -- Stream-Flags neu unterbringen!!"
+      #error "No room for stream flags -- re-accomodate Stream-Flags!!"
     #endif
     XRECORD_HEADER
     uintB strmfiller1;
@@ -4723,7 +4734,7 @@ typedef struct {
   object strm_wr_ch;
   object strm_wr_ch_array;
   object strm_wr_ch_lpos;
-  object strm_other[unspecified]; # typspezifische Komponenten
+  object strm_other[unspecified]; # type-specific components
 } *  Stream;
 # The macro TheStream actually means TheBuiltinStream.
 #define strm_len  ((sizeof(*(Stream)0)-offsetofa(record_,recdata))/sizeof(object)-unspecified)
@@ -4731,22 +4742,22 @@ typedef struct {
 #define stream_xlength(ptr)  xrecord_xlength(ptr)
 #define Stream_length(obj)  stream_length(TheStream(obj))
 #define Stream_xlength(obj)  stream_xlength(TheStream(obj))
-# Bitmaske in den Flags:
+# Bit-masks in the Flags:
   #define strmflags_open_B   0xF0  # gibt an, ob der Stream offen ist
   #define strmflags_immut_bit_B  1  # set if read literals are immutable
-  #define strmflags_reval_bit_B  2  # gesetzt, falls Read-Eval erlaubt ist
-  #define strmflags_rd_by_bit_B  4  # gesetzt, falls READ-BYTE möglich ist
-  #define strmflags_wr_by_bit_B  5  # gesetzt, falls WRITE-BYTE möglich ist
-  #define strmflags_rd_ch_bit_B  6  # gesetzt, falls READ-CHAR möglich ist
-  #define strmflags_wr_ch_bit_B  7  # gesetzt, falls WRITE-CHAR möglich ist
+  #define strmflags_reval_bit_B  2  # set, if Read-Eval is permitted
+  #define strmflags_rd_by_bit_B  4  # set, if READ-BYTE is possible
+  #define strmflags_wr_by_bit_B  5  # set, if WRITE-BYTE is possible
+  #define strmflags_rd_ch_bit_B  6  # set, if READ-CHAR is possible
+  #define strmflags_wr_ch_bit_B  7  # set, if WRITE-CHAR is possible
   #define strmflags_rd_by_B  bit(strmflags_rd_by_bit_B)
   #define strmflags_wr_by_B  bit(strmflags_wr_by_bit_B)
   #define strmflags_rd_ch_B  bit(strmflags_rd_ch_bit_B)
   #define strmflags_wr_ch_B  bit(strmflags_wr_ch_bit_B)
   #define strmflags_rd_B  (strmflags_rd_by_B | strmflags_rd_ch_B)
   #define strmflags_wr_B  (strmflags_wr_by_B | strmflags_wr_ch_B)
-# Nähere Typinfo:
-  enum { # Die Werte dieser Aufzählung sind der Reihe nach 0,1,2,...
+# approach Typinfo:
+  enum { # The ordered values of this enumeration are 0,1,2,...
   # First the OS independent streams.
                               enum_strmtype_synonym,
   #define strmtype_synonym    (uintB)enum_strmtype_synonym
@@ -4809,34 +4820,34 @@ typedef struct {
   #endif
                               enum_strmtype_dummy
   };
-  # Bei Änderung dieser Tabelle auch
-  # - die 12 Sprungtabellen bei STREAM-ELEMENT-TYPE, SET-STREAM-ELEMENT-TYPE,
+  # When this table is changed, also adapt
+  # - the 12 jumptables for STREAM-ELEMENT-TYPE, SET-STREAM-ELEMENT-TYPE,
   #   STREAM-EXTERNAL-FORMAT, SET-STREAM-EXTERNAL-FORMAT, INTERACTIVE-STREAM-P,
   #   CLOSE, LISTEN-CHAR, CLEAR_INPUT, LISTEN-BYTE, FINISH_OUTPUT,
   #   FORCE_OUTPUT, CLEAR_OUTPUT in STREAM.D und
-  # - die Namenstabelle in CONSTOBJ.D und
-  # - die Sprungtabelle bei PR_STREAM in IO.D und
-  # - die Pseudofunktionentabelle in PSEUDOFUN.D
-  # anpassen!
-# weitere typspezifische Komponenten:
+  # - the name-table in CONSTOBJ.D and
+  # - the jumptable for PR_STREAM in IO.D and
+  # - the pseudo-function-table in PSEUDOFUN.D
+  #
+# more type-specific components:
   #define strm_eltype          strm_other[0] # CHARACTER or ([UN]SIGNED-BYTE n)
-  #define strm_encoding        strm_other[1] # an Encoding
-  #define strm_file_name       strm_other[6] # Filename, ein Pathname oder NIL
-  #define strm_file_truename   strm_other[7] # Truename, ein nicht-Logical Pathname oder NIL
-  #define strm_buffered_channel  strm_other[5] # eingepacktes Handle
+  #define strm_encoding        strm_other[1] # an encoding
+  #define strm_file_name       strm_other[6] # filename, a pathname or NIL
+  #define strm_file_truename   strm_other[7] # truename, a non-logical pathname or NIL
+  #define strm_buffered_channel  strm_other[5] # packed Handle
   #define strm_synonym_symbol  strm_other[0]
-  #define strm_broad_list      strm_other[0] # Liste von Streams
-  #define strm_concat_list     strm_other[0] # Liste von Streams
+  #define strm_broad_list      strm_other[0] # list of Streams
+  #define strm_concat_list     strm_other[0] # list of Streams
   #define strm_pphelp_lpos     strm_wr_ch_lpos # Line Position (Fixnum>=0)
-  #define strm_pphelp_strings  strm_other[0]   # Semi-Simple-Strings für Output
-  #define strm_pphelp_modus    strm_other[1]   # Modus (NIL=Einzeiler, T=Mehrzeiler)
-  #define strm_buff_in_fun     strm_other[0] # Lesefunktion
-  #define strm_buff_out_fun    strm_other[0] # Ausgabefunktion
+  #define strm_pphelp_strings  strm_other[0]   # Semi-Simple-Strings for Output
+  #define strm_pphelp_modus    strm_other[1]   # Mode (NIL=Single line, T=multiple lines)
+  #define strm_buff_in_fun     strm_other[0] # read function
+  #define strm_buff_out_fun    strm_other[0] # output function
   #ifdef PIPES
-  #define strm_pipe_pid        strm_other[6] # Prozess-Id, ein Fixnum >=0
+  #define strm_pipe_pid        strm_other[6] # process-Id, a Fixnum >=0
   #endif
   #ifdef X11SOCKETS
-  #define strm_x11socket_connect  strm_other[6] # Liste (host display)
+  #define strm_x11socket_connect  strm_other[6] # List (host display)
   #endif
   #ifdef SOCKET_STREAMS
   #define strm_socket_port     strm_other[6] # port, a fixnum >=0
@@ -4844,9 +4855,9 @@ typedef struct {
   #define strm_twoway_socket_input  strm_other[0] # input side, a socket stream
   #endif
   #ifdef GENERIC_STREAMS
-  #define strm_controller_object strm_other[0] # Controller (meist CLOS-Instanz)
+  #define strm_controller_object strm_other[0] # Controller (usually a CLOS-instance)
   #endif
-# wird verwendet von STREAM, PATHNAME, IO
+# is used by stream.d, pathname.d, io.d
 
 # Structures
 typedef Srecord  Structure;
@@ -4854,32 +4865,32 @@ typedef Srecord  Structure;
 #define structure_length(ptr)  srecord_length(ptr)
 #define Structure_length(obj)  structure_length(TheStructure(obj))
 
-# CLOS-Klassen (= Instanzen von <class>), siehe clos.lisp
+# CLOS-Classes (= instances of <class>), see clos.lisp
 typedef struct {
   SRECORD_HEADER
-  object structure_types_2;   # Liste (metaclass <class>)
-  object metaclass;           # eine Subklasse von <class>
-  object classname;           # ein Symbol
-  object direct_superclasses; # direkte Oberklassen
-  object all_superclasses;    # alle Oberklassen inkl. sich selbst
-  object precedence_list;     # angeordnete Liste aller Oberklassen
-  object slot_location_table; # Hashtabelle Slotname -> wo der Slot sitzt
-  # ab hier nur bei metaclass = <standard-class> oder metaclass = <structure-class>
+  object structure_types_2;   # list (metaclass <class>)
+  object metaclass;           # a subclass of <class>
+  object classname;           # a symbol
+  object direct_superclasses; # direct superclasses
+  object all_superclasses;    # all superclasses, including itself
+  object precedence_list;     # ordered list of all superclasses
+  object slot_location_table; # hashtable slotname -> where the slot is located
+  # from here on only for metaclass = <standard-class> or metaclass = <structure-class>
   object slots;
   object default_initargs;
   object valid_initargs;
   object instance_size;
-  # ab hier nur bei metaclass = <standard-class>
+  # from here on only for metaclass = <standard-class>
   object shared_slots;
   object direct_slots;
   object direct_default_initargs;
   object other[unspecified];
 } *  Class;
 
-# CLOS-Instanzen
+# CLOS-instances
 typedef struct {
   SRECORD_HEADER
-  object inst_class; # eine CLOS-Klasse
+  object inst_class; # a CLOS-class
   object other[unspecified];
 } *  Instance;
 
@@ -4890,7 +4901,7 @@ typedef struct {
   object clos_codevec;
   object other[unspecified];
 } *  Closure;
-# interpretierte Closure:
+# interpreted Closure:
 typedef struct {
   SRECORD_HEADER
   object clos_name;
@@ -4917,32 +4928,32 @@ typedef struct {
   object clos_aux_inits;
 } *  Iclosure;
 #define iclos_length  ((sizeof(*(Iclosure)0)-offsetofa(record_,recdata))/sizeof(object))
-# compilierte Closure:
+# compiled Closure:
 typedef struct {
   SRECORD_HEADER
   object clos_name;
   object clos_codevec;
-  object clos_consts[unspecified]; # Closure-Konstanten
+  object clos_consts[unspecified]; # Closure-constants
 } *  Cclosure;
 #define cclosure_length(ptr)  srecord_length(ptr)
 #define Cclosure_length(obj)  cclosure_length(TheCclosure(obj))
 #define clos_venv  clos_consts[0]
 typedef struct {
-  LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
+  LRECORD_HEADER # self-pointer for GC, length in bits
   # Ab hier der Inhalt des Bitvektors.
-  uintW  ccv_spdepth_1;          # maximale SP-Tiefe, 1-Anteil
-  uintW  ccv_spdepth_jmpbufsize; # maximale SP-Tiefe, jmpbufsize-Anteil
-  uintW  ccv_numreq;    # Anzahl der required parameter
-  uintW  ccv_numopt;    # Anzahl der optionalen Parameter
-  uintB  ccv_flags;     # Flags. Bit 0: ob &REST - Parameter angegeben
-                        #        Bit 7: ob Keyword-Parameter angegeben
+  uintW  ccv_spdepth_1;          # maximal SP-depth, 1-part
+  uintW  ccv_spdepth_jmpbufsize; # maximal SP-depth, jmpbufsize-part
+  uintW  ccv_numreq;    # number of required parameters
+  uintW  ccv_numopt;    # number of optional parameters
+  uintB  ccv_flags;     # Flags. Bit 0: &REST - parameter given?
+                        #        Bit 7: keyword-parameter given?
                         #        Bit 6: &ALLOW-OTHER-KEYS-Flag
-                        #        Bit 4: ob generische Funktion
-                        #        Bit 3: ob generische Funktion mit Aufrufhemmung
-  uintB  ccv_signature; # Kürzel für den Argumenttyp, für schnelleres FUNCALL
-  # Falls Keyword-Parameter angegeben:
-  uintW  ccv_numkey;    # Anzahl der Keyword-Parameter
-  uintW  ccv_keyconsts; # Offset in FUNC der Keywords
+                        #        Bit 4: generic function?
+                        #        Bit 3: generic function with call-inhibition?
+  uintB  ccv_signature; # abbreviated argument type, for faster FUNCALL
+  # If keyword-parameters are given:
+  uintW  ccv_numkey;    # Number of keyword-parameters
+  uintW  ccv_keyconsts; # Offset in FUNC of the keywords
 } *  Codevec;
 #define CCV_SPDEPTH_1           0
 #define CCV_SPDEPTH_JMPBUFSIZE  2
@@ -4954,41 +4965,41 @@ typedef struct {
 #define CCV_KEYCONSTS          12
 #define CCV_START_NONKEY       10
 #define CCV_START_KEY          14
-# Compilierte Closures, bei denen Bit 4 in den Flags von clos_codevec
-# gesetzt ist, sind generische Funktionen.
+# Compiled closures, where Bit 4 has been set in the flags of clos_codevec
+# are generic functions.
 
-# Eine compilierte LISP-Funktion bekommt ihre Argumente auf dem STACK
-# und liefert ihre Werte im MULTIPLE_VALUE_SPACE. Als C-Funktion liefert
-# sie keinen Wert.
-  # Rückgabe von Multiple Values geschieht vollständig über den
-  # MULTIPLE_VALUE_SPACE. Als C-Funktion: Ergebnistyp Values.
-    #ifndef Values
+# A compiled LISP-function gets its arguments on the STACK
+# and returns its values in MULTIPLE_VALUE_SPACE.
+# It does not return a value as a C-function.
+  # Return of multiple values is completely done through
+  # MULTIPLE_VALUE_SPACE. As C-function: result-type Values.
+  #ifndef Values
     typedef void Values;
-    #endif
-  # Um einen Typ vom Wert Values weiterzureichen: return_Values(...);
-    #define return_Values  return_void
-  # Eine Lisp-Funktion ist ein Pointer auf eine C-Funktion ohne Rückgabewert
-    typedef Values (*lisp_function)();
-# Sollte dies geändert werden, so ist jeder Aufruf einer C-Funktion vom
-# Ergebnistyp 'Values' (insbesondere 'funcall', 'apply', 'eval') zu überprüfen.
+  #endif
+  # To pass a type of the value Values: return_Values(...);
+  #define return_Values  return_void
+  # A Lisp-function is a pointer to a C-function without returned value.
+  typedef Values (*lisp_function)();
+# If this is changedm, , every call of a C-function with the result type
+# 'Values' (especially 'funcall', 'apply', 'eval') is to be checked.
 
 # FSUBRs
-# Als C-Funktionen: vom Typ fsubr_function (keine Argumente, kein Wert):
+# As C-functions: of type fsubr_function (no arguments, no value):
   typedef Values fsubr_function (void);
-# Die Adressen dieser C-Funktionen werden direkt angesprungen.
-# Für SAVEMEM/LOADMEM gibt es eine Tabelle aller FSUBRs.
+# The addesses of these C-functions are jumped to directly
+# For SAVEMEM/LOADMEM there is a table containing all FSUBRs.
   typedef fsubr_function * fsubr_;
-# Signatur von FSUBRs im Lisp-Sinne:
-#         argtype          Kürzel für den Argumente-Typ     fsubr_argtype_t
-#         req_anz          Anzahl required Parameter        uintW
-#         opt_anz          Anzahl optionaler Parameter      uintW
+# Signature of FSUBRs in the Lisp-way:
+#         argtype          short for the argument type     fsubr_argtype_t
+#         req_anz          number of required parameters   uintW
+#         opt_anz          number of optional parameters   uintW
 #         body_flag        Body-Flag                        fsubr_body_t
-# Die Komponente body_flag enthält ein uintW, gemeint ist aber:
+# The component body_flag contains one uintW, but we mean:
   typedef enum {
     fsubr_nobody,
     fsubr_body
   } fsubr_body_t;
-# Die Komponente argtype enthält ein Fixnum, gemeint ist aber:
+# The component argtype contains a Fixnum, but it's supposed to be:
   typedef enum {
     fsubr_argtype_1_0_nobody,
     fsubr_argtype_2_0_nobody,
@@ -4998,21 +5009,21 @@ typedef struct {
     fsubr_argtype_1_body,
     fsubr_argtype_2_body
   } fsubr_argtype_t;
-# Umwandlung siehe SPVW:
+# conversion: see SPVW:
 # extern fsubr_argtype_t fsubr_argtype (uintW req_anz, uintW opt_anz, fsubr_body_t body_flag);
 
 # SUBRs
-# SUBR-Tabellen-Eintrag:
+# SUBR table entry:
   typedef struct {
-    lisp_function function; # Funktion
-    object name;            # Name
-    object keywords;        # NIL oder Vektor mit den Keywords
-    uintW argtype;          # Kürzel für den Argumente-Typ
-    uintW req_anz;          # Anzahl required Parameter
-    uintW opt_anz;          # Anzahl optionaler Parameter
-    uintB rest_flag;        # Flag für beliebig viele Argumente
-    uintB key_flag;         # Flag für Keywords
-    uintW key_anz;          # Anzahl Keywordparameter
+    lisp_function function; # function
+    object name;            # name
+    object keywords;        # NIL or vector with the keywords
+    uintW argtype;          # short for the argument-type
+    uintW req_anz;          # number of required parameters
+    uintW opt_anz;          # number of optionaler parameters
+    uintB rest_flag;        # flag for arbitrary number of arguments
+    uintB key_flag;         # flag for keywords
+    uintW key_anz;          # number of keyword parameter
     #if defined(NO_TYPECODES) && (alignment_long < 4) && defined(GNU)
       # Force all Subrs to be allocated with a 4-byte alignment. GC needs this.
       # __attribute__ ((aligned (4))) below is not sufficient with gcc-2.95.2.
@@ -5025,21 +5036,21 @@ typedef struct {
     #endif
     ;
   typedef subr_ *  Subr;
-# GC benötigt Information, wo hierin Objekte stehen:
+# GC needs information where objects are in here:
   #define subr_const_offset  offsetof(subr_,name)
   #define subr_const_anz     2
-# Die Komponente rest_flag enthält ein uintB, gemeint ist aber:
+# the rest_flag component is a uintB, while we really mean:
   typedef enum {
     subr_norest,
     subr_rest
   } subr_rest_t;
-# Die Komponente key_flag enthält ein uintB, gemeint ist aber:
+# the key_flag component is a uintB, while we really mean:
   typedef enum {
     subr_nokey,
     subr_key,
     subr_key_allow
   } subr_key_t;
-# Die Komponente argtype enthält ein uintW, gemeint ist aber:
+# the argtype component is a uintW, while we really mean:
   typedef enum {
     subr_argtype_0_0,
     subr_argtype_1_0,
@@ -5075,74 +5086,73 @@ typedef struct {
     subr_argtype_1_1_key,
     subr_argtype_1_2_key
   } subr_argtype_t;
-# Umwandlung siehe SPVW:
+# Conversion: see SPVW:
 # extern subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz, subr_rest_t rest_flag, subr_key_t key_flag);
 
 # Read-Label
-  #ifdef TYPECODES
-    #define make_read_label(n)  \
-      type_data_object(system_type, ((uintL)(n)<<1) + bit(0))
-    #define read_label_integer_p(obj)  \
-      (posfixnump(obj) && (posfixnum_to_L(obj) < bit(oint_data_len-2)))
-  #else
-    #define make_read_label(n)  \
-      type_data_object(read_label_type, (uintL)(n))
-    #define read_label_integer_p(obj)  posfixnump(obj)
-  #endif
+#ifdef TYPECODES
+  #define make_read_label(n)  \
+    type_data_object(system_type, ((uintL)(n)<<1) + bit(0))
+  #define read_label_integer_p(obj)  \
+    (posfixnump(obj) && (posfixnum_to_L(obj) < bit(oint_data_len-2)))
+#else
+  #define make_read_label(n)  \
+    type_data_object(read_label_type, (uintL)(n))
+  #define read_label_integer_p(obj)  posfixnump(obj)
+#endif
 
-# Maschinen-Pointer
+# Machine pointers:
 # make_machine(ptr)
-  #ifdef TYPECODES
-    #define make_machine(ptr)  type_pointer_object(machine_type,ptr)
-  #else
-    #define make_machine(ptr)  as_object((oint)(ptr)+machine_bias)
-  #endif
+#ifdef TYPECODES
+  #define make_machine(ptr)  type_pointer_object(machine_type,ptr)
+#else
+  #define make_machine(ptr)  as_object((oint)(ptr)+machine_bias)
+#endif
 
 # Pointer to machine code
 # make_machine_code(ptr)
-  #if defined(TYPECODES) || (log2_C_CODE_ALIGNMENT >= 2)
-    #define make_machine_code(ptr)  make_machine(ptr)
-  #elif defined(HPPA)
-    #define make_machine_code(ptr)  make_machine((uintP)(ptr)&~(uintP)3)
-  #else
-    #define make_machine_code(ptr)  make_machine((uintP)(ptr)<<(2-log2_C_CODE_ALIGNMENT))
-  #endif
+#if defined(TYPECODES) || (log2_C_CODE_ALIGNMENT >= 2)
+  #define make_machine_code(ptr)  make_machine(ptr)
+#elif defined(HPPA)
+  #define make_machine_code(ptr)  make_machine((uintP)(ptr)&~(uintP)3)
+#else
+  #define make_machine_code(ptr)  make_machine((uintP)(ptr)<<(2-log2_C_CODE_ALIGNMENT))
+#endif
 
 # System-Pointer
-  #define make_system(data)  \
-    type_data_object(system_type, bit(oint_data_len-1) | bit(0) | ((bitm(oint_data_len)-1) & (data)))
-# Alle solchen müssen in io.d:pr_system() eine spezielle print-Routine bekommen.
+#define make_system(data)  \
+  type_data_object(system_type, bit(oint_data_len-1) | bit(0) | ((bitm(oint_data_len)-1) & (data)))
+# all such go into the special print routine io.d:pr_system()
 
-# Indikator für nicht vorhandenen Wert:
-  #define unbound  make_system(0xFFFFFFUL)
+# missing value
+#define unbound  make_system(0xFFFFFFUL)
 
-# Indikator für nicht vorhandenes Objekt (nur intern verwendet):
-  #define nullobj  make_machine(0)  # = as_object((oint)0)
+# missing object (internal use only):
+#define nullobj  make_machine(0)  # = as_object((oint)0)
 
 
 #ifdef TYPECODES
 
-# Um auf die Komponenten eines Objekts zugreifen zu können, muss man erst
-# die Typbits entfernen:
+# You have to remove the typebits in order to access the components
+# of an obkect.
   #if !((oint_addr_shift==0) && (addr_shift==0))
     #define pointable(obj)  ((void*)upointer(obj))
   #else
-    # Ist oint_addr_shift=0 und addr_shift=0, so braucht man nicht zu shiften.
+    # If oint_addr_shift=0 and addr_shift=0, you don't have to shift.
     #if !(((tint_type_mask<<oint_type_shift) & addressbus_mask) == 0)
       #define pointable(obj)  \
         ((void*)((aint)as_oint(obj) & ((aint)oint_addr_mask | ~addressbus_mask)))
     #else
-      # Ist ferner oint_type_mask von addressbus_mask disjunkt, so werden
-      # sowieso keine Typbits auf den Adressbus geschickt.
-      # Also ist gar nichts zu tun:
+      # Moreover if oint_type_mask and addressbus_mask are disjunct,
+      # no typebits are being sent to the address bus anyway.
+      # So there's nothing to be done:
       #define pointable(obj)  ((void*)(aint)as_oint(obj))
     #endif
   #endif
 
-# Wenn man auf ein Objekt zugreifen will, das eine bekannte Typinfo hat,
-# dessen gesetzte Typbits vom Adressbus verschluckt werden (auf die
-# Typbits, die =0 sind, kommt es nicht an), so kann man auf das 'untype'
-# verzichten:
+# If you want to access an object with a known type-info whose
+# set typebits are being swallowed by the address bus (the
+# typebits, that are =0 don't matter), you can do without 'untype':
   #if defined(WIDE_STRUCT)
     #define type_pointable(type,obj)  ((void*)((obj).both.addr))
   #elif !((oint_addr_shift==0) && (addr_shift==0) && (((tint_type_mask<<oint_type_shift) & addressbus_mask) == 0))
@@ -5153,7 +5163,8 @@ typedef struct {
          : (void*)(aint)pointable(obj)                                           \
         )
     #elif !(addr_shift==0)
-      # Analog, nur dass der Macro 'optimized_upointer' die Rolle des Adressbus übernimmt:
+      # Analogous, but here the macro 'optimized_upointer'
+      # assumes the role of the address bus:
       #define type_pointable(type,obj)  \
         ((optimized_upointer(type_data_object(type,0)) == 0) \
          ? (void*)(aint)optimized_upointer(obj)              \
@@ -5161,20 +5172,20 @@ typedef struct {
         )
     #endif
   #else
-    # Wenn pointable(obj) = obj, braucht auch type_pointable() nichts zu tun:
+    # If pointable(obj) = obj, type_pointable() doesn't do anything as well:
     #define type_pointable(type,obj)  ((void*)(aint)as_oint(obj))
   #endif
 
-# Wenn man auf ein Objekt zugreifen will, das eine von mehreren bekannten
-# Typinfos hat, kann man evtl. auf das 'untype' verzichten. Maßgeblich
-# ist das OR der Typinfos.
+# If you want to access an object that has one of several known
+# type infos, you can probably omit the 'untype'.
+# The  OR of the type infos is more authoritative.
   #define types_pointable(ORed_types,obj)  type_pointable(ORed_types,obj)
 
-#endif
+#endif # TYPECODES
 
-# TheCons(object) liefert das zu object äquivalente Cons.
-# Die Information, dass es Cons darstellt, muss hineingesteckt werden.
-# Analog die anderen Typumwandlungen.
+# TheCons(object) yields the Cons that's equivalent to object.
+# The information that is is a Cons has to be put into it.
+# The other type conversions are similar.
 #ifdef TYPECODES
   #define TheCons(obj)  ((Cons)(types_pointable(cons_type,obj)))
   #define TheRatio(obj)  ((Ratio)(types_pointable(ratio_type|bit(sign_bit_t),obj)))
@@ -5247,13 +5258,13 @@ typedef struct {
   #define TheMachineCode(obj)  TheMachine(obj)
   #define ThePseudofun(obj)  ((Pseudofun)TheMachineCode(obj))
   #ifdef FOREIGN_HANDLE
-  # Handle in Sbvector verpackt
+  # pack Handle in Sbvector
   #define TheHandle(obj)  (*(Handle*)(&TheSbvector(obj)->data[0]))
   #else
-  # Handle in Fixnum>=0 verpackt
+  # pack Handle in Fixnum>=0
   #define TheHandle(obj)  ((Handle)posfixnum_to_L(obj))
   #endif
-  # Objekt variabler Länge:
+  # variable length object:
   #define TheVarobject(obj)  \
     ((Varobject)                                                                                 \
      (types_pointable                                                                            \
@@ -5266,7 +5277,7 @@ typedef struct {
        |bignum_type|ffloat_type|dfloat_type|lfloat_type|bit(sign_bit_t),                         \
        obj                                                                                       \
     )))
-  # Objekt, das einen Pointer in den Speicher darstellt:
+  # Object that represents a pointer into the memory:
   #define ThePointer(obj)  \
     (types_pointable                                                                            \
      (sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type\
@@ -5353,274 +5364,271 @@ typedef struct {
   #endif
   #define ThePseudofun(obj)  ((Pseudofun)TheMachineCode(obj))
   #ifdef FOREIGN_HANDLE
-  # Handle in Sbvector verpackt
+  # pack Handle in Sbvector
   #define TheHandle(obj)  (*(Handle*)(&TheSbvector(obj)->data[0]))
   #else
-  # Handle in Fixnum>=0 verpackt
+  # pack Handle in Fixnum>=0
   #define TheHandle(obj)  ((Handle)posfixnum_to_L(obj))
   #endif
-  # Objekt variabler Länge:
+  # Object of variable length:
   #define TheVarobject(obj)  ((Varobject)(as_oint(obj)-varobject_bias))
-  # Objekt, das einen Pointer in den Speicher darstellt:
+  # Object, represents a pointer into the memory:
   #define ThePointer(obj)  ((void*)(as_oint(obj) & ~(oint)nonimmediate_bias_mask))
 #endif
 
-# Ein paar Abkürzungen:
-  # Zugriff auf Objekte, die Conses sind:
-    #define Car(obj)  (TheCons(obj)->car)
-    #define Cdr(obj)  (TheCons(obj)->cdr)
-  # Zugriff auf Objekte, die Symbole sind:
-    #define Symbol_value(obj)  (TheSymbol(obj)->symvalue)
-    #define Symbol_function(obj)  (TheSymbol(obj)->symfunction)
-    #define Symbol_plist(obj)  (TheSymbol(obj)->proplist)
-    #define Symbol_name(obj)  (TheSymbol(obj)->pname)
-    #define Symbol_package(obj)  (TheSymbol(obj)->homepackage)
-  # Länge (Anzahl Objekte) eines Record, obj muss ein Srecord/Xrecord sein:
-    #define Record_length(obj)  \
-      (Record_type(obj) < rectype_limit ? Srecord_length(obj) : Xrecord_length(obj))
+# Some acronyms
+# Access to objects that are conses:
+#define Car(obj)  (TheCons(obj)->car)
+#define Cdr(obj)  (TheCons(obj)->cdr)
+# Access to objects that are symbols:
+#define Symbol_value(obj)  (TheSymbol(obj)->symvalue)
+#define Symbol_function(obj)  (TheSymbol(obj)->symfunction)
+#define Symbol_plist(obj)  (TheSymbol(obj)->proplist)
+#define Symbol_name(obj)  (TheSymbol(obj)->pname)
+#define Symbol_package(obj)  (TheSymbol(obj)->homepackage)
+# Length (number of objects) of a record, obj has to be a Srecord/Xrecord:
+#define Record_length(obj)  \
+ (Record_type(obj) < rectype_limit ? Srecord_length(obj) : Xrecord_length(obj))
 
 
-# ####################### Typtestprädikate ################################ #
-# Die gibt es in zwei Formen:
-# 1.  ???p, mit 'if' abzufragen:  if ???p(object)
-# 2.  if_???p, aufzurufen als
+# ####################### type test predicates############################### #
+# There are two kinds of predicates:
+# 1.  ???p, query with 'if':  if ???p(object)
+# 2.  if_???p, called as
 #         if_???p(object, statement1, statement2)
-#       statt
+#       instead of
 #         if ???p(object) statement1 else statement2
 
-# UP: testet auf Pointergleichheit EQ
+# UP: tests for equality of pointers EQ
 # eq(obj1,obj2)
-# > obj1,obj2: Lisp-Objekte
-# < ergebnis: true, falls Objekte gleich
-  #if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
-    #define eq(obj1,obj2)  (as_oint(obj1) == as_oint(obj2))
-  #else
-    #define eq(obj1,obj2)  ((obj1) == (obj2))
-  #endif
+# > obj1,obj2: Lisp-objects
+# < result: true, if objects are equal
+#if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
+  #define eq(obj1,obj2)  (as_oint(obj1) == as_oint(obj2))
+#else
+  #define eq(obj1,obj2)  ((obj1) == (obj2))
+#endif
 
-# Test auf NIL
-  #define nullp(obj)  (eq(obj,NIL))
+# Test for NIL
+#define nullp(obj)  (eq(obj,NIL))
 
-# Test auf Cons
-  #ifdef TYPECODES
-    #if defined(cons_bit_o)
-      # define consp(obj)  (as_oint(obj) & wbit(cons_bit_o))
-      #define consp(obj)  (wbit_test(as_oint(obj),cons_bit_o))
-      #ifdef fast_mtypecode
-        #ifdef WIDE_STRUCT
-          #undef consp
-          #define consp(obj)  (typecode(obj) & bit(cons_bit_t))
-        #endif
-        #define mconsp(obj)  (mtypecode(obj) & bit(cons_bit_t))
-      #else
-        #define mconsp(obj)  consp(obj)
+# Test for Cons
+#ifdef TYPECODES
+  #if defined(cons_bit_o)
+    # define consp(obj)  (as_oint(obj) & wbit(cons_bit_o))
+    #define consp(obj)  (wbit_test(as_oint(obj),cons_bit_o))
+    #ifdef fast_mtypecode
+      #ifdef WIDE_STRUCT
+        #undef consp
+        #define consp(obj)  (typecode(obj) & bit(cons_bit_t))
       #endif
+      #define mconsp(obj)  (mtypecode(obj) & bit(cons_bit_t))
     #else
-      #define consp(obj)  (typecode(obj) == cons_type)
-      #define mconsp(obj)  (mtypecode(obj) == cons_type)
+      #define mconsp(obj)  consp(obj)
     #endif
   #else
-    #define consp(obj)  ((as_oint(obj) & 7) == cons_bias)
-    #define mconsp(obj)  consp(obj)
+    #define consp(obj)  (typecode(obj) == cons_type)
+    #define mconsp(obj)  (mtypecode(obj) == cons_type)
   #endif
+#else
+  #define consp(obj)  ((as_oint(obj) & 7) == cons_bias)
+  #define mconsp(obj)  consp(obj)
+#endif
 
-# Test auf Atom
-  #ifdef TYPECODES
-    #if defined(cons_bit_o)
-      # define atomp(obj)  ((as_oint(obj) & wbit(cons_bit_o))==0)
-      #define atomp(obj)  (!wbit_test(as_oint(obj),cons_bit_o))
-      #ifdef fast_mtypecode
-        #ifdef WIDE_STRUCT
-          #undef atomp
-          #define atomp(obj)  ((typecode(obj) & bit(cons_bit_t))==0)
-        #endif
-        #define matomp(obj)  ((mtypecode(obj) & bit(cons_bit_t))==0)
-      #else
-        #define matomp(obj)  atomp(obj)
+# Test for Atom
+#ifdef TYPECODES
+  #if defined(cons_bit_o)
+    # define atomp(obj)  ((as_oint(obj) & wbit(cons_bit_o))==0)
+    #define atomp(obj)  (!wbit_test(as_oint(obj),cons_bit_o))
+    #ifdef fast_mtypecode
+      #ifdef WIDE_STRUCT
+        #undef atomp
+        #define atomp(obj)  ((typecode(obj) & bit(cons_bit_t))==0)
       #endif
+      #define matomp(obj)  ((mtypecode(obj) & bit(cons_bit_t))==0)
     #else
-      #define atomp(obj)  (!(typecode(obj) == cons_type))
-      #define matomp(obj)  (!(mtypecode(obj) == cons_type))
+      #define matomp(obj)  atomp(obj)
     #endif
   #else
-    #define atomp(obj)  (!consp(obj))
-    #define matomp(obj)  atomp(obj)
+    #define atomp(obj)  (!(typecode(obj) == cons_type))
+    #define matomp(obj)  (!(mtypecode(obj) == cons_type))
   #endif
+#else
+  #define atomp(obj)  (!consp(obj))
+  #define matomp(obj)  atomp(obj)
+#endif
 
 # For all type tests below this line, the argument must be side-effect free.
 # Ideally a variable, but a STACK_(n) reference works as well.
 
-# Test auf Liste
-  #define listp(obj)  (nullp(obj) || consp(obj))
+# Test for List
+#define listp(obj)  (nullp(obj) || consp(obj))
 
 #ifndef TYPECODES
-
-# Test auf Object variabler Länge
+  # Test for Object with variable length
   #define varobjectp(obj)  ((as_oint(obj) & 3) == varobject_bias)
-
 #endif
 
-# Test auf Symbol
-  #ifdef TYPECODES
-    #if defined(symbol_bit_o)
-      # define symbolp(obj)  (as_oint(obj) & wbit(symbol_bit_o))
-      #define symbolp(obj)  (wbit_test(as_oint(obj),symbol_bit_o))
-      #ifdef WIDE_STRUCT
-        #undef symbolp
-        #define symbolp(obj)  (typecode(obj) & bit(symbol_bit_t))
-      #endif
-    #else
-      #define symbolp(obj)  (typecode(obj) == symbol_type)
-    #endif
-  #else
-    #define symbolp(obj)  \
-      (varobjectp(obj) && (Record_type(obj) == Rectype_Symbol))
-  #endif
-
-# Test auf Zahl
-  #ifdef TYPECODES
-    # define numberp(obj)  (as_oint(obj) & wbit(number_bit_o))
-    #define numberp(obj)  (wbit_test(as_oint(obj),number_bit_o))
+# Test for Symbol
+#ifdef TYPECODES
+  #if defined(symbol_bit_o)
+    # define symbolp(obj)  (as_oint(obj) & wbit(symbol_bit_o))
+    #define symbolp(obj)  (wbit_test(as_oint(obj),symbol_bit_o))
     #ifdef WIDE_STRUCT
-      #undef numberp
-      #define numberp(obj)  (typecode(obj) & bit(number_bit_t))
+      #undef symbolp
+      #define symbolp(obj)  (typecode(obj) & bit(symbol_bit_t))
     #endif
   #else
-    #define immediate_number_p(obj)  \
-      ((as_oint(obj) & ((4 << imm_type_shift) | immediate_bias)) == (fixnum_type&sfloat_type))
-    #define numberp(obj)  \
-      (immediate_number_p(obj) \
-       || (varobjectp(obj)     \
-           && ((uintB)(Record_type(obj)-Rectype_Bignum) <= Rectype_Complex-Rectype_Bignum) \
-      )   )
+    #define symbolp(obj)  (typecode(obj) == symbol_type)
   #endif
+#else
+  #define symbolp(obj)  \
+    (varobjectp(obj) && (Record_type(obj) == Rectype_Symbol))
+#endif
 
-# Test auf Vector (Typbytes %001,%010,%011,%101,%110,%111)
-  #ifdef TYPECODES
-    #define vectorp(obj)  \
-      ((tint)(typecode(obj) - sbvector_type) <= (tint)(vector_type - sbvector_type))
-  #else
-    # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String,
-    #        Rectype_bvector, Rectype_b[2|4|8|16|32]vector, Rectype_vector, Rectype_string
-    #define vectorp(obj)  \
-      (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= 19-1))
+# Test for number
+#ifdef TYPECODES
+  # define numberp(obj)  (as_oint(obj) & wbit(number_bit_o))
+  #define numberp(obj)  (wbit_test(as_oint(obj),number_bit_o))
+  #ifdef WIDE_STRUCT
+    #undef numberp
+    #define numberp(obj)  (typecode(obj) & bit(number_bit_t))
   #endif
+#else
+  #define immediate_number_p(obj)  \
+    ((as_oint(obj) & ((4 << imm_type_shift) | immediate_bias)) == (fixnum_type&sfloat_type))
+  #define numberp(obj)  \
+    (immediate_number_p(obj) \
+     || (varobjectp(obj)     \
+         && ((uintB)(Record_type(obj)-Rectype_Bignum) <= Rectype_Complex-Rectype_Bignum)))
+#endif
 
-# Test auf simple-vector oder simple-bit-vector oder simple-string
-  #ifdef TYPECODES
-    #define simplep(obj)  \
-      ((tint)(typecode(obj) - sbvector_type) <= (tint)(svector_type - sbvector_type))
-  #else
-    # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String
-    #define simplep(obj)  \
-      (varobjectp(obj) && ((uintB)(Record_type(obj) - 9) <= 18-9))
-  #endif
+# Test for Vector (typebytes %001,%010,%011,%101,%110,%111)
+#ifdef TYPECODES
+  #define vectorp(obj)  \
+    ((tint)(typecode(obj) - sbvector_type) <= (tint)(vector_type - sbvector_type))
+#else
+  # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String,
+  #        Rectype_bvector, Rectype_b[2|4|8|16|32]vector, Rectype_vector, Rectype_string
+  #define vectorp(obj)  \
+    (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= 19-1))
+#endif
 
-# Test eines Array auf simple-vector oder simple-bit-vector oder simple-string
-  #ifdef TYPECODES
-    #define array_simplep(obj)  \
-      ((typecode(obj) & bit(notsimple_bit_t)) == 0)
-  #else
-    # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String
-    #define array_simplep(obj)  \
-      ((uintB)(Record_type(obj) - 9) <= 18-9)
-  #endif
+# Test for simple-vector or simple-bit-vector or simple-string
+#ifdef TYPECODES
+  #define simplep(obj)  \
+    ((tint)(typecode(obj) - sbvector_type) <= (tint)(svector_type - sbvector_type))
+#else
+  # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String
+  #define simplep(obj)  \
+    (varobjectp(obj) && ((uintB)(Record_type(obj) - 9) <= 18-9))
+#endif
 
-# Test auf simple-vector
-  #ifdef TYPECODES
-    #define simple_vector_p(obj)  \
-      (typecode(obj) == svector_type)
-  #else
-    # cases: Rectype_Svector
-    #define simple_vector_p(obj)  \
-      (varobjectp(obj) && (Record_type(obj) == Rectype_Svector))
-  #endif
+# Tests an Array for simple-vector or simple-bit-vector or simple-string
+#ifdef TYPECODES
+  #define array_simplep(obj)  \
+    ((typecode(obj) & bit(notsimple_bit_t)) == 0)
+#else
+  # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String
+  #define array_simplep(obj)  \
+    ((uintB)(Record_type(obj) - 9) <= 18-9)
+#endif
 
-# Test auf general-vector=(vector t)
-  #ifdef TYPECODES
-    #define general_vector_p(obj)  \
-      ((typecode(obj) & ~bit(notsimple_bit_t)) == svector_type)
-  #else
-    # cases: Rectype_Svector, Rectype_vector
-    #define general_vector_p(obj)  \
-      (varobjectp(obj) \
-       && ((Record_type(obj) & ~(Rectype_Svector ^ Rectype_vector)) == (Rectype_Svector & Rectype_vector)) \
-      )
-  #endif
+# Test for simple-vector
+#ifdef TYPECODES
+  #define simple_vector_p(obj)  \
+    (typecode(obj) == svector_type)
+#else
+  # cases: Rectype_Svector
+  #define simple_vector_p(obj)  \
+    (varobjectp(obj) && (Record_type(obj) == Rectype_Svector))
+#endif
 
-# Test auf simple-string
-  #ifdef TYPECODES
-    #define simple_string_p(obj)  \
-      (typecode(obj) == sstring_type)
-  #else
-    # cases: Rectype_[Imm_][Small]String
-    #define simple_string_p(obj)  \
-      (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) <= 18-16))
-  #endif
+# Test for general-vector=(vector t)
+#ifdef TYPECODES
+  #define general_vector_p(obj)  \
+    ((typecode(obj) & ~bit(notsimple_bit_t)) == svector_type)
+#else
+  # cases: Rectype_Svector, Rectype_vector
+  #define general_vector_p(obj)  \
+    (varobjectp(obj) \
+     && ((Record_type(obj) & ~(Rectype_Svector ^ Rectype_vector)) == (Rectype_Svector & Rectype_vector)) \
+    )
+#endif
 
-# Test auf string
-  #ifdef TYPECODES
-    #define stringp(obj)  \
-      ((typecode(obj) & ~bit(notsimple_bit_t)) == sstring_type)
-  #else
-    # cases: Rectype_[Imm_][Small]String, Rectype_string
-    #define stringp(obj)  \
-      (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) <= 19-16))
-  #endif
+# Test for simple-string
+#ifdef TYPECODES
+  #define simple_string_p(obj)  \
+    (typecode(obj) == sstring_type)
+#else
+  # cases: Rectype_[Imm_][Small]String
+  #define simple_string_p(obj)  \
+    (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) <= 18-16))
+#endif
 
-# Test auf simple-bit[n]-vector
-  #ifdef TYPECODES
-    #define simple_bit_vector_p(atype,obj)  \
-      (typecode(obj) == Array_type_simple_bit_vector(atype))
-  #else
-    # cases: Rectype_Sb[2^n]vector
-    #define simple_bit_vector_p(atype,obj)  \
-      (varobjectp(obj) && (Record_type(obj) == Rectype_Sbvector+(atype)))
-  #endif
+# Test for string
+#ifdef TYPECODES
+  #define stringp(obj)  \
+    ((typecode(obj) & ~bit(notsimple_bit_t)) == sstring_type)
+#else
+  # cases: Rectype_[Imm_][Small]String, Rectype_string
+  #define stringp(obj)  \
+    (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) <= 19-16))
+#endif
 
-# Test auf bit[n]-vector
-  #ifdef TYPECODES
-    #define bit_vector_p(atype,obj)  \
-      ((typecode(obj) & ~bit(notsimple_bit_t)) == Array_type_simple_bit_vector(atype))
-  #else
-    # cases: Rectype_Sb[2^n]vector, Rectype_b[2^n]vector
-    #define bit_vector_p(atype,obj)  \
-      (varobjectp(obj) \
-       && ((Record_type(obj) & ~(Rectype_Sbvector ^ Rectype_bvector)) == (Rectype_Sbvector & Rectype_bvector) + (atype)) \
-      )
-  #endif
+# Test for simple-bit[n]-vector
+#ifdef TYPECODES
+  #define simple_bit_vector_p(atype,obj)  \
+    (typecode(obj) == Array_type_simple_bit_vector(atype))
+#else
+  # cases: Rectype_Sb[2^n]vector
+  #define simple_bit_vector_p(atype,obj)  \
+    (varobjectp(obj) && (Record_type(obj) == Rectype_Sbvector+(atype)))
+#endif
 
-# Test auf Array allgemein
-  #ifdef TYPECODES
-    #define arrayp(obj)  \
-      ((tint)(typecode(obj) - mdarray_type) <= (tint)(vector_type - mdarray_type))
-  #else
-    # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String,
-    #        Rectype_bvector, Rectype_b[2|4|8|16|32]vector, Rectype_vector, Rectype_string,
-    #        Rectype_mdarray
-    #define arrayp(obj)  \
-      (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= 20-1))
-  #endif
+# Test for bit[n]-vector
+#ifdef TYPECODES
+  #define bit_vector_p(atype,obj)  \
+    ((typecode(obj) & ~bit(notsimple_bit_t)) == Array_type_simple_bit_vector(atype))
+#else
+  # cases: Rectype_Sb[2^n]vector, Rectype_b[2^n]vector
+  #define bit_vector_p(atype,obj)  \
+    (varobjectp(obj) \
+     && ((Record_type(obj) & ~(Rectype_Sbvector ^ Rectype_bvector)) == (Rectype_Sbvector & Rectype_bvector) + (atype)) \
+    )
+#endif
 
-# Test auf Array, der kein Vector ist (Typbyte %100)
-  #ifdef TYPECODES
-    #define mdarrayp(obj)  \
-      (typecode(obj) == mdarray_type)
-  #else
-    # cases: Rectype_mdarray
-    #define mdarrayp(obj)  \
-      (varobjectp(obj) && (Record_type(obj) == Rectype_mdarray))
-  #endif
+# Test for Array (general)
+#ifdef TYPECODES
+  #define arrayp(obj)  \
+    ((tint)(typecode(obj) - mdarray_type) <= (tint)(vector_type - mdarray_type))
+#else
+  # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String,
+  #        Rectype_bvector, Rectype_b[2|4|8|16|32]vector, Rectype_vector, Rectype_string,
+  #        Rectype_mdarray
+  #define arrayp(obj)  \
+    (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= 20-1))
+#endif
+
+# Test for Array, that isn't a Vector (type byte %100)
+#ifdef TYPECODES
+  #define mdarrayp(obj)  \
+    (typecode(obj) == mdarray_type)
+#else
+  # cases: Rectype_mdarray
+  #define mdarrayp(obj)  \
+    (varobjectp(obj) && (Record_type(obj) == Rectype_mdarray))
+#endif
 
 #ifdef TYPECODES
-  # Test auf Closure/Structure/Stream/Instanz/OtherRecord
+  # Test for Closure/Structure/Stream/Instance/OtherRecord
     #define if_recordp(obj,statement1,statement2)  \
       switch (typecode(obj)) {          \
         case_record: statement1; break; \
         default: statement2; break;     \
       }
 #else
-  # Test auf Srecord/Xrecord
+  # Test for Srecord/Xrecord
     #define if_recordp(obj,statement1,statement2)  \
       if (orecordp(obj))                                                     \
         switch (Record_type(obj)) {                                          \
@@ -5636,39 +5644,39 @@ typedef struct {
         not_record: { statement2 }
 #endif
 
-# Test auf Closure
-  #ifdef TYPECODES
-    #define closurep(obj)  (typecode(obj)==closure_type)
-  #else
-    #define closurep(obj)  \
-      (varobjectp(obj) && (Record_type(obj) == Rectype_Closure))
-  #endif
+# Test for Closure
+#ifdef TYPECODES
+  #define closurep(obj)  (typecode(obj)==closure_type)
+#else
+  #define closurep(obj)  \
+    (varobjectp(obj) && (Record_type(obj) == Rectype_Closure))
+#endif
 
-# Test auf compilierte Closure
-  # In einer Closure ist die zweite Komponente
-  # entweder eine Liste (der Lambdabody bei interpretierten Closures)
-  # oder ein Simple-Bit-Vector (der Codevektor bei compilierten Closures).
-  #define cclosurep(obj)  \
-    (closurep(obj) && simple_bit_vector_p(Atype_8Bit,TheClosure(obj)->clos_codevec))
+# Test for compiled Closure
+# The second component of a closure is either a list
+# (the Lambdabody for interpreted Closures)
+# or a Simple-Bit-Vector (the code vector for compiled Closures).
+#define cclosurep(obj)  \
+  (closurep(obj) &&     \
+   simple_bit_vector_p(Atype_8Bit,TheClosure(obj)->clos_codevec))
 
-# Test auf generische Funktion
-  #define genericfunctionp(obj)  \
-    (cclosurep(obj)                                                     \
-     && (TheCodevec(TheClosure(obj)->clos_codevec)->ccv_flags & bit(4)) \
-    )
+# Test for generic function
+#define genericfunctionp(obj)  \
+  (cclosurep(obj) &&           \
+   (TheCodevec(TheClosure(obj)->clos_codevec)->ccv_flags & bit(4)))
 
-# Test auf CLOS-Instanz
-  #ifdef TYPECODES
-    #define instancep(obj)  (typecode(obj)==instance_type)
-  #else
-    #define instancep(obj)  \
-      (varobjectp(obj) && (Record_type(obj) == Rectype_Instance))
-  #endif
+# Test for CLOS-Instance
+#ifdef TYPECODES
+  #define instancep(obj)  (typecode(obj)==instance_type)
+#else
+  #define instancep(obj)  \
+    (varobjectp(obj) && (Record_type(obj) == Rectype_Instance))
+#endif
 
-# Test auf CLOS-Klasse
-# Unser CLOS implementiert alle Klassen als Instanzen einer (nicht notwendig
-# direkten) Unterklasse von <class>.
-  #define if_classp(obj,statement1,statement2)  \
+# Test for CLOS-class
+# Our CLOS implements all classes as instances of a
+# (not necessarily direct) subclass of <class>.
+#define if_classp(obj,statement1,statement2)  \
     if (structurep(obj)) {                                       \
       var object list = Cdr(TheStructure(obj)->structure_types); \
       var object sublist = O(class_structure_types);             \
@@ -5684,57 +5692,56 @@ typedef struct {
     }
 
 # Test for CLOS instance of a given class
-  #define instanceof(obj,class)  \
-    (instancep(obj)                                                                          \
-     && !eq(gethash(class,TheClass(TheInstance(obj)->inst_class)->all_superclasses),nullobj) \
-    )
+#define instanceof(obj,class)  \
+  (instancep(obj) &&           \
+   !eq(gethash(class,TheClass(TheInstance(obj)->inst_class)->all_superclasses),nullobj))
 
-# Test auf Other-Record
+# Test for Other-Record
 # This is not really a type test (because there is no well-defined type
 # Other-Record). It's just a precondition for calling Record_type(obj).
-  #ifdef TYPECODES
-    #define orecordp(obj)  (typecode(obj)==orecord_type)
-  #else
-    #define orecordp(obj)  varobjectp(obj)
-  #endif
+#ifdef TYPECODES
+  #define orecordp(obj)  (typecode(obj)==orecord_type)
+#else
+  #define orecordp(obj)  varobjectp(obj)
+#endif
 
-# Test auf Structure
-  #ifdef case_structure
-    #define structurep(obj)  (typecode(obj)==structure_type)
-  #else
-    #define structurep(obj)  \
-      (orecordp(obj) && (Record_type(obj) == Rectype_Structure))
-  #endif
+# Test for Structure
+#ifdef case_structure
+  #define structurep(obj)  (typecode(obj)==structure_type)
+#else
+  #define structurep(obj)  \
+    (orecordp(obj) && (Record_type(obj) == Rectype_Structure))
+#endif
 
-# Test auf Builtin-Stream
-  #ifdef case_stream
-    #define builtin_stream_p(obj)  (typecode(obj)==stream_type)
-  #else
-    #define builtin_stream_p(obj)  \
-      (orecordp(obj) && (Record_type(obj) == Rectype_Stream))
-  #endif
+# Test for Builtin-Stream
+#ifdef case_stream
+  #define builtin_stream_p(obj)  (typecode(obj)==stream_type)
+#else
+  #define builtin_stream_p(obj)  \
+    (orecordp(obj) && (Record_type(obj) == Rectype_Stream))
+#endif
 
-# Test auf Stream
-  #define streamp(obj)  \
-    (builtin_stream_p(obj) || instanceof(obj,O(class_fundamental_stream)))
+# Test for Stream
+#define streamp(obj)  \
+  (builtin_stream_p(obj) || instanceof(obj,O(class_fundamental_stream)))
 
-# Test auf Package
-  #define packagep(obj)  \
-    (orecordp(obj) && (Record_type(obj) == Rectype_Package))
+# Test for Package
+#define packagep(obj)  \
+  (orecordp(obj) && (Record_type(obj) == Rectype_Package))
 
-# Test auf Hash-Table
-  #define hash_table_p(obj)  \
-    (orecordp(obj) && (Record_type(obj) == Rectype_Hashtable))
+# Test for Hash-Table
+#define hash_table_p(obj)  \
+  (orecordp(obj) && (Record_type(obj) == Rectype_Hashtable))
 
-# Test auf Readtable
-  #define readtablep(obj)  \
-    (orecordp(obj) && (Record_type(obj) == Rectype_Readtable))
+# Test for Readtable
+#define readtablep(obj)  \
+  (orecordp(obj) && (Record_type(obj) == Rectype_Readtable))
 
-# Test auf Pathname
-  #define pathnamep(obj)  \
-    (orecordp(obj) && (Record_type(obj) == Rectype_Pathname))
+# Test for Pathname
+#define pathnamep(obj)  \
+  (orecordp(obj) && (Record_type(obj) == Rectype_Pathname))
 
-# Test auf Logical Pathname
+# Test for Logical Pathname
 #ifdef LOGICAL_PATHNAMES
   #define logpathnamep(obj)  \
     (orecordp(obj) && (Record_type(obj) == Rectype_Logpathname))
@@ -5742,63 +5749,62 @@ typedef struct {
   #define logpathnamep(obj)  false
 #endif
 
-# Test auf Extended Pathname (d.h. Pathname oder Logical Pathname)
+# Test for Extended Pathname (i.e., Pathname or Logical Pathname)
 # define xpathnamep(obj)  (pathnamep(obj) || logpathnamep(obj))
 #ifdef LOGICAL_PATHNAMES
   #define xpathnamep(obj)  \
     (orecordp(obj)                                    \
      && ((Record_type(obj) == Rectype_Pathname)       \
-         || (Record_type(obj) == Rectype_Logpathname) \
-    )   )
+         || (Record_type(obj) == Rectype_Logpathname)))
 #else
   #define xpathnamep(obj)  pathnamep(obj)
 #endif
 
-# Test auf Random-State
-  #define random_state_p(obj)  \
-    (orecordp(obj) && (Record_type(obj) == Rectype_Random_State))
+# Test for Random-State
+#define random_state_p(obj)  \
+  (orecordp(obj) && (Record_type(obj) == Rectype_Random_State))
 
-# Test auf Byte
-  #define bytep(obj)  \
-    (orecordp(obj) && (Record_type(obj) == Rectype_Byte))
+# Test for Byte
+#define bytep(obj)  \
+  (orecordp(obj) && (Record_type(obj) == Rectype_Byte))
 
-# Test auf Fsubr
-  #define fsubrp(obj)  \
-    (orecordp(obj) && (Record_type(obj) == Rectype_Fsubr))
+# Test for Fsubr
+#define fsubrp(obj)  \
+  (orecordp(obj) && (Record_type(obj) == Rectype_Fsubr))
 
-# Test auf Loadtimeeval
-  #define loadtimeevalp(obj)  \
-    (orecordp(obj) && (Record_type(obj) == Rectype_Loadtimeeval))
+# Test for Loadtimeeval
+#define loadtimeevalp(obj)  \
+  (orecordp(obj) && (Record_type(obj) == Rectype_Loadtimeeval))
 
-# Test auf Symbolmacro
-  #define symbolmacrop(obj)  \
-    (orecordp(obj) && (Record_type(obj) == Rectype_Symbolmacro))
+# Test for Symbolmacro
+#define symbolmacrop(obj)  \
+  (orecordp(obj) && (Record_type(obj) == Rectype_Symbolmacro))
 
-# Test auf Macro
-  #define macrop(obj)  \
-    (orecordp(obj) && (Record_type(obj) == Rectype_Macro))
+# Test for Macro
+#define macrop(obj)  \
+  (orecordp(obj) && (Record_type(obj) == Rectype_Macro))
 
-# Test auf FunctionMacro
-  #define functionmacrop(obj)  \
-    (orecordp(obj) && (Record_type(obj) == Rectype_FunctionMacro))
+# Test for FunctionMacro
+#define functionmacrop(obj)  \
+  (orecordp(obj) && (Record_type(obj) == Rectype_FunctionMacro))
 
 # Test for Encoding
-  #define encodingp(obj)  \
-    (orecordp(obj) && (Record_type(obj) == Rectype_Encoding))
+#define encodingp(obj)  \
+  (orecordp(obj) && (Record_type(obj) == Rectype_Encoding))
 
-# Test auf Fpointer
-  #define fpointerp(obj)  \
-    (orecordp(obj) && (Record_type(obj) == Rectype_Fpointer))
+# Test for Fpointer
+#define fpointerp(obj)  \
+  (orecordp(obj) && (Record_type(obj) == Rectype_Fpointer))
 
-# Test auf Faddress
-  #define faddressp(obj)  \
-    (orecordp(obj) && (Record_type(obj) == Rectype_Faddress))
+# Test for Faddress
+#define faddressp(obj)  \
+  (orecordp(obj) && (Record_type(obj) == Rectype_Faddress))
 
-# Test auf Fvariable
-  #define fvariablep(obj)  \
-    (orecordp(obj) && (Record_type(obj) == Rectype_Fvariable))
+# Test for Fvariable
+#define fvariablep(obj)  \
+  (orecordp(obj) && (Record_type(obj) == Rectype_Fvariable))
 
-# Test auf Ffunction
+# Test for Ffunction
 #ifdef DYNAMIC_FFI
   #define ffunctionp(obj)  \
     (orecordp(obj) && (Record_type(obj) == Rectype_Ffunction))
@@ -5807,8 +5813,8 @@ typedef struct {
 #endif
 
 # Test for Weakpointer
-  #define weakpointerp(obj)  \
-    (orecordp(obj) && (Record_type(obj) == Rectype_Weakpointer))
+#define weakpointerp(obj)  \
+  (orecordp(obj) && (Record_type(obj) == Rectype_Weakpointer))
 
 # test for socket-server and for socket-stream
 #ifdef SOCKET_STREAMS
@@ -5824,17 +5830,17 @@ typedef struct {
 #endif
 
 #ifdef YET_ANOTHER_RECORD
-# Test auf Yetanother
+  # Test for Yetanother
   #define yetanotherp(obj)  \
     (orecordp(obj) && (Record_type(obj) == Rectype_Yetanother))
 #endif
 
-# Test auf Character
-  #ifdef TYPECODES
-    #define charp(obj)  (typecode(obj)==char_type)
-  #else
-    #define charp(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias)) == char_type)
-  #endif
+# Test for Character
+#ifdef TYPECODES
+  #define charp(obj)  (typecode(obj)==char_type)
+#else
+  #define charp(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias)) == char_type)
+#endif
 
 #if (base_char_code_limit < char_code_limit)
 # Test for base character
@@ -5843,199 +5849,192 @@ typedef struct {
 #endif
 
 # Test for small character
-  #define small_char_p(obj)  \
-    ((as_oint(obj) & ~((oint)(bit(small_char_int_len)-1)<<oint_data_shift)) == type_zero_oint(char_type))
+#define small_char_p(obj)  \
+  ((as_oint(obj) & ~((oint)(bit(small_char_int_len)-1)<<oint_data_shift)) == type_zero_oint(char_type))
 
-# Test auf SUBR (compiliertes funktionales Objekt)
-  #ifdef TYPECODES
-    #define subrp(obj)  (typecode(obj)==subr_type)
-  #else
-    #define subrp(obj)  ((as_oint(obj) & 3) == subr_bias)
-  #endif
+# Test for SUBR (compiled functional object)
+#ifdef TYPECODES
+  #define subrp(obj)  (typecode(obj)==subr_type)
+#else
+  #define subrp(obj)  ((as_oint(obj) & 3) == subr_bias)
+#endif
 
-# Test auf Pointer in den STACK (normalerweise auf einen Frame)
-  #ifdef TYPECODES
-    #define framepointerp(obj)  (typecode(obj)==system_type) # andere Fälle??
-  #else
-    #define framepointerp(obj)  ((as_oint(obj) & 3) == machine_bias) # andere Fälle??
-  #endif
+# Test for pointer into the STACK (usualy at a frame)
+#ifdef TYPECODES
+  #define framepointerp(obj)  (typecode(obj)==system_type) # other cases??
+#else
+  #define framepointerp(obj)  ((as_oint(obj) & 3) == machine_bias) # other cases??
+#endif
 
 #ifndef TYPECODES
 
-# Test auf Maschinen-Pointer
+  # Test for Machine-Pointer
   #define machinep(obj)  ((as_oint(obj) & 3) == machine_bias)
 
-# Test auf Read-Label
+  # Test for Read-Label
   #define read_label_p(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias)) == read_label_type)
 
-# Test auf System-Pointer
+  # Test for System-Pointer
   #define systemp(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias)) == system_type)
 
 #endif
 
-# Test auf reelle Zahl
-  #ifdef TYPECODES
-    #define if_realp(obj,statement1,statement2)  \
-      {var object obj_from_if_realp = (obj);                      \
-       var tint type_from_if_realp = typecode(obj_from_if_realp); \
-       if ( (type_from_if_realp & bit(number_bit_t))              \
-            && !(type_from_if_realp==complex_type) )              \
-         { statement1 } else { statement2 }                       \
-      }
-  #else
-    #define if_realp(obj,statement1,statement2)  \
-      if (((as_oint(obj) & ((4 << imm_type_shift) | immediate_bias)) == fixnum_type) \
-          || (varobjectp(obj)                    \
-              && ((uintB)(Record_type(obj)-Rectype_Bignum) <= Rectype_Ratio-Rectype_Bignum) \
-         )   )                                   \
-        { statement1 } else { statement2 }
+# Test for real number
+#ifdef TYPECODES
+  #define if_realp(obj,statement1,statement2)  \
+    {var object obj_from_if_realp = (obj);                      \
+     var tint type_from_if_realp = typecode(obj_from_if_realp); \
+     if ( (type_from_if_realp & bit(number_bit_t))              \
+          && !(type_from_if_realp==complex_type) )              \
+       { statement1 } else { statement2 }                       \
+    }
+#else
+  #define if_realp(obj,statement1,statement2)  \
+    if (((as_oint(obj) & ((4 << imm_type_shift) | immediate_bias)) == fixnum_type) \
+        || (varobjectp(obj)                    \
+            && ((uintB)(Record_type(obj)-Rectype_Bignum) <= Rectype_Ratio-Rectype_Bignum))) \
+      { statement1 } else { statement2 }
+#endif
+
+# Test for rational number
+#ifdef TYPECODES
+  #define if_rationalp(obj,statement1,statement2)  \
+    {var object obj_from_if_rationalp = (obj);                          \
+     var tint type_from_if_rationalp = typecode(obj_from_if_rationalp); \
+     if ( (!(type_from_if_rationalp==complex_type))                     \
+          &&                                                            \
+          ((type_from_if_rationalp &                                    \
+            ~((fixnum_type|bignum_type|ratio_type|bit(sign_bit_t)) & ~(fixnum_type&bignum_type&ratio_type)) \
+           ) == (fixnum_type&bignum_type&ratio_type)                    \
+        ) )                                                             \
+       { statement1 } else { statement2 }                               \
+    }
+#else
+  #define if_rationalp(obj,statement1,statement2)  \
+    if (((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias)) == fixnum_type) \
+        || (varobjectp(obj)                            \
+            && ((Record_type(obj) == Rectype_Bignum)   \
+                || (Record_type(obj) == Rectype_Ratio)))) \
+      { statement1 } else { statement2 }
+#endif
+
+# Test for Integer
+#ifdef TYPECODES
+  #define integerp(obj)  \
+    ((typecode(obj) &                                                        \
+      ~((fixnum_type|bignum_type|bit(sign_bit_t)) & ~(fixnum_type&bignum_type)) \
+     ) == (fixnum_type&bignum_type))
+#else
+  #define integerp(obj)  \
+   (((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias)) == fixnum_type) \
+    || (varobjectp(obj) && (Record_type(obj) == Rectype_Bignum)))
+#endif
+
+# Test for Fixnum
+#ifdef TYPECODES
+  #define fixnump(obj)  ((typecode(obj) & ~bit(sign_bit_t)) == fixnum_type)
+#else
+  #define fixnump(obj)  ((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias)) == fixnum_type)
+#endif
+
+# Test for Fixnum >=0
+#ifdef TYPECODES
+  #define posfixnump(obj)  (typecode(obj) == fixnum_type)
+#else
+  #define posfixnump(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias)) == fixnum_type)
+#endif
+
+# Test for Bignum
+#ifdef TYPECODES
+  #define bignump(obj)  ((typecode(obj) & ~bit(sign_bit_t)) == bignum_type)
+#else
+  #define bignump(obj)  \
+    (varobjectp(obj) && (Record_type(obj) == Rectype_Bignum))
+#endif
+
+# Test for Bignum >=0
+#ifdef TYPECODES
+  #define posbignump(obj)  (typecode(obj) == bignum_type)
+#else
+  #define posbignump(obj)  \
+    (varobjectp(obj)                         \
+     && (Record_type(obj) == Rectype_Bignum) \
+     && ((Record_flags(obj) & bit(7)) == 0))
+#endif
+
+# Test for Ratio
+#ifdef TYPECODES
+  #define ratiop(obj)  ((typecode(obj) & ~bit(sign_bit_t)) == ratio_type)
+#else
+  #define ratiop(obj)  (varobjectp(obj) && (Record_type(obj) == Rectype_Ratio))
+#endif
+
+# Test for Float
+#ifdef TYPECODES
+  #define floatp(obj)  \
+    ((typecode(obj) &  \
+     ~((sfloat_type|ffloat_type|dfloat_type|lfloat_type|bit(sign_bit_t)) & ~(sfloat_type&ffloat_type&dfloat_type&lfloat_type)) \
+     ) == (sfloat_type&ffloat_type&dfloat_type&lfloat_type))
+#else
+  #define floatp(obj)  \
+    (((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias)) == sfloat_type) \
+     || (varobjectp(obj)                    \
+         && ((uintB)(Record_type(obj)-Rectype_Lfloat) <= Rectype_Ffloat-Rectype_Lfloat)))
+#endif
+
+# Test for Short-Float
+#ifdef TYPECODES
+  #define short_float_p(obj)  ((typecode(obj) & ~bit(sign_bit_t)) == sfloat_type)
+#else
+  #define short_float_p(obj)  ((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias)) == sfloat_type)
+#endif
+
+# Test for Single-Float
+#ifdef TYPECODES
+  #define single_float_p(obj)  ((typecode(obj) & ~bit(sign_bit_t)) == ffloat_type)
+#else
+  #define single_float_p(obj)  (varobjectp(obj) && (Record_type(obj) == Rectype_Ffloat))
+#endif
+
+# Test for Double-Float
+#ifdef TYPECODES
+  #define double_float_p(obj)  ((typecode(obj) & ~bit(sign_bit_t)) == dfloat_type)
+#else
+  #define double_float_p(obj)  (varobjectp(obj) && (Record_type(obj) == Rectype_Dfloat))
+#endif
+
+# Test for Long-Float
+#ifdef TYPECODES
+  #define long_float_p(obj)  ((typecode(obj) & ~bit(sign_bit_t)) == lfloat_type)
+#else
+  #define long_float_p(obj)  (varobjectp(obj) && (Record_type(obj) == Rectype_Lfloat))
+#endif
+
+# Test for Complex
+#ifdef TYPECODES
+  #define complexp(obj)  (typecode(obj) == complex_type)
+#else
+  #define complexp(obj)  (varobjectp(obj) && (Record_type(obj) == Rectype_Complex))
+#endif
+
+# Test if a real number is >=0:
+#ifdef TYPECODES
+  # define positivep(obj)  ((as_oint(obj) & wbit(sign_bit_o)) == 0)
+  #define positivep(obj)  (!wbit_test(as_oint(obj),sign_bit_o))
+  #ifdef WIDE_STRUCT
+    #undef positivep
+    #define positivep(obj)  ((typecode(obj) & bit(sign_bit_t)) == 0)
   #endif
-
-# Test auf rationale Zahl
-  #ifdef TYPECODES
-    #define if_rationalp(obj,statement1,statement2)  \
-      {var object obj_from_if_rationalp = (obj);                          \
-       var tint type_from_if_rationalp = typecode(obj_from_if_rationalp); \
-       if ( (!(type_from_if_rationalp==complex_type))                     \
-            &&                                                            \
-            ((type_from_if_rationalp &                                    \
-              ~((fixnum_type|bignum_type|ratio_type|bit(sign_bit_t)) & ~(fixnum_type&bignum_type&ratio_type)) \
-             ) == (fixnum_type&bignum_type&ratio_type)                    \
-          ) )                                                             \
-         { statement1 } else { statement2 }                               \
-      }
-  #else
-    #define if_rationalp(obj,statement1,statement2)  \
-      if (((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias)) == fixnum_type) \
-          || (varobjectp(obj)                            \
-              && ((Record_type(obj) == Rectype_Bignum)   \
-                  || (Record_type(obj) == Rectype_Ratio) \
-         )   )   )                                       \
-        { statement1 } else { statement2 }
-  #endif
-
-# Test auf ganze Zahl
-  #ifdef TYPECODES
-    #define integerp(obj)  \
-      ((typecode(obj) &                                                           \
-        ~((fixnum_type|bignum_type|bit(sign_bit_t)) & ~(fixnum_type&bignum_type)) \
-       ) == (fixnum_type&bignum_type)                                             \
-      )
-  #else
-    #define integerp(obj)  \
-     (((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias)) == fixnum_type) \
-      || (varobjectp(obj) && (Record_type(obj) == Rectype_Bignum)) \
-     )
-  #endif
-
-# Test auf Fixnum
-  #ifdef TYPECODES
-    #define fixnump(obj)  ((typecode(obj) & ~bit(sign_bit_t)) == fixnum_type)
-  #else
-    #define fixnump(obj)  ((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias)) == fixnum_type)
-  #endif
-
-# Test auf Fixnum >=0
-  #ifdef TYPECODES
-    #define posfixnump(obj)  (typecode(obj) == fixnum_type)
-  #else
-    #define posfixnump(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias)) == fixnum_type)
-  #endif
-
-# Test auf Bignum
-  #ifdef TYPECODES
-    #define bignump(obj)  ((typecode(obj) & ~bit(sign_bit_t)) == bignum_type)
-  #else
-    #define bignump(obj)  \
-      (varobjectp(obj) && (Record_type(obj) == Rectype_Bignum))
-  #endif
-
-# Test auf Bignum >=0
-  #ifdef TYPECODES
-    #define posbignump(obj)  (typecode(obj) == bignum_type)
-  #else
-    #define posbignump(obj)  \
-      (varobjectp(obj)                         \
-       && (Record_type(obj) == Rectype_Bignum) \
-       && ((Record_flags(obj) & bit(7)) == 0)  \
-      )
-  #endif
-
-# Test auf Ratio
-  #ifdef TYPECODES
-    #define ratiop(obj)  ((typecode(obj) & ~bit(sign_bit_t)) == ratio_type)
-  #else
-    #define ratiop(obj)  (varobjectp(obj) && (Record_type(obj) == Rectype_Ratio))
-  #endif
-
-# Test auf Float
-  #ifdef TYPECODES
-    #define floatp(obj)  \
-      ((typecode(obj) &  \
-       ~((sfloat_type|ffloat_type|dfloat_type|lfloat_type|bit(sign_bit_t)) & ~(sfloat_type&ffloat_type&dfloat_type&lfloat_type)) \
-       ) == (sfloat_type&ffloat_type&dfloat_type&lfloat_type))
-  #else
-    #define floatp(obj)  \
-      (((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias)) == sfloat_type) \
-       || (varobjectp(obj)                    \
-           && ((uintB)(Record_type(obj)-Rectype_Lfloat) <= Rectype_Ffloat-Rectype_Lfloat) \
-      )   )
-  #endif
-
-# Test auf Short-Float
-  #ifdef TYPECODES
-    #define short_float_p(obj)  ((typecode(obj) & ~bit(sign_bit_t)) == sfloat_type)
-  #else
-    #define short_float_p(obj)  ((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias)) == sfloat_type)
-  #endif
-
-# Test auf Single-Float
-  #ifdef TYPECODES
-    #define single_float_p(obj)  ((typecode(obj) & ~bit(sign_bit_t)) == ffloat_type)
-  #else
-    #define single_float_p(obj)  (varobjectp(obj) && (Record_type(obj) == Rectype_Ffloat))
-  #endif
-
-# Test auf Double-Float
-  #ifdef TYPECODES
-    #define double_float_p(obj)  ((typecode(obj) & ~bit(sign_bit_t)) == dfloat_type)
-  #else
-    #define double_float_p(obj)  (varobjectp(obj) && (Record_type(obj) == Rectype_Dfloat))
-  #endif
-
-# Test auf Long-Float
-  #ifdef TYPECODES
-    #define long_float_p(obj)  ((typecode(obj) & ~bit(sign_bit_t)) == lfloat_type)
-  #else
-    #define long_float_p(obj)  (varobjectp(obj) && (Record_type(obj) == Rectype_Lfloat))
-  #endif
-
-# Test auf Complex
-  #ifdef TYPECODES
-    #define complexp(obj)  (typecode(obj) == complex_type)
-  #else
-    #define complexp(obj)  (varobjectp(obj) && (Record_type(obj) == Rectype_Complex))
-  #endif
-
-# Test einer reellen Zahl, ob sie >=0 ist:
-  #ifdef TYPECODES
-    # define positivep(obj)  ((as_oint(obj) & wbit(sign_bit_o)) == 0)
-    #define positivep(obj)  (!wbit_test(as_oint(obj),sign_bit_o))
-    #ifdef WIDE_STRUCT
-      #undef positivep
-      #define positivep(obj)  ((typecode(obj) & bit(sign_bit_t)) == 0)
-    #endif
-  #else
-    #define positivep(obj)  \
-      ((as_oint(obj) & wbit(1))                                      \
-       ? /* fixnum, sfloat */ (as_oint(obj) & wbit(sign_bit_o)) == 0 \
-       : /* bignum, [fdl]float */ (Record_flags(obj) & bit(7)) == 0  \
-      )
-  #endif
+#else
+  #define positivep(obj)  \
+    ((as_oint(obj) & wbit(1))                                      \
+     ? /* fixnum, sfloat */ (as_oint(obj) & wbit(sign_bit_o)) == 0 \
+     : /* bignum, [fdl]float */ (Record_flags(obj) & bit(7)) == 0)
+#endif
 
 
-# Fallunterscheidungen nach Typcodes:
-# Beispiel:
+# switch with typcodes:
+# example:
 #   switch (typecode(obj)) {
 #     case_symbol: ....
 #     case_orecord:
@@ -6193,10 +6192,10 @@ typedef struct {
 #endif
 
 
-# ################# Deklarationen zur Arithmetik ########################## #
+# ################# Declarations for the arithmetics ######################## #
 
 
-# Typenhierarchie:
+# Type hierachy :
 # Number (N) =
 #    Real (R) =
 #       Float (F) =
@@ -6212,10 +6211,10 @@ typedef struct {
 #    Complex (C)
 
 
-# Typfeld:
-# Bits zum Testen, ob dieser Typ vorliegt (Bit gesetzt, wenn ja).
-# _bit_t zum Test im Typbyte (tint)
-# _bit_o zum Test im Objekt (oint)
+# Type field:
+# Bytes for testing whether it's that type (Bit set, is yes).
+# _bit_t to test in the type byte (tint)
+# _bit_o to test in the object (oint)
 
 #ifndef NUMBER_BITS_INVERTED
   #define number_wbit_test  wbit_test
@@ -6225,19 +6224,19 @@ typedef struct {
 
 #ifdef TYPECODES
 
-# siehe oben:
-# #define number_bit_t     4  # gesetzt nur bei Zahlen
-# #define number_bit_o     (number_bit_t+oint_type_shift)    # gesetzt nur bei Zahlen
+# see above:
+# #define number_bit_t     4  # set only for numbers
+# #define number_bit_o     (number_bit_t+oint_type_shift)    # set only for numbers
 
 # float_bit:
-# in einer Zahl: Bit gesetzt, falls es sich um ein Float handelt.
-#                Bit gelöscht, falls es sich um eine rationale oder komplexe Zahl handelt.
+# in a number : Bit set, if it's a Float.
+#                Bit unset, if it's a rational or complex number.
 # (Bei NUMBER_BITS_INVERTED genau umgekehrt.)
 # #define float_bit_t      1
 # #define float_bit_o      (float_bit_t+oint_type_shift)
 
 # float1_bit:
-# In einem Floating-point: entscheidet genauer:
+# In a floating-point: discriminates further:
 #ifndef NUMBER_BITS_INVERTED
 # Float-Bit   1 2
 #             0 0    Short Float (SF)
@@ -6257,299 +6256,294 @@ typedef struct {
 # #define float2_bit_o     (float2_bit_t+oint_type_shift)
 
 # ratio_bit:
-# In rationalen Zahlen: Bit gesetzt, falls es sich um einen echten Bruch hand.
-#                       Bit gelöscht, falls es sich um ein Integer handelt.
-# (Bei NUMBER_BITS_INVERTED genau umgekehrt.)
+# For rational numbers: Bit set , if it's a real fraction.
+#                       Bit unset, if it's an Integer.
+# (For NUMBER_BITS_INVERTED it's exactly the other way around..)
 # #define ratio_bit_t      3
 # #define ratio_bit_o      (ratio_bit_t+oint_type_shift)
 
 # bignum_bit:
-# In ganzen Zahlen: Bit gesetzt, falls es sich um ein Bignum handelt.
-#                   Bit gelöscht, falls es sich um ein Fixnum handelt.
-# (Bei NUMBER_BITS_INVERTED genau umgekehrt.)
+# For Integers:     Bit set, if it's a Bignum.
+#                   Bit unset, if it's a Fixnum.
+# (For NUMBER_BITS_INVERTED it's exactly the other way around..)
 # #define bignum_bit_t     2
 # #define bignum_bit_o     (bignum_bit_t+oint_type_shift)
 
-# vorz_bit:
-# Bei Reals:
-# gibt das Vorzeichen der Zahl an.
-# Bit gesetzt, falls Zahl < 0,
-# Bit gelöscht, falls Zahl >=0.
+# vorz_bit: (sign bit)
+# For Reals:
+# returns the sign of the number.
+# Bit set, if number < 0,
+# Bit unset, if number >=0.
   #define vorz_bit_t       sign_bit_t
-                           # sollte = 0 sein, damit das Vorzeichen-Extend
-                           # bei Fixnums einfacher geht.
+                           # should be = 0, so the sign-extend
+                           # is easier for Fixnums.
   #define vorz_bit_o       (vorz_bit_t+oint_type_shift)
 
 #endif
 
-# Liefert das Vorzeichen einer reellen Zahl (0 falls >=0, -1 falls <0)
-  #ifdef TYPECODES
-    #if (vorz_bit_o<32) && !defined(WIDE_STRUCT)
-      #define R_sign(obj)  ((signean)sign_of_sint32( (sint32)((uint32)as_oint(obj) << (31-vorz_bit_o)) ))
-    #else
-      # define R_sign(obj)  ((signean)sign_of_sint32( (sint32)(uint32)(as_oint(obj) >> (vorz_bit_o-31)) ))
-      #define R_sign(obj)  ((signean)sign_of_sint32( (sint32)((uint32)typecode(obj) << (31-vorz_bit_t)) ))
-    #endif
+# return the sign of a real number (0 if >=0, -1 if <0)
+#ifdef TYPECODES
+  #if (vorz_bit_o<32) && !defined(WIDE_STRUCT)
+    #define R_sign(obj)  ((signean)sign_of_sint32( (sint32)((uint32)as_oint(obj) << (31-vorz_bit_o)) ))
   #else
-    #define R_sign(obj)  ((signean)sign_of_sint32(_R_sign(obj)))
-    #define _R_sign(obj)  \
-      ((as_oint(obj) & wbit(1))                                       \
-       ? /* fixnum, sfloat */ (sint32)as_oint(obj) << (31-sign_bit_o) \
-       : /* [fdl]float */ (sint32)(sintB)Record_flags(obj)            \
-      )
+    # define R_sign(obj)  ((signean)sign_of_sint32( (sint32)(uint32)(as_oint(obj) >> (vorz_bit_o-31)) ))
+    #define R_sign(obj)  ((signean)sign_of_sint32( (sint32)((uint32)typecode(obj) << (31-vorz_bit_t)) ))
   #endif
+#else
+  #define R_sign(obj)  ((signean)sign_of_sint32(_R_sign(obj)))
+  #define _R_sign(obj)  \
+    ((as_oint(obj) & wbit(1))                                       \
+     ? /* fixnum, sfloat */ (sint32)as_oint(obj) << (31-sign_bit_o) \
+     : /* [fdl]float */ (sint32)(sintB)Record_flags(obj))
+#endif
 
-# Liefert das Vorzeichen eines Fixnum/Bignum/Ratio/
+# Gives the sign of a Fixnum/Bignum/Ratio/
 # Short-/Single-/Double-/Long-Float.
-  #ifdef TYPECODES
-    #define FN_sign(obj)  R_sign(obj)
-    #define BN_sign(obj)  R_sign(obj)
-    #define RT_sign(obj)  R_sign(obj)
-    #define SF_sign(obj)  R_sign(obj)
-    #define FF_sign(obj)  R_sign(obj)
-    #define DF_sign(obj)  R_sign(obj)
-    #define LF_sign(obj)  R_sign(obj)
-  #else
-    #define FN_sign(obj)  \
-      ((signean)sign_of_sint32((sint32)as_oint(obj) << (31-sign_bit_o)))
-    #define BN_sign(obj)  \
-      ((signean)sign_of_sint32((sint32)(sintB)Record_flags(obj)))
-    #define RT_sign(obj)  \
-      ((signean)sign_of_sint32((sint32)(sintB)Record_flags(obj)))
-    #define SF_sign(obj)  \
-      ((signean)sign_of_sint32((sint32)as_oint(obj) << (31-sign_bit_o)))
-    #define FF_sign(obj)  \
-      ((signean)sign_of_sint32((sint32)(sintB)Record_flags(obj)))
-    #define DF_sign(obj)  \
-      ((signean)sign_of_sint32((sint32)(sintB)Record_flags(obj)))
-    #define LF_sign(obj)  \
-      ((signean)sign_of_sint32((sint32)(sintB)Record_flags(obj)))
-  #endif
+#ifdef TYPECODES
+  #define FN_sign(obj)  R_sign(obj)
+  #define BN_sign(obj)  R_sign(obj)
+  #define RT_sign(obj)  R_sign(obj)
+  #define SF_sign(obj)  R_sign(obj)
+  #define FF_sign(obj)  R_sign(obj)
+  #define DF_sign(obj)  R_sign(obj)
+  #define LF_sign(obj)  R_sign(obj)
+#else
+  #define FN_sign(obj)  \
+    ((signean)sign_of_sint32((sint32)as_oint(obj) << (31-sign_bit_o)))
+  #define BN_sign(obj)  \
+    ((signean)sign_of_sint32((sint32)(sintB)Record_flags(obj)))
+  #define RT_sign(obj)  \
+    ((signean)sign_of_sint32((sint32)(sintB)Record_flags(obj)))
+  #define SF_sign(obj)  \
+    ((signean)sign_of_sint32((sint32)as_oint(obj) << (31-sign_bit_o)))
+  #define FF_sign(obj)  \
+    ((signean)sign_of_sint32((sint32)(sintB)Record_flags(obj)))
+  #define DF_sign(obj)  \
+    ((signean)sign_of_sint32((sint32)(sintB)Record_flags(obj)))
+  #define LF_sign(obj)  \
+    ((signean)sign_of_sint32((sint32)(sintB)Record_flags(obj)))
+#endif
 
-# Stellt fest, ob zwei reelle Zahlen dasselbe Vorzeichen haben:
-  #ifdef TYPECODES
-    #define same_sign_p(obj1,obj2)  \
-      (wbit_test(as_oint(obj1)^as_oint(obj2),vorz_bit_o)==0)
-  #else
-    #define same_sign_p(obj1,obj2)  \
-      ((sint32)(_R_sign(obj1) ^ _R_sign(obj2)) >= 0)
-  #endif
+# Checks whether two real numbers have the same sign:
+#ifdef TYPECODES
+  #define same_sign_p(obj1,obj2)  \
+    (wbit_test(as_oint(obj1)^as_oint(obj2),vorz_bit_o)==0)
+#else
+  #define same_sign_p(obj1,obj2)  \
+    ((sint32)(_R_sign(obj1) ^ _R_sign(obj2)) >= 0)
+#endif
 
 
-# Typtestmacros:
-# (Liefern /=0, falls erfüllt. Präfix 'm', wenn Argument im Speicher sitzt.)
+# Type test macros:
+# (Return /=0, if satisfied. Prefix 'm', if argument is in memory)
 
-# Testet ein Objekt, ob es eine Zahl ist: (siehe oben)
-  # define numberp(obj)  ...
+# Tests an objects whether it's a number: (see above)
+# define numberp(obj)  ...
 
-# Testet eine Zahl, ob es ein Float ist.
-  #ifdef TYPECODES
-    #ifndef NUMBER_BITS_INVERTED
-      # define N_floatp(obj)  ( as_oint(obj) & wbit(float_bit_o) )
-      #define N_floatp(obj)  (wbit_test(as_oint(obj),float_bit_o))
-    #else
-      #define N_floatp(obj)  (!wbit_test(as_oint(obj),float_bit_o))
-    #endif
-  #else
-    #define N_floatp(obj)  floatp(obj)
-  #endif
-
-# Testet eine Zahl, ob es ein Integer ist.
-  #ifdef TYPECODES
-    #ifndef NUMBER_BITS_INVERTED
-      #define N_integerp(obj)  (!( as_oint(obj) & (wbit(float_bit_o)|wbit(ratio_bit_o)) ))
-    #else
-      #define N_integerp(obj)  (!( (wbit(float_bit_o)|wbit(ratio_bit_o)) & ~as_oint(obj) ))
-    #endif
-  #else
-    #define N_integerp(obj)  integerp(obj)
-  #endif
-
-# Testet eine reelle Zahl, ob sie rational ist.
-  #ifdef TYPECODES
-    #ifndef NUMBER_BITS_INVERTED
-      # define R_rationalp(obj)  (!( as_oint(obj) & wbit(float_bit_o) ))
-      #define R_rationalp(obj)  (!wbit_test(as_oint(obj),float_bit_o))
-    #else
-      #define R_rationalp(obj)  (wbit_test(as_oint(obj),float_bit_o))
-    #endif
-  #else
-    #define R_rationalp(obj)  (!floatp(obj))
-  #endif
-
-# Testet eine reelle Zahl, ob sie ein Float ist.
-  #ifdef TYPECODES
-    #ifndef NUMBER_BITS_INVERTED
-      # define R_floatp(obj)  ( as_oint(obj) & wbit(float_bit_o) )
-      #define R_floatp(obj)  (wbit_test(as_oint(obj),float_bit_o))
-    #else
-      #define R_floatp(obj)  (!wbit_test(as_oint(obj),float_bit_o))
-    #endif
-  #else
-    #define R_floatp(obj)  floatp(obj)
-  #endif
-
-# Testet eine reelle Zahl, ob sie <0 ist.
-  #ifdef TYPECODES
-    # define R_minusp(obj)  ( as_oint(obj) & wbit(vorz_bit_o) )
-    #define R_minusp(obj)  (wbit_test(as_oint(obj),vorz_bit_o))
-  #else
-    #define R_minusp(obj)  (!positivep(obj))
-  #endif
-
-# Testet eine rationale Zahl, ob sie ganz ist.
-  #ifdef TYPECODES
-    #ifndef NUMBER_BITS_INVERTED
-      # define RA_integerp(obj)  (!( as_oint(obj) & wbit(ratio_bit_o) ))
-      #define RA_integerp(obj)  (!wbit_test(as_oint(obj),ratio_bit_o))
-    #else
-      #define RA_integerp(obj)  (wbit_test(as_oint(obj),ratio_bit_o))
-    #endif
-  #else
-    #define RA_integerp(obj)  (!ratiop(obj))
-  #endif
-
-# Testet eine rationale Zahl, ob sie gebrochen ist.
-  #ifdef TYPECODES
-    #ifndef NUMBER_BITS_INVERTED
-      # define RA_ratiop(obj)  ( as_oint(obj) & wbit(ratio_bit_o) )
-      #define RA_ratiop(obj)  (wbit_test(as_oint(obj),ratio_bit_o))
-    #else
-      #define RA_ratiop(obj)  (!wbit_test(as_oint(obj),ratio_bit_o))
-    #endif
-  #else
-    #define RA_ratiop(obj)  ratiop(obj)
-  #endif
-
-# Testet eine ganze Zahl, ob sie ein Bignum ist.
+# Tests a number whether it's a Float.
+#ifdef TYPECODES
   #ifndef NUMBER_BITS_INVERTED
-    # define I_bignump(obj)  ( as_oint(obj) & wbit(bignum_bit_o) )
-    #define I_bignump(obj)  (wbit_test(as_oint(obj),bignum_bit_o))
+    # define N_floatp(obj)  ( as_oint(obj) & wbit(float_bit_o) )
+    #define N_floatp(obj)  (wbit_test(as_oint(obj),float_bit_o))
   #else
-    #define I_bignump(obj)  (!wbit_test(as_oint(obj),bignum_bit_o))
+    #define N_floatp(obj)  (!wbit_test(as_oint(obj),float_bit_o))
   #endif
+#else
+  #define N_floatp(obj)  floatp(obj)
+#endif
 
-# Testet eine ganze Zahl, ob sie ein Fixnum ist.
+# Tests a number whether it's an Integer.
+#ifdef TYPECODES
   #ifndef NUMBER_BITS_INVERTED
-    # define I_fixnump(obj)  (!( as_oint(obj) & wbit(bignum_bit_o) ))
-    #define I_fixnump(obj)  (!wbit_test(as_oint(obj),bignum_bit_o))
+    #define N_integerp(obj)  (!( as_oint(obj) & (wbit(float_bit_o)|wbit(ratio_bit_o)) ))
   #else
-    #define I_fixnump(obj)  (wbit_test(as_oint(obj),bignum_bit_o))
+    #define N_integerp(obj)  (!( (wbit(float_bit_o)|wbit(ratio_bit_o)) & ~as_oint(obj) ))
   #endif
+#else
+  #define N_integerp(obj)  integerp(obj)
+#endif
 
-# Testet ein Fixnum, ob es >= 0 ist.
-  #ifdef TYPECODES
-    #define FN_positivep(obj)  positivep(obj)
-  #else
-    #define FN_positivep(obj)  ((as_oint(obj) & wbit(sign_bit_o)) == 0)
-  #endif
-
-# Testet ein Bignum, ob es >= 0 ist.
-  #ifdef TYPECODES
-    #define BN_positivep(obj)  positivep(obj)
-  #else
-    #define BN_positivep(obj)  ((Record_flags(obj) & bit(7)) == 0)
-  #endif
-
-# Testet eine Zahl, ob sie eine reelle Zahl ist.
-  #define N_realp(obj)  (!complexp(obj))
-
-# Testet eine Zahl, ob sie eine komplexe Zahl ist.
-  #define N_complexp(obj)  complexp(obj)
-
-# Testet zwei ganze Zahlen, ob sie beide Bignum sind.
+# Tests a real number whether it's rational.
+#ifdef TYPECODES
   #ifndef NUMBER_BITS_INVERTED
-    #define I_I_bignums_p(obj1,obj2)  \
-      (wbit_test(as_oint(obj1)&as_oint(obj2),bignum_bit_o))
+    # define R_rationalp(obj)  (!( as_oint(obj) & wbit(float_bit_o) ))
+    #define R_rationalp(obj)  (!wbit_test(as_oint(obj),float_bit_o))
   #else
-    #define I_I_bignums_p(obj1,obj2)  \
-      (!wbit_test(as_oint(obj1)|as_oint(obj2),bignum_bit_o))
+    #define R_rationalp(obj)  (wbit_test(as_oint(obj),float_bit_o))
   #endif
+#else
+  #define R_rationalp(obj)  (!floatp(obj))
+#endif
 
-# Test auf ein Integer eines vorgegebenen Bereiches.
-# obj sollte eine Variable sein
-  #define uint1_p(obj)  \
-    ((as_oint(obj) & ~((oint)0x01 << oint_data_shift)) == as_oint(Fixnum_0))
-  #define uint2_p(obj)  \
-    ((as_oint(obj) & ~((oint)0x03 << oint_data_shift)) == as_oint(Fixnum_0))
-  #define uint4_p(obj)  \
-    ((as_oint(obj) & ~((oint)0x0F << oint_data_shift)) == as_oint(Fixnum_0))
-  #define uint8_p(obj)  \
-    ((as_oint(obj) & ~((oint)0xFF << oint_data_shift)) == as_oint(Fixnum_0))
-  #define sint8_p(obj)  \
-    (((as_oint(obj) ^ (FN_positivep(obj) ? 0 : as_oint(Fixnum_minus1)^as_oint(Fixnum_0))) & ~((oint)0x7F << oint_data_shift)) == as_oint(Fixnum_0))
-  #define uint16_p(obj)  \
-    ((as_oint(obj) & ~((oint)0xFFFF << oint_data_shift)) == as_oint(Fixnum_0))
-  #define sint16_p(obj)  \
-    (((as_oint(obj) ^ (FN_positivep(obj) ? 0 : as_oint(Fixnum_minus1)^as_oint(Fixnum_0))) & ~((oint)0x7FFF << oint_data_shift)) == as_oint(Fixnum_0))
-  #if (oint_data_len>=32)
-    #define uint32_p(obj)  \
-      ((as_oint(obj) & ~((oint)0xFFFFFFFFUL << oint_data_shift)) == as_oint(Fixnum_0))
+# Tests a real number whether it's a Float ist.
+#ifdef TYPECODES
+  #ifndef NUMBER_BITS_INVERTED
+    # define R_floatp(obj)  ( as_oint(obj) & wbit(float_bit_o) )
+    #define R_floatp(obj)  (wbit_test(as_oint(obj),float_bit_o))
   #else
-    #define uint32_p(obj)  \
-      (posfixnump(obj) \
-       || (posbignump(obj) \
-           && (Bignum_length(obj) <= ceiling(33,intDsize)) \
-           && ((Bignum_length(obj) < ceiling(33,intDsize)) \
-               || (TheBignum(obj)->data[0] < (uintD)bit(32%intDsize)) \
-      )   )   )
+    #define R_floatp(obj)  (!wbit_test(as_oint(obj),float_bit_o))
   #endif
-  #if (oint_data_len>=31)
-    #define sint32_p(obj)  \
-      (((as_oint(obj) ^ (FN_positivep(obj) ? 0 : as_oint(Fixnum_minus1)^as_oint(Fixnum_0))) & ~((oint)0x7FFFFFFFUL << oint_data_shift)) == as_oint(Fixnum_0))
+#else
+  #define R_floatp(obj)  floatp(obj)
+#endif
+
+# Tests a real number whether it's <0.
+#ifdef TYPECODES
+  # define R_minusp(obj)  ( as_oint(obj) & wbit(vorz_bit_o) )
+  #define R_minusp(obj)  (wbit_test(as_oint(obj),vorz_bit_o))
+#else
+  #define R_minusp(obj)  (!positivep(obj))
+#endif
+
+# Tests a rational number whether it's an Integer.
+#ifdef TYPECODES
+  #ifndef NUMBER_BITS_INVERTED
+    # define RA_integerp(obj)  (!( as_oint(obj) & wbit(ratio_bit_o) ))
+    #define RA_integerp(obj)  (!wbit_test(as_oint(obj),ratio_bit_o))
   #else
-    #define sint32_p(obj)  \
-      (fixnump(obj) \
-       || (bignump(obj) \
-           && (Bignum_length(obj) <= ceiling(32,intDsize)) \
-           && ((Bignum_length(obj) < ceiling(32,intDsize)) \
-               || ((TheBignum(obj)->data[0] ^ (BN_positivep(obj) ? (uintD)0 : ~(uintD)0)) < (uintD)bit(31%intDsize)) \
-      )   )   )
+    #define RA_integerp(obj)  (wbit_test(as_oint(obj),ratio_bit_o))
   #endif
-  #define uint64_p(obj)  \
+#else
+  #define RA_integerp(obj)  (!ratiop(obj))
+#endif
+
+# Tests a rational number whether it's a fraction.
+#ifdef TYPECODES
+  #ifndef NUMBER_BITS_INVERTED
+    # define RA_ratiop(obj)  ( as_oint(obj) & wbit(ratio_bit_o) )
+    #define RA_ratiop(obj)  (wbit_test(as_oint(obj),ratio_bit_o))
+  #else
+    #define RA_ratiop(obj)  (!wbit_test(as_oint(obj),ratio_bit_o))
+  #endif
+#else
+  #define RA_ratiop(obj)  ratiop(obj)
+#endif
+
+# Tests an Integer whether it's a Bignum.
+#ifndef NUMBER_BITS_INVERTED
+  # define I_bignump(obj)  ( as_oint(obj) & wbit(bignum_bit_o) )
+  #define I_bignump(obj)  (wbit_test(as_oint(obj),bignum_bit_o))
+#else
+  #define I_bignump(obj)  (!wbit_test(as_oint(obj),bignum_bit_o))
+#endif
+
+# Tests an Integer whether it's a Fixnum.
+#ifndef NUMBER_BITS_INVERTED
+  # define I_fixnump(obj)  (!( as_oint(obj) & wbit(bignum_bit_o) ))
+  #define I_fixnump(obj)  (!wbit_test(as_oint(obj),bignum_bit_o))
+#else
+  #define I_fixnump(obj)  (wbit_test(as_oint(obj),bignum_bit_o))
+#endif
+
+# Tests a Fixnum whether it is >=0.
+#ifdef TYPECODES
+  #define FN_positivep(obj)  positivep(obj)
+#else
+  #define FN_positivep(obj)  ((as_oint(obj) & wbit(sign_bit_o)) == 0)
+#endif
+
+# Tests a Bignum whether it is >=0.
+#ifdef TYPECODES
+  #define BN_positivep(obj)  positivep(obj)
+#else
+  #define BN_positivep(obj)  ((Record_flags(obj) & bit(7)) == 0)
+#endif
+
+# Tests a number whether it's a real number
+#define N_realp(obj)  (!complexp(obj))
+
+# Tests a number whether it's a complex number
+#define N_complexp(obj)  complexp(obj)
+
+# Tests two Integers whether both are Bignum.
+#ifndef NUMBER_BITS_INVERTED
+  #define I_I_bignums_p(obj1,obj2)  \
+    (wbit_test(as_oint(obj1)&as_oint(obj2),bignum_bit_o))
+#else
+  #define I_I_bignums_p(obj1,obj2)  \
+    (!wbit_test(as_oint(obj1)|as_oint(obj2),bignum_bit_o))
+#endif
+
+# Tests for an Integer from a given range.
+# obj should be a variable
+#define uint1_p(obj)  \
+  ((as_oint(obj) & ~((oint)0x01 << oint_data_shift)) == as_oint(Fixnum_0))
+#define uint2_p(obj)  \
+  ((as_oint(obj) & ~((oint)0x03 << oint_data_shift)) == as_oint(Fixnum_0))
+#define uint4_p(obj)  \
+  ((as_oint(obj) & ~((oint)0x0F << oint_data_shift)) == as_oint(Fixnum_0))
+#define uint8_p(obj)  \
+  ((as_oint(obj) & ~((oint)0xFF << oint_data_shift)) == as_oint(Fixnum_0))
+#define sint8_p(obj)  \
+  (((as_oint(obj) ^ (FN_positivep(obj) ? 0 : as_oint(Fixnum_minus1)^as_oint(Fixnum_0))) & ~((oint)0x7F << oint_data_shift)) == as_oint(Fixnum_0))
+#define uint16_p(obj)  \
+  ((as_oint(obj) & ~((oint)0xFFFF << oint_data_shift)) == as_oint(Fixnum_0))
+#define sint16_p(obj)  \
+  (((as_oint(obj) ^ (FN_positivep(obj) ? 0 : as_oint(Fixnum_minus1)^as_oint(Fixnum_0))) & ~((oint)0x7FFF << oint_data_shift)) == as_oint(Fixnum_0))
+#if (oint_data_len>=32)
+  #define uint32_p(obj)  \
+    ((as_oint(obj) & ~((oint)0xFFFFFFFFUL << oint_data_shift)) == as_oint(Fixnum_0))
+#else
+  #define uint32_p(obj)  \
     (posfixnump(obj) \
      || (posbignump(obj) \
-         && (Bignum_length(obj) <= ceiling(65,intDsize)) \
-         && ((Bignum_length(obj) < ceiling(65,intDsize)) \
-             || (TheBignum(obj)->data[0] < (uintD)bit(64%intDsize)) \
-    )   )   )
-  #define sint64_p(obj)  \
+         && (Bignum_length(obj) <= ceiling(33,intDsize)) \
+         && ((Bignum_length(obj) < ceiling(33,intDsize)) \
+             || (TheBignum(obj)->data[0] < (uintD)bit(32%intDsize)))))
+#endif
+#if (oint_data_len>=31)
+  #define sint32_p(obj)  \
+    (((as_oint(obj) ^ (FN_positivep(obj) ? 0 : as_oint(Fixnum_minus1)^as_oint(Fixnum_0))) & ~((oint)0x7FFFFFFFUL << oint_data_shift)) == as_oint(Fixnum_0))
+#else
+  #define sint32_p(obj)  \
     (fixnump(obj) \
      || (bignump(obj) \
-         && (Bignum_length(obj) <= ceiling(64,intDsize)) \
-         && ((Bignum_length(obj) < ceiling(64,intDsize)) \
-             || ((TheBignum(obj)->data[0] ^ (BN_positivep(obj) ? (uintD)0 : ~(uintD)0)) < (uintD)bit(63%intDsize)) \
-    )   )   )
-  #if (int_bitsize==16)
-    #define uint_p  uint16_p
-    #define sint_p  sint16_p
-  #else # (int_bitsize==32)
-    #define uint_p  uint32_p
-    #define sint_p  sint32_p
-  #endif
-  #if (long_bitsize==32)
-    #define ulong_p  uint32_p
-    #define slong_p  sint32_p
-  #else # (long_bitsize==64)
-    #define ulong_p  uint64_p
-    #define slong_p  sint64_p
-  #endif
+         && (Bignum_length(obj) <= ceiling(32,intDsize)) \
+         && ((Bignum_length(obj) < ceiling(32,intDsize)) \
+             || ((TheBignum(obj)->data[0] ^ (BN_positivep(obj) ? (uintD)0 : ~(uintD)0)) < (uintD)bit(31%intDsize)))))
+#endif
+#define uint64_p(obj)  \
+  (posfixnump(obj) \
+   || (posbignump(obj) \
+       && (Bignum_length(obj) <= ceiling(65,intDsize)) \
+       && ((Bignum_length(obj) < ceiling(65,intDsize)) \
+           || (TheBignum(obj)->data[0] < (uintD)bit(64%intDsize)))))
+#define sint64_p(obj)  \
+  (fixnump(obj) \
+   || (bignump(obj) \
+       && (Bignum_length(obj) <= ceiling(64,intDsize)) \
+       && ((Bignum_length(obj) < ceiling(64,intDsize)) \
+           || ((TheBignum(obj)->data[0] ^ (BN_positivep(obj) ? (uintD)0 : ~(uintD)0)) < (uintD)bit(63%intDsize)))))
+#if (int_bitsize==16)
+  #define uint_p  uint16_p
+  #define sint_p  sint16_p
+#else # (int_bitsize==32)
+  #define uint_p  uint32_p
+  #define sint_p  sint32_p
+#endif
+#if (long_bitsize==32)
+  #define ulong_p  uint32_p
+  #define slong_p  sint32_p
+#else # (long_bitsize==64)
+  #define ulong_p  uint64_p
+  #define slong_p  sint64_p
+#endif
 
 
-# ####################### TIMEBIBL zu TIME.D ############################## #
+# ####################### TIMEBIBL in TIME.D ############################## #
 
 # (* 25567 24 60 60) => 2208988800
 # the number of seconds from 1900-01-01 to 1970-01-01
 #define UNIX_LISP_TIME_DIFF 2208988800UL
 
-# Typ, der für 'Internal Time' verwendet wird:
+# Type which is used for 'Internal Time':
 #ifdef TIME_1
-  typedef uintL internal_time;      # abgegriffener Wert des Tick-Zählers
+  typedef uintL internal_time;      # measured value of the ticking counter
   #ifdef TIME_AMIGAOS
-    #define ticks_per_second  50UL    # 1 Tick = 1/50 sec, 50Hz-Zähler
+    #define ticks_per_second  50UL    # 1 Tick = 1/50 sec, 50Hz-counter
   #endif
   #ifdef TIME_MSDOS
-    #define ticks_per_second  100UL   # 1 Tick = 1/100 sec, 100Hz-Zähler
+    #define ticks_per_second  100UL   # 1 Tick = 1/100 sec, 100Hz-counter
   #endif
   #if defined(TIME_UNIX_TIMES) || defined(TIME_RISCOS)
     #define ticks_per_second  CLK_TCK
@@ -6560,9 +6554,9 @@ typedef struct {
 #ifdef TIME_2
   #ifdef TIME_UNIX
     typedef struct {
-      uintL tv_sec;    # ganze Sekunden seit 1.1.1970 00:00 GMT,
-                       # Ein 'uintL' für tv_sec reicht für 136 Jahre.
-      uintL tv_usec;   # zusätzliche Mikrosekunden
+      uintL tv_sec;    # number of seconds since 1.1.1970 00:00 GMT,
+                       # 'uintL' for tv_sec is good for 136 years.
+      uintL tv_usec;   # additional microseconds
     } internal_time;
     #define ticks_per_second  1000000UL  # 1 Tick = 1 µsec
     #define sub_internal_time(x,y, z)  # z:=x-y  \
@@ -6580,69 +6574,65 @@ typedef struct {
   #endif
   #ifdef TIME_WIN32
     typedef # struct _FILETIME { DWORD dwLowDateTime; DWORD dwHighDateTime; }
-            FILETIME  # Anzahl 0.1 µsec seit 1.1.1601 00:00 GMT.
+            FILETIME  # number of 0.1 µsec since 1.1.1601 00:00 GMT.
             internal_time;
     #define ticks_per_second  10000000UL  # 1 Tick = 0.1 µsec
     #define sub_internal_time(x,y, z)  # z:=x-y  \
-      { (z).dwHighDateTime = (x).dwHighDateTime - (y).dwHighDateTime;           \
-        if ((x).dwLowDateTime < (y).dwLowDateTime) { (z).dwHighDateTime -= 1; } \
-        (z).dwLowDateTime = (x).dwLowDateTime - (y).dwLowDateTime;              \
+      { (z).dwHighDateTime = (x).dwHighDateTime - (y).dwHighDateTime;         \
+        if ((x).dwLowDateTime < (y).dwLowDateTime) { (z).dwHighDateTime -= 1;}\
+        (z).dwLowDateTime = (x).dwLowDateTime - (y).dwLowDateTime;            \
       }
     #define add_internal_time(x,y, z)  # z:=x+y  \
-      { (z).dwHighDateTime = (x).dwHighDateTime + (y).dwHighDateTime;           \
-        (z).dwLowDateTime = (x).dwLowDateTime + (y).dwLowDateTime;              \
-        if ((z).dwLowDateTime < (x).dwLowDateTime) { (z).dwHighDateTime += 1; } \
+      { (z).dwHighDateTime = (x).dwHighDateTime + (y).dwHighDateTime;         \
+        (z).dwLowDateTime = (x).dwLowDateTime + (y).dwLowDateTime;            \
+        if ((z).dwLowDateTime < (x).dwLowDateTime) { (z).dwHighDateTime += 1;}\
       }
   #endif
 #endif
 
 #ifndef HAVE_RUN_TIME
-
-# UP: Hält die Run-Time-Stoppuhr an
-# run_time_stop();
+# UP: Stops the run-time timer
+  # run_time_stop();
   extern void run_time_stop (void);
-# wird verwendet von STREAM
+  # is used by STREAM
 
-# UP: Lässt die Run-Time-Stoppuhr weiterlaufen
-# run_time_restart();
+  # UP: restarts the run-time timer
+  # run_time_restart();
   extern void run_time_restart (void);
-# wird verwendet von STREAM
-
+  # is used by STREAM
 #else
-
-# Man braucht keine Run-Time-Stoppuhr
+  # You don't need a run-time timer
   #define run_time_stop()
   #define run_time_restart()
-
 #endif
 
 #ifdef TIME_1
 
-# UP: Liefert die Real-Time
+# UP: Yields the real-time
 # get_real_time()
-# < uintL ergebnis: Zeit seit LISP-System-Start (in 1/200 sec bzw. in 1/50 sec bzw. in 1/100 sec bzw. in 1/CLK_TCK sec)
+# < uintL result: time since LISP-system-start (in 1/200 sec resp. in 1/50 sec resp. in 1/100 sec resp. in 1/CLK_TCK sec)
   extern uintL get_real_time (void);
-# wird verwendet von STREAM, LISPARIT
+# is used by STREAM, LISPARIT
 
 #endif
 
 #ifdef TIME_2
 
-# UP: Liefert die Real-Time
+# UP: yields the real-time
 # get_real_time()
-# < internal_time* ergebnis: absolute Zeit
+# < internal_time* result: absolute time
   extern void get_real_time (internal_time*);
-# wird verwendet von LISPARIT
+# is used by LISPARIT
 
 #endif
 
-# UP: Liefert die Run-Time
+# UP: Yields the run-time
 # get_running_times(&timescore);
-# < timescore.runtime:  Run-Time seit LISP-System-Start (in Ticks)
-# < timescore.realtime: Real-Time seit LISP-System-Start (in Ticks)
-# < timescore.gctime:   GC-Time seit LISP-System-Start (in Ticks)
-# < timescore.gccount:  Anzahl der GC's seit LISP-System-Start
-# < timescore.gcfreed:  Größe des von den GC's bisher wiederbeschafften Platzes
+# < timescore.runtime:  Run-time since LISP-system-start (in Ticks)
+# < timescore.realtime: Real-time since LISP-system-start (in Ticks)
+# < timescore.gctime:   GC-Time since LISP-system-start (in Ticks)
+# < timescore.gccount:  Number of GC's since LISP-system-start
+# < timescore.gcfreed:  Size of the space reclaimed by the GC's so far
   typedef struct {
     internal_time runtime;
     internal_time realtime;
@@ -6651,11 +6641,11 @@ typedef struct {
     uintL2 gcfreed;
   } timescore;
   extern void get_running_times (timescore*);
-# wird verwendet von
+# is used by
 
-# UP: Liefert die Run-Time
+# UP: yields the run-time
 # get_running_time(runtime);
-# < runtime: Run-Time (in Ticks)
+# < runtime: Run-time (in Ticks)
   #ifndef HAVE_RUN_TIME
     #define get_running_time(runtime)  runtime = get_time()
     extern uintL get_time (void);
@@ -6669,9 +6659,9 @@ typedef struct {
       extern uintL get_run_time (internal_time* runtime);
     #endif
   #endif
-# wird verwendet von SPVW
+# is used by SPVW
 
-# Zeitangabe in Decoded-Time:
+# Time in decoded-time:
   typedef struct {
     object Sekunden;
     object Minuten;
@@ -6682,386 +6672,388 @@ typedef struct {
   } decoded_time;
 
 #if defined(MSDOS)
-# UP: Wandelt das DOS-Zeitformat in Decoded-Time um.
+# UP: converts the DOS time-format to decoded-time.
 # convert_timedate(time,date,&timepoint);
-# > uintW time: Uhrzeit
-#         Als Word: Bits 15..11: Stunde in {0,...,23},
-#                   Bits 10..5:  Minute in {0,...,59},
-#                   Bits 4..0:   Sekunde/2 in {0,...,29}.
+# > uintW time: Time
+#         As Word:  Bits 15..11: hour   in {0,...,23},
+#                   Bits 10..5:  minute in {0,...,59},
+#                   Bits 4..0:   second/2 in {0,...,29}.
 # > uintW date: Datum
-#         Als Word: Bits 15..9: Jahr-1980 in {0,...,119},
-#                   Bits 8..5:  Monat in {1,...,12},
-#                   Bits 4..0:  Tag in {1,...,31}.
+#         Als Word: Bits 15..9: year-1980 in {0,...,119},
+#                   Bits 8..5:  month in {1,...,12},
+#                   Bits 4..0:  day in {1,...,31}.
 # < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
-#   timepoint.Tag, timepoint.Monat, timepoint.Jahr, jeweils als Fixnums
+#   timepoint.Tag, timepoint.Monat, timepoint.Jahr, each as Fixnums
   extern void convert_timedate (uintW time, uintW date, decoded_time* timepoint);
-# wird verwendet von PATHNAME
+# is used by PATHNAME
 #endif
 
 #ifdef AMIGAOS
-# UP: Wandelt das Amiga-Zeitformat in Decoded-Time um.
+# UP: Converts the Amiga time-format to decoded-time.
 # convert_time(&datestamp,&timepoint);
-# > struct DateStamp datestamp: Uhrzeit
-#          datestamp.ds_Days   : Anzahl Tage seit 1.1.1978
-#          datestamp.ds_Minute : Anzahl Minuten seit 00:00 des Tages
-#          datestamp.ds_Tick   : Anzahl Ticks seit Beginn der Minute
+# > struct DateStamp datestamp: time
+#          datestamp.ds_Days   : Number of days since 1.1.1978
+#          datestamp.ds_Minute : Number of minutes since 00:00 of the day
+#          datestamp.ds_Tick   : Number of ticks since the minute started
 # < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
-#   timepoint.Tag, timepoint.Monat, timepoint.Jahr, jeweils als Fixnums
+#   timepoint.Tag, timepoint.Monat, timepoint.Jahr, each as a Fixnum
   extern void convert_time (const struct DateStamp * datestamp, decoded_time* timepoint);
-# wird verwendet von PATHNAME
+# is used by PATHNAME
 #endif
 #if defined(UNIX) || defined(MSDOS) || defined(RISCOS)
-# UP: Wandelt das System-Zeitformat in Decoded-Time um.
+# UP: Converts the system-time-format into Decoded-Time.
 # convert_time(&time,&timepoint);
-# > time_t time: Zeit im System-Zeitformat
+# > time_t time: time in the system-time-format
 # < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
-#   timepoint.Tag, timepoint.Monat, timepoint.Jahr, jeweils als Fixnums
+#   timepoint.Tag, timepoint.Monat, timepoint.Jahr, each a Fixnum
   extern void convert_time (const time_t* time, decoded_time* timepoint);
-# wird verwendet von PATHNAME
+# is used by PATHNAME
 #endif
 #ifdef WIN32_NATIVE
-# UP: Wandelt das System-Zeitformat in Decoded-Time um.
+# UP: Converts the system-time-format into Decoded-Time.
 # convert_time(&time,&timepoint);
-# > FILETIME time: Zeit im System-Zeitformat
+# > FILETIME time: time in the system-time-format
 # < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
-#   timepoint.Tag, timepoint.Monat, timepoint.Jahr, jeweils als Fixnums
+#   timepoint.Tag, timepoint.Monat, timepoint.Jahr, each a Fixnum
   extern void convert_time (const FILETIME* time, decoded_time* timepoint);
-# wird verwendet von PATHNAME
+# is used by PATHNAME
 #endif
 
 #ifdef AMIGAOS
-# UP: Wandelt das Amiga-Zeitformat in Universal-Time um.
+# UP: Converts the Amiga-time-format into Universal-Time.
 # convert_time_to_universal(&datestamp)
-# > struct DateStamp datestamp: Uhrzeit
-#          datestamp.ds_Days   : Anzahl Tage seit 1.1.1978
-#          datestamp.ds_Minute : Anzahl Minuten seit 00:00 des Tages
-#          datestamp.ds_Tick   : Anzahl Ticks seit Beginn der Minute
+# > struct DateStamp datestamp: time
+#          datestamp.ds_Days   : number of days since 1.1.1978
+#          datestamp.ds_Minute : number of minutes since 00:00 of the day
+#          datestamp.ds_Tick   : number of ticks since the beginning of the minute
 # < result: integer denoting the seconds since 1900-01-01 00:00 GMT
 # can trigger GC
   extern object convert_time_to_universal (const struct DateStamp * datestamp);
-# wird verwendet von PATHNAME
+# is used by PATHNAME
 #endif
 #if defined(UNIX) || defined(MSDOS) || defined(RISCOS)
-# UP: Wandelt das System-Zeitformat in Universal-Time um.
+# UP: Converts the system time-format into Universal-Time.
 # convert_time_to_universal(&time)
-# > time_t time: Zeit im System-Zeitformat
+# > time_t time: time in the system time-format
 # < result: integer denoting the seconds since 1900-01-01 00:00 GMT
 # can trigger GC
   extern object convert_time_to_universal (const time_t* time);
-# wird verwendet von PATHNAME
+# is used by PATHNAME
 #endif
 #ifdef WIN32_NATIVE
-# UP: Wandelt das System-Zeitformat in Universal-Time um.
+# UP: converts the system time-format into Universal-Time.
 # convert_time_to_universal(&time)
 # > FILETIME time: Zeit im System-Zeitformat
 # < result: integer denoting the seconds since 1900-01-01 00:00 GMT
 # can trigger GC
   extern object convert_time_to_universal (const FILETIME* time);
-# wird verwendet von PATHNAME
+# is used by PATHNAME
 #endif
 
-# UP: Initialisiert die Zeitvariablen beim LISP-System-Start.
+# UP: Initializes the time variables upon the LISP-System-Start.
 # init_time();
   extern void init_time (void);
-# wird verwendet von SPVW
+# is used by SPVW
 
 
 # ####################### SPVWBIBL zu SPVW.D ############################## #
 
 /*
-                          Die Stacks
+                          The Stacks
                           ==========
 
-Es werden zwei Stacks verwendet:
-  - der C-Programmstack (Stackpointer SP = Register A7),
-  - der LISP-Stack (Stackpointer STACK).
-Alle Unterprogrammaufrufe geschehen mittels BSR/JSR über den Programmstack,
-er dient außerdem zur Zwischenspeicherung von Daten, die keine LISP-Objekte
-sind. Der LISP-Stack wird verwendet zur Ablage der Frames und zur Zwischen-
-speicherung von LISP-Objekten.
-Für beide Stacks werden die Wachstumsgrenzen von der Speicherverwaltung
-kontrolliert über folgende Macros:
-  check_SP();             testet den Programmstack gegen Überlauf
-  check_STACK();          testet den LISP-Stack gegen Überlauf
-  get_space_on_STACK(n);  testet, ob noch D0.L Bytes auf dem LISP-Stack frei sind
-Auf dem LISP-Stack dürfen grundsätzlich nur Langwörter abgelegt werden.
-Ist dabei FRAME_BIT gesetzt, so handelt es sich um das untere Ende eines
-Frames; dieses Langwort ist ein Pointer über den Frame, zusammen mit
-einem Frame-Typ-Byte; falls darin SKIP2_BIT gelöscht ist, ist das
-darüberliegende Langwort kein LISP-Objekt.
-Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
+Two Stacks are being used :
+  - the C-program stack (Stackpointer SP = Register A7),
+  - the LISP-Stack (Stackpointer STACK).
+All calls of sub-programs are done through BSR/JSR via the program stack;
+it's also used to store data that is not a LISP-object temporarilyer.
+The LISP-Stack is used store frames and for the temporary storage
+of LISP-objects.
+For both stacks the limits of growth are controled by the memory management
+and the following macros:
+  check_SP();             tests the program stack for overflow
+  check_STACK();          tests the LISP-Stack for overflow
+  get_space_on_STACK(n);  tests, whether there are still D0.L
+                          Bytes free on the LISP-Stack
+Basically only long words may be stored on the LISP-Stack.
+If FRAME_BIT is set, it's the lower end of a frame;
+this long word is a pointer above the Frame, together with a
+Frame-type-Byte; if SKIP2_BIT is unset in it, the longword above
+it is not a LISP-object.
+All other long words on the LISP-Stack are LISP-objects.
 */
 
-# Maschinenstack: SP
-# SP() liefert den aktuellen Wert des SP.
-# setSP(adresse); setzt den SP auf einen gegebenen Wert. Extrem gefährlich!
-# FAST_SP definiert, falls SP-Zugriffe schnell sind.
-  #ifdef GNU
-    # Definition des Registers, in dem SP liegt.
-    #ifdef MC680X0
-      #define SP_register "sp"  # %sp = %a7
-    #endif
-    #ifdef SPARC
-      #define SP_register "%sp"  # %sp = %o6
-    #endif
-    #ifdef HPPA
-      #define SP_register "%r30"  # %sp = %r30
-    #endif
-    #ifdef MIPS
-      #define SP_register "$sp"  # $sp = $29
-    #endif
-    #ifdef M88000
-      #define SP_register "%r31"  # %sp = %r31
-    #endif
-    #ifdef RS6000
-      #define SP_register "r1"
-    #endif
-    #ifdef ARM
-      #define SP_register "%sp"  # %sp = %r13
-    #endif
-    #ifdef CONVEX
-      #define SP_register "sp"  # $sp = $a0
-    #endif
-    #ifdef DECALPHA
-      #define SP_register "$30"  # $sp = $30
-    #endif
-    #ifdef I80386
-      #define SP_register "%esp"
-    #endif
-    #ifdef VAX
-      #define SP_register "sp"
-    #endif
-    #ifdef IA64
-      #define SP_register "r12"
-    #endif
-    #ifdef S390
-      #define SP_register "15"
-    #endif
+# machine stack: SP
+# SP() returns the current value of the  SP.
+# setSP(adresse); sets the SP to a given value. Extremely dangerous!
+# FAST_SP defined, if SP-accesses are fast.
+#ifdef GNU
+  # definition of the register, in which the SP resides.
+  #ifdef MC680X0
+    #define SP_register "sp"  # %sp = %a7
   #endif
-  #if defined(GNU) && !defined(NO_ASM)
-    # Assembler-Anweisung, die das SP-Register in eine Variable kopiert.
-    #ifdef MC680X0
-      #ifdef __REGISTER_PREFIX__ # GNU C Version >= 2.4 hat %/ und __REGISTER_PREFIX__
-        # Aber der Wert von __REGISTER_PREFIX__ ist unbrauchbar, weil wir evtl.
-        # cross-compilieren.
-        #define REGISTER_PREFIX  "%/"
-      #else
-        #define REGISTER_PREFIX  "" # oder "%%", je nach verwendetem Assembler
-      #endif
-      #define ASM_get_SP_register(resultvar)  ("movel "REGISTER_PREFIX"sp,%0" : "=g" (resultvar) : )
-    #endif
-    #ifdef SPARC
-      #define ASM_get_SP_register(resultvar)  ("mov %%sp,%0" : "=r" (resultvar) : )
-    #endif
-    #ifdef HPPA
-      #define ASM_get_SP_register(resultvar)  ("copy %%r30,%0" : "=r" (resultvar) : )
-    #endif
-    #ifdef MIPS
-      #define ASM_get_SP_register(resultvar)  ("move\t%0,$sp" : "=r" (resultvar) : )
-    #endif
-    #ifdef M88000
-      #define ASM_get_SP_register(resultvar)  ("or %0,#r0,#r31" : "=r" (resultvar) : )
-    #endif
-    #ifdef RS6000
-      #define ASM_get_SP_register(resultvar)  ("mr %0,1" : "=r" (resultvar) : )
-    #endif
-    #ifdef ARM
-      #define ASM_get_SP_register(resultvar)  ("mov\t%0, sp" : "=r" (resultvar) : )
-    #endif
-    #ifdef CONVEX
-      #define ASM_get_SP_register(resultvar)  ("mov sp,%0" : "=r" (resultvar) : )
-    #endif
-    #ifdef DECALPHA
-      #define ASM_get_SP_register(resultvar)  ("bis $30,$30,%0" : "=r" (resultvar) : )
-    #endif
-    #ifdef I80386
-      #define ASM_get_SP_register(resultvar)  ("movl %%esp,%0" : "=g" (resultvar) : )
-    #endif
-    #ifdef IA64
-      #define ASM_get_SP_register(resultvar)  ("mov %0 = r12" : "=r" (resultvar) : )
-    #endif
-    #ifdef S390
-      #define ASM_get_SP_register(resultvar)  ("lr %0,%%r15" : "=r" (resultvar) : )
-    #endif
+  #ifdef SPARC
+    #define SP_register "%sp"  # %sp = %o6
   #endif
-  #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
-    # Zugriff auf eine globale Register"variable" SP
-    #define SP()  \
-      ({var aint __SP;                                                          \
-        __asm__ __volatile__ ("movel "REGISTER_PREFIX"sp,%0" : "=g" (__SP) : ); \
-        __SP;                                                                   \
-       })
-    #define setSP(adresse)  \
-      ({ __asm__ __volatile__ ("movel %0,"REGISTER_PREFIX"sp" : : "g" ((aint)(adresse)) : "sp" ); })
-    #define FAST_SP
-  #elif defined(GNU) && defined(I80386) && !defined(NO_ASM)
-    # Zugriff auf eine Register"variable" %esp
-    #define SP()  \
-      ({var aint __SP;                                           \
-        __asm__ __volatile__ ("movl %%esp,%0" : "=g" (__SP) : ); \
-        __SP;                                                    \
-       })
-    #define setSP(adresse)  \
-      ({ __asm__ __volatile__ ("movl %0,%%esp" : : "g" ((aint)(adresse)) : "sp" ); })
-    #define FAST_SP
-  #elif defined(GNU) && defined(SP_register)
-    register __volatile__ aint __SP __asm__(SP_register);
-    #define SP()  __SP
-    #if defined(SPARC)
-      # Wir dürfen hier kein setSP() durchführen, ohne zu beachten, dass
-      # 1. %sp ein Alignment von 8 Byte beachten muss,
-      # 2. oberhalb von %sp immer 92 Byte frei bleiben müssen (dorthin kommen
-      #    die Registerinhalte, wenn durch ein 'save' in einem Unterprogramm
-      #    ein 'register window overflow trap' ausgelöst wird).
-    #endif
-  #elif defined(MICROSOFT) && defined(I80386) && !defined(NO_ASM)
-    # Zugriff auf ein Register %esp
-    #define SP  getSP
-    static __inline aint getSP () { __asm mov eax,esp }
-    static __inline aint setSP (aint address) { __asm mov esp,address }
-  #elif defined(MC680X0) || defined(SPARC) || defined(MIPS) || defined(I80386)
-    # Zugriffsfunktionen extern, in Assembler
-    #define SP  getSP
-    extern_C void* SP (void);
-    extern_C void setSP (void* adresse);
-  #else
-    # Zugriffsfunktion portabel in C
-    extern void* SP (void);
+  #ifdef HPPA
+    #define SP_register "%r30"  # %sp = %r30
   #endif
+  #ifdef MIPS
+    #define SP_register "$sp"  # $sp = $29
+  #endif
+  #ifdef M88000
+    #define SP_register "%r31"  # %sp = %r31
+  #endif
+  #ifdef RS6000
+    #define SP_register "r1"
+  #endif
+  #ifdef ARM
+    #define SP_register "%sp"  # %sp = %r13
+  #endif
+  #ifdef CONVEX
+    #define SP_register "sp"  # $sp = $a0
+  #endif
+  #ifdef DECALPHA
+    #define SP_register "$30"  # $sp = $30
+  #endif
+  #ifdef I80386
+    #define SP_register "%esp"
+  #endif
+  #ifdef VAX
+    #define SP_register "sp"
+  #endif
+  #ifdef IA64
+    #define SP_register "r12"
+  #endif
+  #ifdef S390
+    #define SP_register "15"
+  #endif
+#endif
+#if defined(GNU) && !defined(NO_ASM)
+  # Assembler-instruction that copies the SP-register into a variable.
+  #ifdef MC680X0
+    #ifdef __REGISTER_PREFIX__ # GNU C Version >= 2.4 hat %/ und __REGISTER_PREFIX__
+      # But the value of __REGISTER_PREFIX__ is useless, because we might be
+      # cross-compiling.
+      #define REGISTER_PREFIX  "%/"
+    #else
+      #define REGISTER_PREFIX  "" # oder "%%", depends on the assembler that's being used
+    #endif
+    #define ASM_get_SP_register(resultvar)  ("movel "REGISTER_PREFIX"sp,%0" : "=g" (resultvar) : )
+  #endif
+  #ifdef SPARC
+    #define ASM_get_SP_register(resultvar)  ("mov %%sp,%0" : "=r" (resultvar) : )
+  #endif
+  #ifdef HPPA
+    #define ASM_get_SP_register(resultvar)  ("copy %%r30,%0" : "=r" (resultvar) : )
+  #endif
+  #ifdef MIPS
+    #define ASM_get_SP_register(resultvar)  ("move\t%0,$sp" : "=r" (resultvar) : )
+  #endif
+  #ifdef M88000
+    #define ASM_get_SP_register(resultvar)  ("or %0,#r0,#r31" : "=r" (resultvar) : )
+  #endif
+  #ifdef RS6000
+    #define ASM_get_SP_register(resultvar)  ("mr %0,1" : "=r" (resultvar) : )
+  #endif
+  #ifdef ARM
+    #define ASM_get_SP_register(resultvar)  ("mov\t%0, sp" : "=r" (resultvar) : )
+  #endif
+  #ifdef CONVEX
+    #define ASM_get_SP_register(resultvar)  ("mov sp,%0" : "=r" (resultvar) : )
+  #endif
+  #ifdef DECALPHA
+    #define ASM_get_SP_register(resultvar)  ("bis $30,$30,%0" : "=r" (resultvar) : )
+  #endif
+  #ifdef I80386
+    #define ASM_get_SP_register(resultvar)  ("movl %%esp,%0" : "=g" (resultvar) : )
+  #endif
+  #ifdef IA64
+    #define ASM_get_SP_register(resultvar)  ("mov %0 = r12" : "=r" (resultvar) : )
+  #endif
+  #ifdef S390
+    #define ASM_get_SP_register(resultvar)  ("lr %0,%%r15" : "=r" (resultvar) : )
+  #endif
+#endif
+#if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
+  # Access to a global register-"variable" SP
+  #define SP()  \
+    ({var aint __SP;                                                          \
+      __asm__ __volatile__ ("movel "REGISTER_PREFIX"sp,%0" : "=g" (__SP) : ); \
+      __SP;                                                                   \
+     })
+  #define setSP(adresse)  \
+    ({ __asm__ __volatile__ ("movel %0,"REGISTER_PREFIX"sp" : : "g" ((aint)(adresse)) : "sp" ); })
+  #define FAST_SP
+#elif defined(GNU) && defined(I80386) && !defined(NO_ASM)
+  # Access to a register-"variable" %esp
+  #define SP()  \
+    ({var aint __SP;                                           \
+      __asm__ __volatile__ ("movl %%esp,%0" : "=g" (__SP) : ); \
+      __SP;                                                    \
+     })
+  #define setSP(adresse)  \
+    ({ __asm__ __volatile__ ("movl %0,%%esp" : : "g" ((aint)(adresse)) : "sp" ); })
+  #define FAST_SP
+#elif defined(GNU) && defined(SP_register)
+  register __volatile__ aint __SP __asm__(SP_register);
+  #define SP()  __SP
+  #if defined(SPARC)
+    # We must not do a setSP() here without taking care that
+    # 1. %sp has to pay attention to an alignment of 8 Bytes,
+    # 2. above %sp 92 Bytes have to be kept free (that's where the
+    #    register contents are saved, if a 'register window overflow trap'
+    #    is triggered by a 'save' in a sub-program).
+  #endif
+#elif defined(MICROSOFT) && defined(I80386) && !defined(NO_ASM)
+  # access the register %esp
+  #define SP  getSP
+  static __inline aint getSP () { __asm mov eax,esp }
+  static __inline aint setSP (aint address) { __asm mov esp,address }
+#elif defined(MC680X0) || defined(SPARC) || defined(MIPS) || defined(I80386)
+  # access functions extern, in assembler
+  #define SP  getSP
+  extern_C void* SP (void);
+  extern_C void setSP (void* adresse);
+#else
+  # access function portable in C
+  extern void* SP (void);
+#endif
 #if defined(stack_grows_down) # defined(MC680X0) || defined(I80386) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(DECALPHA) || defined(IA64) || defined(S390) || ...
-  #define SP_DOWN # SP wächst nach unten
+  #define SP_DOWN # SP grows downward
   #define SPoffset 0 # top-of-SP ist *(SP+SPoffset)
 #endif
 #if defined(stack_grows_up) # defined(HPPA) || ...
-  #define SP_UP # SP wächst nach oben
+  #define SP_UP # SP grows upward
   #define SPoffset -1 # top-of-SP ist *(SP+SPoffset)
 #endif
 #if (defined(SP_DOWN) && defined(SP_UP)) || (!defined(SP_DOWN) && !defined(SP_UP))
-  #error "Unknown SP direction -- SP_DOWN/SP_UP neu einstellen!"
+  #error "Unknown SP direction -- readjust SP_DOWN/SP_UP!"
 #endif
-# Darauf aufbauend:
-# SPint  ist der Typ der Elemente auf dem SP, ein Integertyp mindestens so
-#        breit wie uintL und mindestens so breit wie aint bzw. void*.
-# SP_(n) = (n+1)tes Langwort auf dem SP.
+# Derived from that:
+# SPint  is the type of the elements on the SP, an Integer type at least as
+#        wide as uintL and at least as wide as aint resp. void*.
+# SP_(n) = (n+1)th longword on the SP.
 # _SP_(n) = &SP_(n).
-# pushSP(item)  legt ein Langwort auf dem SP ab. Synonym: -(SP).
-# popSP(item=)  liefert item=SP_(0) und nimmt es dabei vom SP herunter.
-# skipSP(n);  nimmt n Langworte vom SP herunter.
-  #if (oint_addr_len <= intLsize)
-    typedef uintL  SPint;
-  #else
-    typedef aint  SPint;
-  #endif
-  #ifdef SP_DOWN
-    #define skipSPop  +=
-    #define SPop      +
-  #endif
-  #ifdef SP_UP
-    #define skipSPop  -=
-    #define SPop      -
-  #endif
-  #define _SP_(n)  (((SPint*)SP()) + SPoffset SPop (uintP)(n))
-  #if !(defined(GNU) && (defined(MC680X0)) && !defined(NO_ASM)) # im allgemeinen
-    #define SP_(n)  (((SPint*)SP())[SPoffset SPop (uintP)(n)])
-    #define skipSP(n)  \
-      {var register SPint* sp = (SPint*)SP(); \
-       sp skipSPop (uintP)(n);                \
-       setSP(sp);                             \
-      }
-    #define pushSP(item)  \
-      {var register SPint* sp = (SPint*)SP();                                \
-       sp skipSPop -1;                                                       \
-       setSP(sp);             # Erst SP herabsetzen (wegen Interruptgefahr!) \
-       sp[SPoffset] = (item); # dann item als top-of-SP eintragen            \
-      }
-    #define popSP(item_zuweisung)  \
-      {var register SPint* sp = (SPint*)SP();                                    \
-       item_zuweisung sp[SPoffset]; # Erst item als top-of-SP holen              \
-       sp skipSPop 1;                                                            \
-       setSP(sp);                   # dann erst (Interruptgefahr!) SP hochsetzen \
-      }
-  #endif
-  #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
-    # Mit GNU auf einem 680X0 liegt SP in einem Register. Zugriff und
-    # Veränderung von SP bilden daher eine ununterbrechbare Einheit.
-    # Und es gilt SP_DOWN und SPoffset=0.
-    #define SP_(n)  \
-      ({var register uintL __n = sizeof(SPint) * (n); \
-        var register SPint __item;                    \
-        __asm__ __volatile__ ("movel "REGISTER_PREFIX"sp@(%1:l),%0" : "=g" (__item) : "r" (__n) ); \
-        __item;                                       \
-       })
-    #define skipSP(n)  \
-      {var register uintL __n = sizeof(SPint) * (n);                               \
-       __asm__ __volatile__ ("addl %0,"REGISTER_PREFIX"sp" : : "g" (__n) : "sp" ); \
-      }
-    #define pushSP(item)  \
-      {var register SPint __item = (item);                                               \
-       __asm__ __volatile__ ("movel %0,"REGISTER_PREFIX"sp@-" : : "g" (__item) : "sp" ); \
-      }
-    #define popSP(item_zuweisung)  \
-      {var register SPint __item;                                                         \
-       __asm__ __volatile__ ("movel "REGISTER_PREFIX"sp@+,%0" : "=r" (__item) : : "sp" ); \
-       item_zuweisung __item;                                                             \
-      }
-  #endif
-# An sp_jmp_buf is exactly the same as a jmp_buf, except that on Irix 6.5 in
-# 32-bit mode, a jmp_buf has alignment 8, whereas an SPint only has alignment 4.
-# Need to add some padding. Then jmpbufsize = sizeof(sp_jmp_buf)/sizeof(SPint).
-  #define sp_jmp_buf_incr  (alignof(jmp_buf)>alignof(SPint)?alignof(jmp_buf)-alignof(SPint):0)
-  #define sp_jmp_buf_to_jmp_buf(x)  (*(jmp_buf*)(((long)&(x)+(long)sp_jmp_buf_incr)&-(long)(alignof(jmp_buf)>alignof(SPint)?alignof(jmp_buf):1)))
-  #define setjmpspl(x)  setjmpl(sp_jmp_buf_to_jmp_buf(x))
-  #define longjmpspl(x,y)  longjmpl(sp_jmp_buf_to_jmp_buf(x),y)
-  #define jmpbufsize  ceiling(sizeof(jmp_buf)+sp_jmp_buf_incr,sizeof(SPint))
-  typedef SPint sp_jmp_buf[jmpbufsize];
+# pushSP(item)  puts a lognword on the SP. Synonym: -(SP).
+# popSP(item=)  returns item=SP_(0) and takes it off the SP.
+# skipSP(n);  takes n long words of the SP.
+#if (oint_addr_len <= intLsize)
+  typedef uintL  SPint;
+#else
+  typedef aint  SPint;
+#endif
+#ifdef SP_DOWN
+  #define skipSPop  +=
+  #define SPop      +
+#endif
+#ifdef SP_UP
+  #define skipSPop  -=
+  #define SPop      -
+#endif
+#define _SP_(n)  (((SPint*)SP()) + SPoffset SPop (uintP)(n))
+#if !(defined(GNU) && (defined(MC680X0)) && !defined(NO_ASM)) # generally
+  #define SP_(n)  (((SPint*)SP())[SPoffset SPop (uintP)(n)])
+  #define skipSP(n)  \
+    {var register SPint* sp = (SPint*)SP(); \
+     sp skipSPop (uintP)(n);                \
+     setSP(sp);                             \
+    }
+  #define pushSP(item)  \
+    {var register SPint* sp = (SPint*)SP();                                \
+     sp skipSPop -1;                                                       \
+     setSP(sp);             # First decrease SP (because of a possible interrupt!) \
+     sp[SPoffset] = (item); # then insert item as top-of-SP                \
+    }
+  #define popSP(item_allocation)  \
+    {var register SPint* sp = (SPint*)SP();                                \
+     item_allocation sp[SPoffset]; # at first fetch top-of-SP              \
+     sp skipSPop 1;                                                        \
+     setSP(sp);                   # then (danger of interrupt!) increse SP \
+    }
+#endif
+#if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
+  # With GNU on as 680X0 SP is in a register. Thus access and
+  # modification of SP are a unit that cannot be interrupted.
+  # And SP_DOWN as well as SPoffset=0 hold.
+  #define SP_(n)  \
+    ({var register uintL __n = sizeof(SPint) * (n); \
+      var register SPint __item;                    \
+      __asm__ __volatile__ ("movel "REGISTER_PREFIX"sp@(%1:l),%0" : "=g" (__item) : "r" (__n) ); \
+      __item;                                       \
+     })
+  #define skipSP(n)  \
+    {var register uintL __n = sizeof(SPint) * (n);                            \
+     __asm__ __volatile__ ("addl %0,"REGISTER_PREFIX"sp" : : "g" (__n) : "sp" ); \
+    }
+  #define pushSP(item)  \
+    {var register SPint __item = (item);                                      \
+     __asm__ __volatile__ ("movel %0,"REGISTER_PREFIX"sp@-" : : "g" (__item) : "sp" ); \
+    }
+  #define popSP(item_allocation)  \
+    {var register SPint __item;                                              \
+     __asm__ __volatile__ ("movel "REGISTER_PREFIX"sp@+,%0" : "=r" (__item) : : "sp" ); \
+     item_allocation __item;                                                 \
+    }
+#endif
+# An sp_jmp_buf is exactly the same as a jmp_buf,
+# except that on Irix 6.5 in 32-bit mode, a jmp_buf has alignment 8,
+# whereas an SPint only has alignment 4.
+# Need to add some padding.
+# Then jmpbufsize = sizeof(sp_jmp_buf)/sizeof(SPint).
+#define sp_jmp_buf_incr  (alignof(jmp_buf)>alignof(SPint)?alignof(jmp_buf)-alignof(SPint):0)
+#define sp_jmp_buf_to_jmp_buf(x)  (*(jmp_buf*)(((long)&(x)+(long)sp_jmp_buf_incr)&-(long)(alignof(jmp_buf)>alignof(SPint)?alignof(jmp_buf):1)))
+#define setjmpspl(x)  setjmpl(sp_jmp_buf_to_jmp_buf(x))
+#define longjmpspl(x,y)  longjmpl(sp_jmp_buf_to_jmp_buf(x),y)
+#define jmpbufsize  ceiling(sizeof(jmp_buf)+sp_jmp_buf_incr,sizeof(SPint))
+typedef SPint sp_jmp_buf[jmpbufsize];
 
 # LISP-Stack: STACK
-  #if !defined(STACK_register)
-    # eine globale Variable
-    #ifndef MULTITHREAD
-      extern object* STACK;
-    #else
-      #define STACK  (current_thread()->_STACK)
-    #endif
+#if !defined(STACK_register)
+  # a global variable
+  #ifndef MULTITHREAD
+    extern object* STACK;
   #else
-    # eine globale Registervariable
-    register object* STACK __asm__(STACK_register);
+    #define STACK  (current_thread()->_STACK)
   #endif
-  #if defined(SPARC) && !defined(GNU) && !defined(__SUNPRO_C) && !defined(MULTITHREAD) && (SAFETY < 2)
-    # eine globale Registervariable, aber Zugriffsfunktionen extern in Assembler
-    #define STACK  _getSTACK()
-    extern_C object* _getSTACK (void);
-    #define setSTACK(zuweisung)  \
-      { var object* tempSTACK; _setSTACK(temp##zuweisung); } # Ähem, igitt!
-    extern_C void _setSTACK (void* new_STACK);
-  #else
-    #define setSTACK(zuweisung)  zuweisung
-  #endif
+#else
+  # a global register variable
+  register object* STACK __asm__(STACK_register);
+#endif
+#if defined(SPARC) && !defined(GNU) && !defined(__SUNPRO_C) && !defined(MULTITHREAD) && (SAFETY < 2)
+  # a global register variable, but access functions externally in assembler
+  #define STACK  _getSTACK()
+  extern_C object* _getSTACK (void);
+  #define setSTACK(allocation)  \
+    { var object* tempSTACK; _setSTACK(temp##allocation); } # Ähem, igitt!
+  extern_C void _setSTACK (void* new_STACK);
+#else
+  #define setSTACK(allocation)  allocation
+#endif
 #if defined(AMIGAOS)
-  #define STACK_DOWN # STACK wächst nach unten
+  #define STACK_DOWN # STACK grows downward
 #endif
 #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS) || defined(WIN32) || defined(HYPERSTONE)
-  #define STACK_UP # STACK wächst nach oben
+  #define STACK_UP # STACK grows upward
 #endif
 #if (defined(STACK_DOWN) && defined(STACK_UP)) || (!defined(STACK_DOWN) && !defined(STACK_UP))
-  #error "Unknown STACK direction -- STACK_DOWN/STACK_UP neu einstellen!"
+  #error "Unknown STACK direction -- readjust STACK_DOWN/STACK_UP!"
 #endif
 
-# Jeder Aufruf einer externen Funktion (oder eine Folge von solchen) muss
-# zwischen
+# Every call of an external function (or a sequence of those) has to be framed
+# with
 #   begin_call();
-# und
+# and
 #   end_call();
-# eingerahmt werden.
-# Zweck: Damit im Falle einer Unterbrechung während des entsprechenden
-# Zeitraums der STACK - falls er in einem Register liegt - auf einen halbwegs
-# aktuellen Wert gebracht werden kann.
-# Soll während des Ablaufs einer externen Funktion doch wieder auf den STACK
-# zugegriffen werden, so ist der entsprechende Code zwischen
+# Purpose: The stack, if it resides in a register,
+# should be brought to a halfway recent value
+# in case of an interrupt during the corresponding timespan.
+#
+# If you want to access the STACK while an external function run,
+# you have to frame the corresponding code with
 #   begin_callback();
-# und
+# and
 #   end_callback();
-# einzurahmen.
 #ifdef HAVE_SAVED_mv_count
   #ifndef MULTITHREAD
     extern uintC saved_mv_count;
@@ -7117,41 +7109,41 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   #define end_callback()  SAVE_GLOBALS(); RESTORE_REGISTERS(;)
 #endif
 
-# Jeder Betriebsystem-Aufruf (oder eine Folge von solchen) muss zwischen
+# Every OS-call (or a sequence of thereof) has to be framed with
 #   begin_system_call();
-# und
+# and
 #   end_system_call();
-# eingerahmt werden.
-# Zweck: Damit im Falle einer Unterbrechung während des entsprechenden
-# Zeitraums der STACK - falls er in einem Register liegt - auf einen halbwegs
-# aktuellen Wert gebracht werden kann.
-# Während eine Break-Semaphore gesetzt ist, kann man sich daher die Benutzung
-# dieser Macros sparen.
+# Purpose: The STACK - if it resides in a register -
+# should be brought to a halfway recent value,
+# if an interrupt happens during the corresponding timespan.
+#
+# While a break-semaphore has been set, you don't have to use the macros
+# because of that.
 #if defined(AMIGAOS) || defined(NO_ASYNC_INTERRUPTS)
-  # AMIGAOS: Solange nicht ixemul.library benutzt wird, ist während
-  #   Betriebssystem-Aufrufen das Programm sowieso nicht unterbrechbar.
-  # NO_ASYNC_INTERRUPTS: Wenn wir auf asynchrone Interrupts nicht reagieren,
-  #   ist das Programm nicht unterbrechbar.
+  # AMIGAOS: As long as ixemul.library isn't used, the program
+  #   can't be interrupted during OS-calls anyway.
+  # NO_ASYNC_INTERRUPTS: if we don't react to asynchronozs Interrupts,
+  #   the program can't be interruped..
   #define begin_system_call()
   #define end_system_call()
 #else
   #define begin_system_call()  begin_call()
   #define end_system_call()  end_call()
 #endif
-# Dasselbe für setjmp()/longjmp(). Hier vermeiden wir aber, soweit möglich,
-# jeden unnötigen Overhead.
-# Während eine Break-Semaphore gesetzt ist, kann man sich die Benutzung
-# dieser Macros sparen.
+# The same holds for setjmp()/longjmp(). Here we avoide an unneeded overhead
+# if at all possible.
+# You don't have to use these macros when a break-semaphore has been
+# set.
 #if 0
-  # Disassembly von setjmp() und longjmp() zeigt, dass das STACK-Register
-  # nicht willkürlich benutzt wird.
+  # Disassembly of setjmp() and longjmp() shows, that the STACK-register
+  # isn't used arbitrarily.
   #define begin_setjmp_call()
   #define end_setjmp_call()
   #define begin_longjmp_call()
   #define end_longjmp_call()
 #elif (defined(I80386) && defined(UNIX_LINUX))
-  # Disassembly von setjmp() zeigt, dass das STACK-Register %ebx
-  # nicht willkürlich benutzt wird.
+  # Disassembly of setjmp() shows, that the STACK-register %ebx
+  # isn't used arbitrarily.
   #define begin_setjmp_call()
   #define end_setjmp_call()
   #define begin_longjmp_call()  begin_system_call()
@@ -7162,7 +7154,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   #define begin_longjmp_call()  begin_system_call()
   #define end_longjmp_call()  end_system_call()
 #endif
-# Dasselbe für die Arithmetik-Funktionen, die STACK_register benutzen.
+# The same holds for arithmetics-functions that use the STACK_registers.
 # Das sind auf I80386 (%ebx) die SHIFT_LOOPS, MUL_LOOPS, DIV_LOOPS.
 #if defined(I80386) && !defined(NO_ARI_ASM) && (SAFETY < 3) && defined(HAVE_SAVED_STACK)
   #define begin_arith_call()  begin_system_call()
@@ -7173,106 +7165,102 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 #endif
 
 #if (defined(UNIX) && !defined(UNIX_MINT)) || defined(EMUNIX) || defined(RISCOS) || defined(WIN32) # || defined(AMIGAOS) # ?JCH??
-  # Unter Unix wird der Speicherbereich für den SP vom Betriebssystem
-  # bereitgestellt, kein malloc() nötig.
-  # Ebenso unter EMX (ausgenommen RSXW32 mit seinem Mini-60KB-Stack).
+  # Under Unix the memory space for the SP is provided by the OS,
+  # thus no malloc() has to be done.
+  # The same holds for EMX (except for RSXW32 with its Mini-60KB-stack).
   #define NO_SP_MALLOC
 #endif
 
 #if defined(HAVE_STACK_OVERFLOW_RECOVERY)
-  # Erkennung von SP-Überlauf durch eine Guard-Page oder andere Mechanismen.
+  # Detection of SP-overflow through a Guard-Page or other mechanisms.
   #define NOCOST_SP_CHECK
 #elif defined(NO_SP_MALLOC) && !defined(AMIGAOS)
-  # Für den SP ist das Betriebssystem verantwortlich.
-  # Woher sollen wir einen vernünftigen Wert für SP_bound bekommen?
+  # The OS is responsible for the SP.
+  # From where should we get a reasonable value for SP_bound?
   #define NO_SP_CHECK
 #endif
 
-# Testet auf SP-Überlauf.
-# check_SP();            testet auf Überlauf
-# check_SP_notUNIX();    dito, außer wenn temporärer Überlauf nicht ins Gewicht fällt
-  #define check_SP()  if (SP_overflow()) SP_ueber()
-  #if !(defined(NO_SP_CHECK) || defined(NOCOST_SP_CHECK))
-    #ifdef SP_DOWN
-      #define SP_overflow()  ( (aint)SP() < (aint)SP_bound )
-    #endif
-    #ifdef SP_UP
-      #define SP_overflow()  ( (aint)SP() > (aint)SP_bound )
-    #endif
-  #else # NO_SP_CHECK || NOCOST_SP_CHECK
-    #define SP_overflow()  false
-    #ifdef NOCOST_SP_CHECK
-      #ifdef WIN32_NATIVE
-        #ifdef SP_DOWN
-          #define near_SP_overflow()  ( (aint)SP() < (aint)SP_bound+0x1000 )
-        #endif
-        #ifdef SP_UP
-          #define near_SP_overflow()  ( (aint)SP() > (aint)SP_bound-0x1000 )
-        #endif
-      #else
-        extern bool near_SP_overflow (void);
+# Tests for SP-overflow.
+# check_SP();            tests for overflow
+# check_SP_notUNIX();    dito, except when a temporary overflow doesn't matter
+#define check_SP()  if (SP_overflow()) SP_ueber()
+#if !(defined(NO_SP_CHECK) || defined(NOCOST_SP_CHECK))
+  #ifdef SP_DOWN
+    #define SP_overflow()  ( (aint)SP() < (aint)SP_bound )
+  #endif
+  #ifdef SP_UP
+    #define SP_overflow()  ( (aint)SP() > (aint)SP_bound )
+  #endif
+#else # NO_SP_CHECK || NOCOST_SP_CHECK
+  #define SP_overflow()  false
+  #ifdef NOCOST_SP_CHECK
+    #ifdef WIN32_NATIVE
+      #ifdef SP_DOWN
+        #define near_SP_overflow()  ( (aint)SP() < (aint)SP_bound+0x1000 )
       #endif
+      #ifdef SP_UP
+        #define near_SP_overflow()  ( (aint)SP() > (aint)SP_bound-0x1000 )
+      #endif
+    #else
+      extern bool near_SP_overflow (void);
     #endif
   #endif
-  #ifndef MULTITHREAD
-    extern void* SP_bound;
-  #else
-    #define SP_bound  (current_thread()->_SP_bound)
-  #endif
-  nonreturning_function(extern, SP_ueber, (void));
-  #ifdef UNIX
-    #define check_SP_notUNIX()
-  #else
-    #define check_SP_notUNIX()  check_SP()
-  #endif
+#endif
+#ifndef MULTITHREAD
+  extern void* SP_bound;
+#else
+  #define SP_bound  (current_thread()->_SP_bound)
+#endif
+nonreturning_function(extern, SP_ueber, (void));
+#ifdef UNIX
+  #define check_SP_notUNIX()
+#else
+  #define check_SP_notUNIX()  check_SP()
+#endif
 
-# Testet auf STACK-Überlauf.
+# Tests for STACK-overflow.
 # check_STACK();
-  #define check_STACK()  if (STACK_overflow()) STACK_ueber()
-  #ifdef STACK_DOWN
-    #define STACK_overflow()  ( (aint)STACK < (aint)STACK_bound )
-  #endif
-  #ifdef STACK_UP
-    #define STACK_overflow()  ( (aint)STACK > (aint)STACK_bound )
-  #endif
-  #ifndef MULTITHREAD
-    extern void* STACK_bound;
-  #else
-    #define STACK_bound  (current_thread()->_STACK_bound)
-  #endif
-  nonreturning_function(extern, STACK_ueber, (void));
+#define check_STACK()  if (STACK_overflow()) STACK_ueber()
+#ifdef STACK_DOWN
+  #define STACK_overflow()  ( (aint)STACK < (aint)STACK_bound )
+#endif
+#ifdef STACK_UP
+  #define STACK_overflow()  ( (aint)STACK > (aint)STACK_bound )
+#endif
+#ifndef MULTITHREAD
+  extern void* STACK_bound;
+#else
+  #define STACK_bound  (current_thread()->_STACK_bound)
+#endif
+nonreturning_function(extern, STACK_ueber, (void));
 
-# Testet, ob noch n Bytes auf dem STACK frei sind.
+# Tests, if there are still n Bytes free on the STACK.
 # get_space_on_STACK(n);
-  #ifdef STACK_DOWN
-    #define get_space_on_STACK(n)  \
-      if ( (aint)STACK < (aint)STACK_bound + (aint)(n) ) STACK_ueber()
-  #else
-    #define get_space_on_STACK(n)  \
-      if ( (aint)STACK + (aint)(n) > (aint)STACK_bound ) STACK_ueber()
-  #endif
+#ifdef STACK_DOWN
+  #define get_space_on_STACK(n)  \
+    if ( (aint)STACK < (aint)STACK_bound + (aint)(n) ) STACK_ueber()
+#else
+  #define get_space_on_STACK(n)  \
+    if ( (aint)STACK + (aint)(n) > (aint)STACK_bound ) STACK_ueber()
+#endif
 
-# LISP-Interpreter verlassen
+# Exit the LISP-Interpreter
 # quit();
-# > final_exitcode: 0 bei normalem Ende, 1 bei Abbruch
-  nonreturning_function(extern, quit, (void));
-  extern bool final_exitcode;
-# wird verwendet von CONTROL
+# > final_exitcode: 0 for a normal end, 1 for failure
+nonreturning_function(extern, quit, (void));
+extern bool final_exitcode;
+# is used by CONTROL
 
-# Fehlermeldung wegen Erreichen einer unerreichbaren Programmstelle.
-# Kehrt nicht zurück.
+# Error message if an unreachable program part has been reached.
+# Does not return.
 # fehler_notreached(file,line);
-# > file: Filename (mit Anführungszeichen) als konstanter ASCIZ-String
-# > line: Zeilennummer
-  nonreturning_function(extern, fehler_notreached, (const char * file, uintL line));
-# wird von allen Modulen verwendet
+# > file: Filename (with quotation marks) as constant ASCIZ-String
+# > line: line number
+nonreturning_function(extern, fehler_notreached, (const char * file, uintL line));
 nonreturning_function(extern, fehler_not_R, (object obj));
+# used by all modules
 
-# Signal an error on non-real argument
-# defined and used in lisparit.d
-# also used in io.d (pprint_indent)
-
-# Sprache, in der mit dem Benutzer kommuniziert wird:
+# Language that's used to communicate with the user:
 #ifdef LANGUAGE_STATIC
   #if ENGLISH
     #define GETTEXT(english)  english
@@ -7281,7 +7269,7 @@ nonreturning_function(extern, fehler_not_R, (object obj));
 #else
   #define language_english   0
   #ifndef GNU_GETTEXT
-    # Sprache wird zur Laufzeit von der Variablen language bestimmt.
+    # Language is determined at runtime by the variable language.
     extern uintL language;
     #define ENGLISH  (language==language_english)
     #define GETTEXT(english)  english
@@ -7303,113 +7291,116 @@ nonreturning_function(extern, fehler_not_R, (object obj));
     # developers.
     #define GETTEXT clgettext
     #define GETTEXTL clgettextl
-    #
+
     # Fetch the message translations of a string.
     # localized_string(obj)
     # > obj: String
-    # < ergebnis: String
+    # < result: String
     # can trigger GC
-      extern object localized_string (object obj);
-    #
+    extern object localized_string (object obj);
+
     # Fetch the "translation" of a Lisp object.
     # localized_object(obj)
     # > obj: String
     # can trigger GC
-      extern object localized_object (object obj);
+    extern object localized_object (object obj);
   #endif
 #endif
-# wird von allen Modulen verwendet
+# used by all modules
 
-# Ausgabe eines konstanten ASCIZ-Strings, direkt übers Betriebssystem:
+# Prints a constant ASCIZ-String, directly through the operating-system:
 # asciz_out(string);
-  extern void asciz_out (const char * asciz);
-# Ditto mit bis zu zwei eingebetteten %s-Argumenten:
-  extern void asciz_out_s (const char * asciz, const char * arg1);
-  extern void asciz_out_ss (const char * asciz, const char * arg1, const char * arg2);
-# Ditto mit bis zu drei eingebetteten %d/%x-Argumenten:
-  #define asciz_out_1(asciz,arg1)  asciz_out_1_((asciz),(unsigned long)(arg1))
-  #define asciz_out_2(asciz,arg1,arg2)  asciz_out_2_((asciz),(unsigned long)(arg1),(unsigned long)(arg2))
-  #define asciz_out_3(asciz,arg1,arg2,arg3)  asciz_out_3_((asciz),(unsigned long)(arg1),(unsigned long)(arg2),(unsigned long)(arg3))
-  extern void asciz_out_1_ (const char * asciz, unsigned long arg1);
-  extern void asciz_out_2_ (const char * asciz, unsigned long arg1, unsigned long arg2);
-  extern void asciz_out_3_ (const char * asciz, unsigned long arg1, unsigned long arg2, unsigned long arg3);
-# wird verwendet von SPVW
+extern void asciz_out (const char * asciz);
+# Same for up to two embedded %s-arguments:
+extern void asciz_out_s (const char * asciz, const char * arg1);
+extern void asciz_out_ss (const char * asciz, const char * arg1, const char * arg2);
+# Same for up to three embedded %d/%x-arguments:
+#define asciz_out_1(asciz,arg1)  asciz_out_1_((asciz),(unsigned long)(arg1))
+#define asciz_out_2(asciz,arg1,arg2)  asciz_out_2_((asciz),(unsigned long)(arg1),(unsigned long)(arg2))
+#define asciz_out_3(asciz,arg1,arg2,arg3)  asciz_out_3_((asciz),(unsigned long)(arg1),(unsigned long)(arg2),(unsigned long)(arg3))
+extern void asciz_out_1_ (const char * asciz, unsigned long arg1);
+extern void asciz_out_2_ (const char * asciz, unsigned long arg1, unsigned long arg2);
+extern void asciz_out_3_ (const char * asciz, unsigned long arg1, unsigned long arg2, unsigned long arg3);
+# is used by SPVW
 
-# uintL in Dezimalnotation direkt übers Betriebssystem ausgeben:
-# dez_out(zahl);
-  #define dez_out(x)  dez_out_((uintL)(x))
-  extern void dez_out_ (uintL zahl);
-# wird zum Debuggen verwendet
+# Print uintL in decimal notation directly through the operating system:
+# dez_out(num);
+#define dez_out(x)  dez_out_((uintL)(x))
+extern void dez_out_ (uintL num);
+# used for debugging purposes
 
-# unsigned long in Hexadezimalnotation direkt übers Betriebssystem ausgeben:
-# hex_out(zahl);
-  #define hex_out(x)  hex_out_((unsigned long)(x))
-  extern void hex_out_ (unsigned long zahl);
-# wird zum Debuggen verwendet
+# Print unsigned long in hexadecimal notation directly
+# through the operating system:
+# hex_out(num);
+#define hex_out(x)  hex_out_((unsigned long)(x))
+extern void hex_out_ (unsigned long num);
+# used for debugging purposes
 
-# Speicherbereich in Hexadezimalnotation direkt übers Betriebssystem ausgeben:
+# Print a memory range in hexadecimal notation directly
+# through the operating system:
 # mem_hex_out(buf,count);
-  extern void mem_hex_out (const void* buf, uintL count);
-# wird zum Debuggen verwendet
+extern void mem_hex_out (const void* buf, uintL count);
+# used for debugging purposes
 
-# Lisp-Objekt in Lisp-Notation relativ direkt übers Betriebssystem ausgeben:
+# Print an Lisp-object in Lisp notation relatively directly
+# through the operating system:
 # object_out(obj);
 # can trigger GC
-  extern void object_out (object obj);
-# wird zum Debuggen verwendet
+extern void object_out (object obj);
+# used for debugging purposes
 
 # After allocating memory for an object, add the type infos.
-  #ifdef TYPECODES
-    #define bias_type_pointer_object(bias,type,ptr)  type_pointer_object(type,ptr)
-  #else
-    #define bias_type_pointer_object(bias,type,ptr)  as_object((oint)(ptr)+(bias))
-  #endif
+#ifdef TYPECODES
+  #define bias_type_pointer_object(bias,type,ptr) type_pointer_object(type,ptr)
+#else
+  #define bias_type_pointer_object(bias,type,ptr) as_object((oint)(ptr)+(bias))
+#endif
 # used by SPVW, macros SP_allocate_bit_vector, SP_allocate_string
 
-# UP, führt eine Garbage Collection aus
+# UP: executes a Garbage Collection
 # gar_col();
 # can trigger GC
-  extern void gar_col(void);
-# wird verwendet von DEBUG
+extern void gar_col(void);
+# is used by DEBUG
 
-# GC-Statistik
-  extern uintL gc_count;
-  extern uintL2 gc_space;
-  extern internal_time gc_time;
-# wird verwendet von TIME
+# GC-statistics
+extern uintL gc_count;
+extern uintL2 gc_space;
+extern internal_time gc_time;
+# is used by TIME
 
-# UP, beschafft ein Cons
+# UP:  allocates a Cons
 # allocate_cons()
-# < ergebnis: Pointer auf neues CONS, mit CAR und CDR =NIL
+# < result: pointer to a new CONS, with CAR and CDR =NIL
 # can trigger GC
-  extern object allocate_cons (void);
-# wird verwendet von LIST, SEQUENCE, PACKAGE, EVAL, CONTROL, RECORD,
-#                    PREDTYPE, IO, STREAM, PATHNAME, SYMBOL, ARRAY, LISPARIT
+extern object allocate_cons (void);
+# is used by LIST, SEQUENCE, PACKAGE, EVAL, CONTROL, RECORD,
+#            PREDTYPE, IO, STREAM, PATHNAME, SYMBOL, ARRAY, LISPARIT
 
-# UP: Liefert ein neu erzeugtes uninterniertes Symbol mit gegebenem Printnamen.
+# UP: Returns a newly created uninterned symbol with a given Printname.
 # make_symbol(string)
 # > string: immutable Simple-String
-# < ergebnis: neues Symbol mit diesem Namen, mit Home-Package=NIL.
+# < result: new symbol with this name, with Home-Package=NIL.
 # can trigger GC
-  extern object make_symbol (object string);
-# wird verwendet von PACKAGE, IO, SYMBOL
+extern object make_symbol (object string);
+# is used by PACKAGE, IO, SYMBOL
 
-# UP, beschafft Vektor
+# UP: allocates a  vector
 # allocate_vector(len)
-# > len: Länge des Vektors
-# < ergebnis: neuer Vektor (Elemente werden mit NIL initialisiert)
+# > len: length of the vector
+# < result: new vector (elements are initialized with NIL)
 # can trigger GC
-  extern object allocate_vector (uintL len);
-# wird verwendet von ARRAY, IO, EVAL, PACKAGE, CONTROL, HASHTABL
+extern object allocate_vector (uintL len);
+# is used by ARRAY, IO, EVAL, PACKAGE, CONTROL, HASHTABL
 
 # Function: Allocates a bit/byte vector.
 # allocate_bit_vector(atype,len)
 # > uintB atype: Atype_nBit
 # > uintL len: length (number of n-bit blocks)
-# < ergebnis: fresh simple bit/byte-vector of the given length
+# < result: fresh simple bit/byte-vector of the given length
 # can trigger GC
-  extern object allocate_bit_vector (uintB atype, uintL len);
-# wird verwendet von ARRAY, IO, RECORD, LISPARIT, STREAM, CLX
+extern object allocate_bit_vector (uintB atype, uintL len);
+# is used by ARRAY, IO, RECORD, LISPARIT, STREAM, CLX
 
 # Macro: Allocates a bit-vector on the stack, with dynamic extent.
 #   { var DYNAMIC_BIT_VECTOR(obj,len);
@@ -7420,42 +7411,42 @@ nonreturning_function(extern, fehler_not_R, (object obj));
 # < object obj: simple-bit-vector with dynamic extent
 #   (may or may not be heap-allocated, therefore not GC-invariant)
 # can trigger GC
-  #if defined(SPVW_PURE) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0)
-    # No way to allocate a Lisp object on the stack.
+#if defined(SPVW_PURE) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0)
+  # No way to allocate a Lisp object on the stack.
+  #define DYNAMIC_BIT_VECTOR(objvar,len)  \
+    uintL objvar##_len = (len);                   \
+    var object objvar = O(dynamic_bit_vector);    \
+    O(dynamic_bit_vector) = NIL;                  \
+    if (!(simple_bit_vector_p(Atype_Bit,objvar) && (Sbvector_length(objvar) >= objvar##_len))) \
+      objvar = allocate_bit_vector(Atype_Bit,objvar##_len);
+  #define FREE_DYNAMIC_BIT_VECTOR(objvar)  \
+    O(dynamic_bit_vector) = objvar;
+#else
+  # Careful: Fill GCself with pointers to itself, so that GC will leave
+  # pointers to this object untouched.
+  #ifdef TYPECODES
     #define DYNAMIC_BIT_VECTOR(objvar,len)  \
-      uintL objvar##_len = (len);                   \
-      var object objvar = O(dynamic_bit_vector);    \
-      O(dynamic_bit_vector) = NIL;                  \
-      if (!(simple_bit_vector_p(Atype_Bit,objvar) && (Sbvector_length(objvar) >= objvar##_len))) \
-        objvar = allocate_bit_vector(Atype_Bit,objvar##_len);
-    #define FREE_DYNAMIC_BIT_VECTOR(objvar)  \
-      O(dynamic_bit_vector) = objvar;
+      DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)+8*offsetofa(sbvector_,data),8*sizeof(object))); \
+      var object objvar = ((Sbvector)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sbvector_type,(Sbvector)objvar##_storage); \
+      ((Sbvector)objvar##_storage)->length = (len);
   #else
-    # Careful: Fill GCself with pointers to itself, so that GC will leave
-    # pointers to this object untouched.
-    #ifdef TYPECODES
-      #define DYNAMIC_BIT_VECTOR(objvar,len)  \
-        DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)+8*offsetofa(sbvector_,data),8*sizeof(object))); \
-        var object objvar = ((Sbvector)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sbvector_type,(Sbvector)objvar##_storage); \
-        ((Sbvector)objvar##_storage)->length = (len);
-    #else
-      #define DYNAMIC_BIT_VECTOR(objvar,len)  \
-        DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)+8*offsetofa(sbvector_,data),8*sizeof(object))); \
-        var object objvar = ((Sbvector)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sbvector_type,(Sbvector)objvar##_storage); \
-        ((Sbvector)objvar##_storage)->tfl = lrecord_tfl(Rectype_Sbvector,len);
-    #endif
-    #define FREE_DYNAMIC_BIT_VECTOR(objvar)  \
-      FREE_DYNAMIC_ARRAY(objvar##_storage)
+    #define DYNAMIC_BIT_VECTOR(objvar,len)  \
+      DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)+8*offsetofa(sbvector_,data),8*sizeof(object))); \
+      var object objvar = ((Sbvector)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sbvector_type,(Sbvector)objvar##_storage); \
+      ((Sbvector)objvar##_storage)->tfl = lrecord_tfl(Rectype_Sbvector,len);
   #endif
+  #define FREE_DYNAMIC_BIT_VECTOR(objvar)  \
+    FREE_DYNAMIC_ARRAY(objvar##_storage)
+#endif
 # used by STREAM
 
-# UP, beschafft String
+# UP: allocates String
 # allocate_string(len)
-# > len: Länge des Strings (in Characters)
-# < ergebnis: neuer Normal-Simple-String (LISP-Objekt)
+# > len: length of the Strings (in Characters)
+# < result: new Normal-Simple-String (LISP-object)
 # can trigger GC
   extern object allocate_string (uintL len);
-# wird verwendet von ARRAY, CHARSTRG, STREAM, PATHNAME
+# is used by ARRAY, CHARSTRG, STREAM, PATHNAME
 
 # Macro: Allocates a normal string on the stack, with dynamic extent.
 #   { var DYNAMIC_STRING(obj,len);
@@ -7466,328 +7457,326 @@ nonreturning_function(extern, fehler_not_R, (object obj));
 # < object obj: normal-simple-string with dynamic extent
 #   (may or may not be heap-allocated, therefore not GC-invariant)
 # can trigger GC
-  #if defined(SPVW_PURE) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0)
-    # No way to allocate a Lisp object on the stack.
+#if defined(SPVW_PURE) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0)
+  # No way to allocate a Lisp object on the stack.
+  #define DYNAMIC_STRING(objvar,len)  \
+    uintL objvar##_len = (len);               \
+    var object objvar = O(dynamic_string);    \
+    O(dynamic_string) = NIL;                  \
+    if (!(simple_string_p(objvar) && (Sstring_length(objvar) >= objvar##_len))) \
+      objvar = allocate_string(objvar##_len);
+  #define FREE_DYNAMIC_STRING(objvar)  \
+    O(dynamic_string) = objvar;
+#else
+  # Careful: Fill GCself with pointers to itself, so that GC will leave
+  # pointers to this object untouched.
+  #ifdef TYPECODES
     #define DYNAMIC_STRING(objvar,len)  \
-      uintL objvar##_len = (len);               \
-      var object objvar = O(dynamic_string);    \
-      O(dynamic_string) = NIL;                  \
-      if (!(simple_string_p(objvar) && (Sstring_length(objvar) >= objvar##_len))) \
-        objvar = allocate_string(objvar##_len);
-    #define FREE_DYNAMIC_STRING(objvar)  \
-      O(dynamic_string) = objvar;
+      DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(sstring_,data),sizeof(object))); \
+      var object objvar = ((Sstring)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sstring_type,(Sstring)objvar##_storage); \
+      ((Sstring)objvar##_storage)->length = (len);
   #else
-    # Careful: Fill GCself with pointers to itself, so that GC will leave
-    # pointers to this object untouched.
-    #ifdef TYPECODES
-      #define DYNAMIC_STRING(objvar,len)  \
-        DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(sstring_,data),sizeof(object))); \
-        var object objvar = ((Sstring)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sstring_type,(Sstring)objvar##_storage); \
-        ((Sstring)objvar##_storage)->length = (len);
-    #else
-      #define DYNAMIC_STRING(objvar,len)  \
-        DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(sstring_,data),sizeof(object))); \
-        var object objvar = ((Sstring)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sstring_type,(Sstring)objvar##_storage); \
-        ((Sstring)objvar##_storage)->tfl = lrecord_tfl(Rectype_Sstring,len);
-    #endif
-    #define FREE_DYNAMIC_STRING(objvar)  \
-      FREE_DYNAMIC_ARRAY(objvar##_storage)
+    #define DYNAMIC_STRING(objvar,len)  \
+      DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(sstring_,data),sizeof(object))); \
+      var object objvar = ((Sstring)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sstring_type,(Sstring)objvar##_storage); \
+      ((Sstring)objvar##_storage)->tfl = lrecord_tfl(Rectype_Sstring,len);
   #endif
+  #define FREE_DYNAMIC_STRING(objvar)  \
+    FREE_DYNAMIC_ARRAY(objvar##_storage)
+#endif
 # used by LISPARIT
 
 #ifndef TYPECODES
-# UP, beschafft immutablen String
+# UP: allocates an immutable String
 # allocate_imm_string(len)
-# > len: Länge des Strings (in Characters)
-# < ergebnis: neuer immutabler Normal-Simple-String (LISP-Objekt)
+# > len: length of the String (in Characters)
+# < result: new immutable Normal-Simple-String (LISP-object)
 # can trigger GC
   extern object allocate_imm_string (uintL len);
-# wird verwendet von CHARSTRG
+# is used by CHARSTRG
 #endif
 
 #ifdef HAVE_SMALL_SSTRING
-# UP, beschafft immutablen Small-String
+# UP: allocates immutable Small-String
 # allocate_imm_small_string(len)
-# > len: Länge des Strings (in Characters)
-# < ergebnis: neuer immutabler Small-Simple-String (LISP-Objekt)
+# > len: length of the String (in Characters)
+# < result: new immutable Small-Simple-String (LISP-object)
 # can trigger GC
   extern object allocate_imm_small_string (uintL len);
-# wird verwendet von CHARSTRG
+# is used by CHARSTRG
 #endif
 
-# UP, beschafft indirekten Array
+# UP: allocates indirect array
 # allocate_iarray(flags,rank,type)
 # > uintB flags: Flags
-# > uintC (eigentlich uintWC) rank: Rang
+# > uintC (actually uintWC) rank: rank
 # > tint type: Typinfo
-# < ergebnis: LISP-Objekt Array
+# < result: LISP-object Array
 # can trigger GC
-  extern object allocate_iarray (uintB flags, uintC rank, tint type);
-# wird verwendet von ARRAY, IO
+extern object allocate_iarray (uintB flags, uintC rank, tint type);
+# is used by ARRAY, IO
 
-# UP, beschafft Simple-Record
+# UP: allocates Simple-Record
 # allocate_srecord(flags,rectype,reclen,type)
 # > uintB flags: Flags
-# > sintB rectype: nähere Typinfo
-# > uintC (eigentlich uintW) reclen: Länge
-# > tint type: Typinfo
-# < ergebnis: LISP-Objekt Record (Elemente werden mit NIL initialisiert)
+# > sintB rectype: further type-info
+# > uintC (actually uintW) reclen: length
+# > tint type: type-info
+# < result: LISP-object Record (elements are initialized with NIL)
 # can trigger GC
-  #ifdef TYPECODES
-    #define allocate_srecord(flags,rectype,reclen,type)  \
-      allocate_srecord_(                                                    \
-         (BIG_ENDIAN_P ? ((uintW)(flags)<<intBsize)+(uintW)(uintB)(rectype) \
-                       : (uintW)(flags)+((uintW)(uintB)(rectype)<<intBsize) \
-         ),                                                                 \
-         reclen,                                                            \
-         type)
-    extern object allocate_srecord_ (uintW flags_rectype, uintC reclen, tint type);
-  #else
-    #define allocate_srecord(flags,rectype,reclen,type)  /* ignore type */ \
-      allocate_srecord_(((uintW)(flags)<<8)+(uintW)(uintB)(rectype),reclen)
-    extern object allocate_srecord_ (uintW flags_rectype, uintC reclen);
-  #endif
-# wird verwendet von RECORD, EVAL
+#ifdef TYPECODES
+  #define allocate_srecord(flags,rectype,reclen,type)  \
+    allocate_srecord_(                                                     \
+       (BIG_ENDIAN_P ? ((uintW)(flags)<<intBsize)+(uintW)(uintB)(rectype)  \
+                     : (uintW)(flags)+((uintW)(uintB)(rectype)<<intBsize)),\
+       reclen,                                                             \
+       type)
+  extern object allocate_srecord_ (uintW flags_rectype, uintC reclen, tint type);
+#else
+  #define allocate_srecord(flags,rectype,reclen,type)  /* ignore type */ \
+    allocate_srecord_(((uintW)(flags)<<8)+(uintW)(uintB)(rectype),reclen)
+  extern object allocate_srecord_ (uintW flags_rectype, uintC reclen);
+#endif
+# is used by RECORD, EVAL
 
-# UP, beschafft Extended-Record
+# UP: allocates Extended-Record
 # allocate_xrecord(flags,rectype,reclen,recxlen,type)
 # > uintB flags: Flags
-# > sintB rectype: nähere Typinfo
-# > uintC (eigentlich uintB) reclen: Länge
-# > uintC (eigentlich uintB) recxlen: Extra-Länge
+# > sintB rectype: further type-info
+# > uintC (actually uintB) reclen: length
+# > uintC (actually uintB) recxlen: extra-length
 # > tint type: Typinfo
-# < ergebnis: LISP-Objekt Record (Elemente werden mit NIL bzw. 0 initialisiert)
+# < result: LISP-object Record (elements are initialized with NIL resp. 0)
 # can trigger GC
-  #ifdef TYPECODES
-    #define allocate_xrecord(flags,rectype,reclen,recxlen,type)  \
-      allocate_xrecord_(                                                    \
-         (BIG_ENDIAN_P ? ((uintW)(flags)<<intBsize)+(uintW)(uintB)(rectype) \
-                       : (uintW)(flags)+((uintW)(uintB)(rectype)<<intBsize) \
-         ),                                                                 \
-         reclen,                                                            \
-         recxlen,                                                           \
-         type)
-    extern object allocate_xrecord_ (uintW flags_rectype, uintC reclen, uintC recxlen, tint type);
-  #else
-    #define allocate_xrecord(flags,rectype,reclen,recxlen,type)  \
-      allocate_xrecord_((((uintW)(flags)<<8)+(uintW)(uintB)(rectype)),reclen,recxlen)
-    extern object allocate_xrecord_ (uintW flags_rectype, uintC reclen, uintC recxlen);
-  #endif
-# wird verwendet von
+#ifdef TYPECODES
+  #define allocate_xrecord(flags,rectype,reclen,recxlen,type)  \
+    allocate_xrecord_(                                                     \
+       (BIG_ENDIAN_P ? ((uintW)(flags)<<intBsize)+(uintW)(uintB)(rectype)  \
+                     : (uintW)(flags)+((uintW)(uintB)(rectype)<<intBsize)),\
+       reclen,                                                             \
+       recxlen,                                                            \
+       type)
+  extern object allocate_xrecord_ (uintW flags_rectype, uintC reclen, uintC recxlen, tint type);
+#else
+  #define allocate_xrecord(flags,rectype,reclen,recxlen,type)  \
+    allocate_xrecord_((((uintW)(flags)<<8)+(uintW)(uintB)(rectype)),reclen,recxlen)
+  extern object allocate_xrecord_ (uintW flags_rectype, uintC reclen, uintC recxlen);
+#endif
+# is used by
 
-# UP, beschafft Closure
+# UP: allocates Closure
 # allocate_closure(reclen)
-# > uintC reclen: Länge
-# < ergebnis: LISP-Objekt Closure (Elemente werden mit NIL initialisiert)
-  #define allocate_closure(reclen)  \
-    allocate_srecord(0,Rectype_Closure,reclen,closure_type)
-# wird verwendet von EVAL, RECORD
+# > uintC reclen: length
+# < result: LISP-object Closure (elements are initialized with NIL)
+#define allocate_closure(reclen)  \
+  allocate_srecord(0,Rectype_Closure,reclen,closure_type)
+# is used by EVAL, RECORD
 
 # Copying a compiled closure:
 # newclos = allocate_cclosure_copy(oldclos);
 # can trigger GC
-  #define allocate_cclosure_copy(oldclos)  \
-    allocate_closure(Cclosure_length(oldclos))
+#define allocate_cclosure_copy(oldclos)  \
+  allocate_closure(Cclosure_length(oldclos))
 # do_cclosure_copy(newclos,oldclos);
-  #define do_cclosure_copy(newclos,oldclos)  \
-    { var object* newptr = &((Srecord)TheCclosure(newclos))->recdata[0]; \
-      var object* oldptr = &((Srecord)TheCclosure(oldclos))->recdata[0]; \
-      var uintC count;                                                   \
-      dotimespC(count,Cclosure_length(oldclos),                          \
-        { *newptr++ = *oldptr++; }                                       \
-        );                                                               \
-    }
-# wird verwendet von EVAL, IO, RECORD
+#define do_cclosure_copy(newclos,oldclos)  \
+  { var object* newptr = &((Srecord)TheCclosure(newclos))->recdata[0]; \
+    var object* oldptr = &((Srecord)TheCclosure(oldclos))->recdata[0]; \
+    var uintC count;                                                   \
+    dotimespC(count,Cclosure_length(oldclos),                          \
+      { *newptr++ = *oldptr++; }                                       \
+      );                                                               \
+  } while (0)
+# is used by EVAL, IO, RECORD
 
-# UP, beschafft Structure
+# UP: allocates Structure
 # allocate_structure(reclen)
-# > uintC reclen: Länge
-# < ergebnis: LISP-Objekt Structure (Elemente werden mit NIL initialisiert)
+# > uintC reclen: length
+# < result: LISP-Objekt Structure (Elemente werden mit NIL initialisiert)
 # can trigger GC
-  #ifdef case_structure
-    #define allocate_structure(reclen)  \
-      allocate_srecord(0,Rectype_Structure,reclen,structure_type)
-  #else
-    #define allocate_structure(reclen)  \
-      allocate_srecord(0,Rectype_Structure,reclen,orecord_type)
-  #endif
-# wird verwendet von RECORD
+#ifdef case_structure
+  #define allocate_structure(reclen)  \
+    allocate_srecord(0,Rectype_Structure,reclen,structure_type)
+#else
+  #define allocate_structure(reclen)  \
+    allocate_srecord(0,Rectype_Structure,reclen,orecord_type)
+#endif
+# is used by RECORD
 
-# UP, beschafft Stream
+# UP: allocates Stream
 # allocate_stream(strmflags,strmtype,reclen,recxlen)
 # > uintB strmflags: Flags
-# > uintB strmtype: nähere Typinfo
-# > uintC reclen: Länge in Objekten
-# > uintC recxlen: Extra-Länge in Bytes
-# < ergebnis: LISP-Objekt Stream (Elemente werden mit NIL initialisiert)
+# > uintB strmtype: further type-info
+# > uintC reclen: length in objects
+# > uintC recxlen: extra-length in bytes
+# < result: LISP-object Stream (elements are initialized with NIL)
 # can trigger GC
-  #ifdef case_stream
-    #define allocate_stream(strmflags,strmtype,reclen,recxlen)  \
-      allocate_xrecord(strmflags,strmtype,reclen,recxlen,stream_type)
-  #else
-    extern object allocate_stream (uintB strmflags, uintB strmtype, uintC reclen, uintC recxlen);
-  #endif
-# wird verwendet von STREAM
+#ifdef case_stream
+  #define allocate_stream(strmflags,strmtype,reclen,recxlen)  \
+    allocate_xrecord(strmflags,strmtype,reclen,recxlen,stream_type)
+#else
+  extern object allocate_stream (uintB strmflags, uintB strmtype, uintC reclen, uintC recxlen);
+#endif
+# is used by STREAM
 
-# UP, beschafft Package
+# UP: allocates Package
 # allocate_package()
-# < ergebnis: LISP-Objekt Package
+# < result: LISP-object Package
 # can trigger GC
-  #define allocate_package()  \
-    allocate_xrecord(0,Rectype_Package,package_length,0,orecord_type)
-# wird verwendet von PACKAGE
+#define allocate_package()  \
+  allocate_xrecord(0,Rectype_Package,package_length,0,orecord_type)
+# is used by PACKAGE
 
-# UP, beschafft Hash-Table
+# UP: allocates Hash-Table
 # allocate_hash_table()
-# < ergebnis: LISP-Objekt Hash-Table
+# < result: LISP-object Hash-Table
 # can trigger GC
-  #define allocate_hash_table()  \
-    allocate_xrecord(0,Rectype_Hashtable,hashtable_length,0,orecord_type)
-# wird verwendet von
+#define allocate_hash_table()  \
+  allocate_xrecord(0,Rectype_Hashtable,hashtable_length,0,orecord_type)
+# is used by
 
-# UP, beschafft Readtable
+# UP: allocates  Readtable
 # allocate_readtable()
-# < ergebnis: LISP-Objekt Readtable
+# < result: LISP-object Readtable
 # can trigger GC
-  #define allocate_readtable()  \
-    allocate_xrecord(0,Rectype_Readtable,readtable_length,0,orecord_type)
-# wird verwendet von IO
+#define allocate_readtable()  \
+  allocate_xrecord(0,Rectype_Readtable,readtable_length,0,orecord_type)
+# is used by IO
 
-# UP, beschafft Pathname
+# UP: allocates Pathname
 # allocate_pathname()
-# < ergebnis: LISP-Objekt Pathname
+# < result: LISP-object Pathname
 # can trigger GC
-  #define allocate_pathname()  \
-    allocate_xrecord(0,Rectype_Pathname,pathname_length,0,orecord_type)
-# wird verwendet von PATHNAME
+#define allocate_pathname()  \
+  allocate_xrecord(0,Rectype_Pathname,pathname_length,0,orecord_type)
+# is used by PATHNAME
 
 #ifdef LOGICAL_PATHNAMES
-# UP, beschafft Logical Pathname
+# UP: allocates Logical Pathname
 # allocate_logpathname()
-# < ergebnis: LISP-Objekt Logical Pathname
+# < result: LISP-object Logical Pathname
 # can trigger GC
-  #define allocate_logpathname()  \
-    allocate_xrecord(0,Rectype_Logpathname,logpathname_length,0,orecord_type)
-# wird verwendet von PATHNAME
+#define allocate_logpathname()  \
+  allocate_xrecord(0,Rectype_Logpathname,logpathname_length,0,orecord_type)
+# is used by PATHNAME
 #endif
 
-# UP, beschafft Random-State
+# UP: allocates Random-State
 # allocate_random_state()
-# < ergebnis: LISP-Objekt Random-State
+# < result: LISP-object Random-State
 # can trigger GC
-  #define allocate_random_state()  \
-    allocate_xrecord(0,Rectype_Random_State,random_state_length,0,orecord_type)
-# wird verwendet von IO, LISPARIT
+#define allocate_random_state()  \
+  allocate_xrecord(0,Rectype_Random_State,random_state_length,0,orecord_type)
+# is used by IO, LISPARIT
 
-# UP, beschafft Byte
+# UP: allocates Byte
 # allocate_byte()
-# < ergebnis: LISP-Objekt Byte
+# < result: LISP-object Byte
 # can trigger GC
-  #define allocate_byte()  \
-    allocate_xrecord(0,Rectype_Byte,byte_length,0,orecord_type)
-# wird verwendet von LISPARIT
+#define allocate_byte()  \
+  allocate_xrecord(0,Rectype_Byte,byte_length,0,orecord_type)
+# is used by LISPARIT
 
-# UP, beschafft Fsubr
+# UP: allocates Fsubr
 # allocate_fsubr()
-# < ergebnis: LISP-Objekt Fsubr
+# < result: LISP-object Fsubr
 # can trigger GC
-  #define allocate_fsubr()  \
-    allocate_xrecord(0,Rectype_Fsubr,fsubr_length,fsubr_xlength,orecord_type)
-# wird verwendet von SPVW
+#define allocate_fsubr()  \
+  allocate_xrecord(0,Rectype_Fsubr,fsubr_length,fsubr_xlength,orecord_type)
+# is used by SPVW
 
-# UP, beschafft Load-time-Eval
+# UP: allocates Load-time-Eval
 # allocate_loadtimeeval()
-# < ergebnis: LISP-Objekt Load-time-Eval
+# < result: LISP-object Load-time-Eval
 # can trigger GC
-  #define allocate_loadtimeeval()  \
-    allocate_xrecord(0,Rectype_Loadtimeeval,loadtimeeval_length,0,orecord_type)
-# wird verwendet von IO, RECORD
+#define allocate_loadtimeeval()  \
+  allocate_xrecord(0,Rectype_Loadtimeeval,loadtimeeval_length,0,orecord_type)
+# is used by IO, RECORD
 
-# UP, beschafft Symbol-Macro
+# UP: allocates Symbol-Macro
 # allocate_symbolmacro()
-# < ergebnis: LISP-Objekt Symbol-Macro
+# < result: LISP-object Symbol-Macro
 # can trigger GC
-  #define allocate_symbolmacro()  \
-    allocate_xrecord(0,Rectype_Symbolmacro,symbolmacro_length,0,orecord_type)
-# wird verwendet von CONTROL, RECORD
+#define allocate_symbolmacro()  \
+  allocate_xrecord(0,Rectype_Symbolmacro,symbolmacro_length,0,orecord_type)
+# is used by CONTROL, RECORD
 
-# UP, allocates a Macro
+# UP: allocates a Macro
 # allocate_macro()
 # < result: a fresh Macro
 # can trigger GC
-  #define allocate_macro()  \
-    allocate_xrecord(0,Rectype_Macro,macro_length,0,orecord_type)
-# wird verwendet von RECORD
+#define allocate_macro()  \
+  allocate_xrecord(0,Rectype_Macro,macro_length,0,orecord_type)
+# is used by RECORD
 
-# UP, allocates a FunctionMacro
+# UP: allocates a FunctionMacro
 # allocate_functionmacro()
 # < result: a fresh FunctionMacro
 # can trigger GC
-  #define allocate_functionmacro()  \
-    allocate_xrecord(0,Rectype_FunctionMacro,functionmacro_length,0,orecord_type)
-# wird verwendet von RECORD
+#define allocate_functionmacro()  \
+  allocate_xrecord(0,Rectype_FunctionMacro,functionmacro_length,0,orecord_type)
+# is used by RECORD
 
-# UP, allocates an Encoding
+# UP: allocates an Encoding
 # allocate_encoding()
 # < result: a fresh Encoding
 # can trigger GC
-  #define allocate_encoding()  \
-    allocate_xrecord(0,Rectype_Encoding,encoding_length,encoding_xlength,orecord_type)
-# wird verwendet von ENCODING
+#define allocate_encoding()  \
+  allocate_xrecord(0,Rectype_Encoding,encoding_length,encoding_xlength,orecord_type)
+# is used by ENCODING
 
 #ifdef FOREIGN
-# UP, beschafft Foreign-Pointer-Verpackung
+# UP: allocates a foreign-pointer packing
 # allocate_fpointer(foreign)
 # > foreign: vom Typ FOREIGN
-# < ergebnis: LISP-Objekt, das foreign enthält
+# < result: LISP-object, contains the foreign
 # can trigger GC
   extern object allocate_fpointer (FOREIGN foreign);
-# wird verwendet von REXX
+# is used by REXX
 #endif
 
-# UP, beschafft Foreign-Addresse
+# UP: allocates foreign adddress
 # allocate_faddress()
-# < ergebnis: LISP-Objekt Foreign-Addresse
+# < result: LISP-object foreign address
 # can trigger GC
-  #define allocate_faddress()  \
-    allocate_xrecord(0,Rectype_Faddress,faddress_length,faddress_xlength,orecord_type)
-# wird verwendet von FOREIGN
+#define allocate_faddress()  \
+  allocate_xrecord(0,Rectype_Faddress,faddress_length,faddress_xlength,orecord_type)
+# is used by FOREIGN
 
-# UP, beschafft Foreign-Variable
+# UP: allocates foreign variable
 # allocate_fvariable()
-# < ergebnis: LISP-Objekt Foreign-Variable
+# < result: LISP-object foreign variable
 # can trigger GC
-  #define allocate_fvariable()  \
-    allocate_xrecord(0,Rectype_Fvariable,fvariable_length,0,orecord_type)
-# wird verwendet von FOREIGN
+#define allocate_fvariable()  \
+  allocate_xrecord(0,Rectype_Fvariable,fvariable_length,0,orecord_type)
+# is used by FOREIGN
 
-# UP, beschafft Foreign-Funktion
+# UP: allocates foreign function
 # allocate_ffunction()
-# < ergebnis: LISP-Objekt Foreign-Funktion
+# < result: LISP-object foreign funktion
 # can trigger GC
-  #define allocate_ffunction()  \
-    allocate_xrecord(0,Rectype_Ffunction,ffunction_length,0,orecord_type)
-# wird verwendet von FOREIGN
+#define allocate_ffunction()  \
+  allocate_xrecord(0,Rectype_Ffunction,ffunction_length,0,orecord_type)
+# is used by FOREIGN
 
-# UP, allocates a Weakpointer
+# UP: allocates a Weakpointer
 # allocate_weakpointer()
 # < result: a fresh weak-pointer
 # can trigger GC
-  #define allocate_weakpointer()  \
-    allocate_xrecord(0,Rectype_Weakpointer,weakpointer_length,weakpointer_xlength,orecord_type)
-# wird verwendet von RECORD
+#define allocate_weakpointer()  \
+  allocate_xrecord(0,Rectype_Weakpointer,weakpointer_length,weakpointer_xlength,orecord_type)
+# is used by RECORD
 
-# UP, beschafft Finalisierer
+# UP: allocates finalizer
 # allocate_finalizer()
-# < ergebnis: LISP-Objekt Finalisierer
+# < result: LISP-object finalizer
 # can trigger GC
-  #define allocate_finalizer()  \
-    allocate_xrecord(0,Rectype_Finalizer,finalizer_length,0,orecord_type)
-# wird verwendet von RECORD
+#define allocate_finalizer()  \
+  allocate_xrecord(0,Rectype_Finalizer,finalizer_length,0,orecord_type)
+# is used by RECORD
 
-# UP, beschafft Socket-Server
+# UP: allocates Socket-Server
 # allocate_socket_server()
-# < ergebnis: LISP-Objekt Socket-Server
+# < result: LISP-object Socket-Server
 #ifdef SOCKET_STREAMS
   #define allocate_socket_server() \
     allocate_xrecord(0,Rectype_Socket_Server,socket_server_length,0,orecord_type)
@@ -7799,103 +7788,103 @@ nonreturning_function(extern, fehler_not_R, (object obj));
 #endif
 
 #ifdef YET_ANOTHER_RECORD
-# UP, beschafft Yetanother
+# UP: allocates Yetanother
 # allocate_yetanother()
-# < ergebnis: LISP-Objekt Yetanother
+# < result: LISP-object Yetanother
 # can trigger GC
   #define allocate_yetanother()  \
     allocate_xrecord(0,Rectype_Yetanother,yetanother_length,0,orecord_type)
-# wird verwendet von
+# is used by
 #endif
 
-# UP, beschafft Handle-Verpackung
+# UP: allocates handle
 # allocate_handle(handle)
-# < ergebnis: LISP-Objekt, das handle enthält
+# < result: LISP-object, that contains handle
 # can trigger GC
-  #ifdef FOREIGN_HANDLE
-    # can trigger GC
-    extern object allocate_handle (Handle handle);
-  #else
-    #define allocate_handle(handle)  fixnum((uintL)(handle))
-  #endif
+#ifdef FOREIGN_HANDLE
+  # can trigger GC
+  extern object allocate_handle (Handle handle);
+#else
+  #define allocate_handle(handle)  fixnum((uintL)(handle))
+#endif
 
-# UP, beschafft Bignum
+# UP: allocates Bignum
 # allocate_bignum(len,sign)
-# > uintC (eigentlich uintWC) len: Länge der Zahl (in Digits)
-# > sintB sign: Flag für Vorzeichen (0 = +, -1 = -)
-# < ergebnis: neues Bignum (LISP-Objekt)
+# > uintC (actually uintWC) len: length of the number (in Digits)
+# > sintB sign: flag for sign (0 = +, -1 = -)
+# < result: new Bignum (LISP-object)
 # can trigger GC
-  extern object allocate_bignum (uintC len, sintB sign);
-# wird verwendet von LISPARIT, STREAM
+extern object allocate_bignum (uintC len, sintB sign);
+# is used by LISPARIT, STREAM
 
-# UP, beschafft Single-Float
+# UP: allocates Single-Float
 # allocate_ffloat(value)
-# > ffloat value: Zahlwert (Bit 31 = Vorzeichen)
-# < ergebnis: neues Single-Float (LISP-Objekt)
+# > ffloat value: value (Bit 31 = sign)
+# < result: new Single-Float (LISP-object)
 # can trigger GC
-  extern object allocate_ffloat (ffloat value);
-# wird verwendet von LISPARIT
+extern object allocate_ffloat (ffloat value);
+# is used by LISPARIT
 
-# UP, beschafft Double-Float
+# UP: allocates Double-Float
 #ifdef intQsize
 # allocate_dfloat(value)
-# > dfloat value: Zahlwert (Bit 63 = Vorzeichen)
-# < ergebnis: neues Double-Float (LISP-Objekt)
+# > dfloat value: value (Bit 63 = sign)
+# < result: new Double-Float (LISP-object)
 # can trigger GC
   extern object allocate_dfloat (dfloat value);
 #else
 # allocate_dfloat(semhi,mlo)
-# > semhi,mlo: Zahlwert (Bit 31 von semhi = Vorzeichen)
-# < ergebnis: neues Double-Float (LISP-Objekt)
+# > semhi,mlo: value (Bit 31 of semhi = sign )
+# < result: new Double-Float (LISP-object)
 # can trigger GC
   extern object allocate_dfloat (uint32 semhi, uint32 mlo);
 #endif
-# wird verwendet von LISPARIT
+# is used by LISPARIT
 
-# UP, beschafft Long-Float
+# UP: allocates Long-Float
 # allocate_lfloat(len,expo,sign)
-# > uintC (eigentlich uintWC) len: Länge der Mantisse (in Digits)
-# > uintL expo: Exponent
-# > signean sign: Vorzeichen (0 = +, -1 = -)
-# < ergebnis: neues Long-Float, noch ohne Mantisse
-# Ein LISP-Objekt liegt erst dann vor, wenn die Mantisse eingetragen ist!
+# > uintC (actually uintWC) len: length of the mantissa (in Digits)
+# > uintL expo: exponent
+# > signean sign: sign (0 = +, -1 = -)
+# < result: new Long-Float, without mantissa
+# It will only be a LISP-object whem the mantissa has been entered!
 # can trigger GC
-  extern object allocate_lfloat (uintC len, uintL expo, signean sign);
-# wird verwendet von LISPARIT
+extern object allocate_lfloat (uintC len, uintL expo, signean sign);
+# is used by LISPARIT
 
-# UP, erzeugt Bruch
+# UP: makes a rational number
 # make_ratio(num,den)
-# > object num: Zähler (muss Integer /= 0 sein, relativ prim zu den)
-# > object den: Nenner (muss Integer > 1 sein)
-# < ergebnis: Bruch
+# > object num: numerator (has to be an integer /= 0, relatively prime to den)
+# > object den: denominator (has to be an Integer > 1)
+# < result: rational number
 # can trigger GC
-  extern object make_ratio (object num, object den);
-# wird verwendet von LISPARIT
+extern object make_ratio (object num, object den);
+# is used by LISPARIT
 
-# UP, erzeugt komplexe Zahl
+# UP: makes a complex number
 # make_complex(real,imag)
-# > real: Realteil (muss reelle Zahl sein)
-# > imag: Imaginärteil (muss reelle Zahl /= Fixnum 0 sein)
-# < ergebnis: komplexe Zahl
+# > real: real part (has to be a real number)
+# > imag: imaginary part (has to be a real number /= Fixnum 0)
+# < result: complex number
 # can trigger GC
-  extern object make_complex (object real, object imag);
-# wird verwendet von LISPARIT
+extern object make_complex (object real, object imag);
+# is used by LISPARIT
 
-# UP: Liefert die Länge eines ASCIZ-Strings.
+# UP: return the length of the ASCIZ-String
 # asciz_length(asciz)
 # > char* asciz: ASCIZ-String
-#       (Adresse einer durch ein Nullbyte abgeschlossenen Zeichenfolge)
-# < ergebnis: Länge der Zeichenfolge (ohne Nullbyte)
-  extern uintL asciz_length (const char * asciz);
-# wird verwendet von SPVW
+#       (added with a NULL byte determines the end of string)
+# < result: Length of the character sequence (without the NULL byte)
+extern uintL asciz_length (const char * asciz);
+# is used by SPVW
 
 # UP: Vergleicht zwei ASCIZ-Strings.
 # asciz_equal(asciz1,asciz2)
 # > char* asciz1: erster ASCIZ-String
 # > char* asciz2: zweiter ASCIZ-String
-# < ergebnis: true falls die Zeichenfolgen gleich sind
-  extern bool asciz_equal (const char * asciz1, const char * asciz2);
-# wird verwendet von STREAM
+# < result: true falls die Zeichenfolgen gleich sind
+extern bool asciz_equal (const char * asciz1, const char * asciz2);
+# is used by STREAM
 
 #if defined(GNU) && (SAFETY < 2)
   #ifdef HAVE_BUILTIN_STRLEN
@@ -7925,37 +7914,37 @@ nonreturning_function(extern, fehler_not_R, (object obj));
 # > object obj: Objekt
 # > bool pr_array: Flag, ob Arrayelemente rekursiv als Teilobjekte gelten
 # > bool pr_closure: Flag, ob Closurekomponenten rekursiv als Teilobjekte gelten
-# < ergebnis: T falls Stacküberlauf eintrat,
+# < result: T falls Stacküberlauf eintrat,
 #             NIL falls keine Zirkularitäten vorhanden,
 #             #(0 ...) ein (n+1)-elementiger Vektor, der die Zahl 0 und die n
 #                      Zirkularitäten als Elemente enthält, n>0.
 # can trigger GC
-  extern object get_circularities (object obj, bool pr_array, bool pr_closure);
-# wird verwendet von IO
+extern object get_circularities (object obj, bool pr_array, bool pr_closure);
+# is used by IO
 
 # UP: Entflicht #n# - Referenzen im Objekt *ptr mit Hilfe der Aliste alist.
 # > *ptr : Objekt
 # > alist : Aliste (Read-Label --> zu substituierendes Objekt)
 # < *ptr : Objekt mit entflochtenen Referenzen
 # < ergebnis : fehlerhafte Referenz oder nullobj falls alles OK
-  extern object subst_circ (object* ptr, object alist);
-# wird verwendet von IO
+extern object subst_circ (object* ptr, object alist);
+# is used by IO
 
 # UP: Läuft durch den gesamten Speicher durch, und ruft dabei für jedes
 # Objekt obj: fun(arg,obj,bytelen) auf.
 # map_heap_objects(fun,arg);
 # > fun: C-Funktion
 # > arg: beliebiges vorgegebenes Argument
-  typedef void map_heap_function (void* arg, object obj, uintL bytelen);
-  extern void map_heap_objects (map_heap_function* fun, void* arg);
-# wird verwendet von PREDTYPE
+typedef void map_heap_function (void* arg, object obj, uintL bytelen);
+extern void map_heap_objects (map_heap_function* fun, void* arg);
+# is used by PREDTYPE
 
-# UP: Liefert die Größe eines Objekts in Bytes.
+# UP: returns the size (in Bytes) of an object.
 # varobject_bytelength(obj)
-# > obj: Heap-Objekt variabler Länge
-# < ergebnis; die Anzahl der von ihm belegten Bytes (inklusive Header)
-  extern uintL varobject_bytelength (object obj);
-# wird verwendet von PREDTYPE
+# > obj: Heap-object with variable length
+# < result; the number of bytes occupied by it (header incuded)
+extern uintL varobject_bytelength (object obj);
+# is used by PREDTYPE
 
 # Break-Semaphoren
 # Solange eine Break-Semaphore gesetzt ist, kann das Lisp-Programm nicht
@@ -7963,132 +7952,133 @@ nonreturning_function(extern, fehler_not_R, (object obj));
 # - Sicherstellung von Konsistenzen,
 # - Nicht reentrante Datenstrukturen (wie z.B. DTA_buffer) können nicht
 #   rekursiv verwendet werden.
-  typedef union {uintB einzeln[8]; uintL gesamt[2]; } break_sems_;
-  extern break_sems_ break_sems;
-  #define break_sem_0  break_sems.einzeln[0]
-  #define break_sem_1  break_sems.einzeln[1]
-  #define break_sem_2  break_sems.einzeln[2]
-  #define break_sem_3  break_sems.einzeln[3]
-  #define break_sem_4  break_sems.einzeln[4]
-  #define break_sem_5  break_sems.einzeln[5]
-  #define break_sem_6  break_sems.einzeln[6]
-  #define break_sem_7  break_sems.einzeln[7]
-# wird verwendet von SPVW, Macros set/clr_break_sem_0/1/2/3/4/5/6/7
+typedef union {uintB einzeln[8]; uintL gesamt[2]; } break_sems_;
+extern break_sems_ break_sems;
+#define break_sem_0  break_sems.einzeln[0]
+#define break_sem_1  break_sems.einzeln[1]
+#define break_sem_2  break_sems.einzeln[2]
+#define break_sem_3  break_sems.einzeln[3]
+#define break_sem_4  break_sems.einzeln[4]
+#define break_sem_5  break_sems.einzeln[5]
+#define break_sem_6  break_sems.einzeln[6]
+#define break_sem_7  break_sems.einzeln[7]
+# is used by SPVW, Macros set/clr_break_sem_0/1/2/3/4/5/6/7
 
-# Testet, ob alle Break-Semaphoren gelöscht sind.
-  #define break_sems_cleared()  \
-    (break_sems.gesamt[0] == 0 && break_sems.gesamt[1] == 0)
-# wird verwendet von SPVW, WIN32AUX
+# Tests whether all break-semaphores have been cleared.
+#define break_sems_cleared()  \
+  (break_sems.gesamt[0] == 0 && break_sems.gesamt[1] == 0)
+# is used by SPVW, WIN32AUX
 
-# Löscht alle Break-Semaphoren. Sehr gefährlich!
-  #define clear_break_sems()  \
-    (break_sems.gesamt[0] = 0, break_sems.gesamt[1] = 0)
-# wird verwendet von SPVW
+# clears all break-semaphores. Very dangerous!
+#define clear_break_sems()  \
+  (break_sems.gesamt[0] = 0, break_sems.gesamt[1] = 0)
+# is used by SPVW
 
-# Setzt Break-Semaphore 0 und schützt so gegen Unterbrechungen
+# sets break-semaphore 0 and thus protects against interrupts
 # set_break_sem_0();
-  #define set_break_sem_0()  (break_sem_0 = 1)
-# wird verwendet von SPVW
+#define set_break_sem_0()  (break_sem_0 = 1)
+# is used by SPVW
 
-# Löscht Break-Semaphore 0 und gibt so Unterbrechungen wieder frei
+# clears the break-semaphore 0 and thus releases the interrupts
 # clr_break_sem_0();
-  #define clr_break_sem_0()  (break_sem_0 = 0)
-# wird verwendet von SPVW
+#define clr_break_sem_0()  (break_sem_0 = 0)
+# is used by SPVW
 
-# Setzt Break-Semaphore 1 und schützt so gegen Unterbrechungen
+# sets break-semaphore 1 and thus protects against interrupts
 # set_break_sem_1();
-  #define set_break_sem_1()  (break_sem_1 = 1)
-# wird verwendet von SPVW, ARRAY
+#define set_break_sem_1()  (break_sem_1 = 1)
+# is used by SPVW, ARRAY
 
-# Löscht Break-Semaphore 1 und gibt so Unterbrechungen wieder frei
+# clears the break-semaphore 1 and thus releases the interrupts
 # clr_break_sem_1();
-  #define clr_break_sem_1()  (break_sem_1 = 0)
-# wird verwendet von SPVW, ARRAY
+#define clr_break_sem_1()  (break_sem_1 = 0)
+# is used by SPVW, ARRAY
 
-# Setzt Break-Semaphore 2 und schützt so gegen Unterbrechungen
+# sets break-semaphore 2 and thus protects against interrupts
 # set_break_sem_2();
-  #define set_break_sem_2()  (break_sem_2 = 1)
-# wird verwendet von PACKAGE, HASHTABL
+#define set_break_sem_2()  (break_sem_2 = 1)
+# is used by PACKAGE, HASHTABL
 
-# Löscht Break-Semaphore 2 und gibt so Unterbrechungen wieder frei
+# clears the break-semaphore 2 and thus releases the interrupts
 # clr_break_sem_2();
-  #define clr_break_sem_2()  (break_sem_2 = 0)
-# wird verwendet von PACKAGE, HASHTABL
+#define clr_break_sem_2()  (break_sem_2 = 0)
+# is used by PACKAGE, HASHTABL
 
-# Setzt Break-Semaphore 3 und schützt so gegen Unterbrechungen
+# sets break-semaphore 3 and thus protects against interrupts
 # set_break_sem_3();
-  #define set_break_sem_3()  (break_sem_3 = 1)
-# wird verwendet von PACKAGE
+#define set_break_sem_3()  (break_sem_3 = 1)
+# is used by PACKAGE
 
-# Löscht Break-Semaphore 3 und gibt so Unterbrechungen wieder frei
+# clears the break-semaphore 3 and thus releases the interrupts
 # clr_break_sem_3();
-  #define clr_break_sem_3()  (break_sem_3 = 0)
-# wird verwendet von PACKAGE
+#define clr_break_sem_3()  (break_sem_3 = 0)
+# is used by PACKAGE
 
-# Setzt Break-Semaphore 4 und schützt so gegen Unterbrechungen
+# sets break-semaphore 4 and thus protects against interrupts
 # set_break_sem_4();
-  #define set_break_sem_4()  (break_sem_4 = 1)
-# wird verwendet von STREAM, PATHNAME
+#define set_break_sem_4()  (break_sem_4 = 1)
+# is used by STREAM, PATHNAME
 
-# Löscht Break-Semaphore 4 und gibt so Unterbrechungen wieder frei
+# clears the break-semaphore 4 and thus releases the interrupts
 # clr_break_sem_4();
-  #define clr_break_sem_4()  (break_sem_4 = 0)
-# wird verwendet von STREAM, PATHNAME
+#define clr_break_sem_4()  (break_sem_4 = 0)
+# is used by STREAM, PATHNAME
 
-# Incrementiert Break-Semaphore 5 und schützt so gegen Unterbrechungen
+# increments break-semaphore 5 and thus protects against interrupts
 # inc_break_sem_5();
-  #define inc_break_sem_5()  (break_sem_5++)
-# wird verwendet von SPVW
+#define inc_break_sem_5()  (break_sem_5++)
+# is used by SPVW
 
-# Decrementiert Break-Semaphore 5 und gibt so Unterbrechungen wieder frei
+# decrements break-semaphore 5 and thus releases interrupts
 # dec_break_sem_5();
-  #define dec_break_sem_5()  (break_sem_5--)
-# wird verwendet von SPVW
+#define dec_break_sem_5()  (break_sem_5--)
+# is used by SPVW
 
-# Löscht Break-Semaphore 5 und gibt so Unterbrechungen wieder frei
+# clears the break-semaphore 5 and thus releases the interrupts
 # clr_break_sem_5();
-  #define clr_break_sem_5()  (break_sem_5 = 0)
-# wird verwendet von SPVW
+#define clr_break_sem_5()  (break_sem_5 = 0)
+# is used by SPVW
 
-# Flag, ob SYS::READ-FORM sich ILISP-kompatibel verhalten soll:
-  extern bool ilisp_mode;
+# Flag, whether SYS::READ-FORM should behave compatible to ILISP
+extern bool ilisp_mode;
 
-# Liefert die Größe des von statischen LISP-Objekten belegten Platzes.
-  extern uintL static_space (void);
-# wird verwendet von DEBUG
+# returns the amount of space occupied by static LISP-objectes
+extern uintL static_space (void);
+# is used by DEBUG
 
-# Liefert die Größe des von den LISP-Objekten belegten Platzes.
-  extern uintL used_space (void);
-# wird verwendet von TIME, DEBUG
+# returns the amount of space occupied by LISP-objectes
+extern uintL used_space (void);
+# is used by TIME, DEBUG
 
-# Liefert die Größe des für LISP-Objekte noch verfügbaren Platzes.
-  extern uintL free_space (void);
-# wird verwendet von DEBUG
+# returns the amount of space still available for LISP-objects
+extern uintL free_space (void);
+# is used by DEBUG
 
-# UP, speichert Speicherabbild auf Diskette
+# UP: saves memory image to disc
 # savemem(stream);
-# > object stream: offener File-Output-Stream, wird geschlossen
+# > object stream: open File-Output-Stream, will be closed
 # can trigger GC
-  extern void savemem (object stream);
-# wird verwendet von PATHNAME
+extern void savemem (object stream);
+# is used by PATHNAME
 
-# UP: Ruft ein Fremdprogramm auf.
+# UP: calls a foreign program.
 # execute(memneed)
-# > -(STACK): Filename des Fremdprogramms, ein Simple-ASCIZ-String
-# > -(STACK): Argumente (Command Tail), ein Simple-String
-# > uintL memneed: Fürs Fremdprogramm zu reservierende Byte-Zahl (gerade)
-# < sintL ergebnis : Falls negativ, Fehlernummer.
-#                    Sonst Returncode des aufgerufenen Programms.
-# STACK wird aufgeräumt
+# > -(STACK): filename of the foreign program, a Simple-ASCIZ-String
+# > -(STACK): arguments (Command Tail), a Simple-String
+# > uintL memneed: number of bytes to be reserved
+#                    for the foreign program (even)
+# < sintL result : if negative, error number.
+#                    else return-cde of the called program.
+# STACK will be cleared
 # can trigger GC
-  extern sintL execute (uintL memneed);
-# wird verwendet von PATHNAME
+extern sintL execute (uintL memneed);
+# is used by PATHNAME
 
 #ifdef HAVE_SIGNALS
 # Temporarily do not ignore the status of subprocesses.
   extern void begin_want_sigcld (void);
   extern void end_want_sigcld (void);
-# wird verwendet von PATHNAME
+# is used by PATHNAME
 #endif
 
 #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
@@ -8097,168 +8087,168 @@ nonreturning_function(extern, fehler_not_R, (object obj));
 #endif
 
 
-# Deklaration der FSUBRs.
-# Als C-Funktionen: C_name, vom Typ fsubr_function (keine Argumente, kein Wert)
+# Declaration of the FSUBRs.
+# As C-functions: C_name, of the type fsubr_function (no arguments, no value)
 
-# C-Funktionen sichtbar machen:
-  #define LISPSPECFORM  LISPSPECFORM_A
+# make C-functions visible:
+#define LISPSPECFORM  LISPSPECFORM_A
+#include "fsubr.c"
+#undef LISPSPECFORM
+# is used by
+
+# make Fsubr-table visible:
+#define LISPSPECFORM  LISPSPECFORM_C
+struct fsubr_tab_ {
   #include "fsubr.c"
-  #undef LISPSPECFORM
-# wird verwendet von
-
-# Fsubr-Tabelle sichtbar machen:
-  #define LISPSPECFORM  LISPSPECFORM_C
-  struct fsubr_tab_ {
-    #include "fsubr.c"
-  };
-  #undef LISPSPECFORM
-  extern const struct fsubr_tab_ fsubr_tab;
-# wird verwendet von CONTROL, SPVW
+};
+#undef LISPSPECFORM
+extern const struct fsubr_tab_ fsubr_tab;
+# is used by CONTROL, SPVW
 
 
-# Deklaration der SUBR-Tabelle.
-# Als C-Funktionen: C_name
-# vom Typ subr_norest_function (keine Argumente, kein Wert)
-# bzw. subr_rest_function (zwei Argumente, kein Wert):
-  typedef Values subr_norest_function (void);
-  typedef Values subr_rest_function (uintC argcount, object* rest_args_pointer);
+# Declaration of the SUBR-table:
+# As C-functions: C_name
+# of the type subr_norest_function (no arguments, no value)
+# resp. subr_rest_function (two arguments, no value):
+typedef Values subr_norest_function (void);
+typedef Values subr_rest_function (uintC argcount, object* rest_args_pointer);
 
-# Als LISP-Subr:    L(name)
+# As LISP-Subr:    L(name)
 
-# C-Funktionen sichtbar machen:
-  #define LISPFUN  LISPFUN_A
+# Make C-functions visible:
+#define LISPFUN  LISPFUN_A
+#include "subr.c"
+#undef LISPFUN
+# is used by
+
+# Make Subr-tables visible:
+#define LISPFUN  LISPFUN_C
+extern struct subr_tab_ {
   #include "subr.c"
-  #undef LISPFUN
-# wird verwendet von
+} subr_tab_data;
+#undef LISPFUN
+# is used by Macro L
 
-# Subr-Tabelle sichtbar machen:
-  #define LISPFUN  LISPFUN_C
-  extern struct subr_tab_ {
-    #include "subr.c"
-  } subr_tab_data;
-  #undef LISPFUN
-# wird verwendet von Macro L
-
-# Abkürzung fürs LISP-Subr mit einem gegebenen Namen: L(name)
-  #if !defined(MAP_MEMORY_TABLES)
-    #define subr_tab  subr_tab_data
-    #ifdef TYPECODES
-      #define subr_tab_ptr_as_object(subr_addr)  (type_constpointer_object(subr_type,subr_addr))
-    #else
-      #define subr_tab_ptr_as_object(subr_addr)  as_object((oint)(subr_addr)+subr_bias)
-    #endif
-    #define L(name)  subr_tab_ptr_as_object(&subr_tab.D_##name)
+# Abbreviation for LISP-Subr with a given name: L(name)
+#if !defined(MAP_MEMORY_TABLES)
+  #define subr_tab  subr_tab_data
+  #ifdef TYPECODES
+    #define subr_tab_ptr_as_object(subr_addr)  (type_constpointer_object(subr_type,subr_addr))
   #else
-    # define subr_tab_addr  ((struct subr_tab_ *)type_constpointer_object(subr_type,0))
-    #define subr_tab_addr  ((struct subr_tab_ *)type_zero_oint(subr_type))
-    #define subr_tab  (*subr_tab_addr)
-    #define subr_tab_ptr_as_object(subr_addr)  (as_object((oint)(subr_addr)))
-    #define L(name)  subr_tab_ptr_as_object(&subr_tab_addr->D_##name)
+    #define subr_tab_ptr_as_object(subr_addr)  as_object((oint)(subr_addr)+subr_bias)
   #endif
-# wird verwendet von allen Modulen
+  #define L(name)  subr_tab_ptr_as_object(&subr_tab.D_##name)
+#else
+  # define subr_tab_addr  ((struct subr_tab_ *)type_constpointer_object(subr_type,0))
+  #define subr_tab_addr  ((struct subr_tab_ *)type_zero_oint(subr_type))
+  #define subr_tab  (*subr_tab_addr)
+  #define subr_tab_ptr_as_object(subr_addr)  (as_object((oint)(subr_addr)))
+  #define L(name)  subr_tab_ptr_as_object(&subr_tab_addr->D_##name)
+#endif
+# is used by all modules
 
 
 # Pseudofunctions are addresses of C functions (to be called directly, not via
 # FUNCALL) or constant C data.
 # For SAVEMEM/LOADMEM we have a table of all such pseudofunctions.
-  typedef const void *  Pseudofun; # assume function pointers fit in a void*
+typedef const void *  Pseudofun; # assume function pointers fit in a void*
 
-# Deklaration der Tabellen relozierbarer Pointer:
-  #define PSEUDO  PSEUDO_A
-  extern struct pseudocode_tab_ {
-    #include "pseudofun.c"
-  } pseudocode_tab;
-  #undef PSEUDO
-  #define PSEUDO  PSEUDO_B
-  extern struct pseudodata_tab_ {
-    #include "pseudofun.c"
-  } pseudodata_tab;
-  #undef PSEUDO
-# wird verwendet von STREAM, SPVW
+# Declaraion of the tables of relocatable pointers:
+#define PSEUDO  PSEUDO_A
+extern struct pseudocode_tab_ {
+  #include "pseudofun.c"
+} pseudocode_tab;
+#undef PSEUDO
+#define PSEUDO  PSEUDO_B
+extern struct pseudodata_tab_ {
+  #include "pseudofun.c"
+} pseudodata_tab;
+#undef PSEUDO
+# is used by STREAM, SPVW
 
 # Return an ADDRESS object encapsulating a pseudofunction.
+#ifdef TYPECODES
+  #define P(fun)  type_constpointer_object(machine_type,(Pseudofun)&(fun))
+#else
+  #define P(fun)  make_machine_code((Pseudofun)&(fun))
+#endif
+# is used by STREAM, ENCODING
+
+
+# Declaration if the Symbol-table:
+#define LISPSYM  LISPSYM_A
+extern struct symbol_tab_ {
+  #include "constsym.c"
+} symbol_tab_data;
+#undef LISPSYM
+# is used by Macro S
+
+# Abbreviation for LISP-Symbol with a given name: S(name)
+#define S(name)  S_help_(S_##name)
+#if !defined(MAP_MEMORY_TABLES)
+  #define symbol_tab  symbol_tab_data
   #ifdef TYPECODES
-    #define P(fun)  type_constpointer_object(machine_type,(Pseudofun)&(fun))
+    #define S_help_(name)  (type_constpointer_object(symbol_type,&symbol_tab.name))
   #else
-    #define P(fun)  make_machine_code((Pseudofun)&(fun))
-  #endif
-# wird verwendet von STREAM, ENCODING
-
-
-# Deklaration der Symbol-Tabelle:
-  #define LISPSYM  LISPSYM_A
-  extern struct symbol_tab_ {
-    #include "constsym.c"
-  } symbol_tab_data;
-  #undef LISPSYM
-# wird verwendet von Macro S
-
-# Abkürzung für LISP-Symbol mit einem gegebenen Namen: S(name)
-  #define S(name)  S_help_(S_##name)
-  #if !defined(MAP_MEMORY_TABLES)
-    #define symbol_tab  symbol_tab_data
-    #ifdef TYPECODES
-      #define S_help_(name)  (type_constpointer_object(symbol_type,&symbol_tab.name))
+    #if defined(OBJECT_STRUCT)
+      #define S_help_(name)  as_object((oint)&symbol_tab.name+varobject_bias)
     #else
-      #if defined(OBJECT_STRUCT)
-        #define S_help_(name)  as_object((oint)&symbol_tab.name+varobject_bias)
-      #else
-        #define S_help_(name)  objectplus(&symbol_tab.name,varobject_bias)
-      #endif
-    #endif
-  #else
-    # define symbol_tab_addr ((struct symbol_tab_ *)type_constpointer_object(symbol_type,0))
-    #define symbol_tab_addr ((struct symbol_tab_ *)type_zero_oint(symbol_type))
-    #define symbol_tab  (*symbol_tab_addr)
-    #define S_help_(name)  (as_object((oint)(&symbol_tab_addr->name)))
-    #if 0 # Manche Compiler erlauben obigen Ausdruck
-          # - obwohl eine 'constant expression' -
-          # nicht als Initialisierer von static-Variablen.
-          # Wir müssen nachhelfen:
-      #undef S_help_
-      #define S_help_(name)  (as_object( (char*)(&((struct symbol_tab_ *)0)->name) + (uintP)symbol_tab_addr ))
+      #define S_help_(name)  objectplus(&symbol_tab.name,varobject_bias)
     #endif
   #endif
-# wird verwendet von allen Modulen
+#else
+  # define symbol_tab_addr ((struct symbol_tab_ *)type_constpointer_object(symbol_type,0))
+  #define symbol_tab_addr ((struct symbol_tab_ *)type_zero_oint(symbol_type))
+  #define symbol_tab  (*symbol_tab_addr)
+  #define S_help_(name)  (as_object((oint)(&symbol_tab_addr->name)))
+  #if 0 # Some compilers do not allow the above expression
+        # - even though it's a 'constant expression' -
+        # as initializer of static variables.
+        # We have to assist:
+    #undef S_help_
+    #define S_help_(name)  (as_object( (char*)(&((struct symbol_tab_ *)0)->name) + (uintP)symbol_tab_addr ))
+  #endif
+#endif
+# is used by all modules
 
 #define NIL  S(nil)
 #define T    S(t)
 
-# Der Macro NIL_IS_CONSTANT gibt an, ob NIL vom C-Compiler als
-# 'constant expression' anerkannt wird. Wenn ja, können die Tabellen
-# zum großen Teil bereits vom C-Compiler initialisiert werden.
-  #if (oint_addr_shift==0)
-    #define NIL_IS_CONSTANT  true
-  #else
-    #define NIL_IS_CONSTANT  false
-  #endif
+# The mactos NIL_IS_CONSTANT tells , whether NIL is recognized
+# as 'constant expression' by the C-Compiler. If so, tables can
+# be already be initialized largely by the C-Compiler.
+#if (oint_addr_shift==0)
+  #define NIL_IS_CONSTANT  true
+#else
+  #define NIL_IS_CONSTANT  false
+#endif
 
-# Deklaration der Tabelle der sonstigen festen Objekte:
-  #define LISPOBJ  LISPOBJ_A
-  extern struct object_tab_ {
-    #include "constobj.c"
-  } object_tab;
-  #undef LISPOBJ
-# wird verwendet von Macro O
+# Declaration of the table with the remaining constant objects:
+#define LISPOBJ  LISPOBJ_A
+extern struct object_tab_ {
+  #include "constobj.c"
+} object_tab;
+#undef LISPOBJ
+# is used by Macro O
 
-# Abkürzung für sonstiges LISP-Objekt mit einem gegebenem Namen:
-  #define O(name)  (object_tab.name)
+# Abkürzung für sonstiges LISP-object mit einem gegebenem Namen:
+#define O(name)  (object_tab.name)
 
-# Abkürzung für von language abhängiges LISP-Objekt mit einem gegebenem Namen:
-# OLS(name)  falls es sich um LISP-Strings handelt, mit LISPOBJ_LS definiert,
-# OL(name)   falls es sich um andere LISP-Objekte handelt, von LISPOBJ_L.
+# Shorthand for a LISP-object with a given name that depends on language:
+# OLS(name)  if they're LISP-Strings, defined with LISPOBJ_LS,
+# OL(name)   if they're other LISP-objects, of LISPOBJ_L.
 # can trigger GC
-  #ifndef GNU_GETTEXT
-    #ifdef LANGUAGE_STATIC
-      #define OL(name)  O(name)
-    #else
-      #define OL(name)  ((&O(name))[language])
-    #endif
-    #define OLS(name)  OL(name)
-  #else # GNU_GETTEXT
-    #define OLS(name)  localized_string(O(name))
-    #define OL(name)  localized_object(O(name))
+#ifndef GNU_GETTEXT
+  #ifdef LANGUAGE_STATIC
+    #define OL(name)  O(name)
+  #else
+    #define OL(name)  ((&O(name))[language])
   #endif
+  #define OLS(name)  OL(name)
+#else # GNU_GETTEXT
+  #define OLS(name)  localized_string(O(name))
+  #define OL(name)  localized_object(O(name))
+#endif
 
 #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
 # handle_fault_range(PROT_READ,start,end) makes an address range readable.
@@ -8273,44 +8263,44 @@ nonreturning_function(extern, fehler_not_R, (object obj));
   #error "Dynamic modules require dynamic loading!"
 #endif
 
-# Anzahl der externen Module:
-  extern uintC module_count;
+# Number of external modules:
+extern uintC module_count;
 
-# Daten für die Initialisierung der subr_tab eines Moduls:
-  typedef struct {
-    const char* packname; # Name der Home-Package des Symbols oder NULL
-    const char* symname; # Name des Symbols
-  } subr_initdata;
+# Data for initialization of a module's subr_tab:
+typedef struct {
+  const char* packname; # Name der Home-Package des Symbols oder NULL
+  const char* symname; # Name des Symbols
+} subr_initdata;
 
-# Daten für die Initialisierung der object_tab eines Moduls:
-  typedef struct {
-    const char* initstring; # Initialisierungs-String
-  } object_initdata;
+# Data for initialization of a module's object_tab:
+typedef struct {
+  const char* initstring; # Initialization-String
+} object_initdata;
 
 # Tabelle bzw. Liste der Module:
-  typedef struct module_ {
-    const char* name; # Name
-    subr_* stab; const uintC* stab_size; # eine eigene subr_tab
-    object* otab; const uintC* otab_size; # eine eigene object_tab
-    bool initialized;
-    # Daten zur Initialisierung:
-    const subr_initdata* stab_initdata;
-    const object_initdata* otab_initdata;
-    # Funktionen zur Initialisierung
-    void (*initfunction1) (struct module_ *); # nur einmal
-    void (*initfunction2) (struct module_ *); # immer bei Programmstart
-    #ifdef DYNAMIC_MODULES
-    struct module_ * next; # verkettete Liste
-    #endif
-  } module_;
+typedef struct module_ {
+  const char* name; # Name
+  subr_* stab; const uintC* stab_size; # a separate subr_tab
+  object* otab; const uintC* otab_size; # a separate object_tab
+  bool initialized;
+  # Daten zur Initialisierung:
+  const subr_initdata* stab_initdata;
+  const object_initdata* otab_initdata;
+  # Funktionen zur Initialisierung
+  void (*initfunction1) (struct module_ *); # only once
+  void (*initfunction2) (struct module_ *); # always at start up
   #ifdef DYNAMIC_MODULES
-    extern module_ modules[]; # Listenanfang
-    BEGIN_DECLS
-    extern void add_module (module_ * new_module);
-    END_DECLS
-  #else
-    extern module_ modules[]; # 1+module_count Einträge, dann ein leerer Eintrag
+    struct module_ * next; # verkettete Liste
   #endif
+} module_;
+#ifdef DYNAMIC_MODULES
+  extern module_ modules[]; # Listenanfang
+  BEGIN_DECLS
+  extern void add_module (module_ * new_module);
+  END_DECLS
+#else
+  extern module_ modules[]; # 1+module_count entries, then an empty entry
+#endif
 
 #ifdef HAVE_DYNLOAD
 # Attaches a shared library to this process' memory, and attempts to load
@@ -8323,873 +8313,875 @@ nonreturning_function(extern, fehler_not_R, (object obj));
 
 /*
 
-Spezifikationen für den Evaluator
-#################################
+Specifications for the Evaluator
+################################
 
-SUBRs und FSUBRs
+SUBRs and FSUBRs
 ================
 
-Sie werden konstruiert mit
-  LISPFUN             für allgemeine LISP-Funktionen,
-  LISPFUNN            für normale LISP-Funktionen (nur required-Parameter),
-  LISPSPECFORM        für Special-Forms (FSUBRs).
-Beachte, dass SUBRs mit KEY_ANZ=0 vom Evaluator als SUBRs ohne Keyword-
-Parameter betrachtet werden (was zur Folge hat, dass in diesem Fall das
-ALLOW_FLAG bedeutungslos ist und kein Keyword, auch nicht :ALLOW-OTHER-KEYS,
-akzeptiert wird)!
+They're constructed through
+  LISPFUN             for general LISP-functions,
+  LISPFUNN            for normal  LISP-functions (only required parameters),
+  LISPSPECFORM        for special forms (FSUBRs).
+Note that SUBRs with KEY_ANZ=0 will be seen as SUBRs without keyword-
+parameters by the evaluator (which in consequence means that in this case the
+ALLOW_FLAG is meaningless and no keyword, not even :ALLOW-OTHER-KEYS,
+will be accepted)!
 
-Werte
-=====
+Values
+======
 
-Folgendes Format wird für die Übergabe von multiple values verwendet:
-value1 enthält den ersten Wert (NIL falls keine Werte).
-mv_count enthält die Anzahl der Werte.
-Falls mindestens ein Wert vorhanden:   value1 = erster Wert.
-Falls mindestens zwei Werte vorhanden: value2 = zweiter Wert.
-Falls mindestens drei Werte vorhanden: value3 = dritter Wert.
-Alle Werte sind in mv_space abgelegt.
-Empfohlene Befehle zur Rückgabe (an den Aufrufer) von
-  0 Werten:   value1=NIL; mv_count=0;
-  1 Wert:     value1=...; mv_count=1;
-  2 Werten:   value1=...; value2=...; mv_count=2;
-  3 Werten:   value1=...; value2=...; value3=...; mv_count=3;
-  mehr als 3 Werten:
-              if (Wertezahl >= mv_limit) goto fehler_zuviele_werte;
-              Werte der Reihe nach auf den STACK legen
-              STACK_to_mv(Wertezahl);
+The following format is used for the passing of multiple values:
+value1 contains the first value (NIL if there aren't values).
+mv_count contaisn the number of values..
+If there is at least one value       : value1 = first value.
+If there are at least two values     : value2 = second value.
+If there are at least three values   : value3 = third value .
+All values are in mv_space .
+Recommended commands for returning of values to the caller:
+  0 values:   value1=NIL; mv_count=0;
+  1 value :     value1=...; mv_count=1;
+  2 values:   value1=...; value2=...; mv_count=2;
+  3 values:   value1=...; value2=...; value3=...; mv_count=3;
+  more than 3 values:
+              if (number of values >= mv_limit) goto error_too_many_values;
+              Put the values one after another onto the STACK
+              STACK_to_mv(number of values);
 
-Parameterübergabe an SUBRs
-==========================
+Passing of parameters to SUBRs
+==============================
 
-Die Argumente werden auf dem LISP-Stack übergeben, dabei liegt das erste
-Argument zuoberst. Zuerst kommen die required-Argumente, dann die optionalen
-Argumente (jeweils #UNBOUND, falls nicht angegeben), dann die
-Keyword-Argumente (wieder jeweils #UNBOUND, falls nicht angegeben).
-In subr_self befindet sich das SUBR-Objekt.
-Ist kein &REST-Argument vorgesehen, so ist dies alles. Ist &REST-Argument
-vorgesehen, so folgen im Stack alle weiteren Argumente (nach den optionalen)
-einzeln, und es werden übergeben: die Anzahl dieser Argumente und ein Pointer
-übers erste dieser Argumente. (Dann ist die Anzahl der LISP-Objekte auf dem
-Stack also nicht immer dieselbe!)
-Beim Rücksprung müssen alle Argumente vom LISP-Stack entfernt sein
-(d.h. z.B. bei SUBRs mit &REST: der Stackpointer STACK muss den Wert
-args_pointer = rest_args_pointer STACKop (feste Argumentezahl)
-= Pointer übers erste Argument überhaupt) haben, und mv_count/mv_space
-muss die Werte enthalten.
+The arguments are passed on the LISP-stack, with the first one being on the
+top. The required arhiments come first, then the optional ones
+(each #UNBOUND, if not specified), then come the
+keyword-arguments (again, each #UNBOUND, if not specified).
+The SUBR-object can be found in subr_self.
+This is all if no &REST-argument is planned. But if a &REST-argument
+is planned, all futher arguments follow (the optional ones) on the stack
+one by one, and this will be passed: the number of these arguments and a pointer
+above the first of these arguments. (This means that the number of LISP-objects on
+the stack is not always the same!)
+All arguments have to be removed from the LISP-stack at the return jump.
+(for example. for SUBRs with &REST: the stackpointer STACK has to have the value
+args_pointer = rest_args_pointer STACKop (fixed number of arguments)
+= pointer above the very first argument), and mv_count/mv_space
+has to hold the values.
 
-Parameterübergabe an FSUBRs
-===========================
+Passing of parameters to FSUBRs
+===============================
 
-Die Parameter werden auf dem LISP-Stack übergeben, dabei liegt der erste
-Parameter zuoberst. Zuerst kommen die required-Parameter, dann die optionalen
-Parameter (#UNBOUND, falls nicht angegeben), dann - falls Body-Flag wahr -
-der gesamte restliche Body (meist eine Liste).
-Die Anzahl der auf dem LISP-Stack liegenden Objekte ist also immer dieselbe,
-nämlich  reqParameterZahl + optParameterZahl + (0 oder 1 falls Body-Flag).
-Beim Aufruf enthält subr_self das FSUBR-Objekt, und die gesamte Form befindet
-sich im EVAL-Frame, direkt über den Parametern.
-Beim Rücksprung müssen alle Parameter vom LISP-Stack entfernt sein
-(d.h. der Stackpointer STACK muss um Objektezahl erhöht worden sein),
-und mv_count/mv_space muss die Werte enthalten.
+The parameters are passed on the LISP-stack with the first one being on top.
+At first there are the required parametes, followed by the optional ones
+(#UNBOUND, if not specifired), then - if body-flag true -
+the whole rest of the body (most of the time a list).
+So the number of objects on the LISP-stack is always the same, namely
+numReqParameter + numOptParameter + (0 or 1 if body-flag).
+At the call, subr_self holds the FSUBR-object, and the whole form is
+in the EVAL-frame, directly above the parameters.
+All parameters have to be removed from the LISP-stack at the return jump
+(ie. the stackpointer STACK has to be incemented by the number of objects),
+and mv_count/mv_space has to hold the values.
 
 Environments
 ============
 
-Allgemeines
------------
-Das lexikalische Environment ist aufgeteilt in 5 Komponenten:
-  - Das Variablen-Environment (VAR_ENV),
-  - Das Funktions- und Macro-Environment (FUN_ENV),
-  - Das Block-Environment (BLOCK_ENV),
-  - Das Tagbody-Environment (GO_ENV),
-  - Das Deklarations-Environment (DECL_ENV).
-Das Environment wird in 5 "globalen Variablen" gehalten. Bei Veränderung
-wird es mit speziellen Frames dynamisch gebunden.
-An SYM_FUNCTION, MACROEXP, MACROEXP0, PARSE_DD wird ein einzelnes
-Funktions- und Macro-Environment übergeben.
-GET_CLOSURE erwartet einen Pointer auf alle Environments en bloc: A3 mit
+General
+-------
+The lexical environment is separated into 5 components:
+  - the variables-environment (VAR_ENV),
+  - the functions- and macro-environment (FUN_ENV),
+  - the block-environment (BLOCK_ENV),
+  - the tagbody-environment (GO_ENV),
+  - the declarations-environment (DECL_ENV).
+The environment is kept in 5 "global variables". They are dynamically bound
+with special frames on change.
+A single functions- and macro environment is passed to SYM_FUNCTION,
+MACROEXP, MACROEXP0, PARSE_DD.
+GET_CLOSURE expects a pointer to all environments en bloc: A3 with
 VAR_(A3)=VAR_ENV, FUN_(A3)=FUN_ENV, BLOCK_(A3)=BLOCK_ENV, GO_(A3)=GO_ENV,
 DECL_(A3)=DECL_ENV.
 
-Das Variablen-Environment
+The variables-environment
 -------------------------
-Es enthält die lokalen Variablenbindungen.
-Ein Variablen-Environment ist gegeben durch einen Pointer auf einen
-Variablenbindungs-Frame oder durch NIL (das bedeutet ein leeres lexikalisches
-Environment) oder durch einen Vektor folgenden Aufbaus:
-Der Vektor enthält n Bindungen und hat die Länge 2n+1. Die Elemente sind
-n-mal jeweils Variable (ein Symbol) und zugehöriger Wert (als "Wert" kann
-auch #<SPECDECL> auftreten, dann ist die Variable dynamisch zu referenzieren)
-und als letztes Element das Vorgänger-Environment.
+It contains the local variable-bindings.
+A variables-enviroment is given trhogu a pointer to a
+variable-binding frame, or NIL  (which means an empty lexical
+environment) or a vector that is built as follows:
+The vector contains n bindings and has the length 2n+1. The elements are
+n-times each variable (a symbol) and  the value that belongs to it ("value" can
+be #<SPECDECL> as well, and then the variable has to be referenced dynamically)
+and as last element the predecessor environment.
 
-Das Funktions- und Macro-Environment
+The functions- and macro-environment
 ------------------------------------
-Es enthält die lokalen Funktions- und Macro-Definitionen.
-Ein Funktions- und Macro-Environment ist gegeben durch einen Pointer auf
-einen Funktions- oder Macrobindungs-Frame oder durch NIL (das bedeutet ein
-leeres lexikalisches Environment) oder durch einen Vektor folgenden Aufbaus:
-Der Vektor enthält n Bindungen und hat die Länge 2n+1. Die Elemente sind
-n-mal jeweils Funktionsname (ein Symbol) und zugehörige Definition (eine
-Closure oder NIL oder ein Cons (SYS::MACRO . Closure) ) und als letztes
-Element das Vorgänger-Environment.
+It contains the local function- and macro-definitions.
+A functions- and macro-environment is given through a pointer to
+a funktions- or macrobindings-frame or NIL (which means an empty
+lexical environment) or through a vector that is built as follows:
+The vector contains n bindings and has length 2n+1. The elements are
+n-time each funktion name (a symbol) and the definiton that belongs to it (a
+closure or NIL or a Cons (SYS::MACRO . Closure) ) and as last element
+the predecessor environment.
 
-Das Block-Environment
+The block-environment
 ---------------------
-Es enthält die lexikalisch sichtbaren Block-Exitpoints.
-Ein Block-Environment ist gegeben durch einen Pointer auf einen Block-Frame
-oder durch eine Assoziationsliste, deren Elemente jeweils als CAR den
-Block-Namen (ein Symbol) haben und als CDR entweder den Pointer auf den
-zugehörigen Frame oder, falls der Block bereits verlassen wurde, #DISABLED.
+It contains the lexically visibe block-exitpoints.
+A block-environment is given through a pointer to a block-frame
+or through an association-list, whose elements each have the block-name (a symbol)
+as CAR and as CDR either the pointer to the appropriate
+frame or #DISABLED, if the block has already been left.
 
-Das Tagbody-Environment
+The tagbody-environment
 -----------------------
-Es enthält die lexikalisch sichtbaren Go-Marken der Tagbodys.
-Ein Tagbody-Environment ist gegeben durch einen Pointer auf einen
-Tagbody-Frame oder durch eine Assoziationsliste, deren Elemente jeweils als
-CAR einen Vektor (mit den Go-Marken als Elementen) haben und als CDR entweder
-den Pointer auf den zugehörigen Frame oder, falls der Tagbody bereits
-verlassen wurde, #<DISABLED>.
+It contains the lexically visible Go-labels of the tagbodies.
+A tagbody-environment is given through a pointer to a
+tagbody-frame or an associations-list, whose elements have a vector (with the
+Go-tags as elements) as CAR and as CDR either the pointer to the
+related frame or #DISABLED, if the tagbody has already
+been left.
 
-Das Deklarations-Environment
+The declarations-environment
 ----------------------------
-Es enthält die lexikalisch sichtbaren Deklarationen.
-Ein Deklarations-Environment ist gegeben durch eine Liste von Declaration-
-Specifiers, deren CAR jeweils entweder OPTIMIZE oder DECLARATION oder
-ein benutzerdefinierter Deklarationstyp ist.
+It contains the lexically visible declarations.
+A declarations-environment is given through a list of declaration-
+specifiers, whose CAR is each either  OPTIMIZE or DECLARATION or
+a user-specified declaration-type.
 
-Übergabe von Environments an LISP-Funktionen
---------------------------------------------
-Dafür gibt es zwei Datenstrukturen:
-Bei Übergabe als zweites Argument an Macro-Expander-Funktionen (CLTL S.
-145-146) und bei Annahme durch MACROEXPAND und MACROEXPAND-1 (CLTL S. 151)
-handelt es sich nur um einen 2-elementigen Simple-Vector, bestehend aus einem
-genesteten Variablen-Environment und einem genesteten Funktions- und Macro-
-Environment. Dasselbe bei Übergabe an SYSTEM::%EXPAND-LAMBDABODY-MAIN u.ä.
-Bei Übergabe als zweites Argument an den Wert von *EVALHOOK* bzw. als drittes
-Argument an den Wert von *APPLYHOOK* (CLTL S. 322) und bei Annahme durch
-EVALHOOK und APPLYHOOK (CLTL S. 323) handelt es sich um einen 5-elementigen
-Simple-Vector mit den fünf Einzelkomponenten, alle genestet.
+Passing of environtments to LISP-functions
+------------------------------------------
+There are two data structures for this:
+When it is passed as second argument to macro-expander-funktions (CLTL S.
+145-146) and when it is recepted by MACROEXPAND and MACROEXPAND-1 (CLTL S. 151)
+it is simply a Simple-Vector with 2 elementd, consisting of a nested
+variable-environment and a nested functions- and macro-environment.
+The same for passing to  SYSTEM::%EXPAND-LAMBDABODY-MAIN and the like.
+If it is passed as second argument to the value of *EVALHOOK* or as third one
+to the value of *APPLYHOOK* (CLTL S. 322) and on reception by
+EVALHOOK and APPLYHOOK (CLTL S. 323) it is a Simple-Vector with
+five elements with all five components nested.
 
 Frames
 ======
-Für den Aufruf von SUBRs, FSUBRs und compilierten Closures werden keine
-Frames verwendet.
-Es gibt folgende 14 Arten von Frames:
-  - Environmentbindungs-Frame (ENV_FRAME),
-  - APPLY-Frame (APPLY_FRAME),
-  - EVAL-Frame (EVAL_FRAME),
-  - dynamischer Variablenbindungs-Frame (DYNBIND_FRAME),
-  - Variablenbindungs-Frame (VAR_FRAME),
-  - Funktions- oder Macrobindungs-Frame (FUN_FRAME),
-  - interpretierter Block-Frame (IBLOCK_FRAME),
-  - compilierter Block-Frame (CBLOCK_FRAME),
-  - interpretierter Tagbody-Frame (ITAGBODY_FRAME),
-  - compilierter Tagbody-Frame (CTAGBODY_FRAME),
+Frames are not used to call SUBRs, FSUBRs and compiled closures.
+
+There are the following 14 kinds of frames:
+  - Environmentbinding-Frame (ENV_FRAME),
+  - APPLY-frame (APPLY_FRAME),
+  - EVAL-frame (EVAL_FRAME),
+  - dynamic variable-bindings-frame (DYNBIND_FRAME),
+  - Variable-bindings-frame (VAR_FRAME),
+  - Function- or Macrobindings-Frame (FUN_FRAME),
+  - interpreted block-frame (IBLOCK_FRAME),
+  - compiled block-frame (CBLOCK_FRAME),
+  - interpreted tagbody-frame (ITAGBODY_FRAME),
+  - compiled tagbody-frame (CTAGBODY_FRAME),
   - Catch-Frame (CATCH_FRAME),
-  - Unwind-Protect-Frame (UNWIND_PROTECT_FRAME),
-  - Handler-Frame (HANDLER_FRAME),
-  - Driver-Frame (DRIVER_FRAME).
-Zuunterst in einem Frame kommt ein Langwort, das die Frametyp-Information
-und einen Pointer über den Frame (= den Wert des STACK vor Aufbau und nach
-Abbau des Frame) enthält.
-In der Frame-Info sind die Bits
-  SKIP2_BIT      gelöscht, falls darüber noch ein weiteres Langwort kommt,
-                   das kein LISP-Objekt ist und deswegen von der GC
-                   übersprungen werden muss,
-  EXITPOINT_BIT  gesetzt bei allen außer VAR und FUN,
-  NESTED_BIT     bei IBLOCK und ITAGBODY gesetzt, wenn Exitpoint bzw.
-                   Go-Marken bereits in eine Aliste gesteckt wurden.
-Die Normalwerte für die Frametyp-Info-Bytes sind ENVxx_FRAME_INFO,
+  - Unwind-Protect-frame (UNWIND_PROTECT_FRAME),
+  - Handler-frame (HANDLER_FRAME),
+  - Driver-frame (DRIVER_FRAME).
+Right at the bottom of a frame there is a long-word, that contains the
+frame-type information and a pointer above the frame (= the value of the
+STACK before and after the frame has been built).
+In the frame-info there are the bits
+  SKIP2_BIT      deleted, if another long-word comes above itf,
+                   that is not a LISP-object and thus has to be skipped
+                   by the GC,
+  EXITPOINT_BIT  set for all but VAR and FUN,
+  NESTED_BIT     set for IBLOCK and ITAGBODY, if the exitpoint or
+                   the Go-label have already been put into an Alist.
+The default-values for  the frame-type info-bytes are ENVxx_FRAME_INFO,
 APPLY_FRAME_INFO, EVAL_FRAME_INFO, VAR_FRAME_INFO, FUN_FRAME_INFO,
 IBLOCK_FRAME_INFO, CBLOCK_FRAME_INFO, ITAGBODY_FRAME_INFO, CTAGBODY_FRAME_INFO,
 CATCH_FRAME_INFO, UNWIND_PROTECT_FRAME_INFO, DRIVER_FRAME_INFO.
-Die Routine, die in (SP).L mit SP=SP_(STACK) steht (bei IBLOCK-, CBLOCK-,
-ITAGBODY-, CTAGBODY-, CATCH-, UNWIND-PROTECT-Frames), wird
-angesprungen durch   MOVE.L SP_(STACK),SP ! RTS  .
-Bei DRIVER-Frames durch   MOVE.L SP_(STACK),SP ! MOVE.L (SP),-(SP) ! RTS  .
-In der portablen C-Version steht in SP_(STACK) ein Pointer auf einen
-setjmp/longjmp-Buffer.
+The routine that is in (SP).L with SP=SP_(STACK) (for IBLOCK-, CBLOCK-,
+ITAGBODY-, CTAGBODY-, CATCH-, UNWIND-PROTECT-frames), is being
+jumped to by MOVE.L SP_(STACK),SP ! RTS  .
+For DRIVER-frames by MOVE.L SP_(STACK),SP ! MOVE.L (SP),-(SP) ! RTS  .
+In the portable C-version in SP_(STACK) there is a pointer to a
+setjmp/longjmp-buffer.
 
-Environmentbindungs-Frames
+Environmentbindings-frames
 --------------------------
-Sie enthalten dynamische Bindungen von maximal 5 Environments.
-Frame-Info ist ENVxx_FRAME_INFO (xx je nachdem, welche der Environments hier
-gebunden sind). Aufbau:
-    Offset        Stack-Inhalt
-  20/16/12/8/4  [alter Wert von DECL_ENV]
-  16/12/8/4     [alter Wert von GO_ENV]
-  12/8/4        [alter Wert von BLOCK_ENV]
-  8/4           [alter Wert von FUN_ENV]
-  4             [alter Wert von VAR_ENV]
-  0             Frame-Info; Pointer über Frame
-Im einzelnen:
-ENV1V_frame    für 1 VAR_ENV
-ENV1F_frame    für 1 FUN_ENV
-ENV1B_frame    für 1 BLOCK_ENV
-ENV1G_frame    für 1 GO_ENV
-ENV1D_frame    für 1 DECL_ENV
-ENV2VD_frame   für 1 VAR_ENV und 1 DECL_ENV
-ENV5_frame     für alle 5 Environments
+They contain dynamic bindings of a maximum of 5 environments.
+ENVxx_FRAME_INFO  is frame-info (xx depending on the envrionment that is
+bound here). Structure:
+    Offset        Stack-Contents
+  20/16/12/8/4  [old value ofDECL_ENV]
+  16/12/8/4     [old value ofGO_ENV]
+  12/8/4        [old value ofBLOCK_ENV]
+  8/4           [old value ofFUN_ENV]
+  4             [old value ofVAR_ENV]
+  0             Frame-Info; pointer above frame
 
-APPLY-Frames
+ENV1V_frame    for 1 VAR_ENV
+ENV1F_frame    for 1 FUN_ENV
+ENV1B_frame    for 1 BLOCK_ENV
+ENV1G_frame    for 1 GO_ENV
+ENV1D_frame    for 1 DECL_ENV
+ENV2VD_frame   for 1 VAR_ENV and 1 DECL_ENV
+ENV5_frame     for all 5 environments
+
+APPLY-frames
 ------------
-Sie werden erzeugt bei jedem Aufruf (APPLY oder FUNCALL) einer interpretierten
-Closure.
-Aufbau:
-  Offset     Stack-Inhalt
+They are created at every call (APPLY or FUNCALL) of an interpreted
+closure.
+Structure:
+  Offset     Stack-contents
   4n+12
   4n+8      Argument 1
   ...
   12        Argument n
-  8         Funktion, die gerade aufgerufen wird
+  8         Function that is being called
   4         SP
-  0         Frame-Info; Pointer über Frame
-SP ist ein Pointer in den Programmstack. Rücksprung zu (SP).L nach Auflösung
-des APPLY-Frames gibt den Inhalt von A0/... als Werte der Form zurück.
-Die Frame-Info hat den Wert APPLY_FRAME_INFO oder TRAPPED_APPLY_FRAME_INFO.
+  0         Frame-info; pointer above frame
+SP is a pointer into the program-stack. Jumping back to (SP).L after dissolving
+the APPLY-fame returns the contents of A0/... as values of the form.
+The frame-info has the value APPLY_FRAME_INFO or TRAPPED_APPLY_FRAME_INFO.
 
-EVAL-Frames
+EVAL-frames
 -----------
-Sie werden erzeugt bei jedem Aufruf des EVAL-Unterprogramms.
-Aufbau:
-  Offset     Stack-Inhalt
-  8         Form, die gerade evaluiert wird
+They are created for every call of the EVAL-procedure.
+Layout:
+  Offset     Stack-content
+  8         Form that is being evaluated
   4         SP
-  0         Frame-Info; Pointer über Frame
-SP ist ein Pointer in den Programmstack. Rücksprung zu (SP).L nach Auflösung
-des EVAL-Frames gibt den Inhalt von A0/... als Werte der Form zurück.
-Die Frame-Info hat den Wert EVAL_FRAME_INFO oder TRAPPED_EVAL_FRAME_INFO.
+  0         Frame-info; pointer above frame
+SP is a pointer into the program stack. Jumping back to (SP).L after dissolving
+the EVAL-frame returns the contents of A0/... as values of the form.
+The frame-info has the value EVAL_FRAME_INFO or TRAPPED_EVAL_FRAME_INFO.
 
-Dynamische Variablenbindungs-Frames
+Dynamic variable-bindings frames
 -----------------------------------
-Sie binden dynamisch Symbole an Werte.
-Der Aufbau eines solchen Frames mit n Bindungen ist wie folgt:
-  Offset  Stack-Inhalt
+They bind symbols to values dynamically.
+The structure of such a frame with n bindings is as follows::
+  Offset  stack contents
   8n+4
-  8n      Wert 1
-  8n-4    Symbol 1
+  8n      value 1
+  8n-4    symbol 1
   ...     ...
-  8       Wert n
-  4       Symbol n
-  0       Frame-Info; Pointer über Frame
-Der Inhalt des Frameinfo-Bytes ist DYNBIND_FRAME_INFO.
+  8       value n
+  4       symbol n
+  0       frame-info; pointer above frame
+The content of the frameinfo-byte is DYNBIND_FRAME_INFO.
 
-Variablenbindungs-Frames
+Variable-bindings-frames
 ------------------------
-Sie werden erzeugt beim Anwenden von interpretierten Closures (für die in der
-Lambda-Liste spezifizierten Variablenbindungen und ggfs. in den Deklarationen
-angegebenen dynamischen Referenzen) und von LET und LET*, sowie von allen
-Konstrukten, die implizit LET oder LET* benutzen (wie DO, DO*, PROG, PROG*,
+They are created when interpreted closures are being used (for the variable
+bindings specified in the Lambda-list and in the dynamic references that might
+be specified in the declarations) and by LET and LET*, as well as by all
+constructs, that use LET or LET* implicitly (such as DO, DO*, PROG, PROG*,
 DOLIST, DOTIMES, ...).
-Der Aufbau eines Variablenbindungs-Frames mit n Bindungen ist wie folgt:
+The structure of a variable-bindings-frame with n bindings is as follows:
 #ifndef NO_symbolflags
-  Offset  Stack-Inhalt
+  Offset  stack contents
   12+8n
-  8+8n    Wert 1
-  4+8n    Symbol 1
+  8+8n    value 1
+  4+8n    symbol 1
   ...     ...
-  16      Wert n
-  12      Symbol n
+  16      value n
+  12      symbol n
   8       NEXT_ENV
   4       m
-  0       Frame-Info; Pointer über Frame
+  0       frame-info; pointer above frame
 #else
-  Offset  Stack-Inhalt
+  Offset  stack contents
   12+12n
-  8+12n   Wert 1
-  4+12n   Symbol 1
-  12n     Markierungsbits 1
+  8+12n   value 1
+  4+12n   symbol 1
+  12n     marker bits 1
   ...     ...
-  20      Wert n
-  16      Symbol n
-  12      Markierungsbits n
+  20      value n
+  16      symbol n
+  12      marker bits n
   8       NEXT_ENV
   4       m
-  0       Frame-Info; Pointer über Frame
+  0       frame-info; pointer above frame
 #endif
-Die Symbol/Wert-Paare sind dabei in der Reihenfolge numeriert und abgelegt,
-in der die Bindungen aktiv werden (d.h. z.B. bei interpretierten Closures:
-zuerst die dynamischen Referenzen (SPECIAL-Deklarationen), dann die required-
-Parameter, dann die optionalen Parameter, dann der Rest-Parameter, dann die
-Keyword-Parameter, dann die AUX-Variablen).
-Die Symbole enthalten im Stack folgende Markierungsbits: ACTIVE_BIT, ist
-gesetzt, wenn die Bindung aktiv ist, DYNAM_BIT ist gesetzt, wenn die Bindung
-dynamisch ist. (Dynamische Referenzen sind als lexikalisch gekennzeichnet
-mit dem speziellen Wert #SPECDECL!).
-NEXT_ENV ist das nächsthöhere Variablen-Environment.
-m ist ein Langwort, 0 <= m <= n, und bedeutet die Anzahl der Bindungen, die
-noch nicht durch NEST-Operationen in einen Vektor gesteckt wurden. Also
-sind die Symbol/Wert-Paare 1,...,n-m aktiv gewesen, inzwischen aber genestet
-und deswegen im Stack (sofern es statische Bindungen waren) wieder inaktiv.
-Nur noch einige der Paare n-m+1,...,n können statisch und aktiv sein.
-Der Inhalt des Frameinfo-Bytes ist VAR_FRAME_INFO.
+The symbol/value-pairs are numbered and stored in the order in which the
+bindings become active (i.e. for interpreted closures: at first the dynamic
+references (SPECIAL-declarations), then the required-parameters, then the
+optional parameters, then the remaining parameters, then the keyword
+parameters, then the AUX-variables).
+The symbols contain the following marker bits on the stack: ACTIVE_BIT, is
+set, if the binding is active, DYNAM_BIT is set, if the binding is
+dynamic. (Dynamic references are marked as lexical with
+the special value #SPECDECL!).
+NEXT_ENV is next upper variables-environment.
+m is a long-word, 0 <= m <= n, and stands for the number of bindings that
+have not yet been put into a vector by NEST-pperationes. Thus
+the symbol/value-pairs 1,...,n-m have been active but been nested meanwhile
+and thus inactive again on the stack (if the bindings were static).
+Only some of the pairs n-m+1,...,n can be staic and active.
+The frameinfo-byte contains VAR_FRAME_INFO.
 
-Funktions- und Macrobindungs-Frames
+Function- and Macrobindings-Frames
 -----------------------------------
-Sie werden erzeugt von FLET und MACROLET.
-Der Aufbau eines Variablenbindungs-Frames mit n Bindungen ist wie folgt:
-  Offset  Stack-Inhalt
+They are created by FLET and MACROLET.
+The structure of a variable-bindings-frame with n bindings is as follows:
+  Offset  stack contents
   12+8n
-  8+8n    Wert 1
-  4+8n    Symbol 1
+  8+8n    value 1
+  4+8n    symbol 1
   ...     ...
-  16      Wert n
-  12      Symbol n
+  16      value n
+  12      symbol n
   8       NEXT_ENV
   4       m
-  0       Frame-Info; Pointer über Frame
-NEXT_ENV ist das nächsthöhere Funktions-Environment.
-m ist ein Langwort, 0 <= m <= n, und bedeutet die Anzahl der Bindungen, die
-noch nicht durch NEST-Operationen in einen Vektor gesteckt wurden. Also sind
-die Symbol/Wert-Paare 1,...,n-m aktiv gewesen, inzwischen aber genestet und
-deswegen im Stack wieder inaktiv. Nur noch die Paare n-m+1,...,n sind aktiv.
-Markierungsbits werden hier im Gegensatz zu den Variablenbindungs-Frames
-nicht benötigt.
-Alle Werte sind Closures oder Conses (SYSTEM::MACRO . Closure).
-Der Inhalt des Frameinfo-Bytes ist FUN_FRAME_INFO.
+  0       Frame-Info; pointer above frame
+NEXT_ENV is the next higher function-environment.
+m is a long word, 0 <= m <= n, and stands for the number of bindings, that
+have not yet been put into a vector by NEST-operations. So the
+symbol/value pais 1,...,n-m have been active, but nested meanwhile and thus
+inactive on the stack again. Only the pairs n-m+1,...,n are active.
+Marker bits are not needed here, as opposed to the variable-bindings frames
 
-Interpretierte Block-Frames
----------------------------
-Sie werden erzeugt von BLOCK und allen Konstrukten, die ein implizites BLOCK
-enthalten (z.B. DO, DO*, LOOP, PROG, PROG*, ...). Der Aufbau ist folgender:
-  Offset  Stack-Inhalt
+All values are closures or Conses (SYSTEM::MACRO . Closure).
+The content of the Frameinfo-bytes is FUN_FRAME_INFO.
+
+Interpreted Block-Frames
+------------------------
+They are created by BLOCK and all constructs that contain an implicit
+BLOCK (e.g. DO, DO*, LOOP, PROG, PROG*, ...). The structure is as follows:
+  Offset  stack contents
   16
   12       NAME
   8        NEXT_ENV
   4        SP
-  0        Frame-Info; Pointer über Frame
-NAME ist der Name des Blocks. NEXT_ENV ist das nächsthöhere Block-Environment.
-SP ist ein Pointer in den Programmstack, (SP).L ist eine Routine, die den
-Block-Frame auflöst und den Block mit den Werten A0-A2/... verlässt.
-Frame-Info ist IBLOCK_FRAME_INFO, evtl. mit gesetztem NESTED_BIT (dann zeigt
-NEXT_ENV auf eine Aliste, deren erstes Element das Paar (NAME . <Framepointer>)
-ist, weil der Block noch nicht DISABLED ist).
+  0        Frame-Info; pointer above frame
+NAME is the name of the block. NEXT_ENV is the next higher Block-Environment.
+SP is a pointer into the program stack, (SP).L is a routine, that unwinds the
+Block-Frame and leaves the block with the values A0-A2/...
+Frame-Info is IBLOCK_FRAME_INFO, possibly with set NESTED_BIT (then NEXT_ENV
+points to an Alist, whose first element is the pair (NAME . <Framepointer>),
+because the block is not DISABLED yet).
 
-Compilierte Block-Frames
-------------------------
-Aufbau:
-  Offset  Stack-Inhalt
+Compiled Block-Frames
+---------------------
+Structure:
+  Offset  stack contents
    12
    8        Cons (NAME . <Framepointer>)
    4        SP
-   0        Frame-Info; Pointer über Frame
-NAME ist der Name des Blocks.
-SP ist ein Pointer in den Programmstack, (SP).L ist eine Routine, die den
-Block-Frame auflöst und den Block mit den Werten A0-A2/... verlässt.
-Frame-Info ist CBLOCK_FRAME_INFO.
+   0        Frame-Info; pointer above frame
+NAME is the name of the block.
+SP is a pointer into the program stack, (SP).L is a routine, that
+unwinds the Block-Frame and leaves the block with the values A0-A2/...
+Frame-Info is CBLOCK_FRAME_INFO.
 
-Interpretierte Tagbody-Frames
------------------------------
-Sie werden erzeugt von TAGBODY und allen Konstrukten, die ein implizites
-TAGBODY enthalten (z.B. DO, DO*, PROG, PROG*, ...).
-Der Aufbau eines Tagbody-Frames mit n Tags ist folgender:
-  Offset  Stack-Inhalt
+Interpreted Tagbody-Frames
+--------------------------
+They are created by TAGBODY and all constructs that contain an implicit
+TAGBODY (e.g. DO, DO*, PROG, PROG*, ...).
+The structure of a Tagbody-Frames with n tags is as follows:
+  Offset  stack contents
   12+8n
   8+8n     BODY 1
-  4+8n     MARKE 1
+  4+8n     TAG 1
   ...      ...
   16       BODY n
-  12       MARKE n
+  12       TAG n
   8        NEXT_ENV
   4        SP
-  0        Frame-Info; Pointer über Frame
-Die Marken sind die Sprungziele; es sind Symbole ud Integers, die sich im
-Body befinden. Der zugehörige "Wert" BODY i enthält den Teil des Bodys, der
-auf MARKE i folgt. NEXT_ENV ist das nächsthöhere Tagbody-Environment.
-SP ist ein Pointer in den Programmstack, (SP).L ist eine Routine, die die
-Aktion (GO MARKEi) ausführt, wenn sie mit BODYi in A0 angesprungen wird.
-Frame-Info ist ITAGBODY_FRAME_INFO, evtl. mit gesetztem NESTED_BIT (dann
-zeigt NEXT_ENV auf eine Aliste, deren erstes Element die Form
-(#(MARKE1 ... MARKEn) . <Framepointer>) hat, weil der Tagbody noch nicht
-DISABLED ist).
+  0        Frame-Info; pointer above frame
+The tags are the jump destinations ; they are symbols and Integers, that are in
+the Body. The corresponding "value" BODY i contains the part of the body
+that follows TAG i. NEXT_ENV is the next higher Tagbody-Environment.
+SP is a pointer into the program stack, (SP).L is a routine, that executes
+the action (GO TAGi), if it is jumped to with BODYi in A0.
+Frame-Info is ITAGBODY_FRAME_INFO, poss. with set NESTED_BIT (then
+NEXT_ENV points to an Alist, whose first element has the form
+(#(TAG1 ... TAGn) . <Framepointer>), because the Tagbody is not
+DISABLED yet).
 
-Compilierte Tagbody-Frames
---------------------------
-Aufbau:
-  Offset  Stack-Inhalt
+Compiled Tagbody-Frames
+-----------------------
+Structure:
+  Offset  stack contents
    12
-   8        Cons (#(MARKE1 ... MARKEn) . <Framepointer>)
+   8        Cons (#(TAG1 ... TAGn) . <Framepointer>)
    4        SP
-   0        Frame-Info; Pointer über Frame
-MARKE1, ..., MARKEn sind die Namen der Tags (im compilierten Code eigentlich
-nur noch zu Fehlermeldungszwecken vorhanden).
-SP ist ein Pointer in den Programmstack, (SP).L ist eine Routine, die die
-Aktion (GO MARKEi) ausführt, wenn sie mit value1 = i (1 <= i <= n) angesprungen
-wird.
-Frame-Info ist CTAGBODY_FRAME_INFO.
+   0        Frame-Info; above frame
+TAG1, ..., TAGn are the names of the tags (actually only contained in
+the compiled code to create error messages).
+SP is a pointer into the program stack, (SP).L is a routine, that executes
+the action (GO TAGi), if it has been jumped at with value1 = i (1 <= i <= n)
+
+Frame-Info is CTAGBODY_FRAME_INFO.
 
 Catch-Frames
 ------------
-Sie werden erzeugt von der Special-Form CATCH. Ihr Aufbau ist wie folgt:
-  Offset  Stack-Inhalt
+They are created by the  Special-Form CATCH. Its structure is as follows:
+  Offset  stack contents
    12
    8        TAG
    4        SP
-   0        Frame-Info; Pointer über Frame
-Dabei ist TAG die Marke des Catchers.
-SP ist ein Pointer in den Programmstack, (SP).L ist eine Routine, die den
-Frame auflöst und die Werte A0-A2/... zurückgibt.
-Frame-Info ist CATCH_FRAME_INFO.
+   0        Frame-Info; pointer above frame
+TAG is the tag of the catcher.
+SP is a pointer into the program stack, (SP).L is a routine, that unwinds
+the Frame auflöst and returns the values A0-A2/...
+Frame-Info is CATCH_FRAME_INFO.
 
 Unwind-Protect-Frames
 ---------------------
-Sie werden erzeugt von der Special-Form UNWIND-PROTECT und allen Konstrukten,
-die ein implizites UNWIND-PROTECT enthalten (wie WITH-OPEN-STREAM oder
-WITH-OPEN-FILE). Ihr Aufbau ist wie folgt:
-  Offset  Stack-Inhalt
+They are created by the Special-Form UNWIND-PROTECT and all construcs
+that contain an implicit UNWIND-PROTECT (like WITH-OPEN-STREAM or
+WITH-OPEN-FILE). Their structure is as follows:
+  Offset  Stack-contents
    8
    4        SP
-   0        Frame-Info; Pointer über Frame
-SP ist ein Pointer in den Programmstack. (SP).L ist eine Routine, die den
-Frame auflöst, die aktuellen Werte A0-A2/... rettet, den Cleanup durchführt,
-die geretteten Werte zurückschreibt und schließlich die Adresse anspringt
-(mit RTS), die anstelle ihrer eigenen im Programmstack eingetragen wurde,
-und dabei D6 unverändert lässt.
+   0        Frame-Info; pointer above frame
+SP is a pointer into the program stack. (SP).L a routine, that unwinds the
+Frame,saves the current values A0-A2/...  executes the cleanip,
+writes the saved values back and finally jumps to the address
+(with RTS), that has been entered into the program stack in place of their own
+and leaves D6 unchanged.
 
 Handler-Frames
 --------------
-Sie werden erzeugt vom Macro HANDLER-BIND. Ihr Aufbau ist wie folgt:
-  Offset  Stack-Inhalt
+They are created by the macro HANDLER-BIND. Their structure is as follows:
+  Offset  Stack-contens
    16
    12       Cons (#(type1 label1 ... typem labelm) . SPdepth)
    8        Closure
    4        SP
-   0        Frame-Info; Pointer über Frame
-SP ist ein Pointer in den Programmstack. Wenn eine Condition vom Typ typei
-auftritt, wird als Handler die Closure ab Byte labeli abinterpretiert, wobei
-zuerst ein Stück Programmstack der Länge SPdepth dupliziert wird.
-Eine Variante von Handler-Frames ruft einen C-Handler auf:
-  Offset  Stack-Inhalt
+   0        Frame-Info; pointer above frame
+SP is a pointer into the program stack.
+If there is a condition of the type typei
+the closure starting at Bte labeli is interpreted as Handler, where at first
+a piece of the program stack with the length SPdepth  is duplicated.
+One variant of Handler-Frames calls a C-Handler:
+  Offset  Stack-contents
    16
    12       Cons (#(type1 label1 ... typem labelm))
-   8        Handler-Funktion
+   8        Handler-function
    4        SP
-   0        Frame-Info; Pointer über Frame
-SP ist ein Pointer in den Programmstack. Wenn eine Condition vom Typ typei
-auftritt, wird die Handler-Funktion aufgerufen, mit den Argumenten SP
-(beliebiger Pointer in den C-Stack), frame (Pointer auf den Frame),
-labeli (beliebiges Lisp-Objekt), condition. Wenn der Handler von sich aus
-per unwind_upto(FRAME) die Kontrolle übergeben will, muss der Frame mit
-finish_entry_frame gebaut worden sein.
+   0        Frame-Info; pointer above frame
+SP is a pointer into the program stack.
+If there is a condition of the type typei
+the handler-function is called with the arguments SP
+(arbitrary pointer into the C-Stack), frame (pointer above the frame),
+labeli (arbitrary Lisp-object), condition.
+If the Handler wants to yield control via unwind_upto(FRAME) by itself,
+the Frame has to be created with finish_entry_frame.
 
 Driver-Frames
 -------------
-Sie werden erzeut beim Eintritt in eine Top-Level-Schleife (meist eine
-READ-EVAL-PRINT-Schleife) und dienen dazu, nach Fehlermeldungen die
-vorherige Top-Level-Schleife fortzusetzen. Der Aufbau ist einfach:
-  Offset  Stack-Inhalt
+They are created upon entry into a top-level loop (most of the time
+a READ-EVAL-PRINT-loop) and are used to continue the previous top-level
+loop after an error message. The structure is simple
+  Offset  Stack-contens
    8
    4        SP
-   0        Frame-Info; Pointer über Frame
-SP ist ein Pointer in den Programmstack. (SP).L ist eine Routine, die
-wieder in die zugehörige Top-Level-Schleife einsteigt.
+   0        Frame-Info; pointer above Frame
+SP is a pointer into the program stack. (SP).L is a routine, that
+re-enters the corresponding top-level loop.
 
 */
 
 # STACK:
-# STACK ist der LISP-Stack.
-# STACK_0 ist das erste Objekt auf dem STACK.
-# STACK_1 ist das zweite Objekt auf dem STACK.
-# etc., allgemein STACK_(n) = (n+1)tes Objekt auf dem STACK.
-# pushSTACK(object)  legt ein Objekt auf dem STACK ab. Synonym: -(STACK).
-# popSTACK()  liefert STACK_0 und nimmt es dabei vom STACK herunter.
-# skipSTACK(n);  nimmt n Objekte vom STACK herunter.
-# Will man den Wert des STACK retten, so geht das so:
-#   var object* temp = STACK; ... (kein Zugriff über temp !) ... setSTACK(STACK = temp);
-#   jedoch: Zugriff über  STACKpointable(temp)  möglich.
-# Will man einen Pointer, der durch den Stack laufen kann, so geht das so:
-#   var object* ptr = &STACK_0;  oder  = STACKpointable(STACK);
+# STACK is the LISP-Stack.
+# STACK_0 is the first object on the STACK.
+# STACK_1 is the second object on the STACK.
+# etc., generally STACK_(n) = (n+1)th object on the STACK.
+# pushSTACK(object)  puts an object onto the Stack. Synonym: -(STACK).
+# popSTACK()  returns STACK_0 and removes it from the stack.
+# skipSTACK(n);  removes n objects from the STACK.
+# If you want to save the value of the stack, you do this:
+#   var object* temp = STACK; ... (no access through temp !) ... setSTACK(STACK = temp);
+#   but: access through STACKpointable(temp)  is possible.
+# If you want a pointer that can traverse through the Stack, you do this:
+#   var object* ptr = &STACK_0;  or = STACKpointable(STACK);
 #   assert( *(ptr STACKop 0) == STACK_0 );
 #   assert( *(ptr STACKop 1) == STACK_1 );
 #   ...
 #   ptr skipSTACKop n;
 #   assert( *(ptr STACKop 0) == STACK_(n) );
 #   ...
-#   Dieser Pointer darf nicht wieder dem STACK zugewiesen werden!
-# Bringt man im STACK Blöcke von Objekten unter und will den (n+1)-ten Block,
-#   so geht das so:  STACKblock_(type,n). Dabei sollte type ein
-#   struct-Typ sein mit sizeof(type) ein Vielfaches  von sizeof(object).
+#   This pointer must not be assigned to the STACK again!
+# If you store blocks of objects on the STACK and want to get the (n+1)-th block,
+#   you do this:  STACKblock_(type,n). type should be a
+#   struct-type with sizeof(type) a multiple of sizeof(object).
 
+#ifdef STACK_DOWN
+  #define STACK_(n)  (STACK[(sintP)(n)])
+  #define STACKpointable(STACKvar)  ((object*)(STACKvar))
+  #define skipSTACKop  +=
+  #define STACKop      +
+  #define cmpSTACKop   <
+  #define STACKblock_(type,n)  (((type*)STACK)[(sintP)(n)])
+#endif
+#ifdef STACK_UP
+  #define STACK_(n)  (STACK[-1-(sintP)(n)])
+  #define STACKpointable(STACKvar)  ((object*)(STACKvar)-1)
+  #define skipSTACKop  -=
+  #define STACKop      -
+  #define cmpSTACKop   >
+  #define STACKblock_(type,n)  (((type*)STACK)[-1-(sintP)(n)])
+#endif
+#define pushSTACK(obj)  (STACK_(-1) = (obj), STACK skipSTACKop -1)
+  # Almost equivalent with *--STACK = obj  resp.  *STACK++ = obj  , but
+  # Careful: first enter the object into STACK_(-1), THEN modify the STACK!
+#define popSTACK()  (STACK skipSTACKop 1, STACK_(-1))
+#define skipSTACK(n)  (STACK skipSTACKop (sintP)(n))
+
+#if defined(GNU) && defined(MC680X0) && !defined(NO_ASM) && !defined(WIDE) && defined(STACK_register)
+  # With GNU and a 680X0 STACK is in a register. Access and
+  # modification of the STACK are an atomic unit that cannot be interrupted.
+  #undef pushSTACK
+  #undef popSTACK
   #ifdef STACK_DOWN
-    #define STACK_(n)  (STACK[(sintP)(n)])
-    #define STACKpointable(STACKvar)  ((object*)(STACKvar))
-    #define skipSTACKop  +=
-    #define STACKop      +
-    #define cmpSTACKop   <
-    #define STACKblock_(type,n)  (((type*)STACK)[(sintP)(n)])
+    # define pushSTACK(obj)  (*--STACK = (obj))
+    #define pushSTACK(obj)  \
+      ({ __asm__ __volatile__ ("movel %0,"REGISTER_PREFIX""STACK_register"@-" : : "g" ((object)(obj)) : STACK_register ); })
+    # define popSTACK()  (*STACK++)
+    #define popSTACK()  \
+      ({var object __result;                                                                                         \
+        __asm__ __volatile__ ("movel "REGISTER_PREFIX""STACK_register"@+,%0" : "=g" (__result) : : STACK_register ); \
+        __result;                                                                                                    \
+       })
   #endif
   #ifdef STACK_UP
-    #define STACK_(n)  (STACK[-1-(sintP)(n)])
-    #define STACKpointable(STACKvar)  ((object*)(STACKvar)-1)
-    #define skipSTACKop  -=
-    #define STACKop      -
-    #define cmpSTACKop   >
-    #define STACKblock_(type,n)  (((type*)STACK)[-1-(sintP)(n)])
+    # define pushSTACK(obj)  (*STACK++ = (obj))
+    #define pushSTACK(obj)  \
+      ({ __asm__ __volatile__ ("movel %0,"REGISTER_PREFIX""STACK_register"@+" : : "g" ((object)(obj)) : STACK_register ); })
+    # define popSTACK()  (*--STACK)
+    #define popSTACK()  \
+      ({var object __result;                                                                                         \
+        __asm__ __volatile__ ("movel "REGISTER_PREFIX""STACK_register"@-,%0" : "=g" (__result) : : STACK_register ); \
+        __result;                                                                                                    \
+       })
   #endif
-  #define pushSTACK(obj)  (STACK_(-1) = (obj), STACK skipSTACKop -1)
-    # Fast äquivalent zu  *--STACK = obj  bzw.  *STACK++ = obj  , jedoch
-    # Vorsicht: erst Objekt in STACK_(-1) eintragen, dann erst STACK verändern!
-  #define popSTACK()  (STACK skipSTACKop 1, STACK_(-1))
-  #define skipSTACK(n)  (STACK skipSTACKop (sintP)(n))
+#endif
+#if defined(SPARC) && !defined(GNU) && !defined(__SUNPRO_C) && !defined(MULTITHREAD) && (SAFETY < 2)
+  #undef pushSTACK
+  #undef popSTACK
+  #undef skipSTACK
+  #define pushSTACK(obj)  (STACK_(-1) = (obj), _setSTACK(STACK STACKop -1))
+  #define popSTACK()  (_setSTACK(STACK STACKop 1), STACK_(-1))
+  #define skipSTACK(n)  (_setSTACK(STACK STACKop (sintP)(n)))
+#endif
 
-  #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM) && !defined(WIDE) && defined(STACK_register)
-    # Mit GNU auf einem 680X0 liegt STACK in einem Register. Zugriff und
-    # Veränderung von STACK bilden daher eine ununterbrechbare Einheit.
-    #undef pushSTACK
-    #undef popSTACK
-    #ifdef STACK_DOWN
-      # define pushSTACK(obj)  (*--STACK = (obj))
-      #define pushSTACK(obj)  \
-        ({ __asm__ __volatile__ ("movel %0,"REGISTER_PREFIX""STACK_register"@-" : : "g" ((object)(obj)) : STACK_register ); })
-      # define popSTACK()  (*STACK++)
-      #define popSTACK()  \
-        ({var object __result;                                                                                         \
-          __asm__ __volatile__ ("movel "REGISTER_PREFIX""STACK_register"@+,%0" : "=g" (__result) : : STACK_register ); \
-          __result;                                                                                                    \
-         })
-    #endif
-    #ifdef STACK_UP
-      # define pushSTACK(obj)  (*STACK++ = (obj))
-      #define pushSTACK(obj)  \
-        ({ __asm__ __volatile__ ("movel %0,"REGISTER_PREFIX""STACK_register"@+" : : "g" ((object)(obj)) : STACK_register ); })
-      # define popSTACK()  (*--STACK)
-      #define popSTACK()  \
-        ({var object __result;                                                                                         \
-          __asm__ __volatile__ ("movel "REGISTER_PREFIX""STACK_register"@-,%0" : "=g" (__result) : : STACK_register ); \
-          __result;                                                                                                    \
-         })
-    #endif
-  #endif
-  #if defined(SPARC) && !defined(GNU) && !defined(__SUNPRO_C) && !defined(MULTITHREAD) && (SAFETY < 2)
-    #undef pushSTACK
-    #undef popSTACK
-    #undef skipSTACK
-    #define pushSTACK(obj)  (STACK_(-1) = (obj), _setSTACK(STACK STACKop -1))
-    #define popSTACK()  (_setSTACK(STACK STACKop 1), STACK_(-1))
-    #define skipSTACK(n)  (_setSTACK(STACK STACKop (sintP)(n)))
-  #endif
-
-  #define STACK_0  (STACK_(0))
-  #define STACK_1  (STACK_(1))
-  #define STACK_2  (STACK_(2))
-  #define STACK_3  (STACK_(3))
-  #define STACK_4  (STACK_(4))
-  #define STACK_5  (STACK_(5))
-  #define STACK_6  (STACK_(6))
-  #define STACK_7  (STACK_(7))
-  #define STACK_8  (STACK_(8))
-  #define STACK_9  (STACK_(9))
-  #define STACK_10  (STACK_(10))
-  # usw.
+#define STACK_0  (STACK_(0))
+#define STACK_1  (STACK_(1))
+#define STACK_2  (STACK_(2))
+#define STACK_3  (STACK_(3))
+#define STACK_4  (STACK_(4))
+#define STACK_5  (STACK_(5))
+#define STACK_6  (STACK_(6))
+#define STACK_7  (STACK_(7))
+#define STACK_8  (STACK_(8))
+#define STACK_9  (STACK_(9))
+#define STACK_10  (STACK_(10))
+# usw.
 
 
-# Werte:
+# Values:
 
-# Maximalzahl multiple values + 1
-  #define mv_limit  128
-# Werte werden immer im MULTIPLE_VALUE_SPACE mv_space übergeben:
-  # uintC mv_count : Anzahl der Werte, >=0, <mv_limit
-  # object mv_space [mv_limit-1] : die Werte.
-  #   Bei mv_count>0 sind genau die ersten mv_count Elemente belegt.
-  #   Bei mv_count=0 ist der erste Wert = NIL.
-  #   Die Werte in mv_space unterliegen nicht der Garbage Collection!
-  #if !defined(mv_count_register)
-    # eine globale Variable
-    #ifndef MULTITHREAD
-      extern uintC mv_count;
-    #else
-      #define mv_count  (current_thread()->_mv_count)
-    #endif
-  #else
-    # ein globales Register
-    register uintC mv_count __asm__(mv_count_register);
-  #endif
+# Highest number of multiple values + 1
+#define mv_limit  128
+# Values are always passed in the MULTIPLE_VALUE_SPACE mv_space:
+# uintC mv_count : number of values, >=0, <mv_limit
+# object mv_space [mv_limit-1] : the values.
+#   For mv_count>0 the first mv_count elements are occupied.
+#   For mv_count=0 the first value = NIL.
+#   The values in mv_space are not subject to the Garbage Collection!
+#if !defined(mv_count_register)
+  # eine globale Variable
   #ifndef MULTITHREAD
-    extern object mv_space [mv_limit-1];
+    extern uintC mv_count;
   #else
-    #define mv_space  (current_thread()->_mv_space)
+    #define mv_count  (current_thread()->_mv_count)
   #endif
-  # Synonyme:
-  #if !defined(value1_register)
-    #ifndef MULTITHREAD
-      #define value1  mv_space[0]
-    #else
-      # Der erste Wert mv_space[0] wird an den Anfang von struct thread_ verschoben:
-      #define value1  (current_thread()->_value1)
-      #define VALUE1_EXTRA # und muss deswegen immer extra behandelt werden...
-    #endif
+#else
+  # a global register
+  register uintC mv_count __asm__(mv_count_register);
+#endif
+#ifndef MULTITHREAD
+  extern object mv_space [mv_limit-1];
+#else
+  #define mv_space  (current_thread()->_mv_space)
+#endif
+# Synonyms:
+#if !defined(value1_register)
+  #ifndef MULTITHREAD
+    #define value1  mv_space[0]
   #else
-    # Der erste Wert mv_space[0] wird permanent in einem Register gelagert:
-    register object value1 __asm__(value1_register);
-    #define VALUE1_EXTRA # und muss deswegen immer extra behandelt werden...
+    # The first value mv_space[0] is moved to the beginning og struct thread_:
+    #define value1  (current_thread()->_value1)
+    #define VALUE1_EXTRA # and thus has to be treated extra every time...
   #endif
-  #define value2  mv_space[1]
-  #define value3  mv_space[2]
-  #define value4  mv_space[3]
-  #define value5  mv_space[4]
-  #define value6  mv_space[5]
-  #define value7  mv_space[6]
-  #define value8  mv_space[7]
-  #define value9  mv_space[8]
-# Zur Übergabe mit setjmp/longjmp braucht man evtl. noch globale Variablen:
-  #ifdef NEED_temp_mv_count
-    #ifndef MULTITHREAD
-      extern uintC temp_mv_count;
-    #else
-      #define temp_mv_count  (current_thread()->_temp_mv_count)
-    #endif
-    #define LONGJMP_SAVE_mv_count()  temp_mv_count = mv_count
-    #define LONGJMP_RESTORE_mv_count()  mv_count = temp_mv_count
+#else
+  # The first value mv_space[0] is stored permanently in a register:
+  register object value1 __asm__(value1_register);
+  #define VALUE1_EXTRA # and thus has to be treated extra every time...
+#endif
+#define value2  mv_space[1]
+#define value3  mv_space[2]
+#define value4  mv_space[3]
+#define value5  mv_space[4]
+#define value6  mv_space[5]
+#define value7  mv_space[6]
+#define value8  mv_space[7]
+#define value9  mv_space[8]
+# You might need global variables to pass with setjmp/longjmp:
+#ifdef NEED_temp_mv_count
+  #ifndef MULTITHREAD
+    extern uintC temp_mv_count;
   #else
-    #define LONGJMP_SAVE_mv_count()
-    #define LONGJMP_RESTORE_mv_count()
+    #define temp_mv_count  (current_thread()->_temp_mv_count)
   #endif
-  #ifdef NEED_temp_value1
-    #ifndef MULTITHREAD
-      extern object temp_value1;
-    #else
-      #define temp_value1  (current_thread()->_temp_value1)
-    #endif
-    #define LONGJMP_SAVE_value1()  temp_value1 = value1
-    #define LONGJMP_RESTORE_value1()  value1 = temp_value1
+  #define LONGJMP_SAVE_mv_count()  temp_mv_count = mv_count
+  #define LONGJMP_RESTORE_mv_count()  mv_count = temp_mv_count
+#else
+  #define LONGJMP_SAVE_mv_count()
+  #define LONGJMP_RESTORE_mv_count()
+#endif
+#ifdef NEED_temp_value1
+  #ifndef MULTITHREAD
+    extern object temp_value1;
   #else
-    #define LONGJMP_SAVE_value1()
-    #define LONGJMP_RESTORE_value1()
+    #define temp_value1  (current_thread()->_temp_value1)
   #endif
-# wird verwendet von EVAL, CONTROL,
+  #define LONGJMP_SAVE_value1()  temp_value1 = value1
+  #define LONGJMP_RESTORE_value1()  value1 = temp_value1
+#else
+  #define LONGJMP_SAVE_value1()
+  #define LONGJMP_RESTORE_value1()
+#endif
+# is used by EVAL, CONTROL,
 #                    Macros LIST_TO_MV, MV_TO_LIST, STACK_TO_MV, MV_TO_STACK
 
-# Liefert die untersten count Objekte vom STACK als Multiple Values.
+# Returns the bottom objects from the STACK as multiple values.
 # STACK_to_mv(count)
-# count: Anzahl der Objekte, < mv_limit.
-  #if !defined(VALUE1_EXTRA)
-    #define STACK_to_mv(countx)  \
-      { var uintC count = (countx);                            \
-        mv_count = count;                                      \
-        if (count == 0)                                        \
-          { value1 = NIL; }                                    \
-          else                                                 \
-          { object* mvp = &mv_space[count]; # Zeiger hinter Platz für letzten Wert \
-            dotimespC(count,count, { *--mvp = popSTACK(); } ); \
-      }   }
-  #else
-    #define STACK_to_mv(countx)  \
-      { var uintC count = (countx);                                \
-        mv_count = count;                                          \
-        if (count == 0)                                            \
-          { value1 = NIL; }                                        \
-          else                                                     \
-          { count--;                                               \
-            if (count > 0)                                         \
-              { object* mvp = &mv_space[1+count]; # Zeiger hinter Platz für letzten Wert \
-                dotimespC(count,count, { *--mvp = popSTACK(); } ); \
-              }                                                    \
-            value1 = popSTACK();                                   \
-      }   }
-  #endif
-# wird verwendet von EVAL, CONTROL
+# count: number of objects, < mv_limit.
+#if !defined(VALUE1_EXTRA)
+  #define STACK_to_mv(countx)  \
+    { var uintC count = (countx);                            \
+      mv_count = count;                                      \
+      if (count == 0)                                        \
+        { value1 = NIL; }                                    \
+        else                                                 \
+        { object* mvp = &mv_space[count]; # pointer behind space for last value \
+          dotimespC(count,count, { *--mvp = popSTACK(); } ); \
+    }   }
+#else
+  #define STACK_to_mv(countx)  \
+    { var uintC count = (countx);                                \
+      mv_count = count;                                          \
+      if (count == 0)                                            \
+        { value1 = NIL; }                                        \
+        else                                                     \
+        { count--;                                               \
+          if (count > 0)                                         \
+            { object* mvp = &mv_space[1+count]; # pointer behind space for last value \
+              dotimespC(count,count, { *--mvp = popSTACK(); } ); \
+            }                                                    \
+          value1 = popSTACK();                                   \
+    }   }
+#endif
+# is used by EVAL, CONTROL
 
-# Legt alle Werte auf dem STACK ab.
+# Puts all values onto the STACK.
 # mv_to_STACK()
-# > mv_count/mv_space : Werte
-# < Werte auf dem Stack (erster Wert zuoberst)
+# > mv_count/mv_space : values
+# < values on the Stack (first value on top)
 # STACK-Overflow wird abgeprüft.
-# verändert STACK
-  #if !defined(VALUE1_EXTRA)
-    #define mv_to_STACK()  \
-      { var uintC count = mv_count;                           \
-        if (count==0) ; # keine Werte -> nichts auf den STACK \
-          else                                                \
-          { var object* mvp = &mv_space[0];                   \
-            dotimespC(count,count, { pushSTACK(*mvp++); } );  \
-            check_STACK();                                    \
-      }   }
-  #else
-    #define mv_to_STACK()  \
-      { var uintC count = mv_count;                              \
-        if (count==0) ; # keine Werte -> nichts auf den STACK    \
-          else                                                   \
-          { pushSTACK(value1);                                   \
-            count--;                                             \
-            if (count > 0)                                       \
-              { var object* mvp = &mv_space[1];                  \
-                dotimespC(count,count, { pushSTACK(*mvp++); } ); \
-              }                                                  \
-            check_STACK();                                       \
-      }   }
-  #endif
-# wird verwendet von EVAL, CONTROL
+# modifies STACK
+#if !defined(VALUE1_EXTRA)
+  #define mv_to_STACK()  \
+    { var uintC count = mv_count;                           \
+      if (count==0) ; # no values-> nothing onto the STACK  \
+        else                                                \
+        { var object* mvp = &mv_space[0];                   \
+          dotimespC(count,count, { pushSTACK(*mvp++); } );  \
+          check_STACK();                                    \
+    }   }
+#else
+  #define mv_to_STACK()  \
+    { var uintC count = mv_count;                              \
+      if (count==0) ; # no values -> nothing onto the STACK    \
+        else                                                   \
+        { pushSTACK(value1);                                   \
+          count--;                                             \
+          if (count > 0)                                       \
+            { var object* mvp = &mv_space[1];                  \
+              dotimespC(count,count, { pushSTACK(*mvp++); } ); \
+            }                                                  \
+          check_STACK();                                       \
+    }   }
+#endif
+# is used by EVAL, CONTROL
 
-# Liefert die Elemente einer Liste als Multiple Values.
+# Returns the elements of a list as multiple values.
 # list_to_mv(list,fehler_statement)
-# fehler_statement: im Fehlerfall (zuviele Werte).
-  #if !defined(VALUE1_EXTRA)
-    #define list_to_mv(lst,fehler_statement)  \
-      {var object l = (lst);                                                   \
-       var uintC count = 0;                                                    \
-       if (atomp(l))                                                           \
-         value1 = NIL;                                                         \
-         else                                                                  \
-         { var object* mvp = &mv_space[0];                                     \
-           *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
-           *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
-           *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
-           do { *mvp++ = Car(l); l = Cdr(l);                                   \
-                count++; if (count==mv_limit) { fehler_statement; }            \
-              }                                                                \
-              while (consp(l));                                                \
-         }                                                                     \
-       mv_fertig:                                                              \
-       if (!nullp(l)) { subr_self = L(values_list); fehler_proper_list(l); }   \
-       mv_count = count;                                                       \
-      }
-  #else
-    #define list_to_mv(lst,fehler_statement)  \
-      {var object l = (lst);                                                   \
-       var uintC count = 0;                                                    \
-       if (atomp(l))                                                           \
-         value1 = NIL;                                                         \
-         else                                                                  \
-         { value1 = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
-          {var object* mvp = &mv_space[1];                                     \
-           *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
-           *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
-           do { *mvp++ = Car(l); l = Cdr(l);                                   \
-                count++; if (count==mv_limit) { fehler_statement; }            \
-              }                                                                \
-              while (consp(l));                                                \
-         }}                                                                    \
-       mv_fertig:                                                              \
-       if (!nullp(l)) { subr_self = L(values_list); fehler_proper_list(l); }   \
-       mv_count = count;                                                       \
-      }
-  #endif
-# wird verwendet von EVAL, CONTROL
+# fehler_statement: if there's an error (too many values).
+#if !defined(VALUE1_EXTRA)
+  #define list_to_mv(lst,fehler_statement)  \
+    {var object l = (lst);                                                   \
+     var uintC count = 0;                                                    \
+     if (atomp(l))                                                           \
+       value1 = NIL;                                                         \
+       else                                                                  \
+       { var object* mvp = &mv_space[0];                                     \
+         *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
+         *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
+         *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
+         do { *mvp++ = Car(l); l = Cdr(l);                                   \
+              count++; if (count==mv_limit) { fehler_statement; }            \
+            }                                                                \
+            while (consp(l));                                                \
+       }                                                                     \
+     mv_fertig:                                                              \
+     if (!nullp(l)) { subr_self = L(values_list); fehler_proper_list(l); }   \
+     mv_count = count;                                                       \
+    }
+#else
+  #define list_to_mv(lst,fehler_statement)  \
+    {var object l = (lst);                                                   \
+     var uintC count = 0;                                                    \
+     if (atomp(l))                                                           \
+       value1 = NIL;                                                         \
+       else                                                                  \
+       { value1 = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
+        {var object* mvp = &mv_space[1];                                     \
+         *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
+         *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
+         do { *mvp++ = Car(l); l = Cdr(l);                                   \
+              count++; if (count==mv_limit) { fehler_statement; }            \
+            }                                                                \
+            while (consp(l));                                                \
+       }}                                                                    \
+     mv_fertig:                                                              \
+     if (!nullp(l)) { subr_self = L(values_list); fehler_proper_list(l); }   \
+     mv_count = count;                                                       \
+    }
+#endif
+# is used by EVAL, CONTROL
 
-# Liefert die Liste der Multiple Values auf -(STACK).
+# Gives the list of the multivle values on -(STACK).
 # mv_to_list()
 # can trigger GC
-  #define mv_to_list()  \
-    { mv_to_STACK(); # erst alle Werte auf den Stack               \
-      pushSTACK(NIL); # Listenanfang                               \
-      { var uintC count;                                           \
-        dotimesC(count,mv_count, # bis alle Werte verbraucht sind: \
-          { var object l = allocate_cons(); # neue Zelle           \
-            Cdr(l) = popSTACK(); # Liste bisher                    \
-            Car(l) = STACK_0; # nächster Wert                      \
-            STACK_0 = l; # neues Cons sichern                      \
-          });                                                      \
-    } }
-# wird verwendet von EVAL, CONTROL, DEBUG
+#define mv_to_list()  \
+  { mv_to_STACK(); # at first all values onto the stack           \
+    pushSTACK(NIL); # head of the list                            \
+    { var uintC count;                                            \
+      dotimesC(count,mv_count, # until all values have been used: \
+        { var object l = allocate_cons(); # new cell              \
+          Cdr(l) = popSTACK(); # list so far                      \
+          Car(l) = STACK_0; # next value                          \
+          STACK_0 = l; # save new cons                            \
+        });                                                       \
+  } }
+# is used by EVAL, CONTROL, DEBUG
 
-# Fehlermeldung bei zu vielen Werten
+# Error message if there are too many values
 # fehler_mv_zuviel(caller);
-# > caller: Aufrufer, ein Symbol
-  nonreturning_function(extern, fehler_mv_zuviel, (object caller));
-# wird verwendet von EVAL, CONTROL, LISPARIT
+# > caller: caller, a Symbol
+nonreturning_function(extern, fehler_mv_zuviel, (object caller));
+# is used by EVAL, CONTROL, LISPARIT
 
-# Während der Ausführung eines SUBR, FSUBR: das aktuelle SUBR bzw. FSUBR.
+# While executing a  SUBR, FSUBR: the current SUBR resp. FSUBR.
 # subr_self
-# (Nur solange gültig, bis ein anderes SUBR oder eine andere Lisp-Funktion
-# aufgerufen wird.)
-  #if !defined(subr_self_register)
-    #ifndef MULTITHREAD
-      extern object subr_self;
-    #else
-      #define subr_self  (current_thread()->_subr_self)
-    #endif
+# (Only valid , until another SUBR or another Lisp-function
+# is called.)
+#if !defined(subr_self_register)
+  #ifndef MULTITHREAD
+    extern object subr_self;
   #else
-    register object subr_self __asm__(subr_self_register);
+    #define subr_self  (current_thread()->_subr_self)
   #endif
+#else
+  register object subr_self __asm__(subr_self_register);
+#endif
 
-# Innerhalb des Body eines SUBR: Zugriff auf die Argumente.
-# Ein SUBR mit fester Argumentezahl kann über den STACK auf die Argumente
-#   zugreifen: STACK_0 = letztes Argument, STACK_1 = vorletztes Argument etc.
-#   STACK aufräumen: mit skipSTACK(Argumentezahl) .
-# Ein SUBR mit beliebig vielen Argumenten (&REST-Parameter) bekommt übergeben:
-#     uintC argcount              die Anzahl der restlichen Argumente
-#     object* rest_args_pointer   Pointer über die restlichen Argumente
-#   Zusätzlich:
-#     object* args_end_pointer    Pointer unter alle Argumente, von STACK abhängig
-#   Zusätzlich möglich:
-#     object* args_pointer = rest_args_pointer STACKop (feste Argumentezahl);
-#                                 Pointer über das erste Argument
+# Within the body of a SUBR: Access to the arguments.
+# A SUBR with a fixed number of arguments can access them through the STACK:
+#   STACK_0 = last argument, STACK_1 = second to last argument etc.
+#   Clean STACK: with skipSTACK(number of arguments) .
+# A SUBR with arbitrarily many arguments (&REST-Parameter) gets passed:
+#     uintC argcount              the number of the remaining arguments
+#     object* rest_args_pointer   Pointer above the remaining arguments
+#   Additionally:
+#     object* args_end_pointer    Pointer below all arguments, depends on the STACK
+#   Additionally possible:
+#     object* args_pointer = rest_args_pointer STACKop (fixed number of arguments);
+#                                 Pointer above the first argument
 #   Typische Abarbeitungsschleifen:
-#     von vorne:
+#     from the front:
 #       until (argcount==0) {
 #         var object arg = NEXT(rest_args_pointer); ...; argcount--;
 #       }
 #       until (rest_args_pointer==args_end_pointer) {
 #         var object arg = NEXT(rest_args_pointer); ...;
 #       }
-#     von hinten:
+#     from the back:
 #       until (argcount==0) {
 #         var object arg = BEFORE(args_end_pointer); ...; argcount--;
 #       }
 #       until (rest_args_pointer==args_end_pointer) {
 #         var object arg = BEFORE(args_end_pointer); ...;
 #       }
-#   Die Macros NEXT und BEFORE verändern ihr Argument!
-#   STACK aufräumen: mit set_args_end_pointer(args_pointer)
-#     oder skipSTACK((feste Argumentezahl) + (uintL) (restliche Argumentezahl)) .
-  #define args_end_pointer  STACK
-  #define set_args_end_pointer(new_args_end_pointer)  \
-    setSTACK(STACK = (new_args_end_pointer))
-  #ifdef STACK_DOWN
-    #define NEXT(argpointer)  (*(--(argpointer)))
-    #define BEFORE(argpointer)  (*((argpointer)++))
-  #endif
-  #ifdef STACK_UP
-    #define NEXT(argpointer)  (*((argpointer)++))
-    #define BEFORE(argpointer)  (*(--(argpointer)))
-  #endif
-# Next(pointer) liefert denselben Wert wie NEXT(pointer),
-# ohne dabei jedoch den Wert von pointer zu verändern.
-# Before(pointer) liefert denselben Wert wie BEFORE(pointer),
-# ohne dabei jedoch den Wert von pointer zu verändern.
-  #define Next(pointer)  (*(STACKpointable(pointer) STACKop -1))
-  #define Before(pointer)  (*(STACKpointable(pointer) STACKop 0))
+#   The macros NEXT and BEFORE modify their arguments!
+#   Clean STACK: with set_args_end_pointer(args_pointer)
+#     or skipSTACK((fixed number of arguments) + (uintL) (number of remainung arguments)) .
+#define args_end_pointer  STACK
+#define set_args_end_pointer(new_args_end_pointer)  \
+  setSTACK(STACK = (new_args_end_pointer))
+#ifdef STACK_DOWN
+  #define NEXT(argpointer)  (*(--(argpointer)))
+  #define BEFORE(argpointer)  (*((argpointer)++))
+#endif
+#ifdef STACK_UP
+  #define NEXT(argpointer)  (*((argpointer)++))
+  #define BEFORE(argpointer)  (*(--(argpointer)))
+#endif
+# Next(pointer) yields the same value as NEXT(pointer),
+# but without changing the value of pointer.
+# Before(pointer) yields the same value as BEFORE(pointer),
+# but without changing the value of pointer.
+#define Next(pointer)  (*(STACKpointable(pointer) STACKop -1))
+#define Before(pointer)  (*(STACKpointable(pointer) STACKop 0))
 
 # Environments:
 
 typedef struct {
-  object var_env;   # Variablenbindungs-Environment
-  object fun_env;   # Funktionsbindungs-Environment
+  object var_env;   # Variablenbindings-Environment
+  object fun_env;   # Functionsbindungs-Environment
   object block_env; # Block-Environment
   object go_env;    # Tagbody/Go-Environment
-  object decl_env;  # Deklarations-Environment
+  object decl_env;  # Declarations-Environment
 } environment;
 
-# Das aktuelle Environment:
-  #ifndef MULTITHREAD
-    extern environment aktenv;
-  #else
-    #define aktenv  (current_thread()->_aktenv)
-  #endif
+# The curent Environment:
+#ifndef MULTITHREAD
+  extern environment aktenv;
+#else
+  #define aktenv  (current_thread()->_aktenv)
+#endif
 
-# Macro: Legt fünf einzelne Environment auf den STACK
-# und bildet daraus ein einzelnes Environment.
+# Macro: Puts five single Environments on the STACK
+# and makes a single Environment out of them.
 # make_STACK_env(venv,fenv,benv,genv,denv, env5 = );
-# > object venv,fenv,benv,genv,denv: 5 einzelne Environments
-# < environment* env5: Pointer auf im Stack liegendes Environment
-  #ifdef STACK_UP
-    #define make_STACK_env(venv,fenv,benv,genv,denv,env5_zuweisung)  \
-      { pushSTACK(venv); pushSTACK(fenv); pushSTACK(benv); pushSTACK(genv); pushSTACK(denv); \
-        env5_zuweisung &STACKblock_(environment,0);                                           \
-      }
-  #endif
-  #ifdef STACK_DOWN
-    #define make_STACK_env(venv,fenv,benv,genv,denv,env5_zuweisung)  \
-      { pushSTACK(denv); pushSTACK(genv); pushSTACK(benv); pushSTACK(fenv); pushSTACK(venv); \
-        env5_zuweisung &STACKblock_(environment,0);                                           \
-      }
-  #endif
+# > object venv,fenv,benv,genv,denv: 5 single Environments
+# < environment* env5: pointer to the Environment on the Stack
+#ifdef STACK_UP
+  #define make_STACK_env(venv,fenv,benv,genv,denv,env5_allocation)      \
+    { pushSTACK(venv); pushSTACK(fenv); pushSTACK(benv);                \
+      pushSTACK(genv); pushSTACK(denv);                                 \
+      env5_allocation &STACKblock_(environment,0); } while(0)
+#endif
+#ifdef STACK_DOWN
+  #define make_STACK_env(venv,fenv,benv,genv,denv,env5_allocation)      \
+    { pushSTACK(denv); pushSTACK(genv); pushSTACK(benv);                \
+      pushSTACK(fenv); pushSTACK(venv);                                 \
+      env5_allocation &STACKblock_(environment,0); } while(0)
+#endif
 
 # Frameinfobits in Frames:
-# im Frame-Info-Byte (tint):
-#if (oint_type_len>=7) && 0 # vorläufig??
-# Bitnummern im Frame-Info-Byte:
-# belegen Bits 6..0 (bzw. Bits 7,5..0 falls garcol_bit_t=7).
+# in the Frame-Info-Byte (tint):
+#if (oint_type_len>=7) && 0 # provisionally??
+  # Bit numbers in the Frame-Info-Byte:
+  # occupy Bits 6..0 (resp. Bits 7,5..0 if garcol_bit_t=7).
   #ifdef TYPECODES
     #define FB7  garcol_bit_t
     #define FB6  (garcol_bit_t>TB5 ? TB5 : TB6)
@@ -9207,63 +9199,63 @@ typedef struct {
     #define FB2  26
     #define FB1  25
   #endif
-# davon abhängig:
-  #define frame_bit_t    FB7  # garcol_bit als FRAME-Kennzeichen
-  #define skip2_bit_t    FB6  # gelöscht wenn GC zwei Langworte überspringen muss
-  #define unwind_bit_t   FB5  # gesetzt, wenn beim Auflösen (UNWIND) des Frames
-                              # etwas zu tun ist
+  # depending on it:
+  #define frame_bit_t    FB7  # garcol_bit as FRAME-identifier
+  #define skip2_bit_t    FB6  # unset if GC has to skip two longwords
+  #define unwind_bit_t   FB5  # set if there's something to do while
+                              # unwinding the frame
   # skip2-Bit=1 ==> unwind-Bit=1.
-  # zur näheren Information innerhalb der Frames mit skip2-Bit=1:
-    #define envbind_bit_t  FB4  # Bit ist gesetzt bei ENV-Frames.
-                                # Bit ist gelöscht bei DYNBIND-Frames.
-    # zur näheren Identifikation innerhalb der ENV-Frames:
-      #define envbind_case_mask_t  (bit(FB3)|bit(FB2)|bit(FB1))
-  # zur näheren Unterscheidung innerhalb der Frames mit skip2-Bit=0:
-    #define entrypoint_bit_t  FB4  # Bit ist gesetzt, wenn FRAME einen
-                                   # nicht-lokalen Einsprung enthält, mit Offset SP_ ist SP im STACK.
-                                   # Bit ist gelöscht bei VAR/FUN-Frame und CALLBACK-Frame.
-    # zur näheren Unterscheidung in BLOCK/TAGBODY/APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/DRIVER:
-      #define blockgo_bit_t    FB3  # Bit gesetzt bei BLOCK- und TAGBODY-FRAME
-      # zur näheren Unterscheidung in BLOCK/TAGBODY:
-        #define cframe_bit_t     FB1  # gesetzt bei compilierten, gelöscht bei
-                                    # interpretierten BLOCK/TAGBODY-Frames
-        #define nested_bit_t unwind_bit_t # für IBLOCK und ITAGBODY, gesetzt,
+  # for further Information within the Frames with skip2-Bit=1:
+  #define envbind_bit_t  FB4  # Bit set for ENV-Frames.
+                              # Bit is unset for DYNBIND-Frames.
+  # for further identification of the ENV-Frames:
+  #define envbind_case_mask_t  (bit(FB3)|bit(FB2)|bit(FB1))
+  # for further discrimination within the Frames with skip2-Bit=0:
+  #define entrypoint_bit_t  FB4  # Bit is set, if FRAME contains
+  # a non-local entrypoint, with Offset SP_, SP is on the STACK.
+  # Bit is unset for VAR/FUN-Frame and CALLBACK-Frame.
+  # for further discrimination in BLOCK/TAGBODY/APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/DRIVER:
+  #define blockgo_bit_t    FB3  # Bit set for BLOCK- and TAGBODY-FRAME
+  # zur näheren Unterscheidung in BLOCK/TAGBODY:
+  #define cframe_bit_t     FB1  # gesetzt bei compilierten, gelöscht bei
+                                # interpretierten BLOCK/TAGBODY-Frames
+  #define nested_bit_t unwind_bit_t # für IBLOCK und ITAGBODY, gesetzt,
                                     # wenn Exitpoint bzw. Tags genestet wurden
-      # zur näheren Unterscheidung in APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/DRIVER:
-        #define dynjump_bit_t  FB2    # gelöscht bei APPLY und EVAL, gesetzt
-                                      # bei CATCH/UNWIND_PROTECT/DRIVER-Frames
-        #define trapped_bit_t unwind_bit_t # für APPLY und EVAL, gesetzt, wenn
-                                    # beim Auflösen des Frames unterbrochen wird
-        # unwind-Bit gesetzt bei UNWIND_PROTECT/DRIVER/TRAPPED_APPLY/TRAPPED_EVAL,
-        # gelöscht sonst.
-        #define eval_bit_t     FB1    # gesetzt bei EVAL-Frames,
-                                      # gelöscht bei APPLY-Frames
-        #define driver_bit_t   FB1    # gesetzt bei DRIVER-Frames,
-                                      # gelöscht bei UNWIND_PROTECT-Frames
-        #define handler_bit_t  FB1    # gesetzt bei HANDLER-Frames,
-                                      # gelöscht bei CATCH-Frames
-    # zur näheren Unterscheidung in VAR/FUN/CALLBACK:
-      #define callback_bit_t   FB3    # Bit ist gelöscht bei CALLBACK-Frames.
-                                      # Bit ist gesetzt bei VAR/FUN-Frames.
-      # zur näheren Unterscheidung in VAR/FUN:
-        #define fun_bit_t      FB2    # gesetzt bei FUN-Frame, gelöscht bei VAR-Frame
-# in Objekten auf dem STACK (oint):
-  #define frame_bit_o  (frame_bit_t+oint_type_shift)
-  #define skip2_bit_o  (skip2_bit_t+oint_type_shift)
-  #define unwind_bit_o  (unwind_bit_t+oint_type_shift)
-    #define envbind_bit_o  (envbind_bit_t+oint_type_shift)
-    #define callback_bit_o  (callback_bit_t+oint_type_shift)
-    #define entrypoint_bit_o  (entrypoint_bit_t+oint_type_shift)
-      #define blockgo_bit_o  (blockgo_bit_t+oint_type_shift)
-        #define cframe_bit_o  (cframe_bit_t+oint_type_shift)
-        #define nested_bit_o  (nested_bit_t+oint_type_shift)
-        #define dynjump_bit_o  (dynjump_bit_t+oint_type_shift)
-        #define trapped_bit_o  (trapped_bit_t+oint_type_shift)
-        #define eval_bit_o  (eval_bit_t+oint_type_shift)
-        #define driver_bit_o  (driver_bit_t+oint_type_shift)
-        #define handler_bit_o  (handler_bit_t+oint_type_shift)
-      #define fun_bit_o  (fun_bit_t+oint_type_shift)
-# einzelne Frame-Info-Bytes:
+  # for further discrimination in APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/DRIVER:
+  #define dynjump_bit_t  FB2    # unset for APPLY and EVAL, set
+                                # for CATCH/UNWIND_PROTECT/DRIVER-Frames
+  #define trapped_bit_t unwind_bit_t # set for APPLY and EVAL, if
+                                # interrupted while unwinding the Frame
+  # unwind-Bit set for UNWIND_PROTECT/DRIVER/TRAPPED_APPLY/TRAPPED_EVAL,
+  # else unset.
+  #define eval_bit_t     FB1    # set for EVAL-Frames,
+                                # unset for APPLY-Frames
+  #define driver_bit_t   FB1    # set for DRIVER-Frames,
+                                # unset for UNWIND_PROTECT-Frames
+  #define handler_bit_t  FB1    # set for HANDLER-Frames,
+                                # unset for CATCH-Frames
+  # for further discrimination in VAR/FUN/CALLBACK:
+  #define callback_bit_t   FB3  # Bit is unset for CALLBACK-Frames.
+                                # Bit is set for VAR/FUN-Frames.
+  # for further discrimination in VAR/FUN:
+  #define fun_bit_t      FB2    # set for FUN-Frame, unset for VAR-Frame
+  # on objects on the STACK (oint):
+  #define      frame_bit_o      (frame_bit_t+oint_type_shift)
+  #define      skip2_bit_o      (skip2_bit_t+oint_type_shift)
+  #define     unwind_bit_o     (unwind_bit_t+oint_type_shift)
+  #define    envbind_bit_o    (envbind_bit_t+oint_type_shift)
+  #define   callback_bit_o   (callback_bit_t+oint_type_shift)
+  #define entrypoint_bit_o (entrypoint_bit_t+oint_type_shift)
+  #define    blockgo_bit_o    (blockgo_bit_t+oint_type_shift)
+  #define     cframe_bit_o     (cframe_bit_t+oint_type_shift)
+  #define     nested_bit_o     (nested_bit_t+oint_type_shift)
+  #define    dynjump_bit_o    (dynjump_bit_t+oint_type_shift)
+  #define    trapped_bit_o    (trapped_bit_t+oint_type_shift)
+  #define       eval_bit_o       (eval_bit_t+oint_type_shift)
+  #define     driver_bit_o     (driver_bit_t+oint_type_shift)
+  #define    handler_bit_o    (handler_bit_t+oint_type_shift)
+  #define        fun_bit_o        (fun_bit_t+oint_type_shift)
+  # einzelne Frame-Info-Bytes:
   #define DYNBIND_frame_info          /* %1110... */ (bit(FB7)|bit(FB6)|bit(FB5))
   #define ENV1V_frame_info            /* %1111000 */ (bit(FB7)|bit(FB6)|bit(FB5)|bit(FB4))
   #define ENV1F_frame_info            /* %1111001 */ (bit(FB7)|bit(FB6)|bit(FB5)|bit(FB4)|bit(FB1))
@@ -9273,7 +9265,7 @@ typedef struct {
   #define ENV2VD_frame_info           /* %1111101 */ (bit(FB7)|bit(FB6)|bit(FB5)|bit(FB4)|bit(FB3)|bit(FB1))
   #define ENV5_frame_info             /* %1111110 */ (bit(FB7)|bit(FB6)|bit(FB5)|bit(FB4)|bit(FB3)|bit(FB2))
   #ifdef HAVE_SAVED_REGISTERS
-  #define CALLBACK_frame_info         /* %10100.. */ (bit(FB7)|bit(FB5))
+    #define CALLBACK_frame_info         /* %10100.. */ (bit(FB7)|bit(FB5))
   #endif
   #define VAR_frame_info              /* %101010. */ (bit(FB7)|bit(FB5)|bit(FB3))
   #define FUN_frame_info              /* %101011. */ (bit(FB7)|bit(FB5)|bit(FB3)|bit(FB2))
@@ -9291,9 +9283,9 @@ typedef struct {
   #define UNWIND_PROTECT_frame_info   /* %1011010 */ (bit(FB7)|bit(FB5)|bit(FB4)|bit(FB2))
   #define DRIVER_frame_info           /* %1011011 */ (bit(FB7)|bit(FB5)|bit(FB4)|bit(FB2)|bit(FB1))
 #endif
-#if (oint_type_len==6) || 1 # vorläufig??
-# Bitnummern im Frame-Info-Byte:
-# belegen Bits 5..0 (bzw. Bits 7,4..0 falls garcol_bit_t=7).
+#if (oint_type_len==6) || 1 # provisionally??
+  # bit numbers in Frame-Info-Byte:
+  # occupy Bits 5..0 (resp. Bits 7,4..0 if garcol_bit_t=7).
   #ifdef TYPECODES
     #define FB6  garcol_bit_t
     #define FB5  (garcol_bit_t>TB4 ? TB4 : TB5)
@@ -9309,62 +9301,62 @@ typedef struct {
     #define FB2  (garcol_bit_o-4)
     #define FB1  (garcol_bit_o-5)
   #endif
-# davon abhängig:
-  #define frame_bit_t    FB6  # garcol_bit als FRAME-Kennzeichen
-  #define skip2_bit_t    FB5  # gelöscht wenn GC zwei Langworte überspringen muss
-  # define unwind_limit_t  ...  # darüber:
-                              # ist beim Auflösen (UNWIND) des Frames etwas zu tun
+  # depending on it:
+  #define frame_bit_t    FB6  # garcol_bit as FRAME-indicator
+  #define skip2_bit_t    FB5  # unset if the GC has to skip two long words
+  # define unwind_limit_t  ...  # above:
+  # if there's something to be done while to unwind a Frame
   # skip2-Bit=1 ==> >= unwind-limit.
-  # zur näheren Information innerhalb der Frames mit skip2-Bit=1:
-    #define envbind_bit_t  FB4  # Bit ist gesetzt bei ENV-Frames.
-                                # Bit ist gelöscht bei DYNBIND-Frames.
-    # zur näheren Identifikation innerhalb der ENV-Frames:
-      #define envbind_case_mask_t  (bit(FB3)|bit(FB2)|bit(FB1))
-  # zur näheren Unterscheidung innerhalb der Frames mit skip2-Bit=0:
-    # define entrypoint_limit_t  ...  # darunter:
-                                   # wenn FRAME einen nicht-lokalen Einsprung enthält,
-                                   # mit Offset SP_ ist SP im STACK.
-                                   # darüber: bei VAR/FUN-Frame und CALLBACK-Frame.
-    # zur näheren Unterscheidung in BLOCK/TAGBODY/APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/DRIVER:
-      #define blockgo_bit_t    FB3  # Bit gesetzt bei BLOCK- und TAGBODY-FRAME
-      # zur näheren Unterscheidung in BLOCK/TAGBODY:
-        #define cframe_bit_t   FB4  # gesetzt bei compilierten, gelöscht bei
-                                    # interpretierten BLOCK/TAGBODY-Frames
-        #define nested_bit_t   FB2  # für IBLOCK und ITAGBODY, gesetzt,
-                                    # wenn Exitpoint bzw. Tags genestet wurden
-      # zur näheren Unterscheidung in APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/DRIVER:
-        #define dynjump_bit_t  FB2  # gelöscht bei APPLY und EVAL, gesetzt
-                                    # bei CATCH/UNWIND_PROTECT/HANDLER/DRIVER-Frames
-        #define trapped_bit_t  FB4  # für APPLY und EVAL, gesetzt, wenn
-                                    # beim Auflösen des Frames unterbrochen wird
-        # >= unwind_limit_t bei UNWIND_PROTECT/DRIVER/TRAPPED_APPLY/TRAPPED_EVAL,
-        # < unwind_limit_t sonst.
-        #define eval_bit_t     FB1  # gesetzt bei EVAL-Frames,
-                                    # gelöscht bei APPLY-Frames
-        #define driver_bit_t   FB1  # gesetzt bei DRIVER-Frames,
-                                    # gelöscht bei UNWIND_PROTECT-Frames
-        #define handler_bit_t  FB1  # gesetzt bei HANDLER-Frames,
-                                    # gelöscht bei CATCH-Frames
-    # zur näheren Unterscheidung in VAR/FUN/CALLBACK:
-      #define callback_bit_t   FB2  # Bit ist gelöscht bei CALLBACK-Frames.
-                                    # Bit ist gesetzt bei VAR/FUN-Frames.
-      # zur näheren Unterscheidung in VAR/FUN:
-        #define fun_bit_t      FB1  # gesetzt bei FUN-Frame, gelöscht bei VAR-Frame
-# in Objekten auf dem STACK (oint):
-  #define frame_bit_o  (frame_bit_t+oint_type_shift)
-  #define skip2_bit_o  (skip2_bit_t+oint_type_shift)
-    #define envbind_bit_o  (envbind_bit_t+oint_type_shift)
-    #define callback_bit_o  (callback_bit_t+oint_type_shift)
-      #define blockgo_bit_o  (blockgo_bit_t+oint_type_shift)
-        #define cframe_bit_o  (cframe_bit_t+oint_type_shift)
-        #define nested_bit_o  (nested_bit_t+oint_type_shift)
-        #define dynjump_bit_o  (dynjump_bit_t+oint_type_shift)
-        #define trapped_bit_o  (trapped_bit_t+oint_type_shift)
-        #define eval_bit_o  (eval_bit_t+oint_type_shift)
-        #define driver_bit_o  (driver_bit_t+oint_type_shift)
-        #define handler_bit_o  (handler_bit_t+oint_type_shift)
-      #define fun_bit_o  (fun_bit_t+oint_type_shift)
-# einzelne Frame-Info-Bytes:
+  # for further information within the Frames with skip2-Bit=1:
+  #define envbind_bit_t  FB4  # Bit is set for ENV-Frames.
+                              # Bit unset for DYNBIND-Frames.
+  # for further identification within the ENV-Frames:
+  #define envbind_case_mask_t  (bit(FB3)|bit(FB2)|bit(FB1))
+  # for further discrimination with the Frames with skip2-Bit=0:
+  # define entrypoint_limit_t  ...  # below:
+  # if FRAME contains a non-local entry point
+  # with Offset SP_ SP is on the STACK.
+  # above: for VAR/FUN-Frame and CALLBACK-Frame.
+  # for further discrimination in BLOCK/TAGBODY/APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/DRIVER:
+  #define blockgo_bit_t    FB3  # Bit set for BLOCK- and TAGBODY-FRAME
+  # for further discimination in BLOCK/TAGBODY:
+  #define cframe_bit_t   FB4  # set for compiled, unset for
+                              # interpreted BLOCK/TAGBODY-Frames
+  #define nested_bit_t   FB2  # set for IBLOCK and ITAGBODY,
+                              # if exit point or Tags have been nested
+  # for further discrimination in APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/DRIVER:
+  #define dynjump_bit_t  FB2  # unset for APPLY and EVAL, set
+                              # for CATCH/UNWIND_PROTECT/HANDLER/DRIVER-Frames
+  #define trapped_bit_t  FB4  # set for APPLY and EVAL, if interruped while
+                              # unwinding the Frames
+  # >= unwind_limit_t for UNWIND_PROTECT/DRIVER/TRAPPED_APPLY/TRAPPED_EVAL,
+  # < unwind_limit_t else.
+  #define eval_bit_t     FB1  # set for EVAL-Frames,
+                              # unset for APPLY-Frames
+  #define driver_bit_t   FB1  # set for DRIVER-Frames,
+                              # unset for UNWIND_PROTECT-Frames
+  #define handler_bit_t  FB1  # set for HANDLER-Frames,
+                              # unset for CATCH-Frames
+  # for further discimination in VAR/FUN/CALLBACK:
+  #define callback_bit_t   FB2  # Bit is unset for CALLBACK-Frames.
+                                # Bit is set for VAR/FUN-Frames.
+  # for further discrimination in VAR/FUN:
+  #define fun_bit_t      FB1  # set for FUN-Frame, unset for VAR-Frame
+  # in Objekten auf dem STACK (oint):
+  #define    frame_bit_o    (frame_bit_t+oint_type_shift)
+  #define    skip2_bit_o    (skip2_bit_t+oint_type_shift)
+  #define  envbind_bit_o  (envbind_bit_t+oint_type_shift)
+  #define callback_bit_o (callback_bit_t+oint_type_shift)
+  #define  blockgo_bit_o  (blockgo_bit_t+oint_type_shift)
+  #define   cframe_bit_o   (cframe_bit_t+oint_type_shift)
+  #define   nested_bit_o   (nested_bit_t+oint_type_shift)
+  #define  dynjump_bit_o  (dynjump_bit_t+oint_type_shift)
+  #define  trapped_bit_o  (trapped_bit_t+oint_type_shift)
+  #define     eval_bit_o     (eval_bit_t+oint_type_shift)
+  #define   driver_bit_o   (driver_bit_t+oint_type_shift)
+  #define  handler_bit_o  (handler_bit_t+oint_type_shift)
+  #define      fun_bit_o      (fun_bit_t+oint_type_shift)
+  # einzelne Frame-Info-Bytes:
   #define APPLY_frame_info            /* %100000 */ (bit(FB6))
   #define EVAL_frame_info             /* %100001 */ (bit(FB6)|bit(FB1))
   #define CATCH_frame_info            /* %100010 */ (bit(FB6)|bit(FB2))
@@ -9397,474 +9389,474 @@ typedef struct {
 #define CBLOCK_frame_info  CBLOCK_CTAGBODY_frame_info
 #define CTAGBODY_frame_info  CBLOCK_CTAGBODY_frame_info
 
-# Bits für Symbole in VAR-Frames:
-  # bit(active_bit),bit(dynam_bit),bit(svar_bit) müssen in ein uintB passen:
-  #if !((active_bit<intBsize) && (dynam_bit<intBsize) && (svar_bit<intBsize))
-    #error "Symbol bits don't fit in a single byte -- Symbol-Bits passen nicht in ein Byte!"
-  #endif
-  #ifdef NO_symbolflags
-    # Bits werden im Stack separat als Fixnums abgelegt.
-    #undef oint_symbolflags_shift
-    #define oint_symbolflags_shift  oint_data_shift
-  #else
-    #if (oint_symbolflags_shift==oint_addr_shift)
-      # bit(active_bit),bit(dynam_bit),bit(svar_bit) müssen echte Teiler
-      # von varobject_alignment sein:
-      #if (varobject_alignment % bit(active_bit+1)) || (varobject_alignment % bit(dynam_bit+1)) || (varobject_alignment % bit(svar_bit+1))
-        #error "No more room for three bits in a symbol -- Kein Platz für drei Bits in der Adresse eines Symbols!"
-      #endif
+# Bits for Symbols in VAR-Frames:
+# bit(active_bit),bit(dynam_bit),bit(svar_bit) must fit into one uintB:
+#if !((active_bit<intBsize) && (dynam_bit<intBsize) && (svar_bit<intBsize))
+  #error "Symbol bits don't fit in a single byte -- Symbol-Bits passen nicht in ein Byte!"
+#endif
+#ifdef NO_symbolflags
+  # Bits are separatly stored on the Stack as Fixnums.
+  #undef oint_symbolflags_shift
+  #define oint_symbolflags_shift  oint_data_shift
+#else
+  #if (oint_symbolflags_shift==oint_addr_shift)
+    # bit(active_bit),bit(dynam_bit),bit(svar_bit) must be true divisors
+    # of varobject_alignment:
+    #if (varobject_alignment % bit(active_bit+1)) || (varobject_alignment % bit(dynam_bit+1)) || (varobject_alignment % bit(svar_bit+1))
+      #error "No more room for three bits in a symbol -- Kein Platz für drei Bits in der Adresse eines Symbols!"
     #endif
   #endif
-  #define active_bit_o  (active_bit+oint_symbolflags_shift)  # gesetzt: Bindung ist aktiv
-  #define dynam_bit_o   (dynam_bit+oint_symbolflags_shift)   # gesetzt: Bindung ist dynamisch
-  #define svar_bit_o    (svar_bit+oint_symbolflags_shift)    # gesetzt: nächster Parameter ist supplied-p-Parameter für diesen
+#endif
+#define active_bit_o  (active_bit+oint_symbolflags_shift)  # set: binding is active
+#define dynam_bit_o   (dynam_bit+oint_symbolflags_shift)   # set: binding is dynamic
+#define svar_bit_o    (svar_bit+oint_symbolflags_shift)    # set: next parameter is supplied-p-parameter for this
 
-# Offsets für Daten in Frames, über STACK_(Offset) zu adressieren:
-  #define frame_form      2  # EVAL
-  #define frame_closure   2  # APPLY, HANDLER
-  #define frame_anz       1  # VAR, FUN
-  #define frame_SP        1  # IBLOCK, CBLOCK, ITAGBODY, CTAGBODY,
-                             # EVAL, CATCH, UNWIND-PROTECT, HANDLER, DRIVER
-  #define frame_next_env  2  # VAR, FUN, IBLOCK, ITAGBODY
-  #define frame_ctag      2  # CBLOCK, CTAGBODY
-  #define frame_tag       2  # CATCH
-  #define frame_handlers  3  # HANDLER
-  #define frame_name      3  # IBLOCK
-  #define frame_args      3  # APPLY
-  #define frame_bindings  3  # VAR, FUN, ITAGBODY
-# Aufbau einzelner Bindungen in VAR-Frames:
-  #ifdef NO_symbolflags
-    #define varframe_binding_size  3
-    #define varframe_binding_mark   0
-    #define varframe_binding_sym    1
-    #define varframe_binding_value  2
-    #define pushSTACK_symbolwithflags(symbol,flags)  \
-      pushSTACK(symbol); pushSTACK(as_object(as_oint(Fixnum_0) | (oint)(flags)))
-  #else
-    #define varframe_binding_size  2
-    #define varframe_binding_mark   0
-    #define varframe_binding_sym    0
-    #define varframe_binding_value  1
-    #define pushSTACK_symbolwithflags(symbol,flags)  \
-      pushSTACK(as_object(as_oint(symbol) | (oint)(flags)))
-  #endif
+# Offsets for data in Frames, to be addressed via STACK_(Offset)
+#define frame_form      2  # EVAL
+#define frame_closure   2  # APPLY, HANDLER
+#define frame_anz       1  # VAR, FUN
+#define frame_SP        1  # IBLOCK, CBLOCK, ITAGBODY, CTAGBODY,
+                           # EVAL, CATCH, UNWIND-PROTECT, HANDLER, DRIVER
+#define frame_next_env  2  # VAR, FUN, IBLOCK, ITAGBODY
+#define frame_ctag      2  # CBLOCK, CTAGBODY
+#define frame_tag       2  # CATCH
+#define frame_handlers  3  # HANDLER
+#define frame_name      3  # IBLOCK
+#define frame_args      3  # APPLY
+#define frame_bindings  3  # VAR, FUN, ITAGBODY
+# Structure of the different bindings in VAR-Frames:
+#ifdef NO_symbolflags
+  #define varframe_binding_size  3
+  #define varframe_binding_mark   0
+  #define varframe_binding_sym    1
+  #define varframe_binding_value  2
+  #define pushSTACK_symbolwithflags(symbol,flags)  \
+    pushSTACK(symbol); pushSTACK(as_object(as_oint(Fixnum_0) | (oint)(flags)))
+#else
+  #define varframe_binding_size  2
+  #define varframe_binding_mark   0
+  #define varframe_binding_sym    0
+  #define varframe_binding_value  1
+  #define pushSTACK_symbolwithflags(symbol,flags)  \
+    pushSTACK(as_object(as_oint(symbol) | (oint)(flags)))
+#endif
 
-# Spezieller Wert zur Markierung nicht mehr "lebender" BLOCK- und TAGBODY-
-# Referenzen (ersetzt den Frame-Pointer im CDR des entsprechenden Cons)
-  #define disabled  make_system(0xDDDDDDUL)
+# Special value to mark BLOCK- und TAGBODY-references that
+# aren't 'live' anymore (replaces the Frame-Pointer in the CDR of the corresponding Cons)
+#define disabled  make_system(0xDDDDDDUL)
 
-# Wert zur Markierung als special deklarierter Referenzen
-  #define specdecl  make_system(0xECDECDUL)
+# Value to mark specially declared references
+#define specdecl  make_system(0xECDECDUL)
 
-# Hantieren mit Frames:
-# Eine lokale Variable FRAME enthalte den Wert von STACK nach Aufbau
-# eines Frames. Dann kann man mit FRAME_(n) genauso wie mit STACK_(n)
-# zugreifen:
-  #ifdef STACK_DOWN
-    #define FRAME_(n)  (FRAME[(sintP)(n)])
-  #endif
-  #ifdef STACK_UP
-    #define FRAME_(n)  (FRAME[-1-(sintP)(n)])
-  #endif
-# make_framepointer(FRAME) ist der Frame-Pointer als Lisp-Objekt.
+# Handling Frames:
+# A local variable FRAME contains the value of STACK after
+# creating a Frame. Then you can access with FRAME_(n) just
+# with likeSTACK_(n):
+#ifdef STACK_DOWN
+  #define FRAME_(n)  (FRAME[(sintP)(n)])
+#endif
+#ifdef STACK_UP
+  #define FRAME_(n)  (FRAME[-1-(sintP)(n)])
+#endif
+# make_framepointer(FRAME) ist der Frame-Pointer als LISP-object.
 # framecode(FRAME_(0)) ist das Frame-Info-Byte (vom Typ fcint),
 # topofframe(FRAME_(0)) ist ein Pointer über den Frame.
-# FRAME = uTheFramepointer(obj) ist ein Frame-Pointer als Pointer in den Stack.
-#         [uTheFramepointer ist das genaue Gegenteil von make_framepointer.]
-# FRAME = TheFramepointer(obj) ebenfalls, aber evtl. doch noch mit Typinfo!
-#         [Eine Abschwächung von uTheFramepointer, die zum Zugreifen ausreicht.]
-  #ifdef TYPECODES
-    #if !defined(SINGLEMAP_MEMORY_STACK)
-      #define make_framepointer(stack_ptr)  type_pointer_object(system_type,stack_ptr)
-      #define topofframe(bottomword)  (object*)upointer(bottomword)
-      #define uTheFramepointer(obj)  (object*)upointer(obj)
-    #else
-      #define make_framepointer(stack_ptr)  (as_object((oint)(stack_ptr)))
-      #define topofframe(bottomword)  (object*)as_oint(type_pointer_object(system_type,upointer(bottomword)))
-      #define uTheFramepointer(obj)  TheFramepointer(obj) # = (object*)(obj)
-    #endif
-    #define framecode(bottomword)  mtypecode(bottomword)
-    typedef tint fcint;
+# FRAME = uTheFramepointer(obj) is a Frame-Pointer as pointer into the Stack.
+#         [uTheFramepointer ist is the exact opposite of make_framepointer.]
+# FRAME = TheFramepointer(obj) as well, but possibly still with type info!
+#         [An attenuation of uTheFramepointer, that is enough for access.]
+#ifdef TYPECODES
+  #if !defined(SINGLEMAP_MEMORY_STACK)
+    #define make_framepointer(stack_ptr)  type_pointer_object(system_type,stack_ptr)
+    #define topofframe(bottomword)  (object*)upointer(bottomword)
+    #define uTheFramepointer(obj)  (object*)upointer(obj)
   #else
-    # Here the bottomword consists of the frame size, not the top of frame itself.
-    # This leaves room for the frame info byte.
-    #define make_framepointer(stack_ptr)  make_machine(stack_ptr)
-    #ifdef STACK_UP
-      #define topofframe(bottomword)  \
-        (object*)((uintP)(&(bottomword))-(as_oint(bottomword)&(wbit(FB1)-1))+sizeof(object))
-    #endif
-    #ifdef STACK_DOWN
-      #define topofframe(bottomword)  \
-        (object*)((uintP)(&(bottomword))+(as_oint(bottomword)&(wbit(FB1)-1)))
-    #endif
+    #define make_framepointer(stack_ptr)  (as_object((oint)(stack_ptr)))
+    #define topofframe(bottomword)  (object*)as_oint(type_pointer_object(system_type,upointer(bottomword)))
     #define uTheFramepointer(obj)  TheFramepointer(obj) # = (object*)(obj)
-    #define framecode(bottomword)  (as_oint(bottomword) & minus_wbit(FB1))
-    typedef oint fcint;
   #endif
-# wird verwendet von EVAL, CONTROL, DEBUG
-
-# Zur Bestimmung der Größe eines Frames:
-# STACK_item_count(new_STACK_ptr,old_STACK_ptr)
-# berechnet die Anzahl der STACK-Elemente zwischen einem älteren Stackpointer
-# old_STACK_ptr und einem neueren new_STACK_ptr.
-# (Also count mit  old_STACK_ptr = new_STACK_ptr STACKop count .)
-  #ifdef STACK_DOWN
-    #define STACK_item_count(new_STACK_ptr,old_STACK_ptr)  \
-      (uintL)((old_STACK_ptr) - (new_STACK_ptr))
-  #endif
+  #define framecode(bottomword)  mtypecode(bottomword)
+  typedef tint fcint;
+#else
+  # Here the bottomword consists of the frame size, not the top of frame itself.
+  # This leaves room for the frame info byte.
+  #define make_framepointer(stack_ptr)  make_machine(stack_ptr)
   #ifdef STACK_UP
-    #define STACK_item_count(new_STACK_ptr,old_STACK_ptr)  \
-      (uintL)((new_STACK_ptr) - (old_STACK_ptr))
+    #define topofframe(bottomword)  \
+      (object*)((uintP)(&(bottomword))-(as_oint(bottomword)&(wbit(FB1)-1))+sizeof(object))
   #endif
+  #ifdef STACK_DOWN
+    #define topofframe(bottomword)  \
+      (object*)((uintP)(&(bottomword))+(as_oint(bottomword)&(wbit(FB1)-1)))
+  #endif
+  #define uTheFramepointer(obj)  TheFramepointer(obj) # = (object*)(obj)
+  #define framecode(bottomword)  (as_oint(bottomword) & minus_wbit(FB1))
+  typedef oint fcint;
+#endif
+# is used by EVAL, CONTROL, DEBUG
 
-# Beendet einen Frame.
+# To detemine the size of a frame:
+# STACK_item_count(new_STACK_ptr,old_STACK_ptr)
+# calculates the number of STACK-elements between an older stack pointer
+# old_STACK_ptr and a new one new_STACK_ptr.
+# (Also count mit  old_STACK_ptr = new_STACK_ptr STACKop count .)
+#ifdef STACK_DOWN
+  #define STACK_item_count(new_STACK_ptr,old_STACK_ptr)  \
+    (uintL)((old_STACK_ptr) - (new_STACK_ptr))
+#endif
+#ifdef STACK_UP
+  #define STACK_item_count(new_STACK_ptr,old_STACK_ptr)  \
+    (uintL)((new_STACK_ptr) - (old_STACK_ptr))
+#endif
+
+# Finishes a frame.
 # finish_frame(frametype);
-# > object* top_of_frame: Pointer übern Frame
-# erniedrigt STACK um 1
-  #ifdef TYPECODES
-    #if !defined(SINGLEMAP_MEMORY_STACK)
-      #define framebottomword(type,top_of_frame,bot_of_frame)  \
-        type_pointer_object(type,top_of_frame)
-    #else # top_of_frame hat selber schon Typinfo system_type
-      #define framebottomword(type,top_of_frame,bot_of_frame)  \
-        as_object(type_zero_oint(type)-type_zero_oint(system_type)+(oint)(top_of_frame))
-    #endif
-    #define finish_frame(frametype)  \
-      pushSTACK(framebottomword(frametype##_frame_info,top_of_frame,bot_of_frame_ignored))
-  #else
-    #ifdef STACK_UP
-      #define framebottomword(type,top_of_frame,bot_of_frame)  \
-        as_object((oint)(type)+(oint)((uintP)(bot_of_frame)-(uintP)(top_of_frame)))
-    #endif
-    #ifdef STACK_DOWN
-      #define framebottomword(type,top_of_frame,bot_of_frame)  \
-        as_object((oint)(type)+(oint)((uintP)(top_of_frame)-(uintP)(bot_of_frame)))
-    #endif
-    #define finish_frame(frametype)  \
-      (STACK_(-1) = framebottomword(frametype##_frame_info,top_of_frame,STACK STACKop -1), skipSTACK(-1))
+# > object* top_of_frame: pointer to the top of the frame
+# decreases STACK by 1
+#ifdef TYPECODES
+  #if !defined(SINGLEMAP_MEMORY_STACK)
+    #define framebottomword(type,top_of_frame,bot_of_frame)  \
+      type_pointer_object(type,top_of_frame)
+  #else # top_of_frame hat selber schon Typinfo system_type
+    #define framebottomword(type,top_of_frame,bot_of_frame)  \
+      as_object(type_zero_oint(type)-type_zero_oint(system_type)+(oint)(top_of_frame))
   #endif
-# wird verwendet von EVAL, CONTROL
+  #define finish_frame(frametype)  \
+    pushSTACK(framebottomword(frametype##_frame_info,top_of_frame,bot_of_frame_ignored))
+#else
+  #ifdef STACK_UP
+    #define framebottomword(type,top_of_frame,bot_of_frame)  \
+      as_object((oint)(type)+(oint)((uintP)(bot_of_frame)-(uintP)(top_of_frame)))
+  #endif
+  #ifdef STACK_DOWN
+    #define framebottomword(type,top_of_frame,bot_of_frame)  \
+      as_object((oint)(type)+(oint)((uintP)(top_of_frame)-(uintP)(bot_of_frame)))
+  #endif
+  #define finish_frame(frametype)  \
+    (STACK_(-1) = framebottomword(frametype##_frame_info,top_of_frame,STACK STACKop -1), skipSTACK(-1))
+#endif
+# is used by EVAL, CONTROL
 
-# Baut einen Frame für alle 5 Environments
+# Makes a Frame for all 5 Environments
 # make_ENV5_frame();
-# erniedrigt STACK um 5
-  #define make_ENV5_frame()  \
-    {var object* top_of_frame = STACK; \
-     pushSTACK(aktenv.decl_env);       \
-     pushSTACK(aktenv.go_env);         \
-     pushSTACK(aktenv.block_env);      \
-     pushSTACK(aktenv.fun_env);        \
-     pushSTACK(aktenv.var_env);        \
-     finish_frame(ENV5);               \
-    }
-# wird verwendet von EVAL, CONTROL, DEBUG
+# decreases STACK by 5
+#define make_ENV5_frame()  \
+  {var object* top_of_frame = STACK; \
+   pushSTACK(aktenv.decl_env);       \
+   pushSTACK(aktenv.go_env);         \
+   pushSTACK(aktenv.block_env);      \
+   pushSTACK(aktenv.fun_env);        \
+   pushSTACK(aktenv.var_env);        \
+   finish_frame(ENV5);               \
+  }
+# is used by EVAL, CONTROL, DEBUG
 
-# Beendet einen Frame mit Entrypoint und setzt den Einsprungpunkt hierher.
-# finish_entry_frame(frametype,returner,retval_zuweisung,reentry_statement);
-# > object* top_of_frame: Pointer übern Frame
-# > sp_jmp_buf* returner: longjmp-Buffer für Wiedereintritt
-# > retval_zuweisung: Zuweisung des setjmp()-Wertes an eine Variable
-# > reentry_statement: Was sofort nach Wiedereintritt zu tun ist.
+# Finishes a Frame with entry point and places jump-point here.
+# finish_entry_frame(frametype,returner,retval_allocation,reentry_statement);
+# > object* top_of_frame: pointer to the top of the frame
+# > sp_jmp_buf* returner: longjmp-Buffer for re-entry
+# > retval_allocation: allocated of the setjmp()-value to a variable
+# > reentry_statement: what is to be done immediately after re-entry.
 # erniedrigt STACK um 1
-  #define finish_entry_frame(frametype,returner,retval_zuweisung,reentry_statement)  \
-    { pushSTACK(as_object((aint)(returner))); # SP in den Stack                 \
-      pushSTACK(nullobj); # Dummy in den Stack, bis Wiedereintritt erlaubt ist  \
-      begin_setjmp_call();                                                      \
-      if (!((retval_zuweisung setjmpspl(returner))==0)) # Wiedereinspungpunkt herstellen \
-        { end_longjmp_call(); LONGJMP_RESTORE_mv_count(); LONGJMP_RESTORE_value1(); reentry_statement } # nach dem Wiedereintritt \
-        else                                                                    \
-        { end_setjmp_call(); STACK_0 = framebottomword(frametype##_frame_info,top_of_frame,STACK); } \
-    }
-# wird verwendet von EVAL, CONTROL, DEBUG
+#define finish_entry_frame(frametype,returner,retval_allocation,reentry_statement)  \
+  { pushSTACK(as_object((aint)(returner))); # SP onto the Stack               \
+    pushSTACK(nullobj); # dummy onto the Stack, until re-entry is permitted   \
+    begin_setjmp_call();                                                      \
+    if ((retval_allocation setjmpspl(returner))!=0) # set point for returner  \
+      { end_longjmp_call(); LONGJMP_RESTORE_mv_count(); LONGJMP_RESTORE_value1(); reentry_statement } # after re-entry \
+      else                                                                    \
+      { end_setjmp_call(); STACK_0 = framebottomword(frametype##_frame_info,top_of_frame,STACK); } \
+  }
+# is used by EVAL, CONTROL, DEBUG
 
-# Springt einen Frame mit Entrypoint an, der bei STACK beginnt.
-# (Wichtig: Beim Einsprung muss der STACK denselben Wert haben wie beim Aufbau
-# des Frames, da der STACK bei setjmp/longjmp vielleicht gerettet wird!)
-# Kehrt nie zurück und räumt den SP auf!!
-# Die multiple values werden übergeben.
+# Jumps to a Frame with entry point that starts at STACK.
+# (Important: The STACK has to have the same values it had when the
+# frame was created, since the STACK might not be saved at setjmp/longjmp)
+# Never returns and cleans the SP!!
+# The multiple values are passed.
 # enter_frame_at_STACK();
-  #define enter_frame_at_STACK()  \
-    { var sp_jmp_buf* returner = (sp_jmp_buf*)(aint)as_oint(STACK_(frame_SP)); # der returner von finish_entry_frame \
-      LONGJMP_SAVE_value1(); LONGJMP_SAVE_mv_count();                                                                \
-      begin_longjmp_call();                                                                                          \
-      longjmpspl(&!*returner,(aint)returner); # dorthin springen, eigene Adresse (/=0) übergeben                     \
-      NOTREACHED                                                                                                     \
-    }
-# wird verwendet von EVAL
+#define enter_frame_at_STACK() \
+  { var sp_jmp_buf* returner = (sp_jmp_buf*)(aint)as_oint(STACK_(frame_SP)); # der returner von finish_entry_frame \
+    LONGJMP_SAVE_value1(); LONGJMP_SAVE_mv_count(); \
+    begin_longjmp_call(); \
+    longjmpspl(&!*returner,(aint)returner); # jump to there, pass own addess (/=0) \
+    NOTREACHED \
+  }
+# is used by EVAL
 
-# Baut einen HANDLER-Frame mit C-Handler auf.
+# Makes a HANDLER-Frame with C-Handler.
 # make_HANDLER_frame(types_labels_vector_list,handler,sp_arg);
 # make_HANDLER_entry_frame(types_labels_vector_list,handler,returner,reentry_statement);
 # > object types_labels_vector_list: a list containing a simple-vector: (#(type1 label1 ... typem labelm))
 # > handler: void (*) (void* sp, object* frame, object label, object condition)
 # > sp_arg: any void*
-# > sp_jmp_buf* returner: longjmp-Buffer für Wiedereintritt
-# > reentry_statement: Was sofort nach Wiedereintritt zu tun ist.
-  #define make_HANDLER_frame(types_labels_vector_list,handler,sp_arg)  \
-    { var object* top_of_frame = STACK;      \
-      pushSTACK(types_labels_vector_list);   \
-      pushSTACK(make_machine_code(handler)); \
-      pushSTACK(as_object((aint)(sp_arg)));  \
-      finish_frame(HANDLER);                 \
-    }
-  #define make_HANDLER_entry_frame(types_labels_vector_list,handler,returner,reentry_statement)  \
-    { var object* top_of_frame = STACK;                        \
-      pushSTACK(types_labels_vector_list);                     \
-      pushSTACK(make_machine_code(handler));                   \
-      finish_entry_frame(HANDLER,returner,,reentry_statement); \
-    }
-  #define unwind_HANDLER_frame()  skipSTACK(4)
+# > sp_jmp_buf* returner: longjmp-Buffer for re-entry
+# > reentry_statement: what is to be done right after the re-entry.
+#define make_HANDLER_frame(types_labels_vector_list,handler,sp_arg)  \
+  { var object* top_of_frame = STACK;      \
+    pushSTACK(types_labels_vector_list);   \
+    pushSTACK(make_machine_code(handler)); \
+    pushSTACK(as_object((aint)(sp_arg)));  \
+    finish_frame(HANDLER);                 \
+  }
+#define make_HANDLER_entry_frame(types_labels_vector_list,handler,returner,reentry_statement)  \
+  { var object* top_of_frame = STACK;                        \
+    pushSTACK(types_labels_vector_list);                     \
+    pushSTACK(make_machine_code(handler));                   \
+    finish_entry_frame(HANDLER,returner,,reentry_statement); \
+  }
+#define unwind_HANDLER_frame()  skipSTACK(4)
 
-# UP: Wendet eine Funktion auf ihre Argumente an.
+# UP: Applies a function to its arguments.
 # apply(function,args_on_stack,other_args);
-# > function: Funktion
-# > Argumente: args_on_stack Argumente auf dem STACK,
-#              restliche Argumentliste in other_args
-# < STACK: aufgeräumt (d.h. STACK wird um args_on_stack erhöht)
-# < mv_count/mv_space: Werte
-# changes STACK, can trigger GC
-  extern Values apply (object fun, uintC args_on_stack, object other_args);
-# wird verwendet von EVAL, CONTROL, IO, PATHNAME, ERROR
+# > function: function
+# > Argumente: args_on_stack arguments on the STACK,
+#              remaining argument-list in other_args
+# < STACK: cleaned (ie. STACK is increased by args_on_stack)
+# < mv_count/mv_space: values
+# modifies STACK, can trigger GC
+extern Values apply (object fun, uintC args_on_stack, object other_args);
+# is used by EVAL, CONTROL, IO, PATHNAME, ERROR
 
-# UP: Wendet eine Funktion auf ihre Argumente an.
+# UP: Applies a function to its arguments.
 # funcall(function,argcount);
-# > function: Funktion
-# > Argumente: argcount Argumente auf dem STACK
-# < STACK: aufgeräumt (d.h. STACK wird um argcount erhöht)
-# < mv_count/mv_space: Werte
-# changes STACK, can trigger GC
-  extern Values funcall (object fun, uintC argcount);
-# wird verwendet von allen Modulen
+# > function: function
+# > Argumente: argcount arguments on the STACK
+# < STACK: cleaned (ie. STACK is increased by argcount)
+# < mv_count/mv_space: values
+# modifies STACK, can trigger GC
+extern Values funcall (object fun, uintC argcount);
+# is used by allen Modulen
 
-# UP: Wertet eine Form im aktuellen Environment aus.
+# UP: Evaluates a Form in the current Environment.
 # eval(form);
 # > form: Form
 # < mv_count/mv_space: Werte
 # can trigger GC
-  extern Values eval (object form);
-# wird verwendet von CONTROL, DEBUG
+extern Values eval (object form);
+# is used by CONTROL, DEBUG
 
-# UP: Wertet eine Form in einem gegebenen Environment aus.
+# UP: Evaluates a Form in a given Environment.
 # eval_5env(form,var,fun,block,go,decl);
-# > var_env: Wert für VAR_ENV
-# > fun_env: Wert für FUN_ENV
-# > block_env: Wert für BLOCK_ENV
-# > go_env: Wert für GO_ENV
-# > decl_env: Wert für DECL_ENV
+# > var_env: Value for VAR_ENV
+# > fun_env: Value for FUN_ENV
+# > block_env: Value for BLOCK_ENV
+# > go_env: Value for GO_ENV
+# > decl_env: Value for DECL_ENV
 # > form: Form
-# < mv_count/mv_space: Werte
+# < mv_count/mv_space: Values
 # can trigger GC
-  extern Values eval_5env (object form, object var_env, object fun_env, object block_env, object go_env, object decl_env);
-# wird verwendet von
+extern Values eval_5env (object form, object var_env, object fun_env, object block_env, object go_env, object decl_env);
+# is used by
 
-# UP: Wertet eine Form in einem leeren Environment aus.
+# UP: Evaluates a Form in an empty Environment.
 # eval_noenv(form);
 # > form: Form
-# < mv_count/mv_space: Werte
+# < mv_count/mv_space: Values
 # can trigger GC
-  extern Values eval_noenv (object form);
-# wird verwendet von CONTROL, IO, DEBUG, SPVW
+extern Values eval_noenv (object form);
+# is used by CONTROL, IO, DEBUG, SPVW
 
-# UP: Wertet eine Form im aktuellen Environment aus. Nimmt dabei auf
-# *EVALHOOK* und *APPLYHOOK* keine Rücksicht.
+# UP: Evaluates a Form in the current Environment. Doesn't care about
+# *EVALHOOK* and *APPLYHOOK*.
 # eval_no_hooks(form);
 # > form: Form
-# < mv_count/mv_space: Werte
+# < mv_count/mv_space: Values
 # can trigger GC
-  extern Values eval_no_hooks (object form);
-# wird verwendet von CONTROL
+extern Values eval_no_hooks (object form);
+# is used by CONTROL
 
-# UP: bindet *EVALHOOK* und *APPLYHOOK* dynamisch an die gegebenen Werte.
+# UP: bindy *EVALHOOK* and *APPLYHOOK* dynamically to the given values.
 # bindhooks(evalhook_value,applyhook_value);
-# > evalhook_value: Wert für *EVALHOOK*
-# > applyhook_value: Wert für *APPLYHOOK*
-# verändert STACK
-  extern void bindhooks (object evalhook_value, object applyhook_value);
-# wird verwendet von CONTROL
+# > evalhook_value: Value for *EVALHOOK*
+# > applyhook_value: Value for *APPLYHOOK*
+# modifies STACK
+extern void bindhooks (object evalhook_value, object applyhook_value);
+# is used by CONTROL
 
-# UP: Löst einen Frame auf, auf den STACK zeigt.
+# UP: Unwinds a Frame, to which STACK points.
 # unwind();
-# Die Werte mv_count/mv_space bleiben dieselben.
-# Falls es kein Unwind-Protect-Frame ist: kehrt normal zurück.
-# Falls es ein Unwind-Protect-Frame ist:
-#   rettet die Werte, klettert STACK und SP hoch
-#   und springt dann unwind_protect_to_save.fun an.
-# verändert STACK
+# The values mv_count/mv_space aren't changed.
+# If it's no Unwind-Protect-Frame: returns normally.
+# If it is an Unwind-Protect-Frame:
+#   saves the values, climbs up the STACK and SP
+#   and then jumps to unwind_protect_to_save.fun.
+# modifies STACK
 # can trigger GC
-  typedef /* nonreturning */ void (*restart)(object* upto_frame);
-  typedef struct {
-    restart fun;
-    object* upto_frame;
-  } unwind_protect_caller;
-  #ifndef MULTITHREAD
-    extern unwind_protect_caller unwind_protect_to_save;
-  #else
-    #define unwind_protect_to_save  (current_thread()->_unwind_protect_to_save)
-  #endif
-  extern void unwind (void);
-# wird verwendet von CONTROL, DEBUG, SPVW
+typedef /* nonreturning */ void (*restart)(object* upto_frame);
+typedef struct {
+  restart fun;
+  object* upto_frame;
+} unwind_protect_caller;
+#ifndef MULTITHREAD
+  extern unwind_protect_caller unwind_protect_to_save;
+#else
+  #define unwind_protect_to_save  (current_thread()->_unwind_protect_to_save)
+#endif
+extern void unwind (void);
+# is used by CONTROL, DEBUG, SPVW
 
-# UP: "unwindet" den STACK bis zum nächsten DRIVER_FRAME und
-# springt in die entsprechende Top-Level-Schleife.
+# UP: "unwinds" the STACK to the next DRIVER_FRAME and
+# jumps to the corresponding Top-Level-loop
 # reset();
-  nonreturning_function(extern, reset, (void));
-# wird verwendet von SPVW, CONTROL
+nonreturning_function(extern, reset, (void));
+# is used by SPVW, CONTROL
 
-# UP: bindet dynamisch die Symbole der Liste symlist
-# an die Werte aus der Liste vallist.
+# UP: binds the symbolds of the list symlist dynamically
+# to the values of the list vallist.
 # progv(symlist,vallist);
-# > symlist, vallist: zwei Listen
-# Es wird genau ein Variablenbindungsframe aufgebaut.
-# verändert STACK
-  extern void progv (object symlist, object vallist);
-# wird verwendet von CONTROL
+# > symlist, vallist: two lists
+# Exactly one variable-bindings-frame is created.
+# modifies STACK
+extern void progv (object symlist, object vallist);
+# is used by CONTROL
 
-# UP: Löst die dynamische Schachtelung im STACK auf bis zu dem Frame
-# (ausschließlich), auf den upto zeigt, und springt diesen dann an.
+# UP: Unwinds the dynamic nesting on the STACK until the frame
+# (exclusively), to which upto points, and jumps to it.
 # unwind_upto(upto);
-# > upto: Pointer auf einen Frame (in den Stack, ohne Typinfo).
-# Rettet die Werte mv_count/mv_space.
-# verändert STACK,SP
+# > upto: Pointer to a Frame (into the Stack, without type-info).
+# Saves the values mv_count/mv_space.
+# modifies STACK,SP
 # can trigger GC
-# Springt dann den gefundenen Frame an.
-  nonreturning_function(extern, unwind_upto, (object* upto_frame));
-# wird verwendet von CONTROL, DEBUG
+# Jumps to the found Frame.
+nonreturning_function(extern, unwind_upto, (object* upto_frame));
+# is used by CONTROL, DEBUG
 
-# UP: throwt zum Tag tag und übergibt dabei die Werte mv_count/mv_space.
-# Kommt nur dann zurück, wenn es keinen CATCH-Frame dieses Tags gibt.
+# UP: throws to the Tag tag and and passes the values mv_count/mv_space.
+# Only returns, if there is no CATCH-Frame of this tag.
 # throw_to(tag);
-  extern void throw_to (object tag);
-# wird verwendet von CONTROL
+extern void throw_to (object tag);
+# is used by CONTROL
 
-# UP: Ruft alle Handler zur Condition cond auf. Kommt nur zurück, wenn keiner
-# dieser Handler sich zuständig fühlt (d.h. wenn jeder Handler zurückkehrt).
+# UP: Invokes all handlers for the condition cond. Only returns, if none
+# of the handlers feels responsible (ie. if every handler returns).
 # invoke_handlers(cond);
 # can trigger GC
-  extern void invoke_handlers (object cond);
-  typedef struct {
-    object condition;
-    object* stack;
-    SPint* sp;
-    object spdepth;
-  } handler_args_t;
-  #ifndef MULTITHREAD
-    extern handler_args_t handler_args;
-  #else
-    #define handler_args  (current_thread()->_handler_args)
-  #endif
-  typedef struct stack_range {
-    struct stack_range * next;
-    object* low_limit;
-    object* high_limit;
-  } stack_range;
-  #ifndef MULTITHREAD
-    extern stack_range* inactive_handlers;
-  #else
-    #define inactive_handlers  (current_thread()->_inactive_handlers)
-  #endif
-# wird verwendet von ERROR
+extern void invoke_handlers (object cond);
+typedef struct {
+  object condition;
+  object* stack;
+  SPint* sp;
+  object spdepth;
+} handler_args_t;
+#ifndef MULTITHREAD
+  extern handler_args_t handler_args;
+#else
+  #define handler_args  (current_thread()->_handler_args)
+#endif
+typedef struct stack_range {
+  struct stack_range * next;
+  object* low_limit;
+  object* high_limit;
+} stack_range;
+#ifndef MULTITHREAD
+  extern stack_range* inactive_handlers;
+#else
+  #define inactive_handlers  (current_thread()->_inactive_handlers)
+#endif
+# is used by ERROR
 
-# UP: Stellt fest, ob ein Objekt ein Funktionsname, d.h. ein Symbol oder
-# eine Liste der Form (SETF symbol), ist.
+# UP: Determines, whether an Object is a function name, ie. a Symbol or
+# a list of the form (SETF symbol).
 # funnamep(obj)
 # > obj: Objekt
-# < ergebnis: true falls Funktionsname
-  extern bool funnamep (object obj);
-# wird verwendet von CONTROL
+# < result: true if function name
+extern bool funnamep (object obj);
+# is used by CONTROL
 
-# Liefert den zu einem Funktionsnamen gehörigen Block-Namen.
+# Gives the block-name that belongs to the function name.
 # funname_blockname(obj)
-# > obj: ein Symbol oder (SETF symbol)
-# < ergebnis: Blockname, ein Symbol
-  #define funname_blockname(obj)  \
-    (atomp(obj) ? (obj) : Car(Cdr(obj)))
+# > obj: a Symbol or (SETF symbol)
+# < result: Block-name, a Symbol
+#define funname_blockname(obj)  \
+  (atomp(obj) ? (obj) : Car(Cdr(obj)))
 
-# UP: Stellt fest, ob ein Symbol im aktuellen Environment einen Macro darstellt.
+# UP: Determines, whether a Symbol is a Macro in the current Environment.
 # sym_macrop(symbol)
 # > symbol: Symbol
-# < ergebnis: true falls sym einen Symbol-Macro darstellt
-  extern bool sym_macrop (object sym);
-# wird verwendet von CONTROL
+# < result: true if sym is a Symbol-Macro
+extern bool sym_macrop (object sym);
+# is used by CONTROL
 
-# UP: Setzt den Wert eines Symbols im aktuellen Environment.
+# UP: Sets the value of a Symbol in the current Environment.
 # setq(symbol,value);
-# > symbol: Symbol, keine Konstante
-# > value: gewünschter Wert des Symbols im aktuellen Environment
-  extern void setq (object sym, object value);
-# wird verwendet von CONTROL
+# > symbol: Symbol, no constant
+# > value: desired value of the Symbol in the current Environment
+extern void setq (object sym, object value);
+# is used by CONTROL
 
-# UP: Liefert zu einem Symbol seine Funktionsdefinition in einem Environment
+# UP: Gives the definition of the function for a Symbol in an Environment
 # sym_function(sym,fenv)
-# > sym: Funktionsname (z.B. Symbol)
-# > fenv: ein Funktions- und Macrobindungs-Environment
-# < ergebnis: Funktionsdefinition, entweder unbound (falls undefinierte Funktion)
-#             oder Closure/SUBR/FSUBR/Macro/FunctionMacro.
-  extern object sym_function (object sym, object fenv);
-# wird verwendet von CONTROL
+# > sym: name of the function (a Symbol for example)
+# > fenv: a Functions- and Macrobindings-Environment
+# < result: Definition of the function, either unbound (if function is undefined)
+#             or Closure/SUBR/FSUBR/Macro/FunctionMacro.
+extern object sym_function (object sym, object fenv);
+# is used by CONTROL
 
-# UP: "nestet" ein FUN-Environment, d.h. schreibt alle aktiven Bindungen
-# aus dem Stack in neu allozierte Vektoren.
+# UP: "nests" an FUN-Environment, ie. writes all active bidnings
+# from the Stack to freshly allocated Vectors..
 # nest_fun(env)
 # > env: FUN-Env
-# < ergebnis: selbes Environment, kein Pointer in den Stack
+# < result: same Environment, no pointer into the Stack
 # can trigger GC
-  extern object nest_fun (object env);
-# wird verwendet von CONTROL
+extern object nest_fun (object env);
+# is used by CONTROL
 
-# UP: Nestet die Environments in *env (d.h. schreibt alle Informationen in
-# Stack-unabhängige Strukturen) und schiebt sie auf den STACK.
+# UP: Nests the Environments in *env (ie. write al information
+# to Stack-independent structures) and pushes it onto the STACK.
 # nest_env(env)
-# > environment* env: Pointer auf fünf einzelne Environments
-# < environment* ergebnis: Pointer auf die Environments im STACK
-# changes STACK, can trigger GC
-  extern environment* nest_env (environment* env);
-# wird verwendet von Macro nest_aktenv
+# > environment* env: Pointer to five single Environments
+# < environment* result: Pointer to the Environments on the STACK
+# modifies STACK, can trigger GC
+extern environment* nest_env (environment* env);
+# is used by Macro nest_aktenv
 
-# UP: Nestet die aktuellen Environments (d.h. schreibt alle Informationen in
-# Stack-unabhängige Strukturen) und schiebt sie auf den STACK.
-# (Die Werte VAR_ENV, FUN_ENV, BLOCK_ENV, GO_ENV, DECL_ENV werden nicht
-# verändert, da evtl. noch inaktive Bindungen in Frames sitzen, die ohne
-# Veränderung von VAR_ENV aktiviert werden können müssen.)
+# UP: Nests the current environments (ie. writes all information
+# to Stack-independent structures) and pushes them onto the STACK.
+# (The values VAR_ENV, FUN_ENV, BLOCK_ENV, GO_ENV, DECL_ENV aren't
+# modigied, since there might be inactive bidnings in frames that cannot
+# be activated without modifying VAR_ENV .)
 # nest_aktenv()
-# < environment* ergebnis: Pointer auf die Environments im STACK
-# changes STACK, can trigger GC
-  # extern environment* nest_aktenv (void);
-  #define nest_aktenv()  nest_env(&aktenv)
-# wird verwendet von CONTROL
+# < environment* result: Pointer to the Environments on the STACK
+# modifies STACK, can trigger GC
+# extern environment* nest_aktenv (void);
+#define nest_aktenv()  nest_env(&aktenv)
+# is used by CONTROL
 
-# UP: Ergänzt ein Deklarations-Environment um ein decl-spec.
+# UP: Augments a Declarations-Environment with one decl-spec.
 # augment_decl_env(declspec,env)
-# > declspec: Deklarations-Specifier, ein Cons
-# > env: Deklarations-Environment
-# < ergebnis: neues (evtl. augmentiertes) Deklarations-Environment
+# > declspec: Declarations-Specifier, a Cons
+# > env: Declarations-Environment
+# < result: new (possibly augmented) Declarations-Environment
 # can trigger GC
-  extern object augment_decl_env (object new_declspec, object env);
-# wird verwendet von CONTROL
+extern object augment_decl_env (object new_declspec, object env);
+# is used by CONTROL
 
-# UP: expandiert eine Form, falls möglich, (nicht jedoch, wenn FSUBR-Aufruf
-# oder Symbol oder FunctionMacro-Aufruf) in einem Environment
+# UP: expands a Form, if pissible, (but not, if FSUBR-call
+# or Symbol or FunctionMacro-call) in an Environment
 # macroexp(form,venv,fenv);
 # > form: Form
-# > venv: ein Variablen- und Symbolmacro-Environment
-# > fenv: ein Funktions- und Macrobindungs-Environment
-# < value1: die Expansion
-# < value2: NIL, wenn nicht expandiert,
-#           T, wenn expandiert wurde
+# > venv: a Variable- and Symbolmacro-Environment
+# > fenv: a Function- and Macrobindings-Environment
+# < value1: the expansion
+# < value2: NIL, if not expanded,
+#           T, if expanded
 # can trigger GC
-  extern void macroexp (object form, object venv, object fenv);
-# wird verwendet von CONTROL
+extern void macroexp (object form, object venv, object fenv);
+# is used by CONTROL
 
-# UP: expandiert eine Form, falls möglich, (auch, wenn FSUBR-Aufruf oder
-# Symbol, nicht jedoch, wenn FunctionMacro-Aufruf) in einem Environment
+# UP: expands a Form if possible, (also, if FSUBR-call or
+# Symbol, but not if FunctionMacro-call) in an environment
 # macroexp0(form,env);
 # > form: Form
-# > env: ein Macroexpansions-Environment
-# < value1: die Expansion
-# < value2: NIL, wenn nicht expandiert,
-#           T, wenn expandiert wurde
+# > env: a macro-expansion environment
+# < value1: the expansion
+# < value2: NIL, if not expanded,
+#           T, if expanded
 # can trigger GC
-  extern void macroexp0 (object form, object env);
-# wird verwendet von CONTROL
+extern void macroexp0 (object form, object env);
+# is used by CONTROL
 
 # UP: Parse-Declarations-Docstring. Trennt von einer Formenliste diejenigen
 # ab, die als Deklarationen bzw. Dokumentationsstring angesehen werden
@@ -9876,208 +9868,208 @@ typedef struct {
 # < value1: body
 # < value2: Liste der decl-specs
 # < value3: Doc-String oder NIL
-# < ergebnis: true falls eine (COMPILE)-Deklaration vorkam, false sonst
+# < result: true falls eine (COMPILE)-Deklaration vorkam, false sonst
 # can trigger GC
-  extern bool parse_dd (object formlist, object venv, object fenv);
-# wird verwendet von CONTROL
+extern bool parse_dd (object formlist, object venv, object fenv);
+# is used by CONTROL
 
-# UP: Erzeugt zu einem Lambdabody die entsprechende Closure durch Zerlegen
-# der Lambdaliste und eventuelles Macroexpandieren aller Formen.
+# UP: Creates a corresponding Closure for a Lambda-body by disassembling
+# the Lambda-list and possible macro-expanding of all forms.
 # get_closure(lambdabody,name,blockp,env)
 # > lambdabody: (lambda-list {decl|doc} {form})
-# > name: Name, ein Symbol oder (SETF symbol)
-# > blockp: ob ein impliziter BLOCK einzuschieben ist
-# > env: Pointer auf die fünf einzelnen Environments:
+# > name: Name, a Symbol or (SETF symbol)
+# > blockp: whether an implicit BLOCK is to be added
+# > env: Pointer to the five individual environments:
 #        env->var_env = VENV, env->fun_env = FENV,
 #        env->block_env = BENV, env->go_env = GENV,
 #        end->decl_env = DENV.
-# < ergebnis: Closure
+# < result: Closure
 # can trigger GC
-  extern object get_closure (object lambdabody, object name, bool blockp, environment* env);
-# wird verwendet von CONTROL, SYMBOL, PREDTYPE
+extern object get_closure (object lambdabody, object name, bool blockp, environment* env);
+# is used by CONTROL, SYMBOL, PREDTYPE
 
-# UP: Wandelt ein Argument in eine Funktion um.
+# UP: Converts an argument to a function.
 # coerce_function(obj)
-# > obj: Objekt
-# > subr_self: Aufrufer (ein SUBR)
-# < ergebnis: Objekt als Funktion (SUBR oder Closure)
+# > obj: Object
+# > subr_self: caller (a SUBR)
+# < result: Object as function (SUBR or Closure)
 # can trigger GC
-  extern object coerce_function (object obj);
-# wird verwendet von IO, FOREIGN
+extern object coerce_function (object obj);
+# is used by IO, FOREIGN
 
-# Bindet ein Symbol dynamisch an einen Wert.
-# Baut hierzu einen dynamischen Variablenbindungsframe für 1 Variable auf.
+# Binds a Symbol dynamically to a value.
+# Creates a dynamic variablen-bindings frame for 1 variable.
 # dynamic_bind(var,val)
-# > var: ein Symbol
-# > val: der neue Wert
-# verringert STACK um 3 Einträge
-# verändert STACK
-  #define dynamic_bind(variable,val_to_use)  \
-    { var object* top_of_frame = STACK;         \
-      var object sym_to_bind = (variable);      \
-      # Frame aufbauen:                         \
-      pushSTACK(Symbol_value(sym_to_bind));     \
-      pushSTACK(sym_to_bind);                   \
-      finish_frame(DYNBIND);                    \
-      # Wert modifizieren:                      \
-      Symbol_value(sym_to_bind) = (val_to_use); \
-    }
-# wird verwendet von IO, EVAL, DEBUG, ERROR
+# > var: a Symbol
+# > val: the new value
+# decreases STACK by 3 entries
+# modifies STACK
+#define dynamic_bind(variable,val_to_use)  \
+  { var object* top_of_frame = STACK;         \
+    var object sym_to_bind = (variable);      \
+    # Create frame :                          \
+    pushSTACK(Symbol_value(sym_to_bind));     \
+    pushSTACK(sym_to_bind);                   \
+    finish_frame(DYNBIND);                    \
+    # modify value                            \
+    Symbol_value(sym_to_bind) = (val_to_use); \
+  }
+# is used by IO, EVAL, DEBUG, ERROR
 
-# Löst einen dynamischen Variablenbindungsframe für 1 Variable auf.
+# Unbinds a dynamic variable-bindings frame for one variable.
 # dynamic_unbind()
-# erhöht STACK um 3 Einträge
-# verändert STACK
-  #define dynamic_unbind()  \
-    { # Wert zurückschreiben:              \
-      Symbol_value(STACK_(1)) = STACK_(2); \
-      # Frame abbauen:                     \
-      skipSTACK(3);                        \
-    }
-# wird verwendet von IO, DEBUG
+# increases STACK by 3 entries
+# modifies STACK
+#define dynamic_unbind()  \
+  { # write value back:                  \
+    Symbol_value(STACK_(1)) = STACK_(2); \
+    # Frame abbauen:                     \
+    skipSTACK(3);                        \
+  } while(0)
+# is used by IO, DEBUG
 
-# Führt "implizites PROGN" aus.
+# Executes "implicit PROGN" .
 # implicit_progn(body,default)
-# Führt body als implizites PROGN aus. Falls body leer, ist default der Wert.
+# Executes body as implicit PROGN. If the body is empty, the value is the default one.
 # can trigger GC
-  #define implicit_progn(body,default)  \
-    { var object rest = (body);                                          \
-      if atomp(rest)                                                     \
-        { value1 = (default); mv_count=1; } # default als Wert           \
-        else                                                             \
-          do { pushSTACK(Cdr(rest)); eval(Car(rest)); rest=popSTACK(); } \
-             while (consp(rest));                                        \
-    }
-# wird verwendet von EVAL, CONTROL
+#define implicit_progn(body,default)  \
+  { var object rest = (body);                                          \
+    if atomp(rest)                                                     \
+      { value1 = (default); mv_count=1; } # default as value           \
+      else                                                             \
+        do { pushSTACK(Cdr(rest)); eval(Car(rest)); rest=popSTACK(); } \
+           while (consp(rest));                                        \
+  } while(0)
+# is used by EVAL, CONTROL
 
-# Maximalzahl von Parametern in einer Lambdaliste
-# (= Wert von LAMBDA-PARAMETERS-LIMIT - 1)
-  #define lp_limit_1  ((uintL)(bitm(intCsize)-1))
+# Highest number of parameters in a lambda-list
+# (= value of LAMBDA-PARAMETERS-LIMIT - 1)
+#define lp_limit_1  ((uintL)(bitm(intCsize)-1))
 
-# Maximalzahl von Argumenten bei einem Funktionsaufruf
-# (= Wert von CALL-ARGUMENTS-LIMIT - 1)
-  #define ca_limit_1  ((uintL)(bitm(intCsize)-1))
+# Highest number of arguments for a function call
+# (= valze of CALL-ARGUMENTS-LIMIT - 1)
+#define ca_limit_1  ((uintL)(bitm(intCsize)-1))
 
-# Der Macro LISPSPECFORM leitet eine LISP-Special-Form-Deklaration ein.
+# The macro LISPSPECFORM initiates the declaration of a LISP-Special-Form.
 # LISPSPECFORM(name,req_anz,opt_anz,body_flag)
-# > name: C-Name der Funktion und des Symbols.
-# > req_anz: Anzahl der required Parameter
-# > opt_anz: Anzahl der optionalen Parameter
-# > body_flag: body oder nobody, zeigt an, ob &BODY vorhanden
-# Siehe FSUBR.D
-  #define LISPSPECFORM  LISPSPECFORM_B
-# wird verwendet von CONTROL
+# > name: C-name of the function and the Symbol
+# > req_anz: number of required parameters
+# > opt_anz: number of optional parameters
+# > body_flag: body or nobody, depending on whether &BODY exists or not
+# See FSUBR.D
+#define LISPSPECFORM  LISPSPECFORM_B
+# is used by CONTROL
 
-# Der Macro LISPFUN leitet eine LISP-Funktions-Deklaration ein.
+# The macro LISPFUN initiates a declaration of a LISP-Funktions.
 # LISPFUN(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,allow_flag,keywords)
-# > name: der Funktionsname (ein C-Identifier)
-# > req_anz: die Anzahl der required-Parameter (eine Zahl)
-# > opt_anz: die Anzahl der optional-Parameter (eine Zahl)
+# > name: the name of the function (a C-Identifier)
+# > req_anz: number of required parameters (a number)
+# > opt_anz: number of optional parameters (a number)
 # > rest_flag: entweder norest oder rest, zeigt an, ob &REST vorhanden
-# > key_flag: entweder nokey oder key, zeigt an, ob &KEY vorhanden
-# > key_anz: Anzahl der Keyword-Parameter, eine Zahl (0 falls nokey)
-# > allow_flag: entweder noallow oder allow, zeigt an, on &ALLOW-OTHER-KEYS
-#               nach &KEY vorhanden (noallow falls nokey)
-# > keywords: entweder NIL oder ein Ausdruck der Form v(kw(keyword1),...,kw(keywordn))
-#             (NIL falls nokey)
-# Siehe SUBR.D
-  #define LISPFUN  LISPFUN_B
-# wird verwendet von allen Modulen
+# > key_flag: either nokey or key, depending on whether &KEY exists or not
+# > key_anz: number of keyword-parameters, a number (0 if nokey)
+# > allow_flag: either noallow or allow, depending on whether &ALLOW-OTHER-KEYS
+#               exists after &KEY (noallow if nokey)
+# > keywords: eithr NIL or an expression of the form v(kw(keyword1),...,kw(keywordn))
+#             (NIL if nokey)
+# See SUBR.D
+#define LISPFUN  LISPFUN_B
+# is used by all modules
 
-# Der Macro LISPFUNN leitet eine einfache LISP-Funktions-Deklaration ein.
+# The macro LISPFUNN initiates a simple declaration of a LISP-function.
 # LISPFUNN(name,req_anz)
-# > name: der Funktionsname (ein C-Identifier)
-# > req_anz: die (feste) Anzahl der Argumente (eine Zahl)
-# Siehe SUBR.D
-# wird verwendet von allen Modulen
+# > name: the funktion-name (a C-Identifier)
+# > req_anz: the (fixed) number of arguments (a number)
+# See SUBR.D
+# is used by all modules
 
 
 # ##################### CTRLBIBL zu CONTROL.D ############################# #
 
-# Fehler, wenn ein Block bereits verlassen wurde.
+# Error if a block has already been left.
 # fehler_block_left(name);
-# > name: Block-Name
-  nonreturning_function(extern, fehler_block_left, (object name));
-# wird verwendet von EVAL
+# > name: Block-name
+nonreturning_function(extern, fehler_block_left, (object name));
+# is used by EVAL
 
-# Fehlermeldung wegen undefinierter Funktion.
+# Error message for undefined function.
 # fehler_undef_function(caller,symbol);
-# > caller: Aufrufer (ein Symbol)
-# > symbol: Symbol oder (SETF symbol)
-  nonreturning_function(extern, fehler_undef_function, (object caller, object symbol));
-# wird verwendet von PREDTYPE
+# > caller: caller (a Symbol)
+# > symbol: Symbol or (SETF symbol)
+nonreturning_function(extern, fehler_undef_function, (object caller, object symbol));
+# is used by PREDTYPE
 
 # ########################## zu ENCODING.D ################################ #
 
 # Initialize the encodings.
 # init_encodings();
-  extern void init_encodings (void);
-# wird verwendet von SPVW
+extern void init_encodings (void);
+# is used by SPVW
 
 # Initialize the encodings which depend on environment variables.
 # init_dependent_encodings();
-  extern void init_dependent_encodings (void);
-# wird verwendet von SPVW
+extern void init_dependent_encodings (void);
+# is used by SPVW
 
 # Maximum number of bytes needed to form a character, over all encodings.
 # max_bytes_per_chart
-  #ifdef UNICODE
-    #define max_bytes_per_chart  8  # 6 for JAVA, 7 for ISO-2022-KR, 8 for ISO-2022-CN[-EXT]
-  #else
-    #define max_bytes_per_chart  1
-  #endif
-# wird verwendet von STREAM
+#ifdef UNICODE
+  #define max_bytes_per_chart  8  # 6 for JAVA, 7 for ISO-2022-KR, 8 for ISO-2022-CN[-EXT]
+#else
+  #define max_bytes_per_chart  1
+#endif
+# is used by STREAM
 
-# UP: Liefert einen LISP-String mit vorgegebenem Inhalt.
+# UP: Creates a LISP-String with given contents.
 # n_char_to_string(charptr,len,encoding)
-# > char* charptr: Adresse einer Zeichenfolge
-# > uintL len: Länge der Zeichenfolge
+# > char* charptr: address of a character sequence
+# > uintL len: length of the sequence
 # > object encoding: Encoding
-# < ergebnis: Normal-Simple-String mit den len Zeichen ab charptr als Inhalt
+# < result: Normal-Simple-String with len characters starting from charptr as contents
 # can trigger GC
-  #ifdef UNICODE
-    extern object n_char_to_string (const char* charptr, uintL len, object encoding);
-  #else
-    #define n_char_to_string(charptr,len,encoding)  n_char_to_string_(charptr,len)
-    extern object n_char_to_string_ (const char* charptr, uintL len);
-  #endif
-# wird verwendet von PATHNAME
+#ifdef UNICODE
+  extern object n_char_to_string (const char* charptr, uintL len, object encoding);
+#else
+  #define n_char_to_string(charptr,len,encoding)  n_char_to_string_(charptr,len)
+  extern object n_char_to_string_ (const char* charptr, uintL len);
+#endif
+# is used by PATHNAME
 
-# UP: Wandelt einen ASCIZ-String in einen LISP-String um.
+# UP: Converts a ASCIZ-String to a LISP-String.
 # asciz_to_string(asciz,encoding)
 # ascii_to_string(asciz)
 # > char* asciz: ASCIZ-String
-#       (Adresse einer durch ein Nullbyte abgeschlossenen Zeichenfolge)
+#       (address of a null-terminated character-sequence)
 # > object encoding: Encoding
-# < ergebnis: Normal-Simple-String mit der Zeichenfolge (ohne Nullbyte) als Inhalt
+# < result: Normal-Simple-String with the character sequence (sans null-byte) as contents.
 # can trigger GC
-  #ifdef UNICODE
-    extern object asciz_to_string (const char * asciz, object encoding);
-  #else
-    #define asciz_to_string(asciz,encoding)  asciz_to_string_(asciz)
-    extern object asciz_to_string_ (const char * asciz);
-  #endif
-  extern object ascii_to_string (const char * asciz);
-# wird verwendet von SPVW/CONSTSYM, STREAM, PATHNAME, PACKAGE, GRAPH
+#ifdef UNICODE
+  extern object asciz_to_string (const char * asciz, object encoding);
+#else
+  #define asciz_to_string(asciz,encoding)  asciz_to_string_(asciz)
+  extern object asciz_to_string_ (const char * asciz);
+#endif
+extern object ascii_to_string (const char * asciz);
+# is used by SPVW/CONSTSYM, STREAM, PATHNAME, PACKAGE, GRAPH
 
-# UP: Wandelt einen String in einen ASCIZ-String um.
+# UP: Converts a String to a ASCIZ-String.
 # string_to_asciz(obj,encoding)
 # > object obj: String
 # > object encoding: Encoding
-# < ergebnis: Simple-Bit-Vektor mit denselben Zeichen als Bytes und einem
-#             Nullbyte mehr am Schluss
-# < TheAsciz(ergebnis): Adresse der darin enthaltenen Bytefolge
+# < result: Simple-Bit-Vector with the same characters as bytes and one
+#             additional null-byte at the end
+# < TheAsciz(ergebnis): address of the byte-sequence contained in there
 # can trigger GC
-  #ifdef UNICODE
-    extern object string_to_asciz (object obj, object encoding);
-  #else
-    #define string_to_asciz(obj,encoding)  string_to_asciz_(obj)
-    extern object string_to_asciz_ (object obj);
-  #endif
-  #define TheAsciz(obj)  ((char*)(&TheSbvector(obj)->data[0]))
-# wird verwendet von STREAM, PATHNAME
+#ifdef UNICODE
+  extern object string_to_asciz (object obj, object encoding);
+#else
+  #define string_to_asciz(obj,encoding)  string_to_asciz_(obj)
+  extern object string_to_asciz_ (object obj);
+#endif
+#define TheAsciz(obj)  ((char*)(&TheSbvector(obj)->data[0]))
+# is used by STREAM, PATHNAME
 
-# Wandelt einen String in einen ASCIZ-String im C-Stack um.
+# Converts a String to a ASCIZ-String on the C-Stack.
 # with_string_0(string,encoding,asciz,statement);
 # with_sstring_0(simple_string,encoding,asciz,statement);
 # copies the contents of string (which should be a Lisp string) to a safe area
@@ -10120,7 +10112,7 @@ typedef struct {
       FREE_DYNAMIC_ARRAY(ascizvar##_data);                                \
     }}
 #endif
-# wird verwendet von PATHNAME, MISC, FOREIGN
+# is used by PATHNAME, MISC, FOREIGN
 
 # In some foreign modules, we call library functions that can do callbacks.
 # When we pass a parameter to such a library function, maybe it first does a
@@ -10129,58 +10121,58 @@ typedef struct {
 # located in areas that are not moved by garbage collection. The following
 # macro helps achieving this.
 
-# Wandelt einen String in einen String im C-Stack um.
+# Converts a String to a String on the C-Stack.
 # with_string(string,encoding,charptr,len,statement);
 # with_sstring(simple_string,encoding,charptr,len,statement);
 # copies the contents of string (which should be a Lisp string) to a safe area,
 # binds the variable charptr pointing to it and the variable len to its length,
 # and executes the statement.
-  #define with_string(string,encoding,charptrvar,lenvar,statement)  \
-    { var uintL charptrvar##_len;                                           \
-      var uintL charptrvar##_offset;                                        \
-      var object charptrvar##_string = unpack_string_ro(string,&charptrvar##_len,&charptrvar##_offset); \
-      var const chart* ptr1;                                                \
-      unpack_sstring_alloca(charptrvar##_string,charptrvar##_len,charptrvar##_offset, ptr1=); \
-     {var uintL lenvar = cslen(encoding,ptr1,charptrvar##_len);             \
-      var DYNAMIC_ARRAY(charptrvar##_data,uintB,lenvar);                    \
-      cstombs(encoding,ptr1,charptrvar##_len,&charptrvar##_data[0],lenvar); \
-      {var char* charptrvar = (char*) &charptrvar##_data[0];                \
-       statement                                                            \
-      }                                                                     \
-      FREE_DYNAMIC_ARRAY(charptrvar##_data);                                \
-    }}
-  #define with_sstring(string,encoding,charptrvar,lenvar,statement)  \
-    { var object charptrvar##_string = (string);                            \
-      var uintL charptrvar##_len = Sstring_length(charptrvar##_string);     \
-      var const chart* ptr1;                                                \
-      unpack_sstring_alloca(charptrvar##_string,charptrvar##_len,0, ptr1=); \
-     {var uintL lenvar = cslen(encoding,ptr1,charptrvar##_len);             \
-      var DYNAMIC_ARRAY(charptrvar##_data,uintB,lenvar);                    \
-      cstombs(encoding,ptr1,charptrvar##_len,&charptrvar##_data[0],lenvar); \
-      {var char* charptrvar = (char*) &charptrvar##_data[0];                \
-       statement                                                            \
-      }                                                                     \
-      FREE_DYNAMIC_ARRAY(charptrvar##_data);                                \
-    }}
-# wird verwendet von PATHNAME
+#define with_string(string,encoding,charptrvar,lenvar,statement)  \
+  { var uintL charptrvar##_len;                                           \
+    var uintL charptrvar##_offset;                                        \
+    var object charptrvar##_string = unpack_string_ro(string,&charptrvar##_len,&charptrvar##_offset); \
+    var const chart* ptr1;                                                \
+    unpack_sstring_alloca(charptrvar##_string,charptrvar##_len,charptrvar##_offset, ptr1=); \
+   {var uintL lenvar = cslen(encoding,ptr1,charptrvar##_len);             \
+    var DYNAMIC_ARRAY(charptrvar##_data,uintB,lenvar);                    \
+    cstombs(encoding,ptr1,charptrvar##_len,&charptrvar##_data[0],lenvar); \
+    {var char* charptrvar = (char*) &charptrvar##_data[0];                \
+     statement                                                            \
+    }                                                                     \
+    FREE_DYNAMIC_ARRAY(charptrvar##_data);                                \
+  }}
+#define with_sstring(string,encoding,charptrvar,lenvar,statement)  \
+  { var object charptrvar##_string = (string);                            \
+    var uintL charptrvar##_len = Sstring_length(charptrvar##_string);     \
+    var const chart* ptr1;                                                \
+    unpack_sstring_alloca(charptrvar##_string,charptrvar##_len,0, ptr1=); \
+   {var uintL lenvar = cslen(encoding,ptr1,charptrvar##_len);             \
+    var DYNAMIC_ARRAY(charptrvar##_data,uintB,lenvar);                    \
+    cstombs(encoding,ptr1,charptrvar##_len,&charptrvar##_data[0],lenvar); \
+    {var char* charptrvar = (char*) &charptrvar##_data[0];                \
+     statement                                                            \
+    }                                                                     \
+    FREE_DYNAMIC_ARRAY(charptrvar##_data);                                \
+  }}
+# is used by PATHNAME
 
 # ####################### ARRBIBL zu ARRAY.D ############################## #
 
 # ARRAY-TOTAL-SIZE-LIMIT is chosen as large as possible, respecting the
 # constraint that the total-size of any array is a fixnum
 # (>=0, <2^oint_data_len):
-  #define arraysize_limit_1  ((uintL)(bitm(oint_data_len)-1))
+#define arraysize_limit_1  ((uintL)(bitm(oint_data_len)-1))
 
 # ARRAY-RANK-LIMIT is chosen as large as possible, respecting the constraint
 # that the rank of any array is an uintWC:
-  #define arrayrank_limit_1  ((uintL)(bitm(intWCsize)-1))
+#define arrayrank_limit_1  ((uintL)(bitm(intWCsize)-1))
 
 # Function: Copies a simple-vector.
 # copy_svector(vector)
 # > vector: simple-vector
 # < result: fresh simple-vector with the same contents
 # can trigger GC
-  extern object copy_svector (object vector);
+extern object copy_svector (object vector);
 # used by IO
 
 # Function: Copies a simple-bit/byte-vector.
@@ -10188,14 +10180,14 @@ typedef struct {
 # > vector: simple-bit/byte-vector
 # < result: fresh simple-bit/byte-vector with the same contents
 # can trigger GC
-  extern object copy_sbvector (object vector);
+extern object copy_sbvector (object vector);
 # used by RECORD
 
 # Function: Returns the active length of a vector (same as LENGTH).
 # vector_length(vector)
 # > vector: a vector
 # < result: its length
-  extern uintL vector_length (object vector);
+extern uintL vector_length (object vector);
 # used by many modules
 
 # Function: Canonicalizes an array element-type and returns its
@@ -10207,8 +10199,8 @@ typedef struct {
 # (symbols T, BIT, CHARACTER and lists (UNSIGNED-BYTE n)).
 # The result type is a supertype of element_type.
 # can trigger GC
-  extern uintB eltype_code (object element_type);
-# wird verwendet von SEQUENCE
+extern uintB eltype_code (object element_type);
+# is used by SEQUENCE
 
 # Function: Creates a simple-vector with given elements.
 # vectorof(len)
@@ -10217,7 +10209,7 @@ typedef struct {
 # < result: simple-vector containing these objects
 # Pops n objects off STACK.
 # can trigger GC
-  extern object vectorof (uintC len);
+extern object vectorof (uintC len);
 # used by PREDTYPE
 
 # Function: For an indirect array, returns the storage vector and the offset.
@@ -10227,7 +10219,7 @@ typedef struct {
 # > uintL size: size
 # < result: storage vector
 # < index: is incremented by the offset into the storage vector
-  extern object iarray_displace_check (object array, uintL size, uintL* index);
+extern object iarray_displace_check (object array, uintL size, uintL* index);
 # used by IO, CHARSTRG, HASHTABL, PREDTYPE, STREAM, SEQUENCE, AFFI
 
 # Function: For an array, returns the storage vector and the offset.
@@ -10237,14 +10229,14 @@ typedef struct {
 # > uintL size: size
 # < result: storage vector
 # < index: is incremented by the offset into the storage vector
-  extern object array_displace_check (object array, uintL size, uintL* index);
+extern object array_displace_check (object array, uintL size, uintL* index);
 # used by HASHTABL, PREDTYPE, IO, FOREIGN
 
 # Fehlermeldung
 # > STACK_1: Array (meist Vektor)
 # > STACK_0: (fehlerhafter) Index
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(extern, fehler_index_range, (uintL bound));
+nonreturning_function(extern, fehler_index_range, (uintL bound));
 # used by SEQUENCE
 
 # Function: Performs an AREF access.
@@ -10253,46 +10245,46 @@ typedef struct {
 # > index: (already checked) index into the storage vector
 # < result: (AREF storagevector index)
 # can trigger GC (only for element type (UNSIGNED-BYTE 32))
-  extern object storagevector_aref (object storagevector, uintL index);
+extern object storagevector_aref (object storagevector, uintL index);
 # used by IO
 
 # Error when attempting to store an invalid value in an array.
 # fehler_store(array,value);
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(extern, fehler_store, (object array, object value));
+nonreturning_function(extern, fehler_store, (object array, object value));
 # used by SEQUENCE
 
 # Macro: Tests a bit in a simple-bit-vector.
 # if (sbvector_btst(sbvector,index)) ...
 # > sbvector: a simple-bit-vector
 # > index: index (a variable, must be < (length sbvector))
-  #define sbvector_btst(sbvector,index)  \
-    ( # in byte number (index div 8), the bit number 7 - (index mod 8) : \
-     TheSbvector(sbvector)->data[(uintL)(index)/8]                       \
-       & bit((~(uintL)(index)) % 8)                                      \
-    )
+#define sbvector_btst(sbvector,index)  \
+  ( # in byte number (index div 8), the bit number 7 - (index mod 8) : \
+   TheSbvector(sbvector)->data[(uintL)(index)/8]                       \
+     & bit((~(uintL)(index)) % 8)                                      \
+  )
 # used by SEQUENCE, IO
 
 # Macro: Clears a bit in a simple-bit-vector.
 # sbvector_bclr(sbvector,index);
 # > sbvector: a simple-bit-vector
 # > index: index (a variable, must be < (length sbvector))
-  #define sbvector_bclr(sbvector,index)  \
-    ( # in byte number (index div 8), the bit number 7 - (index mod 8) : \
-      TheSbvector(sbvector)->data[(uintL)(index)/8]                      \
-        &= ~bit((~(uintL)(index)) % 8)                                   \
-    )
+#define sbvector_bclr(sbvector,index)  \
+  ( # in byte number (index div 8), the bit number 7 - (index mod 8) : \
+    TheSbvector(sbvector)->data[(uintL)(index)/8]                      \
+      &= ~bit((~(uintL)(index)) % 8)                                   \
+  )
 # used by IO
 
 # Macro: Sets a bit in a simple-bit-vector.
 # sbvector_bset(sbvector,index);
 # > sbvector: a simple-bit-vector
 # > index: index (a variable, must be < (length sbvector))
-  #define sbvector_bset(sbvector,index)  \
-    ( # in byte number (index div 8), the bit number 7 - (index mod 8) : \
-      TheSbvector(sbvector)->data[(uintL)(index)/8]                      \
-        |= bit((~(uintL)(index)) % 8)                                    \
-    )
+#define sbvector_bset(sbvector,index)  \
+  ( # in byte number (index div 8), the bit number 7 - (index mod 8) : \
+    TheSbvector(sbvector)->data[(uintL)(index)/8]                      \
+      |= bit((~(uintL)(index)) % 8)                                    \
+  )
 # used by SEQUENCE, IO
 
 # Function: Returns the element-type of an array.
@@ -10300,7 +10292,7 @@ typedef struct {
 # > array: an array
 # < result: element-type, one of the symbols T, BIT, CHARACTER, or a list
 # can trigger GC
-  extern object array_element_type (object array);
+extern object array_element_type (object array);
 # used by PREDTYPE, IO
 
 # Function: Returns the list of dimensions of an array.
@@ -10308,7 +10300,7 @@ typedef struct {
 # > array: an array
 # < result: list of its dimensions
 # can trigger GC
-  extern object array_dimensions (object array);
+extern object array_dimensions (object array);
 # used by PREDTYPE, IO
 
 # Function: Returns the dimensions of an array and their partial products.
@@ -10316,19 +10308,19 @@ typedef struct {
 # > array: indirect array of rank r
 # > struct { uintL dim; uintL dimprod; } dims_sizes[r]: room for the result
 # < for i=1,...r:  dims_sizes[r-i] = { Dim_i, Dim_i * ... * Dim_r }
-  typedef struct { uintL dim; uintL dimprod; }  array_dim_size;
-  extern void iarray_dims_sizes (object array, array_dim_size* dims_sizes);
+typedef struct { uintL dim; uintL dimprod; }  array_dim_size;
+extern void iarray_dims_sizes (object array, array_dim_size* dims_sizes);
 # used by IO
 
 # Macro: Returns the total-size of an array.
 # array_total_size(array)
 # > array: an array (a variable)
 # < uintL result: its total-size
-  #define array_total_size(array)  \
-    (array_simplep(array)                                                \
-      ? Sarray_length(array) # simple vector: total length               \
-      : TheIarray(array)->totalsize # indirect array: contains totalsize \
-    )
+#define array_total_size(array)  \
+  (array_simplep(array)                                                \
+    ? Sarray_length(array) # simple vector: total length               \
+    : TheIarray(array)->totalsize # indirect array: contains totalsize \
+  )
 # used by ARRAY, SEQUENCE, FOREIGN
 
 # Function: Compares two slices of simple-bit-vectors.
@@ -10339,9 +10331,9 @@ typedef struct {
 # > index2: absolute index into array2
 # > count: number of bits to be compared, > 0
 # < result: true, if both slices are the same, bit for bit, else false.
-  extern bool bit_compare (object array1, uintL index1,
-                              object array2, uintL index2,
-                              uintL bitcount);
+extern bool bit_compare (object array1, uintL index1,
+                            object array2, uintL index2,
+                            uintL bitcount);
 # used by PREDTYPE
 
 # Function: Copies a slice of an array array1 into another array array2.
@@ -10352,7 +10344,7 @@ typedef struct {
 # > index2: start index in dv2
 # > count: number of elements to be copied, > 0
 # can trigger GC
-  extern void elt_copy (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+extern void elt_copy (object dv1, uintL index1, object dv2, uintL index2, uintL count);
 # used by SEQUENCE
 
 # Function: Copies a slice of an array array1 into another array array2 of
@@ -10364,7 +10356,7 @@ typedef struct {
 # > index2: start index in dv2
 # > count: number of elements to be copied, > 0
 # can trigger GC
-  extern void elt_move (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+extern void elt_move (object dv1, uintL index1, object dv2, uintL index2, uintL count);
 # used by SEQUENCE
 
 # Function: Fills a slice of an array with an element.
@@ -10373,7 +10365,7 @@ typedef struct {
 # > index: start index in dv
 # > count: number of elements to be filled
 # < result: true if element does not fit, false when done
-  extern bool elt_fill (object dv, uintL index, uintL count, object element);
+extern bool elt_fill (object dv, uintL index, uintL count, object element);
 # used by SEQUENCE
 
 # Function: Reverses a slice of an array, copying it into another array
@@ -10384,7 +10376,7 @@ typedef struct {
 # > dv2: destination storage-vector
 # > index2: start index in dv2
 # > count: number of elements to be copied, > 0
-  extern void elt_reverse (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+extern void elt_reverse (object dv1, uintL index1, object dv2, uintL index2, uintL count);
 # used by SEQUENCE
 
 # Function: Reverses a slice of an array destructively.
@@ -10392,14 +10384,14 @@ typedef struct {
 # > dv: storage-vector
 # > index: start index in dv
 # > count: number of elements to be reversed, > 0
-  extern void elt_nreverse (object dv, uintL index, uintL count);
+extern void elt_nreverse (object dv, uintL index, uintL count);
 # used by SEQUENCE
 
 # Function: Tests whether an array has a fill-pointer.
 # array_has_fill_pointer_p(array)
 # > array: ein Array
 # < result: true, if it has a fill-pointer, else false.
-  extern bool array_has_fill_pointer_p (object array);
+extern bool array_has_fill_pointer_p (object array);
 # used by SEQUENCE, STREAM, IO
 
 # Function: Allocates a new simple-bit-vector, filled with zeroes.
@@ -10407,7 +10399,7 @@ typedef struct {
 # > uintL len: length of the desired bit-vector (number of bits)
 # < result: fresh simple-bit-vector, filled with zeroes
 # can trigger GC
-  extern object allocate_bit_vector_0 (uintL len);
+extern object allocate_bit_vector_0 (uintL len);
 # used by SEQUENCE
 
 # The following functions work on "semi-simple string"s.
@@ -10422,7 +10414,7 @@ typedef struct {
 # > uintL len: desired length, must be >0
 # < fresh: fresh semi-simple-string of the given length
 # can trigger GC
-  extern object make_ssstring (uintL len);
+extern object make_ssstring (uintL len);
 # used by STREAM, IO
 
 # Function: Adds a character to a semi-simple-string, thereby possibly
@@ -10432,7 +10424,7 @@ typedef struct {
 # > ch: a character
 # < result: the same semi-simple-string
 # can trigger GC
-  extern object ssstring_push_extend (object ssstring, chart ch);
+extern object ssstring_push_extend (object ssstring, chart ch);
 # used by STREAM, IO
 
 # Function: Ensures that a semi-simple-string has at least a given length,
@@ -10440,9 +10432,9 @@ typedef struct {
 # ssstring_extend(ssstring,size)
 # > ssstring: a semi-simple-string
 # > size: desired minimum length
-# < ergebnis: the same semi-simple-string
+# < result: the same semi-simple-string
 # can trigger GC
-  extern object ssstring_extend (object ssstring, uintL needed_len);
+extern object ssstring_extend (object ssstring, uintL needed_len);
 # used by STREAM
 
 # Function: Adds a substring to a semi-simple-string, thereby possibly
@@ -10454,7 +10446,7 @@ typedef struct {
 # > len: the number of characters to be pushed, starting from start
 # < result: the same semi-simple-string
 # can trigger GC
-  extern object ssstring_append_extend (object ssstring, object sstring, uintL start, uintL len);
+extern object ssstring_append_extend (object ssstring, object sstring, uintL start, uintL len);
 # used by STREAM
 
 # The following functions work on "semi-simple byte-vector"s.
@@ -10469,7 +10461,7 @@ typedef struct {
 # > uintL len: length (number of bytes!), must be >0
 # < result: fresh semi-simple byte-vector of the given length
 # can trigger GC
-  extern object make_ssbvector (uintL len);
+extern object make_ssbvector (uintL len);
 # used by IO
 
 # Function: Adds a byte to a semi-simple byte vector, thereby possibly
@@ -10479,53 +10471,53 @@ typedef struct {
 # > b: byte
 # < result: the same semi-simple byte-vector
 # can trigger GC
-  extern object ssbvector_push_extend (object ssbvector, uintB b);
+extern object ssbvector_push_extend (object ssbvector, uintB b);
 # used by IO
 
 # ##################### CHARBIBL zu CHARSTRG.D ############################ #
 
-# Spezielle Characters: (siehe auch oben)
+# Special Characters: (siehe auch oben)
 # #define BEL   7  #  #\Bell
 # #define BS    8  #  #\Backspace
 # #define TAB   9  #  #\Tab
 # #define LF   10  #  #\Linefeed
 # #define CR   13  #  #\Return
 # #define PG   12  #  #\Page
-  #define NL   10  #  #\Newline
-  #define NLstring  "\n"  # C-String, der #\Newline enthält
-  #define ESC  27  #  #\Escape
-  #define ESCstring  "\033"  # C-String, der #\Escape enthält
+#define NL   10  #  #\Newline
+#define NLstring  "\n"  # C-String, der #\Newline enthält
+#define ESC  27  #  #\Escape
+#define ESCstring  "\033"  # C-String, der #\Escape enthält
 
-# Wandelt Byte ch in einen Großbuchstaben
+# Converts Byte ch to upcase
 # up_case(ch)
-  extern chart up_case (chart ch);
-# wird verwendet von IO, PREDTYPE, PATHNAME
+extern chart up_case (chart ch);
+# is used by IO, PREDTYPE, PATHNAME
 
-# Wandelt Byte ch in einen Kleinbuchstaben
+# Converts Byte ch to downcase
 # down_case(ch)
-  extern chart down_case (chart ch);
-# wird verwendet von IO, PATHNAME
+extern chart down_case (chart ch);
+# is used by IO, PATHNAME
 
-# Stellt fest, ob ein Character alphanumerisch ist.
+# Checks whether a Character is alphanumeris.
 # alphanumericp(ch)
 # > ch: Character-Code
-# < ergebnis: true falls alphanumerisch, false sonst.
-  extern bool alphanumericp (chart ch);
-# wird verwendet von IO, PATHNAME
+# < result: true if alphanumeris, else false.
+extern bool alphanumericp (chart ch);
+# is used by IO, PATHNAME
 
-# Stellt fest, ob ein Character ein Graphic-Character ("druckend") ist.
+# Checks, whether a Character is a Graphic-Character ("printing").
 # graphic_char_p(ch)
 # > ch: Character-Code
-# < ergebnis: true falls druckend, false sonst.
-  extern bool graphic_char_p (chart ch);
-# wird verwendet von STREAM, PATHNAME
+# < result: true if printing, else false.
+extern bool graphic_char_p (chart ch);
+# is used by STREAM, PATHNAME
 
 # Returns the screen display width of a character.
 # char_width(ch)
 # > ch: character code
 # < result: number of output columns occupied by ch
-  extern uintL char_width (chart ch);
-# wird verwendet von IO, STREAM
+extern uintL char_width (chart ch);
+# is used by IO, STREAM
 
 # Copies an array of chart to an array of chart.
 # chartcopy(src,dest,len);
@@ -10533,7 +10525,7 @@ typedef struct {
 # > chart* dest: room for characters
 # > uintL len: number of characters to be copied, > 0
 #define chartcopy(src,dest,len) memcpy(dest,src,len*sizeof(chart))
-# wird verwendet von ARRAY, STREAM, LISPARIT
+# is used by ARRAY, STREAM, LISPARIT
 
 #ifdef HAVE_SMALL_SSTRING
 # Copies an array of scint to an array of chart.
@@ -10542,31 +10534,31 @@ typedef struct {
 # > chart* dest: room for normal characters
 # > uintL len: number of characters to be copied, > 0
   extern void scintcopy (const scint* src, chart* dest, uintL len);
-# wird verwendet von ARRAY, STREAM, Macro unpack_sstring_alloca
+# is used by ARRAY, STREAM, Macro unpack_sstring_alloca
 #endif
 
 # Dispatches among Sstring and SmallSstring.
 # SstringDispatch(string,sstring_statement,small_sstring_statement)
 # > string: a simple-string
 # Executes small_sstring_statement if it is a SmallSstring, else sstring_statement.
-  #ifdef HAVE_SMALL_SSTRING
-    #define SstringDispatch(string,sstring_statement,small_sstring_statement)  \
-      if (Record_type(string) == Rectype_Imm_SmallSstring) { small_sstring_statement } else { sstring_statement }
-  #else
-    #define SstringDispatch(string,sstring_statement,small_sstring_statement)  \
-      { sstring_statement }
-  #endif
-# wird verwendet von CHARSTRG, ARRAY, HASHTABL, PACKAGE, PATHNAME, PREDTYPE, STREAM
+#ifdef HAVE_SMALL_SSTRING
+  #define SstringDispatch(string,sstring_statement,small_sstring_statement)  \
+    if (Record_type(string) == Rectype_Imm_SmallSstring) { small_sstring_statement } else { sstring_statement }
+#else
+  #define SstringDispatch(string,sstring_statement,small_sstring_statement)  \
+    { sstring_statement }
+#endif
+# is used by CHARSTRG, ARRAY, HASHTABL, PACKAGE, PATHNAME, PREDTYPE, STREAM
 
 # Tests whether a simple-string is a normal-simple-string.
 # sstring_normal_p(string)
 # > string: a simple-string
-  #ifdef HAVE_SMALL_SSTRING
-    #define sstring_normal_p(string)  \
-      (!(Record_type(string) == Rectype_Imm_SmallSstring))
-  #else
-    #define sstring_normal_p(string)  1
-  #endif
+#ifdef HAVE_SMALL_SSTRING
+  #define sstring_normal_p(string)  \
+    (!(Record_type(string) == Rectype_Imm_SmallSstring))
+#else
+  #define sstring_normal_p(string)  1
+#endif
 
 # Makes a string contents available.
 # unpack_sstring_alloca(string,len,offset, charptr = );
@@ -10575,207 +10567,208 @@ typedef struct {
 # > uintL offset: where the characters to be accessed start
 # < const chart* charptr: pointer to the characters
 #   (may be in string, may be on the stack)
-  #define unpack_sstring_alloca(string,len,offset,charptr_assignment)  \
-    SstringDispatch(string,                                                              \
-      { charptr_assignment (const chart*) &TheSstring(string)->data[offset]; },          \
-      { var chart* _unpacked_ = (chart*)alloca((len)*sizeof(chart));                     \
-        if ((len) > 0) scintcopy(&TheSmallSstring(string)->data[offset],_unpacked_,len); \
-        charptr_assignment (const chart*) _unpacked_;                                    \
-      });
-# wird verwendet von
+#define unpack_sstring_alloca(string,len,offset,charptr_assignment)           \
+  SstringDispatch(string,                                                     \
+    { charptr_assignment (const chart*) &TheSstring(string)->data[offset]; }, \
+    { var chart* _unpacked_ = (chart*)alloca((len)*sizeof(chart));            \
+      if ((len) > 0)                                                          \
+        scintcopy(&TheSmallSstring(string)->data[offset],_unpacked_,len);     \
+      charptr_assignment (const chart*) _unpacked_;                           \
+    });
+# is used by
 
-# UP: unpack a string
+# UP: verfolgt einen String.
 # unpack_string_rw(string,&len)  [for read-write access]
-# > object string: a string
-# < uintL len: the fill-pointer length of the string
-# < chart* result: the beginning of the characters
-  extern chart* unpack_string_rw (object string, uintL* len);
-# wird verwendet von AFFI
+# > object string: ein String.
+# < uintL len: Anzahl der Zeichen des Strings.
+# < chart* result: Anfangsadresse der Characters
+extern chart* unpack_string_rw (object string, uintL* len);
+# is used by AFFI
 
-# UP: unpack a string
+# UP: verfolgt einen String.
 # unpack_string_ro(string,&len,&offset)  [for read-only access]
-# > object string: a string
-# < uintL len: the fill-pointer length of the string
-# < uintL offset: offset into the datastorage vector
-# < object result: datastorage vector
-  extern object unpack_string_ro (object string, uintL* len, uintL* offset);
-# wird verwendet von STREAM, HASHTABL, PACKAGE, SEQUENCE, ENCODING
+# > object string: ein String.
+# < uintL len: Anzahl der Zeichen des Strings.
+# < uintL offset: Offset in den Datenvektor.
+# < object result: Datenvektor
+extern object unpack_string_ro (object string, uintL* len, uintL* offset);
+# is used by STREAM, HASHTABL, PACKAGE, SEQUENCE, ENCODING
 
-# UP: vergleicht zwei Strings auf Gleichheit
+# UP: tests two Strings for equality
 # string_gleich(string1,string2)
 # > string1: String
 # > string2: simple-string
-# < ergebnis: /=0, wenn gleich
-  extern bool string_gleich (object string1, object string2);
-# wird verwendet von PACKAGE, STREAM, IO
+# < result: /=0, if equal
+extern bool string_gleich (object string1, object string2);
+# is used by PACKAGE, STREAM, IO
 
-# UP: vergleicht zwei Strings auf Gleichheit, case-insensitive
+# UP: tests two Strings for equality, case-insensitive
 # string_equal(string1,string2)
 # > string1: String
 # > string2: simple-string
-# < ergebnis: /=0, wenn gleich
-  extern bool string_equal (object string1, object string2);
-# wird verwendet von IO, PATHNAME
+# < result: /=0, if equal
+extern bool string_equal (object string1, object string2);
+# is used by IO, PATHNAME
 
 #ifdef UNICODE
-# UP: Bildet einen Simple-String mit gegebenen Elementen.
+# UP: Creates a Simple-String with given elements.
 # stringof(len)
-# > uintL len: gewünschte Vektorlänge
-# > auf STACK: len Characters, erstes zuoberst
-# < ergebnis: Simple-String mit diesen Objekten
+# > uintL len: desired length of vector
+# > on STACK: len Characters, first one on top
+# < result: Simple-String with these objects
 # Erhöht STACK
-# changes STACK, can trigger GC
+# modifies STACK, can trigger GC
   extern object stringof (uintL len);
-# wird verwendet von ENCODING, STREAM
+# is used by ENCODING, STREAM
 #endif
 
-# UP: kopiert einen String und macht dabei einen Simple-String draus.
+# UP: copies a String and turns it into a Simple-String.
 # copy_string(string)
 # > string: String
-# < ergebnis: mutable Normal-Simple-String mit denselben Zeichen
+# < result: mutable Normal-Simple-String with the same characters
 # can trigger GC
-  extern object copy_string (object string);
-# wird verwendet von IO, PATHNAME
+extern object copy_string (object string);
+# is used by IO, PATHNAME
 
-# UP: wandelt einen String in einen Simple-String um.
+# UP: Converts a String to a Simple-String.
 # coerce_ss(obj)
-# > obj: Lisp-Objekt, sollte ein String sein.
-# < ergebnis: Simple-String mit denselben Zeichen
+# > obj: Lisp-Object, should be a String.
+# < result: Simple-String with the same characters.
 # can trigger GC
-  extern object coerce_ss (object obj);
-# wird verwendet von STREAM, PATHNAME
+extern object coerce_ss (object obj);
+# is used by STREAM, PATHNAME
 
-# UP: wandelt einen String in einen immutablen Simple-String um.
+# UP: Converts a String to a immutable Simple-String.
 # coerce_imm_ss(obj)
-# > obj: Lisp-Objekt, sollte ein String sein.
-# < ergebnis: immutabler Simple-String mit denselben Zeichen
+# > obj: Lisp-Object, should be a String.
+# < result: immutable Simple-String with the same characters.
 # can trigger GC
-  #ifdef TYPECODES
-    #define coerce_imm_ss coerce_ss
-  #else
-    extern object coerce_imm_ss (object obj);
-  #endif
-# wird verwendet von PACKAGE
+#ifdef TYPECODES
+  #define coerce_imm_ss coerce_ss
+#else
+  extern object coerce_imm_ss (object obj);
+#endif
+# is used by PACKAGE
 
-# UP: wandelt einen String in einen Normal-Simple-String um.
+# UP: Converts a String to a Normal-Simple-String.
 # coerce_normal_ss(obj)
-# > obj: Lisp-Objekt, sollte ein String sein.
-# < ergebnis: Normal-Simple-String mit denselben Zeichen
+# > obj: Lisp-Object, should be a String.
+# < result: Normal-Simple-String with the same characters.
 # can trigger GC
-  #ifndef HAVE_SMALL_SSTRING
-    #define coerce_normal_ss coerce_ss
-  #else
-    extern object coerce_normal_ss (object obj);
-  #endif
-# wird verwendet von PATHNAME
+#ifndef HAVE_SMALL_SSTRING
+  #define coerce_normal_ss coerce_ss
+#else
+  extern object coerce_normal_ss (object obj);
+#endif
+# is used by PATHNAME
 
 #if 0 # unused
-# UP: wandelt einen String in einen immutablen Normal-Simple-String um.
+# UP: converts a String to a immutable Normal-Simple-String.
 # coerce_imm_normal_ss(obj)
-# > obj: Lisp-Objekt, sollte ein String sein.
-# < ergebnis: immutabler Normal-Simple-String mit denselben Zeichen
+# > obj: Lisp-Object, should be a String.
+# < result: immutable Normal-Simple-String with the same characters
 # can trigger GC
   #ifndef HAVE_SMALL_SSTRING
     #define coerce_imm_normal_ss coerce_imm_ss
   #else
     extern object coerce_imm_normal_ss (object obj);
   #endif
-# wird verwendet von
+# is used by
 #endif
 
-# UP: Konversion eines Objekts zu einem Character
+# UP: Converts Object to a Character
 # coerce_char(obj)
-# > obj: Lisp-Objekt
-# < ergebnis: Character oder NIL
-  extern object coerce_char (object obj);
-# wird verwendet von PREDTYPE
+# > obj: Lisp-Object
+# < result: Character or NIL
+extern object coerce_char (object obj);
+# is used by PREDTYPE
 
-# UP: Liefert den Namen eines Zeichens.
+# UP: Returns the name of a character
 # char_name(code)
-# > chart code: Code eines Zeichens
-# < ergebnis: Simple-String (Name dieses Zeichens) oder NIL
+# > chart code: Code of a character
+# < result: Simple-String (this char's name) or NIL
 # can trigger GC
-  extern object char_name (chart code);
-# wird verwendet von IO
+extern object char_name (chart code);
+# is used by IO
 
 # UP: Bestimmt das Character mit einem gegebenen Namen
 # name_char(string)
 # > string: String
-# < ergebnis: Character mit diesem Namen, oder NIL falls keins existiert
-  extern object name_char (object string);
-# wird verwendet von IO
+# < result: Character mit diesem Namen, oder NIL falls keins existiert
+extern object name_char (object string);
+# is used by IO
 
-# UP: Überprüft die Grenzen für ein String-Argument
+# UP: tests the limits for a String argument
 # test_string_limits_ro(&arg)  [for read-only access]
 # > STACK_2: String-Argument
-# > STACK_1: optionales :start-Argument
-# > STACK_0: optionales :end-Argument
-# > subr_self: Aufrufer (ein SUBR)
+# > STACK_1: optional :start-Argument
+# > STACK_0: optional :end-Argument
+# > subr_self: caller (a SUBR)
 # < stringarg arg: description of the argument
 # < result: String-Argument
 # erhöht STACK um 3
-  typedef struct stringarg {
-    object string; # Datenvektor, a simple-string
-    uintL offset;  # offset into this string
-    uintL index;   # :start index
-    uintL len;     # :end - :start
-  } stringarg;
-  extern object test_string_limits_ro (stringarg* arg);
-# wird verwendet von STREAM, PATHNAME, IO
+typedef struct stringarg {
+  object string; # data vectoe, a simple-string
+  uintL offset;  # offset into this string
+  uintL index;   # :start index
+  uintL len;     # :end - :start
+} stringarg;
+extern object test_string_limits_ro (stringarg* arg);
+# is used by STREAM, PATHNAME, IO
 
-# UP: vergleicht zwei gleichlange Strings auf Gleichheit
-# > string1,offset1: Ab hier kommen die angesprochenen Characters im String1
-# > string2,offset2: Ab hier kommen die angesprochenen Characters im String2
-# > len: Anzahl der angesprochenen Characters in String1 und in String2, > 0
-# < ergebnis: true falls gleich, false sonst.
-  extern bool string_eqcomp (object string1, uintL offset1, object string2, uintL offset2, uintL len);
-# wird verwendet von PREDTYPE
+# UP: tests two equally long strings for equality
+# > string1,offset1: Chars in String1 start from here
+# > string2,offset2: Chars in String2 start from here
+# > len: number of chars in String1 and String2, > 0
+# < result: true if equal, else false.
+extern bool string_eqcomp (object string1, uintL offset1, object string2, uintL offset2, uintL len);
+# is used by PREDTYPE
 
-# UP: vergleicht zwei gleichlange Strings auf Gleichheit, case-insensitive
-# > string1,offset1: Ab hier kommen die angesprochenen Characters im String1
-# > string2,offset2: Ab hier kommen die angesprochenen Characters im String2
-# > len: Anzahl der angesprochenen Characters in String1 und in String2, > 0
-# < ergebnis: true falls gleich, false sonst.
-  extern bool string_eqcomp_ci (object string1, uintL offset1, object string2, uintL offset2, uintL len);
-# wird verwendet von PREDTYPE
+# UP: compares two equally long strings, case-insensitive
+# > string1,offset1: Chars in String1 start from here
+# > string2,offset2: Chars in String2 start from here
+# > len: number of chars in String1 and String2, > 0
+# < result: true if equal, else false.
+extern bool string_eqcomp_ci (object string1, uintL offset1, object string2, uintL offset2, uintL len);
+# is used by PREDTYPE
 
-# UP: wandelt die Characters eines Stringstücks in Großbuchstaben
+# UP: converts the Characters of a partial string to downcase
 # nstring_upcase(charptr,len);
-# > chart* charptr: Ab hier kommen die angesprochenen Characters
-# > uintL len: Anzahl der angesprochenen Characters
-  extern void nstring_upcase (chart* charptr, uintL len);
-# wird verwendet von
+# > chart* charptr: Characters start from here on
+# > uintL len: number of characters
+extern void nstring_upcase (chart* charptr, uintL len);
+# is used by
 
-# UP: wandelt die Characters eines Stringstücks in Kleinbuchstaben
+# UP: converts the Characters of a partial string to downcase
 # nstring_downcase(charptr,len);
-# > chart* charptr: Ab hier kommen die angesprochenen Characters
-# > uintL len: Anzahl der angesprochenen Characters
-  extern void nstring_downcase (chart* charptr, uintL len);
-# wird verwendet von PATHNAME
+# > chart* charptr: Characters start from here on
+# > uintL len: number of characters
+extern void nstring_downcase (chart* charptr, uintL len);
+# is used by PATHNAME
 
-# UP: wandelt die Worte eines Stringstücks in solche, die
-# mit Großbuchstaben anfangen und mit Kleinbuchstaben weitergehen.
+# UP: changes the words of a part of a string so they start
+# with capital letters and continue with downcase ones
 # nstring_capitalize(charptr,len);
-# > chart* charptr: Ab hier kommen die angesprochenen Characters
-# > uintL len: Anzahl der angesprochenen Characters
-  extern void nstring_capitalize (chart* charptr, uintL len);
-# wird verwendet von PATHNAME
+# > chart* charptr: the Characters start from here
+# > uintL len: number of characters
+extern void nstring_capitalize (chart* charptr, uintL len);
+# is used by PATHNAME
 
-# UP: wandelt einen String in Großbuchstaben
+# UP: converts a String to upcase
 # string_upcase(string)
 # > string: String
-# < ergebnis: neuer Normal-Simple-String, in Großbuchstaben
+# < result: new Normal-Simple-String, in upcase
 # can trigger GC
-  extern object string_upcase (object string);
-# wird verwendet von MISC, PATHNAME
+extern object string_upcase (object string);
+# is used by MISC, PATHNAME
 
-# UP: wandelt einen String in Kleinbuchstaben
+# UP: converts a String to downcase
 # string_downcase(string)
 # > string: String
-# < ergebnis: neuer Normal-Simple-String, in Kleinbuchstaben
+# < result: new Normal-Simple-String, in downcase
 # can trigger GC
-  extern object string_downcase (object string);
-# wird verwendet von PATHNAME
+extern object string_downcase (object string);
+# is used by PATHNAME
 
 # Returns a substring of a simple-string.
 # subsstring(string,start,end)
@@ -10784,53 +10777,53 @@ typedef struct {
 # > uintL end: end index
 # with 0 <= start <= end <= Sstring_length(string)
 # < object result: (subseq string start end), a freshly created normal-simple-string
-  extern object subsstring (object string, uintL start, uintL end);
-# wird verwendet von CHARSTRG, PATHNAME
+extern object subsstring (object string, uintL start, uintL end);
+# is used by CHARSTRG, PATHNAME
 
-# UP: bildet einen aus mehreren Strings zusammengehängten String.
+# UP: Concatenates several Strings to one String.
 # string_concat(argcount)
-# > uintC argcount: Anzahl der Argumente
-# > auf dem STACK: die Argumente (sollten Strings sein)
-# > subr_self: Aufrufer (ein SUBR) (unnötig, falls alle Argumente Strings sind)
-# < ergebnis: Gesamtstring, neu erzeugt
-# < STACK: aufgeräumt
+# > uintC argcount: Number of arguments
+# > on STACK: the argument (should be Strings)
+# > subr_self: caller (a SUBR) (not required, if all arguments are strings)
+# < result: newly created string
+# < STACK: cleaned
 # can trigger GC
-  extern object string_concat (uintC argcount);
-# wird verwendet von PACKAGE, PATHNAME, DEBUG, SYMBOL
+extern object string_concat (uintC argcount);
+# is used by PACKAGE, PATHNAME, DEBUG, SYMBOL
 
 # ###################### DEBUGBIB zu DEBUG.D ############################ #
 
-# Startet den normalen Driver (Read-Eval-Print-Loop)
+# Starts the normal driver (Read-Eval-Print-Loop)
 # driver();
-  extern void driver (void);
-# wird verwendet von SPVW
+extern void driver (void);
+# is used by SPVW
 
-# Startet einen untergeordneten Driver (Read-Eval-Print-Loop)
+# Starts a secondary driver (Read-Eval-Print-Loop)
 # break_driver(continuable);
-# > continuable: Flag, ob nach Beendigung des Drivers fortgefahren werden kann.
+# > continuable: Flag, whether it can be continued after the driver finishes.
 # can trigger GC
-  extern void break_driver (object continuable);
-# wird verwendet von ERROR, EVAL
+extern void break_driver (object continuable);
+# is used by ERROR, EVAL
 
 # ##################### HASHBIBL zu HASHTABL.D ########################## #
 
-# UP: Sucht ein Objekt in einer Hash-Tabelle.
+# UP: Gets the hash of an object from a hash-table.
 # gethash(obj,ht)
-# > obj: Objekt, als Key
-# > ht: Hash-Tabelle
-# < ergebnis: zugehöriger Value, falls gefunden, nullobj sonst
-  extern object gethash (object obj, object ht);
-# wird verwendet von EVAL, RECORD, PATHNAME, FOREIGN
+# > obj: Object, as key
+# > ht: hash-table
+# < result: corresponding value, if found, else nullobj
+extern object gethash (object obj, object ht);
+# is used by EVAL, RECORD, PATHNAME, FOREIGN
 
-# UP: Sucht ein Key in einer Hash-Tabelle und liefert den vorigen Wert.
+# UP: Locates a key in a hash-table and gives the older value.
 # shifthash(ht,obj,value) == (SHIFTF (GETHASH obj ht) value)
-# > ht: Hash-Tabelle
-# > obj: Objekt
-# > value: neuer Wert
-# < ergebnis: alter Wert
+# > ht: hash-table
+# > obj: object
+# > value: new value
+# < result: old value
 # can trigger GC
-  extern object shifthash (object ht, object obj, object value);
-# wird verwendet von SEQUENCE, PATHNAME, FOREIGN
+extern object shifthash (object ht, object obj, object value);
+# is used by SEQUENCE, PATHNAME, FOREIGN
 
 # Macro: Durchläuft eine Hash-Tabelle.
 # map_hashtable(ht,key,value,statement)
@@ -10838,170 +10831,170 @@ typedef struct {
 # > ht: Hash-Tabelle
 # Ruft statement auf, wobei key und value jeweils ein Paar aus der Tabelle
 # sind. Die erste Form ist nötig, wenn das statement GC auslösen kann.
-  #define map_hashtable(ht,key,value,statement)  \
-    { var object ht_from_map_hashtable = (ht);                              \
-      var uintL index_from_map_hashtable =                                  \
-        2*posfixnum_to_L(TheHashtable(ht_from_map_hashtable)->ht_maxcount); \
-      pushSTACK(TheHashtable(ht_from_map_hashtable)->ht_kvtable);           \
-      loop                                                                  \
-        { if (index_from_map_hashtable==0) break;                           \
-          index_from_map_hashtable -= 2;                                    \
-          { var object* KVptr_from_map_hashtable = &TheSvector(STACK_0)->data[index_from_map_hashtable]; \
-            var object key = KVptr_from_map_hashtable[0];                   \
-            if (!eq(key,unbound))                                           \
-              { var object value = KVptr_from_map_hashtable[1];             \
-                statement;                                                  \
-        } }   }                                                             \
-      skipSTACK(1);                                                         \
-    }
-  #define map_hashtable_nogc(ht,key,value,statement)  \
-    { var object ht_from_map_hashtable = (ht);                              \
-      var uintL index_from_map_hashtable =                                  \
-        posfixnum_to_L(TheHashtable(ht_from_map_hashtable)->ht_maxcount);   \
-      var object* KVptr_from_map_hashtable =                                \
-        &TheSvector(TheHashtable(ht_from_map_hashtable)->ht_kvtable)->data[2*index_from_map_hashtable]; \
-      loop                                                                  \
-        { if (index_from_map_hashtable==0) break;                           \
-          index_from_map_hashtable--; KVptr_from_map_hashtable -= 2;        \
-          { var object key = KVptr_from_map_hashtable[0];                   \
-            if (!eq(key,unbound))                                           \
-              { var object value = KVptr_from_map_hashtable[1];             \
-                statement;                                                  \
-        } }   }                                                             \
-    }
-# wird verwendet von IO
+#define map_hashtable(ht,key,value,statement)  \
+  { var object ht_from_map_hashtable = (ht);                              \
+    var uintL index_from_map_hashtable =                                  \
+      2*posfixnum_to_L(TheHashtable(ht_from_map_hashtable)->ht_maxcount); \
+    pushSTACK(TheHashtable(ht_from_map_hashtable)->ht_kvtable);           \
+    loop                                                                  \
+      { if (index_from_map_hashtable==0) break;                           \
+        index_from_map_hashtable -= 2;                                    \
+        { var object* KVptr_from_map_hashtable = &TheSvector(STACK_0)->data[index_from_map_hashtable]; \
+          var object key = KVptr_from_map_hashtable[0];                   \
+          if (!eq(key,unbound))                                           \
+            { var object value = KVptr_from_map_hashtable[1];             \
+              statement;                                                  \
+      } }   }                                                             \
+    skipSTACK(1);                                                         \
+  }
+#define map_hashtable_nogc(ht,key,value,statement)  \
+  { var object ht_from_map_hashtable = (ht);                              \
+    var uintL index_from_map_hashtable =                                  \
+      posfixnum_to_L(TheHashtable(ht_from_map_hashtable)->ht_maxcount);   \
+    var object* KVptr_from_map_hashtable =                                \
+      &TheSvector(TheHashtable(ht_from_map_hashtable)->ht_kvtable)->data[2*index_from_map_hashtable]; \
+    loop                                                                  \
+      { if (index_from_map_hashtable==0) break;                           \
+        index_from_map_hashtable--; KVptr_from_map_hashtable -= 2;        \
+        { var object key = KVptr_from_map_hashtable[0];                   \
+          if (!eq(key,unbound))                                           \
+            { var object value = KVptr_from_map_hashtable[1];             \
+              statement;                                                  \
+      } }   }                                                             \
+  }
+# is used by IO
 
 # ######################### IOBIBL zu IO.D ############################## #
 
 # spezielles Objekt, das EOF anzeigt
-  #define eof_value  make_system(0xE0FE0FUL)
-# wird verwendet von IO, STREAM, DEBUG, SPVW
+#define eof_value  make_system(0xE0FE0FUL)
+# is used by IO, STREAM, DEBUG, SPVW
 
-# Hilfswert zum Erkennen einzelner Dots
-  #define dot_value  make_system(0xD0DD0DUL)
-# wird verwendet von IO, SPVW
+# aux. value to recognize certain Dots
+#define dot_value  make_system(0xD0DD0DUL)
+# is used by IO, SPVW
 
-# UP: Initialisiert den Reader.
+# UP: Initializes the reader.
 # init_reader();
 # can trigger GC
-  extern void init_reader (void);
-# wird verwendet von SPVW
+extern void init_reader (void);
+# is used by SPVW
 
-# UP: Liest ein Objekt ein.
+# UP: Reads on object.
 # stream_read(&stream,recursive-p,whitespace-p)
-# > recursive-p: gibt an, ob rekursiver Aufruf von READ, mit Error bei EOF
-# > whitespace-p: gibt an, ob danach whitespace zu verbrauchen ist
+# > recursive-p: tells whether there's a recursive call of READ, with error at EOF
+# > whitespace-p: tells, whether whitespace is to be consumed afterwards
 # > stream: Stream
 # < stream: Stream
-# < ergebnis: gelesenes Objekt (eof_value bei EOF, dot_value bei einzelnem Punkt)
+# < result: read object (eof_value at EOF, dot_value for single dot)
 # can trigger GC
-  extern object stream_read (const object* stream_, object recursive_p, object whitespace_p);
-# wird verwendet von SPVW, DEBUG
+extern object stream_read (const object* stream_, object recursive_p, object whitespace_p);
+# is used by SPVW, DEBUG
 
-# UP: Gibt einen Simple-String elementweise auf einen Stream aus.
+# UP: Write a Simple-String to a Stream element by element.
 # write_sstring(&stream,string);
 # > string: Simple-String
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-  extern void write_sstring (const object* stream_, object string);
-# wird verwendet von EVAL, DEBUG, ERROR, PACKAGE, SPVW
+extern void write_sstring (const object* stream_, object string);
+# is used by EVAL, DEBUG, ERROR, PACKAGE, SPVW
 
-# UP: Gibt einen String elementweise auf einen Stream aus.
+# UP: Writes a String to a Stream element by element.
 # write_string(&stream,string);
 # > string: String
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-  extern void write_string (const object* stream_, object string);
-# wird verwendet von PACKAGE, DEBUG
+extern void write_string (const object* stream_, object string);
+# is used by PACKAGE, DEBUG
 
-# UP: Gibt ein Objekt auf einen Stream aus.
+# UP: Writes an opbject to a Stream.
 # prin1(&stream,obj);
 # > obj: Objekt
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-  extern void prin1 (const object* stream_, object obj);
-# wird verwendet von EVAL, DEBUG, PACKAGE, ERROR, SPVW
+extern void prin1 (const object* stream_, object obj);
+# is used by EVAL, DEBUG, PACKAGE, ERROR, SPVW
 
-# UP: Gibt ein Newline auf einen Stream aus.
+# UP: Writes a Newline to a Stream.
 # terpri(&stream);
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-  # extern void terpri (const object* stream_);
-  #define terpri(stream_)  write_ascii_char(stream_,NL)
-# wird verwendet von IO, DEBUG, PACKAGE, ERROR, SPVW
+# extern void terpri (const object* stream_);
+#define terpri(stream_)  write_ascii_char(stream_,NL)
+# is used by IO, DEBUG, PACKAGE, ERROR, SPVW
 
 # ####################### LISTBIBL zu LIST.D ############################## #
 
-# UP: Kopiert eine Liste
+# UP: Copies a list
 # copy_list(list)
-# > list: Liste
-# < ergebnis: Kopie der Liste
+# > list: list
+# < result: copy of the list
 # can trigger GC
-  extern object copy_list (object list);
-# wird verwendet von PACKAGE
+extern object copy_list (object list);
+# is used by PACKAGE
 
-# UP: Dreht eine Liste konstruktiv um.
+# UP: Reverses a list constructively.
 # reverse(list)
-# > list: Liste (x1 ... xm)
-# < ergebnis: umgedrehte Liste (xm ... x1)
+# > list: list (x1 ... xm)
+# < result: reversed liste (xm ... x1)
 # can trigger GC
-  extern object reverse (object list);
-# wird verwendet von SEQUENCE, PACKAGE, PATHNAME
+extern object reverse (object list);
+# is used by SEQUENCE, PACKAGE, PATHNAME
 
-# UP: Bestimmt die Länge einer Liste
+# UP: Determines the length of a list
 # llength(obj)
-# > obj: Objekt
-# < uintL ergebnis: Länge von obj, als Liste aufgefasst
-# Testet nicht auf zyklische Listen.
-  extern uintL llength (object obj);
-# wird verwendet von CONTROL, EVAL, SEQUENCE, RECORD, IO, PACKAGE, HASHTABL, STREAM
+# > obj: object
+# < uintL result: length of obj, interpreted as list
+# Does not test for cyclic lists.
+extern uintL llength (object obj);
+# is used by CONTROL, EVAL, SEQUENCE, RECORD, IO, PACKAGE, HASHTABL, STREAM
 
-# UP: Bildet eine Liste mit genau len Elementen
+# UP: Makes a list with exactly len elements
 # make_list(len)
-# > (STACK): Initialisierungswert für die Elemente
-# > uintL len: gewünschte Listenlänge
-# < ergebnis: Liste mit D1.L Elementen
+# > (STACK): Initial value for the elements
+# > uintL len: desired list length
+# < result: list with D1.L elements
 # can trigger GC
-  extern object make_list (uintL len);
-# wird verwendet von
+extern object make_list (uintL len);
+# is used by
 
-# UP: Dreht eine Liste destruktiv um.
+# UP: reverses a list destructively.
 # nreverse(list)
-# > list: Liste (x1 ... xm)
-# < ergebnis: Liste (xm ... x1), EQ zur alten
-  extern object nreverse (object list);
-# wird verwendet von SEQUENCE, EVAL, CONTROL, IO, PATHNAME, ERROR, DEBUG, PACKAGE
+# > list: list (x1 ... xm)
+# < result: list (xm ... x1), EQ to the old one
+extern object nreverse (object list);
+# is used by SEQUENCE, EVAL, CONTROL, IO, PATHNAME, ERROR, DEBUG, PACKAGE
 
 # UP: A0 := (nreconc A0 A1)
 # nreconc(list,obj)
-# > list: Liste
-# > obj: Objekt
-# < ergebnis: (nreconc A0 A1)
-  extern object nreconc (object list, object obj);
-# wird verwendet von SEQUENCE, IO, PATHNAME, CONTROL, DEBUG
+# > list: list
+# > obj: object
+# < result: (nreconc A0 A1)
+extern object nreconc (object list, object obj);
+# is used by SEQUENCE, IO, PATHNAME, CONTROL, DEBUG
 
-# UP: Bilde (delete obj (the list list) :test #'EQ)
+# UP: Build (delete obj (the list list) :test #'EQ)
 # deleteq(list,obj)
-# Entferne aus der Liste list alle Elemente, die EQ zu obj sind.
-# > obj: zu streichendes Element
-# > list: Liste
-# < ergebnis: modifizierte Liste
-  extern object deleteq (object list, object obj);
-# wird verwendet von PACKAGE, STREAM
+# Remove all elements that are EQ to obj from the list.
+# > obj: element to be removed
+# > list: list
+# < result: modified list
+extern object deleteq (object list, object obj);
+# is used by PACKAGE, STREAM
 
-# UP: Bildet eine Liste mit gegebenen Elementen.
+# UP: Creates a list with given elements.
 # listof(len)
-# > uintC len: gewünschte Listenlänge
-# > auf STACK: len Objekte, erstes zuoberst
-# < ergebnis: Liste dieser Objekte
+# > uintC len: desired list length
+# > auf STACK: len objects, first one on top
+# < result: list of those objects
 # Erhöht STACK
-# changes STACK, can trigger GC
-  extern object listof (uintC len);
-# wird verwendet von STREAM, PATHNAME, PACKAGE, ARRAY, EVAL, PREDTYPE, REXX, ERROR, SPVW
+# modifies STACK, can trigger GC
+extern object listof (uintC len);
+# is used by STREAM, PATHNAME, PACKAGE, ARRAY, EVAL, PREDTYPE, REXX, ERROR, SPVW
 
 # ####################### MISCBIBL zu MISC.D ############################## #
 
@@ -11009,94 +11002,68 @@ typedef struct {
 # Modify the environment variables.
 # clisp_setenv(name,value) sets the value of the environment variable `name'
 # to `value' and returns 0. Returns -1 if not enough memory.
-extern int clisp_setenv (const char * name, const char * value);
+  extern int clisp_setenv (const char * name, const char * value);
 
 #endif
 
 # ####################### ERRBIBL zu ERROR.D ############################## #
 
-# Klassifikation der bekannten Condition-Typen:
-# (Genauer gesagt, handelt es sich hier immer um die SIMPLE-... Typen.)
-  typedef enum
-  {
-    # all kinds of conditions
-    condition,
-      # conditions that require interactive intervention
-      serious_condition,
-        # serious conditions that occur deterministically
-        error,
-          # mostly statically detectable errors of a program
-          program_error,
-            # statically detectable errors of a program, source available
-            source_program_error,
-          # not statically detectable errors in program control
-          control_error,
-          # errors that occur while doing arithmetic operations
-          arithmetic_error,
-            # trying to evaluate a mathematical function at a singularity
-            division_by_zero,
-            # trying to get too close to infinity in the floating point domain
-            floating_point_overflow,
-            # trying to get too close to zero in the floating point domain
-            floating_point_underflow,
-          # trying to access a location which contains #<UNBOUND>
-          cell_error,
-            # trying to get the value of an unbound variable
-            unbound_variable,
-            # trying to get the global function definition of an undefined function
-            undefined_function,
-            # trying to get the value of an unbound slot
-            unbound_slot,
-          # when some datum does not belong to the expected type
-          type_error,
-            # when some keyword does not belong to one of the allowed keywords
-            keyword_error,
-            # when some character does not belong to a given character set
-            charset_type_error,
-          # errors during operation on packages
-          package_error,
-          # attempted violation of *PRINT-READABLY*
-          print_not_readable,
-          # errors related to parsing
-          parse_error,
-          # errors while doing stream I/O
-          stream_error,
-            # unexpected end of stream
-            end_of_file,
-            # parsing/tokenization error during READ
-            reader_error,
-          # errors with pathnames, OS level errors with streams
-          file_error,
-          # general OS errors
-          os_error,
-        # "Virtual memory exhausted"
-        storage_condition,
-        # "User break"
-        interrupt_condition,
-      # conditions for which user notification is appropriate
-      warning,
-    # junk
-    condition_for_broken_compilers_that_dont_like_trailing_commas
-  }
-  conditiontype;
+# Classification of the known condition-types:
+# (More precisely, all these are the SIMPLE-... types.)
+typedef enum {
+  condition, # all kinds of conditions
+    serious_condition, # conditions that require interactive intervention
+      error, # serious conditions that occur deterministically
+        program_error, # mostly statically detectable errors of a program
+          source_program_error, # statically detectable errors of a program,
+                                # source available
+        control_error, # not statically detectable errors in program control
+        arithmetic_error, # errors that occur while doing arithmetic operations
+          division_by_zero, # eval a mathematical function at a singularity
+          floating_point_overflow, # trying to get too close to infinity and...
+          floating_point_underflow, # trying to get too close to zero
+                                    # in the floating point domain
+        cell_error, # trying to access a location which contains #<UNBOUND>
+          unbound_variable, # trying to get the value of an unbound variable
+          undefined_function, # trying to get the global function definition
+                              # of an undefined function
+          unbound_slot, # trying to get the value of an unbound slot
+        type_error, # some datum does not belong to the expected type
+          keyword_error, # a keyword is not one of the allowed keywords
+          charset_type_error, # a character does not belong to a character set
+        package_error, # errors during operation on packages
+        print_not_readable, # attempted violation of *PRINT-READABLY*
+        parse_error, # errors related to parsing
+        stream_error, # errors while doing stream I/O
+          end_of_file, # unexpected end of stream
+          reader_error, # parsing/tokenization error during READ
+        file_error, # errors with pathnames, OS level errors with streams
+        os_error, # general OS errors
+      storage_condition, # "Virtual memory exhausted"
+      interrupt_condition, # "User break"
+    warning, # conditions for which user notification is appropriate
+  # junk
+  condition_for_broken_compilers_that_dont_like_trailing_commas
+} conditiontype;
 
-# Fehlermeldung mit Errorstring. Kehrt nicht zurück.
+# Error with error-string. Does not return.
 # fehler(errortype,errorstring);
-# > errortype: Condition-Typ
-# > errorstring: Konstanter ASCIZ-String, in UTF-8 Encoding.
-#   Bei jeder Tilde wird ein LISP-Objekt vom STACK genommen und statt der
-#   Tilde ausgegeben.
-# > auf dem STACK: Initialisierungswerte für die Condition, je nach errortype
-  nonreturning_function(extern, fehler, (conditiontype errortype, const char * errorstring));
-# wird von allen Modulen verwendet
+# > errortype: condition-type
+# > errorstring: constant ASCIZ-String, in UTF-8 Encoding.
+#   At every tilde, a LISP-object ist taken from the STACK and printed
+#   instead of the tilde.
+# > on the STACK: initial values for the Condition, depending on error-type
+nonreturning_function(extern, fehler, (conditiontype errortype, const char * errorstring));
+# used by all modules
 
 # Just like OS_error, but signal a FILE-ERROR.
 # OS_file_error(pathname);
 # > pathname: Pathname
 # > end_system_call() already called
-  nonreturning_function(extern, OS_file_error, (object pathname));
+nonreturning_function(extern, OS_file_error, (object pathname));
 #if defined(DEBUG_OS_ERROR)
-  # Show the file and line number of the caller of OS_file_error(). For debugging.
+  # Show the file and line number of the caller of OS_file_error().
+  # For debugging.
   #define OS_file_error(pathname)  \
     (asciz_out_s("\n[%s:",__FILE__), asciz_out_1("%d] ",__LINE__), (OS_file_error)(pathname))
 #endif
@@ -11105,7 +11072,7 @@ extern int clisp_setenv (const char * name, const char * value);
 # OS_filestream_error(stream);
 # > stream: a channel stream
 # > end_system_call() already called
-  nonreturning_function(extern, OS_filestream_error, (object stream));
+nonreturning_function(extern, OS_filestream_error, (object stream));
 #if defined(DEBUG_OS_ERROR)
   # Show the file and line number of the caller of OS_filestream_error(). For debugging.
   #define OS_filestream_error(stream)  \
@@ -11113,99 +11080,99 @@ extern int clisp_setenv (const char * name, const char * value);
 #endif
 
 #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
-  # Ausgabe eines Fehlers, direkt übers Betriebssystem
+  # Prints error directly via the OS
   # errno_out(errorcode);
-  # > int errorcode: Fehlercode
-    extern void errno_out (int errorcode);
+  # > int errorcode: error code
+  extern void errno_out (int errorcode);
 #endif
 #if defined(AMIGAOS)
-  # Ausgabe eines Fehlers, direkt übers Betriebssystem
+  # Prints error directly via the OS
   # errno_out(errorcode);
-  # > LONG errorcode: Fehlercode
+  # > LONG errorcode: error code
     extern void errno_out (LONG errorcode);
 #endif
 #if defined(WIN32_NATIVE)
-  # Ausgabe eines Fehlers, direkt übers Betriebssystem
+  # Prints error directly via the OS
   # errno_out(errorcode);
-  # > DWORD errorcode: Fehlercode
-    extern void errno_out (DWORD errorcode);
+  # > DWORD errorcode: error code
+  extern void errno_out (DWORD errorcode);
 #endif
 
-# UP: Führt eine Break-Schleife wegen Tastaturunterbrechung aus.
-# > -(STACK) : aufrufende Funktion
-# changes STACK, can trigger GC
-  extern void tast_break (void);
-# wird verwendet von EVAL, IO, SPVW, STREAM
+# UP: Executes break-loop becaue of a keyboard-interrupt.
+# > -(STACK) : calling cuntion
+# modifies STACK, can trigger GC
+extern void tast_break (void);
+# is used by EVAL, IO, SPVW, STREAM
 
-# Fehlermeldung, wenn ein Objekt keine Liste ist.
+# Error message, if an object isn't a list.
 # fehler_list(obj);
-# > obj: Nicht-Liste
-# > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(extern, fehler_list, (object obj));
-# wird verwendet von LIST, EVAL
+# > obj: non-list
+# > subr_self: caller (a SUBR)
+nonreturning_function(extern, fehler_list, (object obj));
+# is used by LIST, EVAL
 
-# Fehlermeldung, wenn ein Objekt keine echte Liste ist.
+# Error message, if an object isn't a proper list.
 # fehler_proper_list(obj);
-# > obj: Ende der Liste, Nicht-Liste
-# > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(extern, fehler_proper_list, (object obj));
-# wird verwendet von LIST
+# > obj: End of list, non-list
+# > subr_self: caller (a SUBR)
+nonreturning_function(extern, fehler_proper_list, (object obj));
+# is used by LIST
 
-# Fehlermeldung, wenn ein Objekt kein Symbol ist.
+# Error message, if an object isn't a symbol.
 # fehler_kein_symbol(caller,obj);
-# > caller: Aufrufer (ein Symbol)
-# > obj: Nicht-Symbol
-  nonreturning_function(extern, fehler_kein_symbol, (object caller, object obj));
-# wird verwendet von EVAL, CONTROL
+# > caller: caller (a symbol)
+# > obj: non-symbol
+nonreturning_function(extern, fehler_kein_symbol, (object caller, object obj));
+# is used by EVAL, CONTROL
 
-# Fehlermeldung, wenn ein Objekt kein Symbol ist.
+# Error message, if an object isn't a symbol.
 # fehler_symbol(obj);
-# > subr_self: Aufrufer (ein SUBR oder FSUBR)
-# > obj: Nicht-Symbol
-  nonreturning_function(extern, fehler_symbol, (object obj));
-# wird verwendet von SYMBOL, CONTROL
+# > subr_self: caller (a SUBR or FSUBR)
+# > obj: non-symbol
+nonreturning_function(extern, fehler_symbol, (object obj));
+# is used by SYMBOL, CONTROL
 
-# Fehlermeldung, wenn ein Objekt kein Simple-Vector ist.
+# Error message, if an object isn't a Simple-Vector.
 # fehler_kein_svector(caller,obj);
-# > caller: Aufrufer (ein Symbol)
-# > obj: Nicht-Svector
-  nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));
-# wird verwendet von ARRAY, EVAL
+# > caller: caller (a Symbol)
+# > obj: non-Svector
+nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));
+# is used by ARRAY, EVAL
 
-# Fehlermeldung, wenn ein Objekt kein Vektor ist.
+# Error message, if an object isn't a vector.
 # fehler_vector(obj);
-# > subr_self: Aufrufer (ein SUBR)
-# > obj: Nicht-Vektor
-  nonreturning_function(extern, fehler_vector, (object obj));
-# wird verwendet von ARRAY
+# > subr_self: caller (a SUBR)
+# > obj: non-vector
+nonreturning_function(extern, fehler_vector, (object obj));
+# is used by ARRAY
 
-# Fehlermeldung, falls ein Argument kein Fixnum >=0 ist:
+# Error message, if an argument isn't a Fixnum >=0:
 # fehler_posfixnum(obj);
-# > obj: Das fehlerhafte Argument
-# > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(extern, fehler_posfixnum, (object obj));
-# wird verwendet von STREAM
+# > obj: the faulty argument
+# > subr_self: caller (a SUBR)
+nonreturning_function(extern, fehler_posfixnum, (object obj));
+# is used by STREAM
 
-# Fehlermeldung, falls ein Argument kein Character ist:
+# Error message, if an argument isn't a Character:
 # fehler_char(obj);
-# > obj: Das fehlerhafte Argument
-# > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(extern, fehler_char, (object obj));
-# wird verwendet von CHARSTRG
+# > obj: the faulty argument
+# > subr_self: caller (a SUBR)
+nonreturning_function(extern, fehler_char, (object obj));
+# is used by CHARSTRG
 
-# Fehlermeldung, falls ein Argument kein String ist:
+# Error message, if an argument isn't a string:
 # fehler_string(obj);
-# > obj: Das fehlerhafte Argument
-# > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(extern, fehler_string, (object obj));
-# wird verwendet von CHARSTRG, FOREIGN
+# > obj: the faulty argument
+# > subr_self: caller (a SUBR)
+nonreturning_function(extern, fehler_string, (object obj));
+# is used by CHARSTRG, FOREIGN
 
-# Fehlermeldung, falls ein Argument kein Simple-String ist:
+# Error message, if an argument isn't a Simple-String:
 # fehler_sstring(obj);
-# > obj: Das fehlerhafte Argument
-# > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(extern, fehler_sstring, (object obj));
-# wird verwendet von CHARSTRG
+# > obj: the faulty argument
+# > subr_self: caller (a SUBR)
+nonreturning_function(extern, fehler_sstring, (object obj));
+# is used by CHARSTRG
 
 # Checks a simple-string for being mutable.
 # check_sstring_mutable(string);
@@ -11214,52 +11181,52 @@ extern int clisp_setenv (const char * name, const char * value);
 #else
   #define check_sstring_mutable(obj)  \
      if (!(Record_type(obj) == Rectype_Sstring)) fehler_sstring_immutable(obj);
-# Fehlermeldung, falls ein Simple-String immutable ist:
-# fehler_sstring_immutable(obj);
-# > obj: der String
+  # Fehlermeldung, falls ein Simple-String immutable ist:
+  # fehler_sstring_immutable(obj);
+  # > obj: der String
   nonreturning_function(extern, fehler_sstring_immutable, (object obj));
-# wird verwendet von Macro check_sstring_mutable
+  # is used by Macro check_sstring_mutable
 #endif
 
 # Error message, if an argument is not of type (OR STRING INTEGER).
 # fehler_string_integer(obj);
 # > subr_self: caller (a SUBR)
-  nonreturning_function(extern, fehler_string_integer, (object obj));
+nonreturning_function(extern, fehler_string_integer, (object obj));
 
-# Fehlermeldung, wenn ein Argument kein Stream ist:
+# Error message, if an argument isn't a stream:
 # fehler_stream(obj);
-# > obj: Das fehlerhafte Argument
-# > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(extern, fehler_stream, (object obj));
-# wird verwendet von IO, STREAM, DEBUG
+# > obj: the faulty argument
+# > subr_self: caller (a SUBR)
+nonreturning_function(extern, fehler_stream, (object obj));
+# is used by IO, STREAM, DEBUG
 
-# Fehlermeldung, wenn ein Argument kein Stream vom geforderten Stream-Typ ist:
+# Error message, if an argument isn't a stream of the requested stream-type:
 # fehler_streamtype(obj,type);
-# > obj: Das fehlerhafte Argument
-# > type: geforderter Stream-Typ
-# > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(extern, fehler_streamtype, (object obj, object type));
-# wird verwendet von STREAM
+# > obj: the faulty argument
+# > type: requested stream-type
+# > subr_self: caller (a SUBR)
+nonreturning_function(extern, fehler_streamtype, (object obj, object type));
+# is used by STREAM
 
-# Fehlermeldung, wenn ein Argument keine Function ist:
+# Error message, if an argument isn't a function:
 # fehler_function(obj);
-# obj: Das fehlerhafte Argument
-# > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(extern, fehler_function, (object obj));
-# wird verwendet von RECORD
+# obj: the faulty argument
+# > subr_self: caller (a SUBR)
+nonreturning_function(extern, fehler_function, (object obj));
+# is used by RECORD
 
-# Fehlermeldung, wenn ein Argument ein Lambda-Ausdruck statt einer Funktion ist:
+# Error message, if an argument is a lambda-expression and instead of a fuction:
 # fehler_lambda_expression(obj);
-# obj: Das fehlerhafte Argument
-# > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(extern, fehler_lambda_expression, (object obj));
-# wird verwendet von EVAL, SYMBOL
+# obj: the faulty argument
+# > subr_self: caller(a SUBR)
+nonreturning_function(extern, fehler_lambda_expression, (object obj));
+# is used by EVAL, SYMBOL
 
-# Überprüfung eines Arguments
+# Checking of an argument
 # check_...(obj);
 # > obj: Argument
-# > subr_self: Aufrufer (ein SUBR)
-# obj sollte eine Variable sein
+# > subr_self: Caller (a SUBR)
+# obj should be a variable
 #ifdef HAVE_FFI
   #define check_char(obj)  \
     if (!charp(obj)) { fehler_char(obj); }
@@ -11292,7 +11259,7 @@ extern int clisp_setenv (const char * name, const char * value);
   #define check_dfloat(obj)  \
     if (!double_float_p(obj)) { fehler_dfloat(obj); }
 #endif
-  nonreturning_function(extern, fehler_uint8, (object obj));
+nonreturning_function(extern, fehler_uint8, (object obj));
 #ifdef HAVE_FFI
   nonreturning_function(extern, fehler_sint8, (object obj));
   nonreturning_function(extern, fehler_uint16, (object obj));
@@ -11308,138 +11275,136 @@ extern int clisp_setenv (const char * name, const char * value);
   nonreturning_function(extern, fehler_ffloat, (object obj));
   nonreturning_function(extern, fehler_dfloat, (object obj));
 #endif
-# wird verwendet von STREAM, vom FFI
+# is used by STREAM, vom FFI
 
 # ##################### PACKBIBL zu PACKAGE.D ############################# #
 
-# UP: testet, ob ein Symbol in einer Package accessible ist und dabei nicht
-# von einem anderen Symbol desselben Namens verdeckt wird.
+# UP: tests whether a symbol is accessible in a package and isn't hidden
+# by a another symbol with the same name.
 # accessiblep(sym,pack)
 # > sym: Symbol
 # > pack: Package
-# < ergebnis: true falls sym in pack accessible und nicht verdeckt ist,
-#             false sonst
-  extern bool accessiblep (object sym, object pack);
-# wird verwendet von IO
+# < result: true if sym is accessible in pack and nod hidden,
+#             else false
+extern bool accessiblep (object sym, object pack);
+# is used by IO
 
-# UP: testet, ob ein Symbol in einer Package als externes Symbol accessible
-# ist.
+# UP: tests whether a symbol is accessable as external symbol in a package
 # externalp(sym,pack)
 # > sym: Symbol
 # > pack: Package
-# < ergebnis: true falls sym in pack als externes Symbol accessible ist,
-#             false sonst
-  extern bool externalp (object sym, object pack);
-# wird verwendet von IO
+# < result: true if sym is accessible as external symbol in pack ,
+#           else false
+extern bool externalp (object sym, object pack);
+# is used by IO
 
-# UP: sucht ein externes Symbol gegebenen Printnamens in einer Package.
+# UP: locates an external symbol with a given printname in a package.
 # find_external_symbol(string,pack,&sym)
 # > string: String
 # > pack: Package
-# < ergebnis: true, falls ein externes Symbol dieses Printnamens in pack gefunden.
-# < sym: dieses Symbol, falls gefunden.
-  extern bool find_external_symbol (object string, object pack, object* sym_);
-# wird verwendet von IO
+# < result: true, if an external symbol with that printname has been found in pack.
+# < sym: that symbol, if it's been found.
+extern bool find_external_symbol (object string, object pack, object* sym_);
+# is used by IO
 
-# UP: sucht eine Package mit gegebenem Namen oder Nickname
+# UP: locates a package with a given name or nickname
 # find_package(string)
 # > string: String
-# < ergebnis: Package mit diesem Namen oder NIL
-  extern object find_package (object string);
-# wird verwendet von IO, EVAL
+# < result: Package with that name or NIL
+extern object find_package (object string);
+# is used by IO, EVAL
 
-# UP: Interniert ein Symbol gegebenen Printnamens in einer Package.
+# UP: Interns a symbol with a given printmane in a package.
 # intern(string,pack,&sym)
 # > string: String
 # > pack: Package
 # < sym: Symbol
-# < ergebnis: 0, wenn nicht gefunden, sondern neu erzeugt
-#             1, wenn als externes Symbol vorhanden
-#             2, wenn vererbt über use-list
-#             3, wenn als internes Symbol vorhanden
+# < result: 0, if not found but newly created
+#             1, if found as external symbol
+#             2, if inherited through use-list
+#             3, if exists as internal symbol
 # can trigger GC
-  extern uintBWL intern (object string, object pack, object* sym_);
-# wird verwendet von IO, SPVW
+extern uintBWL intern (object string, object pack, object* sym_);
+# is used by IO, SPVW
 
-# UP: Interniert ein Symbol gegebenen Printnamens in der Keyword-Package.
+# UP: Interns a symbol with a given printname in the Keyword-Package.
 # intern_keyword(string)
 # > string: String
-# < ergebnis: Symbol, ein Keyword
+# < result: Symbol, a keyword
 # can trigger GC
-  extern object intern_keyword (object string);
-# wird verwendet von IO, EVAL, GRAPH
+extern object intern_keyword (object string);
+# is used by IO, EVAL, GRAPH
 
-# UP: Importiert ein Symbol in eine Package
+# UP: Imports a symbol into a package
 # import(&sym,&pack);
-# > sym: Symbol (im STACK)
-# > pack: Package (im STACK)
-# < sym: Symbol, EQ zum alten
-# < pack: Package, EQ zur alten
+# > sym: Symbol (on STACK)
+# > pack: Package (on STACK)
+# < sym: Symbol, EQ with the old
+# < pack: Package, EQ with the old
 # can trigger GC
-  extern void import (const object* sym_, const object* pack_);
-# wird verwendet von SPVW
+extern void import (const object* sym_, const object* pack_);
+# is used by SPVW
 
-# UP: Exportiert ein Symbol aus einer Package
+# UP: Exports a symbol from a package
 # export(&sym,&pack);
-# > sym: Symbol (im STACK)
-# > pack: Package (im STACK)
-# < sym: Symbol, EQ zum alten
-# < pack: Package, EQ zur alten
+# > sym: Symbol (on STACK)
+# > pack: Package (on STACK)
+# < sym: Symbol, EQ with the old
+# < pack: Package, EQ with the old
 # can trigger GC
-  extern void export (const object* sym_, const object* pack_);
-# wird verwendet von SPVW
+extern void export (const object* sym_, const object* pack_);
+# is used by SPVW
 
-# UP: liefert die aktuelle Package
+# UP: gets the current package
 # get_current_package()
-# < ergebnis: aktuelle Package
-  extern object get_current_package (void);
-# wird verwendet von IO, EVAL
+# < result: current Package
+extern object get_current_package (void);
+# is used by IO, EVAL
 
-# UP: Initialisiert die Packageverwaltung
+# UP: Initializes the package-management
 # init_packages();
-  extern void init_packages (void);
-# wird verwendet von SPVW
+extern void init_packages (void);
+# is used by SPVW
 
 # ##################### PATHBIBL zu PATHNAME.D ############################ #
 
-# UP: Liefert den Directory-Namestring eines halbwegs überprüften Pathname
-#     unter der Annahme, dass das Directory dieses Pathname existiert,
-#     im Betriebssystem-Format.
+# UP: Gives the directory-namestring in OS-format of a halfway checked
+#     pathname assuming that the directory of the pathname exists.
 # assume_dir_exists()
-# > STACK_0: absoluter Pathname, halbwegs überprüft
-# < STACK_0: (evtl. derselbe) Pathname, noch besser aufgelöst
-# < ergebnis:
-#     falls Name=NIL: Directory-Namestring (fürs BS)
-#     falls Name/=NIL: Namestring (für BS, mit Nullbyte am Schluss)
+# > STACK_0: absolute pathname, halfway checked
+# < STACK_0: (evtl. the same) pathname, better resolved
+# < result:
+#     falls Name=NIL: Directory-Namestring (for the OS)
+#     falls Name/=NIL: Namestring (for the OS, with nullbyte at the end)
 # can trigger GC
-  extern object assume_dir_exists (void);
-# wird verwendet von STREAM
+extern object assume_dir_exists (void);
+# is used by STREAM
 
 # Converts a directory pathname to an OS directory specification.
 # > pathname: an object
 # > use_default: whether to use the current default directory
 # < result: a simple-bit-vector containing an ASCIZ string in OS format
 # can trigger GC
-  extern object pathname_to_OSdir (object pathname, bool use_default);
+extern object pathname_to_OSdir (object pathname, bool use_default);
 # used by I18N
 
 # Converts an OS directory specification to a directory pathname.
 # > path: a pathname referring to a directory
 # < result: a pathname without name and type
 # can trigger GC
-  extern object OSdir_to_pathname (const char* path);
+extern object OSdir_to_pathname (const char* path);
 # used by I18N
 
-# UP: Initialisiert das Pathname-System.
+# UP: Initializes the pathname-system.
 # init_pathnames();
 # can trigger GC
-  extern void init_pathnames (void);
-# wird verwendet von SPVW
+extern void init_pathnames (void);
+# is used by SPVW
 
-# Sucht das ausführbare Programm sofort nach Programmstart zu lokalisieren.
+# Locates the executable program immediately after the program start.
 # find_executable(argv[0])
-  extern int find_executable (const char * program_name);
-# wird verwendet von SPVW
+extern int find_executable (const char * program_name);
+# is used by SPVW
 
 # check the :DIRECTION argument
 # return one of the following:
@@ -11479,120 +11444,120 @@ extern if_exists_t check_if_exists (const object if_exists);
 
 # ##################### PREDBIBL zu PREDTYPE.D ############################ #
 
-# UP: testet auf Atomgleichheit EQL
+# UP: test for atmomic equality EQL
 # eql(obj1,obj2)
-# > obj1,obj2: Lisp-Objekte
-# < ergebnis: true, falls Objekte gleich
-  extern bool eql (object obj1, object obj2);
-# wird verwendet von CONTROL, EVAL, HASHTABL, LISPARIT
+# > obj1,obj2: Lisp-objects
+# < result: true, if objects are equal
+extern bool eql (object obj1, object obj2);
+# is used by CONTROL, EVAL, HASHTABL, LISPARIT
 
-# UP: testet auf Gleichheit EQUAL
+# UP: tests for equality EQUAL
 # equal(obj1,obj2)
-# > obj1,obj2: Lisp-Objekte
-# < ergebnis: true, falls Objekte gleich
-  extern bool equal (object obj1, object obj2);
-# wird verwendet von EVAL, PATHNAME, HASHTABL, MISC
+# > obj1,obj2: Lisp-objects
+# < result: true, if objects are equal
+extern bool equal (object obj1, object obj2);
+# is used by EVAL, PATHNAME, HASHTABL, MISC
 
-# UP: testet auf laschere Gleichheit EQUALP
+# UP: tests for a more lax equality EQUALP
 # equalp(obj1,obj2)
-# > obj1,obj2: Lisp-Objekte
-# < ergebnis: true, falls Objekte gleich
-  extern bool equalp (object obj1, object obj2);
-# wird verwendet von PATHNAME, HASHTABL
+# > obj1,obj2: Lisp-objects
+# < result: true, if objects are equal
+extern bool equalp (object obj1, object obj2);
+# is used by PATHNAME, HASHTABL
 
-# UP: Führt eine Statistik über die Aktion einer GC.
+# UP: Makes a statistic about the action of a GC.
 # with_gc_statistics(fun);
-# > fun: Funktion, die eine GC ausführt
-  typedef void gc_function (void);
-  extern void with_gc_statistics (gc_function* fun);
-# wird verwendet von SPVW
+# > fun: Function that does a GC
+typedef void gc_function (void);
+extern void with_gc_statistics (gc_function* fun);
+# is used by SPVW
 
 # ###################### SEQBIBL zu SEQUENCE.D ############################ #
 
-# UP: Wandelt ein Objekt in eine Sequence gegebenen Typs um.
+# UP: Converts an object into a sequence of a given type.
 # coerce_sequence(obj,result_type)
-# > obj: Objekt, sollte eine Sequence sein
-# > result_type: Bezeichner (Symbol) des Sequence-Typs
-# < Wert: Sequence vom Typ result_type
+# > obj: Object, should be a sequence
+# > result_type: Identifier  (symbol) of the sequence-type
+# < Wert: Sequence of type result_type
 # can trigger GC
-  extern Values coerce_sequence (object sequence, object result_type);
-# wird verwendet von PREDTYPE, EVAL
+extern Values coerce_sequence (object sequence, object result_type);
+# is used by PREDTYPE, EVAL
 
-# UP: Läuft durch eine Sequence durch und ruft für jedes Element eine Funktion
-# auf.
+# UP:  Traverses a sequence and calls a function for every element.
+#
 # map_sequence(obj,fun,arg);
-# > obj: Objekt, sollte eine Sequence sein
-# > fun: Funktion, fun(arg,element) darf GC auslösen
-# > arg: beliebiges vorgegebenes Argument
+# > obj: Object, should be a sequence
+# > fun: Function, fun(arg,element) darf GC auslösen
+# > arg: arbitrary given argument
 # can trigger GC
-  typedef void map_sequence_function (void* arg, object element);
-  extern void map_sequence (object obj, map_sequence_function* fun, void* arg);
-# wird verwendet von ARRAY
+typedef void map_sequence_function (void* arg, object element);
+extern void map_sequence (object obj, map_sequence_function* fun, void* arg);
+# is used by ARRAY
 
-# Fehler, wenn beide :TEST, :TEST-NOT - Argumente angegeben wurden.
+# Error, if both :TEST, :TEST-NOT - argumente have been given.
 # fehler_both_tests();
-# > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(extern, fehler_both_tests, (void));
-# wird verwendet von LIST
+# > subr_self: caller (a SUBR)
+nonreturning_function(extern, fehler_both_tests, (void));
+# is used by LIST
 
 # ###################### STRMBIBL zu STREAM.D ############################# #
 
-# UP: Initialisiert die Stream-Variablen.
+# UP: Initializes the stream-variables.
 # init_streamvars(unixyp);
-# > unixyp: Flag, ob *error-output* nach Unix-Art (vom Standard abweichend)
-#           initialisert werden soll
+# > unixyp: Flag, whether *error-output* should be initialized Unix-style
+#           (deviates from the standard)
 # can trigger GC
-  extern void init_streamvars (bool unixyp);
-# wird verwendet von SPVW
+extern void init_streamvars (bool unixyp);
+# is used by SPVW
 
-# Fehlermeldung, wenn eine Stream-Operation auf einem Stream nicht erlaubt ist.
+# Error-message, if a stream-operaton is not permitted on a stream.
 # fehler_illegal_streamop(caller,stream);
-# > caller: Aufrufer (ein Symbol)
+# > caller: Caller (a symbol)
 # > stream: Stream
-  nonreturning_function(extern, fehler_illegal_streamop, (object caller, object stream));
-# wird verwendet von IO
+nonreturning_function(extern, fehler_illegal_streamop, (object caller, object stream));
+# is used by IO
 
-# Liest ein Byte von einem Stream.
+# Reads a byte from a stream.
 # read_byte(stream)
 # > stream: Stream
-# < ergebnis: gelesener Integer (eof_value bei EOF)
+# < result: read Integer (eof_value at EOF)
 # can trigger GC
-  extern object read_byte (object stream);
-# wird verwendet von SEQUENCE
+extern object read_byte (object stream);
+# is used by SEQUENCE
 
-# Schreibt ein Byte auf einen Stream.
+# Writes a bite onto a stream.
 # write_byte(stream,byte);
 # > stream: Stream
-# > byte: auszugebender Integer
+# > byte: Integer that shall be written
 # can trigger GC
-  extern void write_byte(object stream, object byte);
-# wird verwendet von SEQUENCE
+extern void write_byte(object stream, object byte);
+# is used by SEQUENCE
 
-# Liest ein Character von einem Stream.
+# Reads a character from a stream.
 # read_char(&stream)
 # > stream: Stream
 # < stream: Stream
-# < ergebnis: gelesenes Character (eof_value bei EOF)
+# < result: read character (eof_value at EOF)
 # can trigger GC
-  extern object read_char (const object* stream_);
-# wird verwendet von IO, DEBUG, SEQUENCE
+extern object read_char (const object* stream_);
+# is used by IO, DEBUG, SEQUENCE
 
-# Schiebt das letzte gelesene Character auf einen Stream zurück.
+# Pushes the last read character back onto a stream.
 # unread_char(&stream,ch);
-# > ch: letztes gelesenes Character
+# > ch: last read character
 # > stream: Stream
 # < stream: Stream
-  extern void unread_char (const object* stream_, object ch);
-# wird verwendet von IO, DEBUG
+extern void unread_char (const object* stream_, object ch);
+# is used by IO, DEBUG
 
-# Liest ein Character von einem Stream, ohne es zu verbrauchen.
+# Reads a character from a stream without using it.
 # peek_char(&stream)
 # > stream: Stream
 # < stream: Stream
-# < ergebnis: gelesenes Character (eof_value bei EOF)
+# < result: read character (eof_value at EOF)
 # can trigger GC
-  extern object peek_char (const object* stream_);
-# wird verwendet von IO
+extern object peek_char (const object* stream_);
+# is used by IO
 
 # Reads a line of characters from a stream.
 # read_line(&stream,&buffer)
@@ -11602,103 +11567,103 @@ extern if_exists_t check_if_exists (const object if_exists);
 # < buffer: contains the read characters, excluding the terminating #\Newline
 # < result: true is EOF was seen before newline, else false
 # can trigger GC
-  extern bool read_line (const object* stream_, const object* buffer_);
+extern bool read_line (const object* stream_, const object* buffer_);
 # used by IO
 
-# Schreibt ein Character auf einen Stream.
+# Write a character onto a stream.
 # write_char(&stream,ch);
 # > ch: auszugebendes Character
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-  extern void write_char (const object* stream_, object ch);
-# wird verwendet von LISPARIT, IO, ERROR, SEQUENCE
+extern void write_char (const object* stream_, object ch);
+# is used by LISPARIT, IO, ERROR, SEQUENCE
 
-# Schreibt ein Character auf einen Stream.
+# Writes a character onto a stream.
 # write_code_char(&stream,ch);
 # > ch: a character
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-  # extern void write_code_char (const object* stream_, chart ch);
-  #define write_code_char(stream_,ch)  write_char(stream_,code_char(ch))
-# wird verwendet von LISPARIT, IO
+# extern void write_code_char (const object* stream_, chart ch);
+#define write_code_char(stream_,ch)  write_char(stream_,code_char(ch))
+# is used by LISPARIT, IO
 
-# Schreibt ein festes Standard-Char auf einen Stream.
+# Writes a fixed standard-char onto a stream.
 # write_ascii_char(&stream,ch);
 # > ch: a standard char, in ASCII encoding
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-  # extern void write_ascii_char (const object* stream_, uintB ch);
-  #define write_ascii_char(stream_,ch)  write_char(stream_,code_char(as_chart(ch)))
-# wird verwendet von LISPARIT, IO, DEBUG, Macro TERPRI
+# extern void write_ascii_char (const object* stream_, uintB ch);
+#define write_ascii_char(stream_,ch)  write_char(stream_,code_char(as_chart(ch)))
+# is used by LISPARIT, IO, DEBUG, Macro TERPRI
 
 #ifdef UNICODE
 # Changes a terminal stream's external format.
 # > stream: a stream
 # > encoding: an encoding
 # can trigger GC
-  extern void set_terminalstream_external_format (object stream, object encoding);
+extern void set_terminalstream_external_format (object stream, object encoding);
 # used by ENCODING
 #endif
 
-# UP: Stellt fest, ob ein Stream "interaktiv" ist, d.h. ob Input vom Stream
-# vermutlich von einem vorher ausgegebenen Prompt abhängen wird.
+# UP: Determines whether a stream is "interactive", ie. whether the input from the stream
+# depends from a promt that has propably just been printed.
 # interactive_stream_p(stream)
 # > stream: Stream
-  extern bool interactive_stream_p (object stream);
-# wird verwendet von DEBUG
+extern bool interactive_stream_p (object stream);
+# is used by DEBUG
 
-# UP: Schließt einen Stream.
+# UP: Closes a stream.
 # builtin_stream_close(&stream);
 # > stream: Builtin-Stream
 # < stream: Builtin-Stream
 # can trigger GC
-  extern void builtin_stream_close (const object* stream_);
-# wird verwendet von PATHNAME, SPVW, DEBUG, MISC
+extern void builtin_stream_close (const object* stream_);
+# is used by PATHNAME, SPVW, DEBUG, MISC
 
-# UP: Schließt eine Liste offener Files.
+# UP: Closes a list of open files.
 # close_some_files(list);
-# > list: Liste von offenen Builtin-Streams
+# > list: List of open builtin-streams
 # can trigger GC
-  extern void close_some_files (object list);
-# wird verwendet von SPVW
+extern void close_some_files (object list);
+# is used by SPVW
 
-# UP: Schließt alle offenen Files.
+# UP: Closes all open files.
 # close_all_files();
 # can trigger GC
-  extern void close_all_files (void);
-# wird verwendet von SPVW
+extern void close_all_files (void);
+# is used by SPVW
 
-# UP: Erklärt alle offenen File-Streams für geschlossen.
+# UP: declares all open file-streams closed.
 # closed_all_files();
-  extern void closed_all_files (void);
-# wird verwendet von SPVW
+extern void closed_all_files (void);
+# is used by SPVW
 
-# UP: Stellt fest, ob im Stream stream ein Zeichen sofort verfügbar ist.
+# UP: determines whether a char is available in the Stream stream
 # listen_char(stream)
 # > stream: Stream
-# < ergebnis: ls_avail if a character is available,
+# < result: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
 # can trigger GC
-  extern signean listen_char (object stream);
-  #define ls_avail  0
-  #define ls_eof   -1
-  #define ls_wait   1
-  #define ls_avail_p(x)  ((x) == 0)
-  #define ls_eof_p(x)  ((x) < 0)
-  #define ls_wait_p(x)  ((x) > 0)
-# wird verwendet von IO, DEBUG
+extern signean listen_char (object stream);
+#define ls_avail  0
+#define ls_eof   -1
+#define ls_wait   1
+#define ls_avail_p(x)  ((x) == 0)
+#define ls_eof_p(x)  ((x) < 0)
+#define ls_wait_p(x)  ((x) > 0)
+# is used by IO, DEBUG
 
-# UP: Löscht bereits eingegebenen interaktiven Input von einem Stream stream.
+# UP: clears an already entered interactive input from a Stream stream.
 # clear_input(stream)
 # > stream: Stream
-# < ergebnis: true falls Input gelöscht wurde
+# < result: true if input has been deleted
 # can trigger GC
-  extern bool clear_input (object stream);
-# wird verwendet von IO, DEBUG
+extern bool clear_input (object stream);
+# is used by IO, DEBUG
 
 # UP: Determines whether a stream has a byte immediately available.
 # listen_byte(stream)
@@ -11707,37 +11672,37 @@ extern if_exists_t check_if_exists (const object if_exists);
 #           ls_eof   if EOF is reached,
 #           ls_wait  if no byte is available, but not because of EOF
 # can trigger GC
-  extern signean listen_byte (object stream);
-# wird verwendet von
+extern signean listen_byte (object stream);
+# is used by
 
-# UP: Wartenden Output eines Stream stream ans Ziel bringen.
+# UP: Finishes waiting output of a Stream stream
 # finish_output(stream);
 # > stream: Stream
 # can trigger GC
-  extern void finish_output (object stream);
-# wird verwendet von IO
+extern void finish_output (object stream);
+# is used by IO
 
-# UP: Wartenden Output eines Stream stream ans Ziel bringen.
+# UP: Forces waiting output of a Stream stream
 # force_output(stream);
 # > stream: Stream
 # can trigger GC
-  extern void force_output (object stream);
-# wird verwendet von IO, DEBUG
+extern void force_output (object stream);
+# is used by IO, DEBUG
 
-# UP: Wartenden Output eines Stream stream löschen.
+# UP: clear the waiting output of a stream.
 # clear_output(stream);
 # > stream: Stream
 # can trigger GC
-  extern void clear_output (object stream);
-# wird verwendet von IO
+extern void clear_output (object stream);
+# is used by IO
 
-# UP: Liefert die Line-Position eines Streams.
+# UP: Gives the line position of a stream:
 # get_line_position(stream)
 # > stream: Stream
-# < ergebnis: Line-Position (Fixnum >=0 or NIL)
+# < result: Line-Position (Fixnum >=0 or NIL)
 # can trigger GC
-  extern object get_line_position (object stream);
-# wird verwendet von IO, DEBUG
+extern object get_line_position (object stream);
+# is used by IO, DEBUG
 
 # Function: Reads several bytes from a stream.
 # read_byte_array(&stream,&bytearray,start,len)
@@ -11747,8 +11712,8 @@ extern if_exists_t check_if_exists (const object if_exists);
 # > uintL len: length of byte sequence to be filled
 # < uintL result: number of bytes that have been filled
 # can trigger GC
-  extern uintL read_byte_array (const object* stream_, const object* bytearray_, uintL start, uintL len);
-# wird verwendet von SEQUENCE
+extern uintL read_byte_array (const object* stream_, const object* bytearray_, uintL start, uintL len);
+# is used by SEQUENCE
 
 # Function: Writes several bytes to a stream.
 # write_byte_array(&stream,&bytearray,start,len)
@@ -11756,8 +11721,8 @@ extern if_exists_t check_if_exists (const object if_exists);
 # > object bytearray: simple-bit-vector (on the STACK)
 # > uintL start: start index of byte sequence to be written
 # > uintL len: length of byte sequence to be written
-  extern void write_byte_array (const object* stream_, const object* bytearray_, uintL start, uintL len);
-# wird verwendet von SEQUENCE
+extern void write_byte_array (const object* stream_, const object* bytearray_, uintL start, uintL len);
+# is used by SEQUENCE
 
 # Function: Reads several characters from a stream.
 # read_char_array(&stream,&chararray,start,len)
@@ -11767,8 +11732,8 @@ extern if_exists_t check_if_exists (const object if_exists);
 # > uintL len: length of character sequence to be filled
 # < uintL result: number of characters that have been filled
 # can trigger GC
-  extern uintL read_char_array (const object* stream_, const object* chararray_, uintL start, uintL len);
-# wird verwendet von SEQUENCE
+extern uintL read_char_array (const object* stream_, const object* chararray_, uintL start, uintL len);
+# is used by SEQUENCE
 
 # Function: Writes several characters to a stream.
 # write_char_array(&stream,&chararray,start,len)
@@ -11776,28 +11741,28 @@ extern if_exists_t check_if_exists (const object if_exists);
 # > object chararray: simple-string (on the STACK)
 # > uintL start: start index of character sequence to be written
 # > uintL len: length of character sequence to be written
-  extern void write_char_array (const object* stream_, const object* chararray_, uintL start, uintL len);
-# wird verwendet von SEQUENCE
+extern void write_char_array (const object* stream_, const object* chararray_, uintL start, uintL len);
+# is used by SEQUENCE
 
-# UP: Liefert den Stream, der der Wert einer Variablen ist.
+# UP: Gives the stream that is the value of a variable
 # var_stream(sym,strmflags)
-# > sym: Variable (Symbol)
-# > strmflags: Menge von Operationen, die auf dem Stream möglich sein sollen
-# < ergebnis: Stream
-  extern object var_stream (object sym, uintB strmflags);
-# wird verwendet von IO, PACKAGE, ERROR, DEBUG, SPVW
+# > sym: Variable (symbol)
+# > strmflags: Set of operations that should work on the stream
+# < result: Stream
+extern object var_stream (object sym, uintB strmflags);
+# is used by IO, PACKAGE, ERROR, DEBUG, SPVW
 
-# UP: erzeugt ein File-Stream
+# UP: makes a file-stream
 # make_file_stream(direction,append_flag,handle_fresh)
-# > STACK_5: Filename, ein Pathname oder NIL
-# > STACK_4: Truename, ein Pathname oder NIL
+# > STACK_5: Filename, a Pathname or NIL
+# > STACK_4: Truename, a Pathname or NIL
 # > STACK_3: :BUFFERED argument
 # > STACK_2: :EXTERNAL-FORMAT argument
 # > STACK_1: :ELEMENT-TYPE argument
-# > STACK_0: Handle des geöffneten Files
-# > direction: Modus (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
-# > append_flag: true falls der Stream gleich ans Ende positioniert werden
-#         soll, false sonst
+# > STACK_0: Handle of the open file
+# > direction: Mode (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
+# > append_flag: true if the stream should immediately be positioned at the end
+#                ,else false
 # > handle_fresh: whether the handle is freshly created.
 #                 This means 1. that it is currently positioned at position 0,
 #                 2. if (direction & bit(2)), it is opened for read/write, not
@@ -11807,82 +11772,82 @@ extern if_exists_t check_if_exists (const object if_exists);
 #                 and close/reopen.
 # > subr_self: calling function
 # If direction==5, handle_fresh must be true.
-# < ergebnis: File-Stream (oder evtl. File-Handle-Stream)
-# < STACK: aufgeräumt
+# < result: File-Stream (or evtl. File-Handle-Stream)
+# < STACK: cleaned
 # can trigger GC
-  extern object make_file_stream (direction_t direction, bool append_flag, bool handle_at_pos_0);
-# wird verwendet von PATHNAME
+extern object make_file_stream (direction_t direction, bool append_flag, bool handle_at_pos_0);
+# is used by PATHNAME
 
-# Liefert einen Broadcast-Stream zum Stream stream.
+# Makes a Broadcast-Stream using a Stream stream.
 # make_broadcast1_stream(stream)
 # can trigger GC
-  extern object make_broadcast1_stream (object stream);
-# wird verwendet von IO
+extern object make_broadcast1_stream (object stream);
+# is used by IO
 
-# Liefert einen Two-Way-Stream zu einem Input-Stream und einem Output-Stream.
+# Makes a Two-Way-stream using an Input-Stream and an Output-Stream.
 # make_twoway_stream(input_stream,output_stream)
 # > input_stream : Input-Stream
 # > output_stream : Output-Stream
-# < ergebnis : Two-Way-Stream
+# < result : Two-Way-Stream
 # can trigger GC
-  extern object make_twoway_stream (object input_stream, object output_stream);
-# wird verwendet von SPVW
+extern object make_twoway_stream (object input_stream, object output_stream);
+# is used by SPVW
 
-# Liefert einen String-Output-Stream.
+# Makes a string-output-stream.
 # make_string_output_stream()
 # can trigger GC
-  extern object make_string_output_stream (void);
-# wird verwendet von IO, EVAL, DEBUG, ERROR
+extern object make_string_output_stream (void);
+# is used by IO, EVAL, DEBUG, ERROR
 
 # UP: Liefert das von einem String-Output-Stream Angesammelte.
 # get_output_stream_string(&stream)
 # > stream: String-Output-Stream
 # < stream: geleerter Stream
-# < ergebnis: Angesammeltes, ein Simple-String
+# < result: Angesammeltes, ein Simple-String
 # can trigger GC
-  extern object get_output_stream_string (const object* stream_);
-# wird verwendet von IO, EVAL, DEBUG, ERROR
+extern object get_output_stream_string (const object* stream_);
+# is used by IO, EVAL, DEBUG, ERROR
 
-# UP: Liefert einen Pretty-Printer-Hilfs-Stream.
+# UP: Makes a pretty-printer help stream
 # make_pphelp_stream()
 # can trigger GC
-  extern object make_pphelp_stream (void);
-# wird verwendet von IO
+extern object make_pphelp_stream (void);
+# is used by IO
 
 # UP: Tells whether a stream is buffered.
 # stream_isbuffered(stream)
 # > stream: a channel or socket stream
 # < result: true if stream is buffered, else false
-  extern bool stream_isbuffered (object stream);
-# wird verwendet von IO
+extern bool stream_isbuffered (object stream);
+# is used by IO
 
 # UP: Returns the current line number of a stream.
 # stream_line_number(stream)
 # > stream: a stream
 # < result: an integer or NIL
 # can trigger GC
-  extern object stream_line_number (object stream);
-# wird verwendet von IO
+extern object stream_line_number (object stream);
+# is used by IO
 
 # Function: Returns true if a stream allows read-eval.
 # stream_get_read_eval(stream)
 # > stream: a stream
 # < result: true if read-eval is allowed from the stream, else false
-  extern bool stream_get_read_eval (object stream);
+extern bool stream_get_read_eval (object stream);
 # used by IO
 
 # Function: Changes the read-eval state of a stream.
 # stream_set_read_eval(stream,value);
 # > stream: a stream
 # > value: true if read-eval shall be allowed from the stream, else false
-  extern void stream_set_read_eval (object stream, bool value);
+extern void stream_set_read_eval (object stream, bool value);
 # used by IO
 
 #if (defined(UNIX) && !defined(NEXTAPP)) || defined(AMIGAOS) || defined(RISCOS)
-# UP: Terminal wieder in Normalzustand schalten
-# terminal_sane();
+  # UP: return terminal to normal mode
+  # terminal_sane();
   extern void terminal_sane (void);
-# wird verwendet von SPVW
+  # is used by SPVW
 #endif
 
 # Function: test whether a stream is a terminal stream.
@@ -11890,183 +11855,179 @@ extern bool terminal_stream_p(object stream);
 
 #ifdef EXPORT_SYSCALLS
 #ifdef UNIX
-# Returns the file descriptor of a stream.
+  # Returns the file descriptor of a stream.
   extern object stream_fd (object stream);
 #endif # UNIX
 #endif # EXPORT_SYSCALLS
 
 # ####################### SYMBIBL zu SYMBOL.D ############################# #
 
-# UP: Liefert die globale Funktionsdefinition eines Symbols,
-# mit Test, ob das Symbol eine globale Funktion darstellt.
+# UP: Returns the gobal definition of a symbol's function,
+# and tests, whether the symbol is a global function.
 # Symbol_function_checked(symbol)
-# > symbol: Symbol
-# < ergebnis: seine globale Funktionsdefinition
-  extern object Symbol_function_checked (object symbol);
-# wird verwendet von
+# > symbol: symbol
+# < result: the global definition of the function
+extern object Symbol_function_checked (object symbol);
+# is used by
 
-# UP: Holt eine Property aus der Property-Liste eines Symbols.
+# UP: gets a property from a symbol's property liste.
 # get(symbol,key)
-# > symbol: ein Symbol
-# > key: ein mit EQ zu vergleichender Key
-# < value: dazugehöriger Wert aus der Property-Liste von symbol, oder unbound.
-  extern object get (object symbol, object key);
-# wird verwendet von IO, CONTROL, EVAL, PREDTYPE, SEQUENCE
+# > symbol: a symbold
+# > key: a key that is comparable with EQ
+# < value: corresponding value from the property liste of 'symbol', or unbound.
+extern object get (object symbol, object key);
+# is used by IO, CONTROL, EVAL, PREDTYPE, SEQUENCE
 
 # ##################### ARITBIBL zu LISTARIT.D ############################ #
 
-# UP: Initialisiert die Arithmetik.
+# UP: Initializes the arithmetics.
 # init_arith();
 # can trigger GC
-  extern void init_arith (void);
-# wird verwendet von SPVW
+extern void init_arith (void);
+# is used by SPVW
 
-# Wandelt Longword in Integer um.
+# Converts a longword into an Integer.
 # L_to_I(wert)
-# > wert: Wert des Integers, ein signed 32-Bit-Integer.
-# < ergebnis: Integer mit diesem Wert.
+# > wert: value of the Integer, a signed 32-Bit-Integer.
+# < result: Integer with that value.
 # can trigger GC
-  extern object L_to_I (sint32 wert);
-# wird verwendet von TIME, REXX
+extern object L_to_I (sint32 wert);
+# is used by TIME, REXX
 
-# Wandelt Unsigned Longword in Integer >=0 um.
+# Converts an unsigned longword into an Integer >=0.
 # UL_to_I(wert)
-# > wert: Wert des Integers, ein unsigned 32-Bit-Integer.
-# < ergebnis: Integer mit diesem Wert.
+# > wert: value of the Integer, an unsigned 32-bit-Integer.
+# < result: Integer with that value.
 # can trigger GC
-  #if (intLsize<=oint_data_len)
-    #define UL_to_I(wert)  fixnum((uintL)(wert))
-  #else
-    extern object UL_to_I (uintL wert);
-  #endif
-# wird verwendet von MISC, TIME, STREAM, PATHNAME, HASHTABL, SPVW, ARRAY
+#if (intLsize<=oint_data_len)
+  #define UL_to_I(wert)  fixnum((uintL)(wert))
+#else
+  extern object UL_to_I (uintL wert);
+#endif
+# is used by MISC, TIME, STREAM, PATHNAME, HASHTABL, SPVW, ARRAY
 
-# Wandelt Doppel-Longword in Integer um.
+# converts a double-longword into an Integer.
 # L2_to_I(wert_hi,wert_lo)
-# > wert_hi|wert_lo: Wert des Integers, ein signed 64-Bit-Integer.
-# < ergebnis: Integer mit diesem Wert.
+# > wert_hi|wert_lo: value of the Integer, an signed 64-bit-Integer.
+# < result: Integer with that value.
 # can trigger GC
-  extern object L2_to_I (sint32 wert_hi, uint32 wert_lo);
-# wird verwendet von TIME, FOREIGN
+extern object L2_to_I (sint32 wert_hi, uint32 wert_lo);
+# is used by TIME, FOREIGN
 
 #ifdef HAVE_FFI
-# Wandelt Unsigned Doppel-Longword in Integer um.
-# UL2_to_I(wert_hi,wert_lo)
-# > wert_hi|wert_lo: Wert des Integers, ein unsigned 64-Bit-Integer.
-# < ergebnis: Integer mit diesem Wert.
-# can trigger GC
+  # Converts an unsigned double-longword into an Integer.
+  # UL2_to_I(wert_hi,wert_lo)
+  # > wert_hi|wert_lo: value of the Integer, an unsigned 64-bit-Integer.
+  # < result: Integer with that value.
+  # can trigger GC
   extern object UL2_to_I (uint32 wert_hi, uint32 wert_lo);
-# wird verwendet von FOREIGN, vom FFI
+  # is used by FOREIGN, and by the FFI
 #endif
 
 #ifdef intQsize
-# Wandelt Quadword in Integer um.
-# Q_to_I(wert)
-# > wert: Wert des Integers, ein signed 64-Bit-Integer.
-# < ergebnis: Integer mit diesem Wert.
-# can trigger GC
+  # Converts a quadword into an Integer.
+  # Q_to_I(wert)
+  # > wert: value of the Integer, a signed 64-bit-Integer.
+  # < result: Integer with that value
+  # can trigger GC
   extern object Q_to_I (sint64 wert);
-# wird verwendet vom FFI
+  # is used by the FFI
 #endif
 
 #if defined(intQsize) || defined(WIDE_HARD)
-# Wandelt Unsigned Quadword in Integer >=0 um.
-# UQ_to_I(wert)
-# > wert: Wert des Integers, ein unsigned 64-Bit-Integer.
-# < ergebnis: Integer mit diesem Wert.
-# can trigger GC
+  # Converts an unsigned quadword into an Integer >=0.
+  # UQ_to_I(wert)
+  # > wert: value of the Integer, an unsigned 64-bit-Integer.
+  # < result: Integer with that value
+  # can trigger GC
   extern object UQ_to_I (uint64 wert);
-# wird verwendet von MISC, TIME, FFI
+  # is used by MISC, TIME, FFI
 #endif
 
-# Wandelt ein C-Integer gegebenen Typs in ein Integer um.
-# val sollte eine Variable sein.
-  #define uint8_to_I(val)  fixnum((uint8)(val))
-  #define sint8_to_I(val)  L_to_I((sint32)(sint8)(val))
-  #define uint16_to_I(val)  fixnum((uint16)(val))
-  #define sint16_to_I(val)  L_to_I((sint32)(sint16)(val))
-  #define uint32_to_I(val)  UL_to_I((uint32)(val))
-  #define sint32_to_I(val)  L_to_I((sint32)(val))
-  #ifdef intQsize
-    #define uint64_to_I(val)  UQ_to_I((uint64)(val))
-    #define sint64_to_I(val)  Q_to_I((sint64)(val))
-  #elif defined(HAVE_FFI)
-    #define uint64_to_I(val)  UL2_to_I((uint32)((val)>>32),(uint32)(val))
-    #define sint64_to_I(val)  L2_to_I((sint32)((val)>>32),(uint32)(val))
-  #endif
-  #if (int_bitsize==16)
-    #define uint_to_I(val)  uint16_to_I(val)
-    #define sint_to_I(val)  sint16_to_I(val)
-  #else # (int_bitsize==32)
-    #define uint_to_I(val)  uint32_to_I(val)
-    #define sint_to_I(val)  sint32_to_I(val)
-  #endif
-  #if (long_bitsize==32)
-    #define ulong_to_I(val)  uint32_to_I(val)
-    #define slong_to_I(val)  sint32_to_I(val)
-  #else # (long_bitsize==64)
-    #define ulong_to_I(val)  uint64_to_I(val)
-    #define slong_to_I(val)  sint64_to_I(val)
-  #endif
-# wird verwendet von MISC, vom FFI
+# Converts a C-Integer of a given type into an Integer
+# val should be a variable
+#define uint8_to_I(val)  fixnum((uint8)(val))
+#define sint8_to_I(val)  L_to_I((sint32)(sint8)(val))
+#define uint16_to_I(val)  fixnum((uint16)(val))
+#define sint16_to_I(val)  L_to_I((sint32)(sint16)(val))
+#define uint32_to_I(val)  UL_to_I((uint32)(val))
+#define sint32_to_I(val)  L_to_I((sint32)(val))
+#ifdef intQsize
+  #define uint64_to_I(val)  UQ_to_I((uint64)(val))
+  #define sint64_to_I(val)  Q_to_I((sint64)(val))
+#elif defined(HAVE_FFI)
+  #define uint64_to_I(val)  UL2_to_I((uint32)((val)>>32),(uint32)(val))
+  #define sint64_to_I(val)  L2_to_I((sint32)((val)>>32),(uint32)(val))
+#endif
+#if (int_bitsize==16)
+  #define uint_to_I(val)  uint16_to_I(val)
+  #define sint_to_I(val)  sint16_to_I(val)
+#else # (int_bitsize==32)
+  #define uint_to_I(val)  uint32_to_I(val)
+  #define sint_to_I(val)  sint32_to_I(val)
+#endif
+#if (long_bitsize==32)
+  #define ulong_to_I(val)  uint32_to_I(val)
+  #define slong_to_I(val)  sint32_to_I(val)
+#else # (long_bitsize==64)
+  #define ulong_to_I(val)  uint64_to_I(val)
+  #define slong_to_I(val)  sint64_to_I(val)
+#endif
+# is used by MISC, vom FFI
 
-# Wandelt Integer >=0 in Unsigned Longword um.
+# Converts an Integer >=0 into an unsigned longword.
 # I_to_UL(obj)
-# > obj: ein Objekt, sollte ein Integer >=0, <2^32 sein
-# < ergebnis: der Wert des Integer als Unsigned Longword.
-  extern uintL I_to_UL (object obj);
-# wird verwendet von TIME, ARRAY
+# > obj: an object, should be an Integer >=0, <2^32
+# < result: the Integer's value as unsigned longword
+extern uintL I_to_UL (object obj);
+# is used by TIME, ARRAY
 
-# Wandelt Integer in Signed Longword um.
+# Converts an Integer into a signed quadword
 # I_to_L(obj)
-# > obj: ein Objekt, sollte ein Integer >=-2^31, <2^31 sein
-# < ergebnis: der Wert des Integer als Longword.
-  extern sintL I_to_L (object obj);
-# wird verwendet von
+# > obj: an object, should be an Integer >=-2^31, <2^31
+# < result: the Integer's value as signed quadword
+extern sintL I_to_L (object obj);
+# is used by
 
 #if (defined(HAVE_FFI) || defined(HAVE_AFFI)) && defined(HAVE_LONGLONG)
-
-# Wandelt Integer >=0 in Unsigned Quadword um.
-# I_to_UQ(obj)
-# > obj: ein Objekt, sollte ein Integer >=0, <2^64 sein
-# < ergebnis: der Wert des Integer als Unsigned Quadword.
+  # Converts an Integer >=0 into an unsigned quadword.
+  # I_to_UQ(obj)
+  # > obj: an object, should be an Integer >=0, <2^64
+  # < result: the Integer's vaulue as unsigned quadword
   extern uint64 I_to_UQ (object obj);
-# wird verwendet von FOREIGN, vom FFI
-
+  # is used by FOREIGN, vom FFI
 #endif
 
 #if defined(HAVE_FFI) && defined(HAVE_LONGLONG)
-
-# Wandelt Integer in Signed Quadword um.
-# I_to_Q(obj)
-# > obj: ein Objekt, sollte ein Integer >=-2^63, <2^63 sein
-# < ergebnis: der Wert des Integer als Quadword.
+  # Converts an Integer into a signed quadword.
+  # I_to_Q(obj)
+  # > obj: an object, should be an Integer >=-2^63, <2^63
+  # < result: the Integer's value as quadword.
   extern sint64 I_to_Q (object obj);
-# wird verwendet von FOREIGN, vom FFI
-
+  # is used by FOREIGN, vom FFI
 #endif
 
-# Wandelt ein Integer in ein C-Integer gegebenen Typs um.
-# I_to_xintyy(obj) setzt voraus, dass xintyy_p(obj) schon abgeprüft wurde.
-  #define I_to_uint8(obj)  (uint8)(as_oint(obj) >> oint_data_shift)
-  #define I_to_sint8(obj)  (sint8)(as_oint(obj) >> oint_data_shift)
-  #define I_to_uint16(obj)  (uint16)(as_oint(obj) >> oint_data_shift)
-  #define I_to_sint16(obj)  (sint16)(as_oint(obj) >> oint_data_shift)
-  #if (oint_data_len>=32)
-    #define I_to_uint32(obj)  (uint32)(as_oint(obj) >> oint_data_shift)
-  #else
-    #define I_to_uint32(obj)  I_to_UL(obj)
-  #endif
-  #if (oint_data_len>=31)
-    #define I_to_sint32(obj)  (sint32)(as_oint(obj) >> oint_data_shift)
-  #else
-    #define I_to_sint32(obj)  I_to_L(obj)
-  #endif
+# Converts an Integer into a C-Integer of a given type.
+# I_to_xintyy(obj) assumes that xintyy_p(obj) has already been checked.
+#define I_to_uint8(obj)  (uint8)(as_oint(obj) >> oint_data_shift)
+#define I_to_sint8(obj)  (sint8)(as_oint(obj) >> oint_data_shift)
+#define I_to_uint16(obj)  (uint16)(as_oint(obj) >> oint_data_shift)
+#define I_to_sint16(obj)  (sint16)(as_oint(obj) >> oint_data_shift)
+#if (oint_data_len>=32)
+  #define I_to_uint32(obj)  (uint32)(as_oint(obj) >> oint_data_shift)
+#else
+  #define I_to_uint32(obj)  I_to_UL(obj)
+#endif
+#if (oint_data_len>=31)
+  #define I_to_sint32(obj)  (sint32)(as_oint(obj) >> oint_data_shift)
+#else
+  #define I_to_sint32(obj)  I_to_L(obj)
+#endif
 #if defined(HAVE_FFI) || defined(HAVE_AFFI)
- #ifdef HAVE_LONGLONG
-  #define I_to_uint64(obj)  I_to_UQ(obj)
-  #define I_to_sint64(obj)  I_to_Q(obj)
- #endif
+  #ifdef HAVE_LONGLONG
+    #define I_to_uint64(obj)  I_to_UQ(obj)
+    #define I_to_sint64(obj)  I_to_Q(obj)
+  #endif
   #if (int_bitsize==16)
     #define I_to_uint  I_to_uint16
     #define I_to_sint  I_to_sint16
@@ -12082,167 +12043,164 @@ extern bool terminal_stream_p(object stream);
     #define I_to_slong  I_to_sint64
   #endif
 #endif
-# wird verwendet vom FFI
+# is used byFFI
 
-# I_I_comp(x,y) vergleicht zwei Integers x und y.
-# Ergebnis: 0 falls x=y, +1 falls x>y, -1 falls x<y.
-  extern signean I_I_comp (object x, object y);
-# wird verwendet von SEQUENCE
+# I_I_comp(x,y) compares two Integers x and y.
+# Result: 0 if x=y, +1 if x>y, -1 if x<y.
+extern signean I_I_comp (object x, object y);
+# is used by SEQUENCE
 
-# (1+ x), wo x ein Integer ist. Ergebnis Integer.
+# (1+ x), where x is an Integer. Result Integer.
 # I_1_plus_I(x)
 # can trigger GC
-  extern object I_1_plus_I (object x);
-# wird verwendet von SEQUENCE, SPVW, SYMBOL
+extern object I_1_plus_I (object x);
+# is used by SEQUENCE, SPVW, SYMBOL
 
-# (1- x), wo x ein Integer ist. Ergebnis Integer.
+# (1- x), where x is an Integer. Result Integer.
 # I_minus1_plus_I(x)
 # can trigger GC
-  extern object I_minus1_plus_I (object x);
-# wird verwendet von SEQUENCE
+extern object I_minus1_plus_I (object x);
+# is used by SEQUENCE
 
-# (+ x y), wo x und y Integers sind. Ergebnis Integer.
+# (+ x y), where x and y are Integers. Result Integer.
 # I_I_plus_I(x,y)
 # can trigger GC
-  extern object I_I_plus_I (object x, object y);
-# wird verwendet von SEQUENCE
+extern object I_I_plus_I (object x, object y);
+# is used by SEQUENCE
 
-# (- x y), wo x und y Integers sind. Ergebnis Integer.
+# (- x y), where x and y are Integers. Result Integer.
 # I_I_minus_I(x,y)
 # can trigger GC
-  extern object I_I_minus_I (object x, object y);
-# wird verwendet von SEQUENCE
+extern object I_I_minus_I (object x, object y);
+# is used by SEQUENCE
 
-# (ASH x y), wo x und y Integers sind. Ergebnis Integer.
+# (ASH x y), where x and y are Integers. Result Integer.
 # I_I_ash_I(x,y)
 # can trigger GC
-  extern object I_I_ash_I (object x, object y);
-# wird verwendet von SEQUENCE
+extern object I_I_ash_I (object x, object y);
+# is used by SEQUENCE
 
-# (INTEGER-LENGTH x), wo x ein Integer ist. Ergebnis uintL.
+# (INTEGER-LENGTH x), where x is an Integer. Result uintL.
 # I_integer_length(x)
-  extern uintL I_integer_length (object x);
-# wird verwendet von ARRAY
+extern uintL I_integer_length (object x);
+# is used by ARRAY
 
-# c_float_to_FF(&val) wandelt ein IEEE-Single-Float val in ein Single-Float um.
+# c_float_to_FF(&val) converts an IEEE-single-float val into an single-float.
 # can trigger GC
-  extern object c_float_to_FF (const ffloatjanus* val_);
+extern object c_float_to_FF (const ffloatjanus* val_);
 
 # FF_to_c_float(obj,&val);
-# wandelt ein Single-Float obj in ein IEEE-Single-Float val um.
-  extern void FF_to_c_float (object obj, ffloatjanus* val_);
+# converts aingle-float obj into an IEEE-single-float val.
+extern void FF_to_c_float (object obj, ffloatjanus* val_);
 
-# c_double_to_DF(&val) wandelt ein IEEE-Double-Float val in ein Double-Float um.
+# c_double_to_DF(&val) converts an IEEE-double-float val into a double-float.
 # can trigger GC
-  extern object c_double_to_DF (const dfloatjanus* val_);
+extern object c_double_to_DF (const dfloatjanus* val_);
 
 # DF_to_c_double(obj,&val);
-# wandelt ein Double-Float obj in ein IEEE-Double-Float val um.
-  extern void DF_to_c_double (object obj, dfloatjanus* val_);
+# convernts a double-float obj into an IEEE-double-float val.
+extern void DF_to_c_double (object obj, dfloatjanus* val_);
 
-# UP: Wandelt eine Zeichenkette mit Integer-Syntax in ein Integer um.
-# Punkte werden überlesen.
+# UP: turns a string with Tnteger syntax into an Integer number
+# Points will be ignored
 # read_integer(base,sign,string,index1,index2)
-# > base: Lesebasis (>=2, <=36)
-# > sign: Vorzeichen (/=0 falls negativ)
-# > string: Simple-String (enthält Ziffern mit Wert <base und evtl. Punkt)
-# > index1: Index der ersten Ziffer
-# > index2: Index nach der letzten Ziffer
-#   (also index2-index1 Ziffern, incl. evtl. Dezimalpunkt am Schluss)
-# < ergebnis: Integer
+# > base: read base(>=2, <=36)
+# > sign: sign (/=0 if negative)
+# > string: simple-string (contains digit with values <base and eventually a point)
+# > index1: Index of the first digit
+# > index2: Index after the last digit
+#   (thus index2-index1 digits, incl. a decimal point that can be at the end)
+# < result: Integer
 # can trigger GC
-  extern object read_integer (uintWL base,
-         signean sign, object string, uintL index1, uintL index2);
-# wird verwendet von IO
+extern object read_integer (uintWL base, signean sign, object string, uintL index1, uintL index2);
+# is used by IO
 
-# UP: Wandelt eine Zeichenkette mit Rational-Syntax in eine rationale Zahl um.
+# UP: turns a string with rational syntax into a rational number
 # read_rational(base,sign,string,index1,index3,index2)
-# > base: Lesebasis (>=2, <=36)
-# > sign: Vorzeichen (/=0 falls negativ)
+# > base: read base (>=2, <=36)
+# > sign: sign (/=0 if negative)
 # > string: Normal-Simple-String (enthält Ziffern mit Wert <base und Bruchstrich)
-# > index1: Index der ersten Ziffer
-# > index3: Index von '/'
-# > index2: Index nach der letzten Ziffer
-#   (also index3-index1 Zähler-Ziffern, index2-index3-1 Nenner-Ziffern)
-# < ergebnis: rationale Zahl
+# > index1: Index of the first digit
+# > index3: Index of '/'
+# > index2: Index after the last digit
+#   (thus index3-index1 digits of the numerator, index2-index3-1 digits of the denominator)
+# < result: rational number
 # can trigger GC
-  extern object read_rational (uintWL base,
-         signean sign, object string, uintL index1, uintL index3, uintL index2);
-# wird verwendet von IO
+extern object read_rational (uintWL base, signean sign, object string, uintL index1, uintL index3, uintL index2);
+# is used by IO
 
-# UP: Wandelt eine Zeichenkette mit Float-Syntax in ein Float um.
+# UP: turns a string with float-syntax into a float
 # read_float(base,sign,string,index1,index4,index2,index3)
-# > base: Lesebasis (=10)
-# > sign: Vorzeichen (/=0 falls negativ)
-# > string: Normal-Simple-String (enthält Ziffern und evtl. Punkt und Exponentmarker)
-# > index1: Index vom Mantissenanfang (excl. Vorzeichen)
-# > index4: Index nach dem Mantissenende
-# > index2: Index beim Ende der Characters
-# > index3: Index nach dem Dezimalpunkt (=index4 falls keiner da)
-#   (also Mantisse mit index4-index1 Characters: Ziffern und max. 1 '.')
-#   (also index4-index3 Nachkommaziffern)
-#   (also bei index4<index2: index4 = Index des Exponent-Markers,
-#    index4+1 = Index des Exponenten-Vorzeichens oder der ersten
-#    Exponenten-Ziffer)
-# < ergebnis: Float
+# > base: read base (=10)
+# > sign: Sign (/=0 if negative)
+# > string: normal-simple-string (contains digits and evtually point and exponent marker)
+# > index1: Index of the beginning of the mantissa (without sign)
+# > index4: Index after the end of the mantissa
+# > index2: Index at the end of the character
+# > index3: Index after the decimal point (=index4 if there is none)
+#   (thus mantissa with index4-index1 characters: digits and max. 1 '.')
+#   (thus index4-index3 digits after the decimal point)
+#   (thus at index4<index2: index4 = index of the exponent marker,
+#    index4+1 = index of the exponent's sign or the firs digit
+#    of the exponent)
+# < result: Float
 # can trigger GC
-  extern object read_float (uintWL base,
-         signean sign, object string, uintL index1, uintL index4, uintL index2, uintL index3);
-# wird verwendet von IO
+extern object read_float (uintWL base, signean sign, object string, uintL index1, uintL index4, uintL index2, uintL index3);
+# is used by IO
 
-# UP: Gibt ein Integer aus.
+# UP: prints an Integer
 # print_integer(z,base,&stream);
 # > z: Integer
-# > base: Basis (>=2, <=36)
+# > base: base (>=2, <=36)
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-  extern void print_integer (object z, uintWL base, const object* stream_);
-# wird verwendet von IO
+extern void print_integer (object z, uintWL base, const object* stream_);
+# is used by IO
 
-# UP: Gibt ein Float aus.
+# UP: prints a float
 # print_float(z,&stream);
 # > z: Float
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-  extern void print_float (object z, const object* stream_);
-# wird verwendet von IO
+extern void print_float (object z, const object* stream_);
+# is used by IO
 
-# UP: Multipliziert ein Integer mit 10 und addiert eine weitere Ziffer.
+# UP: Multiply an Integer by10 and add another digit
 # mal_10_plus_x(y,x)
 # > y: Integer Y (>=0)
-# > x: Ziffernwert X (>=0,<10)
-# < ergebnis: Integer Y*10+X (>=0)
+# > x: digit value X (>=0,<10)
+# < result: Integer Y*10+X (>=0)
 # can trigger GC
-  extern object mal_10_plus_x (object y, uintB x);
-# wird verwendet von IO
+extern object mal_10_plus_x (object y, uintB x);
+# is used by IO
 
-# UP: entscheidet auf Zahlgleichheit
+# UP: decides whether two numbers are equal
 # number_gleich(x,y)
-# > x,y: zwei Zahlen
-# < ergebnis: true, falls (= x y) gilt
-  extern bool number_gleich (object x, object y);
-# wird verwendet von PREDTYPE
+# > x,y: two numbers
+# < result: true, if (= x y) holds
+extern bool number_gleich (object x, object y);
+# is used by PREDTYPE
 
-# UP: Wandelt ein Objekt in ein Float von gegebenem Typ um.
+# UP: Converts an object into a float of a given type
 # coerce_float(obj,type)
-# > obj: Objekt
-# > type: Eines der Symbole
+# > obj: Object
+# > type: one of the symbols
 #         FLOAT, SHORT-FLOAT, SINGLE-FLOAT, DOUBLE-FLOAT, LONG-FLOAT
-# > subr_self: Aufrufer (ein SUBR)
-# < ergebnis: (coerce obj type)
+# > subr_self: caller (a SUBR)
+# < result: (coerce obj type)
 # can trigger GC
-  extern object coerce_float (object obj, object type);
-# wird verwendet von PREDTYPE
+extern object coerce_float (object obj, object type);
+# is used by PREDTYPE
 
 # UP: Returns the decimal string representation of an integer >= 0.
 # decimal_string(x)
 # > object x: an integer >= 0
 # < object result: a normal-simple-string containing the digits
 # can trigger GC
-  extern object decimal_string (object x);
-# wird verwendet von PATHNAME
+extern object decimal_string (object x);
+# is used b PATHNAME
 
 # ###################### FRGNIBL zu FOREIGN.D ############################# #
 
@@ -12318,32 +12276,32 @@ extern bool terminal_stream_p(object stream);
 
 # Initialize the FFI.
   extern void init_ffi (void);
-# wird verwendet von SPVW
+# used by SPVW
 
 # De-Initialize the FFI.
   extern void exit_ffi (void);
-# wird verwendet von SPVW
+# used by SPVW
 
 #endif
 
-# ####################### REXXBIBL zu REXX.D ############################## #
+# ####################### REXXBIBL for REXX.D ############################## #
 
 #ifdef REXX
 
-# Initialisiert die Rexx-Schnittstelle.
+# Initializes the Rexx-interface.
 # init_rexx();
-# < ergebnis: Flag, ob erfolgreich initialisiert.
+# < result: flag, whether initialization was successful
   extern bool init_rexx (void);
-# wird verwendet von SPVW
+# used by SPVW
 
-# Schließt die Rexx-Schnittstelle.
+# Closes the Rexx-interface.
 # close_rexx();
   extern void close_rexx (void);
-# wird verwendet von SPVW
+# used by SPVW
 
 #endif
 
-# ######################## THREADBIBL zu THREAD.D ######################### #
+# ######################## THREADBIBL for THREAD.D ######################### #
 
 #ifdef MULTITHREAD
 

@@ -1,3 +1,8 @@
+2001-09-07  Oliver Nee  <o.nee@t-online.de>
+	    Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d: translated half of the comments
+
 2001-09-06  Sam Steingold  <sds@gnu.org>
 
 	* macros1.lisp (case-expand): new function
