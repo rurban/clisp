@@ -727,7 +727,7 @@ static void *get_ptr_object_and_display (object type, object obj,
 /* Now the XID objects */
 
 static object make_xid_obj_low (gcv_object_t *prealloc, gcv_object_t *type,
-                               gcv_object_t *dpy, XID xid)
+                                gcv_object_t *dpy, XID xid)
 {
   if (nullp (*prealloc)) {
     /* (make-instance type :display dpy :id xid) */
@@ -1833,11 +1833,18 @@ DEFUN(XLIB:DISPLAY-RELEASE-NUMBER, display) /* OK */
   value1 = value2; mv_count = 1;
 }
 
+DEFUN(XLIB::%DISPLAY-XID, display)
+{
+  Display *dpy = pop_display ();
+  VALUES1(make_uint29(XAllocID(dpy)));
+}
+
 DEFUN(XLIB:DISPLAY-XID, display)
-/* This functions seems to return a function to allocate new resource id`s,
- so have a closer look at (from Xlib.h):
-  #define XAllocID(dpy) ((*((_XPrivDisplay)dpy)->resource_alloc)((dpy))) */
-{UNDEFINED;}
+/* This functions returns a function to allocate new resource id's */
+{
+  pop_display();
+  VALUES1(``XLIB::%DISPLAY-XID``);
+}
 
 DEFUN(XLIB:DISPLAY-AFTER-FUNCTION, display) /* OK */
 {
