@@ -32,13 +32,21 @@ DSOURCES = \
  charstrg debug \
  error erramiga errunix errwin32 \
  misc time predtype symbol \
- lisparit aridecl arilev0 arilev1 arilev1c arilev1e arilev1i intelem intlog intplus intcomp intbyte intmal intdiv intgcd int2adic intsqrt intprint intread rational sfloat ffloat dfloat lfloat flo_konv flo_rest realelem realrand realtran compelem comptran \
- posixmath \
+ lisparit aridecl arilev0 arilev1 arilev1c arilev1e arilev1i intelem intlog intplus intcomp intbyte intmal intdiv intgcd int2adic intsqrt intprint intread rational sfloat ffloat dfloat lfloat flo_konv flo_rest realelem realrand realtran compelem comptran posixmath \
+ posixmisc \
  rexx affi \
  foreign \
- unixaux win32aux acornaux acornsig amigaaux
+ unixaux win32aux acornaux acornsig amigaaux \
+ dirkey
 
-LISPSOURCES = init defseq backquote defmacro macros1 macros2 defs1 timezone places floatprint type defstruct format savemem trace compiler disassem defs2 loop clos condition gstream xcharin keyboard screen amigasock beossock runprog query reploop dribble complete describe room edit macros3 foreign1 affi1 rexx1 defs3
+LISPSOURCES = init defseq backquote defmacro macros1 macros2 defs1 \
+              timezone places floatprint type defstruct format \
+              savemem trace cmacros compiler defs2 loop clos \
+              disassem condition threads gstream xcharin keyboard \
+              screen beossock runprog query reploop dribble complete \
+              describe room edit macros3 clhs inspect gray \
+              foreign1 posix dirkey german french spanish dutch config \
+              affi1 rexx1 amigasock
 
 SOURCES := $(patsubst %,%.d,$(DSOURCES)) $(patsubst %,%.lisp,$(LISPSOURCES))
 
