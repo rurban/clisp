@@ -3801,11 +3801,10 @@ typedef xrecord_ *  Xrecord;
 
 # Possible rectype values for records.
   enum {
-           enum_rectype_first = -5,     # Try to keep rectype_limit = 0.
+           enum_rectype_first = -4,     # Try to keep rectype_limit = 0.
          Rectype_Closure,
          Rectype_Structure,             # only used #ifndef case_structure
          Rectype_Instance,
-         Rectype_realloc_Instance,
            rectype_limit, # Here is the limit between Srecord and Xrecord.
          Rectype_Hashtable = rectype_limit,
          #ifndef TYPECODES
@@ -5060,13 +5059,8 @@ typedef struct {
   gcv_object_t inst_cl_id; /* the class_id of inst_class */
   gcv_object_t other[unspecified];
 } *  Instance;
-
-#define instance_valid_p(o) \
-  eq(TheInstance(o)->inst_cl_id,TheClass(TheInstance(o)->inst_class)->class_id)
-/* update-instance-for-redefined-class
- can trigger GC */
-extern object update_instance (object o);
-#define check_instance(o)  if (!instance_valid_p(o)) o=update_instance(o)
+# Bit masks in the flags:
+  #define instflags_forwarded_B    bit(0)
 
 # Closures
 typedef struct {
@@ -5957,14 +5951,9 @@ typedef enum {
 # Test for CLOS-Instance
 #ifdef TYPECODES
   #define instancep(obj)  (typecode(obj)==instance_type)
-  #define instance_un_realloc(obj)   (void)0/*nop*/
 #else
   #define instancep(obj)  \
-    (varobjectp(obj) && ((Record_type(obj) == Rectype_Instance) || \
-                         (Record_type(obj) == Rectype_realloc_Instance)))
-  #define instance_un_realloc(obj) \
-    while (Record_type(obj) == Rectype_realloc_Instance)    \
-      (obj) = TheInstance(obj)->inst_class/*;*/
+    (varobjectp(obj) && (Record_type(obj) == Rectype_Instance))
 #endif
 
 # Test for CLOS-class
@@ -6402,7 +6391,7 @@ typedef enum {
   #define case_Rectype_Closure_above  \
     case Rectype_Closure: goto case_closure;
   #define case_Rectype_Instance_above  \
-    case Rectype_realloc_Instance: case Rectype_Instance: goto case_instance;
+    case Rectype_Instance: goto case_instance;
   #define case_Rectype_Sbvector_above  \
     case Rectype_Sbvector: goto case_sbvector;
   #define case_Rectype_Sb2vector_above  \
@@ -8189,7 +8178,7 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
 # < result: a fresh weak key-value table
 # can trigger GC
 extern object allocate_weakkvt (uintL len, object type);
-# is used by hashtable.d
+# is used by HASHTABL
 
 # UP: allocates finalizer
 # allocate_finalizer()
@@ -11485,14 +11474,6 @@ extern void break_driver (bool continuable_p);
 extern object gethash (object obj, object ht);
 # is used by EVAL, RECORD, PATHNAME, FOREIGN
 
-/* Test for CLOS instance of a given class */
-static inline bool instanceof (object obj, object clas) {
-  if (!instancep(obj)) return false;
-  instance_un_realloc(obj);
-  check_instance(obj);
-  return !eq(gethash(clas,TheClass(TheInstance(obj)->inst_class)->all_superclasses),nullobj);
-}
-
 # UP: Locates a key in a hash-table and gives the older value.
 # shifthash(ht,obj,value) == (SHIFTF (GETHASH obj ht) value)
 # > ht: hash-table
@@ -12295,6 +12276,47 @@ extern object expand_deftype (object type_spec, bool once_p);
 typedef void gc_function_t (void);
 extern void with_gc_statistics (gc_function_t* fun);
 # is used by SPVW
+
+# ####################### RECBIBL for RECORD.D ############################# #
+
+# instance_un_realloc(obj);
+# walks over forward pointers left by instance reallocation (CHANGE-CLASS).
+# > obj: a CLOS instance, possibly a forward pointer
+# < obj: the same CLOS instance, not a forward pointer
+# Note that the forwarded instance must not be leaked to "userland", because
+# the forward pointer and the forwarded instance are not EQ.
+#define instance_un_realloc(obj) \
+  while (record_flags(TheInstance(obj)) & instflags_forwarded_B) \
+    (obj) = TheInstance(obj)->inst_class/*;*/
+
+# update-instance-for-redefined-class
+# can trigger GC
+extern object update_instance (object obj);
+
+# instance_valid_p(obj)
+# Tests whether a CLOS instance can be used without first updating it.
+# > obj: a CLOS instance, not a forward pointer
+# < result: true if its class was updated since the instance was last used
+#define instance_valid_p(obj) \
+  eq(TheInstance(obj)->inst_cl_id, \
+     TheClass(TheInstance(obj)->inst_class)->class_id)
+
+# instance_update(obj);
+# performs necessary CLOS instance updates on obj.
+# > obj: a CLOS instance, not a forward pointer
+# < obj: the same CLOS instance
+# can trigger GC
+#define instance_update(obj) \
+  if (!instance_valid_p(obj)) \
+    (obj) = update_instance(obj)/*;*/
+
+/* Test for CLOS instance of a given class */
+static inline bool instanceof (object obj, object clas) {
+  if (!instancep(obj)) return false;
+  instance_un_realloc(obj);
+  instance_update(obj);
+  return !eq(gethash(clas,TheClass(TheInstance(obj)->inst_class)->all_superclasses),nullobj);
+}
 
 # ###################### SEQBIBL for SEQUENCE.D ############################ #
 

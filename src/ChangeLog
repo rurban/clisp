@@ -1,5 +1,19 @@
 2004-02-14  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (Rectype_realloc_Instance): Remove enum value.
+	(instancep, case_Rectype_Instance_above): Simplify accordingly.
+	(instflags_forwarded_B): New macro.
+	(instance_un_realloc, instance_valid_p): Add comments.
+	(instance_update): Renamed from check_instance.
+	* predtype.d: Update accordingly.
+	* hashtabl.d: Likewise.
+	* spvw_garcol.d (UNREALLOC): Test a recflags bit instead of testing
+	for Rectype_realloc_Instance.
+	* record.d (CLOS::%CHANGE-CLASS): Simplify.
+	* io.d (pr_orecord): Remove handling of realloc_Instance type.
+
+2004-02-14  Bruno Haible  <bruno@clisp.org>
+
 	Make arrays with element type NIL work also in the TYPECODES config.
 	* lispbibl.d (Rectype_nilvector, Rectype_Snilvector): Remove enum
 	items.
