@@ -78,7 +78,8 @@ T
 ;; no socketpair() on win32
 #-:win32 (progn
   (setf (values *sock1* *sock2*)
-        (rawsock:socketpair :AF_INET :SOCK_STREAM nil))
+        ;; :AF_INET works on cygwin but not on Linux
+        (rawsock:socketpair :AF_UNIX :SOCK_STREAM nil))
   (print (list *sock1* *sock2*))
   T) #-:win32 T
 
