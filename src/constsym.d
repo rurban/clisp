@@ -281,7 +281,7 @@ LISPSYM(redo_eval_frame,"REDO-EVAL-FRAME",system)
 LISPSYM(return_from_eval_frame,"RETURN-FROM-EVAL-FRAME",system)
 LISPSYM(describe_frame,"DESCRIBE-FRAME",system)
 LISPSYM(show_stack,"SHOW-STACK",ext)
-LISPSYM(debug,"DEBUG",system)
+LISPSYM(crash,"CRASH",system)
 LISPSYM(proom,"%ROOM",system)
 LISPSYM(gc,"GC",ext)
 /* ---------- ENCODING ---------- */

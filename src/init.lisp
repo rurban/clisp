@@ -5,8 +5,6 @@
 (eval-when (compile load eval)
   (setq *package* (sys::%find-package "COMMON-LISP")))
 
-(shadow 'system::debug (find-package "SYSTEM"))
-
 ;;; Exports:
 (export
  '(;; types:

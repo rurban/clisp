@@ -45,18 +45,18 @@
 
      Break 1 [2]> abort
 
-     [3]> 
+     [3]>
 
    - Support for paste: When a user pastes a couple of forms into the command
      line, all are executed.
 
      [1]> (setq x 3) (setq y 4) (setq z (sqrt (+ (* x x) (* y y))))
      3
-     [2]> 
+     [2]>
      4
-     [3]> 
+     [3]>
      5
-     [4]> 
+     [4]>
 
    - Separation of form input and data input.
 
@@ -66,30 +66,30 @@
      data
      "data" ;
      NIL
-     [2]> 
+     [2]>
      (A . B)
-     [3]> 
+     [3]>
 
      *not*
 
      [1]> (read-line) (cons 'a 'b)
      "(cons 'a 'b)" ;
      NIL
-     [2]> 
+     [2]>
 
      Data input is not mistakenly considered as forms. Example:
 
      [1]> (read-char)
      abcdef
      #\a
-     [2]> 
+     [2]>
 
      *not*
 
      [1]> (read-char)
      abcdef
      #\a
-     [2]> 
+     [2]>
      *** - EVAL: variable BCDEF has no value
 
 */
@@ -1533,8 +1533,8 @@ global void ext_show_stack () {
   pushSTACK(unbound); pushSTACK(unbound); pushSTACK(unbound); C_show_stack();
 }
 
-LISPFUNN(debug,0)
-{ /* (SYSTEM::DEBUG) jumps to the debugger sitting in the background. */
+LISPFUNN(crash,0)
+{ /* (SYSTEM::CRASH) jumps to the debugger sitting in the background. */
   abort();
   VALUES0;                      /* no values */
 }

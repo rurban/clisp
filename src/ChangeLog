@@ -1,3 +1,11 @@
+2005-03-07  Sam Steingold  <sds@gnu.org>
+
+	* debug.d, subr.d, constsym.d (CRASH): renamed from DEBUG for
+	better separation from CL
+	* init.lisp: do not shadow SYS::DEBUG
+	* compiler.lisp (parse-optimize-quality): no need for package
+	prefix for DEBUG
+
 2005-03-07  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (UL_to_I) [DEBUG_GCSAFETY]: Define as a function, not as
@@ -16,8 +24,8 @@
 
 2005-03-07  Bruno Haible  <bruno@clisp.org>
 
-	* arilev0.d (mulu32_, mulu32_unchecked, divu_3232_3232_,
-	divu_6432_3232_): Use ANSI C function declaration. Needed when CC=g++.
+	* arilev0.d (mulu32_, mulu32_unchecked, divu_3232_3232_)
+	(divu_6432_3232_): Use ANSI C function declaration. Needed when CC=g++.
 
 2005-03-07  Bruno Haible  <bruno@clisp.org>
 
