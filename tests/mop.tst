@@ -71,6 +71,135 @@ T
 (t 17 18)
 
 
+;; Check that print-object can print all kinds of uninitialized metaobjects.
+(defun as-string (obj)
+  (let ((string (write-to-string obj :escape t :pretty nil)))
+    ;; For CLISP: Remove pattern #x[0-9A-F]* from it:
+    (let ((i (search "#x" string)))
+      (when i
+        (let ((j (or (position-if-not #'(lambda (c) (digit-char-p c 16)) string
+                                      :start (+ i 2))
+                     (length string))))
+          (setq string (concatenate 'string (subseq string 0 i) (subseq string j))))))
+    ;; For CMUCL, SBCL: Substitute {} for pattern {[0-9A-F]*} :
+    (do ((pos 0))
+        (nil)
+      (let ((i (search "{" string :start2 pos)))
+        (unless i (return))
+        (let ((j (position-if-not #'(lambda (c) (digit-char-p c 16)) string
+                                  :start (+ i 1))))
+          (unless (and j (eql (char string j) #\})) (return))
+          (setq string (concatenate 'string (subseq string 0 (+ i 1)) (subseq string j)))
+          (setq pos (+ i 2)))))
+    string))
+AS-STRING
+
+(as-string (allocate-instance (find-class 'clos:specializer)))
+#+CLISP "#<SPECIALIZER >"
+#+CMU "#<PCL:SPECIALIZER {}>"
+#+SBCL "#<SB-MOP:SPECIALIZER {}>"
+#-(or CLISP CMU SBCL) UNKNOWN
+
+(as-string (allocate-instance (find-class 'class)))
+#+CLISP "#<CLASS #<UNBOUND>>"
+#+CMU "#<CLASS \"unbound\" {}>"
+#+SBCL "#<CLASS \"unbound\">"
+#-(or CLISP CMU SBCL) UNKNOWN
+
+(as-string (allocate-instance (find-class 'standard-class)))
+#+CLISP "#<STANDARD-CLASS #<UNBOUND> :UNINITIALIZED>"
+#+CMU "#<STANDARD-CLASS \"unbound\" {}>"
+#+SBCL "#<STANDARD-CLASS \"unbound\">"
+#-(or CLISP CMU SBCL) UNKNOWN
+
+(as-string (allocate-instance (find-class 'structure-class)))
+#+CLISP "#<STRUCTURE-CLASS #<UNBOUND>>"
+#+CMU "#<STRUCTURE-CLASS \"unbound\" {}>"
+#+SBCL "#<STRUCTURE-CLASS \"unbound\">"
+#-(or CLISP CMU SBCL) UNKNOWN
+
+(as-string (allocate-instance (find-class 'clos:eql-specializer)))
+#+CLISP "#<EQL-SPECIALIZER #<UNBOUND>>"
+#+CMU "#<PCL:EQL-SPECIALIZER {}>"
+#+SBCL "#<SB-MOP:EQL-SPECIALIZER {}>"
+#-(or CLISP CMU SBCL) UNKNOWN
+
+(as-string (allocate-instance (find-class 'clos:slot-definition)))
+#+CLISP "#<SLOT-DEFINITION #<UNBOUND> >"
+#+CMU "#<SLOT-DEFINITION \"unbound\" {}>"
+#+SBCL "#<SB-MOP:SLOT-DEFINITION \"unbound\">"
+#-(or CLISP CMU SBCL) UNKNOWN
+
+(as-string (allocate-instance (find-class 'clos:direct-slot-definition)))
+#+CLISP "#<DIRECT-SLOT-DEFINITION #<UNBOUND> >"
+#+CMU "#<DIRECT-SLOT-DEFINITION \"unbound\" {}>"
+#+SBCL "#<SB-MOP:DIRECT-SLOT-DEFINITION \"unbound\">"
+#-(or CLISP CMU SBCL) UNKNOWN
+
+(as-string (allocate-instance (find-class 'clos:effective-slot-definition)))
+#+CLISP "#<EFFECTIVE-SLOT-DEFINITION #<UNBOUND> >"
+#+CMU "#<EFFECTIVE-SLOT-DEFINITION \"unbound\" {}>"
+#+SBCL "#<SB-MOP:EFFECTIVE-SLOT-DEFINITION \"unbound\">"
+#-(or CLISP CMU SBCL) UNKNOWN
+
+(as-string (allocate-instance (find-class 'clos:standard-direct-slot-definition)))
+#+CLISP "#<STANDARD-DIRECT-SLOT-DEFINITION #<UNBOUND> >"
+#+CMU "#<STANDARD-DIRECT-SLOT-DEFINITION \"unbound\" {}>"
+#+SBCL "#<SB-MOP:STANDARD-DIRECT-SLOT-DEFINITION \"unbound\">"
+#-(or CLISP CMU SBCL) UNKNOWN
+
+(as-string (allocate-instance (find-class 'clos:standard-effective-slot-definition)))
+#+CLISP "#<STANDARD-EFFECTIVE-SLOT-DEFINITION #<UNBOUND> >"
+#+CMU "#<STANDARD-EFFECTIVE-SLOT-DEFINITION \"unbound\" {}>"
+#+SBCL "#<SB-MOP:STANDARD-EFFECTIVE-SLOT-DEFINITION \"unbound\">"
+#-(or CLISP CMU SBCL) UNKNOWN
+
+(as-string (allocate-instance (find-class 'method-combination)))
+#+CLISP "#<METHOD-COMBINATION #<UNBOUND> >"
+#+(or CMU SBCL) "#<METHOD-COMBINATION {}>"
+#-(or CLISP CMU SBCL) UNKNOWN
+
+(as-string (allocate-instance (find-class 'method)))
+#+CLISP "#<METHOD >"
+#+(or CMU SBCL) "#<METHOD {}>"
+#-(or CLISP CMU SBCL) UNKNOWN
+
+(as-string (allocate-instance (find-class 'standard-method)))
+#+CLISP "#<STANDARD-METHOD :UNINITIALIZED>"
+#+CMU "#<#<STANDARD-METHOD {}> {}>"
+#+SBCL "#<STANDARD-METHOD #<STANDARD-METHOD {}> {}>"
+#-(or CLISP CMU SBCL) UNKNOWN
+
+(as-string (allocate-instance (find-class 'clos:standard-reader-method)))
+#+CLISP "#<STANDARD-READER-METHOD :UNINITIALIZED>"
+#+CMU "#<#<#<PCL:STANDARD-READER-METHOD {}> {}> {}>"
+#+SBCL "#<SB-MOP:STANDARD-READER-METHOD #<SB-MOP:STANDARD-READER-METHOD #<SB-MOP:STANDARD-READER-METHOD {}> {}> {}>"
+#-CLISP UNKNOWN
+
+(as-string (allocate-instance (find-class 'clos:standard-writer-method)))
+#+CLISP "#<STANDARD-WRITER-METHOD :UNINITIALIZED>"
+#+CMU "#<#<#<PCL:STANDARD-WRITER-METHOD {}> {}> {}>"
+#+SBCL "#<SB-MOP:STANDARD-WRITER-METHOD #<SB-MOP:STANDARD-WRITER-METHOD #<SB-MOP:STANDARD-WRITER-METHOD {}> {}> {}>"
+#-(or CLISP CMU SBCL) UNKNOWN
+
+(as-string (allocate-instance (find-class 'clos:funcallable-standard-object)))
+#+CLISP "#<FUNCALLABLE-STANDARD-OBJECT #<UNBOUND>>"
+#+CMU "#<PCL:FUNCALLABLE-STANDARD-OBJECT {}>"
+#+SBCL "#<SB-MOP:FUNCALLABLE-STANDARD-OBJECT {}>"
+#-(or CLISP CMU SBCL) UNKNOWN
+
+(as-string (allocate-instance (find-class 'generic-function)))
+#+CLISP "#<GENERIC-FUNCTION #<UNBOUND>>"
+#+(or CMU SBCL) "#<GENERIC-FUNCTION {}>"
+#-(or CLISP CMU SBCL) UNKNOWN
+
+(as-string (allocate-instance (find-class 'standard-generic-function)))
+#+CLISP "#<STANDARD-GENERIC-FUNCTION #<UNBOUND>>"
+#+CMU "#<STANDARD-GENERIC-FUNCTION \"unbound\" \"?\" {}>"
+#+SBCL "#<STANDARD-GENERIC-FUNCTION \"unbound\" \"?\">"
+#-(or CLISP CMU SBCL) UNKNOWN
+
+
 ;; Check that defclass supports user-defined options.
 (progn
   (defclass option-class (standard-class)
