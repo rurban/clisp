@@ -1413,8 +1413,8 @@ In other words, each pair is:
 
 <section id="ansi"><title>Maximum ANSI CL compliance</title>
 
-<para>Some &ansi-cl; features are turned off by default for backwards
- compatibility.
+<para>Some &ansi-cl; features are turned off by default for convenience and
+ for backwards compatibility.
  They can be switched on, all at once, by setting the &symbol-macro;
  &ansi; to &t;, or they can be switched on individually.
  Setting &ansi; to &t; implies the following:</para>
