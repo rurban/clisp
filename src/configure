@@ -2803,8 +2803,8 @@ cl_cv_proto_tcsetattr="extern int tcsetattr (int, int, $cl_cv_proto_tcsetattr_ar
 fi
 
 cl_cv_proto_tcsetattr=`echo "$cl_cv_proto_tcsetattr" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_tcsetattr" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_tcsetattr" 1>&6
 
 cat >> confdefs.h <<EOF
 #define TCSETATTR_CONST $cl_cv_proto_tcsetattr_arg3
@@ -3617,8 +3617,8 @@ cl_cv_proto_strlen="extern $cl_cv_proto_strlen_ret strlen ($cl_cv_proto_strlen_a
 fi
 
 cl_cv_proto_strlen=`echo "$cl_cv_proto_strlen" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_strlen" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_strlen" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RETSTRLENTYPE $cl_cv_proto_strlen_ret
@@ -3683,8 +3683,8 @@ cl_cv_proto_memset="extern $cl_cv_proto_memset_ret memset ($cl_cv_proto_memset_a
 fi
 
 cl_cv_proto_memset=`echo "$cl_cv_proto_memset" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_memset" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_memset" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RETMEMSETTYPE $cl_cv_proto_memset_ret
@@ -3807,8 +3807,8 @@ cl_cv_proto_malloc="extern $cl_cv_proto_malloc_ret malloc ($cl_cv_proto_malloc_a
 fi
 
 cl_cv_proto_malloc=`echo "$cl_cv_proto_malloc" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_malloc" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_malloc" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RETMALLOCTYPE $cl_cv_proto_malloc_ret
@@ -3859,8 +3859,8 @@ cl_cv_proto_free="extern $cl_cv_proto_free_ret free ($cl_cv_proto_malloc_ret);"
 fi
 
 cl_cv_proto_free=`echo "$cl_cv_proto_free" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_free" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_free" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RETFREETYPE $cl_cv_proto_free_ret
@@ -4451,8 +4451,8 @@ cl_cv_proto_sigprocmask="extern int sigprocmask (int, $cl_cv_proto_sigprocmask_a
 fi
 
 cl_cv_proto_sigprocmask=`echo "$cl_cv_proto_sigprocmask" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_sigprocmask" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_sigprocmask" 1>&6
 
 cat >> confdefs.h <<EOF
 #define SIGPROCMASK_CONST $cl_cv_proto_sigprocmask_arg2
@@ -5297,8 +5297,8 @@ cl_cv_proto_abort="extern $cl_cv_proto_abort_vol $cl_cv_proto_abort_ret abort (v
 fi
 
 cl_cv_proto_abort=`echo "$cl_cv_proto_abort" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_abort" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_abort" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RETABORTTYPE $cl_cv_proto_abort_ret
@@ -5446,8 +5446,8 @@ cl_cv_proto_sys_errlist="extern $cl_cv_proto_sys_errlist_const char* $cl_cv_prot
 fi
 
 cl_cv_proto_sys_errlist=`echo "$cl_cv_proto_sys_errlist" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_sys_errlist" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_sys_errlist" 1>&6
 
 cat >> confdefs.h <<EOF
 #define SYS_ERRLIST_CONST $cl_cv_proto_sys_errlist_const
@@ -5501,8 +5501,8 @@ cl_cv_proto_getenv="extern char* getenv ($cl_cv_proto_getenv_arg1 char*);"
 fi
 
 cl_cv_proto_getenv=`echo "$cl_cv_proto_getenv" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_getenv" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_getenv" 1>&6
 
 cat >> confdefs.h <<EOF
 #define GETENV_CONST $cl_cv_proto_getenv_arg1
@@ -5614,8 +5614,8 @@ cl_cv_proto_putenv="extern int putenv ($cl_cv_proto_putenv_arg1 char*);"
 fi
 
 cl_cv_proto_putenv=`echo "$cl_cv_proto_putenv" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_putenv" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_putenv" 1>&6
 
 cat >> confdefs.h <<EOF
 #define PUTENV_CONST $cl_cv_proto_putenv_arg1
@@ -5731,8 +5731,8 @@ cl_cv_proto_setlocale="extern char* setlocale (int, $cl_cv_proto_setlocale_arg1 
 fi
 
 cl_cv_proto_setlocale=`echo "$cl_cv_proto_setlocale" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_setlocale" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_setlocale" 1>&6
 
 cat >> confdefs.h <<EOF
 #define SETLOCALE_CONST $cl_cv_proto_setlocale_arg1
@@ -5846,8 +5846,8 @@ cl_cv_proto_getrlimit="extern int getrlimit ($cl_cv_proto_getrlimit_arg1, struct
 fi
 
 cl_cv_proto_getrlimit=`echo "$cl_cv_proto_getrlimit" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_getrlimit" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_getrlimit" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RLIMIT_RESOURCE_T $cl_cv_proto_getrlimit_arg1
@@ -5903,8 +5903,8 @@ cl_cv_proto_setrlimit="extern int setrlimit ($cl_cv_proto_getrlimit_arg1, $cl_cv
 fi
 
 cl_cv_proto_setrlimit=`echo "$cl_cv_proto_setrlimit" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_setrlimit" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_setrlimit" 1>&6
 
 cat >> confdefs.h <<EOF
 #define SETRLIMIT_CONST $cl_cv_proto_setrlimit_arg2
@@ -6336,8 +6336,8 @@ cl_cv_proto_vfork="extern $cl_cv_proto_vfork_ret vfork (void);"
 fi
 
 cl_cv_proto_vfork=`echo "$cl_cv_proto_vfork" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_vfork" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_vfork" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RETVFORKTYPE $cl_cv_proto_vfork_ret
@@ -6456,8 +6456,8 @@ cl_cv_proto_execv="extern int execv ($cl_cv_proto_execv_arg1 char*, $cl_cv_proto
 fi
 
 cl_cv_proto_execv=`echo "$cl_cv_proto_execv" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_execv" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_execv" 1>&6
 
 cat >> confdefs.h <<EOF
 #define EXECV_CONST $cl_cv_proto_execv_arg1
@@ -6561,8 +6561,8 @@ cl_cv_proto_execl="extern int execl ($cl_cv_proto_execl_args);"
 fi
 
 cl_cv_proto_execl=`echo "$cl_cv_proto_execl" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_execl" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_execl" 1>&6
 
 cat >> confdefs.h <<EOF
 #define EXECL_CONST $cl_cv_proto_execl_arg2
@@ -6622,8 +6622,8 @@ cl_cv_proto_waitpid="extern pid_t waitpid ($cl_cv_proto_waitpid_arg1, int*, int)
 fi
 
 cl_cv_proto_waitpid=`echo "$cl_cv_proto_waitpid" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_waitpid" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_waitpid" 1>&6
 
 cat >> confdefs.h <<EOF
 #define PID_T $cl_cv_proto_waitpid_arg1
@@ -6756,8 +6756,8 @@ cl_cv_proto_getrusage="extern int getrusage ($cl_cv_proto_getrusage_arg1, struct
 fi
 
 cl_cv_proto_getrusage=`echo "$cl_cv_proto_getrusage" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_getrusage" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_getrusage" 1>&6
 
     cat >> confdefs.h <<EOF
 #define RUSAGE_WHO_T $cl_cv_proto_getrusage_arg1
@@ -6853,8 +6853,8 @@ cl_cv_proto_getcwd="extern char* getcwd (char*, $cl_cv_proto_getcwd_arg2);"
 fi
 
 cl_cv_proto_getcwd=`echo "$cl_cv_proto_getcwd" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_getcwd" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_getcwd" 1>&6
 
 cat >> confdefs.h <<EOF
 #define GETCWD_SIZE_T $cl_cv_proto_getcwd_arg2
@@ -6909,8 +6909,8 @@ cl_cv_proto_chdir="extern int chdir ($cl_cv_proto_chdir_arg1 char*);"
 fi
 
 cl_cv_proto_chdir=`echo "$cl_cv_proto_chdir" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_chdir" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_chdir" 1>&6
 
 cat >> confdefs.h <<EOF
 #define CHDIR_CONST $cl_cv_proto_chdir_arg1
@@ -6966,8 +6966,8 @@ cl_cv_proto_mkdir="extern int mkdir ($cl_cv_proto_mkdir_arg1 char*, mode_t);"
 fi
 
 cl_cv_proto_mkdir=`echo "$cl_cv_proto_mkdir" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_mkdir" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_mkdir" 1>&6
 
 cat >> confdefs.h <<EOF
 #define MKDIR_CONST $cl_cv_proto_mkdir_arg1
@@ -7021,8 +7021,8 @@ cl_cv_proto_rmdir="extern int rmdir ($cl_cv_proto_rmdir_arg1 char*);"
 fi
 
 cl_cv_proto_rmdir=`echo "$cl_cv_proto_rmdir" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_rmdir" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_rmdir" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RMDIR_CONST $cl_cv_proto_rmdir_arg1
@@ -7134,8 +7134,8 @@ cl_cv_proto_fstat="extern int fstat (int, struct stat *);"
 fi
 
 cl_cv_proto_fstat=`echo "$cl_cv_proto_fstat" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_fstat" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_fstat" 1>&6
 
 if test $cl_cv_proto_fstat_inline = yes; then
   cat >> confdefs.h <<\EOF
@@ -7242,8 +7242,8 @@ cl_cv_proto_stat="extern int stat ($cl_cv_proto_stat_arg1 char*, struct stat *);
 fi
 
 cl_cv_proto_stat=`echo "$cl_cv_proto_stat" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_stat" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_stat" 1>&6
 
 cat >> confdefs.h <<EOF
 #define STAT_CONST $cl_cv_proto_stat_arg1
@@ -7386,8 +7386,8 @@ cl_cv_proto_lstat="extern int lstat ($cl_cv_proto_lstat_arg1 char*, struct stat 
 fi
 
 cl_cv_proto_lstat=`echo "$cl_cv_proto_lstat" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_lstat" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_lstat" 1>&6
 
 cat >> confdefs.h <<EOF
 #define LSTAT_CONST $cl_cv_proto_lstat_arg1
@@ -7509,8 +7509,8 @@ cl_cv_proto_readlink="extern $cl_cv_proto_readlink_ret readlink ($cl_cv_proto_re
 fi
 
 cl_cv_proto_readlink=`echo "$cl_cv_proto_readlink" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_readlink" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_readlink" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RETREADLINKTYPE $cl_cv_proto_readlink_ret
@@ -7651,8 +7651,8 @@ cl_cv_proto_opendir="extern DIR* opendir ($cl_cv_proto_opendir_arg1 char*);"
 fi
 
 cl_cv_proto_opendir=`echo "$cl_cv_proto_opendir" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_opendir" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_opendir" 1>&6
 
 cat >> confdefs.h <<EOF
 #define OPENDIR_CONST $cl_cv_proto_opendir_arg1
@@ -7707,8 +7707,8 @@ cl_cv_proto_closedir="extern $cl_cv_proto_closedir_ret closedir (DIR*);"
 fi
 
 cl_cv_proto_closedir=`echo "$cl_cv_proto_closedir" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_closedir" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_closedir" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RETCLOSEDIRTYPE $cl_cv_proto_closedir_ret
@@ -7866,8 +7866,8 @@ cl_cv_proto_open="extern int open ($cl_cv_proto_open_args);"
 fi
 
 cl_cv_proto_open=`echo "$cl_cv_proto_open" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_open" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_open" 1>&6
 
 cat >> confdefs.h <<EOF
 #define OPEN_CONST $cl_cv_proto_open_arg1
@@ -7936,8 +7936,8 @@ cl_cv_proto_read="extern $cl_cv_proto_retrwtype read (int, $cl_cv_proto_rw_buf_t
 fi
 
 cl_cv_proto_read=`echo "$cl_cv_proto_read" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_read" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_read" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RETRWTYPE $cl_cv_proto_retrwtype
@@ -7999,8 +7999,8 @@ cl_cv_proto_write="extern $cl_cv_proto_retrwtype write (int, $cl_cv_proto_write_
 fi
 
 cl_cv_proto_write=`echo "$cl_cv_proto_write" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_write" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_write" 1>&6
 
 cat >> confdefs.h <<EOF
 #define WRITE_CONST $cl_cv_proto_write_arg2
@@ -8055,8 +8055,8 @@ cl_cv_proto_rename="extern int rename ($cl_cv_proto_rename_arg1 char*, $cl_cv_pr
 fi
 
 cl_cv_proto_rename=`echo "$cl_cv_proto_rename" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_rename" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_rename" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RENAME_CONST $cl_cv_proto_rename_arg1
@@ -8110,8 +8110,8 @@ cl_cv_proto_unlink="extern int unlink ($cl_cv_proto_unlink_arg1 char*);"
 fi
 
 cl_cv_proto_unlink=`echo "$cl_cv_proto_unlink" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_unlink" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_unlink" 1>&6
 
 cat >> confdefs.h <<EOF
 #define UNLINK_CONST $cl_cv_proto_unlink_arg1
@@ -8318,8 +8318,8 @@ cl_cv_proto_ioctl="extern int ioctl ($cl_cv_proto_ioctl_args);"
 fi
 
 cl_cv_proto_ioctl=`echo "$cl_cv_proto_ioctl" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_ioctl" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_ioctl" 1>&6
 
 cat >> confdefs.h <<EOF
 #define IOCTL_REQUEST_T $cl_cv_proto_ioctl_arg2
@@ -8593,8 +8593,8 @@ cl_cv_proto_fcntl="extern int fcntl (int, int, $cl_cv_fcntl_arg3);"
 fi
 
 cl_cv_proto_fcntl=`echo "$cl_cv_proto_fcntl" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_fcntl" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_fcntl" 1>&6
 
 if test "$cl_cv_fcntl_arg3" = "..."; then
 cat >> confdefs.h <<\EOF
@@ -8763,8 +8763,8 @@ cl_cv_proto_select="extern int select ($cl_cv_proto_select_arg1, $cl_cv_proto_se
 fi
 
 cl_cv_proto_select=`echo "$cl_cv_proto_select" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_select" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_select" 1>&6
 
 cat >> confdefs.h <<EOF
 #define SELECT_WIDTH_T $cl_cv_proto_select_arg1
@@ -9003,8 +9003,8 @@ cl_cv_proto_setitimer="extern int setitimer (int, $cl_cv_proto_setitimer_arg2 st
 fi
 
 cl_cv_proto_setitimer=`echo "$cl_cv_proto_setitimer" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_setitimer" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_setitimer" 1>&6
 
 cat >> confdefs.h <<EOF
 #define SETITIMER_CONST $cl_cv_proto_setitimer_arg2
@@ -9123,8 +9123,8 @@ cl_cv_proto_localtime="extern struct tm * localtime ($cl_cv_proto_localtime_arg1
 fi
 
 cl_cv_proto_localtime=`echo "$cl_cv_proto_localtime" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_localtime" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_localtime" 1>&6
 
 cat >> confdefs.h <<EOF
 #define LOCALTIME_CONST $cl_cv_proto_localtime_arg1
@@ -9269,8 +9269,8 @@ cl_cv_proto_gettimeofday="extern int gettimeofday (struct timeval *, $cl_cv_prot
 fi
 
 cl_cv_proto_gettimeofday=`echo "$cl_cv_proto_gettimeofday" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_gettimeofday" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_gettimeofday" 1>&6
 
 if test $cl_cv_proto_gettimeofday_dots = yes; then
 cat >> confdefs.h <<\EOF
@@ -9515,8 +9515,8 @@ cl_cv_proto_getpwnam="extern struct passwd * getpwnam ($cl_cv_proto_getpwnam_arg
 fi
 
 cl_cv_proto_getpwnam=`echo "$cl_cv_proto_getpwnam" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_getpwnam" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_getpwnam" 1>&6
 
 cat >> confdefs.h <<EOF
 #define GETPWNAM_CONST $cl_cv_proto_getpwnam_arg1
@@ -9571,8 +9571,8 @@ cl_cv_proto_getpwuid="extern struct passwd * getpwuid ($cl_cv_proto_getpwuid_arg
 fi
 
 cl_cv_proto_getpwuid=`echo "$cl_cv_proto_getpwuid" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_getpwuid" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_getpwuid" 1>&6
 
 cat >> confdefs.h <<EOF
 #define GETPWUID_UID_T $cl_cv_proto_getpwuid_arg1
@@ -9688,8 +9688,8 @@ cl_cv_proto_gethostname="extern int gethostname (char*, $cl_cv_proto_gethostname
 fi
 
 cl_cv_proto_gethostname=`echo "$cl_cv_proto_gethostname" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_gethostname" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_gethostname" 1>&6
 
 cat >> confdefs.h <<EOF
 #define GETHOSTNAME_SIZE_T $cl_cv_proto_gethostname_arg2
@@ -9793,8 +9793,8 @@ cl_cv_proto_gethostbyname="extern struct hostent * gethostbyname ($cl_cv_proto_g
 fi
 
 cl_cv_proto_gethostbyname=`echo "$cl_cv_proto_gethostbyname" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_gethostbyname" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_gethostbyname" 1>&6
 
 cat >> confdefs.h <<EOF
 #define GETHOSTBYNAME_CONST $cl_cv_proto_gethostbyname_arg1
@@ -9859,8 +9859,8 @@ cl_cv_proto_connect="extern int connect (int, $cl_cv_proto_connect_arg2a $cl_cv_
 fi
 
 cl_cv_proto_connect=`echo "$cl_cv_proto_connect" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_connect" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_connect" 1>&6
 
 cat >> confdefs.h <<EOF
 #define CONNECT_CONST $cl_cv_proto_connect_arg2a
@@ -10228,8 +10228,8 @@ cl_cv_proto_inet_addr="extern $cl_cv_proto_inet_addr_ret inet_addr ($cl_cv_proto
 fi
 
 cl_cv_proto_inet_addr=`echo "$cl_cv_proto_inet_addr" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_inet_addr" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_inet_addr" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RET_INET_ADDR_TYPE $cl_cv_proto_inet_addr_ret
@@ -10343,8 +10343,8 @@ cl_cv_proto_setsockopt="extern int setsockopt (int, int, int, $cl_cv_proto_setso
 fi
 
 cl_cv_proto_setsockopt=`echo "$cl_cv_proto_setsockopt" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_setsockopt" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_setsockopt" 1>&6
 
 cat >> confdefs.h <<EOF
 #define SETSOCKOPT_CONST $cl_cv_proto_setsockopt_const
@@ -10615,8 +10615,8 @@ cl_cv_proto_getpagesize="extern $cl_cv_proto_getpagesize_ret getpagesize (void);
 fi
 
 cl_cv_proto_getpagesize=`echo "$cl_cv_proto_getpagesize" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_getpagesize" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_getpagesize" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RETGETPAGESIZETYPE $cl_cv_proto_getpagesize_ret
@@ -10884,8 +10884,8 @@ cl_cv_proto_mmap="extern $cl_cv_proto_mmap_ret mmap ($cl_cv_proto_mmap_arg1, $cl
 fi
 
 cl_cv_proto_mmap=`echo "$cl_cv_proto_mmap" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_mmap" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_mmap" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RETMMAPTYPE $cl_cv_proto_mmap_ret
@@ -11399,8 +11399,8 @@ cl_cv_proto_mprotect="extern int mprotect ($cl_cv_proto_mprotect_arg1 $cl_cv_pro
 fi
 
 cl_cv_proto_mprotect=`echo "$cl_cv_proto_mprotect" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_mprotect" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_mprotect" 1>&6
 
 cat >> confdefs.h <<EOF
 #define MPROTECT_CONST $cl_cv_proto_mprotect_arg1
@@ -11722,8 +11722,8 @@ cl_cv_proto_shmget="extern int shmget (key_t, $cl_cv_proto_shmget_arg2, int);"
 fi
 
 cl_cv_proto_shmget=`echo "$cl_cv_proto_shmget" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_shmget" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_shmget" 1>&6
 
 cat >> confdefs.h <<EOF
 #define SHMGET_SIZE_T $cl_cv_proto_shmget_arg2
@@ -11815,8 +11815,8 @@ cl_cv_proto_shmat="extern $cl_cv_proto_shmat_ret shmat (int, $cl_cv_proto_shmat_
 fi
 
 cl_cv_proto_shmat=`echo "$cl_cv_proto_shmat" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_shmat" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_shmat" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RETSHMATTYPE $cl_cv_proto_shmat_ret
@@ -11882,8 +11882,8 @@ cl_cv_proto_shmdt="extern int shmdt ($cl_cv_proto_shmdt_arg1);"
 fi
 
 cl_cv_proto_shmdt=`echo "$cl_cv_proto_shmdt" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_shmdt" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_shmdt" 1>&6
 
 cat >> confdefs.h <<EOF
 #define SHMDT_ADDR_T $cl_cv_proto_shmdt_arg1
@@ -11945,8 +11945,8 @@ cl_cv_proto_shmctl="extern int shmctl ($cl_cv_proto_shmctl_args);"
 fi
 
 cl_cv_proto_shmctl=`echo "$cl_cv_proto_shmctl" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_shmctl" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_shmctl" 1>&6
 
 if test $cl_cv_proto_shmctl_dots = yes; then
   cat >> confdefs.h <<\EOF
@@ -12321,8 +12321,8 @@ cl_cv_proto_dlsym="extern void* dlsym (void* handle, $cl_cv_proto_dlsym_arg2 cha
 fi
 
 cl_cv_proto_dlsym=`echo "$cl_cv_proto_dlsym" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_dlsym" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_dlsym" 1>&6
 
   cat >> confdefs.h <<EOF
 #define DLSYM_CONST $cl_cv_proto_dlsym_arg2
@@ -12376,8 +12376,8 @@ cl_cv_proto_dlerror="extern $cl_cv_proto_dlerror_ret char * dlerror ();"
 fi
 
 cl_cv_proto_dlerror=`echo "$cl_cv_proto_dlerror" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_dlerror" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_dlerror" 1>&6
 
   cat >> confdefs.h <<EOF
 #define DLERROR_CONST $cl_cv_proto_dlerror_ret
@@ -12494,8 +12494,8 @@ cl_cv_proto_iconv="extern size_t iconv (iconv_t cd, $cl_cv_proto_iconv_arg1 char
 fi
 
 cl_cv_proto_iconv=`echo "$cl_cv_proto_iconv" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_iconv" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_iconv" 1>&6
 
 cat >> confdefs.h <<EOF
 #define ICONV_CONST $cl_cv_proto_iconv_arg1

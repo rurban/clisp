@@ -1397,8 +1397,8 @@ cl_cv_proto_malloc="extern $cl_cv_proto_malloc_ret malloc ($cl_cv_proto_malloc_a
 fi
 
 cl_cv_proto_malloc=`echo "$cl_cv_proto_malloc" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_malloc" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_malloc" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RETMALLOCTYPE $cl_cv_proto_malloc_ret
@@ -1449,8 +1449,8 @@ cl_cv_proto_free="extern $cl_cv_proto_free_ret free ($cl_cv_proto_malloc_ret);"
 fi
 
 cl_cv_proto_free=`echo "$cl_cv_proto_free" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_free" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_free" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RETFREETYPE $cl_cv_proto_free_ret
@@ -1528,8 +1528,8 @@ cl_cv_proto_abort="extern $cl_cv_proto_abort_vol $cl_cv_proto_abort_ret abort (v
 fi
 
 cl_cv_proto_abort=`echo "$cl_cv_proto_abort" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_abort" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_abort" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RETABORTTYPE $cl_cv_proto_abort_ret
@@ -1607,8 +1607,8 @@ cl_cv_proto_open="extern int open ($cl_cv_proto_open_args);"
 fi
 
 cl_cv_proto_open=`echo "$cl_cv_proto_open" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_open" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_open" 1>&6
 
 cat >> confdefs.h <<EOF
 #define OPEN_CONST $cl_cv_proto_open_arg1
@@ -1704,8 +1704,8 @@ cl_cv_proto_getpagesize="extern $cl_cv_proto_getpagesize_ret getpagesize (void);
 fi
 
 cl_cv_proto_getpagesize=`echo "$cl_cv_proto_getpagesize" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_getpagesize" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_getpagesize" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RETGETPAGESIZETYPE $cl_cv_proto_getpagesize_ret
@@ -2028,8 +2028,8 @@ cl_cv_proto_mmap="extern $cl_cv_proto_mmap_ret mmap ($cl_cv_proto_mmap_arg1, $cl
 fi
 
 cl_cv_proto_mmap=`echo "$cl_cv_proto_mmap" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_mmap" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_mmap" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RETMMAPTYPE $cl_cv_proto_mmap_ret
@@ -2423,8 +2423,8 @@ cl_cv_proto_mprotect="extern int mprotect ($cl_cv_proto_mprotect_arg1 $cl_cv_pro
 fi
 
 cl_cv_proto_mprotect=`echo "$cl_cv_proto_mprotect" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_mprotect" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_mprotect" 1>&6
 
 cat >> confdefs.h <<EOF
 #define MPROTECT_CONST $cl_cv_proto_mprotect_arg1
@@ -2829,8 +2829,8 @@ cl_cv_proto_shmget="extern int shmget (key_t, $cl_cv_proto_shmget_arg2, int);"
 fi
 
 cl_cv_proto_shmget=`echo "$cl_cv_proto_shmget" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_shmget" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_shmget" 1>&6
 
 cat >> confdefs.h <<EOF
 #define SHMGET_SIZE_T $cl_cv_proto_shmget_arg2
@@ -2922,8 +2922,8 @@ cl_cv_proto_shmat="extern $cl_cv_proto_shmat_ret shmat (int, $cl_cv_proto_shmat_
 fi
 
 cl_cv_proto_shmat=`echo "$cl_cv_proto_shmat" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_shmat" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_shmat" 1>&6
 
 cat >> confdefs.h <<EOF
 #define RETSHMATTYPE $cl_cv_proto_shmat_ret
@@ -2989,8 +2989,8 @@ cl_cv_proto_shmdt="extern int shmdt ($cl_cv_proto_shmdt_arg1);"
 fi
 
 cl_cv_proto_shmdt=`echo "$cl_cv_proto_shmdt" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_shmdt" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_shmdt" 1>&6
 
 cat >> confdefs.h <<EOF
 #define SHMDT_ADDR_T $cl_cv_proto_shmdt_arg1
@@ -3052,8 +3052,8 @@ cl_cv_proto_shmctl="extern int shmctl ($cl_cv_proto_shmctl_args);"
 fi
 
 cl_cv_proto_shmctl=`echo "$cl_cv_proto_shmctl" | tr -s ' ' | sed -e 's/( /(/'`
-echo "$ac_t""${ac_tt}$cl_cv_proto_shmctl" 1>&6
-
+echo "$ac_t""${ac_t:-
+         }$cl_cv_proto_shmctl" 1>&6
 
 if test $cl_cv_proto_shmctl_dots = yes; then
   cat >> confdefs.h <<\EOF
