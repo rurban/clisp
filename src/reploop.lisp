@@ -111,7 +111,8 @@
 (defun debug-reset-io ()
   (rotatef *package* *saved-debug-package*)
   (rotatef *readtable* *saved-debug-readtable*)
-  (format *debug-io* (TEXT "~&Reset *PACKAGE* to ~s") *package*)
+  (fresh-line *debug-io*)
+  (format *debug-io* (TEXT "Reset *PACKAGE* to ~s") *package*)
   (throw 'debug 'continue))
 
 ;; Components of the Break-Loop:
@@ -176,13 +177,15 @@
 (defun get-frame-limit ()
   (let (number)
     (loop
-     (write-string (TEXT "
-Enter the limit for max. frames to print or ':all' for all: ") *debug-io*)
+     (terpri *debug-io*)
+     (write-string (TEXT "Enter the limit for max. frames to print or ':all' for all: ") *debug-io*)
      (setq number (read-from-string (read-line *debug-io* nil nil)))
      (if (or (integerp number) (eq number :all))
        (return)
-       (format *debug-io* (TEXT "~&~A is not a number. Try again.")
-               number)))
+       (progn
+         (fresh-line *debug-io*)
+         (format *debug-io* (TEXT "~A is not a number. Try again.")
+                 number))))
     (unless (eq number :all)
       number)))
 
@@ -199,7 +202,8 @@ Enter the limit for max. frames to print or ':all' for all: ") *debug-io*)
          (show-stack mode       ; local limit takes precedence:
                      (or (and prompt-limit-p (get-frame-limit)) limit)
                      (frame-down-1 (frame-up-1 *frame-limit1* mode) mode))))
-    (format *debug-io* (TEXT "~&Printed ~D frames") frame-count)
+    (fresh-line *debug-io*)
+    (format *debug-io* (TEXT "Printed ~D frames") frame-count)
     (throw 'debug 'continue)))
 
 (defun debug-backtrace-1 () (debug-backtrace 1))
@@ -234,7 +238,8 @@ Enter the limit for max. frames to print or ':all' for all: ") *debug-io*)
 
 ;;; print it
 (defun print-error (condition)
-  (format *debug-io* (TEXT "~%Last error is: >> ~A <<")
+  (terpri *debug-io*)
+  (format *debug-io* (TEXT "Last error is: >> ~A <<")
           (print-condition condition nil)))
 
 ;; extended commands

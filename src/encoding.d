@@ -2316,12 +2316,14 @@ local object encoding_from_name (const char* name, const char* context) {
       pushSTACK(Symbol_value(value1));
     else { /* Use a reasonable default. */
       if (asciz_equal(context,"*FOREIGN-ENCODING*")) {
-        fprintf(stderr,GETTEXT("WARNING: %s: no encoding %s, using ASCII\n"),
+        fprintf(stderr,GETTEXT("WARNING: %s: no encoding %s, using ASCII"),
                 context,name);
+        fputs("\n",stderr);
         pushSTACK(Symbol_value(S(ascii)));
       } else {
-        fprintf(stderr,GETTEXT("WARNING: %s: no encoding %s, using UTF-8\n"),
+        fprintf(stderr,GETTEXT("WARNING: %s: no encoding %s, using UTF-8"),
                 context,name);
+        fputs("\n",stderr);
         pushSTACK(Symbol_value(S(utf_8)));
       }
     }
@@ -2385,7 +2387,8 @@ global void init_dependent_encodings(void) {
     (argv_encoding_foreign == NULL ? (object)STACK_0
      : encoding_from_name(argv_encoding_foreign,"*FOREIGN-ENCODING*"));
   if (TheEncoding(O(foreign_encoding))->max_bytes_per_char != 1) {
-    fprintf(stderr,GETTEXT("WARNING: *FOREIGN-ENCODING*: reset to ASCII\n"));
+    fprintf(stderr,GETTEXT("WARNING: *FOREIGN-ENCODING*: reset to ASCII"));
+    fputs("\n",stderr);
     O(foreign_encoding) = Symbol_value(S(ascii));
   }
  #endif

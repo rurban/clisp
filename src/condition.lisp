@@ -1038,16 +1038,18 @@
     (cond ((= nn 1)
            (format *debug-io*
                    (if instead-p
-                       (TEXT "~%Use instead~@[ of ~S~]: ")
+                       (concatenate 'string "~%"
+                         (TEXT "Use instead~@[ of ~S~]: "))
                        (prompt-for-new-value-string))
                    place)
            (list (read *debug-io*)))
           ((do ((ii 1 (1+ ii)) res)
                ((> ii nn) (nreverse res))
+             (terpri *debug-io*)
              (format *debug-io*
                      (if instead-p
-                         (TEXT "~%Use instead of ~S [value ~D of ~D]: ")
-                         (TEXT "~%New ~S [value ~D of ~D]: "))
+                         (TEXT "Use instead of ~S [value ~D of ~D]: ")
+                         (TEXT "New ~S [value ~D of ~D]: "))
                      place ii nn)
              (push (read *debug-io*) res))))))
 

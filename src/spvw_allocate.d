@@ -46,7 +46,8 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
       fehler_speicher_voll();
     } else {
       # yes -> hard error-message
-      fprintf(stderr,GETTEXTL(NLstring "*** - " "No more room for LISP objects: RESET"));
+      fputs("\n",stderr);
+      fprintf(stderr,GETTEXTL("*** - " "No more room for LISP objects: RESET"));
       reset(1); /* and return to the last driver-frame */
     }
   }
@@ -245,7 +246,8 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
           end_system_call();
           if (ergebnis >= 0)
             goto sufficient;
-          fprintf(stderr,GETTEXTL("Trying to make room through a GC..." NLstring));
+          fprintf(stderr,GETTEXTL("Trying to make room through a GC..."));
+          fputs("\n",stderr);
         }
         # not successful
         if (!done_gc)
@@ -308,7 +310,8 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
           end_system_call();
           if (ergebnis >= 0)
             goto sufficient;
-          fprintf(stderr,GETTEXTL("Trying to make room through a GC..." NLstring));
+          fprintf(stderr,GETTEXTL("Trying to make room through a GC..."));
+          fputs("\n",stderr);
         }
         # not successful
        failed:
@@ -388,7 +391,8 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
           end_system_call();
           if (ergebnis >= 0)
             goto sufficient;
-          fprintf(stderr,GETTEXTL("Trying to make room through a GC..." NLstring));
+          fprintf(stderr,GETTEXTL("Trying to make room through a GC..."));
+          fputs("\n",stderr);
         }
         # not successful
         if (!done_gc)
