@@ -1930,19 +1930,32 @@ local object resize (object ht, object maxcount) {
 local void clrhash (object ht) {
   set_break_sem_2();            /* protect from breaks */
   var object kvtable = TheHashtable(ht)->ht_kvtable;
+  /* Delete pairs and build up freelist: */
   {
-    var uintL count = posfixnum_to_L(TheHashtable(ht)->ht_maxcount);
-    if (count > 0) {
-      var gcv_object_t* KVptr = TheHashedAlist(kvtable)->hal_data;
-      dotimespL(count,count, {            /* in each entry */
-        *KVptr++ = leer; *KVptr++ = leer; /* deplete key and value */
-        *KVptr++ = leer;                  /* and next-index */
-      });
+    var object index = TheHashtable(ht)->ht_maxcount; /* MAXCOUNT */
+    var uintL maxcount = posfixnum_to_L(index);
+    var object freelist = nix;
+    if (maxcount > 0) {
+      var gcv_object_t* KVptr = &TheHashedAlist(kvtable)->hal_data[3*maxcount]; /* end of kvtable */
+      do {
+        index = fixnum_inc(index,-1); /* decrement index */
+        *--KVptr = freelist;              /* delete next-index */
+        *--KVptr = leer; *--KVptr = leer; /* delete key and value */
+        freelist = index;
+      } while (!eq(index,Fixnum_0));
     }
+    TheHashedAlist(kvtable)->hal_freelist = freelist; /* save freelist */
   }
   TheHashedAlist(kvtable)->hal_count = Fixnum_0; /* COUNT := 0 */
+  /* Fill index-vector with "nix" : */
+  var object Ivektor = TheHashedAlist(kvtable)->hal_itable; /* index-vector */
+  {
+    var gcv_object_t* ptr = &TheSvector(Ivektor)->data[0];
+    var uintL count = TheHashtable(ht)->ht_size; /* SIZE, >0 */
+    dotimespL(count,count, { *ptr++ = nix; } );
+  }
   record_flags_clr(TheHashtable(ht),htflags_gc_rehash_B); /* no dangerous keys now */
-  set_ht_invalid(TheHashtable(ht)); /* reorganize hashtable later */
+  set_ht_valid(TheHashtable(ht)); /* hashtable is now completely organized */
   clr_break_sem_2();                 /* allow breaks again */
 }
 
