@@ -80,6 +80,8 @@ struct db_conn {
   OCIError *        err;            /* "" */
   OCISvcCtx *       svc;            /* "" */
   int               prefetch_bytes; /* No. of bytes for pre-fetch buffer, or -1 for default */
+  int               long_len;       /* No. of bytes to truncate LONG columns */
+  int               truncate_ok;    /* Flag: allow truncated fetch? */
   int               auto_commit;    /* Flag: commit after each command? */
   OCIStmt *         stmt;           /* Oracle statement */
   
@@ -108,7 +110,7 @@ struct db_conn {
 /* Exported routines (w/ void *) */
 
 /* orafns.c */
-void *           oracle_connect(char *, char *, char *, char *, int, int);
+void *           oracle_connect(char *, char *, char *, char *, int, int, int, int);
 int              oracle_disconnect(void *);
 int              oracle_exec_sql(void *, char *, struct sqlparam **, int);
 
