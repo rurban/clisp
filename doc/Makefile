@@ -41,6 +41,7 @@ CLASSPATH=$(XALAN)/bin/xerces.jar$(SEP)$(XALAN)/bin/xalan.jar$(SEP)$(SAXON)/saxo
 TEXI2HTML=makeinfo --verbose --no-split --no-headers --html $< -o $@
 
 #DIST=cvs2.cons.org:/home/ftp/pub/lisp/clisp/snapshots
+DIST=podval:~/public_html/data
 
 # this is the original DTD
 # when processing with a tool which can get the DTD from the net,
@@ -119,7 +120,7 @@ impnotes.html: impnotes.xml $(IMPNOTES) common.xsl pile.xsl $(OLINK)
 #	cp impnotes.html impnotes-saved.html
 #	tidy -config tidy.conf -f tidy.err impnotes.html || true
 #	egrep -Hn 'NAME="[A-Z0-9]*"' $@ || true
-	(test -n "$(DIST)" && scp -p impnotes.html $(DIST)/impnotes/ && \
+	(test -n "$(DIST)" && scp -p impnotes.html impnotes.css $(DIST)/ && \
 	 test -d "../build/" && cd ../build && make clisp.html && \
 	 make clisp.1 && scp -p clisp.1 clisp.html $(DIST)) || true
 
@@ -141,7 +142,8 @@ html: impnotes.xml $(IMPNOTES) common.xsl chunk.xsl pile.xsl clisp.xml $(OLINK)
 #	time xmlto xhtml -o $@/ -m chunk.xsl $<
 #	time docbook2html --dsl impnotes.dsl -o $@ $<
 #	egrep -Hnr 'NAME="[A-Z0-9]*"' $@ || true
-	(test -n "$(DIST)" && scp -p html/*.html $(DIST)/impnotes/;) || true
+	(test -n "$(DIST)" && scp -p html/*.html impnotes.css \
+	 $(DIST)/impnotes/;) || true
 
 up: impnotes.html html
 	scp impnotes.html sf:/home/groups/c/cl/clisp/www/impnotes-new.html
