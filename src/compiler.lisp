@@ -3871,8 +3871,8 @@ for-value   NIL or T
                                   (anode (c-form arg (if for-value
                                                          'ONE 'NIL))))
                              (seclass-or-f seclass anode)
-                             (push (list t (second tripel) anode *stackz*
-                                         for-value)
+                             (push (list t (and for-value (second tripel))
+                                         anode *stackz*)
                                    L))
                            (setf (third tripel) nil)))
                         (nreverse L))))
@@ -3948,7 +3948,7 @@ for-value   NIL or T
                           ;; correct stack-depth
                           (setf (first (fourth anodeetc)) depth-now)
                           (push (third anodeetc) codelist)
-                          (when (and (second anodeetc) (fifth anodeetc))
+                          (when (second anodeetc)
                             (push `(STORE ,(- (second anodeetc) depth2))
                                   codelist)))))
                     ;; now codelist-from-end:
