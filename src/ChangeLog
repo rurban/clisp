@@ -1,7 +1,7 @@
 2004-05-14  Sam Steingold  <sds@gnu.org>
 
 	new macro DEFCHECKER for modules
-	* utils/modprep.lisp: objdef-init can now be a list
+	* utils/modprep.lisp: OBJDEF-INIT can now be a list
 	(write-string-c-style): new function
 	(init-to-tag): use it
 	(string-upcase-verbose): new function
@@ -16,6 +16,7 @@
 	print *CHECKERS*
 	* modules/rawsock/rawsock.c (check_socket_domain, check_socket_type)
 	(check_socket_protocol): use DEFCHECKER
+	* modules/syscalls/calls.c (mknod_type_check): ditto
 
 2004-05-14  Sam Steingold  <sds@gnu.org>
 
