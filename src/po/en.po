@@ -3,9 +3,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: clisp 2.32.94\n"
-"POT-Creation-Date: 2004-03-14 12:10:50 EST\n"
-"PO-Revision-Date: 2004-03-14 12:10:51 EST\n"
+"Project-Id-Version: clisp 2.33\n"
+"POT-Creation-Date: 2004-03-17 15:20:55 EST\n"
+"PO-Revision-Date: 2004-03-17 15:20:56 EST\n"
 "Last-Translator: Automatically generated <@winsteingoldlap>\n"
 "Language-Team: English <en@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -570,7 +570,7 @@ msgstr "~: symbol ~ has no value"
 msgid "~: assignment to constant symbol ~ is impossible"
 msgstr "~: assignment to constant symbol ~ is impossible"
 
-#: eval.d:7081 control.d:2194
+#: eval.d:7081 control.d:2198
 msgid "~: too many arguments given to ~"
 msgstr "~: too many arguments given to ~"
 
@@ -578,7 +578,7 @@ msgstr "~: too many arguments given to ~"
 msgid "(~ ~): the tagbody of the tags ~ has already been left"
 msgstr "(~ ~): the tagbody of the tags ~ has already been left"
 
-#: eval.d:7355 control.d:1927
+#: eval.d:7355 control.d:1931
 msgid "~: there is no CATCHer for tag ~"
 msgstr "~: there is no CATCHer for tag ~"
 
@@ -638,99 +638,99 @@ msgstr "~: symbol ~ is declared special and must not be declared a macro"
 msgid "~: symbol ~ must not be declared SPECIAL and a macro at the same time"
 msgstr "~: symbol ~ must not be declared SPECIAL and a macro at the same time"
 
-#: control.d:582
+#: control.d:586
 msgid "~: too many variables and/or declarations"
 msgstr "~: too many variables and/or declarations"
 
-#: control.d:840
+#: control.d:844
 msgid "~: ~ is not a function specification"
 msgstr "~: ~ is not a function specification"
 
-#: control.d:1015
+#: control.d:1019
 msgid "~: ~ is not a macro specification"
 msgstr "~: ~ is not a macro specification"
 
-#: control.d:1022
+#: control.d:1026
 msgid "~: macro name ~ should be a symbol"
 msgstr "~: macro name ~ should be a symbol"
 
-#: control.d:1062
+#: control.d:1066
 msgid "~: ~ is not a function and macro specification"
 msgstr "~: ~ is not a function and macro specification"
 
-#: control.d:1069
+#: control.d:1073
 msgid "~: function and macro name ~ should be a symbol"
 msgstr "~: function and macro name ~ should be a symbol"
 
-#: control.d:1188
+#: control.d:1192
 msgid "~: clause ~ should be a list"
 msgstr "~: clause ~ should be a list"
 
-#: control.d:1218
+#: control.d:1222
 msgid "~: missing key list: ~"
 msgstr "~: missing key list: ~"
 
-#: control.d:1227
+#: control.d:1231
 msgid "~: the ~ clause must be the last one"
 msgstr "~: the ~ clause must be the last one"
 
-#: control.d:1282
+#: control.d:1286
 msgid "~: the block named ~ has already been left"
 msgstr "~: the block named ~ has already been left"
 
-#: control.d:1317
+#: control.d:1321
 msgid "~: no block named ~ is currently visible"
 msgstr "~: no block named ~ is currently visible"
 
-#: control.d:1575
+#: control.d:1579
 msgid "~: ~ is neither tag nor form"
 msgstr "~: ~ is neither tag nor form"
 
-#: control.d:1617
+#: control.d:1621
 msgid "~: illegal tag ~"
 msgstr "~: illegal tag ~"
 
-#: control.d:1655
+#: control.d:1659
 msgid "~: tagbody for tag ~ has already been left"
 msgstr "~: tagbody for tag ~ has already been left"
 
-#: control.d:1669
+#: control.d:1673
 msgid "~: no tag named ~ is currently visible"
 msgstr "~: no tag named ~ is currently visible"
 
-#: control.d:1683
+#: control.d:1687
 msgid "~: too many values"
 msgstr "~: too many values"
 
-#: control.d:1723
+#: control.d:1727
 msgid "~: too many arguments to ~"
 msgstr "~: too many arguments to ~"
 
-#: control.d:1967
+#: control.d:1971
 msgid "Argument ~ is not a macroexpansion environment"
 msgstr "Argument ~ is not a macroexpansion environment"
 
-#: control.d:2024
+#: control.d:2028
 msgid "declarations ~ are not allowed here"
 msgstr "declarations ~ are not allowed here"
 
-#: control.d:2045
+#: control.d:2049
 msgid "~: ~ evaluated to the values ~, not of type ~"
 msgstr "~: ~ evaluated to the values ~, not of type ~"
 
-#: control.d:2056
+#: control.d:2060
 msgid "~: bad declaration ~"
 msgstr "~: bad declaration ~"
 
-#: control.d:2267
+#: control.d:2271
 msgid "no doc-strings allowed here: ~"
 msgstr "no doc-strings allowed here: ~"
 
-#: control.d:2286
+#: control.d:2290
 msgid "keyword argument list ~ has an odd length"
 msgstr "keyword argument list ~ has an odd length"
 
-#: control.d:2323
+#: control.d:2327
 msgid ""
 "Illegal keyword/value pair ~, ~ in argument list.\n"
 "The allowed keywords are ~"
@@ -774,7 +774,7 @@ msgstr "invalid byte sequence #x$$ #x$$ #x$$ #x$$ in ~ conversion"
 msgid "invalid byte #x$$ in ~ conversion"
 msgstr "invalid byte #x$$ in ~ conversion"
 
-#: encoding.d:1833 encoding.d:1844 encoding.d:1854 encoding.d:1865 pathname.d:3522 pathname.d:6195 pathname.d:6214 pathname.d:6249 pathname.d:7372 pathname.d:8258 stream.d:3008 stream.d:3114 stream.d:15946 hashtabl.d:1272 error.d:1052
+#: encoding.d:1833 encoding.d:1844 encoding.d:1854 encoding.d:1865 pathname.d:3522 pathname.d:6195 pathname.d:6214 pathname.d:6249 pathname.d:7372 pathname.d:8258 stream.d:3008 stream.d:3114 stream.d:15953 hashtabl.d:1272 error.d:1052
 msgid "~: illegal ~ argument ~"
 msgstr "~: illegal ~ argument ~"
 
@@ -946,7 +946,7 @@ msgstr "Creating directory: "
 msgid "~: library directory is not known, use a command line option to specify it"
 msgstr "~: library directory is not known, use a command line option to specify it"
 
-#: stream.d:269 stream.d:13447
+#: stream.d:269 stream.d:13454
 msgid "~ on ~ is illegal"
 msgstr "~ on ~ is illegal"
 
@@ -1022,183 +1022,183 @@ msgstr "~: Ctrl-C: User break"
 msgid "unknown character set ~"
 msgstr "unknown character set ~"
 
-#: stream.d:5595
+#: stream.d:5601
 msgid "Unbuffered streams need an ~ with a bit size being a multiple of 8, not ~"
 msgstr "Unbuffered streams need an ~ with a bit size being a multiple of 8, not ~"
 
-#: stream.d:5941
+#: stream.d:5948
 msgid "Closed ~ because disk is full."
 msgstr "Closed ~ because disk is full."
 
-#: stream.d:6058
+#: stream.d:6065
 msgid "cannot position ~ beyond EOF"
 msgstr "cannot position ~ beyond EOF"
 
-#: stream.d:7507
+#: stream.d:7514
 msgid "~: argument ~ ~ was specified, but ~ is not a regular file."
 msgstr "~: argument ~ ~ was specified, but ~ is not a regular file."
 
-#: stream.d:7540
+#: stream.d:7547
 msgid "~: arguments ~ ~ and ~ ~ were specified, but ~ is not a regular file."
 msgstr "~: arguments ~ ~ and ~ ~ were specified, but ~ is not a regular file."
 
-#: stream.d:7596
+#: stream.d:7603
 msgid "file ~ is not an integer file"
 msgstr "file ~ is not an integer file"
 
-#: stream.d:8644 stream.d:15406
+#: stream.d:8651 stream.d:15413
 msgid "Return value ~ of call to ~ is not a ~."
 msgstr "Return value ~ of call to ~ is not a ~."
 
-#: stream.d:8665
+#: stream.d:8672
 msgid "Return value ~ of call to ~ contains ~ which is not a ~."
 msgstr "Return value ~ of call to ~ contains ~ which is not a ~."
 
-#: stream.d:9808
+#: stream.d:9815
 msgid "~: argument ~ should be a window stream"
 msgstr "~: argument ~ should be a window stream"
 
-#: stream.d:10357
+#: stream.d:10364
 msgid "cannot output to standard output"
 msgstr "cannot output to standard output"
 
-#: stream.d:11548
+#: stream.d:11555
 msgid "environment has no TERM variable"
 msgstr "environment has no TERM variable"
 
-#: stream.d:11553
+#: stream.d:11560
 msgid "terminal type ~ unknown to termcap"
 msgstr "terminal type ~ unknown to termcap"
 
-#: stream.d:11566
+#: stream.d:11573
 msgid "insufficient terminal: hardcopy terminal"
 msgstr "insufficient terminal: hardcopy terminal"
 
-#: stream.d:11570
+#: stream.d:11577
 msgid "insufficient terminal: overstrikes, cannot clear output"
 msgstr "insufficient terminal: overstrikes, cannot clear output"
 
-#: stream.d:11574
+#: stream.d:11581
 msgid "insufficient terminal: cannot scroll"
 msgstr "insufficient terminal: cannot scroll"
 
-#: stream.d:11579
+#: stream.d:11586
 msgid "insufficient terminal: cannot clear screen"
 msgstr "insufficient terminal: cannot clear screen"
 
-#: stream.d:11583
+#: stream.d:11590
 msgid "insufficient terminal: cannot position cursor randomly"
 msgstr "insufficient terminal: cannot position cursor randomly"
 
-#: stream.d:12044
+#: stream.d:12051
 msgid "~: package SCREEN is not implemented"
 msgstr "~: package SCREEN is not implemented"
 
-#: stream.d:13167
+#: stream.d:13174
 msgid "host should be string, not ~"
 msgstr "host should be string, not ~"
 
-#: stream.d:13174
+#: stream.d:13181
 msgid "display should be a nonnegative fixnum, not ~"
 msgstr "display should be a nonnegative fixnum, not ~"
 
-#: stream.d:13237
+#: stream.d:13244
 msgid "~: stream must be a socket-stream, not ~"
 msgstr "~: stream must be a socket-stream, not ~"
 
-#: stream.d:13248
+#: stream.d:13255
 msgid "~: argument ~ should be a vector of type (ARRAY (UNSIGNED-BYTE 8) (*))"
 msgstr "~: argument ~ should be a vector of type (ARRAY (UNSIGNED-BYTE 8) (*))"
 
-#: stream.d:13270 stream.d:16087 stream.d:16147 stream.d:16201 stream.d:16262 io.d:987
+#: stream.d:13277 stream.d:16094 stream.d:16154 stream.d:16208 stream.d:16269 io.d:987
 msgid "~: input stream ~ has reached its end"
 msgstr "~: input stream ~ has reached its end"
 
-#: stream.d:13442 record.d:211 record.d:428 record.d:573 record.d:614 record.d:686 record.d:770 sequence.d:292 error.d:717 error.d:718 error.d:742 error.d:752 error.d:783 error.d:836 error.d:846 error.d:892 error.d:1120 lisparit.d:335 lisparit.d:352 lisparit.d:369 lisparit.d:386
+#: stream.d:13449 record.d:211 record.d:428 record.d:573 record.d:614 record.d:686 record.d:770 sequence.d:292 error.d:717 error.d:718 error.d:742 error.d:752 error.d:783 error.d:836 error.d:846 error.d:892 error.d:1120 lisparit.d:335 lisparit.d:352 lisparit.d:369 lisparit.d:386
 msgid "~: ~ is not a ~"
 msgstr "~: ~ is not a ~"
 
-#: stream.d:13500
+#: stream.d:13507
 msgid "~: argument ~ is neither an open SOCKET-STREAM nor a positive FIXNUM"
 msgstr "~: argument ~ is neither an open SOCKET-STREAM nor a positive FIXNUM"
 
-#: stream.d:13716
+#: stream.d:13723
 msgid "~: argument ~ is not an open SOCKET-STREAM"
 msgstr "~: argument ~ is not an open SOCKET-STREAM"
 
-#: stream.d:13727
+#: stream.d:13734
 msgid "~: argument ~ is not a SOCKET-STREAM"
 msgstr "~: argument ~ is not a SOCKET-STREAM"
 
-#: stream.d:13746 stream.d:16420
+#: stream.d:13753 stream.d:16427
 msgid "~: argument ~ is not an open ~"
 msgstr "~: argument ~ is not an open ~"
 
-#: stream.d:13933
+#: stream.d:13940
 msgid "~: list ~ is too long (~ maximum)"
 msgstr "~: list ~ is too long (~ maximum)"
 
-#: stream.d:14124
+#: stream.d:14131
 msgid "~: argument ~ should be ~."
 msgstr "~: argument ~ should be ~."
 
-#: stream.d:14299
+#: stream.d:14306
 msgid "Invalid direction ~ for handle ~"
 msgstr "Invalid direction ~ for handle ~"
 
-#: stream.d:14325
+#: stream.d:14332
 msgid "~: ~ should be a handle, handle stream, or direction"
 msgstr "~: ~ should be a handle, handle stream, or direction"
 
-#: stream.d:14512
+#: stream.d:14519
 msgid "The value of ~ is not a stream: ~"
 msgstr "The value of ~ is not a stream: ~"
 
-#: stream.d:14514
+#: stream.d:14521
 msgid "The value of ~ is not an appropriate stream: ~"
 msgstr "The value of ~ is not an appropriate stream: ~"
 
-#: stream.d:14526
+#: stream.d:14533
 msgid "The value of ~ was not an appropriate stream: ~. It has been changed to ~."
 msgstr "The value of ~ was not an appropriate stream: ~. It has been changed to ~."
 
-#: stream.d:14539
+#: stream.d:14546
 msgid "readline library: out of memory."
 msgstr "readline library: out of memory."
 
-#: stream.d:14843
+#: stream.d:14850
 msgid "~: The ~ of ~ cannot be changed from ~ to ~."
 msgstr "~: The ~ of ~ cannot be changed from ~ to ~."
 
-#: stream.d:15899
+#: stream.d:15906
 msgid "Return value ~ of call to ~ is not a fixnum >= 0 or NIL."
 msgstr "Return value ~ of call to ~ is not a fixnum >= 0 or NIL."
 
-#: stream.d:15913
+#: stream.d:15920
 msgid "~ needs an ~ with a bit size being a multiple of 8, not ~"
 msgstr "~ needs an ~ with a bit size being a multiple of 8, not ~"
 
-#: stream.d:15961
+#: stream.d:15968
 msgid "~: illegal endianness argument ~"
 msgstr "~: illegal endianness argument ~"
 
-#: stream.d:16069
+#: stream.d:16076
 msgid "~: argument ~ does not contain a valid OS stream handle"
 msgstr "~: argument ~ does not contain a valid OS stream handle"
 
-#: stream.d:16070
+#: stream.d:16077
 msgid "~: ~: buffered pipe-input-streams are not supported"
 msgstr "~: ~: buffered pipe-input-streams are not supported"
 
-#: stream.d:16071
+#: stream.d:16078
 msgid "~: ~: stream of wrong direction"
 msgstr "~: ~: stream of wrong direction"
 
-#: stream.d:16337 stream.d:16347
+#: stream.d:16344 stream.d:16354
 msgid "~ is not a ~, cannot be output onto ~"
 msgstr "~ is not a ~, cannot be output onto ~"
 
-#: stream.d:16450
+#: stream.d:16457
 msgid "~: position argument should be ~ or ~ or a nonnegative integer, not ~"
 msgstr "~: position argument should be ~ or ~ or a nonnegative integer, not ~"
 

@@ -45,6 +45,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.4  2004/03/14 17:27:54  sds
+# regenerated for 2.32.94
+#
 # Revision 1.3  2004/03/12 19:22:47  sds
 # regenerated for 2.32.93
 #
@@ -106,7 +109,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
-"POT-Creation-Date: 2004-03-14 12:10:50 EST\n"
+"POT-Creation-Date: 2004-03-17 15:20:55 EST\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -1090,7 +1093,7 @@ msgstr "no pueden realizarse asignaciones sobre el símbolo constante ~"
 #
 # queda como más "indio". Tu traducción me encanta - cll
 #
-#: eval.d:7081 control.d:2194
+#: eval.d:7081 control.d:2198
 msgid "~: too many arguments given to ~"
 msgstr "~: se ha invocado ~ con demasiados argumentos"
 
@@ -1121,7 +1124,7 @@ msgstr "~: se ha invocado ~ con demasiados argumentos"
 msgid "(~ ~): the tagbody of the tags ~ has already been left"
 msgstr "(~ ~): ya se ha salido del cuerpo de etiquetas ~"
 
-#: eval.d:7355 control.d:1927
+#: eval.d:7355 control.d:1931
 msgid "~: there is no CATCHer for tag ~"
 msgstr "~: No hay ningún capturador (CATCH) para la etiqueta de salto ~"
 
@@ -1185,101 +1188,101 @@ msgstr "~: el símbolo ~ no debe declararse SPECIAL, al mismo tiempo que es el de
 msgid "~: symbol ~ must not be declared SPECIAL and a macro at the same time"
 msgstr "~: el símbolo ~ no debe declararse SPECIAL, al mismo tiempo que es el de una macro"
 
-#: control.d:582
+#: control.d:586
 msgid "~: too many variables and/or declarations"
 msgstr "~: demasiadas variables y/o declaraciones"
 
-#: control.d:840
+#: control.d:844
 msgid "~: ~ is not a function specification"
 msgstr "~: ~ no es la especificación de una función"
 
-#: control.d:1015
+#: control.d:1019
 msgid "~: ~ is not a macro specification"
 msgstr "~: ~ no es la especificación de una macro"
 
-#: control.d:1022
+#: control.d:1026
 msgid "~: macro name ~ should be a symbol"
 msgstr "~: el nombre de la macro ~ debe ser un símbolo"
 
-#: control.d:1062
+#: control.d:1066
 #, fuzzy
 msgid "~: ~ is not a function and macro specification"
 msgstr "~: ~ no es la especificación de una función"
 
-#: control.d:1069
+#: control.d:1073
 #, fuzzy
 msgid "~: function and macro name ~ should be a symbol"
 msgstr "~: el nombre de la función ~ debe ser un símbolo"
 
-#: control.d:1188
+#: control.d:1192
 msgid "~: clause ~ should be a list"
 msgstr "~: la clausula ~ debe ser una lista"
 
-#: control.d:1218
+#: control.d:1222
 msgid "~: missing key list: ~"
 msgstr "~: falta la lista de claves: ~"
 
-#: control.d:1227
+#: control.d:1231
 msgid "~: the ~ clause must be the last one"
 msgstr "~: la clausula ~ debe ser la última"
 
-#: control.d:1282
+#: control.d:1286
 msgid "~: the block named ~ has already been left"
 msgstr "~: el bloque de nombre ~ ya ha sido abandonado"
 
-#: control.d:1317
+#: control.d:1321
 msgid "~: no block named ~ is currently visible"
 msgstr "~: no hay ningún bloque visible con el nombre ~"
 
-#: control.d:1575
+#: control.d:1579
 msgid "~: ~ is neither tag nor form"
 msgstr "~: ~ no es ni una etiqueta de salto ni una forma"
 
-#: control.d:1617
+#: control.d:1621
 msgid "~: illegal tag ~"
 msgstr "~: etiqueta de salto inválida ~"
 
-#: control.d:1655
+#: control.d:1659
 msgid "~: tagbody for tag ~ has already been left"
 msgstr "~: ya se ha salido del cuerpo de etiquetas de ~"
 
-#: control.d:1669
+#: control.d:1673
 msgid "~: no tag named ~ is currently visible"
 msgstr "~: no hay ninguna etiqueta de salto visible con el nombre ~"
 
-#: control.d:1683
+#: control.d:1687
 msgid "~: too many values"
 msgstr "~: demasiados valores"
 
-#: control.d:1723
+#: control.d:1727
 msgid "~: too many arguments to ~"
 msgstr "~: se han entregado demasiados argumentos a ~"
 
-#: control.d:1967
+#: control.d:1971
 msgid "Argument ~ is not a macroexpansion environment"
 msgstr "El argumento ~ no es un entorno para la expansión de macros"
 
-#: control.d:2024
+#: control.d:2028
 msgid "declarations ~ are not allowed here"
 msgstr "las declaraciones ~ no están permitidas aquí"
 
-#: control.d:2045
+#: control.d:2049
 msgid "~: ~ evaluated to the values ~, not of type ~"
 msgstr "~: La forma ~ ha producido los valores ~, ninguno de los cuales es del tipo ~"
 
-#: control.d:2056
+#: control.d:2060
 msgid "~: bad declaration ~"
 msgstr "~: declaración incorrecta ~"
 
-#: control.d:2267
+#: control.d:2271
 msgid "no doc-strings allowed here: ~"
 msgstr "no se permite la utilización de cadenas de documentación aquí: ~"
 
-#: control.d:2286
+#: control.d:2290
 msgid "keyword argument list ~ has an odd length"
 msgstr "la lista de argumentos clave ~ tiene longitud impar"
 
-#: control.d:2323
+#: control.d:2327
 #, fuzzy
 msgid ""
 "Illegal keyword/value pair ~, ~ in argument list.\n"
@@ -1322,7 +1325,7 @@ msgstr ""
 msgid "invalid byte #x$$ in ~ conversion"
 msgstr ""
 
-#: encoding.d:1833 encoding.d:1844 encoding.d:1854 encoding.d:1865 pathname.d:3522 pathname.d:6195 pathname.d:6214 pathname.d:6249 pathname.d:7372 pathname.d:8258 stream.d:3008 stream.d:3114 stream.d:15946 hashtabl.d:1272 error.d:1052
+#: encoding.d:1833 encoding.d:1844 encoding.d:1854 encoding.d:1865 pathname.d:3522 pathname.d:6195 pathname.d:6214 pathname.d:6249 pathname.d:7372 pathname.d:8258 stream.d:3008 stream.d:3114 stream.d:15953 hashtabl.d:1272 error.d:1052
 msgid "~: illegal ~ argument ~"
 msgstr "~: el argumento de ~ es inválido: ~"
 
@@ -1570,7 +1573,7 @@ msgstr ""
 #
 # ¿os gusta o lo encontrais raro?
 #
-#: stream.d:269 stream.d:13447
+#: stream.d:269 stream.d:13454
 msgid "~ on ~ is illegal"
 msgstr "~ no es posible sobre el flujo ~"
 
@@ -1740,15 +1743,15 @@ msgstr "~: Ctrl-C: Interrupción del usuario"
 msgid "unknown character set ~"
 msgstr "Registro desconocido: ~S"
 
-#: stream.d:5595
+#: stream.d:5601
 msgid "Unbuffered streams need an ~ with a bit size being a multiple of 8, not ~"
 msgstr ""
 
-#: stream.d:5941
+#: stream.d:5948
 msgid "Closed ~ because disk is full."
 msgstr "Se ha cerrado ~ porque el disco está lleno."
 
-#: stream.d:6058
+#: stream.d:6065
 msgid "cannot position ~ beyond EOF"
 msgstr "no es posible colocarse en ~ más allá de EOF"
 
@@ -1756,45 +1759,45 @@ msgstr "no es posible colocarse en ~ más allá de EOF"
 # en la asignatura de Sistemas Operativos, en mi Facultad, los
 # llamábamos "ficheros normales". ¿Qué tal os suena?.
 #
-#: stream.d:7507
+#: stream.d:7514
 #, fuzzy
 msgid "~: argument ~ ~ was specified, but ~ is not a regular file."
 msgstr "~: ~ no es un fichero normal."
 
-#: stream.d:7540
+#: stream.d:7547
 msgid "~: arguments ~ ~ and ~ ~ were specified, but ~ is not a regular file."
 msgstr ""
 
 # Duda: aqui he traducido de la version francesa (no se frances, pero
 # por lo que parece que pone, ...)
 #
-#: stream.d:7596
+#: stream.d:7603
 msgid "file ~ is not an integer file"
 msgstr "el fichero ~ no tiene el formato de un fichero de enteros"
 
-#: stream.d:8644 stream.d:15406
+#: stream.d:8651 stream.d:15413
 #, fuzzy
 msgid "Return value ~ of call to ~ is not a ~."
 msgstr "El valor de ~ no es un flujo: ~"
 
-#: stream.d:8665
+#: stream.d:8672
 #, fuzzy
 msgid "Return value ~ of call to ~ contains ~ which is not a ~."
 msgstr "El valor de ~ no es un flujo: ~"
 
-#: stream.d:9808
+#: stream.d:9815
 msgid "~: argument ~ should be a window stream"
 msgstr "~: el argumento ~ debe ser un WINDOW-STREAM"
 
-#: stream.d:10357
+#: stream.d:10364
 msgid "cannot output to standard output"
 msgstr "no se puede escribir en la salida estándar"
 
-#: stream.d:11548
+#: stream.d:11555
 msgid "environment has no TERM variable"
 msgstr "no existe ninguna variable de entorno TERM"
 
-#: stream.d:11553
+#: stream.d:11560
 msgid "terminal type ~ unknown to termcap"
 msgstr "No existe ninguna entrada para el tipo de terminal ~ en termcap"
 
@@ -1806,7 +1809,7 @@ msgstr "No existe ninguna entrada para el tipo de terminal ~ en termcap"
 # 	tipo "usando el modo de impresora" o algo así, ¿no os parece
 # 	mejor?
 #
-#: stream.d:11566
+#: stream.d:11573
 msgid "insufficient terminal: hardcopy terminal"
 msgstr "terminal insuficiente: usando el modo de impresora"
 
@@ -1815,23 +1818,23 @@ msgstr "terminal insuficiente: usando el modo de impresora"
 # alemana (aunque no sé ni alemán ni francés) hacen ---por lo visto---,
 # lo que yo: una traducción libre.
 #
-#: stream.d:11570
+#: stream.d:11577
 msgid "insufficient terminal: overstrikes, cannot clear output"
 msgstr "teminal insuficiente: no se puede inicializar la salida"
 
-#: stream.d:11574
+#: stream.d:11581
 msgid "insufficient terminal: cannot scroll"
 msgstr "terminal insuficiente: no se puede desplazar la pantalla"
 
-#: stream.d:11579
+#: stream.d:11586
 msgid "insufficient terminal: cannot clear screen"
 msgstr "terminal insuficiente: no se puede borrar la pantalla"
 
-#: stream.d:11583
+#: stream.d:11590
 msgid "insufficient terminal: cannot position cursor randomly"
 msgstr "terminal insuficiente: no se puede situar el cursor aleatoriamente"
 
-#: stream.d:12044
+#: stream.d:12051
 msgid "~: package SCREEN is not implemented"
 msgstr "~: el paquete SCREEN no está implementado"
 
@@ -1845,7 +1848,7 @@ msgstr "~: el paquete SCREEN no está implementado"
 # (A propósito, el juego ese de LucasArts es a¡GENIAL!!!
 # 					Telepromoción - cll) :)
 #
-#: stream.d:13167
+#: stream.d:13174
 msgid "host should be string, not ~"
 msgstr "el anfitrión debe ser una cadena de caracteres y no ~"
 
@@ -1856,121 +1859,121 @@ msgstr "el anfitrión debe ser una cadena de caracteres y no ~"
 # por ser el nombre de un subtipo (o tipo, si se quiere) en Lisp, est
 # sin traducir, ...
 #
-#: stream.d:13174
+#: stream.d:13181
 msgid "display should be a nonnegative fixnum, not ~"
 msgstr "el `display' debe ser un entero del tipo FIXNUM >=0, y no ~"
 
-#: stream.d:13237
+#: stream.d:13244
 msgid "~: stream must be a socket-stream, not ~"
 msgstr "~: el flujo debe ser un `socket-stream' y no ~"
 
-#: stream.d:13248
+#: stream.d:13255
 msgid "~: argument ~ should be a vector of type (ARRAY (UNSIGNED-BYTE 8) (*))"
 msgstr "~: el argumento ~ debe ser un vector del tipo (ARRAY (UNSIGNED-BYTE 8) (*)) "
 
-#: stream.d:13270 stream.d:16087 stream.d:16147 stream.d:16201 stream.d:16262 io.d:987
+#: stream.d:13277 stream.d:16094 stream.d:16154 stream.d:16208 stream.d:16269 io.d:987
 msgid "~: input stream ~ has reached its end"
 msgstr "~: el flujo de entrada ~ ha alcanzado su final"
 
-#: stream.d:13442 record.d:211 record.d:428 record.d:573 record.d:614 record.d:686 record.d:770 sequence.d:292 error.d:717 error.d:718 error.d:742 error.d:752 error.d:783 error.d:836 error.d:846 error.d:892 error.d:1120 lisparit.d:335 lisparit.d:352 lisparit.d:369 lisparit.d:386
+#: stream.d:13449 record.d:211 record.d:428 record.d:573 record.d:614 record.d:686 record.d:770 sequence.d:292 error.d:717 error.d:718 error.d:742 error.d:752 error.d:783 error.d:836 error.d:846 error.d:892 error.d:1120 lisparit.d:335 lisparit.d:352 lisparit.d:369 lisparit.d:386
 #, fuzzy
 msgid "~: ~ is not a ~"
 msgstr "~: ~ no es un par"
 
-#: stream.d:13500
+#: stream.d:13507
 #, fuzzy
 msgid "~: argument ~ is neither an open SOCKET-STREAM nor a positive FIXNUM"
 msgstr "~: el argumento ~ no es un SOCKET-STREAM"
 
-#: stream.d:13716
+#: stream.d:13723
 #, fuzzy
 msgid "~: argument ~ is not an open SOCKET-STREAM"
 msgstr "~: el argumento ~ no es un SOCKET-STREAM"
 
-#: stream.d:13727
+#: stream.d:13734
 msgid "~: argument ~ is not a SOCKET-STREAM"
 msgstr "~: el argumento ~ no es un SOCKET-STREAM"
 
-#: stream.d:13746 stream.d:16420
+#: stream.d:13753 stream.d:16427
 #, fuzzy
 msgid "~: argument ~ is not an open ~"
 msgstr "~: el argumento ~ no es el flujo de un fichero abierto"
 
-#: stream.d:13933
+#: stream.d:13940
 #, fuzzy
 msgid "~: list ~ is too long (~ maximum)"
 msgstr "~: la secuencia ~ es demasiado larga"
 
-#: stream.d:14124
+#: stream.d:14131
 #, fuzzy
 msgid "~: argument ~ should be ~."
 msgstr "~: el argumento ~ debe ser un flujo"
 
-#: stream.d:14299
+#: stream.d:14306
 #, fuzzy
 msgid "Invalid direction ~ for handle ~"
 msgstr "Sintaxis inválida en la forma ~S: ~S."
 
-#: stream.d:14325
+#: stream.d:14332
 #, fuzzy
 msgid "~: ~ should be a handle, handle stream, or direction"
 msgstr "~S: ~S debe ser una expresión lambda"
 
-#: stream.d:14512
+#: stream.d:14519
 msgid "The value of ~ is not a stream: ~"
 msgstr "El valor de ~ no es un flujo: ~"
 
-#: stream.d:14514
+#: stream.d:14521
 msgid "The value of ~ is not an appropriate stream: ~"
 msgstr "El valor de ~ no es un flujo apropiado: ~"
 
-#: stream.d:14526
+#: stream.d:14533
 #, fuzzy
 msgid "The value of ~ was not an appropriate stream: ~. It has been changed to ~."
 msgstr "El valor de ~ no era un flujo: ~. Ha sido cambiado por ~."
 
-#: stream.d:14539
+#: stream.d:14546
 msgid "readline library: out of memory."
 msgstr "biblioteca readline: la memoria ha sido agotada."
 
-#: stream.d:14843
+#: stream.d:14850
 #, fuzzy
 msgid "~: The ~ of ~ cannot be changed from ~ to ~."
 msgstr "~: ~ no puede convertirse al tipo ~"
 
-#: stream.d:15899
+#: stream.d:15906
 msgid "Return value ~ of call to ~ is not a fixnum >= 0 or NIL."
 msgstr ""
 
-#: stream.d:15913
+#: stream.d:15920
 msgid "~ needs an ~ with a bit size being a multiple of 8, not ~"
 msgstr ""
 
-#: stream.d:15961
+#: stream.d:15968
 #, fuzzy
 msgid "~: illegal endianness argument ~"
 msgstr "~: el argumento de ~ es inválido: ~"
 
-#: stream.d:16069
+#: stream.d:16076
 #, fuzzy
 msgid "~: argument ~ does not contain a valid OS stream handle"
 msgstr "~: el argumento ~ no es el flujo de un fichero abierto"
 
-#: stream.d:16070
+#: stream.d:16077
 msgid "~: ~: buffered pipe-input-streams are not supported"
 msgstr ""
 
-#: stream.d:16071
+#: stream.d:16078
 #, fuzzy
 msgid "~: ~: stream of wrong direction"
 msgstr "~: ~ no es una función"
 
-#: stream.d:16337 stream.d:16347
+#: stream.d:16344 stream.d:16354
 #, fuzzy
 msgid "~ is not a ~, cannot be output onto ~"
 msgstr "~ no es un entero, no puede escribirse en ~"
 
-#: stream.d:16450
+#: stream.d:16457
 #, fuzzy
 msgid "~: position argument should be ~ or ~ or a nonnegative integer, not ~"
 msgstr "~: el argumento de posición debe ser ~, ~ o un número no negativo del tipo FIXNUM, pero no ~"

@@ -1,15 +1,18 @@
+# English messages for CLISP
+# Copyright (C) 1992-2004 Bruno Haible, Marcus Daniels, Sam Steingold
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: clisp 2.32.94\n"
-"POT-Creation-Date: 2004-03-14 12:10:55 EST\n"
-"PO-Revision-Date: 2004-03-14 12:10:51 EST\n"
+"Project-Id-Version: clisp 2.33\n"
+"POT-Creation-Date: 2004-03-17 15:20:59 EST\n"
+"PO-Revision-Date: 2004-03-17 15:20:56 EST\n"
 "Last-Translator: Automatically generated <@winsteingoldlap>\n"
 "Language-Team: English <en@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=ISO-8859-1\n"
 "Content-Transfer-Encoding: 8-bit\n"
 
+#: spvw.d:487
 msgid ""
 "\n"
 "*** - Program stack overflow. RESET"
@@ -17,6 +20,7 @@ msgstr ""
 "\n"
 "*** - Program stack overflow. RESET"
 
+#: spvw.d:498
 msgid ""
 "\n"
 "*** - Lisp stack overflow. RESET"
@@ -24,15 +28,19 @@ msgstr ""
 "\n"
 "*** - Lisp stack overflow. RESET"
 
+#: spvw.d:695
 msgid "Unknown FSUBR signature: %d %d %d\n"
 msgstr "Unknown FSUBR signature: %d %d %d\n"
 
+#: spvw.d:803
 msgid "Unknown SUBR signature: %d %d %d %d"
 msgstr "Unknown SUBR signature: %d %d %d %d"
 
+#: spvw.d:1479
 msgid "module `%s' requires package %s.\n"
 msgstr "module `%s' requires package %s.\n"
 
+#: spvw.d:1518
 msgid ""
 "is an ANSI Common Lisp.\n"
 "Usage:  "
@@ -40,6 +48,7 @@ msgstr ""
 "is an ANSI Common Lisp.\n"
 "Usage:  "
 
+#: spvw.d:1520
 msgid ""
 " [options] [lispfile [argument ...]]\n"
 " When `lispfile' is given, it is loaded and `*ARGS*' is set\n"
@@ -51,54 +60,71 @@ msgstr ""
 " to the list of argument strings. Otherwise, an interactive\n"
 " read-eval-print loop is entered.\n"
 
+#: spvw.d:1524
 msgid "Informative output:\n"
 msgstr "Informative output:\n"
 
+#: spvw.d:1525
 msgid " -h, --help    - print this help and exit\n"
 msgstr " -h, --help    - print this help and exit\n"
 
+#: spvw.d:1526
 msgid " --version     - print the version information\n"
 msgstr " --version     - print the version information\n"
 
+#: spvw.d:1527
 msgid " --license     - print the licensing information\n"
 msgstr " --license     - print the licensing information\n"
 
+#: spvw.d:1528
 msgid "Memory image selection:\n"
 msgstr "Memory image selection:\n"
 
+#: spvw.d:1529
 msgid " -B lisplibdir - set the installation directory\n"
 msgstr " -B lisplibdir - set the installation directory\n"
 
+#: spvw.d:1531
 msgid " -K linkingset - use this executable and memory image\n"
 msgstr " -K linkingset - use this executable and memory image\n"
 
+#: spvw.d:1533
 msgid " -M memfile    - use this memory image\n"
 msgstr " -M memfile    - use this memory image\n"
 
+#: spvw.d:1534
 msgid " -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
 msgstr " -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
 
+#: spvw.d:1536
 msgid " -s size       - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"
 msgstr " -s size       - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"
 
+#: spvw.d:1539
 msgid " -t tmpdir     - temporary directory for memmap\n"
 msgstr " -t tmpdir     - temporary directory for memmap\n"
 
+#: spvw.d:1541
 msgid "Internationalization:\n"
 msgstr "Internationalization:\n"
 
+#: spvw.d:1542
 msgid " -L language   - set user language\n"
 msgstr " -L language   - set user language\n"
 
+#: spvw.d:1543
 msgid " -N nlsdir     - NLS catalog directory\n"
 msgstr " -N nlsdir     - NLS catalog directory\n"
 
+#: spvw.d:1544
 msgid " -Edomain encoding - set encoding\n"
 msgstr " -Edomain encoding - set encoding\n"
 
+#: spvw.d:1545
 msgid "Interoperability:\n"
 msgstr "Interoperability:\n"
 
+#: spvw.d:1546
 msgid ""
 " -q, --quiet, --silent, -v, --verbose - verbosity level:\n"
 "     affects banner, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
@@ -108,84 +134,111 @@ msgstr ""
 "     affects banner, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
 "     and *LOAD-PRINT*/*COMPILE-PRINT*\n"
 
+#: spvw.d:1549
 msgid " -w            - wait for a keypress after program termination\n"
 msgstr " -w            - wait for a keypress after program termination\n"
 
+#: spvw.d:1550
 msgid " -I            - be ILISP-friendly\n"
 msgstr " -I            - be ILISP-friendly\n"
 
+#: spvw.d:1551
 msgid "Startup actions:\n"
 msgstr "Startup actions:\n"
 
+#: spvw.d:1552
 msgid " -ansi         - more ANSI CL compliance\n"
 msgstr " -ansi         - more ANSI CL compliance\n"
 
+#: spvw.d:1553
 msgid " -traditional  - traditional (undoes -ansi)\n"
 msgstr " -traditional  - traditional (undoes -ansi)\n"
 
+#: spvw.d:1554
 msgid " -p package    - start in the package\n"
 msgstr " -p package    - start in the package\n"
 
+#: spvw.d:1555
 msgid " -C            - set *LOAD-COMPILING* to T\n"
 msgstr " -C            - set *LOAD-COMPILING* to T\n"
 
+#: spvw.d:1556
 msgid " -norc         - do not load the user ~/.clisprc file\n"
 msgstr " -norc         - do not load the user ~/.clisprc file\n"
 
+#: spvw.d:1557
 msgid " -i file       - load initfile (can be repeated)\n"
 msgstr " -i file       - load initfile (can be repeated)\n"
 
+#: spvw.d:1558
 msgid "Actions:\n"
 msgstr "Actions:\n"
 
+#: spvw.d:1559
 msgid " -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"
 msgstr " -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"
 
+#: spvw.d:1560
 msgid " -x expressions - execute the expressions, then exit\n"
 msgstr " -x expressions - execute the expressions, then exit\n"
 
+#: spvw.d:1561
 msgid " lispfile [argument ...] - load lispfile, then exit\n"
 msgstr " lispfile [argument ...] - load lispfile, then exit\n"
 
+#: spvw.d:1562
 msgid "These actions put CLISP into a batch mode, which is overridden by\n"
 msgstr "These actions put CLISP into a batch mode, which is overridden by\n"
 
+#: spvw.d:1563
 msgid " -interactive-debug - allow interaction for failed ASSERT and friends\n"
 msgstr " -interactive-debug - allow interaction for failed ASSERT and friends\n"
 
+#: spvw.d:1564
 msgid " -repl              - enter the interactive read-eval-print loop when done\n"
 msgstr " -repl              - enter the interactive read-eval-print loop when done\n"
 
+#: spvw.d:1565
 msgid "Default action is an interactive read-eval-print loop.\n"
 msgstr "Default action is an interactive read-eval-print loop.\n"
 
+#: spvw.d:1871
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB\n"
 msgstr "Syntax for %s: nnnnnnn or nnnnKB or nMB\n"
 
+#: spvw.d:1875
 msgid "%s out of range\n"
 msgstr "%s out of range\n"
 
+#: spvw.d:1888
 msgid "memory size"
 msgstr "memory size"
 
+#: spvw.d:1899
 msgid "stack size"
 msgstr "stack size"
 
+#: spvw.d:2025
 msgid "CLISP: -a is deprecated, use -ansi\n"
 msgstr "CLISP: -a is deprecated, use -ansi\n"
 
+#: spvw.d:2271
 msgid "Return value of malloc() = %x is not compatible with type code distribution.\n"
 msgstr "Return value of malloc() = %x is not compatible with type code distribution.\n"
 
+#: spvw.d:2277
 msgid "Only %d bytes available.\n"
 msgstr "Only %d bytes available.\n"
 
+#: spvw.d:2520
 msgid "Could not determine the end of the SP stack!\n"
 msgstr "Could not determine the end of the SP stack!\n"
 
+#: spvw.d:2995
 msgid "%s: Not enough memory for Lisp.\n"
 msgstr "%s: Not enough memory for Lisp.\n"
 
+#: spvw_alloca.d:47
 msgid ""
 "\n"
 "*** - Virtual memory exhausted. RESET"
@@ -193,6 +246,7 @@ msgstr ""
 "\n"
 "*** - Virtual memory exhausted. RESET"
 
+#: spvw_alloca.d:49
 msgid ""
 "\n"
 "*** - Memory exhausted. RESET"
@@ -200,72 +254,95 @@ msgstr ""
 "\n"
 "*** - Memory exhausted. RESET"
 
+#: spvw_mmap.d:66 spvw_mmap.d:196 spvw_mmap.d:355 spvw_multimap.d:160
 msgid "Cannot map memory to address 0x%x .\n"
 msgstr "Cannot map memory to address 0x%x .\n"
 
+#: spvw_mmap.d:169
 msgid "Cannot reserve address range at 0x%x ."
 msgstr "Cannot reserve address range at 0x%x ."
 
+#: spvw_mmap.d:179
 msgid "Cannot reserve address range 0x%x-0x%x ."
 msgstr "Cannot reserve address range 0x%x-0x%x ."
 
+#: spvw_mmap.d:224
 msgid "CreateFileMapping() failed."
 msgstr "CreateFileMapping() failed."
 
+#: spvw_mmap.d:232
 msgid "MapViewOfFileEx(addr=0x%x,off=0x%x) failed."
 msgstr "MapViewOfFileEx(addr=0x%x,off=0x%x) failed."
 
+#: spvw_mmap.d:238
 msgid "MapViewOfFileEx() returned 0x%x instead of 0x%x.\n"
 msgstr "MapViewOfFileEx() returned 0x%x instead of 0x%x.\n"
 
+#: spvw_mmap.d:252
 msgid "VirtualFree() failed."
 msgstr "VirtualFree() failed."
 
+#: spvw_mmap.d:265
 msgid "VirtualProtect() failed."
 msgstr "VirtualProtect() failed."
 
+#: spvw_mmap.d:335 spvw_multimap.d:114 spvw_multimap.d:189
 msgid "Cannot open <%s>."
 msgstr "Cannot open <%s>."
 
+#: spvw_multimap.d:138
 msgid "msync(0x%x,0x%x,MS_INVALIDATE) failed."
 msgstr "msync(0x%x,0x%x,MS_INVALIDATE) failed."
 
+#: spvw_multimap.d:198
 msgid "Cannot delete <%s>."
 msgstr "Cannot delete <%s>."
 
+#: spvw_multimap.d:216
 msgid "** WARNING: ** Too little free disk space for <%s>.\n"
 msgstr "** WARNING: ** Too little free disk space for <%s>.\n"
 
+#: spvw_multimap.d:217
 msgid "Please restart LISP with less memory (option -m).\n"
 msgstr "Please restart LISP with less memory (option -m).\n"
 
+#: spvw_multimap.d:225
 msgid "Cannot make <%s> long enough."
 msgstr "Cannot make <%s> long enough."
 
+#: spvw_multimap.d:239
 msgid "Cannot fill <%s>."
 msgstr "Cannot fill <%s>."
 
+#: spvw_multimap.d:252 spvw_multimap.d:286
 msgid "Cannot close <%s>."
 msgstr "Cannot close <%s>."
 
+#: spvw_multimap.d:324
 msgid "Recompile your operating system with SYSV IPC support.\n"
 msgstr "Recompile your operating system with SYSV IPC support.\n"
 
+#: spvw_multimap.d:336
 msgid "Cannot allocate private shared memory segment of size %d."
 msgstr "Cannot allocate private shared memory segment of size %d."
 
+#: spvw_multimap.d:353
 msgid "Cannot map shared memory to address 0x%x."
 msgstr "Cannot map shared memory to address 0x%x."
 
+#: spvw_multimap.d:371 spvw_multimap.d:377
 msgid "%s: Cannot fill shared memory."
 msgstr "%s: Cannot fill shared memory."
 
+#: spvw_multimap.d:390
 msgid "Cannot remove shared memory segment."
 msgstr "Cannot remove shared memory segment."
 
+#: spvw_fault.d:458
 msgid "mprotect(0x%x,%d,%d) failed."
 msgstr "mprotect(0x%x,%d,%d) failed."
 
+#: spvw_sigsegv.d:29
 msgid ""
 "\n"
 "SIGSEGV cannot be cured. Fault address = 0x%x.\n"
@@ -273,12 +350,15 @@ msgstr ""
 "\n"
 "SIGSEGV cannot be cured. Fault address = 0x%x.\n"
 
+#: spvw_sigsegv.d:63
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!\n"
 msgstr "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!\n"
 
+#: spvw_garcol.d:2225
 msgid "munmap() failed."
 msgstr "munmap() failed."
 
+#: spvw_allocate.d:49
 msgid ""
 "\n"
 "*** - No more room for LISP objects: RESET"
@@ -286,1486 +366,394 @@ msgstr ""
 "\n"
 "*** - No more room for LISP objects: RESET"
 
+#: spvw_allocate.d:248 spvw_allocate.d:311 spvw_allocate.d:391
 msgid "Trying to make room through a GC...\n"
 msgstr "Trying to make room through a GC...\n"
 
+#: spvw_memfile.d:777
 msgid "%s: operating system error during load of initialization file `%s'\n"
 msgstr "%s: operating system error during load of initialization file `%s'\n"
 
+#: spvw_memfile.d:1244
 msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "%s: Cannot map the initialization file `%s' into memory."
 
+#: spvw_memfile.d:1510
 msgid "%s: operating system error during load of initialization file `%s'"
 msgstr "%s: operating system error during load of initialization file `%s'"
 
+#: spvw_memfile.d:1515
 msgid "%s: initialization file `%s' was not created by this version of CLISP\n"
 msgstr "%s: initialization file `%s' was not created by this version of CLISP\n"
 
+#: spvw_memfile.d:1518
 msgid "%s: not enough memory for initialization\n"
 msgstr "%s: not enough memory for initialization\n"
 
+#: errunix.d:56
 msgid "Invalid multibyte or wide character"
 msgstr "Invalid multibyte or wide character"
 
+#: errunix.d:63
 msgid "Operation not permitted"
 msgstr "Operation not permitted"
 
+#: errunix.d:69
 msgid "No such file or directory"
 msgstr "No such file or directory"
 
+#: errunix.d:75
 msgid "No such process"
 msgstr "No such process"
 
+#: errunix.d:81
 msgid "Interrupted system call"
 msgstr "Interrupted system call"
 
+#: errunix.d:87
 msgid "I/O error"
 msgstr "I/O error"
 
+#: errunix.d:93
 msgid "No such device or address"
 msgstr "No such device or address"
 
+#: errunix.d:99
 msgid "Arg list too long"
 msgstr "Arg list too long"
 
+#: errunix.d:105
 msgid "Exec format error"
 msgstr "Exec format error"
 
+#: errunix.d:111
 msgid "Bad file number"
 msgstr "Bad file number"
 
+#: errunix.d:117
 msgid "No child processes"
 msgstr "No child processes"
 
+#: errunix.d:123
 msgid "No more processes"
 msgstr "No more processes"
 
+#: errunix.d:129
 msgid "Not enough memory"
 msgstr "Not enough memory"
 
+#: errunix.d:135
 msgid "Permission denied"
 msgstr "Permission denied"
 
+#: errunix.d:141
 msgid "Bad address"
 msgstr "Bad address"
 
+#: errunix.d:147
 msgid "Block device required"
 msgstr "Block device required"
 
+#: errunix.d:153
 msgid "Device busy"
 msgstr "Device busy"
 
+#: errunix.d:159
 msgid "File exists"
 msgstr "File exists"
 
+#: errunix.d:165
 msgid "Cross-device link"
 msgstr "Cross-device link"
 
+#: errunix.d:171
 msgid "No such device"
 msgstr "No such device"
 
+#: errunix.d:177
 msgid "Not a directory"
 msgstr "Not a directory"
 
+#: errunix.d:183
 msgid "Is a directory"
 msgstr "Is a directory"
 
+#: errunix.d:189
 msgid "Invalid argument"
 msgstr "Invalid argument"
 
+#: errunix.d:195
 msgid "File table overflow"
 msgstr "File table overflow"
 
+#: errunix.d:201
 msgid "Too many open files"
 msgstr "Too many open files"
 
+#: errunix.d:207
 msgid "Inappropriate ioctl for device"
 msgstr "Inappropriate ioctl for device"
 
+#: errunix.d:213
 msgid "Text file busy"
 msgstr "Text file busy"
 
+#: errunix.d:219
 msgid "File too large"
 msgstr "File too large"
 
+#: errunix.d:225
 msgid "No space left on device"
 msgstr "No space left on device"
 
+#: errunix.d:231
 msgid "Illegal seek"
 msgstr "Illegal seek"
 
+#: errunix.d:237
 msgid "Read-only file system"
 msgstr "Read-only file system"
 
+#: errunix.d:243
 msgid "Too many links"
 msgstr "Too many links"
 
+#: errunix.d:249
 msgid "Broken pipe, child process terminated or socket closed"
 msgstr "Broken pipe, child process terminated or socket closed"
 
+#: errunix.d:259
 msgid "Argument out of domain"
 msgstr "Argument out of domain"
 
+#: errunix.d:265
 msgid "Result too large"
 msgstr "Result too large"
 
+#: errunix.d:272
 msgid "Operation would block"
 msgstr "Operation would block"
 
+#: errunix.d:278
 msgid "Operation now in progress"
 msgstr "Operation now in progress"
 
+#: errunix.d:284
 msgid "Operation already in progress"
 msgstr "Operation already in progress"
 
+#: errunix.d:291
 msgid "Too many levels of symbolic links"
 msgstr "Too many levels of symbolic links"
 
+#: errunix.d:297
 msgid "File name too long"
 msgstr "File name too long"
 
+#: errunix.d:303
 msgid "Directory not empty"
 msgstr "Directory not empty"
 
+#: errunix.d:310
 msgid "Stale NFS file handle"
 msgstr "Stale NFS file handle"
 
+#: errunix.d:316
 msgid "Too many levels of remote in path"
 msgstr "Too many levels of remote in path"
 
+#: errunix.d:323
 msgid "Socket operation on non-socket"
 msgstr "Socket operation on non-socket"
 
+#: errunix.d:329
 msgid "Destination address required"
 msgstr "Destination address required"
 
+#: errunix.d:335
 msgid "Message too long"
 msgstr "Message too long"
 
+#: errunix.d:341
 msgid "Protocol wrong type for socket"
 msgstr "Protocol wrong type for socket"
 
+#: errunix.d:347
 msgid "Option not supported by protocol"
 msgstr "Option not supported by protocol"
 
+#: errunix.d:353
 msgid "Protocol not supported"
 msgstr "Protocol not supported"
 
+#: errunix.d:359
 msgid "Socket type not supported"
 msgstr "Socket type not supported"
 
+#: errunix.d:365
 msgid "Operation not supported on socket"
 msgstr "Operation not supported on socket"
 
+#: errunix.d:371
 msgid "Protocol family not supported"
 msgstr "Protocol family not supported"
 
+#: errunix.d:377
 msgid "Address family not supported by protocol family"
 msgstr "Address family not supported by protocol family"
 
+#: errunix.d:383
 msgid "Address already in use"
 msgstr "Address already in use"
 
+#: errunix.d:389
 msgid "Cannot assign requested address"
 msgstr "Cannot assign requested address"
 
+#: errunix.d:395
 msgid "Network is down"
 msgstr "Network is down"
 
+#: errunix.d:401
 msgid "Network is unreachable"
 msgstr "Network is unreachable"
 
+#: errunix.d:407
 msgid "Network dropped connection on reset"
 msgstr "Network dropped connection on reset"
 
+#: errunix.d:413
 msgid "Software caused connection abort"
 msgstr "Software caused connection abort"
 
+#: errunix.d:419
 msgid "Connection reset by peer"
 msgstr "Connection reset by peer"
 
+#: errunix.d:425
 msgid "No buffer space available"
 msgstr "No buffer space available"
 
+#: errunix.d:431
 msgid "Socket is already connected"
 msgstr "Socket is already connected"
 
+#: errunix.d:437
 msgid "Socket is not connected"
 msgstr "Socket is not connected"
 
+#: errunix.d:443
 msgid "Cannot send after socket shutdown"
 msgstr "Cannot send after socket shutdown"
 
+#: errunix.d:449
 msgid "Too many references: cannot splice"
 msgstr "Too many references: cannot splice"
 
+#: errunix.d:455
 msgid "Connection timed out"
 msgstr "Connection timed out"
 
+#: errunix.d:461
 msgid "Connection refused"
 msgstr "Connection refused"
 
+#: errunix.d:466
 msgid "Remote peer released connection"
 msgstr "Remote peer released connection"
 
+#: errunix.d:471
 msgid "Host is down"
 msgstr "Host is down"
 
+#: errunix.d:477
 msgid "Host is unreachable"
 msgstr "Host is unreachable"
 
+#: errunix.d:482
 msgid "Networking error"
 msgstr "Networking error"
 
+#: errunix.d:488
 msgid "Too many processes"
 msgstr "Too many processes"
 
+#: errunix.d:494
 msgid "Too many users"
 msgstr "Too many users"
 
+#: errunix.d:500
 msgid "Disk quota exceeded"
 msgstr "Disk quota exceeded"
 
+#: errunix.d:507
 msgid "Not a stream device"
 msgstr "Not a stream device"
 
+#: errunix.d:513
 msgid "Timer expired"
 msgstr "Timer expired"
 
+#: errunix.d:519
 msgid "Out of stream resources"
 msgstr "Out of stream resources"
 
+#: errunix.d:525
 msgid "No message of desired type"
 msgstr "No message of desired type"
 
+#: errunix.d:531
 msgid "Not a data message"
 msgstr "Not a data message"
 
+#: errunix.d:538
 msgid "Identifier removed"
 msgstr "Identifier removed"
 
+#: errunix.d:545
 msgid "Resource deadlock would occur"
 msgstr "Resource deadlock would occur"
 
+#: errunix.d:551
 msgid "No record locks available"
 msgstr "No record locks available"
 
+#: errunix.d:558
 msgid "Machine is not on the network"
 msgstr "Machine is not on the network"
 
+#: errunix.d:564 errunix.d:570
 msgid "Object is remote"
 msgstr "Object is remote"
 
+#: errunix.d:576
 msgid "Link has been severed"
 msgstr "Link has been severed"
 
+#: errunix.d:582
 msgid "Advertise error"
 msgstr "Advertise error"
 
+#: errunix.d:588
 msgid "Srmount error"
 msgstr "Srmount error"
 
+#: errunix.d:594
 msgid "Communication error on send"
 msgstr "Communication error on send"
 
+#: errunix.d:600
 msgid "Protocol error"
 msgstr "Protocol error"
 
+#: errunix.d:606
 msgid "Multihop attempted"
 msgstr "Multihop attempted"
 
+#: errunix.d:618
 msgid "Remote address changed"
 msgstr "Remote address changed"
 
+#: errunix.d:625
 msgid "Function not implemented"
 msgstr "Function not implemented"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
