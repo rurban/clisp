@@ -1635,43 +1635,49 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 nonreturning_function (local, usage, (int exit_code));
 local void usage (int exit_code)
 {
-  asciz_out("CLISP (http://clisp.cons.org) is an ANSI Common Lisp."
-            NLstring "Usage:  ");
+  asciz_out("CLISP (http://clisp.cons.org/) is an ANSI Common Lisp." NLstring
+            "Usage:  ");
   asciz_out(program_name);
   asciz_out(" [options] [lispfile [argument ...]]" NLstring
-            " When `lispfile' is given, it is loaded and `*ARGS*' is set"
-            NLstring " to the list of argument strings." NLstring
-            "Options:" NLstring);
-  asciz_out(" -h, --help  - print this help and exit" NLstring
-            " -m size     - memory size (size = xxxxxxxB or xxxxKB or xMB)"
-            NLstring);
-  #ifndef NO_SP_MALLOC
-  asciz_out(" -s size     - stack size (size = xxxxxxxB or xxxxKB or xMB)"
-            NLstring);
-  #endif
-  #ifdef MULTIMAP_MEMORY_VIA_FILE
-  asciz_out(" -t tmpdir   - temporary directory for memmap" NLstring);
-  #endif
+            " When `lispfile' is given, it is loaded and `*ARGS*' is set" NLstring
+            " to the list of argument strings. Otherwise, an interactive" NLstring
+            " read-eval-print loop is entered." NLstring);
+  asciz_out("Informative output:" NLstring);
+  asciz_out(" -h, --help  - print this help and exit" NLstring);
+  asciz_out(" --version   - print the version information" NLstring);
+  asciz_out(" --license   - print the licensing information" NLstring);
+  asciz_out("Memory image selection:" NLstring);
   asciz_out(" -B lisplibdir - set the installation directory" NLstring);
   #ifdef UNIX
   asciz_out(" -K linkingset - use this executable and memory image" NLstring);
   #endif
-  asciz_out(" -M memfile  - use this memory image" NLstring
-            " -L language - set user language" NLstring
-            " -N nlsdir   - NLS catalog directory" NLstring
-            " -Edomain encoding - set encoding" NLstring
-            " -C          - set *LOAD-COMPILING* to T" NLstring
-            " -I          - be ILISP-friendly" NLstring
-            " -norc       - do not load the user ~/.clisprc file" NLstring
-            " -i file     - load initfile (can be repeated)" NLstring
-            " -c [-l] lispfile [-o outputfile] - compile LISPFILE" NLstring
-            " -p package  - start in the package" NLstring
-            " -a          - more ANSI CL compliance" NLstring
-            " -x sexp     - execute the expression and exit" NLstring
-            " -w          - wait for keypress after program termination" NLstring
-            " --license   - print the licensing information" NLstring
-            " --version   - print the version information" NLstring
-            " -q, --quiet, --silent - do not print the banner" NLstring);
+  asciz_out(" -M memfile  - use this memory image" NLstring);
+  asciz_out(" -m size     - memory size (size = xxxxxxxB or xxxxKB or xMB)" NLstring);
+  #ifndef NO_SP_MALLOC
+  asciz_out(" -s size     - stack size (size = xxxxxxxB or xxxxKB or xMB)" NLstring);
+  #endif
+  #ifdef MULTIMAP_MEMORY_VIA_FILE
+  asciz_out(" -t tmpdir   - temporary directory for memmap" NLstring);
+  #endif
+  asciz_out("Internationalization:" NLstring);
+  asciz_out(" -L language - set user language" NLstring);
+  asciz_out(" -N nlsdir   - NLS catalog directory" NLstring);
+  asciz_out(" -Edomain encoding - set encoding" NLstring);
+  asciz_out("Interoperability:" NLstring);
+  asciz_out(" -q, --quiet, --silent - do not print the banner" NLstring);
+  asciz_out(" -w          - wait for keypress after program termination" NLstring);
+  asciz_out(" -I          - be ILISP-friendly" NLstring);
+  asciz_out("Startup actions:" NLstring);
+  asciz_out(" -a          - more ANSI CL compliance" NLstring);
+  asciz_out(" -p package  - start in the package" NLstring);
+  asciz_out(" -C          - set *LOAD-COMPILING* to T" NLstring);
+  asciz_out(" -norc       - do not load the user ~/.clisprc file" NLstring);
+  asciz_out(" -i file     - load initfile (can be repeated)" NLstring);
+  asciz_out("Actions:" NLstring);
+  asciz_out(" -c [-l] lispfile [-o outputfile] - compile LISPFILE" NLstring);
+  asciz_out(" -x expression - execute the expression, then exit" NLstring);
+  asciz_out(" lispfile [argument ...] - load lispfile, then exit" NLstring);
+  asciz_out("Default action is an interactive read-eval-print loop." NLstring);
   quit_sofort (exit_code); # anormales Programmende
 }
 
@@ -1679,24 +1685,20 @@ local void usage (int exit_code)
 nonreturning_function (local, print_license, (void));
 local void print_license (void)
 { local const char * const license [] = {
-    "This program is free software; you can redistribute it and/or modify"
-    NLstring,
-    "it under the terms of the GNU General Public License as published by"
-    NLstring,
-    "the Free Software Foundation; either version 2, or (at your option)"
-    NLstring,
-    "any later version." NLstring, NLstring,
-    "This program is distributed in the hope that it will be useful, but"
-    NLstring,
-    "WITHOUT ANY WARRANTY; without even the implied warranty of" NLstring,
-    "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU"
-    NLstring,
-    "General Public License for more details." NLstring, NLstring,
-    "You should have received a copy of the GNU General Public License"
-    NLstring,
-    "along with this program; if not, write to the Free Software" NLstring,
-    "Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA."
-     NLstring, NLstring,
+    "This program is free software; you can redistribute it and/or modify" NLstring,
+    "it under the terms of the GNU General Public License as published by" NLstring,
+    "the Free Software Foundation; either version 2, or (at your option)"  NLstring,
+    "any later version."                                                   NLstring,
+                                                                           NLstring,
+    "This program is distributed in the hope that it will be useful, but"  NLstring,
+    "WITHOUT ANY WARRANTY; without even the implied warranty of"           NLstring,
+    "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU"    NLstring,
+    "General Public License for more details."                             NLstring,
+                                                                           NLstring,
+    "You should have received a copy of the GNU General Public License"    NLstring,
+    "along with this program; if not, write to the Free Software"          NLstring,
+    "Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA." NLstring,
+                                                                           NLstring,
   };
   var const char * const * ptr = license;
   var uintC count;
