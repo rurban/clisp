@@ -112,6 +112,8 @@ dnl           checks for typedefs
 dnl
 CL_CADDR_T
                       dnl DEFS CADDR_T
+CL_SOCKLEN_T
+                      dnl DEFS SOCKLEN_T
 dnl
 dnl           checks for structure members
 dnl

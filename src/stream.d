@@ -4133,7 +4133,7 @@ global uintL iconv_mblen(encoding,src,srcend)
       }
       iconv_init(cd);
       {
-        var const char* inptr = src;
+        var const char* inptr = (const char*)src;
         var size_t insize = srcend-src;
         while (insize > 0) {
           var char* outptr = (char*)tmpbuf;
@@ -4356,7 +4356,7 @@ global void iconv_wcstombs(encoding,stream,srcp,srcend,destp,destend)
   {
     var const char* inptr = (char*)*srcp;
     var size_t insize = (char*)srcend-(char*)*srcp;
-    var char* outptr = *destp;
+    var char* outptr = (char*)*destp;
     var size_t outsize = destend-*destp;
     if (eq(stream,nullobj)) {
       # Standalone call, must be consistent with iconv_wcslen:
@@ -10868,7 +10868,7 @@ LISPFUNN(make_keyboard_stream,0)
             var object inbuff = TheStream(*stream_)->strm_terminal_inbuff;
             var object encoding = TheStream(*stream_)->strm_encoding;
             var const uintB* bptr = line;
-            var const uintB* bendptr = bptr+asciz_length(bptr);
+            var const uintB* bendptr = bptr + asciz_length((const char*)bptr);
             var uintL clen = Encoding_mblen(encoding)(encoding,bptr,bendptr);
             ssstring_extend(inbuff,TheIarray(inbuff)->dims[1]+clen);
             inbuff = TheStream(*stream_)->strm_terminal_inbuff;
@@ -10890,7 +10890,7 @@ LISPFUNN(make_keyboard_stream,0)
           ssstring_push_extend(TheStream(*stream_)->strm_terminal_inbuff,ascii(NL));
           # und in die History übernehmen, falls nicht leer:
           if (!(line[0]=='\0')) {
-            begin_system_call(); add_history(line); end_system_call();
+            begin_system_call(); add_history((const char*)line); end_system_call();
           }
           # Freigeben müssen wir die Zeile!
           begin_system_call(); free(line); end_system_call();
