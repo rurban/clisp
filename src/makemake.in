@@ -3044,7 +3044,7 @@ echol
 echol "full : modular base \$(MODULES)"
 echotab "test -d full || CLISP_LINKKIT=. ${HERE}clisp-link add-module-sets base full \$(MODULES) || (\$(RMRF) full ; exit 1)"
 echol
-OBSOLETE=$OBSOLETE" genclisph${HEXE} linkkit"
+OBSOLETE=$OBSOLETE" genclisph${HEXE}"
 
 if test -n "$GROFF"; then
   manual_dvi=' clisp.dvi'
@@ -3259,7 +3259,7 @@ if [ $CROSS = false ] ; then
       echotab "\$(INSTALL_DATA) data/${f} \$(DESTDIR)\$(lisplibdir)/data/${f}"
     done
     echotab_mkdir_maybe "\$(DESTDIR)\$(lisplibdir)/linkkit"
-    echotab "(cd \$(DESTDIR)\$(lisplibdir) && ${RMRF} base full)"
+    echotab "(cd \$(DESTDIR)\$(lisplibdir) && \$(RMRF) base full)"
     echotab "mkdir \$(DESTDIR)\$(lisplibdir)/base"
     echotab "mkdir \$(DESTDIR)\$(lisplibdir)/full"
     echotab "for f in clisp-link linkkit/modules.d linkkit/modules.c linkkit/clisp.h base/* full/*; do \\"
@@ -3627,7 +3627,7 @@ if [ $HOS = win32 ] ; then
   echotab "chmod 644 \`find \$\$distdir -type f -print\` ; \\"
   echotab "rm -f \$\$distfile ; \\"
   echotab "(echo \"CLISP version \$\$version for Win32.\"; echo \".\") | zip -r -9 -z \$\$distfile \$\$distdir ; \\"
-  echotab "${RMRF} \$\$distdir"
+  echotab "\$(RMRF) \$\$distdir"
   echol
 fi
 
@@ -3635,12 +3635,14 @@ cat <<!!
 # clean0 is harmless: removes only superfluous things: temporary files.
 clean0 : force
 	-\$(RM) core${OBSOLETE}
+	-\$(RMRF) linkkit
 
 # clean1 removes everything that becomes obsolete once lisp${LEXE} is recompiled
 # without changing the bytecode format and the tables in
 # constobj.d, constpack.d, constsym.d, subr.d, fsubr.d, pseudofun.d.
 clean1 : clean0
 	-\$(RM) lispbibl.h clisp.h *.i *.s *${TOBJ} *.a lisp${LEXE} clisp-link makevars ${TESTDIR}${NEXT_}* ${TESTSDIR}${NEXT_}*
+	-\$(RMRF) base full
 !!
 if [ ${LIB_TYPE} = "win32" ] ; then
 cat <<!!
@@ -3692,6 +3694,7 @@ fi
 if [ -n "$USE_LIBCHARSET" ] ; then
 cat <<!!
 	-\$(RM) libcharset.h
+	-\$(RM) charset.alias
 !!
 fi
 if [ -n "$USE_SIGSEGV" ] ; then
@@ -3713,7 +3716,14 @@ cat <<!!
 echol "clean5 : clean4"
 echotab "-\$(RM) ANNOUNCE COPYRIGHT GNU-GPL SUMMARY"
 if [ -n "${SRCDIR}" ] ; then
-  echotab "-\$(RM) \$(DFILES) modules.h \$(LISPFILES) version.h NEWS clisp.png"
+  line="-\$(RM)"
+  line="$line \$(DFILES)"
+  for f in $UNICODE_INCLUDES $NLS_INCLUDES ; do
+    line="$line ${f}.c"
+  done
+  line="$line unitypes.h uniname.h uninames.h version.h modules.h"
+  line="$line \$(LISPFILES) NEWS clisp.png"
+  echotab "$line"
   if [ $HOS = unix -a $CROSS = false ] ; then
     echotab "-\$(RM) .clisp* .gdbinit"
   fi
@@ -3723,6 +3733,7 @@ fi
 if [ $TOS = unix ] ; then
   echotab "-\$(RM) MAGIC.add"
 fi
+echotab "-\$(RMRF) data"
 echotab "-\$(RM) comment5${HEXE} ansidecl${HEXE} varbrace${HEXE} ccpaux${HEXE} deema${HEXE} txt2c${HEXE} ccmp2c${HEXE} modprep${HEXE}"
 echol
 cat <<!!
@@ -3753,6 +3764,20 @@ fi
 if [ $HOS = unix ] && [ $CROSS = false ] ; then
 cat <<!!
 	-\$(RMRF) \`ls -d ${SRCTOPDIR}modules/*/. | sed -e 's,/\.\$\$,,' -e 's,^.*/,,' | grep -v '^CVS\$\$'\`
+!!
+fi
+cat <<!!
+	-\$(RMRF) avcall
+	-\$(RMRF) callback
+	-\$(RMRF) libcharset
+	-\$(RMRF) sigsegv
+!!
+if [ -n "${SRCDIR}" ] ; then
+cat <<!!
+	-\$(RMRF) readline
+	-\$(RMRF) po
+	-\$(RMRF) termcap
+	-\$(RM) configure unixconf.h.in makemake.in VERSION
 !!
 fi
 cat <<!!
