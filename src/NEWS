@@ -217,9 +217,12 @@ User visible changes
 
 * The FFI recognizes the c-type declaration (C-POINTER <c-type>) to
   handle references without conversion to/from Lisp structures.
+  See <http://clisp.cons.org/impnotes.html#c-pointer> for details.
 
 * New FFI constructor functions FOREIGN-VARIABLE and FOREIGN-FUNCTION,
   more operators are now exported (FOREIGN-VALUE, PARSE-C-TYPE).
+  See <http://clisp.cons.org/impnotes.html#dffi-make-var>
+  and <http://clisp.cons.org/impnotes.html#dffi-make-func> for details.
 
 * The :LIBRARY option argument to DEF-CALL-OUT and DEF-C-VAR is now
   evaluated (i.e., it can now be a variable) and may take a value of
