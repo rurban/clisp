@@ -432,7 +432,15 @@
 # wird verwendet von PATHNAME, UNIXAUX
 
 # File umbenennen:
-  extern_C int rename (RENAME_CONST char* oldpath, RENAME_CONST char* newpath); # siehe RENAME(2V)
+  #ifdef HAVE_RENAME
+    extern_C int rename (RENAME_CONST char* oldpath, RENAME_CONST char* newpath); # siehe RENAME(2V)
+  #else
+    extern_C int link (const char* oldpath, const char* newpath);
+    extern_C int access (const char* path, int mode);
+    # Emuliere rename() in unixaux.d:
+    #define NEED_OWN_RENAME
+    extern int rename (const char* oldpath, const char* newpath); # siehe unixaux.d
+  #endif
 # wird verwendet von PATHNAME, UNIXAUX
 
 # Directory-Suche:
@@ -466,7 +474,7 @@
 # wird verwendet von PATHNAME
 
 # Directory anlegen:
-  extern_C int mkdir (MKDIR_CONST char* path, mode_t mode); # siehe MKDIR(2V)
+  extern_C int mkdir (MKDIR_CONST char* path, MODE_T mode); # siehe MKDIR(2V)
 # wird verwendet von PATHNAME
 
 # Directory löschen:
@@ -483,7 +491,7 @@
   #ifdef OPEN_DOTS
     extern_C int open (OPEN_CONST char* path, int flags, ...); # siehe OPEN(2V)
   #else
-    extern_C int open (OPEN_CONST char* path, int flags, mode_t mode); # siehe OPEN(2V)
+    extern_C int open (OPEN_CONST char* path, int flags, MODE_T mode); # siehe OPEN(2V)
   #endif
   # Only a few Unices (like UNIX_CYGWIN32) have O_TEXT and O_BINARY.
   #ifndef O_BINARY
@@ -539,11 +547,15 @@
       #define FD_CLR(n,p)  ((p)->fds_bits[(n)/NFDBITS] &= ~bit((n)%NFDBITS))
       #define FD_ISSET(n,p)  ((p)->fds_bits[(n)/NFDBITS] & bit((n)%NFDBITS))
       #define FD_ZERO(p)  bzero((char*)(p),sizeof(*(p)))
-      #include <string.h>
-      #ifndef memset
-        extern_C RETMEMSETTYPE memset (void* ptr, int c, size_t len); # siehe MEMORY(3)
+      #ifdef HAVE_MEMSET
+        #include <string.h>
+        #ifndef memset
+          extern_C RETMEMSETTYPE memset (void* ptr, int c, size_t len); # siehe MEMORY(3)
+        #endif
+        #define bzero(ptr,len)  memset(ptr,0,len)
+      #else
+        extern_C void bzero (void* ptr, int len); # siehe BZERO(3)
       #endif
-      #define bzero(ptr,len)  memset(ptr,0,len)
     #endif
     extern_C int select (SELECT_WIDTH_T width, SELECT_SET_T* readfds,
                        SELECT_SET_T* writefds, SELECT_SET_T* exceptfds,
@@ -551,7 +563,7 @@
   #endif
   #ifdef EINTR
     # Wrapper um die System-Aufrufe, die EINTR abfangen und behandeln:
-    extern int nonintr_open (OPEN_CONST char* path, int flags, mode_t mode);
+    extern int nonintr_open (OPEN_CONST char* path, int flags, MODE_T mode);
     extern int nonintr_close (int fd);
     #define OPEN nonintr_open
     #define CLOSE nonintr_close
@@ -766,8 +778,18 @@
   # Child-Prozess nur auf Daten im Stack und konstante Daten zugreifen.
   # Denn der Parent-Prozess läuft in dieser Zeit schon weiter und kann dabei
   # Daten in STACK, malloc()-Bereich, Lisp-Daten-Bereich usw. modifizieren.
-  #include <sys/wait.h>
-  extern_C pid_t waitpid (PID_T pid, int* statusp, int options); # siehe WAIT(2V)
+  #ifdef HAVE_WAITPID
+    #include <sys/wait.h>
+    extern_C pid_t waitpid (PID_T pid, int* statusp, int options); # siehe WAIT(2V)
+  #else
+    #ifdef HAVE_SYS_WAIT_H
+      #include <sys/wait.h>
+    #endif
+    #ifndef UNIX_NEXTSTEP # NeXTstep 3.1 ohne _POSIX_VERSION deklariert:  extern int wait (union wait);
+      extern_C int wait (int* statusp); # siehe WAIT(2V)
+    #endif
+    #define PID_T  int
+  #endif
   extern int wait2 (PID_T pid); # siehe unixaux.d
 # wird verwendet von STREAM, PATHNAME, SPVW, UNIXAUX
 

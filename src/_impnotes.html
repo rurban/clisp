@@ -4,7 +4,7 @@
 <title>CLISP implementation notes</title>
 <meta name="author" content="Bruno Haible">
 <meta name="keywords" content="Lisp, Common Lisp, CLISP">
-<link rev=made href="mailto:clisp-list@lists.sourceforge.net">
+<link rev=made href="mailto:clisp-list@clisp.cons.org">
 </head>
 
 <!-- todo: Add symbol index -->
@@ -17,11 +17,12 @@
     "file:/usr/doc/lisp/HyperSpec" by sed(1) during installation. In
     order to view this file without sed-processing it, it is sufficient
     to make a symlink for "CLHSROOT" in the current directory.
-  * "Whatever is written by a human, will be read by another human".
-    Please keep your lines under 79 characters and remember that some
+  * "Whatever is written by a human, is supposed to be read by a human".
+    Please Keep your lines under 79 characters and remember that some
     people will be reading this document with "CLHSROOT" replaced with a
     long URL.
-  * For the benefit of Emacs, put 2 spaces after a final period in a sentence.
+  * If you are using Emacs, do (setq sentence-end-double-space t) and
+    put 2 spaces after a final period in a sentence.
   * Literal symbols are written in <code>...</code> font, in lowercase.
   * All tags are written in lowercase (which is more readable for a
     human).  "Low level" tags like <b> and <i> etc are to be avoided,
@@ -66,24 +67,21 @@
     in Netscape Navigator and Amaya.
   * Do not put a <p> before <dl>, <ol>, <pre>. It causes an extraneous blank
     line in Amaya.
-  * In Emacs, M-x compile RET in this file runs `weblint'
-    (http://www.cre.canon.co.uk/~neilb/weblint).
-    Please make sure that there are no errors.
 -->
 
 <body>
 <h1 align=center>Implementation Notes for CLISP</h1>
 
+<h4 align=center>Last modified: July 18, 1999.</h4>
 <center>
-<strong>Last modified: 2000-01-14</strong><br>
 <img src="clisp.gif" width=48 height=48 alt="[CLISP icon]">
 </center>
 
 <p>This implementation is mostly conforming to the
 <blockquote>
 <cite> ANSI Common Lisp standard X3.226-1994<br>
-       <a href="http://www.x3.org/tc_home/j13sd4.htm">"Information
-       Technology - Programming Language - Common Lisp"</a>
+       "Programming Language Common Lisp"<br>
+       <a href="http://www.x3.org/tc_home/j13sd4.htm">http://www.x3.org/tc_home/j13sd4.htm</a>
 </cite></blockquote>
 available on-line as the
 <blockquote>
@@ -2284,16 +2282,6 @@ and the international alphabetic characters from the character set:
 <code>char-not-lessp</code></a> ignore bits
 and font attributes of their arguments.
 
-<h4>Functions on characters</h4>
-
-<p><a name="char-width"></a><code>(<strong>lisp:char-width</strong>
-<var>character</var>)</code>
-returns the number of screen columns occupied by <var>character</var>.
-This is 0 for non-spacing characters (such as control characters and many
-combining characters), 2 for double-width East Asian characters, and 1 for
-all other characters.
-See also function <a href="#string-width"><code>string-width</code></a>.
-
 <h3>platform-dependent characters</h3>
 
 <p>The characters that are not graphic chars and the space character
@@ -2532,22 +2520,8 @@ national rules. Example: <code>"o"</code> &lt;
 <code>"oe"</code> &lt; <code>"z"</code> &lt;
 <code>"&ouml;"</code>.
 
-<h3><a href="CLHSROOT/Body/sec_the_strings_dictionary.html">
-    16.2 The Strings Dictionary</a></h3>
-
-<h4>Functions on strings</h4>
-
-<p><a name="string-width"></a><code>(<strong>lisp:string-width</strong>
-<var>string</var>)</code>
-returns the number of screen columns occupied by <var>string</var>. This is
-computed as the sum of all <a href="#char-width"><code>char-width</code></a>s
-of all of the string's characters.
-
 <h2><a name="sequences"></a><a href="CLHSROOT/Body/chap-17.html">
     Chapter 17: Sequences</a></h2>
-
-<h3><a href="CLHSROOT/Body/sec_the_seque_s_dictionary.html">
-    17.3. The Sequences Dictionary</a></h3>
 
 <h4><a href="CLHSROOT/Body/mac_loop.html">loop</a>,
     <a href="CLHSROOT/Body/fun_map.html">map</a></h4>
@@ -2566,6 +2540,9 @@ of all of the string's characters.
 <p><code>lisp:doseq</code> forms are
 <a href="CLHSROOT/Body/glo_i.html#iteration_form">
 <em>iteration forms</em></a>.
+
+<h3><a href="CLHSROOT/Body/sec_the_seque_s_dictionary.html">
+    17.3. The Sequences Dictionary</a></h3>
 
 <h4><a href="CLHSROOT/Body/fun_reversecm_nreverse.html">
     nreverse</a></h4>
@@ -4185,23 +4162,6 @@ href="CLHSROOT/Body/fun_stream-element-type.html">
 stream-element-type</a>)</code>, this function permits mixed
 character/binary input from a stream.
 
-<p>The function
-<code>(<strong>lisp:read-float</strong> <var>stream</var>
-       <var>element-type</var> &amp;optional <var>endianness</var>
-       <var>eof-error-p</var> <var>eof-value</var>)</code>
-reads a floating-point number in IEEE binary representation from
-<var>stream</var>.  <var>stream</var> should be a stream with element-type
-<code>(<a href="CLHSROOT/Body/typ_unsigned-byte.html">unsigned-byte</a> 8)</code>.
-<var>element-type</var> should be a type equivalent to
-<code><a href="CLHSROOT/Body/typ_short-flo_m_long-float.html">single-float</a></code>
-or
-<code><a href="CLHSROOT/Body/typ_short-flo_m_long-float.html">double-float</a></code>.
-
-<p><var>endianness</var> can be <code>:little</code> or <code>:big</code>.
-The default is <code>:little</code>, which corresponds to the
-<a href="CLHSROOT/Body/fun_read-byte.html"><code>read-byte</code></a>
-behavior in CLISP.
-
 <h4>Binary output, <a href="CLHSROOT/Body/fun_write-byte.html">
     write-byte</a></h4>
 
@@ -4233,23 +4193,6 @@ behaviour in CLISP.
 href="CLHSROOT/Body/fun_stream-element-type.html">
 stream-element-type</a>)</code>, this function
 permits mixed character/binary output to a stream.
-
-<p>The function
-<code>(<strong>lisp:write-float</strong> <var>float</var>
-       <var>stream</var> <var>element-type</var>
-       &amp;optional <var>endianness</var>)</code>
-writes a floating-point number in IEEE binary representation to
-<var>stream</var>.  <var>stream</var> should be a stream with element-type
-<code>(<a href="CLHSROOT/Body/typ_unsigned-byte.html">unsigned-byte</a> 8)</code>.
-<var>element-type</var> should be a type equivalent to
-<code><a href="CLHSROOT/Body/typ_short-flo_m_long-float.html">single-float</a></code>
-or
-<code><a href="CLHSROOT/Body/typ_short-flo_m_long-float.html">double-float</a></code>.
-
-<p><var>endianness</var> can be <code>:little</code> or <code>:big</code>.
-The default is <code>:little</code>, which corresponds to the
-<a href="CLHSROOT/Body/fun_write-byte.html"><code>write-byte</code></a>
-behaviour in CLISP.
 
 <h4><a href="CLHSROOT/Body/fun_read-sequence.html">
     read-sequence</a></h4>
@@ -4549,7 +4492,7 @@ Conflicts in Exceptional Situations</a>.
 <code>*print-case*</code></a> controls the output not only of symbols,
 but also of characters and some <code>#&lt;...&gt;</code> objects.
 
-<p>In the absence of <code><strong>sys::write-float-decimal</strong></code>,
+<p>In the absence of <code><strong>sys::write-float</strong></code>,
 floating point numbers are output in radix 2.  This function is defined
 in <code>floatpri.lsp</code> and is not available if you run CLISP
 without a memory image.
@@ -5836,7 +5779,7 @@ specified by the vote.
  <dt><a href="CLHSROOT/Issues/iss221.html">
      LOOP-FOR-AS-ON-TYPO:FIX-TYPO</a>              <dd>yes
  <dt><a href="CLHSROOT/Issues/iss222.html">
-     LOOP-INITFORM-ENVIRONMENT:PARTIAL-INTERLEAVING-VAGUE</a> <dd>no
+     LOOP-INITFORM-ENVIRONMENT:PARTIAL-INTERLEAVING-VAGUE</a> <dd>yes
  <dt><a href="CLHSROOT/Issues/iss223.html">
      LOOP-MISCELLANEOUS-REPAIRS:FIX</a>            <dd>yes
  <dt><a href="CLHSROOT/Issues/iss224.html">
@@ -6261,14 +6204,6 @@ corresponding (constant) symbol in the <code>CHARSET</code> package.
       need two bytes per character, and the remaining characters need three
       bytes per character. This is therefore, in general, the most
       space-efficient encoding of all of Unicode-16.
-<!-- #ifdef GNU_LIBICONV -->
-  <li><code>UTF-16</code>,
-      the 16-bit Unicode character set. Every character is represented as
-      two bytes.
-  <li><code>UTF-7</code>,
-      the 16-bit Unicode character set. This is a stateful 7-bit encoding.
-      Not all ASCII characters represent themselves.
-<!-- #endif /* GNU_LIBICONV */ -->
   <li><code>JAVA</code>,
       the 16-bit Unicode character set. ASCII characters represent themselves
       and need one byte per character. All other characters are represented
@@ -6283,23 +6218,22 @@ corresponding (constant) symbol in the <code>CHARSET</code> package.
       Code for Information Interchange).
   <li><code>ISO-8859-1</code>,
       an extension of the ASCII character set, suitable for the
-      Afrikaans, Albanian, Basque, Breton, Catalan, Cornish, Danish, Dutch,
-      English, Faeroese, Finnish, French, Frisian, Galician, German,
-      Greenlandic, Icelandic, Irish, Italian, Latin, Luxemburgish, Norwegian,
-      Portuguese, Raeto-Romanic, Scottish, Spanish, and Swedish languages.
+      Albanian, Catalan, Danish, Dutch, English, Faeroese, Finnish,
+      French, Galician, German, Icelandic, Irish, Italian, Norwegian,
+      Portuguese, Spanish, and Swedish languages.
   <li><code>ISO-8859-2</code>,
-      an extension of the ASCII character set, suitable for the Croatian,
-      Czech, German, Hungarian, Polish, Slovak, Slovenian, and Sorbian
+      an extension of the ASCII character set, suitable for the Czech,
+      German, Hungarian, Polish, Rumanian, Croatian, Slovak, and Slovene
       languages.
   <li><code>ISO-8859-3</code>,
       an extension of the ASCII character set, suitable for the
-      Esperanto and Maltese languages.
+      Esperanto, Galician, Maltese, and Turkish languages.
   <li><code>ISO-8859-4</code>,
       an extension of the ASCII character set, suitable for the
-      Estonian, Latvian, Lithuanian and Sami (Lappish) languages.
+      Estonian, Latvian, and Lithuanian languages.
   <li><code>ISO-8859-5</code>,
-      an extension of the ASCII character set, suitable for the Bulgarian,
-      Byelorussian, Macedonian, Russian, Serbian, and Ukrainian languages.
+      an extension of the ASCII character set, suitable for the
+      Russian language.
   <li><code>ISO-8859-6</code>,
       suitable for the Arabic language.
   <li><code>ISO-8859-7</code>,
@@ -6309,37 +6243,21 @@ corresponding (constant) symbol in the <code>CHARSET</code> package.
       an extension of the ASCII character set, suitable for the Hebrew
       language (without punctuation).
   <li><code>ISO-8859-9</code>,
-      an extension of the ASCII character set, suitable for the Turkish
-      language.
+      an extension of the ASCII character set, suitable for the ISO-8859-1
+      languages, plus Turkish.
   <li><code>ISO-8859-10</code>,
-      an extension of the ASCII character set, suitable for the Estonian,
-      Icelandic, Inuit (Greenlandic), Latvian, Lithuanian, and Sami (Lappish)
-      languages.
+      an extension of the ASCII character set, suitable for the
+      Inuit (Greenlandic) and Sami (Lappish) languages.
   <li><code>ISO-8859-13</code>,
-      an extension of the ASCII character set, suitable for the Estonian,
-      Latvian, Lithuanian, Polish and Sami (Lappish) languages.
+      an extension of the ASCII character set, suitable for ??.
   <li><code>ISO-8859-14</code>,
-      an extension of the ASCII character set, suitable for Irish Gaelic,
-      Manx Gaelic, Scottish Gaelic, and Welsh languages.
+      an extension of the ASCII character set, suitable for ??.
   <li><code>ISO-8859-15</code>,
       an extension of the ASCII character set, suitable for the ISO-8859-1
       languages, with improvements for French, Finnish and the Euro.
-  <li><code>ISO-8859-16</code>
-      an extension of the ASCII character set, suitable for the Rumanian
-      language.
   <li><code>KOI8-R</code>,
       an extension of the ASCII character set,
       a popular character set for the Russian language.
-  <li><code>KOI8-U</code>,
-      an extension of the ASCII character set,
-      a popular character set for the Ukrainian language.
-<!-- #ifdef GNU_LIBICONV -->
-  <li><code>KOI8-RU</code>,
-      an extension of the ASCII character set, suitable for Russian and/or
-      Ukrainian??
-<!-- #endif /* GNU_LIBICONV */ -->
-  <li><code>JIS_X0201</code>,
-      a character set for the Japanese language.
   <li><code>MAC-ARABIC</code>,
       a platform specific extension of the ASCII character set.
   <li><code>MAC-CENTRAL-EUROPE</code>,
@@ -6356,7 +6274,7 @@ corresponding (constant) symbol in the <code>CHARSET</code> package.
       a platform specific extension of the ASCII character set.
   <li><code>MAC-ICELAND</code>,
       a platform specific extension of the ASCII character set.
-  <li><code>MAC-ROMAN</code> = <code>MACINTOSH</code>,
+  <li><code>MAC-ROMAN</code>,
       a platform specific extension of the ASCII character set.
   <li><code>MAC-ROMANIA</code>,
       a platform specific extension of the ASCII character set.
@@ -6451,64 +6369,9 @@ corresponding (constant) symbol in the <code>CHARSET</code> package.
       a platform specific extension of the ASCII character set.
   <li><code>NEXTSTEP</code>,
       a platform specific extension of the ASCII character set.
-<!-- #ifdef GNU_LIBICONV -->
-  <li><code>EUC-JP</code>,
-      a multibyte character set for the Japanese language.
-  <li><code>SHIFT-JIS</code>,
-      a multibyte character set for the Japanese language.
-  <li><code>CP932</code>,
-      a Microsoft variant of <code>SHIFT-JIS</code>.
-  <li><code>ISO-2022-JP</code>,
-      a stateful 7-bit multibyte character set for the Japanese language.
-  <li><code>ISO-2022-JP-2</code>,
-      a stateful 7-bit multibyte character set for the Japanese language.
-  <li><code>ISO-2022-JP-1</code>,
-      a stateful 7-bit multibyte character set for the Japanese language.
-  <li><code>EUC-CN</code>,
-      a multibyte character set for simplified Chinese.
-  <li><code>HZ</code>,
-      a stateful 7-bit multibyte character set for simplified Chinese.
-  <li><code>GBK</code>,
-      a multibyte character set for Chinese,
-  <li><code>CP936</code>,
-      a Microsoft variant of <code>GBK</code>.
-  <li><code>EUC-TW</code>,
-      a multibyte character set for traditional Chinese.
-  <li><code>BIG5</code>,
-      a multibyte character set for traditional Chinese.
-  <li><code>CP950</code>,
-      a Microsoft variant of <code>BIG5</code>.
-  <li><code>ISO-2022-CN</code>,
-      a stateful 7-bit multibyte character set for Chinese.
-  <li><code>ISO-2022-CN-EXT</code>,
-      a stateful 7-bit multibyte character set for Chinese.
-  <li><code>EUC-KR</code>,
-      a multibyte character set for Korean.
-  <li><code>CP949</code>,
-      a Microsoft variant of <code>EUC-KR</code>.
-  <li><code>ISO-2022-KR</code>,
-      a stateful 7-bit multibyte character set for Korean.
-  <li><code>ARMSCII-8</code>,
-      an extension of the ASCII character set, suitable for Armenian.
-  <li><code>GEORGIAN-ACADEMY</code>,
-      an extension of the ASCII character set, suitable for Georgian.
-  <li><code>GEORGIAN-PS</code>,
-      an extension of the ASCII character set, suitable for Georgian.
-  <li><code>TIS-620</code>,
-      an extension of the ASCII character set, suitable for Thai.
-  <li><code>MULELAO-1</code>,
-      an extension of the ASCII character set, suitable for Laotian.
-  <li><code>CP1133</code>,
-      an extension of the ASCII character set, suitable for Laotian.
-  <li><code>VISCII</code>,
-      an extension of the ASCII character set, suitable for Vietnamese.
-  <li><code>TCVN</code>,
-      an extension of the ASCII character set, suitable for Vietnamese.
-<!-- #endif /* GNU_LIBICONV */ -->
 </ul>
 
 <!-- #ifdef HAVE_ICONV -->
-<!--
 <dl>
 <dt><a name="iconv"></a><em>Platform dependent: Only on
     <strong>Unix</strong> systems having the C library function
@@ -6558,7 +6421,6 @@ because all the interesting possible encodings are already built-in.
 through iconv(), the built-in is preferred, because it is more efficient
 and available across platforms.
 </dl>
--->
 <!-- #endif /* HAVE_ICONV */ -->
 
 <!-- #endif /* UNICODE */ -->
@@ -7530,80 +7392,6 @@ this order.)
 </code></pre>
 </ol>
 <!-- #endif -->
-
-<h4>Modules included in the distribution.</h4>
-
-<p>The following modules come with the distribution of
-<code>CLISP</code>:
-<dl>
- <dt><strong>bindings</strong>
-  <dd>Call the operating system functions from <code>CLISP</code>.  The
-   following platforms are supported:
-   <ul>
-    <li>AmigaOS
-    <li>Linux/libc5
-    <li>Linux/libc6
-   </ul>
- <dt><strong>CLX</strong>
-  <dd>Call Xlib functions from <code>CLISP</code>.  Two implementations
-   are supplied:
-   <ul>
-    <li>mit-clx, from MIT <!-- ftp://ftp.x.org/R5contrib/CLX.R5.02.tar.Z -->
-    <li>new-clx, by <a href="http://www.uni-karlsruhe.de/~unk6/">Gilbert
-    Baumann</a> <em><a
-    href="mailto:unk6@rz.uni-karlsruhe.de">unk6@rz.uni-karlsruhe.de</a></em>.
-   </ul>
- <dt><strong>postgresql632</strong>, <strong>postgresql642</strong>
-  <dd>Access <a href="http://www.PostgreSQL.org/">PostgreSQL</a> from
-   <code>CLISP</code>.
- <dt><strong>queens</strong>
-  <dd>Compute the number of solutions to the n-queens problem on a n*n
-   checkboard.
- <dt><a name="regexp"><strong>regexp</strong></a>
-  <dd>The POSIX Regular Expressions matching, compiling, executing.
-
-   <p>The following code computes the number of people who use
-   a particular shell:
-<pre>
-<code>(use-package :regexp)
-(let ((h (make-hash-table :test #'equal :size 10)) (n 0))
-  (with-open-file (f "/etc/passwd")
-    (with-loop-split (s f ":")
-      (let ((sh (seventh s)))
-        (if (gethash sh h)
-            (incf (gethash sh h))
-            (setf (gethash sh h) 1)))))
-  (with-hash-table-iterator (i h)
-    (loop (multiple-value-bind (r k v) (i)
-            (unless r (return))
-            (format t "[~d] ~s~30t== ~5:d~%" (incf n) k v)))))</code></pre>
-
-  <p>The same is done by the following Perl:
-<pre>
-<code>#!/usr/local/bin/perl -w
-
-use diagnostics;
-use strict;
-
-my $IN = $ARGV[0];
-open(INF,"&lt; $IN") || die "$0: cannot read file [$IN]: $!\n;";
-my %hash;
-while (&lt;INF&gt;) {
-  chop;
-  my @all = split($ARGV[1]);
-  my $shell = ($#all &gt;= 6 ? $all[6] : "");
-  if ($hash{$shell}) { $hash{$shell} ++; }
-  else { $hash{$shell} = 1; }
-}
-my $ii = 0;
-for my $kk (keys(%hash)) {
-  print "[",++$ii,"] \"",$kk,"\"  --  ",$hash{$kk},"\n";
-}</code></pre>
-
- <dt><strong>wildcard</strong>
-  <dd>Shell globbing
-</dl>
-
 
 <!-- #ifdef DYNAMIC_FFI -->
 <a name="dffi"></a><h3>Extensions-2.3. The Foreign Function Call Facility</h3>
@@ -9084,74 +8872,51 @@ use this to see who connected.
 
 <p>When CLISP is configured with an option
 <code>--with-export-syscalls</code>, some system calls are available from
-lisp, in package <code>POSIX</code>.
+lisp.
 
 <dl>
- <dt><code>(<strong>posix:resolve-host-ipaddr </strong>
+ <dt><code>(<strong>lisp:resolve-host-ipaddr </strong>
             &amp;optional <var>host</var>)</code>
- <dd>Returns the hostent struct (name, list of aliases, list of IP
-     addresses as dotted quads (for IPv4) or coloned octets (for IPv6),
-     address type - IPv4 or IPv6).
-     When <code>host</code> is omitted or <code>:default</code>, return
-     the data for the current host.  When <code>host</code> is given and
-     is <a href="CLHSROOT/Body/convar_nil.html">
+ <dd>Returns the hostent struct as multiple values (name, list of
+     aliases, list of IP addresses as dotted quads (for IPv4) or coloned
+     octets (for IPv6), address type - IPv4 or IPv6).  When
+     <code>host</code> is omitted or <code>:default</code>, return the
+     data for the current host.  When <code>host</code> is given and is
+     <a href="CLHSROOT/Body/convar_nil.html">
      <code>nil</code></a>, all the host database is returned as a list of
      vectors of length 4 (this would be the contents of the
      <var>/etc/hosts</var> file on a UNIX system or
      <var>${windir}/system32/etc/hosts</var> on a Win32 system).
- <dt><code>(<strong>posix:file-stat</strong>
+ <dt><code>(<strong>lisp:file-stat</strong>
             <var>file</var> &amp;optional <var>link-p</var>)</code>
- <dd>Return the stat struct.  <code>file</code> can
+ <dd>Return the stat struct as multiple values.  <code>file</code> can
      be a stream, a pathname, a string or a number (on a UNIX system,
-     meaning file descriptor).  The first slot of the struct returned is
-     the string or the number on which
-     <code>stat</code>(2)/<code>fstat</code>(2)/<code>lstat</code>(2)
-     was called.  The other 13 slots are numbers, members of the stat
-     struct: device, inode, protection, number of hard links, owner's
-     UID, owner's GID, device type, total size (bytes), blocksize for
-     filesystem I/O, number of blocks allocated, atime, mtime, ctime (as
-     number of seconds since 1900-01-01).  If the system does not
-     support a particular field (e.g., Win32 does not have hard links),
+     meaning file descriptor).  The first value returned is the string
+     or the number on which <code>stat</code>(2)/<code>fstat</code>(2)
+     /<code>lstat</code>(2) was called.  The other 13 values are
+     numbers, members of the stat struct: device, inode, protection,
+     number of hard links, owner's UID, owner's GID, device type, total
+     size (bytes), blocksize for filesystem I/O, number of blocks
+     allocated, atime, mtime, ctime (as number of seconds since
+     1900-01-01).  If the system does not support a particular field
+     (e.g., Win32 does not have hard links),
      <a href="CLHSROOT/Body/convar_nil.html">
-     <code>nil</code></a> (or the default, like 1 for the number of hard
-     links for Win32 or DOS) is returned.
+     <code>nil</code></a> (or the default, like 1 for the number of
+     hard links for Win32 or DOS) is returned.
      <br>[UNIX systems only at this time, patches are welcome.]
- <dt><code>(<strong>posix:user-data</strong>
+ <dt><code>(<strong>lisp:user-data</strong>
              &amp;optional <var>user</var>)</code>
- <dd>Return the passwd struct (name, encoded password, UID, GID, full
-     name, home directory, shell).  When <code>user</code> is <a
-     href="CLHSROOT/Body/convar_nil.html">
-     <code>nil</code></a>, return all users.  When <code>user</code> is
+ <dd>Return the passwd struct as multiple values (name, encoded
+     password, UID, GID, full name, home directory, shell).  When
+     <code>user</code> is <a href="CLHSROOT/Body/convar_nil.html">
+     <code>nil</code></a>, return all users as a list
+     of vectors of length 7.  When <code>user</code> is
      <code>:default</code> or not supplied, return the information
      about the current user.  If the system does not support a particular
      field (e.g., Win32 does not have a concept of a shell),
      <a href="CLHSROOT/Body/convar_nil.html">
      <code>nil</code></a> (or the default, like <var>c:\command.com</var>
      for DOS) is returned.
-     <br>[UNIX systems only at this time, patches are welcome.]
- <dd><code>(<strong>posix:sysinfo</strong>)</code>
- <dd>Return a struct describing the OS, derived from
-     <code>uname(2)</code> and <code>sysconf(3)</code>.
- <dd><code>(<strong>posix:resource-usage-limits</strong>)</code>
- <dd>Return 3 structs describing the resources usage and limits, derived
-     from <code>getrlimit(2)</code> and <code>getrusage(3)</code>.
- <dt><code>(<strong>posix:erf</strong> <var>real</var>)</code><br>
-     <code>(<strong>posix:erfc</strong> <var>real</var>)</code><br>
-     <code>(<strong>posix:j0</strong> <var>real</var>)</code><br>
-     <code>(<strong>posix:j1</strong> <var>real</var>)</code><br>
-     <code>(<strong>posix:jn</strong> <var>int</var>
-            <var>real</var>)</code><br>
-     <code>(<strong>posix:y0</strong> <var>real</var>)</code><br>
-     <code>(<strong>posix:y1</strong> <var>real</var>)</code><br>
-     <code>(<strong>posix:yn</strong> <var>int</var>
-            <var>real</var>)</code><br>
-     <code>(<strong>posix:gamma</strong> <var>real</var>)</code><br>
-     <code>(<strong>posix:lgamma</strong> <var>real</var>)</code>
- <dd>Compute the error functions, Bessel functions and Gamma.
-     These functions are required by the POSIX standard and should be
-     available in libm.so.  Please note that these functions do not
-     provide lisp-style error handling and precision, and all the
-     computations at the double float level.
      <br>[UNIX systems only at this time, patches are welcome.]
 </dl>
 
@@ -9532,7 +9297,7 @@ at startup.
 <h2>Current Maintainers</h2>
 <ul>
   <li><em>haible@clisp.cons.org</em>
-  <li><em>sds@clisp.cons.org</em>
+  <li><em>sds@gnu.org</em>
 </ul>
 
 <hr>
@@ -9540,11 +9305,11 @@ at startup.
 <h3>CLISP implementation notes</h3>
 
 <a href="mailto:haible@clisp.cons.org">Bruno Haible</a><br>
-<a href="mailto:sds@clisp.cons.org">Sam Steingold</a>
+<a href="mailto:sds@gnu.org">Sam Steingold</a>
 
 <p>Bugs in both these notes and CLISP itself should be sent to:
- <address><a href="mailto:clisp-list@lists.sourceforge.net">
- &lt;clisp-list@lists.sourceforge.net&gt;</a></address>
+ <address><a href="mailto:clisp-list@clisp.cons.org">
+ &lt;clisp-list@clisp.cons.org&gt;</a></address>
 
 <p><center>
 <a href="http://validator.w3.org/">Valid HTML 3.2!</a>
@@ -9554,14 +9319,3 @@ at startup.
 
 </body>
 </html>
-<!--
-Local Variables:
-compile-command: "weblint -d container-whitespace,empty-container _impnotes.html"
-time-stamp-start: "<strong>Last modified: "
-time-stamp-end: "</strong><br>"
-time-stamp-format: "%:y-%02m-%02d"
-time-stamp-line-limit: 100
-sentence-end-double-space: t
-eval: (add-hook 'write-file-hooks 'time-stamp)
-end:
--->

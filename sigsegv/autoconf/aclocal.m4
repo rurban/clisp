@@ -293,7 +293,7 @@ dnl still generates 32-bit code.
   sparc | sparc64 )
     AC_CACHE_CHECK([for 64-bit SPARC], cl_cv_host_sparc64, [
 AC_EGREP_CPP(yes,
-[#if defined(__sparcv9) || defined(__arch64__)
+[#if defined(__arch64__)
   yes
 #endif
 ], cl_cv_host_sparc64=yes, cl_cv_host_sparc64=no)
@@ -318,8 +318,9 @@ dnl BSD systems require #include <sys/file.h> for O_RDWR etc. being defined.
 [AC_BEFORE([$0], [CL_MMAP])
 AC_CHECK_HEADERS(sys/file.h)
 if test $ac_cv_header_sys_file_h = yes; then
-openflags_decl='
+openflags_decl='#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <sys/types.h>
 #include <unistd.h>
@@ -339,12 +340,16 @@ fi
 ])dnl
 dnl
 AC_DEFUN(CL_MEMSET,
-[CL_PROTO([memset], [
+[AC_CHECK_FUNCS(memset)
+if test $ac_cv_func_memset = yes; then
+CL_PROTO([memset], [
 for y in 'int' 'size_t'; do
 for x in 'char*' 'void*'; do
 if test -z "$have_memset"; then
 AC_TRY_COMPILE([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -366,6 +371,7 @@ done
 done
 ], [extern $cl_cv_proto_memset_ret memset ($cl_cv_proto_memset_arg1, int, $cl_cv_proto_memset_arg3);])
 AC_DEFINE_UNQUOTED(RETMEMSETTYPE,$cl_cv_proto_memset_ret)
+fi
 ])dnl
 dnl
 AC_DEFUN(CL_MALLOC,
@@ -373,7 +379,9 @@ AC_DEFUN(CL_MALLOC,
 AC_EGREP_HEADER([void.*\*.*malloc], stdlib.h, malloc_void=1)dnl
 if test -z "$malloc_void"; then
 AC_TRY_COMPILE([
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -386,7 +394,9 @@ else
 cl_cv_proto_malloc_ret="char*"
 fi
 CL_PROTO_TRY([
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -474,7 +484,9 @@ AC_DEFUN(CL_SIGNAL_REINSTALL,
 AC_BEFORE([$0], [CL_SIGNAL_BLOCK_OTHERS])dnl
 AC_CACHE_CHECK(whether signal handlers need to be reinstalled, cl_cv_func_signal_reinstall, [
 AC_TRY_RUN([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -484,10 +496,7 @@ AC_TRY_RUN([
  * Let it fail instead. */
 #error "better fail than hang"
 #endif
-#if !defined(__STDC__) || __STDC__ != 1
-#define volatile
-#endif
-volatile int gotsig=0;
+/* volatile */ int gotsig=0;
 RETSIGTYPE sigalrm_handler() { gotsig=1; }
 int got_sig () { return gotsig; }
 #ifdef __cplusplus
@@ -520,7 +529,9 @@ case "$signalblocks" in
   *POSIX* | *BSD*)
 AC_CACHE_CHECK(whether signals are blocked when signal handlers are entered, cl_cv_func_signal_blocked, [
 AC_TRY_RUN([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -578,7 +589,9 @@ case "$signalblocks" in
   *POSIX* | *BSD*)
 AC_CACHE_CHECK(whether other signals are blocked when signal handlers are entered, cl_cv_func_signal_blocked_others, [
 AC_TRY_RUN([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -647,7 +660,9 @@ AC_BEFORE([$0], [CL_SIGACTION_UNBLOCK])dnl
 if test -n "$have_sigaction"; then
 AC_CACHE_CHECK(whether sigaction handlers need to be reinstalled, cl_cv_func_sigaction_reinstall, [
 AC_TRY_RUN([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -675,15 +690,16 @@ signal_handler mysignal (sig, handler)
 #endif
 { struct sigaction old_sa;
   struct sigaction new_sa;
+#ifdef HAVE_MEMSET
   memset(&new_sa,0,sizeof(new_sa));
+#else
+  bzero(&new_sa,sizeof(new_sa));
+#endif
   new_sa.sa_handler = handler;
   if (sigaction(sig,&new_sa,&old_sa)<0) { return (signal_handler)SIG_IGN; }
   return (signal_handler)old_sa.sa_handler;
 }
-#if !defined(__STDC__) || __STDC__ != 1
-#define volatile
-#endif
-volatile int gotsig=0;
+/* volatile */ int gotsig=0;
 RETSIGTYPE sigalrm_handler() { gotsig=1; }
 int got_sig () { return gotsig; }
 int main() { /* returns 0 if they need not to be reinstalled */
@@ -713,7 +729,9 @@ case "$signalblocks" in
   *POSIX* | *BSD*)
 AC_CACHE_CHECK(whether signals are blocked when sigaction handlers are entered, cl_cv_func_sigaction_blocked, [
 AC_TRY_RUN([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -741,7 +759,11 @@ signal_handler mysignal (sig, handler)
 #endif
 { struct sigaction old_sa;
   struct sigaction new_sa;
+#ifdef HAVE_MEMSET
   memset(&new_sa,0,sizeof(new_sa));
+#else
+  bzero(&new_sa,sizeof(new_sa));
+#endif
   new_sa.sa_handler = handler;
   if (sigaction(sig,&new_sa,&old_sa)<0) { return (signal_handler)SIG_IGN; }
   return (signal_handler)old_sa.sa_handler;
@@ -802,7 +824,9 @@ AC_DEFUN(CL_RLIMIT,
 if test $ac_cv_func_setrlimit = yes; then
 CL_PROTO([getrlimit], [
 CL_PROTO_TRY([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -810,15 +834,17 @@ CL_PROTO_TRY([
 #include <sys/time.h>
 #include <sys/resource.h>
 ],
-[int getrlimit (int resource, struct rlimit * rlim);],
+[int getrlimit (enum __rlimit_resource resource, struct rlimit * rlim);],
 [int getrlimit();],
-[cl_cv_proto_getrlimit_arg1="int"],
-[cl_cv_proto_getrlimit_arg1="enum __rlimit_resource"])
+[cl_cv_proto_getrlimit_arg1="enum __rlimit_resource"],
+[cl_cv_proto_getrlimit_arg1="int"])
 ], [extern int getrlimit ($cl_cv_proto_getrlimit_arg1, struct rlimit *);])
 AC_DEFINE_UNQUOTED(RLIMIT_RESOURCE_T,$cl_cv_proto_getrlimit_arg1)
 CL_PROTO([setrlimit], [
 CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -846,7 +872,9 @@ have_getpagesize=1)dnl
 if test -n "$have_getpagesize"; then
 CL_PROTO([getpagesize], [
 CL_PROTO_RET([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -870,6 +898,8 @@ AC_DEFINE(HAVE_MACH_VM)dnl
 dnl
 AC_DEFUN(CL_MMAP,
 [AC_REQUIRE([CL_OPENFLAGS])dnl
+AC_REQUIRE([AC_TYPE_SIZE_T])dnl On AIX, the mmap() prototype references size_t which is undefined.
+AC_REQUIRE([AC_TYPE_OFF_T])dnl We use off_t below.
 AC_BEFORE([$0], [CL_MUNMAP])AC_BEFORE([$0], [CL_MPROTECT])
 AC_CHECK_HEADER(sys/mman.h, , no_mmap=1)dnl
 if test -z "$no_mmap"; then
@@ -882,7 +912,9 @@ for y in 'void*' 'caddr_t'; do
 for x in 'void*' 'caddr_t'; do
 if test -z "$have_mmap_decl"; then
 CL_PROTO_TRY([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -917,7 +949,9 @@ case "$host" in
     avoid=0 ;;
 esac
 mmap_prog_1='
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1041,7 +1075,9 @@ AC_CHECK_FUNCS(mprotect)dnl
 if test $ac_cv_func_mprotect = yes; then
 CL_PROTO([mprotect], [
 CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1055,7 +1091,9 @@ AC_CACHE_CHECK(for working mprotect, cl_cv_func_mprotect_works, [
 mprotect_prog='
 #include <sys/types.h>
 /* declare malloc() */
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif

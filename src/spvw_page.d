@@ -6,12 +6,12 @@
 # objects.
 
 # Low level descriptor of a page.
-typedef struct {
-  aint start;   # Pointer auf den belegten Platz (aligned)
-  aint end;     # Pointer hinter den belegten Platz (aligned)
-  union { object firstmarked; uintL l; aint d; void* next; }
-        gcpriv; # private Variable während GC
-} _Page;
+typedef struct { aint start;   # Pointer auf den belegten Platz (aligned)
+                 aint end;     # Pointer hinter den belegten Platz (aligned)
+                 union { object firstmarked; uintL l; aint d; void* next; }
+                       gcpriv; # private Variable während GC
+               }
+        _Page;
 
 # Page descriptor with corresponding management data:
 # typedef ... Page;
@@ -69,16 +69,17 @@ typedef _Page Page;
 
 #include "avl.c"
 
-typedef struct NODE {
-  NODEDATA nodedata;        # NODE für AVL-Baum-Verwaltung
-  #define page_room  nodedata.value # freier Platz in dieser Page (in Bytes)
-  _Page page;       # Page-Deskriptor, bestehend aus:
-  #define page_start  page.start  # Pointer auf den belegten Platz (aligned)
-  #define page_end    page.end    # Pointer auf den freien Platz (aligned)
-  #define page_gcpriv page.gcpriv # private Variable während GC
-  aint m_start;     # von malloc gelieferte Startadresse (unaligned)
-  aint m_length;    # bei malloc angegebene Page-Länge (in Bytes)
-} NODE;
+typedef struct NODE
+               { NODEDATA nodedata;        # NODE für AVL-Baum-Verwaltung
+                 #define page_room  nodedata.value # freier Platz in dieser Page (in Bytes)
+                 _Page page;       # Page-Deskriptor, bestehend aus:
+                 #define page_start  page.start  # Pointer auf den belegten Platz (aligned)
+                 #define page_end    page.end    # Pointer auf den freien Platz (aligned)
+                 #define page_gcpriv page.gcpriv # private Variable während GC
+                 aint m_start;     # von malloc gelieferte Startadresse (unaligned)
+                 aint m_length;    # bei malloc angegebene Page-Länge (in Bytes)
+               }
+        NODE;
 #define HAVE_NODE
 
 #if !defined(AVL_SEPARATE)

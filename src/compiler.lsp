@@ -1113,7 +1113,6 @@ for-value   NIL oder T
           (char-not-lessp 1 0 t nil nil)
           (system::char-reader 3 0 nil nil nil)
           (char-upcase 1 0 nil nil nil)
-          (char-width 1 0 nil nil nil)
           (char/= 1 0 t nil nil)
           (char< 1 0 t nil nil)
           (char<= 1 0 t nil nil)
@@ -1578,7 +1577,6 @@ for-value   NIL oder T
           (system::string-reader 2 0 nil nil nil)
           (system::string-stream-p 1 0 nil nil nil)
           (string-upcase 1 0 nil (:start :end) nil)
-          (string-width 1 0 nil (:start :end) nil)
           (string/= 2 0 nil (:start1 :end1 :start2 :end2) nil)
           (string< 2 0 nil (:start1 :end1 :start2 :end2) nil)
           (string<= 2 0 nil (:start1 :end1 :start2 :end2) nil)
@@ -3629,10 +3627,6 @@ der Docstring (oder NIL).
                  COMPLEX REALPART IMAGPART LOGIOR LOGXOR LOGAND LOGEQV LOGNAND LOGNOR
                  LOGANDC1 LOGANDC2 LOGORC1 LOGORC2 BOOLE LOGNOT LOGTEST LOGBITP ASH LOGCOUNT
                  INTEGER-LENGTH LDB LDB-TEST MASK-FIELD DPB DEPOSIT-FIELD ! EXQUO
-                 #+syscalls posix::gamma #+syscalls posix::lgamma
-                 #+syscalls posix::erf #+syscalls posix::erfc
-                 #+syscalls posix::j0 #+syscalls posix::j1 #+syscalls posix::jn
-                 #+syscalls posix::y0 #+syscalls posix::y1 #+syscalls posix::yn
                 ) ; alle diese sind SUBRs ohne Keyword-Parameter
                 (setq foldable t)
                 '(NIL . NIL)
@@ -4079,14 +4073,7 @@ der Docstring (oder NIL).
       (push
         `(,fun
           ,@(mapcar
-              ; Quote the arguments, but only when necessary, because
-              ; a variant of IN-PACKAGE wants unquoted arguments.
-              #'(lambda (x)
-                  (let ((v (c-constant-value x)))
-                    (if (or (numberp v) (characterp v) (arrayp v) (keywordp v))
-                      v
-                      (list 'QUOTE v)
-                ) ) )
+              #'(lambda (x) (list 'QUOTE (c-constant-value x))) ; Argumente quotieren
               (rest *form*)
          )  )
         *package-tasks*
@@ -4280,7 +4267,7 @@ der Docstring (oder NIL).
 ) ) )
 
 (defvar *deprecated-functions-list*
-  '(GENTEMP SET SPECIAL-FORM-P))
+  '(GENTEMP SET SPECIAL-FORM-P RESOLVE-HOST-IPADDR FILE-STAT USER-DATA))
 
 ; Hilfsfunktion: Notiere, dass eine globale Funktionsdefinition benutzt wird.
 (defun note-function-used (name)

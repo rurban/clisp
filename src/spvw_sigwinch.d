@@ -24,53 +24,45 @@
 # update_linelength();
   local void update_linelength (void);
   local void update_linelength()
-    {
-      # SYS::*PRIN-LINELENGTH* := Breite des Terminal-Fensters - 1
+    { # SYS::*PRIN-LINELENGTH* := Breite des Terminal-Fensters - 1
       #if !defined(NEXTAPP)
       # [vgl. 'term.c' in 'calc' von Hans-J. Böhm, Vernon Lee, Alan J. Demers]
-      if (isatty(stdout_handle)) { # Standard-Output ein Terminal?
-        /* var int lines = 0; */
-        var int columns = 0;
-        #ifdef TIOCGWINSZ
-        # Probiere erst ioctl:
-        {
-          var struct winsize stdout_window_size;
-          if (!( ioctl(stdout_handle,TIOCGWINSZ,&stdout_window_size) <0)) {
-            /* lines = stdout_window_size.ws_row; */
-            columns = stdout_window_size.ws_col;
-          }
+      if (isatty(stdout_handle)) # Standard-Output ein Terminal?
+        { /* var int lines = 0; */
+          var int columns = 0;
+          #ifdef TIOCGWINSZ
+          # Probiere erst ioctl:
+          { var struct winsize stdout_window_size;
+            if (!( ioctl(stdout_handle,TIOCGWINSZ,&stdout_window_size) <0))
+              { /* lines = stdout_window_size.ws_row; */
+                columns = stdout_window_size.ws_col;
+          }   }
+          # Das kann - entgegen der Dokumentation - scheitern!
+          if (/* (lines > 0) && */ (columns > 0)) goto OK;
+          #endif
+          #if !(defined(NO_TERMCAP_NCURSES) || defined(WATCOM))
+          # Nun probieren wir's über termcap:
+          { var const char* term_name = getenv("TERM");
+            if (term_name==NULL) { term_name = "unknown"; }
+           {var char termcap_entry_buf[10000];
+            if ( tgetent(&!termcap_entry_buf,term_name) ==1)
+              { /* lines = tgetnum("li"); if (lines<0) { lines = 0; } */
+                columns = tgetnum("co"); if (columns<0) { columns = 0; }
+              }
+          }}
+          #endif
+          # Hoffentlich enthält columns jetzt einen vernünftigen Wert.
+          if (/* (lines > 0) && */ (columns > 0)) goto OK;
+          if (FALSE)
+            { OK:
+              # Wert von SYS::*PRIN-LINELENGTH* verändern:
+              Symbol_value(S(prin_linelength)) = fixnum(columns-1);
+            }
         }
-        # Das kann - entgegen der Dokumentation - scheitern!
-        if (/* (lines > 0) && */ (columns > 0))
-          goto OK;
-        #endif
-        #if !(defined(NO_TERMCAP_NCURSES) || defined(WATCOM))
-        # Nun probieren wir's über termcap:
-        {
-          var const char* term_name = getenv("TERM");
-          if (term_name==NULL)
-            term_name = "unknown";
-          var char termcap_entry_buf[10000];
-          if ( tgetent(&!termcap_entry_buf,term_name) ==1) {
-            /* lines = tgetnum("li"); if (lines<0) { lines = 0; } */
-            columns = tgetnum("co"); if (columns<0) { columns = 0; }
-          }
-        }
-        #endif
-        # Hoffentlich enthält columns jetzt einen vernünftigen Wert.
-        if (/* (lines > 0) && */ (columns > 0))
-          goto OK;
-        if (FALSE) {
-         OK:
-          # Wert von SYS::*PRIN-LINELENGTH* verändern:
-          Symbol_value(S(prin_linelength)) = fixnum(columns-1);
-        }
-      }
       #else # defined(NEXTAPP)
-      if (nxterminal_line_length > 0) {
+      if (nxterminal_line_length > 0)
         # Wert von SYS::*PRIN-LINELENGTH* verändern:
-        Symbol_value(S(prin_linelength)) = fixnum(nxterminal_line_length-1);
-      }
+        { Symbol_value(S(prin_linelength)) = fixnum(nxterminal_line_length-1); }
       #endif
     }
 
@@ -82,8 +74,7 @@
   local void sigwinch_handler (int sig);
   local void sigwinch_handler(sig)
     var int sig; # sig = SIGWINCH
-    {
-      inc_break_sem_5();
+    { inc_break_sem_5();
       signal_acknowledge(SIGWINCH,&sigwinch_handler);
       update_linelength();
       dec_break_sem_5();

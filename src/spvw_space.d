@@ -22,20 +22,18 @@
 
   global uintL static_space (void);
   global uintL static_space()
-    {
-      var uintL sum = 0;
+    { var uintL sum = 0;
       # Platz von symbol_tab: vgl. Macro for_all_constsyms
       sum += symbol_anz * sizeof(symbol_);
       # Platz von subr_tab: vgl. Macro for_all_subrs
         #ifdef MAP_MEMORY_TABLES
           sum += total_subr_anz * sizeof(subr_);
         #else
-          {
-            var module_* module; # modules durchgehen
-            for_modules(all_modules, {
-              if (module->initialized)
-                sum += *module->stab_size * sizeof(subr_);
-            });
+          { var module_* module; # modules durchgehen
+            for_modules(all_modules,
+              { if (module->initialized)
+                  { sum += *module->stab_size * sizeof(subr_); }
+              });
           }
         #endif
       return sum;
@@ -59,17 +57,14 @@
       }
    #else
     global uintL used_space()
-      {
-        var uintL sum = 0;
+      { var uintL sum = 0;
         #if !defined(GENERATIONAL_GC)
-          for_each_page(page, {
-            sum += page->page_end - page->page_start;
-          });
+          for_each_page(page, { sum += page->page_end - page->page_start; } );
         #else # defined(GENERATIONAL_GC)
-          for_each_heap(heap, {
-            sum += (heap->heap_gen0_end - heap->heap_gen0_start)
-                   + (heap->heap_end - heap->heap_gen1_start);
-          });
+          for_each_heap(heap,
+            { sum += (heap->heap_gen0_end - heap->heap_gen0_start)
+                     + (heap->heap_end - heap->heap_gen1_start);
+            });
         #endif
         return sum;
       }
@@ -78,20 +73,15 @@
   #ifdef SPVW_PAGES
     #if 0
     global uintL used_space()
-      {
-        var uintL sum = 0;
-        for_each_page(page, {
-          sum += page->page_end - page->page_start;
-        });
+      { var uintL sum = 0;
+        for_each_page(page, { sum += page->page_end - page->page_start; } );
         return sum;
       }
     #else
     # Da die Berechnung von used_space() auf jede Page einmal zugreift, was
     # viel Paging bedeuten kann, wird das Ergebnis in mem.used_space gerettet.
     global uintL used_space()
-      {
-        return mem.used_space;
-      }
+      { return mem.used_space; }
     #endif
   #endif
 
@@ -99,24 +89,17 @@
   #ifdef SPVW_BLOCKS
    #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && !defined(TRIVIALMAP_MEMORY) && !defined(GENERATIONAL_GC)
     global uintL free_space()
-      {
-        return (mem.conses.heap_start-mem.varobjects.heap_end); # Platz in der großen Lücke
-      }
+      { return (mem.conses.heap_start-mem.varobjects.heap_end); } # Platz in der großen Lücke
    #else
     global uintL free_space()
-      {
-        return mem.total_room; # Platz, der bis zur nächsten GC verbraucht werden darf
-      }
+      { return mem.total_room; } # Platz, der bis zur nächsten GC verbraucht werden darf
    #endif
   #endif
   #ifdef SPVW_PAGES
     #if 0
     global uintL free_space()
-      {
-        var uintL sum = 0;
-        for_each_page(page, {
-          sum += page->page_room;
-        });
+      { var uintL sum = 0;
+        for_each_page(page, { sum += page->page_room; } );
         return sum;
       }
     #else
@@ -124,9 +107,7 @@
     # viel Paging bedeuten kann, wird das Ergebnis mit Hilfe von mem.used_space
     # berechnet.
     global uintL free_space()
-      {
-        return mem.total_space - mem.used_space;
-      }
+      { return mem.total_space - mem.used_space; }
     #endif
   #endif
 
@@ -134,19 +115,17 @@
   local void recalc_space (boolean check);
   local void recalc_space(check)
     var boolean check;
-    {
-      var uintL sum_used = 0;
+    { var uintL sum_used = 0;
       var uintL sum_free = 0;
-      for_each_page(page, {
-        sum_used += page->page_end - page->page_start;
-        sum_free += page->page_room;
-      });
-      if (check) {
-        if (!(mem.used_space == sum_used))
-          abort();
-      } else {
-        mem.used_space = sum_used;
-      }
+      for_each_page(page,
+                    { sum_used += page->page_end - page->page_start;
+                      sum_free += page->page_room;
+                    }
+                   );
+      if (check)
+        { if (!(mem.used_space == sum_used)) abort(); }
+        else
+        { mem.used_space = sum_used; }
       mem.total_space = sum_used + sum_free;
     }
 #endif

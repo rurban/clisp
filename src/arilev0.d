@@ -21,8 +21,6 @@
           " : "=d" (__ergebnis) : "0" (__wert));  \
         __ergebnis;                               \
        })
-  #elif defined(SPARC64)
-    #define sign_of_sint32(wert)  (((sint64)(sint32)(wert)) >> 63)
   #elif defined(SPARC) || defined(ARM)
     #define sign_of_sint32(wert)  (((sint32)(wert)) >> 31)
   #else
@@ -47,8 +45,6 @@
           " : "=d" (__ergebnis) : "0" (__wert));  \
         __ergebnis;                               \
        })
-  #elif defined(SPARC64)
-    #define sign_of_sint16(wert)  (((sint64)(sint16)(wert)) >> 63)
   #elif defined(SPARC) || defined(ARM)
     #define sign_of_sint16(wert)  (((sint32)(sint16)(wert)) >> 31)
   #else
@@ -138,21 +134,12 @@
 # in 68000-Assembler (Input D0.W, D1.W, Output D0.L):
 #   MULU D1,D0
   #ifdef GNU
-    #if defined(SPARC) && !defined(SPARC64) && defined(FAST_DOUBLE) # Ist das schneller als _mulu16 ??
+    #if defined(SPARC) && defined(FAST_DOUBLE) # Ist das schneller als _mulu16 ??
       #define mulu16(arg1,arg2)  \
         ({var union { double f; uint32 i[2]; } __fi; \
           __fi.f = (double)(sint32)(uint16)(arg1)*(double)(sint32)(uint16)(arg2) \
                    + (double)(4503599627370496.0L); # + 2^52, zum Normalisieren  \
           __fi.i[1]; # untere 32 Bit herausholen (benutzt BIG_ENDIAN_P !)        \
-         })
-    #elif defined(SPARC64) && !defined(NO_ASM)
-      #define mulu16(arg1,arg2)  \
-        ({ var register uint64 _result;                         \
-           __asm__("umul %1,%2,%0"                              \
-                   : "=&r" (_result)                            \
-                   : "r" ((uint16)(arg1)), "r" ((uint16)(arg2)) \
-                  );                                            \
-           (uint32)_result;                                     \
          })
     #elif defined(I80386) && !defined(NO_ASM)
       #define mulu16(arg1,arg2)  \
@@ -164,9 +151,18 @@
                   );                                                        \
            highlow32(_hi,_lo);                                              \
          })
+    #elif defined(SPARC64) && !defined(NO_ASM)
+      #define mulu16(arg1,arg2)  \
+        ({ var register uint64 _result;                         \
+           __asm__("umul %1,%2,%0"                              \
+                   : "=&r" (_result)                            \
+                   : "r" ((uint16)(arg1)), "r" ((uint16)(arg2)) \
+                  );                                            \
+           (uint32)_result;                                     \
+         })
     #endif
   #else
-    #if defined(SPARC) || defined(SPARC64)
+    #if defined(SPARC)
       extern_C uint32 mulu16_ (uint16 arg1, uint16 arg2); # extern in Assembler
       #define mulu16  mulu16_
     #endif
@@ -179,7 +175,7 @@
 # mulu24(arg1,arg2,hi=,lo=);
 # > arg1, arg2 : zwei 24-Bit-Zahlen
 # < 2^32*hi+lo : eine 48-Bit-Zahl
-  #if defined(SPARC) && !defined(SPARC64) && defined(FAST_DOUBLE)
+  #if defined(SPARC) && defined(FAST_DOUBLE)
     #define mulu24(x,y,hi_zuweisung,lo_zuweisung)  \
       { var uint32 _x = (x);                                                            \
         var uint32 _y = (y);                                                            \
@@ -340,9 +336,9 @@
   #ifndef mulu32
     #define mulu32(x,y,hi_zuweisung,lo_zuweisung)  \
       { lo_zuweisung mulu32_(x,y); hi_zuweisung mulu32_high; }
-    #if defined(MC680X0) || defined(SPARC) || defined(SPARC64) || defined(ARM) || (defined(I80386) && !defined(WATCOM) && !defined(BORLAND)) || defined(MIPS) || defined(HPPA) || defined(VAX)
+    #if defined(MC680X0) || defined(SPARC) || defined(ARM) || (defined(I80386) && !defined(WATCOM) && !defined(BORLAND)) || defined(MIPS) || defined(HPPA) || defined(VAX)
       # mulu32_ extern in Assembler
-      #if defined(SPARC) || defined(SPARC64)
+      #if defined(SPARC)
         #define mulu32_high  (uint32)(_get_g1()) # R¸ckgabe im Register %g1
       #elif defined(LISPARIT) && !defined(HPPA) # In arihppa.d ist mulu32_high bereits definiert.
         global uint32 mulu32_high;
@@ -353,22 +349,19 @@
       global uint32 mulu32_(x,y)
         var uint32 x;
         var uint32 y;
-        {
-          var uint16 x1 = high16(x);
+        { var uint16 x1 = high16(x);
           var uint16 x0 = low16(x);
           var uint16 y1 = high16(y);
           var uint16 y0 = low16(y);
           var uint32 hi = mulu16(x1,y1); # obere Portion
           var uint32 lo = mulu16(x0,y0); # untere Portion
-          {
-            var uint32 mid = mulu16(x0,y1); # 1. mittlere Portion
-            hi += high16(mid); mid = highlow32_0(low16(mid));
-            lo += mid; if (lo < mid) { hi += 1; } # 64-Bit-Addition
+          {var uint32 mid = mulu16(x0,y1); # 1. mittlere Portion
+           hi += high16(mid); mid = highlow32_0(low16(mid));
+           lo += mid; if (lo < mid) { hi += 1; } # 64-Bit-Addition
           }
-          {
-            var uint32 mid = mulu16(x1,y0); # 2. mittlere Portion
-            hi += high16(mid); mid = highlow32_0(low16(mid));
-            lo += mid; if (lo < mid) { hi += 1; } # 64-Bit-Addition
+          {var uint32 mid = mulu16(x1,y0); # 2. mittlere Portion
+           hi += high16(mid); mid = highlow32_0(low16(mid));
+           lo += mid; if (lo < mid) { hi += 1; } # 64-Bit-Addition
           }
           mulu32_high = hi; return lo;
         }
@@ -387,8 +380,7 @@
     global uint32 mulu32_unchecked(x,y)
       var uint32 x;
       var uint32 y;
-      {
-        # Methode:
+      { # Methode:
         # Falls x>=2^16 und y>=2^16 w‰re, w‰re das Produkt zu groﬂ.
         # Falls x<2^16 : y = y1*2^16+y0 schreiben, (x*y1)*2^16 + (x*y0) bilden.
         # Falls y<2^16 : x = x1*2^16+x0 schreiben, (x1*y)*2^16 + (x0*y) bilden.
@@ -398,10 +390,10 @@
         if (x1==0)
           if (y1==0)
             return mulu16((uint16)(x),(uint16)(y));
-          else
+            else
             return highlow32_0(mulu16((uint16)(x),y1))
                    + mulu16((uint16)(x),low16(y));
-        else
+          else
           return highlow32_0(mulu16(x1,(uint16)(y)))
                  + mulu16(low16(x),(uint16)(y));
       }
@@ -473,7 +465,7 @@
           q_zuweisung (uint16)__q;     \
           r_zuweisung (uint16)__r;     \
          })
-    #elif defined(SPARC) || defined(SPARC64)
+    #elif defined(SPARC)
       #define divu_3216_1616(x,y,q_zuweisung,r_zuweisung)  \
         ({ var uint32 __qr = divu_3216_1616_(x,y); # extern in Assembler \
            q_zuweisung low16(__qr);  \
@@ -520,7 +512,7 @@
     #endif
   #endif
   #ifndef divu_3216_1616
-    #if defined(SPARC) || defined(SPARC64)
+    #if defined(SPARC)
       #define divu_3216_1616(x,y,q_zuweisung,r_zuweisung)  \
         { var uint32 __qr = divu_3216_1616_(x,y); # extern in Assembler \
           q_zuweisung low16(__qr);  \
@@ -542,8 +534,7 @@
       global uint16 divu_3216_1616_(x,y)
         var uint32 x;
         var uint16 y;
-        {
-          var uint16 q = floor(x,(uint32)y);
+        { var uint16 q = floor(x,(uint32)y);
           divu_16_rest = x - (uint32)q * (uint32)y;
           return q;
         }
@@ -603,7 +594,7 @@
         q_zuweisung (uint32)__q;     \
         r_zuweisung (uint16)__r;     \
        })
-  #elif defined(SPARC) || defined(SPARC64) || defined(I80386)
+  #elif defined(SPARC) || defined(I80386)
     #define divu_3216_3216  divu_3232_3232
   #elif 1
     # Methode: (beta = 2^16)
@@ -647,8 +638,7 @@
       global uint32 divu_3216_3216_(x,y)
         var uint32 x;
         var uint16 y;
-        {
-          var uint16 q1;
+        { var uint16 q1;
           var uint16 q0;
           var uint16 r1;
           divu_3216_1616(high16(x),y, q1 = , r1 = );
@@ -686,7 +676,7 @@
         q_zuweisung (uint32)__q;     \
         r_zuweisung (uint32)__r;     \
        })
-  #elif defined(SPARC) || defined(SPARC64) || defined(I80386) || defined(HPPA_DIV_WORKS)
+  #elif defined(SPARC) || defined(I80386) || defined(HPPA_DIV_WORKS)
     #define divu_3232_3232(x,y,q_zuweisung,r_zuweisung)  \
       divu_6432_3232(0,x,y,_EMA_ q_zuweisung,_EMA_ r_zuweisung)
     #define divu_3232_3232_(x,y) divu_6432_3232_(0,x,y)
@@ -758,8 +748,7 @@
     global uint32 divu_3232_3232_(x,y)
       var uint32 x;
       var uint32 y;
-      {
-        var uint32 q;
+      { var uint32 q;
         divu_3232_3232(x,y,q=,);
         return q;
       }
@@ -774,8 +763,7 @@
       global uint32 divu_3232_3232_(x,y)
         var uint32 x;
         var uint32 y;
-        {
-          var uint32 q = floor(x,y);
+        { var uint32 q = floor(x,y);
           divu_32_rest = x - q*y;
           return q;
         }
@@ -827,7 +815,7 @@
           q_zuweisung (uint32)__q;     \
           r_zuweisung (uint32)__r;     \
          })
-    #elif defined(SPARC) || defined(SPARC64)
+    #elif defined(SPARC)
       #define divu_6432_3232(xhi,xlo,y,q_zuweisung,r_zuweisung)  \
         ({ var uint32 _q = divu_6432_3232_(xhi,xlo,y); # extern in Assembler \
            var register uint32 _r __asm__("%g1");                            \
@@ -887,9 +875,9 @@
   #ifndef divu_6432_3232
     #define divu_6432_3232(xhi,xlo,y,q_zuweisung,r_zuweisung)  \
       { q_zuweisung divu_6432_3232_(xhi,xlo,y); r_zuweisung divu_32_rest; }
-    #if defined(MC680Y0) || defined(SPARC) || defined(SPARC64) || defined(ARM) || (defined(I80386) && !defined(WATCOM) && !defined(BORLAND)) || defined(HPPA)
+    #if defined(MC680Y0) || defined(SPARC) || defined(ARM) || (defined(I80386) && !defined(WATCOM) && !defined(BORLAND)) || defined(HPPA)
       # divu_6432_3232_ extern in Assembler
-      #if defined(SPARC) || defined(SPARC64)
+      #if defined(SPARC)
         #define divu_32_rest  (uint32)(_get_g1()) # R¸ckgabe im Register %g1
       #elif defined(LISPARIT)
         global uint32 divu_32_rest;
@@ -903,27 +891,23 @@
         var uint32 xhi;
         var uint32 xlo;
         var uint32 y;
-        {
-          if (y <= (uint32)(bit(16)-1)) {
+        { if (y <= (uint32)(bit(16)-1))
             # 48-durch-16-Bit-Division,
             # aufgebaut aus zwei 32-durch-16-Bit-Divisionen:
-            var uint16 q1;
-            var uint16 q0;
-            var uint16 r1;
-            divu_3216_1616(highlow32(low16(xhi),high16(xlo)),y, q1=,r1=);
-            divu_3216_1616(highlow32(r1,low16(xlo)),y, q0=, divu_32_rest=(uint32) );
-            return highlow32(q1,q0);
-          }
+            { var uint16 q1;
+              var uint16 q0;
+              var uint16 r1;
+              divu_3216_1616(highlow32(low16(xhi),high16(xlo)),y, q1=,r1=);
+              divu_3216_1616(highlow32(r1,low16(xlo)),y, q0=, divu_32_rest=(uint32) );
+              return highlow32(q1,q0);
+            }
           # y>=2^16
-          # y shiften:
+         {# y shiften:
           var uintL s = 0;
-          while ((sint32)y >= 0) {
-            y = y<<1; s++;
-          }
+          while ((sint32)y >= 0) { y = y<<1; s++; }
           # x entsprechend shiften:
-          if (!(s==0)) {
-            xhi = (xhi << s) | (xlo >> (32-s)); xlo = xlo << s;
-          }
+          if (!(s==0))
+            { xhi = (xhi << s) | (xlo >> (32-s)); xlo = xlo << s; }
           # 64-durch-32-Bit-Division,
           # aufgebaut aus zwei 48-durch-32-Bit-Divisionen.
           # Methode f¸r eine 48-durch-32-Bit-Division x/y mit 0 <= x < 2^16*y :
@@ -946,19 +930,17 @@
           # und x-q*y und muss hiervon noch hˆchstens 2 mal y abziehen und q
           # incrementieren, um den Quotienten  q = floor(x/y)  und den Rest
           # x-floor(x/y)*y  der Division zu bekommen.
-          var uint16 y1_1 = high16(y)+1; # y1+1
-          var uint16 q1;
-          var uint16 q0;
-          var uint32 r;
-          # 2^16*xhi+high16(xlo) durch y dividieren:
-          {
-            var uint16 r16;
+          { var uint16 y1_1 = high16(y)+1; # y1+1
+            var uint16 q1;
+            var uint16 q0;
+            var uint32 r;
+            # 2^16*xhi+high16(xlo) durch y dividieren:
+           {var uint16 r16;
             var uint32 r2;
-            if (y1_1==0) {
-              q1 = high16(xhi); r16 = low16(xhi);
-            } else {
-              divu_3216_1616(xhi,y1_1, q1=,r16=);
-            }
+            if (y1_1==0)
+              { q1 = high16(xhi); r16 = low16(xhi); }
+              else
+              { divu_3216_1616(xhi,y1_1, q1=,r16=); }
             # q1 = floor(xhi/(y1+1)), r16 = xhi - (y1+1)*q1 (>=0, <=y1)
             # Bilde r := (2^16*xhi+high16(xlo)) - y*q1
             #          = 2^16*(xhi-y1*q1) + high16(xlo) - y0*q1
@@ -969,23 +951,19 @@
             # 0 <= r+r2 < 3*y. Bei der Addition auf Carry testen!
             # Carry -> jedenfalls y <= r+r2 < y + 2^32 <= 3*y.
             # kein Carry -> jedenfalls 0 <= r+r2 < 2^32 <= 2*y.
-            if ((r += r2) < r2) { # addieren, r >= 2^32 ?
-              q1 += 1; r -= y;
-            }
+            if ((r += r2) < r2) # addieren, r >= 2^32 ?
+              { q1 += 1; r -= y; }
             # jetzt noch 0 <= r < 2^32 <= 2*y
-            if (r >= y) {
-              q1 += 1; r -= y;
-            }
-          } # Quotient q1, Rest r fertig.
-          # 2^16*r+low16(xlo) durch y dividieren:
-          {
-            var uint16 r16;
+            if (r >= y)
+              { q1 += 1; r -= y; }
+           }# Quotient q1, Rest r fertig.
+            # 2^16*r+low16(xlo) durch y dividieren:
+           {var uint16 r16;
             var uint32 r2;
-            if (y1_1==0) {
-              q0 = high16(r); r16 = low16(r);
-            } else {
-              divu_3216_1616(r,y1_1, q0=,r16=);
-            }
+            if (y1_1==0)
+              { q0 = high16(r); r16 = low16(r); }
+              else
+              { divu_3216_1616(r,y1_1, q0=,r16=); }
             # q0 = floor(r/(y1+1)), r16 = r - (y1+1)*q0 (>=0, <=y1)
             # Bilde r := (2^16*r+low16(xlo)) - y*q0
             #          = 2^16*(r-y1*q0) + low16(xlo) - y0*q0
@@ -996,17 +974,15 @@
             # 0 <= r+r2 < 3*y. Bei der Addition auf Carry testen!
             # Carry -> jedenfalls y <= r+r2 < y + 2^32 <= 3*y.
             # kein Carry -> jedenfalls 0 <= r+r2 < 2^32 <= 2*y.
-            if ((r += r2) < r2) { # addieren, r >= 2^32 ?
-              q0 += 1; r -= y;
-            }
+            if ((r += r2) < r2) # addieren, r >= 2^32 ?
+              { q0 += 1; r -= y; }
             # jetzt noch 0 <= r < 2^32 <= 2*y
-            if (r >= y) {
-              q0 += 1; r -= y;
-            }
-          } # Quotient q0, Rest r fertig.
-          divu_32_rest = r >> s; # Rest
-          return highlow32(q1,q0); # Quotient
-        }
+            if (r >= y)
+              { q0 += 1; r -= y; }
+           }# Quotient q0, Rest r fertig.
+            divu_32_rest = r >> s; # Rest
+            return highlow32(q1,q0); # Quotient
+        }}}
       #endif
     #endif
   #endif
@@ -1052,7 +1028,7 @@
 # > uint32 xhi,xlo: Radikand x = 2^32*xhi+xlo, >= 2^62, < 2^64
 # < uint32 y: floor(sqrt(x)), >= 2^31, < 2^32
 # < boolean sqrtp: /=0, falls x=y^2
-  #if (defined(SPARC) || defined(SPARC64) || defined(MC680Y0) || defined(HPPA))
+  #if (defined(SPARC) || defined(MC680Y0) || defined(HPPA))
     # Methode:
     # y := 2^32 als Anfangswert,
     # y := floor((y + floor(x/y))/2) als n‰chster Wert,

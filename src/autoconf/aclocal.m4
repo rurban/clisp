@@ -697,7 +697,7 @@ dnl still generates 32-bit code.
   sparc | sparc64 )
     AC_CACHE_CHECK([for 64-bit SPARC], cl_cv_host_sparc64, [
 AC_EGREP_CPP(yes,
-[#if defined(__sparcv9) || defined(__arch64__)
+[#if defined(__arch64__)
   yes
 #endif
 ], cl_cv_host_sparc64=yes, cl_cv_host_sparc64=no)
@@ -771,7 +771,7 @@ dnl still generates 32-bit code.
   sparc | sparc64 )
     AC_CACHE_CHECK([for 64-bit SPARC], cl_cv_host_sparc64, [
 AC_EGREP_CPP(yes,
-[#if defined(__sparcv9) || defined(__arch64__)
+[#if defined(__arch64__)
   yes
 #endif
 ], cl_cv_host_sparc64=yes, cl_cv_host_sparc64=no)
@@ -942,6 +942,16 @@ dnl The same holds for the mem* functions in <string.h> and SunOS.
 #include <limits.h>], AC_DEFINE(STDC_HEADERS))
 ])dnl
 dnl
+AC_DEFUN(CL_STDLIB_H,
+[AC_BEFORE([$0], [CL_ABORT])
+AC_CHECK_HEADERS(stdlib.h)]
+)dnl
+dnl
+AC_DEFUN(CL_STDDEF_H,
+[AC_BEFORE([$0], [CL_ABORT])
+AC_CHECK_HEADERS(stddef.h)]
+)dnl
+dnl
 AC_DEFUN(CL_OFFSETOF,
 [CL_COMPILE_CHECK([offsetof in stddef.h], cl_cv_offsetof,
 [#include <stddef.h>], [#ifndef offsetof
@@ -962,8 +972,9 @@ AC_DEFUN(CL_ACCESSFLAGS,
 dnl Old BSD systems require #include <sys/file.h> for R_OK etc. being defined.
 [AC_CHECK_HEADERS(sys/file.h)
 if test $ac_cv_header_sys_file_h = yes; then
-accessflags_decl='
+accessflags_decl='#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <sys/types.h>
 #include <unistd.h>
@@ -986,8 +997,9 @@ dnl BSD systems require #include <sys/file.h> for O_RDWR etc. being defined.
 [AC_BEFORE([$0], [CL_MMAP])
 AC_CHECK_HEADERS(sys/file.h)
 if test $ac_cv_header_sys_file_h = yes; then
-openflags_decl='
+openflags_decl='#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <sys/types.h>
 #include <unistd.h>
@@ -1060,8 +1072,9 @@ if test $ac_cv_header_termios_h = yes; then
   AC_CHECK_FUNCS(tcgetattr tcflow)dnl
 fi
 AC_CHECK_HEADERS(sys/stream.h sys/ptem.h)dnl
-ioctl_decl='
+ioctl_decl='#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <sys/types.h>
 #include <unistd.h>
@@ -1168,6 +1181,28 @@ fi
 ]
 )dnl
 dnl
+AC_DEFUN(CL_CLOCK_T,
+[AC_CACHE_CHECK(for clock_t in sys/types.h etc., cl_cv_type_clock_t, [
+AC_EGREP_HEADER(clock_t, sys/types.h, have_clock=1)dnl
+if test -z "$have_clock"; then
+AC_EGREP_HEADER(clock_t, sys/times.h, have_clock=1)dnl
+fi
+if test -z "$have_clock"; then
+AC_EGREP_HEADER(clock_t, time.h, have_clock=1)dnl
+fi
+if test -z "$have_clock"; then
+  cl_cv_type_clock_t=no
+else
+  cl_cv_type_clock_t=yes
+fi
+])
+if test $cl_cv_type_clock_t = yes; then
+  AC_DEFINE(CLOCK_T, clock_t)
+else
+  AC_DEFINE(CLOCK_T, int)
+fi
+])dnl
+dnl
 AC_DEFUN(CL_DIRENT_WITHOUT_NAMLEN,
 [CL_COMPILE_CHECK([d_namlen in struct dirent], cl_cv_struct_dirent_d_namlen,
 [#include <dirent.h>], [struct dirent d; d.d_namlen;],
@@ -1212,12 +1247,16 @@ fi
 ])dnl
 dnl
 AC_DEFUN(CL_MEMSET,
-[CL_PROTO([memset], [
+[AC_CHECK_FUNCS(memset)
+if test $ac_cv_func_memset = yes; then
+CL_PROTO([memset], [
 for y in 'int' 'size_t'; do
 for x in 'char*' 'void*'; do
 if test -z "$have_memset"; then
 AC_TRY_COMPILE([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1239,6 +1278,7 @@ done
 done
 ], [extern $cl_cv_proto_memset_ret memset ($cl_cv_proto_memset_arg1, int, $cl_cv_proto_memset_arg3);])
 AC_DEFINE_UNQUOTED(RETMEMSETTYPE,$cl_cv_proto_memset_ret)
+fi
 ])dnl
 dnl
 AC_DEFUN(CL_GMALLOC,
@@ -1270,7 +1310,9 @@ AC_DEFUN(CL_MALLOC,
 AC_EGREP_HEADER([void.*\*.*malloc], stdlib.h, malloc_void=1)dnl
 if test -z "$malloc_void"; then
 AC_TRY_COMPILE([
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1283,7 +1325,9 @@ else
 cl_cv_proto_malloc_ret="char*"
 fi
 CL_PROTO_TRY([
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1298,7 +1342,9 @@ dnl
 AC_DEFUN(CL_FREE,
 [CL_PROTO([free], [
 CL_PROTO_RET([
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1452,7 +1498,9 @@ case "$signalblocks" in
   *POSIX*)
 CL_PROTO([sigprocmask], [
 CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1472,7 +1520,9 @@ AC_DEFUN(CL_SIGNAL_REINSTALL,
 AC_BEFORE([$0], [CL_SIGNAL_BLOCK_OTHERS])dnl
 AC_CACHE_CHECK(whether signal handlers need to be reinstalled, cl_cv_func_signal_reinstall, [
 AC_TRY_RUN([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1482,10 +1532,7 @@ AC_TRY_RUN([
  * Let it fail instead. */
 #error "better fail than hang"
 #endif
-#if !defined(__STDC__) || __STDC__ != 1
-#define volatile
-#endif
-volatile int gotsig=0;
+/* volatile */ int gotsig=0;
 RETSIGTYPE sigalrm_handler() { gotsig=1; }
 int got_sig () { return gotsig; }
 #ifdef __cplusplus
@@ -1518,7 +1565,9 @@ case "$signalblocks" in
   *POSIX* | *BSD*)
 AC_CACHE_CHECK(whether signals are blocked when signal handlers are entered, cl_cv_func_signal_blocked, [
 AC_TRY_RUN([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1576,7 +1625,9 @@ case "$signalblocks" in
   *POSIX* | *BSD*)
 AC_CACHE_CHECK(whether other signals are blocked when signal handlers are entered, cl_cv_func_signal_blocked_others, [
 AC_TRY_RUN([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1645,7 +1696,9 @@ AC_BEFORE([$0], [CL_SIGACTION_UNBLOCK])dnl
 if test -n "$have_sigaction"; then
 AC_CACHE_CHECK(whether sigaction handlers need to be reinstalled, cl_cv_func_sigaction_reinstall, [
 AC_TRY_RUN([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1673,15 +1726,16 @@ signal_handler mysignal (sig, handler)
 #endif
 { struct sigaction old_sa;
   struct sigaction new_sa;
+#ifdef HAVE_MEMSET
   memset(&new_sa,0,sizeof(new_sa));
+#else
+  bzero(&new_sa,sizeof(new_sa));
+#endif
   new_sa.sa_handler = handler;
   if (sigaction(sig,&new_sa,&old_sa)<0) { return (signal_handler)SIG_IGN; }
   return (signal_handler)old_sa.sa_handler;
 }
-#if !defined(__STDC__) || __STDC__ != 1
-#define volatile
-#endif
-volatile int gotsig=0;
+/* volatile */ int gotsig=0;
 RETSIGTYPE sigalrm_handler() { gotsig=1; }
 int got_sig () { return gotsig; }
 int main() { /* returns 0 if they need not to be reinstalled */
@@ -1711,7 +1765,9 @@ case "$signalblocks" in
   *POSIX* | *BSD*)
 AC_CACHE_CHECK(whether signals are blocked when sigaction handlers are entered, cl_cv_func_sigaction_blocked, [
 AC_TRY_RUN([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1739,7 +1795,11 @@ signal_handler mysignal (sig, handler)
 #endif
 { struct sigaction old_sa;
   struct sigaction new_sa;
+#ifdef HAVE_MEMSET
   memset(&new_sa,0,sizeof(new_sa));
+#else
+  bzero(&new_sa,sizeof(new_sa));
+#endif
   new_sa.sa_handler = handler;
   if (sigaction(sig,&new_sa,&old_sa)<0) { return (signal_handler)SIG_IGN; }
   return (signal_handler)old_sa.sa_handler;
@@ -1809,22 +1869,27 @@ AC_DEFINE(HAVE_SETFPUCW))
 ])dnl
 dnl
 AC_DEFUN(CL_RAISE,
-[CL_LINK_CHECK([raise], cl_cv_func_raise,
+[CL_LINK_CHECK([raise], cv_cv_func_raise,
 [#include <sys/types.h>
 #include <signal.h>], [raise(6);],
 AC_DEFINE(HAVE_RAISE)dnl
 )])dnl
 dnl
 AC_DEFUN(CL_ABORT,
-[CL_PROTO([abort], [
+[AC_REQUIRE([CL_STDLIB_H])dnl
+CL_PROTO([abort], [
 CL_PROTO_RET([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 ], [int abort();], cl_cv_proto_abort_ret, int, void)
 CL_PROTO_RET([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1869,7 +1934,9 @@ dnl
 AC_DEFUN(CL_GETENV,
 [CL_PROTO([getenv], [
 CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1883,7 +1950,9 @@ AC_DEFUN(CL_PUTENV,
 if test $ac_cv_func_putenv = yes; then
 CL_PROTO([putenv], [
 CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1898,7 +1967,9 @@ dnl
 AC_DEFUN(CL_SETLOCALE,
 [CL_PROTO([setlocale], [
 CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1916,7 +1987,9 @@ AC_DEFUN(CL_RLIMIT,
 if test $ac_cv_func_setrlimit = yes; then
 CL_PROTO([getrlimit], [
 CL_PROTO_TRY([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1924,15 +1997,17 @@ CL_PROTO_TRY([
 #include <sys/time.h>
 #include <sys/resource.h>
 ],
-[int getrlimit (int resource, struct rlimit * rlim);],
+[int getrlimit (enum __rlimit_resource resource, struct rlimit * rlim);],
 [int getrlimit();],
-[cl_cv_proto_getrlimit_arg1="int"],
-[cl_cv_proto_getrlimit_arg1="enum __rlimit_resource"])
+[cl_cv_proto_getrlimit_arg1="enum __rlimit_resource"],
+[cl_cv_proto_getrlimit_arg1="int"])
 ], [extern int getrlimit ($cl_cv_proto_getrlimit_arg1, struct rlimit *);])
 AC_DEFINE_UNQUOTED(RLIMIT_RESOURCE_T,$cl_cv_proto_getrlimit_arg1)
 CL_PROTO([setrlimit], [
 CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1950,7 +2025,9 @@ dnl
 AC_DEFUN(CL_VFORK,
 [CL_PROTO([vfork], [
 CL_PROTO_TRY([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1977,7 +2054,9 @@ for y in '' 'const'; do
 for x in '' 'const'; do
 if test -z "$have_execv"; then
 AC_TRY_COMPILE([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2007,7 +2086,9 @@ AC_DEFUN(CL_EXECL,
 for x in '' 'const'; do
 if test -z "$have_execl"; then
 AC_TRY_COMPILE([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2027,7 +2108,9 @@ done
 for x in '' 'const'; do
 if test -z "$have_execl"; then
 AC_TRY_COMPILE([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2052,9 +2135,13 @@ fi
 ])dnl
 dnl
 AC_DEFUN(CL_WAITPID,
-[CL_PROTO([waitpid], [
+[AC_CHECK_FUNCS(waitpid)
+if test $ac_cv_func_waitpid = yes; then
+CL_PROTO([waitpid], [
 CL_PROTO_TRY([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2064,6 +2151,9 @@ CL_PROTO_TRY([
 cl_cv_proto_waitpid_arg1="pid_t", cl_cv_proto_waitpid_arg1="int")
 ], [extern pid_t waitpid ($cl_cv_proto_waitpid_arg1, int*, int);])
 AC_DEFINE_UNQUOTED(PID_T,$cl_cv_proto_waitpid_arg1)
+else
+AC_CHECK_HEADERS(sys/wait.h)dnl
+fi
 ])dnl
 dnl
 AC_DEFUN(CL_RUSAGE,
@@ -2079,7 +2169,9 @@ if test $ac_cv_header_sys_resource_h = yes; then
   if test $cl_cv_func_getrusage = yes; then
     CL_PROTO([getrusage], [
     CL_PROTO_TRY([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2107,7 +2199,9 @@ AC_DEFUN(CL_GETCWD,
 if test $cl_cv_func_getcwd = yes; then
 CL_PROTO([getcwd], [
 CL_PROTO_TRY([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2122,7 +2216,9 @@ AC_DEFUN(CL_CHDIR,
 [AC_BEFORE([$0], [CL_FILECHARSET])dnl
 CL_PROTO([chdir], [
 CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2132,23 +2228,59 @@ AC_DEFINE_UNQUOTED(CHDIR_CONST,$cl_cv_proto_chdir_arg1)
 ])dnl
 dnl
 AC_DEFUN(CL_MKDIR,
-[CL_PROTO([mkdir], [
-CL_PROTO_CONST([
+[AC_BEFORE([$0], [CL_OPEN])
+CL_PROTO([mkdir], [
+AC_EGREP_HEADER(mode_t, sys/types.h,
+dnl mode_t defined. check if it is really used by mkdir() :
+CL_PROTO_TRY([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #include <sys/types.h>
 #include <sys/stat.h>
-], [int mkdir (char* path, mode_t mode);], [int mkdir();], cl_cv_proto_mkdir_arg1)
-], [extern int mkdir ($cl_cv_proto_mkdir_arg1 char*, mode_t);])
+], [int mkdir (char* path, mode_t mode);], [int mkdir();], mode_t_unneeded=1, )
+if test -z "$mode_t_unneeded"; then
+CL_PROTO_TRY([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
+#include <stdlib.h>
+#endif
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#include <sys/types.h>
+#include <sys/stat.h>
+], [int mkdir (const char* path, mode_t mode);], [int mkdir();], mode_t_unneeded=1, )
+fi)dnl
+if test -n "$mode_t_unneeded"; then
+cl_cv_type_mode_t="mode_t"
+else
+cl_cv_type_mode_t="int"
+fi
+dnl Now MODE_T should be correct, check for const:
+CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
+#include <stdlib.h>
+#endif
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#include <sys/types.h>
+#include <sys/stat.h>
+], [int mkdir (char* path, $cl_cv_type_mode_t mode);], [int mkdir();], cl_cv_proto_mkdir_arg1)
+], [extern int mkdir ($cl_cv_proto_mkdir_arg1 char*, $cl_cv_type_mode_t);])
+AC_DEFINE_UNQUOTED(MODE_T,$cl_cv_type_mode_t)
 AC_DEFINE_UNQUOTED(MKDIR_CONST,$cl_cv_proto_mkdir_arg1)
 ])dnl
 dnl
 AC_DEFUN(CL_RMDIR,
 [CL_PROTO([rmdir], [
 CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2166,7 +2298,9 @@ dnl hence when compiling in C++ mode the declaration in <sys/stat.h> and that
 dnl of CL_PROTO may not clash.
 CL_PROTO([fstat], [
 AC_TRY_LINK([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2209,7 +2343,9 @@ if test $cl_cv_proto_stat_inline = yes; then
   AC_DEFINE(STAT_INLINE)
 fi
 AC_TRY_LINK([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2231,7 +2367,9 @@ cl_cv_proto_stat_arg1=""
 have_stat_decl=1)
 if test -z "$have_stat_decl"; then
 AC_TRY_LINK([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2288,7 +2426,9 @@ if test $cl_cv_proto_lstat_inline = yes; then
   AC_DEFINE(LSTAT_INLINE)
 fi
 AC_TRY_LINK([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2310,7 +2450,9 @@ cl_cv_proto_lstat_arg1=""
 have_lstat_decl=1)
 if test -z "$have_lstat_decl"; then
 AC_TRY_LINK([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2353,7 +2495,9 @@ for y in 'char*' 'void*'; do
 for x in '' 'const'; do
 if test -z "$have_readlink"; then
 AC_TRY_COMPILE([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2385,7 +2529,9 @@ AC_CACHE_CHECK(for ELOOP, cl_cv_decl_eloop, [
 if test $cross_compiling = no; then
 cat > conftest.c <<EOF
 #include "confdefs.h"
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2414,7 +2560,9 @@ else
 fi
 else
 AC_EGREP_CPP(yes,[
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2439,7 +2587,9 @@ AC_BEFORE([$0], [CL_CLOSEDIR])dnl
 AC_BEFORE([$0], [CL_FILECHARSET])dnl
 CL_PROTO([opendir], [
 CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2455,7 +2605,9 @@ AC_REQUIRE([CL_OPENDIR])dnl
 AC_BEFORE([$0], [CL_FILECHARSET])dnl
 CL_PROTO([closedir], [
 CL_PROTO_RET([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <sys/types.h>
 #include <unistd.h>
@@ -2477,7 +2629,9 @@ else
   # as returning int but the return value is unusable.
   AC_CACHE_CHECK(for usable closedir return value, cl_cv_func_closedir_retval,[
 AC_TRY_RUN([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <sys/types.h>
 #include <unistd.h>
@@ -2507,13 +2661,16 @@ fi
 ])dnl
 dnl
 AC_DEFUN(CL_OPEN,
-[AC_BEFORE([$0], [CL_FILECHARSET])dnl
+[AC_REQUIRE([CL_MKDIR])dnl defines MODE_T
+AC_BEFORE([$0], [CL_FILECHARSET])dnl
 CL_PROTO([open], [
-for y in 'mode_t mode' '...'; do
+for y in 'MODE_T mode' '...'; do
 for x in '' 'const'; do
 if test -z "$have_open"; then
 CL_PROTO_TRY([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2540,7 +2697,7 @@ fi
 if test $cl_cv_proto_open_dots = yes; then
 cl_cv_proto_open_args="$cl_cv_proto_open_arg1 char*, int, ..."
 else
-cl_cv_proto_open_args="$cl_cv_proto_open_arg1 char*, int, mode_t"
+cl_cv_proto_open_args="$cl_cv_proto_open_arg1 char*, int, $cl_cv_type_mode_t"
 fi
 ], [extern int open ($cl_cv_proto_open_args);])
 AC_DEFINE_UNQUOTED(OPEN_CONST,$cl_cv_proto_open_arg1)
@@ -2556,7 +2713,9 @@ for y in 'char*' 'void*'; do
 for x in 'int' 'long'; do
 if test -z "$have_rw"; then
 CL_PROTO_TRY([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2579,7 +2738,9 @@ dnl
 AC_DEFUN(CL_WRITE,
 [CL_PROTO([write], [
 CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2592,7 +2753,9 @@ dnl
 dnl AC_DEFUN(CL_CHMOD,
 dnl [CL_PROTO([chmod], [
 dnl CL_PROTO_CONST([
+dnl #if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 dnl #include <stdlib.h>
+dnl #endif
 dnl #ifdef HAVE_UNISTD_H
 dnl #include <unistd.h>
 dnl #endif
@@ -2606,9 +2769,13 @@ dnl AC_CHECK_FUNCS(fchmod)
 dnl ])dnl
 dnl dnl
 AC_DEFUN(CL_RENAME,
-[CL_PROTO([rename], [
+[AC_CHECK_FUNCS(rename)dnl
+if test $ac_cv_func_rename = yes; then
+CL_PROTO([rename], [
 CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2617,13 +2784,16 @@ CL_PROTO_CONST([
 cl_cv_proto_rename_arg1)
 ], [extern int rename ($cl_cv_proto_rename_arg1 char*, $cl_cv_proto_rename_arg1 char*);])
 AC_DEFINE_UNQUOTED(RENAME_CONST,$cl_cv_proto_rename_arg1)
+fi
 ])dnl
 dnl
 AC_DEFUN(CL_UNLINK,
 [AC_BEFORE([$0], [CL_FILECHARSET])dnl
 CL_PROTO([unlink], [
 CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2640,8 +2810,9 @@ AC_DEFUN(CL_IOCTL,
 [AC_REQUIRE([CL_TERM])dnl
 AC_REQUIRE([CL_OPENFLAGS])dnl
 AC_REQUIRE([CL_CADDR_T])dnl
-ioctl_decl1='
+ioctl_decl1='#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <sys/types.h>
 #include <unistd.h>
@@ -2674,8 +2845,9 @@ dnl incompatible to <termios.h> (and doesn't even declare ioctl()) on SunOS 4.
 AC_TRY_COMPILE($ioctl_decl1
 AC_LANG_EXTERN[char* ioctl();], [], try_sys_ioctl=1, ioctl_decl="$ioctl_decl1")
 if test -n "try_sys_ioctl"; then
-ioctl_decl2='
+ioctl_decl2='#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <sys/types.h>
 #include <unistd.h>
@@ -2826,7 +2998,9 @@ for y in 'fd_set' 'int' 'void'; do
 for x in 'int' 'size_t'; do
 if test -z "$have_select"; then
 CL_PROTO_TRY([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2863,7 +3037,9 @@ AC_DEFUN(CL_SETITIMER,
 if test $ac_cv_func_setitimer = yes; then
 CL_PROTO([setitimer], [
 CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2882,7 +3058,9 @@ dnl
 AC_DEFUN(CL_LOCALTIME,
 [CL_PROTO([localtime], [
 CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2973,7 +3151,9 @@ dnl
 AC_DEFUN(CL_GETPWNAM,
 [CL_PROTO([getpwnam], [
 CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -2985,9 +3165,12 @@ AC_DEFINE_UNQUOTED(GETPWNAM_CONST,$cl_cv_proto_getpwnam_arg1)
 ])dnl
 dnl
 AC_DEFUN(CL_GETPWUID,
-[CL_PROTO([getpwuid], [
+[AC_REQUIRE([AC_TYPE_UID_T])dnl
+CL_PROTO([getpwuid], [
 CL_PROTO_TRY([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -3004,7 +3187,9 @@ AC_DEFUN(CL_GETHOSTNAME,
 if test $ac_cv_func_gethostname = yes; then
 CL_PROTO([gethostname], [
 CL_PROTO_TRY([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -3026,7 +3211,9 @@ if test -n "$have_netdb"; then
 AC_DEFINE(HAVE_GETHOSTBYNAME)
 CL_PROTO([gethostbyname], [
 CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -3049,7 +3236,7 @@ AC_DEFUN(CL_CONNECT,
 [CL_PROTO([connect], [
 for x in '' 'const'; do
 for y in 'struct sockaddr *' 'void*'; do
-for z in 'int' 'size_t' 'socklen_t'; do
+for z in 'int' 'size_t'; do
 if test -z "$have_connect_decl"; then
 CL_PROTO_TRY([
 #ifdef HAVE_UNISTD_H
@@ -3209,7 +3396,9 @@ cat > conftest.c <<EOF
 #include "confdefs.h"
 #include <sys/types.h>
 /* declare malloc() */
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -3307,7 +3496,9 @@ have_getpagesize=1)dnl
 if test -n "$have_getpagesize"; then
 CL_PROTO([getpagesize], [
 CL_PROTO_RET([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -3331,6 +3522,8 @@ AC_DEFINE(HAVE_MACH_VM)dnl
 dnl
 AC_DEFUN(CL_MMAP,
 [AC_REQUIRE([CL_OPENFLAGS])dnl
+AC_REQUIRE([AC_TYPE_SIZE_T])dnl On AIX, the mmap() prototype references size_t which is undefined.
+AC_REQUIRE([AC_TYPE_OFF_T])dnl We use off_t below.
 AC_BEFORE([$0], [CL_MUNMAP])AC_BEFORE([$0], [CL_MPROTECT])
 AC_CHECK_HEADER(sys/mman.h, , no_mmap=1)dnl
 if test -z "$no_mmap"; then
@@ -3343,7 +3536,9 @@ for y in 'void*' 'caddr_t'; do
 for x in 'void*' 'caddr_t'; do
 if test -z "$have_mmap_decl"; then
 CL_PROTO_TRY([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -3378,7 +3573,9 @@ case "$host" in
     avoid=0 ;;
 esac
 mmap_prog_1='
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -3516,7 +3713,9 @@ AC_CHECK_FUNCS(mprotect)dnl
 if test $ac_cv_func_mprotect = yes; then
 CL_PROTO([mprotect], [
 CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -3530,7 +3729,9 @@ AC_CACHE_CHECK(for working mprotect, cl_cv_func_mprotect_works, [
 mprotect_prog='
 #include <sys/types.h>
 /* declare malloc() */
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -3641,7 +3842,9 @@ case "$host_cpu" in
 AC_TRY_RUN([
 #include <sys/types.h>
 /* declare malloc() */
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -3679,7 +3882,9 @@ AC_BEFORE([$0], [CL_SHM])dnl
 if test "$ac_cv_header_sys_shm_h" = yes -a "$ac_cv_header_sys_ipc_h" = yes; then
 CL_PROTO([shmget], [
 CL_PROTO_TRY([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -3699,7 +3904,9 @@ AC_BEFORE([$0], [CL_SHM])dnl
 if test "$ac_cv_header_sys_shm_h" = yes -a "$ac_cv_header_sys_ipc_h" = yes; then
 CL_PROTO([shmat], [
 CL_PROTO_RET([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -3709,7 +3916,9 @@ CL_PROTO_RET([
 ], [void* shmat();],
 cl_cv_proto_shmat_ret, [void*], [char*])
 CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -3732,7 +3941,9 @@ CL_PROTO([shmdt], [
 for x in 'void*' 'char*' 'const void *' 'const char *'; do
 if test -z "$have_shmdt_decl"; then
 CL_PROTO_TRY([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -3755,7 +3966,9 @@ AC_BEFORE([$0], [CL_SHM])dnl
 if test "$ac_cv_header_sys_shm_h" = yes -a "$ac_cv_header_sys_ipc_h" = yes; then
 CL_PROTO([shmctl], [
 CL_PROTO_TRY([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -3842,7 +4055,9 @@ AC_DEFUN(CL_SHM_RMID,
 if test -n "$have_shm"; then
 AC_CACHE_CHECK(for attachability of removed shared memory, cl_cv_func_shmctl_attachable, [
 AC_TRY_RUN([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -3915,7 +4130,9 @@ if test "$cl_cv_func_dlopen" = yes; then
   AC_DEFINE(HAVE_DLOPEN)
   CL_PROTO([dlsym], [
   CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -3926,7 +4143,9 @@ cl_cv_proto_dlsym_arg2)],
   AC_DEFINE_UNQUOTED(DLSYM_CONST,$cl_cv_proto_dlsym_arg2)
   CL_PROTO([dlerror], [
   CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -3943,31 +4162,19 @@ AC_SUBST(LIBDL)
 ])dnl
 dnl
 AC_DEFUN(CL_ICONV,
-[dnl Some systems have iconv in libc, some have it in libiconv (OSF/1 and
-dnl those with the standalone libiconv installed).
-AC_CACHE_CHECK(for iconv, cl_cv_func_iconv, [
-cl_cv_func_iconv=no
-cl_cv_lib_iconv=no
+[AC_CACHE_CHECK(for iconv, cl_cv_func_iconv, [
 AC_TRY_LINK([#include <stdlib.h>
 #include <iconv.h>],
 [iconv_t cd = iconv_open("",""); iconv(cd,NULL,NULL,NULL,NULL); iconv_close(cd);],
-cl_cv_func_iconv=yes)
-if test "$cl_cv_func_iconv" = no; then
-cl_save_LIBS="$LIBS"
-LIBS="$LIBS -liconv"
-AC_TRY_LINK([#include <stdlib.h>
-#include <iconv.h>],
-[iconv_t cd = iconv_open("",""); iconv(cd,NULL,NULL,NULL,NULL); iconv_close(cd);],
-cl_cv_lib_iconv=yes
-cl_cv_func_iconv=yes)
-LIBS="$cl_save_LIBS"
-fi
+cl_cv_func_iconv=yes, cl_cv_func_iconv=no)
 ])
-if test "$cl_cv_func_iconv" = yes; then
+if test $cl_cv_func_iconv = yes; then
   AC_DEFINE(HAVE_ICONV)
 CL_PROTO([iconv], [
 CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -3979,11 +4186,6 @@ cl_cv_proto_iconv_arg1)],
 [extern size_t iconv (iconv_t cd, $cl_cv_proto_iconv_arg1 char * *inbuf, size_t *inbytesleft, char * *outbuf, size_t* outbytesleft);])
 AC_DEFINE_UNQUOTED(ICONV_CONST,$cl_cv_proto_iconv_arg1)
 fi
-LIBICONV=
-if test "$cl_cv_lib_iconv" = yes; then
-  LIBICONV="-liconv"
-fi
-AC_SUBST(LIBICONV)
 ])dnl
 dnl
 AC_DEFUN(CL_TERMCAP,
@@ -4019,7 +4221,9 @@ mkdir conftestdir
 cat > conftest.c <<EOF
 #include "confdefs.h"
 #include <sys/types.h>
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -4272,6 +4476,32 @@ if test $cl_cv_builtin_strlen = yes; then
 fi
 ])dnl
 dnl
+AC_DEFUN(CL_BUILTIN_STRCMP,
+[AC_CACHE_CHECK(for inline __builtin_strcmp, cl_cv_builtin_strcmp, [
+cat > conftest.$ac_ext <<EOF
+#if defined(__STDC__) || defined(__cplusplus)
+int foo (char* x, char* y)
+#else
+int foo (x,y) char* x; char* y;
+#endif
+{ return __builtin_strcmp(x,y); }
+EOF
+if AC_TRY_COMMAND(${CC-cc} -S $CFLAGS $CPPFLAGS conftest.$ac_ext) >/dev/null 2>&1 ; then
+  if grep strcmp conftest.s >/dev/null ; then
+    cl_cv_builtin_strcmp=no
+  else
+    cl_cv_builtin_strcmp=yes
+  fi
+else
+  cl_cv_builtin_strcmp=no
+fi
+rm -f conftest*
+])
+if test $cl_cv_builtin_strcmp = yes; then
+  AC_DEFINE(HAVE_BUILTIN_STRCMP)
+fi
+])dnl
+dnl
 AC_DEFUN(CL_CHAR_UNSIGNED,
 [dnl This is mostly copied from AC_C_CHAR_UNSIGNED.
 AC_CACHE_CHECK(whether characters are unsigned, ac_cv_c_char_unsigned, [
@@ -4352,7 +4582,8 @@ fi
 ])dnl
 dnl
 AC_DEFUN(CL_WORDS_LITTLEENDIAN,
-[AC_CACHE_CHECK(byte ordering, cl_cv_sys_endian, [
+[AC_MSG_CHECKING(byte ordering)
+AC_CHECK_VAL(cl_cv_sys_endian, [
 AC_TRY_RUN([int main () {
   /* Are we little or big endian?  From Harbison&Steele.  */
   union
@@ -4363,29 +4594,30 @@ AC_TRY_RUN([int main () {
   u.l = 1;
   exit (u.c[0] == 1);
 }],
-cl_cv_sys_endian="big endian",
-cl_cv_sys_endian="little endian",
-: # must guess the endianness
+cl_cv_sys_endian=big,
+cl_cv_sys_endian=little,
+# must guess the endianness
 )
 if test -z "$cl_cv_sys_endian"; then
 AC_EGREP_CPP(yes,[#if defined(m68k) || defined(mc68000) || defined(mc68020) || defined(sparc) || defined(__sparc__) || defined(MIPSEB) || defined(hppa) || defined(__hppa) || defined(m88000)
   yes
 #endif
-], cl_cv_sys_endian="big endian")
+], cl_cv_sys_endian=big)
 fi
 if test -z "$cl_cv_sys_endian"; then
 AC_EGREP_CPP(yes,[#if defined(i386) || defined(__i386) || defined(_I386) || defined(MIPSEL) || defined(__alpha)
   yes
 #endif
-], cl_cv_sys_endian="little endian")
+], cl_cv_sys_endian=little)
 fi
 if test -z "$cl_cv_sys_endian"; then
-cl_cv_sys_endian="guessing little endian"
+cl_cv_sys_endian="guessing little"
 fi
 ])
+AC_MSG_RESULT([$cl_cv_sys_endian endian])
 case "$cl_cv_sys_endian" in
-  *little*) AC_DEFINE(WORDS_LITTLEENDIAN) ;;
-  *big*)    ;;
+  *little) AC_DEFINE(WORDS_LITTLEENDIAN) ;;
+  *big)    ;;
 esac
 ])dnl
 dnl

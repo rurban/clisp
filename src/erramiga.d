@@ -6,8 +6,7 @@
     local void OS_error_internal (uintC errcode);
     local void OS_error_internal(errcode)
       var uintC errcode;
-      {
-        # Meldungbeginn ausgeben:
+      { # Meldungbeginn ausgeben:
         write_errorstring(GETTEXT("Amiga OS error "));
         # Fehlernummer ausgeben:
         write_errorobject(fixnum(errcode));
@@ -164,35 +163,37 @@
           var const char* errorname = "";
           var const char* errormsg = "";
           var uintC index;
-          if (errcode == 0) {
-            errorname = "";
-            errormsg =
-              /*  0 */ GETTEXT("Ok, No error");
-          } elif ((index = errcode-100) < 23) {
-            errorname = error100_msg_table[index*(1+langcount)];
-            errormsg = translate(error100_msg_table[index*(1+langcount)+1+language]);
-          } elif ((index = errcode-200) < 44) {
-            errorname = error200_msg_table[index*(1+langcount)];
-            errormsg = translate(error200_msg_table[index*(1+langcount)+1+language]);
-          } elif ((index = errcode-300) < 6) {
-            errorname = error300_msg_table[index*(1+langcount)];
-            errormsg = translate(error300_msg_table[index*(1+langcount)+1+language]);
-          }
-          if (!(errorname[0] == 0)) { # bekannter Name?
-            write_errorasciz(" (");
-            write_errorasciz(errorname);
-            write_errorasciz(")");
-          }
-          if (!(errormsg[0] == 0)) { # nichtleere Meldung?
-            write_errorasciz(": ");
-            write_errorasciz(errormsg);
-          }
+          if (errcode == 0)
+            { errorname = "";
+              errormsg =
+                /*  0 */ GETTEXT("Ok, No error");
+            }
+          elif ((index = errcode-100) < 23)
+            { errorname = error100_msg_table[index*(1+langcount)];
+              errormsg = translate(error100_msg_table[index*(1+langcount)+1+language]);
+            }
+          elif ((index = errcode-200) < 44)
+            { errorname = error200_msg_table[index*(1+langcount)];
+              errormsg = translate(error200_msg_table[index*(1+langcount)+1+language]);
+            }
+          elif ((index = errcode-300) < 6)
+            { errorname = error300_msg_table[index*(1+langcount)];
+              errormsg = translate(error300_msg_table[index*(1+langcount)+1+language]);
+            }
+          if (!(errorname[0] == 0)) # bekannter Name?
+            { write_errorasciz(" (");
+              write_errorasciz(errorname);
+              write_errorasciz(")");
+            }
+          if (!(errormsg[0] == 0)) # nichtleere Meldung?
+            { write_errorasciz(": ");
+              write_errorasciz(errormsg);
+            }
         }
         SetIoErr(0L); # Fehlercode löschen (fürs nächste Mal)
       }
     global void OS_error()
-      {
-        var uintC errcode; # Fehlernummer
+      { var uintC errcode; # Fehlernummer
         end_system_call(); # just in case
         begin_system_call();
         errcode = IoErr();
@@ -200,14 +201,13 @@
         clr_break_sem_4(); # keine AMIGAOS-Operation mehr aktiv
         begin_error(); # Fehlermeldung anfangen
         if (!nullp(STACK_3)) # *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ?
-          STACK_3 = S(simple_os_error);
+          { STACK_3 = S(simple_os_error); }
         OS_error_internal(errcode);
         end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
       }
     global void OS_file_error(pathname)
       var object pathname;
-      {
-        var uintC errcode; # Fehlernummer
+      { var uintC errcode; # Fehlernummer
         begin_system_call();
         errcode = IoErr();
         end_system_call();
@@ -215,7 +215,7 @@
         pushSTACK(pathname); # Wert von PATHNAME für FILE-ERROR
         begin_error(); # Fehlermeldung anfangen
         if (!nullp(STACK_3)) # *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ?
-          STACK_3 = S(simple_file_error);
+          { STACK_3 = S(simple_file_error); }
         OS_error_internal(errcode);
         end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
       }
@@ -226,7 +226,5 @@
     global void errno_out (LONG errorcode);
     global void errno_out(errorcode)
       var LONG errorcode;
-      {
-        asciz_out(" IoErr() = "); dez_out(errorcode); asciz_out("." NLstring);
-      }
+      { asciz_out(" IoErr() = "); dez_out(errorcode); asciz_out("." NLstring); }
 

@@ -1,35 +1,38 @@
 
 #
-# (C) 1998, S.u.S.E. GmbH, Nürnberg
+# (C) 1997, S.u.S.E. GmbH, Fürth
 #
 
-Call of CLX
+Aufruf von clx
 
 
-       Please call clisp with the option -F to use clx. The X Window System
-is required for the usage of clx.  Therefore the clisp version under
-/usr/lib/clisp/clx/ is used.
-For some examples of clx try out in the directory demos/
+   Da (n)clx X11 benötigt, wurde das entsprechende lisp.run und
+lispinit.mem als clx.run bzw. als clxinit.mem unter /usr/lib/lisp/
+installiert.  Das sich (n)clx nicht als wide-Version übersetzten
+werden konnte, gibt es keine dementsprechend keine wide-Version.
 
-         clisp -X -q -i sokoban
+Für den schnelleren Aufruf ist unter /usr/bin/ ein Skript clx
+installiert. So können die Demonstrationen unter demo/ mit
 
-and
+       clx -q -i sokoban
 
-         clisp -X -q -i qix
+bzw. mit
 
-----------------------------------------------------------------------------
+       clx -q -i qix
 
-Aufruf von CLX
+gestartet werden.  Die herkömmliche LISP-Version starten Sie
+einfach mit dem Aufruf
+
+       clisp
+
+näheres findet sich in der Manual-Seite von clisp (Aufruf: man clisp).
 
 
-      Bitte rufen Sie clisp mit der Option -X auf. Clx erfordert ein
-installiertes X-Window-System.  Daher wird die entsprechende clisp-Version
-aus /usr/lib/clisp/clx/ benutzt.
-Sie finden zwei Beispiele für clx im Verzeichnis demos/
+Anmerkung: Es gibt eine in LISP implementierten, älteren CLX-Version.
+  Diese Version beherrscht jedoch keine Authentifizierung beim X-Server
+  (vgl. mit der Manual-Seite Xsecurity).
+  Der Quelltext zu dieser Version gibt es unter
+  ftp://ftp2.cons.org/pub/lisp/clisp/packages/
+  und ist im Archive clx.sept92f.clisp+gcl.tar.z enthalten.
 
-         clisp -X -q -i sokoban
-
-und
-
-         clisp -X -q -i qix
 

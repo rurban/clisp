@@ -1,5 +1,5 @@
 // -*- mode: c++ -*-
-// Copyright (c) 1996-1999 by Gilbert Baumann, distributed under GPL
+// Copyright (c) 1996-1997 by Gilbert Baumann, distributed under GPL
 // --------------------------------------------------------------------------------
 //
 //    Title: 	C implementation of CLX utilizing the Xlib
@@ -9,20 +9,12 @@
 //
 // --------------------------------------------------------------------------------
 //
-// Revision 1.24  1999-10-17  bruno
-// - Use allocate_bit_vector in place of allocate_byte_vector. Remove ->data
-//   indirection.
-//
-// Revision 1.23  1999-10-11  gilbert
-// - get_font_info_and_display: XGetAtomNames is a new X11R6 addition, use
-//   XGetAtomName instead.
-//
 // Revision 1.22  1999-06-06  bruno
 // - get_font_info_and_display now optionally returns the Lisp font. It also
 //   fills in the font's encoding.
 // - New function to_XChar2b, used to convert a character sequence to a font
-//   index sequence. Works for linear non-iso8859-1 fonts (unlike Motif!).
-//   Still needs work for chinese or japanese fonts.
+//   index sequence. Works for linear non-iso8859-1 fonts. Still needs work
+//   for chinese or japanese fonts.
 //
 // Revision 1.21  1999-05-30  bruno
 // - Add missing begin_callback() in `xlib_io_error_handler'.
@@ -46,6 +38,8 @@
 // - allocate_byte_array is now exported from array.d
 // - typos and spaces here and there
 //
+// $Id$
+// $Log$
 // Revision 1.18  1997/06/12  00:23:35  gilbert
 // - nothing special
 //
@@ -160,13 +154,13 @@
 //     b. Why is dumped NIL and not the gcontext?
 //   O.k. this was due to the fact that the font was actually never set.
 //   fix that!
-//
+//   
 //   (Maybe we just pass the gcontext down to Xlib, since Xlib is supposed
 //   to do the same here.)
 // -------
 //   When a display is closed the host name and such sould not be available any longer
 // -------
-//
+// 
 // - there should be a function called closed-p, which checks wether an given
 //   xid or ptr object is closed or not. When re-incarnating CLISP all CLX
 //   objects should get closed. get_xxx functions should check on that.  But
@@ -255,7 +249,7 @@
 
 
 // --- DONE ----
-//
+// 
 // - some functions emit errors saying #xDDD using decimal notation!
 // - upon disconnection we simply get a broken pipe message and exit
 //   [This is not the disired way, since we want to handle such an error.]
@@ -294,7 +288,7 @@
 //   CLX adds on my machines another ~700k  of memory needs  for CLISP, but this
 // implementation add only 70k [*I* know that I am telling  lies here, since the
 // libX11 itself has a size of ~500k; But as long as I have no  pure LISP OS but
-// need the  UNIX to boot it ...]  and a great  bunch of speed.
+// need the  UNIX to boot it ...]  and a great  bunch of speed. 
 //
 //   Also having this implemenation should  gain a big  plus against GCL.  (IMHO
 // gcl is very bad code compared to CLISP! [gcl is actually akcl]) flame,flame.
@@ -326,7 +320,7 @@
 //
 //   If there are setf-methods for some functions, I  call `em xxx_setter, later
 // I bind  them  into  LISP, with putting  the   right properties on   the right
-// symbols.
+// symbols.  
 //
 // The following types are only XID`s:
 //   window, drawable, font, pixmap, cursor, colormap, GContext, keysym
@@ -340,7 +334,7 @@
 //  actually needed.  The consistent  name is curel,  since some macros I define
 //  later take a "type" argument, which is  concatenated with 'make_' or 'get_'.
 //  This is done to make this file more dense; (Thus save me  a lot of redundand
-//  typeing.)
+//  typeing.) 
 //
 //
 //   type     | dpy? | XID-P | hashed-p | Note
@@ -353,7 +347,7 @@
 //   FONT     |  T   | T/NIL |   T/NIL  |
 //   SCREEN   |  T   | NIL   | (should  | Could also been represented as index?
 //            |      |       |    be)   |
-//   DISPLAY  |  NIL | NIL   |   NIL    |
+//   DISPLAY  |  NIL | NIL   |   NIL    | 
 //
 //   Class Heterarchie
 //  --------------------
@@ -362,7 +356,7 @@
 //                   |                 |--> CURSOR
 //                   |                 +--> COLORMAP
 //                   |                 +--> FONT
-//                   |
+//                   |      
 //                   +--> ptr-object --+--> GCONTEXT
 //                                     |
 //                                     +--> DISPLAY
@@ -534,7 +528,7 @@ local int isa_instance_of_p (object type, object obj)
   pushSTACK (subr_self);				// save subr_self, since we are doing funcalls here.
   pushSTACK (type);					// save is save
   pushSTACK (obj);					// dito
-							//
+							// 
   if (instancep (STACK_0))				// only instances could be valid here at all
     {							//
       pushSTACK (STACK_1);				// the type (still a symbol)
@@ -544,29 +538,29 @@ local int isa_instance_of_p (object type, object obj)
 	  skipSTACK (2);				// cleanup
 	  subr_self = popSTACK ();			// restore subr_self
 	  return 1;					// Jup, it isa instance of desired class
-	}						//
-      else						//
-	{						//
+	}						// 
+      else						// 
+	{						// 
 	  pushSTACK (value1);				// the <type> class
-	  pushSTACK (`CLOS::CLASS-ALL-SUPERCLASSES`);	//
+	  pushSTACK (`CLOS::CLASS-ALL-SUPERCLASSES`);	// 
 	  pushSTACK (TheInstance(STACK_2)->inst_class);	// (class-of obj)
 	  funcall (L(funcall), 2);			// (class-all-superclasses ..)
-	  pushSTACK (value1);				//
+	  pushSTACK (value1);				// 
 	  funcall (L(gethash), 2);			// (gethash <type> (c.a.s ..))
 	  skipSTACK (2);				// clean up
 	  subr_self = popSTACK ();			// restore subr_self
 	  if (nullp (value1))				// nothing found => class of object is no subclass of the desired type.
-	    return 0;					//
-	  else						//
-	    return 1;					//
-	}						//
-    }							//
+	    return 0;					// 
+	  else						// 
+	    return 1;					// 
+	}						// 
+    }							// 
   else							// 'obj' is not an instance at all, hence 0
-    {							//
+    {							// 
       skipSTACK (2);					// clean up
       subr_self = popSTACK ();				// restore subr_self
-      return 0;						//
-    }							//
+      return 0;						// 
+    }							// 
 }
 
 local int isa_struct_p (object type, object obj)
@@ -579,7 +573,7 @@ local int isa_struct_p (object type, object obj)
 	if (eq (Car(q), type))
 	  return 1;
     }
-
+  
   // Fall thru'
   return 0;
 }
@@ -693,7 +687,7 @@ local uint32 get_aint32 (object obj)
       BLOEDER_COMPILER_VERDAMMT_NOCHMAL;
     }
 }
-
+     
 
 // ----------------------------------------------------------------------------------------------------
 //  Displays
@@ -717,7 +711,7 @@ local object make_display (Display *dpy)
      // The newly created display is added to XLIB:*DISPLAYS*.
 {
   pushSTACK (subr_self);
-
+  
   pushSTACK (allocate_structure (6));
   TheStructure (STACK_0)->structure_types = `(XLIB::DISPLAY)`;
   TheStructure (STACK_0)->recdata[slot_DISPLAY_FOREIGN_POINTER] = allocate_fpointer (dpy);
@@ -742,7 +736,7 @@ local object make_display (Display *dpy)
   subr_self = STACK_1;
   value1 = STACK_0;
   skipSTACK (2);
-
+  
   return value1;
 }
 
@@ -840,7 +834,7 @@ local Display *pop_display (void)
 local object make_ptr_obj (object type, object dpy, void *ptr)
 {
   pushSTACK (subr_self);
-
+  
   /* (make-instance type :display dpy :ptr ptr) */
   pushSTACK (`CLOS::MAKE-INSTANCE`);
   pushSTACK (type);
@@ -880,7 +874,7 @@ local void *get_ptr_object_and_display (object type, object obj, Display **dpyf)
 	  ensure_living_display (&(STACK_0));
 	  *dpyf = TheFpointer (TheStructure (popSTACK())->recdata[slot_DISPLAY_FOREIGN_POINTER])->fp_pointer;
 	}
-
+	
       pushSTACK (STACK_0);					// 'obj'
       pushSTACK (`XLIB::PTR`);
 #if !WITH_SLOT_UP
@@ -889,7 +883,7 @@ local void *get_ptr_object_and_display (object type, object obj, Display **dpyf)
       { object *ptr = slot_up (); skipSTACK (2); value1 = *ptr; }
 #endif
       ASSERT (fpointerp (value1));				// FIXME raise hash-error?
-
+	
       if (!fp_validp (TheFpointer(value1)))
 	{
 	  // Raise an error message.
@@ -934,7 +928,7 @@ local object make_xid_obj_low (object *prealloc, object *type, object *dpy, XID 
       //       [Is is a bug or a feature?]
       //
       pushSTACK (subr_self);
-
+      
       pushSTACK (*prealloc);
       pushSTACK (`XLIB::DISPLAY`);
       pushSTACK (*dpy);
@@ -946,7 +940,7 @@ local object make_xid_obj_low (object *prealloc, object *type, object *dpy, XID 
       funcall (L(set_slot_value), 3);
 
       subr_self = popSTACK ();
-
+      
       return *prealloc;
     }
 }
@@ -970,7 +964,7 @@ local object make_xid_obj_2 (object type, object dpy, XID xid, object prealloc)
   //         3. We should check the type of the preallocated object?!
   //            [Compare to make_ptr_obj]
   //
-
+  
   if (xid == 0) // This is trivial, but is it also right?!
     { value1 = NIL; mv_count = 1; }
   else
@@ -982,13 +976,13 @@ local object make_xid_obj_2 (object type, object dpy, XID xid, object prealloc)
 
       Car (xlib_a_cons) = make_uint16 (xid & 0xFFFF); 		// lower halfword
       Cdr (xlib_a_cons) = make_uint16 (xid >> 16);		// upper halfword
-
+      
       // Now go with that cons into the hash-table ...
       pushSTACK (xlib_a_cons);					// the key
       pushSTACK (STACK_1);					// the display object
       pushSTACK (display_hash_table ());			// the table [By this call it is ensured that dpy is a display]
       funcall (L(gethash), 2);					// look it up.
-
+      
       if (!eq(value2, NIL))					// something found?
 	{
 	  mv_count = 1;						// simply return what we found
@@ -1003,19 +997,19 @@ local object make_xid_obj_2 (object type, object dpy, XID xid, object prealloc)
 	  pushSTACK (make_uint16 (xid >> 16));			// upper halfword
 	  funcall (L(cons), 2);					// cons `em
 	  pushSTACK (value1);					// key for puthash
-	  pushSTACK (STACK_2);					//
+	  pushSTACK (STACK_2);					// 
 	  pushSTACK (display_hash_table ());			// table " "
 	  pushSTACK (STACK_2);					// value " "
 	  funcall (L(puthash), 3);				// put it into the hashtable
-
+	  
 	  value1 = STACK_0; mv_count = 1;			// return freshly allocated structure
 	  skipSTACK (1);					// clean up
 	}
 
       skipSTACK (3);						// remove saved prealloc, type, dpy
-      subr_self = popSTACK ();					// restore subr_self and all done
+      subr_self = popSTACK ();					// restore subr_self and all done		        
     }
-
+  
   return value1;
 }
 
@@ -1041,7 +1035,7 @@ local XID get_xid_object_and_display (object type, object obj, Display **dpyf)
 	  ensure_living_display (&(STACK_0));
 	  *dpyf = TheFpointer (TheStructure (popSTACK())->recdata[slot_DISPLAY_FOREIGN_POINTER])->fp_pointer;
 	}
-
+      
       pushSTACK (STACK_0);					// obj already on stack
       pushSTACK (`XLIB::ID`);
 #if !WITH_SLOT_UP
@@ -1068,7 +1062,7 @@ local object get_display_obj_tc (object type, object obj)
   if (isa_instance_of_p (type, obj))
     {
       pushSTACK (subr_self);
-
+  
       pushSTACK (obj);
       pushSTACK (`XLIB::DISPLAY`);
 #if !WITH_SLOT_UP
@@ -1077,7 +1071,7 @@ local object get_display_obj_tc (object type, object obj)
       { object *ptr = slot_up (); skipSTACK(2); value1 = *ptr; }
 #endif
       subr_self = popSTACK ();
-
+      
       return value1;
     }
   else
@@ -1094,7 +1088,7 @@ local object get_display_obj (object obj)
   // XXX type checking [Well on the other hand is it really necessary?]
   //     I want to use the combined function above.
   pushSTACK (subr_self);
-
+  
   pushSTACK (obj);
   pushSTACK (`XLIB::DISPLAY`);
 #if !WITH_SLOT_UP
@@ -1103,7 +1097,7 @@ local object get_display_obj (object obj)
   { object *ptr = slot_up (); skipSTACK(2); value1 = *ptr; }
 #endif
   subr_self = popSTACK ();
-
+  
   return value1;
 }
 
@@ -1135,7 +1129,7 @@ local object get_display_obj (object obj)
 #define get_screen_and_display(obj,dpyf)    ((Screen*) get_ptr_object_and_display (`XLIB::SCREEB`,   obj, dpyf))
 #define get_font_and_display(obj, dpyf)     ((Font)    get_xid_object_and_display (`XLIB::FONT`,     obj, dpyf))
 
-// Predicates
+// Predicates 
 #define drawable_p(obj) (isa_instance_of_p (`XLIB::DRAWABLE`, obj))
 #define window_p(obj)   (isa_instance_of_p (`XLIB::WINDOW`, obj))
 #define pixmap_p(obj)   (isa_instance_of_p (`XLIB::PIXMAP`, obj))
@@ -1176,7 +1170,7 @@ local object make_font_with_info (object dpy, Font fn, object name, XFontStruct 
   pushSTACK (STACK_0);					// xid-object
   pushSTACK (`XLIB::FONT-INFO`);			// slot
   funcall (L(slot_value), 2);				// (slot-value new-xid-object `font-info)
-
+  
   // do not overwrite any already fetched font info
   unless (fpointerp (value1))
     {
@@ -1186,7 +1180,7 @@ local object make_font_with_info (object dpy, Font fn, object name, XFontStruct 
       pushSTACK (allocate_fpointer (info));		// new value
       funcall (L(set_slot_value), 3);			// update the :font-info slot
     }
-
+  
   if (!nullp (STACK_1))					// name
     {
       pushSTACK (STACK_0);				// the new xid-object
@@ -1216,7 +1210,7 @@ XFontStruct *get_font_info_and_display (object obj, object* fontf, Display **dpy
   XFontStruct *info;
   Display *dpy;
   Font font;
-
+	  
   if (gcontext_p (obj))
     {
       // In all places where a font object is required, a gcontext should be accepted too,
@@ -1226,7 +1220,7 @@ XFontStruct *get_font_info_and_display (object obj, object* fontf, Display **dpy
       C_xlib_gcontext_font ();				// quick and dirty subr call ...
       obj = value1;					// Now we have the font [or nothing]
     }
-
+  
   if (font_p (obj))
     {
       pushSTACK (obj);
@@ -1236,22 +1230,22 @@ XFontStruct *get_font_info_and_display (object obj, object* fontf, Display **dpy
       pushSTACK (`XLIB::FONT-INFO`);
       funcall (L(slot_value), 2);			// (slot-value obj `font-info)
       subr_self = popSTACK ();
-
+      
       if (!(fpointerp (value1) && fp_validp (TheFpointer(value1))))
 	{
 	  // Raise an error message.
 	  pushSTACK (STACK_0);
 	  pushSTACK (TheSubr (subr_self)->name);
-	  fehler (error, "~: Wanted to refer to a dead font: ~");
+	  fehler (error, "~: Wanted to refer to a dead font: ~");	    
 	}
 
-      info = TheFpointer(value1)->fp_pointer;		//
+      info = TheFpointer(value1)->fp_pointer;		// 
       if (!info)
 	{
 	  // We have no font information already, so go and ask the server for it.
 
 	  pushSTACK (value1); 				// but first save what we found.
-
+	  
 	  font = get_font_and_display (STACK_1, &dpy);
 	  begin_call ();
 	  info = XQueryFont (dpy, font);
@@ -1264,9 +1258,9 @@ XFontStruct *get_font_info_and_display (object obj, object* fontf, Display **dpy
             }
 
 	  if (dpyf) *dpyf = dpy;
-
+	  
           ASSERT (fpointerp (STACK_0));
-
+	  
 	  TheFpointer (STACK_0)->fp_pointer = info;	// Store it in the foreign pointer
 	  skipSTACK (1);
 
@@ -1289,24 +1283,12 @@ XFontStruct *get_font_info_and_display (object obj, object* fontf, Display **dpy
                   {
                     Atom xatoms[2];
                     char* names[2];
-                    int status;
 
                     xatoms[0] = rgstry;
                     xatoms[1] = encdng;
                     names[0] = NULL;
                     names[1] = NULL;
-                    // XGetAtomNames is an X11R6 addition and not present in
-                    // X11R5; Using XGetAtomNames saves a round trip for us,
-                    // but I think it is not worth the hassle we impose on users.
-                    // So unless I find out how to test for X11R6, this #if sticks.
-                    #if 1
-                      names[0] = XGetAtomName (dpy, xatoms[0]);
-                      names[1] = XGetAtomName (dpy, xatoms[1]);
-                      status = names[0] && names[1];
-                    #else
-                      status = XGetAtomNames (dpy, xatoms, 2, names);
-                    #endif
-                    if (status)
+                    if (XGetAtomNames (dpy, xatoms, 2, names))
                       {
                         end_call();
                         pushSTACK (asciz_to_string (names[0], misc_encoding ()));
@@ -1460,21 +1442,21 @@ local Font get_font (object self)
 
   ENSURE_TYPE (STACK_0, font_p (STACK_0), `XLIB::FONT`);
 
-  // pushSTACK (self); --- self is already on the stack
+  // pushSTACK (self); --- self is already on the stack 
   pushSTACK (`XLIB::ID`);
   fidf = slot_up ();
 
   // XXX fidf may not be valid as long as we need it, since
   // XXX  the object itself may have been moved by gc!
-
+  
   if (eq (*fidf, unbound))
     {
-      // No font id there so, look if we have a name, so that we could open that font?
+      // No font id there so, look if we have a name, so that we could open that font? 
       STACK_0 = `XLIB::NAME`;        // We want the :name slot
       namef = slot_up ();	     // look for it
       if (!eq (*namef,unbound))
 	{
-	  Font font; Display *dpy;
+	  Font font; Display *dpy; 
 	  // Ok there is a name ... so try to open the font
 	  dpy  = (pushSTACK (STACK_1),pop_display ());
 	  // XXX
@@ -1526,11 +1508,11 @@ local Atom get_xatom_general (Display *dpy, object obj, int internp)
 
   with_stringable_0_tc (obj, misc_encoding (), atom_name,
     {
-      begin_call ();
+      begin_call ();	
         xatom = XInternAtom (dpy, atom_name, !internp);
       end_call ();
     });
-
+  
   return xatom;
 }
 
@@ -1543,7 +1525,7 @@ local object make_visual (Visual *visual)
   begin_call ();
     id = XVisualIDFromVisual (visual);
   end_call ();
-
+  
   return make_uint29 (id);
 }
 
@@ -1559,7 +1541,7 @@ local Visual *get_visual (Display *dpy, object vid)
 
 //
 // get_enum -- convert a lisp symbol to an integer value i E [0..n).
-//
+// 
 //  > n: number of elements composing the enum
 //  > STACK_n: the object
 //  > STACK_n-1 .. STACK_0: the enum keys
@@ -1574,7 +1556,7 @@ local int get_enum (int n)
   //       these enums are defined in the X Protocol Specification.
   //
   int i;
-
+  
   for (i = 0; i < n; i++)
     if (eq (STACK_(n-i-1), STACK_(n)))
       {
@@ -1661,11 +1643,11 @@ DEF_ENUM (focus_mode,           4, (ee(`:NORMAL`), ee(`:GRAB`), ee(`:UNGRAB`), e
                                // I was complaining 'Strange -- the CLX manual says also somthing about :while-grabbed!'
                                // Maybe libX and CLX differ here?
                                //
-
+     
 DEF_ENUM (focus_detail,   8, (ee(`:ANCESTOR`), ee(`:VIRTUAL`), ee(`:INFERIOR`), ee(`:NONLINEAR`), ee(`:NONLINEAR-VIRTUAL`),
 			      ee(`:POINTER`), ee(`:POINTER-ROOT`), ee(`:NONE`)))
                                // This seems also to be the same as crossing_kind!
-
+     
 DEF_ENUM_MAKER (V_class,   6, (ee(`:STATIC-GRAY`),  ee(`:GRAY-SCALE`),
 		               ee(`:STATIC-COLOR`), ee(`:PSEUDO-COLOR`),
 		               ee(`:TRUE-COLOR`),   ee(`:DIRECT-COLOR`) ))
@@ -1735,7 +1717,7 @@ local int get_gc_function (object obj)
 
   pushSTACK (obj);
   pushSTACK (`XLIB::GC-FUNCTION`);
-  my_standard_type_error (TheSubr (subr_self)->name);
+  my_standard_type_error (TheSubr (subr_self)->name); 
   BLOEDER_COMPILER_VERDAMMT_NOCHMAL;
 
   // Garnet seem to run in that ...
@@ -1779,7 +1761,7 @@ local unsigned long get_gcontext_key (object obj)
 local unsigned int get_modifier_mask (object obj)
 {
   unsigned int mask = 0;
-
+  
   if (eq (obj, `:ANY`)) return AnyModifier;
   if (integerp (obj)) return get_uint16 (obj);
   if (consp (obj))
@@ -1858,7 +1840,7 @@ local unsigned long get_event_mask (object obj)
 	  }
 	if (!eq(obj, NIL))
 	  goto raise_type_error;
-
+	
 	return mask;
       }
     else
@@ -1909,7 +1891,7 @@ local sint32 get_angle (object ang)
 {
   sint16 xang;
   pushSTACK (subr_self);
-
+  
   /* calcuate (round (* (/ ang pi) (* 180 64))) */
   pushSTACK (ang);
   pushSTACK (O(FF_pi));
@@ -1926,7 +1908,7 @@ local sint32 get_angle (object ang)
 
 local object make_key_vector (char key_vector[32])
 {
-  value1= allocate_bit_vector (Atype_Bit, 256);
+  value1= allocate_bit_vector (256);
   memcpy (TheSbvector(value1)->data, key_vector, 32); // may be wrong, may be right?!
   return value1;
 }
@@ -1983,7 +1965,7 @@ local void get_color (Display *dpy, object color, XColor *result)
 {
   pushSTACK (color);
   ENSURE_TYPE (STACK_0, color_p (STACK_0), `XLIB::COLOR`);
-
+  
   result->pixel = 0;
   result->flags = -1; // Well set all flags .. just in case;
                       // in the .h files is something like do_{red,green,blue} ?!
@@ -2090,7 +2072,7 @@ local void general_lookup (object type)
   defun XLIB:##type##-P (1)								\
     { value1 = make_bool (type##_p (popSTACK ())); mv_count = 1; }			\
   defun XLIB:##type##-EQUAL (2)								\
-    { value1 = make_bool (get_##type (popSTACK ()) == get_##type (popSTACK ())); }
+    { value1 = make_bool (get_##type (popSTACK ()) == get_##type (popSTACK ())); }      
 
 
 // ----------------------------------------------------------------------------------------------------
@@ -2210,7 +2192,7 @@ defun XLIB:OPEN-DISPLAY (0, 0, rest, nokey, 0, NIL)
     {
       pushSTACK (TheSubr(subr_self)->name);
       fehler (error, ("~: Keyword arguments should occur pairwise."));
-    }
+    }  
 
   if (argcount > 0)
     {
@@ -2249,7 +2231,7 @@ defun XLIB:OPEN-DISPLAY (0, 0, rest, nokey, 0, NIL)
       display_name = getenv ("DISPLAY");
       end_call ();
     }
-
+  
   unless (display_name)
     {
       // Which display should we open?!
@@ -2268,7 +2250,7 @@ defun XLIB:OPEN-DISPLAY (0, 0, rest, nokey, 0, NIL)
       for (s = display_name; *s; s++)
 	if (*s == ':')
 	  colon_p = 1;
-
+      
       if (colon_p)
         strcpy (cname, display_name);
       else
@@ -2295,7 +2277,7 @@ defun XLIB:OPEN-DISPLAY (0, 0, rest, nokey, 0, NIL)
   XSetErrorHandler (xlib_error_handler);
   XSetIOErrorHandler (xlib_io_error_handler);
   end_call ();
-
+  
   // If X Server decides to not longer talk to us, the pipe or socket gets broken;
   // If SIGPIPE is not blocked, we receive it and do not handle it, which causes
   // the CLISP to quit. If we block it the system calls return with EPIPE instead,
@@ -2311,11 +2293,11 @@ defun XLIB:OPEN-DISPLAY (0, 0, rest, nokey, 0, NIL)
   // 'signalblock_on' and 'signalblock_off' should be used in pairs.
   // Since we do not want to unblock the SIGPIPE ever; I do this 'skip_that'
   // klugde here. [signalblock_on alone may produces a syntax error.]
-
+  
   value1 = make_display (dpy); mv_count = 1;
   skipSTACK (argcount);
 }
-
+ 
 defun XLIB:DISPLAY-AUTHORIZATION-DATA (1) // OK
 {
   skipSTACK (1);
@@ -2327,7 +2309,7 @@ defun XLIB:DISPLAY-AUTHORIZATION-NAME (1) // OK
   skipSTACK (1);
   value1 = allocate_string (0); mv_count = 1;
 }
-
+ 
 defun XLIB:DISPLAY-BITMAP-FORMAT (1) // OK
 {
   Display *dpy = pop_display ();
@@ -2339,7 +2321,7 @@ defun XLIB:DISPLAY-BITMAP-FORMAT (1) // OK
   TheStructure (STACK_0)->recdata[3] = BitmapBitOrder (dpy) == LSBFirst ? T : NIL;		// lsb-first-p slot
   value1 = popSTACK (); mv_count = 1;
 }
-
+ 
 defun XLIB:DISPLAY-BYTE-ORDER (1) // OK
 {
   skipSTACK (1);
@@ -2369,12 +2351,12 @@ defun XLIB:DISPLAY-ERROR-HANDLER-SETTER (2)	// OK
   value1 = TheStructure (STACK_1)->recdata[slot_DISPLAY_ERROR_HANDLER] = STACK_0; mv_count = 1;
   skipSTACK (2);
 }
-
+ 
 defun XLIB:DISPLAY-IMAGE-LSB-FIRST-P (1) // OK
 {
   value1 = ImageByteOrder (pop_display ()) == LSBFirst ? T : NIL;  mv_count = 1;
 }
-
+ 
 defun XLIB:DISPLAY-KEYCODE-RANGE (1) // OK
 {
   int max_kc, min_kc;
@@ -2383,18 +2365,18 @@ defun XLIB:DISPLAY-KEYCODE-RANGE (1) // OK
   begin_call ();
     XDisplayKeycodes (dpy, &min_kc, &max_kc);
   end_call ();
-
+  
   value1 = fixnum (min_kc);
   value2 = fixnum (max_kc);
   mv_count = 2;
 }
-
+ 
 defun XLIB:DISPLAY-MAX-KEYCODE (1) // OK
 {
   C_xlib_display_keycode_range ();
   value1 = value2; mv_count = 1;
 }
-
+ 
 defun XLIB:DISPLAY-MAX-REQUEST-LENGTH (1) // OK
 {
   Display *dpy = pop_display ();
@@ -2403,34 +2385,34 @@ defun XLIB:DISPLAY-MAX-REQUEST-LENGTH (1) // OK
   begin_call ();
     n = XMaxRequestSize (dpy);
   end_call ();
-
+  
   value1 = make_uint32 (n); mv_count = 1;
 }
-
+ 
 defun XLIB:DISPLAY-MIN-KEYCODE (1) // OK
 {
   C_xlib_display_keycode_range ();
   mv_count = 1;
 }
 
-defun XLIB:DISPLAY-MOTION-BUFFER-SIZE (1) // OK
+defun XLIB:DISPLAY-MOTION-BUFFER-SIZE (1) // OK 
 {
   Display *dpy = pop_display ();
   unsigned long n;
-
+  
   begin_call ();
     n = XDisplayMotionBufferSize (dpy);
   end_call ();
 
   value1 = make_uint32 (n); mv_count = 1; // remeber pop_display pops
 }
-
+ 
 defun XLIB:DISPLAY-P (1) // OK
  {
    value1 = make_bool (display_p (popSTACK ())); mv_count = 1;
  }
-
-defun XLIB:DISPLAY-PIXMAP-FORMATS (1) // OK
+ 
+defun XLIB:DISPLAY-PIXMAP-FORMATS (1) // OK 
 {
   int cnt = 0;
   int i;
@@ -2440,7 +2422,7 @@ defun XLIB:DISPLAY-PIXMAP-FORMATS (1) // OK
   begin_call ();
     formats = XListPixmapFormats (dpy, &cnt);
   end_call ();
-
+  
   for (i = 0; i < cnt; i++)
     {
       pushSTACK (allocate_structure (4));
@@ -2460,17 +2442,17 @@ defun XLIB:DISPLAY-PIXMAP-FORMATS (1) // OK
     }
   funcall (L(list), cnt);
 }
-
-defun XLIB:DISPLAY-PROTOCOL-MAJOR-VERSION (1) // OK
+ 
+defun XLIB:DISPLAY-PROTOCOL-MAJOR-VERSION (1) // OK 
 {
   value1 = fixnum (ProtocolVersion (pop_display ())); mv_count = 1;
 }
-
-defun xlib:Display-Protocol-Minor-Version (1) // OK
+ 
+defun xlib:Display-Protocol-Minor-Version (1) // OK 
 {
   value1 = fixnum (ProtocolRevision (pop_display ())); mv_count = 1;
 }
-
+ 
 defun XLIB:DISPLAY-PROTOCOL-VERSION (1) // OK
 {
   Display *dpy = pop_display ();
@@ -2478,12 +2460,12 @@ defun XLIB:DISPLAY-PROTOCOL-VERSION (1) // OK
   value2 = fixnum (ProtocolRevision (dpy));
   mv_count = 2;
  }
-
-defun XLIB:DISPLAY-RESOURCE-ID-BASE (1)
+ 
+defun XLIB:DISPLAY-RESOURCE-ID-BASE (1) 
 {UNDEFINED} /* ??? */
-defun XLIB:DISPLAY-RESOURCE-ID-MASK (1)
+defun XLIB:DISPLAY-RESOURCE-ID-MASK (1) 
 {UNDEFINED} /* ??? */
-
+ 
 defun XLIB:DISPLAY-ROOTS (1) // OK
 {
   Display *dpy;
@@ -2493,15 +2475,15 @@ defun XLIB:DISPLAY-ROOTS (1) // OK
   pushSTACK (STACK_0);
   dpy = pop_display ();				// retrieve display pointer
   cnt = ScreenCount (dpy);			// number of screens
-
+  
   for (i = 0; i < cnt; i++)
     // thru` all screens
     pushSTACK (make_screen (STACK_(i), ScreenOfDisplay (dpy, i)));
-
+  
   funcall (L(list), cnt);			// cons`em together
   skipSTACK (1);				// cleanup and all done
  }
-
+ 
 defun XLIB:DISPLAY-VENDOR (1) // OK
 {
   Display *dpy = pop_display ();
@@ -2548,7 +2530,7 @@ defun XLIB:DISPLAY-AFTER-FUNCTION-SETTER (2) // OK
   TheStructure (STACK_0)->recdata[slot_DISPLAY_AFTER_FUNCTION] = STACK_1;
   {
     Display *dpy = pop_display ();
-
+    
     if (nullp (STACK_0))
       {
 	begin_call ();
@@ -2565,7 +2547,7 @@ defun XLIB:DISPLAY-AFTER-FUNCTION-SETTER (2) // OK
   }
   value1 = popSTACK (); mv_count = 1;
 }
-
+ 
 defun XLIB:DISPLAY-FORCE-OUTPUT (1)	// OK
 {
   Display *dpy = pop_display ();
@@ -2589,7 +2571,7 @@ defun XLIB:CLOSE-DISPLAY (1, 0, norest, key, 1, (:ABORT)) // OK
   // We can do nothing meaningful with the :abort option ... or could we?
 
   // if abort is NIL sync with display and remove the display from the xlib::*displays*
-  // list. Destroy the hash table and to make sure that not one single reference to an
+  // list. Destroy the hash table and to make sure that not one single reference to an 
   // X object hinders all other from being garbage collected
   // [syncing is for fetching the errors now]
   //
@@ -2602,7 +2584,7 @@ defun XLIB:CLOSE-DISPLAY (1, 0, norest, key, 1, (:ABORT)) // OK
   begin_call ();
     XCloseDisplay (dpy);
   end_call ();
-
+  
   // Now remove the display from the XLIB:*DISPLAYS* variable
   // FIXME we should cdr-down the hash table and mark all clx object known as dead.
   pushSTACK (`XLIB::*DISPLAYS*`);
@@ -2634,7 +2616,7 @@ defun XLIB:DISPLAY-PLIST-SETTER (2)	// OK
 defun XLIB:DISPLAY-DEFAULT-SCREEN (1) // NIM // OK
 {
   Display *dpy;
-
+  
   pushSTACK (STACK_0); dpy = pop_display ();
   value1 = make_screen (STACK_0, DefaultScreenOfDisplay (dpy));
   skipSTACK (1);
@@ -2651,7 +2633,7 @@ defun XLIB:DISPLAY-INVOKE-AFTER-FUNCTION (1)
      // This one seems simply to be a a hook to call the after_function
 {
   // (funcall (display-after-function dpy) dpy)
-
+  
   pushSTACK (STACK_0);
   funcall (`XLIB::DISPLAY-AFTER-FUNCTION`, 1);
   pushSTACK (value1);
@@ -2683,7 +2665,7 @@ defun XLIB:DISPLAY-REPORT-ASYNCHRONOUS-ERRORS (1)
      // (def-clx-class (display (:include buffer) ..)
      //  :
      //    (report-asynchronous-errors		; When to report asynchronous errors
-     //       `(:immediately) :type list)	; The keywords that can be on this list
+     //       `(:immediately) :type list)	; The keywords that can be on this list 
      //	 :					; are :IMMEDIATELY, :BEFORE-EVENT-HANDLING,
      //	  )      				; and :AFTER-FINISH-OUTPUT
      //
@@ -2697,7 +2679,7 @@ defun XLIB:DISPLAY-REPORT-ASYNCHRONOUS-ERRORS-SETTER (2)
   value1 = STACK_1; mv_count = 1;
   skipSTACK (2);
 }
-
+     
 defun XLIB:DISPLAY-TRACE (0, 0, rest, nokey, 0, NIL)
      // I do not think I will support this function, since
      //   - traceing seems not to be possible using the libX11
@@ -2756,7 +2738,7 @@ defun XLIB:SCREEN-DEPTHS (1)
   int ndepths = 0;
   int i;
   int screen_number;
-
+  
   begin_call ();
   screen_number = XScreenNo (dpy, scr);
   depths = XListDepths (dpy, screen_number, &ndepths);
@@ -2772,7 +2754,7 @@ defun XLIB:SCREEN-DEPTHS (1)
       // Now enumerate the visual infos ...
       template.depth = depths[i];
       n_visual_infos = 0;
-
+      
       begin_call ();
       visual_infos = XGetVisualInfo (dpy, VisualDepthMask, &template, &n_visual_infos);
       end_call ();
@@ -2786,7 +2768,7 @@ defun XLIB:SCREEN-DEPTHS (1)
 	  XFree (visual_infos);
 	  end_call ();
 	}
-
+      
       // Cons `em up
       funcall (L(list), n_visual_infos+1);
     }
@@ -2802,7 +2784,7 @@ defun XLIB:SCREEN-DEPTHS (1)
 
   skipSTACK (1);		// all done
 }
-
+  
 defun XLIB:SCREEN-P (1)	// OK
 {
   value1 = make_bool (screen_p (popSTACK())); mv_count = 1;
@@ -2838,7 +2820,7 @@ defun XLIB:VISUAL-INFO (2) // NIM // OK
   dpy = pop_display ();
   vid = get_uint29 (STACK_0);
   visual = XVisualIDToVisual (dpy, vid);
-
+  
   if (visual)
     {
       value1 = make_visual_info (visual); mv_count = 1;
@@ -2894,10 +2876,10 @@ defun XLIB:CREATE-WINDOW (0, 0, norest, key, 23,
   SLOT ( 6, uint32,	backing_pixel,		CWBackingPixel);
   SLOT ( 7, uint32,	backing_planes,		CWBackingPlanes);
 #endif
-
+  
   if (!gunboundp (STACK_0)) { attr.cursor = get_cursor(STACK_0); valuemask |= CWCursor; }
   if (!gunboundp (STACK_1)) { attr.colormap = get_colormap (STACK_1); valuemask |= CWColormap; }
-
+  
   if (!eq(STACK_2 , unbound) && !eq(STACK_2 , NIL)) { attr.override_redirect     = get_switch (STACK_2);         valuemask |= CWOverrideRedirect; }
   if (!eq(STACK_3 , unbound) && !eq(STACK_3 , NIL)) { attr.do_not_propagate_mask = get_uint32 (STACK_3);         valuemask |= CWDontPropagate; }
   if (!eq(STACK_4 , unbound) && !eq(STACK_4 , NIL)) { attr.event_mask            = get_event_mask (STACK_4);     valuemask |= CWEventMask; }
@@ -2918,7 +2900,7 @@ defun XLIB:CREATE-WINDOW (0, 0, norest, key, 23,
       else
 	{ attr.border_pixel = get_uint32 (STACK_(11)); valuemask |= CWBorderPixel; }
     }
-
+  
   if (!eq(STACK_(12), unbound) && !eq(STACK_(12), NIL)) /* :background */
     {
       if (eq(STACK_(12), `:NONE`))
@@ -2932,31 +2914,31 @@ defun XLIB:CREATE-WINDOW (0, 0, norest, key, 23,
       else
 	{ attr.background_pixel = get_pixel (STACK_(12)); valuemask |= CWBackPixel; }
     }
-
+  
   if (!eq(STACK_(14), unbound) && !eq(STACK_(14), NIL)) /* :class */		class = get_W_class (STACK_(14));
   if (!eq(STACK_(15), unbound) && !eq(STACK_(15), NIL)) /* :border-width */	border_width = get_uint16 (STACK_(15));
   if (!eq(STACK_(16), unbound) && !eq(STACK_(16), NIL)) /* :depth */ 		depth = get_uint16 (STACK_(16));
-
+  
   if (!eq(STACK_(17), unbound) && !eq(STACK_(17), NIL)) /* :height */ //C
     height = get_uint16 (STACK_(17));
   else
     goto required;
-
+  
   if (!eq(STACK_(18), unbound) && !eq(STACK_(18), NIL)) /* :width */ //C
     width = get_uint16 (STACK_(18));
   else
     goto required;
-
+  
   if (!eq(STACK_(19), unbound) && !eq(STACK_(19), NIL)) /* :y */ //C
     y = get_sint16 (STACK_(19));
   else
     goto required;
-
+  
   if (!eq(STACK_(20), unbound) && !eq(STACK_(20), NIL)) /* :x */ //C
     x = get_sint16 (STACK_(20));
   else
     goto required;
-
+  
   if (!eq(STACK_(21), unbound) && !eq(STACK_(21), NIL)) /* :parent */ //C
     {
       parent = get_window_and_display (STACK_(21), &dpy);
@@ -2964,10 +2946,10 @@ defun XLIB:CREATE-WINDOW (0, 0, norest, key, 23,
     }
   else
     goto required;
-
+  
   if (!eq(STACK_(13+1), unbound) && !eq(STACK_(13+1), NIL)) /* :visual */
     visual = get_visual (dpy, STACK_(13+1));
-
+  
   if (!eq(STACK_(23), unbound) && !eq(STACK_(23), NIL)) /* :window */ //C
     pushSTACK (STACK_(23));
   else
@@ -2977,12 +2959,12 @@ defun XLIB:CREATE-WINDOW (0, 0, norest, key, 23,
   begin_call ();
   win = XCreateWindow (dpy, parent, x,y, width,height, border_width, depth, class, visual, valuemask, &attr);
   end_call ();
-
+  
   value1 = make_window_2 (STACK_1, win, STACK_0);
   mv_count = 1;
   skipSTACK (23 + 2);
   return;
-
+  
  required:
   pushSTACK (`XLIB::CREATE-WINDOW`);	// Funktionsname
   fehler (error, ("~: At least :X, :Y, :WIDTH, :HEIGHT and :PARENT must be specified"));
@@ -3050,7 +3032,7 @@ defun XLIB:WINDOW-BACKGROUND-SETTER (2) /*OK*/
 {
   XSetWindowAttributes attr;
   unsigned long valuemask = 0;
-
+  
   if (eq (STACK_1, `:NONE`))
     { attr.background_pixmap = None; valuemask |= CWBackPixmap; }
   else if (eq (STACK_1, `:PARENT-RELATIVE`))
@@ -3127,7 +3109,7 @@ defun XLIB:WINDOW-BACKGROUND-SETTER (2) /*OK*/
 ##define DEF_WIN_ATTR_2(lspnam, typ, slotget, slotset, msk)	\
     DEF_WIN_ATTR_READER_2(lspnam, typ, slotget)			\
     DEF_WIN_ATTR_WRITER(lspnam, typ, slotset, msk)
-
+     
 DEF_WIN_ATTR (BACKING-PIXEL,         uint32,        backing_pixel,     backing_pixel,     CWBackingPixel)
 DEF_WIN_ATTR (BACKING-PLANES,        uint32,        backing_planes,    backing_planes,    CWBackingPlanes)
 DEF_WIN_ATTR (BIT-GRAVITY,           gravity,       bit_gravity,       bit_gravity,       CWBitGravity)
@@ -3158,7 +3140,7 @@ defun XLIB:WINDOW-BORDER-SETTER (2)
   Window win   = get_window_and_display (STACK_0, &dpy);
   XSetWindowAttributes attr;
   unsigned long value_mask = 0;
-
+          
   if (eq (STACK_1, `:COPY`))
     { attr.border_pixmap = CopyFromParent; value_mask = CWBorderPixmap; }
   else
@@ -3198,7 +3180,7 @@ defun XLIB:WINDOW-PRIORITY-SETTER (2, 1)
   begin_call ();
   XConfigureWindow (dpy, win, value_mask, &changes);
   end_call ();
-
+  
   value1 = STACK_2; mv_count = 1;
   skipSTACK (3);		// all done
 }
@@ -3228,18 +3210,18 @@ defun XLIB:CIRCULATE-WINDOW-UP (1)
 
 /* 4.5  Window Hierachy */
 defun XLIB:DRAWABLE-ROOT (1)
-{
+{ 
   Window root;
   Drawable da;
   Display *dpy;
-  int x, y;
-  unsigned int width, height, border_width, depth;
+  int x, y; 
+  unsigned int width, height, border_width, depth; 
   da = get_drawable_and_display (STACK_0, &dpy);
   begin_call ();
   XGetGeometry (dpy, da, &root, &x, &y, &width, &height, &border_width, &depth);
   end_call ();
-  value1 = make_window (get_display_obj (STACK_0), root); mv_count = 1;
-  skipSTACK (1);
+  value1 = make_window (get_display_obj (STACK_0), root); mv_count = 1; 
+  skipSTACK (1); 
 }
 
 //
@@ -3263,7 +3245,7 @@ defun XLIB:QUERY-TREE (1, 0, norest, key, 1, (:RESULT-TYPE))
   if (XQueryTree (dpy, win, &root, &parent, &childs, &nchilds))
     {
       end_call ();
-
+      
       // Now push all childrens
       for (i = 0; i < nchilds; i++)
 	pushSTACK (make_window (*dpy_objf, childs[i]));
@@ -3428,7 +3410,7 @@ defun XLIB:CREATE-PIXMAP (0, 0, norest, key, 5,
   Drawable da;
   Pixmap pm;
   int width,height,depth;
-
+  
   if (eq(STACK_0, unbound) || eq(STACK_1, unbound) || eq(STACK_2, unbound) || eq(STACK_3, unbound))
     {
       NOTIMPLEMENTED;
@@ -3442,7 +3424,7 @@ defun XLIB:CREATE-PIXMAP (0, 0, norest, key, 5,
   begin_call ();
   pm = XCreatePixmap (dpy, da, width, height, depth);
   end_call ();
-
+  
   value1 = make_pixmap_2 (get_display_obj (STACK_0), pm,
 			  ( (!eq(STACK_4, unbound) && !nullp (STACK_4)) ?
 			    STACK_4 :
@@ -3513,7 +3495,7 @@ defun XLIB:CREATE-GCONTEXT (0, 0, norest, key, 26,
 
 #define SLOT(ofs, type, slot, mask)				\
   if (!eq(STACK_(ofs), unbound) && !eq(STACK_(ofs), NIL))	\
-    { values.slot = get_##type (STACK_(ofs)); valuemask |= mask; }
+    { values.slot = get_##type (STACK_(ofs)); valuemask |= mask; }	
 
   /* missing: 0=cache-p */
   SLOT (24, gc_function,     function,           GCFunction);
@@ -3560,7 +3542,7 @@ defun XLIB:CREATE-GCONTEXT (0, 0, norest, key, 26,
       else
 	non_trivial_dashes_p = 1;
     }
-
+  
   if (!eq(STACK_(25), unbound) && !eq(STACK_(25), NIL)) /* :drawable */
     {
       Display *dpy;
@@ -3679,14 +3661,14 @@ defun XLIB:CREATE-GCONTEXT (0, 0, norest, key, 26,
 	DEF_GCONTEXT_SLOT_SETTER (lspnam, type, slot, mask)
 
 /*----------------------------------------------------------------------------------------------
-                    lisp name       type            C slot              mask
+                    lisp name       type            C slot              mask 
  ----------------------------------------------------------------------------------------------*/
 DEF_GCONTEXT_SLOT  (arc-mode,       arc_mode,       arc_mode,           GCArcMode)
 DEF_GCONTEXT_SLOT  (background,     pixel,          background,         GCBackground)
 DEF_GCONTEXT_SLOT  (cap-style,      cap_style,      cap_style,          GCCapStyle)
 DEF_GCONTEXT_SLOT  (clip-x,         sint16,         clip_x_origin,      GCClipXOrigin)
 DEF_GCONTEXT_SLOT  (clip-y,         sint16,         clip_y_origin,      GCClipYOrigin)
-DEF_GCONTEXT_SLOT  (dash-offset,    uint16,         dash_offset,        GCDashOffset)
+DEF_GCONTEXT_SLOT  (dash-offset,    uint16,         dash_offset,        GCDashOffset)   
 DEF_GCONTEXT_SLOT  (exposures,      bool,           graphics_exposures, GCGraphicsExposures)
 DEF_GCONTEXT_SLOT  (fill-rule,      fill_rule,      fill_rule,          GCFillRule)
 DEF_GCONTEXT_SLOT  (fill-style,     fill_style,     fill_style,         GCFillStyle)
@@ -3712,7 +3694,7 @@ defun XLIB:GCONTEXT-CACHE-P (1)
   value1 = T; mv_count = 1;
   skipSTACK (1);
 }
-
+     
 defun XLIB:GCONTEXT-CACHE-P-SETTER (2)
 {
   Display *dpy;
@@ -3732,7 +3714,7 @@ defun XLIB:GCONTEXT-CACHE-P-SETTER (2)
 defun XLIB:GCONTEXT-DASHES (1)
 {
   unused get_gcontext_and_display (STACK_0, 0);	// only type checking here
-
+  
   // Now see if there is a %dashes slot?
   pushSTACK (STACK_0); 		// the gcontext instance
   pushSTACK (`xlib::%dashes`);	// slot
@@ -3755,12 +3737,12 @@ defun XLIB:GCONTEXT-DASHES (1)
       // Or better copy it? Well, if the luser fools around with what he has
       // found, he shoot only himself in the foot, not me. So we need no copy here.
     }
-
+  
   // all done
   skipSTACK (1);
 }
 
-//
+//     
 // (setf xlib:gcontext-dashes) dashes gcontext
 //
 defun XLIB:GCONTEXT-DASHES-SETTER (2)
@@ -3785,7 +3767,7 @@ defun XLIB:GCONTEXT-DASHES-SETTER (2)
   else
     {
       uintC n;
-
+      
       // Now STACK_1 is required to be a non-empty sequence
       pushSTACK (subr_self);
       pushSTACK (STACK_2);
@@ -3804,10 +3786,10 @@ defun XLIB:GCONTEXT-DASHES-SETTER (2)
 	//        [probably via with-gcontext].
 	//
 	uintC i;
-
-	// Allocate a simple vector of uint8's:
-	pushSTACK (allocate_bit_vector (/* elm type: */ Atype_8Bit, /* len: */ n));
-
+	
+	// Allocate a simple [nah, semi-simple] vector of uint8's:
+	pushSTACK (allocate_byte_vector (/* elm type: */ Atype_8Bit, /* len: */ n));
+	
 	// Copy the values from the dash-list argument into the newly created byte-vector representation
 	for (i = 0; i < n; i++)
 	  {
@@ -3816,13 +3798,13 @@ defun XLIB:GCONTEXT-DASHES-SETTER (2)
 	    pushSTACK (fixnum (i));	       // index
 	    funcall (L(elt), 2);	       // (elt dashes index)
 	    subr_self = popSTACK ();	       // restore
-	    ((uint8*)TheSbvector (STACK_0)->data)[i] = get_uint8 (value1);
+	    ((uint8*)TheSbvector (TheIarray (STACK_0)->data)->data)[i] = get_uint8 (value1);
 	  }
-
+	
 	// The XSetDashes routine requires also the dash_offset, so retrieve it first.
 	begin_call ();
 	  XGetGCValues (dpy, gcon, GCDashOffset, &values);
-	  XSetDashes (dpy, gcon, values.dash_offset, ((char*)(&TheSbvector (STACK_0)->data[0])), n);
+	  XSetDashes (dpy, gcon, values.dash_offset, ((char*)(&TheSbvector (TheIarray (STACK_0)->data)->data[0])), n);
 	end_call ();
 
 	// Now install the byte-vector into the %dashes slot:
@@ -3833,7 +3815,7 @@ defun XLIB:GCONTEXT-DASHES-SETTER (2)
 	skipSTACK (1);				// clean up; pop the byte-vector
       }
     }
-
+  
   value1 = STACK_1; mv_count = 1;
   skipSTACK (2);
   // all done
@@ -3845,7 +3827,7 @@ defun XLIB:GCONTEXT-DASHES-SETTER (2)
 defun XLIB:GCONTEXT-CLIP-MASK (1)
 {
   unused get_gcontext_and_display (STACK_0, 0);	// only type checking here
-
+  
   pushSTACK (STACK_0); 			// the gcontext instance
   pushSTACK (`xlib::%clip-mask`);	// slot
   funcall (L(slot_boundp), 2);		// is it bound?
@@ -3861,7 +3843,7 @@ defun XLIB:GCONTEXT-CLIP-MASK (1)
       pushSTACK (`xlib::%clip-mask`);	// slot
       funcall (L(slot_value), 2);	//
     }
-
+  
   // all done
   mv_count = 1;
 }
@@ -3896,7 +3878,7 @@ defun XLIB:GCONTEXT-CLIP-MASK-SETTER (2,1)
       // FIXME: We could use a more effient representation for the clip-mask in the gcontext.
       //        We should think about the portability of using a halfword-vector and then beam
       //        the data directly into the rectangles vector.
-
+      
       int ordering, n;
       if (eq (STACK_0, unbound) || eq (STACK_0, NIL))
 	ordering = Unsorted;
@@ -3908,7 +3890,7 @@ defun XLIB:GCONTEXT-CLIP-MASK-SETTER (2,1)
       funcall (L(length), 1);
       subr_self = popSTACK();
       n = get_sint32 (value1);
-
+      
       // See if length is a multiple of 4?
       if (n%4)
 	{
@@ -3933,13 +3915,13 @@ defun XLIB:GCONTEXT-CLIP-MASK-SETTER (2,1)
 	  {
 	    pushSTACK (STACK_2); pushSTACK (fixnum (i+0)); funcall (L(elt), 2);
 	    rectangles[i/4].x = get_sint16(value1);
-
+	    
 	    pushSTACK (STACK_2); pushSTACK (fixnum (i+1)); funcall (L(elt), 2);
 	    rectangles[i/4].y = get_sint16(value1);
-
+	    
 	    pushSTACK (STACK_2); pushSTACK (fixnum (i+2)); funcall (L(elt), 2);
 	    rectangles[i/4].width = get_sint16(value1);
-
+	    
 	    pushSTACK (STACK_2); pushSTACK (fixnum (i+3)); funcall (L(elt), 2);
 	    rectangles[i/4].height = get_sint16(value1);
 	  }
@@ -3979,23 +3961,23 @@ defun XLIB:GCONTEXT-FONT (1, 1)
   GC gc;
   int pseudo_font_p;
   XGCValues values;
-
+  
   pseudo_font_p = (!eq(STACK_0, unbound)) ? get_bool (STACK_0) : 0;
   if (pseudo_font_p) NOTIMPLEMENTED;
 
   gc = get_gcontext_and_display (STACK_1, &dpy);
-
+  
   begin_call ();
   XGetGCValues (dpy, gc, GCFont, &values);
   end_call ();
-
+  
   if (invalid_xid_p (values.font))
     value1 = NIL;
   else
     value1 = make_font (get_display_obj (STACK_1), values.font);
-
-  mv_count = 1;
-  skipSTACK (2);
+  
+  mv_count = 1; 
+  skipSTACK (2); 
 }
 
 defun XLIB:GCONTEXT-FONT-SETTER (2, 1)
@@ -4005,19 +3987,19 @@ defun XLIB:GCONTEXT-FONT-SETTER (2, 1)
   XGCValues values;
   Display *dpy;
   GC gc;
-
+  
   gc = get_gcontext_and_display (STACK_1, &dpy);
-
+  
   pseudo_font_p = (!eq(STACK_0, unbound)) ? get_bool (STACK_0) : 0;
   if (pseudo_font_p) NOTIMPLEMENTED;
-  values.font = get_font (STACK_2);
+  values.font = get_font (STACK_2); 
 
   begin_call ();
   XChangeGC (dpy, gc, GCFont, &values);
   end_call ();
 
-  value1 = STACK_2; mv_count = 1;
-  skipSTACK (3);
+  value1 = STACK_2; mv_count = 1; 
+  skipSTACK (3); 
 }
 
 // Standard clx objects look:
@@ -4040,7 +4022,7 @@ local void query_best_X (Status (*query) (Display*, Drawable,
   begin_call ();
   query (dpy, da, x, y, &width, &height);
   end_call ();
-
+  
   pushSTACK (make_uint16 (height));
   pushSTACK (make_uint16 (width));
   value1 = STACK_0;
@@ -4078,7 +4060,7 @@ defun XLIB:COPY-GCONTEXT-COMPONENTS (2, 0, rest, nokey, 0, NIL)
   unsigned long mask = 0;
   GC gcon1, gcon2;
   Display *dpy;
-
+  
   for (i = 0; i < argcount-2; i++)
     {
       mask |= get_gcontext_key (STACK_0);
@@ -4163,7 +4145,7 @@ typedef struct
 //  Returns the gcontext components selected by 'components', a mask32, and returns
 //  them in some compact object, which should be considered opaque.
 //
-defun XLIB:%SAVE-GCONTEXT-COMPONENTS (2)
+defun XLIB:%SAVE-GCONTEXT-COMPONENTS (2) 
 {
   saved_gcontext_values values;
   Display *dpy;
@@ -4183,14 +4165,14 @@ defun XLIB:%SAVE-GCONTEXT-COMPONENTS (2)
       values.mask |= GCClipXOrigin|GCClipYOrigin;
       values.mask &= ~GCClipMask;
     }
-
+  
   begin_call ();
   XGetGCValues (dpy, gcontext, values.mask, &values.values);
   //TODO: What to todo on failure of xgetgcvalues?
   end_call ();
-
+  
   // Allocate a new bit vector, which should hold the requested components
-  value1 = allocate_bit_vector (Atype_Bit, 8 * sizeof (values));
+  value1 = allocate_bit_vector (8 * sizeof (values));
   begin_call ();
   memcpy (TheSbvector (value1)->data, &values, sizeof (values)); // memcpy considered harmful
   end_call ();
@@ -4210,7 +4192,7 @@ defun XLIB:%RESTORE-GCONTEXT-COMPONENTS (2)
   saved_gcontext_values values;
   Display *dpy;
   GC gcontext = get_gcontext_and_display (STACK_1, &dpy);
-
+  
   memcpy (&values, TheSbvector (STACK_0)->data, sizeof (values));
 
   // do not attempt to restore invalid resource ids
@@ -4218,11 +4200,11 @@ defun XLIB:%RESTORE-GCONTEXT-COMPONENTS (2)
   if (invalid_xid_p (values.values.font))    values.mask&=~GCFont;
   if (invalid_xid_p (values.values.tile))    values.mask&=~GCTile;
   if (invalid_xid_p (values.values.stipple)) values.mask&=~GCStipple;
-
+  
   begin_call ();
     XChangeGC (dpy, gcontext, values.mask, &values.values);
   end_call ();
-
+  
   skipSTACK (2);
   value1 = NIL; mv_count = 1;
 }
@@ -4243,11 +4225,11 @@ defun XLIB:CLEAR-AREA (1, 0, norest, key, 5, (:X :Y :WIDTH :HEIGHT :EXPOSURES-P)
   int w           = gunboundp (STACK_1) ? 0 : get_uint16 (STACK_2);
   int h           = gunboundp (STACK_1) ? 0 : get_uint16 (STACK_1);
   int exposures_p = !gunboundp (STACK_0);
-
+  
   begin_call ();
   XClearArea (dpy, win, x,y,w,h, exposures_p);
   end_call ();
-
+  
   skipSTACK (6);
   value1 = NIL; mv_count = 0;
 }
@@ -4267,11 +4249,11 @@ defun XLIB:COPY-AREA (9)
   GC         gc = get_gcontext (popSTACK ());
   Display  *dpy;
   Drawable  src = get_drawable_and_display (popSTACK (), &dpy);
-
+      
   begin_call ();
   XCopyArea (dpy, src, dest, gc, src_x, src_y, width, height, dest_x, dest_y);
   end_call ();
-
+      
   value1 = NIL; mv_count = 1;
 }
 
@@ -4296,7 +4278,7 @@ defun XLIB:COPY-PLANE (10)
   begin_call ();
   XCopyPlane (dpy, src, dest, gc, src_x, src_y, width, height, dest_x, dest_y, plane);
   end_call ();
-
+      
   skipSTACK (10);
   value1 = NIL; mv_count = 1;
 }
@@ -4317,7 +4299,7 @@ defun XLIB:DRAW-POINT (4)
   begin_call ();
   XDrawPoint (dpy, da, gc, x, y);
   end_call ();
-
+  
   value1 = NIL; mv_count = 1;
 }
 
@@ -4331,10 +4313,10 @@ defun XLIB:DRAW-POINTS (3, 1)
   GC          gc = get_gcontext (STACK_2);
   int relative_p = (eq (STACK_0, unbound) ? 0 : !nullp (STACK_0));
   int npts, i;
-
+  
   // Find number of points
   pushSTACK (STACK_1); funcall (L(length), 1); npts = get_uint32 (value1);
-
+  
   {
     DYNAMIC_ARRAY (pts, XPoint, npts);
 
@@ -4344,10 +4326,10 @@ defun XLIB:DRAW-POINTS (3, 1)
 	pushSTACK (fixnum (i));	// index
 	funcall (L(elt), 2);
 	pushSTACK (value1);	// save element
-
+	
 	pushSTACK (STACK_0); pushSTACK (fixnum (0)); funcall (L(elt), 2);
 	pts[i].x = get_sint16(value1);
-
+	
 	pushSTACK (fixnum (1)); funcall (L(elt), 2);
 	pts[i].y = get_sint16(value1);
       }
@@ -4358,7 +4340,7 @@ defun XLIB:DRAW-POINTS (3, 1)
 
     FREE_DYNAMIC_ARRAY (pts);
   }
-
+  
   value1 = NIL; mv_count = 1;
   skipSTACK (4);
 }
@@ -4373,7 +4355,7 @@ defun XLIB:DRAW-LINE (6, 1)
   GC gc;
   Drawable da;
   Display *dpy;
-
+  
   relative_p = (eq (STACK_0, unbound) || eq (STACK_0,NIL)) ? 0 : 1;
   x1 = get_sint16 (STACK_4); y1 = get_sint16 (STACK_3);
   x2 = get_sint16 (STACK_2); y2 = get_sint16 (STACK_1);
@@ -4385,7 +4367,7 @@ defun XLIB:DRAW-LINE (6, 1)
   begin_call ();
   XDrawLine (dpy, da, gc, x1, y1, x2, y2);
   end_call ();
-
+  
   skipSTACK (7);
   value1 = NIL; mv_count = 1;
 }
@@ -4405,18 +4387,18 @@ defun XLIB:DRAW-LINES (3, 0, norest, key, 3, (:RELATIVE-P :FILL-P :SHAPE))
   int     fill_p = (eq (STACK_1, unbound) ? 0 : !nullp (STACK_1));
   int      shape = (eq (STACK_0, unbound) ? Complex : get_shape (STACK_0));
   int npoints,i;
-
+  
   // Find number of points
   pushSTACK (STACK_3); funcall (L(length), 1); npoints = get_uint32 (value1) /2;
-
+  
   {
     DYNAMIC_ARRAY (points, XPoint, npoints);
-
+    
     for (i = 0; i < npoints; i++)
       {
 	pushSTACK (STACK_3); pushSTACK (fixnum (2*i + 0)); funcall (L(elt), 2);
 	points[i].x = get_sint16(value1);
-
+	
 	pushSTACK (STACK_3); pushSTACK (fixnum (2*i + 1)); funcall (L(elt), 2);
 	points[i].y = get_sint16(value1);
       }
@@ -4430,7 +4412,7 @@ defun XLIB:DRAW-LINES (3, 0, norest, key, 3, (:RELATIVE-P :FILL-P :SHAPE))
 
     FREE_DYNAMIC_ARRAY (points);
   }
-
+  
   value1 = NIL; mv_count = 1;
   skipSTACK (6);
 }
@@ -4438,30 +4420,30 @@ defun XLIB:DRAW-LINES (3, 0, norest, key, 3, (:RELATIVE-P :FILL-P :SHAPE))
 //
 // XLIB:DRAW-SEGMENTS drawable gcontext segments
 //
-defun XLIB:DRAW-SEGMENTS (3)
+defun XLIB:DRAW-SEGMENTS (3) 
 {
   Display *dpy;
   Drawable da  = get_drawable_and_display (STACK_2, &dpy);
   GC gc        = get_gcontext (STACK_1);
   int nsegments,i;
-
+  
   // Find number of segments
   pushSTACK (STACK_0); funcall (L(length), 1); nsegments = get_uint32 (value1)/4;
-
+  
   {
     DYNAMIC_ARRAY (segments, XSegment, nsegments);
-
+    
     for (i = 0; i < nsegments; i++)
       {
 	pushSTACK (STACK_0); pushSTACK (fixnum (4*i + 0)); funcall (L(elt), 2);
 	segments[i].x1 = get_sint16(value1);
-
+	
 	pushSTACK (STACK_0); pushSTACK (fixnum (4*i + 1)); funcall (L(elt), 2);
 	segments[i].y1 = get_sint16(value1);
-
+	
 	pushSTACK (STACK_0); pushSTACK (fixnum (4*i + 2)); funcall (L(elt), 2);
 	segments[i].x2 = get_sint16(value1);
-
+	
 	pushSTACK (STACK_0); pushSTACK (fixnum (4*i + 3)); funcall (L(elt), 2);
 	segments[i].y2 = get_sint16(value1);
       }
@@ -4472,7 +4454,7 @@ defun XLIB:DRAW-SEGMENTS (3)
 
     FREE_DYNAMIC_ARRAY (segments);
   }
-
+  
   value1 = NIL; mv_count = 1;
   skipSTACK (3);
 }
@@ -4495,7 +4477,7 @@ defun XLIB:DRAW-RECTANGLE (6, 1)
   begin_call ();
   (fill_p ? XFillRectangle : XDrawRectangle) (dpy, da, gcon, x, y, w, h);
   end_call ();
-
+  
   skipSTACK (7);
   value1 = NIL; mv_count = 1;
 }
@@ -4510,24 +4492,24 @@ defun XLIB:DRAW-RECTANGLES (3, 1)
   GC gc        = get_gcontext (STACK_2);
   int fill_p   = (eq (STACK_0, unbound) ? 0 : !nullp (STACK_0));
   int nrectangles,i;
-
+  
   // Find number of rectangles
   pushSTACK (STACK_1); funcall (L(length), 1); nrectangles = get_uint32 (value1) /4;
-
+  
   {
     DYNAMIC_ARRAY (rectangles, XRectangle, nrectangles);
-
+    
     for (i = 0; i < nrectangles; i++)
       {
 	pushSTACK (STACK_1); pushSTACK (fixnum (i*4 + 0)); funcall (L(elt), 2);
 	rectangles[i].x = get_sint16(value1);
-
+	
 	pushSTACK (STACK_1); pushSTACK (fixnum (i*4 + 1)); funcall (L(elt), 2);
 	rectangles[i].y = get_sint16(value1);
-
+	
 	pushSTACK (STACK_1); pushSTACK (fixnum (i*4 + 2)); funcall (L(elt), 2);
 	rectangles[i].width = get_sint16(value1);
-
+	
 	pushSTACK (STACK_1); pushSTACK (fixnum (i*4 + 3)); funcall (L(elt), 2);
 	rectangles[i].height = get_sint16(value1);
       }
@@ -4538,7 +4520,7 @@ defun XLIB:DRAW-RECTANGLES (3, 1)
 
     FREE_DYNAMIC_ARRAY (rectangles);
   }
-
+  
   value1 = NIL; mv_count = 1;
   skipSTACK (4);
 }
@@ -4553,7 +4535,7 @@ defun XLIB:DRAW-ARC (0, 0, rest, nokey, 0, NIL)
   GC gcon;
   Display *dpy;
   Drawable da;
-
+  
   ASSERT ((argcount >= 8) && (argcount <= 9));
   fill_p = (argcount == 9) ? (!nullp (popSTACK ())) : 0;
   x = get_sint16 (STACK_5); y = get_sint16 (STACK_4);
@@ -4566,7 +4548,7 @@ defun XLIB:DRAW-ARC (0, 0, rest, nokey, 0, NIL)
   begin_call ();
   (fill_p ? XFillArc : XDrawArc) (dpy, da, gcon, x, y, w, h, ang1, ang2);
   end_call ();
-
+  
   skipSTACK (8);
   value1 = NIL; mv_count = 0;
 }
@@ -4582,30 +4564,30 @@ defun XLIB:DRAW-ARCS (3, 1)
   GC gc        = get_gcontext (STACK_2);
   int fill_p   = (eq (STACK_0, unbound) ? 0 : !nullp (STACK_0));
   int narcs,i;
-
+  
   // Find number of arcs
   pushSTACK (STACK_1); funcall (L(length), 1); narcs = get_uint32 (value1) /6;
-
+  
   {
     DYNAMIC_ARRAY (arcs, XArc, narcs);
-
+    
     for (i = 0; i < narcs; i++)
       {
 	pushSTACK (STACK_1); pushSTACK (fixnum (i*6 + 0)); funcall (L(elt), 2);
 	arcs[i].x = get_sint16(value1);
-
+	
 	pushSTACK (STACK_1); pushSTACK (fixnum (i*6 + 1)); funcall (L(elt), 2);
 	arcs[i].y = get_sint16(value1);
-
+	
 	pushSTACK (STACK_1); pushSTACK (fixnum (i*6 + 2)); funcall (L(elt), 2);
 	arcs[i].width = get_sint16(value1);
-
+	
 	pushSTACK (STACK_1); pushSTACK (fixnum (i*6 + 3)); funcall (L(elt), 2);
 	arcs[i].height = get_sint16(value1);
-
+	
 	pushSTACK (STACK_1); pushSTACK (fixnum (i*6 + 4)); funcall (L(elt), 2);
 	arcs[i].angle1 = get_angle(value1);
-
+	
 	pushSTACK (STACK_1); pushSTACK (fixnum (i*6 + 5)); funcall (L(elt), 2);
 	arcs[i].angle2 = get_angle(value1);
       }
@@ -4616,7 +4598,7 @@ defun XLIB:DRAW-ARCS (3, 1)
 
     FREE_DYNAMIC_ARRAY (arcs);
   }
-
+  
   value1 = NIL; mv_count = 1;
   skipSTACK (4);
 }
@@ -4682,10 +4664,10 @@ void general_draw_text (int image_p)
      // General text drawing routine to not to have to duplicate code for DRAW-GLYPHS and DRAW-IMAGE-GLYPHS.
 {
   int size = 0;		// 8 or 16, 0="have to look into the font"
-
+  
   // First of all fetch the arguments
 #if 0
-
+  
   STACK_9= drawable;
   STACK_8= gcontext;
   STACK_7= x;
@@ -4694,12 +4676,12 @@ void general_draw_text (int image_p)
   STACK_4= start;
   STACK_3= end;
   STACK_2= translate;
-
+  
   if (!eq (STACK_1, unbound))
     width = get_sint16 (STACK_1);
   else
     width = 17;			// Does not mater we ignore this value either way round.
-
+  
   if (!eq (STACK_0, unbound) && !eq (STACK_0, `:DEFAULT`))
     {
       if (eq (STACK_0, fixnum (8)))  size = 8;
@@ -4717,7 +4699,7 @@ void general_draw_text (int image_p)
 	  my_standard_type_error (TheSubr(subr_self)->name); // XXX
 	}
     }
-
+  
   // invoke the translation function:
   //  XLIB:TRANSLATE-DEFAULT src src-start src-end font dst dst-start
   pushSTACK (source);
@@ -4740,7 +4722,7 @@ void general_draw_text (int image_p)
     {
       // This should be an error
     }
-
+  
   if (size == 8)
     {
       textitem.chars = (ptr into destination);
@@ -4750,11 +4732,11 @@ void general_draw_text (int image_p)
       // If we are on a litte-endian machine, we have to convert it ...
       textitem.chars = (copy the appropriate portion);
       // Or we do it at the end of the journey...
-
+      
       // .. otherwise just drop the pointer in:
       textitem.chars = (ptr into destination);
     }
-
+  
   textitem.delta = 0;	// default value for delta
   textitem.font = None; // default value for font
   if (mv_count >= 2 && !nullp (value2))
@@ -4763,13 +4745,13 @@ void general_draw_text (int image_p)
       if (sint16_p (value2)) textitem.delta = get_fixnum (value2);
       // type-error-p?
     }
-
+  
   if (mv_count >= 3 && !nullp (value3))
     {
       // Currently ignored ...
     }
 #else
-
+  
   Display *dpy;
   Drawable da = get_drawable_and_display (STACK_9, &dpy);
   GC gcon = get_gcontext (STACK_8);
@@ -4825,13 +4807,13 @@ defun XLIB:DRAW-GLYPH (5, 0, norest, key, 3, (:TRANSLATE :WIDTH :SIZE))
 //  XLIB:DRAW-GLPYHS drawable[9] gcontext[8] x[7] y[6] sequence[5] &key (:start 0)[4] :end[3]
 //                   (:translate #'translate-default)[2] :width[1] (:size :default)[0]
 //
-defun XLIB:DRAW-GLYPHS (5, 0, norest, key, 5,
+defun XLIB:DRAW-GLYPHS (5, 0, norest, key, 5, 
 			(:START :END :TRANSLATE :WIDTH :SIZE))
 {
   general_draw_text (0);
 }
 
-defun XLIB:DRAW-IMAGE-GLYPH (5, 0, norest, key, 3, (:TRANSLATE :WIDTH :SIZE))
+defun XLIB:DRAW-IMAGE-GLYPH (5, 0, norest, key, 3, (:TRANSLATE :WIDTH :SIZE)) 
 {UNDEFINED}
 //
 //  XLIB:DRAW-IMAGE-GLPYHS drawable gcontext x y sequence &key (:start 0) :end
@@ -4947,7 +4929,7 @@ local uint16 get_image_height (void)
   subr_self = popSTACK ();
   return get_uint16 (value1);
 }
-
+     
 local uint16 get_image_depth (void)
 {
   pushSTACK (subr_self);
@@ -4955,7 +4937,7 @@ local uint16 get_image_depth (void)
   subr_self = popSTACK ();
   return get_uint16 (value1);
 }
-
+     
 local void ensure_valid_put_image_args (int src_x, int src_y, int w, int h,
 					int width, int height)
   // ensure that the src_{x,y} and w, h arguments are valid,
@@ -5000,7 +4982,7 @@ local void handle_image_z (int src_x, int src_y, int x, int y, int w, int h, GC 
 
   // Now ensure that src_x ... h are valid
   ensure_valid_put_image_args (src_x, src_y, w, h, width, height);
-
+  
   // Calculate the bytes_per_line field
   switch (depth)
     {
@@ -5035,12 +5017,12 @@ local void handle_image_z (int src_x, int src_y, int x, int y, int w, int h, GC 
       pushSTACK (TheSubr(subr_self)->name); // probably wrong subr_self here
       fehler (error, "~: XCreateImage call failed.");
     }
-
+  
   // fetch the pixarray
   pushSTACK (STACK_0);
   funcall (`XLIB::IMAGE-Z-PIXARRAY`, 1);
   pushSTACK (value1);
-
+  
   // Now the silly loop
   // This loop is anything but efficient.
   // On the other hand it works reliabable. -- That is more important to me than speed.
@@ -5077,10 +5059,10 @@ sorry:
 defun xlib:put-image (3, 0, norest, key, 7, (:SRC-X :SRC-Y :X :Y :WIDTH :HEIGHT :BITMAP-P))
 {
   // This is a *VERY* silly implementation.
-  // XXX see that the keyword arguments are actually given
+  // XXX see that the keyword arguments are actually given 
   Display *dpy;
   int src_x   	    = eq(STACK_6,unbound) ? 0 : get_sint32 (STACK_6);
-  int src_y   	    = eq(STACK_5,unbound) ? 0 : get_sint32 (STACK_5);
+  int src_y   	    = eq(STACK_5,unbound) ? 0 : get_sint32 (STACK_5); 
   int x       	    = get_sint32 (STACK_4);
   int y       	    = get_sint32 (STACK_3);
   int w       	    = get_sint32 (STACK_2);
@@ -5092,7 +5074,7 @@ defun xlib:put-image (3, 0, norest, key, 7, (:SRC-X :SRC-Y :X :Y :WIDTH :HEIGHT 
   // There seem to be three kinds of images passed in:
   // IMAGE-X, IMAGE-XY, IMAGE-Z
   //
-
+  
   // First see if it is an IMAGE-X?
   pushSTACK (STACK_7); funcall (`XLIB::IMAGE-X-P`, 1);
   if (!nullp (value1))
@@ -5108,7 +5090,7 @@ defun xlib:put-image (3, 0, norest, key, 7, (:SRC-X :SRC-Y :X :Y :WIDTH :HEIGHT 
       char *data;
       XImage im;
 
-      // Now fill in the XImage structure from the slots
+      // Now fill in the XImage structure from the slots 
       pushSTACK (STACK_7); funcall (`XLIB::IMAGE-DEPTH`, 1);    	  im.depth            = get_uint8 (value1);
       pushSTACK (STACK_7); funcall (`XLIB::IMAGE-WIDTH`, 1);    	  im.width            = get_uint16 (value1);
       pushSTACK (STACK_7); funcall (`XLIB::IMAGE-HEIGHT`, 1);   	  im.height           = get_uint16 (value1);
@@ -5123,12 +5105,12 @@ defun xlib:put-image (3, 0, norest, key, 7, (:SRC-X :SRC-Y :X :Y :WIDTH :HEIGHT 
 
       if (bitmap_p && im.depth == 1)
 	im.format = XYBitmap;
-
+      
       // Now fetch data it *must* be a vector of card8
       pushSTACK (subr_self); pushSTACK (STACK_8); funcall (`XLIB::IMAGE-X-DATA`, 1); subr_self = popSTACK ();
-      if (simple_bit_vector_p (Atype_8Bit, value1))
+      if (vectorp (value1) && (Iarray_flags(value1) & arrayflags_atype_mask) == Atype_8Bit)
 	{
-	  im.data = (char*) &TheSbvector (value1)->data[0];
+	  im.data = (char*) &TheSbvector (TheIarray (value1)->data)->data[0];
 	}
       else
 	{
@@ -5158,24 +5140,24 @@ defun xlib:put-image (3, 0, norest, key, 7, (:SRC-X :SRC-Y :X :Y :WIDTH :HEIGHT 
       XImage *im;
       int width, height, depth, format;
       unsigned long fg,bg;
-
+      
       pushSTACK (`XLIB::IMAGE-WIDTH`); pushSTACK (STACK_8); funcall (L(funcall), 2);
       width = get_sint32 (value1);
       pushSTACK (`XLIB::IMAGE-HEIGHT`); pushSTACK (STACK_8); funcall (L(funcall), 2);
       height = get_sint32 (value1);
       pushSTACK (`XLIB::IMAGE-DEPTH`); pushSTACK (STACK_8); funcall (L(funcall), 2);
       depth = get_sint32 (value1);
-
+      
       {
 	XGCValues vals;
 	XGetGCValues (dpy, gcontext, GCForeground|GCBackground, &vals);
 	fg = vals.foreground;
 	bg = vals.background;
-
+	
 	dprintf (("\n;; put-image: IMAGE-XY %dx%dx%d", width,height,depth));
 	dprintf ((", fg=%.8x, bg=%.8x", fg,bg));
       }
-
+      
       {
 	char *data;
 	int bytes_per_line;
@@ -5199,7 +5181,7 @@ defun xlib:put-image (3, 0, norest, key, 7, (:SRC-X :SRC-Y :X :Y :WIDTH :HEIGHT 
 	    pushSTACK (TheSubr(subr_self)->name); // probably wrong subr_self here
 	    fehler (error, "~: Could not malloc.");
 	  }
-
+	
 	begin_call ();
 	im = XCreateImage (dpy, 0, depth, (bitmap_p && (depth == 1)) ? XYBitmap : ZPixmap, 0,
 			   data,
@@ -5214,9 +5196,9 @@ defun xlib:put-image (3, 0, norest, key, 7, (:SRC-X :SRC-Y :X :Y :WIDTH :HEIGHT 
 	    pushSTACK (TheSubr(subr_self)->name); // probably wrong subr_self here
 	    fehler (error, "~: XCreateImage call failed.");
 	  }
-
+	
 	dprintf (("\nstill here"));
-
+	
 	pushSTACK (`XLIB::IMAGE-XY-P`); pushSTACK (STACK_8); funcall (L(funcall), 2);
 	if (!nullp (value1))
 	  {
@@ -5235,7 +5217,7 @@ defun xlib:put-image (3, 0, norest, key, 7, (:SRC-X :SRC-Y :X :Y :WIDTH :HEIGHT 
 	    pushSTACK (value1);
 	  }
 	dprintf (("\n;im = %.8x",im));
-
+	
 	for (ix = 0; ix < width; ix++)
 	  for (iy = 0; iy < height; iy++)
 	    {
@@ -5254,16 +5236,16 @@ defun xlib:put-image (3, 0, norest, key, 7, (:SRC-X :SRC-Y :X :Y :WIDTH :HEIGHT 
 
 	dprintf (("\nXPutImage (.., src_x=%d, src_y=%d, x=%d,y=%d,w=%d,h=%d);",
 		  src_x, src_y, x,y,w,h));
-
+	
 	begin_call ();
 	XPutImage (dpy, drawable, gcontext, im, src_x, src_y, x,y,w,h);
 	XDestroyImage (im);
 	end_call ();
       }
-
+    
     goto raus;
   }
-
+  
 
  fake:
   dprintf ((" --- FAKED"));
@@ -5288,12 +5270,12 @@ defun XLIB:OPEN-FONT (2)
   dpy = pop_display ();			//
 
   // XXX Maybe a symbol should be o.k. here too?
-
+  
   if (stringp (STACK_0))
     {
       with_string_0 (STACK_0, misc_encoding (), font_name,
 		     {
-		       begin_call ();				//
+		       begin_call ();				// 
 		       font = XLoadFont (dpy, font_name); 	// Load the font
 		       end_call ();				//
 		     });
@@ -5316,14 +5298,14 @@ defun XLIB:OPEN-FONT (2)
 defun XLIB:CLOSE-FONT (1)
 {
   // FIXME: The manual says something about that fonts are reference counted..?
-
+  
   Display *dpy;
   Font    font = get_font_and_display (STACK_0, &dpy);
 
   begin_call ();
   XUnloadFont (dpy, font);
   end_call ();
-
+  
   value1 = NIL; mv_count = 1;
   skipSTACK (1);
 }
@@ -5340,8 +5322,8 @@ defun XLIB:DISCARD-FONT-INFO (1)
   pushSTACK (`XLIB::FONT-INFO`);
   funcall (L(slot_value), 2);	// (slot-value obj `font-info)
   subr_self = popSTACK ();
-
-  ASSERT (fpointerp (value1));
+  
+  ASSERT (fpointerp (value1)); 
   if (!fp_validp (TheFpointer(value1)))
     {
       // Raise an error message.
@@ -5367,13 +5349,13 @@ defun XLIB:FONT-PATH (1, 0, norest, key, 1, (:RESULT-TYPE)) // [OK]
   Display *dpy;
   int npathen, i;
   char **pathen;
-
+  
   pushSTACK (STACK_1); dpy = pop_display ();
 
   begin_call ();
   pathen = XGetFontPath (dpy, &npathen);
   end_call ();
-
+  
   for (i = 0; i < npathen; i++)
     pushSTACK (asciz_to_string (pathen[i], misc_encoding ()));
   funcall (L(list), npathen);
@@ -5381,7 +5363,7 @@ defun XLIB:FONT-PATH (1, 0, norest, key, 1, (:RESULT-TYPE)) // [OK]
   begin_call ();
   if (pathen) XFreeFontPath (pathen);
   end_call ();
-
+  
   // coerce it to the right type if necessary
   if (!eq (STACK_0, unbound))
     {
@@ -5389,7 +5371,7 @@ defun XLIB:FONT-PATH (1, 0, norest, key, 1, (:RESULT-TYPE)) // [OK]
       pushSTACK (STACK_1);
       funcall (L(coerce), 2);
     }
-
+  
   skipSTACK (2);		// all done
 }
 
@@ -5406,17 +5388,17 @@ defun XLIB:FONT-PATH-SETTER (2)
   int npathen,i;
 
   pushSTACK (subr_self);	// save subr_self, since we are doing funcalls here
-
+  
   pushSTACK (STACK_1); dpy = pop_display ();
-
+  
   // Find number of pathen
   pushSTACK (STACK_2);
   funcall (L(length), 1);
   npathen = get_uint32 (value1);
-
+  
   {
     DYNAMIC_ARRAY (pathen, char*, npathen);
-
+    
     for (i = 0; i < npathen; i++)
       {
 	pushSTACK (STACK_2);	// pathen
@@ -5450,7 +5432,7 @@ defun XLIB:FONT-PATH-SETTER (2)
 
     FREE_DYNAMIC_ARRAY (pathen);
   }
-
+  
   value1 = STACK_2; mv_count = 1;
   skipSTACK (3);
 }
@@ -5477,10 +5459,10 @@ defun XLIB:LIST-FONT-NAMES (2, 0, norest, key, 2, (:MAX-FONTS :RESULT-TYPE)) // 
 	  if (names = XListFonts (dpy, pattern, max_fonts, &count))
 	    {
 	      end_call ();
-
+	      
 	      for (i = 0; i < count; i++)
 		pushSTACK (asciz_to_string (names[i], misc_encoding ()));
-
+	      
 	      begin_call ();
 	      XFreeFontNames (names);
 	      end_call ();
@@ -5491,7 +5473,7 @@ defun XLIB:LIST-FONT-NAMES (2, 0, norest, key, 2, (:MAX-FONTS :RESULT-TYPE)) // 
 	      end_call ();
 	      value1 = NIL;
 	    }
-
+	  
 	  coerce_it (STACK_0);
 	  skipSTACK (4);
 	});
@@ -5525,14 +5507,14 @@ defun XLIB:LIST-FONTS (2, 0, norest, key, 2, (:MAX-FONTS :RESULT-TYPE))
 	  if (names = XListFontsWithInfo (dpy, pattern, max_fonts, &count, &infos))
 	    {
 	      end_call ();
-
+      
 	      for (i = 0; i < count; i++)
 		pushSTACK (make_font_with_info (*dpyf, 0, asciz_to_string (names[i], misc_encoding ()), infos+i));
 
 	      begin_call ();
 	      XFreeFontNames (names);
 	      end_call ();
-
+      
 	      funcall (L(list), count);
 	    }
 	  else
@@ -5540,10 +5522,10 @@ defun XLIB:LIST-FONTS (2, 0, norest, key, 2, (:MAX-FONTS :RESULT-TYPE))
 	      end_call ();
 	      value1 = NIL;
 	    }
-	});
+	});  
       coerce_it (STACK_0);
       skipSTACK (4);
-    }
+    }  
   else
     {
       pushSTACK (STACK_2);
@@ -5566,7 +5548,7 @@ defun xlib:##lspnam (1)							\
   XFontStruct *info = get_font_info_and_display (STACK_0, 0, 0);	\
   value1 = make_##type (info->cnam); mv_count = 1;			\
   skipSTACK (1);							\
-}
+}  
 
 //----------------------------------------------------------------------------------------------
 //             lisp name                type            C slot
@@ -5616,7 +5598,7 @@ defun XLIB:FONT-PROPERTIES (1)
       begin_call ();
       atom_name = XGetAtomName (dpy, font_struct->properties[i].name);
       end_call ();
-
+      
       pushSTACK (asciz_to_string (atom_name, misc_encoding ()));
       pushSTACK (`KEYWORD`);
       funcall (L(intern), 2);
@@ -5664,7 +5646,7 @@ defun XLIB:FONT-PROPERTY (2)
 XCharStruct *font_char_info (XFontStruct *fs, unsigned int index)
 {
   /* from XLoadFont(3X11):
-   *
+   *     
    *   If the min_byte1 and max_byte1 members are both zero,
    *   min_char_or_byte2 specifies the linear character index corresponding
    *   to the first element of the per_char array, and max_char_or_byte2
@@ -5673,12 +5655,12 @@ XCharStruct *font_char_info (XFontStruct *fs, unsigned int index)
    *   and max_char_or_byte2 are less than 256, and the 2-byte character
    *   index values corresponding to the per_char array element N (counting
    *   from 0) are:
-   *
+   *   
    *         byte1 = N/D + min_byte1
    *         byte2 = N\D + min_char_or_byte2
-   *
+   *   
    *   where:
-   *
+   *   
    *           D = max_char_or_byte2 - min_char_or_byte2 + 1
    *           / = integer division
    *           \ = integer modulus
@@ -5795,7 +5777,7 @@ defun XLIB:TEXT-EXTENTS (2, 0, norest, key, 3, (:START :END :TRANSLATE))
       pushSTACK (make_sint16 (font_descent));	  // font-descent
       pushSTACK (make_draw_direction (dir));	  // direction
       pushSTACK (NIL);				  // first-not-done
-
+      
       value9 = popSTACK ();
       value8 = popSTACK ();
       value7 = popSTACK ();
@@ -5823,7 +5805,7 @@ defun XLIB:TEXT-WIDTH (2, 0, norest, key, 3, (:START :END :TRANSLATE))
 {
   object font;
   XFontStruct *font_info = get_font_info_and_display (STACK_4, &font, 0);
-
+  
   // First fetch the quite common special case where sequence is a simple string:
   if (simple_string_p (STACK_3))
     {
@@ -5884,7 +5866,7 @@ defun XLIB:TEXT-WIDTH (2, 0, norest, key, 3, (:START :END :TRANSLATE))
     {
       NOTIMPLEMENTED;
     }
-
+   
   skipSTACK (5);
 }
 
@@ -5923,7 +5905,7 @@ defun XLIB:CREATE-COLORMAP (2, 1)
   begin_call ();
   map = XCreateColormap (dpy, win, vis, alloc_p);
   end_call ();
-
+      
   value1 = make_colormap (get_display_obj (STACK_1), map);
   mv_count = 1;
   skipSTACK (3);
@@ -5952,7 +5934,7 @@ defun XLIB:FREE-COLORMAP (1)
   begin_call ();
   XFreeColormap (dpy, cm);
   end_call ();
-
+  
   value1 = NIL; mv_count = 1;
 }
 
@@ -5964,7 +5946,7 @@ defun XLIB:INSTALL-COLORMAP (1)
   begin_call ();
   XInstallColormap (dpy, cm);
   end_call ();
-
+  
   value1 = NIL; mv_count = 1;
 }
 
@@ -6031,7 +6013,7 @@ defun XLIB:COLORMAP-VISUAL-INFO (1)
     // FIXME: Should we free the XcmsCCC? are they hashed or what?
   }
   end_call ();
-
+  
   value1 = vis ? make_visual_info (vis) : NIL; mv_count = 1;
   skipSTACK (1);
 }
@@ -6074,7 +6056,7 @@ defun XLIB:ALLOC-COLOR (2)
 	if (XAllocColor (dpy, cm, &color))
 	  {
 	    end_call ();
-
+	    
 	    pushSTACK (make_pixel (color.pixel));		// pixel
 	    value2 = make_color (&color);			// screen color
 	    value3 = STACK_1;					// exact color (what the luser gave)
@@ -6132,7 +6114,7 @@ defun XLIB:ALLOC-COLOR-CELLS (2, 0, norest, key, 3, (:PLANES :CONTIGUOUS-P :RESU
 	  {
 	    unsigned i;
 	    end_call ();
-
+	    
 	    for (i = 0; i < nplanes; i++)
 	      pushSTACK (make_uint32 (plane_masks [i]));
 	    funcall (L(list), nplanes);
@@ -6151,11 +6133,11 @@ defun XLIB:ALLOC-COLOR-CELLS (2, 0, norest, key, 3, (:PLANES :CONTIGUOUS-P :RESU
 	else
 	  {
 	    end_call ();
-
+	    
 	    value1 = NIL; mv_count = 1;
 	    // Q: Should we raise a x-error-sonstwas condition here?
 	  }
-
+	
 	FREE_DYNAMIC_ARRAY (pixels);
       }
     FREE_DYNAMIC_ARRAY (plane_masks);
@@ -6185,13 +6167,13 @@ defun XLIB:ALLOC-COLOR-PLANES (2, 0, norest, key, 5, (:REDS :GREENS :BLUES :CONT
     DYNAMIC_ARRAY (pixels, unsigned long, ncolors);
 
     begin_call ();
-
+    
     if (XAllocColorPlanes (dpy, cm, contiguous_p, pixels, ncolors, nreds, ngreens, nblues,
 			   &red_mask, &green_mask, &blue_mask))
       {
 	uintC i;
 	end_call ();
-
+	
 	for (i = 0; i < ncolors; i++)
 	  pushSTACK (make_uint32 (pixels [i]));
 	funcall (L(list), ncolors);
@@ -6212,7 +6194,7 @@ defun XLIB:ALLOC-COLOR-PLANES (2, 0, norest, key, 5, (:REDS :GREENS :BLUES :CONT
       {
 	value1 = NIL; mv_count = 1;
       }
-
+    
     FREE_DYNAMIC_ARRAY (pixels);
   }
   skipSTACK (7);
@@ -6269,7 +6251,7 @@ defun XLIB:LOOKUP-COLOR (2)	// [OK]
       if (XLookupColor (dpy, cm, name, &exact_color, &screen_color))
 	{
 	  end_call ();
-
+      
 	  pushSTACK (make_color (&screen_color));
 	  value2 = make_color (&exact_color);
 	  value1 = popSTACK ();
@@ -6316,7 +6298,7 @@ defun XLIB:QUERY-COLORS (2, 0, norest, key, 1, (:RESULT-TYPE))
 
     for (i = 0; i < ncolors; i++)
       pushSTACK (make_color (&(colors[i])));
-
+  
     funcall (L(list), i);
     coerce_it (STACK_0);
 
@@ -6357,7 +6339,7 @@ defun XLIB:STORE-COLORS (2, 0, norest, key, 3, (:RED-P :GREEN-P :BLUE-P))
   Display *dpy;
   Colormap cm = get_colormap_and_display (STACK_4, &dpy);
   int ncolors;
-  char flags =
+  char flags = 
     (!nullp (STACK_2) ? DoRed : 0)   |
     (!nullp (STACK_1) ? DoGreen : 0) |
     (!nullp (STACK_0) ? DoBlue : 0);
@@ -6385,14 +6367,14 @@ defun XLIB:STORE-COLORS (2, 0, norest, key, 3, (:RED-P :GREEN-P :BLUE-P))
 	pushSTACK (fixnum (i*2+1));		// the index
 	funcall (L(elt), 2);			// fetch it
 	get_color (dpy, value1, &(colors[i]));
-
+	
 	pushSTACK (STACK_3);			// the pixel-colors arguments
 	pushSTACK (fixnum (i*2));		// the index
 	funcall (L(elt), 2);			// fetch it
 	colors[i].pixel = get_uint32 (value1);
 	colors[i].flags = flags;
       }
-
+    
     begin_call ();
     XStoreColors (dpy, cm, colors, ncolors);
     end_call ();
@@ -6407,7 +6389,7 @@ defun XLIB:STORE-COLORS (2, 0, norest, key, 3, (:RED-P :GREEN-P :BLUE-P))
 
 // ----------------------------------------------------------------------------------------------------
 //  Chapter 10  Cursors
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------  
 
 /* 10.2  Creating Cursors */
 //
@@ -6431,10 +6413,10 @@ defun XLIB:CREATE-CURSOR (0, 0, norest, key, 6, (:SOURCE :MASK :X :Y :FOREGROUND
     }
   else
     goto required;
-
+  
   if (!eq (STACK_4, unbound))
     mask = get_pixmap (STACK_4);
-
+  
   if (!eq (STACK_3, unbound))
     x = get_sint16 (STACK_3);
   else
@@ -6462,7 +6444,7 @@ defun XLIB:CREATE-CURSOR (0, 0, norest, key, 6, (:SOURCE :MASK :X :Y :FOREGROUND
   value1 = make_cursor (get_display_obj (STACK_5),cursor);
   skipSTACK (6);		// All done
   return;
-
+  
  required:
   pushSTACK (TheSubr(subr_self)->name);	// Funktionsname
   fehler (type_error, ("~: At least :SOURCE :X, :Y, :FOREGROUND, and :BACKGROUND must be specified"));
@@ -6483,7 +6465,7 @@ defun XLIB:CREATE-GLYPH-CURSOR (0, 0, norest, key, 6,
   XColor foreground;
   XColor background;
   Cursor cursor;
-
+  
   if (!eq (STACK_5, unbound))		// :source-font
     {
       source_font = get_font_and_display (STACK_5, &dpy);
@@ -6519,7 +6501,7 @@ defun XLIB:CREATE-GLYPH-CURSOR (0, 0, norest, key, 6,
   value1 = make_cursor (get_display_obj (STACK_5),cursor);
   skipSTACK (6);		// All done
   return;
-
+  
  required:
   pushSTACK (TheSubr(subr_self)->name);	// Funktionsname
   fehler (type_error, ("~: At least :SOURCE-FONT, :SOURCE-CHAR, :FOREGROUND, and :BACKGROUND must be specified"));
@@ -6583,7 +6565,7 @@ defun XLIB:ATOM-NAME (2) /* OK */
   begin_call ();
   name = XGetAtomName (dpy, atom);
   end_call ();
-
+  
   pushSTACK (asciz_to_string (name, misc_encoding ()));
   pushSTACK (`KEYWORD`);
 
@@ -6676,7 +6658,7 @@ defun XLIB:CHANGE-PROPERTY (5, 0, norest, key, 4, (:MODE :START :END :TRANSFORM)
 	pushSTACK (fixnum (i));		// index
 	funcall (L(elt), 2);		// fetch element
 	subr_self = popSTACK ();	// restore subr_self
-
+	
 	if (!eq (STACK_0, unbound) && !eq (STACK_0, NIL))
 	  {
 	    // call the transform function
@@ -6755,7 +6737,7 @@ defun XLIB:GET-PROPERTY (2, 0, norest, key, 6, (:TYPE :START :END :DELETE-P :RES
 
   w = get_xid_object_and_display (`XLIB::WINDOW`, STACK_7, &display);
   property = get_xatom (display, STACK_6);
-
+  
   // How is :start/:end counted?
   // CLX counts the same way libX counts [This should be documented.]
   long_offset = (eq (STACK_4, unbound) || eq (STACK_4, NIL)) ? 0 : get_uint32 (STACK_4);
@@ -6771,7 +6753,7 @@ defun XLIB:GET-PROPERTY (2, 0, norest, key, 6, (:TYPE :START :END :DELETE-P :RES
 			  &actual_type_return, &actual_format_return,
 			  &nitems_return, &bytes_after_return, &prop_return);
   end_call ();
-
+  
   if (actual_type_return == None)
     {
       pushSTACK (NIL);
@@ -6790,12 +6772,12 @@ defun XLIB:GET-PROPERTY (2, 0, norest, key, 6, (:TYPE :START :END :DELETE-P :RES
 	  uintC i;
 	  object *transform_f = &(STACK_0);
 	  object *result_type_f = &(STACK_1);
-
+      
 	  for (i = 0; i < nitems_return; i++)
 	    {
 	      unless (eq (*transform_f, unbound))
 		pushSTACK (*transform_f); // transform function ..
-
+	  
 	      switch (actual_format_return)
 		{
 		case  8: pushSTACK (make_uint8  (prop_return[i])); break;
@@ -6823,17 +6805,17 @@ defun XLIB:GET-PROPERTY (2, 0, norest, key, 6, (:TYPE :START :END :DELETE-P :RES
 	      funcall (L(vector), nitems_return);
 	      coerce_it (*result_type_f);
 	    }
-
+      
 	  pushSTACK (value1);
 	}
-
+      
       if (prop_return)
         {
           begin_call ();
           XFree (prop_return);
           end_call ();
         }
-
+      
 	{
 	  char *name;
           begin_call ();
@@ -6860,7 +6842,7 @@ defun XLIB:GET-PROPERTY (2, 0, norest, key, 6, (:TYPE :START :END :DELETE-P :RES
 
 //
 //  XLIB:LIST-PROPERTIES window &key (:result-type `list)
-//
+//	  
 defun XLIB:LIST-PROPERTIES (1, 0, norest, key, 1, (:RESULT-TYPE)) //OK
 {
   int num_props, i;
@@ -6892,7 +6874,7 @@ defun XLIB:LIST-PROPERTIES (1, 0, norest, key, 1, (:RESULT-TYPE)) //OK
   begin_call ();
     if (props) XFree (props);
   end_call ();
-
+  
   // Now cons `em together
   funcall (L(list), num_props);
 
@@ -6938,7 +6920,7 @@ defun XLIB:ROTATE-PROPERTIES (2, 1)
 
     FREE_DYNAMIC_ARRAY (props);
   }
-
+  
   value1 = NIL; mv_count = 1;
   skipSTACK (3);		// all done
 }
@@ -6956,7 +6938,7 @@ defun XLIB:CONVERT-SELECTION (3, 2)
   Atom selection   = get_xatom (dpy, STACK_4);
   Atom property    = gunboundp (STACK_1) ? None : get_xatom (dpy, STACK_1);
   Time time        = get_timestamp (STACK_0);
-
+  
   begin_call ();
   XConvertSelection (dpy, selection, target, property, requestor, time);
   end_call ();
@@ -6976,7 +6958,7 @@ defun XLIB:SELECTION-OWNER (2)
   begin_call ();
   owner = XGetSelectionOwner (dpy, selection);
   end_call ();
-
+  
   value1 = make_window (STACK_1, owner); mv_count = 1;
   skipSTACK (2);
 }
@@ -6995,7 +6977,7 @@ defun XLIB:SELECTION-OWNER-SETTER (3, 1)
   begin_call ();
   XSetSelectionOwner (dpy, selection, owner, time);
   end_call ();
-
+  
   value1 = STACK_3; mv_count = 1;
   skipSTACK (4);
 }
@@ -7012,13 +6994,13 @@ defun XLIB:SELECTION-OWNER-SETTER (3, 1)
 //  slots, type information, etc.  It is up to the two different functions for
 //  assembling and disassembling event to provide the right macro definitions for
 //  DEF_EVENT, ESLOT, and ESLOT2; [I want to do it only *ONCE*, so this klugde.]
-//
+// 
 //    DEF_EVENT ( <lisp event key>, <C name of event key>, <C type of struct>, <C name of struct in XEvent> )
 //        -- start defining an event.
-//
+// 
 //    ESLOT ( <lisp slot name>, <type>, <C slot> )
 //        -- define a slot
-//
+// 
 //    ESLOT2 ( <lisp slot name>, <type>, <C slot> )
 //        -- same as ESLOT, but for objects, which needs the display.
 //
@@ -7225,10 +7207,10 @@ defun XLIB:SELECTION-OWNER-SETTER (3, 1)
     ESLOT4(`:TARGET`,		xatom,			target)					\
     ESLOT4(`:PROPERTY`,		xatom,			property)				\
     ESLOT (`:TIME`,		uint32,			time)					\
-
+    
 
 #define EMACS_IS_BROKEN \
-}
+}    
 //end of nasty zone.
 
 local int disassemble_event_on_stack (XEvent *ev, object *dpy_objf)
@@ -7286,14 +7268,14 @@ local int disassemble_event_on_stack (XEvent *ev, object *dpy_objf)
       {
 	// Wat nu?
 	// Propabably raise some error?!
-
-	// THIS LOOKS STRANGE?!
+	
+	// THIS LOOKS STRANGE?! 
 	// Well, the first ALL_EVENTS gives is '}' + 'break;' the last thing is '{', so ...
-
+	
 	ALL_EVENT_DEFS
       }
       break;
-
+      
     }
   return cnt;
 
@@ -7368,13 +7350,13 @@ travel_queque:
   begin_call ();
   XPeekEvent (dpy, &ev);
   end_call ();
-
+  
   cnt = disassemble_event_on_stack (&ev, &(STACK_5));
   // Now invoke the handler function
   funcall (STACK_(cnt+4), cnt);	// BUG: This may throw out of our control!
 				//      We would need something like an unwind protect here
   				// But only if discard_p == NIL.
-
+  
 
   // FIXME: We should probably check here, if somebody has already discarded this event?
   begin_call ();
@@ -7425,7 +7407,7 @@ defun XLIB:PROCESS-EVENT (1, 0, norest, key, 5, (:HANDLER :TIMEOUT :PEEK-P :DISC
   int timeout;
   Display *dpy;
 
-  // Fetch the arguments
+  // Fetch the arguments 
   pushSTACK (STACK_5); dpy = pop_display ();
 
   force_output_p = (!eq(STACK_0, unbound)) ? get_bool (STACK_0) : 1;
@@ -7435,7 +7417,7 @@ defun XLIB:PROCESS-EVENT (1, 0, norest, key, 5, (:HANDLER :TIMEOUT :PEEK-P :DISC
   timeout = -1;
   if (!eq(STACK_3, unbound) && integerp (STACK_3))	// XXX
     timeout = get_uint32 (STACK_3);
-
+  
   if (eq(STACK_4, unbound))
     {
       /* error */
@@ -7447,7 +7429,7 @@ defun XLIB:PROCESS-EVENT (1, 0, norest, key, 5, (:HANDLER :TIMEOUT :PEEK-P :DISC
   travel_queque (dpy, peek_p, discard_p, force_output_p, timeout);
 
   // mv_space and mv_count are set by the return of the handler function
-
+  
   skipSTACK (6);
 }
 
@@ -7470,7 +7452,7 @@ local void encode_event (uintC n, object event_key, Display *dpy, XEvent *ev)
     }
 
   pushSTACK (event_key);
-
+  
 #define DEF_EVENT(lnam, cnam, ctype, cslot)		\
     }							\
   else							\
@@ -7494,7 +7476,7 @@ local void encode_event (uintC n, object event_key, Display *dpy, XEvent *ev)
       else						\
 	{ /* ??? */ }					\
     }
-
+							
 #define ESLOT4(lnam, type, cslot)			\
     {							\
       if ((ofs = grasp (lnam)))				\
@@ -7597,7 +7579,7 @@ defun XLIB:EVENT-LISTEN (1, 1)
   struct timeval timeout;
   int r;
   XEvent trashcan;
-
+  
   pushSTACK (STACK_1); dpy = pop_display ();
 
   if (nullp(STACK_0))
@@ -7667,7 +7649,7 @@ defun XLIB:SEND-EVENT (0, 0, rest, nokey, 0, NIL)
     unsigned long event_mask = get_event_mask (STACK_(argcount-3));
     int propagate_p = 0;
     uintC i;
-
+    
     // hunt for the :propagate-p
     for (i = 0; i < argcount; i += 2)
       if (eq (STACK_(i+1), `:PROPAGATE-P`))
@@ -7675,7 +7657,7 @@ defun XLIB:SEND-EVENT (0, 0, rest, nokey, 0, NIL)
 	  propagate_p = get_bool (STACK_(i));
 	  break;
 	}
-
+    
     encode_event (argcount-3, STACK_(argcount-2), dpy, &event);
     begin_call ();
     XSendEvent (dpy, window, propagate_p, event_mask, &event);
@@ -7686,7 +7668,7 @@ defun XLIB:SEND-EVENT (0, 0, rest, nokey, 0, NIL)
     value1 = NIL; mv_count = 1;
     return;
   }
-
+  
  too_few:
   NOTIMPLEMENTED;
 }
@@ -7708,7 +7690,7 @@ defun XLIB:QUERY-POINTER (1)
 {
   Display *dpy;
   Window   win = get_window_and_display (STACK_0, &dpy);
-
+  
   Window root, child;
   int root_x, root_y;
   int win_x, win_y;
@@ -7718,11 +7700,11 @@ defun XLIB:QUERY-POINTER (1)
   begin_call ();
   same_screen_p = XQueryPointer (dpy, win, &root, &child, &root_x, &root_y, &win_x, &win_y, &mask);
   end_call ();
-
+  
   pushSTACK (get_display_obj (STACK_0));
   pushSTACK (make_window (STACK_0, root));
   pushSTACK (make_window (STACK_1, child));
-
+  
   value1 = make_sint16 (win_x);
   value2 = make_sint16 (win_y);
   value3 = make_bool (same_screen_p);
@@ -7745,18 +7727,18 @@ defun XLIB:GLOBAL-POINTER-POSITION (1)
 {
   Display *dpy;
   Window   win;
-
+  
   Window root, child;
   int root_x, root_y;
   int win_x, win_y;
   unsigned int mask;
   Bool same_screen_p;
-
+  
   pushSTACK (STACK_0); dpy = pop_display ();
   begin_call ();
   same_screen_p = XQueryPointer (dpy, DefaultRootWindow (dpy), &root, &child, &root_x, &root_y, &win_x, &win_y, &mask);
   end_call ();
-
+  
   value1 = make_sint16 (root_x);
   value2 = make_sint16 (root_y);
   value3 = make_window (STACK_0, root);
@@ -7794,7 +7776,7 @@ defun XLIB:MOTION-EVENTS (1, 0, norest, key, 3, (:START :STOP :RESULT-TYPE))
   begin_call ();
   events = XGetMotionEvents (dpy, win, start, stop, &nevents);
   end_call ();
-
+  
   if (events)
     {
       int i;
@@ -7809,7 +7791,7 @@ defun XLIB:MOTION-EVENTS (1, 0, norest, key, 3, (:START :STOP :RESULT-TYPE))
     }
   else
     value1 = NIL;
-
+  
   coerce_it (STACK_0);
   mv_count = 1;
   skipSTACK (4);
@@ -7828,7 +7810,7 @@ defun XLIB:WARP-POINTER (3)
   begin_call ();
   XWarpPointer (dpy, None, dest, 0, 0, 0, 0, x, y);
   end_call ();
-
+  
   value1 = NIL; mv_count = 1;
 }
 
@@ -7844,7 +7826,7 @@ defun XLIB:WARP-POINTER-RELATIVE (3)
   begin_call ();
   XWarpPointer (dpy, None, None, 0, 0, 0, 0, dx, dy);
   end_call ();
-
+  
   value1 = NIL; mv_count = 1;
 }
 
@@ -7867,7 +7849,7 @@ defun XLIB:WARP-POINTER-IF-INSIDE (6, 2)
   begin_call ();
   XWarpPointer (dpy, src, dest, src_x, src_y, src_w, src_h, dest_x, dest_y);
   end_call ();
-
+  
   value1 = NIL; mv_count = 1;
   skipSTACK (8);
   return;
@@ -7890,7 +7872,7 @@ defun XLIB:WARP-POINTER-RELATIVE-IF-INSIDE (5, 2)
   begin_call ();
   XWarpPointer (dpy, src, None, src_x, src_y, src_w, src_h, x_off, y_off);
   end_call ();
-
+    
   value1 = NIL; mv_count = 1;
   skipSTACK (7);
   return;
@@ -7911,9 +7893,9 @@ defun XLIB:SET-INPUT-FOCUS (3, 1)
   int revert_to;
   Display *dpy;
   Window focus;
-
+  
   time = get_timestamp (popSTACK ());
-  pushSTACK (`:NONE`);
+  pushSTACK (`:NONE`);  
   pushSTACK (`:POINTER-ROOT`);
   pushSTACK (`:PARENT`);
   revert_to = get_enum (3);
@@ -7923,7 +7905,7 @@ defun XLIB:SET-INPUT-FOCUS (3, 1)
   begin_call ();
   XSetInputFocus (dpy, focus, revert_to, time);
   end_call ();
-
+  
   value1 = NIL; mv_count = 1;
 }
 
@@ -7934,32 +7916,32 @@ defun XLIB:SET-INPUT-FOCUS (3, 1)
 //  revert-to -- Type (or window (member :none :pointer-root :parent))
 //
 // In the manual is said, that the revert-to could be a window, but
-// the libX11 function just returns a state ?!
+// the libX11 function just returns a state ?!  
 //
 defun XLIB:INPUT-FOCUS (1)
 {
   Display *dpy;
   Window focus;
   int revert;
-
+  
   pushSTACK (STACK_0);
   dpy = pop_display ();
 
   begin_call ();
   XGetInputFocus (dpy, &focus, &revert);
   end_call ();
-
+  
   /* value1 (= focus) */
   if (focus == PointerRoot) pushSTACK (`:POINTER-ROOT`);
   else if (focus == None) pushSTACK (`:NONE`);
   else pushSTACK (make_window (STACK_0, focus));
-
+  
   /* value2 (= revert) */
   if (revert == RevertToPointerRoot) pushSTACK (`:POINTER-ROOT`);
   else if (revert == RevertToParent) pushSTACK (`:PARENT`);
   else if (revert == RevertToNone) pushSTACK (`:NONE`);
   else pushSTACK (NIL);		// safty ...
-
+  
   value2 = popSTACK ();
   value1 = popSTACK ();
   mv_count = 2;
@@ -7973,7 +7955,7 @@ local void ungrab_X (int (*X)(Display *dpy, Time time))
   begin_call ();
   X (dpy, time);
   end_call ();
-
+  
   value1 = NIL; mv_count = 1;
   skipSTACK (2);
 }
@@ -7997,13 +7979,13 @@ defun XLIB:GRAB-POINTER (2, 0, norest, key, 6, (:OWNER-P :SYNC-POINTER-P :SYNC-K
   begin_call ();
   r = XGrabPointer (dpy, win, owner_p, event_mask, sync_pointer, sync_keyboard, confine_to, cursor, time);
   end_call ();
-
+  
        if (r == AlreadyGrabbed)  value1 = `:ALREADY-GRABBED`;
   else if (r == GrabFrozen)      value1 = `:FROZEN`;
   else if (r == GrabInvalidTime) value1 = `:INVALID-TIME`;
   else if (r == GrabNotViewable) value1 = `:NOT-VIEWABLE`; // NIM
   else value1 = `:SUCCESS`;
-
+  
   mv_count = 1;
   skipSTACK (8);
 }
@@ -8026,7 +8008,7 @@ defun XLIB:CHANGE-ACTIVE-POINTER-GRAB (2, 2)
   begin_call ();
   XChangeActivePointerGrab (dpy, event_mask, cursor, time);
   end_call ();
-
+  
   skipSTACK (4);
   value1 = NIL; mv_count = 1;
 }
@@ -8051,7 +8033,7 @@ defun XLIB:GRAB-BUTTON (3, 0, norest, key, 6, (:MODIFIERS :OWNER-P :SYNC-POINTER
   begin_call ();
   XGrabButton (dpy, button, modifiers, win, owner_p, event_mask, sync_pointer, sync_keyboard, confine_to, cursor);
   end_call ();
-
+  
   value1 = NIL; mv_count = 1;
   skipSTACK (9);
 }
@@ -8066,7 +8048,7 @@ defun XLIB:UNGRAB-BUTTON (2, 0, norest, key, 1, (:MODIFIERS))
   begin_call ();
   XUngrabButton (dpy, code, modifiers, win);
   end_call ();
-
+  
   value1 = NIL; mv_count = 1;
   skipSTACK (3);
 }
@@ -8086,13 +8068,13 @@ defun XLIB:GRAB-KEYBOARD (1, 0, norest, key, 4,
   begin_call ();
   r = XGrabKeyboard (dpy, win, owner_p, sync_pointer_p, sync_keyboard_p, time);
   end_call ();
-
+  
        if (r == AlreadyGrabbed)  value1 = `:ALREADY-GRABBED`;
   else if (r == GrabFrozen)      value1 = `:FROZEN`;
   else if (r == GrabInvalidTime) value1 = `:INVALID-TIME`;
   else if (r == GrabNotViewable) value1 = `:NOT-VIEWABLE`;
   else value1 = `:SUCCESS`;
-
+  
   mv_count = 1;
   skipSTACK (5);
 }
@@ -8120,7 +8102,7 @@ defun XLIB:GRAB-KEY (2, 0, norest, key, 4,
   begin_call ();
   XGrabKey (dpy, keycode, modifiers, win, owner_p, sync_keyboard_p, sync_keyboard_p);
   end_call ();
-
+  
   value1 = NIL; mv_count = 1;
   skipSTACK (6);
 }
@@ -8135,7 +8117,7 @@ defun XLIB:UNGRAB-KEY (2, 0, norest, key, 1, (:MODIFIERS))
   begin_call ();
   XUngrabKey (dpy, code, modifiers, win);
   end_call ();
-
+  
   value1 = NIL; mv_count = 1;
   skipSTACK (3);
 }
@@ -8146,7 +8128,7 @@ defun XLIB:ALLOW-EVENTS (2, 1)
   Time timestamp = get_timestamp (popSTACK ());
   int mode;
   Display *dpy;
-
+  
   pushSTACK (`:ASYNC-POINTER`);
   pushSTACK (`:SYNC-POINTER`);
   pushSTACK (`:REPLAY-POINTER`);
@@ -8161,7 +8143,7 @@ defun XLIB:ALLOW-EVENTS (2, 1)
   begin_call ();
   XAllowEvents (dpy, mode, timestamp);
   end_call ();
-
+  
   value1 = NIL; mv_count = 1;
 }
 
@@ -8205,7 +8187,7 @@ defun XLIB:GRAB-SERVER (1)
   begin_call ();
   XGrabServer (dpy);
   end_call ();
-
+  
   value1 = NIL; mv_count = 1;
 }
 
@@ -8216,7 +8198,7 @@ defun XLIB:UNGRAB-SERVER (1)
   begin_call ();
   XUngrabServer (dpy);
   end_call ();
-
+  
   value1 = NIL; mv_count = 1;
 }
 
@@ -8229,13 +8211,13 @@ defun XLIB:CHANGE-POINTER-CONTROL (1, 0, norest, key, 2, (:ACCELERATION :THRESHO
   int accel_denominator = -1;
   int threshold = -1;
   Display *dpy;
-
+  
   if (!eq (STACK_0, unbound) && !eq (STACK_0,NIL))
     {
       do_threshold = True;
       threshold = eq (STACK_1, `:DEFAULT`) ? -1 : get_sint16 (STACK_0);
     }
-
+  
   if (!eq (STACK_1, unbound) && !eq (STACK_1,NIL))
     {
       do_accel = True;
@@ -8256,7 +8238,7 @@ defun XLIB:CHANGE-POINTER-CONTROL (1, 0, norest, key, 2, (:ACCELERATION :THRESHO
 	  //
 	  pushSTACK (STACK_1); 	       // 0     (LOAD&PUSH 1)                       ; argument
 	  funcall (L(rationalize), 1); // 1     (CALLS2&PUSH 177)                   ; RATIONALIZE
-	  pushSTACK (value1);	       //
+	  pushSTACK (value1);	       // 
 	  pushSTACK (STACK_0);	       // 3     (LOAD&PUSH 0)
 	  funcall (L(numerator), 1);   // 4     (CALLS2&PUSH 178)                   ; NUMERATOR
 	  pushSTACK (value1);	       //
@@ -8272,12 +8254,12 @@ defun XLIB:CHANGE-POINTER-CONTROL (1, 0, norest, key, 2, (:ACCELERATION :THRESHO
 	  pushSTACK (STACK_0);	       // 16    (LOAD&PUSH 0)
 	  pushSTACK (fixnum (-1));     // 17    (CONST&PUSH 2)                      ; -1
 	  funcall (L(ash), 2);	       // 18    (CALLS2&STORE 210 0)                ; ASH
-	  STACK_0 = value1;	       // 18
+	  STACK_0 = value1;	       // 18    
 	L21:			       // 21    L21
 	  pushSTACK (STACK_1);	       // 21    (LOAD&PUSH 1)
 	  pushSTACK (fixnum (1));      // 22    (CONST&PUSH 0)                      ; 1
 	  funcall (L(gleich), 2);      // 23    (CALLSR&JMPIF 1 45 L41)             ; =
-	  if(!nullp(value1)) goto L41; //
+	  if(!nullp(value1)) goto L41; // 
 	  pushSTACK (STACK_1);	       // 27    (LOAD&PUSH 1)
 	  funcall (L(abs), 1);	       // 28    (CALLS2&PUSH 159)                   ; ABS
 	  pushSTACK (value1);	       //
@@ -8287,33 +8269,33 @@ defun XLIB:CHANGE-POINTER-CONTROL (1, 0, norest, key, 2, (:ACCELERATION :THRESHO
 	  pushSTACK (STACK_0);	       // 35    (LOAD&PUSH 0)
 	  pushSTACK (fixnum (0x8000)); // 36    (CONST&PUSH 1)                      ; 32768
 	  funcall (L(kleiner), 2);     // 37    (CALLSR&JMPIFNOT 1 47 L11)          ; <
-	  if(nullp(value1)) goto L11;  //
+	  if(nullp(value1)) goto L11;  // 
 	L41:			       // 41    L41
 	  // rest done in C ...
 	  accel_denominator = get_sint16 (popSTACK ());
 	  accel_numerator = get_sint16 (popSTACK ());
 	  if (accel_denominator > 0x7FFF)
 	    accel_denominator = 0x7FFF;
-
+	  
 	  skipSTACK (1);	// right?!
-
+	  
 	  // 41    (LOAD&PUSH 1)
 	  // 42    (LOAD&PUSH 1)
 	  // 43    (CONST&PUSH 3)                      ; 32767
 	  // 44    (CALLSR&PUSH 1 52)                  ; MIN
 	  // 47    (STACK-TO-MV 2)
           // 49    (SKIP&RET 5)
-
+	  
 	  // Bruno: Why could not a compiler create this?! :-)
 	}
     }
-
+  
   pushSTACK (STACK_2); dpy = pop_display ();
 
   begin_call ();
   XChangePointerControl (dpy, do_accel, do_threshold, accel_numerator, accel_denominator, threshold);
   end_call ();
-
+  
   skipSTACK (3);
   value1 = NIL; mv_count = 1;
 }
@@ -8328,7 +8310,7 @@ defun XLIB:POINTER-CONTROL (1)
   begin_call ();
   XGetPointerControl (display, &accel_numerator, &accel_denominator, &threshold);
   end_call ();
-
+  
   pushSTACK (make_sint32 (threshold));
   pushSTACK (make_sint32 (accel_numerator));
   pushSTACK (make_sint32 (accel_denominator));
@@ -8353,18 +8335,18 @@ defun XLIB:POINTER-MAPPING (1, 0, norest, key, 1, (:RESULT-TYPE))
   begin_call ();
   nmap = XGetPointerMapping (dpy, map, sizeof (map)/sizeof (map[0]));
   end_call ();
-
+  
   for (i = 0; i < nmap; i++)
     pushSTACK (make_uint8 (map[i]));
   funcall (L(list), nmap);
-
+  
   if (!eq (STACK_0, unbound))
     {
       pushSTACK (value1);
       pushSTACK (STACK_0);
       funcall (L(coerce), 2);
     }
-
+  
   skipSTACK (2);	// all done
 }
 
@@ -8377,13 +8359,13 @@ defun XLIB:POINTER-MAPPING-SETTER (2)
   Display *dpy;
   int nmap, i;
   int result;
-
+  
   pushSTACK (STACK_0); dpy = pop_display ();
   pushSTACK (STACK_1); funcall (L(length), 1); nmap = get_uint32 (value1);
-
+  
   {
     DYNAMIC_ARRAY (map, unsigned char, nmap);
-
+    
     for (i = 0; i < nmap; i++)
       {
 	pushSTACK (STACK_1);	// mapping argument
@@ -8395,7 +8377,7 @@ defun XLIB:POINTER-MAPPING-SETTER (2)
     begin_call ();
     result = XSetPointerMapping (dpy, map, nmap);
     end_call ();
-
+    
     // From XSetPointerMapping(3X11):
     //
     // If any of  the buttons to be altered  are logically in the down
@@ -8407,10 +8389,10 @@ defun XLIB:POINTER-MAPPING-SETTER (2)
 
     FREE_DYNAMIC_ARRAY (map);
   }
-
+  
   value1 = STACK_1; mv_count = 1;
   skipSTACK (2);	// all done
-
+  
   // Isn't that all a overdoze for this functions?! (But since my mouse thinks
   // from time to time the left button has only been invented just to make
   // noise, I need it now and then)
@@ -8428,26 +8410,26 @@ defun XLIB:BELL (1, 1)
   begin_call ();
   XBell (dpy, percent);
   end_call ();
-
+  
   value1 = NIL; mv_count = 1;
 }
 
 defun XLIB:CHANGE-KEYBOARD-CONTROL (1, 0, norest, key, 8,
 				    (:KEY-CLICK-PERCENT :BELL-PERCENT :BELL-PITCH :BELL-DURATION :LED :LED-MODE
-				     :KEY :AUTO-REPEAT-MODE))
+				     :KEY :AUTO-REPEAT-MODE)) 
 {UNDEFINED}
 
 defun XLIB:KEYBOARD-CONTROL (1)
 {
   Display *dpy = pop_display ();
   XKeyboardState coffee;
-
+  
   begin_call ();
   XGetKeyboardControl (dpy, &coffee);
   end_call ();
-
+  
   pushSTACK (make_uint32 (coffee.led_mask));
-  value7 = allocate_bit_vector (Atype_Bit, 256);
+  value7 = allocate_bit_vector (256);
   memcpy (TheSbvector(value7)->data, coffee.auto_repeats, 32); // may be wrong, may be right?!
   value1 = make_uint8 (coffee.key_click_percent);
   value2 = make_uint8 (coffee.bell_percent);
@@ -8467,7 +8449,7 @@ defun XLIB:MODIFIER-MAPPING (1)
   begin_call ();
   more_coffee = XGetModifierMapping (dpy);
   end_call ();
-
+  
   if (more_coffee)
     {
       for (i = 1; i <= 8*more_coffee->max_keypermod; i++)
@@ -8482,7 +8464,7 @@ defun XLIB:MODIFIER-MAPPING (1)
       begin_call ();
       XFreeModifiermap (more_coffee);
       end_call ();
-
+      
       value8 = popSTACK ();
       value7 = popSTACK ();
       value6 = popSTACK ();
@@ -8508,12 +8490,12 @@ defun XLIB:MODIFIER-MAPPING (1)
 defun XLIB:QUERY-KEYMAP (1, 1)
 {
   Display *dpy;
-
+  
   pushSTACK (STACK_1); dpy = pop_display ();
-
+  
   if (!eq (STACK_0, unbound))
     {
-      unless (simple_bit_vector_p (Atype_Bit, STACK_0) && Sbvector_length (STACK_0) == 256)
+      unless (simple_bit_vector_p (STACK_0) && Sbvector_length (STACK_0) == 256)
 	{
 	  // raise type error
 	  pushSTACK (STACK_0);
@@ -8522,7 +8504,7 @@ defun XLIB:QUERY-KEYMAP (1, 1)
 	}
     }
   else
-    STACK_0 = allocate_bit_vector (Atype_Bit, 256);
+    STACK_0 = allocate_bit_vector (256);
 
   {
     unsigned char *ptr = TheSbvector(STACK_0)->data;
@@ -8530,7 +8512,7 @@ defun XLIB:QUERY-KEYMAP (1, 1)
     XQueryKeymap (dpy, ptr); // beam it right into the bit-vector!
     end_call ();
   }
-
+  
   value1 = STACK_0; mv_count = 1;
   skipSTACK (2);	// all done
 }
@@ -8539,7 +8521,7 @@ defun XLIB:SET-MODIFIER-MAPPING (1, 0, norest, key, 8, (:SHIFT :LOCK :CONTROL :M
 {UNDEFINED}
 
 /* 14.4  Keyboard Encodings */
-defun XLIB:CHANGE-KEYBOARD-MAPPING (2, 0, norest, key, 3, (:START :END :FIRST-KEYCODE))
+defun XLIB:CHANGE-KEYBOARD-MAPPING (2, 0, norest, key, 3, (:START :END :FIRST-KEYCODE)) 
 {UNDEFINED}
 
 defun XLIB:KEYBOARD-MAPPING (1, 0, norest, key, 4, (:FIRST-KEYCODE :START :END :DATA))
@@ -8628,13 +8610,13 @@ defun XLIB:KEYSYM->CHARACTER (2, 1)
 {
   Display *dpy;
   KeySym keysym;
-
+  
   // FIXME for now we ignore the state argument:
   popSTACK ();
-
+  
   keysym = get_uint32 (popSTACK ());
   dpy = pop_display ();
-
+  
   NOTIMPLEMENTED;
   // Too wired -- I have to browse some more in the manuals ... Back soon.
 }
@@ -8662,11 +8644,11 @@ defun XLIB:ADD-TO-SAVE-SET (1)
   // WAS: invoke (XAddToSaveSet, 1, "D1w");
   Display *dpy;
   Window win = get_window_and_display (STACK_0, &dpy);
-
+  
   begin_call ();
   XAddToSaveSet (dpy, win);
   end_call ();
-
+  
   value1 = NIL; mv_count = 1;
   skipSTACK (1);
 }
@@ -8696,22 +8678,22 @@ defun XLIB:KILL-CLIENT (2)
 {
   XID resource_id = get_uint29 (popSTACK ());
   Display *dpy = pop_display ();
-
+  
   begin_call ();
   XKillClient (dpy, resource_id);
   end_call ();
-
+  
   value1 = NIL; mv_count = 1;
 }
 
 defun XLIB:KILL-TEMPORARY-CLIENTS (1)
 {
   Display *dpy = pop_display ();
-
+  
   begin_call ();
   XKillClient (dpy, AllTemporary);
   end_call ();
-
+  
   value1 = NIL; mv_count = 1;
 }
 
@@ -8719,11 +8701,11 @@ defun XLIB:REMOVE-FROM-SAVE-SET (1)
 {
   Display *dpy;
   Window win = get_window_and_display (STACK_0, &dpy);
-
+  
   begin_call ();
   XRemoveFromSaveSet (dpy, win);
   end_call ();
-
+  
   value1 = NIL; mv_count = 1;
   skipSTACK (1);
 }
@@ -8740,7 +8722,7 @@ defun XLIB:ACCESS-CONTROL (1)
   hosts = XListHosts (dpy, &nhosts, &state);
   if (hosts) XFree (hosts);
   end_call ();
-
+  
   value1= make_bool (state); mv_count = 1;
 }
 
@@ -8755,16 +8737,16 @@ defun XLIB:ACCESS-CONTROL-SETTER (2)
   begin_call ();
   XSetAccessControl (dpy, state);
   end_call ();
-
+  
   value1 = popSTACK (); mv_count = 1;
 }
 
 // Maybe I drop code from xhost(1) in here ...
-defun XLIB:ACCESS-HOSTS (1, 1)
+defun XLIB:ACCESS-HOSTS (1, 1) 
 {UNDEFINED}
-defun XLIB:ADD-ACCESS-HOST (2, 1)
+defun XLIB:ADD-ACCESS-HOST (2, 1) 
 {UNDEFINED}
-defun XLIB:REMOVE-ACCESS-HOST (2, 1)
+defun XLIB:REMOVE-ACCESS-HOST (2, 1) 
 {UNDEFINED}
 
 /* 14.7  Screen Saver */
@@ -8773,7 +8755,7 @@ defun XLIB:ACTIVATE-SCREEN-SAVER (1)
   begin_call ();
   XActivateScreenSaver (pop_display ());
   end_call ();
-
+  
   value1 = NIL; mv_count = 1;
 }
 
@@ -8782,7 +8764,7 @@ defun XLIB:RESET-SCREEN-SAVER (1)
   begin_call ();
   XResetScreenSaver (pop_display ());
   end_call ();
-
+  
   value1 = NIL; mv_count = 1;
 }
 
@@ -8798,11 +8780,11 @@ defun XLIB:SCREEN-SAVER (1)
   int interval;
   int prefer_blanking;
   int allow_exposures;
-
+  
   begin_call ();
   XGetScreenSaver (dpy, &timeout, &interval, &prefer_blanking, &allow_exposures);
   end_call ();
-
+  
   value1 = make_sint16 (timeout);
   value2 = make_sint16 (interval);
   value3 = prefer_blanking ? `:YES` : `:NO`;
@@ -8818,28 +8800,28 @@ defun XLIB:SET-SCREEN-SAVER (5)
 {
   int exposures, blanking, period, timeout;
   Display *dpy;
-
+  
   pushSTACK (STACK_4); dpy = pop_display ();
-
+  
   timeout = eq (STACK_3, `:DEFAULT`) ? -1 : get_sint32 (STACK_3);
   period = get_uint32 (STACK_2);
-
+  
   pushSTACK (STACK_1);
   pushSTACK (`:NO`);
   pushSTACK (`:YES`);
   pushSTACK (`:DEFAULT`);
   blanking = get_enum (3);
-
+  
   pushSTACK (STACK_0);
   pushSTACK (`:NO`);
   pushSTACK (`:YES`);
   pushSTACK (`:DEFAULT`);
   exposures = get_enum (3);
-
+  
   begin_call ();
   XSetScreenSaver (dpy, timeout, period, blanking, exposures);
   end_call ();
-
+  
   value1 = NIL; mv_count = 1;
   skipSTACK (5);
 }
@@ -8855,7 +8837,7 @@ defun XLIB:LIST-EXTENSIONS (1, 0, norest, key, 1, (:RESULT-TYPE))
   int n = 0;
   char **extlist;
   Display *dpy;
-
+  
   pushSTACK (STACK_1); dpy = pop_display ();
 
   begin_call ();
@@ -8869,7 +8851,7 @@ defun XLIB:LIST-EXTENSIONS (1, 0, norest, key, 1, (:RESULT-TYPE))
 	pushSTACK (asciz_to_string (extlist[i], misc_encoding ()));
       funcall (L(list), n);
       coerce_it (STACK_0);
-
+      
       begin_call ();
       XFreeExtensionList (extlist);
       end_call ();
@@ -8886,7 +8868,7 @@ defun XLIB:QUERY-EXTENSION (2)
   int opcode, event, error;
   Display *dpy;
   Status r;
-
+  
   pushSTACK (STACK_1); dpy = pop_display ();
 
   with_stringable_0_tc (STACK_0, misc_encoding (), name,
@@ -8895,7 +8877,7 @@ defun XLIB:QUERY-EXTENSION (2)
       r = XQueryExtension (dpy, name, &opcode, &event, &error);
       end_call ();
     });
-
+  
   if (r)
     {
       value1 = make_uint8 (opcode);
@@ -8907,7 +8889,7 @@ defun XLIB:QUERY-EXTENSION (2)
     {
       value1 = NIL; mv_count = 1;
     }
-
+  
   skipSTACK (2);
 }
 
@@ -8952,17 +8934,17 @@ man XErrorEvent says:
 int xlib_error_handler (Display *display, XErrorEvent *event)
 {
   int f = 0;
-
+  
   begin_callback ();
 
   // find the display.
   pushSTACK (find_display (display));
   if (nullp (STACK_0))
     NOTREACHED;			// hmm?
-
+  
   // find the error handler
   pushSTACK (TheStructure (STACK_0)->recdata[slot_DISPLAY_ERROR_HANDLER]);
-
+  
   if (nullp (STACK_0))
     STACK_0 = `xlib::default-error-handler`;
   else
@@ -8972,7 +8954,7 @@ int xlib_error_handler (Display *display, XErrorEvent *event)
 	funcall (L(aref), 2);
 	pushSTACK (value1);
       }
-
+  
   // Build the argument list for the error handler:
   pushSTACK (STACK_1);	  // display
     pushSTACK (`#(xlib::unknown-error xlib::request-error xlib::value-error xlib::window-error xlib::pixmap-error xlib::atom-error xlib::cursor-error xlib::font-error xlib::match-error xlib::drawable-error xlib::access-error xlib::alloc-error xlib::colormap-error xlib::gcontext-error xlib::id-choice-error xlib::name-error xlib::length-error xlib::implementation-error)`);
@@ -9017,7 +8999,7 @@ int xlib_error_handler (Display *display, XErrorEvent *event)
   funcall (L(funcall), f ? 13 : 11);
 
   skipSTACK (1);				// clean up
-
+  
   end_callback ();
 
   return 0;					// anything done with this?
@@ -9041,14 +9023,14 @@ int xlib_after_function (Display *display)
   pushSTACK (STACK_1);
   funcall (L(funcall), 2);
   skipSTACK (1);
-
+  
   end_callback ();
   return 0;
 }
 
 
 // ----------------------------------------------------------------------------------------------------
-//  The Shape Extension
+//  The Shape Extension 
 // ----------------------------------------------------------------------------------------------------
 
 ##if WANT_XSHAPE
@@ -9060,7 +9042,7 @@ int xlib_after_function (Display *display)
 
 DEF_ENUM (shape_kind,      2, (ee(`:BOUNDING`),ee(`:CLIP`)))
 DEF_ENUM (shape_operation, 5, (ee(`:SET`),ee(`:UNION`),ee(`:INTERSECT`),ee(`:SUBTRACT`),ee(`:INVERT`)))
-
+     
 local Bool ensure_shape_extension (Display *dpy, object dpy_obj, int error_p)
      // Ensures that the SHAPE extension is initialized. If it is not available
      // and error_p is set raise an appropriate error message.
@@ -9069,7 +9051,7 @@ local Bool ensure_shape_extension (Display *dpy, object dpy_obj, int error_p)
   if (XShapeQueryExtension (dpy, &event_base, &error_base))
     {
       // Everything is ok just proceed
-      return True;
+      return True; 
     }
   else
     {
@@ -9126,16 +9108,16 @@ defun XLIB:SHAPE-COMBINE (2, 0, norest, key, 5, (:KIND :X-OFFSET :Y-OFFSET :OPER
   int    y_off = eq (STACK_2,unbound) ? 0 : get_sint16 (STACK_2);
   int       op = eq (STACK_1,unbound) ? ShapeSet : get_shape_operation (STACK_1);
   int ordering = eq (STACK_0,unbound) ? Unsorted : get_ordering (STACK_0);
-
+  
   (void)ensure_shape_extension (dpy, get_display_obj (STACK_6), 1);
-
+  
   // Now we have to select on the second arg, which operation is actually wanted:
   // pixmap -> XShapeCombineMask
   // window -> XShapeCombineShape
   // sequence of rectangles -> XShapeCombineRectangles
   //
   // FIXME: Should we emit an error message if we get keywords, which are not applicable?
-
+    
   if (pixmap_p (STACK_5))
     {
       Pixmap src = get_pixmap (STACK_5);
@@ -9150,10 +9132,10 @@ defun XLIB:SHAPE-COMBINE (2, 0, norest, key, 5, (:KIND :X-OFFSET :Y-OFFSET :OPER
   else if (listp (STACK_5) || vectorp (STACK_5))
     {
       int i, nrectangles;
-
+      
       // Find number of rectangles
       pushSTACK (STACK_5); funcall (L(length), 1); nrectangles = get_uint32 (value1);
-
+      
       {
 	DYNAMIC_ARRAY (rectangles, XRectangle, nrectangles);
 
@@ -9163,27 +9145,27 @@ defun XLIB:SHAPE-COMBINE (2, 0, norest, key, 5, (:KIND :X-OFFSET :Y-OFFSET :OPER
 	    pushSTACK (fixnum (i));	// index
 	    funcall (L(elt), 2);
 	    pushSTACK (value1);	// save element
-
+	    
 	    pushSTACK (STACK_0); pushSTACK (fixnum (0)); funcall (L(elt), 2);
 	    rectangles[i].x = get_sint16(value1);
-
+	    
 	    pushSTACK (STACK_0); pushSTACK (fixnum (1)); funcall (L(elt), 2);
 	    rectangles[i].y = get_sint16(value1);
-
+	    
 	    pushSTACK (STACK_0); pushSTACK (fixnum (2)); funcall (L(elt), 2);
 	    rectangles[i].width = get_sint16(value1);
-
+	    
 	    pushSTACK (fixnum (3)); funcall (L(elt), 2);
 	    rectangles[i].height = get_sint16(value1);
 	  }
-
+	
 	XShapeCombineRectangles (dpy, dest, kind, x_off, y_off, rectangles, nrectangles,
 				 op, ordering);
 
 	FREE_DYNAMIC_ARRAY (rectangles);
       }
     }
-
+  
   value1 = NIL; mv_count = 1;
   skipSTACK (7);				// all done
 }
@@ -9202,7 +9184,7 @@ defun XLIB:SHAPE-OFFSET (4)
   (void)ensure_shape_extension (dpy, get_display_obj (STACK_3), 1);
 
   XShapeOffsetShape (dpy, dest, kind, x_offset, y_offset);
-
+  
   value1 = NIL; mv_count = 1;
   skipSTACK (4);
 }
@@ -9213,8 +9195,8 @@ defun XLIB:SHAPE-OFFSET (4)
 //      clip-shaped-p
 //      x-bounding, y-bounding, x-clip, y-clip
 //      w-bounding, h-bounding, w-clip, h-clip
-
-defun XLIB:SHAPE-EXTENTS (1)
+   
+defun XLIB:SHAPE-EXTENTS (1) 
 {UNDEFINED}
 
 //
@@ -9242,7 +9224,7 @@ defun XLIB:SHAPE-RECTANGLES (2)
  * I may be wrong due to the WM functions, since these seems to be actually used
  * by a couple of applications.
  */
-
+     
 //
 //  XLIB:ICONIFY-WINDOW window screen
 //
@@ -9368,15 +9350,15 @@ defun XLIB:WM-NAME (1) {UNDEFINED}
 // ... and properly some more ...
 
 // These are simply defstruct generated functions -- moved to Lisp
-defun XLIB:VISUAL-INFO-BITS-PER-RGB (1)
-defun XLIB:VISUAL-INFO-BLUE-MASK (1)
-defun XLIB:VISUAL-INFO-CLASS (1)
-defun XLIB:VISUAL-INFO-COLORMAP-ENTRIES (1)
-defun XLIB:VISUAL-INFO-DISPLAY (1)
-defun XLIB:VISUAL-INFO-GREEN-MASK (1)
-defun XLIB:VISUAL-INFO-ID (1)
-defun XLIB:VISUAL-INFO-P (1)
-defun XLIB:VISUAL-INFO-PLIST (1)
+defun XLIB:VISUAL-INFO-BITS-PER-RGB (1) 
+defun XLIB:VISUAL-INFO-BLUE-MASK (1) 
+defun XLIB:VISUAL-INFO-CLASS (1) 
+defun XLIB:VISUAL-INFO-COLORMAP-ENTRIES (1) 
+defun XLIB:VISUAL-INFO-DISPLAY (1) 
+defun XLIB:VISUAL-INFO-GREEN-MASK (1) 
+defun XLIB:VISUAL-INFO-ID (1) 
+defun XLIB:VISUAL-INFO-P (1) 
+defun XLIB:VISUAL-INFO-PLIST (1) 
 defun XLIB:VISUAL-INFO-RED-MASK (1)
 
 // These here are defined in Lisp:
@@ -9411,7 +9393,7 @@ local Visual *XVisualIDToVisual (Display *dpy, VisualID vid)
   XVisualInfo template, *r;
   Visual *result;
   int n;
-
+  
   template.visualid = vid;
   begin_call ();
     r = XGetVisualInfo (dpy, VisualIDMask, &template, &n);
@@ -9429,7 +9411,7 @@ local Visual *XVisualIDToVisual (Display *dpy, VisualID vid)
       begin_call ();
         if (r) XFree (r);
       end_call ();
-
+      
       // Maybe we emerge a x-bad-SONSTWAS condition here, since the 0 value _is_ meaningful to the libX11;
       // It is CopyFromParent.
       return 0;
@@ -9489,14 +9471,14 @@ defun XPM:READ-FILE-TO-PIXMAP (2, 0, norest, key, 2, (:SHAPE-MASK-P :PIXMAP-P))
   int     pixmap_p = eq (STACK_0, unbound) ? 1 : get_bool (STACK_0);
   int r;
   Pixmap pixmap = 0;
-  Pixmap shape_mask = 0;
+  Pixmap shape_mask = 0; 
 
   pushSTACK (get_display_obj (STACK_3));
 
   pushSTACK (STACK_3);
   funcall (L(namestring), 1);
   STACK_3 = value1;
-
+  
   with_string_0 (STACK_3, pathname_encoding (), filename,
     {
       begin_call();
@@ -9505,7 +9487,7 @@ defun XPM:READ-FILE-TO-PIXMAP (2, 0, norest, key, 2, (:SHAPE-MASK-P :PIXMAP-P))
 			       shape_mask_p?&shape_mask:NULL, NULL);
       end_call ();
     });
-
+  
   if (pixmap)     pushSTACK (make_pixmap (STACK_0, pixmap));     else pushSTACK (NIL);
   if (shape_mask) pushSTACK (make_pixmap (STACK_1, shape_mask)); else pushSTACK (NIL);
 
@@ -9522,10 +9504,10 @@ defun XPM:READ-FILE-TO-PIXMAP (2, 0, norest, key, 2, (:SHAPE-MASK-P :PIXMAP-P))
 
     case XpmFileInvalid:
       pushSTACK (`:FILE-INVALID`); break;
-
+      
     case XpmNoMemory:
       pushSTACK (`:NO-MEMORY`); break;
-
+      
     case XpmColorFailed:
       pushSTACK (`:COLOR-FAILED`); break;
 
@@ -9553,7 +9535,7 @@ void module__clx__init_function_2 (module_ *module)
       pushSTACK (((object * )( & module__clx__object_tab))[i]);
       funcall (L(princ),1);
     }
-#endif
+#endif  
 }
 
 // Local variables:

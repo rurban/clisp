@@ -797,7 +797,7 @@
       __asm__("bfffo %1{#0:#8},%0" : "=d" (zero_counter) : "dm" ((uint8)(digit)) ); \
       size_zuweisung (8-zero_counter);                                              \
     }
-#elif defined(SPARC) && !defined(SPARC64)
+#elif defined(SPARC)
   #define integerlength8(digit,size_zuweisung)  \
     integerlength32((uint32)(digit),size_zuweisung) # siehe unten
 #elif defined(GNU) && defined(I80386) && !defined(NO_ASM)
@@ -823,7 +823,7 @@
       __asm__("bfffo %1{#0:#16},%0" : "=d" (zero_counter) : "dm" ((uint16)(digit)) ); \
       size_zuweisung (16-zero_counter);                                               \
     }
-#elif defined(SPARC) && !defined(SPARC64)
+#elif defined(SPARC)
   #define integerlength16(digit,size_zuweisung)  \
     integerlength32((uint32)(digit),size_zuweisung) # siehe unten
 #elif defined(GNU) && defined(I80386) && !defined(NO_ASM)
@@ -861,7 +861,7 @@
       __asm__("bfffo %1{#0:#32},%0" : "=d" (zero_counter) : "dm" ((uint32)(digit)) ); \
       size_zuweisung (32-zero_counter);                                               \
     }
-#elif defined(SPARC) && !defined(SPARC64) && defined(FAST_DOUBLE)
+#elif defined(SPARC) && defined(FAST_DOUBLE)
   #define integerlength32(digit,size_zuweisung)  \
     {var union { double f; uint32 i[2]; } __fi;                     \
      # Bilde 2^52 + digit:                                          \
@@ -1044,7 +1044,7 @@
         __asm__("bsfl %1,%0" : "=r" (one_position) : "rm" ((uint32)(digit)) ); \
         count_zuweisung one_position;                                          \
       }
-  #elif defined(SPARC) && !defined(SPARC64)
+  #elif defined(SPARC)
     #define ord2_32(digit,count_zuweisung)  \
       { # static const char ord2_tab [64] = {-1,0,1,12,2,6,-1,13,3,-1,7,-1,-1,-1,-1,14,10,4,-1,-1,8,-1,-1,25,-1,-1,-1,-1,-1,21,27,15,31,11,5,-1,-1,-1,-1,-1,9,-1,-1,24,-1,-1,20,26,30,-1,-1,-1,-1,23,-1,19,29,-1,22,18,28,17,16,-1}; \
         var uint32 n = (digit);                                        \

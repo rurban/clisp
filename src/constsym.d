@@ -131,7 +131,6 @@ LISPSYM(make_bit_vector,"MAKE-BIT-VECTOR",system)
 # ---------- CHARSTRG ----------
 LISPSYM(standard_char_p,"STANDARD-CHAR-P",lisp)
 LISPSYM(graphic_char_p,"GRAPHIC-CHAR-P",lisp)
-LISPSYM(char_width,"CHAR-WIDTH",lisp)
 LISPSYM(string_char_p,"STRING-CHAR-P",lisp)
 #if (base_char_code_limit < char_code_limit)
 LISPSYM(base_char_p,"BASE-CHAR-P",system)
@@ -183,7 +182,6 @@ LISPSYM(search_string_gleich,"SEARCH-STRING=",system)
 LISPSYM(search_string_equal,"SEARCH-STRING-EQUAL",system)
 LISPSYM(make_string,"MAKE-STRING",lisp)
 LISPSYM(string_both_trim,"STRING-BOTH-TRIM",system)
-LISPSYM(string_width,"STRING-WIDTH",lisp)
 LISPSYM(nstring_upcase,"NSTRING-UPCASE",lisp)
 LISPSYM(string_upcase,"STRING-UPCASE",lisp)
 LISPSYM(nstring_downcase,"NSTRING-DOWNCASE",lisp)
@@ -501,7 +499,7 @@ LISPSYM(machine_instance,"MACHINE-INSTANCE",lisp)
 #ifdef HAVE_GETHOSTBYNAME
 LISPSYM(socket_service_port,"SOCKET-SERVICE-PORT",lisp)
 #ifdef EXPORT_SYSCALLS
-LISPSYM(resolve_host_ipaddr_,"RESOLVE-HOST-IPADDR-INTERNAL",posix)
+LISPSYM(resolve_host_ipaddr,"RESOLVE-HOST-IPADDR",lisp)
 #endif
 #endif
 # ---------- TIME ----------
@@ -606,11 +604,8 @@ LISPSYM(program_name,"PROGRAM-NAME",system)
 LISPSYM(lib_directory,"LIB-DIRECTORY",system)
 #ifdef EXPORT_SYSCALLS
 #ifdef UNIX
-LISPSYM(user_data_,"USER-DATA-INTERNAL",posix)
-LISPSYM(file_stat_,"FILE-STAT-INTERNAL",posix)
-LISPSYM(sysinfo_,"SYSINFO-INTERNAL",posix)
-LISPSYM(bogomips,"BOGOMIPS",posix)
-LISPSYM(resource_usage_limits_,"RESOURCE-USAGE-LIMITS-INTERNAL",posix)
+LISPSYM(user_data,"USER-DATA",lisp)
+LISPSYM(file_stat,"FILE-STAT",lisp)
 #endif
 #endif
 # ---------- PREDTYPE ----------
@@ -860,10 +855,8 @@ LISPSYM(interactive_stream_p,"INTERACTIVE-STREAM-P",lisp)
 LISPSYM(built_in_stream_close,"BUILT-IN-STREAM-CLOSE",system)
 LISPSYM(read_byte,"READ-BYTE",lisp)
 LISPSYM(read_integer,"READ-INTEGER",lisp)
-LISPSYM(read_float,"READ-FLOAT",lisp)
 LISPSYM(write_byte,"WRITE-BYTE",lisp)
 LISPSYM(write_integer,"WRITE-INTEGER",lisp)
-LISPSYM(write_float,"WRITE-FLOAT",lisp)
 LISPSYM(file_position,"FILE-POSITION",lisp)
 LISPSYM(file_length,"FILE-LENGTH",lisp)
 LISPSYM(file_string_length,"FILE-STRING-LENGTH",lisp)
@@ -990,18 +983,6 @@ LISPSYM(long_float_digits,"LONG-FLOAT-DIGITS",lisp)
 LISPSYM(set_long_float_digits,"%SET-LONG-FLOAT-DIGITS",system)
 LISPSYM(log2,"LOG2",system)
 LISPSYM(log10,"LOG10",system)
-#ifdef EXPORT_SYSCALLS
-LISPSYM(erf,"ERF",posix)
-LISPSYM(erfc,"ERFC",posix)
-LISPSYM(j0,"J0",posix)
-LISPSYM(j1,"J1",posix)
-LISPSYM(jn,"JN",posix)
-LISPSYM(y0,"Y0",posix)
-LISPSYM(y1,"Y1",posix)
-LISPSYM(yn,"YN",posix)
-LISPSYM(gamma,"GAMMA",posix)
-LISPSYM(lgamma,"LGAMMA",posix)
-#endif # EXPORT_SYSCALLS
 # ---------- REXX ----------
 #ifdef REXX
 LISPSYM(rexx_put,"%REXX-PUT",system)
@@ -1496,7 +1477,7 @@ LISPSYM(double_float_negative_epsilon,"DOUBLE-FLOAT-NEGATIVE-EPSILON",lisp) # al
 LISPSYM(long_float_negative_epsilon,"LONG-FLOAT-NEGATIVE-EPSILON",lisp) # als Variable in LISPARIT
 LISPSYM(default_float_format,"*DEFAULT-FLOAT-FORMAT*",lisp) # als Variable in LISPARIT
 LISPSYM(read_default_float_format,"*READ-DEFAULT-FLOAT-FORMAT*",lisp) # als Variable in LISPARIT
-LISPSYM(write_float_decimal,"WRITE-FLOAT-DECIMAL",system) # als Funktion für LISPARIT
+LISPSYM(write_float,"WRITE-FLOAT",system) # als Funktion für LISPARIT
 LISPSYM(random_state_stern,"*RANDOM-STATE*",lisp) # als Variable in LISPARIT
 #ifdef UNICODE
 LISPSYM(unicode_16,"UNICODE-16",charset)
@@ -1507,7 +1488,6 @@ LISPSYM(unicode_32_big_endian,"UNICODE-32-BIG-ENDIAN",charset)
 LISPSYM(unicode_32_little_endian,"UNICODE-32-LITTLE-ENDIAN",charset)
 LISPSYM(utf_8,"UTF-8",charset)
 LISPSYM(java,"JAVA",charset)
-# Natively supported 8-bit encodings.
 LISPSYM(ascii,"ASCII",charset) # ---------------------------+ These must be
 LISPSYM(iso8859_1,"ISO-8859-1",charset) #                   | in the same order
 LISPSYM(iso8859_2,"ISO-8859-2",charset) #                   | as in encoding.d
@@ -1522,9 +1502,7 @@ LISPSYM(iso8859_10,"ISO-8859-10",charset)
 LISPSYM(iso8859_13,"ISO-8859-13",charset)
 LISPSYM(iso8859_14,"ISO-8859-14",charset)
 LISPSYM(iso8859_15,"ISO-8859-15",charset)
-LISPSYM(iso8859_16,"ISO-8859-16",charset)
 LISPSYM(koi8_r,"KOI8-R",charset)
-LISPSYM(koi8_u,"KOI8-U",charset)
 LISPSYM(mac_arabic,"MAC-ARABIC",charset)
 LISPSYM(mac_centraleurope,"MAC-CENTRAL-EUROPE",charset)
 LISPSYM(mac_croatian,"MAC-CROATIAN",charset)
@@ -1573,14 +1551,11 @@ LISPSYM(cp1254,"CP1254",charset)
 LISPSYM(cp1255,"CP1255",charset)
 LISPSYM(cp1256,"CP1256",charset)
 LISPSYM(cp1257,"CP1257",charset)
-LISPSYM(cp1258,"CP1258",charset)
+LISPSYM(cp1258,"CP1258",charset) #                          |
 LISPSYM(hp_roman8,"HP-ROMAN8",charset) #                    |
-LISPSYM(nextstep,"NEXTSTEP",charset) #                      |
-LISPSYM(jisx0201,"JIS_X0201",charset) # --------------------+
-# Aliases.
+LISPSYM(nextstep,"NEXTSTEP",charset) # ---------------------+
 LISPSYM(ucs_2,"UCS-2",charset)
 LISPSYM(ucs_4,"UCS-4",charset)
-LISPSYM(macintosh,"MACINTOSH",charset)
 LISPSYM(windows_1250,"WINDOWS-1250",charset)
 LISPSYM(windows_1251,"WINDOWS-1251",charset)
 LISPSYM(windows_1252,"WINDOWS-1252",charset)
@@ -1590,39 +1565,6 @@ LISPSYM(windows_1255,"WINDOWS-1255",charset)
 LISPSYM(windows_1256,"WINDOWS-1256",charset)
 LISPSYM(windows_1257,"WINDOWS-1257",charset)
 LISPSYM(windows_1258,"WINDOWS-1258",charset)
-#ifdef GNU_LIBICONV
-# All documented encodings of libiconv, except those which are already builtin
-# without libiconv.
-LISPSYM(koi8_ru,"KOI8-RU",charset) # -----------------------+ These block is
-LISPSYM(euc_jp,"EUC-JP",charset) #                          | referenced in
-LISPSYM(shift_jis,"SHIFT-JIS",charset) #                    | encoding.d
-LISPSYM(cp932,"CP932",charset)
-LISPSYM(iso_2022_jp,"ISO-2022-JP",charset)
-LISPSYM(iso_2022_jp_2,"ISO-2022-JP-2",charset)
-LISPSYM(iso_2022_jp_1,"ISO-2022-JP-1",charset)
-LISPSYM(euc_cn,"EUC-CN",charset)
-LISPSYM(hz,"HZ",charset)
-LISPSYM(gbk,"GBK",charset)
-LISPSYM(cp936,"CP936",charset)
-LISPSYM(euc_tw,"EUC-TW",charset)
-LISPSYM(big5,"BIG5",charset)
-LISPSYM(cp950,"CP950",charset)
-LISPSYM(iso_2022_cn,"ISO-2022-CN",charset)
-LISPSYM(iso_2022_cn_ext,"ISO-2022-CN-EXT",charset)
-LISPSYM(euc_kr,"EUC-KR",charset)
-LISPSYM(cp949,"CP949",charset)
-LISPSYM(iso_2022_kr,"ISO-2022-KR",charset)
-LISPSYM(armscii_8,"ARMSCII-8",charset)
-LISPSYM(georgian_academy,"GEORGIAN-ACADEMY",charset)
-LISPSYM(georgian_ps,"GEORGIAN-PS",charset)
-LISPSYM(tis_620,"TIS-620",charset)
-LISPSYM(mulelao_1,"MULELAO-1",charset)
-LISPSYM(cp1133,"CP1133",charset)
-LISPSYM(viscii,"VISCII",charset)
-LISPSYM(tcvn,"TCVN",charset) #                              |
-LISPSYM(utf_16,"UTF-16",charset) #                          |
-LISPSYM(utf_7,"UTF-7",charset) # ---------------------------+
-#endif
 #endif
 LISPSYM(english,"ENGLISH",lisp) # als Language für MISC
 LISPSYM(init_hooks,"*INIT-HOOKS*",system) # als Variable für SPVW
@@ -1685,3 +1627,4 @@ LISPSYM(mem_write,"MEM-WRITE",system)
 LISPSYM(mem_write_vector,"MEM-WRITE-VECTOR",system)
 LISPSYM(affi_nonzerop,"NZERO-POINTER-P",system)
 #endif
+

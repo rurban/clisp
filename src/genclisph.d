@@ -10,18 +10,18 @@
 # Nur dass die Zahlen auch vom Typ `unsigned long long' sein können.
 # Wir vermeiden es, <stdarg.h> oder <varargs.h> vorauszusetzen.
 
-typedef struct {
-  char base; # 'd' für dezimal, 'x' für hexadezimal
-  int size;
-  union {
-    uint8 val8;
-    uint16 val16;
-    uint32 val32;
-    #ifdef HAVE_LONGLONG
-    uint64 val64;
-    #endif
-  } value;
-} printf_arg;
+typedef struct { char base; # 'd' für dezimal, 'x' für hexadezimal
+                 int size;
+                 union { uint8 val8;
+                         uint16 val16;
+                         uint32 val32;
+                         #ifdef HAVE_LONGLONG
+                         uint64 val64;
+                         #endif
+                       }
+                       value;
+               }
+        printf_arg;
 
 #ifdef HAVE_LONGLONG
   #define fill_printf_arg(where,expr)  \
@@ -49,54 +49,50 @@ local const char* ULLsuffix = "ULL";
 global void print_printf_arg (const printf_arg* arg);
 global void print_printf_arg(arg)
   var const printf_arg* arg;
-  {
-    switch (arg->size) {
-      case sizeof(uint8):
-        printf(arg->base=='d' ? "%u" : "0x%X", (unsigned int)(arg->value.val8));
-        break;
-      case sizeof(uint16):
-        printf(arg->base=='d' ? "%u" : "0x%X", (unsigned int)(arg->value.val16));
-        break;
-      case sizeof(uint32):
-        printf(arg->base=='d' ? "%lu%s" : "0x%lX%s", (unsigned long)(arg->value.val32), ULsuffix);
-        break;
-      #ifdef HAVE_LONGLONG
-      case sizeof(uint64):
-        #if (long_bitsize == 64)
-          if (!(sizeof(uint64) == sizeof(unsigned long))) abort();
-          printf("0x%lX%s", (unsigned long)(arg->value.val64), ULsuffix);
-        #else
-          if (!(sizeof(uint32) == sizeof(unsigned long))) abort();
-          printf("0x%lX%08lX%s",
-                 (unsigned long)(arg->value.val64 >> 32),
-                 (unsigned long)(arg->value.val64 & 0xFFFFFFFFUL),
-                 ULLsuffix
-                );
+  { switch (arg->size)
+      { case sizeof(uint8):
+          printf(arg->base=='d' ? "%u" : "0x%X", (unsigned int)(arg->value.val8));
+          break;
+        case sizeof(uint16):
+          printf(arg->base=='d' ? "%u" : "0x%X", (unsigned int)(arg->value.val16));
+          break;
+        case sizeof(uint32):
+          printf(arg->base=='d' ? "%lu%s" : "0x%lX%s", (unsigned long)(arg->value.val32), ULsuffix);
+          break;
+        #ifdef HAVE_LONGLONG
+        case sizeof(uint64):
+          #if (long_bitsize == 64)
+            if (!(sizeof(uint64) == sizeof(unsigned long))) { abort(); }
+            printf("0x%lX%s", (unsigned long)(arg->value.val64), ULsuffix);
+          #else
+            if (!(sizeof(uint32) == sizeof(unsigned long))) { abort(); }
+            printf("0x%lX%08lX%s",
+                   (unsigned long)(arg->value.val64 >> 32),
+                   (unsigned long)(arg->value.val64 & 0xFFFFFFFFUL),
+                   ULLsuffix
+                  );
+          #endif
+          break;
         #endif
-        break;
-      #endif
-      default:
-        abort();
-    }
-  }
+        default:
+          abort();
+  }   }
 
 global void printf_with_args (const char* string, int argcount, printf_arg* args);
 global void printf_with_args(string,argcount,args)
   var const char* string;
   var int argcount;
   var printf_arg* args;
-  {
-    while (*string) {
-      if (string[0]=='%') {
-        if (!(string[1]=='d' || string[1]=='x')) abort();
-        if (!(argcount > 0)) abort();
-        args->base = string[1]; print_printf_arg(args);
-        string+=2; args++; argcount--;
-      } else {
-        putchar(*string); string++;
-      }
-    }
-  }
+  { while (*string)
+      { if (string[0]=='%')
+          { if (!(string[1]=='d' || string[1]=='x')) { abort(); }
+            if (!(argcount > 0)) { abort(); }
+            args->base = string[1]; print_printf_arg(args);
+            string+=2; args++; argcount--;
+          }
+        else
+          { putchar(*string); string++; }
+  }   }
 
 #define printf0(string)  printf(string)
 #define printf1(string,arg0)  \
@@ -157,8 +153,7 @@ global void printf_with_args(string,argcount,args)
   }
 
 global int main()
-{
-  # Was hier ausgegeben wird, kann voraussetzen, dass unixconf.h und intparam.h
+{ # Was hier ausgegeben wird, kann voraussetzen, dass unixconf.h und intparam.h
   # schon includet wurden. (intparam.h z.Zt. nicht nötig, aber was soll's.)
 # #ifdef LANGUAGE_STATIC
 #   printf1("#define ENGLISH  %d\n",ENGLISH);
@@ -309,7 +304,7 @@ global int main()
       printf("#define bit_test(x,n)  ((((n)<12) && ((x) & bit(n))) || (((n)>=12) && ((sint32)((uint32)(x) << (31-(n))) < 0)))\n");
     #endif
   #endif
-  printf("#define minus_bit(n)  (-1%s<<(n))\n",Lsuffix);
+# printf("#define minus_bit(n)  (-1%s<<(n))\n",Lsuffix);
 # printf("#define minus_bitm(n)  (-2%s<<((n)-1))\n",Lsuffix);
 # printf("#define floor(a_from_floor,b_from_floor)  ((a_from_floor) / (b_from_floor))\n");
 # printf("#define ceiling(a_from_ceiling,b_from_ceiling)  (((a_from_ceiling) + (b_from_ceiling) - 1) / (b_from_ceiling))\n");
@@ -326,7 +321,11 @@ global int main()
 #   printf("#define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  arrayeltype* arrayvar = (arrayeltype*)alloca((arraysize)*sizeof(arrayeltype))\n");
 #   printf("#define FREE_DYNAMIC_ARRAY(arrayvar)\n");
 # #else
-#   printf("#include <stdlib.h>\n");
+#   #ifdef HAVE_STDLIB_H
+#     printf("#include <stdlib.h>\n");
+#   #else
+#     printf("#include <sys/types.h>\n");
+#   #endif
 #   printf("extern void* malloca (size_t size);\n");
 #   printf("extern void freea (void* ptr);\n");
 #   printf("#define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  arrayeltype* arrayvar = (arrayeltype*)malloca((arraysize)*sizeof(arrayeltype))\n");
@@ -367,7 +366,7 @@ global int main()
 #   printf("typedef struct { uintL hi; uintL lo; } uintL2;\n");
 # #endif
   printf("typedef sint%d sintP;\n",pointer_bitsize);
-  printf("typedef uint%d uintP;\n",pointer_bitsize);
+# printf("typedef uint%d uintP;\n",pointer_bitsize);
 # printf("typedef sint%d sintBW;\n",intBWsize);
 # printf("typedef uint%d uintBW;\n",intBWsize);
 # printf("typedef sint%d sintWL;\n",intWLsize);
@@ -501,6 +500,9 @@ global int main()
 # printf("#define oint_data_len  %d\n",oint_data_len);
 # printf1("#define oint_data_mask  %x\n",(oint)oint_data_mask);
 # printf("#define addr_shift  %d\n",addr_shift);
+# #ifdef vm_addr_mask
+#   printf1("#define vm_addr_mask  %x\n",(oint)vm_addr_mask);
+# #endif
   printf("typedef uint%d tint;\n",oint_type_len);
   printf("typedef uint%d aint;\n",oint_addr_len);
 # printf("typedef sint%d saint;\n",oint_addr_len);
@@ -514,12 +516,12 @@ global int main()
 #   printf("#define wbit  bit\n");
 #   printf("#define wbitm  bitm\n");
     printf("#define wbit_test  bit_test\n");
-    printf("#define minus_wbit  minus_bit\n");
+#   printf("#define minus_wbit  minus_bit\n");
   #else
     printf("#define wbit(n)  (1LL<<(n))\n");
 #   printf("#define wbitm(n)  (2LL<<((n)-1))\n");
     printf("#define wbit_test(x,n)  ((x) & wbit(n))\n");
-    printf("#define minus_wbit(n)  (-1LL<<(n))\n");
+#   printf("#define minus_wbit(n)  (-1LL<<(n))\n");
   #endif
   #ifdef TYPECODES
     #if !(exact_uint_size_p(oint_type_len) && (tint_type_mask == bit(oint_type_len)-1))
@@ -757,23 +759,13 @@ global int main()
 # printf("typedef sstring_ *  Sstring;\n");
 # printf("typedef struct { LRECORD_HEADER uintL  length; object data[unspecified]; } svector_;\n");
 # printf("typedef svector_ *  Svector;\n");
-# #ifdef TYPECODES
-#   printf("#define Array_type_simple_bit_vector(atype)  (%d+((atype)<<%d)",Array_type_sbvector,TB0);
-#   if (TB0+1 != TB1) printf("+((atype)&%d)",bit(TB0+1)-bit(TB1));
-#   if (TB1+1 != TB2) printf("+((atype)&%d)",bit(TB1+1)-bit(TB2));
-#   printf(");\n");
-# #endif
 # printf("typedef struct { XRECORD_HEADER object pack_external_symbols; object pack_internal_symbols; object pack_shadowing_symbols; object pack_use_list; object pack_used_by_list; object pack_name; object pack_nicknames; } *  Package;\n");
 # printf("typedef Srecord  Structure;\n");
 # printf("#define structure_types   recdata[0]\n");
 # printf("typedef struct { SRECORD_HEADER object class; object other[unspecified]; } *  Instance;\n");
   printf("typedef void Values;\n");
   printf("typedef Values (*lisp_function)();\n");
-  printf("typedef struct { lisp_function function; object name; object keywords; uintW argtype; uintW req_anz; uintW opt_anz; uintB rest_flag; uintB key_flag; uintW key_anz; } subr_");
-  #if defined(NO_TYPECODES) && (alignment_long < 4) && defined(GNU)
-    printf(" __attribute__ ((aligned (4)))");
-  #endif
-  printf(";\n");
+  printf("typedef struct { lisp_function function; object name; object keywords; uintW argtype; uintW req_anz; uintW opt_anz; uintB rest_flag; uintB key_flag; uintW key_anz; } subr_;\n");
 # printf("typedef subr_ *  Subr;\n");
   printf("typedef enum { subr_norest, subr_rest } subr_rest_t;\n");
   printf("typedef enum { subr_nokey, subr_key, subr_key_allow } subr_key_t;\n");
@@ -819,8 +811,8 @@ global int main()
 #   printf("#define TheComplex(obj)  ((Complex)("); printf_type_pointable(complex_type); printf("))\n");
 #   printf("#define TheSymbol(obj)  ((Symbol)("); printf_type_pointable(symbol_type); printf("))\n");
     printf("#define TheBignum(obj)  ((Bignum)("); printf_type_pointable(bignum_type|bit(sign_bit_t)); printf("))\n");
-#   printf("#define TheSarray(obj)  ((Sarray)("); printf_type_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type|sstring_type|svector_type); printf("))\n");
-#   printf("#define TheSbvector(obj)  ((Sbvector)("); printf_type_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type); printf("))\n");
+#   printf("#define TheSarray(obj)  ((Sarray)("); printf_type_pointable(sbvector_type|sstring_type|svector_type); printf("))\n");
+#   printf("#define TheSbvector(obj)  ((Sbvector)("); printf_type_pointable(sbvector_type); printf("))\n");
 #   printf("#define TheSstring(obj)  ((Sstring)("); printf_type_pointable(sstring_type); printf("))\n");
 #   printf("#define TheSvector(obj)  ((Svector)("); printf_type_pointable(svector_type); printf("))\n");
     printf("#define TheRecord(obj)  ((Record)("); printf_type_pointable(closure_type|structure_type|stream_type|orecord_type|instance_type); printf("))\n");
@@ -920,9 +912,9 @@ global int main()
 #   printf2("#define immediate_number_p(obj)  ((as_oint(obj) & %d) == %d)\n",(4 << imm_type_shift) | immediate_bias,(fixnum_type&sfloat_type));
 # #endif
 # #ifdef TYPECODES
-#   printf2("#define vectorp(obj)  ((tint)(typecode(obj) - %d) <= (tint)%d)\n",(tint)sbvector_type,(tint)(vector_type-sbvector_type));
+#   printf2("#define vectorp(obj)  ((tint)((typecode(obj) & ~%d)-1) <= (tint)%d)\n",(tint)bit(notsimple_bit_t),(tint)(svector_type-1));
 # #else
-#   printf1("#define vectorp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= %d))\n",19-1);
+#   printf1("#define vectorp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= %d))\n",9-1);
 # #endif
 # #ifdef TYPECODES
 #   printf2("#define simple_vector_p(obj)  (typecode(obj) == %d)\n",(tint)svector_type);
@@ -937,27 +929,42 @@ global int main()
 # #ifdef TYPECODES
 #   printf2("#define simple_string_p(obj)  (typecode(obj) == %d)\n",(tint)sstring_type);
 # #else
-#   printf1("#define simple_string_p(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) <= %d))\n",18-16);
+#   printf1("#define simple_string_p(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 6) <= %d))\n",8-6);
 # #endif
 # #ifdef TYPECODES
 #   printf2("#define stringp(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(notsimple_bit_t),(tint)sstring_type);
 # #else
-#   printf1("#define stringp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) == %d))\n",19-16);
+#   printf1("#define stringp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 6) == %d))\n",9-6);
 # #endif
 # #ifdef TYPECODES
-#   printf1("#define simple_bit_vector_p(atype,obj)  (typecode(obj) == Array_type_simple_bit_vector(atype))\n");
+#   printf2("#define simple_bit_vector_p(obj)  (typecode(obj) == %d)\n",(tint)sbvector_type);
 # #else
-#   printf1("#define simple_bit_vector_p(atype,obj)  (varobjectp(obj) && (Record_type(obj) == %d+(atype)))\n",Rectype_Sbvector);
+#   printf1("#define simple_bit_vector_p(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Sbvector);
 # #endif
 # #ifdef TYPECODES
-#   printf2("#define bit_vector_p(atype,obj)  ((typecode(obj) & ~%d) == Array_type_simple_bit_vector(atype))\n",(tint)bit(notsimple_bit_t));
+#   printf("#define bit_vector_p(obj)  \\\n");
+#   printf4("  ((typecode(obj) == %d) || ((typecode(obj) == %d) \\\n",(tint)sbvector_type,(tint)bvector_type);
+#   printf2("       && ((Iarray_flags(obj) & %d) == %d) \\\n",arrayflags_atype_mask,Atype_Bit);
+#   printf("  )   )\n");
 # #else
-#   printf2("#define bit_vector_p(atype,obj)  (varobjectp(obj) && ((Record_type(obj) & ~%d) == %d+(atype)))\n",Rectype_Sbvector^Rectype_bvector,Rectype_Sbvector&Rectype_bvector);
+#   printf("#define bit_vector_p(obj)  \\\n");
+#   printf2("  (varobjectp(obj) && ((Record_type(obj) == %d) || ((Record_type(obj) == %d)",Rectype_Sbvector,Rectype_bvector);
+#   printf2(" && ((Iarray_flags(obj) & %d) == %d))))\n",arrayflags_atype_mask,Atype_Bit);
 # #endif
 # #ifdef TYPECODES
-#   printf2("#define arrayp(obj)  ((tint)(typecode(obj) - %d) <= (tint)%d)\n",(tint)mdarray_type,(tint)(vector_type-mdarray_type));
+#   printf2("#define byte_vector_p(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(notsimple_bit_t),(tint)sbvector_type);
 # #else
-#   printf1("#define arrayp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= %d))\n",20-1);
+#   printf2("#define byte_vector_p(obj)  (varobjectp(obj) && ((Record_type(obj) & ~%d) == %d))\n",Rectype_Sbvector^Rectype_bvector,Rectype_Sbvector&Rectype_bvector);
+# #endif
+# #ifdef TYPECODES
+#   printf2("#define general_byte_vector_p(obj)  (typecode(obj) == %d)\n",(tint)bvector_type);
+# #else
+#   printf1("#define general_byte_vector_p(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_bvector);
+# #endif
+# #ifdef TYPECODES
+#   printf2("#define arrayp(obj)  ((tint)(typecode(obj) - 1) <= (tint)%d)\n",(tint)(vector_type-1));
+# #else
+#   printf1("#define arrayp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= %d))\n",10-1);
 # #endif
 # #ifdef TYPECODES
 #   printf1("#define instancep(obj)  (typecode(obj)==%d)\n",(tint)instance_type);
@@ -1171,7 +1178,7 @@ global int main()
            printf(" saved_subr_self = subr_self;");
          #endif
          #ifdef HAVE_SAVED_REGISTERS
-           printf(" { struct registers * registers = callback_saved_registers; if (!(framecode(STACK_(0)) == CALLBACK_frame_info)) abort(); callback_saved_registers = (struct registers *)(aint)as_oint(STACK_(1)); skipSTACK(2);");
+           printf(" { struct registers * registers = callback_saved_registers; if (!(mtypecode(STACK_(0)) == CALLBACK_frame_info)) abort(); callback_saved_registers = (struct registers *)(aint)as_oint(STACK_(1)); skipSTACK(2);");
            #ifdef HAVE_SAVED_STACK
              printf(" saved_STACK = STACK;");
            #endif
@@ -1226,7 +1233,7 @@ global int main()
 # printf("extern object allocate_cons (void);\n");
 # printf("extern object make_symbol (object string);\n");
 # printf("extern object allocate_vector (uintL len);\n");
-# printf("extern object allocate_bit_vector (uintB atype, uintL len);\n");
+# printf("extern object allocate_bit_vector (uintL len);\n");
 # printf("extern object allocate_string (uintL len);\n");
 # #ifdef asciz_length
 #   #if defined(GNU) && (SAFETY < 2) && (__GNUC__ >= 2)
@@ -1328,8 +1335,7 @@ global int main()
     printf("#define popSTACK()  (STACK skipSTACKop 1, STACK_(-1))\n");
   #endif
   printf("#define skipSTACK(n)  (STACK skipSTACKop (sintP)(n))\n");
-# {
-#   var int i;
+# { int i;
 #   for (i=0; i<=10; i++) printf("#define STACK_%d  (STACK_(%d))\n",i,i);
 # }
 # printf("#define mv_limit %d\n",mv_limit);
@@ -1371,11 +1377,6 @@ global int main()
 # printf("#define Before(pointer)  (*(STACKpointable(pointer) STACKop 0))\n");
   #ifdef HAVE_SAVED_REGISTERS
     printf1("#define CALLBACK_frame_info  %d\n",CALLBACK_frame_info);
-  #endif
-  #ifdef TYPECODES
-    printf("#define framecode(bottomword)  mtypecode(bottomword)\n");
-  #else
-    printf1("#define framecode(bottomword)  (as_oint(bottomword) & minus_wbit(%d))\n",FB1);
   #endif
   #ifdef TYPECODES
     #if !defined(SINGLEMAP_MEMORY_STACK)

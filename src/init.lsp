@@ -17,9 +17,7 @@ stream file-stream synonym-stream broadcast-stream concatenated-stream
 two-way-stream echo-stream string-stream string string-char symbol t vector
 satisfies values mod signed-byte unsigned-byte
 ; Pseudo-Typen:
-simple-2bit-vector 2bit-vector simple-4bit-vector 4bit-vector
-simple-8bit-vector 8bit-vector simple-16bit-vector 16bit-vector
-simple-32bit-vector 32bit-vector special-form system-function
+byte-vector special-form system-function
 ;; Konstanten:
 lambda-list-keywords lambda-parameters-limit nil t call-arguments-limit
 multiple-values-limit pi boole-clr boole-set boole-1 boole-2 boole-c1 boole-c2
@@ -1787,16 +1785,6 @@ interpreter compiler
     ) )
 ) )
 
-;; this should come before `compiler'
-#+syscalls
-(in-package "POSIX" :use '("LISP" "CLOS"))
-#+syscalls
-(export '(resolve-host-ipaddr hostent user-data file-stat sysinfo bogomips
-          resource-usage-limits
-          erf erfc j0 j1 jn y0 y1 yn gamma lgamma))
-#+syscalls
-(in-package "SYSTEM")
-
 (LOAD "trace")     ;; TRACE
 
 (LOAD "compiler")  ;; Compiler
@@ -1863,9 +1851,6 @@ interpreter compiler
 )
 
 #+AMIGA (LOAD "rexx1") ;; Rexx-Schnittstelle, optional
-
-#+syscalls
-(LOAD "posix")     ;; POSIX/SUSV2 system calls and library functions, optional
 
 (LOAD "defs3")     ;; the COMMON-LISP package
 

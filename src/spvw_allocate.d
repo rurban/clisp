@@ -25,11 +25,9 @@
 # Fehlermeldung wegen vollen Speichers
   nonreturning_function(local, fehler_speicher_voll, (void));
   local void fehler_speicher_voll()
-    {
-      dynamic_bind(S(use_clcs),NIL); # SYS::*USE-CLCS* an NIL binden
-      if (posfixnump(Symbol_value(S(gc_statistics_stern)))) {
-        dynamic_bind(S(gc_statistics_stern),Fixnum_0); # SYS::*GC-STATISTICS* an 0 binden
-      }
+    { dynamic_bind(S(use_clcs),NIL); # SYS::*USE-CLCS* an NIL binden
+      if (posfixnump(Symbol_value(S(gc_statistics_stern))))
+        { dynamic_bind(S(gc_statistics_stern),Fixnum_0); } # SYS::*GC-STATISTICS* an 0 binden
       fehler(storage_condition,
              GETTEXT("No more room for LISP objects")
             );
@@ -40,29 +38,27 @@
 # Notmaßnahme, wenn Speicher voll: Anzapfen der Reserve und Fehlermeldung.
   nonreturning_function(local, error_speicher_voll, (void));
   local void error_speicher_voll()
-    {
-      # Abhilfe: Reservespeicher wird halbiert.
+    { # Abhilfe: Reservespeicher wird halbiert.
       var uintL reserve = mem.MEMTOP - mem.MEMRES; # noch freie Reserve
-      if (reserve>=8) { # Reservespeicher auch voll?
+      if (reserve>=8) # Reservespeicher auch voll?
         # nein -> Reservespeicher anzapfen und Fehlermeldung ausgeben
         # halbe Reserve
-        move_conses(round_down(floor(reserve,2),varobject_alignment));
-        # halbierte Reserve, aligned: um soviel die Conses nach oben schieben
-        fehler_speicher_voll();
-      } else {
+        { move_conses(round_down(floor(reserve,2),varobject_alignment));
+          # halbierte Reserve, aligned: um soviel die Conses nach oben schieben
+          fehler_speicher_voll();
+        }
+        else
         # ja -> harte Fehlermeldung
-        asciz_out(GETTEXT(NLstring "*** - " "No more room for LISP objects: RESET"));
-        reset(); # und zum letzten Driver-Frame zurück
-      }
-    }
+        { asciz_out(GETTEXT(NLstring "*** - " "No more room for LISP objects: RESET"));
+          reset(); # und zum letzten Driver-Frame zurück
+    }   }
 
 # Bei entspannter Situation: Reserve wieder auffüllen.
 # Invariante: (mem.conses.heap_start-mem.varobjects.heap_end >= need).
   local void relax_reserve (uintL need);
   local void relax_reserve(need)
     var uintL need;
-    {
-      # Jetzt ist genügend Platz da. Vielleicht sogar genug, den
+    { # Jetzt ist genügend Platz da. Vielleicht sogar genug, den
       # Reservespeicher auf normale Größe zu bringen?
       var uintL free = (mem.conses.heap_start-mem.varobjects.heap_end) - need;
                        # soviel Bytes noch frei
@@ -70,13 +66,12 @@
                        # soviel Bytes noch in der Reserve frei, <=RESERVE
       var uintL free_total = free + free_reserve;
                        # freier Objektspeicher + freie Reserve
-      if (free_total >= RESERVE) { # mindestens Normalwert RESERVE ?
+      if (free_total >= RESERVE) # mindestens Normalwert RESERVE ?
         # ja -> Reservespeicher auf normale Größe bringen, indem
         # die Conses um (RESERVE - free_reserve) nach unten geschoben
         # werden:
         move_conses(free_reserve-RESERVE);
         # Dadurch bleibt genügend für need frei.
-      }
     }
 
 #else
@@ -103,43 +98,37 @@
       begin_system_call();
       addr = malloc(need);
       end_system_call();
-      if (addr==NULL)
-        return NULL;
+      if (addr==NULL) return NULL;
       # Intervall [addr,addr+need-1] muss in [0..2^oint_addr_len-1] liegen:
-      {
-        var aint a = (aint)addr; # a = untere Intervallgrenze
-        if (pointable_usable_test(a)) {
-          a = round_down(a + need-1,bit(addr_shift)); # a = obere Intervallgrenze
-          if (pointable_usable_test(a))
-            return addr;
-        }
-      }
+      { var aint a = (aint)addr; # a = untere Intervallgrenze
+        if (pointable_usable_test(a))
+          { a = round_down(a + need-1,bit(addr_shift)); # a = obere Intervallgrenze
+            if (pointable_usable_test(a))
+              { return addr; }
+      }   }
       # Mit diesem Stück Speicher können wir nichts anfangen, wieder zurückgeben:
       begin_system_call();
       free(addr);
       end_system_call();
       #if defined(AMIGAOS) && !(defined(WIDE) || defined(MC68000) || !defined(TYPECODES))
       # Wir machen einen zweiten Versuch mit veränderten Flags.
-      if (!(default_allocmemflag == retry_allocmemflag)) {
-        begin_system_call();
-        addr = allocmem(need,retry_allocmemflag);
-        end_system_call();
-        if (addr==NULL)
-          return NULL;
-        # Intervall [addr,addr+need-1] muss in [0..2^oint_addr_len-1] liegen:
-        {
-          var aint a = (aint)addr; # a = untere Intervallgrenze
-          if (pointable_usable_test(a)) {
-            a = round_down(a + need-1,bit(addr_shift)); # a = obere Intervallgrenze
+      if (!(default_allocmemflag == retry_allocmemflag))
+        { begin_system_call();
+          addr = allocmem(need,retry_allocmemflag);
+          end_system_call();
+          if (addr==NULL) return NULL;
+          # Intervall [addr,addr+need-1] muss in [0..2^oint_addr_len-1] liegen:
+          { var aint a = (aint)addr; # a = untere Intervallgrenze
             if (pointable_usable_test(a))
-              return addr;
-          }
+              { a = round_down(a + need-1,bit(addr_shift)); # a = obere Intervallgrenze
+                if (pointable_usable_test(a))
+                  { return addr; }
+          }   }
+          # Auch mit diesem Stück Speicher können wir nichts anfangen, wieder zurückgeben:
+          begin_system_call();
+          freemem(addr);
+          end_system_call();
         }
-        # Auch mit diesem Stück Speicher können wir nichts anfangen, wieder zurückgeben:
-        begin_system_call();
-        freemem(addr);
-        end_system_call();
-      }
       #endif
       return NULL;
     }
@@ -164,45 +153,42 @@
   local void make_space_gc (uintL need);
   local void make_space_gc(need)
     var uintL need;
-    {
-      # (mem.conses.heap_start-mem.varobjects.heap_end < need)  bzw.
+    { # (mem.conses.heap_start-mem.varobjects.heap_end < need)  bzw.
       # (mem.total_room < need)  ist schon abgeprüft, also
-      # Nicht genügend Platz
-     not_enough_room:
-      {
-        gar_col_simple(); # Garbage Collector aufrufen
-       doing_gc:
-        # Teste auf Tastatur-Unterbrechung
-        interruptp({
-          pushSTACK(S(gc)); tast_break();
-          if (not_enough_room_p(need))
-            goto not_enough_room;
-          else
-            return;
-        });
-        if (mem.conses.heap_start-mem.varobjects.heap_end < (uintP)(need)) { # und wieder testen
-          # Wirklich nicht genügend Platz da.
-          # [Unter UNIX mit 'realloc' arbeiten??]
-          # Abhilfe: man versucht eine volle GC.
-          #ifdef GENERATIONAL_GC
-          if (!mem.last_gc_full) {
-            gar_col(); goto doing_gc;
-          } else
-          #endif
-            { error_speicher_voll(); }
-        } else {
-          # Jetzt ist genügend Platz da. Vielleicht sogar genug, den
-          # Reservespeicher auf normale Größe zu bringen?
-          relax_reserve(need);
-          # Jetzt ist sicher (mem.conses.heap_start-mem.varobjects.heap_end >= need).
-          #ifdef GENERATIONAL_GC
-          # Falls (mem.total_room < need), ignorieren wir das:
-          if (mem.total_room < need)
-            mem.total_room = need;
-          #endif
-        }
-      }
-    }
+        # Nicht genügend Platz
+        not_enough_room:
+        { gar_col_simple(); # Garbage Collector aufrufen
+          doing_gc:
+          # Teste auf Tastatur-Unterbrechung
+          interruptp(
+            { pushSTACK(S(gc)); tast_break();
+              if (not_enough_room_p(need)) goto not_enough_room;
+                else
+                return;
+            });
+          if (mem.conses.heap_start-mem.varobjects.heap_end < (uintP)(need)) # und wieder testen
+            # Wirklich nicht genügend Platz da.
+            # [Unter UNIX mit 'realloc' arbeiten??]
+            # Abhilfe: man versucht eine volle GC.
+            {
+              #ifdef GENERATIONAL_GC
+              if (!mem.last_gc_full)
+                { gar_col(); goto doing_gc; }
+                else
+              #endif
+                { error_speicher_voll(); }
+            }
+            else
+            # Jetzt ist genügend Platz da. Vielleicht sogar genug, den
+            # Reservespeicher auf normale Größe zu bringen?
+            { relax_reserve(need);
+              # Jetzt ist sicher (mem.conses.heap_start-mem.varobjects.heap_end >= need).
+              #ifdef GENERATIONAL_GC
+              # Falls (mem.total_room < need), ignorieren wir das:
+              if (mem.total_room < need) { mem.total_room = need; }
+              #endif
+            }
+    }   }
 
 #endif
 
@@ -232,129 +218,117 @@
     var Heap* heapptr;
     { # (mem.total_room < need) || (heapptr->heap_limit - heapptr->heap_end < need)
       # ist schon abgeprüft, also nicht genügend Platz.
-     not_enough_room:
-      {
-        var boolean done_gc = FALSE;
-        if (mem.total_room < need) {
-         do_gc:
-          gar_col_simple(); # Garbage Collector aufrufen
-         doing_gc:
+      not_enough_room:
+     {var boolean done_gc = FALSE;
+      if (mem.total_room < need)
+        do_gc:
+        { gar_col_simple(); # Garbage Collector aufrufen
+          doing_gc:
           # Teste auf Tastatur-Unterbrechung
-          interruptp({
-            pushSTACK(S(gc)); tast_break();
-            if ((mem.total_room < need) || (heapptr->heap_limit - heapptr->heap_end < need))
-              goto not_enough_room;
-            else
-              return;
-          });
+          interruptp(
+            { pushSTACK(S(gc)); tast_break();
+              if ((mem.total_room < need) || (heapptr->heap_limit - heapptr->heap_end < need))
+                goto not_enough_room;
+                else
+                return;
+            });
           done_gc = TRUE;
         }
-        # Entweder ist jetzt (mem.total_room >= need), oder aber wir haben gerade
-        # eine GC durchgeführt. In beiden Fällen konzentrieren wir uns nun
-        # darauf, heapptr->heap_limit zu vergrößern.
-        {
-          var aint needed_limit = heapptr->heap_end + need;
-          if (needed_limit <= heapptr->heap_limit) # hat die GC ihre Arbeit getan?
-            return; # ja -> fertig
-          # Aufrunden bis zur nächsten Seitengrenze:
-          #ifndef GENERATIONAL_GC
-          needed_limit = round_up(needed_limit,map_pagesize); # sicher > heapptr->heap_limit
-          #else # map_pagesize bekanntermaßen eine Zweierpotenz
-          needed_limit = (needed_limit + map_pagesize-1) & -map_pagesize; # sicher > heapptr->heap_limit
-          #endif
-          # neuen Speicher allozieren:
-          if (needed_limit <= mem.conses.heap_limit) { # avoid crossover
-            begin_system_call();
-            var int ergebnis = zeromap((void*)(heapptr->heap_limit),needed_limit - heapptr->heap_limit);
+      # Entweder ist jetzt (mem.total_room >= need), oder aber wir haben gerade
+      # eine GC durchgeführt. In beiden Fällen konzentrieren wir uns nun
+      # darauf, heapptr->heap_limit zu vergrößern.
+      { var aint needed_limit = heapptr->heap_end + need;
+        if (needed_limit <= heapptr->heap_limit) # hat die GC ihre Arbeit getan?
+          return; # ja -> fertig
+        # Aufrunden bis zur nächsten Seitengrenze:
+        #ifndef GENERATIONAL_GC
+        needed_limit = round_up(needed_limit,map_pagesize); # sicher > heapptr->heap_limit
+        #else # map_pagesize bekanntermaßen eine Zweierpotenz
+        needed_limit = (needed_limit + map_pagesize-1) & -map_pagesize; # sicher > heapptr->heap_limit
+        #endif
+        # neuen Speicher allozieren:
+        if (needed_limit <= mem.conses.heap_limit) # avoid crossover
+          { begin_system_call();
+           {var int ergebnis = zeromap((void*)(heapptr->heap_limit),needed_limit - heapptr->heap_limit);
             end_system_call();
-            if (ergebnis >= 0)
-              goto sufficient;
+            if (ergebnis >= 0) goto sufficient;
             asciz_out(GETTEXT("Trying to make room through a GC..." NLstring));
-          }
-          # nicht erfolgreich
-          if (!done_gc)
-            goto do_gc;
-          #ifdef GENERATIONAL_GC
-          if (!mem.last_gc_full) {
-            gar_col(); goto doing_gc;
-          }
-          #endif
-          error_speicher_voll();
-         sufficient:
-          heapptr->heap_limit = needed_limit;
-        }
-        # Jetzt ist sicher (heapptr->heap_limit - heapptr->heap_end >= need).
-        # Falls (mem.total_room < need), ignorieren wir das:
-        if (mem.total_room < need)
-          mem.total_room = need;
+          }}
+        # nicht erfolgreich
+        if (!done_gc)
+          goto do_gc;
+        #ifdef GENERATIONAL_GC
+        if (!mem.last_gc_full)
+          { gar_col(); goto doing_gc; }
+        #endif
+        error_speicher_voll();
+        sufficient:
+        heapptr->heap_limit = needed_limit;
       }
-    }
+      # Jetzt ist sicher (heapptr->heap_limit - heapptr->heap_end >= need).
+      # Falls (mem.total_room < need), ignorieren wir das:
+      if (mem.total_room < need) { mem.total_room = need; }
+    }}
   local void make_space_gc_FALSE (uintL need, Heap* heapptr);
   local void make_space_gc_FALSE(need,heapptr)
     var uintL need;
     var Heap* heapptr;
     { # (mem.total_room < need) || (heapptr->heap_start - heapptr->heap_limit < need)
       # ist schon abgeprüft, also nicht genügend Platz.
-     not_enough_room:
-      {
-        var boolean done_gc = FALSE;
-        if (mem.total_room < need) {
-         do_gc:
-          gar_col_simple(); # Garbage Collector aufrufen
-         doing_gc:
+      not_enough_room:
+     {var boolean done_gc = FALSE;
+      if (mem.total_room < need)
+        do_gc:
+        { gar_col_simple(); # Garbage Collector aufrufen
+          doing_gc:
           # Teste auf Tastatur-Unterbrechung
-          interruptp({
-            pushSTACK(S(gc)); tast_break();
-            if ((mem.total_room < need) || (heapptr->heap_start - heapptr->heap_limit < need))
-              goto not_enough_room;
-            else
-              return;
-          });
+          interruptp(
+            { pushSTACK(S(gc)); tast_break();
+              if ((mem.total_room < need) || (heapptr->heap_start - heapptr->heap_limit < need))
+                goto not_enough_room;
+                else
+                return;
+            });
           done_gc = TRUE;
         }
-        # Entweder ist jetzt (mem.total_room >= need), oder aber wir haben gerade
-        # eine GC durchgeführt. In beiden Fällen konzentrieren wir uns nun
-        # darauf, heapptr->heap_limit zu verkleinern.
-        {
-          var aint needed_limit = heapptr->heap_start - need;
-          if (needed_limit > heapptr->heap_start) # wraparound?
-            goto failed;
-          if (needed_limit >= heapptr->heap_limit) # hat die GC ihre Arbeit getan?
-            return; # ja -> fertig
-          # Abrunden bis zur nächsten Seitengrenze:
-          #ifndef GENERATIONAL_GC
-          needed_limit = round_down(needed_limit,map_pagesize); # sicher < heapptr->heap_limit
-          #else # map_pagesize bekanntermaßen eine Zweierpotenz
-          needed_limit = needed_limit & -map_pagesize; # sicher < heapptr->heap_limit
-          #endif
-          # neuen Speicher allozieren:
-          if (needed_limit >= mem.varobjects.heap_limit) { # avoid crossover
-            begin_system_call();
-            var int ergebnis = zeromap((void*)needed_limit,heapptr->heap_limit - needed_limit);
+      # Entweder ist jetzt (mem.total_room >= need), oder aber wir haben gerade
+      # eine GC durchgeführt. In beiden Fällen konzentrieren wir uns nun
+      # darauf, heapptr->heap_limit zu verkleinern.
+      { var aint needed_limit = heapptr->heap_start - need;
+        if (needed_limit > heapptr->heap_start) # wraparound?
+          goto failed;
+        if (needed_limit >= heapptr->heap_limit) # hat die GC ihre Arbeit getan?
+          return; # ja -> fertig
+        # Abrunden bis zur nächsten Seitengrenze:
+        #ifndef GENERATIONAL_GC
+        needed_limit = round_down(needed_limit,map_pagesize); # sicher < heapptr->heap_limit
+        #else # map_pagesize bekanntermaßen eine Zweierpotenz
+        needed_limit = needed_limit & -map_pagesize; # sicher < heapptr->heap_limit
+        #endif
+        # neuen Speicher allozieren:
+        if (needed_limit >= mem.varobjects.heap_limit) # avoid crossover
+          { begin_system_call();
+           {var int ergebnis = zeromap((void*)needed_limit,heapptr->heap_limit - needed_limit);
             end_system_call();
-            if (ergebnis >= 0)
-              goto sufficient;
+            if (ergebnis >= 0) goto sufficient;
             asciz_out(GETTEXT("Trying to make room through a GC..." NLstring));
-          }
-          # nicht erfolgreich
-         failed:
-          if (!done_gc)
-            goto do_gc;
-          #ifdef GENERATIONAL_GC
-          if (!mem.last_gc_full) {
-            gar_col(); goto doing_gc;
-          }
-          #endif
-          error_speicher_voll();
-         sufficient:
-          heapptr->heap_limit = needed_limit;
-        }
-        # Jetzt ist sicher (heapptr->heap_start - heapptr->heap_limit >= need).
-        # Falls (mem.total_room < need), ignorieren wir das:
-        if (mem.total_room < need)
-          mem.total_room = need;
+          }}
+        # nicht erfolgreich
+        failed:
+        if (!done_gc)
+          goto do_gc;
+        #ifdef GENERATIONAL_GC
+        if (!mem.last_gc_full)
+          { gar_col(); goto doing_gc; }
+        #endif
+        error_speicher_voll();
+        sufficient:
+        heapptr->heap_limit = needed_limit;
       }
-    }
+      # Jetzt ist sicher (heapptr->heap_start - heapptr->heap_limit >= need).
+      # Falls (mem.total_room < need), ignorieren wir das:
+      if (mem.total_room < need) { mem.total_room = need; }
+    }}
 
 #endif
 
@@ -378,63 +352,57 @@
     var Heap* heapptr;
     { # (mem.total_room < need) || (heapptr->heap_limit - heapptr->heap_end < need)
       # ist schon abgeprüft, also nicht genügend Platz.
-     not_enough_room:
-      {
-        var boolean done_gc = FALSE;
-        if (mem.total_room < need) {
-         do_gc:
-          gar_col_simple(); # Garbage Collector aufrufen
-         doing_gc:
+      not_enough_room:
+     {var boolean done_gc = FALSE;
+      if (mem.total_room < need)
+        do_gc:
+        { gar_col_simple(); # Garbage Collector aufrufen
+          doing_gc:
           # Teste auf Tastatur-Unterbrechung
-          interruptp({
-            pushSTACK(S(gc)); tast_break();
-            if ((mem.total_room < need) || (heapptr->heap_limit - heapptr->heap_end < need))
-              goto not_enough_room;
-            else
-              return;
-          });
+          interruptp(
+            { pushSTACK(S(gc)); tast_break();
+              if ((mem.total_room < need) || (heapptr->heap_limit - heapptr->heap_end < need))
+                goto not_enough_room;
+                else
+                return;
+            });
           done_gc = TRUE;
         }
-        # Entweder ist jetzt (mem.total_room >= need), oder aber wir haben gerade
-        # eine GC durchgeführt. In beiden Fällen konzentrieren wir uns nun
-        # darauf, heapptr->heap_limit zu vergrößern.
-        {
-          var aint needed_limit = heapptr->heap_end + need;
-          if (needed_limit <= heapptr->heap_limit) # hat die GC ihre Arbeit getan?
-            return; # ja -> fertig
-          # Aufrunden bis zur nächsten Seitengrenze:
-          #ifndef GENERATIONAL_GC
-          needed_limit = round_up(needed_limit,map_pagesize); # sicher > heapptr->heap_limit
-          #else # map_pagesize bekanntermaßen eine Zweierpotenz
-          needed_limit = (needed_limit + map_pagesize-1) & -map_pagesize; # sicher > heapptr->heap_limit
-          #endif
-          # neuen Speicher allozieren:
-          if (needed_limit-1 <= heapptr->heap_hardlimit-1) {
-            begin_system_call();
-            var int ergebnis = zeromap((void*)(heapptr->heap_limit),needed_limit - heapptr->heap_limit);
+      # Entweder ist jetzt (mem.total_room >= need), oder aber wir haben gerade
+      # eine GC durchgeführt. In beiden Fällen konzentrieren wir uns nun
+      # darauf, heapptr->heap_limit zu vergrößern.
+      { var aint needed_limit = heapptr->heap_end + need;
+        if (needed_limit <= heapptr->heap_limit) # hat die GC ihre Arbeit getan?
+          return; # ja -> fertig
+        # Aufrunden bis zur nächsten Seitengrenze:
+        #ifndef GENERATIONAL_GC
+        needed_limit = round_up(needed_limit,map_pagesize); # sicher > heapptr->heap_limit
+        #else # map_pagesize bekanntermaßen eine Zweierpotenz
+        needed_limit = (needed_limit + map_pagesize-1) & -map_pagesize; # sicher > heapptr->heap_limit
+        #endif
+        # neuen Speicher allozieren:
+        if (needed_limit-1 <= heapptr->heap_hardlimit-1)
+          { begin_system_call();
+           {var int ergebnis = zeromap((void*)(heapptr->heap_limit),needed_limit - heapptr->heap_limit);
             end_system_call();
-            if (ergebnis >= 0)
-              goto sufficient;
+            if (ergebnis >= 0) goto sufficient;
             asciz_out(GETTEXT("Trying to make room through a GC..." NLstring));
-          }
-          # nicht erfolgreich
-          if (!done_gc)
-            goto do_gc;
-          #ifdef GENERATIONAL_GC
-          if (!mem.last_gc_full) {
-            gar_col(); goto doing_gc;
-          }
-          #endif
-          fehler_speicher_voll();
-         sufficient:
-          heapptr->heap_limit = needed_limit;
-        }
-        # Jetzt ist sicher (heapptr->heap_limit - heapptr->heap_end >= need).
-        # Falls (mem.total_room < need), ignorieren wir das:
-        if (mem.total_room < need)
-          mem.total_room = need;
+          }}
+        # nicht erfolgreich
+        if (!done_gc)
+          goto do_gc;
+        #ifdef GENERATIONAL_GC
+        if (!mem.last_gc_full)
+          { gar_col(); goto doing_gc; }
+        #endif
+        fehler_speicher_voll();
+        sufficient:
+        heapptr->heap_limit = needed_limit;
       }
-    }
+      # Jetzt ist sicher (heapptr->heap_limit - heapptr->heap_end >= need).
+      # Falls (mem.total_room < need), ignorieren wir das:
+      if (mem.total_room < need) { mem.total_room = need; }
+    }}
 
 #endif
 
@@ -461,19 +429,19 @@
     var AVL(AVLID,stack) * stack_ptr;
     { # AVL(AVLID,least)(need,pages_ptr,stack_ptr) == EMPTY
       # ist schon abgeprüft, also
-      # Nicht genügend Platz
-     not_enough_room:
-      #define handle_interrupt_after_gc()  \
-        { # Teste auf Tastatur-Unterbrechung                               \
-          interruptp(                                                      \
-            { pushSTACK(S(gc)); tast_break();                              \
-             {var Pages page = AVL(AVLID,least)(need,pages_ptr,stack_ptr); \
-              if (page==EMPTY) goto not_enough_room;                       \
-                else                                                       \
-                return page;                                               \
-            }});                                                           \
-        }
-      #if !defined(AVL_SEPARATE)
+        # Nicht genügend Platz
+        not_enough_room:
+        #define handle_interrupt_after_gc()  \
+          { # Teste auf Tastatur-Unterbrechung                               \
+            interruptp(                                                      \
+              { pushSTACK(S(gc)); tast_break();                              \
+               {var Pages page = AVL(AVLID,least)(need,pages_ptr,stack_ptr); \
+                if (page==EMPTY) goto not_enough_room;                       \
+                  else                                                       \
+                  return page;                                               \
+              }});                                                           \
+          }
+        #if !defined(AVL_SEPARATE)
         #define make_space_using_malloc()  \
           # versuche, beim Betriebssystem Platz zu bekommen:                        \
           { var uintL size1 = round_up(need,sizeof(cons_));                         \
@@ -493,7 +461,7 @@
                 mem.total_space += size1;                                           \
                 return page;                                                        \
           }}  }
-      #else # AVL_SEPARATE
+        #else # AVL_SEPARATE
         #define make_space_using_malloc()  \
           # versuche, beim Betriebssystem Platz zu bekommen:                            \
           { var uintL size1 = round_up(need,sizeof(cons_));                             \
@@ -519,47 +487,46 @@
                   else                                                                  \
                   { begin_system_call(); free(page); end_system_call(); }               \
           }}  }
-      #endif
-      if ((need <= std_page_size) && !(mem.free_pages == NULL)) {
-        # Eine normalgroße Page aus dem allgemeinen Pool entnehmen:
-        var Pages page = mem.free_pages;
-        mem.free_pages = page->page_gcpriv.next;
-        # page ist bereits korrekt initialisiert:
-        # page->page_start = page->page_end = page_start0(page);
-        # page->page_room =
-        #   round_down(page->m_start + page->m_length,varobject_alignment)
-        # und diesem Heap zuschlagen:
-        *pages_ptr = AVL(AVLID,insert1)(page,*pages_ptr);
-        if (!(AVL(AVLID,least)(need,pages_ptr,stack_ptr) == page)) abort();
-        mem.total_space += page->page_room;
-        return page;
-      }
-      if (used_space()+need < mem.gctrigger_space) {
-        # Benutzter Platz ist seit der letzten GC noch nicht einmal um 25%
-        # angewachsen -> versuche es erstmal beim Betriebssystem;
-        # die GC machen wir, wenn die 25%-Grenze erreicht ist.
-        make_space_using_malloc();
-      }
-      gar_col_simple(); # Garbage Collector aufrufen
-      handle_interrupt_after_gc();
-      # und wieder testen:
-      var Pages page = AVL(AVLID,least)(need,pages_ptr,stack_ptr);
-      if (page==EMPTY) {
-        if (!mem.last_gc_compacted) {
-          gar_col_compact(); # kompaktierenden Garbage Collector aufrufen
+        #endif
+        if ((need <= std_page_size) && !(mem.free_pages == NULL))
+          { # Eine normalgroße Page aus dem allgemeinen Pool entnehmen:
+            var Pages page = mem.free_pages;
+            mem.free_pages = page->page_gcpriv.next;
+            # page ist bereits korrekt initialisiert:
+            # page->page_start = page->page_end = page_start0(page);
+            # page->page_room =
+            #   round_down(page->m_start + page->m_length,varobject_alignment)
+            # und diesem Heap zuschlagen:
+            *pages_ptr = AVL(AVLID,insert1)(page,*pages_ptr);
+            if (!(AVL(AVLID,least)(need,pages_ptr,stack_ptr) == page)) abort();
+            mem.total_space += page->page_room;
+            return page;
+          }
+        if (used_space()+need < mem.gctrigger_space)
+          # Benutzter Platz ist seit der letzten GC noch nicht einmal um 25%
+          # angewachsen -> versuche es erstmal beim Betriebssystem;
+          # die GC machen wir, wenn die 25%-Grenze erreicht ist.
+          { make_space_using_malloc(); }
+        { gar_col_simple(); # Garbage Collector aufrufen
           handle_interrupt_after_gc();
-          page = AVL(AVLID,least)(need,pages_ptr,stack_ptr);
-        }
-        if (page==EMPTY) {
-          # versuche es nun doch beim Betriebssystem:
-          make_space_using_malloc();
-          fehler_speicher_voll();
-        }
-      }
-      # .reserve behandeln??
-      return page;
-      #undef make_space_using_malloc
-      #undef handle_interrupt_after_gc
+          # und wieder testen:
+         {var Pages page = AVL(AVLID,least)(need,pages_ptr,stack_ptr);
+          if (page==EMPTY)
+            { if (!mem.last_gc_compacted)
+                { gar_col_compact(); # kompaktierenden Garbage Collector aufrufen
+                  handle_interrupt_after_gc();
+                  page = AVL(AVLID,least)(need,pages_ptr,stack_ptr);
+                }
+              if (page==EMPTY)
+                # versuche es nun doch beim Betriebssystem:
+                { make_space_using_malloc();
+                  fehler_speicher_voll();
+            }   }
+          # .reserve behandeln??
+          return page;
+        }}
+        #undef make_space_using_malloc
+        #undef handle_interrupt_after_gc
     }
 
 #endif

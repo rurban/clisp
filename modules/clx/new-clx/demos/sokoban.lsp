@@ -39,7 +39,8 @@
 ;;;;  - maximum field size is hard wired to 20x20. (This is not in the LISP spirit!)
 ;;;;  - sometimes the programm could not count correctly ...
 
-(in-package :clx-demos)
+(in-package :sokoban)
+(export '(sokoban))
 
 ;;;; First a lot of global variables ...
 (defvar *pixmaps* nil)                  ;array of pixmaps according to below indices
@@ -167,7 +168,7 @@
 (defun init-sokoban ()
   "Initialized the whole beast, opens display, creates window ..."
   (let (root-window)
-    (setq *display*     (x-open-display)
+    (setq *display*     (xlib:open-display "")
           root-window   (xlib:screen-root (car (xlib:display-roots *display*)))
           *changes*     (make-array '(20 20))
           *pixmaps*     (map 'vector
@@ -442,4 +443,5 @@ If you quit sokoban using 'q' the current state will be saved in
 ;; These functions should realy been compiled:
 '(mapcar #'compile '(init-field ready-p update find-outers field find-target walk-to))
 
-(format t "~& Call (clx-demos:sokoban).~%")
+(format T "~& Call (sokoban:sokoban).")
+

@@ -405,12 +405,12 @@ Will flush pending characters!"
   (read-keyboard-char (controller-stream controller))
 )
 
-(defmethod generic-stream-read-char-will-hang-p ((controller keyboard-controller))
+(defmethod generic-stream-read-char-will-hang-p ((controller screen-controller))
   (generic-raw-mode controller t) ;; need to switch to raw mode
   (null (listen (controller-stream controller)))
 )
 
-(defmethod generic-stream-clear-input ((controller keyboard-controller))
+(defmethod generic-stream-clear-input ((controller screen-controller))
   (generic-raw-mode controller t) ;; need to switch to raw mode
   (clear-input (controller-stream controller))
   T

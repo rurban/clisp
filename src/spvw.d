@@ -28,11 +28,16 @@
 
 #include <string.h> # declares strchr() and possibly memset()
 #ifdef MULTITHREAD
-  #ifndef memset
-    extern_C RETMEMSETTYPE memset (void* ptr, int c, size_t len); # siehe MEMORY(3)
+  #ifdef HAVE_MEMSET
+    #ifndef memset
+      extern_C RETMEMSETTYPE memset (void* ptr, int c, size_t len); # siehe MEMORY(3)
+    #endif
+    #define bzero(ptr,len)  memset(ptr,0,len)
+    #define bcopy(source,dest,len)  memcpy(dest,source,len)
+  #else
+    extern_C void bzero (void* ptr, int len); # siehe BZERO(3)
+    extern_C void bcopy (void* source, void* dest, int len);
   #endif
-  #define bzero(ptr,len)  memset(ptr,0,len)
-  #define bcopy(source,dest,len)  memcpy(dest,source,len)
 #endif
 
 # In diesem File haben die Tabellenmacros eine andere Verwendung:
@@ -747,6 +752,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
     }
 #endif
 
+#ifndef asciz_equal
 # UP: Vergleicht zwei ASCIZ-Strings.
 # asciz_equal(asciz1,asciz2)
 # > char* asciz1: erster ASCIZ-String
@@ -765,6 +771,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
       yes: return TRUE;
       no: return FALSE;
     }
+#endif
 
 # -----------------------------------------------------------------------------
 #                  Andere globale Hilfsfunktionen
@@ -997,16 +1004,6 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
     local void init_subr_tab_1 (void);
     local void init_subr_tab_1()
       {
-        #if defined(NO_TYPECODES)
-          # lispbibl.d normally takes care of this, using a gcc __attribute__.
-          # But __attribute__((aligned(4))) is ignored for some GCC targets,
-          # so we check it here for safety.
-          if (alignof(subr_) < 4) {
-            asciz_out("Alignment of SUBRs is less than 4. NO_TYPECODES requires it to be at least 4." NLstring);
-            asciz_out("Recompile CLISP with -DNO_TYPECODES." NLstring);
-            abort();
-          }
-        #endif
         #if defined(INIT_SUBR_TAB)
           #ifdef MAP_MEMORY_TABLES
             # Tabelle in den vorgesehenen Bereich kopieren:
@@ -1486,9 +1483,6 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
             #endif
             #if (base_char_code_limit == char_code_limit)
               " :BASE-CHAR=CHARACTER"
-            #endif
-            #ifdef EXPORT_SYSCALLS
-              " :SYSCALLS"
             #endif
             #ifdef AMIGA
               " :AMIGA"

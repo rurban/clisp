@@ -1,0 +1,19 @@
+#
+#	Name:             ASCII to Unicode
+#	Unicode version:  2.1
+#	Table version:    1.0
+#	Table format:     Format A
+#	Date:             7 February 1999
+#	Authors:          Bruno Haible <haible@clisp.cons.org>
+#
+#	Copyright (c) 1999 Bruno Haible.  All Rights reserved.
+#
+#	General notes:
+#
+#	Format:  Three tab-separated columns
+#		 Column #1 is the ASCII code (in hex as 0xXX)
+#		 Column #2 is the Unicode (in hex as 0xXXXX)
+#		 Column #3 the Unicode name (follows a comment sign, '#')
+#
+#	Any comments or problems, contact <haible@clisp.cons.org>
+#

@@ -4,7 +4,6 @@ This file presents
     386BSD 0.1
     NetBSD 1.0
     NetBSD 1.1
-    NetBSD/sparc 1.4.1
     FreeBSD 2.1
     BSDI 1.0
     PC 386 under GNU 0.2
@@ -141,9 +140,6 @@ PC 586/166, 128 MB RAM Linux 2.0     Marcus Daniels
 
 PC 686/150, 128 MB RAM Linux 2.1.29  Marcus Daniels
 13.4.1997                    86 s    <marcus@sysc.pdx.edu>
-
-PC Athlon/500, 256 MB  Linux 2.2.13  Bruno Haible
-6.2.2000                     26.2 s  <haible@clisp.cons.org>
 
 Sun 3                 SunOS 4.1.1    Bruno Haible
 17.4.1993               2296 s       <haible@ma2s2.mathematik.uni-karlsruhe.de>
@@ -442,12 +438,6 @@ a similar change to param.c.  Douglas Crosher <dtc@stan.xx.swin.oz.au>
 provided a patch for NetBSD 1.1 and FreeBSD 2.1 so that the
 address of protection faults is available to CLISP.  See:
    unix/NetBSD-1.1.diffs
-
-
-On NetBSD/sparc 1.4.1:
-
-The default stack limit is 512 KB, which is not sufficient for building CLISP.
-Use the "ulimit -s" command to increase it.
 
 
 On BSDI 1.0:

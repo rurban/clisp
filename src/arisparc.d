@@ -1028,7 +1028,8 @@ C(orc2_loop_up:) # Input in %o0,%o1,%o2
 1:        ld [%o0],%o3
           ld [%o1],%o4
           add %o1,4,%o1
-          orn %o3,%o4,%o3
+          xor %o4,-1,%o4
+          or %o3,%o4,%o3
           st %o3,[%o0]
           subcc %o2,1,%o2
           bne 1b
@@ -1046,7 +1047,8 @@ C(orc2_loop_up:) # Input in %o0,%o1,%o2
 1:        ld [%o1+%o2],%o3      # nächstes Digit holen
           addcc %o2,4,%o2       # Zähler "erniedrigen", Pointer erhöhen
           ld [%o0+%o2],%o4      # noch ein Digit holen
-          orn %o4,%o3,%o3       # beide verknüpfen
+          xor %o3,-1,%o3
+          or %o4,%o3,%o3        # beide verknüpfen
           bne 1b
          _ st %o3,[%o1+%o2]     # Digit ablegen
 2:      retl

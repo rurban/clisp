@@ -32,8 +32,7 @@
   local void sigpipe_handler (int sig);
   local void sigpipe_handler(sig)
     var int sig; # sig = SIGPIPE
-    {
-      signal_acknowledge(SIGPIPE,&sigpipe_handler);
+    { signal_acknowledge(SIGPIPE,&sigpipe_handler);
       if (writing_to_subprocess)
         # Ignore the signal, the write() error code is sufficient.
         return;

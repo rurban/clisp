@@ -229,30 +229,11 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
     var object seq;
     { var object name;
       if (listp(seq)) { name = S(list); } # Typ LIST
-      elif (vectorp(seq)) {
-        switch (Array_type(seq)) {
-          case Array_type_sstring: case Array_type_string:
-            name = S(string); break; # Typ STRING
-          case Array_type_sbvector: case Array_type_bvector:
-            name = S(bit_vector); break; # Typ BIT-VECTOR
-          case Array_type_sb2vector:
-          case Array_type_sb4vector:
-          case Array_type_sb8vector:
-          case Array_type_sb16vector:
-          case Array_type_sb32vector:
-            # Typ n, bedeutet (VECTOR (UNSIGNED-BYTE n))
-            name = fixnum(bit(Array_type(seq)-Array_type_sbvector)); break;
-          case Array_type_b2vector:
-          case Array_type_b4vector:
-          case Array_type_b8vector:
-          case Array_type_b16vector:
-          case Array_type_b32vector:
-            # Typ n, bedeutet (VECTOR (UNSIGNED-BYTE n))
-            name = fixnum(bit(Array_type(seq)-Array_type_bvector)); break;
-          default:
-            name = S(vector); break; # Typ [GENERAL-]VECTOR
-        }
-      }
+      elif (stringp(seq)) { name = S(string); } # Typ STRING
+      elif (bit_vector_p(seq)) { name = S(bit_vector); } # Typ BIT-VECTOR
+      elif (general_byte_vector_p(seq)) # Typ n, bedeutet (VECTOR (UNSIGNED-BYTE n))
+        { name = fixnum(bit(Iarray_flags(seq) & arrayflags_atype_mask)); }
+      elif (vectorp(seq)) { name = S(vector); } # Typ [GENERAL-]VECTOR
       elif (structurep(seq))
         { name = TheStructure(seq)->structure_types; # Structure-Typen-List*e
           while (consp(name)) { name = Cdr(name); } # davon den letzten Typ nehmen
@@ -442,19 +423,6 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
       pointer = value1; # =: pointer                        \
     }
 
-# Error message when trying to access past the end of a vector.
-# > vector: the vector
-# > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_vector_index_range, (object vector));
-  local void fehler_vector_index_range(vector)
-    var object vector;
-    {
-      var uintL len = vector_length(vector);
-      pushSTACK(vector);
-      pushSTACK(UL_to_I(len));
-      fehler_index_range(len);
-    }
-
 # UP: kopiert einen Teil einer Sequence in eine andere Sequence.
 # > STACK_6: sequence1
 # > STACK_5: typdescr1
@@ -468,39 +436,16 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
 # can trigger GC
   local void copy_seqpart_into (void);
   local void copy_seqpart_into()
-    {
-      # Optimization for vectors:
-      if (vectorp(STACK_6) && vectorp(STACK_4) && posfixnump(STACK_2)) {
-        var uintL count = posfixnum_to_L(STACK_2);
-        if (count > 0) {
-          var uintL index1 = posfixnum_to_L(STACK_1);
-          var uintL index2 = posfixnum_to_L(STACK_0);
-          if (index1+count > vector_length(STACK_6)) {
-            subr_self = L(aref); fehler_vector_index_range(STACK_6);
-          }
-          if (index2+count > vector_length(STACK_4)) {
-            subr_self = L(store); fehler_vector_index_range(STACK_4);
-          }
-          var object dv1 = array_displace_check(STACK_6,count,&index1);
-          var object dv2 = array_displace_check(STACK_4,count,&index2);
-          if (dv1 == dv2)
-            elt_move(dv1,index1,dv2,index2,count);
-          else
-            elt_copy(dv1,index1,dv2,index2,count);
-          STACK_1 = I_I_plus_I(STACK_1,STACK_2);
-          STACK_0 = I_I_plus_I(STACK_0,STACK_2);
-        }
-      } else {
-        # Methode etwa so:
-        # (loop
-        #   (when (zerop count) (return))
-        #   (SEQ2-ACCESS-SET sequence2 pointer2 (SEQ1-ACCESS sequence1 pointer1))
-        #   (setq pointer1 (SEQ1-UPD pointer1))
-        #   (setq pointer2 (SEQ2-UPD pointer2))
-        #   (decf count)
-        # )
-        until (eq(STACK_2,Fixnum_0)) { # count (ein Integer) = 0 -> Ende
-          # (SEQ1-ACCESS seq1 pointer1) bilden:
+    { # Methode etwa so:
+      # (loop
+      #   (when (zerop count) (return))
+      #   (SEQ2-ACCESS-SET sequence2 pointer2 (SEQ1-ACCESS sequence1 pointer1))
+      #   (setq pointer1 (SEQ1-UPD pointer1))
+      #   (setq pointer2 (SEQ2-UPD pointer2))
+      #   (decf count)
+      # )
+      until (eq(STACK_2,Fixnum_0)) # count (ein Integer) = 0 -> Ende
+        { # (SEQ1-ACCESS seq1 pointer1) bilden:
           pushSTACK(STACK_(6+0)); # seq1
           pushSTACK(STACK_(1+1)); # pointer1
           funcall(seq_access(STACK_(5+2)),2);
@@ -516,7 +461,6 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
           # count := (1- count) :
           decrement(STACK_2);
         }
-      }
     }
 
 LISPFUNN(sequencep,1)
@@ -724,24 +668,14 @@ LISPFUNN(reverse,1) # (REVERSE sequence), CLTL S. 248
         pushSTACK(STACK_0); funcall(seq_make(STACK_(1+1)),1); # (SEQ-MAKE len)
         pushSTACK(value1);
         # Stackaufbau: seq1, typdescr, count, seq2.
-        if (vectorp(STACK_3) && posfixnump(STACK_1)) {
-          var uintL count = posfixnum_to_L(STACK_1);
-          if (count > 0) {
-            var uintL index1 = 0;
-            var object dv1 = array_displace_check(STACK_3,count,&index1);
-            var uintL index2 = 0;
-            var object dv2 = array_displace_check(STACK_0,count,&index1); # = STACK_0
-            elt_reverse(dv1,index1,dv2,index2,count);
-          }
-        } else {
-          pushSTACK(STACK_3); funcall(seq_fe_init(STACK_(2+1)),1); # (SEQ-FE-INIT seq1)
-          pushSTACK(value1);
-          # Stackaufbau: seq1, typdescr, count, seq2, pointer1.
-          pushSTACK(STACK_1); funcall(seq_init(STACK_(3+1)),1); # (SEQ-INIT seq2)
-          pushSTACK(value1);
-          # Stackaufbau: seq1, typdescr, count, seq2, pointer1, pointer2.
-          until (eq(STACK_3,Fixnum_0)) { # count (ein Integer) = 0 -> Ende
-            # (SEQ-ACCESS seq1 pointer1) bilden:
+        pushSTACK(STACK_3); funcall(seq_fe_init(STACK_(2+1)),1); # (SEQ-FE-INIT seq1)
+        pushSTACK(value1);
+        # Stackaufbau: seq1, typdescr, count, seq2, pointer1.
+        pushSTACK(STACK_1); funcall(seq_init(STACK_(3+1)),1); # (SEQ-INIT seq2)
+        pushSTACK(value1);
+        # Stackaufbau: seq1, typdescr, count, seq2, pointer1, pointer2.
+        until (eq(STACK_3,Fixnum_0)) # count (ein Integer) = 0 -> Ende
+          { # (SEQ-ACCESS seq1 pointer1) bilden:
             pushSTACK(STACK_5); pushSTACK(STACK_(1+1));
             funcall(seq_access(STACK_(4+2)),2); # (SEQ-ACCESS seq1 pointer1)
             # (SEQ-ACCESS-SET seq2 pointer2 ...) ausführen:
@@ -754,10 +688,8 @@ LISPFUNN(reverse,1) # (REVERSE sequence), CLTL S. 248
             # count := (1- count) :
             decrement(STACK_3);
           }
-          skipSTACK(2);
-        }
-        value1 = STACK_0; mv_count=1; # seq2 als Wert
-        skipSTACK(4);
+        value1 = STACK_2; mv_count=1; # seq2 als Wert
+        skipSTACK(6);
   }   }
 
 LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
@@ -767,16 +699,8 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
         value1 = nreverse(seq); mv_count=1;
         skipSTACK(1);
       }
-    elif (vectorp(seq)) {
-      if (TRUE) {
-        var uintL count = vector_length(seq);
-        if (count > 0) {
-          var uintL index = 0;
-          var object dv = array_displace_check(seq,count,&index);
-          elt_nreverse(dv,index,count);
-        }
-      } else {
-        # seq ist ein Vektor
+    elif (vectorp(seq))
+      { # seq ist ein Vektor
         var object typdescr = get_valid_seq_type(seq);
         pushSTACK(typdescr);
         # Stackaufbau: seq, typdescr.
@@ -815,9 +739,9 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
             decrement(STACK_2);
           }
         skipSTACK(4);
+        value1 = popSTACK(); mv_count=1; # modifizierte seq als Wert
       }
-      value1 = popSTACK(); mv_count=1; # modifizierte seq als Wert
-    } else
+    else
       { var object typdescr = get_valid_seq_type(seq);
         # seq ist eine allgemeine Sequence
         pushSTACK(typdescr);
@@ -949,13 +873,8 @@ LISPFUN(make_sequence,2,0,norest,key,2,\
     # Stackaufbau: typdescr, size, initial-element, updatefun.
    }
     if (!(eq(STACK_1,unbound))) # :initial-element angegeben?
-      if (!(eq(STACK_2,Fixnum_0))) { # size (ein Integer) = 0 -> nichts zu tun
-        if (eq(STACK_0,unbound)
-            && vectorp(value1) && array_simplep(value1) && posfixnump(STACK_2)) {
-          if (elt_fill(value1,0,posfixnum_to_L(STACK_2),STACK_1))
-            fehler_store(value1,STACK_1);
-        } else {
-          pushSTACK(value1);
+      if (!(eq(STACK_2,Fixnum_0))) # size (ein Integer) = 0 -> nichts zu tun
+        { pushSTACK(value1);
           # Stackaufbau: typdescr, count, element, updatefun, seq.
           pushSTACK(STACK_0); funcall(seq_init(STACK_(4+1)),1); # (SEQ-INIT seq)
           pushSTACK(value1);
@@ -976,7 +895,6 @@ LISPFUN(make_sequence,2,0,norest,key,2,\
           skipSTACK(1); # pointer vergessen
           value1 = popSTACK(); # seq
         }
-      }
     mv_count=1; # seq als Wert
     skipSTACK(4);
   }
@@ -1703,27 +1621,14 @@ LISPFUN(fill,2,0,norest,key,2, (kw(start),kw(end)) )
     funcall(seq_init_start(STACK_(0+2)),2); # (SEQ-INIT-START sequence start)
     STACK_2 = value1; # =: pointer
     # Stackaufbau: sequence, item, pointer, count, typdescr.
-    if (vectorp(STACK_4) && posfixnump(STACK_1)) {
-      var uintL count = posfixnum_to_L(STACK_1);
-      if (count > 0) {
-        var uintL index = posfixnum_to_L(STACK_2);
-        if (index+count > vector_length(STACK_4)) {
-          subr_self = L(store); fehler_vector_index_range(STACK_4);
-        }
-        var object dv = array_displace_check(STACK_4,count,&index);
-        if (elt_fill(dv,index,count,STACK_3))
-          fehler_store(STACK_4,STACK_3);
-      }
-    } else {
-      until (eq(STACK_1,Fixnum_0)) { # count (ein Integer) = 0 -> fertig
-        pushSTACK(STACK_4); pushSTACK(STACK_(2+1)); pushSTACK(STACK_(3+2));
+    until (eq(STACK_1,Fixnum_0)) # count (ein Integer) = 0 -> fertig
+      { pushSTACK(STACK_4); pushSTACK(STACK_(2+1)); pushSTACK(STACK_(3+2));
         funcall(seq_access_set(STACK_(0+3)),3); # (SEQ-ACCESS-SET sequence pointer item)
         # pointer := (SEQ-UPD sequence pointer) :
         pointer_update(STACK_2,STACK_4,STACK_0);
         # count := (1- count) :
         decrement(STACK_1);
       }
-    }
     skipSTACK(4);
     value1 = popSTACK(); mv_count=1; # sequence als Wert
   }
@@ -4219,7 +4124,7 @@ LISPFUN(read_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
       { var uintL start = posfixnum_to_L(STACK_2);
         var uintL end = posfixnum_to_L(STACK_1);
         var uintL index = 0;
-        STACK_0 = array_displace_check(STACK_4,end,&index);
+        STACK_0 = TheIarray(iarray_displace_check(STACK_4,end,&index))->data;
        {var uintL result = read_byte_array(&STACK_3,&STACK_0,index+start,end-start);
         value1 = fixnum(start+result); mv_count=1;
         skipSTACK(5);
@@ -4262,7 +4167,7 @@ LISPFUN(write_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
       { var uintL start = posfixnum_to_L(STACK_2);
         var uintL end = posfixnum_to_L(STACK_1);
         var uintL index = 0;
-        STACK_0 = array_displace_check(STACK_4,end,&index);
+        STACK_0 = TheIarray(iarray_displace_check(STACK_4,end,&index))->data;
         write_byte_array(&STACK_3,&STACK_0,index+start,end-start);
         goto done;
       }

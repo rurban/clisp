@@ -252,6 +252,7 @@
   #define SETSOCKOPT_CONST const
   #define SETSOCKOPT_ARG_T char*
   #define SETSOCKOPT_OPTLEN_T int
+  #define HAVE_MEMSET
   #define RETMEMSETTYPE void*
   # Do not define HAVE_SELECT because select() works on sockets only.
 # used by error.d, misc.d, socket.d, stream.d

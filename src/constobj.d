@@ -291,19 +291,10 @@
   LISPOBJ(hs_null,"NULL")                           #    |  mit enum_hs_...
   LISPOBJ(hs_symbol,"SYMBOL")                       #    |  in predtype.d
   LISPOBJ(hs_simple_bit_vector,"SIMPLE-BIT-VECTOR") #    |  abgestimmt!
-  LISPOBJ(hs_simple_2bit_vector,"SIMPLE-2BIT-VECTOR")
-  LISPOBJ(hs_simple_4bit_vector,"SIMPLE-4BIT-VECTOR")
-  LISPOBJ(hs_simple_8bit_vector,"SIMPLE-8BIT-VECTOR")
-  LISPOBJ(hs_simple_16bit_vector,"SIMPLE-16BIT-VECTOR")
-  LISPOBJ(hs_simple_32bit_vector,"SIMPLE-32BIT-VECTOR")
   LISPOBJ(hs_simple_string,"SIMPLE-STRING")
   LISPOBJ(hs_simple_vector,"SIMPLE-VECTOR")
   LISPOBJ(hs_bit_vector,"BIT-VECTOR")
-  LISPOBJ(hs_2bit_vector,"2BIT-VECTOR")
-  LISPOBJ(hs_4bit_vector,"4BIT-VECTOR")
-  LISPOBJ(hs_8bit_vector,"8BIT-VECTOR")
-  LISPOBJ(hs_16bit_vector,"16BIT-VECTOR")
-  LISPOBJ(hs_32bit_vector,"32BIT-VECTOR")
+  LISPOBJ(hs_byte_vector,"BYTE-VECTOR")
   LISPOBJ(hs_string,"STRING")
   LISPOBJ(hs_vector,"VECTOR")
   LISPOBJ(hs_simple_array,"SIMPLE-ARRAY")
@@ -939,7 +930,3 @@
   LISPOBJ(foreign_callin_table,"#.(make-hash-table :test #'eq)")
   LISPOBJ(foreign_callin_vector,"#.(let ((array (make-array 1 :adjustable t :fill-pointer 1))) (sys::store array 0 0) array)")
  #endif
-# for posixmath.d
-#ifdef EXPORT_SYSCALLS
-  LISPOBJ(posix_package,".")
-#endif

@@ -20,7 +20,7 @@
   local void init_modules_0 (void);
 
 # The main module, called "clisp".
-  extern module_ main_module;
+  local module_ * main_module;
 
 # Iterate through the modules.
 # for_modules(which,statement);
@@ -48,18 +48,14 @@
   local module_ ** last_module;
 
   local void init_modules_0()
-    {
-      var module_* module = &modules[0];
-      until (module[1].name==NULL) {
-        module->next = module+1; module++;
-      }
+    { var module_* module = &modules[0];
+      until (module[1].name==NULL) { module->next = module+1; module++; }
       *(last_module = &module->next) = NULL;
     }
 
   global void add_module(module)
     var module_ * module;
-    {
-      *last_module = module; last_module = &module->next;
+    { *last_module = module; last_module = &module->next;
       module_count++;
     }
 

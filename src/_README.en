@@ -290,7 +290,7 @@ timezone.lsp.
 #endif
 Then start
 
-#if defined(MSDOS) || defined(WIN32_NATIVE)
+#ifdef MSDOS
          lisp.exe -M lispinit.mem
 #endif
 #ifdef AMIGAOS
@@ -359,7 +359,7 @@ I would suggest /usr/local/lib/lisp :
    mv base/lisp.run /usr/local/lib/lisp
    mv base/lispinit.mem /usr/local/lib/lisp
 #endif
-#if defined(MSDOS) || defined(WIN32_NATIVE)
+#ifdef MSDOS
 Assuming D:\LIB\LISP :
 
    mkdir d:\lib\lisp
@@ -367,7 +367,7 @@ Assuming D:\LIB\LISP :
    copy lispinit.mem d:\lib\lisp
 #endif
 
-#if defined(MSDOS) || defined(WIN32_NATIVE)
+#ifdef MSDOS
 And create a batch file that starts lisp:
 
 #ifndef OS2

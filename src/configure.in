@@ -27,6 +27,10 @@ dnl           checks for UNIX variants that set DEFS
 dnl
 AC_AIX
                       dnl DEFS _ALL_SOURCE
+AC_ISC_POSIX
+                      dnl DEFS _POSIX_SOURCE, LIBS
+AC_MINIX
+                      dnl DEFS _POSIX_SOURCE, _POSIX_1_SOURCE, _MINIX
 CL_CC_GCC
                       dnl sets variables CC_GCC, GCC_X_NONE
 CL_CC_CPLUSPLUS
@@ -74,6 +78,8 @@ CL_CANONICAL_HOST_CPU
 dnl
 dnl           checks for compiler characteristics
 dnl
+AC_C_CONST
+                      dnl DEFS const
 AC_C_INLINE
                       dnl DEFS inline
 CL_VOID
@@ -85,6 +91,10 @@ dnl           checks for header files
 dnl
 CL_STDC_HEADERS
                       dnl DEFS STDC_HEADERS if exist stdlib.h, stdarg.h, ...
+CL_STDLIB_H
+                      dnl DEFS HAVE_STDLIB_H if exist stdlib.h
+CL_STDDEF_H
+                      dnl DEFS HAVE_STDDEF_H if exist stddef.h
 CL_OFFSETOF
                       dnl DEFS HAVE_OFFSETOF if offsetof in stddef.h
 CL_LOCALE_H
@@ -110,8 +120,18 @@ CL_FIND_X
 dnl
 dnl           checks for typedefs
 dnl
+AC_TYPE_SIZE_T
+                      dnl DEFS size_t
+AC_TYPE_PID_T
+                      dnl DEFS pid_t
+AC_TYPE_UID_T
+                      dnl DEFS uid_t, gid_t
+AC_TYPE_OFF_T
+                      dnl DEFS off_t
 CL_CADDR_T
                       dnl DEFS CADDR_T
+CL_CLOCK_T
+                      dnl DEFS CLOCK_T
 dnl
 dnl           checks for structure members
 dnl
@@ -125,7 +145,7 @@ dnl
 CL_STRLEN
                       dnl DEFS RETSTRLENTYPE, STRLEN_CONST
 CL_MEMSET
-                      dnl DEFS RETMEMSETTYPE
+                      dnl DEFS HAVE_MEMSET, RETMEMSETTYPE
 CL_GMALLOC
                       dnl set variable GMALLOC
 CL_MALLOC
@@ -185,7 +205,7 @@ CL_EXECV
 CL_EXECL
                       dnl DEFS EXECL_DOTS, EXECL_CONST
 CL_WAITPID
-                      dnl DEFS PID_T
+                      dnl DEFS HAVE_WAITPID, PID_T, HAVE_SYS_WAIT_H
 CL_RUSAGE
                       dnl DEFS HAVE_SYS_RESOURCE_H, HAVE_GETRUSAGE, RUSAGE_WHO_T, HAVE_SYS_TIMES_H
 CL_GETCWD
@@ -193,7 +213,7 @@ CL_GETCWD
 CL_CHDIR
                       dnl DEFS CHDIR_CONST
 CL_MKDIR
-                      dnl DEFS MKDIR_CONST
+                      dnl DEFS MKDIR_CONST, MODE_T
 CL_RMDIR
                       dnl DEFS RMDIR_CONST
 AC_HEADER_STAT
@@ -219,7 +239,7 @@ CL_READ_WRITE
 CL_WRITE
                       dnl DEFS WRITE_CONST
 CL_RENAME
-                      dnl DEFS RENAME_CONST
+                      dnl DEFS HAVE_RENAME, RENAME_CONST
 CL_UNLINK
                       dnl DEFS UNLINK_CONST
 CL_FSYNC
@@ -289,7 +309,7 @@ CL_SHM_RMID
 CL_DYNLOAD
                       dnl DEFS HAVE_DLOPEN, DLERROR_CONST, set variable LIBDL
 CL_ICONV
-                      dnl DEFS HAVE_ICONV, ICONV_CONST, set variable LIBICONV
+                      dnl DEFS HAVE_ICONV, ICONV_CONST
 dnl
 dnl           checks for libraries
 dnl
@@ -305,6 +325,8 @@ dnl           checks for compiler characteristics
 dnl
 CL_BUILTIN_STRLEN
                       dnl DEFS HAVE_BUILTIN_STRLEN
+CL_BUILTIN_STRCMP
+                      dnl DEFS HAVE_BUILTIN_STRCMP
 CL_CHAR_UNSIGNED
                       dnl DEFS __CHAR_UNSIGNED__ if char is unsigned
 CL_MACHINE([integer types and behaviour],${srcdir}/intparam.c,intparam.h,cl_cv_file_intparam_h)

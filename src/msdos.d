@@ -199,15 +199,14 @@
   #ifdef EMUNIX
     #include <dirent.h>
     #if 0
-      struct ffblk {
-        # gleich aufgebaut wie struct _find in <sys/emx.h>
-        char ff_reserved[21];
-        unsigned char ff_attrib;
-        unsigned short ff_ftime;
-        unsigned short ff_fdate;
-        unsigned short ff_fsize[2]; # Vorsicht Alignment!
-        char ff_name[16];
-      };
+      struct ffblk # gleich aufgebaut wie struct _find in <sys/emx.h>
+                   { char ff_reserved[21];
+                     unsigned char ff_attrib;
+                     unsigned short ff_ftime;
+                     unsigned short ff_fdate;
+                     unsigned short ff_fsize[2]; # Vorsicht Alignment!
+                     char ff_name[16];
+                   };
     #else # so ist's eleganter:
       #include <emx/syscalls.h>
       #define ffblk  _find

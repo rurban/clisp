@@ -14,7 +14,8 @@
 ;;;; o or a spline option?!
 ;;;;
 
-(in-package :clx-demos)
+(in-package "CLX-DEMOS")
+(export '(qix))
 
 (defvar *offset* 3)
 (defvar *delta* 6)
@@ -24,8 +25,7 @@
         ((> val max) (- (+ (random *delta*) *offset*)))
         (t           del)))
 
-;; IHMO this is worth to be added to the standard.
-(defun make-circular (x) (nconc x x))
+(defun make-circular (x) (nconc x x))   ;IHMO this is worth to be added to the standard.
 
 (defstruct qix
   lines dims deltas coords)
@@ -42,55 +42,43 @@
     (apply #'xlib:draw-line win gc (car (qix-lines qix)))
     (setf (xlib:gcontext-foreground gc) black-pixel))
   (map-into (qix-coords qix) #'+ (qix-coords qix) (qix-deltas qix))
-  (map-into (qix-deltas qix) #'check-bounds
-            (qix-coords qix) (qix-deltas qix) (qix-dims qix))
+  (map-into (qix-deltas qix) #'check-bounds (qix-coords qix) (qix-deltas qix) (qix-dims qix))
   (apply #'xlib:draw-line win gc (qix-coords qix))
   ;; push 'em into
   (unless (car (qix-lines qix)) (setf (car (qix-lines qix)) (make-list 4)))
   (map-into (car (qix-lines qix)) #'identity (qix-coords qix))
   (setf (qix-lines qix) (cdr (qix-lines qix))) )
 
-(defun draw-qix (dpy win gc width height white-pixel black-pixel
-                 delay nqixs nlines)
-  (let ((qixs nil) (n nlines))
+(defun draw-qix (dpy win gc width height white-pixel black-pixel delay nqixs nlines)
+  (let ((qixs nil))
     (dotimes (k nqixs) (push (gen-qix nlines width height) qixs))
     (loop
      (dolist (k qixs)
        (step-qix k win gc white-pixel black-pixel))
      (xlib:display-force-output dpy)
-     (sleep delay)
-     (setq n (- n 1))
-     (if (<= n 0) (return)))))
+     (sleep delay))))
 
-(defun qix (&key host display dpy
-            (width 400) (height 400) (delay 0.05) (nqixs 3) (nlines 80))
-  (setf (values host display) (x-host-display))
-  (let* ((dp1 (or dpy (xlib:open-display host :display display)))
-         (scr (first (xlib:display-roots dp1)))
-         (root-win (xlib:screen-root scr))
-         (white-pixel (xlib:screen-white-pixel scr))
-         (black-pixel (xlib:screen-black-pixel scr))
-         (win (xlib:create-window :parent root-win :x 10 :y 10
-                                  :width width :height height
-                                  :background white-pixel))
-         (gcon (xlib:create-gcontext :drawable win
-                                     :foreground black-pixel
-                                     :background white-pixel)))
-    (xlib:map-window win)
-    (xlib:display-finish-output dp1)
-    (format t "~&Qix uses the following parameters:~%  :dpy: ~s
-  :host ~s :display ~s
-  :width ~d :height ~d :delay ~f :nqixs ~d :nlines ~d~%"
-            dp1 host display  width height delay nqixs nlines)
-    (draw-qix dp1 win gcon width height white-pixel black-pixel
-              delay nqixs nlines)
-    (xlib:unmap-window win)
-    (xlib:destroy-window win)
+(defun qix (&key (host "") (dpy nil) (width 400) (height 400) (delay 0.05) (nqixs 3) (nlines 40))
+  (unwind-protect
+      (progn
+        (setq dpy (or dpy (xlib:open-display host)))
+        (let* ((scr (first (xlib:display-roots dpy)))
+               (root-win (xlib:screen-root scr))
+               (white-pixel (xlib:screen-white-pixel scr))
+               (black-pixel (xlib:screen-black-pixel scr))
+               (win (xlib:create-window :parent root-win :x 10 :y 10 :width width :height height
+                                         :background white-pixel))
+               (gcon (xlib:create-gcontext :drawable win
+                                            :foreground black-pixel
+                                            :background white-pixel)))
+          (xlib:map-window win)
+          (xlib:display-finish-output dpy)
+          (draw-qix dpy win gcon width height white-pixel black-pixel delay nqixs nlines) ))
     ;;clean-up
-    (unless dpy (xlib:close-display dp1))))
+    (when dpy (xlib:close-display dpy)) ) )
 
 ;; since we have no herald, simply dump it:
-(format t "~& The famous swirling vectors.~%
-  (clx-demos:qix :host :display :dpy :width :height :delay :nqixs :nlines)
-~% Call (clx-demos:qix) or (clx-demos:qix :delay 0).~%")
+(format T "~& CLX-DEMOS:QIX :host :width :height :delay~
+           ~%   The famous swirling vectors.~
+           ~% Call (clx-demos:qix) or (clx-demos:qix :delay 0).")
 

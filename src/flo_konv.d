@@ -436,6 +436,8 @@
       #undef shiftcount
     }
 
+#ifdef HAVE_FFI
+
 # Konversionen zu IEEE-Floats.
 
 # Fehlermeldung wegen NaN
@@ -617,4 +619,6 @@
         #endif
       val_->eksplicit = val;
     }
+
+#endif
 

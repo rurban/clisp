@@ -6,7 +6,7 @@
   global object allocate_cons (void);
   global object make_symbol (object string);
   global object allocate_vector (uintL len);
-  global object allocate_bit_vector (uintB atype, uintL len);
+  global object allocate_bit_vector (uintL len);
   global object allocate_string (uintL len);
   global object allocate_iarray (uintB flags, uintC rank, tint type);
   #ifdef TYPECODES
@@ -44,8 +44,7 @@
 # can trigger GC
   global object allocate_cons (void);
   global object allocate_cons()
-    {
-      allocate(cons_type,FALSE,sizeof(cons_),Cons,ptr,
+    { allocate(cons_type,FALSE,sizeof(cons_),Cons,ptr,
                { ptr->cdr = NIL; ptr->car = NIL; }
               )
     }
@@ -58,8 +57,7 @@
   global object make_symbol (object string);
   global object make_symbol(string)
     var object string;
-    {
-      pushSTACK(string); # String retten
+    { pushSTACK(string); # String retten
       #define FILL  \
         { ptr->symvalue = unbound; # leere Wertzelle         \
           ptr->symfunction = unbound; # leere Funktionszelle \
@@ -87,8 +85,7 @@
   global object allocate_vector (uintL len);
   global object allocate_vector (len)
     var uintL len;
-    {
-      var uintL need = size_svector(len); # benötigter Speicherplatz
+    { var uintL need = size_svector(len); # benötigter Speicherplatz
       #ifdef TYPECODES
         #define SETTFL  ptr->length = len;
       #else
@@ -104,24 +101,21 @@
       #undef SETTFL
     }
 
-# Function: Allocates a bit/byte vector.
-# allocate_bit_vector(atype,len)
-# > uintB atype: Atype_nBit
-# > uintL len: length (number of n-bit blocks)
-# < ergebnis: fresh simple bit/byte-vector of the given length
+# UP, beschafft Bit-Vektor
+# allocate_bit_vector(len)
+# > len: Länge des Bitvektors (in Bits)
+# < ergebnis: neuer Bitvektor (LISP-Objekt)
 # can trigger GC
-  global object allocate_bit_vector (uintB atype, uintL len);
-  global object allocate_bit_vector (atype,len)
-    var uintB atype;
+  global object allocate_bit_vector (uintL len);
+  global object allocate_bit_vector (len)
     var uintL len;
-    {
-      var uintL need = size_sbvector(len<<atype); # benötigter Speicherplatz in Bytes
+    { var uintL need = size_sbvector(len); # benötigter Speicherplatz in Bytes
       #ifdef TYPECODES
         #define SETTFL  ptr->length = len;
       #else
-        #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_Sbvector+atype,len);
+        #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_Sbvector,len);
       #endif
-      allocate(Array_type_simple_bit_vector(atype),TRUE,need,Sbvector,ptr,
+      allocate(sbvector_type,TRUE,need,Sbvector,ptr,
                { SETTFL } # Keine weitere Initialisierung
               )
       #undef SETTFL
@@ -135,8 +129,7 @@
   global object allocate_string (uintL len);
   global object allocate_string (len)
     var uintL len;
-    {
-      var uintL need = size_sstring(len); # benötigter Speicherplatz in Bytes
+    { var uintL need = size_sstring(len); # benötigter Speicherplatz in Bytes
       #ifdef TYPECODES
         #define SETTFL  ptr->length = len;
       #else
@@ -157,8 +150,7 @@
   global object allocate_imm_string (uintL len);
   global object allocate_imm_string (len)
     var uintL len;
-    {
-      var uintL need = size_sstring(len); # benötigter Speicherplatz in Bytes
+    { var uintL need = size_sstring(len); # benötigter Speicherplatz in Bytes
       #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_Imm_Sstring,len);
       allocate(sstring_type,TRUE,need,Sstring,ptr,
                { SETTFL } # Keine weitere Initialisierung
@@ -176,8 +168,7 @@
   global object allocate_imm_small_string (uintL len);
   global object allocate_imm_small_string (len)
     var uintL len;
-    {
-      var uintL need = size_small_sstring(len); # benötigter Speicherplatz in Bytes
+    { var uintL need = size_small_sstring(len); # benötigter Speicherplatz in Bytes
       #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_Imm_SmallSstring,len);
       allocate(sstring_type,TRUE,need,SmallSstring,ptr,
                { SETTFL } # Keine weitere Initialisierung
@@ -198,12 +189,9 @@
     var uintB flags;
     var uintC rank;
     var tint type;
-    {
-      var uintL need = rank;
-      if (flags & bit(arrayflags_fillp_bit))
-        need += 1;
-      if (flags & bit(arrayflags_dispoffset_bit))
-        need += 1;
+    { var uintL need = rank;
+      if (flags & bit(arrayflags_fillp_bit)) { need += 1; }
+      if (flags & bit(arrayflags_dispoffset_bit)) { need += 1; }
       need = size_iarray(need);
       #ifdef TYPECODES
         #define SETTFL  ptr->flags = flags; ptr->rank = rank;
@@ -231,29 +219,27 @@
     var uintW flags_rectype;
     var uintC reclen;
     var tint type;
-    {
-      ASSERT((sintB)(flags_rectype >> (BIG_ENDIAN_P ? 0 : 8)) < rectype_limit);
-      var uintL need = size_srecord(reclen);
+    { ASSERT((sintB)(flags_rectype >> (BIG_ENDIAN_P ? 0 : 8)) < rectype_limit);
+     {var uintL need = size_srecord(reclen);
       allocate(type,TRUE,need,Srecord,ptr,
                { *(uintW*)pointerplus(ptr,offsetof(record_,recflags)) = flags_rectype; # Flags, Typ eintragen
                  ptr->reclength = reclen; # Länge eintragen
-                 var object* p = &ptr->recdata[0];
+                {var object* p = &ptr->recdata[0];
                  dotimespC(reclen,reclen, { *p++ = NIL; } ); # Elemente mit NIL vollschreiben
-               }
+               }}
               )
-    }
+    }}
   #else
   global object allocate_srecord_ (uintW flags_rectype, uintC reclen);
   global object allocate_srecord_(flags_rectype,reclen)
     var uintW flags_rectype;
     var uintC reclen;
-    {
-      var uintL need = size_srecord(reclen);
+    { var uintL need = size_srecord(reclen);
       allocate(type,TRUE,need,Srecord,ptr,
                { ptr->tfl = (uintL)flags_rectype + ((uintL)reclen << 16);
-                 var object* p = &ptr->recdata[0];
+                {var object* p = &ptr->recdata[0];
                  dotimespC(reclen,reclen, { *p++ = NIL; } ); # Elemente mit NIL vollschreiben
-               }
+               }}
               )
     }
   #endif
@@ -273,38 +259,34 @@
     var uintC reclen;
     var uintC recxlen;
     var tint type;
-    {
-      ASSERT((sintB)(flags_rectype >> (BIG_ENDIAN_P ? 0 : 8)) >= rectype_limit);
-      var uintL need = size_xrecord(reclen,recxlen);
+    { ASSERT((sintB)(flags_rectype >> (BIG_ENDIAN_P ? 0 : 8)) >= rectype_limit);
+     {var uintL need = size_xrecord(reclen,recxlen);
       allocate(type,TRUE,need,Xrecord,ptr,
                { *(uintW*)pointerplus(ptr,offsetof(record_,recflags)) = flags_rectype; # Flags, Typ eintragen
                  ptr->reclength = reclen; ptr->recxlength = recxlen; # Längen eintragen
-                 var object* p = &ptr->recdata[0];
+                {var object* p = &ptr->recdata[0];
                  dotimesC(reclen,reclen, { *p++ = NIL; } ); # Elemente mit NIL vollschreiben
-                 if (recxlen > 0) {
-                   var uintB* q = (uintB*)p;
-                   dotimespC(recxlen,recxlen, { *q++ = 0; } ); # Extra-Elemente mit 0 vollschreiben
-                 }
-               }
+                 if (recxlen > 0)
+                   { var uintB* q = (uintB*)p;
+                     dotimespC(recxlen,recxlen, { *q++ = 0; } ); # Extra-Elemente mit 0 vollschreiben
+               }}  }
               )
-    }
+    }}
   #else
   global object allocate_xrecord_ (uintW flags_rectype, uintC reclen, uintC recxlen);
   global object allocate_xrecord_(flags_rectype,reclen,recxlen)
     var uintW flags_rectype;
     var uintC reclen;
     var uintC recxlen;
-    {
-      var uintL need = size_xrecord(reclen,recxlen);
+    { var uintL need = size_xrecord(reclen,recxlen);
       allocate(type,TRUE,need,Xrecord,ptr,
                { ptr->tfl = (uintL)flags_rectype + ((uintL)reclen << 16) + ((uintL)recxlen << 24); # Flags, Typ, Längen eintragen
-                 var object* p = &ptr->recdata[0];
+                {var object* p = &ptr->recdata[0];
                  dotimesC(reclen,reclen, { *p++ = NIL; } ); # Elemente mit NIL vollschreiben
-                 if (recxlen > 0) {
-                   var uintB* q = (uintB*)p;
-                   dotimespC(recxlen,recxlen, { *q++ = 0; } ); # Extra-Elemente mit 0 vollschreiben
-                 }
-               }
+                 if (recxlen > 0)
+                   { var uintB* q = (uintB*)p;
+                     dotimespC(recxlen,recxlen, { *q++ = 0; } ); # Extra-Elemente mit 0 vollschreiben
+               }}  }
               )
     }
   #endif
@@ -325,8 +307,7 @@
     var uintB strmtype;
     var uintC reclen;
     var uintC recxlen;
-    {
-      var object obj = allocate_xrecord(0,Rectype_Stream,reclen,recxlen,orecord_type);
+    { var object obj = allocate_xrecord(0,Rectype_Stream,reclen,recxlen,orecord_type);
       TheRecord(obj)->recdata[0] = Fixnum_0; # Fixnum als Platz für strmflags und strmtype
       TheStream(obj)->strmflags = strmflags; TheStream(obj)->strmtype = strmtype;
       return obj;
@@ -344,8 +325,7 @@
   global object allocate_fpointer (FOREIGN foreign);
   global object allocate_fpointer(foreign)
     var FOREIGN foreign;
-    {
-      var object result = allocate_xrecord(0,Rectype_Fpointer,fpointer_length,fpointer_xlength,orecord_type);
+    { var object result = allocate_xrecord(0,Rectype_Fpointer,fpointer_length,fpointer_xlength,orecord_type);
       TheFpointer(result)->fp_pointer = foreign;
       return result;
     }
@@ -361,8 +341,7 @@
   global object allocate_handle (Handle handle);
   global object allocate_handle(handle)
     var Handle handle;
-    {
-      var object result = allocate_bit_vector(Atype_Bit,sizeof(Handle)*8);
+    { var object result = allocate_bit_vector(sizeof(Handle)*8);
       TheHandle(result) = handle;
       return result;
     }
@@ -379,8 +358,7 @@
   global object allocate_bignum(len,sign)
     var uintC len;
     var sintB sign;
-    {
-      var uintL need = size_bignum(len); # benötigter Speicherplatz in Bytes
+    { var uintL need = size_bignum(len); # benötigter Speicherplatz in Bytes
       #ifdef TYPECODES
         #define SETTFL  ptr->length = len;
       #else
@@ -416,8 +394,7 @@
   #else
   global object allocate_ffloat(value)
     var ffloat value;
-    {
-      return
+    { return
         type_data_object(ffloat_type | ((sint32)value<0 ? bit(sign_bit_t) : 0), # Vorzeichenbit aus value
                          value
                         );
@@ -481,8 +458,7 @@
     var uintC len;
     var uintL expo;
     var signean sign;
-    {
-      var uintL need = size_lfloat(len); # benötigter Speicherplatz in Bytes
+    { var uintL need = size_lfloat(len); # benötigter Speicherplatz in Bytes
       #ifdef TYPECODES
         #define SETTFL  ptr->len = len;
       #else
@@ -505,8 +481,8 @@
   global object make_ratio(num,den)
     var object num;
     var object den;
-    {
-      pushSTACK(den); pushSTACK(num); # Argumente sichern
+    { pushSTACK(den); pushSTACK(num); # Argumente sichern
+     {
       #ifdef TYPECODES
       var tint type = # Vorzeichen von num übernehmen
         #ifdef fast_mtypecode
@@ -540,7 +516,7 @@
                 )
       #endif
       #undef FILL
-    }
+    }}
 
 # UP, erzeugt komplexe Zahl
 # make_complex(real,imag)
@@ -552,8 +528,7 @@
   global object make_complex(real,imag)
     var object real;
     var object imag;
-    {
-      pushSTACK(imag); pushSTACK(real);
+    { pushSTACK(imag); pushSTACK(real);
       #define FILL  \
         ptr->c_real = popSTACK(); # Realteil eintragen \
         ptr->c_imag = popSTACK(); # Imaginärteil eintragen

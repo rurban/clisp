@@ -708,23 +708,6 @@ local const char* is_if (const char* line)
       xfree(term);
       return result;
   } }
-  # Check for "ifndef".
-  if (i+6 < n
-      && line[i+0] == 'i'
-      && line[i+1] == 'f'
-      && line[i+2] == 'n'
-      && line[i+3] == 'd'
-      && line[i+4] == 'e'
-      && line[i+5] == 'f'
-      && is_whitespace(line[i+6])) {
-    i += 7;
-    for (; i < n && is_whitespace(line[i]); i++);
-    for (; n > i && is_whitespace(line[n-1]); n--);
-    { var char* term = substring(line,i,n);
-      var const char* result = concat3("!defined(",term,")");
-      xfree(term);
-      return result;
-  } }
   return NULL;
 }
 

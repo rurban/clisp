@@ -138,14 +138,11 @@
 #             Die Zahl 0.0 wird durch s=0, e=0, m=0 repräsentiert.
   #define FF_exp_len    8  # Anzahl der Bits des Exponenten
   #define FF_mant_len  23  # Anzahl der Bits der Mantisse
-  # On platforms with FAST_FLOAT we obey the IEEE 754 values. Choose the same
-  # values on other platforms as well, so that most-positive-single-float etc.
-  # will be platform independent.
-  #if defined(FAST_FLOAT) || 1
+  #ifdef FAST_FLOAT # Müssen wir uns die Parameter vom Standard diktieren lassen?
     #define FF_exp_low  1
     #define FF_exp_mid  126  # Warum das die "Mitte" sein soll, ist mir unklar...
     #define FF_exp_high 254  # Exponent 255 wird als NaN/Inf interpretiert!
-  #else # Ich wählte die Parameter damals schön symmetrisch
+  #else # Ich wähle die Parameter liefer schön symmetrisch
     #define FF_exp_low  1
     #define FF_exp_mid  128
     #define FF_exp_high 255
@@ -187,10 +184,7 @@
 #             Die Zahl 0.0 wird durch s=0, e=0, m=0 repräsentiert.
   #define DF_exp_len   11  # Anzahl der Bits des Exponenten
   #define DF_mant_len  52  # Anzahl der Bits der Mantisse
-  # On platforms with FAST_FLOAT we obey the IEEE 754 values. Choose the same
-  # values on other platforms as well, so that most-positive-double-float etc.
-  # will be platform independent.
-  #if defined(FAST_DOUBLE) || 1
+  #ifdef FAST_DOUBLE # Müssen wir uns die Parameter vom Standard diktieren lassen?
     #define DF_exp_low  1
     #define DF_exp_mid  1022 # Warum das die "Mitte" sein soll, ist mir unklar...
     #define DF_exp_high 2046 # Exponent 2047 wird als NaN/Inf interpretiert!
@@ -243,8 +237,7 @@
 
 # NUM_STACK ist eine Art Zahlen-Stack-Pointer.
 # Verwendung:
-#   {
-#    SAVE_NUM_STACK
+#   {SAVE_NUM_STACK
 #    ...
 #    num_stack_need(...);
 #    ...
@@ -333,8 +326,7 @@
 # Fehlermeldung wegen Division durch Null
   nonreturning_function(local, divide_0, (void));
   local void divide_0()
-    {
-      fehler(division_by_zero,
+    { fehler(division_by_zero,
              GETTEXT("division by zero")
             );
     }
@@ -343,8 +335,7 @@
 # fehler_overflow();
   nonreturning_function(local, fehler_overflow, (void));
   local void fehler_overflow()
-    {
-      fehler(floating_point_overflow,
+    { fehler(floating_point_overflow,
              GETTEXT("floating point overflow")
             );
     }
@@ -353,8 +344,7 @@
 # fehler_underflow();
   nonreturning_function(local, fehler_underflow, (void));
   local void fehler_underflow()
-    {
-      fehler(floating_point_underflow,
+    { fehler(floating_point_underflow,
              GETTEXT("floating point underflow")
             );
     }

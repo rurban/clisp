@@ -9,10 +9,7 @@
     var const uintD* sourceptr;
     var uintD* destptr;
     var uintC count;
-    {
-      until (count==0) {
-        *destptr++ = *sourceptr++; count--;
-      }
+    { until (count==0) { *destptr++ = *sourceptr++; count--; }
       return destptr;
     }
 
@@ -25,10 +22,7 @@
     var const uintD* sourceptr;
     var uintD* destptr;
     var uintC count;
-    {
-      until (count==0) {
-        *--destptr = *--sourceptr; count--;
-      }
+    { until (count==0) { *--destptr = *--sourceptr; count--; }
       return destptr;
     }
 
@@ -41,10 +35,7 @@
     var uintD* destptr;
     var uintC count;
     var uintD filler;
-    {
-      until (count==0) {
-        *destptr++ = filler; count--;
-      }
+    { until (count==0) { *destptr++ = filler; count--; }
       return destptr;
     }
 
@@ -57,10 +48,7 @@
     var uintD* destptr;
     var uintC count;
     var uintD filler;
-    {
-      until (count==0) {
-        *--destptr = filler; count--;
-      }
+    { until (count==0) { *--destptr = filler; count--; }
       return destptr;
     }
 
@@ -72,10 +60,7 @@
   local uintD* clear_loop_up(destptr,count)
     var uintD* destptr;
     var uintC count;
-    {
-      until (count==0) {
-        *destptr++ = 0; count--;
-      }
+    { until (count==0) { *destptr++ = 0; count--; }
       return destptr;
     }
 
@@ -87,10 +72,7 @@
   local uintD* clear_loop_down(destptr,count)
     var uintD* destptr;
     var uintC count;
-    {
-      until (count==0) {
-        *--destptr = 0; count--;
-      }
+    { until (count==0) { *--destptr = 0; count--; }
       return destptr;
     }
 
@@ -103,11 +85,7 @@
     var uintD* xptr;
     var const uintD* yptr;
     var uintC count;
-    {
-      until (count==0) {
-        *xptr++ |= *yptr++; count--;
-      }
-    }
+    { until (count==0) { *xptr++ |= *yptr++; count--; } }
 
 # XOR-Schleife:
 # xor_loop_up(xptr,yptr,count);
@@ -118,11 +96,7 @@
     var uintD* xptr;
     var const uintD* yptr;
     var uintC count;
-    {
-      until (count==0) {
-        *xptr++ ^= *yptr++; count--;
-      }
-    }
+    { until (count==0) { *xptr++ ^= *yptr++; count--; } }
 
 # AND-Schleife:
 # and_loop_up(xptr,yptr,count);
@@ -133,11 +107,7 @@
     var uintD* xptr;
     var const uintD* yptr;
     var uintC count;
-    {
-      until (count==0) {
-        *xptr++ &= *yptr++; count--;
-      }
-    }
+    { until (count==0) { *xptr++ &= *yptr++; count--; } }
 
 # EQV-Schleife:
 # eqv_loop_up(xptr,yptr,count);
@@ -148,13 +118,10 @@
     var uintD* xptr;
     var const uintD* yptr;
     var uintC count;
-    {
-      until (count==0) {
-        var uintD temp = ~ (*xptr ^ *yptr++);
-        *xptr++ = temp;
+    { until (count==0)
+      {{var uintD temp = ~ (*xptr ^ *yptr++); *xptr++ = temp; }
         count--;
-      }
-    }
+    } }
 
 # NAND-Schleife:
 # nand_loop_up(xptr,yptr,count);
@@ -165,13 +132,10 @@
     var uintD* xptr;
     var const uintD* yptr;
     var uintC count;
-    {
-      until (count==0) {
-        var uintD temp = ~ (*xptr & *yptr++);
-        *xptr++ = temp;
+    { until (count==0)
+      {{var uintD temp = ~ (*xptr & *yptr++); *xptr++ = temp; }
         count--;
-      }
-    }
+    } }
 
 # NOR-Schleife:
 # nor_loop_up(xptr,yptr,count);
@@ -182,13 +146,10 @@
     var uintD* xptr;
     var const uintD* yptr;
     var uintC count;
-    {
-      until (count==0) {
-        var uintD temp = ~ (*xptr | *yptr++);
-        *xptr++ = temp;
+    { until (count==0)
+      {{var uintD temp = ~ (*xptr | *yptr++); *xptr++ = temp; }
         count--;
-      }
-    }
+    } }
 
 # ANDC2-Schleife:
 # andc2_loop_up(xptr,yptr,count);
@@ -199,11 +160,7 @@
     var uintD* xptr;
     var const uintD* yptr;
     var uintC count;
-    {
-      until (count==0) {
-        *xptr++ &= ~(*yptr++); count--;
-      }
-    }
+    { until (count==0) { *xptr++ &= ~(*yptr++); count--; } }
 
 # ORC2-Schleife:
 # orc2_loop_up(xptr,yptr,count);
@@ -214,11 +171,7 @@
     var uintD* xptr;
     var const uintD* yptr;
     var uintC count;
-    {
-      until (count==0) {
-        *xptr++ |= ~(*yptr++); count--;
-      }
-    }
+    { until (count==0) { *xptr++ |= ~(*yptr++); count--; } }
 
 # NOT-Schleife:
 # not_loop_up(xptr,count);
@@ -228,12 +181,10 @@
   local void not_loop_up(xptr,count)
     var uintD* xptr;
     var uintC count;
-    {
-      do {
-        var uintD temp = ~ (*xptr);
-        *xptr++ = temp;
-        count--;
-      } until (count==0);
+    { do { {var uintD temp = ~ (*xptr); *xptr++ = temp; }
+           count--;
+         }
+         until (count==0);
     }
 
 # AND-Test-Schleife:
@@ -245,12 +196,7 @@
     var const uintD* xptr;
     var const uintD* yptr;
     var uintC count;
-    {
-      until (count==0) {
-        if (*xptr++ & *yptr++)
-          return TRUE;
-        count--;
-      }
+    { until (count==0) { if (*xptr++ & *yptr++) return TRUE; count--; }
       return FALSE;
     }
 
@@ -262,12 +208,7 @@
   local boolean test_loop_up(ptr,count)
     var const uintD* ptr;
     var uintC count;
-    {
-      until (count==0) {
-        if (*ptr++)
-          return TRUE;
-        count--;
-      }
+    { until (count==0) { if (*ptr++) return TRUE; count--; }
       return FALSE;
     }
 
@@ -282,13 +223,12 @@
     var const uintD* xptr;
     var const uintD* yptr;
     var uintC count;
-    {
-      until (count==0) {
-        if (!(*xptr++ == *yptr++))
-          # verschiedene Digits gefunden
-          return (*--xptr > *--yptr ? signean_plus : signean_minus);
-        count--;
-      }
+    { until (count==0)
+        { if (!(*xptr++ == *yptr++))
+            # verschiedene Digits gefunden
+            return (*--xptr > *--yptr ? signean_plus : signean_minus);
+          count--;
+        }
       return signean_null; # alle Digits gleich
     }
 
@@ -302,25 +242,22 @@
     var const uintD* sourceptr2;
     var uintD* destptr;
     var uintC count;
-    {
-      var uintD carry = 0;
-      until (count==0) {
-        var uintD source1 = *--sourceptr1;
-        var uintD source2 = *--sourceptr2;
-        if (carry)
-          if (source1 >= (uintD)(~source2)) {
-            *--destptr = source1 + source2 + 1; carry = 1;
-          } else {
-            *--destptr = source1 + source2 + 1; carry = 0;
-          }
-        else
-          if (source1 > (uintD)(~source2)) {
-            *--destptr = source1 + source2; carry = 1;
-          } else {
-            *--destptr = source1 + source2; carry = 0;
-          }
-        count--;
-      }
+    { var uintD carry = 0;
+      until (count==0)
+        { var uintD source1 = *--sourceptr1;
+          var uintD source2 = *--sourceptr2;
+          if (carry)
+            if (source1 >= (uintD)(~source2))
+              { *--destptr = source1 + source2 + 1; carry = 1; }
+              else
+              { *--destptr = source1 + source2 + 1; carry = 0; }
+            else
+            if (source1 > (uintD)(~source2))
+              { *--destptr = source1 + source2; carry = 1; }
+              else
+              { *--destptr = source1 + source2; carry = 0; }
+          count--;
+        }
       return carry;
     }
 
@@ -333,25 +270,22 @@
     var const uintD* sourceptr;
     var uintD* destptr;
     var uintC count;
-    {
-      var uintD carry = 0;
-      until (count==0) {
-        var uintD source1 = *--sourceptr;
-        var uintD source2 = *--destptr;
-        if (carry)
-          if (source1 >= (uintD)(~source2)) {
-            *destptr = source1 + source2 + 1; carry = 1;
-          } else {
-            *destptr = source1 + source2 + 1; carry = 0;
-          }
-        else
-          if (source1 > (uintD)(~source2)) {
-            *destptr = source1 + source2; carry = 1;
-          } else {
-            *destptr = source1 + source2; carry = 0;
-          }
-        count--;
-      }
+    { var uintD carry = 0;
+      until (count==0)
+        { var uintD source1 = *--sourceptr;
+          var uintD source2 = *--destptr;
+          if (carry)
+            if (source1 >= (uintD)(~source2))
+              { *destptr = source1 + source2 + 1; carry = 1; }
+              else
+              { *destptr = source1 + source2 + 1; carry = 0; }
+            else
+            if (source1 > (uintD)(~source2))
+              { *destptr = source1 + source2; carry = 1; }
+              else
+              { *destptr = source1 + source2; carry = 0; }
+          count--;
+        }
       return carry;
     }
 
@@ -363,12 +297,10 @@
   local uintD inc_loop_down(ptr,count)
     var uintD* ptr;
     var uintC count;
-    {
-      until (count==0) {
-        if (!( ++(*--ptr) == 0 ))
-          return 0; # kein weiterer Übertrag
-        count--;
-      }
+    { until (count==0)
+        { if (!( ++(*--ptr) == 0 )) return 0; # kein weiterer Übertrag
+          count--;
+        }
       return 1; # weiterer Übertrag
     }
 
@@ -382,25 +314,22 @@
     var const uintD* sourceptr2;
     var uintD* destptr;
     var uintC count;
-    {
-      var uintD carry = 0;
-      until (count==0) {
-        var uintD source1 = *--sourceptr1;
-        var uintD source2 = *--sourceptr2;
-        if (carry)
-          if (source1 > source2) {
-            *--destptr = source1 - source2 - 1; carry = 0;
-          } else {
-            *--destptr = source1 - source2 - 1; carry = -1;
-          }
-        else
-          if (source1 >= source2) {
-            *--destptr = source1 - source2; carry = 0;
-          } else {
-            *--destptr = source1 - source2; carry = -1;
-          }
-        count--;
-      }
+    { var uintD carry = 0;
+      until (count==0)
+        { var uintD source1 = *--sourceptr1;
+          var uintD source2 = *--sourceptr2;
+          if (carry)
+            if (source1 > source2)
+              { *--destptr = source1 - source2 - 1; carry = 0; }
+              else
+              { *--destptr = source1 - source2 - 1; carry = -1; }
+            else
+            if (source1 >= source2)
+              { *--destptr = source1 - source2; carry = 0; }
+              else
+              { *--destptr = source1 - source2; carry = -1; }
+          count--;
+        }
       return carry;
     }
 
@@ -416,24 +345,21 @@
     var uintD* destptr;
     var uintC count;
     var uintD carry;
-    {
-      until (count==0) {
-        var uintD source1 = *--sourceptr1;
-        var uintD source2 = *--sourceptr2;
-        if (carry)
-          if (source1 > source2) {
-            *--destptr = source1 - source2 - 1; carry = 0;
-          } else {
-            *--destptr = source1 - source2 - 1; carry = -1;
-          }
-        else
-          if (source1 >= source2) {
-            *--destptr = source1 - source2; carry = 0;
-          } else {
-            *--destptr = source1 - source2; carry = -1;
-          }
-        count--;
-      }
+    { until (count==0)
+        { var uintD source1 = *--sourceptr1;
+          var uintD source2 = *--sourceptr2;
+          if (carry)
+            if (source1 > source2)
+              { *--destptr = source1 - source2 - 1; carry = 0; }
+              else
+              { *--destptr = source1 - source2 - 1; carry = -1; }
+            else
+            if (source1 >= source2)
+              { *--destptr = source1 - source2; carry = 0; }
+              else
+              { *--destptr = source1 - source2; carry = -1; }
+          count--;
+        }
       return carry;
     }
 
@@ -447,25 +373,22 @@
     var const uintD* sourceptr;
     var uintD* destptr;
     var uintC count;
-    {
-      var uintD carry = 0;
-      until (count==0) {
-        var uintD source1 = *--destptr;
-        var uintD source2 = *--sourceptr;
-        if (carry)
-          if (source1 > source2) {
-            *destptr = source1 - source2 - 1; carry = 0;
-          } else {
-            *destptr = source1 - source2 - 1; carry = -1;
-          }
-        else
-          if (source1 >= source2) {
-            *destptr = source1 - source2; carry = 0;
-          } else {
-            *destptr = source1 - source2; carry = -1;
-          }
-        count--;
-      }
+    { var uintD carry = 0;
+      until (count==0)
+        { var uintD source1 = *--destptr;
+          var uintD source2 = *--sourceptr;
+          if (carry)
+            if (source1 > source2)
+              { *destptr = source1 - source2 - 1; carry = 0; }
+              else
+              { *destptr = source1 - source2 - 1; carry = -1; }
+            else
+            if (source1 >= source2)
+              { *destptr = source1 - source2; carry = 0; }
+              else
+              { *destptr = source1 - source2; carry = -1; }
+          count--;
+        }
       return carry;
     }
 
@@ -477,12 +400,10 @@
   local uintD dec_loop_down(ptr,count)
     var uintD* ptr;
     var uintC count;
-    {
-      until (count==0) {
-        if (!( (*--ptr)-- == 0 ))
-          return 0; # kein weiterer Übertrag
-        count--;
-      }
+    { until (count==0)
+        { if (!( (*--ptr)-- == 0 )) return 0; # kein weiterer Übertrag
+          count--;
+        }
       return -1; # weiterer Übertrag
     }
 
@@ -494,21 +415,12 @@
   local uintD neg_loop_down(ptr,count)
     var uintD* ptr;
     var uintC count;
-    {
-      # erstes Digit /=0 suchen:
-      until (count==0) {
-        if (!(*--ptr == 0))
-          goto L1;
-        count--;
-      }
+    { # erstes Digit /=0 suchen:
+      until (count==0) { if (!(*--ptr == 0)) goto L1; count--; }
       return 0;
       L1: # erstes Digit /=0 gefunden, ab jetzt gibt's Carrys
       *ptr = - *ptr; count--; # 1 Digit negieren
-      until (count==0) { # alle anderen Digits invertieren
-        --ptr;
-        *ptr = ~ *ptr;
-        count--;
-      }
+      until (count==0) { --ptr; *ptr = ~ *ptr; count--; } # alle anderen Digits invertieren
       return -1;
     }
 
@@ -521,27 +433,25 @@
   local uintD shift1left_loop_down(ptr,count)
     var uintD* ptr;
     var uintC count;
-    {
-      var uintDD accu = 0;
-      until (count==0) {
-        accu = ((uintDD)(*--ptr)<<1)+accu; *ptr = lowD(accu);
-        accu = (uintDD)(highD(accu));
-        count--;
-      }
+    { var uintDD accu = 0;
+      until (count==0)
+        { accu = ((uintDD)(*--ptr)<<1)+accu; *ptr = lowD(accu);
+          accu = (uintDD)(highD(accu));
+          count--;
+        }
       return (uintD)accu;
     }
   #else
   local uintD shift1left_loop_down(ptr,count)
     var uintD* ptr;
     var uintC count;
-    {
-      var uintD carry = 0;
-      until (count==0) {
-        var uintD accu = *--ptr;
-        *ptr = (accu<<1) | carry;
-        carry = accu>>(intDsize-1);
-        count--;
-      }
+    { var uintD carry = 0;
+      until (count==0)
+        { var uintD accu = *--ptr;
+          *ptr = (accu<<1) | carry;
+          carry = accu>>(intDsize-1);
+          count--;
+        }
       return carry;
     }
   #endif
@@ -558,13 +468,12 @@
     var uintC count;
     var uintC i;
     var uintD carry;
-    {
-      var uintDD accu = (uintDD)carry;
-      until (count==0) {
-        accu = ((uintDD)(*--ptr)<<i)+accu; *ptr = lowD(accu);
-        accu = (uintDD)(highD(accu));
-        count--;
-      }
+    { var uintDD accu = (uintDD)carry;
+      until (count==0)
+        { accu = ((uintDD)(*--ptr)<<i)+accu; *ptr = lowD(accu);
+          accu = (uintDD)(highD(accu));
+          count--;
+        }
       return (uintD)accu;
     }
   #else
@@ -573,14 +482,13 @@
     var uintC count;
     var uintC i;
     var uintD carry;
-    {
-      var uintC j = intDsize-i;
-      until (count==0) {
-        var uintD accu = *--ptr;
-        *ptr = (accu<<i) | carry;
-        carry = accu>>j;
-        count--;
-      }
+    { var uintC j = intDsize-i;
+      until (count==0)
+        { var uintD accu = *--ptr;
+          *ptr = (accu<<i) | carry;
+          carry = accu>>j;
+          count--;
+        }
       return carry;
     }
   #endif
@@ -598,13 +506,12 @@
     var uintD* destptr;
     var uintC count;
     var uintC i;
-    {
-      var uintDD accu = 0;
-      until (count==0) {
-        accu = ((uintDD)(*--sourceptr)<<i)+accu; *--destptr = lowD(accu);
-        accu = (uintDD)(highD(accu));
-        count--;
-      }
+    { var uintDD accu = 0;
+      until (count==0)
+        { accu = ((uintDD)(*--sourceptr)<<i)+accu; *--destptr = lowD(accu);
+          accu = (uintDD)(highD(accu));
+          count--;
+        }
       return (uintD)accu;
     }
   #else
@@ -613,15 +520,14 @@
     var uintD* destptr;
     var uintC count;
     var uintC i;
-    {
-      var uintC j = intDsize-i;
+    { var uintC j = intDsize-i;
       var uintD carry = 0;
-      until (count==0) {
-        var uintD accu = *--sourceptr;
-        *--destptr = (accu<<i) | carry;
-        carry = accu>>j;
-        count--;
-      }
+      until (count==0)
+        { var uintD accu = *--sourceptr;
+          *--destptr = (accu<<i) | carry;
+          carry = accu>>j;
+          count--;
+        }
       return carry;
     }
   #endif
@@ -637,13 +543,12 @@
     var uintD* ptr;
     var uintC count;
     var uintD carry;
-    {
-      var uintDD accu = (sintDD)(sintD)carry & ((uintDD)1 << (2*intDsize-1)); # 0 oder bit(2*intDsize-1)
-      until (count==0) {
-        accu = (highlowDD_0(*ptr)>>1)+accu; *ptr++ = highD(accu);
-        accu = highlowDD_0(lowD(accu));
-        count--;
-      }
+    { var uintDD accu = (sintDD)(sintD)carry & ((uintDD)1 << (2*intDsize-1)); # 0 oder bit(2*intDsize-1)
+      until (count==0)
+        { accu = (highlowDD_0(*ptr)>>1)+accu; *ptr++ = highD(accu);
+          accu = highlowDD_0(lowD(accu));
+          count--;
+        }
       return highD(accu);
     }
   #else
@@ -651,14 +556,13 @@
     var uintD* ptr;
     var uintC count;
     var uintD carry;
-    {
-      carry = carry << (intDsize-1); # carry zu einem einzigen Bit machen
-      until (count==0) {
-        var uintD accu = *ptr;
-        *ptr++ = (accu >> 1) | carry;
-        carry = accu << (intDsize-1);
-        count--;
-      }
+    { carry = carry << (intDsize-1); # carry zu einem einzigen Bit machen
+      until (count==0)
+        { var uintD accu = *ptr;
+          *ptr++ = (accu >> 1) | carry;
+          carry = accu << (intDsize-1);
+          count--;
+        }
       return carry;
     }
   #endif
@@ -674,15 +578,14 @@
     var uintD* ptr;
     var uintC count;
     var uintC i;
-    {
-      var uintDD accu = 0;
-      until (count==0) {
-        # Die oberen i Bits von (uintD)accu bilden hier den Übertrag.
-        accu = highlowDD_0(lowD(accu));
-        # Die oberen i Bits von (uintDD)accu bilden hier den Übertrag.
-        accu = (highlowDD_0(*ptr)>>i)+accu; *ptr++ = highD(accu);
-        count--;
-      }
+    { var uintDD accu = 0;
+      until (count==0)
+        { # Die oberen i Bits von (uintD)accu bilden hier den Übertrag.
+          accu = highlowDD_0(lowD(accu));
+          # Die oberen i Bits von (uintDD)accu bilden hier den Übertrag.
+          accu = (highlowDD_0(*ptr)>>i)+accu; *ptr++ = highD(accu);
+          count--;
+        }
       return lowD(accu);
     }
   #else
@@ -690,15 +593,14 @@
     var uintD* ptr;
     var uintC count;
     var uintC i;
-    {
-      var uintC j = intDsize-i;
+    { var uintC j = intDsize-i;
       var uintD carry = 0;
-      until (count==0) {
-        var uintD accu = *ptr;
-        *ptr++ = (accu >> i) | carry;
-        carry = accu << j;
-        count--;
-      }
+      until (count==0)
+        { var uintD accu = *ptr;
+          *ptr++ = (accu >> i) | carry;
+          carry = accu << j;
+          count--;
+        }
       return carry;
     }
   #endif
@@ -714,16 +616,15 @@
     var uintD* ptr;
     var uintC count;
     var uintC i;
-    {
-      var uintDD accu = # Übertrag mit i Vorzeichenbits initialisieren
+    { var uintDD accu = # Übertrag mit i Vorzeichenbits initialisieren
                            highlowDD_0(sign_of_sintD((sintD)(*ptr)))>>i;
-      do {
-        # Die oberen i Bits von (uintD)accu bilden hier den Übertrag.
-        accu = highlowDD_0(lowD(accu));
-        # Die oberen i Bits von (uintDD)accu bilden hier den Übertrag.
-        accu = (highlowDD_0(*ptr)>>i)+accu; *ptr++ = highD(accu);
-        count--;
-      } until (count==0);
+      do { # Die oberen i Bits von (uintD)accu bilden hier den Übertrag.
+           accu = highlowDD_0(lowD(accu));
+           # Die oberen i Bits von (uintDD)accu bilden hier den Übertrag.
+           accu = (highlowDD_0(*ptr)>>i)+accu; *ptr++ = highD(accu);
+           count--;
+         }
+         until (count==0);
       return lowD(accu);
     }
   #else
@@ -731,21 +632,19 @@
     var uintD* ptr;
     var uintC count;
     var uintC i;
-    {
-      var uintC j = intDsize-i;
+    { var uintC j = intDsize-i;
       var uintD carry;
-      {
-        var uintD accu = *ptr;
+      { var uintD accu = *ptr;
         *ptr++ = (sintD)accu >> i;
         carry = accu << j;
         count--;
       }
-      until (count==0) {
-        var uintD accu = *ptr;
-        *ptr++ = (accu >> i) | carry;
-        carry = accu << j;
-        count--;
-      }
+      until (count==0)
+        { var uintD accu = *ptr;
+          *ptr++ = (accu >> i) | carry;
+          carry = accu << j;
+          count--;
+        }
       return carry;
     }
   #endif
@@ -764,16 +663,15 @@
     var uintC count;
     var uintC i;
     var uintD carry;
-    {
-      var uintDD accu = # Übertrag mit carry initialisieren
+    { var uintDD accu = # Übertrag mit carry initialisieren
                            highlowDD_0(carry)>>i;
-      until (count==0) {
-        # Die oberen i Bits von (uintD)accu bilden hier den Übertrag.
-        accu = highlowDD_0(lowD(accu));
-        # Die oberen i Bits von (uintDD)accu bilden hier den Übertrag.
-        accu = (highlowDD_0(*sourceptr++)>>i)+accu; *destptr++ = highD(accu);
-        count--;
-      }
+      until (count==0)
+        { # Die oberen i Bits von (uintD)accu bilden hier den Übertrag.
+          accu = highlowDD_0(lowD(accu));
+          # Die oberen i Bits von (uintDD)accu bilden hier den Übertrag.
+          accu = (highlowDD_0(*sourceptr++)>>i)+accu; *destptr++ = highD(accu);
+          count--;
+        }
       return lowD(accu);
     }
   #else
@@ -783,15 +681,14 @@
     var uintC count;
     var uintC i;
     var uintD carry;
-    {
-      var uintC j = intDsize-i;
+    { var uintC j = intDsize-i;
       carry = carry << j;
-      until (count==0) {
-        var uintD accu = *sourceptr++;
-        *destptr++ = (accu >> i) | carry;
-        carry = accu << j;
-        count--;
-      }
+      until (count==0)
+        { var uintD accu = *sourceptr++;
+          *destptr++ = (accu >> i) | carry;
+          carry = accu << j;
+          count--;
+        }
       return carry;
     }
   #endif
@@ -809,16 +706,15 @@
     var uintD* ptr;
     var uintC len;
     var uintD newdigit;
-    {
-      var uintDD carry = newdigit;
-      until (len==0) {
-        # Hier ist 0 <= carry < digit.
-        carry = carry + muluD(digit,*--ptr);
-        # Hier ist 0 <= carry < 2^intDsize*digit.
-        *ptr = lowD(carry);
-        carry = (uintDD)highD(carry); # carry := floor(carry/2^intDsize) < digit
-        len--;
-      }
+    { var uintDD carry = newdigit;
+      until (len==0)
+        { # Hier ist 0 <= carry < digit.
+          carry = carry + muluD(digit,*--ptr);
+          # Hier ist 0 <= carry < 2^intDsize*digit.
+          *ptr = lowD(carry);
+          carry = (uintDD)highD(carry); # carry := floor(carry/2^intDsize) < digit
+          len--;
+        }
       return lowD(carry);
     }
   #else
@@ -827,19 +723,18 @@
     var uintD* ptr;
     var uintC len;
     var uintD newdigit;
-    {
-      var uintD carry = newdigit;
-      until (len==0) {
-        # Hier ist 0 <= carry < digit.
-        var uintD hi;
-        var uintD lo;
-        muluD(digit,*--ptr,hi=,lo=);
-        # Hier ist 0 <= 2^intDsize*hi + lo + carry < 2^intDsize*digit.
-        lo += carry; if (lo < carry) { hi += 1; }
-        *ptr = lo;
-        carry = hi;
-        len--;
-      }
+    { var uintD carry = newdigit;
+      until (len==0)
+        { # Hier ist 0 <= carry < digit.
+          var uintD hi;
+          var uintD lo;
+          muluD(digit,*--ptr,hi=,lo=);
+          # Hier ist 0 <= 2^intDsize*hi + lo + carry < 2^intDsize*digit.
+          lo += carry; if (lo < carry) { hi += 1; }
+          *ptr = lo;
+          carry = hi;
+          len--;
+        }
       return carry;
     }
   #endif
@@ -858,16 +753,15 @@
     var const uintD* sourceptr;
     var uintD* destptr;
     var uintC len;
-    {
-      var uintDD carry = 0;
-      do {
-        # Hier ist carry=digit=0 oder 0 <= carry < digit.
-        carry = carry + muluD(digit,*--sourceptr);
-        # Hier ist carry=digit=0 oder 0 <= carry < 2^intDsize*digit.
-        *--destptr = lowD(carry);
-        carry = (uintDD)highD(carry); # carry := floor(carry/2^intDsize) < digit
-        len--;
-      } until (len==0);
+    { var uintDD carry = 0;
+      do { # Hier ist carry=digit=0 oder 0 <= carry < digit.
+           carry = carry + muluD(digit,*--sourceptr);
+           # Hier ist carry=digit=0 oder 0 <= carry < 2^intDsize*digit.
+           *--destptr = lowD(carry);
+           carry = (uintDD)highD(carry); # carry := floor(carry/2^intDsize) < digit
+           len--;
+         }
+         until (len==0);
       *--destptr = lowD(carry);
     }
   #else
@@ -876,19 +770,18 @@
     var const uintD* sourceptr;
     var uintD* destptr;
     var uintC len;
-    {
-      var uintD carry = 0;
-      do {
-        # Hier ist carry=digit=0 oder 0 <= carry < digit.
-        var uintD hi;
-        var uintD lo;
-        muluD(digit,*--sourceptr,hi=,lo=);
-        # Hier ist 0 <= 2^intDsize*hi + lo + carry < 2^intDsize*digit oder hi=lo=carry=digit=0.
-        lo += carry; if (lo < carry) { hi += 1; }
-        *--destptr = lo;
-        carry = hi;
-        len--;
-      } until (len==0);
+    { var uintD carry = 0;
+      do { # Hier ist carry=digit=0 oder 0 <= carry < digit.
+           var uintD hi;
+           var uintD lo;
+           muluD(digit,*--sourceptr,hi=,lo=);
+           # Hier ist 0 <= 2^intDsize*hi + lo + carry < 2^intDsize*digit oder hi=lo=carry=digit=0.
+           lo += carry; if (lo < carry) { hi += 1; }
+           *--destptr = lo;
+           carry = hi;
+           len--;
+         }
+         until (len==0);
       *--destptr = carry;
     }
   #endif
@@ -907,18 +800,17 @@
     var const uintD* sourceptr;
     var uintD* destptr;
     var uintC len;
-    {
-      var uintDD carry = 0;
-      if (!(digit==0)) {
-        do {
-          # Hier ist 0 <= carry <= digit.
-          carry = carry + muluD(digit,*--sourceptr) + (uintDD)*--destptr;
-          # Hier ist 0 <= carry <= 2^intDsize*digit + 2^intDsize-1.
-          *destptr = lowD(carry);
-          carry = (uintDD)highD(carry); # carry := floor(carry/2^intDsize) <= digit
-          len--;
-        } until (len==0);
-      }
+    { var uintDD carry = 0;
+      if (!(digit==0))
+        { do { # Hier ist 0 <= carry <= digit.
+               carry = carry + muluD(digit,*--sourceptr) + (uintDD)*--destptr;
+               # Hier ist 0 <= carry <= 2^intDsize*digit + 2^intDsize-1.
+               *destptr = lowD(carry);
+               carry = (uintDD)highD(carry); # carry := floor(carry/2^intDsize) <= digit
+               len--;
+             }
+             until (len==0);
+        }
       return lowD(carry);
     }
   #else
@@ -927,23 +819,22 @@
     var const uintD* sourceptr;
     var uintD* destptr;
     var uintC len;
-    {
-      var uintD carry = 0;
-      if (!(digit==0)) {
-        do {
-          # Hier ist 0 <= carry <= digit.
-          var uintD hi;
-          var uintD lo;
-          muluD(digit,*--sourceptr,hi=,lo=);
-          # Hier ist 0 <= 2^intDsize*hi + lo + carry + *--destptr <= 2^intDsize*digit+2^intDsize-1.
-          lo += carry; if (lo < carry) { hi += 1; }
-          carry = *--destptr;
-          lo += carry; if (lo < carry) { hi += 1; }
-          *destptr = lo;
-          carry = hi;
-          len--;
-        } until (len==0);
-      }
+    { var uintD carry = 0;
+      if (!(digit==0))
+        { do { # Hier ist 0 <= carry <= digit.
+               var uintD hi;
+               var uintD lo;
+               muluD(digit,*--sourceptr,hi=,lo=);
+               # Hier ist 0 <= 2^intDsize*hi + lo + carry + *--destptr <= 2^intDsize*digit+2^intDsize-1.
+               lo += carry; if (lo < carry) { hi += 1; }
+               carry = *--destptr;
+               lo += carry; if (lo < carry) { hi += 1; }
+               *destptr = lo;
+               carry = hi;
+               len--;
+             }
+             until (len==0);
+        }
       return carry;
     }
   #endif
@@ -962,20 +853,20 @@
     var const uintD* sourceptr;
     var uintD* destptr;
     var uintC len;
-    {
-      var uintDD carry = 0;
-      if (!(digit==0)) {
-        do {
-          # Hier ist 0 <= carry <= digit.
-          carry = carry + muluD(digit,*--sourceptr) + (uintD)(~(*--destptr));
-          # Hier ist 0 <= carry <= 2^intDsize*digit + 2^intDsize-1.
-          *destptr = ~lowD(carry);
-          carry = (uintDD)highD(carry); # carry := floor(carry/2^intDsize) <= digit
-          # Hier ist 0 <= carry <= digit.
-          len--;
-        } until (len==0);
-        return lowD(carry);
-      } else
+    { var uintDD carry = 0;
+      if (!(digit==0))
+        { do { # Hier ist 0 <= carry <= digit.
+               carry = carry + muluD(digit,*--sourceptr) + (uintD)(~(*--destptr));
+               # Hier ist 0 <= carry <= 2^intDsize*digit + 2^intDsize-1.
+               *destptr = ~lowD(carry);
+               carry = (uintDD)highD(carry); # carry := floor(carry/2^intDsize) <= digit
+               # Hier ist 0 <= carry <= digit.
+               len--;
+             }
+             until (len==0);
+          return lowD(carry);
+        }
+        else
         return 0; # nichts zu subtrahieren -> kein Übertrag
     }
   #else
@@ -984,23 +875,23 @@
     var const uintD* sourceptr;
     var uintD* destptr;
     var uintC len;
-    {
-      var uintD carry = 0;
-      if (!(digit==0)) {
-        do {
-          # Hier ist 0 <= carry <= digit.
-          var uintD hi;
-          var uintD lo;
-          muluD(digit,*--sourceptr,hi=,lo=);
-          # Hier ist 0 <= 2^intDsize*hi + lo + carry + ~(*--destptr) <= 2^intDsize*digit+2^intDsize-1.
-          lo += carry; if (lo < carry) { hi += 1; }
-          carry = *--destptr;
-          *destptr = carry - lo; if (carry < lo) { hi += 1; }
-          carry = hi;
-          len--;
-        } until (len==0);
-        return carry;
-      } else
+    { var uintD carry = 0;
+      if (!(digit==0))
+        { do { # Hier ist 0 <= carry <= digit.
+               var uintD hi;
+               var uintD lo;
+               muluD(digit,*--sourceptr,hi=,lo=);
+               # Hier ist 0 <= 2^intDsize*hi + lo + carry + ~(*--destptr) <= 2^intDsize*digit+2^intDsize-1.
+               lo += carry; if (lo < carry) { hi += 1; }
+               carry = *--destptr;
+               *destptr = carry - lo; if (carry < lo) { hi += 1; }
+               carry = hi;
+               len--;
+             }
+             until (len==0);
+          return carry;
+        }
+        else
         return 0; # nichts zu subtrahieren -> kein Übertrag
     }
   #endif
@@ -1016,12 +907,9 @@
     var uintD digit;
     var uintD* ptr;
     var uintC len;
-    {
-      var uintD rest = 0;
-      until (len==0) {
-        divuD(highlowDD(rest,*ptr),digit,*ptr =, rest =);
-        ptr++; len--;
-      }
+    { var uintD rest = 0;
+      until (len==0)
+        { divuD(highlowDD(rest,*ptr),digit,*ptr =, rest =); ptr++; len--; }
       return rest;
     }
   #else
@@ -1029,12 +917,9 @@
     var uintD digit;
     var uintD* ptr;
     var uintC len;
-    {
-      var uintD rest = 0;
-      until (len==0) {
-        divuD(rest,*ptr,digit,*ptr =, rest =);
-        ptr++; len--;
-      }
+    { var uintD rest = 0;
+      until (len==0)
+        { divuD(rest,*ptr,digit,*ptr =, rest =); ptr++; len--; }
       return rest;
     }
   #endif
@@ -1053,12 +938,9 @@
     var const uintD* sourceptr;
     var uintD* destptr;
     var uintC len;
-    {
-      var uintD rest = 0;
-      until (len==0) {
-        divuD(highlowDD(rest,*sourceptr++),digit,*destptr++ =, rest =);
-        len--;
-      }
+    { var uintD rest = 0;
+      until (len==0)
+        { divuD(highlowDD(rest,*sourceptr++),digit,*destptr++ =, rest =); len--; }
       return rest;
     }
   #else
@@ -1067,12 +949,9 @@
     var const uintD* sourceptr;
     var uintD* destptr;
     var uintC len;
-    {
-      var uintD rest = 0;
-      until (len==0) {
-        divuD(rest,*sourceptr++,digit,*destptr++ =, rest =);
-        len--;
-      }
+    { var uintD rest = 0;
+      until (len==0)
+        { divuD(rest,*sourceptr++,digit,*destptr++ =, rest =); len--; }
       return rest;
     }
   #endif

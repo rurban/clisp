@@ -7,13 +7,9 @@
 # Abort in case something fails.
 set -e
 
-fail(){
-    echo "$*" 1>&2
-    exit 1
-}
-
 if test $# != 2; then
-  fail "Usage: $0 SRC DST"
+  echo "Usage: $0 SRC DST" 1>&2
+  exit 1
 fi
 
 SRC="$1"
@@ -24,7 +20,6 @@ DST="$2"
 # system supports that, else file copy.
 link () {
 # Note: With some versions of "ln" this does not work if FILE2 is a symlink.
-rm -f "$2";
 if ln "$1" "$2" 2>/dev/null; then
   :
 else
@@ -46,7 +41,7 @@ fi
 mkdirparent () {
 DIR="$1"
 DIR=`echo "$DIR" | sed -e 's,/*$,,'`
-defaultIFS='
+defaultIFS=' 	
 '
 IFS="${IFS-${defaultIFS}}"
 oIFS="${IFS}"
@@ -65,18 +60,19 @@ done
 if test -r "$SRC"; then
   :
 else
-  fail "$0: source does not exist: $SRC"
+  echo "$0: source does not exist: $SRC" 1>&2
+  exit 1
 fi
 
-#if test -r "$DST"; then
-#  fail "$0: destination already exists: $DST"
-#fi
+if test -r "$DST"; then
+  echo "$0: destination already exists: $DST" 1>&2
+  exit 1
+fi
 
 mkdirparent "$DST"
 
 for f in `cd "$SRC" ; find . -type d -print`; do
-  dir="$DST"`echo "$f" | sed -e 's,^\.,,'`;
-  test -d ${dir} || mkdir ${dir};
+  mkdir "$DST"`echo "$f" | sed -e 's,^\.,,'`
 done
 
 for f in `cd "$SRC" ; find . -type f -print`; do

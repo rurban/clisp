@@ -33,7 +33,6 @@ DSOURCES = \
  error erramiga errdjgpp errunix errwin32 \
  misc time predtype symbol \
  lisparit aridecl arilev0 arilev1 arilev1c arilev1e arilev1i intelem intlog intplus intcomp intbyte intmal intdiv intgcd int2adic intsqrt intprint intread rational sfloat ffloat dfloat lfloat flo_konv flo_rest realelem realrand realtran compelem comptran \
- posixmath \
  rexx affi \
  foreign \
  unixaux win32aux acornaux acornsig amigaaux

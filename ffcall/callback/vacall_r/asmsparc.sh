@@ -5,29 +5,14 @@
 #   1. preprocessed,
 #   2. grep -v '^ *#line' | grep -v '^#'
 #   3. sed -e 's,% ,%,g' -e 's,//.*$,,' -e 's,\$,#,g'
-
-tmpscript1=sed$$tmp1
-tmpscript2=sed$$tmp2
-tmpremove='rm -f $tmpscript1 $tmpscript2'
-trap "$tmpremove" 1 2 15
-
-cat > $tmpscript1 << \EOF
-# ----------- Remove gcc self-identification
-/gcc2_compiled/d
-/gnu_compiled_c/d
-EOF
-
-cat > $tmpscript2 << \EOF
-# ----------- Turn # into $, to avoid trouble in preprocessing
-s,#,\$,g
-# ----------- Declare global symbols as functions (we have no variables)
-s/\.global _\([A-Za-z0-9_]*\)$/.global _\1\
-	DECLARE_FUNCTION(\1)/
-# ----------- Global symbols depends on ASM_UNDERSCORE
-s/_\([A-Za-z0-9_:]*\)/C(\1)/
-EOF
-
-sed -f $tmpscript1 | \
-sed -f $tmpscript2
-
-eval "$tmpremove"
+sed -e '# ----------- Remove gcc self-identification' \
+    -e '/gcc2_compiled/d' \
+    -e '/gnu_compiled_c/d' \
+| \
+sed -e '# ----------- Turn # into $, to avoid trouble in preprocessing' \
+    -e 's,#,\$,g' \
+    -e '# ----------- Declare global symbols as functions (we have no variables)' \
+    -e 's/\.global _\([A-Za-z0-9_]*\)$/.global _\1\' \
+    -e '	DECLARE_FUNCTION(\1)/' \
+    -e '# ----------- Global symbols depends on ASM_UNDERSCORE' \
+    -e 's/_\([A-Za-z0-9_:]*\)/C(\1)/'

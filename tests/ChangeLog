@@ -1,11 +1,6 @@
-1999-11-29  Sam Steingold  <sds@goems.com>
-
-	* path.tst: test `translate-logical-pathname' and
-	`logical-pathname-translations'.
-
 1999-06-15  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* lists152.tst: Update for changed NRECONC behaviour.
+        * lists152.tst: Update for changed NRECONC behaviour.
 
 1999-06-09  Sam Steingold  <sds@goems.com>
 

@@ -38,8 +38,6 @@
 # SUN-4        Sun                SUN-OS4 (UNIX SUNOS 4.1)      GNU           sun, unix, sparc, __GNUC__
 # SUN-4        Sun                SUN-OS4 (UNIX SUNOS 4.1)      CC            sun, unix, sparc
 # SUN-4        Sun                SUN-OS5 (UNIX Solaris)        GCC           sun, unix, sparc, __GNUC__
-# UltraSparc   Sun                Solaris 7 (UNIX SUNOS 5.7)    CC            sun, unix, __sparc, __sparcv9
-# UltraSparc   Sun                Solaris 7 (UNIX SUNOS 5.7)    GCC           sun, unix, __sparc, __arch64__, __GNUC__
 # IBM-PC/386   beliebig           SUN-OS5 (UNIX Solaris)        GCC           sun, unix, __svr4__, i386, __GNUC__
 # HP9000-300   Hewlett-Packard    NetBSD 0.9 (UNIX BSD 4.3)     GNU           unix, __NetBSD__, mc68000, __GNUC__
 # HP9000-300   Hewlett-Packard    HP-UX 8.0 (UNIX SYS V)        GNU           [__]hpux, [__]unix, [__]hp9000s300, mc68000, __GNUC__
@@ -124,6 +122,10 @@
   #endif
   #if defined(sparc) || defined(__sparc__)
     # evtl. SUN4_29 falls nur Adressen <2^29 unterstützt werden.
+    #ifdef SUN4_29
+      #define SUN4_29_1  # handling using PACKED_TYPECODES
+      # define SUN4_29_2  # handling using SIXBIT_TYPECODES
+    #endif
   #endif
   #if defined(hp9000s800) || defined(__hp9000s800)
     #define HP8XX
@@ -176,7 +178,7 @@
   #endif
   #if defined(sparc) || defined(__sparc__)
     #define SPARC
-    #if defined(__sparcv9) || defined(__arch64__)
+    #if defined(__arch64__)
       #define SPARC64
     #endif
   #endif
@@ -216,6 +218,8 @@
   #ifndef __GNUC__
     #define RISCOS_CCBUG  # Bug in Norcrofts C-Compiler umgehen
   #endif
+  #define ACORN_1  # Typcode "oben"
+  # define ACORN_2  # Typcode "unten"
 #endif
 #ifdef WIN32
   # Windows NT, Windows 95
@@ -264,7 +268,7 @@
   #if defined(MIPS) && defined(sinix) # && defined(SNI)
     #define UNIX_SINIX # Siemens is nix
   #endif
-  #if defined(USL) || (defined(__svr4__) && defined(I80386) && !defined(__sun))
+  #if defined(USL) || (defined(__svr4__) && defined(I80386) && !(defined(sun) || defined(__sun__)))
     # Eine Reihe von 386er Unixen (alle unter verschiedenem Namen) stammen
     # von USL SysV R 4 ab:
     #   386 UHC UNIX System V release 4
@@ -275,6 +279,7 @@
     #   SunOS 5
     #define UNIX_SYSV_USL  # Unix System V R 4 von der AT&T-Tochter USL
     #define UNIX_SYSV_UHC_1 # Behandlung analog HPPA && UNIX_HPUX
+    # define UNIX_SYSV_UHC_2 # Behandlung analog AMIGA3000 - langsamer
     #ifdef SNI
       #define UNIX_SINIX # Siemens is nix
     #endif
@@ -394,7 +399,7 @@
   #if (defined(SUN3) || defined(SUN386) || defined(SUN4)) && defined(HAVE_MMAP) && defined(HAVE_VADVISE)
     #define UNIX_SUNOS4  # Sun OS Version 4
   #endif
-  #if (defined(SUN4) || (defined(I80386) && defined(__svr4__) && defined(__sun))) && !defined(HAVE_VADVISE) # && !defined(HAVE_GETPAGESIZE)
+  #if (defined(SUN4) || (defined(I80386) && defined(__svr4__) && (defined(sun) || defined(__sun__)))) && !defined(HAVE_VADVISE) # && !defined(HAVE_GETPAGESIZE)
     #define UNIX_SUNOS5  # Sun OS Version 5.[1-5] (Solaris 2)
   #endif
 
@@ -685,9 +690,6 @@
     # Register for mv_count.
       #if defined(SPARC)
         #define mv_count_register  "%g6"
-        #if defined(UNIX_NETBSD)
-          #define NEED_temp_mv_count
-        #endif
       #endif
       #if defined(HPPA)
         #define mv_count_register  "%r11"  # eines der allgemeinen Register %r5..%r18
@@ -708,9 +710,6 @@
     #if !defined(WIDE_SOFT)
       #if defined(SPARC)
         #define value1_register  "%g7"
-        #if defined(UNIX_NETBSD)
-          #define NEED_temp_value1
-        #endif
       #endif
       #if defined(HPPA)
         #define value1_register  "%r12"  # eines der allgemeinen Register %r5..%r18
@@ -760,20 +759,21 @@
     # Saving "save" registers.
     #if (defined(I80386) && !defined(DYNAMIC_MODULES)) || defined(HPPA) || defined(M88000) || defined(ARM) || defined(DECALPHA)
       #define HAVE_SAVED_REGISTERS
-      struct registers {
-        #ifdef STACK_register
-          long STACK_register_contents;
-        #endif
-        #ifdef mv_count_register
-          long mv_count_register_contents;
-        #endif
-        #ifdef value1_register
-          long value1_register_contents;
-        #endif
-        #ifdef subr_self_register
-          long subr_self_register_contents;
-        #endif
-      };
+      struct registers
+             {
+               #ifdef STACK_register
+                 long STACK_register_contents;
+               #endif
+               #ifdef mv_count_register
+                 long mv_count_register_contents;
+               #endif
+               #ifdef value1_register
+                 long value1_register_contents;
+               #endif
+               #ifdef subr_self_register
+                 long subr_self_register_contents;
+               #endif
+             };
       #ifndef MULTITHREAD
         extern struct registers * callback_saved_registers;
       #else
@@ -808,20 +808,20 @@
         #define RESTORE_subr_self_register(registers)
       #endif
       #define SAVE_REGISTERS(inner_statement)  \
-        { var struct registers * registers = alloca(sizeof(struct registers)); \
-          SAVE_STACK_register(registers);                                      \
-          SAVE_mv_count_register(registers);                                   \
-          SAVE_value1_register(registers);                                     \
-          SAVE_subr_self_register(registers);                                  \
-          inner_statement;                                                     \
-          { var object* top_of_frame = STACK;                                  \
-            pushSTACK(as_object((aint)callback_saved_registers));              \
-            finish_frame(CALLBACK);                                            \
-          }                                                                    \
-          callback_saved_registers = registers;                                \
+        { struct registers * registers = alloca(sizeof(struct registers)); \
+          SAVE_STACK_register(registers);                                  \
+          SAVE_mv_count_register(registers);                               \
+          SAVE_value1_register(registers);                                 \
+          SAVE_subr_self_register(registers);                              \
+          inner_statement;                                                 \
+          { var object* top_of_frame = STACK;                              \
+            pushSTACK(as_object((aint)callback_saved_registers));          \
+            finish_frame(CALLBACK);                                        \
+          }                                                                \
+          callback_saved_registers = registers;                            \
         }
       #define RESTORE_REGISTERS(inner_statement)  \
-        { var struct registers * registers = callback_saved_registers;           \
+        { struct registers * registers = callback_saved_registers;               \
           if (!(framecode(STACK_0) == CALLBACK_frame_info)) abort();             \
           callback_saved_registers = (struct registers *)(aint)as_oint(STACK_1); \
           skipSTACK(2);                                                          \
@@ -1224,7 +1224,11 @@
 # See spvw_alloca.d.
 #if !((defined(GNU) && !defined(RISCOS) && !defined(CONVEX)) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(WATCOM) || defined(BORLAND) || defined(MICROSOFT))
   #define NEED_MALLOCA
-  #include <stdlib.h>
+  #ifdef HAVE_STDLIB_H
+    #include <stdlib.h>
+  #else
+    #include <sys/types.h>
+  #endif
   extern void* malloca (size_t size);
   extern void freea (void* ptr);
 #endif
@@ -1627,9 +1631,8 @@
   # Choose typecodes on 64-bit machines (because there's enough room for type
   # bits), but not on 32-bit machines (because a 16 MB limit is ridiculous
   # today), except if the CPU cannot address more than 16 MB anyway.
-  # NO_TYPECODES will normally not work if alignof(subr_) = alignof(long) < 4,
-  # but with egcs-1.1 or newer we can force alignof(subr_) = 4.
-  #if defined(WIDE) || defined(MC68000) || ((alignment_long < 4) && !defined(GNU))
+  # NO_TYPECODES will normally not work if alignof(subr_) = alignof(long) < 4.
+  #if defined(WIDE) || defined(MC68000) || (alignment_long < 4)
     #define TYPECODES
   #else
     #define NO_TYPECODES
@@ -1806,14 +1809,6 @@
     #define UNIX_CHARNAMES
   #endif
 # Bei Erweiterung: CONSTOBJ, CHARSTRG, FORMAT.LSP erweitern.
-
-# Whether to link with GNU libiconv, for character set conversion.
-  #if 1
-    # When glibc-2.2 comes out, we can use glibc's iconv(). Until then, prefer
-    # libiconv.
-    #define GNU_LIBICONV
-  #endif
-# When changed: nothing to do.
 
 # Ob wir die GNU gettext-Library für Internationalisierung benutzen:
   #if !defined(LANGUAGE_STATIC) && !defined(__cplusplus) && (defined(ISOLATIN_CHS) || defined(IBMPC_CHS)) && !defined(NO_GETTEXT)
@@ -2123,13 +2118,6 @@
 # Bei Veränderung: Nichts weiter zu tun.
 
 
-# Feature dependent include files.
-
-#ifdef GNU_LIBICONV
-  #include "iconv.h"
-#endif
-
-
 # ############### Liste von implementierten CLtL2-Features ################ #
 
 #undef  X3J13_003
@@ -2209,27 +2197,17 @@ Simple-Bit-Vector, Simple-String, Simple-Vector are the "simple" arrays.
 The non-simple ones are represented by a Iarray, yet the type code gives
 some information about the rank, the representation and the element type:
 
-                                |    "simple"     |  "not simple"  |
-                                |    Sarray       |     Iarray     |
-  ------------------------------+-----------------+----------------+
-   (vector bit)                 | sbvector_type   | bvector_type   |
-  ------------------------------+-----------------+----------------+
-   (vector (unsigned-byte 2))   | sb2vector_type  | b2vector_type  |
-  ------------------------------+-----------------+----------------+
-   (vector (unsigned-byte 4))   | sb4vector_type  | b4vector_type  |
-  ------------------------------+-----------------+----------------+
-   (vector (unsigned-byte 8))   | sb8vector_type  | b8vector_type  |
-  ------------------------------+-----------------+----------------+
-   (vector (unsigned-byte 16))  | sb16vector_type | b16vector_type |
-  ------------------------------+-----------------+----------------+
-   (vector (unsigned-byte 32))  | sb32vector_type | b32vector_type |
-  ------------------------------+-----------------+----------------+
-   (vector character)           | sstring_type    | string_type    |
-  ------------------------------+-----------------+----------------+
-   (vector t)                   | svector_type    | vector_type    |
-  ------------------------------+-----------------+----------------+
-   array of dimension /= 1      |       --        |  mdarray_type  |
-  ------------------------------+-----------------+----------------+
+                                |   "simple"    | "not simple" |
+                                |   Sarray      |    Iarray    |
+  ------------------------------+---------------+--------------+
+   (vector bit/[un]signed-byte) | sbvector_type | bvector_type |
+  ------------------------------+---------------+--------------+
+   (vector character)           | sstring_type  | string_type  |
+  ------------------------------+---------------+--------------+
+   (vector t)                   | svector_type  | vector_type  |
+  ------------------------------+---------------+--------------+
+   array of dimension /= 1      |     --        | mdarray_type |
+  ------------------------------+---------------+--------------+
 
 2.4.3. Other varobjects
 
@@ -2266,16 +2244,16 @@ Ratio and Complex (only if SPVW_MIXED).
   #ifdef WIDE_STRUCT
     #if BIG_ENDIAN_P==WIDE_ENDIANNESS
       #define TYPEDEF_OBJECT  \
-        typedef  union {                                                 \
-          struct { /* tint */ uintL type; /* aint */ uintL addr; } both; \
-          oint one _attribute_aligned_object_;                           \
-        } object;
+        typedef  union { struct { /* tint */ uintL type; /* aint */ uintL addr; } both; \
+                         oint one _attribute_aligned_object_;                           \
+                       }                                                                \
+                 object;
     #else
       #define TYPEDEF_OBJECT  \
-        typedef  union {                                                 \
-          struct { /* aint */ uintL addr; /* tint */ uintL type; } both; \
-          oint one _attribute_aligned_object_;                           \
-        } object;
+        typedef  union { struct { /* aint */ uintL addr; /* tint */ uintL type; } both; \
+                         oint one _attribute_aligned_object_;                           \
+                       }                                                                \
+                 object;
     #endif
   #else
     typedef  oint  object;
@@ -2348,16 +2326,10 @@ Ratio and Complex (only if SPVW_MIXED).
     #define oint_addr_len 32
     #define oint_addr_mask 0xFFFFFFFFUL
   #endif
-# Now come the platforms with TYPECODES. oint_type_len should be >= 8,
-# and oint_type_mask should have at least 8 bits set and at most one bit in
-# common with oint_addr_mask.
 #elif defined(WIDE_HARD)
   #if defined(DECALPHA) && (defined(UNIX_OSF) || defined(UNIX_LINUX))
     # UNIX_OSF:
     #   Gewöhnliche Pointer liegen im Bereich 1*2^32..2*2^32.
-    #   Code address range:    0x000000012xxxxxxx
-    #   Malloc address range:  0x000000014xxxxxxx
-    #   Shared libraries:      0x000003FFCxxxxxxx
     # UNIX_LINUX:
     #   Code address range:    0x000000012xxxxxxx
     #   Malloc address range:  0x000000012xxxxxxx
@@ -2452,36 +2424,7 @@ Ratio and Complex (only if SPVW_MIXED).
     #define oint_addr_len 32
     #define oint_addr_mask 0xFFFFFFFF00000000ULL
   #endif
-# Now come the 32-bit platforms with TYPECODES. We need to support it only on
-# MC680X0 platforms without new gcc.
-# It worked on the following platforms in the past, and may still work on:
-#   (defined(MC680X0) && !defined(AMIGA3000) && !defined(UNIX_AMIX) && !defined(UNIX_NEXTSTEP) && !(defined(UNIX_LINUX) && CODE_ADDRESS_RANGE))
-#   (defined(I80386) && !(defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) && !defined(UNIX_GNU) && !defined(UNIX_SYSV_UHC_1) && !defined(UNIX_NEXTSTEP) && !defined(UNIX_SYSV_PTX) && !defined(UNIX_SUNOS5) && !defined(UNIX_CYGWIN32) && !defined(WIN32_NATIVE))
-#   (defined(SPARC) && !defined(SUN4_29))
-#   (defined(MIPS) && !defined(UNIX_IRIX) && !defined(UNIX_DEC_ULTRIX))
-#   defined(M88000)
-#   (defined(RS6000) && !defined(UNIX_AIX) && !defined(UNIX_LINUX))
-#   defined(VAX)
-#   (defined(CONVEX) && !defined(UNIX_CONVEX))
-#   defined(RISCOS)
-#elif (defined(I80386) && (defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0))) || defined(TRY_TYPECODES_1)
-  # You can add more platforms here provided that
-  # 1. you need it,
-  # 2. CODE_ADDRESS_RANGE | MALLOC_ADDRESS_RANGE has at most one bit set,
-  # 3. it works.
-  #define oint_type_shift 24
-  #define oint_type_len 8
-  #define oint_type_mask (0xFF000000UL & ~(CODE_ADDRESS_RANGE | MALLOC_ADDRESS_RANGE))
-  #define oint_addr_shift 0
-  #define oint_addr_len 24
-  #define oint_addr_mask (0x00FFFFFFUL | CODE_ADDRESS_RANGE | MALLOC_ADDRESS_RANGE)
-  #define oint_data_shift 0
-  #define oint_data_len 24
-  #define oint_data_mask 0x00FFFFFFUL
-#elif 0 || defined(TRY_TYPECODES_2)
-  # You can add more platforms here provided that
-  # 1. you need it,
-  # 2. it works.
+#elif (defined(MC680X0) && !defined(AMIGA3000) && !defined(UNIX_AMIX) && !defined(UNIX_NEXTSTEP) && !(defined(UNIX_LINUX) && CODE_ADDRESS_RANGE)) || (defined(I80386) && !defined(WATCOM_BLAKE) && !defined(UNIX_SYSV_UHC_2) && !defined(UNIX_SYSV_UHC_1) && !(defined(UNIX_LINUX) && CODE_ADDRESS_RANGE) && !defined(UNIX_GNU) && !defined(UNIX_NEXTSTEP) && !defined(UNIX_SYSV_PTX) && !defined(UNIX_SUNOS5) && !defined(UNIX_CYGWIN32) && !defined(WIN32_NATIVE)) || (defined(SPARC) && !defined(SUN4_29_2)) || (defined(MIPS) && !defined(UNIX_IRIX) && !defined(UNIX_DEC_ULTRIX)) || defined(M88000) || (defined(RS6000) && !defined(UNIX_AIX) && !defined(UNIX_LINUX)) || defined(VAX) || (defined(CONVEX) && !defined(UNIX_CONVEX)) || defined(ACORN_1)
   # Bits 31..24 = Typcode, Bits 23..0 = Adresse
   #define oint_type_shift 24
   #define oint_type_len 8
@@ -2489,10 +2432,225 @@ Ratio and Complex (only if SPVW_MIXED).
   #define oint_addr_shift 0
   #define oint_addr_len 24
   #define oint_addr_mask 0x00FFFFFFUL
-#elif 0
-  #error "TYPECODES not supported any more on this platform. Use -DNO_TYPECODES."
+#elif defined(ACORN_2)
+  # Bits 31..8 = Adresse, Bits 7..0 = Typcode
+  #define oint_type_shift 0
+  #define oint_type_len 8
+  #define oint_type_mask 0x000000FFUL
+  #define oint_addr_shift 8
+  #define oint_addr_len 24
+  #define oint_addr_mask 0xFFFFFF00UL
+#elif defined(ACORN_3) || (defined(I80386) && defined(WIN32_NATIVE))
+  # Bits 31..26 = Typcode, Bits 25..0 = Adresse
+  #define oint_type_shift 26
+  #define oint_type_len 6
+  #define oint_type_mask 0xFC000000UL
+  #define oint_addr_shift 0
+  #define oint_addr_len 26
+  #define oint_addr_mask 0x03FFFFFFUL
+#elif defined(ACORN_4)
+  # Bits 31..6 = Adresse, Bits 5..0 = Typcode
+  #define oint_type_shift 0
+  #define oint_type_len 6
+  #define oint_type_mask 0x0000003FUL
+  #define oint_addr_shift 6
+  #define oint_addr_len 26
+  #define oint_addr_mask 0xFFFFFFC0UL
+#elif defined(AMIGA3000)
+  # Bits 31..6 = Adresse/2, Bits 5..0 = Typcode
+  #define oint_type_shift 0
+  #define oint_type_len 6
+  #define oint_type_mask 0x0000003FUL
+  #define oint_addr_shift 6
+  #define oint_addr_len 26
+  #define oint_addr_mask 0xFFFFFFC0UL
+  #define addr_shift 1
+#elif defined(UNIX_SYSV_UHC_2)
+  # Bits 31..6 = Adresse/4, Bits 5..0 = Typcode
+  #define oint_type_shift 0
+  #define oint_type_len 6
+  #define oint_type_mask 0x0000003FUL
+  #define oint_addr_shift 6
+  #define oint_addr_len 26
+  #define oint_addr_mask 0xFFFFFFC0UL
+  #define addr_shift 2  # funktioniert nicht wegen STACK_alignment ??
+#elif defined(I80386) && defined(UNIX_CYGWIN32)
+  # Bits 31..7 = Adresse/4, Bits 6..0 = Typcode
+  #define oint_type_shift 0
+  #define oint_type_len 7
+  #define oint_type_mask 0x0000007FUL
+  #define oint_addr_shift 7
+  #define oint_addr_len 25
+  #define oint_addr_mask 0xFFFFFF80UL
+  #define addr_shift 2
+#elif (defined(HPPA) && defined(UNIX_HPUX)) || (defined(MC680X0) && defined(UNIX_AMIX))
+  # Bits 29..24 = Typcode, Bits 31..30,23..0 = Adresse
+  #define oint_type_shift 24
+  #define oint_type_len 6
+  #define oint_type_mask 0x3F000000UL
+  #define oint_addr_shift 0
+  #define oint_addr_len 24 # vernünftig nutzbar sind nur die unteren 24 Bit
+  #define oint_addr_mask 0xC0FFFFFFUL
+  # Beachte: unten wird aint = uint24 = uint32 sein.
+#elif defined(I80386) && defined(UNIX_CYGWIN32) && defined(WINDOWS_NT)
+  # Bits 31..26,24 = Typcode, Bits 25,23..0 = Adresse
+  #define oint_type_shift 24
+  #define oint_type_len 8
+  #define oint_type_mask 0xFD000000UL
+  #define oint_addr_shift 0
+  #define oint_addr_len 24
+  #define oint_addr_mask 0x02FFFFFFUL
+  # Malloc address range: starting at 0x02000000.
+  # Shared libraries: cygwin32.dll is at 0x10000000, other libraries are
+  # at 0x7Fxxxxxx.
+  #define vm_addr_mask 0xEFFFFFFFUL
+#elif defined(I80386) && defined(UNIX_CYGWIN32) && defined(WINDOWS_95)
+  # Bits 31..27,25 = Typcode, Bits 26,24..0 = Adresse
+  #define oint_type_shift 24
+  #define oint_type_len 8
+  #define oint_type_mask 0xFA000000UL
+  #define oint_addr_shift 0
+  #define oint_addr_len 24
+  #define oint_addr_mask 0x05FFFFFFUL
+  # Malloc address range: starting at 0x04800000 or 0x05000000.
+  # Shared libraries: cygwin32.dll is at 0x10000000.
+#elif defined(UNIX_SYSV_UHC_1)
+  # Bits 31..28,26..24 = Typcode, Bits 23..0 = Adresse
+  #define oint_type_shift 24
+  #define oint_type_len 8
+  #define oint_type_mask 0xF7000000UL
+  #define oint_addr_shift 0
+  #define oint_addr_len 24
+  #define oint_addr_mask 0x08FFFFFFUL
+#elif defined(I80386) && ((defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) || defined(UNIX_GNU)) && ((defined(DYNAMIC_MODULES) && !defined(NO_MORRIS_GC)) || defined(EFENCE)) # Linux with ELF binary format (or GNU, with ELF as well)
+  # Dynamic loading of modules gives &module_xxx_object_tab = 0x40xxxxxx,
+  # which yields to problems in the Morris GC (the 0x40000000 being masked out).
+  # Use of libefence causes malloc to return addresses = 0x40xxxxxx.
+  # Bits 31,29..28,26..24 = Typcode, Bits 30,27,23..0 = Adresse
+  #define oint_type_shift 24
+  #define oint_type_len 8
+  #define oint_type_mask 0xB7000000UL
+  #define oint_addr_shift 0
+  #define oint_addr_len 24
+  #define oint_addr_mask 0x48FFFFFFUL
+#elif defined(I80386) && ((defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) || defined(UNIX_GNU)) # Linux with ELF binary format (or GNU, with ELF as well)
+  # Bits 31..28,26..24 = Typcode, Bits 23..0 = Adresse
+  #define oint_type_shift 24
+  #define oint_type_len 8
+  #define oint_type_mask 0xF7000000UL
+  #define oint_addr_shift 0
+  #define oint_addr_len 24
+  #define oint_addr_mask 0x08FFFFFFUL
+  # Shared libraries are mapped in at 0x50000000 or 0x40000000, via mmap().
+  #define vm_addr_mask 0xBFFFFFFFUL
+#elif defined(MIPS) && (defined(UNIX_IRIX) || defined(UNIX_DEC_ULTRIX))
+  # Bits 31..29,27..24 = Typcode, Bits 23..0 = Adresse
+  #define oint_type_shift 24
+  #define oint_type_len 8
+  #define oint_type_mask 0xEF000000UL
+  #define oint_addr_shift 0
+  #define oint_addr_len 24
+  #define oint_addr_mask 0x10FFFFFFUL
+#elif defined(RS6000) && defined(UNIX_AIX)
+  # Bits 31..30,28..24 = Typcode, Bits 23..0 = Adresse
+  #define oint_type_shift 24
+  #define oint_type_len 8
+  #define oint_type_mask 0xDF000000UL
+  #define oint_addr_shift 0
+  #define oint_addr_len 24
+  #define oint_addr_mask 0x20FFFFFFUL
+#elif defined(RS6000) && defined(UNIX_LINUX)
+  # Bits 31..25 = Typcode, Bits 24..0 = Adresse
+  #define oint_type_shift 24
+  #define oint_type_len 8
+  #define oint_type_mask 0xFE000000UL
+  #define oint_addr_shift 0
+  #define oint_addr_len 24
+  #define oint_addr_mask 0x01FFFFFFUL
+  # Virtual address range is only 2 GB, and moreover libc-1.99 mmap() is
+  # broken, thinks that addresses >= 0x80000000 are errors.
+  # Shared libraries are mapped in at 0x2AAAA000, via mmap(). We risk to
+  # overwrite them only if someone uses several megabytes of negative bignums.
+  #define vm_addr_mask 0x7FFFFFFFUL
+#elif defined(SPARC) && defined(SUN4_29_2)
+  # Bits 31,28..24 = Typcode, Bits 23..0 = Adresse
+  #define oint_type_shift 24
+  #define oint_type_len 8
+  #define oint_type_mask 0x9F000000UL
+  #define oint_addr_shift 0
+  #define oint_addr_len 24
+  #define oint_addr_mask 0x60FFFFFFUL
+#elif defined(WATCOM_BLAKE)
+  # Bits 30..25 = Typcode, Bits 31,24..0 = Adresse
+  #define oint_type_shift 25
+  #define oint_type_len 6
+  #define oint_type_mask 0x7E000000UL
+  #define oint_addr_shift 0
+  #define oint_addr_len 25
+  #define oint_addr_mask 0x81FFFFFFUL
+#elif defined(UNIX_NEXTSTEP)
+  # Bits 31..24 = Typcode, Bits 23..0 = Adresse
+  #define oint_type_shift 24
+  #define oint_type_len 8
+  #define oint_type_mask 0xFF000000UL
+  #define oint_addr_shift 0
+  #define oint_addr_len 24
+  #define oint_addr_mask 0x00FFFFFFUL
+  # UNIX_NEXTSTEP has shared libraries at 0x05000000, related storage at
+  # 0x04000000, a stack from 0x03F80000..0x04000000. We avoid this address
+  # range of VM addresses by not using bits 26 and 24 in our typecode
+  # bit encoding scheme.
+  #define vm_addr_mask 0xFAFFFFFFUL
+#elif defined(UNIX_SYSV_PTX)
+  # Bits 31..24 = Typcode, Bits 23..0 = Adresse
+  #define oint_type_shift 24
+  #define oint_type_len 8
+  #define oint_type_mask 0xFF000000UL
+  #define oint_addr_shift 0
+  #define oint_addr_len 24
+  #define oint_addr_mask 0x00FFFFFFUL
+  # UNIX_SYSV_PTX has its stack above 0x40000000. We avoid this address range
+  # of VM addresses by not using bit 30 in our typecode bit encoding scheme.
+  #define vm_addr_mask 0xBFFFFFFFUL
+#elif defined(I80386) && defined(UNIX_SUNOS5)
+  # Bits 31..28,26..24 = Typcode, Bits 23..0 = Adresse
+  #define oint_type_shift 24
+  #define oint_type_len 8
+  #define oint_type_mask 0xF7000000UL
+  #define oint_addr_shift 0
+  #define oint_addr_len 24
+  #define oint_addr_mask 0x08FFFFFFUL
+  # UNIX_SUNOS5 has shared libraries at 0x80000000. We avoid this
+  # address range of VM addresses by not using bit 31 in our typecode bit
+  # encoding scheme.
+  #define vm_addr_mask 0x7FFFFFFFUL
+#elif defined(UNIX_NETBSD) # experimentell??
+  # Bits 31..24 = Typcode, Bits 23..0 = Adresse
+  #define oint_type_shift 24
+  #define oint_type_len 8
+  #define oint_type_mask 0xFF000000UL
+  #define oint_addr_shift 0
+  #define oint_addr_len 24
+  #define oint_addr_mask 0x00FFFFFFUL
+  # NetBSD 1.0 has its shared libraries above 0x10000000. We avoid this
+  # address range of VM addresses by not using bit 28 in our typecode bit
+  # encoding scheme.
+  #define vm_addr_mask 0xEFFFFFFFUL
+#elif (defined(CONVEX) && defined(UNIX_CONVEX)) || (defined(MC680X0) && defined(UNIX_LINUX) && CODE_ADDRESS_RANGE)
+  # Bits 30..24 = Typcode, Bits 31,23..0 = Adresse
+  #define oint_type_shift 24
+  #define oint_type_len 8
+  #define oint_type_mask 0x7F000000UL
+  #define oint_addr_shift 0
+  #define oint_addr_len 24
+  #define oint_addr_mask 0x80FFFFFFUL
+  # UNIX_CONVEX user space addresses are in the range 0x80000000..0xFFFFFFFF.
+  # Memory mapping works in the range 0x80000000..0xBFFFFFFFUL.
+  # UNIX_LINUX m68k user space (for ELF executables) is in the range
+  # 0x80000000..0xEFFFFFFF. Shared libraries start at 0xC0000000.
+  #define vm_addr_mask 0xBFFFFFFFUL
 #else
-  #error "TYPECODES maybe not supported any more on this platform. Try defining TRY_TYPECODES_1 or TRY_TYPECODES_2, or use -DNO_TYPECODES."
+  #error "How to split a pointer into type and address? -- Größen oint_type_shift, oint_addr_shift neu einstellen!"
 #endif
 
 # Meist nutzen wir den ganzen Platz einer Adresse für die Daten von Fixnums etc.
@@ -2955,10 +3113,11 @@ Ratio and Complex (only if SPVW_MIXED).
   #define tint_allowed_type_mask  tint_type_mask
 #endif
 
-# Wir haben 7 bis 8 Typbits zur Verfügung: TB7, [TB6,] TB5, TB4, ..., TB0.
+# Wir haben 6 bis 8 Typbits zur Verfügung: TB7, [TB6,] [TB5,] TB4, ..., TB0.
 # Alle müssen in tint_allowed_type_mask und damit auch in tint_type_mask
 # gesetzt sein. Wir verteilen sie unter der Annahme, dass in tint_type_mask
-# höchstens ein Bit fehlt. TB6 wird, falls nicht benutzbar, auf -1 gesetzt.
+# höchstens ein Bit fehlt. TB6 und TB5 werden, falls nicht benutzbar,
+# auf -1 gesetzt.
 #if ((0xFF & ~tint_allowed_type_mask) == 0)
   #define TB7 7
   #define TB6 6
@@ -2977,45 +3136,50 @@ Ratio and Complex (only if SPVW_MIXED).
   #define TB2 2
   #define TB1 1
   #define TB0 0
-#else
+#elif (oint_type_len==6)
+  #define TB7 5
+  #define TB6 -1
+  #define TB5 -1
+  #define TB4 4
+  #define TB3 3
+  #define TB2 2
+  #define TB1 1
+  #define TB0 0
+#elif (oint_type_len>=8) && !((0xFF & ~tint_allowed_type_mask) == 0)
   # Manchem Bit müssen wir aus dem Weg gehen:
-  #define tint_avoid  ((bitm(oint_type_len)-1) & ~tint_allowed_type_mask)
-  # tint_avoid darf höchstens ein Bit enthalten:
-  #if (tint_avoid & (tint_avoid-1))
-    #error "Bogus oint_type_mask -- oint_type_mask has more than one extraneous bit!!"
-  #endif
-  # tint_avoid besteht aus genau einem Bit, das es zu vermeiden gilt.
-  #if (tint_avoid > bit(0))
-    #define TB0 0
-  #else
-    #define TB0 1
-  #endif
-  #if (tint_avoid > bit(1))
-    #define TB1 1
-  #else
-    #define TB1 2
-  #endif
-  #if (tint_avoid > bit(2))
-    #define TB2 2
-  #else
-    #define TB2 3
-  #endif
-  #if (tint_avoid > bit(3))
-    #define TB3 3
-  #else
-    #define TB3 4
-  #endif
-  #if (tint_avoid > bit(4))
-    #define TB4 4
-  #else
-    #define TB4 5
-  #endif
-  #if (tint_avoid > bit(5))
-    #define TB5 5
-  #else
-    #define TB5 6
-  #endif
-  #if ((tint_allowed_type_mask & ~0xFF) == 0)
+  #define tint_avoid  (0xFF & ~tint_allowed_type_mask)
+  #if ((tint_avoid & (tint_avoid-1)) == 0)
+    # tint_avoid besteht aus genau einem Bit, das es zu vermeiden gilt.
+    #if (tint_avoid > bit(0))
+      #define TB0 0
+    #else
+      #define TB0 1
+    #endif
+    #if (tint_avoid > bit(1))
+      #define TB1 1
+    #else
+      #define TB1 2
+    #endif
+    #if (tint_avoid > bit(2))
+      #define TB2 2
+    #else
+      #define TB2 3
+    #endif
+    #if (tint_avoid > bit(3))
+      #define TB3 3
+    #else
+      #define TB3 4
+    #endif
+    #if (tint_avoid > bit(4))
+      #define TB4 4
+    #else
+      #define TB4 5
+    #endif
+    #if (tint_avoid > bit(5))
+      #define TB5 5
+    #else
+      #define TB5 6
+    #endif
     #define TB6 -1
     #if (tint_avoid > bit(6))
       #define TB7 6
@@ -3023,43 +3187,168 @@ Ratio and Complex (only if SPVW_MIXED).
       #define TB7 7
     #endif
   #else
-    #if (tint_avoid > bit(6))
-      #define TB6 6
-    #else
-      #define TB6 7
+    # tint_avoid darf höchstens zwei Bits enthalten:
+    #if ((tint_avoid & (tint_avoid-1)) & ((tint_avoid & (tint_avoid-1)) - 1))
+      #error "Bogus oint_type_mask -- oint_type_mask neu einstellen!"
     #endif
-    #if (tint_avoid > bit(7))
-      #define TB7 7
+    # Das eine verbotene Bit können wir immer noch als GC-Bit nutzen,
+    # vorausgesetzt, es ist in tint_type_mask enthalten:
+    #define tint_maybegc_type_mask  (0xFF & tint_type_mask & ~tint_allowed_type_mask)
+    #if (tint_maybegc_type_mask!=0)
+      # Davon nehmen wir das kleinere Bit als GC-Bit:
+      #define tint_avoid1  (tint_maybegc_type_mask & -tint_maybegc_type_mask)
+      #if (tint_avoid1 == bit(0))
+        #define TB7 0
+      #elif (tint_avoid1 == bit(1))
+        #define TB7 1
+      #elif (tint_avoid1 == bit(2))
+        #define TB7 2
+      #elif (tint_avoid1 == bit(3))
+        #define TB7 3
+      #elif (tint_avoid1 == bit(4))
+        #define TB7 4
+      #elif (tint_avoid1 == bit(5))
+        #define TB7 5
+      #elif (tint_avoid1 == bit(6))
+        #define TB7 6
+      #elif (tint_avoid1 == bit(7))
+        #define TB7 7
+      #else
+        #error "Bogus tint_avoid1!"
+      #endif
+      #define TB6 -1
+      # Und das größere Bit gilt es noch zu vermeiden:
+      #define tint_avoid2  (tint_avoid & ~tint_avoid1)
+      #if (TB7 > 0) && (tint_avoid2 > bit(0))
+        #define TB0 0
+      #elif (TB7 > 1) || (tint_avoid2 > bit(1))
+        #define TB0 1
+      #else
+        #define TB0 2
+      #endif
+      #if (TB7 > 1) && (tint_avoid2 > bit(1))
+        #define TB1 1
+      #elif (TB7 > 2) || (tint_avoid2 > bit(2))
+        #define TB1 2
+      #else
+        #define TB1 3
+      #endif
+      #if (TB7 > 2) && (tint_avoid2 > bit(2))
+        #define TB2 2
+      #elif (TB7 > 3) || (tint_avoid2 > bit(3))
+        #define TB2 3
+      #else
+        #define TB2 4
+      #endif
+      #if (TB7 > 3) && (tint_avoid2 > bit(3))
+        #define TB3 3
+      #elif (TB7 > 4) || (tint_avoid2 > bit(4))
+        #define TB3 4
+      #else
+        #define TB3 5
+      #endif
+      #if (TB7 > 4) && (tint_avoid2 > bit(4))
+        #define TB4 4
+      #elif (TB7 > 5) || (tint_avoid2 > bit(5))
+        #define TB4 5
+      #else
+        #define TB4 6
+      #endif
+      #if (TB7 > 5) && (tint_avoid2 > bit(5))
+        #define TB5 5
+      #elif (TB7 > 6) || (tint_avoid2 > bit(6))
+        #define TB5 6
+      #else
+        #define TB5 7
+      #endif
     #else
-      #define TB7 8
+      # Wir müssen beiden Bits vollständig aus dem Weg gehen.
+      #define tint_avoid1  (tint_avoid & -tint_avoid)     # das kleinere der Bits
+      #define tint_avoid2  (tint_avoid & (tint_avoid-1))  # das größere der Bits
+      #if (tint_avoid1 > bit(0))
+        #define TB0 0
+      #elif (tint_avoid2 > bit(1))
+        #define TB0 1
+      #else
+        #define TB0 2
+      #endif
+      #if (tint_avoid1 > bit(1))
+        #define TB1 1
+      #elif (tint_avoid2 > bit(2))
+        #define TB1 2
+      #else
+        #define TB1 3
+      #endif
+      #if (tint_avoid1 > bit(2))
+        #define TB2 2
+      #elif (tint_avoid2 > bit(3))
+        #define TB2 3
+      #else
+        #define TB2 4
+      #endif
+      #if (tint_avoid1 > bit(3))
+        #define TB3 3
+      #elif (tint_avoid2 > bit(4))
+        #define TB3 4
+      #else
+        #define TB3 5
+      #endif
+      #if (tint_avoid1 > bit(4))
+        #define TB4 4
+      #elif (tint_avoid2 > bit(5))
+        #define TB4 5
+      #else
+        #define TB4 6
+      #endif
+      #define TB5 -1
+      #define TB6 -1
+      #if (tint_avoid1 > bit(5))
+        #define TB7 5
+      #elif (tint_avoid2 > bit(6))
+        #define TB7 6
+      #else
+        #define TB7 7
+      #endif
     #endif
   #endif
+#else
+  #error "Bogus TB7..TB0 -- TB7..TB0 neu einstellen!"
 #endif
 
-# Bitmasken zu den Typbits:
-  #define BTB0  bit(TB0)
-  #define BTB1  bit(TB1)
-  #define BTB2  bit(TB2)
-  #define BTB3  bit(TB3)
-  #define BTB4  bit(TB4)
-  #define BTB5  bit(TB5)
-  #define BTB6  bit(TB6)
-  #define BTB7  bit(TB7)
+#if (TB7==7)&&(TB6==6)&&(TB5==5)&&(TB4==4)&&(TB3==3)&&(TB2==2)&&(TB1==1)&&(TB0==0)
+  #if defined(SUN3) && !defined(UNIX_SUNOS4) && !defined(WIDE_SOFT)
+    #define SUN3_TYPECODES
+  #elif defined(SUN4_29_1) && defined(MAP_MEMORY) && !defined(WIDE_SOFT)
+    #define PACKED_TYPECODES
+  #elif defined(DECALPHA) && defined(UNIX_OSF) && defined(MAP_MEMORY)
+    #define PACKED_TYPECODES
+  #else
+    #define STANDARD_TYPECODES
+  #endif
+#endif
+#if (oint_type_len>=8) && (TB6==-1)
+  #if (TB5==-1)
+    #define SIXBIT_TYPECODES
+  #elif defined(DECALPHA) && defined(UNIX_OSF) && defined(MAP_MEMORY)
+    #define PACKED_TYPECODES
+  #else
+    #define SEVENBIT_TYPECODES
+  #endif
+#endif
+#if (oint_type_len==7)
+  #define SEVENBIT_TYPECODES
+#endif
+#if (oint_type_len==6)
+  #define SIXBIT_TYPECODES
+#endif
 
-#define STANDARD_8BIT_TYPECODES
-
-#ifdef STANDARD_8BIT_TYPECODES
+#ifdef STANDARD_TYPECODES
 
 #if defined(I80386) && defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE == 0)
   # Bei 0x60000000 sitzen die Shared-Libraries.
   # Bei 0x50000000 (Linux 1.2) bzw. 0x40000000 (Linux 2.0) sitzen diverse
   # mmap-Seiten, z.B. von setlocale() oder gettext() alloziert.
   # Deswegen brauchen wir die Typcode-Verteilung nur ein wenig zu ändern.
-#endif
-
-#if defined(I80386) && defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)
-  # Code and malloc memory is at 0x08000000.
-  # Therefore avoid allocating typecode 0x08 for the moment.
 #endif
 
 #if (defined(MC680X0) || (defined(SPARC) && !defined(SUN4_29))) && defined(UNIX_LINUX)
@@ -3072,11 +3361,6 @@ Ratio and Complex (only if SPVW_MIXED).
   # Deswegen brauchen wir die Typcode-Verteilung aber nicht zu ändern.
 #endif
 
-#if defined(DECALPHA) && defined(UNIX_OSF) && !(defined(NO_SINGLEMAP) || defined(NO_TRIVIALMAP))
-# mmap() geht nur mit Adressen >=0, <2^38, aber da gewöhnliche Pointer im
-# Bereich 1*2^32..2*2^32 liegen, bleiben uns nur die Bits 37..33 als Typbits.
-#endif
-
 #if defined(SPARC64) && defined(UNIX_LINUX)
   # Bei 0x70000000 sitzen die Shared Libraries.
   # Deswegen brauchen wir die Typcode-Verteilung aber nicht zu ändern.
@@ -3084,23 +3368,21 @@ Ratio and Complex (only if SPVW_MIXED).
 
 # Typbits:
 # in Typcodes (tint):
-  #define garcol_bit_t     TB7  # gesetzt nur während der Garbage Collection!
-  #if (TB6 >= 0)
-    #define cons_bit_t     TB6  # gesetzt nur bei CONS
-  #endif
-  #define number_bit_t     TB5  # gesetzt nur bei Zahlen
-  #define notsimple_bit_t  TB3  # bei Arrays: gelöscht bei Simple-Arrays
-  #define sign_bit_t       TB0  # Vorzeichen bei reellen Zahlen (gesetzt <==> Zahl <0)
-  #define float_bit_t      TB1
-  #define float1_bit_t     TB3
-  #define float2_bit_t     TB2
-  #define ratio_bit_t      TB3
-  #define bignum_bit_t     TB2
+  #define garcol_bit_t     7  # gesetzt nur während der Garbage Collection!
+  #define cons_bit_t       6  # gesetzt nur bei CONS
+  #define symbol_bit_t     5  # gesetzt nur bei SYMBOL
+  #define number_bit_t     4  # gesetzt nur bei Zahlen
+  #define notsimple_bit_t  2  # bei Arrays: gelöscht bei Simple-Arrays
+  #define sign_bit_t       0  # Vorzeichen bei reellen Zahlen (gesetzt <==> Zahl <0)
+  #define float_bit_t      1
+  #define float1_bit_t     3
+  #define float2_bit_t     2
+  #define ratio_bit_t      3
+  #define bignum_bit_t     2
 # in Objekten (oint):
   #define garcol_bit_o     (garcol_bit_t+oint_type_shift)    # gesetzt nur während der Garbage Collection!
-  #if (TB6 >= 0)
-    #define cons_bit_o     (cons_bit_t+oint_type_shift)      # gesetzt nur bei CONS
-  #endif
+  #define cons_bit_o       (cons_bit_t+oint_type_shift)      # gesetzt nur bei CONS
+  #define symbol_bit_o     (symbol_bit_t+oint_type_shift)    # gesetzt nur bei SYMBOL
   #define number_bit_o     (number_bit_t+oint_type_shift)    # gesetzt nur bei Zahlen
   #define notsimple_bit_o  (notsimple_bit_t+oint_type_shift) # bei Arrays: gelöscht bei Simple-Arrays
   #define sign_bit_o       (sign_bit_t+oint_type_shift)      # Vorzeichen bei reellen Zahlen
@@ -3111,75 +3393,598 @@ Ratio and Complex (only if SPVW_MIXED).
   #define bignum_bit_o     (bignum_bit_t+oint_type_shift)
 
 # konstante Typcodes:
-  #define machine_type    (0)                                  # 0x00  # %00000000  ; machine pointer
-  #define subr_type       (                              BTB0) # 0x01  # %00000001  ; SUBR
-  #define char_type       (                         BTB1     ) # 0x02  # %00000010  ; character
-  #define system_type     (                         BTB1|BTB0) # 0x03  # %00000011  ; frame-pointer, read-label, system
-  #define symbol_type     (                    BTB2          ) # 0x04  # %000001xx  ; symbol
-          # bits for symbols in the GCself pointer:
-          #define constant_bit_t  TB0  # set if the symbol is a constant
-          #define special_bit_t   TB1  # set if the symbol is SPECIAL proclaimed
-  #if (TB6 < 0)
-  #define cons_type       (               BTB3               ) # 0x08  # %00001000  ; cons
+  #define machine_type   0x00  # %00000000  ; Maschinenpointer
+  #define sbvector_type  0x01  # %00000001  ; Simple-Bit-Vector
+  #define sstring_type   0x02  # %00000010  ; Simple-String
+  #define svector_type   0x03  # %00000011  ; Simple-Vector
+  #define mdarray_type   0x04  # %00000100  ; sonstiger Array (Rang /=1 oder
+                               #            ; - später vielleicht - anderer Elementtyp)
+  #define bvector_type   0x05  # %00000101  ; sonstiger Bit-Vector oder Byte-Vector
+  #define string_type    0x06  # %00000110  ; sonstiger String
+  #define vector_type    0x07  # %00000111  ; sonstiger (VECTOR T)
+  #define closure_type   0x08  # %00001000  ; Closure
+  #define structure_type 0x09  # %00001001  ; Structure
+  #define stream_type    0x0A  # %00001010  ; Stream
+  #define orecord_type   0x0B  # %00001011  ; OtherRecord (Package, Byte, ...)
+  #define instance_type  0x0C  # %00001100  ; CLOS-Instanz
+  #define char_type      0x0D  # %00001101  ; Character
+  #define subr_type      0x0E  # %00001110  ; SUBR
+  #define system_type    0x0F  # %00001111  ; Frame-Pointer, Read-Label, SYSTEM
+  #define fixnum_type    0x10  # %00010000  ; Fixnum
+  #define sfloat_type    0x12  # %00010010  ; Short-Float
+  #define bignum_type    0x14  # %00010100  ; Bignum
+  #define ffloat_type    0x16  # %00010110  ; Single-Float
+  #define ratio_type     0x18  # %00011000  ; Ratio
+  #define dfloat_type    0x1A  # %00011010  ; Double-float
+  #define complex_type   0x1C  # %00011100  ; Complex
+  #define lfloat_type    0x1E  # %00011110  ; Long-Float
+  #define symbol_type    0x20  # %00100000  ; Symbol
+          # Bits für Symbole in VAR/FUN-Frames (im LISP-Stack):
+          #define active_bit  1  # gesetzt: Bindung ist aktiv
+          #define dynam_bit   2  # gesetzt: Bindung ist dynamisch
+          #define svar_bit    3  # gesetzt: nächster Parameter ist supplied-p-Parameter für diesen
+          #define oint_symbolflags_shift  oint_type_shift
+          # Bits für Symbole im Selbstpointer:
+          #define constant_bit_t  1  # zeigt an, ob das Symbol eine Konstante ist
+          #define special_bit_t   2  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
+  #if defined(I80386) && defined(UNIX_LINUX)
+  #define cons_type      0x44  # %01000100  ; Cons
+  #else
+  #define cons_type      0x40  # %01000000  ; Cons
   #endif
-  #define closure_type    (               BTB3          |BTB0) # 0x09  # %00001001  ; closure
-  #define structure_type  (               BTB3     |BTB1     ) # 0x0A  # %00001010  ; structure
-  #define stream_type     (               BTB3     |BTB1|BTB0) # 0x0B  # %00001011  ; stream
-  #define orecord_type    (               BTB3|BTB2          ) # 0x0C  # %00001100  ; OtherRecord (Package, Byte, ...)
-  #define instance_type   (               BTB3|BTB2     |BTB0) # 0x0D  # %00001101  ; CLOS instance
-  #define mdarray_type    (               BTB3|BTB2|BTB1|BTB0) # 0x0F  # %00001111  ; other array (rank/=1 or other eltype)
-  #define sbvector_type   (          BTB4                    ) # 0x10  # %00010000  ; simple-bit-vector
-  #define sb2vector_type  (          BTB4               |BTB0) # 0x11  # %00010001  ; simple (VECTOR (UNSIGNED-BYTE 2))
-  #define sb4vector_type  (          BTB4          |BTB1     ) # 0x12  # %00010010  ; simple (VECTOR (UNSIGNED-BYTE 4))
-  #define sb8vector_type  (          BTB4          |BTB1|BTB0) # 0x13  # %00010011  ; simple (VECTOR (UNSIGNED-BYTE 8))
-  #define sb16vector_type (          BTB4     |BTB2          ) # 0x14  # %00010100  ; simple (VECTOR (UNSIGNED-BYTE 16))
-  #define sb32vector_type (          BTB4     |BTB2     |BTB0) # 0x15  # %00010101  ; simple (VECTOR (UNSIGNED-BYTE 32))
-  #define sstring_type    (          BTB4     |BTB2|BTB1     ) # 0x16  # %00010110  ; simple-string
-  #define svector_type    (          BTB4     |BTB2|BTB1|BTB0) # 0x17  # %00010111  ; simple-vector
-  #define bvector_type    (          BTB4|BTB3               ) # 0x18  # %00011000  ; non-simple bit-vector
-  #define b2vector_type   (          BTB4|BTB3          |BTB0) # 0x19  # %00011001  ; non-simple (VECTOR (UNSIGNED-BYTE 2))
-  #define b4vector_type   (          BTB4|BTB3     |BTB1     ) # 0x1A  # %00011010  ; non-simple (VECTOR (UNSIGNED-BYTE 4))
-  #define b8vector_type   (          BTB4|BTB3     |BTB1|BTB0) # 0x1B  # %00011011  ; non-simple (VECTOR (UNSIGNED-BYTE 8))
-  #define b16vector_type  (          BTB4|BTB3|BTB2          ) # 0x1C  # %00011100  ; non-simple (VECTOR (UNSIGNED-BYTE 16))
-  #define b32vector_type  (          BTB4|BTB3|BTB2     |BTB0) # 0x1D  # %00011101  ; non-simple (VECTOR (UNSIGNED-BYTE 32))
-  #define string_type     (          BTB4|BTB3|BTB2|BTB1     ) # 0x1E  # %00011110  ; non-simple string
-  #define vector_type     (          BTB4|BTB3|BTB2|BTB1|BTB0) # 0x1F  # %00011111  ; non-simple (VECTOR T)
-  #define fixnum_type     (     BTB5                         ) # 0x20  # %00100000  ; fixnum
-  #define sfloat_type     (     BTB5               |BTB1     ) # 0x22  # %00100010  ; short-float
-  #define bignum_type     (     BTB5          |BTB2          ) # 0x24  # %00100100  ; bignum
-  #define ffloat_type     (     BTB5          |BTB2|BTB1     ) # 0x26  # %00100110  ; single-float
-  #define ratio_type      (     BTB5     |BTB3               ) # 0x28  # %00101000  ; ratio
-  #define dfloat_type     (     BTB5     |BTB3     |BTB1     ) # 0x2A  # %00101010  ; double-float
-  #define complex_type    (     BTB5     |BTB3|BTB2          ) # 0x2C  # %00101100  ; complex
-  #define lfloat_type     (     BTB5     |BTB3|BTB2|BTB1     ) # 0x2E  # %00101110  ; long-float
-  #if (TB6 >= 0)
-  #define cons_type       (BTB6                              ) # 0x40  # %01000000  ; cons
-  #endif
-
-# Bits für Symbole in VAR/FUN-Frames (im LISP-Stack):
-# sitzen nicht im oint_type-Teil, sondern im oint_addr-Teil.
-  #define active_bit  0  # gesetzt: Bindung ist aktiv
-  #define dynam_bit   1  # gesetzt: Bindung ist dynamisch
-  #define svar_bit    2  # gesetzt: nächster Parameter ist supplied-p-Parameter für diesen
-#if (varobject_alignment >= bit(3))
-  #define oint_symbolflags_shift  oint_addr_shift
-#else
-  #define NO_symbolflags # active_bit, dynam_bit, svar_bit haben im Symbol keinen Platz
-#endif
 
 #ifndef WIDE
   # Typ ist GC-invariant, wenn
-  # Typinfobyte >=0, <= system_type oder >= fixnum_type, < bignum_type.
+  # Typinfobyte=0 oder char_type <= Typinfobyte < bignum_type.
     #define gcinvariant_type_p(type)  \
-      (((type) & ~(BTB5|BTB1|BTB0)) == 0)
+      (((type)==0) || ((char_type<=(type)) && ((type)<bignum_type)))
 #else
   # Typ ist GC-invariant, wenn
-  # Typinfobyte eines von 0x00..0x03,0x20..0x23,0x26..0x27 ist.
+  # Typinfobyte eines von 0x00,0x0D..0x13,0x16..0x17 ist.
     #define gcinvariant_type_p(type)  \
-      ((((type)>>(TB0+1))<0x14) && ((bit((type)>>(TB0+1)) & 0xFFF4FFFCUL) == 0))
+      (((type)<0x18) && ((bit(type) & 0xFF301FFEUL) == 0))
 #endif
 
-#endif # STANDARD_8BIT_TYPECODES
+#endif # STANDARD_TYPECODES
+
+#ifdef PACKED_TYPECODES
+
+#ifdef SUN4_29_1
+# Zugriffe sind nur auf Pointer >=0, <2^29 erlaubt.
+# Daher eine etwas gedrängte Typcode-Verteilung.
+#endif
+
+#if defined(DECALPHA) && defined(UNIX_OSF) && !(defined(NO_SINGLEMAP) || defined(NO_TRIVIALMAP))
+# mmap() geht nur mit Adressen >=0, <2^38, aber da gewöhnliche Pointer im
+# Bereich 1*2^32..2*2^32 liegen, bleiben uns nur die Bits 37..33 als Typbits.
+#endif
+
+# Typbits:
+# in Typcodes (tint):
+  #define garcol_bit_t     TB7  # gesetzt nur während der Garbage Collection!
+  #define number_bit_t     TB4  # gesetzt nur bei Zahlen
+  #define notsimple_bit_t  TB2  # bei Arrays: gelöscht bei Simple-Arrays
+  #define sign_bit_t       TB0  # Vorzeichen bei reellen Zahlen (gesetzt <==> Zahl <0)
+  #define float_bit_t      TB1
+  #define float1_bit_t     TB3
+  #define float2_bit_t     TB2
+  #define ratio_bit_t      TB3
+  #define bignum_bit_t     TB2
+# in Objekten (oint):
+  #define garcol_bit_o     (garcol_bit_t+oint_type_shift)    # gesetzt nur während der Garbage Collection!
+  #define number_bit_o     (number_bit_t+oint_type_shift)    # gesetzt nur bei Zahlen
+  #define notsimple_bit_o  (notsimple_bit_t+oint_type_shift) # bei Arrays: gelöscht bei Simple-Arrays
+  #define sign_bit_o       (sign_bit_t+oint_type_shift)      # Vorzeichen bei reellen Zahlen
+  #define float_bit_o      (float_bit_t+oint_type_shift)
+  #define float1_bit_o     (float1_bit_t+oint_type_shift)
+  #define float2_bit_o     (float2_bit_t+oint_type_shift)
+  #define ratio_bit_o      (ratio_bit_t+oint_type_shift)
+  #define bignum_bit_o     (bignum_bit_t+oint_type_shift)
+
+# konstante Typcodes:
+  #define machine_type   (0)                                            # 0x00  # %00000000  ; Maschinenpointer
+  #define sbvector_type  (                                    bit(TB0)) # 0x01  # %00000001  ; Simple-Bit-Vector
+  #define sstring_type   (                           bit(TB1)         ) # 0x02  # %00000010  ; Simple-String
+  #define svector_type   (                           bit(TB1)|bit(TB0)) # 0x03  # %00000011  ; Simple-Vector
+  #define mdarray_type   (                  bit(TB2)                  ) # 0x04  # %00000100  ; sonstiger Array (Rang /=1 oder
+                                                                                #            ; - später vielleicht - anderer Elementtyp)
+  #define bvector_type   (                  bit(TB2)         |bit(TB0)) # 0x05  # %00000101  ; sonstiger Bit-Vector oder Byte-Vector
+  #define string_type    (                  bit(TB2)|bit(TB1)         ) # 0x06  # %00000110  ; sonstiger String
+  #define vector_type    (                  bit(TB2)|bit(TB1)|bit(TB0)) # 0x07  # %00000111  ; sonstiger (VECTOR T)
+  #define closure_type   (         bit(TB3)                           ) # 0x08  # %00001000  ; Closure
+  #define structure_type (         bit(TB3)                  |bit(TB0)) # 0x09  # %00001001  ; Structure
+  #define stream_type    (         bit(TB3)         |bit(TB1)         ) # 0x0A  # %00001010  ; Stream
+  #define orecord_type   (         bit(TB3)         |bit(TB1)|bit(TB0)) # 0x0B  # %00001011  ; OtherRecord (Package, Byte, ...)
+  #define instance_type  (         bit(TB3)|bit(TB2)                  ) # 0x0C  # %00001100  ; CLOS-Instanz
+  #define symbol_type    (         bit(TB3)|bit(TB2)         |bit(TB0)) # 0x0D  # %00001101  ; Symbol
+          # Bits für Symbole in VAR/FUN-Frames (im LISP-Stack):
+          # sitzen nicht im oint_type-Teil, sondern im oint_addr-Teil.
+          #define active_bit  0  # gesetzt: Bindung ist aktiv
+          #define dynam_bit   1  # gesetzt: Bindung ist dynamisch
+          #define svar_bit    2  # gesetzt: nächster Parameter ist supplied-p-Parameter für diesen
+          #if (varobject_alignment >= bit(3))
+            #define oint_symbolflags_shift  oint_addr_shift
+          #else
+            #define NO_symbolflags # active_bit, dynam_bit, svar_bit haben im Symbol keinen Platz
+          #endif
+          # Bits für Symbole im Selbstpointer:
+          #if !((TB3+3==TB7) || (TB3+2==TB7) || (TB3+1==TB7))
+            #define constant_bit_t  (TB3+3)  # zeigt an, ob das Symbol eine Konstante ist
+            #define special_bit_t   (TB3+2)  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
+          #else
+            #define constant_bit_t  (TB7+3)  # zeigt an, ob das Symbol eine Konstante ist
+            #define special_bit_t   (TB7+2)  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
+          #endif
+  #define cons_type      (         bit(TB3)|bit(TB2)|bit(TB1)         ) # 0x0E  # %00001110  ; Cons
+  #define subr_type      (         bit(TB3)|bit(TB2)|bit(TB1)|bit(TB0)) # 0x0F  # %00001111  ; SUBR
+  #define fixnum_type    (bit(TB4)                                    ) # 0x10  # %00010000  ; Fixnum
+  #define sfloat_type    (bit(TB4)                  |bit(TB1)         ) # 0x12  # %00010010  ; Short-Float
+  #define bignum_type    (bit(TB4)         |bit(TB2)                  ) # 0x14  # %00010100  ; Bignum
+  #define ffloat_type    (bit(TB4)         |bit(TB2)|bit(TB1)         ) # 0x16  # %00010110  ; Single-Float
+  #define ratio_type     (bit(TB4)|bit(TB3)                           ) # 0x18  # %00011000  ; Ratio
+  #define dfloat_type    (bit(TB4)|bit(TB3)         |bit(TB1)         ) # 0x1A  # %00011010  ; Double-float
+  #define complex_type   (bit(TB4)|bit(TB3)|bit(TB2)                  ) # 0x1C  # %00011100  ; Complex
+  #define lfloat_type    (bit(TB4)|bit(TB3)|bit(TB2)|bit(TB1)         ) # 0x1E  # %00011110  ; Long-Float
+  #define system_type    (bit(TB5)                                    ) # 0x20  # %00100000  ; Frame-Pointer, Read-Label, SYSTEM
+  #define char_type      (bit(TB5)|bit(TB0)                           ) # 0x21  # %00100001  ; Character
+
+# Typ ist GC-invariant, wenn
+  #if (TB5==5)&&(TB4==4)&&(TB3==3)&&(TB2==2)&&(TB1==1)&&(TB0==0) && !defined(WIDE)
+    # Typinfobyte eines von 0x00,0x0F,0x10,0x11,0x12,0x13,0x20,0x21 ist.
+    #define gcinvariant_type_p(type)  \
+      (((type)>=32) || ((bit(type) & 0xFFF07FFEUL) == 0))
+  #elif (TB5==6)&&(TB4==5)&&(TB3==4)&&(TB2==3)&&(TB1==2)&&(TB0==1) && defined(WIDE)
+    # Typinfobyte/2 eines von 0x00,0x0F,0x10,0x11,0x12,0x13,0x16,0x17,0x20,0x21 ist.
+    #define gcinvariant_type_p(type)  \
+      (((type)>=64) || ((bit((type)>>1) & 0xFF307FFEUL) == 0))
+  #elif !defined(WIDE)
+    # Typinfobyte = 0 oder subr_type <= Typinfobyte < bignum_type oder Typinfobyte >= system_type ist.
+    #define gcinvariant_type_p(type)  \
+      (((type) == 0) || ((subr_type <= (type)) && ((type) < bignum_type)) || (system_type <= (type)))
+  #else
+    #error "gcinvariant_type_p() implementieren!"
+  #endif
+
+#endif # PACKED_TYPECODES
+
+#ifdef SEVENBIT_TYPECODES
+
+#if defined(UNIX_SYSV_UHC_1) || (defined(I80386) && ((defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) || defined(UNIX_GNU)))
+# Mallozierter Speicher belegt den Bereich ab 0x08000000.
+# Für die Typinformation stehen nur 7 Bit zur Verfügung, und die für den
+# Typcode zur Verfügung stehenden Bits liegen nicht am Stück.
+# Wir müssen Bit 3 aus dem Weg gehen.
+#if defined(I80386) && defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)
+# Shared Libraries belegen den Bereich ab 0x40000000 oder 0x50000000.
+# Nehme daher Bit 6 als GC-Bit.
+#endif
+#endif
+
+#if defined(UNIX_IRIX) || defined(UNIX_DEC_ULTRIX)
+# Mallozierter Speicher belegt den Bereich ab 0x10000000.
+# Für die Typinformation stehen nur 7 Bit zur Verfügung, und die für den
+# Typcode zur Verfügung stehenden Bits liegen nicht am Stück.
+# Wir müssen Bit 4 aus dem Weg gehen.
+#endif
+
+#ifdef UNIX_AIX
+# Mallozierter Speicher belegt den Bereich ab 0x20000000.
+# Für die Typinformation stehen nur 7 Bit zur Verfügung, und die für den
+# Typcode zur Verfügung stehenden Bits liegen nicht am Stück.
+# Wir müssen Bit 5 aus dem Weg gehen.
+#endif
+
+#if defined(UNIX_NEXTSTEP) && defined(MAP_MEMORY)
+# UNIX_NEXTSTEP verbietet uns die Benutzung von Adressen im Bereich von
+# unterhalb 0x04000000 bis oberhalb 0x05000000. Wir vermeiden daher als
+# Typbits Bit 0 und Bit 2 (ausgenommen GC-Bit, das ja vor jedem Speicherzugriff
+# wegmaskiert wird).
+#endif
+
+#if defined(UNIX_CONVEX) && defined(MAP_MEMORY)
+# Bei UNIX_CONVEX liegt der Adressraum der Prozesse ab 0x80000000.
+# mmap() funktioniert allerdings nur unterhalb von 0xC000000. Daher
+# gehört Bit 31 zur Adresse, und Bit 30 müssen wir aus dem Weg gehen.
+#endif
+
+#if defined(I80386) && defined(UNIX_CYGWIN32)
+# Mallozierter Speicher belegt den Bereich ab 0x02000000 unter WinNT, aber
+# den Bereich ab 0x04800000 oder 0x05000000 unter Win95. Wenn man dieselben
+# Binaries und dieselben mem-Files für beides verwenden will, bleiben nur
+# noch die Bits 31..27 und 1..0 für Typinformation übrig. Alignment = 4 kann
+# man voraussetzen.
+#endif
+
+#if defined(DECALPHA) && defined(UNIX_LINUX) && !(defined(NO_SINGLEMAP) || defined(NO_TRIVIALMAP))
+# Mallozierter Speicher belegt den Bereich ab 0x120000000.
+# Wir müssen Bit 32 aus dem Weg gehen.
+#endif
+
+#if defined(RS6000) && defined(UNIX_LINUX)
+# On MkLinux, code and mallocated memory starts at 0x01000000. Avoid bit 24.
+# Moreover, bit 31 cannot be used in addresses.
+# Shared libraries are at 0x2AAAA000, but we won't probably hit them.
+#endif
+
+# Typbits:
+# in Typcodes (tint):
+  #define garcol_bit_t     TB7  # gesetzt nur während der Garbage Collection!
+  #define number_bit_t     TB4  # gesetzt nur bei Zahlen
+  #define notsimple_bit_t  TB2  # bei Arrays: gelöscht bei Simple-Arrays
+  #define sign_bit_t       TB0  # Vorzeichen bei reellen Zahlen (gesetzt <==> Zahl <0)
+  #define float_bit_t      TB1
+  #define float1_bit_t     TB3
+  #define float2_bit_t     TB2
+  #define ratio_bit_t      TB3
+  #define bignum_bit_t     TB2
+# in Objekten (oint):
+  #define garcol_bit_o     (garcol_bit_t+oint_type_shift)    # gesetzt nur während der Garbage Collection!
+  #define number_bit_o     (number_bit_t+oint_type_shift)    # gesetzt nur bei Zahlen
+  #define notsimple_bit_o  (notsimple_bit_t+oint_type_shift) # bei Arrays: gelöscht bei Simple-Arrays
+  #define sign_bit_o       (sign_bit_t+oint_type_shift)      # Vorzeichen bei reellen Zahlen
+  #define float_bit_o      (float_bit_t+oint_type_shift)
+  #define float1_bit_o     (float1_bit_t+oint_type_shift)
+  #define float2_bit_o     (float2_bit_t+oint_type_shift)
+  #define ratio_bit_o      (ratio_bit_t+oint_type_shift)
+  #define bignum_bit_o     (bignum_bit_t+oint_type_shift)
+
+# konstante Typcodes:
+  #define machine_type   (0)                                             # %000000  ; Maschinenpointer
+  #define sbvector_type  (                                    bit(TB0))  # %000001  ; Simple-Bit-Vector
+  #define sstring_type   (                           bit(TB1)         )  # %000010  ; Simple-String
+  #define svector_type   (                           bit(TB1)|bit(TB0))  # %000011  ; Simple-Vector
+  #define mdarray_type   (                  bit(TB2)                  )  # %000100  ; sonstiger Array (Rang /=1 oder
+                                                                         #          ; - später vielleicht - anderer Elementtyp)
+  #define bvector_type   (                  bit(TB2)         |bit(TB0))  # %000101  ; sonstiger Bit-Vector oder Byte-Vector
+  #define string_type    (                  bit(TB2)|bit(TB1)         )  # %000110  ; sonstiger String
+  #define vector_type    (                  bit(TB2)|bit(TB1)|bit(TB0))  # %000111  ; sonstiger (VECTOR T)
+  #define closure_type   (         bit(TB3)                           )  # %001000  ; Closure
+  #define structure_type (         bit(TB3)                  |bit(TB0))  # %001001  ; Structure
+  #define stream_type    (         bit(TB3)         |bit(TB1)         )  # %001010  ; Stream
+  #define orecord_type   (         bit(TB3)         |bit(TB1)|bit(TB0))  # %001011  ; OtherRecord (Package, Byte, ...)
+  #define instance_type  (         bit(TB3)|bit(TB2)                  )  # %001100  ; CLOS-Instanz
+  #define char_type      (         bit(TB3)|bit(TB2)         |bit(TB0))  # %001101  ; Character
+  #define subr_type      (         bit(TB3)|bit(TB2)|bit(TB1)         )  # %001110  ; SUBR
+  #define system_type    (         bit(TB3)|bit(TB2)|bit(TB1)|bit(TB0))  # %001111  ; Frame-Pointer, Read-Label, SYSTEM
+  #define fixnum_type    (bit(TB4)                                    )  # %010000  ; Fixnum
+  #define sfloat_type    (bit(TB4)                  |bit(TB1)         )  # %010010  ; Short-Float
+  #define bignum_type    (bit(TB4)         |bit(TB2)                  )  # %010100  ; Bignum
+  #define ffloat_type    (bit(TB4)         |bit(TB2)|bit(TB1)         )  # %010110  ; Single-Float
+  #define ratio_type     (bit(TB4)|bit(TB3)                           )  # %011000  ; Ratio
+  #define dfloat_type    (bit(TB4)|bit(TB3)         |bit(TB1)         )  # %011010  ; Double-float
+  #define complex_type   (bit(TB4)|bit(TB3)|bit(TB2)                  )  # %011100  ; Complex
+  #define lfloat_type    (bit(TB4)|bit(TB3)|bit(TB2)|bit(TB1)         )  # %011110  ; Long-Float
+  #define symbol_type    (bit(TB5)                                    )  # %100000  ; Symbol
+          # Bits für Symbole in VAR/FUN-Frames (im LISP-Stack):
+          #define active_bit  TB0  # gesetzt: Bindung ist aktiv
+          #define dynam_bit   TB1  # gesetzt: Bindung ist dynamisch
+          #define svar_bit    TB2  # gesetzt: nächster Parameter ist supplied-p-Parameter für diesen
+          #define oint_symbolflags_shift  oint_type_shift
+          # Bits für Symbole im Selbstpointer:
+          #define constant_bit_t  TB0  # zeigt an, ob das Symbol eine Konstante ist
+          #define special_bit_t   TB1  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
+  #define cons_type      (bit(TB5)|bit(TB3)|bit(TB2)                  )  # %101000  ; Cons
+
+#ifndef WIDE
+  # Typ ist GC-invariant, wenn
+  # Typinfobyte=0 oder char_type <= Typinfobyte < bignum_type.
+    #define gcinvariant_type_p(type)  \
+      (((type)==0) || ((char_type<=(type)) && ((type)<bignum_type)))
+#elif (TB5==6)&&(TB4==5)&&(TB3==4)&&(TB2==3)&&(TB1==2)&&(TB0==1) && defined(WIDE)
+  # Typinfobyte/2 eines von 0x00,0x0D,0x0E,0x0F,0x10,0x11,0x12,0x13,0x16,0x17 ist.
+  #define gcinvariant_type_p(type)  \
+    (((type)<64) && ((bit((type)>>1) & 0xFF301FFEUL) == 0))
+#else
+  #error "gcinvariant_type_p() implementieren!"
+#endif
+
+#endif # SEVENBIT_TYPECODES
+
+#ifdef PACKED_SEVENBIT_TYPECODES
+
+# Typbits:
+# in Typcodes (tint):
+  #define garcol_bit_t     TB7  # gesetzt nur während der Garbage Collection!
+  #define number_bit_t     TB4  # gesetzt nur bei Zahlen
+  #define notsimple_bit_t  TB2  # bei Arrays: gelöscht bei Simple-Arrays
+  #define sign_bit_t       TB0  # Vorzeichen bei reellen Zahlen (gesetzt <==> Zahl <0)
+  #define float_bit_t      TB1
+  #define float1_bit_t     TB3
+  #define float2_bit_t     TB2
+  #define ratio_bit_t      TB3
+  #define bignum_bit_t     TB2
+# in Objekten (oint):
+  #define garcol_bit_o     (garcol_bit_t+oint_type_shift)    # gesetzt nur während der Garbage Collection!
+  #define number_bit_o     (number_bit_t+oint_type_shift)    # gesetzt nur bei Zahlen
+  #define notsimple_bit_o  (notsimple_bit_t+oint_type_shift) # bei Arrays: gelöscht bei Simple-Arrays
+  #define sign_bit_o       (sign_bit_t+oint_type_shift)      # Vorzeichen bei reellen Zahlen
+  #define float_bit_o      (float_bit_t+oint_type_shift)
+  #define float1_bit_o     (float1_bit_t+oint_type_shift)
+  #define float2_bit_o     (float2_bit_t+oint_type_shift)
+  #define ratio_bit_o      (ratio_bit_t+oint_type_shift)
+  #define bignum_bit_o     (bignum_bit_t+oint_type_shift)
+
+# konstante Typcodes:
+  #define machine_type   (0)                                             # %000000  ; Maschinenpointer
+  #define sbvector_type  (                                    bit(TB0))  # %000001  ; Simple-Bit-Vector
+  #define sstring_type   (                           bit(TB1)         )  # %000010  ; Simple-String
+  #define svector_type   (                           bit(TB1)|bit(TB0))  # %000011  ; Simple-Vector
+  #define mdarray_type   (                  bit(TB2)                  )  # %000100  ; sonstiger Array (Rang /=1 oder
+                                                                         #          ; - später vielleicht - anderer Elementtyp)
+  #define bvector_type   (                  bit(TB2)         |bit(TB0))  # %000101  ; sonstiger Bit-Vector oder Byte-Vector
+  #define string_type    (                  bit(TB2)|bit(TB1)         )  # %000110  ; sonstiger String
+  #define vector_type    (                  bit(TB2)|bit(TB1)|bit(TB0))  # %000111  ; sonstiger (VECTOR T)
+  #define symbol_type    (         bit(TB3)                           )  # %001000  ; Symbol
+          # Bits für Symbole in VAR/FUN-Frames (im LISP-Stack):
+          #define active_bit  0  # gesetzt: Bindung ist aktiv
+          #define dynam_bit   1  # gesetzt: Bindung ist dynamisch
+          #define svar_bit    2  # gesetzt: nächster Parameter ist supplied-p-Parameter für diesen
+          #if (varobject_alignment >= bit(3))
+            #define oint_symbolflags_shift  oint_addr_shift
+          #else
+            #define NO_symbolflags # active_bit, dynam_bit, svar_bit haben im Symbol keinen Platz
+          #endif
+          # Bits für Symbole im Selbstpointer:
+          #define constant_bit_t  TB0  # zeigt an, ob das Symbol eine Konstante ist
+          #define special_bit_t   TB4  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
+  #define cons_type      (         bit(TB3)                  |bit(TB0))  # %001001  ; Cons
+  #define closure_type   (         bit(TB3)         |bit(TB1)         )  # %001010  ; Closure
+  #define structure_type (         bit(TB3)         |bit(TB1)|bit(TB0))  # %001011  ; Structure
+  #define orecord_type   (         bit(TB3)|bit(TB2)                  )  # %001100  ; OtherRecord (Stream, Package, Byte, ...)
+  #define instance_type  (         bit(TB3)|bit(TB2)         |bit(TB0))  # %001101  ; CLOS-Instanz
+  #define subr_type      (         bit(TB3)|bit(TB2)|bit(TB1)         )  # %001110  ; SUBR
+  #define system_type    (         bit(TB3)|bit(TB2)|bit(TB1)|bit(TB0))  # %001111  ; Frame-Pointer, Read-Label, SYSTEM
+  #define fixnum_type    (bit(TB4)                                    )  # %010000  ; Fixnum
+  #define sfloat_type    (bit(TB4)                  |bit(TB1)         )  # %010010  ; Short-Float
+  #define bignum_type    (bit(TB4)         |bit(TB2)                  )  # %010100  ; Bignum
+  #define ffloat_type    (bit(TB4)         |bit(TB2)|bit(TB1)         )  # %010110  ; Single-Float
+  #define ratio_type     (bit(TB4)|bit(TB3)                           )  # %011000  ; Ratio
+  #define dfloat_type    (bit(TB4)|bit(TB3)         |bit(TB1)         )  # %011010  ; Double-float
+  #define complex_type   (bit(TB4)|bit(TB3)|bit(TB2)                  )  # %011100  ; Complex
+  #define lfloat_type    (bit(TB4)|bit(TB3)|bit(TB2)|bit(TB1)         )  # %011110  ; Long-Float
+  #define char_type      (bit(TB5)|bit(TB3)         |bit(TB1)         )  # %101010  ; Character
+
+#ifndef WIDE
+  # Typ ist GC-invariant, wenn
+  # Typinfobyte=0 oder subr_type <= Typinfobyte < bignum_type oder Typinfobyte >= char_type.
+    #define gcinvariant_type_p(type)  \
+      (((type)==0) || ((subr_type<=(type)) && ((type)<bignum_type)) || (char_type<=(type)))
+#else
+  #error "gcinvariant_type_p() implementieren!"
+#endif
+
+#endif # PACKED_SEVENBIT_TYPECODES
+
+#ifdef SIXBIT_TYPECODES
+
+#if defined(ACORN_3) || defined(ACORN_4)
+# Speicher kann den Bereich von 0x00000000 bis 0x03FFFFFF umfassen.
+# Für die Typinformation stehen nur 6 Bit zur Verfügung.
+#endif
+
+#ifdef AMIGA3000
+# Speicher kann den Bereich von 0x07000000 bis 0x0FFFFFFF umfassen.
+# Für die Typinformation stehen nur 6 Bit zur Verfügung, und dies auch nur,
+# wenn wir Alignment = 4 voraussetzen.
+# Das können wir aber nicht, da der C-Compiler bzw. der Linker im Text-Segment
+# nur Alignment = 2 hat. Somit können wir nur den Bereich von 0x07000000 bis
+# 0x07FFFFFF nutzen.
+#endif
+
+#if defined(I80386) && defined(WIN32_NATIVE)
+# The memory map looks like this:
+#   0x00000000 - 0x00400000  stack, executable
+#   0x00400000 - 0x00E00000  (WinNT 4.0 only) something
+#   then free
+#   0x75xxxxxx               DLLs
+#   0x77xxxxxx               DLLs
+#   0x78xxxxxx               DLLs
+#   0x7Fxxxxxx               DLLs
+#   0x80000000 - 0xFFFFFFFF  not present
+# Therefore we put the type bits into bits 31..26 (bit 31 being the GC bit),
+# and let the base address range extend from 0x00000000 to 0x03FFFFFF. This
+# should be enough for up to 50 MB memory use.
+# Also, we avoid to map memory to addresses 0x70000000 - 0x7FFFFFFF.
+#define NUMBER_BITS_INVERTED
+#endif
+
+#if defined(HPPA) && defined(UNIX_HPUX)
+# Mallozierter Speicher belegt den Bereich ab 0x40000000.
+# Für die Typinformation stehen die Bits 29..24 zur Verfügung.
+#endif
+
+#ifdef UNIX_AMIX
+# Bits 31..30 werden vom Betriebssystem belegt.
+# Für die Typinformation stehen die Bits 29..24 zur Verfügung.
+#endif
+
+#ifdef UNIX_SYSV_UHC_2
+# Mallozierter Speicher belegt den Bereich ab 0x08000000.
+# Für die Typinformation stehen nur 6 Bit zur Verfügung, und dies auch nur,
+# wenn wir Alignment = 4 voraussetzen.
+#endif
+
+#ifdef WATCOM_BLAKE
+# When run with virtual memory or in the DOS box, the DOS4GW extender returns
+# malloc'ed memory in the range beginning at 0x80000000.
+# The type information can use the bits 30..25.
+#endif
+
+#ifdef SUN4_29_2
+# Zugriffe sind nur auf Pointer >=0, <2^29 erlaubt.
+#endif
+
+# Für die Typinformation stehen nur 6 Bit zur Verfügung.
+# Daher eine etwas gedrängte Typcode-Verteilung.
+
+# Typbits:
+# in Typcodes (tint):
+  #define garcol_bit_t     TB7  # gesetzt nur während der Garbage Collection!
+  #define number_bit_t     TB4  # gesetzt nur bei Zahlen
+  #define notsimple_bit_t  TB2  # bei Arrays: gelöscht bei Simple-Arrays
+  #define sign_bit_t       TB0  # Vorzeichen bei reellen Zahlen (gesetzt <==> Zahl <0)
+  #define float_bit_t      TB1
+  #define float1_bit_t     TB3
+  #define float2_bit_t     TB2
+  #define ratio_bit_t      TB3
+  #define bignum_bit_t     TB2
+# in Objekten (oint):
+  #define garcol_bit_o     (garcol_bit_t+oint_type_shift)    # gesetzt nur während der Garbage Collection!
+  #define number_bit_o     (number_bit_t+oint_type_shift)    # gesetzt nur bei Zahlen
+  #define notsimple_bit_o  (notsimple_bit_t+oint_type_shift) # bei Arrays: gelöscht bei Simple-Arrays
+  #define sign_bit_o       (sign_bit_t+oint_type_shift)      # Vorzeichen bei reellen Zahlen
+  #define float_bit_o      (float_bit_t+oint_type_shift)
+  #define float1_bit_o     (float1_bit_t+oint_type_shift)
+  #define float2_bit_o     (float2_bit_t+oint_type_shift)
+  #define ratio_bit_o      (ratio_bit_t+oint_type_shift)
+  #define bignum_bit_o     (bignum_bit_t+oint_type_shift)
+
+# konstante Typcodes:
+  #define machine_type   (0)                                             # %000000  ; Maschinenpointer
+  #define sbvector_type  (                                    bit(TB0))  # %000001  ; Simple-Bit-Vector
+  #define sstring_type   (                           bit(TB1)         )  # %000010  ; Simple-String
+  #define svector_type   (                           bit(TB1)|bit(TB0))  # %000011  ; Simple-Vector
+  #define mdarray_type   (                  bit(TB2)                  )  # %000100  ; sonstiger Array (Rang /=1 oder
+                                                                         #          ; - später vielleicht - anderer Elementtyp)
+  #define bvector_type   (                  bit(TB2)         |bit(TB0))  # %000101  ; sonstiger Bit-Vector oder Byte-Vector
+  #define string_type    (                  bit(TB2)|bit(TB1)         )  # %000110  ; sonstiger String
+  #define vector_type    (                  bit(TB2)|bit(TB1)|bit(TB0))  # %000111  ; sonstiger (VECTOR T)
+  #define orecord_type   (         bit(TB3)                           )  # %001000  ; OtherRecord (Structure, Stream, Package, Byte, ...)
+  #define instance_type  (         bit(TB3)                  |bit(TB0))  # %001001  ; CLOS-Instanz
+  #define closure_type   (         bit(TB3)         |bit(TB1)         )  # %001010  ; Closure
+  #define cons_type      (         bit(TB3)         |bit(TB1)|bit(TB0))  # %001011  ; Cons
+  #define symbol_type    (         bit(TB3)|bit(TB2)                  )  # %001100  ; Symbol
+          # Bits für Symbole in VAR/FUN-Frames (im LISP-Stack):
+          #define active_bit  0  # gesetzt: Bindung ist aktiv
+          #define dynam_bit   1  # gesetzt: Bindung ist dynamisch
+          #define svar_bit    2  # gesetzt: nächster Parameter ist supplied-p-Parameter für diesen
+          #if (varobject_alignment >= 8)
+            # sitzen nicht im oint_type-Teil, sondern im oint_addr-Teil.
+            #define oint_symbolflags_shift  oint_addr_shift
+          #else
+            #define NO_symbolflags # active_bit, dynam_bit, svar_bit haben im Symbol keinen Platz
+          #endif
+          # Bits für Symbole im Selbstpointer:
+          #define constant_bit_t  TB1  # zeigt an, ob das Symbol eine Konstante ist
+          #define special_bit_t   TB0  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
+  #define subr_type      (         bit(TB3)|bit(TB2)         |bit(TB0))  # %001101  ; SUBR
+  #define system_type    (         bit(TB3)|bit(TB2)|bit(TB1)         )  # %001110  ; Frame-Pointer, Read-Label, SYSTEM
+  #define char_type      (         bit(TB3)|bit(TB2)|bit(TB1)|bit(TB0))  # %001111  ; Character
+ #ifndef NUMBER_BITS_INVERTED
+  #define fixnum_type    (bit(TB4)                                    )  # %010000  ; Fixnum
+  #define sfloat_type    (bit(TB4)                  |bit(TB1)         )  # %010010  ; Short-Float
+  #define bignum_type    (bit(TB4)         |bit(TB2)                  )  # %010100  ; Bignum
+  #define ffloat_type    (bit(TB4)         |bit(TB2)|bit(TB1)         )  # %010110  ; Single-Float
+  #define ratio_type     (bit(TB4)|bit(TB3)                           )  # %011000  ; Ratio
+  #define dfloat_type    (bit(TB4)|bit(TB3)         |bit(TB1)         )  # %011010  ; Double-float
+  #define complex_type   (bit(TB4)|bit(TB3)|bit(TB2)                  )  # %011100  ; Complex
+  #define lfloat_type    (bit(TB4)|bit(TB3)|bit(TB2)|bit(TB1)         )  # %011110  ; Long-Float
+ #else # NUMBER_BITS_INVERTED inverts TB2 and TB3 and also TB1 (so that N_integerp remains fast)
+  #define lfloat_type    (bit(TB4)                                    )  # %011100  ; Long-Float
+  #define complex_type   (bit(TB4)                  |bit(TB1)         )  # %011110  ; Complex
+  #define dfloat_type    (bit(TB4)         |bit(TB2)                  )  # %010100  ; Double-float
+  #define ratio_type     (bit(TB4)         |bit(TB2)|bit(TB1)         )  # %010110  ; Ratio
+  #define ffloat_type    (bit(TB4)|bit(TB3)                           )  # %011000  ; Single-Float
+  #define bignum_type    (bit(TB4)|bit(TB3)         |bit(TB1)         )  # %011010  ; Bignum
+  #define sfloat_type    (bit(TB4)|bit(TB3)|bit(TB2)                  )  # %011100  ; Short-Float
+  #define fixnum_type    (bit(TB4)|bit(TB3)|bit(TB2)|bit(TB1)         )  # %011110  ; Fixnum
+ #endif
+
+# Typ ist GC-invariant, wenn
+# Typinfobyte eines von 0x00,0x0D,0x0E,0x0F,0x10,0x11,0x12,0x13 ist.
+  #if (TB4==4)&&(TB3==3)&&(TB2==2)&&(TB1==1)&&(TB0==0) && !defined(WIDE)
+    #ifndef NUMBER_BITS_INVERTED
+      #define gcinvariant_type_p(type)  \
+        ((bit(type) & 0xFFF01FFEUL) == 0)
+    #else
+      #define gcinvariant_type_p(type)  \
+        ((bit(type) & 0x0FFF1FFEUL) == 0)
+    #endif
+  #elif !defined(WIDE)
+    #ifndef NUMBER_BITS_INVERTED
+      #define gcinvariant_type_p(type)  \
+        (((type)==0) || ((subr_type<=(type)) && ((type)<bignum_type)))
+    #else
+      #define gcinvariant_type_p(type)  \
+        (((type)==0) || ((subr_type<=(type)) && ((type)<lfloat_type)) || (sfloat_type<=(type)))
+    #endif
+  #else
+    #error "gcinvariant_type_p() implementieren!"
+  #endif
+
+#endif # SIXBIT_TYPECODES
+
+#ifdef SUN3_TYPECODES
+
+# Typbits:
+# in Typcodes (tint):
+  #define garcol_bit_t     1  # gesetzt nur während der Garbage Collection!
+  #define cons_bit_t       7  # gesetzt nur bei CONS
+  #define symbol_bit_t     6  # gesetzt nur bei SYMBOL
+  #define number_bit_t     2  # gesetzt nur bei Zahlen
+  #define notsimple_bit_t  0  # bei Arrays: gelöscht bei Simple-Arrays
+  #define sign_bit_t       0  # Vorzeichen bei reellen Zahlen (gesetzt <==> Zahl <0)
+  #define float_bit_t      5
+  #define float1_bit_t     3
+  #define float2_bit_t     4
+  #define ratio_bit_t      3
+  #define bignum_bit_t     4
+# in Objekten (oint):
+  #define garcol_bit_o     (garcol_bit_t+oint_type_shift)    # gesetzt nur während der Garbage Collection!
+  #define cons_bit_o       (cons_bit_t+oint_type_shift)      # gesetzt nur bei CONS
+  #define symbol_bit_o     (symbol_bit_t+oint_type_shift)    # gesetzt nur bei SYMBOL
+  #define number_bit_o     (number_bit_t+oint_type_shift)    # gesetzt nur bei Zahlen
+  #define notsimple_bit_o  (notsimple_bit_t+oint_type_shift) # bei Arrays: gelöscht bei Simple-Arrays
+  #define sign_bit_o       (sign_bit_t+oint_type_shift)      # Vorzeichen bei reellen Zahlen
+  #define float_bit_o      (float_bit_t+oint_type_shift)
+  #define float1_bit_o     (float1_bit_t+oint_type_shift)
+  #define float2_bit_o     (float2_bit_t+oint_type_shift)
+  #define ratio_bit_o      (ratio_bit_t+oint_type_shift)
+  #define bignum_bit_o     (bignum_bit_t+oint_type_shift)
+
+# konstante Typcodes:
+  #define machine_type   0x00  # %00000000  ; Maschinenpointer
+  #define sbvector_type  0x10  # %00010000  ; Simple-Bit-Vector
+  #define sstring_type   0x08  # %00001000  ; Simple-String
+  #define svector_type   0x18  # %00011000  ; Simple-Vector
+  #define mdarray_type   0x01  # %00000001  ; sonstiger Array (Rang /=1 oder
+                               #            ; - später vielleicht - anderer Elementtyp)
+  #define bvector_type   0x11  # %00010001  ; sonstiger Bit-Vector oder Byte-Vector
+  #define string_type    0x09  # %00001001  ; sonstiger String
+  #define vector_type    0x19  # %00011001  ; sonstiger (VECTOR T)
+  #define closure_type   0x20  # %00100000  ; Closure
+  #define structure_type 0x21  # %00100001  ; Structure
+  #define stream_type    0x28  # %00101000  ; Stream
+  #define orecord_type   0x29  # %00101001  ; OtherRecord (Package, Byte, ...)
+  #define instance_type  0x39  # %00111001  ; CLOS-Instanz
+  #define char_type      0x31  # %00110001  ; Character
+  #define subr_type      0x30  # %00110000  ; SUBR
+  #define system_type    0x38  # %00111000  ; Frame-Pointer, Read-Label, SYSTEM
+  #define fixnum_type    0x04  # %00000100  ; Fixnum
+  #define sfloat_type    0x24  # %00100100  ; Short-Float
+  #define bignum_type    0x14  # %00010100  ; Bignum
+  #define ffloat_type    0x34  # %00110100  ; Single-Float
+  #define ratio_type     0x0C  # %00001100  ; Ratio
+  #define dfloat_type    0x2C  # %00101100  ; Double-float
+  #define complex_type   0x1C  # %00011100  ; Complex
+  #define lfloat_type    0x3C  # %00111100  ; Long-Float
+  #define symbol_type    0x40  # %01000000  ; Symbol
+          # Bits für Symbole in VAR/FUN-Frames (im LISP-Stack):
+          #define active_bit  3  # gesetzt: Bindung ist aktiv
+          #define dynam_bit   4  # gesetzt: Bindung ist dynamisch
+          #define svar_bit    5  # gesetzt: nächster Parameter ist supplied-p-Parameter für diesen
+          #define oint_symbolflags_shift  oint_type_shift
+          # Bits für Symbole im Selbstpointer:
+          #define constant_bit_t  3  # zeigt an, ob das Symbol eine Konstante ist
+          #define special_bit_t   4  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
+  #define cons_type      0x80  # %10000000  ; Cons
+
+# Typ ist GC-invariant, wenn
+# Typinfobyte eines von 0x00,0x04,0x05,0x24,0x25,0x30,0x31,0x38 ist.
+  #define gcinvariant_type_p(type)  \
+    (((type)<0x39) && (((type)==0) || !((bit((type)>>1) & 0x11040004) == 0)))
+
+#endif # SUN3_TYPECODES
 
 #if !(gcinvariant_type_p(ffloat_type) == defined(WIDE))
   #error "gcinvariant_type_p() fehlerhaft implementiert!"
@@ -3218,7 +4023,7 @@ Ratio and Complex (only if SPVW_MIXED).
 # nicht mehr auszumaskieren, bevor man auf die Adresse zugreift:
 #define addressbus_mask  hardware_addressbus_mask
 #ifdef MAP_MEMORY
-  #if defined(SUN4_29)
+  #if defined(SUN4_29_1)
     # Durchs Memory-Mapping sind jetzt die Bits 28..24 einer Adresse redundant.
     #undef addressbus_mask
     #define addressbus_mask  0xE0FFFFFFUL
@@ -3337,30 +4142,15 @@ Ratio and Complex (only if SPVW_MIXED).
   #define case_machine    case machine_type   # Maschinenpointer
   #define case_sstring    case sstring_type   # Simple-String
   #define case_ostring    case string_type    # Other String
-  #define case_sbvector   case sbvector_type   # Simple-Bit-Vector
-  #define case_obvector   case bvector_type    # Other Bit-Vector
-  #define case_sb2vector  case sb2vector_type  # Simple-2Bit-Vector
-  #define case_ob2vector  case b2vector_type   # Other 2Bit-Vector
-  #define case_sb4vector  case sb4vector_type  # Simple-4Bit-Vector
-  #define case_ob4vector  case b4vector_type   # Other 4Bit-Vector
-  #define case_sb8vector  case sb8vector_type  # Simple-8Bit-Vector
-  #define case_ob8vector  case b8vector_type   # Other 8Bit-Vector
-  #define case_sb16vector case sb16vector_type # Simple-16Bit-Vector
-  #define case_ob16vector case b16vector_type  # Other 16Bit-Vector
-  #define case_sb32vector case sb32vector_type # Simple-32Bit-Vector
-  #define case_ob32vector case b32vector_type  # Other 32Bit-Vector
+  #define case_sbvector   case sbvector_type  # Simple-Bit-Vector
+  #define case_obvector   case bvector_type   # Other Bit/Byte-Vector
   #define case_svector    case svector_type   # Simple-(General-)Vector
   #define case_ovector    case vector_type    # Other (General-)Vector
   #define case_mdarray    case mdarray_type   # sonstiger Array
   #define case_string     case_sstring: case_ostring # String allgemein
   #define case_bvector    case_sbvector: case_obvector # Bit-Vector allgemein
-  #define case_b2vector   case_sb2vector: case_ob2vector # 2Bit-Vector allgemein
-  #define case_b4vector   case_sb4vector: case_ob4vector # 4Bit-Vector allgemein
-  #define case_b8vector   case_sb8vector: case_ob8vector # 8Bit-Vector allgemein
-  #define case_b16vector  case_sb16vector: case_ob16vector # 16Bit-Vector allgemein
-  #define case_b32vector  case_sb32vector: case_ob32vector # 32Bit-Vector allgemein
   #define case_vector     case_svector: case_ovector # (General-)Vector allgemein
-  #define case_array      case_string: case_bvector: case_b2vector: case_b4vector: case_b8vector: case_b16vector: case_b32vector: case_vector: case_mdarray # Array allgemein
+  #define case_array      case_string: case_bvector: case_vector: case_mdarray # Array allgemein
   #define case_closure    case closure_type   # Closure
   #ifdef structure_type
   #define case_structure  case structure_type # Structure
@@ -3484,18 +4274,16 @@ Ratio and Complex (only if SPVW_MIXED).
 # Objekt variabler Länge
 #ifdef TYPECODES
   #define VAROBJECT_HEADER  \
-               union {                                              \
-                 object _GCself;  # Selbstpointer für GC            \
-                 hfint flags[sizeof(object)/sizeof(hfint)]; # Flags \
-               } header;
+               union { object _GCself;  # Selbstpointer für GC            \
+                       hfint flags[sizeof(object)/sizeof(hfint)]; # Flags \
+                     } header;
 #else
   #define VAROBJECT_HEADER  \
                object GCself;  # Selbstpointer für GC \
                uintL tfl;      # Type, Flags, Länge
 #endif
-typedef struct {
-  VAROBJECT_HEADER
-} varobject_;
+typedef struct { VAROBJECT_HEADER }
+        varobject_;
 typedef varobject_ *  Varobject;
 #ifdef TYPECODES
   #define GCself  header._GCself
@@ -3547,22 +4335,22 @@ typedef varobject_ *  Varobject;
 #   Extended-Records have room for up to 255 elements and 255 extra (non-Lisp)
 #   elements.
 # Long-Records are recognized by their type field:
-#   rectype == Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector,
+#   rectype == Rectype_Sbvector,
 #              Rectype_Sstring, Rectype_Imm_Sstring, Rectype_Imm_SmallSstring,
 #              Rectype_Svector.
 # The others are partitioned into:
 #   - Simple-Records, if rectype < rectype_limit.
 #   - Extended-Records, if rectype >= rectype_limit.
 
-typedef struct {
-  VAROBJECT_HEADER # Selbstpointer für GC
-  #ifdef TYPECODES
-    uintB recflags;  # bei OtherRecord: Flags
-    sintB rectype;   # bei OtherRecord: Untertyp
-    uintW recfiller; # Länge u.a.
-  #endif
-  object recdata[unspecified]; # Elemente
-} record_;
+typedef struct { VAROBJECT_HEADER # Selbstpointer für GC
+                 #ifdef TYPECODES
+                 uintB recflags;  # bei OtherRecord: Flags
+                 sintB rectype;   # bei OtherRecord: Untertyp
+                 uintW recfiller; # Länge u.a.
+                 #endif
+                 object recdata[unspecified]; # Elemente
+               }
+        record_;
 typedef record_ *  Record;
 # Zugriff auf type, flags:
   #ifdef TYPECODES
@@ -3596,9 +4384,8 @@ typedef record_ *  Record;
   #define LRECORD_HEADER  \
                  VAROBJECT_HEADER # Selbstpointer für GC, tfl
 #endif
-typedef struct {
-  LRECORD_HEADER
-} lrecord_;
+typedef struct { LRECORD_HEADER }
+        lrecord_;
 typedef lrecord_ *  Lrecord;
 #ifdef TYPECODES
   #define lrecord_length(ptr)  ((ptr)->length)
@@ -3616,10 +4403,10 @@ typedef lrecord_ *  Lrecord;
   #define SRECORD_HEADER  \
                  VAROBJECT_HEADER # Selbstpointer für GC, tfl
 #endif
-typedef struct {
-  SRECORD_HEADER
-  object recdata[unspecified]; # Elemente, reclength Stück
-} srecord_;
+typedef struct { SRECORD_HEADER
+                 object recdata[unspecified]; # Elemente, reclength Stück
+               }
+        srecord_;
 typedef srecord_ *  Srecord;
 #ifdef TYPECODES
   #define srecord_length(ptr)  ((ptr)->reclength)
@@ -3639,11 +4426,11 @@ typedef srecord_ *  Srecord;
   #define XRECORD_HEADER  \
                  VAROBJECT_HEADER  # Selbstpointer für GC, tfl
 #endif
-typedef struct {
-  XRECORD_HEADER
-  object recdata[unspecified];  # Elemente, reclength Stück
-  # uintB  recxdata[unspecified]; # Extra-Elemente, recxlength Stück
-} xrecord_;
+typedef struct { XRECORD_HEADER
+                 object recdata[unspecified];  # Elemente, reclength Stück
+               # uintB  recxdata[unspecified]; # Extra-Elemente, recxlength Stück
+               }
+        xrecord_;
 typedef xrecord_ *  Xrecord;
 #ifdef TYPECODES
   #define xrecord_length(ptr)  ((ptr)->reclength)
@@ -3665,26 +4452,16 @@ typedef xrecord_ *  Xrecord;
          Rectype_Hashtable = rectype_limit,
          #ifndef TYPECODES
                           # Here the arrays start.
-         Rectype_vector,            /* 1 */ # Iarray, not Srecord/Xrecord
-         Rectype_bvector,           /* 2 */ # Iarray, not Srecord/Xrecord
-         Rectype_b2vector,          /* 3 */ # Iarray, not Srecord/Xrecord
-         Rectype_b4vector,          /* 4 */ # Iarray, not Srecord/Xrecord
-         Rectype_b8vector,          /* 5 */ # Iarray, not Srecord/Xrecord
-         Rectype_b16vector,         /* 6 */ # Iarray, not Srecord/Xrecord
-         Rectype_b32vector,         /* 7 */ # Iarray, not Srecord/Xrecord
-           rectype_unused1,         /* 8 */
-         Rectype_Svector,           /* 9 */ # Svector, not Srecord/Xrecord
-         Rectype_Sbvector,         /* 10 */ # Sbvector, not Srecord/Xrecord
-         Rectype_Sb2vector,        /* 11 */ # Sbvector, not Srecord/Xrecord
-         Rectype_Sb4vector,        /* 12 */ # Sbvector, not Srecord/Xrecord
-         Rectype_Sb8vector,        /* 13 */ # Sbvector, not Srecord/Xrecord
-         Rectype_Sb16vector,       /* 14 */ # Sbvector, not Srecord/Xrecord
-         Rectype_Sb32vector,       /* 15 */ # Sbvector, not Srecord/Xrecord
-         Rectype_Sstring,          /* 16 */ # Sstring, not Srecord/Xrecord
-         Rectype_Imm_Sstring,      /* 17 */ # immutable Sstring, not Srecord/Xrecord
-         Rectype_Imm_SmallSstring, /* 18 */ # immutable SmallSstring, not Srecord/Xrecord, only used #ifdef HAVE_SMALL_SSTRING
-         Rectype_string,           /* 19 */ # Iarray, not Srecord/Xrecord
-         Rectype_mdarray,          /* 20 */ # Iarray, not Srecord/Xrecord
+         Rectype_vector,           /* 1 */ # Iarray, not Srecord/Xrecord
+         Rectype_bvector,          /* 2 */ # Iarray, not Srecord/Xrecord
+         Rectype_Sbvector,         /* 3 */ # Sbvector, not Srecord/Xrecord
+           rectype_unused1,        /* 4 */
+         Rectype_Svector,          /* 5 */ # Svector, not Srecord/Xrecord
+         Rectype_Sstring,          /* 6 */ # Sstring, not Srecord/Xrecord
+         Rectype_Imm_Sstring,      /* 7 */ # immutable Sstring, not Srecord/Xrecord
+         Rectype_Imm_SmallSstring, /* 8 */ # immutable SmallSstring, not Srecord/Xrecord, only used #ifdef HAVE_SMALL_SSTRING
+         Rectype_string,           /* 9 */ # Iarray, not Srecord/Xrecord
+         Rectype_mdarray,         /* 10 */ # Iarray, not Srecord/Xrecord
                           # Here the arrays end.
                           # Here the numbers start.
          Rectype_Bignum,                # Bignum, not Srecord/Xrecord
@@ -3735,41 +4512,43 @@ typedef xrecord_ *  Xrecord;
 # -------------------------- the various types -------------------------- #
 
 # Cons
-typedef struct {
-  object cdr; # CDR
-  object car; # CAR
-} cons_;
+typedef struct { object cdr; # CDR
+                 object car; # CAR
+               }
+        cons_;
 typedef cons_ *  Cons;
 
 # Ratio
 typedef struct {
-  #ifdef SPVW_MIXED
-  XRECORD_HEADER
-  #endif
-  object rt_num; # Zähler, Integer
-  object rt_den; # Nenner, Integer >0
-} ratio_;
+                 #ifdef SPVW_MIXED
+                 XRECORD_HEADER
+                 #endif
+                 object rt_num; # Zähler, Integer
+                 object rt_den; # Nenner, Integer >0
+               }
+        ratio_;
 typedef ratio_ *  Ratio;
 
 # Complex
 typedef struct {
-  #ifdef SPVW_MIXED
-  XRECORD_HEADER
-  #endif
-  object c_real; # Realteil, reelle Zahl
-  object c_imag; # Imaginärteil, reelle Zahl
-} complex_;
+                 #ifdef SPVW_MIXED
+                 XRECORD_HEADER
+                 #endif
+                 object c_real; # Realteil, reelle Zahl
+                 object c_imag; # Imaginärteil, reelle Zahl
+               }
+        complex_;
 typedef complex_ *  Complex;
 
 # Symbol
-typedef struct {
-  VAROBJECT_HEADER
-  object symvalue;    # Wertzelle
-  object symfunction; # Funktiondefinitionszelle
-  object proplist;    # Property-Liste
-  object pname;       # Printname
-  object homepackage; # Home-Package oder NIL
-} symbol_;
+typedef struct { VAROBJECT_HEADER
+                 object symvalue;    # Wertzelle
+                 object symfunction; # Funktiondefinitionszelle
+                 object proplist;    # Property-Liste
+                 object pname;       # Printname
+                 object homepackage; # Home-Package oder NIL
+               }
+        symbol_;
 typedef symbol_ *  Symbol;
 #define symbol_objects_offset  offsetof(symbol_,symvalue)
 
@@ -4033,13 +4812,13 @@ typedef symbol_ *  Symbol;
   #endif
 
 # Bignums
-typedef struct {
-  VAROBJECT_HEADER  # Selbstpointer für GC
-  #ifdef TYPECODES
-  uintC length;     # Länge in Digits
-  #endif
-  uintD data[unspecified]; # Zahl in Zweierkomplementdarstellung
-} bignum_;
+typedef struct { VAROBJECT_HEADER  # Selbstpointer für GC
+                 #ifdef TYPECODES
+                 uintC length;     # Länge in Digits
+                 #endif
+                 uintD data[unspecified]; # Zahl in Zweierkomplementdarstellung
+               }
+        bignum_;
 typedef bignum_ *  Bignum;
 # The length is actually an uintWC.
 #ifdef TYPECODES
@@ -4051,17 +4830,17 @@ typedef bignum_ *  Bignum;
 
 # Single-Floats
 typedef uint32 ffloat; # 32-Bit-Float im IEEE-Format
-typedef union {
-  ffloat eksplicit;    # Wert, explizit
-  #ifdef FAST_FLOAT
-  float machine_float; # Wert, als C-'float'
-  #endif
-} ffloatjanus;
+typedef union { ffloat eksplicit;    # Wert, explizit
+                #ifdef FAST_FLOAT
+                float machine_float; # Wert, als C-'float'
+                #endif
+              }
+        ffloatjanus;
 #ifndef WIDE
-typedef struct {
-  VAROBJECT_HEADER            # Selbstpointer für GC
-  ffloatjanus representation; # Wert
-} ffloat_;
+typedef struct { VAROBJECT_HEADER            # Selbstpointer für GC
+                 ffloatjanus representation; # Wert
+               }
+        ffloat_;
 typedef ffloat_ *  Ffloat;
 #define ffloat_value(obj)  (TheFfloat(obj)->float_value)
 #else
@@ -4082,31 +4861,31 @@ typedef # 64-Bit-Float im IEEE-Format:
             struct {uint32 mlo,semhi;}
           #endif
         #endif
-  dfloat;
-typedef union {
-  dfloat eksplicit;      # Wert, explizit
-  #ifdef FAST_DOUBLE
-  double machine_double; # Wert, als C-'double'
-  #endif
-} dfloatjanus;
-typedef struct {
-  VAROBJECT_HEADER            # Selbstpointer für GC
-  dfloatjanus representation; # Wert
-} dfloat_;
+        dfloat;
+typedef union { dfloat eksplicit;      # Wert, explizit
+                #ifdef FAST_DOUBLE
+                double machine_double; # Wert, als C-'double'
+                #endif
+              }
+        dfloatjanus;
+typedef struct { VAROBJECT_HEADER            # Selbstpointer für GC
+                 dfloatjanus representation; # Wert
+               }
+        dfloat_;
 typedef dfloat_ *  Dfloat;
 
 # Single- und Double-Floats
   #define float_value  representation.eksplicit
 
 # Long-Floats
-typedef struct {
-  VAROBJECT_HEADER   # Selbstpointer für GC
-  #ifdef TYPECODES
-  uintC  len;        # Länge der Mantisse in Digits
-  #endif
-  uint32 expo;       # Exponent
-  uintD  data[unspecified]; # Mantisse
-} lfloat_;
+typedef struct { VAROBJECT_HEADER   # Selbstpointer für GC
+                 #ifdef TYPECODES
+                 uintC  len;        # Länge der Mantisse in Digits
+                 #endif
+                 uint32 expo;       # Exponent
+                 uintD  data[unspecified]; # Mantisse
+               }
+        lfloat_;
 typedef lfloat_ *  Lfloat;
 # The length is actually an uintWC.
 #ifdef TYPECODES
@@ -4118,27 +4897,26 @@ typedef lfloat_ *  Lfloat;
 
 # Simple-Array (umfasst einfache eindimensionale Arrays:
 # Simple-Bit-Vector, Simple-String, Simple-Vector)
-typedef struct {
-  LRECORD_HEADER # Selbstpointer für GC, Länge in Elementen
-} sarray_;
+typedef struct { LRECORD_HEADER } # Selbstpointer für GC, Länge in Elementen
+        sarray_;
 typedef sarray_ *  Sarray;
 #define sarray_length(ptr)  lrecord_length(ptr)
 #define Sarray_length(obj)  sarray_length(TheSarray(obj))
 
 # Simple-Bit-Vektor
-typedef struct {
-  LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
-  uint8  data[unspecified]; # Bits, in Bytes unterteilt
-} sbvector_;
+typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
+                 uint8  data[unspecified]; # Bits, in Bytes unterteilt
+               }
+        sbvector_;
 typedef sbvector_ *  Sbvector;
 #define sbvector_length(ptr)  sarray_length(ptr)
 #define Sbvector_length(obj)  sbvector_length(TheSbvector(obj))
 
 # Simple-String (a.k.a. "normal simple string")
-typedef struct {
-  LRECORD_HEADER # Selbstpointer für GC, Länge in Characters
-  chart  data[unspecified]; # Characters
-} sstring_;
+typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Characters
+                 chart  data[unspecified]; # Characters
+               }
+        sstring_;
 typedef sstring_ *  Sstring;
 #define sstring_length(ptr)  sarray_length(ptr)
 #define Sstring_length(obj)  sstring_length(TheSstring(obj))
@@ -4146,37 +4924,37 @@ typedef sstring_ *  Sstring;
 # Simple-String with only one byte per character (a.k.a. "small simple string")
 #if !defined(TYPECODES) && defined(UNICODE) && ((defined(GNU) && !defined(RISCOS) && !defined(CONVEX)) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(WATCOM) || defined(BORLAND) || defined(MICROSOFT))
 #define HAVE_SMALL_SSTRING
-typedef struct {
-  LRECORD_HEADER # Selbstpointer für GC, Länge in Characters
-  scint  data[unspecified]; # Characters
-} small_sstring_;
+typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Characters
+                 scint  data[unspecified]; # Characters
+               }
+        small_sstring_;
 typedef small_sstring_ *  SmallSstring;
 # use sstring_length and Sstring_length for the accessing the length
 #endif
 
 # Simple-Vector
-typedef struct {
-  LRECORD_HEADER # Selbstpointer für GC, Länge in Objekten
-  object data[unspecified]; # Elemente
-} svector_;
+typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Objekten
+                 object data[unspecified]; # Elemente
+               }
+        svector_;
 typedef svector_ *  Svector;
 #define svector_length(ptr)  sarray_length(ptr)
 #define Svector_length(obj)  svector_length(TheSvector(obj))
 
 # nicht-simpler, indirekter Array
-typedef struct {
-  VAROBJECT_HEADER  # Selbstpointer für GC
-  #ifdef TYPECODES
-  uintB flags;      # Flags
-                    # dann ein Byte unbenutzt
-  uintC rank;       # Rang n
-  #endif
-  object data;      # Datenvektor
-  uintL totalsize;  # Totalsize = Produkt der n Dimensionen
-  uintL dims[unspecified]; # evtl. displaced-offset,
-                           # n Dimensionen,
-                           # evtl. Fill-Pointer
-} iarray_;
+typedef struct { VAROBJECT_HEADER  # Selbstpointer für GC
+                 #ifdef TYPECODES
+                 uintB flags;      # Flags
+                                   # dann ein Byte unbenutzt
+                 uintC rank;       # Rang n
+                 #endif
+                 object data;      # Datenvektor
+                 uintL totalsize;  # Totalsize = Produkt der n Dimensionen
+                 uintL dims[unspecified]; # evtl. displaced-offset,
+                                   # n Dimensionen,
+                                   # evtl. Fill-Pointer
+               }
+        iarray_;
 typedef iarray_ *  Iarray;
 #define iarray_data_offset  offsetof(iarray_,data)
 # The rank is actually an uintWC.
@@ -4209,74 +4987,51 @@ typedef iarray_ *  Iarray;
   #define arrayflags_dispoffset_bit  4 # gesetzt, wenn Platz für den
                                        # Displaced-Offset vorhanden ist
                                        # (<==> Array adjustable oder displaced)
+  #define arrayflags_notbytep_bit    3 # gelöscht bei Byte-Vektoren
   #define arrayflags_atype_mask  0x07  # Maske für Elementtyp
 # Elementtypen von Arrays in Bits 2..0 der flags:
   # Die ersten sind so gewählt, dass 2^Atype_nBit = n ist.
-  #define Atype_Bit    0
+  #define Atype_Bit    0         # arrayflags_notbytep_bit gesetzt!
   #define Atype_2Bit   1
   #define Atype_4Bit   2
   #define Atype_8Bit   3
   #define Atype_16Bit  4
   #define Atype_32Bit  5
-  #define Atype_T      6
-  #define Atype_Char   7
+  #define Atype_T      6         # arrayflags_notbytep_bit gesetzt!
+  #define Atype_Char   7         # arrayflags_notbytep_bit gesetzt!
 
 # Typ von Arrays:
   #ifdef TYPECODES
     #define Array_type(obj)  typecode(obj)
-    #define Array_type_bvector     bvector_type      # Iarray
-    #define Array_type_b2vector    b2vector_type     # Iarray
-    #define Array_type_b4vector    b4vector_type     # Iarray
-    #define Array_type_b8vector    b8vector_type     # Iarray
-    #define Array_type_b16vector   b16vector_type    # Iarray
-    #define Array_type_b32vector   b32vector_type    # Iarray
-    #define Array_type_string      string_type       # Iarray
-    #define Array_type_vector      vector_type       # Iarray
-    #define Array_type_mdarray     mdarray_type      # Iarray
-    #define Array_type_sbvector    sbvector_type     # Sbvector
-    #define Array_type_sb2vector   sb2vector_type    # Sbvector
-    #define Array_type_sb4vector   sb4vector_type    # Sbvector
-    #define Array_type_sb8vector   sb8vector_type    # Sbvector
-    #define Array_type_sb16vector  sb16vector_type   # Sbvector
-    #define Array_type_sb32vector  sb32vector_type   # Sbvector
-    #define Array_type_sstring     sstring_type      # Sstring
-    #define Array_type_svector     svector_type      # Svector
-    # Array_type_simple_bit_vector(atype)
-    # maps Atype_[n]Bit to Array_type_sb[n]vector. Depends on TB0, TB1, TB2.
-    #define Array_type_simple_bit_vector(atype)  \
-      (Array_type_sbvector + ((atype)<<TB0) + ((atype)&(bit(TB0+1)-bit(TB1))) + ((atype)&(bit(TB1+1)-bit(TB2))))
+    #define Array_type_bvector   bvector_type      # Iarray
+    #define Array_type_string    string_type       # Iarray
+    #define Array_type_vector    vector_type       # Iarray
+    #define Array_type_mdarray   mdarray_type      # Iarray
+    #define Array_type_sbvector  sbvector_type     # Sbvector
+    #define Array_type_sstring   sstring_type      # Sstring
+    #define Array_type_svector   svector_type      # Svector
   #else
     #define Array_type(obj)  Record_type(obj)
-    #define Array_type_bvector     Rectype_bvector     # Iarray
-    #define Array_type_b2vector    Rectype_b2vector    # Iarray
-    #define Array_type_b4vector    Rectype_b4vector    # Iarray
-    #define Array_type_b8vector    Rectype_b8vector    # Iarray
-    #define Array_type_b16vector   Rectype_b16vector   # Iarray
-    #define Array_type_b32vector   Rectype_b32vector   # Iarray
-    #define Array_type_string      Rectype_string      # Iarray
-    #define Array_type_vector      Rectype_vector      # Iarray
-    #define Array_type_mdarray     Rectype_mdarray     # Iarray
-    #define Array_type_sbvector    Rectype_Sbvector    # Sbvector
-    #define Array_type_sb2vector   Rectype_Sb2vector   # Sbvector
-    #define Array_type_sb4vector   Rectype_Sb4vector   # Sbvector
-    #define Array_type_sb8vector   Rectype_Sb8vector   # Sbvector
-    #define Array_type_sb16vector  Rectype_Sb16vector  # Sbvector
-    #define Array_type_sb32vector  Rectype_Sb32vector  # Sbvector
-    #define Array_type_sstring     Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring   # Sstring, SmallSstring
-    #define Array_type_svector     Rectype_Svector     # Svector
+    #define Array_type_bvector   Rectype_bvector   # Iarray
+    #define Array_type_string    Rectype_string    # Iarray
+    #define Array_type_vector    Rectype_vector    # Iarray
+    #define Array_type_mdarray   Rectype_mdarray   # Iarray
+    #define Array_type_sbvector  Rectype_Sbvector  # Sbvector
+    #define Array_type_sstring   Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring   # Sstring, SmallSstring
+    #define Array_type_svector   Rectype_Svector   # Svector
   #endif
 
 # Packages
-typedef struct {
-  XRECORD_HEADER
-  object pack_external_symbols;
-  object pack_internal_symbols;
-  object pack_shadowing_symbols;
-  object pack_use_list;
-  object pack_used_by_list;
-  object pack_name;
-  object pack_nicknames;
-} *  Package;
+typedef struct { XRECORD_HEADER
+                 object pack_external_symbols;
+                 object pack_internal_symbols;
+                 object pack_shadowing_symbols;
+                 object pack_use_list;
+                 object pack_used_by_list;
+                 object pack_name;
+                 object pack_nicknames;
+               }
+        *  Package;
 #define package_length  ((sizeof(*(Package)0)-offsetofa(record_,recdata))/sizeof(object))
 # Manche Packages sind case-sensitive.
   #define mark_pack_casesensitive(obj)  record_flags_set(ThePackage(obj),bit(0))
@@ -4286,22 +5041,22 @@ typedef struct {
   #define pack_deletedp(obj)  (!((record_flags(ThePackage(obj)) & bit(7)) == 0))
 
 # Hash-Tables
-typedef struct {
-  XRECORD_HEADER
-  #ifdef GENERATIONAL_GC
-  object ht_lastrehash;
-  #endif
-  object ht_size;
-  object ht_maxcount;
-  object ht_itable;
-  object ht_ntable;
-  object ht_kvtable;
-  object ht_freelist;
-  object ht_count;
-  object ht_rehash_size;
-  object ht_mincount_threshold;
-  object ht_mincount;
-} *  Hashtable;
+typedef struct { XRECORD_HEADER
+                 #ifdef GENERATIONAL_GC
+                 object ht_lastrehash;
+                 #endif
+                 object ht_size;
+                 object ht_maxcount;
+                 object ht_itable;
+                 object ht_ntable;
+                 object ht_kvtable;
+                 object ht_freelist;
+                 object ht_count;
+                 object ht_rehash_size;
+                 object ht_mincount_threshold;
+                 object ht_mincount;
+               }
+        *  Hashtable;
 #define hashtable_length  ((sizeof(*(Hashtable)0)-offsetofa(record_,recdata))/sizeof(object))
 # Markiere eine Hash-Table als neu zu reorganisieren:
 # mark_ht_invalid(TheHashtable(ht));
@@ -4316,112 +5071,112 @@ typedef struct {
   #endif
 
 # Readtables
-typedef struct {
-  XRECORD_HEADER
-  object readtable_syntax_table;
-  object readtable_macro_table;
-  object readtable_case;
-} *  Readtable;
+typedef struct { XRECORD_HEADER
+                 object readtable_syntax_table;
+                 object readtable_macro_table;
+                 object readtable_case;
+               }
+        *  Readtable;
 #define readtable_length  ((sizeof(*(Readtable)0)-offsetofa(record_,recdata))/sizeof(object))
 
 # Pathnames
-typedef struct {
-  XRECORD_HEADER
-  #if HAS_HOST
-    object pathname_host;
-  #endif
-  #if HAS_DEVICE
-    object pathname_device;
-  #endif
-  #if 1
-    object pathname_directory;
-    object pathname_name;
-    object pathname_type;
-  #endif
-  #if HAS_VERSION
-    object pathname_version;
-  #endif
-} *  Pathname;
+typedef struct { XRECORD_HEADER
+                 #if HAS_HOST
+                   object pathname_host;
+                 #endif
+                 #if HAS_DEVICE
+                   object pathname_device;
+                 #endif
+                 #if 1
+                   object pathname_directory;
+                   object pathname_name;
+                   object pathname_type;
+                 #endif
+                 #if HAS_VERSION
+                   object pathname_version;
+                 #endif
+               }
+        *  Pathname;
 #define pathname_length  ((sizeof(*(Pathname)0)-offsetofa(record_,recdata))/sizeof(object))
 
 #ifdef LOGICAL_PATHNAMES
 # Logical Pathnames
-typedef struct {
-  XRECORD_HEADER
-  object pathname_host;
-  object pathname_directory;
-  object pathname_name;
-  object pathname_type;
-  object pathname_version;
-} *  Logpathname;
+typedef struct { XRECORD_HEADER
+                 object pathname_host;
+                 object pathname_directory;
+                 object pathname_name;
+                 object pathname_type;
+                 object pathname_version;
+               }
+        *  Logpathname;
 #define logpathname_length  ((sizeof(*(Logpathname)0)-offsetofa(record_,recdata))/sizeof(object))
 #endif
 
 # Random-States
-typedef struct {
-  XRECORD_HEADER
-  object random_state_seed;
-} *  Random_state;
+typedef struct { XRECORD_HEADER
+                 object random_state_seed;
+               }
+        *  Random_state;
 #define random_state_length  ((sizeof(*(Random_state)0)-offsetofa(record_,recdata))/sizeof(object))
 
 # Bytes
-typedef struct {
-  XRECORD_HEADER
-  object byte_size;
-  object byte_position;
-} *  Byte;
+typedef struct { XRECORD_HEADER
+                 object byte_size;
+                 object byte_position;
+               }
+        *  Byte;
 #define byte_length  ((sizeof(*(Byte)0)-offsetofa(record_,recdata))/sizeof(object))
 
 # Fsubrs
-typedef struct {
-  XRECORD_HEADER
-  object name;
-  object argtype;
-  void* function; # actually a fsubr_function*
-} *  Fsubr;
+typedef struct { XRECORD_HEADER
+                 object name;
+                 object argtype;
+                 void* function; # actually a fsubr_function*
+               }
+        *  Fsubr;
 #define fsubr_length  2
 #define fsubr_xlength  (sizeof(*(Fsubr)0)-offsetofa(record_,recdata)-fsubr_length*sizeof(object))
 
 # Load-time-evals
-typedef struct {
-  XRECORD_HEADER
-  object loadtimeeval_form;
-} *  Loadtimeeval;
+typedef struct { XRECORD_HEADER
+                 object loadtimeeval_form;
+               }
+        *  Loadtimeeval;
 #define loadtimeeval_length  ((sizeof(*(Loadtimeeval)0)-offsetofa(record_,recdata))/sizeof(object))
 
 # Symbol-macros
-typedef struct {
-  XRECORD_HEADER
-  object symbolmacro_expansion;
-} *  Symbolmacro;
+typedef struct { XRECORD_HEADER
+                 object symbolmacro_expansion;
+               }
+        *  Symbolmacro;
 #define symbolmacro_length  ((sizeof(*(Symbolmacro)0)-offsetofa(record_,recdata))/sizeof(object))
 
 # Encoding
-typedef struct {
-  XRECORD_HEADER
-  object enc_eol; # line termination, a keyword (:UNIX, :MAC, :DOS)
-  object enc_towcs_error; # input error action, :ERROR or :IGNORE or a character
-  object enc_tombs_error; # output error action, :ERROR or :IGNORE or a character or an uint8
-  #ifdef UNICODE
-  object enc_charset; # character set, a symbol in the CHARSET package
-                      # or a simple-string
-  # Functions to convert bytes to characters.
-    object enc_mblen; # uintL (*) (object encoding, const uintB* src, const uintB* srcend);
-    object enc_mbstowcs; # void (*) (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
-  # Functions to convert characters to bytes.
-    object enc_wcslen; # uintL (*) (object encoding, const chart* src, const chart* srcend);
-    object enc_wcstombs; # void (*) (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
-  # Function to return the set of defined characters in the range [start,end],
-  # as a simple-string of intervals #(start1 end1 ... startm endm).
-    object enc_range; # object (*) (object encoding, uintL start, uintL end);
-  # An auxiliary pointer.
-  object enc_table;
-  # Minimum number of bytes needed to represent a character.
-  uintL min_bytes_per_char;
-  # Maximum number of bytes needed to represent a character.
-  uintL max_bytes_per_char;
-  #endif
-} *  Encoding;
+typedef struct { XRECORD_HEADER
+                 object enc_eol; # line termination, a keyword (:UNIX, :MAC, :DOS)
+                 object enc_towcs_error; # input error action, :ERROR or :IGNORE or a character
+                 object enc_tombs_error; # output error action, :ERROR or :IGNORE or a character or an uint8
+                 #ifdef UNICODE
+                 object enc_charset; # character set, a symbol in the CHARSET package
+                                     # or a simple-string
+                 # Functions to convert bytes to characters.
+                   object enc_mblen; # uintL (*) (object encoding, const uintB* src, const uintB* srcend);
+                   object enc_mbstowcs; # void (*) (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
+                 # Functions to convert characters to bytes.
+                   object enc_wcslen; # uintL (*) (object encoding, const chart* src, const chart* srcend);
+                   object enc_wcstombs; # void (*) (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
+                 # Function to return the set of defined characters in the range [start,end],
+                 # as a simple-string of intervals #(start1 end1 ... startm endm).
+                   object enc_range; # object (*) (object encoding, uintL start, uintL end);
+                 # An auxiliary pointer.
+                 object enc_table;
+                 # Minimum number of bytes needed to represent a character.
+                 uintL min_bytes_per_char;
+                 # Maximum number of bytes needed to represent a character.
+                 uintL max_bytes_per_char;
+                 #endif
+               }
+        *  Encoding;
 #ifdef UNICODE
   #define encoding_length  10
 #else
@@ -4456,10 +5211,10 @@ typedef struct {
 
 #ifdef FOREIGN
 # Foreign-Pointer-Verpackung
-typedef struct {
-  XRECORD_HEADER
-  void* fp_pointer;
-} *  Fpointer;
+typedef struct { XRECORD_HEADER
+                 void* fp_pointer;
+               }
+        *  Fpointer;
 #define fpointer_length  0
 #define fpointer_xlength  (sizeof(*(Fpointer)0)-offsetofa(record_,recdata)-fpointer_length*sizeof(object))
 #define mark_fp_invalid(ptr)  record_flags_set(ptr,bit(7))
@@ -4472,66 +5227,66 @@ typedef struct {
 #ifdef DYNAMIC_FFI
 
 # Foreign-Adressen
-typedef struct {
-  XRECORD_HEADER
-  object fa_base;
-  uintP fa_offset;
-} * Faddress;
+typedef struct { XRECORD_HEADER
+                 object fa_base;
+                 uintP fa_offset;
+               }
+        * Faddress;
 #define faddress_length  1
 #define faddress_xlength  (sizeof(*(Faddress)0)-offsetofa(record_,recdata)-faddress_length*sizeof(object))
 
 # Foreign-Variables
-typedef struct {
-  XRECORD_HEADER
-  object fv_name;
-  object fv_address;
-  object fv_size;
-  object fv_type;
-} * Fvariable;
+typedef struct { XRECORD_HEADER
+                 object fv_name;
+                 object fv_address;
+                 object fv_size;
+                 object fv_type;
+               }
+        * Fvariable;
 #define fvariable_length  ((sizeof(*(Fvariable)0)-offsetofa(record_,recdata))/sizeof(object))
 
 # Foreign-Functions
-typedef struct {
-  XRECORD_HEADER
-  object ff_name;
-  object ff_address;
-  object ff_resulttype;
-  object ff_argtypes;
-  object ff_flags;
-} * Ffunction;
+typedef struct { XRECORD_HEADER
+                 object ff_name;
+                 object ff_address;
+                 object ff_resulttype;
+                 object ff_argtypes;
+                 object ff_flags;
+               }
+        * Ffunction;
 #define ffunction_length  ((sizeof(*(Ffunction)0)-offsetofa(record_,recdata))/sizeof(object))
 
 #endif
 
 # Weak-Pointer
-typedef struct {
-  XRECORD_HEADER
-  object wp_cdr;   # active weak-pointers form a chained list
-  object wp_value; # the referenced object
-} * Weakpointer;
+typedef struct { XRECORD_HEADER
+                 object wp_cdr;   # active weak-pointers form a chained list
+                 object wp_value; # the referenced object
+               }
+        * Weakpointer;
 # Both wp_cdr and wp_value are invisible to gc_mark routines.
 # When the weak-pointer becomes inactive, both fields are turned to unbound.
 #define weakpointer_length  0
 #define weakpointer_xlength  (sizeof(*(Weakpointer)0)-offsetofa(record_,recdata)-weakpointer_length*sizeof(object))
 
 # Finalisierer
-typedef struct {
-  XRECORD_HEADER
-  object fin_alive;    # nur solange dieses Objekt lebt
-  object fin_trigger;  # der Tod dieses Objekts wird abgewartet
-  object fin_function; # dann wird diese Funktion aufgerufen
-  object fin_cdr;
-} * Finalizer;
+typedef struct { XRECORD_HEADER
+                 object fin_alive;    # nur solange dieses Objekt lebt
+                 object fin_trigger;  # der Tod dieses Objekts wird abgewartet
+                 object fin_function; # dann wird diese Funktion aufgerufen
+                 object fin_cdr;
+               }
+        * Finalizer;
 #define finalizer_length  ((sizeof(*(Finalizer)0)-offsetofa(record_,recdata))/sizeof(object))
 
 #ifdef SOCKET_STREAMS
 # Socket-Server
-typedef struct {
-  XRECORD_HEADER
-  object socket_handle; # socket handle
-  object host; # host string
-  object port; # port number
-} * Socket_server;
+typedef struct { XRECORD_HEADER
+                 object socket_handle; # socket handle
+                 object host; # host string
+                 object port; # port number
+               }
+        * Socket_server;
 #define socket_server_length  ((sizeof(*(Socket_server)0)-offsetofa(record_,recdata))/sizeof(object))
 
 # Information about any of the two ends of a socket connection.
@@ -4549,49 +5304,50 @@ typedef struct host_data {
 #ifdef YET_ANOTHER_RECORD
 
 # Yet another record
-typedef struct {
-  XRECORD_HEADER
-  object yetanother_x;
-  object yetanother_y;
-  object yetanother_z;
-} * Yetanother;
+typedef struct { XRECORD_HEADER
+                 object yetanother_x;
+                 object yetanother_y;
+                 object yetanother_z;
+               }
+        * Yetanother;
 #define yetanother_length  ((sizeof(*(Yetanother)0)-offsetofa(record_,recdata))/sizeof(object))
 
 #endif
 
 # Streams with metaclass BUILT-IN-CLASS
 typedef struct {
-  #ifdef case_stream
-    VAROBJECT_HEADER # Selbstpointer für GC
-    uintB strmflags; # Flags
-    uintB strmtype;  # Untertyp (als sintB >=0 !)
-    uintB reclength; # Länge in Objekten
-    uintB recxlength; # Länge der Extra-Elemente
-  #else
-    # Muss strmflags und strmtype aus Platzgründen in einem Fixnum
-    # in recdata[0] unterbringen.
-    #if !((oint_addr_len+oint_addr_shift>=24) && (8>=oint_addr_shift))
-      #error "No room for stream flags -- Stream-Flags neu unterbringen!!"
-    #endif
-    XRECORD_HEADER
-    uintB strmfiller1;
-    uintB strmflags; # Flags
-    uintB strmtype;  # Untertyp
-    uintB strmfiller2;
-  #endif
-  object strm_rd_by;
-  object strm_rd_by_array;
-  object strm_wr_by;
-  object strm_wr_by_array;
-  object strm_rd_ch;
-  object strm_pk_ch;
-  object strm_rd_ch_array;
-  object strm_rd_ch_last;
-  object strm_wr_ch;
-  object strm_wr_ch_array;
-  object strm_wr_ch_lpos;
-  object strm_other[unspecified]; # typspezifische Komponenten
-} *  Stream;
+                 #ifdef case_stream
+                 VAROBJECT_HEADER # Selbstpointer für GC
+                 uintB strmflags; # Flags
+                 uintB strmtype;  # Untertyp (als sintB >=0 !)
+                 uintB reclength; # Länge in Objekten
+                 uintB recxlength; # Länge der Extra-Elemente
+                 #else
+                 # Muss strmflags und strmtype aus Platzgründen in einem Fixnum
+                 # in recdata[0] unterbringen.
+                 #if !((oint_addr_len+oint_addr_shift>=24) && (8>=oint_addr_shift))
+                 #error "No room for stream flags -- Stream-Flags neu unterbringen!!"
+                 #endif
+                 XRECORD_HEADER
+                 uintB strmfiller1;
+                 uintB strmflags; # Flags
+                 uintB strmtype;  # Untertyp
+                 uintB strmfiller2;
+                 #endif
+                 object strm_rd_by;
+                 object strm_rd_by_array;
+                 object strm_wr_by;
+                 object strm_wr_by_array;
+                 object strm_rd_ch;
+                 object strm_pk_ch;
+                 object strm_rd_ch_array;
+                 object strm_rd_ch_last;
+                 object strm_wr_ch;
+                 object strm_wr_ch_array;
+                 object strm_wr_ch_lpos;
+                 object strm_other[unspecified]; # typspezifische Komponenten
+               }
+        *  Stream;
 # The macro TheStream actually means TheBuiltinStream.
 #define strm_len  ((sizeof(*(Stream)0)-offsetofa(record_,recdata))/sizeof(object)-unspecified)
 #define stream_length(ptr)  xrecord_length(ptr)
@@ -4716,95 +5472,95 @@ typedef Srecord  Structure;
 #define Structure_length(obj)  structure_length(TheStructure(obj))
 
 # CLOS-Klassen (= Instanzen von <class>), siehe clos.lsp
-typedef struct {
-  SRECORD_HEADER
-  object structure_types_2;   # Liste (metaclass <class>)
-  object metaclass;           # eine Subklasse von <class>
-  object classname;           # ein Symbol
-  object direct_superclasses; # direkte Oberklassen
-  object all_superclasses;    # alle Oberklassen inkl. sich selbst
-  object precedence_list;     # angeordnete Liste aller Oberklassen
-  object slot_location_table; # Hashtabelle Slotname -> wo der Slot sitzt
-  # ab hier nur bei metaclass = <standard-class> oder metaclass = <structure-class>
-  object slots;
-  object default_initargs;
-  object valid_initargs;
-  object instance_size;
-  # ab hier nur bei metaclass = <standard-class>
-  object shared_slots;
-  object direct_slots;
-  object direct_default_initargs;
-  object other[unspecified];
-} *  Class;
+typedef struct { SRECORD_HEADER
+                 object structure_types_2;   # Liste (metaclass <class>)
+                 object metaclass;           # eine Subklasse von <class>
+                 object classname;           # ein Symbol
+                 object direct_superclasses; # direkte Oberklassen
+                 object all_superclasses;    # alle Oberklassen inkl. sich selbst
+                 object precedence_list;     # angeordnete Liste aller Oberklassen
+                 object slot_location_table; # Hashtabelle Slotname -> wo der Slot sitzt
+                 # ab hier nur bei metaclass = <standard-class> oder metaclass = <structure-class>
+                 object slots;
+                 object default_initargs;
+                 object valid_initargs;
+                 object instance_size;
+                 # ab hier nur bei metaclass = <standard-class>
+                 object shared_slots;
+                 object direct_slots;
+                 object direct_default_initargs;
+                 object other[unspecified];
+               }
+        *  Class;
 
 # CLOS-Instanzen
-typedef struct {
-  SRECORD_HEADER
-  object inst_class; # eine CLOS-Klasse
-  object other[unspecified];
-} *  Instance;
+typedef struct { SRECORD_HEADER
+                 object inst_class; # eine CLOS-Klasse
+                 object other[unspecified];
+               }
+        *  Instance;
 
 # Closures
-typedef struct {
-  SRECORD_HEADER
-  object clos_name;
-  object clos_codevec;
-  object other[unspecified];
-} *  Closure;
+typedef struct { SRECORD_HEADER
+                 object clos_name;
+                 object clos_codevec;
+                 object other[unspecified];
+               }
+        *  Closure;
 # interpretierte Closure:
-typedef struct {
-  SRECORD_HEADER
-  object clos_name;
-  object clos_form;
-  object clos_docstring;
-  object clos_body;
-  object clos_var_env;
-  object clos_fun_env;
-  object clos_block_env;
-  object clos_go_env;
-  object clos_decl_env;
-  object clos_vars;
-  object clos_varflags;
-  object clos_spec_anz;
-  object clos_req_anz;
-  object clos_opt_anz;
-  object clos_opt_inits;
-  object clos_key_anz;
-  object clos_keywords;
-  object clos_key_inits;
-  object clos_allow_flag;
-  object clos_rest_flag;
-  object clos_aux_anz;
-  object clos_aux_inits;
-} *  Iclosure;
+typedef struct { SRECORD_HEADER
+                 object clos_name;
+                 object clos_form;
+                 object clos_docstring;
+                 object clos_body;
+                 object clos_var_env;
+                 object clos_fun_env;
+                 object clos_block_env;
+                 object clos_go_env;
+                 object clos_decl_env;
+                 object clos_vars;
+                 object clos_varflags;
+                 object clos_spec_anz;
+                 object clos_req_anz;
+                 object clos_opt_anz;
+                 object clos_opt_inits;
+                 object clos_key_anz;
+                 object clos_keywords;
+                 object clos_key_inits;
+                 object clos_allow_flag;
+                 object clos_rest_flag;
+                 object clos_aux_anz;
+                 object clos_aux_inits;
+               }
+        *  Iclosure;
 #define iclos_length  ((sizeof(*(Iclosure)0)-offsetofa(record_,recdata))/sizeof(object))
 # compilierte Closure:
-typedef struct {
-  SRECORD_HEADER
-  object clos_name;
-  object clos_codevec;
-  object clos_consts[unspecified]; # Closure-Konstanten
-} *  Cclosure;
+typedef struct { SRECORD_HEADER
+                 object clos_name;
+                 object clos_codevec;
+                 object clos_consts[unspecified]; # Closure-Konstanten
+               }
+        *  Cclosure;
 #define cclosure_length(ptr)  srecord_length(ptr)
 #define Cclosure_length(obj)  cclosure_length(TheCclosure(obj))
 #define clos_venv  clos_consts[0]
-typedef struct {
-  LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
-  # Ab hier der Inhalt des Bitvektors.
-  uintW  ccv_spdepth_1;          # maximale SP-Tiefe, 1-Anteil
-  uintW  ccv_spdepth_jmpbufsize; # maximale SP-Tiefe, jmpbufsize-Anteil
-  uintW  ccv_numreq;    # Anzahl der required parameter
-  uintW  ccv_numopt;    # Anzahl der optionalen Parameter
-  uintB  ccv_flags;     # Flags. Bit 0: ob &REST - Parameter angegeben
-                        #        Bit 7: ob Keyword-Parameter angegeben
-                        #        Bit 6: &ALLOW-OTHER-KEYS-Flag
-                        #        Bit 4: ob generische Funktion
-                        #        Bit 3: ob generische Funktion mit Aufrufhemmung
-  uintB  ccv_signature; # Kürzel für den Argumenttyp, für schnelleres FUNCALL
-  # Falls Keyword-Parameter angegeben:
-  uintW  ccv_numkey;    # Anzahl der Keyword-Parameter
-  uintW  ccv_keyconsts; # Offset in FUNC der Keywords
-} *  Codevec;
+typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
+                 # Ab hier der Inhalt des Bitvektors.
+                 uintW  ccv_spdepth_1;          # maximale SP-Tiefe, 1-Anteil
+                 uintW  ccv_spdepth_jmpbufsize; # maximale SP-Tiefe, jmpbufsize-Anteil
+                 uintW  ccv_numreq;    # Anzahl der required parameter
+                 uintW  ccv_numopt;    # Anzahl der optionalen Parameter
+                 uintB  ccv_flags;     # Flags. Bit 0: ob &REST - Parameter angegeben
+                                       #        Bit 7: ob Keyword-Parameter angegeben
+                                       #        Bit 6: &ALLOW-OTHER-KEYS-Flag
+                                       #        Bit 4: ob generische Funktion
+                                       #        Bit 3: ob generische Funktion mit Aufrufhemmung
+                 uintB  ccv_signature; # Kürzel für den Argumenttyp, für schnelleres FUNCALL
+                 # Falls Keyword-Parameter angegeben:
+                 uintW  ccv_numkey;    # Anzahl der Keyword-Parameter
+                 uintW  ccv_keyconsts; # Offset in FUNC der Keywords
+               }
+        *  Codevec;
 #define CCV_SPDEPTH_1           0
 #define CCV_SPDEPTH_JMPBUFSIZE  2
 #define CCV_NUMREQ              4
@@ -4845,91 +5601,78 @@ typedef struct {
 #         opt_anz          Anzahl optionaler Parameter      uintW
 #         body_flag        Body-Flag                        fsubr_body_t
 # Die Komponente body_flag enthält ein uintW, gemeint ist aber:
-  typedef enum {
-    fsubr_nobody,
-    fsubr_body
-  } fsubr_body_t;
+  typedef enum { fsubr_nobody, fsubr_body } fsubr_body_t;
 # Die Komponente argtype enthält ein Fixnum, gemeint ist aber:
   typedef enum {
-    fsubr_argtype_1_0_nobody,
-    fsubr_argtype_2_0_nobody,
-    fsubr_argtype_1_1_nobody,
-    fsubr_argtype_2_1_nobody,
-    fsubr_argtype_0_body,
-    fsubr_argtype_1_body,
-    fsubr_argtype_2_body
-  } fsubr_argtype_t;
+                fsubr_argtype_1_0_nobody,
+                fsubr_argtype_2_0_nobody,
+                fsubr_argtype_1_1_nobody,
+                fsubr_argtype_2_1_nobody,
+                fsubr_argtype_0_body,
+                fsubr_argtype_1_body,
+                fsubr_argtype_2_body
+               }
+          fsubr_argtype_t;
 # Umwandlung siehe SPVW:
 # extern fsubr_argtype_t fsubr_argtype (uintW req_anz, uintW opt_anz, fsubr_body_t body_flag);
 
 # SUBRs
 # SUBR-Tabellen-Eintrag:
-  typedef struct {
-    lisp_function function; # Funktion
-    object name;            # Name
-    object keywords;        # NIL oder Vektor mit den Keywords
-    uintW argtype;          # Kürzel für den Argumente-Typ
-    uintW req_anz;          # Anzahl required Parameter
-    uintW opt_anz;          # Anzahl optionaler Parameter
-    uintB rest_flag;        # Flag für beliebig viele Argumente
-    uintB key_flag;         # Flag für Keywords
-    uintW key_anz;          # Anzahl Keywordparameter
-  } subr_
-    #if defined(NO_TYPECODES) && (alignment_long < 4) && defined(GNU)
-      # Force all Subrs to be allocated with a 4-byte alignment. GC needs this.
-      __attribute__ ((aligned (4)))
-    #endif
-    ;
+  typedef struct { lisp_function function; # Funktion
+                   object name;            # Name
+                   object keywords;        # NIL oder Vektor mit den Keywords
+                   uintW argtype;          # Kürzel für den Argumente-Typ
+                   uintW req_anz;          # Anzahl required Parameter
+                   uintW opt_anz;          # Anzahl optionaler Parameter
+                   uintB rest_flag;        # Flag für beliebig viele Argumente
+                   uintB key_flag;         # Flag für Keywords
+                   uintW key_anz;          # Anzahl Keywordparameter
+                 }
+          subr_;
   typedef subr_ *  Subr;
 # GC benötigt Information, wo hierin Objekte stehen:
   #define subr_const_offset  offsetof(subr_,name)
   #define subr_const_anz     2
 # Die Komponente rest_flag enthält ein uintB, gemeint ist aber:
-  typedef enum {
-    subr_norest,
-    subr_rest
-  } subr_rest_t;
+  typedef enum { subr_norest, subr_rest } subr_rest_t;
 # Die Komponente key_flag enthält ein uintB, gemeint ist aber:
-  typedef enum {
-    subr_nokey,
-    subr_key,
-    subr_key_allow
-  } subr_key_t;
+  typedef enum { subr_nokey, subr_key, subr_key_allow } subr_key_t;
 # Die Komponente argtype enthält ein uintW, gemeint ist aber:
   typedef enum {
-    subr_argtype_0_0,
-    subr_argtype_1_0,
-    subr_argtype_2_0,
-    subr_argtype_3_0,
-    subr_argtype_4_0,
-    subr_argtype_5_0,
-    subr_argtype_6_0,
-    subr_argtype_0_1,
-    subr_argtype_1_1,
-    subr_argtype_2_1,
-    subr_argtype_3_1,
-    subr_argtype_4_1,
-    subr_argtype_0_2,
-    subr_argtype_1_2,
-    subr_argtype_2_2,
-    subr_argtype_0_3,
-    subr_argtype_1_3,
-    subr_argtype_2_3,
-    subr_argtype_0_4,
-    subr_argtype_0_5,
-    subr_argtype_0_0_rest,
-    subr_argtype_1_0_rest,
-    subr_argtype_2_0_rest,
-    subr_argtype_3_0_rest,
-    subr_argtype_0_0_key,
-    subr_argtype_1_0_key,
-    subr_argtype_2_0_key,
-    subr_argtype_3_0_key,
-    subr_argtype_4_0_key,
-    subr_argtype_0_1_key,
-    subr_argtype_1_1_key,
-    subr_argtype_1_2_key
-  } subr_argtype_t;
+                subr_argtype_0_0,
+                subr_argtype_1_0,
+                subr_argtype_2_0,
+                subr_argtype_3_0,
+                subr_argtype_4_0,
+                subr_argtype_5_0,
+                subr_argtype_6_0,
+                subr_argtype_0_1,
+                subr_argtype_1_1,
+                subr_argtype_2_1,
+                subr_argtype_3_1,
+                subr_argtype_4_1,
+                subr_argtype_0_2,
+                subr_argtype_1_2,
+                subr_argtype_2_2,
+                subr_argtype_0_3,
+                subr_argtype_1_3,
+                subr_argtype_2_3,
+                subr_argtype_0_4,
+                subr_argtype_0_5,
+                subr_argtype_0_0_rest,
+                subr_argtype_1_0_rest,
+                subr_argtype_2_0_rest,
+                subr_argtype_3_0_rest,
+                subr_argtype_0_0_key,
+                subr_argtype_1_0_key,
+                subr_argtype_2_0_key,
+                subr_argtype_3_0_key,
+                subr_argtype_4_0_key,
+                subr_argtype_0_1_key,
+                subr_argtype_1_1_key,
+                subr_argtype_1_2_key
+               }
+          subr_argtype_t;
 # Umwandlung siehe SPVW:
 # extern subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz, subr_rest_t rest_flag, subr_key_t key_flag);
 
@@ -5046,12 +5789,12 @@ typedef struct {
   #endif
   #define TheDfloat(obj)  ((Dfloat)(types_pointable(dfloat_type|bit(sign_bit_t),obj)))
   #define TheLfloat(obj)  ((Lfloat)(types_pointable(lfloat_type|bit(sign_bit_t),obj)))
-  #define TheSarray(obj)  ((Sarray)(types_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type|sstring_type|svector_type,obj)))
-  #define TheSbvector(obj)  ((Sbvector)(types_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type,obj)))
-  #define TheCodevec(obj)  ((Codevec)(types_pointable(sb8vector_type,obj)))
+  #define TheSarray(obj)  ((Sarray)(types_pointable(sbvector_type|sstring_type|svector_type,obj)))
+  #define TheSbvector(obj)  ((Sbvector)(types_pointable(sbvector_type,obj)))
+  #define TheCodevec(obj)  ((Codevec)TheSbvector(obj))
   #define TheSstring(obj)  ((Sstring)(types_pointable(sstring_type,obj)))
   #define TheSvector(obj)  ((Svector)(types_pointable(svector_type,obj)))
-  #define TheIarray(obj)  ((Iarray)(types_pointable(mdarray_type|bvector_type|b2vector_type|b4vector_type|b8vector_type|b16vector_type|b32vector_type|string_type|vector_type,obj)))
+  #define TheIarray(obj)  ((Iarray)(types_pointable(mdarray_type|bvector_type|string_type|vector_type,obj)))
   #define TheRecord(obj)  ((Record)(types_pointable(closure_type|structure_type|stream_type|orecord_type|instance_type,obj)))
   #define TheSrecord(obj)  ((Srecord)(types_pointable(closure_type|structure_type|orecord_type|instance_type,obj)))
   #define TheXrecord(obj)  ((Xrecord)(types_pointable(stream_type|orecord_type,obj)))
@@ -5107,11 +5850,7 @@ typedef struct {
   #define TheVarobject(obj)  \
     ((Varobject)                                                                                 \
      (types_pointable                                                                            \
-      (sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type\
-       |sstring_type|svector_type                                                                \
-       |mdarray_type                                                                             \
-       |bvector_type|b2vector_type|b4vector_type|b8vector_type|b16vector_type|b32vector_type     \
-       |string_type|vector_type \
+      (sbvector_type|sstring_type|svector_type|mdarray_type|bvector_type|string_type|vector_type \
        |closure_type|structure_type|stream_type|orecord_type|symbol_type                         \
        |bignum_type|ffloat_type|dfloat_type|lfloat_type|bit(sign_bit_t),                         \
        obj                                                                                       \
@@ -5119,11 +5858,7 @@ typedef struct {
   # Objekt, das einen Pointer in den Speicher darstellt:
   #define ThePointer(obj)  \
     (types_pointable                                                                            \
-     (sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type\
-      |sstring_type|svector_type                                                                \
-      |mdarray_type                                                                             \
-      |bvector_type|b2vector_type|b4vector_type|b8vector_type|b16vector_type|b32vector_type     \
-      |string_type|vector_type \
+     (sbvector_type|sstring_type|svector_type|mdarray_type|bvector_type|string_type|vector_type \
       |closure_type|structure_type|stream_type|orecord_type|symbol_type|cons_type               \
       |bignum_type|ffloat_type|dfloat_type|lfloat_type|ratio_type|complex_type|bit(sign_bit_t), \
       obj                                                                                       \
@@ -5343,32 +6078,32 @@ typedef struct {
 # Test auf Vector (Typbytes %001,%010,%011,%101,%110,%111)
   #ifdef TYPECODES
     #define vectorp(obj)  \
-      ((tint)(typecode(obj) - sbvector_type) <= (tint)(vector_type - sbvector_type))
+      ((tint)((typecode(obj) & ~bit(notsimple_bit_t))-1) <= (tint)(svector_type-1))
   #else
-    # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String,
-    #        Rectype_bvector, Rectype_b[2|4|8|16|32]vector, Rectype_vector, Rectype_string
+    # cases: Rectype_Sbvector, Rectype_Svector, Rectype_[Imm_][Small]String,
+    #        Rectype_bvector, Rectype_vector, Rectype_string
     #define vectorp(obj)  \
-      (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= 19-1))
+      (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= 9-1))
   #endif
 
 # Test auf simple-vector oder simple-bit-vector oder simple-string
   #ifdef TYPECODES
     #define simplep(obj)  \
-      ((tint)(typecode(obj) - sbvector_type) <= (tint)(svector_type - sbvector_type))
+      ((tint)(typecode(obj) - 1) <= (tint)(svector_type-1))
   #else
-    # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String
+    # cases: Rectype_Sbvector, Rectype_Svector, Rectype_[Imm_][Small]String
     #define simplep(obj)  \
-      (varobjectp(obj) && ((uintB)(Record_type(obj) - 9) <= 18-9))
+      (varobjectp(obj) && ((uintB)(Record_type(obj) - 3) <= 8-3))
   #endif
 
 # Test eines Array auf simple-vector oder simple-bit-vector oder simple-string
   #ifdef TYPECODES
     #define array_simplep(obj)  \
-      ((typecode(obj) & bit(notsimple_bit_t)) == 0)
+      (typecode(obj) <= svector_type)
   #else
-    # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String
+    # cases: Rectype_Sbvector, Rectype_Svector, Rectype_[Imm_][Small]String
     #define array_simplep(obj)  \
-      ((uintB)(Record_type(obj) - 9) <= 18-9)
+      ((uintB)(Record_type(obj) - 3) <= 8-3)
   #endif
 
 # Test auf simple-vector
@@ -5400,7 +6135,7 @@ typedef struct {
   #else
     # cases: Rectype_[Imm_][Small]String
     #define simple_string_p(obj)  \
-      (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) <= 18-16))
+      (varobjectp(obj) && ((uintB)(Record_type(obj) - 6) <= 8-6))
   #endif
 
 # Test auf string
@@ -5410,41 +6145,67 @@ typedef struct {
   #else
     # cases: Rectype_[Imm_][Small]String, Rectype_string
     #define stringp(obj)  \
-      (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) <= 19-16))
+      (varobjectp(obj) && ((uintB)(Record_type(obj) - 6) <= 9-6))
   #endif
 
-# Test auf simple-bit[n]-vector
+# Test auf simple-bit-vector
   #ifdef TYPECODES
-    #define simple_bit_vector_p(atype,obj)  \
-      (typecode(obj) == Array_type_simple_bit_vector(atype))
+    #define simple_bit_vector_p(obj)  \
+      (typecode(obj) == sbvector_type)
   #else
-    # cases: Rectype_Sb[2^n]vector
-    #define simple_bit_vector_p(atype,obj)  \
-      (varobjectp(obj) && (Record_type(obj) == Rectype_Sbvector+(atype)))
+    # cases: Rectype_Sbvector
+    #define simple_bit_vector_p(obj)  \
+      (varobjectp(obj) && (Record_type(obj) == Rectype_Sbvector))
   #endif
 
-# Test auf bit[n]-vector
+# Test auf bit-vector
   #ifdef TYPECODES
-    #define bit_vector_p(atype,obj)  \
-      ((typecode(obj) & ~bit(notsimple_bit_t)) == Array_type_simple_bit_vector(atype))
+    #define bit_vector_p(obj)  \
+      ((typecode(obj) == sbvector_type)                                  \
+       || ((typecode(obj) == bvector_type)                               \
+           && ((Iarray_flags(obj) & arrayflags_atype_mask) == Atype_Bit) \
+      )   )
   #else
-    # cases: Rectype_Sb[2^n]vector, Rectype_b[2^n]vector
-    #define bit_vector_p(atype,obj)  \
-      (varobjectp(obj) \
-       && ((Record_type(obj) & ~(Rectype_Sbvector ^ Rectype_bvector)) == (Rectype_Sbvector & Rectype_bvector) + (atype)) \
+    #define bit_vector_p(obj)  \
+      (varobjectp(obj)                                                       \
+       && ((Record_type(obj) == Rectype_Sbvector)                            \
+           || ((Record_type(obj) == Rectype_bvector)                         \
+               && ((Iarray_flags(obj) & arrayflags_atype_mask) == Atype_Bit) \
+      )   )   )
+  #endif
+
+# Test auf byte-vector
+  #ifdef TYPECODES
+    #define byte_vector_p(obj)  \
+      ((typecode(obj) & ~bit(notsimple_bit_t)) == sbvector_type)
+  #else
+    # cases: Rectype_Sbvector, Rectype_bvector
+    #define byte_vector_p(obj)  \
+      (varobjectp(obj) && \
+       ((Record_type(obj) & ~(Rectype_Sbvector ^ Rectype_bvector)) == (Rectype_Sbvector & Rectype_bvector)) \
       )
+  #endif
+
+# Test auf byte-vector, ausgenommen simple-bit-vector
+  #ifdef TYPECODES
+    #define general_byte_vector_p(obj)  \
+      (typecode(obj) == bvector_type)
+  #else
+    # cases: Rectype_bvector
+    #define general_byte_vector_p(obj)  \
+      (varobjectp(obj) && (Record_type(obj) == Rectype_bvector))
   #endif
 
 # Test auf Array allgemein
   #ifdef TYPECODES
     #define arrayp(obj)  \
-      ((tint)(typecode(obj) - mdarray_type) <= (tint)(vector_type - mdarray_type))
+      ((tint)(typecode(obj) - 1) <= (tint)(vector_type-1))
   #else
-    # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String,
-    #        Rectype_bvector, Rectype_b[2|4|8|16|32]vector, Rectype_vector, Rectype_string,
+    # cases: Rectype_Sbvector, Rectype_Svector, Rectype_[Imm_][Small]String,
+    #        Rectype_bvector, Rectype_vector, Rectype_string,
     #        Rectype_mdarray
     #define arrayp(obj)  \
-      (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= 20-1))
+      (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= 10-1))
   #endif
 
 # Test auf Array, der kein Vector ist (Typbyte %100)
@@ -5460,24 +6221,24 @@ typedef struct {
 #ifdef TYPECODES
   # Test auf Closure/Structure/Stream/Instanz/OtherRecord
     #define if_recordp(obj,statement1,statement2)  \
-      switch (typecode(obj)) {          \
-        case_record: statement1; break; \
-        default: statement2; break;     \
-      }
+      { switch (typecode(obj))              \
+          { case_record: statement1; break; \
+            default: statement2; break;     \
+      }   }
 #else
   # Test auf Srecord/Xrecord
     #define if_recordp(obj,statement1,statement2)  \
-      if (orecordp(obj))                                                     \
-        switch (Record_type(obj)) {                                          \
-          case Rectype_Sbvector: case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: case Rectype_Svector: \
-          case Rectype_mdarray:                                              \
-          case Rectype_bvector: case Rectype_string: case Rectype_vector:    \
-          case Rectype_Bignum: case Rectype_Lfloat:                          \
-          case rectype_unused1:                                              \
-            goto not_record;                                                 \
-          default: { statement1 } break;                                     \
-        }                                                                    \
-      else                                                                   \
+      if (orecordp(obj))                                                       \
+        switch (Record_type(obj))                                              \
+          { case Rectype_Sbvector: case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: case Rectype_Svector: \
+            case Rectype_mdarray:                                              \
+            case Rectype_bvector: case Rectype_string: case Rectype_vector:    \
+            case Rectype_Bignum: case Rectype_Lfloat:                          \
+            case rectype_unused1:                                              \
+              goto not_record;                                                 \
+            default: { statement1 } break;                                     \
+          }                                                                    \
+      else                                                                     \
         not_record: { statement2 }
 #endif
 
@@ -5494,7 +6255,7 @@ typedef struct {
   # entweder eine Liste (der Lambdabody bei interpretierten Closures)
   # oder ein Simple-Bit-Vector (der Codevektor bei compilierten Closures).
   #define cclosurep(obj)  \
-    (closurep(obj) && simple_bit_vector_p(Atype_8Bit,TheClosure(obj)->clos_codevec))
+    (closurep(obj) && simple_bit_vector_p(TheClosure(obj)->clos_codevec))
 
 # Test auf generische Funktion
   #define genericfunctionp(obj)  \
@@ -5514,19 +6275,19 @@ typedef struct {
 # Unser CLOS implementiert alle Klassen als Instanzen einer (nicht notwendig
 # direkten) Unterklasse von <class>.
   #define if_classp(obj,statement1,statement2)  \
-    if (structurep(obj)) {                                       \
-      var object list = Cdr(TheStructure(obj)->structure_types); \
-      var object sublist = O(class_structure_types);             \
-      # (tailp sublist list) bestimmen:                          \
-      loop {                                                     \
-        if (eq(list,sublist)) goto obj##_classp_yes;             \
-        if (atomp(list)) goto obj##_classp_no;                   \
-        list = Cdr(list);                                        \
-      }                                                          \
-     obj##_classp_yes: statement1;                               \
-    } else {                                                     \
-     obj##_classp_no: statement2;                                \
-    }
+    if (structurep(obj))                                           \
+      { var object list = Cdr(TheStructure(obj)->structure_types); \
+        var object sublist = O(class_structure_types);             \
+        # (tailp sublist list) bestimmen:                          \
+        loop                                                       \
+          { if (eq(list,sublist)) goto obj##_classp_yes;           \
+            if (atomp(list)) goto obj##_classp_no;                 \
+            list = Cdr(list);                                      \
+          }                                                        \
+        obj##_classp_yes: statement1;                              \
+      }                                                            \
+    else                                                           \
+      { obj##_classp_no: statement2; }
 
 # Test for CLOS instance of a given class
   #define instanceof(obj,class)  \
@@ -5895,20 +6656,10 @@ typedef struct {
   #define case_Rectype_Closure_above
   #define case_Rectype_Instance_above
   #define case_Rectype_Sbvector_above
-  #define case_Rectype_Sb2vector_above
-  #define case_Rectype_Sb4vector_above
-  #define case_Rectype_Sb8vector_above
-  #define case_Rectype_Sb16vector_above
-  #define case_Rectype_Sb32vector_above
   #define case_Rectype_Sstring_above
   #define case_Rectype_Svector_above
   #define case_Rectype_mdarray_above
   #define case_Rectype_obvector_above
-  #define case_Rectype_ob2vector_above
-  #define case_Rectype_ob4vector_above
-  #define case_Rectype_ob8vector_above
-  #define case_Rectype_ob16vector_above
-  #define case_Rectype_ob32vector_above
   #define case_Rectype_ostring_above
   #define case_Rectype_ovector_above
   #define case_Rectype_Bignum_above
@@ -5921,11 +6672,6 @@ typedef struct {
   # Composite cases:
   #define case_Rectype_string_above
   #define case_Rectype_bvector_above
-  #define case_Rectype_b2vector_above
-  #define case_Rectype_b4vector_above
-  #define case_Rectype_b8vector_above
-  #define case_Rectype_b16vector_above
-  #define case_Rectype_b32vector_above
   #define case_Rectype_vector_above
   #define case_Rectype_array_above
   #define case_Rectype_number_above
@@ -5938,16 +6684,6 @@ typedef struct {
     case Rectype_Instance: goto case_instance;
   #define case_Rectype_Sbvector_above  \
     case Rectype_Sbvector: goto case_sbvector;
-  #define case_Rectype_Sb2vector_above  \
-    case Rectype_Sb2vector: goto case_sb2vector;
-  #define case_Rectype_Sb4vector_above  \
-    case Rectype_Sb4vector: goto case_sb4vector;
-  #define case_Rectype_Sb8vector_above  \
-    case Rectype_Sb8vector: goto case_sb8vector;
-  #define case_Rectype_Sb16vector_above  \
-    case Rectype_Sb16vector: goto case_sb16vector;
-  #define case_Rectype_Sb32vector_above  \
-    case Rectype_Sb32vector: goto case_sb32vector;
   #define case_Rectype_Sstring_above  \
     case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: goto case_sstring;
   #define case_Rectype_Svector_above  \
@@ -5956,16 +6692,6 @@ typedef struct {
     case Rectype_mdarray: goto case_mdarray;
   #define case_Rectype_obvector_above  \
     case Rectype_bvector: goto case_obvector;
-  #define case_Rectype_ob2vector_above  \
-    case Rectype_b2vector: goto case_ob2vector;
-  #define case_Rectype_ob4vector_above  \
-    case Rectype_b4vector: goto case_ob4vector;
-  #define case_Rectype_ob8vector_above  \
-    case Rectype_b8vector: goto case_ob8vector;
-  #define case_Rectype_ob16vector_above  \
-    case Rectype_b16vector: goto case_ob16vector;
-  #define case_Rectype_ob32vector_above  \
-    case Rectype_b32vector: goto case_ob32vector;
   #define case_Rectype_ostring_above  \
     case Rectype_string: goto case_ostring;
   #define case_Rectype_ovector_above  \
@@ -5989,26 +6715,11 @@ typedef struct {
     case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: case Rectype_string: goto case_string;
   #define case_Rectype_bvector_above  \
     case Rectype_Sbvector: case Rectype_bvector: goto case_bvector;
-  #define case_Rectype_b2vector_above  \
-    case Rectype_Sb2vector: case Rectype_b2vector: goto case_b2vector;
-  #define case_Rectype_b4vector_above  \
-    case Rectype_Sb4vector: case Rectype_b4vector: goto case_b4vector;
-  #define case_Rectype_b8vector_above  \
-    case Rectype_Sb8vector: case Rectype_b8vector: goto case_b8vector;
-  #define case_Rectype_b16vector_above  \
-    case Rectype_Sb16vector: case Rectype_b16vector: goto case_b16vector;
-  #define case_Rectype_b32vector_above  \
-    case Rectype_Sb32vector: case Rectype_b32vector: goto case_b32vector;
   #define case_Rectype_vector_above  \
     case Rectype_Svector: case Rectype_vector: goto case_vector;
   #define case_Rectype_array_above  \
     case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: case Rectype_string: \
     case Rectype_Sbvector: case Rectype_bvector: \
-    case Rectype_Sb2vector: case Rectype_b2vector: \
-    case Rectype_Sb4vector: case Rectype_b4vector: \
-    case Rectype_Sb8vector: case Rectype_b8vector: \
-    case Rectype_Sb16vector: case Rectype_b16vector: \
-    case Rectype_Sb32vector: case Rectype_b32vector: \
     case Rectype_Svector: case Rectype_vector:   \
     case Rectype_mdarray:                        \
       goto case_array;
@@ -6300,12 +7011,6 @@ typedef struct {
 
 # Test auf ein Integer eines vorgegebenen Bereiches.
 # obj sollte eine Variable sein
-  #define uint1_p(obj)  \
-    ((as_oint(obj) & ~((oint)0x01 << oint_data_shift)) == as_oint(Fixnum_0))
-  #define uint2_p(obj)  \
-    ((as_oint(obj) & ~((oint)0x03 << oint_data_shift)) == as_oint(Fixnum_0))
-  #define uint4_p(obj)  \
-    ((as_oint(obj) & ~((oint)0x0F << oint_data_shift)) == as_oint(Fixnum_0))
   #define uint8_p(obj)  \
     ((as_oint(obj) & ~((oint)0xFF << oint_data_shift)) == as_oint(Fixnum_0))
   #define sint8_p(obj)  \
@@ -6387,11 +7092,11 @@ typedef struct {
 #endif
 #ifdef TIME_2
   #ifdef TIME_UNIX
-    typedef struct {
-      uintL tv_sec;    # ganze Sekunden seit 1.1.1970 00:00 GMT,
-                       # Ein 'uintL' für tv_sec reicht für 136 Jahre.
-      uintL tv_usec;   # zusätzliche Mikrosekunden
-    } internal_time;
+    typedef struct { uintL tv_sec;    # ganze Sekunden seit 1.1.1970 00:00 GMT,
+                                      # Ein 'uintL' für tv_sec reicht für 136 Jahre.
+                     uintL tv_usec;   # zusätzliche Mikrosekunden
+                   }
+            internal_time;
     #define ticks_per_second  1000000UL  # 1 Tick = 1 µsec
     #define sub_internal_time(x,y, z)  # z:=x-y  \
       { (z).tv_sec = (x).tv_sec - (y).tv_sec;                   \
@@ -6471,13 +7176,12 @@ typedef struct {
 # < timescore.gctime:   GC-Time seit LISP-System-Start (in Ticks)
 # < timescore.gccount:  Anzahl der GC's seit LISP-System-Start
 # < timescore.gcfreed:  Größe des von den GC's bisher wiederbeschafften Platzes
-  typedef struct {
-    internal_time runtime;
-    internal_time realtime;
-    internal_time gctime;
-    uintL gccount;
-    uintL2 gcfreed;
-  } timescore;
+  typedef struct { internal_time runtime;
+                   internal_time realtime;
+                   internal_time gctime;
+                   uintL gccount;
+                   uintL2 gcfreed; }
+          timescore;
   extern void get_running_times (timescore*);
 # wird verwendet von
 
@@ -6500,14 +7204,8 @@ typedef struct {
 # wird verwendet von SPVW
 
 # Zeitangabe in Decoded-Time:
-  typedef struct {
-    object Sekunden;
-    object Minuten;
-    object Stunden;
-    object Tag;
-    object Monat;
-    object Jahr;
-  } decoded_time;
+  typedef struct { object Sekunden, Minuten, Stunden, Tag, Monat, Jahr; }
+          decoded_time;
 
 #if defined(MSDOS)
 # UP: Wandelt das DOS-Zeitformat in Decoded-Time um.
@@ -7198,14 +7896,13 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   extern object allocate_vector (uintL len);
 # wird verwendet von ARRAY, IO, EVAL, PACKAGE, CONTROL, HASHTABL
 
-# Function: Allocates a bit/byte vector.
-# allocate_bit_vector(atype,len)
-# > uintB atype: Atype_nBit
-# > uintL len: length (number of n-bit blocks)
-# < ergebnis: fresh simple bit/byte-vector of the given length
+# UP, beschafft Bit-Vektor
+# allocate_bit_vector(len)
+# > len: Länge des Bitvektors (in Bits)
+# < ergebnis: neuer Bitvektor (LISP-Objekt)
 # can trigger GC
-  extern object allocate_bit_vector (uintB atype, uintL len);
-# wird verwendet von ARRAY, IO, RECORD, LISPARIT, STREAM, CLX
+  extern object allocate_bit_vector (uintL len);
+# wird verwendet von ARRAY, IO, RECORD, LISPARIT, STREAM
 
 # Macro: Allocates a bit-vector on the stack, with dynamic extent.
 #   { var DYNAMIC_BIT_VECTOR(obj,len);
@@ -7222,8 +7919,8 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
       uintL objvar##_len = (len);                   \
       var object objvar = O(dynamic_bit_vector);    \
       O(dynamic_bit_vector) = NIL;                  \
-      if (!(simple_bit_vector_p(Atype_Bit,objvar) && (Sbvector_length(objvar) >= objvar##_len))) \
-        objvar = allocate_bit_vector(Atype_Bit,objvar##_len);
+      if (!(simple_bit_vector_p(objvar) && (Sbvector_length(objvar) >= objvar##_len))) \
+        objvar = allocate_bit_vector(objvar##_len);
     #define FREE_DYNAMIC_BIT_VECTOR(objvar)  \
       O(dynamic_bit_vector) = objvar;
   #else
@@ -7676,6 +8373,9 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   #ifdef HAVE_BUILTIN_STRLEN
     #define asciz_length(a)  ((uintL)__builtin_strlen(a))
   #endif
+  #ifdef HAVE_BUILTIN_STRCMP
+    #define asciz_equal(a1,a2)  (__builtin_strcmp(a1,a2)==0)
+  #endif
 #endif
 #ifndef asciz_length
   #ifdef HAVE_SAVED_STACK
@@ -7690,6 +8390,19 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
       extern_C RETSTRLENTYPE strlen (STRLEN_CONST char* s);
     #endif
     #define asciz_length(a)  ((uintL)strlen(a))
+  #endif
+#endif
+#ifndef asciz_equal
+  #if 1
+    # strcmp() ist vermutlich Overkill für asciz_equal().
+  #else
+    # Gehen wir davon aus, dass strcmp() es auch tut.
+    #ifdef STDC_HEADERS
+      #include <string.h> # deklariert strcmp()
+    #else
+      extern_C int strcmp (char* s1, char* s2);
+    #endif
+    #define asciz_equal(p1,p2)  (strcmp(p1,p2)==0)
   #endif
 #endif
 
@@ -7884,8 +8597,8 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # Fsubr-Tabelle sichtbar machen:
   #define LISPSPECFORM  LISPSPECFORM_C
   struct fsubr_tab_ {
-    #include "fsubr.c"
-  };
+                      #include "fsubr.c"
+                    };
   #undef LISPSPECFORM
   extern const struct fsubr_tab_ fsubr_tab;
 # wird verwendet von CONTROL, SPVW
@@ -7909,8 +8622,9 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # Subr-Tabelle sichtbar machen:
   #define LISPFUN  LISPFUN_C
   extern struct subr_tab_ {
-    #include "subr.c"
-  } subr_tab_data;
+                            #include "subr.c"
+                          }
+         subr_tab_data;
   #undef LISPFUN
 # wird verwendet von Macro L
 
@@ -7941,13 +8655,15 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # Deklaration der Tabellen relozierbarer Pointer:
   #define PSEUDO  PSEUDO_A
   extern struct pseudocode_tab_ {
-    #include "pseudofun.c"
-  } pseudocode_tab;
+                                  #include "pseudofun.c"
+                                }
+         pseudocode_tab;
   #undef PSEUDO
   #define PSEUDO  PSEUDO_B
   extern struct pseudodata_tab_ {
-    #include "pseudofun.c"
-  } pseudodata_tab;
+                                  #include "pseudofun.c"
+                                }
+         pseudodata_tab;
   #undef PSEUDO
 # wird verwendet von STREAM, SPVW
 
@@ -7963,8 +8679,9 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # Deklaration der Symbol-Tabelle:
   #define LISPSYM  LISPSYM_A
   extern struct symbol_tab_ {
-    #include "constsym.c"
-  } symbol_tab_data;
+                              #include "constsym.c"
+                            }
+         symbol_tab_data;
   #undef LISPSYM
 # wird verwendet von Macro S
 
@@ -8011,8 +8728,9 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # Deklaration der Tabelle der sonstigen festen Objekte:
   #define LISPOBJ  LISPOBJ_A
   extern struct object_tab_ {
-    #include "constobj.c"
-  } object_tab;
+                              #include "constobj.c"
+                            }
+         object_tab;
   #undef LISPOBJ
 # wird verwendet von Macro O
 
@@ -8052,32 +8770,32 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   extern uintC module_count;
 
 # Daten für die Initialisierung der subr_tab eines Moduls:
-  typedef struct {
-    const char* packname; # Name der Home-Package des Symbols oder NULL
-    const char* symname; # Name des Symbols
-  } subr_initdata;
+  typedef struct { const char* packname; # Name der Home-Package des Symbols oder NULL
+                   const char* symname; # Name des Symbols
+                 }
+          subr_initdata;
 
 # Daten für die Initialisierung der object_tab eines Moduls:
-  typedef struct {
-    const char* initstring; # Initialisierungs-String
-  } object_initdata;
+  typedef struct { const char* initstring; } # Initialisierungs-String
+          object_initdata;
 
 # Tabelle bzw. Liste der Module:
-  typedef struct module_ {
-    const char* name; # Name
-    subr_* stab; const uintC* stab_size; # eine eigene subr_tab
-    object* otab; const uintC* otab_size; # eine eigene object_tab
-    boolean initialized;
-    # Daten zur Initialisierung:
-    const subr_initdata* stab_initdata;
-    const object_initdata* otab_initdata;
-    # Funktionen zur Initialisierung
-    void (*initfunction1) (struct module_ *); # nur einmal
-    void (*initfunction2) (struct module_ *); # immer bei Programmstart
-    #ifdef DYNAMIC_MODULES
-    struct module_ * next; # verkettete Liste
-    #endif
-  } module_;
+  typedef struct module_
+                 { const char* name; # Name
+                   subr_* stab; const uintC* stab_size; # eine eigene subr_tab
+                   object* otab; const uintC* otab_size; # eine eigene object_tab
+                   boolean initialized;
+                   # Daten zur Initialisierung:
+                   const subr_initdata* stab_initdata;
+                   const object_initdata* otab_initdata;
+                   # Funktionen zur Initialisierung
+                   void (*initfunction1) (struct module_ *); # nur einmal
+                   void (*initfunction2) (struct module_ *); # immer bei Programmstart
+                   #ifdef DYNAMIC_MODULES
+                   struct module_ * next; # verkettete Liste
+                   #endif
+                 }
+          module_;
   #ifdef DYNAMIC_MODULES
     extern module_ modules[]; # Listenanfang
     BEGIN_DECLS
@@ -8891,19 +9609,15 @@ wieder in die zugehörige Top-Level-Schleife einsteigt.
 #                                 Pointer über das erste Argument
 #   Typische Abarbeitungsschleifen:
 #     von vorne:
-#       until (argcount==0) {
-#         var object arg = NEXT(rest_args_pointer); ...; argcount--;
-#       }
-#       until (rest_args_pointer==args_end_pointer) {
-#         var object arg = NEXT(rest_args_pointer); ...;
-#       }
+#       until (argcount==0)
+#         { var object arg = NEXT(rest_args_pointer); ...; argcount--; }
+#       until (rest_args_pointer==args_end_pointer)
+#         { var object arg = NEXT(rest_args_pointer); ...; }
 #     von hinten:
-#       until (argcount==0) {
-#         var object arg = BEFORE(args_end_pointer); ...; argcount--;
-#       }
-#       until (rest_args_pointer==args_end_pointer) {
-#         var object arg = BEFORE(args_end_pointer); ...;
-#       }
+#       until (argcount==0)
+#         { var object arg = BEFORE(args_end_pointer); ...; argcount--; }
+#       until (rest_args_pointer==args_end_pointer)
+#         { var object arg = BEFORE(args_end_pointer); ...; }
 #   Die Macros NEXT und BEFORE verändern ihr Argument!
 #   STACK aufräumen: mit set_args_end_pointer(args_pointer)
 #     oder skipSTACK((feste Argumentezahl) + (uintL) (restliche Argumentezahl)) .
@@ -8927,13 +9641,13 @@ wieder in die zugehörige Top-Level-Schleife einsteigt.
 
 # Environments:
 
-typedef struct {
-  object var_env;   # Variablenbindungs-Environment
-  object fun_env;   # Funktionsbindungs-Environment
-  object block_env; # Block-Environment
-  object go_env;    # Tagbody/Go-Environment
-  object decl_env;  # Deklarations-Environment
-} environment;
+typedef struct { object var_env;   # Variablenbindungs-Environment
+                 object fun_env;   # Funktionsbindungs-Environment
+                 object block_env; # Block-Environment
+                 object go_env;    # Tagbody/Go-Environment
+                 object decl_env;  # Deklarations-Environment
+               }
+        environment;
 
 # Das aktuelle Environment:
   #ifndef MULTITHREAD
@@ -9469,10 +10183,7 @@ typedef struct {
 # verändert STACK
 # can trigger GC
   typedef /* nonreturning */ void (*restart)(object* upto_frame);
-  typedef struct {
-    restart fun;
-    object* upto_frame;
-  } unwind_protect_caller;
+  typedef struct { restart fun; object* upto_frame; } unwind_protect_caller;
   #ifndef MULTITHREAD
     extern unwind_protect_caller unwind_protect_to_save;
   #else
@@ -9518,22 +10229,17 @@ typedef struct {
 # invoke_handlers(cond);
 # can trigger GC
   extern void invoke_handlers (object cond);
-  typedef struct {
-    object condition;
-    object* stack;
-    SPint* sp;
-    object spdepth;
-  } handler_args_t;
+  typedef struct { object condition; object* stack; SPint* sp; object spdepth; }
+          handler_args_t;
   #ifndef MULTITHREAD
     extern handler_args_t handler_args;
   #else
     #define handler_args  (current_thread()->_handler_args)
   #endif
-  typedef struct stack_range {
-    struct stack_range * next;
-    object* low_limit;
-    object* high_limit;
-  } stack_range;
+  typedef struct stack_range { struct stack_range * next;
+                               object* low_limit; object* high_limit;
+                             }
+          stack_range;
   #ifndef MULTITHREAD
     extern stack_range* inactive_handlers;
   #else
@@ -9799,7 +10505,7 @@ typedef struct {
 # Maximum number of bytes needed to form a character, over all encodings.
 # max_bytes_per_chart
   #ifdef UNICODE
-    #define max_bytes_per_chart  8  # 6 for JAVA, 7 for ISO-2022-KR, 8 for ISO-2022-CN[-EXT]
+    #define max_bytes_per_chart  6  # reached by the java encoding
   #else
     #define max_bytes_per_chart  1
   #endif
@@ -9960,10 +10666,10 @@ typedef struct {
   extern object copy_svector (object vector);
 # used by IO
 
-# Function: Copies a simple-bit/byte-vector.
+# Function: Copies a simple-bit-vector.
 # copy_sbvector(vector)
-# > vector: simple-bit/byte-vector
-# < result: fresh simple-bit/byte-vector with the same contents
+# > vector: simple-bit-vector
+# < result: fresh simple-bit-vector with the same contents
 # can trigger GC
   extern object copy_sbvector (object vector);
 # used by RECORD
@@ -9986,6 +10692,15 @@ typedef struct {
 # can trigger GC
   extern uintB eltype_code (object element_type);
 # wird verwendet von SEQUENCE
+
+# Function: Allocates a byte vector.
+# allocate_byte_vector(atype,len)
+# > uintB atype: Atype_nBit
+# > uintL len: length (number of n-bit blocks)
+# < result: fresh semi-simple byte-vector of the given length
+# can trigger GC
+  extern object allocate_byte_vector (uintB atype, uintL len);
+# wird verwendet von CLX
 
 # Function: Creates a simple-vector with given elements.
 # vectorof(len)
@@ -10017,13 +10732,6 @@ typedef struct {
   extern object array_displace_check (object array, uintL size, uintL* index);
 # used by HASHTABL, PREDTYPE, IO, FOREIGN
 
-# Fehlermeldung
-# > STACK_1: Array (meist Vektor)
-# > STACK_0: (fehlerhafter) Index
-# > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(extern, fehler_index_range, (uintL bound));
-# used by SEQUENCE
-
 # Function: Performs an AREF access.
 # storagevector_aref(storagevector,index)
 # > storagevector: a storage vector (simple vector or semi-simple byte vector)
@@ -10032,12 +10740,6 @@ typedef struct {
 # can trigger GC (only for element type (UNSIGNED-BYTE 32))
   extern object storagevector_aref (object storagevector, uintL index);
 # used by IO
-
-# Error when attempting to store an invalid value in an array.
-# fehler_store(array,value);
-# > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(extern, fehler_store, (object array, object value));
-# used by SEQUENCE
 
 # Macro: Tests a bit in a simple-bit-vector.
 # if (sbvector_btst(sbvector,index)) ...
@@ -10114,63 +10816,12 @@ typedef struct {
 # > index1: absolute index into array1
 # > array2: second simple-bit-vector
 # > index2: absolute index into array2
-# > count: number of bits to be compared, > 0
+# > count: number of bits to be compared
 # < result: TRUE, if both slices are the same, bit for bit, else FALSE.
   extern boolean bit_compare (object array1, uintL index1,
                               object array2, uintL index2,
                               uintL bitcount);
 # used by PREDTYPE
-
-# Function: Copies a slice of an array array1 into another array array2.
-# elt_copy(dv1,index1,dv2,index2,count);
-# > dv1: source storage-vector
-# > index1: start index in dv1
-# > dv2: destination storage-vector
-# > index2: start index in dv2
-# > count: number of elements to be copied, > 0
-# can trigger GC
-  extern void elt_copy (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-# used by SEQUENCE
-
-# Function: Copies a slice of an array array1 into another array array2 of
-# the same element type. Handles overlapping arrays correctly.
-# elt_move(dv1,index1,dv2,index2,count);
-# > dv1: source storage-vector
-# > index1: start index in dv1
-# > dv2: destination storage-vector
-# > index2: start index in dv2
-# > count: number of elements to be copied, > 0
-# can trigger GC
-  extern void elt_move (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-# used by SEQUENCE
-
-# Function: Fills a slice of an array with an element.
-# elt_fill(dv,index,count,element)
-# > dv: destination storage-vector
-# > index: start index in dv
-# > count: number of elements to be filled
-# < result: TRUE if element does not fit, FALSE when done
-  extern boolean elt_fill (object dv, uintL index, uintL count, object element);
-# used by SEQUENCE
-
-# Function: Reverses a slice of an array, copying it into another array
-# of the same element type.
-# elt_reverse(dv1,index1,dv2,index2,count);
-# > dv1: source storage-vector
-# > index1: start index in dv1
-# > dv2: destination storage-vector
-# > index2: start index in dv2
-# > count: number of elements to be copied, > 0
-  extern void elt_reverse (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-# used by SEQUENCE
-
-# Function: Reverses a slice of an array destructively.
-# elt_nreverse(dv,index,count);
-# > dv: storage-vector
-# > index: start index in dv
-# > count: number of elements to be reversed, > 0
-  extern void elt_nreverse (object dv, uintL index, uintL count);
-# used by SEQUENCE
 
 # Function: Tests whether an array has a fill-pointer.
 # array_has_fill_pointer_p(array)
@@ -10296,13 +10947,6 @@ typedef struct {
 # < ergebnis: TRUE falls druckend, FALSE sonst.
   extern boolean graphic_char_p (chart ch);
 # wird verwendet von STREAM, PATHNAME
-
-# Returns the screen display width of a character.
-# char_width(ch)
-# > ch: character code
-# < result: number of output columns occupied by ch
-  extern uintL char_width (chart ch);
-# wird verwendet von IO, STREAM
 
 # Copies an array of chart to an array of chart.
 # chartcopy(src,dest,len);
@@ -10481,10 +11125,10 @@ typedef struct {
 # < result: String-Argument
 # erhöht STACK um 3
   typedef struct stringarg {
-    object string; # Datenvektor, a simple-string
-    uintL offset;  # offset into this string
-    uintL index;   # :start index
-    uintL len;     # :end - :start
+          object string; # Datenvektor, a simple-string
+          uintL offset;  # offset into this string
+          uintL index;   # :start index
+          uintL len;     # :end - :start
   } stringarg;
   extern object test_string_limits_ro (stringarg* arg);
 # wird verwendet von STREAM, PATHNAME, IO
@@ -10857,9 +11501,9 @@ typedef struct {
     (asciz_out_s("\n[%s:",__FILE__), asciz_out_1("%d] ",__LINE__), (OS_file_error)(pathname))
 #endif
 
-# Just like OS_error, but takes a channel stream and signals a FILE-ERROR.
+# Just like OS_error, but takes a file stream and signals a FILE-ERROR.
 # OS_filestream_error(stream);
-# > stream: a channel stream
+# > stream: a file stream
 # > end_system_call() already called
   nonreturning_function(extern, OS_filestream_error, (object stream));
 #if defined(DEBUG_OS_ERROR)
@@ -11004,12 +11648,12 @@ typedef struct {
   nonreturning_function(extern, fehler_lambda_expression, (object obj));
 # wird verwendet von EVAL, SYMBOL
 
+#ifdef HAVE_FFI
 # Überprüfung eines Arguments
 # check_...(obj);
 # > obj: Argument
 # > subr_self: Aufrufer (ein SUBR)
 # obj sollte eine Variable sein
-#ifdef HAVE_FFI
   #define check_char(obj)  \
     if (!charp(obj)) { fehler_char(obj); }
   #define check_uint8(obj)  \
@@ -11040,9 +11684,7 @@ typedef struct {
     if (!single_float_p(obj)) { fehler_ffloat(obj); }
   #define check_dfloat(obj)  \
     if (!double_float_p(obj)) { fehler_dfloat(obj); }
-#endif
   nonreturning_function(extern, fehler_uint8, (object obj));
-#ifdef HAVE_FFI
   nonreturning_function(extern, fehler_sint8, (object obj));
   nonreturning_function(extern, fehler_uint16, (object obj));
   nonreturning_function(extern, fehler_sint16, (object obj));
@@ -11056,8 +11698,8 @@ typedef struct {
   nonreturning_function(extern, fehler_slong, (object obj));
   nonreturning_function(extern, fehler_ffloat, (object obj));
   nonreturning_function(extern, fehler_dfloat, (object obj));
+# wird verwendet vom FFI
 #endif
-# wird verwendet von STREAM, vom FFI
 
 # ##################### PACKBIBL zu PACKAGE.D ############################# #
 
@@ -11332,15 +11974,6 @@ typedef struct {
   #define write_ascii_char(stream_,ch)  write_char(stream_,code_char(as_chart(ch)))
 # wird verwendet von LISPARIT, IO, DEBUG, Macro TERPRI
 
-#ifdef UNICODE
-# Changes a terminal stream's external format.
-# > stream: a stream
-# > encoding: an encoding
-# can trigger GC
-  extern void set_terminalstream_external_format (object stream, object encoding);
-# used by ENCODING
-#endif
-
 # UP: Stellt fest, ob ein Stream "interaktiv" ist, d.h. ob Input vom Stream
 # vermutlich von einem vorher ausgegebenen Prompt abhängen wird.
 # interactive_stream_p(stream)
@@ -11539,7 +12172,7 @@ typedef struct {
 
 # UP: Tells whether a stream is buffered.
 # stream_isbuffered(stream)
-# > stream: a channel or socket stream
+# > stream: a file stream
 # < result: TRUE if stream is buffered, else FALSE
   extern boolean stream_isbuffered (object stream);
 # wird verwendet von IO
@@ -11809,6 +12442,8 @@ typedef struct {
   extern uintL I_integer_length (object x);
 # wird verwendet von ARRAY
 
+#ifdef HAVE_FFI
+
 # c_float_to_FF(&val) wandelt ein IEEE-Single-Float val in ein Single-Float um.
 # can trigger GC
   extern object c_float_to_FF (const ffloatjanus* val_);
@@ -11824,6 +12459,8 @@ typedef struct {
 # DF_to_c_double(obj,&val);
 # wandelt ein Double-Float obj in ein IEEE-Double-Float val um.
   extern void DF_to_c_double (object obj, dfloatjanus* val_);
+
+#endif
 
 # UP: Wandelt eine Zeichenkette mit Integer-Syntax in ein Integer um.
 # Punkte werden überlesen.
@@ -12035,61 +12672,63 @@ typedef struct {
 # Structure containing all the per-thread global variables.
 # (We could use a single instance of this structure also in the single-thread
 # model, but it would make debugging less straightforward.)
-  typedef struct {
-    # Most often used:
-      #if !defined(STACK_register)
-        object* _STACK;
-      #endif
-      #if !defined(mv_count_register)
-        uintC _mv_count;
-      #endif
-      #if !defined(value1_register)
-        object _value1;
-      #endif
-      #if !defined(subr_self_register)
-        object _subr_self;
-      #endif
-    # Less often used:
-      #ifndef NO_SP_CHECK
-        void* _SP_bound;
-      #endif
-      void* _STACK_bound;
-      unwind_protect_caller _unwind_protect_to_save;
-      #ifdef NEED_temp_mv_count
-        uintC _temp_mv_count;
-      #endif
-      #ifdef NEED_temp_value1
-        object _temp_value1;
-      #endif
-      #ifdef HAVE_SAVED_STACK
-        object* _saved_STACK;
-      #endif
-      #ifdef HAVE_SAVED_mv_count
-        uintC _saved_mv_count;
-      #endif
-      #ifdef HAVE_SAVED_value1
-        object _saved_value1;
-      #endif
-      #ifdef HAVE_SAVED_subr_self
-        object _saved_subr_self;
-      #endif
-      #if defined(HAVE_SAVED_REGISTERS)
-        struct registers * _callback_saved_registers;
-      #endif
-      uintC _index; # this thread's index in allthreads[]
-    # Used for exception handling only:
-      handler_args_t _handler_args;
-      stack_range* _inactive_handlers;
-    # Big, rarely used arrays come last:
-      object _mv_space [mv_limit-1];
-    # Now the lisp objects (seen by the GC).
-      # The Lisp object representing this thread:
-      object _lthread;
-      # The lexical environment:
-      environment _aktenv;
-      # The values of per-thread symbols:
-      object _symvalues[unspecified];
-  } thread_;
+  typedef struct
+    {
+      # Most often used:
+        #if !defined(STACK_register)
+          object* _STACK;
+        #endif
+        #if !defined(mv_count_register)
+          uintC _mv_count;
+        #endif
+        #if !defined(value1_register)
+          object _value1;
+        #endif
+        #if !defined(subr_self_register)
+          object _subr_self;
+        #endif
+      # Less often used:
+        #ifndef NO_SP_CHECK
+          void* _SP_bound;
+        #endif
+        void* _STACK_bound;
+        unwind_protect_caller _unwind_protect_to_save;
+        #ifdef NEED_temp_mv_count
+          uintC _temp_mv_count;
+        #endif
+        #ifdef NEED_temp_value1
+          object _temp_value1;
+        #endif
+        #ifdef HAVE_SAVED_STACK
+          object* _saved_STACK;
+        #endif
+        #ifdef HAVE_SAVED_mv_count
+          uintC _saved_mv_count;
+        #endif
+        #ifdef HAVE_SAVED_value1
+          object _saved_value1;
+        #endif
+        #ifdef HAVE_SAVED_subr_self
+          object _saved_subr_self;
+        #endif
+        #if defined(HAVE_SAVED_REGISTERS)
+          struct registers * _callback_saved_registers;
+        #endif
+        uintC _index; # this thread's index in allthreads[]
+      # Used for exception handling only:
+        handler_args_t _handler_args;
+        stack_range* _inactive_handlers;
+      # Big, rarely used arrays come last:
+        object _mv_space [mv_limit-1];
+      # Now the lisp objects (seen by the GC).
+        # The Lisp object representing this thread:
+        object _lthread;
+        # The lexical environment:
+        environment _aktenv;
+        # The values of per-thread symbols:
+        object _symvalues[unspecified];
+    }
+    thread_;
   #define thread_size(nsymvalues)  \
     (offsetofa(thread_,_symvalues)+nsymvalues*sizeof(object))
   #define thread_objects_offset(nsymvalues)  \
@@ -12111,7 +12750,7 @@ typedef struct {
       ({ var aint __SP; __asm__ ASM_get_SP_register(__SP); __SP; })
   #else
     #define roughly_SP()  (aint)__builtin_frame_address(0)
-    # Note: If (__GNUC__ == 2) && (__GNUC_MINOR__ >= 8) && (__GNUC_MINOR__ < 95)
+    # Note: If (__GNUC__ >= 3) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 8))
     # one can write
     #   #define roughly_SP()  (aint)__builtin_sp()
     # but this isn't efficient because gcc somehow knows that the stack pointer

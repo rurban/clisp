@@ -31,36 +31,26 @@ global int rl_already_prompted;
 
 global char* readline(prompt)
   var char* prompt;
-  {
-    return NULL;
-  }
+  { return NULL; }
 
 global void rl_deprep_terminal()
-  {
-  }
+  { ; }
 
 global char* filename_completion_function(text,state)
   var char* text;
   var int state;
-  {
-    return NULL;
-  }
+  { return NULL; }
 
 global void add_history(line)
   var char* line;
-  {
-  }
+  { ; }
 
 global VFunction* rl_named_function(string)
   var char* string;
-  {
-    return NULL;
-  }
+  { return NULL; }
 
 global int rl_bind_key(key,function)
   var int key;
   var VFunction* function;
-  {
-    return 0;
-  }
+  { return 0; }
 

@@ -25,17 +25,54 @@
 
 #ifdef HAVE_SIGNALS
 
-# React on signal SIGINT: Leave the signal handler and enter a break driver
-# loop. If this function returns, this means the signal handler should try
-# again later.
-  local void react_on_sigint (int sig);
-  local void react_on_sigint(sig)
-    var int sig; # sig = SIGINT or SIGALRM
-    {
-     #ifndef NO_ASYNC_INTERRUPTS
+# Eine Tastatur-Unterbrechung (Signal SIGINT, erzeugt durch Ctrl-C)
+# wird eine Sekunde lang aufgehoben. In dieser Zeit kann sie mittels
+# 'interruptp' auf fortsetzbare Art behandelt werden. Nach Ablauf dieser
+# Zeit wird das Programm nichtfortsetzbar unterbrochen.
+# Signal-Handler für Signal SIGINT:
+  local void interrupt_handler (int sig);
+  local void interrupt_handler(sig)
+    var int sig; # sig = SIGINT
+    { inc_break_sem_5();
+      signal_acknowledge(SIGINT,&interrupt_handler);
+  #ifdef PENDING_INTERRUPTS
+      if (!interrupt_pending) # Liegt schon ein Interrupt an -> nichts zu tun
+        { interrupt_pending = TRUE; # Flag für 'interruptp' setzen
+          #ifdef HAVE_UALARM
+          # eine halbe Sekunde warten, dann jede 1/20 sec probieren
+          ualarm(ticks_per_second/2,ticks_per_second/20);
+          #else
+          alarm(1); # eine Sekunde warten, weiter geht's dann bei alarm_handler
+          #endif
+        }
+      dec_break_sem_5();
+    }
+  local void alarm_handler (int sig);
+  local void alarm_handler(sig)
+    var int sig; # sig = SIGALRM
+    { # Die Zeit ist nun abgelaufen.
+      inc_break_sem_5();
+      #ifdef EMUNIX # Verhindere Programm-Beendigung durch SIGALRM
+      #ifndef HAVE_UALARM
+      alarm(0); # SIGALRM-Timer abbrechen
+      #endif
+      #endif
+      signal_acknowledge(SIGALRM,&alarm_handler);
+  #endif # PENDING_INTERRUPTS (!)
+      dec_break_sem_5();
+    #ifndef NO_ASYNC_INTERRUPTS
       # Warten, bis Unterbrechung erlaubt:
       if (!break_sems_cleared())
-        return;
+    #endif
+        {
+          #ifndef WATCOM
+          #ifndef HAVE_UALARM
+          alarm(1); # Probieren wir's in einer Sekunde nochmal
+          #endif
+          #endif
+          return; # Nach kurzer Zeit wird wieder ein SIGALRM ausgelöst.
+        }
+    #ifndef NO_ASYNC_INTERRUPTS
       # Wir springen jetzt aus dem signal-Handler heraus, weder mit 'return'
       # noch mit 'longjmp'.
       #
@@ -58,8 +95,7 @@
       # per sigaction() o.ä. das Blockieren des Signals beim Aufruf veranlassen
       # können, müssen wir das gerade blockierte Signal entblockieren:
         #if defined(SIGNALBLOCK_POSIX)
-          {
-            var sigset_t sigblock_mask;
+          { var sigset_t sigblock_mask;
             sigemptyset(&sigblock_mask); sigaddset(&sigblock_mask,sig);
             sigprocmask(SIG_UNBLOCK,&sigblock_mask,NULL);
           }
@@ -75,70 +111,17 @@
       fehler(serious_condition,
              GETTEXT("Ctrl-C: User break")
             );
-     #endif
+    #endif
     }
 
-# Eine Tastatur-Unterbrechung (Signal SIGINT, erzeugt durch Ctrl-C)
-# wird eine Sekunde lang aufgehoben. In dieser Zeit kann sie mittels
-# 'interruptp' auf fortsetzbare Art behandelt werden. Nach Ablauf dieser
-# Zeit wird das Programm nichtfortsetzbar unterbrochen.
-# Signal-Handler für Signal SIGINT:
-#ifdef PENDING_INTERRUPTS
-  local void interrupt_handler (int sig);
-  local void interrupt_handler(sig)
-    var int sig; # sig = SIGINT
-    {
-      inc_break_sem_5();
-      signal_acknowledge(SIGINT,&interrupt_handler);
-      if (!interrupt_pending) { # Liegt schon ein Interrupt an -> nichts zu tun
-        interrupt_pending = TRUE; # Flag für 'interruptp' setzen
-        #ifdef HAVE_UALARM
-        # eine halbe Sekunde warten, dann jede 1/20 sec probieren
-        ualarm(ticks_per_second/2,ticks_per_second/20);
-        #else
-        alarm(1); # eine Sekunde warten, weiter geht's dann bei alarm_handler
-        #endif
-      }
-      dec_break_sem_5();
-    }
-  local void alarm_handler (int sig);
-  local void alarm_handler(sig)
-    var int sig; # sig = SIGALRM
-    {
-      # Die Zeit ist nun abgelaufen.
-      inc_break_sem_5();
-      #ifdef EMUNIX # Verhindere Programm-Beendigung durch SIGALRM
-      #ifndef HAVE_UALARM
-      alarm(0); # SIGALRM-Timer abbrechen
-      #endif
-      #endif
-      signal_acknowledge(SIGALRM,&alarm_handler);
-      dec_break_sem_5();
-      react_on_sigint(sig);
-      #ifndef WATCOM
-      #ifndef HAVE_UALARM
-      alarm(1); # Probieren wir's in einer Sekunde nochmal
-      #endif
-      #endif
-      return; # Nach kurzer Zeit wird wieder ein SIGALRM ausgelöst.
-    }
-  #define install_sigint_handler()  \
-    SIGNAL(SIGINT,&interrupt_handler); \
-    SIGNAL(SIGALRM,&alarm_handler);
-#else
-  local void interrupt_handler (int sig);
-  local void interrupt_handler(sig)
-    var int sig; # sig = SIGINT
-    {
-      inc_break_sem_5();
-      signal_acknowledge(SIGINT,&interrupt_handler);
-      dec_break_sem_5();
-      react_on_sigint(sig);
-      return; # Der Benutzer muss es noch einmal probieren.
-    }
-  #define install_sigint_handler()  \
-    SIGNAL(SIGINT,&interrupt_handler);
-#endif
+  #ifdef PENDING_INTERRUPTS
+    #define install_sigint_handler()  \
+      SIGNAL(SIGINT,&interrupt_handler); \
+      SIGNAL(SIGALRM,&alarm_handler);
+  #else
+    #define install_sigint_handler()  \
+      SIGNAL(SIGINT,&interrupt_handler);
+  #endif
 
 #endif
 
@@ -148,8 +131,7 @@
   # not return!
   global void interrupt_handler (void);
   global void interrupt_handler()
-    {
-      # asciz_out("Entering interrupt handler.\n");
+    { # asciz_out("Entering interrupt handler.\n");
       #ifdef HAVE_SAVED_STACK
       # STACK auf einen sinnvollen Wert setzen:
       if (!(saved_STACK==NULL)) { setSTACK(STACK = saved_STACK); }

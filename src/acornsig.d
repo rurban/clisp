@@ -36,8 +36,7 @@
 
 global void prepare_signal_handler_exit (sig)
   var int sig;
-{
-  sigset_t sigblock_mask;
+{ sigset_t sigblock_mask;
   sigemptyset(&sigblock_mask);
   sigaddset(&sigblock_mask,sig);
   __u->sigstate.currently_handling = 0;

@@ -2,10 +2,6 @@
 # Destination directory. Define to empty for the current directory.
 DESTDIR = ../../src/
 
-# Directory containing conversion tables.
-# You have to unpack the conversion-tables.tar.gz package.
-TABLESDIR = /home/bruno/chs/conversion-tables
-
 ALL = $(DESTDIR)uni_upcase.c $(DESTDIR)uni_downcase.c $(DESTDIR)uni_attribute.c \
  $(DESTDIR)nls_ascii.c \
  $(DESTDIR)nls_iso8859_1.c \
@@ -21,9 +17,7 @@ ALL = $(DESTDIR)uni_upcase.c $(DESTDIR)uni_downcase.c $(DESTDIR)uni_attribute.c 
  $(DESTDIR)nls_iso8859_13.c \
  $(DESTDIR)nls_iso8859_14.c \
  $(DESTDIR)nls_iso8859_15.c \
- $(DESTDIR)nls_iso8859_16.c \
  $(DESTDIR)nls_koi8_r.c \
- $(DESTDIR)nls_koi8_u.c \
  $(DESTDIR)nls_mac_arabic.c \
  $(DESTDIR)nls_mac_centraleurope.c \
  $(DESTDIR)nls_mac_croatian.c \
@@ -74,12 +68,10 @@ ALL = $(DESTDIR)uni_upcase.c $(DESTDIR)uni_downcase.c $(DESTDIR)uni_attribute.c 
  $(DESTDIR)nls_cp1257.c \
  $(DESTDIR)nls_cp1258.c \
  $(DESTDIR)nls_hp_roman8.c \
- $(DESTDIR)nls_nextstep.c \
- $(DESTDIR)nls_jisx0201.c
+ $(DESTDIR)nls_nextstep.c
 
 JAVA = java
 JAVAC = javac -O
-CC = gcc -O -Wall
 ICONV = iconv_prog --loose
 
 all : $(ALL)
@@ -102,219 +94,477 @@ $(DESTDIR)uni_attribute.c : attribute_table.class
 attribute_table.class : attribute_table.java
 	$(JAVAC) attribute_table.java
 
-$(DESTDIR)nls_ascii.c : $(TABLESDIR)/glibc-2.1-iconv/ASCII.TXT nls_table
-	./nls_table ascii nls_ascii.c $(DESTDIR) < $<
+# All the .in files are in the following format:
+# One line per input character (except 0x0A and 0x0D), value being the
+# corresponding character (if ASCII) or a \unnnn escape sequence.
 
-$(DESTDIR)nls_iso8859_1.c : $(TABLESDIR)/unicode.org-mappings/ISO8859/8859-1.TXT nls_table
-	./nls_table iso8859-1 nls_iso8859_1.c $(DESTDIR) < $<
+$(DESTDIR)nls_ascii.c : nls_ascii.in nls_table.class
+	$(JAVA) nls_table nls_ascii.c $(DESTDIR) < nls_ascii.in
 
-$(DESTDIR)nls_iso8859_2.c : $(TABLESDIR)/unicode.org-mappings/ISO8859/8859-2.TXT nls_table
-	./nls_table iso8859-2 nls_iso8859_2.c $(DESTDIR) < $<
+$(DESTDIR)nls_iso8859_1.c : nls_iso8859_1.in nls_table.class
+	$(JAVA) nls_table nls_iso8859_1.c $(DESTDIR) < nls_iso8859_1.in
 
-$(DESTDIR)nls_iso8859_3.c : $(TABLESDIR)/unicode.org-mappings/ISO8859/8859-3.TXT nls_table
-	./nls_table iso8859-3 nls_iso8859_3.c $(DESTDIR) < $<
+$(DESTDIR)nls_iso8859_2.c : nls_iso8859_2.in nls_table.class
+	$(JAVA) nls_table nls_iso8859_2.c $(DESTDIR) < nls_iso8859_2.in
 
-$(DESTDIR)nls_iso8859_4.c : $(TABLESDIR)/unicode.org-mappings/ISO8859/8859-4.TXT nls_table
-	./nls_table iso8859-4 nls_iso8859_4.c $(DESTDIR) < $<
+$(DESTDIR)nls_iso8859_3.c : nls_iso8859_3.in nls_table.class
+	$(JAVA) nls_table nls_iso8859_3.c $(DESTDIR) < nls_iso8859_3.in
 
-$(DESTDIR)nls_iso8859_5.c : $(TABLESDIR)/unicode.org-mappings/ISO8859/8859-5.TXT nls_table
-	./nls_table iso8859-5 nls_iso8859_5.c $(DESTDIR) < $<
+$(DESTDIR)nls_iso8859_4.c : nls_iso8859_4.in nls_table.class
+	$(JAVA) nls_table nls_iso8859_4.c $(DESTDIR) < nls_iso8859_4.in
 
-$(DESTDIR)nls_iso8859_6.c : $(TABLESDIR)/unicode.org-mappings/ISO8859/8859-6.TXT nls_table
-	./nls_table iso8859-6 nls_iso8859_6.c $(DESTDIR) < $<
+$(DESTDIR)nls_iso8859_5.c : nls_iso8859_5.in nls_table.class
+	$(JAVA) nls_table nls_iso8859_5.c $(DESTDIR) < nls_iso8859_5.in
 
-$(DESTDIR)nls_iso8859_7.c : $(TABLESDIR)/unicode.org-mappings/ISO8859/8859-7.TXT nls_table
-	./nls_table iso8859-7 nls_iso8859_7.c $(DESTDIR) < $<
+$(DESTDIR)nls_iso8859_6.c : nls_iso8859_6.in nls_table.class
+	$(JAVA) nls_table nls_iso8859_6.c $(DESTDIR) < nls_iso8859_6.in
 
-$(DESTDIR)nls_iso8859_8.c : $(TABLESDIR)/unicode.org-mappings/ISO8859/8859-8.TXT nls_table
-	./nls_table iso8859-8 nls_iso8859_8.c $(DESTDIR) < $<
+$(DESTDIR)nls_iso8859_7.c : nls_iso8859_7.in nls_table.class
+	$(JAVA) nls_table nls_iso8859_7.c $(DESTDIR) < nls_iso8859_7.in
 
-$(DESTDIR)nls_iso8859_9.c : $(TABLESDIR)/unicode.org-mappings/ISO8859/8859-9.TXT nls_table
-	./nls_table iso8859-9 nls_iso8859_9.c $(DESTDIR) < $<
+$(DESTDIR)nls_iso8859_8.c : nls_iso8859_8.in nls_table.class
+	$(JAVA) nls_table nls_iso8859_8.c $(DESTDIR) < nls_iso8859_8.in
 
-$(DESTDIR)nls_iso8859_10.c : $(TABLESDIR)/unicode.org-mappings/ISO8859/8859-10.TXT nls_table
-	./nls_table iso8859-10 nls_iso8859_10.c $(DESTDIR) < $<
+$(DESTDIR)nls_iso8859_9.c : nls_iso8859_9.in nls_table.class
+	$(JAVA) nls_table nls_iso8859_9.c $(DESTDIR) < nls_iso8859_9.in
 
-$(DESTDIR)nls_iso8859_13.c : $(TABLESDIR)/unicode.org-mappings/ISO8859/8859-13.TXT nls_table
-	./nls_table iso8859-13 nls_iso8859_13.c $(DESTDIR) < $<
+$(DESTDIR)nls_iso8859_10.c : nls_iso8859_10.in nls_table.class
+	$(JAVA) nls_table nls_iso8859_10.c $(DESTDIR) < nls_iso8859_10.in
 
-$(DESTDIR)nls_iso8859_14.c : $(TABLESDIR)/unicode.org-mappings/ISO8859/8859-14.TXT nls_table
-	./nls_table iso8859-14 nls_iso8859_14.c $(DESTDIR) < $<
+$(DESTDIR)nls_iso8859_13.c : nls_iso8859_13.in nls_table.class
+	$(JAVA) nls_table nls_iso8859_13.c $(DESTDIR) < nls_iso8859_13.in
 
-$(DESTDIR)nls_iso8859_15.c : $(TABLESDIR)/unicode.org-mappings/ISO8859/8859-15.TXT nls_table
-	./nls_table iso8859-15 nls_iso8859_15.c $(DESTDIR) < $<
+$(DESTDIR)nls_iso8859_14.c : nls_iso8859_14.in nls_table.class
+	$(JAVA) nls_table nls_iso8859_14.c $(DESTDIR) < nls_iso8859_14.in
 
-$(DESTDIR)nls_iso8859_16.c : $(TABLESDIR)/csets-new/ISO-8859-16.TXT nls_table
-	./nls_table iso8859-16 nls_iso8859_16.c $(DESTDIR) < $<
+$(DESTDIR)nls_iso8859_15.c : nls_iso8859_15.in nls_table.class
+	$(JAVA) nls_table nls_iso8859_15.c $(DESTDIR) < nls_iso8859_15.in
 
-$(DESTDIR)nls_koi8_r.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MISC/KOI8-R.TXT nls_table
-	./nls_table koi8-r nls_koi8_r.c $(DESTDIR) < $<
+$(DESTDIR)nls_koi8_r.c : nls_koi8_r.in nls_table.class
+	$(JAVA) nls_table nls_koi8_r.c $(DESTDIR) < nls_koi8_r.in
 
-$(DESTDIR)nls_koi8_u.c : $(TABLESDIR)/csets-new/KOI8-U.TXT nls_table
-	./nls_table koi8-u nls_koi8_u.c $(DESTDIR) < $<
+$(DESTDIR)nls_mac_arabic.c : nls_mac_arabic.in nls_table.class
+	$(JAVA) nls_table nls_mac_arabic.c $(DESTDIR) < nls_mac_arabic.in
 
-$(DESTDIR)nls_mac_arabic.c : $(TABLESDIR)/jdk-1.1.7b/MAC-ARABIC.TXT nls_table
-	./nls_table mac-arabic nls_mac_arabic.c $(DESTDIR) < $<
+$(DESTDIR)nls_mac_centraleurope.c : nls_mac_centraleurope.in nls_table.class
+	$(JAVA) nls_table nls_mac_centraleurope.c $(DESTDIR) < nls_mac_centraleurope.in
 
-$(DESTDIR)nls_mac_centraleurope.c : $(TABLESDIR)/jdk-1.1.7b/MAC-CENTRAL-EUROPE.TXT nls_table
-	./nls_table mac-centraleurope nls_mac_centraleurope.c $(DESTDIR) < $<
+$(DESTDIR)nls_mac_croatian.c : nls_mac_croatian.in nls_table.class
+	$(JAVA) nls_table nls_mac_croatian.c $(DESTDIR) < nls_mac_croatian.in
 
-$(DESTDIR)nls_mac_croatian.c : $(TABLESDIR)/jdk-1.1.7b/MAC-CROATIAN.TXT nls_table
-	./nls_table mac-croatian nls_mac_croatian.c $(DESTDIR) < $<
+$(DESTDIR)nls_mac_cyrillic.c : nls_mac_cyrillic.in nls_table.class
+	$(JAVA) nls_table nls_mac_cyrillic.c $(DESTDIR) < nls_mac_cyrillic.in
 
-$(DESTDIR)nls_mac_cyrillic.c : $(TABLESDIR)/jdk-1.1.7b/MAC-CYRILLIC.TXT nls_table
-	./nls_table mac-cyrillic nls_mac_cyrillic.c $(DESTDIR) < $<
+$(DESTDIR)nls_mac_dingbat.c : nls_mac_dingbat.in nls_table.class
+	$(JAVA) nls_table nls_mac_dingbat.c $(DESTDIR) < nls_mac_dingbat.in
 
-$(DESTDIR)nls_mac_dingbat.c : $(TABLESDIR)/jdk-1.1.7b/MAC-DINGBAT.TXT nls_table
-	./nls_table mac-dingbat nls_mac_dingbat.c $(DESTDIR) < $<
+$(DESTDIR)nls_mac_greek.c : nls_mac_greek.in nls_table.class
+	$(JAVA) nls_table nls_mac_greek.c $(DESTDIR) < nls_mac_greek.in
 
-$(DESTDIR)nls_mac_greek.c : $(TABLESDIR)/jdk-1.1.7b/MAC-GREEK.TXT nls_table
-	./nls_table mac-greek nls_mac_greek.c $(DESTDIR) < $<
+$(DESTDIR)nls_mac_hebrew.c : nls_mac_hebrew.in nls_table.class
+	$(JAVA) nls_table nls_mac_hebrew.c $(DESTDIR) < nls_mac_hebrew.in
 
-$(DESTDIR)nls_mac_hebrew.c : $(TABLESDIR)/jdk-1.1.7b/MAC-HEBREW.TXT nls_table
-	./nls_table mac-hebrew nls_mac_hebrew.c $(DESTDIR) < $<
+$(DESTDIR)nls_mac_iceland.c : nls_mac_iceland.in nls_table.class
+	$(JAVA) nls_table nls_mac_iceland.c $(DESTDIR) < nls_mac_iceland.in
 
-$(DESTDIR)nls_mac_iceland.c : $(TABLESDIR)/jdk-1.1.7b/MAC-ICELAND.TXT nls_table
-	./nls_table mac-iceland nls_mac_iceland.c $(DESTDIR) < $<
+$(DESTDIR)nls_mac_roman.c : nls_mac_roman.in nls_table.class
+	$(JAVA) nls_table nls_mac_roman.c $(DESTDIR) < nls_mac_roman.in
 
-$(DESTDIR)nls_mac_roman.c : $(TABLESDIR)/jdk-1.1.7b/MAC-ROMAN.TXT nls_table
-	./nls_table mac-roman nls_mac_roman.c $(DESTDIR) < $<
+$(DESTDIR)nls_mac_romania.c : nls_mac_romania.in nls_table.class
+	$(JAVA) nls_table nls_mac_romania.c $(DESTDIR) < nls_mac_romania.in
 
-$(DESTDIR)nls_mac_romania.c : $(TABLESDIR)/jdk-1.1.7b/MAC-ROMANIA.TXT nls_table
-	./nls_table mac-romania nls_mac_romania.c $(DESTDIR) < $<
+$(DESTDIR)nls_mac_symbol.c : nls_mac_symbol.in nls_table.class
+	$(JAVA) nls_table nls_mac_symbol.c $(DESTDIR) < nls_mac_symbol.in
 
-$(DESTDIR)nls_mac_symbol.c : $(TABLESDIR)/jdk-1.1.7b/MAC-SYMBOL.TXT nls_table
-	./nls_table mac-symbol nls_mac_symbol.c $(DESTDIR) < $<
+$(DESTDIR)nls_mac_thai.c : nls_mac_thai.in nls_table.class
+	$(JAVA) nls_table nls_mac_thai.c $(DESTDIR) < nls_mac_thai.in
 
-$(DESTDIR)nls_mac_thai.c : $(TABLESDIR)/jdk-1.1.7b/MAC-THAI.TXT nls_table
-	./nls_table mac-thai nls_mac_thai.c $(DESTDIR) < $<
+$(DESTDIR)nls_mac_turkish.c : nls_mac_turkish.in nls_table.class
+	$(JAVA) nls_table nls_mac_turkish.c $(DESTDIR) < nls_mac_turkish.in
 
-$(DESTDIR)nls_mac_turkish.c : $(TABLESDIR)/jdk-1.1.7b/MAC-TURKISH.TXT nls_table
-	./nls_table mac-turkish nls_mac_turkish.c $(DESTDIR) < $<
+$(DESTDIR)nls_mac_ukraine.c : nls_mac_ukraine.in nls_table.class
+	$(JAVA) nls_table nls_mac_ukraine.c $(DESTDIR) < nls_mac_ukraine.in
 
-$(DESTDIR)nls_mac_ukraine.c : $(TABLESDIR)/jdk-1.1.7b/MAC-UKRAINE.TXT nls_table
-	./nls_table mac-ukraine nls_mac_ukraine.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp437_ms.c : nls_cp437_ms.in nls_table.class
+	$(JAVA) nls_table nls_cp437_ms.c $(DESTDIR) < nls_cp437_ms.in
 
-$(DESTDIR)nls_cp437_ms.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/PC/CP437.TXT nls_table
-	./nls_table cp437-ms nls_cp437_ms.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp437_ibm.c : nls_cp437_ibm.in nls_table.class
+	$(JAVA) nls_table nls_cp437_ibm.c $(DESTDIR) < nls_cp437_ibm.in
 
-$(DESTDIR)nls_cp437_ibm.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/IBM.OLD/PC/CP437.TXT nls_table
-	./nls_table cp437-ibm nls_cp437_ibm.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp737.c : nls_cp737.in nls_table.class
+	$(JAVA) nls_table nls_cp737.c $(DESTDIR) < nls_cp737.in
 
-$(DESTDIR)nls_cp737.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/PC/CP737.TXT nls_table
-	./nls_table cp737 nls_cp737.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp775.c : nls_cp775.in nls_table.class
+	$(JAVA) nls_table nls_cp775.c $(DESTDIR) < nls_cp775.in
 
-$(DESTDIR)nls_cp775.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/PC/CP775.TXT nls_table
-	./nls_table cp775 nls_cp775.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp850.c : nls_cp850.in nls_table.class
+	$(JAVA) nls_table nls_cp850.c $(DESTDIR) < nls_cp850.in
 
-$(DESTDIR)nls_cp850.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/PC/CP850.TXT nls_table
-	./nls_table cp850 nls_cp850.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp852_ms.c : nls_cp852_ms.in nls_table.class
+	$(JAVA) nls_table nls_cp852_ms.c $(DESTDIR) < nls_cp852_ms.in
 
-$(DESTDIR)nls_cp852_ms.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/PC/CP852.TXT nls_table
-	./nls_table cp852-ms nls_cp852_ms.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp852_ibm.c : nls_cp852_ibm.in nls_table.class
+	$(JAVA) nls_table nls_cp852_ibm.c $(DESTDIR) < nls_cp852_ibm.in
 
-$(DESTDIR)nls_cp852_ibm.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/IBM.OLD/PC/CP852.TXT nls_table
-	./nls_table cp852-ibm nls_cp852_ibm.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp855.c : nls_cp855.in nls_table.class
+	$(JAVA) nls_table nls_cp855.c $(DESTDIR) < nls_cp855.in
 
-$(DESTDIR)nls_cp855.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/PC/CP855.TXT nls_table
-	./nls_table cp855 nls_cp855.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp857.c : nls_cp857.in nls_table.class
+	$(JAVA) nls_table nls_cp857.c $(DESTDIR) < nls_cp857.in
 
-$(DESTDIR)nls_cp857.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/PC/CP857.TXT nls_table
-	./nls_table cp857 nls_cp857.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp860_ms.c : nls_cp860_ms.in nls_table.class
+	$(JAVA) nls_table nls_cp860_ms.c $(DESTDIR) < nls_cp860_ms.in
 
-$(DESTDIR)nls_cp860_ms.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/PC/CP860.TXT nls_table
-	./nls_table cp860-ms nls_cp860_ms.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp860_ibm.c : nls_cp860_ibm.in nls_table.class
+	$(JAVA) nls_table nls_cp860_ibm.c $(DESTDIR) < nls_cp860_ibm.in
 
-$(DESTDIR)nls_cp860_ibm.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/IBM.OLD/PC/CP860.TXT nls_table
-	./nls_table cp860-ibm nls_cp860_ibm.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp861_ms.c : nls_cp861_ms.in nls_table.class
+	$(JAVA) nls_table nls_cp861_ms.c $(DESTDIR) < nls_cp861_ms.in
 
-$(DESTDIR)nls_cp861_ms.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/PC/CP861.TXT nls_table
-	./nls_table cp861-ms nls_cp861_ms.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp861_ibm.c : nls_cp861_ibm.in nls_table.class
+	$(JAVA) nls_table nls_cp861_ibm.c $(DESTDIR) < nls_cp861_ibm.in
 
-$(DESTDIR)nls_cp861_ibm.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/IBM.OLD/PC/CP861.TXT nls_table
-	./nls_table cp861-ibm nls_cp861_ibm.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp862_ms.c : nls_cp862_ms.in nls_table.class
+	$(JAVA) nls_table nls_cp862_ms.c $(DESTDIR) < nls_cp862_ms.in
 
-$(DESTDIR)nls_cp862_ms.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/PC/CP862.TXT nls_table
-	./nls_table cp862-ms nls_cp862_ms.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp862_ibm.c : nls_cp862_ibm.in nls_table.class
+	$(JAVA) nls_table nls_cp862_ibm.c $(DESTDIR) < nls_cp862_ibm.in
 
-$(DESTDIR)nls_cp862_ibm.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/IBM.OLD/PC/CP862.TXT nls_table
-	./nls_table cp862-ibm nls_cp862_ibm.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp863_ms.c : nls_cp863_ms.in nls_table.class
+	$(JAVA) nls_table nls_cp863_ms.c $(DESTDIR) < nls_cp863_ms.in
 
-$(DESTDIR)nls_cp863_ms.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/PC/CP863.TXT nls_table
-	./nls_table cp863-ms nls_cp863_ms.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp863_ibm.c : nls_cp863_ibm.in nls_table.class
+	$(JAVA) nls_table nls_cp863_ibm.c $(DESTDIR) < nls_cp863_ibm.in
 
-$(DESTDIR)nls_cp863_ibm.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/IBM.OLD/PC/CP863.TXT nls_table
-	./nls_table cp863-ibm nls_cp863_ibm.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp864_ms.c : nls_cp864_ms.in nls_table.class
+	$(JAVA) nls_table nls_cp864_ms.c $(DESTDIR) < nls_cp864_ms.in
 
-$(DESTDIR)nls_cp864_ms.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/PC/CP864.TXT nls_table
-	./nls_table cp864-ms nls_cp864_ms.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp864_ibm.c : nls_cp864_ibm.in nls_table.class
+	$(JAVA) nls_table nls_cp864_ibm.c $(DESTDIR) < nls_cp864_ibm.in
 
-$(DESTDIR)nls_cp864_ibm.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/IBM.OLD/PC/CP864.TXT nls_table
-	./nls_table cp864-ibm nls_cp864_ibm.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp865_ms.c : nls_cp865_ms.in nls_table.class
+	$(JAVA) nls_table nls_cp865_ms.c $(DESTDIR) < nls_cp865_ms.in
 
-$(DESTDIR)nls_cp865_ms.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/PC/CP865.TXT nls_table
-	./nls_table cp865-ms nls_cp865_ms.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp865_ibm.c : nls_cp865_ibm.in nls_table.class
+	$(JAVA) nls_table nls_cp865_ibm.c $(DESTDIR) < nls_cp865_ibm.in
 
-$(DESTDIR)nls_cp865_ibm.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/IBM.OLD/PC/CP865.TXT nls_table
-	./nls_table cp865-ibm nls_cp865_ibm.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp866.c : nls_cp866.in nls_table.class
+	$(JAVA) nls_table nls_cp866.c $(DESTDIR) < nls_cp866.in
 
-$(DESTDIR)nls_cp866.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/PC/CP866.TXT nls_table
-	./nls_table cp866 nls_cp866.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp869_ms.c : nls_cp869_ms.in nls_table.class
+	$(JAVA) nls_table nls_cp869_ms.c $(DESTDIR) < nls_cp869_ms.in
 
-$(DESTDIR)nls_cp869_ms.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/PC/CP869.TXT nls_table
-	./nls_table cp869-ms nls_cp869_ms.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp869_ibm.c : nls_cp869_ibm.in nls_table.class
+	$(JAVA) nls_table nls_cp869_ibm.c $(DESTDIR) < nls_cp869_ibm.in
 
-$(DESTDIR)nls_cp869_ibm.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/IBM.OLD/PC/CP869.TXT nls_table
-	./nls_table cp869-ibm nls_cp869_ibm.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp874_ms.c : nls_cp874_ms.in nls_table.class
+	$(JAVA) nls_table nls_cp874_ms.c $(DESTDIR) < nls_cp874_ms.in
 
-$(DESTDIR)nls_cp874_ms.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/PC/CP874.TXT nls_table
-	./nls_table cp874-ms nls_cp874_ms.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp874_ibm.c : nls_cp874_ibm.in nls_table.class
+	$(JAVA) nls_table nls_cp874_ibm.c $(DESTDIR) < nls_cp874_ibm.in
 
-$(DESTDIR)nls_cp874_ibm.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/IBM.OLD/PC/CP874.TXT nls_table
-	./nls_table cp874-ibm nls_cp874_ibm.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp1250.c : nls_cp1250.in nls_table.class
+	$(JAVA) nls_table nls_cp1250.c $(DESTDIR) < nls_cp1250.in
 
-$(DESTDIR)nls_cp1250.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/WINDOWS/CP1250.TXT nls_table
-	./nls_table cp1250 nls_cp1250.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp1251.c : nls_cp1251.in nls_table.class
+	$(JAVA) nls_table nls_cp1251.c $(DESTDIR) < nls_cp1251.in
 
-$(DESTDIR)nls_cp1251.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/WINDOWS/CP1251.TXT nls_table
-	./nls_table cp1251 nls_cp1251.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp1252.c : nls_cp1252.in nls_table.class
+	$(JAVA) nls_table nls_cp1252.c $(DESTDIR) < nls_cp1252.in
 
-$(DESTDIR)nls_cp1252.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/WINDOWS/CP1252.TXT nls_table
-	./nls_table cp1252 nls_cp1252.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp1253.c : nls_cp1253.in nls_table.class
+	$(JAVA) nls_table nls_cp1253.c $(DESTDIR) < nls_cp1253.in
 
-$(DESTDIR)nls_cp1253.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/WINDOWS/CP1253.TXT nls_table
-	./nls_table cp1253 nls_cp1253.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp1254.c : nls_cp1254.in nls_table.class
+	$(JAVA) nls_table nls_cp1254.c $(DESTDIR) < nls_cp1254.in
 
-$(DESTDIR)nls_cp1254.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/WINDOWS/CP1254.TXT nls_table
-	./nls_table cp1254 nls_cp1254.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp1255.c : nls_cp1255.in nls_table.class
+	$(JAVA) nls_table nls_cp1255.c $(DESTDIR) < nls_cp1255.in
 
-$(DESTDIR)nls_cp1255.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/WINDOWS/CP1255.TXT nls_table
-	./nls_table cp1255 nls_cp1255.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp1256.c : nls_cp1256.in nls_table.class
+	$(JAVA) nls_table nls_cp1256.c $(DESTDIR) < nls_cp1256.in
 
-$(DESTDIR)nls_cp1256.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/WINDOWS/CP1256.TXT nls_table
-	./nls_table cp1256 nls_cp1256.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp1257.c : nls_cp1257.in nls_table.class
+	$(JAVA) nls_table nls_cp1257.c $(DESTDIR) < nls_cp1257.in
 
-$(DESTDIR)nls_cp1257.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/WINDOWS/CP1257.TXT nls_table
-	./nls_table cp1257 nls_cp1257.c $(DESTDIR) < $<
+$(DESTDIR)nls_cp1258.c : nls_cp1258.in nls_table.class
+	$(JAVA) nls_table nls_cp1258.c $(DESTDIR) < nls_cp1258.in
 
-$(DESTDIR)nls_cp1258.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/WINDOWS/CP1258.TXT nls_table
-	./nls_table cp1258 nls_cp1258.c $(DESTDIR) < $<
+$(DESTDIR)nls_hp_roman8.c : nls_hp_roman8.in nls_table.class
+	$(JAVA) nls_table nls_hp_roman8.c $(DESTDIR) < nls_hp_roman8.in
 
-$(DESTDIR)nls_hp_roman8.c : $(TABLESDIR)/glibc-2.1-iconv/HP-ROMAN8.TXT nls_table
-	./nls_table hp-roman8 nls_hp_roman8.c $(DESTDIR) < $<
+$(DESTDIR)nls_nextstep.c : nls_nextstep.in nls_table.class
+	$(JAVA) nls_table nls_nextstep.c $(DESTDIR) < nls_nextstep.in
 
-$(DESTDIR)nls_nextstep.c : $(TABLESDIR)/clisp/NEXTSTEP.TXT nls_table
-	./nls_table nextstep nls_nextstep.c $(DESTDIR) < $<
+nls_table.class : nls_table.java
+	$(JAVAC) nls_table.java
 
-$(DESTDIR)nls_jisx0201.c : $(TABLESDIR)/clisp/JIS_X0201.TXT nls_table
-	./nls_table jisx0201 nls_jisx0201.c $(DESTDIR) < $<
+# The .in files come from different sources.
+# ftp.unicode.org tables, linux kernel, or by running the Java "native2ascii"
+# program.
 
-nls_table : nls_table.c
-	$(CC) nls_table.c -o nls_table
+nls_ascii.in : nls_txt_to_in.class
+#	$(ICONV) --from-code=ASCII --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_ascii.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/ASCII.TXT > nls_ascii.in
+
+nls_iso8859_1.in : nls_txt_to_in.class
+#	$(ICONV) --from-code=ISO-8859-1 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_1.in
+#	native2ascii -encoding 8859_1           < nls_table_in | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_1.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/8859-1.TXT > nls_iso8859_1.in
+
+nls_iso8859_2.in : nls_txt_to_in.class
+#	$(ICONV) --from-code=ISO-8859-2 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_2.in
+#	native2ascii -encoding 8859_2           < nls_table_in | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_2.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/8859-2.TXT > nls_iso8859_2.in
+
+nls_iso8859_3.in : nls_txt_to_in.class
+#	native2ascii -encoding 8859_3           < nls_table_in | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_3.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/8859-3.TXT > nls_iso8859_3.in
+
+nls_iso8859_4.in : nls_txt_to_in.class
+#	$(ICONV) --from-code=ISO-8859-4 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_4.in
+#	native2ascii -encoding 8859_4           < nls_table_in | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_4.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/8859-4.TXT > nls_iso8859_4.in
+
+nls_iso8859_5.in : nls_txt_to_in.class
+#	$(ICONV) --from-code=ISO-8859-5 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_5.in
+#	native2ascii -encoding 8859_5           < nls_table_in | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_5.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/8859-5.TXT > nls_iso8859_5.in
+
+nls_iso8859_6.in : nls_txt_to_in.class
+#	native2ascii -encoding 8859_6           < nls_table_in | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_6.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/8859-6.TXT > nls_iso8859_6.in
+
+nls_iso8859_7.in : nls_txt_to_in.class
+#	native2ascii -encoding 8859_7           < nls_table_in | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_7.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/8859-7.TXT > nls_iso8859_7.in
+
+nls_iso8859_8.in : nls_txt_to_in.class
+#	native2ascii -encoding 8859_8           < nls_table_in | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_8.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/8859-8.TXT > nls_iso8859_8.in
+
+nls_iso8859_9.in : nls_txt_to_in.class
+#	$(ICONV) --from-code=ISO-8859-9 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_9.in
+#	native2ascii -encoding 8859_9           < nls_table_in | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_9.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/8859-9.TXT > nls_iso8859_9.in
+
+nls_iso8859_10.in :
+	$(ICONV) --from-code=ISO-8859-10 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_10.in
+
+nls_iso8859_13.in :
+	$(ICONV) --from-code=ISO-8859-13 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_13.in
+
+nls_iso8859_14.in : nls_txt_to_in.class
+#	$(ICONV) --from-code=ISO-8859-14 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_14.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/8859-14.TXT > nls_iso8859_14.in
+
+nls_iso8859_15.in : nls_txt_to_in.class
+#	$(ICONV) --from-code=ISO-8859-15 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_15.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/8859-15.TXT > nls_iso8859_15.in
+
+#nls_koi8_r.in :
+#	> nls_koi8_r.in
+
+nls_mac_arabic.in :
+	native2ascii -encoding MacArabic        < nls_table_in > nls_mac_arabic.in
+
+nls_mac_centraleurope.in :
+	native2ascii -encoding MacCentralEurope < nls_table_in > nls_mac_centraleurope.in
+#	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-MAC-LATIN2.TXT > nls_mac_centraleurope.in
+
+nls_mac_croatian.in :
+	native2ascii -encoding MacCroatian      < nls_table_in | sed -e 's/uf8ff/ufffd/' > nls_mac_croatian.in
+
+nls_mac_cyrillic.in :
+	native2ascii -encoding MacCyrillic      < nls_table_in > nls_mac_cyrillic.in
+#	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-MAC-CYRILLIC.TXT > nls_mac_cyrillic.in
+
+nls_mac_dingbat.in :
+	native2ascii -encoding MacDingbat       < nls_table_in > nls_mac_dingbat.in
+
+nls_mac_greek.in :
+	native2ascii -encoding MacGreek         < nls_table_in > nls_mac_greek.in
+#	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-MAC-GREEK.TXT > nls_mac_greek.in
+
+nls_mac_hebrew.in :
+	native2ascii -encoding MacHebrew        < nls_table_in > nls_mac_hebrew.in
+
+nls_mac_iceland.in :
+	native2ascii -encoding MacIceland       < nls_table_in | sed -e 's/uf8ff/ufffd/' > nls_mac_iceland.in
+#	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-MAC-ICELAND.TXT > nls_mac_iceland.in
+
+nls_mac_roman.in :
+	native2ascii -encoding MacRoman         < nls_table_in | sed -e 's/uf8ff/ufffd/' > nls_mac_roman.in
+#	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-MAC-ROMAN.TXT > nls_mac_roman.in
+
+nls_mac_romania.in :
+	native2ascii -encoding MacRomania       < nls_table_in | sed -e 's/uf8ff/ufffd/' > nls_mac_romania.in
+
+nls_mac_symbol.in :
+	native2ascii -encoding MacSymbol        < nls_table_in > nls_mac_symbol.in
+
+nls_mac_thai.in :
+	native2ascii -encoding MacThai          < nls_table_in > nls_mac_thai.in
+
+nls_mac_turkish.in :
+	native2ascii -encoding MacTurkish       < nls_table_in | sed -e 's/uf8ff/ufffd/' > nls_mac_turkish.in
+#	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-MAC-TURKISH.TXT > nls_mac_turkish.in
+
+nls_mac_ukraine.in :
+	native2ascii -encoding MacUkraine       < nls_table_in > nls_mac_ukraine.in
+
+nls_cp437_ms.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp437            < nls_table_in > nls_cp437_ms.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-PC-CP437.TXT > nls_cp437_ms.in
+
+nls_cp437_ibm.in : nls_txt_to_in.class
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/IBM-PC-CP437.TXT > nls_cp437_ibm.in
+
+nls_cp737.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp737            < nls_table_in > nls_cp737.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-PC-CP737.TXT > nls_cp737.in
+
+nls_cp775.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp775            < nls_table_in > nls_cp775.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-PC-CP775.TXT > nls_cp775.in
+
+nls_cp850.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp850            < nls_table_in > nls_cp850.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-PC-CP850.TXT > nls_cp850.in
+
+nls_cp852_ms.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp852            < nls_table_in > nls_cp852_ms.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-PC-CP852.TXT > nls_cp852_ms.in
+
+nls_cp852_ibm.in : nls_txt_to_in.class
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/IBM-PC-CP852.TXT > nls_cp852_ibm.in
+
+nls_cp855.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp855            < nls_table_in > nls_cp855.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-PC-CP855.TXT > nls_cp855.in
+
+nls_cp857.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp857            < nls_table_in > nls_cp857.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-PC-CP857.TXT > nls_cp857.in
+
+nls_cp860_ms.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp860            < nls_table_in > nls_cp860_ms.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-PC-CP860.TXT > nls_cp860_ms.in
+
+nls_cp860_ibm.in : nls_txt_to_in.class
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/IBM-PC-CP860.TXT > nls_cp860_ibm.in
+
+nls_cp861_ms.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp861            < nls_table_in > nls_cp861_ms.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-PC-CP861.TXT > nls_cp861_ms.in
+
+nls_cp861_ibm.in : nls_txt_to_in.class
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/IBM-PC-CP861.TXT > nls_cp861_ibm.in
+
+nls_cp862_ms.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp862            < nls_table_in > nls_cp862_ms.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-PC-CP862.TXT > nls_cp862_ms.in
+
+nls_cp862_ibm.in : nls_txt_to_in.class
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/IBM-PC-CP862.TXT > nls_cp862_ibm.in
+
+nls_cp863_ms.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp863            < nls_table_in > nls_cp863_ms.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-PC-CP863.TXT > nls_cp863_ms.in
+
+nls_cp863_ibm.in : nls_txt_to_in.class
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/IBM-PC-CP863.TXT > nls_cp863_ibm.in
+
+nls_cp864_ms.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp864            < nls_table_in > nls_cp864_ms.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-PC-CP864.TXT > nls_cp864_ms.in
+
+nls_cp864_ibm.in : nls_txt_to_in.class
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/IBM-PC-CP864.TXT > nls_cp864_ibm.in
+
+nls_cp865_ms.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp865            < nls_table_in > nls_cp865_ms.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-PC-CP865.TXT > nls_cp865_ms.in
+
+nls_cp865_ibm.in : nls_txt_to_in.class
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/IBM-PC-CP865.TXT > nls_cp865_ibm.in
+
+nls_cp866.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp866            < nls_table_in > nls_cp866.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-PC-CP866.TXT > nls_cp866.in
+
+nls_cp869_ms.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp869            < nls_table_in > nls_cp869_ms.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-PC-CP869.TXT > nls_cp869_ms.in
+
+nls_cp869_ibm.in : nls_txt_to_in.class
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/IBM-PC-CP869.TXT > nls_cp869_ibm.in
+
+nls_cp874_ms.in : nls_txt_to_in.class
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-PC-CP874.TXT > nls_cp874_ms.in
+#	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-WIN-CP874.TXT > nls_cp874_ms.in
+
+nls_cp874_ibm.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp874            < nls_table_in > nls_cp874_ibm.in # old, lacks Euro sign
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/IBM-PC-CP874.TXT > nls_cp874_ibm.in
+
+nls_cp1250.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp1250           < nls_table_in > nls_cp1250.in # old, lacks Euro sign
+#	$(ICONV) --from-code=CP1250 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_cp1250.in # old, lacks Euro sign
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-WIN-CP1250.TXT > nls_cp1250.in
+
+nls_cp1251.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp1251           < nls_table_in > nls_cp1251.in # old, lacks Euro sign
+#	$(ICONV) --from-code=CP1251 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_cp1251.in # old, lacks Euro sign
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-WIN-CP1251.TXT > nls_cp1251.in
+
+nls_cp1252.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp1252           < nls_table_in > nls_cp1252.in # old, lacks Euro sign
+#	$(ICONV) --from-code=CP1252 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_cp1252.in # old, lacks Euro sign
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-WIN-CP1252.TXT > nls_cp1252.in
+
+nls_cp1253.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp1253           < nls_table_in > nls_cp1253.in # old, lacks Euro sign
+#	$(ICONV) --from-code=CP1253 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_cp1253.in # old, lacks Euro sign
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-WIN-CP1253.TXT > nls_cp1253.in
+
+nls_cp1254.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp1254           < nls_table_in > nls_cp1254.in # old, lacks Euro sign
+#	$(ICONV) --from-code=CP1254 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_cp1254.in # old, lacks Euro sign
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-WIN-CP1254.TXT > nls_cp1254.in
+
+nls_cp1255.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp1255           < nls_table_in > nls_cp1255.in # old, lacks Euro sign and other things
+#	$(ICONV) --from-code=CP1255 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_cp1255.in # old, lacks Euro sign
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-WIN-CP1255.TXT > nls_cp1255.in
+
+nls_cp1256.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp1256           < nls_table_in > nls_cp1256.in # old, lacks Euro sign and other things
+#	$(ICONV) --from-code=CP1256 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_cp1256.in # old, lacks Euro sign
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-WIN-CP1256.TXT > nls_cp1256.in
+
+nls_cp1257.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp1257           < nls_table_in > nls_cp1257.in # old, lacks Euro sign
+#	$(ICONV) --from-code=CP1257 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_cp1257.in # old, lacks Euro sign
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-WIN-CP1257.TXT > nls_cp1257.in
+
+nls_cp1258.in : nls_txt_to_in.class
+#	native2ascii -encoding Cp1258           < nls_table_in > nls_cp1258.in # old, lacks Euro sign
+#	$(ICONV) --from-code=CP1258 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_cp1258.in # old, lacks Euro sign
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-WIN-CP1258.TXT > nls_cp1258.in
+
+nls_hp_roman8.in : nls_txt_to_in.class
+	$(ICONV) --from-code=HP-ROMAN8 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_hp_roman8.in
+
+nls_nextstep.in : nls_txt_to_in.class
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/NEXTSTEP.TXT > nls_nextstep.in
+
+nls_txt_to_in.class : nls_txt_to_in.java
+	$(JAVAC) nls_txt_to_in.java
 
 
 clean : force
-	rm -f *.class nls_table
+	rm -f *.class *.c
 
 force :
 

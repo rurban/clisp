@@ -1,20 +1,17 @@
 /*
- *  Copyright (c) 1996-1999 by Gilbert Baumann, distributed under GPL
+ *  Copyright (c) 1996-1997 by Gilbert Baumann, distributed under GPL
  *
- *    Title:    Incredible weird program to produce equal weird CLISP modules
- *    Created:  Tue Jun 25 09:35:27 1996
- *    Author:   Gilbert Baumann
- *              <unk6@rz.uni-karlsruhe.de>
+ *    Title: 	Incredible weird program to produce equal weird CLISP modules
+ *    Created:	Tue Jun 25 09:35:27 1996
+ *    Author: 	Gilbert Baumann
+ *		<unk6@rz.uni-karlsruhe.de>
+ *       RCS:   $Id$
+ *
  *
  *  This whole bunch of code written quick and dirty. [Mit der heißen Nadel gestrickt!]
  */
 
 /*
- * 1999-08-27 gilbert
- * - fetchc: moved out of parse_body
- * - parse_kw, parse_kw_count, parse_kw_put: moved out of parse_keywords
- * - do_defun: removed x?:y idiom.
- *
  * Revision 1.10  1997-09-21  bruno
  * - don't use memmove, for portability
  *
@@ -55,7 +52,7 @@
 
 /** TODO **
  *
- *  o Shouldn't we rather make a whole preproccessor of it, named d2c or c2c?
+ *  o Should'nt we rather make a whole preproccessor of it, named d2c or c2c?
  *  o Way to specify exact C name for subrs.
  *
  *  o BTW. Is it worth to write a CLISP specific peep-hole optimizer?
@@ -88,33 +85,33 @@
 /** Simply a list of all implemented subr signatures **/
 char *valid_argtypes[] =
 {
-  "0, 0, norest, nokey",        "1, 0, norest, nokey",
-  "2, 0, norest, nokey",        "3, 0, norest, nokey",
-  "4, 0, norest, nokey",        "5, 0, norest, nokey",
-  "6, 0, norest, nokey",        "0, 1, norest, nokey",
-  "1, 1, norest, nokey",        "2, 1, norest, nokey",
-  "3, 1, norest, nokey",        "4, 1, norest, nokey",
-  "0, 2, norest, nokey",        "1, 2, norest, nokey",
-  "2, 2, norest, nokey",        "0, 3, norest, nokey",
-  "0, 4, norest, nokey",        "0, 5, norest, nokey",
+  "0, 0, norest, nokey",	"1, 0, norest, nokey",
+  "2, 0, norest, nokey",	"3, 0, norest, nokey",
+  "4, 0, norest, nokey",	"5, 0, norest, nokey",
+  "6, 0, norest, nokey",	"0, 1, norest, nokey",
+  "1, 1, norest, nokey",	"2, 1, norest, nokey",
+  "3, 1, norest, nokey",	"4, 1, norest, nokey",
+  "0, 2, norest, nokey",	"1, 2, norest, nokey",
+  "2, 2, norest, nokey",	"0, 3, norest, nokey",
+  "0, 4, norest, nokey",	"0, 5, norest, nokey",
 
-  "0, 0, rest, nokey",          "1, 0, rest, nokey",
-  "2, 0, rest, nokey",          "3, 0, rest, nokey",
-
-  "0, 0, norest, key",          "1, 0, norest, key",
-  "2, 0, norest, key",          "3, 0, norest, key",
-  "4, 0, norest, key",          "0, 1, norest, key",
-  "1, 1, norest, key",          "1, 2, norest, key",
+  "0, 0, rest, nokey",		"1, 0, rest, nokey",
+  "2, 0, rest, nokey",		"3, 0, rest, nokey",
+  
+  "0, 0, norest, key",		"1, 0, norest, key",
+  "2, 0, norest, key",		"3, 0, norest, key",
+  "4, 0, norest, key",		"0, 1, norest, key",
+  "1, 1, norest, key",		"1, 2, norest, key",
   0,
 };
 /* Is it a good idea to hardwire this here? We could also skim the
  * lispbibl.d file for that.
  */
 
-char e_fname [256];             /* Name of the source file (.e)  */
-char d_fname [256];             /* Name of the output file (.d) */
-char tabs_fname [256];          /* Name of the table file (.tabs.c) */
-char module_name [256];         /* Name of the module w/o any suffix */
+char e_fname [256];		/* Name of the source file (.e)  */
+char d_fname [256];		/* Name of the output file (.d) */
+char tabs_fname [256];		/* Name of the table file (.tabs.c) */
+char module_name [256];		/* Name of the module w/o any suffix */
 
 
 /*** Simple List Datatype **/
@@ -174,10 +171,10 @@ list *sexpr_tab = nil;
 list *sexpr_name_tab = nil;
 list *kw_tab = nil;
 
-list *packages = nil;           /* List of all packages */
-list *known_packages = nil;     /* List of all well known packages */
+list *packages = nil;		/* List of all packages */
+list *known_packages = nil;	/* List of all well known packages */
 
-char *default_package = "LISP"; /* Default package to use (configurable?) */
+char *default_package = "LISP";	/* Default package to use (configurable?) */
 
 void usage (void)
 {
@@ -185,13 +182,13 @@ void usage (void)
   exit (1);
 }
 
-#define MAX_DEF_LEN 40960       /* Why is this hardwired? */
+#define MAX_DEF_LEN 40960	/* Why is this hardwired? */
 
 struct defun
 {
-  char *lisp_name;              /* Name of function */
-  char *lisp_pack;              /* Name of package */
-  char *c_name;                 /* C function name */
+  char *lisp_name;		/* Name of function */
+  char *lisp_pack;		/* Name of package */
+  char *c_name;			/* C function name */
 };
 
 char *make_c_name (char *lisp_name)
@@ -210,33 +207,33 @@ char *make_c_name (char *lisp_name)
     {
       if (isalnum(*s)) *(d++) = tolower (*s);
       else
-        switch (*s)
-          {
-          case '-':
-            if (s[1] == '>')
-              { *(d++) = '2'; s++; }
-            else
-              *(d++) = '_';
-            break;
+	switch (*s)
+	  {
+	  case '-':
+	    if (s[1] == '>')
+	      { *(d++) = '2'; s++; }
+	    else
+	      *(d++) = '_';
+	    break;
 
-          case ':':
-            *(d++) = '_'; break;
+	  case ':':
+	    *(d++) = '_'; break;
 
-          case '*':
-            strcpy (d, "_STAR_"); d += 6;
-            break;
+	  case '*':
+	    strcpy (d, "_STAR_"); d += 6;
+	    break;
 
-          case '%':
-            strcpy (d, "_PERCENT_"); d += 9;
-            break;
-
-          default:
-            /* Well, we could be more clever here, simply insert the character as
-             * 'Cooo'!
-             */
-            fprintf (stderr, "Illegal character in symbol name `%s'.\n", lisp_name);
-            exit (1);
-          }
+	  case '%':
+	    strcpy (d, "_PERCENT_"); d += 9;
+	    break;
+	    
+	  default:
+	    /* Well, we could be more clever here, simply insert the character as
+	     * 'Cooo'!
+	     */
+	    fprintf (stderr, "Illegal character in symbol name `%s'.\n", lisp_name);
+	    exit (1);
+	  }
     }
   *d = 0;
   r = strdup (temp);
@@ -253,24 +250,24 @@ char *split_args (char *s, char **args)
   for (;*d;d++)
     {
       if (level == 0 && *d == ',')
-        {
-          *d = 0;
-          *args = s;
-          e = d-1;
-          while (e >= s && isspace(*e)) e--;
-          *(e+1) = 0;
-          return split_args (d+1, args+1);
-        }
+	{
+	  *d = 0;
+	  *args = s;
+	  e = d-1;
+	  while (e >= s && isspace(*e)) e--;
+	  *(e+1) = 0;
+	  return split_args (d+1, args+1);
+	}
       if (level == 0 && *d == ')')
-        {
-          *d = 0;
-          *args = s;
-          return d+1;
-        }
+	{
+	  *d = 0;
+	  *args = s;
+	  return d+1;
+	}
       if (*d == '(') level++;
       if (*d == ')') level--;
     }
-
+  
   fprintf (stderr, "Missing ')'.\n");
   exit (1);
 }
@@ -313,39 +310,10 @@ int valid_signature_p (char *req, char *opt, char *rest, char *key)
       char **q;
       sprintf (tmp, "%s, %s, %s, %s", req, opt, rest, key);
       for (q = valid_argtypes; *q; q++)
-        if (!strcmp (tmp, *q))
-          return 1;
+	if (!strcmp (tmp, *q))
+	  return 1;
       return 0;
     }
-}
-
-
-char fetchc (FILE *in, char **sf, char *buffer, int buffer_size)
-{
-  if ((*sf)[0] == '/' && (*sf)[1] == '*')
-    {
-      /* BUG -- this implements nested comments! */
-      (*sf) += 2;
-      for(;;)
-        {
-          while (fetchc(in, sf, buffer, buffer_size) != '*');
-          if (fetchc(in, sf, buffer, buffer_size) == '/')
-            return fetchc(in, sf, buffer, buffer_size);
-        }
-    }
-  else
-    if (*(*sf))
-      return *((*sf)++);
-    else
-      if (fgets ((*sf), buffer_size - ((*sf) - buffer), in) == NULL)
-        {
-          /* XXX lno or funcnam! */
-          fprintf (stderr, "EOF during parsing of function body.\n");
-          fflush (stderr);
-          exit (1);
-        }
-      else
-        return fetchc (in, sf, buffer, buffer_size);
 }
 
 char *parse_body (FILE *in, char *yet, char *buffer, int buffer_size)
@@ -354,28 +322,53 @@ char *parse_body (FILE *in, char *yet, char *buffer, int buffer_size)
   int level = 1;
   int c;
 
+  char fetchc (void)
+    {
+      if (s[0] == '/' && s[1] == '*')
+	{
+	  /* BUG -- this implements nested comments! */
+	  s += 2;
+	  for(;;)
+	    {
+	      while (fetchc() != '*');
+	      if (fetchc() == '/')
+		return fetchc();
+	    }
+	}
+      else
+	if (*s)
+	  return *(s++);
+	else
+	  if (fgets (s, buffer_size - (s - buffer), in) == NULL)
+	    {
+	      /* XXX lno or funcnam! */
+	      fprintf (stderr, "EOF during parsing of function body.\n");	
+	      fflush (stderr);
+	      exit (1);
+	    }
+	  else
+	    return fetchc ();
+    }
+  
   strcpy (buffer, yet);
   s = buffer;
 
-  /** Skip white spaces */
-  while ((c = fetchc (in, &s, buffer, buffer_size),
-          isascii (c) && isspace (c)));
-
+  while ((c = fetchc (), isascii (c) && isspace (c)));	/* Skip white spaces */
   if (c != '{')
     {
       /* XXX see above XXX */
       fprintf (stderr, "Expecting a function body starting with '{' [got %c instead].\n",
-                       c);
+	               c);
       fprintf (stderr, "Current buffer:\n");
       {
-        char *t;
-        for (t = buffer; *t; t++)
-          {
-            if (t == s) fprintf (stderr, "<*>");
-            if (*t == '\n') fprintf (stderr, "\\n"); else fprintf (stderr, "%c", *t);
-          }
-        if (t == s) fprintf (stderr, "<*>");
-        fprintf (stderr, "\n");
+	char *t;
+	for (t = buffer; *t; t++)
+	  {
+	    if (t == s) fprintf (stderr, "<*>");
+	    if (*t == '\n') fprintf (stderr, "\\n"); else fprintf (stderr, "%c", *t);
+	  }
+	if (t == s) fprintf (stderr, "<*>");
+	fprintf (stderr, "\n");
       }
       exit (1);
     }
@@ -383,7 +376,7 @@ char *parse_body (FILE *in, char *yet, char *buffer, int buffer_size)
   while (level != 0)
     {
       /* BUG -- what about string or character literals */
-      int c = fetchc (in, &s, buffer, buffer_size);
+      int c = fetchc ();
       if (c == '{') level++;
       if (c == '}') level--;
     }
@@ -392,54 +385,43 @@ char *parse_body (FILE *in, char *yet, char *buffer, int buffer_size)
   return s;
 }
 
-void parse_kw (char *kws,
-               char *s,
-               void (*consume)(char **arg1, int *arg2, char *kw),
-               char **arg1,
-               int *arg2)
-{
-  static char buf[100];
-  char *d;
-
-  while (*s != ')')
-    {
-      d = buf;
-      while (*s && isascii(*s) && isspace (*s)) s++;
-      while (*s && !(isascii(*s) && isspace (*s)) && *s!=')') *(d++) = *(s++);
-      if (*s == 0)
-        {
-          fprintf (stderr, "Error: Keyword list '%s' is missing ')'\n", kws);
-          exit (1);
-        }
-      *d = 0;
-      consume (arg1, arg2, buf);
-    }
-  s++;
-  while (*s && isascii(*s) && isspace (*s)) s++;
-  if (*s)
-    {
-      fprintf (stderr, "Error: Garbage at end of keyword list '%s'.\n", kws);
-      exit (1);
-    }
-}
-
-void parse_kw_count (char **res, int *nf, char *s)
-{
-  (*nf)++;
-}
-
-void parse_kw_put (char **res, int *jf, char *s)
-{
-  res[(*jf)++] = strdup (s);
-}
-
 void parse_keywords (char *kws, int *n_out, char ***res_out)
 {
   int n = 0;
   int i = 0;
   char **res;
+  
+  void count (char *s)	{ n++; }
+  void put (char *s)	{ res[i++] = strdup (s); }
 
   /* TODO: Neat message, if keyword is no keyword.  */
+  
+  void parse (char *s, void (*consume)(char *))
+    {
+      static char buf[100];
+      char *d;
+
+      while (*s != ')')
+	{
+	  d = buf;
+	  while (*s && isascii(*s) && isspace (*s)) s++;
+	  while (*s && !(isascii(*s) && isspace (*s)) && *s!=')') *(d++) = *(s++);
+	  if (*s == 0)
+	    {
+	      fprintf (stderr, "Error: Keyword list '%s' is missing ')'\n", kws);
+	      exit (1);
+	    }
+	  *d = 0;
+	  consume (buf);
+	}
+      s++;
+      while (*s && isascii(*s) && isspace (*s)) s++;
+      if (*s)
+	{
+	  fprintf (stderr, "Error: Garbage at end of keyword list '%s'.\n", kws);
+	  exit (1);
+	}
+    }
 
   while (*kws && isascii(*kws) && isspace (*kws)) kws++;
   if (*kws != '(')
@@ -450,9 +432,9 @@ void parse_keywords (char *kws, int *n_out, char ***res_out)
     }
   else
     {
-      parse_kw (kws, kws+1, parse_kw_count, 0, &n);
+      parse (kws+1, count);
       res = (char**)malloc (sizeof (char*) * (n+1));
-      parse_kw (kws, kws+1, parse_kw_put, res, &i);
+      parse (kws+1, put);
       res[n] = 0;
       *n_out = n;
       *res_out = res;
@@ -490,12 +472,12 @@ void compile_signature (FILE *sink, int req, int opt, int restflag, int keyflag,
                      "}";
     char *KWS_INV  = "{ pushSTACK (%s);"
                      "  pushSTACK (TheSubr(subr_self)->name);"
-                     "  pushSTACK (STACK_(i-1));"
+		     "  pushSTACK (STACK_(i-1));"
                      "  fehler(error, (\"EVAL/APPLY: keyword ~ is illegal for ~. The possible keywords are ~\"));"
                      "}";
-
+    
     int minargc, maxargc = -1;
-
+    
     minargc = req;
     if (restflag || keyflag) maxargc = -1; else maxargc = minargc + opt;
 
@@ -509,47 +491,47 @@ void compile_signature (FILE *sink, int req, int opt, int restflag, int keyflag,
 
     if (keyflag)
       {
-        char **kws;
-        int n_kws, i;
+	char **kws;
+	int n_kws, i;
 
-        parse_keywords (keys, &n_kws, &kws);
-        if (n_kws == 0)
-          {
-            fprintf (stderr, "Error: hugh? ... there are't any keywords?");
-            exit (1);
-          }
-        fprintf (sink, "{"X);
-        fprintf (sink, "  uintC i;"X);
-        fprintf (sink, "  if ((argcount-%d)%%2) %s "X, req+opt, KWS_ODD);
-        fprintf (sink, "  skipSTACK ((-%d)); "X, n_kws);
-        fprintf (sink, "  {"X);
-        fprintf (sink, "    for (i = 0; i < argcount-%d; i++) "X, req+opt);
-        fprintf (sink, "      STACK_(i) = STACK_(i+%d); "X, n_kws);
-        fprintf (sink, "  } "X);
-        for (i = 0; i < n_kws; i++)
-          fprintf (sink, "  STACK_(argcount-%d+%d) = unbound;"X,
-                   (req+opt), i);
-        fprintf (sink, "  for (i = argcount-%d; i > 0; i -= 2) "X, req+opt);
-        fprintf (sink, "  { "X);
-        for (i = 0; i < n_kws; i++)
-          {
-            fprintf (sink, "   %sif (eq (STACK_(i-1), %s))"X,
-                     (i == 0) ? "" : "else ", sexpr (kws[i]));
-            fprintf (sink, "     STACK_(argcount-%d+%d) = STACK_(i-2);"X,
-                     (req+opt), (n_kws - i)-1);
-          }
-        fprintf (sink, "    else ");
-        fprintf (sink, KWS_INV, sexpr (keys));
-        fprintf (sink, ""X);
-        fprintf (sink, "  } "X);
-        fprintf (sink, "  skipSTACK (argcount - %d);"X, req+opt);  /* This will be optional on key_allow! */
-        fprintf (sink, "}"X);
+	parse_keywords (keys, &n_kws, &kws);
+	if (n_kws == 0)
+	  {
+	    fprintf (stderr, "Error: hugh? ... there are't any keywords?");
+	    exit (1);
+	  }
+	fprintf (sink, "{"X);
+	fprintf (sink, "  uintC i;"X);
+	fprintf (sink, "  if ((argcount-%d)%%2) %s "X, req+opt, KWS_ODD);
+	fprintf (sink, "  skipSTACK ((-%d)); "X, n_kws);
+	fprintf (sink, "  {"X);
+	fprintf (sink, "    for (i = 0; i < argcount-%d; i++) "X, req+opt);
+	fprintf (sink, "      STACK_(i) = STACK_(i+%d); "X, n_kws);
+	fprintf (sink, "  } "X);
+	for (i = 0; i < n_kws; i++)
+	  fprintf (sink, "  STACK_(argcount-%d+%d) = unbound;"X,
+		   (req+opt), i);
+	fprintf (sink, "  for (i = argcount-%d; i > 0; i -= 2) "X, req+opt);
+	fprintf (sink, "  { "X);
+	for (i = 0; i < n_kws; i++)
+	  {
+	    fprintf (sink, "   %sif (eq (STACK_(i-1), %s))"X,
+		     (i == 0) ? "" : "else ", sexpr (kws[i]));
+	    fprintf (sink, "     STACK_(argcount-%d+%d) = STACK_(i-2);"X,
+		     (req+opt), (n_kws - i)-1);
+	  }
+	fprintf (sink, "    else ");
+	fprintf (sink, KWS_INV, sexpr (keys));
+	fprintf (sink, ""X);
+	fprintf (sink, "  } "X);
+	fprintf (sink, "  skipSTACK (argcount - %d);"X, req+opt);  /* This will be optional on key_allow! */
+	fprintf (sink, "}"X);
       }
   }
 }
 
 void parse_signature (char **arg, int *req_out, int *opt_out,
-                                  int *restflag_out, int *keyflag_out)
+		                  int *restflag_out, int *keyflag_out)
 {
   if (sscanf (arg[0], "%d", req_out) != 1)
     {
@@ -594,7 +576,7 @@ char *do_defun (FILE *in, FILE *out, char *line)
   char *arg[7];
   int simple_p;
   arg[0] = arg[1] = arg[2] = arg[3] = arg[4] = arg[5] = arg[6] = 0;
-
+  
   for(;;)
     {
       for (s = d; *s; s++)
@@ -605,12 +587,12 @@ char *do_defun (FILE *in, FILE *out, char *line)
       if (level == 0)
         break;
       if (fgets (s, MAX_DEF_LEN-(s-line), in) == NULL)
-        {
-          fprintf (stderr, "EOF during parsing of definition.\n");
-          fprintf (stderr, "%s",line);
-          fflush (stderr);
-          exit(1);
-        }
+	{
+	  fprintf (stderr, "EOF during parsing of definition.\n");
+	  fprintf (stderr, "%s",line);
+	  fflush (stderr);
+	  exit(1);
+	}
       n++;
       d = s;
     }
@@ -632,64 +614,64 @@ char *do_defun (FILE *in, FILE *out, char *line)
 
   /* Canonicalize the arg vector */
 
-  arg[0] = arg[0]?arg[0]:"0";   /* BTW. x?=:y would be nice. */
+  arg[0] = arg[0]?:"0";		/* BTW. x?=:y would be nice. */
   simple_p = !arg[1];
-  arg[1] = arg[1]?arg[1]:"0";
-  arg[2] = arg[2]?arg[2]:"norest";
-  arg[3] = arg[3]?arg[3]:"nokey";
-  arg[4] = arg[4]?arg[4]:"0";
-
+  arg[1] = arg[1]?:"0";
+  arg[2] = arg[2]?:"norest";
+  arg[3] = arg[3]?:"nokey";
+  arg[4] = arg[4]?:"0";
+  
   for (i = 0; i < n; i++)
     fprintf (out, "\n"); /* keep lines in sync */
-
+  
   /* Check if the signature could be understood by CLISP */
   if (valid_signature_p (arg[0], arg[1], arg[2], arg[3]))
     {
       /* Understood by CLISP, fine. */
       if (simple_p)
-        fprintf (out, "LISPFUNN (%s, %s)", c_name, arg[0]);
+	fprintf (out, "LISPFUNN (%s, %s)", c_name, arg[0]);
       else
-        fprintf (out, "LISPFUN (%s, %s, %s, %s, %s, %s, NIL)",
-                 c_name, arg[0], arg[1], arg[2], arg[3], arg[4]);
+ 	fprintf (out, "LISPFUN (%s, %s, %s, %s, %s, %s, NIL)",
+		 c_name, arg[0], arg[1], arg[2], arg[3], arg[4]);
     }
   else
     {
-      char *body = (char*) malloc (40960);      /* That should be enough */
-
+      char *body = (char*) malloc (40960);	/* That should be enough */
+      
       /* CLISP does not know the signature, bad. */
       fprintf (stderr, "Notice: Signature (%s, %s, %s, %s) for function '%s' will be emulated.\n",
-                       arg[0], arg[1], arg[2], arg[3],
-                       name);
+	               arg[0], arg[1], arg[2], arg[3],
+	               name);
       fprintf (out, "LISPFUN (%s, 0, 0, rest, nokey, 0, NIL)", c_name);
-
+      
       /* Now slurp in the whole definition of the function and
        * interpret the arguments on our own.
        */
 
       {
-        char *coke;
-        int len;
-        char *pepsi;
-        int req, opt, restflag, keyflag;
+	char *coke;
+	int len;
+	char *pepsi;
+	int req, opt, restflag, keyflag;
 
-        coke = parse_body (in, result, body, 40960);
-        len  = strlen (body);
-        pepsi = body + len;
-        while (pepsi != coke) { pepsi[0] = pepsi[-1]; pepsi--; }
-        coke[0] = '}';          /* hack, hack */
-        result = body;
+	coke = parse_body (in, result, body, 40960);
+	len  = strlen (body);
+	pepsi = body + len;
+	while (pepsi != coke) { pepsi[0] = pepsi[-1]; pepsi--; }
+	coke[0] = '}';		/* hack, hack */
+	result = body;
 
-        parse_signature (arg, &req, &opt, &restflag, &keyflag);
+	parse_signature (arg, &req, &opt, &restflag, &keyflag);
 
-        fprintf (out, "{");
-        compile_signature (out, req, opt, restflag, keyflag, arg[5]);
-        /* patch arg[0] .. arg[5] */
-        arg[0] = "0";
-        arg[1] = "0";
-        arg[2] = "rest";
-        arg[3] = "nokey";
-        arg[4] = "0";
-        arg[5] = "NIL";
+	fprintf (out, "{");
+	compile_signature (out, req, opt, restflag, keyflag, arg[5]);
+	/* patch arg[0] .. arg[5] */
+	arg[0] = "0";
+	arg[1] = "0";
+	arg[2] = "rest";
+	arg[3] = "nokey";
+	arg[4] = "0";
+	arg[5] = "NIL";
       }
     }
 
@@ -705,28 +687,28 @@ char *do_defun (FILE *in, FILE *out, char *line)
     }
 
   pushnew (pack, packages);
-
+  
   {
     static char subr [4096];
     static char sym [1024];
     sprintf (subr,
-             "{ (lisp_function)(&C_%s), nullobj,NIL,0, %s, %s, (uintB)subr_%s, (uintB)subr_%s, %s, },",
-             c_name,
-             arg[0], arg[1], arg[2], arg[3], arg[4]);
+	     "{ (lisp_function)(&C_%s), nullobj,NIL,0, %s, %s, (uintB)subr_%s, (uintB)subr_%s, %s, },",
+	     c_name,
+	     arg[0], arg[1], arg[2], arg[3], arg[4]);
     sprintf (sym , "{ \"%s\", \"%s\", },", pack, sym_name);
     push (subr, subr_tab);
     push (sym, sym_tab);
     if (arg[5] && !!strcmp(arg[5],"NIL"))
       {
-        static int nn = 0;
-        static char ob[4000];
-        static char oi[4000];
-        nn++;
-        sprintf (ob, "object kw_%.5d;", nn); push (ob, object_tab);
-        sprintf (oi, "\"#%s\"", arg[5]); push (oi, object_init_tab);
-        sprintf (ob, "object kw_%.5d_fun;", nn); push (ob, object_tab);
-        sprintf (oi, "\"%s::%s\"", pack, sym_name); push (oi, object_init_tab);
-        sprintf (oi, "kw_%.5d", nn); push (oi, kw_tab);
+	static int nn = 0;
+	static char ob[4000];
+	static char oi[4000];
+	nn++;
+	sprintf (ob, "object kw_%.5d;", nn); push (ob, object_tab);
+	sprintf (oi, "\"#%s\"", arg[5]); push (oi, object_init_tab);
+	sprintf (ob, "object kw_%.5d_fun;", nn); push (ob, object_tab);
+	sprintf (oi, "\"%s::%s\"", pack, sym_name); push (oi, object_init_tab);
+	sprintf (oi, "kw_%.5d", nn); push (oi, kw_tab);
       }
   }
   return result;
@@ -743,14 +725,14 @@ void do_defvar (FILE *in, FILE *out, char *line)
     {
       var = line; *s = 0; val = s+1;
       if ((s = strchr (val, ';')))
-        {
-          *s = 0;
-        }
+	{
+	  *s = 0;
+	}
       else
-        {
-          fprintf (stderr, "Missing semicolon!\n");
-          exit(1);
-        }
+	{
+	  fprintf (stderr, "Missing semicolon!\n");
+	  exit(1);
+	}
     }
   else
     {
@@ -767,13 +749,13 @@ char *put_quoted_string (char *dest, char *src)
     switch (*src)
       {
       case '\\': case '"':
-        *(dest++) = '\\'; *(dest++) = *src; break;
+	*(dest++) = '\\'; *(dest++) = *src; break;
       case '\n':
-        *(dest++) = '\\'; *(dest++) = 'n'; break;
+	*(dest++) = '\\'; *(dest++) = 'n'; break;
       case '\t':
-        *(dest++) = '\\'; *(dest++) = 't'; break;
+	*(dest++) = '\\'; *(dest++) = 't'; break;
       default:
-        *(dest++) = *src;
+	*(dest++) = *src;
       }
 
   *(dest++) = '"';
@@ -786,15 +768,15 @@ char *sexpr (char *x)
   static int nn = 0;
   static char foo[10000];
   list *q, *p;
-
+  
   for (q = sexpr_tab, p = sexpr_name_tab; q; q = q->cdr, p = p->cdr)
     if (!strcasecmp (x, q->car))
       {
-        sprintf (foo, "(module__%s__object_tab.%s)/*%s*/",
-                 module_name, p->car, x);
-        return foo;
+	sprintf (foo, "(module__%s__object_tab.%s)/*%s*/",
+		 module_name, p->car, x);
+	return foo;
       }
-
+  
   nn++;
   sprintf (foo, "object o_%.5d;", nn); push (foo, object_tab);
   put_quoted_string (foo, x); push (foo, object_init_tab);
@@ -802,7 +784,7 @@ char *sexpr (char *x)
   sprintf (foo, "o_%.5d", nn);
   push (foo, sexpr_name_tab);
   sprintf (foo, "(module__%s__object_tab.o_%.5d)/*%s*/",
-           module_name, nn, x);
+	   module_name, nn, x);
   return foo;
 }
 
@@ -815,30 +797,30 @@ void process_line (FILE *in, FILE *out, char *line)
       char *s;
       char *sexp;
       for (s = line; *s; )
-        {
-          if (*s == '`')
-            {
-              s++;
-              sexp = s;
-              while ((*s) && (*s)!='`') s++;
-              *s = 0;
-              fprintf (out, "%s", sexpr (sexp));
-              s++;
-            }
-          else
-            if (!strncmp (s, "defun ", 6))
-              {
-                s = do_defun (in,out,s+6);
-              }
-            else
-              if (!strncmp (s, "# ", 2))
-                {
-                  fprintf (out, "#line ");
-                  s += 2;
-                }
-              else
-                putc (*(s++), out);
-        }
+	{
+	  if (*s == '`')
+	    {
+	      s++;
+	      sexp = s;
+	      while ((*s) && (*s)!='`') s++;
+	      *s = 0;
+	      fprintf (out, "%s", sexpr (sexp));
+	      s++;
+	    }
+	  else
+	    if (!strncmp (s, "defun ", 6))
+	      {
+		s = do_defun (in,out,s+6);
+	      }
+	    else
+	      if (!strncmp (s, "# ", 2))
+		{
+		  fprintf (out, "#line ");
+		  s += 2;
+		}
+	      else
+		putc (*(s++), out);
+	}
     }
 }
 
@@ -868,28 +850,28 @@ void care_about_packages (FILE *sink)
 #if EMIT_PRELOAD
   /* Now emit the preload module */
   fprintf (sink,
-           "struct { object o_fake; } module__%s_PRELOAD__object_tab;\n"
-           "object_initdata module__%s_PRELOAD__object_tab_initdata[1] = {0}; \n"
-           "uintC module__%s_PRELOAD__object_tab_size = 0;\n"
-           "uintC module__%s_PRELOAD__subr_tab_size = 0;\n"
-           "subr_ module__%s_PRELOAD__subr_tab [1] = {0};\n"
-           "subr_initdata module__%s_PRELOAD__subr_tab_initdata[1] = {0};\n"
-           "void module__%s_PRELOAD__init_function_2 (module_ *module) { }\n",
-           module_name, module_name, module_name,
-           module_name, module_name, module_name, module_name);
-
+	   "struct { object o_fake; } module__%s_PRELOAD__object_tab;\n"
+	   "object_initdata module__%s_PRELOAD__object_tab_initdata[1] = {0}; \n"
+	   "uintC module__%s_PRELOAD__object_tab_size = 0;\n"
+	   "uintC module__%s_PRELOAD__subr_tab_size = 0;\n"
+	   "subr_ module__%s_PRELOAD__subr_tab [1] = {0};\n"
+	   "subr_initdata module__%s_PRELOAD__subr_tab_initdata[1] = {0};\n"
+	   "void module__%s_PRELOAD__init_function_2 (module_ *module) { }\n",
+	   module_name, module_name, module_name,
+	   module_name, module_name, module_name, module_name);
+  
   fprintf (sink, "void module__%s_PRELOAD__init_function_1 (module_ *module)\n"
-                 "{\n"
-                 "  module_%s_PRELOAD_init_p = 1;\n  \n",
-                 module_name, module_name);
+	         "{\n"
+	         "  module_%s_PRELOAD_init_p = 1;\n  \n",
+	         module_name, module_name);
   for (q = to_create; q; q = q->cdr)
     {
       fprintf (sink, "  if (nullp (find_package (ascii_to_string (\"%s\"))))\n"
-                     "    {\n"
-                     "      pushSTACK (ascii_to_string (\"%s\"));\n"
-                     "      funcall (L (make_package), 1);\n"
-                     "    }\n",
-               q->car, q->car);
+	             "    {\n"
+	             "      pushSTACK (ascii_to_string (\"%s\"));\n"
+	             "      funcall (L (make_package), 1);\n"
+	             "    }\n",
+	       q->car, q->car);
     }
   fprintf (sink, "}\n");
 #endif
@@ -898,16 +880,16 @@ void care_about_packages (FILE *sink)
 void init (void)
 {
   /* Initalize the well known package list */
-  push ("LISP", known_packages);        /* Sure! */
-  push ("SYSTEM", known_packages);      /* Sure! */
-  push ("USER", known_packages);        /* Bad style, but legal... */
+  push ("LISP", known_packages); 	/* Sure! */
+  push ("SYSTEM", known_packages); 	/* Sure! */
+  push ("USER", known_packages); 	/* Bad style, but legal... */
 #if 0
   /* Should put them on the list either way round?  Well, these names
    * are somewhat resevered and because of that nobody should
    * put something there.
    */
-  push ("FFI", known_packages);         /* very likely */
-  push ("SCREEN", known_packages);      /* also likely */
+  push ("FFI", known_packages);		/* very likely */
+  push ("SCREEN", known_packages); 	/* also likely */
 #endif
 }
 
@@ -916,7 +898,7 @@ int main (int argc, char **argv)
   if (argc<2 || argc>4) usage();
 
   init ();
-
+  
   strcpy (module_name, argv[1]);
   if (argc>2) strcpy (e_fname, argv[2]); else sprintf (e_fname, "%s.e", module_name);
   if (argc>3) strcpy (d_fname, argv[3]); else sprintf (d_fname, "%s.d", module_name);
@@ -927,7 +909,7 @@ int main (int argc, char **argv)
     FILE *in = fopen (e_fname, "r");
     FILE *out = fopen (d_fname, "w");
     list *q;
-
+    
     conv (in, out);
     fprintf (out, "uintC module__%s__subr_tab_size = %d;\n", module_name, length (subr_tab));
     fprintf (out, "subr_ module__%s__subr_tab [%d] = \n", module_name, length (subr_tab));
@@ -937,7 +919,7 @@ int main (int argc, char **argv)
     fprintf (out, "};\n");
 
     fprintf (out, "subr_initdata module__%s__subr_tab_initdata[%d] =\n",
-             module_name, length (subr_tab));
+	     module_name, length (subr_tab));
     fprintf (out, "{\n");
     for (q = sym_tab; q; q = q->cdr)
       fprintf (out, "    %s\n", q->car);
@@ -957,18 +939,18 @@ int main (int argc, char **argv)
      "                      \"  Probably you forgot to include the '%s_PRELOAD' module.\\n\"\n"
      "                      \"  (Or you did in the wrong order; '%s_PRELOAD' must been\\n\"\n"
      "                      \"   initialized *prior* to module %s!)\");\n",
-             module_name, module_name, module_name, module_name);
+	     module_name, module_name, module_name, module_name);
     fprintf (out, "    }\n");
     /* NOTE: This will hardly ever been called! */
 #endif
 
     for (q = kw_tab; q; q = q->cdr)
       fprintf (out, "  TheSubr(Symbol_function(module__%s__object_tab.%s_fun))->keywords"
-                         "= module__%s__object_tab.%s;\n",
-               module_name, q->car, module_name, q->car);
+	                 "= module__%s__object_tab.%s;\n",
+	       module_name, q->car, module_name, q->car);
     fprintf (out, "}\n");
     care_about_packages (out);
-
+    
     fclose (out);
     out = fopen (tabs_fname, "w");
     fprintf (out, "/* tables */\n");
@@ -977,7 +959,7 @@ int main (int argc, char **argv)
       fprintf (out, "    %s\n", q->car);
     fprintf (out, "\n} module__%s__object_tab;\n", module_name);
     fprintf (out, "object_initdata module__%s__object_tab_initdata[%d] = \n",
-             module_name, length (object_tab));
+	     module_name, length (object_tab));
     fprintf (out, "{\n");
     for (q = object_init_tab; q; q = q->cdr)
       fprintf (out, "    %s,\n", q->car);
@@ -988,7 +970,7 @@ int main (int argc, char **argv)
     fclose (in);
     fclose (out);
   }
-
+  
   /* We got here -- probably an error. :-) */
   return 0;
 }

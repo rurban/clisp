@@ -11,19 +11,14 @@ global long full_read(handle,bufarea,nbyte)
   var Handle handle;
   var RW_BUF_T bufarea;
   var long nbyte;
-  {
-    var char* buf = (char*) bufarea;
+  { var char* buf = (char*) bufarea;
     var long done = 0;
-    until (nbyte==0) {
-      var long retval = Read(handle,(APTR)buf,nbyte);
-      if (retval == 0)
-        break; # EOF
-      elif (retval < 0) {
-        return retval;
-      } else {
-        buf += retval; done += retval; nbyte -= retval;
+    until (nbyte==0)
+      { var long retval = Read(handle,(APTR)buf,nbyte);
+        if (retval == 0) break; # EOF
+        elif (retval < 0) { return retval; }
+        else { buf += retval; done += retval; nbyte -= retval; }
       }
-    }
     return done;
   }
 
@@ -33,19 +28,14 @@ global long full_write(handle,bufarea,nbyte)
   var Handle handle;
   var const RW_BUF_T bufarea;
   var long nbyte;
-  {
-    var CONST char* buf = (CONST char*) bufarea;
+  { var CONST char* buf = (CONST char*) bufarea;
     var long done = 0;
-    until (nbyte==0) {
-      var long retval = Write(handle,(CONST APTR)buf,nbyte);
-      if (retval == 0)
-        break; # Wann passiert das?? Wenn Platte voll!
-      elif (retval < 0) {
-        return retval;
-      } else {
-        buf += retval; done += retval; nbyte -= retval;
+    until (nbyte==0)
+      { var long retval = Write(handle,(CONST APTR)buf,nbyte);
+        if (retval == 0) break; # Wann passiert das?? Wenn Platte voll!
+        elif (retval < 0) { return retval; }
+        else { buf += retval; done += retval; nbyte -= retval; }
       }
-    }
     return done;
   }
 
@@ -92,14 +82,14 @@ global long full_write(handle,bufarea,nbyte)
   #endif
 
   # Doppelt verkettete Liste aller bisher belegten Speicherblöcke führen:
-  typedef struct MemBlockHeader {
-    struct MemBlockHeader * next;
-    #ifdef SPVW_PAGES
-    struct MemBlockHeader * * prev;
-    #endif
-    uintL size;
-    oint usable_memory[unspecified]; # "oint" erzwingt Alignment
-  } MemBlockHeader;
+  typedef struct MemBlockHeader { struct MemBlockHeader * next;
+                                  #ifdef SPVW_PAGES
+                                  struct MemBlockHeader * * prev;
+                                  #endif
+                                  uintL size;
+                                  oint usable_memory[unspecified]; # "oint" erzwingt Alignment
+                                }
+          MemBlockHeader;
   local MemBlockHeader* allocmemblocks = NULL;
   # Für alle p = allocmemblocks{->next}^n (n=0,1,...) mit !(p==NULL) gilt
   # *(p->prev) = p.
@@ -109,57 +99,49 @@ global long full_write(handle,bufarea,nbyte)
   global void* allocmem(amount,allocmemflag)
     var uintL amount;
     var uintL allocmemflag;
-    {
-      amount = round_up(amount+offsetofa(MemBlockHeader,usable_memory),4);
-      var void* address = AllocMem(amount,allocmemflag);
-      if (!(address==NULL)) {
-        ((MemBlockHeader*)address)->size = amount;
-        ((MemBlockHeader*)address)->next = allocmemblocks;
-        ((MemBlockHeader*)address)->prev = &allocmemblocks;
-        if (!(allocmemblocks == NULL)) {
-          if (allocmemblocks->prev == &allocmemblocks) { # Sicherheits-Check
-            allocmemblocks->prev = &((MemBlockHeader*)address)->next;
-          } else {
-            abort();
-          }
+    { amount = round_up(amount+offsetofa(MemBlockHeader,usable_memory),4);
+     {var void* address = AllocMem(amount,allocmemflag);
+      if (!(address==NULL))
+        { ((MemBlockHeader*)address)->size = amount;
+          ((MemBlockHeader*)address)->next = allocmemblocks;
+          ((MemBlockHeader*)address)->prev = &allocmemblocks;
+          if (!(allocmemblocks == NULL))
+            { if (allocmemblocks->prev == &allocmemblocks) # Sicherheits-Check
+                { allocmemblocks->prev = &((MemBlockHeader*)address)->next; }
+                else
+                { abort(); }
+            }
+          allocmemblocks = (MemBlockHeader*)address;
+          address = &((MemBlockHeader*)address)->usable_memory[0];
         }
-        allocmemblocks = (MemBlockHeader*)address;
-        address = &((MemBlockHeader*)address)->usable_memory[0];
-      }
       return address;
-    }
+    }}
 
   # Speicher dem Betriebssystem zurückgeben:
   global void freemem (void* address);
   global void freemem(address)
     var void* address;
-    {
-      var MemBlockHeader* ptr = (MemBlockHeader*)((aint)address - offsetofa(MemBlockHeader,usable_memory));
-      if (*(ptr->prev) == ptr) { # Sicherheits-Check
-        var MemBlockHeader* ptrnext = ptr->next;
-        *(ptr->prev) = ptrnext; # ptr durch ptr->next ersetzen
-        if (!(ptrnext == NULL))
-          ptrnext->prev = ptr->prev;
-        FreeMem(ptr,ptr->size);
-        return;
-      } else {
-        abort();
-      }
+    { var MemBlockHeader* ptr = (MemBlockHeader*)((aint)address - offsetofa(MemBlockHeader,usable_memory));
+      if (*(ptr->prev) == ptr) # Sicherheits-Check
+        { var MemBlockHeader* ptrnext = ptr->next;
+          *(ptr->prev) = ptrnext; # ptr durch ptr->next ersetzen
+          if (!(ptrnext == NULL)) { ptrnext->prev = ptr->prev; }
+          FreeMem(ptr,ptr->size);
+          return;
+        }
+        else
+        { abort(); }
     }
 
   # ANSI C compliant
   global void* malloc (uintL amount);
   global void* malloc(amount)
     var uintL amount;
-    {
-      return allocmem(amount,default_allocmemflag);
-    }
+    { return allocmem(amount,default_allocmemflag); }
   global void free (void* address);
   global void free(address)
     var void* address;
-    {
-      freemem(address);
-    }
+    { freemem(address); }
 
 # ==============================================================================
 
@@ -178,41 +160,33 @@ global long full_write(handle,bufarea,nbyte)
         cpu_is_68000 = ((SysBase->AttnFlags & (AFF_68020|AFF_68030|AFF_68040)) == 0);
         #ifdef MC68000
         # Diese Version benötigt einen 68000. (Wegen addressbus_mask.)
-        if (!cpu_is_68000) {
-          exit(RETURN_FAIL);
-        }
+        if (!cpu_is_68000)
+          { exit(RETURN_FAIL); }
         #endif
         #ifdef MC680Y0
         # Diese Version benötigt mindestens einen 68020, läuft nicht auf 68000.
         # (Wegen ari68020.d, einiger asm()s und wegen gcc-Option -m68020.)
-        if (cpu_is_68000) {
-          exit(RETURN_FAIL);
-        }
+        if (cpu_is_68000)
+          { exit(RETURN_FAIL); }
         #endif
         # Wir wollen uns nicht mehr mit OS Version 1.x beschäftigen
-        if (SysBase->LibNode.lib_Version < 36) {
-          exit(RETURN_FAIL);
-        }
-        if (stdin_handle==Handle_NULL) {
-          stdin_handle = Input();
-        }
-        if (stdout_handle==Handle_NULL) {
-          stdout_handle = Output();
-        }
+        if (SysBase->LibNode.lib_Version < 36)
+          { exit(RETURN_FAIL); }
+        if (stdin_handle==Handle_NULL) { stdin_handle = Input(); }
+        if (stdout_handle==Handle_NULL) { stdout_handle = Output(); }
         # Abfrage, ob Workbench-Aufruf ohne besonderen Startup:
-        if ((stdin_handle==Handle_NULL) || (stdout_handle==Handle_NULL)) {
-          exit(RETURN_FAIL);
-        }
+        if ((stdin_handle==Handle_NULL) || (stdout_handle==Handle_NULL))
+          { exit(RETURN_FAIL); }
         # Benutzter Speicher muss in [0..2^oint_addr_len-1] liegen:
         #if defined(TYPECODES) && !defined(WIDE_SOFT)
         #define pointable_usable_test(a)  ((void*)pointable(type_pointer_object(0,a)) == (void*)(a))
         if (!(pointable_usable_test((aint)&init_amiga) # Code-Segment überprüfen
               && pointable_usable_test((aint)&symbol_tab) # Daten-Segment überprüfen
-           ) ) {
-          asciz_out(GETTEXT("This version of CLISP runs only in low address memory." NLstring));
-          asciz_out_2("CODE: %x, DATA: %x." NLstring, (aint)&init_amiga, (aint)&symbol_tab);
-          exit(RETURN_FAIL);
-        }
+           ) )
+          { asciz_out(GETTEXT("This version of CLISP runs only in low address memory." NLstring));
+            asciz_out_2("CODE: %x, DATA: %x." NLstring, (aint)&init_amiga, (aint)&symbol_tab);
+            exit(RETURN_FAIL);
+          }
         #undef pointable_usable_test
         #endif
         # Ein Flag, das uns hilft, Speicher mit niedrigen Adressen zu bekommen:
@@ -227,22 +201,19 @@ global long full_write(handle,bufarea,nbyte)
   nonreturning_function(global, exit_amiga, (sintL code));
   global void exit_amiga(code)
     var sintL code;
-    {
-      begin_system_call();
+    { begin_system_call();
       # Zurück ins Verzeichnis, in das wir beim Programmstart waren:
-      if (!(orig_dir_lock == BPTR_NONE)) { # haben wir das Verzeichnis je gewechselt?
-        var BPTR lock = CurrentDir(orig_dir_lock); # zurück ins alte
-        UnLock(lock); # dieses nun freigeben
-      }
-      # Speicher freigeben:
-      {
-        var MemBlockHeader* memblocks = allocmemblocks;
-        until (memblocks==NULL) {
-          var MemBlockHeader* next = memblocks->next;
-          FreeMem(memblocks,memblocks->size);
-          memblocks = next;
+      if (!(orig_dir_lock == BPTR_NONE)) # haben wir das Verzeichnis je gewechselt?
+        { var BPTR lock = CurrentDir(orig_dir_lock); # zurück ins alte
+          UnLock(lock); # dieses nun freigeben
         }
-      }
+      # Speicher freigeben:
+      { var MemBlockHeader* memblocks = allocmemblocks;
+        until (memblocks==NULL)
+          { var MemBlockHeader* next = memblocks->next;
+            FreeMem(memblocks,memblocks->size);
+            memblocks = next;
+      }   }
       # Programmende:
       exit(code);
     }

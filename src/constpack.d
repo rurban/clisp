@@ -26,6 +26,3 @@ LISPPACK(screen,"SCREEN")
 LISPPACK(ffi,"FFI")
 #endif
 
-#ifdef EXPORT_SYSCALLS
-LISPPACK(posix,"POSIX")
-#endif

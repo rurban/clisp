@@ -12,14 +12,12 @@
 
 # Macros, um Longword-aligned Strukturen (z.B. im Stack) zu erzeugen:
 # Statt
-#   {
-#     var struct FileInfoBlock fib;
+#   { var struct FileInfoBlock fib;
 #     var struct FileInfoBlock * fibptr = &fib;
 #     ...
 #   }
 # schreibe
-#   {
-#     var LONGALIGNTYPE(struct FileInfoBlock) fib;
+#   { var LONGALIGNTYPE(struct FileInfoBlock) fib;
 #     var struct FileInfoBlock * fibptr = LONGALIGN(&fib);
 #     ...
 #   }

@@ -83,39 +83,35 @@
   local int initmap(tmpdir)
     var const char* tmpdir;
     # Virtual Memory Mapping aufbauen:
-    {
-      # Wir brauchen ein temporäres File.
+    { # Wir brauchen ein temporäres File.
       # tempfilename := (string-concat tmpdir "/" "lisptemp.mem")
-      {
-        var const char* ptr1 = tmpdir;
-        var char* ptr2 = &tempfilename[0];
-        while (!(*ptr1 == '\0')) { *ptr2++ = *ptr1++; }
-        if (!((ptr2 > &tempfilename[0]) && (ptr2[-1] == '/')))
-          *ptr2++ = '/';
-        ptr1 = "lisptemp.mem";
-        while (!(*ptr1 == '\0')) { *ptr2++ = *ptr1++; }
-        #if (TEMPFILE_DEBUG_LEVEL > 0)
-        *ptr2++ = '.';
-        #if (TEMPFILE_DEBUG_LEVEL == 1)
-        {
-          unsigned int pid = getpid();
-          *ptr2++ = ((pid >> 12) & 0x0f) + 'a';
-          *ptr2++ = ((pid >> 8) & 0x0f) + 'a';
-          *ptr2++ = ((pid >> 4) & 0x0f) + 'a';
-          *ptr2++ = (pid & 0x0f) + 'a';
-        }
-        #endif
-        *ptr2++ = '0';
-        #endif
-        *ptr2 = '\0';
+      {var const char* ptr1 = tmpdir;
+       var char* ptr2 = &tempfilename[0];
+       while (!(*ptr1 == '\0')) { *ptr2++ = *ptr1++; }
+       if (!((ptr2 > &tempfilename[0]) && (ptr2[-1] == '/')))
+         { *ptr2++ = '/'; }
+       ptr1 = "lisptemp.mem";
+       while (!(*ptr1 == '\0')) { *ptr2++ = *ptr1++; }
+       #if (TEMPFILE_DEBUG_LEVEL > 0)
+       *ptr2++ = '.';
+       #if (TEMPFILE_DEBUG_LEVEL == 1)
+       { unsigned int pid = getpid();
+         *ptr2++ = ((pid >> 12) & 0x0f) + 'a';
+         *ptr2++ = ((pid >> 8) & 0x0f) + 'a';
+         *ptr2++ = ((pid >> 4) & 0x0f) + 'a';
+         *ptr2++ = (pid & 0x0f) + 'a';
+       }
+       #endif
+       *ptr2++ = '0';
+       #endif
+       *ptr2 = '\0';
       }
-      {
-        var int fd = OPEN("/dev/zero",O_RDONLY,my_open_mask);
-        if (fd<0) {
-          asciz_out(GETTEXT("Cannot open /dev/zero ."));
-          errno_out(errno);
-          return -1; # error
-        }
+      { var int fd = OPEN("/dev/zero",O_RDONLY,my_open_mask);
+        if (fd<0)
+          { asciz_out(GETTEXT("Cannot open /dev/zero ."));
+            errno_out(errno);
+            return -1; # error
+          }
         zero_fd = fd;
       }
       return 0;
@@ -129,26 +125,22 @@
     local void remember_mmap_interval(map_addr,map_len)
       var void* map_addr;
       var uintL map_len;
-      {
-        if (mmap_intervals_ptr == &mmap_intervals[256])
-          abort();
+      { if (mmap_intervals_ptr == &mmap_intervals[256]) { abort(); }
         mmap_intervals_ptr->mm_addr = map_addr; mmap_intervals_ptr->mm_len = map_len;
         mmap_intervals_ptr++;
       }
     local void msync_mmap_intervals (void);
     local void msync_mmap_intervals()
-      {
-        var mmap_interval* ptr = &mmap_intervals[0];
-        until (ptr==mmap_intervals_ptr) {
-          if (msync((MMAP_ADDR_T)ptr->mm_addr,ptr->mm_len,MS_INVALIDATE) < 0) {
-            asciz_out_2(GETTEXT("msync(0x%x,0x%x,MS_INVALIDATE) fails."),
-                        ptr->mm_addr, ptr->mm_len
-                       );
-            errno_out(errno);
-          }
-          ptr++;
-        }
-      }
+      { var mmap_interval* ptr = &mmap_intervals[0];
+        until (ptr==mmap_intervals_ptr)
+          { if (msync((MMAP_ADDR_T)ptr->mm_addr,ptr->mm_len,MS_INVALIDATE) < 0)
+              { asciz_out_2(GETTEXT("msync(0x%x,0x%x,MS_INVALIDATE) fails."),
+                            ptr->mm_addr, ptr->mm_len
+                           );
+                errno_out(errno);
+              }
+            ptr++;
+      }   }
   #else
      #define remember_mmap_interval(map_addr,map_len)
      #define msync_mmap_intervals()
@@ -162,24 +154,22 @@
     var int readonly;
     var int shared;
     var int remember;
-    {
-      if ( (void*) mmap((MMAP_ADDR_T)map_addr, # gewünschte Adresse
+    { if ( (void*) mmap((MMAP_ADDR_T)map_addr, # gewünschte Adresse
                         map_len, # Länge
                         readonly ? PROT_READ : PROT_READ_WRITE, # Zugriffsrechte
                         (shared ? MAP_SHARED : 0) | MAP_FIXED, # genau an diese Adresse!
                         fd, 0 # File ab Position 0 legen
                        )
            == (void*)(-1)
-         ) {
-        asciz_out_1(GETTEXT("Cannot map memory to address 0x%x ."),
-                    map_addr
-                   );
-        errno_out(errno);
-        return -1; # error
-      }
+         )
+        { asciz_out_1(GETTEXT("Cannot map memory to address 0x%x ."),
+                      map_addr
+                     );
+          errno_out(errno);
+          return -1; # error
+        }
       #ifdef HAVE_MSYNC
-      if (remember) 
-        remember_mmap_interval(map_addr,map_len);
+      if (remember) { remember_mmap_interval(map_addr,map_len); }
       #endif
       return 0;
     }
@@ -188,15 +178,12 @@
   local int zeromap(map_addr,map_len)
     var void* map_addr;
     var uintL map_len;
-    {
-      return fdmap(zero_fd,map_addr,map_len,FALSE,FALSE,FALSE);
-    }
+    { return fdmap(zero_fd,map_addr,map_len,FALSE,FALSE,FALSE); }
 
   local int open_temp_fd (uintL map_len);
   local int open_temp_fd(map_len)
     var uintL map_len;
-    {
-      var int fd;
+    { var int fd;
       #if (TEMPFILE_DEBUG_LEVEL > 0)
       tempfilename[strlen(tempfilename)-1]++;
       #endif
@@ -205,51 +192,46 @@
       #else
       fd = OPEN(tempfilename,O_RDWR|O_CREAT,my_open_mask);
       #endif
-      if (fd<0) {
-        asciz_out_s(GETTEXT("Cannot open %s ."),
-                    tempfilename
-                   );
-        errno_out(errno);
-        return -1; # error
-      }
-      #if (TEMPFILE_DEBUG_LEVEL == 0)
-      # und öffentlich unzugänglich machen, indem wir es löschen:
-      # (Das Betriebssystem löscht das File erst dann, wenn am Ende dieses
-      # Prozesses in _exit() ein close(fd) durchgeführt wird.)
-      if ( unlink(tempfilename) <0) {
-        asciz_out_s(GETTEXT("Cannot delete %s ."),
-                    tempfilename
-                   );
-        errno_out(errno);
-        return -1; # error
-      }
-      #endif
-      # überprüfen, ob genug Plattenplatz da ist:
-      {
-        var struct statfs statbuf;
-        if (!( fstatfs(fd,&statbuf) <0))
-          if (!(statbuf.f_bsize == (long)(-1)) && !(statbuf.f_bavail == (long)(-1))) {
-            var uintL available = (uintL)(statbuf.f_bsize) * (uintL)(statbuf.f_bavail);
-            if (available < map_len) {
-              # auf der Platte ist voraussichtlich zu wenig Platz
-              asciz_out_s(GETTEXT("** WARNING: ** Too few free disk space for %s ." NLstring),
-                          tempfilename
-                         );
-              asciz_out(GETTEXT("Please restart LISP with fewer memory (option -m)." NLstring));
-            }
-          }
-      }
-      # Auf Größe map_len aufblähen:
-      {
-        var uintB dummy = 0;
-        if (( lseek(fd,map_len-1,SEEK_SET) <0) || (!( full_write(fd,&dummy,1) ==1))) {
-          asciz_out_s(GETTEXT("Cannot make %s long enough."),
+      if (fd<0)
+        { asciz_out_s(GETTEXT("Cannot open %s ."),
                       tempfilename
                      );
           errno_out(errno);
           return -1; # error
         }
-      }
+      #if (TEMPFILE_DEBUG_LEVEL == 0)
+      # und öffentlich unzugänglich machen, indem wir es löschen:
+      # (Das Betriebssystem löscht das File erst dann, wenn am Ende dieses
+      # Prozesses in _exit() ein close(fd) durchgeführt wird.)
+      if ( unlink(tempfilename) <0)
+        { asciz_out_s(GETTEXT("Cannot delete %s ."),
+                      tempfilename
+                     );
+          errno_out(errno);
+          return -1; # error
+        }
+      #endif
+      # überprüfen, ob genug Plattenplatz da ist:
+      { var struct statfs statbuf;
+        if (!( fstatfs(fd,&statbuf) <0))
+          if (!(statbuf.f_bsize == (long)(-1)) && !(statbuf.f_bavail == (long)(-1)))
+            { var uintL available = (uintL)(statbuf.f_bsize) * (uintL)(statbuf.f_bavail);
+              if (available < map_len)
+                # auf der Platte ist voraussichtlich zu wenig Platz
+                { asciz_out_s(GETTEXT("** WARNING: ** Too few free disk space for %s ." NLstring),
+                             tempfilename
+                             );
+                  asciz_out(GETTEXT("Please restart LISP with fewer memory (option -m)." NLstring));
+      }     }   }
+      # Auf Größe map_len aufblähen:
+      { var uintB dummy = 0;
+        if (( lseek(fd,map_len-1,SEEK_SET) <0) || (!( full_write(fd,&dummy,1) ==1)))
+          { asciz_out_s(GETTEXT("Cannot make %s long enough."),
+                        tempfilename
+                       );
+            errno_out(errno);
+            return -1; # error
+      }   }
       return fd;
     }
 
@@ -260,14 +242,13 @@
       var int fd;
       var void* map_addr;
       var uintL map_len;
-      {
-        if (( lseek(fd,0,SEEK_SET) <0) || (!( full_write(fd,map_addr,map_len) == map_len))) {
-          asciz_out_s(GETTEXT("Cannot fill %s ."),
-                      tempfilename
-                     );
-          errno_out(errno);
-          return -1; # error
-        }
+      { if (( lseek(fd,0,SEEK_SET) <0) || (!( full_write(fd,map_addr,map_len) == map_len)))
+          { asciz_out_s(GETTEXT("Cannot fill %s ."),
+                        tempfilename
+                       );
+            errno_out(errno);
+            return -1; # error
+          }
         return 0;
       }
   #else
@@ -277,14 +258,13 @@
   local int close_temp_fd (int fd);
   local int close_temp_fd(fd)
     var int fd;
-    {
-      if ( CLOSE(fd) <0) {
-        asciz_out_s(GETTEXT("Cannot close %s ."),
-                    tempfilename
-                   );
-        errno_out(errno);
-        return -1; # error
-      }
+    { if ( CLOSE(fd) <0)
+        { asciz_out_s(GETTEXT("Cannot close %s ."),
+                      tempfilename
+                     );
+          errno_out(errno);
+          return -1; # error
+        }
       return 0;
     }
 
@@ -345,29 +325,26 @@
   local int initmap (void);
   local int initmap()
     {
-      #ifdef UNIX_LINUX
-      {
-        var struct shminfo shminfo;
+     #ifdef UNIX_LINUX
+      { var struct shminfo shminfo;
         if ( shmctl(0,IPC_INFO,(struct shmid_ds *)&shminfo) <0)
-          if (errno==ENOSYS) {
-            asciz_out(GETTEXT("Recompile your operating system with SYSV IPC support." NLstring));
-            return -1; # error
-          }
-      }
-      #endif
-      return 0;
+          if (errno==ENOSYS)
+            { asciz_out(GETTEXT("Recompile your operating system with SYSV IPC support." NLstring));
+              return -1; # error
+      }     }
+     #endif
+     return 0;
     }
 
   local int open_shmid (uintL map_len);
   local int open_shmid(map_len)
     var uintL map_len;
-    {
-      var int shmid = shmget(IPC_PRIVATE,map_len,0700|IPC_CREAT); # 0700 = 'Read/Write/Execute nur für mich'
-      if (shmid<0) {
-        asciz_out(GETTEXT("Cannot allocate private shared memory segment."));
-        errno_out(errno);
-        return -1; # error
-      }
+    { var int shmid = shmget(IPC_PRIVATE,map_len,0700|IPC_CREAT); # 0700 = 'Read/Write/Execute nur für mich'
+      if (shmid<0)
+        { asciz_out(GETTEXT("Cannot allocate private shared memory segment."));
+          errno_out(errno);
+          return -1; # error
+        }
       return shmid;
     }
 
@@ -379,19 +356,18 @@
     var int shmid;
     var void* map_addr;
     var int shmflags;
-    {
-      if ( shmat(shmid,
+    { if ( shmat(shmid,
                  map_addr, # Adresse
                  shmflags # Flags (Default: Read/Write)
                 )
            == (void*)(-1)
-         ) {
-        asciz_out_1(GETTEXT("Cannot map shared memory to address 0x%x."),
-                    map_addr
-                   );
-        errno_out(errno);
-        return -1; # error
-      }
+         )
+        { asciz_out_1(GETTEXT("Cannot map shared memory to address 0x%x."),
+                      map_addr
+                     );
+          errno_out(errno);
+          return -1; # error
+        }
       return 0;
     }
 
@@ -403,22 +379,21 @@
       var int shmid;
       var void* map_addr;
       var uintL map_len;
-      {
-        var void* temp_addr = shmat(shmid,
+      { var void* temp_addr = shmat(shmid,
                                          0, # Adresse: beliebig
                                          0 # Flags: brauche keine
                                         );
-        if (temp_addr == (void*)(-1)) {
-          asciz_out(GETTEXT("Cannot fill shared memory."));
-          errno_out(errno);
-          return -1; # error
-        }
+        if (temp_addr == (void*)(-1))
+          { asciz_out(GETTEXT("Cannot fill shared memory."));
+            errno_out(errno);
+            return -1; # error
+          }
         memcpy(temp_addr,map_addr,map_len);
-        if (shmdt(temp_addr) < 0) {
-          asciz_out(GETTEXT("Could not fill shared memory."));
-          errno_out(errno);
-          return -1; # error
-        }
+        if (shmdt(temp_addr) < 0)
+          { asciz_out(GETTEXT("Could not fill shared memory."));
+            errno_out(errno);
+            return -1; # error
+          }
         return 0;
       }
   #else
@@ -428,12 +403,11 @@
   local int close_shmid (int shmid);
   local int close_shmid(shmid)
     var int shmid;
-    {
-      if ( shmctl(shmid,IPC_RMID,NULL) <0) {
-        asciz_out(GETTEXT("Cannot remove shared memory segment."));
-        errno_out(errno);
-        return -1; # error
-      }
+    { if ( shmctl(shmid,IPC_RMID,NULL) <0)
+        { asciz_out(GETTEXT("Cannot remove shared memory segment."));
+          errno_out(errno);
+          return -1; # error
+        }
       return 0;
     }
 
@@ -441,12 +415,11 @@
   local int zeromap(map_addr,map_len)
     var void* map_addr;
     var uintL map_len;
-    {
-      var int shmid = open_shmid(map_len);
+    { var int shmid = open_shmid(map_len);
       if (shmid<0)
-        return -1; # error
+        { return -1; } # error
       if (idmap(shmid,map_addr,0) < 0)
-        return -1; # error
+        { return -1; } # error
       return close_shmid(shmid);
     }
 

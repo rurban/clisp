@@ -58,6 +58,10 @@
    <stdlib.h>, <stdarg.h>, <string.h>, <float.h>, <limits.h>. */
 #undef STDC_HEADERS
 
+/* CL_STDLIB_H */
+/* Define if you have <stdlib.h>. */
+#undef HAVE_STDLIB_H
+
 /* CL_UNISTD_H */
 /* Define if you have <unistd.h>. */
 #undef HAVE_UNISTD_H
@@ -68,6 +72,16 @@
 
 
 /* typedefs */
+
+/* AC_TYPE_SIZE_T */
+#ifndef size_t
+#undef size_t
+#endif
+
+/* AC_TYPE_OFF_T */
+#ifndef off_t
+#undef off_t
+#endif
 
 
 /* functions and declarations */
@@ -87,6 +101,12 @@
 #undef RETABORTTYPE
 /* Define as __volatile__ if the declaration of abort() needs it. */
 #define ABORT_VOLATILE
+
+/* CL_MKDIR */
+/* Define as const if the declaration of mkdir() needs const. */
+#define MKDIR_CONST
+/* Define as the type of `mode' in mkdir(), open() declaration. */
+#undef MODE_T
 
 /* CL_OPEN */
 /* Define as const if the declaration of open() needs const. */

@@ -189,7 +189,7 @@ extern RETMMAPTYPE mmap ();
 #ifdef OPEN_DOTS
 extern int open (OPEN_CONST char* path, int flags, ...);
 #else
-extern int open (OPEN_CONST char* path, int flags, mode_t mode);
+extern int open (OPEN_CONST char* path, int flags, MODE_T mode);
 #endif
 #else
 extern int open ();

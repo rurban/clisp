@@ -48,8 +48,7 @@
 # < uintL ergebnis : aktueller Stand des 50Hz-Zählers
   global uintL get_time(void);
   global uintL get_time()
-    {
-      var struct DateStamp datestamp;
+    { var struct DateStamp datestamp;
       begin_system_call();
       DateStamp(&datestamp); # aktuelle Uhrzeit holen
       end_system_call();
@@ -63,8 +62,7 @@
   global uintL get_time(void);
   #if defined(DJUNIX) && 0 # Vorsicht: das geht eine Stunde nach!!
     global uintL get_time()
-      {
-        var struct timeval real_time;
+      { var struct timeval real_time;
         begin_system_call();
         gettimeofday(&real_time,NULL);
         end_system_call();
@@ -73,59 +71,56 @@
       }
   #endif
   #if defined(DJUNIX) || defined(WATCOM)
-    typedef struct {
-      uintW year;  # Jahr (1980..2099)
-      uintB month; # Monat (1..12)
-      uintB day;   # Tag (1..31)
-      uintB hour;  # Stunde (0..23)
-      uintB min;   # Minute (0..59)
-      uintB sec;   # Sekunde (0..59)
-      uintB hsec;  # Hundertstel Sekunde (0..59)
-    } internal_decoded_time;
+    typedef struct { uintW year;  # Jahr (1980..2099)
+                     uintB month; # Monat (1..12)
+                     uintB day;   # Tag (1..31)
+                     uintB hour;  # Stunde (0..23)
+                     uintB min;   # Minute (0..59)
+                     uintB sec;   # Sekunde (0..59)
+                     uintB hsec;  # Hundertstel Sekunde (0..59)
+                   }
+            internal_decoded_time;
     local void get_decoded_time (internal_decoded_time* timepoint);
     local void get_decoded_time(timepoint)
       var internal_decoded_time* timepoint;
-      {
-        var union REGS in;
+      { var union REGS in;
         var union REGS out;
         begin_system_call();
-        loop {
-          # Datum-Teil holen:
-          in.regB.ah = 0x2A; # DOS Get Date
-          intdos(&in,&out);
-          timepoint->year = out.regW.cx;
-          timepoint->month = out.regB.dh;
-          timepoint->day = out.regB.dl;
-          # Uhrzeit-Teil holen:
-          in.regB.ah = 0x2C; # DOS Get Time
-          intdos(&in,&out);
-          timepoint->hour = out.regB.ch;
-          timepoint->min = out.regB.cl;
-          timepoint->sec = out.regB.dh;
-          timepoint->hsec = out.regB.dl;
-          # und auf Tageswechsel überprüfen:
-          if (!(timepoint->sec == 0)) break;
-          if (!(timepoint->min == 0)) break;
-          if (!(timepoint->hour == 0)) break;
-          in.regB.ah = 0x2A; # DOS Get Date
-          intdos(&in,&out);
-          if (timepoint->day == out.regB.dl) break;
-          # Datum hat sich zwischenzeitlich verändert -> wiederholen
-        }
+        loop
+          { # Datum-Teil holen:
+            in.regB.ah = 0x2A; # DOS Get Date
+            intdos(&in,&out);
+            timepoint->year = out.regW.cx;
+            timepoint->month = out.regB.dh;
+            timepoint->day = out.regB.dl;
+            # Uhrzeit-Teil holen:
+            in.regB.ah = 0x2C; # DOS Get Time
+            intdos(&in,&out);
+            timepoint->hour = out.regB.ch;
+            timepoint->min = out.regB.cl;
+            timepoint->sec = out.regB.dh;
+            timepoint->hsec = out.regB.dl;
+            # und auf Tageswechsel überprüfen:
+            if (!(timepoint->sec == 0)) break;
+            if (!(timepoint->min == 0)) break;
+            if (!(timepoint->hour == 0)) break;
+            in.regB.ah = 0x2A; # DOS Get Date
+            intdos(&in,&out);
+            if (timepoint->day == out.regB.dl) break;
+            # Datum hat sich zwischenzeitlich verändert -> wiederholen
+          }
         end_system_call();
       }
     global uintL get_time()
-      {
-        var internal_decoded_time timepoint;
+      { var internal_decoded_time timepoint;
         get_decoded_time(&timepoint);
-        var local uintW monthoffsets[12] = { # Jahrtag ab dem letzten 1. März
+       {local var uintW monthoffsets[12] = { # Jahrtag ab dem letzten 1. März
           # Monat  1   2   3  4  5  6  7   8   9   10  11  12
                   306,337, 0,31,61,92,122,153,184,214,245,275,
           };
         var uintL UTTag;
         timepoint.year -= 1980;
-        if (timepoint.month >= 3)
-          timepoint.year += 1;
+        if (timepoint.month >= 3) { timepoint.year += 1; }
         UTTag = (uintL)timepoint.year * 365 + (uintL)ceiling(timepoint.year,4)
                 + (uintL)monthoffsets[timepoint.month-1] + (uintL)timepoint.day + 3345;
         # Zeitzone mitberücksichtigen??
@@ -133,12 +128,11 @@
                         * 60 + (uintL)timepoint.min)
                         * 60 + (uintL)timepoint.sec)
                         * 100 + (uintL)timepoint.hsec;
-      }
+      }}
   #endif
   #if defined(EMUNIX)
     global uintL get_time()
-      {
-        var struct timeb real_time;
+      { var struct timeb real_time;
         begin_system_call();
         __ftime(&real_time);
         end_system_call();
@@ -151,8 +145,7 @@
 # < uintL ergebnis : aktueller Stand des CLK_TCK Hz - Zählers
   local uintL get_time(void);
   local uintL get_time()
-    {
-      var struct tms buffer;
+    { var struct tms buffer;
       return (uintL)times(&buffer);
     }
  #endif
@@ -161,8 +154,7 @@
   global uintL get_time(void);
   #include <sys/os.h>
   global uintL get_time()
-    {
-      var int regs[10];
+    { var int regs[10];
       var os_error * err;
       begin_system_call();
       err = os_swi(0x42,regs);
@@ -178,8 +170,7 @@
 # run_time_stop();
   global void run_time_stop (void);
   global void run_time_stop()
-    {
-      if (!run_flag) return; # Run-Time-Stoppuhr ist schon angehalten -> OK
+    { if (!run_flag) return; # Run-Time-Stoppuhr ist schon angehalten -> OK
       # zuletzt verbrauchte Run-Time zur bisherigen Run-Time addieren:
       run_time += get_time()-runstop_time;
       run_flag = FALSE; # Run-Time-Stoppuhr steht
@@ -189,8 +180,7 @@
 # run_time_restart();
   global void run_time_restart (void);
   global void run_time_restart()
-    {
-      if (run_flag) return; # Run-Time-Stoppuhr läuft schon -> OK
+    { if (run_flag) return; # Run-Time-Stoppuhr läuft schon -> OK
       runstop_time = get_time(); # aktuelle Zeit abspeichern
       run_flag = TRUE; # Run-Time-Stoppuhr läuft
     }
@@ -202,9 +192,7 @@
 # < uintL ergebnis: Zeit seit LISP-System-Start (in 1/200 sec bzw. in 1/50 sec bzw. in 1/100 sec bzw. in 1/CLK_TCK sec)
   global uintL get_real_time (void);
   global uintL get_real_time()
-    {
-      return get_time()-realstart_time;
-    }
+    { return get_time()-realstart_time; }
 
 #endif
 
@@ -217,8 +205,7 @@
   global uintL get_run_time (internal_time* runtime);
   global uintL get_run_time(runtime)
     var internal_time* runtime;
-    {
-      var struct tms tms;
+    { var struct tms tms;
       var uintL now_time;
       begin_system_call();
       now_time = times(&tms);
@@ -269,10 +256,10 @@
       var uintL used_time; # verbrauchte Zeit, gemessen in 1/HZ Sekunden
       var struct tms tms;
       begin_system_call();
-      if (times(&tms) == (clock_t)(-1))
-        used_time = 0; # times scheitert -> used_time unbekannt
-      else
-        used_time = tms.tms_utime + tms.tms_stime; # User time + System time
+      if (times(&tms) == (CLOCK_T)(-1))
+        { used_time = 0; } # times scheitert -> used_time unbekannt
+        else
+        { used_time = tms.tms_utime + tms.tms_stime; } # User time + System time
       end_system_call();
       # in Sekunden und Mikrosekunden umwandeln: # verwende HZ oder CLK_TCK ??
       runtime->tv_sec = floor(used_time,HZ);
@@ -289,11 +276,11 @@
 # < internal_time* ergebnis: absolute Zeit
   global void get_real_time (internal_time*);
   global void get_real_time(internal_time* it)
-    {
-      var struct timeb timebuf;
+    { var struct timeb timebuf;
       begin_system_call();
       ftime(&timebuf);
       end_system_call();
+     {
       #ifdef HAVE_LONGLONG
       var ULONGLONG ticks =
         + (ULONGLONG)134774 * (ULONGLONG)86400 * (ULONGLONG)ticks_per_second
@@ -312,7 +299,7 @@
       add_internal_time(t1,t2, it);
       add_internal_time(it,t3, it);
       #endif
-    }
+    }}
 
 # UP: Liefert die Run-Time
 # get_run_time(&runtime);
@@ -320,27 +307,27 @@
   global void get_run_time (internal_time* runtime);
   global void get_run_time(runtime)
     var internal_time* runtime;
-    {
-      var FILETIME creation_time;
+    { var FILETIME creation_time;
       var FILETIME exit_time;
       var FILETIME kernel_time;
       var FILETIME user_time;
       begin_system_call();
-      if (GetProcessTimes(GetCurrentProcess(),&creation_time,&exit_time,&kernel_time,&user_time)) {
-        end_system_call();
-        add_internal_time(user_time,kernel_time, *runtime); # User time + Kernel time
-      } else {
-        if (!(GetLastError()==ERROR_CALL_NOT_IMPLEMENTED)) { OS_error(); }
-        # GetProcessTimes() is not implemented on Win95. Use get_real_time()
-        # instead. This is only a crude approximation, I know.
-        # (We keep HAVE_RUN_TIME defined, so that Win95 users will notice
-        # that "Run time" and "Real time" are always the same and draw their
-        # conclusions from it.)
-        end_system_call();
-        var internal_time real_time;
-        get_real_time(&real_time);
-        sub_internal_time(real_time,realstart_time, *runtime);
-      }
+      if (GetProcessTimes(GetCurrentProcess(),&creation_time,&exit_time,&kernel_time,&user_time))
+        { end_system_call();
+          add_internal_time(user_time,kernel_time, *runtime); # User time + Kernel time
+        }
+        else
+        { if (!(GetLastError()==ERROR_CALL_NOT_IMPLEMENTED)) { OS_error(); }
+          # GetProcessTimes() is not implemented on Win95. Use get_real_time()
+          # instead. This is only a crude approximation, I know.
+          # (We keep HAVE_RUN_TIME defined, so that Win95 users will notice
+          # that "Run time" and "Real time" are always the same and draw their
+          # conclusions from it.)
+          end_system_call();
+         {var internal_time real_time;
+          get_real_time(&real_time);
+          sub_internal_time(real_time,realstart_time, *runtime);
+        }}
     }
 
 #endif
@@ -408,8 +395,7 @@
     var uintW time;
     var uintW date;
     var decoded_time* timepoint;
-    {
-      timepoint->Sekunden = fixnum( (time & (bit(5) - 1)) << 1 );
+    { timepoint->Sekunden = fixnum( (time & (bit(5) - 1)) << 1 );
       time = time>>5;
       timepoint->Minuten = fixnum( time & (bit(6) - 1));
       time = time>>6;
@@ -435,8 +421,7 @@
   global void convert_time(datestamp,timepoint)
     var const struct DateStamp * datestamp;
     var decoded_time* timepoint;
-    {
-      # Methode:
+    { # Methode:
       # ds_Tick durch ticks_per_second dividieren, liefert Sekunden.
       # ds_Minute durch 60 dividierem liefert Stunden und (als Rest) Minuten.
       # ds_Days in Tag, Monat, Jahr umrechnen:
@@ -449,34 +434,30 @@
       #   d := d - floor((153*m+2)/5); # Tag ab letztem Monatsanfang
       #   m := m+2; if (m>=12) then { m:=m-12; y:=y+1; } # auf Jahre umrechnen
       #   Tag d+1, Monat m+1, Jahr 1980+y.
-      {
-        var uintL sec;
-        divu_3216_1616(datestamp->ds_Tick,ticks_per_second,sec=,);
-        timepoint->Sekunden = fixnum(sec);
+      {var uintL sec;
+       divu_3216_1616(datestamp->ds_Tick,ticks_per_second,sec=,);
+       timepoint->Sekunden = fixnum(sec);
       }
-      {
-        var uintL std;
-        var uintL min;
-        divu_3216_1616(datestamp->ds_Minute,60,std=,min=);
-        timepoint->Minuten = fixnum(min);
-        timepoint->Stunden = fixnum(std);
+      {var uintL std;
+       var uintL min;
+       divu_3216_1616(datestamp->ds_Minute,60,std=,min=);
+       timepoint->Minuten = fixnum(min);
+       timepoint->Stunden = fixnum(std);
       }
-      {
-        var uintL y;
-        var uintW m;
-        var uintW d;
-        divu_3216_1616(4*(datestamp->ds_Days - 424),1461,y=,d=); # y = März-Jahre ab 1.1.1979
-        d = floor(d,4); # Tage ab dem letzten März-Jahres-Anfang
-        divu_1616_1616(5*d+2,153,m=,d=); # m = Monat ab letztem März
-        d = floor(d,5); # Tag ab letztem Monatsanfang
-        # m=0..9 -> Monat März..Dezember des Jahres 1979+y,
-        # m=10..11 -> Monat Januar..Februar des Jahres 1980+y.
-        if (m<10) { m += 12; y -= 1; } # auf Jahre umrechnen
-        timepoint->Tag = fixnum(1+(uintL)d);
-        timepoint->Monat = fixnum(-9+(uintL)m);
-        timepoint->Jahr = fixnum(1980+y);
-      }
-    }
+      {var uintL y;
+       var uintW m;
+       var uintW d;
+       divu_3216_1616(4*(datestamp->ds_Days - 424),1461,y=,d=); # y = März-Jahre ab 1.1.1979
+       d = floor(d,4); # Tage ab dem letzten März-Jahres-Anfang
+       divu_1616_1616(5*d+2,153,m=,d=); # m = Monat ab letztem März
+       d = floor(d,5); # Tag ab letztem Monatsanfang
+       # m=0..9 -> Monat März..Dezember des Jahres 1979+y,
+       # m=10..11 -> Monat Januar..Februar des Jahres 1980+y.
+       if (m<10) { m += 12; y -= 1; } # auf Jahre umrechnen
+       timepoint->Tag = fixnum(1+(uintL)d);
+       timepoint->Monat = fixnum(-9+(uintL)m);
+       timepoint->Jahr = fixnum(1980+y);
+    } }
 #endif
 #if defined(UNIX) || defined(MSDOS) || defined(RISCOS)
 # UP: Wandelt das System-Zeitformat in Decoded-Time um.
@@ -488,29 +469,29 @@
   global void convert_time(time,timepoint)
     var const time_t* time;
     var decoded_time* timepoint;
-    {
-      begin_system_call();
-      var struct tm * tm = localtime(time); # decodieren
+    { begin_system_call();
+     {var struct tm * tm = localtime(time); # decodieren
       # (Das Zeitformat des Systems muss auch das System auseinandernehmen.)
       end_system_call();
-      if (!(tm==NULL)) {
+      if (!(tm==NULL))
         # localtime war erfolgreich
-        timepoint->Sekunden = fixnum(tm->tm_sec);
-        timepoint->Minuten  = fixnum(tm->tm_min);
-        timepoint->Stunden  = fixnum(tm->tm_hour);
-        timepoint->Tag      = fixnum(tm->tm_mday);
-        timepoint->Monat    = fixnum(1+tm->tm_mon);
-        timepoint->Jahr     = fixnum(1900+tm->tm_year);
-      } else {
+        { timepoint->Sekunden = fixnum(tm->tm_sec);
+          timepoint->Minuten  = fixnum(tm->tm_min);
+          timepoint->Stunden  = fixnum(tm->tm_hour);
+          timepoint->Tag      = fixnum(tm->tm_mday);
+          timepoint->Monat    = fixnum(1+tm->tm_mon);
+          timepoint->Jahr     = fixnum(1900+tm->tm_year);
+        }
+        else
         # gescheitert -> verwende 1.1.1900, 00:00:00 als Default
-        timepoint->Sekunden = Fixnum_0;
-        timepoint->Minuten  = Fixnum_0;
-        timepoint->Stunden  = Fixnum_0;
-        timepoint->Tag      = Fixnum_1;
-        timepoint->Monat    = Fixnum_1;
-        timepoint->Jahr     = fixnum(1900);
-      }
-    }
+        { timepoint->Sekunden = Fixnum_0;
+          timepoint->Minuten  = Fixnum_0;
+          timepoint->Stunden  = Fixnum_0;
+          timepoint->Tag      = Fixnum_1;
+          timepoint->Monat    = Fixnum_1;
+          timepoint->Jahr     = fixnum(1900);
+        }
+    }}
 #endif
 #ifdef WIN32_NATIVE
 # UP: Wandelt das System-Zeitformat in Decoded-Time um.
@@ -522,8 +503,7 @@
   global void convert_time(time,timepoint)
     var const FILETIME* time;
     var decoded_time* timepoint;
-    {
-      var FILETIME ltime;
+    { var FILETIME ltime;
       var SYSTEMTIME ltm;
       if (!FileTimeToLocalFileTime(time,&ltime)) { OS_error(); }
       if (!FileTimeToSystemTime(&ltime,&ltm)) { OS_error(); }
@@ -558,18 +538,15 @@
       #endif
       #ifdef TIME_RELATIVE
       # Start-Zeit holen und merken:
-      {
-        var decoded_time timepoint;
+      { var decoded_time timepoint;
         #ifdef AMIGAOS
-        {
-          var struct DateStamp datestamp; # aktuelle Uhrzeit
+        { var struct DateStamp datestamp; # aktuelle Uhrzeit
           DateStamp(&datestamp);
           convert_time(&datestamp,&timepoint); # in Decoded-Time umwandeln
         }
         #endif
         #if defined(DJUNIX) && 0 # das geht eine Stunde nach!!
-        {
-          var struct timeval real_time;
+        { var struct timeval real_time;
           begin_system_call();
           gettimeofday(&real_time,NULL); # aktuelle Uhrzeit
           end_system_call();
@@ -577,8 +554,7 @@
         }
         #endif
         #if defined(DJUNIX) || defined(WATCOM)
-        {
-          var internal_decoded_time idt;
+        { var internal_decoded_time idt;
           get_decoded_time(&idt);
           timepoint.Sekunden = fixnum(idt.sec);
           timepoint.Minuten  = fixnum(idt.min);
@@ -589,8 +565,7 @@
         }
         #endif
         #if defined(EMUNIX)
-        {
-          var struct timeb real_time;
+        { var struct timeb real_time;
           begin_system_call();
           __ftime(&real_time); # aktuelle Uhrzeit
           end_system_call();
@@ -598,8 +573,7 @@
         }
         #endif
         #if defined(UNIX) || defined(RISCOS) # TIME_UNIX_TIMES || TIME_RISCOS
-        {
-          var time_t real_time;
+        { var time_t real_time;
           begin_system_call();
           time(&real_time); # aktuelle Uhrzeit
           end_system_call();
@@ -679,8 +653,7 @@
   local object calc_start_UT (const decoded_time* timepoint);
   local object calc_start_UT(timepoint)
     var const decoded_time* timepoint;
-    {
-      # (ENCODE-UNIVERSAL-TIME Sekunden Minuten Stunden Tag Monat Jahr) ausführen:
+    { # (ENCODE-UNIVERSAL-TIME Sekunden Minuten Stunden Tag Monat Jahr) ausführen:
       pushSTACK(timepoint->Sekunden);
       pushSTACK(timepoint->Minuten);
       pushSTACK(timepoint->Stunden);
@@ -706,14 +679,12 @@
   global void set_start_time (const decoded_time* timepoint);
   global void set_start_time(timepoint)
     var const decoded_time* timepoint;
-    {
-      # Start-Zeit merken:
+    { # Start-Zeit merken:
       realstart_datetime = *timepoint;
       # und, wenn möglich, gleich in Universal Time umwandeln:
-      if (!eq(Symbol_function(S(encode_universal_time)),unbound)) {
+      if (!eq(Symbol_function(S(encode_universal_time)),unbound))
         # Ist ENCODE-UNIVERSAL-TIME definiert -> sofort in UT umwandeln:
-        calc_start_UT(timepoint);
-      }
+        { calc_start_UT(timepoint); }
     }
 
 #endif
@@ -771,13 +742,11 @@ LISPFUNN(get_universal_time,0)
   #   (+ (sys::get-start-time)
   #      (floor (get-internal-real-time) internal-time-units-per-second)
   # ) )
-  {
-    var object start_time = O(start_UT);
-    if (nullp(start_time)) { # Start-Universal-Time noch NIL ?
+  { var object start_time = O(start_UT);
+    if (nullp(start_time)) # Start-Universal-Time noch NIL ?
       # nein -> schon berechnet.
       # ja -> jetzt erst berechnen:
-      start_time = calc_start_UT(&realstart_datetime);
-    }
+      { start_time = calc_start_UT(&realstart_datetime); }
     # start_time = die Uhrzeit des LISP-System-Starts in Universal Time.
     pushSTACK(start_time);
     pushSTACK(UL_to_I(real_time_sec())); # Sekunden seit Systemstart
@@ -785,9 +754,7 @@ LISPFUNN(get_universal_time,0)
   }
 #endif
 #ifdef TIME_ABSOLUTE
-  {
-    value1 = UL_to_I(real_time_sec()); mv_count=1;
-  }
+  { value1 = UL_to_I(real_time_sec()); mv_count=1; }
 #endif
 
 #if defined(UNIX) || defined(WIN32)
@@ -797,8 +764,7 @@ LISPFUN(default_time_zone,0,1,norest,nokey,0,NIL)
 # bestimmten Zeitpunkt.
 # 1. Wert: Zeitzone mit Sommerzeit-Berücksichtigung.
 # 2. Wert: Sommerzeit-p.
-  {
-    # Da die Zeitzone oft per TZ-Environment-Variable einstellbar ist, wird
+  { # Da die Zeitzone oft per TZ-Environment-Variable einstellbar ist, wird
     # sie häufig außerhalb des Kernels verwaltet. Man hat nur per localtime()
     # und gmtime() Zugriff auf sie.
     # Methode:
@@ -806,97 +772,93 @@ LISPFUN(default_time_zone,0,1,norest,nokey,0,NIL)
     #   Sommerzeit-p wird dem Ergebnis von localtime(t) entnommen.
     var object arg = popSTACK();
     var time_t now;
-    if (integerp(arg)) {
-      # bestimmter Zeitpunkt
-      # Annahme: time_t ist die Anzahl der Sekunden seit 1.1.1970. ??
-      if (posfixnump(arg)
-          && (posfixnum_to_L(arg) >= 613608) # arg >= 1.1.1970
-          && (posfixnum_to_L(arg) < 1314888) # arg < 1.1.2050
-         ) {
-        now = (posfixnum_to_L(arg) - 613608) * 3600;
-      } elif (R_minusp(arg) || (posfixnump(arg) && (posfixnum_to_L(arg) < 613608))) {
-        now = 0; # < 1.1.1970 -> treat like 1.1.1970
-      } else {
-        now = (uintL)(1314888 - 613608) * 3600; # >= 1.1.2050 -> treat like 1.1.2050
+    if (integerp(arg))
+      { # bestimmter Zeitpunkt
+        # Annahme: time_t ist die Anzahl der Sekunden seit 1.1.1970. ??
+        if (posfixnump(arg)
+            && (posfixnum_to_L(arg) >= 613608) # arg >= 1.1.1970
+            && (posfixnum_to_L(arg) < 1314888) # arg < 1.1.2050
+           )
+          { now = (posfixnum_to_L(arg) - 613608) * 3600; }
+        elif (R_minusp(arg) || (posfixnump(arg) && (posfixnum_to_L(arg) < 613608)))
+          { now = 0; } # < 1.1.1970 -> treat like 1.1.1970
+        else
+          { now = (uintL)(1314888 - 613608) * 3600; } # >= 1.1.2050 -> treat like 1.1.2050
       }
-    } else {
+      else
       # jetzt
-      begin_system_call(); time(&now); end_system_call();
-    }
-    var struct tm now_local;
-    var struct tm now_gm;
-    begin_system_call();
-    now_local = *(localtime(&now));
-    now_gm = *(gmtime(&now));
-    end_system_call();
-    # secondswest = mktime(now_gm) - mktime(now_local); wäre schön.
-    # mktime() ist allerdings nicht weit verbreitet. Unter SunOS4 müsste man
-    # timegm() nehmen. Daher tun wir's selber:
-    var sintL dayswest = # Tage-Differenz, kann als 0,1,-1 angenommen werden
-      (now_gm.tm_year < now_local.tm_year ? -1 :
-       now_gm.tm_year > now_local.tm_year ? 1 :
-       (now_gm.tm_mon < now_local.tm_mon ? -1 :
-        now_gm.tm_mon > now_local.tm_mon ? 1 :
-        (now_gm.tm_mday < now_local.tm_mday ? -1 :
-         now_gm.tm_mday > now_local.tm_mday ? 1 :
-         0
-      )));
-    var sintL hourswest = 24*dayswest + (sintL)(now_gm.tm_hour - now_local.tm_hour);
-    var sintL minuteswest = 60*hourswest + (sintL)(now_gm.tm_min - now_local.tm_min);
-    var sintL secondswest = 60*minuteswest + (sintL)(now_gm.tm_sec - now_local.tm_sec);
-    # Zeitzone in Stunden = (Zeitzone in Sekunden / 3600) :
-    pushSTACK(L_to_I(secondswest));
-    pushSTACK(fixnum(3600));
-    funcall(L(durch),2);
-    # Sommerzeit-p entnehmen:
-    # tm_isdst < 0 bedeutet "unbekannt"; wir nehmen an, keine Sommerzeit.
-    value2 = (now_local.tm_isdst > 0 ? T : NIL);
-    mv_count=2;
-  }
+      { begin_system_call(); time(&now); end_system_call(); }
+    { var struct tm now_local;
+      var struct tm now_gm;
+      begin_system_call();
+      now_local = *(localtime(&now));
+      now_gm = *(gmtime(&now));
+      end_system_call();
+      # secondswest = mktime(now_gm) - mktime(now_local); wäre schön.
+      # mktime() ist allerdings nicht weit verbreitet. Unter SunOS4 müsste man
+      # timegm() nehmen. Daher tun wir's selber:
+     {var sintL dayswest = # Tage-Differenz, kann als 0,1,-1 angenommen werden
+        (now_gm.tm_year < now_local.tm_year ? -1 :
+         now_gm.tm_year > now_local.tm_year ? 1 :
+         (now_gm.tm_mon < now_local.tm_mon ? -1 :
+          now_gm.tm_mon > now_local.tm_mon ? 1 :
+          (now_gm.tm_mday < now_local.tm_mday ? -1 :
+           now_gm.tm_mday > now_local.tm_mday ? 1 :
+           0
+        )));
+      var sintL hourswest = 24*dayswest + (sintL)(now_gm.tm_hour - now_local.tm_hour);
+      var sintL minuteswest = 60*hourswest + (sintL)(now_gm.tm_min - now_local.tm_min);
+      var sintL secondswest = 60*minuteswest + (sintL)(now_gm.tm_sec - now_local.tm_sec);
+      # Zeitzone in Stunden = (Zeitzone in Sekunden / 3600) :
+      pushSTACK(L_to_I(secondswest));
+      pushSTACK(fixnum(3600));
+      funcall(L(durch),2);
+      # Sommerzeit-p entnehmen:
+      # tm_isdst < 0 bedeutet "unbekannt"; wir nehmen an, keine Sommerzeit.
+      value2 = (now_local.tm_isdst > 0 ? T : NIL);
+      mv_count=2;
+  } }}
 #endif # UNIX || WIN32
 
 LISPFUNN(get_internal_run_time,0)
 # (GET-INTERNAL-RUN-TIME), CLTL S. 446
-  {
-    var timescore tm;
+  { var timescore tm;
     get_running_times(&tm); # Run-Time seit LISP-System-Start abfragen
    #ifdef TIME_1
     value1 = UL_to_I(tm.runtime); mv_count=1; # in Integer umwandeln
    #endif
    #ifdef TIME_2
-    var internal_time* tp = &tm.runtime; # Run-Time
-    #ifdef TIME_UNIX
-     # in Mikrosekunden umwandeln: tp->tv_sec * ticks_per_second + tp->tv_usec
-     #ifdef intQsize
-     value1 = UQ_to_I((uintQ)(tp->tv_sec) * ticks_per_second + (uintQ)(tp->tv_usec));
-     #else
-     {
-       var uintL run_time_hi;
-       var uintL run_time_lo;
-       mulu32(tp->tv_sec,ticks_per_second, run_time_hi=,run_time_lo=);
-       if ((run_time_lo += tp->tv_usec) < tp->tv_usec) { run_time_hi += 1; }
-       value1 = L2_to_I(run_time_hi,run_time_lo);
-     }
-     #endif
-    #endif
-    #ifdef TIME_WIN32
-     value1 = L2_to_I(tp->dwHighDateTime,tp->dwLowDateTime);
-    #endif
-    mv_count=1;
+    { var internal_time* tp = &tm.runtime; # Run-Time
+      #ifdef TIME_UNIX
+       # in Mikrosekunden umwandeln: tp->tv_sec * ticks_per_second + tp->tv_usec
+       #ifdef intQsize
+       value1 = UQ_to_I((uintQ)(tp->tv_sec) * ticks_per_second + (uintQ)(tp->tv_usec));
+       #else
+       {var uintL run_time_hi;
+        var uintL run_time_lo;
+        mulu32(tp->tv_sec,ticks_per_second, run_time_hi=,run_time_lo=);
+        if ((run_time_lo += tp->tv_usec) < tp->tv_usec) { run_time_hi += 1; }
+        value1 = L2_to_I(run_time_hi,run_time_lo);
+       }
+       #endif
+      #endif
+      #ifdef TIME_WIN32
+       value1 = L2_to_I(tp->dwHighDateTime,tp->dwLowDateTime);
+      #endif
+      mv_count=1;
+    }
    #endif
   }
 
 LISPFUNN(get_internal_real_time,0)
 # (GET-INTERNAL-REAL-TIME), CLTL S. 446
 #ifdef TIME_1
-  {
-    value1 = UL_to_I(get_real_time()); # Real-Time seit LISP-System-Start, als Integer
+  { value1 = UL_to_I(get_real_time()); # Real-Time seit LISP-System-Start, als Integer
     mv_count=1;
   }
 #endif
 #ifdef TIME_2
-  {
-    var internal_time tp; # Real-Time absolut
+  { var internal_time tp; # Real-Time absolut
     get_real_time(&tp);
     #ifdef TIME_UNIX
      # in Mikrosekunden umwandeln: tp.tv_sec * ticks_per_second + tp.tv_usec
@@ -904,12 +866,11 @@ LISPFUNN(get_internal_real_time,0)
      value1 = UQ_to_I((uintQ)(tp.tv_sec) * ticks_per_second +
                       (uintQ)(tp.tv_usec));
      #else
-     {
-       var uintL real_time_hi;
-       var uintL real_time_lo;
-       mulu32(tp.tv_sec,ticks_per_second, real_time_hi=,real_time_lo=);
-       if ((real_time_lo += tp.tv_usec) < tp.tv_usec) { real_time_hi += 1; }
-       value1 = L2_to_I(real_time_hi,real_time_lo);
+     {var uintL real_time_hi;
+      var uintL real_time_lo;
+      mulu32(tp.tv_sec,ticks_per_second, real_time_hi=,real_time_lo=);
+      if ((real_time_lo += tp.tv_usec) < tp.tv_usec) { real_time_hi += 1; }
+      value1 = L2_to_I(real_time_hi,real_time_lo);
      }
      #endif
     #endif
@@ -925,35 +886,32 @@ LISPFUNN(sleep,1)
 #if defined(TIME_MSDOS) || defined(RISCOS)
 # (SYSTEM::%SLEEP delay) wartet delay/200 bzw. delay/100 Sekunden.
 # Argument delay muss ein Integer >=0, <2^32 (TIME_MSDOS: sogar <2^31) sein.
-  {
-    var uintL delay = I_to_UL(popSTACK()); # Pausenlänge
+  { var uintL delay = I_to_UL(popSTACK()); # Pausenlänge
     #ifdef EMUNIX_PORTABEL
-    if (TRUE) {
+    if (TRUE)
       # Unter OS/2 (Multitasking!) nicht CPU-Zeit verbraten!
       # select erlaubt eine wunderschöne Implementation von usleep():
-      loop {
-        var uintL start_time = get_real_time();
-        {
-          var struct timeval timeout; # Zeitintervall
-          divu_3216_3216(delay,ticks_per_second, timeout.tv_sec =, timeout.tv_usec = 1000000/ticks_per_second * (uintL) );
-          begin_system_call();
-          var int ergebnis = select(FD_SETSIZE,NULL,NULL,NULL,&timeout);
-          if ((ergebnis<0) && !(errno==EINTR)) { OS_error(); }
-          end_system_call();
-        }
-        interruptp( { pushSTACK(S(sleep)); tast_break(); } ); # evtl. Break-Schleife aufrufen
-        var uintL end_time = get_real_time();
-        var uintL slept = end_time - start_time; # so lang haben wir geschlafen
-        # Haben wir genug geschlafen?
-        if (slept >= delay)
-          break;
-        # Wie lange müssen wir noch schlafen?
-        delay -= slept;
+      { loop
+          { var uintL start_time = get_real_time();
+            { var struct timeval timeout; # Zeitintervall
+              divu_3216_3216(delay,ticks_per_second, timeout.tv_sec =, timeout.tv_usec = 1000000/ticks_per_second * (uintL) );
+              begin_system_call();
+             {var int ergebnis = select(FD_SETSIZE,NULL,NULL,NULL,&timeout);
+              if ((ergebnis<0) && !(errno==EINTR)) { OS_error(); }
+              end_system_call();
+            }}
+            interruptp( { pushSTACK(S(sleep)); tast_break(); } ); # evtl. Break-Schleife aufrufen
+           {var uintL end_time = get_real_time();
+            var uintL slept = end_time - start_time; # so lang haben wir geschlafen
+            # Haben wir genug geschlafen?
+            if (slept >= delay) break;
+            # Wie lange müssen wir noch schlafen?
+            delay -= slept;
+          }}
       }
-    } else
+      else
     #endif
-    {
-      var uintL endtime = get_real_time() + delay; # zur momentanen Real-Time addieren,
+    { var uintL endtime = get_real_time() + delay; # zur momentanen Real-Time addieren,
       # ergibt Zeit, bis zu der zu warten ist.
       # warten, bis die Real-Time bei endtime angelangt ist:
       # (Attention: the MSDOS clock always advances 5 or 6 ticks at a time!)
@@ -965,8 +923,7 @@ LISPFUNN(sleep,1)
 #ifdef TIME_AMIGAOS
 # (SYSTEM::%SLEEP delay) wartet delay/50 Sekunden.
 # Argument delay muss ein Integer >=0, <2^32 sein.
-  {
-    var uintL delay = I_to_UL(popSTACK()); # Pausenlänge
+  { var uintL delay = I_to_UL(popSTACK()); # Pausenlänge
     if (delay>0) { begin_system_call(); Delay(delay); end_system_call(); }
     value1 = NIL; mv_count=1; # 1 Wert NIL
   }
@@ -980,13 +937,12 @@ LISPFUNN(sleep,1)
   local int gettimeofday(tp,tzp)
     var struct timeval * tp;
     var void* tzp;
-    {
-      if (!(tp==NULL)) {
-        var uintL realtime = get_real_time();
-        # in Sekunden und Mikrosekunden umwandeln:
-        tp->tv_sec = floor(realtime,ticks_per_second);
-        tp->tv_usec = (realtime % ticks_per_second) * floor(2*1000000+ticks_per_second,2*ticks_per_second);
-      }
+    { if (!(tp==NULL))
+        { var uintL realtime = get_real_time();
+          # in Sekunden und Mikrosekunden umwandeln:
+          tp->tv_sec = floor(realtime,ticks_per_second);
+          tp->tv_usec = (realtime % ticks_per_second) * floor(2*1000000+ticks_per_second,2*ticks_per_second);
+        }
       return 0;
     }
 #endif
@@ -996,57 +952,54 @@ LISPFUNN(sleep,2)
 # delay-seconds Sekunden und delay-useconds Mikrosekunden.
 # Argument delay-seconds muss ein Fixnum >=0, <=16700000 sein,
 # Argument delay-useconds muss ein Fixnum >=0, <=1000000 sein.
-  {
-    var uintL useconds = posfixnum_to_L(popSTACK());
+  { var uintL useconds = posfixnum_to_L(popSTACK());
     var uintL seconds = posfixnum_to_L(popSTACK());
     begin_system_call();
-    loop {
-      var struct timeval start_time;
-      var struct timeval end_time;
-      if (!( gettimeofday(&start_time,NULL) ==0)) { OS_error(); }
-      #ifdef HAVE_SELECT
-        # select erlaubt eine wunderschöne Implementation von usleep():
-        {
-          var struct timeval timeout; # Zeitintervall
-          timeout.tv_sec = seconds; timeout.tv_usec = useconds;
-          var int ergebnis;
-          ergebnis = select(FD_SETSIZE,NULL,NULL,NULL,&timeout);
-          if ((ergebnis<0) && !(errno==EINTR)) { OS_error(); }
-        }
-      #else
-        if (seconds>0) { sleep(seconds); }
-        #ifdef HAVE_USLEEP
-        if (useconds>0) { usleep(useconds); }
+    loop
+      { var struct timeval start_time;
+        var struct timeval end_time;
+        if (!( gettimeofday(&start_time,NULL) ==0)) { OS_error(); }
+        #ifdef HAVE_SELECT
+          # select erlaubt eine wunderschöne Implementation von usleep():
+          { var struct timeval timeout; # Zeitintervall
+            timeout.tv_sec = seconds; timeout.tv_usec = useconds;
+           {var int ergebnis;
+            ergebnis = select(FD_SETSIZE,NULL,NULL,NULL,&timeout);
+            if ((ergebnis<0) && !(errno==EINTR)) { OS_error(); }
+          }}
+        #else
+          if (seconds>0) { sleep(seconds); }
+          #ifdef HAVE_USLEEP
+          if (useconds>0) { usleep(useconds); }
+          #endif
         #endif
-      #endif
-      interruptp({
-        end_system_call();
-        pushSTACK(S(sleep)); tast_break(); # evtl. Break-Schleife aufrufen
-        begin_system_call();
-      });
-      if (!( gettimeofday(&end_time,NULL) ==0)) { OS_error(); }
-      # Überprüfen, ob wir genügend lang geschlafen haben, oder ob
-      # wir wegen eines Signals zu früh aufgeweckt wurden:
-      var struct timeval slept; # so lang haben wir geschlafen
-      # sozusagen sub_internal_time(end_time,start_time, slept);
-      slept.tv_sec = end_time.tv_sec - start_time.tv_sec;
-      if (end_time.tv_usec < start_time.tv_usec) {
-        end_time.tv_usec += 1000000; slept.tv_sec -= 1;
-      }
-      slept.tv_usec = end_time.tv_usec - start_time.tv_usec;
-      # Haben wir genug geschlafen?
-      if ((slept.tv_sec > seconds)
-          || ((slept.tv_sec == seconds) && (slept.tv_usec >= useconds))
-         )
-        break;
-      # Wie lange müssen wir noch schlafen?
-      seconds -= slept.tv_sec;
-      if (useconds < slept.tv_usec) { seconds -= 1; useconds += 1000000; }
-      useconds -= slept.tv_usec;
-      #if !defined(HAVE_SELECT) && !defined(HAVE_USLEEP)
-      if (seconds==0) break; # CPU-Zeit fressende Warteschleife vermeiden
-      #endif
-    }
+        interruptp(
+          { end_system_call();
+            pushSTACK(S(sleep)); tast_break(); # evtl. Break-Schleife aufrufen
+            begin_system_call();
+          });
+        if (!( gettimeofday(&end_time,NULL) ==0)) { OS_error(); }
+       {# Überprüfen, ob wir genügend lang geschlafen haben, oder ob
+        # wir wegen eines Signals zu früh aufgeweckt wurden:
+        var struct timeval slept; # so lang haben wir geschlafen
+        # sozusagen sub_internal_time(end_time,start_time, slept);
+        slept.tv_sec = end_time.tv_sec - start_time.tv_sec;
+        if (end_time.tv_usec < start_time.tv_usec)
+          { end_time.tv_usec += 1000000; slept.tv_sec -= 1; }
+        slept.tv_usec = end_time.tv_usec - start_time.tv_usec;
+        # Haben wir genug geschlafen?
+        if ((slept.tv_sec > seconds)
+            || ((slept.tv_sec == seconds) && (slept.tv_usec >= useconds))
+           )
+          break;
+        # Wie lange müssen wir noch schlafen?
+        seconds -= slept.tv_sec;
+        if (useconds < slept.tv_usec) { seconds -= 1; useconds += 1000000; }
+        useconds -= slept.tv_usec;
+        #if !defined(HAVE_SELECT) && !defined(HAVE_USLEEP)
+        if (seconds==0) break; # CPU-Zeit fressende Warteschleife vermeiden
+        #endif
+      }}
     end_system_call();
     value1 = NIL; mv_count=1; # 1 Wert NIL
   }
@@ -1056,16 +1009,15 @@ LISPFUNN(sleep,2)
 # delay-seconds Sekunden und delay-mseconds Millisekunden.
 # Argument delay-seconds muss ein Fixnum >=0, <=4290000 sein,
 # Argument delay-useconds muss ein Fixnum >=0, <=1000 sein.
-  {
-    var uintL mseconds = posfixnum_to_L(popSTACK());
+  { var uintL mseconds = posfixnum_to_L(popSTACK());
     var uintL seconds = posfixnum_to_L(popSTACK());
     begin_system_call();
-    if (!msleep(1000*seconds+mseconds)) {
-      end_system_call();
-      pushSTACK(S(sleep)); tast_break(); # evtl. Break-Schleife aufrufen
-    } else {
-      end_system_call();
-    }
+    if (!msleep(1000*seconds+mseconds))
+      { end_system_call();
+        pushSTACK(S(sleep)); tast_break(); # evtl. Break-Schleife aufrufen
+      }
+    else
+      { end_system_call(); }
     value1 = NIL; mv_count=1; # 1 Wert NIL
   }
 #endif
@@ -1101,8 +1053,7 @@ LISPFUNN(time,0)
 #   Space (seit Systemstart verbrauchter Platz, in Bytes)
 #     in 2 Werten: (ldb (byte 24 24) Space), (ldb (byte 24 0) Space).
 #   GC-Count (Anzahl der durchgeführten Garbage Collections).
-  {
-    var timescore tm;
+  { var timescore tm;
     get_running_times(&tm); # Run-Time abfragen
     #ifdef TIME_1
       #define as_2_values(time)  \
@@ -1130,14 +1081,13 @@ LISPFUNN(time,0)
     as_2_values(tm.gctime); # nächste zwei Werte: GC-Time
     # nächste zwei Werte: Space
     # tm.gcfreed = von der GC bisher wieder verfügbar gemachter Platz
-    {
-      var uintL used = used_space(); # momentan belegter Platz
-      # beides addieren:
-      #ifdef intQsize
-      tm.gcfreed += used;
-      #else
-      if ((tm.gcfreed.lo += used) < used) { tm.gcfreed.hi += 1; }
-      #endif
+    {var uintL used = used_space(); # momentan belegter Platz
+     # beides addieren:
+     #ifdef intQsize
+     tm.gcfreed += used;
+     #else
+     if ((tm.gcfreed.lo += used) < used) { tm.gcfreed.hi += 1; }
+     #endif
     }
     # Jetzt ist tm.gcfreed = bisher insgesamt verbrauchter Platz
     #if (oint_data_len<24)

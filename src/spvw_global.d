@@ -265,46 +265,38 @@
         {
           #ifdef DEBUG_AVL
           var uintL heapnr;
-          for (heapnr=0; heapnr<heapcount; heapnr++) {
-            AVL(AVLID,check) (mem.heaps[heapnr].inuse);
-          }
+          for (heapnr=0; heapnr<heapcount; heapnr++)
+            { AVL(AVLID,check) (mem.heaps[heapnr].inuse); }
           #endif
         }
     # Überprüfen, ob die Grenzen der Pages in Ordnung sind:
       #define CHECK_GC_CONSISTENCY()  check_gc_consistency()
       local void check_gc_consistency (void);
       local void check_gc_consistency()
-        {
-          for_each_page(page,
-            if ((sintL)page->page_room < 0) {
-              asciz_out_1("\nPage bei Adresse 0x%x übergelaufen!!\n",page); abort();
-            }
-            if (!(page->page_start == page_start0(page))) {
-              asciz_out_1("\nPage bei Adresse 0x%x inkonsistent!!\n",page); abort();
-            }
+        { for_each_page(page,
+            if ((sintL)page->page_room < 0)
+              { asciz_out_1("\nPage bei Adresse 0x%x übergelaufen!!\n",page); abort(); }
+            if (!(page->page_start == page_start0(page)))
+              { asciz_out_1("\nPage bei Adresse 0x%x inkonsistent!!\n",page); abort(); }
             if (!(page->page_end + page->page_room
                   == round_down(page->m_start + page->m_length,varobject_alignment)
-               ) ) {
-              asciz_out_1("\nPage bei Adresse 0x%x inkonsistent!!\n",page); abort();
-            }
-          );
+               ) )
+              { asciz_out_1("\nPage bei Adresse 0x%x inkonsistent!!\n",page); abort(); }
+            );
         }
     # Überprüfen, ob während der kompaktierenden GC
     # die Grenzen der Pages in Ordnung sind:
       #define CHECK_GC_CONSISTENCY_2()  check_gc_consistency_2()
       local void check_gc_consistency_2 (void);
       local void check_gc_consistency_2()
-        {
-          for_each_page(page,
-            if ((sintL)page->page_room < 0) {
-              asciz_out_1("\nPage bei Adresse 0x%x übergelaufen!!\n",page); abort();
-            }
+        { for_each_page(page,
+            if ((sintL)page->page_room < 0)
+              { asciz_out_1("\nPage bei Adresse 0x%x übergelaufen!!\n",page); abort(); }
             if (!(page->page_end + page->page_room - (page->page_start - page_start0(page))
                   == round_down(page->m_start + page->m_length,varobject_alignment)
-               ) ) {
-              asciz_out_1("\nPage bei Adresse 0x%x inkonsistent!!\n",page); abort();
-            }
-          );
+               ) )
+              { asciz_out_1("\nPage bei Adresse 0x%x inkonsistent!!\n",page); abort(); }
+            );
         }
   #else
     #define CHECK_AVL_CONSISTENCY()
@@ -316,31 +308,27 @@
       #define CHECK_PACK_CONSISTENCY()  check_pack_consistency()
       global void check_pack_consistency (void);
       global void check_pack_consistency()
-        {
-          var object plist = O(all_packages);
-          while (consp(plist)) {
-            var object pack = Car(plist);
-            var object symtabs[2];
-            var uintC i;
-            symtabs[0] = ThePackage(pack)->pack_external_symbols;
-            symtabs[1] = ThePackage(pack)->pack_internal_symbols;
-            for (i = 0; i < 2; i++) {
-              var object symtab = symtabs[i];
-              var object table = TheSvector(symtab)->data[1];
-              var uintL index = Svector_length(table);
-              until (index==0) {
-                var object entry = TheSvector(table)->data[--index];
-                var uintC count = 0;
-                while (consp(entry)) {
-                  if (!symbolp(Car(entry))) abort();
-                  entry = Cdr(entry);
-                  count++; if (count>=10000) abort();
-                }
-              }
-            }
-            plist = Cdr(plist);
-          }
-        }
+        { var object plist = O(all_packages);
+          while (consp(plist))
+            { var object pack = Car(plist);
+              var object symtabs[2];
+              var uintC i;
+              symtabs[0] = ThePackage(pack)->pack_external_symbols;
+              symtabs[1] = ThePackage(pack)->pack_internal_symbols;
+              for (i = 0; i < 2; i++)
+                { var object symtab = symtabs[i];
+                  var object table = TheSvector(symtab)->data[1];
+                  var uintL index = Svector_length(table);
+                  until (index==0)
+                    { var object entry = TheSvector(table)->data[--index];
+                      var uintC count = 0;
+                      while (consp(entry))
+                        { if (!symbolp(Car(entry))) abort();
+                          entry = Cdr(entry);
+                          count++; if (count>=10000) abort();
+                }   }   }
+              plist = Cdr(plist);
+        }   }
   #else
       #define CHECK_PACK_CONSISTENCY()
   #endif
@@ -349,62 +337,48 @@
   #ifdef SPVW_PURE
     local inline void init_mem_heaptypes (void);
     local inline void init_mem_heaptypes()
-      {
-        var uintL heapnr;
-        for (heapnr=0; heapnr<heapcount; heapnr++) {
-          switch (heapnr) {
-            case_sstring:
-            case_sbvector:
-            case_sb2vector:
-            case_sb4vector:
-            case_sb8vector:
-            case_sb16vector:
-            case_sb32vector:
-            case_bignum:
-            #ifndef WIDE
-            case_ffloat:
-            #endif
-            case_dfloat:
-            case_lfloat:
-              mem.heaptype[heapnr] = 2; break;
-            case_ostring:
-            case_obvector:
-            case_ob2vector:
-            case_ob4vector:
-            case_ob8vector:
-            case_ob16vector:
-            case_ob32vector:
-            case_vector:
-            case_mdarray:
-            case_record:
-            case_symbol:
-              mem.heaptype[heapnr] = 1; break;
-            case_pair:
-              mem.heaptype[heapnr] = 0; break;
-            case_subr:
-              mem.heaptype[heapnr] = -1; break;
-            default:
-              mem.heaptype[heapnr] = -2; break;
-          }
-        }
+      { var uintL heapnr;
+        for (heapnr=0; heapnr<heapcount; heapnr++)
+          { switch (heapnr)
+              { case_sstring:
+                case_sbvector:
+                case_bignum:
+                #ifndef WIDE
+                case_ffloat:
+                #endif
+                case_dfloat:
+                case_lfloat:
+                  mem.heaptype[heapnr] = 2; break;
+                case_ostring:
+                case_obvector:
+                case_vector:
+                case_mdarray:
+                case_record:
+                case_symbol:
+                  mem.heaptype[heapnr] = 1; break;
+                case_pair:
+                  mem.heaptype[heapnr] = 0; break;
+                case_subr:
+                  mem.heaptype[heapnr] = -1; break;
+                default:
+                  mem.heaptype[heapnr] = -2; break;
+          }   }
       }
   #endif
   #if defined(SPVW_MIXED_BLOCKS) && defined(TYPECODES) && defined(GENERATIONAL_GC)
     local inline void init_mem_heapnr_from_type (void);
     local inline void init_mem_heapnr_from_type()
-      {
-        var uintL type;
-        for (type = 0; type < typecount; type++) {
-          #ifdef MULTIMAP_MEMORY
-          switch (type) {
-            MM_TYPECASES break;
-            default: mem.heapnr_from_type[type] = -1; continue;
-          }
-          #endif
-          switch (type) {
-            case_pair: mem.heapnr_from_type[type] = 1; break;
-            default:   mem.heapnr_from_type[type] = 0; break;
-          }
-        }
-      }
+      { var uintL type;
+        for (type = 0; type < typecount; type++)
+          {
+            #ifdef MULTIMAP_MEMORY
+            switch (type)
+              { MM_TYPECASES break;
+                default: mem.heapnr_from_type[type] = -1; continue;
+              }
+            #endif
+            switch (type)
+              { case_pair: mem.heapnr_from_type[type] = 1; break;
+                default:   mem.heapnr_from_type[type] = 0; break;
+      }   }   }
   #endif

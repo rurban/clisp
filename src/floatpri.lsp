@@ -334,7 +334,7 @@
 ) ) ) ) ) ) )
 
 ; Ausgabefunktion für PRINT/WRITE von Floats:
-(defun write-float-decimal (stream arg #| &optional (plus-sign-flag nil) |# )
+(defun write-float (stream arg #| &optional (plus-sign-flag nil) |# )
   (unless (floatp arg)
     (error-of-type 'type-error
       :datum arg :expected-type 'float

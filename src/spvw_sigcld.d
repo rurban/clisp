@@ -44,7 +44,9 @@
         SIGNAL(SIGCLD,SIG_IGN);
         # Try to remove zombies which may have been created since the last
         # begin_want_sigcld() call.
-        while (waitpid(-1,NULL,WNOHANG) > 0);
+        #ifdef HAVE_WAITPID
+          while (waitpid(-1,NULL,WNOHANG) > 0);
+        #endif
       #endif
     }
 

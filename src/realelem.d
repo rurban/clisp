@@ -1101,58 +1101,41 @@
 # R_rationalize_RA(x) liefert (rationalize x), wo x eine reelle Zahl ist.
 # can trigger GC
   local object R_rationalize_RA (object x);
-  # Algorithm (recursively presented):
-  #   If x is a rational number, return x.
-  #   If x = 0.0, return 0.
-  #   If x < 0.0, return (- (rationalize (- x))).
-  #   If x > 0.0:
-  #     Call (integer-decode-float x). It returns a m,e,s=1 (mantissa,
-  #     exponent, sign).
-  #     If e >= 0: return x = m*2^e.
-  #     Search a rational number between a = (m-1/2)*2^e and b = (m+1/2)*2^e
-  #     with smallest possible numerator and denominator.
-  #     Note 1: If m is a power of 2, we ought to take a = (m-1/4)*2^e.
-  #       But in this case the result will be x itself anyway, regardless of
-  #       the choice of a. Therefore we can simply ignore this case.
-  #     Note 2: At first, we need to consider the closed interval [a,b].
-  #       but since a and b have the denominator 2^(|e|+1) whereas x itself
-  #       has a denominator <= 2^|e|, we can restrict the seach to the open
-  #       interval (a,b).
-  #     So, for given a and b (0 < a < b) we are searching a rational number
-  #     y with a <= y <= b.
-  #     Recursive algorithm fraction_between(a,b):
-  #       c := (ceiling a)
-  #       if c < b
-  #         then return c       ; because a <= c < b, c integer
-  #         else
-  #           ; a is not integer (otherwise we would have had c = a < b)
-  #           k := c-1          ; k = floor(a), k < a < b <= k+1
-  #           return y = k + 1/fraction_between(1/(b-k), 1/(a-k))
-  #                             ; note 1 <= 1/(b-k) < 1/(a-k)
-  #
-  # You can see that we are actually computing a continued fraction expansion.
-  #
-  # Algorithm (iterative):
-  #   If x is rational, return x.
-  #   Call (integer-decode-float x). It returns a m,e,s (mantissa,
-  #     exponent, sign).
-  #   If e >= 0, return m*2^e*s. (This includes the case x = 0.0.)
-  #   Create rational numbers a := (2*m-1)*2^(e-1) and b := (2*m+1)*2^(e-1)
-  #   (positive and already in lowest terms because the denominator is a
-  #   power of two and the numerator is odd).
-  #   Start a continued fraction expansion
-  #     p[-1] := 0, p[0] := 1, q[-1] := 1, q[0] := 0, i := 0.
-  #   Loop
-  #     c := (ceiling a)
-  #     if c >= b
-  #       then k := c-1, partial_quotient(k), (a,b) := (1/(b-k),1/(a-k)),
-  #            goto Loop
-  #   finally partial_quotient(c).
-  #   Here partial_quotient(c) denotes the iteration
-  #     i := i+1, p[i] := c*p[i-1]+p[i-2], q[i] := c*q[i-1]+q[i-2].
-  #   At the end, return s * (p[i]/q[i]).
-  #   This rational number is already in lowest terms because
-  #   p[i]*q[i-1]-p[i-1]*q[i] = (-1)^i.
+  # Methode (rekursiv dargestellt):
+  # Falls x rational ist: x.
+  # Falls x=0.0: 0.
+  # Falls x<0.0: (- (rationalize (- x)))
+  # Falls x>0.0:
+  #   (Integer-Decode-Float x) liefert m,e,s=1.
+  #   Falls e>=0 : Liefere x=m*2^e als Ergebnis.
+  #   Suche rationale Zahl zwischen a=(m-1/2)*2^e und b=(m+1/2)*2^e mit
+  #   möglichst kleinem Zähler und Nenner. (a,b einschließlich, aber da a,b
+  #   den Nenner 2^(|e|+1) haben, während x selbst den Nenner <=2^|e| hat,
+  #   können weder a noch b als Ergebnis herauskommen.)
+  #   Suche also bei gegebenem a,b (0<a<b) Bruch y mit a <= y <= b.
+  #   Rekursiv:
+  #     c:=(ceiling a)
+  #     if c<b then return c      ; weil a<=c<b, c ganz
+  #            else ; a nicht ganz (sonst c=a<b)
+  #              k:=c-1 ; k=floor(a), k < a < b <= k+1
+  #              return y = k + 1/(Bruch zwischen 1/(b-k) und 1/(a-k))
+  #                                ; wobei 1 <= 1/(b-k) < 1/(a-k)
+  # Man sieht, dass hierbei eine Kettenbruchentwicklung auftritt.
+  # Methode (iterativ):
+  # Falls x rational: x.
+  # (Integer-Decode-Float x) liefert m,e,s.
+  # e>=0 -> m*2^e*s als Ergebnis (darin ist x=0.0 inbegriffen).
+  # Bilde a:=(2*m-1)*2^(e-1) und b:=(2*m+1)*2^(e-1), rationale Zahlen >0,
+  #   (unkürzbar, da Nenner Zweierpotenz und Zähler ungerade).
+  # Starte Kettenbruchentwicklung (d.h. p[-1]:=0, p[0]:=1, q[-1]:=1, q[0]:=0, i:=0.)
+  # Schleife:
+  #   c:=(ceiling a)
+  #   if c>=b then k:=c-1, "Ziffer k", (a,b) := (1/(b-k),1/(a-k)), goto Schleife
+  # "Ziffer c".
+  # (Dabei bedeutet "Ziffer a" die Iteration
+  #   i:=i+1, p[i]:=a*p[i-1]+p[i-2], q[i]:=a*q[i-1]+q[i-2].)
+  # Ende, liefere s * (p[i]/q[i]), das ist wegen der Invarianten
+  #   p[i]*q[i-1]-p[i-1]*q[i]=(-1)^i  ein bereits gekürzter Bruch.
   local object R_rationalize_RA(x)
     var object x;
     { if (R_rationalp(x)) { return x; } # x rational -> x als Ergebnis.

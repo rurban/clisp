@@ -307,7 +307,7 @@ LISPFUNN(closure_codevec,1)
   { var object closure = popSTACK();
     if (!(cclosurep(closure))) fehler_cclosure(closure);
    {var object codevec = TheCclosure(closure)->clos_codevec;
-    var uintL index = Sbvector_length(codevec); # index := Länge in Bytes
+    var uintL index = Sbvector_length(codevec)/8; # index := Länge in Bytes
     # Codevektor codevec von hinten durchgehen und Bytes auf eine Liste pushen:
     pushSTACK(codevec); # Codevektor
     pushSTACK(NIL); # Liste := ()
@@ -347,7 +347,7 @@ LISPFUNN(make_code_vector,1)
 # (SYS::MAKE-CODE-VECTOR list) liefert zu einer Liste von Fixnums >=0, <256
 #   einen Simple-Bit-Vector der 8-fachen Länge, der diese Zahlen als Bytes
 #   enthält.
-  { var object bv = allocate_bit_vector(Atype_8Bit,llength(STACK_0)); # Simple-8Bit-Vektor
+  { var object bv = allocate_bit_vector(8*llength(STACK_0)); # Simple-Bit-Vektor
     # füllen:
     var object listr = popSTACK(); # Liste
     var uintB* ptr = &TheSbvector(bv)->data[0]; # läuft durch den Bit-Vektor
@@ -377,7 +377,7 @@ LISPFUNN(make_closure,3)
 #   Namen (einem Symbol), gegebenem Code-Vektor (einem Simple-Bit-Vector) und
 #   gegebenen weiteren Konstanten.
   { # codevec muss ein Simple-Bit-Vector sein:
-    if (!simple_bit_vector_p(Atype_8Bit,STACK_1))
+    if (!simple_bit_vector_p(STACK_1))
       { # STACK_1 = codevec
         pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
         pushSTACK(S(simple_bit_vector)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR

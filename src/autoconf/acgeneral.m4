@@ -787,6 +787,8 @@ else
   cat <<\EOF_SED > conftestsed
 s,\\,\\\\,g; s,\$,$$,g
 EOF_SED
+  # Double any \ or $.
+  echo 's,\\,\\\\,g; s,\$,$$,g' > conftestsed
   program_transform_name="`echo $program_transform_name|sed -f conftestsed`"
   rm -f conftestsed
 fi

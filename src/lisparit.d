@@ -284,8 +284,8 @@
   global void print_float(z,stream_)
     var object z;
     var const object* stream_;
-    { # Falls SYS::WRITE-FLOAT-DECIMAL definiert ist, (SYS::WRITE-FLOAT-DECIMAL stream z) aufrufen:
-      var object fun = Symbol_function(S(write_float_decimal));
+    { # Falls SYS::WRITE-FLOAT definiert ist, (SYS::WRITE-FLOAT stream z) aufrufen:
+      var object fun = Symbol_function(S(write_float));
       if (!eq(fun,unbound))
         # Funktion aufrufen
         { pushSTACK(*stream_); pushSTACK(z); funcall(fun,2); }
@@ -1762,7 +1762,7 @@ LISPFUN(random,1,1,norest,nokey,0,NIL)
           seed_lo = get_32_Dptr(&seedMSDptr[32/intDsize]);
         }}
       # neuen Zustands-Bitvektor holen und füllen:
-      {var object seed = allocate_bit_vector(Atype_Bit,64);
+      {var object seed = allocate_bit_vector(64);
        var uintD* seedMSDptr = (uintD*)(&TheSbvector(seed)->data[0]);
        set_32_Dptr(seedMSDptr,seed_hi);
        set_32_Dptr(&seedMSDptr[32/intDsize],seed_lo);
@@ -2074,7 +2074,3 @@ LISPFUNN(log10,1)
         define_variable(S(floating_point_contagion_ansi),NIL);
     }
 
-## ===============================================================
-#ifdef EXPORT_SYSCALLS
-#include "posixmath.c"
-#endif

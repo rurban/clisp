@@ -19,12 +19,12 @@
 
 typedef Page* Pages;
 
-typedef struct {
-  Pages inuse;     # Die gerade benutzten Pages
-  # _Page reserve; # Eine Reserve-Page ??
-  # Bei Heap für Objekte fester Länge:
-  Pages lastused; # Ein Cache für die letzte benutzte Page
-} Heap;
+typedef struct { Pages inuse;     # Die gerade benutzten Pages
+                 # _Page reserve; # Eine Reserve-Page ??
+                 # Bei Heap für Objekte fester Länge:
+                 Pages lastused; # Ein Cache für die letzte benutzte Page
+               }
+        Heap;
 
   #define map_heap(heap,pagevar,statement)  \
     { AVL_map((heap).inuse,pagevar,statement); }
@@ -43,46 +43,47 @@ typedef Page Pages;
 # aktuell. Nachdem man auf die Seite aber schreibend zugegriffen hat, muss man
 # diese Information bei der nächsten GC neu erstellen. Dies sollte man aber
 # machen, ohne auf die Seite davor oder danach zugreifen zu müssen.
-typedef struct {
-  object* p; # Adresse des Pointers, innerhalb eines alten Objekts
-  object o;  # o = *p, Pointer auf ein neues Objekt
-} old_new_pointer;
-typedef struct {
-  # Durchlaufen der Pointer in der Seite benötigt Folgendes:
-    # Fortsetzung des letzten Objekts der Seite davor:
-    object* continued_addr;
-    uintC continued_count;
-    # Erstes Objekt, das in dieser Seite (oder später) beginnt:
-    aint firstobject;
-  # Der Cache der Pointer auf Objekte der neuen Generation:
-  int protection; # PROT_NONE : Nur der Cache ist gültig.
-                  # PROT_READ : Seite und Cache beide gültig.
-                  # PROT_READ_WRITE : Nur die Seite ist gültig.
-  uintL cache_size; # Anzahl der gecacheten Pointer
-  old_new_pointer* cache; # Cache aller Pointer in die neue Generation
-} physpage_state;
+typedef struct { object* p; # Adresse des Pointers, innerhalb eines alten Objekts
+                 object o;  # o = *p, Pointer auf ein neues Objekt
+               }
+        old_new_pointer;
+typedef struct { # Durchlaufen der Pointer in der Seite benötigt Folgendes:
+                   # Fortsetzung des letzten Objekts der Seite davor:
+                   object* continued_addr;
+                   uintC continued_count;
+                   # Erstes Objekt, das in dieser Seite (oder später) beginnt:
+                   aint firstobject;
+                 # Der Cache der Pointer auf Objekte der neuen Generation:
+                 int protection; # PROT_NONE : Nur der Cache ist gültig.
+                                 # PROT_READ : Seite und Cache beide gültig.
+                                 # PROT_READ_WRITE : Nur die Seite ist gültig.
+                 uintL cache_size; # Anzahl der gecacheten Pointer
+                 old_new_pointer* cache; # Cache aller Pointer in die neue
+                                         # Generation
+               }
+        physpage_state;
 #endif
 
-typedef struct {
-  Pages pages;
-  #if defined(SPVW_PURE_BLOCKS) || (defined(SPVW_MIXED_BLOCKS) && defined(TRIVIALMAP_MEMORY))
-  aint heap_limit;
-  #if !defined(SPVW_MIXED_BLOCKS_OPPOSITE) # SPVW_PURE_BLOCKS || SPVW_MIXED_BLOCKS_STAGGERED
-  aint heap_hardlimit;
-  #endif
-  #endif
-  #ifdef SELFMADE_MMAP
-  uintL memfile_offset;
-  uintL memfile_numpages;
-  uintB* memfile_pages;
-  #endif
-  #ifdef GENERATIONAL_GC
-  aint heap_gen0_start;
-  aint heap_gen0_end;
-  aint heap_gen1_start;
-  physpage_state* physpages;
-  #endif
-} Heap;
+typedef struct { Pages pages;
+                 #if defined(SPVW_PURE_BLOCKS) || (defined(SPVW_MIXED_BLOCKS) && defined(TRIVIALMAP_MEMORY))
+                 aint heap_limit;
+                 #if !defined(SPVW_MIXED_BLOCKS_OPPOSITE) # SPVW_PURE_BLOCKS || SPVW_MIXED_BLOCKS_STAGGERED
+                 aint heap_hardlimit;
+                 #endif
+                 #endif
+                 #ifdef SELFMADE_MMAP
+                 uintL memfile_offset;
+                 uintL memfile_numpages;
+                 uintB* memfile_pages;
+                 #endif
+                 #ifdef GENERATIONAL_GC
+                 aint heap_gen0_start;
+                 aint heap_gen0_end;
+                 aint heap_gen1_start;
+                 physpage_state* physpages;
+                 #endif
+               }
+        Heap;
 #define heap_start  pages.page_start
 #define heap_end    pages.page_end
 #if defined(SPVW_PURE_BLOCKS) || (defined(SPVW_MIXED_BLOCKS) && defined(TRIVIALMAP_MEMORY))

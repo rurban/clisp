@@ -152,7 +152,7 @@
                     # Simple-vector: alle Pointer aktualisieren                       \
                     do_update_svector();                                              \
                     break;                                                            \
-                  case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector: \
+                  case_mdarray: case_obvector: case_ostring: case_ovector:            \
                     # nicht-simpler Array: Datenvektor aktualisieren                  \
                     do_update_iarray();                                               \
                     break;                                                            \
@@ -174,11 +174,6 @@
               switch (record_type((Record)ptr)) # Typ des nächsten Objekts      \
                 { case Rectype_mdarray:                                         \
                   case Rectype_bvector:                                         \
-                  case Rectype_b2vector:                                        \
-                  case Rectype_b4vector:                                        \
-                  case Rectype_b8vector:                                        \
-                  case Rectype_b16vector:                                       \
-                  case Rectype_b32vector:                                       \
                   case Rectype_string:                                          \
                   case Rectype_vector:                                          \
                     # nicht-simpler Array: Datenvektor aktualisieren            \
@@ -189,11 +184,6 @@
                     do_update_svector();                                        \
                     break;                                                      \
                   case Rectype_Sbvector:                                        \
-                  case Rectype_Sb2vector:                                       \
-                  case Rectype_Sb4vector:                                       \
-                  case Rectype_Sb8vector:                                       \
-                  case Rectype_Sb16vector:                                      \
-                  case Rectype_Sb32vector:                                      \
                   case Rectype_Sstring: case Rectype_Imm_Sstring:               \
                   case Rectype_Imm_SmallSstring:                                \
                   case Rectype_Bignum: case Rectype_Ffloat:                     \
@@ -253,7 +243,7 @@
                     update_page(page,update_symbol); break;                           \
                   case_svector:                                                       \
                     update_page(page,update_svector); break;                          \
-                  case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector: \
+                  case_mdarray: case_obvector: case_ostring: case_ovector:            \
                     update_page(page,update_iarray); break;                           \
                   case_record:                                                        \
                     update_page(page,update_record); break;                           \

@@ -292,7 +292,7 @@ Vielleicht möchten Sie auch die Zeitzonendefinition am Ende von timezone.lsp
 #endif
 Starten Sie dann
 
-#if defined(MSDOS) || defined(WIN32_NATIVE)
+#ifdef MSDOS
          lisp.exe -M lispinit.mem
 #endif
 #ifdef AMIGAOS
@@ -363,7 +363,7 @@ Ich schlage hierfür /usr/local/lib/lisp vor:
    mv base/lisp.run /usr/local/lib/lisp
    mv base/lispinit.mem /usr/local/lib/lisp
 #endif
-#if defined(MSDOS) || defined(WIN32_NATIVE)
+#ifdef MSDOS
 Angenommen, Sie wählen dafür D:\LIB\LISP :
 
    mkdir d:\lib\lisp
@@ -371,7 +371,7 @@ Angenommen, Sie wählen dafür D:\LIB\LISP :
    copy lispinit.mem d:\lib\lisp
 #endif
 
-#if defined(MSDOS) || defined(WIN32_NATIVE)
+#ifdef MSDOS
 Und erstellen Sie eine Kommando-Datei, die Lisp startet:
 
 #ifndef OS2

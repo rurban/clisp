@@ -695,7 +695,7 @@ to print the corresponding values, or T for all of them.")
 ;; DOCUMENTATION mit abfragen und ausgeben??
 ;; function, variable, type, structure, setf
 
-; Gibt object in einen String aus, der nach Möglichkeit höchstens max Spalten
+; Gibt object in einen String aus, der nach Möglichkeit höchstens max Zeichen
 ; lang sein soll.
 (defun write-to-short-string (object max)
   ; Methode: probiere
@@ -714,7 +714,7 @@ to print the corresponding values, or T for all of them.")
                  (loop
                    (when (= (- level2 level1) 1) (return))
                    (let ((levelm (floor (+ level1 level2) 2)))
-                     (if (<= (string-width (write-to-string object :level levelm :length (minlength levelm))) max)
+                     (if (<= (length (write-to-string object :level levelm :length (minlength levelm))) max)
                        (setq level1 levelm) ; levelm passt, probiere größere
                        (setq level2 levelm) ; levelm passt nicht, probiere kleinere
                  ) ) )
@@ -725,7 +725,7 @@ to print the corresponding values, or T for all of them.")
                  (loop
                    (when (= (- length2 length1) 1) (return))
                    (let ((lengthm (floor (+ length1 length2) 2)))
-                     (if (<= (string-width (write-to-string object :level level :length lengthm)) max)
+                     (if (<= (length (write-to-string object :level level :length lengthm)) max)
                        (setq length1 lengthm) ; lengthm passt, probiere größere
                        (setq length2 lengthm) ; lengthm passt nicht, probiere kleinere
                  ) ) )

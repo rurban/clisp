@@ -1,4 +1,4 @@
-.TH CLISP 1 "15 January 2000"
+.TH CLISP 1 "18 July 1999"
 
 
 .SH NAME
@@ -8,101 +8,101 @@ clisp \- Common Lisp language interpreter and compiler
 .SH SYNOPSIS
 .B clisp
 [
-.B \-h
+.B -h
 |
-.B \-\-help
+.B --help
 ]
 [
-.B \-\-version
+.B --version
 ]
 [
-.B \-\-license
+.B --license
 ]
 [
-.B \-B
+.B -B
 .I lisplibdir
 ]
 #ifdef UNIX
 [
-.B \-K
+.B -K
 .I linking-set
 ]
 #endif
 [
-.B \-M
+.B -M
 .I memfile
 ]
 [
-.B \-m
+.B -m
 .I memsize
 ]
 #ifndef NO_SP_MALLOC
 [
-.B \-s
+.B -s
 .I stacksize
 ]
 #endif
 #ifdef MULTIMAP_MEMORY_VIA_FILE
 [
-.B \-t
+.B -t
 .I tempdir
 ]
 #endif
 [
-.B \-L
+.B -L
 .I language
 ]
 [
-.B \-N
+.B -N
 .I localedir
 ]
 [
-.BI \-E domain
+.BI -E domain
 .I encoding
 ]
 [
-.B \-q
+.B -q
 |
-.B \-\-quiet
+.B --quiet
 |
-.B \-\-silent
+.B --silent
 ]
 [
-.B \-w
+.B -w
 ]
 [
-.B \-I
+.B -I
 ]
 [
-.B \-a
+.B -a
 ]
 [
-.B \-p
+.B -p
 .I packagename
 ]
 [
-.B \-C
+.B -C
 ]
 [
-.B \-norc
+.B -norc
 ]
 [
-.B \-i
+.B -i
 .IR initfile " ..."
 ]
 [
-.B \-c
+.B -c
 [
-.B \-l
+.B -l
 ]
 .I lispfile
 [
-.B \-o
+.B -o
 .I outputfile
 ] ...
 ]
 [
-.B \-x
+.B -x
 .I expression
 ]
 [
@@ -128,23 +128,23 @@ executed more efficiently.
 .SH OPTIONS
 
 .TP
-.BR \-h ", " \-\-help 
+.BR -h ", " --help 
 Displays a help message on how to use
 .BR clisp .
 
 .TP
-.B \-\-version
+.B --version
 Displays the
 .B clisp
 version number, as given by the function call
 .IR "(lisp-implementation-version)" .
 
 .TP
-.B \-\-license
+.B --license
 Displays a summary of the licensing information, the GNU GPL.
 
 .TP
-.BI "\-B " lisplibdir
+.BI "-B " lisplibdir
 Specifies the installation directory. This is the directory containing
 the linking sets and other data files.
 #ifdef UNIX
@@ -156,7 +156,7 @@ executable.
 
 #ifdef UNIX
 .TP
-.BI "\-K " linking-set
+.BI "-K " linking-set
 Specifies the linking set to be run. This is a directory containing at least
 a main executable and an initial memory image. Possible values are
 .BR base ", " full .
@@ -165,7 +165,7 @@ The default is
 #endif
 
 .TP
-.BI "\-M " memfile
+.BI "-M " memfile
 Specifies the initial memory image.
 This must be a memory dump produced by the
 .I saveinitmem
@@ -175,7 +175,7 @@ It may have been compressed using GNU gzip.
 #endif
 
 .TP
-.BI "\-m " memsize
+.BI "-m " memsize
 Sets the amount of memory
 .B clisp
 tries to grab on startup.
@@ -204,7 +204,7 @@ The argument is constrained between 100 KB and 256 MB.
 #else
 The argument is constrained above 100 KB.
 #endif
-\-\- This version of
+-- This version of
 .B clisp
 #if defined(SPVW_MIXED) && defined(SPVW_BLOCKS)
 #ifdef GENERATIONAL_GC
@@ -224,7 +224,7 @@ is essentially ignored.
 
 #ifndef NO_SP_MALLOC
 .TP
-.BI "\-s " stacksize
+.BI "-s " stacksize
 Sets the size of the stack
 .B clisp
 allocates for itself. The syntax is the same as for
@@ -236,14 +236,14 @@ The argument is constrained between 40 KB and 8 MB.
 
 #ifdef MULTIMAP_MEMORY_VIA_FILE
 .TP
-.BI "\-t " tempdir
+.BI "-t " tempdir
 Specifies the directory where the temporary core file is to be held.
 This option takes precedence over the environment variable
 .BR TMPDIR .
 #endif
 
 .TP
-.BI "\-L " language
+.BI "-L " language
 Specifies the language
 .B clisp
 uses to communicate with the user. This may be
@@ -258,14 +258,14 @@ provided the corresponding message catalog is installed.
 #endif
 
 .TP
-.BI "\-N " localedir
+.BI "-N " localedir
 Specifies the base directory of locale files.
 .B clisp
 will search its message catalogs in
 .IR localedir / language /LC_MESSAGES/clisp.mo.
 
 .TP
-.BI \-E "domain encoding"
+.BI -E "domain encoding"
 Specifies the encoding used for a given domain, overriding the default
 which depends on the environment variables
 .BR LC_ALL ", " LC_CTYPE ", " LANG .
@@ -292,17 +292,17 @@ affecting
 .BR *misc-encoding* .
 
 .TP
-.BR \-q ", " \-\-quiet ", " \-\-silent
+.BR -q ", " --quiet ", " --silent
 Quiet:
 .B clisp
 displays no banner at startup and no good-bye message when quitting.
 
 .TP
-.B \-w
+.B -w
 Wait for keypress after program termination.
 
 .TP
-.B \-I
+.B -I
 Be ILISP friendly. ILISP is an alternative Emacs interface to Common Lisp
 systems. With this option,
 .B clisp
@@ -315,7 +315,7 @@ character.
 #endif
 
 .TP
-.B \-a
+.B -a
 ANSI CL compliant: Comply with the ANSI CL specification even on those issues
 where ANSI CL is broken. This option is provided for maximum portability of
 Lisp programs, and is not useful for actual everyday work. It sets the variable
@@ -329,7 +329,7 @@ to
 See impnotes.html, section "Maximum ANSI CL compliance", for details.
 
 .TP
-.BI "\-p " packagename
+.BI "-p " packagename
 At startup the value of the variable
 .I *package*
 will be set to the package named
@@ -339,11 +339,11 @@ The default is the package which was active when the image was saved, normally
 or
 .B COMMON-LISP-USER
 if the option
-.B \-a
+.B -a
 was specified.
 
 .TP
-.B \-C
+.B -C
 Compile when load: At startup the value of the variable
 .I *load-compiling*
 will be set to
@@ -354,11 +354,11 @@ will then be compiled on the fly. This results in slower loading, but faster
 execution.
 
 .TP
-.BI "\-norc"
+.BI "-norc"
 Normally
 .B clisp
 loads a user run control (RC) file on startup (this happens after the
-.BI \-C
+.BI -C
 option is processed).  The file loaded is
 #if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
 .B _clisprc.lsp
@@ -380,19 +380,19 @@ or
 .BR ${HOME}/.clisprc.fas ,
 #endif
 whichever is newest. This option,
-.B \-norc,
+.B -norc,
 prevents loading of the RC file.
 
 .TP
-.BI "\-i " "initfile ..."
+.BI "-i " "initfile ..."
 Specifies initialization files to be
 .IR load ed
 at startup. These should be lisp files (source or compiled). Several
-.B \-i
+.B -i
 options can be given; all the specified files will be loaded in order.
 
 .TP
-.BI "\-c " "lispfile ..."
+.BI "-c " "lispfile ..."
 Compiles the specified
 .IR lispfile s
 to bytecode (*.fas). The compiled files can then be
@@ -400,20 +400,20 @@ to bytecode (*.fas). The compiled files can then be
 instead of the sources to gain efficiency.
 
 .TP
-.BI "\-o " outputfile
+.BI "-o " outputfile
 Specifies the output file or directory for the compilation of the last
 specified
 .IR lispfile .
 
 .TP
-.B \-l
+.B -l
 A bytecode listing (*.lis) of the files being compiled will be produced.
 Useful only for debugging purposes. See the documentation of
 .I "compile-file"
 for details.
 
 .TP
-.BI "\-x " expressions
+.BI "-x " expressions
 Executes a series of arbitrary expressions instead of a read-eval-print loop.
 The values of the expressions will be output to standard output.
 Due to the argument processing done by the shell, the
@@ -443,7 +443,7 @@ to be used as a script interpreter.
 If
 .I lispfile
 is
-.BR "\-" ,
+.BR "-" ,
 the standard input is used instead of a file.
 This option must be the last one. No RC file will be executed.
 
@@ -478,7 +478,7 @@ Within
 .I arguments
 the token `*' may be used to denote the project's filename.
 .I arguments
-defaults to `\-i *' which means that the file will be
+defaults to `-i *' which means that the file will be
 .IR load ed
 (see above).
 
@@ -488,7 +488,7 @@ defaults to `\-i *' which means that the file will be
 .SH REFERENCE
 The language implemented mostly conforms to
 .RS 1
-      ANSI Common Lisp standard X3.226\-1994
+      ANSI Common Lisp standard X3.226-1994
       http://www.x3.org/tc_home/j13sd4.htm
 .RE
 available online as the
@@ -499,14 +499,14 @@ available online as the
 .RE
 which supersedes the earlier specifications
 .RS 1
-      Guy L. Steele Jr.: Common Lisp \- The Language.
+      Guy L. Steele Jr.: Common Lisp - The Language.
       Digital Press. 2nd edition 1990, 1032 pages.
       http://www.cs.cmu.edu/afs/cs.cmu.edu/project/ai-repository/ai/html/cltl/cltl2.html
       ("CLtL2" for short)
 .RE
 and
 .RS 1
-      Guy L. Steele Jr.: Common Lisp \- The Language.
+      Guy L. Steele Jr.: Common Lisp - The Language.
       Digital Press. 1st edition 1984, 465 pages.
       ("CLtL1" for short)
 .RE
@@ -617,7 +617,7 @@ uses to communicate with the user. The value may be
 and defaults to
 .BR english .
 The
-.B \-L
+.B -L
 option can be used to override this environment variable.
 
 #ifdef AMIGAOS
@@ -629,7 +629,7 @@ uses to communicate with the user, unless it is already specified through
 the environment variable
 .B CLISP_LANGUAGE
 or the
-.B \-L
+.B -L
 option. The value may be as above.
 #endif
 
@@ -657,12 +657,12 @@ uses to communicate with the user, unless it is already specified through
 the environment variable
 .B CLISP_LANGUAGE
 or the
-.B \-L
+.B -L
 option.
 #ifdef UNICODE
 It also specifies the locale determining the character set in use, unless
 already specified through the environment variable
-.BR LC_CTYPE .
+-BR LC_CTYPE .
 #endif
 The value may begin with a two-letter ISO 639 language code, for example
 .BR en ", " de ", " fr .

@@ -37,26 +37,26 @@ global var uintC module_count =
   #else
     #define _NEXT_NULL
   #endif
-  global module_ modules[] = {
-    { "clisp",
-      (subr_*)&subr_tab_data, &subr_tab_data_size,
-      (object*)&object_tab, &object_tab_size,
-      TRUE, NULL, NULL, NULL, NULL
-      _NEXT_NULL
-    },
-    #define MODULE(module_name)  \
-      { STRING(module_name), \
-        &module__##module_name##__subr_tab[0], &module__##module_name##__subr_tab_size, \
-        &module__##module_name##__object_tab[0], &module__##module_name##__object_tab_size, \
-        FALSE, \
-        &module__##module_name##__subr_tab_initdata[0], \
-        &module__##module_name##__object_tab_initdata[0], \
-        &module__##module_name##__init_function_1, \
-        &module__##module_name##__init_function_2 \
-        _NEXT_NULL \
+  global module_ modules[] =
+    { { "clisp",
+        (subr_*)&subr_tab_data, &subr_tab_data_size,
+        (object*)&object_tab, &object_tab_size,
+        TRUE, NULL, NULL, NULL, NULL
+        _NEXT_NULL
       },
-    #include "modules.h"
-    #undef MODULE
-    { NULL, NULL, NULL, NULL, NULL, FALSE, NULL, NULL, NULL, NULL _NEXT_NULL }
+      #define MODULE(module_name)  \
+        { STRING(module_name), \
+          &module__##module_name##__subr_tab[0], &module__##module_name##__subr_tab_size, \
+          &module__##module_name##__object_tab[0], &module__##module_name##__object_tab_size, \
+          FALSE, \
+          &module__##module_name##__subr_tab_initdata[0], \
+          &module__##module_name##__object_tab_initdata[0], \
+          &module__##module_name##__init_function_1, \
+          &module__##module_name##__init_function_2 \
+          _NEXT_NULL \
+        },
+      #include "modules.h"
+      #undef MODULE
+      { NULL, NULL, NULL, NULL, NULL, FALSE, NULL, NULL, NULL, NULL _NEXT_NULL }
     };
 

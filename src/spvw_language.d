@@ -38,22 +38,17 @@
   local int mysetenv(name,value)
     var const char * name;
     var const char * value;
-    {
-      var uintL namelen = asciz_length(name);
+    { var uintL namelen = asciz_length(name);
       var uintL valuelen = asciz_length(value);
       #if defined(HAVE_PUTENV)
         var char* buffer = malloc(namelen+1+valuelen+1);
         var char* bufptr;
         if (!buffer)
-          return -1; # no need to set errno = ENOMEM
+          { return -1; } # no need to set errno = ENOMEM
         bufptr = buffer;
-        dotimesL(namelen,namelen, {
-          *bufptr++ = *name++;
-        });
+        dotimesL(namelen,namelen, { *bufptr++ = *name++; });
         *bufptr++ = '=';
-        dotimesL(valuelen,valuelen, {
-          *bufptr++ = *value++;
-        });
+        dotimesL(valuelen,valuelen, { *bufptr++ = *value++; });
         *bufptr = '\0';
         return putenv(buffer);
       #elif defined(HAVE_SETENV)
@@ -65,72 +60,60 @@
         var char** epp;
         var char* ep;
         var uintL envvar_count = 0;
-        for (epp = environ; (ep = *epp) != NULL; epp++) {
-          var const char * np = name;
-          # Compare *epp and name:
-          while (*np != '\0' && *np == *ep) { np++; ep++; }
-          if (*np == '\0' && *ep == '=')
-            break;
-          envvar_count++;
-        }
+        for (epp = environ; (ep = *epp) != NULL; epp++)
+          { var const char * np = name;
+            # Compare *epp and name:
+            while (*np != '\0' && *np == *ep) { np++; ep++; }
+            if (*np == '\0' && *ep == '=')
+              break;
+            envvar_count++;
+          }
         ep = *epp;
-        if (ep == NULL) {
+        if (ep == NULL)
           # name not found in environ, add it.
-          # Remember the environ, so that we can free it if we need
-          # to reallocate it again next time.
-          var static char** last_environ = NULL;
-          var char** new_environ = (char**) malloc((envvar_count+2)*sizeof(char*));
-          if (!new_environ)
-            return -1; # no need to set errno = ENOMEM
-          {
-            var uintL count;
-            epp = environ;
-            for (count = 0; count < envvar_count; count++)
-              new_environ[count] = epp[count];
+          { # Remember the environ, so that we can free it if we need
+            # to reallocate it again next time.
+            var static char** last_environ = NULL;
+            var char** new_environ = (char**) malloc((envvar_count+2)*sizeof(char*));
+            if (!new_environ)
+              { return -1; } # no need to set errno = ENOMEM
+            { var uintL count;
+              epp = environ;
+              for (count = 0; count < envvar_count; count++)
+                new_environ[count] = epp[count];
+            }
+            ep = (char*) malloc(namelen+1+valuelen+1);
+            if (!ep)
+              { free(new_environ); return -1; } # no need to set errno = ENOMEM
+            { var char* cp = ep;
+              dotimesL(namelen,namelen, { *cp++ = *name++; });
+              *cp++ = '=';
+              dotimesL(valuelen,valuelen, { *cp++ = *value++; });
+              *cp = '\0';
+            }
+            new_environ[envvar_count] = ep;
+            new_environ[envvar_count+1] = NULL;
+            environ = new_environ;
+            if (last_environ != NULL) { free(last_environ); }
+            last_environ = new_environ;
           }
-          ep = (char*) malloc(namelen+1+valuelen+1);
-          if (!ep) {
-            free(new_environ); return -1; # no need to set errno = ENOMEM
-          }
-          {
-            var char* cp = ep;
-            dotimesL(namelen,namelen, {
-              *cp++ = *name++;
-            });
-            *cp++ = '=';
-            dotimesL(valuelen,valuelen, {
-              *cp++ = *value++;
-            });
-            *cp = '\0';
-          }
-          new_environ[envvar_count] = ep;
-          new_environ[envvar_count+1] = NULL;
-          environ = new_environ;
-          if (last_environ != NULL)
-            free(last_environ);
-          last_environ = new_environ;
-        } else {
+          else
           # name found, replace its value.
-          # We could be tempted to overwrite name's value directly if
-          # the new value is not longer than the old value. But that's
-          # not a good idea - maybe someone still has a pointer to
-          # this area around.
-          ep = (char*) malloc(namelen+1+valuelen+1);
-          if (!ep)
-            return -1; # no need to set errno = ENOMEM
-          {
-            var char* cp = ep;
-            dotimesL(namelen,namelen, {
-              *cp++ = *name++;
-            });
-            *cp++ = '=';
-            dotimesL(valuelen,valuelen, {
-              *cp++ = *value++;
-            });
-            *cp = '\0';
+          { # We could be tempted to overwrite name's value directly if
+            # the new value is not longer than the old value. But that's
+            # not a good idea - maybe someone still has a pointer to
+            # this area around.
+            ep = (char*) malloc(namelen+1+valuelen+1);
+            if (!ep)
+              { return -1; } # no need to set errno = ENOMEM
+            { var char* cp = ep;
+              dotimesL(namelen,namelen, { *cp++ = *name++; });
+              *cp++ = '=';
+              dotimesL(valuelen,valuelen, { *cp++ = *value++; });
+              *cp = '\0';
+            }
+            *epp = ep;
           }
-          *epp = ep;
-        }
         return 0;
       #endif
     }
@@ -151,32 +134,27 @@
     #endif
     local boolean init_language_from(langname)
       var const char* langname;
-      {
-        if (asciz_equal(langname,"ENGLISH") || asciz_equal(langname,"english")) {
-          language = language_english; return TRUE;
-        }
+      { if (asciz_equal(langname,"ENGLISH") || asciz_equal(langname,"english"))
+          { language = language_english; return TRUE; }
         #ifdef GNU_GETTEXT
         if (asciz_equal(langname,"DEUTSCH") || asciz_equal(langname,"deutsch")
             || asciz_equal(langname,"GERMAN") || asciz_equal(langname,"german")
-           ) {
-          language = language_deutsch; return TRUE;
-        }
+           )
+          { language = language_deutsch; return TRUE; }
         if (asciz_equal(langname,"FRANCAIS") || asciz_equal(langname,"francais")
             #ifndef ASCII_CHS
             || asciz_equal(langname,"FRANÇAIS") || asciz_equal(langname,"français")
             #endif
             || asciz_equal(langname,"FRENCH") || asciz_equal(langname,"french")
-           ) {
-          language = language_francais; return TRUE;
-        }
+           )
+          { language = language_francais; return TRUE; }
         if (asciz_equal(langname,"ESPANOL") || asciz_equal(langname,"espanol")
             #ifndef ASCII_CHS
             || asciz_equal(langname,"ESPAÑOL") || asciz_equal(langname,"español")
             #endif
             || asciz_equal(langname,"SPANISH") || asciz_equal(langname,"spanish")
-           ) {
-          language = language_spanish; return TRUE;
-        }
+           )
+          { language = language_spanish; return TRUE; }
         #endif
         return FALSE;
       }
@@ -192,23 +170,16 @@
         #   3. Environment-Variable CLISP_LANGUAGE
         #   4. Environment-Variable LANG
         #   5. Default: Englisch
-        if (argv_language) {
-          if (init_language_from(argv_language))
-            goto chosen1;
-        }
+        if (argv_language)
+          { if (init_language_from(argv_language)) goto chosen1; }
         #ifdef HAVE_ENVIRONMENT
-        {
-          var const char* langname = getenv("CLISP_LANGUAGE");
-          if (langname) {
-            if (init_language_from(langname))
-              goto chosen1;
-          }
+        { var const char* langname = getenv("CLISP_LANGUAGE");
+          if (langname)
+            { if (init_language_from(langname)) goto chosen1; }
           #ifdef AMIGAOS
           langname = getenv("Language"); # since OS 3.0
-          if (langname) {
-            if (init_language_from(langname))
-              goto chosen1;
-          }
+          if (langname)
+            { if (init_language_from(langname)) goto chosen1; }
           #endif
         }
         #endif
@@ -219,96 +190,81 @@
         goto chosen2;
         #else
         #ifdef HAVE_ENVIRONMENT
-        #define ascii_alphanumericp(c)  \
-          ((c>='A' && c<='Z') || (c>='a' && c<='z') || (c>='0' && c<='9'))
-        {
-          var const char* lang = getenv("LANG");
-          if (lang) {
-            # LANG hat i.a. die Syntax Sprache[_Land][.Zeichensatz]
-            if (lang[0]=='e' && lang[1]=='n' && !ascii_alphanumericp(lang[2])) { # "en"
-              language = language_english; goto chosen2;
-            }
-          }
-        }
+        { var const char* lang = getenv("LANG");
+          if (lang)
+            { # LANG hat i.a. die Syntax Sprache[_Land][.Zeichensatz]
+              if (lang[0]=='e' && lang[1]=='n' && !alphanumericp((uintB)lang[2])) # "en"
+                { language = language_english; goto chosen2; }
+        }   }
         #endif
         # Default: Englisch
         language = language_english; goto chosen2;
         #endif
-       chosen1:
-        # At this point we have chosen the language based upon the
-        # command-line option or the clisp-specific environment variables.
-        #ifdef GNU_GETTEXT
-          # GNU gettext chooses the message catalog based upon:
-          # 1. environment variable LANGUAGE [only if dcgettext.c, not with
-          #    cat-compat.c],
-          # 2. environment variable LC_ALL,
-          # 3. environment variable LC_MESSAGES,
-          # 4. environment variable LANG.
-          # We clobber LC_MESSAGES and unset the earlier two variables.
-          {
-            var const char * locale =
-              language == language_english ? "en" :
-              language == language_deutsch ? "de" :
-              language == language_francais ? "fr" :
-              language == language_spanish ? "es" :
-              "";
-            if (getenv("LANGUAGE"))
-              mysetenv("LANGUAGE","");
-            if (getenv("LC_ALL"))
-              mysetenv("LC_ALL","");
-            mysetenv("LC_MESSAGES",locale);
-            #ifdef LC_MESSAGES # !(UNIX_NEXTSTEP || ...)
-            # Given the above, the following line is probably not needed.
-            # (Depends on the behaviour of setlocale(LC_MESSAGES,NULL) on
-            # your system.) Anyway it doesn't hurt.
-            setlocale(LC_MESSAGES,locale);
-            #endif
-          }
-        #endif
-       chosen2:
-        # At this point we have chosen the language based upon an
-        # environment variable GNU gettext knows about.
-        #ifdef GNU_GETTEXT
-        {
-          var const char * package = "clisp";
-          # We apparently don't need to check whether argv_localedir is
-          # not NULL and a valid directory. But since we may call chdir()
-          # before the gettext library opens the catalog file, we have to
-          # convert argv_localedir to be an absolute pathname, if possible.
-          #ifdef UNIX
-            if (!(argv_localedir == NULL))
-              if (argv_localedir[0] != '\0' && argv_localedir[0] != '/') {
-                var char currdir[MAXPATHLEN];
-                if (!(getwd(currdir) == NULL)) {
-                  var uintL currdirlen = asciz_length(currdir);
-                  if (currdirlen > 0 && currdir[0] == '/') {
-                    var uintL len = currdirlen + 1 + asciz_length(argv_localedir) + 1;
-                    var char* abs_localedir = (char*)malloc(len*sizeof(char));
-                    if (!(abs_localedir == NULL)) {
-                      # Append currdir, maybe '/', and argv_localedir into abs_localedir:
-                      var char* ptr = abs_localedir;
-                      {
-                        var const char * srcptr = currdir;
-                        var uintL count;
-                        dotimespL(count,currdirlen, { *ptr++ = *srcptr++; });
-                      }
-                      if (ptr[-1] != '/')
-                        *ptr++ = '/';
-                      {
-                        var const char * srcptr = argv_localedir;
-                        while ((*ptr++ = *srcptr++) != '\0') continue;
-                      }
-                      argv_localedir = abs_localedir;
-                    }
-                  }
-                }
-              }
+        chosen1:
+          # At this point we have chosen the language based upon the
+          # command-line option or the clisp-specific environment variables.
+          #ifdef GNU_GETTEXT
+            # GNU gettext chooses the message catalog based upon:
+            # 1. environment variable LANGUAGE [only if dcgettext.c, not with
+            #    cat-compat.c],
+            # 2. environment variable LC_ALL,
+            # 3. environment variable LC_MESSAGES,
+            # 4. environment variable LANG.
+            # We clobber LC_MESSAGES and unset the earlier two variables.
+            { var const char * locale =
+                language == language_english ? "en" :
+                language == language_deutsch ? "de" :
+                language == language_francais ? "fr" :
+                language == language_spanish ? "es" :
+                "";
+              if (getenv("LANGUAGE")) { mysetenv("LANGUAGE",""); }
+              if (getenv("LC_ALL")) { mysetenv("LC_ALL",""); }
+              mysetenv("LC_MESSAGES",locale);
+              #ifdef LC_MESSAGES # !(UNIX_NEXTSTEP || ...)
+              # Given the above, the following line is probably not needed.
+              # (Depends on the behaviour of setlocale(LC_MESSAGES,NULL) on
+              # your system.) Anyway it doesn't hurt.
+              setlocale(LC_MESSAGES,locale);
+              #endif
+            }
           #endif
-          bindtextdomain(package,argv_localedir);
-          textdomain(package);
-        }
-        #endif
-        return;
+        chosen2:
+          # At this point we have chosen the language based upon an
+          # environment variable GNU gettext knows about.
+          #ifdef GNU_GETTEXT
+          { var const char * package = "clisp";
+            # We apparently don't need to check whether argv_localedir is
+            # not NULL and a valid directory. But since we may call chdir()
+            # before the gettext library opens the catalog file, we have to
+            # convert argv_localedir to be an absolute pathname, if possible.
+            #ifdef UNIX
+            if (!(argv_localedir == NULL))
+              if (argv_localedir[0] != '\0' && argv_localedir[0] != '/')
+                { var char currdir[MAXPATHLEN];
+                  if (!(getwd(currdir) == NULL))
+                    { var uintL currdirlen = asciz_length(currdir);
+                      if (currdirlen > 0 && currdir[0] == '/')
+                        { var uintL len = currdirlen + 1 + asciz_length(argv_localedir) + 1;
+                          var char* abs_localedir = (char*)malloc(len*sizeof(char));
+                          if (!(abs_localedir == NULL))
+                            { # Append currdir, maybe '/', and argv_localedir into abs_localedir:
+                              var char* ptr = abs_localedir;
+                              { var const char * srcptr = currdir;
+                                var uintL count;
+                                dotimespL(count,currdirlen, { *ptr++ = *srcptr++; });
+                              }
+                              if (ptr[-1] != '/') { *ptr++ = '/'; }
+                              { var const char * srcptr = argv_localedir;
+                                while ((*ptr++ = *srcptr++) != '\0') continue;
+                              }
+                              argv_localedir = abs_localedir;
+                }   }   }   }
+            #endif
+            bindtextdomain(package,argv_localedir);
+            textdomain(package);
+          }
+          #endif
+          return;
       }
 
  #ifdef GNU_GETTEXT
@@ -394,8 +350,7 @@
     local const char * cvgettext (const char * msgid);
     local const char * cvgettext(msgid)
       var const char * msgid;
-      {
-        local char resultbuf[1024];
+      { local char resultbuf[1024];
         var uintL len = asciz_length(msgid);
         var DYNAMIC_ARRAY(cvmsgid,char,len+1);
         var const uintB* ptr1;
@@ -403,17 +358,13 @@
         # Convert msgid argument to Latin1.
         ptr1 = (const uintB*)msgid;
         ptr2 = (uintB*)cvmsgid;
-        while (!(*ptr1 == '\0')) {
-          *ptr2++ = to_latin_table[*ptr1++];
-        }
+        while (!(*ptr1 == '\0')) { *ptr2++ = to_latin_table[*ptr1++]; }
         *ptr2 = '\0';
         # Lookup message translation.
         ptr1 = (const uintB*)gettext(cvmsgid);
         # Convert translation to local character set.
         ptr2 = resultbuf;
-        while (!(*ptr1 == '\0')) {
-          *ptr2++ = from_latin_table[*ptr1++];
-        }
+        while (!(*ptr1 == '\0')) { *ptr2++ = from_latin_table[*ptr1++]; }
         *ptr2 = '\0';
         FREE_DYNAMIC_ARRAY(cvmsgid);
         return resultbuf;
@@ -426,17 +377,17 @@
   global const char * clgettext (const char * msgid);
   global const char * clgettext(msgid)
     var const char * msgid;
-    {
-      var const char * translated_msg;
-      if (msgid[0] == '\0') {
-        # If you ask gettext to translate the empty string, it returns
-        # the catalog's header (containing meta information)!
-        translated_msg = msgid;
-      } else {
-        begin_system_call();
-        translated_msg = cvgettext(msgid);
-        end_system_call();
-      }
+    { var const char * translated_msg;
+      if (msgid[0] == '\0')
+        { # If you ask gettext to translate the empty string, it returns
+          # the catalog's header (containing meta information)!
+          translated_msg = msgid;
+        }
+        else
+        { begin_system_call();
+          translated_msg = cvgettext(msgid);
+          end_system_call();
+        }
       return translated_msg;
     }
 
@@ -446,22 +397,18 @@
   global object localized_string (object obj);
   global object localized_string(obj)
     var object obj;
-    {
-      ASSERT(stringp(obj));
-      with_string_0(obj,Symbol_value(S(iso8859_1)),asciz, {
-        obj = asciz_to_string(clgettext(asciz),Symbol_value(S(iso8859_1)));
-      });
+    { ASSERT(stringp(obj));
+      with_string_0(obj,Symbol_value(S(iso8859_1)),asciz,
+        { obj = asciz_to_string(clgettext(asciz),Symbol_value(S(iso8859_1))); });
       return obj;
     }
 
   global object localized_object (object obj);
   global object localized_object(obj)
     var object obj;
-    {
-      ASSERT(stringp(obj));
-      with_string_0(obj,Symbol_value(S(iso8859_1)),asciz, {
-        obj = asciz_to_string(clgettext(asciz),Symbol_value(S(iso8859_1)));
-      });
+    { ASSERT(stringp(obj));
+      with_string_0(obj,Symbol_value(S(iso8859_1)),asciz,
+        { obj = asciz_to_string(clgettext(asciz),Symbol_value(S(iso8859_1))); });
       dynamic_bind(S(packagestern),O(default_package)); # *PACKAGE* binden
       pushSTACK(obj); funcall(L(read_from_string),1); # READ-FROM-STRING ausführen
       dynamic_unbind();

@@ -49,10 +49,6 @@ typedef int  boolean;
 #define NULL ((void*)0)
 #endif
 
-#if !(defined(__GNUC__) && !defined(__STRICT_ANSI__))
-#define inline
-#endif
-
 local FILE* infile;
 local FILE* outfile;
 
@@ -86,8 +82,7 @@ local struct { enum out_mode mode; # Output-Modus
              }
       out;
 
-local inline void char_out (uintB ch)
-  { putc(ch,outfile); }
+#define char_out(char)  putc(char,outfile)
 
 # Output-Bufferung ausschalten:
 local void outbuffer_off (void)
@@ -275,7 +270,7 @@ local Token nexttoken (boolean within_prep_directive)
 #ifndef QUOTE_QUOTES
                 c = next_char();
                 if (c==EOF) { fprintf(stderr,"Unbeendete String-Konstante\n"); break; }
-#else # muss Single-Quotes in Strings quotieren:
+#else # muß Single-Quotes in Strings quotieren:
                 c = in_char();
                 if (c==EOF) { fprintf(stderr,"Unbeendete String-Konstante\n"); break; }
                 if (c=='\'')
@@ -323,8 +318,7 @@ local Token nexttoken (boolean within_prep_directive)
     token->endindex = out.buffindex;
     return token;
   }}
-local inline Token next_token (void)
-  { return nexttoken(FALSE); }
+#define next_token() nexttoken(FALSE)
 
 # Klammern mitzählen:
 #define MAXBRACES 1000 # maximale Verschachtelungstiefe von Klammern
@@ -343,8 +337,10 @@ local void handle_opening_token (Token token)
   }
 
 # Mitzählen einer schließenden Klammer (ohne Überprüfung der Verschachtelung):
-local inline void handle_closing_token (Token token)
-  { open_braces.count--; }
+# local void handle_closing_token (Token token)
+#   { open_braces.count--; }
+# oder als Macro
+#define handle_closing_token(token)  { open_braces.count--; }
 
 # nächste Expression mit balancierten Klammern '()', '{}', '[]' lesen:
 # (Dabei ist auf das Niveau open_braces.count=0 zu kommen,

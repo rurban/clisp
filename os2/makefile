@@ -18,9 +18,6 @@ libdir = $(exec_prefix)\lib
 lisplibdir = $(libdir)\clisp
 datadir = $(prefix)/share
 localedir = $(datadir)/locale
-# The value of following variable is prepended to all the paths for
-# installation. This is useful when preparing a binary distribution.
-install_root =
 
 # List of add-on modules:
 # queens               the queens function as a separate module
@@ -127,7 +124,6 @@ ROFF_DVI = groff -Tdvi -mandoc # try "groff -Tdvi -mandoc"
 
 COMMENT5 = comment5
 ANSIDECL = ansidecl
-VARBRACE = varbrace
 TXT2C = txt2c -I../
 
 DFILES = \
@@ -403,7 +399,6 @@ describe.lsp \
 room.lsp \
 edit.lsp \
 macros3.lsp \
-posix.lsp \
 foreign1.lsp \
 defs3.lsp \
 german.lsp \
@@ -446,7 +441,6 @@ describe.fas \
 room.fas \
 edit.fas \
 macros3.fas \
-posix.fas \
 foreign1.fas \
 defs3.fas \
 german.fas \
@@ -494,7 +488,6 @@ stage\describe.lsp \
 stage\room.lsp \
 stage\edit.lsp \
 stage\macros3.lsp \
-stage\posix.lsp \
 stage\foreign1.lsp \
 stage\defs3.lsp \
 stage\german.lsp \
@@ -537,7 +530,6 @@ stage\describe.fas \
 stage\room.fas \
 stage\edit.fas \
 stage\macros3.fas \
-stage\posix.fas \
 stage\foreign1.fas \
 stage\defs3.fas \
 stage\german.fas \
@@ -549,7 +541,7 @@ stage\config.fas
 all : init allc allo lisp.exe interpreted.mem halfcompiled.mem lispinit.mem manual
 
 
-init : comment5.exe ansidecl.exe varbrace.exe txt2c.exe ccmp2c.exe modprep.exe $(DFILES) modules.h
+init : comment5.exe ansidecl.exe txt2c.exe ccmp2c.exe modprep.exe $(DFILES) modules.h
 
 comment5.exe : ..\utils\comment5.c
 	$(CC) $(CFLAGS) $(CLFLAGS) ../utils/comment5.c -o comment5.exe
@@ -560,11 +552,6 @@ ansidecl.exe : ..\utils\ansidecl.d comment5.exe
 	$(RM) ansidecl.d
 	$(CC) $(CFLAGS) $(CLFLAGS) ansidecl.c -o ansidecl.exe
 	$(RM) ansidecl.c
-
-varbrace.exe : ..\utils\varbrace.d comment5.exe ansidecl.exe
-	$(COMMENT5) ../utils/varbrace.d | $(ANSIDECL) > varbrace.c
-	$(CC) $(CFLAGS) $(CLFLAGS) varbrace.c -o varbrace.exe
-	$(RM) varbrace.c
 
 txt2c.exe : ..\utils\txt2c.c ansidecl.exe
 	$(ANSIDECL) < ..\utils\txt2c.c > txt2c.c
@@ -584,311 +571,311 @@ modprep.exe : ..\utils\modprep.d comment5.exe ansidecl.exe
 
 allc : init $(CFILES)
 
-spvw.c : spvw.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw.d | $(ANSIDECL) | $(VARBRACE) > spvw.c
+spvw.c : spvw.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw.d | $(ANSIDECL) > spvw.c
 
-spvwtabf.c : spvwtabf.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvwtabf.d | $(ANSIDECL) | $(VARBRACE) > spvwtabf.c
+spvwtabf.c : spvwtabf.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvwtabf.d | $(ANSIDECL) > spvwtabf.c
 
-spvwtabs.c : spvwtabs.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvwtabs.d | $(ANSIDECL) | $(VARBRACE) > spvwtabs.c
+spvwtabs.c : spvwtabs.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvwtabs.d | $(ANSIDECL) > spvwtabs.c
 
-spvwtabo.c : spvwtabo.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvwtabo.d | $(ANSIDECL) | $(VARBRACE) > spvwtabo.c
+spvwtabo.c : spvwtabo.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvwtabo.d | $(ANSIDECL) > spvwtabo.c
 
-eval.c : eval.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) eval.d | $(ANSIDECL) | $(VARBRACE) > eval.c
+eval.c : eval.d comment5.exe ansidecl.exe
+	$(COMMENT5) eval.d | $(ANSIDECL) > eval.c
 
-control.c : control.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) control.d | $(ANSIDECL) | $(VARBRACE) > control.c
+control.c : control.d comment5.exe ansidecl.exe
+	$(COMMENT5) control.d | $(ANSIDECL) > control.c
 
-encoding.c : encoding.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) encoding.d | $(ANSIDECL) | $(VARBRACE) > encoding.c
+encoding.c : encoding.d comment5.exe ansidecl.exe
+	$(COMMENT5) encoding.d | $(ANSIDECL) > encoding.c
 
-pathname.c : pathname.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) pathname.d | $(ANSIDECL) | $(VARBRACE) > pathname.c
+pathname.c : pathname.d comment5.exe ansidecl.exe
+	$(COMMENT5) pathname.d | $(ANSIDECL) > pathname.c
 
-stream.c : stream.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) stream.d | $(ANSIDECL) | $(VARBRACE) > stream.c
+stream.c : stream.d comment5.exe ansidecl.exe
+	$(COMMENT5) stream.d | $(ANSIDECL) > stream.c
 
-io.c : io.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) io.d | $(ANSIDECL) | $(VARBRACE) > io.c
+io.c : io.d comment5.exe ansidecl.exe
+	$(COMMENT5) io.d | $(ANSIDECL) > io.c
 
-array.c : array.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) array.d | $(ANSIDECL) | $(VARBRACE) > array.c
+array.c : array.d comment5.exe ansidecl.exe
+	$(COMMENT5) array.d | $(ANSIDECL) > array.c
 
-hashtabl.c : hashtabl.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) hashtabl.d | $(ANSIDECL) | $(VARBRACE) > hashtabl.c
+hashtabl.c : hashtabl.d comment5.exe ansidecl.exe
+	$(COMMENT5) hashtabl.d | $(ANSIDECL) > hashtabl.c
 
-list.c : list.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) list.d | $(ANSIDECL) | $(VARBRACE) > list.c
+list.c : list.d comment5.exe ansidecl.exe
+	$(COMMENT5) list.d | $(ANSIDECL) > list.c
 
-package.c : package.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) package.d | $(ANSIDECL) | $(VARBRACE) > package.c
+package.c : package.d comment5.exe ansidecl.exe
+	$(COMMENT5) package.d | $(ANSIDECL) > package.c
 
-record.c : record.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) record.d | $(ANSIDECL) | $(VARBRACE) > record.c
+record.c : record.d comment5.exe ansidecl.exe
+	$(COMMENT5) record.d | $(ANSIDECL) > record.c
 
-sequence.c : sequence.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) sequence.d | $(ANSIDECL) | $(VARBRACE) > sequence.c
+sequence.c : sequence.d comment5.exe ansidecl.exe
+	$(COMMENT5) sequence.d | $(ANSIDECL) > sequence.c
 
-charstrg.c : charstrg.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) charstrg.d | $(ANSIDECL) | $(VARBRACE) > charstrg.c
+charstrg.c : charstrg.d comment5.exe ansidecl.exe
+	$(COMMENT5) charstrg.d | $(ANSIDECL) > charstrg.c
 
-debug.c : debug.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) debug.d | $(ANSIDECL) | $(VARBRACE) > debug.c
+debug.c : debug.d comment5.exe ansidecl.exe
+	$(COMMENT5) debug.d | $(ANSIDECL) > debug.c
 
-error.c : error.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) error.d | $(ANSIDECL) | $(VARBRACE) > error.c
+error.c : error.d comment5.exe ansidecl.exe
+	$(COMMENT5) error.d | $(ANSIDECL) > error.c
 
-misc.c : misc.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) misc.d | $(ANSIDECL) | $(VARBRACE) > misc.c
+misc.c : misc.d comment5.exe ansidecl.exe
+	$(COMMENT5) misc.d | $(ANSIDECL) > misc.c
 
-time.c : time.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) time.d | $(ANSIDECL) | $(VARBRACE) > time.c
+time.c : time.d comment5.exe ansidecl.exe
+	$(COMMENT5) time.d | $(ANSIDECL) > time.c
 
-predtype.c : predtype.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) predtype.d | $(ANSIDECL) | $(VARBRACE) > predtype.c
+predtype.c : predtype.d comment5.exe ansidecl.exe
+	$(COMMENT5) predtype.d | $(ANSIDECL) > predtype.c
 
-symbol.c : symbol.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) symbol.d | $(ANSIDECL) | $(VARBRACE) > symbol.c
+symbol.c : symbol.d comment5.exe ansidecl.exe
+	$(COMMENT5) symbol.d | $(ANSIDECL) > symbol.c
 
-lisparit.c : lisparit.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) lisparit.d | $(ANSIDECL) | $(VARBRACE) > lisparit.c
+lisparit.c : lisparit.d comment5.exe ansidecl.exe
+	$(COMMENT5) lisparit.d | $(ANSIDECL) > lisparit.c
 
-unixaux.c : unixaux.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) unixaux.d | $(ANSIDECL) | $(VARBRACE) > unixaux.c
+unixaux.c : unixaux.d comment5.exe ansidecl.exe
+	$(COMMENT5) unixaux.d | $(ANSIDECL) > unixaux.c
 
-lispbibl.c : lispbibl.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) lispbibl.d | $(ANSIDECL) | $(VARBRACE) > lispbibl.c
+lispbibl.c : lispbibl.d comment5.exe ansidecl.exe
+	$(COMMENT5) lispbibl.d | $(ANSIDECL) > lispbibl.c
 
-fsubr.c : fsubr.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) fsubr.d | $(ANSIDECL) | $(VARBRACE) > fsubr.c
+fsubr.c : fsubr.d comment5.exe ansidecl.exe
+	$(COMMENT5) fsubr.d | $(ANSIDECL) > fsubr.c
 
-subr.c : subr.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) subr.d | $(ANSIDECL) | $(VARBRACE) > subr.c
+subr.c : subr.d comment5.exe ansidecl.exe
+	$(COMMENT5) subr.d | $(ANSIDECL) > subr.c
 
-pseudofun.c : pseudofun.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) pseudofun.d | $(ANSIDECL) | $(VARBRACE) > pseudofun.c
+pseudofun.c : pseudofun.d comment5.exe ansidecl.exe
+	$(COMMENT5) pseudofun.d | $(ANSIDECL) > pseudofun.c
 
-constsym.c : constsym.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) constsym.d | $(ANSIDECL) | $(VARBRACE) > constsym.c
+constsym.c : constsym.d comment5.exe ansidecl.exe
+	$(COMMENT5) constsym.d | $(ANSIDECL) > constsym.c
 
-constobj.c : constobj.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) constobj.d | $(ANSIDECL) | $(VARBRACE) > constobj.c
+constobj.c : constobj.d comment5.exe ansidecl.exe
+	$(COMMENT5) constobj.d | $(ANSIDECL) > constobj.c
 
-msdos.c : msdos.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) msdos.d | $(ANSIDECL) | $(VARBRACE) > msdos.c
+msdos.c : msdos.d comment5.exe ansidecl.exe
+	$(COMMENT5) msdos.d | $(ANSIDECL) > msdos.c
 
-constpack.c : constpack.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) constpack.d | $(ANSIDECL) | $(VARBRACE) > constpack.c
+constpack.c : constpack.d comment5.exe ansidecl.exe
+	$(COMMENT5) constpack.d | $(ANSIDECL) > constpack.c
 
-avl.c : avl.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) avl.d | $(ANSIDECL) | $(VARBRACE) > avl.c
+avl.c : avl.d comment5.exe ansidecl.exe
+	$(COMMENT5) avl.d | $(ANSIDECL) > avl.c
 
-sort.c : sort.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) sort.d | $(ANSIDECL) | $(VARBRACE) > sort.c
+sort.c : sort.d comment5.exe ansidecl.exe
+	$(COMMENT5) sort.d | $(ANSIDECL) > sort.c
 
-subrkw.c : subrkw.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) subrkw.d | $(ANSIDECL) | $(VARBRACE) > subrkw.c
+subrkw.c : subrkw.d comment5.exe ansidecl.exe
+	$(COMMENT5) subrkw.d | $(ANSIDECL) > subrkw.c
 
-bytecode.c : bytecode.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) bytecode.d | $(ANSIDECL) | $(VARBRACE) > bytecode.c
+bytecode.c : bytecode.d comment5.exe ansidecl.exe
+	$(COMMENT5) bytecode.d | $(ANSIDECL) > bytecode.c
 
-spvw_module.c : spvw_module.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_module.d | $(ANSIDECL) | $(VARBRACE) > spvw_module.c
+spvw_module.c : spvw_module.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_module.d | $(ANSIDECL) > spvw_module.c
 
-spvw_debug.c : spvw_debug.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_debug.d | $(ANSIDECL) | $(VARBRACE) > spvw_debug.c
+spvw_debug.c : spvw_debug.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_debug.d | $(ANSIDECL) > spvw_debug.c
 
-spvw_alloca.c : spvw_alloca.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_alloca.d | $(ANSIDECL) | $(VARBRACE) > spvw_alloca.c
+spvw_alloca.c : spvw_alloca.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_alloca.d | $(ANSIDECL) > spvw_alloca.c
 
-spvw_mmap.c : spvw_mmap.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_mmap.d | $(ANSIDECL) | $(VARBRACE) > spvw_mmap.c
+spvw_mmap.c : spvw_mmap.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_mmap.d | $(ANSIDECL) > spvw_mmap.c
 
-spvw_multimap.c : spvw_multimap.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_multimap.d | $(ANSIDECL) | $(VARBRACE) > spvw_multimap.c
+spvw_multimap.c : spvw_multimap.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_multimap.d | $(ANSIDECL) > spvw_multimap.c
 
-spvw_singlemap.c : spvw_singlemap.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_singlemap.d | $(ANSIDECL) | $(VARBRACE) > spvw_singlemap.c
+spvw_singlemap.c : spvw_singlemap.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_singlemap.d | $(ANSIDECL) > spvw_singlemap.c
 
-spvw_page.c : spvw_page.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_page.d | $(ANSIDECL) | $(VARBRACE) > spvw_page.c
+spvw_page.c : spvw_page.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_page.d | $(ANSIDECL) > spvw_page.c
 
-spvw_heap.c : spvw_heap.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_heap.d | $(ANSIDECL) | $(VARBRACE) > spvw_heap.c
+spvw_heap.c : spvw_heap.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_heap.d | $(ANSIDECL) > spvw_heap.c
 
-spvw_global.c : spvw_global.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_global.d | $(ANSIDECL) | $(VARBRACE) > spvw_global.c
+spvw_global.c : spvw_global.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_global.d | $(ANSIDECL) > spvw_global.c
 
-spvw_gcstat.c : spvw_gcstat.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_gcstat.d | $(ANSIDECL) | $(VARBRACE) > spvw_gcstat.c
+spvw_gcstat.c : spvw_gcstat.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_gcstat.d | $(ANSIDECL) > spvw_gcstat.c
 
-spvw_space.c : spvw_space.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_space.d | $(ANSIDECL) | $(VARBRACE) > spvw_space.c
+spvw_space.c : spvw_space.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_space.d | $(ANSIDECL) > spvw_space.c
 
-spvw_mark.c : spvw_mark.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_mark.d | $(ANSIDECL) | $(VARBRACE) > spvw_mark.c
+spvw_mark.c : spvw_mark.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_mark.d | $(ANSIDECL) > spvw_mark.c
 
-spvw_objsize.c : spvw_objsize.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_objsize.d | $(ANSIDECL) | $(VARBRACE) > spvw_objsize.c
+spvw_objsize.c : spvw_objsize.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_objsize.d | $(ANSIDECL) > spvw_objsize.c
 
-spvw_update.c : spvw_update.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_update.d | $(ANSIDECL) | $(VARBRACE) > spvw_update.c
+spvw_update.c : spvw_update.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_update.d | $(ANSIDECL) > spvw_update.c
 
-spvw_fault.c : spvw_fault.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_fault.d | $(ANSIDECL) | $(VARBRACE) > spvw_fault.c
+spvw_fault.c : spvw_fault.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_fault.d | $(ANSIDECL) > spvw_fault.c
 
-spvw_sigsegv.c : spvw_sigsegv.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_sigsegv.d | $(ANSIDECL) | $(VARBRACE) > spvw_sigsegv.c
+spvw_sigsegv.c : spvw_sigsegv.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_sigsegv.d | $(ANSIDECL) > spvw_sigsegv.c
 
-spvw_sigcld.c : spvw_sigcld.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_sigcld.d | $(ANSIDECL) | $(VARBRACE) > spvw_sigcld.c
+spvw_sigcld.c : spvw_sigcld.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_sigcld.d | $(ANSIDECL) > spvw_sigcld.c
 
-spvw_sigpipe.c : spvw_sigpipe.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_sigpipe.d | $(ANSIDECL) | $(VARBRACE) > spvw_sigpipe.c
+spvw_sigpipe.c : spvw_sigpipe.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_sigpipe.d | $(ANSIDECL) > spvw_sigpipe.c
 
-spvw_sigint.c : spvw_sigint.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_sigint.d | $(ANSIDECL) | $(VARBRACE) > spvw_sigint.c
+spvw_sigint.c : spvw_sigint.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_sigint.d | $(ANSIDECL) > spvw_sigint.c
 
-spvw_sigwinch.c : spvw_sigwinch.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_sigwinch.d | $(ANSIDECL) | $(VARBRACE) > spvw_sigwinch.c
+spvw_sigwinch.c : spvw_sigwinch.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_sigwinch.d | $(ANSIDECL) > spvw_sigwinch.c
 
-spvw_garcol.c : spvw_garcol.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_garcol.d | $(ANSIDECL) | $(VARBRACE) > spvw_garcol.c
+spvw_garcol.c : spvw_garcol.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_garcol.d | $(ANSIDECL) > spvw_garcol.c
 
-spvw_genera1.c : spvw_genera1.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_genera1.d | $(ANSIDECL) | $(VARBRACE) > spvw_genera1.c
+spvw_genera1.c : spvw_genera1.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_genera1.d | $(ANSIDECL) > spvw_genera1.c
 
-spvw_genera2.c : spvw_genera2.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_genera2.d | $(ANSIDECL) | $(VARBRACE) > spvw_genera2.c
+spvw_genera2.c : spvw_genera2.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_genera2.d | $(ANSIDECL) > spvw_genera2.c
 
-spvw_genera3.c : spvw_genera3.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_genera3.d | $(ANSIDECL) | $(VARBRACE) > spvw_genera3.c
+spvw_genera3.c : spvw_genera3.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_genera3.d | $(ANSIDECL) > spvw_genera3.c
 
-spvw_allocate.c : spvw_allocate.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_allocate.d | $(ANSIDECL) | $(VARBRACE) > spvw_allocate.c
+spvw_allocate.c : spvw_allocate.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_allocate.d | $(ANSIDECL) > spvw_allocate.c
 
-spvw_typealloc.c : spvw_typealloc.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_typealloc.d | $(ANSIDECL) | $(VARBRACE) > spvw_typealloc.c
+spvw_typealloc.c : spvw_typealloc.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_typealloc.d | $(ANSIDECL) > spvw_typealloc.c
 
-spvw_circ.c : spvw_circ.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_circ.d | $(ANSIDECL) | $(VARBRACE) > spvw_circ.c
+spvw_circ.c : spvw_circ.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_circ.d | $(ANSIDECL) > spvw_circ.c
 
-spvw_walk.c : spvw_walk.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_walk.d | $(ANSIDECL) | $(VARBRACE) > spvw_walk.c
+spvw_walk.c : spvw_walk.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_walk.d | $(ANSIDECL) > spvw_walk.c
 
-spvw_ctype.c : spvw_ctype.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_ctype.d | $(ANSIDECL) | $(VARBRACE) > spvw_ctype.c
+spvw_ctype.c : spvw_ctype.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_ctype.d | $(ANSIDECL) > spvw_ctype.c
 
-spvw_language.c : spvw_language.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_language.d | $(ANSIDECL) | $(VARBRACE) > spvw_language.c
+spvw_language.c : spvw_language.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_language.d | $(ANSIDECL) > spvw_language.c
 
-spvw_memfile.c : spvw_memfile.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) spvw_memfile.d | $(ANSIDECL) | $(VARBRACE) > spvw_memfile.c
+spvw_memfile.c : spvw_memfile.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_memfile.d | $(ANSIDECL) > spvw_memfile.c
 
-errunix.c : errunix.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) errunix.d | $(ANSIDECL) | $(VARBRACE) > errunix.c
+errunix.c : errunix.d comment5.exe ansidecl.exe
+	$(COMMENT5) errunix.d | $(ANSIDECL) > errunix.c
 
-aridecl.c : aridecl.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) aridecl.d | $(ANSIDECL) | $(VARBRACE) > aridecl.c
+aridecl.c : aridecl.d comment5.exe ansidecl.exe
+	$(COMMENT5) aridecl.d | $(ANSIDECL) > aridecl.c
 
-arilev0.c : arilev0.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) arilev0.d | $(ANSIDECL) | $(VARBRACE) > arilev0.c
+arilev0.c : arilev0.d comment5.exe ansidecl.exe
+	$(COMMENT5) arilev0.d | $(ANSIDECL) > arilev0.c
 
-arilev1.c : arilev1.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) arilev1.d | $(ANSIDECL) | $(VARBRACE) > arilev1.c
+arilev1.c : arilev1.d comment5.exe ansidecl.exe
+	$(COMMENT5) arilev1.d | $(ANSIDECL) > arilev1.c
 
-intelem.c : intelem.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) intelem.d | $(ANSIDECL) | $(VARBRACE) > intelem.c
+intelem.c : intelem.d comment5.exe ansidecl.exe
+	$(COMMENT5) intelem.d | $(ANSIDECL) > intelem.c
 
-intlog.c : intlog.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) intlog.d | $(ANSIDECL) | $(VARBRACE) > intlog.c
+intlog.c : intlog.d comment5.exe ansidecl.exe
+	$(COMMENT5) intlog.d | $(ANSIDECL) > intlog.c
 
-intplus.c : intplus.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) intplus.d | $(ANSIDECL) | $(VARBRACE) > intplus.c
+intplus.c : intplus.d comment5.exe ansidecl.exe
+	$(COMMENT5) intplus.d | $(ANSIDECL) > intplus.c
 
-intcomp.c : intcomp.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) intcomp.d | $(ANSIDECL) | $(VARBRACE) > intcomp.c
+intcomp.c : intcomp.d comment5.exe ansidecl.exe
+	$(COMMENT5) intcomp.d | $(ANSIDECL) > intcomp.c
 
-intbyte.c : intbyte.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) intbyte.d | $(ANSIDECL) | $(VARBRACE) > intbyte.c
+intbyte.c : intbyte.d comment5.exe ansidecl.exe
+	$(COMMENT5) intbyte.d | $(ANSIDECL) > intbyte.c
 
-intmal.c : intmal.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) intmal.d | $(ANSIDECL) | $(VARBRACE) > intmal.c
+intmal.c : intmal.d comment5.exe ansidecl.exe
+	$(COMMENT5) intmal.d | $(ANSIDECL) > intmal.c
 
-intdiv.c : intdiv.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) intdiv.d | $(ANSIDECL) | $(VARBRACE) > intdiv.c
+intdiv.c : intdiv.d comment5.exe ansidecl.exe
+	$(COMMENT5) intdiv.d | $(ANSIDECL) > intdiv.c
 
-intgcd.c : intgcd.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) intgcd.d | $(ANSIDECL) | $(VARBRACE) > intgcd.c
+intgcd.c : intgcd.d comment5.exe ansidecl.exe
+	$(COMMENT5) intgcd.d | $(ANSIDECL) > intgcd.c
 
-int2adic.c : int2adic.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) int2adic.d | $(ANSIDECL) | $(VARBRACE) > int2adic.c
+int2adic.c : int2adic.d comment5.exe ansidecl.exe
+	$(COMMENT5) int2adic.d | $(ANSIDECL) > int2adic.c
 
-intsqrt.c : intsqrt.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) intsqrt.d | $(ANSIDECL) | $(VARBRACE) > intsqrt.c
+intsqrt.c : intsqrt.d comment5.exe ansidecl.exe
+	$(COMMENT5) intsqrt.d | $(ANSIDECL) > intsqrt.c
 
-intprint.c : intprint.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) intprint.d | $(ANSIDECL) | $(VARBRACE) > intprint.c
+intprint.c : intprint.d comment5.exe ansidecl.exe
+	$(COMMENT5) intprint.d | $(ANSIDECL) > intprint.c
 
-intread.c : intread.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) intread.d | $(ANSIDECL) | $(VARBRACE) > intread.c
+intread.c : intread.d comment5.exe ansidecl.exe
+	$(COMMENT5) intread.d | $(ANSIDECL) > intread.c
 
-rational.c : rational.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) rational.d | $(ANSIDECL) | $(VARBRACE) > rational.c
+rational.c : rational.d comment5.exe ansidecl.exe
+	$(COMMENT5) rational.d | $(ANSIDECL) > rational.c
 
-sfloat.c : sfloat.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) sfloat.d | $(ANSIDECL) | $(VARBRACE) > sfloat.c
+sfloat.c : sfloat.d comment5.exe ansidecl.exe
+	$(COMMENT5) sfloat.d | $(ANSIDECL) > sfloat.c
 
-ffloat.c : ffloat.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) ffloat.d | $(ANSIDECL) | $(VARBRACE) > ffloat.c
+ffloat.c : ffloat.d comment5.exe ansidecl.exe
+	$(COMMENT5) ffloat.d | $(ANSIDECL) > ffloat.c
 
-dfloat.c : dfloat.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) dfloat.d | $(ANSIDECL) | $(VARBRACE) > dfloat.c
+dfloat.c : dfloat.d comment5.exe ansidecl.exe
+	$(COMMENT5) dfloat.d | $(ANSIDECL) > dfloat.c
 
-lfloat.c : lfloat.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) lfloat.d | $(ANSIDECL) | $(VARBRACE) > lfloat.c
+lfloat.c : lfloat.d comment5.exe ansidecl.exe
+	$(COMMENT5) lfloat.d | $(ANSIDECL) > lfloat.c
 
-flo_konv.c : flo_konv.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) flo_konv.d | $(ANSIDECL) | $(VARBRACE) > flo_konv.c
+flo_konv.c : flo_konv.d comment5.exe ansidecl.exe
+	$(COMMENT5) flo_konv.d | $(ANSIDECL) > flo_konv.c
 
-flo_rest.c : flo_rest.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) flo_rest.d | $(ANSIDECL) | $(VARBRACE) > flo_rest.c
+flo_rest.c : flo_rest.d comment5.exe ansidecl.exe
+	$(COMMENT5) flo_rest.d | $(ANSIDECL) > flo_rest.c
 
-realelem.c : realelem.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) realelem.d | $(ANSIDECL) | $(VARBRACE) > realelem.c
+realelem.c : realelem.d comment5.exe ansidecl.exe
+	$(COMMENT5) realelem.d | $(ANSIDECL) > realelem.c
 
-realrand.c : realrand.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) realrand.d | $(ANSIDECL) | $(VARBRACE) > realrand.c
+realrand.c : realrand.d comment5.exe ansidecl.exe
+	$(COMMENT5) realrand.d | $(ANSIDECL) > realrand.c
 
-realtran.c : realtran.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) realtran.d | $(ANSIDECL) | $(VARBRACE) > realtran.c
+realtran.c : realtran.d comment5.exe ansidecl.exe
+	$(COMMENT5) realtran.d | $(ANSIDECL) > realtran.c
 
-compelem.c : compelem.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) compelem.d | $(ANSIDECL) | $(VARBRACE) > compelem.c
+compelem.c : compelem.d comment5.exe ansidecl.exe
+	$(COMMENT5) compelem.d | $(ANSIDECL) > compelem.c
 
-comptran.c : comptran.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) comptran.d | $(ANSIDECL) | $(VARBRACE) > comptran.c
+comptran.c : comptran.d comment5.exe ansidecl.exe
+	$(COMMENT5) comptran.d | $(ANSIDECL) > comptran.c
 
-arilev1c.c : arilev1c.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) arilev1c.d | $(ANSIDECL) | $(VARBRACE) > arilev1c.c
+arilev1c.c : arilev1c.d comment5.exe ansidecl.exe
+	$(COMMENT5) arilev1c.d | $(ANSIDECL) > arilev1c.c
 
-arilev1e.c : arilev1e.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) arilev1e.d | $(ANSIDECL) | $(VARBRACE) > arilev1e.c
+arilev1e.c : arilev1e.d comment5.exe ansidecl.exe
+	$(COMMENT5) arilev1e.d | $(ANSIDECL) > arilev1e.c
 
-arilev1i.c : arilev1i.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) arilev1i.d | $(ANSIDECL) | $(VARBRACE) > arilev1i.c
+arilev1i.c : arilev1i.d comment5.exe ansidecl.exe
+	$(COMMENT5) arilev1i.d | $(ANSIDECL) > arilev1i.c
 
-genclisph.c : genclisph.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) genclisph.d | $(ANSIDECL) | $(VARBRACE) > genclisph.c
+genclisph.c : genclisph.d comment5.exe ansidecl.exe
+	$(COMMENT5) genclisph.d | $(ANSIDECL) > genclisph.c
 
-modules.c : modules.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) modules.d | $(ANSIDECL) | $(VARBRACE) > modules.c
+modules.c : modules.d comment5.exe ansidecl.exe
+	$(COMMENT5) modules.d | $(ANSIDECL) > modules.c
 
-noreadline.c : noreadline.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) noreadline.d | $(ANSIDECL) | $(VARBRACE) > noreadline.c
+noreadline.c : noreadline.d comment5.exe ansidecl.exe
+	$(COMMENT5) noreadline.d | $(ANSIDECL) > noreadline.c
 
 ari80386.c : ari80386.d comment5.exe 
 	$(COMMENT5) ari80386.d > ari80386.c
@@ -957,13 +944,13 @@ control.s : control.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.
 control.o : control.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c libintl.h
 	$(CC) $(CFLAGS) -c control.c
 
-encoding.i : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_10.c nls_iso8859_13.c nls_iso8859_14.c nls_iso8859_15.c nls_iso8859_16.c nls_koi8_r.c nls_koi8_u.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1255.c nls_cp1256.c nls_cp1257.c nls_cp1258.c nls_hp_roman8.c nls_nextstep.c nls_jisx0201.c libintl.h
+encoding.i : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_10.c nls_iso8859_13.c nls_iso8859_14.c nls_iso8859_15.c nls_koi8_r.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1255.c nls_cp1256.c nls_cp1257.c nls_cp1258.c nls_hp_roman8.c nls_nextstep.c libintl.h
 	$(CPP) $(CFLAGS) encoding.c > encoding.i
 
-encoding.s : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_10.c nls_iso8859_13.c nls_iso8859_14.c nls_iso8859_15.c nls_iso8859_16.c nls_koi8_r.c nls_koi8_u.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1255.c nls_cp1256.c nls_cp1257.c nls_cp1258.c nls_hp_roman8.c nls_nextstep.c nls_jisx0201.c libintl.h
+encoding.s : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_10.c nls_iso8859_13.c nls_iso8859_14.c nls_iso8859_15.c nls_koi8_r.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1255.c nls_cp1256.c nls_cp1257.c nls_cp1258.c nls_hp_roman8.c nls_nextstep.c libintl.h
 	$(CC) $(CFLAGS) -S encoding.c
 
-encoding.o : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_10.c nls_iso8859_13.c nls_iso8859_14.c nls_iso8859_15.c nls_iso8859_16.c nls_koi8_r.c nls_koi8_u.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1255.c nls_cp1256.c nls_cp1257.c nls_cp1258.c nls_hp_roman8.c nls_nextstep.c nls_jisx0201.c libintl.h
+encoding.o : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_10.c nls_iso8859_13.c nls_iso8859_14.c nls_iso8859_15.c nls_koi8_r.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1255.c nls_cp1256.c nls_cp1257.c nls_cp1258.c nls_hp_roman8.c nls_nextstep.c libintl.h
 	$(CC) $(CFLAGS) -c encoding.c
 
 pathname.i : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c libintl.h
@@ -1299,9 +1286,6 @@ edit.fas : edit.lsp lisp.exe interpreted.mem
 macros3.fas : macros3.lsp lisp.exe interpreted.mem
 	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c macros3.lsp
 
-posix.fas : posix.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c posix.lsp
-
 foreign1.fas : foreign1.lsp lisp.exe interpreted.mem
 	lisp.exe -m 1000KW -M interpreted.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c foreign1.lsp
 
@@ -1447,9 +1431,6 @@ stage\edit.lsp : edit.lsp
 stage\macros3.lsp : macros3.lsp
 	$(LN) macros3.lsp stage
 
-stage\posix.lsp : posix.lsp
-	$(LN) posix.lsp stage
-
 stage\foreign1.lsp : foreign1.lsp
 	$(LN) foreign1.lsp stage
 
@@ -1570,9 +1551,6 @@ stage\edit.fas : stage\edit.lsp lisp.exe lispinit.mem
 stage\macros3.fas : stage\macros3.lsp lisp.exe lispinit.mem
 	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/macros3.lsp
 
-stage\posix.fas : stage\posix.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/posix.lsp
-
 stage\foreign1.fas : stage\foreign1.lsp lisp.exe lispinit.mem
 	lisp.exe -M lispinit.mem -B . -N locale -Efile ISO-8859-1 -norc -q -c stage/foreign1.lsp
 
@@ -1691,37 +1669,37 @@ readline.dvi : readline\doc\rluserman.dvi
 install : install-bin
 
 installdirs : force
-	-mkdir $(install_root)$(libdir)
-	-mkdir $(install_root)$(lisplibdir)
-	-mkdir $(install_root)$(bindir)
+	-mkdir $(libdir)
+	-mkdir $(lisplibdir)
+	-mkdir $(bindir)
 
 install-bin : lisp.exe lispinit.mem force
-	-mkdir $(install_root)$(libdir)
-	-mkdir $(install_root)$(lisplibdir)
-	$(INSTALL_DATA) UnicodeData.txt $(install_root)$(lisplibdir)\UnicodeData.txt
-	$(INSTALL_PROGRAM) lisp.exe $(install_root)$(lisplibdir)\lisp.exe
-	$(INSTALL_DATA) lispinit.mem $(install_root)$(lisplibdir)\lispinit.mem
-	-mkdir $(install_root)$(bindir)
-	echo $(lisplibdir)\lisp.exe -M $(lisplibdir)\lispinit.mem %1 %2 %3 %4 %5 %6 %7 %8 %9 > $(install_root)$(bindir)\clisp.cmd
+	-mkdir $(libdir)
+	-mkdir $(lisplibdir)
+	$(INSTALL_DATA) UnicodeData.txt $(lisplibdir)\UnicodeData.txt
+	$(INSTALL_PROGRAM) lisp.exe $(lisplibdir)\lisp.exe
+	$(INSTALL_DATA) lispinit.mem $(lisplibdir)\lispinit.mem
+	-mkdir $(bindir)
+	echo $(lisplibdir)\lisp.exe -M $(lisplibdir)\lispinit.mem %1 %2 %3 %4 %5 %6 %7 %8 %9 > $(bindir)\clisp.cmd
 
 uninstall : uninstall-bin
 
 uninstall-bin : force
-	$(RM) $(install_root)$(lisplibdir)/UnicodeData.txt
-	$(RM) $(install_root)$(lisplibdir)/lisp.exe
-	$(RM) $(install_root)$(lisplibdir)/lispinit.mem
-	$(RM) $(install_root)$(bindir)/clisp.cmd
+	$(RM) $(lisplibdir)/UnicodeData.txt
+	$(RM) $(lisplibdir)/lisp.exe
+	$(RM) $(lisplibdir)/lispinit.mem
+	$(RM) $(bindir)/clisp.cmd
 
 # clean0 is harmless: removes only superfluous things: temporary files.
 clean0 : force
-	-$(RM) core ansidecl.c varbrace.c ccmp2c.c modprep.c genclisph.exe wgenclisph.exe linkkit txt.c txt.exe
+	-$(RM) core ansidecl.c ccmp2c.c modprep.c genclisph.exe wgenclisph.exe linkkit txt.c txt.exe
 
 # clean1 removes everything that becomes obsolete once lisp.exe is recompiled
 # without changing the bytecode format and the tables in
 # constobj.d, constpack.d, constsym.d, subr.d, fsubr.d, pseudofun.d.
 clean1 : clean0
 	-$(RM) lispbibl.h clisp.h *.i *.s *.o *.a lisp.exe clisp-link makevars stage/* suite/*
-	-$(RM) libsigsegv.* libiconv.* libavcall.* libcallback.*
+	-$(RM) libsigsegv.* libavcall.* libcallback.*
 	-rmdir stage
 	-rmdir suite
 	-$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.html impnotes.html clisp.c distmakefile $(TXTFILES) clreadline.3 clreadline.man clreadline.html clreadline.dvi readline.dvi

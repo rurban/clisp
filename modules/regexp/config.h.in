@@ -9,8 +9,31 @@
 #undef _ALL_SOURCE
 #endif
 
+/* AC_ISC_POSIX */
+/* Define if you need to in order for stat and other things to work. */
+#ifndef _POSIX_SOURCE
+#undef _POSIX_SOURCE
+#endif
+
+/* AC_MINIX */
+/* Define if you need to in order for stat and other things to work. */
+#ifndef _POSIX_SOURCE
+#undef _POSIX_SOURCE
+#endif
+/* Define if the system does not provide POSIX.1 features except
+   with this defined. */
+#ifndef _POSIX_1_SOURCE
+#undef _POSIX_1_SOURCE
+#endif
+/* Define if on MINIX. */
+#undef _MINIX
+
 
 /* compiler characteristics */
+
+/* AC_C_CONST */
+/* Define this as empty if your compiler doesn't support the `const' keyword. */
+#undef const
 
 /* RL_VOID */
 /* Define this as `char' if your compiler doesn't understand the void type. */

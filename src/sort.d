@@ -38,8 +38,7 @@
   local void SORT(SORTID,sort) (v,n)
     var SORT_ELEMENT* v;
     var uintL n;
-    {
-      var SORT_ELEMENT* w = &v[-1];
+    { var SORT_ELEMENT* w = &v[-1];
       # w[1]..w[n] ist dasselbe wie v[0]..v[n-1] .
       # Man fasst die Zahlen 1,...,n so zu einem balancierten Binärbaum
       # zusammen, dass k die Söhne 2*k und 2*k+1 habe.
@@ -66,32 +65,27 @@
                 # tail-rekursives adjust(j,s) nötig wird:                         \
                 i = j;                                                            \
           }   }
-      if (n<=1) # nichts zu tun?
-        return;
+      if (n<=1) return; # nichts zu tun?
       # Wegen 2*(floor(n/2)+1) > n ist w[floor(n/2)+1]..w[n] bereits sortiert.
-      {
-        var uintL r;
-        for (r = floor(n,2); r>0; r--) {
-          # Hier ist w[r+1]..w[n] sortiert.
-          adjust(r,n);
-          # Hier ist w[r]..w[n] sortiert.
-        }
-      }
+      { var uintL r;
+        for (r = floor(n,2); r>0; r--)
+          { # Hier ist w[r+1]..w[n] sortiert.
+            adjust(r,n);
+            # Hier ist w[r]..w[n] sortiert.
+      }   }
       # Nun ist w[1]..w[n] ein sortierter Baum.
       # Jeweils das höchste Element w[1] entnehmen und ans Ende setzen:
-      {
-        var uintL s;
-        for (s = n-1; s>0; s--) {
-          # Hier ist w[1]..w[s+1] ein sortierter Baum, und
-          # w[s+2]..w[n] die höchsten Elemente, aufsteigend sortiert.
-          swap(SORT_ELEMENT, v[0], v[s]); # w[1] und w[s+1] vertauschen
-          # Hier ist w[2]..w[s] ein sortierter Baum, und
-          # w[s+1]..w[n] die höchsten Elemente, aufsteigend sortiert.
-          adjust(1,s); # w[1] in den Baum hineinsortieren
-          # Hier ist w[1]..w[s] ein sortierter Baum, und
-          # w[s+1]..w[n] die höchsten Elemente, aufsteigend sortiert.
-        }
-      }
+      { var uintL s;
+        for (s = n-1; s>0; s--)
+          { # Hier ist w[1]..w[s+1] ein sortierter Baum, und
+            # w[s+2]..w[n] die höchsten Elemente, aufsteigend sortiert.
+            swap(SORT_ELEMENT, v[0], v[s]); # w[1] und w[s+1] vertauschen
+            # Hier ist w[2]..w[s] ein sortierter Baum, und
+            # w[s+1]..w[n] die höchsten Elemente, aufsteigend sortiert.
+            adjust(1,s); # w[1] in den Baum hineinsortieren
+            # Hier ist w[1]..w[s] ein sortierter Baum, und
+            # w[s+1]..w[n] die höchsten Elemente, aufsteigend sortiert.
+      }   }
     }
 
 #undef adjust

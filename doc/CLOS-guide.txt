@@ -19,6 +19,8 @@ means zero or more occurrences of thing; "thing+" means one or more.
 Curly brackets { and } are used for grouping, as in {a b}+, which
 means a b, a b a b, a b a b a b, etc.]
 
+CLISP specific note: Before using CLOS, you need to (USE-PACKAGE "CLOS").
+
 
 1. Defining classes.
 

@@ -16,9 +16,6 @@ docdir = $(exec_prefix).doc
 lispdocdir = $(docdir).clisp
 libdir = $(exec_prefix).lib
 lisplibdir = $(libdir).clisp
-# The value of following variable is prepended to all the paths for
-# installation. This is useful when preparing a binary distribution.
-install_root =
 
 # List of add-on modules:
 # queens               the queens function as a separate module
@@ -124,7 +121,6 @@ ROFF_DVI = groff -Tdvi -mandoc # try "groff -Tdvi -mandoc"
 
 COMMENT5 = /@.comment5
 ANSIDECL = /@.ansidecl
-VARBRACE = /@.varbrace
 TXT2C = /@.txt2c -I^.
 
 DFILES = \
@@ -406,7 +402,6 @@ lsp.describe \
 lsp.room \
 lsp.edit \
 lsp.macros3 \
-lsp.posix \
 lsp.foreign1 \
 lsp.defs3 \
 lsp.german \
@@ -449,7 +444,6 @@ fas.describe \
 fas.room \
 fas.edit \
 fas.macros3 \
-fas.posix \
 fas.foreign1 \
 fas.defs3 \
 fas.german \
@@ -497,7 +491,6 @@ stage.lsp.describe \
 stage.lsp.room \
 stage.lsp.edit \
 stage.lsp.macros3 \
-stage.lsp.posix \
 stage.lsp.foreign1 \
 stage.lsp.defs3 \
 stage.lsp.german \
@@ -540,7 +533,6 @@ stage.fas.describe \
 stage.fas.room \
 stage.fas.edit \
 stage.fas.macros3 \
-stage.fas.posix \
 stage.fas.foreign1 \
 stage.fas.defs3 \
 stage.fas.german \
@@ -555,7 +547,7 @@ all : init allc allo lisp mem.interpre mem.halfcomp mem.lispinit manual
 	$(TOUCH) all
 
 
-init : comment5 ansidecl varbrace txt2c ccmp2c modprep $(DFILES) h.modules
+init : comment5 ansidecl txt2c ccmp2c modprep $(DFILES) h.modules
 	$(TOUCH) init
 
 comment5 : ^.utils.c.comment5
@@ -567,13 +559,6 @@ ansidecl : ^.utils.d.ansidecl comment5
 	$(RM) d.ansidecl
 	$(CC) $(CFLAGS) $(CLFLAGS) c.ansidecl -o ansidecl
 	$(RM) c.ansidecl
-
-varbrace : ^.utils.d.varbrace comment5 ansidecl
-	$(COMMENT5) ^.utils.d.varbrace > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > varbrace.c
-	$(RM) TMPPIPE1
-	$(CC) $(CFLAGS) $(CLFLAGS) c.varbrace -o varbrace
-	$(RM) c.varbrace
 
 txt2c : ^.utils.c.txt2c ansidecl
 	$(ANSIDECL) < ^.utils.c.txt2c > txt2c.c
@@ -598,733 +583,525 @@ modprep : ^.utils.d.modprep comment5 ansidecl
 allc : init $(CFILES)
 	$(TOUCH) allc
 
-c.spvw : d.spvw comment5 ansidecl varbrace
+c.spvw : d.spvw comment5 ansidecl
 	$(COMMENT5) spvw.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw.c
-	$(RM) TMPPIPE2
 
-c.spvwtabf : d.spvwtabf comment5 ansidecl varbrace
+c.spvwtabf : d.spvwtabf comment5 ansidecl
 	$(COMMENT5) spvwtabf.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvwtabf.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvwtabf.c
-	$(RM) TMPPIPE2
 
-c.spvwtabs : d.spvwtabs comment5 ansidecl varbrace
+c.spvwtabs : d.spvwtabs comment5 ansidecl
 	$(COMMENT5) spvwtabs.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvwtabs.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvwtabs.c
-	$(RM) TMPPIPE2
 
-c.spvwtabo : d.spvwtabo comment5 ansidecl varbrace
+c.spvwtabo : d.spvwtabo comment5 ansidecl
 	$(COMMENT5) spvwtabo.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvwtabo.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvwtabo.c
-	$(RM) TMPPIPE2
 
-c.eval : d.eval comment5 ansidecl varbrace
+c.eval : d.eval comment5 ansidecl
 	$(COMMENT5) eval.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > eval.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > eval.c
-	$(RM) TMPPIPE2
 
-c.control : d.control comment5 ansidecl varbrace
+c.control : d.control comment5 ansidecl
 	$(COMMENT5) control.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > control.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > control.c
-	$(RM) TMPPIPE2
 
-c.encoding : d.encoding comment5 ansidecl varbrace
+c.encoding : d.encoding comment5 ansidecl
 	$(COMMENT5) encoding.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > encoding.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > encoding.c
-	$(RM) TMPPIPE2
 
-c.pathname : d.pathname comment5 ansidecl varbrace
+c.pathname : d.pathname comment5 ansidecl
 	$(COMMENT5) pathname.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > pathname.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > pathname.c
-	$(RM) TMPPIPE2
 
-c.stream : d.stream comment5 ansidecl varbrace
+c.stream : d.stream comment5 ansidecl
 	$(COMMENT5) stream.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > stream.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > stream.c
-	$(RM) TMPPIPE2
 
-c.io : d.io comment5 ansidecl varbrace
+c.io : d.io comment5 ansidecl
 	$(COMMENT5) io.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > io.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > io.c
-	$(RM) TMPPIPE2
 
-c.array : d.array comment5 ansidecl varbrace
+c.array : d.array comment5 ansidecl
 	$(COMMENT5) array.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > array.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > array.c
-	$(RM) TMPPIPE2
 
-c.hashtabl : d.hashtabl comment5 ansidecl varbrace
+c.hashtabl : d.hashtabl comment5 ansidecl
 	$(COMMENT5) hashtabl.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > hashtabl.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > hashtabl.c
-	$(RM) TMPPIPE2
 
-c.list : d.list comment5 ansidecl varbrace
+c.list : d.list comment5 ansidecl
 	$(COMMENT5) list.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > list.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > list.c
-	$(RM) TMPPIPE2
 
-c.package : d.package comment5 ansidecl varbrace
+c.package : d.package comment5 ansidecl
 	$(COMMENT5) package.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > package.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > package.c
-	$(RM) TMPPIPE2
 
-c.record : d.record comment5 ansidecl varbrace
+c.record : d.record comment5 ansidecl
 	$(COMMENT5) record.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > record.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > record.c
-	$(RM) TMPPIPE2
 
-c.sequence : d.sequence comment5 ansidecl varbrace
+c.sequence : d.sequence comment5 ansidecl
 	$(COMMENT5) sequence.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > sequence.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > sequence.c
-	$(RM) TMPPIPE2
 
-c.charstrg : d.charstrg comment5 ansidecl varbrace
+c.charstrg : d.charstrg comment5 ansidecl
 	$(COMMENT5) charstrg.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > charstrg.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > charstrg.c
-	$(RM) TMPPIPE2
 
-c.debug : d.debug comment5 ansidecl varbrace
+c.debug : d.debug comment5 ansidecl
 	$(COMMENT5) debug.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > debug.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > debug.c
-	$(RM) TMPPIPE2
 
-c.error : d.error comment5 ansidecl varbrace
+c.error : d.error comment5 ansidecl
 	$(COMMENT5) error.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > error.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > error.c
-	$(RM) TMPPIPE2
 
-c.misc : d.misc comment5 ansidecl varbrace
+c.misc : d.misc comment5 ansidecl
 	$(COMMENT5) misc.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > misc.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > misc.c
-	$(RM) TMPPIPE2
 
-c.time : d.time comment5 ansidecl varbrace
+c.time : d.time comment5 ansidecl
 	$(COMMENT5) time.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > time.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > time.c
-	$(RM) TMPPIPE2
 
-c.predtype : d.predtype comment5 ansidecl varbrace
+c.predtype : d.predtype comment5 ansidecl
 	$(COMMENT5) predtype.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > predtype.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > predtype.c
-	$(RM) TMPPIPE2
 
-c.symbol : d.symbol comment5 ansidecl varbrace
+c.symbol : d.symbol comment5 ansidecl
 	$(COMMENT5) symbol.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > symbol.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > symbol.c
-	$(RM) TMPPIPE2
 
-c.lisparit : d.lisparit comment5 ansidecl varbrace
+c.lisparit : d.lisparit comment5 ansidecl
 	$(COMMENT5) lisparit.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > lisparit.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > lisparit.c
-	$(RM) TMPPIPE2
 
-c.unixaux : d.unixaux comment5 ansidecl varbrace
+c.unixaux : d.unixaux comment5 ansidecl
 	$(COMMENT5) unixaux.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > unixaux.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > unixaux.c
-	$(RM) TMPPIPE2
 
-c.acornaux : d.acornaux comment5 ansidecl varbrace
+c.acornaux : d.acornaux comment5 ansidecl
 	$(COMMENT5) acornaux.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > acornaux.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > acornaux.c
-	$(RM) TMPPIPE2
 
-c.acornsig : d.acornsig comment5 ansidecl varbrace
+c.acornsig : d.acornsig comment5 ansidecl
 	$(COMMENT5) acornsig.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > acornsig.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > acornsig.c
-	$(RM) TMPPIPE2
 
-c.lispbibl : d.lispbibl comment5 ansidecl varbrace
+c.lispbibl : d.lispbibl comment5 ansidecl
 	$(COMMENT5) lispbibl.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > lispbibl.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > lispbibl.c
-	$(RM) TMPPIPE2
 
-c.fsubr : d.fsubr comment5 ansidecl varbrace
+c.fsubr : d.fsubr comment5 ansidecl
 	$(COMMENT5) fsubr.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > fsubr.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > fsubr.c
-	$(RM) TMPPIPE2
 
-c.subr : d.subr comment5 ansidecl varbrace
+c.subr : d.subr comment5 ansidecl
 	$(COMMENT5) subr.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > subr.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > subr.c
-	$(RM) TMPPIPE2
 
-c.pseudofun : d.pseudofun comment5 ansidecl varbrace
+c.pseudofun : d.pseudofun comment5 ansidecl
 	$(COMMENT5) pseudofun.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > pseudofun.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > pseudofun.c
-	$(RM) TMPPIPE2
 
-c.constsym : d.constsym comment5 ansidecl varbrace
+c.constsym : d.constsym comment5 ansidecl
 	$(COMMENT5) constsym.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > constsym.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > constsym.c
-	$(RM) TMPPIPE2
 
-c.constobj : d.constobj comment5 ansidecl varbrace
+c.constobj : d.constobj comment5 ansidecl
 	$(COMMENT5) constobj.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > constobj.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > constobj.c
-	$(RM) TMPPIPE2
 
-c.acorn : d.acorn comment5 ansidecl varbrace
+c.acorn : d.acorn comment5 ansidecl
 	$(COMMENT5) acorn.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > acorn.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > acorn.c
-	$(RM) TMPPIPE2
 
-c.constpack : d.constpack comment5 ansidecl varbrace
+c.constpack : d.constpack comment5 ansidecl
 	$(COMMENT5) constpack.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > constpack.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > constpack.c
-	$(RM) TMPPIPE2
 
-c.avl : d.avl comment5 ansidecl varbrace
+c.avl : d.avl comment5 ansidecl
 	$(COMMENT5) avl.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > avl.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > avl.c
-	$(RM) TMPPIPE2
 
-c.sort : d.sort comment5 ansidecl varbrace
+c.sort : d.sort comment5 ansidecl
 	$(COMMENT5) sort.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > sort.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > sort.c
-	$(RM) TMPPIPE2
 
-c.subrkw : d.subrkw comment5 ansidecl varbrace
+c.subrkw : d.subrkw comment5 ansidecl
 	$(COMMENT5) subrkw.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > subrkw.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > subrkw.c
-	$(RM) TMPPIPE2
 
-c.bytecode : d.bytecode comment5 ansidecl varbrace
+c.bytecode : d.bytecode comment5 ansidecl
 	$(COMMENT5) bytecode.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > bytecode.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > bytecode.c
-	$(RM) TMPPIPE2
 
-c.spvw_module : d.spvw_module comment5 ansidecl varbrace
+c.spvw_module : d.spvw_module comment5 ansidecl
 	$(COMMENT5) spvw_module.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_module.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_module.c
-	$(RM) TMPPIPE2
 
-c.spvw_debug : d.spvw_debug comment5 ansidecl varbrace
+c.spvw_debug : d.spvw_debug comment5 ansidecl
 	$(COMMENT5) spvw_debug.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_debug.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_debug.c
-	$(RM) TMPPIPE2
 
-c.spvw_alloca : d.spvw_alloca comment5 ansidecl varbrace
+c.spvw_alloca : d.spvw_alloca comment5 ansidecl
 	$(COMMENT5) spvw_alloca.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_alloca.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_alloca.c
-	$(RM) TMPPIPE2
 
-c.spvw_mmap : d.spvw_mmap comment5 ansidecl varbrace
+c.spvw_mmap : d.spvw_mmap comment5 ansidecl
 	$(COMMENT5) spvw_mmap.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_mmap.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_mmap.c
-	$(RM) TMPPIPE2
 
-c.spvw_multimap : d.spvw_multimap comment5 ansidecl varbrace
+c.spvw_multimap : d.spvw_multimap comment5 ansidecl
 	$(COMMENT5) spvw_multimap.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_multimap.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_multimap.c
-	$(RM) TMPPIPE2
 
-c.spvw_singlemap : d.spvw_singlemap comment5 ansidecl varbrace
+c.spvw_singlemap : d.spvw_singlemap comment5 ansidecl
 	$(COMMENT5) spvw_singlemap.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_singlemap.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_singlemap.c
-	$(RM) TMPPIPE2
 
-c.spvw_page : d.spvw_page comment5 ansidecl varbrace
+c.spvw_page : d.spvw_page comment5 ansidecl
 	$(COMMENT5) spvw_page.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_page.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_page.c
-	$(RM) TMPPIPE2
 
-c.spvw_heap : d.spvw_heap comment5 ansidecl varbrace
+c.spvw_heap : d.spvw_heap comment5 ansidecl
 	$(COMMENT5) spvw_heap.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_heap.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_heap.c
-	$(RM) TMPPIPE2
 
-c.spvw_global : d.spvw_global comment5 ansidecl varbrace
+c.spvw_global : d.spvw_global comment5 ansidecl
 	$(COMMENT5) spvw_global.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_global.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_global.c
-	$(RM) TMPPIPE2
 
-c.spvw_gcstat : d.spvw_gcstat comment5 ansidecl varbrace
+c.spvw_gcstat : d.spvw_gcstat comment5 ansidecl
 	$(COMMENT5) spvw_gcstat.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_gcstat.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_gcstat.c
-	$(RM) TMPPIPE2
 
-c.spvw_space : d.spvw_space comment5 ansidecl varbrace
+c.spvw_space : d.spvw_space comment5 ansidecl
 	$(COMMENT5) spvw_space.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_space.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_space.c
-	$(RM) TMPPIPE2
 
-c.spvw_mark : d.spvw_mark comment5 ansidecl varbrace
+c.spvw_mark : d.spvw_mark comment5 ansidecl
 	$(COMMENT5) spvw_mark.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_mark.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_mark.c
-	$(RM) TMPPIPE2
 
-c.spvw_objsize : d.spvw_objsize comment5 ansidecl varbrace
+c.spvw_objsize : d.spvw_objsize comment5 ansidecl
 	$(COMMENT5) spvw_objsize.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_objsize.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_objsize.c
-	$(RM) TMPPIPE2
 
-c.spvw_update : d.spvw_update comment5 ansidecl varbrace
+c.spvw_update : d.spvw_update comment5 ansidecl
 	$(COMMENT5) spvw_update.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_update.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_update.c
-	$(RM) TMPPIPE2
 
-c.spvw_fault : d.spvw_fault comment5 ansidecl varbrace
+c.spvw_fault : d.spvw_fault comment5 ansidecl
 	$(COMMENT5) spvw_fault.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_fault.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_fault.c
-	$(RM) TMPPIPE2
 
-c.spvw_sigsegv : d.spvw_sigsegv comment5 ansidecl varbrace
+c.spvw_sigsegv : d.spvw_sigsegv comment5 ansidecl
 	$(COMMENT5) spvw_sigsegv.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_sigsegv.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_sigsegv.c
-	$(RM) TMPPIPE2
 
-c.spvw_sigcld : d.spvw_sigcld comment5 ansidecl varbrace
+c.spvw_sigcld : d.spvw_sigcld comment5 ansidecl
 	$(COMMENT5) spvw_sigcld.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_sigcld.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_sigcld.c
-	$(RM) TMPPIPE2
 
-c.spvw_sigpipe : d.spvw_sigpipe comment5 ansidecl varbrace
+c.spvw_sigpipe : d.spvw_sigpipe comment5 ansidecl
 	$(COMMENT5) spvw_sigpipe.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_sigpipe.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_sigpipe.c
-	$(RM) TMPPIPE2
 
-c.spvw_sigint : d.spvw_sigint comment5 ansidecl varbrace
+c.spvw_sigint : d.spvw_sigint comment5 ansidecl
 	$(COMMENT5) spvw_sigint.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_sigint.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_sigint.c
-	$(RM) TMPPIPE2
 
-c.spvw_sigwinch : d.spvw_sigwinch comment5 ansidecl varbrace
+c.spvw_sigwinch : d.spvw_sigwinch comment5 ansidecl
 	$(COMMENT5) spvw_sigwinch.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_sigwinch.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_sigwinch.c
-	$(RM) TMPPIPE2
 
-c.spvw_garcol : d.spvw_garcol comment5 ansidecl varbrace
+c.spvw_garcol : d.spvw_garcol comment5 ansidecl
 	$(COMMENT5) spvw_garcol.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_garcol.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_garcol.c
-	$(RM) TMPPIPE2
 
-c.spvw_genera1 : d.spvw_genera1 comment5 ansidecl varbrace
+c.spvw_genera1 : d.spvw_genera1 comment5 ansidecl
 	$(COMMENT5) spvw_genera1.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_genera1.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_genera1.c
-	$(RM) TMPPIPE2
 
-c.spvw_genera2 : d.spvw_genera2 comment5 ansidecl varbrace
+c.spvw_genera2 : d.spvw_genera2 comment5 ansidecl
 	$(COMMENT5) spvw_genera2.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_genera2.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_genera2.c
-	$(RM) TMPPIPE2
 
-c.spvw_genera3 : d.spvw_genera3 comment5 ansidecl varbrace
+c.spvw_genera3 : d.spvw_genera3 comment5 ansidecl
 	$(COMMENT5) spvw_genera3.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_genera3.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_genera3.c
-	$(RM) TMPPIPE2
 
-c.spvw_allocate : d.spvw_allocate comment5 ansidecl varbrace
+c.spvw_allocate : d.spvw_allocate comment5 ansidecl
 	$(COMMENT5) spvw_allocate.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_allocate.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_allocate.c
-	$(RM) TMPPIPE2
 
-c.spvw_typealloc : d.spvw_typealloc comment5 ansidecl varbrace
+c.spvw_typealloc : d.spvw_typealloc comment5 ansidecl
 	$(COMMENT5) spvw_typealloc.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_typealloc.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_typealloc.c
-	$(RM) TMPPIPE2
 
-c.spvw_circ : d.spvw_circ comment5 ansidecl varbrace
+c.spvw_circ : d.spvw_circ comment5 ansidecl
 	$(COMMENT5) spvw_circ.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_circ.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_circ.c
-	$(RM) TMPPIPE2
 
-c.spvw_walk : d.spvw_walk comment5 ansidecl varbrace
+c.spvw_walk : d.spvw_walk comment5 ansidecl
 	$(COMMENT5) spvw_walk.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_walk.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_walk.c
-	$(RM) TMPPIPE2
 
-c.spvw_ctype : d.spvw_ctype comment5 ansidecl varbrace
+c.spvw_ctype : d.spvw_ctype comment5 ansidecl
 	$(COMMENT5) spvw_ctype.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_ctype.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_ctype.c
-	$(RM) TMPPIPE2
 
-c.spvw_language : d.spvw_language comment5 ansidecl varbrace
+c.spvw_language : d.spvw_language comment5 ansidecl
 	$(COMMENT5) spvw_language.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_language.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_language.c
-	$(RM) TMPPIPE2
 
-c.spvw_memfile : d.spvw_memfile comment5 ansidecl varbrace
+c.spvw_memfile : d.spvw_memfile comment5 ansidecl
 	$(COMMENT5) spvw_memfile.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_memfile.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_memfile.c
-	$(RM) TMPPIPE2
 
-c.errunix : d.errunix comment5 ansidecl varbrace
+c.errunix : d.errunix comment5 ansidecl
 	$(COMMENT5) errunix.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > errunix.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > errunix.c
-	$(RM) TMPPIPE2
 
-c.aridecl : d.aridecl comment5 ansidecl varbrace
+c.aridecl : d.aridecl comment5 ansidecl
 	$(COMMENT5) aridecl.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > aridecl.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > aridecl.c
-	$(RM) TMPPIPE2
 
-c.arilev0 : d.arilev0 comment5 ansidecl varbrace
+c.arilev0 : d.arilev0 comment5 ansidecl
 	$(COMMENT5) arilev0.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > arilev0.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > arilev0.c
-	$(RM) TMPPIPE2
 
-c.arilev1 : d.arilev1 comment5 ansidecl varbrace
+c.arilev1 : d.arilev1 comment5 ansidecl
 	$(COMMENT5) arilev1.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > arilev1.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > arilev1.c
-	$(RM) TMPPIPE2
 
-c.intelem : d.intelem comment5 ansidecl varbrace
+c.intelem : d.intelem comment5 ansidecl
 	$(COMMENT5) intelem.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > intelem.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intelem.c
-	$(RM) TMPPIPE2
 
-c.intlog : d.intlog comment5 ansidecl varbrace
+c.intlog : d.intlog comment5 ansidecl
 	$(COMMENT5) intlog.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > intlog.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intlog.c
-	$(RM) TMPPIPE2
 
-c.intplus : d.intplus comment5 ansidecl varbrace
+c.intplus : d.intplus comment5 ansidecl
 	$(COMMENT5) intplus.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > intplus.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intplus.c
-	$(RM) TMPPIPE2
 
-c.intcomp : d.intcomp comment5 ansidecl varbrace
+c.intcomp : d.intcomp comment5 ansidecl
 	$(COMMENT5) intcomp.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > intcomp.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intcomp.c
-	$(RM) TMPPIPE2
 
-c.intbyte : d.intbyte comment5 ansidecl varbrace
+c.intbyte : d.intbyte comment5 ansidecl
 	$(COMMENT5) intbyte.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > intbyte.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intbyte.c
-	$(RM) TMPPIPE2
 
-c.intmal : d.intmal comment5 ansidecl varbrace
+c.intmal : d.intmal comment5 ansidecl
 	$(COMMENT5) intmal.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > intmal.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intmal.c
-	$(RM) TMPPIPE2
 
-c.intdiv : d.intdiv comment5 ansidecl varbrace
+c.intdiv : d.intdiv comment5 ansidecl
 	$(COMMENT5) intdiv.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > intdiv.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intdiv.c
-	$(RM) TMPPIPE2
 
-c.intgcd : d.intgcd comment5 ansidecl varbrace
+c.intgcd : d.intgcd comment5 ansidecl
 	$(COMMENT5) intgcd.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > intgcd.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intgcd.c
-	$(RM) TMPPIPE2
 
-c.int2adic : d.int2adic comment5 ansidecl varbrace
+c.int2adic : d.int2adic comment5 ansidecl
 	$(COMMENT5) int2adic.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > int2adic.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > int2adic.c
-	$(RM) TMPPIPE2
 
-c.intsqrt : d.intsqrt comment5 ansidecl varbrace
+c.intsqrt : d.intsqrt comment5 ansidecl
 	$(COMMENT5) intsqrt.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > intsqrt.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intsqrt.c
-	$(RM) TMPPIPE2
 
-c.intprint : d.intprint comment5 ansidecl varbrace
+c.intprint : d.intprint comment5 ansidecl
 	$(COMMENT5) intprint.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > intprint.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intprint.c
-	$(RM) TMPPIPE2
 
-c.intread : d.intread comment5 ansidecl varbrace
+c.intread : d.intread comment5 ansidecl
 	$(COMMENT5) intread.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > intread.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intread.c
-	$(RM) TMPPIPE2
 
-c.rational : d.rational comment5 ansidecl varbrace
+c.rational : d.rational comment5 ansidecl
 	$(COMMENT5) rational.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > rational.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > rational.c
-	$(RM) TMPPIPE2
 
-c.sfloat : d.sfloat comment5 ansidecl varbrace
+c.sfloat : d.sfloat comment5 ansidecl
 	$(COMMENT5) sfloat.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > sfloat.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > sfloat.c
-	$(RM) TMPPIPE2
 
-c.ffloat : d.ffloat comment5 ansidecl varbrace
+c.ffloat : d.ffloat comment5 ansidecl
 	$(COMMENT5) ffloat.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > ffloat.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > ffloat.c
-	$(RM) TMPPIPE2
 
-c.dfloat : d.dfloat comment5 ansidecl varbrace
+c.dfloat : d.dfloat comment5 ansidecl
 	$(COMMENT5) dfloat.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > dfloat.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > dfloat.c
-	$(RM) TMPPIPE2
 
-c.lfloat : d.lfloat comment5 ansidecl varbrace
+c.lfloat : d.lfloat comment5 ansidecl
 	$(COMMENT5) lfloat.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > lfloat.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > lfloat.c
-	$(RM) TMPPIPE2
 
-c.flo_konv : d.flo_konv comment5 ansidecl varbrace
+c.flo_konv : d.flo_konv comment5 ansidecl
 	$(COMMENT5) flo_konv.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > flo_konv.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > flo_konv.c
-	$(RM) TMPPIPE2
 
-c.flo_rest : d.flo_rest comment5 ansidecl varbrace
+c.flo_rest : d.flo_rest comment5 ansidecl
 	$(COMMENT5) flo_rest.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > flo_rest.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > flo_rest.c
-	$(RM) TMPPIPE2
 
-c.realelem : d.realelem comment5 ansidecl varbrace
+c.realelem : d.realelem comment5 ansidecl
 	$(COMMENT5) realelem.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > realelem.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > realelem.c
-	$(RM) TMPPIPE2
 
-c.realrand : d.realrand comment5 ansidecl varbrace
+c.realrand : d.realrand comment5 ansidecl
 	$(COMMENT5) realrand.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > realrand.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > realrand.c
-	$(RM) TMPPIPE2
 
-c.realtran : d.realtran comment5 ansidecl varbrace
+c.realtran : d.realtran comment5 ansidecl
 	$(COMMENT5) realtran.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > realtran.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > realtran.c
-	$(RM) TMPPIPE2
 
-c.compelem : d.compelem comment5 ansidecl varbrace
+c.compelem : d.compelem comment5 ansidecl
 	$(COMMENT5) compelem.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > compelem.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > compelem.c
-	$(RM) TMPPIPE2
 
-c.comptran : d.comptran comment5 ansidecl varbrace
+c.comptran : d.comptran comment5 ansidecl
 	$(COMMENT5) comptran.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > comptran.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > comptran.c
-	$(RM) TMPPIPE2
 
-c.arilev1c : d.arilev1c comment5 ansidecl varbrace
+c.arilev1c : d.arilev1c comment5 ansidecl
 	$(COMMENT5) arilev1c.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > arilev1c.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > arilev1c.c
-	$(RM) TMPPIPE2
 
-c.arilev1e : d.arilev1e comment5 ansidecl varbrace
+c.arilev1e : d.arilev1e comment5 ansidecl
 	$(COMMENT5) arilev1e.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > arilev1e.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > arilev1e.c
-	$(RM) TMPPIPE2
 
-c.arilev1i : d.arilev1i comment5 ansidecl varbrace
+c.arilev1i : d.arilev1i comment5 ansidecl
 	$(COMMENT5) arilev1i.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > arilev1i.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > arilev1i.c
-	$(RM) TMPPIPE2
 
-c.genclisph : d.genclisph comment5 ansidecl varbrace
+c.genclisph : d.genclisph comment5 ansidecl
 	$(COMMENT5) genclisph.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > genclisph.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > genclisph.c
-	$(RM) TMPPIPE2
 
-c.modules : d.modules comment5 ansidecl varbrace
+c.modules : d.modules comment5 ansidecl
 	$(COMMENT5) modules.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > modules.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > modules.c
-	$(RM) TMPPIPE2
 
-c.noreadline : d.noreadline comment5 ansidecl varbrace
+c.noreadline : d.noreadline comment5 ansidecl
 	$(COMMENT5) noreadline.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > noreadline.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > noreadline.c
-	$(RM) TMPPIPE2
 
 c.ariarm : d.ariarm comment5 
 	$(COMMENT5) ariarm.d ariarm.c
@@ -1398,13 +1175,13 @@ s.control : c.control c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constob
 o.control : c.control c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
 	$(CC) $(CFLAGS) -c c.control
 
-i.encoding : c.encoding c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.nls_ascii c.nls_iso8859_1 c.nls_iso8859_2 c.nls_iso8859_3 c.nls_iso8859_4 c.nls_iso8859_5 c.nls_iso8859_6 c.nls_iso8859_7 c.nls_iso8859_8 c.nls_iso8859_9 c.nls_iso8859_10 c.nls_iso8859_13 c.nls_iso8859_14 c.nls_iso8859_15 c.nls_iso8859_16 c.nls_koi8_r c.nls_koi8_u c.nls_mac_arabic c.nls_mac_centraleurope c.nls_mac_croatian c.nls_mac_cyrillic c.nls_mac_dingbat c.nls_mac_greek c.nls_mac_hebrew c.nls_mac_iceland c.nls_mac_roman c.nls_mac_romania c.nls_mac_symbol c.nls_mac_thai c.nls_mac_turkish c.nls_mac_ukraine c.nls_cp437_ms c.nls_cp437_ibm c.nls_cp737 c.nls_cp775 c.nls_cp850 c.nls_cp852_ms c.nls_cp852_ibm c.nls_cp855 c.nls_cp857 c.nls_cp860_ms c.nls_cp860_ibm c.nls_cp861_ms c.nls_cp861_ibm c.nls_cp862_ms c.nls_cp862_ibm c.nls_cp863_ms c.nls_cp863_ibm c.nls_cp864_ms c.nls_cp864_ibm c.nls_cp865_ms c.nls_cp865_ibm c.nls_cp866 c.nls_cp869_ms c.nls_cp869_ibm c.nls_cp874_ms c.nls_cp874_ibm c.nls_cp1250 c.nls_cp1251 c.nls_cp1252 c.nls_cp1253 c.nls_cp1254 c.nls_cp1255 c.nls_cp1256 c.nls_cp1257 c.nls_cp1258 c.nls_hp_roman8 c.nls_nextstep c.nls_jisx0201
+i.encoding : c.encoding c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.nls_ascii c.nls_iso8859_1 c.nls_iso8859_2 c.nls_iso8859_3 c.nls_iso8859_4 c.nls_iso8859_5 c.nls_iso8859_6 c.nls_iso8859_7 c.nls_iso8859_8 c.nls_iso8859_9 c.nls_iso8859_10 c.nls_iso8859_13 c.nls_iso8859_14 c.nls_iso8859_15 c.nls_koi8_r c.nls_mac_arabic c.nls_mac_centraleurope c.nls_mac_croatian c.nls_mac_cyrillic c.nls_mac_dingbat c.nls_mac_greek c.nls_mac_hebrew c.nls_mac_iceland c.nls_mac_roman c.nls_mac_romania c.nls_mac_symbol c.nls_mac_thai c.nls_mac_turkish c.nls_mac_ukraine c.nls_cp437_ms c.nls_cp437_ibm c.nls_cp737 c.nls_cp775 c.nls_cp850 c.nls_cp852_ms c.nls_cp852_ibm c.nls_cp855 c.nls_cp857 c.nls_cp860_ms c.nls_cp860_ibm c.nls_cp861_ms c.nls_cp861_ibm c.nls_cp862_ms c.nls_cp862_ibm c.nls_cp863_ms c.nls_cp863_ibm c.nls_cp864_ms c.nls_cp864_ibm c.nls_cp865_ms c.nls_cp865_ibm c.nls_cp866 c.nls_cp869_ms c.nls_cp869_ibm c.nls_cp874_ms c.nls_cp874_ibm c.nls_cp1250 c.nls_cp1251 c.nls_cp1252 c.nls_cp1253 c.nls_cp1254 c.nls_cp1255 c.nls_cp1256 c.nls_cp1257 c.nls_cp1258 c.nls_hp_roman8 c.nls_nextstep
 	$(CPP) $(CFLAGS) c.encoding > i.encoding
 
-s.encoding : c.encoding c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.nls_ascii c.nls_iso8859_1 c.nls_iso8859_2 c.nls_iso8859_3 c.nls_iso8859_4 c.nls_iso8859_5 c.nls_iso8859_6 c.nls_iso8859_7 c.nls_iso8859_8 c.nls_iso8859_9 c.nls_iso8859_10 c.nls_iso8859_13 c.nls_iso8859_14 c.nls_iso8859_15 c.nls_iso8859_16 c.nls_koi8_r c.nls_koi8_u c.nls_mac_arabic c.nls_mac_centraleurope c.nls_mac_croatian c.nls_mac_cyrillic c.nls_mac_dingbat c.nls_mac_greek c.nls_mac_hebrew c.nls_mac_iceland c.nls_mac_roman c.nls_mac_romania c.nls_mac_symbol c.nls_mac_thai c.nls_mac_turkish c.nls_mac_ukraine c.nls_cp437_ms c.nls_cp437_ibm c.nls_cp737 c.nls_cp775 c.nls_cp850 c.nls_cp852_ms c.nls_cp852_ibm c.nls_cp855 c.nls_cp857 c.nls_cp860_ms c.nls_cp860_ibm c.nls_cp861_ms c.nls_cp861_ibm c.nls_cp862_ms c.nls_cp862_ibm c.nls_cp863_ms c.nls_cp863_ibm c.nls_cp864_ms c.nls_cp864_ibm c.nls_cp865_ms c.nls_cp865_ibm c.nls_cp866 c.nls_cp869_ms c.nls_cp869_ibm c.nls_cp874_ms c.nls_cp874_ibm c.nls_cp1250 c.nls_cp1251 c.nls_cp1252 c.nls_cp1253 c.nls_cp1254 c.nls_cp1255 c.nls_cp1256 c.nls_cp1257 c.nls_cp1258 c.nls_hp_roman8 c.nls_nextstep c.nls_jisx0201
+s.encoding : c.encoding c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.nls_ascii c.nls_iso8859_1 c.nls_iso8859_2 c.nls_iso8859_3 c.nls_iso8859_4 c.nls_iso8859_5 c.nls_iso8859_6 c.nls_iso8859_7 c.nls_iso8859_8 c.nls_iso8859_9 c.nls_iso8859_10 c.nls_iso8859_13 c.nls_iso8859_14 c.nls_iso8859_15 c.nls_koi8_r c.nls_mac_arabic c.nls_mac_centraleurope c.nls_mac_croatian c.nls_mac_cyrillic c.nls_mac_dingbat c.nls_mac_greek c.nls_mac_hebrew c.nls_mac_iceland c.nls_mac_roman c.nls_mac_romania c.nls_mac_symbol c.nls_mac_thai c.nls_mac_turkish c.nls_mac_ukraine c.nls_cp437_ms c.nls_cp437_ibm c.nls_cp737 c.nls_cp775 c.nls_cp850 c.nls_cp852_ms c.nls_cp852_ibm c.nls_cp855 c.nls_cp857 c.nls_cp860_ms c.nls_cp860_ibm c.nls_cp861_ms c.nls_cp861_ibm c.nls_cp862_ms c.nls_cp862_ibm c.nls_cp863_ms c.nls_cp863_ibm c.nls_cp864_ms c.nls_cp864_ibm c.nls_cp865_ms c.nls_cp865_ibm c.nls_cp866 c.nls_cp869_ms c.nls_cp869_ibm c.nls_cp874_ms c.nls_cp874_ibm c.nls_cp1250 c.nls_cp1251 c.nls_cp1252 c.nls_cp1253 c.nls_cp1254 c.nls_cp1255 c.nls_cp1256 c.nls_cp1257 c.nls_cp1258 c.nls_hp_roman8 c.nls_nextstep
 	$(CC) $(CFLAGS) -S c.encoding
 
-o.encoding : c.encoding c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.nls_ascii c.nls_iso8859_1 c.nls_iso8859_2 c.nls_iso8859_3 c.nls_iso8859_4 c.nls_iso8859_5 c.nls_iso8859_6 c.nls_iso8859_7 c.nls_iso8859_8 c.nls_iso8859_9 c.nls_iso8859_10 c.nls_iso8859_13 c.nls_iso8859_14 c.nls_iso8859_15 c.nls_iso8859_16 c.nls_koi8_r c.nls_koi8_u c.nls_mac_arabic c.nls_mac_centraleurope c.nls_mac_croatian c.nls_mac_cyrillic c.nls_mac_dingbat c.nls_mac_greek c.nls_mac_hebrew c.nls_mac_iceland c.nls_mac_roman c.nls_mac_romania c.nls_mac_symbol c.nls_mac_thai c.nls_mac_turkish c.nls_mac_ukraine c.nls_cp437_ms c.nls_cp437_ibm c.nls_cp737 c.nls_cp775 c.nls_cp850 c.nls_cp852_ms c.nls_cp852_ibm c.nls_cp855 c.nls_cp857 c.nls_cp860_ms c.nls_cp860_ibm c.nls_cp861_ms c.nls_cp861_ibm c.nls_cp862_ms c.nls_cp862_ibm c.nls_cp863_ms c.nls_cp863_ibm c.nls_cp864_ms c.nls_cp864_ibm c.nls_cp865_ms c.nls_cp865_ibm c.nls_cp866 c.nls_cp869_ms c.nls_cp869_ibm c.nls_cp874_ms c.nls_cp874_ibm c.nls_cp1250 c.nls_cp1251 c.nls_cp1252 c.nls_cp1253 c.nls_cp1254 c.nls_cp1255 c.nls_cp1256 c.nls_cp1257 c.nls_cp1258 c.nls_hp_roman8 c.nls_nextstep c.nls_jisx0201
+o.encoding : c.encoding c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.nls_ascii c.nls_iso8859_1 c.nls_iso8859_2 c.nls_iso8859_3 c.nls_iso8859_4 c.nls_iso8859_5 c.nls_iso8859_6 c.nls_iso8859_7 c.nls_iso8859_8 c.nls_iso8859_9 c.nls_iso8859_10 c.nls_iso8859_13 c.nls_iso8859_14 c.nls_iso8859_15 c.nls_koi8_r c.nls_mac_arabic c.nls_mac_centraleurope c.nls_mac_croatian c.nls_mac_cyrillic c.nls_mac_dingbat c.nls_mac_greek c.nls_mac_hebrew c.nls_mac_iceland c.nls_mac_roman c.nls_mac_romania c.nls_mac_symbol c.nls_mac_thai c.nls_mac_turkish c.nls_mac_ukraine c.nls_cp437_ms c.nls_cp437_ibm c.nls_cp737 c.nls_cp775 c.nls_cp850 c.nls_cp852_ms c.nls_cp852_ibm c.nls_cp855 c.nls_cp857 c.nls_cp860_ms c.nls_cp860_ibm c.nls_cp861_ms c.nls_cp861_ibm c.nls_cp862_ms c.nls_cp862_ibm c.nls_cp863_ms c.nls_cp863_ibm c.nls_cp864_ms c.nls_cp864_ibm c.nls_cp865_ms c.nls_cp865_ibm c.nls_cp866 c.nls_cp869_ms c.nls_cp869_ibm c.nls_cp874_ms c.nls_cp874_ibm c.nls_cp1250 c.nls_cp1251 c.nls_cp1252 c.nls_cp1253 c.nls_cp1254 c.nls_cp1255 c.nls_cp1256 c.nls_cp1257 c.nls_cp1258 c.nls_hp_roman8 c.nls_nextstep
 	$(CC) $(CFLAGS) -c c.encoding
 
 i.pathname : c.pathname c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn
@@ -1736,9 +1513,6 @@ fas.edit : lsp.edit lisp mem.interpre
 fas.macros3 : lsp.macros3 lisp mem.interpre
 	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c macros3.lsp
 
-fas.posix : lsp.posix lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c posix.lsp
-
 fas.foreign1 : lsp.foreign1 lisp mem.interpre
 	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c foreign1.lsp
 
@@ -1884,9 +1658,6 @@ stage.lsp.edit : lsp.edit
 stage.lsp.macros3 : lsp.macros3
 	$(LN) lsp.macros3 stage
 
-stage.lsp.posix : lsp.posix
-	$(LN) lsp.posix stage
-
 stage.lsp.foreign1 : lsp.foreign1
 	$(LN) lsp.foreign1 stage
 
@@ -2006,9 +1777,6 @@ stage.fas.edit : stage.lsp.edit lisp mem.lispinit
 
 stage.fas.macros3 : stage.lsp.macros3 lisp mem.lispinit
 	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.macros3.lsp
-
-stage.fas.posix : stage.lsp.posix lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.posix.lsp
 
 stage.fas.foreign1 : stage.lsp.foreign1 lisp mem.lispinit
 	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.foreign1.lsp
@@ -2149,14 +1917,14 @@ distrib : force all manualx
 
 # clean0 is harmless: removes only superfluous things: temporary files.
 clean0 : force
-	-$(RM) core c.ansidecl c.varbrace c.ccmp2c c.modprep genclisph wgenclisph linkkit c.text text
+	-$(RM) core c.ansidecl c.ccmp2c c.modprep genclisph wgenclisph linkkit c.text text
 
 # clean1 removes everything that becomes obsolete once lisp is recompiled
 # without changing the bytecode format and the tables in
 # constobj.d, constpack.d, constsym.d, subr.d, fsubr.d, pseudofun.d.
 clean1 : clean0
 	-$(RM) h.lispbibl h.clisp *.i *.s *.o *.a lisp clisp-link makevars stage.* suite.*
-	-$(RM) libsigsegv.* libiconv.* libavcall.* libcallback.*
+	-$(RM) libsigsegv.* libavcall.* libcallback.*
 	-rmdir stage
 	-rmdir suite
 	-$(RM) README README_de README_es 1.clisp man.clisp dvi.clisp html.clisp html.impnotes c.clisp distmakefile $(TXTFILES) clreadline.3 man.clreadline html.clreadline dvi.clreadline dvi.readline

@@ -37,7 +37,7 @@ options:
        --without-unicode       no Unicode character set, only 8-bit characters
        --with-dynamic-ffi      a foreign language interface
        --with-dynamic-modules  dynamic loading of foreign language modules
-       --with-export-syscalls  export some POSIX functionality to Lisp
+       --with-export-syscalls  export some UNIX system calls to Lisp
        --with-module=wildcard
        --with-module=regexp
        --with-module=postgresql632
@@ -315,7 +315,6 @@ case $# in
      LIBS='@LIBS@'                       # list of system libraries
      LIBTERMCAP='@LIBTERMCAP@'           # either '-ltermcap' or '-lncurses'
      LIBDL='@LIBDL@'                     # either '-ldl' or ''
-     LIBICONV='@LIBICONV@'               # either '-liconv' or ''
      X_INCLUDES='@X_INCLUDES@'           # either '-I/usr/somewhere/include' or ''
      X_LIBS='@X_LIBS@'                   # either '-L/usr/somewhere/lib -lX11' or ''
      host='@host@'                       # something like 'sparc-sun-sunos4'
@@ -441,7 +440,6 @@ case $# in
      LIBS=''
      LIBTERMCAP='-ltermcap'
      LIBDL=''
-     LIBICONV=''
      X_INCLUDES=''
      X_LIBS=''
      shift 2
@@ -688,7 +686,7 @@ fi
 OS_INCLUDES=''
 if [ $TSYS = master -o $TOS = unix ] ; then
   OS_INCLUDES=$OS_INCLUDES' unix'
-  LIBS=$LIBS' '$LIBTERMCAP' '$LIBDL' '$LIBICONV
+  LIBS=$LIBS' '$LIBTERMCAP' '$LIBDL
 fi
 if [ $TSYS = master -o $TOS = amiga ] ; then
   OS_INCLUDES=$OS_INCLUDES' amiga'
@@ -1152,9 +1150,9 @@ if [ "$cpu" = i386 -o $TSYS = sun4 ] && [ $CROSS = false ] ; then
       fi
       BINARY_DISTRIB=1
     ;;
-    hpux*)
-      # Newer versions of HP-UX (HP-UX 10.20 and HP-UX 11) ship with no ANSI C
-      # compiler, only with K&R "cc" whose only use may be to bootstrap gcc.
+    hpux11*)
+      # Newer versions of HP-UX (HP-UX 11) ship with no ANSI C compiler, only
+      # with K&R "cc" whose only use may be to bootstrap gcc.
       BINARY_DISTRIB=1
     ;;
   esac
@@ -1173,8 +1171,7 @@ if test -z "$with_nounicode"; then
 fi
 
 if test -n "$with_export_syscalls"; then
-  XCFLAGS="$XCFLAGS -DEXPORT_SYSCALLS"
-  LIBS=$LIBS' -lm'
+  XCFLAGS="$XCFLAGS -DEXPORT_SYSCALLS";
 fi
 
 if test -n "$with_dynamic_ffi"; then
@@ -1293,20 +1290,6 @@ if test -n "$with_no_termcap_ncurses" ; then
   XCFLAGS=$XCFLAGS' -DNO_TERMCAP_NCURSES'
 fi
 
-USE_LIBICONV=''
-if [ $HOS = unix -o $HOS = win32 ] ; then
-  USE_LIBICONV=yes
-  if [ $HOS = unix ] ; then
-    # use symbolic link
-    XCL_ICONVLIB='libiconv.a'
-    FILES=$FILES' libiconv.a'
-  fi
-  if [ $HOS = win32 ] ; then
-    XCL_ICONVLIB='iconv.lib'
-  fi
-  LIBS=$XCL_ICONVLIB' '$LIBS
-fi
-
 USE_SIGSEGV=''
 if [ $HOS = unix -o $HOS = win32 ] ; then
   USE_SIGSEGV=yes
@@ -1345,9 +1328,6 @@ fi
 if [ $TSYS = master -o $TOS = acorn ] ; then
   CPARTS=$CPARTS' acornaux acornsig'
 fi
-if test -n "$with_export_syscalls"; then
-  CPARTS=$CPARTS' posixmisc';
-fi
 
 EVERY_INCLUDES='lispbibl fsubr subr pseudofun constsym constobj '$OS_INCLUDES
 
@@ -1359,9 +1339,6 @@ done
 EVERY_INCLUDES_H=''
 if [ -n "$GETTEXTLIB" ] ; then
   EVERY_INCLUDES_H=$EVERY_INCLUDES_H' libintl.h'
-fi
-if [ -n "$USE_LIBICONV" ] ; then
-  EVERY_INCLUDES_H=$EVERY_INCLUDES_H' iconv.h'
 fi
 if [ -n "$USE_SIGSEGV" ] ; then
   EVERY_INCLUDES_H=$EVERY_INCLUDES_H' sigsegv.h'
@@ -1386,8 +1363,8 @@ if [ -z "$with_nounicode" ] ; then
   NLS_INCLUDES=$NLS_INCLUDES' nls_iso8859_4 nls_iso8859_5 nls_iso8859_6'
   NLS_INCLUDES=$NLS_INCLUDES' nls_iso8859_7 nls_iso8859_8 nls_iso8859_9'
   NLS_INCLUDES=$NLS_INCLUDES' nls_iso8859_10 nls_iso8859_13 nls_iso8859_14'
-  NLS_INCLUDES=$NLS_INCLUDES' nls_iso8859_15 nls_iso8859_16'
-  NLS_INCLUDES=$NLS_INCLUDES' nls_koi8_r nls_koi8_u'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_iso8859_15'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_koi8_r'
   NLS_INCLUDES=$NLS_INCLUDES' nls_mac_arabic nls_mac_centraleurope'
   NLS_INCLUDES=$NLS_INCLUDES' nls_mac_croatian nls_mac_cyrillic nls_mac_dingbat'
   NLS_INCLUDES=$NLS_INCLUDES' nls_mac_greek nls_mac_hebrew nls_mac_iceland'
@@ -1406,7 +1383,6 @@ if [ -z "$with_nounicode" ] ; then
   NLS_INCLUDES=$NLS_INCLUDES' nls_cp1258'
   NLS_INCLUDES=$NLS_INCLUDES' nls_hp_roman8'
   NLS_INCLUDES=$NLS_INCLUDES' nls_nextstep'
-  NLS_INCLUDES=$NLS_INCLUDES' nls_jisx0201'
 fi
 
 ERROR_INCLUDES=''
@@ -1425,9 +1401,6 @@ fi
 
 LISPARIT_SUBFILES=' aridecl arilev0 arilev1 intelem intlog intplus intcomp intbyte intmal intdiv intgcd int2adic intsqrt intprint intread rational'
 LISPARIT_SUBFILES=$LISPARIT_SUBFILES' sfloat ffloat dfloat lfloat flo_konv flo_rest realelem realrand realtran compelem comptran'
-if test -n "$with_export_syscalls"; then
-  LISPARIT_SUBFILES=$LISPARIT_SUBFILES' posixmath';
-fi
 LISPARIT_INCLUDES=$LISPARIT_SUBFILES' arilev1c arilev1e arilev1i'
 
 EXTRA_CPARTS='noreadline'
@@ -1506,7 +1479,7 @@ LPARTS='        init defseq backquot defmacro macros1 macros2 defs1 timezone'
 LPARTS=$LPARTS' places floatpri type defstruc format savemem trace compiler'
 LPARTS=$LPARTS' disassem defs2 loop clos conditio gstream xcharin keyboard'
 LPARTS=$LPARTS' screen runprog query reploop dribble complete describe room'
-LPARTS=$LPARTS' edit macros3 posix foreign1 defs3 german french spanish config'
+LPARTS=$LPARTS' edit macros3 foreign1 defs3 german french spanish config'
 
 DOC='LISP-tutorial CLOS-guide editors'
 
@@ -1644,9 +1617,6 @@ if [ -n "$USE_GETTEXT" ] ; then
   echol "datadir = \$(prefix)/@DATADIRNAME@" | sed -e "$gettext_datadirname_sedcommand"
   echol "localedir = \$(datadir)/locale"
 fi
-echol "# The value of following variable is prepended to all the paths for"
-echol "# installation. This is useful when preparing a binary distribution."
-echol "install_root ="
 echol
 echol     "# List of add-on modules:"
 echol     "# queens               the queens function as a separate module"
@@ -1935,11 +1905,13 @@ if [ $XCC_ANSI = false ] ; then
   echo "Pre-ANSI-C compilers are not supported." 1>&2
   exit 1
 fi
-XDECL_FILTER="| \$(ANSIDECL) | \$(VARBRACE)"
-XDECL_DEPENDENCIES=" ansidecl${HEXE} varbrace${HEXE}"
+NEED_ANSIDECL=true
+XDECL_FILTER="| \$(ANSIDECL)"
+XDECL_DEPENDENCIES=" ansidecl${HEXE}"
 
-echol "ANSIDECL = ${HERE}ansidecl"
-echol "VARBRACE = ${HERE}varbrace"
+if [ $NEED_ANSIDECL = true ] ; then
+  echol "ANSIDECL = ${HERE}ansidecl"
+fi
 if [ $CC_NEED_CCPAUX = true ] ; then
   CCPAUX='ccpaux'$HEXE
   CCPAUX_FILTER=' | '$HERE'ccpaux'
@@ -2032,7 +2004,6 @@ if [ $NEED_CCPAUX = true ] ; then
 fi
 UTILS=$UTILS' comment5'
 UTILS=$UTILS' ansidecl'
-UTILS=$UTILS' varbrace'
 if [ $XCC_NEED_DEEMA = true -a $HOS != unix ] ; then
   UTILS=$UTILS' deema'
 fi
@@ -2131,7 +2102,7 @@ for util in $UTILS ; do
     echol
     OBSOLETE=$OBSOLETE" ${util}.c"
   fi
-  if [ $util = varbrace -o $util = ccmp2c -o $util = modprep ] ; then
+  if [ $util = ccmp2c -o $util = modprep ] ; then
     flags=''
     if [ $util = ccmp2c ] ; then
       flags=' -I.'
@@ -2560,22 +2531,6 @@ if [ -n "$USE_TERMCAP" ] ; then
   echol
 
 fi
-
-for f in libiconv; do
-  if [ $HOS = unix ] ; then
-    echol "iconv.h libiconv.a :"
-    echotab "builddir=\"\`pwd\`\"; cd $f && \$(MAKE) && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
-    echol
-  fi
-  if [ $HOS = win32 ] ; then
-    echol "iconv.h : ${SRCTOPDIR_M}$f${NEXT_M}iconv.h"
-    echotab "-\$(LN) ${SRCTOPDIR_}$f${NEXT_}iconv.h iconv.h"
-    echol
-    echol "iconv.lib : ${SRCTOPDIR_M}$f${NEXT_M}iconv.lib"
-    echotab "-\$(LN) ${SRCTOPDIR_}$f${NEXT_}iconv.lib iconv.lib"
-    echol
-  fi
-done
 
 for f in sigsegv; do
   if [ $HOS = unix ] ; then
@@ -3109,97 +3064,97 @@ if [ $CROSS = false ] ; then
     echodummyrule install
     echol
     echol "installdirs : force"
-    echotab "if [ ! -d \$(install_root)\$(prefix) ] ; then mkdir \$(install_root)\$(prefix) ; fi"
-    echotab "if [ ! -d \$(install_root)\$(exec_prefix) ] ; then mkdir \$(install_root)\$(exec_prefix) ; fi"
-    echotab "if [ ! -d \$(install_root)\$(libdir) ] ; then mkdir \$(install_root)\$(libdir) ; fi"
-    echotab "if [ ! -d \$(install_root)\$(lisplibdir) ] ; then mkdir \$(install_root)\$(lisplibdir) ; fi"
-    echotab "if [ ! -d \$(install_root)\$(lisplibdir)/data ] ; then mkdir \$(install_root)\$(lisplibdir)/data ; fi"
-    echotab "if [ ! -d \$(install_root)\$(lisplibdir)/linkkit ] ; then mkdir \$(install_root)\$(lisplibdir)/linkkit ; fi"
-    echotab "if [ ! -d \$(install_root)\$(lisplibdir)/base ] ; then mkdir \$(install_root)\$(lisplibdir)/base ; fi"
-    echotab "if [ ! -d \$(install_root)\$(lisplibdir)/full ] ; then mkdir \$(install_root)\$(lisplibdir)/full ; fi"
-    echotab "if [ ! -d \$(install_root)\$(bindir) ] ; then mkdir \$(install_root)\$(bindir) ; fi"
+    echotab "if [ ! -d \$(prefix) ] ; then mkdir \$(prefix) ; fi"
+    echotab "if [ ! -d \$(exec_prefix) ] ; then mkdir \$(exec_prefix) ; fi"
+    echotab "if [ ! -d \$(libdir) ] ; then mkdir \$(libdir) ; fi"
+    echotab "if [ ! -d \$(lisplibdir) ] ; then mkdir \$(lisplibdir) ; fi"
+    echotab "if [ ! -d \$(lisplibdir)/data ] ; then mkdir \$(lisplibdir)/data ; fi"
+    echotab "if [ ! -d \$(lisplibdir)/linkkit ] ; then mkdir \$(lisplibdir)/linkkit ; fi"
+    echotab "if [ ! -d \$(lisplibdir)/base ] ; then mkdir \$(lisplibdir)/base ; fi"
+    echotab "if [ ! -d \$(lisplibdir)/full ] ; then mkdir \$(lisplibdir)/full ; fi"
+    echotab "if [ ! -d \$(bindir) ] ; then mkdir \$(bindir) ; fi"
     if [ -n "$USE_GETTEXT" ] ; then
-      echotab "cd gettext/po && \$(MAKE) installdirs prefix='\$(install_root)\$(prefix)' exec_prefix='\$(install_root)\$(exec_prefix)'"
+      echotab "cd gettext/po && \$(MAKE) installdirs prefix='\$(prefix)' exec_prefix='\$(exec_prefix)'"
     fi
-    echotab "if [ ! -d \$(install_root)\$(mandir) ] ; then mkdir \$(install_root)\$(mandir) ; fi"
-    echotab "if [ ! -d \$(install_root)\$(mandir)/man1 ] ; then mkdir \$(install_root)\$(mandir)/man1 ; fi"
+    echotab "if [ ! -d \$(mandir) ] ; then mkdir \$(mandir) ; fi"
+    echotab "if [ ! -d \$(mandir)/man1 ] ; then mkdir \$(mandir)/man1 ; fi"
     if [ $TERMINAL = readline ] ; then
-      echotab "if [ ! -d \$(install_root)\$(mandir)/man3 ] ; then mkdir \$(install_root)\$(mandir)/man3 ; fi"
+      echotab "if [ ! -d \$(mandir)/man3 ] ; then mkdir \$(mandir)/man3 ; fi"
     fi
     case "$fsstnd" in
       gnu_ext)
-        echotab "if [ ! -d \$(install_root)\$(exec_prefix)/share ] ; then mkdir \$(install_root)\$(exec_prefix)/share ; fi"
-        echotab "if [ ! -d \$(install_root)\$(htmldir) ] ; then mkdir \$(install_root)\$(htmldir) ; fi"
-        echotab "if [ ! -d \$(install_root)\$(dvidir) ] ; then mkdir \$(install_root)\$(dvidir) ; fi"
+        echotab "if [ ! -d \$(exec_prefix)/share ] ; then mkdir \$(exec_prefix)/share ; fi"
+        echotab "if [ ! -d \$(htmldir) ] ; then mkdir \$(htmldir) ; fi"
+        echotab "if [ ! -d \$(dvidir) ] ; then mkdir \$(dvidir) ; fi"
         ;;
     esac
-    echotab "if [ ! -d \$(install_root)\$(docdir) ] ; then mkdir \$(install_root)\$(docdir) ; fi"
-    echotab "if [ ! -d \$(install_root)\$(lispdocdir) ] ; then mkdir \$(install_root)\$(lispdocdir) ; fi"
-    echotab "if [ ! -d \$(install_root)\$(lispdocdir)/doc ] ; then mkdir \$(install_root)\$(lispdocdir)/doc ; fi"
+    echotab "if [ ! -d \$(docdir) ] ; then mkdir \$(docdir) ; fi"
+    echotab "if [ ! -d \$(lispdocdir) ] ; then mkdir \$(lispdocdir) ; fi"
+    echotab "if [ ! -d \$(lispdocdir)/doc ] ; then mkdir \$(lispdocdir)/doc ; fi"
     echol
     echol "install-bin : lisp${LEXE} lispinit.mem clisp.c force"
-    echotab "if [ ! -d \$(install_root)\$(prefix) ] ; then mkdir \$(install_root)\$(prefix) ; fi"
-    echotab "if [ ! -d \$(install_root)\$(exec_prefix) ] ; then mkdir \$(install_root)\$(exec_prefix) ; fi"
-    echotab "if [ ! -d \$(install_root)\$(libdir) ] ; then mkdir \$(install_root)\$(install_root)\$(libdir) ; fi"
-    echotab "if [ ! -d \$(install_root)\$(lisplibdir) ] ; then mkdir \$(install_root)\$(lisplibdir) ; fi"
-    echotab "if [ ! -d \$(install_root)\$(lisplibdir)/data ] ; then mkdir \$(install_root)\$(lisplibdir)/data ; fi"
-    echotab "\$(INSTALL_DATA) data/UnicodeData.txt \$(install_root)\$(lisplibdir)/data/UnicodeData.txt"
-    echotab "if [ ! -d \$(install_root)\$(lisplibdir)/linkkit ] ; then mkdir \$(install_root)\$(lisplibdir)/linkkit ; fi"
-    echotab "(cd \$(install_root)\$(lisplibdir) && rm -rf base full)"
-    echotab "mkdir \$(install_root)\$(lisplibdir)/base"
-    echotab "mkdir \$(install_root)\$(lisplibdir)/full"
-    echotab "for f in clisp-link linkkit/modules.d linkkit/modules.c linkkit/clisp.h base/* full/*; do cp -p \$\$f \$(install_root)\$(lisplibdir)/\$\$f; done"
+    echotab "if [ ! -d \$(prefix) ] ; then mkdir \$(prefix) ; fi"
+    echotab "if [ ! -d \$(exec_prefix) ] ; then mkdir \$(exec_prefix) ; fi"
+    echotab "if [ ! -d \$(libdir) ] ; then mkdir \$(libdir) ; fi"
+    echotab "if [ ! -d \$(lisplibdir) ] ; then mkdir \$(lisplibdir) ; fi"
+    echotab "if [ ! -d \$(lisplibdir)/data ] ; then mkdir \$(lisplibdir)/data ; fi"
+    echotab "\$(INSTALL_DATA) data/UnicodeData.txt \$(lisplibdir)/data/UnicodeData.txt"
+    echotab "if [ ! -d \$(lisplibdir)/linkkit ] ; then mkdir \$(lisplibdir)/linkkit ; fi"
+    echotab "(cd \$(lisplibdir) && rm -rf base full)"
+    echotab "mkdir \$(lisplibdir)/base"
+    echotab "mkdir \$(lisplibdir)/full"
+    echotab "for f in clisp-link linkkit/modules.d linkkit/modules.c linkkit/clisp.h base/* full/*; do cp -p \$\$f \$(lisplibdir)/\$\$f; done"
     # Don't strip the executables, otherwise (disassemble #'cons) won't work.
-    # echotab "strip \$(install_root)\$(lisplibdir)/base/lisp${LEXE}"
+    # echotab "strip \$(lisplibdir)/base/lisp${LEXE}"
     if [ -n "$USE_GETTEXT" ] ; then
-      echotab "cd gettext/po && \$(MAKE) install prefix='\$(install_root)\$(prefix)' exec_prefix='\$(install_root)\$(exec_prefix)'"
+      echotab "cd gettext/po && \$(MAKE) install prefix='\$(prefix)' exec_prefix='\$(exec_prefix)'"
       localeflags=" -B \$(lisplibdir) -N \$(localedir)"
     else
       localeflags=" -B \$(lisplibdir)"
     fi
-    echotab "if [ ! -d \$(install_root)\$(bindir) ] ; then mkdir \$(install_root)\$(bindir) ; fi"
-    echotab "\$(CC) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c -o \$(install_root)\$(bindir)/clisp"
+    echotab "if [ ! -d \$(bindir) ] ; then mkdir \$(bindir) ; fi"
+    echotab "\$(CC) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c -o \$(bindir)/clisp"
     echol
     if [ $TERMINAL = readline ] ; then
       echol "install-man : clisp.1${manual_dvi} clisp.html clreadline.3 clreadline.html clreadline.dvi force"
     else
       echol "install-man : clisp.1${manual_dvi} clisp.html force"
     fi
-    echotab "if [ ! -d \$(install_root)\$(prefix) ] ; then mkdir \$(install_root)\$(prefix) ; fi"
-    echotab "if [ ! -d \$(install_root)\$(exec_prefix) ] ; then mkdir \$(install_root)\$(exec_prefix) ; fi"
-    echotab "if [ ! -d \$(install_root)\$(mandir) ] ; then mkdir \$(install_root)\$(mandir) ; fi"
-    echotab "if [ ! -d \$(install_root)\$(mandir)/man1 ] ; then mkdir \$(install_root)\$(mandir)/man1 ; fi"
-    echotab "\$(INSTALL_DATA) clisp.1 \$(install_root)\$(mandir)/man1/clisp.1"
+    echotab "if [ ! -d \$(prefix) ] ; then mkdir \$(prefix) ; fi"
+    echotab "if [ ! -d \$(exec_prefix) ] ; then mkdir \$(exec_prefix) ; fi"
+    echotab "if [ ! -d \$(mandir) ] ; then mkdir \$(mandir) ; fi"
+    echotab "if [ ! -d \$(mandir)/man1 ] ; then mkdir \$(mandir)/man1 ; fi"
+    echotab "\$(INSTALL_DATA) clisp.1 \$(mandir)/man1/clisp.1"
     if [ $TERMINAL = readline ] ; then
-      echotab "if [ ! -d \$(install_root)\$(mandir)/man3 ] ; then mkdir \$(install_root)\$(mandir)/man3 ; fi"
-      echotab "\$(INSTALL_DATA) clreadline.3 \$(install_root)\$(mandir)/man3/clreadline.3"
+      echotab "if [ ! -d \$(mandir)/man3 ] ; then mkdir \$(mandir)/man3 ; fi"
+      echotab "\$(INSTALL_DATA) clreadline.3 \$(mandir)/man3/clreadline.3"
     fi
     case "$fsstnd" in
       gnu_ext)
-        echotab "if [ ! -d \$(install_root)\$(exec_prefix)/share ] ; then mkdir \$(install_root)\$(exec_prefix)/share ; fi"
-        echotab "if [ ! -d \$(install_root)\$(htmldir) ] ; then mkdir \$(install_root)\$(htmldir) ; fi"
-        echotab "\$(INSTALL_DATA) clisp.html \$(install_root)\$(htmldir)/clisp.html"
+        echotab "if [ ! -d \$(exec_prefix)/share ] ; then mkdir \$(exec_prefix)/share ; fi"
+        echotab "if [ ! -d \$(htmldir) ] ; then mkdir \$(htmldir) ; fi"
+        echotab "\$(INSTALL_DATA) clisp.html \$(htmldir)/clisp.html"
         if [ $TERMINAL = readline ] ; then
-          echotab "\$(INSTALL_DATA) clreadline.html \$(install_root)\$(htmldir)/clreadline.html"
+          echotab "\$(INSTALL_DATA) clreadline.html \$(htmldir)/clreadline.html"
         fi
-        echotab "if [ ! -d \$(install_root)\$(dvidir) ] ; then mkdir \$(install_root)\$(dvidir) ; fi"
+        echotab "if [ ! -d \$(dvidir) ] ; then mkdir \$(dvidir) ; fi"
         if test -n "$GROFF"; then
-          echotab "\$(INSTALL_DATA) clisp.dvi \$(install_root)\$(dvidir)/clisp.dvi"
+          echotab "\$(INSTALL_DATA) clisp.dvi \$(dvidir)/clisp.dvi"
         fi
         if [ $TERMINAL = readline ] ; then
-          echotab "\$(INSTALL_DATA) clreadline.dvi \$(install_root)\$(dvidir)/clreadline.dvi"
+          echotab "\$(INSTALL_DATA) clreadline.dvi \$(dvidir)/clreadline.dvi"
         fi
         ;;
     esac
     echol
     echol "install-doc : \$(READMES) \$(MANUALS)${manual_dvi} force"
-    echotab "if [ ! -d \$(install_root)\$(prefix) ] ; then mkdir \$(install_root)\$(prefix) ; fi"
-    echotab "if [ ! -d \$(install_root)\$(exec_prefix) ] ; then mkdir \$(install_root)\$(exec_prefix) ; fi"
-    echotab "if [ ! -d \$(install_root)\$(docdir) ] ; then mkdir \$(install_root)\$(docdir) ; fi"
-    echotab "if [ ! -d \$(install_root)\$(lispdocdir) ] ; then mkdir \$(install_root)\$(lispdocdir) ; fi"
-    echotab "if [ ! -d \$(install_root)\$(lispdocdir)/doc ] ; then mkdir \$(install_root)\$(lispdocdir)/doc ; fi"
-    echotab "\$(INSTALL_DATA) \$(READMES) \$(install_root)\$(lispdocdir)/"
-    echotab "\$(INSTALL_DATA) \$(MANUALS)${manual_dvi} \$(install_root)\$(lispdocdir)/doc/"
+    echotab "if [ ! -d \$(prefix) ] ; then mkdir \$(prefix) ; fi"
+    echotab "if [ ! -d \$(exec_prefix) ] ; then mkdir \$(exec_prefix) ; fi"
+    echotab "if [ ! -d \$(docdir) ] ; then mkdir \$(docdir) ; fi"
+    echotab "if [ ! -d \$(lispdocdir) ] ; then mkdir \$(lispdocdir) ; fi"
+    echotab "if [ ! -d \$(lispdocdir)/doc ] ; then mkdir \$(lispdocdir)/doc ; fi"
+    echotab "\$(INSTALL_DATA) \$(READMES) \$(lispdocdir)/"
+    echotab "\$(INSTALL_DATA) \$(MANUALS)${manual_dvi} \$(lispdocdir)/doc/"
     echol
     echol
     echol "installcheck : ${TESTSDIR} force"
@@ -3210,34 +3165,34 @@ if [ $CROSS = false ] ; then
     echodummyrule uninstall
     echol
     echol "uninstall-bin : force"
-    echotab "\$(RM) \$(install_root)\$(lisplibdir)/base/lisp${LEXE}"
-    echotab "\$(RM) \$(install_root)\$(lisplibdir)/base/lispinit.mem"
-    echotab "\$(RM) \$(install_root)\$(lisplibdir)/full/lisp${LEXE}"
-    echotab "\$(RM) \$(install_root)\$(lisplibdir)/full/lispinit.mem"
-    echotab "\$(RM) \$(install_root)\$(bindir)/clisp"
+    echotab "\$(RM) \$(lisplibdir)/base/lisp${LEXE}"
+    echotab "\$(RM) \$(lisplibdir)/base/lispinit.mem"
+    echotab "\$(RM) \$(lisplibdir)/full/lisp${LEXE}"
+    echotab "\$(RM) \$(lisplibdir)/full/lispinit.mem"
+    echotab "\$(RM) \$(bindir)/clisp"
     if [ -n "$USE_GETTEXT" ] ; then
-      echotab "cd gettext/po && \$(MAKE) uninstall prefix='\$(install_root)\$(prefix)' exec_prefix='\$(install_root)\$(exec_prefix)'"
+      echotab "cd gettext/po && \$(MAKE) uninstall prefix='\$(prefix)' exec_prefix='\$(exec_prefix)'"
     fi
     echol
     echol "uninstall-man : force"
-    echotab "\$(RM) \$(install_root)\$(mandir)/man1/clisp.1"
+    echotab "\$(RM) \$(mandir)/man1/clisp.1"
     if [ $TERMINAL = readline ] ; then
-      echotab "\$(RM) \$(install_root)\$(mandir)/man3/clreadline.3"
+      echotab "\$(RM) \$(mandir)/man3/clreadline.3"
     fi
     case "$fsstnd" in
       gnu_ext)
-        echotab "\$(RM) \$(install_root)\$(htmldir)/clisp.html"
+        echotab "\$(RM) \$(htmldir)/clisp.html"
         if [ $TERMINAL = readline ] ; then
-          echotab "\$(RM) \$(install_root)\$(htmldir)/clreadline.html"
+          echotab "\$(RM) \$(htmldir)/clreadline.html"
         fi
-        echotab "\$(RM) \$(install_root)\$(dvidir)/clisp.dvi"
+        echotab "\$(RM) \$(dvidir)/clisp.dvi"
         if [ $TERMINAL = readline ] ; then
-          echotab "\$(RM) \$(install_root)\$(dvidir)/clreadline.dvi"
+          echotab "\$(RM) \$(dvidir)/clreadline.dvi"
         fi
         ;;
     esac
-    echotab "for f in \$(READMES); do \$(RM) \$(install_root)\$(lispdocdir)/\$\$f; done"
-    echotab "for f in \$(MANUALS)${manual_dvi}; do \$(RM) \$(install_root)\$(lispdocdir)/doc/\$\$f; done"
+    echotab "for f in \$(READMES); do \$(RM) \$(lispdocdir)/\$\$f; done"
+    echotab "for f in \$(MANUALS)${manual_dvi}; do \$(RM) \$(lispdocdir)/doc/\$\$f; done"
     echol
     echol
   fi
@@ -3246,36 +3201,36 @@ if [ $CROSS = false ] ; then
     echodummyrule install
     echol
     echol "installdirs : force"
-    echotab "-mkdir \$(install_root)\$(libdir)"
-    echotab "-mkdir \$(install_root)\$(lisplibdir)"
-    echotab "-mkdir \$(install_root)\$(bindir)"
+    echotab "-mkdir \$(libdir)"
+    echotab "-mkdir \$(lisplibdir)"
+    echotab "-mkdir \$(bindir)"
     echol
     echol "install-bin : lisp${LEXE} lispinit.mem force"
-    echotab "-mkdir \$(install_root)\$(libdir)"
-    echotab "-mkdir \$(install_root)\$(lisplibdir)"
-    echotab "\$(INSTALL_DATA) UnicodeData.txt \$(install_root)\$(lisplibdir)\UnicodeData.txt"
-    echotab "\$(INSTALL_PROGRAM) lisp${LEXE} \$(install_root)\$(lisplibdir)\lisp${LEXE}"
-    echotab "\$(INSTALL_DATA) lispinit.mem \$(install_root)\$(lisplibdir)\lispinit.mem"
-    echotab "-mkdir \$(install_root)\$(bindir)"
+    echotab "-mkdir \$(libdir)"
+    echotab "-mkdir \$(lisplibdir)"
+    echotab "\$(INSTALL_DATA) UnicodeData.txt \$(lisplibdir)\UnicodeData.txt"
+    echotab "\$(INSTALL_PROGRAM) lisp${LEXE} \$(lisplibdir)\lisp${LEXE}"
+    echotab "\$(INSTALL_DATA) lispinit.mem \$(lisplibdir)\lispinit.mem"
+    echotab "-mkdir \$(bindir)"
     if [ $HOS = dos ] ; then
-      echotab "echo \$(lisplibdir)\lisp${LEXE} -M \$(lisplibdir)\lispinit.mem %1 %2 %3 %4 %5 %6 %7 %8 %9 > \$(install_root)\$(bindir)\clisp.bat"
+      echotab "echo \$(lisplibdir)\lisp${LEXE} -M \$(lisplibdir)\lispinit.mem %1 %2 %3 %4 %5 %6 %7 %8 %9 > \$(bindir)\clisp.bat"
     fi
     if [ $HOS = os2 ] ; then
-      echotab "echo \$(lisplibdir)\lisp${LEXE} -M \$(lisplibdir)\lispinit.mem %1 %2 %3 %4 %5 %6 %7 %8 %9 > \$(install_root)\$(bindir)\clisp.cmd"
+      echotab "echo \$(lisplibdir)\lisp${LEXE} -M \$(lisplibdir)\lispinit.mem %1 %2 %3 %4 %5 %6 %7 %8 %9 > \$(bindir)\clisp.cmd"
     fi
     echol
     echol "uninstall : uninstall-bin"
     echodummyrule uninstall
     echol
     echol "uninstall-bin : force"
-    echotab "\$(RM) \$(install_root)\$(lisplibdir)/UnicodeData.txt"
-    echotab "\$(RM) \$(install_root)\$(lisplibdir)/lisp${LEXE}"
-    echotab "\$(RM) \$(install_root)\$(lisplibdir)/lispinit.mem"
+    echotab "\$(RM) \$(lisplibdir)/UnicodeData.txt"
+    echotab "\$(RM) \$(lisplibdir)/lisp${LEXE}"
+    echotab "\$(RM) \$(lisplibdir)/lispinit.mem"
     if [ $HOS = dos ] ; then
-      echotab "\$(RM) \$(install_root)\$(bindir)/clisp.bat"
+      echotab "\$(RM) \$(bindir)/clisp.bat"
     fi
     if [ $HOS = os2 ] ; then
-      echotab "\$(RM) \$(install_root)\$(bindir)/clisp.cmd"
+      echotab "\$(RM) \$(bindir)/clisp.cmd"
     fi
     echol
   fi
@@ -3477,11 +3432,11 @@ clean1 : clean0
 !!
 if [ $HOS = win32 ] ; then
 cat <<!!
-	-\$(RM) sigsegv.lib iconv.lib avcall.lib callback.lib
+	-\$(RM) sigsegv.lib avcall.lib callback.lib
 !!
 else
 cat <<!!
-	-\$(RM) libsigsegv.* libiconv.* libavcall.* libcallback.*
+	-\$(RM) libsigsegv.* libavcall.* libcallback.*
 !!
 fi
 cat <<!!
@@ -3527,11 +3482,6 @@ cat <<!!
 	-\$(RM) libintl.h
 !!
 fi
-fi
-if [ -n "$USE_LIBICONV" ] ; then
-cat <<!!
-	-\$(RM) iconv.h
-!!
 fi
 if [ -n "$USE_SIGSEGV" ] ; then
 cat <<!!

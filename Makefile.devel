@@ -121,7 +121,7 @@ src/oldreadline/Makefile.go32 : src/oldreadline/Makefile.in
 	sed -e 's/@srcdir@/./' -e 's/@CC@/gcc/' -e 's/@CFLAGS@/-g -O/' -e 's/@LDFLAGS@//' -e 's/@DEFS@/-DHAVE_CONFIG_H/' -e 's/@ALLOCA@//' -e 's/@RANLIB@/ranlib/' -e 's/@LIBS@//' -e 's/@LIBTERMCAP@/-ltermcap/' -e 's/^RM =.*$$/RM = del/' -e 's/^CP =.*$$/CP = copy/' -e 's/^MV =.*$$/MV = ren/' -e 's/ config.h//' -e 's/\(^	.*\)\$$(OBJECTS)/\1@objects/' < src/oldreadline/Makefile.in > src/oldreadline/Makefile.go32
 
 
-CONFIGURES = src/configure src/oldoldreadline/configure src/oldreadline/configure src/gettext/configure modules/wildcard/configure modules/regexp/configure modules/clx/new-clx/configure ffcall/configure ffcall/avcall/configure ffcall/vacall/configure ffcall/trampoline/configure ffcall/callback/configure ffcall/callback/vacall_r/configure ffcall/callback/trampoline_r/configure libiconv/configure sigsegv/configure utils/hln/configure
+CONFIGURES = src/configure src/oldoldreadline/configure src/oldreadline/configure src/gettext/configure modules/wildcard/configure modules/regexp/configure ffcall/configure ffcall/avcall/configure ffcall/vacall/configure ffcall/trampoline/configure ffcall/callback/configure ffcall/callback/vacall_r/configure ffcall/callback/trampoline_r/configure sigsegv/configure utils/hln/configure
 
 configures : ffcall/autoconf/aclocal.m4 sigsegv/autoconf/aclocal.m4 $(CONFIGURES) src/gettext/config.h.in
 
@@ -148,9 +148,6 @@ modules/wildcard/configure : modules/wildcard/configure.in $(AUTOCONF_FILES)
 modules/regexp/configure : modules/regexp/configure.in $(AUTOCONF_FILES)
 	cd modules/regexp ; ../../src/autoconf/autoconf -m ../../src/autoconf
 
-modules/clx/new-clx/configure : modules/clx/new-clx/configure.in $(AUTOCONF_FILES)
-	cd modules/clx/new-clx ; ../../../src/autoconf/autoconf -m ../../../src/autoconf
-
 ffcall/autoconf/aclocal.m4 : src/autoconf/aclocal.m4
 	cd ffcall ; $(MAKE) -f Makefile.devel autoconf/aclocal.m4
 
@@ -174,12 +171,6 @@ ffcall/callback/vacall_r/configure : ffcall/callback/vacall_r/configure.in ffcal
 
 ffcall/callback/trampoline_r/configure : ffcall/callback/trampoline_r/configure.in ffcall/autoconf/aclocal.m4 $(AUTOCONF_FILES)
 	cd ffcall ; $(MAKE) -f Makefile.devel callback/trampoline_r/configure
-
-libiconv/autoconf/aclocal.m4 : src/autoconf/aclocal.m4
-	cd libiconv ; $(MAKE) -f Makefile.devel autoconf/aclocal.m4
-
-libiconv/configure : libiconv/configure.in libiconv/autoconf/aclocal.m4 $(AUTOCONF_FILES)
-	cd libiconv ; $(MAKE) -f Makefile.devel configure
 
 sigsegv/autoconf/aclocal.m4 : src/autoconf/aclocal.m4
 	cd sigsegv ; $(MAKE) -f Makefile.devel autoconf/aclocal.m4

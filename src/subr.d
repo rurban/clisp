@@ -154,7 +154,6 @@ LISPFUNN(make_bit_vector,1)
 # ---------- CHARSTRG ----------
 LISPFUNN(standard_char_p,1)
 LISPFUNN(graphic_char_p,1)
-LISPFUNN(char_width,1)
 LISPFUNN(string_char_p,1)
 #if (base_char_code_limit < char_code_limit)
 LISPFUNN(base_char_p,1)
@@ -220,7 +219,6 @@ LISPFUN(search_string_equal,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 LISPFUN(make_string,1,0,norest,key,2, (kw(initial_element),kw(element_type)) )
 LISPFUNN(string_both_trim,3)
-LISPFUN(string_width,1,0,norest,key,2, (kw(start),kw(end)) )
 LISPFUN(nstring_upcase,1,0,norest,key,2, (kw(start),kw(end)) )
 LISPFUN(string_upcase,1,0,norest,key,2, (kw(start),kw(end)) )
 LISPFUN(nstring_downcase,1,0,norest,key,2, (kw(start),kw(end)) )
@@ -549,7 +547,7 @@ LISPFUNN(machine_instance,0)
 #ifdef HAVE_GETHOSTBYNAME
 LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
 #ifdef EXPORT_SYSCALLS
-LISPFUNN(resolve_host_ipaddr_,1)
+LISPFUN(resolve_host_ipaddr,0,1,norest,nokey,0,NIL)
 #endif
 #endif
 # ---------- TIME ----------
@@ -667,11 +665,8 @@ LISPFUNN(program_name,0)
 LISPFUNN(lib_directory,0)
 #ifdef EXPORT_SYSCALLS
 #ifdef UNIX
-LISPFUNN(user_data_,1)
-LISPFUN(file_stat_,1,1,norest,nokey,0,NIL)
-LISPFUNN(sysinfo_,0)
-LISPFUNN(bogomips,0)
-LISPFUNN(resource_usage_limits_,0)
+LISPFUN(user_data,0,1,norest,nokey,0,NIL)
+LISPFUN(file_stat,1,1,norest,nokey,0,NIL)
 #endif
 #endif
 # ---------- PREDTYPE ----------
@@ -954,10 +949,8 @@ LISPFUNN(interactive_stream_p,1)
 LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
 LISPFUN(read_byte,1,2,norest,nokey,0,NIL)
 LISPFUN(read_integer,2,3,norest,nokey,0,NIL)
-LISPFUN(read_float,2,3,norest,nokey,0,NIL)
 LISPFUNN(write_byte,2)
 LISPFUN(write_integer,3,1,norest,nokey,0,NIL)
-LISPFUN(write_float,3,1,norest,nokey,0,NIL)
 LISPFUN(file_position,1,1,norest,nokey,0,NIL)
 LISPFUNN(file_length,1)
 LISPFUNN(file_string_length,2)
@@ -1084,18 +1077,6 @@ LISPFUNN(long_float_digits,0)
 LISPFUNN(set_long_float_digits,1)
 LISPFUNN(log2,1)
 LISPFUNN(log10,1)
-#ifdef EXPORT_SYSCALLS
-LISPFUNN(erf,1)
-LISPFUNN(erfc,1)
-LISPFUNN(j0,1)
-LISPFUNN(j1,1)
-LISPFUNN(jn,2)
-LISPFUNN(y0,1)
-LISPFUNN(y1,1)
-LISPFUNN(yn,2)
-LISPFUNN(gamma,1)
-LISPFUNN(lgamma,1)
-#endif # EXPORT_SYSCALLS
 # ---------- REXX ----------
 #ifdef REXX
 LISPFUN(rexx_put,1,0,norest,key,5,
@@ -1134,3 +1115,4 @@ LISPFUN(mem_write,3,1,norest,nokey,0,NIL)
 LISPFUN(mem_write_vector,2,1,norest,nokey,0,NIL)
 LISPFUN(affi_nonzerop,1,0,norest,nokey,0,NIL)
 #endif
+

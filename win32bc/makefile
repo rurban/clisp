@@ -16,9 +16,6 @@ docdir = $(exec_prefix)\doc
 lispdocdir = $(docdir)\clisp
 libdir = $(exec_prefix)\lib
 lisplibdir = $(libdir)\clisp
-# The value of following variable is prepended to all the paths for
-# installation. This is useful when preparing a binary distribution.
-install_root =
 
 # List of add-on modules:
 # queens               the queens function as a separate module
@@ -31,7 +28,7 @@ CC = bcc32i -O2 -g0 -w-rch
 CFLAGS =  -DUNICODE -DNO_GETTEXT
 CPP = ..\utils\gcc-cccp\cccp -U__GNUC__ -+ -D__BORLANDC__=0x460 -D__TURBOC__=0x460 -D_M_IX86=300 -D__WIN32__ -D__FLAT__ -DDEBUG_OS_ERROR -I$(BCDIR)/include
 CLFLAGS = 
-LIBS = sigsegv.lib iconv.lib  ole32.lib
+LIBS = sigsegv.lib  ole32.lib
 X_LIBS = 
 BCDIR = d:/bc5
 WIN32DIR = c:\winnt35\system32
@@ -126,7 +123,6 @@ ROFF_DVI = groff -Tdvi -mandoc # try "groff -Tdvi -mandoc"
 
 COMMENT5 = comment5
 ANSIDECL = ansidecl
-VARBRACE = varbrace
 TXT2C = txt2c -I../
 
 DFILES = \
@@ -404,7 +400,6 @@ describe.lsp \
 room.lsp \
 edit.lsp \
 macros3.lsp \
-posix.lsp \
 foreign1.lsp \
 defs3.lsp \
 german.lsp \
@@ -447,7 +442,6 @@ describe.fas \
 room.fas \
 edit.fas \
 macros3.fas \
-posix.fas \
 foreign1.fas \
 defs3.fas \
 german.fas \
@@ -495,7 +489,6 @@ stage\describe.lsp \
 stage\room.lsp \
 stage\edit.lsp \
 stage\macros3.lsp \
-stage\posix.lsp \
 stage\foreign1.lsp \
 stage\defs3.lsp \
 stage\german.lsp \
@@ -538,7 +531,6 @@ stage\describe.fas \
 stage\room.fas \
 stage\edit.fas \
 stage\macros3.fas \
-stage\posix.fas \
 stage\foreign1.fas \
 stage\defs3.fas \
 stage\german.fas \
@@ -550,7 +542,7 @@ stage\config.fas
 all : init allc allo lisp.exe interpreted.mem halfcompiled.mem lispinit.mem manual
 
 
-init : ../utils/gcc-cccp/cccp.exe comment5.exe ansidecl.exe varbrace.exe txt2c.exe ccmp2c.exe modprep.exe $(DFILES) modules.h
+init : ../utils/gcc-cccp/cccp.exe comment5.exe ansidecl.exe txt2c.exe ccmp2c.exe modprep.exe $(DFILES) modules.h
 
 ../utils/gcc-cccp/cccp.exe :
 
@@ -563,13 +555,6 @@ ansidecl.exe : ..\utils\ansidecl.d comment5.exe
 	$(RM) ansidecl.d
 	$(CC) $(CFLAGS) $(CLFLAGS) -eansidecl.exe ansidecl.c
 	$(RM) ansidecl.c
-
-varbrace.exe : ..\utils\varbrace.d comment5.exe ansidecl.exe
-	$(COMMENT5) ..\utils\varbrace.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > varbrace.c
-	$(RM) TMPPIPE1
-	$(CC) $(CFLAGS) $(CLFLAGS) -evarbrace.exe varbrace.c
-	$(RM) varbrace.c
 
 txt2c.exe : ..\utils\txt2c.c ansidecl.exe
 	$(ANSIDECL) < ..\utils\txt2c.c > txt2c.c
@@ -593,733 +578,525 @@ modprep.exe : ..\utils\modprep.d comment5.exe ansidecl.exe
 
 allc : init $(CFILES)
 
-spvw.c : spvw.d comment5.exe ansidecl.exe varbrace.exe
+spvw.c : spvw.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw.c
-	$(RM) TMPPIPE2
 
-spvwtabf.c : spvwtabf.d comment5.exe ansidecl.exe varbrace.exe
+spvwtabf.c : spvwtabf.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvwtabf.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvwtabf.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvwtabf.c
-	$(RM) TMPPIPE2
 
-spvwtabs.c : spvwtabs.d comment5.exe ansidecl.exe varbrace.exe
+spvwtabs.c : spvwtabs.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvwtabs.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvwtabs.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvwtabs.c
-	$(RM) TMPPIPE2
 
-spvwtabo.c : spvwtabo.d comment5.exe ansidecl.exe varbrace.exe
+spvwtabo.c : spvwtabo.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvwtabo.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvwtabo.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvwtabo.c
-	$(RM) TMPPIPE2
 
-eval.c : eval.d comment5.exe ansidecl.exe varbrace.exe
+eval.c : eval.d comment5.exe ansidecl.exe
 	$(COMMENT5) eval.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > eval.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > eval.c
-	$(RM) TMPPIPE2
 
-control.c : control.d comment5.exe ansidecl.exe varbrace.exe
+control.c : control.d comment5.exe ansidecl.exe
 	$(COMMENT5) control.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > control.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > control.c
-	$(RM) TMPPIPE2
 
-encoding.c : encoding.d comment5.exe ansidecl.exe varbrace.exe
+encoding.c : encoding.d comment5.exe ansidecl.exe
 	$(COMMENT5) encoding.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > encoding.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > encoding.c
-	$(RM) TMPPIPE2
 
-pathname.c : pathname.d comment5.exe ansidecl.exe varbrace.exe
+pathname.c : pathname.d comment5.exe ansidecl.exe
 	$(COMMENT5) pathname.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > pathname.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > pathname.c
-	$(RM) TMPPIPE2
 
-stream.c : stream.d comment5.exe ansidecl.exe varbrace.exe
+stream.c : stream.d comment5.exe ansidecl.exe
 	$(COMMENT5) stream.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > stream.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > stream.c
-	$(RM) TMPPIPE2
 
-socket.c : socket.d comment5.exe ansidecl.exe varbrace.exe
+socket.c : socket.d comment5.exe ansidecl.exe
 	$(COMMENT5) socket.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > socket.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > socket.c
-	$(RM) TMPPIPE2
 
-io.c : io.d comment5.exe ansidecl.exe varbrace.exe
+io.c : io.d comment5.exe ansidecl.exe
 	$(COMMENT5) io.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > io.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > io.c
-	$(RM) TMPPIPE2
 
-array.c : array.d comment5.exe ansidecl.exe varbrace.exe
+array.c : array.d comment5.exe ansidecl.exe
 	$(COMMENT5) array.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > array.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > array.c
-	$(RM) TMPPIPE2
 
-hashtabl.c : hashtabl.d comment5.exe ansidecl.exe varbrace.exe
+hashtabl.c : hashtabl.d comment5.exe ansidecl.exe
 	$(COMMENT5) hashtabl.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > hashtabl.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > hashtabl.c
-	$(RM) TMPPIPE2
 
-list.c : list.d comment5.exe ansidecl.exe varbrace.exe
+list.c : list.d comment5.exe ansidecl.exe
 	$(COMMENT5) list.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > list.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > list.c
-	$(RM) TMPPIPE2
 
-package.c : package.d comment5.exe ansidecl.exe varbrace.exe
+package.c : package.d comment5.exe ansidecl.exe
 	$(COMMENT5) package.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > package.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > package.c
-	$(RM) TMPPIPE2
 
-record.c : record.d comment5.exe ansidecl.exe varbrace.exe
+record.c : record.d comment5.exe ansidecl.exe
 	$(COMMENT5) record.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > record.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > record.c
-	$(RM) TMPPIPE2
 
-sequence.c : sequence.d comment5.exe ansidecl.exe varbrace.exe
+sequence.c : sequence.d comment5.exe ansidecl.exe
 	$(COMMENT5) sequence.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > sequence.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > sequence.c
-	$(RM) TMPPIPE2
 
-charstrg.c : charstrg.d comment5.exe ansidecl.exe varbrace.exe
+charstrg.c : charstrg.d comment5.exe ansidecl.exe
 	$(COMMENT5) charstrg.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > charstrg.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > charstrg.c
-	$(RM) TMPPIPE2
 
-debug.c : debug.d comment5.exe ansidecl.exe varbrace.exe
+debug.c : debug.d comment5.exe ansidecl.exe
 	$(COMMENT5) debug.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > debug.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > debug.c
-	$(RM) TMPPIPE2
 
-error.c : error.d comment5.exe ansidecl.exe varbrace.exe
+error.c : error.d comment5.exe ansidecl.exe
 	$(COMMENT5) error.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > error.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > error.c
-	$(RM) TMPPIPE2
 
-misc.c : misc.d comment5.exe ansidecl.exe varbrace.exe
+misc.c : misc.d comment5.exe ansidecl.exe
 	$(COMMENT5) misc.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > misc.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > misc.c
-	$(RM) TMPPIPE2
 
-time.c : time.d comment5.exe ansidecl.exe varbrace.exe
+time.c : time.d comment5.exe ansidecl.exe
 	$(COMMENT5) time.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > time.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > time.c
-	$(RM) TMPPIPE2
 
-predtype.c : predtype.d comment5.exe ansidecl.exe varbrace.exe
+predtype.c : predtype.d comment5.exe ansidecl.exe
 	$(COMMENT5) predtype.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > predtype.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > predtype.c
-	$(RM) TMPPIPE2
 
-symbol.c : symbol.d comment5.exe ansidecl.exe varbrace.exe
+symbol.c : symbol.d comment5.exe ansidecl.exe
 	$(COMMENT5) symbol.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > symbol.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > symbol.c
-	$(RM) TMPPIPE2
 
-lisparit.c : lisparit.d comment5.exe ansidecl.exe varbrace.exe
+lisparit.c : lisparit.d comment5.exe ansidecl.exe
 	$(COMMENT5) lisparit.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > lisparit.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > lisparit.c
-	$(RM) TMPPIPE2
 
-win32aux.c : win32aux.d comment5.exe ansidecl.exe varbrace.exe
+win32aux.c : win32aux.d comment5.exe ansidecl.exe
 	$(COMMENT5) win32aux.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > win32aux.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > win32aux.c
-	$(RM) TMPPIPE2
 
-lispbibl.c : lispbibl.d comment5.exe ansidecl.exe varbrace.exe
+lispbibl.c : lispbibl.d comment5.exe ansidecl.exe
 	$(COMMENT5) lispbibl.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > lispbibl.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > lispbibl.c
-	$(RM) TMPPIPE2
 
-fsubr.c : fsubr.d comment5.exe ansidecl.exe varbrace.exe
+fsubr.c : fsubr.d comment5.exe ansidecl.exe
 	$(COMMENT5) fsubr.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > fsubr.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > fsubr.c
-	$(RM) TMPPIPE2
 
-subr.c : subr.d comment5.exe ansidecl.exe varbrace.exe
+subr.c : subr.d comment5.exe ansidecl.exe
 	$(COMMENT5) subr.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > subr.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > subr.c
-	$(RM) TMPPIPE2
 
-pseudofun.c : pseudofun.d comment5.exe ansidecl.exe varbrace.exe
+pseudofun.c : pseudofun.d comment5.exe ansidecl.exe
 	$(COMMENT5) pseudofun.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > pseudofun.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > pseudofun.c
-	$(RM) TMPPIPE2
 
-constsym.c : constsym.d comment5.exe ansidecl.exe varbrace.exe
+constsym.c : constsym.d comment5.exe ansidecl.exe
 	$(COMMENT5) constsym.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > constsym.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > constsym.c
-	$(RM) TMPPIPE2
 
-constobj.c : constobj.d comment5.exe ansidecl.exe varbrace.exe
+constobj.c : constobj.d comment5.exe ansidecl.exe
 	$(COMMENT5) constobj.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > constobj.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > constobj.c
-	$(RM) TMPPIPE2
 
-win32.c : win32.d comment5.exe ansidecl.exe varbrace.exe
+win32.c : win32.d comment5.exe ansidecl.exe
 	$(COMMENT5) win32.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > win32.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > win32.c
-	$(RM) TMPPIPE2
 
-xthread.c : xthread.d comment5.exe ansidecl.exe varbrace.exe
+xthread.c : xthread.d comment5.exe ansidecl.exe
 	$(COMMENT5) xthread.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > xthread.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > xthread.c
-	$(RM) TMPPIPE2
 
-constpack.c : constpack.d comment5.exe ansidecl.exe varbrace.exe
+constpack.c : constpack.d comment5.exe ansidecl.exe
 	$(COMMENT5) constpack.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > constpack.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > constpack.c
-	$(RM) TMPPIPE2
 
-avl.c : avl.d comment5.exe ansidecl.exe varbrace.exe
+avl.c : avl.d comment5.exe ansidecl.exe
 	$(COMMENT5) avl.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > avl.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > avl.c
-	$(RM) TMPPIPE2
 
-sort.c : sort.d comment5.exe ansidecl.exe varbrace.exe
+sort.c : sort.d comment5.exe ansidecl.exe
 	$(COMMENT5) sort.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > sort.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > sort.c
-	$(RM) TMPPIPE2
 
-subrkw.c : subrkw.d comment5.exe ansidecl.exe varbrace.exe
+subrkw.c : subrkw.d comment5.exe ansidecl.exe
 	$(COMMENT5) subrkw.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > subrkw.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > subrkw.c
-	$(RM) TMPPIPE2
 
-bytecode.c : bytecode.d comment5.exe ansidecl.exe varbrace.exe
+bytecode.c : bytecode.d comment5.exe ansidecl.exe
 	$(COMMENT5) bytecode.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > bytecode.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > bytecode.c
-	$(RM) TMPPIPE2
 
-spvw_module.c : spvw_module.d comment5.exe ansidecl.exe varbrace.exe
+spvw_module.c : spvw_module.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_module.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_module.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_module.c
-	$(RM) TMPPIPE2
 
-spvw_debug.c : spvw_debug.d comment5.exe ansidecl.exe varbrace.exe
+spvw_debug.c : spvw_debug.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_debug.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_debug.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_debug.c
-	$(RM) TMPPIPE2
 
-spvw_alloca.c : spvw_alloca.d comment5.exe ansidecl.exe varbrace.exe
+spvw_alloca.c : spvw_alloca.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_alloca.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_alloca.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_alloca.c
-	$(RM) TMPPIPE2
 
-spvw_mmap.c : spvw_mmap.d comment5.exe ansidecl.exe varbrace.exe
+spvw_mmap.c : spvw_mmap.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_mmap.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_mmap.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_mmap.c
-	$(RM) TMPPIPE2
 
-spvw_multimap.c : spvw_multimap.d comment5.exe ansidecl.exe varbrace.exe
+spvw_multimap.c : spvw_multimap.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_multimap.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_multimap.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_multimap.c
-	$(RM) TMPPIPE2
 
-spvw_singlemap.c : spvw_singlemap.d comment5.exe ansidecl.exe varbrace.exe
+spvw_singlemap.c : spvw_singlemap.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_singlemap.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_singlemap.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_singlemap.c
-	$(RM) TMPPIPE2
 
-spvw_page.c : spvw_page.d comment5.exe ansidecl.exe varbrace.exe
+spvw_page.c : spvw_page.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_page.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_page.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_page.c
-	$(RM) TMPPIPE2
 
-spvw_heap.c : spvw_heap.d comment5.exe ansidecl.exe varbrace.exe
+spvw_heap.c : spvw_heap.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_heap.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_heap.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_heap.c
-	$(RM) TMPPIPE2
 
-spvw_global.c : spvw_global.d comment5.exe ansidecl.exe varbrace.exe
+spvw_global.c : spvw_global.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_global.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_global.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_global.c
-	$(RM) TMPPIPE2
 
-spvw_gcstat.c : spvw_gcstat.d comment5.exe ansidecl.exe varbrace.exe
+spvw_gcstat.c : spvw_gcstat.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_gcstat.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_gcstat.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_gcstat.c
-	$(RM) TMPPIPE2
 
-spvw_space.c : spvw_space.d comment5.exe ansidecl.exe varbrace.exe
+spvw_space.c : spvw_space.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_space.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_space.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_space.c
-	$(RM) TMPPIPE2
 
-spvw_mark.c : spvw_mark.d comment5.exe ansidecl.exe varbrace.exe
+spvw_mark.c : spvw_mark.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_mark.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_mark.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_mark.c
-	$(RM) TMPPIPE2
 
-spvw_objsize.c : spvw_objsize.d comment5.exe ansidecl.exe varbrace.exe
+spvw_objsize.c : spvw_objsize.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_objsize.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_objsize.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_objsize.c
-	$(RM) TMPPIPE2
 
-spvw_update.c : spvw_update.d comment5.exe ansidecl.exe varbrace.exe
+spvw_update.c : spvw_update.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_update.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_update.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_update.c
-	$(RM) TMPPIPE2
 
-spvw_fault.c : spvw_fault.d comment5.exe ansidecl.exe varbrace.exe
+spvw_fault.c : spvw_fault.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_fault.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_fault.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_fault.c
-	$(RM) TMPPIPE2
 
-spvw_sigsegv.c : spvw_sigsegv.d comment5.exe ansidecl.exe varbrace.exe
+spvw_sigsegv.c : spvw_sigsegv.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_sigsegv.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_sigsegv.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_sigsegv.c
-	$(RM) TMPPIPE2
 
-spvw_sigcld.c : spvw_sigcld.d comment5.exe ansidecl.exe varbrace.exe
+spvw_sigcld.c : spvw_sigcld.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_sigcld.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_sigcld.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_sigcld.c
-	$(RM) TMPPIPE2
 
-spvw_sigpipe.c : spvw_sigpipe.d comment5.exe ansidecl.exe varbrace.exe
+spvw_sigpipe.c : spvw_sigpipe.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_sigpipe.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_sigpipe.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_sigpipe.c
-	$(RM) TMPPIPE2
 
-spvw_sigint.c : spvw_sigint.d comment5.exe ansidecl.exe varbrace.exe
+spvw_sigint.c : spvw_sigint.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_sigint.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_sigint.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_sigint.c
-	$(RM) TMPPIPE2
 
-spvw_sigwinch.c : spvw_sigwinch.d comment5.exe ansidecl.exe varbrace.exe
+spvw_sigwinch.c : spvw_sigwinch.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_sigwinch.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_sigwinch.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_sigwinch.c
-	$(RM) TMPPIPE2
 
-spvw_garcol.c : spvw_garcol.d comment5.exe ansidecl.exe varbrace.exe
+spvw_garcol.c : spvw_garcol.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_garcol.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_garcol.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_garcol.c
-	$(RM) TMPPIPE2
 
-spvw_genera1.c : spvw_genera1.d comment5.exe ansidecl.exe varbrace.exe
+spvw_genera1.c : spvw_genera1.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_genera1.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_genera1.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_genera1.c
-	$(RM) TMPPIPE2
 
-spvw_genera2.c : spvw_genera2.d comment5.exe ansidecl.exe varbrace.exe
+spvw_genera2.c : spvw_genera2.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_genera2.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_genera2.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_genera2.c
-	$(RM) TMPPIPE2
 
-spvw_genera3.c : spvw_genera3.d comment5.exe ansidecl.exe varbrace.exe
+spvw_genera3.c : spvw_genera3.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_genera3.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_genera3.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_genera3.c
-	$(RM) TMPPIPE2
 
-spvw_allocate.c : spvw_allocate.d comment5.exe ansidecl.exe varbrace.exe
+spvw_allocate.c : spvw_allocate.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_allocate.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_allocate.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_allocate.c
-	$(RM) TMPPIPE2
 
-spvw_typealloc.c : spvw_typealloc.d comment5.exe ansidecl.exe varbrace.exe
+spvw_typealloc.c : spvw_typealloc.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_typealloc.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_typealloc.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_typealloc.c
-	$(RM) TMPPIPE2
 
-spvw_circ.c : spvw_circ.d comment5.exe ansidecl.exe varbrace.exe
+spvw_circ.c : spvw_circ.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_circ.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_circ.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_circ.c
-	$(RM) TMPPIPE2
 
-spvw_walk.c : spvw_walk.d comment5.exe ansidecl.exe varbrace.exe
+spvw_walk.c : spvw_walk.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_walk.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_walk.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_walk.c
-	$(RM) TMPPIPE2
 
-spvw_ctype.c : spvw_ctype.d comment5.exe ansidecl.exe varbrace.exe
+spvw_ctype.c : spvw_ctype.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_ctype.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_ctype.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_ctype.c
-	$(RM) TMPPIPE2
 
-spvw_language.c : spvw_language.d comment5.exe ansidecl.exe varbrace.exe
+spvw_language.c : spvw_language.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_language.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_language.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_language.c
-	$(RM) TMPPIPE2
 
-spvw_memfile.c : spvw_memfile.d comment5.exe ansidecl.exe varbrace.exe
+spvw_memfile.c : spvw_memfile.d comment5.exe ansidecl.exe
 	$(COMMENT5) spvw_memfile.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > spvw_memfile.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_memfile.c
-	$(RM) TMPPIPE2
 
-errwin32.c : errwin32.d comment5.exe ansidecl.exe varbrace.exe
+errwin32.c : errwin32.d comment5.exe ansidecl.exe
 	$(COMMENT5) errwin32.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > errwin32.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > errwin32.c
-	$(RM) TMPPIPE2
 
-aridecl.c : aridecl.d comment5.exe ansidecl.exe varbrace.exe
+aridecl.c : aridecl.d comment5.exe ansidecl.exe
 	$(COMMENT5) aridecl.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > aridecl.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > aridecl.c
-	$(RM) TMPPIPE2
 
-arilev0.c : arilev0.d comment5.exe ansidecl.exe varbrace.exe
+arilev0.c : arilev0.d comment5.exe ansidecl.exe
 	$(COMMENT5) arilev0.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > arilev0.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > arilev0.c
-	$(RM) TMPPIPE2
 
-arilev1.c : arilev1.d comment5.exe ansidecl.exe varbrace.exe
+arilev1.c : arilev1.d comment5.exe ansidecl.exe
 	$(COMMENT5) arilev1.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > arilev1.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > arilev1.c
-	$(RM) TMPPIPE2
 
-intelem.c : intelem.d comment5.exe ansidecl.exe varbrace.exe
+intelem.c : intelem.d comment5.exe ansidecl.exe
 	$(COMMENT5) intelem.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > intelem.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intelem.c
-	$(RM) TMPPIPE2
 
-intlog.c : intlog.d comment5.exe ansidecl.exe varbrace.exe
+intlog.c : intlog.d comment5.exe ansidecl.exe
 	$(COMMENT5) intlog.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > intlog.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intlog.c
-	$(RM) TMPPIPE2
 
-intplus.c : intplus.d comment5.exe ansidecl.exe varbrace.exe
+intplus.c : intplus.d comment5.exe ansidecl.exe
 	$(COMMENT5) intplus.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > intplus.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intplus.c
-	$(RM) TMPPIPE2
 
-intcomp.c : intcomp.d comment5.exe ansidecl.exe varbrace.exe
+intcomp.c : intcomp.d comment5.exe ansidecl.exe
 	$(COMMENT5) intcomp.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > intcomp.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intcomp.c
-	$(RM) TMPPIPE2
 
-intbyte.c : intbyte.d comment5.exe ansidecl.exe varbrace.exe
+intbyte.c : intbyte.d comment5.exe ansidecl.exe
 	$(COMMENT5) intbyte.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > intbyte.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intbyte.c
-	$(RM) TMPPIPE2
 
-intmal.c : intmal.d comment5.exe ansidecl.exe varbrace.exe
+intmal.c : intmal.d comment5.exe ansidecl.exe
 	$(COMMENT5) intmal.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > intmal.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intmal.c
-	$(RM) TMPPIPE2
 
-intdiv.c : intdiv.d comment5.exe ansidecl.exe varbrace.exe
+intdiv.c : intdiv.d comment5.exe ansidecl.exe
 	$(COMMENT5) intdiv.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > intdiv.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intdiv.c
-	$(RM) TMPPIPE2
 
-intgcd.c : intgcd.d comment5.exe ansidecl.exe varbrace.exe
+intgcd.c : intgcd.d comment5.exe ansidecl.exe
 	$(COMMENT5) intgcd.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > intgcd.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intgcd.c
-	$(RM) TMPPIPE2
 
-int2adic.c : int2adic.d comment5.exe ansidecl.exe varbrace.exe
+int2adic.c : int2adic.d comment5.exe ansidecl.exe
 	$(COMMENT5) int2adic.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > int2adic.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > int2adic.c
-	$(RM) TMPPIPE2
 
-intsqrt.c : intsqrt.d comment5.exe ansidecl.exe varbrace.exe
+intsqrt.c : intsqrt.d comment5.exe ansidecl.exe
 	$(COMMENT5) intsqrt.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > intsqrt.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intsqrt.c
-	$(RM) TMPPIPE2
 
-intprint.c : intprint.d comment5.exe ansidecl.exe varbrace.exe
+intprint.c : intprint.d comment5.exe ansidecl.exe
 	$(COMMENT5) intprint.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > intprint.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intprint.c
-	$(RM) TMPPIPE2
 
-intread.c : intread.d comment5.exe ansidecl.exe varbrace.exe
+intread.c : intread.d comment5.exe ansidecl.exe
 	$(COMMENT5) intread.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > intread.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intread.c
-	$(RM) TMPPIPE2
 
-rational.c : rational.d comment5.exe ansidecl.exe varbrace.exe
+rational.c : rational.d comment5.exe ansidecl.exe
 	$(COMMENT5) rational.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > rational.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > rational.c
-	$(RM) TMPPIPE2
 
-sfloat.c : sfloat.d comment5.exe ansidecl.exe varbrace.exe
+sfloat.c : sfloat.d comment5.exe ansidecl.exe
 	$(COMMENT5) sfloat.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > sfloat.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > sfloat.c
-	$(RM) TMPPIPE2
 
-ffloat.c : ffloat.d comment5.exe ansidecl.exe varbrace.exe
+ffloat.c : ffloat.d comment5.exe ansidecl.exe
 	$(COMMENT5) ffloat.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > ffloat.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > ffloat.c
-	$(RM) TMPPIPE2
 
-dfloat.c : dfloat.d comment5.exe ansidecl.exe varbrace.exe
+dfloat.c : dfloat.d comment5.exe ansidecl.exe
 	$(COMMENT5) dfloat.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > dfloat.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > dfloat.c
-	$(RM) TMPPIPE2
 
-lfloat.c : lfloat.d comment5.exe ansidecl.exe varbrace.exe
+lfloat.c : lfloat.d comment5.exe ansidecl.exe
 	$(COMMENT5) lfloat.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > lfloat.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > lfloat.c
-	$(RM) TMPPIPE2
 
-flo_konv.c : flo_konv.d comment5.exe ansidecl.exe varbrace.exe
+flo_konv.c : flo_konv.d comment5.exe ansidecl.exe
 	$(COMMENT5) flo_konv.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > flo_konv.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > flo_konv.c
-	$(RM) TMPPIPE2
 
-flo_rest.c : flo_rest.d comment5.exe ansidecl.exe varbrace.exe
+flo_rest.c : flo_rest.d comment5.exe ansidecl.exe
 	$(COMMENT5) flo_rest.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > flo_rest.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > flo_rest.c
-	$(RM) TMPPIPE2
 
-realelem.c : realelem.d comment5.exe ansidecl.exe varbrace.exe
+realelem.c : realelem.d comment5.exe ansidecl.exe
 	$(COMMENT5) realelem.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > realelem.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > realelem.c
-	$(RM) TMPPIPE2
 
-realrand.c : realrand.d comment5.exe ansidecl.exe varbrace.exe
+realrand.c : realrand.d comment5.exe ansidecl.exe
 	$(COMMENT5) realrand.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > realrand.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > realrand.c
-	$(RM) TMPPIPE2
 
-realtran.c : realtran.d comment5.exe ansidecl.exe varbrace.exe
+realtran.c : realtran.d comment5.exe ansidecl.exe
 	$(COMMENT5) realtran.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > realtran.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > realtran.c
-	$(RM) TMPPIPE2
 
-compelem.c : compelem.d comment5.exe ansidecl.exe varbrace.exe
+compelem.c : compelem.d comment5.exe ansidecl.exe
 	$(COMMENT5) compelem.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > compelem.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > compelem.c
-	$(RM) TMPPIPE2
 
-comptran.c : comptran.d comment5.exe ansidecl.exe varbrace.exe
+comptran.c : comptran.d comment5.exe ansidecl.exe
 	$(COMMENT5) comptran.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > comptran.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > comptran.c
-	$(RM) TMPPIPE2
 
-arilev1c.c : arilev1c.d comment5.exe ansidecl.exe varbrace.exe
+arilev1c.c : arilev1c.d comment5.exe ansidecl.exe
 	$(COMMENT5) arilev1c.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > arilev1c.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > arilev1c.c
-	$(RM) TMPPIPE2
 
-arilev1e.c : arilev1e.d comment5.exe ansidecl.exe varbrace.exe
+arilev1e.c : arilev1e.d comment5.exe ansidecl.exe
 	$(COMMENT5) arilev1e.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > arilev1e.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > arilev1e.c
-	$(RM) TMPPIPE2
 
-arilev1i.c : arilev1i.d comment5.exe ansidecl.exe varbrace.exe
+arilev1i.c : arilev1i.d comment5.exe ansidecl.exe
 	$(COMMENT5) arilev1i.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > arilev1i.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > arilev1i.c
-	$(RM) TMPPIPE2
 
-genclisph.c : genclisph.d comment5.exe ansidecl.exe varbrace.exe
+genclisph.c : genclisph.d comment5.exe ansidecl.exe
 	$(COMMENT5) genclisph.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > genclisph.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > genclisph.c
-	$(RM) TMPPIPE2
 
-modules.c : modules.d comment5.exe ansidecl.exe varbrace.exe
+modules.c : modules.d comment5.exe ansidecl.exe
 	$(COMMENT5) modules.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > modules.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > modules.c
-	$(RM) TMPPIPE2
 
-noreadline.c : noreadline.d comment5.exe ansidecl.exe varbrace.exe
+noreadline.c : noreadline.d comment5.exe ansidecl.exe
 	$(COMMENT5) noreadline.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(ANSIDECL) < TMPPIPE1 > noreadline.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > noreadline.c
-	$(RM) TMPPIPE2
 
 allo : allc spvw.obj spvwtabf.obj spvwtabs.obj spvwtabo.obj eval.obj control.obj encoding.obj pathname.obj stream.obj socket.obj io.obj array.obj hashtabl.obj list.obj package.obj record.obj sequence.obj charstrg.obj debug.obj error.obj misc.obj time.obj predtype.obj symbol.obj lisparit.obj win32aux.obj
 
@@ -1328,475 +1105,469 @@ alls : allc spvw.s spvwtabf.s spvwtabs.s spvwtabo.s eval.s control.s encoding.s 
 # Normally not used (just for debugging).
 alli : allc spvw.i spvwtabf.i spvwtabs.i spvwtabo.i eval.i control.i encoding.i pathname.i stream.i socket.i io.i array.i hashtabl.i list.i package.i record.i sequence.i charstrg.i debug.i error.i misc.i time.i predtype.i symbol.i lisparit.i win32aux.i
 
-spvw.i : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c arilev0.c aridecl.c iconv.h sigsegv.h version.h
+spvw.i : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c arilev0.c aridecl.c sigsegv.h version.h
 	$(CPP) $(CFLAGS) spvw.c > spvw.i
 
-spvw.s : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c arilev0.c aridecl.c iconv.h sigsegv.h version.h
+spvw.s : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c arilev0.c aridecl.c sigsegv.h version.h
 	$(CPP) $(CFLAGS) spvw.c > spvw.i.c
 	$(CC) $(CFLAGS) -c spvw.i.c /FAs /Faspvw.s
 	$(RM) spvw.i.obj
 	$(RM) spvw.i.c
 
-spvw.obj : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c arilev0.c aridecl.c iconv.h sigsegv.h version.h
+spvw.obj : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c arilev0.c aridecl.c sigsegv.h version.h
 	$(CPP) $(CFLAGS) spvw.c > spvw.i.c
 	$(CC) $(CFLAGS) -c spvw.i.c
 	$(RM) spvw.obj
 	$(MV) spvw.i.obj spvw.obj
 	$(RM) spvw.i.c
 
-spvwtabf.i : spvwtabf.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+spvwtabf.i : spvwtabf.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) spvwtabf.c > spvwtabf.i
 
-spvwtabf.s : spvwtabf.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+spvwtabf.s : spvwtabf.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) spvwtabf.c > spvwtabf.i.c
 	$(CC) $(CFLAGS) -c spvwtabf.i.c /FAs /Faspvwtabf.s
 	$(RM) spvwtabf.i.obj
 	$(RM) spvwtabf.i.c
 
-spvwtabf.obj : spvwtabf.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+spvwtabf.obj : spvwtabf.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) spvwtabf.c > spvwtabf.i.c
 	$(CC) $(CFLAGS) -c spvwtabf.i.c
 	$(RM) spvwtabf.obj
 	$(MV) spvwtabf.i.obj spvwtabf.obj
 	$(RM) spvwtabf.i.c
 
-spvwtabs.i : spvwtabs.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+spvwtabs.i : spvwtabs.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) spvwtabs.c > spvwtabs.i
 
-spvwtabs.s : spvwtabs.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+spvwtabs.s : spvwtabs.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) spvwtabs.c > spvwtabs.i.c
 	$(CC) $(CFLAGS) -c spvwtabs.i.c /FAs /Faspvwtabs.s
 	$(RM) spvwtabs.i.obj
 	$(RM) spvwtabs.i.c
 
-spvwtabs.obj : spvwtabs.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+spvwtabs.obj : spvwtabs.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) spvwtabs.c > spvwtabs.i.c
 	$(CC) $(CFLAGS) -c spvwtabs.i.c
 	$(RM) spvwtabs.obj
 	$(MV) spvwtabs.i.obj spvwtabs.obj
 	$(RM) spvwtabs.i.c
 
-spvwtabo.i : spvwtabo.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+spvwtabo.i : spvwtabo.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) spvwtabo.c > spvwtabo.i
 
-spvwtabo.s : spvwtabo.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+spvwtabo.s : spvwtabo.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) spvwtabo.c > spvwtabo.i.c
 	$(CC) $(CFLAGS) -c spvwtabo.i.c /FAs /Faspvwtabo.s
 	$(RM) spvwtabo.i.obj
 	$(RM) spvwtabo.i.c
 
-spvwtabo.obj : spvwtabo.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+spvwtabo.obj : spvwtabo.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) spvwtabo.c > spvwtabo.i.c
 	$(CC) $(CFLAGS) -c spvwtabo.i.c
 	$(RM) spvwtabo.obj
 	$(MV) spvwtabo.i.obj spvwtabo.obj
 	$(RM) spvwtabo.i.c
 
-eval.i : eval.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c bytecode.c iconv.h sigsegv.h
+eval.i : eval.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c bytecode.c sigsegv.h
 	$(CPP) $(CFLAGS) eval.c > eval.i
 
-eval.s : eval.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c bytecode.c iconv.h sigsegv.h
+eval.s : eval.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c bytecode.c sigsegv.h
 	$(CPP) $(CFLAGS) eval.c > eval.i.c
 	$(CC) $(CFLAGS) -c eval.i.c /FAs /Faeval.s
 	$(RM) eval.i.obj
 	$(RM) eval.i.c
 
-eval.obj : eval.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c bytecode.c iconv.h sigsegv.h
+eval.obj : eval.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c bytecode.c sigsegv.h
 	$(CPP) $(CFLAGS) eval.c > eval.i.c
 	$(CC) $(CFLAGS) -c eval.i.c
 	$(RM) eval.obj
 	$(MV) eval.i.obj eval.obj
 	$(RM) eval.i.c
 
-control.i : control.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+control.i : control.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) control.c > control.i
 
-control.s : control.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+control.s : control.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) control.c > control.i.c
 	$(CC) $(CFLAGS) -c control.i.c /FAs /Facontrol.s
 	$(RM) control.i.obj
 	$(RM) control.i.c
 
-control.obj : control.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+control.obj : control.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) control.c > control.i.c
 	$(CC) $(CFLAGS) -c control.i.c
 	$(RM) control.obj
 	$(MV) control.i.obj control.obj
 	$(RM) control.i.c
 
-encoding.i : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_10.c nls_iso8859_13.c nls_iso8859_14.c nls_iso8859_15.c nls_iso8859_16.c nls_koi8_r.c nls_koi8_u.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1255.c nls_cp1256.c nls_cp1257.c nls_cp1258.c nls_hp_roman8.c nls_nextstep.c nls_jisx0201.c iconv.h sigsegv.h
+encoding.i : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_10.c nls_iso8859_13.c nls_iso8859_14.c nls_iso8859_15.c nls_koi8_r.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1255.c nls_cp1256.c nls_cp1257.c nls_cp1258.c nls_hp_roman8.c nls_nextstep.c sigsegv.h
 	$(CPP) $(CFLAGS) encoding.c > encoding.i
 
-encoding.s : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_10.c nls_iso8859_13.c nls_iso8859_14.c nls_iso8859_15.c nls_iso8859_16.c nls_koi8_r.c nls_koi8_u.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1255.c nls_cp1256.c nls_cp1257.c nls_cp1258.c nls_hp_roman8.c nls_nextstep.c nls_jisx0201.c iconv.h sigsegv.h
+encoding.s : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_10.c nls_iso8859_13.c nls_iso8859_14.c nls_iso8859_15.c nls_koi8_r.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1255.c nls_cp1256.c nls_cp1257.c nls_cp1258.c nls_hp_roman8.c nls_nextstep.c sigsegv.h
 	$(CPP) $(CFLAGS) encoding.c > encoding.i.c
 	$(CC) $(CFLAGS) -c encoding.i.c /FAs /Faencoding.s
 	$(RM) encoding.i.obj
 	$(RM) encoding.i.c
 
-encoding.obj : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_10.c nls_iso8859_13.c nls_iso8859_14.c nls_iso8859_15.c nls_iso8859_16.c nls_koi8_r.c nls_koi8_u.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1255.c nls_cp1256.c nls_cp1257.c nls_cp1258.c nls_hp_roman8.c nls_nextstep.c nls_jisx0201.c iconv.h sigsegv.h
+encoding.obj : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_10.c nls_iso8859_13.c nls_iso8859_14.c nls_iso8859_15.c nls_koi8_r.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1255.c nls_cp1256.c nls_cp1257.c nls_cp1258.c nls_hp_roman8.c nls_nextstep.c sigsegv.h
 	$(CPP) $(CFLAGS) encoding.c > encoding.i.c
 	$(CC) $(CFLAGS) -c encoding.i.c
 	$(RM) encoding.obj
 	$(MV) encoding.i.obj encoding.obj
 	$(RM) encoding.i.c
 
-pathname.i : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+pathname.i : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) pathname.c > pathname.i
 
-pathname.s : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+pathname.s : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) pathname.c > pathname.i.c
 	$(CC) $(CFLAGS) -c pathname.i.c /FAs /Fapathname.s
 	$(RM) pathname.i.obj
 	$(RM) pathname.i.c
 
-pathname.obj : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+pathname.obj : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) pathname.c > pathname.i.c
 	$(CC) $(CFLAGS) -c pathname.i.c
 	$(RM) pathname.obj
 	$(MV) pathname.i.obj pathname.obj
 	$(RM) pathname.i.c
 
-stream.i : stream.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c iconv.h sigsegv.h
+stream.i : stream.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c sigsegv.h
 	$(CPP) $(CFLAGS) stream.c > stream.i
 
-stream.s : stream.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c iconv.h sigsegv.h
+stream.s : stream.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c sigsegv.h
 	$(CPP) $(CFLAGS) stream.c > stream.i.c
 	$(CC) $(CFLAGS) -c stream.i.c /FAs /Fastream.s
 	$(RM) stream.i.obj
 	$(RM) stream.i.c
 
-stream.obj : stream.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c iconv.h sigsegv.h
+stream.obj : stream.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c sigsegv.h
 	$(CPP) $(CFLAGS) stream.c > stream.i.c
 	$(CC) $(CFLAGS) -c stream.i.c
 	$(RM) stream.obj
 	$(MV) stream.i.obj stream.obj
 	$(RM) stream.i.c
 
-socket.i : socket.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+socket.i : socket.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) socket.c > socket.i
 
-socket.s : socket.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+socket.s : socket.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) socket.c > socket.i.c
 	$(CC) $(CFLAGS) -c socket.i.c /FAs /Fasocket.s
 	$(RM) socket.i.obj
 	$(RM) socket.i.c
 
-socket.obj : socket.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+socket.obj : socket.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) socket.c > socket.i.c
 	$(CC) $(CFLAGS) -c socket.i.c
 	$(RM) socket.obj
 	$(MV) socket.i.obj socket.obj
 	$(RM) socket.i.c
 
-io.i : io.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c iconv.h sigsegv.h
+io.i : io.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c sigsegv.h
 	$(CPP) $(CFLAGS) io.c > io.i
 
-io.s : io.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c iconv.h sigsegv.h
+io.s : io.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c sigsegv.h
 	$(CPP) $(CFLAGS) io.c > io.i.c
 	$(CC) $(CFLAGS) -c io.i.c /FAs /Faio.s
 	$(RM) io.i.obj
 	$(RM) io.i.c
 
-io.obj : io.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c iconv.h sigsegv.h
+io.obj : io.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c sigsegv.h
 	$(CPP) $(CFLAGS) io.c > io.i.c
 	$(CC) $(CFLAGS) -c io.i.c
 	$(RM) io.obj
 	$(MV) io.i.obj io.obj
 	$(RM) io.i.c
 
-array.i : array.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c iconv.h sigsegv.h
+array.i : array.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c sigsegv.h
 	$(CPP) $(CFLAGS) array.c > array.i
 
-array.s : array.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c iconv.h sigsegv.h
+array.s : array.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c sigsegv.h
 	$(CPP) $(CFLAGS) array.c > array.i.c
 	$(CC) $(CFLAGS) -c array.i.c /FAs /Faarray.s
 	$(RM) array.i.obj
 	$(RM) array.i.c
 
-array.obj : array.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c iconv.h sigsegv.h
+array.obj : array.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c sigsegv.h
 	$(CPP) $(CFLAGS) array.c > array.i.c
 	$(CC) $(CFLAGS) -c array.i.c
 	$(RM) array.obj
 	$(MV) array.i.obj array.obj
 	$(RM) array.i.c
 
-hashtabl.i : hashtabl.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c aridecl.c iconv.h sigsegv.h
+hashtabl.i : hashtabl.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c aridecl.c sigsegv.h
 	$(CPP) $(CFLAGS) hashtabl.c > hashtabl.i
 
-hashtabl.s : hashtabl.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c aridecl.c iconv.h sigsegv.h
+hashtabl.s : hashtabl.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c aridecl.c sigsegv.h
 	$(CPP) $(CFLAGS) hashtabl.c > hashtabl.i.c
 	$(CC) $(CFLAGS) -c hashtabl.i.c /FAs /Fahashtabl.s
 	$(RM) hashtabl.i.obj
 	$(RM) hashtabl.i.c
 
-hashtabl.obj : hashtabl.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c aridecl.c iconv.h sigsegv.h
+hashtabl.obj : hashtabl.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c aridecl.c sigsegv.h
 	$(CPP) $(CFLAGS) hashtabl.c > hashtabl.i.c
 	$(CC) $(CFLAGS) -c hashtabl.i.c
 	$(RM) hashtabl.obj
 	$(MV) hashtabl.i.obj hashtabl.obj
 	$(RM) hashtabl.i.c
 
-list.i : list.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+list.i : list.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) list.c > list.i
 
-list.s : list.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+list.s : list.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) list.c > list.i.c
 	$(CC) $(CFLAGS) -c list.i.c /FAs /Falist.s
 	$(RM) list.i.obj
 	$(RM) list.i.c
 
-list.obj : list.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+list.obj : list.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) list.c > list.i.c
 	$(CC) $(CFLAGS) -c list.i.c
 	$(RM) list.obj
 	$(MV) list.i.obj list.obj
 	$(RM) list.i.c
 
-package.i : package.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c arilev0.c iconv.h sigsegv.h
+package.i : package.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c arilev0.c sigsegv.h
 	$(CPP) $(CFLAGS) package.c > package.i
 
-package.s : package.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c arilev0.c iconv.h sigsegv.h
+package.s : package.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c arilev0.c sigsegv.h
 	$(CPP) $(CFLAGS) package.c > package.i.c
 	$(CC) $(CFLAGS) -c package.i.c /FAs /Fapackage.s
 	$(RM) package.i.obj
 	$(RM) package.i.c
 
-package.obj : package.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c arilev0.c iconv.h sigsegv.h
+package.obj : package.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c arilev0.c sigsegv.h
 	$(CPP) $(CFLAGS) package.c > package.i.c
 	$(CC) $(CFLAGS) -c package.i.c
 	$(RM) package.obj
 	$(MV) package.i.obj package.obj
 	$(RM) package.i.c
 
-record.i : record.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+record.i : record.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) record.c > record.i
 
-record.s : record.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+record.s : record.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) record.c > record.i.c
 	$(CC) $(CFLAGS) -c record.i.c /FAs /Farecord.s
 	$(RM) record.i.obj
 	$(RM) record.i.c
 
-record.obj : record.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+record.obj : record.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) record.c > record.i.c
 	$(CC) $(CFLAGS) -c record.i.c
 	$(RM) record.obj
 	$(MV) record.i.obj record.obj
 	$(RM) record.i.c
 
-sequence.i : sequence.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+sequence.i : sequence.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) sequence.c > sequence.i
 
-sequence.s : sequence.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+sequence.s : sequence.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) sequence.c > sequence.i.c
 	$(CC) $(CFLAGS) -c sequence.i.c /FAs /Fasequence.s
 	$(RM) sequence.i.obj
 	$(RM) sequence.i.c
 
-sequence.obj : sequence.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+sequence.obj : sequence.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) sequence.c > sequence.i.c
 	$(CC) $(CFLAGS) -c sequence.i.c
 	$(RM) sequence.obj
 	$(MV) sequence.i.obj sequence.obj
 	$(RM) sequence.i.c
 
-charstrg.i : charstrg.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c uni_upcase.c uni_downcase.c uni_attribute.c iconv.h sigsegv.h
+charstrg.i : charstrg.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c uni_upcase.c uni_downcase.c uni_attribute.c sigsegv.h
 	$(CPP) $(CFLAGS) charstrg.c > charstrg.i
 
-charstrg.s : charstrg.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c uni_upcase.c uni_downcase.c uni_attribute.c iconv.h sigsegv.h
+charstrg.s : charstrg.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c uni_upcase.c uni_downcase.c uni_attribute.c sigsegv.h
 	$(CPP) $(CFLAGS) charstrg.c > charstrg.i.c
 	$(CC) $(CFLAGS) -c charstrg.i.c /FAs /Facharstrg.s
 	$(RM) charstrg.i.obj
 	$(RM) charstrg.i.c
 
-charstrg.obj : charstrg.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c uni_upcase.c uni_downcase.c uni_attribute.c iconv.h sigsegv.h
+charstrg.obj : charstrg.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c uni_upcase.c uni_downcase.c uni_attribute.c sigsegv.h
 	$(CPP) $(CFLAGS) charstrg.c > charstrg.i.c
 	$(CC) $(CFLAGS) -c charstrg.i.c
 	$(RM) charstrg.obj
 	$(MV) charstrg.i.obj charstrg.obj
 	$(RM) charstrg.i.c
 
-debug.i : debug.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+debug.i : debug.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) debug.c > debug.i
 
-debug.s : debug.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+debug.s : debug.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) debug.c > debug.i.c
 	$(CC) $(CFLAGS) -c debug.i.c /FAs /Fadebug.s
 	$(RM) debug.i.obj
 	$(RM) debug.i.c
 
-debug.obj : debug.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+debug.obj : debug.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) debug.c > debug.i.c
 	$(CC) $(CFLAGS) -c debug.i.c
 	$(RM) debug.obj
 	$(MV) debug.i.obj debug.obj
 	$(RM) debug.i.c
 
-error.i : error.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c errwin32.c iconv.h sigsegv.h
+error.i : error.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c errwin32.c sigsegv.h
 	$(CPP) $(CFLAGS) error.c > error.i
 
-error.s : error.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c errwin32.c iconv.h sigsegv.h
+error.s : error.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c errwin32.c sigsegv.h
 	$(CPP) $(CFLAGS) error.c > error.i.c
 	$(CC) $(CFLAGS) -c error.i.c /FAs /Faerror.s
 	$(RM) error.i.obj
 	$(RM) error.i.c
 
-error.obj : error.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c errwin32.c iconv.h sigsegv.h
+error.obj : error.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c errwin32.c sigsegv.h
 	$(CPP) $(CFLAGS) error.c > error.i.c
 	$(CC) $(CFLAGS) -c error.i.c
 	$(RM) error.obj
 	$(MV) error.i.obj error.obj
 	$(RM) error.i.c
 
-misc.i : misc.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+misc.i : misc.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) misc.c > misc.i
 
-misc.s : misc.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+misc.s : misc.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) misc.c > misc.i.c
 	$(CC) $(CFLAGS) -c misc.i.c /FAs /Famisc.s
 	$(RM) misc.i.obj
 	$(RM) misc.i.c
 
-misc.obj : misc.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+misc.obj : misc.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) misc.c > misc.i.c
 	$(CC) $(CFLAGS) -c misc.i.c
 	$(RM) misc.obj
 	$(MV) misc.i.obj misc.obj
 	$(RM) misc.i.c
 
-time.i : time.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c iconv.h sigsegv.h
+time.i : time.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c sigsegv.h
 	$(CPP) $(CFLAGS) time.c > time.i
 
-time.s : time.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c iconv.h sigsegv.h
+time.s : time.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c sigsegv.h
 	$(CPP) $(CFLAGS) time.c > time.i.c
 	$(CC) $(CFLAGS) -c time.i.c /FAs /Fatime.s
 	$(RM) time.i.obj
 	$(RM) time.i.c
 
-time.obj : time.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c iconv.h sigsegv.h
+time.obj : time.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c sigsegv.h
 	$(CPP) $(CFLAGS) time.c > time.i.c
 	$(CC) $(CFLAGS) -c time.i.c
 	$(RM) time.obj
 	$(MV) time.i.obj time.obj
 	$(RM) time.i.c
 
-predtype.i : predtype.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c avl.c iconv.h sigsegv.h
+predtype.i : predtype.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c avl.c sigsegv.h
 	$(CPP) $(CFLAGS) predtype.c > predtype.i
 
-predtype.s : predtype.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c avl.c iconv.h sigsegv.h
+predtype.s : predtype.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c avl.c sigsegv.h
 	$(CPP) $(CFLAGS) predtype.c > predtype.i.c
 	$(CC) $(CFLAGS) -c predtype.i.c /FAs /Fapredtype.s
 	$(RM) predtype.i.obj
 	$(RM) predtype.i.c
 
-predtype.obj : predtype.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c avl.c iconv.h sigsegv.h
+predtype.obj : predtype.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c avl.c sigsegv.h
 	$(CPP) $(CFLAGS) predtype.c > predtype.i.c
 	$(CC) $(CFLAGS) -c predtype.i.c
 	$(RM) predtype.obj
 	$(MV) predtype.i.obj predtype.obj
 	$(RM) predtype.i.c
 
-symbol.i : symbol.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+symbol.i : symbol.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) symbol.c > symbol.i
 
-symbol.s : symbol.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+symbol.s : symbol.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) symbol.c > symbol.i.c
 	$(CC) $(CFLAGS) -c symbol.i.c /FAs /Fasymbol.s
 	$(RM) symbol.i.obj
 	$(RM) symbol.i.c
 
-symbol.obj : symbol.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+symbol.obj : symbol.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) symbol.c > symbol.i.c
 	$(CC) $(CFLAGS) -c symbol.i.c
 	$(RM) symbol.obj
 	$(MV) symbol.i.obj symbol.obj
 	$(RM) symbol.i.c
 
-lisparit.i : lisparit.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c aridecl.c arilev0.c arilev1.c intelem.c intlog.c intplus.c intcomp.c intbyte.c intmal.c intdiv.c intgcd.c int2adic.c intsqrt.c intprint.c intread.c rational.c sfloat.c ffloat.c dfloat.c lfloat.c flo_konv.c flo_rest.c realelem.c realrand.c realtran.c compelem.c comptran.c arilev1c.c arilev1e.c arilev1i.c iconv.h sigsegv.h
+lisparit.i : lisparit.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c aridecl.c arilev0.c arilev1.c intelem.c intlog.c intplus.c intcomp.c intbyte.c intmal.c intdiv.c intgcd.c int2adic.c intsqrt.c intprint.c intread.c rational.c sfloat.c ffloat.c dfloat.c lfloat.c flo_konv.c flo_rest.c realelem.c realrand.c realtran.c compelem.c comptran.c arilev1c.c arilev1e.c arilev1i.c sigsegv.h
 	$(CPP) $(CFLAGS) lisparit.c > lisparit.i
 
-lisparit.s : lisparit.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c aridecl.c arilev0.c arilev1.c intelem.c intlog.c intplus.c intcomp.c intbyte.c intmal.c intdiv.c intgcd.c int2adic.c intsqrt.c intprint.c intread.c rational.c sfloat.c ffloat.c dfloat.c lfloat.c flo_konv.c flo_rest.c realelem.c realrand.c realtran.c compelem.c comptran.c arilev1c.c arilev1e.c arilev1i.c iconv.h sigsegv.h
+lisparit.s : lisparit.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c aridecl.c arilev0.c arilev1.c intelem.c intlog.c intplus.c intcomp.c intbyte.c intmal.c intdiv.c intgcd.c int2adic.c intsqrt.c intprint.c intread.c rational.c sfloat.c ffloat.c dfloat.c lfloat.c flo_konv.c flo_rest.c realelem.c realrand.c realtran.c compelem.c comptran.c arilev1c.c arilev1e.c arilev1i.c sigsegv.h
 	$(CPP) $(CFLAGS) lisparit.c > lisparit.i.c
 	$(CC) $(CFLAGS) -c lisparit.i.c /FAs /Falisparit.s
 	$(RM) lisparit.i.obj
 	$(RM) lisparit.i.c
 
-lisparit.obj : lisparit.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c aridecl.c arilev0.c arilev1.c intelem.c intlog.c intplus.c intcomp.c intbyte.c intmal.c intdiv.c intgcd.c int2adic.c intsqrt.c intprint.c intread.c rational.c sfloat.c ffloat.c dfloat.c lfloat.c flo_konv.c flo_rest.c realelem.c realrand.c realtran.c compelem.c comptran.c arilev1c.c arilev1e.c arilev1i.c iconv.h sigsegv.h
+lisparit.obj : lisparit.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c aridecl.c arilev0.c arilev1.c intelem.c intlog.c intplus.c intcomp.c intbyte.c intmal.c intdiv.c intgcd.c int2adic.c intsqrt.c intprint.c intread.c rational.c sfloat.c ffloat.c dfloat.c lfloat.c flo_konv.c flo_rest.c realelem.c realrand.c realtran.c compelem.c comptran.c arilev1c.c arilev1e.c arilev1i.c sigsegv.h
 	$(CPP) $(CFLAGS) lisparit.c > lisparit.i.c
 	$(CC) $(CFLAGS) -c lisparit.i.c
 	$(RM) lisparit.obj
 	$(MV) lisparit.i.obj lisparit.obj
 	$(RM) lisparit.i.c
 
-win32aux.i : win32aux.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+win32aux.i : win32aux.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) win32aux.c > win32aux.i
 
-win32aux.s : win32aux.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+win32aux.s : win32aux.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) win32aux.c > win32aux.i.c
 	$(CC) $(CFLAGS) -c win32aux.i.c /FAs /Fawin32aux.s
 	$(RM) win32aux.i.obj
 	$(RM) win32aux.i.c
 
-win32aux.obj : win32aux.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+win32aux.obj : win32aux.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) win32aux.c > win32aux.i.c
 	$(CC) $(CFLAGS) -c win32aux.i.c
 	$(RM) win32aux.obj
 	$(MV) win32aux.i.obj win32aux.obj
 	$(RM) win32aux.i.c
 
-genclisph.i : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+genclisph.i : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) genclisph.c > genclisph.i
 
-genclisph.s : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+genclisph.s : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) genclisph.c > genclisph.i.c
 	$(CC) $(CFLAGS) -c genclisph.i.c /FAs /Fagenclisph.s
 	$(RM) genclisph.i.obj
 	$(RM) genclisph.i.c
 
-genclisph.obj : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+genclisph.obj : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) genclisph.c > genclisph.i.c
 	$(CC) $(CFLAGS) -c genclisph.i.c
 	$(RM) genclisph.obj
 	$(MV) genclisph.i.obj genclisph.obj
 	$(RM) genclisph.i.c
 
-modules.i : modules.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h modules.h
+modules.i : modules.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h modules.h
 	$(CPP) $(CFLAGS) -DNO_CLISP_H modules.c > modules.i
 
-modules.s : modules.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h modules.h
+modules.s : modules.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h modules.h
 	$(CPP) $(CFLAGS) -DNO_CLISP_H modules.c > modules.i.c
 	$(CC) $(CFLAGS) -DNO_CLISP_H -c modules.i.c /FAs /Famodules.s
 	$(RM) modules.i.obj
 	$(RM) modules.i.c
 
-modules.obj : modules.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h modules.h
+modules.obj : modules.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h modules.h
 	$(CPP) $(CFLAGS) -DNO_CLISP_H modules.c > modules.i.c
 	$(CC) $(CFLAGS) -DNO_CLISP_H -c modules.i.c
 	$(RM) modules.obj
 	$(MV) modules.i.obj modules.obj
 	$(RM) modules.i.c
 
-noreadline.i : noreadline.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+noreadline.i : noreadline.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) noreadline.c > noreadline.i
 
-noreadline.s : noreadline.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+noreadline.s : noreadline.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) noreadline.c > noreadline.i.c
 	$(CC) $(CFLAGS) -c noreadline.i.c /FAs /Fanoreadline.s
 	$(RM) noreadline.i.obj
 	$(RM) noreadline.i.c
 
-noreadline.obj : noreadline.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h
+noreadline.obj : noreadline.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) noreadline.c > noreadline.i.c
 	$(CC) $(CFLAGS) -c noreadline.i.c
 	$(RM) noreadline.obj
 	$(MV) noreadline.i.obj noreadline.obj
 	$(RM) noreadline.i.c
-
-iconv.h : ..\libiconv\iconv.h
-	-$(LN) ..\libiconv\iconv.h iconv.h
-
-iconv.lib : ..\libiconv\iconv.lib
-	-$(LN) ..\libiconv\iconv.lib iconv.lib
 
 sigsegv.h : ..\sigsegv\sigsegv.h
 	-$(LN) ..\sigsegv\sigsegv.h sigsegv.h
@@ -1924,9 +1695,6 @@ edit.fas : edit.lsp lisp.exe interpreted.mem
 
 macros3.fas : macros3.lsp lisp.exe interpreted.mem
 	lisp.exe -m 1000KW -M interpreted.mem -B . -Efile ISO-8859-1 -norc -q -c macros3.lsp
-
-posix.fas : posix.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -Efile ISO-8859-1 -norc -q -c posix.lsp
 
 foreign1.fas : foreign1.lsp lisp.exe interpreted.mem
 	lisp.exe -m 1000KW -M interpreted.mem -B . -Efile ISO-8859-1 -norc -q -c foreign1.lsp
@@ -2073,9 +1841,6 @@ stage\edit.lsp : edit.lsp
 stage\macros3.lsp : macros3.lsp
 	$(LN) macros3.lsp stage
 
-stage\posix.lsp : posix.lsp
-	$(LN) posix.lsp stage
-
 stage\foreign1.lsp : foreign1.lsp
 	$(LN) foreign1.lsp stage
 
@@ -2196,9 +1961,6 @@ stage\edit.fas : stage\edit.lsp lisp.exe lispinit.mem
 stage\macros3.fas : stage\macros3.lsp lisp.exe lispinit.mem
 	lisp.exe -M lispinit.mem -B . -Efile ISO-8859-1 -norc -q -c stage/macros3.lsp
 
-stage\posix.fas : stage\posix.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -Efile ISO-8859-1 -norc -q -c stage/posix.lsp
-
 stage\foreign1.fas : stage\foreign1.lsp lisp.exe lispinit.mem
 	lisp.exe -M lispinit.mem -B . -Efile ISO-8859-1 -norc -q -c stage/foreign1.lsp
 
@@ -2245,7 +2007,7 @@ GNU-GPL : ..\GNU-GPL
 SUMMARY : ..\SUMMARY
 	-$(LN) ..\SUMMARY SUMMARY
 
-README : _README lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h _README.de _README.en txt2c.exe
+README : _README lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h _README.de _README.en txt2c.exe
 	$(TXT2C) < _README > txt.c
 	$(CPP) $(CFLAGS) txt.c > txt.i.c
 	$(CC) $(CFLAGS) $(CLFLAGS) -etxt.exe txt.i.c
@@ -2254,7 +2016,7 @@ README : _README lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win
 	$(RM) txt.c
 	$(RM) txt.exe
 
-README.de : _README.de lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h txt2c.exe
+README.de : _README.de lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h txt2c.exe
 	$(TXT2C) < _README.de > txt.c
 	$(CPP) $(CFLAGS) txt.c > txt.i.c
 	$(CC) $(CFLAGS) $(CLFLAGS) -etxt.exe txt.i.c
@@ -2263,7 +2025,7 @@ README.de : _README.de lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj
 	$(RM) txt.c
 	$(RM) txt.exe
 
-README.es : _README.es lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h txt2c.exe
+README.es : _README.es lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h txt2c.exe
 	$(TXT2C) < _README.es > txt.c
 	$(CPP) $(CFLAGS) txt.c > txt.i.c
 	$(CC) $(CFLAGS) $(CLFLAGS) -etxt.exe txt.i.c
@@ -2272,7 +2034,7 @@ README.es : _README.es lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj
 	$(RM) txt.c
 	$(RM) txt.exe
 
-clisp.1 : _clisp.1 lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h txt2c.exe
+clisp.1 : _clisp.1 lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h txt2c.exe
 	$(TXT2C) < _clisp.1 > txt.c
 	$(CPP) $(CFLAGS) txt.c > txt.i.c
 	$(CC) $(CFLAGS) $(CLFLAGS) -etxt.exe txt.i.c
@@ -2281,7 +2043,7 @@ clisp.1 : _clisp.1 lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c w
 	$(RM) txt.c
 	$(RM) txt.exe
 
-clisp.html : _clisp.html lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h txt2c.exe
+clisp.html : _clisp.html lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h txt2c.exe
 	$(TXT2C) < _clisp.html > txt.c
 	$(CPP) $(CFLAGS) txt.c > txt.i.c
 	$(CC) $(CFLAGS) $(CLFLAGS) -etxt.exe txt.i.c
@@ -2337,14 +2099,14 @@ distrib : force
 
 # clean0 is harmless: removes only superfluous things: temporary files.
 clean0 : force
-	-$(RM) core ansidecl.c varbrace.c ccmp2c.c modprep.c genclisph.exe wgenclisph.exe linkkit txt.c txt.exe txt.i.c
+	-$(RM) core ansidecl.c ccmp2c.c modprep.c genclisph.exe wgenclisph.exe linkkit txt.c txt.exe txt.i.c
 
 # clean1 removes everything that becomes obsolete once lisp.exe is recompiled
 # without changing the bytecode format and the tables in
 # constobj.d, constpack.d, constsym.d, subr.d, fsubr.d, pseudofun.d.
 clean1 : clean0
 	-$(RM) lispbibl.h clisp.h *.i *.s *.obj *.a lisp.exe clisp-link makevars stage/* suite/*
-	-$(RM) sigsegv.lib iconv.lib avcall.lib callback.lib
+	-$(RM) sigsegv.lib avcall.lib callback.lib
 	-rmdir stage
 	-rmdir suite
 	-$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.html impnotes.html clisp.c distmakefile $(TXTFILES) clreadline.3 clreadline.man clreadline.html clreadline.dvi readline.dvi
@@ -2364,7 +2126,6 @@ clean3 : clean2
 # It leaves everything generated by "make init".
 clean4 : clean3
 	-$(RM) $(CFILES)
-	-$(RM) iconv.h
 	-$(RM) sigsegv.h
 
 # clean5 even undoes "make init".

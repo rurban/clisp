@@ -19,10 +19,6 @@ development environment, using native system calls
         nmake -f Makefile.msvc check
         cd ..
 
-        cd libiconv
-        nmake -f Makefile.msvc check
-        cd ..
-
         cd sigsegv
         nmake -f Makefile.msvc check
         cd ..

@@ -379,8 +379,8 @@ if test -n "$do_config"; then
       link ffcall/$f $ABS_DIRNAME/$f
     fi
   done
-  # Similarly for libiconv and sigsegv.
-  for subdir in libiconv sigsegv
+  # Similarly for sigsegv.
+  for subdir in sigsegv
   do
     if [ -d $subdir ] ; then
       if [ ! -d $ABS_DIRNAME/$subdir ] ; then
@@ -388,7 +388,7 @@ if test -n "$do_config"; then
       fi
     fi
   done
-  for subdir in libiconv sigsegv
+  for subdir in sigsegv
   do
     f=$subdir/configure
     if [ -f $f ] ; then
@@ -398,7 +398,7 @@ if test -n "$do_config"; then
   done
   # Prepare the configure files.
   chmod a+x $ABS_DIRNAME/configure
-  for subdir in oldoldreadline oldreadline readline avcall callback libiconv sigsegv; do
+  for subdir in oldoldreadline oldreadline readline avcall callback sigsegv; do
     if test -d $ABS_DIRNAME/$subdir; then
       chmod a+x $ABS_DIRNAME/$subdir/configure
     fi
@@ -444,16 +444,6 @@ if test -n "$do_config"; then
       cd $subdir
       ${CONFIG_SHELL-/bin/sh} configure --srcdir="$RREL_SRCDIR/ffcall/$subdir" \
           $subdir_configure_args --cache-file=../config.cache
-    cd ..
-    fi
-  done
-  for subdir in libiconv; do
-    if test -d $subdir; then
-      echo "executing $DIRNAME/$subdir/configure ..."
-      cd $subdir
-      ${CONFIG_SHELL-/bin/sh} configure --srcdir="$RREL_SRCDIR/$subdir" \
-          $subdir_configure_args --cache-file=../config.cache \
-          --enable-static --disable-shared
     cd ..
     fi
   done
