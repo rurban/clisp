@@ -1,5 +1,11 @@
 2005-02-13  Bruno Haible  <bruno@clisp.org>
 
+	* m4/ffcall-codeexec.m4 (CL_CODEEXEC): Assume that only AIX on RS6000
+	have non-executable malloc'ed memory, not other operating systems.
+	For MacOS X.
+
+2005-02-13  Bruno Haible  <bruno@clisp.org>
+
 	Avoid core dumps during autoconfiguration.
 	* m4/nocrash.m4: New file.
 	* m4/ffcall-codeexec.m4 (CL_CODEEXEC): Use GL_NOCRASH.
