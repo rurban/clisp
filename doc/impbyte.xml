@@ -679,8 +679,7 @@ letters:
 <section id="intr-set"><title>The instruction set</title>
 
 <section id="instr-const"><title>Instructions for constants</title>
-<table id="instr-const-tab" frame="all">
- <title>Instructions for constants</title>
+<informaltable id="instr-const-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(&nil;)</literal></entry>
@@ -697,12 +696,11 @@ letters:
       <entry>Load the function's &n-r;th constant into values.</entry>
       <entry>&value1; := &consts;[&n-r;],
              &mv-count; := 1</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 </section>
 
 <section id="instr-lex-var"><title>Instructions for lexical variables</title>
-<table id="instr-lex-var-tab" frame="all">
- <title>Instructions for lexical variables</title>
+<informaltable id="instr-lex-var-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(LOAD &n-r;)</literal></entry>
@@ -762,12 +760,11 @@ letters:
       <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
              &svref;(*(*(&SP;+&k-r;)+&n-r;),1+&m-r;) := &value1;,
              &mv-count; := 1</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 </section>
 
 <section id="instr-dyn-var"><title>Instructions for dynamic variables</title>
-<table id="instr-dyn-var-tab" frame="all">
- <title>Instructions for dynamic variables</title>
+<informaltable id="instr-dyn-var-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(GETVALUE
@@ -805,12 +802,11 @@ letters:
              build a single binding frame binding the symbols in
              <replaceable>symbols</replaceable> to the values in &value1;,
              values undefined</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 </section>
 
 <section id="instr-stack"><title>Instructions for stack operations</title>
-<table id="instr-stack-tab" frame="all">
- <title>Instructions for stack operations</title>
+<informaltable id="instr-stack-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(PUSH)</literal></entry>
@@ -834,12 +830,11 @@ letters:
       <entry>Restore a previous &SP; pointer.</entry>
       <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
              &SP; := &SP;+&k-r;</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 </section>
 
 <section id="instr-jump"><title>Instructions for control flow, jumps</title>
-<table id="instr-jump-tab" frame="all">
- <title>Instructions for control flow, jumps</title>
+<informaltable id="instr-jump-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(SKIP&amp;RET &n-r;)</literal></entry>
@@ -940,13 +935,12 @@ letters:
              &STACK; += n-m.
              *--&STACK; := function.
              Then jump to &lab-r;, with values undefined.</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 </section>
 
 <section id="instr-env"><title>Instructions for lexical environment,
    creation of closures</title>
-<table id="instr-env-tab" frame="all">
- <title>Instructions for lexical environment, creation of closures</title>
+<informaltable id="instr-env-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(VENV)</literal></entry>
@@ -968,12 +962,11 @@ letters:
                  &f-r;_&consts;[i] := *(&STACK;+&n-r;-1-&i-r;).
              &STACK; += &n-r;.
              &value1; := &f-r;, &mv-count; := 1</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 </section>
 
 <section id="instr-funcall"><title>Instructions for function calls</title>
-<table id="instr-funcall-tab" frame="all">
- <title>Instructions for function calls</title>
+<informaltable id="instr-funcall-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(CALL &k-r; &n-r;)</literal></entry>
@@ -1048,13 +1041,12 @@ letters:
              and a list of additional arguments &value1;.
              &STACK; += &n-r;+1.
              The returned values go into values.</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 </section>
 
 <section id="instr-optkey"><title>Instructions for optional
   and keyword parameters</title>
-<table id="instr-optkey-tab" frame="all">
- <title>Instructions for optional and keyword parameters</title>
+<informaltable id="instr-optkey-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(PUSH-UNBOUND &n-r;)</literal></entry>
@@ -1097,12 +1089,11 @@ letters:
              &nil; to it.</entry>
       <entry>If *(&STACK;+&n-r;) is &unbound;,
              *(&STACK;+&n-r;) := &nil;.</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 </section>
 
 <section id="instr-mulval"><title>Instructions for multiple values</title>
-<table id="instr-mulval-tab" frame="all">
- <title>Instructions for multiple values</title>
+<informaltable id="instr-mulval-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(VALUES0)</literal></entry>
@@ -1146,13 +1137,12 @@ letters:
              *(newSTACK-2), ..., *(&STACK;+0) as arguments.
              &STACK; := newSTACK.
              The returned values go into values.</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 </section>
 
 <section id="instr-block"><title>Instructions for
    &block; and &return-from;</title>
-<table id="instr-block-tab" frame="all">
- <title>Instructions for &block; and &return-from;</title>
+<informaltable id="instr-block-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(BLOCK-OPEN &n-r; &lab-r;)</literal></entry>
@@ -1180,12 +1170,11 @@ letters:
              If &cdr;(&bc-r;) = &disabled;, &signal; an &error-t;.
              Else &cdr;(&bc-r;) is a frame-pointer.
              Unwind the stack up to this frame, pass it values.</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 </section>
 
 <section id="instr-tagbody"><title>Instructions for &tagbody; and &go;</title>
-<table id="instr-tagbody-tab" frame="all">
- <title>Instructions for &tagbody; and &go;</title>
+<informaltable id="instr-tagbody-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(TAGBODY-OPEN &n-r;
@@ -1227,12 +1216,11 @@ letters:
              If &cdr;(&tbc-r;) = &disabled;, &signal; an &error-t;.
              Else &cdr;(&tbc-r;) is a frame-pointer. Unwind the stack up
              to this frame, pass it the number &lab-r;.</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 </section>
 
 <section id="instr-catch"><title>Instructions for &catch; and &throw;</title>
-<table id="instr-catch-tab" frame="all">
- <title>Instructions for &catch; and &throw;</title>
+<informaltable id="instr-catch-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(CATCH-OPEN &lab-r;)</literal></entry>
@@ -1251,12 +1239,11 @@ letters:
              Search the innermost &catch; frame with tag
              &tag-r; on the &STACK;, unwind the
              stack up to it, pass it values.</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 </section>
 
 <section id="instr-unwind"><title>Instructions for &unwind-protect;</title>
-<table id="instr-unwind-tab" frame="all">
- <title>Instructions for &unwind-protect;</title>
+<informaltable id="instr-unwind-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(UNWIND-PROTECT-OPEN
@@ -1294,12 +1281,11 @@ letters:
              *--&SP; := 0, *--&SP; := PC, *--&SP; := &STACK;.
              Save the values on the &STACK;, &STACK; -= &mv-count;.
              PC := &lab-r;.</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 </section>
 
 <section id="instr-handler"><title>Instructions for &handler-bind;</title>
-<table id="instr-handler-tab" frame="all">
- <title>Instructions for &handler-bind;</title>
+<informaltable id="instr-handler-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(HANDLER-OPEN &n-r;)</literal></entry>
@@ -1314,13 +1300,12 @@ letters:
              &value1; := the &condition-t; that was passed to the handler,
              &mv-count; := 1.
              *--&STACK; := &value1;.</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 </section>
 
 <section id="instr-inline"><title>Instructions for some inlined
   functions</title>
-<table id="instr-inline-tab" frame="all">
- <title>Instructions for some inlined functions</title>
+<informaltable id="instr-inline-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(NOT)</literal></entry>
@@ -1365,7 +1350,7 @@ letters:
       <entry>&value1; := &list-star;(*(&STACK;+&n-r;-1),...,
                                      *(&STACK;+0),&value1;),
              &mv-count; := 1, &STACK; += &n-r;.</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 </section>
 
 <section id="instr-combo"><title>Combined instructions</title>
@@ -1376,8 +1361,7 @@ speed optimization. The only exception is
 <literal role="sexp">FUNCALL&amp;SKIP&amp;RETGF</literal>, which is needed for
 generic functions.</para>
 
-<table id="instr-combo-tab" frame="all">
- <title>Combined instructions</title>
+<informaltable id="instr-combo-tab" frame="all">
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
  <thead><row><entry>mnemonic</entry><entry>equivalent</entry></row></thead>
 <tbody>
@@ -1555,7 +1539,7 @@ generic functions.</para>
  <row><entry><literal role="sexp">(FUNCALL&amp;SKIP&amp;RETGF &n-r; &k-r;)</literal></entry>
       <entry><literal role="sexp">(FUNCALL &n-r;) (SKIP&amp;RETGF &k-r;)</literal></entry>
   </row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 
 </section>
 
@@ -1564,8 +1548,7 @@ generic functions.</para>
 <para>There are special one-byte instructions (without explicit
 operands) for the following frequent instructions:</para>
 
-<table id="instr-shortcut-tab" frame="all">
- <title>Shortcut instructions</title>
+<informaltable id="instr-shortcut-tab" frame="all">
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
  <thead><row><entry>mnemonic</entry><entry>operand range</entry></row></thead>
 <tbody>
@@ -1579,7 +1562,7 @@ operands) for the following frequent instructions:</para>
       <entry>0 &le; &n-r; &lt; 30</entry></row>
  <row><entry><literal role="sexp">(STORE &n-r;)</literal></entry>
       <entry>0 &le; &n-r; &lt; 8</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 
 </section>
 </section>
