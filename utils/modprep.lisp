@@ -51,7 +51,7 @@ The input file is normal C code, modified like this:
   }}
   it is convenient for parsing flag arguments to DEFUNs
 - DEFCHECKER(c_name, [enum|type]=..., suffix= ..., prefix=..., default=...,
-             C_CONST1 C_CONST2 C_CONST3)
+             reverse= ..., C_CONST1 C_CONST2 C_CONST3)
   is converted to
   static struct { int c_const, gcv_object_t *l_const; } c_name_table[] = ...
   static [enum_]type c_name (object arg) {
@@ -78,10 +78,11 @@ The input file is normal C code, modified like this:
       if (a == c_name_table[index].c_const)
         return *c_name_table[index].l_const;
     if (a == default) return NIL;
-    NOTREACHED;
+    NOTREACHED; /* or "return reverse(a);" if reverse is supplied */
   }
  enum means no #ifdef
  prefix, suffix default to ""
+ reverse defaults to "" and means NOTREACHED
  default defaults to C_CONST1
 
 Restrictions and caveats:
@@ -617,14 +618,14 @@ and turn it into DEFUN(funname,lambdalist,signature)."
 ;; type is the enum type name (if it is an enum typedef) and NIL otherwise
 ;; since enum constants cannot be checked by CPP, we do not ifdef them
 (defstruct (checker (:include cpp-helper))
-  enum-p type prefix suffix default cpp-odefs type-odef)
+  enum-p type prefix suffix reverse default cpp-odefs type-odef)
 (defvar *checkers* (make-array 5 :adjustable t :fill-pointer 0))
 (defun to-C-name (name prefix suffix)
   (setq name (substitute #\_ #\- name))
   (when prefix (setq name (ext:string-concat prefix "_" name)))
   (when suffix (setq name (ext:string-concat name "_" suffix)))
   name)
-(defun new-checker (name cpp-names &key type prefix suffix default enum
+(defun new-checker (name cpp-names &key type prefix suffix reverse default enum
                     (condition (current-condition)))
   (setq default (unless (eq default T)
                   (and default
@@ -632,7 +633,7 @@ and turn it into DEFUN(funname,lambdalist,signature)."
   (when (and type enum)
     (error "~S(~S): cannot specify both ~A=~S and ~A=~S"
            'new-checker name :type type :enum enum))
-  (let ((ch (make-checker :type (or type enum) :name name
+  (let ((ch (make-checker :type (or type enum) :name name :reverse reverse
                           :prefix prefix :suffix suffix
                           :enum-p (not (null enum)) :cpp-names cpp-names
                           :default default))
@@ -990,6 +991,7 @@ commas and parentheses."
     (newline out)
     (loop :for ch :across *checkers* :for default = (checker-default ch)
       :for prefix = (checker-prefix ch) :for suffix = (checker-suffix ch)
+      :for reverse = (checker-reverse ch)
       :for type-tag = (objdef-tag (checker-type-odef ch))
       :for c-name = (checker-name ch) :for c-type = (checker-type ch)
       :for enum-p = (checker-enum-p ch) :for need-default = (stringp default)
@@ -1039,7 +1041,9 @@ commas and parentheses."
             (formatln out "      return *~A_table[index].l_const;" c-name)
             (when need-default
               (formatln out "  if (a == ~A) return NIL;" default))
-            (formatln out "  NOTREACHED;")
+            (if (stringp reverse)
+                (formatln out "  return ~A(a);" reverse)
+                (formatln out "  NOTREACHED;"))
             (formatln out "}")))
     (newline out)))
 
