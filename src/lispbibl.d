@@ -4781,13 +4781,14 @@ typedef struct {
 #define Stream_length(obj)  stream_length(TheStream(obj))
 #define Stream_xlength(obj)  stream_xlength(TheStream(obj))
 # Bit-masks in the Flags:
-  #define strmflags_open_B   0xF0  #  set, if the Stream is open
+  #define strmflags_open_bit_B   0  # set, if the Stream is open
   #define strmflags_immut_bit_B  1  # set if read literals are immutable
   #define strmflags_reval_bit_B  2  # set, if Read-Eval is permitted
   #define strmflags_rd_by_bit_B  4  # set, if READ-BYTE is possible
   #define strmflags_wr_by_bit_B  5  # set, if WRITE-BYTE is possible
   #define strmflags_rd_ch_bit_B  6  # set, if READ-CHAR is possible
   #define strmflags_wr_ch_bit_B  7  # set, if WRITE-CHAR is possible
+  #define strmflags_open_B   bit(strmflags_open_bit_B)
   #define strmflags_rd_by_B  bit(strmflags_rd_by_bit_B)
   #define strmflags_wr_by_B  bit(strmflags_wr_by_bit_B)
   #define strmflags_rd_ch_B  bit(strmflags_rd_ch_bit_B)
@@ -7697,7 +7698,7 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
 # can trigger GC
 #ifdef case_stream
   #define allocate_stream(strmflags,strmtype,reclen,recxlen)  \
-    allocate_xrecord(strmflags,strmtype,reclen,recxlen,stream_type)
+    allocate_xrecord(strmflags | strmflags_open_B,strmtype,reclen,recxlen,stream_type)
 #else
   extern object allocate_stream (uintB strmflags, uintB strmtype, uintC reclen, uintC recxlen);
 #endif
