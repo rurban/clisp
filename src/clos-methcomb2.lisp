@@ -630,14 +630,14 @@
                       ,wrapped-ef-form)))))
       ef-fun)))
 
-(defun compute-effective-method-<standard-generic-function> (gf combination methods)
+(defun compute-effective-method-<generic-function> (gf combination methods)
   ;; Apply method combination:
   (funcall (method-combination-expander combination)
            gf combination (method-combination-options combination) methods))
 
 ;; Preliminary.
 (defun compute-effective-method (gf combination methods)
-  (compute-effective-method-<standard-generic-function> gf combination methods))
+  (compute-effective-method-<generic-function> gf combination methods))
 
 (defun compute-effective-method-as-function-form (gf combination methods)
   ;; Call the customizable compute-effective-method from the MOP. (No need to
@@ -648,7 +648,7 @@
       (funcall (cond ((or (eq gf |#'compute-discriminating-function|)  ; for bootstrapping
                           (eq gf |#'compute-effective-method|)
                           (eq gf |#'compute-applicable-methods-using-classes|))
-                      #'compute-effective-method-<standard-generic-function>)
+                      #'compute-effective-method-<generic-function>)
                      (t #'compute-effective-method))
                gf combination methods)
     ;; Build a function form around the inner form:
