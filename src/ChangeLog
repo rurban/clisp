@@ -2,6 +2,8 @@
 
         * defmacro.lsp (macro-call-error): Add missing ~S to English
         translation.
+        * describe.lsp (describe-object): Fix English message.
+        Reported by Tijs van Bakel <smoke@casema.net>.
 
 2000-02-29  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
