@@ -474,7 +474,8 @@
         { case varobject_bias:
             if (in_old_generation(obj,,0)) return TRUE;
             if (marked(ThePointer(obj))) return TRUE; else return FALSE;
-          case cons_bias:
+          case (cons_bias & immediate_bias):
+            if (immediate_object_p(obj)) return TRUE;
             if (in_old_generation(obj,,1)) return TRUE;
             if (marked(ThePointer(obj))) return TRUE; else return FALSE;
           case subr_bias:

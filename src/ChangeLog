@@ -1,5 +1,10 @@
 1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_garcol.d (alive) [NO_TYPECODES]: Treat immediate values
+          correctly, instead of crashing.
+
+1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * stream.d (listen_handle) [WIN32]: When a keyboard event is pending,
           read a character in order to test whether to return :INPUT-AVAILABLE
           of :EOF.
