@@ -1,3 +1,10 @@
+2005-01-11  Bruno Haible  <bruno@clisp.org>
+
+	* spvw.d (main): Init O(argv) only after locale_encoding is initialized.
+	Fix a GC-safety bug. Fixes bugs introduced on 2004-02-09.
+	Reported by Juliusz Chroboczek <jch@pps.jussieu.fr> and
+	Mike Fabian <mfabian@suse.de>.
+
 2005-01-10  Bruno Haible  <bruno@clisp.org>
 
 	* foreign1.lisp (to-c-name): For symbols from a case-sensitive package,
