@@ -628,7 +628,7 @@ LISPSYM(delete_dir,"DELETE-DIR",ext)
 LISPSYM(ensure_directories_exist,"ENSURE-DIRECTORIES-EXIST",lisp)
 LISPSYM(file_write_date,"FILE-WRITE-DATE",lisp)
 LISPSYM(file_author,"FILE-AUTHOR",lisp)
-#if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS)
+#if defined(UNIX) || defined(MSDOS)
 LISPSYM(execute,"EXECUTE",ext)
 #endif
 #ifdef HAVE_SHELL
@@ -874,9 +874,6 @@ LISPSYM(highlight_off,"HIGHLIGHT-OFF",screen)
 LISPSYM(window_cursor_on,"WINDOW-CURSOR-ON",screen)
 LISPSYM(window_cursor_off,"WINDOW-CURSOR-OFF",screen)
 #endif
-#ifdef PRINTER_AMIGAOS
-LISPSYM(make_printer_stream,"MAKE-PRINTER-STREAM",system)
-#endif
 #ifdef PIPES
 LISPSYM(make_pipe_input_stream,"MAKE-PIPE-INPUT-STREAM",ext)
 LISPSYM(make_pipe_output_stream,"MAKE-PIPE-OUTPUT-STREAM",ext)
@@ -1090,11 +1087,11 @@ LISPSYM(foreign_allocate,"FOREIGN-ALLOCATE",ffi)
 LISPSYM(foreign_free,"FOREIGN-FREE",ffi)
 LISPSYM(lookup_foreign_function,"LOOKUP-FOREIGN-FUNCTION",ffi)
 LISPSYM(foreign_call_out,"FOREIGN-CALL-OUT",ffi)
-#if defined(AMIGAOS) || defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
+#if defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
 LISPSYM(foreign_library,"FOREIGN-LIBRARY",ffi)
 LISPSYM(foreign_library_variable,"FOREIGN-LIBRARY-VARIABLE",ffi)
 LISPSYM(foreign_library_function,"FOREIGN-LIBRARY-FUNCTION",ffi)
-#endif  /* AMIGAOS || WIN32_NATIVE || HAVE_DLOPEN */
+#endif  /* WIN32_NATIVE || HAVE_DLOPEN */
 #endif  /* DYNAMIC_FFI */
 /* ---------- ZTHREAD ---------- */
 #ifdef MULTITHREAD
@@ -1410,9 +1407,6 @@ LISPSYM(Kwild,"WILD",keyword) /* pathname component in PATHNAME */
 LISPSYM(Kwild_inferiors,"WILD-INFERIORS",keyword) /* pathname component in PATHNAME */
 LISPSYM(Krelative,"RELATIVE",keyword) /* pathname component in PATHNAME */
 LISPSYM(Kabsolute,"ABSOLUTE",keyword) /* pathname component in PATHNAME */
-#ifdef PATHNAME_AMIGAOS
-LISPSYM(Kparent,"PARENT",keyword) /* pathname component in PATHNAME */
-#endif
 LISPSYM(Knewest,"NEWEST",keyword) /* pathname component in PATHNAME */
 LISPSYM(Kcommon,"COMMON",keyword) /* argument in PATHNAME */
 /* LISPSYM(Klocal,"LOCAL",keyword) / * argument in PATHNAME */

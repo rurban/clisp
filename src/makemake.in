@@ -41,7 +41,6 @@ options:
        --with-threads=FLAVOR   MT [_experimental_!]
                                FLAVOR: POSIX_THREADS POSIXOLD_THREADS
                                        SOLARIS_THREADS C_THREADS WIN32_THREADS
-       --with-module=bindings/amigaos
        --with-module=bindings/glibc
        --with-module=dirkey
        --with-module=berkeley-db
@@ -72,7 +71,6 @@ EOP
 #        i386      (any other 386 machine, e.g. Linux boxes or Sun386i)
 #        i486      (any other 486 machine)
 #        mips
-#        amiga     (Amiga 500/1000/2000 microcomputers)
 #        os2       (PC or compatible running OS/2 2.0)
 #  and COMPILER is one of
 #        gcc       (GNU C under the name gcc)
@@ -85,7 +83,6 @@ EOP
 #   makemake i386 gcc > make.gcc/makefile
 #   makemake i486 gcc > make.gcc/makefile
 #   makemake sun4 gcc > make.gcc/makefile
-#   makemake amiga gcc > make.amiga/makefile
 #   makemake os2 gcc > make.os2/makefile
 #   makemake win32gcc gcc > make.win32gcc/makefile
 #   makemake --with-dynamic-ffi win32msvc msvc4 > make.win32msvc/makefile.msvc4
@@ -379,10 +376,10 @@ case $# in
      fi
      TSYS=$1
      COMPILER=$2
-     # TSYS should be (master|sun3|sun4|i[3456]86|mips|vax|amiga|os2|win32(msvc|bc)).
+     # TSYS should be (master|sun3|sun4|i[3456]86|mips|vax|os2|win32(msvc|bc)).
      # COMPILER should be gcc or cc
      case ${TSYS} in
-       amiga | os2 ) TOS=$TSYS ;;
+       os2 ) TOS=$TSYS ;;
        win32msvc | win32bc ) TOS='win32' ;;
        *)         TOS='unix' ;;
      esac
@@ -561,11 +558,7 @@ fi
 # PARENT, NEXT: For interpretation by CLISP.
 # PARENT_, NEXT_: For interpretation by the system's shell (called by make).
 # PARENT_M, NEXT_M: For interpretation by the make program.
-if [ $HOS = amiga ] ; then
-  PARENT='/'
-else
-  PARENT='../'
-fi
+PARENT='../'
 NEXT='/'
 if [ $H_DOS = "true" ] ; then
   # Replace '/' with '\':
@@ -691,9 +684,6 @@ if [ $TSYS = master -o $TOS = unix ] ; then
   OS_INCLUDES=$OS_INCLUDES' unix'
   LIBS=$LIBS' '$LIBICONV' '$LIBSIGSEGV
 fi
-if [ $TSYS = master -o $TOS = amiga ] ; then
-  OS_INCLUDES=$OS_INCLUDES' amiga'
-fi
 if [ $TSYS = master -o $TOS = os2 ] ; then
   OS_INCLUDES=$OS_INCLUDES' msdos'
   if [ $TSYS = os2 ] ; then
@@ -751,8 +741,8 @@ fi
 # Main cpu dependencies:
 
 cpu=''
-if [ "$host_cpu" = m68k -o $TSYS = sun3 -o $TSYS = m68k -o $TSYS = mc68040 -o $TSYS = amiga ] ; then
-# was: if [ "$host_cpu" = m68k -o $TSYS = sun3 -o $TSYS = hp300 -o $TSYS = m68k -o $TSYS = mc68040 -o $TSYS = amiga ] ; then
+if [ "$host_cpu" = m68k -o $TSYS = sun3 -o $TSYS = m68k -o $TSYS = mc68040 ] ; then
+# was: if [ "$host_cpu" = m68k -o $TSYS = sun3 -o $TSYS = hp300 -o $TSYS = m68k -o $TSYS = mc68040 ] ; then
   cpu=m68k
 fi
 if [ "$host_cpu" = sparc -o $TSYS = sun4 ] ; then
@@ -811,11 +801,6 @@ if [ $XCC_GCC = true ] ; then
     XCFLAGS=''
   fi
   XCFLAGS="$XCPPFLAGS $XCFLAGS"
-  if [ $TSYS = amiga ] ; then
-    # register A4 contains the stack.
-    # The GCC-Strength-Reduction is not unproblematic on 68000.
-    XCFLAGS=$XCFLAGS' -ffixed-a4 -fno-strength-reduce'
-  fi
   if [ $CROSS = false ] ; then
     case "$XCC_GCC_VERSION" in
       # gcc 2.7 introduced an annoying warning, but gcc 2.8 has a workaround:
@@ -1287,9 +1272,6 @@ fi
 CPARTS=$CPARTS' io'
 CPARTS=$CPARTS' array hashtabl list package record sequence'
 CPARTS=$CPARTS' charstrg debug error misc time predtype symbol lisparit i18n'
-if [ $TSYS = master -o $TSYS = amiga ] ; then
-  CPARTS=$CPARTS' rexx'
-fi
 if [ $TSYS = master -o -n "$with_dynamic_ffi" ] ; then
   CPARTS=$CPARTS' foreign'
 fi
@@ -1325,9 +1307,6 @@ if [ -n "$USE_LIBCHARSET" ] ; then
 fi
 
 OTHER_INCLUDES=' constpack avl sort subrkw bytecode'
-if [ $TSYS = master -o $TSYS = amiga ] ; then
-  OTHER_INCLUDES=$OTHER_INCLUDES' amiga2'
-fi
 
 SPVW_INCLUDES=' spvw_module spvw_debug spvw_alloca spvw_mmap spvw_multimap spvw_singlemap spvw_page spvw_heap spvw_global spvw_gcstat spvw_space spvw_mark spvw_objsize spvw_update spvw_fault spvw_sigsegv spvw_sigcld spvw_sigpipe spvw_sigint spvw_sigwinch spvw_garcol spvw_genera1 spvw_genera2 spvw_genera3 spvw_allocate spvw_typealloc spvw_circ spvw_walk spvw_ctype spvw_language spvw_memfile'
 
@@ -1368,9 +1347,6 @@ if [ "${with_unicode}" != "0" ] ; then
 fi
 
 ERROR_INCLUDES=''
-if [ $TSYS = master -o $TSYS = amiga ] ; then
-  ERROR_INCLUDES=$ERROR_INCLUDES' erramiga'
-fi
 if [ $TSYS = master -o $TOS = unix -o $TSYS = os2 ] ; then
   ERROR_INCLUDES=$ERROR_INCLUDES' errunix'
 fi
@@ -1391,7 +1367,7 @@ ARI_ASMC=''
 ARI_ASMS=''
 if [ "$cpu" = m68k ] ; then
   ARI_ASMD=$ARI_ASMD' ari68000 ari68020'
-  if [ $TSYS = sun3 -o $TSYS = hp300 -o $TSYS = m68k -o $TSYS = mc68040 -o $TSYS = amiga -a "$TSYSOS" = netbsd ] ; then
+  if [ $TSYS = sun3 -o $TSYS = hp300 -o $TSYS = m68k -o $TSYS = mc68040 -a "$TSYSOS" = netbsd ] ; then
     ARI_ASMS=$ARI_ASMS' ari68020'
   else
     ARI_ASMS=$ARI_ASMS' ari68000'
@@ -2308,9 +2284,6 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   if [ $f = lisparit ] ; then
     depends=$depends''$LISPARIT_INCLUDES''$ARI_ASMS
   fi
-  if [ $f = rexx ] ; then
-    depends=$depends' amiga2'
-  fi
   for g in $depends ; do
     dependsc=$dependsc' '$g'.c'
   done
@@ -2599,9 +2572,6 @@ echol "alllisp : \$(LISPFILES)"
 echodummyrule alllisp
 echol
 
-if [ $TOS = amiga ] ; then
-  CONFIG=cfgamiga
-fi
 if [ $TOS = os2 ] ; then
   CONFIG=cfgdos
 fi
@@ -3339,11 +3309,6 @@ cat <<!!
 PACK = tar
 PACKOPT = cvfhz
 PACKEXT = .tar.gz
-
-# Popular Amiga packer. Good performance.
-#PACK = lha
-#PACKOPT = a
-#PACKEXT = .lzh
 
 # Popular DOS packer.
 #PACK = zip

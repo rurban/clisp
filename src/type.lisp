@@ -319,7 +319,7 @@
 (def-atomic-type ffi::foreign-address
   (lambda (x) (eq 'ffi::foreign-address (type-of x))))
 ;; see lispbibl.d (#define FOREIGN) and predtype.d (TYPE-OF):
-#+(or unix ffi amiga win32)
+#+(or unix ffi affi win32)
 (def-atomic-type foreign-pointer
   (lambda (x) (eq 'foreign-pointer (type-of x))))
 (def-atomic-type VECTOR vectorp)

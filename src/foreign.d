@@ -13,10 +13,6 @@
 #include "avcall.h"        /* Low level support for call-out */
 #include "callback.h"      /* Low level support for call-in */
 
-#ifdef AMIGAOS
-#include "amiga2.c"      /* declares OpenLibrary(), CloseLibrary() */
-#endif
-
 /* complain about non-foreign object */
 nonreturning_function(local, fehler_foreign_object, (object arg)) {
   pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
@@ -584,8 +580,6 @@ local object convert_function_from_foreign (void* address, object resulttype,
 #endif
 
 /* malloc() with error check. */
-local void* xmalloc (uintL size);
-#if !defined(AMIGAOS)
 local void* xmalloc (uintL size)
 {
   begin_system_call();
@@ -596,15 +590,6 @@ local void* xmalloc (uintL size)
   fehler(storage_condition,
          GETTEXT("No more room for foreign language interface"));
 }
-#else /* defined(AMIGAOS) */
-/* No malloc() is available. Disable malloc() and free() altogether. */
-nonreturning_function(local, fehler_malloc_free, (void)) {
-  fehler(error,GETTEXT(":MALLOC-FREE is not available under AMIGAOS."));
-}
-#define malloc(amount)  (fehler_malloc_free(), NULL)
-#define free(pointer)  fehler_malloc_free()
-#define xmalloc(size)  malloc(size)
-#endif
 
 /* Compute the size and alignment of foreign data.
  foreign_layout(fvd);
@@ -2892,9 +2877,6 @@ local void do_av_start (uintWL flags, object result_fvd, av_alist * alist,
 
 /* Call the appropriate av_xxx macro for an argument.
  do_av_arg(flags,arg_fvd,&alist,arg_address,arg_size,arg_alignment); */
-#ifdef AMIGAOS
-local var sintWL AV_ARG_REGNUM; /* number of register where the argument is to be passed */
-#endif
 local void do_av_arg (uintWL flags, object arg_fvd, av_alist * alist,
                       void* arg_address, unsigned long arg_size,
                       unsigned long arg_alignment)
@@ -3088,12 +3070,6 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
       if (argcount != inargcount)
         fehler_too_many_args(S(foreign_call_out),ffun,argcount,inargcount);
     }
-   #ifdef AMIGAOS
-    /* Set register a6 as for a library call, even if not used.
-       Library pointer has already been validated through
-       Fpointer_value() above. */
-    alist.regargs[8+7-1] = (uintP)TheFpointer(TheFaddress(TheFfunction(ffun)->ff_address)->fa_base)->fp_pointer;
-   #endif
     var uintL result_count = 0;
     typedef struct { void* address; } result_descr; /* fvd is pushed onto the STACK */
     var DYNAMIC_ARRAY(results,result_descr,1+outargcount);
@@ -3160,9 +3136,6 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
           }
           /* Call av_xxx: */
           begin_system_call();
-         #ifdef AMIGAOS
-          AV_ARG_REGNUM = (int)(arg_flags >> 8) - 1;
-         #endif
           do_av_arg(flags,arg_fvd,&alist,arg_address,arg_size,arg_alignment);
           end_system_call();
         } else {
@@ -3184,9 +3157,6 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
           }
           /* Call av_xxx: */
           begin_system_call();
-         #ifdef AMIGAOS
-          AV_ARG_REGNUM = (int)(arg_flags >> 8) - 1;
-         #endif
           do_av_arg(flags,arg_fvd,&alist,arg_address,arg_size,arg_alignment);
           end_system_call();
           FREE_DYNAMIC_ARRAY(arg_room);
@@ -3622,7 +3592,7 @@ local void callback (void* data, va_alist alist)
   end_callback();
 }
 
-#if defined(AMIGAOS) || defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
+#if defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
 
 #if defined(HAVE_DLFCN_H)
 #include <dlfcn.h>
@@ -3644,9 +3614,7 @@ local object dlerror_string (void)
 
 local inline void *libopen (char *libname, uintL version)
 { /* open the library == dlopen() */
- #if defined(AMIGAOS)
-  return (void*)OpenLibrary(libname,version);
- #elif defined(WIN32_NATIVE)
+ #if defined(WIN32_NATIVE)
   return (void*)LoadLibrary(libname);
  #else
   return dlopen(libname,RTLD_NOW);
@@ -3688,8 +3656,7 @@ local inline void* find_name (void *handle, char *name)
 { /* find the name in the library handle  ==  dlsym()*/
   var void *ret = NULL;
   begin_system_call();
- #if defined(AMIGAOS)
- #elif defined(WIN32_NATIVE)
+ #if defined(WIN32_NATIVE)
   ret = (void*)GetProcAddress((HMODULE)handle,name);
  #else
   ret = dlsym(handle,name);
@@ -3729,7 +3696,6 @@ local void update_library (object acons, uintL version) {
   var void *lib_handle = open_library(lib_name,version);
   TheFpointer(lib_addr)->fp_pointer = lib_handle;
   mark_fp_valid(TheFpointer(lib_addr));
- #if !defined(AMIGAOS)
   var object lib_list = Cdr(Cdr(acons));
   while (consp(lib_list)) {
     var object fo = Car(lib_list); /* foreign object */
@@ -3745,7 +3711,6 @@ local void update_library (object acons, uintL version) {
       (sintP)lib_handle;
     lib_list = Cdr(lib_list);
   }
- #endif
 }
 
 /* (FFI::FOREIGN-LIBRARY name [required-version])
@@ -3906,7 +3871,7 @@ LISPFUNN(foreign_library_function,4)
   VALUES1(STACK_0/*ffun*/); skipSTACK(4+1);
 }
 
-#else /* not AMIGA WIN32_NATIVE HAVE_DLOPEN */
+#else /* not WIN32_NATIVE HAVE_DLOPEN */
 
 /* Try to make a Foreign-Pointer valid again.
  validate_fpointer(obj); */
@@ -3936,7 +3901,7 @@ global void init_ffi (void) {
 
 /* De-Initialize the FFI. */
 global void exit_ffi (void) {
- #if defined(AMIGAOS) || defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
+ #if defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
   /* Close all foreign libraries. */
   var object alist = O(foreign_libraries);
   while (consp(alist)) {
@@ -3945,9 +3910,7 @@ global void exit_ffi (void) {
     if (fp_validp(TheFpointer(obj))) {
       var void * libaddr = (TheFpointer(obj)->fp_pointer);
       begin_system_call();
-     #if defined(AMIGAOS)
-      CloseLibrary(libaddr);
-     #elif defined(WIN32_NATIVE)
+     #if defined(WIN32_NATIVE)
       FreeLibrary((HMODULE)libaddr);
      #else
       dlclose(libaddr);

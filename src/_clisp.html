@@ -19,9 +19,6 @@
 <li><a href="#synopsis">Synopsis</a></li>
 <li><a href="#description">Description</a></li>
 <li><a href="#options">Options</a></li>
-#ifdef AMIGAOS
-<li><a href="#workbench">Workbench</a></li>
-#endif
 <li><a href="#reference">Reference</a></li>
 <li><a href="#use">Use</a></li>
 <li><a href="#files">Files</a></li>
@@ -361,10 +358,6 @@ The file loaded is
 <code>_clisprc.lisp</code> or <code>_clisprc.fas</code> in the home directory
 <code>(user-homedir-pathname)</code>,
 #endif
-#if defined(PATHNAME_AMIGAOS)
-<code>.clisprc.lisp</code> or <code>.clisprc.fas</code> in the home directory
-<code>(user-homedir-pathname)</code>,
-#endif
 #if defined(PATHNAME_UNIX)
 <code>${HOME}/.clisprc.lisp</code> or <code>${HOME}/.clisprc.fas</code>,
 #endif
@@ -432,28 +425,6 @@ Each line of <var>optionfile</var> is treated as a separate argument to
 #endif
 </dl>
 
-#ifdef AMIGAOS
-
-<h2 id="workbench">Workbench</h2>
-
-<p>Two kinds of tooltypes are supported:</p>
-
-<dl>
- <dt><code>WINDOW=</code><var>windowspec</var></dt>
-  <dd><code>clisp</code>
-   will communicate with the console window or pipe specified by
-   <var>windowspec</var>.<p/></dd>
- <dt><code>ARGS=</code><var>arguments</var></dt>
-  <dd>Specifies the command line arguments for <code>clisp</code>.
-  Within <var>arguments</var> the token <code> * </code> may be used
-  to denote the project's filename.
-  <var>arguments</var>
-  defaults to <code> -i * </code> which means that the file will be
-  <code>load</code>ed (see above).<p/></dd>
-</dl>
-
-#endif
-
 <h2 id="reference">Reference</h2>
 
 <p>The language implemented mostly conforms to</p>
@@ -493,16 +464,13 @@ Each line of <var>optionfile</var> is treated as a separate argument to
 <dt><code>(exit)</code> or <code>(quit)</code> or <code>(bye)</code></dt>
 <dd>to <a href="impnotes.html#quit">quit</a> <code>clisp</code>.<p/></dd>
 
-#if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS)
+#if defined(UNIX) || defined(MSDOS)
 <dt>
 #if defined(UNIX) && !defined(UNIX_CYGWIN32)
 EOF (Ctrl-D)
 #endif
 #if defined(MSDOS) || defined(UNIX_CYGWIN32)
 EOF (Ctrl-Z)
-#endif
-#ifdef AMIGAOS
-EOF (Ctrl-\e)
 #endif
 </dt><dd>to leave the current read-eval-print loop.<p/></dd>
 #endif
@@ -550,9 +518,6 @@ EOF (Ctrl-\e)
 #if defined(MSDOS)
 <code>lisp.exe</code>
 #endif
-#if defined(AMIGAOS)
-<code>lisp.run</code>
-#endif
 </dt><dd>main executable (runtime)<p/></dd>
 
 <dt><code>lispinit.mem</code></dt>
@@ -598,14 +563,6 @@ EOF (Ctrl-\e)
    <code>russian</code>, and defaults to <code>english</code>.
    The <a href="#opt-lang"><code>-L</code></a> option can be used to
    override this environment variable.<p/></dd>
-#ifdef AMIGAOS
- <dt><code>Language</code></dt>
-  <dd>specifies the language <code>clisp</code>
-   uses to communicate with the user, unless it is already specified
-   through the environment variable <code>CLISP_LANGUAGE</code> or the
-   <a href="#opt-lang"><code>-L</code></a> option.
-   The value may be as above.<p/></dd>
-#endif
 
 #ifdef UNICODE
  <dt><code>LC_CTYPE</code></dt>

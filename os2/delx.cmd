@@ -11,7 +11,6 @@ del arimips.*
 del arisparc.*
 del arihppa.*
 del arivax.*
-del amiga*.*
 del unix.*
 del cc_sparc.*
 del sp68000.*
@@ -25,7 +24,6 @@ del readline\examples\configure.*
 del newreadline\configure.*
 del newreadline\examples\configure.*
 cd ..
-rm -r amiga
 rm -r cygwin32
 rm -r modules
 rm -r nextapp

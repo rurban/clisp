@@ -93,9 +93,6 @@ and - to your convenience, if you like reading source -
    src/*.lisp             the source of lispinit.mem
    src/*.fas              the same files, already compiled
 #else /* !defined(UNIX) && !defined(WIN32_NATIVE) */
-#ifdef AMIGAOS
-      lisp.run           main program
-#endif
 #if defined(OS2) || defined(WIN32_NATIVE)
       lisp.exe           main program
 #endif
@@ -104,11 +101,7 @@ and - to your convenience, if you like reading source -
       locale/*/LC_MESSAGES/clisp.mo  localized messages databases
 #endif
       clisp.1            manual page in Unix man format
-#ifdef AMIGAOS
-      clisp.doc          manual page
-#else
       clisp.man          manual page
-#endif
       clisp.html         manual page in HTML format
 #ifdef OS2
       clisp.dvi          manual page in dvi format
@@ -155,22 +148,6 @@ It also runs on a Pentium; the results CLISP produces are not affected by
 the Intel Pentium's division bug.
 
 #endif
-#ifdef AMIGAOS
-
-Hardware requirements:
-----------------------
-
-This Amiga version of CLISP requires at least 1.5MB RAM. The version called
-CLISP-LOW runs on machines with no memory outside the 24 bit addressable
-range: on 68000, A2620, A2630. The version called CLISP-HIGH runs in memory
-that is 27 bit addressable (address range #x00000000 to #x07FFFFFF), but
-only on 68020/030/040(/60?) CPU: on A3000 and A4000 without Zorro-III memory
-boards. The version called CLISP-00 runs on 68000/010 CPU only but is faster
-than CLISP-LOW. The version called CLISP-WIDE uses 64 bit integers and runs
-in any memory on 68020 or better CPU: on A4000 using VMM. The overhead for
-64 bit integers cause CLISP-WIDE to be slower than CLISP-HIGH.
-
-#endif
 #if defined(SINGLEMAP_MEMORY) && (defined(UNIX_LINUX) || !defined(HAVE_MMAP_ANON))
 
 Software requirements:
@@ -191,14 +168,6 @@ This version of CLISP requires Linux 0.99.7 or newer.
 /dev/zero must be readable by everyone. You may execute a "chmod a+r /dev/zero"
 to ensure this.
 #endif
-
-#endif
-#ifdef AMIGAOS
-
-Software requirements:
-----------------------
-
-This version of CLISP requires OS 2.04 (V37) or newer.
 
 #endif
 
@@ -243,9 +212,6 @@ Then start
 
 #if defined(OS2) || defined(WIN32_NATIVE)
          lisp.exe -M lispinit.mem
-#endif
-#ifdef AMIGAOS
-         lisp.run -M lispinit.mem
 #endif
 #ifdef UNIX
          base/lisp.run -M base/lispinit.mem
@@ -352,24 +318,6 @@ and try
    man clisp
 #endif
 
-#ifdef AMIGAOS
-
-Note:
------
-
-You can start CLISP from Workbench(tm). The following Tooltypes are
-recognized in the Tool Icon:
-
-   WINDOW=<window or pipe specification>
-   ARGS=<CLI-like arguments>
-
-For example,
-
-   WINDOW=CON:0/11/640/200/CLISP-Listener/CLOSE
-   ARGS=-M lispinit.mem
-
-#endif
-
 When you encounter problems:
 ----------------------------
 
@@ -397,9 +345,6 @@ error occurred.
 
 #ifdef UNIX
 On bigger problems, e.g. core dumps, please send a description of the error
-#endif
-#ifdef AMIGAOS
-On bigger problems, e.g. "guru"s, please send a description of the error
 #endif
 #ifdef OS2
 On bigger problems, e.g. register dumps, please send a description of the error
@@ -451,15 +396,6 @@ Authors:
         Michael Stoll
 
 Email: clisp-list@lists.sourceforge.net
-#ifdef AMIGAOS
-
-Amiga Port by:
---------------
-
-        Jörg Höhle
-
-Email: Joerg.Hoehle@gmd.de
-#endif
 
 Maintainer:
 -----------

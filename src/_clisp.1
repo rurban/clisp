@@ -429,13 +429,6 @@ or
 in the home directory
 .IR "(user-homedir-pathname)" ,
 #endif
-#if defined(PATHNAME_AMIGAOS)
-.B .clisprc.lisp
-or
-.B .clisprc.fas
-in the home directory
-.IR "(user-homedir-pathname)" ,
-#endif
 #if defined(PATHNAME_UNIX)
 .B ${HOME}/.clisprc.lisp
 or
@@ -531,32 +524,6 @@ is treated as a separate argument to
 .BR clisp .
 #endif
 
-#ifdef AMIGAOS
-
-.PP
-.SH WORKBENCH
-Two kinds of tooltypes are supported:
-
-.TP
-.BI "WINDOW= " windowspec
-.B clisp
-will communicate with the console window or pipe specified by
-.IR windowspec .
-
-.TP
-.BI "ARGS= " arguments
-Specifies the command line arguments for
-.BR clisp .
-Within
-.I arguments
-the token `*' may be used to denote the project's filename.
-.I arguments
-defaults to `\-i *' which means that the file will be
-.IR load ed
-(see above).
-
-#endif
-
 .PP
 .SH REFERENCE
 The language implemented mostly conforms to
@@ -601,16 +568,13 @@ lists the symbols relating to
 to quit
 .BR clisp .
 
-#if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS)
+#if defined(UNIX) || defined(MSDOS)
 .TP
 #if defined(UNIX) && !defined(UNIX_CYGWIN32)
 EOF (Ctrl-D)
 #endif
 #if defined(MSDOS) || defined(UNIX_CYGWIN32)
 EOF (Ctrl-Z)
-#endif
-#ifdef AMIGAOS
-EOF (Ctrl-\e)
 #endif
 to leave the current read-eval-print loop.
 #endif
@@ -648,9 +612,6 @@ startup script
 #endif
 #if defined(MSDOS)
 .I lisp.exe
-#endif
-#if defined(AMIGAOS)
-.I lisp.run
 #endif
 main executable (runtime)
 
@@ -700,19 +661,6 @@ and defaults to
 The
 .B \-L
 option can be used to override this environment variable.
-
-#ifdef AMIGAOS
-.TP
-.B Language
-specifies the language
-.B clisp
-uses to communicate with the user, unless it is already specified through
-the environment variable
-.B CLISP_LANGUAGE
-or the
-.B \-L
-option. The value may be as above.
-#endif
 
 #ifdef UNICODE
 .TP
