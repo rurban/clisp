@@ -94,7 +94,8 @@ User visible changes
   + Arrays with total array size 0 are printed in a lossy way if
     CUSTOM:*PRINT-EMPTY-ARRAYS-ANSI* is true.
   + Allow () to match NIL in destructuring lambda lists.
-  + An improper docstring no does not warrant an error.
+  + Documentation strings at a place where only declarations and forms are
+    allowed now give a warning, not an error.
 
 * The behaviour of the function UPGRADED-COMPLEX-PART-TYPE has changed.
 
