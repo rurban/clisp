@@ -2606,7 +2606,7 @@ if [ $TOS = win32 ] ; then
 fi
 
 DATA_FILES="UnicodeDataFull.txt clhs.txt"
-DATA_FILES_TOP_PATH="utils${NEXT_}unicode${NEXT_}ftp.unicode.org${NEXT_}UnicodeDataFull.txt src${NEXT_}clhs.txt"
+DATA_FILES_TOP_PATH="utils${NEXT_}unicode${NEXT_}UnicodeDataFull.txt src${NEXT_}clhs.txt"
 data_target="data :"
 for f in ${DATA_FILES_TOP_PATH}; do
   data_target="${data_target} ${SRCTOPDIR_}${f}"
