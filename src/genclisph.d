@@ -1308,9 +1308,9 @@ int main(int argc, char* argv[])
   printf("#define positivep(obj)  (!wbit_test(as_oint(obj),%d))\n",sign_bit_o);
  #endif
 #else
- #ifdef STANDARD_HEAPCODES
+ #if defined(STANDARD_HEAPCODES)
   printf("#define number_immediatep(obj)  ((as_oint(obj) & wbit(1)) != 0)\n");
- #elif LINUX_NOEXEC_HEAPCODES
+ #elif defined(LINUX_NOEXEC_HEAPCODES)
   printf("#define number_immediatep(obj)  ((as_oint(obj) & wbit(1)) == 0)\n");
  #else
   #error "what is your HEAPCODES model?"
