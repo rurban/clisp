@@ -245,7 +245,7 @@ ERROR
 
 ;; disassemble
 #+clisp (setf (getenv "PAGER") nil) #+clisp nil
-(disassemble 'car) nil
-(disassemble #'cdr) nil
+#-(and clisp win32) (disassemble 'car) nil
+#-(and clisp win32) (disassemble #'cdr) nil
 (disassemble 'disassemble) nil
 (disassemble #'set-difference) nil
