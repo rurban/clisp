@@ -1195,7 +1195,7 @@ interpreter compiler
 (proclaim '(special *load-paths*))
 (setq *load-paths* nil)
 (proclaim '(special *source-file-types*))
-(setq *source-file-types* '(#".lisp" #".lsp"))
+(setq *source-file-types* '(#".lisp" #".lsp" #".cl"))
 (proclaim '(special *compiled-file-types*))
 (setq *compiled-file-types* '(#".fas"))
 
@@ -1203,10 +1203,8 @@ interpreter compiler
 (defun search-file (filename extensions)
   (mapcan #'(lambda (extension)
               (let ((filename (merge-pathnames filename extension)))
-                (if (probe-file filename) (list filename) '())
-            ) )
-          (reverse extensions)
-) )
+                (if (probe-file filename) (list filename) '())))
+          extensions))
 
 (proclaim '(special *load-verbose*))
 (setq *load-verbose* t)
@@ -1244,8 +1242,7 @@ interpreter compiler
                 ; Extensions "LISP", "FAS" die neueste:
                 (let ((present-files
                         (search-file filename
-                          (append *source-file-types* *compiled-file-types*)
-                     )) )
+                          (append *compiled-file-types* *source-file-types*))))
                   (if (endp present-files)
                     nil
                     (open (setq filename (first present-files))
