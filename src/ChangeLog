@@ -1,5 +1,17 @@
 1999-02-02  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (oint_type_{shift,len,mask}, oint_data_{shift,len,mask}):
+          New definitions for Sparc-Linux.
+          (garcol_bit_o): Move definition.
+          (imm_type_shift): New macro.
+          (fixnum_type, sfloat_type, char_type, read_label_type, system_type,
+           sign_bit_t, immediate_number_p, charp, read_label_p, systemp,
+           if_realp, if_rationalp, integerp, fixnump, posfixnump, floatp,
+           short_float_p): Use it.
+          (FB5, FB4, FB3, FB2, FB1): Depend on garcol_bit_o.
+
+1999-02-02  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * hashtabl.d (sxhash_atom): Use `bitm' instead of `bit', in case
           oint_type_len==32.
 
