@@ -12,6 +12,9 @@ User visible changes
 * Fixed two bugs in TRANSLATE-PATHNAME: Substitution of "**" did not work.
   Substitutions without version into non-logical pathnames crashed.
 
+* Dutch translations of the user interface messages have been added
+  Thanks to Tijs van Bakel <smoke@casema.net>.
+
 * When configured with --with-export-syscalls, :SYSCALLS is in *FEATURES*
   and functions POSIX:RESOLVE-IP-ADDR, POSIX:USER-DATA, POSIX:FILE-STAT,
   POSIX:SYSINFO, POSIX:RESOURCE-USAGE-LIMITS,
