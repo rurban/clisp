@@ -773,6 +773,7 @@ FM
   (stringp (command-line)))
 #+win32 T
 
+#-BeOS ; FFI::FOREIGN-LIBRARY-FUNCTION not defined on BeOS
 (let ((libc #+(and unix (not cygwin)) :DEFAULT
             #+cygwin "/bin/cygwin1.dll" ; RTLD_DEFAULT not implemented
             #+win32 :DEFAULT))
@@ -783,10 +784,12 @@ FM
    (def-call-out c-free (:arguments (p c-pointer))
      (:name "free") (:language :stdc) (:return-type nil)
      (:library libc))))  ; use foreign-free instead!
+#-BeOS
 (c-malloc c-free)
 
 ;; this is ugly and inefficient; if you find yourself doing this,
 ;; you probably want to do it in C
+#-BeOS
 (let ((m (c-malloc 4)) ret)
   (unwind-protect
        (with-c-var (v '(c-ptr (c-array uint8 4)))
@@ -803,6 +806,7 @@ FM
                        (= i (+ (ash 1 24) (ash 2 16) (ash 3 8) 4)))))
          (nreverse ret))
     (c-free m)))
+#-BeOS
 (#A((unsigned-byte 8) (4) (0 0 0 0))
  #A((unsigned-byte 8) (4) (255 255 255 255)))
 

@@ -263,7 +263,7 @@ UNKNOWN
 
 ;; disassemble
 #+clisp (setf (getenv "PAGER") "cat") #+clisp "cat"
-#-(and clisp (or win32 cygwin)) (disassemble 'car) nil
-#-(and clisp (or win32 cygwin)) (disassemble #'cdr) nil
+#-(and clisp (or win32 cygwin BeOS)) (disassemble 'car) nil
+#-(and clisp (or win32 cygwin BeOS)) (disassemble #'cdr) nil
 (disassemble 'disassemble) nil
 (disassemble #'set-difference) nil
