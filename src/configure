@@ -23730,8 +23730,8 @@ if test "$no_create" != yes; then
   $ac_cs_success || { (exit 1); exit 1; }
 fi
 
-ac_config_files="$ac_config_files makemake"
-ac_config_commands="$ac_config_commands default"
+ac_config_commands="$ac_config_commands makemake"
+
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -24220,9 +24220,8 @@ do
   case "$ac_config_target" in
   # Handling of arguments.
   "po/Makefile.in" ) CONFIG_FILES="$CONFIG_FILES po/Makefile.in" ;;
-  "makemake" ) CONFIG_FILES="$CONFIG_FILES makemake" ;;
   "default-1" ) CONFIG_COMMANDS="$CONFIG_COMMANDS default-1" ;;
-  "default" ) CONFIG_COMMANDS="$CONFIG_COMMANDS default" ;;
+  "makemake" ) CONFIG_COMMANDS="$CONFIG_COMMANDS makemake" ;;
   "unixconf.h" ) CONFIG_HEADERS="$CONFIG_HEADERS unixconf.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
@@ -24933,11 +24932,12 @@ echo "$as_me: executing $ac_dest commands" >&6;}
         ;;
       esac
     done ;;
-    default ) echo '#!/bin/sh' > makemake.tmp
-echo '# Generated automatically from makemake.in by configure.' >> makemake.tmp
-cat makemake >> makemake.tmp
-mv makemake.tmp makemake
-chmod a+x makemake
+    makemake )
+  echo "#!$SHELL" > makemake.tmp
+  echo "# Generated from makemake.in by configure." >> makemake.tmp
+  cat makemake >> makemake.tmp
+  mv makemake.tmp makemake
+  chmod a+x makemake
  ;;
   esac
 done
