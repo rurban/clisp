@@ -21,8 +21,8 @@ When &filename-r; does not have an extension,
 &mem-file; extension is automatically used.
 The <constant>:locked-packages</constant> argument specifies the
 packages to lock before saving the image; this is convenient for
-application delivery, when you do not want your user to mess your
-product.
+application delivery, when you do not want your user to mess up your
+product.  This argument defaults to &sys-pack-list;.
 The starting package of the new image is the one in which you were when
 you invoked <function>ext:saveinitmem</function>.</para>
 
