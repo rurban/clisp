@@ -975,6 +975,24 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
     }}
 #endif
 
+# Reads a line of characters from a synonym-stream.
+# read_line_synonym(stream,&buffer)
+# > stream: synonym-stream
+# > buffer: a semi-simple string
+# < buffer: contains the read characters, excluding the terminating #\Newline
+# < result: TRUE is EOF was seen before newline, else FALSE
+# can trigger GC
+  local boolean read_line_synonym (object stream, const object* buffer_);
+  local boolean read_line_synonym(stream,buffer_)
+    var object stream;
+    var const object* buffer_;
+    { check_SP(); check_STACK();
+      pushSTACK(get_synonym_stream(TheStream(stream)->strm_synonym_symbol));
+     {var boolean eofp = read_line(&STACK_0,buffer_);
+      skipSTACK(1);
+      return eofp;
+    }}
+
 # Stellt fest, ob ein Synonym-Stream ein Zeichen verfügbar hat.
 # listen_synonym(stream)
 # > stream : Synonym-Stream
@@ -1714,6 +1732,24 @@ LISPFUNN(concatenated_stream_streams,1)
      {var uintL result = read_char_array(&STACK_0,chararray_,start,len);
       skipSTACK(1);
       return result;
+    }}
+
+# Reads a line of characters from a two-way-stream.
+# read_line_twoway(stream,&buffer)
+# > stream: two-way-stream
+# > buffer: a semi-simple string
+# < buffer: contains the read characters, excluding the terminating #\Newline
+# < result: TRUE is EOF was seen before newline, else FALSE
+# can trigger GC
+  local boolean read_line_twoway (object stream, const object* buffer_);
+  local boolean read_line_twoway(stream,buffer_)
+    var object stream;
+    var const object* buffer_;
+    { check_SP(); check_STACK();
+      pushSTACK(TheStream(stream)->strm_twoway_input);
+     {var boolean eofp = read_line(&STACK_0,buffer_);
+      skipSTACK(1);
+      return eofp;
     }}
 
 # Liefert einen Two-Way-Stream zu einem Input-Stream und einem Output-Stream.
@@ -15843,6 +15879,66 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
     skipSTACK(1);
     value1 = T; mv_count=1; # T als Ergebnis
   }}
+
+# Reads a line of characters from a stream.
+# read_line(&stream,&buffer)
+# > stream: stream
+# > buffer: a semi-simple string
+# < stream: stream
+# < buffer: contains the read characters, excluding the terminating #\Newline
+# < result: TRUE is EOF was seen before newline, else FALSE
+# can trigger GC
+  global boolean read_line (const object* stream_, const object* buffer_);
+  global boolean read_line(stream_,buffer_)
+    var const object* stream_;
+    var const object* buffer_;
+    { var object stream = *stream_;
+      if (TheStream(stream)->strmflags & strmflags_unread_B) # Char nach UNREAD ?
+        # ja -> Flagbit löschen und letztes Zeichen holen:
+        { TheStream(stream)->strmflags &= ~strmflags_unread_B;
+         {var object ch = TheStream(stream)->strm_rd_ch_last;
+          if (!charp(ch)) { subr_self = L(read_line); fehler_char(ch); }
+          if (eq(ch,ascii_char(NL))) { return FALSE; }
+          ssstring_push_extend(*buffer_,char_code(ch));
+          stream = *stream_;
+        }}
+     {var uintL oldfillptr = TheIarray(*buffer_)->dims[1];
+      var boolean eofp;
+      switch (TheStream(stream)->strmtype)
+        { case strmtype_synonym:
+            eofp = read_line_synonym(stream,buffer_);
+            break;
+          case strmtype_twoway:
+          #ifdef SOCKET_STREAMS
+          case strmtype_twoway_socket:
+          #endif
+            eofp = read_line_twoway(stream,buffer_);
+            break;
+          # No special-casing of strmtype_echo, because the echo-stream may
+          # be interactive, and delaying the echo in this case is undesirable.
+          default:
+            loop
+              { var object ch = rd_ch(*stream_)(stream_); # nächstes Zeichen lesen
+                if (eq(ch,eof_value)) { eofp = TRUE; break; } # EOF ?
+                # sonst auf Character überprüfen:
+                if (!charp(ch)) { subr_self = L(read_line); fehler_char(ch); }
+                if (eq(ch,ascii_char(NL))) { eofp = FALSE; break; } # NL -> End of Line
+                # sonstiges Character in den Buffer schreiben:
+                ssstring_push_extend(*buffer_,char_code(ch));
+              }
+            break;
+        }
+      stream = *stream_;
+      if (!eofp)
+        { TheStream(stream)->strm_rd_ch_last = ascii_char(NL); }
+        else
+        { var uintL newfillptr = TheIarray(*buffer_)->dims[1];
+          TheStream(stream)->strm_rd_ch_last =
+            (newfillptr == oldfillptr ? code_char(TheSstring(TheIarray(*buffer_)->data)->data[newfillptr-1]) : eof_value);
+        }
+      TheStream(stream)->strmflags &= ~strmflags_unread_B;
+      return eofp;
+    }}
 
 # UP: Stellt fest, ob im Stream stream ein Zeichen sofort verfügbar ist.
 # stream_listen(stream)

@@ -4578,36 +4578,32 @@ LISPFUN(read_line,0,4,norest,nokey,0,NIL)
     var object* stream_ = &STACK_3;
     test_istream(stream_);
     get_buffers(); # zwei leere Buffer auf den Stack
-    loop
-      { var object ch = read_char(stream_); # nächstes Zeichen lesen
-        if (eq(ch,eof_value)) goto eof; # EOF ?
-        # sonst auf Character überprüfen:
-        if (!charp(ch)) { subr_self = L(read_line); fehler_char(ch); }
-        if (eq(ch,ascii_char(NL))) goto eol; # NL -> End of Line
-        # sonstiges Character in den Buffer schreiben:
-        ssstring_push_extend(STACK_1,char_code(ch));
+    if (!read_line(stream_,&STACK_1)) # Zeile lesen
+      # End of Line
+      { # Buffer kopieren und dabei in Simple-String umwandeln:
+        value1 = copy_string(STACK_1);
+        # Buffer zur Wiederverwendung freigeben:
+        O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
+        value2 = NIL; mv_count=2; # NIL als 2. Wert
+        skipSTACK(4); return;
       }
-    eol: # End of Line
-    { # Buffer kopieren und dabei in Simple-String umwandeln:
-      value1 = copy_string(STACK_1);
-      # Buffer zur Wiederverwendung freigeben:
-      O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
-      value2 = NIL; mv_count=2; # NIL als 2. Wert
-      skipSTACK(4); return;
-    }
-    eof: # End of File
-    { var object buff = STACK_1; # Buffer
-      # Buffer zur Wiederverwendung freigeben:
-      O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
-      # Buffer leer ?
-      if (TheIarray(buff)->dims[1] == 0) # Länge (Fill-Pointer) = 0 ?
-        { return_Values eof_handling(); } # ja -> EOF speziell behandeln
-        else
-        { # Buffer kopieren und dabei in Simple-String umwandeln:
-          value1 = copy_string(buff);
-          value2 = T; mv_count=2; # T als 2. Wert
-          skipSTACK(4); return;
-    }   }
+      else
+      # End of File
+      { # Buffer leer ?
+        if (TheIarray(STACK_1)->dims[1] == 0) # Länge (Fill-Pointer) = 0 ?
+          { # Buffer zur Wiederverwendung freigeben:
+            O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
+            # EOF speziell behandeln:
+            return_Values eof_handling();
+          }
+          else
+          { # Buffer kopieren und dabei in Simple-String umwandeln:
+            value1 = copy_string(STACK_1);
+            # Buffer zur Wiederverwendung freigeben:
+            O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
+            value2 = T; mv_count=2; # T als 2. Wert
+            skipSTACK(4); return;
+      }   }
   }
 
 LISPFUN(read_char,0,4,norest,nokey,0,NIL)
