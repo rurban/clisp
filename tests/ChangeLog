@@ -2,6 +2,7 @@
 
 	* tests.lisp (run-all-tests): modified the `run-test' "conditions"
 	call to fit the previous patch
+	(do-errcheck): added ignored optional second arg
 
 2001-03-26  Sam Steingold  <sds@gnu.org>
 
