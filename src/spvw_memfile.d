@@ -459,7 +459,8 @@ global void savemem (object stream)
           updater(typecode_at(ptr)); /* and advance */                  \
         }} while(0)
     #endif
-    #define update_instance_unrealloc  false
+    #define update_unrealloc  false
+    #define update_ss_unrealloc(obj)
     #define update_in_unrealloc(obj)
     #ifdef FOREIGN
      #define update_fpointer_invalid  true
@@ -524,7 +525,8 @@ global void savemem (object stream)
     #undef update_fsubr_function
     #undef update_fpointer_invalid
     #undef update_in_unrealloc
-    #undef update_instance_unrealloc
+    #undef update_ss_unrealloc
+    #undef update_unrealloc
     #undef update_page
     #undef update_conspage
     WRITE(&rheader,sizeof(rheader));
@@ -1336,7 +1338,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
        #undef update_conspage
         /* update pointers in the objects of variable length: */
        #define update_page  update_page_normal
-       #define update_instance_unrealloc  false
+       #define update_unrealloc  false
+       #define update_ss_unrealloc(ptr)
        #define update_in_unrealloc(ptr)
        #ifdef FOREIGN
          #define update_fpointer_invalid  true
@@ -1354,7 +1357,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
        #undef update_fsubr_function
        #undef update_fpointer_invalid
        #undef update_in_unrealloc
-       #undef update_instance_unrealloc
+       #undef update_ss_unrealloc
+       #undef update_unrealloc
        #undef update_page
       }
      #endif  /* SPVW_PURE_BLOCKS) || SINGLEMAP_MEMORY_RELOCATE */
