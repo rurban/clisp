@@ -627,14 +627,14 @@
                                        (step-function-form '(FUNCTION CDR))
                                        (step-function-var nil))
                                    (when (parse-kw-p 'by)
-                                     (setq step-function-form (parse-form 'by)))
-                                   (unless (and (consp step-function-form)
-                                                (eq (first step-function-form) 'FUNCTION)
-                                                (consp (cdr step-function-form))
-                                                (null (cddr step-function-form))
-                                                (symbolp (second step-function-form)))
-                                     (setq step-function-var (gensym)))
-                                   (let ((var (gensym))) ; Hilfsvariable
+                                     (setq step-function-form (parse-form 'by))
+                                     (let ((funform (function-form-funform
+                                                     step-function-form)))
+                                       (unless (and funform (symbolp funform))
+                                         (setq step-function-var (gensym)))))
+                                   (let ((var (if (and (symbolp pattern)
+                                                       (eq preposition 'ON))
+                                                  pattern (gensym))))
                                      (push `(,var ,start-form) bindings)
                                      (when step-function-var
                                        (push `(,step-function-var ,step-function-form)
@@ -645,13 +645,14 @@
                                                     'ENDP 'ATOM)
                                                 ,var)
                                           (LOOP-FINISH))))
-                                     (note-initialization
-                                       (make-loop-init
+                                     (unless (eq var pattern)
+                                       (note-initialization
+                                        (make-loop-init
                                          :specform 'LET
                                          :bindings (destructure pattern (if (eq preposition 'IN) `(CAR ,var) var))
                                          :declspecs new-declspecs
                                          :everytime t
-                                         :requires-stepbefore seen-endtest))
+                                         :requires-stepbefore seen-endtest)))
                                      (push
                                        (list var
                                              (if step-function-var
