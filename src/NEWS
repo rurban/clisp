@@ -80,6 +80,7 @@ User visible changes
     is NIL (i.e., does not intern the name in *PACKAGE*), and does not
     bind slot names in the arglist of keyword constructors;
   + MAPCAN and MAPCON now correctly handle functions returning ATOMs;
+  + removed macro definition from GENERIC-FUNCTION;
   + a character is now accepted as a package designator.
   Thanks to Paul F. Dietz <dietz@dls.net> and his ANSI compliance suite.
 
@@ -87,9 +88,14 @@ User visible changes
   See <http://clisp.cons.org/impnotes.html#fle> for details.
 
 * CONSTANTP now detects many more constant forms.
+  See <http://clisp.cons.org/impnotes.html#constantp> for details.
 
 * The code walker has now a public interface: EXT:EXPAND-FORM.
   See <http://clisp.cons.org/impnotes.html#code-walk> for details.
+
+* Renamed macro SPACE to EXT:TIMES because SPACE is an ANSI Common Lisp
+  symbol without a macro definition.
+  See <http://clisp.cons.org/impnotes.html#time> for details.
 
 * New function EXT:XOR checks that exactly one of its arguments is non-NIL.
   See <http://clisp.cons.org/impnotes.html#xor> for details.

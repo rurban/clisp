@@ -6,6 +6,9 @@
 	but not a macro, so this definition violates the standard
 	* type.lisp (canonicalize-type): canonicalize MOD, SIGNED-BYTE,
 	and UNSIGNED-BYTE to an inclusive interval
+	* macros2.lisp (times): renamed from SPACE because SPACE is an
+	ANSI Common Lisp symbol without a macro definition
+	* init.lisp (times): export from EXT
 
 2003-02-28  Sam Steingold  <sds@gnu.org>
 

@@ -276,7 +276,7 @@
 (sys::%putd 'bye #'sys::%exit)
 
 (export
- '(re-export make-encoding encoding encoding-charset
+ '(re-export make-encoding encoding encoding-charset times
    show-stack gc exit quit bye expand-form xor mapcap maplap
    probe-directory cd make-dir delete-dir default-directory dir
    xgcd exquo ! evalhook applyhook substring string-concat

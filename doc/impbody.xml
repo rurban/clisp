@@ -297,6 +297,13 @@ executes a compiled version of form.</para>
 
 </section>
 
+<section id="constantp"><title>Function &constantp;.</title>
+
+<para>Function &constantp; fully complies with &ansi-cl;.
+Additionally, some non-trivial forms are identified as constants, e.g.,
+<literal role="sexp">(&constantp; '(&plus; 1 2 3))</literal> returns
+&t;.</para></section>
+
 <section id="eval-when"><title>Macro &eval-when;</title>
 
 <para>&eval-when; also accepts the situations <literal role="sexp">(NOT
@@ -5239,17 +5246,6 @@ exhaust the available line length.</para></formalpara>
 </variablelist>
 </section>
 
-<section id="space"><title>Macro &space;</title>
-
-<para>The macro &space; is like the macro &time;: <literal
- role="sexp">(&space; &form-r;)</literal>
- evaluates the &form-r;, and, as a side effect, outputs information
- about the memory allocations caused by this evaluation.
- It also prints everything printed by <link
- linkend="time"><function>TIME</function></link>.</para>
-
-</section>
-
 <section id="room"><title>Function &room;</title>
 
 <para>The function &room; returns two values: the number of bytes
@@ -5265,10 +5261,19 @@ exhaust the available line length.</para></formalpara>
 
 <section id="time"><title>Macro &time;</title>
 
-<para>The timing data printed by the macro &time; includes: The real
- time (elapsed time), the run time (processor time for this process),
- the number of bytes allocated (use the &space; macro for more
- detailed analysis), and the number of &gc;ions performed, if any.</para>
+<para>The timing data printed by the macro &time; includes:
+ <simplelist columns="1">
+ <member>the real time (elapsed time),</member>
+ <member>the run time (processor time for this process),</member>
+ <member>the number of bytes allocated, and</member>
+ <member>the number of &gc;ions performed, if any.</member>
+</simplelist></para>
+
+<para>The macro &times; (mnemonic: "TIME and Space") is like the macro
+ &time;: <literal role="sexp">(&times; &form-r;)</literal>
+ evaluates the &form-r;, and, as a side effect, outputs detailed
+ information about the memory allocations caused by this evaluation.
+ It also prints everything printed by &time;.</para>
 
 </section>
 
