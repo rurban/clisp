@@ -1,5 +1,10 @@
 2004-03-16  Bruno Haible  <bruno@clisp.org>
 
+	* m4/tcpconn.m4 (CL_TCPCONN): Include <netinet/in.h> before
+	<netinet/tcp.h>. Needed for AIX 4.
+
+2004-03-16  Bruno Haible  <bruno@clisp.org>
+
 	* m4/stdbool.m4 (gt_STDBOOL_H): Also check whether 'bool' can be used
 	in declarations. Needed for HP-UX 11.
 
