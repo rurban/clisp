@@ -747,8 +747,8 @@ global int read_helper (HANDLE fd, void* buf, int nbyte, bool partial_p) {
 
 # Create a new process, given a command line and two handles for standard
 # input and standard output (both must be inheritable).
-  global BOOL MyCreateProcess (LPCTSTR CommandLine, HANDLE StdInput, HANDLE StdOutput, LPPROCESS_INFORMATION ProcessInformation);
-  global BOOL MyCreateProcess(CommandLine,StdInput,StdOutput,ProcessInformation)
+  global BOOL MyCreateProcess (LPCTSTR CommandLine, HANDLE StdInput, HANDLE StdOutput, HANDLE StdError, LPPROCESS_INFORMATION ProcessInformation);
+  global BOOL MyCreateProcess(CommandLine,StdInput,StdOutput,StdError,ProcessInformation)
     var LPCTSTR CommandLine;
     var HANDLE StdInput;
     var HANDLE StdOutput;
@@ -764,9 +764,7 @@ global int read_helper (HANDLE fd, void* buf, int nbyte, bool partial_p) {
       sinfo.dwFlags = STARTF_USESTDHANDLES;
       sinfo.hStdInput = StdInput;
       sinfo.hStdOutput = StdOutput;
-      sinfo.hStdError = GetStdHandle(STD_ERROR_HANDLE);
-      if (sinfo.hStdError == INVALID_HANDLE_VALUE)
-        return false;
+      sinfo.hStdError = StdError;
       if (!CreateProcess(NULL, CommandLine, NULL, NULL, true, 0,
                          NULL, NULL, &sinfo, ProcessInformation))
         return false;

@@ -3291,7 +3291,7 @@ local object test_external_format_arg (object arg) {
     #define clear_tty_output(handle)
   #endif
 
-#endif
+#endif # defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
 
 #if defined(WIN32_NATIVE)
 
@@ -6243,6 +6243,30 @@ local void position_file_buffered (object stream, uintL position) {
     }
   }
 }
+
+# UP: flushes pending write (if any), moves OS file pointer so
+# that there's no more preread data in the buffer. Why ? To use the handle.
+# sync_file_buffered(stream,position);
+# > stream : (open) Byte-based File-Stream.
+# changed in stream: index, endvalid, buffstart
+local void sync_file_buffered (object stream) {
+  var uintL position = BufferedStream_buffstart(stream)+BufferedStream_index(stream);
+  # poss. flush Buffer:
+  if (BufferedStream_modified(stream))
+    buffered_flush(stream);
+  # Now modified_flag is deleted.
+  begin_system_call();
+  handle_lseek(stream,BufferedStream_channel(stream),position,SEEK_SET,);
+  end_system_call();
+  # ampy: don't respect blockpositioning, acceptable ?
+  BufferedStream_buffstart(stream) = position;
+  BufferedStream_endvalid(stream) = 0;
+  BufferedStream_index(stream) = 0; # index == endvalid, next read will refill the buffer
+  BufferedStream_modified(stream) = false; # unmodified
+  BufferedStream_have_eof_p(stream) = false;
+}
+
+
 
 # UP: Reads an Array of Bytes from an (open) Byte-based
 # File-Stream.
@@ -9313,7 +9337,7 @@ local object make_terminal_stream_ (void) {
 #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
 
 # Functionality:
-# Standard-Input anf Standard-Output are accessed.
+# Standard-Input and Standard-Output are accessed.
 # Because of the possibility of Redirection some Functions have to determine, if
 # Standard-Input is a Terminal or not.
 # If Standard-Output is a Terminal or not, is irrelevant in this context.
@@ -13548,11 +13572,13 @@ local inline void create_input_pipe (const char* command) {
       OS_error();
     }
     if (!CloseHandle(handles[1])) { OS_error(); }
-    var HANDLE stdinput;
+    var HANDLE stdinput,stderror;
     var PROCESS_INFORMATION pinfo;
     stdinput = GetStdHandle(STD_INPUT_HANDLE);
     if (stdinput == INVALID_HANDLE_VALUE) { OS_error(); }
-    if (!MyCreateProcess(command,stdinput,child_write_handle,&pinfo)) {
+    stderror = GetStdHandle(STD_ERROR_HANDLE);
+    if (stderror == INVALID_HANDLE_VALUE) { OS_error(); }
+    if (!MyCreateProcess(command,stdinput,child_write_handle,stderror,&pinfo)) {
       OS_error();
     }
     # Close our copy of the child's handle, so that the OS knows
@@ -13761,11 +13787,13 @@ local inline void create_output_pipe (const char* command) {
       OS_error();
     }
     if (!CloseHandle(handles[0])) { OS_error(); }
-    var HANDLE stdoutput;
+    var HANDLE stdoutput,stderror;
     var PROCESS_INFORMATION pinfo;
     stdoutput = GetStdHandle(STD_OUTPUT_HANDLE);
     if (stdoutput == INVALID_HANDLE_VALUE) { OS_error(); }
-    if (!MyCreateProcess(command,child_read_handle,stdoutput,&pinfo)) {
+    stdoutput = GetStdHandle(STD_ERROR_HANDLE);
+    if (stderror == INVALID_HANDLE_VALUE) { OS_error(); }
+    if (!MyCreateProcess(command,child_read_handle,stdoutput,stderror,&pinfo)) {
       OS_error();
     }
     # Close our copy of the child's handle, so that the OS knows
@@ -13938,6 +13966,7 @@ local inline void create_io_pipe (const char* command) {
     begin_system_call();
     var Handle child_read_handle;
     var Handle child_write_handle;
+    var Handle stderror;
     # Create two pipes and make two of the four handles inheritable.
     if (!CreatePipe(&in_handles[0],&in_handles[1],NULL,0)) { OS_error(); }
     if (!DuplicateHandle(GetCurrentProcess(),in_handles[1],
@@ -13951,8 +13980,10 @@ local inline void create_io_pipe (const char* command) {
                          0, true, DUPLICATE_SAME_ACCESS))
       { OS_error(); }
     if (!CloseHandle(out_handles[0])) { OS_error(); }
+    stderror = GetStdHandle(STD_ERROR_HANDLE);
+    if (stderror == INVALID_HANDLE_VALUE) { OS_error(); }
     var PROCESS_INFORMATION pinfo;
-    if (!MyCreateProcess(command,child_read_handle,child_write_handle,&pinfo))
+    if (!MyCreateProcess(command,child_read_handle,child_write_handle,stderror,&pinfo))
       { OS_error(); }
     # Close our copies of the child's handles, so that the OS knows
     # that we won't use them.
@@ -16995,6 +17026,66 @@ local bool test_endianness_arg (object arg) {
   pushSTACK(O(type_endianness)); # TYPE-ERROR slot EXPECTED-TYPE
   pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,GETTEXT("~: illegal endianness argument ~"));
+}
+
+
+# UP: give away corresponding underlying handle
+# making sure buffers were flushed. One can then use the 
+# handle outside of stream object as far as the latter 
+# is not used and not GCed.
+# stream_lend_handle(stream, inputp, handletype)
+# > stream: stream for handle to extract
+# > inputp: whether it input or output side is requested.
+# < int * handletype 0: reserved 1: file 2: socket
+# < Handle result - extracted handle
+# can trigger GC
+global Handle stream_lend_handle (object stream, bool inputp, int * handletype) {
+  # TODO: use finish-output ?
+  if (builtin_stream_p(stream)) {
+    switch (TheStream(stream)->strmtype) {
+      case strmtype_file:
+        if (inputp && TheStream(stream)->strmflags & strmflags_rd_B) {
+          *handletype = 1;
+          if (ChannelStream_buffered(stream)) {
+            sync_file_buffered(stream);
+            return TheHandle(TheStream(stream)->strm_buffered_channel);
+          }
+          return TheHandle(TheStream(stream)->strm_ichannel);
+        } else if (!inputp && TheStream(stream)->strmflags & strmflags_wr_B) {
+          *handletype = 1;
+          if (ChannelStream_buffered(stream)) {# reposition index back to not yet read position
+            sync_file_buffered(stream);
+            return TheHandle(TheStream(stream)->strm_buffered_channel);
+          } 
+          return TheHandle(TheStream(stream)->strm_ochannel);
+        }
+      case strmtype_twoway:
+      case strmtype_echo:
+        return stream_lend_handle(TheStream(stream)->strm_twoway_input,inputp,handletype);
+      case strmtype_synonym:
+        return stream_lend_handle(resolve_synonym_stream(stream),inputp,handletype);
+      case strmtype_keyboard:
+#if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS) || defined(WIN32_NATIVE)
+        if (inputp) {
+          *handletype = 1;
+          return TheHandle(TheStream(stream)->strm_keyboard_handle);
+        }
+#endif
+        break;
+      case strmtype_terminal:
+        # fixme: no actual need to flush
+        *handletype = 1;
+        return TheHandle(inputp?TheStream(stream)->strm_terminal_ihandle:
+          TheStream(stream)->strm_terminal_ohandle);
+      default:
+        break;
+    }
+  } 
+  pushSTACK(stream);                      # TYPE-ERROR slot DATUM
+  pushSTACK(O(type_open_file_stream));    # TYPE-ERROR slot EXPECTED-TYPE
+  pushSTACK(stream);
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~: argument ~ does not contain a valid OS stream handle"));
 }
 
 # (READ-BYTE stream [eof-error-p [eof-value]]), CLTL p. 382
