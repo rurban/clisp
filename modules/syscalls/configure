@@ -2869,7 +2869,8 @@ done
 
 
 
-for ac_header in errno.h fcntl.h netdb.h sys/resource.h utime.h wchar.h pwd.h sys/stat.h sys/time.h sys/unistd.h time.h unistd.h limits.h
+
+for ac_header in errno.h fcntl.h netdb.h sys/resource.h utime.h wchar.h pwd.h sys/stat.h sys/time.h sys/unistd.h time.h unistd.h limits.h syslog.h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if eval "test \"\${$as_ac_Header+set}\" = set"; then
@@ -3408,7 +3409,11 @@ echo "$as_me:  * System Calls (Functions)" >&6;}
 
 
 
-for ac_func in clock confstr fcntl gethostent sysconf uname getrlimit setrlimit getlogin getpwent getpwnam getpwuid getuid fchmod fchown fstat link stat symlink utime mknod chmod chown umask
+
+
+
+
+for ac_func in clock confstr fcntl gethostent sysconf uname getrlimit setrlimit getlogin getpwent getpwnam getpwuid getuid openlog setlogmask syslog closelog fchmod fchown fstat link stat symlink utime mknod chmod chown umask
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
 echo "$as_me:$LINENO: checking for $ac_func" >&5
