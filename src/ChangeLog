@@ -1,3 +1,28 @@
+1998-06-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * lispbibl.d (Fsubr): Move the C code address from the recdata[] part
+          to the non-Lisp-object part.
+          (fsubr_length): Reduce by 1.
+          (fsubr_xlength): Define.
+          (allocate_fsubr): Update accordingly.
+        * misc.d (SYS::CODE-ADDRESS-OF): Drop TheMachine on fsubr->function.
+        * eval.d (eval_fsubr): Likewise.
+        * spvw.d (do_aktualisiere_record): If aktualisiere_fsubr_function is
+          TRUE and the object is an Fsubr, call the aktualisiere_fs_function
+          macro.
+          (gar_col_normal): No need for aktualisiere_fsubr_function here.
+          (gar_col_compact): Likewise.
+          (move_conses): Likewise.
+          (init_symbol_functions): Drop make_machine for fsubr->function.
+          (memdump_reloc_header): Add support for relocation Fsubr code
+          addresses.
+          (savemem): Likewise.
+          (loadmem_aktualisiere): Don't look in old_fsubr_tab when updating
+          a machine pointer.
+          (loadmem_aktualisiere_fsubr): New function.
+          (loadmem_from_handle): During aktualisiere_varobjects or during
+          fast relocation phase, call loadmem_aktualisiere_fsubr.
+
 1998-06-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * spvw.d (make_ratio): Compute positivep(num) before doing the
