@@ -22,9 +22,9 @@
 (defconstant *<specializer>-direct-methods-location* 2)
 
 ;; Preliminary accessors.
-(defun specializer-direct-methods-table (object)
+(predefun specializer-direct-methods-table (object)
   (sys::%record-ref object *<specializer>-direct-methods-location*))
-(defun (setf specializer-direct-methods-table) (new-value object)
+(predefun (setf specializer-direct-methods-table) (new-value object)
   (setf (sys::%record-ref object *<specializer>-direct-methods-location*) new-value))
 
 ;; Initialization of a <specializer> instance.
@@ -52,9 +52,9 @@
 (defconstant *<eql-specializer>-singleton-location* 3)
 
 ;; Preliminary accessors.
-(defun eql-specializer-singleton (object)
+(predefun eql-specializer-singleton (object)
   (sys::%record-ref object *<eql-specializer>-singleton-location*))
-(defun (setf eql-specializer-singleton) (new-value object)
+(predefun (setf eql-specializer-singleton) (new-value object)
   (setf (sys::%record-ref object *<eql-specializer>-singleton-location*) new-value))
 
 (defconstant *<eql-specializer>-instance-size* 4)
@@ -114,7 +114,7 @@
     gfs))
 
 ;; MOP p. 103
-(defun specializer-direct-generic-functions (specializer)
+(predefun specializer-direct-generic-functions (specializer)
   (compute-direct-generic-functions specializer))
 
 #|
@@ -131,13 +131,13 @@
   list-direct-methods)
 
 ;; Preliminary.
-(defun add-direct-method (specializer method)
+(predefun add-direct-method (specializer method)
   (add-direct-method-internal specializer method))
-(defun remove-direct-method (specializer method)
+(predefun remove-direct-method (specializer method)
   (remove-direct-method-internal specializer method))
 
 ;; MOP p. 103
-(defun specializer-direct-methods (specializer)
+(predefun specializer-direct-methods (specializer)
   (list-direct-methods specializer))
 
 ;;; ===========================================================================

@@ -291,6 +291,24 @@ LISPFUNNR(closure_name,1) {
   VALUES1(Closure_name(closure));
 }
 
+/* ((SETF SYS::CLOSURE-NAME) new-value closure) changes the name of a
+   closure. */
+LISPFUNN(set_closure_name,2) {
+  var object closure = popSTACK();
+  if (!closurep(closure)) {
+    pushSTACK(closure);
+    pushSTACK(TheSubr(subr_self)->name); /* function name */
+    fehler(error, /* type_error ?? */
+           GETTEXT("~S: ~S is not a closure"));
+  }
+  var object new_name = popSTACK();
+  if (Closure_instancep(closure))
+    TheCclosure(closure)->clos_consts[1] = new_name;
+  else
+    TheClosure(closure)->clos_name_or_class_version = new_name;
+  VALUES1(new_name);
+}
+
 /* error, if argument is not a compiled closure */
 nonreturning_function(local, fehler_cclosure, (object obj)) {
   pushSTACK(obj);

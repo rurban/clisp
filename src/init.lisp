@@ -242,6 +242,12 @@
 
 )
 
+(sys::%putd 'sys::make-preliminary
+  (function sys::make-preliminary (lambda (closure) ; ABI
+    (sys::\(setf\ closure-name\) (list 'ext::preliminary (sys::closure-name closure))
+                                 closure)
+    closure)))
+
 (sys::%putd 'in-package
   (sys::make-macro
     (function in-package (lambda (form env)
@@ -253,61 +259,63 @@
 
 ;; A preliminary definition that understands only ~S, ~A and ~C.
 (sys::%putd 'format
-  (function format
-    (lambda (destination control-string &rest arguments &aux stream)
-      (cond ((null destination)
-             (setq stream (make-string-output-stream)))
-            ((eq destination 'T)
-             (setq stream *standard-output*))
-            ((streamp destination)
-             (setq stream destination))
-            (t (error (TEXT "The destination argument ~S is invalid (not NIL or T or a stream or a string).")
-                      destination)))
-      (cond ((stringp control-string)
-             (let ((i 0) (n (length control-string)))
-               (tagbody
-                 next
-                   (when (< i n)
-                     (when (eq (char control-string i) #\~)
-                       (when (< (1+ i) n)
-                         (let ((c (char control-string (1+ i))))
-                           (cond ((eq c #\S)
-                                  (prin1 (car arguments) stream)
-                                  (setq arguments (cdr arguments))
-                                  (setq i (+ i 2))
-                                  (go next))
-                                 ((eq c #\A)
-                                  (princ (car arguments) stream)
-                                  (setq arguments (cdr arguments))
-                                  (setq i (+ i 2))
-                                  (go next))
-                                 ((eq c #\C)
-                                  (write-char (car arguments) stream)
-                                  (setq arguments (cdr arguments))
-                                  (setq i (+ i 2))
-                                  (go next))))))
-                     (write-char (char control-string i) stream)
-                     (setq i (+ i 1))
-                     (go next)))))
-            ((functionp control-string)
-             (apply control-string stream arguments))
-            (t (error (TEXT "~S: The control-string must be a string, not ~S")
-                      'format control-string)))
-      (if (null destination)
-        (get-output-stream-string stream)
-        nil))))
+  (sys::make-preliminary
+    (function format
+      (lambda (destination control-string &rest arguments &aux stream)
+        (cond ((null destination)
+               (setq stream (make-string-output-stream)))
+              ((eq destination 'T)
+               (setq stream *standard-output*))
+              ((streamp destination)
+               (setq stream destination))
+              (t (error (TEXT "The destination argument ~S is invalid (not NIL or T or a stream or a string).")
+                        destination)))
+        (cond ((stringp control-string)
+               (let ((i 0) (n (length control-string)))
+                 (tagbody
+                   next
+                     (when (< i n)
+                       (when (eq (char control-string i) #\~)
+                         (when (< (1+ i) n)
+                           (let ((c (char control-string (1+ i))))
+                             (cond ((eq c #\S)
+                                    (prin1 (car arguments) stream)
+                                    (setq arguments (cdr arguments))
+                                    (setq i (+ i 2))
+                                    (go next))
+                                   ((eq c #\A)
+                                    (princ (car arguments) stream)
+                                    (setq arguments (cdr arguments))
+                                    (setq i (+ i 2))
+                                    (go next))
+                                   ((eq c #\C)
+                                    (write-char (car arguments) stream)
+                                    (setq arguments (cdr arguments))
+                                    (setq i (+ i 2))
+                                    (go next))))))
+                       (write-char (char control-string i) stream)
+                       (setq i (+ i 1))
+                       (go next)))))
+              ((functionp control-string)
+               (apply control-string stream arguments))
+              (t (error (TEXT "~S: The control-string must be a string, not ~S")
+                        'format control-string)))
+        (if (null destination)
+          (get-output-stream-string stream)
+          nil)))))
 
 ;; Yet another preliminary definition.
 (sys::%putd 'cerror
-  (function cerror
-    (lambda (continue-format-string error-format-string &rest args)
-      (terpri *error-output*)
-      (write-string "** - Continuable Error" *error-output*)
-      (terpri *error-output*)
-      (apply #'format *error-output* error-format-string args)
-      (terpri *debug-io*)
-      (apply #'format *debug-io* continue-format-string args)
-      nil)))
+  (sys::make-preliminary
+    (function cerror
+      (lambda (continue-format-string error-format-string &rest args)
+        (terpri *error-output*)
+        (write-string "** - Continuable Error" *error-output*)
+        (terpri *error-output*)
+        (apply #'format *error-output* error-format-string args)
+        (terpri *debug-io*)
+        (apply #'format *debug-io* continue-format-string args)
+        nil))))
 
 (use-package '("COMMON-LISP" "CUSTOM") "EXT")
 
@@ -366,7 +374,7 @@
    #+(or UNIX WIN32) make-pipe-input-stream
    #+(or UNIX WIN32) make-pipe-io-stream
    make-buffered-input-stream make-buffered-output-stream
-   get-setf-method local module-info
+   get-setf-method preliminary local module-info
    source-program-error source-program-error-form source-program-error-detail
    compiler-let load-time-eval)
  "EXT")
@@ -511,11 +519,21 @@
 
 (use-package '("COMMON-LISP" "EXT") "CL-USER")
 
+(sys::%putd 'sys::preliminary-p
+  (function sys::preliminary-p (lambda (name)
+    (and (consp name) (eq (car name) 'ext:preliminary)))))
+
 (sys::%putd 'sys::fbound-string
   (function sys::fbound-string (lambda (sym)
     (cond ((special-operator-p sym) (TEXT "special operator"))
-          ((macro-function sym)     (TEXT "macro"))
-          ((fboundp sym)            (TEXT "function"))))))
+          ((and (macro-function sym)
+                (not (and (sys::closurep (macro-function sym))
+                          (sys::preliminary-p (sys::closure-name (macro-function sym))))))
+           (TEXT "macro"))
+          ((and (fboundp sym)
+                (not (and (sys::closurep (symbol-function sym))
+                          (sys::preliminary-p (sys::closure-name (symbol-function sym))))))
+           (TEXT "function"))))))
 
 (proclaim '(special *documentation*))
 (setq *documentation* (make-hash-table :key-type 'symbol ; actually (or symbol cons)
@@ -574,14 +592,15 @@
         (system::%set-documentation symbol 'sys::file cur-file))))))
 
 (sys::%putd 'sys::remove-old-definitions
-  (function sys::remove-old-definitions (lambda (symbol) ; ABI
+  (function sys::remove-old-definitions (lambda (symbol &optional (preliminary nil)) ; ABI
     ;; removes the old function-definitions of a symbol
     (when (special-operator-p symbol)
       (error-of-type 'error
         (TEXT "~S is a special operator and may not be redefined.")
         symbol))
-    (sys::check-redefinition symbol "DEFUN/DEFMACRO"
-                             (sys::fbound-string symbol))
+    (unless preliminary
+      (sys::check-redefinition symbol "DEFUN/DEFMACRO"
+                               (sys::fbound-string symbol)))
     (fmakunbound symbol) ; discard function & macro definition
     ;; Property sys::definition is not discarded, because it is
     ;; soon reset, anyway.
@@ -678,8 +697,10 @@
     'T)) ; not found
 ;; Determines, if a function-name S in function-environment FENV is not
 ;; defined and thus refers to the global function.
-(defun global-in-fenv-p (s fenv) ; preliminary
-  (eq (fenv-assoc s fenv) 'T))
+(sys::%putd 'global-in-fenv-p
+  (sys::make-preliminary
+    (function global-in-fenv-p (lambda (s fenv) ; preliminary
+      (eq (fenv-assoc s fenv) 'T)))))
 
 (proclaim '(special *venv*))
 ;; *VENV* = the current variable-environment during the expansion of a form.
@@ -1402,12 +1423,14 @@
 #+ffi (setq ffi::*foreign-language* nil)
 
 ;; preliminary; needed here for open-for-load
-(defun warn (format-string &rest args)
-  (terpri *error-output*)
-  (write-string (TEXT "WARNING:") *error-output*)
-  (terpri *error-output*)
-  (apply #'format *error-output* format-string args)
-  nil)
+(sys::%putd 'warn
+  (sys::make-preliminary
+    (function warn (lambda (format-string &rest args)
+      (terpri *error-output*)
+      (write-string (TEXT "WARNING:") *error-output*)
+      (terpri *error-output*)
+      (apply #'format *error-output* format-string args)
+      nil))))
 (defun open-for-load (filename extra-file-types external-format
                       &aux stream (present-files t) obj path bad-file)
  (block open-for-load
@@ -1730,26 +1753,32 @@
 (PROGN
 
 (sys::%putd 'defmacro
+(sys::%putd 'sys::predefmacro ; predefmacro means "preliminary defmacro"
   (sys::make-macro
     (function defmacro (lambda (form env)
       (declare (ignore env))
-      (multiple-value-bind (expansion name lambdalist docstring)
-          (sys::make-macro-expansion (cdr form) form)
-        (declare (ignore lambdalist))
-        `(LET ()
-           (EVAL-WHEN (COMPILE LOAD EVAL)
-             (SYSTEM::REMOVE-OLD-DEFINITIONS ',name)
-             ,@(if docstring
-                 `((SYSTEM::%SET-DOCUMENTATION ',name 'FUNCTION ',docstring))
-                 '())
-             (SYSTEM::%PUTD ',name (SYSTEM::MAKE-MACRO ,expansion)))
-           (EVAL-WHEN (EVAL)
-             (SYSTEM::%PUT ',name 'SYSTEM::DEFINITION
-                           (CONS ',form (THE-ENVIRONMENT))))
-           ',name))))))
+      (let ((preliminaryp (eq (car form) 'sys::predefmacro)))
+        (multiple-value-bind (expansion name lambdalist docstring)
+            (sys::make-macro-expansion (cdr form) form)
+          (declare (ignore lambdalist))
+          `(LET ()
+             (EVAL-WHEN ,(if preliminaryp '(LOAD EVAL) '(COMPILE LOAD EVAL))
+               (SYSTEM::REMOVE-OLD-DEFINITIONS ',name
+                 ,@(if preliminaryp '('T)))
+               ,@(if docstring
+                   `((SYSTEM::%SET-DOCUMENTATION ',name 'FUNCTION ',docstring))
+                   '())
+               (SYSTEM::%PUTD ',name
+                 (SYSTEM::MAKE-MACRO ,(if preliminaryp
+                                        `(SYSTEM::MAKE-PRELIMINARY ,expansion)
+                                        expansion))))
+             (EVAL-WHEN (EVAL)
+               (SYSTEM::%PUT ',name 'SYSTEM::DEFINITION
+                             (CONS ',form (THE-ENVIRONMENT))))
+             ',name))))))))
 
 #-compiler
-(defmacro COMPILER::EVAL-WHEN-COMPILE (&body body) ; preliminary
+(predefmacro COMPILER::EVAL-WHEN-COMPILE (&body body) ; preliminary
   `(eval-when (compile) ,@body))
 
 ;; return 2 values: ordinary lambda list and reversed list of type declarations
@@ -1773,6 +1802,7 @@
               (go start)))))))))
 
 (sys::%putd 'defun
+(sys::%putd 'sys::predefun ; predefun means "preliminary defun"
   (sys::make-macro
     (function defun (lambda (form env)
       (if (atom (cdr form))
@@ -1780,27 +1810,28 @@
           :form form
           :detail (cdr form)
           (TEXT "~S: cannot define a function from that: ~S")
-          'defun (cdr form)))
+          (car form) (cdr form)))
       (unless (function-name-p (cadr form))
         (error-of-type 'source-program-error
           :form form
           :detail (cadr form)
           (TEXT "~S: the name of a function must be a symbol, not ~S")
-          'defun (cadr form)))
+          (car form) (cadr form)))
       (if (atom (cddr form))
         (error-of-type 'source-program-error
           :form form
           :detail (cddr form)
           (TEXT "~S: function ~S is missing a lambda list")
-          'defun (cadr form)))
-      (let ((name (cadr form))
+          (car form) (cadr form)))
+      (let ((preliminaryp (eq (car form) 'sys::predefun))
+            (name (cadr form))
             (lambdalist (caddr form))
             (body (cdddr form)))
         (multiple-value-bind (body-rest declarations docstring)
             (sys::parse-body body t)
           (when *defun-accept-specialized-lambda-list*
             (multiple-value-bind (lalist decl-list)
-                (sys::specialized-lambda-list-to-ordinary lambdalist 'defun)
+                (sys::specialized-lambda-list-to-ordinary lambdalist (car form))
               (setq lambdalist lalist
                     declarations (nreconc decl-list declarations))))
           (let ((symbolform
@@ -1812,7 +1843,8 @@
                               (BLOCK ,(function-block-name name)
                                 ,@body-rest))))
             `(LET ()
-               (SYSTEM::REMOVE-OLD-DEFINITIONS ,symbolform)
+               (SYSTEM::REMOVE-OLD-DEFINITIONS ,symbolform
+                 ,@(if preliminaryp '('T)))
                ,@(if ; Is name declared inline?
                   (if (and compiler::*compiling*
                            compiler::*compiling-from-file*)
@@ -1857,11 +1889,13 @@
                                                  'FUNCTION ',docstring))
                    '())
                (SYSTEM::%PUTD ,symbolform
-                              (FUNCTION ,name (LAMBDA ,@lambdabody)))
+                 ,(if preliminaryp
+                    `(SYSTEM::MAKE-PRELIMINARY (FUNCTION ,name (LAMBDA ,@lambdabody)))
+                    `(FUNCTION ,name (LAMBDA ,@lambdabody))))
                (EVAL-WHEN (EVAL)
                  (SYSTEM::%PUT ,symbolform 'SYSTEM::DEFINITION
                                (CONS ',form (THE-ENVIRONMENT))))
-               ',name))))))))
+               ',name)))))))))
 
 (VALUES) )
 

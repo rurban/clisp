@@ -34,6 +34,7 @@
     sys::function-name-p        ; defined in control.d
     sys::function-block-name    ; defined in eval.d
     sys::memq                   ; defined in list.d
+    sys::predefun               ; defined in init.lisp
     sys::gensym-list            ; defined in macros2.lisp
     sys::analyze-lambdalist     ; defined in lambdalist.lisp
     sys::make-signature         ; defined in functions.lisp
