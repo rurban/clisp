@@ -1200,7 +1200,9 @@ fi
 
 if test -n "$with_export_syscalls"; then
   XCFLAGS="$XCFLAGS -DEXPORT_SYSCALLS"
-  LIBS=$LIBS' -lm'
+  if [ ${HOS} != "win32" ]; then
+    LIBS=$LIBS' -lm'
+  fi
 fi
 
 if test -n "$with_dir_key"; then
