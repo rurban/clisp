@@ -1344,6 +1344,7 @@ LISPSYM(fasthash_equal,"FASTHASH-EQUAL",ext) /* test for HASHTABL */
 LISPSYM(stablehash_equal,"STABLEHASH-EQUAL",ext) /* test for HASHTABL */
 LISPSYM(equal_hashfunction,"*EQUAL-HASHFUNCTION*",ext) /* variable for HASHTABL */
 LISPSYM(structure_stablehash,"STRUCTURE-STABLEHASH",clos) /* class for HASHTABL */
+LISPSYM(warn_on_hashtable_needing_rehash_after_gc,"*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC*",custom) /* variable for HASHTABL */
 LISPSYM(simple_vector,"SIMPLE-VECTOR",lisp) /* type in SEQUENCE, PREDTYPE */
 LISPSYM(simple_string,"SIMPLE-STRING",lisp) /* type in SEQUENCE, PREDTYPE */
 LISPSYM(base_string,"BASE-STRING",lisp) /* type in SEQUENCE, PREDTYPE */

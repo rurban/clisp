@@ -1535,6 +1535,16 @@ local object rehash (object ht) {
   return ht;
 }
 
+/* Warn if a hash table is rehashed because of a GC, degrading performance.
+ can trigger GC */
+local void warn_forced_gc_rehash (object ht) {
+  pushSTACK(CLSTEXT("Performance/scalability warning: The hash table ~S needs "
+                    "to be rehashed after a garbage collection, since it "
+                    "contains key whose hash code is not GC-invariant."));
+  pushSTACK(ht);
+  funcall(S(warn),2);
+}
+
 /* UP: Searches a key in a hash-table.
  hash_lookup_builtin(ht,obj,&KVptr,&Iptr)
  > ht: hash-table
@@ -1549,8 +1559,18 @@ local object rehash (object ht) {
 global bool hash_lookup_builtin (object ht, object obj, gcv_object_t** KVptr_,
                                  gcv_object_t** Iptr_) {
   #ifdef GENERATIONAL_GC
-  if (!ht_validp(TheHashtable(ht))) /* hash-table must be reorganized */
+  if (!ht_validp(TheHashtable(ht))) { /* hash-table must be reorganized */
+    # Rehash it before the warning, otherwise we risk an endless recursion.
     ht = rehash(ht);
+    # Warn if *WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC* is true:
+    if (!nullpSv(warn_on_hashtable_needing_rehash_after_gc)) {
+      pushSTACK(ht); pushSTACK(obj);
+      warn_forced_gc_rehash(ht);
+      obj = popSTACK(); ht = popSTACK();
+    }
+    if (!ht_validp(TheHashtable(ht))) /* must be reorganized again? */
+      ht = rehash(ht);
+  }
   #endif
   ASSERT(ht_validp(TheHashtable(ht)));
   var uintB flags = record_flags(TheHashtable(ht));
@@ -1579,8 +1599,18 @@ global bool hash_lookup_builtin (object ht, object obj, gcv_object_t** KVptr_,
 #ifndef GENERATIONAL_GC
 global bool hash_lookup_builtin_with_rehash (object ht, object obj, gcv_object_t** KVptr_,
                                              gcv_object_t** Iptr_) {
-  if (!ht_validp(TheHashtable(ht))) /* hash-table must be reorganized */
+  if (!ht_validp(TheHashtable(ht))) { /* hash-table must be reorganized */
+    # Rehash it before the warning, otherwise we risk an endless recursion.
     ht = rehash(ht);
+    # Warn if *WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC* is true:
+    if (!nullpSv(warn_on_hashtable_needing_rehash_after_gc)) {
+      pushSTACK(ht); pushSTACK(obj);
+      warn_forced_gc_rehash(ht);
+      obj = popSTACK(); ht = popSTACK();
+    }
+    if (!ht_validp(TheHashtable(ht))) /* must be reorganized again? */
+      ht = rehash(ht);
+  }
   return hash_lookup_builtin(ht,obj,KVptr_,Iptr_);
 }
 #endif

@@ -1,5 +1,13 @@
 2004-05-15  Bruno Haible  <bruno@clisp.org>
 
+	* spvw.d (init_symbol_values): Initialize
+	*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC* to NIL.
+	* hashtabl.d (warn_forced_gc_rehash): New function.
+	(hash_lookup_builtin, hash_lookup_builtin_with_rehash): Call it when
+	*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC* is true.
+
+2004-05-15  Bruno Haible  <bruno@clisp.org>
+
 	* hashtabl.d (clrhash): Reorganize the hash table immediately,
 	instead of delaying the reorganization.
 
