@@ -17,12 +17,11 @@
     "file:/usr/doc/lisp/HyperSpec" by sed(1) during installation. In
     order to view this file without sed-processing it, it is sufficient
     to make a symlink for "CLHSROOT" in the current directory.
-  * "Whatever is written by a human, is supposed to be read by a human".
+  * "Whatever is written by a human, will be read by another human".
     Please keep your lines under 79 characters and remember that some
     people will be reading this document with "CLHSROOT" replaced with a
     long URL.
-  * If you are using Emacs, do (setq sentence-end-double-space t) and
-    put 2 spaces after a final period in a sentence.
+  * For the benefit of Emacs, put 2 spaces after a final period in a sentence.
   * Literal symbols are written in <code>...</code> font, in lowercase.
   * All tags are written in lowercase (which is more readable for a
     human).  "Low level" tags like <b> and <i> etc are to be avoided,
@@ -67,13 +66,16 @@
     in Netscape Navigator and Amaya.
   * Do not put a <p> before <dl>, <ol>, <pre>. It causes an extraneous blank
     line in Amaya.
+  * In Emacs, M-x compile RET in this file runs `weblint'
+    (http://www.cre.canon.co.uk/~neilb/weblint).
+    Please make sure that there are no errors.
 -->
 
 <body>
 <h1 align=center>Implementation Notes for CLISP</h1>
 
 <center>
-<strong>Last modified: 2000-01-07</strong><br>
+<strong>Last modified: 2000-01-10</strong><br>
 <img src="clisp.gif" width=48 height=48 alt="[CLISP icon]">
 </center>
 
@@ -9485,7 +9487,7 @@ time-stamp-start: "<strong>Last modified: "
 time-stamp-end: "</strong><br>"
 time-stamp-format: "%:y-%02m-%02d"
 time-stamp-line-limit: 100
+sentence-end-double-space: t
 eval: (add-hook 'write-file-hooks 'time-stamp)
 end:
 -->
-<strong>Last modified: July 18, 1999.</strong><br>
