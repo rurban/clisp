@@ -1357,12 +1357,12 @@ nonreturning_function(local, fehler_hashtable, (object obj)) {
   pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,GETTEXT("~: argument ~ is not a hash-table"));
 }
+#define check_hashtable(ht) if(!hash_table_p(ht)) fehler_hashtable(ht)
 
 # (GETHASH key hashtable [default]), CLTL p. 284
 LISPFUN(gethash,2,1,norest,nokey,0,NIL) {
   var object ht = STACK_1; # hashtable-argument
-  if (!hash_table_p(ht)) # check
-    fehler_hashtable(ht);
+  check_hashtable(ht);
   var object* KVptr;
   var object* Nptr;
   var object* Iptr;
@@ -1382,8 +1382,7 @@ LISPFUN(gethash,2,1,norest,nokey,0,NIL) {
 # (SETF (GETHASH key hashtable) value), CLTL p. 284
 LISPFUNN(puthash,3) {
   var object ht = STACK_1; # hashtable-argument
-  if (!hash_table_p(ht)) # check
-    fehler_hashtable(ht);
+  check_hashtable(ht);
   var object* KVptr;
   var object* Nptr;
   var object* Iptr;
@@ -1428,8 +1427,7 @@ global object shifthash (object ht, object obj, object value) {
 # (REMHASH key hashtable), CLTL p. 284
 LISPFUNN(remhash,2) {
   var object ht = popSTACK(); # hashtable-argument
-  if (!hash_table_p(ht)) # check
-    fehler_hashtable(ht);
+  check_hashtable(ht);
   var object key = popSTACK(); # key-argument
   var object* KVptr;
   var object* Nptr;
@@ -1474,8 +1472,7 @@ LISPFUNN(remhash,2) {
 # (MAPHASH function hashtable), CLTL p. 285
 LISPFUNN(maphash,2) {
   var object ht = STACK_0; # hashtable-argument
-  if (!hash_table_p(ht)) # check
-    fehler_hashtable(ht);
+  check_hashtable(ht);
   # traverse the key-value-vector in reverse direction and
   # call the function for all key-value-pairs with key /= "leer" :
   var uintL index = 2*posfixnum_to_L(TheHashtable(ht)->ht_maxcount);
@@ -1499,8 +1496,7 @@ LISPFUNN(maphash,2) {
 # (CLRHASH hashtable), CLTL p. 285
 LISPFUNN(clrhash,1) {
   var object ht = popSTACK(); # hashtable-argument
-  if (!hash_table_p(ht)) # check
-    fehler_hashtable(ht);
+  check_hashtable(ht);
   clrhash(ht); # empty table
   # Shrink the hash-table when MINCOUNT > 0 :
   if (!eq(TheHashtable(ht)->ht_mincount,Fixnum_0))
@@ -1511,24 +1507,21 @@ LISPFUNN(clrhash,1) {
 # (HASH-TABLE-COUNT hashtable), CLTL p. 285, CLtL2 p. 439
 LISPFUNN(hash_table_count,1) {
   var object ht = popSTACK(); # hashtable-argument
-  if (!hash_table_p(ht)) # check
-    fehler_hashtable(ht);
+  check_hashtable(ht);
   value1 = TheHashtable(ht)->ht_count; mv_count=1; # fixnum COUNT as value
 }
 
 # (HASH-TABLE-REHASH-SIZE hashtable), CLtL2 p. 441, dpANS p. 18-7
 LISPFUNN(hash_table_rehash_size,1) {
   var object ht = popSTACK(); # hashtable-argument
-  if (!hash_table_p(ht)) # check
-    fehler_hashtable(ht);
+  check_hashtable(ht);
   value1 = TheHashtable(ht)->ht_rehash_size; mv_count=1; # short-float REHASH-SIZE as value
 }
 
 # (HASH-TABLE-REHASH-THRESHOLD hashtable), CLtL2 p. 441, dpANS p. 18-8
 LISPFUNN(hash_table_rehash_threshold,1) {
   var object ht = popSTACK(); # hashtable-argument
-  if (!hash_table_p(ht)) # check
-    fehler_hashtable(ht);
+  check_hashtable(ht);
   # As MAKE-HASH-TABLE ignores the :REHASH-THRESHOLD argument, the value
   # is irrelevant here and arbitrary.
   value1 = make_SF(0,SF_exp_mid+0,(bit(SF_mant_len)/2)*3); mv_count=1; # 0.75s0 as value
@@ -1537,16 +1530,14 @@ LISPFUNN(hash_table_rehash_threshold,1) {
 # (HASH-TABLE-SIZE hashtable), CLtL2 p. 441, dpANS p. 18-9
 LISPFUNN(hash_table_size,1) {
   var object ht = popSTACK(); # hashtable-argument
-  if (!hash_table_p(ht)) # check
-    fehler_hashtable(ht);
+  check_hashtable(ht);
   value1 = TheHashtable(ht)->ht_maxcount; mv_count=1; # Fixnum MAXCOUNT als Wert
 }
 
 # (HASH-TABLE-TEST hashtable), CLtL2 p. 441, dpANS p. 18-9
 LISPFUNN(hash_table_test,1) {
   var object ht = popSTACK(); # hashtable-argument
-  if (!hash_table_p(ht)) # check
-    fehler_hashtable(ht);
+  check_hashtable(ht);
   var uintB flags = record_flags(TheHashtable(ht));
   value1 = (flags & bit(0) ? S(eq) : # EQ
             flags & bit(1) ? S(eql) : # EQL
@@ -1565,8 +1556,7 @@ LISPFUNN(hash_table_test,1) {
 
 LISPFUNN(hash_table_iterator,1) {
   var object ht = STACK_0; # hashtable-argument
-  if (!hash_table_p(ht)) # check
-    fehler_hashtable(ht);
+  check_hashtable(ht);
   # An internal state consists of the key-value-vector and an index.
   STACK_0 = TheHashtable(ht)->ht_kvtable; # key-value-vector
   var object maxcount = TheHashtable(ht)->ht_maxcount; # maxcount
@@ -1599,8 +1589,7 @@ LISPFUNN(hash_table_iterate,1) {
 # (CLOS::CLASS-GETHASH ht object) is like (GETHASH (CLASS-OF object) ht).
 LISPFUNN(class_gethash,2) {
   var object ht = STACK_1; # hashtable-argument
-  if (!hash_table_p(ht)) # check
-    fehler_hashtable(ht);
+  check_hashtable(ht);
   C_class_of(); # value1 := (CLASS-OF object)
   var object* KVptr;
   var object* Nptr;
@@ -1716,8 +1705,7 @@ LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL) {
     });
   }
   var object ht = Before(rest_args_pointer); # hashtable-argument
-  if (!hash_table_p(ht)) # check
-    fehler_hashtable(ht);
+  check_hashtable(ht);
   if (!ht_validp(TheHashtable(ht))) {
     # table must still be reorganized
     rehash(ht);
