@@ -1387,9 +1387,10 @@ local gcv_object_t check_weak (gcv_object_t weak) {
 }
 
 /* (MAKE-HASH-TABLE [:test] [:size] [:rehash-size] [:rehash-threshold]
-                  [:initial-contents] [:weak]), CLTL p. 283 */
-LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
-        (kw(weak),kw(initial_contents),
+                    [:key-type] [:value-type]
+                    [:initial-contents] [:weak]), CLTL p. 283 */
+LISPFUN(make_hash_table,seclass_read,0,0,norest,key,8,
+        (kw(weak),kw(initial_contents),kw(key_type),kw(value_type),
          kw(test),kw(size),kw(rehash_size),kw(rehash_threshold)) )
 { /* The rehash-threshold correlates in our implementation to the
    ratio MAXCOUNT : SIZE = ca. 1 : 2.
@@ -1400,7 +1401,8 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
    The additional initial-contents-argument is an alist = list of
    (key . value) - pairs, that are used to initialize the table.
    stack-layout:
-      weak, initial-contents, test, size, rehash-size, rehash-threshold. */
+      weak, initial-contents, key-type, value-type,
+      test, size, rehash-size, rehash-threshold. */
   var uintB flags;
   var object lookuppfn;
   var object hashcodepfn;
@@ -1536,7 +1538,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
   { /* If the initial-contents-argument is specified, we set
      size := (max size (length initial-contents)) , so afterwards, when
      the initial-contents are written, the table needs not be enlarged: */
-    var object initial_contents = STACK_4;
+    var object initial_contents = STACK_6;
     if (boundp(initial_contents)) { /* specified ? */
       var uintL initial_length = llength(initial_contents); /* length of the alist */
       if (initial_length > posfixnum_to_L(STACK_2)) /* > size ? */
@@ -1553,7 +1555,8 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
     STACK_0 = value1;
   }
   /* stack-layout:
-      weak, initial-contents, test, size, rehash-size, mincount-threshold
+      weak, initial-contents, key-type, value-type,
+      test, size, rehash-size, mincount-threshold
     provide vectors etc., with size as MAXCOUNT: [STACK_5 == weak] */
   STACK_5 = check_weak(STACK_5);
   prepare_resize(STACK_2,STACK_0,STACK_5);
@@ -1566,7 +1569,8 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
   TheHashtable(ht)->ht_size = posfixnum_to_L(popSTACK()); /* SIZE */
   TheHashtable(ht)->ht_maxcount = popSTACK(); /* MAXCOUNT */
   /* stack-layout:
-     weak, initial-contents, test, size, rehash-size, mincount-threshold. */
+     weak, initial-contents, key-type, value-type,
+     test, size, rehash-size, mincount-threshold. */
   TheHashtable(ht)->ht_mincount_threshold = popSTACK(); /*MINCOUNT-THRESHOLD*/
   TheHashtable(ht)->ht_rehash_size = popSTACK(); /* REHASH-SIZE */
   TheHashtable(ht)->ht_lookupfn = lookuppfn;
@@ -1581,7 +1585,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
   }
   record_flags_replace(TheHashtable(ht), flags);
   clrhash(ht);                  /* empty table, COUNT := 0 */
-  skipSTACK(2);
+  skipSTACK(4);
   /* stack-layout: weak, initial-contents. */
   {
     pushSTACK(ht);

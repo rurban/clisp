@@ -405,8 +405,8 @@ LISPFUN(error_of_type,seclass_default,2,0,rest,nokey,0,NIL)
 LISPFUNN(invoke_debugger,1)
 LISPFUN(clcs_signal,seclass_default,1,0,rest,nokey,0,NIL)
 /* ---------- HASHTABL ---------- */
-LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
-        (kw(weak),kw(initial_contents),
+LISPFUN(make_hash_table,seclass_read,0,0,norest,key,8,
+        (kw(weak),kw(initial_contents),kw(key_type),kw(value_type),
          kw(test),kw(size),kw(rehash_size),kw(rehash_threshold)) )
 LISPFUN(gethash,seclass_default,2,1,norest,nokey,0,NIL)
 LISPFUNN(puthash,3)
