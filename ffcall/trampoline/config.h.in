@@ -106,10 +106,6 @@
 /* Define if you have a working mprotect() function. */
 #undef HAVE_WORKING_MPROTECT
 
-/* CL_SHMGET */
-/* Define as the type of `size' in shmget() declaration. */
-#undef SHMGET_SIZE_T
-
 /* CL_SHM */
 /* Define if you have <sys/shm.h> and <sys/ipc.h> and shared memory works. */
 #undef HAVE_SHM
