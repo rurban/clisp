@@ -1,5 +1,45 @@
 1999-04-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Remove obsolete stream primitive `wr_ss'.
+        * lispbibl.d (Stream): Remove strm_wr_ss field.
+        * io.d (write_sstring_ab): New function, remove macro.
+        * stream.d (wr_ss_Pseudofun): Remove type definition.
+          (wr_ss): Remove macro.
+          (wr_ss_dummy, wr_ss_dummy_nogc): Remove functions.
+          (close_dummys): Don't set strm_wr_ss field.
+          (wr_ss_synonym): Remove function.
+          (make_synonym_stream): Don't set strm_wr_ss field.
+          (wr_ch_array_broad): Optimize.
+          (wr_ss_broad): Remove function.
+          (make_broadcast_stream): Don't set strm_wr_ss field.
+          (make_concatenated_stream): Likewise.
+          (wr_ss_twoway): Remove function.
+          (make_twoway_stream, make_echo_stream): Don't set strm_wr_ss field.
+          (MAKE-STRING-INPUT-STREAM): Likewise.
+          (wr_ss_str_out): Remove function.
+          (make_string_output_stream): Don't set strm_wr_ss field.
+          (SYSTEM::MAKE-STRING-PUSH-STREAM): Likewise.
+          (wr_ss_pphelp): Remove function.
+          (make_pphelp_stream): Don't set strm_wr_ss field.
+          (MAKE-BUFFERED-INPUT-STREAM, MAKE-BUFFERED-OUTPUT-STREAM): Likewise.
+          (wr_ch_array_generic): Renamed from wr_ss_generic.
+          (MAKE-GENERIC-STREAM): Don't set strm_wr_ss field.
+          (wr_ss_unbuffered_unix, wr_ss_unbuffered_mac, wr_ss_unbuffered_dos):
+          Remove functions.
+          (fill_pseudofuns_unbuffered): Don't set strm_wr_ss field.
+          (wr_ss_buffered_unix, wr_ss_buffered_mac, wr_ss_buffered_dos):
+          Remove functions.
+          (fill_pseudofuns_buffered): Don't set strm_wr_ss field.
+          (make_keyboard_stream, make_terminal_stream_): Likewise.
+          (wr_ch_array_terminal1): Renamed from wr_ss_terminal1.
+          (wr_ch_array_terminal2): Renamed from wr_ss_terminal2.
+          (wr_ch_array_terminal3): Renamed from wr_ss_terminal3
+          (make_terminal_stream_): Don't set strm_wr_ss field.
+          (MAKE-WINDOW, make_printer_stream, make_socket_stream): Likewise.
+        * pseudofun.d: Update.
+
+1999-04-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Make write_char_array recurse through any kind of stream.
         * lispbibl.d (write_char_array): Change calling convention.
         * stream.d (wr_ch_array_Pseudofun): Change type definition.

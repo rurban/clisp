@@ -5292,7 +5292,6 @@ typedef struct {
                  object strm_wr_ch;
                  object strm_wr_ch_array;
                  object strm_wr_ch_lpos;
-                 object strm_wr_ss;
                  object strm_other[unspecified]; # typspezifische Komponenten
                }
         *  Stream;
