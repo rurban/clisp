@@ -1237,7 +1237,8 @@
                                         :wants-next-method-p t
                                         :parameter-specializers (list class)
                                         :qualifiers nil
-                                        :signature (sys::memoized (make-signature :req-num 1))
+                                        :lambda-list '(OBJECT)
+                                        'signature (sys::memoized (make-signature :req-num 1))
                                         :slot-definition slot))
                                     (method-class
                                       (apply #'reader-method-class class slot args)))
@@ -1271,7 +1272,8 @@
                                         :wants-next-method-p t
                                         :parameter-specializers (list <t> class)
                                         :qualifiers nil
-                                        :signature (sys::memoized (make-signature :req-num 2))
+                                        :lambda-list '(NEW-VALUE OBJECT)
+                                        'signature (sys::memoized (make-signature :req-num 2))
                                         :slot-definition slot))
                                     (method-class
                                       (apply #'writer-method-class class slot args)))
