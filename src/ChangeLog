@@ -1,8 +1,9 @@
-2002-05-29  Sam Steingold  <sds@gnu.org>
+2002-05-30  Sam Steingold  <sds@gnu.org>
 
-	* unitypes.h (uint8_t) [__OpenBSD__/__i386__]: defined in
-	<i386/types.h>, not in the standard <stdint.h>
-	From William Harold Newman <william.newman@airmail.net>
+	OpenBSD build fixes
+	* lispbibl.d, uniname.c (stdbool.h): check HAVE_STDBOOL_H
+	* unitypes.h (stdint.h): check HAVE_STDINT_H
+	* unixconf.h.in (HAVE_STDINT_H): added an #undef
 
 2002-05-29  Sam Steingold  <sds@gnu.org>
 
@@ -393,7 +394,7 @@
 	* subr.d, subrkwd.d (socket_accept, socket_connect): updated
 	* constsym.d (TIMEOUT): added the keyword
 
-2002-05-25  Arseny Slobodjuck <ampy@ich.dvo.ru>
+2002-05-25  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	fixed win32 build (broken on 2002-05-23 and 2002-05-22)
 	* array.d (elt_move_Char): rename the label right after
@@ -1178,7 +1179,7 @@
 
 	* spvw.d, spvw_garcol.d, spvw_circ.d: translated all comments
 
-2002-03-24   Gerhard Tonn  <GerhardTonn@swol.de>
+2002-03-24  Gerhard Tonn  <GerhardTonn@swol.de>
 
 	FFCALL ported to IBM s/390
 	* lispbibl.d (STACK_register) [S390]: do not define -
@@ -1435,7 +1436,7 @@
 	support functions.
 	(alarm_thread, alarm_date, alarm_interval): Remove support variables.
 
-2002-03-09  Peter Wood <peter.wood@worldonline.dk>
+2002-03-09  Peter Wood  <peter.wood@worldonline.dk>
 	    Sam Steingold  <sds@gnu.org>
 
 	added signal handling
@@ -1598,7 +1599,7 @@
 	(%local-set): COMPILE NEW-DEF and take its FDEFINITION
 	when NEW-DEF is not compiled
 
-2002-02-28   Barry Fishman  <bfishman@users.sf.net>
+2002-02-28  Barry Fishman  <bfishman@users.sf.net>
 
 	* modules/clx/new-clx/clx.f (CONVERT-SELECTION): clean up the stack
 	(SELECTION-NOTIFY): added window notification
@@ -2295,7 +2296,7 @@
 	* lispbibl.d (OGETTEXT): new macro
 	* gettext/po/clisp-xgettext: recongnize the new OGETTEXT macro
 
-2001-12-26   Stefan Kain  <stefan.kain@freenet.de>
+2001-12-26  Stefan Kain  <stefan.kain@freenet.de>
 
 	* trace.lisp: translated all comments
 

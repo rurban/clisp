@@ -20,14 +20,10 @@
 #define _UNITYPES_H
 
 /* Get uint8_t, uint16_t, uint32_t.  */
-#ifndef __OpenBSD__
-#include <stdint.h>
+#ifdef HAVE_STDINT_H
+#  include <stdint.h>
 #else
-# ifdef __i386__
-#  include <i386/types.h>
-# else
-#  error need uint8_t and friends, do not know where they are for this system
-# endif
+#  include "stdint.h"
 #endif
 
 /* Type representing a Unicode character.  */
