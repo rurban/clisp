@@ -1698,6 +1698,49 @@
 
 #endif # UNIX || DJUNIX || EMUNIX || WATCOM || WIN32
 
+#ifdef AMIGAOS
+  # Behandlung von AMIGAOS-Fehlern
+  # OS_error();
+  # > IoErr(): Fehlercode
+    nonreturning_function(extern, OS_error, (void));
+  # wird verwendet von SPVW, STREAM, PATHNAME
+#endif
+#if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
+  # Behandlung von UNIX-Fehlern
+  # OS_error();
+  # > int errno: Fehlercode
+    nonreturning_function(extern, OS_error, (void));
+  # wird verwendet von SPVW, STREAM, PATHNAME, GRAPH
+#endif
+#if defined(WIN32_NATIVE)
+  # Behandlung von Win32-Fehlern
+  # OS_error();
+  # > GetLastError(): Fehlercode
+    nonreturning_function(extern, OS_error, (void));
+  # Behandlung von Winsock-Fehlern
+  # SOCK_error();
+  # > WSAGetLastError(): Fehlercode
+    nonreturning_function(extern, SOCK_error, (void));
+#endif
+#if defined(UNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
+  # Initialisierung der Fehlertabelle:
+    extern int init_errormsg_table (void);
+#else
+  # Nichts zu initialisieren.
+    #define init_errormsg_table()  0
+#endif
+#if defined(DEBUG_OS_ERROR)
+  # Show the file and line number of the caller of OS_error(). For debugging.
+  #define OS_error()  \
+    (asciz_out_s("\n[%s:",__FILE__), asciz_out_1("%d] ",__LINE__), (OS_error)())
+#endif
+
+#ifdef MULTITHREAD
+
+#include "xthread.c"
+
+#endif
+
 # ##################### Weitere System-Abhängigkeiten ##################### #
 
 # Erst solche, die bis auf die Lisp-Ebene hin sichtbar sind:
@@ -10966,43 +11009,6 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   nonreturning_function(extern, fehler, (conditiontype errortype, const char * errorstring));
 # wird von allen Modulen verwendet
 
-#ifdef AMIGAOS
-  # Behandlung von AMIGAOS-Fehlern
-  # OS_error();
-  # > IoErr(): Fehlercode
-    nonreturning_function(extern, OS_error, (void));
-  # wird verwendet von SPVW, STREAM, PATHNAME
-#endif
-#if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
-  # Behandlung von UNIX-Fehlern
-  # OS_error();
-  # > int errno: Fehlercode
-    nonreturning_function(extern, OS_error, (void));
-  # wird verwendet von SPVW, STREAM, PATHNAME, GRAPH
-#endif
-#if defined(WIN32_NATIVE)
-  # Behandlung von Win32-Fehlern
-  # OS_error();
-  # > GetLastError(): Fehlercode
-    nonreturning_function(extern, OS_error, (void));
-  # Behandlung von Winsock-Fehlern
-  # SOCK_error();
-  # > WSAGetLastError(): Fehlercode
-    nonreturning_function(extern, SOCK_error, (void));
-#endif
-#if defined(UNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
-  # Initialisierung der Fehlertabelle:
-    extern int init_errormsg_table (void);
-#else
-  # Nichts zu initialisieren.
-    #define init_errormsg_table()  0
-#endif
-#if defined(DEBUG_OS_ERROR)
-  # Show the file and line number of the caller of OS_error(). For debugging.
-  #define OS_error()  \
-    (asciz_out_s("\n[%s:",__FILE__), asciz_out_1("%d] ",__LINE__), (OS_error)())
-#endif
-
 # Just like OS_error, but signal a FILE-ERROR.
 # OS_file_error(pathname);
 # > pathname: Pathname
@@ -12087,14 +12093,6 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # Schaltet die Grafik auf Text-Modus zurück.
 # switch_text_mode();
   extern void switch_text_mode (void);
-
-#endif
-
-# ######################## THREADBIBL zu THREAD.D ######################### #
-
-#ifdef MULTITHREAD
-
-#include "xthread.c"
 
 #endif
 
