@@ -83,6 +83,9 @@ Review all macros and tighten the runtime interface of the macros.
   check-redefinition
 
 
+(format nil "~G" 1d23) => "099999999999999990000000.0    "
+
+
 Cannot remove symbolic links to directories
 with either DELETE-FILE or DELETE-DIR.
 <http://article.gmane.org/gmane.lisp.clisp.devel:13452>
