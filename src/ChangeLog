@@ -1,5 +1,16 @@
 2004-01-25  Sam Steingold  <sds@gnu.org>
 
+	new function (MOD-EXPT x y z) = (MOD (EXPT x y) z)
+	* lisparit.d (check_pos_integer): new function
+	(ISQRT): use it instead of check_integer()
+	(MOD-EXPT): call I_I_I_mod_expt_I()
+	* intsqrt.d (I_isqrt_I): assume non-negative argument
+	* intdiv.d (I_I_I_mod_expt_I): implemented
+	* init.lisp (MOD-EXPT): exported
+	* constsym.d, subr.d (mod_expt): added
+
+2004-01-25  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/clx.f (get_ptr_object_and_display)
 	(get_font_info_and_display, DISCARD-FONT-INFO): use check_fpointer()
 	(OPEN-DISPLAY): use fehler_key_odd()

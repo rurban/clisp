@@ -272,7 +272,7 @@
    encoding-line-terminator #+UNICODE encoding-charset
    times show-stack gc exit quit bye expand-form xor mapcap maplap
    probe-directory cd make-dir delete-dir default-directory dir
-   xgcd exquo ! evalhook applyhook substring string-concat
+   xgcd exquo mod-expt ! evalhook applyhook substring string-concat
    string-char make-char string-width char-width
    int-char char-bits char-font char-bit set-char-bit
    base-char-code-limit char-font-limit char-bits-limit char-control-bit
