@@ -78,7 +78,7 @@
   (values))
 
 (defun wm-command (window)
-  ;; Returns a list whose car is the command and 
+  ;; Returns a list whose car is the command and
   ;; whose cdr is the list of arguments
   (declare (type window window))
   (declare (values list))
@@ -96,7 +96,7 @@
 (defun set-wm-command (window command)
   ;; Uses PRIN1 inside the ANSI common lisp form WITH-STANDARD-IO-SYNTAX (or
   ;; equivalent), with elements of command separated by NULL characters.  This
-  ;; enables 
+  ;; enables
   ;;   (with-standard-io-syntax (mapcar #'read-from-string (wm-command window)))
   ;; to recover a lisp command.
   (declare (type window window)
@@ -104,7 +104,7 @@
   (set-string-property
     window :WM_COMMAND
     (with-output-to-string (stream)
-      (with-standard-io-syntax 
+      (with-standard-io-syntax
 	(dolist (c command)
 	  (prin1 c stream)
 	  (write-char #.(card8->char 0) stream)))))
@@ -324,7 +324,7 @@
   (let ((vector (make-array 18 :initial-element 0))
 	(flags 0))
     (declare (type (simple-vector 18) vector)
-	     (type card16 flags)) 
+	     (type card16 flags))
     (when (wm-size-hints-user-specified-position-p hints)
       (setf (ldb (byte 1 0) flags) 1))
     (when (wm-size-hints-user-specified-size-p hints)
@@ -366,7 +366,7 @@
 			       (member-vector *win-gravity-vector*)
 			       (wm-size-hints-win-gravity hints))))
     ;; Obsolete fields
-    (when (and (wm-size-hints-x hints) (wm-size-hints-y hints)) 
+    (when (and (wm-size-hints-x hints) (wm-size-hints-y hints))
       (unless (wm-size-hints-user-specified-position-p hints)
 	(setf (ldb (byte 1 2) flags) 1))
       (setf (aref vector 1) (wm-size-hints-x hints)
@@ -397,7 +397,7 @@
 	:max-height (aref vector 3)
 	:width-inc (aref vector 4)
 	:height-inc (aref vector 5)))))
-  
+
 (defsetf icon-sizes set-icon-sizes)
 (defun set-icon-sizes (window wm-size-hints)
   (declare (type window window)
@@ -456,7 +456,7 @@
 ;;-----------------------------------------------------------------------------
 ;; Set-WM-Properties
 
-(defun set-wm-properties (window &rest options &key 
+(defun set-wm-properties (window &rest options &key
 			  name icon-name resource-name resource-class command
 			  client-machine hints normal-hints zoom-hints
 			  ;; the following are used for wm-normal-hints
@@ -471,7 +471,7 @@
 			  input initial-state icon-pixmap icon-window
 			  icon-x icon-y icon-mask window-group)
   ;; Set properties for WINDOW.
-  (declare (arglist window &rest options &key 
+  (declare (arglist window &rest options &key
 		   name icon-name resource-name resource-class command
 		   client-machine hints normal-hints
 		   ;; the following are used for wm-normal-hints
@@ -725,7 +725,7 @@
 ;; In order to avoid having to pass positional parameters to set-cut-buffer,
 ;; We've got to do the following.  WHAT A PAIN...
 #-clx-ansi-common-lisp
-(define-setf-method cut-buffer (display &rest option-list)
+(define-setf-expander cut-buffer (display &rest option-list)
   (declare (dynamic-extent option-list))
   (do* ((options (copy-list option-list))
 	(option options (cddr option))

@@ -1,8 +1,13 @@
 2001-06-08  Sam Steingold  <sds@gnu.org>
 
+	Fixed MIT-CLX build.
 	* modules/clx/mit-clx/dependent.lisp (conditional-store):
 	GET-SETF-METHOD is in EXT now
 	Reported by Paolo Amoroso <amoroso@mclink.it>
+	* modules/clx/mit-clx/manager.lisp (cut-buffer): use
+	DEFINE-SETF-EXPANDER instead of DEFINE-SETF-METHOD
+	* modules/clx/mit-clx/resource.lisp (initialize-resource-database):
+	WM-RESOURCES is not exported from XLIB
 
 2001-06-07  Sam Steingold  <sds@gnu.org>
 
