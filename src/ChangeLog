@@ -1,3 +1,8 @@
+2003-04-26  Sam Steingold  <sds@gnu.org>
+
+	* clos.lisp (ensure-class): when either the old definition or the
+	new one is a DEFSTRUCT, just discard the old definition altogether
+
 2003-04-26  Stefan Kain  <stefan.kain@freenet.de>
 
 	* floatprint.lisp: translated all comments
