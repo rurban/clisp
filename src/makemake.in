@@ -841,7 +841,8 @@ if [ $XCC_GCC = true ] ; then
     elif [ "$cpu" = sparc64 ] ; then
       # gcc-3.3.1 produces incorrect code when -O2 is used, even with
       # -fno-schedule-insns and -fno-gcse.
-      XCFLAGS=$XCFLAGS' -O'
+      # arilev0.d and arisparc64.d are still broken on sparc64.
+      XCFLAGS=$XCFLAGS' -O -DNO_ASM -DNO_ARI_ASM'
     elif [ "$cpu" = x86_64 ] ; then
       # gcc-3.2.2 produces incorrect code when -O2 is used.
       XCFLAGS=$XCFLAGS' -O'
