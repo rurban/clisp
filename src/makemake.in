@@ -3147,7 +3147,7 @@ for f in $TXT_FILES ; do
       # On Win32, no grep installed. The blank lines don't hurt.
     fi
   fi
-  if [ $f = clisp.html -a $HOS != win32 ] ; then
+  if [ $f = clisp.html ] ; then
     line=$line" | sed -e 's,=\"CLHSROOT/,=\"${hyperspec}/,' -e \"s,VERSION,\`cat VERSION\`,\""
   fi
   if [ $f = distmakefile ] ; then
@@ -3570,14 +3570,7 @@ elif [ $HSYS = acorn ] ; then
   echol
 elif [ $HOS = win32 ] ; then
   echol "# Distribution, to be executed on a Unix host or using Cygwin."
-  echol "distrib : install.lisp install.bat force"
-  echotab "nroff -man clisp.1 > clisp.man"
-  if [ $HOS = win32 ] ; then
-    for f in clisp.html ; do
-      echotab "sed -e 's,=\"CLHSROOT/,=\"${hyperspec}/,' -e \"s,VERSION,\`cat VERSION\`,\" < $f > $f.new"
-      echotab "mv $f.new $f"
-    done
-  fi
+  echol "distrib : install.lisp install.bat clisp.man clisp.html force"
   echotab "version=\`cat VERSION\` ; \\"
   echotab "distdir=clisp-\$\$version ; \\"
   echotab "mkdir \$\$distdir ; \\"
