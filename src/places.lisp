@@ -204,13 +204,18 @@
              (MULTIPLE-VALUE-BIND ,tempvars ,ge
                ,ns)))))))
 ;;;----------------------------------------------------------------------------
+(eval-when (load compile eval)
+  (defun check-accessor-name (accessfn)
+    (unless (symbolp accessfn)
+      (error-of-type 'source-program-error
+        (ENGLISH "The name of the accessor must be a symbol, not ~S")
+        accessfn))))
 (defmacro define-setf-expander (accessfn lambdalist &body body
                                 &environment env)
-  (unless (symbolp accessfn)
-    (error-of-type 'source-program-error
-      (ENGLISH "The name of the access function must be a symbol, not ~S")
-      accessfn
-  ) )
+  (check-accessor-name accessfn)
+  (sys::check-redefinition
+   accessfn 'define-setf-expander
+   (and (get accessfn 'SYSTEM::SETF-EXPANDER) "SETF expander"))
   (multiple-value-bind (body-rest declarations docstring)
       (system::parse-body body t env)
     (if (null body-rest) (setq body-rest '(NIL)))
@@ -263,6 +268,10 @@
 ) ) ) ) ) )
 ;;;----------------------------------------------------------------------------
 (defmacro defsetf (accessfn &rest args &environment env)
+  (check-accessor-name accessfn)
+  (sys::check-redefinition
+   accessfn 'DEFSETF
+   (and (get accessfn 'SYSTEM::SETF-EXPANDER) "SETF expander"))
   (cond ((and (consp args) (not (listp (first args))) (symbolp (first args)))
          `(EVAL-WHEN (LOAD COMPILE EVAL)
             (LET ()
@@ -335,6 +344,8 @@
 ) )     )  )
 ;;;----------------------------------------------------------------------------
 ;;; Definition of places:
+;;;----------------------------------------------------------------------------
+(defsetf package-lock SYSTEM::%SET-PACKAGE-LOCK)
 ;;;----------------------------------------------------------------------------
 (defsetf aref (array &rest indices) (value)
   `(SYSTEM::STORE ,array ,@indices ,value))

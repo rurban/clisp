@@ -291,7 +291,7 @@
    int-char char-bits char-font char-bit set-char-bit
    base-char-code-limit char-font-limit char-bits-limit char-control-bit
    char-meta-bit char-super-bit char-hyper-bit string-char-p
-   long-float-digits
+   long-float-digits package-lock
    the-environment arglist getenv special-variable-p
    *driver* *break-driver* *args* *keyboard-input* clhs-root shell execute
    ;; declarations
@@ -412,23 +412,18 @@
   (sys::%putd 'FRANCAIS h)
 )
 
-(sys::%putd 'sys::exported-lisp-symbol-p
-  (function sys::exported-lisp-symbol-p
-    (lambda (symbol)
-      (let ((string (symbol-name symbol)))
-        (let ((p (find-package "COMMON-LISP")))
-          (and p
-               (multiple-value-bind (s f) (find-symbol string p)
-                 (and (eq s symbol) (eq f ':external)))))))))
-
 (sys::%putd 'sys::fbound-string
   (function sys::fbound-string
     (lambda (sym)
-      (cond ((special-operator-p sym)
-             (ENGLISH "special operator"))
-            ((functionp (symbol-function sym))
-             (ENGLISH "function"))
-            (t (ENGLISH "macro"))))))
+      (cond ((special-operator-p sym) (ENGLISH "special operator"))
+            ((macro-function sym)     (ENGLISH "macro"))
+            ((fboundp sym)            (ENGLISH "function"))))))
+
+(sys::%putd 'sys::check-redefinition
+  (function sys::check-redefinition
+    (lambda (symbol caller what)
+      (declare (ignore what))   ; for now...
+      (sys::check-package-lock caller (symbol-package symbol) symbol))))
 
 (sys::%putd 'sys::remove-old-definitions
   (function sys::remove-old-definitions
@@ -437,15 +432,8 @@
         (error-of-type 'error
           (ENGLISH "~S is a special operator and may not be redefined.")
           symbol))
-      (when (sys::exported-lisp-symbol-p symbol)
-        (if (or (fboundp symbol) (macro-function symbol))
-          (cerror (ENGLISH "The old definition will be lost")
-                  (ENGLISH "Redefining the COMMON LISP ~A ~S")
-                  (fbound-string symbol) ; "Function" resp. "Macro"
-                  symbol)
-          (cerror (ENGLISH "Define anyway")
-                  (ENGLISH "Adding a definition to the COMMON LISP symbol ~S")
-                  symbol)))
+      (sys::check-redefinition symbol "DEFUN/DEFMACRO"
+                               (sys::fbound-string symbol))
       (fmakunbound symbol) ; discard function & macro definition
       ;; Property sys::definition is not discarded, because it is
       ;; soon reset, anyway.
@@ -1886,5 +1874,6 @@
 
 (LOAD "config")    ; configuration parameters to be adjusted by the user
 
-(in-package "CL-USER")        ; make the default package the current one
 (setq sys::*home-package* nil ext:*command-index* 0)
+
+(in-package "CL-USER")        ; make the default package the current one
