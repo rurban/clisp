@@ -1848,7 +1848,7 @@ performance considerations.
  either a character with font and bits, or a keystroke.
  The following functions work with objects of types &character-t;
  and &input-char;.
- Note that &eql; or &equal; cannot be used to compare objects of type
+ Note that &eql; or &equal; are equivalent to &eq; on objects of type
  &input-char;.</para>
 
 <variablelist>
@@ -2369,11 +2369,11 @@ and the international alphabetic characters from the character set:
       <entry>2<superscript>32</superscript> = 4294967296</entry></row>
 </tbody></tgroup></table>
 
-<para>Note that &array-dimension-limit; and &array-total-size-limit; are
- not fixnums (they are equal to
+<note><para>Note that &array-dimension-limit; and &array-total-size-limit;
+ are not fixnums (they are equal to
  <literal role="sexp">(&pl1; &most-positive-fixnum;)</literal>),
  contrary to the &ansi-cl; Issue <ulink url="&clhs;/Issues/iss014.html"
- >ARRAY-DIMENSION-LIMIT-IMPLICATIONS:ALL-FIXNUM</ulink>.</para>
+ >ARRAY-DIMENSION-LIMIT-IMPLICATIONS:ALL-FIXNUM</ulink>.</para></note>
 
 </section>
 

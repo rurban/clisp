@@ -1430,14 +1430,12 @@ N. Gray to X3J13.</para>
  If the <replaceable>guardian</replaceable> is &gc;ed before &object-r;
  is, nothing happens.</para>
 
-<para>Note: The time when <quote>the &object-r; is being &gc;ed</quote>
- is not defined deterministically.
- (Actually, it might possibly never occur.)
- It denotes a moment at which no references to &object-r; exist
- from other Lisp objects.
- When the &func-r; is called, &object-r;
- (and possibly <replaceable>guardian</replaceable>)
- enter the "arena of live Lisp objects" again.</para>
+<note><para>Note: The time when <quote>the &object-r; is being
+ &gc;ed</quote> is not defined deterministically.  (Actually, it might
+ possibly never occur.)  It denotes a moment at which no references to
+ &object-r; exist from other Lisp objects.  When the &func-r; is called,
+ &object-r; (and possibly <replaceable>guardian</replaceable>) enter the
+ "arena of live Lisp objects" again.</para></note>
 
 <para>No finalization request will be executed more than once.</para>
 
@@ -1683,8 +1681,8 @@ here <function>WITH-FOO</function> does not receive the
   <member><varname>CUSTOM:*USER-MAIL-ADDRESS*</varname></member>
   <member>&warn-fpc;</member>
   <member><varname>CUSTOM:*WITH-HTML-OUTPUT-DOCTYPE*</varname></member>
- </simplelist>
- Note that some of these variables are platform-specific.</para>
+ </simplelist></para>
+<note><para>Note: some of these variables are platform-specific.</para></note>
 
 <para>You should set these variables (and do whatever other
  customization you see fit) in the file &config-file; in the build
@@ -1998,9 +1996,9 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 <subtitle>Platform dependent: some &unix; platforms only, compiled &with;
  compile-time flag <option>--with-dynamic-modules</option>.</subtitle>
 
-<para>Note that dynamic loading does not work on all operating systems
- (&dlopen; is required), and that <option>--with-dynamic-modules</option>
- precludes some efficiency optimizations which are on by default.</para>
+<note><para>Note that dynamic loading does not work on all operating systems
+(&dlopen; is required), and that <option>--with-dynamic-modules</option>
+precludes some efficiency optimizations which are on by default.</para></note>
 
 <para>Function <literal role="sexp">(&mod-dynload; &filename-r;
  ({&name-r;}+))</literal> loads a shared object file or library
@@ -3246,13 +3244,10 @@ $ rm -r base+cfun
 <para>Note that there is a memory leak here: The return value
 <varname>r2</varname> of <function>cfun()</function> is
 &malloc;ed but never &free;d. Specifying
-
 <programlisting>
 (:return-type (c-ptr cfunr) :malloc-free)
 </programlisting>
-
 is not an alternative because this would also
-
 <function>free(r2-&gt;x)</function> but <varname>r2-&gt;x</varname> is a
 pointer to static data.</para></example>
 
@@ -4307,7 +4302,7 @@ input will be available.</para></formalpara>
 
 <para>Note that &clisp; is distributed with a file
  <filename>install.bat</filename>, which creates a file
- <filename>clisp.bat</filename> on your desktop and also associates
+ <filename>clisp.lnk</filename> on your desktop and also associates
  &fasl-file;, &lisp-file;, and &mem-file; files with &clisp;.</para>
 
 </listitem></varlistentry>
