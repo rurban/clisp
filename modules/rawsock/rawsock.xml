@@ -88,10 +88,10 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
  <varlistentry><term><code>(RAWSOCK:RESIZE-BUFFER &size-r;)</code></term>
   <listitem><simpara>Resize the internal buffer.
  </simpara></listitem></varlistentry>
- <varlistentry><term><code>(RAWSOCK:CONFIGDEV &sock-r; &name-r; &addr;
+ <varlistentry><term><code>(RAWSOCK:CONFIGDEV &sock-r; &name-r; &addr-r;
     &key-amp; <replaceable>promisc</replaceable>
     <replaceable>noarp</replaceable>)</code></term>
-  <listitem><simpara>Set some socket options and IP &addr; with &ioctl;.
+  <listitem><simpara>Set some socket options and IP &addr-r; with &ioctl;.
  </simpara></listitem></varlistentry>
 </variablelist>
 
