@@ -752,9 +752,11 @@ T
            (write f :stream s)
            (setq fwd1 (file-write-date s)))
          (with-open-file (s f :direction :probe)
-           (= fwd1 (file-write-date s))))
+           (list (= fwd1 (file-write-date s))
+                 ;; PROBE streams are closed!
+                 (open-stream-p s))))
     (delete-file f)))
-T
+(T NIL)
 
 (stringp (with-output-to-string (s)
            (describe (make-array nil) s)))
