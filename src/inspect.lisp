@@ -29,7 +29,7 @@
 (in-package "CUSTOM")
 (common-lisp:export
  '(*inspect-frontend* *inspect-browser* *inspect-print-lines*
-   *with-html-output-doctype*
+   *with-html-output-doctype* *user-mail-address*
    *inspect-print-level* *inspect-print-length* *inspect-length*)
  "CUSTOM")
 (ext:re-export "CUSTOM" "EXT")
@@ -81,6 +81,10 @@
 (defvar *with-html-output-doctype*
   '("html" "PUBLIC" "\"-//W3C//DTD XHTML 1.0 Strict//EN\""
     "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\""))
+(defvar *user-mail-address*
+  (concatenate 'string (or (getenv "USER") (getenv "USERNAME") "nobody") "@"
+               (let ((st (machine-instance)))
+                 (subseq st 0 (position #\Space st)))))
 
 (defmacro with-html-output ((var stream
                              &key (doctype '*with-html-output-doctype*)
@@ -89,14 +93,10 @@
                                   base comment (title "untitled") (footer t)
                                   head)
                             &body body)
-  (with-gensyms ("HTML-" raw user mail mailto)
+  (with-gensyms ("HTML-" raw mailto)
     `(let* ((,raw ,stream)
             (,var (clos::make-instance 'html-stream-out :stream ,raw))
-            (,user (sys::getenv "USER"))
-            (,mail (concatenate 'string ,user "@"
-                                (let ((st (machine-instance)))
-                                  (subseq st 0 (position #\Space st)))))
-            (,mailto (concatenate 'string "mailto:" ,mail)))
+            (,mailto (concatenate 'string "mailto:" *user-mail-address*)))
       (macrolet ((with-tag ((tag &rest options) &body forms)
                    `(progn (format ,',raw "<~a~@{ ~a=~s~}>" ,tag ,@options)
                      ,@forms (format ,',raw "</~a>~%" ,tag)))
@@ -108,9 +108,9 @@
                (format ,raw "<!DOCTYPE~{ ~a~}>~%" ,doctype)
                ;; print the comment
                (format ,raw "<!--~% Created on ") (current-time ,raw)
-               (format ,raw "~% by ~a@~a~% using `with-open-html'
+               (format ,raw "~% by ~a~% using `with-open-html'
  Lisp: ~a ~a~@[~%~a~]~% -->~2%"
-                       ,user (machine-instance)
+                       *user-mail-address*
                        (lisp-implementation-type) (lisp-implementation-version)
                        ,comment)
                (when ,base
@@ -118,7 +118,7 @@
                (with-tag (:html)
                  (with-tag (:head ,@head)
                    (with-tag (:meta ,@meta))
-                   (with-tag (:link :rev 'made :href ,mailto))
+                   (with-tag (:link :rev "made" :href ,mailto))
                    (with-tag (:title) (princ ,title ,var)))
                  (with-tag (:body)
                    ,@body
@@ -127,7 +127,7 @@
                        (with-tag (:hr))
                        (with-tag (:address)
                          (with-tag (:a :href ,mailto)
-                           (princ ,mail ,var)))
+                           (princ *user-mail-address* ,var)))
                        (with-tagl (:strong) (current-time ,var)))))))
           (when ,var (close ,var))
           (when ,raw (close ,raw)))))))
@@ -563,6 +563,8 @@ Supplies some HTTP/1.0 headers and calls `with-html-output'."
           (format t "~s: connection: ~s (keep-alive: ~s)~%"
                   'http-command (subseq line 12) keep-alive))
         (when keep-alive
+          ;; we override `keep-alive' because it makes it impossible to
+          ;; switch browsers in the middle of an inspection session
           (setq keep-alive nil)
           (when (> debug 0)
             (format t "~s: overriding keep-alive to NIL~%" 'http-command))))

@@ -1,3 +1,11 @@
+2002-07-22  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 584866 ]: inspect.lisp invalid XHTML & e-mail
+	* inspect.lisp (*user-mail-address*): new user variable
+	(with-html-output): use it; link/rev should be a string,
+	not a symbol, like all the other attribute values;
+	added a comment about overriding keep-alive
+
 2002-07-21  Bruno Haible  <bruno@clisp.org>
 
 	* stdint.h.in: Add support for FreeBSD.
