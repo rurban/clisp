@@ -26,28 +26,6 @@ document stack
          print the section of STACK
 end
 
-define xbacktrace
-  set $bt = back_trace
-  while $bt
-    output object_out($bt->caller)
-    echo \ [num_ar=
-    output $bt->num_arg
-    echo ] [stack=
-    output (int)$bt->stack
-    echo ]
-    if $bt->next
-      echo \ [stack diff=
-      output (($bt->stack)-($bt->next->stack))
-      echo ]
-    end
-    echo \n
-    set $bt = $bt->next
-  end
-end
-document xbacktrace
-         print the backtrace from back_trace
-end
-
 break funcall
 commands
         zout fun
@@ -73,7 +51,7 @@ disable 1 2 3 4
 
 watch back_trace
 commands
-        xbacktrace
+        p back_trace_out(0,0)
         continue
 end
 disable 8
