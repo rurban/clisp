@@ -955,7 +955,7 @@ muffle-cerrors appease-cerrors exit-on-error
                              (setq passed-arglist t)
                              (when keywords (setq passed-keywords t))
                             )
-                            ((and (not passed-keywords) (consp (cdr clause)) (keywordp (first clause)))
+                            ((and (not passed-keywords) (consp (cdr clause)) (symbolp (first clause)))
                              (push (pop clause) keywords)
                              (push (pop clause) keywords)
                             )

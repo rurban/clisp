@@ -3544,8 +3544,8 @@ der Docstring (oder NIL).
           (return-from test-argument-syntax 'DYNAMIC-KEYS)
         )
         (setq key (c-constant-value key))
-        (unless (keywordp key)
-          (c-warn (ENGLISH "argument ~S to function ~S is not a keyword")
+        (unless (symbolp key)
+          (c-warn (ENGLISH "argument ~S to function ~S is not a symbol")
                   (first keyargs) fun
           )
           (return-from test-argument-syntax 'DYNAMIC-KEYS)
@@ -9018,7 +9018,7 @@ Neue Operationen:
 ; sucht eine Konstante in (fnode-Keywords *func*) und in (fnode-Consts *func*),
 ; trägt sie eventuell in (fnode-Consts *func*) ein. Liefert ihren Index n.
 (defun kvalue-form-index (value form horizont &optional (func *func*))
-  (when (and (not (eq horizont ':form)) (keywordp value)) ; nur bei Keywords lohnt sich die Suche
+  (when (and (not (eq horizont ':form)) (symbolp value)) ; nur bei Symbolen (früher: Keywords) lohnt sich die Suche
     (do ((n (fnode-Keyword-Offset func) (1+ n))
          (L (fnode-Keywords func) (cdr L)))
         ((null L))
