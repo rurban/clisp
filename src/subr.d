@@ -1001,6 +1001,9 @@ LISPFUNN(file_string_length,2)
 LISPFUNN(line_number,1)
 LISPFUN(allow_read_eval,1,1,norest,nokey,0,NIL)
 LISPFUNN(defgray,1)
+#if defined(EXPORT_SYSCALLS) && defined(HAVE_FLOCK)
+LISPFUN(stream_lock,2,0,norest,key,2, (kw(shared),kw(block)) )
+#endif
 # ---------- SYMBOL ----------
 LISPFUNN(putd,2)
 LISPFUNN(find_subr,1)
