@@ -1,16 +1,16 @@
 # Memory management data structures, part 1: Page
 
-# ------------------------------ Specification ---------------------------------
+# ------------------------------ Specification --------------------------------
 
 # A page is a contiguous range of memory that is filled or can be filled with
 # objects.
 
 # Low level descriptor of a page.
 typedef struct {
-  aint start;   # Pointer auf den belegten Platz (aligned)
-  aint end;     # Pointer hinter den belegten Platz (aligned)
+  aint start;   # pointer to the occupied space (aligned)
+  aint end;     # pointer right after the occupied space (aligned)
   union { object firstmarked; uintL l; aint d; void* next; }
-        gcpriv; # private Variable während GC
+        gcpriv; # private variable during GC
 } _Page;
 
 # Page descriptor with corresponding management data:
@@ -31,7 +31,7 @@ typedef struct {
 
 #endif
 
-# ------------------------------ Implementation --------------------------------
+# ------------------------------ Implementation -------------------------------
 
 
 #ifdef SPVW_BLOCKS
@@ -70,19 +70,19 @@ typedef _Page Page;
 #include "avl.c"
 
 typedef struct NODE {
-  NODEDATA nodedata;        # NODE für AVL-Baum-Verwaltung
-  #define page_room  nodedata.value # freier Platz in dieser Page (in Bytes)
-  _Page page;       # Page-Deskriptor, bestehend aus:
-  #define page_start  page.start  # Pointer auf den belegten Platz (aligned)
-  #define page_end    page.end    # Pointer auf den freien Platz (aligned)
-  #define page_gcpriv page.gcpriv # private Variable während GC
-  aint m_start;     # von malloc gelieferte Startadresse (unaligned)
-  aint m_length;    # bei malloc angegebene Page-Länge (in Bytes)
+  NODEDATA nodedata;        # NODE for AVL-tree-management
+  #define page_room  nodedata.value # free space in this page (in bytes)
+  _Page page;       # page-descriptor, consisting of:
+  #define page_start  page.start  # pointer to the occupied space (aligned)
+  #define page_end    page.end    # pointer to the free space (aligned)
+  #define page_gcpriv page.gcpriv # private variable during GC
+  aint m_start;     # start address delivered by malloc (unaligned)
+  aint m_length;    # specified page-length at malloc (in bytes)
 } NODE;
 #define HAVE_NODE
 
 #if !defined(AVL_SEPARATE)
-  # NODE innerhalb der Seite
+  # NODE within the page
   #define sizeof_NODE  sizeof(NODE)
   #define page_start0(page)  round_up((aint)page+sizeof(NODE),varobject_alignment)
   #define free_page(page)  begin_system_call(); free((void*)page->m_start); end_system_call();
@@ -97,15 +97,15 @@ typedef struct NODE {
 
 typedef NODE Page;
 
-# Größe einer normalen Page = minimale Pagegröße. Durch sizeof(cons_) teilbar.
-  # Um offset_pages_len (s.u.) nicht zu groß werden zu lassen, darf die
-  # Pagegröße nicht zu klein sein.
+# size of a normal page = minimal page size. Divisible by sizeof(cons_) .
+  # If you do not want the offset_pages_len (see above) to grow too large, the page
+  # size must not be too small.
   #if (oint_addr_len<=32)
     #define oint_addr_relevant_len  oint_addr_len
   #else
     #if defined(DECALPHA) && (defined(UNIX_OSF) || defined(UNIX_LINUX))
-      # Alle Adressen liegen zwischen 1*2^32 und 2*2^32. Also faktisch doch
-      # nur ein Adressraum von 2^32.
+      # all addresses are situated between 1*2^32 and 2*2^32. In fact, it is
+      # only a 2^32 size address space.
       #define oint_addr_relevant_len  32
     #endif
     #if defined(IA64) && defined(UNIX_LINUX)

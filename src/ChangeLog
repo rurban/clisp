@@ -1,3 +1,10 @@
+2002-04-04  Stefan Kain  <stefan.kain@freenet.de>
+
+	* spvw_ctype.diff, spvw_gcstat.diff, spvw_genera2.diff:
+	* spvw_genera3.diff, spvw_page.diff, spvw_sigsegv.diff:
+	* spvw_sigwinch.diff, spvwtabf.diff, spvwtabo.diff:
+	* spvwtabs.diff: translated all comments
+
 2002-04-04  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 538748 ]: OS_errno lost before error reporting
