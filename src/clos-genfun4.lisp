@@ -152,7 +152,7 @@
         gf args))))
 
 (defun %no-next-method (method &rest args)
-  (apply #'no-next-method (std-method-generic-function method) method args))
+  (apply #'no-next-method (method-generic-function method) method args))
 (defgeneric no-next-method (gf method &rest args)
   (:method ((gf standard-generic-function) (method standard-method) &rest args
             &aux (cont-mesg (format nil (TEXT "ignore ~S") 'CALL-NEXT-METHOD)))

@@ -1,5 +1,13 @@
 2004-10-10  Bruno Haible  <bruno@clisp.org>
 
+	Respect user-defined methods on method-generic-function.
+	* clos-genfun2.lisp (std-add-method): Call method-generic-function
+	instead of std-method-generic-function.
+	* clos-genfun3.lisp (%call-next-method): Likewise.
+	* clos-genfun4.lisp (%no-next-method): Likewise.
+	* clos-method3.lisp (method-generic-function): Redefine without
+	fmakunbound.
+
 	Respect user-defined methods on method-lambda-list.
 	* clos-genfun2.lisp (check-signature-congruence, std-add-method,
 	gf-keyword-arguments): Call method-signature instead of

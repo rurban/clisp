@@ -319,10 +319,10 @@
       :lambda-list (gf-lambdalist-from-first-method (method-lambda-list method)
                                                     (method-signature method)))
     (check-signature-congruence gf method))
-  (when (std-method-generic-function method)
+  (when (method-generic-function method)
     (error-of-type 'error
       "~S: ~S already belongs to ~S, cannot also add it to ~S"
-      'std-add-method method (std-method-generic-function method) gf))
+      'std-add-method method (method-generic-function method) gf))
   (check-method-qualifiers gf method)
   (setf (std-method-fast-function method) nil)
   ;; Determine function from initfunction:
