@@ -9,6 +9,10 @@
 <!ENTITY perl "<ulink url='http://www.perl.com'><command>Perl</command></ulink>">
 <!ENTITY ieee-bfp "<ulink url='http://grouper.ieee.org/groups/754/'>IEEE 754</ulink>">
 
+<!-- *** people *** -->
+<!ENTITY gilbert-baumann "<author><firstname>Gilbert</firstname><surname>Baumann</surname><address><otheraddr><ulink url='http://www.uni-karlsruhe.de/~unk6/'/></otheraddr></address><email>unk6@rz.uni-karlsruhe.de</email></author>">
+<!ENTITY hin "<author><firstname>John</firstname><surname>Hinsdale</surname><address><otheraddr><ulink url='http://www.alma.com/staff/hin'/></otheraddr></address><email>hin@alma.com</email></author>">
+
 <!-- *** platforms *** -->
 <!ENTITY noreadline "<emphasis role='strong'><option>NO_READLINE</option></emphasis>">
 <!ENTITY with "<emphasis role='strong'>with</emphasis>">
