@@ -535,10 +535,19 @@ nonreturning_function(global, reset, (uintL count)) {
 global void progv (object symlist, object vallist) {
   /* check symlist */
   var uintL llen = 0;
+  var bool need_new_symlist = true;
   pushSTACK(symlist); pushSTACK(vallist);
   for (pushSTACK(symlist); consp(STACK_0); STACK_0 = Cdr(STACK_0), llen++) {
     var object sym = check_symbol_non_constant(Car(STACK_0),S(progv));
-    Car(STACK_0) = sym;
+    if (!eq(sym,Car(STACK_0))) { /* changed symbol ==> must copy symlist */
+      if (need_new_symlist) {    /* have not copied symlist yet */
+        STACK_0 = STACK_2 = copy_list(STACK_2); /* copy symlist */
+        var uintL pos = llen;                 /* skip copy ... */
+        while (pos--) STACK_0 = Cdr(STACK_0); /* ... to the right position */
+        need_new_symlist = false; /* do not copy symlist twice */
+      }
+      Car(STACK_0) = sym;
+    }
   }
   skipSTACK(1); vallist = popSTACK(); symlist = popSTACK();
   /* demand room on STACK: */

@@ -1,3 +1,8 @@
+2004-12-06  Sam Steingold  <sds@gnu.org>
+
+	* conditions.tst (princ-error): new function
+	added a test to check that PROGV does not modify the source code
+
 2004-12-05  Bruno Haible  <bruno@clisp.org>
 
 	* alltest.tst: Add tests for sequence constructing functions with types
