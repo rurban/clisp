@@ -9,7 +9,7 @@ Description:    GNU CLISP is an ANSI Common Lisp implementation.
                 Packages running in CLISP include Maxima, ACL2,
                 CLX, Garnet, CLUE/CLIO.
 Keywords:       Lisp, Common Lisp, CLISP, computer algebra, compiler.
-Author:         haible@clisp.cons.org (Bruno Haible),
+Author:         haible@clisp.org (Bruno Haible),
                 michael@rhein.iam.uni-bonn.de (Michael Stoll),
                 marcus@sysc.pdx.edu (Marcus Daniels),
                 sds@gnu.org (Sam Steingold)
