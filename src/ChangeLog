@@ -1,5 +1,11 @@
 1999-07-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * autoconf/aclocal.m4 (CL_CANONICAL_HOST_CPU,
+           CL_CANONICAL_HOST_CPU_FOR_FFCALL): Distinguish "sparc" and
+          "sparc64" according to the C compiler, not the uname result.
+
+1999-07-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * makemake.in: Treat gcc version 3.* like gcc version 2.95.
 
 1999-07-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
