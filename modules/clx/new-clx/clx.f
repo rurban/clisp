@@ -1,13 +1,13 @@
 // -*- mode: c++ -*-
 // Copyright (c) 1996-1999 by Gilbert Baumann, distributed under GPL
-// --------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //
 //    Title: 	C implementation of CLX utilizing the Xlib
 //    Created:	Sat Dec  2 18:04:51 1995
 //    Author: 	Gilbert Baumann <unk6@rz.uni-karlsruhe.de>
 //    Copying:  (c) copyright 1996 by Gilbert Baumann distributed under GPL.
 //
-// --------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //
 // Revision 1.24  1999-10-17  bruno
 // - Use allocate_bit_vector in place of allocate_byte_vector. Remove ->data
@@ -18,8 +18,8 @@
 //   XGetAtomName instead.
 //
 // Revision 1.22  1999-06-06  bruno
-// - get_font_info_and_display now optionally returns the Lisp font. It also
-//   fills in the font's encoding.
+// - get_font_info_and_display now optionally returns the Lisp font.
+//   It also fills in the font's encoding.
 // - New function to_XChar2b, used to convert a character sequence to a font
 //   index sequence. Works for linear non-iso8859-1 fonts (unlike Motif!).
 //   Still needs work for chinese or japanese fonts.
@@ -89,7 +89,8 @@
 // - The silly (and ineffient) 'general_p' function vanished.
 //
 // Revision 1.11  1996/10/03  03:37:12  gilbert
-// - all invokations of "TheFpointer()->fp_pointer" are now guarded by "fp_validp".
+// - all invocations of "TheFpointer()->fp_pointer"
+//   are now guarded by "fp_validp".
 //
 // Revision 1.10  1996/10/03  02:45:00  gilbert
 // - made the get_[su]int?? functions do type checking
@@ -140,10 +141,10 @@
 // - get DISPLAY-ERROR-HANDLER working.
 //   define DEFAULT-ERROR-HANDLER in Lisp.
 //
-// - Garnet seems to loose exposure events from time to time, I do not know if
-//   it is my fault or a garnet bug? This thing is hard to trace, since it seems
-//   to depend on how fast the window gets mapped, or how fast the garnet code
-//   is!
+// - Garnet seems to loose exposure events from time to time, I do not know
+//   if it is my fault or a garnet bug? This thing is hard to trace, since
+//   it seems to depend on how fast the window gets mapped, or how fast the
+//   garnet code is!
 //
 // - the get_XXX functions *all* should do type checking
 //
@@ -164,7 +165,8 @@
 //   (Maybe we just pass the gcontext down to Xlib, since Xlib is supposed
 //   to do the same here.)
 // -------
-//   When a display is closed the host name and such sould not be available any longer
+//   When a display is closed the host name and such sould not
+//   be available any longer
 // -------
 //
 // - there should be a function called closed-p, which checks wether an given
@@ -185,47 +187,47 @@
 //
 // - Is it right that we make the list of displays public?
 //
-// - we should  rethink a bit  more  the font  handling  stuff, because  several
+// - we should rethink a bit more the font handling stuff, because several
 //   situations could arise:
 //
-//    . A  font may not  have an fid, this  implies, that the  font could not be
-// 	hashed,  furthermore  we should init  a  finializer to discard  also the
+//    . A font may not have an fid, this implies, that the font could not be
+// 	hashed, furthermore we should init a finializer to discard also the
 // 	fontinfo when the font object becomes inaccessible.
-//    . A font may come without per-character information. (But only when it has
-// 	a 0 font id, hence a pseudo font)
+//    . A font may come without per-character information.
+//      (But only when it has a 0 font id, hence a pseudo font)
 //    . If we open a pseudo font, we should then enter it into the hash table.
-//    . ensure that the  font-name slot has some  valid value.  (It is even  not
-// 	guaranteed to be available.)
+//    . ensure that the  font-name slot has some  valid value.
+//      (It is even  not guaranteed to be available.)
 //
-// - go thru' the whole  source and find all error  messages and check that they
+// - go thru' the whole source and find all error messages and check that they
 //   are given right. [fehler wants its arguments backwards!]
 //
-// - since some  make_xxx functions use value1,  I should generally push the
+// - since some make_xxx functions use value1, I should generally push the
 //   return values onto the stack before actually returning.
 //
-// - since somebody could now create classes on top of  window, check the xid we
-//   want to read, if it is unbound emit  some reasonable error message.  [If it
+// - since somebody could now create classes on top of window, check the xid we
+//   want to read, if it is unbound emit some reasonable error message.  [If it
 //   is unbound the slot-value function returns an error on its own already.]
 //
 // - What about the plist slot? (Should we bind it to a useful value?)
 //
-// - maybe we make the clos-instance representation optional? Since it eats some
-//   speed. (Fetching a slot value is not the fastest operation.)
+// - maybe we make the clos-instance representation optional? Since it eats
+//   some speed. (Fetching a slot value is not the fastest operation.)
 //
-// - several X11 functions, which return  lists  may actually  pass NULL as  the
+// - several X11 functions, which return lists may actually pass NULL as  the
 //   empty sequence?!
 //
-// - some of the enumerating  functions (list XListDepths  etc)  do not set  the
-//   count_return on failure, so set it yourself to 0 before  you make the call,
+// - some of the enumerating functions (list XListDepths etc) do not set the
+//   count_return on failure, so set it yourself to 0 before you make the call,
 //   so that we do not run into difficulties.
 //
-// - we should change the names xxx-SETTER to SET-xxx, since this is the way clx
-//   names these functions.
+// - we should change the names xxx-SETTER to SET-xxx, since this is the way
+//   clx names these functions.
 //   [But there seems to be an incompatibility between (setf fn) and defsetf?!]
 //
-// - Maybe we  dont  put all  those symbols in the  XLIB  package  to be able to
-//   include the MIT-CLX also.  (Generally CLISP lacks some of the  nice package
-//   features  Symbolics  Common LISP  provided.   There were also  anonymous or
+// - Maybe we dont put all those symbols in the XLIB package to be able to
+//   include the MIT-CLX also.  (Generally CLISP lacks some of the nice package
+//   features Symbolics Common LISP provided.  There were also anonymous or
 //   invisible packages.)
 //
 // - errors should be reported in a much more meaningful way.
@@ -235,9 +237,9 @@
 // - put also ptr objects into the hashtable.
 //   Is there any way to get 'em anyhow back?
 //
-// - the  xlib:free-xxx  routines should remove  that object  from the hashtable.
-//   (or shouldn`t they?)  What does the Xserver with free`ed objects?  And also
-//   they might be still alive, if some other application uses it.
+// - the xlib:free-xxx routines should remove that object from the hashtable.
+//   (or shouldn`t they?)  What does the Xserver with free`ed objects?
+//   And also they might be still alive, if some other application uses it.
 //   [Well simply take a look at the MIT code.] [What about GC?!]
 //
 // - should DISPLAY be a class? What with VISUAL-INFO, COLOR an so on ...
@@ -249,7 +251,7 @@
 //
 // - We should insert a lot more type checks?
 //
-// - Since type checks  are rather expensive  think about listening to SAFTY and
+// - Since type checks are rather expensive think about listening to SAFTY and
 //   SPEED ...
 //
 
@@ -261,14 +263,15 @@
 //   [This is not the disired way, since we want to handle such an error.]
 // - with-gcontext !!!
 // - rename the 'font-name' slot of font to 'name'.
-// - take  a look  at  the CLUE  code,  what  it does  with the  :xxx  option to
+// - take a look at the CLUE code, what it does with the :xxx option to
 //   create-xxx functions?!
 // - DISPLAY-AFTER-FUNCTION setter is needed.
 // - make display/window/pixmap clos-instances (see the CLUE patches for that)
-// - put xids into the hashtable and do not build the object new on each request.
+// - put xids into the hashtable and do not build the object new on each
+//   request.
 // - plists (partly done)
 // - get_visual
-// - how to proceed with visuals? In CLX a visual is just a card29  in CLX it is
+// - how to proceed with visuals? In CLX a visual is just a card29 in CLX it is
 //   a pointer to a structure.
 // - Together with the CLX implementation should go a wholine implementation.
 //   (partly there)
@@ -276,27 +279,27 @@
 
 // --- NOTE ---
 //
-//   This package is not  actually optimized for speed,  since my intention  and
-// BTW  the  overall    intension  of  CLISP   is    to make   the   whole beast
-// small. (Actually you gain speed due to reduced  paging). Also this code is at
-// some places BFI!
+//   This package is not actually optimized for speed, since my intent and BTW
+// the overall intent of CLISP is to make the whole beast small.
+// (Actually you gain speed due to reduced paging).
+// Also this code is at some places BFI!
 //
-//   The general idea  behind writing this bunch of  code,  is to provide  a CLX
-// implementation for  CLISP,  which is feasible  of   both speed and  space.  I
-// actually use  the libX library,  because if you  want to do  graphics on your
-// machine, you will already have it in memory, so it adds no extra cost.   [One
-// disadvantage is that I am  forced in some places to  go into the internals of
-// the libX, since the CLX  specification is more powerful  at some places  than
-// the libX implementation. This add another  source of in-portability of CLISP,
-// so *please*, if you encounter compilation problems mail me, so I could adjust
-// the code ...]
+//   The general idea behind writing this bunch of code, is to provide a CLX
+// implementation for CLISP, which is feasible of both speed and space.  I
+// actually use the libX library, because if you want to do graphics on your
+// machine, you will already have it in memory, so it adds no extra cost.  [One
+// disadvantage is that I am forced in some places to go into the internals of
+// the libX, since the CLX specification is more powerful at some places than
+// the libX implementation. This add another source of in-portability of CLISP,
+// so *please*, if you encounter compilation problems mail me,
+// so I could adjust the code ...]
 //
-//   CLX adds on my machines another ~700k  of memory needs  for CLISP, but this
-// implementation add only 70k [*I* know that I am telling  lies here, since the
-// libX11 itself has a size of ~500k; But as long as I have no  pure LISP OS but
-// need the  UNIX to boot it ...]  and a great  bunch of speed.
+//   CLX adds on my machines another ~700k of memory needs for CLISP, but this
+// implementation add only 70k [*I* know that I am telling lies here, since the
+// libX11 itself has a size of ~500k; But as long as I have no pure LISP OS but
+// need the UNIX to boot it ...]  and a great bunch of speed.
 //
-//   Also having this implemenation should  gain a big  plus against GCL.  (IMHO
+//   Also having this implemenation should gain a big plus against GCL.  (IMHO
 // gcl is very bad code compared to CLISP! [gcl is actually akcl]) flame,flame.
 //
 // BTW It should be fun to write the graph.d routines on top of CLX!
@@ -306,26 +309,26 @@
 //
 //  Xpm Support?
 //
-// We should also include support for  the xpm library  to have a nice access to
-// .xpm files, which is hardly needed, since I do not want to duplicate this non
-// trivial code in Lisp.  But  we have to  think about a Lisp representation for
-// pixmaps. I could also imagine a `defpixmap`  macro.  Just another question is
-// if we want to put the  xpm routines into  another package. (called `x-pixmap`
-// or just 'xpm'). I want also to write some documentation for the then Lisp xpm
-// routines. But since the xpm library seems to be a changing thing it is also a
-// question, how we cope with them.
+// We should also include support for the xpm library to have a nice access to
+// .xpm files, which is hardly needed, since I do not want to duplicate this
+// non-trivial code in Lisp.  But we have to think about a Lisp representation
+// for pixmaps. I could also imagine a `defpixmap` macro.  Just another
+// question is if we want to put the xpm routines into another package. (called
+// `x-pixmap` or just 'xpm'). I want also to write some documentation for the
+// then Lisp xpm routines. But since the xpm library seems to be a changing
+// thing it is also a question, how we cope with them.
 //
 //  Incooperation into the FFI?
 //
-// Since we use could convert now a  WINDOW object into  a libX11 Window object,
-// it may  be worth offer this also   to the FFI.  When I  finished  this work I
+// Since we use could convert now a WINDOW object into a libX11 Window object,
+// it may be worth offer this also to the FFI.  When I finished this work I
 // should take a look at the FFI.
 
 
-// --- IMPLEMENTATION NOTES ----------------------------------------------------
+// --- IMPLEMENTATION NOTES ---------------------------------------------------
 //
-//   If there are setf-methods for some functions, I  call `em xxx_setter, later
-// I bind  them  into  LISP, with putting  the   right properties on   the right
+//   If there are setf-methods for some functions, I call `em xxx_setter, later
+// I bind them into LISP, with putting the right properties on the right
 // symbols.
 //
 // The following types are only XID`s:
@@ -335,11 +338,11 @@
 //   color, display, screen, GC
 //
 //
-//  First I  define some  datatypes   by providing  get_xxx, make_xxx  and xxx_p
-//  functions.  Note that this set is not complete, since  not all functions are
-//  actually needed.  The consistent  name is curel,  since some macros I define
-//  later take a "type" argument, which is  concatenated with 'make_' or 'get_'.
-//  This is done to make this file more dense; (Thus save me  a lot of redundand
+//  First I define some datatypes by providing get_xxx, make_xxx and xxx_p
+//  functions.  Note that this set is not complete, since not all functions are
+//  actually needed.  The consistent name is curel, since some macros I define
+//  later take a "type" argument, which is concatenated with 'make_' or 'get_'.
+//  This is done to make this file more dense; (Thus save me a lot of redundand
 //  typeing.)
 //
 //
@@ -388,18 +391,23 @@
 // For further for grepability I use the following tags in comments:
 //
 //  XXX            - really bad and a major risk to safety/usability.
-//  FIXME          - just fix me, something that ought to be done before next release.
-//  TODO           - something, which should be done and is already considered useful.
-//  FUTURE         - something, which is just an idea  and it is not   yet decided, if I
-//                   implement it  ever; It  may  also later  been  considered  silly. I
-//                   invite for discussion about those items.
-//  OK             - the opposite of XXX. Functions which are considered to be totally
-//                   finish and had undergone a test are marked with this.
+//  FIXME          - just fix me, something that ought to be done
+//                   before next release.
+//  TODO           - something, which should be done and is already
+//                   considered useful.
+//  FUTURE         - something, which is just an idea and it is not yet
+//                   decided, if I implement it ever; It may also later
+//                   been considered silly.
+//                   I invite for discussion about those items.
+//  OK             - the opposite of XXX. Functions which are
+//                   considered to be totally finished and
+//                   had undergone a test are marked with this.
 //  UNDEFINED      - this is thought for undefined functions at whole
-//  NOTIMPLEMENTED - is thought for not implemented features in an partly defined function.
+//  NOTIMPLEMENTED - is thought for not implemented features
+//                   in an partly defined function.
 //
 
-// enough bla bla, lets start codeing, we have a long long way before us ...
+// enough bla bla, let's start coding, we have a long long way before us ...
 
 
 // Wether you want to use general 'slot-value' function or the low
@@ -445,9 +453,9 @@ local Display *pop_display (void);
 #endif
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  General purpose utilities
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #if WITH_SLOT_UP
 extern object* slot_up (void);	// from record.d
@@ -614,9 +622,9 @@ local int isa_struct_p (object type, object obj)
   }while(0)
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Integer data types
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //
 // Hugh?! Thes function do not check the type?!
 //
@@ -695,12 +703,13 @@ local uint32 get_aint32 (object obj)
 }
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Displays
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //
-// Objects of type DISPLAY are currently represented as structure; here are the slots:
-// The actual defstruct definition in clx.lisp must match. There is a warning in the code.
+// Objects of type DISPLAY are currently represented as structure; here are the
+// slots: The actual defstruct definition in clx.lisp must match. There is a
+// warning in the code.
 //
 #define slot_DISPLAY_FOREIGN_POINTER 1
 #define slot_DISPLAY_HASH_TABLE      2
@@ -708,13 +717,13 @@ local uint32 get_aint32 (object obj)
 #define slot_DISPLAY_AFTER_FUNCTION  4
 #define slot_DISPLAY_ERROR_HANDLER   5
 //
-// The display contains a hash table. All XID objects are entered there, so that
-// two XID objects, with equal XID are actually eq.
+// The display contains a hash table. All XID objects are entered there, so
+// that two XID objects, with equal XID are actually eq.
 //
 
 local object make_display (Display *dpy)
-     // Given the C representation of a display create the Lisp one and initialize it.
-     // The newly created display is added to XLIB:*DISPLAYS*.
+     // Given the C representation of a display create the Lisp one and
+     // initialize it.  The newly created display is added to XLIB:*DISPLAYS*.
 {
   pushSTACK (subr_self);
 
@@ -825,16 +834,17 @@ local Display *pop_display (void)
 }
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  PTR and XID objects
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //
 //  First the ptr ones.
 //
-//  ptr_objs are screens and gcontexts, these objects are not hashed. (which is a bad idea btw).
-//  But on the other hand for gcontexts it is not too bad, since you get `em only once.
+//  ptr_objs are screens and gcontexts, these objects are not hashed. (which is
+//  a bad idea btw).  But on the other hand for gcontexts it is not too bad,
+//  since you get `em only once.
 //
-//  An other story are the screen, these could be cached. Or  we do not give the
+//  An other story are the screen, these could be cached. Or we do not give the
 //  actual screen structure, but pass simply the index?
 //
 local object make_ptr_obj (object type, object dpy, void *ptr)
@@ -1108,9 +1118,9 @@ local object get_display_obj (object obj)
 }
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Specializied getters/makers/predicates
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // Simple Getters
 #define get_xid_object(type,obj) get_xid_object_and_display(type,obj,0)
@@ -1553,9 +1563,9 @@ local Visual *get_visual (Display *dpy, object vid)
 }
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Lots of enums
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 //
 // get_enum -- convert a lisp symbol to an integer value i E [0..n).
@@ -1772,9 +1782,9 @@ local unsigned long get_gcontext_key (object obj)
 }
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Masks
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 local unsigned int get_modifier_mask (object obj)
 {
@@ -1875,9 +1885,9 @@ local object make_event_mask (unsigned long mask)
 }
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Various other types
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 local object make_xatom (Display *dpy, Atom atom)
 {
@@ -2093,9 +2103,9 @@ local void general_lookup (object type)
     { value1 = make_bool (get_##type (popSTACK ()) == get_##type (popSTACK ())); }
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Chapter 1   Data Types
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 STANDARD_XID_OBJECT_LOOK (window)
 STANDARD_XID_OBJECT_LOOK (pixmap)
@@ -2190,9 +2200,9 @@ defun XLIB:MAKE-STATE-MASK (0, 0, rest, nokey, 0, NIL)
 }
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Chapter 2   Displays
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 //
 //  XLIB:OPEN-DISPLAY host &key :display &allow-other-keys
@@ -2706,9 +2716,9 @@ defun XLIB:DISPLAY-TRACE (0, 0, rest, nokey, 0, NIL)
      {UNDEFINED}
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Chapter 3   Screens
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 ##define DEF_SCREEN_PROP(lspnam, typ, cnam)\
     defun lspnam (1)						\
@@ -2855,9 +2865,9 @@ defun XLIB:VISUAL-INFO (2) // NIM // OK
 // After all, no SCREEN-EQUAL ?
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Chapter 4   Windows and Pixmaps
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /* 4.1 Drawables */
 
@@ -3465,26 +3475,27 @@ defun XLIB:FREE-PIXMAP (1)
 
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Chapter 5   Graphics Contexts
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // Since libX does not allow to retrieve the clip-mask or the dashes list any
 // how, we save the clip-mask and dashes-list in the gcontext instance extra.
 
-// DASHES-LIST is stored in the additional slot xlib::%dashes and is represented
-//    as a single uint8 or as a simple vector of uint8's. (This allowes us to
-//    pass the vector directly into the C routine if needed.) However this value
-//    could be NIL, then the C rep is suffient.
+// DASHES-LIST is stored in the additional slot xlib::%dashes and is
+//    represented as a single uint8 or as a simple vector of uint8's.
+//    (This allowes us to pass the vector directly into the C routine if
+//    needed.) However this value could be NIL, then the C rep is suffient.
 
-// FLAME -- I find me always fixing the flaws of the narrow-minded C people, not
-// capable of defining any clean and consistent interface. Even worse, yesterday
-// I spend a couple of hours of debugging just to recognize, that the malloc
-// implmentation of the default Linux libc (version 5.3.9 and up [Yes, 5.4.7 is
-// even worse]!) is now broken, it messed up *my* memory. (I considered it all
-// the time working). I have the strange feeling that the more popular Linux
-// becomes the more broken it gets. I want the old days back, where only a
-// couple of people messed around with Linux, knowing what they do.
+// FLAME -- I find me always fixing the flaws of the narrow-minded C people,
+// not capable of defining any clean and consistent interface. Even worse,
+// yesterday I spend a couple of hours of debugging just to recognize, that the
+// malloc implmentation of the default Linux libc (version 5.3.9 and up [Yes,
+// 5.4.7 is even worse]!) is now broken, it messed up *my* memory. (I
+// considered it all the time working). I have the strange feeling that the
+// more popular Linux becomes the more broken it gets. I want the old days
+// back, where only a couple of people messed around with Linux, knowing what
+// they do.
 //
 // [Ya, back to the 0.96 days (or was it 0.98?), I had only 8MB ram (and ~80MB
 // hd) and it was just smooth flying under X; The feeling you get when driving
@@ -4116,7 +4127,7 @@ defun XLIB:FORCE-GCONTEXT-CHANGES (1)
   value1= NIL; mv_count = 1;
 }
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  WITH-GCONTEXT
 //
 //  Method: with-gcontext should 'bind' some gcontext slots, so we have to save
@@ -4228,9 +4239,9 @@ defun XLIB:%RESTORE-GCONTEXT-COMPONENTS (2)
 }
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Chapter 6   Graphics Operations
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /* 6.2  Area and Plane Operations */
 
@@ -4917,9 +4928,9 @@ defun XLIB:CHAR->CARD8 (1)
 }
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Chapter 7   Images
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // Note: As you will probably see within a second, this code is still in development.
 // ====  There are still not all image formats supported. But the code should be safe
@@ -5274,9 +5285,9 @@ defun xlib:put-image (3, 0, norest, key, 7, (:SRC-X :SRC-Y :X :Y :WIDTH :HEIGHT 
 
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Chapter 8   Fonts and Characters
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /* 8.2  Opening Fonts */
 defun XLIB:OPEN-FONT (2)
@@ -5889,9 +5900,9 @@ defun XLIB:TEXT-WIDTH (2, 0, norest, key, 3, (:START :END :TRANSLATE))
 }
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Chapter 9   Colors
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 //  9.2  Color Functions
 //
@@ -6405,9 +6416,9 @@ defun XLIB:STORE-COLORS (2, 0, norest, key, 3, (:RED-P :GREEN-P :BLUE-P))
 
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Chapter 10  Cursors
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /* 10.2  Creating Cursors */
 //
@@ -6566,9 +6577,9 @@ defun XLIB:RECOLOR-CURSOR (3)
 /* 10.4 Cursor Attributes */
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Chapter 11  Atoms, Properties and Selections
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /* 11.1  Atoms */
 defun XLIB:ATOM-NAME (2) /* OK */
@@ -7001,9 +7012,9 @@ defun XLIB:SELECTION-OWNER-SETTER (3, 1)
 }
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Chapter 12  Events and Input
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /* 12.3  Processing Events */
 
@@ -8166,9 +8177,9 @@ defun XLIB:ALLOW-EVENTS (2, 1)
 }
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Chapter 13  Resources
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // Maybe we want simply to drop in the LISP code here?
 
@@ -8193,9 +8204,9 @@ defun XLIB:WRITE-RESOURCES (2, 0, norest, key, 3, (:WRITE :TEST :TEST-NOT))
 ##endif
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Chapter 14  Control Functions
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /* 14.1  Grabbing the Server */
 defun XLIB:GRAB-SERVER (1)
@@ -8845,9 +8856,9 @@ defun XLIB:SET-SCREEN-SAVER (5)
 }
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Chapter 15  Extentsions
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 /* 15.1  Extentions */
 defun XLIB:LIST-EXTENSIONS (1, 0, norest, key, 1, (:RESULT-TYPE))
@@ -8912,9 +8923,9 @@ defun XLIB:QUERY-EXTENSION (2)
 }
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Chapter 16  Errors
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 //These pages are missing :-(
 //Not any more but not rather informative
@@ -9047,9 +9058,9 @@ int xlib_after_function (Display *display)
 }
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  The Shape Extension
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 ##if WANT_XSHAPE
 #include <X11/extensions/shape.h>
@@ -9227,20 +9238,20 @@ defun XLIB:SHAPE-RECTANGLES (2)
 ##endif
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Not explicitly specified functions
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-/* I think I will  not actually support these  functions, until there are needed
+/* I think I will not actually support these functions, until there are needed
  * by some application.
  *
- * Since  they   are not in  the   CLX Manual,  they   are actually undocumented
- * functions   of CLX,  which  should  either  way round  not   be  used by  CLX
- * programs. (But  it is  strange, that the  corresponding symbols  are exported
+ * Since they are not in the CLX Manual, they are actually undocumented
+ * functions of CLX, which should either way round not be used by CLX
+ * programs. (But it is strange, that the corresponding symbols are exported
  * from the CLX package!)
  *
- * I may be wrong due to the WM functions, since these seems to be actually used
- * by a couple of applications.
+ * I may be wrong due to the WM functions, since these seems to be actually
+ * used by a couple of applications.
  */
 
 //
@@ -9401,9 +9412,9 @@ defun XLIB:SET-STANDARD-COLORMAP (6) {UNDEFINED}
 // But we not yet finished, we yet to finish the libX11 :-)
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Fixups of libX
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 local Visual *XVisualIDToVisual (Display *dpy, VisualID vid)
 {
@@ -9430,8 +9441,8 @@ local Visual *XVisualIDToVisual (Display *dpy, VisualID vid)
         if (r) XFree (r);
       end_call ();
 
-      // Maybe we emerge a x-bad-SONSTWAS condition here, since the 0 value _is_ meaningful to the libX11;
-      // It is CopyFromParent.
+      // Maybe we emerge a x-bad-SONSTWAS condition here, since the 0 value
+      // _is_ meaningful to the libX11; It is CopyFromParent.
       return 0;
     }
 }
@@ -9466,9 +9477,9 @@ int this_is_a_test_for_the_linker_and_the_debugger_and_the_nm_utility__lets_have
 #endif
 
 
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //  Xpm Interface
-// ----------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Need this for my small sokoban port ...
 
 ##if WANT_XPM
@@ -9549,7 +9560,8 @@ void module__clx__init_function_2 (module_ *module)
 
   for (i = 0 ; i < module__clx__object_tab_size; i++)
     {
-      dprintf (("\n;; otab[%d] = '%s' -->",i,module__clx__object_tab_initdata[i]));
+      dprintf (("\n;; otab[%d] = '%s' -->",i,
+                module__clx__object_tab_initdata[i]));
       pushSTACK (((object * )( & module__clx__object_tab))[i]);
       funcall (L(princ),1);
     }
@@ -9558,7 +9570,5 @@ void module__clx__init_function_2 (module_ *module)
 
 // Local variables:
 // truncate-lines: t
-// fill-column: 80
+// fill-column: 79
 // end:
-
-
