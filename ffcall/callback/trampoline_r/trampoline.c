@@ -1,7 +1,7 @@
 /* Trampoline construction */
 
 /*
- * Copyright 1995-1999, 2001 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1995-1999, 2001-2002 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -100,14 +100,18 @@ extern void (*tramp_r) (); /* trampoline prototype */
 
 /* Declare malloc(), free(). */
 #ifndef malloc
-#if defined(__STDC__) || defined(__cplusplus)
+#ifdef __cplusplus
+extern "C" RETMALLOCTYPE malloc (MALLOC_SIZE_T size);
+#elif defined(__STDC__)
 extern RETMALLOCTYPE malloc (MALLOC_SIZE_T size);
 #else
 extern RETMALLOCTYPE malloc();
 #endif
 #endif
 #ifndef free
-#if defined(__STDC__) || defined(__cplusplus)
+#ifdef __cplusplus
+extern "C" RETFREETYPE free (RETMALLOCTYPE ptr);
+#elif defined(__STDC__)
 extern RETFREETYPE free (RETMALLOCTYPE ptr);
 #else
 extern RETFREETYPE free();
@@ -115,7 +119,9 @@ extern RETFREETYPE free();
 #endif
 
 /* Declare abort(). */
-#if defined(__STDC__) || defined(__cplusplus)
+#ifdef __cplusplus
+extern "C" ABORT_VOLATILE RETABORTTYPE abort (void);
+#elif defined(__STDC__)
 extern ABORT_VOLATILE RETABORTTYPE abort (void);
 #else
 extern ABORT_VOLATILE RETABORTTYPE abort();
@@ -123,7 +129,9 @@ extern ABORT_VOLATILE RETABORTTYPE abort();
 
 /* Declare getpagesize(). */
 #ifdef HAVE_GETPAGESIZE
-#if defined(__STDC__) || defined(__cplusplus)
+#ifdef __cplusplus
+extern "C" RETGETPAGESIZETYPE getpagesize (void);
+#elif defined(__STDC__)
 extern RETGETPAGESIZETYPE getpagesize (void);
 #else
 extern RETGETPAGESIZETYPE getpagesize ();
@@ -158,7 +166,9 @@ extern RETGETPAGESIZETYPE getpagesize ();
 #include <sys/types.h>
 #include <sys/mman.h>
 #if !defined(__convex__)
-#if defined(__STDC__) || defined(__cplusplus)
+#ifdef __cplusplus
+extern "C" int mprotect (MPROTECT_CONST MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot);
+#elif defined(__STDC__)
 extern int mprotect (MPROTECT_CONST MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot);
 #else
 extern int mprotect ();
@@ -175,7 +185,9 @@ extern int mprotect ();
 #if !defined(PROT_EXEC) && defined(PROT_EXECUTE) /* Irix 4.0.5 needs this */
 #define PROT_EXEC PROT_EXECUTE
 #endif
-#if defined(__STDC__) || defined(__cplusplus)
+#ifdef __cplusplus
+extern "C" RETMMAPTYPE mmap (MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot, int flags, int fd, off_t off);
+#elif defined(__STDC__)
 extern RETMMAPTYPE mmap (MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot, int flags, int fd, off_t off);
 #else
 extern RETMMAPTYPE mmap ();
@@ -190,7 +202,13 @@ extern RETMMAPTYPE mmap ();
 #ifdef OPEN_NEEDS_SYS_FILE_H
 #include <sys/file.h>
 #endif
-#if defined(__STDC__) || defined(__cplusplus)
+#ifdef __cplusplus
+#ifdef OPEN_DOTS
+extern "C" int open (OPEN_CONST char* path, int flags, ...);
+#else
+extern "C" int open (OPEN_CONST char* path, int flags, mode_t mode);
+#endif
+#elif defined(__STDC__)
 #ifdef OPEN_DOTS
 extern int open (OPEN_CONST char* path, int flags, ...);
 #else
@@ -209,7 +227,15 @@ extern int open ();
 #ifdef HAVE_SYS_SYSMACROS_H
 #include <sys/sysmacros.h>
 #endif
-#if defined(__STDC__) || defined(__cplusplus)
+#ifdef __cplusplus
+extern "C" int shmget (key_t key, SHMGET_SIZE_T size, int shmflg);
+extern "C" RETSHMATTYPE shmat (int shmid, SHMAT_CONST RETSHMATTYPE shmaddr, int shmflg);
+#ifdef SHMCTL_DOTS
+extern "C" int shmctl (int shmid, int cmd, ...);
+#else
+extern "C" int shmctl (int shmid, int cmd, struct shmid_ds * buf);
+#endif
+#elif defined(__STDC__)
 extern int shmget (key_t key, SHMGET_SIZE_T size, int shmflg);
 extern RETSHMATTYPE shmat (int shmid, SHMAT_CONST RETSHMATTYPE shmaddr, int shmflg);
 #ifdef SHMCTL_DOTS

@@ -1,7 +1,7 @@
 /* Trampoline accessor test */
 
 /*
- * Copyright 1995-1999 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1995-1999, 2002 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -14,7 +14,11 @@
 
 #include "trampoline_r.h"
 
+#ifdef __cplusplus
+typedef int (*function)(...);
+#else
 typedef int (*function)();
+#endif
 
 #if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
 int f (int x)
@@ -29,16 +33,16 @@ int f (x)
 
 int main ()
 {
-  function cf = alloc_trampoline_r(&f, (void*)MAGIC1, (void*)MAGIC2);
-  if (is_trampoline_r(&main))
+  function cf = alloc_trampoline_r((function)&f, (void*)MAGIC1, (void*)MAGIC2);
+  if (is_trampoline_r((void*)&main))
     { printf("is_trampoline_r(&main) returns true!\n"); exit(1); }
-  if (!is_trampoline_r(cf))
+  if (!is_trampoline_r((void*)cf))
     { printf("is_trampoline_r() returns false!\n"); exit(1); }
-  if (trampoline_r_address(cf) != &f)
+  if (trampoline_r_address((void*)cf) != (function)&f)
     { printf("trampoline_r_address() doesn't work!\n"); exit(1); }
-  if (trampoline_r_data0(cf) != (void*)MAGIC1)
+  if (trampoline_r_data0((void*)cf) != (void*)MAGIC1)
     { printf("trampoline_r_data0() doesn't work!\n"); exit(1); }
-  if (trampoline_r_data1(cf) != (void*)MAGIC2)
+  if (trampoline_r_data1((void*)cf) != (void*)MAGIC2)
     { printf("trampoline_r_data1() doesn't work!\n"); exit(1); }
   printf("test2 passed.\n");
   exit(0);
