@@ -1535,6 +1535,7 @@ local void init_module_2 (module_t* module) {
       if (packname==NULL) {
         symbol = make_symbol(symname);
       } else {
+        pushSTACK(symname);
         var object pack =
           find_package(asciz_to_string(packname,O(internal_encoding)));
         if (nullp(pack)) { # package not found?
@@ -1542,6 +1543,7 @@ local void init_module_2 (module_t* module) {
                   module->name, packname);
           quit_sofort(1);
         }
+        symname = popSTACK();
         intern(symname,false,pack,&symbol);
       }
       subr_ptr->name = symbol; # complete Subr
