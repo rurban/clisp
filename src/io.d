@@ -1238,7 +1238,7 @@ local void read_token (const object* stream_) {
   read_token_1(stream_,ch,scode);
 }
 
-local void read_token_1 (const object* stream_,object ch,uintWL scode) {
+local void read_token_1 (const object* stream_, object ch, uintWL scode) {
   if (terminal_stream_p(*stream_))
     dynamic_bind(S(terminal_read_open_object),S(symbol));
   # fetch empty Token-Buffers, upon STACK:
@@ -2368,7 +2368,7 @@ global object stream_read (const object* stream_, object recursive_p,
 local object read_delimited_list (const object* stream_, object endch,
                                   object ifdotted);
 # Dito with set SYS::*READ-RECURSIVE-P* :
-local object read_delimited_list_recursive (const object* stream_,object endch,
+local object read_delimited_list_recursive (const object* stream_, object endch,
                                             object ifdotted);
 # first the general function:
 #ifdef RISCOS_CCBUG
@@ -2400,7 +2400,7 @@ local object read_delimited_list(const object* stream_, object endch,
 #pragma -z1
 #endif
 # then the more special Function:
-local object read_delimited_list_recursive (const object* stream_,object endch,
+local object read_delimited_list_recursive (const object* stream_, object endch,
                                             object ifdotted) {
   # don't need to save endch and ifdotted.
   {
@@ -6237,7 +6237,7 @@ local bool circle_p (object obj,circle_info_t* ci) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_circle (const object* stream_,object obj,pr_routine_t* pr_xxx) {
+local void pr_circle (const object* stream_, object obj, pr_routine_t* pr_xxx) {
   # determine, if circular:
   var circle_info_t info;
   if (!circle_p(obj,&info)) { # not circular, print obj normally:
@@ -6302,7 +6302,7 @@ local void pretty_print_call (const object* stream_,object obj,
 # < stream: stream
 # can trigger GC
   # first of all only treatment of *PRINT-PRETTY*:
-local void pr_enter_1 (const object* stream_,object obj,pr_routine_t* pr_xxx) {
+local void pr_enter_1 (const object* stream_, object obj, pr_routine_t* pr_xxx) {
   # Streamtype (PPHELP-stream or not) must fit to *PRINT-PRETTY* .
   if (test_value(S(print_pretty))) {
     # *PRINT-PRETTY* /= NIL.
@@ -6373,7 +6373,7 @@ local void pr_enter_1 (const object* stream_,object obj,pr_routine_t* pr_xxx) {
   }
 }
 # the same procedure with treatment of *PRINT-CIRCLE* and *PRINT-PRETTY* :
-local void pr_enter_2 (const object* stream_,object obj,pr_routine_t* pr_xxx) {
+local void pr_enter_2 (const object* stream_, object obj, pr_routine_t* pr_xxx) {
   # if *PRINT-CIRCLE* /= NIL, search in obj for circularities.
   if (test_value(S(print_circle)) || test_value(S(print_readably))) {
     # search circularities:
@@ -6413,7 +6413,7 @@ local void pr_enter_2 (const object* stream_,object obj,pr_routine_t* pr_xxx) {
 }
 # The same routine with treatment of *PRINT-CIRCLE*, *PRINT-PRETTY*
 # and SYS::*PRIN-STREAM* :
-local void pr_enter (const object* stream_,object obj,pr_routine_t* pr_xxx) {
+local void pr_enter (const object* stream_, object obj, pr_routine_t* pr_xxx) {
   # value of SYS::*PRIN-STREAM* = this stream ?
   if (eq(Symbol_value(S(prin_stream)),*stream_)) { # yes -> recursive call
     # if SYS::*PRINT-CIRCLE-TABLE* = #<UNBOUND> (which means, that
@@ -6555,7 +6555,7 @@ local pr_routine_t pr_stream;
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void prin_object (const object* stream_,object obj) {
+local void prin_object (const object* stream_, object obj) {
  restart_it:
   # test for keyboard-interrupt:
   interruptp({
@@ -6569,7 +6569,7 @@ local void prin_object (const object* stream_,object obj) {
   # handle circularity:
   pr_circle(stream_,obj,&prin_object_dispatch);
 }
-local void prin_object_dispatch (const object* stream_,object obj) {
+local void prin_object_dispatch (const object* stream_, object obj) {
   # branch according to type-info:
 #ifdef TYPECODES
   switch (typecode(obj)) {
@@ -6659,7 +6659,7 @@ local void prin_object_dispatch (const object* stream_,object obj) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_symbol (const object* stream_,object sym) {
+local void pr_symbol (const object* stream_, object sym) {
   # query *PRINT-ESCAPE*:
   if (test_value(S(print_escape)) || test_value(S(print_readably))) {
     # with escape-character and maybe package-name:
@@ -6715,7 +6715,7 @@ local void pr_symbol (const object* stream_,object sym) {
 # > case_sensitive: Flag, if re-reading would be case-sensitive
 # < stream: stream
 # can trigger GC
-local void pr_symbol_part (const object* stream_,object string,
+local void pr_symbol_part (const object* stream_, object string,
                            bool case_sensitive) {
   # find out, if the name can be printed without |...| surrounding it:
   # This can be done if it:
@@ -6902,7 +6902,7 @@ local void pr_symbol_part (const object* stream_,object string,
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_like_symbol (const object* stream_,object string) {
+local void pr_like_symbol (const object* stream_, object string) {
   # query *PRINT-ESCAPE*:
   if (test_value(S(print_escape)) || test_value(S(print_readably)))
     # print with escape-character
@@ -6919,7 +6919,7 @@ local void pr_like_symbol (const object* stream_,object string) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_character (const object* stream_,object ch) {
+local void pr_character (const object* stream_, object ch) {
   # query *PRINT-ESCAPE*:
   if (test_value(S(print_escape)) || test_value(S(print_readably))) {
     # print character with escape-character.
@@ -7030,7 +7030,7 @@ local void pr_sstring_ab (const object* stream_, object string,
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_string (const object* stream_,object string) {
+local void pr_string (const object* stream_, object string) {
   var uintL len = vector_length(string); # length
   var uintL offset = 0; # Offset of string in the data-vector
   var object sstring = array_displace_check(string,len,&offset); # data-vector
@@ -7106,7 +7106,7 @@ local uintL get_indent_lists (void) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_list (const object* stream_,object list) {
+local void pr_list (const object* stream_, object list) {
   if (nullp(list)) { # print NIL as ():
     write_ascii_char(stream_,'('); write_ascii_char(stream_,')');
   } else # a Cons
@@ -7119,7 +7119,7 @@ local void pr_list (const object* stream_,object list) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_cons (const object* stream_,object list) {
+local void pr_cons (const object* stream_, object list) {
   { # treat special case:
     var pr_routine_t* special = special_list_p(list);
     if (!(special == (pr_routine_t*)NULL)) {
@@ -7189,7 +7189,7 @@ local void pr_cons (const object* stream_,object list) {
 # (nsplice form)                               ,.'form
 # (unquote form)                               ,form
 
-local void pr_list_quote (const object* stream_,object list) {
+local void pr_list_quote (const object* stream_, object list) {
   # list = (QUOTE object)
   pushSTACK(Car(Cdr(list))); # save (second list)
   write_ascii_char(stream_,'\''); # print "'"
@@ -7199,7 +7199,7 @@ local void pr_list_quote (const object* stream_,object list) {
   INDENT_END;
 }
 
-local void pr_list_function (const object* stream_,object list) {
+local void pr_list_function (const object* stream_, object list) {
   # list = (FUNCTION object)
   pushSTACK(Car(Cdr(list))); # save (second list)
   write_ascii_char(stream_,'#'); # print "#"
@@ -7210,7 +7210,7 @@ local void pr_list_function (const object* stream_,object list) {
   INDENT_END;
 }
 
-local void pr_list_backquote (const object* stream_,object list) {
+local void pr_list_backquote (const object* stream_, object list) {
   # list = (BACKQUOTE original-form [expanded-form])
   pushSTACK(Car(Cdr(list))); # save (second list)
   write_ascii_char(stream_,'`'); # print '`'
@@ -7254,17 +7254,17 @@ local void pr_list_bothsplice (const object* stream_, object list, object ch) {
   dynamic_unbind();
 }
 
-local void pr_list_splice (const object* stream_,object list) {
+local void pr_list_splice (const object* stream_, object list) {
   # list = (SPLICE object)
   pr_list_bothsplice(stream_,list,ascii_char('@'));
 }
 
-local void pr_list_nsplice (const object* stream_,object list) {
+local void pr_list_nsplice (const object* stream_, object list) {
   # list = (NSPLICE object)
   pr_list_bothsplice(stream_,list,ascii_char('.'));
 }
 
-local void pr_list_unquote (const object* stream_,object list) {
+local void pr_list_unquote (const object* stream_, object list) {
   # list = (UNQUOTE object)
   pushSTACK(Car(Cdr(list))); # save (second list)
   write_ascii_char(stream_,','); # print ','
@@ -7285,7 +7285,7 @@ local void pr_list_unquote (const object* stream_,object list) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_real_number (const object* stream_,object number) {
+local void pr_real_number (const object* stream_, object number) {
   if (R_rationalp(number)) { # rational number
     var uintWL base = get_print_base(); # value of *PRINT-BASE*
     # query *PRINT-RADIX*:
@@ -7333,7 +7333,7 @@ local void pr_real_number (const object* stream_,object number) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_number (const object* stream_,object number) {
+local void pr_number (const object* stream_, object number) {
   if (N_realp(number)) { # real number
     pr_real_number(stream_,number);
   } else { # complex number
@@ -7370,7 +7370,7 @@ local void pr_number (const object* stream_,object number) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_array_nil (const object* stream_,object obj) {
+local void pr_array_nil (const object* stream_, object obj) {
   pushSTACK(obj); # save array
   var object* obj_ = &STACK_0; # and memorize, where it is
   UNREADABLE_START;
@@ -7424,7 +7424,7 @@ local void pr_sbvector_ab (const object* stream_, object bv,
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_bvector (const object* stream_,object bv) {
+local void pr_bvector (const object* stream_, object bv) {
   # query *PRINT-ARRAY*:
   if (test_value(S(print_array)) || test_value(S(print_readably))) {
     # print bv elementwise:
@@ -7444,7 +7444,7 @@ local void pr_bvector (const object* stream_,object bv) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_vector (const object* stream_,object v) {
+local void pr_vector (const object* stream_, object v) {
   # query *PRINT-ARRAY*:
   if (test_value(S(print_array)) || test_value(S(print_readably))) {
     # print v elementwise:
@@ -7599,21 +7599,21 @@ local pr_array_elt_routine_t pr_array_elt_simple;
 local pr_array_elt_routine_t pr_array_elt_bvector; # sub-array is bit-vector
 local pr_array_elt_routine_t pr_array_elt_string; # sub-array is string
 
-local void pr_array_elt_simple (const object* stream_,object obj,
+local void pr_array_elt_simple (const object* stream_, object obj,
                                 pr_array_info_t* info) { # simple-vector
   # fetch element of generic type and print:
   prin_object(stream_,storagevector_aref(obj,info->index));
   info->index++;
 }
 
-local void pr_array_elt_bvector (const object* stream_,object obj,
+local void pr_array_elt_bvector (const object* stream_, object obj,
                                  pr_array_info_t* info) { # simple-bit-vector
   # print sub-bit-vector:
   pr_sbvector_ab(stream_,obj,info->index,info->count);
   info->index += info->count;
 }
 
-local void pr_array_elt_string (const object* stream_,object obj,
+local void pr_array_elt_string (const object* stream_, object obj,
                                   pr_array_info_t* info) { # simple-string
   # print sub-string:
   pr_sstring_ab(stream_,obj,info->index,info->count);
@@ -7693,7 +7693,7 @@ local void pr_array_recursion (pr_array_locals_t* locals, uintL depth) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_array (const object* stream_,object obj) {
+local void pr_array (const object* stream_, object obj) {
   # query *PRINT-ARRAY* :
   if (test_value(S(print_array)) || test_value(S(print_readably))) {
     # print obj elementwise:
@@ -7802,7 +7802,7 @@ local void pr_sharp_dot (const object* stream_,object obj) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_instance (const object* stream_,object obj) {
+local void pr_instance (const object* stream_, object obj) {
   if (test_value(S(compiling))) { # compiling - use MAKE-LOAD-FORM (clos.lisp)
     pushSTACK(obj); # save obj
     pushSTACK(obj); funcall(S(make_init_form),1);
@@ -7881,7 +7881,7 @@ local void pr_structure_external (const object* stream_, object structure,
 # > stream: stream
 # < stream: stream   :-) (great documentation, right? )
 # can trigger GC
-local void pr_structure (const object* stream_,object structure) {
+local void pr_structure (const object* stream_, object structure) {
   LEVEL_CHECK;
   # determine type of the structure (ref. TYPE-OF):
   {
@@ -8076,7 +8076,7 @@ local void pr_hex6_obj (const object* stream_, object obj, object string) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_machine (const object* stream_,object obj) {
+local void pr_machine (const object* stream_, object obj) {
   # #<ADDRESS #x...>
   CHECK_PRINT_READABLY(obj);
   pr_hex6_obj(stream_,obj,O(printstring_address));
@@ -8090,7 +8090,7 @@ local void pr_machine (const object* stream_,object obj) {
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_system (const object* stream_,object obj) {
+local void pr_system (const object* stream_, object obj) {
   CHECK_PRINT_READABLY(obj);
   if (eq(obj,unbound)) # #<UNBOUND>
     write_sstring_case(stream_,O(printstring_unbound));
@@ -8112,7 +8112,7 @@ local void pr_system (const object* stream_,object obj) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void pr_readlabel (const object* stream_,object obj) {
+local void pr_readlabel (const object* stream_, object obj) {
   CHECK_PRINT_READABLY(obj);
   # #<READ-LABEL ...>
   UNREADABLE_START;
@@ -8135,7 +8135,7 @@ local void pr_readlabel (const object* stream_,object obj) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void pr_framepointer (const object* stream_,object obj) {
+local void pr_framepointer (const object* stream_, object obj) {
   CHECK_PRINT_READABLY(obj);
   # #<FRAME-POINTER #x...>
   pr_hex6_obj(stream_,obj,O(printstring_frame_pointer));
@@ -8285,7 +8285,7 @@ local void pr_record_descr (const object* stream_, object obj,
 # > stream: stream
 # < stream: stream
 # can trigger GC
-local void pr_orecord (const object* stream_,object obj) {
+local void pr_orecord (const object* stream_, object obj) {
   switch (Record_type(obj)) {
 #ifndef TYPECODES
     case Rectype_string: case Rectype_Sstring: case Rectype_Imm_Sstring:
@@ -8938,7 +8938,7 @@ local void pr_other_obj (const object* stream_, object other, object string) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void pr_subr (const object* stream_,object obj) {
+local void pr_subr (const object* stream_, object obj) {
   # #<SYSTEM-FUNCTION name> bzw. #<ADD-ON-SYSTEM-FUNCTION name>
   # bzw. #.(SYSTEM::%FIND-SUBR 'name)
   if (test_value(S(print_readably))) {
@@ -8976,7 +8976,7 @@ local void pr_subr (const object* stream_,object obj) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void pr_fsubr (const object* stream_,object obj) {
+local void pr_fsubr (const object* stream_, object obj) {
   # #<SPECIAL-OPERATOR name>
   CHECK_PRINT_READABLY(obj);
   pr_other_obj(stream_,TheFsubr(obj)->name,O(printstring_fsubr));
@@ -8990,7 +8990,7 @@ local void pr_fsubr (const object* stream_,object obj) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void pr_closure (const object* stream_,object obj) {
+local void pr_closure (const object* stream_, object obj) {
   if (simple_bit_vector_p(Atype_8Bit,TheClosure(obj)->clos_codevec)) {
     # compiled Closure
     pr_cclosure(stream_,obj);
@@ -9030,7 +9030,7 @@ local void pr_closure (const object* stream_,object obj) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void pr_cclosure (const object* stream_,object obj) {
+local void pr_cclosure (const object* stream_, object obj) {
   # query *PRINT-CLOSURE* :
   if (test_value(S(print_closure)) || test_value(S(print_readably))) {
     # *PRINT-CLOSURE /= NIL -> print in re-readable form #Y(...)
@@ -9077,7 +9077,7 @@ local void pr_cclosure (const object* stream_,object obj) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void pr_cclosure_lang (const object* stream_,object obj) {
+local void pr_cclosure_lang (const object* stream_, object obj) {
   LEVEL_CHECK;
   {
     pushSTACK(obj); # save Closure
@@ -9107,7 +9107,7 @@ local void pr_cclosure_lang (const object* stream_,object obj) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void pr_cclosure_codevector (const object* stream_,object codevec) {
+local void pr_cclosure_codevector (const object* stream_, object codevec) {
   LEVEL_CHECK;
   {
     pushSTACK(codevec); # save Codevector
@@ -9184,7 +9184,7 @@ local void pr_cclosure_codevector (const object* stream_,object codevec) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-local void pr_stream (const object* stream_,object obj) {
+local void pr_stream (const object* stream_, object obj) {
   CHECK_PRINT_READABLY(obj);
   pushSTACK(obj); # save Stream
   var object* obj_ = &STACK_0; # and memorize, where it is

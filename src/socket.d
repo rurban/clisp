@@ -949,7 +949,7 @@ void print_he (struct hostent he) {
 #   list of h_addr_list
 #   addrtype
 # can trigger GC
-local void hostent_to_stack (struct hostent *he,char *buf) {
+local void hostent_to_stack (struct hostent *he, char *buf) {
   var object tmp;
   pushSTACK(ascii_to_string(he->h_name));
   ARR_TO_LIST(tmp,(he->h_aliases[ii] != NULL),

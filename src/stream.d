@@ -212,7 +212,7 @@
 # > caller: Aufrufer (ein Symbol)
 # > stream: Stream
   nonreturning_function(global, fehler_illegal_streamop, (object caller, object stream));
-global void fehler_illegal_streamop(object caller,object stream) {
+global void fehler_illegal_streamop (object caller, object stream) {
   pushSTACK(stream); # STREAM-ERROR slot STREAM
   pushSTACK(stream);
   pushSTACK(caller);
@@ -224,12 +224,12 @@ local object rd_by_error (object stream) {
   fehler_illegal_streamop(S(read_byte),stream);
 }
 
-local uintL rd_by_array_error (const object* stream_,const object* bytearray_,
+local uintL rd_by_array_error (const object* stream_, const object* bytearray_,
                                uintL start, uintL len) {
   fehler_illegal_streamop(S(read_byte),*stream_);
 }
 
-local uintL rd_by_array_dummy (const object* stream_,const object* bytearray_,
+local uintL rd_by_array_dummy (const object* stream_, const object* bytearray_,
                                uintL start, uintL len) {
   var uintL end = start + len;
   var uintL index = start;
@@ -251,12 +251,12 @@ local void wr_by_error (object stream, object obj) {
   fehler_illegal_streamop(S(write_byte),stream);
 }
 
-local void wr_by_array_error (const object* stream_,const object* bytearray_,
+local void wr_by_array_error (const object* stream_, const object* bytearray_,
                               uintL start, uintL len) {
   fehler_illegal_streamop(S(write_byte),*stream_);
 }
 
-local void wr_by_array_dummy (const object* stream_,const object* bytearray_,
+local void wr_by_array_dummy (const object* stream_, const object* bytearray_,
                               uintL start, uintL len) {
   var uintL end = start + len;
   var uintL index = start;
@@ -279,12 +279,12 @@ local object pk_ch_dummy (const object* stream_) {
   return newch;
 }
 
-local uintL rd_ch_array_error (const object* stream_,const object* chararray_,
+local uintL rd_ch_array_error (const object* stream_, const object* chararray_,
                                uintL start, uintL len) {
   fehler_illegal_streamop(S(read_char),*stream_);
 }
 
-local uintL rd_ch_array_dummy (const object* stream_,const object* chararray_,
+local uintL rd_ch_array_dummy (const object* stream_, const object* chararray_,
                                uintL start, uintL len) {
   var uintL end = start + len;
   var uintL index = start;
@@ -304,12 +304,12 @@ local void wr_ch_error (const object* stream_, object obj) {
   fehler_illegal_streamop(S(write_char),*stream_);
 }
 
-local void wr_ch_array_error (const object* stream_,const object* chararray_,
+local void wr_ch_array_error (const object* stream_, const object* chararray_,
                               uintL start, uintL len) {
   fehler_illegal_streamop(S(write_char),*stream_);
 }
 
-local void wr_ch_array_dummy (const object* stream_,const object* chararray_,
+local void wr_ch_array_dummy (const object* stream_, const object* chararray_,
                               uintL start, uintL len) {
   var uintL end = start + len;
   var uintL index = start;
@@ -429,7 +429,7 @@ global object read_byte (object stream) {
 # > uintL len: length of byte sequence to be filled
 # < uintL result: number of bytes that have been filled
 # can trigger GC
-global uintL read_byte_array (const object* stream_,const object* bytearray_,
+global uintL read_byte_array (const object* stream_, const object* bytearray_,
                               uintL start, uintL len) {
   if (len==0)
     return 0;
@@ -476,7 +476,7 @@ global void write_byte (object stream, object byte) {
 # > object bytearray: simple-bit-vector (on the STACK)
 # > uintL start: start index of byte sequence to be written
 # > uintL len: length of byte sequence to be written
-global void write_byte_array (const object* stream_,const object* bytearray_,
+global void write_byte_array (const object* stream_, const object* bytearray_,
                               uintL start, uintL len) {
   if (len==0)
     return;
@@ -591,7 +591,7 @@ global object peek_char (const object* stream_) {
 # > uintL len: length of character sequence to be filled
 # < uintL result: number of characters that have been filled
 # can trigger GC
-global uintL read_char_array (const object* stream_,const object* chararray_,
+global uintL read_char_array (const object* stream_, const object* chararray_,
                               uintL start, uintL len) {
   if (len==0)
     return 0;
@@ -777,7 +777,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 
 # Fehler, wenn aus einem obskuren Grunde ein WRITE nicht gehen sollte:
 nonreturning_function(local,fehler_unwritable,(object caller, object stream));
-local void fehler_unwritable (object caller,object stream) {
+local void fehler_unwritable (object caller, object stream) {
   pushSTACK(stream); # FILE-ERROR slot PATHNAME
   pushSTACK(stream);
   pushSTACK(caller);
@@ -787,7 +787,7 @@ local void fehler_unwritable (object caller,object stream) {
 # Fehler, wenn ein Objekt kein Character ist:
 # fehler_wr_char(stream,obj);
 nonreturning_function(local, fehler_wr_char, (object stream, object obj));
-local void fehler_wr_char (object stream,object obj) {
+local void fehler_wr_char (object stream, object obj) {
   pushSTACK(obj);          # TYPE-ERROR slot DATUM
   pushSTACK(S(character)); # TYPE-ERROR slot EXPECTED-TYPE
   pushSTACK(stream);
@@ -798,7 +798,7 @@ local void fehler_wr_char (object stream,object obj) {
 # Fehler, wenn ein Objekt kein Integer ist:
 # fehler_wr_integer(stream,obj);
 nonreturning_function(local, fehler_wr_integer, (object stream, object obj));
-local void fehler_wr_integer (object stream,object obj) {
+local void fehler_wr_integer (object stream, object obj) {
   pushSTACK(obj);        # TYPE-ERROR slot DATUM
   pushSTACK(S(integer)); # TYPE-ERROR slot EXPECTED-TYPE
   pushSTACK(stream);
@@ -809,7 +809,7 @@ local void fehler_wr_integer (object stream,object obj) {
 # Fehler, wenn ein Integer nicht im passenden Bereich ist:
 # fehler_bad_integer(stream,obj);
 nonreturning_function(local, fehler_bad_integer, (object stream, object obj));
-local void fehler_bad_integer (object stream,object obj) {
+local void fehler_bad_integer (object stream, object obj) {
   pushSTACK(stream); # STREAM-ERROR slot STREAM
   pushSTACK(stream);
   pushSTACK(obj);
@@ -4163,7 +4163,7 @@ local void low_close_handle (object stream, object handle) {
 # Subroutines for the Input side
 # ------------------------------
 
-local object bitbuff_iu_I (object bitbuffer,uintL bitsize,uintL bytesize) {
+local object bitbuff_iu_I (object bitbuffer, uintL bitsize, uintL bytesize) {
   # normalise number in bitbuffer:
   var uintB* bitbufferptr = &TheSbvector(bitbuffer)->data[bytesize-1];
   *bitbufferptr &= (bit(((bitsize-1)%8)+1)-1); # High byte maskieren
@@ -4336,8 +4336,8 @@ typedef object rd_by_ix_I (object stream, uintL bitsize, uintL bytesize);
 # stream.
 typedef void wr_by_aux_ix (object stream, uintL bitsize, uintL bytesize);
 
-local void bitbuff_ixu_sub (object stream,object bitbuffer,
-                            uintL bitsize,uintL bytesize,object obj) {
+local void bitbuff_ixu_sub (object stream, object bitbuffer,
+                            uintL bitsize, uintL bytesize, object obj) {
   # check obj:
   if (!integerp(obj))
     fehler_wr_integer(stream,obj);
@@ -4418,8 +4418,8 @@ local void wr_by_ixu_sub (object stream, object obj, wr_by_aux_ix* finisher) {
   (*finisher)(stream,bitsize,bytesize);
 }
 
-local void bitbuff_ixs_sub (object stream,object bitbuffer,
-                            uintL bitsize,uintL bytesize,object obj) {
+local void bitbuff_ixs_sub (object stream, object bitbuffer,
+                            uintL bitsize, uintL bytesize, object obj) {
   # check obj:
   if (!integerp(obj))
     fehler_wr_integer(stream,obj);
@@ -5847,7 +5847,7 @@ local void fill_pseudofuns_unbuffered (object stream,
 # < ergebnis: File-Handle-Stream, Handle_{input,output}_init noch aufzurufen
 # < STACK: aufgeräumt
 # can trigger GC
-local object make_unbuffered_stream (uintB type,direction_t direction,
+local object make_unbuffered_stream (uintB type, direction_t direction,
                                      const decoded_eltype* eltype,
                                      bool handle_tty) {
   # Flags:
@@ -7239,8 +7239,8 @@ local signean listen_byte_ia8_buffered (object stream) {
 
 # UP für WRITE-BYTE auf File-Streams für Integers, Art a :
 # Schreibt den Bitbuffer-Inhalt aufs File.
-local void wr_by_aux_ia_buffered (object stream,uintL bitsize,uintL bytesize) {
-  var uintB* bitbufferptr=TheSbvector(TheStream(stream)->strm_bitbuffer)->data;
+local void wr_by_aux_ia_buffered (object stream, uintL bitsize, uintL bytesize) {
+  var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
   #if 0 # equivalent, but slow
   var uintL count;
   dotimespL(count,bytesize, {
@@ -7272,7 +7272,7 @@ local void wr_by_aux_ia_buffered (object stream,uintL bitsize,uintL bytesize) {
 
 # UP für WRITE-BYTE auf File-Streams für Integers, Art b :
 # Schreibt den Bitbuffer-Inhalt aufs File.
-local void wr_by_aux_ib_buffered (object stream,uintL bitsize,uintL bytesize) {
+local void wr_by_aux_ib_buffered (object stream, uintL bitsize, uintL bytesize) {
   var uintL bitshift = BufferedStream_bitindex(stream);
   var uint16 bit_akku = (uint16)(TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0])<<bitshift;
   var uintL count = bitsize;
@@ -7297,7 +7297,7 @@ local void wr_by_aux_ib_buffered (object stream,uintL bitsize,uintL bytesize) {
 
 # UP für WRITE-BYTE auf File-Streams für Integers, Art c :
 # Schreibt den Bitbuffer-Inhalt aufs File.
-local void wr_by_aux_ic_buffered (object stream,uintL bitsize,uintL bytesize) {
+local void wr_by_aux_ic_buffered (object stream, uintL bitsize, uintL bytesize) {
   var uintB* bitbufferptr=TheSbvector(TheStream(stream)->strm_bitbuffer)->data;
   var uintL bitshift = BufferedStream_bitindex(stream);
   var uintL count = bitsize;
@@ -7591,7 +7591,7 @@ local void fill_pseudofuns_buffered (object stream,
 #           for eltype.size<8 also eofposition still to be to determined
 # < STACK: cleaned up
 # can trigger GC
-local object make_buffered_stream (uintB type,direction_t direction,
+local object make_buffered_stream (uintB type, direction_t direction,
                                    const decoded_eltype* eltype,
                                    bool handle_regular,
                                    bool handle_blockpositioning) {
@@ -7681,7 +7681,7 @@ local object make_buffered_stream (uintB type,direction_t direction,
 # < ergebnis: File-Stream (oder evtl. File-Handle-Stream)
 # < STACK: aufgeräumt
 # can trigger GC
-global object make_file_stream (direction_t direction,bool append_flag,
+global object make_file_stream (direction_t direction, bool append_flag,
                                 bool handle_fresh) {
   var decoded_eltype eltype;
   var signean buffered;
@@ -15621,7 +15621,7 @@ local object test_socket_stream(obj,check_open)
 
 # check whether the object is a socket (socket-stream or socket-server)
 # and return its socket handle
-local SOCKET socket_handle (object obj,bool check_open) {
+local SOCKET socket_handle (object obj, bool check_open) {
   if (socket_server_p(obj)) {
     if (check_open) test_socket_server(obj,true);
     return TheSocket(TheSocketServer(obj)->socket_handle);
@@ -15632,7 +15632,7 @@ local SOCKET socket_handle (object obj,bool check_open) {
 # set the appropriate fd_sets for the socket,
 # either a socket-server, a socket-stream or a (socket . direction)
 # see socket_status() for details
-local void handle_set (object socket,fd_set *readfds,fd_set *writefds,
+local void handle_set (object socket, fd_set *readfds, fd_set *writefds,
                        fd_set *errorfds) {
   object sock = (consp(socket) ? Car(socket) : socket);
   direction_t dir = (consp(socket)?check_direction(Cdr(socket)):DIRECTION_IO);
@@ -15649,7 +15649,7 @@ local void handle_set (object socket,fd_set *readfds,fd_set *writefds,
 # check the appropriate fd_sets for the socket,
 # either a socket-server, a socket-stream or a (socket . direction)
 # see socket_status() for details
-local object handle_isset (object socket,fd_set *readfds,fd_set *writefds,
+local object handle_isset (object socket, fd_set *readfds, fd_set *writefds,
                            fd_set *errorfds) {
   object sock = (consp(socket) ? Car(socket) : socket);
   direction_t dir = (consp(socket)?check_direction(Cdr(socket)):DIRECTION_IO);
