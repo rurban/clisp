@@ -1,3 +1,8 @@
+1999-05-12  Sam Steingold  <sds@goems.com>
+
+	* loop.lsp (expand-loop): put `then-form' into `stepafter' even
+	when it's the same constant as `first-form'.
+
 1999-05-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * aclocal.m4 (CL_SIGNAL_UNBLOCK, CL_SIGNAL_BLOCK_OTHERS,
