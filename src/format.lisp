@@ -104,7 +104,7 @@
           param                 ; parameter of a directive may begin
           (incf index)
           (when (>= index (length control-string))
-            (format-error control-string index (errorstring))
+            (format-error 'error control-string index (errorstring))
             (go string-ended))
           (setq ch (schar control-string index))
           (when (digit-char-p ch) (go num-param))
@@ -125,7 +125,7 @@
           (multiple-value-setq (intparam index)
             (parse-integer control-string :start index :junk-allowed t))
           (unless intparam
-            (format-error control-string index
+            (format-error 'error control-string index
                           (TEXT "~A must introduce a number.")
                           ch))
           (push intparam (csd-parm-list newcsd))
@@ -134,7 +134,7 @@
           quote-param           ; Quote-Parameter-Treatment
           (incf index)
           (when (>= index (length control-string))
-            (format-error control-string index
+            (format-error 'error control-string index
               (TEXT "The control string terminates in the middle of a parameter."))
             (go string-ended))
           (setq ch (schar control-string index))
@@ -144,7 +144,7 @@
           (incf index)
           param-ok-2            ; Parameter OK
           (when (>= index (length control-string))
-            (format-error control-string index (errorstring))
+            (format-error 'error control-string index (errorstring))
             (go string-ended))
           (setq ch (schar control-string index))
           (case ch
@@ -164,7 +164,7 @@
           passed-modifier       ; after : or @
           (incf index)
           (when (>= index (length control-string))
-            (format-error control-string index (errorstring))
+            (format-error 'error control-string index (errorstring))
             (go string-ended))
           (setq ch (schar control-string index))
           (case ch
@@ -209,14 +209,14 @@
                            (#\! . FORMAT-CALL))))))
             (if directive-name
               (setf (csd-data newcsd) directive-name)
-              (format-error control-string index
+              (format-error 'error control-string index
                 (TEXT "Non-existent format directive"))))
           (incf index)
           (case ch
             (#\/
              (let* ((start index)
                     (end (or (position #\/ control-string :start start)
-                             (format-error control-string index
+                             (format-error 'error control-string index
                                (TEXT "Closing '/' is missing"))))
                     (pos (position #\: control-string :start start :end end))
                     (name (string-upcase
@@ -230,7 +230,7 @@
                                     (string-upcase
                                       (subseq control-string start pos))))
                               (or (find-package packname)
-                                  (format-error control-string index
+                                  (format-error 'error control-string index
                                     (TEXT "There is no package with name ~S")
                                     packname)))
                             *common-lisp-user-package*)))
@@ -248,18 +248,18 @@
                (setf (csd-data newcsd) 'FORMAT-LOGICAL-BLOCK)))
             (( #\) #\] #\} #\> )
              (unless stop-at
-               (format-error control-string index
+               (format-error 'error control-string index
                  (TEXT "The closing format directive '~A' does not have a corresponding opening one.")
                  ch))
              (unless (eql ch stop-at)
-               (format-error control-string index
+               (format-error 'error control-string index
                  (TEXT "The closing format directive '~A' does not match the corresponding opening one. It should read '~A'.")
                  ch stop-at))
              (setf (csd-clause-chain last-separator-csd) csdl)
              (go end))
             (#\;
              (unless (or (eql stop-at #\]) (eql stop-at #\>))
-               (format-error control-string index
+               (format-error 'error control-string index
                  (TEXT "The ~~; format directive is not allowed at this point.")))
              (setf (csd-clause-chain last-separator-csd) csdl)
              (setq last-separator-csd newcsd))
@@ -267,7 +267,7 @@
              (setf (csd-type newcsd) 0)
              (if (csd-colon-p newcsd)
                (if (csd-atsign-p newcsd)
-                 (format-error control-string index
+                 (format-error 'error control-string index
                    (TEXT "The ~~newline format directive cannot take both modifiers."))
                  nil) ; ~:<newline> -> ignore Newline, retain Whitespace
                (progn
@@ -284,7 +284,7 @@
 
       string-ended
       (when stop-at
-        (format-error control-string index
+        (format-error 'error control-string index
           (TEXT "An opening format directive is never closed; expecting '~A'.")
           stop-at))
 
@@ -300,29 +300,38 @@
 (defvar *FORMAT-NEXT-ARGLIST*) ; pointer to next sublist in ~:{ iteration
 (defvar *FORMAT-UP-AND-OUT* nil) ; reason for up-and-out
 
-;; (format-error control-string errorpos errorcode . arguments)
-;; signals an Error, that occurred in FORMAT. The position in the
-;; Control-string is marked with an arrow.
-(defun format-error (control-string errorpos errorstring &rest arguments)
-  (when control-string
-    (unless errorpos (setq errorpos (csd-cs-index (car *FORMAT-CSDL*))))
-    (setq errorstring
-      (string-concat errorstring "~%"
-        (TEXT "Current point in control string:")))
-    (let ((pos1 0) (pos2 0))
-      (declare (simple-string errorstring) (fixnum pos1 pos2))
-      (loop
-        (setq pos2 (or (position #\Newline control-string :start pos1)
-                       (length control-string)))
-        (setq errorstring (string-concat errorstring "~%  ~A"))
-        (setq arguments
-          (nconc arguments (list (substring control-string pos1 pos2))))
-        (when (<= pos1 errorpos pos2)
-          (setq errorstring (string-concat errorstring "~%~VT" "|"))
-          (setq arguments (nconc arguments (list (+ (- errorpos pos1) 2)))))
-        (when (= pos2 (length control-string)) (return))
-        (setq pos1 (+ pos2 1)))))
-  (apply #'error-of-type 'error errorstring arguments))
+;; (format-error type {keyword value}* control-string errorpos errorcode . arguments)
+;; signals an Error of the given type, that occurred in FORMAT. The position
+;; in the Control-string is marked with an arrow.
+(defun format-error (type &rest arguments)
+  (let ((type-initargs '()))
+    (loop
+      (unless (keywordp (car arguments)) (return))
+      (push (pop arguments) type-initargs)
+      (push (pop arguments) type-initargs))
+    (let* ((control-string (pop arguments))
+           (errorpos (pop arguments))
+           (errorstring (pop arguments)))
+      (when control-string
+        (unless errorpos (setq errorpos (csd-cs-index (car *FORMAT-CSDL*))))
+        (setq errorstring
+          (string-concat errorstring "~%"
+            (TEXT "Current point in control string:")))
+        (let ((pos1 0) (pos2 0))
+          (declare (simple-string errorstring) (fixnum pos1 pos2))
+          (loop
+            (setq pos2 (or (position #\Newline control-string :start pos1)
+                           (length control-string)))
+            (setq errorstring (string-concat errorstring "~%  ~A"))
+            (setq arguments
+              (nconc arguments (list (substring control-string pos1 pos2))))
+            (when (<= pos1 errorpos pos2)
+              (setq errorstring (string-concat errorstring "~%~VT" "|"))
+              (setq arguments (nconc arguments (list (+ (- errorpos pos1) 2)))))
+            (when (= pos2 (length control-string)) (return))
+            (setq pos1 (+ pos2 1)))))
+      (apply #'error-of-type
+             type (nreconc type-initargs (list* errorstring arguments))))))
 
 ;;; ---------------------------------------------------------------------------
 
@@ -383,7 +392,7 @@
 ;; list *FORMAT-NEXT-ARG*.
 (defun next-arg ()
   (if (atom *FORMAT-NEXT-ARG*)
-    (format-error *FORMAT-CS* nil
+    (format-error 'error *FORMAT-CS* nil
       (TEXT "There are not enough arguments left for this format directive."))
     (pop *FORMAT-NEXT-ARG*)))
 
@@ -466,7 +475,8 @@
 ;; prints arg as old-Roman number to stream, e.g. 4 as IIII.
 (defun format-old-roman (arg stream)
   (unless (and (integerp arg) (<= 1 arg 4999))
-    (format-error *FORMAT-CS* nil
+    (format-error 'type-error :datum arg :expected-type '(INTEGER 1 4999)
+      *FORMAT-CS* nil
       (TEXT "The ~~:@R format directive requires an integer in the range 1 - 4999, not ~S")
       arg))
   (do ((charlistr  '(#\M  #\D #\C #\L #\X #\V #\I) (cdr charlistr))
@@ -481,7 +491,8 @@
 ;; prints arg as new-Roman number to stream, e.g. 4 as IV.
 (defun format-new-roman (arg stream)
   (unless (and (integerp arg) (<= 1 arg 3999))
-    (format-error *FORMAT-CS* nil
+    (format-error 'type-error :datum arg :expected-type '(INTEGER 1 3999)
+      *FORMAT-CS* nil
       (TEXT "The ~~@R format directive requires an integer in the range 1 - 3999, not ~S")
       arg))
   (do ((charlistr       '(#\M #\D #\C #\L #\X #\V #\I) (cdr charlistr))
@@ -537,7 +548,8 @@
       (when (minusp arg) (write-string "minus " stream) (setq arg (- arg)))
       (labels ((blocks1000 (illions-list arg) ; decomposition in 1000er-Blocks
                  (when (null illions-list)
-                   (format-error *FORMAT-CS* nil
+                   (format-error 'type-error :datum arg :expected-type '(INTEGER 0 999999999999999999999999999999999999999999999999999999999999999999)
+                     *FORMAT-CS* nil
                      (TEXT "The argument for the ~~R format directive is too large.")))
                  (multiple-value-bind (thousands small) (truncate arg 1000)
                    (when (> thousands 0)
@@ -1189,7 +1201,8 @@
         (if colon-modifier
           (format-old-roman arg stream)
           (format-new-roman arg stream))
-        (format-error *FORMAT-CS* nil
+        (format-error 'type-error :datum arg :expected-type 'INTEGER
+          *FORMAT-CS* nil
           (TEXT "The ~~R and ~~:R format directives require an integer argument, not ~S")
           arg))
       (if colon-modifier
@@ -1208,7 +1221,8 @@
 (defformat-simple format-character (stream colon-modifier atsign-modifier)
                   (arg)
   (unless (characterp arg)
-    (format-error *FORMAT-CS* nil
+    (format-error 'type-error :datum arg :type 'CHARACTER
+      *FORMAT-CS* nil
       (TEXT "The ~~C format directive requires a character argument, not ~S")
       arg))
   (if (not colon-modifier)
@@ -1427,11 +1441,13 @@
     (let ((*FORMAT-CS* nil))
       (apply node stream arglistarg)))) ; wholelistarg??
 (defun format-indirection-cserror (csarg)
-  (format-error *FORMAT-CS* nil
+  (format-error 'type-error :datum csarg :expected-type '(OR STRING FUNCTION)
+    *FORMAT-CS* nil
     (TEXT "The control string argument for the ~~? format directive is invalid: ~S")
     csarg))
 (defun format-indirection-lerror (arguments)
-  (format-error *FORMAT-CS* nil
+  (format-error 'type-error :datum arguments :expected-type 'LIST
+    *FORMAT-CS* nil
     (TEXT "The argument list argument for the ~~? format directive is invalid: ~S")
     arguments))
 
@@ -1481,11 +1497,12 @@
         (setq *FORMAT-CSDL* (cdr *FORMAT-CSDL*))
         (format-interpret stream 'FORMAT-CONDITIONAL-END)
         (unless (null (csd-clause-chain (car *FORMAT-CSDL*)))
-          (format-error *FORMAT-CS* nil
+          (format-error 'error *FORMAT-CS* nil
             (TEXT "The ~~; format directive is not allowed at this point."))))
       (let ((index (or prefix (next-arg))))
         (unless (integerp index)
-          (format-error *FORMAT-CS* nil
+          (format-error 'type-error :datum index :expected-type 'INTEGER
+            *FORMAT-CS* nil
             (TEXT "The ~~[ parameter must be an integer, not ~S")
             index))
         (dotimes (i (if (minusp index) most-positive-fixnum index))
@@ -1499,7 +1516,7 @@
   (format-skip-to-end)) ; skip to the end of ~[...~]-Directive
 
 (defun format-conditional-error ()
-  (format-error *FORMAT-CS* nil
+  (format-error 'error *FORMAT-CS* nil
     (TEXT "The ~~[ format directive cannot take both modifiers.")))
 
 ; ~{, CLTL p.403-404, CLtL2 p. 602-604
@@ -1521,7 +1538,8 @@
            (arg-list-rest (if (not atsign-modifier)
                             (let ((arg (next-arg)))
                               (unless (listp arg)
-                                (format-error *FORMAT-CS* nil
+                                (format-error 'type-error :datum arg :expected-type 'LIST
+                                  *FORMAT-CS* nil
                                   (TEXT "The ~~{ format directive requires a list argument, not ~S")
                                   arg))
                               arg))))
@@ -1647,7 +1665,7 @@
 
 ;; CLtL2 p. 762-763
 (defun format-logical-block (stream colon-modifier atsign-modifier)
-  ;; (format-error *FORMAT-CS* nil (TEXT "~~<...~~:> not implemented yet"))
+  ;; (format-error 'error *FORMAT-CS* nil (TEXT "~~<...~~:> not implemented yet"))
   (format-justification stream colon-modifier atsign-modifier))
 
 ;; parse the CSDL and return the following values
@@ -1673,7 +1691,7 @@
              (setq prefix (subseq *FORMAT-CS* (csd-cs-index (car csdl))
                                   (csd-data (car csdl))))
              (pop csdl))
-            (t (format-error *FORMAT-CS* (csd-cs-index (car csdl))
+            (t (format-error 'error *FORMAT-CS* (csd-cs-index (car csdl))
                  (TEXT "Prefix for logical block must be constant")))))
     (setq body-csdl (cdr csdl))
     (setq temp (csd-clause-chain (car csdl)))
@@ -1685,7 +1703,7 @@
              (pop temp))))
     (unless (and (eql (csd-type (car temp)) 2)
                  (eq (csd-data (car temp)) 'FORMAT-JUSTIFICATION-END))
-      (format-error *FORMAT-CS* (csd-cs-index (car temp))
+      (format-error 'error *FORMAT-CS* (csd-cs-index (car temp))
         (TEXT "Logical block suffix must be constant")))
     (setq add-fill-p (csd-atsign-p (car temp)))
     (values prefix suffix per-line-p body-csdl add-fill-p temp)))
@@ -2037,7 +2055,7 @@
                      (arglist (mapcar #'formatter-arg (csd-parm-list csd))))
                  (labels ((simple-arglist (n)
                             (unless (<= (length arglist) n)
-                              (format-error *format-cs* nil
+                              (format-error 'error *format-cs* nil
                                  (TEXT "Too many arguments for this format directive")))
                             (setq arglist
                                   (append arglist
@@ -2276,7 +2294,7 @@
                                      (SETQ ,*args* (CDR ,*args*)))
                                   forms)
                             (unless (null (csd-clause-chain (car *format-csdl*)))
-                              (format-error *format-cs* nil
+                              (format-error 'error *format-cs* nil
                                 (TEXT "The ~~; format directive is not allowed at this point."))))
                           (progn
                             (simple-arglist 1)
@@ -2441,7 +2459,7 @@
                                             body-csdl add-fill last-csdl)
                           (format-logical-block-parse *FORMAT-CSDL*)
                        ;(when add-fill
-                       ;  (format-error *FORMAT-CS*
+                       ;  (format-error 'error *FORMAT-CS*
                        ;      (csd-cs-index (car *FORMAT-CSDL*))
                        ;    (TEXT "Error: ~~:@> not implemented")))
                        (setq *FORMAT-CSDL* body-csdl)
