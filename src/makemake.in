@@ -1676,7 +1676,8 @@ if [ $HSYS = win32msvc ] ; then
     echol "MSVCDIR = d:/msdev"
   fi
   if [ $COMPILER = msvc5 ] ; then
-    echol "MSVCDIR = d:/devstudio/vc"
+    echol "#MSVCDIR = d:/devstudio/vc"
+    echol "MSVCDIR = \"C:/Program Files/Microsoft Visual Studio/VC98\""
   fi
 fi
 if [ $HSYS = win32bc ] ; then
@@ -1723,7 +1724,11 @@ echol "CP = ${CP}"
 echol "LN_S = ${LN_S}"
 echol "MV = ${MV}"
 echol "CAT = ${CAT}"
-echol "TOUCH = ${TOUCH}"
+if [ $HOS = win32 ] ; then
+  echol "TOUCH = -${TOUCH}"
+else
+  echol "TOUCH = ${TOUCH}"
+fi
 echol "GREP = ${GREP}"
 if [ $HOS = acorn ] ; then
   echol "SED = sed"
@@ -2494,11 +2499,11 @@ for f in libiconv; do
     echol
   fi
   if [ $HOS = win32 ] ; then
-    echol "iconv.h : ${SRCTOPDIR_M}$f${NEXT_M}iconv.h"
-    echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}iconv.h iconv.h"
+    echol "iconv.h : ${SRCTOPDIR_M}$f${NEXT_M}include${NEXT_M}iconv.h"
+    echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}include${NEXT_}iconv.h iconv.h"
     echol
-    echol "iconv.lib : ${SRCTOPDIR_M}$f${NEXT_M}iconv.lib"
-    echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}iconv.lib iconv.lib"
+    echol "iconv.lib : ${SRCTOPDIR_M}$f${NEXT_M}src${NEXT_M}iconv.lib"
+    echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}src${NEXT_}iconv.lib iconv.lib"
     echol
   fi
 done
@@ -2548,7 +2553,7 @@ else
   fi
 fi
 
-echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_FFILIBS} ${XCL_READLINELIB} ${XCL_GETTEXTLIB} ${XCL_TERMCAPLIB} ${XCL_SIGSEGVLIB}${SYSLIBS} ${XCL_DATA}"
+echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_FFILIBS} ${XCL_READLINELIB} ${XCL_GETTEXTLIB} ${XCL_TERMCAPLIB} ${XCL_ICONVLIB} ${XCL_SIGSEGVLIB}${SYSLIBS} ${XCL_DATA}"
 if [ $HOS != os2 -a $HOS != win32 ] ; then
   if [ $XCC_GCC = true -a -n "$SOLARIS_LINKING" ] ; then
     # Dynamically linking on Solaris 2.[23] is a pain.
@@ -2869,7 +2874,11 @@ echol "READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README
 echol "MANUALS = clisp.1 clisp.html \$(TXTFILES) impnotes.html clisp.gif${manual_readline}"
 echol
 echol "impnotes.html : ${SRCDIR}_impnotes.html"
-echotab "sed -e 's,href=\"CLHSROOT/,href=\"${hyperspec}/,' ${SRCDIR}_impnotes.html > impnotes.html"
+if [ $HOS = win32 ] ; then
+  echotab "\$(CP) ${SRCDIR}_impnotes.html impnotes.html"
+else
+  echotab "sed -e 's,href=\"CLHSROOT/,href=\"${hyperspec}/,' ${SRCDIR}_impnotes.html > impnotes.html"
+fi
 echol
 # On Unix, clisp.dvi must be built by "make all", because "make install" needs
 # it and "make install" must not create files in the current directory, for
@@ -2946,7 +2955,7 @@ for f in $TXT_FILES ; do
       # On Win32, no grep installed. The blank lines don't hurt.
     fi
   fi
-  if [ $f = clisp.html ] ; then
+  if [ $f = clisp.html -a $HOS != win32 ] ; then
     line=$line" | sed -e 's,HREF=\"CLHSROOT/,HREF=\"${hyperspec}/,'"
   fi
   if [ $f = distmakefile ] ; then
@@ -3338,6 +3347,12 @@ if [ $HOS = win32 ] ; then
   echol "# Distribution, to be executed on the NFS host (a Unix host)."
   echol "distrib : force"
   echotab "nroff -man clisp.1 > clisp.man"
+  if [ $HOS = win32 ] ; then
+    for f in impnotes.html clisp.html ; do
+      echotab "sed -e 's,HREF=\"CLHSROOT/,HREF=\"${hyperspec}/,' < $f > $f.new"
+      echotab "mv $f.new $f"
+    done
+  fi
   echotab "version=\`cat VERSION\` ; \\"
   echotab "distdir=clisp-\$\$version ; \\"
   echotab "distfile=/tmp/clisp-win32.zip ; \\"
