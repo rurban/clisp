@@ -177,7 +177,7 @@
   (case type
     ((BIT STRING-CHAR T) type)
     (t (multiple-value-bind (low high) (sys::subtype-integer type)
-         ; Es gilt (or (null low) (subtypep type `(INTEGER ,low ,high))
+         ; Es gilt (or (null low) (subtypep type `(INTEGER ,low ,high)))
          (if (and (integerp low) (not (minusp low)) (integerp high))
            (let ((l (integer-length high)))
              ; Es gilt (subtypep type `(UNSIGNED-BYTE ,l))
@@ -189,8 +189,10 @@
                    ((<= l 32) '(UNSIGNED-BYTE 32))
                    (t 'T)
            ) )
-           'T
-  ) )  ) )
+           (if (subtypep type 'STRING-CHAR)
+             'STRING-CHAR
+             'T
+  ) )  ) ) )
 )
 (%put 'ARRAY 'TYPE-LIST
   (function type-list-array
