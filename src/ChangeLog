@@ -1,5 +1,12 @@
 2003-12-19  Sam Steingold  <sds@gnu.org>
 
+	repeated "-q" sets *LOAD-VERBOSE* and *COMPILE-VERBOSE* to NIL
+	* constsym.d (*COMPILE-VERBOSE*): added
+	* spvw.d (argv_quiet): integer, not boolean
+	(main): repeated "-q" means argv_quiet++
+
+2003-12-19  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #[ 842910 ]: Compiler bug in OPTIMIZE-LABEL
 	* compiler.lisp (optimize-label): ignore unused labels
 	(optimize-short): do not LABEL-SUBST to unused labels

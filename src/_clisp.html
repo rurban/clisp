@@ -268,7 +268,14 @@ which depends on the environment variables <code>LC_ALL</code>,
     <strong><code>--quiet</code></strong>,
     <strong><code>--silent</code></strong></dt>
 <dd>Quiet: <code>clisp</code> displays no banner at startup and no
- good-bye message when quitting.<p/></dd>
+ good-bye message when quitting.
+ Additional <code>-q</code> sets variables
+ <a href="CLHSROOT/Body/var_stload-pr_ad-verbosest.html"
+    ><code>*load-verbose*</code></a> and
+ <a href="CLHSROOT/Body/var_stcompile_le-verbosest.html"
+    ><code>*compile-verbose*</code></a>
+ to <code>nil</code>.
+Note that this setting persists into the read-eval-print loop.<p/></dd>
 
 <dt id="opt-interactive-debug"><code>-interactive-debug</code></dt>
 <dd>Override the batch mode imposed by

@@ -1288,6 +1288,7 @@ local void init_symbol_values (void) {
   define_variable(S(load_verbose),T); /* *LOAD-VERBOSE* := T */
   define_variable(S(load_print),NIL); /* *LOAD-PRINT* := NIL */
   define_variable(S(compile_print),NIL); /* *COMPILE-PRINT* := NIL */
+  define_variable(S(compile_verbose),T); /* *COMPILE-VERBOSE* := T */
   # for FOREIGN:
  #ifdef DYNAMIC_FFI
   define_constant(S(fv_flag_readonly),fixnum(fv_readonly));  # FFI::FV-FLAG-READONLY
@@ -1538,6 +1539,7 @@ nonreturning_function (local, usage, (int exit_code)) {
   printf(GETTEXTL(" -Edomain encoding - set encoding" NLstring));
   printf(GETTEXTL("Interoperability:" NLstring));
   printf(GETTEXTL(" -q, --quiet, --silent - do not print the banner" NLstring));
+  printf(GETTEXTL("     additional -q sets *LOAD-VERBOSE* and *COMPILE-VERBOSE* to NIL" NLstring));
   printf(GETTEXTL(" -w            - wait for keypress after program termination" NLstring));
   printf(GETTEXTL(" -I            - be ILISP-friendly" NLstring));
   printf(GETTEXTL("Startup actions:" NLstring));
@@ -1658,7 +1660,7 @@ global const char* argv_encoding_file = NULL; # ... for *default-file-encoding*
 global const char* argv_encoding_pathname = NULL; # ... for *pathname-encoding*
 global const char* argv_encoding_terminal = NULL; # ... for *terminal-encoding*
 global const char* argv_encoding_foreign = NULL; # ... for *foreign-encoding*
-local bool argv_quiet = false; # if quiet-option is specified at start
+local int argv_quiet = 0; # if quiet-option is specified at start
 local bool argv_wait_keypress = false;
 local bool argv_license = false;
 global int main (argc_t argc, char* argv[]) {
@@ -1767,11 +1769,12 @@ global int main (argc_t argc, char* argv[]) {
   #   -L language     set the user language
   #   -N directory    NLS catalog directory
   #   -Edomain encoding  set encoding
-  #   -q              quiet: no splash-screen
+  #   -q              quiet: no splash-screen ...
+  #   -q -q           ... and set *LOAD-VERBOSE* and *COMPILE-VERBOSE* to NIL
   #   -norc           do not load the user ~/.clisprc file
   #   -I              ILISP-friendly
   #   -C              set *LOAD-COMPILING* to T
-  #   -v --verbose    set *LOAD-PRINT* and *COMPILE-PRINT* to T
+  #   -V --verbose    set *LOAD-PRINT* and *COMPILE-PRINT* to T
   #   -i file ...     load LISP-file for initialization
   #   -c file ...     compile LISP-files, then leave LISP
   #   -l              At compilation: create listings
@@ -1927,8 +1930,8 @@ global int main (argc_t argc, char* argv[]) {
             else
               usage(1);
             break;
-          case 'q': # no copyright message
-            argv_quiet = true;
+          case 'q': # no banner, *LOAD-VERBOSE* and *COMPILE-VERBOSE* = NIL
+            argv_quiet++;
             if (arg[2] != '\0') usage (1);
             break;
           case 'I': # ILISP-friendly
@@ -2009,7 +2012,7 @@ global int main (argc_t argc, char* argv[]) {
               usage (0);
             else if (asciz_equal(&arg[2],"version")) {
               argv_expr_count = 0;  /* discard previous -x */
-              argv_quiet = true;
+              argv_quiet = 1;
               argv_norc = true;
               argv_repl = false;
               /* force processing this argument again,
@@ -2040,7 +2043,7 @@ global int main (argc_t argc, char* argv[]) {
               break;
             } else if (asciz_equal(&arg[2],"quiet")
                        || asciz_equal(&arg[2],"silent")) {
-              argv_quiet = true; break;
+              argv_quiet++; break;
             } else if (asciz_equal(&arg[2],"license")) {
               argv_license = true; break;
             } else if (asciz_equal(&arg[2],"verbose")) {
@@ -2718,12 +2721,12 @@ global int main (argc_t argc, char* argv[]) {
     }
     skipSTACK(1);
   }
-  # print greeting:
+  /* print greeting: */
   if (!nullpSv(quiet)) /* SYS::*QUIET* /= NIL ? */
-    { argv_quiet = true; } # prevents the greeting
-  if (argv_execute_file != NULL) # batch-mode ?
-    { argv_quiet = true; } # prevents the greeting
-  if (!argv_quiet || argv_license) print_banner();
+    { argv_quiet = 1; }          /* prevents the greeting */
+  if (argv_execute_file != NULL) /* batch-mode ? */
+    { argv_quiet = 1; }          /* prevents the greeting */
+  if (argv_quiet==0 || argv_license) print_banner();
   if (argv_license) print_license();
   if (argv_execute_arg_count > 0) {
     var uintL count = argv_execute_arg_count;
@@ -2779,6 +2782,8 @@ global int main (argc_t argc, char* argv[]) {
   }
   if (argv_load_compiling) # (SETQ *LOAD-COMPILING* T) :
     { Symbol_value(S(load_compiling)) = T; }
+  if (argv_quiet > 1) /* (setq *load-verbose* nil *compile-verbose* nil) */
+    Symbol_value(S(load_verbose)) = Symbol_value(S(compile_verbose)) = NIL;
   if (argv_verbose) /* (setq *load-print* t *compile-print* t) */
     Symbol_value(S(load_print)) = Symbol_value(S(compile_print)) = T;
   if (argv_developer) { /* developer mode */
@@ -3028,7 +3033,7 @@ nonreturning_function(global, quit, (void)) {
   if (quit_retry==0) {
     quit_retry++; # If this fails, do not retry it. For robustness.
     funcall(L(fresh_line),0); # (FRESH-LINE [*standard-output*])
-    if (!argv_quiet) {
+    if (argv_quiet == 0) {
       pushSTACK(CLSTEXT("Bye.")); funcall(L(write_line),1);
     }
     pushSTACK(var_stream(S(error_output),strmflags_wr_ch_B)); # Stream *ERROR-OUTPUT*
