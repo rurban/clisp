@@ -2621,11 +2621,11 @@ local void print_banner ()
         # Warning for beginners
         { pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # auf *STANDARD-OUTPUT*
           write_sstring(&STACK_0,
-            asciz_to_string(GETTEXTL(NLstring "WARNING: No initialisation file specified." NLstring),
+            asciz_to_string(GETTEXT(NLstring "WARNING: No initialisation file specified." NLstring),
                             O(internal_encoding)
                            ));
           write_sstring(&STACK_0,
-            asciz_to_string(GETTEXTL("Please try: "),
+            asciz_to_string(GETTEXT("Please try: "),
                             O(internal_encoding)
                            ));
           write_string(&STACK_0,asciz_to_string(program_name,O(pathname_encoding)));
@@ -2660,6 +2660,8 @@ local void print_banner ()
           pushSTACK(T); funcall(L(set_ansi),1); break;
         case 2: # traditional CLISP behavior
           pushSTACK(NIL); funcall(L(set_ansi),1); break;
+        default: # use the settings from the memory image
+          break;
       }
       if (argv_package != NULL) {
         # (IN-PACKAGE packagename)
