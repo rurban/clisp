@@ -1,5 +1,10 @@
 2005-03-07  Bruno Haible  <bruno@clisp.org>
 
+	* intelem.d (Q_to_I): Use minus_bit instead of -bit, to avoid a gcc
+	warning.
+
+2005-03-07  Bruno Haible  <bruno@clisp.org>
+
 	* stream.d (iconv_wcstombs): Fix 2005-03-01 patch that broke
 	compilation when CC=g++.
 
