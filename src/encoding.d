@@ -1364,7 +1364,7 @@ global object nls_range(encoding,start,end)
 # They are defined in stream.d because they need to access internals of
 # the ChannelStream.
 
-#ifdef HAVE_ICONV
+#if defined(GNU_LIBICONV) || defined(HAVE_ICONV)
 
 extern uintL iconv_mblen (object encoding, const uintB* src, const uintB* srcend);
 extern void iconv_mbstowcs (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
@@ -1372,7 +1372,15 @@ extern uintL iconv_wcslen (object encoding, const chart* src, const chart* srcen
 extern void iconv_wcstombs (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
 extern object iconv_range (object encoding, uintL start, uintL end);
 
-#endif # HAVE_ICONV
+#endif # GNU_LIBICONV || HAVE_ICONV
+
+#ifdef GNU_LIBICONV
+
+#define iconv_first_sym  S(koi8_ru)
+#define iconv_last_sym  S(utf_7)
+#define iconv_num_encodings  (&symbol_tab_data.S_utf_7 - &symbol_tab_data.S_koi8_ru + 1)
+
+#endif
 
 # -----------------------------------------------------------------------------
 
@@ -1399,7 +1407,7 @@ LISPFUN(make_encoding,0,0,norest,key,4,
          ) {
       arg = Symbol_value(arg);
     }
-    #ifdef HAVE_ICONV
+    #if defined(GNU_LIBICONV) || defined(HAVE_ICONV)
     elif (stringp(arg)) {
       pushSTACK(coerce_ss(arg));
       var object encoding = allocate_encoding();
@@ -1413,7 +1421,7 @@ LISPFUN(make_encoding,0,0,norest,key,4,
       TheEncoding(encoding)->enc_wcstombs = P(iconv_wcstombs);
       TheEncoding(encoding)->enc_range    = P(iconv_range);
       TheEncoding(encoding)->min_bytes_per_char = 1;
-      TheEncoding(encoding)->max_bytes_per_char = 6; # unfounded assumption
+      TheEncoding(encoding)->max_bytes_per_char = max_bytes_per_chart; # wild assumption
       arg = encoding;
     }
     #endif
@@ -1847,6 +1855,7 @@ LISPFUNN(charset_range,3)
       define_constant(S(unicode_32),Symbol_value(S(unicode_32_big_endian))); # network byte order = big endian
       define_constant(S(ucs_2),Symbol_value(S(unicode_16)));
       define_constant(S(ucs_4),Symbol_value(S(unicode_32)));
+      define_constant(S(macintosh),Symbol_value(S(mac_roman)));
       define_constant(S(windows_1250),Symbol_value(S(cp1250)));
       define_constant(S(windows_1251),Symbol_value(S(cp1251)));
       define_constant(S(windows_1252),Symbol_value(S(cp1252)));
@@ -1856,6 +1865,19 @@ LISPFUNN(charset_range,3)
       define_constant(S(windows_1256),Symbol_value(S(cp1256)));
       define_constant(S(windows_1257),Symbol_value(S(cp1257)));
       define_constant(S(windows_1258),Symbol_value(S(cp1258)));
+      #ifdef GNU_LIBICONV
+      {
+        var object symbol = iconv_first_sym;
+        var uintC count;
+        dotimesC(count,iconv_num_encodings, {
+          pushSTACK(Symbol_name(symbol));
+          pushSTACK(unbound); pushSTACK(unbound); pushSTACK(unbound);
+          C_make_encoding(); # cannot use funcall yet
+          define_constant(symbol,value1);
+          symbol = objectplus(symbol,(soint)sizeof(*TheSymbol(symbol))<<(oint_addr_shift-addr_shift));
+        });
+      }
+      #endif
       #endif
       # Initialize O(internal_encoding):
         #ifdef UNICODE
@@ -1911,7 +1933,22 @@ LISPFUNN(charset_range,3)
           pushSTACK(Symbol_value(S(koi8_r)));
         elif (asciz_equal(name,"KOI8-U"))
           pushSTACK(Symbol_value(S(koi8_u)));
-        #if (defined(UNIX_LINUX) || defined(UNIX_GNU)) && defined(HAVE_ICONV)
+        #if defined(GNU_LIBICONV)
+        elif (asciz_equal(name,"eucJP"))
+          pushSTACK(Symbol_value(S(euc_jp)));
+        elif (asciz_equal(name,"JIS7"))
+          pushSTACK(Symbol_value(S(iso_2022_jp)));
+        elif (asciz_equal(name,"SJIS"))
+          pushSTACK(Symbol_value(S(shift_jis)));
+        elif (asciz_equal(name,"eucKR"))
+          pushSTACK(Symbol_value(S(euc_kr)));
+        elif (asciz_equal(name,"eucCN"))
+          pushSTACK(Symbol_value(S(euc_cn)));
+        elif (asciz_equal(name,"eucTW"))
+          pushSTACK(Symbol_value(S(euc_tw)));
+        elif (asciz_equal(name,"TACTIS"))
+          pushSTACK(Symbol_value(S(tis_620)));
+        #elif (defined(UNIX_LINUX) || defined(UNIX_GNU)) && defined(HAVE_ICONV)
         elif (asciz_equal(name,"eucJP"))
           pushSTACK(ascii_to_string("EUC-JP"));
         elif (asciz_equal(name,"JIS7"))
@@ -1924,10 +1961,10 @@ LISPFUNN(charset_range,3)
           pushSTACK(ascii_to_string("EUC-CN"));
         elif (asciz_equal(name,"eucTW"))
           pushSTACK(ascii_to_string("EUC-TW"));
-        #endif
         #if 0
         elif (asciz_equal(name,"TACTIS"))
           pushSTACK(??);
+        #endif
         #endif
         elif (asciz_equal(name,"UTF-8"))
           pushSTACK(Symbol_value(S(utf_8)));

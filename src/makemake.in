@@ -1293,6 +1293,20 @@ if test -n "$with_no_termcap_ncurses" ; then
   XCFLAGS=$XCFLAGS' -DNO_TERMCAP_NCURSES'
 fi
 
+USE_LIBICONV=''
+if [ $HOS = unix -o $HOS = win32 ] ; then
+  USE_LIBICONV=yes
+  if [ $HOS = unix ] ; then
+    # use symbolic link
+    XCL_ICONVLIB='libiconv.a'
+    FILES=$FILES' libiconv.a'
+  fi
+  if [ $HOS = win32 ] ; then
+    XCL_ICONVLIB='iconv.lib'
+  fi
+  LIBS=$XCL_ICONVLIB' '$LIBS
+fi
+
 USE_SIGSEGV=''
 if [ $HOS = unix -o $HOS = win32 ] ; then
   USE_SIGSEGV=yes
@@ -1345,6 +1359,9 @@ done
 EVERY_INCLUDES_H=''
 if [ -n "$GETTEXTLIB" ] ; then
   EVERY_INCLUDES_H=$EVERY_INCLUDES_H' libintl.h'
+fi
+if [ -n "$USE_LIBICONV" ] ; then
+  EVERY_INCLUDES_H=$EVERY_INCLUDES_H' iconv.h'
 fi
 if [ -n "$USE_SIGSEGV" ] ; then
   EVERY_INCLUDES_H=$EVERY_INCLUDES_H' sigsegv.h'
@@ -2544,6 +2561,22 @@ if [ -n "$USE_TERMCAP" ] ; then
 
 fi
 
+for f in libiconv; do
+  if [ $HOS = unix ] ; then
+    echol "iconv.h libiconv.a :"
+    echotab "builddir=\"\`pwd\`\"; cd $f && \$(MAKE) && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
+    echol
+  fi
+  if [ $HOS = win32 ] ; then
+    echol "iconv.h : ${SRCTOPDIR_M}$f${NEXT_M}iconv.h"
+    echotab "-\$(LN) ${SRCTOPDIR_}$f${NEXT_}iconv.h iconv.h"
+    echol
+    echol "iconv.lib : ${SRCTOPDIR_M}$f${NEXT_M}iconv.lib"
+    echotab "-\$(LN) ${SRCTOPDIR_}$f${NEXT_}iconv.lib iconv.lib"
+    echol
+  fi
+done
+
 for f in sigsegv; do
   if [ $HOS = unix ] ; then
     echol "$f.h lib$f.a :"
@@ -3444,11 +3477,11 @@ clean1 : clean0
 !!
 if [ $HOS = win32 ] ; then
 cat <<!!
-	-\$(RM) sigsegv.lib avcall.lib callback.lib
+	-\$(RM) sigsegv.lib iconv.lib avcall.lib callback.lib
 !!
 else
 cat <<!!
-	-\$(RM) libsigsegv.* libavcall.* libcallback.*
+	-\$(RM) libsigsegv.* libiconv.* libavcall.* libcallback.*
 !!
 fi
 cat <<!!
@@ -3494,6 +3527,11 @@ cat <<!!
 	-\$(RM) libintl.h
 !!
 fi
+fi
+if [ -n "$USE_LIBICONV" ] ; then
+cat <<!!
+	-\$(RM) iconv.h
+!!
 fi
 if [ -n "$USE_SIGSEGV" ] ; then
 cat <<!!
