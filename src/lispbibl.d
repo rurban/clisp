@@ -5545,7 +5545,7 @@ typedef struct {
 # Structures that inherit from <structure-stablehash>
 typedef struct {
   SRECORD_HEADER
-  gcv_object_t structure_types    _attribute_aligned_object_;
+  gcv_object_t _structure_types   _attribute_aligned_object_;
   gcv_object_t stablehashcode     _attribute_aligned_object_;
   gcv_object_t other[unspecified] _attribute_aligned_object_;
 } *  StablehashStructure;
