@@ -1266,10 +1266,10 @@
                      :direction :input-immutable
                      :element-type 'character
                      #+UNICODE :external-format
-                     #+UNICODE (if (member (make-pathname
-                                            :type (pathname-type filename))
+                     #+UNICODE (if (member (pathname-type filename)
                                            *compiled-file-types*
-                                           :test #'equal)
+                                           :test #'string=
+                                           :key #'pathname-type)
                                    charset:utf-8
                                    external-format)
                      :if-does-not-exist nil)
@@ -1286,10 +1286,10 @@
                          :direction :input-immutable
                          :element-type 'character
                          #+UNICODE :external-format
-                         #+UNICODE (if (member (make-pathname
-                                                :type (pathname-type filename))
+                         #+UNICODE (if (member (pathname-type filename)
                                                *compiled-file-types*
-                                               :test #'equal)
+                                               :test #'string=
+                                               :key #'pathname-type)
                                        charset:utf-8
                                        external-format))))))))
     (if stream
