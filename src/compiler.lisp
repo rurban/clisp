@@ -1006,7 +1006,6 @@ for-value   NIL or T
   for-value         ; specifies, if the whole block-construction has to
                     ; return values.
 )
-#-CLISP-DEBUG (remprop 'block 'sys::defstruct-description)
 #-CLISP-DEBUG (remprop 'block 'clos::closclass)
 
 ;; Searches for a block with Name name and returns:
@@ -1050,7 +1049,6 @@ for-value   NIL or T
   used-far          ; list of all the Tags that are jumped at with a GO from
                     ; within another function.
 )
-#-CLISP-DEBUG (remprop 'tagbody 'sys::defstruct-description)
 #-CLISP-DEBUG (remprop 'tagbody 'clos::closclass)
 
 ;; Searches for a tag with Namen name and returns:
@@ -1152,7 +1150,6 @@ for-value   NIL or T
                            ;   Variable occurs.
   (fnode nil :read-only t) ; function containing this variable, an FNODE
 )
-#-CLISP-DEBUG (remprop 'var 'sys::defstruct-description)
 
 ;; (venv-search v) searches in *venv* for a Variable with the Symbol v.
 ;; result:
@@ -1264,7 +1261,6 @@ for-value   NIL or T
       (compiler-error 'const-value c)
       (const-value c)))
 
-#-CLISP-DEBUG (remprop 'const 'sys::defstruct-description)
 ;; In the 2nd Pass Variables with constantp=T are treated as Constants.
 
 
@@ -1453,7 +1449,6 @@ for-value   NIL or T
   far-used-tagbodys ; list of (tagbody . tag) defined in enclosing
                     ; functions but used by this function
 )
-#-CLISP-DEBUG (remprop 'fnode 'sys::defstruct-description)
 
 ;; the current function, an FNODE:
 (defvar *func*)
@@ -1540,7 +1535,6 @@ for-value   NIL or T
   code          ; generated LAP-Code, a List of LAP-statements and ANODEs
   #+CLISP-DEBUG
   stackz)       ; state of the Stacks on entry into the belonging LAP-Code
-#-CLISP-DEBUG (remprop 'anode 'sys::defstruct-description)
 ;; (make-anode ...) is the same as mk-anode, only that the arguments
 ;; are marked with keywords and unnecessary components
 ;; may stand there nevertheless because of #+CLISP-DEBUG.
@@ -1709,7 +1703,6 @@ for-value   NIL or T
   (lineno1 *compile-file-lineno1*)
   (lineno2 *compile-file-lineno2*)
   (file *compile-file-truename*))
-#-CLISP-DEBUG (remprop 'c-source-point 'sys::defstruct-description)
 
 ;; (C-SOURCE-LOCATION)
 ;; returns a description of the location in the source.

@@ -1,3 +1,9 @@
+2004-10-17  Bruno Haible  <bruno@clisp.org>
+
+	* format.lisp: Remove obsolete removal of defstruct-description.
+	* compiler.lisp: Likewise.
+	* loop.lisp: Likewise.
+
 2004-10-16  Bruno Haible  <bruno@clisp.org>
 
 	Stop creating a defstruct-description property for structure classes.
