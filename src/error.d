@@ -298,7 +298,11 @@ nonreturning_function(local, signal_and_debug, (object condition)) {
         signal_and_debug(value1);
       }
     }
-    NOTREACHED;
+    # there is no point in using the condition system here:
+    # we will get in an infinite loop reporting it
+    printf("[%s:%d] cannot handle the fatal error due to a fatal error in the fatal error handler!\n",__FILE__,__LINE__);
+    exit(18);
+    # NOTREACHED;
   }
 
 # Fehlermeldung mit Errorstring. Kehrt nicht zurück.
