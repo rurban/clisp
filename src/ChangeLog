@@ -1,5 +1,14 @@
 2003-08-07  Sam Steingold  <sds@gnu.org>
 
+	track the current source file consistently
+	* init.lisp (*current-source-file*): new variable
+	(load): bind it
+	(check-redefinition): use it instead of a complicated combination
+	of *load-truename* & *compile-file-truename*
+	* compiler.lisp (compile-file): bind it
+
+2003-08-07  Sam Steingold  <sds@gnu.org>
+
 	* foreign.d (FOREIGN-FREE): make the freed function invalid
 
 2003-08-07  Sam Steingold  <sds@gnu.org>
