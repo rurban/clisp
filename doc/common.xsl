@@ -11,6 +11,9 @@
  <p>CLISP Implementation Notes [user.header.content]</p><hr width="100%"/>
 </xsl:template -->
 
+<!-- http://article.gmane.org/gmane.text.docbook.apps:9779 -->
+<xsl:preserve-space elements="entry"/>
+
 <xsl:template match="emphasis[@role = 'strong' or @role = 'first']">
  <strong><xsl:apply-templates/></strong>
 </xsl:template>
