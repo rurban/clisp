@@ -1,5 +1,15 @@
 2003-08-07  Sam Steingold  <sds@gnu.org>
 
+	properly update pointers to dynamic objects
+	* foreign.d (object_handle): extracted from object address()
+	(foreign_libraries): keep the objects imported from the library
+	(update_library, push_foreign_object): new functions
+	(FOREIGN-LIBRARY, validate_fpointer): call update_library()
+	(FOREIGN-LIBRARY-VARIABLE, FOREIGN-LIBRARY-FUNCTION):
+	call push_foreign_object()
+
+2003-08-07  Sam Steingold  <sds@gnu.org>
+
 	regexp module does not use FFI - 25% speedup
 	* modules/regexp/preload.lisp: new file
 	* modules/regexp/link.sh.in: preload it, don't look for regexp.c
