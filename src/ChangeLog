@@ -1,5 +1,10 @@
 2002-08-02  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (c-DIRECT-FUNCTION-CALL): fixed repeated key
+	handling: ignore the value of the argument and issue a warning
+
+2002-08-02  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (make_terminal_stream_) [UNIX_CYGWIN32]: check
 	ttyname() instead of inodes for stdin/out_handle
 	(finish_tty_output) [UNIX_CYGWIN32]: ignore EACCES (in

@@ -225,3 +225,26 @@ nil
   (delete-file (stem :obj "foo-bar-zot"))
   t)
 t
+
+;; bug in compiled repeated keywords
+;; fixed by sds in compiler.lisp 1.92
+(defparameter x 1)
+x
+
+(defun test-key () (find 1 #(0 1 2 3) :test #'= :test (incf x)))
+test-key
+
+(test-key)
+1
+
+x
+2
+
+(compile 'test-key)
+test-key
+
+(test-key)
+1
+
+x
+3
