@@ -94,6 +94,12 @@
             if (!(len1 == Lfloat_length(obj2))) goto no;
             # Exponenten vergleichen:
             if (!(TheLfloat(obj1)->expo == TheLfloat(obj2)->expo)) goto no;
+            # Vorzeichen vergleichen: (LF_sign not usable here.)
+            #ifdef TYPECODES
+            if (R_sign(as_object(as_oint(obj1) ^ as_oint(obj2))) < 0) goto no;
+            #else
+            if (Record_flags(obj1) != Record_flags(obj2)) goto no;
+            #endif
             # Ziffern vergleichen:
             var uintD* ptr1 = &TheLfloat(obj1)->data[0];
             var uintD* ptr2 = &TheLfloat(obj2)->data[0];
