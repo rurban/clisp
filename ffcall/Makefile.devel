@@ -29,7 +29,6 @@ m4/stdc-headers.m4 : $(CLISP_DIR)/src/m4/stdc-headers.m4 ; cp -p $< $@-t && mv $
 m4/unistd.m4 : $(CLISP_DIR)/src/m4/unistd.m4 ; cp -p $< $@-t && mv $@-t $@
 m4/malloc.m4 : $(CLISP_DIR)/src/m4/malloc.m4 ; cp -p $< $@-t && mv $@-t $@
 m4/free.m4 : $(CLISP_DIR)/src/m4/free.m4 ; cp -p $< $@-t && mv $@-t $@
-m4/abort.m4 : $(CLISP_DIR)/src/m4/abort.m4 ; cp -p $< $@-t && mv $@-t $@
 m4/open.m4 : $(CLISP_DIR)/src/m4/open.m4 ; cp -p $< $@-t && mv $@-t $@
 m4/getpagesize.m4 : $(CLISP_DIR)/src/m4/getpagesize.m4 ; cp -p $< $@-t && mv $@-t $@
 m4/mach-vm.m4 : $(CLISP_DIR)/src/m4/mach-vm.m4 ; cp -p $< $@-t && mv $@-t $@

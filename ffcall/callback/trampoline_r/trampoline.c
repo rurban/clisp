@@ -95,9 +95,7 @@ extern void (*tramp_r) (); /* trampoline prototype */
 #include <stdio.h> /* declares fprintf() */
 
 #include <sys/types.h>
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
+#include <stdlib.h> /* declares abort() */
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -120,15 +118,6 @@ extern RETFREETYPE free (RETMALLOCTYPE ptr);
 #else
 extern RETFREETYPE free();
 #endif
-#endif
-
-/* Declare abort(). */
-#ifdef __cplusplus
-extern "C" ABORT_VOLATILE RETABORTTYPE abort (void);
-#elif defined(__STDC__)
-extern ABORT_VOLATILE RETABORTTYPE abort (void);
-#else
-extern ABORT_VOLATILE RETABORTTYPE abort();
 #endif
 
 /* Declare getpagesize(). */

@@ -97,7 +97,7 @@ vacall_r.h.mingw32 : vacall_r.h.in
 	sed -e 's,^#undef __i386__$$,#define __i386__ 1,' -e 's,^#undef __SMALL_STRUCT_RETURN__$$,#define __SMALL_STRUCT_RETURN__ 1,' < vacall_r.h.in > vacall_r.h.mingw32
 
 config.h.msvc : config.h.in
-	sed -e 's,^#undef RETABORTTYPE$$,#define RETABORTTYPE void,' -e 's,^#undef ABORT_VOLATILE$$,#define ABORT_VOLATILE,' < config.h.in > config.h.msvc
+	cp config.h.in config.h.msvc
 
 config.h.mingw32 : config.h.in
-	sed -e 's,^#undef RETABORTTYPE$$,#define RETABORTTYPE void,' < config.h.in > config.h.mingw32
+	cp config.h.in config.h.mingw32
