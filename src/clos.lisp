@@ -4104,27 +4104,6 @@
   new-class-object
 )
 
-(defgeneric make-load-form (object &optional environment)
-  (:method ((object standard-object) &optional environment)
-    (make-load-form-saving-slots object :environment environment)))
-
-(defun make-load-form-saving-slots
-    (object &key environment
-     (slot-names (mapcan (lambda (slot)
-                           (when (eq :instance
-                                     (slotdef-allocation slot))
-                             (list (slotdef-name slot))))
-                         (class-slots (class-of object)))))
-  (declare (ignore environment))
-  (values `(allocate-instance (find-class ',(class-name (class-of object))))
-          `(progn
-            (setf ,@(mapcan (lambda (slot)
-                              (when (slot-boundp object slot)
-                                `((slot-value ,object ',slot)
-                                  ,(slot-value object slot))))
-                            slot-names))
-            (initialize-instance ,object))))
-
 ;;; Utility functions
 
 ;; Returns the slot names of an instance of a slotted-class
