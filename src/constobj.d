@@ -1,6 +1,6 @@
 /*
  * list of all objects known to the C-program ("program-constants")
- * Bruno Haible 1990-2004
+ * Bruno Haible 1990-2005
  * Sam Steingold 1998-2004
  * German comments translated into English: Stefan Kain 2002-02-20
 
@@ -255,6 +255,7 @@
   LISPOBJ(hs_special_operator,"EXT::SPECIAL-OPERATOR")
   LISPOBJ(hs_load_time_eval,"EXT::LOAD-TIME-EVAL")
   LISPOBJ(hs_symbol_macro,"EXT::SYMBOL-MACRO")
+  LISPOBJ(hs_global_symbol_macro,"EXT::GLOBAL-SYMBOL-MACRO")
   LISPOBJ(hs_macro,"SYS::MACRO")
   LISPOBJ(hs_function_macro,"EXT::FUNCTION-MACRO")
   LISPOBJ(hs_encoding,"EXT::ENCODING")
@@ -547,6 +548,7 @@
   LISPOBJ(pathname_slotlist,"#.(list (cons :HOST #'pathname-host) (cons :DEVICE #'pathname-device) (cons :DIRECTORY #'pathname-directory) (cons :NAME #'pathname-name) (cons :TYPE #'pathname-type) (cons :VERSION #'pathname-version))")
   LISPOBJ(byte_slotlist,"#.(list (cons :SIZE #'byte-size) (cons :POSITION #'byte-position))")
   LISPOBJ_S(printstring_symbolmacro,"SYMBOL-MACRO")
+  LISPOBJ_S(printstring_globalsymbolmacro,"GLOBAL SYMBOL-MACRO")
   LISPOBJ_S(printstring_macro,"MACRO")
   LISPOBJ_S(printstring_functionmacro,"FUNCTION-MACRO")
   LISPOBJ_S(printstring_encoding,"ENCODING")

@@ -349,7 +349,8 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
  <listitem><simpara>&package-t;, &hash-table-t;, &readtable-t;, &pathname-t;,
   &logical-pathname-t;, &random-state-t;, &byte-t;</simpara></listitem>
  <listitem><simpara><classname>SPECIAL-OPERATOR</classname>,
-  <classname>LOAD-TIME-EVAL</classname>, &symbol-macro;, &encoding;,
+  <classname>LOAD-TIME-EVAL</classname>, &symbol-macro;,
+  <classname>GLOBAL-SYMBOL-MACRO</classname>, &encoding;,
   &foreign-pointer-t;, &foreign-address-t;, &foreign-variable-t;,
   &foreign-function-t;</simpara></listitem>
  <listitem><simpara>&weak-pointer;, &weak-list;, &weak-and-relation;,

@@ -3475,8 +3475,8 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #define system_type     (                         BTB1|BTB0) # 0x03  # %00000011  ; frame-pointer, read-label, system
   #define symbol_type     (                    BTB2          ) # 0x04  # %000001xx  ; symbol
           # bits for symbols in the GCself pointer:
-          #define constant_bit_t  TB0  # set if the symbol is a constant
-          #define special_bit_t   TB1  # set if the symbol is SPECIAL proclaimed
+          #define var_bit0_t  TB0  # set if the symbol is proclaimed SPECIAL or constant
+          #define var_bit1_t  TB1  # set if the symbol is a symbol-macro or constant
   #if (TB6 < 0)
   #define cons_type       (               BTB3               ) # 0x08  # %00001000  ; cons
   #endif
@@ -3578,8 +3578,8 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 #define NO_symbolflags # there's no space in the symbol for active_bit, dynam_bit, svar_bit
 
 # Bits for symbols in the flags:
-  #define constant_bit_f  0  # shows, whether the symbol is a constant
-  #define special_bit_f   1  # shows, whether the symbol has been proclaimed SPECIAL
+  #define var_bit0_f  0  # set if the symbol is proclaimed SPECIAL or constant
+  #define var_bit1_f  1  # set if the symbol is a symbol-macro or constant
 
 #endif # TYPECODES
 
@@ -4001,10 +4001,10 @@ typedef varobject_ *  Varobject;
   # it applies  mtypecode(((Varobject)p)->GCself) =
   # (((Varobject)p)->header_flags >> (oint_type_shift%hfintsize)) & tint_type_mask
   # Bits for Symbols in the self pointer (see above):
-  # define constant_bit_t  ...  # shows whether the symbol is a constant
-  # define special_bit_t   ...  # shows whether the symbol is proclaimed SPECIAL
-  #define constant_bit_hf  (constant_bit_t+(oint_type_shift%hfintsize))
-  #define special_bit_hf  (special_bit_t+(oint_type_shift%hfintsize))
+  # define var_bit0_t  ...  # set if the symbol is proclaimed SPECIAL or constant
+  # define var_bit1_t  ...  # set if the symbol is a symbol-macro or constant
+  #define var_bit0_hf  (var_bit0_t+(oint_type_shift%hfintsize))
+  #define var_bit1_hf  (var_bit1_t+(oint_type_shift%hfintsize))
 #else
   # Three possible layouts of type, flags, length:
   #   8 bits type, 24 bits length [Vrecord, Lrecord]
@@ -4027,8 +4027,8 @@ typedef varobject_ *  Varobject;
   #endif
     # Bits for symbols in the flags:
     #define header_flags  tfl
-    #define constant_bit_hf  (constant_bit_f+8)
-    #define special_bit_hf  (special_bit_f+8)
+    #define var_bit0_hf  (var_bit0_f+8)
+    #define var_bit1_hf  (var_bit1_f+8)
 #endif
 
 # Records
@@ -4248,6 +4248,7 @@ typedef xrecord_ *  Xrecord;
          Rectype_Fsubr,
          Rectype_Loadtimeeval,
          Rectype_Symbolmacro,
+         Rectype_GlobalSymbolmacro,
          Rectype_Macro,
          Rectype_FunctionMacro,
          Rectype_Encoding,
@@ -4347,28 +4348,41 @@ typedef symbol_ *  Symbol;
 # can't be bound lexically nor dynamically).
 
 # Tests whether a symbol is a constant:
-  #define constantp(sym)  \
-    (((sym)->header_flags) & bit(constant_bit_hf))
+  #define constant_var_p(sym)  \
+    (((bit(var_bit0_hf)|bit(var_bit1_hf)) & ~((sym)->header_flags)) == 0)
 
-/* Tests whether a symbol is a SPECIAL-proclaimed variable: */
-#define special_var_p(sym)  (((sym)->header_flags) & bit(special_bit_hf))
+# Tests whether a symbol is a SPECIAL-proclaimed variable or a constant:
+  #define special_var_p(sym)  (((sym)->header_flags) & bit(var_bit0_hf))
 
-# Set the constant-flag of a symbol:
+# Tests whether a symbol is a symbol-macro:
+  #define symmacro_var_p(sym)  \
+    ((((sym)->header_flags) & bit(var_bit1_hf))            \
+     && ((((sym)->header_flags) & bit(var_bit0_hf)) == 0))
+
+# Set the constant-flag of a non-symbol-macro symbol:
   #define set_const_flag(sym)  \
-    (((sym)->header_flags) |= bit(constant_bit_hf))
+    (((sym)->header_flags) |= bit(var_bit0_hf)|bit(var_bit1_hf))
 
-# Delete the constant-flag of a symbol:
+# Delete the constant-flag of a symbol that is a constant:
 # (Symbol must not be a Keyword, comp. spvw.d:case_symbolwithflags)
   #define clear_const_flag(sym)  \
-    (((sym)->header_flags) &= ~bit(constant_bit_hf))
+    (((sym)->header_flags) &= ~(bit(var_bit0_hf)|bit(var_bit1_hf)))
 
-# Set the special-flag of a symbol:
+# Set the special-flag of a non-symbol-macro symbol:
   #define set_special_flag(sym)  \
-    (((sym)->header_flags) |= bit(special_bit_hf))
+    (((sym)->header_flags) |= bit(var_bit0_hf))
 
-# Delete the special-flag of a symbol:
+# Delete the special-flag of a symbol that is special and non-constant:
   #define clear_special_flag(sym)  \
-    (((sym)->header_flags) &= ~bit(special_bit_hf))
+    (((sym)->header_flags) &= ~bit(var_bit0_hf))
+
+# Set the symbol-macro-flag of a non-special/constant symbol:
+  #define set_symmacro_flag(sym)  \
+    (((sym)->header_flags) |= bit(var_bit1_hf))
+
+# Delete the symbol-macro-flag of a symbol that is a symbol-macro:
+  #define clear_symmacro_flag(sym)  \
+    (((sym)->header_flags) &= ~bit(var_bit1_hf))
 
 # Define symbol as constant with given value val.
 # val must not trigger the GC!
@@ -5191,6 +5205,13 @@ typedef struct {
   gcv_object_t symbolmacro_expansion _attribute_aligned_object_;
 } *  Symbolmacro;
 #define symbolmacro_length  ((sizeof(*(Symbolmacro)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
+
+# Global-Symbol-macros
+typedef struct {
+  XRECORD_HEADER
+  gcv_object_t globalsymbolmacro_definition _attribute_aligned_object_;
+} *  GlobalSymbolmacro;
+#define globalsymbolmacro_length  ((sizeof(*(GlobalSymbolmacro)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
 # Macros
 typedef struct {
@@ -6130,6 +6151,7 @@ typedef enum {
   #define TheFsubr(obj)  ((Fsubr)(type_pointable(orecord_type,obj)))
   #define TheLoadtimeeval(obj)  ((Loadtimeeval)(type_pointable(orecord_type,obj)))
   #define TheSymbolmacro(obj)  ((Symbolmacro)(type_pointable(orecord_type,obj)))
+  #define TheGlobalSymbolmacro(obj)  ((GlobalSymbolmacro)(type_pointable(orecord_type,obj)))
   #define TheMacro(obj)  ((Macro)(type_pointable(orecord_type,obj)))
   #define TheFunctionMacro(obj)  ((FunctionMacro)(type_pointable(orecord_type,obj)))
   #define TheEncoding(obj)  ((Encoding)(type_pointable(orecord_type,obj)))
@@ -6288,6 +6310,7 @@ typedef enum {
   #define TheFsubr(obj)  ((Fsubr)(ngci_pointable(obj)-varobject_bias))
   #define TheLoadtimeeval(obj)  ((Loadtimeeval)(ngci_pointable(obj)-varobject_bias))
   #define TheSymbolmacro(obj)  ((Symbolmacro)(ngci_pointable(obj)-varobject_bias))
+  #define TheGlobalSymbolmacro(obj)  ((GlobalSymbolmacro)(ngci_pointable(obj)-varobject_bias))
   #define TheMacro(obj)  ((Macro)(ngci_pointable(obj)-varobject_bias))
   #define TheFunctionMacro(obj)  ((FunctionMacro)(ngci_pointable(obj)-varobject_bias))
   #define TheEncoding(obj)  ((Encoding)(ngci_pointable(obj)-varobject_bias))
@@ -6868,6 +6891,10 @@ typedef enum {
 # Test for Symbolmacro
 #define symbolmacrop(obj)  \
   (orecordp(obj) && (Record_type(obj) == Rectype_Symbolmacro))
+
+# Test for GlobalSymbolmacro
+#define globalsymbolmacrop(obj)  \
+  (orecordp(obj) && (Record_type(obj) == Rectype_GlobalSymbolmacro))
 
 # Test for Macro
 #define macrop(obj)  \
@@ -9000,6 +9027,14 @@ extern maygc object allocate_iarray (uintB flags, uintC rank, tint type);
 #define allocate_symbolmacro()  \
   allocate_xrecord(0,Rectype_Symbolmacro,symbolmacro_length,0,orecord_type)
 # is used by CONTROL, RECORD
+
+# UP: allocates Global-Symbol-Macro
+# allocate_globalsymbolmacro()
+# < result: LISP-object Global-Symbol-Macro
+# can trigger GC
+#define allocate_globalsymbolmacro()  \
+  allocate_xrecord(0,Rectype_GlobalSymbolmacro,globalsymbolmacro_length,0,orecord_type)
+# is used by RECORD
 
 # UP: allocates a Macro
 # allocate_macro()
@@ -12985,7 +13020,7 @@ static inline maygc object check_symbol (object obj) {
 extern maygc object check_symbol_non_constant_replacement (object obj, object caller);
 #ifndef COMPILE_STANDALONE
 static inline maygc object check_symbol_non_constant (object obj, object caller) {
-  if (!(symbolp(obj) && !constantp(TheSymbol(obj))))
+  if (!(symbolp(obj) && !constant_var_p(TheSymbol(obj))))
     obj = check_symbol_non_constant_replacement(obj,caller);
   return obj;
 }
