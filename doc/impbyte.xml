@@ -95,9 +95,9 @@
  <listitem><simpara>The table of miscellaneous objects accessed by
    &c-lang; code.</simpara></listitem></varlistentry>
 <varlistentry id="eval-d"><term>&eval-d;</term>
- <listitem><para>Evaluator (form interpreter) and bytecode interpreter.
+ <listitem><para>Evaluator (form interpreter) and &bytecode; interpreter.
    <variablelist><varlistentry id="bytecode-d"><term>&bytecode-d;</term>
-     <listitem><simpara>List of bytecodes.</simpara></listitem></varlistentry>
+     <listitem><simpara>List of &bytecode;s.</simpara></listitem></varlistentry>
 </variablelist></para></listitem></varlistentry>
 <varlistentry><term><filename>control.d</filename></term>
  <listitem><simpara>Special operator interpreter.
@@ -430,8 +430,7 @@
     </simpara></listitem></varlistentry></variablelist>
    See <xref linkend="customize"/>.</para></listitem></varlistentry>
 <varlistentry><term><filename>compiler.lisp</filename></term>
- <listitem><simpara>compiles Lisp code
-   to <link linkend="bytecode">bytecode</link>
+ <listitem><simpara>compiles Lisp code to &bytecode;
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename>disassem.lisp</filename></term>
  <listitem><simpara>the function &disassemble;
