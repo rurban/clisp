@@ -127,6 +127,8 @@ This will not work with closures that use lexical variables!"
 (defun local-function-name-p (obj)
   (and (consp obj) (eq 'local (car obj))))
 
+;; Structure containing all trace options for a given function.
+;; make-tracer is ABI
 (defstruct (tracer (:type vector))
   name symb cur-def local-p
   suppress-if max-depth step-if pre post pre-break-if post-break-if
@@ -141,16 +143,13 @@ This will not work with closures that use lexical variables!"
 (defmacro trace (&rest funs)
   (if (null funs)
     '*TRACED-FUNCTIONS*
-    (cons 'append
-      (mapcar (lambda (fun)
-                (cond ((or (function-name-p fun) (local-function-name-p fun))
-                       (let ((trr (make-tracer :name fun)))
-                         (check-traceable fun trr 'trace)
-                         `(TRACE1 ,trr)))
-                      ((let ((trr (apply #'make-tracer :name fun)))
-                         (check-traceable (first fun) trr 'trace)
-                         `(TRACE1 ,trr)))))
-              funs))))
+    `(APPEND
+      ,@(mapcar #'(lambda (fun)
+                    `(TRACE1
+                       ,(if (or (function-name-p fun) (local-function-name-p fun))
+                          `(MAKE-TRACER :NAME ',fun)
+                          `(APPLY #'MAKE-TRACER :NAME ',fun))))
+                funs))))
 
 ;; check whether the FUNNAME can be traced,
 ;; fill SYMB, CUR-DEF and LOCAL-P slots of TRR and return TRR
@@ -179,6 +178,7 @@ This will not work with closures that use lexical variables!"
   trr)
 
 (defun trace1 (trr) ; ABI
+  (check-traceable (tracer-name trr) trr 'trace)
   (let ((macro-flag (macrop (tracer-cur-def trr)))
         (sig (when (tracer-local-p trr)
                (sig-to-list (get-signature (tracer-cur-def trr))))))
