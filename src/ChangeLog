@@ -1,5 +1,21 @@
 2004-10-09  Bruno Haible  <bruno@clisp.org>
 
+	Allow tracing of compute-applicable-methods et al.
+	* clos-genfun1.lisp (|#'compute-discriminating-function|,
+	|#'compute-applicable-methods|,
+	|#'compute-applicable-methods-using-classes|,
+	|#'compute-effective-method|): New variables.
+	* clos-methcomb2.lisp (compute-effective-method-as-function-form):
+	Use them.
+	* clos-genfun2.lisp (install-dispatch,
+	compute-applicable-methods-effective-method): Likewise.
+	* clos-genfun4.lisp: Initialize |#'compute-discriminating-function|,
+	|#'compute-applicable-methods|,
+	|#'compute-applicable-methods-using-classes|,
+	|#'compute-effective-method|.
+
+2004-10-09  Bruno Haible  <bruno@clisp.org>
+
 	Allow the user to override class-direct-subclasses.
 	* clos-class3.lisp (class-direct-subclasses): New preliminary function.
 	(checked-class-direct-subclasses): New function.

@@ -724,8 +724,8 @@
 ;; Installs the final dispatch-code into a generic function.
 (defun install-dispatch (gf)
   (let ((dispatch
-          (funcall (cond ((or (eq gf #'compute-discriminating-function) ; for bootstrapping
-                              (eq gf #'compute-applicable-methods-using-classes))
+          (funcall (cond ((or (eq gf |#'compute-discriminating-function|) ; for bootstrapping
+                              (eq gf |#'compute-applicable-methods-using-classes|))
                           #'compute-discriminating-function-<standard-generic-function>)
                          (t #'compute-discriminating-function))
                    gf)))
@@ -1096,14 +1096,15 @@
             ;; compute-applicable-methods would be sufficient, but the MOP p. 40
             ;; specifies a two-step process.
             (multiple-value-bind (methods certain)
-                (funcall (cond ((eq gf #'compute-applicable-methods-using-classes)
+                (funcall (cond ((eq gf |#'compute-applicable-methods-using-classes|)
                                 #'compute-applicable-methods-using-classes-<standard-generic-function>)
                                (t #'compute-applicable-methods-using-classes))
                          gf (mapcar #'class-of req-args))
               (if certain
                 (values methods 'compute-applicable-methods-using-classes)
                 (values
-                  (funcall (cond ((or (eq gf #'compute-applicable-methods) (eq gf #'compute-effective-method))
+                  (funcall (cond ((or (eq gf |#'compute-applicable-methods|)
+                                      (eq gf |#'compute-effective-method|))
                                   #'compute-applicable-methods-<standard-generic-function>)
                                  (t #'compute-applicable-methods))
                            gf args)
