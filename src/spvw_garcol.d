@@ -1183,17 +1183,31 @@ local void gc_markphase (void)
             }                                                              \
           }
       #else
-        #define update(objptr)  \
-          { var object obj = *(gcv_object_t*)objptr; # object               \
-            if (!gcinvariant_object_p(obj)) # un-movable -> do nothing      \
-              if (!in_old_generation(obj,,))                                \
-                # older generation -> do nothing (object stayed there)      \
-                if (marked(ThePointer(obj))) # marked?                      \
-                  # no ->  do nothing (object stayed there)                 \
-                  # yes -> enter new address                                \
-                  *(gcv_object_t*)objptr =                                  \
-                    as_object((as_oint(obj) & nonimmediate_bias_mask) | (as_oint(*(gcv_object_t*)ThePointer(obj)) & ~wbit(garcol_bit_o))); \
-          }
+        #ifdef GENERATIONAL_GC
+          #define update(objptr)  \
+            { var object obj = *(gcv_object_t*)objptr; # object               \
+              if (!gcinvariant_object_p(obj)) # un-movable -> do nothing      \
+                if (!(consp(obj) ? in_old_generation(obj,,1) : in_old_generation(obj,,0))) \
+                  # older generation -> do nothing (object stayed there)      \
+                  if (marked(ThePointer(obj))) # marked?                      \
+                    # no ->  do nothing (object stayed there)                 \
+                    # yes -> enter new address                                \
+                    *(gcv_object_t*)objptr =                                  \
+                      as_object((as_oint(obj) & nonimmediate_bias_mask) | (as_oint(*(gcv_object_t*)ThePointer(obj)) & ~wbit(garcol_bit_o))); \
+            }
+        #else
+          #define update(objptr)  \
+            { var object obj = *(gcv_object_t*)objptr; # object               \
+              if (!gcinvariant_object_p(obj)) # un-movable -> do nothing      \
+                if (!in_old_generation(obj,,))                                \
+                  # older generation -> do nothing (object stayed there)      \
+                  if (marked(ThePointer(obj))) # marked?                      \
+                    # no ->  do nothing (object stayed there)                 \
+                    # yes -> enter new address                                \
+                    *(gcv_object_t*)objptr =                                  \
+                      as_object((as_oint(obj) & nonimmediate_bias_mask) | (as_oint(*(gcv_object_t*)ThePointer(obj)) & ~wbit(garcol_bit_o))); \
+            }
+        #endif
       #endif
     #else # defined(MORRIS_GC)
       #if defined(SPVW_MIXED_BLOCKS)

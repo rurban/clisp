@@ -1,5 +1,11 @@
 2004-05-21  Bruno Haible  <bruno@clisp.org>
 
+	Make it possible to combine GENERATIONAL_GC, HEAPCODES, NO_MORRIS_GC.
+	* spvw_garcol.d (update): Provide a definition for the case
+	GENERATIONAL_GC && HEAPCODES && !MORRIS_GC.
+
+2004-05-21  Bruno Haible  <bruno@clisp.org>
+
 	Make it possible to test both SPVW_MIXED_BLOCKS_OPPOSITE and
 	SPVW_MIXED_BLOCKS_STAGGERED.
 	* spvw.d (SPVW_MIXED_BLOCKS_OPPOSITE): Define if CONS_HEAP_GROWS_DOWN.
