@@ -107,6 +107,7 @@
         '( #-(or AKCL ECL)          "alltest"
                                     "array"
                                     "backquot"
+           #+CLISP                  "bin-io"
            #-AKCL                   "characters"
            #+(or CLISP ALLEGRO CMU) "clos"
           #+(and CLISP UNICODE)     "encoding"
