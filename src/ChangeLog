@@ -1,5 +1,10 @@
 2004-11-22  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (same_handle_p) [WIN32_NATIVE]: use TIME_EQ to compare
+	FILETIME; fixed a syntax(!) error in the last patch
+
+2004-11-22  Sam Steingold  <sds@gnu.org>
+
 	* m4/regexp.m4 (CL_REGEXP): check for regoff_t and treat rm_so &
 	rm_eo as regoff_t (which may be 64-bit!)
 
