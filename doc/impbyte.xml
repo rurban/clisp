@@ -7,7 +7,7 @@
 <para>For files in &clisp; binary distributions,
  see <olink targetdoc="man" targetptr="files"/>.</para>
 
-<section id="scr-file-types"><title>File Types</title>
+<section id="src-file-types"><title>File Types</title>
 
 <variablelist>
 <varlistentry><term><filename>#P"*.d"</filename></term>
