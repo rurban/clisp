@@ -194,12 +194,8 @@ LISPFUNN(get_properties,2)
       if (atomp(plistr))
         goto notfound;
       var object item = Car(plistr);
-      var object keylistr = keylist;
-      while (consp(keylistr)) {
-        if (eq(item,Car(keylistr)))
-          goto found;
-        keylistr = Cdr(keylistr);
-      }
+      if (!nullp(memq(item,keylist)))
+        goto found;
       plistr = Cdr(plistr);
       if (atomp(plistr))
         goto odd;

@@ -1,5 +1,20 @@
 2002-06-17  Sam Steingold  <sds@gnu.org>
 
+	abstracted some code
+	* list.d (memq): new function
+	* lispbibl.d (memq): declare
+	* control.d (PROCLAIM, KEYWORD-TEST): use it
+	* eval.d (augment_decl_env): ditto
+	* io.d (interpret_feature): ditto
+	* package.d (symtab_find, symtab_delete, shadowing_find)
+	(use_package, %IN-PACKAGE, FIND-ALL-SYMBOLS, RE-EXPORT): ditto
+	* symbol.d (GET-PROPERTIES): ditto
+	* record.d (obj_in_list): removed (superseded by memq)
+	(structure_up, %STRUCTURE-TYPE-P, keyword_test, slot_in_arglist)
+	(%SHARED-INITIALIZE): use !null(memq()) instead of obj_in_list()
+
+2002-06-17  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d [DECALPHA/UNIX_FREEBSD]: treat just like Linux
 	Verified by Jeffrey Katcher <jmkatcher@yahoo.com>.
 
