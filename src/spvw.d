@@ -1,5 +1,6 @@
 # Speicherverwaltung für CLISP
-# Bruno Haible 1990-2001
+# Bruno Haible 1990-2002
+# Sam Steingold 1998-2002
 
 # Inhalt:
 # Modulverwaltung
@@ -1590,7 +1591,7 @@ local void print_banner ()
    "Copyright (c) Bruno Haible, Michael Stoll 1992, 1993" NLstring,
    "Copyright (c) Bruno Haible, Marcus Daniels 1994-1997" NLstring,
    "Copyright (c) Bruno Haible, Pierpaolo Bernardi, Sam Steingold 1998" NLstring,
-   "Copyright (c) Bruno Haible, Sam Steingold 1999-2001" NLstring,
+   "Copyright (c) Bruno Haible, Sam Steingold 1999-2002" NLstring,
   };
   #ifdef AMIGA
   var const char * banner2 =
