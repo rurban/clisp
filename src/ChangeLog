@@ -1,3 +1,8 @@
+1998-12-18  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
+
+        * makemake.in (echol): Partially revert the 1998-10-14 change. The
+          Openstep hack doesn't work on Solaris.
+
 1998-12-16  Sam Steingold  <sds@goems.com>
 
 	* bindings/linuxlibc6/linux.lsp: replaced _IO_std* with _IO_std*_.
