@@ -217,8 +217,8 @@
 ;; MOP p. 41
 (fmakunbound 'compute-effective-method)
 (defgeneric compute-effective-method (gf combination methods)
-  (:method ((gf standard-generic-function) combination methods)
-    (compute-effective-method-<standard-generic-function> gf combination methods)))
+  (:method ((gf generic-function) combination methods)
+    (compute-effective-method-<generic-function> gf combination methods)))
 (setq |#'compute-effective-method| #'compute-effective-method)
 
 ;; ----------------------------------------------------------------------------
