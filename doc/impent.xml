@@ -300,6 +300,9 @@
 <!ENTITY wr-float "<link linkend='bin-output'><function>EXT:WRITE-FLOAT</function></link>">
 <!ENTITY wr-integer "<link linkend='bin-output'><function>EXT:WRITE-INTEGER</function></link>">
 
+<!-- *** netica *** -->
+<!ENTITY netica-c-api "http://norsys.com/onLineAPIManual/functions/">
+
 <!-- *** gettext *** -->
 <!ENTITY category "<link linkend='category'><replaceable>CATEGORY</replaceable></link>">
 <!ENTITY domain "<link linkend='domain'><replaceable>DOMAIN</replaceable></link>">

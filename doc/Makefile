@@ -5,7 +5,7 @@ DTDVER=4.2
 IMPNOTES=impnotes.dsl cl-ent.xml clhs-ent.xml impbody.xml impent.xml	\
 	impext.xml impissue.xml impbyte.xml unix-ent.xml		\
 	../modules/dirkey/dirkey.xml ../modules/syscalls/syscalls.xml	\
-	../modules/regexp/regexp.xml
+	../modules/regexp/regexp.xml ../modules/netica/netica.xml
 RM=/bin/rm -f
 # DOC=$(shell pwd)
 
