@@ -1,9 +1,8 @@
+                       CLISP sources coding style
+                       ==========================
 
-                        CLISP sources coding style
-                        ==========================
-
-Lisp developers are individualists, and every individualist tends to have
-his own preferred coding style. Nevertheless, on projects like CLISP where
+Lisp developers are individuals, and every individual tends to have his
+own preferred coding style. Nevertheless, on projects like CLISP where
 several people come together to hack the same source, it is necessary to
 adhere to a common coding style, so that other developers enjoy reading
 your code.
@@ -24,16 +23,16 @@ A lot of good advice about naming conventions and placement and contents of
 comments can be found in other places; therefore I skip these issues here.
 I'll mention only one rule about
 
-                          Special variables
-                          -----------------
+                           Special variables
+                           -----------------
 
 All variables which are subject to 'defvar', 'defparameter' or 'declare
 special' (even if only locally in a function) must be surrounded by asterisks.
 I had once in a program a special variable called 'line', and it caused me
 an hour of debugging time at least. I will not make this mistake again...
 
-                              Tabs
-                              ----
+                                  Tabs
+                                  ----
 
 In CLISP source, except for Makefiles and ChangeLog files, we don't use tabs.
 This is because they have no functional advantage, and make "diff" output
@@ -46,26 +45,26 @@ to your $HOME/.emacs file:
     ; Tabs are anachronistic.
     (setq-default indent-tabs-mode nil)
 
-                             Lisp indentation
-                             ----------------
+               Lisp indentation and parentheses placement
+               ------------------------------------------
 
 We try to keep things in 79 columns, because that's the default width of
-Emacs windows.
+Emacs windows.  We urge you to use the Emacs 21 lisp-mode to indent
+your lisp code, see file <clisp/emacs/clisp-indent.el>.
 
-We use an indentation of two spaces - regardless whether it's for body
-forms of 'let' and 'progn', or for the arguments of functions or macros.
-
-Parentheses are set in one of two styles. The more mainstream one is to
-add closing parens at the end of the last line, like this:
+Parentheses should be set in the mainstream style (used in CLtL1, CLtL2
+and the ANSI CL spec), with the closing parens at the end of the last
+line, like this:
 
 (defun get-funname-symbol (funname)
   (if (atom funname)
     funname
     (get-setf-symbol (second funname))))
 
-Then there is also the "Bruno style". Its characteristic is that closing
-parentheses are located either on the same line as the corresponding opening
-paren, or on extra lines containing only closing parentheses:
+Some of the CLISP code still uses the "Bruno style". Its characteristic
+is that closing parentheses are located either on the same line as the
+corresponding opening paren, or on extra lines containing only closing
+parentheses:
 
 (defun get-funname-symbol (funname)
   (if (atom funname)
@@ -73,35 +72,10 @@ paren, or on extra lines containing only closing parentheses:
     (get-setf-symbol (second funname))
 ) )
 
-This one is less mainstream, but it permits me to "see" the structure of a
-large expression more easily. And it also requires fewer editor operations
-in order to swap the two legs of the 'if' expression.
+Please avoid adding code in this style.
 
-'multiple-value-bind' expressions are indented specially: If the values-
-producing form doesn't fit on the same line, it is indented by 4 spaces,
-in order to distinguish it from the following progn-like sequence of forms:
-
-    (multiple-value-bind (vr vl sv se ge)
-        (get-setf-expansion (first arglist) env)
-      (setq bindlist (nreconc (mapcar #'list vr vl) bindlist))
-      (setf (cadr tail) (list 'MULTIPLE-VALUE-BIND lv ge nil))
-      ...
-
-In 'if' expressions both legs are indented by the same amount: two spaces.
-
-If you are using Emacs and want to use its indenter, you have to teach it
-about Common Lisp. By default, in Lisp mode, it indents for Emacs Lisp.
-(This is also the reason for its 4-then-2 'if' expression indentation: in
-Emacs Lisp, the second subform of 'if' is the 'true' case, whereas the third
-and subsequent subforms together make up the 'else' case. Common Lisp does
-not have this irregularity.)
-
-To get the Common Lisp indentation, load the file `emacs/clisp-indent.el'.
-
-More special rules for macros may be needed; watch out responsibly yourself.
-
-                               C style
-                               -------
+                                C style
+                                -------
 
 Most of the C code of CLISP is stored in files with extension '.d'. It _is_
 C code, but the file will be preprocessed a bit.
@@ -121,11 +95,12 @@ you to mix declarations and statements freely, without the need for
 additional braces.
 
 We have a few macros defined in lispbibl.d: 'elif' means 'else if',
-'until' means 'while not'. 'loop' introduces a loop which can be exited
-only via 'break'; it's equivalent to 'for(;;)'.
+'until' means 'while not' (both are now deprecated).
+'loop' introduces a loop which can be exited only via 'break'; it's
+equivalent to 'for(;;)'.
 
-                              C indentation
-                              -------------
+                             C indentation
+                             -------------
 
 The general style is similar to K&R style or Linux kernel style, with a
 tab width of 2 spaces. A typical 'if' or 'while' statement looks like this:
@@ -140,17 +115,16 @@ When statements have to span lines, split them before the operator; this
 is what the GNU standards recommend:
 
             if (mconsp(Car(alist)) && simple_string_p(Car(Car(alist)))
-                && string_equal(line,Car(Car(alist)))
-               ) {
+                && string_equal(line,Car(Car(alist)))) {
 
-Use `emacs/d-mode.el' to make Emacs indent and fontify your *.d files.
+Use <clisp/emacs/d-mode.el> to make Emacs indent and fontify your *.d files.
 
-                               Comments
-                               --------
+                                Comments
+                                --------
 
 Comments in front of a function definition describe the function's
 specification, i.e. all a caller of the function needs to know. Describe
-the function's behaviour in form a sentence with implicit subject "this
+the function's behavior in a sentence with implicit subject "this
 function", not as a command. For algorithmic functions with non obvious
 complexity, the (worst-case) complexity (= running time) is part of the
 function's specification.
@@ -178,15 +152,15 @@ We are sorry about the German comments. If you are a native German speaker,
 you are welcome to faithfully translate them to English. If not, then
 please leave them alone and wait for someone to translate them to English.
 
-                            Variable names
-                            --------------
+                             Variable names
+                             --------------
 
 Use descriptive variable names. Don't use names like "ll", "tem", "stri",
 "comp"; if you want to participate in an obfuscated Lisp code contest, you
 may, but don't put the resulting code into CLISP.
 
-                         Variable initializations
-                         ------------------------
+                        Variable initializations
+                        ------------------------
 
 If you want to access a variable's value, first initialize it.
 
@@ -213,3 +187,21 @@ not
 To many people this advice seems obvious; I am sorry that I have to repeat
 it here.
 
+                           Change Management
+                           -----------------
+
+Even though CLISP is kept under the CVS, all functional changes require
+a ChangeLog entry.  If there is no ChangeLog file in the current
+directory, the entry goes into <clisp/src/ChangeLog>; you should refer
+to the recent entries there for good examples of ChangeLog entries.
+One should always use a high-level overview of the change (1-2 lines)
+in the beginning of the entry, and use it as the CVS log message.
+We highly recommend using Emacs change-log mode with font-lock, as the
+highlighting will give many valuable suggestions about the right format.
+Use M-x add-change-log-entry RET to add an entry, and some information
+will be put there for you automagically.
+
+Never mix functional changes with formatting/translation changes!
+If you are fixing indentation or translating comments, make a separate
+CVS commit without a ChangeLog entry, then check in your functional
+changes and add the ChangeLog entry.
