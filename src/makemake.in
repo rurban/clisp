@@ -2716,7 +2716,7 @@ if [ $HOS = unix ] && [ $CROSS = false ] ; then
   done
   # Some "make"s don't support empty target lists. Hence the "anymodule".
   echol "anymodule \$(MODULES) : lisp${LEXE} lispinit.mem force"
-  echotab "test -d \$@ || ${SRCDIR}lndir ${SRCTOPDIR}modules/\$@ \$@"
+  echotab "test -d \$@ || ${SRCDIR:-${HERE}}lndir ${SRCTOPDIR}modules/\$@ \$@"
   echotab "if test -f \$@/configure -a '!' -f \$@/config.status ; then cd \$@ ; ./configure --cache-file="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache ; fi"
   EVERY_INCLUDES_DOTS_C=''
   for f in $EVERY_INCLUDES_C $EVERY_INCLUDES_H ; do
