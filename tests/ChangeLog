@@ -1,3 +1,8 @@
+2001-08-29  Sam Steingold  <sds@gnu.org>
+
+	* path.tst: many more tests, inspired by
+	http://www-jcsu.jesus.cam.ac.uk/~csr21/pathname-tests.lisp
+
 2001-08-27  Sam Steingold  <sds@gnu.org>
 
 	* alltest.tst (defstruct ice-cream-factory): added a keyword
