@@ -1,3 +1,8 @@
+2003-02-20  Sam Steingold  <sds@gnu.org>
+
+	* defs2.lisp (destructuring-error): as per CLHS 3.5.1.7, signal
+	a PROGRAM-ERROR, not an ERROR
+
 2003-02-17  Sam Steingold  <sds@gnu.org>
 
 	* charstrg.d (hex_table): const
