@@ -280,7 +280,9 @@
        ;; therefore we use the generic "compare all slots" approach.
        (dolist (s (class-slots slot-class) t)
          (let ((n (slot-definition-name s)))
-           (unless (memq n '(:initform :initfunction :documentation inheritable-initer inheritable-doc))
+           ;; $inheritable-initer covers the :initform :initfunction slot options.
+           ;; $inheritable-doc covers the :documentation slot option.
+           (unless (memq n '($inheritable-initer $inheritable-doc))
              (let ((unboundp1 (not (slot-boundp slot1 n)))
                    (unboundp2 (not (slot-boundp slot2 n))))
                (unless (and (eq unboundp1 unboundp2)
