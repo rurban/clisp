@@ -673,6 +673,12 @@ type-error
 (make-sequence '(string 3) 4)
 type-error
 
+(make-sequence 'null 5)
+type-error
+
+(make-sequence 'cons 0)
+type-error
+
 (make-symbol 'x)
 type-error
 
