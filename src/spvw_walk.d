@@ -15,7 +15,7 @@
 global void map_heap_objects (map_heap_function_t* fun, void* arg) {
   # program constants:
   for_all_subrs({
-    fun(arg,subr_tab_ptr_as_object(ptr),sizeof(subr_));
+    fun(arg,subr_tab_ptr_as_object(ptr),sizeof(subr_t));
   });
   for_all_constsyms({
     fun(arg,symbol_tab_ptr_as_object(ptr),sizeof(symbol_));

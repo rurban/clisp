@@ -585,7 +585,7 @@
 (defun finalize-coutput-file ()
   (when *ffi-module*
     (format *coutput-stream* "~%")
-    (format *coutput-stream* "subr_ module__~A__subr_tab[1];~%" *c-name*)
+    (format *coutput-stream* "subr_t module__~A__subr_tab[1];~%" *c-name*)
     (format *coutput-stream* "uintC module__~A__subr_tab_size = 0;~%" *c-name*)
     (format *coutput-stream* "subr_initdata_t module__~A__subr_tab_initdata[1];~%"
             *c-name*)
@@ -629,10 +629,10 @@
               (to-c-typedecl (svref (second function) 1)
                              (format nil "(~A)()" (first function)))))
     (format *coutput-stream* "~%void module__~A__init_function_1(module)
-  var module_* module;~%{ }~%"
+  var module_t* module;~%{ }~%"
             *c-name*)
     (format *coutput-stream* "~%void module__~A__init_function_2(module)
-  var module_* module;~%{~%"
+  var module_t* module;~%{~%"
             *c-name*)
     (dolist (variable *variable-list*)
       (format *coutput-stream*

@@ -827,7 +827,7 @@ LISPFUNN(the_frame,0)
   local void same_env_as()
     {
       var object* FRAME = test_framepointer_arg();
-      var environment env;
+      var environment_t env;
       # 5 Environments noch "leer":
       env.var_env = nullobj;
       env.fun_env = nullobj;

@@ -804,7 +804,7 @@ subr_initdata_t module__affi__subr_tab_initdata[subr_anz] = {
 
 # called once when module is initialized, not called if found in .mem file
 void module__affi__init_function_1(module)
-  var module_* module;
+  var module_t* module;
   { # evtl. keywords-Slot müssten wir initialisieren
   }
 

@@ -134,11 +134,11 @@ struct {
   subr_ _subr_mypack__fun1;
 #endif
 #if ((defined(cond0)) && (defined(cond1))) || ((defined(cond0)) && (!(defined(cond1))))
-  subr_ _subr_mypack__fun2;
+  subr_t _subr_mypack__fun2;
 #endif
-  subr_ _subr_mypack__fun3;
-  subr_ _subr_mypack__fun4;
-  subr_ _subr_user__fun5;
+  subr_t _subr_mypack__fun3;
+  subr_t _subr_mypack__fun4;
+  subr_t _subr_user__fun5;
   int _dummy_to_avoid_trailing_comma_in_initializer;
 } module__sample__subr_tab = {
 #if defined(cond0)
@@ -152,7 +152,7 @@ struct {
   LISPFUN_F(subr_user__fun5,2,0,rest,nokey,0,NIL)
   0
 };
-uintC module__sample__subr_tab_size = ((char*)&module__sample__subr_tab._dummy_to_avoid_trailing_comma_in_initializer-(char*)&module__sample__subr_tab)/sizeof(subr_);
+uintC module__sample__subr_tab_size = ((char*)&module__sample__subr_tab._dummy_to_avoid_trailing_comma_in_initializer-(char*)&module__sample__subr_tab)/sizeof(subr_t);
 
 struct {
 #if defined(cond0)
@@ -178,7 +178,7 @@ struct {
   0
 };
 
-void module__sample__init_function_1 (module_* module)
+void module__sample__init_function_1 (module_t* module)
 {
   pushSTACK(object_Ktest);
   pushSTACK(object_Ktest_2Dnot);
@@ -198,6 +198,6 @@ void module__sample__init_function_1 (module_* module)
 #endif
 }
 
-void module__sample__init_function_2 (module_* module)
+void module__sample__init_function_2 (module_t* module)
 {
 }

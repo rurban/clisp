@@ -21,7 +21,7 @@
 
 # Expander für die Deklaration der FSUBR-Tabelle:
   #define LISPSPECFORM_C(name,req_anz,opt_anz,body_flag)  \
-    fsubr_ D_##name;
+    fsubr_t D_##name;
 
 # Expander für die Initialisierung der FSUBR-Tabelle:
   #define LISPSPECFORM_D(name,req_anz,opt_anz,body_flag)  \

@@ -991,10 +991,10 @@ LISPFUNN(array_dimensions,1) # (ARRAY-DIMENSIONS array), CLTL S. 292
 # > array: indirect array of rank r
 # > struct { uintL dim; uintL dimprod; } dims_sizes[r]: room for the result
 # < for i=1,...r:  dims_sizes[r-i] = { Dim_i, Dim_i * ... * Dim_r }
-  global void iarray_dims_sizes (object array, array_dim_size* dims_sizes);
+  global void iarray_dims_sizes (object array, array_dim_size_t* dims_sizes);
   global void iarray_dims_sizes(array,dims_sizes)
     var object array;
-    var array_dim_size* dims_sizes;
+    var array_dim_size_t* dims_sizes;
     {
       var uintC r = Iarray_rank(array); # Rang
       if (r > 0) {
@@ -4831,7 +4831,7 @@ global object ssbvector_push_extend (object ssbvector, uintB b) {
                    uintL depth; # Rekursionstiefe
                  }
           initial_contents_locals;
-  local map_sequence_function initial_contents_aux;
+  local map_sequence_function_t initial_contents_aux;
   local object initial_contents(datenvektor,dims,rank,contents)
     var object datenvektor;
     var object dims;

@@ -2117,7 +2117,7 @@ LISPFUNN(coerce,2)
           goto fehler_object;
         }
         # empty environment for get_closure:
-        var environment* env;
+        var environment_t* env;
         make_STACK_env(NIL,NIL,NIL,NIL,O(top_decl_env), env = );
         # build closure with lambdabody = (cdr fun), name = :LAMBDA :
         value1 = get_closure(Cdr(fun),S(Klambda),false,env); mv_count=1;
@@ -2833,9 +2833,9 @@ LISPFUNN(gc_statistics,0)
 # UP: Führt eine Statistik über die Aktion einer GC.
 # with_gc_statistics(fun);
 # > fun: Funktion, die eine GC ausführt
-  global void with_gc_statistics (gc_function* fun);
+  global void with_gc_statistics (gc_function_t* fun);
   global void with_gc_statistics(fun)
-    var gc_function* fun;
+    var gc_function_t* fun;
     {
       var object flag = Symbol_value(S(gc_statistics_stern));
       if (!posfixnump(flag)) {

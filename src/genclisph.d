@@ -791,12 +791,12 @@ global int main()
 # printf("typedef struct { SRECORD_HEADER object class; object other[unspecified]; } *  Instance;\n");
   printf("typedef void Values;\n");
   printf("typedef Values (*lisp_function_t)();\n");
-  printf("typedef struct { lisp_function_t function; object name; object keywords; uintW argtype; uintW req_anz; uintW opt_anz; uintB rest_flag; uintB key_flag; uintW key_anz; } subr_");
+  printf("typedef struct { lisp_function_t function; object name; object keywords; uintW argtype; uintW req_anz; uintW opt_anz; uintB rest_flag; uintB key_flag; uintW key_anz; } subr_t");
   #if defined(NO_TYPECODES) && (alignment_long < 4) && defined(GNU)
     printf(" __attribute__ ((aligned (4)))");
   #endif
   printf(";\n");
-# printf("typedef subr_ *  Subr;\n");
+# printf("typedef subr_t *  Subr;\n");
   printf("typedef enum { subr_norest, subr_rest } subr_rest_t;\n");
   printf("typedef enum { subr_nokey, subr_key, subr_key_allow } subr_key_t;\n");
   #ifdef TYPECODES
@@ -1275,7 +1275,7 @@ global int main()
   printf("extern struct subr_tab_ {\n");
   #undef LISPFUN
   #define LISPFUN(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  \
-    printf("  subr_ %s;\n",STRING(D_##name));
+    printf("  subr_t %s;\n",STRING(D_##name));
   #include "subr.c"
   #undef LISPFUN
   printf("} subr_tab_data;\n");
@@ -1322,17 +1322,17 @@ global int main()
   printf("extern uintC module_count;\n");
   printf("typedef struct { const char* packname; const char* symname; } subr_initdata_t;\n");
   printf("typedef struct { const char* initstring; } object_initdata_t;\n");
-  printf("typedef struct module_ { const char* name; subr_* stab; const uintC* stab_size; object* otab; const uintC* otab_size; bool initialized; const subr_initdata_t* stab_initdata; const object_initdata_t* otab_initdata; void (*initfunction1) (struct module_ *); void (*initfunction2) (struct module_ *);");
+  printf("typedef struct module_t { const char* name; subr_t* stab; const uintC* stab_size; object* otab; const uintC* otab_size; bool initialized; const subr_initdata_t* stab_initdata; const object_initdata_t* otab_initdata; void (*initfunction1) (struct module_t *); void (*initfunction2) (struct module_t *);");
   #ifdef DYNAMIC_MODULES
-    printf(" struct module_ * next;");
+    printf(" struct module_t * next;");
   #endif
-  printf(" } module_;\n");
+  printf(" } module_t;\n");
   #ifdef DYNAMIC_MODULES
     printf("BEGIN_DECLS\n");
-    printf("extern void add_module (module_ * new_module);\n");
+    printf("extern void add_module (module_t * new_module);\n");
     printf("END_DECLS\n");
   #else
-    printf("extern module_ modules[];\n");
+    printf("extern module_t modules[];\n");
   #endif
   #ifdef STACK_DOWN
     printf("#define STACK_(n)  (STACK[(sintP)(n)])\n");
