@@ -1,5 +1,12 @@
 2003-05-07  Sam Steingold  <sds@gnu.org>
 
+	* encoding.d (ENCODING-LINE-TERMINATOR): new function
+	* init.lisp (ENCODING-LINE-TERMINATOR): exported from EXT
+	* constsym.d, subr.d (encoding_line_terminator): added
+
+2003-05-07  Sam Steingold  <sds@gnu.org>
+
+	replaced fehler_encoding() with check_encoding()
 	* error.d (check_encoding): new function, based on
 	test_external_format_arg() in stream.d
 	(fehler_encoding): removed
