@@ -3,7 +3,7 @@
 ;;;; Bruno Haible 4.2.1990, 4.11.1991
 
 (in-package "LISP")
-(export '(eval-env with-keyboard *keyboard-input* *prompt-with-package*))
+(export '(eval-env with-keyboard *keyboard-input* *prompt*))
 (in-package "SYSTEM")
 
 ;-------------------------------------------------------------------------------
@@ -33,27 +33,50 @@
 ;   #'(lambda () (read-eval-print "> "))
 ; )
 
-(defvar *prompt-with-package* t)
+(defun package-short-name (pkg)
+  "Return the shortest (nick)name of the package."
+  (declare (type package pkg) (values simple-string))
+  (reduce (lambda (st0 st1)
+            (declare (simple-string st0 st1))
+            (if (> (length st0) (length st1)) st1 st0))
+          (package-nicknames pkg) :initial-value (package-name pkg)))
 
-(defvar *home-package* nil)
+(let ((index 0))
+  (defun prompt-index ()
+    "Return the index of the prompt."
+    (incf index)))
 
-(defun prompt-string-package ()
-  (unless *home-package*
-    (setf *home-package* *package*))
-  (if (and (packagep *package*) (package-name *package*))
-    (if (or (not (find-symbol "T" *package*)) ; Ist *package* eine Package ohne Lisp-Syntax?
-            (and *prompt-with-package*
-                 (not (eq *package* *home-package*)) ) )
-        (string-concat "[" (package-name *package*) "]")
-        "" )
-    (DEUTSCH "[*package* ungültig]"
-     ENGLISH "[*package* invalid]"
-     FRANCAIS "[*package* invalide]")
-) )
+(let (home-package)
+  (defun prompt-new-package ()
+    "Return the current package or \"\" if it never changed."
+    (unless home-package
+      (setq home-package *package*))
+    (unless (eq home-package *package*)
+      *package*)))
+
+(defvar *prompt*
+  #'(lambda ()
+      ;; prompt with *package* when it is different from the initial one
+      ;; or when it doesn't contain standard LISP symbols, like T.
+      (if (and (packagep *package*) (package-name *package*))
+          (format nil "~@[~(~a~)~][~:d]"
+                  (if (or (not (find-symbol "T" *package*))
+                          (prompt-new-package))
+                      (package-short-name *package*))
+                  (prompt-index))
+          (DEUTSCH "[*package* ungültig]"
+           ENGLISH "[*package* invalid]"
+           FRANCAIS "[*package* invalide]")))
+  "The top level prompt.  If a function, the return value is used.
+If anything else, printed.")
+
 ; Vom Prompt der erste Teil:
 (defun prompt-string1 () "")
 ; Vom Prompt der zweite Teil:
-(defun prompt-string2 () (prompt-string-package))
+(defun prompt-string2 ()
+  (princ-to-string (if (functionp *prompt*)
+                       (lisp::ignore-errors (funcall *prompt*))
+                       *prompt*)))
 ; Vom Prompt der letzte Teil:
 (defun prompt-string3 () "> ")
 

@@ -3055,14 +3055,24 @@ No finalization request will be executed more than once.
 
 <H3>90.5. The Prompt</H3>
 
-The variable <CODE>*prompt-with-package*</CODE> controls the
-appearance of the prompt.  When <CODE>*prompt-with-package*</CODE> is
-<CODE>nil</CODE> the prompt consists of the string
-&quot;&gt;&nbsp;&quot;. When
-<CODE>*prompt-with-package*</CODE> is not <CODE>nil</CODE> the prompt
-consists of a string like: &quot;[<VAR>package</VAR>]&gt;&nbsp;&quot;, where
-<VAR>package</VAR> is the name of the package which is the value of
-the <CODE>*package*</CODE> variable.
+The variable <CODE>sys::*prompt*</CODE> controls the appearance of the
+prompt.  When its value is a function, it is called and it's value is
+printed with <CODE>princ</CODE>.  Otherwise, the value itself is printed
+with <CODE>princ</CODE>.  The default value of
+<CODE>sys::*prompt*</CODE> prints
+&quot;<VAR>package[nn]</VAR>&gt;&nbsp;&quot; where <VAR>package</VAR> is
+the shortest (nick)name of the current package <CODE>*package*</CODE> if
+it is the same as it was in the beginning or if it doesn't contain
+symbol <VAR>T</VAR> (it is assumed that in the latter case you would
+want to keep in mind that your current package is something weird); and
+<VAR>nn</VAR> is the ordinal number of the current prompt (hopefully, it
+will remain finite).  To help you in constructing your own fancy
+prompts, 3 functions are provided: <CODE>sys::prompt-index</CODE>,
+returning (and incrementing!)  the current prompt number;
+<CODE>sys::prompt-new-package</CODE>, returning <CODE>*package*</CODE>
+or NIL if the current package is the same as it was initially; and
+<CODE>sys::package-short-name</CODE> taking one argument, a package, and
+returning its shortest name or nickname.
 
 
 <H2>Chapter 91: The Debugger and Stepper</H2>
