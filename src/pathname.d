@@ -8368,7 +8368,7 @@ local sintL interpret_launch_priority () {
    pipe-stream if one or more of :input, :output, :error is :pipe.
  :priority : :HIGH/:LOW/:NORMAL or fixnum
    on UNIX - see nice(2)
-   on Windows - see CreateProcess dwCreationFlags parm.
+   on Windows - see CreateProcess dwCreationFlags parameter.
  returns: value1: if wait exit code, child PID otherwise
           value2: NIL or created pipe-output-stream, input stream for child
           value3: NIL or created pipe-input-stream, output stream for child
