@@ -1,5 +1,10 @@
 2002-11-28  Sam Steingold  <sds@gnu.org>
 
+	* loop.lisp (expand-loop): APPEND/NCONC do not allow backward
+	consing because REVAPPEND/NRECONC drop the last atom in dotted lists
+
+2002-11-28  Sam Steingold  <sds@gnu.org>
+
 	* pprint.lisp (with-gensyms): append the variable name
 	to GENSYM prefix
 

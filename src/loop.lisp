@@ -236,11 +236,52 @@
         (stepafter-code nil) ; Code zur Vorbereitung des nächsten Schleifendurchlaufs (umgedrehte Liste)
         (accu-vars-nreverse nil) ; Akkumulationsvariablen, die am Schluss umzudrehen sind
         (finally-code nil) ; finally-Code (umgedrehte Liste)
+        (backward-consing-p     ; is backward-consing possible?
+         (do ((rest *whole* (cdr rest)))
+             ((endp rest) t)
+           (case (loop-keywordp (car rest))
+             ((NCONC NCONCING APPEND APPENDING)
+              (unless (eq (loop-keywordp (caddr rest)) 'INTO)
+                (return nil))))))
         (results nil)) ; Liste von Ergebnisformen (höchstens eine!)
     (labels
       ((next-kw () ; Schaut, ob als nächstes ein Keyword kommt.
                    ; Wenn ja, wird es geliefert. Wenn nein, Ergebnis NIL.
          (and (consp body-rest) (loop-keywordp (first body-rest))))
+       (cons-forward (form accuvar accufuncsym)
+         (let ((tailvar
+                (cdr (or (assoc accuvar accuvar-tailvar-alist)
+                         (car (setq accuvar-tailvar-alist
+                                    (acons accuvar
+                                           (gensym (symbol-name accuvar))
+                                           accuvar-tailvar-alist))))))
+               (incrementvar (gensym)))
+           (push accuvar accu-vars-nil)
+           (push tailvar accu-vars-nil)
+           `(LET ((,incrementvar
+                   ,(ecase accufuncsym
+                      (CONS `(LIST ,form))
+                      (REVAPPEND `(COPY-LIST ,form))
+                      (NRECONC `,form))))
+              (IF ,accuvar
+                ,(case accufuncsym
+                   (CONS `(SETF ,tailvar (SETF (CDR ,tailvar) ,incrementvar)))
+                   (t `(SETF ,tailvar (LAST (RPLACD ,tailvar ,incrementvar)))))
+                ,(case accufuncsym
+                   (CONS `(SETF ,tailvar (SETF ,accuvar ,incrementvar)))
+                   (t `(SETF ,tailvar (LAST (SETF ,accuvar
+                                                  ,incrementvar)))))))))
+       (acculist-var ()
+         (or acculist-var
+             (progn (setq acculist-var (gensym "ACCULIST-VAR-"))
+                    (push acculist-var accu-vars-nil)
+                    (unless backward-consing-p
+                      (push acculist-var results))
+                    acculist-var)))
+       (cons-backward (form) ; accuvar is NIL, accufuncsym is CONS
+         (let ((accuvar (acculist-var)))
+           (push `(SYS::LIST-NREVERSE ,accuvar) results)
+           `(SETQ ,accuvar (CONS ,form ,accuvar))))
        (parse-kw-p (kw) ; Schaut, ob als nächstes das Keyword kw kommt.
                         ; Wenn ja, wird es übergangen. Wenn nein, Ergebnis NIL.
          (and (consp body-rest) (eq (loop-keywordp (first body-rest)) kw)
@@ -319,12 +360,14 @@
                  ((COLLECT COLLECTING APPEND APPENDING NCONC NCONCING)
                   (pop body-rest)
                   ;; It seems permitted to write
-                  ;;   (loop ...  collect i into c  collect (copy-list c))
+                  ;;   (loop ...  collect i into c collect (copy-list c))
                   ;; Therefore we must use forward-consing collection
                   ;; (keeping the tail in a separate variable) if the
                   ;; accumulation variable is named, and can use the more
                   ;; efficient backward-consing (with nreverse at the end)
                   ;; only for unnamed accumulation.
+                  ;; Also, APPEND/NCONC require forward-consing because
+                  ;; REVAPPEND/NRECONC drop the last atom in dotted lists
                   (let ((form (parse-form-or-it kw))
                         (accuvar nil)
                         (accufuncsym
@@ -336,36 +379,17 @@
                       (unless (and (consp body-rest)
                                    (symbolp (setq accuvar (pop body-rest))))
                         (loop-syntax-error 'into)))
-                    (if accuvar
-                      ;; Named accumulation variable -> forward-consing.
-                      (let ((tailvar
-                              (cdr (or (assoc accuvar accuvar-tailvar-alist)
-                                       (car (setq accuvar-tailvar-alist
-                                                  (acons accuvar
-                                                         (gensym (symbol-name accuvar))
-                                                         accuvar-tailvar-alist))))))
-                            (incrementvar (gensym)))
-                        (push accuvar accu-vars-nil)
-                        (push tailvar accu-vars-nil)
-                        `(LET ((,incrementvar
-                                ,(ecase accufuncsym
-                                   (CONS `(LIST ,form))
-                                   (REVAPPEND `(COPY-LIST ,form))
-                                   (NRECONC `,form))))
-                           (IF ,accuvar
-                             ,(case accufuncsym
-                                (CONS `(SETF ,tailvar (SETF (CDR ,tailvar) ,incrementvar)))
-                                (t `(SETF ,tailvar (LAST (RPLACD ,tailvar ,incrementvar)))))
-                             ,(case accufuncsym
-                                (CONS `(SETF ,tailvar (SETF ,accuvar ,incrementvar)))
-                                (t `(SETF ,tailvar (LAST (SETF ,accuvar ,incrementvar))))))))
-                      ;; Unnamed accumulation variable -> backward-consing.
-                      (progn
-                        (setq accuvar
-                              (or acculist-var (setq acculist-var (gensym))))
-                        (push accuvar accu-vars-nil)
-                        (push `(SYS::LIST-NREVERSE ,accuvar) results)
-                        `(SETQ ,accuvar (,accufuncsym ,form ,accuvar))))))
+                    (cond (accuvar ; named acc var -> forward-consing.
+                           (cons-forward form accuvar accufuncsym))
+                          ((or (eq accufuncsym 'REVAPPEND)
+                               (eq accufuncsym 'NRECONC)
+                               (null backward-consing-p))
+                           ;; REVAPPEND/NRECONC now or before
+                           (when backward-consing-p
+                             (error "~s: internal error: backward consing should be illegal!" *whole*))
+                           (cons-forward form (acculist-var) accufuncsym))
+                          (t ; Unnamed acc var & CONS -> cons-backward
+                           (cons-backward form)))))
                  ((COUNT COUNTING SUM SUMMING MAXIMIZE MAXIMIZING
                    MINIMIZE MINIMIZING)
                   (pop body-rest)
