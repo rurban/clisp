@@ -3762,14 +3762,28 @@ local void * open_library (object *name, uintL version)
 {
   var void * handle;
  open_library_restart:
- #if defined(RTLD_DEFAULT)
-  if (eq(*name,S(Kdefault))) return RTLD_DEFAULT;
- #elif defined(WIN32_NATIVE)
-  if (eq(*name,S(Kdefault))) return NULL;
- #endif
- #if defined(RTLD_NEXT)
-  if (eq(*name,S(Knext))) return RTLD_NEXT;
- #endif
+  if (eq(*name,S(Kdefault))) {
+    #if defined(RTLD_DEFAULT)
+      return RTLD_DEFAULT;
+    #elif defined(UNIX_FREEBSD)
+      return NULL;
+    #elif defined(WIN32_NATIVE)
+      return NULL;
+    #else
+      pushSTACK(S(Kdefault));
+      pushSTACK(S(foreign_library));
+      fehler(error,GETTEXT("~S: ~S is not supported on this platform."));
+    #endif
+  }
+  if (eq(*name,S(Knext))) {
+    #if defined(RTLD_NEXT)
+      return RTLD_NEXT;
+    #else
+      pushSTACK(S(Knext));
+      pushSTACK(S(foreign_library));
+      fehler(error,GETTEXT("~S: ~S is not supported on this platform."));
+    #endif
+  }
   with_string_0(*name = check_string(*name),O(misc_encoding),libname, {
     begin_system_call();
     handle = libopen(libname,version);
@@ -3794,6 +3808,10 @@ local void * open_library (object *name, uintL version)
   return handle;
 }
 
+#if defined(UNIX_FREEBSD) && !defined(RTLD_DEFAULT)
+local void* libc_handle;
+#endif
+
 #if defined(WIN32_NATIVE)
 /* #include <psapi.h> */
 /* support older woe32 incarnations:
@@ -3809,7 +3827,22 @@ local inline void* find_name (void *handle, char *name)
 { /* find the name in the library handle  ==  dlsym()*/
   var void *ret = NULL;
   begin_system_call();
- #if defined(WIN32_NATIVE)
+ #if defined(UNIX_FREEBSD) && !defined(RTLD_DEFAULT)
+  /* FreeBSD 4.0 doesn't support RTLD_DEFAULT, so we simulate it by
+     searching the executable and the libc. */
+  if (handle == NULL) {
+    /* Search the executable. */
+    ret = dlsym(NULL,name);
+    if (ret == NULL) {
+      /* Search the libc. */
+      if (libc_handle == NULL)
+        libc_handle = dlopen("libc.so",RTLD_LAZY);
+      if (libc_handle != NULL)
+        ret = dlsym(libc_handle,name);
+    }
+  } else
+    ret = dlsym(handle,name);
+ #elif defined(WIN32_NATIVE)
   if (handle == NULL) { /* RTLD_DEFAULT -- search all modules */
     HANDLE cur_proc;
     HMODULE *modules;
