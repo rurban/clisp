@@ -58,11 +58,11 @@ define run_all_tests
        run -B . -M lispinit.mem -q -norc -C -i suite/tests.lisp -x "(cd \"suite/\") (run-all-tests)"
 end
 document run_all_tests
-         run the specified test in the test suite
+         run the whole test suite
 end
 
 define ansi_tests
-       run -B . -M lispinit.mem -q -norc -ansi -x "(cd \"../../../gcl/ansi-tests/\") (load \"gclload\")"
+       run -B . -M lispinit.mem -q -norc -ansi -x "(cd \"ansi-tests/\") (load \"clispload\")"
 end
 document ansi_tests
          run the gcl/ansi-test suite
