@@ -933,9 +933,6 @@ LISPSYM(file_string_length,"FILE-STRING-LENGTH",lisp)
 LISPSYM(line_number,"LINE-NUMBER",system)
 LISPSYM(allow_read_eval,"ALLOW-READ-EVAL",system)
 LISPSYM(defgray,"%DEFGRAY",system)
-#if defined(EXPORT_SYSCALLS) && defined(HAVE_FLOCK)
-LISPSYM(stream_lock,"STREAM-LOCK",posix)
-#endif
 /* ---------- SYMBOL ---------- */
 LISPSYM(putd,"%PUTD",system)
 LISPSYM(find_subr,"%FIND-SUBR",system)
@@ -1251,9 +1248,6 @@ LISPSYM(Ktoken,"TOKEN",keyword)
 #endif
 #if defined(WIN32_NATIVE)
 LISPSYM(Kwin32,"WIN32",keyword)
-#endif
-#if defined(EXPORT_SYSCALLS) && defined(HAVE_FLOCK)
-LISPSYM(Kshared,"SHARED",keyword)
 #endif
 LISPSYM(Kread_only,"READ-ONLY",keyword)
 
