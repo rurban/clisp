@@ -165,6 +165,9 @@ int readline_echoing_p = 1;
 char *rl_prompt;
 int rl_visible_prompt_length = 0;
 
+/* Whether the prompt has already been output by the caller. */
+int rl_already_prompted = 0;
+
 /* The number of characters read in order to type this complete command. */
 int rl_key_sequence_length = 0;
 
@@ -296,7 +299,7 @@ readline_internal_setup ()
 
   if (readline_echoing_p == 0)
     {
-      if (rl_prompt)
+      if (rl_prompt && !rl_already_prompted)
 	{
 	  fprintf (_rl_out_stream, "%s", rl_prompt);
 	  fflush (_rl_out_stream);
@@ -304,7 +307,10 @@ readline_internal_setup ()
     }
   else
     {
-      rl_on_new_line ();
+      if (rl_prompt && rl_already_prompted)
+	rl_on_new_line_with_prompt ();
+      else
+	rl_on_new_line ();
       (*rl_redisplay_function) ();
 #if defined (VI_MODE)
       if (rl_editing_mode == vi_mode)
