@@ -3491,7 +3491,7 @@ pointing to non-existent files and can take the following values:
   of the first element of &sequence-r; that was not updated (= &end-r;
   or &lt; &end-r; if the &stream-r; reached its end).</simpara>
  <simpara>This function is especially efficient if &sequence-r; is a
-  &string-t; and &stream-k; is a &file-pipe-socket-s; with
+  &string-t; and &stream-r; is a &file-pipe-socket-s; with
   &stream-element-type; &character-t; or an &input-s; &string-stream-t;.
   </simpara></listitem></varlistentry>
 </variablelist></para></formalpara>
@@ -3519,7 +3519,7 @@ functions are provided:
   characters of the subsequence of &sequence-r; specified by &start-k;
   and &end-k; to &stream-r;. Returns the &sequence-r; argument.</simpara>
  <simpara>This function is especially efficient if &sequence-r; is a
-  &string-t; and &stream-k; is a &file-pipe-socket-s; with
+  &string-t; and &stream-r; is a &file-pipe-socket-s; with
   &stream-element-type; &character-t;.</simpara></listitem></varlistentry>
 </variablelist></para></formalpara>
 
