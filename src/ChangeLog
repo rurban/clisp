@@ -1,5 +1,10 @@
 2004-03-16  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (NULL): Don't define on AIX.
+	Needed on AIX with xlc.
+
+2004-03-16  Bruno Haible  <bruno@clisp.org>
+
 	* intparam.c (boolean_t): Define as a macro, not a typedef.
 	* utils/ccmp2c.c (boolean_t): Likewise.
 	Needed for AIX with xlc.
