@@ -915,7 +915,7 @@ local bool hash_table_equalp (object ht1, object ht2)
     return false;
   if (!eq(TheHashtable(ht1)->ht_count,TheHashtable(ht2)->ht_count))
     return false;
-  if (!eq(ht_weak(ht1),ht_weak(ht2)))
+  if (!eq(hash_table_weak_type(ht1),hash_table_weak_type(ht2)))
     return false;
   /* have to traverse keys */
   var uintL index = posfixnum_to_L(TheHashtable(ht1)->ht_maxcount);

@@ -4910,19 +4910,12 @@ typedef struct {
   #define ht_validp(ptr)  ((record_flags(ptr) & bit(7)) == 0)
 #endif
 #define ht_test_code(flags) (flags & (bit(0) | bit(1) | bit(2) | bit(3)))
-# check whether the hash table is weak or not
-#define ht_weak_p(ht)                                           \
-  (weakkvtp(TheHashtable(ht)->ht_kvtable) ? true :              \
-   simple_vector_p(TheHashtable(ht)->ht_kvtable) ? false :      \
-   (NOTREACHED, false))
-#define ht_weak(ht)                                             \
-  (weakkvtp(TheHashtable(ht)->ht_kvtable)                       \
-   ? TheWeakKVT(TheHashtable(ht)->ht_kvtable)->wkvt_type : (gcv_object_t)NIL)
-# get the kvtable data array
-#define kvtable_data(kvt)                         \
-  (weakkvtp(kvt) ? TheWeakKVT(kvt)->data :        \
-   simple_vector_p(kvt) ? TheSvector(kvt)->data : \
-   (NOTREACHED, (gcv_object_t*)NULL))
+# Test whether a hash table is weak.
+#define ht_weak_p(ht)  \
+  !simple_vector_p(TheHashtable(ht)->ht_kvtable)
+# Get a pointer to the kvtable data array.
+#define kvtable_data(kvt)  \
+  (simple_vector_p(kvt) ? TheSvector(kvt)->data : TheWeakAlist(kvt)->wal_data)
 #define ht_kvt_data(ht)   kvtable_data(TheHashtable(ht)->ht_kvtable)
 
 # Readtables
@@ -12182,6 +12175,12 @@ extern object gethash (object obj, object ht);
 # can trigger GC
 extern object shifthash (object ht, object obj, object value);
 # is used by SEQUENCE, PATHNAME, FOREIGN
+
+/* hash_table_weak_type(ht)
+ > ht: hash-table
+ < result: symbol NIL/:KEY/:VALUE/:EITHER/:BOTH */
+extern object hash_table_weak_type (object ht);
+/* used by PREDTYPE */
 
 /* HASH-TABLE-TEST (EQ/EQL/EQUAL/EQUALP)
  > ht: hash-table

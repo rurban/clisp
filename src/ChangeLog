@@ -1,3 +1,22 @@
+2004-05-08  Bruno Haible  <bruno@clisp.org>
+
+	Make weak hash tables work.
+	* lispbibl.d (ht_weak_p): Simplify.
+	(ht_weak): Remove macro.
+	(kvtable_data): Simplify. Use WeakAlist.
+	(hash_table_weak_type): New declaration.
+	* hashtabl.d (hash_lookup): When the key is unbound, no need to test
+	the value for unbound as well.
+	(hash_store): Increment the count in the weak-alist vector as well.
+	(hash_table_weak_type, allocate_kvt): New functions.
+	(prepare_resize): Use allocate_kvt.
+	(resize): Update. Initialize the count in the weak-alist vector too.
+	(HASH-TABLE-COUNT): Take the count from the weak-alist vector.
+	(EXT:HASH-TABLE-WEAK-P): Update.
+	(SYS::%SET-HASH-TABLE-WEAK-P): Mostly rewritten.
+	* io.d (pr_orecord): Use hash_table_weak_type instead of ht_weak.
+	* predtype.d (hash_table_equalp): Likewise.
+
 2004-04-26  Bruno Haible  <bruno@clisp.org>
 
 	* clos-class2.lisp (std-compute-cpl): Use "the list" declaration,
