@@ -12686,7 +12686,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                   (values 'string (nth (second instr) const-string-list))
             ) ) )
             (when commentp
-              (stream-tab 42 stream)
+              (stream-tab stream 42)
               (write-string "; " stream)
               (if (eq commentp 'string)
                 (write-string comment stream)
