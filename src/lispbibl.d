@@ -6435,7 +6435,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
     #define positivep(obj)  \
       ((as_oint(obj) & wbit(1))                                      \
        ? /* fixnum, sfloat */ (as_oint(obj) & wbit(sign_bit_o)) == 0 \
-       : /* [fdl]float */ (Record_flags(obj) & bit(7)) == 0          \
+       : /* bignum, [fdl]float */ (Record_flags(obj) & bit(7)) == 0  \
       )
   #endif
 
