@@ -1,5 +1,9 @@
 2005-01-04  Sam Steingold  <sds@gnu.org>
 
+	* foreign1.lisp: import SYS:SYMBOL-KEYWORD
+
+2005-01-04  Sam Steingold  <sds@gnu.org>
+
 	* exporting.lisp (export-accessories): new function
 	(defstruct, def-c-struct): use it
 
