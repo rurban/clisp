@@ -12,7 +12,7 @@
 # Restores a memory image from diskette.
 # loadmem(filename);
 # This overwrites all Lisp data.
-  local void loadmem (const char* filename);
+  local void loadmem (char* filename);
 
 # ------------------------------ Implementation --------------------------------
 
@@ -731,7 +731,7 @@
       }
     }
   local void loadmem(filename)
-    var const char* filename;
+    var char* filename;
     {
       # File zum Lesen öffnen:
       begin_system_call();
@@ -749,7 +749,27 @@
       if (handle<0) goto abbruch1;
       #endif
       #if defined(WIN32_NATIVE)
-      var Handle handle = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+      #define CYGDRIVE "/cygdrive/"
+      #define CYGDRIVE_LEN 10
+      #ifdef __MINGW32__
+      if (!strncasecmp(filename,CYGDRIVE,CYGDRIVE_LEN))
+      #else
+      if (!strncmp(filename,CYGDRIVE,CYGDRIVE_LEN)) # MS lacks strncasecmp
+      #endif
+        {
+          uintL len = strlen(filename);
+          filename[0] = filename[CYGDRIVE_LEN];
+          filename[1] = ':';
+          len -= CYGDRIVE_LEN-1;
+          memmove(filename+2,filename+CYGDRIVE_LEN+1,len);
+          filename[len] = 0;
+        }
+      #undef CYGDRIVE
+      #undef CYGDRIVE_LEN
+      var Handle handle = CreateFile(filename, GENERIC_READ,
+                                     FILE_SHARE_READ | FILE_SHARE_WRITE,
+                                     NULL, OPEN_EXISTING,
+                                     FILE_ATTRIBUTE_NORMAL, NULL);
       if (handle==INVALID_HANDLE_VALUE) goto abbruch1;
       #endif
       end_system_call();

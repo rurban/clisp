@@ -226,8 +226,8 @@
 #include "spvw_multimap.c"
 
 #if defined(MAP_MEMORY_TABLES)
-  # symbol_tab is multimapped, always at the same address. This speeds up
-  # loadmem() a little.
+  # symbol_tab is multimapped, always at the same address.
+  # This speeds up loadmem() a little.
   #define MULTIMAP_MEMORY_SYMBOL_TAB
 #endif
 
@@ -238,7 +238,8 @@
 #include "spvw_singlemap.c"
 
 #if defined(SINGLEMAP_MEMORY) && defined(HAVE_WIN32_VM)
-  # Despite of SINGLEMAP_MEMORY, a relocation may be necessary at loadmem() time.
+  # Despite of SINGLEMAP_MEMORY, a relocation may be necessary
+  # at loadmem() time.
   #define SINGLEMAP_MEMORY_RELOCATE
 #endif
 
@@ -1415,7 +1416,7 @@
         init_object_tab();
       }
   # Laden vom MEM-File:
-    local void loadmem (const char* filename); # siehe unten
+    local void loadmem (char* filename); # siehe unten
   # Initialiserung der anderen, noch nicht initialisierten Module:
     local void init_other_modules_2 (void);
     local void init_module_2 (module_* module);
