@@ -562,18 +562,8 @@ DEFUN(POSIX::LIMITS,)
 
   struct rlimit rl;
 
-# if defined(RLIMIT_CORE)
-  RLIM(RLIMIT_CORE);
-# else
-  pushSTACK(NIL);
-# endif
 # if defined(RLIMIT_CPU)
   RLIM(RLIMIT_CPU);
-# else
-  pushSTACK(NIL);
-# endif
-# if defined(RLIMIT_DATA)
-  RLIM(RLIMIT_DATA);
 # else
   pushSTACK(NIL);
 # endif
@@ -582,8 +572,8 @@ DEFUN(POSIX::LIMITS,)
 # else
   pushSTACK(NIL);
 # endif
-# if defined(RLIMIT_NOFILE)
-  RLIM(RLIMIT_NOFILE);
+# if defined(RLIMIT_DATA)
+  RLIM(RLIMIT_DATA);
 # else
   pushSTACK(NIL);
 # endif
@@ -592,8 +582,8 @@ DEFUN(POSIX::LIMITS,)
 # else
   pushSTACK(NIL);
 # endif
-# if defined(RLIMIT_VMEM)
-  RLIM(RLIMIT_VMEM);
+# if defined(RLIMIT_CORE)
+  RLIM(RLIMIT_CORE);
 # else
   pushSTACK(NIL);
 # endif
@@ -602,15 +592,35 @@ DEFUN(POSIX::LIMITS,)
 # else
   pushSTACK(NIL);
 # endif
+# if defined(RLIMIT_NOFILE)
+  RLIM(RLIMIT_NOFILE);
+# else
+  pushSTACK(NIL);
+# endif
+# if defined(RLIMIT_AS)
+  RLIM(RLIMIT_AS);
+# else
+  pushSTACK(NIL);
+# endif
+# if defined(RLIMIT_NPROC)
+  RLIM(RLIMIT_NPROC);
+# else
+  pushSTACK(NIL);
+# endif
 # if defined(RLIMIT_MEMLOCK)
   RLIM(RLIMIT_MEMLOCK);
+# else
+  pushSTACK(NIL);
+# endif
+# if defined(RLIMIT_LOCKS)
+  RLIM(RLIMIT_LOCKS);
 # else
   pushSTACK(NIL);
 # endif
 
 # undef RLIM
 
-  funcall(`POSIX::MAKE-LIMITS`,9);
+  funcall(`POSIX::MAKE-LIMITS`,11);
 }
 #endif /* HAVE_GETRLIMIT */
 
