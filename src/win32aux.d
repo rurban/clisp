@@ -556,7 +556,8 @@ local DWORD WINAPI do_fd_read (LPVOID arg) {
     params->errcode = GetLastError();
   return 0;
 }
-global int fd_read (HANDLE fd, void* buf, size_t nbyte, perseverance_t persev) {
+global ssize_t fd_read (HANDLE fd, void* buf, size_t nbyte,
+                        perseverance_t persev) {
   var struct fd_read_params params;
   params.fd      = fd;
   params.buf     = buf;
@@ -586,8 +587,8 @@ local inline int fd_write_will_hang_p (HANDLE fd)
 }
 
 /* Writing to a file/pipe/console handle. */
-global int fd_write (HANDLE fd, const void* b, size_t nbyte, perseverance_t persev)
-{
+global ssize_t fd_write (HANDLE fd, const void* b, size_t nbyte,
+                         perseverance_t persev) {
   if (nbyte == 0)
     return 0;
 #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
