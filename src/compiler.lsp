@@ -7749,7 +7749,9 @@ der Docstring (oder NIL).
         ((EVAL :EXECUTE))
         (COMPILE-ONCE-ONLY (setq compile-once-only t))
         (T (cond ((equal situation '(NOT EVAL)) (setq load-flag t compile-flag t))
-                 ((equal situation '(NOT COMPILE)) (setq load-flag t))
+                 ((or (equal situation '(NOT COMPILE))
+                      (equal situation '(NOT :COMPILE-TOPLEVEL)))
+                  (setq load-flag t))
                  (t (c-error (DEUTSCH "Situation bei EVAL-WHEN muﬂ EVAL, LOAD oder COMPILE sein, nicht ~S."
                               ENGLISH "EVAL-WHEN situation must be EVAL or LOAD or COMPILE, but not ~S"
                               FRANCAIS "EVAL-WHEN ne s'applique qu'aux situations EVAL, LOAD ou COMPILE et non ~S.")
