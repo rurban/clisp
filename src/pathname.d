@@ -1426,10 +1426,17 @@ nonreturning_function(local, fehler_file_stream_unnamed, (object stream)) {
     object FNindex; # index as a fixnum
     uintL count; # number of the remaining characters
   } zustand;
+
+# Skip s characters.
 #define Z_SHIFT(z,s) \
- do { z.index+=s; z.FNindex = fixnum_inc(z.FNindex,s); z.count-=s; } while(0)
+ do { (z).index += (s); (z).FNindex = fixnum_inc((z).FNindex,(s)); (z).count -= (s); } while(0)
+
+# Tests whether the current character at Z satisfies pred.
 #define Z_AT_SLASH(z,pred,st) \
- ((z.count != 0) && pred(TheSstring(st)->data[z.index]))
+ (((z).count != 0) && pred(TheSstring(st)->data[(z).index]))
+
+# Replace ths string with a substring.
+#define Z_SUB(z,s) ((s) = subsstring((s),(z).index,(z).index+(z).count), (z).index = 0)
 
 #ifdef LOGICAL_PATHNAMES
 
@@ -1473,7 +1480,7 @@ local object parse_logical_word (zustand* z, bool subdirp) {
         break;
     }
     # Character übergehen:
-    Z_SHIFT((*z),1);
+    Z_SHIFT(*z,1);
   }
   var uintL len = z->index - startz.index;
   if (subdirp) {
@@ -1481,7 +1488,7 @@ local object parse_logical_word (zustand* z, bool subdirp) {
       *z = startz; return NIL; # kein ';' -> kein subdir
     }
     # Character ';' übergehen:
-    Z_SHIFT((*z),1);
+    Z_SHIFT(*z,1);
   }
   if (len==0)
     return NIL;
@@ -1563,7 +1570,7 @@ local object parse_logical_host_prefix (zustand* zp, object string) {
     if (!legal_logical_word_char(ch))
       break;
     # go past alphanumeric character:
-    Z_SHIFT((*zp),1);
+    Z_SHIFT(*zp,1);
   }
   if (!colonp(ch))
     return NIL; # no ':' -> no host
@@ -1579,7 +1586,7 @@ local object parse_logical_host_prefix (zustand* zp, object string) {
     }
   }
   # skip ':'
-  Z_SHIFT((*zp),1);
+  Z_SHIFT(*zp,1);
   return host;
 }
 
@@ -1865,7 +1872,6 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
         # starts with a logical hostname.
         if (!nullp(Symbol_value(S(parse_namestring_ansi)))) {
           # Coerce string to be a normal-simple-string.
-#define Z_SUB(z,s) s = subsstring(s,z.index,z.index+z.count); z.index = 0
           SstringDispatch(string,{},{ Z_SUB(z,string); });
           var zustand tmp = z;
           var object host = parse_logical_host_prefix(&tmp,string);
@@ -2611,6 +2617,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
 #undef pslashp
 #undef slashp
 #undef colonp
+#undef Z_SUB
 #undef Z_AT_SLASH
 #undef Z_SHIFT
 
