@@ -10,15 +10,16 @@
 (use-package "LDAP")
 
 (defvar *clisp-home* (namestring (default-directory)))
+(defvar *clisp-linkset* "base")
 (defvar *clisp-runtime*
-  (ext:string-concat "\"" *clisp-home* "base\\lisp.exe\""))
+  (ext:string-concat "\"" *clisp-home* *clisp-linkset* "\\lisp.exe\""))
 (defvar *clisp-some-args*
   (ext:string-concat " -B \"" (substitute #\/ #\\ *clisp-home*) "\" -M "))
 (defvar *clisp-some-cmd*
   (ext:string-concat *clisp-runtime* *clisp-some-args*))
 (defvar *clisp-args*
   (ext:string-concat *clisp-some-args* "\""
-               *clisp-home* "base\\lispinit.mem\""))
+               *clisp-home* *clisp-linkset* "\\lispinit.mem\""))
 (defvar *clisp-cmd*
   (ext:string-concat *clisp-runtime* *clisp-args*))
 
