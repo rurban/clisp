@@ -1,5 +1,10 @@
 2005-03-07  Sam Steingold  <sds@gnu.org>
 
+	* modules/regexp/regex.c, modules/regexp/regex.h:
+	upgraded to gnulib CVS head
+
+2005-03-07  Sam Steingold  <sds@gnu.org>
+
 	* debug.d, subr.d, constsym.d (CRASH): renamed from DEBUG for
 	better separation from CL
 	* init.lisp: do not shadow SYS::DEBUG
