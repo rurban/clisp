@@ -3230,19 +3230,22 @@ only.</subtitle>
 
 <varlistentry id="fptr">
  <term><literal role="sexp">(&foreign-pointer; &f-ent;)</literal></term>
- <term><literal role="sexp">(&setf; (&foreign-pointer; &f-ent;)
-   &f-ptr;)</literal></term>
  <listitem><simpara>&foreign-pointer; returns the &foreign-pointer-t;
    associated with the Lisp object of type &foreign-address-t;,
-   &foreign-pointer-t;, &foreign-variable-t; or &foreign-function-t;.</simpara>
-  <simpara><literal role="sexp">(&setf; &foreign-pointer;)</literal>
+   &foreign-pointer-t;, &foreign-variable-t; or
+   &foreign-function-t;.</simpara></listitem></varlistentry>
+
+<varlistentry>
+ <term><literal role="sexp">(&set-foreign-pointer; &f-ent; {&f-ent; |
+   &copy-k;})</literal></term>
+ <listitem><simpara><literal role="sexp">&set-foreign-pointer;</literal>
    changes the &foreign-pointer-t; associated with the Lisp object of
    type &foreign-address-t;, &foreign-variable-t; or &foreign-function-t; to
-   that of the other entity.
-   When &f-ptr; is &copy-k;, a &fresh; &foreign-pointer-t; is allocated.
-   &f-ent; still points to the same object. This is particularly useful
-   with <literal role="sexp">(&setf; &validp;)</literal>.
-</simpara></listitem></varlistentry>
+   that of the other entity. With &copy-k;, a &fresh; &foreign-pointer-t; is
+   allocated.
+   The original &f-ent; still points to the same object and is returned. This
+   is particularly useful with <literal role="sexp">(&setf;
+  &validp;)</literal>, see <link linkend='ex-dffi-validity'>example section</link>.</simpara></listitem></varlistentry>
 
 <varlistentry id="foreign-stack">
   <term><literal role="sexp">(&with-foreign-object; (&var-r; &ctype-r;
@@ -3269,6 +3272,22 @@ only.</subtitle>
 <programlisting language="lisp">(with-c-var (fv `(c-array uint8 ,(length my-vector)) my-vector)
   (print fv))</programlisting>
  </para></listitem></varlistentry>
+
+<varlistentry id="foreign-value">
+ <term><literal role="sexp">(&foreign-value; &foreign-variable;)</literal></term>
+ <term><literal role="sexp">(&setf; (&foreign-value; &foreign-variable;)
+  ...)</literal></term>
+ <listitem><simpara>This functions converts the reference to a &c-lang;
+  data structure which the &foreign-variable; describes, to Lisp. Such a
+  reference is typically obtained from &allocate-shallow;,
+  &allocate-deep;, &foreign-allocate; or via a <literal
+  role="sexp">(&c-pointer; &ctype-r;)</literal> &c-lang; type
+  description. Alternatively, macros like &with-c-place; or &with-c-var;
+  and the concept of foreign &place; hide many uses of this
+  function.</simpara>
+ <simpara>The &setf; form performs conversion from Lisp to &c-lang;,
+  following to the &foreign-variable;'s type
+  description.</simpara></listitem></varlistentry>
 
 <varlistentry id="foreign-stack-string">
  <term><literal role="sexp">(&with-foreign-string;
@@ -3959,7 +3978,19 @@ $ rm -r base+cfun
 </programlisting>
 is not an alternative because this would also
 <function>free(r2-&gt;x)</function> but <varname>r2-&gt;x</varname> is a
-pointer to static data.</para></example>
+pointer to static data.</para>
+
+<para>The memory leak can be avoided using
+<programlisting language="lisp">
+(:return-type (c-pointer cfunr))
+</programlisting>
+instead, in conjunction with
+<programlisting language="lisp">
+(defun call-cfun ()
+  (let ((data (cfun ...)))
+    (prog1 (&foreign-value; data)
+      (&foreign-free; data :FULL nil))))
+</programlisting></para></example>
 
 <example id="ex-call-in"><title>Calling Lisp from &c-lang;</title>
 
@@ -4177,6 +4208,34 @@ double test_dll(struct bar *ptr)
 </programlisting></para>
 
 </example>
+
+<example id="ex-dffi-validity">
+ <title>Controling validity of ressources.</title>
+
+<para>&set-foreign-pointer; is useful in conjunction with (setf &validp;) to
+limit the extent of external resources. Closing twice can be avoided by
+checking &validp;. All pointers depending on this resource can be
+disabled at once upon close by sharing their &foreign-pointer; using
+&set-foreign-pointer;.
+
+<programlisting language="lisp">
+(def-c-type PGconn c-pointer) ; opaque pointer
+(def-call-out PQconnectdb (:return-type PGconn)
+  (:arguments (conninfo c-string)))
+(defun sql-connect (conninfo)
+  (let ((conn (PQconnectdb conninfo)))
+    (unless conn (error "NULL pointer"))
+    ;; may wish to use &finalize; as well
+    (&set-foreign-pointer; conn &copy-k;)))
+(defun sql-dependent-resource (conn arg1)
+  (let ((res (PQxxx conn arg1)))
+    (&set-foreign-pointer; res conn)))
+(defun sql-close (connection)
+  (when (&validp; connection)
+    (PQfinish connection)
+    (setf (&validp; connection) nil)
+    T))
+</programlisting></para></example>
 
 <section id="dffi-ex-more"><title>More examples</title>
 
