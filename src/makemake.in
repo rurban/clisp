@@ -732,6 +732,7 @@ fi
 case "$host_cpu" in
   hppa*) cpu=hppa ;;
   arm*)  cpu=arm  ;;
+  x86_64) cpu=x86_64 ;;
 esac
 # Probably obsolete.
 # case $TSYS in 9000/7* | 9000/8* | hp7*)
@@ -809,17 +810,8 @@ if [ $XCC_GCC = true ] ; then
         XCFLAGS=$XCFLAGS' -O2'
       fi
     elif [ "$cpu" = x86_64 ] ; then
-      if [ $CROSS = false ] ; then
-        case "$XCC_GCC_VERSION" in
-          3.[0-2]*)
-            # gcc-3.2.2 produces incorrect code when -O or -O2 is used.
-            ;;
-          * )
-            XCFLAGS=$XCFLAGS' -O' ;;
-        esac
-      else
-        XCFLAGS=$XCFLAGS' -O'
-      fi
+      # gcc-3.2.2 produces incorrect code when -O2 is used.
+      XCFLAGS=$XCFLAGS' -O'
     else
       XCFLAGS=$XCFLAGS' -O2'
     fi
