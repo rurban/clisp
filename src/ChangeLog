@@ -1,5 +1,12 @@
 2003-05-03  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (STACK_register) [__GNUC__ >= 3]: disable.
+	This is a workaround for a GCC3 bug(s?) which manifest itself
+	in CLISP bugs #[ 710737 ]: CLISP+readline = core dump
+	and #[ 723097 ]: cast to char array crashes.
+
+2003-05-03  Sam Steingold  <sds@gnu.org>
+
 	* foreign.d (EXEC-ON-STACK): use UNWIND-PROTECT to always clean up
 
 2003-05-02  Sam Steingold  <sds@gnu.org>
