@@ -9779,7 +9779,8 @@ The function make-closure is required.
 
 ;; is called for (lambda (...) (declare (compile)) ...) and returns a
 ;; functional object equivalent to this lambda-expression.
-(defun compile-lambda (name lambdabody %venv% %fenv% %benv% %genv% %denv%)
+(defun compile-lambda (name lambdabody %venv% %fenv% %benv% %genv% %denv%
+                       error-when-failed-p)
   (let ((*compiling* t)
         (*compiling-from-file* nil)
         (*c-listing-output* nil)
@@ -9796,8 +9797,10 @@ The function make-closure is required.
         (*error-count* 0) (*warning-count* 0) (*style-warning-count* 0)
         (*no-code* nil))
     (let ((funobj (compile-lambdabody name lambdabody)))
-      (unless (zerop *error-count*)
-        (return-from compile-lambda (compile-lambdabody name '(() NIL))))
+      (when (and error-when-failed-p (not (zerop *error-count*)))
+        (error-of-type 'source-program-error
+          (TEXT "~S cannot be compiled")
+          (cons name lambdabody)))
       funobj)))
 
 ;; is called for (let/let*/multiple-value-bind ... (declare (compile)) ...)
@@ -9807,7 +9810,7 @@ The function make-closure is required.
   (defun compile-form (form %venv% %fenv% %benv% %genv% %denv%)
     (compile-lambda (symbol-suffix '#:COMPILED-FORM (incf form-count))
                     `(() ,form)
-                    %venv% %fenv% %benv% %genv% %denv%)))
+                    %venv% %fenv% %benv% %genv% %denv% nil)))
 
 ;; Evaluates a form in an environment
 (defun eval-env (form &optional (env *toplevel-environment*))
