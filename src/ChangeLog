@@ -1,5 +1,10 @@
 2004-12-05  Bruno Haible  <bruno@clisp.org>
 
+	* stream.d (test_input_stream_args, test_output_stream_args): Fix
+	GC-safety bug introduced on 2004-06-02.
+
+2004-12-05  Bruno Haible  <bruno@clisp.org>
+
 	* eval.d (interpret_bytecode_ PROGV): Fix GC-safety bug introduced on
 	2003-05-20.
 

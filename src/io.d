@@ -745,24 +745,24 @@ LISPFUN(make_dispatch_macro_character,seclass_default,1,2,norest,nokey,0,NIL)
 }
 
 /* UP: checks the arguments disp-char and sub-char.
- > STACK: STACK_2 = disp-char, STACK_1 = sub-char
- > readtable: Readtable
+ > in STACK: *(argsp STACKop 1) = disp-char, *(argsp STACKop 0) = sub-char
+ > STACK_0: readtable
  < result: the dispatch-macro-table for disp-char,
              nullobj if sub-char is a digit.
  can trigger GC */
-local object test_disp_sub_char (object readtable) {
-  var object sub_ch = check_char(STACK_1);  /* sub-char */
+local object test_disp_sub_char (gcv_object_t* argsp) {
+  var object sub_ch = check_char(*(argsp STACKop 0));  /* sub-char */
  retry_disp_ch:
-  var object disp_ch = check_char(STACK_2); /* disp-char */
+  var object disp_ch = check_char(*(argsp STACKop 1)); /* disp-char */
   var chart disp_c = char_code(disp_ch);
   var object entry =
-    perchar_table_get(TheReadtable(readtable)->readtable_macro_table,disp_c);
+    perchar_table_get(TheReadtable(STACK_0)->readtable_macro_table,disp_c);
   if (!simple_vector_p(entry)) {
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(disp_ch);
     pushSTACK(TheSubr(subr_self)->name);
     check_value(error,GETTEXT("~S: ~S is not a dispatch macro character"));
-    STACK_2 = value1;
+    *(argsp STACKop 1) = value1;
     goto retry_disp_ch;
   }
   # disp-char is a dispatching-macro-character, entry is the vector.
@@ -778,27 +778,26 @@ LISPFUN(set_dispatch_macro_character,seclass_default,3,1,norest,nokey,0,NIL)
  CLTL p. 364 */
   /* check function and convert it into an object of Type FUNCTION: */
   STACK_1 = coerce_function(STACK_1);
-  var object readtable = test_readtable_arg(popSTACK()); /* Readtable */
-  var object dm_table = test_disp_sub_char(readtable);
-  var object function = popSTACK(); /* function */
+  STACK_0 = test_readtable_arg(STACK_0); /* Readtable */
+  var object dm_table = test_disp_sub_char(&STACK_2);
   if (eq(dm_table,nullobj)) {
-    /* STACK_0 = sub-char, TYPE-ERROR slot DATUM */
+    pushSTACK(STACK_2);           /* sub-char, TYPE-ERROR slot DATUM */
     pushSTACK(O(type_not_digit)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(STACK_1);
+    pushSTACK(STACK_(2+2));
     pushSTACK(TheSubr(subr_self)->name);
     fehler(type_error,GETTEXT("~S: digit ~C not allowed as sub-char"));
   } else {
     /* add function to the dispatch-macro-table */
-    perchar_table_put(dm_table,up_case(char_code(STACK_0)),function);
-    VALUES1(T); skipSTACK(2);
+    perchar_table_put(dm_table,up_case(char_code(STACK_2)),STACK_1);
+    VALUES1(T); skipSTACK(4);
   }
 }
 
 LISPFUN(get_dispatch_macro_character,seclass_read,2,1,norest,nokey,0,NIL)
 { /* (GET-DISPATCH-MACRO-CHARACTER disp-char sub-char [readtable]),
      CLTL p. 364 */
-  var object readtable = test_readtable_null_arg(STACK_0); /* readtable */
-  var object dm_table = test_disp_sub_char(readtable);
+  STACK_0 = test_readtable_null_arg(STACK_0); /* readtable */
+  var object dm_table = test_disp_sub_char(&STACK_1);
   VALUES1(eq(dm_table,nullobj) ? NIL /* NIL or Function as value */
           : perchar_table_get(dm_table,up_case(char_code(STACK_1))));
   skipSTACK(3);
