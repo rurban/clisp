@@ -1920,12 +1920,10 @@ local void gc_unmarkcheck (void) {
             update_weakpointers_mod();
           # Update weak kvtables:
             update_weakkvtables_mod();
-          # update program constants:
+          # Update program constants:
             update_tables();
-          { /* update back_trace */
-            var p_backtrace_t bt = back_trace;
-            for (;bt; bt=bt->bt_next) update(&(bt->bt_caller));
-          }
+          /* update back_trace's */
+            update_back_traces();
           #ifndef MORRIS_GC
           # update pointers in the Cons-cells:
             #define update_conspage  update_conspage_normal
@@ -2457,6 +2455,8 @@ local void gc_unmarkcheck (void) {
             update_weakkvtables_mod();
           # Update program constants:
             update_tables();
+          /* update back_trace's */
+            update_back_traces();
           # Update pointers in the cons-cells:
             #define update_conspage  update_conspage_normal
             update_conses();
@@ -2658,8 +2658,10 @@ local void gc_unmarkcheck (void) {
             update_weakpointers_mod();
           # Update weak kvtables:
             update_weakkvtables_mod();
-          # update program constants:
+          # Update program constants:
             update_tables();
+          /* update back_trace's */
+            update_back_traces();
           # update pointers in the Cons-cells:
             #define update_conspage  update_conspage_normal
             update_conses();

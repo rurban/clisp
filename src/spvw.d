@@ -330,6 +330,11 @@ local int exitcode;
          { statement; }                       \
     } while(0)
 
+  #define for_all_back_traces(statement)    \
+    do { var p_backtrace_t bt = back_trace; \
+      { statement;  }                       \
+    } while(0)
+
 #else
 
   # Mutex protecting the set of threads.
@@ -429,6 +434,11 @@ local uintL make_symvalue_perthread (object value) {
     for_all_threads({                                            \
       var gcv_object_t* objptr = STACKpointable(thread->_STACK); \
       { statement; }                                             \
+    })
+
+  #define for_all_back_traces(statement)   \
+    for_all_back_traces({ var p_backtrace_t bt = thread->_back_trace; \
+      { statement; }                                                  \
     })
 
 #endif
