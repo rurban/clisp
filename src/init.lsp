@@ -7,14 +7,15 @@
 ;;; Exportierungen:
 (export '(
 ;; Typen:
-array atom bignum bit bit-vector boolean character common compiled-function
-complex cons double-float fixnum float function hash-table integer keyword
-list #+LOGICAL-PATHNAMES logical-pathname long-float nil null number package
-pathname random-state ratio rational readtable real sequence short-float
-simple-array simple-bit-vector simple-string simple-vector single-float
-standard-char stream file-stream synonym-stream broadcast-stream
-concatenated-stream two-way-stream echo-stream string-stream string
-string-char symbol t vector satisfies values mod signed-byte unsigned-byte
+array atom base-char base-string bignum bit bit-vector boolean character
+common compiled-function complex cons double-float extended-char fixnum float
+function hash-table integer keyword list #+LOGICAL-PATHNAMES logical-pathname
+long-float nil null number package pathname random-state ratio rational
+readtable real sequence short-float simple-array simple-base-string
+simple-bit-vector simple-string simple-vector single-float standard-char
+stream file-stream synonym-stream broadcast-stream concatenated-stream
+two-way-stream echo-stream string-stream string string-char symbol t vector
+satisfies values mod signed-byte unsigned-byte
 ; Pseudo-Typen:
 byte-vector special-form system-function
 ;; Konstanten:

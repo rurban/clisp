@@ -127,6 +127,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
       #   VECTOR sonst.
       # - (SIMPLE-VECTOR [size]), VECTOR, SIMPLE-VECTOR ergeben VECTOR.
       # - ([SIMPLE-]STRING [size]), [SIMPLE-]STRING ergeben STRING.
+      # - ([SIMPLE-]BASE-STRING [size]), [SIMPLE-]BASE-STRING ergeben STRING.
       # - ([SIMPLE-]BIT-VECTOR [size]), [SIMPLE-]BIT-VECTOR ergeben BIT-VECTOR.
       # - Zusätzlich (nicht sehr schön): [SIMPLE-]ARRAY ergibt VECTOR.
       reexpand:
@@ -135,7 +136,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
           if (eq(name,S(vector))) { goto expanded_unconstrained; }
           if (eq(name,S(simple_vector))) { name = S(vector); goto expanded_unconstrained; }
           if (eq(name,S(string))) { goto expanded_unconstrained; }
-          if (eq(name,S(simple_string))) { name = S(string); goto expanded_unconstrained; }
+          if (eq(name,S(simple_string)) || eq(name,S(base_string)) || eq(name,S(simple_base_string))) { name = S(string); goto expanded_unconstrained; }
           if (eq(name,S(bit_vector))) { goto expanded_unconstrained; }
           if (eq(name,S(simple_bit_vector))) { name = S(bit_vector); goto expanded_unconstrained; }
           if (eq(name,S(array)) || eq(name,S(simple_array))) { name = S(vector); goto expanded_unconstrained; }
@@ -157,7 +158,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
               if (nullp(name2) || (consp(name2) && nullp(Cdr(name2))))
                 { if (eq(name1,S(simple_vector)))
                     { name = S(vector); goto expanded_maybe_constrained; }
-                  if (eq(name1,S(string)) || eq(name1,S(simple_string)))
+                  if (eq(name1,S(string)) || eq(name1,S(simple_string)) || eq(name1,S(base_string)) || eq(name1,S(simple_base_string)))
                     { name = S(string); goto expanded_maybe_constrained; }
                   if (eq(name1,S(bit_vector)) || eq(name1,S(simple_bit_vector)))
                     { name = S(bit_vector); goto expanded_maybe_constrained; }

@@ -16,14 +16,15 @@
 ;; Nur in ANSI Common Lisp (CLtL2 bzw. ANSI-CL) explizit erwähnte Symbole!
 (export '(
 ;; Typen:
-array atom bignum bit bit-vector boolean character compiled-function complex
-cons double-float fixnum float function hash-table integer keyword list
-#+LOGICAL-PATHNAMES logical-pathname long-float nil null number package
-pathname random-state ratio rational readtable real sequence short-float
-simple-array simple-bit-vector simple-string simple-vector single-float
-standard-char stream file-stream synonym-stream broadcast-stream
-concatenated-stream two-way-stream echo-stream string-stream string symbol t
-vector satisfies values mod signed-byte unsigned-byte
+array atom base-char base-string bignum bit bit-vector boolean character
+compiled-function complex cons double-float extended-char fixnum float
+function hash-table integer keyword list #+LOGICAL-PATHNAMES logical-pathname
+long-float nil null number package pathname random-state ratio rational
+readtable real sequence short-float simple-array simple-base-string
+simple-bit-vector simple-string simple-vector single-float standard-char
+stream file-stream synonym-stream broadcast-stream concatenated-stream
+two-way-stream echo-stream string-stream string symbol t vector satisfies
+values mod signed-byte unsigned-byte
 restart condition warning serious-condition error simple-condition
 simple-warning simple-error storage-condition type-error simple-type-error
 program-error control-error package-error print-not-readable parse-error

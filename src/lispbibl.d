@@ -4588,7 +4588,12 @@ typedef symbol_ *  Symbol;
   #define code_char(code_from_code_char)  int_char((cint)(code_from_code_char))
 # Aus einem Character den Code extrahieren:
   #define char_code(char_from_char_code)  ((uintB)(char_int(char_from_char_code)))
-# wird verwendet von STREAM, DEBUG, EVAL
+
+# Base characters are those whose code is < base_char_code_limit.
+  #define base_char_int_len 8
+  #define base_char_int_limit  (1UL<<base_char_int_len)
+  typedef unsigned_int_with_n_bits(base_char_int_len)  bcint;
+  #define base_char_code_limit  base_char_int_limit
 
 # Fixnums
 
@@ -6211,6 +6216,10 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   #else
     #define charp(obj)  ((as_oint(obj) & 0x3F) == char_type)
   #endif
+
+# Test for base character
+  #define base_char_p(obj)  \
+    ((as_oint(obj) & ~((oint)(bit(base_char_int_len)-1)<<oint_data_shift)) == type_zero_oint(char_type))
 
 # Test auf SUBR (compiliertes funktionales Objekt)
   #ifdef TYPECODES

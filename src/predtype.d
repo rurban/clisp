@@ -747,12 +747,20 @@ LISPFUNN(type_of,1)
           value1 = S(address); break;
         case_sbvector: # Simple-Bit-Vector -> (SIMPLE-BIT-VECTOR dim0)
           pushSTACK(S(simple_bit_vector)); goto vectors;
-        case_sstring: # Simple-String -> (SIMPLE-STRING dim0)
+        case_sstring: # Simple-String -> (SIMPLE-[BASE-]STRING dim0)
+          #if (base_char_code_limit == char_code_limit)
+          pushSTACK(S(simple_base_string)); goto vectors;
+          #else
           pushSTACK(S(simple_string)); goto vectors;
+          #endif
         case_svector: # Simple-Vector -> (SIMPLE-VECTOR dim0)
           pushSTACK(S(simple_vector)); goto vectors;
-        case_ostring: # sonstiger String -> (STRING dim0)
+        case_ostring: # sonstiger String -> ([BASE-]STRING dim0)
+          #if (base_char_code_limit == char_code_limit)
+          pushSTACK(S(base_string)); goto vectors;
+          #else
           pushSTACK(S(string)); goto vectors;
+          #endif
         vectors: # Typ des Vektors in STACK_0
           pushSTACK(array_dimensions(arg)); # Dimensionsliste
           {var object new_cons = allocate_cons();
@@ -891,8 +899,12 @@ LISPFUNN(type_of,1)
                      );
           }
           break;
-        case_char: # Character -> CHARACTER
-          value1 = S(character); break;
+        case_char: # Character -> BASE-CHAR or CHARACTER
+          #if (base_char_code_limit < char_code_limit)
+          if (char_code(arg) >= base_char_code_limit)
+            { value1 = S(character); break; }
+          #endif
+          value1 = S(base_char); break;
         case_subr: # SUBR -> COMPILED-FUNCTION
           value1 = S(compiled_function); break;
         #ifdef TYPECODES
@@ -1187,12 +1199,13 @@ LISPFUNN(coerce,2)
 #          mit (list result-type) als Argument aufrufen, zum Anfang
 #   type = T -> object zurück
 #   type = CHARACTER, STRING-CHAR -> COERCE_CHAR anwenden
+#   type = BASE-CHAR -> COERCE_CHAR anwenden und überprüfen
 #   type = FLOAT, SHORT-FLOAT, SINGLE-FLOAT, DOUBLE-FLOAT, LONG-FLOAT ->
 #          mit der Arithmetik umwandeln
 #   type = COMPLEX -> auf Zahl überprüfen
 #   type = FUNCTION -> Funktionsname oder Lambda-Ausdruck in Funktion umwandeln
 #   type = ARRAY, SIMPLE-ARRAY, VECTOR, SIMPLE-VECTOR, STRING, SIMPLE-STRING,
-#          BIT-VECTOR, SIMPLE-BIT-VECTOR ->
+#          BASE-STRING, SIMPLE-BASE-STRING, BIT-VECTOR, SIMPLE-BIT-VECTOR ->
 #          [hier auch result-type an object anpassen wie unten??]
 #          mit COERCE-SEQUENCE umwandeln, mit TYPEP überprüfen
 #          und evtl. mit COPY-SEQ kopieren.
@@ -1208,10 +1221,11 @@ LISPFUNN(coerce,2)
 #          Imaginärteil zum Typ (third result-type) bzw. (second result-type)
 #          coercen, COMPLEX anwenden.
 #   type = ARRAY, SIMPLE-ARRAY, VECTOR, SIMPLE-VECTOR, STRING, SIMPLE-STRING,
-#          BIT-VECTOR, SIMPLE-BIT-VECTOR -> result-type an object anpassen,
-#          mit COERCE-SEQUENCE umwandeln (das verarbeitet auch den in
-#          result-type angegebenen element-type), auf type überprüfen und
-#          evtl. mit COPY-SEQ kopieren. Dann auf result-type überprüfen.
+#          BASE-STRING, SIMPLE-BASE-STRING, BIT-VECTOR, SIMPLE-BIT-VECTOR ->
+#          result-type an object anpassen, mit COERCE-SEQUENCE umwandeln (das
+#          verarbeitet auch den in result-type angegebenen element-type), auf
+#          type überprüfen und evtl. mit COPY-SEQ kopieren. Dann auf
+#          result-type überprüfen.
 # Sonst Error.
   { # (TYPEP object result-type) abfragen:
     pushSTACK(STACK_1); pushSTACK(STACK_(0+1)); funcall(S(typep),2);
@@ -1237,7 +1251,11 @@ LISPFUNN(coerce,2)
         }  }}
         if (eq(result_type,T)) # result-type = T ?
           goto return_object; # ja -> object als Wert
-        if (eq(result_type,S(character)) || eq(result_type,S(string_char))) # result-type = CHARACTER oder STRING-CHAR ?
+        if (eq(result_type,S(character)) || eq(result_type,S(string_char))
+            #if (base_char_code_limit == char_code_limit)
+            || eq(result_type,S(base_char))
+            #endif
+           ) # result-type = CHARACTER oder STRING-CHAR [oder BASE-CHAR] ?
           { var object as_char = coerce_char(STACK_1); # object in Character umzuwandeln versuchen
             if (nullp(as_char))
               { pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
@@ -1246,6 +1264,17 @@ LISPFUNN(coerce,2)
               }
             value1 = as_char; mv_count=1; skipSTACK(2); return;
           }
+        #if (base_char_code_limit < char_code_limit)
+        if (eq(result_type,S(base_char))) # result-type = BASE-CHAR ?
+          { var object as_char = coerce_char(STACK_1); # object in Character umzuwandeln versuchen
+            if (!base_char_p(as_char))
+              { pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
+                pushSTACK(O(type_designator_base_char)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+                goto fehler_object;
+              }
+            value1 = as_char; mv_count=1; skipSTACK(2); return;
+          }
+        #endif
         if (   eq(result_type,S(float)) # FLOAT ?
             || eq(result_type,S(short_float)) # SHORT-FLOAT ?
             || eq(result_type,S(single_float)) # SINGLE-FLOAT ?
@@ -1293,6 +1322,8 @@ LISPFUNN(coerce,2)
             || eq(result_type,S(simple_vector)) # SIMPLE-VECTOR ?
             || eq(result_type,S(string)) # STRING ?
             || eq(result_type,S(simple_string)) # SIMPLE-STRING ?
+            || eq(result_type,S(base_string)) # BASE-STRING ?
+            || eq(result_type,S(simple_base_string)) # SIMPLE-BASE-STRING ?
             || eq(result_type,S(bit_vector)) # BIT-VECTOR ?
             || eq(result_type,S(simple_bit_vector)) # SIMPLE-BIT-VECTOR ?
            )
@@ -1400,6 +1431,8 @@ LISPFUNN(coerce,2)
             || eq(type,S(simple_vector)) # SIMPLE-VECTOR ?
             || eq(type,S(string)) # STRING ?
             || eq(type,S(simple_string)) # SIMPLE-STRING ?
+            || eq(type,S(base_string)) # BASE-STRING ?
+            || eq(type,S(simple_base_string)) # SIMPLE-BASE-STRING ?
             || eq(type,S(bit_vector)) # BIT-VECTOR ?
             || eq(type,S(simple_bit_vector)) # SIMPLE-BIT-VECTOR ?
            )
