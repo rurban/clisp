@@ -807,8 +807,9 @@ LISPFUNN(row_major_store,3)
 /* ======================================================================== */
 /* Information about an array */
 
-/* return Atype for the given array */
-local uintBWL array_atype (object array)
+/* return Atype for the given array
+ exported for the sake of modules */
+global uintBWL array_atype (object array)
 {
   switch (Array_type(array)) {
     case Array_type_mdarray: /* general array -> look at Arrayflags */
@@ -924,7 +925,8 @@ LISPFUNNR(array_dimension,2)
 /* Returns the rank of an array.
  array_rank(array)
  > array: an array
- < uintL result: its rank = number of dimensions */
+ < uintL result: its rank = number of dimensions
+ exists for the sake of modules */
 global uintL array_rank (object array) {
   if (mdarrayp(array))
     /* multi-dimensional array */
@@ -939,7 +941,8 @@ global uintL array_rank (object array) {
  > array: an array
  > uintL rank: = array_rank(array)
  > uintL dimensions[0..rank-1]: room for rank dimensions
- < uintL dimensions[0..rank-1]: the array's dimensions */
+ < uintL dimensions[0..rank-1]: the array's dimensions
+ exists for the sake of modules */
 global void get_array_dimensions (object array, uintL rank, uintL* dimensions) {
   if (array_simplep(array)) {
     /* simple vector */
