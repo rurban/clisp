@@ -1,6 +1,6 @@
 ;;; Foreign function interface for CLISP
 ;;; Bruno Haible 19.2.1995
-;;; Sam Steingold 1998-2002
+;;; Sam Steingold 1998-2003
 
 #+UNICODE
 (progn
@@ -122,7 +122,7 @@
   (let* ((form-type (first typespec))
          (spec-list
           (ecase form-type
-            (C-STRUCT (cdddr typespec))
+            (C-STRUCT (cddr typEspec))
             (C-UNION (cdr typespec)))))
     (mapcar (lambda (subspec)
               (unless (and (consp subspec)
@@ -136,10 +136,11 @@
 ;; return the constructor function for this structure
 (defun c-struct-constructor (typespec)
   (let ((class (second typespec)))
+    (when (consp class) (setq class (car class)))  ; name+options -> name
     (case class
       (VECTOR #'vector)
       (LIST #'list)
-      (t (let* ((slots (mapcar #'first (cdddr typespec)))
+      (t (let* ((slots (mapcar #'first (cddr typespec)))
                 (vars (mapcar #'(lambda (x) (gensym (symbol-name x)))
                               slots))
                 h)
@@ -162,6 +163,14 @@
                                              ,v))
                                        slots vars)
                              ,ivar)))))))))))
+
+(defmacro with-name/options ((name options name+options) &body body)
+  (let ((no (gensym "NAME+OPTIONS-")))
+    `(let ((,no ,name+options))
+       (multiple-value-bind (,name ,options)
+           (if (consp ,no) (values (first ,no) (rest ,no)) (values ,no nil))
+         (declare (ignorable ,name ,options))
+         ,@body))))
 
 (defmacro with-defining-c-type ((name c-type len) &body body)
   `(let ((,c-type (make-array ,len)))
@@ -191,11 +200,12 @@
            (dimp (dim) (typep dim '(integer 0 *))))
       (case (first typespec)
         (C-STRUCT
-         (with-defining-c-type (name c-type (max 5 (+ 2 (length typespec))))
+         (with-defining-c-type (name c-type (max 5 (+ 3 (length typespec))))
            (setf (svref c-type 0) (first typespec)) ; c-struct
-           (setf (svref c-type 1) (second typespec)) ; name
-           (setf (svref c-type 2) (third typespec)) ; options
-           (setf (svref c-type 3) (map 'vector #'first (cdddr typespec)))
+           (with-name/options (name options (second typespec))
+             (setf (svref c-type 1) name)
+             (setf (svref c-type 2) options))
+           (setf (svref c-type 3) (map 'vector #'first (cddr typespec)))
            (setf (svref c-type 4) ; constructor
                  (c-struct-constructor typespec))
            (setf (subseq c-type 5) (parse-components typespec))))
@@ -364,8 +374,8 @@
      (PARSE-C-TYPE ',typespec ',name)
      ',name))
 
-; Convert back a C type from internal (vector) to external (list)
-; representation. Both representations may be circular.
+;; Convert back a C type from internal (vector) to external (list)
+;; representation. Both representations may be circular.
 (defun deparse-c-type (ctype)
   (let ((alist '()))
     (labels ((new-type (ctype typespec)
@@ -385,12 +395,15 @@
                                ;; #(c-struct name options slots
                                ;;            constructor <c-type>*)
                                (C-STRUCT
-                                (let ((constructor (svref ctype 4)))
-                                  `(,(cond ((eql constructor #'vector) 'vector)
-                                           ((eql constructor #'list) 'list)
-                                           (t (svref ctype 1))) ; name
-                                     ,(svref ctype 2) ; options
-                                     . ,(map 'list #'deparse-slot
+                                (let* ((constructor (svref ctype 4))
+                                       (options (svref ctype 2))
+                                       (name (cond ((eql constructor #'vector)
+                                                    'vector)
+                                                   ((eql constructor #'list)
+                                                    'list)
+                                                   (t (svref ctype 1)))))
+                                  (cons (if options (cons name options) name)
+                                        (map 'list #'deparse-slot
                                              (svref ctype 3)
                                              (subseq ctype 5)))))
                                ;; #(c-union alternatives <c-type>*)
@@ -795,7 +808,7 @@
                                &body body)
   (declare (ignore encoding null-terminated-p start end)) ; get them via keywords
   `((lambda (thunk string &key (null-terminated-p t) (start 0) (end nil)
-             (encoding #+UNICODE custom:*foreign-encoding* #+UNICODE nil))
+             (encoding #+UNICODE custom:*foreign-encoding* #-UNICODE nil))
       (call-with-foreign-string thunk encoding string start end
                                 (if null-terminated-p
                                     (sys::encoding-zeroes encoding) 0)))
@@ -1004,13 +1017,10 @@
     `(PROGN ,@(nreverse forms) (def-c-type ,name int))))
 
 (defmacro def-c-struct (name+options &rest slots)
-  (multiple-value-bind (name options)
-      (if (consp name+options)
-          (values (first name+options) (rest name+options))
-          (values name+options nil))
+  (with-name/options (name options name+options)
     `(PROGN
        (DEFSTRUCT ,name ,@(mapcar #'first slots))
-       (DEF-C-TYPE ,name (C-STRUCT ,name ,options ,@slots)))))
+       (DEF-C-TYPE ,name (C-STRUCT ,name+options ,@slots)))))
 
 ;; In order for ELEMENT, DEREF, SLOT to be SETFable, I make them macros.
 ;; (element (foreign-value x) ...) --> (foreign-value (%element x ...))
