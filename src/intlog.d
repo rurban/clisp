@@ -122,12 +122,20 @@ local object I_I_logand_I (object x, object y) {
     var uintD* yLSDptr;
     BN_to_NDS_nocopy(y, ,,yLSDptr=);
     var uint32 y_low = get_max32_Dptr(pFN_maxlength*intDsize,yLSDptr-pFN_maxlength);
+    #if (oint_type_len+oint_type_len <= oint_data_shift)
     return as_object(as_oint(x) & as_oint(posfixnum(y_low)));
+    #else /* the fixnum_type tag can collide with the high bits of y_low */
+    return as_object(as_oint(x) & as_oint(posfixnum(y_low&(bitm(oint_data_len)-1))));
+    #endif
   } else if (posfixnump(y)) { /* Bignum AND PosFixnum -> PosFixnum */
     var uintD* xLSDptr;
     BN_to_NDS_nocopy(x, ,,xLSDptr=);
     var uint32 x_low = get_max32_Dptr(pFN_maxlength*intDsize,xLSDptr-pFN_maxlength);
+    #if (oint_type_len+oint_type_len <= oint_data_shift)
     return as_object(as_oint(posfixnum(x_low)) & as_oint(y));
+    #else /* the fixnum_type tag can collide with the high bits of x_low */
+    return as_object(as_oint(posfixnum(x_low&(bitm(oint_data_len)-1))) & as_oint(y));
+    #endif
   } else {
     SAVE_NUM_STACK /* save num_stack */
     var uintC n; /* number of digits */
@@ -184,13 +192,21 @@ local object I_I_lognand_I (object x, object y) {
     var uintD* yLSDptr;
     BN_to_NDS_nocopy(y, ,,yLSDptr=);
     var uint32 y_low = get_max32_Dptr(pFN_maxlength*intDsize,yLSDptr-pFN_maxlength);
+    #if (oint_type_len+oint_type_len <= oint_data_shift)
     return as_object((as_oint(x) & ((oint)y_low << oint_data_shift)) ^ as_oint(Fixnum_minus1));
+    #else /* the fixnum_type tag can collide with the high bits of y_low */
+    return as_object((as_oint(x) & ((oint)(y_low&(bitm(oint_data_len)-1)) << oint_data_shift)) ^ as_oint(Fixnum_minus1));
+    #endif
   } else if (posfixnump(y)) {
     /* Bignum AND PosFixnum -> PosFixnum */
     var uintD* xLSDptr;
     BN_to_NDS_nocopy(x, ,,xLSDptr=);
     var uint32 x_low = get_max32_Dptr(pFN_maxlength*intDsize,xLSDptr-pFN_maxlength);
+    #if (oint_type_len+oint_type_len <= oint_data_shift)
     return as_object((((oint)x_low << oint_data_shift) & as_oint(y)) ^ as_oint(Fixnum_minus1));
+    #else /* the fixnum_type tag can collide with the high bits of x_low */
+    return as_object((((oint)(x_low&(bitm(oint_data_len)-1)) << oint_data_shift) & as_oint(y)) ^ as_oint(Fixnum_minus1));
+    #endif
   } else {
     SAVE_NUM_STACK /* save num_stack */
     var uintC n; /* number of digits */
@@ -246,7 +262,11 @@ local object I_I_logandc2_I (object x, object y) {
     var uintD* yLSDptr;
     BN_to_NDS_nocopy(y, ,,yLSDptr=);
     var uint32 y_low = get_max32_Dptr(pFN_maxlength*intDsize,yLSDptr-pFN_maxlength);
+    #if (oint_type_len+oint_type_len <= oint_data_shift)
     return as_object(as_oint(x) & ~((oint)y_low << oint_data_shift));
+    #else /* the fixnum_type tag can collide with the high bits of y_low */
+    return as_object(as_oint(x) & ~((oint)(y_low&(bitm(oint_data_len)-1)) << oint_data_shift));
+    #endif
   } else {
     SAVE_NUM_STACK /* save num_stack */
     var uintC n; /* number of digits */
