@@ -29,7 +29,7 @@ SQL query).</para>
 
 		<!-- CONNECT -->
 
-<varlistentry id="ora-connect"><term><literal role="sexp">(ORACLE:CONNECT
+<varlistentry id="ora-connect"><term><code>(ORACLE:CONNECT
 <replaceable>user</replaceable>
 <replaceable>password</replaceable>
 <replaceable>server</replaceable>
@@ -38,7 +38,7 @@ SQL query).</para>
 <replaceable>auto-commit</replaceable>
 <replaceable>prefetch-buffer-bytes</replaceable>
 <replaceable>long-len</replaceable>
-<replaceable>truncate-ok</replaceable>)</literal></term>
+<replaceable>truncate-ok</replaceable>)</code></term>
 <listitem>
 <simpara>
 
@@ -105,7 +105,7 @@ The meaning of the arguments is as follows:
 
 		<!-- DISCONNECT -->
 
-<varlistentry><term><literal role="sexp">(ORACLE:DISCONNECT)</literal></term>
+<varlistentry><term><code>(ORACLE:DISCONNECT)</code></term>
 <listitem>
 <simpara>
 Disconnect from the database currently connected.  No more calls can
@@ -119,11 +119,11 @@ Returns &nil;.
 
 		<!-- RUN-SQL -->
 
-<varlistentry><term><literal role="sexp">(ORACLE:RUN-SQL
+<varlistentry><term><code>(ORACLE:RUN-SQL
 <replaceable>sql</replaceable>
 &optional-amp;
 <replaceable>params</replaceable>
-<replaceable>is-select</replaceable>)</literal></term>
+<replaceable>is-select</replaceable>)</code></term>
 <listitem>
 <simpara>Execute a SQL statement.  Must be &ora-connect;ed
 to a database.  Returns the number of rows affected by the SQL operation,
@@ -159,8 +159,8 @@ arguments is as follows: </simpara>
 
 		<!-- DO-ROWS -->
 
-<varlistentry><term><literal role="sexp">(ORACLE:DO-ROWS
-<replaceable>vars</replaceable> &body-amp; &body-r;)</literal></term>
+<varlistentry><term><code>(ORACLE:DO-ROWS
+<replaceable>vars</replaceable> &body-amp; &body-r;)</code></term>
  <listitem><simpara> Macro which loops over a SQL SELECT result,
    evaluating, for each row in the result, the forms in &body-r;,
    binding symbols given in <replaceable>vars</replaceable> to
@@ -192,8 +192,8 @@ arguments is as follows: </simpara>
 </simpara></listitem></varlistentry>
 
 		<!-- FETCH -->
-<varlistentry><term><literal role="sexp">(ORACLE:FETCH
-   &optional-amp; <replaceable>result-type</replaceable>)</literal></term>
+<varlistentry><term><code>(ORACLE:FETCH
+   &optional-amp; <replaceable>result-type</replaceable>)</code></term>
  <listitem><para>Fetch a single row of data.  Returns a row of values
    corresponding to the columns of an active SELECT statment.  The row
    data is returned in one of three different forms, depending on the
@@ -253,11 +253,11 @@ arguments is as follows: </simpara>
 
 		<!-- FETCH-ALL -->
 
-<varlistentry><term><literal role="sexp">(ORACLE:FETCH-ALL
+<varlistentry><term><code>(ORACLE:FETCH-ALL
 &optional-amp;
 <replaceable>max-rows</replaceable>
 <replaceable>result-type</replaceable>
-<replaceable>item-type</replaceable>)</literal></term>
+<replaceable>item-type</replaceable>)</code></term>
 <listitem><simpara>Fetch some or all the rows from a query and return
 result as a sequence of sequences.  Arguments are all optional:
 <replaceable>max-rows</replaceable> limits the result to
@@ -283,9 +283,9 @@ over an entire SELECT result to construct a single Lisp value.
 
 		<!-- PEEK-->
 
-<varlistentry><term><literal role="sexp">(ORACLE:PEEK
+<varlistentry><term><code>(ORACLE:PEEK
 &optional-amp;
-<replaceable>result-type</replaceable>)</literal></term>
+<replaceable>result-type</replaceable>)</code></term>
 <listitem>
 <simpara>
 
@@ -305,7 +305,7 @@ data to print headers, summaries, etc.
 
 		<!-- COLUMNS -->
 
-<varlistentry><term><literal role="sexp">(ORACLE:COLUMNS)</literal></term>
+<varlistentry><term><code>(ORACLE:COLUMNS)</code></term>
 <listitem><para>Returns information on the columns of a SELECT
   result, in the form of an array of SQLCOL structures, one for each
   result column in the most recent SELECT statement.  It is not
@@ -343,7 +343,7 @@ data to print headers, summaries, etc.
 
 		<!-- EOF -->
 
-<varlistentry><term><literal role="sexp">(ORACLE:EOF)</literal></term>
+<varlistentry><term><code>(ORACLE:EOF)</code></term>
 <listitem>
 <simpara>
 Returns EOF status.  A SELECT query cursor is considered at EOF if the next
@@ -352,9 +352,9 @@ an active SELECT statement.
 </simpara></listitem></varlistentry>
 
 		<!-- INSERT-ROW -->
-<varlistentry><term><literal role="sexp">(ORACLE:INSERT-ROW
+<varlistentry><term><code>(ORACLE:INSERT-ROW
 <replaceable>table</replaceable>
-<replaceable>values</replaceable>)</literal></term>
+<replaceable>values</replaceable>)</code></term>
 <listitem>
 <simpara>
 Inserts a single row into <replaceable>table</replaceable>.
@@ -366,12 +366,12 @@ Returns the number of rows inserted (i.e., always 1).
 </simpara></listitem></varlistentry>
 
 		<!-- UPDATE-ROW -->
-<varlistentry><term><literal role="sexp">(ORACLE:UPDATE-ROW
+<varlistentry><term><code>(ORACLE:UPDATE-ROW
 <replaceable>table</replaceable>
 <replaceable>condition</replaceable>
 <replaceable>vals</replaceable>
 &optional-amp;
-<replaceable>params</replaceable>)</literal></term>
+<replaceable>params</replaceable>)</code></term>
 <listitem>
 <simpara>
 Updates rows in <replaceable>table</replaceable>.  Second argument
@@ -388,7 +388,7 @@ e.g., when the condition is a match on a primary key, e.g.: <literal>"pk_column
 
 		<!-- ROW-COUNT -->
 
-<varlistentry><term><literal role="sexp">(ORACLE:ROW-COUNT)</literal></term>
+<varlistentry><term><code>(ORACLE:ROW-COUNT)</code></term>
 <listitem>
 <simpara>
 For SELECT statements, returns the number of rows
@@ -401,9 +401,9 @@ to a database and have an active SQL statement.
 
 		<!-- WITH-TRANSACTION -->
 
-<varlistentry><term><literal role="sexp">(ORACLE:WITH-TRANSACTION
+<varlistentry><term><code>(ORACLE:WITH-TRANSACTION
 &body-amp;
-&body-r;)</literal></term>
+&body-r;)</code></term>
 <listitem>
 <simpara>
 
@@ -424,7 +424,7 @@ expression is that of the last form in &body-r;.
 
 		<!-- COMMIT -->
 
-<varlistentry><term><literal role="sexp">(ORACLE:COMMIT)</literal></term>
+<varlistentry><term><code>(ORACLE:COMMIT)</code></term>
 <listitem>
 <simpara>
 Commits (makes permanent) any pending changes to the database.  The
@@ -436,7 +436,7 @@ function, nor can it be called inside a
 
 		<!-- ROLLBACK -->
 
-<varlistentry><term><literal role="sexp">(ORACLE:ROLLBACK)</literal></term>
+<varlistentry><term><code>(ORACLE:ROLLBACK)</code></term>
 <listitem>
 <simpara>
 Rolls back (undoes and abandons) any pending changes to the database.
@@ -448,7 +448,7 @@ function, nor can it be called inside a
 
 		<!-- AUTO-COMMIT -->
 
-<varlistentry><term><literal role="sexp">(ORACLE:AUTO-COMMIT)</literal></term>
+<varlistentry><term><code>(ORACLE:AUTO-COMMIT)</code></term>
 <listitem>
 <simpara>
 Toggles the state of <replaceable>auto-commit</replaceable> initially
@@ -535,7 +535,7 @@ in <filename>$<envar>ORACLE_HOME</envar>/rdbms/demo/oci.h</filename>.</para>
 The <command>full</command> &linkset; will contain the module,
 so you will need to use the &opt-K; option to use it.
 You can test that you really have the &oracle-link;-enabled &clisp; by
-evaluating <literal role="sexp">(&describe; 'oracle:connect)</literal>
+evaluating <code>(&describe; 'oracle:connect)</code>
 It may be necessary to edit the Makefile in the
 <filename>modules/oracle</filename> subdirectory of the distribution
 prior to running <command>./configure</command>.</para>
