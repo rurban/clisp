@@ -264,7 +264,7 @@
   #if defined(MIPS) && defined(sinix) # && defined(SNI)
     #define UNIX_SINIX # Siemens is nix
   #endif
-  #if defined(USL) || (defined(__svr4__) && defined(I80386) && !(defined(sun) || defined(__sun__)))
+  #if defined(USL) || (defined(__svr4__) && defined(I80386) && !defined(__sun))
     # Eine Reihe von 386er Unixen (alle unter verschiedenem Namen) stammen
     # von USL SysV R 4 ab:
     #   386 UHC UNIX System V release 4
@@ -394,7 +394,7 @@
   #if (defined(SUN3) || defined(SUN386) || defined(SUN4)) && defined(HAVE_MMAP) && defined(HAVE_VADVISE)
     #define UNIX_SUNOS4  # Sun OS Version 4
   #endif
-  #if (defined(SUN4) || (defined(I80386) && defined(__svr4__) && (defined(sun) || defined(__sun__)))) && !defined(HAVE_VADVISE) # && !defined(HAVE_GETPAGESIZE)
+  #if (defined(SUN4) || (defined(I80386) && defined(__svr4__) && defined(__sun))) && !defined(HAVE_VADVISE) # && !defined(HAVE_GETPAGESIZE)
     #define UNIX_SUNOS5  # Sun OS Version 5.[1-5] (Solaris 2)
   #endif
 
