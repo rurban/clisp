@@ -162,7 +162,7 @@
 (defun get-frame-limit ()
   (let (number)
     (loop
-     (terpri *debug-io*)
+     (fresh-line *debug-io*)
      (write-string (TEXT "Enter the limit for max. frames to print or ':all' for all: ") *debug-io*)
      (setq number (read-from-string (read-line *debug-io* nil nil)))
      (if (or (integerp number) (eq number :all))
@@ -170,7 +170,8 @@
        (progn
          (fresh-line *debug-io*)
          (format *debug-io* (TEXT "~A is not a number. Try again.")
-                 number))))
+                 number)
+         (elastic-newline *debug-io*))))
     (unless (eq number :all)
       number)))
 
@@ -223,9 +224,10 @@
 
 ;;; print it
 (defun print-error (condition)
-  (terpri *debug-io*)
+  (fresh-line *debug-io*)
   (write-string (TEXT "The last error:") *debug-io*)
-  (pretty-print-condition condition *debug-io* :text-indent 3))
+  (pretty-print-condition condition *debug-io* :text-indent 3)
+  (elastic-newline *debug-io*))
 
 (defvar *user-commands* nil
   "The list of functions, each of which should return a list of bindings.
@@ -475,15 +477,17 @@ Continue       :c       switch off single step mode, continue evaluation
     (when may-continue
       (if continuable
         (when interactive-p
-          (terpri *debug-io*)
+          (fresh-line *debug-io*)
           (write-string (TEXT "You can continue (by typing 'continue').")
-                        *debug-io*))
+                        *debug-io*)
+          (elastic-newline *debug-io*))
         (progn
-          (terpri *debug-io*)
+          (fresh-line *debug-io*)
           (when interactive-p
             (write-string (TEXT "If you continue (by typing 'continue'): ")
                           *debug-io*))
-          (princ may-continue *debug-io*)))))
+          (princ may-continue *debug-io*)
+          (elastic-newline *debug-io*)))))
 
   (when condition
     (let ((restarts (remove may-continue (compute-restarts condition)))
@@ -492,25 +496,27 @@ Continue       :c       switch off single step mode, continue evaluation
                            (TEXT "The following restarts are available:"))))
       (when restarts
         (when interactive-p
-          (terpri *debug-io*)
-          (write-string restarts-help *debug-io*))
+          (fresh-line *debug-io*)
+          (write-string restarts-help *debug-io*)
+          (elastic-newline *debug-io*))
         (let ((counter 0))
           (dolist (restart restarts)
             (let* ((command
                     (string-concat ":R" (sys::decimal-string (incf counter))))
                    (name (string (restart-name restart)))
-                   (helpstring (format nil "~%~A~15T~A~24T~A" name command
+                   (helpstring (format nil "~A~15T~A~24T~A" name command
                                        (princ-to-string restart)))
                    (restart restart)  ; for FUNC
                    (func #'(lambda () (invoke-restart-interactively restart))))
               ;; display the restarts:
               (when interactive-p
-                (write-string helpstring *debug-io*))
-              (push helpstring commandsr)
+                (fresh-line *debug-io*)
+                (write-string helpstring *debug-io*)
+                (elastic-newline *debug-io*))
+              (push (string-concat (string #\Newline) helpstring) commandsr)
               ;; put it into the commandsr list.
               (push (cons command func) commandsr)
               (push (cons name func) commandsr)))
-          (terpri *debug-io*)
           (setq commandsr (cons (string-concat (string #\Newline) restarts-help)
                                 (nreverse commandsr)))))))
   (force-output *debug-io*)
