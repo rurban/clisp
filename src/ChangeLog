@@ -1,5 +1,12 @@
 2004-03-12  Bruno Haible  <bruno@clisp.org>
 
+	* unix.d (sock_write): Declare with 4 arguments, not 3.
+	* unixaux.d (read_helper, write_helper): Coding style.
+	(sock_write): Test for EWOULDBLOCK only if no_hang is true.
+	Needed for BeOS 5.
+
+2004-03-12  Bruno Haible  <bruno@clisp.org>
+
 	* m4/install.m4 (CL_PROG_INSTALL): Use the absolute path of "cp", not
 	just "cp". Needed on HP-UX 10 because autoconf does special magic to
 	INSTALL at config.status time if its value is a relative pathnames.
