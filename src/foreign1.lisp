@@ -1029,3 +1029,10 @@
   (defsetf system::foreign-encoding system::set-foreign-encoding))
 
 ;; ===========================================================================
+
+;;; for self-test
+;;; commented out since CLISP does not need them;
+;;; they are defined by the test suite.
+;; (def-call-out ffi_identity (:arguments (obj int))
+;;   (:return-type int) (:language :stdc))
+;; (def-c-var ffi_user_pointer (:type c-pointer))
