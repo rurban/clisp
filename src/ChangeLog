@@ -1,3 +1,13 @@
+1999-03-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * encoding.d (nls_mbstowcs, nls_asciiext_mbstowcs, nls_wcstombs,
+          nls_asciiext_wcstombs, nls_range): Use TheMachine, not ThePseudofun.
+          Vital for hppa.
+          (init_encodings): Use make_machine, not P. Vital for hppa.
+          Initialize O(internal_encoding) always to ISO-8859-1, independently
+          of the platform. If HPROMAN8_CHS is defined, use it for the other
+          encodings, instead of ASCII.
+
 1999-03-16  Sam Steingold  <sds@gnu.org>
 
 	implement `with-package-iterator'.
