@@ -120,18 +120,19 @@ LISPFUNNR(foreign_pointer,1)
 LISPFUNN(set_foreign_pointer,2)
 {
   /* TODO? restart that allows all of (OR (EQL :COPY) FOREIGN-xyz) */
+  var object address = foreign_address(STACK_1,false);
   var object new_fp = STACK_0;
-  STACK_0 = foreign_address(STACK_1,false);
+  STACK_0 = address;
   /* Stack layout: f-entity f-entity-address. */
   if (eq(new_fp,S(Kcopy))) {
-    var object fp = TheFaddress(STACK_0)->fa_base;
+    var object fp = TheFaddress(address)->fa_base;
     new_fp = allocate_fpointer(Fpointer_value(fp));
   } else {
     /* extract other entity's FOREIGN-POINTER */
     new_fp = foreign_pointer_strict(new_fp);
-    var sintP offset = (uintP)Faddress_value(STACK_0)
-                     - (uintP)Fpointer_value(new_fp);
-    TheFaddress(STACK_0)->fa_offset = offset;
+    var sintP offset =
+      (uintP)Faddress_value(address) - (uintP)Fpointer_value(new_fp);
+    TheFaddress(address)->fa_offset = offset;
   }
   TheFaddress(STACK_0)->fa_base = new_fp;
   VALUES1(STACK_1); skipSTACK(2);

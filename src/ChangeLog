@@ -1,3 +1,8 @@
+2004-12-08  Bruno Haible  <bruno@clisp.org>
+
+	* foreign.d (SET-FOREIGN-POINTER): Fix GC-safety bug introduced on
+	2003-03-14.
+
 2004-12-10  Sam Steingold  <sds@gnu.org>
 
 	New user variable CUSTOM:*PRINT-SYMBOL-PACKAGE-PREFIX-SHORTEST*
