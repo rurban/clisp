@@ -1,5 +1,10 @@
 2004-12-08  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (init_ffi): Mark as "can trigger GC".
+	* foreign.d (init_ffi): Likewise.
+
+2004-12-08  Bruno Haible  <bruno@clisp.org>
+
 	* stream.d (FILE-POSITION): Avoid a false GC-safety bug alert: Call
 	SET-FILL-POINTER directly, without going through funcall.
 
