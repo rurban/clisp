@@ -1758,6 +1758,8 @@
 
 (LOAD "type")                   ; TYPEP
 
+(LOAD "lambdalist")             ; parsing ordinary lambda lists
+
 (LOAD "clos-package")           ; Early CLOS
 (LOAD "clos-class0")
 (LOAD "clos-slotdef1")
