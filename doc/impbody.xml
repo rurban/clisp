@@ -379,9 +379,9 @@ executes a compiled version of form.</para>
 <para>The &clos; symbols are &export;ed from the package &clos-pac;.
  &cl-pac; uses (as in &use-package;) &clos-pac; and &re-export;s all its
  exported symbols.
- Since the default &use-k; argument to &make-package; is &cl-pac;
- (see <link linkend="make-pack">here</link>),
- the &clos; symbols are normally visible in all user packages.
+ Since <link linkend="make-pack">the default &use-k; argument</link>
+ to &make-package; is &cl-pac;, the &clos; symbols are normally visible
+ in all user-defined packages.
  If you do not want them (for example, if you want to use the
  <ulink url="ftp://clisp.cons.org/pub/lisp/clisp/packages/pcl.sept92f.clisp.tar.gz">PCL</ulink>
  implementation of &clos; instead of the native one), do the following:
@@ -712,7 +712,7 @@ is the same as
 </literal></para></formalpara>
 
 <table id="values-limits-table" frame="all">
-  <title>Platform dependent</title>
+  <title>Function call limits (platform dependent)</title>
  <tgroup cols="4" colsep="1" rowsep="1" align="center">&cpu-type-header;
  <tbody>
   <row><entry>&call-arguments-limit;</entry>
@@ -1398,7 +1398,7 @@ all packages in &sys-pack-list;.</para></formalpara>
 <ulink url="&clhs;/Body/convar_most-p_ative-fixnum.html">[CLHS]</ulink></title>
 
 <table id="fixnum-lim-table" frame="all">
-  <title>Platform dependent</title>
+  <title>Fixnum limits (platform dependent)</title>
  <tgroup cols="4" colsep="1" rowsep="1" align="center">&cpu-type-header;
  <tbody>
  <row><entry>&most-positive-fixnum;</entry>
@@ -1654,7 +1654,7 @@ encoding.</para>
 <!-- #endif -->
 
 <table id="standard-char-table" frame="all">
-  <title>The following are standard characters:</title>
+  <title>Standard characters:</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
   &char-code-header;<tbody>
  <row><entry><keysym>#\Space</keysym></entry>
@@ -1664,7 +1664,7 @@ encoding.</para>
 </tbody></tgroup></table>
 
 <table id="semi-standard-char-table" frame="all">
-  <title>The following are semi-standard characters:</title>
+  <title>Semi-standard characters:</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
   &char-code-header;<tbody>
  <row><entry><keysym>#\Backspace</keysym></entry>
@@ -1736,7 +1736,7 @@ encoding.</para>
   </simpara></listitem></varlistentry>
  <varlistentry><term><constant>ext:char-bits-limit</constant> = 16</term>
   <listitem><table id="bit-table" frame="all">
-    <title>The following bits are defined:</title>
+    <title>Character bits</title>
    <tgroup cols="2" colsep="1" rowsep="1" align="center">
     &key-value-header;<tbody>
    <row><entry>&control-k;</entry><entry>&ch-ctrl;</entry></row>
@@ -1900,7 +1900,7 @@ are simple characters.</para>
  supports exactly &char-code-limit; characters.</para>
 
 <table id="char-code-limit-table" frame="all">
-  <title>Platform dependent</title>
+  <title>Number of characters (platform dependent)</title>
  <tgroup cols="3" colsep="1" rowsep="1" align="center">
  <thead><row><entry>binaries built</entry>
              <entry>&without; &unicode; support</entry>
@@ -1954,7 +1954,7 @@ and the international alphabetic characters from the character set:
 
 <!-- #ifdef AMIGA_CHARNAMES -->
 <table id="amiga-chars-table" frame="all">
-  <title>Platform dependent: &amiga; platforms only.</title>
+  <title>Platform dependent characters: &amiga; platforms only.</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
   &code-char-header;<tbody>
  <row><entry><literal role="sexp">(&code-char; #x00)</literal></entry>
@@ -2040,7 +2040,8 @@ and the international alphabetic characters from the character set:
 
 <!-- #if defined(MSDOS_CHARNAMES) || defined(WIN32_CHARNAMES) -->
 <table id="dos-win32-chars-table" frame="all">
-  <title>Platform dependent: &dos;, &os2;, &win32; platforms only.</title>
+  <title>Platform dependent characters:
+    &dos;, &os2;, &win32; platforms only.</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
   &code-char-header;<tbody>
  <row><entry><literal role="sexp">(&code-char; #x00)</literal></entry>
@@ -2072,7 +2073,8 @@ and the international alphabetic characters from the character set:
 
 <!-- #ifdef UNIX_CHARNAMES -->
 <table id="unix-chars-table" frame="all">
-  <title>Platform dependent: &unix;, &acorn;, platforms only.</title>
+  <title>Platform dependent characters:
+    &unix;, &acorn;, platforms only.</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
   &code-char-header;<tbody>
  <row><entry><literal role="sexp">(&code-char; #x00)</literal></entry>
@@ -2163,7 +2165,7 @@ and the international alphabetic characters from the character set:
 <section id="char-bits"><title>Obsolete Constants</title>
 
 <table id="char-bits-table" frame="all">
-  <title>obsolete constants</title>
+  <title>Character bit constants (obsolete)</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
  <thead><row><entry>constant</entry><entry>value</entry></row></thead><tbody>
  <row><entry>&ch-ctrl;</entry><entry>1</entry></row>
@@ -2231,7 +2233,7 @@ and the international alphabetic characters from the character set:
    <ulink url="&clhs;/Body/sec_15-1-1.html">[CLHS-15.1.1]</ulink></title>
 
 <table id="array-limit-table" frame="all">
-  <title>Platform dependent</title>
+  <title>Array limits (platform dependent)</title>
  <tgroup cols="4" colsep="1" rowsep="1" align="center">&cpu-type-header;
  <tbody>
  <row><entry>&array-rank-limit;</entry>
@@ -2521,8 +2523,8 @@ printed readably.</para>
 
 <para>An &amiga; &name-type-split;</para>
 
-<para>Case is ignored in the strings on comparison.  No case conversions
- are performed.</para>
+<para>Case is ignored in the strings on comparison.
+  No case conversions are performed.</para>
 
 <table frame="all" id="pathnames-externally-amiga">
  <title>filename notations</title>
@@ -2748,7 +2750,7 @@ printed readably.</para>
 <!-- #endif -->
 
 <!-- #ifdef PATHNAME_NOEXT -->
-<variablelist id="name-type-split">
+<variablelist id="name-type-split"><title>Name/type namestring split.</title>
 <varlistentry><term>Platform dependent:  &unix;, &amiga;, &os2;, &win32;
    platforms only.</term>
 <listitem><para>A filename is split into name and type according to the
@@ -2762,10 +2764,10 @@ printed readably.</para>
    <emphasis role="strong"><varname
      >CUSTOM:*PARSE-NAMESTRING-DOT-FILE*</varname></emphasis>
    which can be either
-   <variablelist><varlistentry><term><constant>:type</constant></term>
+   <variablelist><varlistentry><term>&type-k;</term>
     <listitem><simpara>&nil; &name-r;, everything after the &file-dot;
      is the &type-r;; or</simpara></listitem></varlistentry>
-   <varlistentry><term><constant>:name</constant></term>
+   <varlistentry><term>&name-k;</term>
     <listitem><simpara>&nil; &type-r;, everything is the
      &name-r;</simpara></listitem></varlistentry></variablelist>
    </para></listitem>
@@ -2774,7 +2776,7 @@ printed readably.</para>
  cannot result from &parse-namestring;.
  To get a pathname whose type contains a dot or whose name contains a
  dot and whose type is &nil;, &make-pathname; must be used.  Example:
- <literal role="sexp">(&make-pathname; :name "foo.bar")</literal>.
+ <literal role="sexp">(&make-pathname; &name-k; "foo.bar")</literal>.
  </simpara></listitem></varlistentry>
 </variablelist>
 <!-- #endif -->
@@ -3235,7 +3237,7 @@ printed readably.</para>
 <para>Due to the name/type swapping rule, there are pathnames that
  cannot result from &parse-namestring;.  To get a pathname whose type is
  &nil;, &make-pathname; must be used.  Example: <literal
- role="sexp">(&make-pathname; :directory "!Clisp." :name
+ role="sexp">(&make-pathname; :directory "!Clisp." &name-k;
  "README")</literal>.</para>
 
 </listitem></varlistentry></variablelist>
@@ -4750,7 +4752,7 @@ effects when being loaded, this is important as well.
   following commands are available as well:</para>
 
 <table id="debugger-eval-apply" frame="all">
- <title>&eval;/&apply;-specific commands</title>
+ <title>Commands specific to &eval;/&apply;</title>
  <tgroup cols="3" colsep="1" rowsep="1" align="center">
   &cmd-abbrev-oper-header;<tbody>
 <row><entry><command>Break+</command></entry>
