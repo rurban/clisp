@@ -1,5 +1,10 @@
 2004-10-04  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/sock.lisp (open-unix-socket): use ABSOLUTE-PATHNAME
+	(open-unix-socket-stream): new function, returns a STREAM
+
+2004-10-04  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (POSIX::CONFSTR): use my_malloc()
 	instead of malloc() because of error handling
 

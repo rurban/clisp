@@ -7,7 +7,7 @@
 (defpackage "RAWSOCK"
   (:documentation "Raw Socket access")
   (:use "LISP")
-  (:export "BUFFER" "OPEN-UNIX-SOCKET"
+  (:export "BUFFER" "OPEN-UNIX-SOCKET" "OPEN-UNIX-SOCKET-STREAM"
            "ACCEPT" "BIND" "CONNECT"
            "GETPEERNAME" "GETSOCKNAME"
            "LISTEN" "RECV" "RECVFROM" "RECVMSG"
@@ -33,14 +33,25 @@
 (defun sockaddr-data (sa) (subseq (sockaddr-%data sa) sockaddr-family-size))
 
 (defun open-unix-socket (pathname &optional (type :SOCK_STREAM))
+  "Return the socket (fixnum) pointing to this UNIX socket special device."
   (let* ((socket (socket :AF_UNIX type 0))
          (address (make-sockaddr :AF_UNIX
                                  (ext:convert-string-to-bytes
-                                  (namestring (translate-pathname
-                                               pathname #p"" #p"" :absolute t))
+                                  (namestring (absolute-pathname pathname))
                                   ext:*pathname-encoding*))))
     (connect socket address)
     (values socket address)))
+
+(defun open-unix-socket-stream (pathname &rest opts &key (type :SOCK_STREAM))
+  "Return the lisp STREAM pointing to this UNIX socket special device.
+The return value is already FINALIZEd by CLOSE.
+Passes :TYPE to SOCKET and all the other options to MAKE-STREAM."
+  (multiple-value-bind (sock address) (open-unix-socket pathname type)
+    (ext:remove-plist opts :type)
+    (let ((stream (apply #'ext:make-stream sock opts)))
+      (finalize stream #'close)
+      (sock-close sock)
+      (values stream address))))
 
 (ext:without-package-lock ("CL")
 (defmethod close ((sock integer) &key abort)
