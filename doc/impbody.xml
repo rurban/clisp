@@ -4692,7 +4692,7 @@ functions are provided:</para>
   immediately. Otherwise it returns true.</simpara>
   <simpara>Note the difference with the standard &listen; function: When
   the &eos; is reached, &listen; returns &nil;, whereas
-  <function>lisp:read-char-will-hang-p</function> returns &t;.</simpara>
+  <function>lisp:read-char-will-hang-p</function> returns &nil;.</simpara>
   <simpara>Note also that
   <function>lisp:read-char-will-hang-p</function> is not a good mean to
   test for &eos;: If <function>lisp:read-char-will-hang-p</function>
