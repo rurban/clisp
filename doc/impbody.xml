@@ -621,7 +621,7 @@ is the same as
 </section>
 
 <section id="xor"><title>Function <function>EXT:XOR</function></title>
-<para>This function check that exactly one of its arguments is non-&nil;
+<para>This function checks that exactly one of its arguments is non-&nil;
  and, if this is the case, returns its value and index in the argument
  list as multiple values, otherwise returns &nil;.
 </para>
@@ -1294,7 +1294,7 @@ performance considerations.
   E.g., <literal>1.5</literal> is actually <literal>1.5&plusmn;0.05</literal>.
   Consider adding <literal>1.5</literal> and <literal>1.75</literal>.
   &ansi-cl; requires that <literal role="sexp">(+ 1.5 1.75)</literal>
-  returns <literal>3.25</literal>, while traditional &clisp; would return
+  return <literal>3.25</literal>, while traditional &clisp; would return
   <literal>3.3</literal>.  The implied random variables are:
   <literal>3.25&plusmn;0.005</literal> and <literal>3.3&plusmn;0.05</literal>.
   Note that the traditional &clisp; way <emphasis role="strong">does</emphasis>
@@ -1364,7 +1364,7 @@ performance considerations.
  this is why &warn-fpc; is set to &t; initially.
  You can avoid the contagion by doing all your computations with the
  same floating-point type (and using &float; to convert all constants,
- e.g., &pi-v; to your preferred type).
+ e.g., &pi-v;, to your preferred type).
  Set it to &error; to have &clisp; &signal; an &error-t; on float
  precision contagion.</para></formalpara>
 
@@ -1377,7 +1377,7 @@ performance considerations.
 <para>Complex numbers can have a real part and an imaginary part of
  different types. For example, <literal role="sexp">(&sqrt;
  -9.0)</literal> evaluates to the number <literal>#C(0 3.0)</literal>,
- which has a real part of exactly <literal>0</literal>, not only
+ which has a real part of exactly &zero;, not only
  <literal>0.0</literal> (which would mean "approximately 0").</para>
 
 <para>The type specifier for this is <literal
@@ -1397,9 +1397,8 @@ performance considerations.
    <ulink url="&clhs;/Body/sec_12-1-5-3.html">[CLHS-12.1.5.3]</ulink></title>
 
 <para>Complex numbers can have a real part and an imaginary part of
- different types.  If the imaginary part is &eql; to
- <literal>0</literal>, the number is automatically converted to a real
- number.</para>
+ different types.  If the imaginary part is &eql; to &zero;,
+ the number is automatically converted to a real number.</para>
 
 <para>This has the advantage that
    <literal role="sexp">(let ((x (sqrt -9.0))) (* x x))</literal>
@@ -2019,7 +2018,7 @@ are simple characters.</para>
 <section id="char-dict"><title>The Characters Dictionary
    <ulink url="&clhs;/Body/sec_the_chara_s_dictionary.html">[CLHS-13.2]</ulink></title>
 
-<para>&char-code; takes values from 0 (inclusive) to
+<para>&char-code; takes values from &zero; (inclusive) to
  &char-code-limit; (exclusive), i.e., the implementation
  supports exactly &char-code-limit; characters.</para>
 
@@ -4404,7 +4403,7 @@ functions are provided:
  &string-r;, &start-r;, &end-r;.
  &read-char; returns the &character-t;s of the current &string-r; one
  after another, as delimited by &start-r; and &end-r;, which default to
- <literal>0</literal> and &nil;, respectively.
+ &zero; and &nil;, respectively.
  When the &string-r; is consumed, &func-r; is called again.
  The &string-r; returned by &func-r; should not be changed,
  otherwise &func-r; should copy the &string-r; with &copy-seq;
