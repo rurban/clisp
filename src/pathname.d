@@ -10154,6 +10154,7 @@ local struct passwd * unix_user_pwd()
           }
           else
           { var OSVERSIONINFO v;
+            v.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
             if (!GetVersionEx(&v)) { OS_error(); }
             if (v.dwPlatformId == VER_PLATFORM_WIN32_NT)
               # Windows NT

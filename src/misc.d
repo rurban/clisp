@@ -139,6 +139,7 @@ LISPFUNN(machine_version,0)
             var OSVERSIONINFO v;
             begin_system_call();
             GetSystemInfo(&info);
+            v.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
             if (!GetVersionEx(&v)) { OS_error(); }
             end_system_call();
             if (info.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_INTEL)
