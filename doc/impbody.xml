@@ -347,7 +347,8 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
 
 <itemizedlist><title>The possible results of &type-of;</title>
  <listitem><simpara>&cons-t;</simpara></listitem>
- <listitem><simpara>&symbol-t;, &null-t;, &boolean-t;</simpara></listitem>
+ <listitem><simpara>&symbol-t;, &null-t;, &boolean-t;,
+  &keyword-t;</simpara></listitem>
  <listitem><simpara><literal role="type">(&integer-t; 0
   #.&most-positive-fixnum;)</literal>, <literal role="type">(&integer-t;
   #.&most-negative-fixnum; (0))</literal>, <literal role="type">(&integer-t;
