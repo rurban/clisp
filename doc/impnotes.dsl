@@ -88,6 +88,35 @@
 
 ;; (define %generate-legalnotice-link% #f) ; default
 
+(define %clisp-gnu-sourceforge-footer%
+  (make element gi: "div" attributes: '(("class" "custom-footer"))
+        (make empty-element gi: "hr" attributes: '(("width" "100%")))
+        (make element gi: "table" attributes: '(("width" "100%"))
+              (make element gi: "tr"
+                    (make element gi: "td" attributes: '(("align" "left"))
+                          (make element gi: "a" attributes:
+                                '(("href" "http://clisp.cons.org"))
+                                (make empty-element gi: "img" attributes:
+                                      '(("src" "clisp.png")
+                                        ("width" "48") ("height" "48")
+                                        ("alt" "[CLISP home]")))))
+                    (make element gi: "td" attributes: '(("align" "center"))
+                          (make element gi: "a" attributes:
+                                '(("href" "http://www.gnu.org"))
+                                (make empty-element gi: "img" attributes:
+                                      '(("src" "http://www.gnu.org/graphics/gnubanner.jpg")
+                                        ("width" "468") ("height" "60")
+                                        ("alt" "[Come and see what GNU creates for YOU]")))))
+                    (make element gi: "td" attributes: '(("align" "right"))
+                          (make element gi: "a" attributes:
+                                '(("href" "http://sourceforge.net"))
+                                (make empty-element gi: "img" attributes:
+                                      '(("src" "http://sourceforge.net/sflogo.php?group_id=1355&#38;amp;type=2")
+                                        ("width" "125") ("height" "37")
+                                        ("alt" "[SourceForge]")))))))))
+
+(define (nav-footer elemnode) %clisp-gnu-sourceforge-footer%)
+
 ]]>
 
 </style-specification-body>
