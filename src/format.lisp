@@ -1344,7 +1344,7 @@
 
 #| have to support PPHELP streams separately, so this is in io.d now
 ;; ~T, CLTL p.398-399, CLtL2 p. 597-598
-(defun format-tabulate (stream colon-modifier atsign-modifier
+ (defun format-tabulate (stream colon-modifier atsign-modifier
                         &optional (colnum 1) (colinc 1))
   (if (null colnum) (setq colnum 1))
   (if (null colinc) (setq colinc 1))
@@ -2454,7 +2454,7 @@
                                     `(((LAMBDA ,lambdalist ,@inner)
                                        ,(if atsign-p
                                             (formatter-whole-args*)
-                                          (formatter-next-arg)))))))
+                                            (formatter-next-arg)))))))
                             (let ((body (compute-outer)))
                               (setq *format-csdl* last-csdl)
                               (setq forms (append body forms))))))
