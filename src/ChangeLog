@@ -1,5 +1,12 @@
 2003-07-30  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c: all *-INTERNAL functions
+	call structure BOA constructors (thus they are not INTERNAL)
+	* modules/syscalls/posix.lisp: all structures have BOA
+	constructors, removed the wrappers
+
+2003-07-30  Sam Steingold  <sds@gnu.org>
+
 	* genclisph.d (charp): enabled
 	* modules/syscalls/calls.c (FILE-INFO, MAKE-SHORTCUT)
 	(SHORTCUT-INFO) [WIN32_NATIVE, UNIX_CYGWIN32]: new functions

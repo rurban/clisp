@@ -94,7 +94,7 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED)
 #define D_S           to_double(popSTACK())
 #define I_S           to_int(popSTACK())
 #define N_D(n,v)  \
-  { double x=n; dfloatjanus t=*(dfloatjanus*)&x; v=c_double_to_DF(&t); }
+  { double x=n; v=c_double_to_DF((dfloatjanus*)&x); }
 #define VAL_D(func)   double res=func(D_S); N_D(res,value1)
 #define VAL_ID(func)  \
  double xx=D_S; int nn=I_S; double res=func(nn,xx); N_D(res,value1)
@@ -161,176 +161,174 @@ DEFUN(POSIX:BOGOMIPS,)
 
 /* ========= SYSTEM INFORMATION ========== */
 
-#if defined(HAVE_SYSCONF) || defined(HAVE_UNAME)
 #if defined(HAVE_SYS_UTSNAME_H)
 # include <sys/utsname.h>
 #endif
 
-/* Lisp interface to uname(2) & sysconf(3c) */
-DEFUN(POSIX::SYSINFO-INTERNAL,)
-{ /* if you modify this function wrt it's return values,
- you should modify POSIX:SYSINFO in posix.lisp accordingly */
-  long res, count = 0;
-
 #if defined(HAVE_UNAME)
+DEFUN(POSIX::UNAME,)
+{ /* Lisp interface to uname(2) */
   struct utsname utsname;
   begin_system_call(); uname(&utsname); end_system_call();
-#define UN(str) pushSTACK(asciz_to_string(str,O(misc_encoding))); count++;
+#define UN(str) pushSTACK(asciz_to_string(str,O(misc_encoding)));
   UN(utsname.sysname);
   UN(utsname.nodename);
   UN(utsname.release);
   UN(utsname.version);
   UN(utsname.machine);
 #undef UN
+  funcall(`POSIX::MAKE-UNAME`,5);
+}
 #endif /* HAVE_UNAME */
 
 #if defined(HAVE_SYSCONF)
+DEFUN(POSIX::SYSCONF,)
+{ /* Lisp interface to sysconf(3c) */
+  long res;
+
 #define SC_S(cmd) \
   begin_system_call(); res = sysconf(cmd); end_system_call(); \
-  pushSTACK(res == -1 ? T : L_to_I(res)); count++;
+  pushSTACK(res == -1 ? T : L_to_I(res));
 
 #if defined(_SC_PAGESIZE)
   SC_S(_SC_PAGESIZE);
 #else
-  pushSTACK(NIL); count++;
+  pushSTACK(NIL);
 #endif
 #if defined(_SC_PHYS_PAGES)
   SC_S(_SC_PHYS_PAGES);
 #else
-  pushSTACK(NIL); count++;
+  pushSTACK(NIL);
 #endif
 #if defined(_SC_AVPHYS_PAGES)
   SC_S(_SC_AVPHYS_PAGES);
 #else
-  pushSTACK(NIL); count++;
+  pushSTACK(NIL);
 #endif
 #if defined(_SC_NPROCESSORS_CONF)
   SC_S(_SC_NPROCESSORS_CONF);
 #else
-  pushSTACK(NIL); count++;
+  pushSTACK(NIL);
 #endif
 #if defined(_SC_NPROCESSORS_ONLN)
   SC_S(_SC_NPROCESSORS_ONLN);
 #else
-  pushSTACK(NIL); count++;
+  pushSTACK(NIL);
 #endif
 #if defined(_SC_THREAD_THREADS_MAX)
   SC_S(_SC_THREAD_THREADS_MAX);
 #else
-  pushSTACK(NIL); count++;
+  pushSTACK(NIL);
 #endif
 #undef SC_S
-#endif /* HAVE_SYSCONF */
-  funcall(L(values),count);
+  funcall(`POSIX::MAKE-SYSCONF`,6);
 }
-#endif  /* HAVE_SYSCONF || HAVE_UNAME */
+#endif /* HAVE_SYSCONF */
 
-#if defined(HAVE_GETRUSAGE) || defined(HAVE_GETRLIMIT)
 #if defined(HAVE_SYS_RESOURCE_H)
 # include <sys/resource.h>
 #endif
 
 #if defined(HAVE_GETRUSAGE)
+DEFUN(POSIX::USAGE,)
+{ /* getrusage(3) */
+
 #define GETRU(who)                                              \
   begin_system_call(); getrusage(who,&ru); end_system_call();   \
-  pushSTACK(L_to_I(ru.ru_utime.tv_sec));  count++;              \
-  pushSTACK(L_to_I(ru.ru_utime.tv_usec)); count++;              \
-  pushSTACK(L_to_I(ru.ru_stime.tv_sec));  count++;              \
-  pushSTACK(L_to_I(ru.ru_stime.tv_usec)); count++;              \
-  pushSTACK(L_to_I(ru.ru_maxrss));        count++;              \
-  pushSTACK(L_to_I(ru.ru_idrss));         count++;              \
-  pushSTACK(L_to_I(ru.ru_minflt));        count++;              \
-  pushSTACK(L_to_I(ru.ru_majflt));        count++;              \
-  pushSTACK(L_to_I(ru.ru_nswap));         count++;              \
-  pushSTACK(L_to_I(ru.ru_inblock));       count++;              \
-  pushSTACK(L_to_I(ru.ru_oublock));       count++;              \
-  pushSTACK(L_to_I(ru.ru_msgsnd));        count++;              \
-  pushSTACK(L_to_I(ru.ru_msgrcv));        count++;              \
-  pushSTACK(L_to_I(ru.ru_nsignals));      count++;              \
-  pushSTACK(L_to_I(ru.ru_nvcsw));         count++;              \
-  pushSTACK(L_to_I(ru.ru_nivcsw));        count++
-#else
-#define GETRU(who) count+=16;                                    \
-  pushSTACK(Fixnum_0); pushSTACK(Fixnum_0); pushSTACK(Fixnum_0); \
-  pushSTACK(Fixnum_0); pushSTACK(Fixnum_0); pushSTACK(Fixnum_0); \
-  pushSTACK(Fixnum_0); pushSTACK(Fixnum_0); pushSTACK(Fixnum_0); \
-  pushSTACK(Fixnum_0); pushSTACK(Fixnum_0); pushSTACK(Fixnum_0); \
-  pushSTACK(Fixnum_0); pushSTACK(Fixnum_0); pushSTACK(Fixnum_0); \
-  pushSTACK(Fixnum_0)
-#endif
+  tmp = ru.ru_utime.tv_sec + 0.000001 * ru.ru_utime.tv_usec;    \
+  pushSTACK(c_double_to_DF((dfloatjanus*)&tmp));                \
+  tmp = ru.ru_stime.tv_sec + 0.000001 * ru.ru_stime.tv_usec;    \
+  pushSTACK(c_double_to_DF((dfloatjanus*)&tmp));                \
+  pushSTACK(L_to_I(ru.ru_maxrss));                              \
+  pushSTACK(L_to_I(ru.ru_idrss));                               \
+  pushSTACK(L_to_I(ru.ru_minflt));                              \
+  pushSTACK(L_to_I(ru.ru_majflt));                              \
+  pushSTACK(L_to_I(ru.ru_nswap));                               \
+  pushSTACK(L_to_I(ru.ru_inblock));                             \
+  pushSTACK(L_to_I(ru.ru_oublock));                             \
+  pushSTACK(L_to_I(ru.ru_msgsnd));                              \
+  pushSTACK(L_to_I(ru.ru_msgrcv));                              \
+  pushSTACK(L_to_I(ru.ru_nsignals));                            \
+  pushSTACK(L_to_I(ru.ru_nvcsw));                               \
+  pushSTACK(L_to_I(ru.ru_nivcsw))
 
-#if defined(HAVE_GETRLIMIT)
-#define RLIM(what)                                                      \
-  begin_system_call(); getrlimit(what,&rl); end_system_call(); count += 2; \
-  pushSTACK(rl.rlim_cur == RLIM_INFINITY ? T : L_to_I(rl.rlim_cur));    \
-  pushSTACK(rl.rlim_max == RLIM_INFINITY ? T : L_to_I(rl.rlim_max))
-#endif
-
-DEFUN(POSIX::RESOURCE-USAGE-LIMITS-INTERNAL,)
-{ /* if you modify this function wrt its return values,
- you should modify POSIX:RESOURCE-USAGE-LIMITS in posix.lisp accordingly */
-  long count = 0;
-  struct rlimit rl;
   struct rusage ru;
-
+  double tmp;
+  pushSTACK(NIL);               /* to save the children data */
   GETRU(RUSAGE_SELF);
   GETRU(RUSAGE_CHILDREN);
+  funcall(`POSIX::MAKE-USAGE`,14); /* children */
+  STACK_(14) = value1;
+  funcall(`POSIX::MAKE-USAGE`,14); /* self */
+  value2 = popSTACK();
+  mv_count = 2;
+#undef GETRU
+}
+#endif /* HAVE_GETRUSAGE */
 
-# undef GETRU
+#if defined(HAVE_GETRLIMIT)
+DEFUN(POSIX::LIMITS,)
+{ /* getrlimit(3) */
 
-# if defined(HAVE_GETRLIMIT) && defined(RLIMIT_CORE)
+#define RLIM(what)                                                      \
+  begin_system_call(); getrlimit(what,&rl); end_system_call();          \
+  pushSTACK(rl.rlim_cur == RLIM_INFINITY ? NIL : L_to_I(rl.rlim_cur));  \
+  pushSTACK(rl.rlim_max == RLIM_INFINITY ? NIL : L_to_I(rl.rlim_max));  \
+  funcall(`POSIX::MAKE-RLIMIT`,2); pushSTACK(value1)
+
+  struct rlimit rl;
+
+# if defined(RLIMIT_CORE)
   RLIM(RLIMIT_CORE);
 # else
-  pushSTACK(NIL); pushSTACK(NIL); count += 2;
+  pushSTACK(NIL);
 # endif
-# if defined(HAVE_GETRLIMIT) && defined(RLIMIT_CPU)
+# if defined(RLIMIT_CPU)
   RLIM(RLIMIT_CPU);
 # else
-  pushSTACK(NIL); pushSTACK(NIL); count += 2;
+  pushSTACK(NIL);
 # endif
-# if defined(HAVE_GETRLIMIT) && defined(RLIMIT_DATA)
+# if defined(RLIMIT_DATA)
   RLIM(RLIMIT_DATA);
 # else
-  pushSTACK(NIL); pushSTACK(NIL); count += 2;
+  pushSTACK(NIL);
 # endif
-# if defined(HAVE_GETRLIMIT) && defined(RLIMIT_FSIZE)
+# if defined(RLIMIT_FSIZE)
   RLIM(RLIMIT_FSIZE);
 # else
-  pushSTACK(NIL); pushSTACK(NIL); count += 2;
+  pushSTACK(NIL);
 # endif
-# if defined(HAVE_GETRLIMIT) && defined(RLIMIT_NOFILE)
+# if defined(RLIMIT_NOFILE)
   RLIM(RLIMIT_NOFILE);
 # else
-  pushSTACK(NIL); pushSTACK(NIL); count += 2;
+  pushSTACK(NIL);
 # endif
-# if defined(HAVE_GETRLIMIT) && defined(RLIMIT_STACK)
+# if defined(RLIMIT_STACK)
   RLIM(RLIMIT_STACK);
 # else
-  pushSTACK(NIL); pushSTACK(NIL); count += 2;
+  pushSTACK(NIL);
 # endif
-# if defined(HAVE_GETRLIMIT) && defined(RLIMIT_VMEM)
+# if defined(RLIMIT_VMEM)
   RLIM(RLIMIT_VMEM);
 # else
-  pushSTACK(NIL); pushSTACK(NIL); count += 2;
+  pushSTACK(NIL);
 # endif
-# if defined(HAVE_GETRLIMIT) && defined(RLIMIT_RSS)
+# if defined(RLIMIT_RSS)
   RLIM(RLIMIT_RSS);
 # else
-  pushSTACK(NIL); pushSTACK(NIL); count += 2;
+  pushSTACK(NIL);
 # endif
-# if defined(HAVE_GETRLIMIT) && defined(RLIMIT_MEMLOCK)
+# if defined(RLIMIT_MEMLOCK)
   RLIM(RLIMIT_MEMLOCK);
 # else
-  pushSTACK(NIL); pushSTACK(NIL); count += 2;
+  pushSTACK(NIL);
 # endif
 
-# if defined(RLIM)
-#  undef RLIM
-# endif
+# undef RLIM
 
-  funcall(L(values),count);
+  funcall(`POSIX::MAKE-LIMITS`,9);
 }
-#endif /* HAVE_GETRLIMIT || HAVE_GETRUSAGE */
+#endif /* HAVE_GETRLIMIT */
 
 /* ==== SOCKETS ===== */
 #if defined(HAVE_NETDB_H)
@@ -387,10 +385,8 @@ static void hostent_to_stack (struct hostent *he) {
   pushSTACK(fixnum(he->h_addrtype));
 }
 
-/* Lisp interface to gethostbyname(3) and gethostbyaddr(3) */
-DEFUN(POSIX::RESOLVE-HOST-IPADDR-INTERNAL,host)
-{ /* if you modify this function wrt its return values,
- you should modify POSIX:RESOLVE-HOST-IPADDR in posix.lisp accordingly */
+DEFUN(POSIX::RESOLVE-HOST-IPADDR,host)
+{ /* Lisp interface to gethostbyname(3) and gethostbyaddr(3) */
   object arg = popSTACK();
   struct hostent *he = NULL;
 
@@ -402,7 +398,7 @@ DEFUN(POSIX::RESOLVE-HOST-IPADDR-INTERNAL,host)
     begin_system_call();
     for (; (he = gethostent()); count++) {
       hostent_to_stack(he);
-      funcall(L(vector),4);
+      funcall(`POSIX::MAKE-HOSTENT`,4);
       pushSTACK(value1);
     }
     endhostent();
@@ -422,7 +418,7 @@ DEFUN(POSIX::RESOLVE-HOST-IPADDR-INTERNAL,host)
   }
 
   hostent_to_stack(he);
-  funcall(L(values),4);
+  funcall(`POSIX::MAKE-HOSTENT`,4);
 }
 
 /* ===== PATH ===== */
@@ -447,11 +443,8 @@ static object whole_namestring (object path) {
   pushSTACK(asciz_to_string(pwd->pw_dir,O(misc_encoding)));    \
   pushSTACK(asciz_to_string(pwd->pw_shell,O(misc_encoding)))
 
-/* return the data for the user as 7 values (slots of struct passwd) or
-  a list of simple vectors of length 7 if user is NIL.
-  if you modify this function wrt its return values, you should modify
-  POSIX:USER-DATA in posix.lisp accordingly */
-DEFUN(POSIX::USER-DATA-INTERNAL, user) {
+DEFUN(POSIX::USER-DATA, user)
+{ /* return the USER-DATA for the user or a list thereof if user is NIL. */
   object user = popSTACK();
   struct passwd *pwd = NULL;
 
@@ -461,7 +454,7 @@ DEFUN(POSIX::USER-DATA-INTERNAL, user) {
     begin_system_call();
     for (; (pwd = getpwent()); count++) {
       PASSWD_TO_STACK(pwd);
-      funcall(L(vector),7);
+      funcall(`POSIX::MAKE-USER-DATA`,7);
       pushSTACK(value1);
     }
     endpwent();
@@ -493,7 +486,7 @@ DEFUN(POSIX::USER-DATA-INTERNAL, user) {
 
   if (NULL == pwd) { OS_error(); }
   PASSWD_TO_STACK(pwd);
-  funcall(L(values),7);
+  funcall(`POSIX::MAKE-USER-DATA`,7);
 }
 #endif  /* getlogin getpwent getpwnam getpwuid getuid */
 
@@ -503,15 +496,10 @@ DEFUN(POSIX::USER-DATA-INTERNAL, user) {
 # include <sys/stat.h>
 #endif
 
-/* Lisp interface to stat(2), lstat(2) and fstat(2)
+DEFUN(POSIX::FILE-STAT, file &optional linkp)
+{ /* Lisp interface to stat(2), lstat(2) and fstat(2)
  the first arg can be: file stream, pathname, string, symbol, number.
- the return values are: the file descriptor (int) or the file name
- (string) on which the appropriate stat function was called,
- as well as the 13 slots of the struct stat.
- (POSIX::FILE-STAT-INTERNAL file &optional link-p)
- if you modify this function wrt its return values,
- you should modify POSIX:FILE-STAT in posix.lisp accordingly */
-DEFUN(POSIX::FILE-STAT-INTERNAL, file &optional linkp) {
+ the return value is the FILE-STAT structure */
   bool link_p = missingp(STACK_0); skipSTACK(1);
   object file = popSTACK();
   struct stat buf;
@@ -552,7 +540,7 @@ DEFUN(POSIX::FILE-STAT-INTERNAL, file &optional linkp) {
   pushSTACK(UL_to_I(buf.st_atime+UNIX_LISP_TIME_DIFF));/*time of last access*/
   pushSTACK(UL_to_I(buf.st_mtime+UNIX_LISP_TIME_DIFF));/*last modification*/
   pushSTACK(UL_to_I(buf.st_ctime+UNIX_LISP_TIME_DIFF));/*time of last change*/
-  funcall(L(values),14);
+  funcall(`POSIX::MAKE-FILE-STAT`,14);
 }
 #endif  /* fstat lstat fstat */
 #endif /* UNIX */
@@ -1014,7 +1002,7 @@ DEFUN(POSIX::FILE-INFO, file)
     if (hf == INVALID_HANDLE_VALUE) { OS_file_error(STACK_0); }
   });
   wfd_to_stack(&wfd); FindClose(hf);
-  funcall(`POSIX::MAKE-FI`,8); skipSTACK(1);
+  funcall(`POSIX::MAKE-FILE-INFO`,8); skipSTACK(1);
 }
 
 DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
@@ -1225,7 +1213,8 @@ DEFUN(POSIX::SHORTCUT-INFO, file)
   psl->lpVtbl->Release(psl);
   end_system_call();
   pushSTACK(asciz_to_string(path,O(pathname_encoding))); /* 1 */
-  wfd_to_stack(&wfd); funcall(`POSIX::MAKE-FI`,8); pushSTACK(value1); /* 2 */
+  wfd_to_stack(&wfd); funcall(`POSIX::MAKE-FILE-INFO`,8);
+  pushSTACK(value1); /* 2 */
   pushSTACK(asciz_to_string(wd,O(pathname_encoding))); /* 3 */
   pushSTACK(asciz_to_string(args,O(pathname_encoding))); /* 4 */
   switch (show_cmd) {                                    /* 5 */
@@ -1247,7 +1236,7 @@ DEFUN(POSIX::SHORTCUT-INFO, file)
     pushSTACK(int_char(pb[0]));
     if (count) { object tmp = listof(count+1); pushSTACK(tmp); }
   }
-  funcall(`POSIX::MAKE-SI`,9);
+  funcall(`POSIX::MAKE-SHORTCUT-INFO`,9);
   return;
  fail_ppf: ppf->lpVtbl->Release(ppf);
  fail_psl: psl->lpVtbl->Release(psl);
