@@ -384,8 +384,7 @@ executes a compiled version of form.</para>
  <listitem><simpara><classname>SPECIAL-OPERATOR</classname>,
   <classname>LOAD-TIME-EVAL</classname>, &symbol-macro;, &encoding;,
   &foreign-pointer;, <classname>FOREIGN-ADDRESS</classname>,
-  <classname>FOREIGN-VARIABLE</classname>,
-  &foreign-function;</simpara></listitem>
+  &foreign-variable;;, &foreign-function;</simpara></listitem>
  <listitem><simpara>&weak-pointer;,
           <link linkend="reader"><classname>READ-LABEL</classname></link>,
           <link linkend="reader"><classname>FRAME-POINTER</classname></link>,
@@ -603,6 +602,9 @@ is the same as
 
 <para><literal role="sexp">(let ((x y)) (eq x x))</literal> always
  returns &t;, regardless of &y-r;.</para>
+
+<para>Note that <literal role="sexp">(eq x x)</literal> might not be
+ &t; for a &foreign-variable; &x-r;.</para>
 
 </section>
 
@@ -4452,7 +4454,7 @@ functions are provided:
     <entry>foreign address
      <emphasis>(Platform dependent: &unix;, &win32; platforms only.)</emphasis>
     </entry></row>
- <row><entry><literal>#&lt;FOREIGN-VARIABLE
+ <row><entry><literal>#&lt;&foreign-variable;
        &name-r; #x...&gt;</literal></entry>
     <entry>foreign variable
      <emphasis>(Platform dependent: &unix;, &win32; platforms only.)</emphasis>

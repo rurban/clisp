@@ -1980,7 +1980,7 @@ containing:</para>
   &allocation;)</literal></entry></row>
 </tbody></tgroup></table>
 
-<simpara>This form defines a foreign variable.  &name-r; is the Lisp
+<simpara>This form defines a &foreign-variable;.  &name-r; is the Lisp
  name, a regular Lisp symbol.</simpara>
 
 <simpara>The &name-k; option specifies the name, as seen from &c-lang;,
@@ -2205,7 +2205,7 @@ within Lisp (using &setq; or similar).</simpara>
   <term><literal role="sexp">(&with-c-var; (&var-r; &ctype-r;
       [<replaceable>initarg</replaceable>]) &body-r;)</literal></term>
 <listitem><simpara>These forms allocate space on the &c-lang; execution
-  stack, bind respectively a <type>FFI:FOREIGN-VARIABLE</type> object or
+  stack, bind respectively a &foreign-variable; object or
   a local &symbol-macro; to &var-r; and execute &body-r;.</simpara>
   <simpara>When <replaceable>initarg</replaceable> is not supplied,
   they allocate space only for <literal role="sexp">(&sizeof;
@@ -2431,7 +2431,7 @@ unit</ulink> (usually a file), a warning is issued and
 
 <section id="dffi-places"><title>Operations on foreign places</title>
 
-<para>A foreign variable &name-r; defined by &def-c-var; defines a
+<para>A &foreign-variable; &name-r; defined by &def-c-var; defines a
  "place", i.e., a form which can also be used as argument to &setf;.
  (An "lvalue" in &c-lang; terminology.)  The following operations are
  available on foreign places: &element;, &deref;, &slot;, &cast;,
