@@ -9716,7 +9716,7 @@ local object rd_ch_terminal3 (const gcv_object_t* stream_) {
       run_time_stop(); # hold run time clock
       begin_call();
       rl_already_prompted = true;
-      var uintB* line = (uintB*)strip_white(readline(prompt==NULL ? "" : prompt));
+      var char* line = strip_white(readline(prompt==NULL ? "" : prompt));
       end_call();
       run_time_restart(); # resume run time clock
       if (!(prompt==NULL)) {
@@ -9730,7 +9730,7 @@ local object rd_ch_terminal3 (const gcv_object_t* stream_) {
       {
         var object inbuff = TheStream(*stream_)->strm_terminal_inbuff;
         var object encoding = TheStream(*stream_)->strm_encoding;
-        var const uintB* bptr = line;
+        var const uintB* bptr = (uintB*)line;
         var const uintB* bendptr = bptr + asciz_length((const char*)bptr);
         var uintL clen = Encoding_mblen(encoding)(encoding,bptr,bendptr);
         ssstring_extend(inbuff,TheIarray(inbuff)->dims[1]+clen);
@@ -9744,7 +9744,7 @@ local object rd_ch_terminal3 (const gcv_object_t* stream_) {
       }
      #else
       {
-        var const uintB* ptr = line;
+        var const uintB* ptr = (uintB*)line;
         until (*ptr == '\0') {
           ssstring_push_extend(TheStream(*stream_)->strm_terminal_inbuff,
                                as_chart(*ptr++));
@@ -9754,31 +9754,39 @@ local object rd_ch_terminal3 (const gcv_object_t* stream_) {
       ssstring_push_extend(TheStream(*stream_)->strm_terminal_inbuff,
                            ascii(NL));
       # put into the history if non-empty
+      begin_system_call();
       if (line[0] != '\0') {
-        HIST_ENTRY *prev = previous_history();
+        var HIST_ENTRY *prev = previous_history();
         if ((prev==NULL)
             || !boundp(Symbol_value(S(terminal_read_open_object)))) {
-          begin_system_call(); add_history((char*)line); end_system_call();
+          var int pos = history_search_prefix(line,-1);
+          if (pos == -1) pos = history_search_prefix(line,1);
+          HIST_ENTRY *curr = current_history();
+          if (pos == -1 || (curr && !asciz_equal(line,curr->line))) {
+            /* brand new line - save it! */
+            add_history(line);
+          } else { /* set the history position */
+            var int offset = where_history();
+            history_set_pos(offset);
+          }
         } else { # append this line to the previous history entry
-          begin_system_call();
           var int offset = where_history();
           var HIST_ENTRY *old;
           var char *new_line =
-            (char*)xmalloc(2+strlen((char*)line)+strlen(prev->line));
+            (char*)xmalloc(2+strlen(line)+strlen(prev->line));
           # strcpy(new_line,prev->line[0]=='\n' ? "" : "\n");
           strcpy(new_line,prev->line);
           strcat(new_line,"\n");
-          strcat(new_line,(char*)line);
+          strcat(new_line,line);
           old = replace_history_entry(offset,new_line,prev->data);
           if (old) {
             free(old->line);
             free(old);
           }
-          end_system_call();
         }
       }
-      # must release the original line
-      begin_system_call(); free(line); end_system_call();
+      free(line); /* must release the original line */
+      end_system_call();
     }
     stream = *stream_;
     # If both stdin and stdout are the same Terminal, we can assume,
