@@ -1,5 +1,12 @@
 2004-05-31  Bruno Haible  <bruno@clisp.org>
 
+	* clos-genfun2.lisp (callinfo, gf-signature, gf-argorder, gf-methods,
+	gf-method-combination): Move to clos-genfun1.lisp.
+	* clos-genfun1.lisp (callinfo, gf-signature, gf-argorder, gf-methods,
+	gf-method-combination): New functions, from clos-genfun2.lisp.
+
+2004-05-31  Bruno Haible  <bruno@clisp.org>
+
 	* clos-methcomb2.lisp: Merge all of clos-genfun1, clos-methcomb2,
 	clos-methcomb3, clos-methcomb4, clos-methcomb5.
 	* clos-genfun1.lisp (method-applicable-p, sort-applicable-methods):
