@@ -38,6 +38,10 @@
     #include <windows.h>
   #endif
 
+# Shell object handling for shell link resolution
+  #include <objbase.h>
+  #include <shlobj.h>
+
 # Table of system error messages
   #include <winerror.h>
   # extern DWORD GetLastError (void);
