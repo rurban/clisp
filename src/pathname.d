@@ -1183,7 +1183,7 @@ local bool legal_logical_word_char(ch)
       #endif
     }
 
-# UP: Überprüft ein optionales Host-Argument.
+# UP: check an optional HOST argument
 # test_optional_host(host,convert)
 # > host: Host-Argument
 # > convert: Flag, ob Case-Konversion erwünscht ist
@@ -1201,8 +1201,8 @@ local bool legal_logical_word_char(ch)
         goto OK; # NIL ist OK
       # Sonst muss host ein String sein, dessen Zeichen alphanumerisch sind:
       if (!stringp(host)) {
-        pushSTACK(host); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_host)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(host);         # TYPE-ERROR slot DATUM
+        pushSTACK(O(type_host)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(host);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
@@ -1236,7 +1236,7 @@ local bool legal_logical_word_char(ch)
 
 #ifdef LOGICAL_PATHNAMES
 
-# UP: Überprüft ein optionales Host-Argument.
+# UP: check an optional HOST argument
 # test_optional_host(host)
 # > host: Host-Argument
 # > subr_self: Aufrufer (ein SUBR)
@@ -1252,8 +1252,8 @@ local bool legal_logical_word_char(ch)
         goto OK; # NIL ist OK
       # Sonst muss host ein String sein, dessen Zeichen alphanumerisch sind:
       if (!stringp(host)) {
-        pushSTACK(host); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_host)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(host);         # TYPE-ERROR slot DATUM
+        pushSTACK(O(type_host)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(host);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
@@ -1283,7 +1283,7 @@ local bool legal_logical_word_char(ch)
 
 #else
 
-# UP: Überprüft ein optionales Host-Argument.
+# UP: check an optional HOST argument
 # test_optional_host(host);
 # > host: Host-Argument
 # > subr_self: Aufrufer (ein SUBR)
@@ -1294,8 +1294,8 @@ local bool legal_logical_word_char(ch)
     {
       if (!eq(host,unbound)) { # nicht angegeben -> OK
         if (!nullp(host)) { # angegeben -> sollte =NIL sein
-          pushSTACK(host); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(S(null)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(host);    # TYPE-ERROR slot DATUM
+          pushSTACK(S(null)); # TYPE-ERROR slot EXPECTED-TYPE
           pushSTACK(host);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
@@ -1413,8 +1413,8 @@ local bool legal_logical_word_char(ch)
   global void fehler_pathname_designator(thing)
     var object thing;
     {
-      pushSTACK(thing); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_designator_pathname)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(thing);                       # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_designator_pathname)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(thing);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -1457,7 +1457,7 @@ local bool legal_logical_word_char(ch)
   local void fehler_file_stream_unnamed(stream)
     var object stream;
     {
-      pushSTACK(stream); # Wert für Slot PATHNAME von FILE-ERROR
+      pushSTACK(stream); # FILE-ERROR slot PATHNAME
       pushSTACK(stream);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(file_error,
@@ -2908,8 +2908,8 @@ LISPFUNN(logical_pathname,1)
       value1 = thing; mv_count=1;
     } elif (pathnamep(thing)) {
       # Normale Pathnames können nicht in Logical Pathnames umgewandelt werden.
-      pushSTACK(thing); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_logical_pathname)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(thing);                    # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_logical_pathname)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(thing);
       pushSTACK(S(logical_pathname));
       fehler(type_error,
@@ -2965,7 +2965,7 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
       # Stackaufbau: pathname, ht.
       loop {
         if (!nullp(shifthash(STACK_0,STACK_1,T))) {
-          # STACK_1 = pathname; # Wert für Slot PATHNAME von FILE-ERROR
+          # STACK_1 = pathname; # FILE-ERROR slot PATHNAME
           STACK_0 = STACK_1;
           pushSTACK(S(translate_logical_pathname));
           fehler(file_error,
@@ -2986,7 +2986,7 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
         var object host = TheLogpathname(STACK_1)->pathname_host;
         var object translations = gethash(host,Symbol_value(S(logpathname_translations)));
         if (eq(translations,nullobj)) {
-          # STACK_1 = pathname; # Wert für Slot PATHNAME von FILE-ERROR
+          # STACK_1 = pathname; # FILE-ERROR slot PATHNAME
           STACK_0 = STACK_1;
           pushSTACK(host);
           pushSTACK(S(translate_logical_pathname));
@@ -2999,7 +2999,7 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
         pushSTACK(S(Ktest)); pushSTACK(L(pathname_match_p));
         funcall(L(assoc),4);
         if (atomp(value1) || matomp(Cdr(value1))) {
-          # STACK_1 = pathname; # Wert für Slot PATHNAME von FILE-ERROR
+          # STACK_1 = pathname; # FILE-ERROR slot PATHNAME
           STACK_0 = STACK_1;
           pushSTACK(S(translate_logical_pathname));
           fehler(file_error,
@@ -3291,11 +3291,10 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
   local object whole_namestring(pathname)
     var object pathname;
     {
-      var uintC stringcount;
-      stringcount = host_namestring_parts(pathname); # Strings für den Host
-      stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
-      stringcount += file_namestring_parts(pathname); # Strings für den Filename
-      return string_concat(stringcount); # zusammenhängen
+      var uintC stringcount = host_namestring_parts(pathname);
+      stringcount += directory_namestring_parts(pathname);
+      stringcount += file_namestring_parts(pathname);
+      return string_concat(stringcount);
     }
 
 # UP: Liefert den String zum Directory eines Pathname.
@@ -3308,16 +3307,18 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
   local object directory_namestring(pathname)
     var object pathname;
     {
-      # The function DIRECTORY-NAMESTRING is totally underspecified. It could return
+      # The function DIRECTORY-NAMESTRING is totally underspecified.
+      # It could return
       # a. just the string for the directory portion,
       # b. the string for the device + directory portions,
       # c. the string for the host + device + directory portions.
-      # Before we used hosts, we have traditionally returned (b). Now, with hosts,
-      # we return (c). This makes most sense, given that CLHS says that programs
-      # shouldn't attempt to concatenate the resulting string with anything.
-      var uintC stringcount = host_namestring_parts(pathname); # Strings für den Host
-      stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
-      return string_concat(stringcount); # zusammenhängen
+      # Before we used hosts, we have traditionally returned (b).
+      # Now, with hosts, we return (c).
+      # This makes most sense, given that CLHS says that programs
+      # should not attempt to concatenate the resulting string with anything.
+      var uintC stringcount = host_namestring_parts(pathname);
+      stringcount += directory_namestring_parts(pathname);
+      return string_concat(stringcount);
     }
 
 # UP: Returns the string identifying a file in its directory.
@@ -3330,15 +3331,14 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
   local inline object file_namestring(pathname)
     var object pathname;
     {
-      var uintC stringcount = file_namestring_parts(pathname); # Strings für den Filename
-      return string_concat(stringcount); # zusammenhängen
+      return string_concat(file_namestring_parts(pathname));
     }
 
 LISPFUNN(file_namestring,1)
 # (FILE-NAMESTRING pathname), CLTL S. 417
   {
     var object pathname = coerce_pathname(popSTACK());
-    value1 = file_namestring(pathname); mv_count=1; # zusammenhängen
+    value1 = file_namestring(pathname); mv_count=1;
   }
 
 LISPFUNN(directory_namestring,1)
@@ -3353,8 +3353,8 @@ LISPFUNN(host_namestring,1)
   {
     var object pathname = coerce_pathname(popSTACK());
     #if HAS_HOST
-    var uintC stringcount = host_namestring_parts(pathname); # Strings für den Host
-    value1 = string_concat(stringcount); # zusammenhängen
+    var uintC stringcount = host_namestring_parts(pathname);
+    value1 = string_concat(stringcount);
     #else
     value1 = O(leer_string); # "" als Wert
     #endif
@@ -3362,7 +3362,7 @@ LISPFUNN(host_namestring,1)
   }
 
 #if HAS_VERSION || defined(LOGICAL_PATHNAMES)
-# UP: Überprüft ein optionales VERSION-Argument.
+# UP: check an optional VERSION argument.
 # test_optional_version(def);
 # > STACK_0: VERSION-Argument
 # > def: Defaultwert dafür
@@ -3392,8 +3392,8 @@ LISPFUNN(host_namestring,1)
       }
       #endif
       else { # Keiner der gewünschten Fälle -> Fehler:
-        pushSTACK(version); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_version)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(version);         # TYPE-ERROR slot DATUM
+        pushSTACK(O(type_version)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(version);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
@@ -3403,7 +3403,7 @@ LISPFUNN(host_namestring,1)
       return version;
     }
 #else
-# UP: Überprüft ein optionales VERSION-Argument.
+# UP: check an optional VERSION argument.
 # test_optional_version();
 # > STACK_0: VERSION-Argument
 # > subr_self: Aufrufer (ein SUBR)
@@ -3419,8 +3419,8 @@ LISPFUNN(host_namestring,1)
          )
         return; # ja -> OK
       else {
-        pushSTACK(version); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_version)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(version);         # TYPE-ERROR slot DATUM
+        pushSTACK(O(type_version)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(version);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
@@ -4860,7 +4860,7 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
         # Keine Wildcards gefunden.
         return;
       # Fehlermeldung, wenn der Pathname Wildcards enthält:
-      pushSTACK(pathname); # Wert für Slot PATHNAME von FILE-ERROR
+      pushSTACK(pathname); # FILE-ERROR slot PATHNAME
       pushSTACK(pathname);
       fehler(file_error,
              GETTEXT("wildcards are not allowed here: ~")
@@ -4888,8 +4888,8 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL)
     } elif (eq(key,S(Kversion))) {
       erg = has_version_wildcards(pathname);
     } else {
-      pushSTACK(key); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_pathname_field_key)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(key);                        # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_pathname_field_key)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(NIL);
       pushSTACK(S(Kversion));
       pushSTACK(S(Ktype));
@@ -6239,7 +6239,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
   local void fehler_dir_not_exists(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot PATHNAME von FILE-ERROR
+      pushSTACK(obj); # FILE-ERROR slot PATHNAME
       pushSTACK(obj);
       fehler(file_error,
              GETTEXT("nonexistent directory: ~")
@@ -6254,7 +6254,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     var object caller;
     var object pathname;
     {
-      pushSTACK(pathname); # Wert für Slot PATHNAME von FILE-ERROR
+      pushSTACK(pathname); # FILE-ERROR slot PATHNAME
       pushSTACK(pathname);
       pushSTACK(caller);
       fehler(file_error,
@@ -6532,7 +6532,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
             # = :PARENT -> newlist um eins verkürzen:
             if (matomp(Cdr(STACK_0))) { # newlist (bis auf :ABSOLUTE) leer ?
               # :PARENT von "\" aus liefert Error
-              pushSTACK(STACK_2); # Wert für Slot PATHNAME von FILE-ERROR
+              pushSTACK(STACK_2); # FILE-ERROR slot PATHNAME
               pushSTACK(O(backslash_string)); # "\\"
               pushSTACK(directory_namestring(STACK_(2+2))); # Directory von pathname
               fehler(file_error,
@@ -6541,7 +6541,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
             }
             if (eq(Car(STACK_0),S(Kwild_inferiors))) { # newlist fängt mit '...\' an ?
               # :PARENT von "...\" aus liefert Error
-              pushSTACK(STACK_2); # Wert für Slot PATHNAME von FILE-ERROR
+              pushSTACK(STACK_2); # FILE-ERROR slot PATHNAME
               pushSTACK(directory_namestring(STACK_(2+1))); # Directory von pathname
               fehler(file_error, # '"..\\" nach "...\\" ist unzulässig: ~'
                      GETTEXT("\"..\\\\\" after \"...\\\\\" is invalid: ~")
@@ -6895,7 +6895,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
               end_system_call(); clr_break_sem_4();
               FREE_DYNAMIC_ARRAY(dir_namestring_asciz);
               if (tolerantp) { return nullobj; }
-              # STACK_0 = Wert für Slot PATHNAME von FILE-ERROR
+              # STACK_0 = FILE-ERROR slot PATHNAME
               pushSTACK(dir_namestring);
               pushSTACK(TheSubr(subr_self)->name);
               fehler(file_error,
@@ -6943,7 +6943,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
         end_system_call();
         clr_break_sem_4();
         if (statusptr->fib_DirEntryType >= 0) { # Ist es ein Directory?
-          # STACK_0 = Wert für Slot PATHNAME von FILE-ERROR
+          # STACK_0 = FILE-ERROR slot PATHNAME
           pushSTACK(whole_namestring(STACK_0));
           pushSTACK(TheSubr(subr_self)->name);
           fehler(file_error,
@@ -6990,7 +6990,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       begin_system_call();
       if ( getwd(&path_buffer[0]) ==NULL) {
         end_system_call();
-        pushSTACK(O(punkt_string)); # Wert für Slot PATHNAME von FILE-ERROR
+        pushSTACK(O(punkt_string)); # FILE-ERROR slot PATHNAME
         pushSTACK(asciz_to_string(&path_buffer[0],O(pathname_encoding))); # Meldung
         fehler(file_error,
                GETTEXT("UNIX error while GETWD: ~")
@@ -6999,7 +6999,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       end_system_call();
       # Es muss mit '/' anfangen:
       if (!(path_buffer[0] == '/')) {
-        pushSTACK(O(punkt_string)); # Wert für Slot PATHNAME von FILE-ERROR
+        pushSTACK(O(punkt_string)); # FILE-ERROR slot PATHNAME
         pushSTACK(asciz_to_string(&path_buffer[0],O(pathname_encoding)));
         fehler(file_error,
                GETTEXT("UNIX GETWD returned ~")
@@ -7101,7 +7101,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           }
           # Neuer Directory-Path muss mit '/' anfangen:
           if (!(path_buffer[0] == '/')) {
-            # STACK_0 = Wert für Slot PATHNAME von FILE-ERROR
+            # STACK_0 = FILE-ERROR slot PATHNAME
             pushSTACK(asciz_to_string(&path_buffer[0],O(pathname_encoding)));
             fehler(file_error,
                    GETTEXT("UNIX REALPATH returned ~")
@@ -7140,7 +7140,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           end_system_call();
           # File existiert.
           if (S_ISDIR(status.st_mode)) { # Ist es ein Directory?
-            # STACK_0 = Wert für Slot PATHNAME von FILE-ERROR
+            # STACK_0 = FILE-ERROR slot PATHNAME
             pushSTACK(whole_namestring(STACK_0));
             pushSTACK(TheSubr(subr_self)->name);
             fehler(file_error,
@@ -7321,7 +7321,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
             Car(new_cons) = S(Kroot); Cdr(new_cons) = Cdr(ThePathname(pathname)->pathname_directory);
             ThePathname(pathname)->pathname_directory = subdirs;
           } elif (!(eq(Car(subdirs),S(Kabsolute)) && eq(Car(Cdr(subdirs)),S(Kroot)))) {
-            pushSTACK(pathname); # Wert für Slot PATHNAME von FILE-ERROR
+            pushSTACK(pathname); # FILE-ERROR slot PATHNAME
             pushSTACK(pathname);
             pushSTACK(O(root_string));
             pushSTACK(TheSubr(subr_self)->name);
@@ -7388,7 +7388,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           # = :PARENT -> newlist um eins verkürzen:
           if (matomp(Cdr(Cdr(STACK_0)))) { # newlist (bis auf :ABSOLUTE und :ROOT) leer ?
             # :PARENT von "$." aus liefert Error
-            pushSTACK(STACK_2); # Wert für Slot PATHNAME von FILE-ERROR
+            pushSTACK(STACK_2); # FILE-ERROR slot PATHNAME
             pushSTACK(O(root_string)); # "$."
             pushSTACK(directory_namestring(STACK_(2+2))); # Directory von pathname
             fehler(file_error,
@@ -7507,7 +7507,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
         });
         # File existiert.
         if (!allowdir && S_ISDIR(status.st_mode)) { # Ist es ein Directory?
-          # STACK_0 = Wert für Slot PATHNAME von FILE-ERROR
+          # STACK_0 = FILE-ERROR slot PATHNAME
           pushSTACK(whole_namestring(STACK_0));
           pushSTACK(TheSubr(subr_self)->name);
           fehler(file_error,
@@ -7715,7 +7715,7 @@ LISPFUN(namestring,1,1,norest,nokey,0,NIL)
   local void fehler_noname(pathname)
     var object pathname;
     {
-      pushSTACK(pathname); # Wert für Slot PATHNAME von FILE-ERROR
+      pushSTACK(pathname); # FILE-ERROR slot PATHNAME
       pushSTACK(pathname);
       fehler(file_error,
              GETTEXT("no file name given: ~")
@@ -7729,7 +7729,7 @@ LISPFUN(namestring,1,1,norest,nokey,0,NIL)
   local void fehler_notdir(pathname)
     var object pathname;
     {
-      pushSTACK(pathname); # Wert für Slot PATHNAME von FILE-ERROR
+      pushSTACK(pathname); # FILE-ERROR slot PATHNAME
       pushSTACK(pathname);
       fehler(file_error,
              GETTEXT("not a directory: ~")
@@ -7797,7 +7797,7 @@ LISPFUN(namestring,1,1,norest,nokey,0,NIL)
   nonreturning_function(local, fehler_file_not_exists, (void));
   local void fehler_file_not_exists()
     {
-      # STACK_0 = Wert für Slot PATHNAME von FILE-ERROR
+      # STACK_0 = FILE-ERROR slot PATHNAME
       pushSTACK(STACK_0); # pathname
       pushSTACK(TheSubr(subr_self)->name);
       fehler(file_error,
@@ -7826,7 +7826,7 @@ LISPFUNN(truename,1)
       if (namenullp(STACK_0)) {
         # Kein Name angegeben
         if (!nullp(ThePathname(STACK_0)->pathname_type)) {
-          # STACK_0 = Wert für Slot PATHNAME von FILE-ERROR
+          # STACK_0 = FILE-ERROR slot PATHNAME
           pushSTACK(STACK_0); # pathname
           pushSTACK(TheSubr(subr_self)->name);
           fehler(file_error,
@@ -8058,7 +8058,7 @@ LISPFUNN(probe_directory,1)
   local void fehler_delete_open(pathname)
     var object pathname;
     {
-      pushSTACK(pathname); # Wert für Slot PATHNAME von FILE-ERROR
+      pushSTACK(pathname); # FILE-ERROR slot PATHNAME
       pushSTACK(pathname);
       fehler(file_error,
              GETTEXT("cannot delete file ~ since there is file stream open to it")
@@ -8120,7 +8120,7 @@ LISPFUNN(delete_file,1)
   local void fehler_rename_open(pathname)
     var object pathname;
     {
-      pushSTACK(pathname); # Wert für Slot PATHNAME von FILE-ERROR
+      pushSTACK(pathname); # FILE-ERROR slot PATHNAME
       pushSTACK(pathname);
       fehler(file_error,
              GETTEXT("cannot rename file ~ since there is file stream open to it")
@@ -8714,13 +8714,13 @@ LISPFUNN(rename_file,2)
           #endif
           break;
          fehler_notfound: # Fehler, da Datei nicht gefunden
-          # STACK_0 = Truename, Wert für Slot PATHNAME von FILE-ERROR
+          # STACK_0 = Truename, FILE-ERROR slot PATHNAME
           pushSTACK(STACK_0);
           fehler(file_error,
                  GETTEXT("file ~ does not exist")
                 );
          fehler_exists: # Fehler, da Datei bereits existiert
-          # STACK_0 = Truename, Wert für Slot PATHNAME von FILE-ERROR
+          # STACK_0 = Truename, FILE-ERROR slot PATHNAME
           pushSTACK(STACK_0);
           fehler(file_error,
                  GETTEXT("a file named ~ already exists")
@@ -8781,8 +8781,8 @@ LISPFUN(open,1,0,norest,key,6,\
       } elif (eq(arg,S(Kprobe))) {
         direction = 0;
       } else {
-        pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_direction)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(arg);               # TYPE-ERROR slot DATUM
+        pushSTACK(O(type_direction)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(arg); pushSTACK(S(open));
         fehler(type_error,
                GETTEXT("~: illegal :DIRECTION argument ~")
@@ -8810,8 +8810,8 @@ LISPFUN(open,1,0,norest,key,6,\
       } elif (eq(arg,S(Koverwrite))) {
         if_exists = 7;
       } else {
-        pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_if_exists)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(arg);               # TYPE-ERROR slot DATUM
+        pushSTACK(O(type_if_exists)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(arg); pushSTACK(S(open));
         fehler(type_error,
                GETTEXT("~: illegal :IF-EXISTS argument ~")
@@ -8830,8 +8830,8 @@ LISPFUN(open,1,0,norest,key,6,\
       } elif (eq(arg,S(Kcreate))) {
         if_not_exists = 3;
       } else {
-        pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_if_does_not_exist)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(arg);                       # TYPE-ERROR slot DATUM
+        pushSTACK(O(type_if_does_not_exist)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(arg); pushSTACK(S(open));
         fehler(type_error,
                GETTEXT("~: illegal :IF-DOES-NOT-EXIST argument ~")
@@ -10075,7 +10075,7 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
       var object subdirs = ThePathname(pathname)->pathname_directory;
       if (nullp(Cdr(subdirs))) { # Root-Directory ?
        baddir:
-        # STACK_0 = pathname, Wert für Slot PATHNAME von FILE-ERROR
+        # STACK_0 = pathname, FILE-ERROR slot PATHNAME
         pushSTACK(STACK_0);
         fehler(file_error,
                GETTEXT("root directory not allowed here: ~")
@@ -10115,7 +10115,7 @@ LISPFUNN(make_dir,1)
       make_directory(pathstring_asciz);
     });
     skipSTACK(2);
-    value1 = T; mv_count=1; # 1 Wert T
+    value1 = T; mv_count=1;
   }
 
 LISPFUNN(delete_dir,1)
@@ -10126,7 +10126,7 @@ LISPFUNN(delete_dir,1)
       delete_directory(pathstring_asciz);
     });
     skipSTACK(2);
-    value1 = T; mv_count=1; # 1 Wert T
+    value1 = T; mv_count=1;
   }
 
 LISPFUN(ensure_directories_exist,1,0,norest,key,1,(kw(verbose)))
@@ -10745,8 +10745,8 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
     } else {
       # einzelnes Kommando ausführen:
       if (!stringp(command)) {
-        pushSTACK(command); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(command);   # TYPE-ERROR slot DATUM
+        pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(command);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
@@ -10792,8 +10792,8 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
     if (eq(command,unbound))
       command = O(command_shell);
     if (!stringp(command)) {
-      pushSTACK(command); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(command);   # TYPE-ERROR slot DATUM
+      pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(command);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -10852,8 +10852,8 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
       # der Leerstellen in einzelne Teile zerlegt übergeben. Die Funktion
       # system() erledigt uns das zum Glück.
       if (!stringp(command)) {
-        pushSTACK(command); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(command);   # TYPE-ERROR slot DATUM
+        pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(command);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
@@ -10869,9 +10869,9 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
         value1 = (ergebnis==0 ? T : NIL); mv_count=1;
       });
       #else
-      # (EXECUTE shell "-c" command) ausführen:
-      pushSTACK(O(command_shell)); # Shell-Name
-      pushSTACK(O(command_shell_option)); # Shell-Option "-c"
+      # call (EXECUTE shell "-c" command):
+      pushSTACK(O(command_shell)); # shell name
+      pushSTACK(O(command_shell_option)); # shell option "-c"
       #ifdef EMUNIX
       # Unter DOS 2.x, 3.x kann das Optionen-Zeichen ein anderes sein!
       if ((_osmode == DOS_MODE) && (_osmajor < 4)) {
