@@ -8653,14 +8653,25 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
       skipSTACK(1);
      #endif
       break;
-#ifdef LOGICAL_PATHNAMES
+   #ifdef LOGICAL_PATHNAMES
     case Rectype_Logpathname:
-      # #S(LOGICAL-PATHNAME :HOST host :DIRECTORY directory :NAME name
-      #    :TYPE type :VERSION version)
-      pr_record_descr(stream_,obj,S(logical_pathname),
-                      true,O(pathname_slotlist));
+      if (!nullpSv(print_readably) || nullpSv(parse_namestring_ansi)) {
+        /* when printing readably or when "host:path" is not logical
+           #S(LOGICAL-PATHNAME :HOST host :DIRECTORY directory :NAME name
+              :TYPE type :VERSION version) */
+        pr_record_descr(stream_,obj,S(logical_pathname),
+                        true,O(pathname_slotlist));
+      } else { /* #P"namestring" or just namestring */
+        pushSTACK(obj); funcall(L(namestring),1); obj = value1; /* string */
+        if (!nullpSv(print_escape)) { /* #P */
+          pushSTACK(obj);
+          write_ascii_char(stream_,'#'); write_ascii_char(stream_,'P');
+          obj = popSTACK();
+        }
+        pr_string(stream_,obj);
+      }
       break;
-#endif
+   #endif
     case Rectype_Random_State: # #S(RANDOM-STATE seed)
       LEVEL_CHECK;
       {
