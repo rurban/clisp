@@ -1,6 +1,12 @@
 2004-12-13  Sam Steingold  <sds@gnu.org>
 
-	* eval.d (progv): fixed a GC-safety bug
+	* io.d (space_available): mark as "maygc"
+	(string_fit_line_p): ditto + fix a GC-safety bug
+	(pr_enter_1): updated for string_fit_line_p() changes
+
+2004-12-13  Sam Steingold  <sds@gnu.org>
+
+	* eval.d (progv): fix a GC-safety bug
 
 2004-12-12  Bruno Haible  <bruno@clisp.org>
 

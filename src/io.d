@@ -6328,9 +6328,10 @@ local void pretty_print_call (const gcv_object_t* stream_, object obj, pr_routin
 }
 #undef DISPATCH_TABLE_VALID_P
 
-# UP: return the number of spaces available on the current line in this stream
-# NIL means unlimited
-local object space_available (object stream) {
+/* UP: return the number of spaces available on the current line in this stream
+ NIL means unlimited
+ can trigger GC */
+local maygc object space_available (object stream) {
   var object line_pos = get_line_position(stream);
   if (!posfixnump(line_pos)) return NIL;
   var uintL pos = posfixnum_to_L(line_pos);
@@ -6366,18 +6367,21 @@ local object pphelp_length (object pph_stream) {
   return fixnum(ret);
 }
 
-# UP: check whether the string fits into the current line in the stream
-# return true iff the next object does fit
-local inline bool string_fit_line_p (object list, object stream,
-                                     uintL offset) {
-  var object avail = space_available(stream);
-  if (nullp(avail)) return true; # unlimited space available
+/* UP: check whether the string fits into the current line in the stream
+ return true iff the next object does fit
+ can trigger GC */
+local maygc inline bool string_fit_line_p (const gcv_object_t *stream_,
+                                           object list, uintL offset) {
+  pushSTACK(list);               /* save list*/
+  var object avail = space_available(*stream_);
+  list = popSTACK();             /* restore list */
+  if (nullp(avail)) return true; /* unlimited space available */
   var uintL len;
   var object top = Car(list); list = Cdr(list); # (pop list)
   if (stringp(top)) len = vector_length(top);
   else if (mconsp(top)) return true;
   else if (vectorp(top)) {
-    len = PPH_FORMAT_TAB(stream,top);
+    len = PPH_FORMAT_TAB(*stream_,top);
     while (mconsp(list) && !stringp(Car(list))) list = Cdr(list);
     if (mconsp(list)) len += vector_length(Car(list)); # string!
     else return false; # do not need to print this tab
@@ -6474,7 +6478,7 @@ local maygc void pr_enter_1 (const gcv_object_t* stream_, object obj,
             STACK_0 = Cdr(STACK_0);
             if (modus_single_p
                 || (eq(PPHELP_NL_TYPE(top),S(Kfill))
-                    && string_fit_line_p(STACK_0,*stream_,0)))
+                    && string_fit_line_p(stream_,STACK_0,0)))
               goto skip_NL;
             indent = PPHELP_INDENTN(top);
             if (!mconsp(STACK_0)) break; # end of stream
@@ -6486,7 +6490,7 @@ local maygc void pr_enter_1 (const gcv_object_t* stream_, object obj,
             if (modus_single_p || stringp(Car(STACK_0))
                 || (mconsp(Car(STACK_0))  # ignored NL
                     && (eq(PPHELP_NL_TYPE(Car(STACK_0)),S(Kfill))
-                        && string_fit_line_p(Cdr(STACK_0),*stream_,num_space)))) {
+                        && string_fit_line_p(stream_,Cdr(STACK_0),num_space)))){
               spaces(stream_,fixnum(num_space));
               goto skip_NL;
             } else if (mconsp(Car(STACK_0))) # set indent
