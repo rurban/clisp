@@ -862,18 +862,20 @@ EXTRA
         :metaclass (find-class 'auto-accessors-direct-slot-definition-class)
         :direct-superclasses (list (find-class 'clos:standard-direct-slot-definition))
         :containing-class-name (class-name class))
-      (eval `(defmethod initialize-instance :after ((dsd ,dsd-class-name) &rest args)
-               (when (and (null (clos:slot-definition-readers dsd))
-                          (null (clos:slot-definition-writers dsd)))
+      (eval `(defmethod initialize-instance :around ((dsd ,dsd-class-name) &rest args)
+               (if (and (null (getf args ':readers)) (null (getf args ':writers)))
                  (let* ((containing-class-name (slot-value (class-of dsd) 'containing-class-name))
                         (accessor-name
                           (intern (concatenate 'string
                                                (symbol-name containing-class-name)
                                                "-"
-                                               (symbol-name (clos:slot-definition-name dsd)))
+                                               (symbol-name (getf args ':name)))
                                   (symbol-package containing-class-name))))
-                   (setf (clos:slot-definition-readers dsd) (list accessor-name))
-                   (setf (clos:slot-definition-writers dsd) (list (list 'setf accessor-name)))))))
+                   (apply #'call-next-method dsd
+                          :readers (list accessor-name)
+                          :writers (list (list 'setf accessor-name))
+                          args))
+                 (call-next-method))))
       (find-class dsd-class-name)))
   #-CLISP
   (defmethod clos:validate-superclass ((c1 auto-accessors-class) (c2 standard-class))
