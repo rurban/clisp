@@ -1,3 +1,12 @@
+2003-10-09  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (const-value-safe): enforce that CONST-VALUE is
+	invalid when CONST-HORIZON is :FORM
+	(anode-constant-value, c-FUNCTION, traverse-anode)
+	(traverse-anode): use it instead of CONST-VALUE
+	(const-index, make-const-code, traverse-anode):
+	keep using CONST-VALUE where appropriate!
+
 2003-10-07  Sam Steingold  <sds@gnu.org>
 
 	* genclisph.d (sarray_, sbvector_, sstring_): fixed (no uintL length)
