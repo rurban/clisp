@@ -1878,9 +1878,9 @@ LISPFUNNR(package_lock,1)
   VALUES_IF(pack_locked_p(pack));
 }
 
-/* (SYSTEM::%SET-PACKAGE-LOCK package lock) */
+/* ((SETF EXT:PACKAGE-LOCK) lock package) */
 LISPFUNN(set_package_lock,2) {
-  var bool unlock_p = nullp(popSTACK());
+  var bool unlock_p = nullp(STACK_1);
   var object pack = STACK_0;
   if (mconsp(pack)) {
     while (mconsp(STACK_0)) {
@@ -1894,7 +1894,7 @@ LISPFUNN(set_package_lock,2) {
     if (unlock_p) mark_pack_unlocked(pack);
     else          mark_pack_locked(pack);
   }
-  skipSTACK(1);
+  skipSTACK(2);
   VALUES_IF(!unlock_p);
 }
 

@@ -1761,8 +1761,7 @@ local void set_lf_digits (uintC len) {
 }
 
 LISPFUNN(set_long_float_digits,1)
-{ /* (SETF (EXT:LONG-FLOAT-DIGITS) digits)
-     = (SYS::%SET-LONG-FLOAT-DIGITS digits) */
+{ /* ((SETF LONG-FLOAT-DIGITS) digits) */
   var object arg = STACK_0;
   if (!posfixnump(arg)) /* not necessarily Fixnum!?? */
     fehler_digits(arg);
