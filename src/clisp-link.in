@@ -554,7 +554,7 @@ case "$1" in
           done
         done
         func_tmpdir
-        tmpsharedlib="$tmp/clisplink.so"
+        tmpsharedlib="$tmp/clisplink@DLL@"
         tmpinitlisp="$tmp/clisplink.lisp"
         # What to do if we abort.
         trap 'rm -rf "$tmp"' 0 1 2 15
