@@ -1,9 +1,9 @@
 #+CLISP (progn (setf (symbol-function 'setf-gethash)
                      (symbol-function 'sys::puthash)) t)
 #+CLISP t
-#+AKCL (progn (setf (symbol-function 'setf-gethash)
-                    (symbol-function 'sys:hash-set)) t)
-#+AKCL t
+#+(or AKCL ECL) (progn (setf (symbol-function 'setf-gethash)
+                             (symbol-function 'sys:hash-set)) t)
+#+(or AKCL ECL) t
 #+ALLEGRO (progn (setf (symbol-function 'setf-gethash)
                        (symbol-function 'excl::%puthash)) t)
 #+ALLEGRO t

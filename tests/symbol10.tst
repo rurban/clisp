@@ -12,11 +12,12 @@ NIL
          #+CLISP (and (sys::special-variable-p var) (not (constantp var))) ; specvar
          #+ALLEGRO (and (not (constantp var)) (eval `(let ((,var (list nil))) (and (boundp ',var) (eq (symbol-value ',var) ,var)))))
          #+CMU (eq (ext:info variable kind var) ':special)
+         #+ECL (and (sys::specialp var) (not (constantp var))) ; specvar
          (and (fboundp var) t)                       ; funktion. Eigenschaft
          (and (fboundp var) (macro-function var) t)  ; Macro?
          (and (fboundp var) (#-CMU special-form-p #+CMU special-operator-p var) t)  ; Spezialform?
-         #-CLISP (and (symbol-plist var) t)          ; p-Liste?
-         #+CLISP (and (or (get var 'i1) (get var 'i2) (get var 'i3)) t) ; p-Liste?
+         #-(or CLISP ECL) (and (symbol-plist var) t)          ; p-Liste?
+         #+(or CLISP ECL) (and (or (get var 'i1) (get var 'i2) (get var 'i3)) t) ; p-Liste?
          (get var 'i1)                               ; i1
          (get var 'i2)                               ; i2
          (get var 'i3)                               ; i3
@@ -262,7 +263,7 @@ v3
 ;;; rebind
 
 (makunbound 'v3)
-#+(or XCL ALLEGRO CMU) v3 #+CLISP ERROR
+#+(or XCL ALLEGRO CMU) v3 #+(or CLISP ECL) ERROR #-(or XCL ALLEGRO CMU CLISP ECL) UNKNOWN
 (fmakunbound 'v3)
 v3
 
@@ -444,7 +445,7 @@ v5
 ;;; rebind
 
 (makunbound 'v5)
-#+(or XCL ALLEGRO CMU) v5 #+CLISP ERROR
+#+(or XCL ALLEGRO CMU) v5 #+(or CLISP ECL) ERROR #-(or XCL ALLEGRO CMU CLISP ECL) UNKNOWN
 (not (null (remprop 'v5 'i2)))
 t
 (not (null (remprop 'v5 'i1)))
