@@ -1,3 +1,9 @@
+2005-03-24  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (parse_logical_pathnamestring): when version is blank,
+	parse_logical_word() returns NIL, but all_digits() assumes a string
+	Reported by Pascal J.Bourguignon <pjb@informatimago.com>
+
 2005-03-22  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 1167991 ]: Compiler bug, Occurred in SP-DEPTH at <0.
