@@ -1,3 +1,16 @@
+1999-02-25  Bruno Haible  <linuix.math.u-bordeaux.fr>
+
+        * readline.h (rl_completion_entry_function): Change type to
+          `CPFunction *'.
+        * complete.c (rl_completion_entry_function): Likewise.
+          (gen_completion_matches): Change type of `our_func' argument.
+          Remove bogus function type cast.
+          (rl_complete_internal): Change type of `our_func' variable.
+          Remove bogus function type casts.
+          (rl_menu_complete): Likewise.
+
+        * readline.c (readline_internal_charloop): Initialize eof to 0.
+
 1998-10-12  Bruno Haible  <linuix.math.u-bordeaux.fr>
 
         * Makefile.in: Rewrite the dependency lines, one rule per target.

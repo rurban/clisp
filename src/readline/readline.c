@@ -427,6 +427,7 @@ readline_internal_charloop ()
 {
   int eof;
 
+  eof = 0;
   while (rl_done == 0)
     eof = readline_internal_char ();
   return (eof);
