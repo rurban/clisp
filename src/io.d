@@ -7826,7 +7826,14 @@ local void pr_array_recursion (pr_array_locals_t* locals, uintL depth, uintL rde
       # (recursively, with decreased depth, and locals->info.index
       # is passed from one call to the next call
       # without requiring further action)
-      pr_array_recursion(locals,depth,rdepth);
+      if (depth > 0) {
+        if (!level_check(locals->stream_)) {
+          pr_array_recursion(locals,depth,rdepth);
+          level_end(locals->stream_);
+        }
+      } else {
+        pr_array_recursion(locals,depth,rdepth);
+      }
       length++; # increment length :-)
       # locals->info.index is already incremented
     }

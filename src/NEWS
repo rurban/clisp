@@ -145,6 +145,7 @@ User visible changes
     always results in a TYPE-ERROR being signalled.
   + The reader's errors are now of type READER-ERROR when they should be.
   + READ-DELIMITED-LIST now returns NIL when *READ-SUPPRESS* is true.
+  + Printing of multidimensional arrays now respects *PRINT-LEVEL*.
   Thanks to Paul F. Dietz <dietz@dls.net> and his ANSI compliance
   suite, which helped detect some of these deficiencies.
   Thanks to Yuji Minejima <ggb01164@nifty.ne.jp> and his ANSI compliance
