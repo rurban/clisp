@@ -1,3 +1,9 @@
+2002-12-09  Bruno Haible  <bruno@clisp.org>
+
+	* arilev1i.d (add_loop_down, addto_loop_down, sub_loop_down,
+	subx_loop_down, subfrom_loop_down): Limit variable scope to make it
+	compile in C++ mode.
+
 2002-12-09  Sam Steingold  <sds@gnu.org>
 
 	* spvw_garcol.d (gar_col_normal): gc_mark() bt_caller's even
