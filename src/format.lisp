@@ -290,11 +290,11 @@
 (defvar *FORMAT-NEXT-ARGLIST*) ; pointer to next sublist in ~:{ iteration
 (defvar *FORMAT-UP-AND-OUT* nil) ; reason for up-and-out
 
-;; (format-error controlstring errorpos errorcode . arguments)
+;; (format-error control-string errorpos errorcode . arguments)
 ;; signals an Error, that occurred in FORMAT. The position in the
 ;; Control-string is marked with an arrow.
-(defun format-error (controlstring errorpos errorstring &rest arguments)
-  (when controlstring
+(defun format-error (control-string errorpos errorstring &rest arguments)
+  (when control-string
     (unless errorpos (setq errorpos (csd-cs-index (car *FORMAT-CSDL*))))
     (setq errorstring
       (string-concat errorstring
@@ -302,17 +302,17 @@
     (let ((pos1 0) (pos2 0))
       (declare (simple-string errorstring) (fixnum pos1 pos2))
       (loop
-        (setq pos2 (or (position #\Newline controlstring :start pos1)
-                       (length controlstring)))
+        (setq pos2 (or (position #\Newline control-string :start pos1)
+                       (length control-string)))
         (setq errorstring (string-concat errorstring "~%  ~A"))
         (setq arguments
-          (nconc arguments (list (substring controlstring pos1 pos2))))
+          (nconc arguments (list (substring control-string pos1 pos2))))
         (when (<= pos1 errorpos pos2)
           (setq errorstring
             (string-concat errorstring "~%~VT"
                            #+OS/2 "" #-OS/2 "|"))
           (setq arguments (nconc arguments (list (+ (- errorpos pos1) 2)))))
-        (when (= pos2 (length controlstring)) (return))
+        (when (= pos2 (length control-string)) (return))
         (setq pos1 (+ pos2 1)))))
   (apply #'error-of-type 'error errorstring arguments))
 
@@ -379,7 +379,7 @@
       (ENGLISH "There are not enough arguments left for this directive."))
     (pop *FORMAT-NEXT-ARG*)))
 
-;; (format-interpret stream [endmarker]) interpretes *FORMAT-CSDL* .
+;; (format-interpret stream [endmarker]) interprets *FORMAT-CSDL* .
 ;; Fluid vars:
 ;;   *FORMAT-ARG-LIST*
 ;;   *FORMAT-NEXT-ARG*
@@ -409,7 +409,7 @@
     (setq *FORMAT-CSDL* (cdr *FORMAT-CSDL*))))
 
 ;; returns the correct argument-list of a CSD, possibly with substituted
-;; parametern: V (as :NEXT-ARG) and # (as :ARG-COUNT) are resolved.
+;; parameters: V (as :NEXT-ARG) and # (as :ARG-COUNT) are resolved.
 (defun format-resolve-parms (csd)
   (let ((arglist (csd-parm-list csd)))
     (if (csd-v-or-#-p csd)
@@ -457,7 +457,7 @@
       ;; forwards is easier:
       (setq *FORMAT-NEXT-ARG* (nthcdr index *FORMAT-NEXT-ARG*))))
 
-;; prints arg as old-roman number to stream, e.g. 4 as IIII.
+;; prints arg as old-Roman number to stream, e.g. 4 as IIII.
 (defun format-old-roman (arg stream)
   (unless (and (integerp arg) (<= 1 arg 4999))
     (format-error *FORMAT-CS* nil
@@ -472,7 +472,7 @@
                     restvalue)))
       ((zerop value))))
 
-;; prints arg as new-roman number to stream, e.g. 4 as IV.
+;; prints arg as new-Roman number to stream, e.g. 4 as IV.
 (defun format-new-roman (arg stream)
   (unless (and (integerp arg) (<= 1 arg 3999))
     (format-error *FORMAT-CS* nil
@@ -541,7 +541,7 @@
                (format-small-cardinal small stream)
                (write-string (car illions-list) stream)))))
         (blocks1000
-          ; american (billion=10^9)
+          ; American (billion=10^9)
           '("" " thousand" " million" " billion" " trillion" " quadrillion"
             " quintillion" " sextillion" " septillion" " octillion"
             " nonillion" " decillion" " undecillion" " duodecillion"
@@ -556,7 +556,7 @@
      "fifteenth" "sixteenth" "seventeenth" "eighteenth" "nineteenth"))
 
 ;; (format-ordinal arg stream) prints an integer arg as an ordinal number in
-;; plain english to stream.
+;; plain English to stream.
 (defun format-ordinal (arg stream) ; arg Integer
   (if (zerop arg)
     (write-string "zeroth" stream)
@@ -595,7 +595,7 @@
 ;; else right of the String.
 (defun format-padded-string (mincol colinc minpad padchar padleftflag
                              str stream)
-  (let* ((need (+ (string-width str) minpad)) ; it least that nr. of columns
+  (let* ((need (+ (string-width str) minpad)) ; it least that number of columns
          (auxpad (if (< need mincol)
                    (* (ceiling (- mincol need) colinc) colinc)
                    0))) ; this many additional characters
@@ -606,7 +606,7 @@
 ;; prints the Integer arg to Stream:
 ;; in Base base, with sign (+ only if >=0 and positive-sign-flag), with
 ;; commaflag, every three digits are separated by the character
-;; commachar.  fill on the left mit padchar's, so that the total width
+;; commachar.  fill on the left with padchar's, so that the total width
 ;; is at least mincol.
 (defun format-integer (base
                        mincol
@@ -820,7 +820,7 @@
               ((< (+ (ash numerator 1) round-up-1) (ash denominator 1)))
             (setq denominator (* denominator 10))
             (setq posn (1+ posn)))
-          ;; if d or width is specified: calculate last-pos 
+          ;; if d or width is specified: calculate last-pos
           (if d
             ;; if dmin is specified: (min (- d) (- dmin)) = (- (max d dmin)).
             ;; else (- d).
@@ -833,7 +833,7 @@
               (if (< posn 0)
                 ;; leading zeros behind the decimal point -> d:=(1- width)
                 (setq last-pos (- 1 width))
-                ;; no leading zeros bheind the decimal point -> there will
+                ;; no leading zeros behind the decimal point -> there will
                 ;; be posn digits in front of the point, d:=(- (1- width) posn)
                 (setq last-pos (1+ (- posn width))))
               ;; last-pos = (- (- (1- width) (max posn 0)))
@@ -880,9 +880,9 @@
           (setq round-down-p (< (ash numerator 1) round-down-1))
           (if halbzahlig
             (setq round-up-p
-              (>= (ash numerator 1) (- (ash denominator 1) round-up-1)))
+                  (>= (ash numerator 1) (- (ash denominator 1) round-up-1)))
             (setq round-up-p
-              (> (ash numerator 1) (- (ash denominator 1) round-up-1))))
+                  (> (ash numerator 1) (- (ash denominator 1) round-up-1))))
           (when (or round-down-p round-up-p
                     (and last-pos (<= posn last-pos)))
             (return))
@@ -891,13 +891,12 @@
         ;; print last significant digit:
         (when (or (null last-pos) (>= posn last-pos))
           (vector-push-extend
-            (schar "0123456789"
-              (cond
-                ((and round-down-p (not round-up-p)) digit)
-                ((and round-up-p (not round-down-p)) (1+ digit))
-                ((<= (ash numerator 1) denominator) digit)
-                (t (1+ digit))))
-            digit-string)
+           (schar "0123456789"
+                  (cond ((and round-down-p (not round-up-p)) digit)
+                        ((and round-up-p (not round-down-p)) (1+ digit))
+                        ((<= (ash numerator 1) denominator) digit)
+                        (t (1+ digit))))
+           digit-string)
           (incf digit-count))
         ;; print consecutive zeros and point
         (when (>= posn 0)
@@ -1046,7 +1045,7 @@
 ;; the various Strings in piecelist.
 ;; Between the various Strings in piecelist (also ahead, if justify-left;
 ;; also behind, if justify-right) at least minpad padding-characters
-;; are inserted. Then, furhter padding-characters are added, for the
+;; are inserted. Then, further padding-characters are added, for the
 ;; total width to become >= mincol. If width > mincol, more
 ;; padding-characters are added until the width is of the form
 ;; mincol + k * colinc.
