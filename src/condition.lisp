@@ -418,7 +418,8 @@
     (let ((fstring (simple-condition-format-control condition)))
       (if fstring
         (apply #'format stream fstring (simple-condition-format-arguments condition))
-        (clos:call-next-method)))))
+        (clos:call-next-method))))
+  condition)
 
 ;; conditions usually created by ERROR or CERROR
 (define-condition simple-error (simple-condition error) ())
@@ -699,7 +700,8 @@
     (let ((report-function (restart-report restart)))
       (if report-function
         (funcall report-function stream)
-        (prin1 (restart-name restart) stream)))))
+        (prin1 (restart-name restart) stream))))
+  restart)
 
 ;; Expands to the equivalent of `(MAKE-RESTART :NAME name ...)
 ;; but makes intelligent use of the defaults to reduce code size.

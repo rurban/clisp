@@ -2,6 +2,8 @@
 
 	* clos-print.lisp (print-object): Return the object as value of all
 	methods, as required by ANSI CL.
+	* condition.lisp (print-object@simple-condition, print-object@restart):
+	Return the object after printing it.
 
 2004-10-09  Bruno Haible  <bruno@clisp.org>
 
