@@ -1,6 +1,7 @@
 2003-10-09  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (run-all-tests): optional argument to disable risky tests
+	* Makefile (complete): new target, passes nil to RUN-ALL-TESTS
 
 2003-09-17  Sam Steingold  <sds@gnu.org>
 

@@ -20,6 +20,9 @@ clean : force
 tests : force
 	$(LISP) -C -i tests.lisp -x '(time (run-all-tests))'
 
+complete : force
+	$(LISP) -C -i tests.lisp -x '(time (run-all-tests nil))'
+
 compare : force
 	(echo *.erg | grep '*' >/dev/null) || (echo "Test failed:" ; ls -l *erg; echo "To see which tests failed, type" ; echo "    cat "`pwd`"/*.erg" ; exit 1)
 	echo "Test passed."
