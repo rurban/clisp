@@ -1,5 +1,15 @@
 2002-03-12  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #527380: encoding :output-error-action :ignore did not work
+	* encoding.d (nls_wcslen): synch with nls_wcstombs() wrt
+	ignoring errors (i.e., return the correct number of dest bytes)
+	(nls_asciiext_wcslen): synch with nls_asciiext_wcstombs() wrt
+	ignoring errors (i.e., return the correct number of dest bytes)
+	(nls_wcstombs, nls_asciiext_wcstombs): handle ignored errors
+	properly (and do not require the same SRC and DEST count)
+
+2002-03-12  Sam Steingold  <sds@gnu.org>
+
 	* configure (maybe_link): new function
 	* makemake.in (config.status, configure, makemake.in)
 	(unixconf.h.in, VERSION): new targets
