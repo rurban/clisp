@@ -154,16 +154,7 @@ DEFUN(PCRE:PCRE-COMPILE,string &key :STUDY :IGNORE-CASE :MULTILINE :DOTALL \
 static void check_pattern (object pat, pcre** compiled_pattern,
                            pcre_extra** study)
 { /* extract compiled pattern and the study results from the PATTERN */
-  while(!structurep(pat) ||
-        nullp(memq(`PCRE::PATTERN`,TheStructure(pat)->structure_types))) {
-    pushSTACK(NIL);             /* no PLACE */
-    pushSTACK(pat);             /* TYPE-ERROR slot DATUM */
-    pushSTACK(`PCRE::PATTERN`); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(`PCRE::PATTERN`); pushSTACK(pat);
-    pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not a ~S"));
-    pat = value1;
-  }
+  pat = check_classname(pat,`PCRE::PATTERN`);
   /* FIXME for derived structs! */
   *compiled_pattern = TheFpointer(TheStructure(pat)->recdata[1])->fp_pointer;
   if (nullp(TheStructure(pat)->recdata[2])) *study = NULL;

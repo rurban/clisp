@@ -55,15 +55,6 @@ DEFMODULE(rawsock,"RAWSOCK")
 
 /* ================== helpers ================== */
 /* can trigger GC */
-static object my_check_type (object type, object datum) {
-  pushSTACK(NIL);               /* no PLACE */
-  pushSTACK(datum);             /* TYPE-ERROR slot DATUM */
-  pushSTACK(type);              /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(type); pushSTACK(datum); pushSTACK(TheSubr(subr_self)->name);
-  check_value(type_error,"~S: ~S is not of type ~S");
-  return value1;
-}
-/* can trigger GC */
 static object my_check_argument (object name, object datum) {
   pushSTACK(name); pushSTACK(datum); pushSTACK(TheSubr(subr_self)->name);
   check_value(error,"~S: ~S is not a valid ~S argument");
@@ -71,23 +62,16 @@ static object my_check_argument (object name, object datum) {
 }
 /* can trigger GC */
 static object check_buffer_arg (object arg) {
-  while(1) {
+  while (1) {
     if (missingp(arg)) return O(buffer);
     if (simple_bit_vector_p(Atype_8Bit,arg)) return arg;
-    arg = my_check_type(S(simple_bit_vector),arg);
+    arg = check_classname(arg,S(simple_bit_vector));
   }
 }
-/* can trigger GC */
-object check_struct (object type, object arg) {
-  while (!structurep(arg) ||
-         nullp(memq(type,TheStructure(arg)->structure_types)))
-    arg = my_check_type(type,arg);
-  return arg;
-}
-/* DANGER: the reuturn value is invalidated by GC!
+/* DANGER: the return value is invalidated by GC!
  can trigger GC */
 void* check_struct_data (object type, object arg, size_t *size) {
-  object vec = TheStructure(check_struct(type,arg))->recdata[1];
+  object vec = TheStructure(check_classname(arg,type))->recdata[1];
   *size = Sbvector_length(vec);
   return (void*)TheSbvector(vec)->data;
 }
@@ -428,7 +412,7 @@ DEFUN(RAWSOCK:SOCKETPAIR,domain type protocol) {
    NIL: return NULL
    T: allocate
    SOCKADDR: extract data
- DANGER: the reuturn value is invalidated by GC!
+ DANGER: the return value is invalidated by GC!
  can trigger GC */
 void optional_sockaddr_argument (gcv_object_t *arg, struct sockaddr**sa,
                                  size_t *size) {
