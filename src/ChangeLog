@@ -1,5 +1,14 @@
 1999-06-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * stream.d (create_input_pipe): New function.
+          (MAKE-PIPE-INPUT-STREAM): Call it.
+          (create_output_pipe): New function.
+          (MAKE-PIPE-OUTPUT-STREAM): Call it.
+          (create_io_pipe): New function.
+          (MAKE-PIPE-IO-STREAM): Call it.
+
+1999-06-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * socket.d (inet_addr): Don't declare on WIN32.
           (setsockopt): Remove second declaration.
           (SOCKET-SERVICE-PORT): On WIN32, use a replacement for getservent().
