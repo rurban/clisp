@@ -51,7 +51,7 @@
 
 # UP: Liefert ein neu erzeugtes uninterniertes Symbol mit gegebenem Printnamen.
 # make_symbol(string)
-# > string: Simple-String
+# > string: immutable Simple-String
 # < ergebnis: neues Symbol mit diesem Namen, mit Home-Package=NIL.
 # kann GC auslösen
   global object make_symbol (object string);
@@ -123,8 +123,8 @@
 
 # UP, beschafft String
 # allocate_string(len)
-# > len: Länge des Strings (in Bytes)
-# < ergebnis: neuer Simple-String (LISP-Objekt)
+# > len: Länge des Strings (in Characters)
+# < ergebnis: neuer Normal-Simple-String (LISP-Objekt)
 # kann GC auslösen
   global object allocate_string (uintL len);
   global object allocate_string (len)
@@ -144,8 +144,8 @@
 #ifndef TYPECODES
 # UP, beschafft immutablen String
 # allocate_imm_string(len)
-# > len: Länge des Strings (in Bytes)
-# < ergebnis: neuer immutabler Simple-String (LISP-Objekt)
+# > len: Länge des Strings (in Characters)
+# < ergebnis: neuer immutabler Normal-Simple-String (LISP-Objekt)
 # kann GC auslösen
   global object allocate_imm_string (uintL len);
   global object allocate_imm_string (len)
@@ -153,6 +153,24 @@
     { var uintL need = size_sstring(len); # benötigter Speicherplatz in Bytes
       #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_Imm_Sstring,len);
       allocate(sstring_type,TRUE,need,Sstring,ptr,
+               { SETTFL } # Keine weitere Initialisierung
+              )
+      #undef SETTFL
+    }
+#endif
+
+#ifdef HAVE_SMALL_SSTRING
+# UP, beschafft immutablen Small-String
+# allocate_imm_small_string(len)
+# > len: Länge des Strings (in Characters)
+# < ergebnis: neuer immutabler Small-Simple-String (LISP-Objekt)
+# kann GC auslösen
+  global object allocate_imm_small_string (uintL len);
+  global object allocate_imm_small_string (len)
+    var uintL len;
+    { var uintL need = size_small_sstring(len); # benötigter Speicherplatz in Bytes
+      #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_Imm_SmallSstring,len);
+      allocate(sstring_type,TRUE,need,SmallSstring,ptr,
                { SETTFL } # Keine weitere Initialisierung
               )
       #undef SETTFL

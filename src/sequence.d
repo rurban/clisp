@@ -4126,12 +4126,14 @@ LISPFUN(write_char_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
         var uintL end = posfixnum_to_L(STACK_1);
         if (end-start == 0) goto done;
        {var uintL len;
-        var const chart* charptr = unpack_string_ro(STACK_4,&len);
-        # Ab charptr kommen len Zeichen.
+        var uintL offset;
+        var object string = unpack_string_ro(STACK_4,&len,&offset);
+        var const chart* charptr;
+        unpack_sstring_alloca(string,end-start,offset+start, charptr=);
         # Versuche, eine optimierte Schreib-Routine aufzurufen:
-        var const chart* endptr = write_char_array(STACK_3,&charptr[start],end-start);
-        if (!(endptr==NULL)) goto done;
-      }}
+        {var const chart* endptr = write_char_array(STACK_3,charptr,end-start);
+         if (!(endptr==NULL)) goto done;
+      }}}
     # start- und end-Argumente subtrahieren:
     STACK_1 = I_I_minus_I(STACK_1,STACK_2); # (- end start), ein Integer >=0
     # Stackaufbau: sequence, item, start, count, typdescr.

@@ -157,11 +157,7 @@
                   var object ss2 = array_displace_check(obj2,len1,&index2);
                   # ssi ist der Datenvektor, indexi der Index in den Datenvektor
                   # zu obji (i=1,2).
-                  var const chart* ptr1 = &TheSstring(ss1)->data[index1];
-                  var const chart* ptr2 = &TheSstring(ss2)->data[index2];
-                  dotimespL(len1,len1,
-                    { if (!chareq(*ptr1++,*ptr2++)) goto no; }
-                    );
+                  return string_eqcomp(ss1,index1,ss2,index2,len1);
                 }
               return TRUE;
             }
@@ -269,13 +265,24 @@
     var uintL index2;
     var uintL count;
     { var const object* ptr1 = &TheSvector(dv1)->data[index1];
-      var const chart* ptr2 = &TheSstring(dv2)->data[index2];
-      dotimespL(count,count,
-        { var object elt1 = *ptr1++;
-          var chart elt2 = *ptr2++;
-          if (!(charp(elt1) && chareq(up_case(char_code(elt1)),up_case(elt2))))
-            goto no;
-        });
+      SstringDispatch(dv2,
+        { var const chart* ptr2 = &TheSstring(dv2)->data[index2];
+          dotimespL(count,count,
+            { var object elt1 = *ptr1++;
+              var chart elt2 = *ptr2++;
+              if (!(charp(elt1) && chareq(up_case(char_code(elt1)),up_case(elt2))))
+                goto no;
+            });
+        },
+        { var const scint* ptr2 = &TheSmallSstring(dv2)->data[index2];
+          dotimespL(count,count,
+            { var object elt1 = *ptr1++;
+              var chart elt2 = as_chart(*ptr2++);
+              if (!(charp(elt1) && chareq(up_case(char_code(elt1)),up_case(elt2))))
+                goto no;
+            });
+        }
+        );
       return TRUE;
       no: return FALSE;
     }
@@ -382,19 +389,8 @@
       return TRUE;
       no: return FALSE;
     }
-  local boolean elt_compare_Char_Char(dv1,index1,dv2,index2,count)
-    var object dv1;
-    var uintL index1;
-    var object dv2;
-    var uintL index2;
-    var uintL count;
-    { var const chart* ptr1 = &TheSstring(dv1)->data[index1];
-      var const chart* ptr2 = &TheSstring(dv2)->data[index2];
-      dotimespL(count,count,
-        { if (!chareq(up_case(*ptr1++),up_case(*ptr2++))) goto no; });
-      return TRUE;
-      no: return FALSE;
-    }
+  #define elt_compare_Char_Char(dv1,index1,dv2,index2,count)  \
+    string_eqcomp_ci(dv1,index1,dv2,index2,count)
   #define elt_compare_Bit_Bit(dv1,index1,dv2,index2,count)  \
     bit_compare(dv1,index1,dv2,index2,count)
   local boolean elt_compare_Bit_2Bit(dv1,index1,dv2,index2,count)

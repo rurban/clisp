@@ -4302,7 +4302,8 @@ typedef varobject_ *  Varobject;
 #   Extended-Records have room for up to 255 elements and 255 extra (non-Lisp)
 #   elements.
 # Long-Records are recognized by their type field:
-#   rectype == Rectype_Sbvector, Rectype_Sstring, Rectype_Imm_Sstring,
+#   rectype == Rectype_Sbvector,
+#              Rectype_Sstring, Rectype_Imm_Sstring, Rectype_Imm_SmallSstring,
 #              Rectype_Svector.
 # The others are partitioned into:
 #   - Simple-Records, if rectype < rectype_limit.
@@ -4418,14 +4419,16 @@ typedef xrecord_ *  Xrecord;
          Rectype_Hashtable = rectype_limit,
          #ifndef TYPECODES
                           # Here the arrays start.
-         Rectype_mdarray,       /* 1 */ # Iarray, not Srecord/Xrecord
-         Rectype_Sbvector,      /* 2 */ # Sbvector, not Srecord/Xrecord
-         Rectype_bvector,       /* 3 */ # Iarray, not Srecord/Xrecord
-         Rectype_Svector,       /* 4 */ # Svector, not Srecord/Xrecord
-         Rectype_vector,        /* 5 */ # Iarray, not Srecord/Xrecord
-         Rectype_Sstring,       /* 6 */ # Sstring, not Srecord/Xrecord
-         Rectype_string,        /* 7 */ # Iarray, not Srecord/Xrecord
-         Rectype_Imm_Sstring,   /* 8 */ # immutable Sstring, not Srecord/Xrecord
+         Rectype_vector,           /* 1 */ # Iarray, not Srecord/Xrecord
+         Rectype_bvector,          /* 2 */ # Iarray, not Srecord/Xrecord
+         Rectype_Sbvector,         /* 3 */ # Sbvector, not Srecord/Xrecord
+           rectype_unused1,        /* 4 */
+         Rectype_Svector,          /* 5 */ # Svector, not Srecord/Xrecord
+         Rectype_Sstring,          /* 6 */ # Sstring, not Srecord/Xrecord
+         Rectype_Imm_Sstring,      /* 7 */ # immutable Sstring, not Srecord/Xrecord
+         Rectype_Imm_SmallSstring, /* 8 */ # immutable SmallSstring, not Srecord/Xrecord, only used #ifdef HAVE_SMALL_SSTRING
+         Rectype_string,           /* 9 */ # Iarray, not Srecord/Xrecord
+         Rectype_mdarray,         /* 10 */ # Iarray, not Srecord/Xrecord
                           # Here the arrays end.
                           # Here the numbers start.
          Rectype_Bignum,                # Bignum, not Srecord/Xrecord
@@ -4876,14 +4879,25 @@ typedef sbvector_ *  Sbvector;
 #define sbvector_length(ptr)  sarray_length(ptr)
 #define Sbvector_length(obj)  sbvector_length(TheSbvector(obj))
 
-# Simple-String
-typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bytes
+# Simple-String (a.k.a. "normal simple string")
+typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Characters
                  chart  data[unspecified]; # Characters
                }
         sstring_;
 typedef sstring_ *  Sstring;
 #define sstring_length(ptr)  sarray_length(ptr)
 #define Sstring_length(obj)  sstring_length(TheSstring(obj))
+
+# Simple-String with only one byte per character (a.k.a. "small simple string")
+#if !defined(TYPECODES) && defined(UNICODE) && ((defined(GNU) && !defined(RISCOS) && !defined(CONVEX)) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(WATCOM) || defined(BORLAND) || defined(MICROSOFT))
+#define HAVE_SMALL_SSTRING
+typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Characters
+                 scint  data[unspecified]; # Characters
+               }
+        small_sstring_;
+typedef small_sstring_ *  SmallSstring;
+# use sstring_length and Sstring_length for the accessing the length
+#endif
 
 # Simple-Vector
 typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Objekten
@@ -4970,7 +4984,7 @@ typedef iarray_ *  Iarray;
     #define Array_type_vector    Rectype_vector    # Iarray
     #define Array_type_mdarray   Rectype_mdarray   # Iarray
     #define Array_type_sbvector  Rectype_Sbvector  # Sbvector
-    #define Array_type_sstring   Rectype_Sstring: case Rectype_Imm_Sstring   # Sstring
+    #define Array_type_sstring   Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring   # Sstring, SmallSstring
     #define Array_type_svector   Rectype_Svector   # Svector
   #endif
 
@@ -5817,6 +5831,9 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   #define TheSbvector(obj)  ((Sbvector)(as_oint(obj)-varobject_bias))
   #define TheCodevec(obj)  ((Codevec)TheSbvector(obj))
   #define TheSstring(obj)  ((Sstring)(as_oint(obj)-varobject_bias))
+  #ifdef HAVE_SMALL_SSTRING
+  #define TheSmallSstring(obj)  ((SmallSstring)(as_oint(obj)-varobject_bias))
+  #endif
   #define TheSvector(obj)  ((Svector)(as_oint(obj)-varobject_bias))
   #define TheIarray(obj)  ((Iarray)(as_oint(obj)-varobject_bias))
   #define TheRecord(obj)  ((Record)(as_oint(obj)-varobject_bias))
@@ -6017,8 +6034,10 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
     #define vectorp(obj)  \
       ((tint)((typecode(obj) & ~bit(notsimple_bit_t))-1) <= (tint)(svector_type-1))
   #else
+    # cases: Rectype_Sbvector, Rectype_Svector, Rectype_[Imm_][Small]String,
+    #        Rectype_bvector, Rectype_vector, Rectype_string
     #define vectorp(obj)  \
-      (varobjectp(obj) && ((uintB)(Record_type(obj) - 2) <= 6))
+      (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= 9-1))
   #endif
 
 # Test auf simple-vector oder simple-bit-vector oder simple-string
@@ -6026,13 +6045,9 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
     #define simplep(obj)  \
       ((tint)(typecode(obj) - 1) <= (tint)(svector_type-1))
   #else
+    # cases: Rectype_Sbvector, Rectype_Svector, Rectype_[Imm_][Small]String
     #define simplep(obj)  \
-      (varobjectp(obj)                                \
-       && (Record_type(obj) == Rectype_Svector        \
-           || Record_type(obj) == Rectype_Sbvector    \
-           || Record_type(obj) == Rectype_Sstring     \
-           || Record_type(obj) == Rectype_Imm_Sstring \
-      )   )
+      (varobjectp(obj) && ((uintB)(Record_type(obj) - 3) <= 8-3))
   #endif
 
 # Test eines Array auf simple-vector oder simple-bit-vector oder simple-string
@@ -6040,12 +6055,9 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
     #define array_simplep(obj)  \
       (typecode(obj) <= svector_type)
   #else
+    # cases: Rectype_Sbvector, Rectype_Svector, Rectype_[Imm_][Small]String
     #define array_simplep(obj)  \
-      (Record_type(obj) == Rectype_Svector        \
-       || Record_type(obj) == Rectype_Sbvector    \
-       || Record_type(obj) == Rectype_Sstring     \
-       || Record_type(obj) == Rectype_Imm_Sstring \
-      )
+      ((uintB)(Record_type(obj) - 3) <= 8-3)
   #endif
 
 # Test auf simple-vector
@@ -6053,6 +6065,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
     #define simple_vector_p(obj)  \
       (typecode(obj) == svector_type)
   #else
+    # cases: Rectype_Svector
     #define simple_vector_p(obj)  \
       (varobjectp(obj) && (Record_type(obj) == Rectype_Svector))
   #endif
@@ -6062,8 +6075,11 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
     #define general_vector_p(obj)  \
       ((typecode(obj) & ~bit(notsimple_bit_t)) == svector_type)
   #else
+    # cases: Rectype_Svector, Rectype_vector
     #define general_vector_p(obj)  \
-      (varobjectp(obj) && ((Record_type(obj) & ~1) == Rectype_Svector))
+      (varobjectp(obj) \
+       && ((Record_type(obj) & ~(Rectype_Svector ^ Rectype_vector)) == (Rectype_Svector & Rectype_vector)) \
+      )
   #endif
 
 # Test auf simple-string
@@ -6071,11 +6087,9 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
     #define simple_string_p(obj)  \
       (typecode(obj) == sstring_type)
   #else
+    # cases: Rectype_[Imm_][Small]String
     #define simple_string_p(obj)  \
-      (varobjectp(obj)                                \
-       && (Record_type(obj) == Rectype_Sstring        \
-           || Record_type(obj) == Rectype_Imm_Sstring \
-      )   )
+      (varobjectp(obj) && ((uintB)(Record_type(obj) - 6) <= 8-6))
   #endif
 
 # Test auf string
@@ -6083,10 +6097,9 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
     #define stringp(obj)  \
       ((typecode(obj) & ~bit(notsimple_bit_t)) == sstring_type)
   #else
+    # cases: Rectype_[Imm_][Small]String, Rectype_string
     #define stringp(obj)  \
-      (varobjectp(obj) \
-       && ((uintB)(Record_type(obj) - Rectype_Sstring) <= Rectype_Imm_Sstring-Rectype_Sstring) \
-      )
+      (varobjectp(obj) && ((uintB)(Record_type(obj) - 6) <= 9-6))
   #endif
 
 # Test auf simple-bit-vector
@@ -6094,6 +6107,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
     #define simple_bit_vector_p(obj)  \
       (typecode(obj) == sbvector_type)
   #else
+    # cases: Rectype_Sbvector
     #define simple_bit_vector_p(obj)  \
       (varobjectp(obj) && (Record_type(obj) == Rectype_Sbvector))
   #endif
@@ -6119,8 +6133,11 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
     #define byte_vector_p(obj)  \
       ((typecode(obj) & ~bit(notsimple_bit_t)) == sbvector_type)
   #else
+    # cases: Rectype_Sbvector, Rectype_bvector
     #define byte_vector_p(obj)  \
-      (varobjectp(obj) && ((Record_type(obj) & ~1) == Rectype_Sbvector))
+      (varobjectp(obj) && \
+       ((Record_type(obj) & ~(Rectype_Sbvector ^ Rectype_bvector)) == (Rectype_Sbvector & Rectype_bvector)) \
+      )
   #endif
 
 # Test auf byte-vector, ausgenommen simple-bit-vector
@@ -6128,6 +6145,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
     #define general_byte_vector_p(obj)  \
       (typecode(obj) == bvector_type)
   #else
+    # cases: Rectype_bvector
     #define general_byte_vector_p(obj)  \
       (varobjectp(obj) && (Record_type(obj) == Rectype_bvector))
   #endif
@@ -6137,8 +6155,11 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
     #define arrayp(obj)  \
       ((tint)(typecode(obj) - 1) <= (tint)(vector_type-1))
   #else
+    # cases: Rectype_Sbvector, Rectype_Svector, Rectype_[Imm_][Small]String,
+    #        Rectype_bvector, Rectype_vector, Rectype_string,
+    #        Rectype_mdarray
     #define arrayp(obj)  \
-      (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= 7))
+      (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= 10-1))
   #endif
 
 # Test auf Array, der kein Vector ist (Typbyte %100)
@@ -6146,6 +6167,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
     #define mdarrayp(obj)  \
       (typecode(obj) == mdarray_type)
   #else
+    # cases: Rectype_mdarray
     #define mdarrayp(obj)  \
       (varobjectp(obj) && (Record_type(obj) == Rectype_mdarray))
   #endif
@@ -6162,10 +6184,11 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
     #define if_recordp(obj,statement1,statement2)  \
       if (orecordp(obj))                                                       \
         switch (Record_type(obj))                                              \
-          { case Rectype_Sbvector: case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Svector: \
+          { case Rectype_Sbvector: case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: case Rectype_Svector: \
             case Rectype_mdarray:                                              \
             case Rectype_bvector: case Rectype_string: case Rectype_vector:    \
             case Rectype_Bignum: case Rectype_Lfloat:                          \
+            case rectype_unused1:                                              \
               goto not_record;                                                 \
             default: { statement1 } break;                                     \
           }                                                                    \
@@ -6606,7 +6629,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   #define case_Rectype_Sbvector_above  \
     case Rectype_Sbvector: goto case_sbvector;
   #define case_Rectype_Sstring_above  \
-    case Rectype_Sstring: case Rectype_Imm_Sstring: goto case_sstring;
+    case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: goto case_sstring;
   #define case_Rectype_Svector_above  \
     case Rectype_Svector: goto case_svector;
   #define case_Rectype_mdarray_above  \
@@ -6633,13 +6656,13 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
     case Rectype_Symbol: goto case_symbol;
   # Composite cases:
   #define case_Rectype_string_above  \
-    case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_string: goto case_string;
+    case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: case Rectype_string: goto case_string;
   #define case_Rectype_bvector_above  \
     case Rectype_Sbvector: case Rectype_bvector: goto case_bvector;
   #define case_Rectype_vector_above  \
     case Rectype_Svector: case Rectype_vector: goto case_vector;
   #define case_Rectype_array_above  \
-    case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_string: \
+    case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: case Rectype_string: \
     case Rectype_Sbvector: case Rectype_bvector: \
     case Rectype_Svector: case Rectype_vector:   \
     case Rectype_mdarray:                        \
@@ -7790,7 +7813,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 
 # UP: Liefert ein neu erzeugtes uninterniertes Symbol mit gegebenem Printnamen.
 # make_symbol(string)
-# > string: Simple-String
+# > string: immutable Simple-String
 # < ergebnis: neues Symbol mit diesem Namen, mit Home-Package=NIL.
 # kann GC auslösen
   extern object make_symbol (object string);
@@ -7814,8 +7837,8 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 
 # UP, beschafft String
 # allocate_string(len)
-# > len: Länge des Strings (in Bytes)
-# < ergebnis: neuer Simple-String (LISP-Objekt)
+# > len: Länge des Strings (in Characters)
+# < ergebnis: neuer Normal-Simple-String (LISP-Objekt)
 # kann GC auslösen
   extern object allocate_string (uintL len);
 # wird verwendet von ARRAY, CHARSTRG, STREAM, PATHNAME
@@ -7823,10 +7846,20 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 #ifndef TYPECODES
 # UP, beschafft immutablen String
 # allocate_imm_string(len)
-# > len: Länge des Strings (in Bytes)
-# < ergebnis: neuer immutabler Simple-String (LISP-Objekt)
+# > len: Länge des Strings (in Characters)
+# < ergebnis: neuer immutabler Normal-Simple-String (LISP-Objekt)
 # kann GC auslösen
   extern object allocate_imm_string (uintL len);
+# wird verwendet von CHARSTRG
+#endif
+
+#ifdef HAVE_SMALL_SSTRING
+# UP, beschafft immutablen Small-String
+# allocate_imm_small_string(len)
+# > len: Länge des Strings (in Characters)
+# < ergebnis: neuer immutabler Small-Simple-String (LISP-Objekt)
+# kann GC auslösen
+  extern object allocate_imm_small_string (uintL len);
 # wird verwendet von CHARSTRG
 #endif
 
@@ -10297,7 +10330,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > uintB* charptr: Adresse einer Zeichenfolge
 # > uintL len: Länge der Zeichenfolge
 # > object encoding: Encoding
-# < ergebnis: Simple-String mit den len Zeichen ab charptr als Inhalt
+# < ergebnis: Normal-Simple-String mit den len Zeichen ab charptr als Inhalt
 # kann GC auslösen
   #ifdef UNICODE
     extern object make_string (const uintB* charptr, uintL len, object encoding);
@@ -10313,7 +10346,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > char* asciz: ASCIZ-String
 #       (Adresse einer durch ein Nullbyte abgeschlossenen Zeichenfolge)
 # > object encoding: Encoding
-# < ergebnis: String mit der Zeichenfolge (ohne Nullbyte) als Inhalt
+# < ergebnis: Normal-Simple-String mit der Zeichenfolge (ohne Nullbyte) als Inhalt
 # kann GC auslösen
   #ifdef UNICODE
     extern object asciz_to_string (const char * asciz, object encoding);
@@ -10355,11 +10388,13 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   #define with_sstring_0  with_string_0
 #else
   #define with_string_0(string,encoding,ascizvar,statement)  \
-    { var object ascizvar##_string = (string);                            \
-      var uintL ascizvar##_len;                                           \
-      var const chart* ptr1 = unpack_string_ro(ascizvar##_string,&ascizvar##_len); \
-      var uintL ascizvar##_bytelen = cslen(encoding,ptr1,ascizvar##_len); \
-     {var DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_bytelen+1);      \
+    { var uintL ascizvar##_len;                                           \
+      var uintL ascizvar##_offset;                                        \
+      var object ascizvar##_string = unpack_string_ro(string,&ascizvar##_len,&ascizvar##_offset); \
+      var const chart* ptr1;                                              \
+      unpack_sstring_alloca(ascizvar##_string,ascizvar##_len,ascizvar##_offset, ptr1=); \
+     {var uintL ascizvar##_bytelen = cslen(encoding,ptr1,ascizvar##_len); \
+      var DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_bytelen+1);      \
       cstombs(encoding,ptr1,ascizvar##_len,&ascizvar##_data[0],ascizvar##_bytelen); \
       ascizvar##_data[ascizvar##_bytelen] = '\0';                         \
       {var char* ascizvar = (char*) &ascizvar##_data[0];                  \
@@ -10370,9 +10405,10 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   #define with_sstring_0(string,encoding,ascizvar,statement)  \
     { var object ascizvar##_string = (string);                            \
       var uintL ascizvar##_len = Sstring_length(ascizvar##_string);       \
-      var const chart* ptr1 = &TheSstring(ascizvar##_string)->data[0];    \
-      var uintL ascizvar##_bytelen = cslen(encoding,ptr1,ascizvar##_len); \
-     {var DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_bytelen+1);      \
+      var const chart* ptr1;                                              \
+      unpack_sstring_alloca(ascizvar##_string,ascizvar##_len,0, ptr1=);   \
+     {var uintL ascizvar##_bytelen = cslen(encoding,ptr1,ascizvar##_len); \
+      var DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_bytelen+1);      \
       cstombs(encoding,ptr1,ascizvar##_len,&ascizvar##_data[0],ascizvar##_bytelen); \
       ascizvar##_data[ascizvar##_bytelen] = '\0';                         \
       {var char* ascizvar = (char*) &ascizvar##_data[0];                  \
@@ -10397,11 +10433,13 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # binds the variable charptr pointing to it and the variable len to its length,
 # and executes the statement.
   #define with_string(string,encoding,charptrvar,lenvar,statement)  \
-    { var object charptrvar##_string = (string);                            \
-      var uintL charptrvar##_len;                                           \
-      var const chart* ptr1 = unpack_string_ro(charptrvar##_string,&charptrvar##_len); \
-      var uintL lenvar = cslen(encoding,ptr1,charptrvar##_len);             \
-     {var DYNAMIC_ARRAY(charptrvar##_data,uintB,lenvar);                    \
+    { var uintL charptrvar##_len;                                           \
+      var uintL charptrvar##_offset;                                        \
+      var object charptrvar##_string = unpack_string_ro(string,&charptrvar##_len,&charptrvar##_offset); \
+      var const chart* ptr1;                                                \
+      unpack_sstring_alloca(charptrvar##_string,charptrvar##_len,charptrvar##_offset, ptr1=); \
+     {var uintL lenvar = cslen(encoding,ptr1,charptrvar##_len);             \
+      var DYNAMIC_ARRAY(charptrvar##_data,uintB,lenvar);                    \
       cstombs(encoding,ptr1,charptrvar##_len,&charptrvar##_data[0],lenvar); \
       {var char* charptrvar = (char*) &charptrvar##_data[0];                \
        statement                                                            \
@@ -10411,9 +10449,10 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   #define with_sstring(string,encoding,charptrvar,lenvar,statement)  \
     { var object charptrvar##_string = (string);                            \
       var uintL charptrvar##_len = Sstring_length(charptrvar##_string);     \
-      var const chart* ptr1 = &TheSstring(charptrvar##_string)->data[0];    \
-      var uintL lenvar = cslen(encoding,ptr1,charptrvar##_len);             \
-     {var DYNAMIC_ARRAY(charptrvar##_data,uintB,lenvar);                    \
+      var const chart* ptr1;                                                \
+      unpack_sstring_alloca(charptrvar##_string,charptrvar##_len,0, ptr1=); \
+     {var uintL lenvar = cslen(encoding,ptr1,charptrvar##_len);             \
+      var DYNAMIC_ARRAY(charptrvar##_data,uintB,lenvar);                    \
       cstombs(encoding,ptr1,charptrvar##_len,&charptrvar##_data[0],lenvar); \
       {var char* charptrvar = (char*) &charptrvar##_data[0];                \
        statement                                                            \
@@ -10614,7 +10653,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 
 # Folgende beide Funktionen arbeiten auf "Semi-Simple String"s.
 # Das sind CHARACTER-Arrays mit FILL-POINTER, die aber nicht adjustierbar
-# und nicht displaced sind und deren Datenvektor ein Simple-String ist.
+# und nicht displaced sind und deren Datenvektor ein Normal-Simple-String ist.
 # Beim Überschreiten der Länge wird ihre Länge verdoppelt
 # (so dass der Aufwand fürs Erweitern nicht sehr ins Gewicht fällt).
 
@@ -10708,19 +10747,69 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   extern boolean graphic_char_p (chart ch);
 # wird verwendet von STREAM, PATHNAME
 
+# Copies an array of chart to an array of chart.
+# chartcopy(src,dest,len);
+# > chart* src: characters
+# > chart* dest: room for characters
+# > uintL len: number of characters to be copied, > 0
+  extern void chartcopy (const chart* src, chart* dest, uintL len);
+# wird verwendet von ARRAY, STREAM, LISPARIT
+
+#ifdef HAVE_SMALL_SSTRING
+# Copies an array of scint to an array of chart.
+# scintcopy(src,dest,len);
+# > scint* src: small characters
+# > chart* dest: room for normal characters
+# > uintL len: number of characters to be copied, > 0
+  extern void scintcopy (const scint* src, chart* dest, uintL len);
+# wird verwendet von ARRAY, STREAM, Macro unpack_sstring_alloca
+#endif
+
+# Dispatches among Sstring and SmallSstring.
+# SstringDispatch(string,sstring_statement,small_sstring_statement)
+# > string: a simple-string
+# Executes small_sstring_statement if it is a SmallSstring, else sstring_statement.
+  #ifdef HAVE_SMALL_SSTRING
+    #define SstringDispatch(string,sstring_statement,small_sstring_statement)  \
+      if (Record_type(string) == Rectype_Imm_SmallSstring) { small_sstring_statement } else { sstring_statement }
+  #else
+    #define SstringDispatch(string,sstring_statement,small_sstring_statement)  \
+      { sstring_statement }
+  #endif
+# wird verwendet von CHARSTRG, ARRAY, HASHTABL, PACKAGE, PATHNAME, PREDTYPE, STREAM
+
+# Makes a string contents available.
+# unpack_sstring_alloca(string,len,offset, charptr = );
+# > object string: a simple-string
+# > uintL len: the number of characters to be accessed
+# > uintL offset: where the characters to be accessed start
+# < const chart* charptr: pointer to the characters
+#   (may be in string, may be on the stack)
+  #define unpack_sstring_alloca(string,len,offset,charptr_assignment)  \
+    SstringDispatch(string,                                                              \
+      { charptr_assignment (const chart*) &TheSstring(string)->data[offset]; },          \
+      { var chart* _unpacked_ = (chart*)alloca((len)*sizeof(chart));                     \
+        if ((len) > 0) scintcopy(&TheSmallSstring(string)->data[offset],_unpacked_,len); \
+        charptr_assignment (const chart*) _unpacked_;                                    \
+      });
+# wird verwendet von
+
 # UP: verfolgt einen String.
-# unpack_string_ro(string,&len)  [for read-only access]
 # unpack_string_rw(string,&len)  [for read-write access]
 # > object string: ein String.
 # < uintL len: Anzahl der Zeichen des Strings.
 # < chart* ergebnis: Anfangsadresse der Characters
   extern chart* unpack_string_rw (object string, uintL* len);
-  #ifdef TYPECODES
-    #define unpack_string_ro  (const chart *) unpack_string_rw
-  #else
-    extern const chart* unpack_string_ro (object string, uintL* len);
-  #endif
-# wird verwendet von STREAM, HASHTABL, PACKAGE, SPVW, GRAPH
+# wird verwendet von SEQUENCE
+
+# UP: verfolgt einen String.
+# unpack_string_ro(string,&len,&offset)  [for read-only access]
+# > object string: ein String.
+# < uintL len: Anzahl der Zeichen des Strings.
+# < uintL offset: Offset in den Datenvektor.
+# < object ergebnis: Datenvektor
+  extern object unpack_string_ro (object string, uintL* len, uintL* offset);
+# wird verwendet von STREAM, HASHTABL, PACKAGE, SEQUENCE, ENCODING
 
 # UP: vergleicht zwei Strings auf Gleichheit
 # string_gleich(string1,string2)
@@ -10741,7 +10830,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # UP: kopiert einen String und macht dabei einen Simple-String draus.
 # copy_string(string)
 # > string: String
-# < ergebnis: Simple-String mit denselben Zeichen
+# < ergebnis: mutable Normal-Simple-String mit denselben Zeichen
 # kann GC auslösen
   extern object copy_string (object string);
 # wird verwendet von IO, PATHNAME
@@ -10766,6 +10855,32 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   #endif
 # wird verwendet von PACKAGE
 
+# UP: wandelt einen String in einen Normal-Simple-String um.
+# coerce_normal_ss(obj)
+# > obj: Lisp-Objekt, sollte ein String sein.
+# < ergebnis: Normal-Simple-String mit denselben Zeichen
+# kann GC auslösen
+  #ifndef HAVE_SMALL_SSTRING
+    #define coerce_normal_ss coerce_ss
+  #else
+    extern object coerce_normal_ss (object obj);
+  #endif
+# wird verwendet von PATHNAME
+
+#if 0 # unused
+# UP: wandelt einen String in einen immutablen Normal-Simple-String um.
+# coerce_imm_normal_ss(obj)
+# > obj: Lisp-Objekt, sollte ein String sein.
+# < ergebnis: immutabler Normal-Simple-String mit denselben Zeichen
+# kann GC auslösen
+  #ifndef HAVE_SMALL_SSTRING
+    #define coerce_imm_normal_ss coerce_imm_ss
+  #else
+    extern object coerce_imm_normal_ss (object obj);
+  #endif
+# wird verwendet von
+#endif
+
 # UP: Konversion eines Objekts zu einem Character
 # coerce_char(obj)
 # > obj: Lisp-Objekt
@@ -10788,25 +10903,38 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # wird verwendet von IO
 
 # UP: Überprüft die Grenzen für ein String-Argument
-# test_string_limits_ro(&string,&start,&len)  [for read-only access]
-# test_string_limits_rw(&string,&start,&len)  [for read-write access]
+# test_string_limits_ro(&arg)  [for read-only access]
 # > STACK_2: String-Argument
 # > STACK_1: optionales :start-Argument
 # > STACK_0: optionales :end-Argument
 # > subr_self: Aufrufer (ein SUBR)
-# < object string: String
-# < uintL start: Wert des :start-Arguments
-# < uintL len: Anzahl der angesprochenen Characters
-# < chart* ergebnis: Ab hier kommen die angesprochenen Characters
+# < stringarg arg: description of the argument
+# < result: String-Argument
 # erhöht STACK um 3
-  extern const chart* test_string_limits_ro (object* string_, uintL* start_, uintL* len_);
-  #ifdef TYPECODES
-    #define test_string_limits_rw(string_,start_,len_)  \
-      (chart*)test_string_limits_ro(string_,start_,len_)
-  #else
-    extern chart* test_string_limits_rw (object* string_, uintL* start_, uintL* len_);
-  #endif
+  typedef struct stringarg {
+          object string; # Datenvektor, a simple-string
+          uintL offset;  # offset into this string
+          uintL index;   # :start index
+          uintL len;     # :end - :start
+  } stringarg;
+  extern object test_string_limits_ro (stringarg* arg);
 # wird verwendet von STREAM, PATHNAME, IO
+
+# UP: vergleicht zwei gleichlange Strings auf Gleichheit
+# > string1,offset1: Ab hier kommen die angesprochenen Characters im String1
+# > string2,offset2: Ab hier kommen die angesprochenen Characters im String2
+# > len: Anzahl der angesprochenen Characters in String1 und in String2, > 0
+# < ergebnis: TRUE falls gleich, FALSE sonst.
+  extern boolean string_eqcomp (object string1, uintL offset1, object string2, uintL offset2, uintL len);
+# wird verwendet von PREDTYPE
+
+# UP: vergleicht zwei gleichlange Strings auf Gleichheit, case-insensitive
+# > string1,offset1: Ab hier kommen die angesprochenen Characters im String1
+# > string2,offset2: Ab hier kommen die angesprochenen Characters im String2
+# > len: Anzahl der angesprochenen Characters in String1 und in String2, > 0
+# < ergebnis: TRUE falls gleich, FALSE sonst.
+  extern boolean string_eqcomp_ci (object string1, uintL offset1, object string2, uintL offset2, uintL len);
+# wird verwendet von PREDTYPE
 
 # UP: wandelt die Characters eines Stringstücks in Großbuchstaben
 # nstring_upcase(charptr,len);
@@ -10833,7 +10961,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # UP: wandelt einen String in Großbuchstaben
 # string_upcase(string)
 # > string: String
-# < ergebnis: neuer Simple-String, in Großbuchstaben
+# < ergebnis: neuer Normal-Simple-String, in Großbuchstaben
 # kann GC auslösen
   extern object string_upcase (object string);
 # wird verwendet von MISC, PATHNAME
@@ -10841,7 +10969,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # UP: wandelt einen String in Kleinbuchstaben
 # string_downcase(string)
 # > string: String
-# < ergebnis: neuer Simple-String, in Kleinbuchstaben
+# < ergebnis: neuer Normal-Simple-String, in Kleinbuchstaben
 # kann GC auslösen
   extern object string_downcase (object string);
 # wird verwendet von PATHNAME
@@ -10852,7 +10980,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > uintL start: start index
 # > uintL end: end index
 # with 0 <= start <= end <= Sstring_length(string)
-# < object result: (subseq string start end), a freshly created simple-string
+# < object result: (subseq string start end), a freshly created normal-simple-string
   extern object subsstring (object string, uintL start, uintL end);
 # wird verwendet von PATHNAME
 
@@ -11269,7 +11397,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
      if (!(Record_type(obj) == Rectype_Sstring)) fehler_sstring_immutable(obj);
 # Fehlermeldung, falls ein Simple-String immutable ist:
 # fehler_sstring_immutable(obj);
-# > obj: der Simple-String
+# > obj: der String
   nonreturning_function(extern, fehler_sstring_immutable, (object obj));
 # wird verwendet von Macro check_sstring_mutable
 #endif
@@ -12091,7 +12219,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # read_rational(base,sign,string,index1,index3,index2)
 # > base: Lesebasis (>=2, <=36)
 # > sign: Vorzeichen (/=0 falls negativ)
-# > string: Simple-String (enthält Ziffern mit Wert <base und Bruchstrich)
+# > string: Normal-Simple-String (enthält Ziffern mit Wert <base und Bruchstrich)
 # > index1: Index der ersten Ziffer
 # > index3: Index von '/'
 # > index2: Index nach der letzten Ziffer
@@ -12106,7 +12234,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # read_float(base,sign,string,index1,index4,index2,index3)
 # > base: Lesebasis (=10)
 # > sign: Vorzeichen (/=0 falls negativ)
-# > string: Simple-String (enthält Ziffern und evtl. Punkt und Exponentmarker)
+# > string: Normal-Simple-String (enthält Ziffern und evtl. Punkt und Exponentmarker)
 # > index1: Index vom Mantissenanfang (excl. Vorzeichen)
 # > index4: Index nach dem Mantissenende
 # > index2: Index beim Ende der Characters
@@ -12171,7 +12299,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # UP: Returns the decimal string representation of an integer >= 0.
 # decimal_string(x)
 # > object x: an integer >= 0
-# < object result: a simple-string containing the digits
+# < object result: a normal-simple-string containing the digits
 # kann GC auslösen
   extern object decimal_string (object x);
 # wird verwendet von PATHNAME

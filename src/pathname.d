@@ -462,6 +462,8 @@
 # ==============================================================================
 #                         P A T H N A M E S
 
+# All simple-strings occurring in pathnames are in fact normal-simple-strings.
+
 #ifdef PATHNAME_MSDOS
 # Komponenten:
 # HOST          stets NIL
@@ -900,10 +902,40 @@
 # Externe Notation: siehe CLtl2 S. 628-629.
 #endif
 
+# Wandelt Strings in Normal-Simple-Strings um.
+# subst_coerce_normal_ss(obj)
+# kann GC auslösen
+  local object subst_coerce_normal_ss (object obj);
+  local object subst_coerce_normal_ss(obj)
+    var object obj;
+    { if (atomp(obj))
+        { if (stringp(obj))
+            return coerce_normal_ss(obj);
+            else
+            return obj;
+        }
+      check_STACK(); check_SP();
+      pushSTACK(obj);
+      # rekursiv für den CAR aufrufen:
+      { var object new_car = subst_coerce_normal_ss(Car(obj));
+        pushSTACK(new_car);
+      }
+      # rekursiv für den CDR aufrufen:
+      { var object new_cdr = subst_coerce_normal_ss(Cdr(STACK_1));
+        if (eq(new_cdr,Cdr(STACK_1)) && eq(STACK_0,Car(STACK_1)))
+          { obj = STACK_1; skipSTACK(2); return obj; }
+          else
+          # (CONS new_car new_cdr)
+          { STACK_1 = new_cdr;
+           {var object new_cons = allocate_cons();
+            Car(new_cons) = popSTACK(); Cdr(new_cons) = popSTACK();
+            return new_cons;
+    } }   }}
+
 # Wandelt Groß-/Klein-Schreibung zwischen :LOCAL und :COMMON um.
 # common_case(string)
-# > string: Simple-String oder Symbol/Zahl
-# < ergebnis: umgewandelter Simple-String oder dasselbe Symbol/Zahl
+# > string: Normal-Simple-String oder Symbol/Zahl
+# < ergebnis: umgewandelter Normal-Simple-String oder dasselbe Symbol/Zahl
 # kann GC auslösen
   local object common_case (object string);
 # Dasselbe, rekursiv wie mit SUBST:
@@ -1032,7 +1064,7 @@ local boolean legal_logical_word_char(ch)
                  ""
                 );
         }
-      host = coerce_ss(host); # als Simple-String
+      host = coerce_normal_ss(host); # als Normal-Simple-String
       if (convert) { host = common_case(host); }
       { var uintL len = Sstring_length(host);
         if (len > 0)
@@ -1083,7 +1115,7 @@ local boolean legal_logical_word_char(ch)
                  ""
                 );
         }
-      host = coerce_ss(host); # als Simple-String
+      host = coerce_normal_ss(host); # als Normal-Simple-String
       { var uintL len = Sstring_length(host);
         if (len > 0)
           { var const chart* charptr = &TheSstring(host)->data[0];
@@ -1346,7 +1378,7 @@ local boolean legal_logical_word_char(ch)
 
 # Parst einen Logical-Pathname.
 # parse_logical_pathnamestring(z)
-# > STACK_1: Datenvektor
+# > STACK_1: Datenvektor, ein Normal-Simple-String
 # > STACK_0: neuer Logical Pathname
 # > zustand z: Start-Zustand
 # < STACK_0: selber Logical Pathname, ausgefüllt
@@ -1358,7 +1390,7 @@ local uintL parse_logical_pathnamestring (zustand z);
 #define slashp(c)  chareq(c,ascii(';'))
 
 # Parst Name/Type/Version-Teil (subdirp=FALSE) bzw. subdir-Teil (subdirp=TRUE).
-# Liefert Simple-String oder :WILD oder :WILD-INFERIORS oder NIL.
+# Liefert Normal-Simple-String oder :WILD oder :WILD-INFERIORS oder NIL.
 local object parse_logical_word (zustand* z, boolean subdirp);
 local object parse_logical_word(z,subdirp)
   var zustand* z;
@@ -1566,7 +1598,7 @@ local uintL parse_logical_pathnamestring(z)
 # parse_name_or_type(&z,stdlen,def)
 # > stdlen: Standard-Länge des Teils
 # > def: Defaultwert
-# > STACK_3: Datenvektor des Strings
+# > STACK_3: Datenvektor des Strings, ein Normal-Simple-String
 # > z: Zustand
 # < z: Zustand
 # < ergebnis: Namens- oder Typteil (=default, falls leer)
@@ -1620,7 +1652,7 @@ local uintL parse_logical_pathnamestring(z)
 # Hilfsfunktion für PARSE-NAMESTRING:
 # Spaltet einen String (beim letzten Punkt) in Name und Typ auf.
 # split_name_type(skip);
-# > STACK_0: Simple-String
+# > STACK_0: Normal-Simple-String
 # > skip: 1 falls ein Punkt an erster Stelle nicht aufspaltend wirken soll, 0 sonst
 # < STACK_1: Name
 # < STACK_0: Typ
@@ -1715,22 +1747,11 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
           goto fertig; # 2. Wert wie oben
         }
       # thing sollte nun wenigstens ein String oder Symbol sein:
+     {var boolean thing_symbol = FALSE;
       if (!stringp(thing))
         { if (!symbolp(thing)) { fehler_thing(thing); }
           thing = Symbol_name(thing); # Symbol -> Symbolname verwenden
-          if (!parse_logical)
-            {
-              #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
-              # Betriebssystem mit Vorzug für Kleinbuchstaben
-              thing = copy_string(thing); # ja -> mit STRING-DOWNCASE umwandeln
-              nstring_downcase(&TheSstring(thing)->data[0],Sstring_length(thing));
-              #endif
-              #ifdef PATHNAME_AMIGAOS
-              # Betriebssystem mit Vorzug für Capitalize
-              thing = copy_string(thing); # ja -> mit STRING-CAPITALIZE umwandeln
-              nstring_capitalize(&TheSstring(thing)->data[0],Sstring_length(thing));
-              #endif
-            }
+          thing_symbol = TRUE;
           STACK_4 = thing; # und in den Stack zurückschreiben
         }
       # thing = STACK_4 ist jetzt ein String.
@@ -1745,14 +1766,32 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
         #endif
        {var object string; # String thing
         # Grenzen überprüfen, mit thing, start, end als Argumenten:
+        var stringarg arg;
         pushSTACK(thing); pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
-        test_string_limits_ro(&string,&z.index,&z.count);
-        # z.index = Wert des start-Arguments,
-        # z.count = Anzahl der Characters.
-        z.FNindex = fixnum(z.index);
-        # z.FNindex = start-Index als Fixnum.
-        string = array_displace_check(string,z.count,&z.index); # Datenvektor holen,
-        # z.index = Offset + Startindex = Startoffset
+        test_string_limits_ro(&arg);
+        string = arg.string;
+        z.index = arg.index;         # z.index = Wert des start-Arguments,
+        z.count = arg.len;           # z.count = Anzahl der Characters.
+        z.FNindex = fixnum(z.index); # z.FNindex = start-Index als Fixnum.
+        z.index += arg.offset;
+        # Coerce string to be a normal-simple-string.
+        if (thing_symbol && !parse_logical)
+          {
+            #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
+            # Betriebssystem mit Vorzug für Kleinbuchstaben
+            string = subsstring(string,z.index,z.index+z.count); z.index = 0; # ja -> mit STRING-DOWNCASE umwandeln
+            nstring_downcase(&TheSstring(string)->data[0],Sstring_length(string));
+            #endif
+            #ifdef PATHNAME_AMIGAOS
+            # Betriebssystem mit Vorzug für Capitalize
+            string = subsstring(string,z.index,z.index+z.count); z.index = 0; # ja -> mit STRING-CAPITALIZE umwandeln
+            nstring_capitalize(&TheSstring(string)->data[0],Sstring_length(string));
+            #endif
+          }
+        SstringDispatch(string,
+          {},
+          { string = subsstring(string,z.index,z.index+z.count); z.index = 0; }
+          );
         pushSTACK(string);
        }
         #ifdef LOGICAL_PATHNAMES
@@ -2462,7 +2501,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
         #endif
         mv_count=2; # 2 Werte
         skipSTACK(5+2); return;
-  } } }
+  } }}}
 
 # UP: Wandelt ein Objekt in einen Pathname um.
 # coerce_xpathname(object)
@@ -3054,7 +3093,7 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
 # UP: Wandelt Pathname in String um.
 # whole_namestring(pathname)
 # > pathname: nicht-Logical Pathname
-# < ergebnis: Simple-String
+# < ergebnis: Normal-Simple-String
 # kann GC auslösen
   local object whole_namestring (object pathname);
   local object whole_namestring(pathname)
@@ -3078,7 +3117,7 @@ LISPFUNN(file_namestring,1)
 # directory_namestring(pathname)
 # > pathname: nicht-Logical Pathname
 # > subr_self: Aufrufer (ein SUBR)
-# < ergebnis: Simple-String
+# < ergebnis: Normal-Simple-String
 # kann GC auslösen
   local object directory_namestring (object pathname);
   local object directory_namestring(pathname)
@@ -3899,7 +3938,8 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
       if (eq(device,unbound)) # angegeben ?
         { STACK_4 = NIL; } # nein -> verwende NIL
         else
-        { if (convert) { STACK_4 = device = common_case(device); }
+        { if (stringp(device)) { STACK_4 = device = coerce_normal_ss(device); }
+          if (convert) { STACK_4 = device = common_case(device); }
           if (nullp(device)) goto device_ok; # = NIL ?
           #ifdef LOGICAL_PATHNAMES
           elif (logical)
@@ -3976,7 +4016,8 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
           goto directory_ok;
         }
       elif (consp(directory)) # ein Cons?
-        { if (convert) { STACK_3 = directory = subst_common_case(directory); }
+        { STACK_3 = directory = subst_coerce_normal_ss(directory);
+          if (convert) { STACK_3 = directory = subst_common_case(directory); }
           # Der CAR entweder :RELATIVE oder :ABSOLUTE ?
           if (!consp(directory)) goto directory_bad;
           { var object startpoint = Car(directory);
@@ -4069,6 +4110,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
     }
     # 4. name überprüfen:
     { var object name = STACK_2;
+      if (stringp(name)) { STACK_2 = name = subst_coerce_normal_ss(name); }
       if (convert) { STACK_2 = name = common_case(name); }
       if (eq(name,unbound))
         { STACK_2 = NIL; } # nicht angegeben -> verwende NIL
@@ -4100,6 +4142,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
     }
     # 5. type überprüfen:
     { var object type = STACK_1;
+      if (stringp(type)) { STACK_1 = type = subst_coerce_normal_ss(type); }
       if (convert) { STACK_1 = type = common_case(type); }
       if (eq(type,unbound))
         { STACK_1 = NIL; } # nicht angegeben -> verwende NIL
@@ -4273,7 +4316,7 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
 #if defined(PATHNAME_NOEXT) || defined(PATHNAME_RISCOS)
 # UP: Testet, ob ein Simple-String Wildcards enthält.
 # has_wildcards(string)
-# > string: Simple-String
+# > string: Normal-Simple-String
 # < ergebnis: TRUE wenn string Wildcard-Zeichen enthält
   local boolean has_wildcards (object string);
   local boolean has_wildcards(string)
@@ -4296,7 +4339,7 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
 #ifdef LOGICAL_PATHNAMES
 # UP: Testet, ob ein Simple-String Wildcards enthält.
 # has_word_wildcards(string)
-# > string: Simple-String
+# > string: Normal-Simple-String
 # < ergebnis: TRUE wenn string Wildcard-Zeichen enthält
   local boolean has_word_wildcards (object string);
   local boolean has_word_wildcards(string)
@@ -4549,10 +4592,10 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL)
 #if defined(PATHNAME_NOEXT) || defined(LOGICAL_PATHNAMES)
 
   # UP: Matcht einen Wildcard-String ("Muster") mit einem "Beispiel".
-  # > muster: Simple-String, mit Platzhaltern
+  # > muster: Normal-Simple-String, mit Platzhaltern
   #           '?' für genau 1 Zeichen
   #           '*' für beliebig viele Zeichen
-  # > beispiel: Simple-String, der damit zu matchen ist
+  # > beispiel: Normal-Simple-String, der damit zu matchen ist
   local boolean wildcard_match (object muster, object beispiel);
   # rekursive Implementation wegen Backtracking:
   local boolean wildcard_match_ab (uintL m_count, const chart* m_ptr, uintL b_count, const chart* b_ptr);
@@ -4848,15 +4891,15 @@ LISPFUNN(pathname_match_p,2)
 
   # UP: Vergleicht einen Wildcard-String ("Muster") mit einem "Beispiel".
   # wildcard_diff(muster,beispiel,previous,solutions);
-  # > muster: Simple-String, mit Platzhaltern
+  # > muster: Normal-Simple-String, mit Platzhaltern
   #           '?' für genau 1 Zeichen
   #           '*' für beliebig viele Zeichen
-  # > beispiel: Simple-String, der damit zu vergleichen ist
+  # > beispiel: Normal-Simple-String, der damit zu vergleichen ist
   # > previous: bisher bekanntes Vergleichsergebnis
-  #             (umgedrehte Liste von Simple-Strings, NILs und Listen)
+  #             (umgedrehte Liste von Normal-Simple-Strings, NILs und Listen)
   # > solutions: Pointer auf eine Liste im STACK, auf die die
-  #              Vergleichsergebnisse (umgedrehte Liste von Simple-Strings und
-  #              Listen) zu consen sind
+  #              Vergleichsergebnisse (umgedrehte Liste von
+  #              Normal-Simple-Strings und Listen) zu consen sind
   # kann GC auslösen
 
   # Hier wünscht man sich nicht Lisp oder C, sondern PROLOG als Sprache!
@@ -5262,9 +5305,9 @@ LISPFUNN(pathname_match_p,2)
   #undef push_solution_with
   #undef push_solution
 
-# Jede Substitution ist eine Liste von Simple-Strings oder Listen.
+# Jede Substitution ist eine Liste von Normal-Simple-Strings oder Listen.
 # (Die Listen entstehen bei :WILD-INFERIORS in directory_diff().)
-# Ein Simple-String passt nur auf '?' oder '*' oder :WILD,
+# Ein Normal-Simple-String passt nur auf '?' oder '*' oder :WILD,
 # eine Liste passt nur auf :WILD-INFERIORS.
 
 #ifdef LOGICAL_PATHNAMES
@@ -5272,8 +5315,8 @@ LISPFUNN(pathname_match_p,2)
 # Beim Einsetzen von Stücken normaler Pathnames in logische Pathnames:
 # Umwandlung in Großbuchstaben.
 # logical_case(string)
-# > string: Simple-String oder Symbol/Zahl
-# < ergebnis: umgewandelter Simple-String oder dasselbe Symbol/Zahl
+# > string: Normal-Simple-String oder Symbol/Zahl
+# < ergebnis: umgewandelter Normal-Simple-String oder dasselbe Symbol/Zahl
 # kann GC auslösen
   local object logical_case (object string);
 # Dasselbe, rekursiv wie mit SUBST:
@@ -5315,8 +5358,8 @@ LISPFUNN(pathname_match_p,2)
 # Beim Einsetzen von Stücken logischer Pathnames in normale Pathnames:
 # Umwandlung in Großbuchstaben.
 # customary_case(string)
-# > string: Simple-String oder Symbol/Zahl
-# < ergebnis: umgewandelter Simple-String oder dasselbe Symbol/Zahl
+# > string: Normal-Simple-String oder Symbol/Zahl
+# < ergebnis: umgewandelter Normal-Simple-String oder dasselbe Symbol/Zahl
 # kann GC auslösen
   local object customary_case (object string);
 # Dasselbe, rekursiv wie mit SUBST:
@@ -6420,9 +6463,9 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # UP: Macht aus einem Directory-Namestring einen, der für AMIGAOS geeignet ist.
 # OSdirnamestring(namestring)
 # > namestring: neu erzeugter Directory-Namestring, mit '/' oder ':' am
-#               Schluss, ein Simple-String
+#               Schluss, ein Normal-Simple-String
 # < ergebnis: Namestring zu diesem Directory, im AmigaOS-Format: letzter '/'
-#             gestrichen, falls überflüssig, ein Simple-String
+#             gestrichen, falls überflüssig, ein Normal-Simple-String
 # kann GC auslösen
   local object OSdirnamestring (object namestring);
   local object OSdirnamestring(namestring)
@@ -6880,7 +6923,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # UP: Convert a valid RISCOS directory namestring to an absolute pathname.
 # canonicalise_dirname(pathname,dirname)
 # > pathname: Pathname whose host name and device is to be used
-# > dirname: Simple-String, ends with '.'
+# > dirname: Normal-Simple-String, ends with '.'
 # < result: absolute pathname
   local object canonicalise_dirname (object pathname, object dirname);
   local object canonicalise_dirname(pathname,dirname)
@@ -7195,9 +7238,9 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # UP: Macht aus einem Directory-Namestring einen, der für DOS geeignet ist.
 # OSdirnamestring(namestring)
 # > namestring: neu erzeugter Directory-Namestring, mit '\' am Schluss,
-#               ein Simple-String
+#               ein Normal-Simple-String
 # < ergebnis: Namestring zu diesem Directory, im DOS-Format: letzter '\'
-#             gestrichen, falls überflüssig, ein Simple-String
+#             gestrichen, falls überflüssig, ein Normal-Simple-String
 # kann GC auslösen
   local object OSdirnamestring (object namestring);
   local object OSdirnamestring(namestring)
@@ -9609,7 +9652,7 @@ LISPFUN(open,1,0,norest,key,6,\
       loop
         # Stackaufbau: result-list, pathname, name&type, subdir-list, pathname-list.
         # result-list = Liste der fertigen Pathnames/Listen, umgedreht.
-        # name&type = NIL oder Simple-String, gegen den die Filenamen zu matchen sind.
+        # name&type = NIL oder Normal-Simple-String, gegen den die Filenamen zu matchen sind.
         # pathname-list = Liste der noch abzuarbeitenden Directories.
         # Dabei enthalten die Pathnames aus pathname-list das Directory
         # nur so tief, dass es danach mit (cdr subdir-list) weitergeht.
@@ -9885,13 +9928,13 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
 # > resolve_links : Flag, ob Links aufgelöst werden müssen (normalerweise ja)
 # < -(STACK) : absoluter Pathname
 #if defined(MSDOS) || defined(WIN32_NATIVE)
-# < ergebnis: Directory-Namestring (fürs OS, ohne '\' am Schluss, Simple-String)
+# < ergebnis: Directory-Namestring (fürs OS, ohne '\' am Schluss, Normal-Simple-String)
 #endif
 #if defined(UNIX) || defined(AMIGAOS)
-# < ergebnis: Directory-Namestring (fürs OS, ohne '/' am Schluss, Simple-String)
+# < ergebnis: Directory-Namestring (fürs OS, ohne '/' am Schluss, Normal-Simple-String)
 #endif
 #if defined(RISCOS)
-# < ergebnis: Directory-Namestring (fürs OS, ohne '.' am Schluss, Simple-String)
+# < ergebnis: Directory-Namestring (fürs OS, ohne '.' am Schluss, Normal-Simple-String)
 #endif
 # Erniedrigt STACK um 1.
 # kann GC auslösen

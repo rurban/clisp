@@ -810,7 +810,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
 #ifndef TYPECODES
 # Fehlermeldung, falls ein Simple-String immutable ist:
 # fehler_sstring_immutable(obj);
-# > obj: der Simple-String
+# > obj: der String
   nonreturning_function(global, fehler_sstring_immutable, (object obj));
   global void fehler_sstring_immutable(obj)
     var object obj;

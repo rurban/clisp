@@ -99,19 +99,21 @@
     var object string;
     var uintL index1;
     var uintL index2;
-    { var object x = # in Integer umwandeln:
-        DIGITS_to_I(&TheSstring(string)->data[index1],index2-index1,(uintD)base);
+    { var const chart* charptr;
+      unpack_sstring_alloca(string,index2-index1,index1, charptr=);
+     {var object x = # in Integer umwandeln:
+        DIGITS_to_I(charptr,index2-index1,(uintD)base);
       if (sign==0)
         { return x; }
         else
         { return I_minus_I(x); } # negatives Vorzeichen -> Vorzeichenwechsel
-    }
+    }}
 
 # UP: Wandelt eine Zeichenkette mit Rational-Syntax in eine rationale Zahl um.
 # read_rational(base,sign,string,index1,index3,index2)
 # > base: Lesebasis (>=2, <=36)
 # > sign: Vorzeichen (/=0 falls negativ)
-# > string: Simple-String (enthält Ziffern mit Wert <base und Bruchstrich)
+# > string: Normal-Simple-String (enthält Ziffern mit Wert <base und Bruchstrich)
 # > index1: Index der ersten Ziffer
 # > index3: Index von '/'
 # > index2: Index nach der letzten Ziffer
@@ -144,7 +146,7 @@
 # read_float(base,sign,string,index1,index4,index2,index3)
 # > base: Lesebasis (=10)
 # > sign: Vorzeichen (/=0 falls negativ)
-# > string: Simple-String (enthält Ziffern und evtl. Punkt und Exponentmarker)
+# > string: Normal-Simple-String (enthält Ziffern und evtl. Punkt und Exponentmarker)
 # > index1: Index vom Mantissenanfang (excl. Vorzeichen)
 # > index4: Index nach dem Mantissenende
 # > index2: Index beim Ende der Characters
@@ -451,7 +453,7 @@
 # UP: Returns the decimal string representation of an integer >= 0.
 # decimal_string(x)
 # > object x: an integer >= 0
-# < object result: a simple-string containing the digits
+# < object result: a normal-simple-string containing the digits
 # kann GC auslösen
   global object decimal_string (object x);
   global object decimal_string(x)
@@ -465,12 +467,9 @@
        var DIGITS erg; erg.LSBptr = &ziffern[need];
        UDS_to_DIGITS(MSDptr,len,10,&erg); # Umwandlung in Ziffern
        RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-       # Ziffern in Simple-String schreiben:
+       # Ziffern in Normal-Simple-String schreiben:
       {var object string = allocate_string(erg.len);
-       var const chart* ptr1 = erg.MSBptr;
-       var chart* ptr2 = &TheSstring(string)->data[0];
-       var uintL count;
-       dotimespL(count,erg.len, { *ptr2++ = *ptr1++; });
+       chartcopy(erg.MSBptr,&TheSstring(string)->data[0],erg.len);
        FREE_DYNAMIC_ARRAY(ziffern);
        return string;
     }}}

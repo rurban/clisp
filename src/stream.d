@@ -317,10 +317,18 @@
     { if (len==0) return;
      {var uintL index = start;
       pushSTACK(string); # Simple-String retten
-      dotimespL(len,len,
-        { write_char(stream_,code_char(TheSstring(STACK_0)->data[index]));
-          index++;
-        });
+      SstringDispatch(string,
+        { dotimespL(len,len,
+            { write_char(stream_,code_char(TheSstring(STACK_0)->data[index]));
+              index++;
+            });
+        },
+        { dotimespL(len,len,
+            { write_char(stream_,code_char(as_chart(TheSmallSstring(STACK_0)->data[index])));
+              index++;
+            });
+        }
+        );
       skipSTACK(1);
     }}
   # Dasselbe, wenn write_char auf diesem Stream keine GC auslösen kann:
@@ -331,9 +339,15 @@
     var uintL start;
     var uintL len;
     { if (len==0) return;
-     {var const chart* ptr = &TheSstring(string)->data[start];
-      dotimespL(len,len, { write_char(stream_,code_char(*ptr++)); } );
-    }}
+      SstringDispatch(string,
+        { var const chart* ptr = &TheSstring(string)->data[start];
+          dotimespL(len,len, { write_char(stream_,code_char(*ptr++)); } );
+        },
+        { var const scint* ptr = &TheSmallSstring(string)->data[start];
+          dotimespL(len,len, { write_char(stream_,code_char(as_chart(*ptr++))); } );
+        }
+        );
+    }
   # Am Ende eines wr_ss die Line-Position aktualisieren:
   # wr_ss_lpos(stream,ptr,len);
   # > stream: Stream, nicht der Terminal-Stream
@@ -1986,11 +2000,15 @@ LISPFUNN(echo_stream_output_stream,1)
         else
         # index < eofindex
         { var uintL len;
-          var const chart* charptr = unpack_string_ro(TheStream(stream)->strm_str_in_string,&len);
-          # Ab charptr kommen len Zeichen.
+          var uintL offset;
+          var object string = unpack_string_ro(TheStream(stream)->strm_str_in_string,&len,&offset);
           if (index >= len) # Index zu groß ?
             { fehler_str_in_adjusted(stream); }
-         {var object ch = code_char(charptr[index]); # Zeichen aus dem String holen
+         {var object ch; # Zeichen aus dem String holen
+          SstringDispatch(string,
+            { ch = code_char(TheSstring(string)->data[offset+index]); },
+            { ch = code_char(as_chart(TheSmallSstring(string)->data[offset+index])); }
+            );
           # Index erhöhen:
           TheStream(stream)->strm_str_in_index = fixnum_inc(TheStream(stream)->strm_str_in_index,1);
           return ch;
@@ -2007,16 +2025,19 @@ LISPFUNN(echo_stream_output_stream,1)
       var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
       if (index < endindex)
         { var uintL srclen;
-          var const chart* srcptr = unpack_string_ro(TheStream(stream)->strm_str_in_string,&srclen);
-          # Ab srcptr kommen srclen Zeichen.
+          var uintL srcoffset;
+          var object string = unpack_string_ro(TheStream(stream)->strm_str_in_string,&srclen,&srcoffset);
           if (srclen < endindex) { fehler_str_in_adjusted(stream); }
-          srcptr += index;
          {var uintL count = endindex - index;
           if (count > len) { count = len; }
           # count = min(len,endindex-index) > 0.
           len -= count;
           TheStream(stream)->strm_str_in_index = fixnum_inc(TheStream(stream)->strm_str_in_index,count);
-          dotimespL(count,count, { *charptr++ = *srcptr++; } );
+          SstringDispatch(string,
+            { chartcopy(&TheSstring(string)->data[srcoffset+index],charptr,count); },
+            { scintcopy(&TheSmallSstring(string)->data[srcoffset+index],charptr,count); }
+            );
+          charptr += count;
         }}
       return charptr;
     }
@@ -2050,12 +2071,10 @@ LISPFUNN(echo_stream_output_stream,1)
 LISPFUN(make_string_input_stream,1,2,norest,nokey,0,NIL)
 # (MAKE-STRING-INPUT-STREAM string [start [end]]), CLTL S. 330
   { # String holen und Grenzen überprüfen:
-    var object string;
-    var uintL start;
-    var uintL len;
-    test_string_limits_ro(&string,&start,&len);
-   {var object start_arg = fixnum(start); # start-Argument (Fixnum >=0)
-    var object end_arg = fixnum_inc(start_arg,len); # end-Argument (Fixnum >=0)
+    var stringarg arg;
+    var object string = test_string_limits_ro(&arg);
+    var object start_arg = fixnum(arg.index); # start-Argument (Fixnum >=0)
+    var object end_arg = fixnum_inc(start_arg,arg.len); # end-Argument (Fixnum >=0)
     pushSTACK(string); # String retten
     { var object stream = # neuer Stream, nur READ-CHAR erlaubt
         allocate_stream(strmflags_rd_ch_B,strmtype_str_in,strm_len+3,0);
@@ -2075,7 +2094,7 @@ LISPFUN(make_string_input_stream,1,2,norest,nokey,0,NIL)
       TheStream(stream)->strm_str_in_index = start_arg; # Index := start-Argument
       TheStream(stream)->strm_str_in_endindex = end_arg; # Endindex := end-Argument
       value1 = stream; mv_count=1; # stream als Wert
-  }}}
+  } }
 
 LISPFUNN(string_input_stream_index,1)
 # (SYSTEM::STRING-INPUT-STREAM-INDEX string-input-stream) liefert den Index
@@ -2134,14 +2153,14 @@ LISPFUNN(string_input_stream_index,1)
           srcstring = popSTACK();
         }
       # Zeichen hineinschieben:
-      {var const chart* srcptr = &TheSstring(srcstring)->data[start];
-       var uintL count;
-       {var chart* ptr = &TheSstring(TheIarray(ssstring)->data)->data[old_len];
-        dotimespL(count,len, { *ptr++ = *srcptr++; } );
-       }
+      {var chart* ptr = &TheSstring(TheIarray(ssstring)->data)->data[old_len];
+       SstringDispatch(srcstring,
+         { chartcopy(&TheSstring(srcstring)->data[start],ptr,len); },
+         { scintcopy(&TheSmallSstring(srcstring)->data[start],ptr,len); }
+         );
        # und Fill-Pointer erhöhen:
        TheIarray(ssstring)->dims[1] = old_len + len;
-       wr_ss_lpos(*stream_,srcptr,len); # Line-Position aktualisieren
+       wr_ss_lpos(*stream_,&ptr[len],len); # Line-Position aktualisieren
     }}}
 
 # Liefert einen String-Output-Stream.
@@ -2350,14 +2369,14 @@ LISPFUNN(string_stream_p,1)
           srcstring = popSTACK();
         }
       # Zeichen hineinschieben:
-      {var const chart* srcptr = &TheSstring(srcstring)->data[start];
-       var uintL count;
-       {var chart* ptr = &TheSstring(TheIarray(ssstring)->data)->data[old_len];
-        dotimespL(count,len, { *ptr++ = *srcptr++; } );
-       }
+      {var chart* ptr = &TheSstring(TheIarray(ssstring)->data)->data[old_len];
+       SstringDispatch(srcstring,
+         { chartcopy(&TheSstring(srcstring)->data[start],ptr,len); },
+         { scintcopy(&TheSmallSstring(srcstring)->data[start],ptr,len); }
+         );
        # und Fill-Pointer erhöhen:
        TheIarray(ssstring)->dims[1] = old_len + len;
-       if (wr_ss_lpos(*stream_,srcptr,len)) # Line-Position aktualisieren
+       if (wr_ss_lpos(*stream_,&ptr[len],len)) # Line-Position aktualisieren
          { TheStream(*stream_)->strm_pphelp_modus = T; } # Nach NL: Modus := Mehrzeiler
     }}}
 
@@ -2445,22 +2464,20 @@ LISPFUNN(string_stream_p,1)
           pushSTACK(value1); # String
           pushSTACK(mv_count >= 2 ? value2 : unbound); # start
           pushSTACK(mv_count >= 3 ? value3 : unbound); # end
-         {var object string;
-          var uintL start;
-          var uintL len;
           subr_self = L(read_char);
-          test_string_limits_ro(&string,&start,&len);
+         {var stringarg val;
+          var object string = test_string_limits_ro(&val);
           stream = *stream_;
-          index = start;
-          endindex = index+len;
+          index = val.index;
+          endindex = index+val.len;
           TheStream(stream)->strm_buff_in_string = string;
           TheStream(stream)->strm_buff_in_index = fixnum(index);
           TheStream(stream)->strm_buff_in_endindex = fixnum(endindex);
         }}
       # index < eofindex
       { var uintL len;
-        var const chart* charptr = unpack_string_ro(TheStream(stream)->strm_buff_in_string,&len);
-        # Ab charptr kommen len Zeichen.
+        var uintL offset;
+        var object string = unpack_string_ro(TheStream(stream)->strm_buff_in_string,&len,&offset);
         if (index >= len) # Index zu groß ?
           { pushSTACK(stream); # Wert für Slot STREAM von STREAM-ERROR
             pushSTACK(TheStream(stream)->strm_buff_in_string);
@@ -2472,7 +2489,11 @@ LISPFUNN(string_stream_p,1)
                    ""
                   );
           }
-       {var object ch = code_char(charptr[index]); # Zeichen aus dem String holen
+       {var object ch; # Zeichen aus dem String holen
+        SstringDispatch(string,
+          { ch = code_char(TheSstring(string)->data[offset+index]); },
+          { ch = code_char(as_chart(TheSmallSstring(string)->data[offset+index])); }
+          );
         # Index erhöhen:
         TheStream(stream)->strm_buff_in_index = fixnum_inc(TheStream(stream)->strm_buff_in_index,1);
         return ch;
@@ -2813,8 +2834,10 @@ LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL)
       pushSTACK(UL_to_I(start)); pushSTACK(UL_to_I(len));
       funcall(S(generic_stream_wrss),4);
       string = popSTACK();
-      wr_ss_lpos(*stream_,&TheSstring(string)->data[start],len);
-    }
+     {var const chart* charptr;
+      unpack_sstring_alloca(string,len,start, charptr=);
+      wr_ss_lpos(*stream_,&charptr[len],len);
+    }}
 
   # (FINISH-OUTPUT s) ==
   # (GENERIC-STREAM-FINISH-OUTPUT c)
@@ -4926,8 +4949,10 @@ typedef struct strm_unbuffered_extrafields_struct {
     var uintL start;
     var uintL len;
     { if (len==0) return;
-      wr_ch_array_unbuffered_unix(*stream_,&TheSstring(string)->data[start],len);
-    }
+     {var const chart* charptr;
+      unpack_sstring_alloca(string,len,start, charptr=);
+      wr_ch_array_unbuffered_unix(*stream_,charptr,len);
+    }}
 
 # WRITE-CHAR - Pseudofunktion für Unbuffered-Channel-Streams:
   local void wr_ch_unbuffered_mac (const object* stream_, object ch);
@@ -5003,8 +5028,10 @@ typedef struct strm_unbuffered_extrafields_struct {
     var uintL start;
     var uintL len;
     { if (len==0) return;
-      wr_ch_array_unbuffered_mac(*stream_,&TheSstring(string)->data[start],len);
-    }
+     {var const chart* charptr;
+      unpack_sstring_alloca(string,len,start, charptr=);
+      wr_ch_array_unbuffered_mac(*stream_,charptr,len);
+    }}
 
 # WRITE-CHAR - Pseudofunktion für Unbuffered-Channel-Streams:
   local void wr_ch_unbuffered_dos (const object* stream_, object ch);
@@ -5088,8 +5115,10 @@ typedef struct strm_unbuffered_extrafields_struct {
     var uintL start;
     var uintL len;
     { if (len==0) return;
-      wr_ch_array_unbuffered_dos(*stream_,&TheSstring(string)->data[start],len);
-    }
+     {var const chart* charptr;
+      unpack_sstring_alloca(string,len,start, charptr=);
+      wr_ch_array_unbuffered_dos(*stream_,charptr,len);
+    }}
 
 # UP: Bringt den wartenden Output eines Unbuffered-Channel-Stream ans Ziel.
 # finish_output_unbuffered(stream);
@@ -6211,8 +6240,10 @@ typedef struct strm_i_buffered_extrafields_struct {
     var uintL start;
     var uintL len;
     { if (len==0) return;
-      wr_ch_array_buffered_unix(*stream_,&TheSstring(string)->data[start],len);
-    }
+     {var const chart* charptr;
+      unpack_sstring_alloca(string,len,start, charptr=);
+      wr_ch_array_buffered_unix(*stream_,charptr,len);
+    }}
 
 # WRITE-CHAR - Pseudofunktion für File-Streams für Characters
   local void wr_ch_buffered_mac (const object* stream_, object obj);
@@ -6299,8 +6330,10 @@ typedef struct strm_i_buffered_extrafields_struct {
     var uintL start;
     var uintL len;
     { if (len==0) return;
-      wr_ch_array_buffered_mac(*stream_,&TheSstring(string)->data[start],len);
-    }
+     {var const chart* charptr;
+      unpack_sstring_alloca(string,len,start, charptr=);
+      wr_ch_array_buffered_mac(*stream_,charptr,len);
+    }}
 
 # WRITE-CHAR - Pseudofunktion für File-Streams für Characters
   local void wr_ch_buffered_dos (const object* stream_, object obj);
@@ -6397,8 +6430,10 @@ typedef struct strm_i_buffered_extrafields_struct {
     var uintL start;
     var uintL len;
     { if (len==0) return;
-      wr_ch_array_buffered_dos(*stream_,&TheSstring(string)->data[start],len);
-    }
+     {var const chart* charptr;
+      unpack_sstring_alloca(string,len,start, charptr=);
+      wr_ch_array_buffered_dos(*stream_,charptr,len);
+    }}
 
 # File-Stream, Bit-basiert
 # ========================
@@ -8777,19 +8812,21 @@ LISPFUNN(make_keyboard_stream,0)
        if (array==NULL) { return NULL; }
        {var char** ptr = array;
         while (consp(mlist))
-          { var uintC count = Sstring_length(Car(mlist));
-            var const chart* ptr1 = &TheSstring(Car(mlist))->data[0];
-            var char* ptr2 = (char*) malloc((count+1)*sizeof(char));
+          { var uintL charcount = Sstring_length(Car(mlist));
+            var const chart* ptr1;
+            unpack_sstring_alloca(Car(mlist),charcount,0, ptr1=);
+           {var uintL bytecount = cslen(O(terminal_encoding),ptr1,charcount);
+            var char* ptr2 = (char*) malloc((bytecount+1)*sizeof(char));
             if (ptr2==NULL) # malloc scheitert -> alles zurückgeben
               { until (ptr==array) { free(*--ptr); }
                 free(array);
                 return NULL;
               }
+            cstombs(O(terminal_encoding),ptr1,charcount,(uintB*)ptr2,bytecount);
+            ptr2[bytecount] = '\0';
             *ptr++ = ptr2;
-            dotimesC(count,count, { *ptr2++ = as_cint(*ptr1++); });
-            *ptr2 = '\0';
             mlist = Cdr(mlist);
-          }
+          }}
         *ptr = NULL;
        }
        return array;
@@ -9477,7 +9514,8 @@ LISPFUNN(make_keyboard_stream,0)
     var uintL start;
     var uintL len;
     { if (len==0) return;
-     {var const chart* ptr = &TheSstring(string)->data[start];
+     {var const chart* ptr;
+      unpack_sstring_alloca(string,len,start, ptr =);
       wr_ch_array_unbuffered_unix(*stream_,ptr,len);
       #if TERMINAL_OUTBUFFERED
       # Zeichen seit dem letzten NL in den Buffer:
@@ -9491,16 +9529,25 @@ LISPFUNN(make_keyboard_stream,0)
             TheIarray(TheStream(*stream_)->strm_terminal_outbuff)->dims[1] = 0; # Fill-Pointer := 0
           }
         if (pos > 0)
-          { var uintL index = start + len - pos;
-            pushSTACK(string);
-            dotimespL(count,pos,
-              { ssstring_push_extend(TheStream(*stream_)->strm_terminal_outbuff,
-                                     TheSstring(STACK_0)->data[index]);
-                index++;
-              });
-            string = popSTACK();
-          }
-      }
+          { SstringDispatch(string,
+              { # ptr points into the string, not GC-safe.
+                var uintL index = start + len - pos;
+                pushSTACK(string);
+                dotimespL(count,pos,
+                  { ssstring_push_extend(TheStream(*stream_)->strm_terminal_outbuff,
+                                         TheSstring(STACK_0)->data[index]);
+                    index++;
+                  });
+                string = popSTACK();
+              },
+              { # ptr points into the stack, not the string, so it's GC-safe.
+                dotimespL(count,pos,
+                  { ssstring_push_extend(TheStream(*stream_)->strm_terminal_outbuff,
+                                         *ptr++);
+                  });
+              }
+              );
+      }   }
       #endif
     }}
 
@@ -16045,10 +16092,21 @@ LISPFUNN(file_string_length,2)
       { # Take into account the NL -> CR/LF translation.
         if (stringp(obj))
           { var uintL len;
-            var const chart* charptr = unpack_string_ro(obj,&len);
+            var uintL offset;
+            var object string = unpack_string_ro(obj,&len,&offset);
             var uintL result = len;
-            var uintL count;
-            dotimesL(count,len, { if (chareq(*charptr++,ascii(NL))) result++; } );
+            if (len > 0)
+              { SstringDispatch(string,
+                  { var const chart* charptr = &TheSstring(string)->data[offset];
+                    var uintL count;
+                    dotimespL(count,len, { if (chareq(*charptr++,ascii(NL))) result++; } );
+                  },
+                  { var const scint* charptr = &TheSmallSstring(string)->data[offset];
+                    var uintL count;
+                    dotimespL(count,len, { if (chareq(as_chart(*charptr++),ascii(NL))) result++; } );
+                  }
+                  );
+              }
             value1 = UL_to_I(result); mv_count=1; return;
           }
         elif (charp(obj))
