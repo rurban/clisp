@@ -354,7 +354,7 @@ This results in slower loading, but faster execution.<p/></dd>
 startup (this happens after the <a href="#opt-load-comp"><code>-C</code></a>
 option is processed).
 The file loaded is
-#if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+#if defined(PATHNAME_WIN32)
 <code>_clisprc.lisp</code> or <code>_clisprc.fas</code> in the home directory
 <code>(user-homedir-pathname)</code>,
 #endif
@@ -416,13 +416,6 @@ for parsing by the <code><a href="impnotes.html#image">init-function</a></code>
 of the current image.
 This option must be the last one.
 No <a href="#opt-norc">RC file</a> will be executed.<p/></dd>
-
-#ifdef EMUNIX
-<dt><code>@</code><var>optionfile</var></dt>
-<dd>substitutes the contents of <var>optionfile</var> as arguments.
-Each line of <var>optionfile</var> is treated as a separate argument to
-<code>clisp</code>.<p/></dd>
-#endif
 </dl>
 
 <h2 id="reference">Reference</h2>
@@ -464,12 +457,12 @@ Each line of <var>optionfile</var> is treated as a separate argument to
 <dt><code>(exit)</code> or <code>(quit)</code> or <code>(bye)</code></dt>
 <dd>to <a href="impnotes.html#quit">quit</a> <code>clisp</code>.<p/></dd>
 
-#if defined(UNIX) || defined(MSDOS)
+#ifdef UNIX
 <dt>
-#if defined(UNIX) && !defined(UNIX_CYGWIN32)
+#if !defined(UNIX_CYGWIN32)
 EOF (Ctrl-D)
 #endif
-#if defined(MSDOS) || defined(UNIX_CYGWIN32)
+#if defined(UNIX_CYGWIN32)
 EOF (Ctrl-Z)
 #endif
 </dt><dd>to leave the current read-eval-print loop.<p/></dd>
@@ -511,14 +504,8 @@ EOF (Ctrl-Z)
 <dd>startup driver (a script or an executable)<p/></dd>
 #endif
 
-<dt>
-#if defined(UNIX)
-<code>lisp.run</code>
-#endif
-#if defined(MSDOS)
-<code>lisp.exe</code>
-#endif
-</dt><dd>main executable (runtime)<p/></dd>
+<dt><code>lisp.run</code></dt>
+<dd>main executable (runtime)<p/></dd>
 
 <dt><code>lispinit.mem</code></dt>
 <dd>initial <a href="impnotes.html#image">memory image</a><p/></dd>
@@ -603,27 +590,10 @@ EOF (Ctrl-Z)
   <dd>is used to find the interactive command interpreter called by
    <code>(<a href="impnotes.html#shell">shell</a>)</code>.<p/></dd>
 #endif
-#ifdef MSDOS
- <dt><code>COMSPEC</code> (OS/2 implementation only)</dt>
-  <dd>is used to find the command interpreter called by the function
-  <code>(<a href="impnotes.html#shell">shell</a>)</code>.<p/></dd>
-#endif
 
 #ifdef UNIX
  <dt><code>TERM</code></dt>
   <dd>determines the screen size recognized by the pretty printer.<p/></dd>
-#endif
-
-#ifdef EMUNIX_PORTABEL
- <dt><code>TERM</code></dt>
-  <dd>specifies the terminal emulation <code>clisp</code>
-   relies on. If you have <code>ANSI.SYS</code> loaded, possible values are
-   <code>ansi</code>, <code>ansi-color-2</code>, <code>ansi-color-3</code>
-   and <code>mono</code>.<p/></dd>
-
- <dt><code>TERMCAP</code></dt>
-  <dd>should be set to the slashified file name of the terminal
-   capabilities database <code>termcap.dat</code>.<p/></dd>
 #endif
 
 #ifdef MULTIMAP_MEMORY_VIA_FILE
@@ -699,14 +669,6 @@ following information:</p>
  supported yet.</li>
 <li>No on-line documentation beyond <code>apropos</code>
  and <code>describe</code> is available.</li>
-#ifdef EMUNIX
-<li>Stack overflow aborts the program ungracefully,
-    with a register dump.</li>
-<li>Pressing Control-C may not interrupt <code>clisp</code>
-    in every situation.</li>
-<li>Calling the function <code>execute</code> on batch files
-    crashes the machine.</li>
-#endif
 #ifdef UNIX_COHERENT
 <li><code>*keyboard-input*</code> does not recognize Ctrl-S and Ctrl-Q.</li>
 #endif

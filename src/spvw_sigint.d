@@ -93,11 +93,6 @@ local void interrupt_handler (int sig) { # sig = SIGINT
 local void alarm_handler (int sig) { # sig = SIGALRM
   # the time is now up.
   inc_break_sem_5();
- #ifdef EMUNIX # impede program-termination with SIGALRM
-  #ifndef HAVE_UALARM
-  alarm(0); # abort SIGALRM-timer
-  #endif
- #endif
   signal_acknowledge(SIGALRM,&alarm_handler);
   dec_break_sem_5();
   react_on_sigint(sig);

@@ -21,7 +21,7 @@ LINGUAS = $(PREDEF_LINGUAS) $(OTHER_LINGUAS)
 
 DSOURCES = \
  lispbibl fsubr subr pseudofun constsym constobj constpack avl sort subrkw \
-    bytecode unix msdos win32 xthread \
+    bytecode unix win32 xthread \
  spvw spvw_module spvw_debug spvw_alloca spvw_mmap spvw_multimap \
     spvw_singlemap spvw_page spvw_heap spvw_global spvw_gcstat spvw_space \
     spvw_mark spvw_objsize spvw_update spvw_fault spvw_sigsegv spvw_sigcld \

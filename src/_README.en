@@ -93,7 +93,7 @@ and - to your convenience, if you like reading source -
    src/*.lisp             the source of lispinit.mem
    src/*.fas              the same files, already compiled
 #else /* !defined(UNIX) && !defined(WIN32_NATIVE) */
-#if defined(OS2) || defined(WIN32_NATIVE)
+#ifdef WIN32_NATIVE
       lisp.exe           main program
 #endif
       lispinit.mem       memory image needed for startup
@@ -103,21 +103,10 @@ and - to your convenience, if you like reading source -
       clisp.1            manual page in Unix man format
       clisp.man          manual page
       clisp.html         manual page in HTML format
-#ifdef OS2
-      clisp.dvi          manual page in dvi format
-#endif
       impnotes.html      implementation notes
       LISP-tutorial.txt  LISP tutorial for beginners
       CLOS-guide.txt     brief guide to CLOS
       editors.txt        some words about text editors for Lisp
-#ifdef EMUNIX
-      emx.exe            DOS extender emx for running clisp under DOS or OS/2
-      emx-user.doc       emx applications user's guide
-      emx-faq.doc        frequently asked questions about emx applications
-      emx.dll            OS/2 dynamic link library containing emx
-      emxlibc.dll        OS/2 dynamic link library containing the emx libc
-      termcap.dat        terminal capabilities database
-#endif
       README             this text
       SUMMARY            short description of CLISP
       ANNOUNCE           announcement
@@ -132,22 +121,9 @@ and - to your convenience, if you like reading source -
 and - to your convenience, if you like reading source -
 
       *.lisp             the source of lispinit.mem
-#if !defined(OS2)
       *.fas              the same files, already compiled
 #endif
-#endif
 
-#ifdef OS2
-
-Hardware requirements:
-----------------------
-
-This OS/2 version of CLISP requires an 80386 (SX or DX) or an 80486 CPU,
-running OS/2 2.0.
-It also runs on a Pentium; the results CLISP produces are not affected by
-the Intel Pentium's division bug.
-
-#endif
 #if defined(SINGLEMAP_MEMORY) && (defined(UNIX_LINUX) || !defined(HAVE_MMAP_ANON))
 
 Software requirements:
@@ -174,26 +150,6 @@ to ensure this.
 Installation:
 -------------
 
-#ifdef OS2
-First of all, install emx.dll and emxlibc.dll in a separate directory,
-say c:\emx\dll. Add c:\emx\dll (insert the correct drive letter)
-to the LIBPATH statement in your config.sys file. Reboot your computer
-to enable the new LIBPATH statement and the new environment variables.
-
-#endif
-#ifdef EMUNIX
-For overly long input lines to be displayed in a smart manner, it is necessary
-that you have a line like
-
-    DEVICE=ANSI.SYS
-
-in your CONFIG.SYS file. Furthermore the environment variable TERM must
-be set, and the environment variable TERMCAP must contain the slashified
-file name of the terminal capabilities database termcap.dat. It is a good
-idea to put this stuff into the clisp.bat built below. You may want to
-install termcap.dat in a separate directory, say c:\emx\etc.
-
-#endif
 #if defined(UNIX) || defined(WIN32)
 #if defined(UNIX) && !defined(UNIX_BINARY_DISTRIB)
 Type
@@ -210,7 +166,7 @@ timezone.lisp.
 #endif
 Then start
 
-#if defined(OS2) || defined(WIN32_NATIVE)
+#ifdef WIN32_NATIVE
          lisp.exe -M lispinit.mem
 #endif
 #ifdef UNIX
@@ -267,7 +223,7 @@ I would suggest /usr/local/lib/lisp :
    mv base/lisp.run /usr/local/lib/lisp
    mv base/lispinit.mem /usr/local/lib/lisp
 #endif
-#if defined(OS2) || defined(WIN32_NATIVE)
+#ifdef WIN32_NATIVE
 Assuming D:\LIB\LISP :
 
    mkdir d:\lib\lisp
@@ -275,18 +231,10 @@ Assuming D:\LIB\LISP :
    copy lispinit.mem d:\lib\lisp
 #endif
 
-#if defined(OS2) || defined(WIN32_NATIVE)
+#ifdef WIN32_NATIVE
 And create a batch file that starts lisp:
 
-#ifndef OS2
    copy con c:\bat\clisp.bat
-#else
-   copy con c:\cmd\clisp.cmd
-#endif
-#ifdef EMUNIX
-   set TERM=ansi
-   set TERMCAP=c:/emx/etc/termcap.dat
-#endif
    d:\lib\lisp\lisp.exe -M d:\lib\lisp\lispinit.mem -B d:\lib\lisp\ %1 %2 %3 %4 %5 %6 %7 %8 %9
    [Ctrl-Z]
 #endif
@@ -321,11 +269,6 @@ and try
 When you encounter problems:
 ----------------------------
 
-#ifdef EMUNIX
-If clisp does not start up at all, check EMX-USER.DOC. lisp.exe is an EMX
-application, so everything mentioned there applies to lisp.exe.
-
-#endif
 After errors, you are in the debugger:
 
      1. Break> _
@@ -345,9 +288,6 @@ error occurred.
 
 #ifdef UNIX
 On bigger problems, e.g. core dumps, please send a description of the error
-#endif
-#ifdef OS2
-On bigger problems, e.g. register dumps, please send a description of the error
 #endif
 and how to produce it reliably to the authors or the maintainer.
 Please accompany it with the CLISP version, which you get by calling
@@ -383,9 +323,6 @@ We are indebted to
 #ifdef GNU
   * Richard Stallman's GNU project for GCC.
 #endif
-#endif
-#ifdef EMUNIX
-  * Eberhard Mattes for EMX.
 #endif
 
 

@@ -57,7 +57,7 @@ T = $(TOPDIR)
 SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/clisp.spec $T/clisp.lsm $T/configure
 SOURCES2 = $T/src
 SOURCES4 = $T/ffcall $T/libcharset $T/utils
-SOURCES5 = $T/unix $T/os2 $T/win32msvc $T/nextapp
+SOURCES5 = $T/unix $T/win32msvc $T/nextapp
 SOURCES6 = $T/modules
 # $T/benchmarks are for developers only
 SOURCES7 = $T/tests $T/emacs $T/doc $T/Makefile.devel
@@ -86,12 +86,9 @@ ffcall-i386 : ffcall/avcall/avcall-i386-msvc.c          \
 htmldoc:
 	cd doc && make impnotes.html && make html && cd ..;
 
-makefiles : os2/makefile                                                   \
+makefiles :                                                                \
 	win32msvc/makefile.msvc4 win32msvc/makefile.msvc7                  \
 	win32msvc/makefile.msvc5 win32msvc/makefile.msvc5d
-
-os2/makefile : makemake
-	./makemake os2 gcc > os2/makefile
 
 win32msvc/makefile.msvc4 : makemake
 	./makemake --with-dynamic-ffi \
@@ -311,43 +308,5 @@ linux-distrib : force
 
 linux--distrib : force
 	cd make.gcc && $(MAKE) PACK="$(PACK)" PACKOPT="$(PACKOPT)" PACKEXT="$(PACKEXT)" distrib
-
-os2-distrib : force
-	$(MAKE) os2--distrib PACK="zip" PACKOPT="-r" PACKEXT=".zip"
-
-os2--distrib : force
-	mkdir $(TEMPDIR)
-	cp -p $(DOSDIR)/ANNOUNCE $(DOSDIR)/COPYRIGHT $(DOSDIR)/GNU-GPL $(DOSDIR)/SUMMARY $(DOSDIR)/NEWS $(TEMPDIR)
-	cp -p $(DOSDIR)/lisp.exe $(TEMPDIR)
-	cp -p $(DOSDIR)/lispinit.mem $(TEMPDIR)
-	cp -p $(DOSDIR)/*.lisp $(TEMPDIR)
-#	cp -p $(DOSDIR)/*.fas $(TEMPDIR)
-	mkdir $(TEMPDIR)/locale
-	for lang in en de fr es nl ru; do mkdir $(TEMPDIR)/locale/$$lang; mkdir $(TEMPDIR)/locale/$$lang/LC_MESSAGES; cp -p $(DOSDIR)/locale/$$lang/LC_MESSAGES/clisp.mo $(TEMPDIR)/locale/$$lang/LC_MESSAGES/clisp.mo; done
-	cp -p $(DOSDIR)/README $(DOSDIR)/README.de $(DOSDIR)/README.en $(DOSDIR)/README.es $(DOSDIR)/clisp.1 $(DOSDIR)/clisp.html $(DOSDIR)/impnotes.html $(DOSDIR)/clisp.gif $(DOSDIR)/clreadline.3 $(DOSDIR)/clreadline.html $(TEMPDIR)
-	from-ibmpc $(TEMPDIR)/clisp.1 os2/clisp.1
-	from-ibmpc $(TEMPDIR)/clisp.html os2/clisp.html
-	from-ibmpc $(TEMPDIR)/impnotes.html os2/impnotes.html
-	from-ibmpc $(TEMPDIR)/clreadline.3 os2/clreadline.3
-	from-ibmpc $(TEMPDIR)/clreadline.html os2/clreadline.html
-	cd os2 ; $(GROFF) -Tascii clisp.1 > clisp.man
-	cd os2 ; $(GROFF) -Tdvi clisp.1 > clisp.dvi
-	cd os2 ; $(GROFF) -Tascii clreadline.3 > clreadline.man
-	cd os2 ; $(GROFF) -Tdvi clreadline.3 > clreadline.dvi
-	to-ibmpc os2/clisp.man $(TEMPDIR)/clisp.man
-	cp -p os2/clisp.dvi $(TEMPDIR)/clisp.dvi
-	to-ibmpc os2/clreadline.man $(TEMPDIR)/clreadline.man
-	cp -p os2/clreadline.dvi $(TEMPDIR)/clreadline.dvi
-	cd doc ; for f in CLOS-guide.txt LISP-tutorial.txt editors.txt; do to-ibmpc $$f $(TEMPDIR)/$$f; done
-	cd src/readline/doc ; $(MAKE) rluserman.dvi
-	cp -p src/readline/doc/rluserman.dvi $(TEMPDIR)/readline.dvi
-	cp -p $(EMXDIR)/bin/emx.exe $(TEMPDIR)/emx.exe
-	to-ibmpc os2/emx-faq.doc $(TEMPDIR)/emx-faq.doc
-	cp -p $(EMXDIR)/doc/emxrt.doc $(TEMPDIR)/emx-user.doc
-	cp -p $(EMXDIR)/dll/emx.dll $(TEMPDIR)
-	cp -p $(EMXDIR)/dll/emxlibc.dll $(TEMPDIR)
-	cp -p $(EMXDIR)/etc/termcap.dat $(TEMPDIR)
-	cd $(TEMPDIR) ; $(PACK) $(PACKOPT) /tmp/clisp$(PACKEXT) *
-	rm -rf $(TEMPDIR)
 
 force :

@@ -296,9 +296,9 @@
    read-char-sequence write-char-sequence
    read-byte-sequence write-byte-sequence
    convert-string-from-bytes convert-string-to-bytes make-stream
-   #+(or UNIX OS/2 WIN32) make-pipe-output-stream
-   #+(or UNIX OS/2 WIN32) make-pipe-input-stream
-   #+(or UNIX OS/2 WIN32) make-pipe-io-stream
+   #+(or UNIX WIN32) make-pipe-output-stream
+   #+(or UNIX WIN32) make-pipe-input-stream
+   #+(or UNIX WIN32) make-pipe-io-stream
    make-buffered-input-stream make-buffered-output-stream
    get-setf-method local module-info
    compiler-let load-time-eval)
@@ -1709,7 +1709,7 @@
   (localized 'date-format))
 
 ;; list a directory
-(defun dir (&optional (pathnames #+(or UNIX OS/2 WIN32) '("*/" "*")))
+(defun dir (&optional (pathnames #+(or UNIX WIN32) '("*/" "*")))
   (flet ((onedir (pathname)
            (let ((pathname-list (directory pathname :full t :circle t)))
              (if (every #'atom pathname-list)
@@ -1742,7 +1742,7 @@
     (dolist (dir (cons '#""
                        ;; when filename has "..", ignore *load-paths*
                        ;; (to avoid errors with ".../../foo"):
-                       (if (member #+(or UNIX OS/2 WIN32) ".."
+                       (if (member #+(or UNIX WIN32) ".."
                                    (pathname-directory filename)
                                    :test #'equal)
                            '()
@@ -1764,8 +1764,8 @@
                 (delete-if-not ; does xpathname have the given extensions?
                  #'(lambda (xpathname)
                      (member (pathname-type (first xpathname)) extensions
-                             :test #-(or OS/2 WIN32) #'string=
-                             #+(or OS/2 WIN32) #'string-equal))
+                             :test #-WIN32 #'string=
+                                   #+WIN32 #'string-equal))
                  xpathnames)))
             (when xpathnames
               ;; reverse sort by date:

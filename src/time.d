@@ -16,12 +16,6 @@
    day-of-week, daylight-saving-time, time zone.
  Universal time =
    seconds since 1900-01-01 */
-#ifdef TIME_MSDOS
-  /* A small bug:
-   - Wrap-around of internal_time_t after 1.36 years.
-   Internal time =
-     1/100 sec since session start */
-#endif
 #ifdef TIME_UNIX_TIMES
   /* Two small bugs:
    - Wrap-around of internal_time_t after many days.
@@ -49,10 +43,6 @@
  using internal_time_t. */
 
 /* Variables: */
-#ifdef TIME_MSDOS
-  /* (The unit is 1/100 sec, a 32 bit counter therefore suffices for
-   497d 2h 27m 52.96s, and no LISP session runs for 1.3 years.) */
-#endif
 #ifdef TIME_UNIX_TIMES
   /* (The unit is ca. 1/60 sec or 1/100 sec, a 32 bit counter therefore
    suffices for a long while.) */
@@ -79,21 +69,6 @@ local internal_time_t realstart_time; /* real time at start of LISP session */
 
 /* Returns the current hi-res time.
  get_time() */
- #ifdef TIME_MSDOS
-/* < uintL result: current value of the 100Hz counter */
-global uintL get_time(void);
-  #ifdef EMUNIX
-global uintL get_time()
-{
-  var struct timeb real_time;
-  begin_system_call();
-  __ftime(&real_time);
-  end_system_call();
-  return (uintL)(real_time.time) * ticks_per_second
-    + (uintL)((uintW)(real_time.millitm)/(1000/ticks_per_second));
-}
-  #endif
- #endif
  #ifdef TIME_UNIX_TIMES
 /* < uintL result: current value of the CLK_TCK Hz counter */
 local uintL get_time(void)
@@ -344,36 +319,7 @@ LISPFUNNR(get_internal_run_time,0)
 /* ------------------------------------------------------------------------
  *                    Converting the system time format */
 
-#if defined(MSDOS)
-/* UP: Wandelt das DOS-Zeitformat in Decoded-Time um.
- convert_timedate(time,date,&timepoint)
- > uintW time: Uhrzeit
-         Als Word: Bits 15..11: Stunde in {0,...,23},
-                   Bits 10..5:  Minute in {0,...,59},
-                   Bits 4..0:   Sekunde/2 in {0,...,29}.
- > uintW date: Datum
-         Als Word: Bits 15..9: Jahr-1980 in {0,...,119},
-                   Bits 8..5:  Monat in {1,...,12},
-                   Bits 4..0:  Tag in {1,...,31}.
- < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
-   timepoint.Tag, timepoint.Monat, timepoint.Jahr, jeweils als Fixnums */
-global void convert_timedate (uintW time, uintW date,
-                              decoded_time_t* timepoint)
-{
-  timepoint->Sekunden = fixnum( (time & (bit(5) - 1)) << 1 );
-  time = time>>5;
-  timepoint->Minuten = fixnum( time & (bit(6) - 1));
-  time = time>>6;
-  timepoint->Stunden = fixnum( time);
-  timepoint->Tag = fixnum( date & (bit(5) - 1));
-  date = date>>5;
-  timepoint->Monat = fixnum( date & (bit(4) - 1));
-  date = date>>4;
-  timepoint->Jahr = fixnum( date+1980);
-}
-#endif
-
-#if defined(UNIX) || defined(MSDOS)
+#ifdef UNIX
 /* UP: Wandelt das System-Zeitformat in Decoded-Time um.
  convert_time(&time,&timepoint);
  > time_t time: in system time format
@@ -442,7 +388,7 @@ local object encode_universal_time (const decoded_time_t* timepoint)
   return value1;
 }
 
-#if defined(UNIX) || defined(MSDOS)
+#ifdef UNIX
 /* UP: convert the system time format into lisp universal time.
  convert_time_to_universal(&time)
  > time_t time: in system time format
@@ -450,18 +396,9 @@ local object encode_universal_time (const decoded_time_t* timepoint)
  can trigger GC */
 global object convert_time_to_universal (const time_t* time)
 {
- #ifdef MSDOS
-  var decoded_time_t timepoint;
-  convert_time(time,&timepoint);
-  /* Have to go through ENCODE-UNIVERSAL-TIME because we must take the
-     timezone into account. */
-  return encode_universal_time(&timepoint);
- #endif
- #if defined(UNIX)
   /* Since we get the timezone from the OS (sys::defaul-time-zone),
      we can assume that the OS's timezone and CLISP's timezone agree. */
   return UL_to_I(UNIX_LISP_TIME_DIFF + (uintL)(*time));
- #endif
 }
 #endif
 
@@ -622,15 +559,6 @@ global void init_time (void)
  #ifdef TIME_RELATIVE
   { /* Start-Zeit holen und merken: */
     var decoded_time_t timepoint;
-   #ifdef EMUNIX
-    {
-      var struct timeb real_time;
-      begin_system_call();
-      __ftime(&real_time);  /* aktuelle Uhrzeit */
-      end_system_call();
-      convert_time(&real_time.time,&timepoint); /* in Decoded-Time umwandeln */
-    }
-   #endif
    #ifdef UNIX /* TIME_UNIX_TIMES */
     {
       var time_t real_time;
@@ -717,49 +645,6 @@ LISPFUN(default_time_zone,seclass_default,0,1,norest,nokey,0,NIL)
 }
 #endif  /* UNIX || WIN32 */
 
-#ifdef SLEEP_1
-LISPFUNN(sleep,1)
-#ifdef TIME_MSDOS
-{ /* (SYSTEM::%SLEEP delay) wartet delay/200 bzw. delay/100 Sekunden.
- Argument delay muss ein Integer >=0, <2^32 (TIME_MSDOS: sogar <2^31) sein. */
-  var uintL delay = I_to_UL(popSTACK()); /* Pausenlänge */
- #ifdef EMUNIX
-  if (true) {
-    /* Unter OS/2 (Multitasking!) nicht CPU-Zeit verbraten!
-       select erlaubt eine wunderschöne Implementation von usleep(): */
-    loop {
-      var uintL start_time = get_real_time();
-      {
-        var struct timeval timeout; /* Zeitintervall */
-        divu_3216_3216(delay,ticks_per_second, timeout.tv_sec =, timeout.tv_usec = 1000000/ticks_per_second * (uintL) );
-        begin_system_call();
-        var int ergebnis = select(FD_SETSIZE,NULL,NULL,NULL,&timeout);
-        if ((ergebnis<0) && !(errno==EINTR)) { OS_error(); }
-        end_system_call();
-      }
-      interruptp( { pushSTACK(S(sleep)); tast_break(); } ); /* evtl. Break-Schleife aufrufen */
-      var uintL end_time = get_real_time();
-      var uintL slept = end_time - start_time; /* so lang haben wir geschlafen */
-      /* Haben wir genug geschlafen? */
-      if (slept >= delay)
-        break;
-      /* Wie lange müssen wir noch schlafen? */
-      delay -= slept;
-    }
-  } else
- #endif
-  {
-    var uintL endtime = get_real_time() + delay; /* zur momentanen Real-Time addieren, */
-    /* ergibt Zeit, bis zu der zu warten ist.
-       warten, bis die Real-Time bei endtime angelangt ist:
-       (Attention: the MSDOS clock always advances 5 or 6 ticks at a time!) */
-    do {} while ((sintL)(get_real_time()-endtime) < 0);
-  }
-  VALUES1(NIL);               /* 1 Wert NIL */
-}
-#endif
-#endif
-#ifdef SLEEP_2
 #ifdef TIME_UNIX_TIMES
 /* Ein sehr unvollkommener Ersatz für die gettimeofday-Funktion.
  Taugt nur für die Messung von Zeitdifferenzen! */
@@ -850,7 +735,6 @@ LISPFUNN(sleep,2)
   VALUES1(NIL);
 }
 #endif
-#endif
 
 LISPFUNNR(time,0)
 { /* (SYSTEM::%%TIME) liefert den bisherigen Time/Space-Verbrauch, ohne selbst
@@ -859,10 +743,6 @@ LISPFUNNR(time,0)
    Real-Time (Zeit seit Systemstart) in 2 Werten,
    Run-Time (verbrauchte Zeit seit Systemstart) in 2 Werten,
    GC-Time (durch GC verbrauchte Zeit seit Systemstart) in 2 Werten,
-   #ifdef TIME_MSDOS
-     jeweils in 100stel Sekunden,
-     jeweils (ldb (byte 16 16) time) und (ldb (byte 16 0) time).
-   #endif
    #ifdef TIME_UNIX_TIMES
      jeweils in CLK_TCK-stel Sekunden,
      jeweils (ldb (byte 16 16) time) und (ldb (byte 16 0) time).

@@ -219,9 +219,6 @@ global void init_language (const char* argv_language,
    #ifdef UNICODE
     bind_textdomain_codeset("clisp","UTF-8");
    #endif
-   #ifdef IBMPC_CHS
-    bind_textdomain_codeset("clisplow","CP437");
-   #endif
   }
  #endif
   O(current_language) = current_language_o(language);

@@ -194,11 +194,11 @@ global bool equal (object obj1, object obj2)
             var gcv_object_t* ptr2 = &TheRecord(obj2)->recdata[0];
             var uintC count;
             check_SP();
-           #if !(defined(PATHNAME_OS2) || defined(PATHNAME_WIN32))
+           #if !defined(PATHNAME_WIN32)
             dotimespC(count,pathname_length, {
               if (!equal(*ptr1++,*ptr2++)) goto no;
             });
-           #else /* defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) */
+           #else /* defined(PATHNAME_WIN32) */
             /* pathname components consist of conses, simple-strings
                and symbols. compare simple-strings case-insensitive: */
             dotimespC(count,pathname_length, {

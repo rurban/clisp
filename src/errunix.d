@@ -12,7 +12,7 @@
 
   #ifndef HAVE_STRERROR
     # Older systems have sys_nerr and sys_errlist instead of POSIX strerror().
-    #if !(defined(UNIX) || defined(EMUNIX)) # avoid conflict with unix.d, msdos.d, <stdlib.h>
+    #if !defined(UNIX) # avoid conflict with unix.d, <stdlib.h>
       extern int sys_nerr; # Number of OS error messages
       extern char* sys_errlist[]; # Table of OS error messages
     #endif
@@ -623,13 +623,6 @@
         if (errcode == ENOSYS) {
           errormsg->name = "ENOSYS";
           errormsg->msg = GETTEXTL("Function not implemented");
-        }
-        #endif
-        # Other:
-        #ifdef EMSDOS # emx 0.8e - 0.8h
-        if (errcode == EMSDOS) {
-          errormsg->name = "EMSDOS";
-          errormsg->msg = GETTEXTL("Not supported under MS-DOS");
         }
         #endif
       # If no error message known, default to the system's one.

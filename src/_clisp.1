@@ -422,7 +422,7 @@ Normally
 loads a user run control (RC) file on startup (this happens after the
 .BI \-C
 option is processed).  The file loaded is
-#if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+#if defined(PATHNAME_WIN32)
 .B _clisprc.lisp
 or
 .B _clisprc.fas
@@ -513,17 +513,6 @@ for parsing by the
 of the current image.
 This option must be the last one. No RC file will be executed.
 
-#ifdef EMUNIX
-.TP
-.BI @ optionfile
-substitutes the contents of
-.I optionfile
-as arguments. Each line of
-.I optionfile
-is treated as a separate argument to
-.BR clisp .
-#endif
-
 .PP
 .SH REFERENCE
 The language implemented mostly conforms to
@@ -568,12 +557,12 @@ lists the symbols relating to
 to quit
 .BR clisp .
 
-#if defined(UNIX) || defined(MSDOS)
+#ifdef UNIX
 .TP
-#if defined(UNIX) && !defined(UNIX_CYGWIN32)
+#if !defined(UNIX_CYGWIN32)
 EOF (Ctrl-D)
 #endif
-#if defined(MSDOS) || defined(UNIX_CYGWIN32)
+#if defined(UNIX_CYGWIN32)
 EOF (Ctrl-Z)
 #endif
 to leave the current read-eval-print loop.
@@ -607,12 +596,7 @@ startup script
 #endif
 
 .TP
-#if defined(UNIX)
 .I lisp.run
-#endif
-#if defined(MSDOS)
-.I lisp.exe
-#endif
 main executable (runtime)
 
 .TP
@@ -704,42 +688,17 @@ are used for determining the value of the function
 (Unix implementation only.)
 #endif
 
-#if defined(UNIX) || defined(MSDOS)
-.TP
 #ifdef UNIX
+.TP
 .BR SHELL " (Unix implementation only) "
 is used to find the interactive command interpreter called by
 .IR "(shell)" .
-#endif
-#ifdef MSDOS
-.BR COMSPEC " (DOS, OS/2 implementations only)"
-is used to find the command interpreter called by the function
-.IR shell .
-#endif
 #endif
 
 #ifdef UNIX
 .TP
 .B TERM
 determines the screen size recognized by the pretty printer.
-#endif
-
-#ifdef EMUNIX_PORTABEL
-.TP
-.B TERM
-specifies the terminal emulation
-.B clisp
-relies on. If you have ANSI.SYS loaded, possible values are
-.IR ansi ,
-.IR ansi-color-2 ,
-.I ansi-color-3
-and
-.IR mono .
-
-.TP
-.B TERMCAP
-should be set to the slashified file name of the terminal capabilities database
-.IR termcap.dat .
 #endif
 
 #ifdef MULTIMAP_MEMORY_VIA_FILE
@@ -828,19 +787,6 @@ No on-line documentation beyond
 and
 .I describe
 is available.
-
-#ifdef EMUNIX
-.PP
-Stack overflow aborts the program ungracefully, with a register dump.
-.PP
-Pressing Control-C may not interrupt
-.B clisp
-in every situation.
-.PP
-Calling the function
-.I execute
-on batch files crashes the machine.
-#endif
 
 #ifdef UNIX_COHERENT
 .PP

@@ -2,12 +2,12 @@
 
 (in-package "EXT")
 #+WIN32 (export '(execute))
-#+(or UNIX OS/2 WIN32) (export '(run-shell-command run-program))
+#+(or UNIX WIN32) (export '(run-shell-command run-program))
 (in-package "SYSTEM")
 
 ;;-----------------------------------------------------------------------------
 
-#+(or UNIX OS/2 WIN32)
+#+(or UNIX WIN32)
 ;; UNIX:
 ; Must quote the program name and arguments since Unix shells interpret
 ; characters like #\Space, #\', #\<, #\>, #\$ etc. in a special way. This
@@ -52,34 +52,6 @@
                (when qchar (vector-push-extend qchar qstring))
                qstring
          ) ) )
-         #+OS/2
-         (shell-simple-quote (string)
-           string
-         )
-         #+OS/2
-         (shell-quote (string) ; surround a string by double quotes
-           ; I have tested Turbo C compiled programs and EMX compiled programs.
-           ; 1. Special characters (space, tab, <, >, ...) lose their effect if
-           ;    they are inside double quotes. To get a double quote, write \".
-           ; 2. Separate the strings by spaces. Turbo C compiled programs don't
-           ;    require this, but EMX programs merge adjacent strings.
-           ; 3. You cannot pass an empty string or a string terminated by \ to
-           ;    Turbo C compiled programs. To pass an empty string to EMX
-           ;    programs, write "". You shouldn't pass a string terminated by \
-           ;    or containing \" to EMX programs.
-           ; Quick and dirty: assume none of these cases occur.
-           (let ((qstring (make-array 10 :element-type 'character
-                                         :adjustable t :fill-pointer 0)))
-             (vector-push-extend #\" qstring)
-             (map nil #'(lambda (c)
-                          (when (eql c #\") (vector-push-extend #\\ qstring))
-                          (vector-push-extend c qstring)
-                        )
-                      string
-             )
-             (vector-push-extend #\" qstring)
-             qstring
-         ) )
          #+WIN32
          (shell-simple-quote (string) ; protect against spaces only
            ; Also protect the characters which are special for the command
@@ -166,7 +138,7 @@
     (case input
       ((:TERMINAL :STREAM) )
       (t (if (eq input 'NIL)
-           (setq input #+UNIX "/dev/null" #+(or OS/2 WIN32) "nul")
+           (setq input #+UNIX "/dev/null" #+WIN32 "nul")
            (setq input (xstring input))
          )
          (setq command (string-concat command " < " (shell-quote input)))
@@ -175,7 +147,7 @@
     (case output
       ((:TERMINAL :STREAM) )
       (t (if (eq output 'NIL)
-           (setq output #+UNIX "/dev/null" #+(or OS/2 WIN32) "nul"
+           (setq output #+UNIX "/dev/null" #+WIN32 "nul"
                  if-output-exists ':OVERWRITE
            )
            (progn
