@@ -4,7 +4,10 @@ See also <https://sourceforge.net/tracker/?group_id=1355&atid=351355>
 MUST-FIX BEFORE NEXT RELEASE
 ============================
 
-Contagion warnings emitted by many floating-point operations. (Bruno)
+Inefficiency of class redefinition when old or new class is unfinalizable
+
+support perseverances also on write side
+change wr_by_array_iau8_buffered to use persev instead of persev_full
 
 
 MUST-FIX BEFORE RELEASE 2.35
@@ -113,6 +116,14 @@ parse_namestring: split_name_type(1), und bei make_pathname
 Klein->Großschreibung umwandeln, so dass (make-pathname :type "fas") immer geht.
 
 
+Should reject invalid format string:
+> (format t "abc~,'*Sdef" '(a b c))
+abc(A B C)def
+> (format t (formatter "abc~,'*Sdef") '(a b c))
+abc*(A B C)def
+Similarly "abc~3W"
+
+
 If you (TRACE generic-function) and then reload the file defining that
 function, you got an error saying that #<CLOSURE TRACED-xxx> is not a generic
 function. Now the function is silently untraced, which is just as bad. For
@@ -180,10 +191,24 @@ testing becomes twice as time consuming.
  which even use a _C_ struct clisp_process, but the user does not need that)
 
 
+Debugger:
+- Think about the function call traces on the STACK and SP. Which stack
+  should be used for which purpose?
+- Turn the <n> entries of show-stack into normal entries, with equal rights
+  as the other entries. Remove the <n>, as it's no information.
+- Devise a better variety of stack traces, maybe one without args and one with
+  args?
+
+
 MAYBE
 =====
 
 Still have to think about these, whether they are good ideas or not.
+
+
+Try to increase the string size limit, to get rid of
+"*** - string too long: desired length 6553600 exceeds the supported maximum
+       length" errors
 
 
 Add highlight/underline/etc. capability to the output side of *terminal-io*.
