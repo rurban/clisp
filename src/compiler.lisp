@@ -1,54 +1,58 @@
-; CLISP - Compiler
-; Bruno Haible 20.-30.09.1988, 05.-07.10.1988, 10.10.1988, 16.12.1988
-;   Version für KCL 27.06.1989, 05.-07.07.1989
-;   c-VALUES erweitert am 14.07.1989
-;   label-operand in assemble-LAP korrigiert am 14.07.1989
-;   ANODE-Komponenten SOURCE, STACKZ eliminiert am 14.07.1989
-;     (konditionell von #+COMPILER-DEBUG abhängig)
-;   Peephole-Optimierung-Protokoll konditionell von #+PEEPHOLE-DEBUG abhängig
-;   Version für CLISP 28.07.1989-11.08.1989
-;   Variablen-Optimierungen 10.03.1991
-; Michael Stoll, September-Dezember 1991:
-;   - Bytecode überarbeitet
-;   - Code-Optimierung bzgl. Labels/Sprüngen verbessert
-;   - kleine Verbesserung bei c-plus/c-minus,
-;     Compilation von CxxxR in Folge von (CAR) und (CDR)
-;   - SUBR-Aufrufe ohne Argument-Check zur Laufzeit,
-;     SUBRs als Konstanten (via #.#'name)
-;   - Aufrufe lokaler Funktionen ohne Argument-Check zur Laufzeit
-;   - Rekursive Aufrufe durch Unterprogrammaufruf JSR, bei Endrekursion
-;     JMPTAIL (entspricht PSETQ mit anschließendem Sprung)
-;   - Verbesserung bei Aufruf einer Funktion mit Rest-Parametern via APPLY
-; Bruno Haible, Februar-März 1992:
-;   - detailliertere seclass, besseres PSETQ
-;   - besseres Constant Folding
-;   - Cross-Compilation
-; Bruno Haible, 03.06.1992:
-;   - Inline-Compilation von Aufrufen globaler Funktionen
-; Bruno Haible, August 1993:
-;   - Unterstützung für CLOS: generische Funktionen %GENERIC-FUNCTION-LAMBDA,
-;     Optimierung unbenutzter Required-Parameter %OPTIMIZE-FUNCTION-LAMBDA
-;   - GENERIC-FLET, GENERIC-LABELS
-;   - Inline-Compilation von (APPLY (FUNCTION ...) ...)
-; Bruno Haible, 09.06.1996:
-;   - Bytecode plattform-unabhängig
-; Bruno Haible, 04.12.1998:
-;   - Optimierung generischer Funktionen durch RETGF
-; Weitere Vorhaben:
-;   - Variablen-Environments so verändern, dass Aufruf von lokalen Funktionen
-;     mittels JSR/JMPTAIL möglich wird (d.h. nachträgliche Entscheidung, ob
-;     Aufruf durch CALLC oder JSR)
-;   - evtl. bessere Optimierung durch Datenflussanalyse
-;   - Inline-Compilation von Aufrufen lokaler Funktionen
+;; CLISP - compiler
+;; Bruno Haible 20.-30.09.1988, 05.-07.10.1988, 10.10.1988, 16.12.1988
+;;   Version for KCL 27.06.1989, 05.-07.07.1989
+;;   c-VALUES extended on 14.07.1989
+;;   label-operand in assemble-LAP corrected on 14.07.1989
+;;   ANODE-Components SOURCE, STACKZ eliminated on 14.07.1989
+;;     (conditionally dependent on #+COMPILER-DEBUG)
+;;   Peephole-Optimization-Protocol conditionally dependent on #+PEEPHOLE-DEBUG
+;;   Version for CLISP 28.07.1989-11.08.1989
+;;   Variable-Optimization 10.03.1991
+;; Michael Stoll, September-December 1991:
+;;   - Bytecode reworked
+;;   - Code-Optimization with reference to Labels/Jumps improved
+;;   - small improvement at c-plus/c-minus,
+;;     Compilation of CxxxR in succession of (CAR) and (CDR)
+;;   - SUBR-calls without Argument-Check at runtime,
+;;     SUBRs as constants (via #.#'name)
+;;   - Calls of local functions without Argument-Check at run-time
+;;   - Recursive calls by subroutine-call JSR, for tail-recursion
+;;     JMPTAIL (corresponds to PSETQ with following jump)
+;;   - Improvement for the call of a function with Rest-Parameters via APPLY
+;; Bruno Haible, Februar-March 1992:
+;;   - more detailed seclass, better PSETQ
+;;   - better Constant Folding
+;;   - Cross-Compilation
+;; Bruno Haible, 03.06.1992:
+;;   - Inline-Compilation of calls of global functions
+;; Bruno Haible, August 1993:
+;;   - support for CLOS: generic functions %GENERIC-FUNCTION-LAMBDA,
+;;     Optimization of unused Required-parameters %OPTIMIZE-FUNCTION-LAMBDA
+;;   - GENERIC-FLET, GENERIC-LABELS
+;;   - Inline-Compilation of (APPLY (FUNCTION ...) ...)
+;; Bruno Haible, 09.06.1996:
+;;   - Bytecode plattform-independent
+;; Bruno Haible, 04.12.1998:
+;;   - Optimization of generic functions by RETGF
+;; further plans:
+;;   - change Variable-Environments in a way, so the call of local functions
+;;     becomes possible via JSR/JMPTAIL (i.e. belated decision, if
+;;     call by CALLC or JSR)
+;;   - poss. better Optimization by data-flow-analysis
+;;   - Inline-Compilation of calls of local functions
 
-; Zur Cross-Compilation (wahlweise mit #+CLISP oder #-CLISP):
-; CROSS, die Sprache und den Maschinenbezeichner in die Liste *features*
-; aufnehmen, andere Maschinenbezeichner aus *features* herausnehmen.
-; Dann den Compiler laden (evtl. compilieren und laden).
-; Dann CROSS wieder aus der Liste *features* herausnehmen, und
-; mit (cross:compile-file ...) Files compilieren.
+;; Sam Steingold 1999-2001
+;; German comments translated into English: Stefan Kain 2001-12-18
+;; "z" at the end of a variable name stands for "zustand" (German for "state")
 
-; #-CROSS impliziert #+CLISP.
+;; For Cross-Compilation (selectively with #+CLISP or #-CLISP):
+;; add CROSS, the language and the machine identifier into the list
+;; *features*, take other machine identifiers out of *features* .
+;; Then load the Compiler (maybe compile and load).
+;; Then take out CROSS out of the list *features* again, and
+;; compile files with (cross:compile-file ...).
+
+;; #-CROSS implies #+CLISP.
 
 #-CROSS (in-package "COMMON-LISP")
 #-CROSS (export '(ext::eval-env) "EXT")
@@ -60,24 +64,24 @@
 #-CROSS (in-package "COMPILER")
 #+CROSS (in-package "CROSS" :nicknames '("CLISP"))
 #-CLISP (defmacro ENGLISH (x) x)
-;; Konvention: Schreibe SYSTEM::PNAME für ein Symbol, das "zufällig" in
-;; #<PACKAGE SYSTEM> sitzt, wir das Symbol aber nicht weiter benutzen.
-;; Schreibe SYS::PNAME, wenn wir von dem Symbol irgendwelche Eigenschaften
-;; voraussetzen. Schreibe COMPILER::PNAME, wenn der Compiler das Symbol
-;; deklariert und es von anderen Programmteilen benutzt wird.
-#+CLISP (import '(sys::function-name-p sys::parse-body sys::add-implicit-block
-                  sys::make-load-time-eval sys::make-macro-expander
-                  sys::closure-name sys::closure-codevec sys::closure-consts
-                  sys::fixnump sys::short-float-p sys::single-float-p
-                  sys::double-float-p sys::long-float-p
-                  sys::search-file sys::date-format sys::line-number
-                  sys::%funtabref sys::inlinable sys::constant-inlinable
-                  sys::*compiling* sys::*compiling-from-file* sys::*inline-functions*
-                  sys::*venv* sys::*fenv* sys::*benv* sys::*genv* sys::*denv*
-                  sys::*toplevel-environment* sys::*toplevel-denv*
-                  COMPILER::C-PROCLAIM COMPILER::C-PROCLAIM-CONSTANT
-                  COMPILER::C-DEFUN COMPILER::C-PROVIDE COMPILER::C-REQUIRE
-        )        )
+;; Convention: Write SYSTEM::PNAME for a Symbol, that is "accidentally" in
+;; #<PACKAGE SYSTEM>, but which we don't use any further.
+;; Write SYS::PNAME, if we assume any properties for the Symbol.
+;; Write COMPILER::PNAME, if the Compiler declares the Symbol
+;; and it is used by other program parts.
+#+CLISP
+(import '(sys::function-name-p sys::parse-body sys::add-implicit-block
+          sys::make-load-time-eval sys::make-macro-expander
+          sys::closure-name sys::closure-codevec sys::closure-consts
+          sys::fixnump sys::short-float-p sys::single-float-p
+          sys::double-float-p sys::long-float-p
+          sys::search-file sys::date-format sys::line-number
+          sys::%funtabref sys::inlinable sys::constant-inlinable
+          sys::*compiling* sys::*compiling-from-file* sys::*inline-functions*
+          sys::*venv* sys::*fenv* sys::*benv* sys::*genv* sys::*denv*
+          sys::*toplevel-environment* sys::*toplevel-denv*
+          COMPILER::C-PROCLAIM COMPILER::C-PROCLAIM-CONSTANT
+          COMPILER::C-DEFUN COMPILER::C-PROVIDE COMPILER::C-REQUIRE))
 #-CROSS (import '(sys::version sys::subr-info))
 
 #+CROSS (shadow '(compile-file))
@@ -96,19 +100,16 @@
     (or (symbolp form)
         (and (consp form) (eq (car form) 'SETF)
              (consp (setq form (cdr form))) (null (cdr form))
-             (symbolp (car form))
-  ) )   )
+             (symbolp (car form)))))
   (defstruct (macro
               (:predicate macrop)
               (:constructor make-macro (expander)))
-    (expander nil :type function)
-  )
+    (expander nil :type function))
   (defstruct (function-macro
               (:predicate function-macro-p)
               (:constructor make-function-macro (function expander)))
     (function nil :type function)
-    (expander nil :type function)
-  )
+    (expander nil :type function))
   (defun macroexpand-1 (form &optional (env (vector nil nil)))
     (if (and (consp form) (symbolp (car form)))
       (multiple-value-bind (a m)
@@ -116,129 +117,103 @@
         (when (null a) (setq m (macro-function (car form))))
         (if m
           (values (mac-exp m form env) t)
-          (values form nil)
-      ) )
+          (values form nil)))
       (if (symbolp form)
         (multiple-value-bind (macrop expansion)
             (venv-search-macro form (svref env 0))
           (if macrop
             (values expansion t)
-            (values form nil)
-        ) )
-        (values form nil)
-  ) ) )
+            (values form nil)))
+        (values form nil))))
   (defun macroexpand (form &optional (env (vector nil nil)))
     (multiple-value-bind (a b) (macroexpand-1 form env)
       (if b
         (loop
           (multiple-value-setq (a b) (macroexpand-1 a env))
-          (unless b (return (values a t)))
-        )
-        (values form nil)
-  ) ) )
+          (unless b (return (values a t))))
+        (values form nil))))
   (defun parse-body (body &optional docstring-allowed env)
     (do ((bodyr body (cdr bodyr))
          (declarations nil)
          (docstring nil)
          (form nil))
         ((null bodyr) (values bodyr declarations docstring))
-      (cond ((and (stringp (car bodyr)) (cdr bodyr) (null docstring) docstring-allowed)
-             (setq docstring (car bodyr))
-            )
+      (cond ((and (stringp (car bodyr)) (cdr bodyr) (null docstring)
+                  docstring-allowed)
+             (setq docstring (car bodyr)))
             ((not (listp (setq form (macroexpand (car bodyr) env))))
-             (return (values bodyr declarations docstring))
-            )
+             (return (values bodyr declarations docstring)))
             ((eq (car form) 'DECLARE)
-             (dolist (decl (cdr form)) (push decl declarations))
-            )
-            (t (return (values bodyr declarations docstring)))
-  ) ) )
+             (dolist (decl (cdr form)) (push decl declarations)))
+            (t (return (values bodyr declarations docstring))))))
   (defun function-block-name (funname)
-    (if (atom funname) funname (second funname))
-  )
+    (if (atom funname) funname (second funname)))
   (defun add-implicit-block (name body)
     (multiple-value-bind (body-rest declarations docstring)
         (parse-body body t (env))
       (append (if declarations (cons 'DECLARE declarations))
               (if docstring (list docstring))
-              (list (list* 'BLOCK (function-block-name name) body-rest))
-  ) ) )
+              (list (list* 'BLOCK (function-block-name name) body-rest)))))
   (defstruct (load-time-eval
               (:print-function
                 (lambda (object stream depth)
                   (declare (ignore depth))
                   (write-string "#." stream)
-                  (write (load-time-eval-form object) :stream stream)
-              ) )
-              (:constructor make-load-time-eval (form))
-             )
-    form
-  )
+                  (write (load-time-eval-form object) :stream stream)))
+              (:constructor make-load-time-eval (form)))
+    form)
   (defstruct (symbol-macro (:constructor make-symbol-macro (expansion)))
-    expansion
-  )
+    expansion)
   (defun symbol-macro-expand (v)
     (and (boundp v) (symbol-macro-p (symbol-value v))
-         (values t (symbol-macro-expansion (symbol-value v)))
-  ) )
+         (values t (symbol-macro-expansion (symbol-value v)))))
   (defparameter c-typep-alist1 nil)
   (defparameter c-typep-alist2 nil)
   (defparameter c-typep-alist3 nil)
-  ; Sucht ein Programm-File. Siehe INIT.LISP :
+  ;; Searches a program-file. see <init.lisp> :
   (defun search-file (filename extensions
-                      &aux (use-extensions (null (pathname-type filename))) )
+                      &aux (use-extensions (null (pathname-type filename))))
     (when use-extensions
-      (setq extensions ; Case-Konversionen auf den Extensions durchführen
-        (mapcar #'pathname-type extensions)
-    ) )
-    ; Defaults einmergen:
+      (setq extensions ; execute Case-conversions on the Extensions
+        (mapcar #'pathname-type extensions)))
+    ;; merge in defaults:
     (setq filename (merge-pathnames filename '#".*"))
-    ; Suchen:
+    ;; search:
     (let ((already-searched nil))
       (dolist (dir (cons '#"" '()))
         (let ((search-filename
-                (merge-pathnames (merge-pathnames filename dir))
-             ))
+                (merge-pathnames (merge-pathnames filename dir))))
           (unless (member search-filename already-searched :test #'equal)
             (let ((xpathnames (directory search-filename :full t :circle t)))
               (when use-extensions
-                ; nach passenden Extensions filtern:
+                ;; filter for suitable extensions:
                 (setq xpathnames
-                  (delete-if-not ; hat xpathname eine der gegebenen Extensions?
-                    #'(lambda (xpathname)
-                        (member (pathname-type (first xpathname)) extensions
-                                :test #'string=
-                      ) )
-                    xpathnames
-              ) ) )
+                  (delete-if-not ; select xpathnames with the given extensions
+                   #'(lambda (xpathname)
+                       (member (pathname-type (first xpathname)) extensions
+                               :test #'string=))
+                   xpathnames)))
               (when xpathnames
-                ; nach Datum sortiert, zurückgeben:
+                ;; return back, sorted by date:
                 (dolist (xpathname xpathnames)
                   (setf (rest xpathname)
-                        (apply #'encode-universal-time (third xpathname))
-                ) )
-                (return (mapcar #'first (sort xpathnames #'> :key #'rest)))
-            ) )
-            (push search-filename already-searched)
-      ) ) )
-  ) )
+                        (apply #'encode-universal-time (third xpathname))))
+                (return (mapcar #'first (sort xpathnames #'> :key #'rest)))))
+            (push search-filename already-searched))))))
   (defun make-macro-expander (macrodef)
     (let ((dummysym (make-symbol (symbol-name (car macrodef)))))
       (eval `(DEFMACRO ,dummysym ,@(cdr macrodef)))
       (make-macro
-        #'(lambda (form &rest env)
-            (apply #'lisp:macroexpand-1 (cons dummysym (cdr form)) env)
-          )
-  ) ) )
-  ; siehe DEFS1.LISP :
+       #'(lambda (form &rest env)
+           (apply #'lisp:macroexpand-1 (cons dummysym (cdr form)) env)))))
+  ;; see <init.lisp> :
   (defun date-format ()
-    (ENGLISH "~1{~5@*~D/~4@*~D/~3@*~D ~2@*~2,'0D.~1@*~2,'0D.~0@*~2,'0D~:}")
-  )
+    (ENGLISH "~1{~5@*~D/~4@*~D/~3@*~D ~2@*~2,'0D.~1@*~2,'0D.~0@*~2,'0D~:}"))
   (defun sys::line-number (stream) nil)
 )
 
 
-; Version des Evaluators:
+;; version of the evaluator:
 #+CROSS
 (defconstant *big-endian*
   ;; When cross-compiling within CLISP, we generate compiled closures
@@ -257,23 +232,23 @@
 (defconstant *keyword-package* (find-package "KEYWORD"))
 (defconstant *lisp-package* (find-package "COMMON-LISP"))
 
-; Variablen für Top-Level-Aufruf:
-(defvar *compiling* nil) ; gibt an, ob gerade beim Compilieren
-; (defvar *error-count*) ; Anzahl der aufgetretenen Errors
-; (defvar *warning-count*) ; Anzahl der aufgetretenen Warnungen
-; (defvar *style-warning-count*) ; Anzahl der aufgetretenen Stil-Warnungen
-(defvar *compile-warnings* t) ; ob Compiler-Warnungen ausgegeben werden
-(defvar *compile-verbose* t) ; ob Compiler-Kommentare ausgegeben werden
-(defvar *compile-print* nil) ; ob der Compiler ausgibt, wo er gerade ist
-(defvar *compiling-from-file*) ; NIL oder T wenn von COMPILE-FILE aufgerufen
-(defvar *compile-file-pathname* nil) ; CLtL2 S. 680
-(defvar *compile-file-truename* nil) ; CLtL2 S. 680
+;; variables for top-level-call:
+(defvar *compiling* nil) ; specifies, if inside the process of compilation
+;; (defvar *error-count*) ; number of errors
+;; (defvar *warning-count*) ; number of warnings
+;; (defvar *style-warning-count*) ; number of style-warnings
+(defvar *compile-warnings* t) ; if compiler-warnings are reported
+(defvar *compile-verbose* t) ; if compiler-comments are reported
+(defvar *compile-print* nil) ; if compiler reports, where he currently is
+(defvar *compiling-from-file*) ; NIL or T if called by COMPILE-FILE
+(defvar *compile-file-pathname* nil) ; CLtL2 p. 680
+(defvar *compile-file-truename* nil) ; CLtL2 p. 680
 (defvar *compile-file-lineno1* nil)
 (defvar *compile-file-lineno2* nil)
-(defvar *c-listing-output*) ; Compiler-Listing-Stream oder nil
+(defvar *c-listing-output*) ; Compiler-Listing-Stream or nil
 (defvar *c-error-output*) ; Compiler-Error-Stream
-; Es ist im wesentlichen
-; *c-error-output* = (make-broadcast-stream *error-output* *c-listing-output*)
+;; essentially
+;; *c-error-output* = (make-broadcast-stream *error-output* *c-listing-output*)
 ;; The names of declared dynamic variables
 (defvar *known-special-vars* nil)
 ;; The names and values of constants
@@ -323,70 +298,68 @@
 (defvar *load-forms* nil)
 
 #|
-The compiler's target is the virtual machine described in bytecode.html.
+The compiler's target is the virtual machine described in <doc/impbyte.xml>
+and <http://clisp.cons.org/impnotes.html#bytecode>.
 
-1. Pass des Compilers:
-Macro-Expansion, Codegenerierung (symbolisch), Allokation von Variablen auf
-dem STACK oder in Closures, Optimierung auf LISP-Ebene.
-Danach steht für jede beteiligte Funktion das Stack-Layout fest.
-Die Information steckt in einem Netz von ANODEs.
-2. Pass des Compilers:
-Auflösung der Variablenbezüge, Optimierung auf Code-Ebene
-(Peephole-Optimierung), Kreation compilierter funktionaler Objekte.
-3. Pass des Compilers:
-Auflösung von Bezügen zwischen den einzelnen funktionalen Objekten.
-
+1. Pass of the Compiler:
+   macro-expansion,
+   code-generation (symbolically),
+   allocation of variables on the STACK or in Closures,
+   Optimization on LISP-level.
+   Thereafter the stack-layout is definite for each involved function.
+   The Information is contained in a graph of ANODEs.
+2. Pass of the Compiler:
+   resolution of variable references,
+   optimization on code-level (peephole-Optimization),
+   creation of compiled functional objects.
+3. Pass of the Compiler:
+   resolution of references between the functional objects.
 |#
 
-; externe Repräsentation einer Closure:
-; #Y(name
-;    #LängeY(Byte in Hex ... Byte in Hex)
-;    weitere Konstanten
-;   )
+#| external representation of a Closure:
+ #Y(name
+    #lengthY(Byte in Hex ... Byte in Hex)
+    further constants)
+|#
 
 #-CLISP
 (progn
   (defstruct (closure (:print-function print-closure))
-    name    ; der Name der Closure
-    codevec ; Liste der Bytes des Codevektor
-    consts  ; Liste der Konstanten
-  )
+    name    ; name of the closure
+    codevec ; list of bytes of the codevector
+    consts) ; list of constants
   (defun print-closure (closure stream depth)
     (declare (ignore depth))
     (write-string "#Y(" stream)
     (write (closure-name closure) :stream stream)
     (write-char #\space stream)
     (write-char #\# stream)
-    (write (length (closure-codevec closure)) :stream stream :base 10. :radix nil :readably nil)
+    (write (length (closure-codevec closure)) :stream stream :base 10.
+           :radix nil :readably nil)
     (write-char #\Y stream)
-    ;(write (closure-codevec closure) :stream stream :base 16.) ; stattdessen:
+    ;; (write (closure-codevec closure) :stream stream :base 16.) ; instead:
     (write-char #\( stream)
     (do ((i 0 (1- i))
          (L (closure-codevec closure) (cdr L)))
         ((endp L))
       (when (zerop i) (write-char #\newline stream) (setq i 25))
       (write-char #\space stream)
-      (write (car L) :stream stream :base 16. :radix nil :readably nil)
-    )
+      (write (car L) :stream stream :base 16. :radix nil :readably nil))
     (write-char #\) stream)
     (write-char #\newline stream)
     (dolist (x (closure-consts closure))
       (write-char #\space stream)
-      (write x :stream stream)
-    )
-    (write-char #\) stream)
-  )
+      (write x :stream stream))
+    (write-char #\) stream))
 )
 
 #+CLISP
 (progn
   (defsetf sys::%record-ref sys::%record-store)
   (defsetf closure-name (closure) (new-name)
-    `(sys::%record-store ,closure 0 ,new-name)
-  )
+    `(sys::%record-store ,closure 0 ,new-name))
   (defun make-closure (&key name codevec consts)
-    (sys::%make-closure name (sys::make-code-vector codevec) consts)
-  )
+    (sys::%make-closure name (sys::make-code-vector codevec) consts))
 )
 
 #-CLISP
@@ -394,84 +367,80 @@ Auflösung von Bezügen zwischen den einzelnen funktionalen Objekten.
   #'(lambda (stream subchar arg)
       (declare (ignore subchar))
       (if arg
-        ; Codevector lesen
+        ;; read codevector
         (let ((obj (let ((*read-base* 16.)) (read stream t nil t))))
           (unless (= (length obj) arg)
             (error (ENGLISH "Bad length of closure vector: ~S")
-                   arg
-          ) )
-          obj
-        )
-        ; Closure lesen
+                   arg))
+          obj)
+        ;; read closure
         (let ((obj (read stream t nil t)))
-          (make-closure :name (first obj) :codevec (second obj) :consts (cddr obj))
-    ) ) )
-)
+          (make-closure :name (first obj) :codevec (second obj)
+                        :consts (cddr obj))))))
 
-; The instruction list is in bytecode.html.
+;; The instruction list is in <doc/impbyte.xml>.
 
-; Instruktionen-Klassifikation:
-; O = Instruktion ohne Operand
-; K = numerischer Operand oder
-;     Kurz-Operand (dann ist das Byte = short-code-ops[x] + Operand)
-; N = numerischer Operand
-; B = Byte-Operand
-; L = Label-Operand
-; NH = numerischer Operand, der eine Hashtable referenziert
-; NC = numerischer Operand, der ein Handler-Cons referenziert
-; LX = so viele Label-Operanden, wie der vorangehende Operand angibt
+;; classification of instructions:
+;; O = instruction without operand
+;; K = numerical operand or
+;;     short-operand (then the byte is = short-code-ops[x] + operand)
+;; N = numerical operand
+;; B = Byte-Operand
+;; L = Label-Operand
+;; NH = numerical Operand, that references a Hashtable
+;; NC = numerical Operand, that references a Handler-Cons
+;; LX = as many Label-Operands as specified by the preceding Operand
 
-; Die Position in der Instruction-Table liefert den eigentlichen Code der
-; Instruktion (>= 0, < short-code-base), Codes >= short-code-base werden
-; von den K-Instruktionen belegt.
+;; the position in the instruction-table delivers the actual code of the
+;; instruction (>= 0, < short-code-base), codes >= short-code-base are
+;; occupied by the K-instructions.
 (defconstant instruction-table
-  '#(; (1) Konstanten
+  '#(;; (1) constants
      (NIL O) (PUSH-NIL N) (T O) (CONST K)
-     ; (2) statische Variablen
+     ;; (2) static variables
      (LOAD K) (LOADI NNN) (LOADC NN) (LOADV NN) (LOADIC NNNN)
      (STORE K) (STOREI NNN) (STOREC NN) (STOREV NN) (STOREIC NNNN)
-     ; (3) dynamische Variablen
+     ;; (3) dynamic variables
      (GETVALUE N) (SETVALUE N) (BIND N) (UNBIND1 O) (UNBIND N) (PROGV O)
-     ; (4) Stackoperationen
+     ;; (4) stack-operations
      (PUSH O) (POP O) (SKIP N) (SKIPI NNN) (SKIPSP NN)
-     ; (5) Programmfluss und Sprünge
+     ;; (5) program flow and jumps
      (SKIP&RET N) (SKIP&RETGF N)
      (JMP L) (JMPIF L) (JMPIFNOT L) (JMPIF1 L) (JMPIFNOT1 L)
      (JMPIFATOM L) (JMPIFCONSP L) (JMPIFEQ L) (JMPIFNOTEQ L)
      (JMPIFEQTO NL) (JMPIFNOTEQTO NL) (JMPHASH NHL) (JMPHASHV NHL) (JSR L)
      (JMPTAIL NNL)
-     ; (6) Environments und Closures
+     ;; (6) environments and closures
      (VENV O) (MAKE-VECTOR1&PUSH N) (COPY-CLOSURE NN)
-     ; (7) Funktionsaufrufe
+     ;; (7) function-calls
      (CALL NN) (CALL0 N) (CALL1 N) (CALL2 N)
      (CALLS1 B) (CALLS2 B) (CALLSR NB) (CALLC O) (CALLCKEY O)
      (FUNCALL N) (APPLY N)
-     ; (8) optionale und Keyword-Argumente
+     ;; (8) optional and keyword-arguments
      (PUSH-UNBOUND N) (UNLIST NN) (UNLIST* NN) (JMPIFBOUNDP NL) (BOUNDP N)
      (UNBOUND->NIL N)
-     ; (9) Behandlung mehrerer Werte
+     ;; (9) treatment of multiple values
      (VALUES0 O) (VALUES1 O) (STACK-TO-MV N) (MV-TO-STACK O) (NV-TO-STACK N)
      (MV-TO-LIST O) (LIST-TO-MV O) (MVCALLP O) (MVCALL O)
-     ; (10) BLOCK
+     ;; (10) BLOCK
      (BLOCK-OPEN NL) (BLOCK-CLOSE O) (RETURN-FROM N) (RETURN-FROM-I NNN)
-     ; (11) TAGBODY
+     ;; (11) TAGBODY
      (TAGBODY-OPEN NLX) (TAGBODY-CLOSE-NIL O) (TAGBODY-CLOSE O) (GO NN)
      (GO-I NNNN)
-     ; (12) CATCH und THROW
+     ;; (12) CATCH and THROW
      (CATCH-OPEN L) (CATCH-CLOSE O) (THROW O)
-     ; (13) UNWIND-PROTECT
+     ;; (13) UNWIND-PROTECT
      (UNWIND-PROTECT-OPEN L) (UNWIND-PROTECT-NORMAL-EXIT O)
      (UNWIND-PROTECT-CLOSE O) (UNWIND-PROTECT-CLEANUP O)
-     ; (14) HANDLER
+     ;; (14) HANDLER
      (HANDLER-OPEN NC) (HANDLER-BEGIN&PUSH O)
-     ; (15) einige Funktionen
+     ;; (15) some functions
      (NOT O) (EQ O) (CAR O) (CDR O) (CONS O) (SYMBOL-FUNCTION O) (SVREF O)
      (SVSET O) (LIST N) (LIST* N)
-     ; (16) kombinierte Operationen
+     ;; (16) combined operations
      (NIL&PUSH O) (T&PUSH O) (CONST&PUSH K)
-     (LOAD&PUSH K) (LOADI&PUSH NNN) (LOADC&PUSH NN) (LOADV&PUSH NN) (POP&STORE N)
-     (GETVALUE&PUSH N)
-     (JSR&PUSH L)
+     (LOAD&PUSH K) (LOADI&PUSH NNN) (LOADC&PUSH NN) (LOADV&PUSH NN)
+     (POP&STORE N) (GETVALUE&PUSH N) (JSR&PUSH L)
      (COPY-CLOSURE&PUSH NN)
      (CALL&PUSH NN) (CALL1&PUSH N) (CALL2&PUSH N)
      (CALLS1&PUSH B) (CALLS2&PUSH B) (CALLSR&PUSH NB)
@@ -481,8 +450,8 @@ Auflösung von Bezügen zwischen den einzelnen funktionalen Objekten.
      (LIST&PUSH N) (LIST*&PUSH N)
      (NIL&STORE N) (T&STORE N) (LOAD&STOREC NNN)
      (CALLS1&STORE BN) (CALLS2&STORE BN) (CALLSR&STORE NBN)
-     (LOAD&CDR&STORE N) (LOAD&CONS&STORE N) (LOAD&INC&STORE N) (LOAD&DEC&STORE N)
-     (LOAD&CAR&STORE NN)
+     (LOAD&CDR&STORE N) (LOAD&CONS&STORE N) (LOAD&INC&STORE N)
+     (LOAD&DEC&STORE N) (LOAD&CAR&STORE NN)
      (CALL1&JMPIF NL) (CALL1&JMPIFNOT NL)
      (CALL2&JMPIF NL) (CALL2&JMPIFNOT NL)
      (CALLS1&JMPIF BL) (CALLS1&JMPIFNOT BL)
@@ -492,23 +461,18 @@ Auflösung von Bezügen zwischen den einzelnen funktionalen Objekten.
      (LOAD&CAR&PUSH N) (LOAD&CDR&PUSH N) (LOAD&INC&PUSH N) (LOAD&DEC&PUSH N)
      (CONST&SYMBOL-FUNCTION N) (CONST&SYMBOL-FUNCTION&PUSH N)
      (CONST&SYMBOL-FUNCTION&STORE NN)
-     (APPLY&SKIP&RET NN) (FUNCALL&SKIP&RETGF NN)
-)   )
+     (APPLY&SKIP&RET NN) (FUNCALL&SKIP&RETGF NN)))
 (dotimes (i (length instruction-table))
-  (setf (get (first (svref instruction-table i)) 'INSTRUCTION) i)
-)
+  (setf (get (first (svref instruction-table i)) 'INSTRUCTION) i))
 (defconstant instruction-codes
   (let ((hashtable (make-hash-table :test #'eq)))
     (dotimes (i (length instruction-table))
-      (setf (gethash (first (svref instruction-table i)) hashtable) i)
-    )
-    hashtable
-) )
+      (setf (gethash (first (svref instruction-table i)) hashtable) i))
+    hashtable))
 
-; K-Instruktionen:
+;; K-instructions:
 (defconstant instruction-table-K
-  '#(LOAD LOAD&PUSH CONST CONST&PUSH STORE)
-)
+  '#(LOAD LOAD&PUSH CONST CONST&PUSH STORE))
 (defconstant short-code-base 157)
 (defconstant short-code-opsize '#(15   25   21   30    8))
 (defconstant short-code-ops '#(157  172  197  218  248));256
@@ -516,375 +480,350 @@ Auflösung von Bezügen zwischen den einzelnen funktionalen Objekten.
 
 #|
 
-Zwischensprache nach dem 1. Pass:
-=================================
+intermediate language after the 1st pass:
+=========================================
 
-1. Konstanten:
+1. constants:
 
-(NIL)                            A0 := NIL, 1 Wert
+   (NIL)                      A0 := NIL, 1 value
 
-(PUSH-NIL n)                     n-mal: -(STACK) := NIL, undefinierte Werte
+   (PUSH-NIL n)               n-times: -(STACK) := NIL, undefined values
 
-(T)                              A0 := T, 1 Wert
+   (T)                        A0 := T, 1 value
 
-(CONST const)                    A0 := 'const, 1 Wert
+   (CONST const)              A0 := 'const, 1 value
 
-(FCONST fnode)                   A0 := das Compilat des fnode, 1 Wert
+   (FCONST fnode)             A0 := the compilation result of an fnode, 1 value
 
-(BCONST block)                   A0 := das Block-Cons dieses Blockes (eine
-                                 Konstante aus FUNC), 1 Wert
+   (BCONST block)             A0 := the Block-Cons of this block (a
+                              constant from FUNC), 1 value
 
-(GCONST tagbody)                 A0 := das Tagbody-Cons dieses Tagbody (eine
-                                 Konstante aus FUNC), 1 Wert
+   (GCONST tagbody)           A0 := the Tagbody-Cons of this tagbody (a
+                              constant from FUNC), 1 value
 
-2.,3. Variablen:
+2.,3. variables:
 
-(GET var venvc stackz)           A0 := var, 1 Wert
-                                 (venvc ist das aktuelle Closure-Venv,
-                                  stackz der aktuelle Stackzustand)
+   (GET var venvc stackz)     A0 := var, 1 value
+                              (venvc is the current Closure-Venv,
+                               stackz is the current stack-state)
 
-(SET var venvc stackz)           var := A0, 1 Wert
-                                 (venvc ist das aktuelle Closure-Venv,
-                                  stackz der aktuelle Stackzustand)
+   (SET var venvc stackz)     var := A0, 1 value
+                              (venvc is the current Closure-Venv,
+                               stackz is the current stack-state)
 
-(STORE n)                        (STACK+4*n) := A0, 1 Wert
+   (STORE n)                  (STACK+4*n) := A0, 1 value
 
-(GETVALUE symbol)                A0 := (symbol-value 'symbol), 1 Wert
+   (GETVALUE symbol)          A0 := (symbol-value 'symbol), 1 value
 
-(SETVALUE symbol)                (setf (symbol-value 'symbol) A0), 1 Wert
+   (SETVALUE symbol)          (setf (symbol-value 'symbol) A0), 1 value
 
-(BIND const)                     bindet const (ein Symbol) dynamisch an A0.
-                                 Undefinierte Werte.
+   (BIND const)               binds const (a Symbol) dynamically to A0.
+                              undefined values.
 
-(UNBIND1)                        löst einen Bindungsframe auf
+   (UNBIND1)                  unwinds a binding-frame
 
-(PROGV)                          bindet dynamisch die Symbole in der Liste
-                                 (STACK)+ an die Werte in der Liste A0 und
-                                 baut dabei genau einen Bindungsframe auf,
-                                 undefinierte Werte
-
-4. Stackoperationen:
-
-(PUSH)                           -(STACK) := A0, undefinierte Werte
-
-(POP)                            A0 := (STACK)+, 1 Wert
-
-(UNWIND stackz1 stackz2 for-value) Führt ein Unwind binnen einer Funktion aus:
-                                 Bereinigt den Stack, um vom Stackzustand
-                                 stackz1 zum Stackzustand stackz2 zu kommen.
-                                 Löst dazwischen liegende Frames auf. for-value
-                                 gibt an, ob dabei die Werte A0/... gerettet
-                                 werden müssen.
-
-(UNWINDSP stackz1 stackz2)       modifiziert den SP, um vom Stackzustand
-                                 stackz1 zum Stackzustand stackz2 zu kommen.
-                                 STACK und die Werte A0/... bleiben unverändert.
-
-5. Programmfluss und Sprünge:
-
-(RET)                            beendet die Funktion mit den Werten A0/...
-
-(RETGF)                          beendet die Funktion mit 1 Wert A0 und ruft
-                                 evtl. A0 als Funktion auf, mit denselben
-                                 Argumenten wie die aktuelle Funktion
-
-(JMP label)                      Sprung zu label
-
-(JMPIF label)                    falls A0 /= NIL : Sprung zu label.
-
-(JMPIFNOT label)                 falls A0 = NIL : Sprung zu label.
-
-(JMPIF1 label)                   falls A0 /= NIL : 1 Wert, Sprung zu label.
-
-(JMPIFNOT1 label)                falls A0 = NIL : 1 Wert, Sprung zu label.
-
-(JMPHASH test ((obj1 . label1) ... (objm . labelm)) label . labels)
-                                 Sprung zu labeli, falls A0 = obji (im Sinne
-                                 des angegebenen Vergleichs), sonst zu label.
-                                 Undefinierte Werte.
-
-(JSR m label)                    ruft den Code ab label als Unterprogramm auf,
-                                 mit m Argumenten auf dem Stack
-
-(BARRIER)                        wird nie erreicht, zählt als Wegsprung
-
-6. Environments und Closures:
-
-(VENV venvc stackz)              A0 := das Venv, das venvc entspricht
-                                 (aus dem Stack, als Konstante aus
-                                 FUNC, oder NIL, falls in FUNC nicht vorhanden),
-                                 1 Wert
-                                 (stackz ist der aktuelle Stackzustand)
-
-(MAKE-VECTOR1&PUSH n)            kreiert einen simple-vector mit n+1 (n>=0)
-                                 Komponenten und steckt A0 als Komponente 0
-                                 hinein. -(STACK) := der neue Vektor.
-                                 Undefinierte Werte.
-
-(COPY-CLOSURE fnode n)           kopiert die Closure, die dem fnode entspricht
-                                 und ersetzt in der Kopie für i=0,...,n-1 (n>0)
-                                 die Komponente (CONST i) durch (STACK+4*(n-1-i)).
-                                 STACK := STACK+4*n. A0 := Closure-Kopie, 1 Wert
-
-7. Funktionsaufrufe:
-
-(CALLP)                          beginnt den Aufbau eines Funktionsaufruf-Frames
-                                 (wird im 2. Pass ersatzlos gestrichen)
-
-(CALL k const)                   ruft die Funktion const mit k Argumenten
-                                 (STACK+4*(k-1)),...,(STACK+4*0) auf,
-                                 STACK:=STACK+4*k, Ergebnis kommt nach A0/...
-
-(CALL0 const)                    ruft die Funktion const mit 0 Argumenten auf,
-                                 Ergebnis kommt nach A0/...
-
-(CALL1 const)                    ruft die Funktion const mit 1 Argument A0 auf,
-                                 Ergebnis kommt nach A0/...
-
-(CALL2 const)                    ruft die Funktion const mit 2 Argumenten (STACK)
-                                 und A0 auf, STACK:=STACK+4,
-                                 Ergebnis kommt nach A0/...
-
-(CALLS1 n)                       ruft die Funktion (FUNTAB n)
-(CALLS2 n)                       bzw. (FUNTAB 256+n)
-                                 (ein SUBR ohne Rest-Parameter) auf,
-                                 mit der korrekten Argumentezahl auf dem STACK.
-                                 STACK wird bereinigt, Ergebnis kommt nach A0/...
-
-(CALLSR m n)                     ruft die Funktion (FUNTABR n)
-                                 (ein SUBR mit Rest-Parameter) auf,
-                                 mit der korrekten Argumentezahl und zusätzlich
-                                 m restlichen Argumenten auf dem STACK.
-                                 STACK wird bereinigt, Ergebnis kommt nach A0/...
-
-(CALLC)                          ruft die Funktion A0 (eine compilierte Closure
-                                 ohne Keyword-Parameter) auf. Argumente
-                                 sind schon im richtigen Format auf dem STACK,
-                                 STACK wird bereinigt, Ergebnis kommt nach A0/...
-
-(CALLCKEY)                       ruft die Funktion A0 (eine compilierte Closure
-                                 mit Keyword-Parameter) auf. Argumente
-                                 sind schon im richtigen Format auf dem STACK,
-                                 STACK wird bereinigt, Ergebnis kommt nach A0/...
-
-(FUNCALLP)                       fängt den Aufbau eines FUNCALL-Frames an,
-                                 auszuführende Funktion ist in A0
-
-(FUNCALL n)                      ruft die angegebene Funktion mit n (n>=0)
-                                 Argumenten (alle auf dem Stack) auf,
-                                 beseitigt den FUNCALL-Frame,
-                                 Ergebnis kommt nach A0/...
-
-(APPLYP)                         fängt den Aufbau eines APPLY-Frames an,
-                                 auszuführende Funktion ist in A0
-
-(APPLY n)                        ruft die angegebene Funktion mit n (n>=0)
-                                 Argumenten (alle auf dem Stack) und weiteren
-                                 Argumenten (Liste in A0) auf,
-                                 beseitigt den APPLY-Frame,
-                                 Ergebnis kommt nach A0/...
-
-8. optionale und Keyword-Argumente:
-
-(PUSH-UNBOUND n)                 n-mal: -(STACK) := #<UNBOUND>, undefinierte Werte
-
-(UNLIST n m)                     Liste A0 n mal verkürzen: -(STACK) := (car A0),
-                                 A0 := (cdr A0). Bei den letzten m Mal darf A0
-                                 schon zu Ende sein, dann -(STACK) := #<UNBOUND>
-                                 stattdessen. Am Schluss muss A0 = NIL sein,
-                                 undefinierte Werte. 0 <= m <= n.
-
-(UNLIST* n m)                    Liste A0 n mal verkürzen: -(STACK) := (car A0),
-                                 A0 := (cdr A0). Bei den letzten m Mal darf A0
-                                 schon zu Ende sein, dann -(STACK) := #<UNBOUND>.
-                                 stattdessen. Dann -(STACK) := (nthcdr n A0),
-                                 undefinierte Werte. 0 <= m <= n, n > 0.
-
-(JMPIFBOUNDP var venvc stackz label)
-                                 falls Variable /= #<UNBOUND> :
-                                   Sprung zu label, A0 := Variable, 1 Wert.
-                                 Sonst undefinierte Werte.
-                                 (stackz ist der aktuelle Stackzustand)
-
-(BOUNDP var venvc stackz)        A0 := (NIL falls Variable=#<UNBOUND>, T sonst),
-                                 1 Wert
-                                 (stackz ist der aktuelle Stackzustand)
-
-9. Behandlung mehrerer Werte:
-
-(VALUES0)                        A0 := NIL, 0 Werte
-
-(VALUES1)                        A0 := A0, 1 Wert
-
-(STACK-TO-MV n)                  holt n Werte von (STACK)+ herab,
-                                 STACK:=STACK+4*n, n>1
-
-(MV-TO-STACK)                    Multiple Values A0/A1/... auf -(STACK),
-                                 1. Wert zuoberst, STACK:=STACK-4*D7.W,
-                                 danach undefinierte Werte
-
-(NV-TO-STACK n)                  die ersten n Werte (n>=0) auf -(STACK),
-                                 1. Wert zuoberst, STACK:=STACK-4*n,
-                                 undefinierte Werte
-
-(MV-TO-LIST)                     Multiple Values A0/... als Liste nach A0,
-                                 1 Wert
-
-(LIST-TO-MV)                     A0/... := (values-list A0)
-
-(MVCALLP)                        bereitet einen MULTIPLE-VALUE-CALL auf die
-                                 Funktion in A0 vor
-
-(MVCALL)                         führt einen MULTIPLE-VALUE-CALL mit den im
-                                 Stack liegenden Argumenten aus
+   (PROGV)                    binds the Symbols in the List (STACK)+
+                              dynamically to the values in the List A0 and
+                              thereby constructs exactly one binding-frame,
+                              undefined values
+4. Stack-Operations:
+
+   (PUSH)                     -(STACK) := A0, undefined values
+
+   (POP)                      A0 := (STACK)+, 1 values
+
+   (UNWIND stackz1 stackz2 for-value) Executes an Unwind within a function:
+                              cleans the Stack, in order to get from
+                              Stack-State stackz1 to Stack-State stackz2.
+                              Resolves Frames lying inbetween. for-value
+                              specifies, if the values A0/... must be
+                              saved thereby.
+   (UNWINDSP stackz1 stackz2) modifies the SP, in order to get from
+                              Stack-State stackz1 to Stack-State stackz2 .
+                              STACK and the values A0/... remain unchanged.
+
+5. Control Flow and Jumps:
+
+   (RET)                      terminates the function with the values A0/...
+
+   (RETGF)                    terminates the function with 1 value A0 and poss.
+                              calls A0 as function, with the same
+                              Arguments as the current function
+
+   (JMP label)                jump to label
+
+   (JMPIF label)              if A0 /= NIL : jump to label.
+
+   (JMPIFNOT label)           if A0 = NIL : jump to label.
+
+   (JMPIF1 label)             if A0 /= NIL : 1 value, jump to label.
+
+   (JMPIFNOT1 label)          if A0 = NIL : 1 value, jump to label.
+
+   (JMPHASH test ((obj1 . label1) ... (objm . labelm)) label . labels)
+                              jump to labeli, if A0 = obji (in terms of
+                              the specified comparison), else to label.
+                              Undefined values.
+
+   (JSR m label)              calls the Code at label as subroutine,
+                              with m Arguments on the Stack
+
+   (BARRIER)                  is never reached, counts as leaving-jump
+
+6. Environments and Closures:
+
+   (VENV venvc stackz)        A0 := the Venv, that corresponds to venvc
+                              (from the Stack, as Constant from
+                               FUNC, or NIL, if not available in FUNC),
+                              1 value
+                              (stackz is the current Stack-State)
+   (MAKE-VECTOR1&PUSH n)      creates a simple-vector with n+1 (n>=0)
+                              Components and puts in A0 as Component 0.
+                              -(STACK) := the new Vector.
+                              Undefined values.
+   (COPY-CLOSURE fnode n)     copies the Closure, that corresponds to fnode
+                              and in the copy it replaces for i=0,...,n-1 (n>0)
+                              the component (CONST i) by (STACK+4*(n-1-i)).
+                              STACK := STACK+4*n. A0 := Closure-Copy, 1 value
+
+7. Function-Calls:
+
+   (CALLP)                    starts the construction of a Function-Call-Frame
+                              (is discarded in the 2. Pass without replacement)
+
+   (CALL k const)             calls the Function const with k Arguments
+                              (STACK+4*(k-1)),...,(STACK+4*0) ,
+                              STACK:=STACK+4*k, result is stored to A0/...
+   (CALL0 const)              calls the Function const with 0 Arguments,
+                              result is stored to A0/...
+   (CALL1 const)              calls the Function const with 1 Argument A0,
+                              result is stored to A0/...
+   (CALL2 const)              calls the Function const with 2 Arguments (STACK)
+                              and A0 , STACK:=STACK+4,
+                              result is stored to A0/...
+   (CALLS1 n)                 calls the Function (FUNTAB n)
+   (CALLS2 n)                 resp. (FUNTAB 256+n)
+                              (a SUBR without Rest-Parameter),
+                              with the correct number of arguments on the STACK
+                              STACK is cleaned, result is stored to A0/...
+   (CALLSR m n)               calls the Function (FUNTABR n)
+                              (a SUBR with Rest-Parameter) ,
+                              with the correct number of arguments and
+                              additional m remaining arguments on the STACK.
+                              STACK is cleaned, result is stored to A0/...
+   (CALLC)                    calls the Function A0 (a compiled Closure
+                              without Keyword-Parameter). Arguments
+                              are already in the right format on the STACK,
+                              STACK is cleaned, result is stored to A0/...
+   (CALLCKEY)                 calls the Function A0 (a compiled Closure
+                              with Keyword-Parameter). Arguments
+                              are already in the right format on the STACK,
+                              STACK is cleaned, result is stored to A0/...
+   (FUNCALLP)                 adds the structure of a FUNCALL-Frame,
+                              Function to be called is in A0
+   (FUNCALL n)                calls the specified Function with n (n>=0)
+                              Arguments (all on the Stack),
+                              removes the FUNCALL-Frame,
+                              result is stored to A0/...
+   (APPLYP)                   adds the structure of an APPLY-Frame,
+                              Function to be called is in A0
+   (APPLY n)                  calls the specified Function with n (n>=0)
+                              Arguments (all on the Stack) and further
+                              Arguments (list in A0),
+                              removes the APPLY-Frame,
+                              result is stored to A0/...
+
+8. optional and Keyword-Arguments:
+
+   (PUSH-UNBOUND n)           n-times: -(STACK) := #<UNBOUND>, undefined values
+
+   (UNLIST n m)               shorten list A0 n times: -(STACK) := (car A0),
+                              A0 := (cdr A0). At the last m times A0 may have
+                              already reached the end,
+                              then -(STACK) := #<UNBOUND> instead.
+                              At the end A0 must be NIL.
+                              undefined values. 0 <= m <= n.
+   (UNLIST* n m)              shorten list A0 n times: -(STACK) := (car A0),
+                              A0 := (cdr A0). At the last m times A0 may have
+                              already reached the end,
+                              then -(STACK) := #<UNBOUND> instead.
+                              Then -(STACK) := (nthcdr n A0).
+                              undefined values. 0 <= m <= n, n > 0.
+   (JMPIFBOUNDP var venvc stackz label)
+                              if Variable /= #<UNBOUND> :
+                                jump to label, A0 := Variable, 1 value.
+                              else undefined values.
+                              (stackz is the current Stack-State)
+   (BOUNDP var venvc stackz)  A0 := (NIL if Variable=#<UNBOUND>, else T),
+                              1 value
+                              (stackz is the current Stack-State)
+
+9. Treatment of Multiple Values:
+
+   (VALUES0)                  A0 := NIL, 0 values
+
+   (VALUES1)                  A0 := A0, 1 value
+
+   (STACK-TO-MV n)            fetches n values from (STACK)+ ,
+                              STACK:=STACK+4*n, n>1
+
+   (MV-TO-STACK)              Multiple Values A0/A1/... to -(STACK),
+                              1. value atop, STACK:=STACK-4*D7.W,
+                              after that undefined values
+
+   (NV-TO-STACK n)            the first n values (n>=0) to -(STACK),
+                              1. value atop, STACK:=STACK-4*n,
+                              undefined values
+
+   (MV-TO-LIST)               Multiple Values A0/... as List to A0,
+                              1 value
+
+   (LIST-TO-MV)               A0/... := (values-list A0)
+
+   (MVCALLP)                  prepares a MULTIPLE-VALUE-CALL to the
+                              Function in A0
+
+   (MVCALL)                   executes a MULTIPLE-VALUE-CALL with the
+                              Arguments lying in the Stack
 
 10. BLOCK:
 
-(BLOCK-OPEN const label)         Legt einen Block-Cons (mit CAR=const und CDR=
-                                 Framepointer) auf -(STACK) ab, baut einen
-                                 Block-Frame auf. Bei einem RETURN auf diesen
-                                 Frame wird zu label gesprungen.
-
-(BLOCK-CLOSE)                    Verlasse den Block und baue dabei einen Block-
-                                 Frame ab (inklusive der Block-Cons-Variablen)
-
-(RETURN-FROM const)              Verlasse den Block, dessen Block-Cons angegeben
-                                 ist, mit den Werten A0/...
-(RETURN-FROM block)              Verlasse den angegebenen Block (sein Block-Cons
-                                 kommt unter den BlockConsts von FUNC vor) mit
-                                 den Werten A0/...
-(RETURN-FROM block stackz)       Verlasse den angegebenen Block (sein Block-Cons
-                                 kommt im Stack vor) mit den Werten A0/...
+   (BLOCK-OPEN const label)   Stores a Block-Cons (with CAR=const and CDR=
+                              Framepointer) to -(STACK), constructs a
+                              Block-Frame. On RETURN to this
+                              Frame --> jump to label.
+   (BLOCK-CLOSE)              Leave the Block and thereby dismantle a Block-
+                              Frame (including the Block-Cons-Variables)
+   (RETURN-FROM const)        Leave the Block, whose Block-Cons is specified,
+                              with the values A0/...
+   (RETURN-FROM block)        Leave the specified Block (its Block-Cons
+                              occurs among the BlockConsts of FUNC) with
+                              the values A0/...
+   (RETURN-FROM block stackz) Leave the specified Block (its Block-Cons
+                              occurs in the Stack) with the values A0/...
 
 11. TAGBODY:
 
-(TAGBODY-OPEN const label1 ... labelm)
-                                 Legt einen Tagbody-Cons (mit CAR=const
-                                 und CDR=Framepointer) auf -(STACK) ab, baut einen
-                                 Tagbody-Frame auf. Bei einem GO mit Nummer l
-                                 wird zu labell gesprungen.
+   (TAGBODY-OPEN const label1 ... labelm)
+                              Stores a Tagbody-Cons (with CAR=const
+                              and CDR=Framepointer) on -(STACK), constructs a
+                              Tagbody-Frame. On GO with number l
+                              ---> jump to labell.
+   (TAGBODY-CLOSE-NIL)        Leave the Tagbody and thereby dismantle a
+                              Tagbody-Frame (including the Tagbody-Cons-
+                              Variables). A0 := NIL, 1 value
+   (TAGBODY-CLOSE)            Leave the Tagbody and thereby dismantle a
+                              Tagbody-Frame (including the Tagbody-Cons-
+                              Variables).
+   (GO const l)               jump in Tagbody, whose Tagbody-Cons
+                              is specified, to Tag (svref (car const) l)
+   (GO tagbody l)             jump in the specified Tagbody to Tag Number
+                              (cdr l) in (tagbody-used-far tagbody)
+   (GO tagbody l stackz)      jump in the specified Tagbody to Tag Number
+                              (cdr l) in (tagbody-used-far tagbody), its
+                              Tagbody-Cons is located in the Stack
 
-(TAGBODY-CLOSE-NIL)              Verlasse den Tagbody und baue dabei einen
-                                 Tagbody-Frame ab (inklusive der Tagbody-Cons-
-                                 Variablen). A0 := NIL, 1 Wert
+12. CATCH and THROW:
 
-(TAGBODY-CLOSE)                  Verlasse den Tagbody und baue dabei einen
-                                 Tagbody-Frame ab (inklusive der Tagbody-Cons-
-                                 Variablen).
+   (CATCH-OPEN label)         constructs a CATCH-Frame with A0 as Tag;
+                              On THROW to this Tag ---> jump to label
 
-(GO const l)                     Springe im Tagbody, dessen Tagbody-Cons
-                                 angegeben ist, an Tag (svref (car const) l)
-(GO tagbody l)                   Springe im angegebenen Tagbody an Tag Nummer
-                                 (cdr l) in (tagbody-used-far tagbody)
-(GO tagbody l stackz)            Springe im angegebenen Tagbody an Tag Nummer
-                                 (cdr l) in (tagbody-used-far tagbody), sein
-                                 Tagbody-Cons liegt im Stack
+   (CATCH-CLOSE)              unwinds a CATCH-Frame
 
-12. CATCH und THROW:
-
-(CATCH-OPEN label)               baut einen CATCH-Frame auf mit A0 als Tag;
-                                 bei einem THROW auf dieses Tag wird zu label
-                                 gesprungen
-
-(CATCH-CLOSE)                    löst einen CATCH-Frame auf
-
-(THROW)                          führt ein THROW auf den Catch-Tag (STACK)+
-                                 aus, mit den Werten A0/...
+   (THROW)                    executes a THROW to the Catch-Tag (STACK)+,
+                              with the values A0/...
 
 13. UNWIND-PROTECT:
 
-(UNWIND-PROTECT-OPEN label)      baut einen UNWIND-PROTECT-Frame auf; bei einem
-                                 Unwind wird unter Rettung der Werte zu label
-                                 gesprungen
+   (UNWIND-PROTECT-OPEN label)  constructs a UNWIND-PROTECT-Frame; On
+                              Unwind --> jump to label, saving the values
 
-(UNWIND-PROTECT-NORMAL-EXIT)     löst einen Unwind-Protect-Frame auf, schreibt
-                                 eine Weitermach-Adresse auf SP, rettet die
-                                 Werte und fängt an, den folgenden Cleanup-Code
-                                 auszuführen
-
-(UNWIND-PROTECT-CLOSE label)     beendet den Cleanup-Code: schreibt die
-                                 geretteten Werte zurück, führt ein RTS aus.
-                                 Der Cleanup-Code fängt bei label an.
-
-(UNWIND-PROTECT-CLEANUP)         löst einen Unwind-Protect-Frame auf, schreibt
-                                 eine Weitermach-Adresse und den PC auf SP,
-                                 rettet die Werte und fängt an, den Cleanup-
-                                 Code auszuführen
+   (UNWIND-PROTECT-NORMAL-EXIT) unwinds an Unwind-Protect-Frame, writes a
+                              Continuation-Address to SP, saves the
+                              values and starts to execute the following
+                              Cleanup-Code
+   (UNWIND-PROTECT-CLOSE label) finishes the Cleanup-Code: writes back
+                              the saved values, executes an RTS.
+                              The Cleanup-Code starts at label.
+   (UNWIND-PROTECT-CLEANUP)   unwinds an Unwind-Protect-Frame, writes a
+                              Continuation-Address and the PC to SP,
+                              saves the values and starts to execute the
+                              Cleanup-Code
 
 14. HANDLER:
 
-(HANDLER-OPEN const stackz label1 ... labelm)
-                                 baut einen HANDLER-Frame auf; const enthält
-                                 die Condition-Typen; die entsprechenden
-                                 Handler beginnen bei labeli
+   (HANDLER-OPEN const stackz label1 ... labelm)
+                              constructs a HANDLER-Frame; const contains
+                              the Condition-Types; die corresponding
+                              Handlers start at labeli
+   (HANDLER-BEGIN)            begins a Handler: produces the SP-State
+                              as with HANDLER-OPEN,
+                              A0 := Condition passed to the Handler, 1 value
 
-(HANDLER-BEGIN)                  beginnt einen Handler: stellt den SP-Zustand
-                                 wie beim HANDLER-OPEN her,
-                                 A0 := dem Handler übergebene Condition, 1 Wert
+15. Some Functions:
 
-15. einige Funktionen:
+   (NOT)                      = (CALL1 #'NOT)
 
-(NOT)                            = (CALL1 #'NOT)
+   (EQ)                       = (CALL2 #'EQ)
 
-(EQ)                             = (CALL2 #'EQ)
+   (CAR)                      = (CALL1 #'CAR)
 
-(CAR)                            = (CALL1 #'CAR)
+   (CDR)                      = (CALL1 #'CDR)
 
-(CDR)                            = (CALL1 #'CDR)
+   (CONS)                     = (CALL2 #'CONS)
 
-(CONS)                           = (CALL2 #'CONS)
+   (ATOM)                     = (CALL1 #'ATOM)
 
-(ATOM)                           = (CALL1 #'ATOM)
+   (CONSP)                    = (CALL1 #'CONSP)
 
-(CONSP)                          = (CALL1 #'CONSP)
+   (SYMBOL-FUNCTION)          = (CALL1 #'SYMBOL-FUNCTION)
 
-(SYMBOL-FUNCTION)                = (CALL1 #'SYMBOL-FUNCTION)
+   (SVREF)                    = (CALL2 #'SVREF)
 
-(SVREF)                          = (CALL2 #'SVREF)
+   (SVSET)                    (setf (svref (STACK) A0) (STACK+4)),
+                              A0 := (STACK+4), 1 value, STACK:=STACK+8
 
-(SVSET)                          (setf (svref (STACK) A0) (STACK+4)),
-                                 A0 := (STACK+4), 1 Wert, STACK:=STACK+8
+   (LIST n)                   = (CALL n #'LIST), n>0
 
-(LIST n)                         = (CALL n #'LIST), n>0
-
-(LIST* n)                        = (CALL n+1 #'LIST*), n>0
+   (LIST* n)                  = (CALL n+1 #'LIST*), n>0
 
 
-Dabei bedeuten jeweils:
+Some Definitions:
 
-n, m, k     eine ganze Zahl >=0
+n, m, k     an Integer >=0
 
-stackz      einen Stackzustand (siehe STACK-VERWALTUNG).
-            Das Stack-Layout steht nach dem 1. Pass fest.
+stackz      a Stack-State (see STACK-MANAGEMENT).
+            The Stack-Layout stands firm after the 1. Pass.
 
-venvc       das Environment der Closure-Variablen (siehe VARIABLEN-VERWALTUNG).
-            Dies steht nach dem 1. Pass auch fest.
+venvc       the Environment of the Closure-Variables (see VARIABLE-MANAGEMENT).
+            This also stands firm after the 1. Pass.
 
-var         eine Variable (siehe VARIABLEN-VERWALTUNG). Ob sie
-            special/konstant/lexikalisch ist, steht nach dem 1. Pass fest.
+var         a Variable (see VARIABLE-MANAGEMENT). If it is
+            special/constant/lexical, stands firm after the 1. Pass.
 
-const       eine Konstante
+const       a Constant
 
-symbol      ein Symbol
+symbol      a Symbol
 
-fun         entweder (CONST const) eine Konstante, die ein Symbol ist,
-            oder (FUNTAB index) eine Indizierung in die feste Funktionentabelle.
+fun         either (CONST const) a Constant, that is a Symbol,
+            or (FUNTAB index) an indexing in the fixed Function-Table.
 
-fnode       ein fnode (siehe FUNKTIONEN-VERWALTUNG)
+fnode       an fnode (see FUNCTION-MANAGEMENT)
 
-label       ein Label (uninterniertes Symbol)
+label       a Label (uninterned Symbol)
 
-block       ein Block-Descriptor (siehe BLOCK-VERWALTUNG)
+block       a Block-Descriptor (see BLOCK-MANAGEMENT)
 
-test        EQ oder EQL oder EQUAL
+test        EQ or EQL or EQUAL
 
-for-value   NIL oder T
+for-value   NIL or T
 
 |#
 
-#-CLISP ; Die Funktionentabelle steckt in EVAL.
+#-CLISP ; The Function-Table is located in EVAL.
 (eval-when (compile load eval)
-  ; die Funktionstabelle mit max. 3*256 Funktionen (spart Konstanten in FUNC) :
+  ;; the function table with a max. of 3*256 Functions
+  ;; (saves constants in FUNC) :
   (defconstant funtab
     '#(system::%funtabref system::subr-info
        sys::%copy-simple-vector #| svref system::%svstore |# row-major-aref
@@ -902,11 +841,11 @@ for-value   NIL oder T
        system::search-string= system::search-string-equal make-string
        system::string-both-trim nstring-upcase string-upcase nstring-downcase
        string-downcase nstring-capitalize string-capitalize string name-char
-       substring
-       symbol-value #| symbol-function |# boundp fboundp special-operator-p system::set-symbol-value makunbound
+       substring symbol-value #| symbol-function |# boundp fboundp
+       special-operator-p system::set-symbol-value makunbound
        fmakunbound #| values-list |# system::driver system::unwind-to-driver
-       macro-function macroexpand macroexpand-1 proclaim eval evalhook applyhook
-       constantp system::parse-body system::keyword-test
+       macro-function macroexpand macroexpand-1 proclaim eval evalhook
+       applyhook constantp system::parse-body system::keyword-test
        invoke-debugger
        make-hash-table gethash system::puthash remhash maphash clrhash
        hash-table-count system::hash-table-iterator system::hash-table-iterate
@@ -923,13 +862,13 @@ for-value   NIL oder T
        #| car cdr caar cadr cdar cddr caaar caadr cadar caddr cdaar cdadr cddar
        cdddr caaaar caaadr caadar caaddr cadaar cadadr caddar cadddr cdaaar
        cdaadr cdadar cdaddr cddaar cddadr cdddar cddddr cons |# tree-equal endp
-       list-length nth #| first second third fourth |# fifth sixth seventh eighth
-       ninth tenth #| rest |# nthcdr last make-list copy-list copy-alist copy-tree
-       revappend nreconc system::list-nreverse butlast nbutlast ldiff rplaca
-       system::%rplaca rplacd system::%rplacd subst subst-if subst-if-not nsubst
-       nsubst-if nsubst-if-not sublis nsublis member member-if member-if-not
-       tailp adjoin acons pairlis assoc assoc-if assoc-if-not rassoc rassoc-if
-       rassoc-if-not
+       list-length nth #| first second third fourth |# fifth sixth seventh
+       eighth ninth tenth #| rest |# nthcdr last make-list copy-list copy-alist
+       copy-tree revappend nreconc system::list-nreverse butlast nbutlast ldiff
+       rplaca system::%rplaca rplacd system::%rplacd subst subst-if
+       subst-if-not nsubst nsubst-if nsubst-if-not sublis nsublis member
+       member-if member-if-not tailp adjoin acons pairlis assoc assoc-if
+       assoc-if-not rassoc rassoc-if rassoc-if-not
        lisp-implementation-type lisp-implementation-version software-type
        software-version identity get-universal-time get-internal-run-time
        get-internal-real-time system::%sleep system::%%time
@@ -965,12 +904,12 @@ for-value   NIL oder T
        clos::set-slot-value clos:slot-boundp clos:slot-makunbound
        clos:slot-exists-p
        system::sequencep elt system::%setelt subseq copy-seq length reverse
-       nreverse make-sequence reduce fill replace remove remove-if remove-if-not
-       delete delete-if delete-if-not remove-duplicates delete-duplicates
-       substitute substitute-if substitute-if-not nsubstitute nsubstitute-if
-       nsubstitute-if-not find find-if find-if-not position position-if
-       position-if-not count count-if count-if-not mismatch search sort
-       stable-sort merge
+       nreverse make-sequence reduce fill replace remove remove-if
+       remove-if-not delete delete-if delete-if-not remove-duplicates
+       delete-duplicates substitute substitute-if substitute-if-not nsubstitute
+       nsubstitute-if nsubstitute-if-not find find-if find-if-not position
+       position-if position-if-not count count-if count-if-not mismatch search
+       sort stable-sort merge
        system::file-stream-p make-synonym-stream system::synonym-stream-p
        system::broadcast-stream-p system::concatenated-stream-p
        make-two-way-stream system::two-way-stream-p make-echo-stream
@@ -1002,21 +941,19 @@ for-value   NIL oder T
        values error system::error-of-type clos::class-tuple-gethash list list*
        append nconc clos::%allocate-instance concatenate map some every notany
        notevery make-broadcast-stream make-concatenated-stream = /= < > <= >=
-       max min + - * / gcd lcm logior logxor logand logeqv
-  )   )
+       max min + - * / gcd lcm logior logxor logand logeqv))
   (defun %funtabref (index)
-    (if (and (<= 0 index) (< index (length funtab))) (svref funtab index) nil)
-  )
+    (if (and (<= 0 index) (< index (length funtab))) (svref funtab index) nil))
 )
 #+CROSS
 (eval-when (compile load eval)
   (defun subr-info (sym)
     (values-list
       (assoc sym
-        '(; Das ist die Tabelle aller SUBRs, wie in SUBR.D.
-          ; SUBRs, die in verschiedenen Implementationen verschiedene
-          ; Signaturen haben und/oder deren Spezifikation sich noch ändern
-          ; könnte, sind dabei allerdings auskommentiert.
+        '(;; This is the the Table of all SUBRs, as in <subr.d>.
+          ;; SUBRs, that have different signatures in different
+          ;; implementations and/or whose Specification still might
+          ;; change, are commented out.
           (! 1 0 nil nil nil)
           (system::%%time 0 0 nil nil nil)
           (system::%defseq 1 0 nil nil nil)
@@ -1037,8 +974,8 @@ for-value   NIL oder T
           (system::%rplacd 2 0 nil nil nil)
           (system::%set-long-float-digits 1 0 nil nil nil)
           (system::%setelt 3 0 nil nil nil)
-          ;(system::%sleep 1 0 nil nil nil)
-          ;(system::%sleep 2 0 nil nil nil)
+          ;;(system::%sleep 1 0 nil nil nil)
+          ;;(system::%sleep 2 0 nil nil nil)
           (system::%structure-ref 3 0 nil nil nil)
           (system::%structure-store 4 0 nil nil nil)
           (system::%structure-type-p 2 0 nil nil nil)
@@ -1702,30 +1639,25 @@ for-value   NIL oder T
           (write-string 1 1 nil (:start :end) nil)
           (write-to-string 1 0 nil (:case :level :length :gensym :escape :radix :base :array :circle :pretty :closure :readably :right-margin) nil)
           (xgcd 0 0 t nil nil)
-          (zerop 1 0 nil nil nil)
-) ) ) )  )
+          (zerop 1 0 nil nil nil))))))
 (defconstant function-codes
   (let ((hashtable (make-hash-table :test #'eq)))
     (dotimes (i (* 3 256))
-      (let ((sym (%funtabref i))) ; Name der Funktion FUNTAB[i]
-        (when sym (setf (gethash sym hashtable) i))
-    ) )
-    hashtable
-) )
-(defconstant funtabR-index ; Startindex der FUNTABR bzgl. FUNTAB
+      (let ((sym (%funtabref i))) ; Name of the Function FUNTAB[i]
+        (when sym (setf (gethash sym hashtable) i))))
+    hashtable))
+(defconstant funtabR-index ; Startindex of FUNTABR with reference to FUNTAB
   (dotimes (i (* 3 256))
     (let ((sym (%funtabref i)))
       (multiple-value-bind (name req opt rest-p) (subr-info sym)
         (declare (ignore name req opt))
-        (when rest-p (return i))
-) ) ) )
+        (when rest-p (return i))))))
 (defun CALLS-code (funtab-index)
   (if (< funtab-index 256)
     `(CALLS1 ,funtab-index)
-    `(CALLS2 ,(- funtab-index 256))
-) )
+    `(CALLS2 ,(- funtab-index 256))))
 
-; Hilfsfunktion: mapcan, aber mit append statt nconc:
+;; auxiliary function: mapcan, but with append instead of nconc:
 #|
 #-CLISP
 (defun mapcap (fun &rest lists &aux (L nil))
@@ -1737,22 +1669,16 @@ for-value   NIL oder T
             (maplist #'(lambda (listsr)
                          (if (atom (car listsr))
                            (return)
-                           (pop (car listsr))
-                       ) )
-                     lists
-        ) ) )
-        L
-      )
-  ) )
-  (nreverse L)
-)
+                           (pop (car listsr))))
+                     lists)))
+        L)))
+  (nreverse L))
 |#
 #-CLISP
 (defun mapcap (fun &rest lists)
-  (apply #'append (apply #'mapcar fun lists))
-)
+  (apply #'append (apply #'mapcar fun lists)))
 
-; Hilfsfunktion: mapcon, aber mit append statt nconc:
+;; auxiliary function: mapcon, but with append instead of nconc:
 #|
 #-CLISP
 (defun maplap (fun &rest lists &aux (L nil))
@@ -1766,153 +1692,135 @@ for-value   NIL oder T
                            (return)
                            (prog1
                              (car listsr)
-                             (setf (car listsr) (cdr (car listsr)))
-                       ) ) )
-                     lists
-        ) ) )
-        L
-      )
-  ) )
-  (nreverse L)
-)
+                             (setf (car listsr) (cdr (car listsr))))))
+                     lists)))
+        L)))
+  (nreverse L))
 |#
 #-CLISP
 (defun maplap (fun &rest lists)
-  (apply #'append (apply #'maplist fun lists))
-)
+  (apply #'append (apply #'maplist fun lists)))
 
-; (memq item const-symbollist) == (member item const-symbollist :test #'eq),
-; nur der boolesche Wert.
+;; (memq item const-symbollist) == (member item const-symbollist :test #'eq),
+;; only the boolean value.
 (defmacro memq (item list)
   (if (and (constantp list) (listp (eval list)))
     `(case ,item (,(eval list) t) (t nil))
-    `(member ,item ,list :test #'eq)
-) )
+    `(member ,item ,list :test #'eq)))
 
-; Fehlermeldungsfunktion
+;; error message function
 (defun compiler-error (caller &optional where)
   (error (ENGLISH "Compiler bug!! Occurred in ~A~@[ at ~A~].")
-         caller where
-) )
+         caller where))
 
 
 
-;                      S T A C K - V E R W A L T U N G
+;;;;****                      STACK   MANAGEMENT
 
-; Ein Stackzustand beschreibt, was sich zur Laufzeit alles auf den beiden
-; Stacks befinden wird.
-; Genaue Struktur:
-; (item1 ... itemk . fun)
-; Das ist im Speicher in Wirklichkeit eine Baumstruktur!
-; Es bedeuten hierbei:
-;  fun = FNODE der Funktion, in der gezählt wird.
-;  item = eines der folgenden:
-;    n (Integer >=0) : n Lisp-Objekte auf dem STACK
-;                      belegt n STACK-Einträge
-;    (BIND n)        : einen Bindungsframe für n Variablen,
-;                      belegt 1+2*n STACK-Einträge und 0 SP-Einträge
-;                      Muss bei Unwind explizit aufgelöst werden
-;    PROGV           : ein Bindungsframe für beliebig viele Variablen,
-;                      belegt ? STACK-Einträge und 1 SP-Eintrag (Pointer über
-;                      den Frame = alter STACK)
-;                      Muss bei Unwind explizit aufgelöst werden
-;    CATCH           : ein CATCH-Frame
-;                      belegt 3 STACK-Einträge und 2+jmpbufsize SP-Einträge
-;    UNWIND-PROTECT  : ein Unwind-Protect-Frame
-;                      belegt 2 STACK-Einträge und 2+jmpbufsize SP-Einträge
-;                      Muss bei Unwind aufgelöst und der Cleanup ausgeführt
-;                      werden
-;    CLEANUP         : während der Cleanup-Phase eines UNWIND-PROTECT
-;                      belegt ? STACK-Einträge und 3 SP-Einträge
-;                      (der untere ist Pointer über den Frame = alter STACK)
-;    BLOCK           : ein BLOCK-Frame
-;                      belegt 3 STACK-Einträge und 2+jmpbufsize SP-Einträge
-;                      Muss bei Unwind explizit aufgelöst werden
-;    (TAGBODY n)     : ein TAGBODY-Frame, der n Tags aufhebt
-;                      belegt 3+n STACK-Einträge und 1+jmpbufsize SP-Einträge
-;                      Muss bei Unwind explizit aufgelöst werden
-;    MVCALLP         : Vorbereitung für MVCALL
-;                      belegt 1 STACK-Eintrag und 1 SP-Eintrag (Pointer über
-;                      FRAME = STACK)
-;    MVCALL          : viele Lisp-Objekte
-;                      belegt ? STACK-Einträge und 1 SP-Eintrag (Pointer über
-;                      Frame = alter STACK)
-;    ANYTHING        : viele Lisp-Objekte und Frames
-;                      belegt ? STACK-Einträge und 1 SP-Eintrag (Pointer über
-;                      Frame = alter STACK)
+;; A Stack-State describes, what will be located in the two Stacks
+;; at run-time.
+;; Exact Structure:
+;;  (item1 ... itemk . fun)
+;; In memory this is really a tree-structure!
+;; Definitions:
+;;  fun = FNODE of the Function, in which the counting takes place.
+;;  item = one of the following:
+;;   n (Integer >=0) : n Lisp-Objects on the STACK
+;;                     occupies n STACK-Entries
+;;   (BIND n)        : one Binding-Frame for n Variables,
+;;                     occupies 1+2*n STACK-Entries and 0 SP-Entries
+;;                     Must be unwound on Unwind explicitely
+;;   PROGV           : a Binding-Frame for arbitrary many Variables,
+;;                     occupies ? STACK-Entries and 1 SP-Entry (Pointer above
+;;                     the Frame = old STACK)
+;;                     Must be unwound on Unwind explicitely
+;;   CATCH           : a CATCH-Frame
+;;                     occupies 3 STACK-Entries and 2+jmpbufsize SP-Entries
+;;   UNWIND-PROTECT  : an Unwind-Protect-Frame
+;;                     occupies 2 STACK-Entries and 2+jmpbufsize SP-Entries
+;;                     Must be unwound on Unwind and Cleanup has to be executed
+;
+;;   CLEANUP         : during the Cleanup-Phase of an UNWIND-PROTECT
+;;                     occupies ? STACK-Entries and 3 SP-Entries
+;;                     (the lower one is Pointer above the Frame = old STACK)
+;;   BLOCK           : a BLOCK-Frame
+;;                     occupies 3 STACK-Entries and 2+jmpbufsize SP-Entries
+;;                     Must be unwound on Unwind explicitely
+;;   (TAGBODY n)     : a TAGBODY-Frame, that stores n Tags
+;;                     occupies 3+n STACK-Entries and 1+jmpbufsize SP-Entries
+;;                     Must be unwound on Unwind explicitely
+;;   MVCALLP         : Preparation for MVCALL
+;;                     occupies 1 STACK-Entry and 1 SP-Entry (Pointer above
+;;                     FRAME = STACK)
+;;   MVCALL          : many Lisp-Objects
+;;                     occupies ? STACK-Entries and 1 SP-Entry (Pointer above
+;;                     Frame = old STACK)
+;;   ANYTHING        : many Lisp-Objects and Frames
+;;                     occupies ? STACK-Entries and 1 SP-Entry (Pointer above
+;;                     Frame = old STACK)
 
-(defvar *stackz*)    ; der aktuelle Stackzustand
+(defvar *stackz*)    ; the current Stack-State
 
-; Eine SP-Tiefe k ist ein Cons (k1 . k2) und bedeutet k1+jmpbufsize*k2.
+;; A SP-Depth k is a cons (k1 . k2) and means k1+jmpbufsize*k2.
 (defmacro spd (k1 k2) `(cons ,k1 ,k2))
 (defun spd+ (k kd)
   (cons (+ (car k) (car kd))
-        (+ (cdr k) (cdr kd))
-) )
+        (+ (cdr k) (cdr kd))))
 (defun spd- (k kd)
   (cons (- (car k) (car kd))
-        (- (cdr k) (cdr kd))
-) )
+        (- (cdr k) (cdr kd))))
 (defun spd<= (k kk)
   (and (<= (car k) (car kk))
-       (<= (cdr k) (cdr kk))
-) )
+       (<= (cdr k) (cdr kk))))
 (defun spdmax (k kk)
   (cons (max (car k) (car kk))
-        (max (cdr k) (cdr kk))
-) )
+        (max (cdr k) (cdr kk))))
 #|
-; We cannot simply take the maximum of two depths, have to work with lists.
-; Is depth covered by some of the depths in the list?
+;; We cannot simply take the maximum of two depths, have to work with lists.
+;; Is depth covered by some of the depths in the list?
 (defun some-spd<= (depth list-of-depths)
   (dolist (x list-of-depths nil)
-    (when (spd<= depth x) (return t))
-) )
+    (when (spd<= depth x) (return t))))
 |#
 
-; (stackz-fun stackz) extrahiert aus einem Stackzustand die Funktion, in der
-; gerade gearbeitet wird.
+;; (stackz-fun stackz) extracts from a Stack-State the function, that is
+;; currently processed.
 #|
 (defun stackz-fun (stackz)
   (loop (when (atom stackz) (return)) (setq stackz (cdr stackz)))
-  stackz
-)
+  stackz)
 |#
-; äquivalent, aber schneller:
+;; equivalent, but faster:
 (defun stackz-fun (stackz)
-  (if (atom stackz) stackz (cdr (last stackz)))
-)
+  (if (atom stackz) stackz (cdr (last stackz))))
 
-; (in-same-function-p stackz1 stackz2) stellt fest, ob in beiden Stackzuständen
-; in derselben Funktion gearbeitet wird.
+;; (in-same-function-p stackz1 stackz2) determines, if in both Stack-States
+;; the same function is processed.
 (defun in-same-function-p (stackz1 stackz2)
-  (eq (stackz-fun stackz1) (stackz-fun stackz2))
-)
+  (eq (stackz-fun stackz1) (stackz-fun stackz2)))
 
-; (zugriff-in-stack stackz1 stackz2)
-; Für den Zugriff auf lokale Variablen im Stack:
-; ergibt zu zwei Stackzuständen stackz1 und stackz2, die beide innerhalb
-; derselben Funktion liegen und wo stackz1 "tiefer" ist als stackz2:
-; 2 Werte: NIL und n, falls (stackz2) = (STACK+4*n) von stackz1 aus,
-;          k und n, falls (stackz2) = ((SP+4*k)+4*n) von stackz1 aus.
-; (Falls stackz2 mit BLOCK oder TAGBODY beginnt, ist immer der Zugriff auf die
-;  consvar eines Block- bzw. Tagbody-Frames gemeint.)
-(defun zugriff-in-stack (stackz1 stackz2 &aux (k nil) (n 0) (kd (spd 0 0)))
-  (loop ; beim Durchlaufen der Stacks nach oben:
-    ; momentanes STACK ist STACK+4*n (bei k=NIL) bzw. (SP+4*k)+4*n,
-    ; momentanes SP ist SP+4*kd (bei k=NIL) bzw. SP+4*(k+kd).
+;; (access-in-stack stackz1 stackz2)
+;; For the access to local variables in the Stack:
+;; Outcome for two Stack-States stackz1 and stackz2, that lie both within
+;; the same function and where stackz1 is "deeper" than stackz2:
+;; 2 values: NIL and n, if (stackz2) = (STACK+4*n) starting from stackz1,
+;;          k and n,    if (stackz2) = ((SP+4*k)+4*n) starting from stackz1.
+;; (If stackz2 begins with BLOCK or TAGBODY, always the access to the
+;;  consvar of a Block- resp. Tagbody-Frame is assumed.)
+(defun access-in-stack (stackz1 stackz2 &aux (k nil) (n 0) (kd (spd 0 0)))
+  (loop ;; looping the stacks upwards:
+    ;; current STACK is STACK+4*n (for k=NIL) resp. (SP+4*k)+4*n,
+    ;; current SP is SP+4*kd (for k=NIL) resp. SP+4*(k+kd).
     (when (eq stackz1 stackz2) (return))
-    (when (atom stackz1) (compiler-error 'zugriff-in-stack "STACKZ-END"))
+    (when (atom stackz1) (compiler-error 'access-in-stack "STACKZ-END"))
     (let ((item (car stackz1)))
       (cond ((integerp item) (setq n (+ n item)))
             ((consp item)
              (case (first item)
                (BIND    (setq n (+ n (+ 1 (* 2 (second item))))))
                (TAGBODY (setq kd (spd+ kd (spd 1 1))
-                              n (+ n (+ 3 (second item)))
-               )        )
-               (t (compiler-error 'zugriff-in-stack "STACKZ-LISTITEM"))
-            ))
+                              n (+ n (+ 3 (second item)))))
+               (t (compiler-error 'access-in-stack "STACKZ-LISTITEM"))))
             (t
              (case item
                (PROGV          (setq k (if k (spd+ k kd) kd) kd (spd 1 0) n 0))
@@ -1923,59 +1831,52 @@ for-value   NIL oder T
                (MVCALLP        (setq kd (spd+ kd (spd 1 0)) n (+ n 1)))
                ((MVCALL ANYTHING)
                                (setq k (if k (spd+ k kd) kd) kd (spd 1 0) n 0))
-               (t (compiler-error 'zugriff-in-stack "STACKZ-ITEM"))
-    ) )     ))
-    (setq stackz1 (cdr stackz1))
-  )
-  (when (and (consp stackz2) ; beim Zugriff auf BLOCK- bzw. TAGBODY-consvar:
+               (t (compiler-error 'access-in-stack "STACKZ-ITEM"))))))
+    (setq stackz1 (cdr stackz1)))
+  (when (and (consp stackz2) ; on access to BLOCK- resp. TAGBODY-consvar:
              (or (eq (car stackz2) 'BLOCK)
-                 (and (consp (car stackz2)) (eq (first (car stackz2)) 'TAGBODY))
-        )    )
-    (setq n (+ n 2)) ; consvar liegt genau 2 Einträge höher als Frameanfang
-  )
-  (values k n)
-)
+                 (and (consp (car stackz2))
+                      (eq (first (car stackz2)) 'TAGBODY))))
+    (incf n 2)) ; consvar is located exactly 2 entries higher than frame start
+  (values k n))
 
-; (may-UNWIND stackz1 stackz2)
-; stellt fest, ob (UNWIND stackz1 stackz2 for-value) legal ist. Dazu ist
-; notwendig, dass der Compiler über die Frames zwischen stackz1 und stackz2
-; genau Bescheid weiß.
+;; (may-UNWIND stackz1 stackz2)
+;; determines, if (UNWIND stackz1 stackz2 for-value) is legal.
+;; Therefore it is necessary, that the Compiler knows exactly about
+;;  the Frames between stackz1 and stackz2.
 (defun may-UNWIND (stackz1 stackz2)
   (loop
     (when (eq stackz1 stackz2) (return t))
     (when (atom stackz1) (compiler-error 'may-UNWIND "STACKZ-END"))
     (when (eq (car stackz1) 'ANYTHING) (return nil))
-    (setq stackz1 (cdr stackz1))
-) )
+    (setq stackz1 (cdr stackz1))))
 
-; (expand-UNWIND stackz1 stackz2 for-value)
-; liefert ein zu (UNWIND stackz1 stackz2 for-value) äquivalentes Codestück,
-; bestehend aus
-; (SKIP n), (SKIPI k1 k2 n), (SKIPSP k1 k2), (VALUES0),
-; (UNWIND-PROTECT-CLEANUP), (UNBIND1), (BLOCK-CLOSE), (TAGBODY-CLOSE).
-; Es muss - ausgehend von stackz1 - den Stack so bereinigen, dass danach der
-; Stackzustand stackz2 vorliegt. Bei for-value=NIL können die Werte dabei
-; weggeworfen werden.
+;; (expand-UNWIND stackz1 stackz2 for-value)
+;; returns a piece of code equivalent to (UNWIND stackz1 stackz2 for-value),
+;; consisting of
+;; (SKIP n), (SKIPI k1 k2 n), (SKIPSP k1 k2), (VALUES0),
+;; (UNWIND-PROTECT-CLEANUP), (UNBIND1), (BLOCK-CLOSE), (TAGBODY-CLOSE).
+;; It must clean the stack - starting from stackz1 - , so that after it the
+;; Stack-State stackz2 is there. If for-value=NIL the values can be
+;; discarded thereby.
 (defun expand-UNWIND (stackz1 stackz2 for-value
                       &aux (k nil) (n 0) (kd (spd 0 0)) (codelist nil))
-  (flet ((here () ; bis hierher erst einmal die Stacks hochsetzen
+  (flet ((here () ; up to here, first of all increment the Stacks
            (if k
              (progn
                (push `(SKIPI ,(car k) ,(cdr k) ,n) codelist)
-               (unless (> (car kd) 0) (compiler-error 'expand-UNWIND "SP-depth"))
+               (unless (> (car kd) 0)
+                 (compiler-error 'expand-UNWIND "SP-depth"))
                (when (or (> (car kd) 1) (> (cdr kd) 0))
-                 (push `(SKIPSP ,(- (car kd) 1) ,(cdr kd)) codelist)
-             ) )
+                 (push `(SKIPSP ,(- (car kd) 1) ,(cdr kd)) codelist)))
              (progn
                (when (> n 0) (push `(SKIP ,n) codelist))
                (when (or (> (car kd) 0) (> (cdr kd) 0))
-                 (push `(SKIPSP ,(car kd) ,(cdr kd)) codelist)
-           ) ) )
-           (setq k nil n 0 kd (spd 0 0))
-        ))
-    (loop ; beim Durchlaufen der Stacks nach oben:
-      ; momentanes STACK ist STACK+4*n (bei k=NIL) bzw. (SP+4*k)+4*n,
-      ; momentanes SP ist SP+4*kd (bei k=NIL) bzw. SP+4*(k+kd).
+                 (push `(SKIPSP ,(car kd) ,(cdr kd)) codelist))))
+           (setq k nil n 0 kd (spd 0 0))))
+    (loop ;; looping the stacks upwards:
+      ;; current STACK is STACK+4*n (for k=NIL) resp. (SP+4*k)+4*n,
+      ;; current SP is SP+4*kd (for k=NIL) resp. SP+4*(k+kd).
       (when (eq stackz1 stackz2) (here) (return))
       (when (atom stackz1) (compiler-error 'expand-UNWIND "STACKZ-END"))
       (let ((item (car stackz1)))
@@ -1984,8 +1885,7 @@ for-value   NIL oder T
                (case (first item)
                  (BIND    (here) (push '(UNBIND1) codelist))
                  (TAGBODY (here) (push '(TAGBODY-CLOSE) codelist))
-                 (t (compiler-error 'expand-UNWIND "STACKZ-LISTITEM"))
-              ))
+                 (t (compiler-error 'expand-UNWIND "STACKZ-LISTITEM"))))
               (t
                (case item
                  (PROGV (here) (push '(UNBIND1) codelist) (setq kd (spd 1 0)))
@@ -1993,27 +1893,23 @@ for-value   NIL oder T
                  (UNWIND-PROTECT
                    (here)
                    (unless for-value
-                      ; bei for-value=NIL wird beim ersten auftretenden
-                      ; UNWIND-PROTECT-Frame ein '(VALUES0) eingefügt.
+                     ;; When for-value=NIL at the the first occurring
+                     ;; UNWIND-PROTECT-Frame a '(VALUES0) is inserted.
                      (setq for-value t)
-                     (push '(VALUES0) codelist)
-                   )
-                   (push '(UNWIND-PROTECT-CLEANUP) codelist)
-                 )
+                     (push '(VALUES0) codelist))
+                   (push '(UNWIND-PROTECT-CLEANUP) codelist))
                  (CLEANUP (setq k (if k (spd+ k kd) kd) kd (spd 3 0) n 0))
                  (BLOCK (here) (push '(BLOCK-CLOSE) codelist))
                  (MVCALLP (setq kd (spd+ kd (spd 1 0)) n (+ n 1)))
                  (MVCALL (setq k (if k (spd+ k kd) kd) kd (spd 1 0) n 0))
-                 (t (compiler-error 'expand-UNWIND "STACKZ-ITEM"))
-      ) )     ))
-      (setq stackz1 (cdr stackz1))
-    )
-    (nreverse codelist)
-) )
+                 (t (compiler-error 'expand-UNWIND "STACKZ-ITEM"))))))
+      (setq stackz1 (cdr stackz1)))
+    (nreverse codelist)))
 
-; (spdepth-difference stackz1 stackz2)
-; liefert den Unterschied k von SP bei stackz1 und SP bei stackz2.
-; Um den SP von stackz1 zu stackz2 hochzusetzen, reicht also ein (SKIPSP k1 k2).
+;; (spdepth-difference stackz1 stackz2)
+;; returns the difference k of SP at stackz1 and SP at stackz2.
+;; In order to increment the SP from stackz1 to stackz2,
+;; (SKIPSP k1 k2) is sufficient.
 (defun spdepth-difference (stackz1 stackz2 &aux (k (spd 0 0)))
   (loop
     (when (eq stackz1 stackz2) (return))
@@ -2021,73 +1917,69 @@ for-value   NIL oder T
     (let ((item (car stackz1)))
       (if (consp item)
         (case (first item)
-          (TAGBODY (setq k (spd+ k (spd 1 1))))
-        )
+          (TAGBODY (setq k (spd+ k (spd 1 1)))))
         (case item
           ((PROGV MVCALLP MVCALL ANYTHING) (setq k (spd+ k (spd 1 0))))
           ((CATCH UNWIND-PROTECT BLOCK) (setq k (spd+ k (spd 2 1))))
-          (CLEANUP (setq k (spd+ k (spd 3 0))))
-    ) ) )
-    (setq stackz1 (cdr stackz1))
-  )
-  k
-)
+          (CLEANUP (setq k (spd+ k (spd 3 0)))))))
+    (setq stackz1 (cdr stackz1)))
+  k)
 
 
 
-;        F U N C T I O N - E N V I R O N M E N T - V E R W A L T U N G
+;;;;****        FUNCTION   ENVIRONMENT   MANAGEMENT
 
-; mitgegeben vom Interpreter: %fenv%
+;; passed by the Interpreter: %fenv%
 
-; Interpreter-Funktions-Environment hat die Gestalt
-; %fenv% = NIL oder #(f1 def1 ... fn defn NEXT-ENV), NEXT-ENV von derselben
-; Gestalt.
-; Damit ist eine Abbildung fi --> defi realisiert.
-; defi = Closure                     bedeutet, dass defi die lokale
-;                                    Funktionsdefinition von fi ist
-; defi = #<MACRO expander>           bedeutet einen lokalen Macro.
-; defi = #<FUNCTION-MACRO closure expander>
-;                                    bedeutet eine lokale Funktionsdefinition
-;                                    mit alternativem Macro-Expander
-; defi = NIL                         bedeutet, dass eine lokale Funktions-
-;                                    definition noch hineinkommt (vgl. LABELS)
+;; Interpreter-Function-Environment has the shape
+;; %fenv% = NIL or #(f1 def1 ... fn defn NEXT-ENV), NEXT-ENV likewise
+;;
+;; So a mapping fi --> defi is established.
+;; defi = Closure             implies, that defi is the local
+;;                            function-definition of fi
+;; defi = #<MACRO expander>   denotes a local Macro.
+;; defi = #<FUNCTION-MACRO closure expander>
+;;                            denotes a local function-definition
+;;                            with alternative Macro-Expander
+;; defi = NIL                 implies, that a local function-
+;;                            definition is still to be added (cf. LABELS)
 
-; neu konstruiert:
+;; newly constructed:
 (defvar *fenv*)
-; enthält die neuen lexikalischen Funktionsbindungen.
-; *fenv* hat dieselbe Gestalt wie %fenv% und endet mit %fenv%:
-; #(f1 def1 ... fn defn NEXT-ENV), was eine Abbildung fi --> defi
-; realisiert.
-; defi = #<MACRO expander>         bedeutet einen lokalen Makro.
-; defi = (fdescr . var)            bedeutet, dass die lokale Funktionsdefinition
-;           von fi zur Laufzeit in der lexikalischen Variablen var steckt.
-;           fnode ist der zu fi gehörige fnode, anfangs noch NIL.
-; defi = (fdescr . const)          bedeutet, dass die lokale Funktionsdefinition
-;           von fi autonom ist und in der Konstanten const steckt.
-;           fnode ist der zu fi gehörige fnode, anfangs noch NIL.
-; Dabei ist fdescr ein Cons (fnode . lambdadescr),
-;           fnode der zu fi gehörige fnode oder NIL,
-;           lambdadescr = (LABELS . Liste der Werte von analyze-lambdalist)
-;           oder lambdadescr = (GENERIC . Signature) oder NIL.
-; defi = (#<MACRO expander> fdescr . {var|const})
-;                                    bedeutet eine lokale Funktionsdefinition
-;                                    mit alternativem Macro-Expander
+;; contains the new lexical function-bindings.
+;; *fenv* has the same shape as %fenv% and ends with %fenv%:
+;; #(f1 def1 ... fn defn NEXT-ENV), which establishes a
+;;  a mapping fi --> defi.
+;; defi = #<MACRO expander>         denotes a local Macro.
+;; defi = (fdescr . var)            implies, that the local function-definition
+;;           of fi is located at runtime in the lexical variable var.
+;;           fnode is the fnode belonging to fi, still NIL at the beginning.
+;; defi = (fdescr . const)          implies, that the local function-definition
+;;           of fi is autonomously and is located in the constant const.
+;;           fnode is the fnode belonging to fi, still NIL at the beginning.
+;; fdescr is a Cons (fnode . lambdadescr),
+;;           fnode is the fnode belonging to fi or NIL,
+;;           lambdadescr = (LABELS . list of values of analyze-lambdalist)
+;;           or lambdadescr = (GENERIC . Signature) or NIL.
+;; defi = (#<MACRO expander> fdescr . {var|const})
+;;                                    denotes a local function-definition
+;;                                    with alternative Macro-Expander
 
-; Suche die lokale Funktionsdefinition des Symbols f in fenv :
-; Ergebnis ist:
-; 1. Wert: T
-; 2. Wert: als Makro
-;    Macro-Expander                 falls lokale Macrodefinition vorhanden
-;    NIL                            falls nicht
-; ab 3. Wert: als Funktion
-;    GLOBAL, Vektor, Index, NIL     wenn defi = (svref Vektor Index)
-;                                   (also in %fenv% gefunden)
-;    GLOBAL, Vektor, Index, T       ditto als FUNCTION-MACRO
-;    LOCAL, def, fdescr             wenn def = {var|const} = (cdr (last defi))
-;                                   (also in *fenv* ohne %fenv% gefunden)
-;    NIL                            falls nur Makro
-; Oder:
-; 1. Wert: NIL                      falls nicht lokal definiert.
+;; Search the local function-definition of the symbol f in fenv:
+;; result:
+;; 1. value: T
+;; 2. value: as Macro
+;;    Macro-Expander                 if local Macrodefinition available
+;;    NIL                            if not
+;; 3. value and further values: as function
+;;    GLOBAL, Vector, Index, NIL     if defi = (svref Vector Index)
+;;                                   (so found in %fenv%)
+;;    GLOBAL, Vector, Index, T       ditto as FUNCTION-MACRO
+;;    LOCAL, def, fdescr             if def = {var|const} = (cdr (last defi))
+;;                                   (so found in *fenv* without %fenv%)
+;;    NIL                            if only Macro
+;; Or:
+;; 1. value: NIL                     if not defined locally.
 (defun fenv-search (f &optional (fenv *fenv*))
   (loop
     (when (null fenv) (return-from fenv-search 'NIL))
@@ -2102,133 +1994,121 @@ for-value   NIL oder T
               (if (macrop (car def))
                 (values 'T
                         (macro-expander (car def))
-                        'LOCAL (cddr def) (cadr def)
-                )
+                        'LOCAL (cddr def) (cadr def))
                 (values 'T
                         'NIL
-                        'LOCAL (cdr def) (car def)
-              ) )
+                        'LOCAL (cdr def) (car def)))
               (if (macrop def)
                 (values 'T (macro-expander def) 'NIL)
                 (if (function-macro-p def)
                   (values 'T
                           (function-macro-expander def)
-                          'GLOBAL fenv (1+ i) 'T
-                  )
+                          'GLOBAL fenv (1+ i) 'T)
                   (values 'T
                           'NIL
-                          'GLOBAL fenv (1+ i) 'NIL
-  ) ) ) ) ) ) ) ) )
-)
-; Stellt fest, ob ein Funktionsname im Function-Environment fenv nicht
-; definiert ist und daher auf die globale Funktion verweist.
+                          'GLOBAL fenv (1+ i) 'NIL))))))))))
+;; Determines, if a function-name is not defined in the
+;; Function-Environment fenv and hence refers to the global function.
 (defun global-in-fenv-p (s fenv)
-  (eq (fenv-search s fenv) 'NIL)
-)
+  (eq (fenv-search s fenv) 'NIL))
 
-; Mit einem Vektor aus
-; - einem solchen Variablen-Environment (verkettete Vektoren, mit
-;   defi = #<SYMBOL-MACRO expansion> für Symbol-Macro-Definitionen),
-; - einem solchen Funktions-Environment (verkettete Vektoren, mit
-;   defi = (SYSTEM::MACRO . expander) für Macro-Definitionen zu fi)
-; arbeiten die Funktionen
-; MACROEXPAND-1, MACROEXPAND, PARSE-BODY:
-#|
-(MACROEXPAND-1 form env) expandiert die gegebene Form im Macroexpansions-
-Environment env und liefert die 1 mal expandierte Form und T
-(oder form und NIL, falls nicht expandierbar).
+;; The Functions MACROEXPAND-1, MACROEXPAND, PARSE-BODY work:
+;; With a Vector consisting of
+;; - such a Variable-Environment (concatenated Vectors, with
+;;   defi = #<SYMBOL-MACRO expansion> for Symbol-Macro-Definitions),
+;; - such a Function-Environment (concatenated Vectors, with
+;;   defi = (SYSTEM::MACRO . expander) for Macro-Definitions for fi)
 
-(MACROEXPAND form env) expandiert die gegebene Form im Macroexpansions-
-Environment env und liefert die sooft wie möglich expandierte Form und T
-(oder form und NIL, falls nicht expandierbar).
+;; (MACROEXPAND-1 form env) expands the given Form in the Macroexpansion-
+;; Environment env and returns the form expanded once and T
+;; (or form and NIL, if not expandable).
+;; (MACROEXPAND form env) expands the given Form in the Macroexpansions-
+;; Environment env and returns the Form expanded as many times as possible
+;; and T (or form and NIL, if not expandable).
+;; (PARSE-BODY body docstring-allowed env) analyzes the body and detaches
+;; the Declarations and the Docstring (if allowed and if existing) .
+;; 3 values: the remaining body-rest, a list of the found declspecs,
+;; the Docstring (or NIL).
 
-(PARSE-BODY body docstring-allowed env) analysiert den body und spaltet von
-ihm die Deklarationen und den Docstring (falls erlaubt und vorhanden) ab.
-3 Werte: der übrige body-rest, eine Liste der vorgekommenen declspecs,
-der Docstring (oder NIL).
-|#
+;;;;****           BLOCK   ENVIRONMENT   MANAGEMENT
 
+;; passed by the Interpreter: %benv%
 
-;           B L O C K - E N V I R O N M E N T - V E R W A L T U N G
+;; Interpreter-Block-Environment has the shape
+;; %benv% = ((name1 . status1) ... (namen . statusn))
+;; where namei is a Symbol and statusi is the state
+;; of this lexically comprising
+;;  Block: #<DISABLED> if the Block has already been left, else a
+;;  Pointer in the Stack to the belonging Block-Frame.
 
-; mitgegeben vom Interpreter: %benv%
-
-; Interpreter-Block-Environment hat die Gestalt
-; %benv% = ((name1 . status1) ... (namen . statusn))
-; wobei namei ein Symbol und statusi der Status dieses lexikalisch umfassenden
-; Blocks ist: #<DISABLED> falls der Block bereits verlassen wurde, sonst ein
-; Pointer in den Stack auf den zugehörigen Block-Frame.
-
-; neu konstruiert:
+;; newly constructed:
 (defvar *benv*)
 
-; *benv* hat die Gestalt
-; ((name1 . block1) ... (namen . blockn) . %benv%)
-; wobei blocki der Descriptor des Blocks mit Namen namei ist:
+;; *benv* has the shape
+;; ((name1 . block1) ... (namen . blockn) . %benv%)
+;; where blocki is the Descriptor of the Block with Name namei:
 (defstruct (block (:copier nil))
-  fnode                 ; Funktion, in der dieser Block definiert ist, ein FNODE
-  label                 ; label, an dem dieser Block zu Ende ist
-  stackz                ; Stackzustand nach dem Aufbau des Block-Frames
-  consvar               ; Variable, die im Stack im Block-Frame liegt und den
-                        ; Block-Cons enthält (dessen CDR beim Verlassen des
-                        ; Blockes auf #<DISABLED> gesetzt wird)
-  used-far              ; Flag, gibt an, ob dieser Block aus einer anderen
-                        ; Funktion heraus mit RETURN-FROM verlassen wird.
-  for-value             ; gibt an, ob das gesamte Block-Konstrukt Werte
-                        ; zurückliefern soll.
+  fnode             ; Function, in which this Block is defined, an FNODE
+  label             ; label, which finishes this Block
+  stackz            ; Stack-State after the construction of the Block-Frame
+  consvar           ; Variable, that lies in the Stack in the Block-Frame and
+                    ; which contains the Block-Cons (whose CDR is set to
+                    ; #<DISABLED>  on leaving the block)
+  used-far          ; flag, indicates, if this Block is left out of a
+                    ; different function with RETURN-FROM.
+  for-value         ; specifies, if the whole block-construction has to
+                    ; return values.
 )
 #+CLISP (remprop 'block 'sys::defstruct-description)
 
-; Sucht nach einem Block mit dem Namen name und liefert:
-; NIL                          falls nicht gefunden,
-; Block-Descriptor             falls in *benv* gefunden,
-; Block-Cons (name . status)   falls in %benv% gefunden.
+;; Searches for a block with Name name and returns:
+;; NIL                          if not found,
+;; Block-Descriptor             if found in *benv* ,
+;; Block-Cons (name . status)   if found in %benv% .
 (defun benv-search (name &optional (benv *benv*))
   (loop
     (when (atom benv) (return nil))
     (when (eq (caar benv) name)
       (if (block-p (cdar benv))
         (return (cdar benv))
-        (return (car benv))
-    ) )
-    (setq benv (cdr benv))
-) )
+        (return (car benv))))
+    (setq benv (cdr benv))))
 
 
-;         T A G B O D Y - E N V I R O N M E N T - V E R W A L T U N G
+;;;;****         TAGBODY   ENVIRONMENT   MANAGEMENT
 
-; mitgegeben vom Interpreter: %genv%
+;; passed by the Interpreter: %genv%
 
-; Interpreter-Tagbody-Environment hat die Gestalt
-; %genv% = ((Tagvektor1 . status1) ... (Tagvektorn . statusn))
-; wobei Tagvektori ein simple-vector ist, der die anspringbaren Tags enthält,
-; statusi der Status dieses lexikalisch umfassenden Tagbodys
-; ist: #<DISABLED> falls der Tagbody bereits verlassen wurde, sonst ein
-; Pointer in den Stack auf den zugehörigen Tagbody-Frame.
+;; Interpreter-Tagbody-Environment has the shape
+;; %genv% = ((Tagvektor1 . status1) ... (Tagvektorn . statusn))
+;; where Tagvektori is a simple-vector, that contains the Tags that can
+;; be jumped at, statusi is the state of this lexically comprising Tagbody:
+;; #<DISABLED> if the Tagbody has already been left, else a
+;; Pointer in the Stack to the belonging Tagbody-Frame.
 
-; neu konstruiert:
+;; newly constructed:
 (defvar *genv*)
 
-; *genv* hat die Gestalt
-; ((Tagvektor1 . tagbody1) ... (Tagvektorn . tagbodyn) . %genv%)
-; wobei tagbodyi der Descriptor des Tagbodys i ist:
+;; *genv* has the shape
+;; ((Tagvektor1 . tagbody1) ... (Tagvektorn . tagbodyn) . %genv%)
+;; where tagbodyi is the Descriptor of Tagbody i:
 (defstruct (tagbody (:copier nil))
-  fnode               ; Funktion, in der dieser Tagbody definiert ist, ein FNODE
-  labellist           ; Liste der Labels, parallel zum Tagvektor
-  stackz              ; Stackzustand nach dem Aufbau des Tagbody-Frames
-  consvar             ; Variable, die im Stack im Tagbody-Frame liegt und den
-                      ; Tagbody-Cons enthält (dessen CDR beim Verlassen des
-                      ; Tagbodys auf #<DISABLED> gesetzt wird)
-  used-far            ; Vektor mit Fill-Pointer, enthält all die Tags, die
-                      ; aus einer anderen Funktion heraus mit GO angesprungen
-                      ; werden.
+  fnode             ; Function, in which this Tagbody is defined, an FNODE
+  labellist         ; list of Labels, parallel to the  tag-vector
+  stackz            ; Stack-State after the construction of the Tagbody-Frame
+  consvar           ; Variable, that lies in the Stack in the Tagbody-Frame and
+                    ; which contains the Tagbody-Cons (whose CDR is set to
+                    ; #<DISABLED> on leaving the Tagbody)
+  used-far          ; Vector with Fill-Pointer, contains all the Tags,
+                    ; that are jumped at with GO from
+                    ; within another function.
 )
 #+CLISP (remprop 'tagbody 'sys::defstruct-description)
 
-; Sucht nach einem Tag mit dem Namen name und liefert:
-; NIL                                         falls nicht gefunden,
-; Tagbody-Descriptor, Index                   falls in *genv* gefunden,
-; Tagbody-Cons (Tagvektor . status), Index    falls in %genv% gefunden.
+;; Searches for a tag with Namen name and returns:
+;; NIL                                         if not found,
+;; Tagbody-Descriptor, Index                   if found in *genv* ,
+;; Tagbody-Cons (Tagvektor . status), Index    if found in %genv% .
 (defun genv-search (name &optional (genv *genv*))
   (loop
     (when (atom genv) (return nil))
@@ -2238,39 +2118,34 @@ der Docstring (oder NIL).
          ((= i l))
       (when (eql (svref v i) name)
         (return-from genv-search
-          (values (if (tagbody-p (cdar genv)) (cdar genv) (car genv)) i)
-    ) ) )
-    (setq genv (cdr genv))
-) )
+          (values (if (tagbody-p (cdar genv)) (cdar genv) (car genv)) i))))
+    (setq genv (cdr genv))))
 
 
-;       V A R I A B L E N - E N V I R O N M E N T - V E R W A L T U N G
+;;;;****       VARIABLE   ENVIRONMENT   MANAGEMENT
 
-; mitgegeben vom Interpreter: %venv%
+;; passed by the Interpreter: %venv%
 
-; Interpreter-Variablen-Environment hat die Gestalt
-; %venv% = NIL oder #(v1 val1 ... vn valn NEXT-ENV), NEXT-ENV von derselben
-; Gestalt.
+;; Interpreter-Variablen-Environment has the shape
+;; %venv% = NIL or #(v1 val1 ... vn valn NEXT-ENV),
+;; NEXT-ENV of the same shape.
 (defparameter specdecl
   #+CLISP (eval
             '(let ((*evalhook*
-                     #'(lambda (form env) (declare (ignore form))
-                         (svref (svref env 0) 1)
-                         ; Der Evalhook-Mechanismus übergibt das Environment.
-                         ; (svref...0) davon ist das Variablen-Environment,
-                         ; (svref...1) davon ist von der *evalhook*-Bindung
-                         ; der assoziierte "Wert" #<SPECIAL REFERENCE>.
-                  ))   )
-               0
-          )  )
-  #-CLISP (cons nil nil)
-)
-; stellt fest, ob das Symbol var eine Special-Variable darstellt
+                    #'(lambda (form env)
+                        (declare (ignore form))
+                        ;; The Evalhook-Mechanism passes the Environment.
+                        ;; (svref...0) thereof is the Variable-Environment,
+                        ;; (svref...1) thereof is the associated "value"
+                        ;; #<SPECIAL REFERENCE> from the *evalhook*-binding.
+                        (svref (svref env 0) 1))))
+              0))
+  #-CLISP (cons nil nil))
+;; determines, if the Symbol var represents a Special-Variable
 #+CLISP
 (defun proclaimed-special-p (var)
   (or (sys::special-variable-p var)
-      (not (null (member var *known-special-vars* :test #'eq)))
-) )
+      (not (null (member var *known-special-vars* :test #'eq)))))
 #-CLISP
 (defun proclaimed-special-p (var)
   (or
@@ -2280,82 +2155,79 @@ der Docstring (oder NIL).
     (let ((obj (cons nil nil)))
       (eval
         `(let ((,var ',obj))
-           (and (boundp ',var) (eq (symbol-value ',var) ',obj))
-    ) )  )
-    (not (null (member var *known-special-vars* :test #'eq)))
-) )
+           (and (boundp ',var) (eq (symbol-value ',var) ',obj)))))
+    (not (null (member var *known-special-vars* :test #'eq)))))
 
-; neu konstruiert:
-(defvar *venv*)                  ; Variablen-Environment, Feinstruktur
-(defvar *venvc*)                 ; Variablen-Environment, Grobstruktur
+;; newly constructed:
+(defvar *venv*)                  ; Variable-Environment, fine-grained
+(defvar *venvc*)                 ; Variable-Environment, coarse-grained
 
-; *venv* hat dieselbe Gestalt wie %venv% und endet mit %venv%:
-; #(v1 var1 ... vn varn NEXT_ENV), wo vari Variablen-Konstrukte oder
-; Symbolmacros oder Interpreter-Werte sind und NEXT-ENV von derselben Gestalt.
+;; *venv* has the same shape as %venv% and ends with %venv%:
+;; #(v1 var1 ... vn varn NEXT_ENV), where vari are Variable-Constructs or
+;; Symbolmacros or Interpreter-Values and NEXT-ENV has the same shape.
 
-; *venvc* simuliert das Laufzeit-Variablen-Environment zur Laufzeit, soweit
-; es sich um Closure-Variablen handelt.
-; *venvc* hat die Gestalt
-; (item1 ... itemn)
-; jedes item ist
-;   NIL :            ein LET/LET*/MULTIPLE-VALUE-BIND/Funktionseintritt/
-;                    FLET/LABELS, der keine Closure aufmacht
-;   fnode :          eine neue Funktion
-;   ((var1 ... vark) . stackz) : durch ein LET/LET*/MULTIPLE-VALUE-BIND/
-;                    Funktionseintritt/FLET/LABELS kommen die Variablen
-;                    Var1, ..., Vark in eine Closure.
-;                    Diese Closure liegt im Stack; angegeben der
-;                    Stackzustand, an der sie erreichbar ist.
+;; *venvc* simulates the Runtime-Variable-Environment at runtime, as far
+;; as it involves Closure-Variables.
+;; *venvc* has the shape
+;; (item1 ... itemn)
+;; each item is
+;;   NIL :            a LET/LET*/MULTIPLE-VALUE-BIND/Function-Entry/
+;;                    FLET/LABELS, that does not create a Closure
+;;   fnode :          a new Function
+;;   ((var1 ... vark) . stackz) : the variables Var1, ..., Vark get
+;;                    into a closure by LET/LET*/MULTIPLE-VALUE-BIND/
+;;                    Function-Entry/FLET/LABELS.
+;;                    this Closure is located in the Stack; the Stack-State
+;;                    is specified, where it is reachable.
 
-; Eine Variable wird beschrieben dadurch, dass sie entweder special ist oder
-; - falls lexikalisch - der Stackaufbau nach dem Anlegen der Variablen im Stack
-; bzw. der Ort in der Closure festliegt.
+;; A Variable is described by either being special or - if lexical -
+;; by the Stack-Structure being determined after the creation of the Variable
+;; in the Stack resp. the place in the Closure.
 (defstruct (var (:copier nil))
-  (name nil :read-only t)     ; Symbol
-  (specialp nil :read-only t) ; special deklariert (oder lexikalisch gebunden) ?
-  constantp                   ; Konstante ?
-  constant                    ; wenn Konstante: Wert und Herkunft der Konstanten
-                              ;   (der Wert ist zur Compile-Zeit bekannt)
-  usedp                       ; falls lexikalisch:
-                              ;   wurde die Variable jemals abgefragt ?
-                              ;   (Eine durch NIL oder T beendete Liste der
-                              ;    Referenzen auf die Variable)
-  for-value-usedp             ; falls lexikalisch:
-                              ;   wurde die Variable jemals for-value abgefragt?
-  really-usedp                ; falls lexikalisch:
-                              ;   wurde die Variable jemals wirklich
-                              ;   (um den Wert zu wissen) abgefragt ?
-  (assignedp nil)             ; falls lexikalisch:
-                              ;   wurde der Variablen jemals ein Wert zugewiesen?
-  (modified-list '())         ; falls lexikalisch: zu jedem SET auf die Variable
-                              ;   eine Liste (value-anode set-anode . for-value)
-  (replaceable-list '())      ; falls lexikalisch:
-                              ;   zu jeder movable-Variablen, die während ihrer
-                              ;   gesamten Existenz denselben Wert wie diese
-                              ;   hat und deswegen ersetzbar ist, jeweils eine
-                              ;   Liste (var init-anode . bind-anode)
-  closurep                    ; falls lexikalisch:
-                              ;   NIL falls im Stack, T falls in der Closure
-  (stackz nil :read-only t)   ; falls lexikalisch:
-                              ;   Stackzustand nach dem Anlegen der Variablen
-                              ;   (falls Variable im Stack: ihr Ort im Stack)
-  (venvc nil :read-only t)    ; falls lexikalisch und in der Closure:
-                              ;   das *venvc*, in dessen erstem Item diese
-                              ;   Variable vorkommt.
-  (fnode nil :read-only t)    ; function containing this variable, an FNODE
+  (name nil :read-only t)  ; Symbol
+  (specialp nil :read-only t) ; declared special (or bound lexically) ?
+  constantp                ; Constant ?
+  constant                 ; if Constant: Value and Origin of the Constant
+                           ;   (the value is known at Compile-Time)
+  usedp                    ; if lexically:
+                           ;   was the Variable ever used ?
+                           ;   (A list of references to the variable
+                           ;    terminated by NIL or T)
+  for-value-usedp          ; if lexically:
+                           ;   was the Variable ever used for-value ?
+  really-usedp             ; if lexically:
+                           ;   was the Variable ever really
+                           ;   (in order to know the value) used ?
+  (assignedp nil)          ; if lexically:
+                           ;   was a value ever assigned to the Variable?
+  (modified-list '())      ; if lexically: for each SET on the Variable:
+                           ;   a List (value-anode set-anode . for-value)
+  (replaceable-list '())   ; if lexically:
+                           ;   for each movable-Variable, that has the same
+                           ;   value during its entire Existence like this one
+                           ;   and therefore is replaceable: a
+                           ;   List (var init-anode . bind-anode)
+  closurep                 ; if lexically:
+                           ;   NIL if in the Stack, T if in the Closure
+  (stackz nil :read-only t); if lexically:
+                           ;   Stack-State after creation of the Variable
+                           ;   (if Variable is in Stack: its location in Stack)
+  (venvc nil :read-only t) ; if lexically and in the Closure:
+                           ;   the *venvc*, in whose first Item this
+                           ;   Variable occurs.
+  (fnode nil :read-only t) ; function containing this variable, an FNODE
 )
 #+CLISP (remprop 'var 'sys::defstruct-description)
 
-; (venv-search v) sucht in *venv* nach einer Variablen mit dem Symbol v.
-; Ergebnis ist:
-; NIL                   falls nicht gefunden
-; SPECIAL               falls als Special-deklarierte Variable gefunden
-; LOCAL, vector, index  falls interpretativ lexikalisch gebunden, Wert im Vektor
-; T, var                falls lexikalisch gebunden, im Stack oder in der Closure
+;; (venv-search v) searches in *venv* for a Variable with the Symbol v.
+;; result:
+;; NIL                   if not found
+;; SPECIAL               if found as a special-declared variable
+;; LOCAL, vector, index  if interpretatively lexically bound, value in vector
+;; T, var                if lexically bound, in Stack or in the Closure
 (defun venv-search (v &optional (venv *venv*))
   (when (or (constantp v) (proclaimed-special-p v))
-    (return-from venv-search 'SPECIAL)
-  )
+    (return-from venv-search 'SPECIAL))
   (loop
     (cond ((null venv) (return-from venv-search 'NIL))
           ((simple-vector-p venv)
@@ -2367,96 +2239,87 @@ der Docstring (oder NIL).
                  (return-from venv-search
                    (if (and (var-p val) #| (eq (var-name val) v) |# )
                      (if (var-specialp val) 'SPECIAL (values T val))
-                     (if (eq val specdecl) 'SPECIAL (values 'LOCAL venv (1+ i)))
-          )) ) ) ) )
-          (t (compiler-error 'venv-search))
-  ) )
-)
+                     (if (eq val specdecl) 'SPECIAL
+                         (values 'LOCAL venv (1+ i)))))))))
+          (t (compiler-error 'venv-search)))))
 
-; (venv-search-macro v) sucht in *venv* nach einer Variablen mit dem Symbol v.
-; Ergebnis ist:
-;   Wenn v ein Symbol-Macro darstellt:  T, Expansion.
-;   Sonst:                              NIL.
+;; (venv-search-macro v) searches in *venv* for a Variable with the Symbol v.
+;; result:
+;;   if v is a Symbol-Macro:  T, Expansion.
+;;   else:                              NIL.
 (defun venv-search-macro (v &optional (venv *venv*))
   (multiple-value-bind (a b c) (venv-search v venv)
     (case a
       ((NIL) (symbol-macro-expand v))
       ((LOCAL) (and (symbol-macro-p (svref b c))
-                    (values t (sys::%record-ref (svref b c) 0))
-      )        )
-      (t nil)
-) ) )
+                    (values t (sys::%record-ref (svref b c) 0))))
+      (t nil))))
 
-; (push-*venv* var1 ... varn) erweitert *venv* um var1, ..., varn,
-; sozusagen wie durch  (dolist (v (list var1 ... varn)) (push v *venv*)).
+;; (push-*venv* var1 ... varn) extends *venv* by var1, ..., varn,
+;; so to speak like (dolist (v (list var1 ... varn)) (push v *venv*)).
 (defun push-*venv* (&rest varlist)
   (when varlist
     (let ((l (list *venv*)))
       (dolist (var varlist) (setq l (list* (var-name var) var l)))
-      (setq *venv* (apply #'vector l))
-) ) )
+      (setq *venv* (apply #'vector l)))))
 
-; (zugriff-in-closure var venvc stackz)
-; liefert zu einer Closure-Variablen var, wie man auf sie zugreifen kann
-; (von einem Ort aus, an der Stack und das Closure-Environment durch stackz und
-;  venvc beschrieben werden):
-; 3 Werte k, n, m; die Variable sitzt in (svref ... 1+m) von
-;     nil, n, m  : (STACK+4*n)
-;     k, nil, m  : (svref ... 0)^k VenvConst
-;     k, n,   m  : ((SP+4*k)+4*n)
-(defun zugriff-in-closure (var venvc stackz &aux (k nil) n)
-  ; Grobschleife, stellt die Closure-Tiefe k ab VenvConst fest:
+;; (access-in-closure var venvc stackz)
+;; returns for a Closure-Variable var, how one can access it
+;; (from a location, where the Stack and the Closure-Environment
+;;  are described by stackz and venvc):
+;; 3 values k, n, m; the Variable is located in (svref ... 1+m)
+;;     nil, n, m  : (STACK+4*n)
+;;     k, nil, m  : (svref ... 0)^k VenvConst
+;;     k, n,   m  : ((SP+4*k)+4*n)
+(defun access-in-closure (var venvc stackz &aux (k nil) n)
+  ;; coarse loop, determines the Closure-depth k at VenvConst:
   (loop
     (when (eq venvc (var-venvc var)) (return))
     (let ((item (car venvc)))
       (if (null k)
-        (when (not (listp item)) (setq k 0)) ; Zählanfang, (not (listp item)) == (fnode-p item)
-        (when (consp item) (incf k)) ; zählen
-    ) )
-    (setq venvc (cdr venvc))
-  )
+        ;; start of count, (not (listp item)) == (fnode-p item)
+        (when (not (listp item)) (setq k 0))
+        (when (consp item) (incf k)))) ; count
+    (setq venvc (cdr venvc)))
   (if k
     (setq n nil)
-    (multiple-value-setq (k n) (zugriff-in-stack stackz (cdr (first venvc))))
-  )
+    (multiple-value-setq (k n) (access-in-stack stackz (cdr (first venvc)))))
   (let ((m (do ((L (car (first venvc)) (cdr L))
                 (i 0 (1+ i)))
-               ((eq (car L) var) i)
-       ))  )
-    (values k n m)
-) )
+               ((eq (car L) var) i))))
+    (values k n m)))
 
 
-;             K O N S T A N T E N - V E R W A L T U N G
+;;;;****             CONSTANT   MANAGEMENT
 
-; Eine Konstante ist eine Box mit dem Wert der Konstanten:
+;; A Constant is a Box with the value of the Constant:
 (defstruct (const (:copier nil))
-  value               ; Wert der Konstanten
-  form                ; Form, die bei Auswertung value ergibt
-  horizont            ; Gültigkeitsbereich von value und form:
-                      ; :VALUE  -  nur value ist gültig
-                      ;            (dann ist implizit form = `(QUOTE ,value) )
-                      ; :ALL    -  value und form beide gültig
-                      ; :FORM   -  nur form gültig
-    ; Bei *compiling-from-file* = nil ist nur :VALUE und :ALL möglich.
-    ; Was im 3. Pass in den Fnode eingetragen wird, ist:
-    ;   Bei *compiling-from-file* = nil: nur value.
-    ;   Bei *compiling-from-file* /= nil:
-    ;     Falls (eq horizont ':value), value, sonst form.
+  value         ; value of the Constant
+  form          ; form, that evaluates to value
+  horizon       ; validity range of value and form:
+                ; :VALUE  -  only value is valid
+                ;            (then form is implicitly: form = `(QUOTE ,value) )
+                ; :ALL    -  value and form are both valid
+                ; :FORM   -  only form is valid
+  ;; For *compiling-from-file* = nil only :VALUE and :ALL are possible.
+  ;; What is filled into the Fnode in the 3. Pass, is:
+  ;;   For *compiling-from-file* = nil: only value.
+  ;;   For *compiling-from-file* /= nil:
+  ;;     If (eq horizon ':value), value, else form.
 )
 #+CLISP (remprop 'const 'sys::defstruct-description)
-; Im 2. Pass werden auch Variablen mit constantp=T als Konstanten behandelt.
+;; In the 2nd Pass Variables with constantp=T are treated as Constants.
 
 
-;           D E K L A R A T I O N E N - V E R W A L T U N G
+;;;;****           DECLARATION    MANAGEMENT
 
 (defparameter *declaration-types*
-  '(special ; Bindungen
-    type ftype function ; Typen
-    inline notinline ; Funktionen-Compilation
-    ignore optimize dynamic-extent ; Compiler-Hinweise
-    declaration ; Zusatzdeklarationen
-    ; Typen nach Tabelle 4-1 :
+  '(special ; Bindings
+    type ftype function ; Types
+    inline notinline ; Function-Compilation
+    ignore optimize dynamic-extent ; Compiler-Hints
+    declaration ; Additional Declarations
+    ;; Types according to table 4-1 :
     array atom base-char base-string bignum bit bit-vector boolean character
     compiled-function complex cons double-float extended-char fixnum
     float function hash-table integer keyword list long-float nil null number
@@ -2464,287 +2327,265 @@ der Docstring (oder NIL).
     short-float simple-array simple-base-string simple-bit-vector
     simple-string simple-vector single-float standard-char stream string
     string-char symbol t vector
-    ; zusätzliche Deklarationen:
-    compile ; Anweisung, dass die Form bzw. Funktion zu compilieren ist
-    sys::source ; der Source-Lambdabody (unexpandiert) innerhalb eines Lambdabody
-    sys::in-defun ; zeigt an, zu welcher globalen Funktion der Code gehört
-    ignorable ; markiert Variablen als vielleicht ignorierbar
-              ; (NB: Gensym-Variablen sind immer automatisch ignorable.)
-    sys::read-only ; markiert Variablen als nicht zugewiesen
-)  )
+    ;; Additional Declarations:
+    compile ; statement, that the form resp. function is to be compiled
+    sys::source ; the Source-Lambdabody (unexpanded) within a Lambdabody
+    sys::in-defun ; indicates, which global function the Code belongs to
+    ignorable ; marks variables as possibly ignorable
+              ; (aside: Gensym-Variable are always automatically ignorable.)
+    sys::read-only)) ; marks Variables as not assigned
 
-; mitgegeben vom Interpreter: %denv%
+;; passed by the Interpreter: %denv%
 
-; neu konstruiert:
+;; newly constructed:
 (defvar *denv*)
-; *denv* hat dieselbe Gestalt wie %denv% und endet mit %denv%.
-; *denv* hat die Gestalt (item1 ... itemn), wo jedes item die Bauart
-; (declaration-type argument ...) hat.
-; Sonderbehandlung von
-;   SPECIAL : wird weggelassen, stattdessen in *venv* notiert.
-;   IGNORE, IGNORABLE : wird weggelassen, stattdessen bei der
-;                       verarbeitenden Form selber verarbeitet.
-; Zusätzliche Deklaration (INLINING symbol) gegen rekursives Inlining.
+;; *denv* has the same shape as %denv% and ends with %denv%.
+;; *denv* has the shape (item1 ... itemn), with each item having the
+;; construction type (declaration-type argument ...) .
+;; special treatment of
+;;   SPECIAL : is omitted, noted in *venv* instead.
+;;   IGNORE, IGNORABLE : is omitted, worked up itself in the
+;;                       processing form instead.
+;; Additional Declaration (INLINING symbol) against recursive Inlining.
 
-; (process-declarations declspeclist) pusht die Deklarationen (wie sie von
-; PARSE-BODY kommen) auf *denv* und liefert:
-; eine Liste der Special-deklarierten Symbole,
-; eine Liste der Ignore-deklarierten Symbole,
-; eine Liste der Ignorable-deklarierten Symbole,
-; eine Liste der Read-Only-deklarierten Symbole.
-(defun process-declarations (declspeclist &aux (specials nil) (ignores nil) (ignorables nil) (readonlys nil))
+;; (process-declarations declspeclist) pushes the Declarations (as they come
+;; from PARSE-BODY) to *denv* and returns:
+;; a list of the Special-declared symbols,
+;; a list of the Ignore-declared symbols,
+;; a list of the Ignorable-declared symbols,
+;; a list of the Read-Only-declared symbols.
+(defun process-declarations (declspeclist &aux (specials nil) (ignores nil)
+                             (ignorables nil) (readonlys nil))
   (setq declspeclist (nreverse declspeclist))
   (dolist (declspec declspeclist)
     (if (or (atom declspec) (cdr (last declspec)))
       (c-warn (ENGLISH "Bad declaration syntax: ~S~%Will be ignored.")
-              declspec
-      )
+              declspec)
       (let ((declspectype (car declspec)))
         (if (and (symbolp declspectype)
                  (or (member declspectype *declaration-types* :test #'eq)
                      (do ((L *denv* (cdr L)))
                          ((null L) nil)
                        (if (and (eq (first (car L)) 'DECLARATION)
-                                (member declspectype (rest (car L)) :test #'eq)
-                           )
-                         (return t)
-                     ) )
+                                (member declspectype (rest (car L))
+                                        :test #'eq))
+                         (return t)))
                      (and *compiling-from-file*
-                       (member declspectype *user-declaration-types* :test #'eq)
-            )    )   )
+                          (member declspectype *user-declaration-types*
+                                  :test #'eq))))
           (cond ((eq declspectype 'SPECIAL)
                  (dolist (x (cdr declspec))
                    (if (symbolp x)
                      (push x specials)
-                     (c-warn (ENGLISH "Non-symbol ~S may not be declared SPECIAL.")
-                             x
-                )) ) )
+                     (c-warn
+                      (ENGLISH "Non-symbol ~S may not be declared SPECIAL.")
+                      x))))
                 ((eq declspectype 'IGNORE)
                  (dolist (x (cdr declspec))
                    (if (symbolp x)
                      (push x ignores)
-                     (c-warn (ENGLISH "Non-symbol ~S may not be declared IGNORE.")
-                             x
-                )) ) )
+                     (c-warn
+                      (ENGLISH "Non-symbol ~S may not be declared IGNORE.")
+                      x))))
                 ((eq declspectype 'IGNORABLE)
                  (dolist (x (cdr declspec))
                    (if (symbolp x)
                      (push x ignorables)
-                     (c-warn (ENGLISH "Non-symbol ~S may not be declared IGNORABLE.")
-                             x
-                )) ) )
+                     (c-warn
+                      (ENGLISH "Non-symbol ~S may not be declared IGNORABLE.")
+                      x))))
                 ((eq declspectype 'SYS::READ-ONLY)
                  (dolist (x (cdr declspec))
                    (if (symbolp x)
                      (push x readonlys)
-                     (c-warn (ENGLISH "Non-symbol ~S may not be declared READ-ONLY.")
-                             x
-                )) ) )
-                (t (push declspec *denv*))
-          )
+                     (c-warn
+                      (ENGLISH "Non-symbol ~S may not be declared READ-ONLY.")
+                      x))))
+                (t (push declspec *denv*)))
           (c-warn (ENGLISH "Unknown declaration ~S.~%The whole declaration will be ignored.")
-                  declspectype declspec
-  ) ) ) ) )
-  (values specials ignores ignorables readonlys)
-)
+                  declspectype declspec)))))
+  (values specials ignores ignorables readonlys))
 
-; (declared-notinline fun denv) stellt fest, ob fun - ein Symbol, das eine
-; globale Funktion, die nicht durch eine lokale Funktionsdefinition verdeckt
-; ist, benennt - in denv als NOTINLINE deklariert ist.
-; Was ist mit lokalen Funktionen ??
+;; (declared-notinline fun denv) determines, if fun - a Symbol pointing to a
+;; global function, which is not shadowed by a local function-definition -
+;; is declared as NOTINLINE in denv.
+;; How about local functions ??
 (defun declared-notinline (fun &optional (denv *denv*))
   (when (member `(INLINING ,fun) *denv* :test #'equal)
-    (return-from declared-notinline t) ; keine Funktion rekursiv inline expandieren!
-  )
+    ;; never recursively expand a function inline!
+    (return-from declared-notinline t))
   (loop
     (when (atom denv)
       (when *compiling-from-file*
         (when (member fun *notinline-functions* :test #'equal) (return t))
-        (when (member fun *inline-functions* :test #'equal) (return nil))
-      )
-      (return (eq (get (get-funname-symbol fun) 'inlinable) 'notinline))
-    )
+        (when (member fun *inline-functions* :test #'equal) (return nil)))
+      (return (eq (get (get-funname-symbol fun) 'inlinable) 'notinline)))
     (let ((declspec (car denv)))
-      (when (and (eq (car declspec) 'INLINE) (member fun (cdr declspec) :test #'equal))
-        (return nil)
-      )
-      (when (and (eq (car declspec) 'NOTINLINE) (member fun (cdr declspec) :test #'equal))
-        (return t)
-    ) )
-    (setq denv (cdr denv))
-) )
-
-; (declared-constant-notinline sym denv) stellt fest, ob sym - ein Symbol, das
-; eine globale Konstante, die nicht durch eine lokale Variablendefinition
-; verdeckt ist, benennt - in denv als CONSTANT-NOTINLINE deklariert ist.
+      (when (and (eq (car declspec) 'INLINE)
+                 (member fun (cdr declspec) :test #'equal))
+        (return nil))
+      (when (and (eq (car declspec) 'NOTINLINE)
+                 (member fun (cdr declspec) :test #'equal))
+        (return t)))
+    (setq denv (cdr denv))))
+;; (declared-constant-notinline sym denv) determines,
+;; if sym - a symbol pointing to a global constant,
+;; that is not shadowed by a local variable-definition -
+;; is declared as CONSTANT-NOTINLINE in denv.
 (defun declared-constant-notinline (sym &optional (denv *denv*))
   (loop
     (when (atom denv)
       (when *compiling-from-file*
         (when (member sym *notinline-constants*) (return t))
-        (when (member sym *inline-constants*) (return nil))
-      )
-      (return (eq (get sym 'constant-inlinable) 'constant-notinline))
-    )
+        (when (member sym *inline-constants*) (return nil)))
+      (return (eq (get sym 'constant-inlinable) 'constant-notinline)))
     (let ((declspec (car denv)))
-      (when (and (eq (car declspec) 'CONSTANT-INLINE) (member sym (cdr declspec)))
-        (return nil)
-      )
-      (when (and (eq (car declspec) 'CONSTANT-NOTINLINE) (member sym (cdr declspec)))
-        (return t)
-    ) )
-    (setq denv (cdr denv))
-) )
+      (when (and (eq (car declspec) 'CONSTANT-INLINE)
+                 (member sym (cdr declspec)))
+        (return nil))
+      (when (and (eq (car declspec) 'CONSTANT-NOTINLINE)
+                 (member sym (cdr declspec)))
+        (return t)))
+    (setq denv (cdr denv))))
 
 
-;             F U N K T I O N E N - V E R W A L T U N G
+;;;;****             FUNCTION   MANAGEMENT
 
-; Ein FNODE enthält die nötige Information für eine Funktion:
+;; An FNODE contains the necessary Information for a Function:
 (defstruct (fnode (:copier nil))
-  name            ; Name, ein Symbol oder (SETF symbol)
-  code            ; Code dieser Funktion (zuerst nichts, dann ein ANODE,
-                  ; dann eine Closure)
+  name            ; Name, a Symbol or (SETF symbol)
+  code            ; code of this function (first nothing, then an ANODE,
+                  ; then a Closure)
   enclosing       ; function lexically containing this one, or NIL
-  ; Ab hier Beschreibungen für die kommende Closure:
-  venvconst       ; Flag, ob das Venv dieser Funktion explizit beim Aufbau
-                  ; mitgegeben werden muss (oder immer NIL ist)
-  venvc           ; Aussehen des Venv, das dieser Funktion beim Aufbau
-                  ; mitgegeben werden muss (wenn überhaupt)
-  Blocks-Offset   ; Anzahl der Konstanten bis hierher
-  (Blocks nil)    ; Liste der Block-Konstrukte, die dieser Funktion beim Aufbau
-                  ; mitgegeben werden müssen
-  Tagbodys-Offset ; Anzahl der Konstanten bis hierher
+  ;; Descriptions for the coming Closure:
+  venvconst       ; Flag, if the Venv of this function has to be passed
+                  ; explicitly on construction (or is always NIL)
+  venvc           ; lookout of the Venv, that has to be passed to this function
+                  ; on construction (if at all)
+  Blocks-Offset   ; number of constants so far
+  (Blocks nil)    ; List of Block-Constructs, that have to be passed
+                  ; to this function on construction
+  Tagbodys-Offset ; number of constants so far
   (Tags nil)      ; list of (tagbody . tag) defined in enclosing functions but
                   ; used by this function
-  (Tagbodys nil)  ; Liste der Tagbody-Konstrukte, die dieser Funktion beim
-                  ; Aufbau mitgegeben werden müssen
-  Keyword-Offset  ; Anzahl der lokalen Konstanten bis hierher
-                  ; = Anfangsoffset der Keywords in FUNC
-                  ; (also =0 genau dann, wenn die Funktion autonom ist)
-  (req-anz 0)     ; Anzahl der required parameter
-  (opt-anz 0)     ; Anzahl der optionalen Parameter
-  (rest-flag nil) ; Flag, ob &REST - Parameter angegeben.
-  (keyword-flag nil) ; Flag, ob &KEY - Parameter angegeben.
-  (keywords nil)  ; Liste der Keyword-Konstanten (in der richtigen Reihenfolge)
+  (Tagbodys nil)  ; List of Tagbody-Constructs, that have to be passed to this
+                  ; function on construction
+  Keyword-Offset  ; number of local constants so far
+                  ; = start offset of the Keywords in FUNC
+                  ; (equal to=0 if and only if the function is autonomously)
+  (req-anz 0)     ; number of required parameters
+  (opt-anz 0)     ; number of optional parameters
+  (rest-flag nil) ; Flag, if &REST - Parameter is specified.
+  (keyword-flag nil) ; Flag, if &KEY - Parameter is specified.
+  (keywords nil)  ; List of Keyword-Constants (in the right order)
   allow-other-keys-flag ; &ALLOW-OTHER-KEYS-Flag
-  Consts-Offset   ; Anzahl der lokalen Konstanten bis hierher
-  (consts nil)    ; Liste der sonstigen Konstanten dieser Funktion
-                  ; Diese Liste wird erst im 2. Pass aufgebaut.
-  (consts-forms nil) ; Liste der evtl. Formen, die diese Konstanten ergeben
-  gf-p            ; Flag, ob eine generische Funktion produziert wird
-                  ; (impliziert Blocks-Offset = Tagbodys-Offset = Keyword-Offset = 0 oder 1)
-  ; Notification of changes needed to be done in the enclosing function.
+  Consts-Offset   ; number of local constants so far
+  (consts nil)    ; List of other constants of this function
+                  ; this list is built up foremost in the second pass.
+  (consts-forms nil) ; List of poss. Forms, that result in these constants
+  gf-p            ; Flag, if a generic function is produced
+                  ; (implies Blocks-Offset = Tagbodys-Offset = Keyword-Offset
+                  ;  = 0 or 1)
+  ;; Notification of changes needed to be done in the enclosing function.
   far-used-vars     ; list of variables defined in enclosing functions but
                     ; used by this function
   far-assigned-vars ; list of variables defined in enclosing functions but
                     ; assigned by this function
   far-used-blocks   ; list of blocks defined in enclosing functions but
                     ; used by this function
-  far-used-tagbodys ; list of (tagbody . tag) defined in enclosing functions but
-                    ; used by this function
+  far-used-tagbodys ; list of (tagbody . tag) defined in enclosing
+                    ; functions but used by this function
 )
 #+CLISP (remprop 'fnode 'sys::defstruct-description)
 
-; die aktuelle Funktion, ein FNODE:
+;; the current function, an FNODE:
 (defvar *func*)
-; das Label am Beginn des Codes der aktuellen Funktion:
+;; the Label at the beginning of the Code of the current function:
 (defvar *func-start-label*)
 
-; Anzahl der bisher in der aktuellen Funktion aufgetretenen anonymen
-; Funktionen (Lambda-Ausdrücke):
+;; number of the so far occurred anonymous functions in the current function
+;; (Lambda-Expressions):
 (defvar *anonymous-count*)
 
-; *no-code* = T besagt, dass kein Code produziert werden soll:
+;; *no-code* = T implies, that no Code is to be produced:
 (defvar *no-code*)
-; Dies verhindert, dass Variablen unnötigerweise in die Closure gesteckt oder
-; Optimierungen unnötigerweise unterlassen werden.
+;; this prevents, that Variables are put into the closure unnecessarily or
+;; Optimizations are omitted unnecessarily.
 
-; Note that a variable is used by an inner fnode.
+;; Note that a variable is used by an inner fnode.
 (defun note-far-used-var (var)
   (if (eq (var-fnode var) *func*)
-    (progn
-      (setf (var-closurep var) t)
-      (setf (var-really-usedp var) t)
-    )
-    (pushnew var (fnode-far-used-vars *func*))
-) )
+    (setf (var-closurep var) t
+          (var-really-usedp var) t)
+    (pushnew var (fnode-far-used-vars *func*))))
 
-; Note that a variable is assigned by an inner fnode.
+;; Note that a variable is assigned by an inner fnode.
 (defun note-far-assigned-var (var)
   (if (eq (var-fnode var) *func*)
     (setf (var-closurep var) t)
-    (pushnew var (fnode-far-assigned-vars *func*))
-) )
+    (pushnew var (fnode-far-assigned-vars *func*))))
 
-; Note that a block is used by an inner fnode.
+;; Note that a block is used by an inner fnode.
 (defun note-far-used-block (block)
   (if (eq (block-fnode block) *func*)
     (setf (block-used-far block) t)
-    (pushnew block (fnode-Blocks *func*))
-) )
+    (pushnew block (fnode-Blocks *func*))))
 
-; Note that a tag of a tagbody is used by an inner fnode.
+;; Note that a tag of a tagbody is used by an inner fnode.
 (defun note-far-used-tagbody (tagbody+tag)
   (let ((tagbody (car tagbody+tag)))
     (if (eq (tagbody-fnode tagbody) *func*)
       (push tagbody+tag (tagbody-used-far tagbody))
       (progn
         (push tagbody+tag (fnode-Tags *func*))
-        (pushnew tagbody (fnode-Tagbodys *func*))
-) ) ) )
+        (pushnew tagbody (fnode-Tagbodys *func*))))))
 
 (defun propagate-far-used (fnode)
-  ; Propagate dependencies of fnode to the enclosing *func*.
+  ;; Propagate dependencies of fnode to the enclosing *func*.
   (mapc #'note-far-used-var (fnode-far-used-vars fnode))
   (mapc #'note-far-assigned-var (fnode-far-assigned-vars fnode))
   (mapc #'note-far-used-block (fnode-far-used-blocks fnode))
   (mapc #'note-far-used-tagbody (fnode-far-used-tagbodys fnode))
-  ; Nothing more to propagate, if propagate-far-used is called again.
+  ;; Nothing more to propagate, if propagate-far-used is called again.
   (setf (fnode-far-used-vars fnode) nil)
   (setf (fnode-far-assigned-vars fnode) nil)
   (setf (fnode-far-used-blocks fnode) nil)
-  (setf (fnode-far-used-tagbodys fnode) nil)
-)
+  (setf (fnode-far-used-tagbodys fnode) nil))
 
 
-;                 F O R M E N - V E R W A L T U N G
+;;;;****                 FORMS   MANAGEMENT
 
-; Bei jeder Rekursion werden folgende Variablen dynamisch gebunden:
-(defvar *form*)      ; die aktuelle Form
-(defvar *for-value*) ; ob und welche Werte der Form von Belang sind:
-                     ; NIL : Werte sind irrelevant
-                     ; ONE : nur der erste Wert ist relevant
-                     ; ALL : alle Werte sind relevant
+;; On each recursion the following variables are bound dynamically:
+(defvar *form*)      ; the current form
+(defvar *for-value*) ; if and which values of the Form are relevant:
+                     ; NIL : values are irrelevant
+                     ; ONE : only the first value is relevant
+                     ; ALL : all values are relevant
 
-; Ein ANODE ist die Codierung der Information, die beim Compilieren einer Form
-; gebraucht wird.
+;; An ANODE is the encoding of the information, that is needed for the
+;; compilation of a form.
 (defstruct (anode
-            (:constructor mk-anode (#+COMPILER-DEBUG source
-                                    type
-                                    #+COMPILER-DEBUG sub-anodes
-                                    seclass
-                                    code
-                                    #+COMPILER-DEBUG stackz
-            )                      )
-            (:copier nil)
-           )
+             (:constructor mk-anode (#+COMPILER-DEBUG source
+                                     type
+                                     #+COMPILER-DEBUG sub-anodes
+                                     seclass
+                                     code
+                                     #+COMPILER-DEBUG stackz))
+             (:copier nil))
   #+COMPILER-DEBUG
-  source              ; die zu dieser Form gehörige Source, meist eine Form
-                      ; (nur zu Debugzwecken erforderlich)
-  type                ; Typ des ANODE (CALL, PRIMOP, VAR, LET, SETQ, ...)
+  source        ; the source pertaining to this Form, mostly a Form
+                ; (only needed for debugging purposes)
+  type          ; Type of the ANODE (CALL, PRIMOP, VAR, LET, SETQ, ...)
   #+COMPILER-DEBUG
-  sub-anodes          ; alle ANODEs der Unterformen
-  seclass             ; Seiteneffekt-Klassifikation
-  code                ; erzeuger LAP-Code, eine Liste aus LAP-Anweisungen
-                      ; und ANODEs
+  sub-anodes    ; all ANODEs of the sub-forms
+  seclass       ; side effect classification
+  code          ; generated LAP-Code, a List of LAP-statements and ANODEs
   #+COMPILER-DEBUG
-  stackz              ; Zustand der Stacks beim Eintritt in den zugehörigen
-                      ; LAP-Code
-)
+  stackz)       ; state of the Stacks on entry into the belonging LAP-Code
 #+CLISP (remprop 'anode 'sys::defstruct-description)
-; (make-anode ...) ist dasselbe wie mk-anode, nur dass dabei die Argumente
-; mit Keywords markiert werden und wegen #+COMPILER-DEBUG unnötige
-; Komponenten trotzdem dastehen dürfen.
+;; (make-anode ...) is the same as mk-anode, only that the arguments
+;; are marked with keywords and unnecessary components
+;; may stand there nevertheless because of #+COMPILER-DEBUG.
 (eval-when (compile eval)
   (defmacro make-anode (&key
                         (source `*form*)
@@ -2752,182 +2593,157 @@ der Docstring (oder NIL).
                         (sub-anodes `'())
                         seclass
                         code
-                        (stackz `*stackz*)
-                       )
+                        (stackz `*stackz*))
     `(mk-anode #+COMPILER-DEBUG ,source
                ,type
                #+COMPILER-DEBUG ,sub-anodes
                ,seclass
                ,code
-               #+COMPILER-DEBUG ,stackz
-     )
-) )
+               #+COMPILER-DEBUG ,stackz)))
 
 #|
-; Eine Seiteneffekt-Klasse (SECLASS) ist ein Indikator:
-; NIL : dieses ANODE produziert keine Seiteneffekte,
-;       sein Wert ist nicht von Seiteneffekten beeinflussbar.
-; VAL : dieses ANODE produziert keine Seiteneffekte,
-;       sein Wert ist aber von Seiteneffekten beeinflussbar.
-; T   : dieses ANODE kann Seiteneffekte produzieren.
-; Somit:
-;   Falls der Wert uninteressant ist, kann ein ANODE mit SECLASS = NIL/VAL
-;   weggelassen werden.
-;   In der Reihenfolge der Auswertung dürfen vertauscht werden ANODEs mit
-;   SECLASS     NIL-NIL, NIL-VAL, NIL-T, VAL-VAL.
+;; A side effect class (SECLASS) is an indicator:
+;; NIL : this ANODE produces no side effects,
+;;       its value cannot be influenced by side effects.
+;; VAL : this ANODE produces no side effects,
+;;       but its value can be influenced by side effects.
+;; T   : this ANODE can produce side effects.
+;; Consequently:
+;;   if the value is uninteresting, an ANODE with SECLASS = NIL/VAL
+;;   can be omitted.
+;;   In the order of evaluation ANODEs may be permuted with
+;;   SECLASS     NIL-NIL, NIL-VAL, NIL-T, VAL-VAL.
 
-; (seclass-or class1 ... classk) bestimmt die Gesamtklasse der Ausführung
-; aller Klassen.
+;; (seclass-or class1 ... classk) determines the total class of execution
+;; of all classes.
 (defun seclass-or (&rest args)
   (cond ((member 'T args :test #'eq) 'T)
         ((member 'VAL args :test #'eq) 'VAL)
-        (t 'NIL)
-) )
-; Dito, mit nur 2 Argumenten
+        (t 'NIL)))
+;; Ditto, with only 2 Arguments
 (defun seclass-or-2 (seclass1 seclass2)
-  (or (eq seclass1 'T) seclass2 seclass1)
-)
-; Damit die Liste der sub-anodes nicht gebildet werden muss, aber dennoch
-; der zu dieser Liste gehörige Seiteneffektklasse berechnet werden kann:
+  (or (eq seclass1 'T) seclass2 seclass1))
+;; For the List of sub-anodes does not have to be built, however
+;; the side effect class belonging to this list can be calculated:
 (eval-when (compile eval)
   (defmacro anodes-seclass-or (&rest anodeforms)
     (reduce #'(lambda (form1 form2) `(SECLASS-OR-2 ,form1 ,form2))
             (mapcar #'(lambda (anodeform) `(ANODE-SECLASS ,anodeform))
-                    anodeforms
-  ) )       )
+                    anodeforms)))
   (define-modify-macro seclass-or-f (anode) seclass-or-anode)
   (defmacro seclass-or-anode (seclass anode)
-    `(SECLASS-OR-2 ,seclass (ANODE-SECLASS ,anode))
-  )
-)
+    `(SECLASS-OR-2 ,seclass (ANODE-SECLASS ,anode))))
 (defun anodelist-seclass-or (anodelist)
-  (apply #'seclass-or (mapcar #'anode-seclass anodelist))
-)
+  (apply #'seclass-or (mapcar #'anode-seclass anodelist)))
 
-; Stellt fest, ob zwei Anodes in der Reihenfolge ihrer Auswertung vertauscht
-; werden können - vorausgesetzt, die Stackzustände lassen das zu.
+;; Determines, if two Anodes can be permuted in the order of
+;; their evaluation  - provided that the stack states permit this.
 (defun anodes-commute (anode1 anode2)
   (let ((seclass1 (anode-seclass anode1))
         (seclass2 (anode-seclass anode2)))
     (or (eq seclass1 'NIL) (eq seclass2 'NIL)
-        (and (eq seclass1 'VAL) (eq seclass2 'VAL))
-) ) )
+        (and (eq seclass1 'VAL) (eq seclass2 'VAL)))))
 |#
 
-; Eine Seiteneffekt-Klasse (SECLASS) ist ein Indikator (uses . modifies):
-; uses = NIL : dieses Anode ist nicht von Seiteneffekten beeinflussbar,
-;        Liste : dieses Anode ist vom Wert der Variablen in der Liste abhängig,
-;        T : dieses Anode ist möglicherweise von jedem Seiteneffekt beeinflussbar.
-; modifies = NIL : dieses Anode produziert keine Seiteneffekte
-;            Liste : ... produziert Seiteneffekte nur auf die Werte der
-;                    Variablen in der Liste
-;            T : ... produziert Seiteneffekte unbekannten Ausmaßes.
-; (Variablen sind hier VAR-Structures für lexikalische und Symbole für
-; dynamische Variablen.)
-; Somit:
-;   Falls der Wert uninteressant ist, kann ein ANODE mit SECLASS-modifies=NIL
-;   weggelassen werden.
-;   In der Reihenfolge der Auswertung dürfen vertauscht werden ANODEs mit
-;   SECLASS, deren uses- und modifies-Teil über Kreuz disjunkt sind.
+;; A Side-Effect-Class (SECLASS) is an Indicator (uses . modifies):
+;; uses = NIL : this Anode can not be influenced by side-effects,
+;;        List : this Anode depends on the value of the variables in the list,
+;;        T : this Anode can possibly be influenced by every side-effect.
+;; modifies = NIL : this Anode produces no side-effects
+;;            list : ... produces side-effects only on the values of the
+;;                    Variables in the list
+;;            T : ... produces side-effects of unknown dimension.
+;; (Here, variables are VAR-Structures for lexical variables and symbols for
+;; dynamic variables.)
+;; Consequently:
+;;   If the the value is uninteresting, an ANODE with SECLASS-modifies=NIL
+;;   can be omitted.
+;;   For ANODEs with SECLASS, whose uses- and modifies-part are disjoint,
+;;   the order of evaluation may be permuted.
 
-; (seclass-or class1 ... classk) bestimmt die Gesamtklasse der Ausführung
-; aller Klassen.
+;; (seclass-or class1 ... classk) determines the total class of execution
+;; of all classes.
 (defun seclass-or (&rest args)
-  (if (null args) '(NIL . NIL) (reduce #'seclass-or-2 args))
-)
-; Dito, mit nur 2 Argumenten
+  (if (null args) '(NIL . NIL) (reduce #'seclass-or-2 args)))
+;; Ditto, with only 2 Arguments
 (defun seclass-or-2 (seclass1 seclass2)
   (cons (if (or (eq (car seclass1) 'T) (eq (car seclass2) 'T))
           'T
-          (union (car seclass1) (car seclass2))
-        )
+          (union (car seclass1) (car seclass2)))
         (if (or (eq (cdr seclass1) 'T) (eq (cdr seclass2) 'T))
           'T
-          (union (cdr seclass1) (cdr seclass2))
-) )     )
+          (union (cdr seclass1) (cdr seclass2)))))
 
-; Damit die Liste der sub-anodes nicht gebildet werden muss, aber dennoch
-; der zu dieser Liste gehörige Seiteneffektklasse berechnet werden kann:
+;; So that the list of sub-anodes does not have to be calculated, however
+;; the anode's side-effect-class belonging to this list can be calculated:
 (eval-when (compile eval)
   (defmacro anodes-seclass-or (&rest anodeforms)
     (reduce #'(lambda (form1 form2) `(SECLASS-OR-2 ,form1 ,form2))
             (mapcar #'(lambda (anodeform) `(ANODE-SECLASS ,anodeform))
-                    anodeforms
-  ) )       )
+                    anodeforms)))
   (define-modify-macro seclass-or-f (anode) seclass-or-anode)
   (defmacro seclass-or-anode (seclass anode)
-    `(SECLASS-OR-2 ,seclass (ANODE-SECLASS ,anode))
-  )
+    `(SECLASS-OR-2 ,seclass (ANODE-SECLASS ,anode)))
 )
 (defun anodelist-seclass-or (anodelist)
-  (apply #'seclass-or (mapcar #'anode-seclass anodelist))
-)
+  (apply #'seclass-or (mapcar #'anode-seclass anodelist)))
 
-; Seiteneffekte auf weiter innen gebundene lexikalische Variablen zählen
-; nicht und werden deshalb eliminiert:
+;; side-effects to lexical variables bound further inwards don't count
+;; and are therefore eliminated:
 (defun seclass-without (seclass varlist)
-  (flet ((bound (var) (member var varlist))) ; testet, ob var gebunden wird
-    ; (Dynamische Variablen werden nicht eliminiert; sie sind in varlist
-    ; als VAR-Structures und in seclass als Symbole enthalten.)
+  (flet ((bound (var) (member var varlist))) ; tests, if var is bound
+    ;; (dynamic variables are not eliminated; they are contained in varlist
+    ;; as VAR-structures and in seclass as symbols.)
     (cons (if (eq (car seclass) 'T) 'T (remove-if #'bound (car seclass)))
-          (if (eq (cdr seclass) 'T) 'T (remove-if #'bound (cdr seclass)))
-) ) )
+          (if (eq (cdr seclass) 'T) 'T (remove-if #'bound (cdr seclass))))))
 
-; Stellt fest, ob zwei Anodes in der Reihenfolge ihrer Auswertung vertauscht
-; werden können - vorausgesetzt, die Stackzustände lassen das zu.
+;; determines, if the order of evaluation of two anodes can be permuted -
+;; so long as the stack-states permit this.
 (defun anodes-commute (anode1 anode2)
-  (seclasses-commute (anode-seclass anode1) (anode-seclass anode2))
-)
+  (seclasses-commute (anode-seclass anode1) (anode-seclass anode2)))
 (defun seclasses-commute (seclass1 seclass2)
   (flet ((disjoint-p (uses modifies)
            (or (null uses) (null modifies)
                (and (not (eq uses 'T)) (not (eq modifies 'T))
-                    (null (intersection uses modifies))
-        )) )   )
+                    (null (intersection uses modifies))))))
     (and (disjoint-p (car seclass1) (cdr seclass2))
-         (disjoint-p (car seclass2) (cdr seclass1))
-) ) )
+         (disjoint-p (car seclass2) (cdr seclass1)))))
 
 
-;            H I L F S F U N K T I O N E N
+;;;;****            AUXILIARY   FUNCTIONS
 
-; Zerlegt einen Funktionsnamen in Package und String.
+;; disjoints a function name in Package and String.
 (defun get-funname-string+pack (funname)
   (if (atom funname)
     (values (symbol-name funname) (symbol-package funname))
     (values (concatenate 'string "(" (symbol-name (first funname)) " "
-                                     (symbol-name (second funname)) ")"
-            )
-            (symbol-package (second funname))
-) ) )
+                                     (symbol-name (second funname)) ")")
+            (symbol-package (second funname)))))
 
-; Liefert einen Funktionsnamen, der sich aus der Package und dem Printname eines
-; gegebenen Funktionsnamen, einem Bindestrich und einem Suffix zusammensetzt.
+;; returns a function name, that is composed by the package and the printname
+;; of a given function name, a hyphen and a suffix.
 (defun symbol-suffix (funname suffix)
   (if (and (symbolp funname) (null (symbol-package funname))
-           (function-name-p suffix)
-      )
+           (function-name-p suffix))
     suffix
     (multiple-value-bind (name pack) (get-funname-string+pack funname)
-      ; suffix in einen String umwandeln:
+      ;; convert suffix to a string:
       (cond ((symbolp suffix) (setq suffix (symbol-name suffix)))
             ((not (stringp suffix))
-             (setq suffix (write-to-string suffix :escape nil :base 10 :radix nil :readably nil))
-      )     )
-      ; neues Symbol bilden:
+             (setq suffix (write-to-string suffix :escape nil :base 10
+                                           :radix nil :readably nil))))
+      ;; build new symbol:
       (let ((new-name (concatenate 'string name "-" suffix)))
-        (if pack (intern new-name pack) (make-symbol new-name))
-) ) ) )
+        (if pack (intern new-name pack) (make-symbol new-name))))))
 
-; (C-COMMENT controlstring . args)
-; gibt eine Zusatzinformation des Compilers aus (mittels FORMAT).
+;; (C-COMMENT controlstring . args)
+;; issue additional information of the compiler (via FORMAT).
 (defun c-comment (cstring &rest args)
   (let ((dest (if *compile-verbose* *c-error-output* *c-listing-output*)))
-    (when dest (apply #'format dest cstring args))
-) )
+    (when dest (apply #'format dest cstring args))))
 
-; (C-SOURCE-LOCATION)
-; liefert eine Beschreibung, an welcher Source-Stelle man sich befindet.
+;; (C-SOURCE-LOCATION)
+;; returns a description of the location in the source.
 (defun c-source-location (&optional (lineno1 *compile-file-lineno1*)
                           (lineno2 *compile-file-lineno2*))
   (if (and *compiling-from-file* lineno1 lineno2)
@@ -2965,14 +2781,14 @@ der Docstring (oder NIL).
 
 (defvar *style-warning-count*)
 ; (C-STYLE-WARN controlstring . args)
-; gibt eine Stil-Warnung aus (mittels FORMAT).
+; issue a style-warning (via FORMAT).
 (defun c-style-warn (cstring &rest args)
   (incf *style-warning-count*)
   (apply #'c-warn cstring args))
 
 (defvar *error-count*)
 ;; (C-ERROR controlstring . args)
-;; ouput a compiler error (using FORMAT) und beendet das laufende C-FORM.
+;; issue a compiler error (via FORMAT) and terminate the current C-FORM.
 (defun c-error (cstring &rest args)
   (incf *error-count*)
   (let ((in-function (current-function)))
@@ -3002,59 +2818,49 @@ der Docstring (oder NIL).
 ;; caught c-error
 (defmacro c-error-c (&rest args) `(catch 'c-error (c-error ,@args)))
 
-; (c-eval-when-compile form) führt eine Form zur Compile-Zeit aus.
+;; (c-eval-when-compile form) executes a form at compile-time.
 (defun c-eval-when-compile (form)
   (when (and *compiling-from-file* *liboutput-stream*)
-    ; Form auf den Liboutput-Stream schreiben:
+    ;; write form to the liboutput stream:
     (terpri *liboutput-stream*)
     (write form :stream *liboutput-stream* :pretty t
-                :readably t :right-margin 79
-                ; :closure t :circle t :array t :gensym t
-                ; :escape t :level nil :length nil :radix t
-  ) )
-  ; Form evaluieren:
-  (eval form)
-)
+              ; :closure t :circle t :array t :gensym t
+              ; :escape t :level nil :length nil :radix t
+                :readably t :right-margin 79))
+  ;; evaluate form:
+  (eval form))
 
-; (l-constantp form) stellt fest, ob form im Compiler als Load-Time-Konstante
-; gehandhabt werden darf.
+;; (l-constantp form) determines, if form may be handled in the compiler
+;; as load-time-constant.
 (defun l-constantp (form)
   (if (atom form)
     (or (numberp form) (characterp form) (arrayp form)
         (and (symbolp form)
              (cond ((keywordp form) t)
                    ((eq (symbol-package form) *lisp-package*)
-                    (constantp form)
-                   )
-                   (t (not (null (assoc form *constant-special-vars*))))
-    )   )    )
-    (and (eq (first form) 'QUOTE) (consp (cdr form)) (null (cddr form)))
-) )
+                    (constantp form))
+                   (t (not (null (assoc form *constant-special-vars*)))))))
+    (and (eq (first form) 'QUOTE) (consp (cdr form)) (null (cddr form)))))
 
-; (c-constantp form) stellt fest, ob form im Compiler als Compile-Time-
-; Konstante gehandhabt werden darf, und der Wert bekannt ist und inline
-; eingesetzt werden darf.
-; Bei *compiling-from-file* = nil ist das mit (l-constantp form) identisch.
+;; (c-constantp form) determines, if form may be handled in the compiler
+;; as compile-time-constant, and if the value is known and may be inserted
+;; inline.
+;; When *compiling-from-file* = nil , this is identical to (l-constantp form) .
 (defun c-constantp (form)
   (if (atom form)
     (or (numberp form) (characterp form) (arrayp form)
         (and (symbolp form)
              (cond ((keywordp form) t)
                    ((and *compiling-from-file*
-                         (declared-constant-notinline form)
-                    )
-                    nil
-                   )
+                         (declared-constant-notinline form))
+                    nil)
                    ((eq (symbol-package form) *lisp-package*)
-                    (constantp form)
-                   )
-                   (t (not (null (assoc form *constant-special-vars*))))
-    )   )    )
-    (and (eq (first form) 'QUOTE) (consp (cdr form)) (null (cddr form)))
-) )
+                    (constantp form))
+                   (t (not (null (assoc form *constant-special-vars*)))))))
+    (and (eq (first form) 'QUOTE) (consp (cdr form)) (null (cddr form)))))
 
-; (c-constant-value form) liefert den Wert einer Konstanten.
-; (c-constantp form) wird vorausgesetzt.
+;; (c-constant-value form) returns the value of a constant.
+;; (c-constantp form) is required.
 (defun c-constant-value (form)
   (if (atom form)
     (cond ((numberp form) form)
@@ -3063,72 +2869,62 @@ der Docstring (oder NIL).
           ((symbolp form)
            (cond ((keywordp form) form)
                  ((eq (symbol-package form) *lisp-package*)
-                  (symbol-value form)
-                 )
-                 (t (cdr (assoc form *constant-special-vars*)))
-    )     ))
-    (second form)
-) )
+                  (symbol-value form))
+                 (t (cdr (assoc form *constant-special-vars*))))))
+    (second form)))
 
-; (anode-constantp anode) stellt fest, ob der Anode einen konstanten (und
-; zur Compile-Zeit bekannten) Wert liefert.
+;; (anode-constantp anode) determines, if the Anode returns a constant
+;; value (also known at compile-time).
 (defun anode-constantp (anode)
-  ; Anode liefert konstanten Wert jedenfalls dann, wenn sein Code
-  ; (nach TRAVERSE-ANODE) genau aus ((CONST ...)) bestehen würde.
+  ;; Anode returns a constant value at all events, if its code consisted
+  ;; (after TRAVERSE-ANODE) exactly of ((CONST ...)) .
   (let ((code (anode-code anode)))
-    (and (consp code) (null (cdr code)) ; Liste der Länge 1
+    (and (consp code) (null (cdr code)) ; list of length 1
          (let ((item (car code)))
             (cond ((consp item)
                    (and (eq (first item) 'CONST)
-                        (not (eq (const-horizont (second item)) ':form))
-                  ))
-                  ((anode-p item) (anode-constantp item))
-) ) )    )  )
+                        (not (eq (const-horizon (second item)) ':form))))
+                  ((anode-p item) (anode-constantp item)))))))
 
-; (anode-constant-value anode) liefert den Wert eines konstanten Anode.
+;; (anode-constant-value anode) returns the value of a constant Anode.
 (defun anode-constant (anode)
   (let ((item (car (anode-code anode))))
     (cond ((consp item) (second item))
-          (t #|(anode-p item)|# (anode-constant item))
-) ) )
+          (t #|(anode-p item)|# (anode-constant item)))))
 (defun anode-constant-value (anode)
-  (const-value (anode-constant anode))
-)
+  (const-value (anode-constant anode)))
 
-; (new-const value) liefert eine Konstante in *func* mit dem Wert value
-; im 1. Pass
+;; (new-const value) returns a constant in *func* with the Value value
+;; in the 1st Pass
 (defun new-const (value)
-  (make-const :horizont ':value :value value)
+  (make-const :horizon ':value :value value)
 )
 
-; (make-label for-value) liefert ein neues Label. for-value (NIL/ONE/ALL)
-; gibt an, welche der Werte nach dem Label gebraucht werden.
+;; (make-label for-value) returns a fresh label. for-value (NIL/ONE/ALL)
+;; indicates, which of the values are needed after the label.
 (defun make-label (for-value)
   (let ((label (gensym)))
-    (setf (symbol-value label) '()) ; Referenzliste für 2. Pass := leer
+    (setf (symbol-value label) '()) ; reference list for 2nd Pass := empty
     (setf (get label 'for-value) for-value)
-    label
-) )
+    label))
 
-; liefert eine Special-Variable
+;; returns a Special-Variable
 (defun make-special-var (symbol)
   (make-var :name symbol :specialp t
             :constantp (l-constantp symbol)
             :constant (if (l-constantp symbol)
                         (if (c-constantp symbol)
-                          (make-const :horizont ':all
+                          (make-const :horizon ':all
                                       :value (c-constant-value symbol)
-                                      :form symbol
-                          )
-                          (make-const :horizont ':form
-                                      :form symbol
-) )                   ) ) )
+                                      :form symbol)
+                          (make-const :horizon ':form
+                                      :form symbol)))))
 
 
-;                     E R S T E R   P A S S
+;;;;****                     FIRST   PASS
 
-; (test-list L) stellt fest, ob L eine echte Liste ist, die mit NIL endet
-; und mindestens l1, höchstens aber l2 Elemente hat. Sonst Error.
+;; (test-list L) determines, if L is a real list, that ends with NIL
+;; and has at least l1, but at most l2 elements. Else: Error.
 (defun test-list (L &optional (l1 0) (l2 nil))
   (unless (and (listp L) (null (cdr (last L))))
     (c-error (ENGLISH "Code contains dotted list ~S")
@@ -3141,120 +2937,117 @@ der Docstring (oder NIL).
       (c-error (ENGLISH "Form too long, too many arguments: ~S")
                L))))
 
-; c-form-table enthält zu allen Funktionen/Specialforms/Macros, die speziell
-; behandelt werden müssen, die Behandlungsfunktion (ohne Argumente aufzurufen).
+;; c-form-table contains the handler function (to be called without arguments)
+;; for all functions/specialforms/macros, that have to be treated specially.
 (defconstant c-form-table
   (let ((hashtable (make-hash-table :test #'eq)))
     (mapc
-      #'(lambda (acons) (setf (gethash (car acons) hashtable) (cdr acons)))
-      `(; Special forms:
-          (QUOTE . c-QUOTE)
-          (PROGN . c-PROGN)
-          (LET . ,#'(lambda () (c-LET/LET* nil)))
-          (LET* . ,#'(lambda () (c-LET/LET* t)))
-          (IF . c-IF)
-          (SETQ . c-SETQ)
-          (BLOCK . c-BLOCK)
-          (RETURN-FROM . c-RETURN-FROM)
-          (TAGBODY . c-TAGBODY)
-          (GO . c-GO)
-          (FUNCTION . c-FUNCTION)
-          (MULTIPLE-VALUE-BIND . c-MULTIPLE-VALUE-BIND)
-          (MULTIPLE-VALUE-SETQ . c-MULTIPLE-VALUE-SETQ)
-          (AND . c-AND)
-          (OR . c-OR)
-          (WHEN . c-WHEN)
-          (UNLESS . c-UNLESS)
-          (COND . c-COND)
-          (CASE . c-CASE)
-          (PSETQ . c-PSETQ)
-          (MULTIPLE-VALUE-CALL . c-MULTIPLE-VALUE-CALL)
-          (PROG1 . c-PROG1)
-          (PROG2 . c-PROG2)
-          (THE . c-THE)
-          (CATCH . c-CATCH)
-          (THROW . c-THROW)
-          (UNWIND-PROTECT . c-UNWIND-PROTECT)
-          (PROGV . c-PROGV)
-          (MULTIPLE-VALUE-LIST . c-MULTIPLE-VALUE-LIST)
-          (MULTIPLE-VALUE-PROG1 . c-MULTIPLE-VALUE-PROG1)
-          (FLET . c-FLET)
-          (LABELS . c-LABELS)
-          (MACROLET . c-MACROLET)
-          (SYSTEM::FUNCTION-MACRO-LET . c-FUNCTION-MACRO-LET)
-          (SYMBOL-MACROLET . c-SYMBOL-MACROLET)
-          (COMPILER-LET . c-COMPILER-LET)
-          (EVAL-WHEN . c-EVAL-WHEN)
-          (DECLARE . c-DECLARE)
-          (LOAD-TIME-VALUE . c-LOAD-TIME-VALUE)
-          (LOCALLY . c-LOCALLY)
-        ; Macros:
-          (%GENERIC-FUNCTION-LAMBDA . c-%GENERIC-FUNCTION-LAMBDA)
-          (%OPTIMIZE-FUNCTION-LAMBDA . c-%OPTIMIZE-FUNCTION-LAMBDA)
-          (CLOS:GENERIC-FLET . c-GENERIC-FLET)
-          (CLOS:GENERIC-LABELS . c-GENERIC-LABELS)
-          (HANDLER-BIND . c-HANDLER-BIND)
-          (SYS::%HANDLER-BIND . c-HANDLER-BIND)
-          (SYS::CONSTANT-EQL . c-CONSTANT-EQL)
-        ; Inline-compilierte Funktionen:
-          (FUNCALL . c-FUNCALL)
-          (SYS::%FUNCALL . c-FUNCALL)
-          (APPLY . c-APPLY)
-          (+ . c-PLUS)
-          (* . c-STAR)
-          (- . c-MINUS)
-          (/ . c-SLASH)
-          (SYS::SVSTORE . c-SVSTORE)
-          (EQ . c-EQ)
-          (EQL . c-EQL)
-          (EQUAL . c-EQUAL)
-          (MAPCAR . c-MAPCAR)
-          (MAPLIST . c-MAPLIST)
-          (MAPC . c-MAPC)
-          (MAPL . c-MAPL)
-          (MAPCAN . c-MAPCAN)
-          (MAPCON . c-MAPCON)
-          (MAPCAP . c-MAPCAP)
-          (MAPLAP . c-MAPLAP)
-          (TYPEP . c-TYPEP)
-          (FORMAT . c-FORMAT)
-          (REMOVE-IF . c-REMOVE-IF)
-          (REMOVE-IF-NOT . c-REMOVE-IF-NOT)
-          (DELETE-IF . c-DELETE-IF)
-          (DELETE-IF-NOT . c-DELETE-IF-NOT)
-          (SUBSTITUTE-IF . c-SUBSTITUTE-IF)
-          (SUBSTITUTE-IF-NOT . c-SUBSTITUTE-IF-NOT)
-          (NSUBSTITUTE-IF . c-NSUBSTITUTE-IF)
-          (NSUBSTITUTE-IF-NOT . c-NSUBSTITUTE-IF-NOT)
-          (FIND-IF . c-FIND-IF)
-          (FIND-IF-NOT . c-FIND-IF-NOT)
-          (POSITION-IF . c-POSITION-IF)
-          (POSITION-IF-NOT . c-POSITION-IF-NOT)
-          (COUNT-IF . c-COUNT-IF)
-          (COUNT-IF-NOT . c-COUNT-IF-NOT)
-          (SUBST-IF . c-SUBST-IF)
-          (SUBST-IF-NOT . c-SUBST-IF-NOT)
-          (NSUBST-IF . c-NSUBST-IF)
-          (NSUBST-IF-NOT . c-NSUBST-IF-NOT)
-          (MEMBER-IF . c-MEMBER-IF)
-          (MEMBER-IF-NOT . c-MEMBER-IF-NOT)
-          (ASSOC-IF . c-ASSOC-IF)
-          (ASSOC-IF-NOT . c-ASSOC-IF-NOT)
-          (RASSOC-IF . c-RASSOC-IF)
-          (RASSOC-IF-NOT . c-RASSOC-IF-NOT)
-          (LDB . c-LDB)
-          (LDB-TEST . c-LDB-TEST)
-          (MASK-FIELD . c-MASK-FIELD)
-          (DPB . c-DPB)
-          (DEPOSIT-FIELD . c-DEPOSIT-FIELD)
-    )  )
-    hashtable
-) )
-; Diese Tabelle muss alle Special-Forms enthalten:
+     #'(lambda (acons) (setf (gethash (car acons) hashtable) (cdr acons)))
+     `(;; Special forms:
+       (QUOTE . c-QUOTE)
+       (PROGN . c-PROGN)
+       (LET . ,#'(lambda () (c-LET/LET* nil)))
+       (LET* . ,#'(lambda () (c-LET/LET* t)))
+       (IF . c-IF)
+       (SETQ . c-SETQ)
+       (BLOCK . c-BLOCK)
+       (RETURN-FROM . c-RETURN-FROM)
+       (TAGBODY . c-TAGBODY)
+       (GO . c-GO)
+       (FUNCTION . c-FUNCTION)
+       (MULTIPLE-VALUE-BIND . c-MULTIPLE-VALUE-BIND)
+       (MULTIPLE-VALUE-SETQ . c-MULTIPLE-VALUE-SETQ)
+       (AND . c-AND)
+       (OR . c-OR)
+       (WHEN . c-WHEN)
+       (UNLESS . c-UNLESS)
+       (COND . c-COND)
+       (CASE . c-CASE)
+       (PSETQ . c-PSETQ)
+       (MULTIPLE-VALUE-CALL . c-MULTIPLE-VALUE-CALL)
+       (PROG1 . c-PROG1)
+       (PROG2 . c-PROG2)
+       (THE . c-THE)
+       (CATCH . c-CATCH)
+       (THROW . c-THROW)
+       (UNWIND-PROTECT . c-UNWIND-PROTECT)
+       (PROGV . c-PROGV)
+       (MULTIPLE-VALUE-LIST . c-MULTIPLE-VALUE-LIST)
+       (MULTIPLE-VALUE-PROG1 . c-MULTIPLE-VALUE-PROG1)
+       (FLET . c-FLET)
+       (LABELS . c-LABELS)
+       (MACROLET . c-MACROLET)
+       (SYSTEM::FUNCTION-MACRO-LET . c-FUNCTION-MACRO-LET)
+       (SYMBOL-MACROLET . c-SYMBOL-MACROLET)
+       (COMPILER-LET . c-COMPILER-LET)
+       (EVAL-WHEN . c-EVAL-WHEN)
+       (DECLARE . c-DECLARE)
+       (LOAD-TIME-VALUE . c-LOAD-TIME-VALUE)
+       (LOCALLY . c-LOCALLY)
+       ;; Macros:
+       (%GENERIC-FUNCTION-LAMBDA . c-%GENERIC-FUNCTION-LAMBDA)
+       (%OPTIMIZE-FUNCTION-LAMBDA . c-%OPTIMIZE-FUNCTION-LAMBDA)
+       (CLOS:GENERIC-FLET . c-GENERIC-FLET)
+       (CLOS:GENERIC-LABELS . c-GENERIC-LABELS)
+       (HANDLER-BIND . c-HANDLER-BIND)
+       (SYS::%HANDLER-BIND . c-HANDLER-BIND)
+       (SYS::CONSTANT-EQL . c-CONSTANT-EQL)
+       ;; Inline-compiled functions:
+       (FUNCALL . c-FUNCALL)
+       (SYS::%FUNCALL . c-FUNCALL)
+       (APPLY . c-APPLY)
+       (+ . c-PLUS)
+       (* . c-STAR)
+       (- . c-MINUS)
+       (/ . c-SLASH)
+       (SYS::SVSTORE . c-SVSTORE)
+       (EQ . c-EQ)
+       (EQL . c-EQL)
+       (EQUAL . c-EQUAL)
+       (MAPCAR . c-MAPCAR)
+       (MAPLIST . c-MAPLIST)
+       (MAPC . c-MAPC)
+       (MAPL . c-MAPL)
+       (MAPCAN . c-MAPCAN)
+       (MAPCON . c-MAPCON)
+       (MAPCAP . c-MAPCAP)
+       (MAPLAP . c-MAPLAP)
+       (TYPEP . c-TYPEP)
+       (FORMAT . c-FORMAT)
+       (REMOVE-IF . c-REMOVE-IF)
+       (REMOVE-IF-NOT . c-REMOVE-IF-NOT)
+       (DELETE-IF . c-DELETE-IF)
+       (DELETE-IF-NOT . c-DELETE-IF-NOT)
+       (SUBSTITUTE-IF . c-SUBSTITUTE-IF)
+       (SUBSTITUTE-IF-NOT . c-SUBSTITUTE-IF-NOT)
+       (NSUBSTITUTE-IF . c-NSUBSTITUTE-IF)
+       (NSUBSTITUTE-IF-NOT . c-NSUBSTITUTE-IF-NOT)
+       (FIND-IF . c-FIND-IF)
+       (FIND-IF-NOT . c-FIND-IF-NOT)
+       (POSITION-IF . c-POSITION-IF)
+       (POSITION-IF-NOT . c-POSITION-IF-NOT)
+       (COUNT-IF . c-COUNT-IF)
+       (COUNT-IF-NOT . c-COUNT-IF-NOT)
+       (SUBST-IF . c-SUBST-IF)
+       (SUBST-IF-NOT . c-SUBST-IF-NOT)
+       (NSUBST-IF . c-NSUBST-IF)
+       (NSUBST-IF-NOT . c-NSUBST-IF-NOT)
+       (MEMBER-IF . c-MEMBER-IF)
+       (MEMBER-IF-NOT . c-MEMBER-IF-NOT)
+       (ASSOC-IF . c-ASSOC-IF)
+       (ASSOC-IF-NOT . c-ASSOC-IF-NOT)
+       (RASSOC-IF . c-RASSOC-IF)
+       (RASSOC-IF-NOT . c-RASSOC-IF-NOT)
+       (LDB . c-LDB)
+       (LDB-TEST . c-LDB-TEST)
+       (MASK-FIELD . c-MASK-FIELD)
+       (DPB . c-DPB)
+       (DEPOSIT-FIELD . c-DEPOSIT-FIELD)))
+    hashtable))
+;; This table must contain all Special-Forms:
 (do-all-symbols (sym)
   (when (and (special-operator-p sym) (not (gethash sym c-form-table)))
-    (compiler-error 'c-form-table)
-) )
+    (compiler-error 'c-form-table)))
 
 ;; expand (recursively) the compiler macro form
 (defun expand-compiler-macro (form)
@@ -3271,9 +3064,9 @@ der Docstring (oder NIL).
                  (go reexpand)))))))
     (values form expanded-p)))
 
-; compiliert eine Form.
-; Dabei ergibt sich kein Code, falls keine Werte gebraucht werden und die Form
-; keine Seiteneffekte produziert.
+;; compiles a form.
+;; No code is generated, if no values are needed and the form
+;; does not produce side effects.
 (defun c-form (*form* &optional (*for-value* *for-value*))
  (let
   ((anode
@@ -3283,7 +3076,7 @@ der Docstring (oder NIL).
           (multiple-value-bind (macrop expansion)
               (venv-search-macro *form* *venv*)
             (if macrop ; Symbol-Macro ?
-              (c-form expansion) ; -> expandieren
+              (c-form expansion) ; -> expand
               (c-VAR *form*)))
           (c-CONST))
         (let ((fun (first *form*)))
@@ -3322,28 +3115,28 @@ der Docstring (oder NIL).
                 (if (and m (not (and f1 (declared-notinline fun))))
                   (c-form (mac-exp m *form*))
                   (case f1
-                    (GLOBAL ; Funktion im Interpreter-Environment %fenv% gefunden
-                      ; (c-form `(SYS::%FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
-                      (c-FUNCALL-NOTINLINE `(FUNCTION ,fun) (cdr *form*)))
-                    (LOCAL ; lokale Funktion (in *fenv* gefunden)
-                      ; (c-form `(SYS::%FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
-                      (c-LOCAL-FUNCTION-CALL fun f3 (cdr *form*)))
+                    (GLOBAL ; found in the interpreter environment %fenv%
+                     ; (c-form `(SYS::%FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
+                     (c-FUNCALL-NOTINLINE `(FUNCTION ,fun) (cdr *form*)))
+                    (LOCAL  ; local function (found in *fenv*)
+                     ; (c-form `(SYS::%FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
+                     (c-LOCAL-FUNCTION-CALL fun f3 (cdr *form*)))
                     (t (compiler-error 'c-form))))))
             (if (and (consp fun) (eq (car fun) 'LAMBDA))
               (c-form `(SYS::%FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
-              #| nicht: (c-LAMBDA-FUNCTION-CALL fun (cdr *form*)) |#
+              #| not: (c-LAMBDA-FUNCTION-CALL fun (cdr *form*)) |#
               (c-error (ENGLISH "Not the name of a function: ~S")
                        fun))))))))
   #+COMPILER-DEBUG (setf (anode-source anode) *form*)
-  ; Falls keine Werte gebraucht werden und keine Seiteneffekte produziert
-  ; werden, kann der dazugehörige Code ganz gestrichen werden:
+  ;; If no values are needed and no side effects are produced,
+  ;; the appendant code can be discarded completely:
   (when (and (null *for-value*) (null (cdr (anode-seclass anode))))
     (setf (anode-code anode) '())
     (setf (anode-seclass anode) '(NIL . NIL)))
   anode))
 
 ;;; Macroexpand a form.
-;;; That is exactly what makes c-form later anyway.
+;;; That is exactly what c-form does later anyway.
 ;;; (c-form (macroexpand-form form)) == (c-form form).
 (defun macroexpand-form (form)
   ;; The difference from (values (macroexpand form (env)))
@@ -3356,10 +3149,8 @@ der Docstring (oder NIL).
         (multiple-value-bind (macrop expansion) (venv-search-macro form *venv*)
           (if macrop
             (progn (setq form expansion) (go reexpand))
-            (go done)
-        ) )
-        (go done)
-      )
+            (go done)))
+        (go done))
       (let ((fun (first form)))
         (if (function-name-p fun)
           (multiple-value-bind (a m f1 f2 f3 f4) (fenv-search fun)
@@ -3380,71 +3171,61 @@ der Docstring (oder NIL).
     done
     (return-from macroexpand-form form)))
 
-; compiliere NIL (eine Art Notausgang)
+;; compile NIL (a kind of emergency exit)
 (defun c-NIL ()
   (make-anode :type 'NIL
               :sub-anodes '()
               :seclass '(NIL . NIL)
-              :code '((NIL)) )
-)
+              :code '((NIL))))
 
-; Konstante als Form:
+;; constant as form:
 (defun c-CONST ()
   (make-anode :type 'const
               :sub-anodes '()
               :seclass '(NIL . NIL)
-              :code `((CONST ,(new-const *form*)))
-) )
+              :code `((CONST ,(new-const *form*)))))
 
-; Variable als Form:
+;; variable as Form:
 (defun c-VAR (symbol)
-  ; Suche die Variable in *venv* :
+  ;; search the variable in *venv* :
   (multiple-value-bind (a b c) (venv-search symbol)
     (when (eq a 'NIL)
       (c-warn (ENGLISH "~S is neither declared nor bound,~@
                         it will be treated as if it were declared SPECIAL.")
-              symbol
-      )
+              symbol)
       (when *compiling-from-file*
-        (pushnew symbol *unknown-free-vars* :test #'eq)
-      )
-      (setq a 'SPECIAL)
-    )
+        (pushnew symbol *unknown-free-vars* :test #'eq))
+      (setq a 'SPECIAL))
     (case a
-      (SPECIAL ; Special-Variable
+      (SPECIAL ; special variable
         (let ((var (make-special-var symbol)))
           (make-anode
             :type 'VAR
             :sub-anodes '()
-            :seclass (cons
-                       (if (and *for-value* (not (var-constantp var))) (list symbol) 'NIL)
-                       'NIL
-                     )
+            :seclass (cons (if (and *for-value* (not (var-constantp var)))
+                               (list symbol) 'NIL)
+                           'NIL)
             :code (if *for-value*
                     (if (var-constantp var)
                       `((CONST ,(make-const
-                                  :horizont (if (keywordp symbol) ':value ':all) ; Keywords braucht man nicht in #.-Syntax
-                                  :value (c-constant-value symbol)
-                                  :form symbol
-                       ))       )
-                      `((GETVALUE ,symbol))
-                    )
-                    '()
-      ) ) )       )
-      (LOCAL ; interpretativ lexikalisch
+                                 ;; Keywords are not needed in #. syntax
+                                 :horizon (if (keywordp symbol) ':value ':all)
+                                 :value (c-constant-value symbol)
+                                 :form symbol)))
+                      `((GETVALUE ,symbol)))
+                    '()))))
+      (LOCAL ; interpreted, lexical
         (make-anode
           :type 'VAR
           :sub-anodes '()
           :seclass (cons (if *for-value* 'T 'NIL) 'NIL)
           :code (if *for-value*
-                  `((CONST ,(new-const b)) ; Vektor
+                  `((CONST ,(new-const b)) ; Vector
                     (PUSH)
                     (CONST ,(new-const c)) ; Index
-                    (SVREF)
-                   )
-                  '()
-      ) )       )
-      ((T) ; lexikalisch in Stack oder Closure
+                    (SVREF))
+                  '())))
+      ((T) ; lexically in Stack or Closure
         (let* ((var b)
                (get-anode
                  (make-anode
@@ -3453,113 +3234,93 @@ der Docstring (oder NIL).
                    :seclass (cons (if *for-value* (list var) 'NIL) 'NIL)
                    :code (if *for-value*
                            `((GET ,var ,*venvc* ,*stackz*))
-                           '()
-              )) )       )
+                           '()))))
           (push get-anode (var-usedp var))
           (when *for-value*
             (setf (var-for-value-usedp var) t)
             (unless *no-code*
               (unless (eq (stackz-fun (var-stackz var)) (var-fnode var))
-                (compiler-error 'c-VAR "VAR-FNODE")
-              )
+                (compiler-error 'c-VAR "VAR-FNODE"))
               (if (eq (var-fnode var) *func*)
                 (setf (var-really-usedp var) t)
-                (note-far-used-var var)
-              )
-          ) )
-          get-anode
-      ) )
-      (t (compiler-error 'c-VAR 'venv-search))
-) ) )
+                (note-far-used-var var))))
+          get-anode))
+      (t (compiler-error 'c-VAR 'venv-search)))))
 
-; Variablenzuweisung:
+;; variable assignment:
 (defun c-VARSET (symbol value-anode for-value)
-  ; Suche die Variable in *venv* :
+  ;; search the variable in *venv* :
   (multiple-value-bind (a b c) (venv-search symbol)
     (when (eq a 'NIL)
       (c-warn (ENGLISH "~S is neither declared nor bound,~@
                         it will be treated as if it were declared SPECIAL.")
-              symbol
-      )
-      (setq a 'SPECIAL)
-    )
+              symbol)
+      (setq a 'SPECIAL))
     (case a
-      (SPECIAL ; Special-Variable
+      (SPECIAL ; special variable
         (let ((var (make-special-var symbol)))
           (make-anode :type 'VARSET
                       :sub-anodes '()
-                      :seclass (cons
-                                 'NIL
-                                 (if (var-constantp var) 'NIL (list symbol))
-                               )
+                      :seclass (cons 'NIL
+                                     (if (var-constantp var)
+                                         'NIL (list symbol)))
                       :code (if (var-constantp var)
                               (progn
                                 (c-warn (ENGLISH "The constant ~S may not be assigned to.~@
                                                   The assignment will be ignored.")
-                                        symbol
-                                )
-                                '((VALUES1))
-                              )
-                              `((SETVALUE , symbol))
-      ) ) )                 )
-      (LOCAL ; interpretativ lexikalisch
+                                        symbol)
+                                '((VALUES1)))
+                              `((SETVALUE , symbol))))))
+      (LOCAL ; interpreted, lexical
         (make-anode :type 'VARSET
                     :sub-anodes '()
                     :seclass (cons 'NIL 'T)
                     :code `((PUSH)
-                            (CONST ,(new-const b)) ; Vektor
+                            (CONST ,(new-const b)) ; Vector
                             (PUSH)
                             (CONST ,(new-const c)) ; Index
-                            (SVSET)
-      ) )                  )
-      ((T) ; lexikalisch in Stack oder Closure
+                            (SVSET))))
+      ((T) ; lexically in Stack or Closure
         (let* ((var b)
                (set-anode
                  (make-anode :type 'VARSET
                              :sub-anodes '()
                              :seclass (cons 'NIL (list var))
-                             :code `((SET ,var ,*venvc* ,*stackz*))
-              )) )
-          (unless (var-usedp var) (setf (var-usedp var) t)) ; Zuweisung "benutzt" die Variable
+                             :code `((SET ,var ,*venvc* ,*stackz*)))))
+          ;; assignment "uses" the Variable
+          (unless (var-usedp var) (setf (var-usedp var) t))
           (setf (var-assignedp var) t)
           (unless *no-code*
-            (setf (var-constantp var) nil) ; nicht mehr konstant wegen Zuweisung
-            (push (list* value-anode set-anode for-value) (var-modified-list var))
+            (setf (var-constantp var) nil) ; not constant anymore due to assignment
+            (push (list* value-anode set-anode for-value)
+                  (var-modified-list var))
             (unless (eq (stackz-fun (var-stackz var)) (var-fnode var))
-              (compiler-error 'c-VARSET "VAR-FNODE")
-            )
+              (compiler-error 'c-VARSET "VAR-FNODE"))
             (unless (eq (var-fnode var) *func*)
-              (note-far-assigned-var var)
-            )
-            ; Das Ersetzen einer Variablen innervar durch var ist dann
-            ; nicht erlaubt, wenn während der Existenzdauer von innervar
-            ; an var ein Wert zugewiesen wird.
+              (note-far-assigned-var var))
+            ;; the replacement of a variable innervar by var is not
+            ;; allowed, if during the existence of innervar
+            ;; a value is assigned to var.
             (setf (var-replaceable-list var)
-              (delete-if #'(lambda (innervar-info) ; innervar gerade aktiv?
+              (delete-if #'(lambda (innervar-info) ; innervar currently active?
                              (let ((innervar (first innervar-info)))
-                               (tailp (var-stackz innervar) *stackz*)
-                           ) )
-                         (var-replaceable-list var)
-            ) )
-          )
-          set-anode
-      ) )
-      (t (compiler-error 'c-VARSET 'venv-search))
-) ) )
+                               (tailp (var-stackz innervar) *stackz*)))
+                         (var-replaceable-list var))))
+          set-anode))
+      (t (compiler-error 'c-VARSET 'venv-search)))))
 
-;; Funktionsaufrufe, bei denen die Funktion ein Symbol oder (SETF symbol) ist:
+;; function calls, for which the function is a Symbol or (SETF symbol) :
 
 (defun make-funname-const (name)
   (if (atom name)
     (new-const name)
     (let ((symbol (second name)))
-      (make-const :horizont ':all
+      (make-const :horizon ':all
                   :value (system::get-setf-symbol symbol)
-                  :form `(SYSTEM::GET-SETF-SYMBOL ',symbol)
-) ) ) )
+                  :form `(SYSTEM::GET-SETF-SYMBOL ',symbol)))))
 
-; Global function call, normal (notinline): (fun {form}*)
-(defun c-NORMAL-FUNCTION-CALL (fun) ; fun ist ein Symbol oder (SETF symbol)
+;; global function call, normal (notinline): (fun {form}*)
+(defun c-NORMAL-FUNCTION-CALL (fun) ; fun is a symbol or (SETF symbol)
   (test-list *form* 1)
   (let* ((n (length (cdr *form*)))
          #+COMPILER-DEBUG (oldstackz *stackz*)
@@ -3570,26 +3331,21 @@ der Docstring (oder NIL).
         ((null formlist)
          (push
            `(,@(case n
-                 (0 `(CALL0)) (1 `(CALL1)) (2 `(CALL2)) (t `(CALL ,n))
-               )
-             ,(make-funname-const fun)
-            )
-           codelist
-         )
+                 (0 `(CALL0)) (1 `(CALL1)) (2 `(CALL2)) (t `(CALL ,n)))
+             ,(make-funname-const fun))
+           codelist)
          (make-anode
            :type 'CALL
            :sub-anodes (nreverse anodelist)
            :seclass '(T . T)
            :code (nreverse codelist)
-           :stackz oldstackz
-        ))
+           :stackz oldstackz))
       (let* ((formi (pop formlist))
              (anodei (c-form formi 'ONE)))
         #+COMPILER-DEBUG (push anodei anodelist)
         (push anodei codelist)
         (push '(PUSH) codelist)
-        (push 1 *stackz*)
-) ) ) )
+        (push 1 *stackz*)))))
 
 (defstruct (signature (:conc-name sig-))
   ;; (name nil     :type (or symbol cons))
@@ -3753,163 +3509,170 @@ der Docstring (oder NIL).
         (unless (or allow-flag (member key keylist :test #'eq))
           (setq wrong-key key))))))
 
-; (c-DIRECT-FUNCTION-CALL args applyargs fun req opt rest-p key-p keylist
-;                         subr-flag call-code-producer)
-; compiliert die Abarbeitung der Argumente für den Direktaufruf einer
-; Funktion (d.h. ohne Argument-Check zur Laufzeit).
-; (test-argument-syntax ...) muss die Argumente bereits erfolgreich (d.h.
-; mit Ergebnis NO-KEYS oder STATIC-KEYS) überprüft haben.
-; args : Liste der Argumentformen,
-; applyargs : falls angegeben, Liste einer Form für die weiteren Argumente,
-; fun : Name der aufzurufenden Funktion (Symbol),
-; req,opt,rest-p,key-p,keylist,allow-p : Information über die Lambdaliste von fun
-; subr-flag : Flag, ob fun ein SUBR oder aber eine compilierte Closure ist,
-;             (Obacht: applyargs nur bei compilierten Closures verwenden!),
-; call-code-producer : Funktion, die den Code liefert, der am Ende anzufügen
-;                      ist und den Aufruf ausführt.
+;; (c-DIRECT-FUNCTION-CALL args applyargs fun req opt rest-p key-p keylist
+;;                         subr-flag call-code-producer)
+;; compiles the processing of the arguments for the direct call of a
+;; function (i.e. without argument-check at run-time).
+;; (test-argument-syntax ...) must have checked the arguments already
+;;             successfully (i.e. with result NO-KEYS or STATIC-KEYS) .
+;; args      : list of argument-forms,
+;; applyargs : if specified, list of a form for additional arguments,
+;; fun       : name of the function to be called (Symbol) ,
+;; req,opt,rest-p,key-p,keylist,allow-p
+;;           : information about the lambda-list of fun
+;; subr-flag : Flag, if fun is a SUBR or a compiled Closure,
+;;             (attention: use applyargs only for compiled closures!),
+;; call-code-producer : function, that returns the code, which is appended
+;;                      at the end and which executes the call.
 (defun c-DIRECT-FUNCTION-CALL (args applyargs fun req opt rest-p key-p keylist
                                subr-flag call-code-producer)
   (let* ((foldable nil)
-         (sideeffects ; Seiteneffektklasse des Funktionsaufrufs selbst
+         (sideeffects ; side-effect-class of the function call itself
            (if (not subr-flag)
-             '(T . T) ; kein SUBR -> kann nichts aussagen
-             (case fun ; fun ein SUBR
-               (; Seiteneffektklasse (NIL . NIL) haben diejenigen Funktionen,
-                ; die ihre Argumente nur anschauen (Pointer, Inhalt nur bei
-                ; Zahlen oder ähnlichen unmodifizierbaren Datenstrukturen)
-                ; und auf keine globalen Variablen zugreifen.
-                ; Eine Funktion, die, zweimal mit denselben Argumenten auf-
-                ; gerufen, stets dasselbe Ergebnis liefert (im EQL-Sinne),
-                ; erlaubt Constant-Folding: Sind alle Argumente Konstanten
-                ; und der Funktionsaufruf durchführbar, so darf der Funktions-
-                ; aufruf durch das konstante Funktionsergebnis ersetzt werden.
-                ;
-                ; This is the list of SUBRs which have no side effects,
-                ; don't depend on global variables or such, don't even look
-                ; "into" their arguments, and are "foldable" (two calls with
-                ; identical arguments give the same result, and calls with
-                ; constant arguments can be evaluated at compile time).
+             '(T . T) ; no SUBR -> can not decide
+             (case fun ; fun a SUBR
+               (;; side-effect-class (NIL . NIL) is assigned to those functions
+                ;; that look only at their arguments (Pointer, content only for
+                ;; numbers or similar unmodifiable data-structures)
+                ;; and do not access any global variables.
+                ;; a function, if called twice with the same arguments
+                ;; always returns the same result (according to EQL),
+                ;; allows Constant-Folding: If all arguments are constants
+                ;; and if the function call is executable, the function
+                ;; call may be replaced by the constant function result.
+                ;;
+                ;; This is the list of SUBRs which have no side effects,
+                ;; don't depend on global variables or such, don't even look
+                ;; "into" their arguments, and are "foldable" (two calls with
+                ;; identical arguments give the same result, and calls with
+                ;; constant arguments can be evaluated at compile time).
                 (SYSTEM::%FUNTABREF
                  ARRAY-ELEMENT-TYPE ARRAY-RANK ADJUSTABLE-ARRAY-P
-                 STANDARD-CHAR-P GRAPHIC-CHAR-P STRING-CHAR-P ALPHA-CHAR-P UPPER-CASE-P
-                 LOWER-CASE-P BOTH-CASE-P DIGIT-CHAR-P ALPHANUMERICP CHAR= CHAR/= CHAR< CHAR>
-                 CHAR<= CHAR>= CHAR-EQUAL CHAR-NOT-EQUAL CHAR-LESSP CHAR-GREATERP
+                 STANDARD-CHAR-P GRAPHIC-CHAR-P STRING-CHAR-P ALPHA-CHAR-P
+                 UPPER-CASE-P LOWER-CASE-P BOTH-CASE-P DIGIT-CHAR-P
+                 ALPHANUMERICP CHAR= CHAR/= CHAR< CHAR> CHAR<= CHAR>=
+                 CHAR-EQUAL CHAR-NOT-EQUAL CHAR-LESSP CHAR-GREATERP
                  CHAR-NOT-GREATERP CHAR-NOT-LESSP CHAR-CODE CODE-CHAR
                  CHAR-UPCASE CHAR-DOWNCASE DIGIT-CHAR CHAR-INT INT-CHAR
                  CHAR-NAME
                  SPECIAL-OPERATOR-P
                  ENDP
-                 IDENTITY
-                 EQ EQL CONSP ATOM SYMBOLP STRINGP NUMBERP
-                 NULL NOT SYSTEM::CLOSUREP LISTP INTEGERP SYSTEM::FIXNUMP RATIONALP FLOATP
-                 SYSTEM::SHORT-FLOAT-P SYSTEM::SINGLE-FLOAT-P SYSTEM::DOUBLE-FLOAT-P SYSTEM::LONG-FLOAT-P
-                 REALP COMPLEXP STREAMP SYSTEM::FILE-STREAM-P SYSTEM::SYNONYM-STREAM-P
-                 SYSTEM::BROADCAST-STREAM-P SYSTEM::CONCATENATED-STREAM-P SYSTEM::TWO-WAY-STREAM-P
-                 SYSTEM::ECHO-STREAM-P SYSTEM::STRING-STREAM-P
+                 IDENTITY EQ EQL CONSP ATOM SYMBOLP STRINGP NUMBERP
+                 NULL NOT SYSTEM::CLOSUREP LISTP INTEGERP SYSTEM::FIXNUMP
+                 RATIONALP FLOATP SYSTEM::SHORT-FLOAT-P SYSTEM::SINGLE-FLOAT-P
+                 SYSTEM::DOUBLE-FLOAT-P SYSTEM::LONG-FLOAT-P REALP COMPLEXP
+                 STREAMP SYSTEM::FILE-STREAM-P SYSTEM::SYNONYM-STREAM-P
+                 SYSTEM::BROADCAST-STREAM-P SYSTEM::CONCATENATED-STREAM-P
+                 SYSTEM::TWO-WAY-STREAM-P SYSTEM::ECHO-STREAM-P
+                 SYSTEM::STRING-STREAM-P
                  RANDOM-STATE-P READTABLEP HASH-TABLE-P PATHNAMEP
                  HASH-TABLE-TEST
-                 SYSTEM::LOGICAL-PATHNAME-P CHARACTERP FUNCTIONP PACKAGEP ARRAYP SIMPLE-ARRAY-P
-                 BIT-VECTOR-P VECTORP SIMPLE-VECTOR-P SIMPLE-STRING-P SIMPLE-BIT-VECTOR-P
-                 SYSTEM::SYMBOL-MACRO-P CLOS::STRUCTURE-OBJECT-P CLOS::STD-INSTANCE-P
+                 SYSTEM::LOGICAL-PATHNAME-P CHARACTERP FUNCTIONP PACKAGEP
+                 ARRAYP SIMPLE-ARRAY-P BIT-VECTOR-P VECTORP SIMPLE-VECTOR-P
+                 SIMPLE-STRING-P SIMPLE-BIT-VECTOR-P
+                 SYSTEM::SYMBOL-MACRO-P CLOS::STRUCTURE-OBJECT-P
+                 CLOS::STD-INSTANCE-P
                  ZEROP PLUSP MINUSP ODDP EVENP = /= < > <= >= MAX MIN
                  + - * / 1+ 1- CONJUGATE GCD LCM ISQRT
-                 RATIONAL RATIONALIZE NUMERATOR DENOMINATOR FLOOR CEILING TRUNCATE
-                 ROUND MOD REM DECODE-FLOAT SCALE-FLOAT
-                 FLOAT-RADIX FLOAT-SIGN FLOAT-DIGITS FLOAT-PRECISION INTEGER-DECODE-FLOAT
-                 COMPLEX REALPART IMAGPART LOGIOR LOGXOR LOGAND LOGEQV LOGNAND LOGNOR
-                 LOGANDC1 LOGANDC2 LOGORC1 LOGORC2 BOOLE LOGNOT LOGTEST LOGBITP ASH LOGCOUNT
-                 INTEGER-LENGTH LDB LDB-TEST MASK-FIELD DPB DEPOSIT-FIELD ! EXQUO
+                 RATIONAL RATIONALIZE NUMERATOR DENOMINATOR FLOOR CEILING
+                 TRUNCATE ROUND MOD REM DECODE-FLOAT SCALE-FLOAT FLOAT-RADIX
+                 FLOAT-SIGN FLOAT-DIGITS FLOAT-PRECISION INTEGER-DECODE-FLOAT
+                 COMPLEX REALPART IMAGPART LOGIOR LOGXOR LOGAND LOGEQV LOGNAND
+                 LOGNOR LOGANDC1 LOGANDC2 LOGORC1 LOGORC2 BOOLE LOGNOT LOGTEST
+                 LOGBITP ASH LOGCOUNT INTEGER-LENGTH LDB LDB-TEST MASK-FIELD
+                 DPB DEPOSIT-FIELD ! EXQUO
                  #+syscalls posix::gamma #+syscalls posix::lgamma
                  #+syscalls posix::erf #+syscalls posix::erfc
                  #+syscalls posix::j0 #+syscalls posix::j1 #+syscalls posix::jn
                  #+syscalls posix::y0 #+syscalls posix::y1 #+syscalls posix::yn
-                ) ; alle diese sind SUBRs ohne Keyword-Parameter
+                ) ; all these are SUBRs without Keyword-Parameter
                 (setq foldable t)
-                '(NIL . NIL)
-               )
-               (;
-                ; This is the list of SUBRs which have no side effects,
-                ; don't depend on global variables or such, don't even look
-                ; "into" their arguments, but are not "foldable".
+                '(NIL . NIL))
+               (;; This is the list of SUBRs which have no side effects,
+                ;; don't depend on global variables or such, don't even look
+                ;; "into" their arguments, but are not "foldable".
                 (VECTOR MAKE-STRING
-                 VALUES ; nicht foldable, um Endlosschleife zu verhindern!
+                 VALUES ; not foldable, in order to avoid infinite loop!
                  CONS LIST LIST* MAKE-LIST ACONS
-                 LISP-IMPLEMENTATION-TYPE LISP-IMPLEMENTATION-VERSION SOFTWARE-TYPE
-                 SOFTWARE-VERSION
+                 LISP-IMPLEMENTATION-TYPE LISP-IMPLEMENTATION-VERSION
+                 SOFTWARE-TYPE SOFTWARE-VERSION
                  SYSTEM::MAKE-LOAD-TIME-EVAL SYSTEM::MAKE-SYMBOL-MACRO
                  SYMBOL-NAME
-                 SYSTEM::DECIMAL-STRING
-                )
-                '(NIL . NIL)
-               )
-               (;
-                ; This is the list of SUBRs which have no side effects,
-                ; but depend on global variables or look "into" their arguments.
+                 SYSTEM::DECIMAL-STRING)
+                '(NIL . NIL))
+               (;; This is the list of SUBRs which have no side effects,
+                ;; but depend on global variables
+                ;; or look "into" their arguments.
                 (SYSTEM::SUBR-INFO
                  SYSTEM::%COPY-SIMPLE-VECTOR AREF SVREF ROW-MAJOR-AREF
                  ARRAY-DIMENSION ARRAY-DIMENSIONS ARRAY-TOTAL-SIZE
                  ARRAY-IN-BOUNDS-P ARRAY-ROW-MAJOR-INDEX BIT SBIT
                  ARRAY-HAS-FILL-POINTER-P FILL-POINTER MAKE-ARRAY
                  CHARACTER CHAR SCHAR STRING= STRING/= STRING< STRING> STRING<=
-                 STRING>= STRING-EQUAL STRING-NOT-EQUAL STRING-LESSP STRING-GREATERP
-                 STRING-NOT-GREATERP STRING-NOT-LESSP SYSTEM::SEARCH-STRING=
-                 SYSTEM::SEARCH-STRING-EQUAL SYSTEM::STRING-BOTH-TRIM STRING-UPCASE
-                 STRING-DOWNCASE STRING-CAPITALIZE STRING NAME-CHAR SUBSTRING STRING-CONCAT
+                 STRING>= STRING-EQUAL STRING-NOT-EQUAL STRING-LESSP
+                 STRING-GREATERP STRING-NOT-GREATERP STRING-NOT-LESSP
+                 SYSTEM::SEARCH-STRING= SYSTEM::SEARCH-STRING-EQUAL
+                 SYSTEM::STRING-BOTH-TRIM STRING-UPCASE
+                 STRING-DOWNCASE STRING-CAPITALIZE STRING NAME-CHAR SUBSTRING
+                 STRING-CONCAT
                  MAKE-SYMBOL SYMBOL-VALUE SYMBOL-FUNCTION BOUNDP FBOUNDP
                  VALUES-LIST MACRO-FUNCTION CONSTANTP
-                 MAKE-HASH-TABLE GETHASH HASH-TABLE-COUNT HASH-TABLE-REHASH-SIZE
-                 HASH-TABLE-REHASH-THRESHOLD HASH-TABLE-SIZE SYSTEM::HASH-TABLE-ITERATOR SXHASH
+                 MAKE-HASH-TABLE GETHASH HASH-TABLE-COUNT
+                 HASH-TABLE-REHASH-SIZE HASH-TABLE-REHASH-THRESHOLD
+                 HASH-TABLE-SIZE SYSTEM::HASH-TABLE-ITERATOR SXHASH
                  GET-MACRO-CHARACTER GET-DISPATCH-MACRO-CHARACTER
-                 CAR CDR CAAR CADR CDAR CDDR CAAAR CAADR CADAR CADDR CDAAR CDADR CDDAR CDDDR
-                 CAAAAR CAAADR CAADAR CAADDR CADAAR CADADR CADDAR CADDDR
-                 CDAAAR CDAADR CDADAR CDADDR CDDAAR CDDADR CDDDAR CDDDDR
-                 LIST-LENGTH NTH FIRST SECOND THIRD FOURTH FIFTH SIXTH SEVENTH
-                 EIGHTH NINTH TENTH REST NTHCDR LAST APPEND COPY-LIST
+                 CAR CDR CAAR CADR CDAR CDDR CAAAR CAADR CADAR CADDR CDAAR
+                 CDADR CDDAR CDDDR CAAAAR CAAADR CAADAR CAADDR CADAAR CADADR
+                 CADDAR CADDDR CDAAAR CDAADR CDADAR CDADDR CDDAAR CDDADR CDDDAR
+                 CDDDDR LIST-LENGTH NTH FIRST SECOND THIRD FOURTH FIFTH SIXTH
+                 SEVENTH EIGHTH NINTH TENTH REST NTHCDR LAST APPEND COPY-LIST
                  COPY-ALIST COPY-TREE REVAPPEND BUTLAST LDIFF TAILP PAIRLIS
                  GET-UNIVERSAL-TIME GET-INTERNAL-RUN-TIME
                  GET-INTERNAL-REAL-TIME SYSTEM::%%TIME
                  FIND-PACKAGE PACKAGE-NAME PACKAGE-NICKNAMES PACKAGE-USE-LIST
-                 PACKAGE-USED-BY-LIST PACKAGE-SHADOWING-SYMBOLS LIST-ALL-PACKAGES FIND-SYMBOL
-                 FIND-ALL-SYMBOLS
-                 PARSE-NAMESTRING PATHNAME PATHNAME-HOST PATHNAME-DEVICE PATHNAME-DIRECTORY
-                 PATHNAME-NAME PATHNAME-TYPE PATHNAME-VERSION FILE-NAMESTRING
-                 DIRECTORY-NAMESTRING HOST-NAMESTRING MERGE-PATHNAMES ENOUGH-NAMESTRING
-                 MAKE-PATHNAME NAMESTRING TRUENAME PROBE-FILE DIRECTORY FILE-WRITE-DATE
-                 FILE-AUTHOR
+                 PACKAGE-USED-BY-LIST PACKAGE-SHADOWING-SYMBOLS
+                 LIST-ALL-PACKAGES FIND-SYMBOL FIND-ALL-SYMBOLS
+                 PARSE-NAMESTRING PATHNAME PATHNAME-HOST PATHNAME-DEVICE
+                 PATHNAME-DIRECTORY PATHNAME-NAME PATHNAME-TYPE
+                 PATHNAME-VERSION FILE-NAMESTRING DIRECTORY-NAMESTRING
+                 HOST-NAMESTRING MERGE-PATHNAMES ENOUGH-NAMESTRING
+                 MAKE-PATHNAME NAMESTRING TRUENAME PROBE-FILE DIRECTORY
+                 FILE-WRITE-DATE FILE-AUTHOR
                  EQUAL EQUALP COMPILED-FUNCTION-P CLOS::GENERIC-FUNCTION-P
                  TYPE-OF CLOS::CLASS-P CLOS:CLASS-OF COERCE
-                 SYSTEM::%RECORD-REF SYSTEM::%RECORD-LENGTH SYSTEM::%STRUCTURE-REF SYSTEM::%MAKE-STRUCTURE
+                 SYSTEM::%RECORD-REF SYSTEM::%RECORD-LENGTH
+                 SYSTEM::%STRUCTURE-REF SYSTEM::%MAKE-STRUCTURE
                  COPY-STRUCTURE SYSTEM::%STRUCTURE-TYPE-P SYSTEM::CLOSURE-NAME
-                 SYSTEM::CLOSURE-CODEVEC SYSTEM::CLOSURE-CONSTS SYSTEM::MAKE-CODE-VECTOR
-                 SYSTEM::%MAKE-CLOSURE CLOS:SLOT-EXISTS-P
-                 SYSTEM::SEQUENCEP ELT SUBSEQ COPY-SEQ LENGTH REVERSE CONCATENATE
-                 MAKE-SYNONYM-STREAM SYNONYM-STREAM-SYMBOL MAKE-BROADCAST-STREAM
-                 BROADCAST-STREAM-STREAMS MAKE-CONCATENATED-STREAM
-                 CONCATENATED-STREAM-STREAMS MAKE-TWO-WAY-STREAM
-                 TWO-WAY-STREAM-INPUT-STREAM TWO-WAY-STREAM-OUTPUT-STREAM
-                 MAKE-ECHO-STREAM ECHO-STREAM-INPUT-STREAM
-                 ECHO-STREAM-OUTPUT-STREAM MAKE-STRING-INPUT-STREAM
+                 SYSTEM::CLOSURE-CODEVEC SYSTEM::CLOSURE-CONSTS
+                 SYSTEM::MAKE-CODE-VECTOR SYSTEM::%MAKE-CLOSURE
+                 CLOS:SLOT-EXISTS-P SYSTEM::SEQUENCEP ELT SUBSEQ
+                 COPY-SEQ LENGTH REVERSE CONCATENATE
+                 MAKE-SYNONYM-STREAM SYNONYM-STREAM-SYMBOL
+                 MAKE-BROADCAST-STREAM BROADCAST-STREAM-STREAMS
+                 MAKE-CONCATENATED-STREAM CONCATENATED-STREAM-STREAMS
+                 MAKE-TWO-WAY-STREAM TWO-WAY-STREAM-INPUT-STREAM
+                 TWO-WAY-STREAM-OUTPUT-STREAM MAKE-ECHO-STREAM
+                 ECHO-STREAM-INPUT-STREAM ECHO-STREAM-OUTPUT-STREAM
+                 MAKE-STRING-INPUT-STREAM
                  SYSTEM::STRING-INPUT-STREAM-INDEX MAKE-STRING-OUTPUT-STREAM
                  SYSTEM::MAKE-STRING-PUSH-STREAM MAKE-BUFFERED-INPUT-STREAM
                  MAKE-BUFFERED-OUTPUT-STREAM SYSTEM::BUILT-IN-STREAM-OPEN-P
-                 INPUT-STREAM-P OUTPUT-STREAM-P SYSTEM::BUILT-IN-STREAM-ELEMENT-TYPE
-                 FILE-LENGTH
+                 INPUT-STREAM-P OUTPUT-STREAM-P FILE-LENGTH
+                 SYSTEM::BUILT-IN-STREAM-ELEMENT-TYPE
                  GET GETF GET-PROPERTIES SYMBOL-PACKAGE SYMBOL-PLIST KEYWORDP
                  SYSTEM::SPECIAL-VARIABLE-P GENSYM
                  FFLOOR FCEILING FTRUNCATE FROUND
-                 EXP EXPT LOG SQRT ABS PHASE SIGNUM SIN COS TAN CIS ASIN ACOS ATAN
-                 SINH COSH TANH ASINH ACOSH ATANH FLOAT BYTE BYTE-SIZE BYTE-POSITION
-                 SYSTEM::LOG2 SYSTEM::LOG10
-                 CLOS::%ALLOCATE-INSTANCE
-                )
-                '(T . NIL)
-               )
-               ; All other SUBRs (which may have side effects) are subsumed here.
-               (t '(T . T)) ; vielleicht Seiteneffekte
-        )) ) )
+                 EXP EXPT LOG SQRT ABS PHASE SIGNUM SIN COS TAN CIS ASIN ACOS
+                 ATAN SINH COSH TANH ASINH ACOSH ATANH FLOAT BYTE BYTE-SIZE
+                 BYTE-POSITION SYSTEM::LOG2 SYSTEM::LOG10
+                 CLOS::%ALLOCATE-INSTANCE)
+                '(T . NIL))
+               ;; All other SUBRs (which may have side effects)
+               ;; are subsumed here.
+               (t '(T . T)))))) ; maybe side-effects
     (if (and (null *for-value*) (null (cdr sideeffects)))
-      ;; babelfish: Do not need the function to call, only the arguments analyse
-      ;; Brauche die Funktion nicht aufzurufen, nur die Argumente auswerten
+      ;; Do not need to call the function,
+      ;; only evaluate the arguments.
       (progn
         (let ((*no-code* t) (*for-value* 'NIL))
           (funcall call-code-producer))
@@ -3933,22 +3696,20 @@ der Docstring (oder NIL).
                 (compiler-error 'c-DIRECT-FUNCTION-CALL "APPLY-SUBR"))
               (when key-p (compiler-error 'c-DIRECT-FUNCTION-CALL "APPLY-KEY"))
               (if (>= reqopt n)
-                ;; missing optional parameters are initialised from the list:
+                ;; missing optional parameters are initialized from the list:
                 (let* ((anz (- reqopt n))
                        (anode1 (c-form (first applyargs) 'ONE))
                        (anode2 (progn
                                  (push (if rest-p (+ anz 1) anz) *stackz*)
-                                 (c-unlist rest-p anz (min opt anz))
-                      ))       )
+                                 (c-unlist rest-p anz (min opt anz)))))
                   (seclass-or-f seclass anode1)
                   (push anode1 codelist)
                   (seclass-or-f seclass anode2)
-                  (push anode2 codelist)
-                )
-                ; n > reqopt, impliziert rest-p.
-                ; Übergabe von restlichen Argumenten an eine compilierte Closure:
-                ; als Liste.
-                ; Liste aus allen weiteren Argumenten:
+                  (push anode2 codelist))
+                ;; n > reqopt, implies rest-p.
+                ;; Passing of the remaining arguments to a compiled Closure:
+                ;; as list.
+                ;; List consisting of all additional arguments:
                 (progn
                   (let ((*stackz* *stackz*)
                         (rest-args args))
@@ -3956,50 +3717,41 @@ der Docstring (oder NIL).
                       (when (null rest-args) (return))
                       (let ((anode (c-form (pop rest-args) 'ONE)))
                         (seclass-or-f seclass anode)
-                        (push anode codelist)
-                      )
+                        (push anode codelist))
                       (push '(PUSH) codelist)
-                      (push 1 *stackz*)
-                    )
+                      (push 1 *stackz*))
                     (let ((anode (c-form (first applyargs) 'ONE)))
                       (seclass-or-f seclass anode)
-                      (push anode codelist)
-                    )
-                    (push `(LIST* ,(- n reqopt)) codelist)
-                  )
+                      (push anode codelist))
+                    (push `(LIST* ,(- n reqopt)) codelist))
                   (push '(PUSH) codelist)
-                  (push 1 *stackz*)
-            ) ) )
+                  (push 1 *stackz*))))
             (progn
-              ; fehlende optionale Parameter werden mit #<UNBOUND> initialisiert:
+              ;; missing optional parameters are initialized with #<UNBOUND> :
               (when (> reqopt n)
                 (let ((anz (- reqopt n)))
                   (push `(PUSH-UNBOUND ,anz) codelist)
-                  (push anz *stackz*)
-              ) )
-              ; &rest-Parameter:
+                  (push anz *stackz*)))
+              ;; &rest parameter:
               (when rest-p
                 (if subr-flag
-                  ; Übergabe von restlichen Argumenten an ein SUBR: einzeln
+                  ;; Passing of remaining arguments to a SUBR: one by one
                   (loop
                     (when (null args) (return))
                     (let ((anode (c-form (pop args) 'ONE)))
                       (seclass-or-f seclass anode)
-                      (push anode codelist)
-                    )
+                      (push anode codelist))
                     (push '(PUSH) codelist)
-                    (push 1 *stackz*)
-                  )
-                  ; Übergabe von restlichen Argumenten an eine compilierte Closure:
-                  ; als Liste
+                    (push 1 *stackz*))
+                  ;; passing of remaining arguments to a compiled closure:
+                  ;; as list
                   (if (null args)
-                    ; leere Liste
+                    ;; empty list
                     (progn
                       (push '(NIL) codelist)
                       (push '(PUSH) codelist)
-                      (push 1 *stackz*)
-                    )
-                    ; Liste aus allen weiteren Argumenten:
+                      (push 1 *stackz*))
+                    ;; list of all further arguments:
                     (progn
                       (let ((*stackz* *stackz*)
                             (rest-args args))
@@ -4007,258 +3759,218 @@ der Docstring (oder NIL).
                           (when (null rest-args) (return))
                           (let ((anode (c-form (pop rest-args) 'ONE)))
                             (seclass-or-f seclass anode)
-                            (push anode codelist)
-                          )
+                            (push anode codelist))
                           (push '(PUSH) codelist)
-                          (push 1 *stackz*)
-                        )
-                        (push `(LIST ,(- n reqopt)) codelist)
-                      )
+                          (push 1 *stackz*))
+                        (push `(LIST ,(- n reqopt)) codelist))
                       (push '(PUSH) codelist)
-                      (push 1 *stackz*)
-            ) ) ) ) )
-          )
-          ; &key-Parameter:
+                      (push 1 *stackz*)))))))
+          ;; &key parameter:
           (when key-p
-            ; Nur dann gleichzeitig rest-p und key-p, wenn n <= reqopt, da
-            ; test-argument-syntax (ergab STATIC-KEYS) den anderen Fall
-            ; bereits ausgeschlossen hat.
+            ;; only if rest-p and key-p at the same time, if n <= reqopt,
+            ;; because `test-argument-syntax' (which yielded STATIC-KEYS)
+            ;; has excluded the other case already.
             (let ((keyanz (length keylist)))
-              ; Erst alle Keys mit #<UNBOUND> vorbelegen, dann die Argumente
-              ; in der angegebenen Reihenfolge auswerten und zuordnen?
-              ; Das ist uns zu einfach. Wir lassen die Argumente kommutieren,
-              ; damit möglichst viele der (STORE ...) durch (PUSH) ersetzt
-              ; werden können: Die Argumente zu den ersten Keys werden nach
-              ; Möglichkeit zuerst ausgewertet, die zu den letzten Keys
-              ; zuletzt. Wir lassen es allerdings bei einem einzigen
-              ; (PUSH-UNBOUND ...).
-              (let* ((key-positions ; Liste von Tripeln (key stack-depth free-p),
-                                    ; wobei stack-depth = keyanz-1...0 läuft und
-                                    ; free-p angibt, ob der Slot schon gefüllt ist.
-                       (let ((i keyanz))
-                         (mapcar #'(lambda (key) (list key (decf i) t)) keylist)
-                     ) )
-                     (anodes ; Liste von Quadrupeln
-                             ; (needed key-position anode stackz), wobei
-                             ; key-position die stack-depth des Keyword-Slots
-                             ; oder NIL ist, anode der Anode zu diesem Argument.
-                             ; Die Liste wird in derselben Reihenfolge gehalten,
-                             ; wie sie die Argumentliste vorgibt.
-                             ; Ausnahme: needed = NIL bei anodes, deren
-                             ; Berechnung man vorgezogen oder verschoben hat.
-                       (let ((L '()))
-                         (loop
-                           (when (null args) (return))
-                           (let* ((key (c-constant-value (pop args)))
-                                  (tripel (assoc key key-positions :test #'eq)) ; kann =NIL sein!
-                                  (for-value (third tripel))
-                                  (arg (pop args)))
-                             ; for-value /= NIL: Existentes Keyword, und der Slot ist noch leer
-                             ; for-value = NIL: ALLOW-erlaubtes Keyword oder Slot schon gefüllt
-                             (let* ((*stackz* (cons 0 *stackz*)) ; 0 wird später ersetzt
-                                    (anode (c-form arg (if for-value 'ONE 'NIL))))
-                               (seclass-or-f seclass anode)
-                               (push (list t (second tripel) anode *stackz*) L)
-                             )
-                             (setf (third tripel) nil)
-                         ) )
-                         (nreverse L)
-                    )) )
+              ;; First initialize all keys with #<UNBOUND> ,
+              ;; then evaluate and assign the arguments in the specified order?
+              ;; this is too simple for us. We transpose the arguments, so that
+              ;; as many of the (STORE ...) as possible are replaced by (PUSH):
+              ;; The arguments for the first Keys are evaluated at first,
+              ;; if possible, the last Keys are evaluated at last.
+              ;; However, we use only one single (PUSH-UNBOUND ...).
+              (let* ((key-positions
+                      ;; list of triples (key stack-depth free-p), where
+                      ;; stack-depth = keyanz-1...0 and free-p states,
+                      ;; if the Slot is already filled.
+                      (let ((i keyanz))
+                        (mapcar #'(lambda (key) (list key (decf i) t))
+                                keylist)))
+                     (anodes
+                      ;; list of quadruples (needed key-position anode stackz),
+                      ;; where key-position is the stack-depth of the
+                      ;; Keyword-Slots or NIL, anode is the Anode for
+                      ;; this argument.  The list is kept in the same
+                      ;; order, as is specified by the argument-list.
+                      ;; exception: needed = NIL for anodes, whose
+                      ;; calculation was brought forward or suspended.
+                      (let ((L '()))
+                        (loop
+                         (when (null args) (return))
+                         (let* ((key (c-constant-value (pop args)))
+                                (tripel (assoc key key-positions :test #'eq)) ; can be =NIL!
+                                (for-value (third tripel))
+                                (arg (pop args)))
+                           ;; for-value /= NIL: Existing Keyword, and the Slot is still empty
+                           ;; for-value = NIL: ALLOW-allowed Keyword or Slot already filled
+                           (let* ((*stackz* (cons 0 *stackz*)) ; 0 will be replaced later
+                                  (anode (c-form arg (if for-value
+                                                         'ONE 'NIL))))
+                             (seclass-or-f seclass anode)
+                             (push (list t (second tripel) anode *stackz*) L))
+                           (setf (third tripel) nil)))
+                        (nreverse L))))
                 (let ((depth1 0)
                       (depth2 0)
                       (codelist-from-end '()))
-                  ; Möglichst viel nach vorne ziehen:
+                  ;; bring forward as much as possible:
                   (do ((anodesr anodes (cdr anodesr)))
                       ((null anodesr))
-                    (let ((anodeetc (car anodesr))) ; nächstes Quadrupel
-                      (when (first anodeetc) ; noch was zu tun?
+                    (let ((anodeetc (car anodesr))) ; next Quadruple
+                      (when (first anodeetc) ; something else to do?
                         (if (and
-                              (or ; kein Keyword, d.h. kein (STORE ...) nötig?
-                                  (null (second anodeetc))
-                                  ; oberstes Keyword?
-                                  (= (second anodeetc) (- keyanz depth1 1))
-                              )
-                              ; kommutiert anodeetc mit allen vorigen anodes?
-                              (let ((anode (third anodeetc)))
-                                (do ((anodesr2 anodes (cdr anodesr2)))
-                                    ((eq anodesr2 anodesr) t)
-                                  (unless (anodes-commute anode (third (car anodesr2)))
-                                    (return nil)
-                              ) ) )
-                            )
-                          ; vorziehen:
+                             (or ; no Keyword, i.e. no (STORE ...) necessary?
+                              (null (second anodeetc))
+                              ;; topmost Keyword?
+                              (= (second anodeetc) (- keyanz depth1 1)))
+                             ;; does anodeetc commute with all previous anodes?
+                             (let ((anode (third anodeetc)))
+                               (do ((anodesr2 anodes (cdr anodesr2)))
+                                   ((eq anodesr2 anodesr) t)
+                                 (unless (anodes-commute
+                                          anode (third (car anodesr2)))
+                                   (return nil)))))
+                          ;; bring forward:
                           (progn
-                            (setf (first (fourth anodeetc)) depth1) ; korrekte Stacktiefe
-                            (push (third anodeetc) codelist) ; in die Codeliste
+                            (setf (first (fourth anodeetc)) depth1) ; correct stack depth
+                            (push (third anodeetc) codelist) ; into the code-list
                             (when (second anodeetc)
                               (push '(PUSH) codelist)
-                              (incf depth1)
-                            )
-                            (setf (first anodeetc) nil) ; diesen brauchen wir nicht mehr
-                          )
-                          ; sonst machen wir nichts.
-                  ) ) ) )
-                  ; Möglichst viel nach hinten ziehen:
+                              (incf depth1))
+                            ;; we don't need this one anymore:
+                            (setf (first anodeetc) nil))
+                          ;; else we do nothing.
+                          ))))
+                  ;; bring backwards as much as possible:
                   (setq anodes (nreverse anodes))
                   (do ((anodesr anodes (cdr anodesr)))
                       ((null anodesr))
-                    (let ((anodeetc (car anodesr))) ; nächstes Quadrupel
-                      (when (first anodeetc) ; noch was zu tun?
+                    (let ((anodeetc (car anodesr))) ; next Quadruple
+                      (when (first anodeetc) ; still sth. to do?
                         (if (and
-                              (or ; kein Keyword, d.h. kein (STORE ...) nötig?
-                                  (null (second anodeetc))
-                                  ; unterstes Keyword?
-                                  (= (second anodeetc) depth2)
-                              )
-                              ; kommutiert anodeetc mit allen späteren anodes?
-                              (let ((anode (third anodeetc)))
-                                (do ((anodesr2 anodes (cdr anodesr2)))
-                                    ((eq anodesr2 anodesr) t)
-                                  (unless (anodes-commute anode (third (car anodesr2)))
-                                    (return nil)
-                              ) ) )
-                            )
-                          ; ans Ende verschieben:
+                             (or ; no Keyword, i.e. no (STORE ...) necessary?
+                              (null (second anodeetc))
+                              ;; lowest Keyword?
+                              (= (second anodeetc) depth2))
+                             ;; does anodeetc commute with all later anodes?
+                             (let ((anode (third anodeetc)))
+                               (do ((anodesr2 anodes (cdr anodesr2)))
+                                   ((eq anodesr2 anodesr) t)
+                                 (unless (anodes-commute
+                                          anode (third (car anodesr2)))
+                                   (return nil)))))
+                          ;; push to the End:
                           (progn
                             (when (second anodeetc)
                               (push '(PUSH) codelist-from-end)
-                              (incf depth2)
-                            )
-                            (setf (first (fourth anodeetc)) (- keyanz depth2)) ; korrekte Stacktiefe
-                            (push (third anodeetc) codelist-from-end) ; in die Codeliste
-                            (setf (first anodeetc) nil) ; diesen brauchen wir nicht mehr
-                          )
-                          ; sonst machen wir nichts.
-                  ) ) ) )
+                              (incf depth2))
+                            (setf (first (fourth anodeetc)) (- keyanz depth2)) ; correct stack-depth
+                            (push (third anodeetc) codelist-from-end) ; into the code-list
+                            (setf (first anodeetc) nil)) ; we don't need this one anymore
+                          ;; else we do nothing.
+                          ))))
                   (setq anodes (nreverse anodes))
-                  (let ((depth-now (- keyanz depth2))) ; codelist-from-end erniedrigt den Stack um depth2
+                  (let ((depth-now (- keyanz depth2)))
+                    ;; codelist-from-end decreases the Stack by depth2
                     (when (> depth-now depth1)
-                      (push `(PUSH-UNBOUND ,(- depth-now depth1)) codelist)
-                    )
-                    ; In codelist herrscht jetzt Stacktiefe depth-now.
+                      (push `(PUSH-UNBOUND ,(- depth-now depth1)) codelist))
+                    ;; In code-list stack-depth is now depth-now.
                     (dolist (anodeetc anodes)
                       (when (first anodeetc)
-                        (setf (first (fourth anodeetc)) depth-now) ; korrekte Stacktiefe
+                        (setf (first (fourth anodeetc)) depth-now) ; correct stack-depth
                         (push (third anodeetc) codelist)
                         (when (second anodeetc)
-                          (push `(STORE ,(- (second anodeetc) depth2)) codelist)
-                  ) ) ) )
-                  ; Nun codelist-from-end:
-                  (setq codelist (nreconc codelist-from-end codelist))
-              ) )
-              ; Jetzt sind alle Key-Argumente auf dem Stack.
-              (push keyanz *stackz*)
-          ) )
-          (setq codelist (nreconc codelist (funcall call-code-producer)))
-        )
-        ; Constant-Folding: Ist fun foldable (also subr-flag = T und
-        ; key-flag = NIL) und besteht codelist außer den (PUSH)s und dem
-        ; Call-Code am Schluss nur aus Anodes mit code = ((CONST ...)) ?
+                          (push `(STORE ,(- (second anodeetc) depth2))
+                                codelist)))))
+                  ;; now codelist-from-end:
+                  (setq codelist (nreconc codelist-from-end codelist))))
+              ;; now all key argument are on the Stack.
+              (push keyanz *stackz*)))
+          (setq codelist (nreconc codelist (funcall call-code-producer))))
+        ;; Constant-Folding: if fun is foldable (i.e.: subr-flag = T and
+        ;; key-flag = NIL) and if codelist consists besides the (PUSH)s and the
+        ;; Call-Code at the end only of Anodes with code = ((CONST ...)) ?
         (when (and foldable
                    (every #'(lambda (code)
-                              (or (not (anode-p code)) (anode-constantp code))
-                            )
-                          codelist
-              )    )
-          ; Funktion aufzurufen versuchen:
-          (let ((args (let ((L '())) ; Liste der (konstanten) Argumente
+                              (or (not (anode-p code)) (anode-constantp code)))
+                          codelist))
+          ;; try to call function:
+          (let ((args (let ((L '())) ; list of (constant) arguments
                         (dolist (code codelist)
                           (when (anode-p code)
-                            (push (anode-constant-value code) L)
-                        ) )
-                        (nreverse L)
-                )     )
+                            (push (anode-constant-value code) L)))
+                        (nreverse L)))
                 resulting-values)
             (when (block try-eval
                     (setq resulting-values
                       (let ((*error-handler*
                               #'(lambda (&rest error-args)
                                   (declare (ignore error-args))
-                                  (return-from try-eval nil)
-                           ))   )
-                        (multiple-value-list (apply fun args))
-                    ) )
-                    t
-                  )
-              ; Funktion erfolgreich aufgerufen, Constant-Folding durchführen:
+                                  (return-from try-eval nil))))
+                        (multiple-value-list (apply fun args))))
+                    t)
+              ;; function called successfully, perform constant folding:
               (return-from c-DIRECT-FUNCTION-CALL
                 (c-GLOBAL-FUNCTION-CALL-form
-                  `(VALUES ,@(mapcar #'(lambda (x) `(QUOTE ,x)) resulting-values))
-        ) ) ) ) )
+                  `(VALUES ,@(mapcar #'(lambda (x) `(QUOTE ,x))
+                                     resulting-values)))))))
         (make-anode
           :type `(DIRECT-CALL ,fun)
           :sub-anodes (remove-if-not #'anode-p codelist)
           :seclass seclass
-          :code codelist
-        )
-) ) ) )
+          :code codelist)))))
 (defun c-unlist (rest-p n m)
   (if rest-p
     (if (eql n 0)
       (make-anode :type 'UNLIST*
                   :sub-anodes '()
                   :seclass '(NIL . NIL)
-                  :code '((PUSH))
-      )
+                  :code '((PUSH)))
       (make-anode :type 'UNLIST*
                   :sub-anodes '()
-                  :seclass '(T . T) ; kann Error melden
-                  :code `((UNLIST* ,n ,m))
-    ) )
+                  :seclass '(T . T) ; can report Error
+                  :code `((UNLIST* ,n ,m))))
     (make-anode :type 'UNLIST
                 :sub-anodes '()
-                :seclass '(T . T) ; kann Error melden
-                :code `((UNLIST ,n ,m))
-) ) )
-(defun cclosure-call-code-producer (fun fnode req opt rest-flag key-flag keylist)
-  (if (eq fnode *func*)
-    ; rekursiver Aufruf der eigenen Funktion
+                :seclass '(T . T) ; can report Error
+                :code `((UNLIST ,n ,m)))))
+(defun cclosure-call-code-producer (fun fnode req opt rest-flag key-flag
+                                    keylist)
+  (if (eq fnode *func*) ; recursive call of the own function
     (let ((call-code
-            `((JSR ,(+ req opt (if rest-flag 1 0) (length keylist)) ; Zahl der Stack-Einträge
-                   ,*func-start-label*
-             ))
-         ))
-      #'(lambda () call-code)
-    )
-    ; eine andere Cclosure aufrufen
+            `((JSR ,(+ req opt (if rest-flag 1 0) (length keylist)) ; number of stack-entries
+                   ,*func-start-label*))))
+      #'(lambda () call-code))
+    ;; call another Cclosure
     #'(lambda ()
         (list
           (c-form `(FUNCTION ,fun) 'ONE)
-          (if key-flag '(CALLCKEY) '(CALLC))
-      ) )
-) )
+          (if key-flag '(CALLCKEY) '(CALLC))))))
 
-; Global function call: (fun {form}*)
+;; global function call: (fun {form}*)
 (defun c-GLOBAL-FUNCTION-CALL-form (*form*)
-  (c-GLOBAL-FUNCTION-CALL (first *form*))
-)
-(defun c-GLOBAL-FUNCTION-CALL (fun) ; fun ist ein Symbol oder (SETF symbol)
+  (c-GLOBAL-FUNCTION-CALL (first *form*)))
+(defun c-GLOBAL-FUNCTION-CALL (fun) ; fun is a Symbol or (SETF symbol)
   (test-list *form* 1)
   (note-function-used fun (cdr *form*) nil)
-  (when *compiling-from-file* ; von COMPILE-FILE aufgerufen?
-    ; PROCLAIM-Deklarationen zur Kenntnis nehmen:
+  (when *compiling-from-file* ; called by COMPILE-FILE?
+    ;; take note of PROCLAIM-declarations:
     (when (and (eq fun 'PROCLAIM) (= (length *form*) 2))
       (let ((h (second *form*)))
         (when (c-constantp h)
           (c-form
-            `(EVAL-WHEN (COMPILE) (c-PROCLAIM ',(c-constant-value h)))
-    ) ) ) )
-    ; Modul-Anforderungen zur Kenntnis nehmen:
+            `(EVAL-WHEN (COMPILE) (c-PROCLAIM ',(c-constant-value h)))))))
+    ;; take note of module requirements:
     (when (and (memq fun '(PROVIDE REQUIRE))
-               (every #'c-constantp (rest *form*))
-          )
+               (every #'c-constantp (rest *form*)))
       (c-form
         `(EVAL-WHEN (COMPILE)
            (,(case fun
-               (PROVIDE 'c-PROVIDE) ; c-PROVIDE statt PROVIDE
-               (REQUIRE 'c-REQUIRE) ; c-REQUIRE statt REQUIRE
-             )
-            ,@(mapcar
-                #'(lambda (x) (list 'QUOTE (c-constant-value x))) ; Argumente quotieren
-                (rest *form*)
-         ) )  )
-    ) )
-    ; Package-Anforderungen zur Kenntnis nehmen:
+               (PROVIDE 'c-PROVIDE)  ; c-PROVIDE instead of PROVIDE
+               (REQUIRE 'c-REQUIRE)) ; c-REQUIRE instead of REQUIRE
+            ,@(mapcar           ; quote arguments
+               #'(lambda (x) (list 'QUOTE (c-constant-value x)))
+               (rest *form*))))))
+    ;; take note of package-requirements:
     (when (and *package-tasks-treat-specially*
                (memq fun '(MAKE-PACKAGE SYSTEM::%IN-PACKAGE
                            SHADOW SHADOWING-IMPORT EXPORT UNEXPORT
@@ -4273,12 +3985,9 @@ der Docstring (oder NIL).
                   (let ((v (c-constant-value x)))
                     (if (or (numberp v) (characterp v) (arrayp v) (keywordp v))
                       v
-                      (list 'QUOTE v)
-                ) ) )
-              (rest *form*)
-         )  )
-        *package-tasks*
-  ) ) )
+                      (list 'QUOTE v))))
+              (rest *form*)))
+        *package-tasks*)))
   (let* ((args (cdr *form*))    ; arguments
          (n (length args)))     ; number of arguments
     (if (or (not (fboundp fun)) (declared-notinline fun))
@@ -4296,48 +4005,43 @@ der Docstring (oder NIL).
               CDDAR CDDDR SECOND THIRD FOURTH CAAAAR CAAADR CAADAR CAADDR
               CADAAR CADADR CADDAR CADDDR CDAAAR CDAADR CDADAR CDADDR
               CDDAAR CDDADR CDDDAR CDDDDR ATOM CONSP
-              VALUES-LIST SYS::%SVSTORE EQ SYMBOL-FUNCTION LIST LIST*
-             )
-             ; Diese hier haben keylist=NIL, allow-p=NIL und
-             ; (was aber nicht verwendet wird) opt=0.
+              VALUES-LIST SYS::%SVSTORE EQ SYMBOL-FUNCTION LIST LIST*)
+             ;; these here have keylist=NIL, allow-p=NIL and
+             ;; (which is not used) opt=0.
              (if check ; (and (<= req n) (or rest-p (<= n (+ req opt))))
-               ; Wir machen den Aufruf INLINE.
-               (let ((sideeffects ; Seiteneffektklasse der Funktionsausführung
-                       (case fun
-                         ((NOT NULL CONS VALUES ATOM CONSP EQ LIST LIST*)
-                           '(NIL . NIL)
-                         )
-                         ((CAR CDR FIRST REST CAAR CADR
-                           CDAR CDDR CAAAR CAADR CADAR CADDR CDAAR CDADR CDDAR
-                           CDDDR SECOND THIRD FOURTH CAAAAR CAAADR CAADAR CAADDR
-                           CADAAR CADADR CADDAR CADDDR CDAAAR CDAADR CDADAR CDADDR
-                           CDDAAR CDDADR CDDDAR CDDDDR VALUES-LIST
-                           SVREF SYMBOL-FUNCTION
-                          )
-                           '(T . NIL)
-                         )
-                         (t '(T . T))
-                    )) )
+               ;; we make the call INLINE.
+               (let ((sideeffects ; side-effect-class of the function-execution
+                      (case fun
+                        ((NOT NULL CONS VALUES ATOM CONSP EQ LIST LIST*)
+                         '(NIL . NIL))
+                        ((CAR CDR FIRST REST CAAR CADR
+                          CDAR CDDR CAAAR CAADR CADAR CADDR CDAAR CDADR CDDAR
+                          CDDDR SECOND THIRD FOURTH CAAAAR CAAADR CAADAR CAADDR
+                          CADAAR CADADR CADDAR CADDDR CDAAAR CDAADR CDADAR
+                          CDADDR CDDAAR CDDADR CDDDAR CDDDDR VALUES-LIST
+                          SVREF SYMBOL-FUNCTION)
+                         '(T . NIL))
+                        (t '(T . T)))))
                  (if (and (null *for-value*) (null (cdr sideeffects)))
-                   ; Brauche die Funktion nicht aufzurufen, nur die Argumente auswerten
+                   ;; don't have to call the function,
+                   ;; only evaluate the arguments
                    (c-form `(PROGN ,@args))
                    (if (and (eq fun 'VALUES) (eq *for-value* 'ONE))
                      (if (= n 0) (c-NIL) (c-form `(PROG1 ,@args)))
                      (let ((seclass sideeffects)
                            (codelist '()))
                        (let ((*stackz* *stackz*))
-                         ; Argumente auswerten und bis auf das letzte auf den Stack
-                         ; (denn das letzte Argument wird in A0 erwartet):
+                         ;; evaluate the arguments and push all to the
+                         ;; stack except for the last (because the last
+                         ;; one is expected in A0):
                          (loop
                            (when (null args) (return))
                            (let ((anode (c-form (pop args) 'ONE)))
                              (seclass-or-f seclass anode)
-                             (push anode codelist)
-                           )
-                           (when args ; nicht am Schluss
+                             (push anode codelist))
+                           (when args ; not at the end
                              (push '(PUSH) codelist)
-                             (push 1 *stackz*)
-                         ) )
+                             (push 1 *stackz*)))
                          (setq codelist
                            (nreconc codelist
                              (case fun
@@ -4381,32 +4085,25 @@ der Docstring (oder NIL).
                                (VALUES (case n
                                          (0 '((VALUES0)) )
                                          (1 '((VALUES1)) )
-                                         (t `((PUSH) ; letztes Argument auch noch in den Stack
-                                              (STACK-TO-MV ,n)
-                                             )
-                               )       ) )
+                                         (t `((PUSH) ; also push last argument to the Stack
+                                              (STACK-TO-MV ,n)))))
                                (VALUES-LIST '((LIST-TO-MV)))
                                (SYMBOL-FUNCTION '((SYMBOL-FUNCTION)))
                                (LIST (if (plusp n)
                                        `((PUSH) (LIST ,n))
-                                       '((NIL))
-                               )     )
+                                       '((NIL))))
                                (LIST* (case n
                                         (1 '((VALUES1)) )
-                                        (t `((LIST* ,(1- n))) )
-                               )      )
-                               (t (compiler-error 'c-GLOBAL-FUNCTION-CALL))
-                       ) ) ) )
+                                        (t `((LIST* ,(1- n))) )))
+                               (t (compiler-error 'c-GLOBAL-FUNCTION-CALL))))))
                        (make-anode
                          :type `(PRIMOP ,fun)
                          :sub-anodes (remove-if-not #'anode-p codelist)
                          :seclass seclass
-                         :code codelist
-                       )
-               ) ) ) )
+                         :code codelist)))))
                ;; check failed (wrong argument count) => not INLINE:
                (c-NORMAL-FUNCTION-CALL fun)))
-            (t ; Ist das SUBR fun in der FUNTAB enthalten?
+            (t ; is the SUBR fun contained in the FUNTAB?
              (let ((index (gethash fun function-codes)))
                (if index
                  (case check
@@ -4415,33 +4112,27 @@ der Docstring (oder NIL).
                     ;; at compile time ==> INLINE
                     (c-DIRECT-FUNCTION-CALL
                       args nil fun req opt rest-p keylist keylist
-                      t ; es handelt sich um ein SUBR
-                      (let ((call-code
-                              ; Aufruf mit Hilfe der FUNTAB:
+                      t ; it is a SUBR
+                      (let ((call-code ; call with help from the FUNTAB:
                               (cons
                                 (if (not rest-p)
                                   (CALLS-code index)
-                                  `(CALLSR ,(max 0 (- n req opt)) ; Bei n<req+opt kommt noch ein (PUSH-UNBOUND ...)
-                                           ,(- index funtabR-index)
-                                   )
-                                )
+                                  `(CALLSR ,(max 0 (- n req opt)) ; When n<req+opt another (PUSH-UNBOUND ...) still has to come
+                                           ,(- index funtabR-index)))
                                 (case fun
-                                  (; Funktionen, die nicht zurückkehren:
-                                   (; control.d:
+                                  (;; functions, that do not return:
+                                   (;; control.d:
                                     SYS::DRIVER SYS::UNWIND-TO-DRIVER
-                                    ; debug.d:
-                                    ; SYS::REDO-EVAL-FRAME SYS::RETURN-FROM-EVAL-FRAME
-                                    ; error.d:
-                                    ERROR SYSTEM::ERROR-OF-TYPE INVOKE-DEBUGGER
-                                   )
-                                   '((BARRIER))
-                                  )
-                                  (t '())
-                           )) ) )
-                        #'(lambda () call-code)
-                   )) )
-                   (t (c-NORMAL-FUNCTION-CALL fun))
-                 )
+                                    ;; debug.d:
+                                    ;; SYS::REDO-EVAL-FRAME
+                                    ;; SYS::RETURN-FROM-EVAL-FRAME
+                                    ;; error.d:
+                                    ERROR SYSTEM::ERROR-OF-TYPE
+                                    INVOKE-DEBUGGER)
+                                   '((BARRIER)))
+                                  (t '())))))
+                        #'(lambda () call-code))))
+                   (t (c-NORMAL-FUNCTION-CALL fun)))
                  ;; not a SUBR
                  (let ((inline-lambdabody (inline-lambdabody fun)))
                    (if (inline-callable-lambdabody-p inline-lambdabody n)
@@ -4476,43 +4167,39 @@ der Docstring (oder NIL).
         (pushnew name *deprecated-functions* :test #'eq)
         (c-warn (ENGLISH "Function ~s is deprecated") name))))
 
-; Hilfsfunktion: PROCLAIM beim Compilieren vom File, vgl. Funktion PROCLAIM
+;; auxiliary function: PROCLAIM on file-compilation, cf. function PROCLAIM
 (defun c-PROCLAIM (declspec)
   (when (consp declspec)
     (case (car declspec)
       (SPECIAL
         (dolist (var (cdr declspec))
-          (when (symbolp var) (pushnew var *known-special-vars* :test #'eq))
-      ) )
+          (when (symbolp var) (pushnew var *known-special-vars* :test #'eq))))
       (INLINE
         (dolist (var (cdr declspec))
           (when (function-name-p var)
             (pushnew var *inline-functions* :test #'equal)
-            (setq *notinline-functions* (delete var *notinline-functions* :test #'equal))
-      ) ) )
+            (setq *notinline-functions* (delete var *notinline-functions*
+                                                :test #'equal)))))
       (NOTINLINE
         (dolist (var (cdr declspec))
           (when (function-name-p var)
             (pushnew var *notinline-functions* :test #'equal)
-            (setq *inline-functions* (delete var *inline-functions* :test #'equal))
-      ) ) )
+            (setq *inline-functions* (delete var *inline-functions*
+                                             :test #'equal)))))
       (CONSTANT-INLINE
         (dolist (var (cdr declspec))
           (when (symbolp var)
             (pushnew var *inline-constants*)
-            (setq *notinline-constants* (delete var *notinline-constants*))
-      ) ) )
+            (setq *notinline-constants* (delete var *notinline-constants*)))))
       (CONSTANT-NOTINLINE
         (dolist (var (cdr declspec))
           (when (symbolp var)
             (pushnew var *notinline-constants*)
-            (setq *inline-constants* (delete var *inline-constants*))
-      ) ) )
+            (setq *inline-constants* (delete var *inline-constants*)))))
       (DECLARATION
         (dolist (var (cdr declspec))
-          (when (symbolp var) (pushnew var *user-declaration-types* :test #'eq))
-      ) )
-) ) )
+          (when (symbolp var) (pushnew var *user-declaration-types*
+                                       :test #'eq)))))))
 
 ;; DEFCONSTANT when compiling
 (defun c-PROCLAIM-CONSTANT (symbol initial-value-form)
@@ -4524,7 +4211,7 @@ der Docstring (oder NIL).
 
 ;; DEFUN when compiling
 (defun c-DEFUN (symbol signature &optional lambdabody)
-  (when *compiling* ; c-DEFUN kann auch vom Expander aus aufgerufen werden!
+  (when *compiling* ; c-DEFUN can also be called by the Expander!
     (when *compiling-from-file*
       (let ((kf (assoc symbol *known-functions* :test #'equal)))
         (when (and kf (equal (current-function) symbol))
@@ -4553,40 +4240,36 @@ der Docstring (oder NIL).
         ;; top-level environment and can be inlined
         (push (cons symbol lambdabody) *inline-definitions*)))))
 
-; Hilfsfunktion: PROVIDE beim Compilieren vom File, vgl. Funktion PROVIDE
+;; auxiliary function: PROVIDE on file-compilation, cf. function PROVIDE
 (defun c-PROVIDE (module-name)
-  (pushnew (string module-name) *compiled-modules* :test #'string=)
-)
+  (pushnew (string module-name) *compiled-modules* :test #'string=))
 
-; Hilfsfunktion: REQUIRE beim Compilieren vom File, vgl. Funktion REQUIRE
+;; auxiliary function: REQUIRE on file-compilation, cf. function REQUIRE
 (defun c-REQUIRE (module-name &optional (pathname nil p-given))
   (unless (member (string module-name) *compiled-modules* :test #'string-equal)
     (unless p-given (setq pathname (pathname module-name)))
     (flet ((load-lib (file)
              (let* ((present-files
-                      (search-file file (append *source-file-types* '(#".lib")))
-                    )
+                     (search-file file (append *source-file-types*
+                                               '(#".lib"))))
                     (newest-file (first present-files)))
-               ; Falls das libfile unter den gefundenen Files vorkommt
-               ; und das neueste ist:
+               ;; if the libfile occurs among the found Files
+               ;; and if it is the newest:
                (if (and (consp present-files)
                         (string= (pathname-type newest-file)
-                                 '#,(pathname-type '#".lib")
-                   )    )
-                 (load newest-file :verbose nil :print nil :echo nil) ; libfile laden
-                 (compile-file (or newest-file file)) ; file compilieren
-          )) ) )
-      (if (atom pathname) (load-lib pathname) (mapcar #'load-lib pathname))
-) ) )
+                                 '#,(pathname-type '#".lib")))
+                 (load newest-file :verbose nil :print nil :echo nil) ; load libfile
+                 (compile-file (or newest-file file)))))) ; compile file
+      (if (atom pathname) (load-lib pathname) (mapcar #'load-lib pathname)))))
 
-;;; Hilfsfunktionen für
-;;; LET/LET*/MULTIPLE-VALUE-BIND/Lambda-Ausdruck/FLET/LABELS:
+;;; auxiliary functions for
+;;; LET/LET*/MULTIPLE-VALUE-BIND/Lambda-Expression/FLET/LABELS:
 
-;; Syntaxanalyse:
+;; Syntax-Analysis:
 
-; analysiert eine Parameterliste von LET/LET*, liefert:
-; die Liste der Symbole,
-; die Liste der Formen.
+;; analyzes a parameter-list of LET/LET*, returns:
+;; the List of Symbols,
+;; the List of Forms.
 (defun analyze-letlist (parameters)
   (do ((L parameters (cdr L))
        (symbols nil)
@@ -4600,22 +4283,22 @@ der Docstring (oder NIL).
           (t (c-error-c (ENGLISH "Illegal syntax in LET/LET*: ~S")
                         (car L))))))
 
-; analysiert eine Lambdaliste einer Funktion (CLTL S. 60), liefert 13 Werte:
-; 1. Liste der required Parameter
-; 2. Liste der optionalen Parameter
-; 3. Liste der Initformen der optionalen Parameter
-; 4. Liste der Svars zu den optionalen Parametern (0 für die fehlenden)
-; 5. Rest-Parameter oder 0
-; 6. Flag, ob Keywords erlaubt sind
-; 7. Liste der Keywords
-; 8. Liste der Keyword-Parameter
-; 9. Liste der Initformen der Keyword-Parameter
-; 10. Liste der Svars zu den Keyword-Parametern (0 für die fehlenden)
-; 11. Flag, ob andere Keywords erlaubt sind
-; 12. Liste der Aux-Variablen
-; 13. Liste der Initformen der Aux-Variablen
+;;; analyzes a lambda-list of a function (CLTL p. 60), returns 13 values:
+;; 1. list of required parameters
+;; 2. list of optional parameters
+;; 3. list of init-forms of the optional parameters
+;; 4. list of Svars for the optional parameters (0 for the missing)
+;; 5. Rest-Parameter or 0
+;; 6. Flag, if Keywords are allowed
+;; 7. list of Keywords
+;; 8. list of Keyword-Parameters
+;; 9. list of init-forms of the Keyword-Parameters
+;; 10. list of Svars for the keyword-parameters (0 for the missing)
+;; 11. Flag, if Keywords are allowed
+;; 12. list of Aux-Variables
+;; 13. list of init-forms of the Aux-Variables
 (defun analyze-lambdalist (lambdalist)
-  (let ((L lambdalist) ; Rest der Lambdaliste
+  (let ((L lambdalist) ; Rest of the lambda-list
         (req nil)
         (optvar nil)
         (optinit nil)
@@ -4629,7 +4312,7 @@ der Docstring (oder NIL).
         (allow-other-keys nil)
         (auxvar nil)
         (auxinit nil))
-       ; alle in umgedrehter Reihenfolge
+    ;; all in reversed order
     (macrolet ((err-illegal (item)
                  `(c-error-c
                    (ENGLISH "Lambda list marker ~S not allowed here.")
@@ -4652,7 +4335,7 @@ der Docstring (oder NIL).
                           (ENGLISH "Lambda list element ~S is superfluous.")
                           item)))
                    (setq L (cdr L)))))
-      ; Required Parameter:
+      ;; Required Parameters:
       (loop
         (if (atom L) (return))
         (let ((item (car L)))
@@ -4662,8 +4345,8 @@ der Docstring (oder NIL).
               (push item req))
             (lambdalist-error item)))
         (setq L (cdr L)))
-      ; Hier gilt (or (atom L) (member (car L) '(&optional &rest &key &aux))).
-      ; Optionale Parameter:
+      ;; (or (atom L) (member (car L) '(&optional &rest &key &aux)))  applies.
+      ;; optional parameters:
       (when (and (consp L) (eq (car L) '&optional))
         (setq L (cdr L))
         (loop
@@ -4675,18 +4358,25 @@ der Docstring (oder NIL).
                 (progn (push item optvar) (push nil optinit) (push 0 optsvar)))
               (if (and (consp item) (symbolp (car item)))
                 (if (null (cdr item))
-                  (progn (push (car item) optvar) (push nil optinit) (push 0 optsvar))
+                  (progn (push (car item) optvar)
+                         (push nil optinit)
+                         (push 0 optsvar))
                   (if (consp (cdr item))
                     (if (null (cddr item))
-                      (progn (push (car item) optvar) (push (cadr item) optinit) (push 0 optsvar))
-                      (if (and (consp (cddr item)) (symbolp (caddr item)) (null (cdddr item)))
-                        (progn (push (car item) optvar) (push (cadr item) optinit) (push (caddr item) optsvar))
+                      (progn (push (car item) optvar)
+                             (push (cadr item) optinit)
+                             (push 0 optsvar))
+                      (if (and (consp (cddr item)) (symbolp (caddr item))
+                               (null (cdddr item)))
+                        (progn (push (car item) optvar)
+                               (push (cadr item) optinit)
+                               (push (caddr item) optsvar))
                         (lambdalist-error item)))
                     (lambdalist-error item)))
                 (lambdalist-error item))))
           (setq L (cdr L))))
-      ; Hier gilt (or (atom L) (member (car L) '(&rest &key &aux))).
-      ; Rest-Parameter:
+      ;; (or (atom L) (member (car L) '(&rest &key &aux))) applies.
+      ;; rest-parameters:
       (when (and (consp L) (eq (car L) '&rest))
         (setq L (cdr L))
         (if (atom L)
@@ -4698,10 +4388,10 @@ der Docstring (oder NIL).
                 (setq rest item))
               (lambdalist-error item))
             (setq L (cdr L)))))
-      ; Vorrücken bis zum nächsten &key oder &aux :
+      ;; move forward to the next &key or &aux :
       (skip-L '(&key &aux))
-      ; Hier gilt (or (atom L) (member (car L) '(&key &aux))).
-      ; Keyword-Parameter:
+      ;; (or (atom L) (member (car L) '(&key &aux)))  applies.
+      ;; keyword-parameters:
       (when (and (consp L) (eq (car L) '&key))
         (setq L (cdr L))
         (setq keyflag t)
@@ -4726,11 +4416,17 @@ der Docstring (oder NIL).
                     (or (null (cdr item))
                         (and (consp (cdr item))
                              (or (null (cddr item))
-                                 (and (consp (cddr item)) (symbolp (caddr item)) (null (cdddr item)))))))
+                                 (and (consp (cddr item))
+                                      (symbolp (caddr item))
+                                      (null (cdddr item)))))))
                 (progn
                   (if (consp (car item))
-                    (progn (push (caar item) keyword) (push (cadar item) keyvar))
-                    (progn (push (intern (symbol-name (car item)) *keyword-package*) keyword) (push (car item) keyvar)))
+                    (progn (push (caar item) keyword)
+                           (push (cadar item) keyvar))
+                    (progn (push (intern (symbol-name (car item))
+                                         *keyword-package*)
+                                 keyword)
+                           (push (car item) keyvar)))
                   (if (consp (cdr item))
                     (progn
                       (push (cadr item) keyinit)
@@ -4740,14 +4436,14 @@ der Docstring (oder NIL).
                     (progn (push nil keyinit) (push 0 keysvar))))
                 (lambdalist-error item))))
           (setq L (cdr L)))
-        ; Hier gilt (or (atom L) (member (car L) '(&allow-other-keys &aux))).
+        ;; (or (atom L) (member (car L) '(&allow-other-keys &aux))) applies.
         (when (and (consp L) (eq (car L) '&allow-other-keys))
           (setq allow-other-keys t)
           (setq L (cdr L))))
-      ; Vorrücken bis zum nächsten &AUX :
+      ;; move forward  to the next &AUX :
       (skip-L '(&aux))
-      ; Hier gilt (or (atom L) (member (car L) '(&aux))).
-      ; &AUX-Variablen:
+      ;; (or (atom L) (member (car L) '(&aux))) applies.
+      ;; &AUX-Variables:
       (when (and (consp L) (eq (car L) '&aux))
         (setq L (cdr L))
         (loop
@@ -4765,7 +4461,7 @@ der Docstring (oder NIL).
                     (lambdalist-error item)))
                 (lambdalist-error item))))
           (setq L (cdr L))))
-      ; Hier gilt (atom L).
+      ;; (atom L) applies.
       (if L
           (c-error-c (ENGLISH "Lambda lists with dots are only allowed in macros, not here: ~S")
                      lambdalist)))
@@ -4850,289 +4546,259 @@ der Docstring (oder NIL).
                  |#
                  (inline-callable-lambdabody-p (inline-lambdabody fun) n))))))
 
-;; Special-deklarierte Symbole:
+;; Special-declared Symbols:
 
-(defvar *specials*) ; Liste aller zuletzt special deklarierten Symbole
-(defvar *ignores*) ; Liste aller zuletzt ignore deklarierten Symbole
-(defvar *ignorables*) ; Liste aller zuletzt ignorable deklarierten Symbole
-(defvar *readonlys*) ; Liste aller zuletzt read-only deklarierten Symbole
+(defvar *specials*)   ; list of all lastly special-deklared symbols
+(defvar *ignores*)    ; list of all lastly ignore-declared symbols
+(defvar *ignorables*) ; list of all lastly ignorable-declared symbols
+(defvar *readonlys*)  ; list of all lastly read-only declared symbols
 
 ;; push all symbols for special variables into *venv* :
 (defun push-specials ()
   (apply #'push-*venv* (mapcar #'make-special-var *specials*)))
 
-; Überprüft eine Variable, ob sie zu Recht ignore-deklariert ist oder nicht...
+;; checks if a variable is rightly ignore-declared...
 (defun ignore-check (var)
   (let ((sym (var-name var)))
     (if (member sym *ignores* :test #'eq)
-      ; var ignore-deklariert
+      ;; var ignore-declared
       (if (var-specialp var)
         (c-warn (ENGLISH "Binding variable ~S can cause side effects despite of IGNORE declaration~%since it is declared SPECIAL.")
-                sym
-        )
+                sym)
         (if (var-for-value-usedp var)
           (c-style-warn (ENGLISH "variable ~S is used despite of IGNORE declaration.")
-                        sym
-      ) ) )
-      ; var nicht ignore-deklariert
+                        sym)))
+      ;; var not ignore-declared
       (unless (member sym *ignorables* :test #'eq)
-        ; var auch nicht ignorable-deklariert
+        ;; var also not ignorable-declared
         (unless (or (var-specialp var) (var-usedp var))
-          ; var lexikalisch und unbenutzt
-          (unless (null (symbol-package sym)) ; sym ein (gensym) ?
-            ; (Symbole ohne Home-Package kommen nicht vom Benutzer, die Warnung
-            ; würde nur verwirren).
+          ;; var lexically and unused
+          (unless (null (symbol-package sym)) ; sym a (gensym) ?
+            ;; (symbols without Home-Package do not originate from the user,
+            ;; the warning would only cause confusion).
             (c-style-warn (ENGLISH "variable ~S is not used.~%Misspelled or missing IGNORE declaration?")
-                          sym
-    ) ) ) ) )
+                          sym)))))
     (when (member sym *readonlys* :test #'eq)
       (unless (var-specialp var)
         (when (var-assignedp var)
           (c-warn (ENGLISH "The variable ~S is assigned to, despite of READ-ONLY declaration.")
-                  sym
-    ) ) ) )
-) )
+                  sym))))))
 
-; liefert den Code, der zum neuen Aufbau einer Closure und ihrer Unterbringung
-; im Stack nötig ist:
-; Dieser Code erweitert das von (cdr venvc) beschriebene Venv um closurevars,
-; (cdr stackz) ist der aktuelle Stackzustand.
-; Nach Aufbau der Closure sind venvc bzw. stackz die aktuellen Zustände.
+;; returns the Code, that is necessary for the new construction of a
+;; Closure and its placement in the Stack:
+;; this Code extends the Venv described by (cdr venvc) with closurevars,
+;; (cdr stackz) is the current stack-state.
+;; After the construction of the Closure venvc resp.
+;; stackz are the current states.
 (defun c-MAKE-CLOSURE (closurevars venvc stackz)
   (if closurevars
     `((VENV ,(cdr venvc) ,(cdr stackz))
-      (MAKE-VECTOR1&PUSH ,(length closurevars))
-     )
-    '()
-) )
+      (MAKE-VECTOR1&PUSH ,(length closurevars)))
+    '()))
 
-;; Es gibt zwei Arten von Variablen-Bindungs-Vorgehensweisen:
-; 1. fixed-var: die Variable hat eine Position im Stack, darf nicht wegoptimiert
-;               werden. Ist die Variable dann doch in der Closure, so muss ihr
-;               Wert dorthin übertragen werden; ist die Variable dynamisch, so
-;               muss ein Bindungsframe aufgemacht werden.
-;               Auftreten: MULTIPLE-VALUE-BIND, Lambda-Ausdruck (required,
-;               optional, rest, keyword - Parameter)
-; 2. movable-var: die Variable darf wegoptimiert werden, falls sie konstant ist
-;                 (sie entweder dynamisch und konstant ist oder lexikalisch
-;                  und an eine Konstante gebunden und nie geSETQed wird). Hier
-;                 spielt also der Init-Wert eine Rolle.
-;                 Auftreten: LET, LET*, Lambda-Ausdruck (optional-svar,
-;                 keyword-svar, aux-Variablen)
+;;; There are two ways to bind variables:
+;; 1. fixed-var: the variable has a position in the Stack, may not be optimized
+;;               away. If the Variable is in the Closure, however, its value
+;;               must be transfered there; if the Variable is dynamic, a
+;;               binding-frame has to be opened up.
+;;               occurrence: MULTIPLE-VALUE-BIND, Lambda-Expression (required,
+;;               optional, rest, keyword - Parameter)
+;; 2. movable-var: the Variable may be optimized away, if it is constant
+;;                 (it is either dynamic and constant or lexical
+;;                  and bound to a constant and never SETQ-ed). So
+;;                 the init-value plays a role.
+;;                 occurrence: LET, LET*, Lambda-Expression (optional-svar,
+;;                 keyword-svar, aux-Variable)
 
 ;; 1. fixed-var
 
-; Bindung einer fixed-var:
-; symbol --> Variable
-; Lässt *stackz* unverändert.
+;; binding of a fixed-var:
+;; symbol --> Variable
+;; Leaves *stackz* unchanged.
 (defun bind-fixed-var-1 (symbol)
   (if (or (constantp symbol)
           (proclaimed-special-p symbol)
           (member symbol *specials* :test #'eq))
-    ; muss symbol dynamisch binden:
+    ;; must bind symbol dynamically:
     (progn
       (when (l-constantp symbol)
         (c-error-c (ENGLISH "Constant ~S cannot be bound.")
                    symbol))
       (make-special-var symbol))
-    ; muss symbol lexikalisch binden:
+    ;; must bind symbol lexically :
     (make-var :name symbol :specialp nil :constantp nil
               :usedp nil :for-value-usedp nil :really-usedp nil
               :closurep nil
               :stackz *stackz* :venvc *venvc* :fnode *func*)))
 
-; registriert in *stackz*, dass eine fixed-var gebunden wird
+;; registers in *stackz*, that a fixed-var is being bound
 (defun bind-fixed-var-2 (var)
   (when (and (var-specialp var) (not (var-constantp var)))
     (push '(BIND 1) *stackz*)))
 
-; liefert den Code, der die Variable var an den Inhalt von stackdummyvar
-; bindet. stackz ist der Stackzustand vor dem Binden dieser Variablen.
+;; returns the Code that binds the variable var to the content of stackdummyvar
+;; stackz is the stack-state before the binding of this variable.
 (defun c-bind-fixed-var (var stackdummyvar stackz)
   (if (var-specialp var)
     (if (var-constantp var)
-      '() ; Konstante kann nicht gebunden werden
+      '() ; constant cannot be bound
       `((GET ,stackdummyvar ,*venvc* ,stackz)
-        (BIND ,(new-const (var-name var)))
-       )
-    )
-    ; var lexikalisch, nach Definition nicht konstant
+        (BIND ,(new-const (var-name var)))))
+    ; var lexical, not constant by definition
     (if (var-closurep var)
       `((GET ,stackdummyvar ,*venvc* ,stackz)
-        (SET ,var ,*venvc* ,stackz)
-       )
-      '() ; var und stackdummyvar identisch
-) ) )
+        (SET ,var ,*venvc* ,stackz))
+      '()))) ; var and stackdummyvar identical
 
-; Kreiert je eine Stackvariable und eine Fixed-Variable zu jedem Symbol aus der
-; Variablenliste symbols und liefert beide Listen als Werte.
+;; creates a Stack-Variable and a Fixed-Variable at a time for each
+;; Symbol from the Variable-List symbols and returns both lists as values.
 (defun process-fixed-var-list (symbols &optional optimflags)
   (do ((symbolsr symbols (cdr symbolsr))
        (optimflagsr optimflags (cdr optimflagsr))
-       (varlist nil) ; Liste der Variablen
-       (stackvarlist nil)) ; Liste der Stackvariablen (teils Dummys)
+       (varlist nil) ; list of Variables
+       (stackvarlist nil)) ; list of Stackvariables (partly Dummys)
       ((null symbolsr) (values (nreverse varlist) (nreverse stackvarlist)))
     (push 1 *stackz*)
-    ; (mit constantp=nil und really-usedp=t, um eine Wegoptimierung zu vermeiden)
+    ;; with constantp=nil and really-usedp=t,
+    ;; in order to avoid optimizing it away
     (push (make-var :name (gensym) :specialp nil :constantp nil
-                    :usedp nil :for-value-usedp nil :really-usedp (null (car optimflagsr))
-                    :closurep nil :stackz *stackz* :venvc *venvc* :fnode *func*
-          )
-          stackvarlist
-    )
-    (push (bind-fixed-var-1 (car symbolsr)) varlist)
-) )
+                    :usedp nil :for-value-usedp nil
+                    :really-usedp (null (car optimflagsr)) :closurep nil
+                    :stackz *stackz* :venvc *venvc* :fnode *func*)
+          stackvarlist)
+    (push (bind-fixed-var-1 (car symbolsr)) varlist)))
 
-; Eliminiert alle Zuweisungen auf eine unbenutzte Variable.
+;; Eliminates all assignments to an unused Variable.
 (defun unmodify-unused-var (var)
   (dolist (modified (var-modified-list var))
     (if (cddr modified)
-      ; Wert der Zuweisung wird gebraucht
-      (let ((set-anode (second modified))) ; Anode der Zuweisung selbst
-        (setf (anode-code set-anode) '((VALUES1))) ; Zuweisung entfernen
-      )
-      ; Wert der Zuweisung wird nicht gebraucht
+      ;; value of the assignment is needed
+      (let ((set-anode (second modified))) ; Anode of the assignment itself
+        (setf (anode-code set-anode) '((VALUES1)))) ; remove assignment
+      ;; value of the assignment is not needed
       (progn
-        (let ((value-anode (first modified))) ; Anode für zugewiesenen Wert
+        (let ((value-anode (first modified))) ; Anode for assigned value
           (when (null (cdr (anode-seclass value-anode)))
-            (setf (anode-code value-anode) '()) ; evtl. Wert-Form entfernen
-        ) )
-        (let ((set-anode (second modified))) ; Anode der Zuweisung selbst
-          (setf (anode-code set-anode) '()) ; Zuweisung entfernen
-) ) ) ) )
+            (setf (anode-code value-anode) '()))) ; poss. remove value-form
+        (let ((set-anode (second modified))) ; Anode of the assignment itself
+          (setf (anode-code set-anode) '())))))) ; remove assignment
 
-; Überprüft und optimiert die Variablen
-; und liefert die Liste der Closure-Variablen (in der richtigen Reihenfolge).
+;; checks and optimizes the variables
+;; and returns the list of Closure-Variables (in the right order).
 (defun checking-fixed-var-list (varlist &optional optimflaglist)
   (let ((closurevarlist '()))
     (dolist (var varlist (nreverse closurevarlist))
-      ; 1. Schritt: eventuelle Warnungen ausgeben
+      ;; 1st step: write poss. warnings
       (ignore-check var)
-      ; 2. Schritt: Variablen-Ort (Stack oder Closure) endgültig bestimmen,
-      ; evtl. optimieren
+      ;; 2nd step: finally determine variable-location (Stack or Closure),
+      ;; poss. optimize
       (unless (var-specialp var)
-        ; nur lexikalische Variablen können in der Closure liegen,
-        ; nur bei lexikalischen Variablen kann optimiert werden
+        ;; only lexical Variables can lie in the Closure,
+        ;; only lexical Variables can be optimized
         (if (not (var-really-usedp var))
-          ; Variable lexikalisch und unbenutzt
-          (progn ; Variable eliminieren
+          ;; Variable lexical and unused
+          (progn ; eliminate variable
             (setf (var-closurep var) nil)
-            (when (car optimflaglist) ; optimierbare fixed-var?
-              (setf (first (var-stackz var)) 0) ; aus dem Stack entfernen
-              (setf (car optimflaglist) 'GONE) ; als gestrichen vermerken
-            )
-            (unmodify-unused-var var) ; Zuweisungen auf var eliminieren
-          )
+            (when (car optimflaglist) ; optimize-able fixed-var?
+              (setf (first (var-stackz var)) 0) ; remove from stack
+              (setf (car optimflaglist) 'GONE)) ; note as gone
+            (unmodify-unused-var var)) ; eliminate assignments to var
           (when (var-closurep var)
-            ; Variable muss in der Closure liegen
-            (push var closurevarlist)
-      ) ) )
-      (setq optimflaglist (cdr optimflaglist))
-) ) )
+            ; variable must lie in the closure
+            (push var closurevarlist))))
+      (setq optimflaglist (cdr optimflaglist)))))
 
 ;; 2. movable-var
 
-; Beim Binden einer Variablen var an einen Anode anode:
-; Wird eine lexikalische Variable an den Wert an einer lexikalischen Variablen
-; gebunden? Wenn ja, an welche Variable?
+;; At the Binding of a Variable var to an Anode anode:
+;; Is the lexical Variable being bound to the value at a lexical
+;; variable? If so, to which variable?
 (defun bound-to-var-p (var anode)
   (if (var-specialp var)
     nil
-    ; var lexikalisch
+    ;; var lexically
     (loop
       (unless (eql (length (anode-code anode)) 1) (return nil))
       (setq anode (first (anode-code anode)))
       (unless (anode-p anode)
         (if (and (consp anode) (eq (first anode) 'GET))
-          ; Code zum Anode besteht genau aus ((GET outervar ...)).
+          ;; Code at the Anode consists exactly of ((GET outervar ...)).
           (return (second anode))
-          (return nil)
-    ) ) )
-) )
+          (return nil))))))
 
-; Bindung einer movable-var:
-; symbol form-anode --> Variable
-; erweitert *stackz* um genau einen Eintrag
+;; Binding of a movable-var:
+;; symbol form-anode --> Variable
+;; extends *stackz* exactly by one entry
 (defun bind-movable-var (symbol form-anode)
   (if (or (constantp symbol)
           (proclaimed-special-p symbol)
-          (member symbol *specials* :test #'eq)
-      )
-    ; muss symbol dynamisch binden:
+          (member symbol *specials* :test #'eq))
+    ;; must bind symbol dynamically:
     (progn
       (if (l-constantp symbol)
         (progn
           (c-error-c (ENGLISH "Constant ~S cannot be bound.")
                      symbol)
-          (push 0 *stackz*)
-        )
-        (push '(BIND 1) *stackz*)
-      )
-      (make-special-var symbol)
-    )
-    ; muss symbol lexikalisch binden:
+          (push 0 *stackz*))
+        (push '(BIND 1) *stackz*))
+      (make-special-var symbol))
+    ;; must bind symbol lexically:
     (let ((var
             (progn
-              (push 1 *stackz*) ; vorläufig: 1 Platz auf dem Stack
+              (push 1 *stackz*) ; preliminary: 1 place on the Stack
               (make-var :name symbol :specialp nil
-                :constantp (anode-constantp form-anode) ; wird bei Zuweisungen auf NIL gesetzt
-                :constant (if (anode-constantp form-anode) (anode-constant form-anode))
+                :constantp (anode-constantp form-anode) ; is set to NIL for assignments
+                :constant (if (anode-constantp form-anode)
+                              (anode-constant form-anode))
                 :usedp nil :for-value-usedp nil :really-usedp nil
-                :closurep nil ; wird evtl. auf T gesetzt
-                :stackz *stackz* :venvc *venvc* :fnode *func*
-         )) ) )
+                :closurep nil ; is possibly set to T
+                :stackz *stackz* :venvc *venvc* :fnode *func*))))
       (let ((outervar (bound-to-var-p var form-anode)))
-        (when outervar ; Wird var an eine Variable outervar gebunden, so
-                       ; darf später evtl. jede Referenz zu var in eine
-                       ; Referenz zu outervar umgewandelt werden.
-          (push (list var form-anode) (var-replaceable-list outervar))
-      ) )
-      var
-) ) )
+        (when outervar ; if var is bound to a variable outervar, later
+                       ; poss. each reference to var may be converted
+                       ; to a reference to outervar.
+          (push (list var form-anode) (var-replaceable-list outervar))))
+      var)))
 
-; liefert den Code, der die Variable var an A0 bindet:
+;; returns the code, that binds the variable var to A0:
 (defun c-bind-movable-var (var)
   (if (var-specialp var)
     (if (var-constantp var)
-      '() ; dynamische Konstanten können nicht gebunden werden
-      `((BIND ,(new-const (var-name var))))
-    )
+      '() ; dynamic constants cannot be bound
+      `((BIND ,(new-const (var-name var)))))
     (if (var-closurep var)
-      ; Closure-Variable schreiben:
-      ; (var-stackz var) = (0 . ...) ist der aktuelle Stackzustand.
+      ;; write Closure-Variable:
+      ;; (var-stackz var) = (0 . ...) is the current stack-state.
       `((SET ,var ,*venvc* ,(var-stackz var)))
-      ; lexikalische Variable: wurde eventuell aus dem Stack eliminiert
+      ;; lexical Variable: was poss. eliminated from the Stack
       (if (zerop (first (var-stackz var)))
         '()
-        `((PUSH)) ; im Stack: in die nächstuntere Stacklocation schreiben
-) ) ) )
+        `((PUSH)))))) ; in the Stack: write to the next-lower stack-location
 
-; liefert den Code, der die Variable var an das Ergebnis des ANODEs anode bindet
+;; returns the code that binds the variable var to the result of the
+;; ANODE anode
 (defun c-bind-movable-var-anode (var anode)
   (let ((binding-anode
           (make-anode :type 'BIND-MOVABLE
                       :sub-anodes '()
                       :seclass '(NIL . NIL)
-                      :code (c-bind-movable-var var)
-       )) )
+                      :code (c-bind-movable-var var))))
     (let ((outervar (bound-to-var-p var anode)))
-      (when outervar ; Wird var an eine Variable outervar gebunden, so
-                     ; darf später evtl. jede Referenz zu var in eine
-                     ; Referenz zu outervar umgewandelt werden.
+      (when outervar ; if var is bound to a Variable outervar, later
+                     ; poss. each reference to var may be converted to a
+                     ; reference to outervar.
         (dolist (innervar-info (var-replaceable-list outervar))
-          (when (eq (first innervar-info) var)
-            (setf (cddr innervar-info) binding-anode) ; binding-anode nachtragen
-    ) ) ) )
-    (list anode binding-anode)
-) )
+          (when (eq (first innervar-info) var) ; additionally set binding-anode
+            (setf (cddr innervar-info) binding-anode)))))
+    (list anode binding-anode)))
 
-; (process-movable-var-list symbols initforms *-flag) compiliert die initforms
-; (wie bei LET/LET*) und assoziiert sie mit den Variablen zu symbols.
-; Verändert *venv* (bei *-flag : incrementell, sonst auf einmal).
-; Liefert drei Werte:
-; 1. Liste der Variablen,
-; 2. Liste der ANODEs zu den initforms,
-; 3. Liste der Stackzustände nach dem Binden der Variablen.
+;; (process-movable-var-list symbols initforms *-flag) compiles the initforms
+;; (like for LET/LET*) and associates them with the variables to symbols.
+;; changes *venv* (for *-flag : incrementally, else all at once).
+;; returns three values:
+;; 1. list of Variables,
+;; 2. list of ANODEs for the initforms,
+;; 3. list of stack-states after the binding of the variables.
 (defun process-movable-var-list (symbols initforms *-flag)
   (do ((symbolsr symbols (cdr symbolsr))
        (initformsr initforms (cdr initformsr))
@@ -5140,20 +4806,18 @@ der Docstring (oder NIL).
        (anodelist '())
        (stackzlist '()))
       ((null symbolsr)
-       (unless *-flag (apply #'push-*venv* varlist)) ; Binden bei LET
-       (values (nreverse varlist) (nreverse anodelist) (nreverse stackzlist))
-      )
+       (unless *-flag (apply #'push-*venv* varlist)) ; binding at LET
+       (values (nreverse varlist) (nreverse anodelist) (nreverse stackzlist)))
     (let* ((initform (car initformsr))
-           (anode (c-form initform 'ONE)) ; initform compilieren
+           (anode (c-form initform 'ONE)) ; compile initform
            (var (bind-movable-var (car symbolsr) anode)))
       (push anode anodelist)
       (push var varlist)
       (push *stackz* stackzlist)
-      (when *-flag (push-*venv* var)) ; Binden bei LET*
-) ) )
+      (when *-flag (push-*venv* var))))) ; binding at LET*
 
-; Überprüft und optimiert die Variablen (wie bei LET/LET*)
-; und liefert die Liste der Closure-Variablen (in der richtigen Reihenfolge).
+;; checks and optimizes the variables (like at LET/LET*)
+;; and returns the list of Closure-Variables (in the right order).
 (defun checking-movable-var-list (varlist anodelist)
   (do ((varlistr varlist (cdr varlistr))
        (anodelistr anodelist (cdr anodelistr))
@@ -5161,85 +4825,84 @@ der Docstring (oder NIL).
       ((null varlistr) (nreverse closurevarlist))
     (let ((var (car varlistr)))
       (when var
-        ; 1. Schritt: eventuelle Warnungen ausgeben
+        ;; 1st step: write poss. warnings
         (ignore-check var)
-        ; 2. Schritt: Variablen-Ort (Stack oder Closure oder eliminiert)
-        ; endgültig bestimmen
+        ;; 2nd step: finally determine variable-location
+        ;; (Stack or Closure or eliminated)
         (unless (var-specialp var)
-          ; nur bei lexikalischen Variablen kann optimiert werden
+          ;; can only be optimized for lexical variables
           (if (var-constantp var)
-            ; Variable lexikalisch und konstant
-            (progn ; Variable eliminieren
+            ;; Variable lexical and constant
+            (progn ; eliminate variable
               (setf (var-closurep var) nil)
-              (setf (first (var-stackz var)) 0) ; aus dem Stack entfernen
+              (setf (first (var-stackz var)) 0) ; remove from Stack
               (when (null (cdr (anode-seclass (car anodelistr))))
-                (setf (anode-code (car anodelistr)) '()) ; evtl. initform entfernen
-            ) )
+                ;; maybe remove initform
+                (setf (anode-code (car anodelistr)) '())))
             (if (not (var-really-usedp var))
-              ; Variable lexikalisch und unbenutzt
-              (progn ; Variable eliminieren
+              ;; Variable lexical and unused
+              (progn ; eliminate variable
                 (setf (var-closurep var) nil)
-                (setf (first (var-stackz var)) 0) ; aus dem Stack entfernen
+                (setf (first (var-stackz var)) 0) ; remove from Stack
                 (when (null (cdr (anode-seclass (car anodelistr))))
-                  (setf (anode-code (car anodelistr)) '()) ; evtl. initform entfernen
-                )
-                (unmodify-unused-var var) ; Zuweisungen auf var eliminieren
-              )
+                  ;; maybe remove initform
+                  (setf (anode-code (car anodelistr)) '()))
+                (unmodify-unused-var var)) ; eliminate assignments to var
               (when (var-closurep var)
-                ; Variable muss in der Closure liegen
-                (setf (first (var-stackz var)) 0) ; belegt 0 Stack-Einträge
-                (push var closurevarlist)
-        ) ) ) )
-) ) ) )
+                ;; Variable must lie in the Closure
+                (setf (first (var-stackz var)) 0) ; occupies 0 Stack-Entries
+                (push var closurevarlist)))))))))
 
-; Optimiert eine Liste von Variablen.
-; (In der Liste müssen die lexikalisch inneren Variablen zuletzt kommen.)
+;; Optimizes a list of variables.
+;; (The lexically inner variables have to occur at the end of the list.)
 (defun optimize-var-list (vars)
   (unless *no-code*
     (dolist (var (reverse vars))
       (when var
-        ; Optimierung (innere Variablen zuerst):
-        ; Wird eine Variable innervar an den Wert von var gebunden, wird
-        ; während der Lebensdauer von innervar weder innervar noch var verändert
-        ; (um dies sicherstellen zu können, müssen beide lexikalisch und im Stack
-        ; sein), so kann innervar durch var ersetzt werden.
+        ;; Optimization (inner variables first):
+        ;; If a Variable innervar is bound to the value of var, and if
+        ;; during the life-time of innervar neither innervar nor var are
+        ;; changed (in order to be able to assure this, both must be
+        ;; lexical and in the Stack), innervar can be replaced by var.
         (unless (or (var-specialp var) (var-closurep var))
-          ; var ist lexikalisch und im Stack
+          ;; var is lexical and in the Stack
           (dolist (innervar-info (var-replaceable-list var))
             (let ((innervar (first innervar-info)))
-              ; innervar ist eine movable-var, die mit var initialisiert wird.
-              ; Während der Lebensdauer von innervar wird var nichts zugewiesen.
+              ;; innervar is a movable-var, that is initialized with var.
+              ;; during the life-time of innervar nothing is assigned to var.
               (unless (or (var-specialp innervar) (var-closurep innervar))
-                ; innervar ist lexikalisch und im Stack
+                ;; innervar is lexical and in the Stack
                 (when (null (var-modified-list innervar))
-                  ; Während der Lebensdauer von innervar wird auch innervar
-                  ; nichts zugewiesen.
-                  (unless (eql (first (var-stackz innervar)) 0) ; innervar noch nicht wegoptimiert?
-                    (when (cddr innervar-info) ; und innervar-info korrekt dreigliedrig?
-                      ; Variable innervar eliminieren:
-                      (setf (first (var-stackz innervar)) 0) ; aus dem Stack entfernen
-                      ; Initialisierung und Binden von innervar eliminieren:
+                  ;; during the life-time of innervar nothing
+                  ;; is assigned to innervar, too.
+                  (unless (eql (first (var-stackz innervar)) 0)
+                    ;; innervar not yet optimized away?
+                    (when (cddr innervar-info)
+                      ;; innervar-info consists correctly of three parts?
+                      ;; eliminate Variable innervar:
+                      ;; remove from Stack:
+                      (setf (first (var-stackz innervar)) 0)
+                      ;; eliminate initialization and binding of innervar:
                       (setf (anode-code (second innervar-info)) '())
                       (setf (anode-code (cddr innervar-info)) '())
-                      ; Die Referenzen auf die Variable innervar werden
-                      ; in Referenzen auf die Variable var umgewandelt:
+                      ;; the references to Variable innervar are transformed
+                      ;; to references to Variable var:
                       (let ((using-var (var-usedp var)))
-                        (do ((using-innervar (var-usedp innervar) (cdr using-innervar)))
+                        (do ((using-innervar (var-usedp innervar)
+                                             (cdr using-innervar)))
                             ((atom using-innervar))
-                          (let* ((anode (car using-innervar)) ; ein Anode vom Typ VAR
-                                 (code (anode-code anode))) ; sein Code, () oder ((GET ...))
+                          (let* ((anode (car using-innervar)) ; type VAR anode
+                                 ;; its code, () or ((GET ...))
+                                 (code (anode-code anode)))
                             (unless (null code)
-                              ; (anode-code anode) ist von der Gestalt ((GET innervar ...))
+                              ;; (anode-code anode) has the shape
+                              ;; ((GET innervar ...))
                               (setf (second (car code)) var)
-                              (push anode using-var)
-                        ) ) )
-                        (setf (var-usedp var) using-var)
-                      )
-        ) ) ) ) ) ) )
-) ) ) )
+                              (push anode using-var))))
+                        (setf (var-usedp var) using-var)))))))))))))
 
-; Bildet den Code, der eine Liste von Variablen, zusammen mit ihren svars,
-; bindet (wie bei Lambdabody- Optional/Key - Variablen).
+;; builds the code, that binds a list of variables, together with their svars
+;; (the same as for Lambdabody- Optional/Key - variables).
 (defun c-bind-with-svars (-vars -dummys s-vars -anodes s-anodes -stackzs)
   (do ((-varsr -vars (cdr -varsr)) ; fixed-vars
        (-dummysr -dummys (cdr -dummysr))
@@ -5253,8 +4916,7 @@ der Docstring (oder NIL).
       (setq L
         (revappend
           (c-bind-movable-var-anode (car s-varsr) (car s-anodesr))
-          L
-    ) ) )
+          L)))
     (setq L
       (revappend
         (let* ((var (car -varsr))
@@ -5267,62 +4929,52 @@ der Docstring (oder NIL).
               ,anode
               ,label
               ,@(if (var-constantp var)
-                  '() ; Konstante kann nicht gebunden werden
-                  `((BIND ,(new-const (var-name var))))
-                )
-             )
-            ; var lexikalisch, nach Definition nicht konstant
+                  '() ; constant cannot be bound
+                  `((BIND ,(new-const (var-name var))))))
+            ;; var lexical, not constant by definition
             (if (var-closurep var)
               `((JMPIFBOUNDP ,stackdummyvar ,*venvc* ,stackz ,label)
                 ,anode
                 ,label
-                (SET ,var ,*venvc* ,stackz)
-               )
+                (SET ,var ,*venvc* ,stackz))
               (if (not (var-really-usedp var))
-                ; Variable wurde in checking-fixed-var-list wegoptimiert
+                ;; Variable was optimized away in checking-fixed-var-list
                 (if (cdr (anode-seclass anode))
                   `((JMPIFBOUNDP ,stackdummyvar ,*venvc* ,stackz ,label)
                     ,anode
-                    ,label
-                   )
-                  '()
-                )
-                ; im Stack vorhandene Variable
+                    ,label)
+                  '())
+                ;; variable available in stack
                 `((JMPIFBOUNDP ,stackdummyvar ,*venvc* ,stackz ,label)
                   ,anode
                   (SET ,var ,*venvc* ,stackz)
-                  ,label
-                 )
-        ) ) ) )
-        L
-    ) )
-) )
+                  ,label)))))
+        L))))
 
-; compile (name lambdalist {declaration|docstring}* {form}*), return the FNODE
+;; compile (name lambdalist {declaration|docstring}* {form}*), return the FNODE
 (defun c-LAMBDABODY (name lambdabody &optional fenv-cons gf-p reqoptimflags)
   (test-list lambdabody 1)
   (let* ((*func* (make-fnode :name name :enclosing *func* :venvc *venvc*))
-         (*stackz* *func*) ; leerer Stack
+         (*stackz* *func*) ; empty stack
          (*venvc* (cons *func* *venvc*))
          (*func-start-label* (make-label 'NIL))
          (*anonymous-count* 0)
          (anode (catch 'c-error
-    ; ab hier wird's kompliziert
+    ;; here it starts to become complicated
     (multiple-value-bind (reqvar  optvar optinit optsvar  restvar
-                          keyflag keyword keyvar keyinit keysvar allow-other-keys
-                          auxvar auxinit)
+                          keyflag keyword keyvar keyinit keysvar
+                          allow-other-keys auxvar auxinit)
         (if fenv-cons
-          (values-list (cddar fenv-cons)) ; Bei c-LABELS wurde analyze-lambdalist schon aufgerufen
-          (analyze-lambdalist (car lambdabody))
-        )
+          ;; analyze-lambdalist was already called at c-LABELS
+          (values-list (cddar fenv-cons))
+          (analyze-lambdalist (car lambdabody)))
       (setf (fnode-req-anz *func*) (length reqvar)
             (fnode-opt-anz *func*) (length optvar)
             (fnode-rest-flag *func*) (not (eql restvar 0))
             (fnode-keyword-flag *func*) keyflag
             (fnode-keywords *func*) keyword
-            (fnode-allow-other-keys-flag *func*) allow-other-keys
-      )
-      (when fenv-cons (setf (caar fenv-cons) *func*)) ; Fixup für c-LABELS
+            (fnode-allow-other-keys-flag *func*) allow-other-keys)
+      (when fenv-cons (setf (caar fenv-cons) *func*)) ; Fixup for c-LABELS
       (multiple-value-bind (body-rest declarations)
           (parse-body (cdr lambdabody) t (env))
         (let ((oldstackz *stackz*)
@@ -5336,55 +4988,45 @@ der Docstring (oder NIL).
               rest-vars rest-dummys rest-stackzs
               key-vars key-dummys key-anodes keys-vars keys-anodes key-stackzs
               aux-vars aux-anodes
-              closuredummy-stackz closuredummy-venvc
-             )
+              closuredummy-stackz closuredummy-venvc)
           (multiple-value-setq (*specials* *ignores* *ignorables* *readonlys*)
-            (process-declarations declarations)
-          )
+            (process-declarations declarations))
           (push-specials)
-          ; Sichtbarkeit von Closure-Dummyvar:
+          ;; visibility of Closure-Dummyvar:
           (push nil *venvc*)
           (setq closuredummy-venvc *venvc*)
-          ; Stack-Dummy-Variable für die reqvar,optvar,restvar,keyvar bilden:
+          ;; build Stack-Dummy-Variable for reqvar, optvar, restvar, keyvar:
           (multiple-value-setq (req-vars req-dummys)
-            (process-fixed-var-list reqvar reqoptimflags)
-          )
+            (process-fixed-var-list reqvar reqoptimflags))
           (multiple-value-setq (opt-vars opt-dummys)
-            (process-fixed-var-list optvar)
-          )
+            (process-fixed-var-list optvar))
           (multiple-value-setq (rest-vars rest-dummys)
             (if (eql restvar 0)
               (values '() '())
-              (process-fixed-var-list (list restvar))
-          ) )
+              (process-fixed-var-list (list restvar))))
           (multiple-value-setq (key-vars key-dummys)
-            (process-fixed-var-list keyvar)
-          )
-          ; Platz für die Funktion selbst (unter den Argumenten):
+            (process-fixed-var-list keyvar))
+          ;; room for the function itself (below the arguments):
           (push 1 *stackz*)
-          ; Platz für Closure-Dummyvar:
+          ;; room for Closure-Dummyvar:
           (push 0 *stackz*)
           (setq closuredummy-stackz *stackz*)
-          ; Bindungen der required-Parameter aktivieren:
+          ;; activate the bindings of the required-parameters:
           (setq req-stackzs (bind-req-vars req-vars))
-          ; Bindungen der optional-Parameter/svar aktivieren:
+          ;; activate the bindings of the optional-parameters/svar:
           (multiple-value-setq (opt-anodes opt-stackzs opts-vars opts-anodes)
-            (bind-opt-vars opt-vars opt-dummys optinit optsvar)
-          )
-          ; Bindung des rest-Parameters aktivieren:
+            (bind-opt-vars opt-vars opt-dummys optinit optsvar))
+          ;; activate the bindings of the rest-parameters:
           (unless (eql restvar 0)
-            (setq rest-stackzs (bind-rest-vars rest-vars))
-          )
-          ; Bindungen der keyword-Parameter/svar aktivieren:
+            (setq rest-stackzs (bind-rest-vars rest-vars)))
+          ;; activate the bindings of the keyword-parameters/svar:
           (multiple-value-setq (key-anodes key-stackzs keys-vars keys-anodes)
-            (bind-opt-vars key-vars key-dummys keyinit keysvar)
-          )
-          ; Bindungen der Aux-Variablen aktivieren:
+            (bind-opt-vars key-vars key-dummys keyinit keysvar))
+          ;; activate the bindings of the Aux-Variables:
           (multiple-value-setq (aux-vars aux-anodes)
-            (bind-aux-vars auxvar auxinit)
-          )
+            (bind-aux-vars auxvar auxinit))
           (let* ((body-anode (c-form `(PROGN ,@body-rest) (if gf-p 'ONE 'ALL)))
-                 ; Überprüfen der Variablen:
+                 ;; check the variables:
                  (closurevars
                    (append
                      (checking-fixed-var-list req-vars reqoptimflags)
@@ -5393,101 +5035,91 @@ der Docstring (oder NIL).
                      (checking-fixed-var-list rest-vars)
                      (checking-fixed-var-list key-vars)
                      (checking-movable-var-list keys-vars keys-anodes)
-                     (checking-movable-var-list aux-vars aux-anodes)
-                 ) )
+                     (checking-movable-var-list aux-vars aux-anodes)))
                  (codelist
-                   `(,*func-start-label*
-                     ,@(c-make-closure closurevars closuredummy-venvc closuredummy-stackz)
-                     ,@(mapcap #'c-bind-fixed-var req-vars req-dummys req-stackzs)
-                     ,@(c-bind-with-svars opt-vars opt-dummys opts-vars opt-anodes opts-anodes opt-stackzs)
-                     ,@(mapcap #'c-bind-fixed-var rest-vars rest-dummys rest-stackzs)
-                     ,@(c-bind-with-svars key-vars key-dummys keys-vars key-anodes keys-anodes key-stackzs)
-                     ,@(mapcap #'c-bind-movable-var-anode aux-vars aux-anodes)
-                     ,body-anode
-                     (UNWIND ,*stackz* ,oldstackz t)
-                     ,(if gf-p '(RETGF) '(RET))
-                 )  )
+                  `(,*func-start-label*
+                    ,@(c-make-closure closurevars closuredummy-venvc
+                                      closuredummy-stackz)
+                    ,@(mapcap #'c-bind-fixed-var req-vars req-dummys
+                              req-stackzs)
+                    ,@(c-bind-with-svars opt-vars opt-dummys opts-vars
+                                         opt-anodes opts-anodes opt-stackzs)
+                    ,@(mapcap #'c-bind-fixed-var rest-vars rest-dummys
+                              rest-stackzs)
+                    ,@(c-bind-with-svars key-vars key-dummys keys-vars
+                                         key-anodes keys-anodes key-stackzs)
+                    ,@(mapcap #'c-bind-movable-var-anode aux-vars aux-anodes)
+                    ,body-anode
+                    (UNWIND ,*stackz* ,oldstackz t)
+                    ,(if gf-p '(RETGF) '(RET))))
                  (anode
                    (make-anode
                      :type 'LAMBDABODY
                      :source lambdabody
                      :sub-anodes `(,@opt-anodes ,@(remove nil opts-anodes)
                                    ,@key-anodes ,@(remove nil keys-anodes)
-                                   ,@aux-anodes ,body-anode
-                                  )
-                     :seclass '(T . T) ; die Seiteneffektklasse dieses Anode ist irrelevant
+                                   ,@aux-anodes ,body-anode)
+                     ;; the side-effect-class of this Anode is irrelevant
+                     :seclass '(T . T)
                      :stackz oldstackz
-                     :code codelist
-                )) )
+                     :code codelist)))
             (when closurevars
-              (setf (first closuredummy-stackz) 1) ; 1 Stackplatz für Dummy
+              (setf (first closuredummy-stackz) 1) ; 1 stack-place for Dummy
               (setf (first closuredummy-venvc)
-                (cons closurevars closuredummy-stackz)
-            ) )
+                (cons closurevars closuredummy-stackz)))
             (optimize-var-list (append req-vars opt-vars opts-vars rest-vars key-vars keys-vars aux-vars))
-            anode
-    ) ) ) )
-    ; das war die Produktion des Anode
-        ))      )
+            anode))))
+    ;; this was the production of the Anode
+    )))
     (setf (fnode-code *func*) anode)
-    (when reqoptimflags (decf (fnode-req-anz *func*) (count 'GONE reqoptimflags)))
+    (when reqoptimflags
+      (decf (fnode-req-anz *func*) (count 'GONE reqoptimflags)))
     (when (eq (anode-type anode) 'ERROR)
-      ; korrekte, aber nichtstuende Funktion daraus machen
+      ;; turn it into a correct function, that does nothing
       (setf (fnode-req-anz *func*) 0
             (fnode-opt-anz *func*) 0
             (fnode-rest-flag *func*) t
             (fnode-keyword-flag *func*) nil
             (fnode-keywords *func*) '()
             (fnode-allow-other-keys-flag *func*) nil
-            (anode-code (fnode-code *func*)) `((NIL) (SKIP 2) (RET))
-    ) )
+            (anode-code (fnode-code *func*)) `((NIL) (SKIP 2) (RET))))
     (setf (fnode-gf-p *func*) gf-p)
     (setf (fnode-venvconst *func*)
           (not (and (null (fnode-far-used-vars *func*))
-                    (null (fnode-far-assigned-vars *func*))
-    )     )    )
+                    (null (fnode-far-assigned-vars *func*)))))
     (setf (fnode-Consts-Offset *func*)
       (+ (setf (fnode-Keyword-Offset *func*)
            (+ (setf (fnode-Tagbodys-Offset *func*)
                 (+ (setf (fnode-Blocks-Offset *func*)
-                     (if (fnode-venvconst *func*) 1 0)
-                   )
-                   (length (fnode-Blocks *func*))
-              ) )
-              (length (fnode-Tagbodys *func*))
-         ) )
-         (length (fnode-Keywords *func*))
-    ) )
+                     (if (fnode-venvconst *func*) 1 0))
+                   (length (fnode-Blocks *func*))))
+              (length (fnode-Tagbodys *func*))))
+         (length (fnode-Keywords *func*))))
     (when gf-p
-      ; Der Dispatch generischer Funktionen kann nicht auf externe Blocks und
-      ; Tagbodys verweisen. Die Keywords allerdings werden notgedrungen verlagert.
+      ;; the dispatch of generic functions cannot refer to external blocks and
+      ;; tagbodies. the keywords are indeed displaced perforce.
       (when (or (fnode-Blocks *func*) (fnode-Tagbodys *func*))
-        (compiler-error 'c-LAMBDABODY "GF")
-      )
-      ; Nun ist (fnode-Keyword-Offset *func*) = (fnode-Tagbodys-Offset *func*) =
-      ;       = (fnode-Blocks-Offset *func*) = (if (fnode-venvconst *func*) 1 0)
+        (compiler-error 'c-LAMBDABODY "GF"))
+      ;; Now (fnode-Keyword-Offset *func*) = (fnode-Tagbodys-Offset *func*) =
+      ;;    = (fnode-Blocks-Offset *func*) = (if (fnode-venvconst *func*) 1 0)
     )
-    ; Set list of outer blocks that are needed by *func*.
+    ;; Set list of outer blocks that are needed by *func*.
     (setf (fnode-far-used-blocks *func*)
           (remove-if #'(lambda (block) (eq (block-fnode block) *func*))
-                     (fnode-Blocks *func*)
-    )     )
-    ; Set list of outer tagbodys and tags that are needed by *func*.
+                     (fnode-Blocks *func*)))
+    ;; Set list of outer tagbodys and tags that are needed by *func*.
     (setf (fnode-far-used-tagbodys *func*)
-          (remove-if #'(lambda (tagbody+tag) (eq (tagbody-fnode (car tagbody+tag)) *func*))
-                     (fnode-Tags *func*)
-    )     )
-    *func*
-) )
+          (remove-if #'(lambda (tagbody+tag)
+                         (eq (tagbody-fnode (car tagbody+tag)) *func*))
+                     (fnode-Tags *func*)))
+    *func*))
 (defun bind-req-vars (req-vars)
   (let ((req-stackzs '()))
     (dolist (var req-vars)
       (push-*venv* var)
       (push *stackz* req-stackzs)
-      (bind-fixed-var-2 var)
-    )
-    (nreverse req-stackzs)
-) )
+      (bind-fixed-var-2 var))
+    (nreverse req-stackzs)))
 (defun bind-opt-vars (opt-vars opt-dummys optinit optsvar)
   (let ((opt-anodes '())
         (opt-stackzs '())
@@ -5505,30 +5137,23 @@ der Docstring (oder NIL).
                    :type 'OPTIONAL-SVAR
                    :sub-anodes '()
                    :seclass (cons (list (car opt-dummysr)) 'NIL)
-                   :code `((BOUNDP ,(car opt-dummysr) ,*venvc* ,*stackz*))
-               ) )
-               (var (bind-movable-var (car optsvarr) anode))
-              )
+                   :code `((BOUNDP ,(car opt-dummysr) ,*venvc* ,*stackz*))))
+               (var (bind-movable-var (car optsvarr) anode)))
           (push anode opts-anodes)
-          (push var opts-vars)
-      ) )
+          (push var opts-vars)))
       (push (c-form (car optinitr) 'ONE) opt-anodes)
       (push-*venv* (car opt-varsr))
       (push *stackz* opt-stackzs) (bind-fixed-var-2 (car opt-varsr))
-      (unless (eql (car optsvarr) 0) (push-*venv* (car opts-vars)))
-    )
+      (unless (eql (car optsvarr) 0) (push-*venv* (car opts-vars))))
     (values
       (nreverse opt-anodes) (nreverse opt-stackzs)
-      (nreverse opts-vars) (nreverse opts-anodes)
-    )
-) )
+      (nreverse opts-vars) (nreverse opts-anodes))))
 (defun bind-rest-vars (rest-vars)
   (let ((rest-stackzs '()))
     (push-*venv* (car rest-vars))
     (push *stackz* rest-stackzs)
     (bind-fixed-var-2 (car rest-vars))
-    rest-stackzs ; (nreverse rest-stackzs) unnötig
-) )
+    rest-stackzs)) ; (nreverse rest-stackzs) unnecessary
 (defun bind-aux-vars (auxvar auxinit)
   (let ((aux-vars '())
         (aux-anodes '()))
@@ -5540,13 +5165,11 @@ der Docstring (oder NIL).
              (var (bind-movable-var (car auxvarr) anode)))
         (push anode aux-anodes)
         (push var aux-vars)
-        (push-*venv* var)
-    ) )
-    (values (nreverse aux-vars) (nreverse aux-anodes))
-) )
+        (push-*venv* var)))
+    (values (nreverse aux-vars) (nreverse aux-anodes))))
 
-; liefert den ANODE, der (bei gegebenem aktuellem Stackzustand)
-; die zu einem FNODE gehörende Funktion als Wert liefert.
+;; returns the ANODE, that itself returns (on a given current stack-state)
+;; the function belonging to an FNODE as value.
 (defun c-FNODE-FUNCTION (fnode &optional (*stackz* *stackz*))
   (make-anode
     :type 'FUNCTION
@@ -5555,118 +5178,99 @@ der Docstring (oder NIL).
     :code (if (zerop (fnode-keyword-offset fnode))
             `((FCONST ,fnode))
             `(,@(if (fnode-Venvconst fnode)
-                  (prog1 ; beim Aufbau mitzugebendes Venv
-                    `((VENV ,(fnode-venvc fnode) ,*stackz*)
-                      (PUSH)
-                     )
-                    (setq *stackz* (cons 1 *stackz*))
-                ) )
-              ,@(mapcap ; beim Aufbau mitzugebende Block-Conses
+                  (prog1 ; Venv has to be passed on construction
+                      `((VENV ,(fnode-venvc fnode) ,*stackz*)
+                        (PUSH))
+                    (setq *stackz* (cons 1 *stackz*))))
+              ,@(mapcap ; Block-Conses have to be passed on construction
                   #'(lambda (block)
                       (prog1
                         `(,(if (member block (fnode-Blocks *func*) :test #'eq)
                              `(BCONST ,block)
-                             `(GET ,(block-consvar block) ,*venvc* ,*stackz*)
-                           )
-                           (PUSH)
-                         )
-                        (setq *stackz* (cons 1 *stackz*))
-                    ) )
-                  (fnode-Blocks fnode)
-                )
-              ,@(mapcap ; beim Aufbau mitzugebende Tagbody-Conses
+                             `(GET ,(block-consvar block) ,*venvc* ,*stackz*))
+                           (PUSH))
+                        (setq *stackz* (cons 1 *stackz*))))
+                  (fnode-Blocks fnode))
+              ,@(mapcap ; Tagbody-Conses have to be passed on construction
                   #'(lambda (tagbody)
                       (prog1
-                        `(,(if (member tagbody (fnode-Tagbodys *func*) :test #'eq)
-                             `(GCONST ,tagbody)
-                             `(GET ,(tagbody-consvar tagbody) ,*venvc* ,*stackz*)
-                           )
-                           (PUSH)
-                         )
-                        (setq *stackz* (cons 1 *stackz*))
-                    ) )
-                  (fnode-Tagbodys fnode)
-                )
+                          `(,(if (member tagbody (fnode-Tagbodys *func*)
+                                         :test #'eq)
+                               `(GCONST ,tagbody)
+                               `(GET ,(tagbody-consvar tagbody)
+                                     ,*venvc* ,*stackz*))
+                            (PUSH))
+                        (setq *stackz* (cons 1 *stackz*))))
+                  (fnode-Tagbodys fnode))
               ,@(if (fnode-gf-p fnode)
                   (progn
                     (assert (= (fnode-keyword-offset fnode) 1))
                     `((FCONST ,fnode)
                       (PUSH)
-                      ,(CALLS-code (gethash 'SYSTEM::%COPY-GENERIC-FUNCTION function-codes))
-                     )
-                  )
-                  `((COPY-CLOSURE ,fnode ,(fnode-keyword-offset fnode)))
-                )
-             )
-          )
-) )
+                      ,(CALLS-code (gethash 'SYSTEM::%COPY-GENERIC-FUNCTION
+                                            function-codes))))
+                  `((COPY-CLOSURE ,fnode ,(fnode-keyword-offset fnode))))))))
 
 
-;        ERSTER PASS :   S P E C I A L   F O R M S
+;;;;****        FIRST PASS :   SPECIAL   FORMS
 
-; compiliere (PROGN {form}*)
-; keine Formen -> NIL, genau eine Form -> diese Form,
-; mindestens zwei Formen -> alle der Reihe nach, nur bei der letzten kommt es
-; auf die Werte an.
+;; compile (PROGN {form}*)
+;; no forms -> NIL, exactly one form -> that form,
+;; at least two forms -> all in order, only the last form's values
+;; count.
 (defun c-PROGN ()
   (test-list *form* 1)
-  (let ((L (cdr *form*))) ; Liste der Formen
-    (cond ((null L) (c-NIL)) ; keine Form -> NIL
-          ((null (cdr L)) (c-form (car L))) ; genau eine Form
+  (let ((L (cdr *form*))) ; list of forms
+    (cond ((null L) (c-NIL)) ; no form -> NIL
+          ((null (cdr L)) (c-form (car L))) ; exactly one form
           (t (do (#+COMPILER-DEBUG (anodelist '())
                   (seclass '(NIL . NIL))
                   (codelist '())
-                  (Lr L)) ; restliche Formenliste
+                  (Lr L)) ; remaining list of forms
                  ((null Lr)
                   (make-anode
                     :type 'PROGN
                     :sub-anodes (nreverse anodelist)
                     :seclass seclass
-                    :code (nreverse codelist)
-                 ))
-               (let* ((formi (pop Lr)) ; i-te Form
+                    :code (nreverse codelist)))
+               (let* ((formi (pop Lr)) ; i-th form
                       (anodei (c-form formi (if (null Lr) *for-value* 'NIL))))
                  #+COMPILER-DEBUG (push anodei anodelist)
                  (seclass-or-f seclass anodei)
-                 (push anodei codelist)
-) ) )     )  ) )
+                 (push anodei codelist)))))))
 
-; compiliere (PROG1 form1 {form}*)
-; bei *for-value* muss der Wert von form1 im Stack gerettet werden
+;; compile (PROG1 form1 {form}*)
+;; on *for-value* the value of form1 has to be saved in the stack
 (defun c-PROG1 ()
   (test-list *form* 2)
   (if (or (null *for-value*) (and (eq *for-value* 'ONE) (null (cddr *form*))))
     (c-form `(PROGN ,@(cdr *form*)))
     (let ((anode1 (c-form (second *form*) 'ONE))
           (anode2 (let ((*stackz* (cons 1 *stackz*)))
-                    (c-form `(PROGN ,@(cddr *form*)) 'NIL)
-         ))       )
+                    (c-form `(PROGN ,@(cddr *form*)) 'NIL))))
       (make-anode
         :type 'PROG1
         :sub-anodes (list anode1 anode2)
         :seclass (anodes-seclass-or anode1 anode2)
-        :code `(,anode1 (PUSH) ,anode2 (POP))
-) ) ) )
+        :code `(,anode1 (PUSH) ,anode2 (POP))))))
 
-; compiliere (PROG2 form1 form2 {form}*)
+;; compile (PROG2 form1 form2 {form}*)
 (defun c-PROG2 ()
   (test-list *form* 3)
-  (c-form `(PROGN ,(second *form*) (PROG1 ,(third *form*) ,@(cdddr *form*))))
-)
+  (c-form `(PROGN ,(second *form*) (PROG1 ,(third *form*) ,@(cdddr *form*)))))
 
-; compiliere (IF form1 form2 [form3])
-; ist form1 eine Konstante, so kann der Compiler die Fallunterscheidung treffen.
+;; compile (IF form1 form2 [form3])
+;; if form1 is a constant, then the Compiler can make the fall differentiation.
 (defun c-IF ()
   (test-list *form* 3 4)
   (let ((form1 (second *form*))
         (form2 (third *form*))
-        (form3 (fourth *form*))) ; = NIL, falls *form* nur 3 lang ist
+        (form3 (fourth *form*))) ; = NIL, if *form* only has length 3
     (let ((anode1 (c-form form1 'ONE)))
       (if (anode-constantp anode1)
         (if (anode-constant-value anode1)
           (prog1 (c-form form2) (let ((*no-code* t)) (c-form form3 'NIL)))
-          (prog2 (let ((*no-code* t)) (c-form form2 'NIL)) (c-form form3))
-        )
+          (prog2 (let ((*no-code* t)) (c-form form2 'NIL)) (c-form form3)))
         (let ((anode2 (c-form form2))
               (label1 (make-label *for-value*)))
           (if form3
@@ -5676,182 +5280,161 @@ der Docstring (oder NIL).
                 :type 'IF
                 :sub-anodes (list anode1 anode2 anode3)
                 :seclass (anodes-seclass-or anode1 anode2 anode3)
-                :code
-                  `(,anode1
-                    (JMPIFNOT ,label2)
-                    ,anode2
-                    (JMP ,label1)
-                    ,label2
-                    ,anode3
-                    ,label1
-                   )
-            ) )
-            ; save one jump on if without else
+                :code `(,anode1
+                        (JMPIFNOT ,label2)
+                        ,anode2
+                        (JMP ,label1)
+                        ,label2
+                        ,anode3
+                        ,label1)))
+            ;; save one jump on if without else
             (make-anode
               :type 'IF
               :sub-anodes (list anode1 anode2)
               :seclass (anodes-seclass-or anode1 anode2)
-              :code
-                `(,anode1
-                  (,(if *for-value* 'JMPIFNOT1 'JMPIFNOT) ,label1)
-                  ,anode2
-                  ,label1
-                 )
-) ) ) ) ) ) )
+              :code `(,anode1
+                      (,(if *for-value* 'JMPIFNOT1 'JMPIFNOT) ,label1)
+                      ,anode2
+                      ,label1))))))))
 
-; compiliere (WHEN form1 {form}*)
+;; compile (WHEN form1 {form}*)
 (defun c-WHEN ()
   (test-list *form* 2)
-  (c-form `(IF ,(second *form*) (PROGN ,@(cddr *form*))))
-)
+  (c-form `(IF ,(second *form*) (PROGN ,@(cddr *form*)))))
 
-; compiliere (UNLESS form1 {form}*)
+;; compile (UNLESS form1 {form}*)
 (defun c-UNLESS ()
   (test-list *form* 2)
-  (c-form `(IF ,(second *form*) NIL (PROGN ,@(cddr *form*))))
-)
+  (c-form `(IF ,(second *form*) NIL (PROGN ,@(cddr *form*)))))
 
-; compiliere (AND {form}*)
+;; compile (AND {form}*)
 (defun c-AND ()
   (test-list *form* 1)
-  (cond ((null (cdr *form*)) ; keine Formen
+  (cond ((null (cdr *form*)) ; no forms
          (make-anode
            :type 'AND
            :sub-anodes '()
            :seclass '(NIL . NIL)
-           :code '((T))
-        ))
-        ((null (cddr *form*)) (c-form (second *form*))) ; genau eine Form
+           :code '((T))))
+        ((null (cddr *form*)) (c-form (second *form*))) ; exactly one form
         (t (do (#+COMPILER-DEBUG (anodelist '())
                 (seclass '(NIL . NIL))
                 (codelist '())
                 (Lr (cdr *form*))
-                (label (make-label *for-value*))) ; Label am Ende
+                (label (make-label *for-value*))) ; Label at the end
                ((null Lr)
                 (push label codelist)
                 (make-anode
                   :type 'AND
                   :sub-anodes (nreverse anodelist)
                   :seclass seclass
-                  :code (nreverse codelist)
-               ))
+                  :code (nreverse codelist)))
              (let* ((formi (pop Lr))
                     (anodei (c-form formi (if (null Lr) *for-value* 'ONE))))
                #+COMPILER-DEBUG (push anodei anodelist)
                (seclass-or-f seclass anodei)
                (if (null Lr)
-                 ; letzte Form -> direkt übernehmen
+                 ;; last form -> take over directly
                  (push anodei codelist)
-                 ; nicht letzte Form -> Test kreieren
+                 ;; not the last form -> create test
                  (if (anode-constantp anodei)
-                   ; Konstante /= NIL -> weglassen, Konstante NIL -> fertig
+                   ;; constant /= NIL -> omit, constant NIL -> finished
                    (unless (anode-constant-value anodei)
                      (if *for-value* (push '(NIL) codelist))
-                     (let ((*no-code* t)) (dolist (form Lr) (c-form form 'NIL)))
-                     (setq Lr nil)
-                   )
-                   (progn ; normaler Test
+                     (let ((*no-code* t))
+                       (dolist (form Lr) (c-form form 'NIL)))
+                     (setq Lr nil))
+                   (progn ; normal test
                      (push anodei codelist)
                      (push `(,(if *for-value* 'JMPIFNOT1 'JMPIFNOT) ,label)
-                           codelist
-             ) ) ) ) )
-) )     )  )
+                           codelist)))))))))
 
-; compiliere (OR {form}*)
+;; compile (OR {form}*)
 (defun c-OR ()
   (test-list *form* 1)
-  (cond ((null (cdr *form*)) ; keine Formen
+  (cond ((null (cdr *form*)) ; no forms
          (make-anode
            :type 'OR
            :sub-anodes '()
            :seclass '(NIL . NIL)
-           :code '((NIL))
-        ))
-        ((null (cddr *form*)) (c-form (second *form*))) ; genau eine Form
+           :code '((NIL))))
+        ((null (cddr *form*)) (c-form (second *form*))) ; exactly one form
         (t (do (#+COMPILER-DEBUG (anodelist '())
                 (seclass '(NIL . NIL))
                 (codelist '())
                 (Lr (cdr *form*))
-                (label (make-label *for-value*))) ; Label am Ende
+                (label (make-label *for-value*))) ; Label at the end
                ((null Lr)
                 (push label codelist)
                 (make-anode
                   :type 'OR
                   :sub-anodes (nreverse anodelist)
                   :seclass seclass
-                  :code (nreverse codelist)
-               ))
+                  :code (nreverse codelist)))
              (let* ((formi (pop Lr))
                     (anodei (c-form formi (if (null Lr) *for-value* 'ONE))))
                #+COMPILER-DEBUG (push anodei anodelist)
                (seclass-or-f seclass anodei)
                (if (null Lr)
-                 ; letzte Form -> direkt übernehmen
+                 ;; last form -> take over directly
                  (push anodei codelist)
-                 ; nicht letzte Form -> Test kreieren
+                 ;; not the last form -> create test
                  (if (anode-constantp anodei)
-                   ; Konstante NIL -> weglassen, Konstante /= NIL -> fertig
+                   ;; constant NIL -> omit, constant /= NIL -> finished
                    (when (anode-constant-value anodei)
                      (if *for-value* (push anodei codelist))
-                     (let ((*no-code* t)) (dolist (form Lr) (c-form form 'NIL)))
-                     (setq Lr nil)
-                   )
-                   (progn ; normaler Test
+                     (let ((*no-code* t))
+                       (dolist (form Lr) (c-form form 'NIL)))
+                     (setq Lr nil))
+                   (progn ; normal test
                      (push anodei codelist)
                      (push `(,(if *for-value* 'JMPIF1 'JMPIF) ,label)
-                           codelist
-             ) ) ) ) )
-) )     )  )
+                           codelist)))))))))
 
-; compiliere (QUOTE object)
+;; compile (QUOTE object)
 (defun c-QUOTE ()
   (test-list *form* 2 2)
   (let ((value (second *form*)))
     (make-anode :type 'QUOTE
                 :sub-anodes '()
                 :seclass '(NIL . NIL)
-                :code (if *for-value* `((CONST ,(new-const value))) '() )
-) ) )
+                :code (if *for-value* `((CONST ,(new-const value))) '()))))
 
-; compiliere (THE type form)
+;; compile (THE type form)
 (defun c-THE ()
   (test-list *form* 3 3)
-  (c-form (third *form*)) ; ignoriere einfach die Typdeklaration
-)
+  (c-form (third *form*))) ; simply ignore the type-declaration
 
-; compiliere (DECLARE {declspec}*)
+;; compile (DECLARE {declspec}*)
 (defun c-DECLARE ()
   (test-list *form* 1)
   (c-error (ENGLISH "Misplaced declaration: ~S")
            *form*))
 
-; compiliere (LOAD-TIME-VALUE form [read-only-p])
+;; compile (LOAD-TIME-VALUE form [read-only-p])
 (defun c-LOAD-TIME-VALUE ()
   (test-list *form* 2 3)
-  (let ((form (second *form*))) ; ignoriere read-only-p
-    (make-anode :type 'LOAD-TIME-VALUE
-                :sub-anodes '()
-                :seclass '(NIL . NIL)
-                :code (if *for-value*
-                        `((CONST ,(if *compiling-from-file*
-                                    (if (and (symbolp form) (c-constantp form))
-                                      (make-const :horizont ':all :value (c-constant-value form) :form form)
-                                      (make-const :horizont ':form :form form)
-                                    )
-                                    (make-const :horizont ':all :value (eval form) :form form)
-                                  )
-                         ))
-                        '()
-                      )
-) ) )
+  (let ((form (second *form*))) ; ignore read-only-p
+    (make-anode
+     :type 'LOAD-TIME-VALUE
+     :sub-anodes '()
+     :seclass '(NIL . NIL)
+     :code (if *for-value*
+               `((CONST ,(if *compiling-from-file*
+                           (if (and (symbolp form) (c-constantp form))
+                             (make-const :horizon ':all :form form
+                                         :value (c-constant-value form))
+                             (make-const :horizon ':form :form form))
+                           (make-const :horizon ':all :value (eval form)
+                                       :form form))))
+               '()))))
 
-; compiliere (CATCH tag {form}*)
+;; compile (CATCH tag {form}*)
 (defun c-CATCH ()
   (test-list *form* 2)
   (let* ((anode1 (c-form (second *form*) 'ONE))
          (anode2 (let ((*stackz* (cons 'CATCH *stackz*)))
-                   (c-form `(PROGN ,@(cddr *form*)))
-         )       )
+                   (c-form `(PROGN ,@(cddr *form*)))))
          (label (make-label *for-value*)))
     (make-anode :type 'CATCH
                 :sub-anodes (list anode1 anode2)
@@ -5860,31 +5443,26 @@ der Docstring (oder NIL).
                         (CATCH-OPEN ,label)
                         ,anode2
                         (CATCH-CLOSE)
-                        ,label
-) ) )                  )
+                        ,label))))
 
-; compiliere (THROW tag form)
+;; compile (THROW tag form)
 (defun c-THROW ()
   (test-list *form* 3 3)
   (let* ((anode1 (c-form (second *form*) 'ONE))
          (anode2 (let ((*stackz* (cons 1 *stackz*)))
-                   (c-form (third *form*) 'ALL)
-        ))       )
+                   (c-form (third *form*) 'ALL))))
     (make-anode :type 'THROW
                 :sub-anodes (list anode1 anode2)
                 :seclass (cons (car (anodes-seclass-or anode1 anode2)) 'T)
-                :code `(,anode1 (PUSH) ,anode2 (THROW))
-) ) )
+                :code `(,anode1 (PUSH) ,anode2 (THROW)))))
 
-; compiliere (UNWIND-PROTECT form1 {form}*)
+;; compile (UNWIND-PROTECT form1 {form}*)
 (defun c-UNWIND-PROTECT ()
   (test-list *form* 2)
   (let* ((anode1 (let ((*stackz* (cons 'UNWIND-PROTECT *stackz*)))
-                   (c-form (second *form*))
-         )       )
+                   (c-form (second *form*))))
          (anode2 (let ((*stackz* (cons 'CLEANUP *stackz*)))
-                   (c-form `(PROGN ,@(cddr *form*)) 'NIL)
-         )       )
+                   (c-form `(PROGN ,@(cddr *form*)) 'NIL)))
          (label (make-label 'NIL)))
     (make-anode :type 'UNWIND-PROTECT
                 :sub-anodes (list anode1 anode2)
@@ -5894,37 +5472,32 @@ der Docstring (oder NIL).
                         ,@(case *for-value*
                             ((NIL) '((VALUES0)))
                             (ONE '((VALUES1)))
-                            ((T) '())
-                          )
+                            ((T) '()))
                         (UNWIND-PROTECT-NORMAL-EXIT)
                         ,label
                         ,anode2
-                        (UNWIND-PROTECT-CLOSE ,label)
-) ) )                  )
+                        (UNWIND-PROTECT-CLOSE ,label)))))
 
-; compiliere (PROGV form1 form2 {form}*)
+;; compile (PROGV form1 form2 {form}*)
 (defun c-PROGV ()
   (test-list *form* 3)
   (let ((anode1 (c-form (second *form*) 'ONE)))
-    ; falls form1 konstant=NIL ist, kann man sich das Binden sparen:
+    ;; if form1 is constant=NIL, one can spare the binding:
     (if (and (anode-constantp anode1) (null (anode-constant-value anode1)))
       (c-form `(PROGN ,(third *form*) (PROGN ,@(cdddr *form*))))
       (let* ((stackz2 (cons 1 *stackz*))
              (anode2 (let ((*stackz* stackz2))
-                       (c-form (third *form*) 'ONE)
-             )       )
+                       (c-form (third *form*) 'ONE)))
              (stackz3 (cons 'PROGV *stackz*))
              (anode3 (let ((*stackz* stackz3))
-                       (c-form `(PROGN ,@(cdddr *form*)))
-             )       )
+                       (c-form `(PROGN ,@(cdddr *form*)))))
              (flag t))
-        ; falls anode3 von keinen Seiteneffekten abhängig ist, kann man sich das
-        ; Binden sparen:
+        ;; if anode3 does not depend on any side-effects, one can spare
+        ;; the binding:
         (when (null (car (anode-seclass anode3)))
           (setf (first stackz2) 0)
           (setf (first stackz3) 0)
-          (setq flag nil)
-        )
+          (setq flag nil))
         (make-anode :type 'PROGV
                     :sub-anodes (list anode1 anode2 anode3)
                     :seclass (anodes-seclass-or anode1 anode2 anode3)
@@ -5935,53 +5508,45 @@ der Docstring (oder NIL).
                             ,anode3
                             ,@(if flag
                                 `((UNWIND ,stackz3 ,*stackz* ,*for-value*))
-                                ; wird expandiert zu '((UNBIND1) (SKIPSP 1 0))
-                           )  )
-) ) ) ) )
+                                ; is expanded to '((UNBIND1) (SKIPSP 1 0))
+                                )))))))
 
-; compiliere (MULTIPLE-VALUE-PROG1 form1 {form}*)
-; falls Werte nicht gebraucht werden: einfaches PROGN. Sonst: falls {form}*
-; seiteneffektfrei, nur form1, sonst: Werte von form1 auf den Stack legen und
-; nachher mit Funktion VALUES wieder einsammeln.
+;; compile (MULTIPLE-VALUE-PROG1 form1 {form}*)
+;; if values are not needed: simple PROGN. else: if {form}*
+;; is free from side-effects, only form1, else: push values of form1
+;; on the stack and gather them with function VALUES afterwards.
 (defun c-MULTIPLE-VALUE-PROG1 ()
   (test-list *form* 2)
   (case *for-value*
     (ALL
      (let* ((stackz1 (cons 'MVCALLP *stackz*))
             (anode1 (let ((*stackz* stackz1))
-                      (c-form (second *form*))
-            )       )
+                      (c-form (second *form*))))
             (anode2 (let ((*stackz* (cons 'MVCALL *stackz*)))
-                      (c-form `(PROGN ,@(cddr *form*)) 'NIL)
-           ))       )
+                      (c-form `(PROGN ,@(cddr *form*)) 'NIL))))
        (make-anode :type 'MULTIPLE-VALUE-PROG1
                    :sub-anodes (list anode1 anode2)
                    :seclass (anodes-seclass-or anode1 anode2)
                    :code
-                      (if (cdr (anode-seclass anode2))
-                        `((CONST , #+CLISP (make-const :horizont ':all
-                                                       :value #'values
-                                                       :form '(function values)
-                                           )
-                                   #-CLISP (new-const 'values)
-                          )
-                          (MVCALLP)
-                          ,anode1
-                          (MV-TO-STACK)
-                          ,anode2
-                          (MVCALL))
-                        (prog2 (setf (first stackz1) 0) `(,anode1))
-                      )
-    )) )
+                   (if (cdr (anode-seclass anode2))
+                     `((CONST , #+CLISP (make-const :horizon ':all
+                                         :value #'values
+                                         :form '(function values))
+                        #-CLISP (new-const 'values))
+                       (MVCALLP)
+                       ,anode1
+                       (MV-TO-STACK)
+                       ,anode2
+                       (MVCALL))
+                     (prog2 (setf (first stackz1) 0) `(,anode1))))))
     (ONE (c-form `(PROG1 ,@(cdr *form*))))
-    ((NIL) (c-form `(PROGN ,@(cdr *form*))))
-) )
+    ((NIL) (c-form `(PROGN ,@(cdr *form*))))))
 
-; compiliere (MULTIPLE-VALUE-CALL form1 {form}*)
+;; compile (MULTIPLE-VALUE-CALL form1 {form}*)
 (defun c-MULTIPLE-VALUE-CALL ()
   (test-list *form* 2)
   (if (null (cddr *form*))
-    ; (c-form `(SYS::%FUNCALL ,(second *form*))) ; 0 Argumente zu form1
+    ;; (c-form `(SYS::%FUNCALL ,(second *form*))) ; 0 Arguments for form1
     (c-FUNCTION-CALL (second *form*) '())
     (let* ((anode1 (c-form (second *form*) 'ONE))
            #+COMPILER-DEBUG (anodelist (list anode1))
@@ -5993,21 +5558,19 @@ der Docstring (oder NIL).
           ((null Lr))
         (let* ((formi (pop Lr))
                (anodei
-                 (let ((*stackz* (cons (if (zerop i) 'MVCALLP 'MVCALL) *stackz*)))
-                   (c-form formi 'ALL)
-              )) )
+                 (let ((*stackz* (cons (if (zerop i) 'MVCALLP 'MVCALL)
+                                       *stackz*)))
+                   (c-form formi 'ALL))))
           #+COMPILER-DEBUG (push anodei anodelist)
           (push anodei codelist)
-          (push '(MV-TO-STACK) codelist)
-      ) )
+          (push '(MV-TO-STACK) codelist)))
       (push '(MVCALL) codelist)
       (make-anode :type 'MULTIPLE-VALUE-CALL
                   :sub-anodes (nreverse anodelist)
                   :seclass '(T . T)
-                  :code (nreverse codelist)
-) ) ) )
+                  :code (nreverse codelist)))))
 
-; compiliere (MULTIPLE-VALUE-LIST form)
+;; compile (MULTIPLE-VALUE-LIST form)
 (defun c-MULTIPLE-VALUE-LIST ()
   (test-list *form* 2 2)
   (if *for-value*
@@ -6015,21 +5578,18 @@ der Docstring (oder NIL).
       (make-anode :type 'MULTIPLE-VALUE-LIST
                   :sub-anodes (list anode1)
                   :seclass (anodes-seclass-or anode1)
-                  :code `(,anode1 (MV-TO-LIST))
-    ) )
-    (c-form (second *form*))
-) )
+                  :code `(,anode1 (MV-TO-LIST))))
+    (c-form (second *form*))))
 
-; Stellt fest, ob eine SETQ-Argumentliste Symbol-Macros zuweist.
+;; determines, if a setq-argument-list assigns Symbol-Macros.
 (defun setqlist-macrop (l)
   (do ((l l (cddr l)))
       ((null l) nil)
     (let ((s (car l)))
-      (when (and (symbolp s) (venv-search-macro s)) (return t))
-) ) )
+      (when (and (symbolp s) (venv-search-macro s)) (return t)))))
 
-; compiliere (SETQ {symbol form}*)
-; alle Zuweisungen nacheinander durchführen
+;; compile (SETQ {symbol form}*)
+;; execute all assignments one after the other
 (defun c-SETQ ()
   (test-list *form* 1)
   (when (evenp (length *form*))
@@ -6038,7 +5598,7 @@ der Docstring (oder NIL).
   (if (null (cdr *form*))
     (c-NIL) ; (SETQ) == (PROGN) == NIL
     (if (setqlist-macrop (cdr *form*))
-      (c-form ; (SETF ...) statt (SETQ ...), macroexpandieren
+      (c-form ; (SETF ...) instead of (SETQ ...), macro-expand
         (funcall (macro-function 'SETF) (cons 'SETF (cdr *form*)) (env)))
       (do ((L (cdr *form*) (cddr L))
            #+COMPILER-DEBUG (anodelist '())
@@ -6049,8 +5609,7 @@ der Docstring (oder NIL).
              :type 'SETQ
              :sub-anodes (nreverse anodelist)
              :seclass seclass
-             :code (nreverse codelist)
-          ))
+             :code (nreverse codelist)))
         (let* ((symboli (first L))
                (formi (second L))
                (anodei (c-form formi 'ONE)))
@@ -6060,20 +5619,16 @@ der Docstring (oder NIL).
               (push anodei codelist)
               (seclass-or-f seclass anodei)
               (let ((setteri (c-VARSET symboli anodei
-                                       (and *for-value* (null (cddr L)))
-                   ))        )
+                                       (and *for-value* (null (cddr L))))))
                 (push setteri codelist)
-                (seclass-or-f seclass setteri)
-            ) )
+                (seclass-or-f seclass setteri)))
             (progn
               (c-error-c (ENGLISH "Cannot assign to non-symbol ~S.")
                          symboli)
-              (push '(VALUES1) codelist)
-      ) ) ) )
-) ) )
+              (push '(VALUES1) codelist))))))))
 
-; compiliere (PSETQ {symbol form}*)
-; alle Zwischenwerte auf dem Stack retten, erst dann zuweisen
+;; compile (PSETQ {symbol form}*)
+;; save all temporary values on the stack, only then assign them
 (defun c-PSETQ ()
   (test-list *form* 1)
   (when (evenp (length *form*))
@@ -6082,11 +5637,11 @@ der Docstring (oder NIL).
   (if (null (cdr *form*))
     (c-NIL) ; (PSETQ) == (PROGN) == NIL
     (if (setqlist-macrop (cdr *form*))
-      (c-form ; (PSETF ...) statt (PSETQ ...), macroexpandieren
+      (c-form ; (PSETF ...) instead of (PSETQ ...), macro-expand
         (funcall (macro-function 'PSETF) (cons 'PSETF (cdr *form*)) (env)))
       (let ((anodelist '())
             (setterlist '()))
-        ; Formen und Zuweisungen compilieren:
+        ;; compile forms and assignments:
         (do ((L (cdr *form*)))
             ((null L))
           (let* ((symboli (pop L))
@@ -6099,61 +5654,54 @@ der Docstring (oder NIL).
                 (push 0 *stackz*))
               (c-error-c (ENGLISH "Cannot assign to non-symbol ~S.")
                          symboli))))
-        ; Versuche, sie so zu reorganisieren, dass möglichst wenige (PUSH)
-        ; und (POP) nötig werden:
+        ;; try to reorganize them in a fashion, that as few  (PUSH)'s and
+        ;; (POP)'s as possible are necessary:
         (let ((codelist1 '())
               (codelist2 '())
-              ; baue codelist = (nconc codelist1 (nreverse codelist2)) zusammen
-              (seclass '(NIL . NIL))) ; Seiteneffektklasse von codelist insgesamt
+              ;; build codelist = (nconc codelist1 (nreverse codelist2))
+              (seclass '(NIL . NIL))) ; total side-effect-class of codelist
           (do ((anodelistr anodelist (cdr anodelistr))
                (setterlistr setterlist (cdr setterlistr)))
               ((null anodelistr))
             (let ((anode (car anodelistr))
                   (setter (car setterlistr)))
-              ; Normalerweise wäre vor codelist der anode und ein (PUSH)
-              ; und nach codelist ein (POP) und der setter anzuhängen.
-              ; Dies versuchen wir zu vereinfachen:
+              ;; Normally, we would have to prepend the anode and a (PUSH)
+              ;; in front of codelist; a (POP) and the setter would have
+              ;; to be appended after codelist. We try to simplify this:
               (cond ((seclasses-commute (anode-seclass setter) seclass)
-                     ; Ziehe den setter nach vorne:
+                     ;; move the setter in front:
                      (push setter codelist1)
-                     (push anode codelist1)
-                    )
+                     (push anode codelist1))
                     ((seclasses-commute (anode-seclass anode) seclass)
-                     ; Ziehe den anode nach hinten:
+                     ;; move the anode to the end:
                      (push anode codelist2)
-                     (push setter codelist2)
-                    )
-                    (t ; keine Vereinfachung möglich
+                     (push setter codelist2))
+                    (t ; no simplification possible
                      (push '(PUSH) codelist1)
                      (push anode codelist1)
                      (push '(POP) codelist2)
                      (push setter codelist2)
-                     (setf (car *stackz*) 1) ; brauche eine Variable im Stack
-              )     )
+                     (setf (car *stackz*) 1))) ; need a variable in the stack
               (setq seclass
                 (seclass-or-2 seclass
-                  (seclass-or-2 (anode-seclass anode) (anode-seclass setter))
-              ) )
-              (setf *stackz* (cdr *stackz*))
-          ) )
-          ; *stackz* ist nun wieder auf dem alten Niveau.
+                  (seclass-or-2 (anode-seclass anode) (anode-seclass setter))))
+              (setf *stackz* (cdr *stackz*))))
+          ;; now *stackz* is again on the old level.
           (when *for-value* (push '(NIL) codelist2))
           (make-anode
             :type 'PSETQ
             :sub-anodes (nreverse anodelist)
             :seclass seclass
-            :code (nconc codelist1 (nreverse codelist2))
-) ) ) ) ) )
+            :code (nconc codelist1 (nreverse codelist2))))))))
 
-; compiliere (MULTIPLE-VALUE-SETQ ({symbol}*) form)
-; alle gewünschten Werte auf den Stack, dann einzeln herunternehmen und
-; zuweisen.
+;; compile (MULTIPLE-VALUE-SETQ ({symbol}*) form)
+;; all desired values on the the stack, then pop them ony by one and
+;; assign.
 (defun c-MULTIPLE-VALUE-SETQ ()
   (test-list *form* 3 3)
   (test-list (second *form*) 0)
   (if (dolist (s (second *form*) nil)
-        (when (and (symbolp s) (venv-search-macro s)) (return t))
-      )
+        (when (and (symbolp s) (venv-search-macro s)) (return t)))
     (c-form `(SYSTEM::MULTIPLE-VALUE-SETF ,@(cdr *form*)))
     (let* ((n (length (second *form*)))
            (anode1 (c-form (third *form*) 'ALL))
@@ -6163,49 +5711,41 @@ der Docstring (oder NIL).
                     :sub-anodes (list anode1)
                     :seclass (anodes-seclass-or anode1)
                     :code `(,anode1
-                            ,@(if (eq *for-value* 'ALL) '((VALUES1)) '())
-        )                  )
+                            ,@(if (eq *for-value* 'ALL) '((VALUES1)) '())))
         (do ((L (second *form*) (cdr L))
              #+COMPILER-DEBUG (anodelist (list anode1))
              (seclass (anode-seclass anode1))
              (codelist '()))
             ((null L)
              (if (= n 1)
-               (setq codelist (cdr codelist)) ; letztes (POP) streichen
-               (setq codelist (cons `(NV-TO-STACK ,n) codelist))
-             )
+               (setq codelist (cdr codelist)) ; discard last (POP)
+               (setq codelist (cons `(NV-TO-STACK ,n) codelist)))
              (make-anode
                :type 'MULTIPLE-VALUE-SETQ
                :sub-anodes (nreverse anodelist)
                :seclass seclass
-               :code (cons anode1 codelist)
-            ))
+               :code (cons anode1 codelist)))
           (let ((symbol (car L)))
             (if (symbolp symbol)
               (let ((setter (c-VARSET symbol
                               (make-anode :type 'NOP
                                           :sub-anodes '()
                                           :seclass '(NIL . NIL)
-                                          :code '()
-                              )
-                              (and *for-value* (null codelist))
-                   ))       )
+                                          :code '())
+                              (and *for-value* (null codelist)))))
                 (push setter codelist)
-                (seclass-or-f seclass setter)
-              )
+                (seclass-or-f seclass setter))
               (c-error-c (ENGLISH "Cannot assign to non-symbol ~S.")
                          symbol)))
           (push '(POP) codelist)
-          (push 1 *stackz*)
-) ) ) ) )
+          (push 1 *stackz*))))))
 
-; Liefert den Code für das parallele Binden von Variablen.
-; (car *stackz*) sollte = 0 sein, (cdr *stackz*) wird evtl. erweitert.
+;; returns the code for the parallel binding of variables.
+;; (car *stackz*) should be = 0, (cdr *stackz*) is poss. extended.
 (defun c-parallel-bind-movable-var-anode (varlist anodelist stackzlist
-                                          &optional (other-anodes '())
-                                         )
-  ; Variable darf erst am Schluss gebunden werden, falls sie SPECIAL ist
-  ; und nachfolgende Anodes von ihrem Wert abhängen können.
+                                          &optional (other-anodes '()))
+  ;; Variable may be bound foremost at the end, if it is SPECIAL
+  ;; and sequencing Anodes can depend on its value.
   (let ((bind-afterwards nil))
     (append
       (maplap
@@ -6216,43 +5756,35 @@ der Docstring (oder NIL).
                        (let ((symbol (var-name var)))
                          (some
                            #'(lambda (other-anode)
-                               ; hängt der Wert von other-anode möglicherweise
-                               ; vom Wert von var ab?
+                               ;; does the value of other-anode possibly depend
+                               ;; on the value of var?
                                (let ((uses (car (anode-seclass other-anode))))
-                                 (or (eq uses 'T) (member symbol uses))
-                             ) )
-                           (cdr anodelistr)
-                  )    ) )
+                                 (or (eq uses 'T) (member symbol uses))))
+                           (cdr anodelistr))))
                 (let* ((stackz (car stackzlistr))
-                       (dummyvar ; Hilfsvariable im Stack
+                       (dummyvar ; auxiliary variable in Stack
                          (make-var :name (gensym) :specialp nil
-                                   :closurep nil :stackz stackz
-                      )) )
+                                   :closurep nil :stackz stackz)))
                   (push (list dummyvar var (cdr *stackz*)) bind-afterwards)
-                  (push (car stackz) (cdr *stackz*)) ; Platz für 1 Schluss-Bindung mehr
-                  (setf (car stackz) 1) ; Platz für Hilfsvariable im Stack merken
-                  (c-bind-movable-var-anode dummyvar anode)
-                )
-                (c-bind-movable-var-anode var anode)
-          ) ) )
-        varlist (append anodelist other-anodes) stackzlist
-      )
+                  ;; room for 1 more closing binding:
+                  (push (car stackz) (cdr *stackz*))
+                  ;; memorize room for auxiliary variable in stack:
+                  (setf (car stackz) 1)
+                  (c-bind-movable-var-anode dummyvar anode))
+                (c-bind-movable-var-anode var anode))))
+        varlist (append anodelist other-anodes) stackzlist)
       other-anodes
       (mapcap
         #'(lambda (bind)
-            (let ((dummyvar (first bind)) ; Hilfsvariable im Stack
+            (let ((dummyvar (first bind)) ; auxiliary variable in Stack
                   (var (second bind)) ; SPECIAL-Variable
-                  (stackz (third bind))) ; Stackzustand vor Aufbau der Schluss-Bindung
+                  ;; stack-state before the construction of closing-binding:
+                  (stackz (third bind)))
               `((GET ,dummyvar ,*venvc* ,stackz)
-                ,@(c-bind-movable-var var)
-               )
-          ) )
-        (nreverse bind-afterwards)
-      )
-    )
-) )
+                ,@(c-bind-movable-var var))))
+        (nreverse bind-afterwards)))))
 
-; compiliere (LET/LET* ({var|(var value)}*) {declaration}* {form}*)
+;; compile (LET/LET* ({var|(var value)}*) {declaration}* {form}*)
 (defun c-LET/LET* (*-flag)
   (test-list *form* 2)
   (test-list (second *form*) 0)
@@ -6266,50 +5798,51 @@ der Docstring (oder NIL).
       (multiple-value-bind (*specials* *ignores* *ignorables* *readonlys*)
           (process-declarations declarations)
         (push-specials)
-        ; Syntaxtest der Parameterliste:
-        (multiple-value-bind (symbols initforms) (analyze-letlist (second *form*))
-          (push 0 *stackz*) (push nil *venvc*) ; Platz für Closure-Dummyvar
+        ;; syntax-test of the parameter-list:
+        (multiple-value-bind (symbols initforms)
+            (analyze-letlist (second *form*))
+          (push 0 *stackz*) (push nil *venvc*) ; room for Closure-Dummyvar
           (let ((closuredummy-stackz *stackz*)
                 (closuredummy-venvc *venvc*))
             (multiple-value-bind (varlist anodelist stackzlist)
                 (process-movable-var-list symbols initforms *-flag)
-              (unless *-flag (push 0 *stackz*)) ; Platz für Schluss-Bindungen
-              (let ((body-anode (c-form `(PROGN ,@body-rest)))) ; Body compilieren
-                ; Überprüfen der Variablen:
-                (let* ((closurevars (checking-movable-var-list varlist anodelist))
+              (unless *-flag (push 0 *stackz*)) ; room for closing-bindings
+              (let ((body-anode (c-form `(PROGN ,@body-rest)))) ; compile Body
+                ;; check the variables:
+                (let* ((closurevars (checking-movable-var-list
+                                     varlist anodelist))
                        (codelist
-                         `(,@(c-make-closure closurevars closuredummy-venvc closuredummy-stackz)
+                         `(,@(c-make-closure closurevars closuredummy-venvc
+                                             closuredummy-stackz)
                            ,@(if *-flag
-                               ; sequentielles Binden der Variablen
-                               (mapcap #'c-bind-movable-var-anode varlist anodelist)
-                               ; paralleles Binden der Variablen
-                               (c-parallel-bind-movable-var-anode varlist anodelist stackzlist)
-                             )
+                               ;; sequential binding of variables
+                               (mapcap #'c-bind-movable-var-anode
+                                       varlist anodelist)
+                               ;; parallel binding of variables
+                               (c-parallel-bind-movable-var-anode
+                                varlist anodelist stackzlist))
                            ,body-anode
-                           (UNWIND ,*stackz* ,oldstackz ,*for-value*)
-                       )  )
+                           (UNWIND ,*stackz* ,oldstackz ,*for-value*)))
                        (anode
                          (make-anode
                            :type (if *-flag 'LET* 'LET)
                            :sub-anodes `(,@anodelist ,body-anode)
                            :seclass (seclass-without
-                                      (anodelist-seclass-or `(,@anodelist ,body-anode))
-                                      varlist
-                                    )
+                                      (anodelist-seclass-or
+                                       `(,@anodelist ,body-anode))
+                                      varlist)
                            :stackz oldstackz
-                           :code codelist
-                      )) )
+                           :code codelist)))
                   (when closurevars
-                    (setf (first closuredummy-stackz) 1) ; 1 Stackplatz für Dummy
+                    ;; 1 stack-slot for Dummy:
+                    (setf (first closuredummy-stackz) 1)
                     (setf (first closuredummy-venvc)
-                      (cons closurevars closuredummy-stackz)
-                  ) )
+                          (cons closurevars closuredummy-stackz)))
                   (optimize-var-list varlist)
-                  anode
-) ) ) ) ) ) ) ) )
+                  anode)))))))))
 
-; compiliere (LOCALLY {declaration}* {form}*)
-(defun c-LOCALLY (&optional (c #'c-form)) ; vgl. c-LET/LET*
+;; compile (LOCALLY {declaration}* {form}*)
+(defun c-LOCALLY (&optional (c #'c-form)) ; cf. c-LET/LET*
   (test-list *form* 1)
   (multiple-value-bind (body-rest declarations)
       (parse-body (cdr *form*) nil (env))
@@ -6318,10 +5851,9 @@ der Docstring (oder NIL).
           (process-declarations declarations)
         (declare (ignore ignores ignorables readonlys))
         (push-specials)
-        (funcall c `(PROGN ,@body-rest))
-) ) ) )
+        (funcall c `(PROGN ,@body-rest))))))
 
-; compiliere (MULTIPLE-VALUE-BIND ({var}*) form1 {declaration}* {form}*)
+;; compile (MULTIPLE-VALUE-BIND ({var}*) form1 {declaration}* {form}*)
 (defun c-MULTIPLE-VALUE-BIND ()
   (test-list *form* 3)
   (test-list (second *form*) 0)
@@ -6342,19 +5874,18 @@ der Docstring (oder NIL).
           (multiple-value-bind (*specials* *ignores* *ignorables* *readonlys*)
               (process-declarations declarations)
             (push-specials)
-            (if (null symbols) ; leere Variablenliste -> gar nichts binden
+            (if (null symbols) ; empty variable-list -> bind nothing
               (let* ((anode1 (c-form (third *form*) 'NIL))
                      (anode2 (c-form `(PROGN ,@(cdddr *form*)))))
                 (make-anode :type 'MULTIPLE-VALUE-BIND
                   :sub-anodes (list anode1 anode2)
                   :seclass (anodes-seclass-or anode1 anode2)
-                  :code `(,anode1 ,anode2)
-              ) )
+                  :code `(,anode1 ,anode2)))
               (let ((anode1 (c-form (third *form*) 'ALL)))
-                (push nil *venvc*) ; Sichtbarkeit von Closure-Dummyvar
+                (push nil *venvc*) ; visibility of Closure-Dummyvar
                 (multiple-value-bind (varlist stackvarlist)
                     (process-fixed-var-list symbols)
-                  (push 0 *stackz*) ; Platz für Closure-Dummyvar
+                  (push 0 *stackz*) ; room for Closure-Dummyvar
                   (let* ((closuredummy-stackz *stackz*)
                          (closuredummy-venvc *venvc*)
                          (stackzlist
@@ -6363,19 +5894,19 @@ der Docstring (oder NIL).
                                 ((null varlistr) (nreverse L))
                              (let ((var (car varlistr)))
                                (push-*venv* var)
-                               (push *stackz* L) (bind-fixed-var-2 var)
-                         ) ) )
-                         (body-anode ; Body compilieren
-                           (c-form `(PROGN ,@body-rest))
-                         )
-                         ; Überprüfen der Variablen:
+                               (push *stackz* L) (bind-fixed-var-2 var))))
+                         (body-anode ; compile Body
+                           (c-form `(PROGN ,@body-rest)))
+                         ; check the variables:
                          (closurevars (checking-fixed-var-list varlist))
-                         (codelist ; Code generieren
+                         (codelist ; generate Code
                            `(,anode1
                              (NV-TO-STACK ,(length symbols))
-                             ,@(c-make-closure closurevars closuredummy-venvc closuredummy-stackz)
-                             ,@ ; Binden von special- oder Closure-Variablen:
-                               (do ((stackvarlistr stackvarlist (cdr stackvarlistr))
+                             ,@(c-make-closure closurevars closuredummy-venvc
+                                               closuredummy-stackz)
+                             ,@ ; bind special- or Closure-variables:
+                               (do ((stackvarlistr stackvarlist
+                                                   (cdr stackvarlistr))
                                     (stackzlistr stackzlist (cdr stackzlistr))
                                     (varlistr varlist (cdr varlistr))
                                     (L '()))
@@ -6386,34 +5917,28 @@ der Docstring (oder NIL).
                                        (c-bind-fixed-var
                                          (car varlistr)
                                          (car stackvarlistr)
-                                         (car stackzlistr)
-                                     ) )
-                                     L
-                               ) ) )
+                                         (car stackzlistr)))
+                                     L)))
                              ,body-anode
-                             (UNWIND ,*stackz* ,oldstackz ,*for-value*)
-                         )  )
+                             (UNWIND ,*stackz* ,oldstackz ,*for-value*)))
                          (anode
                            (make-anode
                              :type 'MULTIPLE-VALUE-BIND
                              :sub-anodes (list anode1 body-anode)
                              :seclass (seclass-without
                                         (anodes-seclass-or anode1 body-anode)
-                                        varlist
-                                      )
+                                        varlist)
                              :stackz oldstackz
-                             :code codelist
-                        )) )
+                             :code codelist)))
                     (when closurevars
-                      (setf (first closuredummy-stackz) 1) ; 1 Stackplatz für Dummy
+                      ;; 1 stack-slot for Dummy
+                      (setf (first closuredummy-stackz) 1)
                       (setf (first closuredummy-venvc)
-                        (cons closurevars closuredummy-stackz)
-                    ) )
+                            (cons closurevars closuredummy-stackz)))
                     (optimize-var-list varlist)
-                    anode
-) ) ) ) ) ) ) ) ) )
+                    anode))))))))))
 
-; compiliere (COMPILER-LET ({var|(var value)}*) {form}*)
+;; compile (COMPILER-LET ({var|(var value)}*) {form}*)
 (defun c-COMPILER-LET (&optional (c #'c-form))
   (test-list *form* 2)
   (test-list (second *form*) 0)
@@ -6437,7 +5962,7 @@ der Docstring (oder NIL).
                            ,name)
                 (setq ,name NIL)))) ; Default-Blockname
 
-; compiliere (BLOCK name {form}*)
+;; compile (BLOCK name {form}*)
 (defun c-BLOCK ()
   (test-list *form* 2)
   (let ((name (second *form*)))
@@ -6446,60 +5971,54 @@ der Docstring (oder NIL).
            (label (make-label *for-value*))
            (block (make-block :fnode *func* :label label
                     :consvar (make-var :name (gensym) :specialp nil
-                                       :closurep nil :stackz *stackz*
-                             )
-                    :stackz *stackz* :used-far nil :for-value *for-value*
-           )      )
-           (*benv* (cons (cons name block) *benv*)) ; Block aktivieren
-           (anode (c-form `(PROGN ,@(cddr *form*))))
-          )
+                                       :closurep nil :stackz *stackz*)
+                    :stackz *stackz* :used-far nil :for-value *for-value*))
+           (*benv* (cons (cons name block) *benv*)) ; activate Block
+           (anode (c-form `(PROGN ,@(cddr *form*)))))
       (if (block-used-far block)
         (make-anode :type 'BLOCK
                     :sub-anodes (list anode)
                     :seclass (anodes-seclass-or anode)
-                    :code `((BLOCK-OPEN ,(new-const (and (symbol-package name) name)) ; (gensym) zu nil machen
-                                        ,label
-                            )
+                    :code `((BLOCK-OPEN
+                             ;; set (gensym) to nil
+                             ,(new-const (and (symbol-package name) name))
+                             ,label)
                             ,anode
                             (BLOCK-CLOSE)
-                            ,label
-        )                  )
+                            ,label))
         (progn
-          (setf (first *stackz*) 0) ; brauche keinen Blockframe
+          (setf (first *stackz*) 0) ; need no Blockframe
           (make-anode :type 'BLOCK
                       :sub-anodes (list anode)
                       :seclass (anodes-seclass-or anode)
-                      :code `(,anode ,label)
-) ) ) ) ) )
+                      :code `(,anode ,label)))))))
 
-; compiliere (RETURN-FROM name [form])
+;; compile (RETURN-FROM name [form])
 (defun c-RETURN-FROM ()
   (test-list *form* 2 3)
   (let ((name (second *form*)))
     (check-blockname name)
     (let ((a (benv-search name)))
-      (cond ((null a) ; dieser Blockname ist unsichtbar
+      (cond ((null a) ; this Blockname is invisible
              (c-error (ENGLISH "RETURN-FROM block ~S is impossible from here.")
                       name))
-            ((block-p a) ; in *benv* ohne %benv% sichtbar
+            ((block-p a) ; visible in *benv* without %benv%
              (let ((anode (c-form (third *form*) (block-for-value a))))
                (if (and (eq (block-fnode a) *func*)
-                        (may-UNWIND *stackz* (cdr (block-stackz a)))
-                   )
-                 ; selbe Funktionen
+                        (may-UNWIND *stackz* (cdr (block-stackz a))))
+                 ;; same functions
                  (make-anode
                    :type 'RETURN-FROM
                    :sub-anodes (list anode)
                    :seclass '(T . T)
                    :code `(,anode
-                           (UNWIND ,*stackz* ,(cdr (block-stackz a)) ,(block-for-value a))
-                           (JMP ,(block-label a))
-                 )        )
-                 ; verschiedene Funktionen oder unbekannte Frames auf dem Stack
+                           (UNWIND ,*stackz* ,(cdr (block-stackz a))
+                                   ,(block-for-value a))
+                           (JMP ,(block-label a))))
+                 ;; different functions or unknown frames onto the stack
                  (progn
                    (unless *no-code*
-                     (note-far-used-block a)
-                   )
+                     (note-far-used-block a))
                    (make-anode
                      :type 'RETURN-FROM
                      :sub-anodes (list anode)
@@ -6507,24 +6026,20 @@ der Docstring (oder NIL).
                      :code `(,anode
                              ,@(if (not (block-for-value a)) '((VALUES0)))
                              (RETURN-FROM ,a
-                              ,@(if (eq (block-fnode a) *func*) `(,*stackz*) '())
-                   )        ))
-            )) ) )
-            ((consp a) ; in %benv% sichtbar
+                              ,@(if (eq (block-fnode a) *func*)
+                                    `(,*stackz*) '()))))))))
+            ((consp a) ; visible in %benv%
              (let ((anode (c-form (third *form*) 'ALL)))
                (make-anode
                  :type 'RETURN-FROM
                  :sub-anodes (list anode)
                  :seclass '(T . T)
-                 :code `(,anode
-                         (RETURN-FROM ,(new-const a))
-            )) )        )
-            (t (compiler-error 'c-RETURN-FROM))
-) ) ) )
+                 :code `(,anode (RETURN-FROM ,(new-const a))))))
+            (t (compiler-error 'c-RETURN-FROM))))))
 
 ) ; macrolet
 
-; compiliere (TAGBODY {tag|form}*)
+;; compile (TAGBODY {tag|form}*)
 (defun c-TAGBODY ()
   (test-list *form* 1)
   (multiple-value-bind (taglist labellist)
@@ -6535,56 +6050,50 @@ der Docstring (oder NIL).
       (let ((item (car L)))
         (if (atom item)
           (if (or (symbolp item) (numberp item))
-            ; Symbol NIL wird zugelassen, weil es in ANSI CL nicht mehr
-            ; zweideutig ist.
-            ; Andere Zahlen werden zugelassen, damit - ebenso wie 3.3.2 - auch
-            ; 3.3 ein zulässiges Sprungziel ist.
+            ;; Symbol NIL is permitted, because in ANSI CL it is not
+            ;; ambiguous anymore.
+            ;; Other numbers are permitted, so that - just as 3.3.2 -
+            ;; 3.3 is a admissible jump-destination.
             (progn
               (push item taglist)
               (push (make-label 'NIL) labellist))
             (c-error-c
              (ENGLISH "Only numbers and symbols are valid tags, not ~S")
              item)))))
-    (let* ((*stackz* (cons 0 *stackz*)) ; evtl. TAGBODY-Frame
+    (let* ((*stackz* (cons 0 *stackz*)) ; poss. TAGBODY-Frame
            (tagbody (make-tagbody :fnode *func* :labellist labellist
                       :consvar (make-var :name (gensym) :specialp nil
-                                         :closurep nil :stackz *stackz*
-                               )
-                      :stackz *stackz* :used-far nil
-           )        )
+                                         :closurep nil :stackz *stackz*)
+                      :stackz *stackz* :used-far nil))
            (*genv* (cons (cons (apply #'vector taglist) tagbody) *genv*))
-             ; Tagbody aktivieren
+           ;; activate Tagbody
            (codelist '())
            #+COMPILER-DEBUG (anodelist '())
            (seclass '(NIL . NIL)))
-      ; Inneres des Tagbody compilieren:
+      ;; compile interior of Tagbody:
       (do ((formlistr (cdr *form*) (cdr formlistr))
            (taglistr taglist)
            (labellistr labellist))
           ((null formlistr)
            #+COMPILER-DEBUG (setq anodelist (nreverse anodelist))
-           (setq codelist (nreverse codelist))
-          )
+           (setq codelist (nreverse codelist)))
         (let ((formi (car formlistr)))
           (if (atom formi)
             (when (and (consp taglistr) (eql formi (car taglistr)))
-              ; Tag wiedergefunden
-              (pop taglistr) (push (pop labellistr) codelist)
-            )
+              ;; retrieve Tag
+              (pop taglistr) (push (pop labellistr) codelist))
             (let ((anodei (c-form formi 'NIL)))
               #+COMPILER-DEBUG (push anodei anodelist)
               (seclass-or-f seclass anodei)
-              (push anodei codelist)
-      ) ) ) )
+              (push anodei codelist)))))
       (if (> (length (tagbody-used-far tagbody)) 0)
         (let ((used-tags (make-array (length taglist) :fill-pointer 0)))
-          ; Collect the used tags and assign indices.
+          ;; Collect the used tags and assign indices.
           (dolist (tagbody+tag (tagbody-used-far tagbody))
             (let* ((tag (cdr tagbody+tag))
                    (index (or (position tag used-tags :test #'eql)
                               (vector-push tag used-tags))))
-              (setf (cdr tagbody+tag) index)
-          ) )
+              (setf (cdr tagbody+tag) index)))
           (setf (tagbody-used-far tagbody) nil)
           (let* ((l (length used-tags))
                  (used-label-list
@@ -6592,30 +6101,26 @@ der Docstring (oder NIL).
                         (l1 '()))
                        ((= i l) (nreverse l1))
                      (push
-                       (elt labellist (position (aref used-tags i) taglist :test #'eql))
-                       l1
-                )) ) )
+                       (elt labellist (position (aref used-tags i) taglist
+                                                :test #'eql))
+                       l1))))
             (setf (first *stackz*) `(TAGBODY ,l))
             (setq codelist
               `((TAGBODY-OPEN
                   ,(new-const (map 'simple-vector
-                                   #'(lambda (tag) (and (symbol-package tag) tag)) ; (gensym)s zu nil machen
-                                   used-tags
-                   )          )
-                  ,@used-label-list
-                )
+                                   #'(lambda (tag) ; set (gensym)s to nil
+                                       (and (symbol-package tag) tag))
+                                   used-tags))
+                  ,@used-label-list)
                 ,@codelist
-                (TAGBODY-CLOSE-NIL)
-        ) ) )  )
-        (when *for-value* (setq codelist `(,@codelist (NIL))))
-      )
+                (TAGBODY-CLOSE-NIL)))))
+        (when *for-value* (setq codelist `(,@codelist (NIL)))))
       (make-anode :type 'TAGBODY
                   :sub-anodes anodelist
                   :seclass seclass
-                  :code codelist
-) ) ) )
+                  :code codelist))))
 
-; compiliere (GO tag)
+;; compile (GO tag)
 (defun c-GO ()
   (test-list *form* 2 2)
   (let ((tag (second *form*)))
@@ -6623,50 +6128,43 @@ der Docstring (oder NIL).
       (c-error (ENGLISH "Tag must be a symbol or a number, not ~S")
                tag))
     (multiple-value-bind (a b) (genv-search tag)
-      (cond ((null a) ; dieser Tag ist unsichtbar
+      (cond ((null a) ; this Tag is invisible
              (c-error (ENGLISH "GO to tag ~S is impossible from here.")
                       tag))
-            ((tagbody-p a) ; in *genv* ohne %genv% sichtbar
+            ((tagbody-p a) ; visible in *genv* without %genv%
              (if (and (eq (tagbody-fnode a) *func*)
-                      (may-UNWIND *stackz* (tagbody-stackz a))
-                 )
-               ; selbe Funktionen
+                      (may-UNWIND *stackz* (tagbody-stackz a)))
+               ;; same functions
                (make-anode
                  :type 'GO
                  :sub-anodes '()
                  :seclass '(T . T)
                  :code `((UNWIND ,*stackz* ,(tagbody-stackz a) nil)
-                         (JMP ,(nth b (tagbody-labellist a)))
-               )        )
-               ; verschiedene Funktionen oder unbekannte Frames auf dem Stack
+                         (JMP ,(nth b (tagbody-labellist a)))))
+               ;; different functions or unknown frames onto the stack
                (let ((tagbody+tag (cons a tag)))
                  (unless *no-code*
-                   (note-far-used-tagbody tagbody+tag)
-                 )
+                   (note-far-used-tagbody tagbody+tag))
                  (make-anode
                    :type 'GO
                    :sub-anodes '()
                    :seclass '(T . T)
                    :code `((VALUES0)
                            (GO ,a ,tagbody+tag
-                            ,@(if (eq (tagbody-fnode a) *func*) `(,*stackz*) '())
-                          ))
-                 )
-            )) )
-            ((consp a) ; in %genv% sichtbar
+                            ,@(if (eq (tagbody-fnode a) *func*)
+                                  `(,*stackz*) '())))))))
+            ((consp a) ; visible in %genv%
              (make-anode
                :type 'GO
                :sub-anodes '()
                :seclass '(T . T)
-               :code `((GO ,(new-const a) ,b))
-            ))
-            (t (compiler-error 'c-GO))
-) ) ) )
+               :code `((GO ,(new-const a) ,b))))
+            (t (compiler-error 'c-GO))))))
 
-; compiliere (FUNCTION funname)
+;; compile (FUNCTION funname)
 (defun c-FUNCTION ()
   (test-list *form* 2 3)
-  (let* ((longp (cddr *form*)) ; Flag, ob Langform (FUNCTION name funname)
+  (let* ((longp (cddr *form*)) ; flag, if explicit form (FUNCTION name funname)
          (name (second *form*)))
     (if (and (not longp) (function-name-p name))
       (multiple-value-bind (a m f1 f2 f3 f4) (fenv-search name)
@@ -6678,14 +6176,13 @@ der Docstring (oder NIL).
               :sub-anodes '()
               :seclass '(T . NIL)
               :code (if (and (subr-info name) (not (declared-notinline name)))
-                      `((CONST ,(make-const :horizont ':all
+                      `((CONST ,(make-const :horizon ':all
                                             :value (symbol-function name)
-                                            :form `(FUNCTION ,name)
-                       ))       )
-                      `((CONST ,(make-funname-const name)) (SYMBOL-FUNCTION))
-          ) )       )
+                                            :form `(FUNCTION ,name))))
+                      `((CONST ,(make-funname-const name))
+                        (SYMBOL-FUNCTION)))))
           (case f1
-            (GLOBAL ; gefunden in %fenv%
+            (GLOBAL ; found in %fenv%
              (make-anode
                :type 'FUNCTION
                :sub-anodes '()
@@ -6696,45 +6193,38 @@ der Docstring (oder NIL).
                        (SVREF)
                        ,@(if f4
                            `((PUSH)
-                             ,(CALLS-code (gethash 'FUNCTION-MACRO-FUNCTION function-codes))
-                            )
-                           '()
-                         )
-            ))        )
-            (LOCAL ; gefunden in *fenv* ohne %fenv%
+                             ,(CALLS-code (gethash 'FUNCTION-MACRO-FUNCTION
+                                                   function-codes)))
+                           '()))))
+            (LOCAL ; found in *fenv* without %fenv%
              (if (const-p f2)
                (make-anode
                  :type 'FUNCTION
                  :sub-anodes '()
                  :seclass '(NIL . NIL)
-                 :code `((FCONST ,(const-value f2)))
-               )
-               (c-VAR (var-name f2))
-            ))
+                 :code `((FCONST ,(const-value f2))))
+               (c-VAR (var-name f2))))
             (t (if (and (null f1) m)
                  (c-error (ENGLISH "~S is not a function. It is a locally defined macro.")
                           name)
-                 (compiler-error 'c-FUNCTION)
-      ) ) ) )  )
+                 (compiler-error 'c-FUNCTION))))))
       (let ((funname (car (last *form*))))
-        (if (and (consp funname) (eq (car funname) 'LAMBDA) (consp (cdr funname)))
+        (if (and (consp funname) (eq (car funname) 'LAMBDA)
+                 (consp (cdr funname)))
           (let* ((*no-code* (or *no-code* (null *for-value*)))
                  (fnode
                    (c-lambdabody
                      (if (and longp (function-name-p name))
-                       name ; angegebener Funktionsname
-                       (symbol-suffix (fnode-name *func*) (incf *anonymous-count*))
-                     )
-                     (cdr funname)
-                )) )
+                       name ; specified function-name
+                       (symbol-suffix (fnode-name *func*)
+                                      (incf *anonymous-count*)))
+                     (cdr funname))))
             (unless *no-code* (propagate-far-used fnode))
-            (c-fnode-function fnode)
-          )
+            (c-fnode-function fnode))
           (c-error (ENGLISH "Only symbols and lambda expressions are function names, not ~S")
-                   funname
-) ) ) ) ) )
+                   funname))))))
 
-; compiliere (%GENERIC-FUNCTION-LAMBDA . lambdabody)
+;; compile (%GENERIC-FUNCTION-LAMBDA . lambdabody)
 (defun c-%GENERIC-FUNCTION-LAMBDA ()
   (test-list *form* 1)
   (let* ((*no-code* (or *no-code* (null *for-value*)))
@@ -6743,23 +6233,22 @@ der Docstring (oder NIL).
              (symbol-suffix (fnode-name *func*) (incf *anonymous-count*))
              (cdr *form*)
              nil
-             t ; gf-p = T, Code für generische Funktion bauen
-        )) )
+             t))) ; gf-p = T, build Code for generic function
     (unless *no-code* (propagate-far-used fnode))
-    (c-fnode-function fnode)
-) )
+    (c-fnode-function fnode)))
 
-; compiliere (%OPTIMIZE-FUNCTION-LAMBDA reqoptimflags . lambdabody)
-; reqoptimflags ist eine Liste von Flags, welche Required-Parameter des
-; lambdabody wegoptimiert werden dürfen. Zu jedem Required-Parameter:
-; NIL: normal,
-; T: darf wegoptimiert werden, dann wird daraus GONE gemacht.
-; NILs am Schluss der Liste dürfen weggelassen werden.
-; Die Ausgabe enthält zusätzlich zur Funktion die Liste der Wegoptimierten.
+;; compile (%OPTIMIZE-FUNCTION-LAMBDA reqoptimflags . lambdabody)
+;; reqoptimflags is a list of flags that states, which Required-Parameter
+;; of the lambdabody can be optimized away. For each Required-Parameter:
+;; NIL: normal,
+;; T: Can be optimized away, then it is turned into GONE.
+;; NILs at the end of the list can be omitted.
+;; The output contains the list of the omitted parameters
+;; in addition to the function.
 (defmacro %OPTIMIZE-FUNCTION-LAMBDA (reqoptimflags &rest lambdabody)
   (declare (ignore reqoptimflags))
-  `(CONS (FUNCTION (LAMBDA ,@lambdabody)) NIL) ; ohne Compiler: nicht optimieren
-)
+  ;; without compiler: do not optimize
+  `(CONS (FUNCTION (LAMBDA ,@lambdabody)) NIL))
 (defun c-%OPTIMIZE-FUNCTION-LAMBDA ()
   (test-list *form* 2)
   (let* ((*no-code* (or *no-code* (null *for-value*)))
@@ -6768,20 +6257,17 @@ der Docstring (oder NIL).
            (c-lambdabody
              (symbol-suffix (fnode-name *func*) (incf *anonymous-count*))
              (cddr *form*)
-             nil nil reqoptimflags
-        )) )
+             nil nil reqoptimflags)))
     (unless *no-code* (propagate-far-used fnode))
     (let* ((anode1 (c-fnode-function fnode))
            (resultflags (mapcar #'(lambda (x) (eq x 'GONE)) reqoptimflags))
            (anode2 (let ((*stackz* (cons 1 *stackz*))
                          (*form* `(QUOTE ,resultflags)))
-                     (c-QUOTE)
-          ))       )
+                     (c-QUOTE))))
       (make-anode :type '%OPTIMIZE-FUNCTION-LAMBDA
                   :sub-anodes (list anode1 anode2)
                   :seclass (anodes-seclass-or anode1 anode2)
-                  :code `(,anode1 (PUSH) ,anode2 (CONS))
-) ) ) )
+                  :code `(,anode1 (PUSH) ,anode2 (CONS))))))
 
 ;; skip (ignore) all declarations in the beginning of BODY
 (defun skip-declarations (body)
@@ -6794,7 +6280,7 @@ der Docstring (oder NIL).
                (ENGLISH "Illegal function definition syntax in ~S: ~S")
                ,specform ,fdef)))
 
-; compiliere (FLET ({fundef}*) {form}*)
+;; compile (FLET ({fundef}*) {form}*)
 (defun c-FLET ()
   (test-list *form* 2)
   (test-list (second *form*) 0)
@@ -6804,24 +6290,22 @@ der Docstring (oder NIL).
            (L2 '()))
           ((null fdefsr) (values (nreverse L1) (nreverse L2)))
         (let ((fdef (car fdefsr)))
-          (if (and (consp fdef) (function-name-p (car fdef)) (consp (cdr fdef)))
+          (if (and (consp fdef) (function-name-p (car fdef))
+                   (consp (cdr fdef)))
             (let* ((name (car fdef))
                    (fnode (c-lambdabody
                             (symbol-suffix (fnode-name *func*) name)
                             (cons (cadr fdef)
-                                  (add-implicit-block name (cddr fdef))
-                  ))      ) )
+                                  (add-implicit-block name (cddr fdef))))))
               (push name L1)
-              (push fnode L2)
-            )
-            (err-syntax 'FLET fdef)
-      ) ) )
-    ; namelist = Liste der Namen, fnodelist = Liste der fnodes der Funktionen
+              (push fnode L2))
+            (err-syntax 'FLET fdef))))
+    ;; namelist = list of names, fnodelist = list of fnodes of the functions
     (let ((oldstackz *stackz*)
           (*stackz* *stackz*)
           (*venvc* *venvc*)
           (*venv* *venv*))
-      (push 0 *stackz*) (push nil *venvc*) ; Platz für Closure-Dummyvar
+      (push 0 *stackz*) (push nil *venvc*) ; room for Closure-Dummyvar
       (let ((closuredummy-stackz *stackz*)
             (closuredummy-venvc *venvc*))
         (multiple-value-bind (vfnodelist varlist anodelist *fenv*)
@@ -6832,14 +6316,16 @@ der Docstring (oder NIL).
                  (anodelist '())
                  (fenv '()))
                 ((null namelistr)
-                 (values (nreverse vfnodelist) (nreverse varlist) (nreverse anodelist)
-                         (apply #'vector (nreverse (cons *fenv* fenv)))
-                ))
+                 (values (nreverse vfnodelist) (nreverse varlist)
+                         (nreverse anodelist)
+                         (apply #'vector (nreverse (cons *fenv* fenv)))))
               (push (car namelistr) fenv)
               (let ((fnode (car fnodelistr)))
                 (if (zerop (fnode-keyword-offset fnode))
-                  ; Funktionsdefinition ist autonom
-                  (push (cons (list fnode) (make-const :horizont ':value :value fnode)) fenv)
+                  ;; function-definition is autonomous
+                  (push (cons (list fnode)
+                              (make-const :horizon ':value :value fnode))
+                        fenv)
                   (progn
                     (push fnode vfnodelist)
                     (push (c-fnode-function fnode) anodelist)
@@ -6847,48 +6333,42 @@ der Docstring (oder NIL).
                     (let ((var (make-var :name (gensym) :specialp nil
                                  :constantp nil
                                  :usedp t :for-value-usedp t :really-usedp nil
-                                 :closurep nil ; später evtl. auf T gesetzt
-                                 :stackz *stackz* :venvc *venvc* :fnode *func*
-                         ))    )
+                                 :closurep nil ; later poss. set to T
+                                 :stackz *stackz* :venvc *venvc*
+                                 :fnode *func*)))
                       (push (cons (list fnode) var) fenv)
-                      (push var varlist)
-            ) ) ) ) )
-          (apply #'push-*venv* varlist) ; Hilfsvariablen aktivieren
-          (let ((body-anode ; restliche Formen compilieren
-                  (c-form `(PROGN ,@(skip-declarations (cddr *form*))))
-               ))
+                      (push var varlist))))))
+          (apply #'push-*venv* varlist) ; activate auxiliary variables
+          (let ((body-anode ; compile remaining forms
+                  (c-form `(PROGN ,@(skip-declarations (cddr *form*))))))
             (unless *no-code*
               (mapc #'(lambda (var fnode)
                         (when (var-really-usedp var)
-                          (propagate-far-used fnode)
-                      ) )
-                    varlist vfnodelist
-            ) )
+                          (propagate-far-used fnode)))
+                    varlist vfnodelist))
             (let* ((closurevars (checking-movable-var-list varlist anodelist))
                    (anode
                      (make-anode
                        :type 'FLET
                        :sub-anodes `(,@anodelist ,body-anode)
                        :seclass (seclass-without
-                                  (anodelist-seclass-or `(,@anodelist ,body-anode))
-                                  varlist
-                                )
-                       :code `(,@(c-make-closure closurevars closuredummy-venvc closuredummy-stackz)
-                               ,@(mapcap #'c-bind-movable-var-anode varlist anodelist)
+                                  (anodelist-seclass-or
+                                   `(,@anodelist ,body-anode))
+                                  varlist)
+                       :code `(,@(c-make-closure closurevars closuredummy-venvc
+                                                 closuredummy-stackz)
+                               ,@(mapcap #'c-bind-movable-var-anode varlist
+                                         anodelist)
                                ,body-anode
-                               (UNWIND ,*stackz* ,oldstackz ,*for-value*)
-                     )        )
-                  ))
+                               (UNWIND ,*stackz* ,oldstackz ,*for-value*)))))
               (when closurevars
-                (setf (first closuredummy-stackz) 1) ; 1 Stackplatz für Dummy
+                (setf (first closuredummy-stackz) 1) ; 1s tack-slot for Dummy
                 (setf (first closuredummy-venvc)
-                  (cons closurevars closuredummy-stackz)
-              ) )
+                  (cons closurevars closuredummy-stackz)))
               (optimize-var-list varlist)
-              anode
-) ) ) ) ) ) )
+              anode)))))))
 
-; compiliere (LABELS ({fundef}*) {form}*)
+;; compile (LABELS ({fundef}*) {form}*)
 (defun c-LABELS ()
   (test-list *form* 2)
   (test-list (second *form*) 0)
@@ -6896,10 +6376,11 @@ der Docstring (oder NIL).
         (*stackz* *stackz*)
         (*venvc* *venvc*)
         (*venv* *venv*))
-    (push 0 *stackz*) (push nil *venvc*) ; Platz für Closure-Dummyvar
+    (push 0 *stackz*) (push nil *venvc*) ; room for Closure-Dummyvar
     (let ((closuredummy-stackz *stackz*)
           (closuredummy-venvc *venvc*))
-      (multiple-value-bind (namelist varlist lambdanamelist lambdabodylist fenvconslist)
+      (multiple-value-bind
+            (namelist varlist lambdanamelist lambdabodylist fenvconslist)
           (do ((fdefsr (second *form*) (cdr fdefsr))
                (L1 '())
                (L2 '())
@@ -6907,134 +6388,120 @@ der Docstring (oder NIL).
                (L4 '())
                (L5 '()))
               ((null fdefsr)
-               (values (nreverse L1) (nreverse L2) (nreverse L3) (nreverse L4) (nreverse L5))
-              )
+               (values (nreverse L1) (nreverse L2) (nreverse L3)
+                       (nreverse L4) (nreverse L5)))
             (let ((fdef (car fdefsr)))
-              (if (and (consp fdef) (function-name-p (car fdef)) (consp (cdr fdef)))
+              (if (and (consp fdef) (function-name-p (car fdef))
+                       (consp (cdr fdef)))
                 (let ((name (car fdef)))
                   (push name L1)
                   (push 1 *stackz*)
                   (push (make-var :name (gensym) :specialp nil
                                   :constantp nil
                                   :usedp t :for-value-usedp t :really-usedp nil
-                                  :closurep nil ; später evtl. auf T gesetzt
-                                  :stackz *stackz* :venvc *venvc* :fnode *func*
-                        )
-                        L2
-                  )
+                                  :closurep nil ; later poss. set to T
+                                  :stackz *stackz* :venvc *venvc*
+                                  :fnode *func*)
+                        L2)
                   (push (symbol-suffix (fnode-name *func*) name) L3)
                   (push (cdr fdef) L4)
                   (push
                     (cons
-                      ; fdescr, bestehend aus:
-                      (cons nil ; Platz für den FNODE
+                      ;; fdescr, consisting of:
+                      (cons nil ; room for the FNODE
                         (cons 'LABELS
-                          (multiple-value-list ; Werten von analyze-lambdalist
-                            (analyze-lambdalist (cadr fdef))
-                      ) ) )
-                      ; Variable
-                      (car L2)
-                    )
-                    L5
-                ) )
-                (err-syntax 'LABELS fdef)
-          ) ) )
-        ; namelist = Liste der Namen, varlist = Liste der Variablen,
-        ; lambdanamelist = Liste der Dummynamen der Funktionen,
-        ; lambdabodylist = Liste der Lambdabodys der Funktionen,
-        ; fenvconslist = Liste der Conses (fdescr . var) für *fenv*
-        ; (jeweils fdescr noch ohne den fnode, der kommt erst später hinein).
-        (let ((*fenv* ; Funktionsnamen aktivieren
+                          (multiple-value-list ; values from analyze-lambdalist
+                            (analyze-lambdalist (cadr fdef)))))
+                      ;; Variable
+                      (car L2))
+                    L5))
+                (err-syntax 'LABELS fdef))))
+        ;; namelist = list of names, varlist = list of variables,
+        ;; lambdanamelist = list of Dummy-names of the functions,
+        ;; lambdabodylist = list of Lambda-bodies of the functions,
+        ;; fenvconslist = list of Conses (fdescr . var) for *fenv*
+        ;; (fdescr still without fnode, which is inserted later).
+        (let ((*fenv* ; activate function-name
                 (do ((namelistr namelist (cdr namelistr))
                      (fenvconslistr fenvconslist (cdr fenvconslistr))
                      (L nil))
                     ((null namelistr)
                      (push *fenv* L)
-                     (apply #'vector (nreverse L))
-                    )
+                     (apply #'vector (nreverse L)))
                   (push (car namelistr) L)
-                  (push (car fenvconslistr) L)
-             )) )
-          (apply #'push-*venv* varlist) ; Hilfsvariablen aktivieren
-          (let* ((fnodelist ; Funktionen compilieren
+                  (push (car fenvconslistr) L))))
+          (apply #'push-*venv* varlist) ; activate auxiliary variables
+          (let* ((fnodelist ; compile functions
                    (mapcar #'(lambda (name lambdaname lambdabody fenvcons)
                                (c-lambdabody
                                  lambdaname
                                  (cons (car lambdabody)
-                                       (add-implicit-block name (cdr lambdabody))
-                                 )
-                                 fenvcons
-                             ) )
-                           namelist lambdanamelist lambdabodylist fenvconslist
-                 ) )
+                                       (add-implicit-block
+                                        name (cdr lambdabody)))
+                                 fenvcons))
+                           namelist lambdanamelist lambdabodylist
+                           fenvconslist))
                  (anodelist
                    (mapcar #'(lambda (fnode var)
-                               (c-fnode-function fnode (cdr (var-stackz var)))
-                             )
-                           fnodelist varlist
-                 ) )
-                 (body-anode ; restliche Formen compilieren
-                   (c-form `(PROGN ,@(skip-declarations (cddr *form*))))
-                ))
-            ; Die Variablen, zu denen die Funktion autonom war, werden nach-
-            ; träglich zu Konstanten erklärt:
+                               (c-fnode-function fnode (cdr (var-stackz var))))
+                           fnodelist varlist))
+                 (body-anode ; compile remaining forms
+                   (c-form `(PROGN ,@(skip-declarations (cddr *form*))))))
+            ;; the variables, for which the function was autonomous, are
+            ;; additionally declared as constants:
             (do ((varlistr varlist (cdr varlistr))
                  (fnodelistr fnodelist (cdr fnodelistr)))
                 ((null varlistr))
               (let ((var (car varlistr))
                     (fnode (car fnodelistr)))
                 (when (zerop (fnode-keyword-offset fnode))
-                  ; Funktionsdefinition ist autonom
+                  ;; function-definition is autonomous
                   (setf (var-constantp var) t)
-                  (setf (var-constant var) (new-const fnode))
-            ) ) )
-            ; Determine the functions which are really used.
-            ; Functions with closure variables can pull in other functions.
+                  (setf (var-constant var) (new-const fnode)))))
+            ;; Determine the functions which are really used.
+            ;; Functions with closure variables can pull in other functions.
             (unless *no-code*
               (let ((last-count 0))
                 (loop
-                  ; Iterate as long as at least one function has been pulled in.
+                  ;; Iterate as long as at least one function has been
+                  ;; pulled in.
                   (when (eql last-count
-                             (setq last-count (count-if #'var-really-usedp varlist))
-                        )
-                    (return)
-                  )
+                             (setq last-count (count-if #'var-really-usedp
+                                                        varlist)))
+                    (return))
                   (do ((varlistr varlist (cdr varlistr))
                        (fnodelistr fnodelist (cdr fnodelistr)))
                       ((null varlistr))
                     (let ((var (car varlistr))
                           (fnode (car fnodelistr)))
                       (unless (zerop (fnode-keyword-offset fnode))
-                        ; function with closure variables
+                        ;; function with closure variables
                         (when (var-really-usedp var)
-                          (propagate-far-used fnode)
-                  ) ) ) )
-            ) ) )
+                          (propagate-far-used fnode))))))))
             (let* ((closurevars (checking-movable-var-list varlist anodelist))
                    (anode
                      (make-anode
                        :type 'LABELS
                        :sub-anodes `(,@anodelist ,body-anode)
                        :seclass (seclass-without
-                                  (anodelist-seclass-or `(,@anodelist ,body-anode))
-                                  varlist
-                                )
-                       :code `(,@(c-make-closure closurevars closuredummy-venvc closuredummy-stackz)
-                               ,@(mapcap #'c-bind-movable-var-anode varlist anodelist)
+                                  (anodelist-seclass-or
+                                   `(,@anodelist ,body-anode))
+                                  varlist)
+                       :code `(,@(c-make-closure closurevars closuredummy-venvc
+                                                 closuredummy-stackz)
+                               ,@(mapcap #'c-bind-movable-var-anode varlist
+                                         anodelist)
                                ,body-anode
-                               (UNWIND ,*stackz* ,oldstackz ,*for-value*)
-                     )        )
-                  ))
+                               (UNWIND ,*stackz* ,oldstackz ,*for-value*)))))
               (when closurevars
-                (setf (first closuredummy-stackz) 1) ; 1 Stackplatz für Dummy
+                (setf (first closuredummy-stackz) 1) ; 1 stack-slot for Dummy
                 (setf (first closuredummy-venvc)
-                  (cons closurevars closuredummy-stackz)
-              ) )
+                  (cons closurevars closuredummy-stackz)))
               (optimize-var-list varlist)
-              anode
-) ) ) ) ) ) )
+              anode)))))))
 
-; compiliere (SYSTEM::FUNCTION-MACRO-LET ({(name fun-lambdabody macro-lambdabody)}) {form})
+;; compile
+;; (SYS::FUNCTION-MACRO-LET ({(name fun-lambdabody macro-lambdabody)}) {form})
 (defun c-FUNCTION-MACRO-LET ()
   (test-list *form* 2)
   (test-list (second *form*) 0)
@@ -7043,33 +6510,31 @@ der Docstring (oder NIL).
            (L1 '())
            (L2 '())
            (L3 '()))
-          ((null funmacdefsr) (values (nreverse L1) (nreverse L2) (nreverse L3)))
+          ((null funmacdefsr)
+           (values (nreverse L1) (nreverse L2) (nreverse L3)))
         (let ((funmacdef (car funmacdefsr)))
           (if (and (consp funmacdef)
                    (symbolp (car funmacdef))
                    (consp (cdr funmacdef)) (consp (second funmacdef))
                    (consp (cddr funmacdef)) (consp (third funmacdef))
-                   (null (cdddr funmacdef))
-              )
+                   (null (cdddr funmacdef)))
             (let* ((name (car funmacdef))
                    (fnode (c-lambdabody
                             (symbol-suffix (fnode-name *func*) name)
-                            (second funmacdef)
-                   )      )
+                            (second funmacdef)))
                    (macro (make-macro-expander (cons name (third funmacdef)))))
               (push name L1)
               (push fnode L2)
-              (push macro L3)
-            )
-            (err-syntax 'SYSTEM::FUNCTION-MACRO-LET funmacdef)
-      ) ) )
-    ; namelist = Liste der Namen, fnodelist = Liste der fnodes der Funktionen,
-    ; macrolist = Liste der Macro-Objekte der Funktionen.
+              (push macro L3))
+            (err-syntax 'SYSTEM::FUNCTION-MACRO-LET funmacdef))))
+    ;; namelist  = list of names,
+    ;; fnodelist = list of fnodes of the functions,
+    ;; macrolist = list of Macro-Objects of the functions.
     (let ((oldstackz *stackz*)
           (*stackz* *stackz*)
           (*venvc* *venvc*)
           (*venv* *venv*))
-      (push 0 *stackz*) (push nil *venvc*) ; Platz für Closure-Dummyvar
+      (push 0 *stackz*) (push nil *venvc*) ; room for Closure-Dummyvar
       (let ((closuredummy-stackz *stackz*)
             (closuredummy-venvc *venvc*))
         (multiple-value-bind (vfnodelist varlist anodelist *fenv*)
@@ -7081,15 +6546,17 @@ der Docstring (oder NIL).
                  (anodelist '())
                  (fenv '()))
                 ((null namelistr)
-                 (values (nreverse vfnodelist) (nreverse varlist) (nreverse anodelist)
-                         (apply #'vector (nreverse (cons *fenv* fenv)))
-                ))
+                 (values (nreverse vfnodelist) (nreverse varlist)
+                         (nreverse anodelist)
+                         (apply #'vector (nreverse (cons *fenv* fenv)))))
               (push (car namelistr) fenv)
               (let ((fnode (car fnodelistr))
                     (macro (car macrolistr)))
                 (if (zerop (fnode-keyword-offset fnode))
-                  ; Funktionsdefinition ist autonom
-                  (push (cons macro (cons (list fnode) (make-const :horizont ':value :value fnode))) fenv)
+                  ;; function-definition is autonomous
+                  (push (cons macro (cons (list fnode)
+                                          (make-const :horizon ':value
+                                                      :value fnode))) fenv)
                   (progn
                     (push fnode vfnodelist)
                     (push (c-fnode-function fnode) anodelist)
@@ -7097,48 +6564,42 @@ der Docstring (oder NIL).
                     (let ((var (make-var :name (gensym) :specialp nil
                                  :constantp nil
                                  :usedp t :for-value-usedp t :really-usedp nil
-                                 :closurep nil ; später evtl. auf T gesetzt
-                                 :stackz *stackz* :venvc *venvc* :fnode *func*
-                         ))    )
+                                 :closurep nil ; later poss. set to T
+                                 :stackz *stackz* :venvc *venvc*
+                                 :fnode *func*)))
                       (push (cons macro (cons (list fnode) var)) fenv)
-                      (push var varlist)
-            ) ) ) ) )
-          (apply #'push-*venv* varlist) ; Hilfsvariablen aktivieren
-          (let ((body-anode ; restliche Formen compilieren
-                  (c-form `(PROGN ,@(cddr *form*)))
-               ))
+                      (push var varlist))))))
+          (apply #'push-*venv* varlist) ; activate auxiliary variables
+          (let ((body-anode ; compile remaining forms
+                  (c-form `(PROGN ,@(cddr *form*)))))
             (unless *no-code*
               (mapc #'(lambda (var fnode)
                         (when (var-really-usedp var)
-                          (propagate-far-used fnode)
-                      ) )
-                    varlist vfnodelist
-            ) )
+                          (propagate-far-used fnode)))
+                    varlist vfnodelist))
             (let* ((closurevars (checking-movable-var-list varlist anodelist))
                    (anode
                      (make-anode
                        :type 'FUNCTION-MACRO-LET
                        :sub-anodes `(,@anodelist ,body-anode)
                        :seclass (seclass-without
-                                  (anodelist-seclass-or `(,@anodelist ,body-anode))
-                                  varlist
-                                )
-                       :code `(,@(c-make-closure closurevars closuredummy-venvc closuredummy-stackz)
-                               ,@(mapcap #'c-bind-movable-var-anode varlist anodelist)
+                                  (anodelist-seclass-or
+                                   `(,@anodelist ,body-anode))
+                                  varlist)
+                       :code `(,@(c-make-closure closurevars closuredummy-venvc
+                                                 closuredummy-stackz)
+                               ,@(mapcap #'c-bind-movable-var-anode varlist
+                                         anodelist)
                                ,body-anode
-                               (UNWIND ,*stackz* ,oldstackz ,*for-value*)
-                     )        )
-                  ))
+                               (UNWIND ,*stackz* ,oldstackz ,*for-value*)))))
               (when closurevars
-                (setf (first closuredummy-stackz) 1) ; 1 Stackplatz für Dummy
+                (setf (first closuredummy-stackz) 1) ; 1 stack-slot for Dummy
                 (setf (first closuredummy-venvc)
-                  (cons closurevars closuredummy-stackz)
-              ) )
+                  (cons closurevars closuredummy-stackz)))
               (optimize-var-list varlist)
-              anode
-) ) ) ) ) ) )
+              anode)))))))
 
-; compiliere (CLOS:GENERIC-FLET ({genfundefs}*) {form}*)
+;; compile (CLOS:GENERIC-FLET ({genfundefs}*) {form}*)
 (defun c-GENERIC-FLET ()
   (test-list *form* 2)
   (test-list (second *form*) 0)
@@ -7149,27 +6610,25 @@ der Docstring (oder NIL).
            (L3 '()))
           ((null fdefsr) (values (nreverse L1) (nreverse L2) (nreverse L3)))
         (let ((fdef (car fdefsr)))
-          (if (and (consp fdef) (function-name-p (car fdef)) (consp (cdr fdef)))
+          (if (and (consp fdef) (function-name-p (car fdef))
+                   (consp (cdr fdef)))
             (let ((name (first fdef)))
               (push name L1)
-              (push (clos::defgeneric-lambdalist-callinfo 'clos:generic-flet name (second fdef))
-                    L2
-              )
+              (push (clos::defgeneric-lambdalist-callinfo 'clos:generic-flet
+                        name (second fdef))
+                    L2)
               (push (clos::make-generic-function-form 'clos:generic-flet
-                      name (second fdef) (cddr fdef) (env)
-                    )
-                    L3
-            ) )
-            (err-syntax 'CLOS:GENERIC-FLET fdef)
-      ) ) )
-    ; namelist = Liste der Namen,
-    ; signlist = Liste der Signaturen der generischen Funktionen,
-    ; formlist = Liste der Konstruktor-Formen der generischen Funktionen.
+                      name (second fdef) (cddr fdef) (env))
+                    L3))
+            (err-syntax 'CLOS:GENERIC-FLET fdef))))
+    ;; namelist = list of Names,
+    ;; signlist = list of Signatures of the generic functions,
+    ;; formlist = list of Constructor-forms of the generic functions.
     (let ((oldstackz *stackz*)
           (*stackz* *stackz*)
           (*venvc* *venvc*)
           (*venv* *venv*))
-      (push 0 *stackz*) (push nil *venvc*) ; Platz für Closure-Dummyvar
+      (push 0 *stackz*) (push nil *venvc*) ; room for Closure-Dummyvar
       (let ((closuredummy-stackz *stackz*)
             (closuredummy-venvc *venvc*))
         (multiple-value-bind (varlist anodelist *fenv*)
@@ -7181,49 +6640,43 @@ der Docstring (oder NIL).
                  (fenv '()))
                 ((null namelistr)
                  (values (nreverse varlist) (nreverse anodelist)
-                         (apply #'vector (nreverse (cons *fenv* fenv)))
-                ))
+                         (apply #'vector (nreverse (cons *fenv* fenv)))))
               (push (car namelistr) fenv)
               (push (c-form (car formlistr) 'ONE) anodelist)
               (push 1 *stackz*)
               (let ((var (make-var :name (gensym) :specialp nil
                            :constantp nil
                            :usedp t :for-value-usedp t :really-usedp nil
-                           :closurep nil ; später evtl. auf T gesetzt
-                           :stackz *stackz* :venvc *venvc* :fnode *func*
-                   ))    )
+                           :closurep nil ; later poss. set to T
+                           :stackz *stackz* :venvc *venvc* :fnode *func*)))
                 (push (cons (list* nil 'GENERIC (car signlistr)) var) fenv)
-                (push var varlist)
-            ) )
-          (apply #'push-*venv* varlist) ; Hilfsvariablen aktivieren
-          (let* ((body-anode ; restliche Formen compilieren
-                   (c-form `(PROGN ,@(cddr *form*)))
-                 )
+                (push var varlist)))
+          (apply #'push-*venv* varlist) ; activate auxiliary variables
+          (let* ((body-anode ; compile remaining forms
+                   (c-form `(PROGN ,@(cddr *form*))))
                  (closurevars (checking-movable-var-list varlist anodelist))
                  (anode
                    (make-anode
                      :type 'CLOS:GENERIC-FLET
                      :sub-anodes `(,@anodelist ,body-anode)
                      :seclass (seclass-without
-                                (anodelist-seclass-or `(,@anodelist ,body-anode))
-                                varlist
-                              )
-                     :code `(,@(c-make-closure closurevars closuredummy-venvc closuredummy-stackz)
-                             ,@(mapcap #'c-bind-movable-var-anode varlist anodelist)
+                                (anodelist-seclass-or
+                                 `(,@anodelist ,body-anode))
+                                varlist)
+                     :code `(,@(c-make-closure closurevars closuredummy-venvc
+                                               closuredummy-stackz)
+                             ,@(mapcap #'c-bind-movable-var-anode varlist
+                                       anodelist)
                              ,body-anode
-                             (UNWIND ,*stackz* ,oldstackz ,*for-value*)
-                   )        )
-                ))
+                             (UNWIND ,*stackz* ,oldstackz ,*for-value*)))))
             (when closurevars
-              (setf (first closuredummy-stackz) 1) ; 1 Stackplatz für Dummy
+              (setf (first closuredummy-stackz) 1) ; 1 stack-slot for Dummy
               (setf (first closuredummy-venvc)
-                (cons closurevars closuredummy-stackz)
-            ) )
+                (cons closurevars closuredummy-stackz)))
             (optimize-var-list varlist)
-            anode
-) ) ) ) ) )
+            anode))))))
 
-; compiliere (CLOS:GENERIC-LABELS ({genfundefs}*) {form}*)
+;; compile (CLOS:GENERIC-LABELS ({genfundefs}*) {form}*)
 (defun c-GENERIC-LABELS ()
   (test-list *form* 2)
   (test-list (second *form*) 0)
@@ -7231,7 +6684,7 @@ der Docstring (oder NIL).
         (*stackz* *stackz*)
         (*venvc* *venvc*)
         (*venv* *venv*))
-    (push 0 *stackz*) (push nil *venvc*) ; Platz für Closure-Dummyvar
+    (push 0 *stackz*) (push nil *venvc*) ; room for Closure-Dummyvar
     (let ((closuredummy-stackz *stackz*)
           (closuredummy-venvc *venvc*))
       (multiple-value-bind (namelist varlist fenvconslist formlist)
@@ -7241,86 +6694,75 @@ der Docstring (oder NIL).
                (L3 '())
                (L4 '()))
               ((null fdefsr)
-               (values (nreverse L1) (nreverse L2) (nreverse L3) (nreverse L4))
-              )
+               (values (nreverse L1) (nreverse L2) (nreverse L3)
+                       (nreverse L4)))
             (let ((fdef (car fdefsr)))
-              (if (and (consp fdef) (function-name-p (car fdef)) (consp (cdr fdef)))
+              (if (and (consp fdef) (function-name-p (car fdef))
+                       (consp (cdr fdef)))
                 (let ((name (first fdef)))
                   (push name L1)
                   (push 1 *stackz*)
                   (push (make-var :name (gensym) :specialp nil
                                   :constantp nil
                                   :usedp t :for-value-usedp t :really-usedp nil
-                                  :closurep nil ; später evtl. auf T gesetzt
-                                  :stackz *stackz* :venvc *venvc* :fnode *func*
-                        )
-                        L2
-                  )
+                                  :closurep nil ; later poss. set to T
+                                  :stackz *stackz* :venvc *venvc*
+                                  :fnode *func*)
+                        L2)
                   (push (cons
-                          ; fdescr
+                          ;; fdescr
                           (list* nil 'GENERIC
-                                 (clos::defgeneric-lambdalist-callinfo 'clos:generic-labels name (second fdef))
-                          )
-                          ; Variable
-                          (car L2)
-                        )
-                        L3
-                  )
+                                 (clos::defgeneric-lambdalist-callinfo
+                                     'clos:generic-labels name (second fdef)))
+                          ;; Variable
+                          (car L2))
+                        L3)
                   (push (clos::make-generic-function-form 'clos:generic-labels
-                          name (second fdef) (cddr fdef) (env)
-                        )
-                        L4
-                ) )
-                (err-syntax 'CLOS:GENERIC-LABELS fdef)
-          ) ) )
-        ; namelist = Liste der Namen, varlist = Liste der Variablen,
-        ; fenvconslist = Liste der Conses (fdescr . var) für *fenv*,
-        ; formlist = Liste der Konstruktor-Formen der generischen Funktionen.
-        (let ((*fenv* ; Funktionsnamen aktivieren
+                          name (second fdef) (cddr fdef) (env))
+                        L4))
+                (err-syntax 'CLOS:GENERIC-LABELS fdef))))
+        ;; namelist = liste of Names, varlist = list of Variables,
+        ;; fenvconslist = list of Conses (fdescr . var) for *fenv*,
+        ;; formlist = list of Constructor-Forms of the generic functions.
+        (let ((*fenv* ; activate function-names
                 (do ((namelistr namelist (cdr namelistr))
                      (fenvconslistr fenvconslist (cdr fenvconslistr))
                      (L nil))
                     ((null namelistr)
                      (push *fenv* L)
-                     (apply #'vector (nreverse L))
-                    )
+                     (apply #'vector (nreverse L)))
                   (push (car namelistr) L)
-                  (push (car fenvconslistr) L)
-             )) )
-          (apply #'push-*venv* varlist) ; Hilfsvariablen aktivieren
+                  (push (car fenvconslistr) L))))
+          (apply #'push-*venv* varlist) ; activate auxiliary variables
           (let* ((anodelist
-                   (mapcar #'(lambda (form) (c-form form 'ONE)) formlist)
-                 )
-                 (body-anode ; restliche Formen compilieren
-                   (c-form `(PROGN ,@(cddr *form*)))
-                 )
+                   (mapcar #'(lambda (form) (c-form form 'ONE)) formlist))
+                 (body-anode ; compile remaining forms
+                   (c-form `(PROGN ,@(cddr *form*))))
                  (closurevars (checking-movable-var-list varlist anodelist))
                  (anode
                    (make-anode
                      :type 'CLOS:GENERIC-LABELS
                      :sub-anodes `(,@anodelist ,body-anode)
                      :seclass (seclass-without
-                                (anodelist-seclass-or `(,@anodelist ,body-anode))
-                                varlist
-                              )
-                     :code `(,@(c-make-closure closurevars closuredummy-venvc closuredummy-stackz)
-                             ,@(mapcap #'c-bind-movable-var-anode varlist anodelist)
+                                (anodelist-seclass-or
+                                 `(,@anodelist ,body-anode))
+                                varlist)
+                     :code `(,@(c-make-closure closurevars closuredummy-venvc
+                                               closuredummy-stackz)
+                             ,@(mapcap #'c-bind-movable-var-anode varlist
+                                       anodelist)
                              ,body-anode
-                             (UNWIND ,*stackz* ,oldstackz ,*for-value*)
-                   )        )
-                ))
+                             (UNWIND ,*stackz* ,oldstackz ,*for-value*)))))
             (when closurevars
-              (setf (first closuredummy-stackz) 1) ; 1 Stackplatz für Dummy
+              (setf (first closuredummy-stackz) 1) ; 1 stack-slot for Dummy
               (setf (first closuredummy-venvc)
-                (cons closurevars closuredummy-stackz)
-            ) )
+                (cons closurevars closuredummy-stackz)))
             (optimize-var-list varlist)
-            anode
-) ) ) ) ) )
+            anode))))))
 
 ) ; macrolet
 
-; compiliere (MACROLET ({macrodef}*) {form}*)
+;; compile (MACROLET ({macrodef}*) {form}*)
 (defun c-MACROLET (&optional (c #'c-form))
   (test-list *form* 2)
   (test-list (second *form*) 0)
@@ -7328,17 +6770,15 @@ der Docstring (oder NIL).
        (L2 '()))
       ((null L1)
        (push *fenv* L2)
-       (let ((*fenv* (apply #'vector (nreverse L2)))) ; *fenv* erweitern
+       (let ((*fenv* (apply #'vector (nreverse L2)))) ; extend *fenv*
          ;; compile the remaining forms:
          (funcall c `(PROGN ,@(skip-declarations (cddr *form*))))))
     (let* ((macrodef (car L1))
            (name (car macrodef)))
       (push name L2)
-      (push (make-macro-expander macrodef) L2)
-  ) )
-)
+      (push (make-macro-expander macrodef) L2))))
 
-; compiliere (SYMBOL-MACROLET ({symdef}*) {declaration}* {form}*)
+;; compile (SYMBOL-MACROLET ({symdef}*) {declaration}* {form}*)
 (defun c-SYMBOL-MACROLET (&optional (c #'c-form))
   (test-list *form* 2)
   (test-list (second *form*) 0)
@@ -7379,7 +6819,7 @@ der Docstring (oder NIL).
                              'symbol-macrolet symbol))))
           (funcall c `(PROGN ,@body-rest)))))))
 
-; compiliere (EVAL-WHEN ({situation}*) {form}*)
+;; compile (EVAL-WHEN ({situation}*) {form}*)
 (defun c-EVAL-WHEN (&optional (c #'c-form))
   (test-list *form* 2)
   (test-list (second *form*) 0)
@@ -7397,41 +6837,36 @@ der Docstring (oder NIL).
                       (equal situation '(NOT :COMPILE-TOPLEVEL)))
                   (setq load-flag t))
                  (t (c-error (ENGLISH "EVAL-WHEN situation must be EVAL or LOAD or COMPILE, but not ~S")
-                             situation
-    ) ) )  )     )  )
+                             situation))))))
     (let ((form `(PROGN ,@(cddr *form*))))
       (if compile-flag
-        (c-eval-when-compile form) ; ausführen und ins Lib-File schreiben
+        (c-eval-when-compile form) ; execute and write into Lib-File
         (if compile-once-only
-          (eval form) ; nur jetzt ausführen, nicht ins Lib-File schreiben
-      ) )
-      (funcall c (if load-flag form 'NIL))
-) ) )
+          (eval form))) ; execute only now, do not write into Lib-File
+      (funcall c (if load-flag form 'NIL)))))
 
-; compiliere (COND {clause}*)
+;; compile (COND {clause}*)
 (defun c-COND ()
   (test-list *form* 1)
   (c-form
-    (let ((clauses (cdr *form*))) ; (COND . clauses) macroexpandieren
+    (let ((clauses (cdr *form*))) ; macroexpand (COND . clauses)
       (if (null clauses)
         'NIL
         (let ((clause (car clauses)))
           (if (atom clause)
             (c-error (ENGLISH "COND clause without test: ~S")
-                     clause
-            )
+                     clause)
             (let ((test (car clause)))
               (if (cdr clause)
                 `(IF ,test (PROGN ,@(cdr clause)) (COND ,@(cdr clauses)))
-                `(OR ,test (COND ,@(cdr clauses)))
-) ) ) ) ) ) ) )
+                `(OR ,test (COND ,@(cdr clauses)))))))))))
 
-; compiliere (CASE keyform {clause}*)
+;; compile (CASE keyform {clause}*)
 (defun c-CASE ()
   (test-list *form* 1)
   (let ((keyform (second *form*))
         (clauses (cddr *form*))
-        ; clauses vereinfachen:
+        ;; simplify clauses:
         (newclauses '())
         (allkeys '()))
     (let ((default-passed nil))
@@ -7440,10 +6875,9 @@ der Docstring (oder NIL).
         (let ((clause (pop clauses)))
           (if (atom clause)
             (c-error (ENGLISH "CASE clause without objects: ~S")
-                     clause
-            )
+                     clause)
             (let ((keys (car clause)))
-              (if default-passed ; war der Default schon da?
+              (if default-passed ; was the Default already there?
                 (setq keys nil)
                 (if (or (eq keys 'T) (eq keys 'OTHERWISE))
                   (progn
@@ -7452,26 +6886,22 @@ der Docstring (oder NIL).
                        (ENGLISH "~S: the ~S clause must be the last one: ~S")
                        'case keys *form*))
                     (setq keys 'T)
-                    (setq default-passed t)
-                  )
+                    (setq default-passed t))
                   (let ((newkeys '()))
                     (dolist (key (if (listp keys) keys (list keys)))
                       (if (not (member key allkeys :test #'eql)) ; remove-duplicates
                         (progn (push key allkeys) (push key newkeys))
                         (c-style-warn (ENGLISH "Duplicate ~S label ~S : ~S")
-                                      'case key *form*
-                    ) ) )
-                    (setq keys (nreverse newkeys))
-              ) ) )
-              (push (cons keys (cdr clause)) newclauses)
-      ) ) ) )
+                                      'case key *form*)))
+                    (setq keys (nreverse newkeys)))))
+              (push (cons keys (cdr clause)) newclauses)))))
       (unless default-passed (push '(T NIL) newclauses))
       (setq newclauses (nreverse newclauses))
       (setq allkeys (nreverse allkeys))
     )
-    ; newclauses enthält jetzt keine doppelten keys, genau einmal T als keys,
-    ; und allkeys ist die Menge aller Keys.
-    (if (<= (length allkeys) 2) ; wenige Keys -> direkt EQL verwenden
+    ;; newclauses now contains no double keys, T as keys exactly once,
+    ;; and allkeys is the set of all Keys.
+    (if (<= (length allkeys) 2) ; few Keys -> use EQL directly
       (let ((keyvar (gensym)))
         (labels ((ifify (clauses)
                    (if (null clauses)
@@ -7480,46 +6910,38 @@ der Docstring (oder NIL).
                              (if (listp keys)
                                `(OR ,@(mapcar
                                         #'(lambda (key) `(EQL ,keyvar ',key))
-                                        keys
-                                )     )
-                               'T ; keys = T, der Default-Fall
-                           ) )
+                                        keys))
+                               'T)) ; keys = T, the Default-Case
                         (PROGN ,@(cdar clauses))
-                        ,(ifify (cdr clauses))
-                      )
-                )) )
+                        ,(ifify (cdr clauses))))))
           (c-form
-            `(LET ((,keyvar ,keyform)) (PROGN ,keyvar ,(ifify newclauses)))
-      ) ) )
+            `(LET ((,keyvar ,keyform)) (PROGN ,keyvar ,(ifify newclauses))))))
       (let ((keyform-anode (c-form keyform 'ONE))
             (default-anode nil)
-            (cases '())) ; Liste von Tripeln (keylist label anode)
+            (cases '())) ; list of Triples (keylist label anode)
         (dolist (clause newclauses)
           (if (car clause)
             (let ((anode (c-form `(PROGN ,@(cdr clause)))))
               (if (atom (car clause))
                 (setq default-anode anode)
-                (push (list (car clause) (make-label 'NIL) anode) cases)
-            ) )
-            (let ((*no-code* t)) (c-form `(PROGN ,@(cdr clause)) 'NIL))
-        ) )
+                (push (list (car clause) (make-label 'NIL) anode) cases)))
+            (let ((*no-code* t)) (c-form `(PROGN ,@(cdr clause)) 'NIL))))
         (setq cases (nreverse cases))
         (if (anode-constantp keyform-anode)
           (let ((value (anode-constant-value keyform-anode)))
             (dolist (case cases default-anode)
               (when (member value (first case) :test #'eql)
-                (return (third case))
-          ) ) )
+                (return (third case)))))
           (let ((default-label (make-label 'NIL))
                 (end-label (make-label *for-value*))
                 (test (if (every #'EQL=EQ allkeys) 'EQ 'EQL)))
             (make-anode
               :type 'CASE
-              :sub-anodes `(,keyform-anode ,@(mapcar #'third cases) ,default-anode)
+              :sub-anodes `(,keyform-anode ,@(mapcar #'third cases)
+                            ,default-anode)
               :seclass
                 (anodelist-seclass-or
-                  `(,keyform-anode ,@(mapcar #'third cases) ,default-anode)
-                )
+                  `(,keyform-anode ,@(mapcar #'third cases) ,default-anode))
               :code
                 `(,keyform-anode
                   (JMPHASH
@@ -7528,31 +6950,22 @@ der Docstring (oder NIL).
                        #'(lambda (case)
                            (let ((label (second case)))
                              (mapcar #'(lambda (obj) (cons obj label))
-                                     (first case)
-                         ) ) )
-                       cases
-                     )
+                                     (first case))))
+                       cases)
                     ,default-label
-                    ,@(mapcar #'second cases) ; alle Labels, ohne Doppelte
-                  )
+                    ,@(mapcar #'second cases)) ; all Labels, without doubles
                   ,@(mapcap
                       #'(lambda (case)
                           `(,(second case) ; Label
                             ,(third case) ; Anode
-                            (JMP ,end-label)
-                           )
-                        )
-                      cases
-                    )
+                            (JMP ,end-label)))
+                      cases)
                   ,default-label
                   ,default-anode
-                  ,end-label
-                 )
-          ) )
-) ) ) ) )
+                  ,end-label))))))))
 
 
-;;;             FIRST PASS :   M A C R O S
+;;;;****             FIRST PASS :    MACROS
 
 ;;; compile   (HANDLER-BIND ({(typespec handler)}*) {form}*)
 ;;; and (SYS::%HANDLER-BIND ({(typespec handler)}*) {form}*)
@@ -7625,17 +7038,15 @@ der Docstring (oder NIL).
             :sub-anodes `(,body-anode ,@handler-anodes)
             :seclass (anodelist-seclass-or `(,body-anode ,@handler-anodes))
             :stackz oldstackz
-            :code `((HANDLER-OPEN ,(new-const (coerce types 'vector)) ,*stackz* ,@handler-labels)
+            :code `((HANDLER-OPEN ,(new-const (coerce types 'vector))
+                     ,*stackz* ,@handler-labels)
                     (JMP ,label)
                     ,@handler-anodes
                     ,label
                     ,body-anode
-                    (UNWIND ,*stackz* ,oldstackz ,*for-value*)
-                   )
-    ) ) ) )
-) )
+                    (UNWIND ,*stackz* ,oldstackz ,*for-value*))))))))
 
-; compiliere (SYS::CONSTANT-EQL form1 form2 form3)
+;; compile (SYS::CONSTANT-EQL form1 form2 form3)
 (defun c-CONSTANT-EQL ()
   (test-list *form* 4 4)
   (let ((form1 (second *form*))
@@ -7643,23 +7054,21 @@ der Docstring (oder NIL).
     (if (and *compiling-from-file*
              (c-constantp form1)
              (let ((value (c-constant-value form1)))
-               (or (stringp value) (bit-vector-p value))
-        )    )
+               (or (stringp value) (bit-vector-p value))))
       (c-form `(SYS::LOOSE-CONSTANT-EQL ,@form23))
-      (c-form `(EQL ,@form23))
-) ) )
+      (c-form `(EQL ,@form23)))))
 
 
-;   ERSTER PASS :   I N L I N E - F U N K T I O N E N   (PRIMOPS)
+;;;;****   FIRST PASS :   INLINE   FUNCTIONS   (PRIMOPS)
 
-; Funktionsaufrufe, die wie special forms behandelt werden:
+;; function-calls, that are treated like special forms:
 
-; Erst FUNCALL bzw. SYS::%FUNCALL.
+;; First FUNCALL resp. SYS::%FUNCALL.
 
-; (c-FUNCALL-NOTINLINE funform args) compiliert einen Funktionsaufruf
-; (SYS::%FUNCALL funform . args),
-; für den das STACK-Layout der Argumente nicht zur Compile-Zeit bestimmt
-; werden kann.
+;; (c-FUNCALL-NOTINLINE funform args) compiles a function-call
+;; (SYS::%FUNCALL funform . args),
+;; for which the STACK-Layout of the arguments cannot be determined
+;; at compile-time.
 (defun c-FUNCALL-NOTINLINE (funform args)
   (test-list args 0)
   (let* ((anode1 (c-form funform 'ONE))
@@ -7673,22 +7082,19 @@ der Docstring (oder NIL).
            :type 'FUNCALL
            :sub-anodes (nreverse anodelist)
            :seclass '(T . T)
-           :code (nreverse codelist)
-        ))
+           :code (nreverse codelist)))
       (let ((anode (c-form (car formlistr) 'ONE)))
         #+COMPILER-DEBUG (push anode anodelist)
-        (push anode codelist)
-      )
+        (push anode codelist))
       (push '(PUSH) codelist)
-      (push 1 *stackz*)
-) ) )
+      (push 1 *stackz*))))
 
-; (c-FUNCALL-INLINE funform args applyargs lambdabody sameenv) compiliert einen
-; Funktionsaufruf (SYS::%FUNCALL funform . args) bzw.
-; (APPLY funform . args applyargs) [applyargs eine Liste aus einer Form],
-; für den das STACK-Layout der Argumente zur Compile-Zeit bestimmt werden kann.
-; sameenv gibt an, ob lambdabody im selben Environment oder im
-; Top-Level-Environment zu betrachten ist.
+;; (c-FUNCALL-INLINE funform args applyargs lambdabody sameenv) compiles a
+;; function-call (SYS::%FUNCALL funform . args) resp.
+;; (APPLY funform . args applyargs) [applyargs a list out of a form],
+;; for which the STACK-Layout of the arguments can be determined at
+;; compile-time.  sameenv specifies, if lambdabody is to be viewed in
+;; the same environment or in the top-level-environment.
 (defun c-FUNCALL-INLINE (funform arglist applyarglist lambdabody sameenv)
   (test-list lambdabody 1)
   (multiple-value-bind (reqvar  optvar optinit optsvar  restvar
@@ -7696,14 +7102,13 @@ der Docstring (oder NIL).
                         auxvar auxinit)
       (analyze-lambdalist (pop lambdabody))
     (when (or keyflag keyword keyvar keyinit keysvar allow-other-keys)
-      (compiler-error 'c-FUNCALL-INLINE)
-    )
-    (let ((r (length reqvar)) ; Anzahl der required-Argumente
-          (s (length optvar)) ; Anzahl der optionalen Argumente
-          (|t| (length arglist))) ; Anzahl der angegebenen Argumente
+      (compiler-error 'c-FUNCALL-INLINE))
+    (let ((r (length reqvar)) ; number of required-arguments
+          (s (length optvar)) ; number of optional arguments
+          (|t| (length arglist))) ; number of specified arguments
       (when (and (null restvar) (> |t| (+ r s)))
-        ; zu viele Argumente angegeben. Wird beseitigt durch Einführung
-        ; mehrerer zusätzlicher optionaler Argumente:
+        ;; too many arguments specified. Is redressed by introduction
+        ;; of several additional optional arguments:
         (c-error-c (ENGLISH "Too many arguments to ~S")
                    funform)
         (dotimes (i (- |t| (+ r s)))
@@ -7712,17 +7117,17 @@ der Docstring (oder NIL).
             (setq optinit (append optinit (list nil)))
             (setq optsvar (append optsvar (list nil)))
             (incf s)
-            (push `(DECLARE (IGNORE ,var)) lambdabody)
-      ) ) )
+            (push `(DECLARE (IGNORE ,var)) lambdabody))))
       (when (and (null applyarglist) (< |t| r))
-        ; zu wenige Argumente angegeben. Wird beseitigt durch Einführung
-        ; zusätzlicher Argumente:
+        ;; too few arguments specified. Is redressed by introduction
+        ;; of additional arguments:
         (c-error-c (ENGLISH "Too few arguments to ~S")
                    funform)
-        (setq arglist (append arglist (make-list (- r |t|) :initial-element nil)))
-        (setq |t| r)
-      )
-      ; Nun ist (t>=r oder apply-arg da) und (t<=r+s oder &rest-Parameter da).
+        (setq arglist (append arglist
+                              (make-list (- r |t|) :initial-element nil)))
+        (setq |t| r))
+      ;; Now (t>=r or apply-arg is there)
+      ;; and (t<=r+s or &rest-Parameter is there).
       (let ((oldstackz *stackz*)
             (oldvenv *venv*)
             (oldfenv *fenv*)
@@ -7738,18 +7143,17 @@ der Docstring (oder NIL).
             (*denv* (if sameenv
                       *denv*
                       (cons `(INLINING ,funform)
-                            (remove-if-not #'(lambda (declspec)
-                                               (case (car declspec)
-                                                 ((DECLARATION SYS::IN-DEFUN INLINING) t)
-                                                 (t nil)
-                                             ) )
-                                           *denv*
-           ))       ) )     )
+                            (remove-if-not
+                             #'(lambda (declspec)
+                                 (case (car declspec)
+                                   ((DECLARATION SYS::IN-DEFUN INLINING) t)
+                                   (t nil)))
+                             *denv*)))))
         (multiple-value-bind (body-rest declarations)
             (parse-body lambdabody t (env))
           (let (*specials* *ignores* *ignorables* *readonlys*
                 req-vars req-anodes req-stackzs
-                opt-vars opt-anodes opt-stackzs ; optionale und svar zusammen!
+                opt-vars opt-anodes opt-stackzs ; optional and svar together!
                 rest-vars rest-anodes rest-stackzs
                 fixed-anodes fixed-stackz
                 reqfixed-vars reqfixed-dummys reqfixed-stackzs
@@ -7757,19 +7161,20 @@ der Docstring (oder NIL).
                 optsfixed-vars optsfixed-anodes optfixed-stackzs
                 restfixed-vars restfixed-dummys restfixed-stackzs
                 aux-vars aux-anodes
-                closuredummy-stackz closuredummy-venvc
-               )
-            (multiple-value-setq (*specials* *ignores* *ignorables* *readonlys*)
-              (process-declarations declarations)
-            )
+                closuredummy-stackz closuredummy-venvc)
+            (multiple-value-setq
+                (*specials* *ignores* *ignorables* *readonlys*)
+              (process-declarations declarations))
             (push-specials)
-            (push 0 *stackz*) (push nil *venvc*) ; Platz für Closure-Dummyvar
+            (push 0 *stackz*) (push nil *venvc*) ; room for Closure-Dummyvar
             (setq closuredummy-stackz *stackz* closuredummy-venvc *venvc*)
-            (flet ((finish-using-applyarg (reqvar optvar optinit optsvar restvar)
-                     ; reqvar und optvar/optinit/optsvar sowie arglist sind schon
-                     ; teilweise verkürzt. Zerlegen der weiteren Argumentliste
-                     ; mittels UNLIST bzw. UNLIST*. Daher ein Stackaufbau mit
-                     ; festem Aussehen, vgl. c-LAMBDABODY.
+            (flet ((finish-using-applyarg
+                       (reqvar optvar optinit optsvar restvar)
+                     ;; reqvar and optvar/optinit/optsvar as well as
+                     ;; arglist are already partially shortened.
+                     ;; Disassembly of the remaining argument-list by
+                     ;; means of UNLIST resp. UNLIST*. Hence a
+                     ;; stack-layout with fixed look, cf. c-LAMBDABODY.
                      (setq fixed-anodes
                            (list
                              (let ((anode1 (let ((*venv* oldvenv)
@@ -7777,88 +7182,80 @@ der Docstring (oder NIL).
                                                  (*benv* oldbenv)
                                                  (*genv* oldgenv)
                                                  (*denv* olddenv))
-                                             (c-form (first applyarglist) 'ONE)
-                                   )       )
+                                             (c-form (first applyarglist)
+                                                     'ONE)))
                                    (anode2 (c-unlist (not (eql restvar 0))
-                                                     (+ (length reqvar) (length optvar))
-                                                     (length optvar)
-                                  ))       )
+                                                     (+ (length reqvar)
+                                                        (length optvar))
+                                                     (length optvar))))
                                (make-anode
                                  :type 'APPLY-UNLIST
                                  :sub-anodes (list anode1 anode2)
                                  :seclass (anodes-seclass-or anode1 anode2)
-                                 :code `(,anode1 ,anode2)
-                     )     ) ) )
-                     ; Stack-Dummy-Variable für die reqvar,optvar,restvar bilden:
+                                 :code `(,anode1 ,anode2)))))
+                     ;; build Stack-Dummy-Variable for the
+                     ;; reqvar,optvar,restvar:
                      (multiple-value-setq (reqfixed-vars reqfixed-dummys)
-                       (process-fixed-var-list reqvar)
-                     )
+                       (process-fixed-var-list reqvar))
                      (multiple-value-setq (optfixed-vars optfixed-dummys)
-                       (process-fixed-var-list optvar)
-                     )
+                       (process-fixed-var-list optvar))
                      (multiple-value-setq (restfixed-vars restfixed-dummys)
                        (if (eql restvar 0)
                          (values '() '())
-                         (process-fixed-var-list (list restvar))
-                     ) )
+                         (process-fixed-var-list (list restvar))))
                      (push 0 *stackz*) (setq fixed-stackz *stackz*)
-                     ; Bindungen der required-Parameter aktivieren:
+                     ;; activate the bindings of the required-parameters:
                      (setq reqfixed-stackzs (bind-req-vars reqfixed-vars))
-                     ; Bindungen der optional-Parameter/svar aktivieren:
-                     (multiple-value-setq (optfixed-anodes optfixed-stackzs optsfixed-vars optsfixed-anodes)
-                       (bind-opt-vars optfixed-vars optfixed-dummys optinit optsvar)
-                     )
-                     ; Bindung des rest-Parameters aktivieren:
+                     ;; activate the bindings of the optional-parameters/svar:
+                     (multiple-value-setq (optfixed-anodes optfixed-stackzs
+                                           optsfixed-vars optsfixed-anodes)
+                       (bind-opt-vars optfixed-vars optfixed-dummys
+                                      optinit optsvar))
+                     ;; activate the binding of the rest-parameter:
                      (unless (eql restvar 0)
-                       (setq restfixed-stackzs (bind-rest-vars restfixed-vars))
-                     )
-                  ))
+                       (setq restfixed-stackzs
+                             (bind-rest-vars restfixed-vars)))))
               (block main-args
-                ; required-Parameter binden:
+                ;; bind required-parameter:
                 (do ((reqvarr reqvar (cdr reqvarr)))
                     ((null reqvarr))
-                  (if (null arglist) ; impliziert, dass apply-arg da
+                  (if (null arglist) ; implies, that apply-arg is there
                     (return-from main-args
-                      (finish-using-applyarg reqvarr optvar optinit optsvar restvar)
-                    )
+                      (finish-using-applyarg reqvarr optvar optinit optsvar
+                                             restvar))
                     (let* ((form (pop arglist))
                            (anode (let ((*venv* oldvenv)
                                         (*fenv* oldfenv)
                                         (*benv* oldbenv)
                                         (*genv* oldgenv)
                                         (*denv* olddenv))
-                                    (c-form form 'ONE)
-                           )      )
+                                    (c-form form 'ONE)))
                            (var (bind-movable-var (car reqvarr) anode)))
                       (push anode req-anodes)
                       (push var req-vars)
                       (push *stackz* req-stackzs)
-                      (push-*venv* var)
-                ) ) )
-                ; optionale Parameter und Svars binden:
+                      (push-*venv* var))))
+                ;; bind optional parameters and Svars:
                 (do ((optvarr optvar (cdr optvarr))
                      (optinitr optinit (cdr optinitr))
                      (optsvarr optsvar (cdr optsvarr)))
                     ((null optvarr))
                   (if (and applyarglist (null arglist))
                     (return-from main-args
-                      (finish-using-applyarg '() optvarr optinitr optsvarr restvar)
-                    )
-                    (let* ((svar-init (not (null arglist))) ; = NIL oder T
+                      (finish-using-applyarg '() optvarr optinitr
+                                             optsvarr restvar))
+                    (let* ((svar-init (not (null arglist))) ; = NIL or T
                            (anode (if svar-init
                                     (progn
                                       (let ((*no-code* t))
-                                        (c-form (car optinitr) 'NIL)
-                                      )
+                                        (c-form (car optinitr) 'NIL))
                                       (let ((*venv* oldvenv)
                                             (*fenv* oldfenv)
                                             (*benv* oldbenv)
                                             (*genv* oldgenv)
                                             (*denv* olddenv))
-                                        (c-form (pop arglist) 'ONE)
-                                    ) )
-                                    (c-form (car optinitr) 'ONE)
-                           )      )
+                                        (c-form (pop arglist) 'ONE)))
+                                    (c-form (car optinitr) 'ONE)))
                            (var (bind-movable-var (car optvarr) anode)))
                       (push anode opt-anodes)
                       (push var opt-vars)
@@ -7870,52 +7267,44 @@ der Docstring (oder NIL).
                           (push anode opt-anodes)
                           (push var opt-vars)
                           (push *stackz* opt-stackzs)
-                          (push-*venv* var)
-                      ) )
-                ) ) )
+                          (push-*venv* var))))))
                 (if (eql restvar 0)
-                  ; weitere Argumente verbrauchen:
+                  ;; consume further arguments:
                   (when applyarglist
                     (return-from main-args
-                      (finish-using-applyarg '() '() '() '() restvar)
-                  ) )
-                  ; Rest-Parameter binden:
+                      (finish-using-applyarg '() '() '() '() restvar)))
+                  ;; bind rest-parameter:
                   (let* ((form (if applyarglist
-                                 (if arglist `(LIST* ,@arglist ,@applyarglist) (first applyarglist))
-                                 (if arglist `(LIST ,@arglist) 'NIL)
-                         )     )
+                                 (if arglist `(LIST* ,@arglist ,@applyarglist)
+                                     (first applyarglist))
+                                 (if arglist `(LIST ,@arglist) 'NIL)))
                          (anode (let ((*venv* oldvenv)
                                       (*fenv* oldfenv)
                                       (*benv* oldbenv)
                                       (*genv* oldgenv)
                                       (*denv* olddenv))
-                                  (c-form form 'ONE)
-                         )      )
+                                  (c-form form 'ONE)))
                          (var (bind-movable-var restvar anode)))
                     (push anode rest-anodes)
                     (push var rest-vars)
                     (push *stackz* rest-stackzs)
-                    (push-*venv* var)
-                ) )
-                (push 0 *stackz*) (setq fixed-stackz *stackz*)
-            ) )
+                    (push-*venv* var)))
+                (push 0 *stackz*) (setq fixed-stackz *stackz*)))
             (setq req-vars (nreverse req-vars))
             (setq req-anodes (nreverse req-anodes))
             (setq req-stackzs (nreverse req-stackzs))
             (setq opt-vars (nreverse opt-vars))
             (setq opt-anodes (nreverse opt-anodes))
             (setq opt-stackzs (nreverse opt-stackzs))
-            ; Bindungen der Aux-Variablen aktivieren:
+            ;; activate the bindings of the Aux-Variables:
             (multiple-value-setq (aux-vars aux-anodes)
-              (bind-aux-vars auxvar auxinit)
-            )
+              (bind-aux-vars auxvar auxinit))
             (let* ((body-anode (c-form `(PROGN ,@body-rest)))
-                   ; Überprüfen der Variablen:
+                   ;; check the variables:
                    (varlist
                      (append req-vars opt-vars rest-vars
-                             reqfixed-vars optfixed-vars optsfixed-vars restfixed-vars
-                             aux-vars
-                   ) )
+                             reqfixed-vars optfixed-vars optsfixed-vars
+                             restfixed-vars aux-vars))
                    (closurevars
                      (append
                        (checking-movable-var-list req-vars req-anodes)
@@ -7923,114 +7312,110 @@ der Docstring (oder NIL).
                        (checking-movable-var-list rest-vars rest-anodes)
                        (checking-fixed-var-list reqfixed-vars)
                        (checking-fixed-var-list optfixed-vars)
-                       (checking-movable-var-list optsfixed-vars optsfixed-anodes)
+                       (checking-movable-var-list optsfixed-vars
+                                                  optsfixed-anodes)
                        (checking-fixed-var-list restfixed-vars)
-                       (checking-movable-var-list aux-vars aux-anodes)
-                   ) )
+                       (checking-movable-var-list aux-vars aux-anodes)))
                    (codelist
-                     `(,@(c-make-closure closurevars closuredummy-venvc closuredummy-stackz)
+                     `(,@(c-make-closure closurevars closuredummy-venvc
+                                         closuredummy-stackz)
                        ,@(let ((*stackz* fixed-stackz))
                            (c-parallel-bind-movable-var-anode
                              (append req-vars    opt-vars    rest-vars   )
                              (append req-anodes  opt-anodes  rest-anodes )
                              (append req-stackzs opt-stackzs rest-stackzs)
-                             fixed-anodes
-                         ) )
-                       ,@(mapcap #'c-bind-fixed-var reqfixed-vars reqfixed-dummys reqfixed-stackzs)
-                       ,@(c-bind-with-svars optfixed-vars optfixed-dummys optsfixed-vars optfixed-anodes optsfixed-anodes optfixed-stackzs)
-                       ,@(mapcap #'c-bind-fixed-var restfixed-vars restfixed-dummys restfixed-stackzs)
-                       ,@(mapcap #'c-bind-movable-var-anode aux-vars aux-anodes)
+                             fixed-anodes))
+                       ,@(mapcap #'c-bind-fixed-var reqfixed-vars
+                                 reqfixed-dummys reqfixed-stackzs)
+                       ,@(c-bind-with-svars optfixed-vars optfixed-dummys
+                                            optsfixed-vars optfixed-anodes
+                                            optsfixed-anodes optfixed-stackzs)
+                       ,@(mapcap #'c-bind-fixed-var restfixed-vars
+                                 restfixed-dummys restfixed-stackzs)
+                       ,@(mapcap #'c-bind-movable-var-anode aux-vars
+                                 aux-anodes)
                        ,body-anode
-                       (UNWIND ,*stackz* ,oldstackz ,*for-value*)
-                   )  )
+                       (UNWIND ,*stackz* ,oldstackz ,*for-value*)))
                    (anode
                      (make-anode
                        :type 'FUNCALL
                        :sub-anodes
                          `(,@req-anodes ,@opt-anodes ,@rest-anodes
-                           ,@fixed-anodes ,@optfixed-anodes ,@(remove nil optsfixed-anodes)
-                           ,@aux-anodes ,body-anode
-                          )
+                           ,@fixed-anodes ,@optfixed-anodes
+                           ,@(remove nil optsfixed-anodes)
+                           ,@aux-anodes ,body-anode)
                        :seclass
                          (seclass-without
                            (anodelist-seclass-or
                              `(,@req-anodes ,@opt-anodes ,@rest-anodes
-                               ,@fixed-anodes ,@optfixed-anodes ,@(remove nil optsfixed-anodes)
-                               ,@aux-anodes ,body-anode
-                           )  )
-                           varlist
-                         )
+                               ,@fixed-anodes ,@optfixed-anodes
+                               ,@(remove nil optsfixed-anodes)
+                               ,@aux-anodes ,body-anode))
+                           varlist)
                        :stackz oldstackz
-                       :code codelist
-                  )) )
+                       :code codelist)))
               (when closurevars
-                (setf (first closuredummy-stackz) 1) ; 1 Stackplatz für Dummy
+                (setf (first closuredummy-stackz) 1) ; 1 stack-slot for Dummy
                 (setf (first closuredummy-venvc)
-                  (cons closurevars closuredummy-stackz)
-              ) )
+                  (cons closurevars closuredummy-stackz)))
               (optimize-var-list varlist)
-              anode
-) ) ) ) ) ) )
+              anode)))))))
 
-; compiliert (fun {form}*), wobei fun eine lokale Funktion ist.
-; fdescr die zugehörige Information aus *fenv*.
+;; compiles (fun {form}*), whereas fun is a local function.
+;; fdescr is the associated information from *fenv*.
 (defun c-LOCAL-FUNCTION-CALL (fun fdescr args)
-  ; (test-list args 0) ; das erledigt gleich (test-argument-syntax ...)
-  ; Aufruf-Spezifikation holen:
+  ;; (test-list args 0) ; that manages in a moment (test-argument-syntax ...)
+  ;; fetch Call-Specification:
   (multiple-value-bind (req opt rest-flag key-flag keylist allow-flag)
       (fdescr-signature fdescr)
     (case (test-argument-syntax
            args nil fun req opt rest-flag key-flag keylist allow-flag)
       ((NO-KEYS STATIC-KEYS)
-       ; Aufruf INLINE
+       ;; call INLINE
        (c-DIRECT-FUNCTION-CALL
          args nil fun req opt rest-flag key-flag keylist
-         nil ; kein SUBR-, sondern Cclosure-Aufruf
-         (cclosure-call-code-producer fun (car fdescr) req opt rest-flag key-flag keylist)
-      ))
-      (t (c-FUNCALL-NOTINLINE `(FUNCTION ,fun) args))
-) ) )
+         nil ; no SUBR-, but Cclosure-call
+         (cclosure-call-code-producer fun (car fdescr) req opt rest-flag
+                                      key-flag keylist)))
+      (t (c-FUNCALL-NOTINLINE `(FUNCTION ,fun) args)))))
 
-; (c-FUNCTION-CALL funform arglist) compiliert einen Funktionsaufruf
-; (SYS::%FUNCALL funform . arglist).
+;; (c-FUNCTION-CALL funform arglist) compiles a function-call
+;; (SYS::%FUNCALL funform . arglist).
 (defun c-FUNCTION-CALL (funform arglist)
   (setq funform (macroexpand-form funform))
   (when (inline-callable-function-lambda-p funform (length arglist))
-    ; Aufruf eines Lambda-Ausdrucks INLINE möglich
+    ;; call of a Lambda-expression is possible INLINE
     (return-from c-FUNCTION-CALL
-      (c-FUNCALL-INLINE funform arglist nil (cdr (second funform)) t)
-  ) )
+      (c-FUNCALL-INLINE funform arglist nil (cdr (second funform)) t)))
   (when (and (consp funform) (eq (first funform) 'COMPLEMENT)
              (consp (rest funform)) (null (cddr funform))
-             (not (fenv-search 'COMPLEMENT)) (not (declared-notinline 'COMPLEMENT))
-             (not (fenv-search 'NOT))
-        )
-    ; (complement fn) --> (let ((f fn)) ... #'(lambda (&rest args) (not (apply f args))) ...)
+             (not (fenv-search 'COMPLEMENT))
+             (not (declared-notinline 'COMPLEMENT))
+             (not (fenv-search 'NOT)))
+    ;; (complement fn) -->
+    ;; (let ((f fn)) ... #'(lambda (&rest args) (not (apply f args))) ...)
     (return-from c-FUNCTION-CALL
-      (c-form `(NOT (SYS::%FUNCALL ,(second funform) ,@arglist)))
-  ) )
+      (c-form `(NOT (SYS::%FUNCALL ,(second funform) ,@arglist)))))
   (when (and (consp funform) (eq (first funform) 'CONSTANTLY)
              (consp (rest funform)) (null (cddr funform))
-             (not (fenv-search 'CONSTANTLY)) (not (declared-notinline 'CONSTANTLY))
-        )
-    ; (constantly obj) --> (let ((o obj)) ... #'(lambda (&rest args) (declare (ignore args)) o) ...)
+             (not (fenv-search 'CONSTANTLY))
+             (not (declared-notinline 'CONSTANTLY)))
+    ;; (constantly obj) -->
+    ;; (let ((o obj)) ... #'(lambda (&rest a) (declare (ignore a)) o) ...)
     (return-from c-FUNCTION-CALL
-      (c-form `(PROG1 ,(second funform) ,@arglist))
-  ) )
+      (c-form `(PROG1 ,(second funform) ,@arglist))))
   (when (simple-function-form-p funform) ; #'symbol
     (return-from c-FUNCTION-CALL
       (progn
         (test-list funform 2 2)
-        (c-form `(,(second funform) ,@arglist)) ; genauer aufschlüsseln, vgl. c-FUNCTION ??
-  ) ) )
-  ; Aufruf NOTINLINE
-  (c-FUNCALL-NOTINLINE funform arglist)
-)
+        ;; list in more detail, cf. c-FUNCTION ??
+        (c-form `(,(second funform) ,@arglist)))))
+  ;; call of NOTINLINE
+  (c-FUNCALL-NOTINLINE funform arglist))
 
 (defun c-FUNCALL ()
   (test-list *form* 2)
-  (c-FUNCTION-CALL (second *form*) (cddr *form*))
-)
+  (c-FUNCTION-CALL (second *form*) (cddr *form*)))
 
 (defun c-APPLY ()
   (test-list *form* 3)
@@ -8069,24 +7454,26 @@ der Docstring (oder NIL).
               (test-argument-syntax args apply-args fun req opt rest-p
                                     key-p keylist allow-p)
               (note-function-used fun args apply-args)))
-        (unless (declared-notinline fun) ; darf fun INLINE genommen werden?
+        (unless (declared-notinline fun) ; can fun be taken INLINE?
           (flet ((c-LOCAL-APPLY (fdescr)
-                   (multiple-value-bind (req opt rest-flag key-flag keylist allow-flag)
+                   (multiple-value-bind
+                         (req opt rest-flag key-flag keylist allow-flag)
                        (fdescr-signature fdescr)
                      (unless key-flag
-                       ; ohne Keyword-Argumente
+                       ;; without Keyword-Arguments
                        (when (eq 'NO-KEYS
                                  (test-argument-syntax
                                   args apply-args
                                   fun req opt rest-flag key-flag keylist
                                   allow-flag))
-                         ; Syntax stimmt -> Aufruf INLINE
+                         ;; Syntax correct -> call INLINE
                          (return-from c-APPLY
                            (c-DIRECT-FUNCTION-CALL args apply-args
                              fun req opt rest-flag key-flag keylist
-                             nil ; kein SUBR-, sondern Cclosure-Aufruf
-                             (cclosure-call-code-producer fun (car fdescr) req opt rest-flag key-flag keylist)
-                )) ) ) ) ) )
+                             nil ; no SUBR-, but Cclosure-Aufruf
+                             (cclosure-call-code-producer
+                              fun (car fdescr) req opt rest-flag
+                              key-flag keylist))))))))
             (multiple-value-bind (a m f1 f2 f3 f4) (fenv-search fun)
               (declare (ignore m f2 f4))
               ;; (APPLY #'fun . args) maybe possible to simplify
@@ -8105,9 +7492,8 @@ der Docstring (oder NIL).
                         (c-FUNCALL-INLINE fun args apply-args
                                           inline-lambdabody nil)))))
                 (when (eq f1 'LOCAL) ; local function
-                  (c-LOCAL-APPLY f3)
-    ) ) ) ) ) ) )
-    ; Wenn keine der Optimierungen möglich war:
+                  (c-LOCAL-APPLY f3))))))))
+    ;; if none of the optimizations was possible:
     (let* ((anode1 (c-form funform 'ONE))
            (*stackz* (cons 1 *stackz*)))
       (do ((formlistr arglist (cdr formlistr))
@@ -8119,15 +7505,12 @@ der Docstring (oder NIL).
              :type 'APPLY
              :sub-anodes (nreverse anodelist)
              :seclass '(T . T)
-             :code (nreverse codelist)
-          ))
+             :code (nreverse codelist)))
         (let ((anode (c-form (car formlistr) 'ONE)))
           #+COMPILER-DEBUG (push anode anodelist)
           (push anode codelist)
           (when (cdr formlistr)
-            (push 1 *stackz*) (push '(PUSH) codelist)
-    ) ) ) )
-) )
+            (push 1 *stackz*) (push '(PUSH) codelist)))))))
 
 ;; macroexpand form and check for it being a constant number
 ;; signal an error when it is not an number
@@ -8157,7 +7540,7 @@ der Docstring (oder NIL).
   (multiple-value-bind (const-sum other-parts)
       (c-collect-numeric-constants (cdr *form*))
     (setq const-sum (reduce #'+ const-sum))
-    (cond ((null other-parts)   ; constant summands only
+    (cond ((null other-parts)   ; constant addends only
            (c-form const-sum))  ; ==> constant result
           ((eql const-sum 0)    ; const-sum == 0 ==> skip it
            ;; this is a bad optimization: THE is slower than #'+
@@ -8248,14 +7631,12 @@ der Docstring (oder NIL).
 
 (defun c-SVSTORE ()
   (test-list *form* 4 4)
-  ; (sys::svstore arg1 arg2 arg3) -> (sys::%svstore arg3 arg1 arg2)
+  ;; (sys::svstore arg1 arg2 arg3) -> (sys::%svstore arg3 arg1 arg2)
   (let ((arg1 (second *form*)) (arg2 (third *form*)) (arg3 (fourth *form*))
         (argvar1 (gensym)) (argvar2 (gensym)))
     (c-form
       `(LET* ((,argvar1 ,arg1) (,argvar2 ,arg2))
-         (sys::%svstore ,arg3 ,argvar1 ,argvar2)
-       )
-) ) )
+         (sys::%svstore ,arg3 ,argvar1 ,argvar2)))))
 
 (defun c-EQ ()
   (test-list *form* 3 3)
@@ -8265,19 +7646,18 @@ der Docstring (oder NIL).
       (c-form `(QUOTE ,(eq (c-constant-value arg1) (c-constant-value arg2))))
       (progn
         (when (c-constantp arg1)
-          (rotatef arg1 arg2) ; Besser arg2 konstant, damit JMPIFEQTO geht
-        )
+          ;; arg2 being constant is better, so that JMPIFEQTO is possible
+          (rotatef arg1 arg2))
         (if (and (c-constantp arg2) (eq (c-constant-value arg2) 'NIL))
           (c-GLOBAL-FUNCTION-CALL-form `(NULL ,arg1))
-          (c-GLOBAL-FUNCTION-CALL-form `(EQ ,arg1 ,arg2))
-) ) ) ) )
+          (c-GLOBAL-FUNCTION-CALL-form `(EQ ,arg1 ,arg2)))))))
 
 ;; EQL is the same as EQ for symbols, fixnums and characters
 (defun EQL=EQ (x)
   (or (symbolp x)
       (and (integerp x) (<= (integer-length x) 24))
       ;; Note: Using (fixnump x) here would not generate portable code.
-      ;; The minimum fixnum length across architectures in clisp is 24 bits.
+      ;; The minimum fixnum length across architectures in CLISP is 24 bits.
       (characterp x)))
 
 (defun c-EQL ()
@@ -8285,15 +7665,12 @@ der Docstring (oder NIL).
   (let ((arg1 (macroexpand-form (second *form*)))
         (arg2 (macroexpand-form (third *form*))))
     (cond ((and (c-constantp arg1) (c-constantp arg2))
-           (c-form `(QUOTE ,(eql (c-constant-value arg1) (c-constant-value arg2))))
-          )
+           (c-form `(QUOTE ,(eql (c-constant-value arg1)
+                                 (c-constant-value arg2)))))
           ((or (and (c-constantp arg1) (EQL=EQ (c-constant-value arg1)))
-               (and (c-constantp arg2) (EQL=EQ (c-constant-value arg2)))
-           )
-           (let ((*form* `(EQ ,arg1 ,arg2))) (c-EQ))
-          )
-          (t (c-GLOBAL-FUNCTION-CALL-form `(EQL ,arg1 ,arg2)))
-) ) )
+               (and (c-constantp arg2) (EQL=EQ (c-constant-value arg2))))
+           (let ((*form* `(EQ ,arg1 ,arg2))) (c-EQ)))
+          (t (c-GLOBAL-FUNCTION-CALL-form `(EQL ,arg1 ,arg2))))))
 
 ;; EQUAL is the same as EQL for symbols, numbers and characters
 (defun EQUAL=EQL (x) (or (symbolp x) (numberp x) (characterp x)))
@@ -8303,27 +7680,24 @@ der Docstring (oder NIL).
   (let ((arg1 (macroexpand-form (second *form*)))
         (arg2 (macroexpand-form (third *form*))))
     (cond ((or (and (c-constantp arg1) (EQUAL=EQL (c-constant-value arg1)))
-               (and (c-constantp arg2) (EQUAL=EQL (c-constant-value arg2)))
-           )
-           (let ((*form* `(EQL ,arg1 ,arg2))) (c-EQL))
-          )
-          (t (c-GLOBAL-FUNCTION-CALL-form `(EQUAL ,arg1 ,arg2)))
-) ) )
+               (and (c-constantp arg2) (EQUAL=EQL (c-constant-value arg2))))
+           (let ((*form* `(EQL ,arg1 ,arg2))) (c-EQL)))
+          (t (c-GLOBAL-FUNCTION-CALL-form `(EQUAL ,arg1 ,arg2))))))
 
-; Bildet den inneren Teil einer MAPCAR/MAPC/MAPCAN/MAPCAP-Expansion
-(defun c-MAP-on-CARs-inner (innerst-fun blockname restvars &optional (itemvars '()))
+;; Forms the inner part of a MAPCAR/MAPC/MAPCAN/MAPCAP-Expansion
+(defun c-MAP-on-CARs-inner (innerst-fun blockname restvars
+                            &optional (itemvars '()))
   (if (null restvars)
     (funcall innerst-fun (nreverse itemvars))
     (let ((restvar (car restvars))
           (itemvar (gensym)))
       `(IF (CONSP ,restvar)
          (LET ((,itemvar (CAR ,restvar)))
-           ,(c-MAP-on-CARs-inner innerst-fun blockname (cdr restvars) (cons itemvar itemvars))
-         )
-         (RETURN-FROM ,blockname)
-) ) )  )
+           ,(c-MAP-on-CARs-inner innerst-fun blockname (cdr restvars)
+                                 (cons itemvar itemvars)))
+         (RETURN-FROM ,blockname)))))
 
-; Bildet eine MAPCAR/MAPCAN/MAPCAP-Expansion
+;; Forms a MAPCAR/MAPCAN/MAPCAP-Expansion
 (defun c-MAP-on-CARs (adjoin-fun funform forms)
   (let ((erg (gensym))
         (blockname (gensym))
@@ -8335,22 +7709,16 @@ der Docstring (oder NIL).
            (TAGBODY ,tag
              ,(c-MAP-on-CARs-inner
                 #'(lambda (itemvars)
-                    `(SETQ ,erg (,adjoin-fun (SYS::%FUNCALL ,funform ,@itemvars) ,erg))
-                  )
+                    `(SETQ ,erg (,adjoin-fun (SYS::%FUNCALL
+                                              ,funform ,@itemvars) ,erg)))
                 blockname
-                restvars
-              )
-             (SETQ ,@(mapcap #'(lambda (restvar)
-                                 `(,restvar (CDR ,restvar))
-                               )
-                             restvars
-             )       )
-             (GO ,tag)
-       ) ) )
-       (SYS::LIST-NREVERSE ,erg)
-) )  )
+                restvars)
+             (SETQ ,@(mapcap #'(lambda (restvar) `(,restvar (CDR ,restvar)))
+                             restvars))
+             (GO ,tag))))
+       (SYS::LIST-NREVERSE ,erg))))
 
-; Bildet eine MAPLIST/MAPCON/MAPLAP-Expansion
+;; Forms a MAPLIST/MAPCON/MAPLAP-Expansion
 (defun c-MAP-on-LISTs (adjoin-fun funform forms)
   (let ((erg (gensym))
         (blockname (gensym))
@@ -8361,18 +7729,13 @@ der Docstring (oder NIL).
          (LET* ,(mapcar #'list restvars forms)
            (TAGBODY ,tag
              (IF (OR ,@(mapcar #'(lambda (restvar) `(ATOM ,restvar)) restvars))
-               (RETURN-FROM ,blockname)
-             )
+               (RETURN-FROM ,blockname))
              (SETQ ,erg (,adjoin-fun (SYS::%FUNCALL ,funform ,@restvars) ,erg))
              (SETQ ,@(mapcap #'(lambda (restvar)
-                                 `(,restvar (CDR ,restvar))
-                               )
-                             restvars
-             )       )
-             (GO ,tag)
-       ) ) )
-       (SYS::LIST-NREVERSE ,erg)
-) )  )
+                                 `(,restvar (CDR ,restvar)))
+                             restvars))
+             (GO ,tag))))
+       (SYS::LIST-NREVERSE ,erg))))
 
 (defun c-MAPC ()
   (test-list *form* 3)
@@ -8389,21 +7752,15 @@ der Docstring (oder NIL).
                (LET* ,(mapcar #'list restvars forms)
                  (TAGBODY ,tag
                    ,(c-MAP-on-CARs-inner
-                      #'(lambda (itemvars) `(SYS::%FUNCALL ,funform ,@itemvars))
-                      blockname
-                      restvars
-                    )
+                     #'(lambda (itemvars) `(SYS::%FUNCALL ,funform ,@itemvars))
+                     blockname
+                     restvars)
                    (SETQ ,@(mapcap #'(lambda (restvar)
-                                       `(,restvar (CDR ,restvar))
-                                     )
-                                   restvars
-                   )       )
-                   (GO ,tag)
-             ) ) )
-             ,tempvar
-      ) )  )
-      (c-GLOBAL-FUNCTION-CALL-form `(MAPC ,funform ,@(cddr *form*)))
-) ) )
+                                       `(,restvar (CDR ,restvar)))
+                                   restvars))
+                   (GO ,tag))))
+             ,tempvar)))
+      (c-GLOBAL-FUNCTION-CALL-form `(MAPC ,funform ,@(cddr *form*))))))
 
 (defun c-MAPL ()
   (test-list *form* 3)
@@ -8419,21 +7776,16 @@ der Docstring (oder NIL).
              (BLOCK ,blockname
                (LET* ,(mapcar #'list restvars forms)
                  (TAGBODY ,tag
-                   (IF (OR ,@(mapcar #'(lambda (restvar) `(ATOM ,restvar)) restvars))
-                     (RETURN-FROM ,blockname)
-                   )
+                   (IF (OR ,@(mapcar #'(lambda (restvar) `(ATOM ,restvar))
+                                     restvars))
+                     (RETURN-FROM ,blockname))
                    (SYS::%FUNCALL ,funform ,@restvars)
                    (SETQ ,@(mapcap #'(lambda (restvar)
-                                       `(,restvar (CDR ,restvar))
-                                     )
-                                   restvars
-                   )       )
-                   (GO ,tag)
-             ) ) )
-             ,tempvar
-      ) )  )
-      (c-GLOBAL-FUNCTION-CALL-form `(MAPL ,funform ,@(cddr *form*)))
-) ) )
+                                       `(,restvar (CDR ,restvar)))
+                                   restvars))
+                   (GO ,tag))))
+             ,tempvar)))
+      (c-GLOBAL-FUNCTION-CALL-form `(MAPL ,funform ,@(cddr *form*))))))
 
 (defun c-MAPCAR ()
   (test-list *form* 3)
@@ -8443,8 +7795,7 @@ der Docstring (oder NIL).
           (forms (cddr *form*)))
       (if (inline-callable-function-p funform (length forms))
         (c-form (c-MAP-on-CARs 'CONS funform forms))
-        (c-GLOBAL-FUNCTION-CALL-form `(MAPCAR ,funform ,@forms))
-) ) ) )
+        (c-GLOBAL-FUNCTION-CALL-form `(MAPCAR ,funform ,@forms))))))
 
 (defun c-MAPLIST ()
   (test-list *form* 3)
@@ -8454,8 +7805,7 @@ der Docstring (oder NIL).
           (forms (cddr *form*)))
       (if (inline-callable-function-p funform (length forms))
         (c-form (c-MAP-on-LISTs 'CONS funform forms))
-        (c-GLOBAL-FUNCTION-CALL-form `(MAPLIST ,funform ,@forms))
-) ) ) )
+        (c-GLOBAL-FUNCTION-CALL-form `(MAPLIST ,funform ,@forms))))))
 
 (defun c-MAPCAN ()
   (test-list *form* 3)
@@ -8463,8 +7813,7 @@ der Docstring (oder NIL).
         (forms (cddr *form*)))
     (if (inline-callable-function-p funform (length forms))
       (c-form (c-MAP-on-CARs 'NRECONC funform forms))
-      (c-GLOBAL-FUNCTION-CALL-form `(MAPCAN ,funform ,@forms))
-) ) )
+      (c-GLOBAL-FUNCTION-CALL-form `(MAPCAN ,funform ,@forms)))))
 
 (defun c-MAPCON ()
   (test-list *form* 3)
@@ -8472,8 +7821,7 @@ der Docstring (oder NIL).
         (forms (cddr *form*)))
     (if (inline-callable-function-p funform (length forms))
       (c-form (c-MAP-on-LISTs 'NRECONC funform forms))
-      (c-GLOBAL-FUNCTION-CALL-form `(MAPCON ,funform ,@forms))
-) ) )
+      (c-GLOBAL-FUNCTION-CALL-form `(MAPCON ,funform ,@forms)))))
 
 (defun c-MAPCAP ()
   (test-list *form* 3)
@@ -8483,8 +7831,7 @@ der Docstring (oder NIL).
           (forms (cddr *form*)))
       (if (inline-callable-function-p funform (length forms))
         (c-form (c-MAP-on-CARs 'REVAPPEND funform forms))
-        (c-GLOBAL-FUNCTION-CALL-form `(MAPCAP ,funform ,@forms))
-) ) ) )
+        (c-GLOBAL-FUNCTION-CALL-form `(MAPCAP ,funform ,@forms))))))
 
 (defun c-MAPLAP ()
   (test-list *form* 3)
@@ -8494,23 +7841,21 @@ der Docstring (oder NIL).
           (forms (cddr *form*)))
       (if (inline-callable-function-p funform (length forms))
         (c-form (c-MAP-on-LISTs 'REVAPPEND funform forms))
-        (c-GLOBAL-FUNCTION-CALL-form `(MAPLAP ,funform ,@forms))
-) ) ) )
+        (c-GLOBAL-FUNCTION-CALL-form `(MAPLAP ,funform ,@forms))))))
 
-;; c-TYPEP vgl. TYPEP in type.lisp
-(defun c-TYPEP () ; vgl. TYPEP in type.lisp
+;; c-TYPEP cf. TYPEP in type.lisp
+(defun c-TYPEP () ; cf. TYPEP in type.lisp
   (test-list *form* 3 3)
   (let ((objform (second *form*))
         (typeform (macroexpand-form (third *form*))))
     (when (c-constantp typeform)
       (let ((type (c-constant-value typeform)) h)
         (cond ((symbolp type)
-                (cond ; Test auf Property TYPE-SYMBOL:
+                (cond ; Test for Property TYPE-SYMBOL:
                       ((setq h (assoc type c-typep-alist1))
                         (setq h (cdr h))
                         (return-from c-TYPEP
-                          (c-GLOBAL-FUNCTION-CALL-form `(,h ,objform))
-                      ) )
+                          (c-GLOBAL-FUNCTION-CALL-form `(,h ,objform))))
                       ((setq h (assoc type c-typep-alist2))
                         (setq h (cdr h))
                         (return-from c-TYPEP
@@ -8520,9 +7865,8 @@ der Docstring (oder NIL).
                               (list objform)
                               nil
                               h
-                              nil
-                      ) ) ) )
-                      ; Test auf Property TYPE-LIST:
+                              nil))))
+                      ; Test for Property TYPE-LIST:
                       ((setq h (assoc type c-typep-alist3))
                         (setq h (cdr h))
                         (let* ((objvar (gensym))
@@ -8535,65 +7879,57 @@ der Docstring (oder NIL).
                                 (list objform)
                                 nil
                                 lambdabody
-                                nil
-                      ) ) ) ) )
-                      #+CLISP ; Test auf Property DEFTYPE-EXPANDER:
+                                nil)))))
+                      #+CLISP ; Test for Property DEFTYPE-EXPANDER:
                       ((setq h (get type 'SYS::DEFTYPE-EXPANDER))
                         (return-from c-TYPEP
-                          (c-form `(TYPEP ,objform ',(funcall h (list type))))
-                      ) )
-                      #+CLISP ; Test auf Property DEFSTRUCT-DESCRIPTION:
+                          (c-form `(TYPEP ,objform
+                                    ',(funcall h (list type))))))
+                      #+CLISP ; Test for Property DEFSTRUCT-DESCRIPTION:
                       ((get type 'SYS::DEFSTRUCT-DESCRIPTION)
                         (return-from c-TYPEP
-                          (c-form `(SYS::%STRUCTURE-TYPE-P ',type ,objform))
-                      ) )
-                      #+CLISP ; Test auf Property CLOS::CLOSCLASS:
-                      ((and (setq h (get type 'CLOS::CLOSCLASS)) (clos::class-p h)
-                            (eq (clos:class-name h) type)
-                       )
+                          (c-form `(SYS::%STRUCTURE-TYPE-P ',type ,objform))))
+                      #+CLISP ; Test for Property CLOS::CLOSCLASS:
+                      ((and (setq h (get type 'CLOS::CLOSCLASS))
+                            (clos::class-p h)
+                            (eq (clos:class-name h) type))
                         (return-from c-TYPEP
                           (c-form `(CLOS::SUBCLASSP (CLOS:CLASS-OF ,objform)
-                                     (LOAD-TIME-VALUE (CLOS:FIND-CLASS ',type))
-                                   )
-                      ) ) )
-              ) )
+                                    (LOAD-TIME-VALUE (CLOS:FIND-CLASS
+                                                      ',type))))))))
               ((and (consp type) (symbolp (first type)))
                 (catch 'c-TYPEP
-                  (cond ((and (eq (first type) 'SATISFIES) (eql (length type) 2))
-                          (let ((fun (second type)))
-                            (unless (symbolp (second type))
-                              (c-warn (ENGLISH "~S: argument to SATISFIES must be a symbol: ~S")
-                                      'typep (second type)
-                              )
-                              (throw 'c-TYPEP nil)
-                            )
+                  (cond ((and (eq (first type) 'SATISFIES)
+                              (eql (length type) 2))
+                         (let ((fun (second type)))
+                           (unless (symbolp (second type))
+                             (c-warn (ENGLISH "~S: argument to SATISFIES must be a symbol: ~S")
+                                     'typep (second type))
+                              (throw 'c-TYPEP nil))
                             (return-from c-TYPEP
-                              (c-GLOBAL-FUNCTION-CALL-form `(,fun ,objform))
-                        ) ) )
+                              (c-GLOBAL-FUNCTION-CALL-form `(,fun ,objform)))))
                         ((eq (first type) 'MEMBER)
                           (return-from c-TYPEP
-                            (let ((*form* `(CASE ,objform (,(rest type) T) (t NIL))))
-                              (c-CASE)
-                        ) ) )
+                            (let ((*form* `(CASE ,objform
+                                            (,(rest type) T) (t NIL))))
+                              (c-CASE))))
                         ((and (eq (first type) 'EQL) (eql (length type) 2))
                           (return-from c-TYPEP
                             (let ((*form* `(EQL ,objform ',(second type))))
-                              (c-EQL)
-                        ) ) )
+                              (c-EQL))))
                         ((and (eq (first type) 'NOT) (eql (length type) 2))
                           (return-from c-TYPEP
                             (c-GLOBAL-FUNCTION-CALL-form
-                              `(NOT (TYPEP ,objform ',(second type)))
-                        ) ) )
+                              `(NOT (TYPEP ,objform ',(second type))))))
                         ((or (eq (first type) 'AND) (eq (first type) 'OR))
                           (return-from c-TYPEP
                             (c-form
                               (let ((objvar (gensym)))
                                 `(LET ((,objvar ,objform))
-                                   (,(first type) ; AND oder OR
-                                    ,@(mapcar #'(lambda (typei) `(TYPEP ,objvar ',typei)) (rest type))
-                                 ) )
-                        ) ) ) )
+                                   (,(first type) ; AND or OR
+                                    ,@(mapcar #'(lambda (typei)
+                                                  `(TYPEP ,objvar ',typei))
+                                              (rest type))))))))
                         ((setq h (assoc (first type) c-typep-alist3))
                           (setq h (cdr h))
                           (let* ((objvar (gensym))
@@ -8602,28 +7938,26 @@ der Docstring (oder NIL).
                             (return-from c-TYPEP
                               (let ((*form* `((lambda ,@lambdabody) ,objform)))
                                 (c-FUNCALL-INLINE
-                                  (symbol-suffix '#:TYPEP (symbol-name (first type)))
+                                  (symbol-suffix '#:TYPEP (symbol-name
+                                                           (first type)))
                                   (list objform)
                                   nil
                                   lambdabody
-                                  nil
-                        ) ) ) ) )
-              ) ) )
-              ((and (clos::class-p type) (eq (get (clos:class-name type) 'CLOS::CLOSCLASS) type))
+                                  nil))))))))
+              ((and (clos::class-p type)
+                    (eq (get (clos:class-name type) 'CLOS::CLOSCLASS) type))
                 (return-from c-TYPEP
                   (c-form `(CLOS::SUBCLASSP (CLOS:CLASS-OF ,objform)
-                             (LOAD-TIME-VALUE (CLOS:FIND-CLASS ',(clos:class-name type)))
-                           )
-              ) ) )
-             ;((sys::encodingp type) ...) ; not worth optimizing
-    ) ) )
-    (c-GLOBAL-FUNCTION-CALL-form `(TYPEP ,objform ,typeform))
-) )
+                             (LOAD-TIME-VALUE (CLOS:FIND-CLASS
+                                               ',(clos:class-name type)))))))
+              ;; ((sys::encodingp type) ...) ; not worth optimizing
+              )))
+    (c-GLOBAL-FUNCTION-CALL-form `(TYPEP ,objform ,typeform))))
 
-;; c-FORMAT vgl. FORMAT in format.lisp
+;; c-FORMAT cf. FORMAT in format.lisp
 (defun c-FORMAT ()
   (test-list *form* 3)
-  ; Give a warning for the common error of forgotten destination.
+  ;; Give a warning for the common error of forgotten destination.
   (let ((destination (second *form*)))
     (when (c-constantp destination)
       (setq destination (c-constant-value destination))
@@ -8643,53 +7977,55 @@ der Docstring (oder NIL).
            ,@(cdddr *form*))))
       (c-GLOBAL-FUNCTION-CALL 'FORMAT))))
 
-;; c-REMOVE-IF, c-REMOVE-IF-NOT usw.
+;; c-REMOVE-IF, c-REMOVE-IF-NOT etc.
 (macrolet ((c-seqop (op n)
-             (let ((op-if (intern (concatenate 'string (string op) "-IF") *lisp-package*))
-                   (op-if-not (intern (concatenate 'string (string op) "-IF-NOT") *lisp-package*))
-                   (c-op-if (intern (concatenate 'string "C-" (string op) "-IF")))
-                   (c-op-if-not (intern (concatenate 'string "C-" (string op) "-IF-NOT"))))
+             (let ((op-if (intern (concatenate 'string (string op) "-IF")
+                                  *lisp-package*))
+                   (op-if-not (intern (concatenate 'string (string op)
+                                                   "-IF-NOT")
+                                      *lisp-package*))
+                   (c-op-if (intern (concatenate 'string "C-" (string op)
+                                                 "-IF")))
+                   (c-op-if-not (intern (concatenate 'string "C-" (string op)
+                                                     "-IF-NOT"))))
                `(progn
                   (defun ,c-op-if ()
                     (test-list *form* ,(+ 1 n))
                     (let ((pred-arg (macroexpand-form
                                       ,(case n (2 `(second *form*))
-                                               (3 `(third *form*))
-                                       )
-                         ))         )
-                      (if (and (consp pred-arg) (eq (first pred-arg) 'COMPLEMENT)
+                                               (3 `(third *form*))))))
+                      (if (and (consp pred-arg)
+                               (eq (first pred-arg) 'COMPLEMENT)
                                (consp (rest pred-arg)) (null (cddr pred-arg))
-                               ; (op-if (complement fn) ...) --> (op-if-not fn ...)
-                               (not (fenv-search 'COMPLEMENT)) (not (declared-notinline 'COMPLEMENT))
-                               (not (fenv-search 'NOT))
-                          )
-                        (c-form ,(case n (2 `(list* ',op-if-not (second pred-arg) (cddr *form*)))
-                                         (3 `(list* ',op-if-not (second *form*) (second pred-arg) (cdddr *form*)))
-                                 )
-                        )
-                        (c-GLOBAL-FUNCTION-CALL ',op-if)
-                  ) ) )
+                               ;; (op-if (complement fn) ...) -->
+                               ;; (op-if-not fn ...)
+                               (not (fenv-search 'COMPLEMENT))
+                               (not (declared-notinline 'COMPLEMENT))
+                               (not (fenv-search 'NOT)))
+                        (c-form ,(case n (2 `(list* ',op-if-not
+                                              (second pred-arg) (cddr *form*)))
+                                         (3 `(list* ',op-if-not (second *form*)
+                                              (second pred-arg)
+                                              (cdddr *form*)))))
+                        (c-GLOBAL-FUNCTION-CALL ',op-if))))
                   (defun ,c-op-if-not ()
                     (test-list *form* ,(+ 1 n))
                     (let ((pred-arg (macroexpand-form
                                       ,(case n (2 `(second *form*))
-                                               (3 `(third *form*))
-                                       )
-                         ))         )
-                      (if (and (consp pred-arg) (eq (first pred-arg) 'COMPLEMENT)
+                                               (3 `(third *form*))))))
+                      (if (and (consp pred-arg)
+                               (eq (first pred-arg) 'COMPLEMENT)
                                (consp (rest pred-arg)) (null (cddr pred-arg))
-                               ; (op-if-not (complement fn) ...) --> (op-if fn ...)
+                               ;; (op-if-not (complement fn) ...) -->
+                               ;; (op-if fn ...)
                                (not (fenv-search 'COMPLEMENT))
-                               (not (fenv-search 'NOT))
-                          )
-                        (c-form ,(case n (2 `(list* ',op-if (second pred-arg) (cddr *form*)))
-                                         (3 `(list* ',op-if (second *form*) (second pred-arg) (cdddr *form*)))
-                                 )
-                        )
-                        (c-GLOBAL-FUNCTION-CALL ',op-if-not)
-                  ) ) )
-               )
-          )) )
+                               (not (fenv-search 'NOT)))
+                        (c-form ,(case n (2 `(list* ',op-if (second pred-arg)
+                                              (cddr *form*)))
+                                         (3 `(list* ',op-if (second *form*)
+                                              (second pred-arg)
+                                              (cdddr *form*)))))
+                        (c-GLOBAL-FUNCTION-CALL ',op-if-not))))))))
   (c-seqop REMOVE 2)
   (c-seqop DELETE 2)
   (c-seqop SUBSTITUTE 3)
@@ -8704,12 +8040,11 @@ der Docstring (oder NIL).
   (c-seqop RASSOC 2)
 )
 
-; Recognizes a constant byte specifier and returns it, or NIL.
+;; Recognizes a constant byte specifier and returns it, or NIL.
 (defun c-constant-byte-p (form)
   (cond ((c-constantp form)
-          (setq form (c-constant-value form))
-          (if (eq (type-of form) 'BYTE) form nil)
-        )
+         (setq form (c-constant-value form))
+         (if (eq (type-of form) 'BYTE) form nil))
         ((and (consp form)
               (eq (first form) 'BYTE)
               (consp (cdr form))
@@ -8718,110 +8053,91 @@ der Docstring (oder NIL).
               (typep (third form) '(AND (INTEGER 0 *) FIXNUM))
               (null (cdddr form))
               (not (fenv-search 'BYTE))
-              (not (declared-notinline 'BYTE))
-         )
-          ; no need to ignore errors, we have checked the arguments
-          (byte (second form) (third form))
-        )
-        (t nil)
-) )
+              (not (declared-notinline 'BYTE)))
+         ;; no need to ignore errors, we have checked the arguments
+         (byte (second form) (third form)))
+        (t nil)))
 
 (defun c-LDB ()
   (test-list *form* 3 3)
   (let ((arg1 (c-constant-byte-p (macroexpand-form (second *form*)))))
     (if arg1
-      ; We optimize (ldb (byte size position) integer) only when position = 0,
-      ; because when position > 0, the expression
-      ; `(logand ,(1- (ash 1 size)) (ash integer ,(- position))
-      ; is not better and causes more heap allocations than the original
-      ; expression. The expression
-      ; `(ash (logand ,(ash (1- (ash 1 size)) position) integer) ,(- position))
-      ; is even worse.
-      ; The "24" below is an arbitrary limit, to avoid huge integers in the code
-      ; [e.g. for (ldb (byte 30000 0) x)]. In particular, we know that for
-      ; size <= 24, (1- (ash 1 size)) is a posfixnum, which makes the LOGAND
-      ; operation particularly efficient.
+      ;; We optimize (ldb (byte size position) integer) only when position = 0,
+      ;; because when position > 0, the expression
+      ;; `(logand ,(1- (ash 1 size)) (ash integer ,(- position))
+      ;; is not better and causes more heap allocations than the original
+      ;; expression. The expression
+      ;; `(ash (logand ,(ash (1- (ash 1 size)) position) integer)
+      ;;       ,(- position))
+      ;; is even worse.
+      ;; The "24" below is an arbitrary limit, to avoid huge integers in
+      ;; the code [e.g. for (ldb (byte 30000 0) x)]. In particular, we
+      ;; know that for size <= 24, (1- (ash 1 size)) is a posfixnum,
+      ;; which makes the LOGAND operation particularly efficient.
       (if (and (= (byte-position arg1) 0) (<= (byte-size arg1) 24))
         (c-GLOBAL-FUNCTION-CALL-form
-          `(LOGAND ,(1- (ash 1 (byte-size arg1))) ,(third *form*))
-        )
+          `(LOGAND ,(1- (ash 1 (byte-size arg1))) ,(third *form*)))
         (c-GLOBAL-FUNCTION-CALL-form
-          `(LDB (QUOTE ,arg1) ,(third *form*))
-        )
-      )
-      (c-GLOBAL-FUNCTION-CALL 'LDB)
-) ) )
+          `(LDB (QUOTE ,arg1) ,(third *form*))))
+      (c-GLOBAL-FUNCTION-CALL 'LDB))))
 
 (defun c-LDB-TEST ()
   (test-list *form* 3 3)
   (let ((arg1 (c-constant-byte-p (macroexpand-form (second *form*)))))
     (if arg1
-      ; The "24" below is an arbitrary limit, to avoid huge integers in the code
-      ; [e.g. for (ldb-test (byte 30000 0) x)].
+      ;; The "24" below is an arbitrary limit, to avoid huge integers in
+      ;; the code [e.g. for (ldb-test (byte 30000 0) x)].
       (if (<= (+ (byte-size arg1) (byte-position arg1)) 24)
         (c-GLOBAL-FUNCTION-CALL-form
-          `(LOGTEST ,(ash (1- (ash 1 (byte-size arg1))) (byte-position arg1)) ,(third *form*))
-        )
+         `(LOGTEST ,(ash (1- (ash 1 (byte-size arg1))) (byte-position arg1))
+           ,(third *form*)))
         (c-GLOBAL-FUNCTION-CALL-form
-          `(LDB-TEST (QUOTE ,arg1) ,(third *form*))
-        )
-      )
-      (c-GLOBAL-FUNCTION-CALL 'LDB-TEST)
-) ) )
+          `(LDB-TEST (QUOTE ,arg1) ,(third *form*))))
+      (c-GLOBAL-FUNCTION-CALL 'LDB-TEST))))
 
 (defun c-MASK-FIELD ()
   (test-list *form* 3 3)
   (let ((arg1 (c-constant-byte-p (macroexpand-form (second *form*)))))
     (if arg1
-      ; We know that for size+position <= 24, (ash (1- (ash 1 size)) position)
-      ; is a posfixnum, which makes the LOGAND operation more efficient than
-      ; the MASK-FIELD operation.
+      ;; We know that for size+position <= 24, (ash (1- (ash 1 size)) position)
+      ;; is a posfixnum, which makes the LOGAND operation more efficient than
+      ;; the MASK-FIELD operation.
       (if (<= (+ (byte-size arg1) (byte-position arg1)) 24)
         (c-GLOBAL-FUNCTION-CALL-form
-          `(LOGAND ,(ash (1- (ash 1 (byte-size arg1))) (byte-position arg1)) ,(third *form*))
-        )
+          `(LOGAND ,(ash (1- (ash 1 (byte-size arg1))) (byte-position arg1))
+            ,(third *form*)))
         (c-GLOBAL-FUNCTION-CALL-form
-          `(MASK-FIELD (QUOTE ,arg1) ,(third *form*))
-        )
-      )
-      (c-GLOBAL-FUNCTION-CALL 'MASK-FIELD)
-) ) )
+          `(MASK-FIELD (QUOTE ,arg1) ,(third *form*))))
+      (c-GLOBAL-FUNCTION-CALL 'MASK-FIELD))))
 
 (defun c-DPB ()
   (test-list *form* 4 4)
   (let ((arg2 (c-constant-byte-p (macroexpand-form (third *form*)))))
     (if arg2
       (c-GLOBAL-FUNCTION-CALL-form
-        `(DPB ,(second *form*) (QUOTE ,arg2) ,(fourth *form*))
-      )
-      (c-GLOBAL-FUNCTION-CALL 'DPB)
-) ) )
+        `(DPB ,(second *form*) (QUOTE ,arg2) ,(fourth *form*)))
+      (c-GLOBAL-FUNCTION-CALL 'DPB))))
 
 (defun c-DEPOSIT-FIELD ()
   (test-list *form* 4 4)
   (let ((arg2 (c-constant-byte-p (macroexpand-form (third *form*)))))
     (if arg2
       (c-GLOBAL-FUNCTION-CALL-form
-        `(DEPOSIT-FIELD ,(second *form*) (QUOTE ,arg2) ,(fourth *form*))
-      )
-      (c-GLOBAL-FUNCTION-CALL 'DEPOSIT-FIELD)
-) ) )
+        `(DEPOSIT-FIELD ,(second *form*) (QUOTE ,arg2) ,(fourth *form*)))
+      (c-GLOBAL-FUNCTION-CALL 'DEPOSIT-FIELD))))
 
 
 
-;;;                     S E C O N D   P A S S
+;;;;****                     SECOND   PASS
 
 ;;; a table of pairs (fnode n).
-;;; Jedes Paar zeigt an, dass im 3. Pass in der Konstanten Nummer n des
-;;; funktionalen Objektes von fnode der dort stehende fnode durch das durch ihn
-;;; erzeugte funktionale Objekt zu ersetzen ist.
-;;; Each pair displays that in the 3. Pass in the constant of number n of the
-;;; functional object of the fnode fnode by by it, which is there
-;;; produced functional object to replace is. [babelfish]
+;;; Each pair indicates, that in the 3rd Pass in Constant Nr. n of the
+;;; functional Object of fnode the belonging fnode is to be replaced by the
+;;; functional Object that was created by the fnode.
 (defvar *fnode-fixup-table*)
 
-; macht aus dem ANODE-Baum zum fnode *func* ein funktionales Objekt:
-;;; makes a functional object from the ANODE tree of fnode *func*:
+
+;;; turns the ANODE-tree of fnode *func* into a functional object:
 (defun pass2 (*func*)
   (when (anode-p (fnode-code *func*))
     ;; if Pass2 has not been executed yet,
@@ -8837,180 +8153,178 @@ der Docstring (oder NIL).
     (dolist (x (fnode-Consts *func*)) (if (fnode-p x) (pass2 x)))))
 
 #|
+pass2 calls the 1st step.
 
-pass2 ruft den 1. Schritt auf.
+After the 1. step the Code is divided into small part, with each part
+stretching from a label to a jump (away from this part) (JMP, JMPCASE,
+JMPCASE1-TRUE, JMPCASE1-FALSE, JMPHASH, RETURN-FROM, GO, RET, RETGF,
+THROW, BARRIER). The parts are located (as a list in reversed order,
+with the label as the last CDR) in vector *code-parts*.
 
-Nach dem 1. Schritt ist der Code in kleine Stücke aufgeteilt, jeweils von
-einem Label bis zu einem Wegsprung (JMP, JMPCASE, JMPCASE1-TRUE, JMPCASE1-FALSE,
-JMPHASH, RETURN-FROM, GO, RET, RETGF, THROW, BARRIER). Die Teile stecken
-(jeweils als Liste in umgekehrter Reihenfolge, mit dem Label als letztem CDR)
-im Vektor *code-parts*.
-(symbol-value label) enthält eine Liste der Referenzen von label, und zwar in
-der Form:
- - Index in *code-parts*, wenn die Referenz der entsprechende Wegsprung ist;
- - opcode sonst, wobei opcode der Befehl ist, in dem label auftritt.
-Nach dem 1. Schritt enthält der Code nur noch Tags (Symbole) und Listen aus
-Symbolen und Zahlen. Es darf daher mit SUBST und EQUAL gearbeitet werden.
+  (symbol-value label) contains a list of the references of the label,
+in the form:
+ - Index in *code-parts*, if the reference is the corresponding jump
+   (away from the part);
+ - else opcode, where opcode is the command, in which the label occurs.
+After the 1st step the code only contains Tags (Symbols) and Lists made of
+Symbols and Numbers. Hence it is OK to work with SUBST and EQUAL.
 
-Der 1. Schritt ruft, sobald er mit einem Stück fertig ist, den 2. Schritt
-auf.
+The 1st step calls the 2nd step as soon as one part is completed.
 
-Dann ruft pass2 den 3. Schritt auf. Es handelt sich hier um Optimierungen,
-die, wenn sie erfolgreich waren, weitere dieser Optimierungen aufrufen.
+Then, pass2 calls the 3rd step.  The 3rd step involves optimizations
+that call further optimizations on success.
 
 |#
 
 #|
-                             1. Schritt:
-          Expansion von Code-Teilen, Aufteilen des Codes in Stücke
+                             1st Step:
+          Expansion of Code-Parts, Division of the Code in parts
 
-Verändert werden:
+changed:
 
-vorher                           nachher
+ before                           after
 
-(CONST const)                    (CONST n const)
-(FCONST fnode)                   (CONST n), Fixup für 3. Pass merken
-(BCONST block)                   (CONST n)
-(GCONST tagbody)                 (CONST n)
-(GET var venvc stackz)           (LOAD n) oder (LOADI k1 k2 n)
-                                 oder (LOADC n m) oder (LOADIC k1 k2 n m)
-                                 oder (LOADV k m) oder (GETVALUE n)
-                                 oder (CONST n) oder (CONST n const)
-(SET var venvc stackz)           (STORE n) oder (STOREI k1 k2 n)
-                                 oder (STOREC n m) oder (STOREIC k1 k2 n m)
-                                 oder (STOREV k m) oder (SETVALUE n)
-(SETVALUE symbol)                (SETVALUE n)
-(GETVALUE symbol)                (GETVALUE n)
-(BIND const)                     (BIND n)
-(UNWIND stackz1 stackz2 for-value) eine Folge von
-                                 (SKIP n), (SKIPI k1 k2 n), (SKIPSP k1 k2),
-                                 (VALUES0), (UNWIND-PROTECT-CLEANUP), (UNBIND1),
-                                 (BLOCK-CLOSE), (TAGBODY-CLOSE)
-(UNWINDSP stackz1 stackz2)       eine Folge von (SKIPSP k1 k2)
-(JMPIF label)                    (JMPCASE label new-label) new-label
-(JMPIFNOT label)                 (JMPCASE new-label label) new-label
-(JMPIF1 label)                   (JMPCASE1-TRUE label new-label) new-label
-(JMPIFNOT1 label)                (JMPCASE1-FALSE new-label label) new-label
-(JMPHASH test ((obj1 . label1) ... (objm . labelm)) label . labels)
-                                 (JMPHASH n ht label . labels)
-                                 wobei ht = Hash-Tabelle (obji -> labeli) ist
-(VENV venvc stackz)              (VENV) oder (NIL)
-                                 oder (LOAD n) oder (LOADI k1 k2 n)
-(COPY-CLOSURE fnode n)           (COPY-CLOSURE m n), Fixup für 3. Pass merken
-(CALLP)                          gestrichen
-(CALL k fun)                     (CALL k n)
-(CALL0 fun)                      (CALL0 n)
-(CALL1 fun)                      (CALL1 n)
-(CALL2 fun)                      (CALL2 n)
-(FUNCALLP)                       (PUSH)
-(APPLYP)                         (PUSH)
-(JMPIFBOUNDP var venvc stackz label)
-                                 (JMPIFBOUNDP n label)
-(BOUNDP var venvc stackz)        (BOUNDP n)
-(BLOCK-OPEN const label)         (BLOCK-OPEN n label)
-(RETURN-FROM const)              (RETURN-FROM n)
-(RETURN-FROM block)              (RETURN-FROM n)
-(RETURN-FROM block stackz)       (RETURN-FROM-I k1 k2 n)
-(TAGBODY-OPEN const label1 ... labelm)
-                                 (TAGBODY-OPEN n label1 ... labelm)
-(GO const l)                     (GO n l)
-(GO tagbody (x . l))             (GO n l)
-(GO tagbody (x . l) stackz)      (GO-I k1 k2 n l)
-(HANDLER-OPEN const stackz label1 ... labelm)
-                                 (HANDLER-OPEN n v k label1 ... labelm)
+ (CONST const)                    (CONST n const)
+ (FCONST fnode)                   (CONST n), memorize Fixup for 3. Pass
+ (BCONST block)                   (CONST n)
+ (GCONST tagbody)                 (CONST n)
+ (GET var venvc stackz)           (LOAD n) or (LOADI k1 k2 n)
+                                  or (LOADC n m) or (LOADIC k1 k2 n m)
+                                  or (LOADV k m) or (GETVALUE n)
+                                  or (CONST n) or (CONST n const)
+ (SET var venvc stackz)           (STORE n) or (STOREI k1 k2 n)
+                                  or (STOREC n m) or (STOREIC k1 k2 n m)
+                                  or (STOREV k m) or (SETVALUE n)
+ (SETVALUE symbol)                (SETVALUE n)
+ (GETVALUE symbol)                (GETVALUE n)
+ (BIND const)                     (BIND n)
+ (UNWIND stackz1 stackz2 for-value) a sequence of
+                                  (SKIP n), (SKIPI k1 k2 n), (SKIPSP k1 k2),
+                                  (VALUES0), (UNWIND-PROTECT-CLEANUP),
+                                  (UNBIND1), (BLOCK-CLOSE), (TAGBODY-CLOSE)
+ (UNWINDSP stackz1 stackz2)       a sequence of (SKIPSP k1 k2)
+ (JMPIF label)                    (JMPCASE label new-label) new-label
+ (JMPIFNOT label)                 (JMPCASE new-label label) new-label
+ (JMPIF1 label)                   (JMPCASE1-TRUE label new-label) new-label
+ (JMPIFNOT1 label)                (JMPCASE1-FALSE new-label label) new-label
+ (JMPHASH test ((obj1 . label1) ... (objm . labelm)) label . labels)
+                                  (JMPHASH n ht label . labels)
+                                  with ht = Hash-Tabelle (obji -> labeli)
+ (VENV venvc stackz)              (VENV) or (NIL)
+                                  or (LOAD n) or (LOADI k1 k2 n)
+ (COPY-CLOSURE fnode n)           (COPY-CLOSURE m n), memorize Fixup for Pass3
+ (CALLP)                          discarded
+ (CALL k fun)                     (CALL k n)
+ (CALL0 fun)                      (CALL0 n)
+ (CALL1 fun)                      (CALL1 n)
+ (CALL2 fun)                      (CALL2 n)
+ (FUNCALLP)                       (PUSH)
+ (APPLYP)                         (PUSH)
+ (JMPIFBOUNDP var venvc stackz label)
+                                  (JMPIFBOUNDP n label)
+ (BOUNDP var venvc stackz)        (BOUNDP n)
+ (BLOCK-OPEN const label)         (BLOCK-OPEN n label)
+ (RETURN-FROM const)              (RETURN-FROM n)
+ (RETURN-FROM block)              (RETURN-FROM n)
+ (RETURN-FROM block stackz)       (RETURN-FROM-I k1 k2 n)
+ (TAGBODY-OPEN const label1 ... labelm)
+                                  (TAGBODY-OPEN n label1 ... labelm)
+ (GO const l)                     (GO n l)
+ (GO tagbody (x . l))             (GO n l)
+ (GO tagbody (x . l) stackz)      (GO-I k1 k2 n l)
+ (HANDLER-OPEN const stackz label1 ... labelm)
+                                  (HANDLER-OPEN n v k label1 ... labelm)
+ unchanged:
+ (NIL)
+ (PUSH-NIL n)
+ (T)
+ (STORE n)
+ (UNBIND1)
+ (PROGV)
+ (PUSH)
+ (POP)
+ (RET)
+ (RETGF)
+ (JMP label)
+ (JSR m label)
+ (BARRIER)
+ (MAKE-VECTOR1&PUSH n)
+ (CALLS1 n)
+ (CALLS2 n)
+ (CALLSR m n)
+ (CALLC)
+ (CALLCKEY)
+ (FUNCALL n)
+ (APPLY n)
+ (PUSH-UNBOUND n)
+ (UNLIST n m)
+ (UNLIST* n m)
+ (VALUES0)
+ (VALUES1)
+ (STACK-TO-MV n)
+ (MV-TO-STACK)
+ (NV-TO-STACK n)
+ (MV-TO-LIST)
+ (LIST-TO-MV)
+ (MVCALLP)
+ (MVCALL)
+ (BLOCK-CLOSE)
+ (TAGBODY-CLOSE-NIL)
+ (TAGBODY-CLOSE)
+ (CATCH-OPEN label)
+ (CATCH-CLOSE)
+ (THROW)
+ (UNWIND-PROTECT-OPEN label)
+ (UNWIND-PROTECT-NORMAL-EXIT)
+ (UNWIND-PROTECT-CLOSE label)
+ (UNWIND-PROTECT-CLEANUP)
+ (HANDLER-BEGIN)
+ (NOT)
+ (EQ)
+ (CAR)
+ (CDR)
+ (CONS)
+ (ATOM)
+ (CONSP)
+ (SYMBOL-FUNCTION)
+ (SVREF)
+ (SVSET)
+ (LIST n)
+ (LIST* n)
 
+New Operations:
 
-unverändert bleiben:
-(NIL)
-(PUSH-NIL n)
-(T)
-(STORE n)
-(UNBIND1)
-(PROGV)
-(PUSH)
-(POP)
-(RET)
-(RETGF)
-(JMP label)
-(JSR m label)
-(BARRIER)
-(MAKE-VECTOR1&PUSH n)
-(CALLS1 n)
-(CALLS2 n)
-(CALLSR m n)
-(CALLC)
-(CALLCKEY)
-(FUNCALL n)
-(APPLY n)
-(PUSH-UNBOUND n)
-(UNLIST n m)
-(UNLIST* n m)
-(VALUES0)
-(VALUES1)
-(STACK-TO-MV n)
-(MV-TO-STACK)
-(NV-TO-STACK n)
-(MV-TO-LIST)
-(LIST-TO-MV)
-(MVCALLP)
-(MVCALL)
-(BLOCK-CLOSE)
-(TAGBODY-CLOSE-NIL)
-(TAGBODY-CLOSE)
-(CATCH-OPEN label)
-(CATCH-CLOSE)
-(THROW)
-(UNWIND-PROTECT-OPEN label)
-(UNWIND-PROTECT-NORMAL-EXIT)
-(UNWIND-PROTECT-CLOSE label)
-(UNWIND-PROTECT-CLEANUP)
-(HANDLER-BEGIN)
-(NOT)
-(EQ)
-(CAR)
-(CDR)
-(CONS)
-(ATOM)
-(CONSP)
-(SYMBOL-FUNCTION)
-(SVREF)
-(SVSET)
-(LIST n)
-(LIST* n)
+ (JMP label boolvalue)            jump to label, boolvalue describes the 1.
+                                  value: FALSE if =NIL, TRUE if /=NIL,
+                                  NIL if unknown.
 
-Neue Operationen:
+ (JMPCASE label1 label2)          jump to label1, if A0 /= NIL,
+                                  resp. to label2, if A0 = NIL.
 
-(JMP label boolvalue)            Sprung zu label, boolvalue beschreibt den 1.
-                                 Wert: FALSE falls =NIL, TRUE falls /=NIL,
-                                 NIL falls unbekannt.
+ (JMPCASE1-TRUE label1 label2)    if A0 /= NIL: jump to label1, 1 value.
+                                  if A0 = NIL: jump to label2.
 
-(JMPCASE label1 label2)          Sprung zu label1, falls A0 /= NIL,
-                                 bzw. zu label2, falls A0 = NIL.
+ (JMPCASE1-FALSE label1 label2)   if A0 /= NIL: jump to label1.
+                                  if A0 = NIL: jump to label2, 1 value.
 
-(JMPCASE1-TRUE label1 label2)    Falls A0 /= NIL: Sprung nach label1, 1 Wert.
-                                 Falls A0 = NIL: Sprung nach label2.
-
-(JMPCASE1-FALSE label1 label2)   Falls A0 /= NIL: Sprung nach label1.
-                                 Falls A0 = NIL: Sprung nach label2, 1 Wert.
-
-(JMPTAIL m n label)              Verkleinerung des Stack-Frames von n auf m,
-                                 dann Sprung zu label mit undefinierten Werten.
+ (JMPTAIL m n label)              reduction of the Stack-Frame from n to m,
+                                  then jump to label with undefined values.
 
 |#
 
-; Ein Vektor mit Fill-Pointer, der die Codestücke enthält:
+;; A Vector with Fill-Pointer that contains the code-parts:
 (defvar *code-parts*)
 
-; Ein gleichlanger Vektor mit Fill-Pointer, der zu jedem Codestück eine
-; "Position" enthält, wo das Stück am Ende landen soll (0 = ganz am Anfang,
-; je höher, desto weiter hinten).
+;; A Vector of the same length with Fill-Pointer, that contains for each
+;; code-part a "Position", where the part should be located finally (0 =
+;; right at the beginning, higher values mean: shift further behind).
 (defvar *code-positions*)
 
-; Trägt eine Konstante in (fnode-consts *func*) ein und liefert deren Index n.
-; value ist der Wert der Konstanten,
-; form eine Form mit diesem Wert oder NIL,
-; horizont = :value (dann ist form = NIL) oder :all oder :form.
-(defun value-form-index (value form horizont &optional (func *func*))
+;; Registers a constant in (fnode-consts *func*) and returns its Index n.
+;; value is the Value of the constant,
+;; form is a Form with this value or NIL,
+;; horizon = :value (then form = NIL) or :all or :form.
+(defun value-form-index (value form horizon &optional (func *func*))
   (let ((const-list (fnode-consts func))
         (forms-list (fnode-consts-forms func))
         (n (fnode-Consts-Offset func)))
@@ -9018,614 +8332,531 @@ Neue Operationen:
       (progn
         (setf (fnode-consts func) (list value))
         (setf (fnode-consts-forms func) (list form))
-        n
-      )
+        n)
       (loop
-        (when (if (eq horizont ':form)
+        (when (if (eq horizon ':form)
                 (eql (car forms-list) form)
-                ; Bei horizont = :value oder :all vergleichen wir nur value.
-                (eql (car const-list) value)
-              )
-          (return n)
-        )
+                ;; When horizon = :value or :all, we will compare only value.
+                (eql (car const-list) value))
+          (return n))
         (incf n)
         (when (null (cdr const-list))
           (setf (cdr const-list) (list value))
           (setf (cdr forms-list) (list form))
-          (return n)
-        )
+          (return n))
         (setq const-list (cdr const-list))
-        (setq forms-list (cdr forms-list))
-) ) ) )
+        (setq forms-list (cdr forms-list))))))
 (defun constvalue-index (value)
-  (value-form-index value nil ':value)
-)
+  (value-form-index value nil ':value))
 
-; sucht eine Konstante in (fnode-Keywords *func*) und in (fnode-Consts *func*),
-; trägt sie eventuell in (fnode-Consts *func*) ein. Liefert ihren Index n.
-(defun kvalue-form-index (value form horizont &optional (func *func*))
-  (when (and (not (eq horizont ':form)) (symbolp value)) ; nur bei Symbolen (früher: Keywords) lohnt sich die Suche
+;; searches a constant in (fnode-Keywords *func*) and in (fnode-Consts *func*),
+;; possibly registers it in (fnode-Consts *func*) . Returns its Index n.
+(defun kvalue-form-index (value form horizon &optional (func *func*))
+  (when (and (not (eq horizon ':form)) (symbolp value))
+    ;; the search only pays off for Symbols (formerly: Keywords)
     (do ((n (fnode-Keyword-Offset func) (1+ n))
          (L (fnode-Keywords func) (cdr L)))
         ((null L))
-      (if (eq (car L) value) (return-from kvalue-form-index n))
-  ) )
-  (value-form-index value form horizont func)
-)
+      (if (eq (car L) value) (return-from kvalue-form-index n))))
+  (value-form-index value form horizon func))
 (defun kconstvalue-index (value)
-  (kvalue-form-index value nil ':value)
-)
+  (kvalue-form-index value nil ':value))
 (defun const-index (const)
-  (if (and *compiling-from-file* (not (eq (const-horizont const) ':value)))
-    (kvalue-form-index (const-value const) (const-form const) (const-horizont const))
-    (kvalue-form-index (const-value const) nil ':value)
-) )
+  (if (and *compiling-from-file* (not (eq (const-horizon const) ':value)))
+    (kvalue-form-index (const-value const) (const-form const)
+                       (const-horizon const))
+    (kvalue-form-index (const-value const) nil ':value)))
 
-; (make-const-code const) liefert den Code, der den Wert der Konstanten
-; als 1 Wert nach A0 bringt.
+;; (make-const-code const) returns the Code, that moves the value of the
+;; constant as 1 value to A0 .
 (defun make-const-code (const)
-  (unless (eq (const-horizont const) ':form)
+  (unless (eq (const-horizon const) ':form)
     (let ((value (const-value const)))
       (cond ((eq value 'nil) (return-from make-const-code '(NIL) ))
-            ((eq value 't) (return-from make-const-code '(T) ))
-  ) ) )
-  `(CONST ,(const-index const) ,const)
-)
+            ((eq value 't) (return-from make-const-code '(T) )))))
+  `(CONST ,(const-index const) ,const))
 
-; (bconst-index block) liefert den Index in FUNC, an dem dieser Block steht.
+;; (bconst-index block) returns the Index in FUNC,
+;; where this Block is located.
 (defun bconst-index (block &optional (func *func*))
-; (+ (fnode-Blocks-Offset func)
-;    (position block (fnode-Blocks func) :test #'eq)
-; )
+  ;; (+ (fnode-Blocks-Offset func)
+  ;;    (position block (fnode-Blocks func) :test #'eq))
   (do ((n (fnode-Blocks-Offset func) (1+ n))
        (L (fnode-Blocks func) (cdr L)))
-      ((eq (car L) block) n)
-) )
+      ((eq (car L) block) n)))
 
-; (gconst-index tagbody) liefert den Index in FUNC, an dem dieser Tagbody steht.
+;; (gconst-index tagbody) returns the Index in FUNC,
+;; where this Tagbody is located.
 (defun gconst-index (tagbody &optional (func *func*))
-; (+ (fnode-Tagbodys-Offset func)
-;    (position tagbody (fnode-Tagbodys func) :test #'eq)
-; )
+  ;; (+ (fnode-Tagbodys-Offset func)
+  ;;    (position tagbody (fnode-Tagbodys func) :test #'eq))
   (do ((n (fnode-Tagbodys-Offset func) (1+ n))
        (L (fnode-Tagbodys func) (cdr L)))
-      ((eq (car L) tagbody) n)
-) )
+      ((eq (car L) tagbody) n)))
 
-; (fconst-index fnode) liefert den Index in FUNC, an dem dieser fnode in den
-; Konstanten steht. Wenn nötig, wird er eingefügt und in *fnode-fixup-table*
-; vermerkt.
-;;; the index to FUNC, to this fnode supplies to that
-;;; Is to constant ones. If necessary, it is inserted and
-;;; into *fnode-fixup-table*; noted.
-
+;;; (fconst-index fnode) returns the Index in FUNC, where this fnode is
+;;; located in the constants. If necessary, it is inserted and noted in
+;;; *fnode-fixup-table* .
 (defun fconst-index (fnode &optional (func *func*))
   (if (member fnode (fnode-Consts func))
     (constvalue-index fnode)
     (let ((n (constvalue-index fnode)))
       (push (list func n) *fnode-fixup-table*)
-      n
-) ) )
+      n)))
 
-; Hilfsvariablen beim rekursiven Aufruf von traverse-anode:
+;; Auxiliary Variables for recursive call of traverse-anode:
 
-; Das aktuelle Codestück, eine umgedrehte Liste von Instruktionen, die
-; mit dem Start-Label als letztem nthcdr endet.
+;; the current code-part, a reversed list of instructions, that
+;; ends with the Start-Label as last nthcdr.
 (defvar *code-part*)
 
-; und seine Nummer (Index in *code-parts*)
+;; and its number (Index in *code-parts*)
 (defvar *code-index*)
 
-; Flag, ob "toter Code" (d.h. Code, der nicht erreichbar ist) vorliegt
+;; Flag, if "dead Code" (i.e. Code, that is not reachable)
 (defvar *dead-code*)
 
-; Für Sprungkettenverkürzung in traverse-anode: Liste aller bereits
-; durchgeführten Label-Substitutionen ((old-label . new-label) ...)
+;; For jump-optimization in traverse-anode: List of all already
+;; executed Label-Substitutions ((old-label . new-label) ...)
 (defvar *label-subst*)
 
-; Der aktuelle Wert, interpretiert als boolescher Wert:
-; FALSE falls =NIL, TRUE falls /=NIL, NIL falls unbekannt.
-; (Keine Einschränkung an die Anzahl der Werte!)
+;; The current value, interpreted as boolean value:
+;; FALSE if =NIL, TRUE if /=NIL, NIL if unknown.
+;; (no restriction on the number of values!)
 (defvar *current-value*)
 
-; Liste der Variablen/Konstanten, deren Wert mit dem aktuellen übereinstimmt
-; (lexikalische Variablen als VARIABLE-Structures, dynamische Variablen als
-; Symbole, Konstanten als CONST-Structures mit horizont = :value oder :all).
-; Ist diese Liste nichtleer, so liegt auch genau 1 Wert vor.
+;; List of Variables/Constants, whose values match the current
+;; (lexical Variables as VARIABLE-Structures, dynamic Variables as
+;; Symbols, Constants as CONST-Structures with horizon = :value or :all).
+;; If this list is non-empty, there is exactly 1 value.
 (defvar *current-vars*)
 
-; Jedes Label (ein Gensym-Symbol) hat als Wert eine Liste aller Referenzen
-; auf label, und zwar jeweils entweder als Index i in *code-parts*, wenn es
-; sich um den Wegsprung (das Ende) von (aref *code-parts* i) handelt, oder
-; als Instruktion (einer Liste) in allen anderen Fällen. Falls das Label
-; ein Codestück beginnt, steht unter (get label 'code-part) der Index in
-; *code-part* des Codestücks, das mit diesem Label anfängt. Unter
-; (get label 'for-value) steht, wieviele Werte bei einem möglichen Sprung
-; auf das Label von Bedeutung sind (NIL/ONE/ALL).
-; Eine Ausnahme stellt das "Label" NIL dar, das den Einsprungpunkt darstellt.
+;; Each Label (a Gensym-Symbol) has as value a list of all References
+;; to label, either as Index i in *code-parts*, if it is
+;; the jump (the end) of (aref *code-parts* i) , or
+;; as instruction (of a list) in all other cases. If the Label
+;; starts a code-part, at (get label 'code-part) the Index in
+;; *code-part* of the code-part is written, that starts with this Label. At
+;; (get label 'for-value) is specified, how many values have a meaning
+;; for a possible jump to the Label (NIL/ONE/ALL).
+;; An exception is the "Label" NIL , which represents the entry-point.
 
-; Ersetzt alle Referenzen auf old-label durch Referenzen auf new-label.
+;; Substitutes all references to old-label with references to new-label.
 (defun label-subst (old-label new-label)
-  ; alle Referenzen auf old-label verändern:
+  ;; change all references to old-label:
   (dolist (ref (symbol-value old-label))
     (nsubst new-label old-label
-            (rest (if (integerp ref) (first (aref *code-parts* ref)) ref))
-  ) )
-  ; und als Referenzen auf new-label eintragen:
+            (rest (if (integerp ref) (first (aref *code-parts* ref)) ref))))
+  ;; and register as references to new-label:
   (setf (symbol-value new-label)
-    (nconc (symbol-value old-label) (symbol-value new-label))
-  )
+        (nconc (symbol-value old-label) (symbol-value new-label)))
   (setf (symbol-value old-label) '())
-  ; Mit old-label fängt kein Codestück mehr an:
-  (remprop old-label 'code-part)
-)
+  ;; no code-part starts with old-label:
+  (remprop old-label 'code-part))
 
-; Aktuelles Codestück beenden und ein neues Codestück anfangen:
+;; end current code-part and start a new code-part:
 (defun finish-code-part ()
-  ; das aktuelle Codestück vereinfachen:
+  ;; simplify the current code-part:
   (simplify *code-part*)
-  ; *code-part* in *code-parts* unterbringen:
+  ;; store *code-part* in *code-parts* :
   (vector-push-extend *code-part* *code-parts*)
-  (vector-push-extend (incf *code-index*) *code-positions*)
-)
+  (vector-push-extend (incf *code-index*) *code-positions*))
 
-; Einen Wegsprung auf Label label emittieren.
-; Dadurch wird ein neues Codestück angefangen.
+;; emit a jump to Label label.
+;; Thus a new code-part is started.
 (defun emit-jmp (label)
-  ; mit einem Wegsprung:
+  ;; with a jump:
   (push `(JMP ,label ,*current-value*) *code-part*)
   (push *code-index* (symbol-value label))
-  (finish-code-part)
-)
+  (finish-code-part))
 
-; Läuft durch den Code eines Anode durch, expandiert den Code und baut dabei
-; *code-part* weiter. Adjustiert die Variablen *current-value* usw. passend.
+;; traverses through the Code of an Anode, expands the Code and
+;; continues building *code-part* . Adjusts the Variables
+;; *current-value* etc. accordingly.
 (defun traverse-anode (code)
   (dolist (item code)
     (if (atom item)
       (cond ((symbolp item) ; Label
              (if *dead-code*
-               ; Code kann angesprungen werden, ist ab jetzt nicht mehr tot
+               ;; Code can be reached, so it is from now on not dead anymore
                (setq *dead-code* nil)
                (if (symbolp *code-part*)
-                 ; Label item sofort nach Label *code-part*
-                 ; -> können identifiziert werden
+                 ;; move Label item immediately to Label *code-part*
+                 ;; -> can be identified
                  (let ((old-label *code-part*) (new-label item))
-                   ; substituiere *code-parts* -> item
+                   ;; substitute *code-parts* -> item
                    (label-subst old-label new-label)
                    (setq *label-subst*
                      (acons old-label new-label
-                       (nsubst new-label old-label *label-subst*)
-                 ) ) )
-                 ; Label mitten im Codestück -> aktuelles Codestück beenden
-                 (emit-jmp item)
-             ) )
-             ; jetzt geht das aktuelle Codestück erst richtig los,
-             ; mit dem Label item:
+                       (nsubst new-label old-label *label-subst*))))
+                 ;; Label amid the code-part -> finish current code-part
+                 (emit-jmp item)))
+             ;; now the current code-part really starts,
+             ;; with the label item:
              (setq *code-part* item)
              (setf (get item 'code-part) (fill-pointer *code-parts*))
-             ; Da noch Sprünge auf dieses Label kommen können, wissen wir
-             ; nicht, was A0 enthält:
-             (setq *current-value* nil *current-vars* '())
-            )
-            ((anode-p item) (traverse-anode (anode-code item))) ; Anode -> rekursiv
-            (t (compiler-error 'traverse-anode "ITEM"))
-      )
-      ; item ist eine normale Instruktion
-      (unless *dead-code* ; nur erreichbarer Code braucht verarbeitet zu werden
-        (nsublis *label-subst* (rest item)) ; bisherige Substitutionen durchführen
+             ;; jumps to this Label can still occur, so we do not know,
+             ;; what A0 contains:
+             (setq *current-value* nil *current-vars* '()))
+            ((anode-p item)     ; Anode -> recursive
+             (traverse-anode (anode-code item)))
+            (t (compiler-error 'traverse-anode "ITEM")))
+      ;; item is a normal instruction
+      (unless *dead-code* ; only reachable code has to be processed
+        (nsublis *label-subst* (rest item)) ; perform substitutions so far
         (case (first item)
           (CONST
-            (let ((const (second item)))
-              (if (eq (const-horizont const) ':form)
-                (progn
-                  (push (make-const-code const) *code-part*)
-                  (setq *current-value* nil *current-vars* '())
-                )
-                (let ((cv (const-value const)))
-                  (unless ; ein (CONST cv) schon in *current-vars* enthalten?
-                      (dolist (v *current-vars* nil)
-                        (when (and (const-p v) (eq (const-value v) cv)) (return t))
-                      )
-                    (push (make-const-code const) *code-part*)
-                    (setq *current-value* (if (null cv) 'FALSE 'TRUE)
-                          *current-vars* (list const)
-          ) ) ) ) ) )
+           (let ((const (second item)))
+             (if (eq (const-horizon const) ':form)
+               (progn
+                 (push (make-const-code const) *code-part*)
+                 (setq *current-value* nil *current-vars* '()))
+               (let ((cv (const-value const)))
+                 (unless ; is (CONST cv) already contained in *current-vars*?
+                     (dolist (v *current-vars* nil)
+                       (when (and (const-p v) (eq (const-value v) cv))
+                         (return t)))
+                   (push (make-const-code const) *code-part*)
+                   (setq *current-value* (if (null cv) 'FALSE 'TRUE)
+                         *current-vars* (list const)))))))
           (FCONST
-            (push `(CONST ,(fconst-index (second item))) *code-part*)
-            (setq *current-value* 'TRUE *current-vars* '())
-          )
+           (push `(CONST ,(fconst-index (second item))) *code-part*)
+           (setq *current-value* 'TRUE *current-vars* '()))
           (BCONST
-            (push `(CONST ,(bconst-index (second item))) *code-part*)
-            (setq *current-value* 'TRUE *current-vars* '())
-          )
+           (push `(CONST ,(bconst-index (second item))) *code-part*)
+           (setq *current-value* 'TRUE *current-vars* '()))
           (GCONST
-            (push `(CONST ,(gconst-index (second item))) *code-part*)
-            (setq *current-value* 'TRUE *current-vars* '())
-          )
+           (push `(CONST ,(gconst-index (second item))) *code-part*)
+           (setq *current-value* 'TRUE *current-vars* '()))
           (GET
-            (let ((var (second item))
-                  (venvc (third item))
-                  (stackz (fourth item)))
-              (unless (member var *current-vars* :test #'eq) ; Ist bereits der aktuelle Wert = var ?
-                (push
-                  (if (var-constantp var)
-                    (let* ((const (var-constant var))
-                           (val (const-value const)))
-                      (setq *current-value* (if (null val) 'FALSE 'TRUE))
-                      (if (fnode-p val)
-                        ; FNODEs als Werte können (fast) nur von LABELS stammen
-                        `(CONST ,(fconst-index val))
-                        (make-const-code const)
-                    ) )
-                    (progn
-                      (setq *current-value* nil)
-                      (if (var-specialp var)
-                        `(GETVALUE ,(kconstvalue-index (setq var (var-name var))))
-                        (if (var-closurep var)
-                          (multiple-value-bind (k n m)
-                              (zugriff-in-closure var venvc stackz)
-                            (if n
-                              (if k `(LOADIC ,(car k) ,(cdr k) ,n ,m) `(LOADC ,n ,m))
-                              `(LOADV ,k ,(1+ m))
-                          ) )
-                          ; lexikalisch und im Stack, also in derselben Funktion
-                          (multiple-value-bind (k n)
-                              (zugriff-in-stack stackz (var-stackz var))
-                            (if k `(LOADI ,(car k) ,(cdr k) ,n) `(LOAD ,n) )
-                  ) ) ) ) )
-                  *code-part*
-                )
-                (setq *current-vars* (list var))
-          ) ) )
+           (let ((var (second item))
+                 (venvc (third item))
+                 (stackz (fourth item)))
+             (unless (member var *current-vars* :test #'eq)
+               ;; already the current value = var ?
+               (push
+                (if (var-constantp var)
+                  (let* ((const (var-constant var))
+                         (val (const-value const)))
+                    (setq *current-value* (if (null val) 'FALSE 'TRUE))
+                    (if (fnode-p val)
+                      ;; FNODEs as values can (almost) solely
+                      ;; originate from LABELS
+                      `(CONST ,(fconst-index val))
+                      (make-const-code const)))
+                  (progn
+                    (setq *current-value* nil)
+                    (if (var-specialp var)
+                      `(GETVALUE ,(kconstvalue-index
+                                   (setq var (var-name var))))
+                      (if (var-closurep var)
+                        (multiple-value-bind (k n m)
+                            (access-in-closure var venvc stackz)
+                          (if n
+                            (if k `(LOADIC ,(car k) ,(cdr k) ,n ,m)
+                                `(LOADC ,n ,m))
+                            `(LOADV ,k ,(1+ m))))
+                        ;; lexical and in Stack, so in the same function
+                        (multiple-value-bind (k n)
+                            (access-in-stack stackz (var-stackz var))
+                          (if k `(LOADI ,(car k) ,(cdr k) ,n)
+                              `(LOAD ,n) ))))))
+                *code-part*)
+               (setq *current-vars* (list var)))))
           (SET
-            (let ((var (second item))
-                  (venvc (third item))
-                  (stackz (fourth item)))
-              (unless (member var *current-vars* :test #'eq) ; Ist bereits der aktuelle Wert = var ?
-                (push
-                  (if (var-specialp var)
-                    `(SETVALUE ,(kconstvalue-index (setq var (var-name var))))
-                    (if (var-closurep var)
-                      (multiple-value-bind (k n m)
-                          (zugriff-in-closure var venvc stackz)
-                        (if n
-                          (if k `(STOREIC ,(car k) ,(cdr k) ,n ,m) `(STOREC ,n ,m))
-                          `(STOREV ,k ,(1+ m))
-                      ) )
-                      ; lexikalisch und im Stack, also in derselben Funktion
-                      (multiple-value-bind (k n)
-                          (zugriff-in-stack stackz (var-stackz var))
-                        (if k `(STOREI ,(car k) ,(cdr k) ,n) `(STORE ,n) )
-                  ) ) )
-                  *code-part*
-                )
-                (push var *current-vars*) ; *current-value* bleibt unverändert
-          ) ) )
+           (let ((var (second item))
+                 (venvc (third item))
+                 (stackz (fourth item)))
+             (unless (member var *current-vars* :test #'eq)
+               ;; already the current value = var ?
+               (push
+                (if (var-specialp var)
+                  `(SETVALUE ,(kconstvalue-index (setq var (var-name var))))
+                  (if (var-closurep var)
+                    (multiple-value-bind (k n m)
+                        (access-in-closure var venvc stackz)
+                      (if n
+                        (if k `(STOREIC ,(car k) ,(cdr k) ,n ,m)
+                            `(STOREC ,n ,m))
+                        `(STOREV ,k ,(1+ m))))
+                    ;; lexical and in Stack, so in the same function
+                    (multiple-value-bind (k n)
+                        (access-in-stack stackz (var-stackz var))
+                      (if k `(STOREI ,(car k) ,(cdr k) ,n) `(STORE ,n) ))))
+                *code-part*)
+               (push var *current-vars*)))) ; *current-value* is unchanged
           (GETVALUE
-            (let ((symbol (second item)))
-              (unless (member symbol *current-vars* :test #'eq)
-                (push `(GETVALUE ,(kconstvalue-index symbol)) *code-part*)
-                (setq *current-value* nil *current-vars* (list symbol))
-          ) ) )
+           (let ((symbol (second item)))
+             (unless (member symbol *current-vars* :test #'eq)
+               (push `(GETVALUE ,(kconstvalue-index symbol)) *code-part*)
+               (setq *current-value* nil *current-vars* (list symbol)))))
           (SETVALUE
-            (let ((symbol (second item)))
-              (unless (member symbol *current-vars* :test #'eq)
-                (push `(SETVALUE ,(kconstvalue-index symbol)) *code-part*)
-                (push symbol *current-vars*) ; *current-value* bleibt unverändert
-          ) ) )
+           (let ((symbol (second item)))
+             (unless (member symbol *current-vars* :test #'eq)
+               (push `(SETVALUE ,(kconstvalue-index symbol)) *code-part*)
+               (push symbol *current-vars*)))) ; *current-value* is unchanged
           (BIND
-            (push `(BIND ,(const-index (second item))) *code-part*)
-            (setq *current-value* nil *current-vars* '()) ; undefinierte Werte
-          )
-          (UNWIND ; mehrzeilige Umwandlung
-            (traverse-anode
-              (expand-UNWIND (second item) (third item) (fourth item))
-          ) )
-          (UNWINDSP ; mehrzeilige Umwandlung
-            (let ((k (spdepth-difference (second item) (third item))))
-              (when (or (> (car k) 0) (> (cdr k) 0))
-                (push `(SKIPSP ,(car k) ,(cdr k)) *code-part*)
-          ) ) )
+           (push `(BIND ,(const-index (second item))) *code-part*)
+           (setq *current-value* nil *current-vars* '())) ; undefined values
+          (UNWIND ; multi-line conversion
+           (traverse-anode
+            (expand-UNWIND (second item) (third item) (fourth item))))
+          (UNWINDSP ; multi-line conversion
+           (let ((k (spdepth-difference (second item) (third item))))
+             (when (or (> (car k) 0) (> (cdr k) 0))
+               (push `(SKIPSP ,(car k) ,(cdr k)) *code-part*))))
           ((JMPIF JMPIFNOT JMPIF1 JMPIFNOT1)
-            (if (null *current-value*)
-              (let ((label (second item))
-                    (new-label (make-label 'NIL)))
-                (push
-                  (case (first item)
-                    (JMPIF `(JMPCASE ,label ,new-label))
-                    (JMPIFNOT `(JMPCASE ,new-label ,label))
-                    (JMPIF1 `(JMPCASE1-TRUE ,label ,new-label))
-                    (JMPIFNOT1 `(JMPCASE1-FALSE ,new-label ,label))
-                  )
-                  *code-part*
-                )
-                (push *code-index* (symbol-value (second item)))
-                (push *code-index* (symbol-value new-label))
-                (finish-code-part)
-                (setf (get new-label 'code-part) (fill-pointer *code-parts*))
-                (setq *code-part* new-label)
-                ; *current-value* und *current-vars* bleiben unverändert.
-              )
-              ; boolescher Wert beim Wegsprung bekannt
-              (if (if (eq *current-value* 'FALSE)
-                    (memq (first item) '(JMPIF JMPIF1)) ; Wert=NIL -> JMPIF weglassen
-                    (memq (first item) '(JMPIFNOT JMPIFNOT1)) ; Wert/=NIL -> JMPIFNOT weglassen
-                  )
-                ; Sprung weglassen
-                nil
-                ; in JMP umwandeln:
-                (progn
-                  (when (memq (first item) '(JMPIF1 JMPIFNOT1))
-                    (push '(VALUES1) *code-part*) ; genau 1 Wert erzwingen
-                  )
-                  (emit-jmp (second item))
-                  (setq *dead-code* t)
-          ) ) ) )
+           (if (null *current-value*)
+             (let ((label (second item))
+                   (new-label (make-label 'NIL)))
+               (push
+                (case (first item)
+                  (JMPIF `(JMPCASE ,label ,new-label))
+                  (JMPIFNOT `(JMPCASE ,new-label ,label))
+                  (JMPIF1 `(JMPCASE1-TRUE ,label ,new-label))
+                  (JMPIFNOT1 `(JMPCASE1-FALSE ,new-label ,label)))
+                *code-part*)
+               (push *code-index* (symbol-value (second item)))
+               (push *code-index* (symbol-value new-label))
+               (finish-code-part)
+               (setf (get new-label 'code-part) (fill-pointer *code-parts*))
+               (setq *code-part* new-label)
+               ;; *current-value* and *current-vars* remain unchanged.
+               )
+             ;; boolean value known at jump
+             (if (if (eq *current-value* 'FALSE)
+                     ;; value=NIL -> omit JMPIF
+                     (memq (first item) '(JMPIF JMPIF1))
+                     ;; value/=NIL -> omit JMPIFNOT
+                     (memq (first item) '(JMPIFNOT JMPIFNOT1)))
+               ;; omit jump
+               nil
+               ;; convert to JMP:
+               (progn
+                 (when (memq (first item) '(JMPIF1 JMPIFNOT1))
+                   (push '(VALUES1) *code-part*)) ; coerce exactly 1 value
+                 (emit-jmp (second item))
+                 (setq *dead-code* t)))))
           (JMPHASH
-            (let ((hashtable (make-hash-table :test (second item)))
-                  (labels (cddddr item)))
-              (dolist (acons (third item))
-                (setf (gethash (car acons) hashtable)
-                      (position (cdr acons) labels)
-              ) )
-              (push `(JMPHASH ,(constvalue-index hashtable) ,hashtable
-                              ,@(cdddr item)
-                     )
-                    *code-part*
-            ) )
-            ; Referenzen vermerken:
-            (dolist (label (cdddr item))
-              (push *code-index* (symbol-value label))
-            )
-            (finish-code-part)
-            (setq *dead-code* t)
-          )
+           (let ((hashtable (make-hash-table :test (second item)))
+                 (labels (cddddr item)))
+             (dolist (acons (third item))
+               (setf (gethash (car acons) hashtable)
+                     (position (cdr acons) labels)))
+             (push `(JMPHASH ,(constvalue-index hashtable) ,hashtable
+                     ,@(cdddr item))
+                   *code-part*))
+           ;; note down references:
+           (dolist (label (cdddr item))
+             (push *code-index* (symbol-value label)))
+           (finish-code-part)
+           (setq *dead-code* t))
           (VENV
-            (let ((venvc (second item))
-                  (stackz (third item)))
-              (loop ; in venvc die NILs übergehen
-                (when (car venvc) (return))
-                (setq venvc (cdr venvc))
-              )
-              (push
-                (if (consp (car venvc)) ; aus dem Stack holen
-                  (multiple-value-bind (k n)
-                      (zugriff-in-stack stackz (cdr (car venvc)))
-                    (if k `(LOADI ,(car k) ,(cdr k) ,n) `(LOAD ,n) )
-                  )
-                  (if (eq (car venvc) *func*)
-                    (if (fnode-Venvconst *func*) '(VENV) '(NIL))
-                    (compiler-error 'traverse-anode 'VENV)
-                ) )
-                *code-part*
-              )
-              (if (equal (car *code-part*) '(NIL))
-                (setq *current-value* 'FALSE *current-vars* (list (make-const :horizont ':value :value 'NIL)))
-                (setq *current-value* nil *current-vars* '())
-              )
-          ) )
+           (let ((venvc (second item))
+                 (stackz (third item)))
+             (loop ; in venvc pass the NILs
+              (when (car venvc) (return))
+              (setq venvc (cdr venvc)))
+             (push
+              (if (consp (car venvc)) ; fetch from Stack
+                (multiple-value-bind (k n)
+                    (access-in-stack stackz (cdr (car venvc)))
+                  (if k `(LOADI ,(car k) ,(cdr k) ,n) `(LOAD ,n) ))
+                (if (eq (car venvc) *func*)
+                  (if (fnode-Venvconst *func*) '(VENV) '(NIL))
+                  (compiler-error 'traverse-anode 'VENV)))
+              *code-part*)
+             (if (equal (car *code-part*) '(NIL))
+               (setq *current-value* 'FALSE
+                     *current-vars*
+                     (list (make-const :horizon ':value :value 'NIL)))
+               (setq *current-value* nil *current-vars* '()))))
           (COPY-CLOSURE
-            (push `(COPY-CLOSURE ,(fconst-index (second item)) ,(third item))
-                   *code-part*
-            )
-            (setq *current-value* 'TRUE *current-vars* '())
-          )
-          (CALLP) ; wird gestrichen
+           (push `(COPY-CLOSURE ,(fconst-index (second item)) ,(third item))
+                 *code-part*)
+           (setq *current-value* 'TRUE *current-vars* '()))
+          (CALLP) ; is canceled
           (CALL
-            (push `(CALL ,(second item) ,(const-index (third item)))
-                   *code-part*
-            )
-            (setq *current-value* nil *current-vars* '())
-          )
+           (push `(CALL ,(second item) ,(const-index (third item)))
+                 *code-part*)
+           (setq *current-value* nil *current-vars* '()))
           ((CALL0 CALL1 CALL2)
-            (push `(,(first item) ,(const-index (second item)))
-                  *code-part*
-            )
-            (setq *current-value* nil *current-vars* '())
-          )
+           (push `(,(first item) ,(const-index (second item)))
+                 *code-part*)
+           (setq *current-value* nil *current-vars* '()))
           ((FUNCALLP APPLYP)
-            (push '(PUSH) *code-part*)
-            (setq *current-value* nil *current-vars* '())
-          )
+           (push '(PUSH) *code-part*)
+           (setq *current-value* nil *current-vars* '()))
           ((JMPIFBOUNDP BOUNDP)
-            (let ((var (second item))
-                  (stackz (fourth item))
-                 )
-              (when (var-closurep var)
-                (compiler-error 'traverse-anode 'var-closurep)
-              )
-              (multiple-value-bind (k n)
-                  (zugriff-in-stack stackz (var-stackz var))
-                (when k (compiler-error 'traverse-anode 'var-stackz))
-                (push `(,(first item) ,n ,@(cddddr item)) *code-part*)
-                (when (eq (first item) 'JMPIFBOUNDP)
-                  (push (first *code-part*) (symbol-value (fifth item)))
-                )
-                (setq *current-value* nil *current-vars* '()) ; undefinierte Werte
-          ) ) )
+           (let ((var (second item))
+                 (stackz (fourth item)))
+             (when (var-closurep var)
+               (compiler-error 'traverse-anode 'var-closurep))
+             (multiple-value-bind (k n)
+                 (access-in-stack stackz (var-stackz var))
+               (when k (compiler-error 'traverse-anode 'var-stackz))
+               (push `(,(first item) ,n ,@(cddddr item)) *code-part*)
+               (when (eq (first item) 'JMPIFBOUNDP)
+                 (push (first *code-part*) (symbol-value (fifth item))))
+               ;; undefined values
+               (setq *current-value* nil *current-vars* '()))))
           (BLOCK-OPEN
-            (let ((label (third item)))
-              (push `(BLOCK-OPEN ,(const-index (second item)) ,label)
-                     *code-part*
-              )
-              (push (first *code-part*) (symbol-value label))
-          ) )
+           (let ((label (third item)))
+             (push `(BLOCK-OPEN ,(const-index (second item)) ,label)
+                   *code-part*)
+             (push (first *code-part*) (symbol-value label))))
           (RETURN-FROM
-            (push
-              (if (cddr item)
-                (multiple-value-bind (k n)
-                    (zugriff-in-stack (third item) (block-stackz (second item)))
-                  `(RETURN-FROM-I ,(car k) ,(cdr k) ,n)
-                )
-                (if (block-p (second item))
-                  `(RETURN-FROM ,(bconst-index (second item)))
-                  `(RETURN-FROM ,(const-index (second item)))
-              ) )
-              *code-part*
-            )
+           (push
+            (if (cddr item)
+              (multiple-value-bind (k n)
+                  (access-in-stack (third item) (block-stackz (second item)))
+                `(RETURN-FROM-I ,(car k) ,(cdr k) ,n))
+              (if (block-p (second item))
+                `(RETURN-FROM ,(bconst-index (second item)))
+                `(RETURN-FROM ,(const-index (second item)))))
+            *code-part*)
             (finish-code-part)
-            (setq *dead-code* t)
-          )
+            (setq *dead-code* t))
           (TAGBODY-OPEN
-            (push `(TAGBODY-OPEN ,(const-index (second item)) ,@(cddr item))
-                  *code-part*
-            )
-            (dolist (label (cddr item)) (push item (symbol-value label)))
-          )
+           (push `(TAGBODY-OPEN ,(const-index (second item)) ,@(cddr item))
+                 *code-part*)
+           (dolist (label (cddr item)) (push item (symbol-value label))))
           (GO
-            (push
-              (if (cdddr item)
-                (multiple-value-bind (k n)
-                    (zugriff-in-stack (fourth item) (tagbody-stackz (second item)))
-                  `(GO-I ,(car k) ,(cdr k) ,n ,(cdr (third item)))
-                )
-                (if (tagbody-p (second item))
-                  `(GO ,(gconst-index (second item)) ,(cdr (third item)))
-                  `(GO ,(const-index (second item)) ,(third item))
-              ) )
-              *code-part*
-            )
-            (finish-code-part)
-            (setq *dead-code* t)
-          )
+           (push
+            (if (cdddr item)
+              (multiple-value-bind (k n)
+                  (access-in-stack (fourth item)
+                                   (tagbody-stackz (second item)))
+                `(GO-I ,(car k) ,(cdr k) ,n ,(cdr (third item))))
+              (if (tagbody-p (second item))
+                `(GO ,(gconst-index (second item)) ,(cdr (third item)))
+                `(GO ,(const-index (second item)) ,(third item))))
+            *code-part*)
+           (finish-code-part)
+           (setq *dead-code* t))
           ((NIL TAGBODY-CLOSE-NIL)
-            (push item *code-part*)
-            (setq *current-value* 'FALSE *current-vars* (list (make-const :horizont ':value :value 'NIL)))
-          )
+           (push item *code-part*)
+           (setq *current-value* 'FALSE
+                 *current-vars* (list (make-const :horizon ':value
+                                                  :value 'NIL))))
           (HANDLER-OPEN
-            (setq item
-              (let ((v (const-value (second item)))
-                    (k (spdepth-difference (third item) *func*)))
-                ; Aus v = #(type1 ... typem) mache v = #(type1 nil ... typem nil)
-                (setq v (coerce (mapcap #'(lambda (x) (list x nil)) (coerce v 'list)) 'vector))
-                `(HANDLER-OPEN ,(constvalue-index (cons v k)) ,v ,k ,@(cdddr item))
-            ) )
-            (push item *code-part*)
-            (dolist (label (cddddr item)) (push item (symbol-value label)))
-          )
+           (setq item
+                 (let ((v (const-value (second item)))
+                       (k (spdepth-difference (third item) *func*)))
+                   ;; Out of v = #(type1 ... typem)
+                   ;; make   v = #(type1 nil ... typem nil)
+                   (setq v (coerce (mapcap #'(lambda (x) (list x nil))
+                                           (coerce v 'list)) 'vector))
+                   `(HANDLER-OPEN ,(constvalue-index (cons v k)) ,v ,k
+                     ,@(cdddr item))))
+           (push item *code-part*)
+           (dolist (label (cddddr item)) (push item (symbol-value label))))
           (VALUES0
-            (push item *code-part*)
-            (setq *current-value* 'FALSE *current-vars* '())
-          )
+           (push item *code-part*)
+           (setq *current-value* 'FALSE *current-vars* '()))
           ((SKIP SKIPI SKIPSP VALUES1 MVCALLP BLOCK-CLOSE TAGBODY-CLOSE
             CATCH-CLOSE UNWIND-PROTECT-NORMAL-EXIT HANDLER-BEGIN
-            STORE ; STORE nur auf Funktionsargumente innerhalb eines
-                  ; Funktionsaufrufs, vgl. c-DIRECT-FUNCTION-CALL
-           )
-            (push item *code-part*)
-          )
+            STORE ; STORE only on function-arguments within a
+                  ; function-call, cf. c-DIRECT-FUNCTION-CALL
+            )
+           (push item *code-part*))
           ((T)
-            (push item *code-part*)
-            (setq *current-value* 'TRUE *current-vars* (list (make-const :horizont ':value :value 'T)))
-          )
+           (push item *code-part*)
+           (setq *current-value* 'TRUE
+                 *current-vars* (list (make-const :horizon ':value
+                                                  :value 'T))))
           ((RET RETGF BARRIER THROW)
-            (push item *code-part*)
-            (finish-code-part)
-            (setq *dead-code* t)
-          )
+           (push item *code-part*)
+           (finish-code-part)
+           (setq *dead-code* t))
           (JMP
-            (emit-jmp (second item))
-            (setq *dead-code* t)
-          )
+           (emit-jmp (second item))
+           (setq *dead-code* t))
           (JSR
-            (push item *code-part*)
-            (push item (symbol-value (third item)))
-            (setq *current-value* nil *current-vars* '())
-          )
+           (push item *code-part*)
+           (push item (symbol-value (third item)))
+           (setq *current-value* nil *current-vars* '()))
           ((CATCH-OPEN UNWIND-PROTECT-OPEN)
-            (push item *code-part*)
-            (push item (symbol-value (second item)))
-          )
+           (push item *code-part*)
+           (push item (symbol-value (second item))))
           (UNWIND-PROTECT-CLOSE
-            (push item *code-part*)
-            (push item (symbol-value (second item)))
-            (setq *current-value* nil *current-vars* '()) ; Werte werden weggeworfen
-          )
+           (push item *code-part*)
+           (push item (symbol-value (second item)))
+           ;; values are thrown away
+           (setq *current-value* nil *current-vars* '()))
           ((PUSH-NIL PROGV PUSH POP MAKE-VECTOR1&PUSH CALLS1 CALLS2 CALLSR
             CALLC CALLCKEY FUNCALL APPLY PUSH-UNBOUND UNLIST UNLIST*
             STACK-TO-MV MV-TO-STACK NV-TO-STACK MV-TO-LIST LIST-TO-MV MVCALL
-            NOT EQ CAR CDR ATOM CONSP SYMBOL-FUNCTION SVREF SVSET
-           )
-            (push item *code-part*)
-            (setq *current-value* nil *current-vars* '())
-          )
+            NOT EQ CAR CDR ATOM CONSP SYMBOL-FUNCTION SVREF SVSET)
+           (push item *code-part*)
+           (setq *current-value* nil *current-vars* '()))
           ((CONS LIST LIST*)
-            (push item *code-part*)
-            (setq *current-value* 'TRUE *current-vars* '())
-          )
+           (push item *code-part*)
+           (setq *current-value* 'TRUE *current-vars* '()))
           ((UNWIND-PROTECT-CLEANUP)
-            (push item *code-part*)
-            (setq *current-vars* '()) ; Kann Variablenwerte zerstören
-          )
+           (push item *code-part*)
+           (setq *current-vars* '())) ; can destroy variable-values
           ((UNBIND1)
-            (push item *code-part*)
-            (setq *current-vars* (delete-if #'symbolp *current-vars*)) ; Kann Werte dynamischer Variablen zerstören
-          )
-          (t (compiler-error 'traverse-anode "LISTITEM"))
-) ) ) ) )
+           (push item *code-part*)
+           ;; can destroy values of dynamic variables
+           (setq *current-vars* (delete-if #'symbolp *current-vars*)))
+          (t (compiler-error 'traverse-anode "LISTITEM")))))))
 
-; Hilfsfunktionen nach dem 1. Schritt:
+;; Auxiliary Functions after the 1st step:
 
-; Kommt eine Instruktion item dazu, die vielleicht Label-Referenzen enthält,
-; so ist note-references aufzurufen. Dieses notiert die Label-Referenzen in
-; item. item gehöre zu (aref *code-parts* index).
-; Wird eine Instruktion item entfernt, die vielleicht Label-Referenzen enthält,
-; so ist remove-references aufzurufen. Dieses notiert das Wegfallen der
-; Label-Referenzen in item. item gehöre zu (aref *code-parts* index).
-; Liefert auch die Liste der in item enthaltenen Labels.
+;; if an instruction item is added, that perhaps contains Label-References,
+;; then note-references has to be called. This notes the Label-References in
+;; item. item belongs to (aref *code-parts* index).
+;; if an instruction item is removed, that perhaps contains Label-References,
+;; then remove-references has to be called. This notes the cancellation of the
+;; Label-References in item. item belongs to (aref *code-parts* index).
+;; Also returns the list of the Labels contained in item.
 (macrolet ((references ()
              `(case (first item)
                 (JMP (end-ref (second item)))
                 ((JMPCASE JMPCASE1-TRUE JMPCASE1-FALSE)
-                 (end-ref (second item)) (end-ref (third item))
-                )
+                 (end-ref (second item)) (end-ref (third item)))
                 (JMPHASH (dolist (label (cdddr item)) (end-ref label)))
-                ((JMPIFBOUNDP CATCH-OPEN UNWIND-PROTECT-OPEN UNWIND-PROTECT-CLOSE)
-                 (mid-ref (second item))
-                )
+                ((JMPIFBOUNDP CATCH-OPEN UNWIND-PROTECT-OPEN
+                  UNWIND-PROTECT-CLOSE)
+                 (mid-ref (second item)))
                 ((BLOCK-OPEN JSR) (mid-ref (third item)))
                 (JMPTAIL (mid-ref (fourth item)))
                 (TAGBODY-OPEN (dolist (label (cddr item)) (mid-ref label)))
-                (HANDLER-OPEN (dolist (label (cddddr item)) (mid-ref label)))
-              )
-          ))
+                (HANDLER-OPEN
+                 (dolist (label (cddddr item)) (mid-ref label))))))
   (defun note-references (item &optional index)
     (macrolet ((end-ref (label) `(push index (symbol-value ,label)))
                (mid-ref (label) `(push item (symbol-value ,label))))
-      (references)
-  ) )
+      (references)))
   (defun remove-references (item &optional index &aux (labellist '()))
     (macrolet ((end-ref (label)
                  (let ((labelvar (gensym)))
                    `(let ((,labelvar ,label))
-                      (setf (symbol-value ,labelvar) (delete index (symbol-value ,labelvar)))
-                      (pushnew ,labelvar labellist)
-                    )
-               ) )
+                      (setf (symbol-value ,labelvar)
+                            (delete index (symbol-value ,labelvar)))
+                      (pushnew ,labelvar labellist))))
                (mid-ref (label)
                  (let ((labelvar (gensym)))
                    `(let ((,labelvar ,label))
-                      (setf (symbol-value ,labelvar) (delete item (symbol-value ,labelvar)))
-                      (pushnew ,labelvar labellist)
-                    )
-              )) )
+                      (setf (symbol-value ,labelvar)
+                            (delete item (symbol-value ,labelvar)))
+                      (pushnew ,labelvar labellist)))))
       (references)
-      labellist
-  ) )
+      labellist))
 )
 
 #|
-                              2. Schritt
-                Vereinfachung von Folgen von Operationen
+                              2nd Step
+                Simplification of Sequences of Operations
 
-Dieses spielt sich auf umgedrehten Codestücken ab; sie werden dabei destruktiv
-verändert.
+This takes place on the reversed code-parts; they are changed
+destructively, withal.
 
-Vereinfachungsregeln für Operationen:
+Simplification-Rules for Operations:
 
-1. (VALUES1) darf nach allen Instruktionen gestrichen werden, die sowieso nur
-   einen Wert produzieren, und vor allen, die sowieso nur einen verwenden.
+1. (VALUES1) can be dropped after all instructions, that produce only
+   one value in any case, and above all, that use only one value in any case.
 
 2. (SKIP n1) (SKIP n2)                   --> (SKIP n1+n2)
    (SKIPI k1 k2 n1) (SKIP n2)            --> (SKIPI k1 k2 n1+n2)
@@ -9638,26 +8869,26 @@ Vereinfachungsregeln für Operationen:
    (ATOM) (NOT)                      --> (CONSP)
    (CONSP) (NOT)                     --> (ATOM)
 
-4. (LOAD 0) (SKIP n)                 --> (POP) (SKIP n-1)  für n>1
-   (LOAD 0) (SKIP 1)                 --> (POP)             für n=1
-   (PUSH) (SKIP n)                   --> (SKIP n-1)  für n>1
-   (PUSH) (SKIP 1)                   -->             für n=1
+4. (LOAD 0) (SKIP n)                 --> (POP) (SKIP n-1)  for n>1
+   (LOAD 0) (SKIP 1)                 --> (POP)             for n=1
+   (PUSH) (SKIP n)                   --> (SKIP n-1)  for n>1
+   (PUSH) (SKIP 1)                   -->             for n=1
    (NV-TO-STACK n) (SKIP n)          -->
    (NV-TO-STACK n+m) (SKIP n)        --> (NV-TO-STACK m)
    (NV-TO-STACK n) (SKIP n+m)        --> (SKIP m)
-   (STORE m) (SKIP n)                --> (VALUES1) (SKIP n) für n>m
+   (STORE m) (SKIP n)                --> (VALUES1) (SKIP n) for n>m
    (STORE 0) (POP)                   --> (VALUES1) (SKIP 1)
    (PUSH) (POP)                      --> (VALUES1)
    (POP) (PUSH)                      -->
-   (SKIP n) (PUSH)                   --> (SKIP n-1) (STORE 0) für n>1
-   (SKIP 1) (PUSH)                   --> (STORE 0)            für n=1
+   (SKIP n) (PUSH)                   --> (SKIP n-1) (STORE 0) for n>1
+   (SKIP 1) (PUSH)                   --> (STORE 0)            for n=1
 
 5. (VALUES1)/... (MV-TO-STACK)       --> (VALUES1)/... (PUSH)
    (VALUES0) (MV-TO-STACK)           -->
    (STACK-TO-MV n) (MV-TO-STACK)     -->
-   (STACK-TO-MV m) (NV-TO-STACK n)   --> (PUSH-NIL n-m)  für m<n
-                                     -->                 für m=n
-                                     --> (SKIP m-n)      für m>n
+   (STACK-TO-MV m) (NV-TO-STACK n)   --> (PUSH-NIL n-m)  for m<n
+                                     -->                 for m=n
+                                     --> (SKIP m-n)      for m>n
    (NIL)/(VALUES0) (NV-TO-STACK n)   --> (PUSH-NIL n)
    (VALUES1)/... (NV-TO-STACK n)     --> (VALUES1)/... (PUSH) (PUSH-NIL n-1)
 
@@ -9667,29 +8898,26 @@ Vereinfachungsregeln für Operationen:
 
 |#
 
-; Die Hash-Tabelle one-value-ops enthält diejenigen Befehle,
-; die genau einen Wert erzeugen.
+;; The Hash-Table one-value-ops contains those instructions,
+;; that create exactly one value.
 (defconstant one-value-ops
   (let ((ht (make-hash-table :test #'eq)))
     (dolist (op '(NIL T CONST LOAD LOADI LOADC LOADV LOADIC STORE STOREI
                   STOREC STOREV STOREIC GETVALUE SETVALUE POP VENV
                   COPY-CLOSURE BOUNDP VALUES1 MV-TO-LIST TAGBODY-CLOSE-NIL
                   NOT EQ CAR CDR CONS ATOM CONSP SYMBOL-FUNCTION SVREF SVSET
-                  LIST LIST*
-            )    )
-      (setf (gethash op ht) t)
-    )
-    ht
-) )
+                  LIST LIST*))
+      (setf (gethash op ht) t))
+    ht))
 
-; Der Wert zu einem Key in dieser Hash-Tabelle gibt an, wieviele Werte bei
-; der Ausführung der entsprechenden Operation benötigt werden
-; (vgl. *for-value*):
-; NIL : Werte werden weggeworfen.
-; ONE : Ein Wert wird verwendet, die übrigen weggeworfen.
-; ALL : Alle Werte werden verwendet.
-; Operationen, die ihre Werte nicht verändern, werden hierin nicht
-; aufgeführt.
+;; The value for a Key in this Hash-Table indicates, how many values
+;; are needed for the execution of the corresponding Operation
+;; (cf. *for-value*):
+;; NIL : values are discarded.
+;; ONE : One value is used, the remaining values are discarded.
+;; ALL : All values are used.
+;; Operations, that do not change their values, are not
+;; listed here.
 (defconstant for-value-table
   (let ((ht (make-hash-table :test #'eq)))
     (dolist (op '(NIL PUSH-NIL T CONST LOAD LOADI LOADC LOADV LOADIC
@@ -9699,38 +8927,30 @@ Vereinfachungsregeln für Operationen:
                   BLOCK-OPEN TAGBODY-OPEN TAGBODY-CLOSE-NIL GO GO-I
                   UNWIND-PROTECT-OPEN UNWIND-PROTECT-CLOSE
                   HANDLER-OPEN HANDLER-BEGIN
-                  LIST
-            )    )
-      (setf (gethash op ht) 'NIL)
-    )
+                  LIST))
+      (setf (gethash op ht) 'NIL))
     (dolist (op '(STORE STOREI STOREC STOREV STOREIC SETVALUE BIND PROGV PUSH
                   MAKE-VECTOR1&PUSH CALL1 CALL2 CALLC CALLCKEY APPLY UNLIST
                   UNLIST* VALUES1 LIST-TO-MV MVCALLP CATCH-OPEN
                   NOT EQ CAR CDR CONS ATOM CONSP SYMBOL-FUNCTION SVREF SVSET
-                  LIST*
-            )    )
-      (setf (gethash op ht) 'ONE)
-    )
+                  LIST*))
+      (setf (gethash op ht) 'ONE))
     (dolist (op '(MV-TO-STACK NV-TO-STACK MV-TO-LIST RETURN-FROM RETURN-FROM-I
-                  THROW UNWIND-PROTECT-NORMAL-EXIT
-            )    )
-      (setf (gethash op ht) 'ALL)
-    )
-    ; Nicht in der Tabelle, weil sie die Werte unverändert lassen:
-    ;           '(UNBIND1 SKIP SKIPI SKIPSP BLOCK-CLOSE TAGBODY-CLOSE
-    ;             CATCH-CLOSE UNWIND-PROTECT-CLEANUP
-    ;            )
-    ; Nicht in der Tabelle, weil es Wegsprünge sind:
-    ;   ONE:    '(RETGF JMPHASH)
-    ;   ALL:    '(RET JMP JMPCASE JMPCASE1-TRUE JMPCASE1-FALSE)
-    ht
-) )
+                  THROW UNWIND-PROTECT-NORMAL-EXIT))
+      (setf (gethash op ht) 'ALL))
+    ;; Not in the Table, because they leave the values unchanged:
+    ;;           '(UNBIND1 SKIP SKIPI SKIPSP BLOCK-CLOSE TAGBODY-CLOSE
+    ;;             CATCH-CLOSE UNWIND-PROTECT-CLEANUP)
+    ;; Not in the Table, because they are jumps:
+    ;;   ONE:    '(RETGF JMPHASH)
+    ;;   ALL:    '(RET JMP JMPCASE JMPCASE1-TRUE JMPCASE1-FALSE)
+    ht))
 
-; Vereinfacht ein Codestück (in umgedrehter Reihenfolge!).
-; Obige Vereinfachungsregeln werden durchgeführt, solange es geht.
-; Ergebnis ist meist NIL, oder aber (um anzuzeigen, dass weitere Optimierungen
-; möglich sind) das Anfangslabel, falls sich dessen Property for-value
-; abgeschwächt hat.
+;; Simplifies a code-part (in reversed order!).
+;; The simplification-rules above are processed as long as possible.
+;; Result is mostly NIL, or the start-label instead (in order to indicate,
+;; that further optimizations are possible), if its Property for-value
+;; has been weakened.
 (defun simplify (codelist)
   (let ((for-value-at-end
           (let ((item (car codelist)))
@@ -9738,843 +8958,738 @@ Vereinfachungsregeln für Operationen:
               (JMP (get (second item) 'for-value))
               ((JMPCASE JMPCASE1-TRUE JMPCASE1-FALSE)
                 (if (or (and (not (eq (first item) 'JMPCASE1-TRUE))
-                             (eq (get (second item) 'for-value) 'ALL)
-                        )
+                             (eq (get (second item) 'for-value) 'ALL))
                         (and (not (eq (first item) 'JMPCASE1-FALSE))
-                             (eq (get (third item) 'for-value) 'ALL)
-                    )   )
+                             (eq (get (third item) 'for-value) 'ALL)))
                   'ALL
-                  'ONE
-              ) )
+                  'ONE))
               ((RETGF JMPHASH) 'ONE)
               ((BARRIER GO GO-I JMPTAIL) 'NIL)
               ((RETURN-FROM RETURN-FROM-I RET THROW) 'ALL)
-              (t (compiler-error 'simplify "AT-END"))
-        ) ) )
-        (result nil)) ; evtl. das Anfangslabel
-    ; for-value-at-end zeigt an, welche Werte vor dem Wegsprung benötigt werden.
+              (t (compiler-error 'simplify "AT-END")))))
+        (result nil)) ; poss. the start-label
+    ;; for-value-at-end indicates, which values are needed before the jump.
     (loop
       (let ((modified nil))
-        (let* ((links codelist) (mitte (cdr links)) rechts (for-value for-value-at-end))
-          ; Es wandern drei Pointer durch die Codeliste: ...links.mitte.rechts...
-          ; for-value zeigt an, was für Werte nach Ausführung von (car mitte),
-          ; vor Ausführung von (car links), gebraucht werden.
+        (let* ((left codelist) (middle (cdr left)) right
+               (for-value for-value-at-end))
+          ;; Three Pointers traverse through the code-list:
+          ;;  ...left.middle.right...
+          ;; for-value indicates, which values are needed after
+          ;; execution of (car middle), before execution of (car left) .
           (loop
-            nochmal
-            (when (atom mitte) (return))
-            (setq rechts (cdr mitte))
-            (macrolet ((ersetze1 (new) ; ersetze (car mitte) durch new
+            start
+            (when (atom middle) (return))
+            (setq right (cdr middle))
+            (macrolet ((replace1 (new) ; replace (car middle) with new
                          `(progn
-                            (setf (car mitte) ,new)
-                            (setq modified t) (go nochmal)
-                          )
-                       )
-                       (ersetze2 (new) ; ersetze (car mitte) und (car rechts) durch new
+                            (setf (car middle) ,new)
+                            (setq modified t) (go start)))
+                       (replace2 (new)
+                         ;; replace (car middle) and (car right) with new
                          `(progn
-                            ,@(unless (equal new '(car mitte))
-                                `((setf (car mitte) ,new))
-                              )
-                            (setf (cdr mitte) (cdr rechts))
-                            (setq modified t) (go nochmal)
-                          )
-                       )
-                       (streiche1 () ; streiche (car mitte) ersatzlos
+                            ,@(unless (equal new '(car middle))
+                                `((setf (car middle) ,new)))
+                            (setf (cdr middle) (cdr right))
+                            (setq modified t) (go start)))
+                       (discard1 () ; discard (car middle)
                          `(progn
-                            (setf (cdr links) (setq mitte rechts))
-                            (setq modified t) (go nochmal)
-                          )
-                       )
-                       (streiche2 () ; streiche (car mitte) und (car rechts) ersatzlos
+                            (setf (cdr left) (setq middle right))
+                            (setq modified t) (go start)))
+                       (discard2 () ; discard (car middle) and (car right)
                          `(progn
-                            (setf (cdr links) (setq mitte (cdr rechts)))
-                            (setq modified t) (go nochmal)
-                          )
-                       )
-                       (erweitere2 (new1 new2) ; ersetze (car mitte) durch new1 und new2
+                            (setf (cdr left) (setq middle (cdr right)))
+                            (setq modified t) (go start)))
+                       (extend2 (new1 new2)
+                         ;; replace (car middle) with new1 and new2
                          `(progn
-                            (setf (car mitte) ,new1)
-                            (setf (cdr mitte) (cons ,new2 rechts))
-                            (setq modified t) (go nochmal)
-                          )
-                      ))
+                            (setf (car middle) ,new1)
+                            (setf (cdr middle) (cons ,new2 right))
+                            (setq modified t) (go start))))
               (when (eq for-value 'NIL)
-                ; vor einer Operation, die keine Werte braucht:
-                (case (first (car mitte))
+                ;; before an operation, that needs no values:
+                (case (first (car middle))
                   ((NIL T CONST LOAD LOADI LOADC LOADV LOADIC GETVALUE VENV
                     BOUNDP VALUES0 VALUES1 MV-TO-LIST LIST-TO-MV NOT CAR CDR
-                    SYMBOL-FUNCTION ATOM CONSP
-                   )
-                    (streiche1)
-                  )
+                    SYMBOL-FUNCTION ATOM CONSP)
+                    (discard1))
                   ((LIST LIST* STACK-TO-MV) ; (LIST n) --> (SKIP n), n>0
                                             ; (LIST* n) --> (SKIP n), n>0
                                             ; (STACK-TO-MV n) --> (SKIP n), n>0
-                    (ersetze1 `(SKIP ,(second (car mitte))))
-                  )
-                  ((POP EQ CONS SVREF) (ersetze1 '(SKIP 1)))
-              ) )
+                    (replace1 `(SKIP ,(second (car middle)))))
+                  ((POP EQ CONS SVREF) (replace1 '(SKIP 1)))))
               (when (eq for-value 'ONE)
-                ; vor einer Operation, die nur einen Wert braucht:
-                (case (first (car mitte))
-                  (VALUES1 (streiche1))
-                  (VALUES0 (ersetze1 '(NIL)))
-                  (LIST-TO-MV (ersetze1 '(CAR)))
-                  (STACK-TO-MV ; (STACK-TO-MV n) --> (SKIP n-1) (POP) für n>1
-                    (let ((n (second (car mitte))))
-                      (erweitere2 '(POP) `(SKIP ,(- n 1)))
-              ) ) ) )
-              (when (consp rechts)
-                ; Gucklock umfasst (car mitte) und (car rechts), evtl. auch mehr.
-                (case (first (car mitte))
-                  (VALUES1 ; Regel 1
-                    (when (gethash (first (car rechts)) one-value-ops nil)
-                      ; (op ...) (VALUES1) --> (op ...)
-                      (streiche1)
-                  ) )
-                  (NOT ; Regel 3
-                    (case (first (car rechts))
-                      (NOT
-                        (when (and (consp (cdr rechts))
-                                   (equal (cadr rechts) '(NOT))
-                              )
-                          ; (NOT) (NOT) (NOT) --> (NOT)
-                          (streiche2)
-                      ) )
-                      (ATOM (ersetze2 '(CONSP))) ; (ATOM) (NOT) --> (CONSP)
-                      (CONSP (ersetze2 '(ATOM))) ; (CONSP) (NOT) --> (ATOM)
-                  ) )
+                ;; before an operation, that needs only one value:
+                (case (first (car middle))
+                  (VALUES1 (discard1))
+                  (VALUES0 (replace1 '(NIL)))
+                  (LIST-TO-MV (replace1 '(CAR)))
+                  (STACK-TO-MV ; (STACK-TO-MV n) --> (SKIP n-1) (POP) for n>1
+                    (let ((n (second (car middle))))
+                      (extend2 '(POP) `(SKIP ,(- n 1)))))))
+              (when (consp right)
+                ;; peephole comprises (car middle) and (car right), poss. more.
+                (case (first (car middle))
+                  (VALUES1 ; rule 1
+                   (when (gethash (first (car right)) one-value-ops nil)
+                     ;; (op ...) (VALUES1) --> (op ...)
+                     (discard1)))
+                  (NOT ; rule 3
+                   (case (first (car right))
+                     (NOT
+                      (when (and (consp (cdr right))
+                                 (equal (cadr right) '(NOT)))
+                        ;; (NOT) (NOT) (NOT) --> (NOT)
+                        (discard2)))
+                     (ATOM (replace2 '(CONSP)))   ; (ATOM) (NOT) --> (CONSP)
+                     (CONSP (replace2 '(ATOM))))) ; (CONSP) (NOT) --> (ATOM)
                   (SKIP
-                    (let ((n2 (second (car mitte)))) ; n2 > 0
-                      (case (first (car rechts))
-                        ; Regel 2
+                    (let ((n2 (second (car middle)))) ; n2 > 0
+                      (case (first (car right))
+                        ;; rule 2
                         (SKIP ; (SKIP n1) (SKIP n2) --> (SKIP n1+n2)
-                          (let ((n1 (second (car rechts))))
-                            (ersetze2 `(SKIP ,(+ n1 n2)))
-                        ) )
-                        (SKIPI ; (SKIPI k1 k2 n1) (SKIP n2) --> (SKIPI k1 k2 n1+n2)
-                          (let ((k1 (second (car rechts)))
-                                (k2 (third (car rechts)))
-                                (n1 (fourth (car rechts))))
-                            (ersetze2 `(SKIPI ,k1 ,k2 ,(+ n1 n2)))
-                        ) )
-                        ; Regel 4
+                         (let ((n1 (second (car right))))
+                           (replace2 `(SKIP ,(+ n1 n2)))))
+                        (SKIPI
+                         ;; (SKIPI k1 k2 n1) (SKIP n2) --> (SKIPI k1 k2 n1+n2)
+                         (let ((k1 (second (car right)))
+                               (k2 (third (car right)))
+                               (n1 (fourth (car right))))
+                           (replace2 `(SKIPI ,k1 ,k2 ,(+ n1 n2)))))
+                        ;; rule 4
                         (LOAD ; (LOAD 0) (SKIP n) --> (POP) [(SKIP n-1)]
-                          (when (eql (second (car rechts)) 0)
-                            (if (eql n2 1)
-                              (ersetze2 '(POP))
-                              (progn (setf (car rechts) '(POP))
-                                     (ersetze1 `(SKIP ,(- n2 1)))
-                        ) ) ) )
+                         (when (eql (second (car right)) 0)
+                           (if (eql n2 1)
+                             (replace2 '(POP))
+                             (progn (setf (car right) '(POP))
+                                    (replace1 `(SKIP ,(- n2 1)))))))
                         (PUSH ; (PUSH) (SKIP n) --> [(SKIP n-1)]
-                          (if (eql n2 1)
-                            (streiche2)
-                            (ersetze2 `(SKIP ,(- n2 1)))
-                        ) )
+                         (if (eql n2 1)
+                           (discard2)
+                           (replace2 `(SKIP ,(- n2 1)))))
                         (NV-TO-STACK
-                          (let ((n1 (second (car rechts))))
-                            (cond ((> n1 n2) (ersetze2 `(NV-TO-STACK ,(- n1 n2))))
-                                  ((< n1 n2) (ersetze2 `(SKIP ,(- n2 n1))))
-                                  (t (streiche2))
-                        ) ) )
-                        (STORE ; (STORE m) (SKIP n) --> (VALUES1) (SKIP n) für n>m
-                          (let ((m (second (car rechts))))
-                            (when (> n2 m)
-                              (setf (car rechts) '(VALUES1))
-                              (setq modified t) (go nochmal)
-                  ) ) ) ) ) )
-                  (SKIPI ; Regel 2
-                    (case (first (car rechts))
-                      (SKIP ; (SKIP n1) (SKIPI k1 k2 n2) --> (SKIPI k1 k2 n2)
-                        (ersetze2 (car mitte))
-                      )
-                      (SKIPI ; (SKIPI k11 k21 n1) (SKIPI k21 k22 n2) --> (SKIPI k11+k12+1 k21+k22 n2)
-                        (let ((k11 (second (car rechts)))
-                              (k21 (third (car rechts)))
-                              (k12 (second (car mitte)))
-                              (k22 (third (car mitte)))
-                              (n2 (third (car mitte))))
-                          (ersetze2 `(SKIPI ,(+ k11 k12 1) ,(+ k21 k22) ,n2))
-                      ) )
-                      (SKIPSP ; (SKIPSP k11 k21) (SKIPI k21 k22 n) --> (SKIPI k11+k12 k21+k22 n)
-                        (let ((k11 (second (car rechts)))
-                              (k21 (third (car rechts)))
-                              (k12 (second (car mitte)))
-                              (k22 (third (car mitte)))
-                              (n2 (third (car mitte))))
-                          (ersetze2 `(SKIPI ,(+ k11 k12) ,(+ k21 k22) ,n2))
-                  ) ) ) )
-                  (SKIPSP ; Regel 2
-                    (case (first (car rechts))
-                      (SKIPSP ; (SKIPSP k11 k21) (SKIPSP k21 k22) --> (SKIPSP k11+k12 k21+k22)
-                        (let ((k11 (second (car rechts)))
-                              (k21 (third (car rechts)))
-                              (k12 (second (car mitte)))
-                              (k22 (third (car mitte))))
-                          (ersetze2 `(SKIPSP ,(+ k11 k12) ,(+ k21 k22)))
-                  ) ) ) )
-                  (POP ; Regel 4
-                    (cond ((equal (car rechts) '(STORE 0))
-                            ; (STORE 0) (POP) --> (VALUES1) (SKIP 1)
-                            (setf (car rechts) '(VALUES1))
-                            (ersetze1 '(SKIP 1))
-                          )
-                          ((equal (car rechts) '(PUSH))
-                            ; (PUSH) (POP) --> (VALUES1)
-                            (ersetze2 '(VALUES1))
-                  ) )     )
-                  (PUSH ; Regel 4
-                    (case (first (car rechts))
-                      (POP (streiche2)) ; (POP) (PUSH) streichen
-                      (SKIP ; (SKIP n) (PUSH) --> [(SKIP n-1)] (STORE 0)
-                        (let ((n (second (car rechts))))
-                          (if (eql n 1)
-                            (unless (and (consp (cdr rechts)) (equal (cadr rechts) '(LOAD 0)))
-                              ; (LOAD 0) (SKIP 1) (PUSH) wird anders behandelt
-                              (ersetze2 '(STORE 0))
-                            )
-                            (progn (setf (car rechts) `(SKIP ,(- n 1)))
-                                   (ersetze1 '(STORE 0))
-                  ) ) ) ) ) )
-                  (MV-TO-STACK ; Regel 5
-                    (when (gethash (first (car rechts)) one-value-ops nil)
-                      ; (car rechts) liefert nur einen Wert -->
-                      ; (MV-TO-STACK) durch (PUSH) ersetzen:
-                      (ersetze1 '(PUSH))
-                    )
-                    (case (first (car rechts))
-                      ((VALUES0 STACK-TO-MV) (streiche2))
-                  ) )
-                  (NV-TO-STACK ; Regel 5
-                    (let ((n (second (car mitte))))
-                      (case (first (car rechts))
-                        (STACK-TO-MV
-                          (let ((m (second (car rechts))))
-                            (cond ((> n m) (ersetze2 `(PUSH-NIL ,(- n m))))
-                                  ((< n m) (ersetze2 `(SKIP ,(- m n))))
-                                  (t (streiche2))
-                        ) ) )
-                        ((VALUES0 NIL) (ersetze2 `(PUSH-NIL ,n)))
-                        (t (when (gethash (first (car rechts)) one-value-ops nil)
-                             (erweitere2 `(PUSH-NIL ,(- n 1)) `(PUSH))
-                  ) ) ) )  )
-                  (PUSH-UNBOUND ; Regel 6
-                    (case (first (car rechts))
-                      (PUSH-UNBOUND ; (PUSH-UNBOUND n) (PUSH-UNBOUND m) --> (PUSH-UNBOUND n+m)
-                        (let ((n (second (car rechts)))
-                              (m (second (car mitte))))
-                          (ersetze2 `(PUSH-UNBOUND ,(+ n m)))
-                  ) ) ) )
-                  (LIST* ; Regel 7
-                    (when (equal (rest (car mitte)) '(1))
-                      (ersetze1 '(CONS))
-                  ) )
-            ) ) )
-            (when (atom mitte) (return))
-            ; Neues for-value berechnen, in Abhängigkeit von (car mitte):
+                         (let ((n1 (second (car right))))
+                           (cond ((> n1 n2)
+                                  (replace2 `(NV-TO-STACK ,(- n1 n2))))
+                                 ((< n1 n2) (replace2 `(SKIP ,(- n2 n1))))
+                                 (t (discard2)))))
+                        (STORE
+                         ;; (STORE m) (SKIP n) --> (VALUES1) (SKIP n) for n>m
+                         (let ((m (second (car right))))
+                           (when (> n2 m)
+                             (setf (car right) '(VALUES1))
+                             (setq modified t) (go start)))))))
+                  (SKIPI ; rule 2
+                   (case (first (car right))
+                     (SKIP ; (SKIP n1) (SKIPI k1 k2 n2) --> (SKIPI k1 k2 n2)
+                      (replace2 (car middle)))
+                     (SKIPI
+                      ;; (SKIPI k11 k21 n1) (SKIPI k21 k22 n2)
+                      ;; --> (SKIPI k11+k12+1 k21+k22 n2)
+                      (let ((k11 (second (car right)))
+                            (k21 (third (car right)))
+                            (k12 (second (car middle)))
+                            (k22 (third (car middle)))
+                            (n2 (third (car middle))))
+                        (replace2 `(SKIPI ,(+ k11 k12 1) ,(+ k21 k22) ,n2))))
+                     (SKIPSP
+                      ;; (SKIPSP k11 k21) (SKIPI k21 k22 n)
+                      ;; --> (SKIPI k11+k12 k21+k22 n)
+                      (let ((k11 (second (car right)))
+                            (k21 (third (car right)))
+                            (k12 (second (car middle)))
+                            (k22 (third (car middle)))
+                            (n2 (third (car middle))))
+                        (replace2 `(SKIPI ,(+ k11 k12) ,(+ k21 k22) ,n2))))))
+                  (SKIPSP ; rule 2
+                   (case (first (car right))
+                     (SKIPSP
+                      ;; (SKIPSP k11 k21) (SKIPSP k21 k22)
+                      ;; --> (SKIPSP k11+k12 k21+k22)
+                      (let ((k11 (second (car right)))
+                            (k21 (third (car right)))
+                            (k12 (second (car middle)))
+                            (k22 (third (car middle))))
+                        (replace2 `(SKIPSP ,(+ k11 k12) ,(+ k21 k22)))))))
+                  (POP ; rule 4
+                   (cond ((equal (car right) '(STORE 0))
+                          ;; (STORE 0) (POP) --> (VALUES1) (SKIP 1)
+                          (setf (car right) '(VALUES1))
+                          (replace1 '(SKIP 1)))
+                         ((equal (car right) '(PUSH))
+                          ;; (PUSH) (POP) --> (VALUES1)
+                          (replace2 '(VALUES1)))))
+                  (PUSH ; rule 4
+                   (case (first (car right))
+                     (POP (discard2)) ; discard (POP) (PUSH)
+                     (SKIP ; (SKIP n) (PUSH) --> [(SKIP n-1)] (STORE 0)
+                      (let ((n (second (car right))))
+                        (if (eql n 1)
+                          (unless (and (consp (cdr right))
+                                       (equal (cadr right) '(LOAD 0)))
+                            ;; (LOAD 0) (SKIP 1) (PUSH) is treated differently
+                            (replace2 '(STORE 0)))
+                          (progn (setf (car right) `(SKIP ,(- n 1)))
+                                 (replace1 '(STORE 0))))))))
+                  (MV-TO-STACK ; rule 5
+                   (when (gethash (first (car right)) one-value-ops nil)
+                     ;; (car right) returns only one value -->
+                     ;; replace (MV-TO-STACK) with (PUSH) :
+                     (replace1 '(PUSH)))
+                   (case (first (car right))
+                     ((VALUES0 STACK-TO-MV) (discard2))))
+                  (NV-TO-STACK ; rule 5
+                   (let ((n (second (car middle))))
+                     (case (first (car right))
+                       (STACK-TO-MV
+                        (let ((m (second (car right))))
+                          (cond ((> n m) (replace2 `(PUSH-NIL ,(- n m))))
+                                ((< n m) (replace2 `(SKIP ,(- m n))))
+                                (t (discard2)))))
+                       ((VALUES0 NIL) (replace2 `(PUSH-NIL ,n)))
+                       (t (when (gethash (first (car right)) one-value-ops nil)
+                            (extend2 `(PUSH-NIL ,(- n 1)) `(PUSH)))))))
+                  (PUSH-UNBOUND ; rule 6
+                   (case (first (car right))
+                     (PUSH-UNBOUND
+                      ;; (PUSH-UNBOUND n) (PUSH-UNBOUND m)
+                      ;; --> (PUSH-UNBOUND n+m)
+                      (let ((n (second (car right)))
+                            (m (second (car middle))))
+                        (replace2 `(PUSH-UNBOUND ,(+ n m)))))))
+                  (LIST* ; rule 7
+                   (when (equal (rest (car middle)) '(1))
+                     (replace1 '(CONS)))))))
+            (when (atom middle) (return))
+            ;; calculate new for-value, depending on (car middle):
             (setq for-value
-              (gethash (first (car mitte)) for-value-table for-value)
-            )
-            ; weiterrücken:
-            (setq links mitte mitte rechts)
-          )
-          ; Codestück zu Ende: (atom mitte)
-          (when mitte
-            ; mitte ist das Anfangslabel
-            (let ((old-for-value (get mitte 'for-value)))
-              ; Ist for-value besser als old-for-value ?
+                  (gethash (first (car middle)) for-value-table for-value))
+            ;; advance:
+            (setq left middle middle right))
+          ;; code-part finished: (atom middle)
+          (when middle
+            ;; middle is the start-label
+            (let ((old-for-value (get middle 'for-value)))
+              ;; is for-value better than old-for-value ?
               (when (and (not (eq for-value old-for-value))
-                         (or (eq old-for-value 'ALL) (eq for-value 'NIL))
-                    )
-                ; ja -> Anfangslabel nachher als Ergebnis bringen:
-                (setf (get mitte 'for-value) for-value result mitte)
-          ) ) )
-        ) ; end let*
+                         (or (eq old-for-value 'ALL) (eq for-value 'NIL)))
+                ;; yes -> return start-label as result hereafter:
+                (setf (get middle 'for-value) for-value result middle))))
+          ) ; end let*
         (unless modified (return))
-    ) ) ; end let, loop
+        )) ; end let, loop
     (let (codelistr)
       (when (and (eq (first (first codelist)) 'RET)
                  (consp (setq codelistr (cdr codelist)))
                  (or (eq (first (first codelistr)) 'JSR)
                      (and (eq (first (second codelist)) 'SKIP)
                           (consp (setq codelistr (cddr codelist)))
-                          (eq (first (first codelistr)) 'JSR)
-            )    )   )
-        ; (JSR n label) [(SKIP m)] (RET) --> (JMPTAIL n n+m label)
+                          (eq (first (first codelistr)) 'JSR))))
+        ;; (JSR n label) [(SKIP m)] (RET) --> (JMPTAIL n n+m label)
         (let ((n (second (first codelistr)))
               (label (third (first codelistr)))
-              (m (if (eq codelistr (cdr codelist)) 0 (second (second codelist)))))
-          (setf (first codelist) `(JMPTAIL ,n ,(+ n m) ,label))
-        )
-        (remove-references (first codelistr)) ; (JSR ...) wird gestrichen
-        (note-references (first codelist)) ; (JMPTAIL ...) wird eingefügt
-        (setf (cdr codelist) (cdr codelistr)) ; ein bzw. zwei Listenelemente streichen
-        (setq for-value-at-end 'NIL) ; JMPTAIL braucht keine Werte
-    ) )
-    result
-) )
+              (m (if (eq codelistr (cdr codelist)) 0
+                     (second (second codelist)))))
+          (setf (first codelist) `(JMPTAIL ,n ,(+ n m) ,label)))
+        (remove-references (first codelistr)) ; (JSR ...) is discarded
+        (note-references (first codelist)) ; (JMPTAIL ...) is inserted
+        (setf (cdr codelist) (cdr codelistr)) ; discard 1 resp. 2 list-elements
+        (setq for-value-at-end 'NIL))) ; JMPTAIL needs no values
+    result))
 
 #|
-                            3. Schritt:
-                      Allgemeine Optimierungen
+                            3rd Step:
+                      General Optimizations
 
-Wird eine Optimierung erfolgreich durchgeführt, so werden alle weiteren
-Optimierungen nochmal probiert, die sich deswegen ergeben könnten.
+If an Optimization is performed successfully, all the
+Optimizations that might apply after this one are retried.
 
-optimize-part    - ruft den 2. Schritt auf:
-                   Peephole-Optimierung normaler Operationen.
+ optimize-part
+   - calls the 2nd step: Peephole-Optimization of normal Operations.
 
-optimize-label   - Codestücke zu Labels, die nicht (mehr) referenziert werden,
-                   werden entfernt.
-                 - Wird ein Label nur von einem einzigen JMP referenziert,
-                   der nicht vom selben Codestück kommt, können die beiden
-                   betroffenen Stücke aneinandergehängt werden.
+ optimize-label
+   - code-parts for labels, that are not referenced (anymore), are removed.
+   - if a label is referenced by only one single JMP, that does not
+     spring from the same code-part, both affected pieces can be concatenated.
+ optimize-short
+   - if there is a code-part, where the start-label label1 is
+     immediately followed by a (JMP label2), then all references of
+     label1 are replaced by label2 and the code-part is removed.
+   - if there is a code-part, where the start-label label is immediately
+     followed by a
+        (JMPCASE/JMPCASE1-TRUE/JMPCASE1-FALSE label_true label_false),
+     then references (JMPCASE1-TRUE label l) and
+     (JMPCASE1-FALSE l label) can be simplified.
+   - a short code-part is directly attached to corresponding JMPs to its
+     start-label. (A code-part is called "short", if it comprises at
+     most 2 instructions and if it is not concluded with a
+     JMPHASH (which should not be duplicated).
+     HANDLER-OPEN also should not be duplicated.)
+ optimize-jmpcase
+   - (JMPCASE label label) is simplified to (JMP label).
+   - (NOT) [...] (JMPCASE label_true label_false) is simplified to
+     [...] (JMPCASE label_false label_true), whereas [...] may only
+     contain instructions, that do not change the 1. value, and no
+     values are needed at label_true and label_false.
+ optimize-value
+   - A jump JMPCASE1-TRUE/JMPCASE1-FALSE can be replaced by JMPCASE, if the
+     value is not needed at the target-label or only the 1. value is needed.
+   - A jump JMPCASE/JMPCASE1-TRUE/JMPCASE1-FALSE can be replaced by a
+     JMP, if the current value at this location can be proven to be
+     eiter =NIL or /=NIL .
+   - A JMP can carry forward the information describing the current
+     value to its target-label.
 
-optimize-short   - Liegt ein Codestück vor, wo auf das Anfangslabel label1
-                   sofort ein (JMP label2) folgt, so werden alle Referenzen
-                   von label1 durch label2 ersetzt und das Codestück entfernt.
-                 - Liegt ein Codestück vor, wo auf das Anfangslabel label
-                   sofort ein
-                   (JMPCASE/JMPCASE1-TRUE/JMPCASE1-FALSE label_true label_false)
-                   folgt, so können Referenzen (JMPCASE1-TRUE label l) und
-                   (JMPCASE1-FALSE l label) vereinfacht werden.
-                 - Ein kurzes Codestück wird direkt an zugehörige JMPs auf
-                   sein Anfangslabel angehängt. (Ein Codestück heißt "kurz",
-                   wenn es höchstens 2 Befehle umfasst und nicht mit einem
-                   JMPHASH (den man nicht duplizieren sollte) abgeschlossen
-                   ist. Auch HANDLER-OPEN sollte man nicht duplizieren.)
-
-optimize-jmpcase - (JMPCASE label label) wird vereinfacht zu (JMP label).
-                 - (NOT) [...] (JMPCASE label_true label_false) wird
-                   vereinfacht zu [...] (JMPCASE label_false label_true),
-                   wobei [...] nur Befehle enthalten darf, die den 1. Wert
-                   nicht verändern, und bei label_true und label_false keine
-                   Werte gebraucht werden.
-
-optimize-value   - Ein Wegsprung JMPCASE1-TRUE/JMPCASE1-FALSE kann durch
-                   JMPCASE ersetzt werden, wenn am Ziel-Label der Wert
-                   nicht gebraucht oder nur der 1. Wert gebraucht wird.
-                 - Ein Wegsprung JMPCASE/JMPCASE1-TRUE/JMPCASE1-FALSE kann
-                   durch ein JMP ersetzt werden, wenn der aktuelle Wert an
-                   dieser Stelle als =NIL oder als /=NIL nachgewiesen werden
-                   kann.
-                 - Ein JMP kann die Information, welcher Wert gerade vorliegt,
-                   zu seinem Ziel-Label weitertragen.
-
-coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
+ coalesce
+   - coalesce code-parts with the same end (at least 3 instructions).
 
 |#
 
 (defun optimize-part (code)
   (let ((label (simplify code)))
     (when label
-      ; Die Property for-value von label wurde verbessert.
+      ;; The Property for-value of label was improved.
       (dolist (ref (symbol-value label))
-        (when (integerp ref) (optimize-value ref))
-) ) ) )
+        (when (integerp ref) (optimize-value ref))))))
 
 (defun optimize-label (label &optional (index (get label 'code-part))
                                        (code (aref *code-parts* index))
-                                       (lastc (last code))
-                      )
+                                       (lastc (last code)))
   (unless (eq label (cdr lastc)) (compiler-error 'optimize-label))
   (when label
-    ; label ist ein Label, es beginnt den Code
-    ; code = (aref *code-parts* index), und es ist lastc = (last code).
-    (let ((refs (symbol-value label))) ; Liste der Referenzen darauf
+    ;; label is a Label, it starts the Code
+    ;; code = (aref *code-parts* index), and lastc = (last code).
+    (let ((refs (symbol-value label))) ; List of References to it
       (cond ((null refs)
-              ; nicht referenziertes Label: Codestück entfernen,
-              ; Referenzen aus diesem Codestück heraus eliminieren.
-              (let ((labellist '())) ; Liste von Labels, die Referenzen
-                                     ; verloren haben
-                (loop
-                  (when (atom code) (return))
-                  (setq labellist
-                    (nreconc labellist (remove-references (pop code) index))
-                ) )
-                (setf (aref *code-parts* index) nil) ; Codestück entfernen
-                ; Bei Labels mit weniger Referenzen weiteroptimieren:
-                ; (Vorsicht: Hierdurch kann sich *code-parts* verändern.)
-                (dolist (olabel labellist)
-                  (let* ((oindex (get olabel 'code-part))
-                         (ocode (aref *code-parts* oindex)))
-                    (when (and ocode (eq (cdr (last ocode)) olabel))
-                      (optimize-label olabel oindex ocode)
-                ) ) )
-            ) )
-            ((null (cdr refs))
-              ; Label mit nur einer Referenz, und zwar durch JMP ?
-              (let ((ref (first refs)))
-                (when (and (integerp ref) ; Ein JMP ist ein Wegsprung
-                           (eq (first (car (aref *code-parts* ref))) 'JMP)
-                           (not (eql index ref)) ; aus anderem Codestück
-                      )
-                  ; Anhängen:
-                  ; (aref *code-parts* ref) wird in die Schublade
-                  ; (aref *code-parts* index) gesteckt.
-                  (setf (cdr lastc) (rest (aref *code-parts* ref)))
-                  (setf (aref *code-parts* ref) nil)
-                  (let ((new-startlabel (cdr (last lastc)))) ; neues Startlabel von (aref *code-parts* index)
-                    (when new-startlabel
-                      (setf (get new-startlabel 'code-part) index)
-                  ) )
-                  (setf (symbol-value label) '()) ; altes Startlabel von (aref *code-parts* index) deaktivieren
-                  ; neues Codestück vereinfachen:
-                  (optimize-part code)
-) ) ) )     ) ) )
+             ;; non-referenced Label: remove code-part,
+             ;; eliminate references out of this code-part.
+             (let ((labellist '())) ; list of labels that have lost references
+               (loop
+                (when (atom code) (return))
+                (setq labellist
+                      (nreconc labellist (remove-references
+                                          (pop code) index))))
+               (setf (aref *code-parts* index) nil) ; remove code-part
+               ;; At Labels with fewer references continue optimization:
+               ;; (Caution: This can change *code-parts*.)
+               (dolist (olabel labellist)
+                 (let* ((oindex (get olabel 'code-part))
+                        (ocode (aref *code-parts* oindex)))
+                   (when (and ocode (eq (cdr (last ocode)) olabel))
+                     (optimize-label olabel oindex ocode))))))
+            ((null (cdr refs)) ; Label with only one Reference, by JMP ?
+             (let ((ref (first refs)))
+               (when (and (integerp ref) ; A JMP is a leaving-jump
+                          (eq (first (car (aref *code-parts* ref))) 'JMP)
+                          (not (eql index ref))) ; from another code-part
+                 ;; append:
+                 ;; (aref *code-parts* ref) is put into the "drawer"
+                 ;; (aref *code-parts* index) .
+                 (setf (cdr lastc) (rest (aref *code-parts* ref)))
+                 (setf (aref *code-parts* ref) nil)
+                 (let ((new-startlabel (cdr (last lastc))))
+                   ;; new Startlabel of (aref *code-parts* index)
+                   (when new-startlabel
+                     (setf (get new-startlabel 'code-part) index)))
+                 ;; deactivate old Startlabel of (aref *code-parts* index):
+                 (setf (symbol-value label) '())
+                 ;; simplify new code-part:
+                 (optimize-part code))))))))
 
 (defun optimize-short (index &optional (code (aref *code-parts* index))
                              &aux      (lastc (last code))
-                                       (label (cdr lastc))
-                      )
+                                       (label (cdr lastc)))
   (when label
-    ; label ist ein Label, es beginnt den Code
-    ; code = (aref *code-parts* index), und es ist lastc = (last code).
+    ;; label is a Label, it starts the Code
+    ;; code = (aref *code-parts* index), and lastc = (last code).
     (when (eq code lastc)
-      ; Eine einzige Operation nach dem Label.
+      ;; One single Operation after the Label.
       (let ((item (car code)))
         (case (first item)
-          (JMP ; (JMP ...) sofort nach dem Label
-            (let ((to-label (second item)))
-              (unless (eq label to-label)
-                (label-subst label to-label) ; Referenzen umbiegen
-                (setf (aref *code-parts* index) nil) ; Codestück entfernen
-                (setf (symbol-value to-label)
-                      (delete index (symbol-value to-label)) ; Referenz fällt weg
-                )
-                (optimize-label to-label) ; mögliche Optimierung
-                (dolist (refindex (symbol-value to-label))
-                  (when (integerp refindex)
-                    (let* ((refcode (aref *code-parts* refindex))
-                           (ref (car refcode)))
-                      (when (and (eq (first ref) 'JMPCASE)
-                                 (eq (second ref) to-label)
-                                 (eq (third ref) to-label)
-                            )
-                        (optimize-jmpcase refindex refcode) ; sichere Optimierung
-                ) ) ) )
-            ) )
-            (return-from optimize-short)
-          )
+          (JMP ; (JMP ...) immediately behind the Label
+           (let ((to-label (second item)))
+             (unless (eq label to-label)
+               (label-subst label to-label) ; adjust References
+               (setf (aref *code-parts* index) nil) ; remove code-piece
+               (setf (symbol-value to-label) ; reference is dropped
+                     (delete index (symbol-value to-label)))
+               (optimize-label to-label) ; possible optimization
+               (dolist (refindex (symbol-value to-label))
+                 (when (integerp refindex)
+                   (let* ((refcode (aref *code-parts* refindex))
+                          (ref (car refcode)))
+                     (when (and (eq (first ref) 'JMPCASE)
+                                (eq (second ref) to-label)
+                                (eq (third ref) to-label))
+                       ;; save optimization
+                       (optimize-jmpcase refindex refcode)))))))
+           (return-from optimize-short))
           ((JMPCASE JMPCASE1-TRUE JMPCASE1-FALSE)
-            (let ((true-label (second item))
-                  (false-label (third item)))
-              (unless (or (eq label true-label) (eq label false-label))
-                (macrolet ((err () `(compiler-error 'optimize-short)))
-                  ; JMPCASE1-Referenzen auf label vereinfachen:
-                  (let ((modified-indices '())) ; Indizes von modifizierten Codestücken
-                    (dolist (refindex (symbol-value label))
-                      (when (integerp refindex)
-                        (let* ((refcode (aref *code-parts* refindex))
-                               (ref (car refcode)))
-                          (case (first ref)
-                            (JMP
-                              ; (JMP label) --> (JMPCASE/... true-label false-label)
-                              (setf (car refcode) item)
-                              ; neue Verweise auf true-label und false-label:
-                              (push refindex (symbol-value true-label))
-                              (push refindex (symbol-value false-label))
-                              (push refindex modified-indices)
-                            )
-                            ((JMPCASE JMPCASE1-TRUE JMPCASE1-FALSE)
-                              ; (JMPCASE/... label1 label2)
-                              (let ((label1 (second ref)) ; im TRUE-Fall: wohin springen
-                                    (label2 (third ref)) ; im FALSE-Fall: wohin springen
-                                    (1-true (eq (first ref) 'JMPCASE1-TRUE)) ; im TRUE-Fall: mit (VALUES1) ?
-                                    (1-false (eq (first ref) 'JMPCASE1-FALSE))) ; im FALSE-Fall: mit (VALUES1) ?
-                                (when (eq label label1)
-                                  ; Der (JMPCASE/... label ...) wird vereinfacht zu
-                                  ; (JMPCASE/... true-label ...).
-                                  (setq label1 true-label)
-                                  ; neuer Verweis auf true-label:
-                                  (push refindex (symbol-value true-label))
-                                  (push refindex modified-indices)
-                                  (when (eq (first item) 'JMPCASE1-TRUE)
-                                    (setq 1-true t)
-                                ) )
-                                (when (eq label label2)
-                                  ; Der (JMPCASE/... ... label) wird vereinfacht zu
-                                  ; (JMPCASE/... ... false-label).
-                                  (setq label2 false-label)
-                                  ; neuer Verweis auf false-label:
-                                  (push refindex (symbol-value false-label))
-                                  (push refindex modified-indices)
-                                  (when (eq (first item) 'JMPCASE1-FALSE)
-                                    (setq 1-false t)
-                                ) )
-                                (unless (eq (get label1 'for-value) 'ALL)
-                                  (setq 1-true nil)
-                                )
-                                (unless (eq (get label2 'for-value) 'ALL)
-                                  (setq 1-false nil)
-                                )
-                                (when (and 1-true 1-false)
-                                  (push '(VALUES1) (cdr refcode))
-                                  (setq 1-true nil 1-false nil)
-                                )
-                                (setf (car refcode)
-                                  `(,(cond (1-true 'JMPCASE1-TRUE)
-                                           (1-false 'JMPCASE1-FALSE)
-                                           (t 'JMPCASE)
-                                     )
-                                    ,label1
-                                    ,label2
-                                   )
-                            ) ) )
-                            (JMPHASH (err)) ; JMPHASH hat undefinierte Werte
-                        ) )
-                        ; später:
-                        ; (setf (symbol-value label) (delete refindex (symbol-value label)))
-                    ) )
-                    (setf (symbol-value label)
-                          (delete-if #'integerp (symbol-value label))
-                    )
-                    ; evtl. Optimierung wegen verringerter Referenzen möglich:
-                    (optimize-label label)
-                    ; evtl. weitere Optimierung in veränderten Codeteilen:
-                    (dolist (refindex modified-indices)
-                      (simplify (aref *code-parts* refindex))
-                      (optimize-value refindex)
-                      (optimize-jmpcase refindex (aref *code-parts* refindex))
-                    )
-          ) ) ) ) )
-    ) ) )
-    ; Sonstige "kurze" Codestücke, maximal 2 Operationen lang:
+           (let ((true-label (second item))
+                 (false-label (third item)))
+             (unless (or (eq label true-label) (eq label false-label))
+               (macrolet ((err () `(compiler-error 'optimize-short)))
+                 ;; simplifly JMPCASE1-references to label:
+                 (let ((modified-indices '())) ; Indices of modified code-parts
+                   (dolist (refindex (symbol-value label))
+                     (when (integerp refindex)
+                       (let* ((refcode (aref *code-parts* refindex))
+                              (ref (car refcode)))
+                         (case (first ref)
+                           (JMP
+                            ;; (JMP label) -->
+                            ;; (JMPCASE/... true-label false-label)
+                            (setf (car refcode) item)
+                            ;; new references to true-label and false-label:
+                            (push refindex (symbol-value true-label))
+                            (push refindex (symbol-value false-label))
+                            (push refindex modified-indices))
+                           ((JMPCASE JMPCASE1-TRUE JMPCASE1-FALSE)
+                            ;; (JMPCASE/... label1 label2)
+                            (let (;; TRUE-case: where to jump
+                                  (label1 (second ref))
+                                  ;; FALSE-case: where to jump
+                                  (label2 (third ref))
+                                  ;; TRUE-case: with (VALUES1) ?
+                                  (1-true (eq (first ref) 'JMPCASE1-TRUE))
+                                  ;; FALSE-case: with (VALUES1) ?
+                                  (1-false (eq (first ref) 'JMPCASE1-FALSE)))
+                              (when (eq label label1)
+                                ;; the (JMPCASE/... label ...) is simplified
+                                ;; to (JMPCASE/... true-label ...).
+                                (setq label1 true-label)
+                                ;; new reference to true-label:
+                                (push refindex (symbol-value true-label))
+                                (push refindex modified-indices)
+                                (when (eq (first item) 'JMPCASE1-TRUE)
+                                  (setq 1-true t)))
+                              (when (eq label label2)
+                                ;; the (JMPCASE/... ... label) is simplified
+                                ;; to (JMPCASE/... ... false-label).
+                                (setq label2 false-label)
+                                ;; new reference to false-label:
+                                (push refindex (symbol-value false-label))
+                                (push refindex modified-indices)
+                                (when (eq (first item) 'JMPCASE1-FALSE)
+                                  (setq 1-false t)))
+                              (unless (eq (get label1 'for-value) 'ALL)
+                                (setq 1-true nil))
+                              (unless (eq (get label2 'for-value) 'ALL)
+                                (setq 1-false nil))
+                              (when (and 1-true 1-false)
+                                (push '(VALUES1) (cdr refcode))
+                                (setq 1-true nil 1-false nil))
+                              (setf (car refcode)
+                                    `(,(cond (1-true 'JMPCASE1-TRUE)
+                                             (1-false 'JMPCASE1-FALSE)
+                                             (t 'JMPCASE))
+                                      ,label1
+                                      ,label2))))
+                           (JMPHASH (err)))) ; JMPHASH has undefined values
+                       ;; later:
+                       ;; (setf (symbol-value label)
+                       ;;       (delete refindex (symbol-value label)))
+                       ))
+                   (setf (symbol-value label)
+                          (delete-if #'integerp (symbol-value label)))
+                   ;; more optimization feasible because of reduced references:
+                   (optimize-label label)
+                   ;; poss. further optimization in changed code-parts:
+                   (dolist (refindex modified-indices)
+                     (simplify (aref *code-parts* refindex))
+                     (optimize-value refindex)
+                     (optimize-jmpcase refindex
+                                       (aref *code-parts* refindex)))))))))))
+    ;; further "short" code-parts, at most 2 instructions long:
     (when (and (or (eq code lastc) (eq (cdr code) lastc))
                (not (eq (first (car code)) 'JMPHASH))
-               (or (eq code lastc) (not (eq (first (cadr code)) 'HANDLER-OPEN)))
-          )
-      (let ((indices '())) ; Liste der Indizes der Codestücke, an die wir code anhängen
-        (setf (cdr lastc) '()) ; code vorläufig ohne das Label am Schluss
+               (or (eq code lastc)
+                   (not (eq (first (cadr code)) 'HANDLER-OPEN))))
+      (let ((indices '())) ; we append code to those code-parts, whose indices are in this list.
+        (setf (cdr lastc) '()) ; code preliminarily without the label to the end
         (dolist (refindex (symbol-value label))
           (when (and (integerp refindex) (not (eql refindex index)))
             (let ((refcode (aref *code-parts* refindex)))
               (when (eq (first (car refcode)) 'JMP)
-                ; anhängen:
+                ;; append:
                 (let ((new-code (mapcar #'copy-list code)))
                   (dolist (op new-code) (note-references op refindex))
-                  (setf (aref *code-parts* refindex) (nconc new-code (cdr refcode)))
-                )
+                  (setf (aref *code-parts* refindex)
+                        (nconc new-code (cdr refcode))))
                 (setf (symbol-value label) (delete refindex (symbol-value label)))
-                (push refindex indices)
-        ) ) ) )
-        (setf (cdr lastc) label) ; wieder das Label ans Listenende setzen
+                (push refindex indices)))))
+        (setf (cdr lastc) label) ; set the label to the list-end again
         (when indices
-          ; mögliche weitere Optimierungen:
+          ;; further possible optimizations:
           (dolist (refindex indices)
-            (optimize-part (aref *code-parts* refindex))
-          )
-          (optimize-label label) ; label hat weniger Referenzen -> optimieren
-    ) ) )
-) )
-
-; get-boolean-value versucht zu einem Anfangsstück eines Codestücks
-; (einem (nthcdr n codelist) mit n>=1) zu bestimmen, welcher boolesche Wert
-; nach seiner Ausführung vorliegt:
-; FALSE     sicher A0 = NIL,
-; TRUE      sicher A0 /= NIL,
-; NIL       keine Aussage.
+            (optimize-part (aref *code-parts* refindex)))
+          (optimize-label label)))))) ; label has fewer references -> optimize
+;; get-boolean-value tries to determine for a given starting piece of a
+;; code-part (an (nthcdr n codelist) with n>=1) , which boolean value is
+;; there after its execution:
+;; FALSE     surely A0 = NIL,
+;; TRUE      surely A0 /= NIL,
+;; NIL       can say nothing.
 (defun get-boolean-value (code)
   (macrolet ((err () `(compiler-error 'get-boolean-value)))
-    (let ((invert nil)) ; ob von hier bis zum Ende der boolesche Wert invertiert wird
+    (let ((invert nil)) ; if the boolean value is inverted from here to the end
       ((lambda (value)
          (if invert
            (case value (TRUE 'FALSE) (FALSE 'TRUE) (t NIL))
-           value
-       ) )
+           value))
        (block value
-         (loop ; Codeliste durchlaufen
+         (loop ; traverse code-list
            (when (atom code) (return))
            (case (first (car code))
-             ((NIL VALUES0 TAGBODY-CLOSE-NIL) ; produzieren Wert NIL
-               (return-from value 'FALSE) ; Damit können wir die Schleife abbrechen
-             )
-             ((T CONS LIST LIST*) ; produzieren Wert /= NIL
-               ; (LIST n) und (LIST* n) wegen n>0.
-               (return-from value 'TRUE) ; Damit können wir die Schleife abbrechen
-             )
+             ((NIL VALUES0 TAGBODY-CLOSE-NIL) ; produce value NIL
+              (return-from value 'FALSE)) ; thus we can terminate the loop
+             ((T CONS LIST LIST*) ; produce value /= NIL
+              ;; (LIST n) and (LIST* n) because of n>0.
+              (return-from value 'TRUE)) ; thus we can terminate the loop
              (CONST
-               (unless (and (cddr (car code)) (eq (const-horizont (third (car code))) ':form))
-                 ; (CONST n) produziert Wert /= NIL, weil der Wert schon zur
-                 ; Compile-Zeit bekannt ist und die Konstante NIL in make-const-code
-                 ; bereits speziell behandelt wurde.
-                 (return-from value 'TRUE) ; Damit können wir die Schleife abbrechen
-               )
-               (return-from value nil)
-             )
-             (NOT (setq invert (not invert))) ; invertiere später den booleschen Wert
-             ((UNBIND1 SKIP SKIPI SKIPSP STORE STOREI STOREV STOREC STOREIC SETVALUE
-               VALUES1 BLOCK-CLOSE TAGBODY-CLOSE CATCH-CLOSE UNWIND-PROTECT-CLEANUP
-             )) ; keine Änderung des 1. Werts -> weiter in der Codeliste
-             (t (return-from value nil))
-           )
-           (setq code (cdr code))
-         )
+              (unless (and (cddr (car code))
+                           (eq (const-horizon (third (car code))) ':form))
+                ;; (CONST n) produces value /= NIL, because the value
+                ;; is already known at Compile-Time and the constant
+                ;; NIL in make-const-code has already been treated.
+                (return-from value 'TRUE)) ; thus we can terminate the loop
+              (return-from value nil))
+             (NOT (setq invert (not invert))) ; invert the boolean value later
+             ((UNBIND1 SKIP SKIPI SKIPSP STORE STOREI STOREV STOREC STOREIC
+               SETVALUE VALUES1 BLOCK-CLOSE TAGBODY-CLOSE CATCH-CLOSE
+               UNWIND-PROTECT-CLEANUP)
+              ;; no modification of the first value ->
+              ;; continue in the code-list
+              )
+             (t (return-from value nil)))
+           (setq code (cdr code)))
          (when code
-           ; code ist das Anfangslabel.
-           ; Inspiziere alle Sprünge auf das Label code:
-           (let ((bisher nil))
-             ; bisher = FALSE, falls bisher alle Sprünge den booleschen Wert
-             ;                 FALSE mitbringen,
-             ; bisher = TRUE, falls bisher alle Sprünge den booleschen Wert
-             ;                TRUE mitbringen,
-             ; bisher = NIL am Anfang.
-             ; Falls ein Sprung einen unbekannten booleschen Wert mitbringt,
-             ; kann man die Schleife gleich verlassen.
-             (flet ((neu (value)
-                      (cond ((null bisher) (setq bisher value))
-                            ((not (eq value bisher)) (return-from value nil))
-                   )) )
+           ;; code is the start-label.
+           ;; Inspect all jumps to the Label code:
+           (let ((so-far nil))
+             ;; = FALSE, if all jumps so far bring along FALSE,
+             ;; = TRUE,  if all jumps so far bring along TRUE,
+             ;; = NIL at the beginning.
+             ;; If a jump brings along an unknown boolean value,
+             ;; the loop can be left instantly.
+             (flet ((new (value)
+                      (cond ((null so-far) (setq so-far value))
+                            ((not (eq value so-far))
+                             (return-from value nil)))))
                (dolist (ref (symbol-value code))
                  (if (integerp ref)
-                   (let ((refcode (first (aref *code-parts* ref)))) ; der Wegsprung hierher
-                     ; Ein Wegsprung mit undefinierten Werten kann das nicht sein.
+                   (let ((refcode (first (aref *code-parts* ref)))) ; the jump hither
+                     ;; this cannot be a leaving-jump with undefined values.
                      (case (first refcode)
                        (JMP
-                         (if (third refcode)
-                           ; Wert vor dem Sprung bekannt
-                           (neu (third refcode))
-                           ; Wert vor dem Sprung unbekannt
-                           (return-from value nil)
-                       ) )
+                        (if (third refcode)
+                          ;; value known before the jump
+                          (new (third refcode))
+                          ;; value unknown before the jump
+                          (return-from value nil)))
                        ((JMPCASE JMPCASE1-TRUE JMPCASE1-FALSE)
-                         (when (eq code (second refcode)) (neu 'TRUE))
-                         (when (eq code (third refcode)) (neu 'FALSE))
-                       )
-                       (t (err)) ; JMPHASH hat undefinierte Werte, und die
-                                 ; anderen Wegsprünge enthalten keine Labels.
-                   ) )
+                        (when (eq code (second refcode)) (new 'TRUE))
+                        (when (eq code (third refcode)) (new 'FALSE)))
+                       (t ;; JMPHASH has undefined values, and the
+                          ;; other leaving-jumps contain no Labels.
+                        (err))))
                    (case (first ref)
                      ((JMPIFBOUNDP BLOCK-OPEN CATCH-OPEN)
-                       (return-from value nil) ; Da können wir nichts aussagen
-                     )
-                     (t (err)) ; An den Labels in TAGBODY-OPEN, JSR,
-                               ; UNWIND-PROTECT-OPEN, UNWIND-PROTECT-CLOSE
-                               ; liegen undefinierte Werte vor.
-         ) ) ) ) ) )
-         nil ; Default: nichts aussagbar
-      ))
-) ) )
+                      (return-from value nil)) ; can say nothing
+                     (t ;; There are undefined values at the Labels in
+                        ;; TAGBODY-OPEN, JSR, UNWIND-PROTECT-OPEN,
+                        ;; UNWIND-PROTECT-CLOSE.
+                      (err))))))))
+         nil))))) ; Default: can say nothing
 
 (defun optimize-jmpcase (index code)
   (when (eq (first (car code)) 'JMPCASE)
-    ; Code endet mit (JMPCASE ...)
+    ;; Code ends with (JMPCASE ...)
     (let ((true-label (second (car code)))
           (false-label (third (car code))))
       (if (eq true-label false-label)
-        ; (JMPCASE label label) --> (JMP label ..)
+        ;; (JMPCASE label label) --> (JMP label ..)
         (progn
           (setf (car code) `(JMP ,true-label ,(get-boolean-value (cdr code))))
-          ; doppelte Referenz wird zu einer einfachen:
+          ;; double reference becomes a single reference:
           (setf (symbol-value true-label)
-                (delete index (symbol-value true-label) :count 1)
-          )
-          ; und weiter optimieren:
+                (delete index (symbol-value true-label) :count 1))
+          ;; continue optimization:
           (optimize-part code)
-          (optimize-short (get true-label 'code-part))
-        )
+          (optimize-short (get true-label 'code-part)))
         (when (and (null (get true-label 'for-value))
-                   (null (get false-label 'for-value))
-              )
-          ; Versuche NOTs zu eliminieren:
+                   (null (get false-label 'for-value)))
+          ;; try to eliminate NOTs:
           (let ((invert 0)
                 (cr1 code)
-                (cr2 (cdr code))) ; stets cr2 = (cdr cr1)
+                (cr2 (cdr code))) ; always cr2 = (cdr cr1)
             (loop
               (when (atom cr2) (return))
               (case (first (car cr2))
                 ((UNBIND1 SKIP SKIPI SKIPSP VALUES1 BLOCK-CLOSE TAGBODY-CLOSE
-                  CATCH-CLOSE UNWIND-PROTECT-CLEANUP
-                 ) ; diese Operationen brauchen keine Werte und lassen
-                   ; den 1. Wert unverändert
-                 (shiftf cr1 cr2 (cdr cr2))
-                )
+                  CATCH-CLOSE UNWIND-PROTECT-CLEANUP)
+                 ;; these operations do not need values and leave
+                 ;; the 1. value unmodified
+                 (shiftf cr1 cr2 (cdr cr2)))
                 (NOT
-                  (setf (cdr cr1) (setq cr2 (cdr cr2))) ; (NOT) streichen
-                  (incf invert)
-                )
-                (t (return))
-            ) )
-            ; invert = Anzahl, wie oft (NOT) gestrichen wurde
+                 (setf (cdr cr1) (setq cr2 (cdr cr2))) ; discard (NOT)
+                 (incf invert))
+                (t (return))))
+            ;; invert = number of times, how often (NOT) was discarded
             (when (oddp invert)
-              ; true-label und false-label vertauschen:
-              (setf (car code) `(JMPCASE ,false-label ,true-label))
-            )
+              ;; permute true-label and false-label:
+              (setf (car code) `(JMPCASE ,false-label ,true-label)))
             (when (plusp invert)
-              ; und weiter optimieren:
+              ;; continue optimization:
               (optimize-part code)
-              (optimize-short index)
-        ) ) )
-) ) ) )
+              (optimize-short index))))))))
 
 (defun optimize-value (index &optional (code (aref *code-parts* index)))
   (let ((item (car code)))
     (case (first item)
       ((JMPCASE JMPCASE1-TRUE JMPCASE1-FALSE)
-        ; (JMPCASE/... true-label false-label)
-        (let ((true-label (second item))
-              (false-label (third item)))
-          (when (or (and (eq (first item) 'JMPCASE1-TRUE)
-                         (not (eq (get true-label 'for-value) 'ALL))
-                         ; Wertezahl 1 wird bei true-label nicht gebraucht
-                         ; (JMPCASE1-TRUE ...) --> (JMPCASE ...)
-                    )
-                    (and (eq (first item) 'JMPCASE1-FALSE)
-                         (not (eq (get false-label 'for-value) 'ALL))
-                         ; Wertezahl 1 wird bei false-label nicht gebraucht
-                         ; (JMPCASE1-FALSE ...) --> (JMPCASE ...)
-                )   )
-            (setq item (setf (car code) `(JMPCASE ,@(rest item))))
-            ; Weitere mögliche Optimierungen:
-            (optimize-jmpcase index code)
-          )
-          ; Versuche, den booleschen Wert an dieser Stelle zu ermitteln
-          ; und vereinfache gegebenenfalls:
-          (case (get-boolean-value (cdr code))
-            (TRUE ; Sprung geht immer auf true-label
-              ; Referenz auf false-label streichen:
-              (setf (symbol-value false-label)
-                (delete index (symbol-value false-label))
-              )
-              (setf (car code) `(JMP ,true-label TRUE))
-              (when (eq (first item) 'JMPCASE1-TRUE)
-                (push '(VALUES1) (cdr code))
-                (simplify code)
-              )
-              (optimize-part code) ; weitere mögliche Optimierung
-              ; weitere mögliche Optimierungen:
-              (optimize-label false-label) ; wegen verringerter Referenzen
-              (optimize-short index) ; wegen obigem optimize-part
-            )
-            (FALSE
-              ; Referenz auf true-label streichen
-              (setf (symbol-value true-label)
-                (delete index (symbol-value true-label))
-              )
-              (setf (car code) `(JMP ,false-label FALSE))
-              (when (eq (first item) 'JMPCASE1-FALSE)
-                (push '(VALUES1) (cdr code))
-                (simplify code)
-              )
-              (optimize-part code) ; weitere mögliche Optimierung
-              ; weitere mögliche Optimierungen:
-              (optimize-label true-label) ; wegen verringerter Referenzen
-              (optimize-short index) ; wegen obigem optimize-part
-      ) ) ) )
+       ;; (JMPCASE/... true-label false-label)
+       (let ((true-label (second item))
+             (false-label (third item)))
+         (when (or (and (eq (first item) 'JMPCASE1-TRUE)
+                        (not (eq (get true-label 'for-value) 'ALL))
+                        ;; value-number 1 is not needed at true-label
+                        ;; (JMPCASE1-TRUE ...) --> (JMPCASE ...)
+                        )
+                   (and (eq (first item) 'JMPCASE1-FALSE)
+                        (not (eq (get false-label 'for-value) 'ALL))
+                        ;; value-number 1 is not needed at false-label
+                        ;; (JMPCASE1-FALSE ...) --> (JMPCASE ...)
+                        ))
+           (setq item (setf (car code) `(JMPCASE ,@(rest item))))
+           ;; further optimizations possible:
+           (optimize-jmpcase index code))
+         ;; try to detect the boolean value at this place
+         ;; and simplify if possible:
+         (case (get-boolean-value (cdr code))
+           (TRUE                ; jump always aims at true-label
+            ;; discard reference to false-label:
+            (setf (symbol-value false-label)
+                  (delete index (symbol-value false-label)))
+            (setf (car code) `(JMP ,true-label TRUE))
+            (when (eq (first item) 'JMPCASE1-TRUE)
+              (push '(VALUES1) (cdr code))
+              (simplify code))
+            (optimize-part code) ; further possible optimization
+            ;; further possible optimizations:
+            (optimize-label false-label) ; because of reduced references
+            (optimize-short index)) ; because of optimize-part above
+           (FALSE
+            ;; discard reference to true-label
+            (setf (symbol-value true-label)
+                  (delete index (symbol-value true-label)))
+            (setf (car code) `(JMP ,false-label FALSE))
+            (when (eq (first item) 'JMPCASE1-FALSE)
+              (push '(VALUES1) (cdr code))
+              (simplify code))
+            (optimize-part code) ; further possible optimization
+            ;; further possible optimizations:
+            (optimize-label true-label) ; because of reduced references
+            (optimize-short index))))) ; because of optimize-part above
       (JMP
-        (let ((label (second item)))
-          (when (get label 'for-value)
-            ; Wert wird benötigt
-            (when (null (third item))
-              ; aber er ist unbekannt.
-              ; Vielleicht lässt sich der Wert herausbekommen ?
-              (let ((value (get-boolean-value (cdr code))))
-                (when value
-                  (setf (car code) `(JMP ,label ,value))
-                  ; Wert jetzt bekannt, lässt sich vielleicht verwenden:
-                  (optimize-value (get label 'code-part))
-) ) ) ) ) ) ) ) )
+       (let ((label (second item)))
+         (when (get label 'for-value)
+           ;; value is required
+           (when (null (third item))
+             ;; but it is unknown.
+             ;; maybe it can be ascertained?
+             (let ((value (get-boolean-value (cdr code))))
+               (when value
+                 (setf (car code) `(JMP ,label ,value))
+                 ;; value is now known, maybe it can be utilized:
+                 (optimize-value (get label 'code-part)))))))))))
 
-; coalesce legt gleiche Codeteile in den gegebenen Codestücken soweit wie
-; möglich zusammen und liefert als Ergebnis ein Flag, ob etwas geändert wurde.
+;; coalesce coalesces identical code-pieces in the given code-parts as far as
+;; possible and returns as result a flag, if something was changed.
 (defun coalesce (&optional (indexlist
-                             ; Liste aller möglichen Indizes
-                             (let ((L '()))
-                               (dotimes (i (fill-pointer *code-parts*)) (push i L))
-                               (nreverse L)
-                )          ) )
-  (let ((parts-ht ; Eine Hashtabelle, die eine Abbildung realisiert:
-                  ; Codeende --> Liste aller Indizes von Codestücken,
-                  ;              die damit enden
-          (let ((ht (make-hash-table :test #'equal :size (length indexlist))))
-            (dolist (index indexlist)
-              (let ((code (aref *code-parts* index))) ; ein Codestück
-                ; Wegen der Vereinfachungsregel für "kurze" Codestücke werden
-                ; nur Teile zusammengelegt, die in mindestens den letzten 3
-                ; Operationen übereinstimmen.
-                (when (and (consp code) (consp (cdr code)) (consp (cddr code)))
-                  (push index
-                    (gethash (list* (first code) (second code) (third code))
-                             ht '()
-                  ) )
-            ) ) )
-            ht
-        ) )
+                            ;; list of all possible indices
+                            (let ((L '()))
+                              (dotimes (i (fill-pointer *code-parts*))
+                                (push i L))
+                              (nreverse L))))
+  (let ((parts-ht ; A Hashtable, that realizes the mapping:
+                  ; code-end --> list of all indices of code-parts,
+                  ;              that end with the same code-piece
+         (let ((ht (make-hash-table :test #'equal :size (length indexlist))))
+           (dolist (index indexlist)
+             (let ((code (aref *code-parts* index))) ; a code-piece
+               ;; only pieces are coalesced that match in
+               ;; at least the last 3 operations, because of the
+               ;; simplification-rule for "short" codes-pieces.
+               (when (and (consp code) (consp (cdr code)) (consp (cddr code)))
+                 (push index
+                       (gethash (list* (first code) (second code) (third code))
+                                ht '())))))
+           ht))
         (modified nil))
-    ; Dann über die möglichen Codeenden iterieren:
+    ;; Then, iterate over the possible code-ends:
     (maphash
       #'(lambda (code-beginning indices)
           (declare (ignore code-beginning))
-          (when (cdr indices) ; mindestens zwei Indizes mit diesem Codeende?
-            ; Versuche, möglichst langes Codestück zusammenzulegen:
-            (let ((codes ; Liste der zusammenzulegenden Codestücke
-                    (mapcar #'(lambda (i) (aref *code-parts* i)) indices)
-                  )
-                  (new-code '()) ; hier wird der gemeinsame Code gesammelt
-                  (new-index (fill-pointer *code-parts*)) ; Index dafür
-                  (new-order ; das gemeinsame Stück wird beim letzten Teil einzusortiert
-                    (reduce #'max (mapcar #'(lambda (i) (aref *code-positions* i)) indices))
-                 ))
+          (when (cdr indices) ; at least two indices with this code-end?
+            ;; try to coalesce a code-piece that is as long as possible:
+            (let ((codes ; list of code-pieces to be coalesced
+                   (mapcar #'(lambda (i) (aref *code-parts* i)) indices))
+                  (new-code '()) ; here the common code is collected
+                  (new-index (fill-pointer *code-parts*)) ; its index
+                  (new-order ; the common piece is sorted at the last part
+                   (reduce #'max (mapcar #'(lambda (i)
+                                             (aref *code-positions* i))
+                                         indices))))
               (loop
-                ; stimmen noch alle überein?
-                (unless (every #'consp codes) (return))
-                (let* ((code1 (first codes)) ; ein beliebiges der Codestücke
-                       (code11 (car code1))) ; dessen letzte Operation
-                  (unless (every #'(lambda (code) (equal (car code) code11))
-                                 (rest codes)
-                          )
-                    (return)
-                  )
-                  ; ja. Alle Codestücke aus codes um eine Operation verkürzen:
-                  (mapc #'(lambda (code index) ; Referenzen löschen
-                            (remove-references (car code) index)
-                          )
-                        codes indices
-                  )
-                  ; verkürzen: (setq codes (mapcar #'cdr codes)), oder:
-                  (mapl #'(lambda (codesr)
-                            (setf (car codesr) (cdr (car codesr)))
-                          )
-                        codes
-                  )
-                  (push code11 new-code) ; new-code verlängern
-                  (note-references code11 new-index)
-              ) )
+               ;; all still match?
+               (unless (every #'consp codes) (return))
+               (let* ((code1 (first codes)) ; an arbitrary code-piece
+                      (code11 (car code1))) ; its last operation
+                 (unless (every #'(lambda (code) (equal (car code) code11))
+                                (rest codes))
+                   (return))
+                 ;; yes. shorten all code-pieces from codes by one operation:
+                 (mapc #'(lambda (code index) ; delete references
+                           (remove-references (car code) index))
+                       codes indices)
+                 ;; shorten: (setq codes (mapcar #'cdr codes)), or:
+                 (mapl #'(lambda (codesr)
+                           (setf (car codesr) (cdr (car codesr))))
+                       codes)
+                 (push code11 new-code) ; lengthen new-code
+                 (note-references code11 new-index)))
               (let* ((new-label (make-label 'ALL))
-                     ; Alle Codestücke aus codes wurden verkürzt, sie werden
-                     ; jetzt verlängert um ein (JMP new-label NIL).
+                     ;; All code-pieces from codes were shortened, they are now
+                     ;; lengthened by one (JMP new-label NIL).
                      (jmpop `(JMP ,new-label NIL)))
                 (mapc #'(lambda (code index)
-                          (setf (aref *code-parts* index) (cons jmpop code))
-                        )
-                      codes indices
-                )
-                (setf (symbol-value new-label) indices) ; Referenzen auf new-label
+                          (setf (aref *code-parts* index) (cons jmpop code)))
+                      codes indices)
+                ;; References to new-label
+                (setf (symbol-value new-label) indices)
                 (setf (get new-label 'code-part) new-index)
                 (vector-push-extend (nreconc new-code new-label) *code-parts*)
-                (vector-push-extend new-order *code-positions*)
-              )
-              ; weitere mögliche Optimierungen:
+                (vector-push-extend new-order *code-positions*))
+              ;; further possible optimizations:
               (optimize-part (aref *code-parts* new-index))
               (coalesce indices)
-              (setq modified t) ; Veränderung hat stattgefunden
-        ) ) )
-      parts-ht
-    )
-    modified
-) )
+              (setq modified t)))) ; change has taken place
+      parts-ht)
+    modified))
 
-; Die Hauptfunktion des 3. Schritts:
-; Führt alle Optimierungen durch, und fasst dann alle Codestücke wieder zu
-; einer einzigen Codeliste zusammen und liefert diese.
+;; The main-function of the 3rd step:
+;; Performs all optimizations, and then collects all code-pieces
+;; into one single code-list and returns it.
 (defun optimize-all ()
-  ; Optimierungen:
+  ;; optimizations:
   (loop
-    ; Optimierungen aufrufen:
-    ; Wird eine fündig, so ruft sie auch gleich die Optimierungs-
-    ; schritte auf, die sich dadurch ergeben könnten. Daher brauchen
-    ; sie hier nur einmal aufgeführt zu werden.
-    ; Vorsicht hier: durch die Optimierungen können *code-parts* und sein
-    ; Inhalt sich völlig verändern.
+    ;; call optimizations:
+    ;; if one makes a find, it will also call the optimization-
+    ;; steps, that might thereby become possible. Thus they
+    ;; have to be listed here only once.
+    ;; Caution: *code-parts* and its content can be
+    ;; completely changed by the optimizations.
     (do ((index 0 (1+ index)))
         ((eql index (fill-pointer *code-parts*)))
       (let ((code (aref *code-parts* index)))
@@ -10583,146 +9698,128 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
                  (label (cdr lastc)))
             (when label
               (unless (eql index (get label 'code-part))
-                (compiler-error 'optimize-all 'code-part)
-            ) )
-            (optimize-label label index code lastc)
-      ) ) )
+                (compiler-error 'optimize-all 'code-part)))
+            (optimize-label label index code lastc))))
       (let ((code (aref *code-parts* index)))
         (when code
-          (optimize-jmpcase index code)
-      ) )
+          (optimize-jmpcase index code)))
       (let ((code (aref *code-parts* index)))
         (when code
-          (optimize-value index code)
-      ) )
+          (optimize-value index code)))
       (let ((code (aref *code-parts* index)))
         (when code
-          (optimize-short index code)
-    ) ) )
-    (unless (coalesce) (return)) ; (coalesce) tat nichts -> fertig
-  )
-  ; Zu einer einzigen Codeliste zusammenfassen:
-  ; (Dabei werden die Labels nun Listenelemente im Code statt nur NTHCDRs.)
-  (let ((start-index 0)) ; Start-"Label" NIL beginnt Codestück Nr. 0
-    ; Erst jeweils ein Codestück, das mit label anfängt, wenn möglich an ein
-    ; Codestück anhängen, das mit einem JMP oder JMPCASE/... zu label endet.
+          (optimize-short index code))))
+    (unless (coalesce) (return))) ; (coalesce) did nothing -> finished
+  ;; collect into one single code-list:
+  ;; (The labels now become list-elements in the code instead of NTHCDRs.)
+  (let ((start-index 0)) ; Start-"Label" NIL begins code-piece Nr. 0
+    ;; if possible, first append at a time a code-piece that starts with label,
+    ;; to a code-piece, that ends with a JMP or JMPCASE/... to label.
     (do ((index (fill-pointer *code-parts*)))
-        ((eql (decf index) 0)) ; index durchläuft die Indizes von *code-parts*
-                               ; von oben nach unten, ausgenommen start-index=0.
+        ((eql (decf index) 0))
+      ;; index loops through the indices of *code-parts*
+      ;; top-down, apart from start-index=0.
       (let ((code (aref *code-parts* index)))
         (when code
           (loop
-            ; Betrachte das Label am Ende von code, im Codestück Nr. index:
-            (let* ((lastc (last code)) ; letztes Cons von code
-                   (label (cdr lastc)) ; Label am Ende von code
-                   (refs (symbol-value label)) ; Referenzen darauf
-                   (pos (aref *code-positions* index)) ; Position von code
-                   (jmp-ref nil) ; bisher beste gefundene JMP-Referenz auf label
-                   (jmpcase-ref nil) ; bisher beste gefundene JMPCASE-Referenz auf label
-                   (jmpcase1-ref nil)) ; bisher beste gefundene JMPCASE1-...-Referenz auf label
+            ;; Treat the label at the end of code, in code-piece Nr. index:
+            (let* ((lastc (last code)) ; last Cons of code
+                   (label (cdr lastc)) ; Label at the end of code
+                   (refs (symbol-value label)) ; References pointing to it
+                   (pos (aref *code-positions* index)) ; Position of code
+                   (jmp-ref nil) ; best found JMP-Reference to label so far
+                   (jmpcase-ref nil) ; best found JMPCASE-Reference to label so far
+                   (jmpcase1-ref nil)) ; best found JMPCASE1-...-Reference to label so far
               (if (null label)
-                ; Das Start-Code-Stück wurde umgehängt!
+                ;; The Start-Code-Piece was attached to another place!
                 (progn
                   (setq start-index index)
-                  (return) ; zum nächsten Index
-                )
+                  (return)) ; go for the next index
                 (flet ((better (new-ref old-ref)
-                         ; Eine Referenz new-ref ist "besser" als eine andere
-                         ; old-ref, wenn sie näher dran ist. Dabei haben
-                         ; Vorwärtsreferenzen generell Priorität gegenüber
-                         ; Rückwärtsreferenzen.
-                         (or (null old-ref) ; noch gar kein old-ref?
+                         ;; One Reference new-ref is "better" than another
+                         ;; old-ref, if it is closer. Withal,
+                         ;; forward-references have in general higher priority
+                         ;; compared to backward-references.
+                         (or (null old-ref) ; no old-ref yet?
                              (let ((old-pos (aref *code-positions* old-ref))
                                    (new-pos (aref *code-positions* new-ref)))
-                               (if (> old-pos pos) ; Habe bisher nur Rückwärtssprung?
-                                 ; ja: new-pos ist besser, falls es
-                                 ; < pos (Vorwärtssprung) oder
-                                 ; >=pos, <=old-pos (kürzerer Rückwärtssprung) ist.
+                               (if (> old-pos pos) ; so far only backward-jump?
+                                 ;; yes: new-pos is better, if it is
+                                 ;; < pos (forward-jump) or
+                                 ;; >=pos, <=old-pos (shorter backward-jump).
                                  (<= new-pos old-pos)
-                                 ; nein: new-pos ist besser, falls es
-                                 ; <=pos, >=old-pos (kürzerer Vorwärtssprung) ist.
-                                 (<= old-pos new-pos pos)
-                      )) )   ) )
-                  (macrolet ((update (old-ref new-ref) ; zur Bestimmung des bisher Besten
+                                 ;; no: new-pos is better, if it is
+                                 ;; <=pos, >=old-pos (shorter forward-jump).
+                                 (<= old-pos new-pos pos))))))
+                  (macrolet ((update (old-ref new-ref) ; for determination of the best so far
                                `(when (better ,new-ref ,old-ref)
-                                  (setq ,old-ref ,new-ref)
-                                )
-                            ))
-                    ; Bestimme die beste Referenz, an die das Codestück
-                    ; gehängt werden kann:
+                                  (setq ,old-ref ,new-ref))))
+                    ;; determine the best reference, to which the code-piece
+                    ;; can be attached:
                     (dolist (refindex refs)
                       (when (and (integerp refindex)
-                                 (not (eql refindex index)) ; nicht an sich selber hängen!
-                            )
+                                 (not (eql refindex index))) ; do not attach to itself!
                         (let ((refcode1 (car (aref *code-parts* refindex))))
                           (case (first refcode1)
-                            (JMP ; mögliches Anhängen an (JMP label ...)
-                              (update jmp-ref refindex)
-                            )
-                            (JMPCASE ; mögliches Anhängen an (JMPCASE ... label ...)
-                              (update jmpcase-ref refindex)
-                            )
-                            (JMPCASE1-TRUE ; mögliches Anhängen an (JMPCASE1-TRUE ... label)
-                              (when (eq label (third refcode1))
-                                (update jmpcase1-ref refindex)
-                            ) )
-                            (JMPCASE1-FALSE ; mögliches Anhängen an (JMPCASE1-FALSE label ...)
-                              (when (eq label (second refcode1))
-                                (update jmpcase1-ref refindex)
-                            ) )
-                    ) ) ) )
-                    (cond (jmp-ref ; an (JMP label) anhängen
-                            (setf (cdr lastc)
-                                  (cons label (cdr (aref *code-parts* jmp-ref)))
-                            )
-                            (setf (aref *code-parts* jmp-ref) nil)
-                            (setq code lastc)
-                          )
+                            (JMP ; attachment possible to (JMP label ...)
+                             (update jmp-ref refindex))
+                            (JMPCASE ; attachment possible to (JMPCASE ... label ...)
+                             (update jmpcase-ref refindex))
+                            (JMPCASE1-TRUE ; attachment possible to (JMPCASE1-TRUE ... label)
+                             (when (eq label (third refcode1))
+                               (update jmpcase1-ref refindex)))
+                            (JMPCASE1-FALSE ; attachment possible to (JMPCASE1-FALSE label ...)
+                             (when (eq label (second refcode1))
+                               (update jmpcase1-ref refindex)))))))
+                    (cond (jmp-ref ; attach to (JMP label)
+                           (setf (cdr lastc)
+                                 (cons label (cdr (aref *code-parts*
+                                                        jmp-ref))))
+                           (setf (aref *code-parts* jmp-ref) nil)
+                           (setq code lastc))
                           (jmpcase1-ref
-                            (let* ((refcode (aref *code-parts* jmpcase1-ref))
-                                   (refcode1 (car refcode))
-                                   (jmpop
-                                     (if (eq label (second refcode1))
+                           (let* ((refcode (aref *code-parts* jmpcase1-ref))
+                                  (refcode1 (car refcode))
+                                  (jmpop
+                                   (if (eq label (second refcode1))
                                        `(JMPIFNOT1 ,(third refcode1))
-                                       `(JMPIF1 ,(second refcode1))
-                                  )) )
-                              (setf (cdr lastc) (list* label jmpop (cdr refcode)))
-                              (setf (aref *code-parts* jmpcase1-ref) nil)
-                              (setq code lastc)
-                          ) )
+                                       `(JMPIF1 ,(second refcode1)))))
+                             (setf (cdr lastc) (list* label jmpop
+                                                      (cdr refcode)))
+                             (setf (aref *code-parts* jmpcase1-ref) nil)
+                             (setq code lastc)))
                           (jmpcase-ref
-                            (let* ((refcode (aref *code-parts* jmpcase-ref))
-                                   (refcode1 (car refcode))
-                                   (for-value (or (get (second refcode1) 'for-value)
-                                                  (get (third refcode1) 'for-value)
-                                   )          )
-                                   (jmpop
-                                     (if (eq label (second refcode1))
+                           (let* ((refcode (aref *code-parts* jmpcase-ref))
+                                  (refcode1 (car refcode))
+                                  (for-value (or (get (second refcode1)
+                                                      'for-value)
+                                                 (get (third refcode1)
+                                                      'for-value)))
+                                  (jmpop
+                                   (if (eq label (second refcode1))
                                        `(JMPIFNOT ,(third refcode1) ,for-value)
-                                       `(JMPIF ,(second refcode1) ,for-value)
-                                  )) )
-                              (setf (cdr lastc) (list* label jmpop (cdr refcode)))
-                              (setf (aref *code-parts* jmpcase-ref) nil)
-                              (setq code lastc)
-                          ) )
-                          (t ; kein Anhängen möglich
-                            (return) ; zum nächsten Index
-          ) ) ) ) ) )     )
-    ) ) )
-    ; Sicherstellen, dass das Anfangs-Stück auch an den Anfang kommt:
-    ; (Das würde auch gehen, indem bei jeder der obigen Anhängungen
-    ; ein (setf (aref *code-positions* index) (aref *code-positions* jmp..-ref))
-    ; gemacht würde. Wieso tun wir das nicht??)
+                                       `(JMPIF ,(second refcode1)
+                                         ,for-value))))
+                             (setf (cdr lastc)
+                                   (list* label jmpop (cdr refcode)))
+                             (setf (aref *code-parts* jmpcase-ref) nil)
+                             (setq code lastc)))
+                          (t ; no attachment possible
+                           (return))))))))))) ; go for the next index
+    ;; make sure, that the start-piece really makes it to the start:
+    ;; (this would also work, by executing a
+    ;; (setf (aref *code-positions* index) (aref *code-positions* jmp..-ref))
+    ;; for each attachment. Why don't we do that??)
     (setf (aref *code-positions* start-index) 0)
-    ; Codeliste zusammensetzen:
+    ;; assemble code-list:
     (let ((code-parts (map 'list #'cons *code-parts* *code-positions*)))
-      (setq code-parts (delete-if-not #'car code-parts)) ; code=nil bedeutet: gestrichen
-      (setq code-parts (sort code-parts #'> :key #'cdr)) ; nach Reihenfolge sortieren
-      ; Die Teile sind jetzt in der richtigen Ordnung, nur umgekehrt.
+      (setq code-parts (delete-if-not #'car code-parts)) ; code=nil means: canceled
+      (setq code-parts (sort code-parts #'> :key #'cdr)) ; sort by order
+      ;; the pieces are now in the right order, only reversed.
       (let ((codelist '()))
         (dolist (code-part code-parts)
           (let ((code (car code-part)))
-            ; code an codelist anhängen, dabei aber den Wegsprung umwandeln:
+            ;; append code to codelist, thereby convert the leaving-jump:
             (let ((item (car code)))
               (case (first item)
                 (JMP (setf (car code) `(JMP ,(second item))))
@@ -10732,129 +9829,119 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
                     (list* `(JMP ,(second item))
                            `(JMPIFNOT ,(third item)
                                       ,(or (get (second item) 'for-value)
-                                           (get (third item) 'for-value)
-                                       )
-                            )
-                           (cdr code)
-                ) ) )
+                                           (get (third item) 'for-value)))
+                           (cdr code))))
                 (JMPCASE1-TRUE ; (JMPCASE1-TRUE true-label false-label)
                                ; --> (JMPIF1 true-label) (JMP false-label)
                   (setq code
                     (list* `(JMP ,(third item))
                            `(JMPIF1 ,(second item))
-                           (cdr code)
-                ) ) )
+                           (cdr code))))
                 (JMPCASE1-FALSE ; (JMPCASE1-FALSE true-label false-label)
                                 ; --> (JMPIFNOT1 false-label) (JMP true-label)
                   (setq code
                     (list* `(JMP ,(second item))
                            `(JMPIFNOT1 ,(third item))
-                           (cdr code)
-            ) ) ) ) )
-            ; Label zum Listenelement machen:
+                           (cdr code))))))
+            ;; turn Label into a list-element:
             (let ((lastc (last code)))
               (when (cdr lastc)
-                (setf (cdr lastc) (list (cdr lastc)))
-            ) )
-            ; Umdrehen und vor codelist hängen (deswegen wurde vorhin
-            ; mit #'> statt #'< sortiert):
-            (setq codelist (nreconc code codelist))
-        ) )
-        codelist
-) ) ) )
+                (setf (cdr lastc) (list (cdr lastc)))))
+            ;; convert and prepend in front of codelist (that's why we sorted
+            ;; with #'> instead of #'< beforehand):
+            (setq codelist (nreconc code codelist))))
+        codelist))))
 
 #|
 ;; Debugging hints:
-(in-package "SYSTEM")
-(setq *print-circle* t)
-(trace compile-to-lap)
-(trace (traverse-anode :post-print *code-part*))
-(trace (optimize-part    :pre-print *code-parts* :post-print *code-parts*)
-       (optimize-label   :pre-print *code-parts* :post-print *code-parts*)
-       (optimize-short   :pre-print *code-parts* :post-print *code-parts*)
-       (optimize-jmpcase :pre-print *code-parts* :post-print *code-parts*)
-       (optimize-value   :pre-print *code-parts* :post-print *code-parts*)
-       (coalesce         :pre-print *code-parts* :post-print *code-parts*)
-       (optimize-all     :pre-print *code-parts* :post-print *code-parts*)
-)
-(trace simplify)
+ (in-package "SYSTEM")
+ (setq *print-circle* t)
+ (trace compile-to-lap)
+ (trace (traverse-anode :post-print *code-part*))
+ (trace (optimize-part    :pre-print *code-parts* :post-print *code-parts*)
+        (optimize-label   :pre-print *code-parts* :post-print *code-parts*)
+        (optimize-short   :pre-print *code-parts* :post-print *code-parts*)
+        (optimize-jmpcase :pre-print *code-parts* :post-print *code-parts*)
+        (optimize-value   :pre-print *code-parts* :post-print *code-parts*)
+        (coalesce         :pre-print *code-parts* :post-print *code-parts*)
+        (optimize-all     :pre-print *code-parts* :post-print *code-parts*))
+ (trace simplify)
 ;; Move out suspect code to a separate file which you load interpreted.
 
 ;; Special debugging checks:
-(defun optimize-check ()
-  (do ((index 0 (1+ index)))
-      ((eql index (fill-pointer *code-parts*)))
-    (let ((code (aref *code-parts* index)))
-      (when code
-        (let* ((lastc (last code))
-               (label (cdr lastc)))
-          (when label
-            (unless (eql index (get label 'code-part))
-              (compiler-error 'optimize-check 'code-part)
-) ) ) ) ) ) )
+ (defun optimize-check ()
+   (do ((index 0 (1+ index)))
+       ((eql index (fill-pointer *code-parts*)))
+     (let ((code (aref *code-parts* index)))
+       (when code
+         (let* ((lastc (last code))
+                (label (cdr lastc)))
+           (when label
+             (unless (eql index (get label 'code-part))
+               (compiler-error 'optimize-check 'code-part))))))))
 (trace
-  (optimize-part    :pre (optimize-check) :post (optimize-check) :suppress-if t)
-  (optimize-label   :pre (optimize-check) :post (optimize-check) :suppress-if t)
-  (optimize-short   :pre (optimize-check) :post (optimize-check) :suppress-if t)
-  (optimize-jmpcase :pre (optimize-check) :post (optimize-check) :suppress-if t)
-  (optimize-value   :pre (optimize-check) :post (optimize-check) :suppress-if t)
-  (coalesce         :pre (optimize-check) :post (optimize-check) :suppress-if t)
-  (optimize-all     :pre (optimize-check) :post (optimize-check) :suppress-if t)
+ (optimize-part    :pre (optimize-check) :post (optimize-check) :suppress-if t)
+ (optimize-label   :pre (optimize-check) :post (optimize-check) :suppress-if t)
+ (optimize-short   :pre (optimize-check) :post (optimize-check) :suppress-if t)
+ (optimize-jmpcase :pre (optimize-check) :post (optimize-check) :suppress-if t)
+ (optimize-value   :pre (optimize-check) :post (optimize-check) :suppress-if t)
+ (coalesce         :pre (optimize-check) :post (optimize-check) :suppress-if t)
+ (optimize-all     :pre (optimize-check) :post (optimize-check) :suppress-if t)
 )
 |#
 
-#| Was ist mit den folgenden möglichen Optimierungen??
+#| How about the following possible optimizations??
 
-10. Kommt vor einem (JMP label) ein (UNWIND-PROTECT-CLEANUP) und vor dem
-   label ein (UNWIND-PROTECT-3 cleanup-label), so muss es sich um denselben
-   UNWIND-PROTECT-Frame handeln, und man kann (UNWIND-PROTECT-CLEANUP)
-   streichen und (JMP label) durch (JMP newlabel) ersetzen, wobei newlabel
-   ein neues Label ist, das vor dem (evtl. zu ergänzenden) (UNWIND-PROTECT-2)
-   vor cleanup-label sitzt:
+10. If there is an (UNWIND-PROTECT-CLEANUP) in front of (JMP label) and
+   if there is a (UNWIND-PROTECT-3 cleanup-label) in front of the label,
+   so it must be the same UNWIND-PROTECT-Frame; (UNWIND-PROTECT-CLEANUP)
+   can be discarded and (JMP label) can be replaced by (JMP newlabel),
+   whereas newlabel is a new label, that is located in front
+   of (poss. to be supplemented) (UNWIND-PROTECT-2) ahead of
+   cleanup-label:
    (UNWIND-PROTECT-CLEANUP) (JMP label) ...
-   ... [(UNWIND-PROTECT-2)] cleanup-label ... (UNWIND-PROTECT-3 cleanup-label) label
+   ... [(UNWIND-PROTECT-2)] cleanup-label
+   ... (UNWIND-PROTECT-3 cleanup-label) label
    -->
    (JMP newlabel) ...
-   ... newlabel (UNWIND-PROTECT-2) cleanup-label ... (UNWIND-PROTECT-3 cleanup-label) label
+   ... newlabel (UNWIND-PROTECT-2) cleanup-label
+   ... (UNWIND-PROTECT-3 cleanup-label) label
 
-11. Kommt nach einem Label label ein (NIL), so darf jeder (JMPIFNOT label)
-   und jeder (JMPIFNOT1 label) durch ein (JMPIFNOT1 z) ersetzt werden,
-   wo z ein neues Label nach dem (NIL) ist:
+11. IF there is a (NIL) after a Label label,  each (JMPIFNOT label)
+   and each (JMPIFNOT1 label) can be replaced by a (JMPIFNOT1 z) ,
+   with z being a new Label after the (NIL) :
           (JMPIFNOT label) ... label (NIL) ...
    -->       (JMPIFNOT1 z) ... label (NIL) z ...
 
 |#
 
-; Führt den 1. und 2.,3. Schritt aus:
+;; Executes Steps 1, 2 and 3:
 (defun compile-to-LAP ()
   (let ((*code-parts* (make-array 10 :adjustable t :fill-pointer 0))
         (*code-positions* (make-array 10 :adjustable t :fill-pointer 0)))
-    ; Expandiert den Code des Fnode *func* und teilt ihn in Stücke auf.
-    ; Hinterlässt seine Werte in *code-parts* und *code-positions*.
-    (let ((*code-part* (list '(START))) ; NIL als Start-"Label"
+    ;; Expands the Code of Fnode *func* and divides it into pieces.
+    ;; leaves behind its values in *code-parts* and *code-positions*.
+    (let ((*code-part* (list '(START))) ; NIL as Start-"Label"
           (*code-index* 0)
           (*dead-code* nil)
           (*label-subst* '())
           (*current-value* nil)
           (*current-vars* '()))
-      (traverse-anode (anode-code (fnode-code *func*)))
-    )
-    ; Optimiert in *code-parts* und *code-positions*, fasst dann den Code
-    ; in einer Liste zusammen und liefert diese:
+      (traverse-anode (anode-code (fnode-code *func*))))
+    ;; Optimizes in *code-parts* and *code-positions*, then collects the code
+    ;; in a list and returns it:
     (let ((code-list (optimize-all)))
       (unless (equal (pop code-list) '(START))
-        (compiler-error 'compile-to-LAP 'start)
-      )
-      code-list
-) ) )
+        (compiler-error 'compile-to-LAP 'start))
+      code-list)))
 
 
 #|
-                            4. Schritt:
-                      Eliminieren von (CONST n)
+                            4. Step:
+                      Elimination of (CONST n)
 
-Generische Funktionen haben eine feste Länge. Die Konstanten werden im
-VENV-Const aufbewahrt. In diesem Schritt werden umgewandelt:
+Generic Functions have a fixed size. The constants are stored
+in VENV-Const. Transformations in this step:
   (LOADV k m)    -->  (LOADV k+1 m)
   (STOREV k m)   -->  (STOREV k+1 m)
   (CONST n [c])  -->  (LOADV 0 n)
@@ -10881,32 +9968,25 @@ VENV-Const aufbewahrt. In diesem Schritt werden umgewandelt:
       (when (consp item)
         (case (first item)
           ((LOADV STOREV)
-            (setf (car codelistr)
-                  `(,(first item) ,(1+ (second item)) ,@(cddr item))
-          ) )
+           (setf (car codelistr)
+                 `(,(first item) ,(1+ (second item)) ,@(cddr item))))
           (CONST
-            (setf (car codelistr) `(LOADV 0 ,(second item)))
-          )
+           (setf (car codelistr) `(LOADV 0 ,(second item))))
           (VENV
-            (setf (car codelistr) `(LOADV 0 0))
-          )
+           (setf (car codelistr) `(LOADV 0 0)))
           (JMPHASH
-            (setf (car codelistr) `(JMPHASHV ,@(cdr item)))
-          )
+           (setf (car codelistr) `(JMPHASHV ,@(cdr item))))
           ((GETVALUE SETVALUE BIND COPY-CLOSURE CALL CALL0 CALL1 CALL2
             BLOCK-OPEN RETURN-FROM TAGBODY-OPEN GO)
-            (compiler-error 'CONST-to-LOADV "Illegal-in-GF")
-          )
-  ) ) ) )
-  code-list
-)
+            (compiler-error 'CONST-to-LOADV "Illegal-in-GF"))))))
+  code-list)
 
 
 #|
-                            5. Schritt:
-                   Bestimmung des Stackbedarfs
+                            5. Step:
+                   Calculation of Stack-Demand
 
-Dieser Schritt bestimmt, wieviel SP-Einträge die Funktion maximal braucht.
+This step determines, how many SP-Entries the function needs at most.
 |#
 
 (defun SP-depth (code-list)
@@ -10918,186 +9998,149 @@ Dieser Schritt bestimmt, wieviel SP-Einträge die Funktion maximal braucht.
   ;; we pretend having tracked it at depth ((max d1 e1) . (max d2 e2)).
   ;; This is allowed because we are only interested in the two separate maxima.
   ;; Think of two different machines computing the two maxima in parallel.
-  (let ((max-depth-1 0) (max-depth-2 0) ; bisherige Maximal-Tiefe
-        (unseen-label-alist '()) ; Labels, ab denen noch verfolgt werden muss
-        (seen-label-alist '()) ; Labels, die schon verfolgt wurden
-          ; beides Alisten ((label . depth) ...)
-          ; Es ist durchaus möglich, dass dasselbe Codestück mit unterschied-
-          ; lichen SP-Tiefen durchgeführt werden kann (nämlich dann, wenn es
-          ; mit einem Wegsprung THROW, RETURN-FROM, RETURN-FROM-I, GO, GO-I
-          ; oder BARRIER endet)!
-          ; seen-label-alist enthält zu jedem Label die maximale Tiefe, mit
-          ; der ab diesem Label schon verfolgt wurde.
-          ; unseen-label-alist enthält zu jedem Label die maximale bisher
-          ; notierte Tiefe, mit der ab diesem Label noch verfolgt werden muss.
-        (mitte code-list) ; restliche Codeliste
-        (depth (spd 0 0)) ; aktuelle Tiefe
-       )
+  (let ((max-depth-1 0) (max-depth-2 0) ; Maximum-Depth so far
+        (unseen-label-alist '()) ; Labels, that have not yet been tracked
+        (seen-label-alist '()) ; Labels, that have already been tracked
+         ;; both Alists ((label . depth) ...)
+         ;; It is absolutely possible, that the same code-piece can be executed
+         ;; with different SP-Depths (namely, when it ends with
+         ;; a leaving-jump THROW, RETURN-FROM, RETURN-FROM-I, GO, GO-I
+         ;; or BARRIER)!
+         ;; seen-label-alist contains for each label the maximum-depth, with
+         ;; which the tracking took place beginning from this Label.
+         ;; unseen-label-alist contains for each Label the maximum noted
+         ;; depth so far, with which tracking has still to take place
+         ;; beginning from this label.
+        (middle code-list) ; remaining code-list
+        (depth (spd 0 0))) ; current depth
     (macrolet ((check-depth (wanted-depth)
-                 ; überprüft, ob depth gleich der Tiefe wanted-depth ist
+                 ;; checks, if depth equals the depth wanted-depth
                  `(unless (equal depth ,wanted-depth)
-                    (compiler-error 'SP-depth)
-                  )
-              ))
+                    (compiler-error 'SP-depth))))
       (loop
-        ; mitte läuft durch die Codeliste, von der aktuellen Position
-        ; bis zum nächsten Wegsprung, und zählt die Tiefe mit.
+        ;; middle traverses the code-list, from the current position
+        ;; to the next leaving-jump, and counts the depth.
         (loop
-          (when (null mitte) (return))
-          (let ((item (car mitte)))
+          (when (null middle) (return))
+          (let ((item (car middle)))
             (if (atom item)
-              ; Label
+              ;; Label
               (let ((h (assoc item seen-label-alist)))
                 (if h
                   (if (spd<= depth (cdr h))
                     (return)
-                    (setf (cdr h) (setf depth (spdmax depth (cdr h))))
-                  )
-                  (push (cons item depth) seen-label-alist)
-              ) )
-              ; Instruktion
+                    (setf (cdr h) (setf depth (spdmax depth (cdr h)))))
+                  (push (cons item depth) seen-label-alist)))
+              ;; Instruction
               (macrolet ((note-label (labelform)
-                           ; notiere, dass zu label gesprungen werden kann
+                           ; notice, that label can be reached by jump
                            (let ((label (gensym)))
                              `(let* ((,label ,labelform)
                                      (h (assoc ,label seen-label-alist)))
                                 (unless (and h (spd<= depth (cdr h)))
-                                  (let ((depth (if h (spdmax depth (cdr h)) depth)))
+                                  (let ((depth
+                                         (if h (spdmax depth (cdr h)) depth)))
                                     (setq h (assoc ,label unseen-label-alist))
                                     (if h
                                       (unless (spd<= depth (cdr h))
-                                        (setf (cdr h) (spdmax depth (cdr h)))
-                                      )
-                                      (push (cons ,label depth) unseen-label-alist)
-                              ) ) ) )
-                         ) )
+                                        (setf (cdr h) (spdmax depth (cdr h))))
+                                      (push (cons ,label depth)
+                                            unseen-label-alist)))))))
                          (note-inc (amount)
-                           ; notiere, dass depth um amount erhöht wird
+                           ;; notice, that depth can be increased by amount
                            `(progn
-                              (setq depth (spd+ depth ,amount))
-                              (setq max-depth-1 (max max-depth-1 (car depth)))
-                              (setq max-depth-2 (max max-depth-2 (cdr depth)))
-                            )
-                         )
+                             (setq depth (spd+ depth ,amount))
+                             (setq max-depth-1 (max max-depth-1 (car depth)))
+                             (setq max-depth-2 (max max-depth-2 (cdr depth)))))
                          (note-dec (amount)
-                           ; notiere, dass depth um amount erniedrigt wird
+                           ;; notice, that depth can be decreased by amount
                            `(progn
                               (setq depth (spd- depth ,amount))
-                              (when (or (minusp (car depth)) (minusp (cdr depth)))
-                                (compiler-error 'SP-depth "<0")
-                            ) )
-                         )
+                              (when (or (minusp (car depth))
+                                        (minusp (cdr depth)))
+                                (compiler-error 'SP-depth "<0"))))
                          (note-jmp ()
-                           ; notiere, dass weggesprungen wird
-                           `(return)
-                        ))
+                           ;; notice leaving-jump
+                           `(return)))
                 (case (first item)
                   (JMP ; (JMP label)
                     (note-label (second item))
-                    (note-jmp)
-                  )
+                    (note-jmp))
                   ((JMPIF JMPIF1 JMPIFNOT JMPIFNOT1 JMPIFBOUNDP) ; (JMP... label)
-                    (note-label (second item))
-                  )
+                    (note-label (second item)))
                   ((JMPHASH JMPHASHV JMPTAIL) ; (JMPHASH.. n ht label . labels), (JMPTAIL m n label)
                     (dolist (label (cdddr item)) (note-label label))
-                    (note-jmp)
-                  )
+                    (note-jmp))
                   (JSR ; (JSR n label)
-                    (let ((depth (spd 0 0))) (note-label (third item)))
-                  )
+                    (let ((depth (spd 0 0))) (note-label (third item))))
                   ((BARRIER THROW RETURN-FROM RETURN-FROM-I GO GO-I) ; (BARRIER), (THROW), (RETURN-FROM n), (RETURN-FROM-I k n), (GO n l), (GO-I k n l)
-                    (note-jmp)
-                  )
+                    (note-jmp))
                   ((RET RETGF) ; (RET), (RETGF)
                     (check-depth (spd 0 0))
-                    (note-jmp)
-                  )
+                    (note-jmp))
                   (PROGV ; (PROGV)
-                    (note-inc (spd 1 0))
-                  )
+                    (note-inc (spd 1 0)))
                   (CATCH-OPEN ; (CATCH-OPEN label)
                     (note-label (second item))
-                    (note-inc (spd 2 1))
-                  )
+                    (note-inc (spd 2 1)))
                   (CATCH-CLOSE ; (CATCH-CLOSE)
-                    (note-dec (spd 2 1))
-                  )
+                    (note-dec (spd 2 1)))
                   (UNWIND-PROTECT-OPEN ; (UNWIND-PROTECT-OPEN label)
-                    ; eigentlich: (note-inc (spd 2 1))
-                    (note-inc (spd 3 0)) (note-label (second item)) (note-dec (spd 3 0))
-                    (note-inc (spd 2 1))
-                  )
-                  (UNWIND-PROTECT-NORMAL-EXIT ; (UNWIND-PROTECT-NORMAL-EXIT), danach kommt label
-                    (note-dec (spd 2 1)) (note-inc (spd 3 0))
-                  )
+                    ; actually: (note-inc (spd 2 1))
+                    (note-inc (spd 3 0)) (note-label (second item))
+                    (note-dec (spd 3 0)) (note-inc (spd 2 1)))
+                  (UNWIND-PROTECT-NORMAL-EXIT ; (UNWIND-PROTECT-NORMAL-EXIT), then comes label
+                    (note-dec (spd 2 1)) (note-inc (spd 3 0)))
                   (UNWIND-PROTECT-CLOSE ; (UNWIND-PROTECT-CLOSE label)
-                    ; eigentlich: (note-dec (spd 3 0))
-                    (note-label (second item)) (note-dec (spd 3 0))
-                  )
+                    ; actually: (note-dec (spd 3 0))
+                    (note-label (second item)) (note-dec (spd 3 0)))
                   (UNWIND-PROTECT-CLEANUP ; (UNWIND-PROTECT-CLEANUP)
-                    ; eigentlich: (note-dec (spd 2 1)) (note-inc (spd 3 0)) ... (note-dec (spd 3 0))
-                    (note-dec (spd 2 1))
-                  )
+                    ; actually: (note-dec (spd 2 1)) (note-inc (spd 3 0)) ... (note-dec (spd 3 0))
+                    (note-dec (spd 2 1)))
                   (BLOCK-OPEN ; (BLOCK-OPEN n label)
                     (note-label (third item))
-                    (note-inc (spd 2 1))
-                  )
+                    (note-inc (spd 2 1)))
                   (BLOCK-CLOSE ; (BLOCK-CLOSE)
-                    (note-dec (spd 2 1))
-                  )
+                    (note-dec (spd 2 1)))
                   (TAGBODY-OPEN ; (TAGBODY-OPEN n label1 ... labelm)
                     (note-inc (spd 1 1))
-                    (dolist (label (cddr item)) (note-label label))
-                  )
+                    (dolist (label (cddr item)) (note-label label)))
                   ((TAGBODY-CLOSE-NIL TAGBODY-CLOSE) ; (TAGBODY-CLOSE-NIL), (TAGBODY-CLOSE)
-                    (note-dec (spd 1 1))
-                  )
+                    (note-dec (spd 1 1)))
                   (HANDLER-OPEN ; (HANDLER-OPEN n v k label1 ... labelm)
                     (check-depth (fourth item))
-                    (dolist (label (cddddr item)) (note-label label))
-                  )
+                    (dolist (label (cddddr item)) (note-label label)))
                   ((MVCALLP HANDLER-BEGIN) ; (MVCALLP), (HANDLER-BEGIN)
-                    (note-inc (spd 1 0))
-                  )
+                    (note-inc (spd 1 0)))
                   (MVCALL ; (MVCALL)
-                    (note-dec (spd 1 0))
-                  )
+                    (note-dec (spd 1 0)))
                   (SKIPSP ; (SKIPSP k1 k2)
-                    (note-dec (spd (second item) (third item)))
-                  )
+                    (note-dec (spd (second item) (third item))))
                   (SKIPI ; (SKIPI k1 k2 n)
-                    (note-dec (spd (+ (second item) 1) (third item)))
-                  )
-              ) )
-          ) )
-          (setq mitte (cdr mitte))
-        )
-        ; Nächstes zu verfolgendes Label suchen:
+                    (note-dec (spd (+ (second item) 1) (third item))))))))
+          (setq middle (cdr middle)))
+        ;; search next label to track:
         (loop
-          (when (null unseen-label-alist) ; fertig ?
-            (return-from SP-depth (spd max-depth-1 max-depth-2))
-          )
+          (when (null unseen-label-alist) ; finished?
+            (return-from SP-depth (spd max-depth-1 max-depth-2)))
           (let* ((unseen (pop unseen-label-alist))
-                 (label (car unseen))) ; nächstes zu verfolgendes Label
+                 (label (car unseen))) ; next label to track
             (setq depth (cdr unseen))
             (let ((h (assoc label seen-label-alist)))
               (unless (and h (spd<= depth (cdr h)))
                 (when h (setq depth (spdmax depth (cdr h))))
-                ; Ab diesem Label die Codeliste abarbeiten:
-                ; (Dadurch wird (label . depth) in seen-label-alist aufgenommen,
-                ; es ist bereits aus unseen-label-alist entfernt.)
-                (setq mitte (member label code-list :test #'eq))
-                (return)
-        ) ) ) )
-) ) ) )
+                ;; Starting at this label, process the code-list:
+                ;; (Thereby (label . depth) is added to seen-label-alist,
+                ;; it is already removed from unseen-label-alist.)
+                (setq middle (member label code-list :test #'eq))
+                (return)))))))))
 
 
 #|
-                            6. Schritt:
-                 Einführung von Kurz-Operationen
+                            6. Step:
+                 Introduction of Short-Operations
 
-Dieser Schritt arbeitet auf der Codeliste und verändert sie dabei destruktiv.
+This step works on the code-list and changes is destructively.
 
 1. (ATOM) (JMPIF label NIL)             --> (JMPIFATOM label)
    (ATOM) (JMPIFNOT label NIL)          --> (JMPIFCONSP label)
@@ -11160,7 +10203,7 @@ Dieser Schritt arbeitet auf der Codeliste und verändert sie dabei destruktiv.
     (SKIP n) (RETGF)                    --> (SKIP&RETGF n)
     ; (RET)                             --> (SKIP&RET 0)
     ; (RETGF)                           --> (SKIP&RETGF 0)
-    ; kommt nicht vor, da im Stack stets noch die Closure selbst sitzt
+    ; does not occur, because the Closure itself is still in the Stack
 
 14. (UNWIND-PROTECT-CLOSE label)        --> (UNWIND-PROTECT-CLOSE)
 
@@ -11213,7 +10256,7 @@ Dieser Schritt arbeitet auf der Codeliste und verändert sie dabei destruktiv.
       (CALLS-atom (CALLS-code (gethash 'atom function-codes)))
       (CALLS-consp (CALLS-code (gethash 'consp function-codes))))
   (defun insert-combined-LAPs (code-list)
-    ; Zunächst die ATOM/CONSP-Umwandlung, weil diese PUSHs einführen kann:
+    ; First the ATOM/CONSP-Conversion, because it can introduce PUSHs:
     (do ((crest code-list (cdr crest)))
         ((null crest))
       (let ((item (car crest)))
@@ -11229,57 +10272,48 @@ Dieser Schritt arbeitet auf der Codeliste und verändert sie dabei destruktiv.
                        (memq (first (cadr crest)) '(JMPIF JMPIFNOT))
                        (null (third (cadr crest)))
                   )
-                ; z.B. (ATOM) (JMPIF label NIL) --> (JMPIFATOM label)
+                ; e.g. (ATOM) (JMPIF label NIL) --> (JMPIFATOM label)
                 (setf (car crest)
                       `(,(if (eq (first (cadr crest)) 'JMPIF)
                            (if (eq item 'ATOM) 'JMPIFATOM 'JMPIFCONSP)
-                           (if (eq item 'ATOM) 'JMPIFCONSP 'JMPIFATOM)
-                         )
-                        ,(second (cadr crest))
-                       )
-                      (cdr crest) (cddr crest)
-                )
-                ; z.B. (ATOM) --> (PUSH) (CALLS ATOM)
+                           (if (eq item 'ATOM) 'JMPIFCONSP 'JMPIFATOM))
+                        ,(second (cadr crest)))
+                      (cdr crest) (cddr crest))
+                ;; e.g. (ATOM) --> (PUSH) (CALLS ATOM)
                 (setf (car crest) '(PUSH)
-                      (cdr crest) (cons (if (eq item 'ATOM) CALLS-atom CALLS-consp)
-                                        (cdr crest)
-                )                 )
-    ) ) ) ) ) )
-    ; Nun die sonstigen Umformungen: Ein einziger Durchlauf.
-    ; Zwei Pointer laufen durch die Codeliste: ...mitte.rechts...
-    (do* ((mitte code-list rechts)
-          (rechts (cdr mitte) (cdr rechts)))
-         ((null mitte))
+                      (cdr crest) (cons (if (eq item 'ATOM)
+                                            CALLS-atom CALLS-consp)
+                                        (cdr crest)))))))))
+    ;; Now the other Conversions: One single run.
+    ;; Two pointers loop through the code-list: ...middle.right...
+    (do* ((middle code-list right)
+          (right (cdr middle) (cdr right)))
+         ((null middle))
       (macrolet ((ersetze (length new-code)
-                   ; ersetzt die nächsten length Elemente
-                   ; (nth 0 mitte) ... (nth (- length 1) mitte)
-                   ; durch ein einziges Element new-code.
+                   ; replaces the next length elements
+                   ; (nth 0 middle) ... (nth (- length 1) middle)
+                   ; by one single element new-code.
                    (assert (typep length '(INTEGER 0 4)))
                    `(progn
                       ,(case length
-                         (0 `(setf (cdr mitte) (setq rechts (cons (car mitte) rechts))
-                                   (car mitte) ,new-code
-                         )   )
-                         (1 `(setf (car mitte) ,new-code))
-                         (t `(setf (car mitte) ,new-code
-                                   (cdr mitte) ,(setq rechts
+                         (0 `(setf (cdr middle) (setq right (cons (car middle) right))
+                                   (car middle) ,new-code))
+                         (1 `(setf (car middle) ,new-code))
+                         (t `(setf (car middle) ,new-code
+                                   (cdr middle) ,(setq right
                                                   (case length
-                                                    (2 `(cdr rechts))
-                                                    (3 `(cddr rechts))
-                                                    (4 `(cdddr rechts))
-                                                ) )
-                       ) )   )
-                      (go weiter)
-                    )
-                ))
-        (let ((item (car mitte)))
+                                                    (2 `(cdr right))
+                                                    (3 `(cddr right))
+                                                    (4 `(cdddr right)))))))
+                      (go next))))
+        (let ((item (car middle)))
           (when (consp item)
-            ; Untersuchung des Befehls item und der nachfolgenden:
-            (when (and #| (consp rechts) |# (consp (car rechts)))
-              ; normale Umwandlungen, mit Aneinanderhängen der Argumente:
+            ; analysis of the instruction item and the consecutive ones:
+            (when (and #| (consp right) |# (consp (car right)))
+              ; normal conversions, with chaining of the arguments:
               (let ((new-op
                       (cdr (assoc (first item)
-                                  (case (first (car rechts))
+                                  (case (first (car right))
                                     (PUSH  '((T        . T&PUSH)
                                              (CONST    . CONST&PUSH)
                                              (LOADI    . LOADI&PUSH)
@@ -11315,10 +10349,10 @@ Dieser Schritt arbeitet auf der Codeliste und verändert sie dabei destruktiv.
                                                 (CALLSR . CALLSR&JMPIF)
                                                )
                                            ))
-                                        (when (third (car rechts))
+                                        (when (third (car right))
                                           (setq alist (cdr alist))
                                         )
-                                        (setf (cddr (car rechts)) '())
+                                        (setf (cddr (car right)) '())
                                         alist
                                     ) )
                                     (JMPIFNOT
@@ -11332,10 +10366,10 @@ Dieser Schritt arbeitet auf der Codeliste und verändert sie dabei destruktiv.
                                                 (CALLSR . CALLSR&JMPIFNOT)
                                                )
                                            ))
-                                        (when (third (car rechts))
+                                        (when (third (car right))
                                           (setq alist (cdr alist))
                                         )
-                                        (setf (cddr (car rechts)) '())
+                                        (setf (cddr (car right)) '())
                                         alist
                                     ) )
                                     (STORE '((NIL    . NIL&STORE)
@@ -11352,15 +10386,15 @@ Dieser Schritt arbeitet auf der Codeliste und verändert sie dabei destruktiv.
                                   :test #'eq
                    )) )    )
                 (when new-op
-                  (ersetze 2 `(,new-op ,@(rest item) ,@(rest (car rechts))))
+                  (ersetze 2 `(,new-op ,@(rest item) ,@(rest (car right))))
             ) ) )
-            ; weitere Umwandlungen:
+            ; further conversions:
             (case (first item)
               ((NIL PUSH-NIL)
                 (flet ((nilpusher-p (coder)
-                         ; Kommt (NIL) (PUSH) --> 1,
-                         ; kommt (PUSH-NIL n) --> n,
-                         ; sonst nil.
+                         ; if (NIL) (PUSH) --> 1,
+                         ; if (PUSH-NIL n) --> n,
+                         ; else nil.
                          (and #| (consp coder) |# (consp (car coder))
                               (case (first (car coder))
                                 (PUSH-NIL (second (car coder)))
@@ -11370,103 +10404,103 @@ Dieser Schritt arbeitet auf der Codeliste und verändert sie dabei destruktiv.
                                 )      )
                                 (t nil)
                       )) )    )
-                  (let ((count (nilpusher-p mitte)))
+                  (let ((count (nilpusher-p middle)))
                     (when count
-                      (setq rechts (cdr mitte))
+                      (setq right (cdr middle))
                       (loop
-                        (let ((next-count (nilpusher-p rechts)))
+                        (let ((next-count (nilpusher-p right)))
                           (unless next-count (return))
                           (incf count next-count)
                         )
-                        (setq rechts (cdr rechts))
+                        (setq right (cdr right))
                       )
-                      (setf (car mitte) (if (eql count 1) '(NIL&PUSH) `(PUSH-NIL ,count))
-                            (cdr mitte) rechts
+                      (setf (car middle) (if (eql count 1) '(NIL&PUSH) `(PUSH-NIL ,count))
+                            (cdr middle) right
                       )
-                      (go weiter)
+                      (go next)
               ) ) ) )
               (CONST
-                (when (and #| (consp rechts) |# (consp (car rechts)))
-                  (case (first (car rechts))
+                (when (and #| (consp right) |# (consp (car right)))
+                  (case (first (car right))
                     (SYMBOL-FUNCTION
                       (let ((n (second item)))
-                        (cond ((and #| (consp (cdr rechts)) |#
-                                    (equal (cadr rechts) '(PUSH))
+                        (cond ((and #| (consp (cdr right)) |#
+                                    (equal (cadr right) '(PUSH))
                                )
                                (ersetze 3 `(CONST&SYMBOL-FUNCTION&PUSH ,n))
                               )
-                              ((and #| (consp (cdr rechts)) |#
-                                    (consp (cadr rechts))
-                                    (eq (first (cadr rechts)) 'STORE)
+                              ((and #| (consp (cdr right)) |#
+                                    (consp (cadr right))
+                                    (eq (first (cadr right)) 'STORE)
                                )
                                (ersetze 3
-                                 `(CONST&SYMBOL-FUNCTION&STORE ,n ,(second (cadr rechts)))
+                                 `(CONST&SYMBOL-FUNCTION&STORE ,n ,(second (cadr right)))
                               ))
                               (t (ersetze 2 `(CONST&SYMBOL-FUNCTION ,n)))
                     ) ) )
                     (EQ
-                      (when (and #| (consp (cdr rechts)) |#
-                                 (consp (cadr rechts))
-                                 (memq (first (cadr rechts)) '(JMPIF JMPIFNOT))
-                                 (null (third (cadr rechts)))
+                      (when (and #| (consp (cdr right)) |#
+                                 (consp (cadr right))
+                                 (memq (first (cadr right)) '(JMPIF JMPIFNOT))
+                                 (null (third (cadr right)))
                             )
                         (ersetze 3
-                          `(,(if (eq (first (cadr rechts)) 'JMPIF)
+                          `(,(if (eq (first (cadr right)) 'JMPIF)
                                'JMPIFEQTO
                                'JMPIFNOTEQTO
                              )
                             ,(second item)
-                            ,(second (cadr rechts))
+                            ,(second (cadr right))
                            )
               ) ) ) ) ) )
               (LOAD
-                (when (and #| (consp rechts) |# (consp (car rechts)))
+                (when (and #| (consp right) |# (consp (car right)))
                   (let ((n (second item)))
-                    (case (first (car rechts))
+                    (case (first (car right))
                       (CAR
-                        (when (and #| (consp (cdr rechts)) |# (consp (cadr rechts)))
-                          (case (first (cadr rechts))
+                        (when (and #| (consp (cdr right)) |# (consp (cadr right)))
+                          (case (first (cadr right))
                             (PUSH (ersetze 3 `(LOAD&CAR&PUSH ,n)))
                             (STORE
                               (ersetze 3
-                                `(LOAD&CAR&STORE ,n ,(second (cadr rechts)))
+                                `(LOAD&CAR&STORE ,n ,(second (cadr right)))
                       ) ) ) ) )
                       (CDR
-                        (when (and #| (consp (cdr rechts)) |# (consp (cadr rechts)))
-                          (case (first (cadr rechts))
+                        (when (and #| (consp (cdr right)) |# (consp (cadr right)))
+                          (case (first (cadr right))
                             (PUSH (ersetze 3 `(LOAD&CDR&PUSH ,n)))
                             (STORE
-                              (when (eql n (second (cadr rechts)))
+                              (when (eql n (second (cadr right)))
                                 (ersetze 3 `(LOAD&CDR&STORE ,n))
                       ) ) ) ) )
                       (CONS
-                        (when (and #| (consp (cdr rechts)) |# (consp (cadr rechts))
-                                   (eq (first (cadr rechts)) 'STORE)
-                                   (eql (second (cadr rechts)) (- n 1))
+                        (when (and #| (consp (cdr right)) |# (consp (cadr right))
+                                   (eq (first (cadr right)) 'STORE)
+                                   (eql (second (cadr right)) (- n 1))
                               )
                           (ersetze 3 `(LOAD&CONS&STORE ,(- n 1)))
                       ) )
                       (PUSH
-                        (when (and #| (consp (cdr rechts)) |# (consp (cadr rechts))
-                                   (or (equal (cadr rechts) CALLS-1+)
-                                       (equal (cadr rechts) CALLS-1-)
+                        (when (and #| (consp (cdr right)) |# (consp (cadr right))
+                                   (or (equal (cadr right) CALLS-1+)
+                                       (equal (cadr right) CALLS-1-)
                                    )
-                                   #| (consp (cddr rechts)) |# (consp (caddr rechts))
+                                   #| (consp (cddr right)) |# (consp (caddr right))
                               )
-                          (when (equal (caddr rechts) '(PUSH))
+                          (when (equal (caddr right) '(PUSH))
                             (ersetze 4
-                              `(,(if (equal (cadr rechts) CALLS-1+)
+                              `(,(if (equal (cadr right) CALLS-1+)
                                    'LOAD&INC&PUSH
                                    'LOAD&DEC&PUSH
                                  )
                                 ,n
                                )
                           ) )
-                          (when (and (eq (first (caddr rechts)) 'STORE)
-                                     (eql (second (caddr rechts)) n)
+                          (when (and (eq (first (caddr right)) 'STORE)
+                                     (eql (second (caddr right)) n)
                                 )
                             (ersetze 4
-                              `(,(if (equal (cadr rechts) CALLS-1+)
+                              `(,(if (equal (cadr right) CALLS-1+)
                                    'LOAD&INC&STORE
                                    'LOAD&DEC&STORE
                                  )
@@ -11475,41 +10509,41 @@ Dieser Schritt arbeitet auf der Codeliste und verändert sie dabei destruktiv.
                         ) ) )
                         (ersetze 2 `(LOAD&PUSH ,n))
               ) ) ) ) )
-              (JMPIFBOUNDP ; vereinfache (JMPIFBOUNDP n l) (NIL) (STORE n) l
-                (when (and #| (consp rechts) |#
-                           (equal (car rechts) '(NIL))
-                           #| (consp (cdr rechts)) |#
-                           (consp (cadr rechts))
-                           (eq (first (cadr rechts)) 'STORE)
-                           (eql (second (cadr rechts)) (second item))
-                           #| (consp (cddr rechts)) |#
-                           (eq (caddr rechts) (third item))
+              (JMPIFBOUNDP ; simplify (JMPIFBOUNDP n l) (NIL) (STORE n) l
+                (when (and #| (consp right) |#
+                           (equal (car right) '(NIL))
+                           #| (consp (cdr right)) |#
+                           (consp (cadr right))
+                           (eq (first (cadr right)) 'STORE)
+                           (eql (second (cadr right)) (second item))
+                           #| (consp (cddr right)) |#
+                           (eq (caddr right) (third item))
                       )
                   (ersetze 3 `(UNBOUND->NIL ,(second item)))
               ) )
               (JSR
-                (if (and #| (consp rechts) |# (equal (car rechts) '(PUSH)))
+                (if (and #| (consp right) |# (equal (car right) '(PUSH)))
                   (ersetze 2 `(JSR&PUSH ,(third item)))
                   (ersetze 1 `(JSR ,(third item)))
               ) )
               (UNBIND1
                 (let ((count 1))
                   (loop
-                    (unless (and #| (consp rechts) |#
-                                 (equal (car rechts) '(UNBIND1))
+                    (unless (and #| (consp right) |#
+                                 (equal (car right) '(UNBIND1))
                             )
                       (return)
                     )
                     (incf count)
-                    (setq rechts (cdr rechts))
+                    (setq right (cdr right))
                   )
                   (unless (eql count 1)
-                    (setf (car mitte) `(UNBIND ,count))
-                    (setf (cdr mitte) rechts)
-                    (go weiter)
+                    (setf (car middle) `(UNBIND ,count))
+                    (setf (cdr middle) right)
+                    (go next)
               ) ) )
-              ;(RET (ersetze 1 '(SKIP&RET 0))) ; kommt nicht vor!
-              ;(RETGF (ersetze 1 '(SKIP&RETGF 0))) ; kommt nicht vor!
+              ;(RET (ersetze 1 '(SKIP&RET 0))) ; does not occur!
+              ;(RETGF (ersetze 1 '(SKIP&RETGF 0))) ; does not occur!
               (UNWIND-PROTECT-CLOSE (ersetze 1 '(UNWIND-PROTECT-CLOSE)))
               ((JMPIF JMPIFNOT) (ersetze 1 `(,(first item) ,(second item))))
               ((JMPHASH JMPHASHV)
@@ -11533,62 +10567,55 @@ Dieser Schritt arbeitet auf der Codeliste und verändert sie dabei destruktiv.
                 (setf (cdddr item) '())
               )
               (APPLY
-                (when (and #| (consp rechts) |#
-                           (consp (car rechts))
-                           (eq (first (car rechts)) 'SKIP)
-                           #| (consp (cdr rechts)) |#
-                           (equal (cadr rechts) '(RET))
+                (when (and #| (consp right) |#
+                           (consp (car right))
+                           (eq (first (car right)) 'SKIP)
+                           #| (consp (cdr right)) |#
+                           (equal (cadr right) '(RET))
                       )
-                  (ersetze 3 `(APPLY&SKIP&RET ,(second item) ,(second (car rechts))))
+                  (ersetze 3 `(APPLY&SKIP&RET ,(second item) ,(second (car right))))
               ) )
               (FUNCALL
-                (when (and #| (consp rechts) |#
-                           (consp (car rechts))
-                           (eq (first (car rechts)) 'SKIP)
-                           #| (consp (cdr rechts)) |#
-                           (equal (cadr rechts) '(RETGF))
-                      )
-                  (ersetze 3 `(FUNCALL&SKIP&RETGF ,(second item) ,(second (car rechts))))
-              ) )
-      ) ) ) )
-      weiter ; Hier ist man mit (car mitte) fertig.
-      (when (equal (car rechts) '(BARRIER))
-        ; streiche Element (car rechts)
-        (setf (cdr mitte) (setq rechts (cdr rechts)))
-      )
-    )
-    code-list
-  )
-)
+                (when (and #| (consp right) |#
+                           (consp (car right))
+                           (eq (first (car right)) 'SKIP)
+                           #| (consp (cdr right)) |#
+                           (equal (cadr right) '(RETGF)))
+                  (ersetze 3 `(FUNCALL&SKIP&RETGF ,(second item)
+                               ,(second (car right))))))))))
+      next ; Here we are finished with (car middle) .
+      (when (equal (car right) '(BARRIER))
+        ;; discard element (car right)
+        (setf (cdr middle) (setq right (cdr right)))))
+    code-list))
 
 
 #|
-                                7. Schritt:
-                Umwandlung der Instruktionen in eine Byte-Folge
+                                7. Step:
+                Conversion of Instructions into a Byte-Sequence
 
-Erster Teilschritt: jeder Instruktion wird eine Klassifikation der Instruktion
-und die Länge der Instruktion (Label-Operanden nicht mitgezählt)
-vorangestellt, jedem Label wird sein PC als Wert zugewiesen.
-Dabei werden die Operandenlängen - soweit möglich - bestimmt, in Instruktionen
-auftretende Labels werden durch (vermutliche Verweislänge . label) ersetzt.
-So wird aus (BLOCK-OPEN 2 #:G7) --> (NL 2 . (67 2 (1 . #:G7))) .
-Weitere Teilschritte:
-Immer wieder wird die Codeliste durchlaufen, dabei werden Sprungverweise
-eventuell von 1 auf 2 oder 6 Byte verlängert. Dadurch kann der Code insgesamt
-nur länger werden.
-Letzter Teilschritt:
-Die Sprungverweise werden in Distanzen umgesetzt, und die Codeliste wird
-als Liste von Bytes neu aufgebaut.
+First sub-step: each instruction is prepended by a classification of the instruction
+and the length of the instruction (Label-Operands not counted),
+each Label is assigned its PC as value.
+The operand-lenghts - as far as possible - are determined, Labels occurring in
+instructions are replaced by (presumable reference-length . label) .
+Thus (BLOCK-OPEN 2 #:G7) --> (NL 2 . (67 2 (1 . #:G7))) .
+Further sub-steps:
+The code-list is looped over and over again, with lengthening the jump-references
+possibly from 1 to 2 or 6 Byte. Here the code can only be lenghtened,
+altogether.
+Last sub-step:
+The jump-references are transformed into distances, and the code-list is
+freshly rebuilt as list of bytes.
 |#
-; gibt an, wieviel Bytes ein numerischer Operand braucht:
+;; indicates, how many bytes a numeric operand needs:
 (defun num-operand-length (n)
   (cond ((< n 128) 1) ; 7 Bit in 1 Byte
         ((< n 32768) 2) ; 15 Bit in 2 Bytes
-        (t 6) ; sonst 6 Bytes
-) )
-; assembliert eine Code-Liste und liefert eine Bytecode-Liste:
+        (t 6))) ; else 6 Bytes
+;; assembles a Code-List and returns the Bytecode-List:
 (defun assemble-LAP (code-list)
-  ; erster Teilschritt:
+  ; first sub-step:
   (do ((code-listr code-list (cdr code-listr))
        (PC 0))
       ((null code-listr))
@@ -11596,26 +10623,25 @@ als Liste von Bytes neu aufgebaut.
       (if (atom item)
         (setf (symbol-value item) PC)
         (let ((instr-code (gethash (first item) instruction-codes)))
-          (unless instr-code (compiler-error 'assemble-LAP "ILLEGAL INSTRUCTION"))
+          (unless instr-code (compiler-error 'assemble-LAP
+                                             "ILLEGAL INSTRUCTION"))
           (let ((instr-class (second (svref instruction-table instr-code)))
                 (instr-length 1))
             (if (and (eq instr-class 'K)
                      (< (second item)
-                        (svref short-code-opsize (position (first item) instruction-table-K))
-                )    )
+                        (svref short-code-opsize
+                               (position (first item) instruction-table-K))))
               (progn
                 (setq instr-code
                   (+ (svref short-code-ops
-                            (position (first item) instruction-table-K)
-                     )
-                     (second item)
-                ) )
+                            (position (first item) instruction-table-K))
+                     (second item)))
                 (setq instr-class 'O)
-                (setq item (list (first item)))
-              )
+                (setq item (list (first item))))
               (case instr-class
                 (O)
-                ((K N NC) (incf instr-length (num-operand-length (second item))))
+                ((K N NC) (incf instr-length (num-operand-length
+                                              (second item))))
                 (B (incf instr-length 1))
                 (L (incf PC 1) (push 1 (second item)))
                 (NN (incf instr-length (num-operand-length (second item)))
@@ -11649,15 +10675,11 @@ als Liste von Bytes neu aufgebaut.
                 (NLX (incf instr-length (num-operand-length (second item)))
                      (do ((L (cddr item) (cdr L)))
                          ((null L))
-                       (incf PC 1) (push 1 (car L))
-                )    )
-            ) )
+                       (incf PC 1) (push 1 (car L))))))
             (incf PC instr-length)
             (setf (car code-listr)
-              (list* instr-class instr-length instr-code (cdr item))
-            )
-  ) ) ) ) )
-  ; weitere Teilschritte:
+              (list* instr-class instr-length instr-code (cdr item))))))))
+  ;; further sub-steps:
   (loop
     (unless
       (let ((modified nil) (PC 0))
@@ -11671,66 +10693,54 @@ als Liste von Bytes neu aufgebaut.
                   (dolist (x (case (car item)
                                (L itemargs)
                                ((NL BL NLX) (cdr itemargs))
-                               ((NNL NBL NHL) (cddr itemargs))
-                          )  )
+                               ((NNL NBL NHL) (cddr itemargs))))
                     (incf PC (car x))
                     (let ((new-dist (- (symbol-value (cdr x)) PC)))
-                      ; bisher angenommene Sprunglänge und neu errechnete abgleichen:
+                      ;; synchronize the so far assumed jump-length and
+                      ;; the newly calculated one:
                       (if (<= -64 new-dist 63) ; 7 Bits in 1 Byte
-                        () ; Sprunglänge bleibt 1
+                        () ; jump-length remains 1
                         (if (<= -16384 new-dist 16383) ; 15 Bits in 2 Bytes
                           (case (car x)
-                            (1 (setf (car x) 2) ; neue Sprunglänge=2
-                               (incf PC 1) ; gibt 2-1=1 Bytes Verlängerung
-                               (setq modified t)
-                          ) )
-                          ; 32 Bits in 6 Bytes
+                            (1 (setf (car x) 2) ; new jump-length=2
+                               (incf PC 1) ; results in 2-1=1 Bytes extension
+                               (setq modified t)))
+                          ;; 32 Bits in 6 Bytes
                           (case (car x)
-                            (1 (setf (car x) 6) ; neue Sprunglänge=6
-                               (incf PC 5) ; gibt 6-1=5 Bytes Verlängerung
-                               (setq modified t)
-                            )
-                            (2 (setf (car x) 6) ; neue Sprunglänge=6
-                               (incf PC 4) ; gibt 6-2=4 Bytes Verlängerung
-                               (setq modified t)
-                      ) ) ) )
-              ) ) ) )
-        ) ) )
-        modified
-      )
-      (return) ; nichts mehr verändert -> alle Sprunglängen optimal
-  ) )
-  ; letzter Teilschritt:
+                            (1 (setf (car x) 6) ; new jump-lenght=6
+                               (incf PC 5) ; results in 6-1=5 Bytes extension
+                               (setq modified t))
+                            (2 (setf (car x) 6) ; new jump-lenght=6
+                               (incf PC 4) ; results in 6-2=4 Bytes extension
+                               (setq modified t))))))))))))
+        modified)
+      (return))) ; no more changes -> all jump-lengths are optimal
+  ;; last sub-step:
   (let ((byte-list '()) (PC 0))
     (flet ((new-byte (n) (push n byte-list)))
       (flet ((num-operand (n)
                (cond ((< n 128) (new-byte n))
                      ((< n 32768) (new-byte (+ 128 (ldb (byte 7 8) n)))
-                                  (new-byte (ldb (byte 8 0) n))
-                     )
-                     (t (compiler-error 'assemble-LAP "15 BIT"))
-             ) )
+                                  (new-byte (ldb (byte 8 0) n)))
+                     (t (compiler-error 'assemble-LAP "15 BIT"))))
              (label-operand (x)
                (incf PC (car x))
                (let ((dist (- (symbol-value (cdr x)) PC)))
                  (case (car x)
                    (1 (new-byte (ldb (byte 7 0) dist)))
                    (2 (new-byte (+ 128 (ldb (byte 7 8) dist)))
-                      (new-byte (ldb (byte 8 0) dist))
-                   )
+                      (new-byte (ldb (byte 8 0) dist)))
                    (6 (new-byte 128) (new-byte 0)
                       (new-byte (ldb (byte 8 24) dist))
                       (new-byte (ldb (byte 8 16) dist))
                       (new-byte (ldb (byte 8 8) dist))
-                      (new-byte (ldb (byte 8 0) dist))
-                 ) )
-            )) )
+                      (new-byte (ldb (byte 8 0) dist)))))))
         (dolist (item code-list)
           (when (consp item)
             (incf PC (cadr item))
             (new-byte (caddr item))
             (case (car item)
-              (O) ; darin fallen auch die 1-Byte-Befehle vom Typ K
+              (O) ; including the 1-Byte-Instructions of Type K
               ((K N) (num-operand (second (cddr item))))
               (B (new-byte (second (cddr item))))
               (L (label-operand (second (cddr item))))
@@ -11764,44 +10774,33 @@ als Liste von Bytes neu aufgebaut.
                    (let ((ht (third (cddr item))))
                      (maphash
                        #'(lambda (obj x) ; x = (gethash obj ht)
-                           (setf (gethash obj ht) (- (symbol-value x) PC))
-                         )
-                       ht
-                   ) )
-                   (label-operand (fourth (cddr item)))
-              )
+                           (setf (gethash obj ht) (- (symbol-value x) PC)))
+                       ht))
+                   (label-operand (fourth (cddr item))))
               (NC (num-operand (second (cddr item)))
                   (let* ((v (third (cddr item)))
                          (m (length v)))
                     (do ((i 1 (+ i 2)))
                         ((>= i m))
-                      (setf (svref v i) (symbol-value (svref v i)))
-              )   ) )
+                      (setf (svref v i) (symbol-value (svref v i))))))
               (NLX (num-operand (second (cddr item)))
-                   (dolist (x (cddr (cddr item))) (label-operand x)) )
-            )
-        ) )
-    ) )
-    (nreverse byte-list)
-) )
+                   (dolist (x (cddr (cddr item))) (label-operand x)) ))))))
+    (nreverse byte-list)))
 
-; die Umkehrung zu assemble-LAP : liefert zu einer Bytecode-Liste die dazu
-; gehörige Codeliste. In dieser steht allerdings vor jedem Item noch der PC.
+;; the reversion of assemble-LAP : returns for a bytecode-list the belonging
+;; code-list. In this, however, each item is prepended by the PC.
 (defun disassemble-LAP (byte-list const-list)
   (let ((code-list '()) (PC 0) instr-PC (label-alist '()))
-    ; label-alist ist eine Liste von Conses (PC . label), in der die PCs streng
-    ; fallend geordnet sind.
+    ; label-alist is a list of Conses (PC . label), in which the PCs are in
+    ; strictly decreasing order.
     (flet ((PC->label-a (PC)
              (cons PC (make-symbol
-                        (concatenate 'string "L" (prin1-to-string PC))
-           ) )        )
-           (next-byte () (incf PC) (pop byte-list))
-          )
+                        (concatenate 'string "L" (prin1-to-string PC)))))
+           (next-byte () (incf PC) (pop byte-list)))
       (flet ((num-operand ()
                (let ((a (next-byte)))
                  (cond ((< a 128) a)
-                       (t (+ (* 256 (- a 128)) (next-byte)))
-             ) ) )
+                       (t (+ (* 256 (- a 128)) (next-byte))))))
              (label-operand
                   (&optional
                     (dist
@@ -11812,36 +10811,30 @@ als Liste von Bytes neu aufgebaut.
                                  (setq a (+ (* 256 a) (next-byte)))
                                  (if (zerop a)
                                    (+ (* 256 (+ (* 256 (+ (* 256 (next-byte))
-                                                          (next-byte)
-                                                )      )
-                                                (next-byte)
-                                      )      )
-                                      (next-byte)
-                                   )
-                                   a
-                    ) ) )     )  )
-                    (label-PC (+ PC dist))
-                  )
-               ; Suche label-PC in label-alist:
+                                                          (next-byte)))
+                                                (next-byte)))
+                                      (next-byte))
+                                   a)))))
+                    (label-PC (+ PC dist)))
+               ;; search label-PC in label-alist:
                (do* ((L1 nil L2)
-                     (L2 label-alist (cdr L2))) ; L1 = nil oder L2 = (cdr L1)
+                     (L2 label-alist (cdr L2))) ; L1 = nil or L2 = (cdr L1)
                     ((cond
-                       ((or (null L2) (> label-PC (caar L2))) ; einfügen
+                       ((or (null L2) (> label-PC (caar L2))) ; insert
                         (setq L2 (cons (PC->label-a label-PC) L2))
                         (if L1 (setf (cdr L1) L2) (setq label-alist L2))
                         t)
                        ((= label-PC (caar L2)) t)
-                       (t nil)
-                     )
-                     (cdar L2)
-            )) )    )
+                       (t nil))
+                     (cdar L2)))))
         (loop
           (when (null byte-list) (return))
-          (setq instr-PC PC) ; PC beim Start der Instruktion
+          (setq instr-PC PC) ; PC at the start of the instruction
           (let ((instruction
                   (let ((instr-code (next-byte)))
                     (if (>= instr-code short-code-base)
-                      (let* ((q (position instr-code short-code-ops :test #'>= :from-end t))
+                      (let* ((q (position instr-code short-code-ops
+                                          :test #'>= :from-end t))
                              (r (- instr-code (svref short-code-ops q))))
                         (list (svref instruction-table-K q) r)
                       )
@@ -11864,65 +10857,52 @@ als Liste von Bytes neu aufgebaut.
                           (NBL (list instr-name (num-operand) (next-byte) (label-operand)))
                           (NHL (let* ((n (num-operand))
                                       (ht (if (eq instr-name 'JMPHASH)
-                                            (nth n const-list)           ; JMPHASH
-                                            (svref (first const-list) n) ; JMPHASHV
-                                      )   )
+                                            (nth n const-list) ; JMPHASH
+                                            (svref (first const-list) n))) ; JMPHASHV
                                       (labels '()))
                                  (maphash
                                    #'(lambda (obj dist)
                                        (declare (ignore obj))
-                                       (push (label-operand dist) labels)
-                                     )
-                                   ht
-                                 )
-                                 (list* instr-name n (label-operand) labels)
-                          )    )
+                                       (push (label-operand dist) labels))
+                                   ht)
+                                 (list* instr-name n (label-operand) labels)))
                           (NC (let* ((n (num-operand))
                                      (v (car (nth n const-list)))
                                      (m (length v))
                                      (labels '()))
                                 (do ((i 1 (+ i 2)))
                                     ((>= i m))
-                                  (push (label-operand nil (svref v i)) labels)
-                                )
-                                (list* instr-name n (nreverse labels))
-                          )   )
+                                  (push (label-operand nil (svref v i))
+                                        labels))
+                                (list* instr-name n (nreverse labels))))
                           (NLX (let* ((n (num-operand))
                                       (m (length (nth n const-list)))
                                       (L '()))
                                  (dotimes (i m) (push (label-operand) L))
-                                 (list* instr-name n (nreverse L))
-                          )    )
-               )) ) ) ) )
-            (push (cons instr-PC instruction) code-list)
-        ) )
-    ) )
-    ; (setq label-alist (sort label-alist #'> :key #'car))
-    ; code-list umdrehen und dabei die Labels einfügen:
+                                 (list* instr-name n (nreverse L))))))))))
+            (push (cons instr-PC instruction) code-list)))))
+    ;; (setq label-alist (sort label-alist #'> :key #'car))
+    ;; reverse code-list and insert the Labels:
     (let ((new-code-list '()))
       (loop
         (when (and new-code-list label-alist
-                   (= (caar new-code-list) (caar label-alist))
-              )
+                   (= (caar new-code-list) (caar label-alist)))
           (push (car label-alist) new-code-list)
-          (setq label-alist (cdr label-alist))
-        )
+          (setq label-alist (cdr label-alist)))
         (when (null code-list) (return))
-        ; eine Instruktion von code-list in new-code-list übernehmen:
+        ;; transfer an instruction from code-list to new-code-list:
         (psetq code-list (cdr code-list)
-               new-code-list (rplacd code-list new-code-list)
-      ) )
-      new-code-list
-) ) )
+               new-code-list (rplacd code-list new-code-list)))
+      new-code-list)))
 
 
 #|
-                           8. Schritt:
-                    funktionales Objekt bilden
+                           8th Step:
+                    create functional object
 
-Die Funktion make-closure wird dazu vorausgesetzt.
+The function make-closure is required.
 |#
-; trägt eine Byteliste als Code in fnode ein.
+;; enters a byte-list as Code into fnode.
 (defun create-fun-obj (fnode byte-list SPdepth)
   (setf (fnode-code fnode)
     (make-closure
@@ -11930,11 +10910,11 @@ Die Funktion make-closure wird dazu vorausgesetzt.
       :codevec
         (macrolet ((as-word (anz)
                      (if *big-endian*
-                       ; BIG-ENDIAN-Prozessor
+                       ;; BIG-ENDIAN-Processor
                        `(floor ,anz 256)
-                       ; LITTLE-ENDIAN-Prozessor
-                       `(multiple-value-bind (q r) (floor ,anz 256) (values r q))
-                  )) )
+                       ;; LITTLE-ENDIAN-Processor
+                       `(multiple-value-bind (q r) (floor ,anz 256)
+                         (values r q)))))
           (multiple-value-call #'list*
             (as-word (car SPdepth))
             (as-word (cdr SPdepth))
@@ -11944,52 +10924,38 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                (if (fnode-gf-p fnode) 16 0)
                (if (fnode-keyword-flag fnode)
                  (+ 128 (if (fnode-allow-other-keys-flag fnode) 64 0))
-                 0
-            )  )
-            (values ; Argumenttyp-Kürzel
+                 0))
+            (values ; argument-type-shortcut
               (let ((req-anz (fnode-req-anz fnode))
                     (opt-anz (fnode-opt-anz fnode))
                     (rest (fnode-rest-flag fnode))
                     (key (fnode-keyword-flag fnode)))
                 (cond ((and (not rest) (not key) (< (+ req-anz opt-anz) 6))
-                       (+ (svref '#(1 7 12 16 19 21) opt-anz) req-anz)
-                      )
+                       (+ (svref '#(1 7 12 16 19 21) opt-anz) req-anz))
                       ((and rest (not key) (zerop opt-anz) (< req-anz 5))
-                       (+ 22 req-anz)
-                      )
+                       (+ 22 req-anz))
                       ((and (not rest) key (< (+ req-anz opt-anz) 5))
-                       (+ (svref '#(27 32 36 39 41) opt-anz) req-anz)
-                      )
-                      (t 0)
-            ) ) )
+                       (+ (svref '#(27 32 36 39 41) opt-anz) req-anz))
+                      (t 0))))
             (if (fnode-keyword-flag fnode)
               (multiple-value-call #'values
                 (as-word (length (fnode-keywords fnode)))
-                (as-word (fnode-Keyword-Offset fnode))
-              )
-              (values)
-            )
-            byte-list
-        ) )
+                (as-word (fnode-Keyword-Offset fnode)))
+              (values))
+            byte-list))
       :consts
         (let ((l (append
                    (make-list (fnode-Keyword-Offset fnode))
                    (fnode-keywords fnode)
                    (if *compiling-from-file*
                      (mapcar #'(lambda (value form)
-                                 (if form (make-load-time-eval form) value)
-                               )
-                             (fnode-Consts fnode) (fnode-Consts-forms fnode)
-                     )
-                     (fnode-Consts fnode)
-             ))  ) )
+                                 (if form (make-load-time-eval form) value))
+                             (fnode-Consts fnode) (fnode-Consts-forms fnode))
+                     (fnode-Consts fnode)))))
           (if (fnode-gf-p fnode)
             (list (coerce l 'simple-vector))
-            l
-        ) )
-  ) )
-  fnode
-)
+            l))))
+  fnode)
 
 ;; Return the signature of the byte-compiled function object
 ;; values:
@@ -12007,11 +10973,10 @@ Die Funktion make-closure wird dazu vorausgesetzt.
         (byte-list (closure-codevec closure)))
     (macrolet ((pop2 (listvar)
                  (if *big-endian*
-                   ; BIG-ENDIAN-Prozessor
+                   ; BIG-ENDIAN-Processor
                    `(+ (* 256 (pop ,listvar)) (pop ,listvar))
-                   ; LITTLE-ENDIAN-Prozessor
-                   `(+ (pop ,listvar) (* 256 (pop ,listvar)))
-              )) )
+                   ; LITTLE-ENDIAN-Processor
+                   `(+ (pop ,listvar) (* 256 (pop ,listvar))))))
       (pop byte-list) (pop byte-list)
       (pop byte-list) (pop byte-list)
       (let* ((req-anz (pop2 byte-list))
@@ -12027,32 +10992,27 @@ Die Funktion make-closure wird dazu vorausgesetzt.
           (when key-p
             (let ((kw-count (pop2 byte-list))
                   (kw-offset (pop2 byte-list)))
-              (subseq (if (logbitp 4 h) ; generische Funktion?
+              (subseq (if (logbitp 4 h) ; generic function?
                         (coerce (first const-list) 'list)
-                        const-list
-                      )
-                      kw-offset (+ kw-offset kw-count)
-          ) ) )
+                        const-list)
+                      kw-offset (+ kw-offset kw-count))))
           (logbitp 6 h)
           byte-list
-          const-list
-) ) ) ) )
+          const-list)))))
 
 
-;;;                  T H I R D    P A S S
+;;;;***                  THIRD    PASS
 
 (defun pass3 ()
   (dolist (pair *fnode-fixup-table*)
     (let ((code (fnode-code (first pair))) (n (second pair)))
       (macrolet ((closure-const (code n)
                    #-CLISP `(nth ,n (closure-consts ,code))
-                   #+CLISP `(sys::%record-ref ,code (+ 2 ,n))
-                ))
-        (setf (closure-const code n) (fnode-code (closure-const code n)))
-) ) ) )
+                   #+CLISP `(sys::%record-ref ,code (+ 2 ,n))))
+        (setf (closure-const code n) (fnode-code (closure-const code n)))))))
 
 
-;;;             T O P - L E V E L - C A L L
+;;;;****             TOP - LEVEL   CALL
 
 ;;; compile a lambdabody and return its code.
 (defun compile-lambdabody (name lambdabody)
@@ -12064,13 +11024,11 @@ Die Funktion make-closure wird dazu vorausgesetzt.
     (unless *no-code*
       (let ((*fnode-fixup-table* '()))
         (pass2 fnode)
-        (pass3)
-      )
-      (fnode-code fnode)
-) ) )
+        (pass3))
+      (fnode-code fnode))))
 
-; wird bei (lambda (...) (declare (compile)) ...) aufgerufen und liefert ein
-; zu diesem Lambda-Ausdruck äquivalentes funktionales Objekt.
+;; is called for (lambda (...) (declare (compile)) ...) and returns a
+;; functional object equivalent to this lambda-expression.
 (defun compile-lambda (name lambdabody %venv% %fenv% %benv% %genv% %denv%)
   (let ((*compiling* t)
         (*compiling-from-file* nil)
@@ -12086,113 +11044,90 @@ Die Funktion make-closure wird dazu vorausgesetzt.
         (*venvc* nil)
         (*denv* %denv%)
         (*error-count* 0) (*warning-count* 0) (*style-warning-count* 0)
-        (*no-code* nil)
-       )
+        (*no-code* nil))
     (let ((funobj (compile-lambdabody name lambdabody)))
       (unless (zerop *error-count*)
-        (return-from compile-lambda (compile-lambdabody name '(() NIL)))
-      )
-      funobj
-) ) )
+        (return-from compile-lambda (compile-lambdabody name '(() NIL))))
+      funobj)))
 
-; wird bei (let/let*/multiple-value-bind ... (declare (compile)) ...) aufgerufen
-; und liefert ein funktionales Objekt, das - mit 0 Argumenten aufgerufen - diese
-; Form ausführt.
+;; is called for (let/let*/multiple-value-bind ... (declare (compile)) ...)
+;; and returns a functional object, that - called with 0 arguments -
+;; executes this form.
 (let ((form-count 0))
   (defun compile-form (form %venv% %fenv% %benv% %genv% %denv%)
     (compile-lambda (symbol-suffix '#:COMPILED-FORM (incf form-count))
                     `(() ,form)
-                    %venv% %fenv% %benv% %genv% %denv%
-  ) )
-)
+                    %venv% %fenv% %benv% %genv% %denv%)))
 
 #+CLISP
 (progn
-  ; Evaluiert eine Form in einem Environment
+  ;; Evaluates a form in an environment
   (defun eval-env (form &optional (env *toplevel-environment*))
-    (evalhook form nil nil env)
-  )
-  ; Compiliert eine Form im Toplevel-Environment
-  (defun compile-form-in-toplevel-environment (form &aux (env *toplevel-environment*))
+    (evalhook form nil nil env))
+  ;; compiles a form in the Toplevel-Environment
+  (defun compile-form-in-toplevel-environment
+      (form &aux (env *toplevel-environment*))
     (compile-form form
-                  (svref env 0) ; %venv%
-                  (svref env 1) ; %fenv%
-                  (svref env 2) ; %benv%
-                  (svref env 3) ; %genv%
-                  (svref env 4) ; %denv%
-  ) )
-)
+                  (svref env 0)    ; %venv%
+                  (svref env 1)    ; %fenv%
+                  (svref env 2)    ; %benv%
+                  (svref env 3)    ; %genv%
+                  (svref env 4)))) ; %denv%
 
-; Common-Lisp-Funktion COMPILE
+;; Common-Lisp-Function COMPILE
 #-CROSS
 (defun compile (name &optional (definition nil svar)
                      &aux (macro-flag nil) (trace-flag nil) (save-flag nil))
   (unless (function-name-p name)
     (error-of-type 'error
       (ENGLISH "Name of function to be compiled must be a symbol, not ~S")
-      name
-  ) )
+      name))
   (let ((symbol (get-funname-symbol name)))
     (if svar
-      ; Neudefinition von name als Funktion.
+      ;; Re-Definition of name as function.
       (progn
-        ; Ist name getraced -> falls vorher Macro, erst untracen.
+        ;; if name is traced -> if previously a macro, first untrace.
         (when (and name (setq svar (get symbol 'sys::traced-definition)))
           (if (consp svar)
             (progn
               (warn (ENGLISH "~S: redefining ~S; it was traced!")
-                    'compile name
-              )
-              (sys::untrace2 name)
-            )
-            (setq trace-flag t)
-        ) )
+                    'compile name)
+              (sys::untrace2 name))
+            (setq trace-flag t)))
         (when (compiled-function-p definition)
           (warn (ENGLISH "~S is already compiled.")
-                definition
-          )
+                definition)
           (when name
             (if trace-flag
               (setf (get symbol 'sys::traced-definition) definition)
-              (setf (symbol-function symbol) definition)
-          ) )
-          (return-from compile name)
-        )
+              (setf (symbol-function symbol) definition)))
+          (return-from compile name))
         (when name
           (setq save-flag
                 (cons `(SETF (FDEFINITION ',name) ',definition)
-                      sys::*toplevel-environment*
-        ) )     )
-      )
-      ; Compilierung der vorhandenen Funktions-/Macro-Definition.
+                      sys::*toplevel-environment*))))
+      ;; Compilation of the available Function-/Macro-Definition.
       (progn
         (unless (fboundp symbol)
           (error-of-type 'undefined-function
             :name name
             (ENGLISH "Undefined function ~S")
-            name
-        ) )
+            name))
         (if (setq definition (get symbol 'sys::traced-definition))
           (setq trace-flag t)
-          (setq definition (symbol-function symbol))
-        )
+          (setq definition (symbol-function symbol)))
         (when (macrop definition)
           (setq macro-flag t)
-          (setq definition (macro-expander definition))
-        )
+          (setq definition (macro-expander definition)))
         (when (compiled-function-p definition)
           (warn (ENGLISH "~S is already compiled.")
-                name
-          )
-          (return-from compile name)
-    ) ) )
+                name)
+          (return-from compile name))))
     (unless (or (and (consp definition) (eq (car definition) 'lambda))
-                (sys::closurep definition)
-            )
+                (sys::closurep definition))
       (error-of-type 'error
         (ENGLISH "Not a lambda expression nor a function: ~S")
-        definition
-    ) )
+        definition))
     (flet ((closure-slot (obj num)
              (if (sys::closurep obj)
                  (sys::%record-ref obj num)
@@ -12234,103 +11169,93 @@ Die Funktion make-closure wird dazu vorausgesetzt.
              (compile-warnings-p)
              (compile-failure-p))))))))
 
-; Top-Level-Formen müssen einzeln aufs .fas-File rausgeschrieben werden,
-; wegen der Semantik von EVAL-WHEN und LOAD-TIME-VALUE.
-; Da Top-Level-Formen bei EVAL-WHEN, PROGN und LOCALLY auseinandergebrochen
-; werden können, muss man LET () verwenden, wenn man dies umgehen will.
+;; Top-Level-Forms must be written solitary to the .fas-File,
+;; because of the semantics of EVAL-WHEN and LOAD-TIME-VALUE.
+;; As Top-Level-Forms can be split at EVAL-WHEN, PROGN and LOCALLY,
+;; one has to use LET (), in order to circumvent this.
 
-; Compiliert eine Top-Level-Form für COMPILE-FILE. Der *toplevel-name* wird
-; meist unverändert durchgereicht. *toplevel-for-value* gibt an, ob der Wert
-; gebraucht wird (für LOAD :PRINT T) oder nicht.
+;; Compiles a Top-Level-Form for COMPILE-FILE. The *toplevel-name* is
+;; mostly passed unchanged. *toplevel-for-value* indicates, if the value
+;; is needed (for LOAD :PRINT T) or not.
 (defvar *toplevel-for-value*)
 (defun compile-toplevel-form (form &optional (*toplevel-name* *toplevel-name*))
   (declare (special *toplevel-name*))
   (catch 'c-error
-    ; CLtL2 S. 90: "Processing of top-level forms in the file compiler ..."
-    ; 1. Schritt: Macroexpandieren
+    ;; CLtL2 p. 90: "Processing of top-level forms in the file compiler ..."
+    ;; 1. step: macro expansion
     (if (atom form)
       (when (symbolp form)
         (multiple-value-bind (macrop expansion) (venv-search-macro form *venv*)
           (when macrop ; Symbol-Macro ?
             (return-from compile-toplevel-form
-              (compile-toplevel-form expansion) ; -> expandieren
-      ) ) ) )
+              (compile-toplevel-form expansion))))) ; -> expand
       (let ((fun (first form)))
         (when (symbolp fun)
           (multiple-value-bind (a m f1 f2 f3 f4) (fenv-search fun)
             (declare (ignore f2 f3 f4))
             (if (null a)
-              ; nicht lokal definiert
+              ;; not defined locally
               (case fun
-                (PROGN ; vgl. c-PROGN
-                  (test-list form 1)
-                  (let ((L (cdr form))) ; Liste der Formen
-                    (cond ((null L) (compile-toplevel-form 'NIL)) ; keine Form
-                          ((null (cdr L)) (compile-toplevel-form (car L))) ; genau eine Form
-                          (t (let ((subform-count 0))
-                               (do ((Lr L))
-                                   ((null Lr))
-                                 (let* ((subform (pop Lr))
-                                        (*toplevel-for-value* (and *toplevel-for-value* (null Lr))))
-                                   (compile-toplevel-form subform
-                                     (symbol-suffix *toplevel-name* (incf subform-count))
-                  ) )     )  ) ) ) )
-                  (return-from compile-toplevel-form)
-                )
+                (PROGN ; cf. c-PROGN
+                 (test-list form 1)
+                 (let ((L (cdr form))) ; List of Forms
+                   (cond ((null L) (compile-toplevel-form 'NIL)) ; no Form
+                         ((null (cdr L)) (compile-toplevel-form (car L))) ; exactly one Form
+                         (t (let ((subform-count 0))
+                              (do ((Lr L))
+                                  ((null Lr))
+                                (let* ((subform (pop Lr))
+                                       (*toplevel-for-value*
+                                        (and *toplevel-for-value* (null Lr))))
+                                  (compile-toplevel-form
+                                   subform
+                                   (symbol-suffix *toplevel-name*
+                                                  (incf subform-count)))))))))
+                 (return-from compile-toplevel-form))
                 ((LOCALLY EVAL-WHEN COMPILER-LET MACROLET SYMBOL-MACROLET)
-                  (let ((*form* form))
-                    ; c-LOCALLY bzw. c-EVAL-WHEN bzw. c-COMPILER-LET bzw.
-                    ; c-MACROLET bzw. c-SYMBOL-MACROLET aufrufen:
-                    (funcall (gethash fun c-form-table) #'compile-toplevel-form)
-                  )
-                  (return-from compile-toplevel-form)
-                )
-                (t (when (macro-function fun) ; globaler Macro ?
+                 (let ((*form* form))
+                   ;; call c-LOCALLY resp. c-EVAL-WHEN resp. c-COMPILER-LET
+                   ;; resp. c-MACROLET resp. c-SYMBOL-MACROLET:
+                   (funcall (gethash fun c-form-table)
+                            #'compile-toplevel-form))
+                 (return-from compile-toplevel-form))
+                (t (when (macro-function fun) ; global Macro ?
                      (return-from compile-toplevel-form
                        (compile-toplevel-form
                         (mac-exp (macro-function fun) form))))))
-              ; lokal definiert
-              (when (and m (null f1)) ; lokaler Macro, aber keine lokale Funktion
+              ;; defined locally
+              (when (and m (null f1)) ; local Macro, but no local function
                 (return-from compile-toplevel-form
-                  (compile-toplevel-form (mac-exp m form))))
-    ) ) ) ) )
-    ; 2. Schritt: compilieren und rausschreiben
+                  (compile-toplevel-form (mac-exp m form)))))))))
+    ;; 2. step: compile and write
     (when (and (not *toplevel-for-value*) (l-constantp form))
-      (return-from compile-toplevel-form)
-    )
+      (return-from compile-toplevel-form))
     (let ((*package-tasks* '()))
       (setq form
         (compile-lambdabody *toplevel-name*
-          `(() ,form ,@(if *toplevel-for-value* '() '((VALUES)) ) )
-      ) )
+          `(() ,form ,@(if *toplevel-for-value* '() '((VALUES)) ) )))
       (when *c-listing-output*
-        (disassemble-closures form *c-listing-output*)
-      )
+        (disassemble-closures form *c-listing-output*))
       (when *fasoutput-stream*
         (let ((*print-symbols-long* t))
           (write form :stream *fasoutput-stream* :pretty t
-                      :readably t :right-margin 79
                     ; :closure t :circle t :array t :gensym t
                     ; :escape t :level nil :length nil :radix t
-          )
+                      :readably t :right-margin 79)
           (terpri *fasoutput-stream*)))
       (when (and *package-tasks-treat-specially* *package-tasks*)
-        (c-eval-when-compile `(PROGN ,@(nreverse *package-tasks*))))
-) ) )
+        (c-eval-when-compile `(PROGN ,@(nreverse *package-tasks*)))))))
 
-; C-Output-File öffnen, falls noch nicht offen:
+;; open C-Output-File, if not open yet:
 (defun prepare-coutput-file ()
   (if (and *compiling-from-file* *coutput-file*)
     (progn
       (unless *coutput-stream*
         (setq *coutput-stream* (open *coutput-file* :direction :output))
-        (format *coutput-stream* "#include \"clisp.h\"~%~%")
-      )
-      t
-    )
-    nil
-) )
-; Hook fürs FFI:
+        (format *coutput-stream* "#include \"clisp.h\"~%~%"))
+      t)
+    nil))
+;; Hook for FFI:
 (defun finalize-coutput-file ())
 
 (defun c-reset-globals ()
@@ -12418,7 +11343,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
      ;; clean up from the outer `with-compilation-unit':
      ;; <http://www.lisp.org/HyperSpec/Body/mac_with-compilation-unit.html>
      ;; [CLHS]: If nested dynamically only the outer call to
-     ;; `withcompilation-unit' has any effect unless the value associated
+     ;; `with-compilation-unit' has any effect unless the value associated
      ;; with `:override' is true, in which case warnings are deferred only
      ;; to the end of the innermost call for which override is true.
      (when *c-top-call*
@@ -12478,37 +11403,35 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                             (pathname-version tmp)))))))
       input-file)))
 
-; Common-Lisp-Funktion COMPILE-FILE
-; file          sollte ein Pathname/String/Symbol sein.
-; :output-file  sollte nil oder t oder ein Pathname/String/Symbol oder
-;               ein Output-Stream sein. Default: t.
-; :listing      sollte nil oder t oder ein Pathname/String/Symbol oder
-;               ein Output-Stream sein. Default: nil.
-; :warnings     gibt an, ob die Warnings auch auf dem Bildschirm erscheinen
-;               sollen.
-; :verbose      gibt an, ob die Errors auch auf dem Bildschirm erscheinen
-;               sollen.
+;; Common-Lisp-Function COMPILE-FILE
+;; file          should be a Pathname/String/Symbol.
+;; :output-file  should be nil or t or a Pathname/String/Symbol or
+;;               an Output-Stream. Default: t.
+;; :listing      should be nil or t or a Pathname/String/Symbol or
+;;               an Output-Stream. Default: nil.
+;; :warnings     indicates, if the Warnings should also appear on the
+;;               screen.
+;; :verbose      indicates, if the Errors also have to appear on the
+;;               screen.
 (defun compile-file (file &key (output-file 'T) listing
-                               ((:warnings *compile-warnings*) *compile-warnings*)
+                               ((:warnings *compile-warnings*)
+                                *compile-warnings*)
                                ((:verbose *compile-verbose*) *compile-verbose*)
                                ((:print *compile-print*) *compile-print*)
                           &aux liboutput-file (*coutput-file* nil)
-                               (new-output-stream nil) (new-listing-stream nil)
-                    )
+                               (new-output-stream nil)
+                               (new-listing-stream nil))
   (multiple-value-setq (output-file file)
     (compile-file-pathname-helper file output-file))
   (when (and output-file (not (streamp output-file)))
     (setq liboutput-file (merge-pathnames '#".lib" output-file))
     (setq *coutput-file* (merge-pathnames '#".c" output-file))
-    (setq new-output-stream t)
-  )
+    (setq new-output-stream t))
   (when (and listing (not (streamp listing)))
     (setq listing (if (eq listing 'T)
                     (merge-pathnames '#".lis" file)
-                    (merge-pathnames listing)
-    )             )
-    (setq new-listing-stream t)
-  )
+                    (merge-pathnames listing)))
+    (setq new-listing-stream t))
   (with-open-file (istream file :direction :input-immutable)
     (let ((listing-stream ; a stream or NIL
             (if new-listing-stream
@@ -12519,16 +11442,15 @@ Die Funktion make-closure wird dazu vorausgesetzt.
               (*compile-file-truename* (truename file))
               (*compile-file-lineno1* nil)
               (*compile-file-lineno2* nil)
-              (*fasoutput-stream* (if new-output-stream
-                                    (open output-file :direction :output)
-                                    (if (streamp output-file) output-file nil)
-              )                   ) ; ein Stream oder NIL
-              (*liboutput-stream* (if new-output-stream
-                                    (open liboutput-file :direction :output)
-                                    nil
-              )                   ) ; ein Stream oder NIL
-              (*coutput-stream* nil) ; ein Stream oder vorerst NIL
-              (*ffi-module* nil) ; vorerst NIL
+              (*fasoutput-stream* ; a Stream or NIL
+               (if new-output-stream
+                   (open output-file :direction :output)
+                   (if (streamp output-file) output-file nil)))
+              (*liboutput-stream* ; a Stream or NIL
+               (if new-output-stream
+                   (open liboutput-file :direction :output) nil))
+              (*coutput-stream* nil) ; a Stream or NIL at the moment
+              (*ffi-module* nil) ; NIL at the moment
               (*load-forms* (make-hash-table :test 'eq))
               (compilation-successful nil))
           (when *fasoutput-stream* (sys::allow-read-eval *fasoutput-stream* t))
@@ -12541,9 +11463,8 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                   file
                   (date-format)
                   (multiple-value-list (get-decoded-time))
-                    ; Liste (sec min hour day month year ...)
-                  (lisp-implementation-type) (lisp-implementation-version)
-              ) )
+                  ;; List (sec min hour day month year ...)
+                  (lisp-implementation-type) (lisp-implementation-version)))
               (let ((*compiling* t)
                     (*compiling-from-file* t)
                     (*package* *package*)
@@ -12552,8 +11473,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                     (*c-error-output*
                       (if listing-stream
                         (make-broadcast-stream *error-output* listing-stream)
-                        *error-output*
-                    ) )
+                        *error-output*))
                     (*func* nil)
                     (*fenv* nil)
                     (*benv* nil)
@@ -12561,46 +11481,40 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                     (*venv* nil)
                     (*venvc* nil)
                     (*denv* *toplevel-denv*)
-                    (*no-code* (and (null *fasoutput-stream*) (null listing-stream)))
+                    (*no-code* (and (null *fasoutput-stream*)
+                                    (null listing-stream)))
                     (*toplevel-for-value* t)
                     (eof-value "EOF")
-                    (form-count 0)
-                   )
+                    (form-count 0))
                 (c-comment (ENGLISH "~%Compiling file ~A ...")
-                           file
-                )
+                           file)
                 (when *fasoutput-stream*
                   (let ((*package* *keyword-package*))
-                    (write `(SYSTEM::VERSION ',(version)) :stream *fasoutput-stream*
-                           :readably t :right-margin 79 :case ':upcase
-                           ; :escape t :level nil :length nil :radix t
-                  ) )
-                  (terpri *fasoutput-stream*)
-                )
+                    (write `(SYSTEM::VERSION ',(version))
+                           :stream *fasoutput-stream*
+                         ; :escape t :level nil :length nil :radix t
+                           :readably t :right-margin 79 :case ':upcase))
+                  (terpri *fasoutput-stream*))
                 #+UNICODE
                 (flet ((set-utf-8 (stream)
-                         ; Set the stream's encoding to UTF-8, if it supports it.
+                         ;; Set the stream's encoding to UTF-8,
+                         ;; if it supports it.
                          (block try
                            (let ((*error-handler*
                                    #'(lambda (&rest error-args)
                                        (declare (ignore error-args))
-                                       (return-from try nil)
-                                 )   )
+                                       (return-from try nil)))
                                  (encoding 'charset:utf-8))
                              (setf (stream-external-format stream) encoding)
                              (write-string "#0Y " stream)
                              (let ((*package* (find-package "CHARSET")))
-                               (write encoding :stream stream :readably t)
-                             )
-                             (terpri stream)
-                      )) ) )
+                               (write encoding :stream stream :readably t))
+                             (terpri stream)))))
                   (when new-output-stream
                     (when *fasoutput-stream*
-                      (set-utf-8 *fasoutput-stream*)
-                    )
+                      (set-utf-8 *fasoutput-stream*))
                     (when *liboutput-stream*
-                      (set-utf-8 *liboutput-stream*)
-                ) ) )
+                      (set-utf-8 *liboutput-stream*))))
                 (loop
                   (peek-char t istream nil eof-value)
                   (setq *compile-file-lineno1* (line-number istream))
@@ -12610,11 +11524,11 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                     (when *compile-print*
                       (format t "~%; ~A"
                                 (sys::write-to-short-string form
-                                  (- (or *print-right-margin* sys::*prin-linelength*) 2)
-                    ) )         )
+                                  (- (or *print-right-margin*
+                                         sys::*prin-linelength*)
+                                     2))))
                     (compile-toplevel-form form
-                      (symbol-suffix '#:TOP-LEVEL-FORM (incf form-count))
-                ) ) )
+                      (symbol-suffix '#:TOP-LEVEL-FORM (incf form-count)))))
                 (finalize-coutput-file)
                 (c-comment (ENGLISH "~&~%Compilation of file ~A is finished.")
                            file)
@@ -12635,68 +11549,56 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                   (delete-file *coutput-file*))))))
         (when new-listing-stream (close listing-stream))))))
 
-; Das muss mit compile-file (s.o.) konsistent sein!
+;; This must be consistent with compile-file (see above)!
 (defun compile-file-pathname (file &key (output-file 'T) &allow-other-keys)
   (values (compile-file-pathname-helper file output-file)))
 
 (defun disassemble-closures (closure stream)
   (let ((closures '()))
-    (labels ((mark (cl) ; trägt eine Closure cl (rekursiv) in closures ein.
-               (push cl closures) ; cl markieren
-               (dolist (c (closure-consts cl)) ; und alle Teil-Closures
+    (labels ((mark (cl) ; enters a Closure cl (recursive) in closures.
+               (push cl closures) ; mark cl
+               (dolist (c (closure-consts cl)) ; and all Sub-Closures
                  (when #+CLISP (and (sys::closurep c) (compiled-function-p c))
                        #-CLISP (closure-p c)
-                   (unless (member c closures) (mark c)) ; ebenfalls markieren
-            )) ) )
-      (mark closure) ; Haupt-Closure markieren
-    )
-    (dolist (c (nreverse closures)) ; alle Closures disassemblieren
-      (disassemble-closure c stream)
-) ) )
+                   (unless (member c closures) (mark c)))))) ; mark likewise
+      (mark closure)) ; mark Main-Closure
+    (dolist (c (nreverse closures)) ; disassemble all Closures
+      (disassemble-closure c stream))))
 
 #-CLISP
 (defun disassemble-closure (closure &optional (stream *standard-output*))
   (format stream (ENGLISH "~%~%Disassembly of function ~S")
-                 (closure-name closure)
-  )
-  (multiple-value-bind (req-anz opt-anz rest-p key-p keyword-list allow-other-keys-p
-                        byte-list const-list)
+                 (closure-name closure))
+  (multiple-value-bind (req-anz opt-anz rest-p key-p keyword-list
+                        allow-other-keys-p byte-list const-list)
       (signature closure)
     (do ((L const-list (cdr L))
          (i 0 (1+ i)))
         ((null L))
-      (format stream "~%(CONST ~S) = ~S" i (car L))
-    )
+      (format stream "~%(CONST ~S) = ~S" i (car L)))
     (format stream (ENGLISH "~%~S required arguments")
-                   req-anz
-    )
+                   req-anz)
     (format stream (ENGLISH "~%~S optional arguments")
-                   opt-anz
-    )
+                   opt-anz)
     (format stream (ENGLISH "~%~:[No rest parameter~;Rest parameter~]")
-                   rest-p
-    )
+                   rest-p)
     (if key-p
       (let ((kw-count (length keyword-list)))
         (format stream (ENGLISH "~%~S keyword parameter~:P: ~{~S~^, ~}.")
-                       kw-count keyword-list
-        )
+                       kw-count keyword-list)
         (when allow-other-keys-p
-          (format stream (ENGLISH "~%Other keywords are allowed."))
-      ) )
-      (format stream (ENGLISH "~%No keyword parameters"))
-    )
+          (format stream (ENGLISH "~%Other keywords are allowed."))))
+      (format stream (ENGLISH "~%No keyword parameters")))
     (let ((const-string-list (mapcar #'write-to-string const-list)))
       (do ((L (disassemble-LAP byte-list const-list) (cdr L)))
           ((null L))
         (let ((PC (caar L))
               (instr (cdar L)))
           (format stream "~%~S~6T~A" PC instr)
-          (multiple-value-bind ... ; siehe unten
+          (multiple-value-bind ... ; see below
             ...
-    ) ) ) )
-    (format stream "~%")
-) )
+            ))))
+    (format stream "~%")))
 #+CLISP
 (defun stream-tab (stream tab)
   (sys::write-spaces (let ((pos (sys::line-position stream)))
@@ -12707,8 +11609,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
   (terpri stream)
   (terpri stream)
   (write-string (ENGLISH "Disassembly of function ")
-                stream
-  )
+                stream)
   (prin1 (closure-name closure) stream)
   (multiple-value-bind (req-anz opt-anz rest-p
                         key-p keyword-list allow-other-keys-p
@@ -12721,51 +11622,42 @@ Die Funktion make-closure wird dazu vorausgesetzt.
       (write-string "(CONST " stream)
       (prin1 i stream)
       (write-string ") = " stream)
-      (prin1 (car L) stream)
-    )
+      (prin1 (car L) stream))
     (terpri stream)
     (prin1 req-anz stream)
     (write-string (ENGLISH " required arguments")
-                  stream
-    )
+                  stream)
     (terpri stream)
     (prin1 opt-anz stream)
     (write-string (ENGLISH " optional arguments")
-                  stream
-    )
+                  stream)
     (terpri stream)
     (if rest-p
       (write-string (ENGLISH "Rest parameter")
-                    stream
-      )
+                    stream)
       (write-string (ENGLISH "No rest parameter")
-                    stream
-    ) )
+                    stream))
     (if key-p
       (let ((kw-count (length keyword-list)))
         (terpri stream)
         (prin1 kw-count stream)
         (format stream (ENGLISH " keyword parameter~P: ")
-                       kw-count
-        )
+                       kw-count)
         (do ((L keyword-list))
             ((endp L))
           (prin1 (pop L) stream)
-          (if (endp L) (write-string "." stream) (write-string ", " stream))
-        )
+          (if (endp L) (write-string "." stream) (write-string ", " stream)))
         (when allow-other-keys-p
           (terpri stream)
           (write-string (ENGLISH "Other keywords are allowed.")
-                        stream
-      ) ) )
+                        stream)))
       (progn
         (terpri stream)
         (write-string (ENGLISH "No keyword parameters")
-                      stream
-    ) ) )
+                      stream)))
     (let ((const-string-list
-            (mapcar #'(lambda (x) (sys::write-to-short-string x 35)) const-list)
-         ))
+            (mapcar #'(lambda (x) (sys::write-to-short-string x 35))
+                    const-list)))
       (do ((L (disassemble-LAP byte-list const-list) (cdr L)))
           ((null L))
         (let ((PC (caar L))
@@ -12773,44 +11665,35 @@ Die Funktion make-closure wird dazu vorausgesetzt.
           (terpri stream)
           (prin1 PC stream)
           (stream-tab stream 6)
-          (princ instr stream) ; instr ausgeben, Symbole ohne Package-Marker!
+          (princ instr stream) ; write instr, Symbols without Package-Marker!
           (multiple-value-bind (commentp comment)
             (when (consp instr)
               (case (first instr)
                 ((CALLS1 CALLS1&PUSH CALLS1&STORE CALLS1&JMPIFNOT CALLS1&JMPIF)
-                  (values t (%funtabref (second instr)))
-                )
+                 (values t (%funtabref (second instr))))
                 ((CALLS2 CALLS2&PUSH CALLS2&STORE CALLS2&JMPIFNOT CALLS2&JMPIF)
-                  (values t (%funtabref (+ 256 (second instr))))
-                )
+                 (values t (%funtabref (+ 256 (second instr)))))
                 ((CALLSR CALLSR&PUSH CALLSR&STORE CALLSR&JMPIFNOT CALLSR&JMPIF)
-                  (values t (%funtabref (+ funtabR-index (third instr))))
-                )
+                 (values t (%funtabref (+ funtabR-index (third instr)))))
                 ((CALL CALL&PUSH)
-                  (values 'string (nth (third instr) const-string-list))
-                )
+                 (values 'string (nth (third instr) const-string-list)))
                 ((CALL0 CALL1 CALL1&PUSH CALL1&JMPIFNOT CALL1&JMPIF
                   CALL2 CALL2&PUSH CALL2&JMPIFNOT CALL2&JMPIF
                   JMPIFEQTO JMPIFNOTEQTO CONST CONST&PUSH SETVALUE GETVALUE
                   GETVALUE&PUSH BIND CONST&STORE CONST&SYMBOL-FUNCTION&PUSH
                   CONST&SYMBOL-FUNCTION COPY-CLOSURE&PUSH COPY-CLOSURE
-                  CONST&SYMBOL-FUNCTION&STORE TAGBODY-OPEN HANDLER-OPEN
-                 )
-                  (values 'string (nth (second instr) const-string-list))
-            ) ) )
+                  CONST&SYMBOL-FUNCTION&STORE TAGBODY-OPEN HANDLER-OPEN)
+                 (values 'string (nth (second instr) const-string-list)))))
             (when commentp
               (stream-tab stream 42)
               (write-string "; " stream)
               (if (eq commentp 'string)
                 (write-string comment stream)
-                (prin1 comment stream)
-    ) ) ) ) ) )
-    (terpri stream)
-) )
+                (prin1 comment stream)))))))
+    (terpri stream)))
 
-; The compilation of code using symbol-macros requires venv-search in
-; compiled form.
+;; The compilation of code using symbol-macros requires venv-search in
+;; compiled form.
 #-CROSS
 (unless (compiled-function-p #'venv-search)
-  (compile 'venv-search)
-)
+  (compile 'venv-search))
