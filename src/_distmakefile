@@ -3,11 +3,7 @@
 # -------------- Start of configurable section --------------------
 
 # Linking sets to be installed:
-#ifdef UNIX_BINARY_DISTRIB
-linkingsets = base
-#else
 linkingsets = base full
-#endif
 
 # Directories used by "make install":
 # Common base directory for not architecture dependent files.
@@ -57,11 +53,7 @@ INSTALL_DATA = $(INSTALL)
 
 SHELL = /bin/sh
 
-#ifdef UNIX_BINARY_DISTRIB
-all : base/lisp.run
-#else
 all : base/lisp.run full/lisp.run
-#endif
 
 #ifndef UNIX_BINARY_DISTRIB
 base/lisp.run : @@BASE_FILES@@
@@ -88,29 +80,8 @@ install-bin : all force
 	(cd locale && tar cf - .) | (cd $(localedir) && tar xf -)
 #endif
 	if [ ! -d $(bindir) ] ; then mkdir $(bindir) ; fi
-#ifdef UNIX_BINARY_DISTRIB /* old shell script */
-#ifdef GNU_GETTEXT
-#ifndef UNIX_BROKEN_SH
-#ifdef UNIX_USE_KSH
-	(echo '#!/bin/ksh' ; echo 'exec $(lisplibdir)/lisp.run -M $(lisplibdir)/lispinit.mem -N $(localedir) "$$@"') > $(bindir)/clisp
-#else
-	(echo '#!/bin/sh' ; echo 'exec $(lisplibdir)/lisp.run -M $(lisplibdir)/lispinit.mem -N $(localedir) "$$@"') > $(bindir)/clisp
-#endif
-#else
-	(echo '#!/bin/sh' ; echo 'if test $$# = 0; then' ; echo '  exec $(lisplibdir)/lisp.run -M $(lisplibdir)/lispinit.mem -N $(localedir)' ; echo 'else' ; echo '  exec $(lisplibdir)/lisp.run -M $(lisplibdir)/lispinit.mem -N $(localedir) "$$@"' ; echo 'fi') > $(bindir)/clisp
-#endif
-#else
-#ifndef UNIX_BROKEN_SH
-#ifdef UNIX_USE_KSH
-	(echo '#!/bin/ksh' ; echo 'exec $(lisplibdir)/lisp.run -M $(lisplibdir)/lispinit.mem "$$@"') > $(bindir)/clisp
-#else
-	(echo '#!/bin/sh' ; echo 'exec $(lisplibdir)/lisp.run -M $(lisplibdir)/lispinit.mem "$$@"') > $(bindir)/clisp
-#endif
-#else
-	(echo '#!/bin/sh' ; echo 'if test $$# = 0; then' ; echo '  exec $(lisplibdir)/lisp.run -M $(lisplibdir)/lispinit.mem' ; echo 'else' ; echo '  exec $(lisplibdir)/lisp.run -M $(lisplibdir)/lispinit.mem "$$@"' ; echo 'fi') > $(bindir)/clisp
-#endif
-#endif
-	chmod a+x $(bindir)/clisp
+#ifdef UNIX_BINARY_DISTRIB
+	./hardcode -DLISPLIBDIR='$(lisplibdir)' -DLOCALEDIR='$(localedir)' clisp $(bindir)/clisp
 #else /* new executable */
 	$(CC) $(CFLAGS) -DLISPLIBDIR='"$(lisplibdir)"' -DLOCALEDIR='"$(localedir)"' src/clisp.c -o $(bindir)/clisp
 #endif

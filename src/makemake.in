@@ -163,7 +163,6 @@ MODULES=''
 CP='cp -p'
 LN_S='ln -s'
 LN='ln'
-GOOD_SH='/bin/sh'
 
 # NLS nuisances.
 # Needed e.g. for some versions of `tr' so that character classes in `[]' work.
@@ -299,7 +298,6 @@ case $# in
      CP='@CP@'                           # either 'cp -p' or 'cp'
      LN_S='@LN_S@'                       # either 'ln -s' or 'ln'
      LN='@LN@'                           # either 'ln' or 'hln'
-     GOOD_SH='@GOOD_SH@'                 # either '/bin/sh' or '/bin/ksh' or ''
      CC="@CC@"                           # either 'gcc -O' or 'cc'
      CPP="@CPP@"                         # either $CC' -E' or '/lib/cpp'
      CC_GCC='@CC_GCC@'                   # either true or false
@@ -1130,6 +1128,11 @@ if [ "$cpu" = i386 -o $TSYS = sun4 ] && [ $CROSS = false ] ; then
         XCLFLAGS=`echol "$XCLFLAGS" | sed -e 's/-B*static//g'`
         SOLARIS_LINKING=1 # Even more hacks needed??
       fi
+      BINARY_DISTRIB=1
+    ;;
+    hpux11*)
+      # Newer versions of HP-UX (HP-UX 11) ship with no ANSI C compiler, only
+      # with K&R "cc" whose only use may be to bootstrap gcc.
       BINARY_DISTRIB=1
     ;;
   esac
@@ -3065,16 +3068,7 @@ if [ $CROSS = false ] ; then
       localeflags=" -B \$(lisplibdir)"
     fi
     echotab "if [ ! -d \$(bindir) ] ; then mkdir \$(bindir) ; fi"
-    if false; then
-      if test -n "${GOOD_SH}" ; then
-        echotab "(echo '#!${GOOD_SH}' ; echo 'exec \$(lisplibdir)/base/lisp${LEXE} -M \$(lisplibdir)/base/lispinit.mem$localeflags \"\$\$@\"') > \$(bindir)/clisp"
-      else
-        echotab "(echo '#!/bin/sh' ; echo 'if test \$\$# = 0; then' ; echo '  exec \$(lisplibdir)/base/lisp${LEXE} -M \$(lisplibdir)/base/lispinit.mem$localeflags' ; echo 'else' ; echo '  exec \$(lisplibdir)/base/lisp${LEXE} -M \$(lisplibdir)/base/lispinit.mem$localeflags \"\$\$@\"' ; echo 'fi') > \$(bindir)/clisp"
-      fi
-      echotab "chmod a+x \$(bindir)/clisp"
-    else
-      echotab "\$(CC) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c -o \$(bindir)/clisp"
-    fi
+    echotab "\$(CC) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c -o \$(bindir)/clisp"
     echol
     if [ "$fsstnd" = gnu_ext -o "$fsstnd" = suse -o "$fsstnd" = redhat -o "$fsstnd" = debian ] ; then
       echol "install-man : \$(READMES) \$(MANUALS) force"
@@ -3303,6 +3297,8 @@ else
   echotab "${LN} ${SRCTOPDIR}emacs/*.el \$(TOPDIR)/emacs"
   echotab "mkdir \$(TOPDIR)/src"
   echotab "${LN} \$(LSPFILES) \$(FASFILES) \$(TOPDIR)/src"
+  echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"$(lisplibdir)\"' -DLOCALEDIR='\"$(localedir)\"'" clisp.c "\$(TOPDIR)/clisp"
+  echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${UTILDIR_CC}hardcode.c" "\$(TOPDIR)/hardcode"
   echotab "chmod a+r \$(TOPDIR) \$(TOPDIR)/* \$(TOPDIR)/*/*"
   echotab "chmod a+x \$(TOPDIR)/. \$(TOPDIR)/*/."
   echotab "\$(PACK) \$(PACKOPT) \$(PACKDIR)/clisp\$(PACKEXT) \$(TOPDIR)"

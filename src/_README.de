@@ -387,33 +387,16 @@ Und erstellen Sie eine Kommando-Datei, die Lisp startet:
    [Ctrl-Z]
 #endif
 #ifdef UNIX
-#ifdef UNIX_BINARY_DISTRIB
-Und erstellen Sie ein Shell-Script, das Lisp startet:
-
-   cat > /usr/local/bin/clisp
-#ifndef UNIX_BROKEN_SH
-#ifdef UNIX_USE_KSH
-   #!/bin/ksh
-#else
-   #!/bin/sh
-#endif
-   exec /usr/local/lib/lisp/lisp.run -M /usr/local/lib/lisp/lispinit.mem -B /usr/local/lib/lisp/ "$@"
-#else
-   #!/bin/sh
-   if test $# = 0; then
-     exec /usr/local/lib/lisp/lisp.run -M /usr/local/lib/lisp/lispinit.mem -B /usr/local/lib/lisp/
-   else
-     exec /usr/local/lib/lisp/lisp.run -M /usr/local/lib/lisp/lispinit.mem -B /usr/local/lib/lisp/ "$@"
-   fi
-#endif
-   [Ctrl-D]EOF
-   chmod a+x /usr/local/bin/clisp
-#else
 Und erstellen Sie den Wegweiser, der Lisp startet:
 
+#ifdef UNIX_BINARY_DISTRIB
    cc -O -DLISPLIBDIR='"/usr/local/lib/lisp"' \
          -DLOCALEDIR='"/usr/local/share/locale"' \
       src/clisp.c -o /usr/local/bin/clisp
+#else
+   ./hardcode -DLISPLIBDIR='/usr/local/lib/lisp' \
+              -DLOCALEDIR='/usr/local/share/locale' \
+              clisp /usr/local/bin/clisp
 #endif
 
 Installieren Sie nun die Benutzungshinweise
