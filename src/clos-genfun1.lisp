@@ -85,10 +85,10 @@
       ;; standard-object itself, 3. override compute-class-precedence-list for
       ;; this class. We choose solution 1 because it is the one a user will
       ;; most easily understand.
-      ((name ; The function name is present as first CLOS slot. The macro
-             ; Closure_name in lispbibl.d refers to it. Therefore this slot
-             ; must not be changed after initialization, since this could
-             ; interfere with the forwarded-instance mechanism.
+      (($name ; The function name is present as first CLOS slot. The macro
+              ; Closure_name in lispbibl.d refers to it. Therefore this slot
+              ; must not be changed after initialization, since this could
+              ; interfere with the forwarded-instance mechanism.
          :accessor funcallable-name))
       (:metaclass funcallable-standard-class)
       (:fixed-slot-locations)
@@ -97,7 +97,7 @@
     (ensure-class 'funcallable-standard-object
       :metaclass <funcallable-standard-class>
       :direct-superclasses `(,<function> ,<standard-object>)
-      :direct-slots '((:name name
+      :direct-slots '((:name $name
                        :readers (funcallable-name)
                        :writers ((setf funcallable-name))))
       :direct-default-initargs '()
