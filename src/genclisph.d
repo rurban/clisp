@@ -1761,9 +1761,9 @@ int main(int argc, char* argv[])
   printf("extern void copy_32bit_8bit (const uint32* src, uint8* dest, uintL len);\n");
   printf("extern void copy_32bit_16bit (const uint32* src, uint16* dest, uintL len);\n");
  #ifdef TYPECODES
-  printf("#define TheS8string(obj) ((S8string)(types_pointable(sstring_type,obj)))\n");
-  printf("#define TheS16string(obj) ((S16string)(types_pointable(sstring_type,obj)))\n");
-  printf("#define TheS32string(obj) ((S32string)(types_pointable(sstring_type,obj)))\n");
+  printf("#define TheS8string(obj) ((S8string)("); printf_type_pointable(sstring_type); printf("))\n");
+  printf("#define TheS16string(obj) ((S16string)("); printf_type_pointable(sstring_type); printf("))\n");
+  printf("#define TheS32string(obj) ((S32string)("); printf_type_pointable(sstring_type); printf("))\n");
  #else
   printf("#define TheS8string(obj) ((S8string)(ngci_pointable(obj)-%d))\n",varobject_bias);
   printf("#define TheS16string(obj) ((S16string)(ngci_pointable(obj)-%d))\n",varobject_bias);
