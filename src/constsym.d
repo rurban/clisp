@@ -743,10 +743,14 @@ LISPSYM(set_slot_value,"SET-SLOT-VALUE",clos)
 LISPSYM(slot_boundp,"SLOT-BOUNDP",clos)
 LISPSYM(slot_makunbound,"SLOT-MAKUNBOUND",clos)
 LISPSYM(slot_exists_p,"SLOT-EXISTS-P",clos)
-LISPSYM(shared_initialize,"%SHARED-INITIALIZE",clos)
-LISPSYM(reinitialize_instance,"%REINITIALIZE-INSTANCE",clos)
-LISPSYM(initialize_instance,"%INITIALIZE-INSTANCE",clos)
-LISPSYM(make_instance,"%MAKE-INSTANCE",clos)
+LISPSYM(pshared_initialize,"%SHARED-INITIALIZE",clos)
+LISPSYM(preinitialize_instance,"%REINITIALIZE-INSTANCE",clos)
+LISPSYM(pinitialize_instance,"%INITIALIZE-INSTANCE",clos)
+LISPSYM(pmake_instance,"%MAKE-INSTANCE",clos)
+LISPSYM(make_instance,"MAKE-INSTANCE",clos) # error reporting in record.d
+LISPSYM(shared_initialize,"SHARED-INITIALIZE",clos) # ditto
+LISPSYM(reinitialize_instance,"REINITIALIZE-INSTANCE",clos) # ditto
+LISPSYM(initialize_instance,"INITIALIZE-INSTANCE",clos) # ditto
 # ---------- SEQUENCE ----------
 LISPSYM(sequencep,"SEQUENCEP",system)
 LISPSYM(defseq,"%DEFSEQ",system)

@@ -1,3 +1,14 @@
+2002-04-16  Sam Steingold  <sds@gnu.org>
+
+	error reporting unification
+	* record.d (fehler_key_odd): new function
+	(check_keywords): new macro
+	(%ALLOCATE_INSTANCE, %SHARED-INITIALIZE, %REINITIALIZE-INSTANCE)
+	(%INITIALIZE-INSTANCE, %MAKE-INSTANCE): use them
+	* constsym.d: define SHARED-INITIALIZE, REINITIALIZE-INSTANCE,
+	INITIALIZE-INSTANCE, MAKE-INSTANCE here for error reporting
+	* subr.d, constsym.d: %* should be named p*, not *
+
 2002-04-16  Stefan Kain  <stefan.kain@freenet.de>
 
 	* clos.lisp, record.d: translated all comments
