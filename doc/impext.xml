@@ -2893,7 +2893,7 @@ only.</subtitle>
 
 <varlistentry id="def-c-var"><term><literal role="sexp">(&def-c-var; &name-r;
    {&option-r;}*)</literal></term>
-<listitem><simpara>This form defines a &foreign-variable;.
+<listitem><simpara>This form defines a &foreign-variable-t;.
   &name-r; is the Lisp name, a regular Lisp &symbol-t;.</simpara>
  <variablelist id="def-c-var-opts"><title>Options for &def-c-var;</title>
 <varlistentry><term><literal role="sexp">(&name-k; &cname-r;)</literal></term>
@@ -3118,7 +3118,7 @@ only.</subtitle>
 
 <varlistentry id="c-var-object"><term><literal role="sexp">(&c-var-object;
    &cplace-r;)</literal></term>
- <listitem><simpara>Return the &foreign-variable; object underlying the
+ <listitem><simpara>Return the &foreign-variable-t; object underlying the
    &cplace-r;.  This is also an acceptable argument type to a &c-pointer;
    declaration.</simpara></listitem></varlistentry>
 
@@ -3159,7 +3159,7 @@ only.</subtitle>
    &number-r;)</literal></term>
  <listitem><simpara>&foreign-address-unsigned; returns the &integer-t;
    address embodied in the Lisp object of type &foreign-address-t;,
-   &foreign-pointer-t;, &foreign-variable; or &foreign-function;.</simpara>
+   &foreign-pointer-t;, &foreign-variable-t; or &foreign-function-t;.</simpara>
   <simpara>&unsigned-foreign-address; returns a &foreign-address-t;
    object pointing to the given &integer-t; address.
 </simpara></listitem></varlistentry>
@@ -3173,7 +3173,7 @@ only.</subtitle>
     &c-pointer;)</literal> yields a Lisp object of type
    &foreign-address-t;.</simpara>
   <simpara>The function extracts the object of type &foreign-address-t;
-   living within any &foreign-variable; or &foreign-function; object.
+   living within any &foreign-variable-t; or &foreign-function-t; object.
    If the &f-ent; already is a &foreign-address-t;, it returns it.
    If it is a &foreign-pointer-t; (e.g. a base foreign library address),
    it encapsulates it into a &foreign-address-t; object, as suitable
@@ -3182,30 +3182,32 @@ only.</subtitle>
    &unsigned-foreign-address; must be used for that purpose.
 </simpara></listitem></varlistentry>
 
-<varlistentry>
+<varlistentry id="dffi-make-var">
  <term><literal role="sexp">(&foreign-variable; &f-ent; &ctypei-r;
   &key-amp; &name-r;)</literal></term>
- <listitem><simpara> This constructor creates a new &foreign-variable;
-  from the given &foreign-address; or &foreign-variable; and the
-  internal c-type (as obtained from &parse-c-type;). &name-r;, a
-  &string-t;, is mostly useful for documentation and interactive
-  debugging since it appears in the printed representation of the
-  &foreign-variable; object, as in <literal
-  role="data">#&lt;FOREIGN-VARIABLE "foo" #x0ADD4E55&gt;</literal>.
+ <listitem><simpara> This constructor creates a new &foreign-variable-t;
+  from the given &foreign-address-t; or &foreign-variable-t; and the
+  internal &c-lang; type descriptor (as obtained from &parse-c-type;).
+  &name-r;, a &string-t;, is mostly useful for documentation and
+  interactive debugging since it appears in the printed representation
+  of the &foreign-variable-t; object, as in <literal
+  role="data">#&lt;&foreign-variable-t; "foo" #x0ADD4E55&gt;</literal>.
   In effect, this is similar to &cast; (or rather (&offset; 0) for
   places, except that it works with &foreign-address; objects and allows
-  caching of the internal c-type.</simpara></listitem></varlistentry>
+  caching of the internal &c-lang; types.</simpara></listitem></varlistentry>
 
-<varlistentry>
+<varlistentry id="dffi-make-func">
  <term><literal role="sexp">(&foreign-function; &f-ent; &ctypei-r;
   &key-amp; &name-r;)</literal></term>
- <listitem><simpara>This constructor creates a &foreign-function;
-  from the given &foreign-address; or &foreign-function; and the
-  internal c-type (as obtained from <literal role="sexp">(&parse-c-type;
-  '(&c-function; ...))</literal>). &name-r;, a &string-t;, is useful for
-  documentation and interactive debugging since it appears in the
-  printed representation of the &foreign-function; object. It is
-  inherited from the given &foreign-function; object when
+ <listitem><simpara>This constructor creates a &foreign-function-t;
+  from the given &foreign-address-t; or &foreign-function-t; and the
+  internal &c-lang; type descriptor (as obtained from
+  <literal role="sexp">(&parse-c-type; '(&c-function; ...))</literal>).
+  &name-r;, a &string-t;, is mostly useful for documentation and
+  interactive debugging since it appears in the printed representation
+  of the &foreign-function-t; object, as in <literal
+  role="data">#&lt;&foreign-function-t; "foo" #x0052B060&gt;</literal>.
+  It is inherited from the given &foreign-function-t; object when
   available.</simpara></listitem></varlistentry>
 
 <varlistentry id="validp">
@@ -3228,10 +3230,10 @@ only.</subtitle>
    &f-ptr;)</literal></term>
  <listitem><simpara>&foreign-pointer; returns the &foreign-pointer-t;
    associated with the Lisp object of type &foreign-address-t;,
-   &foreign-pointer-t;, &foreign-variable; or &foreign-function;.</simpara>
+   &foreign-pointer-t;, &foreign-variable-t; or &foreign-function-t;.</simpara>
   <simpara><literal role="sexp">(&setf; &foreign-pointer;)</literal>
    changes the &foreign-pointer-t; associated with the Lisp object of
-   type &foreign-address-t;, &foreign-variable; or &foreign-function; to
+   type &foreign-address-t;, &foreign-variable-t; or &foreign-function-t; to
    that of the other entity.
    When &f-ptr; is &copy-k;, a &fresh; &foreign-pointer-t; is allocated.
    &f-ent; still points to the same object. This is particularly useful
@@ -3244,7 +3246,7 @@ only.</subtitle>
   <term><literal role="sexp">(&with-c-var; (&var-r; &ctype-r;
       [<replaceable>initarg</replaceable>]) &body-r;)</literal></term>
 <listitem><simpara>These forms allocate space on the &c-lang; execution
-  stack, bind respectively a &foreign-variable; object or
+  stack, bind respectively a &foreign-variable-t; object or
   a local &symbol-macro; to &var-r; and execute &body-r;.</simpara>
   <simpara>When <replaceable>initarg</replaceable> is not supplied,
   they allocate space only for <literal role="sexp">(&sizeof;
@@ -3326,7 +3328,7 @@ only.</subtitle>
    When &ro-k; is supplied, the Lisp side is prevented from modifying the
    memory contents.  This can be used as an indication that some foreign
    side is going to fill this memory (e.g. via &read-c;).</simpara>
-  <simpara>Returns a &foreign-variable; object of the actual &ctype-r;,
+  <simpara>Returns a &foreign-variable-t; object of the actual &ctype-r;,
    whose address part points to the newly allocated memory.</simpara>
   <simpara>&allocate-deep; will call &c-lang; &malloc; as many times
    as necessary to build a structure on the &c-lang; heap of the given
@@ -3345,9 +3347,9 @@ only.</subtitle>
    <type>char[10]</type> in &c-lang;.</simpara>
   <simpara>Function &foreign-free; deallocates memory at the address
    held by the given &f-ent;. If <constant>:FULL</constant> is supplied
-   and the argument is of type &foreign-variable;, recursively frees
+   and the argument is of type &foreign-variable-t;, recursively frees
    the whole complex stucture pointed to by this variable.</simpara>
-  <simpara>If given a &foreign-function; object that corresponds to a
+  <simpara>If given a &foreign-function-t; object that corresponds to a
    &clisp; callback, deallocates it.  Callbacks are automatically
    created each time you pass a Lisp function via the &ffi-pac;.</simpara>
   <simpara>Use <literal role="sexp">(&setf; &validp;)</literal> to
@@ -3363,7 +3365,7 @@ only.</subtitle>
 <varlistentry id="with-c-place">
  <term><literal role="sexp">(&with-c-place; (&var-r; &f-ent;)
    &body-r;)</literal></term>
- <listitem><simpara>Create a &place; out of the given &foreign-variable;
+ <listitem><simpara>Create a &place; out of the given &foreign-variable-t;
   object so operations on places (e.g. &cast;, &deref;, &slot; etc.) can
   be used within &body-r;.  &with-c-var; appears as a composition of
   &with-foreign-object; and &with-c-place;.</simpara>
@@ -3467,13 +3469,13 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
 </simpara></listitem></varlistentry>
 
 <varlistentry><term><literal role="type">(&c-pointer;
-  &ctype-r;)</literal></term> 
+  &ctype-r;)</literal></term>
  <listitem><simpara>This type is equivalent to what &c-lang; calls
   <type>&ctype-r; *</type>: a pointer to a single item of the given
   &ctype-r;. It differs from <literal role="type">(&c-ptr-null;
   &ctype-r;)</literal> (see below) in that no conversion to and from
   Lisp will occur (beyond the usual one of the &c-lang; &c-NULL; pointer
-  to or from Lisp &nil;). Instead, an object of type &foreign-variable;
+  to or from Lisp &nil;). Instead, an object of type &foreign-variable-t;
   is used to represent the foreign place. It is assimilable to a typed
   pointer.</simpara></listitem></varlistentry>
 
@@ -3616,7 +3618,7 @@ unit</ulink> (usually a file), a warning is issued and
 
 <section id="dffi-places"><title>Operations on foreign places</title>
 
-<para>A &foreign-variable; &name-r; defined by &def-c-var;, &with-c-var;
+<para>A &foreign-variable-t; &name-r; defined by &def-c-var;, &with-c-var;
  or &with-c-place; defines a &place;,
  i.e., a form which can also be used as argument to &setf;.
  (An "lvalue" in &c-lang; terminology.)
@@ -3640,8 +3642,7 @@ unit</ulink> (usually a file), a warning is issued and
  the foreign language: control flow temporary enters Lisp.</para>
 
 <para>The following operators define foreign functions: &def-call-in;,
- &def-call-out;, &def-c-call-in;, &def-c-call-out;,
- <function>&foreign-function;</function>.</para>
+ &def-call-out;, &def-c-call-in;, &def-c-call-out;, &foreign-function;.</para>
 
 </section>
 

@@ -443,10 +443,12 @@
 <!ENTITY foreign-address-unsigned "<link linkend='faddr-u'><function>FFI:FOREIGN-ADDRESS-UNSIGNED</function></link>">
 <!ENTITY foreign-allocate "<link linkend='foreign-heap'><function>FFI:FOREIGN-ALLOCATE</function></link>">
 <!ENTITY foreign-free "<link linkend='foreign-heap'><function>FFI:FOREIGN-FREE</function></link>">
-<!ENTITY foreign-function "<link linkend='dffi'><classname>FFI:FOREIGN-FUNCTION</classname></link>">
+<!ENTITY foreign-function "<link linkend='dffi-make-func'><function>FFI:FOREIGN-FUNCTION</function></link>">
+<!ENTITY foreign-function-t "<link linkend='dffi'><classname>FFI:FOREIGN-FUNCTION</classname></link>">
 <!ENTITY foreign-pointer "<link linkend='fptr'><function>FFI:FOREIGN-POINTER</function></link>">
 <!ENTITY foreign-pointer-t "<link linkend='fptr'><classname>FFI:FOREIGN-POINTER</classname></link>">
-<!ENTITY foreign-variable "<link linkend='dffi-variables'><classname>FFI:FOREIGN-VARIABLE</classname></link>">
+<!ENTITY foreign-variable "<link linkend='dffi-make-var'><function>FFI:FOREIGN-VARIABLE</function></link>">
+<!ENTITY foreign-variable-t "<link linkend='dffi-variables'><classname>FFI:FOREIGN-VARIABLE</classname></link>">
 <!ENTITY linkset "<olink targetdoc='impnotes' targetptr='linkset'>linking set</olink>">
 <!ENTITY link-sh "<olink targetdoc='impnotes' targetptr='modset'><command>link.sh</command></olink>">
 <!ENTITY modset "<olink targetdoc='impnotes' targetptr='modset'>module set</olink>">
