@@ -1717,28 +1717,28 @@ local void convert_to_foreign (object fvd, object obj, void* data)
   check_SP();
   check_STACK();
   if (symbolp(fvd)) {
-    if (eq(fvd,S(nil)))
-      /* If we are presented the empty type, we take it as "ignore". */
+    if (eq(fvd,S(c_pointer))) {
+      if (fvariablep(obj))
+        obj = TheFvariable(obj)->fv_address;
+      else if (!faddressp(obj)) goto bad_obj;
+      *(void**)data = Faddress_value(obj);
       return;
-    else if (eq(fvd,S(boolean))) {
-      var int* pdata = (int*)data;
-      if (nullp(obj))
-        *pdata = 0;
-      else if (eq(obj,T))
-        *pdata = 1;
-      else
-        goto bad_obj;
-      return;
-    } else if (eq(fvd,S(character))) {
-      var uintB* pdata = (unsigned char *)data;
-      if (!charp(obj)) goto bad_obj;
-      var chart ch = char_code(obj);
-     #ifdef UNICODE
-      ASSERT(cslen(O(foreign_encoding),&ch,1) == 1);
-      cstombs(O(foreign_encoding),&ch,1,pdata,1);
-     #else
-      *pdata = as_cint(ch);
-     #endif
+    } else if (eq(fvd,S(c_string))) {
+      if (nullp(obj)) {
+        *(char**)data = NULL;
+        return;
+      }
+      if (!stringp(obj)) goto bad_obj;
+      var uintL len;
+      var uintL offset;
+      var object string = unpack_string_ro(obj,&len,&offset);
+      var const chart* ptr1;
+      unpack_sstring_alloca(string,len,offset, ptr1=);
+      var uintL bytelen = cslen(O(foreign_encoding),ptr1,len);
+      var char* asciz = (char*)converter_malloc(*(char**)data,bytelen+1,1);
+      cstombs(O(foreign_encoding),ptr1,len,(uintB*)asciz,bytelen);
+      asciz[bytelen] = '\0';
+      *(char**)data = asciz;
       return;
     } else if (eq(fvd,S(char)) || eq(fvd,S(sint8))) {
       var sint8* pdata = (sint8*)data;
@@ -1828,28 +1828,29 @@ local void convert_to_foreign (object fvd, object obj, void* data)
       if (!double_float_p(obj)) goto bad_obj;
       DF_to_c_double(obj,pdata);
       return;
-    } else if (eq(fvd,S(c_pointer))) {
-      if (!faddressp(obj)) goto bad_obj;
-      *(void**)data = Faddress_value(obj);
+    } else if (eq(fvd,S(boolean))) {
+      var int* pdata = (int*)data;
+      if (nullp(obj))
+        *pdata = 0;
+      else if (eq(obj,T))
+        *pdata = 1;
+      else
+        goto bad_obj;
       return;
-    } else if (eq(fvd,S(c_string))) {
-      if (nullp(obj)) {
-        *(char**)data = NULL;
-        return;
-      }
-      if (!stringp(obj)) goto bad_obj;
-      var uintL len;
-      var uintL offset;
-      var object string = unpack_string_ro(obj,&len,&offset);
-      var const chart* ptr1;
-      unpack_sstring_alloca(string,len,offset, ptr1=);
-      var uintL bytelen = cslen(O(foreign_encoding),ptr1,len);
-      var char* asciz = (char*)converter_malloc(*(char**)data,bytelen+1,1);
-      cstombs(O(foreign_encoding),ptr1,len,(uintB*)asciz,bytelen);
-      asciz[bytelen] = '\0';
-      *(char**)data = asciz;
+    } else if (eq(fvd,S(character))) {
+      var uintB* pdata = (unsigned char *)data;
+      if (!charp(obj)) goto bad_obj;
+      var chart ch = char_code(obj);
+     #ifdef UNICODE
+      ASSERT(cslen(O(foreign_encoding),&ch,1) == 1);
+      cstombs(O(foreign_encoding),&ch,1,pdata,1);
+     #else
+      *pdata = as_cint(ch);
+     #endif
       return;
-    }
+    } else if (eq(fvd,S(nil)))
+      /* If we are presented the empty type, we take it as "ignore". */
+      return;
   } else if (simple_vector_p(fvd)) {
     var uintL fvdlen = Svector_length(fvd);
     if (fvdlen > 0) {
