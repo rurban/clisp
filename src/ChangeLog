@@ -1,5 +1,10 @@
 2002-11-25  Sam Steingold  <sds@gnu.org>
 
+	* loop.lisp (loop-syntax-error, expand-loop): macroexpansion-time
+	errors have type SOURCE-PROGRAM-ERROR
+
+2002-11-25  Sam Steingold  <sds@gnu.org>
+
 	* loop.lisp (expand-loop): when summing (or counting &c) into a
 	variable for which the type has been declared, make sure it is
 	initialized to that particular type
