@@ -34,6 +34,9 @@ User visible changes
 Portability
 -----------
 
+* Improved portability for nearly all platforms: Linux, MacOS X, Solaris,
+  Tru64, HP-UX, FreeBSD, NetBSD, OpenBSD, BeOS.
+
 * Removed Acorn RISCOS support.
 
 * Removed AmigaOS support.
