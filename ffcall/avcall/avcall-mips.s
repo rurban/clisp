@@ -37,7 +37,7 @@ __builtin_avcall:
 	addu	$2,$2,-48
 	subu	$2,$2,$16
 	sra	$5,$2,2
-	andi	$2,$3,0x0200
+	andi	$2,$3,0x0400
 	.set	noreorder
 	.set	nomacro
 	beq	$2,$0,$L2
@@ -48,7 +48,7 @@ __builtin_avcall:
  #APP
 	l.d $f12,32($16)
  #NO_APP
-	andi	$2,$3,0x0400
+	andi	$2,$3,0x0800
 	.set	noreorder
 	.set	nomacro
 	beq	$2,$0,$L51

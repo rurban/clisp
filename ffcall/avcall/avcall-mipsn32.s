@@ -488,7 +488,7 @@ __builtin_avcall:
 	.set	reorder
 
 .L43:
-	andi	$2,$5,0x100
+	andi	$2,$5,0x200
 	.set	noreorder
 	.set	nomacro
 	beq	$2,$0,.L25
