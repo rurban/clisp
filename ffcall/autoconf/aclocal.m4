@@ -687,6 +687,10 @@ CL_PROTO_RET([
 ], [int getpagesize();], cl_cv_proto_getpagesize_ret, int, size_t)
 ], [extern $cl_cv_proto_getpagesize_ret getpagesize (void);])
 AC_DEFINE_UNQUOTED(RETGETPAGESIZETYPE,$cl_cv_proto_getpagesize_ret)
+else
+dnl Otherwise we use PAGESIZE defined in <sys/param.h>.
+dnl But mingw32 doesn't have <sys/param.h>.
+AC_CHECK_HEADERS(sys/param.h)
 fi
 ])dnl
 dnl
