@@ -27,6 +27,26 @@ options:
                                redhat - RedHat
                                debian - Debian, Slackware
                                *bsd - NetBSD, OpenBSD, FreeBSD
+       --bindir=DIR            sets the installation directory for executables
+       --libdir=DIR            sets the installation directory for libraries
+       --includedir=DIR        sets the installation directory for C header
+                                 files
+       --datadir=DIR           sets the installation directory for
+                                 read-only architecture-independent data
+       --localedir=DIR         sets the installation directory for
+                                 locale-dependent architecture-independent data
+       --docdir=DIR            sets the installation directory for
+                                 documentation
+       --mandir=DIR            sets the installation directory for
+                                 documentation in man page format
+       --htmldir=DIR           sets the installation directory for
+                                 documentation in HTML format
+       --dvidir=DIR            sets the installation directory for
+                                 documentation in TeX DVI format
+       --psdir=DIR             sets the installation directory for
+                                 documentation in PostScript format
+       --pdfdir=DIR            sets the installation directory for
+                                 documentation in PDF format
        --hyperspec=URL         the path to the Common Lisp HyperSpec
            (the default is ${HSDEFAULT}
             or the value of the environment variable CLHSROOT, if set).
@@ -155,6 +175,17 @@ srcdir=''
 prefix=''
 exec_prefix=''
 fsstnd='' # supported styles: gnu, gnu_ext, suse, redhat, debian, *bsd
+bindir=''
+libdir=''
+includedir=''
+datadir=''
+localedir=''
+docdir=''
+mandir=''
+htmldir=''
+dvidir=''
+psdir=''
+pdfdir=''
 MODULES=''
 CP='cp -p'
 LN_S='ln -s'
@@ -260,6 +291,94 @@ while test -z "$endofargs"; do
     --fsstnd=*)
       fsstnd=`echol "$1" | sed 's/-*fsstnd=//'`
       shift
+      ;;
+    -bindir* | --bindir*)
+      bindir=`echol "$1" | sed 's/-*bindir=*//'`
+      shift
+      if test -z "$bindir" ; then
+        bindir=$1
+        shift
+      fi
+      ;;
+    -libdir* | --libdir*)
+      libdir=`echol "$1" | sed 's/-*libdir=*//'`
+      shift
+      if test -z "$libdir" ; then
+        libdir=$1
+        shift
+      fi
+      ;;
+    -includedir* | --includedir*)
+      includedir=`echol "$1" | sed 's/-*includedir=*//'`
+      shift
+      if test -z "$includedir" ; then
+        includedir=$1
+        shift
+      fi
+      ;;
+    -datadir* | --datadir*)
+      datadir=`echol "$1" | sed 's/-*datadir=*//'`
+      shift
+      if test -z "$datadir" ; then
+        datadir=$1
+        shift
+      fi
+      ;;
+    -localedir* | --localedir*)
+      localedir=`echol "$1" | sed 's/-*localedir=*//'`
+      shift
+      if test -z "$localedir" ; then
+        localedir=$1
+        shift
+      fi
+      ;;
+    -docdir* | --docdir*)
+      docdir=`echol "$1" | sed 's/-*docdir=*//'`
+      shift
+      if test -z "$docdir" ; then
+        docdir=$1
+        shift
+      fi
+      ;;
+    -mandir* | --mandir*)
+      mandir=`echol "$1" | sed 's/-*mandir=*//'`
+      shift
+      if test -z "$mandir" ; then
+        mandir=$1
+        shift
+      fi
+      ;;
+    -htmldir* | --htmldir*)
+      htmldir=`echol "$1" | sed 's/-*htmldir=*//'`
+      shift
+      if test -z "$htmldir" ; then
+        htmldir=$1
+        shift
+      fi
+      ;;
+    -dvidir* | --dvidir*)
+      dvidir=`echol "$1" | sed 's/-*dvidir=*//'`
+      shift
+      if test -z "$dvidir" ; then
+        dvidir=$1
+        shift
+      fi
+      ;;
+    -psdir* | --psdir*)
+      psdir=`echol "$1" | sed 's/-*psdir=*//'`
+      shift
+      if test -z "$psdir" ; then
+        psdir=$1
+        shift
+      fi
+      ;;
+    -pdfdir* | --pdfdir*)
+      pdfdir=`echol "$1" | sed 's/-*pdfdir=*//'`
+      shift
+      if test -z "$pdfdir" ; then
+        pdfdir=$1
+        shift
+      fi
       ;;
     --win32gcc) HSYS="win32gcc"; shift; ;;
     --hyperspec=*)
@@ -542,18 +661,19 @@ fi
 # PREFIX = prefix for installation directories
 # (This should not end in a backslash. Add a space to avoid this.)
 if [ $HOS = unix ] ; then
-  if [ -n "$prefix" ] ; then
-    PREFIX="${prefix}"
-  else
-    PREFIX='/usr/local'
-  fi
+  test -n "$prefix" ||
+    prefix='@prefix@' # usually '/usr/local'
+  PREFIX="${prefix}"
 else
   PREFIX=''
 fi
 
 # EXEC_PREFIX = prefix for architecture dependent installation directories
-if [ -n "$exec_prefix" ] ; then
-  EXEC_PREFIX="${exec_prefix}"
+brace_to_paren='s,\${\([^{}]*\)},$(\1),g'
+if [ $HOS = unix ] ; then
+  test -n "$exec_prefix" ||
+    exec_prefix='@exec_prefix@' # usually '${prefix}'
+  EXEC_PREFIX=`echo "$exec_prefix" | sed -e "$brace_to_paren"`
 else
   EXEC_PREFIX='$(prefix)'
 fi
@@ -591,6 +711,123 @@ else
 fi
 HERE_='`pwd`'"${NEXT_}"
 
+# Various other installation directories.
+if [ $HOS = unix ] ; then
+  test -n "$bindir" ||
+    bindir='@bindir@' # usually '${exec_prefix}/bin'
+  BINDIR=`echo "$bindir" | sed -e "$brace_to_paren"`
+else
+  bindir="\$(exec_prefix)${NEXT_}bin"
+  BINDIR="$bindir"
+fi
+if [ $HOS = unix ] ; then
+  test -n "$libdir" ||
+    libdir='@libdir@' # usually '${exec_prefix}/lib'
+  LIBDIR=`echo "$libdir" | sed -e "$brace_to_paren"`
+else
+  libdir="\$(exec_prefix)${NEXT_}lib"
+  LIBDIR="$libdir"
+fi
+if [ $HOS = unix ] ; then
+  test -n "$includedir" ||
+    includedir='@includedir@' # usually '${prefix}/include'
+  INCLUDEDIR=`echo "$includedir" | sed -e "$brace_to_paren"`
+else
+  includedir="\$(prefix)${NEXT_}include"
+  INCLUDEDIR="$includedir"
+fi
+if [ $HOS = unix ] ; then
+  test -n "$datadir" ||
+    datadir='@datadir@' # usually '${prefix}/share'
+  DATADIR=`echo "$datadir" | sed -e "$brace_to_paren"`
+else
+  datadir="\$(prefix)${NEXT_}share"
+  DATADIR="$datadir"
+fi
+if [ $HOS = unix ] ; then
+  test -n "$localedir" ||
+    localedir='${datadir}/locale' # with autoconf-2.60: localedir='@localedir@' # usually '${datadir}/locale'
+  LOCALEDIR=`echo "$localedir" | sed -e "$brace_to_paren"`
+else
+  localedir="\$(datadir)${NEXT_}locale"
+  LOCALEDIR="$localedir"
+fi
+if [ -z "$fsstnd" ]; then       # default fsstnd depends on the OS
+  case ${HSYSOS} in
+    cygwin | win32gcc )  fsstnd=redhat; ;; # cygwin == redhat!
+    * )  fsstnd=gnu_ext; ;;
+  esac
+fi
+# An explicitly given --docdir overrides the implied value from fsstnd,
+# and the implied value from fsstnd overrides the default.
+if [ -z "$docdir" ] ; then
+  if [ $HOS = unix ] ; then
+    docdir='${datadir}/doc/${PACKAGE}' # with autoconf-2.60: docdir='@docdir@' # usually '${datadir}/doc/${PACKAGE}'
+    if [ "$docdir" = '${datadir}/doc/${PACKAGE}' ] ; then
+      docdir=
+    else
+      PACKAGE=clisp ; eval docdir=\"$docdir\"
+    fi
+    DOCDIR=`echo "$docdir" | sed -e "$brace_to_paren"`
+  fi
+  if [ -z "$docdir" ] ; then
+    case "$fsstnd" in
+      suse)
+        docdir="\$(datadir)${NEXT_}doc${NEXT_}packages${NEXT_}clisp"
+        ;;
+      redhat)
+        docdir="\$(datadir)${NEXT_}doc${NEXT_}\$(CLISP_VERSION)"
+        ;;
+      debian | gnu_ext | *bsd)
+        docdir="\$(datadir)${NEXT_}doc${NEXT_}clisp"
+        ;;
+    esac
+    DOCDIR="$docdir"
+  fi
+else
+  DOCDIR="$docdir"
+fi
+if [ $HOS = unix ] ; then
+  test -n "$mandir" ||
+    mandir='${datadir}/man' # with autoconf-2.60: mandir='@mandir@' # usually '${datadir}/man'
+  MANDIR=`echo "$mandir" | sed -e "$brace_to_paren"`
+else
+  mandir="\$(datadir)${NEXT_}man"
+  MANDIR="$mandir"
+fi
+if [ $HOS = unix ] ; then
+  test -n "$htmldir" ||
+    htmldir='${docdir}' # with autoconf-2.60: htmldir='@htmldir@' # usually '${docdir}'
+  HTMLDIR=`echo "$htmldir" | sed -e "$brace_to_paren"`
+else
+  htmldir="\$(docdir)"
+  HTMLDIR="$htmldir"
+fi
+if [ $HOS = unix ] ; then
+  test -n "$dvidir" ||
+    dvidir='${docdir}'
+  DVIDIR=`echo "$dvidir" | sed -e "$brace_to_paren"`
+else
+  dvidir="\$(docdir)"
+  DVIDIR="$dvidir"
+fi
+if [ $HOS = unix ] ; then
+  test -n "$psdir" ||
+    psdir='${docdir}' # with autoconf-2.60: psdir='@psdir@' # usually '${docdir}'
+  PSDIR=`echo "$psdir" | sed -e "$brace_to_paren"`
+else
+  psdir="\$(docdir)"
+  PSDIR="$psdir"
+fi
+if [ $HOS = unix ] ; then
+  test -n "$pdfdir" ||
+    pdfdir='${docdir}' # with autoconf-2.60: pdfdir='@pdfdir@' # usually '${docdir}'
+  PDFDIR=`echo "$pdfdir" | sed -e "$brace_to_paren"`
+else
+  pdfdir="\$(docdir)"
+  PDFDIR="$pdfdir"
+fi
+
 if [ $H_DOS = "true" ] ; then
   # Replace '/' with '\':
   SRCTOPDIR_=`echol ${SRCTOPDIR} | sed -e 's,/,\\\\,g'`
@@ -609,9 +846,9 @@ fi
 UTILDIR="${SRCTOPDIR}utils${NEXT}"
 UTILDIR_="${SRCTOPDIR_}utils${NEXT_}"
 UTILDIR_M="${SRCTOPDIR_M}utils${NEXT_M}"
-DOCDIR="${SRCTOPDIR}doc${NEXT}"
-DOCDIR_="${SRCTOPDIR_}doc${NEXT_}"
-DOCDIR_M="${SRCTOPDIR_M}doc${NEXT_M}"
+SRCDOCDIR="${SRCTOPDIR}doc${NEXT}"
+SRCDOCDIR_="${SRCTOPDIR_}doc${NEXT_}"
+SRCDOCDIR_M="${SRCTOPDIR_M}doc${NEXT_M}"
 MODULESDIR="${SRCTOPDIR}modules${NEXT}"
 MODULESDIR_="${SRCTOPDIR_}modules${NEXT_}"
 MODULESDIR_M="${SRCTOPDIR_M}modules${NEXT_M}"
@@ -1570,13 +1807,6 @@ if [ ${TSYS} = win32gcc ]; then
   echol
 fi
 
-if [ -z "$fsstnd" ]; then       # default fsstnd depends on the OS
-  case ${HSYSOS} in
-    cygwin | win32gcc )  fsstnd=redhat; ;; # cygwin == redhat!
-    * )  fsstnd=gnu_ext; ;;
-  esac
-fi
-
 if [ -f ${SRCDIR}VERSION ]; then echol "VERSION="`cat ${SRCDIR}VERSION`;
 elif [ -n $version ]; then echol "VERSION="`cat $version`;
 else echol "no CLISP version file" >&2; exit 1;
@@ -1585,30 +1815,18 @@ echol "CLISP_VERSION=clisp-\$(VERSION)"
 echol '# Directories used by "make install":'
 echol "prefix = ${PREFIX}"
 echol "exec_prefix = ${EXEC_PREFIX}"
-echol "bindir  = \$(exec_prefix)${NEXT_}bin"
-echol "shared  = \$(prefix)${NEXT_}share"
-echol "mandir  = \$(shared)${NEXT_}man"
-echol "docdir  = \$(shared)${NEXT_}doc"
-case "$fsstnd" in
-  suse)
-    echol "lispdocdir = \$(docdir)${NEXT_}packages${NEXT_}clisp"
-    ;;
-  redhat)
-    echol "lispdocdir = \$(docdir)${NEXT_}\$(CLISP_VERSION)"
-    ;;
-  debian | gnu_ext | *bsd)
-    echol "lispdocdir = \$(docdir)${NEXT_}clisp"
-    ;;
-esac
-echol "htmldir = \$(lispdocdir)"
-echol "dvidir  = \$(lispdocdir)"
-echol "psdir   = \$(lispdocdir)"
-echol "pdfdir  = \$(lispdocdir)"
-echol "libdir = \$(exec_prefix)${NEXT_}lib"
+echol "bindir  = ${BINDIR}"
+echol "datadir = ${DATADIR}"
+echol "mandir  = ${MANDIR}"
+echol "docdir  = ${DOCDIR}"
+echol "htmldir = ${HTMLDIR}"
+echol "dvidir  = ${DVIDIR}"
+echol "psdir   = ${PSDIR}"
+echol "pdfdir  = ${PDFDIR}"
+echol "libdir = ${LIBDIR}"
 echol "lisplibdir = \$(libdir)${NEXT_}clisp"
 if [ -n "$USE_GETTEXT" ] ; then
-  echol "datadir = \$(shared)"
-  echol "localedir = \$(datadir)/locale"
+  echol "localedir = ${LOCALEDIR}"
 fi
 echol "# The value of following variable is prepended to all the paths for"
 echol "# installation. This is useful when preparing a binary distribution."
@@ -2984,8 +3202,8 @@ echol "IMPNOTES = ${IMPNOTES_FILES}"
 echol "MANUALS = clisp.1 clisp.html \$(TXTFILES) \$(IMPNOTES)"
 echol
 for f in ${IMPNOTES_FILES} ; do
-  echol "${f} : ${DOCDIR_M}${f}"
-  echotab "\$(LN_S) ${DOCDIR_M}${f} ${f}"
+  echol "${f} : ${SRCDOCDIR_M}${f}"
+  echotab "\$(LN_S) ${SRCDOCDIR_M}${f} ${f}"
   echol
 done
 EMACS_FILES="clisp-coding.el clisp-indent.el clisp-indent.lisp"
@@ -3044,7 +3262,7 @@ for f in $TXT_FILES ; do
   case $f in
     clisp.html | clisp.1 | clisp-1.html)
       depends=$depends" VERSION";
-      sourcedir=${DOCDIR}; ;;
+      sourcedir=${SRCDOCDIR}; ;;
     *) sourcedir=${SRCDIR}; ;;
   esac
   echol "${f} : ${sourcedir}_${f}${TXT_INCLUDES}${depends} txt2c${HEXE}"
@@ -3103,8 +3321,8 @@ echotab "\$(ROFF_MAN) clisp.1 > clisp.man"
 echol
 
 for f in $DOC ; do
-  echol "${f}.txt : ${DOCDIR_M}${f}.txt"
-  echotab "-\$(LN_S) ${DOCDIR_}${f}.txt ${f}.txt"
+  echol "${f}.txt : ${SRCDOCDIR_M}${f}.txt"
+  echotab "-\$(LN_S) ${SRCDOCDIR_}${f}.txt ${f}.txt"
   echol
 done
 
@@ -3151,7 +3369,7 @@ if [ $CROSS = false ] ; then
     if [ -n "$USE_GETTEXT" ] ; then
       echotab "cd po && \$(MAKE) installdirs prefix='\$(DESTDIR)\$(prefix)' exec_prefix='\$(DESTDIR)\$(exec_prefix)'"
     fi
-    echotab_mkdir_maybe "\$(DESTDIR)\$(shared)"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(datadir)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)/man1"
     case "$fsstnd" in
@@ -3162,16 +3380,15 @@ if [ $CROSS = false ] ; then
         echotab_mkdir_maybe "\$(DESTDIR)\$(pdfdir)"
         ;;
       *bsd)
-        echotab_mkdir_maybe "\$(DESTDIR)\$(lispdocdir)"
+        echotab_mkdir_maybe "\$(DESTDIR)\$(docdir)"
         ;;
     esac
     echotab_mkdir_maybe "\$(DESTDIR)\$(docdir)"
-    echotab_mkdir_maybe "\$(DESTDIR)\$(lispdocdir)"
     case "$fsstnd" in
       *bsd)
         ;;
       *)
-        echotab_mkdir_maybe "\$(DESTDIR)\$(lispdocdir)/doc"
+        echotab_mkdir_maybe "\$(DESTDIR)\$(docdir)/doc"
         ;;
     esac
     echol
@@ -3205,7 +3422,7 @@ if [ $CROSS = false ] ; then
     echol "install-man : clisp.1 ${manual_dvi} clisp.html force"
     echotab_mkdir_maybe "\$(DESTDIR)\$(prefix)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(exec_prefix)"
-    echotab_mkdir_maybe "\$(DESTDIR)\$(shared)"
+    echotab_mkdir_maybe "\$(DESTDIR)\$(datadir)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(mandir)/man1"
     echotab "\$(INSTALL_DATA) clisp.1 \$(DESTDIR)\$(mandir)/man1/clisp.1"
@@ -3223,8 +3440,8 @@ if [ $CROSS = false ] ; then
         fi
         ;;
       *bsd)
-        echotab_mkdir_maybe "\$(DESTDIR)\$(lispdocdir)"
-        echotab "\$(INSTALL_DATA) clisp.html \$(DESTDIR)\$(lispdocdir)/clisp.html"
+        echotab_mkdir_maybe "\$(DESTDIR)\$(docdir)"
+        echotab "\$(INSTALL_DATA) clisp.html \$(DESTDIR)\$(docdir)/clisp.html"
         ;;
     esac
     echol
@@ -3232,15 +3449,14 @@ if [ $CROSS = false ] ; then
     echotab_mkdir_maybe "\$(DESTDIR)\$(prefix)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(exec_prefix)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(docdir)"
-    echotab_mkdir_maybe "\$(DESTDIR)\$(lispdocdir)"
-    echotab "\$(INSTALL_DATA) \$(READMES) \$(DESTDIR)\$(lispdocdir)/"
+    echotab "\$(INSTALL_DATA) \$(READMES) \$(DESTDIR)\$(docdir)/"
     case "$fsstnd" in
       *bsd)
-        echotab "\$(INSTALL_DATA) \$(MANUALS) ${manual_dvi} \$(DESTDIR)\$(lispdocdir)/"
+        echotab "\$(INSTALL_DATA) \$(MANUALS) ${manual_dvi} \$(DESTDIR)\$(docdir)/"
         ;;
       *)
-        echotab_mkdir_maybe "\$(DESTDIR)\$(lispdocdir)/doc"
-        echotab "\$(INSTALL_DATA) \$(MANUALS) ${manual_dvi} \$(DESTDIR)\$(lispdocdir)/doc/"
+        echotab_mkdir_maybe "\$(DESTDIR)\$(docdir)/doc"
+        echotab "\$(INSTALL_DATA) \$(MANUALS) ${manual_dvi} \$(DESTDIR)\$(docdir)/doc/"
         ;;
     esac
     if [ ${HSYSOS} = cygwin ]; then
@@ -3278,7 +3494,7 @@ if [ $CROSS = false ] ; then
         echotab "\$(RM) \$(DESTDIR)\$(pdfdir)/clisp.pdf"
         ;;
     esac
-    echotab "\$(RMRF) \$(DESTDIR)\$(lispdocdir)"
+    echotab "\$(RMRF) \$(DESTDIR)\$(docdir)"
     echol
     echol
   fi
