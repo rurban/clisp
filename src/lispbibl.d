@@ -4189,8 +4189,15 @@ typedef struct {
   gcv_object_t proplist    _attribute_aligned_object_; # property list
   gcv_object_t pname       _attribute_aligned_object_; # Printname
   gcv_object_t homepackage _attribute_aligned_object_; # Home-Package or NIL
+  # If necessary, add fillers here to ensure sizeof(subr_t) is a multiple of
+  # varobject_alignment.
+  #ifdef LINUX_NOEXEC_HEAPCODES
+  gcv_object_t filler      _attribute_aligned_object_;
+  #endif
 } symbol_;
 typedef symbol_ *  Symbol;
+# Compile-time check: sizeof(symbol_) is a multiple of varobject_alignment.
+typedef int symbol_size_check[1 - 2 * (int)(sizeof(symbol_) % varobject_alignment)];
 #define symbol_objects_offset  offsetof(symbol_,symvalue)
 
 # Every keyword is a constant.
@@ -5662,7 +5669,7 @@ typedef struct {
     ;
   typedef subr_t *  Subr;
   # Compile-time check: sizeof(subr_t) is a multiple of varobject_alignment.
-  typedef int subr_size_check[1 - 2 * (sizeof(subr_t) % varobject_alignment)];
+  typedef int subr_size_check[1 - 2 * (int)(sizeof(subr_t) % varobject_alignment)];
 # GC needs information where objects are in here:
   #define subr_length  2
   #define subr_xlength  (sizeof(*(Subr)0)-offsetofa(record_,recdata)-subr_length*sizeof(gcv_object_t))
