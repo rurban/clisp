@@ -1,3 +1,10 @@
+2004-11-03  Sam Steingold  <sds@gnu.org>
+
+	* constsym.d (*FINI-HOOKS*): new symbol
+	* spvw.d (init_symbol_values): init it
+	(run_hooks): new function
+	(main, quit): use it
+
 2004-10-31  Bruno Haible  <bruno@clisp.org>
 
 	* unix.d (fd_read): Renamed from read_helper.
