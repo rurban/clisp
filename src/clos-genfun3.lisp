@@ -217,8 +217,11 @@
                          :method-class <standard-method>))))))
          (method
            (if (listp method-or-initargs)
-             (apply #'make-method-instance (std-gf-default-method-class gf)
-                    method-or-initargs)
+             ;; Here we don't pass the initargs to allocate-instance since the
+             ;; final initargs contain a pointer to the method instance.
+             (let ((method (allocate-method-instance (std-gf-default-method-class gf))))
+               (apply #'initialize-method-instance method method-or-initargs)
+               method)
              method-or-initargs)))
     (std-add-method gf method)
     method))
@@ -445,8 +448,11 @@
                 (nreverse user-defined-args)
                 ;; list of the method-forms
                 (mapcar #'(lambda (method-initargs-forms)
-                            `(MAKE-METHOD-INSTANCE ,method-class-form
-                               ,@method-initargs-forms))
+                            ;; Here we don't pass the initargs to allocate-instance since the
+                            ;; final initargs contain a pointer to the method instance.
+                            `(LET ((METH (ALLOCATE-METHOD-INSTANCE ,method-class-form)))
+                               (INITIALIZE-METHOD-INSTANCE METH ,@method-initargs-forms)
+                               METH))
                   (nreverse method-forms)))))))
 
 ;; Parse a DEFGENERIC lambdalist:

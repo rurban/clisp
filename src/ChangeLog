@@ -1,3 +1,17 @@
+2004-10-10  Bruno Haible  <bruno@clisp.org>
+
+	Split method creation into separate allocation and initialization.
+	* clos-method1.lisp (make-method-instance): Remove function.
+	(allocate-method-instance, initialize-method-instance): New functions.
+	* clos-methcomb2.lisp (effective-method-code-bricks): Emit code to use
+	allocate-method-instance, initialize-method-instance instead of
+	make-method-instance.
+	* clos-genfun3.lisp (do-defmethod, analyze-defgeneric): Use
+	allocate-method-instance, initialize-method-instance instead of
+	make-method-instance.
+	* clos-method4.lisp (make-method-instance): Remove function.
+	(allocate-method-instance, initialize-method-instance): New functions.
+
 2004-10-18  Sam Steingold  <sds@gnu.org>
 
 	* io.d (pr_system): permit readable output for #<UNBOUND>
