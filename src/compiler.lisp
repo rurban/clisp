@@ -1420,6 +1420,46 @@ for-value   NIL or T
 (defun push-*denv* (declspecs)
   (setq *denv* (nreconc declspecs *denv*)))
 
+;; (declared-optimize quality) returns the optimization level for the given
+;; quality, as an integer between 0 and 3 (inclusive).
+;; quality - one of COMPILATION-SPEED, DEBUG, SAFETY, SPACE, SPEED.
+;; Current/future assignments:
+;; SAFETY >= 3 => keep function calls even to functions without side-effects
+;;                (for ANSI CL 3.5)
+;;        >= 2 =>
+;;        >= 1 =>
+;; DEBUG >= 3 =>
+;;       >= 2 => every function has an exit restart
+;;       >= 1 =>
+;; SPACE >= 3 =>
+;;       >= 2 =>
+;;       >= 1 =>
+;; SPEED >= 3 =>
+;;       >= 2 =>
+;;       >= 1 =>
+;; COMPILATION-SPEED >= 3 =>
+;;                   >= 2 =>
+;;                   >= 1 =>
+(defun declared-optimize (quality &optional (denv *denv*))
+  (loop
+    (when (atom denv)
+      (return-from declared-optimize 1))
+    (let ((declspec (car denv)))
+      (when (eq (car declspec) 'OPTIMIZE)
+        (dolist (optimspec (cdr declspec))
+          (cond ((eq optimspec quality)
+                 (return-from declared-optimize 3))
+                ((and (consp optimspec) (eq (car optimspec) quality)
+                      (consp (cdr optimspec)) (realp (second optimspec)))
+                 (let ((value (second optimspec)))
+                   (return-from declared-optimize
+                     (if (>= value 0)
+                       (if (<= value 3)
+                         (floor value)
+                         3)
+                       0))))))))
+    (setq denv (cdr denv))))
+
 
 ;;;;****             FUNCTION   MANAGEMENT
 
@@ -1587,8 +1627,6 @@ for-value   NIL or T
 ;;                              for the listed variables is in effect or not.
 ;;                              Only dynamic variables are in this list.
 ;;                T : ... can be influenced by binding any dynamic variable.
-;; OR NIL, which means that the anode is FOLDABLE (see lispbibl & control)
-;;   and may be evaluated at compile-time
 ;; (Here, variables are VAR-Structures for lexical variables and symbols for
 ;; dynamic variables.)
 ;; Consequently:
@@ -1609,14 +1647,22 @@ for-value   NIL or T
   (uses nil :read-only t)
   (modifies nil :read-only t)
   (uses-binding nil :read-only t))
-(proclaim '(inline seclass-foldable-p))
-(defun seclass-foldable-p (seclass) (null seclass))
 
-(defconstant *seclass-foldable* NIL)
 (defconstant *seclass-pure* (make-seclass))
 (defconstant *seclass-read* (make-seclass :uses 'T))
 (defconstant *seclass-dirty*
   (make-seclass :uses 'T :uses-binding 'T :modifies 'T))
+
+;; Side-Effect-Classes can also be attached to functions, not only to anodes.
+;; The SECLASS of a function can also be:
+;; NIL, which means that the function is constant-FOLDABLE
+;;   (i.e. two calls with identical arguments give the same result,
+;;    and calls with constant arguments can be evaluated at compile time;
+;;    in particular, no side effects, does not depend on global variables or
+;;    such, and does not even look "inside" its arguments).
+(proclaim '(inline seclass-foldable-p))
+(defun seclass-foldable-p (seclass) (null seclass))
+(defconstant *seclass-foldable* NIL)
 
 ;; (seclass-or class1 class2) determines the total class of execution
 (defun seclass-or (seclass1 seclass2)
@@ -2389,19 +2435,29 @@ for-value   NIL or T
 ;; class is computed correctly
 (defun f-side-effect (fun)
   (multiple-value-bind (seclass fdef name) (function-side-effect fun)
-    ;; for NOTINLINE functions, side effects are unpredictable!
-    (if (declared-notinline name) *seclass-dirty*
-      (let ((kf (assoc name *known-functions* :test #'equal)))
-        (if kf (fourth kf) ; defined in this compilation unit, use the seclass!
-          (if (equal *seclass-dirty* seclass) *seclass-dirty*
-            ;; seclass is not dirty ==> function is defined
-            (if (or (proclaimed-inline-p name)     ; inlined
-                    (subr-info fdef) ; SUBR
-                    (null name)      ; anonymous
-                    (let ((pack (symbol-package (get-funname-symbol name))))
-                      (or (null pack) (package-lock pack))))
-              seclass
-              *seclass-dirty*)))))))
+    ;; If SAFETY = 3, ANSI CL 3.5 requires us to signal errors about invalid
+    ;; arguments, and the simplest way to implement this requirement is to
+    ;; not omit the call. We don't keep track of the possibility of errors
+    ;; through the SECLASS currently. Therefore pretend the function has
+    ;; arbitrary side-effects.
+    (if (>= (declared-optimize 'SAFETY) 3)
+      *seclass-dirty*
+      ;; For NOTINLINE functions, side effects are unpredictable!
+      (if (declared-notinline name)
+        *seclass-dirty*
+        (let ((kf (assoc name *known-functions* :test #'equal)))
+          (if kf
+            (fourth kf) ; defined in this compilation unit, use the seclass!
+            (if (equal *seclass-dirty* seclass)
+              *seclass-dirty*
+              ;; seclass is not dirty ==> function is defined
+              (if (or (proclaimed-inline-p name)     ; inlined
+                      (subr-info fdef) ; SUBR
+                      (null name)      ; anonymous
+                      (let ((pack (symbol-package (get-funname-symbol name))))
+                        (or (null pack) (package-lock pack))))
+                seclass
+                *seclass-dirty*))))))))
 
 ;; global function call, normal (notinline): (fun {form}*)
 (defun c-NORMAL-FUNCTION-CALL (fun) ; fun is a symbol or (SETF symbol)
@@ -2986,6 +3042,13 @@ for-value   NIL or T
                ;; we make the call INLINE.
                (let ((sideeffects ; side-effect-class of the function-execution
                        (function-side-effect fun)))
+                 ;; If SAFETY = 3, ANSI CL 3.5 requires us to signal errors about invalid
+                 ;; arguments, and the simplest way to implement this requirement is to
+                 ;; not omit the call. We don't keep track of the possibility of errors
+                 ;; through the SECLASS currently. Therefore pretend the function has
+                 ;; arbitrary side-effects.
+                 (when (>= (declared-optimize 'SAFETY) 3)
+                   (setq sideeffects *seclass-dirty*))
                  (if (and (null *for-value*) (null (cdr sideeffects)))
                    ;; don't have to call the function,
                    ;; only evaluate the arguments
