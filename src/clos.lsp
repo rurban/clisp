@@ -4074,5 +4074,11 @@
   new-class-object
 )
 
+
+;;; Utility functions
+
+;; Returns the slot names of an instance of a slotted-class
+;; (i.e. of a structure-object or standard-object).
 (defun slot-names (object)
   (mapcar #'slotdef-name (class-slots (class-of object))))
+
