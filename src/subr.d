@@ -26,7 +26,7 @@
 
 # Expander für die Konstruktion der extern-Deklarationen:
   #define LISPFUN_A(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  \
-    extern subr_##rest_flag##_function C_##name;
+    extern subr_##rest_flag##_function_t C_##name;
 
 # Expander für die Konstruktion der Deklaration der C-Funktion:
   #define LISPFUN_B(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  \
@@ -40,7 +40,7 @@
 
 # Expander für die Initialisierung der SUBR-Tabelle:
   #define LISPFUN_D(name_,req_anz_,opt_anz_,rest_flag_,key_flag_,key_anz_,keywords_)  \
-    ptr->function = (lisp_function)(&C_##name_);  \
+    ptr->function = (lisp_function_t)(&C_##name_);  \
     ptr->name = S_help_(S_##name_);               \
     ptr->keywords = NIL; # vorläufig              \
     ptr->argtype = (uintW)subr_argtype(req_anz_,opt_anz_,subr_##rest_flag_,subr_##key_flag_); \
@@ -54,7 +54,7 @@
     ptr->name = S_help_(S_##name_); \
     ptr++;
   #define LISPFUN_F(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  \
-    { (lisp_function)(&C_##name), \
+    { (lisp_function_t)(&C_##name), \
       nullobj, # vorläufig        \
       nullobj, # vorläufig        \
       0, # vorläufig              \
@@ -65,7 +65,7 @@
       key_anz,                    \
     },
   #define LISPFUN_G(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  \
-    { (lisp_function)(&C_##name), \
+    { (lisp_function_t)(&C_##name), \
       S_help_(S_##name),          \
       NIL, # vorläufig            \
       0, # vorläufig              \

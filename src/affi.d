@@ -774,7 +774,7 @@ LISPFUN(affi_nonzerop,1,0,norest,nokey,0,NIL)
 
 uintC module__affi__object_tab_size = 0;
 object module__affi__object_tab[1];
-object_initdata module__affi__object_tab_initdata[1];
+object_initdata_t module__affi__object_tab_initdata[1];
 
 #undef LISPFUN
 #define LISPFUN LISPFUN_F
@@ -794,7 +794,7 @@ subr_ module__affi__subr_tab[subr_anz] = {
   LISPFUN(affi_nonzerop,1,0,norest,nokey,0,NIL)
 };
 
-subr_initdata module__affi__subr_tab_initdata[subr_anz] = {
+subr_initdata_t module__affi__subr_tab_initdata[subr_anz] = {
   LISPSYM(affi_libcall,"%LIBCALL",system)
   LISPSYM(mem_read,"MEM-READ",system)
   LISPSYM(mem_write,"MEM-WRITE",system)
