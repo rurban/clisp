@@ -389,6 +389,17 @@
   <listitem><simpara>Return the owner of the file.</simpara>
    <simpara>Works on both &unix; and &win32;.</simpara>
  </listitem></varlistentry>
+ <varlistentry id="priority"><term><code>(OS:PRIORITY &pid-r;
+    &optional-amp; &what-r;)</code></term>
+  <listitem><simpara>Return the process priority (&integer-t; on &unix;,
+    calls &getpriority;, &symbol-t; on &win32;,
+    calls <function>GetPriorityClass</function>).</simpara>
+   <simpara>&setf;able using &setpriority; and
+    <function>SetPriorityClass</function>.</simpara></listitem></varlistentry>
+ <varlistentry id="process-id"><term><code>(OS:PROCESS-ID)</code></term>
+  <listitem><simpara>Return the process ID (on &unix; calls &getpid;,
+    on &win32; calls <function>GetCurrentProcessId</function>)
+ </simpara></listitem></varlistentry>
 </variablelist>
 
 </section>
