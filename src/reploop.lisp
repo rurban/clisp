@@ -334,11 +334,10 @@ Continue       :c       continue evaluation")
 (defun commands4 ()
   (list
    (TEXT "
-Continue       :c       continue evaluation
 Step           :s       step into form: evaluate this form in single step mode
 Next           :n       step over form: evaluate this form at once
 Over           :o       step over this level: evaluate at once up to the next return
-Continue       :c      switch off single step mode, continue evaluation
+Continue       :c       switch off single step mode, continue evaluation
 -- Step-until :su, Next-until :nu, Over-until :ou, Continue-until :cu --
            same as above, specify a condition when to stop")
    (cons "Step"         #'(lambda () (throw 'stepper 'into)))
@@ -360,6 +359,14 @@ Continue       :c      switch off single step mode, continue evaluation
    (cons "Continue-until" #'(lambda () (throw 'stepper (values 'continue t))))
    (cons ":cu"          #'(lambda () (throw 'stepper (values 'continue t))))))
 
+(defun commands (may-continue commandsr)
+  (nconc (commands1)
+         (when (eval-frame-p *debug-frame*)
+           (commands2))
+         (when may-continue
+           (commands3))
+         commandsr))
+
 ;; Main-Loop with additional help-command
 (defun main-loop ()
   (setq *break-count* 0)
@@ -371,7 +378,7 @@ Continue       :c      switch off single step mode, continue evaluation
                (string-concat (prompt-string1)
                               (prompt-string2)
                               (prompt-string3))
-               (copy-list (commands0)))
+               (commands0))
                                         ; T -> #<EOF>
            (exit)
                                         ; NIL -> form is already evaluated
@@ -494,13 +501,7 @@ Continue       :c      switch off single step mode, continue evaluation
                     #'(lambda ()
                         (if    ; read-eval-print INPUT-line
                             (read-eval-print
-                              prompt
-                              (nconc (copy-list (commands1))
-                                     (when (eval-frame-p *debug-frame*)
-                                       (copy-list (commands2)))
-                                     (when may-continue
-                                       (copy-list (commands3)))
-                                     commandsr))
+                              prompt (commands may-continue commandsr))
                                         ; T -> #<EOF>
                           (throw 'debug (if may-continue 'quit 'unwind))
                           ;; NIL -> form is already evaluated; result has been printed
@@ -598,12 +599,7 @@ Continue       :c      switch off single step mode, continue evaluation
                               #'(lambda ()
                                   (if ; get/read INPUT-line
                                       (read-eval-print
-                                        prompt
-                                        (nconc (copy-list (commands1))
-                                               (when (eval-frame-p *debug-frame*)
-                                                 (copy-list (commands2)))
-                                               (copy-list (commands4))
-                                               ))
+                                        prompt (commands nil (commands4)))
 					; T -> #<EOF>
                                     (go continue)
 					; NIL -> form is already evaluated; result has been printed
