@@ -3,6 +3,24 @@
 ;;; Copyright (C) 2000 by Sam Steingold
 ;;; This is Free Software, covered by the GNU GPL (v2)
 ;;; See http://www.gnu.org/copyleft/gpl.html
+;;;
+;;; This code is adapted from CLOCC/CLLIB/inspect.lisp.
+;;; Please see http://clocc.sourceforge.net/ and
+;;; ftp://clocc.sourceforge.net/pub/clocc/snapshots/cllib.html
+;;; for details.
+;;;  
+;;; Please do not fork a separate CLISP version of this file!
+;;; All changes should first go into CLOCC/CLLIB/inspect.lisp first,
+;;; and only then merged into this file.
+;;; If you encounter a bug in this file, please set sys::*inspect-debug*
+;;; to 5 and report all output with a detailed description of what you did
+;;; to <clisp-list> (see http://clisp.cons.org about CLISP mailing lists),
+;;; as you do with any other CLISP bugs.
+;;; If you would like to fix a bug in this file, please get CLOCC from 
+;;; the link above, build PORT and CLLIB as described there, and work
+;;; on CLOCC/CLLIB/inspect.lisp.
+;;; ___no patches to this file will be accepted by the CLISP maintainers___
+;;;             - Sam Steingold
 
 ;;;
 ;;; utilities from cllib
