@@ -24,9 +24,9 @@
                    (lambda ()
                      (sleep timeout)
                      (unless done
-                       (interrupt-process thr (lambda ()
-                                                (return-from timeout
-                                                  (funcall timeoutf)))))))
+                       (thread-interrupt thr (lambda ()
+                                               (return-from timeout
+                                                 (funcall timeoutf)))))))
       (unwind-protect (funcall bodyf)
         (setf done t)))))
 
