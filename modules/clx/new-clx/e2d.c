@@ -890,7 +890,6 @@ void init (void)
    */
   push ("FFI", known_packages);		/* very likely */
   push ("SCREEN", known_packages); 	/* also likely */
-  push ("STDWIN", known_packages); 	/* Not very probable */
 #endif
 }
 

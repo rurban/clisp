@@ -371,7 +371,7 @@ if test -n "$do_config"; then
   done
   # Prepare the configure files.
   chmod a+x $ABS_DIRNAME/configure
-  for subdir in readline newreadline stdwin avcall callback; do
+  for subdir in readline newreadline avcall callback; do
     if test -d $ABS_DIRNAME/$subdir; then
       chmod a+x $ABS_DIRNAME/$subdir/configure
     fi
@@ -386,17 +386,16 @@ if test -n "$do_config"; then
   fi
   ${CONFIG_SHELL-/bin/sh} configure $subdir_srcdir_args $subdir_configure_args
   subdir_configure_args="$subdir_configure_args --cache-file=../config.cache"
-  for subdir in readline newreadline gettext stdwin; do
+  for subdir in readline newreadline gettext; do
     if test -d $subdir; then
       echo "executing $DIRNAME/$subdir/configure ..."
       cd $subdir
-      if test -n "$INPLACE" -o $subdir = newreadline -o $subdir = gettext -o $subdir = stdwin; then
+      if test -n "$INPLACE" -o $subdir = newreadline -o $subdir = gettext; then
         subdir_srcdir_args=''
       else
         subdir_srcdir_args="--srcdir=$RREL_SRCDIR/src/$subdir"
       fi
       ${CONFIG_SHELL-/bin/sh} configure $subdir_srcdir_args \
-         `if test $subdir = stdwin; then echo "--with-x11"; fi` \
          $subdir_configure_args
     cd ..
     fi

@@ -8227,7 +8227,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
       FREE_DYNAMIC_ARRAY(ascizvar##_data);                       \
     }}
 #endif
-# wird verwendet von MISC, FOREIGN, STDWIN
+# wird verwendet von MISC, FOREIGN
 
 # In some foreign modules, we call library functions that can do callbacks.
 # When we pass a parameter to such a library function, maybe it first does a
@@ -8254,7 +8254,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
       }                                                      \
       FREE_DYNAMIC_ARRAY(charptrvar##_data);                 \
     }}
-# wird verwendet von STDWIN
+# wird verwendet von
 
 # UP: Liefert eine Tabelle aller Zirkularitäten innerhalb eines Objekts.
 # (Eine Zirkularität ist ein in diesem Objekt enthaltenes Teil-Objekt,
@@ -10483,7 +10483,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # < uintL len: Anzahl der Zeichen des Strings.
 # < uintB* ergebnis: Anfangsadresse der Bytes
   extern uintB* unpack_string (object string, uintL* len);
-# wird verwendet von STREAM, HASHTABL, PACKAGE, SPVW, STDWIN, GRAPH
+# wird verwendet von STREAM, HASHTABL, PACKAGE, SPVW, GRAPH
 
 # UP: vergleicht zwei Strings auf Gleichheit
 # string_gleich(string1,string2)
@@ -11001,14 +11001,14 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > obj: fehlerhaftes Argument
 # > subr_self: Aufrufer (ein SUBR)
   nonreturning_function(extern, fehler_string_char, (object obj));
-# wird verwendet von IO, STDWIN
+# wird verwendet von IO
 
 # Fehlermeldung, falls ein Argument kein String ist:
 # fehler_string(obj);
 # > obj: Das fehlerhafte Argument
 # > subr_self: Aufrufer (ein SUBR)
   nonreturning_function(extern, fehler_string, (object obj));
-# wird verwendet von CHARSTRG, FOREIGN, STDWIN
+# wird verwendet von CHARSTRG, FOREIGN
 
 # Fehlermeldung, falls ein Argument kein Simple-String ist:
 # fehler_sstring(obj);
@@ -11648,7 +11648,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > obj: ein Objekt, sollte ein Integer >=-2^31, <2^31 sein
 # < ergebnis: der Wert des Integer als Longword.
   extern sintL I_to_L (object obj);
-# wird verwendet von STDWIN
+# wird verwendet von
 
 #if (defined(HAVE_FFI) || defined(HAVE_AFFI)) && defined(HAVE_LONGLONG)
 

@@ -10,6 +10,12 @@
 
         * arilev1c.d (eqv_loop_up, nand_loop_up): Fix typo in declaration.
 
+1998-06-15  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
+        * lispbibl.d: Remove the last vestiges of STDWIN.
+        * configure: Likewise.
+        * clx/new-clx/clx.f, clx/new-clx/e2d.c: Likewise.
+
 1998-06-10  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 	
 	* io.d (pr_enter_1, pr_enter_2, pr_enter): New functions, generalizing
