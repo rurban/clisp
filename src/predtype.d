@@ -176,7 +176,11 @@ global bool equal (object obj1, object obj2)
           var object ss2 = array_displace_check(obj2,len1,&index2);
           /* ssi is the data vector, indexi the Index into the data vector
              for obji (i=1,2). */
-          return string_eqcomp(ss1,index1,ss2,index2,len1);
+          if (simple_nilarray_p(ss1) || simple_nilarray_p(ss2))
+            /* obj1 or obj2 has element type NIL. */
+            return eq(ss1,ss2);
+          else
+            return string_eqcomp(ss1,index1,ss2,index2,len1);
         }
         return true;
       } else {
@@ -697,7 +701,7 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_snilvector: /* (VECTOR NIL) */
           /* One can argue that comparing nonexistent elements should yield
              an error, not false. */
-          /*fehler_retrieve(dv2);*/
+          /*fehler_nilarray_retrieve();*/
           return false;
         default: NOTREACHED;
       }
@@ -722,7 +726,7 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_snilvector: /* (VECTOR NIL) */
           /* One can argue that comparing nonexistent elements should yield
              an error, not false. */
-          /*fehler_retrieve(dv2);*/
+          /*fehler_nilarray_retrieve();*/
           return false;
         default: NOTREACHED;
       }
@@ -747,7 +751,7 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_snilvector: /* (VECTOR NIL) */
           /* One can argue that comparing nonexistent elements should yield
              an error, not false. */
-          /*fehler_retrieve(dv2);*/
+          /*fehler_nilarray_retrieve();*/
           return false;
         default: NOTREACHED;
       }
@@ -772,7 +776,7 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_snilvector: /* (VECTOR NIL) */
           /* One can argue that comparing nonexistent elements should yield
              an error, not false. */
-          /*fehler_retrieve(dv2);*/
+          /*fehler_nilarray_retrieve();*/
           return false;
         default: NOTREACHED;
       }
@@ -797,7 +801,7 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_snilvector: /* (VECTOR NIL) */
           /* One can argue that comparing nonexistent elements should yield
              an error, not false. */
-          /*fehler_retrieve(dv2);*/
+          /*fehler_nilarray_retrieve();*/
           return false;
         default: NOTREACHED;
       }
@@ -822,7 +826,7 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_snilvector: /* (VECTOR NIL) */
           /* One can argue that comparing nonexistent elements should yield
              an error, not false. */
-          /*fehler_retrieve(dv2);*/
+          /*fehler_nilarray_retrieve();*/
           return false;
         default: NOTREACHED;
       }
@@ -847,7 +851,7 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_snilvector: /* (VECTOR NIL) */
           /* One can argue that comparing nonexistent elements should yield
              an error, not false. */
-          /*fehler_retrieve(dv2);*/
+          /*fehler_nilarray_retrieve();*/
           return false;
         default: NOTREACHED;
       }
@@ -867,7 +871,7 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_snilvector: /* (VECTOR NIL) */
           /* One can argue that comparing nonexistent elements should yield
              an error, not false. */
-          /*fehler_retrieve(dv2);*/
+          /*fehler_nilarray_retrieve();*/
           return false;
         default: NOTREACHED;
       }
@@ -883,7 +887,7 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_sstring: /* Simple-String */
           /* One can argue that comparing nonexistent elements should yield
              an error, not false. */
-          /*fehler_retrieve(dv1);*/
+          /*fehler_nilarray_retrieve();*/
           return false;
         case Array_type_snilvector: /* (VECTOR NIL) */
           /* One can argue that comparing nonexistent elements should yield
@@ -1300,13 +1304,13 @@ LISPFUNNF(simple_array_p,1)
 { /* (SYSTEM::SIMPLE-ARRAY-P object) */
   var object arg = popSTACK();
   VALUES_IF(simplep(arg)
-            || (arrayp(arg) && /* other arrays, only if all flag bits = 0 */
-                ((Iarray_flags(arg)
-                  & (bit(arrayflags_adjustable_bit)
-                     | bit(arrayflags_fillp_bit)
-                     | bit(arrayflags_displaced_bit)
-                     | bit(arrayflags_dispoffset_bit) ))
-                 == 0)));
+            || (arrayp(arg) /* other arrays, only if all flag bits = 0 */
+                && ((Iarray_flags(arg)
+                     & (bit(arrayflags_adjustable_bit)
+                        | bit(arrayflags_fillp_bit)
+                        | bit(arrayflags_displaced_bit)
+                        | bit(arrayflags_dispoffset_bit) ))
+                    == 0)));
 }
 
 LISPFUNNF(bit_vector_p,1)
@@ -1326,7 +1330,15 @@ LISPFUNNF(simple_vector_p,1)
 
 LISPFUNNF(simple_string_p,1)
 { /* (SIMPLE-STRING-P object), CLTL p. 75 */
-  VALUES_IF(simple_string_p(STACK_0)); skipSTACK(1);
+  var object arg = popSTACK();
+  VALUES_IF(simple_string_p(arg)
+            || (stringp(arg)
+                && ((Iarray_flags(arg)
+                     & (bit(arrayflags_adjustable_bit)
+                        | bit(arrayflags_fillp_bit)
+                        | bit(arrayflags_displaced_bit)
+                        | bit(arrayflags_dispoffset_bit) ))
+                    == 0)));
 }
 
 LISPFUNNF(simple_bit_vector_p,1)
@@ -1396,12 +1408,59 @@ LISPFUNNR(type_of,1)
       Car(Cdr(value1)) = fixnum(Weakkvt_length(popSTACK())%2);
       Cdr(Cdr(value1)) = NIL;
       break;
-    case_ostring: /* other string -> ([BASE-]STRING dim0) */
-     #if (base_char_code_limit == char_code_limit)
-      pushSTACK(S(base_string)); goto vectors;
-     #else
-      pushSTACK(S(string)); goto vectors;
-     #endif
+    case_ostring: /* other string */
+      /* -> ([BASE-]STRING dim0) or (VECTOR NIL dim0) or (SIMPLE-ARRAY NIL (dim0)) */
+      {
+        var bool simple =
+          ((Iarray_flags(arg)
+            & (bit(arrayflags_adjustable_bit)
+               | bit(arrayflags_fillp_bit)
+               | bit(arrayflags_displaced_bit)
+               | bit(arrayflags_dispoffset_bit) ))
+           == 0);
+        switch (Iarray_flags(arg) & arrayflags_atype_mask) {
+          case Atype_NIL:
+            pushSTACK(array_dimensions(arg)); /* list of dimensions */
+            if (simple) {
+              {
+                var object new_cons = allocate_cons();
+                Cdr(new_cons) = NIL; Car(new_cons) = popSTACK();
+                pushSTACK(new_cons);
+              }
+              {
+                var object new_cons = allocate_cons();
+                Cdr(new_cons) = popSTACK(); Car(new_cons) = NIL;
+                pushSTACK(new_cons);
+              }
+              {
+                var object new_cons = allocate_cons();
+                Cdr(new_cons) = popSTACK(); Car(new_cons) = S(simple_array);
+                value1 = new_cons;
+              }
+            } else {
+              {
+                var object new_cons = allocate_cons();
+                Cdr(new_cons) = popSTACK(); Car(new_cons) = NIL;
+                pushSTACK(new_cons);
+              }
+              {
+                var object new_cons = allocate_cons();
+                Cdr(new_cons) = popSTACK(); Car(new_cons) = S(vector);
+                value1 = new_cons;
+              }
+            }
+            break;
+          case Atype_Char:
+            ASSERT(!simple);
+           #if (base_char_code_limit == char_code_limit)
+            pushSTACK(S(base_string)); goto vectors;
+           #else
+            pushSTACK(S(string)); goto vectors;
+           #endif
+          default: NOTREACHED;
+        }
+      }
+      break;
     vectors: /* type of the vector in STACK_0 */
       pushSTACK(array_dimensions(arg)); /* list of dimensions */
       {
@@ -1411,7 +1470,7 @@ LISPFUNNR(type_of,1)
       }
       break;
     case_ovector: /* other general-vector */
-      /* -> (SIMPLE-ARRAY eltype (dim0)) or (VECTOR eltype dim0) */
+      /* -> (SIMPLE-ARRAY T (dim0)) or (VECTOR T dim0) */
       {
         var bool simple =
           ((Iarray_flags(arg)
@@ -1420,12 +1479,6 @@ LISPFUNNR(type_of,1)
                | bit(arrayflags_displaced_bit)
                | bit(arrayflags_dispoffset_bit) ))
            == 0);
-        var object eltype;
-        switch (Iarray_flags(arg) & arrayflags_atype_mask) {
-          case Atype_NIL: eltype = NIL; break;
-          case Atype_T: eltype = T; break;
-          default: NOTREACHED;
-        }
         pushSTACK(array_dimensions(arg)); /* list of dimensions */
         if (simple) {
           {
@@ -1435,7 +1488,7 @@ LISPFUNNR(type_of,1)
           }
           {
             var object new_cons = allocate_cons();
-            Cdr(new_cons) = popSTACK(); Car(new_cons) = eltype;
+            Cdr(new_cons) = popSTACK(); Car(new_cons) = T;
             pushSTACK(new_cons);
           }
           {
@@ -1446,7 +1499,7 @@ LISPFUNNR(type_of,1)
         } else {
           {
             var object new_cons = allocate_cons();
-            Cdr(new_cons) = popSTACK(); Car(new_cons) = eltype;
+            Cdr(new_cons) = popSTACK(); Car(new_cons) = T;
             pushSTACK(new_cons);
           }
           {
@@ -2292,8 +2345,8 @@ enum { /* The values of this enumeration are 0,1,2,...
   enum_hs_simple_8bit_vector,
   enum_hs_simple_16bit_vector,
   enum_hs_simple_32bit_vector,
-  enum_hs_simple_string,
   enum_hs_simple_nilvector,
+  enum_hs_simple_string,
   enum_hs_simple_vector,
   enum_hs_bit_vector,
   enum_hs_2bit_vector,
@@ -2301,8 +2354,8 @@ enum { /* The values of this enumeration are 0,1,2,...
   enum_hs_8bit_vector,
   enum_hs_16bit_vector,
   enum_hs_32bit_vector,
-  enum_hs_string,
   enum_hs_nilvector,
+  enum_hs_string,
   enum_hs_vector,
   enum_hs_simple_array,
   enum_hs_array,
@@ -2551,9 +2604,6 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
       pighole = &locals->builtins[(int)enum_hs_32bit_vector];
       break;
     case_ostring: /* other String */
-      pighole = &locals->builtins[(int)enum_hs_string];
-      break;
-    case_ovector: /* other general-vector */
       if ((Iarray_flags(obj) & arrayflags_atype_mask) == Atype_NIL) {
         if ((Iarray_flags(obj)
              & (  bit(arrayflags_adjustable_bit)
@@ -2565,7 +2615,10 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
         else
           pighole = &locals->builtins[(int)enum_hs_nilvector];
       } else
-        pighole = &locals->builtins[(int)enum_hs_vector];
+        pighole = &locals->builtins[(int)enum_hs_string];
+      break;
+    case_ovector: /* other general-vector */
+      pighole = &locals->builtins[(int)enum_hs_vector];
       break;
     case_mdarray: /* other Array */
       if ((Iarray_flags(obj)

@@ -44,22 +44,24 @@ local uint32 string_hashcode (object string) {
   var uintL len;
   var uintL offset;
   string = unpack_string_ro(string,&len,&offset);
-  SstringDispatch(string,X, {
-    var const cintX* charptr = &((SstringX)TheVarobject(string))->data[offset];
-    /* there are len characters, starting at charptr */
-    var uint32 hashcode = 0; /* hashcode, only the lower 24 Bit count */
-    /* Look at all len characters, not just at the first min(len,16)
-       characters, as we did earlier, because a bad hash function quasi
-       turns the hash table into a few long linear lists. */
-    var uintC count;
-    dotimesC(count, len, {
-      /* rotate hashcode by 5 bits to the left: */
-      hashcode = hashcode << 5; hashcode = hashcode + (hashcode >> 24);
-      /* 'add' next byte via XOR: */
-      hashcode = hashcode ^ (uint32)(*charptr++);
+  var uint32 hashcode = 0; /* hashcode, only the lower 24 Bit count */
+  if (len > 0) {
+    SstringDispatch(string,X, {
+      var const cintX* charptr = &((SstringX)TheVarobject(string))->data[offset];
+      /* there are len characters, starting at charptr */
+      /* Look at all len characters, not just at the first min(len,16)
+         characters, as we did earlier, because a bad hash function quasi
+         turns the hash table into a few long linear lists. */
+      var uintC count;
+      dotimesC(count, len, {
+        /* rotate hashcode by 5 bits to the left: */
+        hashcode = hashcode << 5; hashcode = hashcode + (hashcode >> 24);
+        /* 'add' next byte via XOR: */
+        hashcode = hashcode ^ (uint32)(*charptr++);
+      });
     });
-    return hashcode & 0x00FFFFFF;
-  });
+  }
+  return hashcode & 0x00FFFFFF;
 }
 
 /* UP: Reorganizes a symbol-table, after it has grown, and

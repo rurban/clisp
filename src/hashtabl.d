@@ -264,7 +264,7 @@ local uint32 hashcode_string (object obj) {
   var uintL offset;
   var object string = unpack_string_ro(obj,&len,&offset);
   var uint32 bish_code = 0x33DAE11FUL + len; /* utilize length */
-  if (len > 0) {
+  if (len > 0 && !simple_nilarray_p(string)) {
     SstringDispatch(string,X, {
       var const cintX* ptr = &((SstringX)TheVarobject(string))->data[offset];
       bish_code ^= (uint32)(ptr[len-1]);        /* add last character */
@@ -638,10 +638,12 @@ local uint32 hashcode4_vector (object dv, uintL index,
       return hashcode4_vector_16Bit(dv,index,count,bish_code);
     case Array_type_sb32vector:
       return hashcode4_vector_32Bit(dv,index,count,bish_code);
+    case Array_type_snilvector: /* (VECTOR NIL) */
+      if (count > 0)
+        return 0x2116ECD0 + bish_code;
+      /*FALLTHROUGH*/
     case Array_type_sstring:    /* simple-string */
       return hashcode4_vector_Char(dv,index,count,bish_code);
-    case Array_type_snilvector: /* (VECTOR NIL) */
-      return 0x2116ECD0 + bish_code;
     default: NOTREACHED;
   }
 }

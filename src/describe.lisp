@@ -437,7 +437,7 @@ to print the corresponding values, or T for all of them.")
         (when (array-has-fill-pointer-p obj)
           (format stream (TEXT " and current length (fill-pointer) ~S")
                   (fill-pointer obj))))
-      (when (stringp obj)
+      (when (and (stringp obj) (not (eq eltype 'NIL)))
         #-UNICODE
         (format stream (TEXT " (a string)"))
         #+UNICODE

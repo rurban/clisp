@@ -263,11 +263,13 @@ global object reallocate_small_string (object string, uintB newtype) {
     SstringCase(string,
       { copy_8bit_32bit(&TheS8string(string)->data[0],&TheS32string(newstring)->data[0],len); },
       { copy_16bit_32bit(&TheS16string(string)->data[0],&TheS32string(newstring)->data[0],len); },
+      abort();,
       abort();
       );
   } else if (newtype == Sstringtype_16Bit) {
     SstringCase(string,
       { copy_8bit_16bit(&TheS8string(string)->data[0],&TheS16string(newstring)->data[0],len); },
+      abort();,
       abort();,
       abort();
       );

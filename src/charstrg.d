@@ -546,7 +546,7 @@ global uintBWL smallest_string_flavour32 (const uint32* src, uintL len) {
  > object string: a string
  < uintL len: the fill-pointer length of the string
  < uintL offset: offset into the datastorage vector
- < object result: datastorage vector */
+ < object result: datastorage vector, a simple-string or NIL */
 global object unpack_string_ro (object string, uintL* len, uintL* offset) {
   if (simple_string_p(string)) {
     sstring_un_realloc(string);
@@ -577,11 +577,14 @@ global object unpack_string_ro (object string, uintL* len, uintL* offset) {
  unpack_string_rw(string,&len)  [for read-write access]
  > object string: a string
  < uintL len: the fill-pointer length of the string
- < uintL offset: Offset in the Data-Vector.
- < object result: Data-Vector */
+ < uintL offset: offset in the datastorage vector
+ < object result: datastorage vector, a simple-string or NIL */
 global object unpack_string_rw (object string, uintL* len, uintL* offset) {
   var object unpacked = unpack_string_ro(string,len,offset);
-  check_sstring_mutable(unpacked);
+  if (*len > 0) {
+    if (simple_nilarray_p(unpacked)) fehler_nilarray_access();
+    check_sstring_mutable(unpacked);
+  }
   return unpacked;
 }
 
@@ -858,10 +861,13 @@ global object copy_string_normal (object string) {
                 { copy_16bit_32bit(&TheS16string(string)->data[offset],
                                    &TheS32string(new_string)->data[0],len); },
                 { copy_32bit_32bit(&TheS32string(string)->data[offset],
-                                   &TheS32string(new_string)->data[0],len); });
+                                   &TheS32string(new_string)->data[0],len); },
+                { fehler_nilarray_retrieve(); });
    #else
-    copy_8bit_8bit(&TheS8string(string)->data[offset],
-                   &TheS8string(new_string)->data[0],len);
+    SstringCase(string, { NOTREACHED; }, { NOTREACHED; },
+                { copy_8bit_8bit(&TheS8string(string)->data[offset],
+                                 &TheS8string(new_string)->data[0],len); },
+                { fehler_nilarray_retrieve(); });
    #endif
   }
   return new_string;
@@ -884,7 +890,8 @@ global object copy_string (object string) {
     SstringCase(string,
       { flavour = smallest_string_flavour8(&TheS8string(string)->data[offset],len); },
       { flavour = smallest_string_flavour16(&TheS16string(string)->data[offset],len); },
-      { flavour = smallest_string_flavour32(&TheS32string(string)->data[offset],len); });
+      { flavour = smallest_string_flavour32(&TheS32string(string)->data[offset],len); },
+      { flavour = Sstringtype_8Bit; });
   } else
     flavour = Sstringtype_32Bit;
   pushSTACK(string); /* save string */
@@ -902,7 +909,8 @@ global object copy_string (object string) {
                   { copy_16bit_8bit(&TheS16string(string)->data[offset],
                                     &TheS8string(new_string)->data[0],len); },
                   { copy_32bit_8bit(&TheS32string(string)->data[offset],
-                                    &TheS8string(new_string)->data[0],len); });
+                                    &TheS8string(new_string)->data[0],len); },
+                  { fehler_nilarray_retrieve(); });
     } else if (flavour == Sstringtype_16Bit) {
       SstringCase(string,
                   { copy_8bit_16bit(&TheS8string(string)->data[offset],
@@ -910,7 +918,8 @@ global object copy_string (object string) {
                   { copy_16bit_16bit(&TheS16string(string)->data[offset],
                                      &TheS16string(new_string)->data[0],len); },
                   { copy_32bit_16bit(&TheS32string(string)->data[offset],
-                                     &TheS16string(new_string)->data[0],len); });
+                                     &TheS16string(new_string)->data[0],len); },
+                  { NOTREACHED; });
     } else {
       SstringCase(string,
                   { copy_8bit_32bit(&TheS8string(string)->data[offset],
@@ -918,7 +927,8 @@ global object copy_string (object string) {
                   { copy_16bit_32bit(&TheS16string(string)->data[offset],
                                      &TheS32string(new_string)->data[0],len); },
                   { copy_32bit_32bit(&TheS32string(string)->data[offset],
-                                     &TheS32string(new_string)->data[0],len); });
+                                     &TheS32string(new_string)->data[0],len); },
+                  { NOTREACHED; });
     }
   }
   return new_string;
@@ -988,6 +998,10 @@ global object coerce_imm_ss (object obj)
           var uintL len;
           var uintL offset;
           var object string = unpack_string_ro(obj,&len,&offset);
+          if (simple_nilarray_p(string)) {
+            if (len > 0) fehler_nilarray_retrieve();
+            return allocate_imm_string(0);
+          }
           #ifdef UNICODE
           #ifdef HAVE_SMALL_SSTRING
           if (sstring_eltype(TheSstring(string)) == Sstringtype_8Bit) {
@@ -1173,7 +1187,8 @@ global object coerce_imm_normal_ss (object obj)
               { copy_16bit_32bit(&TheS16string(string)->data[offset],
                                  &TheS32string(new_string)->data[0],len); },
               { copy_32bit_32bit(&TheS32string(string)->data[offset],
-                                 &TheS32string(new_string)->data[0],len); });
+                                 &TheS32string(new_string)->data[0],len); },
+              { fehler_nilarray_retrieve(); });
           }
           return new_string;
         }
@@ -1189,10 +1204,13 @@ LISPFUNNR(string_info,1)
 { /* (SYS::STRING-INFO str) => char-len(8/16/32); immutable-p; realloc-p */
   var object str = popSTACK();
   if (stringp(str)) {
-    value3 = NIL;
-    while (!simple_string_p(str)) {
-      str = TheIarray(str)->data;
+    if (!simple_string_p(str)) {
+      if ((Iarray_flags(str) & arrayflags_atype_mask) == Atype_NIL) goto other;
+      do {
+        str = TheIarray(str)->data;
+      } while (!simple_string_p(str));
     }
+    value3 = NIL;
     while (sstring_reallocatedp(TheSstring(str))) {
       value3 = T;
       str = TheSistring(str)->data;
@@ -1200,6 +1218,7 @@ LISPFUNNR(string_info,1)
     value2 = (sstring_immutable(TheSstring(str)) ? T : NIL);
     value1 = fixnum(8 << sstring_eltype(TheSstring(str)));
   } else
+   other:
     value1 = value2 = value3 = NIL;
   mv_count = 3;
 }
@@ -2154,8 +2173,13 @@ LISPFUNNR(char,2)
 LISPFUNNR(schar,2)
 { /* (SCHAR string integer), CLTL p. 300 */
   var object string = STACK_1;
-  if (!simple_string_p(string))
-    fehler_sstring(string);
+  if (!simple_string_p(string)) { /* must be a simple-string */
+    if (stringp(string)
+        && (Iarray_flags(string) & arrayflags_atype_mask) == Atype_NIL)
+      fehler_nilarray_store();
+    else
+      fehler_sstring(string);
+  }
   sstring_un_realloc(string);
   var uintL index = test_index_arg(Sstring_length(string));
   VALUES1(code_char(schar(string,index)));
@@ -2178,6 +2202,7 @@ LISPFUNN(store_char,3)
   } else {
     len = TheIarray(string)->totalsize;
     string = iarray_displace_check(string,len,&offset);
+    if (simple_nilarray_p(string)) fehler_nilarray_store();
   }
   check_sstring_mutable(string);
   offset += test_index_arg(len); /* go to the element addressed by index */
@@ -2191,8 +2216,13 @@ LISPFUNN(store_schar,3)
    = (SETF (SCHAR simple-string index) newchar), CLTL p. 300 */
   var object newchar = check_char(popSTACK()); /* newchar-argument */
   var object string = STACK_1; /* string-argument */
-  if (!simple_string_p(string)) /* must be a simple-string */
-    fehler_sstring(string);
+  if (!simple_string_p(string)) { /* must be a simple-string */
+    if (stringp(string)
+        && (Iarray_flags(string) & arrayflags_atype_mask) == Atype_NIL)
+      fehler_nilarray_store();
+    else
+      fehler_sstring(string);
+  }
   sstring_un_realloc(string);
   check_sstring_mutable(string);
   var uintL offset = test_index_arg(Sstring_length(string)); /* go to the element addressed by index */
@@ -2210,6 +2240,8 @@ LISPFUNN(store_schar,3)
  < result: vector-argument
  increases STACK by 3 */
 global object test_vector_limits (stringarg* arg) {
+  if (arg->len > 0 && simple_nilarray_p(arg->string))
+    fehler_nilarray_retrieve();
   var uintL start, end;
   /* arg->len is the length (<2^oint_data_len).
      check :START-argument:
@@ -2259,8 +2291,10 @@ global object test_string_limits_ro (stringarg* arg) {
  increases STACK by 3 */
 local object test_string_limits_rw (stringarg* arg) {
   var object string = test_string_limits_ro(arg);
-  if (arg->len > 0)
+  if (arg->len > 0) {
+    if (simple_nilarray_p(arg->string)) fehler_nilarray_access();
     check_sstring_mutable(arg->string);
+  }
   return string;
 }
 
@@ -2356,6 +2390,10 @@ local void test_2_stringsym_limits (stringarg* arg1, stringarg* arg2) {
     string1 = popSTACK(); /* restore string1 */
     arg1->string = unpack_string_ro(string1,&len1,&arg1->offset);
     /* now, len1 is the length (<2^oint_data_len) of string1. */
+    if (arg1->len > 0 && simple_nilarray_p(arg1->string))
+      fehler_nilarray_retrieve();
+    if (arg2->len > 0 && simple_nilarray_p(arg2->string))
+      fehler_nilarray_retrieve();
   }
   { /* check :START1 and :END1: */
     var uintL start1;
@@ -2431,22 +2469,25 @@ global bool string_eqcomp (object string1, uintL offset1, object string2,
  < ergebnis: 0 if equal,
              -1 if string1 is genuinely lesser than string2,
              +1 if string1 is genuinely bigger than string2. */
-local signean string_comp (stringarg* arg1, const stringarg* arg2){
+local signean string_comp (stringarg* arg1, const stringarg* arg2) {
   var uintL len1 = arg1->len;
   var uintL len2 = arg2->len;
   SstringCase(arg1->string, {
     var const cint8* charptr1_0 = &TheS8string(arg1->string)->data[arg1->offset];
     var const cint8* charptr1 = &charptr1_0[arg1->index];
+    /* one of the strings empty ? */
+    if (len1==0) goto A_string1_end;
+    if (len2==0) goto A_string2_end;
     SstringDispatch(arg2->string,X2, {
       var const cintX2* charptr2 = &((SstringX2)TheVarobject(arg2->string))->data[arg2->offset+arg2->index];
       loop {
-        /* one of the strings finished ? */
-        if (len1==0) goto A_string1_end;
-        if (len2==0) goto A_string2_end;
         /* compare next characters: */
         if (!chareq(as_chart(*charptr1++),as_chart(*charptr2++))) break;
         /* decrease both counters: */
         len1--; len2--;
+        /* one of the strings finished ? */
+        if (len1==0) goto A_string1_end;
+        if (len2==0) goto A_string2_end;
       }
       /* two different characters are found */
       arg1->index = --charptr1 - charptr1_0;
@@ -2467,16 +2508,19 @@ local signean string_comp (stringarg* arg1, const stringarg* arg2){
   }, {
     var const cint16* charptr1_0 = &TheS16string(arg1->string)->data[arg1->offset];
     var const cint16* charptr1 = &charptr1_0[arg1->index];
+    /* one of the strings empty ? */
+    if (len1==0) goto B_string1_end;
+    if (len2==0) goto B_string2_end;
     SstringDispatch(arg2->string,X2, {
       var const cintX2* charptr2 = &((SstringX2)TheVarobject(arg2->string))->data[arg2->offset+arg2->index];
       loop {
-        /* one of the strings finished ? */
-        if (len1==0) goto B_string1_end;
-        if (len2==0) goto B_string2_end;
         /* compare next characters: */
         if (!chareq(as_chart(*charptr1++),as_chart(*charptr2++))) break;
         /* decrease both counters: */
         len1--; len2--;
+        /* one of the strings finished ? */
+        if (len1==0) goto B_string1_end;
+        if (len2==0) goto B_string2_end;
       }
       /* two different characters are found */
       arg1->index = --charptr1 - charptr1_0;
@@ -2497,16 +2541,19 @@ local signean string_comp (stringarg* arg1, const stringarg* arg2){
   }, {
     var const cint32* charptr1_0 = &TheS32string(arg1->string)->data[arg1->offset];
     var const cint32* charptr1 = &charptr1_0[arg1->index];
+    /* one of the strings empty ? */
+    if (len1==0) goto C_string1_end;
+    if (len2==0) goto C_string2_end;
     SstringDispatch(arg2->string,X2, {
       var const cintX2* charptr2 = &((SstringX2)TheVarobject(arg2->string))->data[arg2->offset+arg2->index];
       loop {
-        /* one of the strings finished ? */
-        if (len1==0) goto C_string1_end;
-        if (len2==0) goto C_string2_end;
         /* compare next characters: */
         if (!chareq(as_chart(*charptr1++),as_chart(*charptr2++))) break;
         /* decrease both counters: */
         len1--; len2--;
+        /* one of the strings finished ? */
+        if (len1==0) goto C_string1_end;
+        if (len2==0) goto C_string2_end;
       }
       /* two different characters are found */
       arg1->index = --charptr1 - charptr1_0;
@@ -2523,6 +2570,20 @@ local signean string_comp (stringarg* arg1, const stringarg* arg2){
       return signean_minus;
   C_string2_end: /* string2 is finished, string1 is not yet finished */
     arg1->index = charptr1 - charptr1_0;
+    return signean_plus; /* string2 is a genuine starting piece of string1 */
+  }, {
+    /* one of the strings empty ? */
+    if (len1==0) goto D_string1_end;
+    if (len2==0) goto D_string2_end;
+    fehler_nilarray_retrieve();
+  D_string1_end: /* string1 finished */
+    arg1->index = 0;
+    if (len2==0)
+      return signean_null; /* string1 = string2 */
+    else /* string1 is a genuine starting piece of string2 */
+      return signean_minus;
+  D_string2_end: /* string2 is finished, string1 is not yet finished */
+    arg1->index = 0;
     return signean_plus; /* string2 is a genuine starting piece of string1 */
   });
 }
@@ -2634,16 +2695,19 @@ local signean string_comp_ci (stringarg* arg1, const stringarg* arg2)
     var const cint8* charptr1 = &charptr1_0[arg1->index];
     var chart ch1;
     var chart ch2;
+    /* one of the strings empty ? */
+    if (len1==0) goto A_string1_end;
+    if (len2==0) goto A_string2_end;
     SstringDispatch(arg2->string,X2, {
       var const cintX2* charptr2 = &((SstringX2)TheVarobject(arg2->string))->data[arg2->offset+arg2->index];
       loop {
-        /* is one of the strings finished ? */
-        if (len1==0) goto A_string1_end;
-        if (len2==0) goto A_string2_end;
         /* compare next characters: */
         if (!chareq(ch1 = up_case(as_chart(*charptr1++)), ch2 = up_case(as_chart(*charptr2++)))) break;
         /* decrease both counters: */
         len1--; len2--;
+        /* is one of the strings finished ? */
+        if (len1==0) goto A_string1_end;
+        if (len2==0) goto A_string2_end;
       }
     });
     /* two different characters are found */
@@ -2666,16 +2730,19 @@ local signean string_comp_ci (stringarg* arg1, const stringarg* arg2)
     var const cint16* charptr1 = &charptr1_0[arg1->index];
     var chart ch1;
     var chart ch2;
+    /* one of the strings empty ? */
+    if (len1==0) goto B_string1_end;
+    if (len2==0) goto B_string2_end;
     SstringDispatch(arg2->string,X2, {
       var const cintX2* charptr2 = &((SstringX2)TheVarobject(arg2->string))->data[arg2->offset+arg2->index];
       loop {
-        /* is one of the strings finished ? */
-        if (len1==0) goto B_string1_end;
-        if (len2==0) goto B_string2_end;
         /* compare next characters: */
         if (!chareq(ch1 = up_case(as_chart(*charptr1++)), ch2 = up_case(as_chart(*charptr2++)))) break;
         /* decrease both counters: */
         len1--; len2--;
+        /* is one of the strings finished ? */
+        if (len1==0) goto B_string1_end;
+        if (len2==0) goto B_string2_end;
       }
     });
     /* two different characters are found */
@@ -2698,16 +2765,19 @@ local signean string_comp_ci (stringarg* arg1, const stringarg* arg2)
     var const cint32* charptr1 = &charptr1_0[arg1->index];
     var chart ch1;
     var chart ch2;
+    /* one of the strings empty ? */
+    if (len1==0) goto C_string1_end;
+    if (len2==0) goto C_string2_end;
     SstringDispatch(arg2->string,X2, {
       var const cintX2* charptr2 = &((SstringX2)TheVarobject(arg2->string))->data[arg2->offset+arg2->index];
       loop {
-        /* is one of the strings finished ? */
-        if (len1==0) goto C_string1_end;
-        if (len2==0) goto C_string2_end;
         /* compare next characters: */
         if (!chareq(ch1 = up_case(as_chart(*charptr1++)), ch2 = up_case(as_chart(*charptr2++)))) break;
         /* decrease both counters: */
         len1--; len2--;
+        /* is one of the strings finished ? */
+        if (len1==0) goto C_string1_end;
+        if (len2==0) goto C_string2_end;
       }
     });
     /* two different characters are found */
@@ -2724,6 +2794,20 @@ local signean string_comp_ci (stringarg* arg1, const stringarg* arg2)
       return signean_minus; /* string1 is a genuine starting piece of string2 */
    C_string2_end: /* string2 is finished, string1 is not yet finished */
     arg1->index = charptr1 - charptr1_0;
+    return signean_plus; /* string2 is a genuine starting piece of string1 */
+  }, {
+    /* one of the strings empty ? */
+    if (len1==0) goto D_string1_end;
+    if (len2==0) goto D_string2_end;
+    fehler_nilarray_retrieve();
+  D_string1_end: /* string1 finished */
+    arg1->index = 0;
+    if (len2==0)
+      return signean_null; /* string1 = string2 */
+    else /* string1 is a genuine starting piece of string2 */
+      return signean_minus;
+  D_string2_end: /* string2 is finished, string1 is not yet finished */
+    arg1->index = 0;
     return signean_plus; /* string2 is a genuine starting piece of string1 */
   });
 }
@@ -3049,6 +3133,8 @@ global void nstring_upcase (object dv, uintL offset, uintL len) {
       var cint32* charptr = &TheS32string(dv)->data[offset];
       do { *charptr = as_cint(up_case(as_chart(*charptr))); charptr++;
       } while (--len);
+    },{
+      fehler_nilarray_retrieve();
     });
 }
 
@@ -3121,6 +3207,8 @@ global void nstring_downcase (object dv, uintL offset, uintL len) {
       var cint32* charptr = &TheS32string(dv)->data[offset];
       do { *charptr = as_cint(down_case(as_chart(*charptr))); charptr++;
       } while (--len);
+    },{
+      fehler_nilarray_retrieve();
     });
 }
 
@@ -3172,88 +3260,92 @@ LISPFUN(string_downcase,seclass_read,1,0,norest,key,2, (kw(start),kw(end)) )
   resp. search for end of word (and do convert).
  can trigger GC */
 global void nstring_capitalize (object dv, uintL offset, uintL len) {
-  var chart ch;
-  SstringCase(dv,{
-    /* Search the start of a word. */
-   search_wordstart_8:
-    while (len!=0) {
-      ch = as_chart(TheS8string(dv)->data[offset]);
-      if (alphanumericp(ch))
-        goto wordstart_8;
-      offset++; len--;
-    }
-    return; /* len = 0 -> string terminated */
-    /* Found the start of a word. */
-   wordstart_8:
-    dv = sstring_store(dv,offset,up_case(ch));
-    loop {
-      offset++;
-      if (sstring_reallocatedp(TheSstring(dv))) { /* has it been reallocated? */
-        dv = TheSistring(dv)->data;
-        SstringCase(dv, NOTREACHED;, goto in_word_16;, goto in_word_32; );
+  if (len > 0) {
+    var chart ch;
+    SstringCase(dv,{
+      /* Search the start of a word. */
+     search_wordstart_8:
+      while (len!=0) {
+        ch = as_chart(TheS8string(dv)->data[offset]);
+        if (alphanumericp(ch))
+          goto wordstart_8;
+        offset++; len--;
       }
-     in_word_8:
-      if (--len==0)
-        break;
-      ch = as_chart(TheS8string(dv)->data[offset]);
-      if (!alphanumericp(ch))
-        goto search_wordstart_8;
-      dv = sstring_store(dv,offset,down_case(ch));
-    }
-    return; /* len = 0 -> string terminated */
-  },{
-    /* Search the start of a word. */
-   search_wordstart_16:
-    while (len!=0) {
-      ch = as_chart(TheS16string(dv)->data[offset]);
-      if (alphanumericp(ch))
-        goto wordstart_16;
-      offset++; len--;
-    }
-    return; /* len = 0 -> string terminated */
-    /* Found the start of a word. */
-   wordstart_16:
-    dv = sstring_store(dv,offset,up_case(ch));
-    loop {
-      offset++;
-      if (sstring_reallocatedp(TheSstring(dv))) { /* has it been reallocated? */
-        dv = TheSistring(dv)->data;
-        SstringCase(dv, NOTREACHED;, NOTREACHED;, goto in_word_32; );
+      return; /* len = 0 -> string terminated */
+      /* Found the start of a word. */
+     wordstart_8:
+      dv = sstring_store(dv,offset,up_case(ch));
+      loop {
+        offset++;
+        if (sstring_reallocatedp(TheSstring(dv))) { /* has it been reallocated? */
+          dv = TheSistring(dv)->data;
+          SstringCase(dv, NOTREACHED;, goto in_word_16;, goto in_word_32;, NOTREACHED; );
+        }
+       in_word_8:
+        if (--len==0)
+          break;
+        ch = as_chart(TheS8string(dv)->data[offset]);
+        if (!alphanumericp(ch))
+          goto search_wordstart_8;
+        dv = sstring_store(dv,offset,down_case(ch));
       }
-    in_word_16:
-      if (--len==0)
-        break;
-      ch = as_chart(TheS16string(dv)->data[offset]);
-      if (!alphanumericp(ch))
-        goto search_wordstart_16;
-      dv = sstring_store(dv,offset,down_case(ch));
-    }
-    return; /* len = 0 -> string terminated */
-  },{
-    /* Search the start of a word. */
-               search_wordstart_32:
-    while (len!=0) {
-      ch = as_chart(TheS32string(dv)->data[offset]);
-      if (alphanumericp(ch))
-        goto wordstart_32;
-      offset++; len--;
-    }
-    return; /* len = 0 -> string terminated */
-    /* Found the start of a word. */
-   wordstart_32:
-    TheS32string(dv)->data[offset] = as_cint(up_case(ch));
-    loop {
-      offset++;
-    in_word_32:
-      if (--len==0)
-        break;
-      ch = as_chart(TheS32string(dv)->data[offset]);
-      if (!alphanumericp(ch))
-        goto search_wordstart_32;
-      TheS32string(dv)->data[offset] = as_cint(down_case(ch));
-    }
-    return; /* len = 0 -> string terminated */
-  });
+      return; /* len = 0 -> string terminated */
+    },{
+      /* Search the start of a word. */
+     search_wordstart_16:
+      while (len!=0) {
+        ch = as_chart(TheS16string(dv)->data[offset]);
+        if (alphanumericp(ch))
+          goto wordstart_16;
+        offset++; len--;
+      }
+      return; /* len = 0 -> string terminated */
+      /* Found the start of a word. */
+     wordstart_16:
+      dv = sstring_store(dv,offset,up_case(ch));
+      loop {
+        offset++;
+        if (sstring_reallocatedp(TheSstring(dv))) { /* has it been reallocated? */
+          dv = TheSistring(dv)->data;
+          SstringCase(dv, NOTREACHED;, NOTREACHED;, goto in_word_32;, NOTREACHED; );
+        }
+      in_word_16:
+        if (--len==0)
+          break;
+        ch = as_chart(TheS16string(dv)->data[offset]);
+        if (!alphanumericp(ch))
+          goto search_wordstart_16;
+        dv = sstring_store(dv,offset,down_case(ch));
+      }
+      return; /* len = 0 -> string terminated */
+    },{
+      /* Search the start of a word. */
+     search_wordstart_32:
+      while (len!=0) {
+        ch = as_chart(TheS32string(dv)->data[offset]);
+        if (alphanumericp(ch))
+          goto wordstart_32;
+        offset++; len--;
+      }
+      return; /* len = 0 -> string terminated */
+      /* Found the start of a word. */
+     wordstart_32:
+      TheS32string(dv)->data[offset] = as_cint(up_case(ch));
+      loop {
+        offset++;
+      in_word_32:
+        if (--len==0)
+          break;
+        ch = as_chart(TheS32string(dv)->data[offset]);
+        if (!alphanumericp(ch))
+          goto search_wordstart_32;
+        TheS32string(dv)->data[offset] = as_cint(down_case(ch));
+      }
+      return; /* len = 0 -> string terminated */
+    },{
+      fehler_nilarray_retrieve();
+    });
+  }
 }
 
 LISPFUN(nstring_capitalize,seclass_default,1,0,norest,key,2,
@@ -3311,10 +3403,13 @@ global object subsstring (object string, uintL start, uintL end) {
       { copy_16bit_32bit(&TheS16string(string)->data[start],
                          &TheS32string(new_string)->data[0],count); },
       { copy_32bit_32bit(&TheS32string(string)->data[start],
-                         &TheS32string(new_string)->data[0],count); });
+                         &TheS32string(new_string)->data[0],count); },
+      { fehler_nilarray_retrieve(); });
    #else
-    copy_8bit_8bit(&TheS8string(string)->data[start],
-                   &TheS8string(new_string)->data[0],count);
+    SstringCase(string, { NOTREACHED; }, { NOTREACHED; },
+      { copy_8bit_8bit(&TheS8string(string)->data[start],
+                       &TheS8string(new_string)->data[0],count); },
+      { fehler_nilarray_retrieve(); });
    #endif
   }
   DBGREALLOC(new_string);
@@ -3363,10 +3458,13 @@ LISPFUN(substring,seclass_read,2,1,norest,nokey,0,NIL)
       { copy_16bit_32bit(&TheS16string(string)->data[offset+start],
                          &TheS32string(new_string)->data[0],count); },
       { copy_32bit_32bit(&TheS32string(string)->data[offset+start],
-                         &TheS32string(new_string)->data[0],count); });
+                         &TheS32string(new_string)->data[0],count); },
+      { fehler_nilarray_retrieve(); });
    #else
-    copy_8bit_8bit(&TheS8string(string)->data[offset+start],
-                   &TheS8string(new_string)->data[0],count);
+    SstringCase(string, { NOTREACHED; }, { NOTREACHED; },
+      { copy_8bit_8bit(&TheS8string(string)->data[offset+start],
+                       &TheS8string(new_string)->data[0],count); },
+      { fehler_nilarray_retrieve(); });
    #endif
   }
   DBGREALLOC(new_string);
@@ -3413,9 +3511,12 @@ global object string_concat (uintC argcount) {
           { copy_16bit_32bit(&TheS16string(string)->data[offset],
                              charptr2,len); },
           { copy_32bit_32bit(&TheS32string(string)->data[offset],
-                             charptr2,len); });
+                             charptr2,len); },
+          { fehler_nilarray_retrieve(); });
        #else
-        copy_8bit_8bit(&TheS8string(string)->data[offset],charptr2,len);
+        SstringCase(string, { NOTREACHED; }, { NOTREACHED; },
+          { copy_8bit_8bit(&TheS8string(string)->data[offset],charptr2,len); },
+          { fehler_nilarray_retrieve(); });
        #endif
         charptr2 += len;
       }

@@ -23,7 +23,7 @@ global char* clisp_type_of (object o) {
   return TheSbvector(ret)->data;
 }
 global void sstring_printf (object sstr, uintL len, uintL offset) {
-  uintL index;
+  var uintL index;
   ASSERT(simple_string_p(sstr));
   sstring_un_realloc(sstr);
   printf("<%d/%d\"",len,offset);
@@ -32,10 +32,13 @@ global void sstring_printf (object sstr, uintL len, uintL offset) {
   printf("\">");
 }
 global void string_printf (object str) {
-  uintL len, offset;
+  var uintL len, offset;
   ASSERT(stringp(str));
   str = unpack_string_ro(str,&len,&offset);
-  sstring_printf(str,len,offset);
+  if (simple_nilarray_p(str))
+    printf("<%d/%d>",len,offset);
+  else
+    sstring_printf(str,len,offset);
 }
 #define NL_TYPE(x) \
  (eq(x,S(Klinear))? 'L' : eq(x,S(Kmiser)) ? 'M' : eq(x,S(Kfill)) ? 'F' : 'D')
@@ -5055,6 +5058,7 @@ global void write_string (const gcv_object_t* stream_, object string) {
     var uintL len = vector_length(string); # length
     var uintL offset = 0; # offset of string in the data-vector
     var object sstring = iarray_displace_check(string,len,&offset); # data-vector
+    if (len > 0 && simple_nilarray_p(sstring)) fehler_nilarray_retrieve();
     write_sstring_ab(stream_,sstring,offset,len);
   }
 }
@@ -6679,6 +6683,7 @@ local pr_routine_t pr_array_nil;
 local pr_routine_t pr_bvector;
 local pr_routine_t pr_vector;
 local pr_routine_t pr_weakkvt;
+local pr_routine_t pr_nilvector;
 local pr_routine_t pr_array;
 local pr_routine_t pr_instance;
 local pr_routine_t pr_structure;
@@ -6969,19 +6974,22 @@ local void pr_symbol_part (const gcv_object_t* stream_, object string,
   pushSTACK(string);
   # stack layout: syntax_table, string.
   write_ascii_char(stream_,'|');
-  SstringDispatch(STACK_0,X, {
-    var uintL index = 0;
-    for (; index < len; index++) {
-      var chart c = as_chart(((SstringX)TheVarobject(STACK_0))->data[index]); # the next character
-      switch (syntax_table_get(STACK_1,c)) { # its Syntaxcode
-        case syntax_single_esc:
-        case syntax_multi_esc: # The Escape-Character c is prepended by '\':
-          write_ascii_char(stream_,'\\');
-        default: ;
-      }
-      write_code_char(stream_,c); # print Character
-    }
-  });
+  if (len > 0) {
+    SstringDispatch(STACK_0,X, {
+      var uintL index = 0;
+      do {
+        var chart c = as_chart(((SstringX)TheVarobject(STACK_0))->data[index]); # the next character
+        switch (syntax_table_get(STACK_1,c)) { # its Syntaxcode
+          case syntax_single_esc:
+          case syntax_multi_esc: # The Escape-Character c is prepended by '\':
+            write_ascii_char(stream_,'\\');
+          default: ;
+        }
+        write_code_char(stream_,c); # print Character
+        index++;
+      } while (index < len);
+    });
+  }
   write_ascii_char(stream_,'|');
   skipSTACK(2);
 }
@@ -7051,37 +7059,39 @@ local void pr_sstring_ab (const gcv_object_t* stream_, object string,
     pushSTACK(string); # save simple-string
     write_ascii_char(stream_,'"'); # prepend a quotation mark
     string = STACK_0;
-#if 0
-    SstringDispatch(string,X, {
-      dotimesL(len,len, {
-        var chart c = as_chart(((SstringX)TheVarobject(STACK_0))->data[index]); # next character
-        # if c = #\" or c = #\\ first print a '\':
-        if (chareq(c,ascii('"')) || chareq(c,ascii('\\')))
-          write_ascii_char(stream_,'\\');
-        write_code_char(stream_,c);
-        index++;
-      });
-    });
-#else # the same stuff, a little optimized
-    SstringDispatch(string,X, {
-      var uintL index0 = index;
-      loop { # search the next #\" or #\\ :
-        string = STACK_0;
-        while (len > 0) {
-          var chart c = as_chart(((SstringX)TheVarobject(string))->data[index]);
+    if (len > 0) {
+      #if 0
+      SstringDispatch(string,X, {
+        dotimespL(len,len, {
+          var chart c = as_chart(((SstringX)TheVarobject(STACK_0))->data[index]); # next character
+          # if c = #\" or c = #\\ first print a '\':
           if (chareq(c,ascii('"')) || chareq(c,ascii('\\')))
+            write_ascii_char(stream_,'\\');
+          write_code_char(stream_,c);
+          index++;
+        });
+      });
+      #else # the same stuff, a little optimized
+      SstringDispatch(string,X, {
+        var uintL index0 = index;
+        loop { # search the next #\" or #\\ :
+          string = STACK_0;
+          while (len > 0) {
+            var chart c = as_chart(((SstringX)TheVarobject(string))->data[index]);
+            if (chareq(c,ascii('"')) || chareq(c,ascii('\\')))
+              break;
+            index++; len--;
+          }
+          if (!(index==index0))
+            write_sstring_ab(stream_,string,index0,index-index0);
+          if (len==0)
             break;
-          index++; len--;
+          write_ascii_char(stream_,'\\');
+          index0 = index; index++; len--;
         }
-        if (!(index==index0))
-          write_sstring_ab(stream_,string,index0,index-index0);
-        if (len==0)
-          break;
-        write_ascii_char(stream_,'\\');
-        index0 = index; index++; len--;
-      }
-    });
-#endif
+      });
+      #endif
+    }
     write_ascii_char(stream_,'"'); # append a quotation mark
     skipSTACK(1);
   } else # without escape-character: only write_sstring_ab
@@ -7098,7 +7108,10 @@ local void pr_string (const gcv_object_t* stream_, object string) {
   var uintL len = vector_length(string); # length
   var uintL offset = 0; # Offset of string in the data-vector
   var object sstring = array_displace_check(string,len,&offset); # data-vector
-  pr_sstring_ab(stream_,sstring,offset,len);
+  if (!simple_nilarray_p(sstring))
+    pr_sstring_ab(stream_,sstring,offset,len);
+  else # nilvector
+    pr_nilvector(stream_,string);
 }
 
 #                    -------- Conses, Lists --------
@@ -7407,12 +7420,18 @@ local void pr_number (const gcv_object_t* stream_, object number) {
   }
 }
 
-#define UNREADABLE_START                                        \
-  write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<'); \
-  INDENT_START(2); /* indent by 2 characters because of '#<' */ \
-  JUSTIFY_START(1)
+#define UNREADABLE_START  \
+  do {                                                            \
+    write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<'); \
+    INDENT_START(2); /* indent by 2 characters because of '#<' */ \
+    JUSTIFY_START(1);                                             \
+  } while (0)
 
-#define UNREADABLE_END     INDENT_END;write_ascii_char(stream_,'>')
+#define UNREADABLE_END  \
+  do {                             \
+    INDENT_END;                    \
+    write_ascii_char(stream_,'>'); \
+  } while (0)
 
 #            -------- Arrays when *PRINT-ARRAY*=NIL --------
 
@@ -7508,13 +7527,7 @@ local void pr_vector (const gcv_object_t* stream_, object v) {
       # process vector elementwise:
       var uintL len = vector_length(v); # vector-length
       var uintL offset = 0; # offset of vector into the data-vector
-      var bool vector_nil_p = false;
-      {
-        var object sv = array_displace_check(v,len,&offset); # data-vector
-        if (Array_type(sv) == Array_type_snilvector)
-          readable = vector_nil_p = true;
-        pushSTACK(sv); # save simple-vektor
-      }
+      pushSTACK(array_displace_check(v,len,&offset)); # save data-vector
       var gcv_object_t* sv_ = &STACK_0; # and memorize, where it is
       var uintL index = 0 + offset; # startindex = 0 in the vector
       if (readable) {
@@ -7523,42 +7536,38 @@ local void pr_vector (const gcv_object_t* stream_, object v) {
         INDENT_START(3); # indent by 3 characters because of '#A('
         JUSTIFY_START(1);
         JUSTIFY_LAST(false);
-        prin_object_dispatch(stream_, vector_nil_p ? NIL : array_element_type(*sv_)); # print element-type
+        prin_object_dispatch(stream_,array_element_type(*sv_)); # print element-type
         JUSTIFY_SPACE;
         JUSTIFY_LAST(false);
         pushSTACK(fixnum(len));
         pr_list(stream_,listof(1)); # print list with the length
-        if (!vector_nil_p) { /* not a (VECTOR NIL) */
-          JUSTIFY_SPACE;
-          JUSTIFY_LAST(true);
-          KLAMMER_AUF; # '('
-          INDENT_START(1); # indent by  1 character because of '('
-        }
+        JUSTIFY_SPACE;
+        JUSTIFY_LAST(true);
+        KLAMMER_AUF; # '('
+        INDENT_START(1); # indent by  1 character because of '('
       } else {
         write_ascii_char(stream_,'#');
         KLAMMER_AUF; # '('
         INDENT_START(2); # indent by 2 characters because of '#('
       }
-      if (!vector_nil_p) { /* if not a (VECTOR NIL) print contents */
-        JUSTIFY_START(1);
-        for (; len > 0; len--) {
-          # print Space (unless in front of first elemnt):
-          if (!(length==0))
-            JUSTIFY_SPACE;
-          # check for attaining of *PRINT-LENGTH* :
-          CHECK_LENGTH_LIMIT(length >= length_limit,break);
-          # test for attaining of *PRINT-LINES* :
-          CHECK_LINES_LIMIT(break);
-          JUSTIFY_LAST(len==1);
-          # print vector-element:
-          prin_object(stream_,storagevector_aref(*sv_,index));
-          length++; # increment length
-          index++; # then go to vector-element
-        }
-        JUSTIFY_END_FILL;
-        INDENT_END;
-        KLAMMER_ZU;
+      JUSTIFY_START(1);
+      for (; len > 0; len--) {
+        # print Space (unless in front of first elemnt):
+        if (!(length==0))
+          JUSTIFY_SPACE;
+        # check for attaining of *PRINT-LENGTH* :
+        CHECK_LENGTH_LIMIT(length >= length_limit,break);
+        # test for attaining of *PRINT-LINES* :
+        CHECK_LINES_LIMIT(break);
+        JUSTIFY_LAST(len==1);
+        # print vector-element:
+        prin_object(stream_,storagevector_aref(*sv_,index));
+        length++; # increment length
+        index++; # then go to vector-element
       }
+      JUSTIFY_END_FILL;
+      INDENT_END;
+      KLAMMER_ZU;
       if (readable) {
         JUSTIFY_END_FILL;
         INDENT_END;
@@ -7635,6 +7644,31 @@ local void pr_weakkvt (const gcv_object_t* stream_, object wkvt) {
   UNREADABLE_END;
   LEVEL_END;
   skipSTACK(1);
+}
+
+#                -------- Nil-Vectors --------
+
+# UP: prints a vector of element type NIL to stream.
+# pr_nilvector(&stream,v);
+# > v: vector of element type NIL
+# > stream: stream
+# < stream: stream
+# can trigger GC
+local void pr_nilvector (const gcv_object_t* stream_, object v) {
+  var uintL len = vector_length(v); # vector-length
+  write_ascii_char(stream_,'#'); write_ascii_char(stream_,'A');
+  KLAMMER_AUF; # print '('
+  INDENT_START(3); # indent by 3 characters because of '#A('
+  JUSTIFY_START(1);
+  JUSTIFY_LAST(false);
+  prin_object_dispatch(stream_,NIL); # print element-type
+  JUSTIFY_SPACE;
+  JUSTIFY_LAST(true);
+  pushSTACK(fixnum(len));
+  pr_list(stream_,listof(1)); # print list with the length
+  JUSTIFY_END_ENG;
+  INDENT_END;
+  KLAMMER_ZU;
 }
 
 #               -------- Multi-Dimensional Arrays --------
