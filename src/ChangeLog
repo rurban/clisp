@@ -1,3 +1,13 @@
+2003-01-04  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
+	Fix mingw compilation
+	* pathname.d (resolve_shell_shortcut) [WIN32_NATIVE]:
+	use number instead of missing SLGP_RAWPATH, cast to void - avoid
+	a warning.
+	(TrueName) [WIN32_NATIVE]: inline isalpha.
+	* win32aux.d (MyCreateProcess): fix declaration.
+	(abort): call exit to avoid a warning.
+
 2003-01-03  Stefan Kain  <stefan.kain@freenet.de>
 
 	* lisparit.d, intelem.d: translated all comments
