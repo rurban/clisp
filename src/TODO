@@ -6,12 +6,6 @@ URGENT PROBLEMS
 Should handle these soon.
 
 
-Documentation:
-- Mention app delivery with concatenated fas files, and with mem files.
-  Refer to copyright notice.
-- Impnotes section command-line: refer to clisp.html.
-
-
 Better error checking in get-setf-expansion for long defsetf
 
 
@@ -103,9 +97,6 @@ CLOSE :ABORT T maybe do something on file streams.
 
 
 Emacs interface: How to customize (or fix?) ILISP?
-
-
-Install .dvi man page as well, not only .[13] and .html man page.
 
 
 Having two different handlings of Ctrl-C (once as a serious-condition, once
