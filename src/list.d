@@ -884,11 +884,7 @@ LISPFUN(append,seclass_read,0,0,rest,nokey,0,NIL)
 
 LISPFUNNR(copy_list,1)
 { /* (COPY-LIST list), CLTL p. 268 */
-  var object list = popSTACK();
-  if (listp(list)) {
-    VALUES1(copy_list(list));
-  } else
-    fehler_list(list);
+  VALUES1(copy_list(check_list(popSTACK())));
 }
 
 # UP: Kopiert eine Aliste
@@ -991,15 +987,12 @@ LISPFUN(nconc,seclass_default,0,0,rest,nokey,0,NIL) # (NCONC {list}), CLTL S. 26
     }
   }
 
-LISPFUNN(nreconc,2) # (NRECONC list1 list2), CLTL S. 269
-  {
-    var object list2 = popSTACK();
-    var object list1 = popSTACK();
-    if (listp(list1)) {
-      VALUES1(nreconc(list1,list2));
-    } else
-      fehler_list(list1);
-  }
+LISPFUNN(nreconc,2)             /* (NRECONC list1 list2), CLTL S. 269 */
+{
+  var object list1 = check_list(STACK_1);
+  var object list2 = STACK_0; skipSTACK(2);
+  VALUES1(nreconc(list1,list2));
+}
 
 LISPFUNN(list_nreverse,1) # (SYS::LIST-NREVERSE list)
 # wie (NREVERSE list), wenn list eine Liste ist.
@@ -1105,65 +1098,56 @@ LISPFUNNR(ldiff,2)
     VALUES1(new_list);
 }
 
-# Fehlermeldung für RPLACA und RPLACD u.ä.
-# fehler_cons(badobject)
-# > badobject: Nicht-Cons
-nonreturning_function(local, fehler_cons, (object badobject)) {
-  pushSTACK(badobject); # TYPE-ERROR slot DATUM
-  pushSTACK(S(cons)); # TYPE-ERROR slot EXPECTED-TYPE
-  pushSTACK(badobject); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: ~S is not a pair"));
+/* check for RPLACA and RPLACD
+ check_cons(obj)
+ > obj: potential cons */
+local object check_cons_replacement (object obj) {
+  do {
+    pushSTACK(NIL);               /* no PLACE */
+    pushSTACK(badobject);         /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(cons));           /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(badobject); pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~S: ~S is not a pair"));
+    obj = value1;
+  } while (atomp(obj));
+}
+#define check_cons(o)  if (matomp(o)) o = check_cons_replacement(o)
+
+LISPFUNN(rplaca,2)              /* (RPLACA cons object), CLTL S. 272 */
+{
+  check_cons(STACK_1);
+  var object arg2 = popSTACK();
+  var object arg1 = popSTACK();
+  Car(arg1) = arg2;
+  VALUES1(arg1);
 }
 
-LISPFUNN(rplaca,2) # (RPLACA cons object), CLTL S. 272
-  {
-    if (matomp(STACK_1))
-      fehler_cons(STACK_1);
-    else {
-      var object arg2 = popSTACK();
-      var object arg1 = popSTACK();
-      Car(arg1) = arg2;
-      VALUES1(arg1);
-    }
-  }
+LISPFUNN(prplaca,2)             /* (SYS::%RPLACA cons object) */
+{ /* like (RPLACA cons object), but return object as value */
+  check_cons(STACK_1);
+  var object arg2 = popSTACK();
+  var object arg1 = popSTACK();
+  Car(arg1) = arg2;
+  VALUES1(arg2);
+}
 
-LISPFUNN(prplaca,2) # (SYS::%RPLACA cons object)
-  # Wie (RPLACA cons object), hier jedoch object als Wert
-  {
-    if (matomp(STACK_1))
-      fehler_cons(STACK_1);
-    else {
-      var object arg2 = popSTACK();
-      var object arg1 = popSTACK();
-      Car(arg1) = arg2;
-      VALUES1(arg2);
-    }
-  }
+LISPFUNN(rplacd,2)              /* (RPLACD cons object), CLTL S. 272 */
+{
+  check_cons(STACK_1);
+  var object arg2 = popSTACK();
+  var object arg1 = popSTACK();
+  Cdr(arg1) = arg2;
+  VALUES1(arg1);
+}
 
-LISPFUNN(rplacd,2) # (RPLACD cons object), CLTL S. 272
-  {
-    if (matomp(STACK_1))
-      fehler_cons(STACK_1);
-    else {
-      var object arg2 = popSTACK();
-      var object arg1 = popSTACK();
-      Cdr(arg1) = arg2;
-      VALUES1(arg1);
-    }
-  }
-
-LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
-  # Wie (RPLACD cons object), hier jedoch object als Wert
-  {
-    if (matomp(STACK_1))
-      fehler_cons(STACK_1);
-    else {
-      var object arg2 = popSTACK();
-      var object arg1 = popSTACK();
-      Cdr(arg1) = arg2;
-      VALUES1(arg2);
-    }
-  }
+LISPFUNN(prplacd,2)             /* (SYS::%RPLACD cons object) */
+{ /* like (RPLACD cons object), but return object as value */
+  check_cons(STACK_1);
+  var object arg2 = popSTACK();
+  var object arg1 = popSTACK();
+  Cdr(arg1) = arg2;
+  VALUES1(arg2);
+}
 
 # Unterprogramm zum Ausführen des Tests :TEST
 # up_test(stackptr,x)
@@ -1894,71 +1878,61 @@ local object rassoc (object alist, gcv_object_t* stackptr,
 
 LISPFUN(rassoc,seclass_default,2,0,norest,key,3,
         (kw(test),kw(test_not),kw(key)) )
-  # (RASSOC item alist :test :test-not :key), CLTL S. 281
-  {
-    test_key_arg(); # :KEY-Argument in STACK_0
-    var up_function_t up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
-    VALUES1(rassoc(STACK_3,&STACK_1,up_fun)); /* do the search */
-    skipSTACK(5);
-  }
+{ /* (RASSOC item alist :test :test-not :key), CLTL S. 281 */
+  test_key_arg(); # :KEY-Argument in STACK_0
+  var up_function_t up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
+  VALUES1(rassoc(STACK_3,&STACK_1,up_fun)); /* do the search */
+  skipSTACK(5);
+}
 
 LISPFUN(rassoc_if,seclass_default,2,0,norest,key,1, (kw(key)) )
-  # (RASSOC-IF pred alist :key), CLTL S. 281
-  {
-    test_key_arg(); # :KEY-Argument in STACK_0
-    VALUES1(rassoc(STACK_1,&STACK_1,&up_if)); /* do the search */
-    skipSTACK(3);
-  }
+{ /* (RASSOC-IF pred alist :key), CLTL S. 281 */
+  test_key_arg(); # :KEY-Argument in STACK_0
+  VALUES1(rassoc(STACK_1,&STACK_1,&up_if)); /* do the search */
+  skipSTACK(3);
+}
 
 LISPFUN(rassoc_if_not,seclass_default,2,0,norest,key,1, (kw(key)) )
-  # (RASSOC-IF-NOT pred alist :key), CLTL S. 281
-  {
-    test_key_arg(); # :KEY-Argument in STACK_0
-    VALUES1(rassoc(STACK_1,&STACK_1,&up_if_not)); /* do the search */
-    skipSTACK(3);
-  }
+{ /* (RASSOC-IF-NOT pred alist :key), CLTL S. 281 */
+  test_key_arg(); # :KEY-Argument in STACK_0
+  VALUES1(rassoc(STACK_1,&STACK_1,&up_if_not)); /* do the search */
+  skipSTACK(3);
+}
 
-# Funktionen, die Listen zu Sequences machen:
+/* functions making lists sequences: */
 
 LISPFUNN(list_upd,2)
-  # #'(lambda (seq pointer) (cdr pointer))
-  {
-    VALUES1(cdr(popSTACK())); skipSTACK(1);
-  }
+{ /* #'(lambda (seq pointer) (cdr pointer)) */
+  VALUES1(cdr(popSTACK())); skipSTACK(1);
+}
 
 LISPFUNN(list_endtest,2)
-  # #'(lambda (seq pointer) (endp pointer))
-  {
-    VALUES_IF(endp(STACK_0)); skipSTACK(2);
-  }
+{ /* #'(lambda (seq pointer) (endp pointer)) */
+  VALUES_IF(endp(STACK_0)); skipSTACK(2);
+}
 
 LISPFUNN(list_fe_init,1)
-  # #'(lambda (seq) (revappend seq nil))
-  {
-    pushSTACK(NIL); C_revappend();
-  }
+{ /* #'(lambda (seq) (revappend seq nil)) */
+  pushSTACK(NIL); C_revappend();
+}
 
 LISPFUNN(list_access,2)
-  # #'(lambda (seq pointer) (car pointer))
-  {
-    var object pointer = popSTACK();
-    if (atomp(pointer))
-      fehler_cons(pointer);
-    VALUES1(Car(pointer));
-    skipSTACK(1);
-  }
+{ /* #'(lambda (seq pointer) (car pointer)) */
+  var object pointer = popSTACK();
+  check_cons(pointer);
+  VALUES1(Car(pointer));
+  skipSTACK(1);
+}
 
 LISPFUNN(list_access_set,3)
-  # #'(lambda (seq pointer value) (rplaca pointer value))
-  {
-    if (matomp(STACK_1))
-      fehler_cons(STACK_1);
-    var object value = popSTACK();
-    var object pointer = popSTACK();
-    Car(pointer) = value;
-    VALUES1(value);
-    skipSTACK(1);
-  }
+{ /* #'(lambda (seq pointer value) (rplaca pointer value)) */
+  check_cons(STACK_1);
+  var object value = popSTACK();
+  var object pointer = popSTACK();
+  Car(pointer) = value;
+  VALUES1(value);
+  skipSTACK(1);
+}
 
 LISPFUNN(list_llength,1)
 { /* #'(lambda (seq) (do ((L seq (cdr L)) (N 0 (1+ N))) ((endp L) N))) */
@@ -1968,11 +1942,11 @@ LISPFUNN(list_llength,1)
   VALUES1(fixnum(len));
 }
 
-# UP: Läuft bis zum Element index in einer Liste.
-# elt_up(seq,index)
-# > seq
-# > index
-# < ergebnis: Listenendstück ab diesem Index
+/* UP: get the list element at the given index
+ elt_up(seq,index)
+ > seq
+ > index
+ < ergebnis: list element at this index */
 local object elt_up (object seq, object index) {
   var object l = seq;
   var object n = Fixnum_0;
@@ -1986,119 +1960,110 @@ local object elt_up (object seq, object index) {
   }
   return l;
  index_too_large:
-  pushSTACK(index); # TYPE-ERROR slot DATUM
+  pushSTACK(index);             /* TYPE-ERROR slot DATUM */
   pushSTACK(NIL);
   pushSTACK(seq); pushSTACK(index); pushSTACK(TheSubr(subr_self)->name);
   {
     var object tmp;
     pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(n);
     tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
-    STACK_3 = tmp; # TYPE-ERROR slot EXPECTED-TYPE
+    STACK_3 = tmp;              /* TYPE-ERROR slot EXPECTED-TYPE */
   }
   fehler(type_error,GETTEXT("~S: index ~S too large for ~S"));
 }
 
 LISPFUNN(list_elt,2)
-  # #'(lambda (seq index)
-  #     (do ((L seq (cdr L)) (N 0 (1+ N)))
-  #         (nil)
-  #       (if (atom L) (error "Zu großer Index in ELT: ~S" index))
-  #       (if (= N index) (return (car L)))
-  #   ) )
-  {
-    var object index = popSTACK();
-    var object seq = popSTACK();
-    VALUES1(Car(elt_up(seq,index)));
-  }
+{ /* (lambda (seq index)
+       (do ((L seq (cdr L)) (N 0 (1+ N)))
+           (nil)
+         (if (atom L) (error "Zu großer Index in ELT: ~S" index))
+         (if (= N index) (return (car L))))) */
+  var object index = popSTACK();
+  var object seq = popSTACK();
+  VALUES1(Car(elt_up(seq,index)));
+}
 
 LISPFUNN(list_set_elt,3)
-  # #'(lambda (seq index value)
-  #     (do ((L seq (cdr L)) (N 0 (1+ N)))
-  #         (nil)
-  #       (if (atom L) (error "Zu großer Index in ELT: ~S" index))
-  #       (if (= N index) (return (rplaca L value)))
-  #   ) )
-  {
-    var object nthcdr = elt_up(STACK_2,STACK_1);
-    VALUES1(Car(nthcdr) = popSTACK());
-    skipSTACK(2);
-  }
+{ /* (lambda (seq index value)
+       (do ((L seq (cdr L)) (N 0 (1+ N)))
+           (nil)
+         (if (atom L) (error "Zu großer Index in ELT: ~S" index))
+         (if (= N index) (return (rplaca L value))))) */
+  var object nthcdr = elt_up(STACK_2,STACK_1);
+  VALUES1(Car(nthcdr) = popSTACK());
+  skipSTACK(2);
+}
 
 LISPFUNN(list_init_start,2)
-  # #'(lambda (seq index)
-  #     (do ((L seq (cdr L)) (N 0 (1+ N)))
-  #         ((= N index) (return L))
-  #       (if (atom L) (error "Unzulässiger :START - Index : ~S" index))
-  #   ) )
-  {
-    var object index = popSTACK();
-    var object seq = popSTACK();
-    var object l = seq;
-    var object n = Fixnum_0;
-    while (!eq(n,index)) {
-      if (atomp(l))
-        goto index_too_large;
-      l = Cdr(l);
-      n = fixnum_inc(n,1);
-    }
-    VALUES1(l); return;
-   index_too_large:
-    pushSTACK(seq);
-    pushSTACK(index); # TYPE-ERROR slot DATUM
-    {
-      var object tmp;
-      pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(n);
-      tmp = listof(3); pushSTACK(tmp); # TYPE-ERROR slot EXPECTED-TYPE
-    }
-    pushSTACK(STACK_2); # seq
-    pushSTACK(STACK_2); # index
-    pushSTACK(S(list_init_start));
-    fehler(type_error,GETTEXT("~S: start index ~S too large for ~S"));
+{ /* (lambda (seq index)
+       (do ((L seq (cdr L)) (N 0 (1+ N)))
+           ((= N index) (return L))
+         (if (atom L) (error "Unzulässiger :START - Index : ~S" index)))) */
+  var object index = popSTACK();
+  var object seq = popSTACK();
+  var object l = seq;
+  var object n = Fixnum_0;
+  while (!eq(n,index)) {
+    if (atomp(l))
+      goto index_too_large;
+    l = Cdr(l);
+    n = fixnum_inc(n,1);
   }
+  VALUES1(l); return;
+ index_too_large:
+  pushSTACK(seq);
+  pushSTACK(index);             /* TYPE-ERROR slot DATUM */
+  {
+    var object tmp;
+    pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(n);
+    tmp = listof(3); pushSTACK(tmp); /* TYPE-ERROR slot EXPECTED-TYPE */
+  }
+  pushSTACK(STACK_2);           /* seq */
+  pushSTACK(STACK_2);           /* index */
+  pushSTACK(S(list_init_start));
+  fehler(type_error,GETTEXT("~S: start index ~S too large for ~S"));
+}
 
 LISPFUNN(list_fe_init_end,2)
-  # #'(lambda (seq index)
-  #     (if (<= 0 index)
-  #       (do* ((L1 nil (cons (car L2) L1))
-  #             (L2 seq (cdr L2))
-  #             (i index (1- i)))
-  #            ((zerop i) L1)
-  #         (if (atom L2)
-  #           (error "Unzulässiger :END - Index : ~S" index)
-  #       ) )
-  #       (error "Unzulässiger :END - Index : ~S" index)
-  #   ) )
-  {
-    # index ist sowieso ein Integer >=0.
-    pushSTACK(NIL); # L1 := nil
-    { var object seq = STACK_2; pushSTACK(seq); } # L2 := seq
-    pushSTACK(Fixnum_0); # i := 0
-    loop {
-      # Stackaufbau: seq, index, L1, L2, i
-      if (eq(STACK_0,STACK_3)) # i=index ?
-        goto end;
-      if (matomp(STACK_1)) # (atom L2) ?
-        goto index_too_large;
-      var object new_cons = allocate_cons(); # neues Cons
-      var object L2 = STACK_1; STACK_1 = Cdr(L2); # (pop L2)
-      Car(new_cons) = Car(L2); # als CAR
-      Cdr(new_cons) = STACK_2; # L1 als CDR
-      STACK_2 = new_cons; # L1 := neues Cons
-      STACK_0 = fixnum_inc(STACK_0,1); # i := i+1
-    }
-   index_too_large:
-    pushSTACK(STACK_3); # TYPE-ERROR slot DATUM
-    {
-      var object tmp;
-      pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(STACK_(0+3));
-      tmp = listof(3); pushSTACK(tmp); # TYPE-ERROR slot EXPECTED-TYPE
-    }
-    pushSTACK(STACK_(4+2));
-    pushSTACK(STACK_(3+3));
-    pushSTACK(S(list_fe_init_end));
-    fehler(type_error,GETTEXT("~S: end index ~S too large for ~S"));
-   end:
-    VALUES1(STACK_2); /* return L1 */
-    skipSTACK(5);
+{ /* (lambda (seq index)
+       (if (<= 0 index)
+         (do* ((L1 nil (cons (car L2) L1))
+               (L2 seq (cdr L2))
+               (i index (1- i)))
+              ((zerop i) L1)
+           (if (atom L2)
+             (error "Unzulässiger :END - Index : ~S" index)))
+         (error "Unzulässiger :END - Index : ~S" index))) */
+  /* index is known to be an Integer >=0. */
+  pushSTACK(NIL);                               /* L1 := nil */
+  { var object seq = STACK_2; pushSTACK(seq); } /* L2 := seq */
+  pushSTACK(Fixnum_0);                          /* i := 0 */
+  loop {
+    /* stack layout: seq, index, L1, L2, i */
+    if (eq(STACK_0,STACK_3))    /* i=index ? */
+      goto end;
+    if (matomp(STACK_1))        /* (atom L2) ? */
+      goto index_too_large;
+    var object new_cons = allocate_cons();      /* new Cons */
+    var object L2 = STACK_1; STACK_1 = Cdr(L2); /* (pop L2) */
+    Car(new_cons) = Car(L2);                    /* als CAR */
+    Cdr(new_cons) = STACK_2;                    /* L1 als CDR */
+    STACK_2 = new_cons;                         /* L1 := new Cons */
+    STACK_0 = fixnum_inc(STACK_0,1);            /* i := i+1 */
   }
+ index_too_large:
+  pushSTACK(STACK_3);           /* TYPE-ERROR slot DATUM */
+  {
+    var object tmp;
+    pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(STACK_(0+3));
+    tmp = listof(3); pushSTACK(tmp); /* TYPE-ERROR slot EXPECTED-TYPE */
+  }
+  pushSTACK(STACK_(4+2));
+  pushSTACK(STACK_(3+3));
+  pushSTACK(S(list_fe_init_end));
+  fehler(type_error,GETTEXT("~S: end index ~S too large for ~S"));
+ end:
+  VALUES1(STACK_2); /* return L1 */
+  skipSTACK(5);
+}
 
