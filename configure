@@ -503,8 +503,8 @@ fi
 if test -d $ABS_DIRNAME/avcall -a -d $ABS_DIRNAME/callback; then
   (cd $ABS_DIRNAME/avcall && make) &&
   (cd $ABS_DIRNAME/callback && make) &&
-  (cd $ABS_DIRNAME/avcall && make minicheck) &&
-  (cd $ABS_DIRNAME/callback && make minicheck) &&
+  (cd $ABS_DIRNAME/avcall && make check) &&
+  (cd $ABS_DIRNAME/callback && make check) &&
   makemake_args="$makemake_args --with-dynamic-ffi"
 fi
 
