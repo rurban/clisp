@@ -1,3 +1,10 @@
+2003-04-17  Sam Steingold  <sds@gnu.org>
+
+	implemented feature request #[ 723360 ]: restart keyword
+	commands in debugger
+	* reploop.lisp (break-loop): use restart name as the command and
+	:Rnum as the abbreviation; re-align help messages
+
 2003-04-06  Sam Steingold  <sds@gnu.org>
 
 	* constobj.d: added hs_simple_nilvector and hs_nilvector
@@ -3211,7 +3218,7 @@
 
 2002-06-29  Sam Steingold  <sds@gnu.org>
 
-	implemented feature request [ 575303 ]: quit to top-level in debugger
+	implemented feature request #[ 575303 ]: quit to top-level in debugger
 	* reploop.lisp (debug-quit): new function
 	(commands1): document `Quit/:q'
 	(break-loop, step-hook-fn): handle it (as `abort-to-top')
