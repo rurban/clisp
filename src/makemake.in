@@ -3381,7 +3381,7 @@ if [ $CROSS = false ] ; then
     echol "clispres.o : clisp.rc"
     echotab "windres -i clisp.rc -o clispres.o"
     echol
-    echol "clisp.rc :"
+    echol "clisp.rc : clisp.ico"
     echotab 'echo "MAINICON ICON \"clisp.ico\"" > clisp.rc'
     echol
   fi
