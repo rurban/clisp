@@ -6,18 +6,19 @@
 ;; This could roughly be implemented as
 ;;   cp INPUT temp1
 ;;   cp INPUT temp2
-;;   msgcomm --more-than=1 -o OUTPUT temp1 temp2
-;; but this has the drawbacks that
-;;  - msgcomm doesn't seem to be made for this,
-;;  - it removes the header,
-;;  - it ``normalizes'' the messages its own way.
+;;   msgcomm --more-than=1 -w 1000 -o OUTPUT temp1 temp2
+;; but this has the drawback that
+;;  - msgcomm doesn't seem to be made for this.
 
 ;; This could also be roughly implemented as
-;;   xgettext -d - --omit-header -n -w 1000 INPUT > OUTPUT
+;;   xgettext -d - --omit-header -w 1000 INPUT > OUTPUT
 ;; but this has the drawbacks that
 ;;  - it sometimes reverses the list of lines belonging to the hunk,
-;;  - it removes the header,
-;;  - it ``normalizes'' the messages its own way.
+;;  - it removes the header.
+
+;; When gettext-0.11 is releases, this could also be implemented as
+;;   msguniq INPUT -w 1000 -o OUTPUT
+;; without any drawbacks!
 
 ;; Additionally, messages translations in OLD override the ones in INPUT.
 
@@ -116,11 +117,12 @@
                     (setf (message-msgstr other-hunk) (message-msgstr hunk))
       ) ) ) ) ) ) )
       (with-open-file (ostream outfilename :direction :output)
-        (flet ((print-hunk (hunk)
-                 (let ((lines (message-lines hunk))
-                       (msgid (message-msgid hunk))
-                       (msgstr (message-msgstr hunk))
-                       (occurs (message-occurs hunk)))
+        (flet ((print-hunk (hunklistr)
+                 (let* ((hunk (car hunklistr))
+                        (lines (message-lines hunk))
+                        (msgid (message-msgid hunk))
+                        (msgstr (message-msgstr hunk))
+                        (occurs (message-occurs hunk)))
                    (dolist (line lines)
                      (cond ((and (>= (length line) 3) (string= line "#: " :end1 3))
                             (when occurs
@@ -137,9 +139,9 @@
                             (format ostream "msgstr ~{~A~%~}" msgstr)
                            )
                    ) )
-                   (format ostream "~%")
+                   (when (cdr hunklistr) (format ostream "~%"))
               )) )
-          (mapc #'print-hunk hunk-list)
+          (mapl #'print-hunk hunk-list)
         )
 ) ) ) )
 
