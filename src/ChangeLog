@@ -1,5 +1,11 @@
 2004-11-23  Bruno Haible  <bruno@clisp.org>
 
+	* clhs.lisp (browse-url): On MacOS X, use the system's browser by
+	default.
+	Suggested by Pascal Costanza <pc@p-cos.net>.
+
+2004-11-23  Bruno Haible  <bruno@clisp.org>
+
 	* spvw.d (init_object_tab): Add :MACOS to *FEATURES* on MacOS X.
 
 2004-11-17  Bruno Haible  <bruno@clisp.org>

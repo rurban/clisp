@@ -67,6 +67,9 @@ The keyword argument REPEAT specifies how many objects to read:
     (ext::shell-execute "open" url nil nil) ;to start default browser
     (when out (format out "done~%"))
     (return-from browse-url))
+  #+MACOS
+  (unless browser ; use default browser if no browser is specified
+    (setq browser '("open" "~a")))
   (let* ((command
           (etypecase browser
             (list browser)
