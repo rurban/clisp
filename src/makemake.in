@@ -1951,10 +1951,14 @@ echol
 # development targets
 if [ ! $TSYS = win32msvc ] ; then
   echol "makemake : makemake.in config.status"
-  echotab "./config.status --file=makemake"
+  echotab "sh config.status --file=makemake"
   echol
   echol "unixconf.h : unixconf.h.in config.status"
   echotab "sh config.status --header=unixconf.h"
+  # when config.status detects that it did not change unixconf.h, it
+  # will not touch it, and on the next make unixconf.h will be remade
+  # again and again ... - avoid it
+  echotab "touch unixconf.h"
   echol
   echol "Makefile : makemake VERSION"
   echotab "$0$makemake_args > Makefile.tmp"

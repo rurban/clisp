@@ -1,5 +1,9 @@
 2004-06-21  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (unixconf.h): make sure that it is indeed changed
+
+2004-06-21  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/dbi.lisp (CLOSE):
 	define methods for ENV, DB and CURSOR
 	* modules/berkeley-db/bdb.c (BDB:ENV-CLOSE, BDB:CURSOR-CLOSE)
