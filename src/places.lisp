@@ -996,13 +996,13 @@
 (define-setf-expander IF (condition t-form f-form &environment env)
   (let ((conditionvar (gensym)))
     (multiple-value-bind (T-SM1 T-SM2 T-SM3 T-SM4 T-SM5)
-        (get-setf-expansion t-form)
+        (get-setf-expansion t-form env)
       (multiple-value-bind (F-SM1 F-SM2 F-SM3 F-SM4 F-SM5)
-          (get-setf-expansion f-form)
+          (get-setf-expansion f-form env)
         (unless (eql (length T-SM3) (length F-SM3))
           (error-of-type 'source-program-error
             (ENGLISH "SETF place ~S expects different numbers of values in the true and branches (~D vs. ~D values).")
-            (cons 'IF condition t-form f-form) (length T-SM3) (length F-SM3)
+            (list 'IF condition t-form f-form) (length T-SM3) (length F-SM3)
         ) )
         (values
           `(,conditionvar
