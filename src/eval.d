@@ -2266,7 +2266,7 @@ LISPFUNN(subr_info,1)
       pushSTACK(funname);
       pushSTACK(caller);
       fehler(undefined_function,
-             GETTEXT("~: ~ is a special form, not a function")
+             GETTEXT("~: ~ is a special operator, not a function")
             );
     }
 
@@ -2321,9 +2321,16 @@ LISPFUNN(subr_info,1)
         var object fdef = Symbol_function(obj);
         if (subrp(fdef) || closurep(fdef) || ffunctionp(fdef))
           return fdef;
-        elif (orecordp(fdef))
-          fehler_specialform(TheSubr(subr_self)->name,obj);
-        elif (consp(fdef))
+        elif (orecordp(fdef)) {
+          switch (Record_type(fdef)) {
+            case Rectype_Fsubr:
+              fehler_specialform(TheSubr(subr_self)->name,obj);
+            case Rectype_Macro:
+              fehler_macro(TheSubr(subr_self)->name,obj);
+            default:
+              fehler_undefined(TheSubr(subr_self)->name,obj);
+          }
+        } elif (consp(fdef)) # Macro-Cons -> Fehler
           fehler_macro(TheSubr(subr_self)->name,obj);
         else
           fehler_undefined(TheSubr(subr_self)->name,obj);
@@ -4217,8 +4224,14 @@ LISPFUNN(subr_info,1)
             fun = fdef; goto call_ffunction;
           }
           #endif
-          # FSUBR -> Fehler
-          fehler_specialform(S(apply),fun);
+          switch (Record_type(fdef)) {
+            case Rectype_Fsubr:
+              fehler_specialform(S(apply),fun);
+            case Rectype_Macro:
+              fehler_macro(S(apply),fun);
+            default:
+              goto undef;
+          }
         } elif (consp(fdef)) # Macro-Cons -> Fehler
           fehler_macro(S(apply),fun);
         else
@@ -5145,8 +5158,14 @@ LISPFUNN(subr_info,1)
             fun = fdef; goto call_ffunction;
           }
           #endif
-          # FSUBR -> Fehler
-          fehler_specialform(S(funcall),fun);
+          switch (Record_type(fdef)) {
+            case Rectype_Fsubr:
+              fehler_specialform(S(funcall),fun);
+            case Rectype_Macro:
+              fehler_macro(S(funcall),fun);
+            default:
+              goto undef;
+          }
         } elif (consp(fdef)) # Macro-Cons -> Fehler
           fehler_macro(S(funcall),fun);
         else

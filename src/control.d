@@ -421,7 +421,7 @@ LISPFUNN(fmakunbound,1)
         pushSTACK(symbol);
         pushSTACK(S(fmakunbound));
         fehler(error,
-               GETTEXT("~: the special form definition of ~ must not be removed")
+               GETTEXT("~: the special operator definition of ~ must not be removed")
               );
       }
     }
