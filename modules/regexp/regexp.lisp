@@ -12,7 +12,8 @@
 (in-package "REGEXP")
 (push "REGEXP" ext:*system-package-list*)
 
-(defstruct (match (:constructor make-match (start end)))
+(defstruct (match (:constructor make-match-boa (start end))
+                  (:constructor ))
   start end)
 
 ;; The following implementation of MATCH compiles the pattern

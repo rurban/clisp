@@ -1,5 +1,12 @@
 2003-08-15  Sam Steingold  <sds@gnu.org>
 
+	MATCH structure is now printable
+	* modules/regexp/regexi.c (REGEXP-EXEC): use MAKE-MATCH-BOA
+	* modules/regexp/regexp.lisp (match): define a keyword
+	constructor too
+
+2003-08-15  Sam Steingold  <sds@gnu.org>
+
 	* modules/netica/wrap.lisp (make-node): specify placement
 	(node-info): show parents and children
 	(with-open-dne-file): new macro
