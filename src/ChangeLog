@@ -1,5 +1,10 @@
 2005-03-01  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in: handle gettext identically on unix and windows
+	Reported by Yaroslav Kavenchuk <kavenchuk@jenty.by>
+
+2005-03-01  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (open_iconv, iconv_mblen, iconv_mbstowcs, iconv_wcslen)
 	(iconv_wcstombs, iconv_range): do not assume that errno is
 	present, use OS_errno instead
