@@ -1,3 +1,7 @@
+2004-04-03  Bruno Haible  <bruno@clisp.org>
+
+	* type.tst: Many new SUBTYPEP tests.
+
 2004-04-04  Bruno Haible  <bruno@clisp.org>
 
 	* type.tst: Test TYPEP on a structure with user-defined :TYPE.

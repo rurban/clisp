@@ -62,7 +62,7 @@
 (defun copy-ds-slot (slot) (sys::%copy-simple-vector slot))
 (defmacro ds-real-slot-p (slot) `(not (null (ds-slot-initargs ,slot))))
 
-#| The type test comes in 3 variants. Keep them in sync! |#
+#| The type test comes in 4 variants. Keep them in sync! |#
 
 #| Type test, for TYPEP.
    Must be equivalent to (typep object (ds-canonicalize-type symbol)).
@@ -126,6 +126,42 @@
                                       `((EQ (SVREF ,tmp ,(ds-slot-offset slot))
                                             ',(ds-slot-default slot)))))
                                 (svref desc 4))))))))))
+
+#| Type canonicalization, for SUBTYPEP. |#
+(defun ds-canonicalize-type (symbol)
+  (let ((desc (get symbol 'DEFSTRUCT-DESCRIPTION)))
+    (if desc
+      (let ((type (svref desc 1)))
+        (if (eq type 'T)
+          symbol
+          (let ((size (svref desc 2))
+                (slotlist (svref desc 4)))
+            (if (eq type 'LIST)
+              (let ((resulttype 'T))
+                ;; Start with T, not (MEMBER NIL), because of the possibility
+                ;; of subclasses.
+                (dotimes (i size) (setq resulttype (list 'CONS 'T resulttype)))
+                (dolist (slot slotlist)
+                  (unless (ds-real-slot-p slot)
+                    (let ((resttype resulttype))
+                      (dotimes (j (ds-slot-offset slot))
+                        (setq resttype (third resttype)))
+                      (setf (second resttype) `(EQL ,(ds-slot-default slot))))))
+                resulttype)
+              `(AND (SIMPLE-ARRAY ,(if (consp type) (second type) 'T) (*))
+                    ;; Constraints that cannot be represented through ANSI CL
+                    ;; type specifiers. We use SATISFIES types with uninterned
+                    ;; symbols. This is possible because this function is only
+                    ;; used for SUBTYPEP.
+                    ,@(when (or (plusp size)
+                                (some #'(lambda (slot) (not (ds-real-slot-p slot)))
+                                      slotlist))
+                        (let ((constraint-name (gensym)))
+                          (setf (symbol-function constraint-name)
+                                #'(lambda (x) (typep x symbol)))
+                          `((SATISFIES ,constraint-name)))))))))
+      ; The DEFSTRUCT-DESCRIPTION was lost.
+      'NIL)))
 
 #| (ds-make-pred predname type name slotlist size)
    returns the form, that creates the type-test-predicate for

@@ -1130,10 +1130,3 @@
         ((and (eq class1 <sequence>) (subclassp <list> class2)) <vector>)
         ((and (eq class1 <list>) (subclassp <null> class2)) <cons>)
         (t class1)))
-
-(defun class-and (class1 class2) ; returns (AND class1 class2)
-  (cond ((subclassp class1 class2) (list class1))
-        ((subclassp class2 class1) (list class2))
-        ((let ((ret nil))
-           (dolist (sc (class-direct-subclasses class2) ret)
-             (setq ret (nunion ret (class-and class1 sc))))))))

@@ -1,3 +1,23 @@
+2004-04-03  Bruno Haible  <bruno@clisp.org>
+
+	New SUBTYPEP implementation.
+	* subtypep.lisp: New file.
+	* type.lisp (type-class): Remove function.
+	(valid-interval-designator-p): Move to subtypep.lisp.
+	(with-interval-designators): Remove macro.
+	(interval-mix, interval-mix-not, simplify-and-or): Remove functions.
+	(*canonicalize-type-prefer-clos*): Remove variable.
+	(canonicalize-type): Simplify. Add error checking. Remove optional
+	argument. Move to subtypep.lisp.
+	(subtypep): Mostly rewritten. Move to subtypep.lisp.
+	(get-charset-range, charset-subtypep): Move to subtypep.lisp.
+	(subtype-integer): Small fixes. Handle the INTERVALS typespec that
+	canonicalize-type now produces.
+	* defstruct.lisp (ds-canonicalize-type): New function.
+	* clos-class2.lisp (class-and): Remove function.
+	* makemake.in (LPARTS): Add subtypep.
+	* po/Makefile.devel (LISPSOURCES): Add subtypep.
+
 2004-04-14  Bruno Haible  <bruno@clisp.org>
 
 	* Makefile.devel (ANSITESTS_CVS_ROOT, ANSITESTS_CVS_REPOSITORY): New
