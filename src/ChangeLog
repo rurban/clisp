@@ -1,3 +1,7 @@
+2005-02-16  Bruno Haible  <bruno@clisp.org>
+
+	* clos-package.lisp: Add "MOP" as nickname of package "CLOS".
+
 2005-02-15  Bruno Haible  <bruno@clisp.org>
 
 	* autoconf/config.dynamic: New file, based on libtool-1.5.10.

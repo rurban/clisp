@@ -25,6 +25,7 @@
 (import 'compiler::%optimize-function-lambda)
 
 (defpackage "CLOS"
+  (:nicknames "MOP")
   (:documentation "http://www.lisp.org/HyperSpec/Body/chap-7.html")
   (:import-from "EXT" ext:mapcap ext:proper-list-p)
   (:import-from "SYSTEM"
