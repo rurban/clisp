@@ -236,7 +236,7 @@ possible:</para>
 </section>
 
 <section id="gc-safety">
-   <title>The burden of &gc;ion upon the rest of &clisp;:</title>
+   <title>The burden of &gc;ion upon the rest of &clisp;</title>
 
 <para>Every subroutine marked with <emphasis>can trigger GC</emphasis>
 may invoke &gc;.
