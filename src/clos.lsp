@@ -3412,7 +3412,7 @@
         ; Umdefinition einer generischen Funktion
         (progn
           (warn-if-gf-already-called gf)
-          (when (and *warn-on-removing-all-methods* (gf-methods gf))
+          (when (and *gf-warn-on-removing-all-methods* (gf-methods gf))
             (warn (DEUTSCH "Alle Methoden von ~S werden entfernt."
                    ENGLISH "Removing all methods of ~S"
                    FRANCAIS "On enlève toutes les méthodes de ~S.")
