@@ -1229,6 +1229,9 @@
 (setq *load-input-stream* nil)
 (proclaim '(special *load-level*))
 (setq *load-level* 0)
+#+ffi ; the default :language for DEF-CALL-* & C-FUNCTION -- see foreign1.lisp
+(proclaim '(special ffi::*foreign-language*))
+#+ffi (setq ffi::*foreign-language* nil)
 
 ;; (LOAD filename [:verbose] [:print] [:if-does-not-exist] [:external-format]
 ;;                [:echo] [:compiling] [:extra-file-types]),
@@ -1289,6 +1292,7 @@
              (*load-pathname* (if (pathnamep filename) filename nil))
              (*load-truename*
               (if (pathnamep filename) (truename filename) nil))
+             #+ffi (ffi::*foreign-language* ffi::*foreign-language*)
              (*package* *package*) ; bind *PACKAGE*
              (*readtable* *readtable*) ; bind *READTABLE*
              (end-of-file "EOF")) ; one-time Object
