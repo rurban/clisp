@@ -2741,7 +2741,7 @@ printed readably.</para>
 </para>
 </section>
 
-<section><title>Platform-specific issues.</title>
+<section id="path-platform-specific"><title>Platform-specific issues.</title>
 
 <!-- #ifdef PATHNAME_AMIGAOS -->
 <variablelist>
