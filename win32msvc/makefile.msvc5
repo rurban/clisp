@@ -15,7 +15,7 @@ MFLAGS=
 !endif
 
 # Directories used by "make install":
-prefix = 
+prefix =
 exec_prefix = $(prefix)
 bindir = $(exec_prefix)\bin
 mandir = $(exec_prefix)\man
@@ -36,15 +36,15 @@ DESTDIR =
 # postgresql           PostgreSQL interface
 # clx/mit-clx          classical X11 interface
 # If you change this after doing "make", you have to "rm -r full; make".
-MODULES =  
+MODULES =
 
 # Programs used by "make":
 CC = cl $(MFLAGS) -G5 -Os -Oy -Ob1 -Gs -Gf -Gy
 CFLAGS =  -DUNICODE -DEXPORT_SYSCALLS -DDIR_KEY -DDYNAMIC_FFI -DNO_GETTEXT
 CPP = ..\utils\gcc-cccp\cccp -U__GNUC__ -+ -D_MSC_VER=1100 -D_M_IX86=500 -D_WIN32 -D_INTEGRAL_MAX_BITS=64 -DDEBUG_OS_ERROR -I$(MSVCDIR)/include
-CLFLAGS = 
+CLFLAGS =
 LIBS = sigsegv.lib iconv.lib avcall.lib callback.lib  user32.lib wsock32.lib advapi32.lib ole32.lib -lm
-X_LIBS = 
+X_LIBS =
 #MSVCDIR = d:/devstudio/vc
 #MSVCDIR = c:/msvs/vc98
 MSVCDIR = "C:/Program Files/Microsoft Visual Studio/VC98"
@@ -539,6 +539,7 @@ stage\foreign1.lisp \
 stage\defs3.lisp \
 stage\clhs.lisp \
 stage\inspect.lisp \
+stage\dirkey.lisp \
 stage\german.lisp \
 stage\french.lisp \
 stage\spanish.lisp \
@@ -586,6 +587,7 @@ stage\foreign1.fas \
 stage\defs3.fas \
 stage\clhs.fas \
 stage\inspect.fas \
+stage\dirkey.fas \
 stage\german.fas \
 stage\french.fas \
 stage\spanish.fas \
@@ -960,10 +962,10 @@ modules.c : modules.d comment5.exe ansidecl.exe varbrace.exe
 noreadline.c : noreadline.d comment5.exe ansidecl.exe varbrace.exe
 	$(COMMENT5) noreadline.d | $(ANSIDECL) | $(VARBRACE) > noreadline.c
 
-ari80386.c : ari80386.d comment5.exe 
+ari80386.c : ari80386.d comment5.exe
 	$(COMMENT5) ari80386.d > ari80386.c
 
-sp80386.c : sp80386.d comment5.exe 
+sp80386.c : sp80386.d comment5.exe
 	$(COMMENT5) sp80386.d > sp80386.c
 
 allo : allc spvw.obj spvwtabf.obj spvwtabs.obj spvwtabo.obj eval.obj control.obj encoding.obj pathname.obj stream.obj socket.obj io.obj array.obj hashtabl.obj list.obj package.obj record.obj sequence.obj charstrg.obj debug.obj error.obj misc.obj time.obj predtype.obj symbol.obj lisparit.obj foreign.obj win32aux.obj posixmisc.obj dirkey.obj

@@ -6,7 +6,7 @@
 # -------------- Start of configurable section --------------------
 
 # Directories used by "make install":
-prefix = 
+prefix =
 exec_prefix = $(prefix)
 bindir = $(exec_prefix)\bin
 mandir = $(exec_prefix)\man
@@ -24,15 +24,15 @@ DESTDIR =
 # queens               the queens function as a separate module
 # clx/mit-clx          classical X11 interface
 # If you change this after doing "make", you have to "rm -r full; make".
-MODULES =  
+MODULES =
 
 # Programs used by "make":
 CC = bcc32i -O2 -g0 -w-rch
 CFLAGS =  -DUNICODE -DDIR_KEY -DNO_GETTEXT
 CPP = ..\utils\gcc-cccp\cccp -U__GNUC__ -+ -D__BORLANDC__=0x460 -D__TURBOC__=0x460 -D_M_IX86=300 -D__WIN32__ -D__FLAT__ -DDEBUG_OS_ERROR -I$(BCDIR)/include
-CLFLAGS = 
+CLFLAGS =
 LIBS = sigsegv.lib iconv.lib  ole32.lib
-X_LIBS = 
+X_LIBS =
 BCDIR = d:/bc5
 WIN32DIR = c:\winnt35\system32
 
@@ -512,6 +512,7 @@ stage\foreign1.lisp \
 stage\defs3.lisp \
 stage\clhs.lisp \
 stage\inspect.lisp \
+stage\dirkey.lisp \
 stage\german.lisp \
 stage\french.lisp \
 stage\spanish.lisp \
@@ -559,6 +560,7 @@ stage\foreign1.fas \
 stage\defs3.fas \
 stage\clhs.fas \
 stage\inspect.fas \
+stage\dirkey.fas \
 stage\german.fas \
 stage\french.fas \
 stage\spanish.fas \
