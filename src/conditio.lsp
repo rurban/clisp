@@ -1396,7 +1396,7 @@ muffle-cerrors appease-cerrors exit-on-error
     )
     (let ((condition
             (make-condition 'simple-condition
-                            :format-string format-string
+                            :format-control format-string
                             :format-arguments args
          )) )
       (with-restarts
