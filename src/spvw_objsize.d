@@ -1,6 +1,6 @@
 # Determination of the object size (in bytes) of the various heap objects.
 
-# ------------------------------ Specification ---------------------------------
+# ------------------------------ Specification --------------------------------
 
 #ifdef TYPECODES
 
@@ -25,7 +25,7 @@
 # < result: number of occupied bytes
   global uintL varobject_bytelength (object obj);
 
-# ------------------------------ Implementation --------------------------------
+# ------------------------------ Implementation -------------------------------
 
 #ifdef TYPECODES
 
@@ -43,351 +43,319 @@
 
 #endif
 
-  # Varobject_aligned_size(HS,ES,C) liefert die Länge eines Objekts variabler
-  # Länge mit HS=Header-Size, ES=Element-Size, C=Element-Count.
-  # Varobject_aligned_size(HS,ES,C) = round_up(HS+ES*C,varobject_alignment) .
-    #define Varobject_aligned_size(HS,ES,C)  \
-      ((ES % varobject_alignment) == 0               \
-       ? # ES ist durch varobject_alignment teilbar  \
-         round_up(HS,varobject_alignment) + (ES)*(C) \
-       : round_up((HS)+(ES)*(C),varobject_alignment) \
-      )
+# Varobject_aligned_size(HS,ES,C) returns the length of an object of variable
+# length with HS=Header-Size, ES=Element-Size, C=Element-Count.
+# Varobject_aligned_size(HS,ES,C) = round_up(HS+ES*C,varobject_alignment) .
+#define Varobject_aligned_size(HS,ES,C)           \
+  ((ES % varobject_alignment) == 0                \
+   ? # ES is divisible by varobject_alignment     \
+     round_up(HS,varobject_alignment) + (ES)*(C)  \
+   : round_up((HS)+(ES)*(C),varobject_alignment)) \
 
-  # Länge eines Objekts, je nach Typ:
-    #ifdef TYPECODES
-    #define size_symbol()  # Symbol \
+# length of an object, according to type:
+#ifdef TYPECODES
+  #define size_symbol()  # symbol \
       round_up( sizeof(symbol_), varobject_alignment)
-    #endif
-    #define size_sbvector(length)  # simple-bit-vector \
-      ( ceiling( (uintL)(length) + 8*offsetofa(sbvector_,data), 8*varobject_alignment ) \
-        * varobject_alignment                                                           \
-      )
-    #define size_sb2vector(length)  # simple-2bit-vector \
-      ( ceiling( (uintL)(length) + 4*offsetofa(sbvector_,data), 4*varobject_alignment ) \
-        * varobject_alignment                                                           \
-      )
-    #define size_sb4vector(length)  # simple-4bit-vector \
-      ( ceiling( (uintL)(length) + 2*offsetofa(sbvector_,data), 2*varobject_alignment ) \
-        * varobject_alignment                                                           \
-      )
-    #define size_sb8vector(length)  # simple-8bit-vector \
-      Varobject_aligned_size(offsetofa(sbvector_,data),1,(uintL)(length))
-    #define size_sb16vector(length)  # simple-16bit-vector \
-      Varobject_aligned_size(offsetofa(sbvector_,data),2,(uintL)(length))
-    #define size_sb32vector(length)  # simple-32bit-vector \
-      Varobject_aligned_size(offsetofa(sbvector_,data),4,(uintL)(length))
-    #define size_sstring(length)  # normal-simple-string \
-      Varobject_aligned_size(offsetofa(sstring_,data),sizeof(chart),(uintL)(length))
-    #ifdef HAVE_SMALL_SSTRING
-    #define size_small_sstring(length)  # small-simple-string \
-      Varobject_aligned_size(offsetofa(small_sstring_,data),sizeof(scint),(uintL)(length))
-    #endif
-    #define size_svector(length)  # simple-vector \
-      Varobject_aligned_size(offsetofa(svector_,data),sizeof(object),(uintL)(length))
-    #define size_iarray(size)  # Nicht-simpler Array, mit \
-      # size = Dimensionszahl + (1 falls Fill-Pointer) + (1 falls Displaced-Offset) \
-      Varobject_aligned_size(offsetofa(iarray_,dims),sizeof(uintL),(uintL)(size))
-    #define size_srecord(length)  # Simple-Record \
-      Varobject_aligned_size(offsetofa(record_,recdata),sizeof(object),(uintL)(length))
-    #define size_xrecord(length,xlength)  # Extended-Record \
-      Varobject_aligned_size(offsetofa(record_,recdata),sizeof(uintB),(sizeof(object)/sizeof(uintB))*(uintL)(length)+(uintL)(xlength))
-    #define size_bignum(length)  # Bignum \
-      Varobject_aligned_size(offsetofa(bignum_,data),sizeof(uintD),(uintL)(length))
-    #ifdef TYPECODES
-    #ifndef WIDE
-    #define size_ffloat()  # Single-Float \
+#endif
+#define size_sbvector(length)  # simple-bit-vector              \
+  ( ceiling( (uintL)(length) + 8*offsetofa(sbvector_,data),     \
+             8*varobject_alignment ) * varobject_alignment )
+#define size_sb2vector(length)  # simple-2bit-vector            \
+  ( ceiling( (uintL)(length) + 4*offsetofa(sbvector_,data),     \
+             4*varobject_alignment ) * varobject_alignment )
+#define size_sb4vector(length)  # simple-4bit-vector            \
+  ( ceiling( (uintL)(length) + 2*offsetofa(sbvector_,data),     \
+             2*varobject_alignment ) * varobject_alignment )
+#define size_sb8vector(length)  # simple-8bit-vector \
+ Varobject_aligned_size(offsetofa(sbvector_,data),1,(uintL)(length))
+#define size_sb16vector(length)  # simple-16bit-vector \
+ Varobject_aligned_size(offsetofa(sbvector_,data),2,(uintL)(length))
+#define size_sb32vector(length)  # simple-32bit-vector \
+ Varobject_aligned_size(offsetofa(sbvector_,data),4,(uintL)(length))
+#define size_sstring(length)  # normal-simple-string \
+ Varobject_aligned_size(offsetofa(sstring_,data),sizeof(chart),(uintL)(length))
+#ifdef HAVE_SMALL_SSTRING
+  #define size_small_sstring(length)  # small-simple-string     \
+    Varobject_aligned_size(offsetofa(small_sstring_,data),      \
+                           sizeof(scint),(uintL)(length))
+#endif
+#define size_svector(length)  # simple-vector                   \
+  Varobject_aligned_size(offsetofa(svector_,data),              \
+                         sizeof(object),(uintL)(length))
+#define size_iarray(size)  # non-simple array, with                           \
+  # size = dimension number + (1 if fill-pointer) + (1 if displaced-offset)   \
+  Varobject_aligned_size(offsetofa(iarray_,dims),sizeof(uintL),(uintL)(size))
+#define size_srecord(length)  # Simple-Record                   \
+  Varobject_aligned_size(offsetofa(record_,recdata),            \
+                         sizeof(object),(uintL)(length))
+#define size_xrecord(length,xlength)  # Extended-Record                 \
+  Varobject_aligned_size(offsetofa(record_,recdata),sizeof(uintB),      \
+                         (sizeof(object)/sizeof(uintB))                 \
+                         *(uintL)(length)+(uintL)(xlength))
+#define size_bignum(length)  # Bignum \
+  Varobject_aligned_size(offsetofa(bignum_,data),sizeof(uintD),(uintL)(length))
+#ifdef TYPECODES
+ #ifndef WIDE
+  #define size_ffloat()  # Single-Float \
       round_up( sizeof(ffloat_), varobject_alignment)
-    #endif
-    #define size_dfloat()  # Double-Float \
+ #endif
+ #define size_dfloat()  # Double-Float \
       round_up( sizeof(dfloat_), varobject_alignment)
-    #else
-    #define size_ffloat()  # Single-Float \
+#else
+  #define size_ffloat()  # Single-Float \
       size_xrecord(0,sizeof(ffloat))
-    #define size_dfloat()  # Double-Float \
+  #define size_dfloat()  # Double-Float \
       size_xrecord(0,sizeof(dfloat))
-    #endif
-    #define size_lfloat(length)  # Long-Float \
-      Varobject_aligned_size(offsetofa(lfloat_,data),sizeof(uintD),(uintL)(length))
+  #endif
+  #define size_lfloat(length)  # Long-Float                     \
+      Varobject_aligned_size(offsetofa(lfloat_,data),           \
+                             sizeof(uintD),(uintL)(length))
 
 #ifdef SPVW_MIXED
 
-  local uintL objsize (addr)
-    var void* addr;
-    {
-      #ifdef TYPECODES
-      switch (typecode_at(addr) & ~bit(garcol_bit_t)) # Typ des Objekts
-      #else
-      switch (record_type((Record)addr)) {
-        case_Rectype_Sbvector_above;
-        case_Rectype_Sb2vector_above;
-        case_Rectype_Sb4vector_above;
-        case_Rectype_Sb8vector_above;
-        case_Rectype_Sb16vector_above;
-        case_Rectype_Sb32vector_above;
-        case Rectype_Sstring: case Rectype_Imm_Sstring: goto case_sstring;
-        case_Rectype_Svector_above;
-        case_Rectype_WeakKVT_above;
-        case_Rectype_mdarray_above;
-        case_Rectype_obvector_above;
-        case_Rectype_ob2vector_above;
-        case_Rectype_ob4vector_above;
-        case_Rectype_ob8vector_above;
-        case_Rectype_ob16vector_above;
-        case_Rectype_ob32vector_above;
-        case_Rectype_ostring_above;
-        case_Rectype_ovector_above;
-        case_Rectype_Bignum_above;
-        case_Rectype_Lfloat_above;
-        #ifdef HAVE_SMALL_SSTRING
-        case Rectype_Imm_SmallSstring:
-          return size_small_sstring(sstring_length((SmallSstring)addr));
-        #endif
-        default: goto case_record;
+local uintL objsize (void* addr) {
+ #ifdef TYPECODES
+  switch (typecode_at(addr) & ~bit(garcol_bit_t)) # type of the object
+ #else
+  switch (record_type((Record)addr)) {
+    case_Rectype_Sbvector_above;
+    case_Rectype_Sb2vector_above;
+    case_Rectype_Sb4vector_above;
+    case_Rectype_Sb8vector_above;
+    case_Rectype_Sb16vector_above;
+    case_Rectype_Sb32vector_above;
+    case Rectype_Sstring: case Rectype_Imm_Sstring: goto case_sstring;
+    case_Rectype_Svector_above;
+    case_Rectype_WeakKVT_above;
+    case_Rectype_mdarray_above;
+    case_Rectype_obvector_above;
+    case_Rectype_ob2vector_above;
+    case_Rectype_ob4vector_above;
+    case_Rectype_ob8vector_above;
+    case_Rectype_ob16vector_above;
+    case_Rectype_ob32vector_above;
+    case_Rectype_ostring_above;
+    case_Rectype_ovector_above;
+    case_Rectype_Bignum_above;
+    case_Rectype_Lfloat_above;
+   #ifdef HAVE_SMALL_SSTRING
+    case Rectype_Imm_SmallSstring:
+      return size_small_sstring(sstring_length((SmallSstring)addr));
+   #endif
+    default: goto case_record;
+  }
+  switch (0)
+ #endif
+  {
+   #ifdef TYPECODES
+    case_symbolwithflags: # Symbol
+      return size_symbol();
+   #endif
+    case_sbvector: # simple-bit-vector
+      return size_sbvector(sbvector_length((Sbvector)addr));
+    case_sb2vector: # simple-2bit-vector
+      return size_sb2vector(sbvector_length((Sbvector)addr));
+    case_sb4vector: # simple-4bit-vector
+      return size_sb4vector(sbvector_length((Sbvector)addr));
+    case_sb8vector: # simple-8bit-vector
+      return size_sb8vector(sbvector_length((Sbvector)addr));
+    case_sb16vector: # simple-16bit-vector
+      return size_sb16vector(sbvector_length((Sbvector)addr));
+    case_sb32vector: # simple-32bit-vector
+      return size_sb32vector(sbvector_length((Sbvector)addr));
+    case_sstring: # normal-simple-string
+      return size_sstring(sstring_length((Sstring)addr));
+    case_weakkvt: # weak-key-value-table
+    case_svector: # simple-vector
+      return size_svector(svector_length((Svector)addr));
+    case_mdarray: case_obvector: case_ob2vector: case_ob4vector:
+    case_ob8vector: case_ob16vector: case_ob32vector: case_ostring:
+    case_ovector: { # non-simple array:
+        var uintL size;
+        size = (uintL)iarray_rank((Iarray)addr);
+        if (iarray_flags((Iarray)addr) & bit(arrayflags_fillp_bit))
+          size += 1;
+        if (iarray_flags((Iarray)addr) & bit(arrayflags_dispoffset_bit))
+          size += 1;
+        # size = dimension number + (1 if fill-pointer) +
+        #        (1 if displaced-offset)
+        return size_iarray(size);
       }
-      switch (0)
-      #endif
-      {
-        #ifdef TYPECODES
-        case_symbolwithflags: # Symbol
-          return size_symbol();
-        #endif
-        case_sbvector: # simple-bit-vector
-          return size_sbvector(sbvector_length((Sbvector)addr));
-        case_sb2vector: # simple-2bit-vector
-          return size_sb2vector(sbvector_length((Sbvector)addr));
-        case_sb4vector: # simple-4bit-vector
-          return size_sb4vector(sbvector_length((Sbvector)addr));
-        case_sb8vector: # simple-8bit-vector
-          return size_sb8vector(sbvector_length((Sbvector)addr));
-        case_sb16vector: # simple-16bit-vector
-          return size_sb16vector(sbvector_length((Sbvector)addr));
-        case_sb32vector: # simple-32bit-vector
-          return size_sb32vector(sbvector_length((Sbvector)addr));
-        case_sstring: # normal-simple-string
-          return size_sstring(sstring_length((Sstring)addr));
-        case_weakkvt: # weak-key-value-table
-        case_svector: # simple-vector
-          return size_svector(svector_length((Svector)addr));
-        case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector:
-          # Nicht-simpler Array:
-          {
-            var uintL size;
-            size = (uintL)iarray_rank((Iarray)addr);
-            if (iarray_flags((Iarray)addr) & bit(arrayflags_fillp_bit))
-              size += 1;
-            if (iarray_flags((Iarray)addr) & bit(arrayflags_dispoffset_bit))
-              size += 1;
-            # size = Dimensionszahl + (1 falls Fill-Pointer) + (1 falls Displaced-Offset)
-            return size_iarray(size);
-          }
-        case_record: # Record
-          if (record_type((Record)addr) < rectype_limit)
-            return size_srecord(srecord_length((Srecord)addr));
-          else
-            return size_xrecord(xrecord_length((Xrecord)addr),xrecord_xlength((Xrecord)addr));
-        case_bignum: # Bignum
-          return size_bignum(bignum_length((Bignum)addr));
-        #ifdef TYPECODES
-        #ifndef WIDE
-        case_ffloat: # Single-Float
-          return size_ffloat();
-        #endif
-        case_dfloat: # Double-Float
-          return size_dfloat();
-        #endif
-        case_lfloat: # Long-Float
-          return size_lfloat(lfloat_length((Lfloat)addr));
-        #ifdef TYPECODES
-        case_machine:
-        #ifndef SIXBIT_TYPECODES
-        case_char:
-        case_subr:
-        case_system:
-        #endif
-        case_fixnum:
-        case_sfloat:
-        #ifdef WIDE
-        case_ffloat:
-        #endif
-          # Das sind direkte Objekte, keine Pointer.
-        #endif
-        default:
-          # Das sind keine Objekte variabler Länge.
+    case_record: # Record
+      if (record_type((Record)addr) < rectype_limit)
+        return size_srecord(srecord_length((Srecord)addr));
+      else
+        return size_xrecord(xrecord_length((Xrecord)addr),
+                            xrecord_xlength((Xrecord)addr));
+    case_bignum: # Bignum
+      return size_bignum(bignum_length((Bignum)addr));
+  #ifdef TYPECODES
+   #ifndef WIDE
+    case_ffloat: # Single-Float
+      return size_ffloat();
+   #endif
+    case_dfloat: # Double-Float
+      return size_dfloat();
+  #endif
+    case_lfloat: # Long-Float
+      return size_lfloat(lfloat_length((Lfloat)addr));
+   #ifdef TYPECODES
+    case_machine:
+    #ifndef SIXBIT_TYPECODES
+    case_char:
+    case_subr:
+    case_system:
+    #endif
+    case_fixnum:
+    case_sfloat:
+    #ifdef WIDE
+    case_ffloat:
+    #endif
+      # these are direct objects, no pointers.
+   #endif
+      default: # these are no objects of variable length.
           /*NOTREACHED*/ abort();
-      }
-    }
+  }
+}
 
   #define var_prepare_objsize
 
 #endif # SPVW_MIXED
 
-  # spezielle Funktionen für jeden Typ:
-
-  inline local uintL objsize_iarray (addr) # nicht-simpler Array
-    var void* addr;
-    {
-      var uintL size;
-      size = (uintL)iarray_rank((Iarray)addr);
-      if (iarray_flags((Iarray)addr) & bit(arrayflags_fillp_bit))
+# special functions for each type:
+inline local uintL objsize_iarray (void* addr) { # non-simple array
+  var uintL size;
+  size = (uintL)iarray_rank((Iarray)addr);
+  if (iarray_flags((Iarray)addr) & bit(arrayflags_fillp_bit))
+    size += 1;
+  if (iarray_flags((Iarray)addr) & bit(arrayflags_dispoffset_bit))
         size += 1;
-      if (iarray_flags((Iarray)addr) & bit(arrayflags_dispoffset_bit))
-        size += 1;
-      # size = Dimensionszahl + (1 falls Fill-Pointer) + (1 falls Displaced-Offset)
-      return size_iarray(size);
-    }
+  # size = dimension number + (1 if fill-pointer) + (1 if displaced-offset)
+  return size_iarray(size);
+}
 
 #ifdef SPVW_PURE
 
-  inline local uintL objsize_symbol (addr) # Symbol
-    var void* addr;
-    {
-      return size_symbol();
-     }
-  inline local uintL objsize_sbvector (addr) # simple-bit-vector
-    var void* addr;
-    {
-      return size_sbvector(sbvector_length((Sbvector)addr));
-    }
-  inline local uintL objsize_sb2vector (addr) # simple-2bit-vector
-    var void* addr;
-    {
-      return size_sb2vector(sbvector_length((Sbvector)addr));
-    }
-  inline local uintL objsize_sb4vector (addr) # simple-4bit-vector
-    var void* addr;
-    {
-      return size_sb4vector(sbvector_length((Sbvector)addr));
-    }
-  inline local uintL objsize_sb8vector (addr) # simple-8bit-vector
-    var void* addr;
-    {
-      return size_sb8vector(sbvector_length((Sbvector)addr));
-    }
-  inline local uintL objsize_sb16vector (addr) # simple-16bit-vector
-    var void* addr;
-    {
-      return size_sb16vector(sbvector_length((Sbvector)addr));
-    }
-  inline local uintL objsize_sb32vector (addr) # simple-32bit-vector
-    var void* addr;
-    {
-      return size_sb32vector(sbvector_length((Sbvector)addr));
-    }
-  inline local uintL objsize_sstring (addr) # simple-string
-    var void* addr;
-    {
-      return size_sstring(sstring_length((Sstring)addr));
-    }
-  inline local uintL objsize_svector (addr) # simple-vector
-    var void* addr;
-    {
-      return size_svector(svector_length((Svector)addr));
-    }
-  inline local uintL objsize_record (addr) # Record
-    var void* addr;
-    {
-      if (record_type((Record)addr) < rectype_limit)
-        return size_srecord(srecord_length((Srecord)addr));
-      else
-        return size_xrecord(xrecord_length((Xrecord)addr),xrecord_xlength((Xrecord)addr));
-    }
-  inline local uintL objsize_bignum (addr) # Bignum
-    var void* addr;
-    {
-      return size_bignum(bignum_length((Bignum)addr));
-    }
-  #ifndef WIDE
-  inline local uintL objsize_ffloat (addr) # Single-Float
-    var void* addr;
-    {
-      return size_ffloat();
-    }
-  #endif
-  inline local uintL objsize_dfloat (addr) # Double-Float
-    var void* addr;
-    {
-      return size_dfloat();
-    }
-  inline local uintL objsize_lfloat (addr) # Long-Float
-    var void* addr;
-    {
-      return size_lfloat(lfloat_length((Lfloat)addr));
-    }
+inline local uintL objsize_symbol (void* addr) { # Symbol
+  return size_symbol();
+}
+inline local uintL objsize_sbvector (void* addr) { # simple-bit-vector
+  return size_sbvector(sbvector_length((Sbvector)addr));
+}
+inline local uintL objsize_sb2vector (void* addr) { # simple-2bit-vector
+  return size_sb2vector(sbvector_length((Sbvector)addr));
+}
+inline local uintL objsize_sb4vector (void* addr) { # simple-4bit-vector
+  return size_sb4vector(sbvector_length((Sbvector)addr));
+}
+inline local uintL objsize_sb8vector (void* addr) { # simple-8bit-vector
+  return size_sb8vector(sbvector_length((Sbvector)addr));
+}
+inline local uintL objsize_sb16vector (void* addr) { # simple-16bit-vector
+  return size_sb16vector(sbvector_length((Sbvector)addr));
+}
+inline local uintL objsize_sb32vector (void* addr) { # simple-32bit-vector
+  return size_sb32vector(sbvector_length((Sbvector)addr));
+}
+inline local uintL objsize_sstring (void* addr) { # simple-string
+  return size_sstring(sstring_length((Sstring)addr));
+}
+inline local uintL objsize_svector (void* addr) { # simple-vector
+  return size_svector(svector_length((Svector)addr));
+}
+inline local uintL objsize_record (void* addr) { # Record
+  if (record_type((Record)addr) < rectype_limit)
+    return size_srecord(srecord_length((Srecord)addr));
+  else
+    return size_xrecord(xrecord_length((Xrecord)addr),
+                        xrecord_xlength((Xrecord)addr));
+}
+inline local uintL objsize_bignum (void* addr) { # Bignum
+  return size_bignum(bignum_length((Bignum)addr));
+}
+#ifndef WIDE
+inline local uintL objsize_ffloat (void* addr) { # Single-Float
+  return size_ffloat();
+}
+#endif
+inline local uintL objsize_dfloat (void* addr) { # Double-Float
+  return size_dfloat();
+}
+inline local uintL objsize_lfloat (void* addr) { # Long-Float
+  return size_lfloat(lfloat_length((Lfloat)addr));
+}
 
-  # Tabelle von Funktionen:
-  typedef uintL (*objsize_func_t) (void* addr);
-  local objsize_func_t objsize_table[heapcount];
+# table of functions:
+typedef uintL (*objsize_func_t) (void* addr);
+local objsize_func_t objsize_table[heapcount];
 
-  local void init_objsize_table (void);
-  local void init_objsize_table()
-    {
-      var uintL heapnr;
-      for (heapnr=0; heapnr<heapcount; heapnr++) {
-        switch (heapnr) {
-          case_symbol:
-            objsize_table[heapnr] = &objsize_symbol; break;
-          case_sbvector:
-            objsize_table[heapnr] = &objsize_sbvector; break;
-          case_sb2vector:
-            objsize_table[heapnr] = &objsize_sb2vector; break;
-          case_sb4vector:
-            objsize_table[heapnr] = &objsize_sb4vector; break;
-          case_sb8vector:
-            objsize_table[heapnr] = &objsize_sb8vector; break;
-          case_sb16vector:
-            objsize_table[heapnr] = &objsize_sb16vector; break;
-          case_sb32vector:
-            objsize_table[heapnr] = &objsize_sb32vector; break;
-          case_sstring:
-            objsize_table[heapnr] = &objsize_sstring; break;
-          case_svector: case_weakkvt:
-            objsize_table[heapnr] = &objsize_svector; break;
-          case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector:
-            objsize_table[heapnr] = &objsize_iarray; break;
-          case_record:
-            objsize_table[heapnr] = &objsize_record; break;
-          case_bignum:
-            objsize_table[heapnr] = &objsize_bignum; break;
-          #ifndef WIDE
-          case_ffloat:
-            objsize_table[heapnr] = &objsize_ffloat; break;
-          #endif
-          case_dfloat:
-            objsize_table[heapnr] = &objsize_dfloat; break;
-          case_lfloat:
-            objsize_table[heapnr] = &objsize_lfloat; break;
-          case_machine:
-          case_char:
-          case_subr:
-          case_system:
-          case_fixnum:
-          case_sfloat:
-          #ifdef WIDE
-          case_ffloat:
-          #endif
-            # Das sind direkte Objekte, keine Pointer.
-          /* case_ratio: */
-          /* case_complex: */
-          default:
-            # Das sind keine Objekte variabler Länge.
-            objsize_table[heapnr] = (objsize_func_t)&abort; break;
-        }
-      }
+local void init_objsize_table (void) {
+  var uintL heapnr;
+  for (heapnr=0; heapnr<heapcount; heapnr++) {
+    switch (heapnr) {
+     case_symbol:
+      objsize_table[heapnr] = &objsize_symbol; break;
+     case_sbvector:
+      objsize_table[heapnr] = &objsize_sbvector; break;
+     case_sb2vector:
+      objsize_table[heapnr] = &objsize_sb2vector; break;
+     case_sb4vector:
+      objsize_table[heapnr] = &objsize_sb4vector; break;
+     case_sb8vector:
+      objsize_table[heapnr] = &objsize_sb8vector; break;
+     case_sb16vector:
+      objsize_table[heapnr] = &objsize_sb16vector; break;
+     case_sb32vector:
+      objsize_table[heapnr] = &objsize_sb32vector; break;
+     case_sstring:
+      objsize_table[heapnr] = &objsize_sstring; break;
+     case_svector: case_weakkvt:
+      objsize_table[heapnr] = &objsize_svector; break;
+     case_mdarray: case_obvector: case_ob2vector: case_ob4vector:
+     case_ob8vector: case_ob16vector: case_ob32vector: case_ostring:
+     case_ovector:
+      objsize_table[heapnr] = &objsize_iarray; break;
+     case_record:
+      objsize_table[heapnr] = &objsize_record; break;
+     case_bignum:
+      objsize_table[heapnr] = &objsize_bignum; break;
+    #ifndef WIDE
+     case_ffloat:
+      objsize_table[heapnr] = &objsize_ffloat; break;
+    #endif
+     case_dfloat:
+      objsize_table[heapnr] = &objsize_dfloat; break;
+     case_lfloat:
+      objsize_table[heapnr] = &objsize_lfloat; break;
+     case_machine:
+     case_char:
+     case_subr:
+     case_system:
+     case_fixnum:
+     case_sfloat:
+    #ifdef WIDE
+     case_ffloat:
+    #endif
+      # these are direct objects, no pointers.
+      /* case_ratio: */
+      /* case_complex: */
+      default:
+        # these are no objects of variable length.
+        objsize_table[heapnr] = (objsize_func_t)&abort; break;
     }
+  }
+}
 
-  #define var_prepare_objsize  \
+#define var_prepare_objsize  \
     var objsize_func_t _objsize_func = objsize_table[heapnr];
-  #define objsize(addr)  (*_objsize_func)(addr)
+#define objsize(addr)  (*_objsize_func)(addr)
 
 #endif # SPVW_PURE
 
-  global uintL varobject_bytelength (object obj);
-  global uintL varobject_bytelength(obj)
-    var object obj;
-    {
-      #ifdef SPVW_PURE
-      var uintL heapnr = typecode(obj);
-      #endif
-      var_prepare_objsize;
-      return objsize(TheVarobject(obj));
-    }
+global uintL varobject_bytelength (object obj) {
+ #ifdef SPVW_PURE
+  var uintL heapnr = typecode(obj);
+ #endif
+  var_prepare_objsize;
+  return objsize(TheVarobject(obj));
+}

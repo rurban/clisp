@@ -1,3 +1,9 @@
+2002-04-01  Stefan Kain  <stefan.kain@freenet.de>
+
+	* spvw_heap.diff, spvw_language.diff, spvw_objsize.diff:
+	* spvw_sigint.diff, spvw_space.diff, spvw_update.diff:
+	* spvw_walk.diff: translated all comments
+
 2002-03-31  Sam Steingold  <sds@gnu.org>
 
 	* reploop.lisp (commands4): `Continue' was mentioned twice

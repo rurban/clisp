@@ -30,10 +30,10 @@ global object CLOTEXT (const char*);
 
 #ifndef LANGUAGE_STATIC
 
-# Sprache, in der mit dem Benutzer kommuniziert wird:
+# language, that is used for communication with the user:
 global uintL language;
 
-# Initialisiert die Sprache, gegeben die Sprachbezeichnung.
+# Initializes the language, given the language name.
 local bool init_language_from (const char* langname);
 #ifdef GNU_GETTEXT
   #define language_deutsch   1
@@ -66,16 +66,16 @@ local bool init_language_from (const char* langname) {
   }
   if (asciz_equal(langname,"FRANCAIS") || asciz_equal(langname,"francais")
      #ifndef ASCII_CHS
-      || asciz_equal(langname,"FRAN\307AIS") || asciz_equal(langname,"FRAN\303\207AIS") # FRANÇAIS
-      || asciz_equal(langname,"fran\347ais") || asciz_equal(langname,"fran\303\247ais") # français
+      || asciz_equal(langname,"FRAN\307AIS") || asciz_equal(langname,"FRAN\303\207AIS") # FRENCH
+      || asciz_equal(langname,"fran\347ais") || asciz_equal(langname,"fran\303\247ais") # french
      #endif
       || asciz_equal(langname,"FRENCH") || asciz_equal(langname,"french")) {
     language = language_francais; return true;
   }
   if (asciz_equal(langname,"ESPANOL") || asciz_equal(langname,"espanol")
      #ifndef ASCII_CHS
-      || asciz_equal(langname,"ESPA\321OL") || asciz_equal(langname,"ESPA\303\221OL") # ESPAÑOL
-      || asciz_equal(langname,"espa\361ol") || asciz_equal(langname,"espa\303\261ol") # español
+      || asciz_equal(langname,"ESPA\321OL") || asciz_equal(langname,"ESPA\303\221OL") # SPANISH
+      || asciz_equal(langname,"espa\361ol") || asciz_equal(langname,"espa\303\261ol") # spanish
      #endif
       || asciz_equal(langname,"SPANISH") || asciz_equal(langname,"spanish")) {
     language = language_spanish; return true;
@@ -88,15 +88,15 @@ local bool init_language_from (const char* langname) {
   return false;
 }
 
-# Initialisiert die Sprache.
+# Initializes the language.
 global void init_language (const char* argv_language,
                            const char* argv_localedir) {
-  # Sprache wird so festgelegt, mit Prioritäten in dieser Reihenfolge:
-  #   1. Fest eingebaut, LANGUAGE_STATIC
-  #   2. -L Kommandozeilen-Argument
-  #   3. Environment-Variable CLISP_LANGUAGE
-  #   4. Environment-Variable LANG
-  #   5. Default: Englisch
+  # language is set with priorities in this order:
+  #   1. built in fix, LANGUAGE_STATIC
+  #   2. -L command line argument
+  #   3. environment-variable CLISP_LANGUAGE
+  #   4. environment-variable LANG
+  #   5. default: English
   if (argv_language) {
     if (init_language_from(argv_language))
       goto chosen1;
@@ -129,7 +129,7 @@ global void init_language (const char* argv_language,
   {
     var const char* lang = getenv("LANG");
     if (lang) {
-      # LANG hat i.a. die Syntax Sprache[_Land][.Zeichensatz]
+      # LANG has in general the syntax language[_country][.charset]
       if (lang[0]=='e' && lang[1]=='n'
           && !ascii_alphanumericp(lang[2])) { # "en"
         language = language_english; goto chosen2;
@@ -180,7 +180,7 @@ global void init_language (const char* argv_language,
     # before the gettext library opens the catalog file, we have to
     # convert argv_localedir to be an absolute pathname, if possible.
     #ifdef UNIX
-    if (!(argv_localedir == NULL))
+    if (argv_localedir != NULL)
       if (argv_localedir[0] != '\0' && argv_localedir[0] != '/') {
         var char currdir[MAXPATHLEN];
         if (!(getwd(currdir) == NULL)) {
@@ -224,41 +224,35 @@ global void init_language (const char* argv_language,
 
  #ifdef GNU_GETTEXT
 
-  global const char * clgettext (const char * msgid);
-  global const char * clgettext(msgid)
-    var const char * msgid;
-    {
-      var const char * translated_msg;
-      if (msgid[0] == '\0') {
-        # If you ask gettext to translate the empty string, it returns
-        # the catalog's header (containing meta information)!
-        translated_msg = msgid;
-      } else {
-        begin_system_call();
-        translated_msg = dgettext("clisp",msgid);
-        end_system_call();
-      }
-      return translated_msg;
+  global const char * clgettext (const char * msgid) {
+    var const char * translated_msg;
+    if (msgid[0] == '\0') {
+      # If you ask gettext to translate the empty string, it returns
+      # the catalog's header (containing meta information)!
+      translated_msg = msgid;
+    } else {
+      begin_system_call();
+      translated_msg = dgettext("clisp",msgid);
+      end_system_call();
     }
+    return translated_msg;
+  }
 
   # Low-level messages, which are output through asciz_out, are
   # stored in a separate catalog and returned in locale encoding.
-  global const char * clgettextl (const char * msgid);
-  global const char * clgettextl(msgid)
-    var const char * msgid;
-    {
-      var const char * translated_msg;
-      if (msgid[0] == '\0') {
-        # If you ask gettext to translate the empty string, it returns
-        # the catalog's header (containing meta information)!
-        translated_msg = msgid;
-      } else {
-        begin_system_call();
-        translated_msg = dgettext("clisplow",msgid);
-        end_system_call();
-      }
-      return translated_msg;
+  global const char * clgettextl (const char * msgid) {
+    var const char * translated_msg;
+    if (msgid[0] == '\0') {
+      # If you ask gettext to translate the empty string, it returns
+      # the catalog's header (containing meta information)!
+      translated_msg = msgid;
+    } else {
+      begin_system_call();
+      translated_msg = dgettext("clisplow",msgid);
+      end_system_call();
     }
+    return translated_msg;
+  }
 
   #endif
 
