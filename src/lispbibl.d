@@ -1694,6 +1694,22 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 #define CR   13  #  #\Return        carriage return
 #define PG   12  #  #\Page          form feed, new page
 
+# Desired reaction when an I/O operation cannot be completed immediately.
+typedef enum {
+  persev_full,      /* Continue the I/O operation until the whole buffer is
+                       handled or EOF or an error occurred. May hang. */
+  persev_partial,   /* Continue the I/O operation until some (non-empty) part
+                       of the buffer is handled or EOF or an error occurred.
+                       May hang. */
+  persev_immediate, /* Act immediately. Perform I/O only if we know in advance
+                       that it will not block. In case of doubt, perform it
+                       anway. May return with 0 bytes handled. Does usually
+                       not hang. */
+  persev_bonus      /* Act immediately. Perform I/O only if we know in advance
+                       that it will not block. In case of doubt, don't perform
+                       it. May return with 0 bytes handled. Does not hang. */
+} perseverance_t;
+
 #if defined(UNIX) || defined(WIN32)
 
 #ifdef UNIX
@@ -13738,15 +13754,15 @@ extern Handle stream_lend_handle (object stream, bool inputp, int * handletype);
 /* used by STREAM */
 
 /* Function: Reads several bytes from a stream.
- read_byte_array(&stream,&bytearray,start,len,no_hang)
+ read_byte_array(&stream,&bytearray,start,len,persev)
  > stream: stream (on the STACK)
  > object bytearray: simple-8bit-vector (on the STACK)
  > uintL start: start index of byte sequence to be filled
  > uintL len: length of byte sequence to be filled
- > bool no_hang: don't block, return already after partial read
+ > perseverance_t persev: how to react on incomplete I/O
  < uintL result: number of bytes that have been filled
  can trigger GC */
-extern uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, bool no_hang);
+extern uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, perseverance_t persev);
 /* used by SEQUENCE, PATHNAME */
 
 # Function: Writes several bytes to a stream.
@@ -13755,9 +13771,9 @@ extern uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* b
 # > object bytearray: simple-8bit-vector (on the STACK)
 # > uintL start: start index of byte sequence to be written
 # > uintL len: length of byte sequence to be written
-# > bool no_hang: don't block, return already after partial write
+# > perseverance_t persev: how to react on incomplete I/O
 # < uintL result: number of bytes that have been written
-extern uintL write_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, bool no_hang);
+extern uintL write_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, perseverance_t persev);
 # is used by SEQUENCE
 
 # Function: Reads several characters from a stream.

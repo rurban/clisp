@@ -546,6 +546,7 @@
 <!ENTITY initform-r "<replaceable>initform</replaceable>">
 <!ENTITY instance-r "<replaceable>instance</replaceable>">
 <!ENTITY int-r "<replaceable>integer</replaceable>">
+<!ENTITY interactive-r "<replaceable>interactive</replaceable>">
 <!ENTITY item-r "<replaceable>item</replaceable>">
 <!ENTITY k-r "<replaceable>k</replaceable>">
 <!ENTITY k1-r "<replaceable>k&sub-1;</replaceable>">
