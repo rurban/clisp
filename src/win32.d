@@ -200,7 +200,7 @@
 #define USE_SYS_TYPES_FD_SET
 #endif
   #include <winsock.h>
-#ifdef __mingw32__
+#ifdef __MINGW32__
 #undef USE_SYS_TYPES_FD_SET
 #endif
   # extern int WSAStartup (WORD VersionRequested, WSADATA* WSAData);
