@@ -24,7 +24,7 @@
 ;;;    traverse
 ;;;    triang
 
-(in-package user)
+(in-package "USER")
 
 (defparameter *source-type* "lisp")
 (defparameter *compiled-type* (pathname-type (compile-file-pathname "foo")))
@@ -39,8 +39,8 @@
 
 ;; put here your CPU speed in GHz
 (defparameter *scale*
-  #+CLISP (/ (POSIX:BOGOMIPS) 1000)
-  #-CLISP 1d0)
+  #+(and CLISP SYSCALLS) (/ (POSIX:BOGOMIPS) 1000)
+  #-(and CLISP SYSCALLS) 1d0)
 
 (defvar *benchmark-type* nil)
 
@@ -177,7 +177,7 @@
   (when log (dribble log))
   (if *old-stat*
       (loop :initially
-        (format t "reference:~%~acurrent:~%~a~%"
+        (format t "~&reference:~%~acurrent:~%~a~%"
                 (car *old-stat*) (car *cur-stat*))
         :for cur :in (cdr *cur-stat*) :and old :in (cdr *old-stat*)
         :with c-tot = 0 :and c-tot-s = 0 :and o-tot = 0 :and o-tot-s = 0
