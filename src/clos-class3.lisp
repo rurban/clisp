@@ -14,7 +14,7 @@
 
 ;; CLtL2 28.1.4., ANSI CL 4.3.7. Integrating Types and Classes
 (defun subclassp (class1 class2)
-  (unless (>= (class-initialized class1) 4) (finalize-class class1 t))
+  (unless (>= (class-initialized class1) 4) (finalize-inheritance class1))
   (values
     (gethash class2 (class-all-superclasses class1)))) ; T or (default) NIL
 
@@ -1800,6 +1800,10 @@
 
 ;; ------------- Finalizing an instance of <semi-standard-class> -------------
 
+;; Preliminary.
+(defun finalize-inheritance (class)
+  (finalize-class class t))
+
 ;; Try to finalize a given class, given as a class name or class object.
 ;; Return the finalized class object on success, or nil when the class could
 ;; not yet be finalized.
@@ -1949,7 +1953,7 @@
     (if must-be-finalized
       ;; The class remains finalized.
       (progn
-        (finalize-class class t)
+        (finalize-inheritance class)
         (let ((new-direct-superclasses (class-direct-superclasses class)))
           (unless (equal old-direct-superclasses new-direct-superclasses)
             (let ((removed-direct-superclasses
@@ -1977,7 +1981,7 @@
     (setf (class-all-superclasses class) nil) ; mark as not yet finalized
     (if (class-instantiated class)
       ;; The class remains finalized.
-      (finalize-class class t)
+      (finalize-inheritance class)
       ;; The class becomes unfinalized. If it has an instantiated subclass, the
       ;; subclass' finalize-class invocation will re-finalize this one.
       (dolist (super (class-direct-superclasses class))
