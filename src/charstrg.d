@@ -2800,10 +2800,11 @@ LISPFUN(string_not_lessp,2,0,norest,key,4,
  > eqcomp: comparison function, &string_eqcomp or &string_eqcomp_ci
  < result: NIL if not found,
              position in string2 (as fixnum) if found.
- let eqcomp_fun be the type of such a comparison function: */
-typedef bool (*eqcomp_fun) (object string1, uintL offset1, object string2, uintL offset2, uintL len);
+ let eqcomp_fun_t be the type of such a comparison function: */
+typedef bool (*eqcomp_fun_t) (object string1, uintL offset1,
+                              object string2, uintL offset2, uintL len);
 local object string_search (const stringarg* arg1, const stringarg* arg2,
-                            eqcomp_fun eqcomp)
+                            eqcomp_fun_t eqcomp)
 {
   var uintL len1 = arg1->len;
   var uintL len2 = arg2->len;
