@@ -64,11 +64,11 @@
            table))
 
 (defun note-ai-change (method)
-  (let ((specializer (first (std-method-parameter-specializers method))))
-    (if (consp specializer)
+  (let ((specializer (first (std-method-specializers method))))
+    (if (eql-specializer-p specializer)
       ;; EQL-method for ALLOCATE-INSTANCE:
       ;; object must be a class, else worthless.
-      (let ((specialized-object (second specializer)))
+      (let ((specialized-object (eql-specializer-object specializer)))
         (when (class-p specialized-object)
           ;; Remove the entries from *make-instance-table* for which the
           ;; implied method might be applicable:
@@ -78,39 +78,39 @@
       (note-i-meta-change specializer *make-instance-table*))))
 
 (defun note-ii-change (method)
-  (let ((specializer (first (std-method-parameter-specializers method))))
+  (let ((specializer (first (std-method-specializers method))))
     ;; EQL-methods for INITIALIZE-INSTANCE are worthless in any case.
-    (unless (consp specializer)
+    (unless (eql-specializer-p specializer)
       ;; Remove the entries from *make-instance-table* for which the
       ;; implied method might be applicable:
       (note-i-change specializer *make-instance-table*))))
 
 (defun note-ri-change (method)
-  (let ((specializer (first (std-method-parameter-specializers method))))
+  (let ((specializer (first (std-method-specializers method))))
     ;; EQL-methods for REINITIALIZE-INSTANCE are essentially worthless.
-    (unless (consp specializer)
+    (unless (eql-specializer-p specializer)
       ;; Remove the entries from *reinitialize-instance-table* for which the
       ;; implied method might be applicable:
       (note-i-change specializer *reinitialize-instance-table*))))
 
 (defun note-uirc-change (method)
-  (let ((specializer (first (std-method-parameter-specializers method))))
+  (let ((specializer (first (std-method-specializers method))))
     ;; EQL-methods for UPDATE-INSTANCE-FOR-REDEFINED-CLASS are essentially
     ;; worthless.
-    (unless (consp specializer)
+    (unless (eql-specializer-p specializer)
       ;; Remove the entries from *update-instance-for-redefined-class-table*
       ;; for which the implied method might be applicable:
       (note-i-change specializer *update-instance-for-redefined-class-table*))))
 
 (defun note-uidc-change (method)
-  (let ((specializer1 (first (std-method-parameter-specializers method)))
-        (specializer2 (second (std-method-parameter-specializers method))))
+  (let ((specializer1 (first (std-method-specializers method)))
+        (specializer2 (second (std-method-specializers method))))
     ;; Methods for UPDATE-INSTANCE-FOR-DIFFERENT-CLASS with EQL specializer
     ;; in the first argument are essentially worthless.
-    (unless (consp specializer1)
+    (unless (eql-specializer-p specializer1)
       ;; Methods for UPDATE-INSTANCE-FOR-DIFFERENT-CLASS with EQL specializer
       ;; in the second argument are worthless in any case.
-      (unless (consp specializer2)
+      (unless (eql-specializer-p specializer2)
         ;; Remove the entries from *update-instance-for-different-class-table*
         ;; for which the implied method might be applicable:
         (let ((table *update-instance-for-different-class-table*))
@@ -123,11 +123,11 @@
                    table))))))
 
 (defun note-si-change (method)
-  (let* ((specializers (std-method-parameter-specializers method))
+  (let* ((specializers (std-method-specializers method))
          (specializer1 (first specializers))
          (specializer2 (second specializers)))
     ;; EQL-methods for SHARED-INITIALIZE are essentially worthless.
-    (unless (consp specializer1)
+    (unless (eql-specializer-p specializer1)
       ;; As second argument, INITIALIZE-INSTANCE passes always T .
       (when (typep 'T specializer2)
         ;; Remove the entries from *make-instance-table* for which the
@@ -185,26 +185,26 @@
      ;; list of all applicable methods from SHARED-INITIALIZE
      (remove-if-not
       #'(lambda (method)
-          (let* ((specializers (std-method-parameter-specializers method))
+          (let* ((specializers (std-method-specializers method))
                  (specializer1 (first specializers))
                  (specializer2 (second specializers)))
-            (and (atom specializer1) (subclassp class specializer1)
+            (and (not (eql-specializer-p specializer1))
+                 (subclassp class specializer1)
                  (typep 'T specializer2))))
       (the list (gf-methods |#'shared-initialize|)))
      ;; list of all applicable methods from INITIALIZE-INSTANCE
      (remove-if-not
       #'(lambda (method)
-          (let ((specializer
-                 (first (std-method-parameter-specializers method))))
-            (and (atom specializer) (subclassp class specializer))))
+          (let ((specializer (first (std-method-specializers method))))
+            (and (not (eql-specializer-p specializer))
+                 (subclassp class specializer))))
       (the list (gf-methods |#'initialize-instance|)))
      ;; list of all applicable methods from ALLOCATE-INSTANCE
      (remove-if-not
       #'(lambda (method)
-          (let ((specializer
-                 (first (std-method-parameter-specializers method))))
-            (if (consp specializer)
-              (eql class (second specializer))
+          (let ((specializer (first (std-method-specializers method))))
+            (if (eql-specializer-p specializer)
+              (eql class (eql-specializer-object specializer))
               (typep-class class specializer)))) ; <==> (typep class specializer)
       (the list (gf-methods |#'allocate-instance|))))))
 (defun make-instance-table-entry1 (class)
@@ -225,18 +225,19 @@
       ;; list of all applicable methods from SHARED-INITIALIZE
       (remove-if-not
         #'(lambda (method)
-            (let* ((specializers (std-method-parameter-specializers method))
+            (let* ((specializers (std-method-specializers method))
                    (specializer1 (first specializers))
                    (specializer2 (second specializers)))
-              (and (atom specializer1) (subclassp class specializer1)
+              (and (not (eql-specializer-p specializer1))
+                   (subclassp class specializer1)
                    (typep 'NIL specializer2))))
         (the list (gf-methods |#'shared-initialize|)))
       ;; list of all applicable methods from REINITIALIZE-INSTANCE
       (remove-if-not
         #'(lambda (method)
-            (let ((specializer
-                    (first (std-method-parameter-specializers method))))
-              (and (atom specializer) (subclassp class specializer))))
+            (let ((specializer (first (std-method-specializers method))))
+              (and (not (eql-specializer-p specializer))
+                   (subclassp class specializer))))
         (the list (gf-methods |#'reinitialize-instance|))))))
 
 ;; For UPDATE-INSTANCE-FOR-REDEFINED-CLASS the following is necessary as keys:
@@ -254,30 +255,36 @@
           ;; list of all applicable methods from SHARED-INITIALIZE
           (remove-if-not
             #'(lambda (method)
-                (let* ((specializers (std-method-parameter-specializers method))
+                (let* ((specializers (std-method-specializers method))
                        (specializer1 (first specializers))
                        (specializer2 (second specializers)))
-                  (and (atom specializer1) (subclassp class specializer1)
+                  (and (not (eql-specializer-p specializer1))
+                       (subclassp class specializer1)
                        (progn
-                         (when (or (consp specializer2) (eq specializer2 <null>))
+                         (when (or (eql-specializer-p specializer2)
+                                   (eq specializer2 <null>))
                            (setq independent nil))
                          (typep added-slots specializer2)))))
             (the list (gf-methods |#'shared-initialize|)))
           ;; list of all applicable methods from UPDATE-INSTANCE-FOR-REDEFINED-CLASS
           (remove-if-not
             #'(lambda (method)
-                (let* ((specializers (std-method-parameter-specializers method))
+                (let* ((specializers (std-method-specializers method))
                        (specializer1 (first specializers))
                        (specializer2 (second specializers))
                        (specializer3 (third specializers))
                        (specializer4 (fourth specializers)))
-                  (and (atom specializer1) (subclassp class specializer1)
+                  (and (not (eql-specializer-p specializer1))
+                       (subclassp class specializer1)
                        (progn
-                         (when (or (consp specializer2) (eq specializer2 <null>))
+                         (when (or (eql-specializer-p specializer2)
+                                   (eq specializer2 <null>))
                            (setq independent nil))
-                         (when (or (consp specializer3) (eq specializer3 <null>))
+                         (when (or (eql-specializer-p specializer3)
+                                   (eq specializer3 <null>))
                            (setq independent nil))
-                         (when (or (consp specializer4) (eq specializer4 <null>))
+                         (when (or (eql-specializer-p specializer4)
+                                   (eq specializer4 <null>))
                            (setq independent nil))
                          (and (typep added-slots specializer2)
                               (typep discarded-slots specializer3)
@@ -296,20 +303,23 @@
       ;; list of all applicable methods from SHARED-INITIALIZE
       (remove-if-not
         #'(lambda (method)
-            (let* ((specializers (std-method-parameter-specializers method))
+            (let* ((specializers (std-method-specializers method))
                    (specializer1 (first specializers))
                    (specializer2 (second specializers)))
-              (and (atom specializer1) (subclassp new-class specializer1)
+              (and (not (eql-specializer-p specializer1))
+                   (subclassp new-class specializer1)
                    (typep added-slots specializer2))))
         (the list (gf-methods |#'shared-initialize|)))
       ;; list of all applicable methods from UPDATE-INSTANCE-FOR-DIFFERENT-CLASS
       (remove-if-not
         #'(lambda (method)
-            (let* ((specializers (std-method-parameter-specializers method))
+            (let* ((specializers (std-method-specializers method))
                    (specializer1 (first specializers))
                    (specializer2 (second specializers)))
-              (and (atom specializer1) (subclassp old-class specializer1)
-                   (atom specializer2) (subclassp new-class specializer2))))
+              (and (not (eql-specializer-p specializer1))
+                   (subclassp old-class specializer1)
+                   (not (eql-specializer-p specializer2))
+                   (subclassp new-class specializer2))))
         (the list (gf-methods |#'update-instance-for-different-class|))))))
 
 ;; Also in record.d.
@@ -351,20 +361,19 @@
 ;; the main work is done by a SUBR:
 (do-defmethod 'shared-initialize
   (make-instance-<standard-method> <standard-method>
+    :specializers (list (find-class 'standard-object) (find-class 't))
     :initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%shared-initialize '(T)))
     :wants-next-method-p nil
-    :parameter-specializers (list (find-class 'standard-object) (find-class 't))
     :qualifiers '()
     :lambda-list '(instance slot-names &rest initargs)
     'signature #s(compiler::signature :req-num 2 :rest-p t)))
 (do-defmethod 'shared-initialize
   (make-instance-<standard-method> <standard-method>
+    :specializers (list (find-class 'structure-object) (find-class 't))
     :initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%shared-initialize '(T)))
     :wants-next-method-p nil
-    :parameter-specializers
-      (list (find-class 'structure-object) (find-class 't))
     :qualifiers '()
     :lambda-list '(instance slot-names &rest initargs)
     'signature #s(compiler::signature :req-num 2 :rest-p t)))
@@ -406,19 +415,19 @@
 ;; the main work is done by a SUBR:
 (do-defmethod 'reinitialize-instance
   (make-instance-<standard-method> <standard-method>
+    :specializers (list (find-class 'standard-object))
     :initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%reinitialize-instance '(T)))
     :wants-next-method-p nil
-    :parameter-specializers (list (find-class 'standard-object))
     :qualifiers '()
     :lambda-list '(instance &rest initargs)
     'signature #s(compiler::signature :req-num 1 :rest-p t)))
 (do-defmethod 'reinitialize-instance
   (make-instance-<standard-method> <standard-method>
+    :specializers (list (find-class 'structure-object))
     :initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%reinitialize-instance '(T)))
     :wants-next-method-p nil
-    :parameter-specializers (list (find-class 'structure-object))
     :qualifiers '()
     :lambda-list '(instance &rest initargs)
     'signature #s(compiler::signature :req-num 1 :rest-p t)))
@@ -472,19 +481,19 @@
 ;; the main work is done by a SUBR:
 (do-defmethod 'initialize-instance
   (make-instance-<standard-method> <standard-method>
+    :specializers (list (find-class 'standard-object))
     :initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%initialize-instance '(T)))
     :wants-next-method-p nil
-    :parameter-specializers (list (find-class 'standard-object))
     :qualifiers '()
     :lambda-list '(instance &rest initargs)
     'signature #s(compiler::signature :req-num 1 :rest-p t)))
 (do-defmethod 'initialize-instance
   (make-instance-<standard-method> <standard-method>
+    :specializers (list (find-class 'structure-object))
     :initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%initialize-instance '(T)))
     :wants-next-method-p nil
-    :parameter-specializers (list (find-class 'structure-object))
     :qualifiers '()
     :lambda-list '(instance &rest initargs)
     'signature #s(compiler::signature :req-num 1 :rest-p t)))
@@ -530,19 +539,19 @@
 ; the main work is done by a SUBR:
 (do-defmethod 'allocate-instance
   (make-instance-<standard-method> <standard-method>
+    :specializers (list (find-class 'standard-class))
     :initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%allocate-instance '(T)))
     :wants-next-method-p nil
-    :parameter-specializers (list (find-class 'standard-class))
     :qualifiers '()
     :lambda-list '(class &rest initargs)
     'signature #s(compiler::signature :req-num 1 :rest-p t)))
 (do-defmethod 'allocate-instance
   (make-instance-<standard-method> <standard-method>
+    :specializers (list (find-class 'structure-class))
     :initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%allocate-instance '(T)))
     :wants-next-method-p nil
-    :parameter-specializers (list (find-class 'structure-class))
     :qualifiers '()
     :lambda-list '(class &rest initargs)
     'signature #s(compiler::signature :req-num 1 :rest-p t)))
@@ -594,19 +603,19 @@
 ;; the main work is done by a SUBR:
 (do-defmethod 'make-instance
   (make-instance-<standard-method> <standard-method>
+    :specializers (list (find-class 'standard-class))
     :initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%make-instance '(T)))
     :wants-next-method-p nil
-    :parameter-specializers (list (find-class 'standard-class))
     :qualifiers '()
     :lambda-list '(class &rest initargs)
     'signature #s(compiler::signature :req-num 1 :rest-p t)))
 (do-defmethod 'make-instance
   (make-instance-<standard-method> <standard-method>
+    :specializers (list (find-class 'structure-class))
     :initfunction #'(lambda (gf) (declare (ignore gf))
                       (cons #'clos::%make-instance '(T)))
     :wants-next-method-p nil
-    :parameter-specializers (list (find-class 'structure-class))
     :qualifiers '()
     :lambda-list '(class &rest initargs)
     'signature #s(compiler::signature :req-num 1 :rest-p t)))

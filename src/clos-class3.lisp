@@ -1227,6 +1227,7 @@
                            (do-defmethod funname
                              (let* ((args
                                       (list
+                                        :specializers (list class)
                                         :initfunction
                                           (eval
                                             `#'(LAMBDA (#:SELF)
@@ -1235,7 +1236,6 @@
                                                    (DECLARE (COMPILE))
                                                    ,access-place)))
                                         :wants-next-method-p t
-                                        :parameter-specializers (list class)
                                         :qualifiers nil
                                         :lambda-list '(OBJECT)
                                         'signature (sys::memoized (make-signature :req-num 1))
@@ -1262,6 +1262,7 @@
                            (do-defmethod funname
                              (let* ((args
                                       (list
+                                        :specializers (list <t> class)
                                         :initfunction
                                           (eval
                                             `#'(LAMBDA (#:SELF)
@@ -1270,7 +1271,6 @@
                                                    (DECLARE (COMPILE))
                                                    (SETF ,access-place NEW-VALUE))))
                                         :wants-next-method-p t
-                                        :parameter-specializers (list <t> class)
                                         :qualifiers nil
                                         :lambda-list '(NEW-VALUE OBJECT)
                                         'signature (sys::memoized (make-signature :req-num 2))

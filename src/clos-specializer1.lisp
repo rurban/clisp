@@ -92,6 +92,15 @@
   (let ((specializer (allocate-metaobject-instance *<eql-specializer>-class-version* 5)))
     (apply #'initialize-instance-<eql-specializer> specializer args)))
 
+;; Type test.
+(defun eql-specializer-p (object)
+  (and (std-instance-p object)
+       (let ((cv (sys::%record-ref object 0)))
+         ; Treat the most frequent case first, for bootstrapping.
+         (or (eq cv *<eql-specializer>-class-version*)
+             (gethash <eql-specializer>
+                      (class-all-superclasses (class-of object)))))))
+
 ;;; ===========================================================================
 
 #|
@@ -153,3 +162,11 @@
 ;; MOP p. 52
 (defun eql-specializer-object (specializer)
   (eql-specializer-singleton specializer))
+
+;;; ===========================================================================
+
+;; Converts a specializer to a pretty printing type.
+(defun specializer-pretty (specializer)
+  (if (eql-specializer-p specializer)
+    `(EQL ,(eql-specializer-object specializer))
+    specializer))
