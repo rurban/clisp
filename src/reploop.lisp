@@ -83,6 +83,14 @@ If anything else, printed.")
   (dolist (s (reverse (remove-if-not #'stringp *key-bindings*)))
     (write-string s #|*debug-io*|#)))
 
+(defvar *saved-debug-package* *common-lisp-user-package*)
+(defvar *saved-debug-readtable* (copy-readtable nil))
+(defun debug-reset-io ()
+  (rotatef *package* *saved-debug-package*)
+  (rotatef *readtable* *saved-debug-readtable*)
+  (format *debug-io* "~&Reset *PACKAGE* to ~s" *package*)
+  (throw 'debug 'continue))
+
 ;; Components of the Break-Loop:
 (defvar *debug-frame*)
 (defvar *debug-mode*)
@@ -228,6 +236,8 @@ Help           :h (or ?)        this command list
 Error          :e               Print the recent Error Message
 Abort          :a               abort to the next recent input loop
 Unwind         :uw              abort to the next recent input loop
+Reset          :re              toggle *PACKAGE* and *READTABLE* between the
+                                local bindings and the sane values
 Mode-1         :m1              inspect all the stack elements
 Mode-2         :m2              inspect all the frames
 Mode-3         :m3              inspect only lexical frames
@@ -261,6 +271,8 @@ Return         :rt              leave EVAL frame, prescribing the return values"
    (cons ":a"           #'debug-unwind)
    (cons "Unwind"       #'debug-unwind)
    (cons ":uw"          #'debug-unwind)
+   (cons "Reset"        #'debug-reset-io)
+   (cons ":re"          #'debug-reset-io)
    (cons "Mode-1"       #'debug-mode-1)
    (cons ":m1"          #'debug-mode-1)
    (cons "Mode-2"       #'debug-mode-2)
