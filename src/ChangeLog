@@ -1,3 +1,9 @@
+2002-05-28  Sam Steingold  <sds@gnu.org>
+
+	* socket.d (connect_via_ip): when 0 timeout is given return
+	immediately (do not wait at all); the next i/o operation on this
+	socket might block - use SOCKET-STATUS to check that
+
 2002-05-29  Bruno Haible  <bruno@clisp.org>
 
 	Speed up the loading of type.lisp.

@@ -813,7 +813,7 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
  #ifdef WIN32_NATIVE
   if (!lingerize_socket(&fd)) return INVALID_SOCKET;
  #endif
- #ifdef FIONBIO
+ #if defined(FIONBIO) && (defined(HAVE_SELECT) || defined(WIN32_NATIVE))
   if (timeout) {
     var int non_blocking_io = 1;
     if (ioctl(fd,FIONBIO,&non_blocking_io) != 0) { return INVALID_SOCKET; }
@@ -821,23 +821,28 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
  #endif
   if (connect(fd, addr, addrlen) >= 0)
     return fd;
- #ifdef FIONBIO
+ #if defined(FIONBIO) && (defined(HAVE_SELECT) || defined(WIN32_NATIVE))
   if (sock_errno_is(EINPROGRESS)) {
-   restart_select:
-    var fd_set handle_set;
-    FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
-    var int ret = select(FD_SETSIZE,NULL,&handle_set,NULL,
-                         (struct timeval*)timeout);
-    if (ret < 0) {
-      if (sock_errno_is(EINTR)) goto restart_select;
-      saving_sock_errno(CLOSESOCKET(fd)); return INVALID_SOCKET;
+    var struct timeval *tvp = (struct timeval*)timeout;
+    if ((tvp == NULL) || (tvp->tv_sec != 0) || (tvp->tv_usec != 0)) { # wait
+     #if defined(WIN32_NATIVE)
+      interruptible_wait(fd,tvp);
+     #else
+     restart_select:
+      var fd_set handle_set;
+      FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
+      var int ret = select(FD_SETSIZE,NULL,&handle_set,NULL,tvp);
+      if (ret < 0) {
+        if (sock_errno_is(EINTR)) goto restart_select;
+        saving_sock_errno(CLOSESOCKET(fd)); return INVALID_SOCKET;
+      }
+      if (ret == 0) { # timeout
+        CLOSESOCKET(fd); errno = ETIMEDOUT;
+        return INVALID_SOCKET;
+      }
+     #endif
     }
-    if (ret == 0) { # timeout
-      CLOSESOCKET(fd); errno = ETIMEDOUT;
-      return INVALID_SOCKET;
-    }
-    if (connect(fd, addr, addrlen) >= 0) {
-      # connected - restore blocking IO
+    { # connected - restore blocking IO
       var int non_blocking_io = 0;
       if (ioctl(fd,FIONBIO,&non_blocking_io) == 0)
         return fd;
