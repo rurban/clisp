@@ -2268,8 +2268,9 @@ ICE-CREAM-FACTORY
 (progn
   (defvar *x* 'global-x)
   (let ((y 'local-y))
-    (defstruct baz (*x* 'x-init) (y *x*) (z y)))
-  (make-baz))
+    (defstruct baz (*x* 'x-init) (y *x*) (z y))))
+baz
+(make-baz)
 #S(BAZ :*X* X-INIT :Y GLOBAL-X :Z LOCAL-Y)
 
 ;Kap 20 EVAL
