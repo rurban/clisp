@@ -1894,14 +1894,14 @@ LISPFUNNR(charset_typep,2) {
   skipSTACK(2);
 }
 
+#ifdef UNICODE
+
 /* (EXT:ENCODING-CHARSET encoding) --> charset */
 LISPFUNNR(encoding_charset,1) {
   var object encoding = popSTACK();
   if (!encodingp(encoding)) fehler_encoding(encoding);
   VALUES1(TheEncoding(encoding)->enc_charset);
 }
-
-#ifdef UNICODE
 
 /* (SYSTEM::CHARSET-RANGE encoding char1 char2 [maxintervals])
  returns the range of characters in [char1,char2] encodable in the encoding. */

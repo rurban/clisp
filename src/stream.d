@@ -5258,7 +5258,7 @@ local uintL rd_ch_array_unbuffered (const gcv_object_t* stream_,
       skipSTACK(1);
     }
     #else
-    count = UnbufferedStreamLow_read_array(stream)(stream,tmpbuf,remaining,falseno_hang) - &tmpbuf[0];
+    count = UnbufferedStreamLow_read_array(stream)(stream,tmpbuf,remaining,false) - &tmpbuf[0];
     #endif
     if (count == 0)
       break;
