@@ -1458,10 +1458,8 @@ local uintL rd_by_array_concat (const gcv_object_t* stream_,
   check_SP(); check_STACK();
   var uintL result = 0;
   var object stream = *stream_;
-  var object streamlist = TheStream(stream)->strm_concat_list; # list of streams
-  loop {
-    if (atomp(streamlist))
-      break;
+  var object streamlist = TheStream(stream)->strm_concat_list;
+  while (consp(streamlist)) {
     pushSTACK(Car(streamlist));
     var uintL count = read_byte_array(&STACK_0,bytearray_,start,len);
     skipSTACK(1);
@@ -1522,10 +1520,8 @@ local uintL rd_ch_array_concat (const gcv_object_t* stream_,
   check_SP(); check_STACK();
   var uintL result = 0;
   var object stream = *stream_;
-  var object streamlist = TheStream(stream)->strm_concat_list; # list of streams
-  loop {
-    if (atomp(streamlist))
-      break;
+  var object streamlist = TheStream(stream)->strm_concat_list;
+  while (consp(streamlist)) {
     pushSTACK(Car(streamlist));
     var uintL count = read_char_array(&STACK_0,chararray_,start,len);
     skipSTACK(1);
@@ -2441,10 +2437,7 @@ local object rd_ch_buff_in (const gcv_object_t* stream_) {
   var uintL index = posfixnum_to_L(TheStream(stream)->strm_buff_in_index);
   var uintL endindex =
     posfixnum_to_L(TheStream(stream)->strm_buff_in_endindex);
-  loop {
-    if (index < endindex) # still something in the current String?
-      break;
-    # String-Ende reached
+  while (index >= endindex) { /* string end reached */
     # call fun:
     funcall(TheStream(stream)->strm_buff_in_fun,0);
     if (!stringp(value1))
@@ -14522,12 +14515,8 @@ LISPFUNN(socket_server_close,1) {
   if (!nullp(TheSocketServer(ss)->socket_handle)) {
     var SOCKET s = TheSocket(TheSocketServer(ss)->socket_handle);
     begin_system_call();
-    loop {
-      if (closesocket(s) < 0) {
-        if (!sock_errno_is(EINTR)) { SOCK_error(); }
-      } else
-        break;
-    }
+    while (closesocket(s) < 0)
+      if (!sock_errno_is(EINTR)) { SOCK_error(); }
     end_system_call();
     TheSocketServer(ss)->socket_handle = NIL;
   }
