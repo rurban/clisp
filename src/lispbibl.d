@@ -4998,8 +4998,8 @@ typedef struct {
   #define set_ht_invalid(ptr)  mark_ht_invalid(ptr)
   #define set_ht_valid(ptr)  mark_ht_valid(ptr)
 #else
-  extern bool hash_lookup_builtin (object ht, object obj, gcv_object_t** KVptr_, gcv_object_t** Iptr_);
-  extern bool hash_lookup_builtin_with_rehash (object ht, object obj, gcv_object_t** KVptr_, gcv_object_t** Iptr_);
+  extern bool hash_lookup_builtin (object ht, object obj, bool allowgc, gcv_object_t** KVptr_, gcv_object_t** Iptr_);
+  extern bool hash_lookup_builtin_with_rehash (object ht, object obj, bool allowgc, gcv_object_t** KVptr_, gcv_object_t** Iptr_);
   #define set_ht_invalid(ptr)  \
     (mark_ht_invalid(ptr),                                               \
      eq((ptr)->ht_lookupfn,P(hash_lookup_builtin))                       \
@@ -5016,7 +5016,10 @@ typedef struct {
 #define htflags_warn_gc_rehash_B  bit(5)
 # Extract the part of the flags that encodes the test.
 #define ht_test_code(flags)  \
-  (flags & (bit(0) | bit(1) | bit(2) | bit(3) | bit(4)))
+  (flags & (bit(0) | bit(1) | bit(2) | bit(3)))
+# Tests whether a test code indicates a user-defined test function.
+#define ht_test_code_user_p(test_code)  \
+  (((test_code) & bit(2)) != 0)
 # Test whether a hash table is weak.
 #define ht_weak_p(ht)  \
   !simple_vector_p(TheHashtable(ht)->ht_kvtable)

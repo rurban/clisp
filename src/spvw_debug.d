@@ -173,15 +173,17 @@ local void nobject_out1 (FILE* out, object obj, int level) {
             posfixnum_to_L(TheHashtable(obj)->ht_maxcount),
             posfixnum_to_L(TheHashtable(obj)->ht_mincount));
     fputs("\n  test=",out);
-    switch (ht_test_code(record_flags(TheHashtable(obj)))) {
-      case bit(0): XOUT(S(eq)); break;
-      case bit(1): XOUT(S(eql)); break;
-      case bit(2): XOUT(S(equal)); break;
-      case bit(3): XOUT(S(equalp)); break;
-      default:
-        XOUT(TheHashtable(obj)->ht_test); fputc('/',out);
-        XOUT(TheHashtable(obj)->ht_hash);
-        break;
+    if (ht_test_code_user_p(ht_test_code(record_flags(TheHashtable(obj))))) {
+      XOUT(TheHashtable(obj)->ht_test); fputc('/',out);
+      XOUT(TheHashtable(obj)->ht_hash);
+    } else {
+      switch (ht_test_code(record_flags(TheHashtable(obj))) & (bit(1)|bit(0))) {
+        case 0: XOUT(S(eq)); break;
+        case 1: XOUT(S(eql)); break;
+        case 2: XOUT(S(equal)); break;
+        case 3: XOUT(S(equalp)); break;
+        default: abort();
+      }
     }
     fputs("\n  KV=",out); XOUT(TheHashtable(obj)->ht_kvtable);
     fputc(')',out);

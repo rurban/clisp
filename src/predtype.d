@@ -919,7 +919,8 @@ local bool hash_table_equalp (object ht1, object ht2)
   var uintB flags1 = ht_test_code(record_flags(TheHashtable(ht1)));
   var uintB flags2 = ht_test_code(record_flags(TheHashtable(ht2)));
   /* Not same built-in test or a user-defined test? */
-  if (flags1 != flags2 || flags1==0 /* || flags2==0 */)
+  if (flags1 != flags2
+      || ht_test_code_user_p(flags1) /* || ht_test_code_user_p(flags2) */)
     return false;
   if (!eq(TheHashedAlist(TheHashtable(ht1)->ht_kvtable)->hal_count,
           TheHashedAlist(TheHashtable(ht2)->ht_kvtable)->hal_count))
