@@ -1,5 +1,9 @@
 2003-05-05  Sam Steingold  <sds@gnu.org>
 
+	* backquote.lisp (bq-vec-expand): fixed the unoptimized case
+
+2003-05-05  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #[ 732767 ]: STRING-INFO does not work with displaced strings
 	* charstrg.d (STRING-INFO): handle displaced strings
 
