@@ -1943,10 +1943,12 @@
 2002-03-14  Sam Steingold  <sds@gnu.org>
 
 	* defs1.lisp (require): fixed a deadly typo in the 2002-02-28 patch
+	this fixed bug #[ 580092 ]: problems with require
+	which will be filed on 2002-07-11
 
 2002-03-13  Sam Steingold  <sds@gnu.org>
 
-	fixed bug #[ 528886 ] (typep x (type-of x)) must => T (FFI)
+	fixed bug #[ 528886 ]: (typep x (type-of x)) must => T (FFI)
 	* type.lisp (foreign-function, foreign-variable, foreign-address)
 	(foreign-pointer): new types
 	(subtypep): FOREIGN-FUNCTION is a FUNCTION
