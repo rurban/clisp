@@ -1,3 +1,12 @@
+2001-09-17  Sam Steingold  <sds@gnu.org>
+
+	bind *PRINT-READABLY* to NIL before reporting errors
+	* error.d (write_errorobject): bind *PRINT-READABLY* to NIL
+	(signal_and_debug): new function; extracted from end_error(),
+	ERROR, ERROR-OF-TYPE; additionally bind *PRINT-READABLY* to NIL
+	(end_error, ERROR, ERROR-OF-TYPE): use it
+	* debug.d (break_driver): bind *PRINT-READABLY* to NIL
+
 2001-09-14  Sam Steingold  <sds@gnu.org>
 
 	* regexp.lisp (with-loop-split): :case-sensitive is a &key, not
