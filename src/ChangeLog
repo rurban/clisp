@@ -1,6 +1,8 @@
 2003-09-22  Sam Steingold  <sds@gnu.org>
 
 	* unix.d (SHUT_RD, SHUT_WR, SHUT_RDWR): define when not defined
+	* makemake.in (encflags) [!UNICODE]: void
+	* utils/modprep.lisp (modprep) [!UNICODE]: no :external-format
 	Reported by Don Cohen <don-sourceforge@isis.cs3-inc.com>
 
 2003-09-19  Sam Steingold  <sds@gnu.org>
