@@ -1,5 +1,11 @@
 2002-12-11  Sam Steingold  <sds@gnu.org>
 
+	* reploop.lisp (debug-inspect-error): new function
+	(commands1): bind it to Inspect/:i
+	(break-loop): handle inspect-error catch'ed return
+
+2002-12-11  Sam Steingold  <sds@gnu.org>
+
 	* debug.d (break_driver): restore back_trace before
 	unwind()/reset() when the error is not continuable;
 	use const and p_backtrace_t as appropriate
