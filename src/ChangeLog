@@ -1,5 +1,9 @@
 2001-10-24  Sam Steingold  <sds@gnu.org>
 
+	* charstrg.d (char_name, name_char): fixed for --without-unicode
+
+2001-10-24  Sam Steingold  <sds@gnu.org>
+
 	fixed --without-unicode on msvc
 	* lispbibl.d (pseudodata_tab) [MS !UNICODE]: add a dummy member
 	* spvw.d (pseudocode_anz) [MS !UNICODE]: define to 0
