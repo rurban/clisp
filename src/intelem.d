@@ -1357,27 +1357,6 @@ global maygc object UDS_to_I (uintD* MSDptr, uintC len)
   return NDS_to_I(MSDptr,len);
 }
 
-/* bit sequence --> integer */
-global maygc object udigits_to_I (void* digits, uintC len) {
-  var uintL bn_size = ceiling(len,sizeof(uintD));
-  var uintD total = bn_size * sizeof(uintD);
-  var void *data = (len == total ? digits :
-                    total<=1024 ? alloca(total) : my_malloc(total));
-  if (data != digits) {      /* len is not divisible by sizeof(uintD) */
-    begin_system_call();
-    memset(data,0,total);
-    memcpy((char*)data + total - len,digits,len);
-    end_system_call();
-  }
-  var object ret = UDS_to_I(data,bn_size);
-  if (data != digits && total>1024) {
-    begin_system_call();
-    free(data);
-    end_system_call();
-  }
-  return ret;
-}
-
 /* Digit Sequence to Integer
  DS_to_I(MSDptr,len)
  convert DS MSDptr/len/.. into Integer.
