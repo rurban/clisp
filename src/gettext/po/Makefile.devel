@@ -1,7 +1,8 @@
 # This is the developer's -*- Makefile -*-, not the user's makefile.
-# Don't use it unless you know exactly what you do!
+# Do not use it unless you know exactly what you are doing!
 
-# This Makefile needs GNU make and GNU msgfmt (from the GNU gettext package).
+# This Makefile requires GNU make and
+# GNU gettext 0.11 or above (msgfmt and msguniq).
 
 SHELL = /bin/sh
 RM = rm -rf
@@ -75,20 +76,23 @@ $(SOURCES_EN) : tmp/%.en : tmp/%.pot
 pot : clisp.pot $(patsubst %,%.po,$(LINGUAS)) \
       clisplow.pot $(patsubst %,clisplow_%.po,$(LINGUAS))
 
+MSGUNIQ = msguniq -w 1000
+
 # We build the .pot file by simple concatenation. No sorting!!
-clisp.pot : $(SOURCES_POT) ../../VERSION po_header clisp-msguniq
+clisp.pot : $(SOURCES_POT) ../../VERSION po_header
 	(./po_header t ; cat $(SOURCES_POT)) > clisp.pox
-	$${CLISP} ./clisp-msguniq clisp.pox $@
+	$(MSGUNIQ) clisp.pox -o $@
 	$(RM) clisp.pox
 
-en.po : $(SOURCES_EN) ../../VERSION po_header clisp-msguniq
+en.po : $(SOURCES_EN) ../../VERSION po_header
 	(./po_header en ; cat $(SOURCES_EN)) > en.pox
-	$${CLISP} ./clisp-msguniq en.pox $@ $@
+	$(MSGUNIQ) en.pox -o $@
 	$(RM) en.pox
 
 
 PACKAGE = clisp
 MSGMERGE = msgmerge -v -w 1000
+
 update-po : force
 	for lang in $(OTHER_LINGUAS); do \
 	  echo "$$lang:"; \
@@ -115,9 +119,9 @@ $(patsubst %,%.po.merged,$(OTHER_LINGUAS)) : %.po.merged : %.po.new %.po $(PACKA
 
 # clisplow.pot is a subset of clisp.pot.
 
-clisplow.pot : $(SOURCES_POT2) ../../VERSION po_header clisp-msguniq
+clisplow.pot : $(SOURCES_POT2) ../../VERSION po_header
 	(./po_header t ; cat $(SOURCES_POT2)) > clisplow.pox
-	$${CLISP} ./clisp-msguniq clisplow.pox $@
+	$(MSGUNIQ) clisplow.pox -o $@
 	$(RM) clisplow.pox
 
 $(patsubst %,clisplow_%.po,$(LINGUAS)) : clisplow_%.po : clisplow.pot %.po
