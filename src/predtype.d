@@ -1870,7 +1870,10 @@ LISPFUNN(coerce,2)
         pushSTACK(S(number)); /* TYPE-ERROR slot EXPECTED-TYPE */
         goto fehler_object;
       }
-      goto return_object;
+      if (!N_floatp(STACK_1))
+        goto return_object;
+      VALUES1(F_complex_C(STACK_1));
+      skipSTACK(2); return;
     }
     if (eq(result_type,S(function))) { /* FUNCTION ? */
       /* viz. coerce_function() */

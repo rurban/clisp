@@ -417,3 +417,6 @@ nil
 (loop :with class = (find-class 'vector) :for x :in '((1 0) #(1 0) #*10)
   :for y = (coerce x class) :always (and (equalp y #(1 0)) (vectorp y)))
 t
+
+(coerce 1.0 'complex)
+#C(1.0 0.0)
