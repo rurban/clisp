@@ -206,10 +206,8 @@ CL_WAITPID
                       dnl DEFS HAVE_WAITPID, PID_T, HAVE_SYS_WAIT_H
 CL_RUSAGE
                       dnl DEFS HAVE_SYS_RESOURCE_H, HAVE_GETRUSAGE, RUSAGE_WHO_T, HAVE_SYS_TIMES_H
-CL_GETWD
-                      dnl DEFS HAVE_GETWD
 CL_GETCWD
-                      dnl DEFS GETCWD_SIZE_T
+                      dnl DEFS HAVE_GETCWD, GETCWD_SIZE_T
 CL_CHDIR
                       dnl DEFS CHDIR_CONST
 CL_MKDIR
