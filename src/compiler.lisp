@@ -6359,13 +6359,14 @@ for-value   NIL or T
 ;; returns 2 values - value and constant-p
 (defun c-constant-number (form)
   (let ((expanded (macroexpand-form form)))
-    (if (c-constantp expanded)
+    (when (c-constantp expanded)
       (let ((val (c-constant-value expanded)))
-        (if (numberp val) (values val t)
-          (c-error-c
-           (TEXT "Arithmetic operand ~s must evaluate to a number, not ~s")
-           form val)))
-      (values expanded nil))))
+        (if (numberp val)
+          (return-from c-constant-number (values val t))
+          (c-warn
+            (TEXT "Arithmetic operand ~s must evaluate to a number, not ~s")
+            form val))))
+    (values expanded nil)))
 
 ;; return two values: the list of numeric constants
 ;; and the list of other forms
@@ -6847,8 +6848,8 @@ for-value   NIL or T
                   (streamp destination)
                   (and (stringp destination)
                        (array-has-fill-pointer-p destination)))
-        (c-error (TEXT "The ~S destination is invalid (not NIL or T or a stream or a string with fill-pointer): ~S")
-                 (car *form*) destination)))
+        (c-warn (TEXT "The ~S destination is invalid (not NIL or T or a stream or a string with fill-pointer): ~S")
+                (car *form*) destination)))
     (if (and (stringp (third *form*)) (not (fenv-search 'FORMATTER)))
       ;; precompile the format-string at compile-time.
       (cond ((eq destination t) ; avoid calling FORMAT altogether
