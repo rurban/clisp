@@ -7829,8 +7829,8 @@
 	Likewise.
 	* format.lisp (format-error): Likewise.
 	* macros2.lisp (prompt-for-new-value-string): Likewise.
-	* reploop.lisp (debug-reset-io, get-frame-limit, debug-backtrace,
-	print-error): Likewise.
+	* reploop.lisp (debug-reset-io, get-frame-limit, debug-backtrace)
+	(print-error): Likewise.
 	* room.lisp (room): Likewise.
 	* trace.lisp (trace1): Likewise.
 
@@ -22518,8 +22518,8 @@
 	* reploop.lsp: new and shorter debugger/stepper/main commands;
 	('error :e) command for printing the error-message again;
 	('backtrace-l, :bl, 'frame-limit, :fl) implemented something
-	similar to the "print-frame-limit"-issue in the TODO list.g
-	translated the comments.
+	similar to the "print-frame-limit"-issue in the TODO list.
+	Translated the comments.
 
 2000-02-18  Sam Steingold  <sds@gnu.org>
 
