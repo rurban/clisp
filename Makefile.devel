@@ -99,7 +99,7 @@ os2/makefile : makemake
 	./makemake os2 gcc > os2/makefile
 
 win32msvc/makefile.msvc4 : makemake
-	./makemake --with-dynamic-ffi
+	./makemake --with-dynamic-ffi \
 		win32msvc msvc4 > win32msvc/makefile.msvc4
 
 win32msvc/makefile.msvc5 : makemake
