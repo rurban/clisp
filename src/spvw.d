@@ -474,11 +474,17 @@ global bool near_SP_overflow (void) {
 # At overflow of one of the stacks:
 nonreturning_function(global, SP_ueber, (void)) {
   asciz_out(GETTEXTL(NLstring "*** - " "Program stack overflow. RESET"));
-  reset();
+  if (interactive_stream_p(Symbol_value(S(debug_io))))
+    reset();
+  /* non-interactive session: quit */
+  else { asciz_out(NLstring); final_exitcode=1; quit(); }
 }
 nonreturning_function(global, STACK_ueber, (void)) {
   asciz_out(GETTEXTL(NLstring "*** - " "Lisp stack overflow. RESET"));
-  reset();
+  if (interactive_stream_p(Symbol_value(S(debug_io))))
+    reset();
+  /* non-interactive session: quit */
+  else { asciz_out(NLstring); final_exitcode=1; quit(); }
 }
 
 # ----------------------------------------------------------------------------
