@@ -1,5 +1,10 @@
 2001-05-25  Sam Steingold  <sds@gnu.org>
 
+	* install.lisp, install.bat: bind LISP, FAS and MEM file with CLISP
+	* makemake.in: added install.* to the win32 binary distribution
+
+2001-05-25  Sam Steingold  <sds@gnu.org>
+
 	* dirkey.lisp (dir-key-info): `dkey-info' is in LDAP, not SYS
 	(with-dir-key-search): ditto for `dkey-search-iterator',
 	`dkey-search-next-key', and `dkey-search-next-att'
