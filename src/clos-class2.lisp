@@ -28,7 +28,8 @@
   all-superclasses         ; hash table of all superclasses (incl. the class itself)
   precedence-list          ; ordered list of all superclasses (with the class itself first),
                            ; or NIL while the class is waiting to be finalized
-  (slot-location-table empty-ht)) ; hash table slotname -> location of the slot
+  (slot-location-table empty-ht) ; hash table slotname -> location of the slot
+  documentation)           ; string or NIL
 
 (defstruct (built-in-class (:inherit class) (:conc-name "CLASS-")))
 
@@ -318,8 +319,6 @@
                                (documentation nil)
                                (fixed-slot-locations nil)
                           &allow-other-keys)
-  ;; Store new documentation:
-  (when documentation (sys::%set-documentation name 'TYPE documentation))
   (let ((a-standard-class-p (subclassp metaclass <standard-class>))
         (class (find-class name nil)))
     (when (and class (not (eq (class-name class) name)))
@@ -382,6 +381,8 @@
                 ;; the old one:
                 (setf (car old) (car new))
                 (setf (cadr old) (cadr new))))
+            ;; Store new documentation:
+            (setf (class-documentation class) documentation)
             ;; NB: These modifications are automatically inherited by the
             ;; subclasses of class! Due to <inheritable-slot-definition-initer>
             ;; and <inheritable-slot-definition-doc>.
@@ -507,7 +508,8 @@
            &key (direct-superclasses '())
                 ((:direct-slots direct-slots-as-lists) '())
                 ((direct-slots direct-slots-as-metaobjects) '() direct-slots-as-metaobjects-p)
-                (direct-default-initargs '()) (fixed-slot-locations nil)
+                (direct-default-initargs '()) (documentation nil)
+                (fixed-slot-locations nil)
            &allow-other-keys)
   (unless (slot-boundp class 'current-version)
     (setf (class-current-version class)
@@ -525,6 +527,7 @@
           direct-slots-as-metaobjects
           (convert-direct-slots class direct-slots-as-lists)))
   (setf (class-direct-default-initargs class) direct-default-initargs)
+  (setf (class-documentation class) documentation)
   (setf (class-fixed-slot-locations class) fixed-slot-locations)
   (setf (class-precedence-list class) nil) ; mark as not yet finalized
   (setf (class-all-superclasses class) nil) ; mark as not yet finalized
@@ -1189,8 +1192,9 @@
      class :direct-superclasses direct-superclasses :name name)))
 
 (defun initialize-instance-built-in-class (class &key direct-superclasses
-                                           &allow-other-keys)
+                                           documentation &allow-other-keys)
   (setf (class-direct-superclasses class) (copy-list direct-superclasses))
+  (setf (class-documentation class) documentation)
   (setf (class-precedence-list class)
         (std-compute-cpl class direct-superclasses))
   (setf (class-all-superclasses class)
@@ -1204,6 +1208,7 @@
                &key name (direct-superclasses '())
                     ;; The following keys come from ENSURE-CLASS.
                     (direct-slots '()) (direct-default-initargs '())
+                    (documentation nil)
                     ;; The following keys come from DEFINE-STRUCTURE-CLASS.
                     names (slots '()) (size 1)
                &allow-other-keys)
@@ -1222,6 +1227,7 @@
            &key name (direct-superclasses '())
                 ;; The following keys come from ENSURE-CLASS.
                 (direct-slots '()) (direct-default-initargs '())
+                (documentation nil)
                 ;; The following keys come from DEFINE-STRUCTURE-CLASS.
                 names (slots '()) (size 1)
            &allow-other-keys)
@@ -1282,6 +1288,7 @@
           :from-end t))
   (setf (class-valid-initargs class)
         (remove-duplicates (mapcap #'slot-definition-initargs (class-slots class))))
+  (setf (class-documentation class) documentation)
   (setf (class-names class) names)
   (system::note-new-structure-class)
   class)

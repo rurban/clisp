@@ -1,3 +1,7 @@
+2004-04-25  Bruno Haible  <bruno@clisp.org>
+
+	* clos.tst: Test documentation string on a class without proper name.
+
 2004-05-15  Bruno Haible  <bruno@clisp.org>
 
 	* setf.tst: Add test for inlinability.
