@@ -1238,6 +1238,11 @@ for-value   NIL or T
   ;;   For *compiling-from-file* /= nil:
   ;;     If (eq horizon ':value), value, else form.
 )
+(defun const-value-safe (c)
+  (if (eq (const-horizon c) :form)
+      (compiler-error 'const-value c)
+      (const-value c)))
+
 #-CLISP-DEBUG (remprop 'const 'sys::defstruct-description)
 ;; In the 2nd Pass Variables with constantp=T are treated as Constants.
 
@@ -1812,7 +1817,7 @@ for-value   NIL or T
     (cond ((consp item) (second item))
           (t #|(anode-p item)|# (anode-constant item)))))
 (defun anode-constant-value (anode)
-  (const-value (anode-constant anode)))
+  (const-value-safe (anode-constant anode)))
 
 ;; (new-const value) returns a constant in *func* with the Value value
 (defun new-const (value)
@@ -5033,7 +5038,7 @@ for-value   NIL or T
                  :type 'FUNCTION
                  :sub-anodes '()
                  :seclass '(NIL . NIL)
-                 :code `((FCONST ,(const-value f2))))
+                 :code `((FCONST ,(const-value-safe f2))))
                (c-VAR (var-name f2))))
             (t (if (and (null f1) m)
                  (c-error (TEXT "~S is not a function. It is a locally defined macro.")
@@ -7317,7 +7322,7 @@ New Operations:
                (let ((cv (const-value const)))
                  (unless ; is (CONST cv) already contained in *current-vars*?
                      (dolist (v *current-vars* nil)
-                       (when (and (const-p v) (eq (const-value v) cv))
+                       (when (and (const-p v) (eq (const-value-safe v) cv))
                          (return t)))
                    (push (make-const-code const) *code-part*)
                    (setq *current-value* (if (null cv) 'FALSE 'TRUE)
@@ -7340,7 +7345,7 @@ New Operations:
                (push
                 (if (var-constantp var)
                   (let* ((const (var-constant var))
-                         (val (const-value const)))
+                         (val (const-value-safe const)))
                     (setq *current-value* (if (null val) 'FALSE 'TRUE))
                     (if (fnode-p val)
                       ;; FNODEs as values can (almost) solely
@@ -7546,7 +7551,7 @@ New Operations:
                  *current-vars* (list (new-const 'NIL))))
           (HANDLER-OPEN
            (setq item
-                 (let ((v (const-value (second item)))
+                 (let ((v (const-value-safe (second item)))
                        (k (spdepth-difference (third item) *func*)))
                    ;; Out of v = #(type1 ... typem)
                    ;; make   v = #(type1 nil ... typem nil)
