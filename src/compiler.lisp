@@ -1533,20 +1533,19 @@ for-value   NIL or T
 ;; (make-anode ...) is the same as mk-anode, only that the arguments
 ;; are marked with keywords and unnecessary components
 ;; may stand there nevertheless because of #+CLISP-DEBUG.
-(eval-when (compile eval #+CLISP-DEBUG load)
-  (defmacro make-anode (&key
-                        (source `*form*)
-                        type
-                        (sub-anodes `'())
-                        seclass
-                        code
-                        (stackz `*stackz*))
-    `(mk-anode #+CLISP-DEBUG ,source
-               ,type
-               #+CLISP-DEBUG ,sub-anodes
-               ,seclass
-               ,code
-               #+CLISP-DEBUG ,stackz)))
+(defmacro make-anode (&key
+                      (source `*form*)
+                      type
+                      (sub-anodes `'())
+                      seclass
+                      code
+                      (stackz `*stackz*))
+  `(mk-anode #+CLISP-DEBUG ,source
+             ,type
+             #+CLISP-DEBUG ,sub-anodes
+             ,seclass
+             ,code
+             #+CLISP-DEBUG ,stackz))
 
 ;; A Side-Effect-Class (SECLASS) is EITHER an Indicator (uses . modifies):
 ;; uses = NIL : this Anode can not be influenced by side-effects,
@@ -1601,15 +1600,13 @@ for-value   NIL or T
 
 ;; So that the list of sub-anodes does not have to be calculated, however
 ;; the anode's side-effect-class belonging to this list can be calculated:
-(eval-when (compile eval)
-  (defmacro anodes-seclass-or (&rest anodeforms)
-    (reduce #'(lambda (form1 form2) `(SECLASS-OR ,form1 ,form2)) anodeforms
-            :key #'(lambda (anodeform) `(ANODE-SECLASS ,anodeform))
-            :initial-value *seclass-foldable*))
-  (define-modify-macro seclass-or-f (anode) seclass-or-anode)
-  (defmacro seclass-or-anode (seclass anode)
-    `(SECLASS-OR ,seclass (ANODE-SECLASS ,anode)))
-)
+(defmacro anodes-seclass-or (&rest anodeforms)
+  (reduce #'(lambda (form1 form2) `(SECLASS-OR ,form1 ,form2)) anodeforms
+          :key #'(lambda (anodeform) `(ANODE-SECLASS ,anodeform))
+          :initial-value *seclass-foldable*))
+(define-modify-macro seclass-or-f (anode) seclass-or-anode)
+(defmacro seclass-or-anode (seclass anode)
+  `(SECLASS-OR ,seclass (ANODE-SECLASS ,anode)))
 (defun anodelist-seclass-or (anodelist)
   (reduce #'seclass-or anodelist :key #'anode-seclass
           :initial-value *seclass-foldable*))
