@@ -483,10 +483,10 @@
 # with a 'float'-type IEEE-Floating-Points with 32 Bits,
 # and a C-Compiler that generates 'float'-operations
 # instead of 'double'-operations
-#if (float_mant_bits == 24) && (float_rounds == rounds_to_nearest) && float_rounds_correctly && !FLOAT_OVERFLOW_EXCEPTION && !FLOAT_UNDERFLOW_EXCEPTION && !FLOAT_INEXACT_EXCEPTION
+#if (float_mant_bits == 24) && (float_rounds == rounds_to_nearest) && float_rounds_correctly && !defined(FLOAT_OVERFLOW_EXCEPTION) && !defined(FLOAT_UNDERFLOW_EXCEPTION) && !defined(FLOAT_INEXACT_EXCEPTION)
   #define FAST_FLOAT
 #endif
-#if (double_mant_bits == 53) && (double_rounds == rounds_to_nearest) && double_rounds_correctly && !DOUBLE_OVERFLOW_EXCEPTION && !DOUBLE_UNDERFLOW_EXCEPTION && !DOUBLE_INEXACT_EXCEPTION
+#if (double_mant_bits == 53) && (double_rounds == rounds_to_nearest) && double_rounds_correctly && !defined(DOUBLE_OVERFLOW_EXCEPTION) && !defined(DOUBLE_UNDERFLOW_EXCEPTION) && !defined(DOUBLE_INEXACT_EXCEPTION)
   #define FAST_DOUBLE
 #endif
 #ifdef ARM
