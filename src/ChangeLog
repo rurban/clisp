@@ -1,3 +1,11 @@
+2002-02-03  Sam Steingold  <sds@gnu.org>
+
+	fixed a bug: (defmethod foo ((x (eql 1))) x)
+	* package.d (CHECK-PACKAGE-LOCK): handle non-package third
+	argument to mean "unlocked"
+	* init.lisp (check-redefinition): (EQL X): when X is not a
+	symbol, pass NIL as the package
+
 2002-02-01  Sam Steingold  <sds@gnu.org>
 
 	* spvw_update.d (update_weakpointer): new macro
