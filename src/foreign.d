@@ -1571,7 +1571,7 @@ local void count_walk_pre(fvd,obj)
       size = data_size;
       alignment = data_alignment;
       if (eq(TheSvector(fvd)->data[0],S(c_array_ptr)))
-        size *= vector_length(obj);
+        size *= vector_length(obj) + 1;
     }
     walk_counter = ((walk_counter + alignment-1) & -alignment) + size;
     # walk_alignment = lcm(walk_alignment,alignment);
