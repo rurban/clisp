@@ -419,6 +419,10 @@ local inline void delete_existing_file (char* pathstring) {
  #endif
 }
 
+#ifdef WIN32_NATIVE
+#define WIN32_ERROR_NOT_FOUND (GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND || GetLastError()==ERROR_BAD_NETPATH)
+#endif
+
 # Delete a file.
 # delete_file_if_exists(pathstring);
 # No error is signaled if the file does not exist.
@@ -450,9 +454,7 @@ local inline bool delete_file_if_exists (char* pathstring) {
  #ifdef WIN32_NATIVE
   begin_system_call();
   if (! DeleteFile(pathstring) ) {
-    if (!(GetLastError()==ERROR_FILE_NOT_FOUND
-          || GetLastError()==ERROR_PATH_NOT_FOUND
-          || GetLastError()==ERROR_BAD_NETPATH)) {
+    if (!WIN32_ERROR_NOT_FOUND) {
       end_system_call(); OS_file_error(STACK_0);
     }
     exists = false;
@@ -539,9 +541,7 @@ local inline void rename_file_to_nonexisting (char* old_pathstring,
  #ifdef WIN32_NATIVE
   begin_system_call();
   if (! MoveFile(old_pathstring,new_pathstring) ) {
-    if (GetLastError()==ERROR_FILE_NOT_FOUND ||
-        GetLastError()==ERROR_PATH_NOT_FOUND ||
-        GetLastError()==ERROR_BAD_NETPATH) {
+    if (WIN32_ERROR_NOT_FOUND) {
       end_system_call(); OS_file_error(STACK_3);
     } else {
       end_system_call(); OS_file_error(STACK_1);
@@ -6238,9 +6238,7 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
         SetLastError(ERROR_DIRECTORY);
       }
       if (fileattr == 0xFFFFFFFF) {
-        if (!(GetLastError()==ERROR_FILE_NOT_FOUND
-              || GetLastError()==ERROR_PATH_NOT_FOUND
-              || GetLastError()==ERROR_BAD_NETPATH)) {
+        if (!WIN32_ERROR_NOT_FOUND) {
           end_system_call(); OS_file_error(STACK_0);
         }
         end_system_call();
@@ -7235,6 +7233,8 @@ nonreturning_function(local, fehler_noname, (object pathname)) {
   pushSTACK(pathname);
   fehler(file_error,GETTEXT("no file name given: ~"));
 }
+#define check_noname(pathname)                                          \
+  do { if (namenullp(pathname)) { fehler_noname(pathname); } while(0)
 
 # error-message because of illegal Name/Type-specification
 # fehler_notdir(pathname);
@@ -7244,6 +7244,10 @@ nonreturning_function(local, fehler_notdir, (object pathname)) {
   pushSTACK(pathname);
   fehler(file_error,GETTEXT("not a directory: ~"));
 }
+#define check_notdir(pathname)                                  \
+  do { if (!(nullp(ThePathname(pathname)->pathname_name)        \
+             && nullp(ThePathname(pathname)->pathname_type)))   \
+         fehler_notdir(pathname); } while(0)
 
 # test, if a file exists:
 # file_exists(namestring)
@@ -7264,7 +7268,7 @@ nonreturning_function(local, fehler_notdir, (object pathname)) {
       begin_system_call();
       var DWORD fileattr = GetFileAttributes(path);
       if (fileattr == 0xFFFFFFFF) {
-        if (GetLastError()==ERROR_FILE_NOT_FOUND) {
+        if (WIN32_ERROR_NOT_FOUND) {
           end_system_call(); return -1;
         }
         end_system_call(); OS_file_error(STACK_0);
@@ -7304,8 +7308,7 @@ nonreturning_function(local, fehler_file_not_exists, (void)) {
 # (TRUENAME pathname), CLTL p. 413
 LISPFUNN(truename,1) {
   var object pathname = popSTACK(); # pathname-argument
-  if (builtin_stream_p(pathname)) {
-    # Stream -> treat extra:
+  if (builtin_stream_p(pathname)) { # stream -> treat extra:
     # must be file-stream:
     pathname = as_file_stream(pathname);
     test_file_stream_named(pathname);
@@ -7341,8 +7344,7 @@ LISPFUNN(truename,1) {
 # (PROBE-FILE filename), CLTL p. 424
 LISPFUNN(probe_file,1) {
   var object pathname = popSTACK(); # pathname-argument
-  if (builtin_stream_p(pathname)) {
-    # Stream -> treat extra:
+  if (builtin_stream_p(pathname)) { # stream -> treat extra:
     # must be file-stream:
     pathname = as_file_stream(pathname);
     test_file_stream_named(pathname);
@@ -7360,9 +7362,7 @@ LISPFUNN(probe_file,1) {
   # pathname is now a Pathname.
   check_no_wildcards(pathname); # with wildcards -> error
   pathname = use_default_dir(pathname); # insert default-directory
-  if (namenullp(pathname)) # no name specified -> error
-    { fehler_noname(pathname); }
-  # name specified.
+  check_noname(pathname);
   pushSTACK(pathname);
   # directory must exist:
   var object namestring = assure_dir_exists(false,true); # filename for the operating system
@@ -7420,7 +7420,7 @@ local bool directory_exists (object pathname) {
     begin_system_call();
     var DWORD fileattr = GetFileAttributes(dir_namestring_asciz);
     if (fileattr == 0xFFFFFFFF) {
-      if (!(GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND || GetLastError()==ERROR_BAD_NETPATH)) {
+      if (!WIN32_ERROR_NOT_FOUND) {
         end_system_call(); OS_file_error(STACK_0);
       }
       exists = false;
@@ -7503,10 +7503,7 @@ LISPFUNN(probe_directory,1) {
   pathname = coerce_pathname(pathname); # turn into a pathname
   check_no_wildcards(pathname); # with wildcards -> error
   pathname = use_default_dir(pathname); # insert default-directory
-  # check, if Name=NIL and Type=NIL :
-  if (!(nullp(ThePathname(pathname)->pathname_name)
-        && nullp(ThePathname(pathname)->pathname_type)))
-    fehler_notdir(pathname);
+  check_notdir(pathname); # ensure that Name=NIL and Type=NIL
   value1 = (directory_exists(pathname) ? T : NIL); mv_count=1;
 }
 
@@ -7520,10 +7517,7 @@ global object pathname_to_OSdir (object pathname, bool use_default) {
   check_no_wildcards(pathname); # if it has wildcards -> error
   if (use_default)
     pathname = use_default_dir(pathname); # insert default directory
-  # Verify that name = NIL and type = NIL:
-  if (!(nullp(ThePathname(pathname)->pathname_name)
-        && nullp(ThePathname(pathname)->pathname_type)))
-    fehler_notdir(pathname);
+  check_notdir(pathname); # ensure that Name=NIL and Type=NIL
   pushSTACK(pathname); # save pathname
   var object dir_namestring = directory_namestring(pathname);
   #ifdef PATHNAME_AMIGAOS
@@ -7605,12 +7599,13 @@ nonreturning_function(local, fehler_delete_open, (object pathname)) {
   pushSTACK(pathname);
   fehler(file_error,GETTEXT("cannot delete file ~ since there is file stream open to it"));
 }
+#define check_delete_open(pathname)                                     \
+ do { if (openp(pathname)) { fehler_delete_open(pathname); } } while(0)
 
 # (DELETE-FILE filename), CLTL p. 424
 LISPFUNN(delete_file,1) {
   var object pathname = popSTACK(); # pathname-argument
-  if (builtin_stream_p(pathname)) {
-    # stream -> treat extra:
+  if (builtin_stream_p(pathname)) { # stream -> treat extra:
     var object stream = as_file_stream(pathname); # must be file-stream
     test_file_stream_named(stream);
     # Streamtype file-stream.
@@ -7626,9 +7621,7 @@ LISPFUNN(delete_file,1) {
   # pathname is now a pathname.
   check_no_wildcards(pathname); # with wildcards -> error
   pathname = use_default_dir(pathname); # insert default-directory
-  if (namenullp(pathname)) # no name specified -> error
-    { fehler_noname(pathname); }
-  # name specified.
+  check_noname(pathname);
   pushSTACK(pathname);
   # directory must exist:
   var object namestring = assure_dir_exists(false,true); # filename for the operating system
@@ -7636,8 +7629,7 @@ LISPFUNN(delete_file,1) {
     # path to the file does not exist ==> return NIL
     skipSTACK(1); value1 = NIL; mv_count=1; return;
   }
-  if (openp(STACK_0)) # do not delete open files!
-    { fehler_delete_open(STACK_0); }
+  check_delete_open(STACK_0);
   # delete file:
  #ifdef FILE_EXISTS_TRIVIAL
   if (!file_exists(namestring)) { # file does not exist -> value NIL
@@ -7681,9 +7673,7 @@ local void rename_file (void) {
     var object oldpathname = STACK_1;
     check_no_wildcards(oldpathname); # with wildcards -> error
     oldpathname = use_default_dir(oldpathname); # insert default-directory
-    if (namenullp(oldpathname)) # no name specified -> error
-      { fehler_noname(oldpathname); }
-    # name specified.
+    check_noname(oldpathname);
     pushSTACK(oldpathname);
     # directory must exist:
     var object old_namestring = assure_dir_exists(false,false); # filename for the operating system
@@ -7697,9 +7687,7 @@ local void rename_file (void) {
     var object newpathname = coerce_pathname(STACK_2);
     check_no_wildcards(newpathname); # with wildcards -> error
     newpathname = use_default_dir(newpathname); # insert default-directory
-    if (namenullp(newpathname)) # no name specified -> error
-      { fehler_noname(newpathname); }
-    # name specified.
+    check_noname(newpathname);
     pushSTACK(newpathname);
     # directory must exist:
     var object new_namestring = assure_dir_exists(false,false); # filename for the operating system
@@ -7726,8 +7714,7 @@ local void rename_file (void) {
 # (RENAME-FILE filename newname), CLTL p. 423
 LISPFUNN(rename_file,2) {
   var object filename = STACK_1; # filename-argument
-  if (builtin_stream_p(filename)) {
-    # Stream -> treat extra:
+  if (builtin_stream_p(filename)) { # stream -> treat extra:
     # must be file-stream:
     filename = as_file_stream(filename);
     test_file_stream_named(filename);
@@ -7927,9 +7914,7 @@ local inline bool open_input_file (char* pathstring, bool create_if_not_exists,
                       FILE_SHARE_READ | FILE_SHARE_WRITE,
                       NULL, flag, FILE_ATTRIBUTE_NORMAL, NULL);
   if (handle==INVALID_HANDLE_VALUE) {
-    if (GetLastError()==ERROR_FILE_NOT_FOUND ||
-        GetLastError()==ERROR_PATH_NOT_FOUND ||
-        GetLastError()==ERROR_BAD_NETPATH) { # not found?
+    if (WIN32_ERROR_NOT_FOUND) { # not found?
       # file does not exist
       if (!create_if_not_exists) { end_system_call(); return false; }
     }
@@ -7996,7 +7981,7 @@ local inline void create_backup_file (char* pathstring,
   # filename := (merge-pathnames ".bak" filename) :
   filename = copy_pathname(filename); # copy
   ThePathname(filename)->pathname_type = O(backuptype_string); # with Extension "BAK"
-  if (openp(filename)) { fehler_delete_open(filename); } # do not delete open files!
+  check_delete_open(filename);
   pushSTACK(filename);
   # directory already exists.
   new_namestring = assume_dir_exists(); # filename for the operating system
@@ -8010,7 +7995,7 @@ local inline void create_backup_file (char* pathstring,
   pushSTACK(filename); # save
   pushSTACK(filename); # save
   filename = coerce_pathname(filename); # again as filename
-  if (openp(filename)) { fehler_delete_open(filename); } # do not delete open files!
+  check_delete_open(filename);
   STACK_1 = filename;
   # directory already exists. Do not resolve further links here.
   new_namestring = popSTACK(); # filename for the operating system
@@ -8025,7 +8010,7 @@ local inline void create_backup_file (char* pathstring,
     filename = STACK_0;
     ThePathname(filename)->pathname_name = new_name;
   }
-  if (openp(filename)) { fehler_delete_open(filename); } # do not delete open files!
+  check_delete_open(filename);
   new_namestring = assure_dir_exists(false,false); # filename for the operating system
  #endif
   with_sstring_0(new_namestring,O(pathname_encoding),new_namestring_asciz, {
@@ -8122,7 +8107,7 @@ local object open_file (object filename, direction_t direction,
   pushSTACK(STACK_3); # save filename
   check_no_wildcards(filename); # with wildcards -> error
   filename = use_default_dir(filename); # insert default-directory
-  if (namenullp(filename)) { fehler_noname(filename); } # no name -> error
+  check_noname(filename);
   pushSTACK(filename); # save absPathname
   # stack layout: origPathname, absPathname.
   # Directory must exist:
@@ -8428,20 +8413,19 @@ local object directory_search (object pathname);
       var WIN32_FIND_DATA filedata; \
       var HANDLE search_handle;
     #define READDIR_end_declarations
-    #define READDIR_findfirst(pathstring,error_statement,done_statement)  \
-      if ((search_handle = FindFirstFile(pathstring,&filedata)) == INVALID_HANDLE_VALUE) \
-        { if (!(GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND || GetLastError()==ERROR_BAD_NETPATH)) \
-            { error_statement }                                                          \
-          else                                                                           \
-            { done_statement }                                                           \
-        }
-    #define READDIR_findnext(error_statement,done_statement)  \
-      if (!FindNextFile(search_handle,&filedata))                                        \
-        { if (!(GetLastError()==ERROR_NO_MORE_FILES) || !FindClose(search_handle))       \
-            { error_statement }                                                          \
-          else                                                                           \
-            { done_statement }                                                           \
-        }
+    #define READDIR_findfirst(pathstring,error_statement,done_statement) \
+      if ((search_handle = FindFirstFile(pathstring,&filedata))          \
+          == INVALID_HANDLE_VALUE) {                                     \
+        if (!WIN32_ERROR_NOT_FOUND) { error_statement }                  \
+        else { done_statement }                                          \
+      }
+    #define READDIR_findnext(error_statement,done_statement)    \
+      if (!FindNextFile(search_handle,&filedata)) {             \
+        if (!(GetLastError()==ERROR_NO_MORE_FILES)              \
+              || !FindClose(search_handle))                     \
+            { error_statement }                                 \
+          else { done_statement }                               \
+      }
     #define READDIR_entry_name()  (&filedata.cFileName[0])
     #define READDIR_entry_ISDIR()  (filedata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
     #define READDIR_entry_timedate(timepointp)  \
@@ -8597,7 +8581,7 @@ local void with_stat_info (void) {
       begin_system_call();                                                 \
       fileattr = GetFileAttributes(namestring_asciz);                      \
       if (fileattr == 0xFFFFFFFF)                                          \
-        { if (!(GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND || GetLastError()==ERROR_BAD_NETPATH)) \
+        { if (!WIN32_ERROR_NOT_FOUND) \
             { end_system_call(); error_statement }                         \
             else                                                           \
             # subdirectory does not exist -> OK.                           \
@@ -9569,10 +9553,7 @@ local object shorter_directory (object pathname, bool resolve_links) {
   pathname = coerce_pathname(pathname); # turn argument into a pathname
   check_no_wildcards(pathname); # with wildcards -> error
   pathname = use_default_dir(pathname); # insert default-directory
-  # check, if name=NIL and type=NIL :
-  if (!(nullp(ThePathname(pathname)->pathname_name)
-        && nullp(ThePathname(pathname)->pathname_type)))
-    fehler_notdir(pathname);
+  check_notdir(pathname); # ensure that Name=NIL and Type=NIL
   pushSTACK(pathname); # save new pathname
   # shorten the directory:
   var object subdirs = ThePathname(pathname)->pathname_directory;
@@ -9908,8 +9889,7 @@ LISPFUNN(file_write_date,1) {
   is_pathname: # pathname is now really a pathname
     check_no_wildcards(pathname); # with wildcards -> error
     pathname = use_default_dir(pathname); # insert default-directory
-    if (namenullp(pathname)) { fehler_noname(pathname); } # no name specified -> error
-    # name specified.
+    check_noname(pathname);
     pushSTACK(pathname);
     # directory must exist:
     var object namestring = assure_dir_exists(false,false); # filename for the operating system
@@ -9940,7 +9920,7 @@ LISPFUNN(file_write_date,1) {
       begin_system_call();
       search_handle = FindFirstFile(namestring_asciz,&filedata);
       if (search_handle==INVALID_HANDLE_VALUE) {
-        if (GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND || GetLastError()==ERROR_BAD_NETPATH) {
+        if (WIN32_ERROR_NOT_FOUND) {
           end_system_call(); fehler_file_not_exists();
         }
         end_system_call(); OS_file_error(STACK_0);
@@ -9986,8 +9966,7 @@ LISPFUNN(file_author,1) {
     # pathname is now a pathname.
     check_no_wildcards(pathname); # with Wildcards -> error
     pathname = use_default_dir(pathname); # insert default-directory
-    if (namenullp(pathname)) { fehler_noname(pathname); } # no name specified -> error
-    # name specified.
+    check_noname(pathname);
     pushSTACK(pathname);
     # directory must exist:
     var object namestring = assure_dir_exists(false,false); # filename for the operating system
@@ -10041,8 +10020,7 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL) {
       pathname = coerce_pathname(pathname); # turn into a pathname
       check_no_wildcards(pathname); # with wildcards -> error
       pathname = use_default_dir(pathname); # insert default-directory
-      if (namenullp(pathname)) { fehler_noname(pathname); } # no name specified -> error
-      # name specified.
+      check_noname(pathname);
       pushSTACK(pathname);
       # directory must exist:
       var object namestring = assure_dir_exists(false,false); # filename for the operating system
