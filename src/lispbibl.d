@@ -8564,7 +8564,11 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
     #ifdef TYPECODES
       #define S_help_(name)  (type_constpointer_object(symbol_type,&symbol_tab.name))
     #else
-      #define S_help_(name)  as_object((oint)&symbol_tab.name+varobject_bias)
+      #if defined(OBJECT_STRUCT)
+        #define S_help_(name)  as_object((oint)&symbol_tab.name+varobject_bias)
+      #else
+        #define S_help_(name)  objectplus(&symbol_tab.name,varobject_bias)
+      #endif
     #endif
   #else
     # define symbol_tab_addr ((struct symbol_tab_ *)type_constpointer_object(symbol_type,0))

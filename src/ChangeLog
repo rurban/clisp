@@ -2,13 +2,21 @@
 
         * spvw.d (copyright_notice): Bump date to 1998.
 
+1998-08-09  Jörg Höhle  <hoehle@zeus.gmd.de>
+            Bruno Haible  <haible@ilog.fr>
+
+        * lispbibl.d (S_help_): Change definition in the case of NO_TYPECODES
+          so that it can be used as an initializer for a static variable in
+          gcc-2.5.8.
+        * genclisph.d (main): Likewise.
+
 1998-08-08  Jörg Höhle  <hoehle@tzd.telekom.de>
 
         * lispbibl.d (define) TYPECODES is default for MC68000.
         * spvw.d (version_string) added !TYPECODES recognition.
           (retry_allocmemflag) not needed with !TYPECODES.
 
-1998-08-05  Jörg Höhle  <hoehle<zeus.gmd.de>
+1998-08-05  Jörg Höhle  <hoehle@zeus.gmd.de>
 
         * lispbibl.d (SIXBIT_TYPECODES): Fix a collision between
           case_symbolwithflags and other typecodes, introduced by the
