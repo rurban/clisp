@@ -1,3 +1,8 @@
+2004-05-20  Bruno Haible  <bruno@clisp.org>
+
+	Speed up the FILL-STREAMs.
+	* fill-out.lisp (stream-write-char-sequence@fill-stream): New method.
+
 2004-05-15  Bruno Haible  <bruno@clisp.org>
 
 	* defstruct.lisp (ds-accessor-name): New function.
