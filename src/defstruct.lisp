@@ -5,8 +5,6 @@
 
 (in-package "SYSTEM")
 
-(defsetf %structure-ref %structure-store)
-
 #| Explanation of the appearing data types:
 
    (get name 'DEFSTRUCT-DESCRIPTION) =
