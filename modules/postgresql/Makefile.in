@@ -3,7 +3,7 @@
 CC = @CC@
 PQCPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
-INCLUDES= ../
+INCLUDES= ..
 
 CLISP = clisp -q -norc
 
