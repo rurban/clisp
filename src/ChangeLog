@@ -1,3 +1,9 @@
+2004-09-22  Sam Steingold  <sds@gnu.org>
+
+	* fill-out.lisp (stream-write-char-sequence): use COUNT-IF to
+	support all sequences, not just lists and vectors, avoid consing
+	and quadraticity; return the sequence as prescribed by the ANSI
+
 2004-09-18  Bruno Haible  <bruno@clisp.org>
 
 	Support for user-defined DEFCLASS options.
