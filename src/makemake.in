@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # -*- coding: utf-8; mode: shell-script -*-
 # Creation of the Makefile used for compiling CLISP
 # Bruno Haible 2.9.1991, 14.7.1992, 13.9.1992, 12.10.1992, 27.11.1992
@@ -1536,9 +1536,9 @@ LPARTS=$LPARTS' dutch deprecated config'
 
 DOC='LISP-tutorial CLOS-guide editors'
 
-TXT_FILES='README README.de README.es clisp.1 clisp.html'
+TXT_FILES='README README.de README.es clisp.1 clisp.html clisp.c'
 if [ $CROSS = false -a $HOS = unix ] ; then
-  TXT_FILES=$TXT_FILES' clisp.c distmakefile'
+  TXT_FILES=$TXT_FILES' distmakefile'
 fi
 
 OBSOLETE=''
@@ -2044,7 +2044,7 @@ if [ $HOS = acorn ] ; then
 fi
 needs="init allc allo lisp${LEXE} $interpreted.mem $halfcompiled.mem lispinit.mem manual"
 if [ $HOS = unix -a $CROSS = false ] ; then
-  needs=".clisp .clisp-full .gdbinit "$needs' modular $(MODULES) full clisp.c'
+  needs=".gdbinit "$needs' modular $(MODULES) full clisp'
 fi
 echol "all : $needs"
 echodummyrule all
@@ -2974,6 +2974,9 @@ else
 fi
 echol "READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es"`if [ $TOS = unix ] ; then echol ' MAGIC.add' ; fi`
 IMPNOTES_FILES="impnotes.html impnotes.css clisp.png";
+if [ ${HOS} = win32 ]; then
+  IMPNOTES_FILES=${IMPNOTES_FILES}" clisp.ico";
+fi
 echol "IMPNOTES = ${IMPNOTES_FILES}"
 echol "MANUALS = clisp.1 clisp.html \$(TXTFILES) \$(IMPNOTES)"
 echol
@@ -3010,7 +3013,7 @@ for f in ANNOUNCE COPYRIGHT GNU-GPL SUMMARY ; do
   echol
 done
 
-for f in NEWS .clisp .clisp-full .gdbinit ; do
+for f in NEWS .gdbinit ; do
   if [ -n "${SRCDIR}" ] ; then
     echol "${f} : ${SRCDIR}${f}"
     echotab "-\$(LN_S) ${SRCDIR}${f} ${f}"
@@ -3094,6 +3097,9 @@ done
 echol
 
 if [ $CROSS = false ] ; then
+  echol "clisp : clisp.c"
+  echotab "\$(CC) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"`pwd`\"' -DLOCALEDIR='\"`pwd`/locale\"' clisp.c -o clisp"
+  echol
   if [ $HOS = unix ] ; then
     echol "install : install-bin install-man install-doc"
     echodummyrule install
@@ -3568,9 +3574,12 @@ if [ -n "${SRCDIR}" ] ; then
   done
   line="$line version.h modules.h"${UNICODE_EXTRA}
   line="$line \$(LISPFILES) NEWS clisp.png"
+  if [ ${HOS} = win32 ]; then
+    line="$line clisp.ico";
+  fi
   echotab "$line"
   if [ $HOS = unix -a $CROSS = false ] ; then
-    echotab "-\$(RM) .clisp* .gdbinit"
+    echotab "-\$(RM) .gdbinit"
   fi
 else
   echotab "-\$(RM) config.lisp"
@@ -3579,7 +3588,7 @@ if [ $TOS = unix ] ; then
   echotab "-\$(RM) MAGIC.add"
 fi
 echotab "-\$(RMRF) data"
-echotab "-\$(RM) comment5${HEXE} ansidecl${HEXE} varbrace${HEXE} ccpaux${HEXE} deema${HEXE} txt2c${HEXE} ccmp2c${HEXE} modprep${HEXE}"
+echotab "-\$(RM) comment5${HEXE} ansidecl${HEXE} varbrace${HEXE} ccpaux${HEXE} deema${HEXE} txt2c${HEXE} ccmp2c${HEXE} modprep${HEXE} clisp${HEXE}"
 echol
 cat <<!!
 # clean6 lets us go back to "makemake > Makefile".
