@@ -485,6 +485,8 @@
       ($boa-constructors   ; list of all BOA constructor functions
        :type list)
       ($copier             ; name of the copier
+       :type symbol)
+      ($predicate          ; name of the predicate
        :type symbol))
      (:fixed-slot-locations t)))
 (defvar *<structure-class>-class-version* (make-class-version))
@@ -494,6 +496,7 @@
 (defconstant *<structure-class>-kconstructor-location* 22)
 (defconstant *<structure-class>-boa-constructors-location* 23)
 (defconstant *<structure-class>-copier-location* 24)
+(defconstant *<structure-class>-predicate-location* 25)
 
 ;; Preliminary accessors.
 (predefun class-names (object)
@@ -512,8 +515,12 @@
   (sys::%record-ref object *<structure-class>-copier-location*))
 (predefun (setf class-copier) (new-value object)
   (setf (sys::%record-ref object *<structure-class>-copier-location*) new-value))
+(predefun class-predicate (object)
+  (sys::%record-ref object *<structure-class>-predicate-location*))
+(predefun (setf class-predicate) (new-value object)
+  (setf (sys::%record-ref object *<structure-class>-predicate-location*) new-value))
 
-(defconstant *<structure-class>-instance-size* 25)
+(defconstant *<structure-class>-instance-size* 26)
 
 ;;; ===========================================================================
 

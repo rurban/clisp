@@ -1705,6 +1705,7 @@
                                              ((kconstructor kconstructor) nil)
                                              ((boa-constructors boa-constructors) '())
                                              ((copier copier) nil)
+                                             ((predicate predicate) nil)
                                              ((direct-slots direct-slots-as-metaobjects) '())
                                              ((slots slots) '()) ((size size) 1)
                                         &allow-other-keys)
@@ -1713,7 +1714,7 @@
   ;; replaced with #'make-instance later.
   (declare (ignore metaclass name direct-superclasses direct-slots-as-lists
                    direct-default-initargs documentation
-                   names kconstructor boa-constructors copier
+                   names kconstructor boa-constructors copier predicate
                    direct-slots-as-metaobjects slots size))
   (let ((class (allocate-metaobject-instance *<structure-class>-class-version*
                                              *<structure-class>-instance-size*)))
@@ -1740,6 +1741,7 @@
                                                  ((kconstructor kconstructor) nil kconstructor-p)
                                                  ((boa-constructors boa-constructors) '() boa-constructors-p)
                                                  ((copier copier) nil copier-p)
+                                                 ((predicate predicate) nil predicate-p)
                                                  ((direct-slots direct-slots-as-metaobjects) '() direct-slots-as-metaobjects-p)
                                                  ((slots slots) '())
                                                  ((size size) 1)
@@ -1818,13 +1820,15 @@
     (setf (class-boa-constructors class) boa-constructors))
   (when (or (eq situation 't) copier-p)
     (setf (class-copier class) copier))
+  (when (or (eq situation 't) predicate-p)
+    (setf (class-predicate class) predicate))
   ; Done.
   (when (eq situation 't)
     (system::note-new-structure-class))
   class)
 
 ;; DEFSTRUCT-Hook
-(defun define-structure-class (name names keyword-constructor boa-constructors copier all-slots direct-slots) ; ABI
+(defun define-structure-class (name names keyword-constructor boa-constructors copier predicate all-slots direct-slots) ; ABI
   (setf (find-class name)
         (make-instance-<structure-class> <structure-class>
           :name name
@@ -1834,6 +1838,7 @@
           'kconstructor keyword-constructor
           'boa-constructors boa-constructors
           'copier copier
+          'predicate predicate
           'direct-slots direct-slots
           'slots all-slots
           'size (if all-slots
@@ -1843,13 +1848,13 @@
 (defun undefine-structure-class (name) ; ABI
   (setf (find-class name) nil))
 (defun structure-undefine-accessories (name) ; ABI
-  (let ((kconstructor (class-kconstructor name)))
-    (when kconstructor
-      (fmakunbound kconstructor)))
-  (mapc #'fmakunbound (class-boa-constructors name))
-  (let ((copier (class-copier name)))
-    (when copier
-      (fmakunbound copier))))
+  (macrolet ((undef (accessor)
+               `(let ((symbol (,accessor name)))
+                  (when symbol (fmakunbound symbol)))))
+    (undef class-kconstructor)
+    (mapc #'fmakunbound (class-boa-constructors name))
+    (undef class-copier)
+    (undef class-predicate)))
 
 ;; ------------- Creation of an instance of <semi-standard-class> -------------
 
