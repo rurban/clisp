@@ -2026,7 +2026,7 @@ LISPFUNN(coerce,2)
 #   type = BASE-CHAR -> call COERCE_CHAR and check
 #   type = FLOAT, SHORT-FLOAT, SINGLE-FLOAT, DOUBLE-FLOAT, LONG-FLOAT ->
 #          use arithmetic conversion
-#   type = COMPLEX -> chech for being a numeber
+#   type = COMPLEX -> chech for being a number
 #   type = FUNCTION -> function name or lambda expression --> function
 #   type = ARRAY, SIMPLE-ARRAY, VECTOR, SIMPLE-VECTOR, STRING, SIMPLE-STRING,
 #          BASE-STRING, SIMPLE-BASE-STRING, BIT-VECTOR, SIMPLE-BIT-VECTOR ->
@@ -2038,7 +2038,7 @@ LISPFUNN(coerce,2)
 #   type = AND -> (coerce object (second result-type)), check with TYPEP
 #   type = FLOAT, SHORT-FLOAT, SINGLE-FLOAT, DOUBLE-FLOAT, LONG-FLOAT ->
 #          use arithmetic conversion, then check with TYPEP
-#   type = COMPLEX -> check for being a numeber
+#   type = COMPLEX -> check for being a number
 #          coerce Re to (second result-type).
 #          coerce Im to (or (third result-type) (second result-type))
 #          then call COMPLEX.

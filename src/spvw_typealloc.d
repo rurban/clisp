@@ -169,6 +169,24 @@ global object allocate_imm_string (uintL len) {
 #endif
 
 #ifdef HAVE_SMALL_SSTRING
+
+# UP, provides small-string
+# allocate_small_string(len)
+# > len: length of the string (in characters)
+# < ergebnis: new small-simple-string (LISP-object)
+# can trigger GC
+global object allocate_small_string (uintL len) {
+  var uintL need = size_small_sstring(len); # benötigter Speicherplatz in Bytes
+  # Some uprounding, for reallocate_small_string to work.
+  if (size_small_sstring(1) < size_siarray(0)
+      && need < size_siarray(0) && len > 0)
+    need = size_siarray(0);
+ #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_SmallSstring,len);
+  allocate(sstring_type,true,need,SmallSstring,ptr,
+           { SETTFL }); # Keine weitere Initialisierung
+ #undef SETTFL
+}
+
 # UP, provides immutable small-string
 # allocate_imm_small_string(len)
 # > len: length of the string (in characters)
@@ -181,6 +199,64 @@ global object allocate_imm_small_string (uintL len) {
     { SETTFL; }); # no further initialization
  #undef SETTFL
 }
+
+# UP: Changes the allocation of a Small-String to an Siarray, while
+# copying the contents to a fresh normal string.
+# reallocate_small_string(string)
+# > string: a nonempty Small-String
+# < result: an Siarray pointing to a normal String
+# can trigger GC
+global object reallocate_small_string (object string) {
+  var uintL len = Sstring_length(string); # known to be > 0
+  pushSTACK(string);
+  var object newstring = allocate_string(len);
+  string = popSTACK();
+  scintcopy(&TheSmallSstring(string)->data[0],&TheSstring(newstring)->data[0],len);
+  set_break_sem_1(); # forbid interrupts
+  var Siarray ptr;
+  #ifdef TYPECODES
+    ptr = (Siarray)upointer(ptr);
+  #else
+    ptr = (Siarray)TheSmallSstring(string);
+  #endif
+  var object mutated_string = bias_type_pointer_object(varobject_bias,Array_type_string,ptr); # mutation!
+  ptr->GCself = mutated_string; # works only if SPVW_MIXED!
+  #ifdef TYPECODES
+    ptr->recflags = 0; ptr->rectype = Rectype_reallocstring; ptr->reclength = 1; ptr->recxlength = 0;
+  #else
+    ptr->tfl = xrecord_tfl(Rectype_reallocstring,0,1,0);
+  #endif
+  ptr->data = newstring;
+  var uintL size = size_small_sstring(len);
+  if (size_small_sstring(1) > size_siarray(0)
+      || size > size_siarray(0)) {
+    if (size >= size_siarray(0) + size_sb8vector(0)) {
+      # Insert a dummy object, so the GC knows where the next object starts.
+      var Sbvector hole = (Sbvector)pointerplus(ptr,size_siarray(0));
+      var uintL holelen = size - size_siarray(0) - size_sb8vector(0);
+      hole->GCself = bias_type_pointer_object(varobject_bias,Array_type_simple_bit_vector(Atype_8Bit),hole); # works only if SPVW_MIXED!
+      #ifdef TYPECODES
+        hole->length = holelen;
+      #else
+        hole->tfl = lrecord_tfl(Rectype_Sbvector+Atype_8Bit,holelen);
+      #endif
+    } else {
+      # The hole is not large enough for a dummy object, so hack the size.
+      # allocate_small_string() and objsize() should guarantee that
+      # size_siarray(0) bytes are available.
+      var uintL xlength = size-size_siarray(0);
+      ASSERT(size_siarray(xlength) == size);
+      #ifdef TYPECODES
+        ptr->recxlength = xlength;
+      #else
+        ptr->tfl = xrecord_tfl(Rectype_reallocstring,0,1,xlength);
+      #endif
+    }
+  }
+  clr_break_sem_1(); # permit interrupts again
+  return mutated_string;
+}
+
 #endif
 
 # UP, provides indirect array

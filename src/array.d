@@ -72,8 +72,10 @@ LISPFUNN(copy_simple_vector,1)
   global uintL vector_length(vector)
     var object vector;
     {
-      if (array_simplep(vector))
+      if (array_simplep(vector)) {
+        simple_array_to_storage(vector);
         return Sarray_length(vector);
+      }
       # Indirect Array
       var Iarray addr = TheIarray(vector);
       var uintL offset = offsetofa(iarray_,dims);
@@ -219,6 +221,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
       # array is indirect, but not displaced
       array = TheIarray(array)->data; # next array is the storage-vector
      simple:
+      simple_array_to_storage(array);
       # have reached the storage-vector, not indirect
       if (*index >= Sarray_length(array))
         goto fehler_bad_index;
@@ -264,6 +267,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
       # array is indirect, but not displaced
       array = TheIarray(array)->data; # next array is the storage-vector
      simple:
+      simple_array_to_storage(array);
       # have reached the storage-vector, not indirect
       if (*index+size > Sarray_length(array))
         goto fehler_bad_index;
@@ -302,6 +306,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
       # array is indirect, but not displaced
       array = TheIarray(array)->data; # next array is the storage-vector
      simple:
+      simple_array_to_storage(array);
       # have reached the storage-vector, not indirect
       if (*index+size > Sarray_length(array))
         goto fehler_bad_index;
@@ -511,9 +516,10 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
         # Anzahl der Subscripts überprüfen:
         if (!(argcount == 1)) # sollte = 1 sein
           fehler_subscript_anz(array,argcount);
+        simple_array_to_storage(STACK_1);
         # Subscript selbst überprüfen:
         *index_ = test_index(); # Index = Row-Major-Index = Subscript
-        skipSTACK(1); return array;
+        skipSTACK(1); return STACK_0;
       } else {
         # nicht-simpler Array
         # Subscripts überprüfen, Row-Major-Index errechnen, STACK aufräumen:
@@ -574,32 +580,36 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
   }
 
 # Führt einen STORE-Zugriff aus.
-# storagevector_store(datenvektor,index,element)
+# storagevector_store(datenvektor,index,element,maygc)
 # > datenvektor : ein Datenvektor (simpler Vektor oder semi-simpler Byte-Vektor)
 # > index : (geprüfter) Index in den Datenvektor
 # > element : (ungeprüftes) einzutragendes Objekt
+# > maygc : whether GC is allowed, if datenvektor is a string and element is a character
 # > STACK_0 : array (für Fehlermeldung)
 # > subr_self: Aufrufer (ein SUBR)
-  local void storagevector_store (object datenvektor, uintL index, object element);
-  local void storagevector_store(datenvektor,index,element)
+# < datenvektor: possibly reallocated storage vector
+# can trigger GC, if datenvektor is a string and element is a character
+  local object storagevector_store (object datenvektor, uintL index, object element, bool maygc);
+  local object storagevector_store(datenvektor,index,element,maygc)
     var object datenvektor;
     var uintL index;
     var object element;
+    var bool maygc;
     {
       switch (Array_type(datenvektor)) {
         case Array_type_svector: # Simple-Vector
           TheSvector(datenvektor)->data[index] = element;
-          return;
+          return datenvektor;
         case Array_type_sbvector: # Simple-Bit-Vector
           {
             var uintB* addr = &TheSbvector(datenvektor)->data[index/8];
             var uintL bitnummer = (~index)%8; # 7 - (index mod 8)
             if (eq(element,Fixnum_0)) {
               *addr &= ~bit(bitnummer);
-              return;
+              return datenvektor;
             } elif (eq(element,Fixnum_1)) {
               *addr |= bit(bitnummer);
-              return;
+              return datenvektor;
             }
           }
           break;
@@ -609,7 +619,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
             if (posfixnump(element) && ((wert = posfixnum_to_L(element)) < bit(2))) {
               var uintB* ptr = &TheSbvector(datenvektor)->data[index/4];
               *ptr ^= (*ptr ^ (wert<<(2*((~index)%4)))) & ((bit(2)-1)<<(2*((~index)%4)));
-              return;
+              return datenvektor;
             }
           }
           break;
@@ -619,7 +629,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
             if (posfixnump(element) && ((wert = posfixnum_to_L(element)) < bit(4))) {
               var uintB* ptr = &TheSbvector(datenvektor)->data[index/2];
               *ptr ^= (*ptr ^ (wert<<(4*((~index)%2)))) & ((bit(4)-1)<<(4*((~index)%2)));
-              return;
+              return datenvektor;
             }
           }
           break;
@@ -628,7 +638,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
             var uintL wert;
             if (posfixnump(element) && ((wert = posfixnum_to_L(element)) < bit(8))) {
               TheSbvector(datenvektor)->data[index] = wert;
-              return;
+              return datenvektor;
             }
           }
           break;
@@ -637,23 +647,37 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
             var uintL wert;
             if (posfixnump(element) && ((wert = posfixnum_to_L(element)) < bit(16))) {
               ((uint16*)&TheSbvector(datenvektor)->data[0])[index] = wert;
-              return;
+              return datenvektor;
             }
           }
           break;
         case Array_type_sb32vector:
           ((uint32*)&TheSbvector(datenvektor)->data[0])[index] = I_to_UL(element); # evtl. Fehlermeldung macht I_to_UL
-          return;
+          return datenvektor;
         #ifndef TYPECODES
         case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: # immutable Simple-String
           fehler_sstring_immutable(datenvektor);
+        #ifdef HAVE_SMALL_SSTRING
+        case Rectype_SmallSstring: # mutable Simple-String
+          if (charp(element)) {
+            if (char_code(element) < small_char_int_limit)
+              TheSmallSstring(datenvektor)->data[index] = char_code(element);
+            else if (maygc) {
+              datenvektor = reallocate_small_string(datenvektor);
+              TheSstring(TheIarray(datenvektor)->data)->data[index] = char_code(element);
+            } else
+              abort();
+            return datenvektor;
+          }
+          break;
+        #endif
         case Rectype_Sstring: # mutable Simple-String
         #else
         case Array_type_sstring: # Simple-String
         #endif
           if (charp(element)) {
             TheSstring(datenvektor)->data[index] = char_code(element);
-            return;
+            return datenvektor;
           }
           break;
         default: NOTREACHED;
@@ -683,7 +707,7 @@ LISPFUN(store,2,0,rest,nokey,0,NIL) # (SYS::STORE array {subscript} object)
     var uintL index;
     var object datenvektor = subscripts_to_index(array,rest_args_pointer,argcount, &index);
     # Element in den Datenvektor eintragen:
-    storagevector_store(datenvektor,index,element);
+    storagevector_store(datenvektor,index,element,true);
     value1 = element; mv_count=1;
     skipSTACK(1);
   }
@@ -747,8 +771,11 @@ LISPFUNN(row_major_aref,2)
     var uintL index = posfixnum_to_L(STACK_0);
     if (!(index < array_total_size(array))) # Index muss kleiner als Größe sein
       fehler_index_range(array_total_size(array));
-    if (!array_simplep(array))
-      { array = iarray_displace(array,&index); }
+    if (array_simplep(array)) {
+      simple_array_to_storage(array);
+    } else {
+      array = iarray_displace(array,&index);
+    }
     value1 = storagevector_aref(array,index); mv_count=1;
     skipSTACK(2);
   }
@@ -767,9 +794,12 @@ LISPFUNN(row_major_store,3)
     var uintL index = posfixnum_to_L(STACK_0);
     if (!(index < array_total_size(array))) # Index muss kleiner als Größe sein
       fehler_index_range(array_total_size(array));
-    if (!array_simplep(array))
-      { array = iarray_displace(array,&index); }
-    storagevector_store(array,index,element);
+    if (array_simplep(array)) {
+      simple_array_to_storage(array);
+    } else {
+      array = iarray_displace(array,&index);
+    }
+    storagevector_store(array,index,element,true);
     value1 = element; mv_count=1;
     skipSTACK(2);
   }
@@ -855,6 +885,7 @@ LISPFUNN(array_dimension,2) # (ARRAY-DIMENSION array axis-number), CLTL S. 292
     if (array_simplep(array)) {
       # simpler Vektor: axis-number muss =0 sein, Wert ist dann die Länge.
       if (eq(axis_number,Fixnum_0)) {
+        simple_array_to_storage(array);
         value1 = fixnum(Sarray_length(array));
         mv_count=1; return;
       } else
@@ -901,6 +932,7 @@ LISPFUNN(array_dimension,2) # (ARRAY-DIMENSION array axis-number), CLTL S. 292
     {
       if (array_simplep(array)) {
         # simpler Vektor, bilde (LIST length)
+        simple_array_to_storage(array);
         var object len # Länge als Fixnum (nicht GC-gefährdet)
           = fixnum(Sarray_length(array));
         var object new_cons = allocate_cons();
@@ -991,6 +1023,7 @@ LISPFUN(array_in_bounds_p,1,0,rest,nokey,0,NIL)
          fehler_index_type();
       # Subscript muss Fixnum>=0 sein,
       # Subscript als uintL muss kleiner als Länge sein:
+      simple_array_to_storage(array);
       if (!( posfixnump(subscriptobj)
              && (posfixnum_to_L(subscriptobj) < Sarray_length(array)) ))
         goto no;
@@ -1036,6 +1069,7 @@ LISPFUN(array_row_major_index,1,0,rest,nokey,0,NIL)
       # Anzahl der Subscripts überprüfen:
       if (!(argcount == 1)) # sollte = 1 sein
         fehler_subscript_anz(array,argcount);
+      simple_array_to_storage(STACK_1);
       # Subscript selbst überprüfen:
       test_index();
       value1 = popSTACK(); mv_count=1; # Index = Row-Major-Index = Subscript
@@ -2305,14 +2339,32 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
     var uintL index2;
     var uintL count;
     {
-      var const object* ptr1 = &TheSvector(dv1)->data[index1];
       check_sstring_mutable(dv2);
-      var chart* ptr2 = &TheSstring(dv2)->data[index2];
-      dotimespL(count,count, {
-        var object value = *ptr1++;
-        if (!charp(value)) fehler_store(dv2,value);
-        *ptr2++ = char_code(value);
-      });
+     restart:
+      SstringDispatch(dv2,
+        {
+          var const object* ptr1 = &TheSvector(dv1)->data[index1];
+          var chart* ptr2 = &TheSstring(dv2)->data[index2];
+          dotimespL(count,count, {
+            var object value = *ptr1++;
+            if (!charp(value)) fehler_store(dv2,value);
+            *ptr2++ = char_code(value);
+          });
+        },
+        {
+          for (;;) {
+            var object value = TheSvector(dv1)->data[index1++];
+            if (!charp(value)) fehler_store(dv2,value);
+            dv2 = sstring_store(dv2,index2++,char_code(value));
+            if (--count == 0)
+              break;
+            if (Record_type(dv2) == Rectype_reallocstring) { # reallocated?
+              dv2 = TheSiarray(dv2)->data;
+              goto restart;
+            }
+          }
+        }
+        )
     }
   local void elt_copy_Char_Char(dv1,index1,dv2,index2,count)
     var object dv1;
@@ -2322,23 +2374,54 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
     var uintL count;
     {
       check_sstring_mutable(dv2);
-      var chart* ptr2 = &TheSstring(dv2)->data[index2];
-      SstringDispatch(dv1,
+     restart:
+      SstringDispatch(dv2,
         {
-          # Equivalent to chartcopy, but we inline it here.
-          var const chart* ptr1 = &TheSstring(dv1)->data[index1];
-          dotimespL(count,count, {
-            *ptr2++ = *ptr1++;
-          });
+          var chart* ptr2 = &TheSstring(dv2)->data[index2];
+          SstringDispatch(dv1,
+            {
+              # Equivalent to chartcopy, but we inline it here.
+              var const chart* ptr1 = &TheSstring(dv1)->data[index1];
+              dotimespL(count,count, {
+                *ptr2++ = *ptr1++;
+              });
+            },
+            {
+              # Equivalent to scintcopy, but we inline it here.
+              var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
+              dotimespL(count,count, {
+                *ptr2++ = as_chart(*ptr1++);
+              });
+            }
+            );
         },
         {
-          # Equivalent to scintcopy, but we inline it here.
-          var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
-          dotimespL(count,count, {
-            *ptr2++ = as_chart(*ptr1++);
-          });
+          SstringDispatch(dv1,
+            {
+              pushSTACK(dv1);
+              for (;;) {
+                var chart ch = TheSstring(dv1)->data[index1++];
+                dv2 = sstring_store(dv2,index2++,ch);
+                if (--count == 0)
+                  break;
+                if (Record_type(dv2) == Rectype_reallocstring) { # reallocated?
+                  dv2 = TheSiarray(dv2)->data;
+                  dv1 = popSTACK();
+                  goto restart;
+                }
+              }
+              skipSTACK(1);
+            },
+            {
+              var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
+              var scint* ptr2 = &TheSmallSstring(dv2)->data[index2];
+              dotimespL(count,count, {
+                *ptr2++ = *ptr1++;
+              });
+            }
+            );
         }
-        );
+        )
     }
   local void elt_copy_T_Bit(dv1,index1,dv2,index2,count)
     var object dv1;
@@ -3210,30 +3293,72 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
     {
       check_sstring_mutable(dv2);
       if (eq(dv1,dv2) && index1 < index2 && index2 < index1+count) {
-        var const chart* ptr1 = &TheSstring(dv1)->data[index1+count];
-        var chart* ptr2 = &TheSstring(dv2)->data[index2+count];
-        dotimespL(count,count, {
-          *--ptr2 = *--ptr1;
-        });
-      } else {
-        # elt_copy_Char_Char(dv1,index1,dv2,index2,count) inlined:
-        var chart* ptr2 = &TheSstring(dv2)->data[index2];
         SstringDispatch(dv1,
           {
-            # Equivalent to chartcopy, but we inline it here.
-            var const chart* ptr1 = &TheSstring(dv1)->data[index1];
+            var const chart* ptr1 = &TheSstring(dv1)->data[index1+count];
+            var chart* ptr2 = &TheSstring(dv2)->data[index2+count];
             dotimespL(count,count, {
-              *ptr2++ = *ptr1++;
+              *--ptr2 = *--ptr1;
             });
           },
           {
-            # Equivalent to scintcopy, but we inline it here.
-            var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
+            var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1+count];
+            var scint* ptr2 = &TheSmallSstring(dv2)->data[index2+count];
             dotimespL(count,count, {
-              *ptr2++ = as_chart(*ptr1++);
+              *--ptr2 = *--ptr1;
             });
           }
           );
+      } else {
+        # elt_copy_Char_Char(dv1,index1,dv2,index2,count) inlined:
+       restart:
+        SstringDispatch(dv2,
+          {
+            var chart* ptr2 = &TheSstring(dv2)->data[index2];
+            SstringDispatch(dv1,
+              {
+                # Equivalent to chartcopy, but we inline it here.
+                var const chart* ptr1 = &TheSstring(dv1)->data[index1];
+                dotimespL(count,count, {
+                  *ptr2++ = *ptr1++;
+                });
+              },
+              {
+                # Equivalent to scintcopy, but we inline it here.
+                var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
+                dotimespL(count,count, {
+                  *ptr2++ = as_chart(*ptr1++);
+                });
+              }
+              );
+          },
+          {
+            SstringDispatch(dv1,
+              {
+                pushSTACK(dv1);
+                for (;;) {
+                  var chart ch = TheSstring(dv1)->data[index1++];
+                  dv2 = sstring_store(dv2,index2++,ch);
+                  if (--count == 0)
+                    break;
+                  if (Record_type(dv2) == Rectype_reallocstring) { # reallocated?
+                    dv2 = TheSiarray(dv2)->data;
+                    dv1 = popSTACK();
+                    goto restart;
+                  }
+                }
+                skipSTACK(1);
+              },
+              {
+                var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
+                var scint* ptr2 = &TheSmallSstring(dv2)->data[index2];
+                dotimespL(count,count, {
+                  *ptr2++ = *ptr1++;
+                });
+              }
+              );
+          }
+          )
       }
     }
   local void elt_move_Bit(dv1,index1,dv2,index2,count)
@@ -3449,8 +3574,9 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
 # > index: start index in dv
 # > count: number of elements to be filled
 # < result: true if element does not fit, false when done
-#define SIMPLE_FILL(p,c,e)    dotimespL(c,c, { *p++ = e; })
+# can trigger GC
 global bool elt_fill (object dv, uintL index, uintL count, object element) {
+#define SIMPLE_FILL(p,c,e)    dotimespL(c,c, { *p++ = e; })
   switch (Array_type(dv)) {
     case Array_type_svector: # Simple-Vector
       if (count > 0) {
@@ -3643,17 +3769,31 @@ global bool elt_fill (object dv, uintL index, uintL count, object element) {
     case Array_type_sstring: # Simple-String
       if (!charp(element)) return true;
       if (count > 0) {
+        simple_array_to_storage(dv);
         check_sstring_mutable(dv);
         var chart c = char_code(element);
-        var chart* ptr = &TheSstring(dv)->data[index];
-        SIMPLE_FILL(ptr,count,c);
+        # The first store can cause reallocation, the remaining ones cannot.
+        dv = sstring_store(dv,index++,c);
+        simple_array_to_storage1(dv); # reallocated?
+        if (--count > 0) {
+          SstringDispatch(dv,
+            {
+              var chart* ptr = &TheSstring(dv)->data[index];
+              SIMPLE_FILL(ptr,count,c);
+            },
+            {
+              var scint* ptr = &TheSmallSstring(dv)->data[index];
+              SIMPLE_FILL(ptr,count,(scint)as_cint(c));
+            }
+            );
+        }
       }
       break;
     default: NOTREACHED;
   }
   return false;
-}
 #undef SIMPLE_FILL
+}
 
 # Function: Reverses a slice of an array, copying it into another array
 # of the same element type.
@@ -3663,9 +3803,10 @@ global bool elt_fill (object dv, uintL index, uintL count, object element) {
 # > dv2: destination storage-vector
 # > index2: start index in dv2
 # > count: number of elements to be copied, > 0
-#define SIMPLE_REVERSE(p1,p2,c)   dotimespL(c,c, { *p2-- = *p1++; })
+# can trigger GC
 global void elt_reverse (object dv1, uintL index1, object dv2,
                          uintL index2, uintL count) {
+#define SIMPLE_REVERSE(p1,p2,c)   dotimespL(c,c, { *p2-- = *p1++; })
   index2 += count-1;
   switch (Array_type(dv1)) {
     case Array_type_svector: { # Simple-Vector
@@ -3733,28 +3874,65 @@ global void elt_reverse (object dv1, uintL index1, object dv2,
       break;
     case Array_type_sstring: { # Simple-String
       check_sstring_mutable(dv2);
-      var chart* ptr2 = &TheSstring(dv2)->data[index2];
-      SstringDispatch(dv1,{
-        var const chart* ptr1 = &TheSstring(dv1)->data[index1];
-        SIMPLE_REVERSE(ptr1,ptr2,count);
-      },{
-        var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
-        dotimespL(count,count, {
-          *ptr2-- = as_chart(*ptr1++);
-        });
-      });
+     restart:
+      SstringDispatch(dv2,
+        {
+          var chart* ptr2 = &TheSstring(dv2)->data[index2];
+          SstringDispatch(dv1,
+            {
+              var const chart* ptr1 = &TheSstring(dv1)->data[index1];
+              dotimespL(count,count, {
+                *ptr2-- = *ptr1++;
+              });
+            },
+            {
+              var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
+              dotimespL(count,count, {
+                *ptr2-- = as_chart(*ptr1++);
+              });
+            }
+            );
+        },
+        {
+          SstringDispatch(dv1,
+            {
+              pushSTACK(dv1);
+              for (;;) {
+                var chart ch = TheSstring(dv1)->data[index1++];
+                dv2 = sstring_store(dv2,index2--,ch);
+                if (--count == 0)
+                  break;
+                if (Record_type(dv2) == Rectype_reallocstring) { # reallocated?
+                  dv2 = TheSiarray(dv2)->data;
+                  dv1 = popSTACK();
+                  goto restart;
+                }
+              }
+              skipSTACK(1);
+            },
+            {
+              var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
+              var scint* ptr2 = &TheSmallSstring(dv2)->data[index2];
+              dotimespL(count,count, {
+                *ptr2-- = *ptr1++;
+              });
+            }
+            );
+        }
+        )
     }
       break;
     default: NOTREACHED;
   }
-}
 #undef SIMPLE_REVERSE
+}
 
 # Function: Reverses a slice of an array destructively.
 # elt_nreverse(dv,index,count);
 # > dv: storage-vector
 # > index: start index in dv
 # > count: number of elements to be reversed, > 0
+global void elt_nreverse (object dv, uintL index, uintL count) {
 #define SIMPLE_NREVERSE(type_t,ve,i1,i2,count)                  \
   if (count > 0) {                                              \
     var type_t* ptr1 = &((type_t*)TheSvector(ve)->data)[i1];    \
@@ -3763,7 +3941,6 @@ global void elt_reverse (object dv1, uintL index1, object dv2,
       var type_t tmp = *ptr1; *ptr1++ = *ptr2; *ptr2-- = tmp;   \
     });                                                         \
   }
-global void elt_nreverse (object dv, uintL index, uintL count) {
   var uintL index1 = index;
   var uintL index2 = index+count-1;
   count = floor(count,2);
@@ -3831,16 +4008,28 @@ global void elt_nreverse (object dv, uintL index, uintL count) {
     case Array_type_sstring: # Simple-String
       check_sstring_mutable(dv);
       if (count > 0) {
-        var chart* ptr1 = &TheSstring(dv)->data[index1];
-        var chart* ptr2 = &TheSstring(dv)->data[index2];
-        dotimespL(count,count,
-                  { chart tmp = *ptr1; *ptr1++ = *ptr2; *ptr2-- = tmp; });
+        SstringDispatch(dv,
+          {
+            var chart* ptr1 = &TheSstring(dv)->data[index1];
+            var chart* ptr2 = &TheSstring(dv)->data[index2];
+            dotimespL(count,count, {
+              chart tmp = *ptr1; *ptr1++ = *ptr2; *ptr2-- = tmp;
+            });
+          },
+          {
+            var scint* ptr1 = &TheSmallSstring(dv)->data[index1];
+            var scint* ptr2 = &TheSmallSstring(dv)->data[index2];
+            dotimespL(count,count, {
+              scint tmp = *ptr1; *ptr1++ = *ptr2; *ptr2-- = tmp;
+            });
+          }
+          );
       }
       break;
     default: NOTREACHED;
   }
-}
 #undef SIMPLE_NREVERSE
+}
 
 # ============================================================================
 #                 Fill pointers, extendable vectors
@@ -3930,7 +4119,8 @@ LISPFUNN(vector_push,2) # (VECTOR-PUSH new-element vector), CLTL S. 296
     } else {
       var uintL index = oldfillp;
       var object datenvektor = iarray_displace(STACK_0,&index);
-      storagevector_store(datenvektor,index,STACK_1); # new-element eintragen
+      storagevector_store(datenvektor,index,STACK_1,true); # new-element eintragen
+      fillp = get_fill_pointer(STACK_0); # fill pointer address, again
       (*fillp)++; # Fill-Pointer erhöhen
       value1 = fixnum(oldfillp); mv_count=1;
       # alter Fill-Pointer als Wert
@@ -3965,16 +4155,18 @@ nonreturning_function(local, fehler_extension, (object extension)) {
 LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
 # (VECTOR-PUSH-EXTEND new-element vector [extension]), CLTL S. 296
   {
-    var object extension = popSTACK(); # Extension (ungeprüft)
-    var uintL* fillp = get_fill_pointer(STACK_0); # Fillpointer-Adresse
+    var uintL* fillp = get_fill_pointer(STACK_1); # Fillpointer-Adresse
     var uintL oldfillp = *fillp; # alter Wert des Fillpointers
     if (oldfillp < fillp[-1]) { # Fill-Pointer noch nicht am Ende?
+      skipSTACK(1);
       var uintL index = oldfillp;
       var object datenvektor = iarray_displace(STACK_0,&index);
-      storagevector_store(datenvektor,index,STACK_1); # new-element eintragen
+      storagevector_store(datenvektor,index,STACK_1,true); # new-element eintragen
+      fillp = get_fill_pointer(STACK_0); # fill pointer address, again
       (*fillp)++; # Fill-Pointer erhöhen
     } else {
       # Fill-Pointer am Ende -> Versuche, den Vektor zu verlängern:
+      var object extension = popSTACK();
       var object array = STACK_0;
       if (!(Iarray_flags(array) & bit(arrayflags_adjustable_bit))) {
         # Vektor nicht adjustable -> Fehlermeldung:
@@ -4079,7 +4271,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
             }
           }
           # new-element eintragen:
-          storagevector_store(neuer_datenvektor,len,STACK_1);
+          storagevector_store(neuer_datenvektor,len,STACK_1,false);
           break;
         default: NOTREACHED;
         fehler_type:
@@ -4592,7 +4784,9 @@ local void initial_contents_aux(arg,obj)
       subr_self = *(localptr STACKop -2);
       pushSTACK(obj);
       pushSTACK(datenvektor);
-      storagevector_store(datenvektor,locals->index,STACK_1);
+      datenvektor = storagevector_store(datenvektor,locals->index,STACK_1,true);
+      simple_array_to_storage1(datenvektor), # has it been reallocated?
+        *(localptr STACKop -1) = datenvektor;
       locals->index++;
       skipSTACK(2); # Stack aufräumen
     } else {
@@ -4977,7 +5171,7 @@ LISPFUN(make_array,1,0,norest,key,7,\
           ((uint32*)&TheSbvector(newvec)->data[0])[newindex]
             = ((uint32*)&TheSbvector(oldvec)->data[0])[oldindex];
         } else {
-          storagevector_store(newvec,newindex,storagevector_aref(oldvec,oldindex));
+          storagevector_store(newvec,newindex,storagevector_aref(oldvec,oldindex),false);
         }
       } elif (depth==1) {
         # Optimierung: eine ganze Reihe von Elementen kopieren
@@ -5085,12 +5279,24 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
     var uintL fillpointer;
     # Falls nicht displaced, Datenvektor bilden und evtl. füllen:
     if (nullp(STACK_1)) { # displaced-to nicht angegeben?
-      # Datenvektor bilden:
-      var object datenvektor = make_storagevector(totalsize,eltype);
+      var object datenvektor;
       if (!eq(STACK_3,unbound)) { # und falls initial-contents angegeben:
+        # Datenvektor bilden:
+        datenvektor = make_storagevector(totalsize,eltype);
         # mit dem initial-contents-Argument füllen:
         datenvektor = initial_contents(datenvektor,STACK_7,rank,STACK_3);
       } else {
+        # Datenvektor bilden:
+        if (eltype == Atype_Char) {
+          var uintL oldoffset = 0;
+          #ifdef HAVE_SMALL_SSTRING
+          if (!sstring_normal_p(iarray_displace(STACK_6,&oldoffset)))
+            datenvektor = allocate_small_string(totalsize);
+          else
+          #endif
+            datenvektor = allocate_string(totalsize);
+        } else
+          datenvektor = make_storagevector(totalsize,eltype);
         # mit dem ursprünglichen Inhalt von array füllen:
         var object oldarray = STACK_6; # array
         var uintL oldoffset = 0;

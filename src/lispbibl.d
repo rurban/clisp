@@ -3392,6 +3392,9 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 #if (defined(SPVW_BLOCKS) && defined(SPVW_MIXED)) < defined(TRIVIALMAP_MEMORY)
   #error "TRIVIALMAP_MEMORY ==> SPVW_MIXED_BLOCKS!"
 #endif
+#if defined(SPVW_PURE) && !defined(TYPECODES)
+  #error "SPVW_PURE ==> TYPECODES!"
+#endif
 #if (defined(SPVW_BLOCKS) && (defined(SPVW_PURE) || defined(SPVW_MIXED))) < defined(GENERATIONAL_GC)
   #error "GENERATIONAL_GC ==> SPVW_PURE_BLOCKS or SPVW_MIXED_BLOCKS_STAGGERED or SPVW_MIXED_BLOCKS_OPPOSITE!"
 #endif
@@ -3635,7 +3638,8 @@ typedef varobject_ *  Varobject;
 #   elements.
 # Long-Records are recognized by their type field:
 #   rectype == Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector,
-#              Rectype_Sstring, Rectype_Imm_Sstring, Rectype_Imm_SmallSstring,
+#              Rectype_Sstring, Rectype_Imm_Sstring,
+#              Rectype_SmallSstring, Rectype_Imm_SmallSstring,
 #              Rectype_Svector, Rectype_WeakKVT.
 # The others are partitioned into:
 #   - Simple-Records, if rectype < rectype_limit.
@@ -3769,9 +3773,11 @@ typedef xrecord_ *  Xrecord;
          Rectype_Sb32vector,       /* 15 */ # Sbvector, not Srecord/Xrecord
          Rectype_Sstring,          /* 16 */ # Sstring, not Srecord/Xrecord
          Rectype_Imm_Sstring,      /* 17 */ # immutable Sstring, not Srecord/Xrecord
-         Rectype_Imm_SmallSstring, /* 18 */ # immutable SmallSstring, not Srecord/Xrecord, only used #ifdef HAVE_SMALL_SSTRING
-         Rectype_string,           /* 19 */ # Iarray, not Srecord/Xrecord
-         Rectype_mdarray,          /* 20 */ # Iarray, not Srecord/Xrecord
+         Rectype_SmallSstring,     /* 18 */ # SmallSstring, not Srecord/Xrecord, only used #ifdef HAVE_SMALL_SSTRING
+         Rectype_Imm_SmallSstring, /* 19 */ # immutable SmallSstring, not Srecord/Xrecord, only used #ifdef HAVE_SMALL_SSTRING
+         Rectype_reallocstring,    /* 20 */ # reallocated simple string, Siarray, an Xrecord, only used #ifdef HAVE_SMALL_SSTRING
+         Rectype_string,           /* 21 */ # Iarray, not Srecord/Xrecord
+         Rectype_mdarray,          /* 22 */ # Iarray, not Srecord/Xrecord
                           # Here the arrays end.
                           # Here the numbers start.
          Rectype_Bignum,                # Bignum, not Srecord/Xrecord
@@ -4237,7 +4243,7 @@ typedef sstring_ *  Sstring;
 #define Sstring_length(obj)  sstring_length(TheSstring(obj))
 
 # simple string with only one byte per character (a.k.a. "small simple string")
-#if !defined(TYPECODES) && defined(UNICODE) && ((defined(GNU) && !defined(RISCOS) && !defined(CONVEX)) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(BORLAND) || defined(MICROSOFT))
+#if !defined(TYPECODES) && defined(SPVW_MIXED) && defined(UNICODE) && ((defined(GNU) && !defined(RISCOS) && !defined(CONVEX)) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(BORLAND) || defined(MICROSOFT))
 #define HAVE_SMALL_SSTRING
 typedef struct {
   LRECORD_HEADER # selfpointer for GC, length in Characters
@@ -4256,12 +4262,20 @@ typedef svector_ *  Svector;
 #define svector_length(ptr)  sarray_length(ptr)
 #define Svector_length(obj)  svector_length(TheSvector(obj))
 
+# simple indirect array
+#ifndef TYPECODES
+typedef struct {
+  VAROBJECT_HEADER  # self-pointer for GC, tfl
+  object data;      # data vector
+} siarray_;
+typedef siarray_ *  Siarray;
+#endif
+
 # non-simple indirect Array
 typedef struct {
   VAROBJECT_HEADER  # self-pointer for GC
   #ifdef TYPECODES
   uintB flags;      # flags
-                    # one bit unusued
   uintC rank;       # rank n
   #endif
   object data;      # data vector
@@ -4361,7 +4375,7 @@ typedef iarray_ *  Iarray;
   #define Array_type_sb8vector   Rectype_Sb8vector   # Sbvector
   #define Array_type_sb16vector  Rectype_Sb16vector  # Sbvector
   #define Array_type_sb32vector  Rectype_Sb32vector  # Sbvector
-  #define Array_type_sstring     Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring   # Sstring, SmallSstring
+  #define Array_type_sstring     Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_SmallSstring: case Rectype_Imm_SmallSstring: case Rectype_reallocstring   # Sstring, SmallSstring, reallocated string
   #define Array_type_svector     Rectype_Svector     # Svector
 #endif
 # Determining the atype of a [simple-]bit-array:
@@ -5362,6 +5376,7 @@ typedef struct {
   #endif
   #define TheSvector(obj)  ((Svector)(as_oint(obj)-varobject_bias))
   #define TheWeakKVT(obj)  ((WeakKVT)(as_oint(obj)-varobject_bias))
+  #define TheSiarray(obj)  ((Siarray)(as_oint(obj)-varobject_bias))
   #define TheIarray(obj)  ((Iarray)(as_oint(obj)-varobject_bias))
   #define TheRecord(obj)  ((Record)(as_oint(obj)-varobject_bias))
   #define TheSrecord(obj)  ((Srecord)(as_oint(obj)-varobject_bias))
@@ -5564,9 +5579,9 @@ typedef struct {
     ((tint)(typecode(obj) - sbvector_type) <= (tint)(vector_type - sbvector_type))
 #else
   # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String,
-  #        Rectype_bvector, Rectype_b[2|4|8|16|32]vector, Rectype_vector, Rectype_string
+  #        Rectype_bvector, Rectype_b[2|4|8|16|32]vector, Rectype_vector, Rectype_reallocstring, Rectype_string
   #define vectorp(obj)  \
-    (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= 19-1))
+    (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= 21-1))
 #endif
 
 # Test for simple-vector or simple-bit-vector or simple-string
@@ -5574,9 +5589,10 @@ typedef struct {
   #define simplep(obj)  \
     ((tint)(typecode(obj) - sbvector_type) <= (tint)(svector_type - sbvector_type))
 #else
-  # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String
+  # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String,
+  #        Rectype_reallocstring
   #define simplep(obj)  \
-    (varobjectp(obj) && ((uintB)(Record_type(obj) - 9) <= 18-9))
+    (varobjectp(obj) && ((uintB)(Record_type(obj) - 9) <= 20-9))
 #endif
 
 # Tests an Array for simple-vector or simple-bit-vector or simple-string
@@ -5584,9 +5600,10 @@ typedef struct {
   #define array_simplep(obj)  \
     ((typecode(obj) & bit(notsimple_bit_t)) == 0)
 #else
-  # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String
+  # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String,
+  #        Rectype_reallocstring
   #define array_simplep(obj)  \
-    ((uintB)(Record_type(obj) - 9) <= 18-9)
+    ((uintB)(Record_type(obj) - 9) <= 20-9)
 #endif
 
 # Test for simple-vector
@@ -5616,9 +5633,9 @@ typedef struct {
   #define simple_string_p(obj)  \
     (typecode(obj) == sstring_type)
 #else
-  # cases: Rectype_[Imm_][Small]String
+  # cases: Rectype_[Imm_][Small]String, Rectype_reallocstring
   #define simple_string_p(obj)  \
-    (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) <= 18-16))
+    (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) <= 20-16))
 #endif
 
 # Test for string
@@ -5626,9 +5643,9 @@ typedef struct {
   #define stringp(obj)  \
     ((typecode(obj) & ~bit(notsimple_bit_t)) == sstring_type)
 #else
-  # cases: Rectype_[Imm_][Small]String, Rectype_string
+  # cases: Rectype_[Imm_][Small]String, Rectype_reallocstring, Rectype_string
   #define stringp(obj)  \
-    (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) <= 19-16))
+    (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) <= 21-16))
 #endif
 
 # Test for simple-bit[n]-vector
@@ -5659,10 +5676,10 @@ typedef struct {
     ((tint)(typecode(obj) - mdarray_type) <= (tint)(vector_type - mdarray_type))
 #else
   # cases: Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector, Rectype_Svector, Rectype_[Imm_][Small]String,
-  #        Rectype_bvector, Rectype_b[2|4|8|16|32]vector, Rectype_vector, Rectype_string,
+  #        Rectype_bvector, Rectype_b[2|4|8|16|32]vector, Rectype_vector, Rectype_reallocstring, Rectype_string,
   #        Rectype_mdarray
   #define arrayp(obj)  \
-    (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= 20-1))
+    (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= 22-1))
 #endif
 
 # Test for Array, that isn't a Vector (type byte %100)
@@ -5687,11 +5704,13 @@ typedef struct {
     #define if_recordp(obj,statement1,statement2)  \
       if (orecordp(obj))                                                     \
         switch (Record_type(obj)) {                                          \
-          case Rectype_Sbvector: case Rectype_Sstring:                    \
-          case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring:        \
-          case Rectype_Svector: case Rectype_WeakKVT:                     \
+          case Rectype_Sbvector:                                             \
+          case Rectype_Sstring: case Rectype_Imm_Sstring:                    \
+          case Rectype_SmallSstring: case Rectype_Imm_SmallSstring:          \
+          case Rectype_Svector: case Rectype_WeakKVT:                        \
           case Rectype_mdarray:                                              \
           case Rectype_bvector: case Rectype_string: case Rectype_vector:    \
+          case Rectype_reallocstring:                                        \
           case Rectype_Bignum: case Rectype_Lfloat:                          \
           case rectype_unused1:                                              \
             goto not_record;                                                 \
@@ -6193,7 +6212,7 @@ typedef struct {
   #define case_Rectype_Sb32vector_above  \
     case Rectype_Sb32vector: goto case_sb32vector;
   #define case_Rectype_Sstring_above  \
-    case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: goto case_sstring;
+    case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_SmallSstring: case Rectype_Imm_SmallSstring: case Rectype_reallocstring: goto case_sstring;
   #define case_Rectype_Svector_above  \
     case Rectype_Svector: goto case_svector;
   #define case_Rectype_WeakKVT_above  \
@@ -6232,7 +6251,7 @@ typedef struct {
     case Rectype_Symbol: goto case_symbol;
   # Composite cases:
   #define case_Rectype_string_above  \
-    case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: case Rectype_string: goto case_string;
+    case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_SmallSstring: case Rectype_Imm_SmallSstring: case Rectype_reallocstring: case Rectype_string: goto case_string;
   #define case_Rectype_bvector_above  \
     case Rectype_Sbvector: case Rectype_bvector: goto case_bvector;
   #define case_Rectype_b2vector_above  \
@@ -6247,17 +6266,18 @@ typedef struct {
     case Rectype_Sb32vector: case Rectype_b32vector: goto case_b32vector;
   #define case_Rectype_vector_above  \
     case Rectype_Svector: case Rectype_vector: goto case_vector;
-  #define case_Rectype_array_above                      \
-    case Rectype_Sstring: case Rectype_Imm_Sstring:     \
-    case Rectype_Imm_SmallSstring: case Rectype_string: \
-    case Rectype_Sbvector: case Rectype_bvector:        \
-    case Rectype_Sb2vector: case Rectype_b2vector:      \
-    case Rectype_Sb4vector: case Rectype_b4vector:      \
-    case Rectype_Sb8vector: case Rectype_b8vector:      \
-    case Rectype_Sb16vector: case Rectype_b16vector:    \
-    case Rectype_Sb32vector: case Rectype_b32vector:    \
-    case Rectype_Svector: case Rectype_vector:          \
-    case Rectype_WeakKVT: case Rectype_mdarray:         \
+  #define case_Rectype_array_above                            \
+    case Rectype_Sstring: case Rectype_Imm_Sstring:           \
+    case Rectype_SmallSstring: case Rectype_Imm_SmallSstring: \
+    case Rectype_reallocstring: case Rectype_string:          \
+    case Rectype_Sbvector: case Rectype_bvector:              \
+    case Rectype_Sb2vector: case Rectype_b2vector:            \
+    case Rectype_Sb4vector: case Rectype_b4vector:            \
+    case Rectype_Sb8vector: case Rectype_b8vector:            \
+    case Rectype_Sb16vector: case Rectype_b16vector:          \
+    case Rectype_Sb32vector: case Rectype_b32vector:          \
+    case Rectype_Svector: case Rectype_vector:                \
+    case Rectype_WeakKVT: case Rectype_mdarray:               \
       goto case_array;
   #define case_Rectype_number_above  /* don't forget immediate_number_p */ \
     case Rectype_Complex: case Rectype_Ratio:                      \
@@ -7585,6 +7605,14 @@ extern object allocate_bit_vector (uintB atype, uintL len);
 #endif
 
 #ifdef HAVE_SMALL_SSTRING
+# UP: allocates Small-String
+# allocate_small_string(len)
+# > len: length of the String (in Characters)
+# < result: new Small-Simple-String (LISP-object)
+# can trigger GC
+  extern object allocate_small_string (uintL len);
+# is used by CHARSTRG
+
 # UP: allocates immutable Small-String
 # allocate_imm_small_string(len)
 # > len: length of the String (in Characters)
@@ -7592,6 +7620,15 @@ extern object allocate_bit_vector (uintB atype, uintL len);
 # can trigger GC
   extern object allocate_imm_small_string (uintL len);
 # is used by CHARSTRG
+
+# UP: Changes the allocation of a Small-String to an Iarray, while
+# copying the contents to a fresh normal string.
+# reallocate_small_string(string)
+# > string: a nonempty Small-String
+# < result: an Iarray pointing to a normal String
+# can trigger GC
+  extern object reallocate_small_string (object string);
+# is used by ARRAY
 #endif
 
 # UP: allocates indirect array
@@ -10176,7 +10213,8 @@ extern object ascii_to_string (const char * asciz);
     }} while(0)
   #define with_sstring_0(string,encoding,ascizvar,statement)  \
     do { var object ascizvar##_string = (string);                         \
-      var uintL ascizvar##_len = Sstring_length(ascizvar##_string);       \
+      simple_array_to_storage(ascizvar##_string);                         \
+     {var uintL ascizvar##_len = Sstring_length(ascizvar##_string);       \
       var const chart* ptr1;                                              \
       unpack_sstring_alloca(ascizvar##_string,ascizvar##_len,0, ptr1=);   \
      {var uintL ascizvar##_bytelen = cslen(encoding,ptr1,ascizvar##_len); \
@@ -10187,7 +10225,7 @@ extern object ascii_to_string (const char * asciz);
        statement                                                          \
       }                                                                   \
       FREE_DYNAMIC_ARRAY(ascizvar##_data);                                \
-    }} while(0)
+    }}} while(0)
 #endif
 # is used by PATHNAME, MISC, FOREIGN
 
@@ -10220,7 +10258,8 @@ extern object ascii_to_string (const char * asciz);
   }} while(0)
 #define with_sstring(string,encoding,charptrvar,lenvar,statement)  \
   do { var object charptrvar##_string = (string);                         \
-    var uintL charptrvar##_len = Sstring_length(charptrvar##_string);     \
+    simple_array_to_storage(charptrvar##_string);                         \
+   {var uintL charptrvar##_len = Sstring_length(charptrvar##_string);     \
     var const chart* ptr1;                                                \
     unpack_sstring_alloca(charptrvar##_string,charptrvar##_len,0, ptr1=); \
    {var uintL lenvar = cslen(encoding,ptr1,charptrvar##_len);             \
@@ -10230,7 +10269,7 @@ extern object ascii_to_string (const char * asciz);
      statement                                                            \
     }                                                                     \
     FREE_DYNAMIC_ARRAY(charptrvar##_data);                                \
-  }} while(0)
+  }}} while(0)
 # is used by PATHNAME
 
 # ####################### ARRBIBL for ARRAY.D ############################## #
@@ -10243,6 +10282,24 @@ extern object ascii_to_string (const char * asciz);
 # ARRAY-RANK-LIMIT is chosen as large as possible, respecting the constraint
 # that the rank of any array is an uintWC:
 #define arrayrank_limit_1  ((uintL)(bitm(intWCsize)-1))
+
+# Macro: Follows the Siarray chain, to get from a simple array (actually,
+# a string) to its storage vector.
+# simple_array_to_storage(array);
+# simple_array_to_storage1(array); [when at most one Siarray is involved]
+# > array: a simple array
+# < array: its storage vector
+#ifdef HAVE_SMALL_SSTRING
+  #define simple_array_to_storage(array)  \
+    while (Record_type(array) == Rectype_reallocstring) \
+      (array) = TheSiarray(array)->data/*;*/
+  #define simple_array_to_storage1(array)  \
+    if (Record_type(array) == Rectype_reallocstring) \
+      (array) = TheSiarray(array)->data/*;*/
+#else
+  #define simple_array_to_storage(array)  /*nop*/
+  #define simple_array_to_storage1(array)  /*nop*/
+#endif
 
 # Function: Copies a simple-vector.
 # copy_svector(vector)
@@ -10389,15 +10446,17 @@ typedef struct { uintL dim; uintL dimprod; }  array_dim_size;
 extern void iarray_dims_sizes (object array, array_dim_size* dims_sizes);
 # used by IO
 
-# Macro: Returns the total-size of an array.
+# Function: Returns the total-size of an array.
 # array_total_size(array)
 # > array: an array (a variable)
 # < uintL result: its total-size
-#define array_total_size(array)  \
-  (array_simplep(array)                                                \
-    ? Sarray_length(array) # simple vector: total length               \
-    : TheIarray(array)->totalsize # indirect array: contains totalsize \
-  )
+static inline uintL array_total_size (object array) {
+  if (array_simplep(array)) {
+    simple_array_to_storage(array);
+    return Sarray_length(array); # simple vector: total length
+  } else
+    return TheIarray(array)->totalsize; # indirect array: contains totalsize
+}
 # used by ARRAY, SEQUENCE, FOREIGN
 
 # Function: Compares two slices of simple-bit-vectors.
@@ -10422,7 +10481,7 @@ extern bool bit_compare (object array1, uintL index1,
 # > count: number of elements to be copied, > 0
 # can trigger GC
 extern void elt_copy (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-# used by SEQUENCE
+# used by SEQUENCE, STREAM
 
 # Function: Copies a slice of an array array1 into another array array2 of
 # the same element type. Handles overlapping arrays correctly.
@@ -10442,6 +10501,7 @@ extern void elt_move (object dv1, uintL index1, object dv2, uintL index2, uintL 
 # > index: start index in dv
 # > count: number of elements to be filled
 # < result: true if element does not fit, false when done
+# can trigger GC
 extern bool elt_fill (object dv, uintL index, uintL count, object element);
 # used by SEQUENCE
 
@@ -10453,6 +10513,7 @@ extern bool elt_fill (object dv, uintL index, uintL count, object element);
 # > dv2: destination storage-vector
 # > index2: start index in dv2
 # > count: number of elements to be copied, > 0
+# can trigger GC
 extern void elt_reverse (object dv1, uintL index1, object dv2, uintL index2, uintL count);
 # used by SEQUENCE
 
@@ -10621,7 +10682,7 @@ extern uintL char_width (chart ch);
 # Executes small_sstring_statement if it is a SmallSstring, else sstring_statement.
 #ifdef HAVE_SMALL_SSTRING
   #define SstringDispatch(string,sstring_statement,small_sstring_statement)  \
-    if (Record_type(string) == Rectype_Imm_SmallSstring) { small_sstring_statement } else { sstring_statement }
+    if (Record_type(string) == Rectype_SmallSstring || Record_type(string) == Rectype_Imm_SmallSstring) { small_sstring_statement } else { sstring_statement }
 #else
   #define SstringDispatch(string,sstring_statement,small_sstring_statement)  \
     { sstring_statement }
@@ -10633,7 +10694,7 @@ extern uintL char_width (chart ch);
 # > string: a simple-string
 #ifdef HAVE_SMALL_SSTRING
   #define sstring_normal_p(string)  \
-    (!(Record_type(string) == Rectype_Imm_SmallSstring))
+    (!(Record_type(string) == Rectype_SmallSstring || Record_type(string) == Rectype_Imm_SmallSstring))
 #else
   #define sstring_normal_p(string)  1
 #endif
@@ -10656,11 +10717,12 @@ extern uintL char_width (chart ch);
 # is used by
 
 # UP: unpacks a String.
-# unpack_string_rw(string,&len)  [for read-write access]
+# unpack_string_rw(string,&len,&offset)  [for read-write access]
 # > object string: a String.
 # < uintL len: number of characters of the String.
-# < chart* result: start-address of the Characters
-extern chart* unpack_string_rw (object string, uintL* len);
+# < uintL offset: Offset in the Data-Vector.
+# < object result: Data-Vector
+extern object unpack_string_rw (object string, uintL* len, uintL* offset);
 # is used by AFFI
 
 # UP: unpacks a String.
@@ -10687,6 +10749,25 @@ extern bool string_gleich (object string1, object string2);
 # < result: /=0, if equal
 extern bool string_equal (object string1, object string2);
 # is used by IO, PATHNAME
+
+# UP: Stores a character in a string.
+# > string: a mutable string that is or was simple
+# > index: (already checked) index into the string
+# > element: a character
+# < result: the possibly reallocated string
+# can trigger GC
+  extern object sstring_store (object string, uintL index, chart element);
+# is used by STREAM
+
+# UP: Stores an array of characters in a string.
+# > string: a mutable string that is or was simple
+# > offset: (already checked) offset into the string
+# > charptr[0..len-1]: a character array, not GC affected
+# < result: the possibly reallocated string
+# can trigger GC
+  extern object sstring_store_array (object string, uintL offset,
+                                     const chart *charptr, uintL len);
+# is used by AFFI
 
 #ifdef UNICODE
 # UP: Creates a Simple-String with given elements.
@@ -10811,25 +10892,31 @@ extern bool string_eqcomp_ci (object string1, uintL offset1, object string2, uin
 # is used by PREDTYPE
 
 # UP: converts the Characters of a partial string to upcase
-# nstring_upcase(charptr,len);
-# > chart* charptr: Characters start from here on
-# > uintL len: number of characters
-extern void nstring_upcase (chart* charptr, uintL len);
+# nstring_upcase(dv,offset,len);
+# > object dv: the character storage vector
+# > uintL offset: index of first affected character
+# > uintL len: number of affected characters
+# can trigger GC
+extern void nstring_upcase (object dv, uintL offset, uintL len);
 # is not used at this time (except in CHARSTRG, of course)
 
 # UP: converts the Characters of a partial string to downcase
-# nstring_downcase(charptr,len);
-# > chart* charptr: Characters start from here on
-# > uintL len: number of characters
-extern void nstring_downcase (chart* charptr, uintL len);
+# nstring_downcase(dv,offset,len);
+# > object dv: the character storage vector
+# > uintL offset: index of first affected character
+# > uintL len: number of affected characters
+# can trigger GC
+extern void nstring_downcase (object dv, uintL offset, uintL len);
 # is used by PATHNAME
 
 # UP: changes the words of a part of a string so they start
-# with capital letters and continue with downcase ones
-# nstring_capitalize(charptr,len);
-# > chart* charptr: the Characters start from here
-# > uintL len: number of characters
-extern void nstring_capitalize (chart* charptr, uintL len);
+# with capital letters and continue with lowercase ones
+# nstring_capitalize(dv,offset,len);
+# > object dv: the character storage vector
+# > uintL offset: index of first affected character
+# > uintL len: number of affected characters
+# can trigger GC
+extern void nstring_capitalize (object dv, uintL offset, uintL len);
 # is used by PATHNAME
 
 # UP: converts a String to upcase
@@ -11273,7 +11360,7 @@ nonreturning_function(extern, fehler_sstring, (object obj));
   #define check_sstring_mutable(obj)
 #else
   #define check_sstring_mutable(obj)  \
-     if (!(Record_type(obj) == Rectype_Sstring)) fehler_sstring_immutable(obj);
+    if (!(Record_type(obj) == Rectype_Sstring || Record_type(obj) == Rectype_SmallSstring)) fehler_sstring_immutable(obj);
   # Error message, if a Simple-String is immutable:
   # fehler_sstring_immutable(obj);
   # > obj: der String
@@ -11851,7 +11938,7 @@ extern void write_byte_array (const object* stream_, const object* bytearray_, u
 # Function: Reads several characters from a stream.
 # read_char_array(&stream,&chararray,start,len)
 # > stream: stream (on the STACK)
-# > object chararray: mutable simple-string (on the STACK)
+# > object chararray: a mutable string that is or was simple (on the STACK)
 # > uintL start: start index of character sequence to be filled
 # > uintL len: length of character sequence to be filled
 # < uintL result: number of characters that have been filled

@@ -2028,12 +2028,18 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
      #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
       # operating system with preference for small letters
       Z_SUB(z,string); # yes -> convert with STRING-DOWNCASE
-      nstring_downcase(&TheSstring(string)->data[0],Sstring_length(string));
+      pushSTACK(string);
+      nstring_downcase(string,0,Sstring_length(string));
+      string = popSTACK();
+      simple_array_to_storage(string);
      #endif
      #ifdef PATHNAME_AMIGAOS
       # operating system with preference for Capitalize
       Z_SUB(z,string); # yes -> convert with STRING-CAPITALIZE
-      nstring_capitalize(&TheSstring(string)->data[0],Sstring_length(string));
+      pushSTACK(string);
+      nstring_capitalize(string,0,Sstring_length(string));
+      string = popSTACK();
+      simple_array_to_storage(string);
      #endif
     }
     # Coerce string to be a normal-simple-string.
@@ -4014,7 +4020,7 @@ local bool legal_logical_word (object obj) {
 # UP: checks, if object is an admissible name:
 # a Simple-String made of valid characters
 # legal_name(object)
-# > object: if a simple-string, a normal-simple-string
+# > object: any object
 local bool legal_name (object obj) {
   if (!stringp(obj)) return false;
   var uintL len, offset;
@@ -5463,13 +5469,16 @@ local object customary_case (object string) {
   if (!simple_string_p(string))
     return string;
  #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
-  # operating system with preference for small letters
+  # operating system with preference for lowercase letters
   return string_downcase(string);
  #endif
  #ifdef PATHNAME_AMIGAOS
   # operating system with preference for Capitalize
   string = copy_string(string);
+  pushSTACK(string);
   nstring_capitalize(&TheSstring(string)->data[0],Sstring_length(string));
+  string = popSTACK();
+  simple_array_to_storage(string);
   return string;
  #endif
 }
@@ -10344,7 +10353,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL) {
     if ((_osmode == DOS_MODE) && (_osmajor < 4)) {
       var uintB swchar = _swchar();
       if (swchar) # pss. replace "/C" with something else
-        TheSstring(STACK_0)->data[0] = ascii(swchar); # (destructive)
+        sstring_store(STACK_0,0,ascii(swchar)); # (destructive)
     }
     #endif
     pushSTACK(command);

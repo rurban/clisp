@@ -262,7 +262,7 @@
                       case Rectype_Sb16vector:
                       case Rectype_Sb32vector:
                       case Rectype_Sstring: case Rectype_Imm_Sstring:
-                      case Rectype_Imm_SmallSstring:
+                      case Rectype_SmallSstring: case Rectype_Imm_SmallSstring:
                       case Rectype_Bignum:
                       case Rectype_Ffloat:
                       case Rectype_Dfloat:
@@ -279,6 +279,7 @@
                       case Rectype_b8vector:
                       case Rectype_b16vector:
                       case Rectype_b32vector:
+                      case Rectype_reallocstring:
                       case Rectype_string:
                       case Rectype_vector:
                         down_iarray();

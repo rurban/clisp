@@ -804,8 +804,9 @@ global object convert_from_foreign (object fvd, const void* data);
       return value1;
     }
   # Fill a specialized Lisp array with foreign data.
-  local void convert_from_foreign_array_fill (object eltype, uintL size, object array, const void* data);
-  local void convert_from_foreign_array_fill(eltype,size,array,data)
+  # Return the (possibly reallocated) array.
+  local object convert_from_foreign_array_fill (object eltype, uintL size, object array, const void* data);
+  local object convert_from_foreign_array_fill(eltype,size,array,data)
     var object eltype;
     var uintL size;
     var object array;
@@ -814,13 +815,20 @@ global object convert_from_foreign (object fvd, const void* data);
       if (eq(eltype,S(character))) {
         if (size > 0) {
           var const uintB* ptr1 = (const uintB*)data;
-          var chart* ptr2 = &TheSstring(array)->data[0];
           #ifdef UNICODE
+          pushSTACK(array);
           var object encoding = O(foreign_encoding);
           ASSERT(Encoding_mblen(encoding)(encoding,ptr1,ptr1+size) == size);
+          var DYNAMIC_ARRAY(tmpbuf,chart,size);
+          var chart* ptr2 = &tmpbuf[0];
           Encoding_mbstowcs(encoding)(encoding,nullobj,&ptr1,ptr1+size,&ptr2,ptr2+size);
           ASSERT(ptr1 == (const uintB*)data+size);
+          sstring_store_array(array,0,&tmpbuf[0],size);
+          FREE_DYNAMIC_ARRAY(tmpbuf);
+          array = popSTACK();
+          simple_array_to_storage(array);
           #else
+          var chart* ptr2 = &TheSstring(array)->data[0];
           dotimespL(size,size, { *ptr2++ = as_chart(*ptr1++); } );
           #endif
         }
@@ -874,6 +882,7 @@ global object convert_from_foreign (object fvd, const void* data);
       #endif
       else
         NOTREACHED;
+      return array;
     }
 # Error message
 nonreturning_function (local, fehler_eltype_zero_size, (object fvd)) {
@@ -1033,7 +1042,13 @@ global object convert_from_foreign(fvd,data)
               array = TheIarray(array)->data; # fetch the data vector
             if (!simple_vector_p(array)) {
               # Fill specialized array.
-              convert_from_foreign_array_fill(eltype,size,array,data);
+              var object reallocated_array =
+                convert_from_foreign_array_fill(eltype,size,array,data);
+              array = STACK_0;
+              if (vectorp(array))
+                STACK_0 = reallocated_array;
+              else
+                TheIarray(array)->data = reallocated_array;
             } else {
               # Fill general array.
               # SYS::ROW-MAJOR-STORE is equivalent to SETF SVREF here.
@@ -1073,7 +1088,7 @@ global object convert_from_foreign(fvd,data)
           # Fill the resulting array.
           if (!simple_vector_p(array)) {
             # Fill specialized array.
-            convert_from_foreign_array_fill(STACK_0,len,array,data);
+            array = convert_from_foreign_array_fill(STACK_0,len,array,data);
           } else {
             # Fill general array, using SYS::SVSTORE.
             pushSTACK(array);
