@@ -17196,7 +17196,8 @@ LISPFUNN(line_number,1) {
 # stream_get_read_eval(stream)
 # > stream: a stream
 # < result: true if read-eval is allowed from the stream, else false
-global bool stream_get_read_eval (object stream) {
+# can trigger GC
+global maygc bool stream_get_read_eval (object stream) {
   if (builtin_stream_p(stream)) {
     return ((TheStream(stream)->strmflags & strmflags_reval_B) != 0);
   } else {
@@ -17216,7 +17217,8 @@ global bool stream_get_read_eval (object stream) {
 # stream_set_read_eval(stream,value);
 # > stream: a stream
 # > value: true if read-eval shall be allowed from the stream, else false
-global void stream_set_read_eval (object stream, bool value) {
+# can trigger GC
+global maygc void stream_set_read_eval (object stream, bool value) {
   if (builtin_stream_p(stream)) {
     if (value)
       TheStream(stream)->strmflags |= strmflags_reval_B;
