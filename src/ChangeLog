@@ -1,3 +1,11 @@
+2001-08-02  Sam Steingold  <sds@gnu.org>
+
+	Fixed bug #445286
+	* compiler.lisp (c-SYMBOL-MACROLET): bind *VENV* before PARSE-BODY
+	because PARSE-BODY macroexpands the first form in search of
+	declarations, and that macroexpansion might rely on the
+	definitions of the current SYMBOL-MACROLET
+
 2001-08-02  Bruno Haible  <haible@clisp.cons.org>
 
 	* nls_iso8859_16.c: Regenerated from newest unicode.org table.

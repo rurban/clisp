@@ -4907,10 +4907,9 @@ der Docstring (oder NIL).
 (defvar *ignorables*) ; Liste aller zuletzt ignorable deklarierten Symbole
 (defvar *readonlys*) ; Liste aller zuletzt read-only deklarierten Symbole
 
-; pusht alle Symbole von specials als Variablen auf *venv* :
+;; push all symbols for special variables into *venv* :
 (defun push-specials ()
-  (apply #'push-*venv* (mapcar #'make-special-var *specials*))
-)
+  (apply #'push-*venv* (mapcar #'make-special-var *specials*)))
 
 ; Überprüft eine Variable, ob sie zu Recht ignore-deklariert ist oder nicht...
 (defun ignore-check (var)
@@ -5401,7 +5400,6 @@ der Docstring (oder NIL).
           (multiple-value-setq (*specials* *ignores* *ignorables* *readonlys*)
             (process-declarations declarations)
           )
-          ; Special-Variable auf *venv* pushen:
           (push-specials)
           ; Sichtbarkeit von Closure-Dummyvar:
           (push nil *venvc*)
@@ -6336,7 +6334,6 @@ der Docstring (oder NIL).
           (*venvc* *venvc*))
       (multiple-value-bind (*specials* *ignores* *ignorables* *readonlys*)
           (process-declarations declarations)
-        ; Special-Variable auf *venv* pushen:
         (push-specials)
         ; Syntaxtest der Parameterliste:
         (multiple-value-bind (symbols initforms) (analyze-letlist (second *form*))
@@ -6389,7 +6386,6 @@ der Docstring (oder NIL).
       (multiple-value-bind (*specials* ignores ignorables readonlys)
           (process-declarations declarations)
         (declare (ignore ignores ignorables readonlys))
-        ; Special-Variable auf *venv* pushen:
         (push-specials)
         (funcall c `(PROGN ,@body-rest))
 ) ) ) )
@@ -6415,7 +6411,6 @@ der Docstring (oder NIL).
               (*venvc* *venvc*))
           (multiple-value-bind (*specials* *ignores* *ignorables* *readonlys*)
               (process-declarations declarations)
-            ; Special-Variable auf *venv* pushen:
             (push-specials)
             (if (null symbols) ; leere Variablenliste -> gar nichts binden
               (let* ((anode1 (c-form (third *form*) 'NIL))
@@ -7433,49 +7428,42 @@ der Docstring (oder NIL).
 (defun c-SYMBOL-MACROLET (&optional (c #'c-form))
   (test-list *form* 2)
   (test-list (second *form*) 0)
-  (multiple-value-bind (body-rest declarations)
-      (parse-body (cddr *form*) nil (env))
-    (let ((*denv* *denv*)
-          (*venv* *venv*))
-      (multiple-value-bind (*specials* *ignores* *ignorables* *readonlys*)
-          (process-declarations declarations)
-        ; Special-Variable auf *venv* pushen:
-        (push-specials)
-        ; Syntaxtest der Parameterliste:
-        (multiple-value-bind (symbols expansions)
-            (do ((L (second *form*) (cdr L))
-                 (symbols nil)
-                 (expansions nil))
-                ((null L) (values (nreverse symbols) (nreverse expansions)))
-              (let ((symdef (car L)))
-                (if (and (consp symdef) (symbolp (car symdef))
-                         (consp (cdr symdef)) (null (cddr symdef))
-                    )
-                  (progn (push (first symdef) symbols) (push (second symdef) expansions))
-                  (catch 'c-error
-                    (c-error (ENGLISH "Illegal syntax in SYMBOL-MACROLET: ~S")
-                             symdef
-            ) ) ) ) )
-          (dolist (symbol symbols)
-            (if (or (constantp symbol) (proclaimed-special-p symbol))
-              (catch 'c-error
-                (c-error (ENGLISH "~S: symbol ~S is declared special and must not be declared a macro")
-                         'symbol-macrolet symbol
-              ) )
-              (if (member symbol *specials* :test #'eq)
-                (catch 'c-error
-                  (c-error (ENGLISH "~S: symbol ~S must not be declared SPECIAL and a macro at the same time")
-                           'symbol-macrolet symbol
-          ) ) ) ) )
-          (setq *venv* ; *venv* erweitern
-            (apply #'vector
-              (nconc (mapcan #'(lambda (sym expansion) (list sym (make-symbol-macro expansion)))
-                             symbols expansions
-                     )
-                     (list *venv*)
-          ) ) )
-          (funcall c `(PROGN ,@body-rest)) ; restliche Formen compilieren
-) ) ) ) )
+  ;; check the syntax of the parameter list:
+  (macrolet ((err (fmt sym)
+               `(catch 'c-error (c-error ,fmt 'symbol-macrolet ,sym))))
+    (multiple-value-bind (symbols expansions)
+        (do ((L (second *form*) (cdr L))
+             (symbols nil)
+             (expansions nil))
+            ((null L) (values (nreverse symbols) (nreverse expansions)))
+          (let ((symdef (car L)))
+            (if (and (consp symdef) (symbolp (car symdef))
+                     (consp (cdr symdef)) (null (cddr symdef)))
+                (progn (push (first symdef) symbols)
+                       (push (second symdef) expansions))
+                (err (ENGLISH "~S: Illegal syntax: ~S") symdef))))
+      (let ((*denv* *denv*)
+            (*venv*
+             ;; `*venv*' has to be modified before `parse-body' because
+             ;; `parse-body' macroexpands the first form in search of
+             ;; declarations, and that macroexpansion might rely on the
+             ;; definitions of the current `symbol-macrolet'
+             (apply #'vector
+                    (nconc (mapcan (lambda (sym expansion)
+                                     (list sym (make-symbol-macro expansion)))
+                                   symbols expansions)
+                           (list *venv*)))))
+        (multiple-value-bind (body-rest declarations)
+            (parse-body (cddr *form*) nil (env))
+          (multiple-value-bind (*specials* *ignores* *ignorables* *readonlys*)
+              (process-declarations declarations)
+            (push-specials)
+            (dolist (symbol symbols)
+              (if (or (constantp symbol) (proclaimed-special-p symbol))
+                (err (ENGLISH "~S: symbol ~S is declared special and must not be declared a macro") symbol)
+                (if (member symbol *specials* :test #'eq)
+                  (err (ENGLISH "~S: symbol ~S must not be declared SPECIAL and a macro at the same time") symbol))))
+            (funcall c `(PROGN ,@body-rest))))))))
 
 ; compiliere (EVAL-WHEN ({situation}*) {form}*)
 (defun c-EVAL-WHEN (&optional (c #'c-form))
@@ -7865,7 +7853,6 @@ der Docstring (oder NIL).
             (multiple-value-setq (*specials* *ignores* *ignorables* *readonlys*)
               (process-declarations declarations)
             )
-            ; Special-Variable auf *venv* pushen:
             (push-specials)
             (push 0 *stackz*) (push nil *venvc*) ; Platz für Closure-Dummyvar
             (setq closuredummy-stackz *stackz* closuredummy-venvc *venvc*)
