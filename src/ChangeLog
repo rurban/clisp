@@ -1,5 +1,15 @@
 1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_update.d: New file.
+        * spvw.d (aktualisiere_STACK, aktualisiere_subr_tab,
+           aktualisiere_symbol_tab, aktualisiere_object_tab, aktualisiere_tab,
+           aktualisiere_conspage_normal, aktualisiere_conses,
+           aktualisiere_page_normal, aktualisiere_varobject): Move out.
+          (update): Renamed from aktualisiere.
+        * makemake.in (SPVW_INCLUDES): Adjust.
+
+1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw_objsize.d: New file.
         * spvw.d (typecode_at, case_symbolwithflags, speicher_laenge,
            Varobject_aligned_size, size_symbol, size_sbvector, size_sstring,

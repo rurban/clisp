@@ -689,6 +689,11 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 #include "spvw_objsize.c"
 
 # ------------------------------------------------------------------------------
+#                    Speicher-Aktualisierung
+
+#include "spvw_update.c"
+
+# ------------------------------------------------------------------------------
 #                      Page Fault and Protection handling
 
 #if defined(SELFMADE_MMAP) || defined(GENERATIONAL_GC)
@@ -2727,7 +2732,7 @@ local uintC generation;
   # Aktualisierung eines Objekts *objptr :
     #if !defined(MORRIS_GC)
       #ifdef TYPECODES
-        #define aktualisiere(objptr)  \
+        #define update(objptr)  \
           { var tint type = mtypecode(*(object*)objptr);                          \
             if (!gcinvariant_type_p(type)) # unverschieblich -> nichts tun        \
               { var object obj = *(object*)objptr; # fragliches Objekt            \
@@ -2741,7 +2746,7 @@ local uintC generation;
                       type_untype_object(type,untype(*(object*)ThePointer(obj))); \
           }   }
       #else
-        #define aktualisiere(objptr)  \
+        #define update(objptr)  \
           { var object obj = *(object*)objptr; # fragliches Objekt          \
             if (!gcinvariant_object_p(obj)) # unverschieblich -> nichts tun \
               if (!in_old_generation(obj,,))                                \
@@ -2756,7 +2761,7 @@ local uintC generation;
     #else # defined(MORRIS_GC)
       #if defined(SPVW_MIXED_BLOCKS)
         #ifdef TYPECODES
-          #define aktualisiere(objptr)  \
+          #define update(objptr)  \
             { var tint type = mtypecode(*(object*)objptr);                          \
               if (!gcinvariant_type_p(type)) # unverschieblich -> nichts tun        \
                 switch (type)                                                       \
@@ -2777,7 +2782,7 @@ local uintC generation;
                       break;                                                        \
             }     }
         #else
-          #define aktualisiere(objptr)  \
+          #define update(objptr)  \
             { var object obj = *(object*)objptr; # fragliches Objekt              \
               if (!gcinvariant_object_p(obj))                                     \
                 { if (consp(obj))                                                 \
@@ -2796,7 +2801,7 @@ local uintC generation;
             }   }
         #endif
       #else # defined(SPVW_PURE_BLOCKS) # && defined(SINGLEMAP_MEMORY)
-        #define aktualisiere(objptr)  \
+        #define update(objptr)  \
           { var tint type = mtypecode(*(object*)objptr);                      \
             if (!is_unused_heap(type)) # unverschieblich -> nichts tun        \
               { var object obj = *(object*)objptr; # fragliches Objekt        \
@@ -2816,255 +2821,33 @@ local uintC generation;
           }   }
       #endif
     #endif
+    #ifndef NO_symbolflags
+      #define update_stackobj(objptr)  \
+        switch (mtypecode(*objptr))                               \
+          { case_symbolflagged: # Symbol mit evtl. Flags          \
+              { var object obj1 = *objptr;                        \
+                var object obj2 = symbol_without_flags(obj1);     \
+                var oint flags = as_oint(obj1) ^ as_oint(obj2);   \
+                *objptr = obj2; # vorerst Flags löschen           \
+                update(objptr); # dann aktualisieren              \
+                *(oint*)objptr |= flags; # dann Flags wieder rein \
+                break;                                            \
+              }                                                   \
+            default: update(objptr); break;                       \
+          }
+    #else
+      #define update_stackobj(objptr)  \
+        update(objptr);
+    #endif
   # Durchlaufen durch alle LISP-Objekte und aktualisieren:
-    # Pointer im LISP-Stack aktualisieren:
-      local void aktualisiere_STACK (void);
-      local void aktualisiere_STACK()
-        { var object* objptr = &STACK_0; # Pointer, der durch den STACK läuft
-          until (eq(*objptr,nullobj)) # bis STACK zu Ende ist:
-            { if ( *((oint*)objptr) & wbit(frame_bit_o) ) # Beginnt hier ein Frame?
-               { if (( *((oint*)objptr) & wbit(skip2_bit_o) ) == 0) # Ohne skip2-Bit?
-                  objptr skipSTACKop 2; # ja -> um 2 weiterrücken
-                  else
-                  objptr skipSTACKop 1; # nein -> um 1 weiterrücken
-               }
-               else
-               { # normales Objekt, aktualisieren:
-                 #ifndef NO_symbolflags
-                 switch (mtypecode(*objptr))
-                   { case_symbolflagged: # Symbol mit evtl. Flags
-                       { var object obj1 = *objptr;
-                         var object obj2 = symbol_without_flags(obj1);
-                         var oint flags = as_oint(obj1) ^ as_oint(obj2);
-                         *objptr = obj2; # vorerst Flags löschen
-                         aktualisiere(objptr); # dann aktualisieren
-                         *(oint*)objptr |= flags; # dann Flags wieder rein
-                         break;
-                       }
-                     default: aktualisiere(objptr); break;
-                   }
-                 #else
-                 aktualisiere(objptr);
-                 #endif
-                 objptr skipSTACKop 1; # weiterrücken
-        }   }  }
-    # Die folgenden Macros rufen den Macro aktualisiere() auf.
-    # Programmkonstanten aktualisieren:
-      #define aktualisiere_subr_tab()  \
-        for_all_subrs(                                               \
-          { var object* p = (object*)((aint)ptr+subr_const_offset);  \
-            var uintC c;                                             \
-            dotimespC(c,subr_const_anz, { aktualisiere(p); p++; } ); \
-          }                                                          \
-          );
-      #define aktualisiere_symbol_tab()  \
-        for_all_constsyms( # symbol_tab durchgehen  \
-          { var object* p;                          \
-            p = &ptr->symvalue; aktualisiere(p);    \
-            p = &ptr->symfunction; aktualisiere(p); \
-            p = &ptr->proplist; aktualisiere(p);    \
-            p = &ptr->pname; aktualisiere(p);       \
-            p = &ptr->homepackage; aktualisiere(p); \
-          }                                         \
-          );
-      #define aktualisiere_object_tab()  \
-        for_all_constobjs( aktualisiere(objptr); ); # object_tab durchgehen \
-        for_all_threadobjs( aktualisiere(objptr); ); # Threads durchgehen
-      #define aktualisiere_tab()  \
-        { aktualisiere_subr_tab();   \
-          aktualisiere_symbol_tab(); \
-          aktualisiere_object_tab(); \
-        }
-    # Pointer in den Cons-Zellen aktualisieren:
-    #   #define aktualisiere_conspage ...
-    #   aktualisiere_conses();
-    #   #undef aktualisiere_conspage
-      #define aktualisiere_conspage_normal(page)  \
-        { var aint objptr = page->page_start;       \
-          var aint objptrend = page->page_end;      \
-          # alle Pointer im (neuen) CONS-Bereich start <= Adresse < end aktualisieren: \
-          until (objptr==objptrend)                 \
-            { aktualisiere((object*)objptr);        \
-              objptr += sizeof(object);             \
-              aktualisiere((object*)objptr);        \
-              objptr += sizeof(object);             \
-        }   }
-      #define aktualisiere_conses()  \
-        for_each_cons_page(page,      \
-          aktualisiere_conspage(page) \
-          );
-    # Pointer in den Objekten variabler Länge aktualisieren:
-    #   #define aktualisiere_page ...
-    #   aktualisiere_varobjects();
-    #   #undef aktualisiere_page
-      #define aktualisiere_page_normal(page,aktualisierer)  \
-        { var aint ptr = page->page_start;                             \
-          var aint ptrend = page->page_end;                            \
-          # alle Objekte mit Adresse >=ptr, <ptrend durchgehen:        \
-          until (ptr==ptrend) # solange bis ptr am Ende angekommen ist \
-            { # nächstes Objekt mit Adresse ptr (< ptrend) durchgehen: \
-              aktualisierer(typecode_at(ptr)); # und weiterrücken      \
-        }   }
-      # Unterroutinen:
-        #define do_aktualisiere_symbol()  \
-          { var object* p = (object*)pointerplus(ptr,symbol_objects_offset);          \
-            var uintC count;                                                          \
-            dotimespC(count,((sizeof(symbol_)-symbol_objects_offset)/sizeof(object)), \
-              { aktualisiere(p); p++; } );                                            \
-          }
-        #define do_aktualisiere_svector()  \
-          { var uintL count = svector_length((Svector)ptr);        \
-            if (!(count==0))                                       \
-              {var object* p = &((Svector)ptr)->data[0];           \
-               dotimespL(count,count, { aktualisiere(p); p++; } ); \
-          }   }
-        #define do_aktualisiere_iarray()  \
-          { var object* p = &((Iarray)ptr)->data; \
-            aktualisiere(p);                      \
-          }
-        #define do_aktualisiere_record()  \
-          { # Beim Aktualisieren von Pointern verliert der Aufbau von                 \
-            # Hash-Tables seine Gültigkeit (denn die Hashfunktion eines               \
-            # Objekts hängt von seiner Adresse ab, die sich ja jetzt                  \
-            # verändert).                                                             \
-            if (record_type((Record)ptr) == Rectype_Hashtable) # eine Hash-Table ?    \
-              { aktualisiere_ht_invalid((Hashtable)ptr); } # ja -> für Reorganisation vormerken \
-            elif (aktualisiere_fpointer_invalid && (record_type((Record)ptr) == Rectype_Fpointer)) # Foreign-Pointer ? \
-              { aktualisiere_fp_invalid((Record)ptr); } # ja -> evtl. ungültig machen \
-            elif (aktualisiere_fsubr_function && (record_type((Record)ptr) == Rectype_Fsubr)) # Fsubr ? \
-              { aktualisiere_fs_function((Fsubr)ptr); } # ja -> evtl. Adresse updaten \
-           {var uintC count = (record_type((Record)ptr) < rectype_limit ? srecord_length((Srecord)ptr) : xrecord_length((Xrecord)ptr)); \
-            if (!(count==0))                                                          \
-              { var object* p = &((Record)ptr)->recdata[0];                           \
-                dotimespC(count,count, { aktualisiere(p); p++; } );                   \
-          }}  }
-      # Aktualisiert das Objekt bei 'ptr', dessen Typcode durch 'type_expr'
-      # gegeben wird, und rückt ptr weiter:
-      #ifdef SPVW_MIXED
-        #ifdef TYPECODES
-          #define aktualisiere_varobject(type_expr)  \
-            { var tint type = (type_expr); # Typinfo                                  \
-              var uintL laenge = objsize((Varobject)ptr); # Länge bestimmen           \
-              var aint newptr = ptr+laenge; # Zeiger auf nächstes Objekt              \
-              # Fallunterscheidung nach:                                              \
-                # Symbol; Simple-Vector; Nicht-simpler Array;                         \
-                # Record (insbes. Hash-Table); Rest.                                  \
-              switch (type)                                                           \
-                { case_symbolwithflags:                                               \
-                    # Symbol: alle Pointer aktualisieren                              \
-                    do_aktualisiere_symbol();                                         \
-                    break;                                                            \
-                  case_svector:                                                       \
-                    # Simple-vector: alle Pointer aktualisieren                       \
-                    do_aktualisiere_svector();                                        \
-                    break;                                                            \
-                  case_mdarray: case_obvector: case_ostring: case_ovector:            \
-                    # nicht-simpler Array: Datenvektor aktualisieren                  \
-                    do_aktualisiere_iarray();                                         \
-                    break;                                                            \
-                  case_record:                                                        \
-                    # Record: alle Pointer aktualisieren                              \
-                    do_aktualisiere_record();                                         \
-                    break;                                                            \
-                  default:                                                            \
-                    break; # alle anderen enthalten keine zu aktualisierenden Pointer \
-                           # -> nichts tun                                            \
-                }                                                                     \
-              # zum nächsten Objekt weiterrücken                                      \
-              ptr = newptr;                                                           \
-            }
-        #else
-          #define aktualisiere_varobject(type_expr)  \
-            { var uintL laenge = objsize((Varobject)ptr); # Länge bestimmen     \
-              var aint newptr = ptr+laenge; # Zeiger auf nächstes Objekt        \
-              switch (record_type((Record)ptr)) # Typ des nächsten Objekts      \
-                { case Rectype_mdarray:                                         \
-                  case Rectype_bvector:                                         \
-                  case Rectype_string:                                          \
-                  case Rectype_vector:                                          \
-                    # nicht-simpler Array: Datenvektor aktualisieren            \
-                    do_aktualisiere_iarray();                                   \
-                    break;                                                      \
-                  case Rectype_Svector:                                         \
-                    # Simple-vector: alle Pointer aktualisieren                 \
-                    do_aktualisiere_svector();                                  \
-                    break;                                                      \
-                  case Rectype_Sbvector: case Rectype_Sstring:                  \
-                  case Rectype_Bignum: case Rectype_Ffloat:                     \
-                  case Rectype_Dfloat: case Rectype_Lfloat:                     \
-                    # enthalten keine zu aktualisierenden Pointer -> nichts tun \
-                    break;                                                      \
-                  default:                                                      \
-                    # Record: alle Pointer aktualisieren                        \
-                    do_aktualisiere_record();                                   \
-                    break;                                                      \
-                }                                                               \
-              # zum nächsten Objekt weiterrücken                                \
-              ptr = newptr;                                                     \
-            }
-        #endif
-      #define aktualisiere_varobjects()  \
-        for_each_varobject_page(page,                    \
-          aktualisiere_page(page,aktualisiere_varobject) \
-          );
-      #endif
-      #ifdef SPVW_PURE
-      #define aktualisiere_symbol(type_expr)  # ignoriert type_expr \
-        { var uintL laenge = objsize_symbol((void*)ptr); # Länge bestimmen \
-          var aint newptr = ptr+laenge; # Zeiger auf nächstes Objekt       \
-          # Symbol: alle Pointer aktualisieren                             \
-          do_aktualisiere_symbol();                                        \
-          ptr = newptr; # zum nächsten Objekt weiterrücken                 \
-        }
-      #define aktualisiere_svector(type_expr)  # ignoriert type_expr \
-        { var uintL laenge = objsize_svector((void*)ptr); # Länge bestimmen \
-          var aint newptr = ptr+laenge; # Zeiger auf nächstes Objekt        \
-          # Simple-vector: alle Pointer aktualisieren                       \
-          do_aktualisiere_svector();                                        \
-          ptr = newptr; # zum nächsten Objekt weiterrücken                  \
-        }
-      #define aktualisiere_iarray(type_expr)  # ignoriert type_expr \
-        { var uintL laenge = objsize_iarray((void*)ptr); # Länge bestimmen \
-          var aint newptr = ptr+laenge; # Zeiger auf nächstes Objekt       \
-          # nicht-simpler Array: Datenvektor aktualisieren                 \
-          do_aktualisiere_iarray();                                        \
-          ptr = newptr; # zum nächsten Objekt weiterrücken                 \
-        }
-      #define aktualisiere_record(type_expr)  # ignoriert type_expr \
-        { var uintL laenge = objsize_record((void*)ptr); # Länge bestimmen \
-          var aint newptr = ptr+laenge; # Zeiger auf nächstes Objekt       \
-          # Record: alle Pointer aktualisieren                             \
-          do_aktualisiere_record();                                        \
-          ptr = newptr; # zum nächsten Objekt weiterrücken                 \
-        }
-      #define aktualisiere_varobjects()  \
-        for_each_varobject_page(page,                                               \
-          { # Fallunterscheidung nach:                                              \
-              # Symbol; Simple-Vector; Nicht-simpler Array;                         \
-              # Record (insbes. Hash-Table); Rest.                                  \
-            switch (heapnr)                                                         \
-              { case_symbol:                                                        \
-                  aktualisiere_page(page,aktualisiere_symbol); break;               \
-                case_svector:                                                       \
-                  aktualisiere_page(page,aktualisiere_svector); break;              \
-                case_mdarray: case_obvector: case_ostring: case_ovector:            \
-                  aktualisiere_page(page,aktualisiere_iarray); break;               \
-                case_record:                                                        \
-                  aktualisiere_page(page,aktualisiere_record); break;               \
-                default:                                                            \
-                  break; # alle anderen enthalten keine zu aktualisierenden Pointer \
-                         # -> nichts tun                                            \
-          }   }                                                                     \
-          );
-      #endif
     #ifdef GENERATIONAL_GC
     # Pointer in den Objekten der alten Generation aktualisieren:
-      local void aktualisiere_old_generation (void);
-      local void aktualisiere_at (object* ptr);
-      local void aktualisiere_at(ptr)
+      local void update_old_generation (void);
+      local void update_at (object* ptr);
+      local void update_at(ptr)
         var object* ptr;
-        { aktualisiere(ptr); }
-      local void aktualisiere_old_generation()
+        { update(ptr); }
+      local void update_old_generation()
         { var uintL heapnr;
           for (heapnr=0; heapnr<heapcount; heapnr++)
             if (is_heap_containing_objects(heapnr)) # Objekte, die keine Pointer enthalten,
@@ -3074,7 +2857,7 @@ local uintC generation;
                 var aint gen0_end = heap->heap_gen0_end;
                 if (gen0_start < gen0_end)
                   if (heap->physpages==NULL)
-                    { walk_area_(heapnr,gen0_start,gen0_end,aktualisiere_at); } # fallback
+                    { walk_area_(heapnr,gen0_start,gen0_end,update_at); } # fallback
                     else
                     { var physpage_state* physpage = heap->physpages;
                       gen0_start &= -physpagesize;
@@ -3085,20 +2868,19 @@ local uintC generation;
                              { var uintL count = physpage->cache_size;
                                if (count > 0)
                                  { var old_new_pointer* ptr = physpage->cache;
-                                   dotimespL(count,count, { aktualisiere(&ptr->o); ptr++; } );
+                                   dotimespL(count,count, { update(&ptr->o); ptr++; } );
                                    if (!(physpage->protection == PROT_NONE))
                                      { xmmprotect(heap, gen0_start,physpagesize,PROT_NONE);
                                        physpage->protection = PROT_NONE;
                              }   }   }
                              else
                              # ganzen Page-Inhalt aktualisieren:
-                             { walk_physpage_(heapnr,physpage,gen0_start+physpagesize,gen0_end,aktualisiere_at); }
+                             { walk_physpage_(heapnr,physpage,gen0_start+physpagesize,gen0_end,update_at); }
                            gen0_start += physpagesize;
                            physpage++;
                          }
                          while (gen0_start < gen0_end);
         }     }     }
-      #undef aktualisiere_at
     #endif
 
 # Zweite SWEEP-Phase:
@@ -4130,46 +3912,47 @@ local uintC generation;
         for_each_cons_page(page, { gc_morris1(page); } );
         #endif
         # Durchlaufen durch alle LISP-Objekte und aktualisieren:
-          # Pointer im LISP-Stack aktualisieren:
-            aktualisiere_STACK();
+          # Update pointers in all LISP-stacks:
+            update_STACKs();
+            #undef update_stackobj
           # Programmkonstanten aktualisieren:
-            aktualisiere_tab();
+            update_tables();
           #ifndef MORRIS_GC
           # Pointer in den Cons-Zellen aktualisieren:
-            #define aktualisiere_conspage  aktualisiere_conspage_normal
-            aktualisiere_conses();
-            #undef aktualisiere_conspage
+            #define update_conspage  update_conspage_normal
+            update_conses();
+            #undef update_conspage
           #endif
           # Pointer in den Objekten variabler Länge aktualisieren:
-            #define aktualisiere_page(page,aktualisierer)  \
+            #define update_page(page,updater)  \
               { var aint ptr = (aint)pointer_was_object(page->page_gcpriv.firstmarked); \
-                var aint ptrend = page->page_end;                               \
-                # alle Objekte mit Adresse >=ptr, <ptrend durchgehen:           \
-                until (ptr==ptrend) # solange bis ptr am Ende angekommen ist    \
-                  { # nächstes Objekt mit Adresse ptr (< ptrend) durchgehen:    \
-                    if (marked(ptr)) # markiert?                                \
-                      # Typinfo ohne Markierungsbit nehmen!                     \
-                      { aktualisierer(typecode_at(ptr) & ~bit(garcol_bit_t)); } \
-                      else                                                      \
-                      # mit Pointer (Typinfo=0) zum nächsten markierten Objekt  \
+                var aint ptrend = page->page_end;                              \
+                # alle Objekte mit Adresse >=ptr, <ptrend durchgehen:          \
+                until (ptr==ptrend) # solange bis ptr am Ende angekommen ist   \
+                  { # nächstes Objekt mit Adresse ptr (< ptrend) durchgehen:   \
+                    if (marked(ptr)) # markiert?                               \
+                      # Typinfo ohne Markierungsbit nehmen!                    \
+                      { updater(typecode_at(ptr) & ~bit(garcol_bit_t)); }      \
+                      else                                                     \
+                      # mit Pointer (Typinfo=0) zum nächsten markierten Objekt \
                       { ptr = (aint)pointer_was_object(*(object*)ptr); }        \
               }   }
-            #define aktualisiere_fpointer_invalid  FALSE
-            #define aktualisiere_fsubr_function FALSE
-            #define aktualisiere_ht_invalid  mark_ht_invalid
-            #define aktualisiere_fp_invalid  mark_fp_invalid
-            #define aktualisiere_fs_function(ptr)
-            aktualisiere_varobjects();
-            #undef aktualisiere_fs_function
-            #undef aktualisiere_fp_invalid
-            #undef aktualisiere_ht_invalid
-            #undef aktualisiere_fsubr_function
-            #undef aktualisiere_fpointer_invalid
-            #undef aktualisiere_page
+            #define update_fpointer_invalid  FALSE
+            #define update_fsubr_function FALSE
+            #define update_ht_invalid  mark_ht_invalid
+            #define update_fp_invalid  mark_fp_invalid
+            #define update_fs_function(ptr)
+            update_varobjects();
+            #undef update_fs_function
+            #undef update_fp_invalid
+            #undef update_ht_invalid
+            #undef update_fsubr_function
+            #undef update_fpointer_invalid
+            #undef update_page
           #ifdef GENERATIONAL_GC
           # Pointer in den Objekten der alten Generation aktualisieren:
             if (generation > 0)
-              { aktualisiere_old_generation(); }
+              { update_old_generation(); }
           #endif
         #ifdef MORRIS_GC
         # Zum Schluß werden die Conses verschoben und gleichzeitig alle
@@ -4665,34 +4448,34 @@ local uintC generation;
         # neue Adressen ersetzt.
         # Durchlaufen durch alle LISP-Objekte und aktualisieren:
           # Pointer im LISP-Stack aktualisieren:
-            aktualisiere_STACK();
+            for_all_STACKs(update_STACK(objptr));
           # Programmkonstanten aktualisieren:
-            aktualisiere_tab();
+            update_tables();
           # Pointer in den Cons-Zellen aktualisieren:
-            #define aktualisiere_conspage  aktualisiere_conspage_normal
-            aktualisiere_conses();
-            #undef aktualisiere_conspage
+            #define update_conspage  update_conspage_normal
+            update_conses();
+            #undef update_conspage
           # Pointer in den Objekten variabler Länge aktualisieren:
-            #define aktualisiere_page(page,aktualisierer)  \
+            #define update_page(page,updater)  \
               { var aint ptr = page->page_start;                             \
                 var aint ptrend = page->page_end;                            \
                 # alle Objekte mit Adresse >=ptr, <ptrend durchgehen:        \
                 until (ptr==ptrend) # solange bis ptr am Ende angekommen ist \
                   { # nächstes Objekt mit Adresse ptr (< ptrend) durchgehen: \
-                    aktualisierer(typecode_at(ptr) & ~bit(garcol_bit_t)); # und weiterrücken \
+                    updater(typecode_at(ptr) & ~bit(garcol_bit_t)); # und weiterrücken \
               }   }
-            #define aktualisiere_fpointer_invalid  FALSE
-            #define aktualisiere_fsubr_function FALSE
-            #define aktualisiere_ht_invalid  mark_ht_invalid
-            #define aktualisiere_fp_invalid  mark_fp_invalid
-            #define aktualisiere_fs_function(ptr)
-            aktualisiere_varobjects();
-            #undef aktualisiere_fs_function
-            #undef aktualisiere_fp_invalid
-            #undef aktualisiere_ht_invalid
-            #undef aktualisiere_fsubr_function
-            #undef aktualisiere_fpointer_invalid
-            #undef aktualisiere_page
+            #define update_fpointer_invalid  FALSE
+            #define update_fsubr_function FALSE
+            #define update_ht_invalid  mark_ht_invalid
+            #define update_fp_invalid  mark_fp_invalid
+            #define update_fs_function(ptr)
+            update_varobjects();
+            #undef update_fs_function
+            #undef update_fp_invalid
+            #undef update_ht_invalid
+            #undef update_fsubr_function
+            #undef update_fpointer_invalid
+            #undef update_page
       # Durchführung der Verschiebungen in den nicht ganz geleerten Pages:
         for_each_varobject_page(page,
           { if (!(page->page_gcpriv.d == -1L))
@@ -4799,8 +4582,8 @@ local uintC generation;
       mv_count = saved_mv_count; # mv_count zurück
     }
 
-# Macro aktualisiere jetzt unnötig:
-  #undef aktualisiere
+# Macro update jetzt unnötig:
+  #undef update
 
 #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && RESERVE
 
@@ -4850,52 +4633,43 @@ local uintC generation;
         # neue Adressen ersetzt.
         # Aktualisierung eines Objekts *objptr :
           #ifdef TYPECODES
-            #define aktualisiere(objptr)  \
+            #define update(objptr)  \
               { switch (mtypecode(*(object*)(objptr)))   \
                   { case_pair: # Zwei-Pointer-Objekt?    \
                       *(oint*)(objptr) += odelta; break; \
                     default: break;                      \
               }   }
           #else
-            #define aktualisiere(objptr)  \
+            #define update(objptr)  \
               { if (consp(*(object*)(objptr))) *(oint*)(objptr) += odelta; }
           #endif
         # Durchlaufen durch alle LISP-Objekte und aktualisieren:
-          # Pointer im LISP-Stack aktualisieren:
-            { var object* objptr = &STACK_0; # Pointer, der durch den STACK läuft
-              until (eq(*objptr,nullobj)) # bis STACK zu Ende ist:
-                { if ( *((oint*)objptr) & wbit(frame_bit_o) ) # Beginnt hier ein Frame?
-                   { if (( *((oint*)objptr) & wbit(skip2_bit_o) ) == 0) # Ohne skip2-Bit?
-                      objptr skipSTACKop 2; # ja -> um 2 weiterrücken
-                      else
-                      objptr skipSTACKop 1; # nein -> um 1 weiterrücken
-                   }
-                   else
-                   { aktualisiere(objptr); # normales Objekt, aktualisieren
-                     objptr skipSTACKop 1; # weiterrücken
-            }   }  }
+          # Update pointers in all LISP-stacks:
+            #define update_stackobj  update_stackobj_normal
+            update_STACKs();
+            #undef update_stackobj
           # Programmkonstanten aktualisieren:
-            aktualisiere_tab();
+            update_tables();
           # Pointer in den Cons-Zellen aktualisieren:
-            #define aktualisiere_conspage  aktualisiere_conspage_normal
-            aktualisiere_conses();
-            #undef aktualisiere_conspage
+            #define update_conspage  update_conspage_normal
+            update_conses();
+            #undef update_conspage
           # Pointer in den Objekten variabler Länge aktualisieren:
-            #define aktualisiere_page  aktualisiere_page_normal
-            #define aktualisiere_fpointer_invalid  FALSE
-            #define aktualisiere_fsubr_function  FALSE
-            #define aktualisiere_ht_invalid  mark_ht_invalid
-            #define aktualisiere_fp_invalid  mark_fp_invalid
-            #define aktualisiere_fs_function(ptr)
-            aktualisiere_varobjects();
-            #undef aktualisiere_fs_function
-            #undef aktualisiere_fp_invalid
-            #undef aktualisiere_ht_invalid
-            #undef aktualisiere_fsubr_function
-            #undef aktualisiere_fpointer_invalid
-            #undef aktualisiere_page
-        # Macro aktualisiere jetzt unnötig:
-          #undef aktualisiere
+            #define update_page  update_page_normal
+            #define update_fpointer_invalid  FALSE
+            #define update_fsubr_function  FALSE
+            #define update_ht_invalid  mark_ht_invalid
+            #define update_fp_invalid  mark_fp_invalid
+            #define update_fs_function(ptr)
+            update_varobjects();
+            #undef update_fs_function
+            #undef update_fp_invalid
+            #undef update_ht_invalid
+            #undef update_fsubr_function
+            #undef update_fpointer_invalid
+            #undef update_page
+        # Macro update jetzt unnötig:
+          #undef update
       }
       # Ende des Verschiebens und Aktualisierens.
       # benötigte Zeit zur GC-Gesamtzeit addieren:
@@ -9312,11 +9086,11 @@ local uintC generation;
   #endif
   # dann der Inhalt der Pages in derselben Reihenfolge.
   #ifdef SPVW_PURE_BLOCKS
-    # Schließlich die Adressen aller von loadmem_aktualisiere() zu
+    # Schließlich die Adressen aller von loadmem_update() zu
     # aktualisierenden Objekte innerhalb der Heaps, die Adressen der
     # mit mark_ht_invalid() zu markierenden Hashtabellen, die Adressen
     # der mit mark_fp_invalid() zu markierenden Foreign-Pointer, die
-    # Adressen der mit loadmem_aktualisiere_fsubr() zu relozierenden Fsubrs.
+    # Adressen der mit loadmem_update_fsubr() zu relozierenden Fsubrs.
     # Zuvor deren Anzahlen.
     # (Das ist redundant, reduziert aber die Startup-Zeiten.)
     typedef struct { uintL reloccount;
@@ -9564,43 +9338,42 @@ local uintC generation;
       # Relozierungen rausschreiben:
       # (Nur Frame-Pointer, Subr, Machine müssen reloziert werden, und
       # Hashtabellen und Fpointer müssen markiert werden, siehe
-      # aktualisiere_varobjects(), aktualisiere_record(),
-      # loadmem_aktualisiere().)
+      # update_varobjects(), update_record(), loadmem_update().)
       { var memdump_reloc_header rheader;
         rheader.reloccount = 0;
         rheader.htcount = 0;
         rheader.fpcount = 0;
         rheader.fscount = 0;
         #if !defined(GENERATIONAL_GC)
-        #define aktualisiere_conspage  aktualisiere_conspage_normal
-        #define aktualisiere_page  aktualisiere_page_normal
+        #define update_conspage  update_conspage_normal
+        #define update_page  update_page_normal
         #else # defined(GENERATIONAL_GC)
-        #define aktualisiere_conspage(page)  # ignoriert page, benutzt heapnr \
+        #define update_conspage(page)  # ignoriert page, benutzt heapnr \
           { var aint objptr = mem.heaps[heapnr].heap_gen0_start;  \
             var aint objptrend = mem.heaps[heapnr].heap_gen0_end; \
             # alle Pointer im (neuen) CONS-Bereich start <= Adresse < end aktualisieren: \
             until (objptr==objptrend)                             \
-              { aktualisiere((object*)objptr);                    \
+              { update((object*)objptr);                          \
                 objptr += sizeof(object);                         \
-                aktualisiere((object*)objptr);                    \
+                update((object*)objptr);                          \
                 objptr += sizeof(object);                         \
           }   }
-        #define aktualisiere_page(page,aktualisierer)  # ignoriert page, benutzt heapnr \
+        #define update_page(page,updater)  # ignoriert page, benutzt heapnr \
           { var aint ptr = mem.heaps[heapnr].heap_gen0_start;            \
             var aint ptrend = mem.heaps[heapnr].heap_gen0_end;           \
             # alle Objekte mit Adresse >=ptr, <ptrend durchgehen:        \
             until (ptr==ptrend) # solange bis ptr am Ende angekommen ist \
               { # nächstes Objekt mit Adresse ptr (< ptrend) durchgehen: \
-                aktualisierer(typecode_at(ptr)); # und weiterrücken      \
+                updater(typecode_at(ptr)); # und weiterrücken            \
           }   }
         #endif
         #ifdef FOREIGN
-        #define aktualisiere_fpointer_invalid  TRUE
+        #define update_fpointer_invalid  TRUE
         #else
-        #define aktualisiere_fpointer_invalid  FALSE
+        #define update_fpointer_invalid  FALSE
         #endif
-        #define aktualisiere_fsubr_function  TRUE
-        #define aktualisiere(objptr)  \
+        #define update_fsubr_function  TRUE
+        #define update(objptr)  \
           { switch (mtypecode(*(object*)objptr))                          \
               { case_system:                                              \
                   if (wbit_test(*(oint*)objptr,0+oint_addr_shift)) break; \
@@ -9610,15 +9383,15 @@ local uintC generation;
                 default:                                                  \
                   break;                                                  \
           }   }
-        #define aktualisiere_ht_invalid(obj)  rheader.htcount++;
-        #define aktualisiere_fp_invalid(obj)  rheader.fpcount++;
-        #define aktualisiere_fs_function(obj)  rheader.fscount++;
-        aktualisiere_conses();
-        aktualisiere_varobjects();
-        #undef aktualisiere_fs_function
-        #undef aktualisiere_fp_invalid
-        #undef aktualisiere_ht_invalid
-        #undef aktualisiere
+        #define update_ht_invalid(obj)  rheader.htcount++;
+        #define update_fp_invalid(obj)  rheader.fpcount++;
+        #define update_fs_function(obj)  rheader.fscount++;
+        update_conses();
+        update_varobjects();
+        #undef update_fs_function
+        #undef update_fp_invalid
+        #undef update_ht_invalid
+        #undef update
        {var DYNAMIC_ARRAY(relocbuf,object*,rheader.reloccount);
        {var DYNAMIC_ARRAY(htbuf,Hashtable,rheader.htcount);
        {var DYNAMIC_ARRAY(fpbuf,Record,rheader.fpcount);
@@ -9627,7 +9400,7 @@ local uintC generation;
         var Hashtable* htbufptr = &htbuf[0];
         var Record* fpbufptr = &fpbuf[0];
         var Fsubr* fsbufptr = &fsbuf[0];
-        #define aktualisiere(objptr)  \
+        #define update(objptr)  \
           { switch (mtypecode(*(object*)objptr))                          \
               { case_system:                                              \
                   if (wbit_test(*(oint*)objptr,0+oint_addr_shift)) break; \
@@ -9637,19 +9410,19 @@ local uintC generation;
                 default:                                                  \
                   break;                                                  \
           }   }
-        #define aktualisiere_ht_invalid(obj)  *htbufptr++ = (obj);
-        #define aktualisiere_fp_invalid(obj)  *fpbufptr++ = (obj);
-        #define aktualisiere_fs_function(obj)  *fsbufptr++ = (obj);
-        aktualisiere_conses();
-        aktualisiere_varobjects();
-        #undef aktualisiere_fs_function
-        #undef aktualisiere_fp_invalid
-        #undef aktualisiere_ht_invalid
-        #undef aktualisiere
-        #undef aktualisiere_fsubr_function
-        #undef aktualisiere_fpointer_invalid
-        #undef aktualisiere_page
-        #undef aktualisiere_conspage
+        #define update_ht_invalid(obj)  *htbufptr++ = (obj);
+        #define update_fp_invalid(obj)  *fpbufptr++ = (obj);
+        #define update_fs_function(obj)  *fsbufptr++ = (obj);
+        update_conses();
+        update_varobjects();
+        #undef update_fs_function
+        #undef update_fp_invalid
+        #undef update_ht_invalid
+        #undef update
+        #undef update_fsubr_function
+        #undef update_fpointer_invalid
+        #undef update_page
+        #undef update_conspage
         WRITE(&rheader,sizeof(rheader));
         WRITE(&relocbuf[0],rheader.reloccount*sizeof(object*));
         WRITE(&htbuf[0],rheader.htcount*sizeof(Hashtable));
@@ -9706,8 +9479,8 @@ local uintC generation;
   local var uintC offset_subrs_anz;
   local var struct fsubr_tab_ old_fsubr_tab;
   local var struct pseudofun_tab_ old_pseudofun_tab;
-  local void loadmem_aktualisiere (object* objptr);
-  local void loadmem_aktualisiere(objptr)
+  local void loadmem_update (object* objptr);
+  local void loadmem_update(objptr)
     var object* objptr;
     {
       #ifdef TYPECODES
@@ -9842,8 +9615,8 @@ local uintC generation;
             break;
           default: /*NOTREACHED*/ abort();
     }   }
-  local void loadmem_aktualisiere_fsubr (Fsubr fsubrptr);
-  local void loadmem_aktualisiere_fsubr(fsubrptr)
+  local void loadmem_update_fsubr (Fsubr fsubrptr);
+  local void loadmem_update_fsubr(fsubrptr)
     var Fsubr fsubrptr;
     { var void* addr = fsubrptr->function;
       var uintC i = fsubr_anz;
@@ -10406,35 +10179,35 @@ local uintC generation;
          install_segv_handler();
          #endif
          # Durchlaufen durch alle LISP-Objekte und aktualisieren:
-           #define aktualisiere  loadmem_aktualisiere
+           #define update  loadmem_update
            # Programmkonstanten aktualisieren:
-             aktualisiere_tab();
+             update_tables();
            #ifdef SINGLEMAP_MEMORY_RELOCATE
            if (!offset_heaps_all_zero)
            #endif
            #if !defined(SPVW_PURE_BLOCKS) || defined(SINGLEMAP_MEMORY_RELOCATE)
            { # Pointer in den Cons-Zellen aktualisieren:
-               #define aktualisiere_conspage  aktualisiere_conspage_normal
-               aktualisiere_conses();
-               #undef aktualisiere_conspage
+               #define update_conspage  update_conspage_normal
+               update_conses();
+               #undef update_conspage
              # Pointer in den Objekten variabler Länge aktualisieren:
-               #define aktualisiere_page  aktualisiere_page_normal
+               #define update_page  update_page_normal
                #ifdef FOREIGN
-                 #define aktualisiere_fpointer_invalid  TRUE
+                 #define update_fpointer_invalid  TRUE
                #else
-                 #define aktualisiere_fpointer_invalid  FALSE
+                 #define update_fpointer_invalid  FALSE
                #endif
-               #define aktualisiere_fsubr_function  TRUE
-               #define aktualisiere_ht_invalid  mark_ht_invalid
-               #define aktualisiere_fp_invalid  mark_fp_invalid
-               #define aktualisiere_fs_function  loadmem_aktualisiere_fsubr
-               aktualisiere_varobjects();
-               #undef aktualisiere_fs_function
-               #undef aktualisiere_fp_invalid
-               #undef aktualisiere_ht_invalid
-               #undef aktualisiere_fsubr_function
-               #undef aktualisiere_fpointer_invalid
-               #undef aktualisiere_page
+               #define update_fsubr_function  TRUE
+               #define update_ht_invalid  mark_ht_invalid
+               #define update_fp_invalid  mark_fp_invalid
+               #define update_fs_function  loadmem_update_fsubr
+               update_varobjects();
+               #undef update_fs_function
+               #undef update_fp_invalid
+               #undef update_ht_invalid
+               #undef update_fsubr_function
+               #undef update_fpointer_invalid
+               #undef update_page
            }
            #endif
            #ifdef SINGLEMAP_MEMORY_RELOCATE
@@ -10455,7 +10228,7 @@ local uintC generation;
                   {var object** relocbufptr = &relocbuf[0];
                    var uintL count;
                    READ(&relocbuf[0],rheader.reloccount*sizeof(object*));
-                   dotimespL(count,rheader.reloccount, { aktualisiere(*relocbufptr++); });
+                   dotimespL(count,rheader.reloccount, { update(*relocbufptr++); });
                    FREE_DYNAMIC_ARRAY(relocbuf);
                  }}
                if (rheader.htcount > 0)
@@ -10482,12 +10255,12 @@ local uintC generation;
                    var uintL count;
                    READ(&fsbuf[0],rheader.fscount*sizeof(Fsubr));
                    dotimespL(count,rheader.fscount,
-                     { var Fsubr fsubrptr = *fsbufptr++; loadmem_aktualisiere_fsubr(fsubrptr); });
+                     { var Fsubr fsubrptr = *fsbufptr++; loadmem_update_fsubr(fsubrptr); });
                    FREE_DYNAMIC_ARRAY(fsbuf);
                  }}
            } }
            #endif
-           #undef aktualisiere
+           #undef update
          # File schließen:
          #undef READ
          #ifdef SELFMADE_MMAP
