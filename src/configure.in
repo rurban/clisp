@@ -81,7 +81,7 @@ dnl Set of all available languages [this is also a /bin/sh/ command!]
 ALL_LINGUAS="en de fr es nl ru"
 AM_GNU_GETTEXT([external], [need-ngettext])
 dnl
-dnl DEFS NO_SIGSEGV, set variable LIBSIGSEGV
+dnl set variable LIBSIGSEGV
 CL_SIGSEGV
 dnl
 dnl           checks for compiler characteristics

@@ -1309,6 +1309,14 @@ if [ $TOS = win32 ] ; then
   XCFLAGS=$XCFLAGS' -DNO_GETTEXT'
 fi
 
+if [ $TOS = unix ] ; then
+  if test -z "$LIBSIGSEGV"; then
+    XCFLAGS=$XCFLAGS' -DNO_SIGSEGV'
+  fi
+else
+  XCFLAGS=$XCFLAGS' -DNO_SIGSEGV'
+fi
+
 FILES='lisp.a '$FILES
 
 CPARTS='        spvw spvwtabf spvwtabs spvwtabo'
