@@ -1055,16 +1055,18 @@
 
 (def-call-out close (:arguments (fd int)) (:return-type int))
 
-(def-call-out read-helper
+(def-c-enum perseverance
+  persev_full persev_partial persev_immediate persev_bonus)
+(def-call-out fd-read
     (:arguments (fd int) (buf (c-ptr (c-array-max char 4096)) :out :alloca)
-                (nbytes size_t) (no-hang-p boolean))
-  (:return-type ssize_t) (:name "read_helper"))
-(defmacro read (fd buf nbytes) `(read-helper ,fd ,buf ,nbytes nil))
-(def-call-out write-helper
+                (nbytes size_t) (persev perseverance))
+  (:return-type ssize_t) (:name "fd_read"))
+(defmacro read (fd buf nbytes) `(fd-read ,fd ,buf ,nbytes persev_full))
+(def-call-out fd-write
     (:arguments (fd int) (buf c-pointer)
-                (nbytes size_t) (no-hang-p boolean))
-  (:return-type ssize_t) (:name "write_helper"))
-(defmacro write (fd buf nbytes) `(write-helper ,fd ,buf ,nbytes nil))
+                (nbytes size_t) (persev perseverance))
+  (:return-type ssize_t) (:name "fd_write"))
+(defmacro write (fd buf nbytes) `(fd-write ,fd ,buf ,nbytes persev_full))
 
 (def-call-out pipe (:arguments (pipedes (c-ptr (c-array int 2)) :out))
   (:return-type int))
