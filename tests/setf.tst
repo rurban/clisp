@@ -465,3 +465,13 @@ pl
         (make-foo :a 10 :b 100)))
   (fmakunbound 'foo-a) (fmakunbound 'foo-b) (fmakunbound 'foo-c))
 (10 100 110)
+
+;; Check that the compiler can inline (setf foo) functions.
+(progn
+  (proclaim '(inline (setf foo21)))
+  (defun (setf foo21) (x y) (+ x y))
+  (defun bar21 (x y) ((setf foo21) x y))
+  (compile 'bar21)
+  (defun (setf foo21) (x y) (error "Not inlined"))
+  (bar21 1 2))
+3
