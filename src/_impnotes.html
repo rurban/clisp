@@ -3620,7 +3620,7 @@ This keyboard input is not echoed on the screen.  During execution of a
 </dl>
 <!-- #endif -->
 
-<h3>printing and OS interface.</h3>
+<h3>Printing and OS interface.</h3>
 
 <p>See also <a href="#shell"><code>(shell <var>command</var>)</code></a>.
 
@@ -4311,6 +4311,7 @@ which means <code>#&#34;.fas&#34;</code>.
 either a pathname or a list of pathnames: files to be loaded if the
 required module is not already in memory.
 
+<a name="loadfile"></a>
 <h4><a href="<hs>/Body/fun_load.html">
     load</a></h4>
 
@@ -4337,10 +4338,11 @@ required module is not already in memory.
   initially = <code>nil</code>.
  <dt><code>:compiling t</code>
   <dd>causes each form read to be compiled on the fly. The compiled code
-  is executed at once and - in contrast to <code>compile-file</code> -
-  not written to a file. The default is
-  <code><strong>*load-compiling*</strong></code>, which is initially =
-  <code>nil</code>.
+  is executed at once and - in contrast to <a
+  href="#compilefile"><code>compile-file</code></a> - not written to a
+  file. The default is
+  <code><strong>lisp:*load-compiling*</strong></code>,
+  which is initially <code>nil</code>.
 </dl>
 
 <p>The variable <code><strong>lisp:*load-paths*</strong></code> contains
@@ -5570,7 +5572,7 @@ succeed.
 <code>ENGLISH</code> or <code>DEUTSCH</code> (i.e. german) or
 <code>FRANCAIS</code> (i.e. french) or <code>ESPA&Ntilde;OL</code> (i.e.
 spanish). More languages can be defined through the macro
-<code><strong>deflanguage</strong></code>: <code>(deflanguage
+<code><strong>lisp:deflanguage</strong></code>: <code>(deflanguage
 <var>lang</var>)</code> For such an additional language to take effect,
 you must install the corresponding message catalog, or translate the
 messages yourself, by use of GNU gettext and Emacs po-mode.
@@ -5587,7 +5589,7 @@ three or not.
 
 <p>This works only for strings. For arbitrary language-dependent Lisp objects,
 you define one through the macro
-<code><strong>definternational</strong></code>:
+<code><strong>lisp:definternational</strong></code>:
 
 <br>  <code>(definternational <var>symbol</var>
       [(t <var>default-language</var>)])</code>,
@@ -6047,10 +6049,12 @@ platform-independent command line options:
 
 <dl>
  <dt><strong>--help</strong>
-  <dd>Print program usage and exit.  Use this option to find out about
+  <dd>Print the program usage and exit.  Use this option to find out about
   the possible platform-specific options available on your platform.
  <dt><strong>--version</strong>
-  <dd>Print <code>(lisp-implementation-version)</code> and exit.
+  <dd>Print <code>(<a
+  href="CLHSROOT/Body/fun_lisp-impl_tion-version.html">lisp-implementation-version</a>)</code>
+  and exit.
  <dt><strong>--license</strong>
   <dd>Print the licensing information (GPL) and exit.
  <dt><strong>-q</strong>, <strong>--quiet</strong>, <strong>--silent</strong>
@@ -6060,15 +6064,16 @@ platform-independent command line options:
  <dt><strong>-m size</strong>
   <dd>Memory size (<em>size</em> = xxxxxxxB or xxxxKB or xMB).
  <dt><strong>-L language</strong>
-  <dd>Set the user interface language (default: English).
+  <dd>Set the user interface <a href="#language">language</a>
+  (default: English).
  <dt><strong>-N nlsdir</strong>
   <dd>NLS catalog directory.
  <dt><strong>-I</strong>
   <dd>Be <em>ILISP</em>-friendly.  ILISP is an alternative Emacs
   interface to Common Lisps.
  <dt><strong>-C</strong>
-  <dd>Set <code>*LOAD-COMPILING*</code> to T.  Useful in
-  <a href="#script">scripts</a>.
+  <dd>Set <a href="#loadfile"><code>lisp:*load-compiling*</code></a> to
+  <code>T</code>.  Useful in <a href="#script">scripts</a>.
  <dt><strong>-norc</strong>
   <dd>Do not load the user run control file on startup.  Normally, CLISP
   executes <pre><code>(load (merge-pathnames
