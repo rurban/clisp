@@ -3127,8 +3127,11 @@ for-value   NIL or T
             (multiple-value-bind (a m f1 f2 f3 f4) (fenv-search fun)
               (declare (ignore f2 f4))
               (if (null a)
-                ;; no local definition
-                (let ((handler (gethash fun c-form-table)))
+                ;; no local definition --> expand-compiler-macro
+                (let ((handler
+                       (gethash (setq *form* (expand-compiler-macro *form*)
+                                      fun (car *form*))
+                                c-form-table)))
                   (if handler ; found handler function?
                     ;; ==> (symbolp fun) = T
                     (if (or (and (special-operator-p fun)
@@ -3141,7 +3144,7 @@ for-value   NIL or T
                         (c-GLOBAL-FUNCTION-CALL fun)))
                     ;; no -> not a special-form anyway
                     ;; (all those are in the `c-form-table')
-                    (if (atom (setq *form* (expand-compiler-macro *form*)))
+                    (if (atom *form*)
                       (c-form *form*)
                       (if (and (symbolp (setq fun (first *form*)))
                                (macro-function fun))
