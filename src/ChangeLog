@@ -1,5 +1,10 @@
 2003-05-09  Sam Steingold  <sds@gnu.org>
 
+	* type.lisp (%the): ANSI compliance: following issue 348, ignore
+	discrepancies between the number of values and types
+
+2003-05-09  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (compile-toplevel-form): do not write the result
 	of (COMPILE ... NIL) into the FAS files (e.g., (eval-when (eval))
 	should not produce any test in the FAS file)
