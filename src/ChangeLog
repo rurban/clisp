@@ -1,3 +1,23 @@
+2004-06-10  Bruno Haible  <bruno@clisp.org>
+
+	* clos.lisp: Load clos-methcomb3, clos-methcomb4.
+	* clos-methcomb1.lisp (method-combination): Define using defclass,
+	as subclass of metaobject.
+	(<method-combination>): New variable.
+	(initialize-instance-<method-combination>,
+	make-instance-<method-combination>, copy-method-combination): New
+	functions.
+	* clos-methcomb2.lisp: Use make-instance-<method-combination> instead
+	of make-method-combination.
+	* clos-methcomb3.lisp: New file.
+	* clos-methcomb4.lisp: New file.
+	* clos-genfun3.lisp (analyze-defgeneric): Use typep instead of
+	method-combination-p.
+	* clos-genfun5.lisp (find-method-combination): Moved to
+	clos-methcomb4.lisp.
+	* makemake.in (LPARTS): Add clos-methcomb3, clos-methcomb4.
+	* po/Makefile.devel (LISPSOURCES): Likewise.
+
 2004-07-31  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/bdb.c (BDB:LOG-FILE): use BUFSIZ instead of

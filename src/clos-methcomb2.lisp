@@ -705,7 +705,7 @@
     (or (equal qualifiers '()) (equal qualifiers '(:around)))))
 
 (setf (get-method-combination 'standard)
-      (make-method-combination
+      (make-instance-<method-combination> <method-combination>
         :name 'standard
         :documentation "the STANDARD METHOD-COMBINATION object"
         :qualifiers '(:before :after :around)
@@ -770,7 +770,7 @@
 ;;; Predefined method combinations.
 (dolist (name '(+ and append list max min nconc or progn))
   (setf (get-method-combination name)
-        (make-method-combination
+        (make-instance-<method-combination> <method-combination>
           :name name :operator name
           :qualifiers (list name ':around)
           :identity-with-one-argument (not (eq name 'list))
@@ -1217,7 +1217,8 @@ Long-form options are a list of method-group specifiers,
   "Support function for the DEFINE-METHOD-COMBINATION macro,
 which performs the instantiation and registration and returns NAME."
   (let ((method-combination
-          (apply #'make-method-combination :name name initargs)))
+          (apply #'make-instance-<method-combination> <method-combination>
+                 :name name initargs)))
     (setf (get-method-combination name) method-combination)
     name))
 
