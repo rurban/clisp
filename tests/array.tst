@@ -626,6 +626,14 @@ T)   T
 
 (VECTOR-PUSH-EXTEND 5.0D0 VMFAD)   5
 
+(setf (fill-pointer vmfad) 3)      3
+
+(aref vmfad 5)                     5.0D0
+
+(elt  vmfad 5)                     error
+
+(setf (fill-pointer vmfad) 6)      6
+
 (VECTOR-POP VMFAD)   5.0D0
 
 (VECTOR-POP VMFAD)   4.0D0
