@@ -1043,8 +1043,8 @@ head: AND/OR: (head (real lo1 hi1) (real lo2 hi2))"
             (let ((size (or (second type) '*)))
               `(ARRAY BASE-CHAR (,size))))
            (VECTOR ; (VECTOR &optional el-type size)
-            (let ((el-type (or (second type) '*))
-                  (size (or (third type) '*)))
+            (let ((el-type (if (cdr type) (second type) '*))
+                  (size (if (cddr type) (third type) '*)))
               `(ARRAY ,el-type (,size))))
            ((REAL INTEGER RATIONAL FLOAT SHORT-FLOAT
              SINGLE-FLOAT DOUBLE-FLOAT LONG-FLOAT)
