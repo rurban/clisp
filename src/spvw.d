@@ -1700,6 +1700,7 @@ global int main (argc_t argc, char* argv[]) {
  #endif
   var local char* argv_lisplibdir;
   var local bool argv_wide = false; # for backward compatibility
+  var local bool argv_developer = false;
   var local char* argv_memfile = NULL;
   var local bool argv_load_compiling = false;
   var local uintL argv_init_filecount = 0;
@@ -1753,6 +1754,8 @@ global int main (argc_t argc, char* argv[]) {
   #   --version       print version and exit (should be the only option)
   #   file [arg ...]  load LISP-file in batch-mode and execute,
   #                   then leave LISP
+  # -d -- developer mode -- undocumented, unsupported &c
+  #    - unlock all packages.
 
   # Newly added options have to be lised:
   # - in the above table,
@@ -1839,6 +1842,10 @@ global int main (argc_t argc, char* argv[]) {
             argv_tmpdir = arg;
             break;
          #endif
+          case 'd': /* developer mode */
+            argv_developer = true;
+            if (arg[2] != '\0') usage (1);
+            break;
           case 'B': # lisplibdir
             OPTION_ARG;
             if (!(argv_lisplibdir == NULL)) usage (1);
@@ -2703,6 +2710,14 @@ global int main (argc_t argc, char* argv[]) {
   }
   if (argv_load_compiling) # (SETQ *LOAD-COMPILING* T) :
     { Symbol_value(S(load_compiling)) = T; }
+  if (argv_developer) { /* developer mode */
+    /* unlock all packages */
+    var object packlist = O(all_packages);
+    while (consp(packlist)) {
+      mark_pack_unlocked(Car(packlist));
+      packlist = Cdr(packlist);
+    }
+  }
   # load RC file ~/.clisprc
   if (!argv_norc) {
     # (LOAD (MERGE-PATHNAMES (MAKE-PATHNAME :NAME ".clisprc")
