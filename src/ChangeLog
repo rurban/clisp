@@ -1,3 +1,19 @@
+2001-02-04  Bruno Haible  <haible@clisp.cons.org>
+
+        * pathname.d: Back out Sam's 2001-01-03 and 2001-01-04 patches.
+          (host_namestring_parts): Use "\\\\" instead of twice "\\".
+          (directory_namestring): Include the host namestring parts.
+          (MERGE-PATHNAMES): If pathname's host is NIL but pathname's device
+          is non-NIL, on Win32, don't take the defaults' host+device.
+          (MAKE-PATHNAME): If pathname's host and device are both non-NIL on
+          Win32, signal an error.
+          (use_default_dir) [OS2, WIN32]: If the pathname already has a host:
+          1. Don't insert the default drive. 2. Resolve :RELATIVE to
+          :ABSOLUTE.
+          (assure_dir_exists): Include host_namestring_parts.
+          (directory_exists): Likewise.
+          (CD): Signal error if pathname includes a host.
+
 2001-02-03  Bruno Haible  <haible@clisp.cons.org>
 
         * configure: Also copy gettext/autoconf.

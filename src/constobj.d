@@ -619,6 +619,9 @@
  #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
   LISPOBJ(backslash_string,"\"\\\\\"")
  #endif
+ #if defined(PATHNAME_WIN32)
+  LISPOBJ(backslashbackslash_string,"\"\\\\\\\\\"")
+ #endif
  #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) || defined(DIR_KEY)
   LISPOBJ_S(slash_string,"/")
  #endif
