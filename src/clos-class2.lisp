@@ -739,7 +739,7 @@
                                      (when (member E (cdr r)) (return t)))
                                    (dolist (r R2 nil)
                                      (when (member E (cdr r)) (return t)))))
-                           M))
+                           (the list M)))
         (when (null M)
           (error-of-type 'error
             (TEXT "~S ~S: inconsistent precedence graph, cycle ~S")

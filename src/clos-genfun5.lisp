@@ -105,7 +105,7 @@
           (setq methods
             (remove-if-not
               #'(lambda (method) (method-applicable-p method req-args))
-              methods))
+              (the list methods)))
           ;; 2. Sort the applicable methods by precedence order:
           (sort-applicable-methods methods req-args (gf-argorder gf)))
         nil)))) ; rather no error
