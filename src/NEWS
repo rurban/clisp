@@ -58,6 +58,9 @@ User visible changes
   are garbage collected.
   See <http://clisp.cons.org/impnotes.html#make-hash> for details.
 
+* New macro EXT:DEFINE-HASH-TABLE-TEST allows user-defined hash table tests.
+  See <http://clisp.cons.org/impnotes.html#defhash> for details.
+
 * ANSI CL compliance issues:
   + MAPC, MAPCAR, MAPCAN, MAPL, MAPLIST, MAPCON now require their list
     arguments to be proper lists;

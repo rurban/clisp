@@ -140,6 +140,7 @@
 <!ENTITY dkey-close "<link linkend='dir-key-close'><function>LDAP:DIR-KEY-CLOSE</function></link>">
 <!ENTITY dkey-open "<link linkend='dir-key-open'><function>LDAP:DIR-KEY-OPEN</function></link>">
 <!ENTITY dkey-open "<link linkend='dir-key-open'><function>LDAP:DIR-KEY-OPEN</function></link>">
+<!ENTITY defhash "<link linkend='defhash'><function>EXT:DEFINE-HASH-TABLE-TEST</function></link>">
 <!ENTITY dohash "<link linkend='dohash'><function>EXT:DOHASH</function></link>">
 <!ENTITY doseq "<link linkend='doseq'><function>EXT:DOSEQ</function></link>">
 <!ENTITY ds-t "<link linkend='dribble'><classname>EXT:DRIBBLE-STREAM</classname></link>">
@@ -399,6 +400,7 @@
 <!ENTITY filename-r "<replaceable>filename</replaceable>">
 <!ENTITY form-r "<replaceable>form</replaceable>">
 <!ENTITY func-r "<replaceable>function</replaceable>">
+<!ENTITY hash-f "<replaceable>hash-function</replaceable>">
 <!ENTITY host-r "<replaceable>host</replaceable>">
 <!ENTITY hw "<replaceable>hardware</replaceable>">
 <!ENTITY i-r "<replaceable>i</replaceable>">
@@ -444,6 +446,7 @@
 <!ENTITY tag-r "<replaceable>tag</replaceable>">
 <!ENTITY target-r "<replaceable>target</replaceable>">
 <!ENTITY tbc-r "<replaceable>tagbody-cons</replaceable>">
+<!ENTITY test-f "<replaceable>test-function</replaceable>">
 <!ENTITY type-r "<replaceable>type</replaceable>">
 <!ENTITY uc-r "<replaceable>uc</replaceable>">
 <!ENTITY v-r "<replaceable>v</replaceable>">

@@ -125,6 +125,7 @@
                 #+CLISP             "bin-io"
                 #-AKCL              "characters"
                 #+(or CLISP ALLEGRO CMU) "clos"
+                ;#+CLISP             "defhash"
                 #+(and CLISP UNICODE) "encoding"
                                     "eval20"
                 #+(and CLISP FFI)   "ffi"

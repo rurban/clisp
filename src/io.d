@@ -4059,15 +4059,14 @@ LISPFUNN(structure_reader,3) { # reads #S
       # Remaining Argumentlist must be a Cons:
       if (!consp(args)) {
         pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-        pushSTACK(*stream_); # Stream
-        pushSTACK(S(read));
-        fehler(stream_error,GETTEXT("~ from ~: bad HASH-TABLE"));
+        pushSTACK(S(hash_table)); pushSTACK(*stream_); pushSTACK(S(read));
+        fehler(stream_error,GETTEXT("~ from ~: bad ~"));
       }
       # (MAKE-HASH-TABLE :TEST (car args) :INITIAL-CONTENTS (cdr args))
       pushSTACK(S(Ktest)); # :TEST
       pushSTACK(Car(args)); # Test (Symbol)
       pushSTACK(S(Kinitial_contents)); # :INITIAL-CONTENTS
-      pushSTACK(Cdr(args)); # Aliste ((Key_1 . Value_1) ... (Key_n . Value_n))
+      pushSTACK(Cdr(args)); # Alist ((Key_1 . Value_1) ... (Key_n . Value_n))
       funcall(L(make_hash_table),4); # build Hash-Table
       mv_count=1; # value1 as value
       skipSTACK(3); return;
@@ -8566,10 +8565,8 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
             # test for attaining of *PRINT-LINES* :
             CHECK_LINES_LIMIT(goto kvtable_end);
             JUSTIFY_LAST(count==0);
-            { # print Hash-Test:
-              var uintB flags = record_flags(TheHashtable(*obj_));
-              prin_object(stream_,hashtable_test(flags));
-            }
+            /* print Hash-Test: */
+            prin_object(stream_,hash_table_test(*obj_));
             pr_kvtable(stream_,&STACK_0,index,count);
           kvtable_end: # output of Key-Value-Pairs finished
             skipSTACK(1);
@@ -8578,15 +8575,14 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
           if (ht_weak_p(*obj_)) {
             UNREADABLE_END;
           } else {
-          INDENT_END;
-          KLAMMER_ZU;
+            INDENT_END;
+            KLAMMER_ZU;
           }
           skipSTACK(1);
         }
         LEVEL_END;
       } else {
         var uintL count = posfixnum_to_L(TheHashtable(obj)->ht_count);
-        var uintB flags = record_flags(TheHashtable(obj));
         pushSTACK(obj);
         var gcv_object_t* obj_ = &STACK_0;
         UNREADABLE_START; JUSTIFY_LAST(false);
@@ -8596,7 +8592,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
           prin_object(stream_,S(Kweak)); # print :WEAK
         }
         JUSTIFY_SPACE; JUSTIFY_LAST(false);
-        prin_object(stream_,hashtable_test(flags)); # print HASH-TABLE-TEST
+        prin_object(stream_,hash_table_test(*obj_));
         JUSTIFY_SPACE; JUSTIFY_LAST(false);
         pr_uint(stream_,count); # print HASH-TABLE-COUNT
         JUSTIFY_SPACE; JUSTIFY_LAST(true);
