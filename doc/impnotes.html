@@ -8,7 +8,7 @@ NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
 "><LINK
 REV="MADE"
-HREF="clisp-list@sf.net"><META
+HREF="mailto:clisp-list@sf.net"><META
 NAME="KEYWORD"
 CONTENT="Lisp"><META
 NAME="KEYWORD"
@@ -998,7 +998,7 @@ TARGET="_top"
 >21.1. <A
 HREF="#streams-interactive"
 >Interactive Streams
-   <A
+ <A
 HREF="http://www.lisp.org/HyperSpec/Body/sec_21-1-1-1-3.html"
 TARGET="_top"
 >[CLHS-21.1.1.1.3]</A
@@ -8306,9 +8306,18 @@ HREF="#pack-lock"
 CLASS="varname"
 >CUSTOM:*SYSTEM-PACKAGE-LIST*</TT
 ></A
->).
-If you want to evaluate some forms with certain packages unlocked, you
-can use <TT
+>).</P
+></DIV
+><DIV
+CLASS="formalpara"
+><P
+><B
+><TT
+CLASS="function"
+>EXT:WITHOUT-PACKAGE-LOCK</TT
+>. </B
+>If you want to evaluate some forms with certain packages unlocked,
+ you can use <TT
 CLASS="function"
 >EXT:WITHOUT-PACKAGE-LOCK</TT
 >:
@@ -8345,14 +8354,74 @@ CLASS="programlisting"
 <TT
 CLASS="sexp"
 >(without-package-lock () ...)</TT
-> unlocks
-all packages in <A
+>
+temporarily unlocks all packages in <A
 HREF="#pack-lock"
 ><TT
 CLASS="varname"
 >CUSTOM:*SYSTEM-PACKAGE-LIST*</TT
 ></A
 >.</P
+></DIV
+><DIV
+CLASS="formalpara"
+><P
+><B
+>Discussion - see also
+  <A
+HREF="http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&selm=3C3E7F57.7F80395%40pacbell.net"
+TARGET="_top"
+>the USENET posting</A
+> by
+<A
+HREF="mailto:haflich@pacbell.net"
+TARGET="_top"
+>Steven M. Haflich</A
+>. </B
+>This should prevent you from accidentally hosing yourself with
+<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="programlisting"
+>&#13; (defstruct instance ...)
+</PRE
+></TD
+></TR
+></TABLE
+>
+and allow enforcing modularity.
+Note that you will also get the continuable error when you try to
+assign (with <A
+HREF="http://www.lisp.org/HyperSpec/Body/spefor_setq.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>SETQ</TT
+></A
+>, <A
+HREF="http://www.lisp.org/HyperSpec/Body/mac_psetq.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>PSETQ</TT
+></A
+>, etc.) a value to an internal special
+variable living in a locked package and not accessible in your current
+<A
+HREF="http://www.lisp.org/HyperSpec/Body/var_stpackagest.html"
+TARGET="_top"
+><TT
+CLASS="varname"
+>*PACKAGE*</TT
+></A
+>, but only in the interpreted code and during compilation.
+There is no check for package locks in compiled code because of the
+performance considerations.
+</P
 ></DIV
 ></DIV
 ><DIV
@@ -8434,7 +8503,7 @@ CLASS="function"
 >s all <B
 CLASS="command"
 >CLOS</B
-> specific symbols, including some
+>-specific symbols, including some
    <A
 HREF="#clos-diff"
 >additional symbols</A
@@ -9173,7 +9242,11 @@ VALIGN="MIDDLE"
 ><TD
 ALIGN="CENTER"
 VALIGN="MIDDLE"
->IEEE format</TD
+><A
+HREF="http://grouper.ieee.org/groups/754/"
+TARGET="_top"
+>IEEE 754</A
+></TD
 ></TR
 ><TR
 ><TD
@@ -9202,7 +9275,11 @@ VALIGN="MIDDLE"
 ><TD
 ALIGN="CENTER"
 VALIGN="MIDDLE"
->IEEE format</TD
+><A
+HREF="http://grouper.ieee.org/groups/754/"
+TARGET="_top"
+>IEEE 754</A
+></TD
 ></TR
 ><TR
 ><TD
@@ -9239,8 +9316,16 @@ VALIGN="MIDDLE"
 ></DIV
 ><P
 ALIGN="justify"
->The single and double float formats are those of the IEEE standard
- (1981), except that <A
+>The single and double float formats are those of the <A
+HREF="http://grouper.ieee.org/groups/754/"
+TARGET="_top"
+>IEEE 754</A
+>
+ <SPAN
+CLASS="QUOTE"
+>"Standard for Binary Floating-Point Arithmetic"</SPAN
+>,
+ except that <A
 HREF="http://clisp.cons.org"
 TARGET="_top"
 ><B
@@ -9250,22 +9335,16 @@ CLASS="command"
 > does not support features like
  <TT
 CLASS="literal"
->+0</TT
+>±0</TT
 >, <TT
 CLASS="literal"
->-0</TT
->, <TT
-CLASS="literal"
->+inf</TT
+>±inf</TT
 >,
  <TT
 CLASS="literal"
->-inf</TT
->, gradual underflow, <TT
-CLASS="literal"
 >NaN</TT
->,
- etc. (<A
+>, gradual underflow, etc.
+ (<A
 HREF="http://www.lisp.org"
 TARGET="_top"
 ><B
@@ -9285,8 +9364,12 @@ CLASS="varname"
 CLASS="constant"
 >:IEEE-FLOATING-POINT</TT
 > keyword.</P
+><DIV
+CLASS="formalpara"
 ><P
-ALIGN="justify"
+><A
+NAME="lfd"><B
+>Arbitrary Precision Floats. </B
 >Long floats have variable mantissa length, which is a
  multiple of 16 (or 32, depending on the word size of the processor).
  The default length used when long floats are read is given by the place
@@ -9343,7 +9426,8 @@ CLASS="function"
 ></A
 >) 3322)</TT
 > sets the default precision
- of long floats to 1000 decimal digits.</P
+ of long floats to about 1000 decimal digits.</P
+></DIV
 ><DIV
 CLASS="section"
 ><HR><H3
@@ -9447,15 +9531,15 @@ CLASS="command"
 ><DD
 ><P
 ALIGN="justify"
->A float is an approximation of a real number.  One
-  can think of it as a random variable with the mean equal to itself and
-  standard deviation equal to half the last significant digit.  E.g.,
-  <TT
+>A computer float is an approximation of a real number.
+  One can think of it as a random variable with the mean equal to
+  itself and standard deviation equal to half the last significant digit.
+  E.g., <TT
 CLASS="literal"
 >1.5</TT
 > is actually <TT
 CLASS="literal"
->1.5+-0.05</TT
+>1.5±0.05</TT
 >.
   Consider adding <TT
 CLASS="literal"
@@ -9477,7 +9561,7 @@ HREF="#ansi-cl"
 CLASS="sexp"
 >(+ 1.5 1.75)</TT
 >
-  return <TT
+  returns <TT
 CLASS="literal"
 >3.25</TT
 >, while traditional <A
@@ -9494,12 +9578,12 @@ CLASS="literal"
 >.  The implied random variables are:
   <TT
 CLASS="literal"
->3.25+-0.005</TT
+>3.25±0.005</TT
 > and <TT
 CLASS="literal"
->3.3+-0.05</TT
->.  Note
-  that the traditional <A
+>3.3±0.05</TT
+>.
+  Note that the traditional <A
 HREF="http://clisp.cons.org"
 TARGET="_top"
 ><B
@@ -9564,8 +9648,8 @@ CLASS="command"
 ALIGN="justify"
 > Rounding errors accumulate, and if a computation
   is conducted with insufficient precision, an outright incorrect
-  result can be returned.  (E.g.,
-  <TT
+  result can be returned.
+  (E.g., <TT
 CLASS="literal"
 >E(x<SUP
 >2</SUP
@@ -9573,16 +9657,16 @@ CLASS="literal"
   E(x)<SUP
 >2</SUP
 ></TT
-> can be negative!)  The user
-  should not mix floats of different precision (that's what <A
+> can be negative!)
+  The user should not mix floats of different precision (that's what
+  <A
 HREF="#warn-fpc"
 ><TT
 CLASS="varname"
 >CUSTOM:*WARN-ON-FLOATING-POINT-CONTAGION*</TT
 ></A
-> is
-  for), but one should not be penalized for this too harshly.
-  </P
+> is for), but one should not be penalized for this too
+  harshly.</P
 ></DD
 ></DL
 ></DIV
@@ -9797,7 +9881,14 @@ ALIGN="justify"
 >Complex numbers can have a real part and an imaginary part of
  different types. For example, <TT
 CLASS="sexp"
->(sqrt
+>(<A
+HREF="http://www.lisp.org/HyperSpec/Body/fun_sqrtcm_isqrt.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>SQRT</TT
+></A
+>
  -9.0)</TT
 > evaluates to the number <TT
 CLASS="literal"
@@ -20592,10 +20683,10 @@ CLASS="filename"
 > denotes
  the file <TT
 CLASS="filename"
->"bar"</TT
+>#P"bar"</TT
 > in the directory <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 >,
  while <TT
 CLASS="filename"
@@ -20603,10 +20694,10 @@ CLASS="filename"
 > denotes the subdirectory
  <TT
 CLASS="filename"
->"bar"</TT
+>#P"bar"</TT
 > of the directory <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 >.
 </P
 ></DD
@@ -20643,10 +20734,10 @@ CLASS="filename"
 >
  denotes the file <TT
 CLASS="filename"
->"bar"</TT
+>#P"bar"</TT
 > in the directory <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 >,
  while <TT
 CLASS="filename"
@@ -20654,10 +20745,10 @@ CLASS="filename"
 > denotes the subdirectory
  <TT
 CLASS="filename"
->"bar"</TT
+>#P"bar"</TT
 > of the directory <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 >.
 </P
 ></DD
@@ -20679,10 +20770,10 @@ CLASS="filename"
 > denotes
  the file <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 > in the directory <TT
 CLASS="filename"
->"bar"</TT
+>#P"bar"</TT
 >,
  while <TT
 CLASS="filename"
@@ -20690,10 +20781,10 @@ CLASS="filename"
 > denotes the subdirectory
  <TT
 CLASS="filename"
->"bar"</TT
+>#P"bar"</TT
 > of the directory <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 >.
 </P
 ></DD
@@ -20701,27 +20792,10 @@ CLASS="filename"
 ></DIV
 ><P
 ALIGN="justify"
->This is especially important for the functions <A
+>This is especially important for the
+ <A
 HREF="#dir"
-><TT
-CLASS="function"
->directory</TT
->,
- <TT
-CLASS="function"
->ext:dir</TT
->, <TT
-CLASS="function"
->ext:cd</TT
->,
- <TT
-CLASS="function"
->ext:make-dir</TT
->,
- <TT
-CLASS="function"
->ext:delete-dir</TT
-></A
+>directory-handling functions</A
 >.</P
 ><DIV
 CLASS="table"
@@ -21543,7 +21617,7 @@ CLASS="constant"
 >:ABSOLUTE</TT
 > <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 >)</TD
 ></TR
 ><TR
@@ -21576,7 +21650,7 @@ CLASS="constant"
 >:ABSOLUTE</TT
 > <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 >)</TD
 ></TR
 ><TR
@@ -21609,10 +21683,10 @@ CLASS="constant"
 >:ABSOLUTE</TT
 > <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 > <TT
 CLASS="filename"
->"bar"</TT
+>#P"bar"</TT
 >)</TD
 ></TR
 ><TR
@@ -21649,7 +21723,7 @@ CLASS="constant"
 >:PARENT</TT
 > <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 >)</TD
 ></TR
 ><TR
@@ -21716,7 +21790,7 @@ CLASS="constant"
 >:ABSOLUTE</TT
 > <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 >)</TD
 ></TR
 ><TR
@@ -21725,7 +21799,7 @@ ALIGN="CENTER"
 VALIGN="MIDDLE"
 ><TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 ></TD
 ><TD
 ALIGN="CENTER"
@@ -21753,7 +21827,7 @@ CLASS="constant"
 >:RELATIVE</TT
 > <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 >)</TD
 ></TR
 ><TR
@@ -21793,7 +21867,7 @@ CLASS="constant"
 >:PARENT</TT
 > <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 >)</TD
 ></TR
 ><TR
@@ -21836,11 +21910,11 @@ CLASS="constant"
 >:PARENT</TT
 > <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 >
                  <TT
 CLASS="filename"
->"bar"</TT
+>#P"bar"</TT
 >)</TD
 ></TR
 ><TR
@@ -22811,8 +22885,15 @@ CLASS="filename"
 > one may use <TT
 CLASS="filename"
 >"/"</TT
->, as usual for DOS
- calls.</P
+>, as usual for
+ <A
+HREF="http://www.freedos.org/"
+TARGET="_top"
+><B
+CLASS="emphasis"
+>DOS</B
+></A
+> calls.</P
 ></DD
 ></DL
 ></DIV
@@ -22865,7 +22946,7 @@ CLASS="classname"
 >SIMPLE-STRING</TT
 ></A
 >, wildcard characters may
-   occur but don't act as wildcards</P
+   occur but do not act as wildcards</P
 ></DD
 ><DT
 ><TT
@@ -23407,14 +23488,16 @@ CLASS="filename"
 ></DD
 ></DL
 ></DIV
+><DIV
+CLASS="formalpara"
+><P
+><A
+NAME="name-type-split"><B
+>Name/type namestring split. </B
 ><P
 ></P
 ><DIV
 CLASS="variablelist"
-><P
-><B
->Name/type namestring split.</B
-></P
 ><DL
 ><DT
 >Platform dependent:  <A
@@ -23630,6 +23713,8 @@ CLASS="constant"
  </P
 ></DD
 ></DL
+></DIV
+></P
 ></DIV
 ><P
 ></P
@@ -24131,7 +24216,7 @@ CLASS="filename"
 >#P".lisp"</TT
 > and file name <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 >.
    This is pseudo-BNF:</P
 ><P
@@ -24720,7 +24805,7 @@ ALIGN="CENTER"
 VALIGN="MIDDLE"
 ><TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 ></TD
 ><TD
 ALIGN="CENTER"
@@ -24740,7 +24825,7 @@ ALIGN="CENTER"
 VALIGN="MIDDLE"
 ><TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 ></TD
 ><TD
 ALIGN="CENTER"
@@ -24779,7 +24864,7 @@ ALIGN="CENTER"
 VALIGN="MIDDLE"
 ><TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 ></TD
 ><TD
 ALIGN="CENTER"
@@ -24974,14 +25059,14 @@ ALIGN="CENTER"
 VALIGN="MIDDLE"
 ><TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 ></TD
 ><TD
 ALIGN="CENTER"
 VALIGN="MIDDLE"
 ><TT
 CLASS="filename"
->"bar"</TT
+>#P"bar"</TT
 ></TD
 ></TR
 ><TR
@@ -25024,7 +25109,7 @@ CLASS="constant"
 >:RELATIVE</TT
 > <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 >)</TT
 ></TD
 ><TD
@@ -25032,7 +25117,7 @@ ALIGN="CENTER"
 VALIGN="MIDDLE"
 ><TT
 CLASS="filename"
->"bar"</TT
+>#P"bar"</TT
 ></TD
 ><TD
 ALIGN="CENTER"
@@ -25082,10 +25167,10 @@ CLASS="constant"
 >:RELATIVE</TT
 > <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 > <TT
 CLASS="filename"
->"bar"</TT
+>#P"bar"</TT
 >)</TT
 ></TD
 ><TD
@@ -25226,7 +25311,7 @@ ALIGN="CENTER"
 VALIGN="MIDDLE"
 ><TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 ></TD
 ><TD
 ALIGN="CENTER"
@@ -25276,7 +25361,7 @@ CLASS="constant"
 >
           <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 >)</TT
 ></TD
 ><TD
@@ -25284,7 +25369,7 @@ ALIGN="CENTER"
 VALIGN="MIDDLE"
 ><TT
 CLASS="filename"
->"bar"</TT
+>#P"bar"</TT
 ></TD
 ><TD
 ALIGN="CENTER"
@@ -25329,11 +25414,11 @@ CLASS="constant"
 >:ROOT</TT
 > <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 >
           <TT
 CLASS="filename"
->"bar"</TT
+>#P"bar"</TT
 >)</TT
 ></TD
 ><TD
@@ -25399,7 +25484,7 @@ CLASS="constant"
 >
           <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 >)</TT
 ></TD
 ><TD
@@ -25407,7 +25492,7 @@ ALIGN="CENTER"
 VALIGN="MIDDLE"
 ><TT
 CLASS="filename"
->"bar"</TT
+>#P"bar"</TT
 ></TD
 ><TD
 ALIGN="CENTER"
@@ -25647,7 +25732,7 @@ ALIGN="CENTER"
 VALIGN="MIDDLE"
 ><TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 ></TD
 ><TD
 ALIGN="CENTER"
@@ -25709,7 +25794,7 @@ ALIGN="CENTER"
 VALIGN="MIDDLE"
 ><TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 ></TD
 ><TD
 ALIGN="CENTER"
@@ -25768,14 +25853,14 @@ ALIGN="CENTER"
 VALIGN="MIDDLE"
 ><TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 ></TD
 ><TD
 ALIGN="CENTER"
 VALIGN="MIDDLE"
 ><TT
 CLASS="filename"
->"bar"</TT
+>#P"bar"</TT
 ></TD
 ><TD
 ALIGN="CENTER"
@@ -25818,7 +25903,7 @@ CLASS="constant"
 >:RELATIVE</TT
 > <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 >)</TT
 ></TD
 ><TD
@@ -25826,7 +25911,7 @@ ALIGN="CENTER"
 VALIGN="MIDDLE"
 ><TT
 CLASS="filename"
->"bar"</TT
+>#P"bar"</TT
 ></TD
 ><TD
 ALIGN="CENTER"
@@ -25884,7 +25969,7 @@ ALIGN="CENTER"
 VALIGN="MIDDLE"
 ><TT
 CLASS="filename"
->"bar"</TT
+>#P"bar"</TT
 ></TD
 ><TD
 ALIGN="CENTER"
@@ -25942,7 +26027,7 @@ CLASS="constant"
 >
           <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 >)</TT
 ></TD
 ><TD
@@ -25950,7 +26035,7 @@ ALIGN="CENTER"
 VALIGN="MIDDLE"
 ><TT
 CLASS="filename"
->"bar"</TT
+>#P"bar"</TT
 ></TD
 ><TD
 ALIGN="CENTER"
@@ -26009,14 +26094,14 @@ ALIGN="CENTER"
 VALIGN="MIDDLE"
 ><TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 ></TD
 ><TD
 ALIGN="CENTER"
 VALIGN="MIDDLE"
 ><TT
 CLASS="filename"
->"bar"</TT
+>#P"bar"</TT
 ></TD
 ><TD
 ALIGN="CENTER"
@@ -26059,7 +26144,7 @@ CLASS="constant"
 >:RELATIVE</TT
 > <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 >)</TT
 ></TD
 ><TD
@@ -26067,7 +26152,7 @@ ALIGN="CENTER"
 VALIGN="MIDDLE"
 ><TT
 CLASS="filename"
->"bar"</TT
+>#P"bar"</TT
 ></TD
 ><TD
 ALIGN="CENTER"
@@ -26121,7 +26206,7 @@ CLASS="constant"
 >:RELATIVE</TT
 > <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 >)</TT
 ></TD
 ><TD
@@ -26140,7 +26225,7 @@ ALIGN="CENTER"
 VALIGN="MIDDLE"
 ><TT
 CLASS="filename"
->"bar"</TT
+>#P"bar"</TT
 ></TD
 ><TD
 ALIGN="CENTER"
@@ -27183,8 +27268,59 @@ HREF="http://www.lisp.org/HyperSpec/Body/sec_the_filen_s_dictionary.html"
 TARGET="_top"
 >[CLHS-19.4]</A
 ></H1
+><DIV
+CLASS="formalpara"
 ><P
-ALIGN="justify"
+><B
+>Pathname Designators. </B
+>When <A
+HREF="#parsename"
+><TT
+CLASS="varname"
+>CUSTOM:*PARSE-NAMESTRING-ANSI*</TT
+></A
+> is <A
+HREF="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
+TARGET="_top"
+><TT
+CLASS="constant"
+>NIL</TT
+></A
+>, <A
+HREF="http://www.lisp.org/HyperSpec/Body/syscla_symbol.html"
+TARGET="_top"
+><TT
+CLASS="classname"
+>SYMBOL</TT
+></A
+> is also treated as a
+  <A
+HREF="http://www.lisp.org/HyperSpec/Body/glo_p.html#pathname_designator"
+TARGET="_top"
+>pathname
+   designator</A
+>, namely its <A
+HREF="http://www.lisp.org/HyperSpec/Body/fun_symbol-name.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>SYMBOL-NAME</TT
+></A
+> is converted to the
+  operating system's preferred pathname case.</P
+></DIV
+><DIV
+CLASS="formalpara"
+><P
+><B
+><A
+HREF="http://www.lisp.org/HyperSpec/Body/fun_pathname.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>PATHNAME</TT
+></A
+>. </B
 ><A
 HREF="http://www.lisp.org/HyperSpec/Body/fun_pathname.html"
 TARGET="_top"
@@ -27193,8 +27329,19 @@ CLASS="function"
 >PATHNAME</TT
 ></A
 > always returns a physical pathname.</P
+></DIV
+><DIV
+CLASS="formalpara"
 ><P
-ALIGN="justify"
+><B
+><A
+HREF="http://www.lisp.org/HyperSpec/Body/fun_pathname-match-p.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>PATHNAME-MATCH-P</TT
+></A
+>. </B
 ><A
 HREF="http://www.lisp.org/HyperSpec/Body/fun_pathname-match-p.html"
 TARGET="_top"
@@ -27203,7 +27350,21 @@ CLASS="function"
 >PATHNAME-MATCH-P</TT
 ></A
 > does not interpret missing components as
- wild.</P
+  wild.</P
+></DIV
+><DIV
+CLASS="section"
+><HR><H2
+CLASS="section"
+><A
+NAME="translate-pathname">19.4.1. Function <A
+HREF="http://www.lisp.org/HyperSpec/Body/fun_translate-pathname.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>TRANSLATE-PATHNAME</TT
+></A
+></H2
 ><P
 ALIGN="justify"
 ><A
@@ -27313,12 +27474,13 @@ CLASS="replaceable"
 >source</I
 ></TT
 >.</P
+></DIV
 ><DIV
 CLASS="section"
 ><HR><H2
 CLASS="section"
 ><A
-NAME="parsename">19.4.1. Function <A
+NAME="parsename">19.4.2. Function <A
 HREF="http://www.lisp.org/HyperSpec/Body/fun_parse-namestring.html"
 TARGET="_top"
 ><TT
@@ -27432,36 +27594,56 @@ CLASS="function"
 > can be used.</P
 ><P
 ALIGN="justify"
->The ANSI-mandated behavior of recognizing logical pathnames when
-the <TT
+>The <A
+HREF="#ansi-cl"
+>[<SPAN
+CLASS="citation"
+><A
+HREF="#ansi-cl"
+>ANSI CL standard</A
+></SPAN
+>]</A
+> behavior of recognizing logical pathnames when
+ the <TT
 CLASS="replaceable"
 ><I
 >string</I
 ></TT
 > begins with some alphanumeric characters followed by a
-colon (<SPAN
+ colon (<SPAN
 CLASS="keysym"
 >#\:</SPAN
->) is very confusing (cf.
-<TT
-CLASS="literal"
+>) can be very confusing
+ (cf. <TT
+CLASS="filename"
 >"c:/autoexec.bat"</TT
->, <TT
-CLASS="literal"
+>,
+ <TT
+CLASS="filename"
 >"home:.clisprc"</TT
->
-and <TT
-CLASS="literal"
+> and
+ <TT
+CLASS="filename"
 >"prep:/pub/gnu"</TT
->) and therefore disabled by default.
-To enable the ANSI standard behavior, you should set <A
+>)
+ and therefore is disabled by default.
+ To enable the <A
+HREF="#ansi-cl"
+>[<SPAN
+CLASS="citation"
+><A
+HREF="#ansi-cl"
+>ANSI CL standard</A
+></SPAN
+>]</A
+> behavior, you should set <A
 HREF="#parsename"
 ><TT
 CLASS="varname"
 >CUSTOM:*PARSE-NAMESTRING-ANSI*</TT
 ></A
 > to
-non-<A
+ non-<A
 HREF="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 TARGET="_top"
 ><TT
@@ -27475,7 +27657,7 @@ CLASS="section"
 ><HR><H2
 CLASS="section"
 ><A
-NAME="pathmerge">19.4.2. Function <A
+NAME="pathmerge">19.4.3. Function <A
 HREF="http://www.lisp.org/HyperSpec/Body/fun_merge-pathnames.html"
 TARGET="_top"
 ><TT
@@ -27513,8 +27695,8 @@ CLASS="replaceable"
 ><I
 >default-pathname</I
 ></TT
-> is a logical pathname.  To
- construct a logical pathname from a string, the function
+> is a logical pathname.
+ To construct a logical pathname from a string, the function
  <A
 HREF="http://www.lisp.org/HyperSpec/Body/fun_logical-pathname.html"
 TARGET="_top"
@@ -27567,17 +27749,17 @@ TARGET="_top"
 CLASS="function"
 >MERGE-PATHNAMES</TT
 ></A
-> #p"x/" #p"y/")</TT
+> #P"x/" #P"y/")</TT
 >
  evaluates to <TT
 CLASS="filename"
->#p"x/"</TT
+>#P"x/"</TT
 ></P
 ><P
 ALIGN="justify"
-><I
+><B
 CLASS="emphasis"
->Rationale</I
+>Rationale</B
 >: <A
 HREF="http://www.lisp.org/HyperSpec/Body/fun_merge-pathnames.html"
 TARGET="_top"
@@ -27585,9 +27767,9 @@ TARGET="_top"
 CLASS="function"
 >MERGE-PATHNAMES</TT
 ></A
-> is used to
- specify default components for pathnames, so there is some analogy
- between <TT
+> is
+ used to specify default components for pathnames, so there is some
+ analogy between <TT
 CLASS="sexp"
 >(<A
 HREF="http://www.lisp.org/HyperSpec/Body/fun_merge-pathnames.html"
@@ -27597,19 +27779,21 @@ CLASS="function"
 >MERGE-PATHNAMES</TT
 ></A
 > a b)</TT
-> and
- <TT
+>
+ and <TT
 CLASS="sexp"
 >(or a b)</TT
->.  Obviously putting in the same
- default a second time should do the same as putting it in once:
+>.  Obviously putting in the
+ same default a second time should do the same as putting it in once:
  <TT
 CLASS="sexp"
 >(or a b b)</TT
-> is the same as <TT
+> is the same as
+ <TT
 CLASS="sexp"
 >(or a b)</TT
->, so <TT
+>, so
+ <TT
 CLASS="sexp"
 >(<A
 HREF="http://www.lisp.org/HyperSpec/Body/fun_merge-pathnames.html"
@@ -27627,7 +27811,8 @@ CLASS="function"
 ></A
 > a b) b)</TT
 >
- should be the same as <TT
+ should be the same as
+ <TT
 CLASS="sexp"
 >(<A
 HREF="http://www.lisp.org/HyperSpec/Body/fun_merge-pathnames.html"
@@ -27636,8 +27821,7 @@ TARGET="_top"
 CLASS="function"
 >MERGE-PATHNAMES</TT
 ></A
-> a
- b)</TT
+> a b)</TT
 >.</P
 ><P
 ALIGN="justify"
@@ -27676,7 +27860,7 @@ CLASS="function"
 >MERGE-PATHNAMES</TT
 ></A
 >
- '#p"x/" '#p"y/") '#p"y/")</TT
+ #P"x/" #P"y/") #P"y/")</TT
 > and <TT
 CLASS="sexp"
 >(<A
@@ -27686,7 +27870,7 @@ TARGET="_top"
 CLASS="function"
 >MERGE-PATHNAMES</TT
 ></A
-> '#p"x/" '#p"y/")</TT
+> #P"x/" #P"y/")</TT
 > are <A
 HREF="http://www.lisp.org/HyperSpec/Body/fun_equal.html"
 TARGET="_top"
@@ -27736,7 +27920,7 @@ CLASS="command"
 >.</P
 ><P
 ALIGN="justify"
->When <A
+>Reversely, when <A
 HREF="#pathmerge"
 ><TT
 CLASS="varname"
@@ -27749,8 +27933,8 @@ TARGET="_top"
 CLASS="constant"
 >NIL</TT
 ></A
->, the normal
- <A
+>,
+ the normal <A
 HREF="#ansi-cl"
 >[<SPAN
 CLASS="citation"
@@ -27769,19 +27953,22 @@ TARGET="_top"
 CLASS="function"
 >MERGE-PATHNAMES</TT
 ></A
-> #p"x/" #p"y/")</TT
+> #P"x/" #P"y/")</TT
 >
-  evaluates to <TT
+ evaluates to <TT
 CLASS="filename"
->#p"y/x/"</TT
-></P
+>#P"y/x/"</TT
+>.</P
 ><P
 ALIGN="justify"
->The rationale is that <SPAN
+><B
+CLASS="emphasis"
+>Rationale</B
+>: <SPAN
 CLASS="QUOTE"
 >"merge"</SPAN
-> is
- <I
+>
+is <I
 CLASS="emphasis"
 >merge</I
 > and not <I
@@ -27794,7 +27981,7 @@ CLASS="section"
 ><HR><H2
 CLASS="section"
 ><A
-NAME="load-lpt">19.4.3. Function <A
+NAME="load-lpt">19.4.4. Function <A
 HREF="http://www.lisp.org/HyperSpec/Body/fun_load-logi_translations.html"
 TARGET="_top"
 ><TT
@@ -28235,13 +28422,44 @@ CLASS="replaceable"
 >pathname</I
 ></TT
 > contains no name or type component, a
-  list of all matching directories is produced.</P
+  list of all matching directories is produced.
+  E.g., <TT
+CLASS="sexp"
+>(<A
+HREF="http://www.lisp.org/HyperSpec/Body/fun_directory.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>DIRECTORY</TT
+></A
+> "/etc/*/")</TT
+> lists
+  all subdirectories in the directory
+  <TT
+CLASS="filename"
+>#P"/etc/"</TT
+>.</P
 ></LI
 ><LI
 ><P
 ALIGN="justify"
->Otherwise a list of all matching files is
-  returned. If the <TT
+>Otherwise a list of all matching files is returned.
+  E.g., <TT
+CLASS="sexp"
+>(<A
+HREF="http://www.lisp.org/HyperSpec/Body/fun_directory.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>DIRECTORY</TT
+></A
+> "/etc/*")</TT
+> lists all
+  regular files in the directory <TT
+CLASS="filename"
+>#P"/etc/"</TT
+>.
+  If the <TT
 CLASS="constant"
 >:full</TT
 > argument is non-<A
@@ -28252,7 +28470,7 @@ CLASS="constant"
 >NIL</TT
 ></A
 >,
-  this contains additional information: for each matching file you get a
+  additional information is returned: for each matching file you get a
   list of at least four elements <TT
 CLASS="sexp"
 >(<TT
@@ -28283,6 +28501,86 @@ CLASS="replaceable"
 ></LI
 ></UL
 >
+
+If you want <I
+CLASS="emphasis"
+>all</I
+> the files <I
+CLASS="emphasis"
+>and</I
+>
+subdirectories in the current directory, you should use
+<TT
+CLASS="sexp"
+>(<A
+HREF="http://www.lisp.org/HyperSpec/Body/fun_nconc.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>NCONC</TT
+></A
+> (<A
+HREF="http://www.lisp.org/HyperSpec/Body/fun_directory.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>DIRECTORY</TT
+></A
+> "*/") (<A
+HREF="http://www.lisp.org/HyperSpec/Body/fun_directory.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>DIRECTORY</TT
+></A
+> "*"))</TT
+>.
+If you want all the files and subdirectories in all the subdirectories
+under the current directory
+(similar to the <A
+HREF="http://www.opengroup.org/onlinepubs/007904975/utilities/ls.html"
+TARGET="_top"
+><B
+CLASS="command"
+>ls</B
+></A
+> <TT
+CLASS="option"
+>-R</TT
+> <A
+HREF="http://www.UNIX-systems.org/online.html"
+TARGET="_top"
+><B
+CLASS="emphasis"
+>UNIX</B
+></A
+> command),
+use <TT
+CLASS="sexp"
+>(<A
+HREF="http://www.lisp.org/HyperSpec/Body/fun_nconc.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>NCONC</TT
+></A
+> (<A
+HREF="http://www.lisp.org/HyperSpec/Body/fun_directory.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>DIRECTORY</TT
+></A
+> "**/")
+ (<A
+HREF="http://www.lisp.org/HyperSpec/Body/fun_directory.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>DIRECTORY</TT
+></A
+> "**/*"))</TT
+>.
 
 
 <P
@@ -28319,6 +28617,7 @@ CLASS="constant"
 ></DL
 ></DIV
 >
+
 </P
 ><DIV
 CLASS="formalpara"
@@ -28326,13 +28625,13 @@ CLASS="formalpara"
 ><B
 ><TT
 CLASS="function"
->ext:dir</TT
+>EXT:DIR</TT
 >. </B
 ><TT
 CLASS="sexp"
 >(<TT
 CLASS="function"
->ext:dir</TT
+>EXT:DIR</TT
 > <A
 HREF="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
 TARGET="_top"
@@ -28357,24 +28656,51 @@ CLASS="function"
 >, but displays the pathnames
  instead of returning them. <TT
 CLASS="sexp"
->(ext:dir)</TT
+>(EXT:DIR)</TT
 >
  shows the contents of the current directory.</P
 ></DIV
-><P
-></P
 ><DIV
-CLASS="variablelist"
+CLASS="formalpara"
 ><P
-><B
+><A
+NAME="cd"><B
 ><A
 HREF="#cd"
 ><TT
 CLASS="function"
 >EXT:CD</TT
 ></A
-></B
+>. </B
+><TT
+CLASS="sexp"
+>(<A
+HREF="#cd"
+><TT
+CLASS="function"
+>EXT:CD</TT
+></A
+> <TT
+CLASS="replaceable"
+><I
+>pathname</I
+></TT
+>)</TT
+> sets it,
+ <TT
+CLASS="sexp"
+>(<A
+HREF="#cd"
+><TT
+CLASS="function"
+>EXT:CD</TT
+></A
+>)</TT
+> returns it.
+<P
 ></P
+><DIV
+CLASS="variablelist"
 ><DL
 ><DT
 >Platform dependent: <A
@@ -28489,41 +28815,7 @@ CLASS="replaceable"
 ></DD
 ></DL
 ></DIV
-><DIV
-CLASS="formalpara"
-><P
-><B
-><A
-HREF="#cd"
-><TT
-CLASS="function"
->EXT:CD</TT
-></A
->. </B
-><TT
-CLASS="sexp"
->(<A
-HREF="#cd"
-><TT
-CLASS="function"
->EXT:CD</TT
-></A
-> <TT
-CLASS="replaceable"
-><I
->pathname</I
-></TT
->)</TT
-> sets it, <TT
-CLASS="sexp"
->(<A
-HREF="#cd"
-><TT
-CLASS="function"
->EXT:CD</TT
-></A
->)</TT
-> returns it.</P
+></P
 ></DIV
 ><DIV
 CLASS="formalpara"
@@ -28531,13 +28823,13 @@ CLASS="formalpara"
 ><B
 ><TT
 CLASS="function"
->ext:default-directory</TT
+>EXT:DEFAULT-DIRECTORY</TT
 >. </B
 ><TT
 CLASS="sexp"
 >(<TT
 CLASS="function"
->ext:default-directory</TT
+>EXT:DEFAULT-DIRECTORY</TT
 >)</TT
 > is
  equivalent to <TT
@@ -28560,7 +28852,7 @@ CLASS="function"
 ></A
 > (<TT
 CLASS="function"
->ext:default-directory</TT
+>EXT:DEFAULT-DIRECTORY</TT
 >)
  <TT
 CLASS="replaceable"
@@ -28591,13 +28883,13 @@ CLASS="formalpara"
 ><B
 ><TT
 CLASS="function"
->ext:make-dir</TT
+>EXT:MAKE-DIR</TT
 >. </B
 ><TT
 CLASS="sexp"
 >(<TT
 CLASS="function"
->ext:make-dir</TT
+>EXT:MAKE-DIR</TT
 >
  <TT
 CLASS="replaceable"
@@ -28605,8 +28897,8 @@ CLASS="replaceable"
 >directory-pathname</I
 ></TT
 >)</TT
-> creates a new
- subdirectory.</P
+>
+ creates a new subdirectory.</P
 ></DIV
 ><DIV
 CLASS="formalpara"
@@ -28614,13 +28906,13 @@ CLASS="formalpara"
 ><B
 ><TT
 CLASS="function"
->ext:delete-dir</TT
+>EXT:DELETE-DIR</TT
 >. </B
 ><TT
 CLASS="sexp"
 >(<TT
 CLASS="function"
->ext:delete-dir</TT
+>EXT:DELETE-DIR</TT
 >
  <TT
 CLASS="replaceable"
@@ -28650,7 +28942,7 @@ CLASS="section"
 CLASS="section"
 ><A
 NAME="streams-interactive">21.1. Interactive Streams
-   <A
+ <A
 HREF="http://www.lisp.org/HyperSpec/Body/sec_21-1-1-1-3.html"
 TARGET="_top"
 >[CLHS-21.1.1.1.3]</A
@@ -29947,7 +30239,11 @@ CLASS="replaceable"
 ><I
 >element-type</I
 ></TT
-> should be a type equivalent to <TT
+> should be <A
+HREF="http://www.lisp.org/HyperSpec/Body/glo_t.html#type_equivalent"
+TARGET="_top"
+>type equivalent</A
+> to <TT
 CLASS="literal"
 >(<A
 HREF="http://www.lisp.org/HyperSpec/Body/typ_unsigned-byte.html"
@@ -30051,43 +30347,6 @@ CLASS="replaceable"
  instead of 1.</P
 ><P
 ALIGN="justify"
-><A
-HREF="#endianness"
-><TT
-CLASS="replaceable"
-><I
->ENDIANNESS</I
-></TT
-></A
-> can be <TT
-CLASS="constant"
->:little</TT
->
- or <TT
-CLASS="constant"
->:big</TT
->.  The default is
- <TT
-CLASS="constant"
->:little</TT
->, which corresponds to the <A
-HREF="http://www.lisp.org/HyperSpec/Body/fun_read-byte.html"
-TARGET="_top"
-><TT
-CLASS="function"
->READ-BYTE</TT
-></A
->
- behavior in <A
-HREF="http://clisp.cons.org"
-TARGET="_top"
-><B
-CLASS="command"
->CLISP</B
-></A
->.</P
-><P
-ALIGN="justify"
 >Together with <TT
 CLASS="sexp"
 >(<A
@@ -30156,7 +30415,12 @@ CLASS="replaceable"
 ></TT
 >)</TT
 >
- reads a floating-point number in IEEE binary representation from <TT
+ reads a floating-point number in <A
+HREF="http://grouper.ieee.org/groups/754/"
+TARGET="_top"
+>IEEE 754</A
+>
+ binary representation from <TT
 CLASS="replaceable"
 ><I
 >stream</I
@@ -30198,7 +30462,11 @@ CLASS="replaceable"
 ><I
 >element-type</I
 ></TT
-> should be a type equivalent to
+> should be <A
+HREF="http://www.lisp.org/HyperSpec/Body/glo_t.html#type_equivalent"
+TARGET="_top"
+>type equivalent</A
+> to
  <A
 HREF="http://www.lisp.org/HyperSpec/Body/typ_short-flo_m_long-float.html"
 TARGET="_top"
@@ -30214,6 +30482,48 @@ CLASS="classname"
 >DOUBLE-FLOAT</TT
 ></A
 >.</P
+><DIV
+CLASS="formalpara"
+><P
+><A
+NAME="endianness"><B
+>Endianness. </B
+><A
+HREF="#endianness"
+><TT
+CLASS="replaceable"
+><I
+>ENDIANNESS</I
+></TT
+></A
+> can be <TT
+CLASS="constant"
+>:LITTLE</TT
+>
+ or <TT
+CLASS="constant"
+>:BIG</TT
+>.  The default is
+ <TT
+CLASS="constant"
+>:LITTLE</TT
+>, which corresponds to the <A
+HREF="http://www.lisp.org/HyperSpec/Body/fun_read-byte.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>READ-BYTE</TT
+></A
+>
+ behavior in <A
+HREF="http://clisp.cons.org"
+TARGET="_top"
+><B
+CLASS="command"
+>CLISP</B
+></A
+>.</P
+></DIV
 ></DIV
 ><DIV
 CLASS="section"
@@ -30326,7 +30636,11 @@ CLASS="replaceable"
 ><I
 >element-type</I
 ></TT
-> should be a type equivalent to <TT
+> should be <A
+HREF="http://www.lisp.org/HyperSpec/Body/glo_t.html#type_equivalent"
+TARGET="_top"
+>type equivalent</A
+> to <TT
 CLASS="literal"
 >(<A
 HREF="http://www.lisp.org/HyperSpec/Body/typ_unsigned-byte.html"
@@ -30511,7 +30825,12 @@ CLASS="replaceable"
 ></A
 >)</TT
 >
- writes a floating-point number in IEEE binary representation to <TT
+ writes a floating-point number in <A
+HREF="http://grouper.ieee.org/groups/754/"
+TARGET="_top"
+>IEEE 754</A
+>
+ binary representation to <TT
 CLASS="replaceable"
 ><I
 >stream</I
@@ -30553,7 +30872,11 @@ CLASS="replaceable"
 ><I
 >element-type</I
 ></TT
-> should be a type equivalent to
+> should be <A
+HREF="http://www.lisp.org/HyperSpec/Body/glo_t.html#type_equivalent"
+TARGET="_top"
+>type equivalent</A
+> to
  <A
 HREF="http://www.lisp.org/HyperSpec/Body/typ_short-flo_m_long-float.html"
 TARGET="_top"
@@ -34387,8 +34710,8 @@ TARGET="_top"
 CLASS="literal"
 >&#38;KEY</TT
 ></A
-> :output-file
-          :listing <TT
+> :OUTPUT-FILE
+          :LISTING <TT
 CLASS="constant"
 >:WARNINGS</TT
 > <TT
@@ -34421,7 +34744,7 @@ ALIGN="justify"
 ><DT
 ><TT
 CLASS="constant"
->:output-file</TT
+>:OUTPUT-FILE</TT
 ></DT
 ><DD
 ><P
@@ -34454,7 +34777,7 @@ CLASS="constant"
 ><DT
 ><TT
 CLASS="constant"
->:listing</TT
+>:LISTING</TT
 ></DT
 ><DD
 ><P
@@ -34526,7 +34849,7 @@ ALIGN="justify"
 CLASS="emphasis"
 ><TT
 CLASS="varname"
->custom:*compile-warnings*</TT
+>CUSTOM:*COMPILE-WARNINGS*</TT
 ></B
 >,
  <A
@@ -34600,7 +34923,7 @@ ALIGN="CENTER"
 VALIGN="MIDDLE"
 >only if <TT
 CLASS="constant"
->:output-file</TT
+>:OUTPUT-FILE</TT
 > is not <A
 HREF="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 TARGET="_top"
@@ -34638,7 +34961,7 @@ ALIGN="CENTER"
 VALIGN="MIDDLE"
 >only if <TT
 CLASS="constant"
->:output-file</TT
+>:OUTPUT-FILE</TT
 > is not <A
 HREF="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 TARGET="_top"
@@ -34687,7 +35010,7 @@ ALIGN="CENTER"
 VALIGN="MIDDLE"
 >only if <TT
 CLASS="constant"
->:listing</TT
+>:LISTING</TT
 > is not <A
 HREF="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 TARGET="_top"
@@ -34701,7 +35024,7 @@ ALIGN="CENTER"
 VALIGN="MIDDLE"
 ><TT
 CLASS="filename"
->#p".lis"</TT
+>#P".lis"</TT
 ></TD
 ><TD
 ALIGN="CENTER"
@@ -34725,7 +35048,7 @@ ALIGN="CENTER"
 VALIGN="MIDDLE"
 >only if <TT
 CLASS="constant"
->:output-file</TT
+>:OUTPUT-FILE</TT
 > is not <A
 HREF="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 TARGET="_top"
@@ -34739,7 +35062,7 @@ ALIGN="CENTER"
 VALIGN="MIDDLE"
 ><TT
 CLASS="filename"
->#p".c"</TT
+>#P".c"</TT
 ></TD
 ><TD
 ALIGN="CENTER"
@@ -34778,7 +35101,7 @@ CLASS="filename"
 >#P"foo.lisp"</TT
 > and <TT
 CLASS="filename"
->"foo.c"</TT
+>#P"foo.c"</TT
 >,
 and you compile the first file with <A
 HREF="http://clisp.cons.org"
@@ -34791,7 +35114,7 @@ CLASS="command"
 <I
 CLASS="emphasis"
 >clobbered</I
-> even if you have no <A
+> if you have any <A
 HREF="#dffi"
 ><SPAN
 CLASS="QUOTE"
@@ -34821,7 +35144,7 @@ CLASS="function"
 ALIGN="justify"
 >The default for the <TT
 CLASS="constant"
->:output-file</TT
+>:OUTPUT-FILE</TT
 > argument is
  <A
 HREF="http://www.lisp.org/HyperSpec/Body/convar_t.html"
@@ -34873,7 +35196,7 @@ CLASS="function"
 ></A
 > <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
 >)</TT
 >
 forms are treated specially:  <A
@@ -34891,7 +35214,7 @@ CLASS="emphasis"
 >and</I
 > <TT
 CLASS="filename"
->"foo.lib"</TT
+>#P"foo.lib"</TT
 >.
 If the latest such file is a <TT
 CLASS="filename"
@@ -34949,7 +35272,7 @@ CLASS="filename"
 >
 and <TT
 CLASS="filename"
->"bar.lisp"</TT
+>#P"bar.lisp"</TT
 >, and the latter requires the
 former, you can write in your <TT
 CLASS="filename"
@@ -35001,7 +35324,9 @@ CLASS="programlisting"
 ></TR
 ></TABLE
 >
-Thus, you do not need to <A
+Thus, you do not need to <TT
+CLASS="sexp"
+>(<A
 HREF="http://www.lisp.org/HyperSpec/Body/fun_load.html"
 TARGET="_top"
 ><TT
@@ -35010,18 +35335,23 @@ CLASS="function"
 ></A
 > <TT
 CLASS="filename"
->"foo"</TT
+>#P"foo"</TT
+>)</TT
 >
-in order to <A
+in order to <TT
+CLASS="sexp"
+>(<A
 HREF="http://www.lisp.org/HyperSpec/Body/fun_compile-file.html"
 TARGET="_top"
 ><TT
 CLASS="function"
 >COMPILE-FILE</TT
 ></A
-> <TT
+>
+ <TT
 CLASS="filename"
->"bar.lisp"</TT
+>#P"bar.lisp"</TT
+>)</TT
 >.
 If memory is tight, and if <TT
 CLASS="filename"
@@ -35058,12 +35388,16 @@ TARGET="_top"
 CLASS="function"
 >LOAD</TT
 ></A
-> has two additional keywords <TT
+> has three additional keywords <TT
 CLASS="constant"
 >:ECHO</TT
-> and <TT
+>, <TT
 CLASS="constant"
 >:COMPILING</TT
+>, and
+ <TT
+CLASS="constant"
+>:EXTRA-FILE-TYPES</TT
 >.</P
 ><P
 ALIGN="justify"
@@ -35104,6 +35438,10 @@ CLASS="constant"
 > <TT
 CLASS="constant"
 >:COMPILING</TT
+>
+ <TT
+CLASS="constant"
+>:EXTRA-FILE-TYPES</TT
 >)</TT
 ></P
 ><P
@@ -35220,7 +35558,7 @@ CLASS="varname"
 CLASS="emphasis"
 ><TT
 CLASS="varname"
->custom:*load-echo*</TT
+>CUSTOM:*LOAD-ECHO*</TT
 ></B
 >, which is
   initially <A
@@ -35259,7 +35597,7 @@ CLASS="function"
 CLASS="emphasis"
 ><TT
 CLASS="varname"
->custom:*load-compiling*</TT
+>CUSTOM:*LOAD-COMPILING*</TT
 ></B
 >,
   which is initially <A
@@ -35269,8 +35607,47 @@ TARGET="_top"
 CLASS="constant"
 >NIL</TT
 ></A
->.
-</P
+>.</P
+></DD
+><DT
+><TT
+CLASS="constant"
+>:EXTRA-FILE-TYPES</TT
+> <A
+HREF="http://www.lisp.org/HyperSpec/Body/syscla_list.html"
+TARGET="_top"
+><TT
+CLASS="classname"
+>LIST</TT
+></A
+></DT
+><DD
+><P
+ALIGN="justify"
+>Specifies the additional file types considered for
+  loading, in addition to <B
+CLASS="emphasis"
+><TT
+CLASS="varname"
+>CUSTOM:*SOURCE-FILE-TYPES*</TT
+></B
+>
+  (which is initially <TT
+CLASS="sexp"
+>("lisp" "lsp" "cl")</TT
+>)
+  and <B
+CLASS="emphasis"
+><TT
+CLASS="varname"
+>CUSTOM:*COMPILED-FILE-TYPES*</TT
+></B
+>
+  (which is initially <TT
+CLASS="sexp"
+>("fas")</TT
+>).
+ </P
 ></DD
 ></DL
 ></DIV
@@ -35992,6 +36369,30 @@ CLASS="command"
 ALIGN="CENTER"
 VALIGN="MIDDLE"
 >abort to the next most recent <A
+HREF="http://www.lisp.org/HyperSpec/Body/sec_25-1-1.html"
+TARGET="_top"
+>read-eval-print loop</A
+></TD
+></TR
+><TR
+><TD
+ALIGN="CENTER"
+VALIGN="MIDDLE"
+><B
+CLASS="command"
+>Quit</B
+></TD
+><TD
+ALIGN="CENTER"
+VALIGN="MIDDLE"
+><B
+CLASS="command"
+>:q</B
+></TD
+><TD
+ALIGN="CENTER"
+VALIGN="MIDDLE"
+>quit to the top <A
 HREF="http://www.lisp.org/HyperSpec/Body/sec_25-1-1.html"
 TARGET="_top"
 >read-eval-print loop</A
@@ -55111,7 +55512,7 @@ ALIGN="justify"
 CLASS="sexp"
 >(<TT
 CLASS="function"
->ext:exit</TT
+>EXT:EXIT</TT
 >
  [<TT
 CLASS="replaceable"
@@ -55123,7 +55524,7 @@ CLASS="replaceable"
 CLASS="sexp"
 >(<TT
 CLASS="function"
->ext:quit</TT
+>EXT:QUIT</TT
 >
  [<TT
 CLASS="replaceable"
@@ -55135,7 +55536,7 @@ CLASS="replaceable"
 CLASS="sexp"
 >(<TT
 CLASS="function"
->ext:bye</TT
+>EXT:BYE</TT
 >
  [<TT
 CLASS="replaceable"
@@ -55171,8 +55572,8 @@ TARGET="_top"
 CLASS="command"
 >CLISP</B
 ></A
-> aborts with error status, i.e., the environment is informed
- that the <A
+> aborts with the supplied numeric error status, i.e.,
+ the environment is informed that the <A
 HREF="http://clisp.cons.org"
 TARGET="_top"
 ><B
@@ -55189,7 +55590,7 @@ CLASS="section"
 NAME="i18n">31.3. Extensions-1.3. Internationalization</H1
 ><P
 ALIGN="justify"
->Internationalization means to prepare a program so that it can
+>"Internationalization" means to prepare a program so that it can
 use multiple national languages and national cultural conventions
 without requiring further source code changes.  Localization means
 providing the data - mostly textual translations - necessary for an
@@ -55205,7 +55606,7 @@ CLASS="command"
 >CLISP</B
 ></A
 > is internationalized, and is localized for the languages
-English, German, French, Spanish and Dutch.
+English, German, French, Spanish, Dutch and Russian.
 <A
 HREF="http://clisp.cons.org"
 TARGET="_top"
@@ -55531,8 +55932,18 @@ CLASS="replaceable"
 ></A
 > allows several Lisp programs running in the same
 image to request translations independently of each other.</P
+><DIV
+CLASS="formalpara"
 ><P
-ALIGN="justify"
+><A
+NAME="textdomain"><B
+><A
+HREF="#textdomain"
+><TT
+CLASS="function"
+>I18N:TEXTDOMAIN</TT
+></A
+>. </B
 ><TT
 CLASS="sexp"
 >(<A
@@ -55638,8 +56049,19 @@ CLASS="replaceable"
 ></TT
 ></A
 >.</P
+></DIV
+><DIV
+CLASS="formalpara"
 ><P
-ALIGN="justify"
+><A
+NAME="textdomaindir"><B
+><A
+HREF="#textdomaindir"
+><TT
+CLASS="function"
+>I18N:TEXTDOMAINDIR</TT
+></A
+>. </B
 ><TT
 CLASS="sexp"
 >(<A
@@ -55648,8 +56070,7 @@ HREF="#textdomaindir"
 CLASS="function"
 >I18N:TEXTDOMAINDIR</TT
 ></A
->
-<A
+> <A
 HREF="#domain"
 ><TT
 CLASS="replaceable"
@@ -55658,12 +56079,13 @@ CLASS="replaceable"
 ></TT
 ></A
 >)</TT
-> is a place that returns the base
-directory, called <TT
+>
+is a place that returns the base directory, called
+<TT
 CLASS="filename"
 >TEXTDOMAINDIR</TT
-> above, where the
-message catalogs for the given <A
+> above, where the message
+catalogs for the given <A
 HREF="#domain"
 ><TT
 CLASS="replaceable"
@@ -55707,6 +56129,7 @@ are not saved in a <A
 HREF="#image"
 >memory image</A
 >.</P
+></DIV
 ></DIV
 ><DIV
 CLASS="section"
@@ -56130,7 +56553,15 @@ CLASS="constant"
 ><TT
 CLASS="constant"
 >NEDERLANDS</TT
-> (i.e. Dutch)</TD
+> (i.e., Dutch)</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="constant"
+>&#1056;&#1059;&#1057;&#1057;&#1050;&#1048;&#1049;</TT
+>
+  (i.e. Russian)</TD
 ></TR
 ></TBODY
 ></TABLE
@@ -62175,7 +62606,8 @@ CLASS="section"
 NAME="final">31.7. Extensions-1.7. Finalization</H1
 ><P
 ALIGN="justify"
->Calling <TT
+>Calling
+ <TT
 CLASS="sexp"
 >(<A
 HREF="#final"
@@ -62188,18 +62620,18 @@ CLASS="replaceable"
 ><I
 >object</I
 ></TT
->
- <TT
+> <TT
 CLASS="replaceable"
 ><I
 >function</I
 ></TT
 >)</TT
-> has the effect that when the specified object is
- being <A
+>
+ has the effect that when the specified object is being <A
 HREF="#gc"
 >garbage-collect</A
->ed, <TT
+>ed,
+ <TT
 CLASS="sexp"
 >(<A
 HREF="http://www.lisp.org/HyperSpec/Body/fun_funcall.html"
@@ -62213,17 +62645,18 @@ CLASS="replaceable"
 ><I
 >function</I
 ></TT
->
- <TT
+> <TT
 CLASS="replaceable"
 ><I
 >object</I
 ></TT
 >)</TT
-> will be executed.</P
+>
+ will be executed.</P
 ><P
 ALIGN="justify"
->Calling <TT
+>Calling
+ <TT
 CLASS="sexp"
 >(<A
 HREF="#final"
@@ -62242,26 +62675,27 @@ CLASS="replaceable"
 >function</I
 ></TT
 >
- <TT
+                       <TT
 CLASS="replaceable"
 ><I
 >guardian</I
 ></TT
 >)</TT
-> has a similar effect,
- but only as long as the "guardian" has not been <A
+>
+ has a similar effect, but only as long as the "guardian" has not been
+ <A
 HREF="#gc"
 >garbage-collect</A
->ed: When <TT
+>ed: when <TT
 CLASS="replaceable"
 ><I
 >object</I
 ></TT
->
- is being <A
+> is being <A
 HREF="#gc"
 >garbage-collect</A
->ed, <TT
+>ed,
+ <TT
 CLASS="sexp"
 >(<A
 HREF="http://www.lisp.org/HyperSpec/Body/fun_funcall.html"
@@ -62281,14 +62715,15 @@ CLASS="replaceable"
 >object</I
 ></TT
 >
- <TT
+                       <TT
 CLASS="replaceable"
 ><I
 >guardian</I
 ></TT
 >)</TT
-> will be executed.  If
- the guardian is <A
+>
+ will be executed.
+ If the guardian is <A
 HREF="#gc"
 >garbage-collect</A
 >ed before <TT
@@ -62311,14 +62746,16 @@ HREF="#gc"
 >garbage-collect</A
 >ed"</SPAN
 >
- is not defined deterministically.  (Actually, it might possibly never
- occur.)  It denotes a moment at which no references to <TT
+ is not defined deterministically.
+ (Actually, it might possibly never occur.)
+ It denotes a moment at which no references to <TT
 CLASS="replaceable"
 ><I
 >object</I
 ></TT
 > exist
- from other Lisp objects.  When the <TT
+ from other Lisp objects.
+ When the <TT
 CLASS="replaceable"
 ><I
 >function</I
@@ -62328,14 +62765,14 @@ CLASS="replaceable"
 ><I
 >object</I
 ></TT
-> (and
- possibly <TT
+>
+ (and possibly <TT
 CLASS="replaceable"
 ><I
 >guardian</I
 ></TT
->) enter the "arena of live
- Lisp objects" again.</P
+>)
+ enter the "arena of live Lisp objects" again.</P
 ><P
 ALIGN="justify"
 >No finalization request will be executed more than once.</P
@@ -62352,19 +62789,19 @@ ALIGN="justify"
 CLASS="emphasis"
 ><TT
 CLASS="varname"
->custom:*prompt*</TT
+>CUSTOM:*PROMPT*</TT
 ></B
-> controls the
- appearance of the prompt.  When its value is a function, it is called
- and its value is printed with <A
+> controls
+ the appearance of the prompt.  When its value is a function, it is
+ called and its value is printed with <A
 HREF="http://www.lisp.org/HyperSpec/Body/fun_writecm_p_rintcm_princ.html"
 TARGET="_top"
 ><TT
 CLASS="function"
 >PRINC</TT
 ></A
->.  Otherwise, the value itself is
- printed with <A
+>.  Otherwise, the value
+ itself is printed with <A
 HREF="http://www.lisp.org/HyperSpec/Body/fun_writecm_p_rintcm_princ.html"
 TARGET="_top"
 ><TT
@@ -62374,11 +62811,11 @@ CLASS="function"
 >.  The default value of
  <TT
 CLASS="varname"
->custom:*prompt*</TT
+>CUSTOM:*PROMPT*</TT
 > prints
  <TT
 CLASS="prompt"
->"package[nn]&#62; "</TT
+>"package[n]&#62; "</TT
 > where
  <TT
 CLASS="replaceable"
@@ -62403,22 +62840,31 @@ CLASS="constant"
 ></A
 > (it is assumed that in
  the latter case you would want to keep in mind that your current
- package is something weird); and <TT
+ package is something weird);
+ and <TT
 CLASS="replaceable"
 ><I
->nn</I
+>n</I
 ></TT
-> is the
- ordinal number of the current prompt (hopefully, it will remain
- finite).  To help you in constructing your own fancy prompts, two
- functions are provided: <B
-CLASS="emphasis"
-><TT
+> is the ordinal number of the current prompt
+ (hopefully, it will remain finite).
+ To help you in constructing your own fancy prompts, two
+ functions and one variable are provided:
+ <P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+>function
+    <TT
 CLASS="function"
->ext:prompt-new-package</TT
-></B
->,
- returning <A
+>EXT:PROMPT-NEW-PACKAGE</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>returns <A
 HREF="http://www.lisp.org/HyperSpec/Body/var_stpackagest.html"
 TARGET="_top"
 ><TT
@@ -62432,28 +62878,41 @@ TARGET="_top"
 CLASS="constant"
 >NIL</TT
 ></A
-> if the current package is the same as
- it was initially; and <B
-CLASS="emphasis"
-><TT
+> if the current
+     package is the same as it was initially
+  </P
+></DD
+><DT
+>function
+    <TT
 CLASS="function"
->ext:package-short-name</TT
-></B
->
- taking one argument, a package, and returning its shortest name or
- nickname.  Also, a variable <B
-CLASS="emphasis"
-><TT
+>EXT:PACKAGE-SHORT-NAME</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>takes one argument, a package, and returns its
+     shortest name or nickname</P
+></DD
+><DT
+>variable <TT
 CLASS="varname"
->ext:*command-index*</TT
-></B
->
- contains the current prompt number, it is your responsibility to
- increment it
- (this variable is bound to 0 before saving the <A
+>EXT:*COMMAND-INDEX*</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>contains the current prompt number;
+     it is your responsibility to increment it
+     (this variable is bound to 0 before saving the <A
 HREF="#image"
 >memory image</A
->).</P
+>).
+  </P
+></DD
+></DL
+></DIV
+></P
 ></DIV
 ><DIV
 CLASS="section"
@@ -62474,7 +62933,7 @@ HREF="#ansi-cl"
 >]</A
 > features are turned off by default for backwards
  compatibility.
- They can be switched on, all at once by setting the <A
+ They can be switched on, all at once, by setting the <A
 HREF="http://www.lisp.org/HyperSpec/Body/mac_define-symbol-macro.html"
 TARGET="_top"
 ><TT
@@ -62624,7 +63083,7 @@ CLASS="constant"
 ></UL
 ><P
 ALIGN="justify"
->Please note that if you run <A
+>Note that if you run <A
 HREF="http://clisp.cons.org"
 TARGET="_top"
 ><B
@@ -62638,8 +63097,8 @@ TARGET="_top"
 CLASS="option"
 >-ansi</TT
 ></A
-> switch or
- set the <A
+> switch or set
+ the <A
 HREF="http://www.lisp.org/HyperSpec/Body/mac_define-symbol-macro.html"
 TARGET="_top"
 ><TT
@@ -62659,26 +63118,27 @@ TARGET="_top"
 CLASS="constant"
 >T</TT
 ></A
-> and save <A
+> and then save <A
 HREF="#image"
 >memory image</A
->, then all
- subsequent invocations of <A
+>,
+ then all subsequent invocations of <A
 HREF="http://clisp.cons.org"
 TARGET="_top"
 ><B
 CLASS="command"
 >CLISP</B
 ></A
-> with this image will be as if with
- <A
+> with this image
+ will be as if with <A
 HREF="clisp.html#opt-ansi"
 TARGET="_top"
 ><TT
 CLASS="option"
 >-ansi</TT
 ></A
-> (regardless whether you actually supply the <A
+>
+ (regardless whether you actually supply the <A
 HREF="clisp.html#opt-ansi"
 TARGET="_top"
 ><TT
@@ -62706,8 +63166,8 @@ TARGET="_top"
 CLASS="constant"
 >NIL</TT
 ></A
->,
- or invoke <A
+>, or invoke
+ <A
 HREF="http://clisp.cons.org"
 TARGET="_top"
 ><B
@@ -62721,8 +63181,8 @@ TARGET="_top"
 CLASS="option"
 >-traditional</TT
 ></A
-> switch,
- reversing the above settings, i.e.,</P
+> switch, reversing the above
+ settings, i.e.,</P
 ><P
 ></P
 ><UL
@@ -63045,7 +63505,7 @@ CLASS="formalpara"
 NAME="with-collect"><B
 ><TT
 CLASS="function"
->ext:with-collect</TT
+>EXT:WITH-COLLECT</TT
 >. </B
 >Similar to the <A
 HREF="http://www.lisp.org/HyperSpec/Body/mac_loop.html"
@@ -63054,20 +63514,26 @@ TARGET="_top"
 CLASS="function"
 >LOOP</TT
 ></A
->'s <TT
+>'s
+ <A
+HREF="http://www.lisp.org/HyperSpec/Body/sec_6-1-3.html"
+TARGET="_top"
+><TT
 CLASS="constant"
 >collect</TT
-> instruction,
- except that it is more "Lispy" in appearance and can appear arbitrarily
- deep.  It defines local macros (with <A
+></A
+>
+ construct, except that it is looks more "Lispy" and can appear
+ arbitrarily deep.  It defines local macros (with <A
 HREF="http://www.lisp.org/HyperSpec/Body/speope_fletcm_scm_macrolet.html"
 TARGET="_top"
 ><TT
 CLASS="function"
 >MACROLET</TT
 ></A
->) which collect objects
- given to it in lists, which are then returned as multiple values.  E.g.,
+>) which
+ collect objects given to it into lists, which are then returned as
+ multiple values.  E.g.,
 
 <TABLE
 BORDER="0"
@@ -63129,7 +63595,7 @@ CLASS="function"
 >APROPOS</TT
 ></A
 > "" "CUSTOM")</TT
->
+>.
 </P
 ></DIV
 ></DIV
@@ -64654,15 +65120,18 @@ CLASS="command"
 ></A
 > system facilities.
 The syntax of these regular expressions is described in many places,
-such as your local <TT
-CLASS="function"
->regexp(5)</TT
+such as your local <A
+HREF="http://www.opengroup.org/onlinepubs/007904975/functions/regex.h.html"
+TARGET="_top"
+><TT
+CLASS="filename"
+>regex.h</TT
+></A
 > manual and <A
 HREF="http://www.gnu.org/software/emacs/emacs.html"
 TARGET="_top"
 >Emacs</A
->
-info pages.</P
+> info pages.</P
 ><P
 ALIGN="justify"
 >The <A
@@ -70477,91 +70946,6 @@ ALIGN="justify"
 ></DL
 ></DIV
 ><P
-ALIGN="justify"
->A function parameter's <A
-HREF="#param-mode"
-><TT
-CLASS="replaceable"
-><I
->PARAM-MODE</I
-></TT
-></A
-> may be</P
-><P
-></P
-><DIV
-CLASS="variablelist"
-><DL
-><DT
-><TT
-CLASS="constant"
->:IN</TT
-> (means: read-only):</DT
-><DD
-><P
-ALIGN="justify"
->The caller passes information to the callee.
-  </P
-></DD
-><DT
-><TT
-CLASS="constant"
->:OUT</TT
-> (means: write-only):</DT
-><DD
-><P
-ALIGN="justify"
->The callee passes information back to the caller on
-   return.  When viewed as a Lisp function, there is no Lisp argument
-   corresponding to this, instead it means an additional return value.
-  </P
-></DD
-><DT
-><TT
-CLASS="constant"
->:IN-OUT</TT
-> (means: read-write):</DT
-><DD
-><P
-ALIGN="justify"
->Information is passed from the caller to the callee
-   and then back to the caller.  When viewed as a Lisp function, the
-   <TT
-CLASS="constant"
->:OUT</TT
-> value is returned as an additional multiple value.
-  </P
-></DD
-></DL
-></DIV
-><P
-ALIGN="justify"
->The default is <TT
-CLASS="constant"
->:IN</TT
->.</P
-><P
-ALIGN="justify"
->[Currently, only <TT
-CLASS="constant"
->:IN</TT
-> is fully implemented.  <TT
-CLASS="constant"
->:OUT</TT
-> works only
- with <A
-HREF="#allocation"
-><TT
-CLASS="replaceable"
-><I
->ALLOCATION</I
-></TT
-></A
-> = <TT
-CLASS="constant"
->:ALLOCA</TT
->.]</P
-><P
 ></P
 ><DIV
 CLASS="variablelist"
@@ -70753,7 +71137,99 @@ CLASS="section"
 ><HR><H2
 CLASS="section"
 ><A
-NAME="dffi-examples">32.3.8. Examples</H2
+NAME="param-mode">32.3.8. Parameter Mode</H2
+><P
+ALIGN="justify"
+>A function parameter's <A
+HREF="#param-mode"
+><TT
+CLASS="replaceable"
+><I
+>PARAM-MODE</I
+></TT
+></A
+> may be</P
+><P
+></P
+><DIV
+CLASS="variablelist"
+><DL
+><DT
+><TT
+CLASS="constant"
+>:IN</TT
+> (means: read-only):</DT
+><DD
+><P
+ALIGN="justify"
+>The caller passes information to the callee.
+  </P
+></DD
+><DT
+><TT
+CLASS="constant"
+>:OUT</TT
+> (means: write-only):</DT
+><DD
+><P
+ALIGN="justify"
+>The callee passes information back to the caller on
+   return.  When viewed as a Lisp function, there is no Lisp argument
+   corresponding to this, instead it means an additional return value.
+  </P
+></DD
+><DT
+><TT
+CLASS="constant"
+>:IN-OUT</TT
+> (means: read-write):</DT
+><DD
+><P
+ALIGN="justify"
+>Information is passed from the caller to the callee
+   and then back to the caller.  When viewed as a Lisp function, the
+   <TT
+CLASS="constant"
+>:OUT</TT
+> value is returned as an additional multiple value.
+  </P
+></DD
+></DL
+></DIV
+><P
+ALIGN="justify"
+>The default is <TT
+CLASS="constant"
+>:IN</TT
+>.</P
+><P
+ALIGN="justify"
+>[Currently, only <TT
+CLASS="constant"
+>:IN</TT
+> is fully implemented.  <TT
+CLASS="constant"
+>:OUT</TT
+> works only
+ with <A
+HREF="#allocation"
+><TT
+CLASS="replaceable"
+><I
+>ALLOCATION</I
+></TT
+></A
+> = <TT
+CLASS="constant"
+>:ALLOCA</TT
+>.]</P
+></DIV
+><DIV
+CLASS="section"
+><HR><H2
+CLASS="section"
+><A
+NAME="dffi-examples">32.3.9. Examples</H2
 ><DIV
 CLASS="example"
 ><A
@@ -70943,7 +71419,7 @@ CLASS="command"
 >C</B
 ></A
 > systems, <A
-HREF="http://www.opengroup.org/onlinepubs/007904975/functions/basedefs/stdlib.h.html"
+HREF="http://www.opengroup.org/onlinepubs/007904975/functions/stdlib.h.html"
 TARGET="_top"
 ><TT
 CLASS="filename"
@@ -75177,7 +75653,7 @@ CLASS="variablelist"
 CLASS="sexp"
 >(<TT
 CLASS="function"
->posix:resolve-host-ipaddr</TT
+>POSIX:RESOLVE-HOST-IPADDR</TT
 >
     <A
 HREF="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
@@ -75240,6 +75716,21 @@ CLASS="emphasis"
 CLASS="filename"
 >${windir}/system32/etc/hosts</TT
 > on a Win32 system).
+   This is an interface to <A
+HREF="http://www.opengroup.org/onlinepubs/007904975/functions/gethostbyname.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>gethostbyname</TT
+></A
+>/<A
+HREF="http://www.opengroup.org/onlinepubs/007904975/functions/gethostbyaddr.html"
+TARGET="_top"
+><TT
+CLASS="function"
+>gethostbyaddr</TT
+></A
+>.
   </P
 ></DD
 ><DT
@@ -75247,7 +75738,7 @@ CLASS="filename"
 CLASS="sexp"
 >(<TT
 CLASS="function"
->posix:file-stat</TT
+>POSIX:FILE-STAT</TT
 > <TT
 CLASS="replaceable"
 ><I
@@ -75276,8 +75767,8 @@ CLASS="replaceable"
 ><I
 >pathname</I
 ></TT
-> can
-   be a <A
+> can be a
+   <A
 HREF="http://www.lisp.org/HyperSpec/Body/syscla_stream.html"
 TARGET="_top"
 ><TT
@@ -75298,24 +75789,24 @@ TARGET="_top"
 CLASS="classname"
 >STRING</TT
 ></A
-> or a
-   <A
+> or a <A
 HREF="http://www.lisp.org/HyperSpec/Body/syscla_number.html"
 TARGET="_top"
 ><TT
 CLASS="classname"
 >NUMBER</TT
 ></A
-> (on a <A
+>
+   (on a <A
 HREF="http://www.UNIX-systems.org/online.html"
 TARGET="_top"
 ><B
 CLASS="emphasis"
 >UNIX</B
 ></A
-> system, meaning file descriptor).  The
-   first slot of the struct returned is the string or the number on which
-   <A
+> system, meaning file descriptor).
+   The first slot of the struct returned is the string or the number on
+   which <A
 HREF="http://www.opengroup.org/onlinepubs/007904975/functions/stat.html"
 TARGET="_top"
 ><TT
@@ -75336,22 +75827,21 @@ TARGET="_top"
 CLASS="function"
 >lstat</TT
 ></A
->
-   was called.  The other 13 slots are numbers, members of the stat
-   struct: device, inode, protection, number of hard links, owner's UID,
-   owner's GID, device type, total size (bytes), blocksize for
-   filesystem I/O, number of blocks allocated, atime, mtime, ctime (as
-   the number of seconds since 1900-01-01).  If the system does not
-   support a particular field (e.g., Win32 does not have hard links),
-   <A
+> was called.  The other 13 slots are
+   numbers, members of the stat struct: device, inode, protection,
+   number of hard links, owner's UID, owner's GID, device type, total
+   size (bytes), blocksize for filesystem I/O, number of blocks
+   allocated, atime, mtime, ctime (as the number of seconds since
+   1900-01-01).  If the system does not support a particular field
+   (e.g., Win32 does not have hard links), <A
 HREF="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 TARGET="_top"
 ><TT
 CLASS="constant"
 >NIL</TT
 ></A
-> (or the default, like 1 for the number of hard links for Win32
-   or DOS) is returned.
+> (or the default, like 1
+   for the number of hard links for Win32 or DOS) is returned.
    </P
 ><P
 ALIGN="justify"
@@ -75370,7 +75860,7 @@ CLASS="emphasis"
 CLASS="sexp"
 >(<TT
 CLASS="function"
->posix:user-data</TT
+>POSIX:USER-DATA</TT
 >
     <A
 HREF="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
@@ -75389,9 +75879,12 @@ CLASS="replaceable"
 ><DD
 ><P
 ALIGN="justify"
->Return the passwd struct (name, encoded password,
-   UID, GID, full name, home directory, shell).  When
-   <TT
+>Return the <SPAN
+CLASS="type"
+>passwd</SPAN
+> struct (name, encoded
+   password, UID, GID, full name, home directory, shell).
+   When <TT
 CLASS="replaceable"
 ><I
 >user</I
@@ -75403,8 +75896,8 @@ TARGET="_top"
 CLASS="constant"
 >NIL</TT
 ></A
->, return all users.  When
-   <TT
+>, return all users.
+   When <TT
 CLASS="replaceable"
 ><I
 >user</I
@@ -75413,9 +75906,9 @@ CLASS="replaceable"
 CLASS="constant"
 >:DEFAULT</TT
 > or
-   not supplied, return the information about the current user.  If the
-   system does not support a particular field (e.g., Win32 does not have
-   a concept of a shell), <A
+   not supplied, return the information about the current user.
+   If the system does not support a particular field (e.g., Win32 does
+   not have a concept of a shell), <A
 HREF="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 TARGET="_top"
 ><TT
@@ -75452,21 +75945,28 @@ CLASS="function"
 ><P
 ALIGN="justify"
 >Return a struct describing the OS, derived from
-   <TT
+   <A
+HREF="http://www.opengroup.org/onlinepubs/007904975/functions/uname.html"
+TARGET="_top"
+><TT
 CLASS="function"
->uname(2)</TT
-> and <TT
+>uname</TT
+></A
+> and <A
+HREF="http://www.opengroup.org/onlinepubs/007904975/functions/sysconf.html"
+TARGET="_top"
+><TT
 CLASS="function"
->sysconf(3)</TT
->.
-  </P
+>sysconf</TT
+></A
+>.</P
 ></DD
 ><DT
 ><TT
 CLASS="sexp"
 >(<TT
 CLASS="function"
->posix:resource-usage-limits</TT
+>POSIX:RESOURCE-USAGE-LIMITS</TT
 >)</TT
 ></DT
 ><DD
@@ -75940,11 +76440,15 @@ CLASS="filename"
 CLASS="filename"
 >#P".fas"</TT
 > files,
- you can simply concatenate them (using <B
+ you can simply concatenate them (using <A
+HREF="http://www.opengroup.org/onlinepubs/007904975/utilities/cat.html"
+TARGET="_top"
+><B
 CLASS="command"
 >cat</B
->(1))
- into one file; the techniques then apply to that concatenated file.</P
+></A
+>) into one file;
+ the techniques then apply to that concatenated file.</P
 ><P
 ></P
 ><DIV
@@ -75993,10 +76497,14 @@ CLASS="replaceable"
 ></TR
 ></TABLE
 >
- and using <B
+ and using <A
+HREF="http://www.opengroup.org/onlinepubs/007904975/utilities/chmod.html"
+TARGET="_top"
+><B
 CLASS="command"
 >chmod</B
->(1) to make the script executable.
+></A
+> to make the script executable.
  <A
 HREF="http://clisp.cons.org"
 TARGET="_top"
@@ -78823,7 +79331,7 @@ NAME="gfdl">Appendix A. GNU Free Documentation License</H1
 ALIGN="justify"
 >Version 1.1, March 2000</P
 ><A
-NAME="AEN22073"><BLOCKQUOTE
+NAME="AEN22214"><BLOCKQUOTE
 CLASS="BLOCKQUOTE"
 ><P
 ALIGN="justify"
@@ -79345,7 +79853,7 @@ ALIGN="justify"
     a copy of the License in the document and put the following
     copyright and license notices just after the title page:</P
 ><A
-NAME="AEN22163"><BLOCKQUOTE
+NAME="AEN22304"><BLOCKQUOTE
 CLASS="BLOCKQUOTE"
 ><P
 ALIGN="justify"
