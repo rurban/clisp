@@ -1,5 +1,9 @@
 2003-12-19  Bruno Haible  <bruno@clisp.org>
 
+	* spvw_mmap.d (mprotect): Remove declaration. Needed for FreeBSD 5.
+
+2003-12-19  Bruno Haible  <bruno@clisp.org>
+
 	* clisp-link.in: Make 2001-10-23 patch more portable: Avoid repeated
 	backslashes inside backquotes.
 
