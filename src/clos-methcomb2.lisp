@@ -126,17 +126,11 @@
 ; 1. the arguments-lambda-list,
 ; 2. the list of variables contained therein.
 (defun check-em-arguments-option (option caller name)
-  (let* ((arguments-lambda-list (cdr option))
-         (arguments-lambda-list-without-whole
-           (if (and (consp arguments-lambda-list)
-                    (eq (car arguments-lambda-list) '&WHOLE)
-                    (consp (cdr arguments-lambda-list)))
-             (cddr arguments-lambda-list)
-             arguments-lambda-list)))
-    (multiple-value-bind (reqvars optvars optinits optsvars rest
-                          keyp keywords keyvars keyinits keysvars
-                          allowp auxvars auxinits)
-        (analyze-lambdalist arguments-lambda-list-without-whole
+  (let ((arguments-lambda-list (cdr option)))
+    (multiple-value-bind (whole reqvars optvars optinits optsvars rest
+                          keyp keywords keyvars keyinits keysvars allowp
+                          auxvars auxinits)
+        (sys::analyze-method-combination-lambdalist arguments-lambda-list
           #'(lambda (errorstring &rest arguments)
               (error-of-type (if (eq caller 'define-method-combination)
                                'sys::source-program-error
@@ -144,14 +138,11 @@
                 (TEXT "~S ~S: invalid ~S lambda-list: ~A")
                 caller name ':arguments
                 (apply #'format nil errorstring arguments))))
-       (declare (ignore optinits keyp keywords keyinits allowp auxinits))
-       (values
-         arguments-lambda-list
-         (remove 0 (append (if (eq (first arguments-lambda-list) '&WHOLE)
-                             (list (second arguments-lambda-list))
-                             '())
-                           reqvars optvars optsvars (list rest)
-                           keyvars keysvars auxvars))))))
+     (declare (ignore optinits keyp keywords keyinits allowp auxinits))
+     (values
+       arguments-lambda-list
+       (remove 0 (append (list whole) reqvars optvars optsvars (list rest)
+                         keyvars keysvars auxvars))))))
 
 ; Check the effective-method option (:GENERIC-FUNCTION ...).
 ; Returns the generic-function variable contained therein.
@@ -360,27 +351,27 @@
                  (when combination-arguments-lambda-list
                    ;; Use an inline lambda to assign values to the variables
                    ;; of the combination-arguments-lambda-list.
-                   (let ((whole-var nil)
-                         (whole-form nil))
-                     (when (eq (first combination-arguments-lambda-list) '&WHOLE)
-                       (setq whole-var (second combination-arguments-lambda-list))
-                       (setq whole-form (list* (ecase apply-fun
-                                                 (APPLY 'LIST*)
-                                                 (FUNCALL 'LIST))
-                                               apply-args))
-                       (setq combination-arguments-lambda-list
-                             (cddr combination-arguments-lambda-list)))
-                     (multiple-value-bind (reqvars optvars optinits optsvars rest
-                                           keyp keywords keyvars keyinits keysvars
-                                           allowp auxvars auxinits)
-                         (analyze-lambdalist combination-arguments-lambda-list
-                           #'(lambda (errorstring &rest arguments)
-                               (error (TEXT "In ~S ~S lambda list: ~A")
-                                      combination ':arguments
-                                      (apply #'format nil errorstring arguments))))
-                       (declare (ignore optinits optsvars 
-                                        keywords keyvars keyinits keysvars
-                                        allowp auxvars auxinits))
+                   (multiple-value-bind (whole reqvars optvars optinits optsvars rest
+                                         keyp keywords keyvars keyinits keysvars
+                                         allowp auxvars auxinits)
+                       (sys::analyze-method-combination-lambdalist combination-arguments-lambda-list
+                         #'(lambda (errorstring &rest arguments)
+                             (error (TEXT "In ~S ~S lambda list: ~A")
+                                    combination ':arguments
+                                    (apply #'format nil errorstring arguments))))
+                     (declare (ignore optinits optsvars 
+                                      keywords keyvars keyinits keysvars
+                                      allowp auxvars auxinits))
+                     (let ((whole-var nil)
+                           (whole-form nil))
+                       (unless (eql whole 0)
+                         (setq whole-var whole)
+                         (setq whole-form (list* (ecase apply-fun
+                                                   (APPLY 'LIST*)
+                                                   (FUNCALL 'LIST))
+                                                 apply-args))
+                         (setq combination-arguments-lambda-list
+                               (cddr combination-arguments-lambda-list)))
                        ;; The combination-arguments-lambda-list has an implicit
                        ;; &ALLOW-OTHER-KEYS.
                        (when (and (memq '&KEY combination-arguments-lambda-list)
