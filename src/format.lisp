@@ -774,12 +774,11 @@
              (round-down-p nil) ; T if last digit is to be rounded off
              (round-up-p nil)) ; T if last digit is to be rounded up
         (setf (fill-pointer digit-string) 0) ; empty the digit-string
-        (cond
-          ((> expon 0)
-           (setq numerator (ash significand expon))
-           (setq round-up-1 (setq round-down-1 (ash 1 expon))))
-          ((< expon 0)          ; round-up-1 = round-down-1 = 1
-           (setq denominator (ash 1 (- expon)))))
+        (cond ((> expon 0)
+               (setq numerator (ash significand expon))
+               (setq round-up-1 (setq round-down-1 (ash 1 expon))))
+              ((< expon 0)          ; round-up-1 = round-down-1 = 1
+               (setq denominator (ash 1 (- expon)))))
         ;; number = numerator/denominator
         (when (= significand (ash 1 mantprec))
           ;; If Significand=2^mantprec, round-down-1 can be halved.
@@ -787,7 +786,7 @@
           (setq round-up-1 (ash round-up-1 1))
           (setq numerator (ash numerator 1))
           (setq denominator (ash denominator 1)))
-        ;; Default-Behaviour: rounding-unit = one unit in the last
+        ;; default behavior: rounding-unit = one unit in the last
         ;; BINARY-digit.
         ;; number = numerator/denominator
         ;; work scaling factor k into the number (ref. CLTL p.394)
@@ -796,12 +795,12 @@
         ;; Retain ratio between round-up-1/round-down-1 and numerator.
         (when k
           (if (< k 0)
-            (let ((skal-faktor (expt 10 (- k))))
-              (setq denominator (* denominator skal-faktor)))
-            (let ((skal-faktor (expt 10 k)))
-              (setq numerator (* numerator skal-faktor))
-              (setq round-up-1 (* round-up-1 skal-faktor))
-              (setq round-down-1 (* round-down-1 skal-faktor)))))
+            (let ((scal-factor (expt 10 (- k))))
+              (setq denominator (* denominator scal-factor)))
+            (let ((scal-factor (expt 10 k)))
+              (setq numerator (* numerator scal-factor))
+              (setq round-up-1 (* round-up-1 scal-factor))
+              (setq round-down-1 (* round-down-1 scal-factor)))))
         ;; adjust to >= 1/10 : (multiply numerator with 10 at a time and
         ;; plan for an additional leading 0)
         (do ()
@@ -821,8 +820,7 @@
               ((< (+ (ash numerator 1) round-up-1) (ash denominator 1)))
             (setq denominator (* denominator 10))
             (setq posn (1+ posn)))
-          ;; if d or width is specified:
-          ;; calculate last-pos (german: last position)
+          ;; if d or width is specified: calculate last-pos 
           (if d
             ;; if dmin is specified: (min (- d) (- dmin)) = (- (max d dmin)).
             ;; else (- d).
