@@ -220,8 +220,7 @@ for SELECT statements.
   (setf (db-fetch-called *oracle-connection*) nil)
   (setf (db-pending-row *oracle-connection*) nil)
   (setf (db-colinfo *oracle-connection*) nil)
-  ; Don't output the stack here - it'll be too big
-  (check-success nil)
+  (check-success)
 
   ; Get the row count for the result
   (let ((result (row-count)))
@@ -726,9 +725,9 @@ Argument: none
 
 ; CHECK-SUCCESS
 ; Check Oracle success code after calling a function.  Assumes (check-connection) was called!
-(defun check-success (&optional (show-stack t))
+(defun check-success ()
   (if (not (lisp-truth (oracle_success (curconn))))
-      (db-error (oracle_last_error (curconn)) show-stack))
+      (db-error (oracle_last_error (curconn))))
   t)
 
 ; Convert Oracle type based on sqlcol data type.  Oracle numerics are converted
@@ -1029,30 +1028,8 @@ Argument: none
 ; Return newline
 (defun nl () (format nil "~%"))
 
-; DB-ERROR - Throw an error, optionally appending the stack by default
-(defun db-error (message &optional (show-stack t))
-  (when show-stack
-	(setf message (cat message (nl) "Call stack:" (nl) (get-stack-as-string))))
+; DB-ERROR - Throw an error
+(defun db-error (message)
   (error message))
-
-; GET-STACK-AS-STRING - Get the stack as a string for inclusion error message
-(defun get-stack-as-string (&optional (nskip 0))
-  ; Skip to first relevant EVAL frame
-  (do* ((result (make-string-output-stream))
-	(mode 4)
-	(frame (system::the-frame) (system::frame-up-1 frame mode))
-	(last (system::frame-up frame 5))
-	(count 0 (1+ count))
-	(at-last nil))
-       (at-last (get-output-stream-string result))
-       (cond ((< count nskip) )
-	     ((= count nskip)
-	      (system::describe-frame result frame)
-	      (setf mode 5))
-	     ((equal frame last)
-	      (setf at-last t))
-	     (t
-	      (system::describe-frame result frame)))))
-
 
 ; End of oracle.lisp
