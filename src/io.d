@@ -9460,14 +9460,15 @@ LISPFUN(pprint_newline,1,1,norest,nokey,0,NIL)
     pushSTACK(S(pprint_newline));
     fehler(type_error,GETTEXT("~: argument ~ should be ~, ~, ~ or ~."));
   }
-  switch (ppn_type) {
-    case PPRINT_NEWLINE_LINEAR: # FIXME
-    case PPRINT_NEWLINE_FILL:   # FIXME
-    case PPRINT_NEWLINE_MISER:  # FIXME
-    case PPRINT_NEWLINE_MANDATORY:
-      terpri(&STACK_0);
-      break;
-  }
+  if (PPHELP_STREAM_P(STACK_0) && test_value(S(print_pretty)))
+    switch (ppn_type) {
+      case PPRINT_NEWLINE_LINEAR: # FIXME
+      case PPRINT_NEWLINE_FILL:   # FIXME
+      case PPRINT_NEWLINE_MISER:  # FIXME
+      case PPRINT_NEWLINE_MANDATORY:
+        terpri(&STACK_0);
+        break;
+    }
   skipSTACK(2);
   value1=NIL;
   mv_count=1;
@@ -9485,9 +9486,12 @@ LISPFUNN(ppprint_logical_block,3)
 {
   test_ostream();
   if (listp(STACK_1)) {
-    Symbol_value(S(prin_pprinter))=STACK_2; # SYS::*PRIN-PPRINTER* FIXMI: bind, not set!!!
-    pr_enter(&STACK_0,STACK_1,&pprint_lisp);
-    Symbol_value(S(prin_pprinter))=unbound;
+    var object stream = STACK_0;
+    var object obj = STACK_1;
+    var object func = STACK_2;
+    dynamic_bind(S(prin_pprinter),func); # modifies STACK
+    pr_enter(&stream,obj,&pprint_lisp);
+    dynamic_unbind();
   } else
     pr_enter(&STACK_0,STACK_1,&prin_object);
   skipSTACK(3);
