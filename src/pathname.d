@@ -1445,7 +1445,7 @@ local boolean legal_logical_word_char(ch)
 #endif
 
 # Type for PARSE-NAMESTRING:
-# The stringe is passed through.
+# State while the string is being parsed character by character.
   typedef struct {
     uintL index; # index (incl. offset)
     object FNindex; # index as a fixnum
@@ -1474,7 +1474,7 @@ local object parse_logical_word(z,subdirp)
   var zustand* z;
   var boolean subdirp;
   {
-    var zustand startz; startz = *z; # Start-Zustand
+    var zustand startz = *z; # Start-Zustand
     var chart ch;
     # Kommt eine Folge von alphanumerischen Zeichen oder '*',
     # keine zwei '*' adjazent (ausgenommen "**", falls subdirp),
@@ -1544,12 +1544,14 @@ local boolean all_digits(string)
     return TRUE;
   }
 
-local object logical_host(zp,string)
-  zustand *zp;
-  object string;
+# Attempt to parse a logical host name string, starting at a given state.
+local object parse_logical_host_prefix (zustand* zp, object string);
+local object parse_logical_host_prefix(zp,string)
+  var zustand* zp;
+  var object string;
 {
   var object host;
-  uintL index = zp->index;
+  var uintL startindex = zp->index;
   var chart ch;
   # a sequence of alphanumeric characters and then ':'
   loop {
@@ -1558,18 +1560,18 @@ local object logical_host(zp,string)
     ch = TheSstring(string)->data[zp->index]; # next character
     if (!legal_logical_word_char(ch))
       break;
-        # ignore alphanumeric character:
+    # go past alphanumeric character:
     zp->index++; zp->FNindex = fixnum_inc(zp->FNindex,1); zp->count--;
   }
   if (!chareq(ch,ascii(':')))
     return NIL; # no ':' -> no host
   # make host-string:
   {
-    var uintL len = zp->index - index;
+    var uintL len = zp->index - startindex;
     host = allocate_string(len);
     # and fill it:
     if (len > 0) {
-      var const chart* ptr1 = &TheSstring(string)->data[index];
+      var const chart* ptr1 = &TheSstring(string)->data[startindex];
       var chart* ptr2 = &TheSstring(host)->data[0];
       dotimespL(len,len, { *ptr2++ = up_case(*ptr1++); });
     }
@@ -1585,7 +1587,7 @@ local uintL parse_logical_pathnamestring(z)
     # Host-Specification parsen:
     {
       var zustand startz = z;
-      var object host = logical_host(&z,STACK_1);
+      var object host = parse_logical_host_prefix(&z,STACK_1);
       if (nullp(host)) {
         z = startz; # back to the start
         host = STACK_(3+2); # Default-Host
@@ -1629,7 +1631,7 @@ local uintL parse_logical_pathnamestring(z)
       var object name = parse_logical_word(&z,FALSE);
       TheLogpathname(STACK_1)->pathname_name = name;
       if ((z.count > 0) && chareq(TheSstring(STACK_2)->data[z.index],ascii('.'))) {
-        var zustand z_name; z_name = z;
+        var zustand z_name = z;
         # Character '.' übergehen:
         z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
         # Typ parsen:
@@ -1637,7 +1639,7 @@ local uintL parse_logical_pathnamestring(z)
         TheLogpathname(STACK_1)->pathname_type = type;
         if (!nullp(type)) {
           if ((z.count > 0) && chareq(TheSstring(STACK_2)->data[z.index],ascii('.'))) {
-            var zustand z_type; z_type = z;
+            var zustand z_type = z;
             # Character '.' übergehen:
             z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
             # Version parsen:
@@ -1726,16 +1728,6 @@ local uintL parse_logical_pathnamestring(z)
       STACK_1 = subsstring(STACK_1,0,index-1);
      name_type_ok: ;
     }
-#endif
-
-#ifdef LOGICAL_PATHNAMES
-local object string_logical_path_p(zz,string)
-  zustand zz;
-  object string;
-{
-  object host = logical_host(&zz,string);
-  return !nullp(host) && logical_host_p(host) ? host : NIL;
-}
 #endif
 
 LISPFUN(parse_namestring,1,2,norest,key,3,\
@@ -1841,11 +1833,21 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
       z.FNindex = fixnum(z.index); # z.FNindex = start-Index als Fixnum.
       z.index += arg.offset;
       #ifdef LOGICAL_PATHNAMES
-      if (!parse_logical && !nullp(Symbol_value(S(parse_namestring_ansi)))) {
-        object host = string_logical_path_p(z,string);
-        if (!nullp(host)) {
-          parse_logical = TRUE;
-          STACK_3 = host;
+      if (!parse_logical) {
+        # Check whether *PARSE-NAMESTRING-ANSI* is true and the string
+        # starts with a logical hostname.
+        # (NB: ANSI CL specifies that we should look at the entire string, using
+        # parse_logical_pathnamestring, not only parse_logical_host_prefix.)
+        if (!nullp(Symbol_value(S(parse_namestring_ansi)))) {
+          var zustand tmp = z;
+          var object host = parse_logical_host_prefix(&tmp,string);
+          if (!nullp(host)
+              # Test whether the given hostname is valid. This is not
+              # strictly what ANSI specifies, but is better than giving
+              # an error for Win32 pathnames like "C:\\FOOBAR".
+              && logical_host_p(host)
+             )
+            parse_logical = TRUE;
         }
       }
       #endif
@@ -8206,6 +8208,7 @@ LISPFUNN(rename_file,2)
 
 # UP: erzeugt ein File-Stream
 # open_file(filename,direction,if_exists,if_not_exists)
+# > STACK_3: original filename (may be logical)
 # > STACK_2: :BUFFERED argument
 # > STACK_1: :EXTERNAL-FORMAT argument
 # > STACK_0: :ELEMENT-TYPE argument
@@ -8227,12 +8230,12 @@ LISPFUNN(rename_file,2)
     var uintB if_exists;
     var uintB if_not_exists;
     {
-      pushSTACK(filename); # Filename retten
+      pushSTACK(STACK_3); # Filename retten
       check_no_wildcards(filename); # mit Wildcards -> Fehler
       filename = use_default_dir(filename); # Default-Directory einfügen
       if (namenullp(filename)) { fehler_noname(filename); } # Kein Name angegeben -> Fehler
       pushSTACK(filename); # absPathname retten
-      # Stackaufbau: Pathname, absPathname.
+      # Stackaufbau: origPathname, absPathname.
       # Directory muss existieren:
       var object namestring = # Filename fürs Betriebssystem
         assure_dir_exists(FALSE,((direction == 0) && (if_not_exists == 0)) || (if_not_exists == 2)); # tolerant only if :PROBE and if_not_exists = 0 or if if_not_exists = 2
@@ -8422,10 +8425,10 @@ LISPFUNN(rename_file,2)
       pushSTACK(STACK_4); # :ELEMENT-TYPE argument
       pushSTACK(handle);
       var object stream = make_file_stream(direction,append_flag,TRUE);
-      skipSTACK(3);
+      skipSTACK(4);
       return stream;
      ergebnis_NIL: # Ergebnis NIL
-      skipSTACK(5); # beide Pathnames und drei Argumente vergessen
+      skipSTACK(6); # beide Pathnames und drei Argumente vergessen
       return NIL;
     }
 
@@ -8440,16 +8443,24 @@ LISPFUN(open,1,0,norest,key,6,\
       test_file_stream_named(filename);
       # Streamtyp File-Stream -> Truename verwenden:
       filename = TheStream(filename)->strm_file_truename;
+      pushSTACK(filename);
     } else {
-      filename = coerce_pathname(filename); # zu einem Pathname machen
+      filename = coerce_xpathname(filename); # zu einem Pathname machen
+      pushSTACK(filename);
+      #ifdef LOGICAL_PATHNAMES
+      # Convert from logical to physical pathname:
+      if (logpathnamep(filename))
+        filename = coerce_pathname(filename);
+      #endif
     }
+    # Stack layout: filename-arg, direction, element-type, if-exists, if-does-not-exist, external-format, buffered, origpathname.
     # filename ist jetzt ein Pathname.
     var uintB direction;
     var uintB if_exists;
     var uintB if_not_exists;
     # :direction überprüfen und in direction übersetzen:
     {
-      var object arg = STACK_5;
+      var object arg = STACK_(5+1);
       if (eq(arg,unbound) || eq(arg,S(Kinput))) {
         direction = 1;
       } elif (eq(arg,S(Kinput_immutable))) {
@@ -8472,7 +8483,7 @@ LISPFUN(open,1,0,norest,key,6,\
     # :element-type wird später überprüft.
     # :if-exists überprüfen und in if_exists übersetzen:
     {
-      var object arg = STACK_3;
+      var object arg = STACK_(3+1);
       if (eq(arg,unbound)) {
         if_exists = 0;
       } elif (eq(arg,S(Kerror))) {
@@ -8500,7 +8511,7 @@ LISPFUN(open,1,0,norest,key,6,\
     }
     # :if-does-not-exist überprüfen und in if_not_exists übersetzen:
     {
-      var object arg = STACK_2;
+      var object arg = STACK_(2+1);
       if (eq(arg,unbound)) {
         if_not_exists = 0;
       } elif (eq(arg,S(Kerror))) {
@@ -8521,7 +8532,8 @@ LISPFUN(open,1,0,norest,key,6,\
     # :external-format wird später überprüft.
     # :buffered wird später überprüft.
     # File öffnen:
-    STACK_6 = STACK_0; STACK_5 = STACK_1; skipSTACK(4);
+    STACK_4 = STACK_5; STACK_5 = STACK_2; STACK_6 = STACK_1; STACK_7 = STACK_0;
+    skipSTACK(4);
     value1 = open_file(filename,direction,if_exists,if_not_exists);
     mv_count=1;
   }
