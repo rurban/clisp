@@ -107,7 +107,7 @@
       if (uexp <= SF_exp_mid) # e<=0 ?
         { # Exponent auf 1, Mantisse auf .1000...000 setzen.
           return as_object
-                 ( (as_oint(x) & ~(wbitm(oint_data_len+oint_data_shift)-wbit(oint_data_shift)))
+                 ( (as_oint(x) & ~((oint)wbitm(oint_data_len+oint_data_shift)-(oint)wbit(oint_data_shift)))
                   | ((oint)(SF_exp_mid+1) << SF_exp_shift)
                   | ((oint)0 << SF_mant_shift)
                  );

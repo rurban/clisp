@@ -45,6 +45,14 @@
 
         * eval.d (get_closure): Don't call augment_decl_env with argument NIL.
 
+1998-07-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * lispbibl.d (posfixnum_to_L, fixnum_to_L): Add a cast to avoid
+          compilation warnings.
+        * aridecl.d (FN_value_mask): Likewise.
+        * sfloat.d (SF_futruncate_SF): Likewise.
+        * genclisph.d (main): Adjust.
+
 1998-06-29  Sam Steingold  <sds@usa.net>
 
         * compiler.lsp (compile-file): in ANSI CL, compile-file is

@@ -44,7 +44,7 @@
 #             Bits 23..0: Wert (mit dem Vorzeichen zusammen eine
 #                               Zweierkomplementdarstellung)
 # Maske für den Wert:
-  #define FN_value_mask  ((oint)(wbitm(oint_data_len+oint_data_shift)-wbit(oint_data_shift)))
+  #define FN_value_mask  ((oint)wbitm(oint_data_len+oint_data_shift)-(oint)wbit(oint_data_shift))
 # Maske für Wert und Vorzeichen:
   #define FN_value_vz_mask  (FN_value_mask|wbit(sign_bit_o))
 # Typinfo für FN >=0:  fixnum_type
