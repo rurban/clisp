@@ -63,6 +63,9 @@ extern "C" void exit(int);
 /* functions are split after this many statements */
 #define MAXFUNCLENGTH  20
 
+/* line number of the last line returned by get_line() */
+static unsigned long line_number;
+
 /* get a line, terminated with '\n', or NULL if EOF is encountered */
 static unsigned char * get_line (FILE * fp) {
   int len = 1;
@@ -79,6 +82,7 @@ static unsigned char * get_line (FILE * fp) {
     line[index++] = c;
     if (c=='\n') break;
   }
+  line_number++;
   return line;
 }
 
@@ -493,13 +497,13 @@ static void emit_control_directive (string_t* s) {
 
 /* Emit the code for generating a literal string. */
 static void emit_literal (unsigned char * line, unsigned long startindex,
-                          unsigned long endindex, char * textvar,
-                          unsigned long indent) {
+                          unsigned long endindex, unsigned long lineno,
+                          char * textvar, unsigned long indent) {
   unsigned long i;
  restart:
   if (startindex == endindex) return;
   emit_indent(indent);
-  printf("TEXT_addstring(%s,\"",textvar);
+  printf("TEXT_addstring(%s,%lu,\"",textvar,lineno);
   for (i = startindex; i < endindex; i++) {
     unsigned char ch = line[i];
     if (ch == '\\' || ch == '"') {
@@ -508,6 +512,7 @@ static void emit_literal (unsigned char * line, unsigned long startindex,
       putchar(ch);
     } else if (ch == '\n') {
       printf("\\n"); printf("\");\n"); startindex = i+1;
+      if (lineno > 0) lineno++;
       goto restart;
     } else if (ch == '\t') {
       printf("\\t");
@@ -531,9 +536,9 @@ static void emit_literal (unsigned char * line, unsigned long startindex,
 
 /* Emit the code for generating a certain string. */
 static void emit_expansion (unsigned char * line, unsigned long startindex,
-                            unsigned long endindex, boolean_t* within_comment,
-                            string_list_t* macroargs, char * textvar,
-                            unsigned long indent) {
+                            unsigned long endindex, unsigned long lineno,
+                            boolean_t* within_comment, string_list_t* macroargs,
+                            char * textvar, unsigned long indent) {
   tokens_t tokens;
   tokens_init(&tokens);
   /* Tokenify the buffer. */
@@ -561,7 +566,7 @@ static void emit_expansion (unsigned char * line, unsigned long startindex,
     for (tokindex = 0; tokindex < tokens.index; tokindex++) {
       token_t* t = &tokens.data[tokindex];
       if (t->type == sep && t->ch == '#' && macroargs) {
-        emit_literal(line,currindex,t->startindex,textvar,indent);
+        emit_literal(line,currindex,t->startindex,0,textvar,indent);
         currindex = t->endindex;
       } else if (t->type == ident) {
         string_t id;
@@ -569,7 +574,7 @@ static void emit_expansion (unsigned char * line, unsigned long startindex,
         id.data = &line[t->startindex];
         if (macroargs && stringlist_lookup(macroargs,&id)) {
           /* Emit a reference to one of the macro arguments. */
-          emit_literal(line,currindex,t->startindex,textvar,indent);
+          emit_literal(line,currindex,t->startindex,0,textvar,indent);
           emit_indent(indent);
           printf("TEXT_addtext(%s,",textvar);
           printf("arg_"); emit_string(&id); printf(");\n");
@@ -583,7 +588,7 @@ static void emit_expansion (unsigned char * line, unsigned long startindex,
           struct param_t {
             unsigned long startindex; unsigned long endindex; char temp[12];
           } params[MAXARGCOUNT];
-          emit_literal(line,currindex,t->startindex,textvar,indent);
+          emit_literal(line,currindex,t->startindex,0,textvar,indent);
           tokindex += 2;
           if (tokindex >= tokens.index) goto no_more_tokens;
           if (tokens.data[tokindex].type == sep
@@ -632,7 +637,7 @@ static void emit_expansion (unsigned char * line, unsigned long startindex,
                 indent += 2;
                 emit_indent(indent); printf("TEXT %s;\n",&params[i].temp[1]);
                 emit_indent(indent); printf("TEXT_init(%s);\n",params[i].temp);
-                emit_expansion(line,params[i].startindex,params[i].endindex,
+                emit_expansion(line,params[i].startindex,params[i].endindex,0,
                                &dummy,macroargs,params[i].temp,indent);
               }
               emit_indent(indent);
@@ -652,7 +657,8 @@ static void emit_expansion (unsigned char * line, unsigned long startindex,
         }
       }
     }
-    emit_literal(line,currindex,endindex,textvar,indent);
+    emit_literal(line,currindex,endindex, currindex==0 ? lineno : 0, textvar,
+                 indent);
   }
   tokens_del(&tokens);
 }
@@ -673,10 +679,19 @@ int main (int argc, char* argv[]) {
   printf("extern \"C\" void exit(int);\n");
   printf("#endif\n");
   printf("\n");
-  printf("typedef struct { FILE* file; char* buf; int buflen; int len; } TEXT;\n");
+  printf("int do_line = 0;\n");
+  printf("char* infilename = \"%s\";\n", infilename);
+  printf("char* outfilename = \"stdout\";\n");
+  printf("\n");
+  printf("typedef struct {\n");
+  printf("  FILE* file; unsigned int file_lineno; unsigned int file_slineno;\n");
+  printf("  char* buf; int buflen; int len;\n");
+  printf("} TEXT;\n");
   printf("static void TEXT_init1 (TEXT* text, FILE* file)\n");
   printf("{\n");
   printf("  text->file = file;\n");
+  printf("  text->file_lineno = 1;\n");
+  printf("  text->file_slineno = 0;\n");
   printf("}\n");
   printf("static void TEXT_init (TEXT* text)\n");
   printf("{\n");
@@ -689,10 +704,34 @@ int main (int argc, char* argv[]) {
   printf("{\n");
   printf("  if (!text->file) { free(text->buf); }\n");
   printf("}\n");
-  printf("static void TEXT_addstring (TEXT* text, char* s)\n");
+  printf("static void TEXT_addstring (TEXT* text, unsigned int source_lineno, char* s)\n");
   printf("{\n");
   printf("  if (text->file)\n");
-  printf("    { fprintf(text->file,\"%%s\",s); }\n");
+  printf("    {\n");
+  printf("      if (do_line)\n");
+  printf("        {\n");
+  printf("          if (source_lineno)\n");
+  printf("            { if (text->file_slineno != source_lineno)\n");
+  printf("                { text->file_lineno++;\n");
+  printf("                  fprintf(text->file,\"#line %%u \\\"%%s\\\"\\n\",source_lineno,infilename);\n");
+  printf("                  text->file_slineno = source_lineno;\n");
+  printf("                }\n");
+  printf("            }\n");
+  printf("          else\n");
+  printf("            { if (text->file_slineno != 0)\n");
+  printf("                { text->file_lineno++;\n");
+  printf("                  fprintf(text->file,\"#line %%u \\\"%%s\\\"\\n\",text->file_lineno,outfilename);\n");
+  printf("                  text->file_slineno = 0;\n");
+  printf("                }\n");
+  printf("            }\n");
+  printf("        }\n");
+  printf("      fprintf(text->file,\"%%s\",s);\n");
+  printf("      for (; *s; s++)\n");
+  printf("        if (*s == '\\n')\n");
+  printf("          { text->file_lineno++;\n");
+  printf("            if (text->file_slineno != 0) text->file_slineno++;\n");
+  printf("          }\n");
+  printf("    }\n");
   printf("  else\n");
   printf("    {\n");
   printf("      int slen = strlen(s);\n");
@@ -710,12 +749,13 @@ int main (int argc, char* argv[]) {
   printf("  if (s->file)\n");
   printf("    { abort(); }\n");
   printf("  else\n");
-  printf("    { TEXT_addstring(text,s->buf); }\n");
+  printf("    { TEXT_addstring(text,0,s->buf); }\n");
   printf("}\n");
   /* Emit forward declarations. */
   stringlist_init(&macronames);
   {
     if ((infile = fopen(infilename,"r"))==NULL) { exit(1); }
+    line_number = 0;
     while (1) {
       unsigned char * line = get_line(infile);
       if (!line) break;
@@ -796,6 +836,7 @@ int main (int argc, char* argv[]) {
   {
     boolean_t within_comment = FALSE;
     if ((infile = fopen(infilename,"r"))==NULL) { exit(1); }
+    line_number = 0;
     while (1) {
       unsigned char * line = get_line(infile);
       if (!line) break;
@@ -868,7 +909,7 @@ int main (int argc, char* argv[]) {
         printf("{\n");
         dummy = FALSE;
         emit_expansion(definition.data,expansion_startindex,
-                       definition.length,&dummy,&macroargs,"curr",2);
+                       definition.length,0,&dummy,&macroargs,"curr",2);
         printf("}\n");
       } else if (control_line_p(line)) { /* Control directive. */
         string_t definition;
@@ -880,7 +921,8 @@ int main (int argc, char* argv[]) {
         unsigned long linelen;
         linelen = 0; while (line[linelen] != '\n') { linelen++; }
         new_statement();
-        emit_expansion (line,0,linelen+1,&within_comment,NULL,"curr",2);
+        emit_expansion (line,0,linelen+1,line_number,&within_comment,NULL,
+                        "curr",2);
         free(line);
       }
     }
@@ -893,8 +935,22 @@ int main (int argc, char* argv[]) {
   }
   finish_func();
   /* Emit main function. */
-  printf("int main () {\n");
+  printf("int main (int argc, char **argv) {\n");
   printf("  TEXT curr;\n");
+  printf("  char* progname = argv[0];\n");
+  printf("  argv++; argc--;\n");
+  printf("  while (argc > 0) {\n");
+  printf("    if (strcmp(*argv,\"-l\")==0)\n");
+  printf("      { do_line = 1; argv++; argc--; }\n");
+  printf("    else if (strcmp(*argv,\"-i\")==0 && argc > 1)\n");
+  printf("      { infilename = argv[1]; argv+=2; argc-=2; }\n");
+  printf("    else if (strcmp(*argv,\"-o\")==0 && argc > 1)\n");
+  printf("      { outfilename = argv[1]; argv+=2; argc-=2; }\n");
+  printf("    else\n");
+  printf("      { fprintf(stderr,\"Usage: %%s [-l] [-i filename] [-o filename]\\n\", progname);\n");
+  printf("        exit(1);\n");
+  printf("      }\n");
+  printf("  }\n");
   printf("  TEXT_init1(&curr,stdout);\n");
   {
     unsigned long i;
