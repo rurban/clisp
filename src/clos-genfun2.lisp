@@ -596,10 +596,7 @@
 
 (defun compute-effective-method-as-function (gf combination methods)
   ;; Apply method combination:
-  (let ((ef-fun
-          (funcall (method-combination-expander combination)
-                   gf combination methods
-                   (method-combination-options combination))))
+  (let ((ef-fun (compute-effective-method-as-function-form gf combination methods)))
     ;; Evaluate or compile the resulting form:
     ;; (eval ef-fun)                                 ; interpreted
     ;; (eval `(LOCALLY (DECLARE (COMPILE)) ,ef-fun)) ; compiled
