@@ -43,4 +43,4 @@ Use ~s instead"
 
 ;; ------------------------------------------------------
 ;; not needed bacause null pointer is now returned as NIL
-(deprecate 'ffi::foreign-address-null 'null)
+#+ffi (deprecate 'ffi::foreign-address-null 'null)
