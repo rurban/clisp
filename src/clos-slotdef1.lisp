@@ -231,10 +231,19 @@
 
 ;;; ---------------------------------------------------------------------------
 
+;; Common superclass of <standard-direct-slot-definition> and
+;; <standard-effective-slot-definition>. Not used otherwise.
+(defvar *<standard-slot-definition>-defclass*
+  '(defclass standard-slot-definition (slot-definition)
+     ()
+     (:fixed-slot-locations)))
+
+;;; ---------------------------------------------------------------------------
+
 ;; Information about a slot of <standard-class> in DEFCLASS.
 (defvar <standard-direct-slot-definition> 'standard-direct-slot-definition)
 (defvar *<standard-direct-slot-definition>-defclass*
-  '(defclass standard-direct-slot-definition (direct-slot-definition)
+  '(defclass standard-direct-slot-definition (direct-slot-definition standard-slot-definition)
      ()
      (:fixed-slot-locations)))
 (defvar *<standard-direct-slot-definition>-class-version* (make-class-version))
@@ -261,7 +270,7 @@
 ;; Information about a slot of <standard-class> at runtime.
 (defvar <standard-effective-slot-definition> 'standard-effective-slot-definition)
 (defvar *<standard-effective-slot-definition>-defclass*
-  '(defclass standard-effective-slot-definition (effective-slot-definition)
+  '(defclass standard-effective-slot-definition (effective-slot-definition standard-slot-definition)
      ()
      (:fixed-slot-locations)))
 (defvar *<standard-effective-slot-definition>-class-version* (make-class-version))

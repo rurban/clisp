@@ -1,3 +1,13 @@
+2004-05-31  Bruno Haible  <bruno@clisp.org>
+
+	* init.lisp: Export standard-slot-definition.
+	* clos-package.lisp: Likewise.
+	* clos-slotdef1.lisp (*<standard-slot-definition>-defclass*): New
+	variable.
+	(standard-direct-slot-definition, standard-effective-slot-definition):
+	Inherit from standard-slot-definition.
+	* clos-slotdef2.lisp: Define class <standard-slot-definition>.
+
 2004-07-21  Sam Steingold  <sds@gnu.org>
 
 	CLOSE recursively closes all dependents
