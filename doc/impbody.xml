@@ -31,16 +31,6 @@
 
 </section>
 
-<section id="class-prec"><title>Class Precedence Lists
-  <ulink url="&clhs;/Body/sec_1-4-4-5.html">[CLHS-1.4.4.5]</ulink></title>
-
-<para>The class precedence lists of the system classes &class;
- &built-in-class;, &structure-class;, &standard-class;,
- &standard-method-t; contain the class &structure-object-t;
- instead of the class &standard-object-t;.</para>
-
-</section>
-
 <section id="cl-symb"><title>Symbols in the Package &cl-pac;
   <ulink url="&clhs;/Body/sec_1-9.html">[CLHS-1.9]</ulink></title>
 
