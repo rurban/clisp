@@ -4922,6 +4922,7 @@ typedef struct {
   gcv_object_t ht_itable             _attribute_aligned_object_;
   gcv_object_t ht_ntable             _attribute_aligned_object_;
   gcv_object_t ht_kvtable            _attribute_aligned_object_;
+  gcv_object_t ht_lookupfn           _attribute_aligned_object_;
   gcv_object_t ht_hashcodefn         _attribute_aligned_object_;
   gcv_object_t ht_testfn             _attribute_aligned_object_;
   gcv_object_t ht_freelist           _attribute_aligned_object_;
@@ -4934,9 +4935,9 @@ typedef struct {
   uintL ht_size;
 } *  Hashtable;
 #ifdef GENERATIONAL_GC
-  #define hashtable_length  14
+  #define hashtable_length  15
 #else
-  #define hashtable_length  13
+  #define hashtable_length  14
 #endif
 #define hashtable_xlength  (sizeof(*(Hashtable)0)-offsetofa(record_,recdata)-hashtable_length*sizeof(gcv_object_t))
 # Mark a Hash Table as new to reorganize

@@ -853,6 +853,20 @@ local uint32 hashcode5 (object fun, object obj) {
 
 # Specification of the two types of Pseudo-Functions:
 
+  # Specification for LOOKUP - Pseudo-Function:
+  # lookup(ht,obj,&KVptr,&Nptr,&Iptr)
+  # > ht: hash-table
+  # > obj: object
+  # < if found: result=true,
+  #     KVptr[0], KVptr[1] : key, value in key-value-vector,
+  #     *Nptr : associate entry in next-vector,
+  #     *Iptr : previous index pointing to *Nptr
+  # < if not found: result=false,
+  #     *Iptr : entry belonging to key in index-vector
+  #             or an arbitrary element of the "list" starting there
+  # can trigger GC
+    typedef bool (* lookup_Pseudofun) (object ht, object obj, gcv_object_t** KVptr_, gcv_object_t** Nptr_, gcv_object_t** Iptr_);
+
   # Specification for HASHCODE - Pseudo-Function:
   # hashcode(obj)
   # > obj: object
@@ -867,6 +881,8 @@ local uint32 hashcode5 (object fun, object obj) {
     typedef bool (* test_Pseudofun) (object obj1, object obj2);
 
 # Extract Pseudo-Functions of a hash-table:
+#define lookupfn(ht)  \
+  (*(lookup_Pseudofun)ThePseudofun(TheHashtable(ht)->ht_lookupfn))
 #define hashcodefn(ht)  \
   (*(hashcode_Pseudofun)ThePseudofun(TheHashtable(ht)->ht_hashcodefn))
 #define testfn(ht)  \
@@ -959,7 +975,7 @@ local object rehash (object ht) {
 }
 
 /* UP: Searches a key in a hash-table.
- hash_lookup(ht,obj,&KVptr,&Nptr,&Iptr)
+ hash_lookup_builtin(ht,obj,&KVptr,&Nptr,&Iptr)
  > ht: hash-table
  > obj: object
  < if found: result=true,
@@ -968,30 +984,16 @@ local object rehash (object ht) {
      *Iptr : previous index pointing to *Nptr
  < if not found: result=false,
      *Iptr : entry belonging to key in index-vector
-             or an arbitrary element of the "list" starting there
- can trigger GC - for user-defined ht_test */
-local bool hash_lookup (object ht, object obj, gcv_object_t** KVptr_,
-                        gcv_object_t** Nptr_, gcv_object_t** Iptr_) {
+             or an arbitrary element of the "list" starting there */
+global bool hash_lookup_builtin (object ht, object obj, gcv_object_t** KVptr_,
+                                 gcv_object_t** Nptr_, gcv_object_t** Iptr_) {
   var uintB flags = record_flags(TheHashtable(ht));
-  var bool user_defined_p = (ht_test_code(flags)==0);
-  var uintL hashindex;
-  if (user_defined_p) { /* guard for GC */
-    pushSTACK(ht); pushSTACK(obj);
-    if (!ht_validp(TheHashtable(ht))) /* hash-table must be reorganized */
-      ht = rehash(ht);
-    obj = STACK_0; /* rehash could trigger GC */
-    hashindex = hashcode(ht,obj); /* calculate hashcode */
-    obj = popSTACK(); ht = popSTACK();
-  } else { /* no GC possible */
-    if (!ht_validp(TheHashtable(ht))) /* hash-table must be reorganized */
-      ht = rehash(ht);
-    hashindex = hashcode(ht,obj); /* calculate hashcode */
-  }
+  if (!ht_validp(TheHashtable(ht))) /* hash-table must be reorganized */
+    ht = rehash(ht);
+  var uintL hashindex = hashcode(ht,obj); /* calculate hashcode */
   var gcv_object_t* Nptr =      /* pointer to the current entry */
     &TheSvector(TheHashtable(ht)->ht_itable)->data[hashindex];
   var gcv_object_t* kvt_data = ht_kvt_data(ht);
-  var uintL i_n; /* Iptr-Nptr */
-  var uintL size = TheHashtable(ht)->ht_size;
   while (!eq(*Nptr,nix)) { /* track "list" : "list" finished -> not found */
     var int index = posfixnum_to_L(*Nptr); /* next index */
     var gcv_object_t* Iptr = Nptr;
@@ -1012,14 +1014,7 @@ local bool hash_lookup (object ht, object obj, gcv_object_t** KVptr_,
     }
     /* compare key with obj: */
     if (flags & bit(0) ? eq(key,obj) :  /* compare with EQ */
-        flags & (bit(0)|bit(1)|bit(2)|bit(3)) ? testfn(ht)(key,obj) :
-        (/* here again we favor built-in HTs over user-defined ones */
-         pushSTACK(ht), pushSTACK(obj), i_n = Iptr - Nptr,
-         pushSTACK(key),pushSTACK(obj),funcall(TheHashtable(ht)->ht_test,2),
-         obj = popSTACK(), ht = popSTACK(), kvt_data = ht_kvt_data(ht),
-         Nptr = TheSvector(TheHashtable(ht)->ht_ntable)->data + index,
-         KVptr = kvt_data + 2*index, Iptr = Nptr + i_n,
-         !nullp(value1))) { /* user-defined ht_test */
+        testfn(ht)(key,obj)) {
       /* object obj found */
       *KVptr_ = KVptr; *Nptr_ = Nptr; *Iptr_ = Iptr; return true;
     }
@@ -1027,6 +1022,80 @@ local bool hash_lookup (object ht, object obj, gcv_object_t** KVptr_,
   /* not found */
   *Iptr_ = Nptr; return false;
 }
+
+/* UP: Searches a key in a hash-table with user-defined test.
+ hash_lookup_user(ht,obj,&KVptr,&Nptr,&Iptr)
+ > ht: hash-table
+ > obj: object
+ < if found: result=true,
+     KVptr[0], KVptr[1] : key, value in key-value-vector,
+     *Nptr : associate entry in next-vector,
+     *Iptr : previous index pointing to *Nptr
+ < if not found: result=false,
+     *Iptr : entry belonging to key in index-vector
+             or an arbitrary element of the "list" starting there
+ can trigger GC */
+global bool hash_lookup_user (object ht, object obj, gcv_object_t** KVptr_,
+                              gcv_object_t** Nptr_, gcv_object_t** Iptr_) {
+  pushSTACK(ht); pushSTACK(obj);
+  if (!ht_validp(TheHashtable(ht))) /* hash-table must be reorganized */
+    ht = rehash(ht);
+  obj = STACK_0; /* rehash could trigger GC */
+  var uintL hashindex = hashcode(ht,obj); /* calculate hashcode */
+  obj = popSTACK(); ht = popSTACK();
+  var gcv_object_t* Nptr =      /* pointer to the current entry */
+    &TheSvector(TheHashtable(ht)->ht_itable)->data[hashindex];
+  var gcv_object_t* kvt_data = ht_kvt_data(ht);
+  var uintL i_n; /* Iptr-Nptr */
+  while (!eq(*Nptr,nix)) { /* track "list" : "list" finished -> not found */
+    var int index = posfixnum_to_L(*Nptr); /* next index */
+    var gcv_object_t* Iptr = Nptr;
+    Nptr =                      /* pointer to entry in next-vector */
+      TheSvector(TheHashtable(ht)->ht_ntable)->data + index;
+    var gcv_object_t* KVptr = /* pointer to entries in key-value-vector */
+      kvt_data + 2*index;
+    var object key = KVptr[0];
+    if (eq(key,unbound)) {
+      /* weak HT - obsolete key and value */
+      set_break_sem_2();        /* protect from breaks */
+      TheHashtable(ht)->ht_freelist = *Iptr;
+      *Iptr = *Nptr;                         /* shorten "list" */
+      *Nptr = TheHashtable(ht)->ht_freelist; /* lengthen free-list */
+      /* decrement COUNT : */
+      TheHashtable(ht)->ht_count = fixnum_inc(TheHashtable(ht)->ht_count,-1);
+      clr_break_sem_2();        /* allow breaks again */
+    }
+    /* compare key with obj: */
+    pushSTACK(ht); pushSTACK(obj);
+    i_n = Iptr - Nptr;
+    pushSTACK(key); pushSTACK(obj); funcall(TheHashtable(ht)->ht_test,2);
+    obj = popSTACK(); ht = popSTACK(); kvt_data = ht_kvt_data(ht);
+    Nptr = TheSvector(TheHashtable(ht)->ht_ntable)->data + index;
+    KVptr = kvt_data + 2*index;
+    Iptr = Nptr + i_n;
+    if (!nullp(value1)) {
+      /* object obj found */
+      *KVptr_ = KVptr; *Nptr_ = Nptr; *Iptr_ = Iptr; return true;
+    }
+  }
+  /* not found */
+  *Iptr_ = Nptr; return false;
+}
+
+/* UP: Searches a key in a hash-table.
+ hash_lookup(ht,obj,&KVptr,&Nptr,&Iptr)
+ > ht: hash-table
+ > obj: object
+ < if found: result=true,
+     KVptr[0], KVptr[1] : key, value in key-value-vector,
+     *Nptr : associate entry in next-vector,
+     *Iptr : previous index pointing to *Nptr
+ < if not found: result=false,
+     *Iptr : entry belonging to key in index-vector
+             or an arbitrary element of the "list" starting there
+ can trigger GC */
+#define hash_lookup(ht,obj,KVptr_,Nptr_,Iptr_)  \
+  lookupfn(ht)(ht,obj,KVptr_,Nptr_,Iptr_)
 
 /* Macro: Insers a key-value-pair into a hash-table.
  hash_store(key,value);
@@ -1328,6 +1397,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
    stack-layout:
       weak, initial-contents, test, size, rehash-size, rehash-threshold. */
   var uintB flags;
+  var object lookuppfn;
   var object hashcodepfn;
   var object testpfn;
  check_test_restart: { /* check test-argument: */
@@ -1335,17 +1405,22 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
     if (!boundp(test) || eq(test,S(eql)) || eq(test,L(eql))) {
       flags = bit(1);           /* EQL as default */
       hashcodepfn = P(hashcode2); testpfn = P(eql);
+      lookuppfn = P(hash_lookup_builtin);
     } else if (eq(test,S(eq)) || eq(test,L(eq))) {
       flags = bit(0);           /* EQ */
       hashcodepfn = unbound; testpfn = unbound;
+      lookuppfn = P(hash_lookup_builtin);
     } else if (eq(test,S(equal)) || eq(test,L(equal))) {
       flags = bit(2);           /* EQUAL */
       hashcodepfn = P(hashcode3); testpfn = P(equal);
+      lookuppfn = P(hash_lookup_builtin);
     } else if (eq(test,S(equalp)) || eq(test,L(equalp))) {
       flags = bit(3);           /* EQUALP */
       hashcodepfn = P(hashcode4); testpfn = P(equalp);
+      lookuppfn = P(hash_lookup_builtin);
     } else {
       hashcodepfn = unbound; testpfn = unbound;
+      lookuppfn = P(hash_lookup_user);
       if (symbolp(test)) {
         var object ht_test = get(test,S(hash_table_test));
         if (!consp(ht_test)) goto test_error;
@@ -1490,6 +1565,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
   TheHashtable(ht)->ht_mincount_threshold = popSTACK(); /*MINCOUNT-THRESHOLD*/
   TheHashtable(ht)->ht_rehash_size = popSTACK(); /* REHASH-SIZE */
   TheHashtable(ht)->ht_freelist = nix; /* dummy as free-list */
+  TheHashtable(ht)->ht_lookupfn = lookuppfn;
   TheHashtable(ht)->ht_hashcodefn = hashcodepfn;
   TheHashtable(ht)->ht_testfn = testpfn;
   if (flags==0) { /* user-defined ht_test */
