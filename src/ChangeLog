@@ -1,3 +1,9 @@
+2004-04-22  Bruno Haible  <bruno@clisp.org>
+
+	Make it compile with g++ 3.4.
+	* lispbibl.d (offsetofa): Define differently for C++.
+	(restartf_t): Define without nonreturning for C++.
+
 2004-04-22  Sam Steingold  <sds@gnu.org>
 
 	* genclisph.d (check_fpointer, check_fpointer_replacement): moved
