@@ -6277,7 +6277,28 @@ for-value   NIL or T
 (macrolet ((err-syntax (specform fdef)
              `(c-error-c
                (ENGLISH "Illegal function definition syntax in ~S: ~S")
-               ,specform ,fdef)))
+               ,specform ,fdef))
+           (get-anode (type)
+             `(let* ((closurevars (checking-movable-var-list
+                                   varlist anodelist))
+                     (anode
+                      (make-anode
+                       :type ',type
+                       :sub-anodes `(,@anodelist ,body-anode)
+                       :seclass (seclass-without
+                                 (anodelist-seclass-or
+                                  `(,@anodelist ,body-anode))
+                                 varlist)
+                       :code `(,@(c-make-closure closurevars closuredummy-venvc
+                                                 closuredummy-stackz)
+                               ,@(mapcap #'c-bind-movable-var-anode varlist
+                                         anodelist)
+                               ,body-anode
+                               (UNWIND ,*stackz* ,oldstackz ,*for-value*)))))
+               (closuredummy-add-stack-slot
+                closurevars closuredummy-stackz closuredummy-venvc)
+               (optimize-var-list varlist)
+               anode)))
 
 ;; compile (FLET ({fundef}*) {form}*)
 (defun c-FLET ()
@@ -6345,25 +6366,7 @@ for-value   NIL or T
                         (when (var-really-usedp var)
                           (propagate-far-used fnode)))
                     varlist vfnodelist))
-            (let* ((closurevars (checking-movable-var-list varlist anodelist))
-                   (anode
-                     (make-anode
-                       :type 'FLET
-                       :sub-anodes `(,@anodelist ,body-anode)
-                       :seclass (seclass-without
-                                  (anodelist-seclass-or
-                                   `(,@anodelist ,body-anode))
-                                  varlist)
-                       :code `(,@(c-make-closure closurevars closuredummy-venvc
-                                                 closuredummy-stackz)
-                               ,@(mapcap #'c-bind-movable-var-anode varlist
-                                         anodelist)
-                               ,body-anode
-                               (UNWIND ,*stackz* ,oldstackz ,*for-value*)))))
-              (closuredummy-add-stack-slot
-               closurevars closuredummy-stackz closuredummy-venvc)
-              (optimize-var-list varlist)
-              anode)))))))
+            (get-anode FLET)))))))
 
 ;; compile (LABELS ({fundef}*) {form}*)
 (defun c-LABELS ()
@@ -6475,25 +6478,7 @@ for-value   NIL or T
                         ;; function with closure variables
                         (when (var-really-usedp var)
                           (propagate-far-used fnode))))))))
-            (let* ((closurevars (checking-movable-var-list varlist anodelist))
-                   (anode
-                     (make-anode
-                       :type 'LABELS
-                       :sub-anodes `(,@anodelist ,body-anode)
-                       :seclass (seclass-without
-                                  (anodelist-seclass-or
-                                   `(,@anodelist ,body-anode))
-                                  varlist)
-                       :code `(,@(c-make-closure closurevars closuredummy-venvc
-                                                 closuredummy-stackz)
-                               ,@(mapcap #'c-bind-movable-var-anode varlist
-                                         anodelist)
-                               ,body-anode
-                               (UNWIND ,*stackz* ,oldstackz ,*for-value*)))))
-              (closuredummy-add-stack-slot
-               closurevars closuredummy-stackz closuredummy-venvc)
-              (optimize-var-list varlist)
-              anode)))))))
+            (get-anode LABELS)))))))
 
 ;; compile
 ;; (SYS::FUNCTION-MACRO-LET ({(name fun-lambdabody macro-lambdabody)}) {form})
@@ -6572,25 +6557,7 @@ for-value   NIL or T
                         (when (var-really-usedp var)
                           (propagate-far-used fnode)))
                     varlist vfnodelist))
-            (let* ((closurevars (checking-movable-var-list varlist anodelist))
-                   (anode
-                     (make-anode
-                       :type 'FUNCTION-MACRO-LET
-                       :sub-anodes `(,@anodelist ,body-anode)
-                       :seclass (seclass-without
-                                  (anodelist-seclass-or
-                                   `(,@anodelist ,body-anode))
-                                  varlist)
-                       :code `(,@(c-make-closure closurevars closuredummy-venvc
-                                                 closuredummy-stackz)
-                               ,@(mapcap #'c-bind-movable-var-anode varlist
-                                         anodelist)
-                               ,body-anode
-                               (UNWIND ,*stackz* ,oldstackz ,*for-value*)))))
-              (closuredummy-add-stack-slot
-               closurevars closuredummy-stackz closuredummy-venvc)
-              (optimize-var-list varlist)
-              anode)))))))
+            (get-anode FUNCTION-MACRO-LET)))))))
 
 ;; compile (CLOS:GENERIC-FLET ({genfundefs}*) {form}*)
 (defun c-GENERIC-FLET ()
@@ -6645,27 +6612,9 @@ for-value   NIL or T
                 (push (cons (list* nil 'GENERIC (car signlistr)) var) fenv)
                 (push var varlist)))
           (apply #'push-*venv* varlist) ; activate auxiliary variables
-          (let* ((body-anode ; compile remaining forms
-                   (c-form `(PROGN ,@(cddr *form*))))
-                 (closurevars (checking-movable-var-list varlist anodelist))
-                 (anode
-                   (make-anode
-                     :type 'CLOS:GENERIC-FLET
-                     :sub-anodes `(,@anodelist ,body-anode)
-                     :seclass (seclass-without
-                                (anodelist-seclass-or
-                                 `(,@anodelist ,body-anode))
-                                varlist)
-                     :code `(,@(c-make-closure closurevars closuredummy-venvc
-                                               closuredummy-stackz)
-                             ,@(mapcap #'c-bind-movable-var-anode varlist
-                                       anodelist)
-                             ,body-anode
-                             (UNWIND ,*stackz* ,oldstackz ,*for-value*)))))
-            (closuredummy-add-stack-slot
-             closurevars closuredummy-stackz closuredummy-venvc)
-            (optimize-var-list varlist)
-            anode))))))
+          (let ((body-anode ; compile remaining forms
+                 (c-form `(PROGN ,@(cddr *form*)))))
+            (get-anode CLOS:GENERIC-FLET)))))))
 
 ;; compile (CLOS:GENERIC-LABELS ({genfundefs}*) {form}*)
 (defun c-GENERIC-LABELS ()
@@ -6726,28 +6675,10 @@ for-value   NIL or T
                   (push (car fenvconslistr) L))))
           (apply #'push-*venv* varlist) ; activate auxiliary variables
           (let* ((anodelist
-                   (mapcar #'(lambda (form) (c-form form 'ONE)) formlist))
+                  (mapcar #'(lambda (form) (c-form form 'ONE)) formlist))
                  (body-anode ; compile remaining forms
-                   (c-form `(PROGN ,@(cddr *form*))))
-                 (closurevars (checking-movable-var-list varlist anodelist))
-                 (anode
-                   (make-anode
-                     :type 'CLOS:GENERIC-LABELS
-                     :sub-anodes `(,@anodelist ,body-anode)
-                     :seclass (seclass-without
-                                (anodelist-seclass-or
-                                 `(,@anodelist ,body-anode))
-                                varlist)
-                     :code `(,@(c-make-closure closurevars closuredummy-venvc
-                                               closuredummy-stackz)
-                             ,@(mapcap #'c-bind-movable-var-anode varlist
-                                       anodelist)
-                             ,body-anode
-                             (UNWIND ,*stackz* ,oldstackz ,*for-value*)))))
-            (closuredummy-add-stack-slot
-             closurevars closuredummy-stackz closuredummy-venvc)
-            (optimize-var-list varlist)
-            anode))))))
+                  (c-form `(PROGN ,@(cddr *form*)))))
+            (get-anode CLOS:GENERIC-LABELS)))))))
 
 ) ; macrolet
 
