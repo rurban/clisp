@@ -959,10 +959,14 @@ local void test_stream_args (gcv_object_t* args_pointer, uintC argcount) {
   };
 }
 
+/* forward declaration */
+local object resolve_synonym_stream (object stream);
+
 # Function: Tests whether an object is an input-stream.
 # input_stream_p(stream)
 # > stream: object
-local inline bool input_stream_p (object stream) {
+local bool input_stream_p (object stream) {
+  stream = resolve_synonym_stream(stream);
   return (builtin_stream_p(stream) ?
           (TheStream(stream)->strmflags & strmflags_rd_B) != 0
           : instanceof(stream,O(class_fundamental_input_stream)));
@@ -971,7 +975,8 @@ local inline bool input_stream_p (object stream) {
 # Function: Tests whether an object is an output-stream.
 # output_stream_p(stream)
 # > stream: object
-local inline bool output_stream_p (object stream) {
+local bool output_stream_p (object stream) {
+  stream = resolve_synonym_stream(stream);
   return (builtin_stream_p(stream) ?
           (TheStream(stream)->strmflags & strmflags_wr_B) != 0
           : instanceof(stream,O(class_fundamental_output_stream)));
