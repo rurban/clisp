@@ -102,10 +102,14 @@ global void nobject_out (FILE* out, object obj) {
                  : O(printstring_compiled_closure),
                  O(terminal_encoding));
       obj = TheClosure(obj)->clos_name;
-    } else if (ffunctionp(obj)) {
+    }
+    #ifdef DYNAMIC_FFI
+      else if (ffunctionp(obj)) {
       string_out(out,O(printstring_ffunction),O(terminal_encoding));
       obj = TheFfunction(obj)->ff_name;
-    } else { /* interpreted closure */
+    }
+    #endif
+      else { /* interpreted closure */
       string_out(out,O(printstring_closure),O(terminal_encoding));
       obj = TheIclosure(obj)->clos_name;
     }
