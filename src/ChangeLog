@@ -1,3 +1,8 @@
+2002-03-22  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (mandir, htmldir, dvidir, docdir):
+	architecture-independent, thus under prefix, not exec_prefix
+
 2002-03-21  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 531879 ]: eval-when and top-forms
