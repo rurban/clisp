@@ -1,3 +1,15 @@
+2002-10-28  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (signature): make it (:TYPE VECTOR) to avoid
+	going through PRINT-OBJECT and MAKE-LOAD-FORM when compiling
+	(function-signature): return function _name_ as the first value
+	- this restores inline compilation
+	(test-argument-syntax): with APPLY forms, one have to be more
+	permissive wrt keyword arguments (a key may be explicitly in the
+	list and the value maybe in the rest arguments)
+	* init.lisp (nth-value, function-lambda-expression): export here
+	for FUNCTION-SIGNATURE in compiler.lisp
+
 2002-10-27  Sam Steingold  <sds@gnu.org>
 
 	* defs2.lisp (function-lambda-expression): always return a name,

@@ -2334,7 +2334,7 @@ for-value   NIL or T
         (push '(PUSH) codelist)
         (push 1 *stackz*)))))
 
-(defstruct (signature (:conc-name sig-))
+(defstruct (signature (:type vector) (:conc-name sig-))
   ;; (name nil     :type (or symbol cons))
   (req-num 0    :type fixnum)
   (opt-num 0    :type fixnum)
@@ -2359,10 +2359,11 @@ for-value   NIL or T
         ;; compiled closure
         (multiple-value-bind (req-num opt-num rest-p key-p keywords allow-p)
             (signature obj)
-          (values obj req-num opt-num rest-p key-p keywords allow-p))
+          (values (sys::closure-name obj)
+                  req-num opt-num rest-p key-p keywords allow-p))
         ;; interpreted closure
         (let ((clos_keywords (sys::%record-ref obj 16)))
-          (values obj
+          (values (sys::closure-name obj)
                   (sys::%record-ref obj 12) ; req_num
                   (sys::%record-ref obj 13) ; opt_num
                   (sys::%record-ref obj 19) ; rest_flag
@@ -2371,7 +2372,8 @@ for-value   NIL or T
                   (sys::%record-ref obj 18)))) ; allow_flag
     (cond #+FFI
           ((eq (type-of obj) 'FFI::FOREIGN-FUNCTION)
-           (values obj (foreign-function-in-arg-count obj) 0 nil nil nil nil))
+           (values (nth-value 2 (function-lambda-expression obj))
+                   (foreign-function-in-arg-count obj) 0 nil nil nil nil))
           (t
            (multiple-value-bind (name req-num opt-num rest-p keywords allow-p)
                (subr-info obj)
@@ -2379,8 +2381,7 @@ for-value   NIL or T
                (values name req-num opt-num rest-p keywords keywords allow-p)
                (if no-error
                  (values)
-                 (error (TEXT "~S: ~S is not a function.")
-                        'function-signature obj))))))))
+                 (coerce obj 'function)))))))) ; error
 
 (defun get-signature (obj)
   (multiple-value-bind (name req-num opt-num rest-p key-p keywords allow-p)
@@ -2467,7 +2468,7 @@ for-value   NIL or T
     (when (<= n reqopt) (return-from test-argument-syntax 'STATIC-KEYS))
     (when rest-p (return-from test-argument-syntax 'DYNAMIC-KEYS))
     (setq n (- n reqopt) args (nthcdr reqopt args))
-    (unless (evenp n)
+    (unless (or (evenp n) applyargs)
       (c-warn
        (TEXT "keyword arguments to function ~S should occur pairwise: ~S")
        fun args)
@@ -6892,7 +6893,7 @@ for-value   NIL or T
     (if (and (stringp (third *form*)) (not (fenv-search 'FORMATTER)))
       ;; precompile the format-string at compile-time.
       (if (eq destination t)    ; avoid calling FORMAT altogether
-        (c-global-function-call-form
+        (c-GLOBAL-FUNCTION-CALL-form
          `(funcall (FORMATTER ,(third *form*)) nil ,@(cdddr *form*)))
         (c-GLOBAL-FUNCTION-CALL-form
          `(FORMAT ,(second *form*) (FORMATTER ,(third *form*))
