@@ -48,7 +48,8 @@
 # -----------------------------------------------------------------------------
 #                     Measuring time consumption
 
-# Time consumption is measured with sub-second resolution, using internal_time_t.
+# Time consumption is measured with sub-second resolution,
+# using internal_time_t.
 
 # Variables:
 #ifdef TIME_AMIGAOS
@@ -507,7 +508,7 @@ LISPFUNN(get_internal_run_time,0)
 #if defined(UNIX) || defined(MSDOS) || defined(RISCOS)
 # UP: Wandelt das System-Zeitformat in Decoded-Time um.
 # convert_time(&time,&timepoint);
-# > time_t time: Zeit im System-Zeitformat
+# > time_t time: in system time format
 # < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
 #   timepoint.Tag, timepoint.Monat, timepoint.Jahr, jeweils als Fixnums
   global void convert_time (const time_t* time, decoded_time_t* timepoint);
@@ -541,7 +542,7 @@ LISPFUNN(get_internal_run_time,0)
 #ifdef WIN32_NATIVE
 # UP: Wandelt das System-Zeitformat in Decoded-Time um.
 # convert_time(&time,&timepoint);
-# > FILETIME time: Zeit im System-Zeitformat
+# > FILETIME time: in system time format
 # < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
 #   timepoint.Tag, timepoint.Monat, timepoint.Jahr, jeweils als Fixnums
   global void convert_time (const FILETIME* time, decoded_time_t* timepoint);
@@ -583,7 +584,7 @@ LISPFUNN(get_internal_run_time,0)
     }
 
 #ifdef AMIGAOS
-# UP: Wandelt das Amiga-Zeitformat in Universal-Time um.
+# UP: convert the system (Amiga) time format into lisp universal time.
 # convert_time_to_universal(&datestamp)
 # > struct DateStamp datestamp: Uhrzeit
 #          datestamp.ds_Days   : Anzahl Tage seit 1.1.1978
@@ -603,9 +604,9 @@ LISPFUNN(get_internal_run_time,0)
     }
 #endif
 #if defined(UNIX) || defined(MSDOS) || defined(RISCOS)
-# UP: Wandelt das System-Zeitformat in Universal-Time um.
+# UP: convert the system time format into lisp universal time.
 # convert_time_to_universal(&time)
-# > time_t time: Zeit im System-Zeitformat
+# > time_t time: in system time format
 # < result: integer denoting the seconds since 1900-01-01 00:00 GMT
 # can trigger GC
   global object convert_time_to_universal (const time_t* time);
@@ -626,35 +627,34 @@ LISPFUNN(get_internal_run_time,0)
       #endif
     }
 #endif
-#ifdef WIN32_NATIVE
-# UP: Wandelt das System-Zeitformat in Universal-Time um.
+
+#if defined(WIN32_NATIVE)
+# UP: convert the system (win32) time format into lisp universal time.
 # convert_time_to_universal(&time)
-# > FILETIME time: Zeit im System-Zeitformat
+# > FILETIME time: in system time format
 # < result: integer denoting the seconds since 1900-01-01 00:00 GMT
 # can trigger GC
-  global object convert_time_to_universal (const FILETIME* time);
-  global object convert_time_to_universal(time)
-    var const FILETIME* time;
-    {
-      # Since we get the timezone from the OS (sys::defaul-time-zone),
-      # we can assume that the OS's timezone and CLISP's timezone agree.
-      var internal_time_t offset = # difference between 1.1.1601 and 1.1.1900
-      #ifdef HAVE_LONGLONG
-        { (ULONG)((ULONGLONG)109207 * (ULONGLONG)86400 * (ULONGLONG)ticks_per_second),
-          (ULONG)(((ULONGLONG)109207 * (ULONGLONG)86400 * (ULONGLONG)ticks_per_second) >> 32)
-        };
-      #else
-        { 0xFDE04000, 0x14F373B };
-      #endif
-      var internal_time_t internal_real_time;
-      var uintL real_time;
-      sub_internal_time(*time,offset,internal_real_time);
-      divu_6432_3232(internal_real_time.dwHighDateTime,
-                     internal_real_time.dwLowDateTime,
-                     ticks_per_second,
-                     real_time=,);
-      return UL_to_I(real_time);
-    }
+global object convert_time_to_universal (const FILETIME* time) {
+  /* Since we get the timezone from the OS (sys::defaul-time-zone),
+     we can assume that the OS's timezone and CLISP's timezone agree. */
+  var internal_time_t offset = /* difference between 1.1.1601 and 1.1.1900 */
+   #ifdef HAVE_LONGLONG
+    { (ULONG)((ULONGLONG)109207 * (ULONGLONG)86400
+              * (ULONGLONG)ticks_per_second),
+      (ULONG)(((ULONGLONG)109207 * (ULONGLONG)86400
+               * (ULONGLONG)ticks_per_second) >> 32) };
+   #else
+    { 0xFDE04000, 0x14F373B };
+   #endif
+  var internal_time_t internal_real_time;
+  var uintL real_time;
+  sub_internal_time(*time,offset,internal_real_time);
+  divu_6432_3232(internal_real_time.dwHighDateTime,
+                 internal_real_time.dwLowDateTime,
+                 ticks_per_second,
+                 real_time=,);
+  return UL_to_I(real_time);
+}
 #endif
 
 # -----------------------------------------------------------------------------
