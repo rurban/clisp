@@ -1060,12 +1060,18 @@ local void gc_markphase (void)
         else
        #endif
         #ifdef SPVW_PURE
-        if (heapnr == instance_type)
+        if (heapnr == instance_type
+            || (heapnr == closure_type
+                && (closure_flags((Closure)p2) & closflags_instance_B)))
         #else
          #ifdef TYPECODES
-          if ((flags & ~bit(garcol_bit_t)) == instance_type)
+          if ((flags & ~bit(garcol_bit_t)) == instance_type
+              || ((flags & ~bit(garcol_bit_t)) == closure_type
+                  && (closure_flags((Closure)p2) & closflags_instance_B)))
          #else
-          if (record_type((Record)p2) == Rectype_Instance)
+          if (record_type((Record)p2) == Rectype_Instance
+              || (record_type((Record)p2) == Rectype_Closure
+                  && (closure_flags((Closure)p2) & closflags_instance_B)))
          #endif
         #endif
           {
@@ -1128,12 +1134,18 @@ local void gc_markphase (void)
         else
        #endif
         #ifdef SPVW_PURE
-        if (heapnr == instance_type)
+        if (heapnr == instance_type
+            || (heapnr == closure_type
+                && (closure_flags((Closure)p2) & closflags_instance_B)))
         #else
          #ifdef TYPECODES
-          if ((flags & ~bit(garcol_bit_t)) == instance_type)
+          if ((flags & ~bit(garcol_bit_t)) == instance_type
+              || ((flags & ~bit(garcol_bit_t)) == closure_type
+                  && (closure_flags((Closure)p2) & closflags_instance_B)))
          #else
-          if (record_type((Record)p2) == Rectype_Instance)
+          if (record_type((Record)p2) == Rectype_Instance
+              || (record_type((Record)p2) == Rectype_Closure
+                  && (closure_flags((Closure)p2) & closflags_instance_B)))
          #endif
         #endif
           {
