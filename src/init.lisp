@@ -277,7 +277,7 @@
 
 (export
  '(re-export make-encoding encoding encoding-charset
-   show-stack gc exit quit bye
+   show-stack gc exit quit bye expand-form
    probe-directory cd make-dir delete-dir default-directory dir
    xgcd exquo ! evalhook applyhook substring string-concat
    string-char make-char string-width char-width
@@ -1176,17 +1176,13 @@
           (%expand-list (cdr handler)))
         (%expand-handlers (cdr handlers))))))
 
-#|
-;; expands a Form in a given Function-Environment
-;; can be called by EVAL on demand.
- (defun %expand-form-main (form *fenv*)
-  (%expand-form form))
-|#
-
 ;; expands (lambdalist . body) in a given function-environment.
 ;; Is called by GET_CLOSURE.
 (defun %expand-lambdabody-main (lambdabody *venv* *fenv*)
   (%expand-lambdabody lambdabody))
+
+(defun expand-form (form &aux *fenv* *venv*)
+  (%expand-form form))
 
 (VALUES) )
 
