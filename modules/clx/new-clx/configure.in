@@ -2,13 +2,18 @@ dnl -*- autoconf -*- script for new-clx
 dnl Gilbert Baumann, 1999-10-11
 dnl Sam Steingold 2002-06-05
 
-dnl Tried with Autoconf version 2.53
+AC_PREREQ(2.57)
+AC_INIT(clx/new-clx, 1.0, clisp-list)
+AC_CONFIG_SRCDIR(clx.f)
+AC_CONFIG_HEADERS(config.h)
 
-AC_INIT(clx.f)
-
+AC_MSG_NOTICE([ * NEW CLX])
+AC_HEADER_TIME
 dnl find a path to X11
 dnl this generates X_LIBS, X_CFLAGS and X_PRE_LIBS
-AC_PATH_XTRA()
+AC_PATH_XTRA
+
+AC_CHECK_FUNCS(XGetAtomNames)
 
 dnl Look for Xpm
 AC_CACHE_CHECK(for Xpm library, gb_cv_have_xpm,
@@ -59,4 +64,8 @@ else
 fi
 
 dnl And dump what we found:
-AC_OUTPUT(Makefile link.sh)
+AC_MSG_NOTICE([ * NEW CLX (output)])
+AC_CONFIG_FILES(Makefile link.sh)
+AC_OUTPUT
+
+AC_MSG_NOTICE([ * NEW CLX (done)])

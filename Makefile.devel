@@ -142,7 +142,8 @@ CONFIGURES = src/configure						 \
 	libcharset/configure
 CONFIG_H_IN = modules/wildcard/config.h.in modules/regexp/config.h.in	\
 	modules/dirkey/config.h.in modules/syscalls/config.h.in		\
-	modules/postgresql/config.h.in src/unixconf.h.in
+	modules/clx/new-clx/config.h.in modules/postgresql/config.h.in  \
+	src/unixconf.h.in
 
 configures : ffcall/autoconf/aclocal.m4 $(CONFIGURES) $(CONFIG_H_IN)
 

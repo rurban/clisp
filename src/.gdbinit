@@ -12,7 +12,7 @@ end
 define full
        file full/lisp.run
        set args -B . -M full/lispinit.mem -q -norc -i clx/new-clx/demos/clx-demos -p CLX-DEMOS
-       break my_standard_type_error
+       break my_type_error
        break closed_display_error
 end
 document full

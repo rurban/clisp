@@ -1,9 +1,10 @@
 # Makefile for CLISP module set clx
 
-CC = cc
+CC = @CC@
 CFLAGS = -O
 INCLUDES= ../../
 CLISP = clisp -q -norc
+MODPREP = ../../modprep.fas
 LN = ln
 SHELL = /bin/sh
 
@@ -11,10 +12,7 @@ DISTRIBFILES = link.sh Makefile clx-preload.lisp clx.lisp clx.fas image.lisp ima
 distribdir =
 
 ### Custom defs.
-E2D = ./e2d
 CCMP2C = ../../ccmp2c
-COMMENT5 = ../../comment5
-ANSIDECL = ../../ansidecl
 RM = rm -f
 WANTS = @WANTS@
 X_CFLAGS = @X_CFLAGS@
@@ -27,9 +25,6 @@ clx.fas clx.lib: clx.lisp clx-preload.lisp
 image.fas: image.lisp clx.lib
 	$(CLISP) -i clx-preload.lisp -c image.lisp
 
-$(E2D): e2d.c
-	$(CC) $(CFLAGS) -I$(INCLUDES) -o $(E2D) e2d.c
-
 clx.e: clx.f
 	$(CCMP2C) clx.f > genclx.c
 	$(CC) $(CFLAGS) $(WANTS) genclx.c -o genclx
@@ -37,14 +32,11 @@ clx.e: clx.f
 	$(RM) genclx.c
 	$(RM) genclx
 
-clx.d: clx.e $(E2D)
-	echo "#line 1 \"clx.e\"" > clx.temp
-	sed -e 's,//.*$$,,' -e 's,/\*[^/]*\*/, ,g' -e 's,/\*[^*]*\*/, ,g' -e 's,\(/\*.*\)`,\1,g' < clx.e >> clx.temp
-	$(E2D) clx clx.temp clx.d
-	$(RM) clx.temp
-
-clx.c: clx.d
-	$(COMMENT5) clx.d | $(ANSIDECL) > clx.c
+clx.c: clx.e $(MODPREP)
+	$(RM) clx.d
+	echo "#line 1 \"clx.f\"" > clx.d
+	cat clx.e >> clx.d
+	$(CLISP) $(MODPREP) clx.d clx.c
 
 clx.o: clx.c
 	$(CC) $(CFLAGS) $(X_CFLAGS) -I$(INCLUDES) -c clx.c
@@ -58,10 +50,7 @@ clisp-module-distrib : clisp-module force
 
 
 clean : force
-	$(RM) genclx.c genclx clx.temp
-	$(RM) *.lib *.fas
-	$(RM) clx.e clx.d clx.c clx.o clx.tabs.c
-	$(RM) e2d
+	$(RM) genclx.c genclx clx.temp *.lib *.fas clx.e clx.d clx.c clx.o
 
 force:
 
