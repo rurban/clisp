@@ -46,10 +46,6 @@
   ;; macro argument list is invalid.
   MACROLET.39
 
-  ;; Paul Dietz assumes that passing invalid initialization arguments is a
-  ;; PROGRAM-ERROR. In CLISP, it is just an ERROR.
-  SHARED-INITIALIZE.ERROR.4
-
   ;; Paul Dietz assumes that the qualifiers of methods are checked only
   ;; at run time, when the effective method is determined.
   ;; I argue that the description of DEFMETHOD allows qualifier checking to
@@ -83,10 +79,36 @@
 
   ;; CLISP supports complex numbers with realpart and imagpart of different
   ;; type.
-  COMPLEX.2 COMPLEX.4 COMPLEX.5
+  COMPLEX.2 COMPLEX.4 COMPLEX.5 IMAGPART.4
 
   ;; In CLISP the classes CLASS and METHOD are implemented as structures.
   TYPES.3 BUILT-IN-CLASS-CPL STANDARD-CLASS-CPL STANDARD-METHOD-CPL
+
+  ;; Paul Dietz assumes that (MAKE-INSTANCES-OBSOLETE symbol) returns
+  ;; (FIND-CLASS symbol). In CLISP it returns symbol. This is mandated
+  ;; by the ANSI CL description "make-instances-obsolete class => class".
+  MAKE-INSTANCES-OBSOLETE.2
+
+  ;; Paul Dietz assumes that the classes STREAM and CONDITION are disjoint.
+  ;; In CLISP they are not, because the user can create subclasses inheriting
+  ;; from FUNDAMENTAL-STREAM and any other class with metaclass STANDARD-CLASS.
+  ;; ANSI CL 4.2.2.(1) allows such classes.
+  TYPES.7B TYPES.7C
+
+  ;; Paul Dietz assumes that the class STREAM is disjoint from user-defined
+  ;; classes with metaclass STANDARD-CLASS.
+  ;; In CLISP this is not the case, because the user can create subclasses
+  ;; inheriting from FUNDAMENTAL-STREAM and any other class with metaclass
+  ;; STANDARD-CLASS. ANSI CL 4.2.2. allows such classes.
+  USER-CLASS-DISJOINTNESS
+
+  ;; Paul Dietz assumes that two user-defined classes with metaclass
+  ;; STANDARD-CLASS that don't inherit from each other are disjoint.
+  ;; In CLISP this is not the case, because the user can create subclasses
+  ;; inheriting from both classes. ANSI CL 4.2.2.(3) allows such classes.
+  ;; We don't want SUBTYPEP to depend on the existence or absence of
+  ;; subclasses.
+  USER-CLASS-DISJOINTNESS-2 TAC-3.16
 
   ;; Paul Dietz assumes that PROBE-FILE on a directory is allowed.
   ;; In CLISP, it always gives an error.
@@ -98,17 +120,15 @@
   PRINT.SYMBOL.PREFIX.3
 
   ; To be revisited:
-  ; CHANGE-CLASS.1.11 CHANGE-CLASS.3.2 CHANGE-CLASS.ERROR.4
-  ; MAKE-INSTANCES-OBSOLETE.2 IMAGPART.4 TYPES.7B TYPES.7C
-  ; USER-CLASS-DISJOINTNESS USER-CLASS-DISJOINTNESS-2 TAC-3.16
+  ; none
 ))
 
 ;; A few tests call DISASSEMBLE. Make it work without user intervention.
 (setf (ext:getenv "PAGER") "cat")
 
-;; Avoid warnings that bloat the log file.
-(setq custom:*warn-on-floating-point-contagion* nil
-      custom:*warn-on-floating-point-rational-contagion* nil)
+;; Avoid floating-point computation warnings that bloat the log file.
+(setq custom:*warn-on-floating-point-contagion* nil)
+(setq custom:*warn-on-floating-point-rational-contagion* nil)
 
 ;; Then the tests.
 (load "gclload2.lsp")
