@@ -7666,7 +7666,7 @@ local void pr_nilvector (const gcv_object_t* stream_, object v) {
   JUSTIFY_LAST(true);
   pushSTACK(fixnum(len));
   pr_list(stream_,listof(1)); # print list with the length
-  JUSTIFY_END_ENG;
+  JUSTIFY_END_FILL;
   INDENT_END;
   KLAMMER_ZU;
 }
