@@ -1,5 +1,10 @@
 2004-11-21  Bruno Haible  <bruno@clisp.org>
 
+	* mop.tst: Restrict the tests that require
+	compute-effective-slot-definition-initargs to CLISP, CMUCL, SBCL.
+
+2004-11-21  Bruno Haible  <bruno@clisp.org>
+
 	* mop.tst: Add support for OpenMCL 0.14.2.
 	* mop-aux.lisp: Likewise.
 
