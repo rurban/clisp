@@ -3921,17 +3921,20 @@ functions are provided:
     <primary><function>MAKE-BUFFERED-OUTPUT-STREAM</function>
  </primary></indexterm></firstterm></title>
 
-<para><code>(EXT:MAKE-BUFFERED-OUTPUT-STREAM &func-r;)</code>
- returns a buffered &out-s;.
+<formalpara><title><code>(EXT:MAKE-BUFFERED-OUTPUT-STREAM
+   &func-r;)</code></title>
+<para>Returns a buffered &out-s;.
  &func-r; is a &function-t; expecting one argument, a &simple-string-t;.
  &write-char; collects the &character-t;s in a &string-t;, until a
  newline character is written or &force-output;/&finish-output; is called.
  Then &func-r; is called with a &simple-string-t; as argument,
  that contains the characters collected so far.
  &clear-output; dicards the characters collected so far.</para>
+</formalpara>
 
-<para><code>(EXT:MAKE-BUFFERED-INPUT-STREAM &func-r; &mode-r;)</code>
- returns a buffered &in-s;.
+<formalpara><title><code>(EXT:MAKE-BUFFERED-INPUT-STREAM &func-r;
+   &mode-r;)</code></title>
+<para>Returns a buffered &in-s;.
  &func-r; is a &function-t; of 0 arguments that returns
  either &nil; (stands for &eos;) or up to three values
  &string-r;, &start-r;, &end-r;.
@@ -3939,9 +3942,9 @@ functions are provided:
  after another, as delimited by &start-r; and &end-r;, which default to
  &zero; and &nil;, respectively.
  When the &string-r; is consumed, &func-r; is called again.
- The &string-r; returned by &func-r; should not be changed,
- otherwise &func-r; should copy the &string-r; with &copy-seq;
- or &subseq; beforehand.
+ The &string-r; returned by &func-r; should not be changed by the user.
+ &func-r; should copy the &string-r; with &copy-seq; or &subseq; before
+ returning if the original &string-r; is to be modified.
  &mode-r; determines the behavior of &listen;
  when the current &string-r; buffer is empty:
  <variablelist>
@@ -3958,7 +3961,7 @@ functions are provided:
  </varlistentry></variablelist>
  &clear-input; discards the rest of the current &string-r;,
  so &func-r; will be called upon the next &read-char; operation.
-</para>
+</para></formalpara>
 </section>
 
 </section>
@@ -4064,9 +4067,9 @@ functions are provided:
    <ulink url="&clhs;/Body/sec_22-2-1-4.html">[CLHS-22.2.1.4]</ulink></title>
 
 <para>A <ulink url="&clhs;/Body/glo_p.html#pprint_dispatch_table">pprint
- dispatch table</ulink> is a &cons; of a symbol
- &print-pprint-dispatch-var; an &alist; which maps types into priorities
- and print functions.
+ dispatch table</ulink> is a &cons; of a &symbol-t;
+ &print-pprint-dispatch-var; and an &alist; which maps types into
+ priorities and print functions.
  Their use is strongly discouraged because of the performance issues:
  when &print-pprint-dispatch-var; is non-trivial and &print-pretty-var;
  is non-&nil;, printing of every object requires a lookup in the table,
