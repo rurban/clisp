@@ -692,6 +692,22 @@ global host_data * socket_getpeername (SOCKET socket_handle, host_data * hd,
   return hd;
 }
 
+# set linger timeout affecting closesocket() graceful behaviour.
+# Default socket option of SO_DONTLINGER seems unacceptable on win32.
+# Who can get that option working as it described
+# in MSDN (immediate return, graceful disconnect) ?
+local int lingerize_socket(SOCKET * socket_handle) {
+  var struct linger li;
+  li.l_onoff = 1;
+  li.l_linger = 30; # 30 seconds to linger
+  if (setsockopt(*socket_handle,SOL_SOCKET,SO_LINGER,
+                 (SETSOCKOPT_ARG_T)&li,sizeof(li)) < 0) {
+    saving_sock_errno(CLOSESOCKET(*socket_handle)); return false;
+  }
+  return true;
+}
+
+
 # Creation of sockets on the server side:
 # SOCKET socket_handle = create_server_socket (&host_data, sock, port);
 #   creates a socket to which other processes can connect.
@@ -720,6 +736,9 @@ local SOCKET bindlisten_via_ip(addr,addrlen)
         saving_sock_errno(CLOSESOCKET(fd)); return INVALID_SOCKET;
       }
     }
+   #ifdef WIN32_NATIVE
+    if (!lingerize_socket(&fd)) return INVALID_SOCKET;
+   #endif
     # Bind it to the desired port.
     if (bind(fd, addr, addrlen) >= 0)
       # Start listening for client connections.
@@ -789,6 +808,9 @@ local SOCKET connect_via_ip(addr,addrlen)
     var SOCKET fd;
     if ((fd = socket((int) addr->sa_family, SOCK_STREAM, 0)) == INVALID_SOCKET)
       return INVALID_SOCKET;
+   #ifdef WIN32_NATIVE
+    if (!lingerize_socket(&fd)) return INVALID_SOCKET;
+   #endif
     if (connect(fd, addr, addrlen) >= 0)
       return fd;
     saving_sock_errno(CLOSESOCKET(fd));

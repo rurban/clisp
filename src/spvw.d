@@ -2889,6 +2889,9 @@ global int main (argc_t argc, char* argv[]) {
  #endif
   FREE_DYNAMIC_ARRAY(argv_compile_files); }
   FREE_DYNAMIC_ARRAY(argv_init_files); }
+ #ifdef WIN32_NATIVE
+  done_win32();
+ #endif
  #if (defined(UNIX) && !defined(NEXTAPP)) || defined(AMIGAOS) || defined(RISCOS)
   terminal_sane(); # switch terminal again in normal mode
  #endif
