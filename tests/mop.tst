@@ -135,6 +135,28 @@ T
               (:metaclass option-slot-class))))))
 (T FOO T (BAR BAZ) NIL NIL)
 
+;; Check that after a class redefinition, new user-defined direct slots
+;; have replaced the old direct slots.
+(progn
+  (defclass extended-slot-definition (standard-direct-slot-definition)
+    ((option1 :initarg :option1)
+     (option2 :initarg :option2)))
+  (defclass extended-slot-class (standard-class)
+    ())
+  (defmethod clos:direct-slot-definition-class ((c extended-slot-class) &rest args)
+    (declare (ignore args))
+    (find-class 'extended-slot-definition))
+  #-CLISP
+  (defmethod clos:validate-superclass ((c1 extended-slot-class) (c2 standard-class))
+    t)
+  (defclass testclass03e () ((x :option1 bar)) (:metaclass extended-slot-class))
+  (defclass testclass03e () ((x :option2 baz)) (:metaclass extended-slot-class))
+  (let ((cl (find-class 'testclass03e)))
+    (list (length (class-direct-slots cl))
+          (slot-boundp (first (class-direct-slots cl)) 'option1)
+          (slot-boundp (first (class-direct-slots cl)) 'option2))))
+(1 NIL T)
+
 
 ;; Check that defgeneric supports user-defined options.
 (progn
