@@ -71,12 +71,16 @@ libsigsegv.la : $(OBJECTS)
 	$(LIBTOOL_LINK) $(CC) -o libsigsegv.la -rpath $(libdir) $(OBJECTS)
 
 install : all force
+	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
+	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
 	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
 	$(LIBTOOL_INSTALL) $(INSTALL_DATA) libsigsegv.la $(libdir)/libsigsegv.la
 	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
 	$(INSTALL_DATA) sigsegv.h $(includedir)/sigsegv.h
 
 installdirs : force
+	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
+	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
 	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
 	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
 

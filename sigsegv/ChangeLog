@@ -1,3 +1,8 @@
+1999-05-29  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * Makefile.in (install): Make sure the directories $(prefix) and
+          $(exec_prefix) exist.
+
 1999-05-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Libtoolify.
