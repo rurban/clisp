@@ -685,6 +685,9 @@
     # Register for mv_count.
       #if defined(SPARC)
         #define mv_count_register  "%g6"
+        #if defined(UNIX_NETBSD)
+          #define NEED_temp_mv_count
+        #endif
       #endif
       #if defined(HPPA)
         #define mv_count_register  "%r11"  # eines der allgemeinen Register %r5..%r18
@@ -705,6 +708,9 @@
     #if !defined(WIDE_SOFT)
       #if defined(SPARC)
         #define value1_register  "%g7"
+        #if defined(UNIX_NETBSD)
+          #define NEED_temp_value1
+        #endif
       #endif
       #if defined(HPPA)
         #define value1_register  "%r12"  # eines der allgemeinen Register %r5..%r18
