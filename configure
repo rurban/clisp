@@ -74,6 +74,9 @@ EOP
 # Abort in case something fails.
 set -e
 
+# Nuisances.
+unset CDPATH
+
 srcdir=''
 subdir_configure_args=''
 makemake_args=''
