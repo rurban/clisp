@@ -1,3 +1,9 @@
+2003-06-12  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (simplify_directory): fold "*" into :WILD
+	and "**" into :WILD-INFERIORS
+	(directory_list_valid_p): accept :WILD
+
 2003-06-08  Sam Steingold  <sds@gnu.org>
 
 	* io.d (check_readtable): new function, replaces function

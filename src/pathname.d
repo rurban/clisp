@@ -1703,8 +1703,15 @@ local object simplify_directory (object dir) {
         if (string_equal(Car(next),O(dot_string))) {
           Cdr(curr) = Cdr(next); # drop "."
           continue;
-        }
-        if (!consp(next))
+        } else if (string_equal(Car(next),O(wild_string))) {
+          Car(next) = S(Kwild);
+          curr = next;
+          continue;
+        } else if (string_equal(Car(next),O(wildwild_string))) {
+          Car(next) = S(Kwild_inferiors);
+          curr = next;
+          continue;
+        } else if (!consp(next))
           break;
         if (string_equal(Car(next),O(dotdot_string)))
           Car(next) = S(Kup); # ".." --> :UP
@@ -4115,8 +4122,8 @@ local bool directory_list_valid_p (bool logical, object dirlist) {
     var object subdir = Car(dirlist); dirlist = Cdr(dirlist);
    #ifdef LOGICAL_PATHNAMES
     if (logical) {
-      if (!(eq(subdir,S(Kwild_inferiors)) || legal_logical_word(subdir)
-            || eq(subdir,S(Kup))))
+      if (!(eq(subdir,S(Kwild_inferiors)) || eq(subdir,S(Kwild))
+            || legal_logical_word(subdir) || eq(subdir,S(Kup))))
         return false;
     } else
    #endif
@@ -4128,8 +4135,8 @@ local bool directory_list_valid_p (bool logical, object dirlist) {
         return false;
       #endif
       #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-      if (!(eq(subdir,S(Kwild_inferiors)) || legal_name(subdir)
-            || eq(subdir,S(Kup))))
+      if (!(eq(subdir,S(Kwild_inferiors)) || eq(subdir,S(Kwild))
+            || legal_name(subdir) || eq(subdir,S(Kup))))
         return false;
       #endif
      #endif
