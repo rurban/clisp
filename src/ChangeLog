@@ -1,5 +1,15 @@
 2003-02-04  Sam Steingold  <sds@gnu.org>
 
+	* clos.lisp (class): new slot DIRECT-SUBCLASSES
+	(obsolete-class): new function
+	(ensure-class): use it
+	(initialize-instance-standard-class, make-instance-built-in-class)
+	(initialize-instance-structure-class): update DIRECT-SUBCLASSES of
+	the DIRECT-SUPERCLASSES of this class
+	* lispbibl.d (Class): new slot direct_subclasses
+
+2003-02-04  Sam Steingold  <sds@gnu.org>
+
 	* type.lisp (type-class, %standard-char-p)
 	(valid-interval-designator-p, interval-mix): new functions
 	(STANDARD-CHAR): use %STANDARD-CHAR-P to define
