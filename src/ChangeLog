@@ -1,4 +1,18 @@
-2004-10-12  Bruno Haible  <bruno@clisp.org>
+2004-10-13  Bruno Haible  <bruno@clisp.org>
+
+	Reorganize some CLOS code.
+	* clos-genfun1.lisp (|#'compute-discriminating-function| etc.,
+	safe-gf-*): Move to clos-genfun2a.lisp.
+	* clos-methcomb2.lisp (method-applicable-p, sort-applicable-methods):
+	Move to clos-genfun2a.lisp.
+	* clos-genfun2a.lisp, clos-genfun2b.lisp: New files, from
+	clos-genfun2.lisp.
+	* clos-genfun2.lisp: Remove file.
+	* clos.lisp: Load clos-genfun2{a,b}.lisp instead of clos-genfun2.lisp.
+	* makemake.in (LPARTS): Add clos-genfun2{a,b}, remove clos-genfun2.
+	* po/Makefile.devel (LISPSOURCES): Likewise.
+
+2004-10-13  Bruno Haible  <bruno@clisp.org>
 
 	* clos-genfun2.lisp (compute-applicable-methods-<generic-function>):
 	Renamed from compute-applicable-methods-<standard-generic-function>.
@@ -8,6 +22,8 @@
 	* clos-genfun4.lisp (compute-applicable-methods,
 	compute-applicable-methods-using-classes): Generalize the method from
 	<standard-generic-function> to <generic-function>.
+
+2004-10-12  Bruno Haible  <bruno@clisp.org>
 
 	* clos-methcomb2.lisp (compute-effective-method-<generic-function>):
 	Renamed from compute-effective-method-<standard-generic-function>.

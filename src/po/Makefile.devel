@@ -58,7 +58,7 @@ LISPSOURCES = init defseq backquote defmacro macros1 macros2 defs1 \
               clos-slotdef2 clos-slotdef3 clos-slots1 clos-slots2 \
               clos-method1 clos-method2 clos-method3 clos-method4 \
               clos-methcomb1 clos-methcomb2 clos-methcomb3 clos-methcomb4 \
-              clos-genfun1 clos-genfun2 clos-genfun3 clos-genfun4 clos-genfun5 \
+              clos-genfun1 clos-genfun2a clos-genfun2b clos-genfun3 clos-genfun4 clos-genfun5 \
               clos-dependent clos-print documentation \
               fill-out disassem condition loadform gstream xcharin keyboard \
               screen beossock runprog query reploop dribble complete \
