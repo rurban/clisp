@@ -156,7 +156,7 @@ LISPFUN(i18n_ngettext,seclass_read,3,2,norest,nokey,0,NIL)
   if (!(integerp(arg) && positivep(arg))) {
     pushSTACK(arg); # TYPE-ERROR slot DATUM
     pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(arg); pushSTACK(S(ngettext));
+    pushSTACK(arg); pushSTACK(S(i18n_ngettext));
     fehler(type_error, GETTEXT("~: argument should be an integer >=0, not ~"));
   }
   var uint32 n;
