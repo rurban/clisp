@@ -1,3 +1,7 @@
+2004-10-07  Bruno Haible  <bruno@clisp.org>
+
+	* conditions.tst: Add a few tests for use-value in array functions.
+
 2004-10-07  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* ffi.tst: test some restarts

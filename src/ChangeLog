@@ -1,3 +1,24 @@
+2004-10-07  Bruno Haible  <bruno@clisp.org>
+
+	Fix crash after check_array() is used, introduced on 2004-05-12.
+	* array.d (test_subscripts): Fix invocations of fehler_subscript_type,
+	fehler_subscript_range.
+	(fehler_index_type, fehler_index_range, test_index): Pass the array
+	as argument, not on the STACK.
+	(subscripts_to_index): Fix invalid STACK accesses.
+	(SYS::STORE): Store the checked array in the STACK, for
+	storagevector_store.
+	(SVREF, SYS::SVSTORE, SYS::%SVSTORE, ROW-MAJOR-AREF,
+	SYS::ROW-MAJOR-STORE): Update.
+	(ARRAY-IN-BOUNDS-P): Update. Fix invocation of fehler_subscript_type.
+	(ARRAY-ROW-MAJOR-INDEX): Fix invalid STACK accesses.
+	(fehler_bit_array): Pass the array as argument, not on the STACK.
+	(BIT, SBIT, SYS::SET-FILL-POINTER): Update.
+	* lispbibl.d (fehler_index_range): Pass the array as argument, not on
+	the STACK.
+	* stream.d (FILE-POSITION): Update.
+	* sequence.d (fehler_vector_index_range, seq_check_index): Update.
+
 2004-10-06  Bruno Haible  <bruno@clisp.org>
 
 	* time.d (SYS::DELTA4): Fix error message's argument. Signal an error

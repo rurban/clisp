@@ -11466,9 +11466,9 @@ extern object array_displace_check (object array, uintL size, uintL* index);
 #define simple_nilarray_p(obj)  nullp(obj)
 
 # error-message
-# > STACK_1: Array (usually a Vector)
+# > array: array (usually a Vector)
 # > STACK_0: (erroneous) Index
-nonreturning_function(extern, fehler_index_range, (uintL bound));
+nonreturning_function(extern, fehler_index_range, (object array, uintL bound));
 # used by SEQUENCE
 
 # error message: attempt to retrieve a value from (ARRAY NIL)
