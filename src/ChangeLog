@@ -1,3 +1,7 @@
+2001-10-15  Sam Steingold  <sds@gnu.org>
+
+	* io.d (read_internal): clear EOF from the stream
+
 2001-10-10  Sam Steingold  <sds@gnu.org>
 
 	optimize #'* and #'/

@@ -7,7 +7,7 @@
 #include "arilev0.c" # for Division in pr_uint
 
 # IO_DEBUG must be undefined in the code comitted to CVS
-# define IO_DEBUG 0
+#define IO_DEBUG 0
 #ifdef IO_DEBUG
 #include <stdio.h>
 global object car (object o) { return Car(o); }
@@ -2066,6 +2066,7 @@ local object read_internal (const object* stream_) {
           # yes -> EOF within an object -> error
           fehler_eof_innen(stream_);
         # otherwise eof_value as value:
+        clear_input(*stream_); # clear the EOF char from the stream
         return eof_value;
       case syntax_illegal: # read_token_1 returns Error
       case syntax_single_esc:
