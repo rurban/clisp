@@ -171,8 +171,10 @@ nonreturning_function(static, pcre_error, (int status)) {
     case PCRE_ERROR_MATCHLIMIT:     fehler(error,"~/~ (~ ~): MATCHLIMIT");
     case PCRE_ERROR_CALLOUT:        fehler(error,"~/~ (~ ~): CALLOUT");
     case PCRE_ERROR_BADUTF8:        fehler(error,"~/~ (~ ~): BADUTF8");
+#  if defined(PCRE_ERROR_BADUTF8_OFFSET)
     case PCRE_ERROR_BADUTF8_OFFSET: fehler(error,"~/~ (~ ~): BADUTF8_OFFSET");
-    default: fehler(error,"~/~ (~ ~): ~");
+#  endif
+    default: fehler(error,"~/~ (~ ~): UNKNOWN ERROR");
   }
 }
 
