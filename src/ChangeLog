@@ -1,3 +1,10 @@
+2002-01-11  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (add_to_open_streams): new function
+	(make_file_stream, make_terminal_stream, make_printer_stream):
+	 use it instead of in-line code
+	From Todd Sabin <tas@webspan.net>
+
 2002-01-10  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (main): --version: print *FEATURES*
