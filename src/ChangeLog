@@ -1,5 +1,18 @@
 2000-03-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d: Change distribution of *_frame_info values: merge
+          CBLOCK_frame_info and CTAGBODY_frame_info into
+          CBLOCK_CTAGBODY_frame_info. Change CALLBACK_frame_info so that it
+          has skip2_bit set to 0.
+          (callback_bit_t): Change meaning and value.
+          (fun_bit_t): Change value.
+          (cframe_bit_t, nested_bit_t): Swap values.
+        * eval.d (unwind): Update.
+        * debug.d (print_stackitem): Update. For a CBLOCK_frame, print the
+          block name, not the entire block cons.
+
+2000-03-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * clisp-link.in: Always pass "-norc" flag to lisp.run.
 
 2000-03-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
