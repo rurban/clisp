@@ -9,12 +9,13 @@ Defstruct accessors are defined twice, which leads to warnings. (Bruno)
 
 Contagion warnings emitted by many floating-point operations. (Bruno)
 
-Reordered MOP documentation. (Sam)
+FILL-STREAM cannot print structured multiline objects reasonably: it
+flattens all whitespace -- use pretty-printer instead. (Sam)
 
-fill-stream cannot print structured multiline objects reasonably: it
-flattens all whitespace. (Sam)
+Many pretty-printer test failures.
+(Sam - but Bruno has to fix the risky-test in iofkts.tst first)
 
-Many pretty-printer test failures. (Sam)
+Review this TODO list and remove obsolete items (Bruno).
 
 
 URGENT PROBLEMS
@@ -83,14 +84,6 @@ Klein->Großschreibung umwandeln, so dass (make-pathname :type "fas") immer geht
 clean up and modularize spvw.d
 
 
-ANSI CL compliance
-==================
-
-9.1.4.2.1 (let ((dir "/")) (restart-bind ((nil #'(lambda () (directory dir)) :report-function #'(lambda (stream) (format stream "List ~A." (directory-namestring dir))))) (cerror "Try again" 'directory-full :directory dir) (write-line "hi")) (write-line "ho"))
-          should return to the caller, I think, and write hi and ho.
-          Currently it unwinds to the next driver frame.
-documentation, setf documentation
-
 
 MAYBE
 =====
@@ -103,11 +96,6 @@ Add highlight/underline/etc. capability to the output side of *terminal-io*.
 
 Optimize REPLACE so that (replace v v :start1 10 :end1 30 :start2 0 :end2 20)
 doesn't cons. (vectors only, not lists)
-
-
-RUN-PROGRAM should have an optional argument :wait (default value T).
-:wait nil tells to start the process in the background. (How about error
-feedback?)
 
 
 CLOSE :ABORT T maybe do something on file streams.
@@ -225,14 +213,11 @@ More CLtL2 compliance:
 ;
 ; Number Title                               Status          Files affected
 ;
-;   <3>  ADJUST-ARRAY not adjustable         no              array.d
 ;   <8>  array type/element type semantics   yes for arrays  type.lisp
 ;                                            no for complex numbers
 ;  <24>  compiler diagnostics                no              compiler.lisp
-;  <49>  DEFINE-COMPILER-MACRO               no              defs2.lisp
 ;  <55>  DEFSTRUCT :PRINT-FUNCTION inheritance
 ;                                            no              defstruct.lisp
-;  <73>  EVAL-WHEN non top-level             no              control.d, init.lisp, compiler.lisp
 ;  <76>  FIXNUM non-portable                 no              array.d
 ;  <85>  FORMAT & pretty print               yes             format.lisp
 ;                                            no: ~E, ~F, ~G, ~$ also bind *PRINT-BASE* to 10 and *PRINT-RADIX* to NIL
@@ -257,13 +242,10 @@ More CLtL2 compliance:
 ; <153>  REMF & destruction: unspecified     no for NRECONC  list.d
 ;                                            yes for anything else
 ; <158>  sequence type & length              no              sequence.d, predtype.d
-; <159>  SETF & multiple store variables     yes for SETF    places.lisp
-;                                            no for SHIFTF, ROTATEF, ASSERT
 ; <162>  sharp-comma confusion               no              io.d
 ; <163>  sharpsign-plus/minus package        no              io.d, spvw.d, init.lisp, compiler.lisp
 ; <174>  syntactic environment access        no
 ; <176>  :TEST-NOT, -IF-NOT                  no              sequence.d, list.d
-; <183>  WITH-COMPILATION-UNIT               no              compiler.lisp
 
 The general rule:
 If it hurts CLtL1 programs, don't do it. Or put a CLtL1 symbol into
