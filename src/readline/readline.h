@@ -614,7 +614,7 @@ extern Keymap rl_binding_keymap;
 /* Pointer to the generator function for completion_matches ().
    NULL means to use filename_entry_function (), the default filename
    completer. */
-extern Function *rl_completion_entry_function;
+extern CPFunction *rl_completion_entry_function;
 
 /* If rl_ignore_some_completions_function is non-NULL it is the address
    of a function to call after all of the possible matches have been

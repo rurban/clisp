@@ -133,7 +133,7 @@ int rl_complete_with_tilde_expansion = 0;
 /* Pointer to the generator function for completion_matches ().
    NULL means to use filename_completion_function (), the default filename
    completer. */
-Function *rl_completion_entry_function = (Function *)NULL;
+CPFunction *rl_completion_entry_function = (CPFunction *)NULL;
 
 /* Pointer to alternative function to create matches.
    Function is called with TEXT, START, and END.
@@ -635,7 +635,7 @@ static char **
 gen_completion_matches (text, start, end, our_func, found_quote, quote_char)
      char *text;
      int start, end;
-     Function *our_func;
+     CPFunction *our_func;
      int found_quote, quote_char;
 {
   char **matches, *temp;
@@ -658,7 +658,7 @@ gen_completion_matches (text, start, end, our_func, found_quote, quote_char)
      we are doing filename completion and the application has defined a
      filename dequoting function. */
   temp = (char *)NULL;
-  if (found_quote && our_func == (Function *)filename_completion_function &&
+  if (found_quote && our_func == filename_completion_function &&
       rl_filename_dequoting_function)
     {
       /* delete single and double quotes */
@@ -1164,7 +1164,7 @@ rl_complete_internal (what_to_do)
      int what_to_do;
 {
   char **matches;
-  Function *our_func;
+  CPFunction *our_func;
   int start, end, delimiter, found_quote, i;
   char *text, *saved_line_buffer;
   char quote_char;
@@ -1177,7 +1177,7 @@ rl_complete_internal (what_to_do)
   saved_line_buffer = rl_line_buffer ? savestring (rl_line_buffer) : (char *)NULL;
   our_func = rl_completion_entry_function
 		? rl_completion_entry_function
-		: (Function *)filename_completion_function;
+		: filename_completion_function;
 
   /* We now look backwards for the start of a filename/variable word. */
   end = rl_point;
@@ -1205,7 +1205,7 @@ rl_complete_internal (what_to_do)
 
   /* If we are matching filenames, our_func will have been set to
      filename_completion_function */
-  i = our_func == (Function *)filename_completion_function;
+  i = our_func == filename_completion_function;
   if (postprocess_matches (text, &matches, i) == 0)
     {
       FREE (saved_line_buffer);
@@ -1580,7 +1580,7 @@ int
 rl_menu_complete (count, ignore)
      int count, ignore;
 {
-  Function *our_func;
+  CPFunction *our_func;
   int matching_filenames, found_quote;
 
   static char *orig_text;
@@ -1614,7 +1614,7 @@ rl_menu_complete (count, ignore)
 
       our_func = rl_completion_entry_function
 			? rl_completion_entry_function
-			: (Function *)filename_completion_function;
+			: filename_completion_function;
 
       /* We now look backwards for the start of a filename/variable word. */
       orig_end = rl_point;
@@ -1635,7 +1635,7 @@ rl_menu_complete (count, ignore)
 
       /* If we are matching filenames, our_func will have been set to
 	 filename_completion_function */
-      matching_filenames = our_func == (Function *)filename_completion_function;
+      matching_filenames = our_func == filename_completion_function;
       if (matches == 0 || postprocess_matches (orig_text, &matches, matching_filenames) == 0)
 	{
     	  ding ();
