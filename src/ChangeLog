@@ -1,5 +1,10 @@
 2004-05-14  Sam Steingold  <sds@gnu.org>
 
+	* init.lisp (*documentation*): still non-weak: although works on
+	cygwin, might still break on other platforms
+
+2004-05-14  Sam Steingold  <sds@gnu.org>
+
 	new macro DEFCHECKER for modules
 	* utils/modprep.lisp: OBJDEF-INIT can now be a list
 	(write-string-c-style): new function
