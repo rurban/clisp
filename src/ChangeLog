@@ -1,3 +1,15 @@
+2004-10-27  Bruno Haible  <bruno@clisp.org>
+
+	* init.lisp: Export compute-direct-slot-definition-initargs.
+	* clos-package.lisp: Likewise.
+	* clos-slotdef1.lisp (compute-direct-slot-definition-initargs): New
+	preliminary function.
+	(convert-direct-slots): Use compute-direct-slot-definition-initargs.
+	* clos-class6.lisp (compute-direct-slot-definition-initargs): New
+	generic function.
+	* clos-genfun2b.lisp (*dynamically-modifiable-generic-function-names*):
+	Add it.
+
 2004-11-10  Bruno Haible  <bruno@clisp.org>
 
 	* clos-print.lisp (*print-object-method-warning*): Comment out.

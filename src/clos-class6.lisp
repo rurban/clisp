@@ -312,6 +312,15 @@
 
 ;;; ===========================================================================
 
+;;; Class Specification Protocol
+
+;; Not in MOP.
+(defgeneric compute-direct-slot-definition-initargs (class &rest slot-spec)
+  (:method ((class class) &rest slot-spec)
+    slot-spec))
+
+;;; ===========================================================================
+
 ;;; Class Finalization Protocol
 
 ;; MOP p. 76

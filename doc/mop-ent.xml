@@ -20,6 +20,7 @@
 <!ENTITY compute-applicable-methods-UC "<link linkend='compute-applicable-methods-UC'><function>CLOS:COMPUTE-APPLICABLE-METHODS-USING-CLASSES</function></link>">
 <!ENTITY compute-cpl "<link linkend='compute-cpl'><function>CLOS:COMPUTE-CLASS-PRECEDENCE-LIST</function></link>">
 <!ENTITY compute-default-initargs "<link linkend='compute-default-initargs'><function>CLOS:COMPUTE-DEFAULT-INITARGS</function></link>">
+<!ENTITY compute-dsd-initargs "<link linkend='compute-dsd-initargs'><function>CLOS:COMPUTE-DIRECT-SLOT-DEFINITION-INITARGS</function></link>">
 <!ENTITY compute-discriminating-function "<link linkend='compute-discriminating-function'><function>CLOS:COMPUTE-DISCRIMINATING-FUNCTION</function></link>">
 <!ENTITY compute-effective-method "<link linkend='compute-effective-method'><function>CLOS:COMPUTE-EFFECTIVE-METHOD</function></link>">
 <!ENTITY compute-effective-method-as-function "<link linkend='compute-effective-method-as-function'><function>CLOS:COMPUTE-EFFECTIVE-METHOD-AS-FUNCTION</function></link>">

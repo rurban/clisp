@@ -404,6 +404,11 @@
     (write (slot-definition-name slotdef) :stream stream)))
 
 ;; Preliminary.
+(predefun compute-direct-slot-definition-initargs (class &rest slot-spec)
+  (declare (ignore class))
+  slot-spec)
+
+;; Preliminary.
 (predefun direct-slot-definition-class (class &rest initargs)
   (declare (ignore class initargs))
   'standard-direct-slot-definition)
@@ -412,45 +417,54 @@
 ;; direct-slot-definition instances.
 (defun convert-direct-slots (class direct-slots)
   (mapcar #'(lambda (slot-spec)
-              (let ((slot-definition-class
-                      (apply #'direct-slot-definition-class class slot-spec)))
-                (cond ((semi-standard-class-p class)
-                       (unless (or ; for bootstrapping
-                                   (eq slot-definition-class 'standard-direct-slot-definition)
-                                   (and (class-p slot-definition-class)
-                                        (subclassp slot-definition-class <standard-direct-slot-definition>)))
-                         (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
-                                'direct-slot-definition-class (class-name class)
-                                'standard-direct-slot-definition slot-definition-class)))
-                      ((structure-class-p class)
-                       (unless (and (class-p slot-definition-class)
-                                    (subclassp slot-definition-class <structure-direct-slot-definition>))
-                         (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
-                                'direct-slot-definition-class (class-name class)
-                                'structure-direct-slot-definition slot-definition-class))))
-                (let ((defclass-form (getf slot-spec 'DEFCLASS-FORM)))
-                  (when defclass-form
-                    ;; Provide good error messages. The error message from
-                    ;; MAKE-INSTANCE later is unintelligible.
-                    (let ((valid-keywords
-                            (class-valid-initialization-keywords slot-definition-class)))
-                      (unless (eq valid-keywords 'T)
-                        ;; The valid-keywords contain at least
-                        ;; :NAME :READERS :WRITERS :ALLOCATION :INITARGS
-                        ;; :INITFORM :INITFUNCTION :TYPE :DOCUMENTATION DEFCLASS-FORM.
-                        (do ((specr slot-spec (cddr specr)))
-                            ((endp specr))
-                          (let ((optionkey (car specr)))
-                            (unless (member optionkey valid-keywords)
-                              (error-of-type 'ext:source-program-error
-                                :form defclass-form
-                                :detail optionkey
-                                (TEXT "~S ~S, slot option for slot ~S: ~S is not a valid slot option")
-                                'defclass (second defclass-form) (getf slot-spec ':NAME) optionkey))))))))
-                (apply (cond ((eq slot-definition-class 'standard-direct-slot-definition)
-                              #'make-instance-<standard-direct-slot-definition>)
-                             (t #'make-instance))
-                       slot-definition-class slot-spec)))
+              (let ((slot-initargs
+                      (apply #'compute-direct-slot-definition-initargs class slot-spec)))
+                (unless (and (listp slot-initargs) (evenp (length slot-initargs)))
+                  (error (TEXT "Wrong ~S result for class ~S: not a plist: ~S")
+                         'compute-direct-slot-definition-initargs (class-name class) slot-initargs))
+                (unless (eq (getf slot-initargs ':NAME) (getf slot-spec ':NAME))
+                  (error (TEXT "Wrong ~S result for class ~S, slot ~S: value of ~S is wrong: ~S")
+                         'compute-direct-slot-definition-initargs (class-name class)
+                         (getf slot-spec ':NAME) ':NAME slot-initargs))
+                (let ((slot-definition-class
+                        (apply #'direct-slot-definition-class class slot-initargs)))
+                  (cond ((semi-standard-class-p class)
+                         (unless (or ; for bootstrapping
+                                     (eq slot-definition-class 'standard-direct-slot-definition)
+                                     (and (class-p slot-definition-class)
+                                          (subclassp slot-definition-class <standard-direct-slot-definition>)))
+                           (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
+                                  'direct-slot-definition-class (class-name class)
+                                  'standard-direct-slot-definition slot-definition-class)))
+                        ((structure-class-p class)
+                         (unless (and (class-p slot-definition-class)
+                                      (subclassp slot-definition-class <structure-direct-slot-definition>))
+                           (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
+                                  'direct-slot-definition-class (class-name class)
+                                  'structure-direct-slot-definition slot-definition-class))))
+                  (let ((defclass-form (getf slot-spec 'DEFCLASS-FORM)))
+                    (when defclass-form
+                      ;; Provide good error messages. The error message from
+                      ;; MAKE-INSTANCE later is unintelligible.
+                      (let ((valid-keywords
+                              (class-valid-initialization-keywords slot-definition-class)))
+                        (unless (eq valid-keywords 'T)
+                          ;; The valid-keywords contain at least
+                          ;; :NAME :READERS :WRITERS :ALLOCATION :INITARGS
+                          ;; :INITFORM :INITFUNCTION :TYPE :DOCUMENTATION DEFCLASS-FORM.
+                          (do ((specr slot-spec (cddr specr)))
+                              ((endp specr))
+                            (let ((optionkey (car specr)))
+                              (unless (member optionkey valid-keywords)
+                                (error-of-type 'ext:source-program-error
+                                  :form defclass-form
+                                  :detail optionkey
+                                  (TEXT "~S ~S, slot option for slot ~S: ~S is not a valid slot option")
+                                  'defclass (second defclass-form) (getf slot-spec ':NAME) optionkey))))))))
+                  (apply (cond ((eq slot-definition-class 'standard-direct-slot-definition)
+                                #'make-instance-<standard-direct-slot-definition>)
+                               (t #'make-instance))
+                         slot-definition-class slot-initargs))))
           direct-slots))
 
 ;; Test two direct slots for equality, except for the inheritable slots,

@@ -462,7 +462,6 @@
           slot-definition-initargs
           slot-definition-readers slot-definition-writers
           slot-definition-location
-          direct-slot-definition-class effective-slot-definition-class
           ;; MOP for slot access
           slot-value-using-class slot-boundp-using-class
           slot-makunbound-using-class
@@ -473,9 +472,12 @@
           class-direct-subclasses class-direct-slots class-slots
           class-direct-default-initargs class-default-initargs class-prototype
           class-finalized-p finalize-inheritance
-          compute-class-precedence-list compute-slots
-          compute-effective-slot-definition
-          compute-effective-slot-definition-initargs compute-default-initargs
+          compute-direct-slot-definition-initargs direct-slot-definition-class
+          compute-class-precedence-list
+          compute-slots compute-effective-slot-definition
+          compute-effective-slot-definition-initargs
+          effective-slot-definition-class
+          compute-default-initargs
           validate-superclass add-direct-subclass remove-direct-subclass
           standard-reader-method standard-writer-method
           reader-method-class writer-method-class
