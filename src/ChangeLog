@@ -1,5 +1,16 @@
 2001-06-15  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (makemake, Makefile): new development targets
+	(RUN): new Makefile variable
+	(halfcompiled): restored; now compilation goes like this:
+	*.lisp --> interpreted.mem
+	*.lisp + compiler.fas --> halfcompiled.mem
+	*.fas --> lispinit.mem
+	(stage): create a separate memory image for compilation testing
+	and reset *GENSYM-COUNTER* in it from halfcompiled.mem
+
+2001-06-15  Sam Steingold  <sds@gnu.org>
+
 	* threads.lisp (with-timeout, with-lock): do not use WITH-GENSYMS
 	which is defined only in inspect.lisp
 
