@@ -1,3 +1,8 @@
+2002-09-20  John Hinsdale <hin@alma.com>
+
+	* modules/oracle: Fix Makefile format and vars to work
+	on more systems; take ORACLE_HOME from environment.
+
 2002-09-20  Will Newton  <will@misconception.org.uk>
 
 	* ariarm.d: ARM assembler code updated to the newer gas syntax
