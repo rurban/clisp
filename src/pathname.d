@@ -6580,6 +6580,7 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
     var char resolved[MAX_PATH];
     var bool substitute = false;
     var bool error = false;
+    begin_system_call();
     if (links_resolved) { # use light function
       shell_shortcut_target_t rresolve = resolve_shell_symlink(path,resolved);
       if (rresolve != shell_shortcut_notresolved) {
@@ -6592,18 +6593,33 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
       if (TrueName(path,resolved))
         substitute = true;
       else { # A file doesn't exist. Maybe dir does ?
-        with_sstring_0(directory_namestring(STACK_0),O(pathname_encoding),dirpath, {
-          if (TrueName(dirpath,resolved)) { # need to substitute only dir here
-            var object resolved_string = asciz_to_string(resolved,O(pathname_encoding));
-            # turn it into a pathname and use its Directory:
-            var object resolved_pathname = coerce_pathname(resolved_string);
-            ThePathname(STACK_0)->pathname_directory
-              = ThePathname(resolved_pathname)->pathname_directory;
-          } else
-            error = true;
-        });
+	error = true; # let's be pessimistic
+	if (!nullp(Cdr(ThePathname(STACK_0)->pathname_directory))) {
+	  var uintL len = Sstring_length(directory_namestring(STACK_0));
+	  ASSERT((len > 0) && (path[len-1] == '\\'));
+	  path[len - 1] = '\0'; # replace '\' at the end with nullbyte
+	  if (TrueName(path,resolved)) {
+            # substitute only directory part
+            var DWORD fileattr = GetFileAttributes(resolved);
+	    # resolved to a file ? Only directories allowed - nonmaskable error
+	    if (fileattr == 0xFFFFFFFF || !(fileattr & FILE_ATTRIBUTE_DIRECTORY)) {
+	      SetLastError(ERROR_DIRECTORY);
+	      end_system_call(); OS_file_error(STACK_0);      
+	    }
+	    # have to add '\' to avoid last component loss
+	    strcat(resolved,"\\");
+	    var object resolved_string = asciz_to_string(resolved,O(pathname_encoding));
+	    # substitute immediately - w/o substitute flag
+	    # turn it into a pathname and use its Directory:
+	    var object resolved_pathname = coerce_pathname(resolved_string);
+	    ThePathname(STACK_0)->pathname_directory
+	      = ThePathname(resolved_pathname)->pathname_directory;
+	    error = false;
+	  }
+	}
       }
     }
+    end_system_call();
     if (error) {
       if (tolerantp) return nullobj;
       fehler_dir_not_exists(directory_namestring(STACK_0));

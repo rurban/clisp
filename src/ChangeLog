@@ -1,3 +1,9 @@
+2003-03-07  Arseny Slobodjuck  <ampy@ich.dvo.ru>
+
+	* pathname.d (assure_dir_exists) [WIN32_NATIVE]: bug fixed: 
+	should raise an error when part of directory is an existing
+	file.
+
 2003-03-03  Peter Seibel  <peter@javamonkey.com>
 	    Sam Steingold  <sds@gnu.org>
 
