@@ -1,3 +1,4 @@
+;; -*- Lisp -*-
 ;; testen abschitt 20
 
 
@@ -17,6 +18,18 @@ ERROR
 
 (eval 'x)
 3
+
+;; eval-when
+(let ((ff "eval-when-test.lisp"))
+  (with-open-file (foo ff :direction :output)
+    (format foo "~%(eval-when (compile eval)
+  ;; note that LAMBDA is not externalizable
+  (defvar *junk* #.(lambda (x) (+ 15 x))))~%"))
+  (delete-file (compile-file ff))
+  (delete-file ff)
+  #+clisp (delete-file (merge-pathnames ".lib" ff))
+  nil)
+nil
 
 ;constantp
 
