@@ -2442,6 +2442,15 @@ be one of &fasthash-eq;, &stablehash-eq;.</para>
  must be one of <constant>EXT:FASTHASH-EQUAL</constant>,
  <constant>EXT:STABLEHASH-EQUAL</constant>.</para>
 
+<para>The <constant>:WARN-IF-NEEDS-REHASH-AFTER-GC</constant> argument,
+if true, causes a &warning-t; to be &signal;led when an object is stored
+into the table which will force table reorganizations at the first
+access of the table after each &gc;ion.
+This keyword argument can be used to check whether &stablehash-eq;
+should be preferred over &fasthash-eq; for a particular table.
+Use <function>HASH-TABLE-WARN-IF-NEEDS-REHASH-AFTER-GC</function>
+to check and &setf; this parameter after the table has been created.</para>
+
 <para>The <constant>:INITIAL-CONTENTS</constant> argument is an
  &alist; that is used to initialize the new hash table.</para>
 
@@ -2472,19 +2481,17 @@ checks whether the &hash-table-t; is weak.</para>
 
 <para>See also <olink targetdoc="impnotes" targetptr="weak-ht"/>.</para>
 
-<section id="hashtable-gc-rehash"><title>Interaction between
-  &hash-table-t;s and &gc;ion.</title>
+<section id="hashtable-gc-rehash">
+ <title>Interaction between &hash-table-t;s and &gc;ion.</title>
 
-<para>--- Bruno! ---</para>
-
-<para>The <constant>:WARN-IF-NEEDS-REHASH-AFTER-GC</constant> argument,
-if true, causes a &warning-t; to be &signal;led when an object is stored
-into the table which will force table reorganizations at the first
-access of the table after each &gc;ion.
-This keyword argument can be used to check whether &stablehash-eq;
-should be preferred over &fasthash-eq; for a particular table.
-Use <function>HASH-TABLE-WARN-IF-NEEDS-REHASH-AFTER-GC</function>
-to check and &setf; this parameter after the table has been created.</para>
+<para>When a hash table contains keys to be compared by identity - such
+ as numbers in hash tables with test &eq;, or conses in hash tables with
+ test &eq;, &eql;, or vectors in hash tables with test &eq;, &eql;, &equal;,
+ or &standard-object-t; or &structure-object-t; instances in hash tables with
+ test &eq;, &eql;, &equal;, &equalp; - the hash code will in general depend
+ on the object's address in memory. Therefore it will in general be invalidated
+ after a &gc;ion, and the hash table's internal structure must be recomputed
+ at the next hash table access.</para>
 
 <para>While <constant>:WARN-IF-NEEDS-REHASH-AFTER-GC</constant> can help
  checking the efficiency of a particular &hash-table-t;, the variable
@@ -2497,6 +2504,17 @@ to check and &setf; this parameter after the table has been created.</para>
  when &warn-on-hashtable-needing-rehash-after-gc; is true and a
  &hash-table-t; needs to be rehashed after a &gc;ion, a warning is
  issued that shows the inefficient &hash-table-t;.</para>
+
+<para>What can be done to avoid the inefficiencies detected by these warnings?
+ 1. In many cases you can solve the problem by using the STABLEHASH variant
+ of the hash test. 2. In other cases, namely &standard-object-t; or
+ &structure-object-t; instances, you can solve the problem by making the
+ key object classes inherit from &standard-stablehash; or
+ &structure-stablehash;, respectively. 3. In the remaining cases, you should
+ store a hash key inside the object, of which you can guarantee uniqueness
+ through your application (for example the ID of an object in a database, or
+ the serial number of an object), and use this key as hash key instead of the
+ original object.</para>
 
 </section>
 
