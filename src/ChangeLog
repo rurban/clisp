@@ -1,10 +1,13 @@
+2003-04-29  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 729456 ]: --with-readline is silently ignored
+	* makemake.in: fail when --with-readline is supplied but
+	configure does not find a working readline
+
 2003-04-29  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* ffi.tst: Augmented FFI testsuite
-
 	* foreign1.lisp: added FFI:WITH-C-PLACE, FFI:C-VAR-OBJECT
-
-	* ../doc/{impbody,impext}.xml: tiny corrections
 
 2003-04-28  Jörg Höhle  <hoehle@users.sourceforge.net>
 
@@ -12,7 +15,7 @@
 	* encoding.d (EXT:ENCODING-CHARSET): only with #+UNICODE
 	* subr.d, constsym.d: likewise
 	* stream.d (rd_ch_array_unbuffered): typo
-	
+
 2003-04-28  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* foreign.d (SETF FFI:VALIDP): prevent from invalidating unique
