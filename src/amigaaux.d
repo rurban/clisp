@@ -4,28 +4,25 @@
 #include "lispbibl.c"
 
 # ==============================================================================
-
-# Ein Wrapper um die Read-Funktion.
-global long full_read (Handle handle, RW_BUF_T bufarea, long nbyte);
-global long full_read(handle,bufarea,nbyte)
-  var Handle handle;
-  var RW_BUF_T bufarea;
-  var long nbyte;
-  {
-    var char* buf = (char*) bufarea;
-    var long done = 0;
-    until (nbyte==0) {
-      var long retval = Read(handle,(APTR)buf,nbyte);
-      if (retval == 0)
-        break; # EOF
-      elif (retval < 0) {
-        return retval;
-      } else {
-        buf += retval; done += retval; nbyte -= retval;
-      }
+# a wrapper for Read
+global long read_helper (Handle handle, RW_BUF_T bufarea, long nbyte,
+                         bool partial_p) {
+  var char* buf = (char*) bufarea;
+  var long done = 0;
+  while (nbyte!=0) {
+    var long retval = Read(handle,(APTR)buf,nbyte);
+    if (retval == 0)
+      break; # EOF
+    else if (retval < 0) {
+      return retval;
+    } else {
+      buf += retval; done += retval; nbyte -= retval;
+      if (partial_p)
+        break;
     }
-    return done;
   }
+  return done;
+}
 
 # Ein Wrapper um die Write-Funktion.
 global long full_write (Handle handle, const RW_BUF_T bufarea, long nbyte);

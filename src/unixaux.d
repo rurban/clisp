@@ -1,5 +1,6 @@
 # Hilfsfunktionen für CLISP auf UNIX
-# Bruno Haible 1990-2000
+# Bruno Haible 1990-2002
+# Sam Steingold 1998-2002
 
 #include "lispbibl.c"
 
@@ -253,43 +254,41 @@ global unsigned int ualarm (unsigned int value, unsigned int interval) {
 
 #endif
 
-# Ein Wrapper um die read-Funktion.
-  global RETRWTYPE full_read (int fd, RW_BUF_T bufarea, RW_SIZE_T nbyte);
-  global RETRWTYPE full_read (fd,bufarea,nbyte)
-    var int fd;
-    var RW_BUF_T bufarea;
-    var RW_SIZE_T nbyte;
-    {
-      var char* buf = (char*) bufarea;
-      var RETRWTYPE retval;
-      var RW_SIZE_T done = 0;
-      #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
-      # Must adjust the memory permissions before calling read().
-      # - On SunOS4 a missing write permission causes the read() call to hang
-      #   in an endless loop.
-      # - With Linux 2.2 the read call returns with errno=EFAULT, but with
-      #   unpredictable side side effects: If fd refers to a socket, some of
-      #   the socket data gets lost.
-      # The SunOS4 behaviour is clearly a bug, but the Linux 2.2 behaviour is
-      # not. The POSIX spec says that read() returns with errno=EFAULT, but
-      # does not specify anything about possible side effects.
-      handle_fault_range(PROT_READ_WRITE,(aint)buf,(aint)buf+nbyte);
-      #endif
-      until (nbyte==0) {
-        retval = read(fd,buf,nbyte);
-        if (retval == 0)
-          break;
-        elif (retval < 0) {
-          #ifdef EINTR
-          if (!(errno == EINTR))
-          #endif
-            return retval;
-        } else {
-          buf += retval; done += (RW_SIZE_T)retval; nbyte -= (RW_SIZE_T)retval;
-        }
-      }
-      return done;
+# a wrapper for read()
+global RETRWTYPE read_helper (int fd, RW_BUF_T bufarea, RW_SIZE_T nbyte,
+                              bool partial_p) {
+  var char* buf = (char*) bufarea;
+  var RETRWTYPE retval;
+  var RW_SIZE_T done = 0;
+ #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
+  # Must adjust the memory permissions before calling read().
+  # - On SunOS4 a missing write permission causes the read() call to hang
+  #   in an endless loop.
+  # - With Linux 2.2 the read call returns with errno=EFAULT, but with
+  #   unpredictable side side effects: If fd refers to a socket, some of
+  #   the socket data gets lost.
+  # The SunOS4 behaviour is clearly a bug, but the Linux 2.2 behaviour is
+  # not. The POSIX spec says that read() returns with errno=EFAULT, but
+  # does not specify anything about possible side effects.
+  handle_fault_range(PROT_READ_WRITE,(aint)buf,(aint)buf+nbyte);
+ #endif
+  while (nbyte!=0) {
+    retval = read(fd,buf,nbyte);
+    if (retval == 0)
+      break;
+    else if (retval < 0) {
+     #ifdef EINTR
+      if (errno != EINTR)
+     #endif
+        return retval;
+    } else {
+      buf += retval; done += (RW_SIZE_T)retval; nbyte -= (RW_SIZE_T)retval;
+      if (partial_p)
+        break;
     }
+  }
+  return done;
+}
 
 # Ein Wrapper um die write-Funktion.
   global RETRWTYPE full_write (int fd, WRITE_CONST RW_BUF_T bufarea, RW_SIZE_T nbyte);
@@ -350,6 +349,7 @@ global unsigned int ualarm (unsigned int value, unsigned int interval) {
             return retval;
         } else {
           buf += retval; done += retval; nbyte -= retval;
+          break; # return partial read
         }
       }
       return done;

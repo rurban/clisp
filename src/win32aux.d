@@ -1,5 +1,6 @@
 # Auxiliary functions for CLISP on Win32
-# Bruno Haible 1997-1999
+# Bruno Haible 1997-2002
+# Sam Steingold 1999-2002
 
 #include "lispbibl.c"
 
@@ -359,117 +360,107 @@ global void done_win32 (void) {
     }
 
 # Reading from a file/pipe/console handle.
-  # This is the non-interruptible routine.
-  local int lowlevel_full_read (HANDLE fd, void* buf, int nbyte);
-  local int lowlevel_full_read(fd,bufarea,nbyte)
-    var HANDLE fd;
-    var void* bufarea;
-    var int nbyte;
-    {
-      #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
-      handle_fault_range(PROT_READ_WRITE,(aint)bufarea,(aint)bufarea+nbyte);
-      #endif
-      var char* buf = (char*) bufarea;
-      var int done = 0;
-      until (nbyte==0) {
-        var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
-        var OVERLAPPED overlap;
-        var DWORD nchars;
-        var DWORD err;
-        overlap.Offset = 0;
-        overlap.OffsetHigh = 0;
-        overlap.Offset = SetFilePointer(fd, 0, &overlap.OffsetHigh, FILE_CURRENT);
-        ResetEvent(aux_event);
-        overlap.hEvent = aux_event;
-        if (ReadFile(fd, buf, limited_nbyte, &nchars, &overlap))
+# This is the non-interruptible routine.
+local int read_helper_low (HANDLE fd, void* buf, int nbyte, bool partial_p) {
+ #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
+  handle_fault_range(PROT_READ_WRITE,(aint)bufarea,(aint)bufarea+nbyte);
+ #endif
+  var char* buf = (char*) bufarea;
+  var int done = 0;
+  while (nbyte != 0) {
+    var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
+    var OVERLAPPED overlap;
+    var DWORD nchars;
+    var DWORD err;
+    overlap.Offset = 0;
+    overlap.OffsetHigh = 0;
+    overlap.Offset = SetFilePointer(fd, 0, &overlap.OffsetHigh, FILE_CURRENT);
+    ResetEvent(aux_event);
+    overlap.hEvent = aux_event;
+    if (ReadFile(fd, buf, limited_nbyte, &nchars, &overlap))
+      goto ok;
+    /* Disk files (and maybe other handle types) don't support
+       overlapped I/O on Win95. */
+    err = GetLastError();
+    if (err == ERROR_INVALID_PARAMETER) {
+      if (ReadFile(fd, buf, limited_nbyte, &nchars, NULL))
+        goto ok;
+      err = GetLastError();
+      /* On Win95, console handles need special handling. */
+      if (err == ERROR_INVALID_PARAMETER) {
+        if (ReadConsole(fd, buf, limited_nbyte, &nchars, NULL))
           goto ok;
-        /* Disk files (and maybe other handle types) don't support
-           overlapped I/O on Win95. */
         err = GetLastError();
-        if (err == ERROR_INVALID_PARAMETER) {
-          if (ReadFile(fd, buf, limited_nbyte, &nchars, NULL))
-            goto ok;
-          err = GetLastError();
-          /* On Win95, console handles need special handling. */
-          if (err == ERROR_INVALID_PARAMETER) {
-            if (ReadConsole(fd, buf, limited_nbyte, &nchars, NULL))
-              goto ok;
-            err = GetLastError();
-          }
-        }
-        if (err == ERROR_HANDLE_EOF || err == ERROR_BROKEN_PIPE)
-          break;
-        if (err != ERROR_IO_PENDING)
-          return -1;
-        if (!GetOverlappedResult(fd, &overlap, &nchars, true)) {
-          if (GetLastError() == ERROR_HANDLE_EOF)
-            break;
-          return -1;
-        }
-       ok:
-        if (nchars == 0)
-          break;
-        buf += nchars; done += nchars; nbyte -= nchars;
-      }
-      #ifndef UNICODE
-      # Possibly translate characters.
-      if (done > 0) {
-        var int i;
-        for (i = -done; i < 0; i++) {
-          var unsigned char c = (unsigned char)buf[i];
-          if (!(c == (unsigned char)OEM2ANSI_table[c]))
-            goto maybe_translate;
-        }
-        # No character found for which translation makes a difference,
-        # hence no need to translate.
-        if (false) {
-         maybe_translate:
-          var DWORD console_mode;
-          if (GetConsoleMode(fd,&console_mode)) {
-            # It's a console, must really translate characters!
-            for (i = -done; i < 0; i++)
-              buf[i] = OEM2ANSI_table[(unsigned char)buf[i]];
-          }
-        }
-      }
-      #endif
-      return done;
-    }
-  # Then we make it interruptible.
-  struct full_read_params {
-    HANDLE fd; void* buf; int nbyte;
-    int retval; DWORD errcode;
-  };
-  local DWORD WINAPI do_full_read (LPVOID arg);
-  local DWORD WINAPI do_full_read(arg)
-    var LPVOID arg;
-    {
-      var struct full_read_params * params = (struct full_read_params *)arg;
-      params->retval = lowlevel_full_read(params->fd,params->buf,params->nbyte);
-      if (params->retval < 0)
-        params->errcode = GetLastError();
-      return 0;
-    }
-  global int full_read (HANDLE fd, void* buf, int nbyte);
-  global int full_read(fd,buf,nbyte)
-    var HANDLE fd;
-    var void* buf;
-    var int nbyte;
-    {
-      var struct full_read_params params;
-      params.fd      = fd;
-      params.buf     = buf;
-      params.nbyte   = nbyte;
-      params.retval  = 0;
-      params.errcode = 0;
-      if (DoInterruptible(&do_full_read,(void*)&params,false)) {
-        if (params.retval < 0)
-          SetLastError(params.errcode);
-        return params.retval;
-      } else {
-        SetLastError(ERROR_SIGINT); return -1;
       }
     }
+    if (err == ERROR_HANDLE_EOF || err == ERROR_BROKEN_PIPE)
+      break;
+    if (err != ERROR_IO_PENDING)
+      return -1;
+    if (!GetOverlappedResult(fd, &overlap, &nchars, true)) {
+      if (GetLastError() == ERROR_HANDLE_EOF)
+        break;
+      return -1;
+    }
+   ok:
+    buf += nchars; done += nchars; nbyte -= nchars;
+    if (nchars == 0 || partial_p)
+      break;
+  }
+ #ifndef UNICODE
+  # Possibly translate characters.
+  if (done > 0) {
+    var int i;
+    for (i = -done; i < 0; i++) {
+      var unsigned char c = (unsigned char)buf[i];
+      if (!(c == (unsigned char)OEM2ANSI_table[c]))
+        goto maybe_translate;
+    }
+    # No character found for which translation makes a difference,
+    # hence no need to translate.
+    if (false) {
+     maybe_translate:
+      var DWORD console_mode;
+      if (GetConsoleMode(fd,&console_mode)) {
+        # It's a console, must really translate characters!
+        for (i = -done; i < 0; i++)
+          buf[i] = OEM2ANSI_table[(unsigned char)buf[i]];
+      }
+    }
+  }
+ #endif
+  return done;
+}
+# Then we make it interruptible.
+struct full_read_params {
+  HANDLE fd; void* buf; int nbyte;
+  int retval; DWORD errcode;
+  bool partial_p;
+};
+local DWORD WINAPI do_read_helper (LPVOID arg) {
+  var struct full_read_params * params = (struct full_read_params *)arg;
+  params->retval = read_helper_low(params->fd,params->buf,params->nbyte,
+                                   params->partial_p);
+  if (params->retval < 0)
+    params->errcode = GetLastError();
+  return 0;
+}
+global int read_helper (HANDLE fd, void* buf, int nbyte, bool partial_p) {
+  var struct full_read_params params;
+  params.fd      = fd;
+  params.buf     = buf;
+  params.nbyte   = nbyte;
+  params.retval  = 0;
+  params.errcode = 0;
+  params.partial_p = partial_p;
+  if (DoInterruptible(&do_read_helper,(void*)&params,false)) {
+    if (params.retval < 0)
+      SetLastError(params.errcode);
+    return params.retval;
+  } else {
+    SetLastError(ERROR_SIGINT); return -1;
+  }
+}
 
 # Writing to a file/pipe/console handle.
   global int full_write (HANDLE fd, const void* buf, int nbyte);
@@ -557,15 +548,16 @@ global void done_win32 (void) {
       #endif
       var char* buf = (char*) bufarea;
       var int done = 0;
-      until (nbyte==0) {
+      while (nbyte!=0) {
         var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
         var int retval = recv(fd,buf,limited_nbyte,0);
         if (retval == 0)
           break;
-        elif (retval < 0)
+        else if (retval < 0)
           return retval;
         else {
           buf += retval; done += retval; nbyte -= retval;
+          break; # return partial read
         }
       }
       return done;
@@ -597,6 +589,7 @@ global void done_win32 (void) {
       params.nbyte   = nbyte;
       params.retval  = 0;
       params.errcode = 0;
+      params.partial_p = true;  /* not used */
       if (DoInterruptible(&do_sock_read,(void*)&params,true)) {
         if (params.retval < 0)
           WSASetLastError(params.errcode);

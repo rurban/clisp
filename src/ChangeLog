@@ -1,5 +1,22 @@
 2002-05-23  Sam Steingold  <sds@gnu.org>
 
+	buffered sockets and pipes now work
+	* acorn.d (read_helper): prototype
+	(full_read, safe_read): #define
+	* amiga.d, msdos.d, win32.d: ditto
+	* amigaaux.d (read_helper): implemented
+	(full_read): removed
+	* unixaux.d: ditto
+	(sock_read) [UNIX_BEOS]: partial read is okay
+	* win32aux.d (lowlevel_full_read, do_full_read, full_read): removed
+	(read_helper_low, do_read_helper, read_helper): added
+	(lowlevel_sock_read): partial read is okay
+	* stream.d (low_fill_buffered_handle): use safe_read()
+	instead of full_read()
+	Suggested by Todd Sabin <tsabin@optonline.net>
+
+2002-05-23  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (strm_buffered_extrafields_t): replaced eofindex with
 	have_eof_p and endvalid
 	(BufferedStream_eofindex): removed
