@@ -3417,7 +3417,8 @@ echo "$as_me:  * System Calls (Functions)" >&6;}
 
 
 
-for ac_func in clock fcntl gethostent getrusage getrlimit sysconf uname
+
+for ac_func in clock confstr fcntl gethostent getrusage getrlimit sysconf uname
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
 echo "$as_me:$LINENO: checking for $ac_func" >&5
