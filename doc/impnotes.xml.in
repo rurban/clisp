@@ -28,24 +28,6 @@
   <!ENTITY gpl-text SYSTEM "http://www.gnu.org/licenses/gpl.xml">
 ]>
 
-<!-- *** Conventions: ***
- * function (car)      == function
- * variable (t)        == varname
- * formal arg (x)      == replaceable
- * keyword (:eof)      == constant
- * number (1.0)        == literal
- * char (#\a)          == keysym
- * class/type (t)      == classname (?type?)
- * format (~S)         == literal
- * lambda-key (&amp;)  == literal
- * declaration (ftype) == literal
- * package (CL-USER)   == quote role="package"
- * form (CONS 1 2)     == literal role="sexp"
- * data #(1 2 3)       == literal role="data"
- * bytecode (SKIP&RET) == literal role="byte"
- a first mention of an object should be marked with <firstterm>
- -->
-
 <book id="impnotes-top"><title>Implementation Notes for &gnu; &clisp;.</title>
 <titleabbrev>&clisp; impnotes</titleabbrev>
 
@@ -93,7 +75,7 @@
  </keywordset>
 </bookinfo>
 
-<preface id="preface"><title>Overview</title>
+<preface id="overview"><title>Overview</title>
 
 <para>These notes discuss the &clisp; implementation of &cl; by
 <blockquote><address>
@@ -129,7 +111,7 @@ and
 
 <para>The <link linkend="clhs-chapters">first part</link> of these notes
  is indexed in parallel to the &hyperspec; and documents how &clisp;
- implements the standard &ansi-cl;.</para>
+ implements the standard &ansi-cl;, including the &amop;.</para>
 
 <para>The <link linkend="extensions">second part</link> documents the
  &clisp; extensions, i.e., the functionality that goes beyond the
@@ -142,15 +124,41 @@ and
 
 </preface>
 
+<preface id="conventions"><title>Conventions</title>
+<para>The following is the mark-up notations used in this document:
+ <informaltable frame="all">
+  <tgroup cols="2" colsep="1" rowsep="1" align="center">
+   <thead><row><entry>Object Kind</entry><entry>Example</entry></row></thead>
+   <tbody><row><entry>Function</entry><entry>&car;</entry></row>
+    <row><entry>Variable</entry><entry>&load-paths;</entry></row>
+    <row><entry>Formal Argument</entry><entry>&x-r;</entry></row>
+    <row><entry>Keyword</entry><entry>&eof-k;</entry></row>
+    <row><entry>Number</entry><entry>&zero;</entry></row>
+    <row><entry>Character</entry><entry>&nl-s;</entry></row>
+    <row><entry>Class, type</entry><entry>&match-t;</entry></row>
+    <row><entry>Format instruction</entry><entry>&format-a;</entry></row>
+    <row><entry>&lalist; keyword</entry><entry>&key-amp;</entry></row>
+    <row><entry>Declaration</entry><entry>&ftype-dec;</entry></row>
+    <row><entry>Package</entry><entry>&clu-pac;</entry></row>
+    <row><entry>Code</entry><entry><literal role="sexp">(&cons; 1
+       2)</literal></entry></row>
+    <row><entry>Data</entry><entry><literal role="data">#(1 2
+       3)</literal></entry></row>
+    <row><entry>Bytecode</entry><entry><literal role="byte">(STOREV
+       &k-r; &m-r;)</literal></entry></row>
+    <row><entry>first mention of an entity</entry>
+     <entry><firstterm>firstterm</firstterm></entry></row>
+</tbody></tgroup></informaltable></para></preface>
+
 <part id="clhs-chapters"><title>Chapters or the &hyperspec;</title>
 
 &imp-body;
 
 &imp-issues;
 
-</part>
-
 &mop-chapter;
+
+</part>
 
 &imp-ext;
 
