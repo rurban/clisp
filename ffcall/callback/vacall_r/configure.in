@@ -1,5 +1,5 @@
 dnl  AUTOCONF configuration for VACALL
-dnl  Bruno Haible 13.2.1999
+dnl  Bruno Haible 28.5.1999
 dnl
 AC_INIT(vacall_r.h.in)
 AC_CONFIG_HEADER(vacall_r.h config.h)
@@ -11,6 +11,11 @@ CL_AS_UNDERSCORE
 CL_PROG_RANLIB
 AC_PROG_MAKE_SET
 CL_PROG_INSTALL
+CL_CANONICAL_HOST(../../autoconf)
+CL_CANONICAL_HOST_CPU_FOR_FFCALL
+PACKAGE=callback
+AM_DISABLE_SHARED
+AM_PROG_LIBTOOL
 CL_STDLIB_H
 CL_ABORT
 CL_CANONICAL_HOST(../../autoconf)

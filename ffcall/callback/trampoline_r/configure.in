@@ -1,5 +1,5 @@
 dnl  AUTOCONF configuration for TRAMPOLINE
-dnl  Bruno Haible 18.10.1998
+dnl  Bruno Haible 28.5.1999
 dnl
 AC_INIT(trampoline_r.h.in)
 AC_CONFIG_HEADER(config.h)
@@ -12,6 +12,11 @@ CL_PROG_RANLIB
 AC_PROG_MAKE_SET
 CL_PROG_INSTALL
 AC_PROG_LN_S
+CL_CANONICAL_HOST(../../autoconf)
+CL_CANONICAL_HOST_CPU_FOR_FFCALL
+PACKAGE=callback
+AM_DISABLE_SHARED
+AM_PROG_LIBTOOL
 CL_VOID
 CL_STDC_HEADERS
 CL_STDLIB_H
@@ -39,21 +44,21 @@ CL_CANONICAL_HOST_CPU_FOR_FFCALL
 CL_CODEEXEC
 CPU_OBJECTS=''
 if test ${host_cpu} = hppa; then
-  CPU_OBJECTS="$CPU_OBJECTS "'tramp-$(CPU).o'
+  CPU_OBJECTS="$CPU_OBJECTS "'tramp-$(CPU).lo'
 fi
 if test ${host_cpu} = rs6000; then
   case "${host_os}" in
-    aix*) CPU_OBJECTS="$CPU_OBJECTS "'tramp-$(CPU).o' ;;
+    aix*) CPU_OBJECTS="$CPU_OBJECTS "'tramp-$(CPU).lo' ;;
     *) ;;
   esac
 fi
 if test ${host_cpu} = sparc -o ${host_cpu} = alpha -o ${host_cpu} = hppa -o ${host_cpu} = convex; then
-  CPU_OBJECTS="$CPU_OBJECTS "'cache-$(CPU).o'
+  CPU_OBJECTS="$CPU_OBJECTS "'cache-$(CPU).lo'
 fi
 if test ${host_cpu} = rs6000; then
   case "${host_os}" in
     aix*) ;;
-    *) CPU_OBJECTS="$CPU_OBJECTS "'cache-$(CPU).o' ;;
+    *) CPU_OBJECTS="$CPU_OBJECTS "'cache-$(CPU).lo' ;;
   esac
 fi
 AC_SUBST(CPU_OBJECTS)

@@ -15,12 +15,18 @@ exec_prefix = $(prefix)
 libdir = $(exec_prefix)/lib
 includedir = $(prefix)/include
 mandir = $(exec_prefix)/man
+datadir = $(prefix)/share
+htmldir = $(datadir)/html
 
 # Programs used by "make":
 CC = @CC@
 CFLAGS = @CFLAGS@
 CPP = @CPP@
 INCLUDES = -I. -I$(srcdir)
+LIBTOOL = @LIBTOOL@
+LIBTOOL_LINK = $(LIBTOOL) --mode=link
+LIBTOOL_INSTALL = $(LIBTOOL) --mode=install
+LIBTOOL_UNINSTALL = $(LIBTOOL) --mode=uninstall
 AR = ar
 AR_FLAGS = rc
 RANLIB = @RANLIB@
@@ -37,7 +43,10 @@ INSTALL_DATA = @INSTALL_DATA@
 
 SHELL = /bin/sh
 
-all : all-subdirs callback.h vacall_r.h trampoline_r.h libcallback.a $(srcdir)/callback.3 $(srcdir)/callback.html
+# Needed by $(LIBTOOL).
+top_builddir = .
+
+all : all-subdirs callback.h vacall_r.h trampoline_r.h libcallback.la $(srcdir)/callback.3 $(srcdir)/callback.html
 
 all-subdirs : force
 	cd @subdir@; $(MAKE) all
@@ -51,41 +60,50 @@ vacall_r.h :
 trampoline_r.h :
 	$(LN) trampoline_r/trampoline_r.h trampoline_r.h
 
-libcallback.a : vacall_r/libvacall.a trampoline_r/libtrampoline.a
-	$(RM) libcallback.a
-	mkdir libtmpdir
-	cd libtmpdir; $(AR) x ../vacall_r/libvacall.a && $(RM) ________64ELEL_
-	cd libtmpdir; $(AR) x ../trampoline_r/libtrampoline.a && $(RM) ________64ELEL_
-	cd libtmpdir; $(AR) $(AR_FLAGS) ../libcallback.a *.o
-	$(RM) -r libtmpdir
-	$(RANLIB) libcallback.a
+libcallback.la : vacall_r/libvacall.la trampoline_r/libtrampoline.la
+	$(LIBTOOL_LINK) $(CC) -o libcallback.la -rpath $(libdir) vacall_r/vacall.lo vacall_r/misc.lo vacall_r/structcpy.lo trampoline_r/*.lo
+
+# Installs the library and include files only. Typically called with only
+# $(libdir) and $(includedir) - don't use $(prefix) and $(exec_prefix) here.
+install-lib : all force
+	cd @subdir@; $(MAKE) install-lib libdir='$(libdir)' includedir='$(includedir)'
+	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
+	$(LIBTOOL_INSTALL) $(INSTALL_DATA) libcallback.la $(libdir)/libcallback.la
+	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
+	$(INSTALL_DATA) callback.h $(includedir)/callback.h
 
 install : force
 	cd @subdir@; $(MAKE) install
+	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
+	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
 	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
-	$(INSTALL_DATA) libcallback.a $(libdir)/libcallback.a
+	$(LIBTOOL_INSTALL) $(INSTALL_DATA) libcallback.la $(libdir)/libcallback.la
 	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
 	$(INSTALL_DATA) callback.h $(includedir)/callback.h
 	if [ ! -d $(mandir) ] ; then mkdir $(mandir) ; fi
 	if [ ! -d $(mandir)/man3 ] ; then mkdir $(mandir)/man3 ; fi
 	$(INSTALL_DATA) $(srcdir)/callback.3 $(mandir)/man3/callback.3
-	if [ ! -d $(mandir)/html ] ; then mkdir $(mandir)/html ; fi
-	$(INSTALL_DATA) $(srcdir)/callback.html $(mandir)/html/callback.html
+	if [ ! -d $(datadir) ] ; then mkdir $(datadir) ; fi
+	if [ ! -d $(htmldir) ] ; then mkdir $(htmldir) ; fi
+	$(INSTALL_DATA) $(srcdir)/callback.html $(htmldir)/callback.html
 
 installdirs : force
 	cd @subdir@; $(MAKE) installdirs
+	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
+	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
 	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
 	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
 	if [ ! -d $(mandir) ] ; then mkdir $(mandir) ; fi
 	if [ ! -d $(mandir)/man3 ] ; then mkdir $(mandir)/man3 ; fi
-	if [ ! -d $(mandir)/html ] ; then mkdir $(mandir)/html ; fi
+	if [ ! -d $(datadir) ] ; then mkdir $(datadir) ; fi
+	if [ ! -d $(htmldir) ] ; then mkdir $(htmldir) ; fi
 
 uninstall : force
 	cd @subdir@; $(MAKE) uninstall
-	$(RM) $(libdir)/libcallback.a
+	$(LIBTOOL_UNINSTALL) $(RM) $(libdir)/libcallback.la
 	$(RM) $(includedir)/callback.h
 	$(RM) $(mandir)/man3/callback.3
-	$(RM) $(mandir)/html/callback.html
+	$(RM) $(htmldir)/callback.html
 
 minitests.o : $(srcdir)/minitests.c $(srcdir)/tests.c callback.h vacall_r.h trampoline_r.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/minitests.c
@@ -93,8 +111,8 @@ minitests.o : $(srcdir)/minitests.c $(srcdir)/tests.c callback.h vacall_r.h tram
 minitests.s : $(srcdir)/minitests.c $(srcdir)/tests.c callback.h vacall_r.h trampoline_r.h
 	$(CC) $(CFLAGS) $(INCLUDES) -S $(srcdir)/minitests.c
 
-minitests : minitests.o vacall_r/libvacall.a trampoline_r/libtrampoline.a
-	$(CC) $(CFLAGS) @GCC_X_NONE@ minitests.o vacall_r/libvacall.a trampoline_r/libtrampoline.a -o minitests
+minitests : minitests.o libcallback.la
+	$(LIBTOOL_LINK) $(CC) $(CFLAGS) @GCC_X_NONE@ minitests.o libcallback.la -o minitests
 
 minicheck-subdirs : force
 	cd @subdir@; $(MAKE) minicheck
@@ -110,8 +128,8 @@ tests.o : $(srcdir)/tests.c callback.h vacall_r.h trampoline_r.h
 tests.s : $(srcdir)/tests.c callback.h vacall_r.h trampoline_r.h
 	$(CC) $(CFLAGS) $(INCLUDES) -S $(srcdir)/tests.c
 
-tests : tests.o vacall_r/libvacall.a trampoline_r/libtrampoline.a
-	$(CC) $(CFLAGS) @GCC_X_NONE@ tests.o vacall_r/libvacall.a trampoline_r/libtrampoline.a -o tests
+tests : tests.o libcallback.la
+	$(LIBTOOL_LINK) $(CC) $(CFLAGS) @GCC_X_NONE@ tests.o libcallback.la -o tests
 
 check-subdirs : force
 	cd @subdir@; $(MAKE) check
@@ -128,15 +146,17 @@ clean-subdirs : force
 	cd @subdir@; $(MAKE) clean
 
 clean : clean-subdirs
-	$(RM) *.o *.a core
-	$(RM) vacall_r.h trampoline_r.h libcallback.a
+	$(RM) *.o *.lo core
+	$(RM) callback.h vacall_r.h trampoline_r.h libcallback.*
+	$(RM) -r .libs _libs
+	$(RM) minitests.o minitests.s minitests minitests.out
 	$(RM) tests.o tests.s tests tests.out
 
 distclean-subdirs : force
 	cd @subdir@; if test -f Makefile; then $(MAKE) distclean; fi
 
 distclean : clean distclean-subdirs
-	$(RM) config.status config.log config.cache Makefile tests.output.*
+	$(RM) config.status config.log config.cache Makefile libtool minitests.output.* tests.output.*
 
 maintainer-clean-subdirs : force
 	cd @subdir@; if test -f Makefile; then $(MAKE) maintainer-clean; fi
