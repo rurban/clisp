@@ -6776,7 +6776,7 @@ for-value   NIL or T
                             (clos::class-p h)
                             (eq (clos:class-name h) type))
                         (return-from c-TYPEP
-                          (c-form `(CLOS::SUBCLASSP (CLOS:CLASS-OF ,objform)
+                          (c-form `(CLOS::TYPEP-CLASS ,objform
                                     (LOAD-TIME-VALUE (CLOS:FIND-CLASS
                                                       ',type))))))))
               ((and (consp type) (symbolp (first type)))
@@ -6829,7 +6829,7 @@ for-value   NIL or T
               ((and (clos::class-p type)
                     (eq (get (clos:class-name type) 'CLOS::CLOSCLASS) type))
                 (return-from c-TYPEP
-                  (c-form `(CLOS::SUBCLASSP (CLOS:CLASS-OF ,objform)
+                  (c-form `(CLOS::TYPEP-CLASS ,objform
                              (LOAD-TIME-VALUE (CLOS:FIND-CLASS
                                                ',(clos:class-name type)))))))
               ;; ((sys::encodingp type) ...) ; not worth optimizing

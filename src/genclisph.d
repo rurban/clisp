@@ -2000,6 +2000,10 @@ int main(int argc, char* argv[])
   printf("extern bool eql (object obj1, object obj2);\n");
   printf("extern bool equal (object obj1, object obj2);\n");
   printf("extern bool equalp (object obj1, object obj2);\n");
+#endif
+  printf("extern bool typep_class (object obj, object clazz);\n");
+  printf("extern bool typep_classname (object obj, object classname);\n");
+#if notused
   printf("extern object get (object symbol, object key);\n");
 #endif
   printf("extern object L_to_I (sint32 wert);\n");

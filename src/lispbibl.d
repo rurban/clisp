@@ -12297,6 +12297,11 @@ nonreturning_function(extern, fehler_stringsize, (uintL size));
   if ((size) > stringsize_limit_1) \
     fehler_stringsize(size)/*;*/
 
+/* error message if an argument is not a class.
+ fehler_class(caller,obj);
+ > obj: the erroneous argument */
+nonreturning_function(extern, fehler_class, (object obj));
+
 # Error message, if an argument isn't a stream:
 # fehler_stream(obj);
 # > obj: the faulty argument
@@ -12753,6 +12758,20 @@ extern bool equal (object obj1, object obj2);
 # < result: true, if objects are equal
 extern bool equalp (object obj1, object obj2);
 # is used by PATHNAME, HASHTABL
+
+/* typep_class(obj,clas)
+ > obj: an object
+ > clas: a class object
+ < true if the object is an instance of the class, false otherwise
+ clobbers value1, mv_count */
+extern bool typep_class (object obj, object clas);
+
+/* typep_classname(obj,classname)
+ > obj: an object
+ > classname: a symbol expected to name a class with "proper name" classname
+ < true if the object is an instance of the class, false otherwise
+ clobbers value1, mv_count */
+extern bool typep_classname (object obj, object classname);
 
 # UP: expand all DEFTYPE definitions in the type spec
 # (recursively, unless once_p is true)

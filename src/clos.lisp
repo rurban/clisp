@@ -23,6 +23,7 @@
     sys::gensym-list            ; defined in macros2.lisp
     ;; clos::generic-function-p ; defined in predtype.d
     ;; clos::class-p clos:class-of clos:find-class ; defined in predtype.d
+    ;; clos::typep-class        ; defined in predtype.d
     ;; clos::structure-object-p ; defined in record.d
     ;; clos::std-instance-p clos::allocate-std-instance ; defined in record.d
     ;; clos::%allocate-instance ; defined in record.d
