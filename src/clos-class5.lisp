@@ -646,6 +646,17 @@
       ;; return the instance
       instance)))
 
+;; Returns the valid initialization arguments of a class, or T if any symbol
+;; is allowed.
+(defun class-valid-initialization-keywords (class)
+  (let ((entry (gethash class *make-instance-table*)))
+    (if entry
+      ;; Get it from the cache.
+      (svref entry 0)
+      ;; Compute it. Don't need to cache it, since this function does not need
+      ;; to be fast.
+      (valid-make-instance-keywords class))))
+
 ;;; change-class
 
 (defgeneric change-class (instance new-class &key &allow-other-keys)
