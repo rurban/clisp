@@ -41,6 +41,10 @@
                    (if (atom item)
                      (progn (push item req-vars) 't)
                      (progn
+                       (when (cddr item)
+                         (error-of-type 'source-program-error
+                           (TEXT "~S ~S: invalid specialized lambda list entry ~S")
+                           caller funname item))
                        (push (first item) req-vars)
                        (push (first item) ignorable-req-vars) ; CLtL2 p. 840 top
                        (second item)))))
