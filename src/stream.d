@@ -79,15 +79,6 @@
 #    - Komponenten für WRITE-CHAR, WRITE-CHAR-SEQUENCE,
 #    - vom Typ des Streams abhängige Komponenten.
 
-# Pseudofunctions are addresses of C functions which can be called directly
-# (not through FUNCALL). They get the stream as first argument and return an
-# object.
-  #ifdef TYPECODES
-    #define P(fun)  type_constpointer_object(machine_type,(Pseudofun)&(fun))
-  #else
-    #define P(fun)  make_machine_code((Pseudofun)&(fun))
-  #endif
-
 # Spezifikation der neun Typen von Pseudofunktionen:
   #
   # Spezifikation für READ-BYTE - Pseudofunktion:
@@ -3134,6 +3125,12 @@ LISPFUNN(generic_stream_p,1)
         { return O(default_file_encoding); }
       if (encodingp(arg))
         { return arg; }
+      #ifdef UNICODE
+      if (symbolp(arg) && constantp(TheSymbol(arg))
+          && encodingp(Symbol_value(arg))
+         )
+        { return Symbol_value(arg); }
+      #endif
       if (eq(arg,S(Kunix)) || eq(arg,S(Kmac)) || eq(arg,S(Kdos)))
         { # (make-encoding :charset default-file-encoding :line-terminator arg)
           pushSTACK(O(default_file_encoding)); pushSTACK(arg);
@@ -3503,9 +3500,10 @@ typedef struct strm_unbuffered_extrafields_struct {
   boolean      (* low_clear_input)   (object stream);
   uintB*       (* low_read_array)    (object stream, uintB* byteptr, uintL len);
   sintL status;                        # -1 means EOF reached
-                                       # 0 means unknown, last_byte invalid
-                                       # 1 means last_byte valid, to be consumed
-  uintB lastbyte;                      # the last byte read but not yet consumed
+                                       # 0 means unknown, bytebuf invalid
+                                       # >0 means the number of valid bytes in
+                                       #    bytebuf, to be consumed
+  uintB bytebuf[max_bytes_per_chart];  # the last bytes read but not yet consumed
   #ifdef AMIGAOS
   LONG rawp;                           # current mode: 0 = CON, 1 = RAW
   #endif
@@ -3530,7 +3528,7 @@ typedef struct strm_unbuffered_extrafields_struct {
 #define UnbufferedStreamLow_clear_input(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_clear_input
 #define UnbufferedStreamLow_read_array(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_read_array
 #define UnbufferedStream_status(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->status
-#define UnbufferedStream_lastbyte(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->lastbyte
+#define UnbufferedStream_bytebuf(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->bytebuf
 #ifdef AMIGAOS
 #define UnbufferedStream_rawp(stream)  ((strm_unbuffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->rawp
 #endif
@@ -3933,13 +3931,82 @@ typedef struct strm_unbuffered_extrafields_struct {
 # Low-level
 # ---------
 
+  # Push a byte into bytebuf.
+  # UnbufferedStreamLow_push_byte(stream,b);
+  # Assumes 0 <= UnbufferedStream_status(stream) < max_bytes_per_chart.
+  #if (max_bytes_per_chart > 1) # i.e. defined(UNICODE)
+    #define UnbufferedStreamLow_push_byte(stream,b)  \
+      ASSERT((uintL)UnbufferedStream_status(stream) < max_bytes_per_chart);    \
+      UnbufferedStream_bytebuf(stream)[UnbufferedStream_status(stream)++] = b;
+  #else
+    #define UnbufferedStreamLow_push_byte(stream,b)  \
+      UnbufferedStream_bytebuf(stream)[0] = b; \
+      UnbufferedStream_status(stream) = 1;
+  #endif
+
+  # Push a byte to the front of bytebuf.
+  # UnbufferedStreamLow_pushfront_byte(stream,b);
+  # Assumes 0 <= UnbufferedStream_status(stream) < max_bytes_per_chart.
+  #if (max_bytes_per_chart > 1) # i.e. defined(UNICODE)
+    #define UnbufferedStreamLow_pushfront_byte(stream,b)  \
+      ASSERT((uintL)UnbufferedStream_status(stream) < max_bytes_per_chart); \
+      { var uintL _count = UnbufferedStream_status(stream)++;               \
+        var uintB* _ptr = &UnbufferedStream_bytebuf(stream)[_count];        \
+        if (_count > 0)                                                     \
+          { do { _ptr[0] = _ptr[-1]; _ptr--; } while (--_count > 0); }      \
+        _ptr[0] = b;                                                        \
+      }                                                                     \
+      UnbufferedStream_status(stream)++;
+  #else
+    #define UnbufferedStreamLow_pushfront_byte(stream,b)  \
+      UnbufferedStream_bytebuf(stream)[0] = b; \
+      UnbufferedStream_status(stream) = 1;
+  #endif
+
+  #ifdef UNICODE
+  # Push a number of bytes to the front of bytebuf.
+  # UnbufferedStreamLow_pushfront_bytes(stream,byteptr,bytecount);
+    #define UnbufferedStreamLow_pushfront_bytes(stream,byteptr,bytecount)  \
+      { var uintL _push = (bytecount);                                    \
+        if (_push > 0)                                                    \
+          { var uintL _count = UnbufferedStream_status(stream);           \
+            ASSERT(_push + _count <= max_bytes_per_chart);                \
+            UnbufferedStream_status(stream) = _push + _count;             \
+           {var const uintB* _ptr1 = (byteptr);                           \
+            var uintB* _ptr2 = &UnbufferedStream_bytebuf(stream)[_count]; \
+            if (_count > 0)                                               \
+              { do { _ptr2--; _ptr2[_push] = _ptr2[0]; } while (--_count > 0); } \
+            do { *_ptr2++ = *_ptr1++; } while (--_push > 0);              \
+          }}                                                              \
+      }
+  #endif
+
+  # Pop a byte from bytebuf.
+  # UnbufferedStreamLow_pop_byte(stream,b);
+  # declares and assigns a value to b.
+  # Assumes UnbufferedStream_status(stream) > 0.
+  #if (max_bytes_per_chart > 1) # i.e. defined(UNICODE)
+    #define UnbufferedStreamLow_pop_byte(stream,b)  \
+      var uintB b = UnbufferedStream_bytebuf(stream)[0];            \
+      { var uintL _count = --UnbufferedStream_status(stream);       \
+        if (_count > 0)                                             \
+          { var uintB* _ptr = &UnbufferedStream_bytebuf(stream)[0]; \
+            do { _ptr[0] = _ptr[1]; _ptr++; } while (--_count > 0); \
+      }   }
+  #else
+    #define UnbufferedStreamLow_pop_byte(stream,b)  \
+      var uintB b;                             \
+      UnbufferedStream_status(stream) = 0;     \
+      b = UnbufferedStream_bytebuf(stream)[0];
+  #endif
+
   local sintL low_read_unbuffered_handle (object stream);
   local sintL low_read_unbuffered_handle(stream)
     var object stream;
     { if (UnbufferedStream_status(stream) < 0) # already EOF?
         { return -1; }
-      if (UnbufferedStream_status(stream) > 0) # lastbyte valid?
-        { UnbufferedStream_status(stream) = 0; return UnbufferedStream_lastbyte(stream); }
+      if (UnbufferedStream_status(stream) > 0) # bytebuf contains valid bytes?
+        { UnbufferedStreamLow_pop_byte(stream,b); return b; }
       { var Handle handle = TheHandle(TheStream(stream)->strm_ichannel);
         var uintB b;
        restart_it:
@@ -3982,9 +4049,9 @@ typedef struct strm_unbuffered_extrafields_struct {
             # Ctrl-C wird meist während des Read()-Aufrufs festgestellt, und
             # Read() liefert dann "unschuldig" ein Zeichen ab. Wir behandeln
             # das Ctrl-C jetzt. Damit das Byte nicht verlorengeht, wird
-            # es in lastbyte zurückgelegt.
+            # es in bytebuf zurückgelegt.
             interruptp(
-              { UnbufferedStream_lastbyte(stream) = b; UnbufferedStream_status(stream) = 1;
+              { UnbufferedStreamLow_push_byte(stream,b);
                 fehler_interrupt();
               });
             #endif
@@ -3997,7 +4064,7 @@ typedef struct strm_unbuffered_extrafields_struct {
     var object stream;
     { if (UnbufferedStream_status(stream) < 0) # already EOF?
         { return ls_eof; }
-      if (UnbufferedStream_status(stream) > 0) # lastbyte valid?
+      if (UnbufferedStream_status(stream) > 0) # bytebuf contains valid bytes?
         { return ls_avail; }
       # Method 1: select, see SELECT(2)
       # Method 2: ioctl FIONREAD, see FILIO(4)
@@ -4152,7 +4219,7 @@ typedef struct strm_unbuffered_extrafields_struct {
             { return ls_wait; }
             else
             { # Stuff the read byte into the buffer, for next low_read call.
-              UnbufferedStream_lastbyte(stream) = b; UnbufferedStream_status(stream) = 1;
+              UnbufferedStreamLow_push_byte(stream,b);
               return ls_avail;
             }
           # If this doesn't work, should be use a timer 0.1 sec ??
@@ -4173,7 +4240,7 @@ typedef struct strm_unbuffered_extrafields_struct {
             { UnbufferedStream_status(stream) = -1; return ls_eof; }
             else
             { # Stuff the read byte into the buffer, for next low_read call.
-              UnbufferedStream_lastbyte(stream) = b; UnbufferedStream_status(stream) = 1;
+              UnbufferedStreamLow_push_byte(stream,b);
               return ls_avail;
             }
         }}
@@ -4197,7 +4264,7 @@ typedef struct strm_unbuffered_extrafields_struct {
             { UnbufferedStream_status(stream) = -1; return ls_eof; }
             else
             { # Stuff the read byte into the buffer, for next low_read call.
-              UnbufferedStream_lastbyte(stream) = b; UnbufferedStream_status(stream) = 1;
+              UnbufferedStreamLow_push_byte(stream,b);
               return ls_avail;
             }
         }
@@ -4271,7 +4338,7 @@ typedef struct strm_unbuffered_extrafields_struct {
                 { UnbufferedStream_status(stream) = -1; return ls_eof; }
                 else
                 { # Stuff the read byte into the buffer, for next low_read call.
-                  UnbufferedStream_lastbyte(stream) = b; UnbufferedStream_status(stream) = 1;
+                  UnbufferedStreamLow_push_byte(stream,b);
                   return ls_avail;
                 }
             }
@@ -4327,9 +4394,9 @@ typedef struct strm_unbuffered_extrafields_struct {
     var uintL len;
     { if (UnbufferedStream_status(stream) < 0) # already EOF?
         { return byteptr; }
-      if (UnbufferedStream_status(stream) > 0) # lastbyte valid?
-        { UnbufferedStream_status(stream) = 0;
-          *byteptr++ = UnbufferedStream_lastbyte(stream);
+      while (UnbufferedStream_status(stream) > 0) # bytebuf contains valid bytes?
+        { UnbufferedStreamLow_pop_byte(stream,b);
+          *byteptr++ = b;
           len--;
           if (len == 0) { return byteptr; }
         }
@@ -4420,29 +4487,61 @@ typedef struct strm_unbuffered_extrafields_struct {
   local object rd_ch_unbuffered (const object* stream_);
   local object rd_ch_unbuffered(stream_)
     var const object* stream_;
-    {  var object stream = *stream_;
-       if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF?
-         { return eof_value; }
-       retry:
-     { var sintL b = UnbufferedStreamLow_read(stream)(stream);
-       if (b < 0) { return eof_value; }
-      {var chart c = as_chart((uintB)b);
-       if (chareq(c,ascii(NL)))
-         { if (UnbufferedStream_ignore_next_LF(stream))
-             { UnbufferedStream_ignore_next_LF(stream) = FALSE; goto retry; }
-           # lineno incrementieren:
-           ChannelStream_lineno(stream) += 1;
-         }
-       elif (chareq(c,ascii(CR)))
-         { UnbufferedStream_ignore_next_LF(stream) = TRUE;
-           c = ascii(NL);
-           # lineno incrementieren:
-           ChannelStream_lineno(stream) += 1;
-         }
-       else
-         { UnbufferedStream_ignore_next_LF(stream) = FALSE; }
-       return code_char(c);
-    }}}
+    { var object stream = *stream_;
+      if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF?
+        { return eof_value; }
+      retry:
+     {var chart c;
+      #ifdef UNICODE
+      var object encoding = TheStream(stream)->strm_encoding;
+      var uintB buf[max_bytes_per_chart];
+      var uintL buflen = 0;
+      loop
+        { var sintL b = UnbufferedStreamLow_read(stream)(stream);
+          if (b < 0) { return eof_value; }
+          ASSERT(buflen < max_bytes_per_chart);
+          buf[buflen++] = (uintB)b;
+         {var const uintB* bptr = &buf[0];
+          var chart* cptr = &c;
+          Encoding_mbstowcs(encoding)(encoding,&bptr,&buf[buflen],&cptr,cptr+1);
+          if (cptr == &c)
+            # Not a complete character.
+            { # Shift the buffer
+              if (!(bptr == &buf[0]))
+                { var const uintB* ptr1 = bptr;
+                  var uintB* ptr2 = &buf[0];
+                  until (ptr1 == &buf[buflen]) { *ptr2++ = *ptr1++; }
+                  buflen = ptr2 - &buf[0];
+            }   }
+            else
+            # Read a complete character.
+            { # Move the remainder of the buffer into bytebuf.
+              UnbufferedStreamLow_pushfront_bytes(stream,bptr,&buf[buflen]-bptr);
+              break;
+            }
+         }}
+      #else
+      { var sintL b = UnbufferedStreamLow_read(stream)(stream);
+        if (b < 0) { return eof_value; }
+        c = as_chart((uintB)b);
+      }
+      #endif
+      if (chareq(c,ascii(NL)))
+        { if (UnbufferedStream_ignore_next_LF(stream))
+            { UnbufferedStream_ignore_next_LF(stream) = FALSE; goto retry; }
+          # lineno incrementieren:
+          ChannelStream_lineno(stream) += 1;
+        }
+      elif (chareq(c,ascii(CR)))
+        { UnbufferedStream_ignore_next_LF(stream) = TRUE;
+          c = ascii(NL);
+          # lineno incrementieren:
+          ChannelStream_lineno(stream) += 1;
+        }
+      else
+        { UnbufferedStream_ignore_next_LF(stream) = FALSE; }
+      return code_char(c);
+    }}
 
 # Stellt fest, ob ein Unbuffered-Channel-Stream ein Zeichen verfügbar hat.
 # listen_unbuffered(stream)
@@ -4455,15 +4554,63 @@ typedef struct strm_unbuffered_extrafields_struct {
     var object stream;
     { if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF ?
         { return ls_eof; }
+     {var signean result;
+      #ifdef UNICODE
+      var chart c;
+      var object encoding = TheStream(stream)->strm_encoding;
+      var uintB buf[max_bytes_per_chart];
+      var uintL buflen = 0;
+      loop
+        {  result = UnbufferedStreamLow_listen(stream)(stream);
+           if (ls_eof_p(result)) break;
+           if (!ls_avail_p(result))
+             # Stop reading.
+             { # Move the buffer into bytebuf.
+               UnbufferedStreamLow_pushfront_bytes(stream,&buf[0],buflen);
+               break;
+             }
+         { var sintL b = UnbufferedStreamLow_read(stream)(stream);
+           if (b < 0) { result = ls_eof; break; }
+           ASSERT(buflen < max_bytes_per_chart);
+           buf[buflen++] = (uintB)b;
+          {var const uintB* bptr = &buf[0];
+           var chart* cptr = &c;
+           Encoding_mbstowcs(encoding)(encoding,&bptr,&buf[buflen],&cptr,cptr+1);
+           if (cptr == &c)
+             # Not a complete character.
+             { # Shift the buffer
+               if (!(bptr == &buf[0]))
+                 { var const uintB* ptr1 = bptr;
+                   var uintB* ptr2 = &buf[0];
+                   until (ptr1 == &buf[buflen]) { *ptr2++ = *ptr1++; }
+                   buflen = ptr2 - &buf[0];
+             }   }
+             else
+             # Read a complete character.
+             { if (UnbufferedStream_ignore_next_LF(stream) && chareq(c,ascii(NL)))
+                 { # Move the remainder of the buffer into bytebuf.
+                   UnbufferedStreamLow_pushfront_bytes(stream,bptr,&buf[buflen]-bptr);
+                   UnbufferedStream_ignore_next_LF(stream) = FALSE;
+                 }
+                 else
+                 { # Move the buffer into bytebuf.
+                   UnbufferedStreamLow_pushfront_bytes(stream,&buf[0],buflen);
+                   UnbufferedStream_ignore_next_LF(stream) = FALSE;
+                   result = ls_avail;
+                   break;
+             }   }
+        }}}
+      #else
       retry:
-     {var signean result = UnbufferedStreamLow_listen(stream)(stream);
+      result = UnbufferedStreamLow_listen(stream)(stream);
       if (ls_avail_p(result) && UnbufferedStream_ignore_next_LF(stream))
         { var sintL b = UnbufferedStreamLow_read(stream)(stream);
           if (b < 0) { return ls_eof; }
           UnbufferedStream_ignore_next_LF(stream) = FALSE;
           if (b == NL) { goto retry; }
-          UnbufferedStream_lastbyte(stream) = b; UnbufferedStream_status(stream) = 1;
+          UnbufferedStreamLow_pushfront_byte(stream,b);
         }
+      #endif
       return result;
     }}
 
@@ -4491,27 +4638,59 @@ typedef struct strm_unbuffered_extrafields_struct {
     var uintL len;
     { # Need a temporary buffer for CR/LF->NL translation.
       #define tmpbufsize 4096
-      var uintB tmpbuf[tmpbufsize];
+      var chart tmpbuf[tmpbufsize];
       var chart* endptr = charptr+len;
       loop
         { var uintL remaining = endptr - charptr;
           if (remaining == 0) break;
           if (remaining > tmpbufsize) { remaining = tmpbufsize; }
-         {var uintL count = UnbufferedStreamLow_read_array(stream)(stream,tmpbuf,remaining) - &tmpbuf[0];
+         {var uintL count;
+          #ifdef UNICODE
+          # In order to read n characters, we read n bytes. (Fewer than n bytes
+          # will not suffice.) If these aren't enough bytes, the next round
+          # will provide them.
+          # FIXME: Could use TheEncoding(encoding)->min_bytes_per_char here.
+          { var object encoding = TheStream(stream)->strm_encoding;
+            var uintB tmptmpbuf[tmpbufsize];
+            var uintB* tmptmpendptr =
+              UnbufferedStreamLow_read_array(stream)(stream,tmptmpbuf,remaining);
+            var const uintB* tmptmpptr = &tmptmpbuf[0];
+            var chart* tmpptr = &tmpbuf[0];
+            Encoding_mbstowcs(encoding)(encoding,&tmptmpptr,tmptmpendptr,&tmpptr,&tmpbuf[tmpbufsize]);
+            count = tmpptr - &tmpbuf[0];
+            ASSERT(tmptmpendptr-tmptmpptr < max_bytes_per_chart);
+            # Move the remainder of tmptmpbuf into bytebuf.
+            UnbufferedStreamLow_pushfront_bytes(stream,tmptmpptr,tmptmpendptr-tmptmpptr);
+          }
+          if (count == 0)
+            { # Filling the last few characters must be done one by one, in
+              # order not to overrun the goal.
+              pushSTACK(stream);
+              do {
+                var object ch = rd_ch_unbuffered(&STACK_0);
+                if (eq(ch,eof_value)) break;
+                tmpbuf[count++] = char_code(ch);
+                remaining--;
+              } while (remaining > 0);
+              skipSTACK(1);
+            }
+          #else
+          count = UnbufferedStreamLow_read_array(stream)(stream,tmpbuf,remaining) - &tmpbuf[0];
+          #endif
           if (count == 0) break;
-          { var const uintB* tmpptr = &tmpbuf[0];
+          { var const chart* tmpptr = &tmpbuf[0];
             do {
-              var uintB c = *tmpptr++;
+              var chart c = *tmpptr++;
               count--;
-              if (c == NL)
+              if (chareq(c,ascii(NL)))
                 { if (UnbufferedStream_ignore_next_LF(stream))
                     { UnbufferedStream_ignore_next_LF(stream) = FALSE; }
                     else
                     { ChannelStream_lineno(stream) += 1; *charptr++ = ascii(NL); }
                 }
-              elif (c == CR)
+              elif (chareq(c,ascii(CR)))
                 { if (count > 0)
-                    { if (*tmpptr == NL) { tmpptr++; count--; }
+                    { if (chareq(*tmpptr,ascii(NL))) { tmpptr++; count--; }
                       UnbufferedStream_ignore_next_LF(stream) = FALSE;
                     }
                     else
@@ -4520,7 +4699,7 @@ typedef struct strm_unbuffered_extrafields_struct {
                 }
               else
                 { UnbufferedStream_ignore_next_LF(stream) = FALSE;
-                  *charptr++ = as_chart(c);
+                  *charptr++ = c;
                 }
             } while (count > 0);
         }}}
@@ -4696,7 +4875,18 @@ typedef struct strm_unbuffered_extrafields_struct {
       # ch sollte Character sein:
       if (!charp(ch)) { fehler_wr_char(stream,ch); }
      {var chart c = char_code(ch); # Code des Zeichens
+      #ifdef UNICODE
+      { var uintB buf[max_bytes_per_chart];
+        var object encoding = TheStream(stream)->strm_encoding;
+        var const chart* cptr = &c;
+        var uintB* bptr = &buf[0];
+        Encoding_wcstombs(encoding)(encoding,&cptr,cptr+1,&bptr,&buf[max_bytes_per_chart]);
+        ASSERT(cptr == &c+1);
+        UnbufferedStreamLow_write_array(stream)(stream,&buf[0],bptr-&buf[0]);
+      }
+      #else
       UnbufferedStreamLow_write(stream)(stream,as_cint(c));
+      #endif
     }}
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für Unbuffered-Channel-Streams:
@@ -4705,8 +4895,22 @@ typedef struct strm_unbuffered_extrafields_struct {
     var object stream;
     var const chart* charptr;
     var uintL len;
-    { var const chart* endptr = UnbufferedStreamLow_write_array(stream)(stream,charptr,len);
-      wr_ss_lpos(stream,endptr,endptr-charptr); # Line-Position aktualisieren
+    {
+      #ifdef UNICODE
+      #define tmpbufsize 4096
+      var const chart* endptr = charptr + len;
+      var uintB tmptmpbuf[tmpbufsize*max_bytes_per_chart];
+      var object encoding = TheStream(stream)->strm_encoding;
+      do {
+        var uintB* bptr = &tmptmpbuf[0];
+        Encoding_wcstombs(encoding)(encoding,&charptr,endptr,&bptr,&tmptmpbuf[tmpbufsize*max_bytes_per_chart]);
+        UnbufferedStreamLow_write_array(stream)(stream,&tmptmpbuf[0],bptr-&tmptmpbuf[0]);
+      } until (charptr == endptr);
+      #undef tmpbufsize
+      #else
+      var const chart* endptr = UnbufferedStreamLow_write_array(stream)(stream,charptr,len);
+      #endif
+      wr_ss_lpos(stream,endptr,len); # Line-Position aktualisieren
       return endptr;
     }
 
@@ -4731,7 +4935,18 @@ typedef struct strm_unbuffered_extrafields_struct {
       if (!charp(ch)) { fehler_wr_char(stream,ch); }
      {var chart c = char_code(ch); # Code des Zeichens
       if (chareq(c,ascii(NL))) { c = ascii(CR); }
+      #ifdef UNICODE
+      { var uintB buf[max_bytes_per_chart];
+        var object encoding = TheStream(stream)->strm_encoding;
+        var const chart* cptr = &c;
+        var uintB* bptr = &buf[0];
+        Encoding_wcstombs(encoding)(encoding,&cptr,cptr+1,&bptr,&buf[max_bytes_per_chart]);
+        ASSERT(cptr == &c+1);
+        UnbufferedStreamLow_write_array(stream)(stream,&buf[0],bptr-&buf[0]);
+      }
+      #else
       UnbufferedStreamLow_write(stream)(stream,as_cint(c));
+      #endif
     }}
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für Unbuffered-Channel-Streams:
@@ -4743,8 +4958,11 @@ typedef struct strm_unbuffered_extrafields_struct {
     { # Need a temporary buffer for NL->CR translation.
       #define tmpbufsize 4096
       var chart tmpbuf[tmpbufsize];
+      #ifdef UNICODE
+      var uintB tmptmpbuf[tmpbufsize*max_bytes_per_chart];
+      var object encoding = TheStream(stream)->strm_encoding;
+      #endif
       var uintL remaining = len;
-      var const chart* startptr = charptr;
       do {
         var uintL n = remaining;
         if (n > tmpbufsize) { n = tmpbufsize; }
@@ -4755,13 +4973,22 @@ typedef struct strm_unbuffered_extrafields_struct {
               if (chareq(c,ascii(NL))) { c = ascii(CR); }
               *tmpptr++ = c;
             });
+          #ifdef UNICODE
+          { var const chart* cptr = tmpbuf;
+            var uintB* bptr = &tmptmpbuf[0];
+            Encoding_wcstombs(encoding)(encoding,&cptr,tmpptr,&bptr,&tmptmpbuf[tmpbufsize*max_bytes_per_chart]);
+            ASSERT(cptr == tmpptr);
+            UnbufferedStreamLow_write_array(stream)(stream,&tmptmpbuf[0],bptr-&tmptmpbuf[0]);
+          }
+          #else
+          UnbufferedStreamLow_write_array(stream)(stream,tmpbuf,n);
+          #endif
         }
-        UnbufferedStreamLow_write_array(stream)(stream,tmpbuf,n);
         remaining -= n;
       } while (remaining > 0);
-      wr_ss_lpos(stream,charptr,charptr-startptr); # Line-Position aktualisieren
-      return charptr;
       #undef tmpbufsize
+      wr_ss_lpos(stream,charptr,len); # Line-Position aktualisieren
+      return charptr;
     }
 
 # WRITE-SIMPLE-STRING - Pseudofunktion für Unbuffered-Channel-Streams:
@@ -4784,12 +5011,25 @@ typedef struct strm_unbuffered_extrafields_struct {
       # ch sollte Character sein:
       if (!charp(ch)) { fehler_wr_char(stream,ch); }
      {var chart c = char_code(ch); # Code des Zeichens
+      static chart const crlf[2] = { ascii(CR), ascii(LF) };
+      #ifdef UNICODE
+      { var uintB buf[2*max_bytes_per_chart];
+        var object encoding = TheStream(stream)->strm_encoding;
+        var const chart* cp;
+        var uintL n;
+        if (chareq(c,ascii(NL))) { cp = &c; n = 1; } else { cp = crlf; n = 2; }
+       {var const chart* cptr = cp;
+        var uintB* bptr = &buf[0];
+        Encoding_wcstombs(encoding)(encoding,&cptr,cp+n,&bptr,&buf[2*max_bytes_per_chart]);
+        ASSERT(cptr == cp+n);
+        UnbufferedStreamLow_write_array(stream)(stream,&buf[0],bptr-&buf[0]);
+      }}
+      #else
       if (chareq(c,ascii(NL)))
-        { UnbufferedStreamLow_write(stream)(stream,CR);
-          UnbufferedStreamLow_write(stream)(stream,LF);
-        }
+        { UnbufferedStreamLow_write_array(stream)(stream,crlf,2); }
         else
         { UnbufferedStreamLow_write(stream)(stream,as_cint(c)); }
+      #endif
     }}
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für Unbuffered-Channel-Streams:
@@ -4801,8 +5041,11 @@ typedef struct strm_unbuffered_extrafields_struct {
     { # Need a temporary buffer for NL->CR/LF translation.
       #define tmpbufsize 4096
       var chart tmpbuf[2*tmpbufsize];
+      #ifdef UNICODE
+      var uintB tmptmpbuf[2*tmpbufsize*max_bytes_per_chart];
+      var object encoding = TheStream(stream)->strm_encoding;
+      #endif
       var uintL remaining = len;
-      var const chart* startptr = charptr;
       do {
         var uintL n = remaining;
         if (n > tmpbufsize) { n = tmpbufsize; }
@@ -4815,13 +5058,22 @@ typedef struct strm_unbuffered_extrafields_struct {
                 else
                 { *tmpptr++ = c; }
             });
+          #ifdef UNICODE
+          { var const chart* cptr = tmpbuf;
+            var uintB* bptr = &tmptmpbuf[0];
+            Encoding_wcstombs(encoding)(encoding,&cptr,tmpptr,&bptr,&tmptmpbuf[2*tmpbufsize*max_bytes_per_chart]);
+            ASSERT(cptr == tmpptr);
+            UnbufferedStreamLow_write_array(stream)(stream,&tmptmpbuf[0],bptr-&tmptmpbuf[0]);
+          }
+          #else
           UnbufferedStreamLow_write_array(stream)(stream,tmpbuf,tmpptr-&tmpbuf[0]);
+          #endif
         }
         remaining -= n;
       } while (remaining > 0);
-      wr_ss_lpos(stream,charptr,charptr-startptr); # Line-Position aktualisieren
-      return charptr;
       #undef tmpbufsize
+      wr_ss_lpos(stream,charptr,len); # Line-Position aktualisieren
+      return charptr;
     }
 
 # WRITE-SIMPLE-STRING - Pseudofunktion für Unbuffered-Channel-Streams:
@@ -5660,27 +5912,82 @@ typedef struct strm_i_buffered_extrafields_struct {
   local object rd_ch_buffered(stream_)
     var const object* stream_;
     { var object stream = *stream_;
-      var uintB* charptr = buffered_nextbyte(stream);
-      if (charptr == (uintB*)NULL) { return eof_value; } # EOF ?
+      var uintB* bufferptr = buffered_nextbyte(stream);
+      if (bufferptr == (uintB*)NULL) { return eof_value; } # EOF ?
       # nächstes Zeichen holen:
-     {var chart ch = as_chart(*charptr); # Character aus dem Buffer
+     {var chart c;
+      #ifdef UNICODE
+      var object encoding = TheStream(stream)->strm_encoding;
+      # Does the buffer contain a complete character?
+      { var sintL eofindex = BufferedStream_eofindex(stream);
+        var uintL available =
+          (eofindex == eofindex_all_valid ? strm_buffered_bufflen : eofindex)
+          - BufferedStream_index(stream);
+        var const uintB* bptr = bufferptr;
+        var chart* cptr = &c;
+        Encoding_mbstowcs(encoding)(encoding,&bptr,bufferptr+available,&cptr,&c+1);
+        if (cptr == &c+1)
+          { var uintL n = bptr-bufferptr;
+            # index und position incrementieren:
+            BufferedStream_index(stream) += n;
+            BufferedStream_position(stream) += n;
+          }
+          else
+          { var uintB buf[max_bytes_per_chart];
+            var uintL buflen = 0;
+            loop
+              { ASSERT(buflen < max_bytes_per_chart);
+                buf[buflen++] = *bufferptr;
+                # index und position incrementieren:
+                BufferedStream_index(stream) += 1;
+                BufferedStream_position(stream) += 1;
+               {var const uintB* bptr = &buf[0];
+                var chart* cptr = &c;
+                Encoding_mbstowcs(encoding)(encoding,&bptr,&buf[buflen],&cptr,cptr+1);
+                if (cptr == &c)
+                  # Not a complete character.
+                  { # Shift the buffer
+                    if (!(bptr == &buf[0]))
+                      { var const uintB* ptr1 = bptr;
+                        var uintB* ptr2 = &buf[0];
+                        until (ptr1 == &buf[buflen]) { *ptr2++ = *ptr1++; }
+                        buflen = ptr2 - &buf[0];
+                  }   }
+                  else
+                  # Read a complete character.
+                  { if (!(bptr == &buf[buflen]))
+                      { # At most one lookahead byte. Make it unread.
+                        ASSERT(bptr == &buf[buflen-1]);
+                        # index und position wieder decrementieren:
+                        BufferedStream_index(stream) -= 1;
+                        BufferedStream_position(stream) -= 1;
+                      }
+                    break;
+                  }
+                bufferptr = buffered_nextbyte(stream);
+                if (bufferptr == (uintB*)NULL) { return eof_value; }
+              }}
+      }   }
+      #else
+      c = as_chart(*bufferptr); # Character aus dem Buffer
       # index und position incrementieren:
       BufferedStream_index(stream) += 1;
       BufferedStream_position(stream) += 1;
-      if (chareq(ch,ascii(NL)))
+      #endif
+      if (chareq(c,ascii(NL)))
         { ChannelStream_lineno(stream) += 1; }
-      elif (chareq(ch,ascii(CR)))
+      elif (chareq(c,ascii(CR)))
         { # nächstes Zeichen auf LF untersuchen
-          charptr = buffered_nextbyte(stream);
-          if (!(charptr == (uintB*)NULL) && chareq(as_chart(*charptr),ascii(LF)))
+          bufferptr = buffered_nextbyte(stream);
+          if (!(bufferptr == (uintB*)NULL) && chareq(as_chart(*bufferptr),ascii(LF)))
             { # index und position incrementieren:
               BufferedStream_index(stream) += 1;
               BufferedStream_position(stream) += 1;
             }
-          ch = ascii(NL);
+          c = ascii(NL);
           ChannelStream_lineno(stream) += 1;
         }
-      return code_char(ch);
+      return code_char(c);
     }}
 
 # Stellt fest, ob ein File-Stream ein Zeichen verfügbar hat.
@@ -5695,6 +6002,10 @@ typedef struct strm_i_buffered_extrafields_struct {
     { if (buffered_nextbyte(stream) == (uintB*)NULL)
         { return ls_eof; } # EOF
         else
+        # In case of UNICODE, the presence of a byte does not guarantee the
+        # presence of a multi-byte character. Returning ls_avail here is
+        # therfore not correct. But this doesn't matter since programs seeing
+        # ls_avail will call read-char, and this will do the right thing anyway.
         { return ls_avail; }
     }
 
@@ -5704,7 +6015,92 @@ typedef struct strm_i_buffered_extrafields_struct {
     var object stream;
     var chart* charptr;
     var uintL len;
-    { do { var uintB* ptr = buffered_nextbyte(stream);
+    {
+      #ifdef UNICODE
+      var object encoding = TheStream(stream)->strm_encoding;
+      var chart* endptr = charptr+len;
+      loop
+        { var chart* startptr = charptr;
+          var uintB* bufferptr = buffered_nextbyte(stream);
+          if (bufferptr == (uintB*)NULL) break; # EOF -> fertig
+          # Read as many complete characters from the buffer as possible.
+          { var sintL eofindex = BufferedStream_eofindex(stream);
+            var uintL available =
+              (eofindex == eofindex_all_valid ? strm_buffered_bufflen : eofindex)
+              - BufferedStream_index(stream);
+            var const uintB* bptr = bufferptr;
+            var chart* cptr = charptr;
+            Encoding_mbstowcs(encoding)(encoding,&bptr,bufferptr+available,&cptr,endptr);
+            if (cptr == charptr)
+              { var uintB buf[max_bytes_per_chart];
+                var uintL buflen = 0;
+                loop
+                  { ASSERT(buflen < max_bytes_per_chart);
+                    buf[buflen++] = *bufferptr;
+                    # index und position incrementieren:
+                    BufferedStream_index(stream) += 1;
+                    BufferedStream_position(stream) += 1;
+                   {var const uintB* bptr = &buf[0];
+                    var chart* cptr = charptr;
+                    Encoding_mbstowcs(encoding)(encoding,&bptr,&buf[buflen],&cptr,cptr+1);
+                    if (cptr == charptr)
+                      # Not a complete character.
+                      { # Shift the buffer
+                        if (!(bptr == &buf[0]))
+                          { var const uintB* ptr1 = bptr;
+                            var uintB* ptr2 = &buf[0];
+                            until (ptr1 == &buf[buflen]) { *ptr2++ = *ptr1++; }
+                            buflen = ptr2 - &buf[0];
+                      }   }
+                      else
+                      # Read a complete character.
+                      { if (!(bptr == &buf[buflen]))
+                          { # At most one lookahead byte. Make it unread.
+                            ASSERT(bptr == &buf[buflen-1]);
+                            # index und position wieder decrementieren:
+                            BufferedStream_index(stream) -= 1;
+                            BufferedStream_position(stream) -= 1;
+                          }
+                        break;
+                      }
+                    bufferptr = buffered_nextbyte(stream);
+                    if (bufferptr == (uintB*)NULL) break; # EOF -> fertig
+                  }}
+                if (cptr == charptr) break; # EOF -> fertig
+              }
+            charptr = cptr;
+          }
+          # Now apply CR/LF->NL and CR->NL conversion to the characters
+          # [startptr..charptr).
+          { var const chart* ptr1 = startptr;
+            var chart* ptr2 = startptr;
+            do {
+              var chart c = *ptr1++;
+              if (chareq(c,ascii(NL)))
+                { ChannelStream_lineno(stream) += 1; }
+              elif (chareq(c,ascii(CR)))
+                { # nächstes Zeichen auf LF untersuchen
+                  if (ptr1 == charptr)
+                    { var uintB* bufferptr = buffered_nextbyte(stream);
+                      if (!(bufferptr == (uintB*)NULL) && chareq(as_chart(*bufferptr),ascii(LF)))
+                        { # index und position incrementieren:
+                          BufferedStream_index(stream) += 1;
+                          BufferedStream_position(stream) += 1;
+                    }   }
+                    else
+                    { if (chareq(*ptr1,ascii(LF))) { ptr1++; } }
+                  c = ascii(NL);
+                  ChannelStream_lineno(stream) += 1;
+                }
+              *ptr2++ = c;
+            } until (ptr1 == charptr);
+            charptr = ptr2;
+          }
+          if (charptr == endptr) break;
+        }
+      return charptr;
+      #else
+      do { var uintB* ptr = buffered_nextbyte(stream);
            if (ptr == (uintB*)NULL) break; # EOF -> fertig
           {var chart ch = as_chart(*ptr);
            # index und position incrementieren:
@@ -5727,6 +6123,7 @@ typedef struct strm_i_buffered_extrafields_struct {
          }}
          while (len > 0);
       return charptr;
+      #endif
     }
 
 # Output side
@@ -5755,30 +6152,50 @@ typedef struct strm_i_buffered_extrafields_struct {
       # obj muss ein Character sein:
       if (!charp(obj)) { fehler_wr_char(stream,obj); }
      {var chart c = char_code(obj);
+      #ifdef UNICODE
+      { var uintB buf[max_bytes_per_chart];
+        var object encoding = TheStream(stream)->strm_encoding;
+        var const chart* cptr = &c;
+        var uintB* bptr = &buf[0];
+        Encoding_wcstombs(encoding)(encoding,&cptr,cptr+1,&bptr,&buf[max_bytes_per_chart]);
+        ASSERT(cptr == &c+1);
+       {var uintL buflen = bptr-&buf[0];
+        write_byte_array_buffered(stream,&buf[0],buflen);
+        # position incrementieren:
+        BufferedStream_position(stream) += buflen;
+      }}
+      #else
       write_byte_buffered(stream,as_cint(c)); # unverändert ausgeben
+      #endif
     }}
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für File-Streams für Characters:
-  local const chart* wr_ch_array_buffered_unix (object stream, const chart* strptr, uintL len);
-  local const chart* wr_ch_array_buffered_unix(stream,strptr,len)
+  local const chart* wr_ch_array_buffered_unix (object stream, const chart* charptr, uintL len);
+  local const chart* wr_ch_array_buffered_unix(stream,charptr,len)
     var object stream;
-    var const chart* strptr;
+    var const chart* charptr;
     var uintL len;
-    {
-      #if 1 # FIXME: doesn't work with chart any more
-      write_byte_array_buffered(stream,strptr,len);
+    { var const chart* endptr = charptr + len;
+      #ifdef UNICODE
+      #define tmpbufsize 4096
+      var uintB tmptmpbuf[tmpbufsize*max_bytes_per_chart];
+      var object encoding = TheStream(stream)->strm_encoding;
+      do {
+        var uintB* bptr = &tmptmpbuf[0];
+        Encoding_wcstombs(encoding)(encoding,&charptr,endptr,&bptr,&tmptmpbuf[tmpbufsize*max_bytes_per_chart]);
+       {var uintL tmptmpbuflen = bptr-&tmptmpbuf[0];
+        write_byte_array_buffered(stream,&tmptmpbuf[0],tmptmpbuflen);
+        # position incrementieren:
+        BufferedStream_position(stream) += tmptmpbuflen;
+      }} until (charptr == endptr);
+      #undef tmpbufsize
+      #else
+      write_byte_array_buffered(stream,charptr,len);
       # position incrementieren:
       BufferedStream_position(stream) += len;
-      strptr += len;
-      #else
-      var uintL remaining = len;
-      do { write_byte_buffered(stream,as_cint(*strptr++));
-           remaining--;
-         }
-         until (remaining == 0);
       #endif
-      wr_ss_lpos(stream,strptr,len); # Line-Position aktualisieren
-      return strptr;
+      wr_ss_lpos(stream,endptr,len); # Line-Position aktualisieren
+      return endptr;
     }
 
 # WRITE-SIMPLE-STRING - Pseudofunktion für File-Streams für Characters
@@ -5802,24 +6219,71 @@ typedef struct strm_i_buffered_extrafields_struct {
       if (!charp(obj)) { fehler_wr_char(stream,obj); }
      {var chart c = char_code(obj);
       if (chareq(c,ascii(NL))) { c = ascii(CR); }
+      #ifdef UNICODE
+      { var uintB buf[max_bytes_per_chart];
+        var object encoding = TheStream(stream)->strm_encoding;
+        var const chart* cptr = &c;
+        var uintB* bptr = &buf[0];
+        Encoding_wcstombs(encoding)(encoding,&cptr,cptr+1,&bptr,&buf[max_bytes_per_chart]);
+        ASSERT(cptr == &c+1);
+       {var uintL buflen = bptr-&buf[0];
+        write_byte_array_buffered(stream,&buf[0],buflen);
+        # position incrementieren:
+        BufferedStream_position(stream) += buflen;
+      }}
+      #else
       write_byte_buffered(stream,as_cint(c));
+      #endif
     }}
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für File-Streams für Characters:
-  local const chart* wr_ch_array_buffered_mac (object stream, const chart* strptr, uintL len);
-  local const chart* wr_ch_array_buffered_mac(stream,strptr,len)
+  local const chart* wr_ch_array_buffered_mac (object stream, const chart* charptr, uintL len);
+  local const chart* wr_ch_array_buffered_mac(stream,charptr,len)
     var object stream;
-    var const chart* strptr;
+    var const chart* charptr;
     var uintL len;
-    { var uintL remaining = len;
-      do { var chart c = *strptr++;
+    {
+      #ifdef UNICODE
+      # Need a temporary buffer for NL->CR translation.
+      #define tmpbufsize 4096
+      var chart tmpbuf[tmpbufsize];
+      var uintB tmptmpbuf[tmpbufsize*max_bytes_per_chart];
+      var object encoding = TheStream(stream)->strm_encoding;
+      var uintL remaining = len;
+      do {
+        var uintL n = remaining;
+        if (n > tmpbufsize) { n = tmpbufsize; }
+        { var chart* tmpptr = &tmpbuf[0];
+          var uintL count;
+          dotimespL(count,n,
+            { var chart c = *charptr++;
+              if (chareq(c,ascii(NL))) { c = ascii(CR); }
+              *tmpptr++ = c;
+            });
+          { var const chart* cptr = tmpbuf;
+            var uintB* bptr = &tmptmpbuf[0];
+            Encoding_wcstombs(encoding)(encoding,&cptr,tmpptr,&bptr,&tmptmpbuf[tmpbufsize*max_bytes_per_chart]);
+            ASSERT(cptr == tmpptr);
+           {var uintL tmptmpbuflen = bptr-&tmptmpbuf[0];
+            write_byte_array_buffered(stream,&tmptmpbuf[0],tmptmpbuflen);
+            # position incrementieren:
+            BufferedStream_position(stream) += tmptmpbuflen;
+          }}
+        }
+        remaining -= n;
+      } while (remaining > 0);
+      #undef tmpbufsize
+      #else
+      var uintL remaining = len;
+      do { var chart c = *charptr++;
            if (chareq(c,ascii(NL))) { c = ascii(CR); }
            write_byte_buffered(stream,as_cint(c));
            remaining--;
          }
          until (remaining == 0);
-      wr_ss_lpos(stream,strptr,len); # Line-Position aktualisieren
-      return strptr;
+      #endif
+      wr_ss_lpos(stream,charptr,len); # Line-Position aktualisieren
+      return charptr;
     }
 
 # WRITE-SIMPLE-STRING - Pseudofunktion für File-Streams für Characters
@@ -5842,20 +6306,72 @@ typedef struct strm_i_buffered_extrafields_struct {
       # obj muss ein Character sein:
       if (!charp(obj)) { fehler_wr_char(stream,obj); }
      {var chart c = char_code(obj);
+      #ifdef UNICODE
+      static chart const crlf[2] = { ascii(CR), ascii(LF) };
+      var uintB buf[2*max_bytes_per_chart];
+      var object encoding = TheStream(stream)->strm_encoding;
+      var const chart* cp;
+      var uintL n;
+      if (chareq(c,ascii(NL))) { cp = &c; n = 1; } else { cp = crlf; n = 2; }
+      { var const chart* cptr = cp;
+        var uintB* bptr = &buf[0];
+        Encoding_wcstombs(encoding)(encoding,&cptr,cp+n,&bptr,&buf[2*max_bytes_per_chart]);
+        ASSERT(cptr == cp+n);
+       {var uintL buflen = bptr-&buf[0];
+        write_byte_array_buffered(stream,&buf[0],buflen);
+        # position incrementieren:
+        BufferedStream_position(stream) += buflen;
+      }}
+      #else
       if (chareq(c,ascii(NL)))
         { write_byte_buffered(stream,CR); write_byte_buffered(stream,LF); }
         else
         { write_byte_buffered(stream,as_cint(c)); }
+      #endif
     }}
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für File-Streams für Characters:
-  local const chart* wr_ch_array_buffered_dos (object stream, const chart* strptr, uintL len);
-  local const chart* wr_ch_array_buffered_dos(stream,strptr,len)
+  local const chart* wr_ch_array_buffered_dos (object stream, const chart* charptr, uintL len);
+  local const chart* wr_ch_array_buffered_dos(stream,charptr,len)
     var object stream;
-    var const chart* strptr;
+    var const chart* charptr;
     var uintL len;
-    { var uintL remaining = len;
-      do { var chart c = *strptr++;
+    {
+      #ifdef UNICODE
+      # Need a temporary buffer for NL->CR translation.
+      #define tmpbufsize 4096
+      var chart tmpbuf[2*tmpbufsize];
+      var uintB tmptmpbuf[2*tmpbufsize*max_bytes_per_chart];
+      var object encoding = TheStream(stream)->strm_encoding;
+      var uintL remaining = len;
+      do {
+        var uintL n = remaining;
+        if (n > tmpbufsize) { n = tmpbufsize; }
+        { var chart* tmpptr = &tmpbuf[0];
+          var uintL count;
+          dotimespL(count,n,
+            { var chart c = *charptr++;
+              if (chareq(c,ascii(NL)))
+                { *tmpptr++ = ascii(CR); *tmpptr++ = ascii(LF); }
+                else
+                { *tmpptr++ = c; }
+            });
+          { var const chart* cptr = tmpbuf;
+            var uintB* bptr = &tmptmpbuf[0];
+            Encoding_wcstombs(encoding)(encoding,&cptr,tmpptr,&bptr,&tmptmpbuf[2*tmpbufsize*max_bytes_per_chart]);
+            ASSERT(cptr == tmpptr);
+           {var uintL tmptmpbuflen = bptr-&tmptmpbuf[0];
+            write_byte_array_buffered(stream,&tmptmpbuf[0],tmptmpbuflen);
+            # position incrementieren:
+            BufferedStream_position(stream) += tmptmpbuflen;
+          }}
+        }
+        remaining -= n;
+      } while (remaining > 0);
+      #undef tmpbufsize
+      #else
+      var uintL remaining = len;
+      do { var chart c = *charptr++;
            if (chareq(c,ascii(NL)))
              { write_byte_buffered(stream,CR); write_byte_buffered(stream,LF); }
              else
@@ -5863,8 +6379,9 @@ typedef struct strm_i_buffered_extrafields_struct {
            remaining--;
          }
          until (remaining == 0);
-      wr_ss_lpos(stream,strptr,len); # Line-Position aktualisieren
-      return strptr;
+      #endif
+      wr_ss_lpos(stream,charptr,len); # Line-Position aktualisieren
+      return charptr;
     }
 
 # WRITE-SIMPLE-STRING - Pseudofunktion für File-Streams für Characters
@@ -6911,7 +7428,7 @@ typedef struct strm_i_buffered_extrafields_struct {
                  {# Directory existiert schon:
                   var object namestring = assume_dir_exists(); # Filename als ASCIZ-String
                   var sintW handle;
-                  with_sstring_0(namestring,namestring_asciz,
+                  with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
                     { begin_system_call();
                       handle = OPEN(namestring_asciz,O_RDWR); # Datei neu öffnen
                       if (handle < 0) # Error melden
@@ -6946,7 +7463,7 @@ typedef struct strm_i_buffered_extrafields_struct {
                        pushSTACK(TheStream(stream)->strm_file_truename); # Filename
                       {# Directory existiert schon, Datei neu öffnen:
                        var object namestring = assume_dir_exists(); # Filename als ASCIZ-String
-                       with_sstring_0(namestring,namestring_asciz,
+                       with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
                          { begin_system_call();
                            handle = Open(namestring_asciz,MODE_OLDFILE);
                            end_system_call();
@@ -7109,7 +7626,7 @@ local object make_key_event(event)
         if (event->key == NULL)
           { pushSTACK(code_char(event->code)); }
           else
-          { pushSTACK(intern_keyword(asciz_to_string(event->key))); }
+          { pushSTACK(intern_keyword(ascii_to_string(event->key))); }
         pushSTACK(S(Kbits)); pushSTACK(fixnum(event->bits));
         funcall(S(make_input_character),4);
       }
@@ -8253,7 +8770,7 @@ LISPFUNN(make_keyboard_stream,0)
     var int start;
     var int end;
     { # (SYS::COMPLETION text start end) aufrufen:
-      pushSTACK(asciz_to_string(text));
+      pushSTACK(asciz_to_string(text,O(terminal_encoding)));
       pushSTACK(fixnum((uintL)start));
       pushSTACK(fixnum((uintL)end));
       funcall(S(completion),3);
@@ -8830,7 +9347,7 @@ LISPFUNN(make_keyboard_stream,0)
       }
       #endif
       { var char* prompt; # Prompt: letzte bisher ausgegebene Zeile
-       {var object lastline = string_to_asciz(TheStream(*stream_)->strm_terminal_outbuff);
+       {var object lastline = string_to_asciz(TheStream(*stream_)->strm_terminal_outbuff,O(terminal_encoding));
         begin_system_call();
         prompt = (char*) malloc(Sbvector_length(lastline)/8+1);
         if (!(prompt==NULL))
@@ -8944,32 +9461,16 @@ LISPFUNN(make_keyboard_stream,0)
     var const object* stream_;
     var object ch;
     { if (!charp(ch)) { fehler_wr_char(*stream_,ch); } # ch sollte Character sein
-     {var uintB c = as_cint(char_code(ch)); # Code des Zeichens
       #if TERMINAL_OUTBUFFERED
-      if (c==NL)
-        TheIarray(TheStream(*stream_)->strm_terminal_outbuff)->dims[1] = 0; # Fill-Pointer := 0
-        else
-        ssstring_push_extend(TheStream(*stream_)->strm_terminal_outbuff,as_chart(c));
-      #endif
-      restart_it:
-      begin_system_call();
-      #ifdef GRAPHICS_SWITCH
-      switch_text_mode();
-      #endif
-      {var int ergebnis = write(stdout_handle,&c,1); # Zeichen auszugeben versuchen
-       if (ergebnis<0)
-         { if (errno==EINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
-             { end_system_call();
-               interruptp({ pushSTACK(S(write_char)); tast_break(); }); # Break-Schleife aufrufen
-               goto restart_it;
-             }
-           OS_error(); # Error melden
-         }
-       end_system_call();
-       if (ergebnis==0) # nicht erfolgreich?
-         { fehler_unwritable(S(write_char),*stream_); }
+      { var chart c = char_code(ch); # Code des Zeichens
+        if (chareq(c,ascii(NL)))
+          TheIarray(TheStream(*stream_)->strm_terminal_outbuff)->dims[1] = 0; # Fill-Pointer := 0
+          else
+          ssstring_push_extend(TheStream(*stream_)->strm_terminal_outbuff,c);
       }
-    }}
+      #endif
+      wr_ch_unbuffered_unix(stream_,ch);
+    }
 
 # UP: Mehrere Zeichen auf einen Terminal-Stream ausgeben.
 # wr_ss_terminal3(&stream,string,start,len);
@@ -8985,21 +9486,12 @@ LISPFUNN(make_keyboard_stream,0)
     var uintL len;
     { if (len==0) return;
      {var const chart* ptr = &TheSstring(string)->data[start];
-      begin_system_call();
-      #ifdef GRAPHICS_SWITCH
-      switch_text_mode();
-      #endif
-      {var sintL ergebnis = full_write(stdout_handle,ptr,len); # Zeichen auszugeben versuchen
-       if (ergebnis<0) { OS_error(); } # Error melden
-       end_system_call();
-       if (!(ergebnis==(sintL)len)) # nicht erfolgreich?
-         { fehler_unwritable(S(write_string),*stream_); }
-       ptr += len;
-      }
+      wr_ch_array_unbuffered_unix(*stream_,ptr,len);
       #if TERMINAL_OUTBUFFERED
       # Zeichen seit dem letzten NL in den Buffer:
       { var uintL pos = 0; # zähle die Zahl der Zeichen seit dem letzten NL
         var uintL count;
+        ptr += len;
         dotimespL(count,len, { if (chareq(*--ptr,ascii(NL))) goto found_NL; pos++; } );
         if (FALSE)
           found_NL: # pos Zeichen seit dem letzten NL
@@ -9015,9 +9507,7 @@ LISPFUNN(make_keyboard_stream,0)
           });
         string = popSTACK();
       }}
-      ptr = &TheSstring(string)->data[start+len];
       #endif
-      wr_ss_lpos(*stream_,ptr,len); # Line-Position aktualisieren
     }}
 
 # UP: Löscht den wartenden Output eines Terminal-Stream.
@@ -9061,6 +9551,9 @@ LISPFUNN(make_keyboard_stream,0)
         # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
         # und füllen:
         var Stream s = TheStream(stream);
+          #ifdef UNICODE
+          s->strm_encoding = O(terminal_encoding);
+          #endif
           s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
           s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
           s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
@@ -9108,13 +9601,13 @@ LISPFUNN(make_keyboard_stream,0)
             ergebnis = ttyname(stdin_handle); # Filename von stdin holen
             if (!(ergebnis==NULL))
               { end_system_call();
-                filename = asciz_to_string(ergebnis);
+                filename = asciz_to_string(ergebnis,O(pathname_encoding));
                 begin_system_call();
                 ergebnis = ttyname(stdout_handle); # Filename von stdout holen
                 if (!(ergebnis==NULL))
                   { end_system_call();
                     pushSTACK(filename);
-                    filename = asciz_to_string(ergebnis);
+                    filename = asciz_to_string(ergebnis,O(pathname_encoding));
                     if (string_gleich(popSTACK(),filename)) # gleiche Filenamen?
                       { same_tty = TRUE; }
               }   }
@@ -9154,6 +9647,9 @@ LISPFUNN(make_keyboard_stream,0)
               # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
             # und füllen:
             var Stream s = TheStream(stream);
+              #ifdef UNICODE
+              s->strm_encoding = O(terminal_encoding);
+              #endif
               s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
               s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
               s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
@@ -9194,6 +9690,9 @@ LISPFUNN(make_keyboard_stream,0)
               # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
             # und füllen:
             var Stream s = TheStream(stream);
+              #ifdef UNICODE
+              s->strm_encoding = O(terminal_encoding);
+              #endif
               s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
               s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
               s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
@@ -9228,6 +9727,9 @@ LISPFUNN(make_keyboard_stream,0)
             # Flags: nur READ-CHAR und WRITE-CHAR erlaubt
           # und füllen:
           var Stream s = TheStream(stream);
+            #ifdef UNICODE
+            s->strm_encoding = O(terminal_encoding);
+            #endif
             s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
             s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
             s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
@@ -11709,7 +12211,7 @@ typedef struct { uintB** image; # image[y][x] ist das Zeichen an Position (x,y)
           }
         if (!(tgetent(tbuf,s)==1))
           { end_system_call();
-            pushSTACK(asciz_to_string(s));
+            pushSTACK(asciz_to_string(s,O(misc_encoding)));
             return (DEUTSCH ? "TERMCAP kennt Terminal-Typ ~ nicht." :
                     ENGLISH ? "terminal type ~ unknown to termcap" :
                     FRANCAIS ? "TERMCAP ne connait pas le type d'écran ~." :
@@ -12769,7 +13271,7 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
     # Check and canonicalize the :EXTERNAL-FORMAT argument:
     STACK_1 = test_external_format_arg(STACK_1);
     # Now create the pipe.
-    command = string_to_asciz(STACK_3); # command als ASCIZ-String
+    command = string_to_asciz(STACK_3,O(misc_encoding)); # command als ASCIZ-String
    {var int child;
     #ifdef EMUNIX
     var int handles[2];
@@ -12939,7 +13441,7 @@ LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
     # Check and canonicalize the :EXTERNAL-FORMAT argument:
     STACK_1 = test_external_format_arg(STACK_1);
     # Now create the pipe.
-    command = string_to_asciz(STACK_3); # command als ASCIZ-String
+    command = string_to_asciz(STACK_3,O(misc_encoding)); # command als ASCIZ-String
    {var int child;
     #ifdef EMUNIX
     var int handles[2];
@@ -13085,7 +13587,7 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
     # Check and canonicalize the :EXTERNAL-FORMAT argument:
     STACK_1 = test_external_format_arg(STACK_1);
     # Now create the pipe.
-    command = string_to_asciz(STACK_3); # command als ASCIZ-String
+    command = string_to_asciz(STACK_3,O(misc_encoding)); # command als ASCIZ-String
    {var int child;
     #ifdef EMUNIX
     var int in_handles[2];
@@ -13312,8 +13814,8 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
     var object stream;
     { if (UnbufferedStream_status(stream) < 0) # already EOF?
         { return -1; }
-      if (UnbufferedStream_status(stream) > 0) # lastbyte valid?
-        { UnbufferedStream_status(stream) = 0; return UnbufferedStream_lastbyte(stream); }
+      if (UnbufferedStream_status(stream) > 0) # bytebuf contains valid bytes?
+        { UnbufferedStreamLow_pop_byte(stream,b); return b; }
       { var SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);
         var uintB b;
         begin_system_call();
@@ -13336,7 +13838,7 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
     var object stream;
     { if (UnbufferedStream_status(stream) < 0) # already EOF?
         { return ls_eof; }
-      if (UnbufferedStream_status(stream) > 0) # lastbyte valid?
+      if (UnbufferedStream_status(stream) > 0) # bytebuf contains valid bytes?
         { return ls_avail; }
       { var SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);
         # Use select() with readfds = singleton set {handle}
@@ -13373,7 +13875,7 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
               { UnbufferedStream_status(stream) = -1; return ls_eof; }
               else
               { # Stuff the read byte into the buffer, for next low_read call.
-                UnbufferedStream_lastbyte(stream) = b; UnbufferedStream_status(stream) = 1;
+                UnbufferedStreamLow_push_byte(stream,b);
                 return ls_avail;
               }
           }}
@@ -13393,9 +13895,9 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
     var uintL len;
     { if (UnbufferedStream_status(stream) < 0) # already EOF?
         { return byteptr; }
-      if (UnbufferedStream_status(stream) > 0) # lastbyte valid?
-        { UnbufferedStream_status(stream) = 0;
-          *byteptr++ = UnbufferedStream_lastbyte(stream);
+      while (UnbufferedStream_status(stream) > 0) # bytebuf contains valid bytes?
+        { UnbufferedStreamLow_pop_byte(stream,b);
+          *byteptr++ = b;
           len--;
           if (len == 0) { return byteptr; }
         }
@@ -13547,7 +14049,7 @@ LISPFUNN(make_x11socket_stream,2)
                ""
               );
      }
-   {var const char* host = TheAsciz(string_to_asciz(STACK_1));
+   {var const char* host = TheAsciz(string_to_asciz(STACK_1,O(misc_encoding)));
     var SOCKET handle;
     begin_system_call();
     handle = connect_to_x_server(host,posfixnum_to_L(STACK_0));
@@ -13928,7 +14430,7 @@ LISPFUN(socket_server,0,1,norest,nokey,0,NIL)
     pushSTACK(allocate_socket_server());
     TheSocketServer(STACK_0)->socket_handle = STACK_1;
     TheSocketServer(STACK_0)->port = fixnum(myname.port);
-    { var object host = asciz_to_string(myname.hostname); # for GC-safety
+    { var object host = asciz_to_string(myname.hostname,O(misc_encoding)); # for GC-safety
       TheSocketServer(STACK_0)->host = host;
     }
     pushSTACK(STACK_0);
@@ -14060,7 +14562,7 @@ LISPFUN(socket_connect,1,1,norest,key,3,\
     if (eq(STACK_3,unbound))
       hostname = "localhost";
     elif (stringp(STACK_3))
-      hostname = TheAsciz(string_to_asciz(STACK_3));
+      hostname = TheAsciz(string_to_asciz(STACK_3,O(misc_encoding)));
     else
       fehler_string(STACK_3);
 
@@ -14069,7 +14571,7 @@ LISPFUN(socket_connect,1,1,norest,key,3,\
     if (handle == INVALID_SOCKET) { SOCK_error(); }
     end_system_call();
     value1 = make_socket_stream(handle,&eltype,buffered,
-                                asciz_to_string(hostname),STACK_4);
+                                asciz_to_string(hostname,O(misc_encoding)),STACK_4);
     skipSTACK(5);
     mv_count = 1;
   }
@@ -14083,7 +14585,7 @@ LISPFUNN(socket_service_port,1)
     var int port;
 
     if (stringp(STACK_0))
-      service_name = TheAsciz(string_to_asciz(STACK_0));
+      service_name = TheAsciz(string_to_asciz(STACK_0,Symbol_value(S(ascii))));
     else
       fehler_string(STACK_0);
     begin_system_call();
@@ -14170,14 +14672,14 @@ local void publish_host_data (func)
     end_system_call();
     skipSTACK(1);
     if (hd.truename == NULL)
-      value1 = asciz_to_string (hd.hostname);
+      value1 = asciz_to_string(hd.hostname,O(misc_encoding));
     else {
       var char* tmp_str = malloc (strlen (hd.truename) + strlen (hd.hostname) + 4);
       strcpy(tmp_str, hd.hostname);
       strcat(tmp_str, " (");
       strcat(tmp_str, hd.truename);
       strcat(tmp_str, ")");
-      value1 = asciz_to_string (tmp_str);
+      value1 = asciz_to_string(tmp_str,O(misc_encoding));
       free (tmp_str);
     }
     value2 = fixnum (hd.port);
@@ -14231,14 +14733,14 @@ LISPFUNN(socket_stream_handle,1)
           if (stdin_file)
             {
               #ifdef UNIX
-              pushSTACK(asciz_to_string("/dev/fd/0")); funcall(L(pathname),1);
+              pushSTACK(ascii_to_string("/dev/fd/0")); funcall(L(pathname),1);
               pushSTACK(value1);
               #else
               pushSTACK(NIL);
               #endif
               pushSTACK(NIL);
               pushSTACK(S(Kdefault));
-              pushSTACK(S(Kdefault)); # terminal-encoding??
+              pushSTACK(S(Kdefault)); # not O(terminal-encoding), since it's a file
               pushSTACK(S(character));
               pushSTACK(allocate_handle(stdin_handle));
               stream = make_file_stream(1,FALSE,FALSE);
@@ -14250,14 +14752,14 @@ LISPFUNN(socket_stream_handle,1)
           if (stdout_file)
             {
               #ifdef UNIX
-              pushSTACK(asciz_to_string("/dev/fd/1")); funcall(L(pathname),1);
+              pushSTACK(ascii_to_string("/dev/fd/1")); funcall(L(pathname),1);
               pushSTACK(value1);
               #else
               pushSTACK(NIL);
               #endif
               pushSTACK(NIL);
               pushSTACK(S(Kdefault));
-              pushSTACK(S(Kdefault)); # terminal-encoding??
+              pushSTACK(S(Kdefault)); # not O(terminal-encoding), since it's a file
               pushSTACK(S(character));
               pushSTACK(allocate_handle(stdout_handle));
               stream = make_file_stream(4,FALSE,FALSE);
@@ -14303,7 +14805,7 @@ LISPFUNN(socket_stream_handle,1)
       if (unixyp)
         { # Für *ERROR-OUTPUT* einen anderen Stream verwenden. Auf den
           # Filenamen kommt es nicht an, /dev/fd/2 existiert auch nicht überall.
-          pushSTACK(asciz_to_string("/dev/fd/2")); funcall(L(pathname),1);
+          pushSTACK(ascii_to_string("/dev/fd/2")); funcall(L(pathname),1);
           pushSTACK(value1);
           pushSTACK(S(Kunix)); pushSTACK(S(character)); pushSTACK(allocate_handle(2));
          {var decoded_eltype eltype = { eltype_ch };
@@ -14634,8 +15136,7 @@ LISPFUNN(set_stream_element_type,2)
                             }   }
                             else
                             { if (UnbufferedStream_status(stream) == 0)
-                                { UnbufferedStream_lastbyte(stream) = b;
-                                  UnbufferedStream_status(stream) = 1;
+                                { UnbufferedStreamLow_push_byte(stream,b);
                                   UnbufferedStream_ignore_next_LF(stream) = FALSE;
                                   TheStream(stream)->strm_rd_ch_last = NIL;
                                   TheStream(stream)->strmflags &= ~strmflags_unread_B;
@@ -15664,10 +16165,17 @@ LISPFUN(allow_read_eval,1,1,norest,nokey,0,NIL)
   #endif
 
 # Tabelle aller Pseudofunktionen
+  #define PSEUDOFUN  PSEUDOFUN_B
+  #define XPSEUDO  XPSEUDO_B
+  #include "pseudofun.c"
+  #undef XPSEUDO
+  #undef PSEUDOFUN
   global struct pseudofun_tab_ pseudofun_tab =
     {
-      #define PSEUDOFUN  PSEUDOFUN_B
+      #define PSEUDOFUN  PSEUDOFUN_C
+      #define XPSEUDO  XPSEUDO_C
       #include "pseudofun.c"
+      #undef XPSEUDO
       #undef PSEUDOFUN
     };
 

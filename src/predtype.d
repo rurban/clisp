@@ -1513,7 +1513,7 @@ LISPFUNN(type_of,1)
           break;
         case_char: # Character -> BASE-CHAR or CHARACTER
           #if (base_char_code_limit < char_code_limit)
-          if (char_code(arg) >= base_char_code_limit)
+          if (as_cint(char_code(arg)) >= base_char_code_limit)
             { value1 = S(character); break; }
           #endif
           value1 = S(base_char); break;

@@ -2186,6 +2186,9 @@ The variable *FEATURES* initially contains the symbols
 #ifdef GNU_GETTEXT
   :GETTEXT
 #endif
+#ifdef UNICODE
+  :UNICODE
+#endif
   :LOOP
   :CLOS
   :AMIGA            ; if hardware = Amiga and operating system = Exec/AmigaDOS

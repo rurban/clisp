@@ -1414,6 +1414,76 @@ LISPSYM(default_float_format,"*DEFAULT-FLOAT-FORMAT*",lisp) # als Variable in LI
 LISPSYM(read_default_float_format,"*READ-DEFAULT-FLOAT-FORMAT*",lisp) # als Variable in LISPARIT
 LISPSYM(write_float,"WRITE-FLOAT",system) # als Funktion für LISPARIT
 LISPSYM(random_state_stern,"*RANDOM-STATE*",lisp) # als Variable in LISPARIT
+#ifdef UNICODE
+LISPSYM(unicode_16,"UNICODE-16",charset)
+LISPSYM(unicode_16_big_endian,"UNICODE-16-BIG-ENDIAN",charset)
+LISPSYM(unicode_16_little_endian,"UNICODE-16-LITTLE-ENDIAN",charset)
+LISPSYM(utf_8,"UTF-8",charset)
+LISPSYM(java,"JAVA",charset)
+LISPSYM(ascii,"ASCII",charset) # ---------------------------+ These must be
+LISPSYM(iso8859_1,"ISO-8859-1",charset) #                   | in the same order
+LISPSYM(iso8859_2,"ISO-8859-2",charset) #                   | as in encoding.d
+LISPSYM(iso8859_3,"ISO-8859-3",charset)
+LISPSYM(iso8859_4,"ISO-8859-4",charset)
+LISPSYM(iso8859_5,"ISO-8859-5",charset)
+LISPSYM(iso8859_6,"ISO-8859-6",charset)
+LISPSYM(iso8859_7,"ISO-8859-7",charset)
+LISPSYM(iso8859_8,"ISO-8859-8",charset)
+LISPSYM(iso8859_9,"ISO-8859-9",charset)
+LISPSYM(iso8859_14,"ISO-8859-14",charset)
+LISPSYM(iso8859_15,"ISO-8859-15",charset)
+LISPSYM(koi8_r,"KOI8-R",charset)
+LISPSYM(mac_arabic,"MAC-ARABIC",charset)
+LISPSYM(mac_centraleurope,"MAC-CENTRAL-EUROPE",charset)
+LISPSYM(mac_croatian,"MAC-CROATIAN",charset)
+LISPSYM(mac_cyrillic,"MAC-CYRILLIC",charset)
+LISPSYM(mac_dingbat,"MAC-DINGBAT",charset)
+LISPSYM(mac_greek,"MAC-GREEK",charset)
+LISPSYM(mac_hebrew,"MAC-HEBREW",charset)
+LISPSYM(mac_iceland,"MAC-ICELAND",charset)
+LISPSYM(mac_roman,"MAC-ROMAN",charset)
+LISPSYM(mac_romania,"MAC-ROMANIA",charset)
+LISPSYM(mac_symbol,"MAC-SYMBOL",charset)
+LISPSYM(mac_thai,"MAC-THAI",charset)
+LISPSYM(mac_turkish,"MAC-TURKISH",charset)
+LISPSYM(mac_ukraine,"MAC-UKRAINE",charset)
+LISPSYM(cp437_ms,"CP437-MS",charset)
+LISPSYM(cp437_ibm,"CP437-IBM",charset)
+LISPSYM(cp737,"CP737",charset)
+LISPSYM(cp775,"CP775",charset)
+LISPSYM(cp850,"CP850",charset)
+LISPSYM(cp852_ms,"CP852-MS",charset)
+LISPSYM(cp852_ibm,"CP852-IBM",charset)
+LISPSYM(cp855,"CP855",charset)
+LISPSYM(cp857,"CP857",charset)
+LISPSYM(cp860_ms,"CP860-MS",charset)
+LISPSYM(cp860_ibm,"CP860-IBM",charset)
+LISPSYM(cp861_ms,"CP861-MS",charset)
+LISPSYM(cp861_ibm,"CP861-IBM",charset)
+LISPSYM(cp862_ms,"CP862-MS",charset)
+LISPSYM(cp862_ibm,"CP862-IBM",charset)
+LISPSYM(cp863_ms,"CP863-MS",charset)
+LISPSYM(cp863_ibm,"CP863-IBM",charset)
+LISPSYM(cp864_ms,"CP864-MS",charset)
+LISPSYM(cp864_ibm,"CP864-IBM",charset)
+LISPSYM(cp865_ms,"CP865-MS",charset)
+LISPSYM(cp865_ibm,"CP865-IBM",charset)
+LISPSYM(cp866,"CP866",charset)
+LISPSYM(cp869_ms,"CP869-MS",charset)
+LISPSYM(cp869_ibm,"CP869-IBM",charset)
+LISPSYM(cp874_ms,"CP874-MS",charset)
+LISPSYM(cp874_ibm,"CP874-IBM",charset)
+LISPSYM(cp1250,"CP1250",charset)
+LISPSYM(cp1251,"CP1251",charset)
+LISPSYM(cp1252,"CP1252",charset)
+LISPSYM(cp1253,"CP1253",charset)
+LISPSYM(cp1254,"CP1254",charset)
+LISPSYM(cp1255,"CP1255",charset)
+LISPSYM(cp1256,"CP1256",charset)
+LISPSYM(cp1257,"CP1257",charset) #                          |
+LISPSYM(cp1258,"CP1258",charset) #                          |
+LISPSYM(nextstep,"NEXTSTEP",charset) # ---------------------+
+#endif
 LISPSYM(english,"ENGLISH",lisp) # als Language für MISC
 LISPSYM(deutsch,"DEUTSCH",lisp) # als Language für MISC
 LISPSYM(francais,"FRANCAIS",lisp) # als Language für MISC

@@ -1,5 +1,215 @@
 1999-02-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Unicode support.
+        * makemake.in (--with-unicode): New command line option.
+          (XCFLAGS): Conditionally add -DUNICODE.
+          (UNICODE_INCLUDES, NLS_INCLUDES): New variables.
+          (CFILES): Add them.
+          Symlink them.
+          (depends): Add $UNICODE_INCLUDES for charstrg. Add $NLS_INCLUDES for
+          encoding.
+        * lispbibl.d (CHART_STRUCT): Don't define on m68k and arm CPUs.
+          (char_int_len): Define as 16 for UNICODE.
+          (Encoding) [UNICODE]: Add more fields.
+          (encoding_length): Change value.
+          (encoding_xlength): New macro.
+          (Encoding_mblen, Encoding_mbstowcs, Encoding_wcslen,
+           Encoding_wcstombs, cslen, cstombs): New macros.
+          (allocate_encoding): Use encoding_xlength.
+          (make_string): Add an encoding argument.
+          (asciz_to_string, string_to_asciz): Likewise.
+          (ascii_to_string): New function.
+          (with_string_0, with_sstring_0, with_string, with_sstring): Add an
+          encoding argument.
+          (pseudofun_): Remove type.
+          (Pseudofun): Change definition.
+          (P): New macro, moved here from stream.d.
+          (max_bytes_per_chart): New macro.
+        * genclisph.d (main): Remove `asciz_to_string' declaration.
+          Add `ascii_to_string' declaration.
+        * modules/clx/new-clx/e2d.c (care_about_packages): Use ascii_to_string
+          instead of asciz_to_string.
+        * constpack.d (LISPPACK_B): Use ascii_to_string instead of
+          asciz_to_string.
+          (charset): New package.
+        * constsym.d (CHARSET:...): New symbols.
+        * constobj.d (O(internal_encoding), O(pathname_encoding),
+           O(terminal_encoding), O(foreign_encoding), O(misc_encoding)): New
+          variables.
+        * spvw.d (make_string, asciz_to_string, string_to_asciz): Moved out
+          to encoding.d.
+          (fehler_notreached): Use ascii_to_string instead of asciz_to_string.
+          (fehler_code_alignment): Use O(terminal_encoding).
+          (init_symbol_tab_2): Export symbols in package CHARSET as well.
+          Use ascii_to_string instead of asciz_to_string.
+          (init_object_tab): Add :UNICODE to features_initstring. Use
+          ascii_to_string instead of asciz_to_string. Use O(internal_encoding).
+          (init_module_2): Use O(internal_encoding).
+          (print_license, print_banner): Use O(internal_encoding).
+          (main): Use O(internal_encoding) and O(pathname_encoding) and
+          O(misc_encoding). Use ascii_to_string.
+          (fehler_dlerror): Use O(misc_encoding) and O(internal_encoding).
+        * spvw_language.d (localized_string, localized_object): Use
+          S(iso8859_1).
+        * spvw_memfile.d (memflags): Depends on UNICODE.
+          (loadmem_update): Use the Pseudofun type instead of void*.
+        * encoding.d (MAKE-ENCODING): Accept constant symbols for the :charset
+          argument. Copy the trailing encoding_xlength bytes too.
+          (make_string): Moved here from spvw.d. Add encoding argument.
+          (asciz_to_string): Likewise.
+          (ascii_to_string): New function.
+          (string_to_asciz): Moved here from spvw.d. Add encoding argument.
+          (hex_table): New variable.
+          (fehler_unencodable): New function.
+          (uni16_mblen, uni16be_mbstowcs, uni16le_mbstowcs, uni16_wcslen,
+           uni16be_wcstombs, uni16le_wcstombs): New functions.
+          (fehler_utf8_invalid1, fehler_utf8_invalid2, fehler_utf8_invalid3,
+           utf8_mblen, utf8_mbstowcs, utf8_wcslen, utf8_wcstombs): New
+          functions.
+          (java_mblen, java_mbstowcs, java_wcslen, java_wcstombs): New
+          functions.
+          (nls_table): New struct type.
+          (nopage): New constant array.
+          (nls_*.c): New include files.
+          (nls_first_sym, nls_last_sym, nls_num_encodings): New macros.
+          (nls_tables): New constant array.
+          (nls_mblen, nls_mbstowcs, nls_wcslen, nls_wcstombs): New functions.
+          (init_encodings): Entirely rewritten.
+        * pseudofun.d (PSEUDOFUN_C): Renamed from PSEUDOFUN_B.
+          (PSEUDOFUN_B): New macro.
+          (XPSEUDO_A, XPSEUDO_B, XPSEUDO_C): New macros.
+          New XPSEUDO declarations for the functions and tables defined in
+          encoding.d.
+        * charstrg.d (nop_page): New variable.
+          (up_case, down_case): Add UNICODE support.
+          (uni_attribute.c): New include file.
+          (unicode_attribute): New macro.
+          (alphap): Add UNICODE support.
+          (numericp): New macro.
+          (alphanumericp): Add UNICODE support.
+          (graphic_char_p): Add UNICODE support.
+          (SYSTEM::BASE-CHAR-P): Fix comparison with base_char_code_limit.
+          (DIGIT-CHAR-P): Add UNICODE support.
+        * predtype.d (TYPE-OF): Fix comparison with base_char_code_limit.
+        * package.d (init_packages): Use ascii_to_string instead of
+          asciz_to_string.
+        * io.d (unicode_attribute, graphic_char_p): New macros.
+          (allocate_perchar_table, perchar_table_get, perchar_table_put,
+           copy_perchar_table): Add UNICODE support.
+          (allocate_syntax_table, syntax_table_get, syntax_table_put): Move
+          macros. Add UNICODE support.
+          (orig_syntax_table): Size is only base_char_code_limit. Add UNICODE
+          support.
+          (orig_syntax_table_get): New macro.
+          (orig_readtable, copy_readtable_contents): Add UNICODE support.
+          (SET-SYNTAX-FROM-CHAR): Permit syntax_table_put to call GC.
+          (SET-MACRO-CHARACTER): Likewise.
+          (MAKE-DISPATCH-MACRO-CHARACTER): Likewise.
+          (attribute_table): Size is only base_char_code_limit. Add UNICODE
+          support.
+          (attribute_of): Add UNICODE support.
+          (char_reader): Declare code as uintL, so it can hold value up to
+          10*char_code_limit. Recognize #\uxxxx syntax.
+          (PARSE-INTEGER): Use orig_syntax_table_get instead of accessing
+          orig_syntax_table directly.
+          (pr_orecord): For Rectype_Encoding, also print the charset symbol.
+        * defs2.lsp (dispatch-reader): Modify to match changes in the
+          perchar_table_get macro.
+        * pathname.d (asciz_dir_to_pathname): Add an encoding argument.
+          (PARSE-NAMESTRING): Use O(misc_encoding).
+          (default_directory_of, directory_truename, default_directory,
+           canonicalise_filename, canonicalise_dirname, assure_dir_exists):
+          Use O(pathname_encoding).
+          (change_default): Likewise.
+          (file_exists, directory_exists): Likewise.
+          (DELETE-FILE, rename_file, create_backup_file, open_file): Likewise.
+          (extract, subdirs, subfiles, with_stat_info,
+           directory_search_1subdir, directory_search_hashcode,
+           directory_search_direntry_ok, directory_search_scandir, DIRECTORY):
+          Likewise.
+          (MAKE-DIR, DELETE-DIR, ENSURE-DIRECTORIES-EXIST): Likewise.
+          (init_pathnames): Use O(pathname_encoding) and O(misc_encoding).
+          (FILE-WRITE-DATE, FILE-AUTHOR): Use O(pathname_encoding).
+          (EXECUTE): Use O(pathname_encoding) and O(misc_encoding).
+          (SHELL): Use O(misc_encoding).
+          (SYSTEM::DYNLOAD-MODULES): Use O(pathname_encoding).
+          (SYSTEM::PROGRAM-NAME): Likewise.
+        * stream.d (P): Move to lispbibl.d.
+          (test_external_format): Accept constant symbols.
+          (strm_unbuffered_extrafields_struct): Extend the meaning of status.
+          Rename field `lastbyte' to `bytebuf'.
+          (UnbufferedStream_lastbyte): Remove macro.
+          (UnbufferedStream_bytebuf): New macro.
+          (UnbufferedStreamLow_push_byte, UnbufferedStreamLow_pushfront_byte,
+           UnbufferedStreamLow_pushfront_bytes, UnbufferedStreamLow_pop_byte):
+          New macros.
+          (low_read_unbuffered_handle): Use UnbufferedStreamLow_pop_byte and
+          UnbufferedStreamLow_push_byte.
+          (low_listen_unbuffered_handle): Use UnbufferedStreamLow_push_byte.
+          (low_read_array_unbuffered_handle): Use UnbufferedStreamLow_pop_byte
+          in a loop.
+          (rd_ch_unbuffered): Add UNICODE support.
+          (listen_unbuffered): Likewise. Use UnbufferedStreamLow_pushfront_byte.
+          (rd_ch_array_unbuffered): Add UNICODE support.
+          (wr_ch_unbuffered_unix, wr_ch_array_unbuffered_unix): Likewise.
+          (wr_ch_unbuffered_mac, wr_ch_array_unbuffered_mac): Likewise.
+          (wr_ch_unbuffered_dos, wr_ch_array_unbuffered_dos): Likewise.
+          (rd_ch_buffered, rd_ch_array_buffered): Likewise.
+          (wr_ch_buffered_unix, wr_ch_array_buffered_unix): Likewise.
+          (wr_ch_buffered_mac, wr_ch_array_buffered_mac): Likewise.
+          (wr_ch_buffered_dos, wr_ch_array_buffered_dos): Likewise.
+          (finish_output_buffered): Use O(pathname_encoding).
+          (make_key_event): Use ascii_to_string instead of asciz_to_string.
+          (lisp_completion): Use O(terminal_encoding).
+          (rd_ch_terminal3): Use O(terminal_encoding).
+          (wr_ch_terminal3): Call wr_ch_unbuffered_unix, instead of direct
+          `write' call.
+          (wr_ss_terminal3): Call wr_ch_array_unbuffered_unix, instead of
+          direct `full_write' call.
+          (make_terminal_stream_): Initialize the encoding. Use
+          O(pathname_encoding).
+          (init_term): Use O(misc_encoding).
+          (MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM,
+           MAKE-PIPE-IO-STREAM): Use O(misc_encoding).
+          (low_read_unbuffered_socket): Use UnbufferedStreamLow_pop_byte.
+          (low_listen_unbuffered_socket): Use UnbufferedStreamLow_push_byte.
+          (low_read_array_unbuffered_socket): Use UnbufferedStreamLow_pop_byte
+          in a loop.
+          (SYS::MAKE-SOCKET-STREAM, SOCKET-SERVER, SOCKET-CONNECT): Use
+          O(misc_encoding).
+          (SOCKET-SERVICE-PORT): Use S(ascii).
+          (publish_host_data): Use O(misc_encoding).
+          (make_terminal_io): Use ascii_to_string instead of asciz_to_string.
+          (init_streamvars): Likewise.
+          (SYSTEM::SET-STREAM-ELEMENT-TYPE): Use UnbufferedStreamLow_push_byte.
+          (pseudofun_tab): Include pseudofun.c once more.
+        * error.d (write_errorstring): Add UNICODE support. Use
+          O(internal_encoding).
+        * misc.d (LISP-IMPLEMENTATION-VERSION): Use ascii_to_string instead of
+          asciz_to_string.
+          (MACHINE-TYPE, MACHINE-VERSION, MACHINE-INSTANCE): Use
+          O(misc_encoding). Use ascii_to_string instead of asciz_to_string.
+          (SYSTEM::GETENV, SYSTEM::REGISTRY): Use O(misc_encoding).
+        * rexx.d (REXX-PUT): Use with_sstring and O(misc_encoding).
+          (rexx_getmsg): Use O(misc_encoding).
+          (REXX-REPLY): Use with_string and O(misc_encoding). No need to call
+          coerce_ss.
+        * graph.d (SYS::GRAPH-INIT): Use ascii_to_string instead of
+          asciz_to_string.
+          (SYS::GRAPH-TEXT): Use with_string and an encoding corresponding to
+          the font.
+        * foreign.d (register_foreign_variable, register_foreign_function):
+          Use O(internal_encoding).
+          (convert_from_foreign_array_fill, convert_from_foreign): Add UNICODE
+          support. Use O(foreign_encoding).
+          (convert_to_foreign): Add UNICODE support. Use O(foreign_encoding).
+          (open_library): Use O(misc_encoding).
+        * affi.d (affi_callit): Use O(foreign_encoding).
+          (affi_call_argsa): Add UNICODE support. Use O(foreign_encoding).
+          (SYS::MEM-READ, SYSTEM::MEM-WRITE-VECTOR): Likewise.
+
+1999-02-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * stream.d (init_streamvars): Initialize the keyboard stream after
           the standard streams, not before them.
 

@@ -1241,7 +1241,6 @@ global int main()
 # printf("extern object allocate_vector (uintL len);\n");
 # printf("extern object allocate_bit_vector (uintL len);\n");
 # printf("extern object allocate_string (uintL len);\n");
-# printf("extern object make_string (const uintB* charptr, uintL len);\n");
 # #ifdef asciz_length
 #   #if defined(GNU) && (SAFETY < 2) && (__GNUC__ >= 2)
 #     printf("#define asciz_length(a)  ((uintL)__builtin_strlen(a))\n");
@@ -1256,9 +1255,6 @@ global int main()
 # #else
 #   printf("extern boolean asciz_equal (const char * asciz1, const char * asciz2);\n");
 # #endif
-  printf("extern object asciz_to_string (const char * asciz);\n");
-# printf("extern object string_to_asciz (object obj);\n");
-# printf("#define TheAsciz(obj)  ((char*)(&TheSbvector(obj)->data[0]))\n");
 # printf("typedef Values subr_norest_function (void);\n");
 # printf("typedef Values subr_rest_function (uintC argcount, object* rest_args_pointer);\n");
   printf("extern struct subr_tab_ {\n");
@@ -1413,6 +1409,26 @@ global int main()
   printf("#define subr_rest_function_args  (uintC argcount, object* rest_args_pointer)\n");
   printf("#define LISPFUN_F(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { (lisp_function)(&C_##name), nullobj, nullobj, 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, },\n");
   printf("#define LISPFUN  LISPFUN_B\n");
+# #ifdef UNICODE
+#   printf("extern object make_string (const uintB* charptr, uintL len, object encoding);\n");
+# #else
+#   printf("#define make_string(charptr,len,encoding)  make_string_(charptr,len)\n");
+#   printf("extern object make_string_ (const uintB* charptr, uintL len);\n");
+# #endif
+# #ifdef UNICODE
+#   printf("extern object asciz_to_string (const char * asciz, object encoding);\n");
+# #else
+#   printf("#define asciz_to_string(asciz,encoding)  asciz_to_string_(asciz)\n");
+#   printf("extern object asciz_to_string_ (const char * asciz);\n");
+# #endif
+  printf("extern object ascii_to_string (const char * asciz);\n");
+# #ifdef UNICODE
+#   printf("extern object string_to_asciz (object obj, object encoding);\n");
+# #else
+#   printf("#define string_to_asciz(obj,encoding)  string_to_asciz_(obj)\n");
+#   printf("extern object string_to_asciz_ (object obj);\n");
+# #endif
+# printf("#define TheAsciz(obj)  ((char*)(&TheSbvector(obj)->data[0]))\n");
 # printf("extern object vectorof (uintC len);\n");
 # printf("extern object allocate_bit_vector_0 (uintL len);\n");
 # printf("extern chart up_case (chart ch);\n");

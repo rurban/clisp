@@ -7,7 +7,7 @@
 #   Readline library:
 #     NO_READLINE
 #   Internationalization:
-#     NO_GETTEXT
+#     NO_GETTEXT, UNICODE
 #   Foreign function interface:
 #     DYNAMIC_FFI
 #   Dynamic loading of modules:
@@ -1653,7 +1653,9 @@
     #if (__GNUC_MINOR__ >= 7) # gcc-2.6.3 Bug umgehen
       # Typüberprüfungen durch den C-Compiler
       #define OBJECT_STRUCT
-      #define CHART_STRUCT
+      #if !(defined(MC680X0) || defined(ARM)) # only if struct_alignment==1
+        #define CHART_STRUCT
+      #endif
     #endif
   #endif
 #endif
@@ -4576,7 +4578,11 @@ typedef symbol_ *  Symbol;
 # Characters
 
 # Integer type holding the data of a character:
-  #define char_int_len 8
+  #ifdef UNICODE
+    #define char_int_len 16
+  #else
+    #define char_int_len 8
+  #endif
   #define char_int_limit  (1UL<<char_int_len)
   typedef unsigned_int_with_n_bits(char_int_len)  cint;
   #define char_code_limit  char_int_limit
@@ -5091,9 +5097,53 @@ typedef struct { XRECORD_HEADER
 # Encoding
 typedef struct { XRECORD_HEADER
                  object enc_eol; # line termination, a keyword (:UNIX, :MAC, :DOS)
+                 #ifdef UNICODE
+                 object enc_charset; # character set, a symbol in the CHARSET package
+                 # Functions to convert bytes to characters.
+                   object enc_mblen; # uintL (*) (object encoding, const uintB* src, const uintB* srcend);
+                   object enc_mbstowcs; # void (*) (object encoding, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
+                 # Functions to convert characters to bytes.
+                   object enc_wcslen; # uintL (*) (object encoding, const chart* src, const chart* srcend);
+                   object enc_wcstombs; # void (*) (object encoding, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
+                 # An auxiliary pointer.
+                 object enc_table;
+                 # Minimum number of bytes needed to represent a character.
+                 uintL min_bytes_per_char;
+                 # Maximum number of bytes needed to represent a character.
+                 uintL max_bytes_per_char;
+                 #endif
                }
         *  Encoding;
-#define encoding_length  ((sizeof(*(Encoding)0)-offsetofa(record_,recdata))/sizeof(object))
+#ifdef UNICODE
+  #define encoding_length  7
+#else
+  #define encoding_length  1
+#endif
+#define encoding_xlength  (sizeof(*(Encoding)0)-offsetofa(record_,recdata)-encoding_length*sizeof(object))
+#ifdef UNICODE
+  #define Encoding_mblen(encoding)  ((uintL (*) (object, const uintB*, const uintB*)) ThePseudofun(TheEncoding(encoding)->enc_mblen))
+  #define Encoding_mbstowcs(encoding)  ((void (*) (object, const uintB**, const uintB*, chart**, chart*)) ThePseudofun(TheEncoding(encoding)->enc_mbstowcs))
+  #define Encoding_wcslen(encoding)  ((uintL (*) (object, const chart*, const chart*)) ThePseudofun(TheEncoding(encoding)->enc_wcslen))
+  #define Encoding_wcstombs(encoding)  ((void (*) (object, const chart**, const chart*, uintB**, uintB*)) ThePseudofun(TheEncoding(encoding)->enc_wcstombs))
+#endif
+#ifdef UNICODE
+  #define cslen(encoding,src,srclen)  \
+    Encoding_wcslen(encoding)(encoding,src,(src)+(srclen))
+  #define cstombs(encoding,src,srclen,dest,destlen)  \
+    { var const chart* _srcptr = (src);                             \
+      var const chart* _srcendptr = _srcptr+(srclen);               \
+      var uintB* _destptr = (dest);                                 \
+      var uintB* _destendptr = _destptr+(destlen);                  \
+      Encoding_wcstombs(encoding)(encoding,&_srcptr,_srcendptr,&_destptr,_destendptr); \
+      ASSERT((_srcptr == _srcendptr) && (_destptr == _destendptr)); \
+    }
+#else
+  #define cslen(encoding,src,srclen)  (srclen)
+  #define cstombs(encoding,src,srclen,dest,destlen)  \
+    { ASSERT((srclen) == (destlen));                                   \
+      begin_system_call(); memcpy(dest,src,srclen); end_system_call(); \
+    }
+#endif
 
 #ifdef FOREIGN
 # Foreign-Pointer-Verpackung
@@ -5309,7 +5359,8 @@ typedef struct {
                               enum_strmtype_dummy
   };
   # Bei Änderung dieser Tabelle auch
-  # - die acht Sprungtabellen bei STREAM-ELEMENT-TYPE, INTERACTIVE-STREAM-P,
+  # - die elf Sprungtabellen bei STREAM-ELEMENT-TYPE, SET-STREAM-ELEMENT-TYPE,
+  #   STREAM-EXTERNAL-FORMAT, SET-STREAM-EXTERNAL-FORMAT, INTERACTIVE-STREAM-P,
   #   CLOSE, LISTEN, CLEAR_INPUT, FINISH_OUTPUT, FORCE_OUTPUT, CLEAR_OUTPUT
   #   in STREAM.D und
   # - die Namenstabelle in CONSTOBJ.D und
@@ -7939,7 +7990,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # < result: a fresh Encoding
 # kann GC auslösen
   #define allocate_encoding()  \
-    allocate_xrecord(0,Rectype_Encoding,encoding_length,0,orecord_type)
+    allocate_xrecord(0,Rectype_Encoding,encoding_length,encoding_xlength,orecord_type)
 # wird verwendet von ENCODING
 
 #ifdef FOREIGN
@@ -8083,15 +8134,6 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   extern object make_complex (object real, object imag);
 # wird verwendet von LISPARIT
 
-# UP: Liefert einen LISP-String mit vorgegebenem Inhalt.
-# make_string(charptr,len)
-# > uintB* charptr: Adresse einer Zeichenfolge
-# > uintL len: Länge der Zeichenfolge
-# < ergebnis: Simple-String mit den len Zeichen ab charptr als Inhalt
-# kann GC auslösen
-  extern object make_string (const uintB* charptr, uintL len);
-# wird verwendet von PATHNAME, LISPARIT
-
 # UP: Liefert die Länge eines ASCIZ-Strings.
 # asciz_length(asciz)
 # > char* asciz: ASCIZ-String
@@ -8144,114 +8186,6 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
     #define asciz_equal(p1,p2)  (strcmp(p1,p2)==0)
   #endif
 #endif
-
-# UP: Wandelt einen ASCIZ-String in einen LISP-String um.
-# asciz_to_string(asciz)
-# > char* asciz: ASCIZ-String
-#       (Adresse einer durch ein Nullbyte abgeschlossenen Zeichenfolge)
-# < ergebnis: String mit der Zeichenfolge (ohne Nullbyte) als Inhalt
-# kann GC auslösen
-  extern object asciz_to_string (const char * asciz);
-# wird verwendet von SPVW/CONSTSYM, STREAM, PATHNAME, PACKAGE, GRAPH
-
-# UP: Wandelt einen String in einen ASCIZ-String um.
-# string_to_asciz(obj,encoding)
-# > object obj: String
-# > object encoding: Encoding
-# < ergebnis: Simple-Bit-Vektor mit denselben Zeichen als Bytes und einem
-#             Nullbyte mehr am Schluss
-# < TheAsciz(ergebnis): Adresse der darin enthaltenen Bytefolge
-# kann GC auslösen
-  extern object string_to_asciz (object obj);
-  #define TheAsciz(obj)  ((char*)(&TheSbvector(obj)->data[0]))
-# wird verwendet von STREAM, PATHNAME
-
-# Wandelt einen String in einen ASCIZ-String im C-Stack um.
-# with_string_0(string,asciz,statement);
-# with_sstring_0(simple_string,asciz,statement);
-# copies the contents of string (which should be a Lisp string) to a safe area
-# (zero-terminating it), binds the variable asciz pointing to it, and
-# executes the statement.
-#if 0
-  #define with_string_0(string,ascizvar,statement)  \
-    { var char* ascizvar = TheAsciz(string_to_asciz(string)); \
-      statement                                               \
-    }
-  #define with_sstring_0  with_string_0
-#else
-  #define with_string_0(string,ascizvar,statement)  \
-    { var uintL ascizvar##_len;                                          \
-      var const chart* ptr1 = unpack_string(string,&ascizvar##_len);     \
-     {var DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_len+1);         \
-      {var uintB* ptr2 = &ascizvar##_data[0];                            \
-       var uintL count;                                                  \
-       dotimesL(count,ascizvar##_len, { *ptr2++ = as_cint(*ptr1++); } ); \
-       *ptr2 = '\0';                                                     \
-      }                                                                  \
-      {var char* ascizvar = (char*) &ascizvar##_data[0];                 \
-       statement                                                         \
-      }                                                                  \
-      FREE_DYNAMIC_ARRAY(ascizvar##_data);                               \
-    }}
-  #define with_sstring_0(string,ascizvar,statement)  \
-    { var object ascizvar##_string = (string);                           \
-      var uintL ascizvar##_len = Sstring_length(ascizvar##_string);      \
-      var const chart* ptr1 = &TheSstring(ascizvar##_string)->data[0];   \
-     {var DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_len+1);         \
-      {var uintB* ptr2 = &ascizvar##_data[0];                            \
-       var uintL count;                                                  \
-       dotimesL(count,ascizvar##_len, { *ptr2++ = as_cint(*ptr1++); } ); \
-       *ptr2 = '\0';                                                     \
-      }                                                                  \
-      {var char* ascizvar = (char*) &ascizvar##_data[0];                 \
-       statement                                                         \
-      }                                                                  \
-      FREE_DYNAMIC_ARRAY(ascizvar##_data);                               \
-    }}
-#endif
-# wird verwendet von PATHNAME, MISC, FOREIGN
-
-# In some foreign modules, we call library functions that can do callbacks.
-# When we pass a parameter to such a library function, maybe it first does a
-# callback - which may involve garbage collection - and only then looks at
-# the parameter. Therefore all the parameters, especially strings, must be
-# located in areas that are not moved by garbage collection. The following
-# macro helps achieving this.
-
-# Wandelt einen String in einen String im C-Stack um.
-# with_string(string,charptr,len,statement);
-# with_sstring(simple_string,charptr,len,statement);
-# copies the contents of string (which should be a Lisp string) to a safe area,
-# binds the variable charptr pointing to it and the variable len to its length,
-# and executes the statement.
-  #define with_string(string,charptrvar,lenvar,statement)  \
-    { var uintL lenvar;                                          \
-      var const chart* ptr1 = unpack_string(string,&lenvar);     \
-     {var DYNAMIC_ARRAY(charptrvar##_data,uintB,lenvar);         \
-      {var uintB* ptr2 = &charptrvar##_data[0];                  \
-       var uintL count;                                          \
-       dotimesL(count,lenvar, { *ptr2++ = as_cint(*ptr1++); } ); \
-      }                                                          \
-      {var char* charptrvar = (char*) &charptrvar##_data[0];     \
-       statement                                                 \
-      }                                                          \
-      FREE_DYNAMIC_ARRAY(charptrvar##_data);                     \
-    }}
-  #define with_sstring(string,charptrvar,lenvar,statement)  \
-    { var object charptrvar##_string = (string);                         \
-      var uintL lenvar = Sstring_length(charptrvar##_string);            \
-      var const chart* ptr1 = &TheSstring(charptrvar##_string)->data[0]; \
-     {var DYNAMIC_ARRAY(charptrvar##_data,uintB,lenvar);                 \
-      {var uintB* ptr2 = &charptrvar##_data[0];                          \
-       var uintL count;                                                  \
-       dotimesL(count,lenvar, { *ptr2++ = as_cint(*ptr1++); } );         \
-      }                                                                  \
-      {var char* charptrvar = (char*) &charptrvar##_data[0];             \
-       statement                                                         \
-      }                                                                  \
-      FREE_DYNAMIC_ARRAY(charptrvar##_data);                             \
-    }}
-# wird verwendet von PATHNAME
 
 # UP: Liefert eine Tabelle aller Zirkularitäten innerhalb eines Objekts.
 # (Eine Zirkularität ist ein in diesem Objekt enthaltenes Teil-Objekt,
@@ -8489,19 +8423,29 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # wird verwendet von allen Modulen
 
 
-# Pseudofunktionen sind Adressen von C-Funktionen, die direkt angesprungen werden können.
-# Für SAVEMEM/LOADMEM gibt es eine Tabelle aller Pseudofunktionen.
-  typedef object pseudofun_(); # C-Funktion mit Objekt als Ergebnis
-  typedef pseudofun_ *  Pseudofun; # Pointer auf so eine Funktion
+# Pseudofunctions are addresses of C functions (to be called directly, not via
+# FUNCALL) or constant C data.
+# For SAVEMEM/LOADMEM we have a table of all such pseudofunctions.
+  typedef const void *  Pseudofun; # assume function pointers fit in a void*
 
 # Deklaration der Pseudofunktionen-Tabelle:
   #define PSEUDOFUN  PSEUDOFUN_A
+  #define XPSEUDO  XPSEUDO_A
   extern struct pseudofun_tab_ {
                                  #include "pseudofun.c"
                                }
          pseudofun_tab;
+  #undef XPSEUDO
   #undef PSEUDOFUN
 # wird verwendet von STREAM, SPVW
+
+# Return an ADDRESS object encapsulating a pseudofunction.
+  #ifdef TYPECODES
+    #define P(fun)  type_constpointer_object(machine_type,(Pseudofun)&(fun))
+  #else
+    #define P(fun)  make_machine_code((Pseudofun)&(fun))
+  #endif
+# wird verwendet von STREAM, ENCODING
 
 
 # Deklaration der Symbol-Tabelle:
@@ -10297,6 +10241,145 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # init_encodings();
   extern void init_encodings (void);
 # wird verwendet von SPVW
+
+# Maximum number of bytes needed to form a character, over all encodings.
+# max_bytes_per_chart
+  #ifdef UNICODE
+    #define max_bytes_per_chart  6  # reached by the java encoding
+  #else
+    #define max_bytes_per_chart  1
+  #endif
+# wird verwendet von STREAM
+
+# UP: Liefert einen LISP-String mit vorgegebenem Inhalt.
+# make_string(charptr,len,encoding)
+# > uintB* charptr: Adresse einer Zeichenfolge
+# > uintL len: Länge der Zeichenfolge
+# > object encoding: Encoding
+# < ergebnis: Simple-String mit den len Zeichen ab charptr als Inhalt
+# kann GC auslösen
+  #ifdef UNICODE
+    extern object make_string (const uintB* charptr, uintL len, object encoding);
+  #else
+    #define make_string(charptr,len,encoding)  make_string_(charptr,len)
+    extern object make_string_ (const uintB* charptr, uintL len);
+  #endif
+# wird verwendet von PATHNAME, LISPARIT
+
+# UP: Wandelt einen ASCIZ-String in einen LISP-String um.
+# asciz_to_string(asciz,encoding)
+# ascii_to_string(asciz)
+# > char* asciz: ASCIZ-String
+#       (Adresse einer durch ein Nullbyte abgeschlossenen Zeichenfolge)
+# > object encoding: Encoding
+# < ergebnis: String mit der Zeichenfolge (ohne Nullbyte) als Inhalt
+# kann GC auslösen
+  #ifdef UNICODE
+    extern object asciz_to_string (const char * asciz, object encoding);
+  #else
+    #define asciz_to_string(asciz,encoding)  asciz_to_string_(asciz)
+    extern object asciz_to_string_ (const char * asciz);
+  #endif
+  extern object ascii_to_string (const char * asciz);
+# wird verwendet von SPVW/CONSTSYM, STREAM, PATHNAME, PACKAGE, GRAPH
+
+# UP: Wandelt einen String in einen ASCIZ-String um.
+# string_to_asciz(obj,encoding)
+# > object obj: String
+# > object encoding: Encoding
+# < ergebnis: Simple-Bit-Vektor mit denselben Zeichen als Bytes und einem
+#             Nullbyte mehr am Schluss
+# < TheAsciz(ergebnis): Adresse der darin enthaltenen Bytefolge
+# kann GC auslösen
+  #ifdef UNICODE
+    extern object string_to_asciz (object obj, object encoding);
+  #else
+    #define string_to_asciz(obj,encoding)  string_to_asciz_(obj)
+    extern object string_to_asciz_ (object obj);
+  #endif
+  #define TheAsciz(obj)  ((char*)(&TheSbvector(obj)->data[0]))
+# wird verwendet von STREAM, PATHNAME
+
+# Wandelt einen String in einen ASCIZ-String im C-Stack um.
+# with_string_0(string,encoding,asciz,statement);
+# with_sstring_0(simple_string,encoding,asciz,statement);
+# copies the contents of string (which should be a Lisp string) to a safe area
+# (zero-terminating it), binds the variable asciz pointing to it, and
+# executes the statement.
+#if 0
+  #define with_string_0(string,encoding,ascizvar,statement)  \
+    { var char* ascizvar = TheAsciz(string_to_asciz(string,encoding)); \
+      statement                                                        \
+    }
+  #define with_sstring_0  with_string_0
+#else
+  #define with_string_0(string,encoding,ascizvar,statement)  \
+    { var object ascizvar##_string = (string);                            \
+      var uintL ascizvar##_len;                                           \
+      var const chart* ptr1 = unpack_string(ascizvar##_string,&ascizvar##_len); \
+      var uintL ascizvar##_bytelen = cslen(encoding,ptr1,ascizvar##_len); \
+     {var DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_bytelen+1);      \
+      cstombs(encoding,ptr1,ascizvar##_len,&ascizvar##_data[0],ascizvar##_bytelen); \
+      ascizvar##_data[ascizvar##_bytelen] = '\0';                         \
+      {var char* ascizvar = (char*) &ascizvar##_data[0];                  \
+       statement                                                          \
+      }                                                                   \
+      FREE_DYNAMIC_ARRAY(ascizvar##_data);                                \
+    }}
+  #define with_sstring_0(string,encoding,ascizvar,statement)  \
+    { var object ascizvar##_string = (string);                            \
+      var uintL ascizvar##_len = Sstring_length(ascizvar##_string);       \
+      var const chart* ptr1 = &TheSstring(ascizvar##_string)->data[0];    \
+      var uintL ascizvar##_bytelen = cslen(encoding,ptr1,ascizvar##_len); \
+     {var DYNAMIC_ARRAY(ascizvar##_data,uintB,ascizvar##_bytelen+1);      \
+      cstombs(encoding,ptr1,ascizvar##_len,&ascizvar##_data[0],ascizvar##_bytelen); \
+      ascizvar##_data[ascizvar##_bytelen] = '\0';                         \
+      {var char* ascizvar = (char*) &ascizvar##_data[0];                  \
+       statement                                                          \
+      }                                                                   \
+      FREE_DYNAMIC_ARRAY(ascizvar##_data);                                \
+    }}
+#endif
+# wird verwendet von PATHNAME, MISC, FOREIGN
+
+# In some foreign modules, we call library functions that can do callbacks.
+# When we pass a parameter to such a library function, maybe it first does a
+# callback - which may involve garbage collection - and only then looks at
+# the parameter. Therefore all the parameters, especially strings, must be
+# located in areas that are not moved by garbage collection. The following
+# macro helps achieving this.
+
+# Wandelt einen String in einen String im C-Stack um.
+# with_string(string,encoding,charptr,len,statement);
+# with_sstring(simple_string,encoding,charptr,len,statement);
+# copies the contents of string (which should be a Lisp string) to a safe area,
+# binds the variable charptr pointing to it and the variable len to its length,
+# and executes the statement.
+  #define with_string(string,encoding,charptrvar,lenvar,statement)  \
+    { var object charptrvar##_string = (string);                            \
+      var uintL charptrvar##_len;                                           \
+      var const chart* ptr1 = unpack_string(charptrvar##_string,&charptrvar##_len); \
+      var uintL lenvar = cslen(encoding,ptr1,charptrvar##_len);             \
+     {var DYNAMIC_ARRAY(charptrvar##_data,uintB,lenvar);                    \
+      cstombs(encoding,ptr1,charptrvar##_len,&charptrvar##_data[0],lenvar); \
+      {var char* charptrvar = (char*) &charptrvar##_data[0];                \
+       statement                                                            \
+      }                                                                     \
+      FREE_DYNAMIC_ARRAY(charptrvar##_data);                                \
+    }}
+  #define with_sstring(string,encoding,charptrvar,lenvar,statement)  \
+    { var object charptrvar##_string = (string);                            \
+      var uintL charptrvar##_len = Sstring_length(charptrvar##_string);     \
+      var const chart* ptr1 = &TheSstring(charptrvar##_string)->data[0];    \
+      var uintL lenvar = cslen(encoding,ptr1,charptrvar##_len);             \
+     {var DYNAMIC_ARRAY(charptrvar##_data,uintB,lenvar);                    \
+      cstombs(encoding,ptr1,charptrvar##_len,&charptrvar##_data[0],lenvar); \
+      {var char* charptrvar = (char*) &charptrvar##_data[0];                \
+       statement                                                            \
+      }                                                                     \
+      FREE_DYNAMIC_ARRAY(charptrvar##_data);                                \
+    }}
+# wird verwendet von PATHNAME
 
 # ####################### ARRBIBL zu ARRAY.D ############################## #
 

@@ -157,7 +157,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
       elif (eq(host,T))
         { portname = RXADIR; }
       elif (stringp(host))
-        { portname = TheAsciz(string_to_asciz(host)); } # Ab hier für eine Weile keine GC mehr!
+        { portname = TheAsciz(string_to_asciz(host,O(misc_encoding))); } # Ab hier für eine Weile keine GC mehr!
       else
         { pushSTACK(host); # Wert für Slot DATUM von TYPE-ERROR
           pushSTACK(O(type_rexx_host)); # (OR STRING BOOLEAN), Wert für Slot EXPECTED-TYPE von TYPE-ERROR
@@ -187,27 +187,31 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
               { var uintL i;
                 var object* argptr = fargs_pointer;
                 success = TRUE;
-                begin_system_call();
-                for (i=0; i<fargs; i++)
-                  { var object s = NEXT(argptr);
-                    if ((rexxmsg->rm_Args[i] = CreateArgstring(&TheSstring(s)->data[0],Sstring_length(s))) == NULL)
-                      { if (i>0) ClearRexxMsg(rexxmsg,i);
-                        success = FALSE;
-                        break;
-                  }   }
-                end_system_call();
+                with_sstring(NEXT(argptr),O(misc_encoding),asciz,len,
+                  { begin_system_call();
+                    for (i=0; i<fargs; i++)
+                      { var object s = NEXT(argptr);
+                        if ((rexxmsg->rm_Args[i] = CreateArgstring(asciz,len)) == NULL)
+                          { if (i>0) ClearRexxMsg(rexxmsg,i);
+                            success = FALSE;
+                            break;
+                      }   }
+                    end_system_call();
+                  });
               }
               setSTACK(STACK = fargs_pointer); # Stack aufräumen
             }
             else
             { # ARexx Kommando
               debug_asciz_out("command ");
-              begin_system_call();
-              if (rexxmsg->rm_Args[0] = CreateArgstring(&TheSstring(STACK_(5+1))->data[0],Sstring_length(STACK_(5+1))))
-                { success = TRUE; }
-                else
-                { success = FALSE; }
-              end_system_call();
+              with_sstring(STACK_(5+1),O(misc_encoding),asciz,len,
+                { begin_system_call();
+                  if (rexxmsg->rm_Args[0] = CreateArgstring(asciz,len))
+                    { success = TRUE; }
+                    else
+                    { success = FALSE; }
+                  end_system_call();
+                });
             }
           # Stackaufbau: ... string/vector ..(5 keyword-args).. foreign.
           if (success)
@@ -371,7 +375,7 @@ LISPFUNN(rexx_wait_input,0)
                     { pushSTACK(allocate_fpointer(rexxmsg));
                       pushSTACK(L_to_I(result1));
                       if (rexxLostArgstr)
-                        { pushSTACK(make_string(rexxLostArgstr,LengthArgstring(rexxLostArgstr)));
+                        { pushSTACK(make_string(rexxLostArgstr,LengthArgstring(rexxLostArgstr),O(misc_encoding)));
                           handle_lost_argstr();
                           return listof(3);
                         }
@@ -402,7 +406,7 @@ LISPFUNN(rexx_wait_input,0)
                       # Resource-tracking beendet, ab hier wieder GC möglich
                       # Ergebnis ist zweielementige Liste (Msg-ID "Msg-string")
                       pushSTACK(Car(new_cons));
-                      pushSTACK(make_string(rexxmsg->rm_Args[0],LengthArgstring(rexxmsg->rm_Args[0])));
+                      pushSTACK(make_string(rexxmsg->rm_Args[0],LengthArgstring(rexxmsg->rm_Args[0]),O(misc_encoding)));
                       return listof(2);
                     }
                 }
@@ -462,9 +466,7 @@ LISPFUNN(rexx_reply,3)
                ""
               );
       }
-    # return-string sollte ein String oder NIL sein:
-    if (stringp(STACK_0))
-      { STACK_0 = coerce_ss(STACK_0); } # in Simple-String umwandeln
+    # return-string sollte ein String oder NIL sein.
     # message-id sollte ein Foreign sein:
    {var object foreign;
     if (!(fpointerp(STACK_2) && !nullp(foreign = find_inmsg(TheFpointer(STACK_2)->fp_pointer))))
@@ -481,8 +483,10 @@ LISPFUNN(rexx_reply,3)
     { var object retcode = STACK_1;
       var LONG result1 = fixnum_to_L(retcode);
       var object retstring = STACK_0;
-      if (simple_string_p(retstring))
-        { rexx_replymsg(foreign,result1,&TheSstring(retstring)->data[0],Sstring_length(retstring)); }
+      if (stringp(retstring))
+        { with_string(retstring,O(misc_encoding),asciz,len,
+            { rexx_replymsg(foreign,result1,asciz,len); }
+        }
         else
         { rexx_replymsg(foreign,result1,NULL,0); }
     }

@@ -1,5 +1,5 @@
 # Liste aller Pseudofunktionen
-# Bruno Haible 30.4.1995
+# Bruno Haible 14.2.1999
 
 # Der Macro PSEUDOFUN deklariert eine Pseudofunktion.
 # PSEUDOFUN(fun)
@@ -8,10 +8,27 @@
 # Expander für die Deklaration der Tabelle:
   #define PSEUDOFUN_A(fun)  Pseudofun pseudo_##fun;
 
-# Expander für die Initialisierung der Tabelle:
-  #define PSEUDOFUN_B(fun)  (Pseudofun)(&fun),
+# Expander für die Deklaration der Tabellenelemente:
+  #define PSEUDOFUN_B(fun)
 
-# Welcher Expander benutzt wird, muss vom Hauptfile aus eingestellt werden.
+# Expander für die Initialisierung der Tabelle:
+  #define PSEUDOFUN_C(fun)  (Pseudofun)(&fun),
+
+# Der Macro XPSEUDO deklariert eine Pseudofunktion, die nicht in stream.d
+# definiert ist.
+# XPSEUDO(rettype,name,arglist)
+# > name: C-Funktion oder C-Variable
+
+# Expander für die Deklaration der Tabelle:
+  #define XPSEUDO_A(rettype,name,arglist)  Pseudofun pseudo_##name;
+
+# Expander für die Deklaration der Tabellenelemente:
+  #define XPSEUDO_B(rettype,name,arglist)  extern rettype name arglist;
+
+# Expander für die Initialisierung der Tabelle:
+  #define XPSEUDO_C(rettype,name,arglist)  (Pseudofun)(&name),
+
+# Welche Expander benutzt werden, muss vom Hauptfile aus eingestellt werden.
 
 PSEUDOFUN(rd_by_error) PSEUDOFUN(rd_by_array_error) PSEUDOFUN(rd_by_array_dummy)
 PSEUDOFUN(wr_by_error) PSEUDOFUN(wr_by_array_error) PSEUDOFUN(wr_by_array_dummy)
@@ -70,4 +87,87 @@ PSEUDOFUN(wr_ch_window)
 #ifdef PRINTER
 PSEUDOFUN(wr_ch_printer)
 #endif
+
+# External definitions from ENCODING.D:
+XPSEUDO(uintL, uni16_mblen, (object encoding, const uintB* src, const uintB* srcend))
+XPSEUDO(void, uni16be_mbstowcs, (object encoding, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
+XPSEUDO(void, uni16le_mbstowcs, (object encoding, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
+XPSEUDO(uintL, uni16_wcslen, (object encoding, const chart* src, const chart* srcend))
+XPSEUDO(void, uni16be_wcstombs, (object encoding, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
+XPSEUDO(void, uni16le_wcstombs, (object encoding, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
+XPSEUDO(uintL, utf8_mblen, (object encoding, const uintB* src, const uintB* srcend))
+XPSEUDO(void, utf8_mbstowcs, (object encoding, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
+XPSEUDO(uintL, utf8_wcslen, (object encoding, const chart* src, const chart* srcend))
+XPSEUDO(void, utf8_wcstombs, (object encoding, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
+XPSEUDO(uintL, java_mblen, (object encoding, const uintB* src, const uintB* srcend))
+XPSEUDO(void, java_mbstowcs, (object encoding, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
+XPSEUDO(uintL, java_wcslen, (object encoding, const chart* src, const chart* srcend))
+XPSEUDO(void, java_wcstombs, (object encoding, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
+XPSEUDO(uintL, nls_mblen, (object encoding, const uintB* src, const uintB* srcend))
+XPSEUDO(void, nls_mbstowcs, (object encoding, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
+XPSEUDO(uintL, nls_wcslen, (object encoding, const chart* src, const chart* srcend))
+XPSEUDO(void, nls_wcstombs, (object encoding, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
+XPSEUDO(struct nls_table, nls_ascii_table,)
+XPSEUDO(struct nls_table, nls_iso8859_1_table,)
+XPSEUDO(struct nls_table, nls_iso8859_2_table,)
+XPSEUDO(struct nls_table, nls_iso8859_3_table,)
+XPSEUDO(struct nls_table, nls_iso8859_4_table,)
+XPSEUDO(struct nls_table, nls_iso8859_5_table,)
+XPSEUDO(struct nls_table, nls_iso8859_6_table,)
+XPSEUDO(struct nls_table, nls_iso8859_7_table,)
+XPSEUDO(struct nls_table, nls_iso8859_8_table,)
+XPSEUDO(struct nls_table, nls_iso8859_9_table,)
+XPSEUDO(struct nls_table, nls_iso8859_14_table,)
+XPSEUDO(struct nls_table, nls_iso8859_15_table,)
+XPSEUDO(struct nls_table, nls_koi8_r_table,)
+XPSEUDO(struct nls_table, nls_mac_arabic_table,)
+XPSEUDO(struct nls_table, nls_mac_centraleurope_table,)
+XPSEUDO(struct nls_table, nls_mac_croatian_table,)
+XPSEUDO(struct nls_table, nls_mac_cyrillic_table,)
+XPSEUDO(struct nls_table, nls_mac_dingbat_table,)
+XPSEUDO(struct nls_table, nls_mac_greek_table,)
+XPSEUDO(struct nls_table, nls_mac_hebrew_table,)
+XPSEUDO(struct nls_table, nls_mac_iceland_table,)
+XPSEUDO(struct nls_table, nls_mac_roman_table,)
+XPSEUDO(struct nls_table, nls_mac_romania_table,)
+XPSEUDO(struct nls_table, nls_mac_symbol_table,)
+XPSEUDO(struct nls_table, nls_mac_thai_table,)
+XPSEUDO(struct nls_table, nls_mac_turkish_table,)
+XPSEUDO(struct nls_table, nls_mac_ukraine_table,)
+XPSEUDO(struct nls_table, nls_cp437_ms_table,)
+XPSEUDO(struct nls_table, nls_cp437_ibm_table,)
+XPSEUDO(struct nls_table, nls_cp737_table,)
+XPSEUDO(struct nls_table, nls_cp775_table,)
+XPSEUDO(struct nls_table, nls_cp850_table,)
+XPSEUDO(struct nls_table, nls_cp852_ms_table,)
+XPSEUDO(struct nls_table, nls_cp852_ibm_table,)
+XPSEUDO(struct nls_table, nls_cp855_table,)
+XPSEUDO(struct nls_table, nls_cp857_table,)
+XPSEUDO(struct nls_table, nls_cp860_ms_table,)
+XPSEUDO(struct nls_table, nls_cp860_ibm_table,)
+XPSEUDO(struct nls_table, nls_cp861_ms_table,)
+XPSEUDO(struct nls_table, nls_cp861_ibm_table,)
+XPSEUDO(struct nls_table, nls_cp862_ms_table,)
+XPSEUDO(struct nls_table, nls_cp862_ibm_table,)
+XPSEUDO(struct nls_table, nls_cp863_ms_table,)
+XPSEUDO(struct nls_table, nls_cp863_ibm_table,)
+XPSEUDO(struct nls_table, nls_cp864_ms_table,)
+XPSEUDO(struct nls_table, nls_cp864_ibm_table,)
+XPSEUDO(struct nls_table, nls_cp865_ms_table,)
+XPSEUDO(struct nls_table, nls_cp865_ibm_table,)
+XPSEUDO(struct nls_table, nls_cp866_table,)
+XPSEUDO(struct nls_table, nls_cp869_ms_table,)
+XPSEUDO(struct nls_table, nls_cp869_ibm_table,)
+XPSEUDO(struct nls_table, nls_cp874_ms_table,)
+XPSEUDO(struct nls_table, nls_cp874_ibm_table,)
+XPSEUDO(struct nls_table, nls_cp1250_table,)
+XPSEUDO(struct nls_table, nls_cp1251_table,)
+XPSEUDO(struct nls_table, nls_cp1252_table,)
+XPSEUDO(struct nls_table, nls_cp1253_table,)
+XPSEUDO(struct nls_table, nls_cp1254_table,)
+XPSEUDO(struct nls_table, nls_cp1255_table,)
+XPSEUDO(struct nls_table, nls_cp1256_table,)
+XPSEUDO(struct nls_table, nls_cp1257_table,)
+XPSEUDO(struct nls_table, nls_cp1258_table,)
+XPSEUDO(struct nls_table, nls_nextstep_table,)
 
