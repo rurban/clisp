@@ -90,15 +90,12 @@
     field (e.g., &win32; prior to 2000 does not have hard links), &nil;
     (or the default, like 1 for the number of hard links for old
     &win32;) is returned.
-   </simpara><simpara>[&unix; systems only at this time, patches are welcome.]
  </simpara></listitem></varlistentry>
  <varlistentry id="set-file-stat">
   <term><code>(<function>POSIX:SET-FILE-STAT</function> &path-r;
     &key-amp; :ATIME :MTIME :MODE :UID :GID)</code></term>
   <listitem><simpara>Set some file attributes using &chmod;, &chown;,
-    and &utime;.</simpara>
-   <simpara>[&unix; systems only at this time, patches ar welcome.]
- </simpara></listitem></varlistentry>
+    and &utime;.</simpara></listitem></varlistentry>
  <varlistentry id="stat-vfs"><term><code>(<function>POSIX:STAT-VFS</function>
     &path-r;)</code></term>
  <listitem><para>Return the <type>STAT-VFS</type> structure.

@@ -45,7 +45,7 @@
 (export
  '(user-data user-data-login-id user-data-passwd user-data-uid user-data-gid
    user-data-full-name user-data-shell
-   crypt encrypt setkey))
+   crypt encrypt setkey mknod))
 
 (defstruct (user-data (:constructor
                        make-user-data (login-id passwd uid gid full-name
@@ -61,12 +61,12 @@
 
 )
 ;;; ============================================================
-#+unix (progn
 (export
  '(file-stat file-stat-file file-stat-dev file-stat-ino file-stat-mode
    file-stat-nlink file-stat-uid file-stat-gid file-stat-rdev
    file-stat-size file-stat-blksize file-stat-blocks file-stat-atime
-   file-stat-mtime file-stat-ctime set-file-stat mknod convert-mode umask))
+   file-stat-mtime file-stat-ctime set-file-stat
+   convert-mode umask))
 
 (defstruct (file-stat
              (:constructor
@@ -86,8 +86,6 @@
   (atime   0 :type (integer 0) :read-only t)
   (mtime   0 :type (integer 0) :read-only t)
   (ctime   0 :type (integer 0) :read-only t))
-
-)
 
 ;;; ============================================================
 #+unix (progn
