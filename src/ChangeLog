@@ -1,5 +1,12 @@
 2004-01-09  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (c-form-table): NTH & SYSTEM::%SETNTH
+	are now handled by c-NTH & c-SETNTH, respectively,
+	for the sake of (defstruct (foo (:type list))) accessors
+	(c-NTH, c-SETNTH): optimise NTH & (SETF NTH) to FIRST...TENTH
+
+2004-01-09  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #[ 866282 ]: progv binding not handled properly in compiler
 	* compiler.lisp (seclass): a structure of type LIST
 	(*seclass-dirty*, *seclass-read*): new constant
