@@ -794,7 +794,6 @@
             }
           I_to_NDS(y,y_MSDptr=,y_len=,y_LSDptr=); # NDS holen
           if (y_len == 0) { goto y_zero; }
-          begin_arith_call();
           # Nicht alle führenden intDsize+1 Bits sind gleich.
           if ((sintD)y_MSDptr[0] < 0) # falls <0, negieren
             { y_sign = -1; neg_loop_down(y_LSDptr,y_len); }
@@ -806,8 +805,11 @@
           # Nun ist y_MSDptr[0]/=0 und y_len>0.
           # Führendes Bit auf 1 normalisieren:
           integerlengthD(y_MSDptr[0], s = intDsize - );
-          if (s > 0) { shiftleft_loop_down(y_LSDptr,y_len,s,0); }
-          end_arith_call();
+          if (s > 0)
+            { begin_arith_call();
+              shiftleft_loop_down(y_LSDptr,y_len,s,0);
+              end_arith_call();
+            }
           y_exp = (sintL)((uintL)y_len * intDsize - s) - (sintL)y_den_exp;
         }
       # Vergleiche Vorzeichen, Exponenten und Mantissen:

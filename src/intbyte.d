@@ -107,7 +107,6 @@
       var uintC len;
       var uintD* LSDptr;
       I_to_NDS_nocopy(x, MSDptr=,len=,LSDptr=); # NDS zu x bilden
-      begin_arith_call();
       # MSDptr erhöhen und len erniedrigen, so dass len = ceiling(q/intDsize) wird:
       { var uintL qD = ceiling(q,intDsize); # ceiling(q/intDsize)
         # wegen q<=l ist qD = ceiling(q/intDsize) <= ceiling((l+1)/intDsize) = len, also
@@ -128,7 +127,10 @@
         if (i==0)
           { copy_loop_up(MSDptr,newMSDptr,len); }
           else
-          { shiftrightcopy_loop_up(MSDptr,newMSDptr,len,i,0); }
+          { begin_arith_call();
+            shiftrightcopy_loop_up(MSDptr,newMSDptr,len,i,0);
+            end_arith_call();
+          }
       }
       # newMSDptr/len/.. = geschobene Kopie der maßgeblichen Digits
       # Ausblenden der Bits mit Nummern >= q-p:
@@ -141,7 +143,6 @@
           { newMSDptr[0] &= (uintD)(bit(intDsize-bitcount)-1); }
       }
       # Jetzt enthält die UDS newMSDptr/len/.. die extrahierten Bits.
-      end_arith_call();
       RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
       return UDS_to_I(newMSDptr,len); # UDS in Integer umwandeln
     }}

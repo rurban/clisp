@@ -1,5 +1,27 @@
 1999-06-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * intlog.d (I_I_ash_I): Restrict begin/end_arith_call() to the case
+          where it is needed.
+        * intbyte.d (lb_extract): Restrict begin/end_arith_call() to the case
+          where it is needed.
+        * intmal.d (I_square_I): Move begin_arith_call() until after
+          num_stack_need.
+        * intgcd.d (I_I_gcd_I) [3]: Move begin_arith_call() until after
+          num_stack_need.
+          (I_I_xgcd_I_I_I) [3]: Likewise.
+        * intsqrt.d (UDS_sqrt_): Move begin_arith_call() until after
+          num_stack_need.
+          (I_rootp): Likewise.
+        * lfloat.d (LF_LF_plus_LF): Move begin_arith_call() until after
+          num_stack_need.
+          (LF_sqrt_LF): Restrict begin/end_arith_call() to the case where it
+          is needed.
+        * realelem.d (R_R_gleich): Restrict begin/end_arith_call() to the case
+          where it is needed.
+        * lisparit.d (mal_10_plus_x): Restrict begin/end_arith_call().
+
+1999-06-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * intelem.d (FN_to_NDS_nocopy, I_to_NDS_nocopy): Expand into more
           efficient code.
           (FN_to_NDS_nocopy_): New macro.

@@ -177,7 +177,6 @@
       # n und s bestimmen:
       var uintC n = ceiling(a_len,2); # a_len = 2n oder 2n-1, n>0.
       var uintL s;
-      begin_arith_call();
       { var uintD msd = a_MSDptr[0]; # a[2n] bzw. a[2n-1]
         #if 0
         s = 0;
@@ -192,6 +191,7 @@
       # A um 2s Bits nach links verschoben kopieren:
       { var uintD* new_a_LSDptr;
         num_stack_need(2*(uintL)n,a_MSDptr=,new_a_LSDptr=); # 2n Digits Platz belegen
+        begin_arith_call();
        {var uintL shiftcount = 2*s;
         if (!((a_len & bit(0)) ==0)) # a_len ungerade?
           { s += intDsize/2; *--new_a_LSDptr = 0; } # ja -> ein Nulldigit einschieben
@@ -534,16 +534,16 @@
            # Nun ist y_lsd^n == x_lsd mod beta=2^intDsize.
            { var uintL m = ceiling((uintL)x_len,n); # für y nötige Länge, >0, <=x_len
              var uintD* y_LSDptr;
-             begin_arith_call();
-             { var uintD* z1_LSDptr;
-               var uintD* z2_LSDptr;
-               var uintD* z3_LSDptr;
-               num_stack_need_1(m, _EMA_,y_LSDptr=); # Platz für y
-               {var uintL need = 2*m+(32/intDsize-1); # >= max(2*m,m+32/intDsize)
-                num_stack_need(need, _EMA_,z1_LSDptr=); # Platz für Rechenregister 1
-                num_stack_need(need, _EMA_,z2_LSDptr=); # Platz für Rechenregister 2
-                num_stack_need(need, _EMA_,z3_LSDptr=); # Platz für Rechenregister 3
-               }
+             {var uintD* z1_LSDptr;
+              var uintD* z2_LSDptr;
+              var uintD* z3_LSDptr;
+              num_stack_need_1(m, _EMA_,y_LSDptr=); # Platz für y
+              {var uintL need = 2*m+(32/intDsize-1); # >= max(2*m,m+32/intDsize)
+               num_stack_need(need, _EMA_,z1_LSDptr=); # Platz für Rechenregister 1
+               num_stack_need(need, _EMA_,z2_LSDptr=); # Platz für Rechenregister 2
+               num_stack_need(need, _EMA_,z3_LSDptr=); # Platz für Rechenregister 3
+              }
+              begin_arith_call();
               {var uintL k = 1; # y ist bisher mod beta^k bekannt
                y_LSDptr[-1] = y_lsd; # Startwert von y
                until (k==m)
@@ -592,8 +592,9 @@
                    # Quotienten mod beta^(k2-k) bilden und an y mod beta^k ankleben:
                    UDS_UDS_durch2adic_UDS(k2-k,&zz_LSDptr[-(uintP)k],free_LSDptr,&y_LSDptr[-(uintP)k]);
                    k = k2; # jetzt gilt y^n == x sogar mod beta^k2.
-             }}  }}
-             end_arith_call();
+              }  }}
+              end_arith_call();
+             }
              # y mit y^n == x mod beta^m ist gefunden.
              RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
              {var object y = UDS_to_I(&y_LSDptr[-(uintP)m],m); # y als Integer >=0
