@@ -1441,373 +1441,29 @@ typedef struct malloca_header
 # Länge einer Speicherseite des Betriebssystems:
   local /* uintL */ aint map_pagesize; # wird eine Zweierpotenz sein, meist 4096.
 
+#include "spvw_mmap.c"
+
 # Initialisierung:
 # initmap()
+  #define initmap()  mmap_init()
 
 # In einen Speicherbereich [map_addr,map_addr+map_len-1] leere Seiten legen:
 # (map_addr und map_len durch map_pagesize teilbar.)
 # zeromap(map_addr,map_len)
+  #define zeromap  mmap_zeromap
+  #define prepare_zeromap  mmap_prepare
 
 #ifdef HAVE_MMAP
 # In einen Speicherbereich [map_addr,map_addr+map_len-1] private Kopien des
 # Inhalts eines File legen. (map_addr und map_len durch map_pagesize teilbar.)
 # filemap(map_addr,map_len,fd,offset)
+  #define filemap  mmap_filemap
 #endif
 
-#if defined(HAVE_MACH_VM)
-
-  local int initmap (void);
-  local int initmap()
-    { return 0; }
-
-  #define prepare_zeromap(map_addr,map_endaddr,shrinkp)  0
-
-  local int zeromap (void* map_addr, uintL map_len);
-  local int zeromap(map_addr,map_len)
-    var void* map_addr;
-    var uintL map_len;
-    { if (!(vm_allocate(task_self(), (vm_address_t*) &map_addr, map_len, FALSE)
-            == KERN_SUCCESS
-         ) )
-        { asciz_out_1(DEUTSCH ? "Kann keinen Speicher an Adresse 0x%x legen." :
-                      ENGLISH ? "Cannot map memory to address 0x%x ." :
-                      FRANCAIS ? "Ne peux pas placer de la mémoire à l'adresse 0x%x ." :
-                      "",
-                      map_addr
-                     );
-          asciz_out(NLstring);
-          return -1; # error
-        }
-      return 0;
-    }
-
-  local void* filemap (void* map_addr, uintL map_len, int fd, off_t offset);
-  local void* filemap(map_addr,map_len,fd,offset)
-    var void* map_addr;
-    var uintL map_len;
-    var int fd;
-    var off_t offset;
-    { switch (vm_allocate(task_self(), (vm_address_t*) &map_addr, map_len, FALSE))
-        { case KERN_SUCCESS:
-            break;
-          default:
-            errno = EINVAL; return (void*)(-1);
-        }
-      switch (map_fd(fd, offset, (vm_address_t*) &map_addr, 0, map_len))
-        { case KERN_SUCCESS:
-            return map_addr;
-          case KERN_INVALID_ADDRESS:
-          case KERN_INVALID_ARGUMENT:
-          default:
-            errno = EINVAL; return (void*)(-1);
-    }   }
-
-  # Ein Ersatz für die munmap-Funktion.
-  global int munmap(addr,len)
-    var MMAP_ADDR_T addr;
-    var MMAP_SIZE_T len;
-    { switch (vm_deallocate(task_self(),addr,len))
-        { case KERN_SUCCESS:
-            return 0;
-          case KERN_INVALID_ADDRESS:
-          default:
-            errno = EINVAL; return -1;
-    }   }
-
-  # Ein Ersatz für die mprotect-Funktion.
-  global int mprotect(addr,len,prot)
-    var MMAP_ADDR_T addr;
-    var MMAP_SIZE_T len;
-    var int prot;
-    { switch (vm_protect(task_self(),addr,len,0,prot))
-        { case KERN_SUCCESS:
-            return 0;
-          case KERN_PROTECTION_FAILURE:
-            errno = EACCES; return -1;
-          case KERN_INVALID_ADDRESS:
-          default:
-            errno = EINVAL; return -1;
-    }   }
-
-#elif defined(HAVE_WIN32_VM)
-
-  # Return the hardware page size. (0x1000 on i386.)
-  local DWORD getpagesize (void);
-  local DWORD getpagesize()
-    { var SYSTEM_INFO sinfo;
-      GetSystemInfo(&sinfo);
-      return sinfo.dwPageSize;
-    }
-
-  local int initmap (void);
-  local int initmap()
-    { return 0; }
-
-  # With Win32 VM, you cannot simply map a page of memory anywhere you want.
-  # You first have to reserve address space before you can do that.
-  # It's more programming, but it has the advantage that you cannot accidentally
-  # overwrite some of the shared libraries or malloc regions. (If you try that,
-  # VirtualAlloc(..,MEM_RESERVE,..) will return an error.)
-  # This function reserves an address range for use with zeromap().
-  # It tries to reserve the range [*map_addr,*map_endaddr). If this is not
-  # possible and shrinkp is TRUE, *map_addr is increased and *map_endaddr is
-  # reduced as necessary.
-  local int prepare_zeromap (aint* map_addr, aint* map_endaddr, boolean shrinkp);
-  local int prepare_zeromap(map_addr,map_endaddr,shrinkp)
-    var aint* map_addr;
-    var aint* map_endaddr;
-    var boolean shrinkp;
-    { var uintL map_len = *map_endaddr - *map_addr;
-      var aint start_addr = round_down(*map_addr,0x10000);
-      var aint end_addr = round_up(*map_addr+map_len,0x10000);
-      if (shrinkp)
-        { # Try to find the largest free address range subinterval of
-          # [start_addr,end_addr).
-          var MEMORY_BASIC_INFORMATION info;
-          var aint largest_start_addr = start_addr;
-          var uintL largest_len = 0;
-          var aint addr = start_addr;
-          while (VirtualQuery((void*)addr,&info,sizeof(info)) == sizeof(info))
-            { # Always info.BaseAddress = addr.
-              addr = (aint)info.BaseAddress;
-             {var uintL len = (info.RegionSize >= end_addr-addr ? end_addr-addr : info.RegionSize);
-              if ((info.State == MEM_FREE) && (len > largest_len))
-                { largest_start_addr = addr; largest_len = len; }
-              if (info.RegionSize >= end_addr-addr) break;
-              addr += info.RegionSize;
-            }}
-          if (largest_len < 0x10000)
-            { asciz_out_1(DEUTSCH ? "Kann Adressbereich ab 0x%x nicht reservieren." :
-                          ENGLISH ? "Cannot reserve address range at 0x%x ." :
-                          FRANCAIS ? "Ne peux pas réserver les adresses à partir de 0x%x ." :
-                          "",
-                          *map_addr
-                         );
-              # DumpProcessMemoryMap();
-              return -1;
-            }
-          *map_addr = start_addr = round_up(largest_start_addr,0x10000);
-          *map_endaddr = end_addr = largest_start_addr + largest_len;
-        }
-      if (!VirtualAlloc((void*)start_addr,end_addr-start_addr,MEM_RESERVE,PAGE_NOACCESS/*dummy*/))
-        { var DWORD errcode = GetLastError();
-          asciz_out_2(DEUTSCH ? "Kann Adressbereich 0x%x-0x%x nicht reservieren." :
-                      ENGLISH ? "Cannot reserve address range 0x%x-0x%x ." :
-                      FRANCAIS ? "Ne peux pas réserver les adresses 0x%x-0x%x ." :
-                      "",
-                      start_addr,end_addr-1
-                     );
-          errno_out(errcode);
-          # DumpProcessMemoryMap();
-          return -1;
-        }
-      #ifdef DEBUG_SPVW
-      asciz_out_2("Reserved address range 0x%x-0x%x ." NLstring, start_addr,end_addr-1);
-      #endif
-      return 0;
-    }
-
-  local int zeromap (void* map_addr, uintL map_len);
-  local int zeromap(map_addr,map_len)
-    var void* map_addr;
-    var uintL map_len;
-    { if (!VirtualAlloc(map_addr,map_len,MEM_COMMIT,PAGE_READWRITE))
-        { var DWORD errcode = GetLastError();
-          asciz_out_1(DEUTSCH ? "Kann keinen Speicher an Adresse 0x%x legen." :
-                      ENGLISH ? "Cannot map memory to address 0x%x ." :
-                      FRANCAIS ? "Ne peux pas placer de la mémoire à l'adresse 0x%x ." :
-                      "",
-                      map_addr
-                     );
-          errno_out(errcode);
-          return -1; # error
-        }
-      return 0;
-    }
+#if defined(SINGLEMAP_MEMORY) && defined(HAVE_WIN32_VM)
   # Despite of SINGLEMAP_MEMORY, a relocation may be necessary at loadmem() time.
-  #ifdef SINGLEMAP_MEMORY
-    #define SINGLEMAP_MEMORY_RELOCATE
-  #endif
-
-  #if 0
-  # This implementation, on top of MapViewOfFileEx(), has three severe flaws:
-  # - It forces `map_addr' and `offset' to be aligned to 64 KB (not to the pagesize,
-  #   4KB, as indicated in the documentation), thus the mem files for SINGLEMAP_MEMORY
-  #   get big.
-  # - On an address range prepared with prepare_zeromap(), MapViewOfFileEx()
-  #   returns the error code ERROR_INVALID_ADDRESS. We would have to map the first
-  #   part of each heap to the file and prepare_zeromap() only the remainder of the
-  #   heap. This would give problems once a heap shrinks too much: munmap() below
-  #   wouldn't work.
-  # - It doesn't work on Win95: MapViewOfFileEx() on Win95 cannot guarantee that
-  #   it will be able to map at the desired address.
-  local void* filemap (void* map_addr, uintL map_len, Handle fd, off_t offset);
-  local void* filemap(map_addr,map_len,fd,offset)
-    var void* map_addr;
-    var uintL map_len;
-    var Handle fd;
-    var off_t offset;
-    { if (map_len==0) return map_addr;
-      { var HANDLE maphandle = CreateFileMapping(fd,NULL,PAGE_WRITECOPY,0,0,NULL);
-        if (maphandle == NULL)
-          { var DWORD errcode = GetLastError();
-            asciz_out(DEUTSCH ? "CreateFileMapping() scheiterte." :
-                      ENGLISH ? "CreateFileMapping() failed." :
-                      FRANCAIS ? "CreateFileMapping() a échoué." :
-                      ""
-                     );
-            errno_out(errcode);
-            return (void*)(-1);
-          }
-       {var void* resultaddr = MapViewOfFileEx(maphandle,FILE_MAP_COPY,0,(DWORD)offset,map_len,map_addr);
-        if (resultaddr == NULL)
-          { var DWORD errcode = GetLastError();
-            asciz_out_2(DEUTSCH ? "MapViewOfFileEx(addr=0x%x,off=0x%x) scheiterte." :
-                        ENGLISH ? "MapViewOfFileEx(addr=0x%x,off=0x%x) failed." :
-                        FRANCAIS ? "MapViewOfFileEx(addr=0x%x,off=0x%x) a échoué." :
-                        "",
-                        map_addr,offset
-                       );
-            errno_out(errcode);
-            return (void*)(-1);
-          }
-        if (!(resultaddr == map_addr))
-          { asciz_out_2(DEUTSCH ? "MapViewOfFileEx() lieferte 0x%x statt 0x%x." NLstring :
-                        ENGLISH ? "MapViewOfFileEx() returned 0x%x instead of 0x%x." NLstring :
-                        FRANCAIS ? "MapViewOfFileEx() rend 0x%x au lieu de 0x%x." NLstring :
-                        "",
-                        resultaddr, map_addr
-                       );
-            UnmapViewOfFile(resultaddr);
-            return (void*)(-1);
-          }
-        return map_addr;
-    } }}
-  #endif
-
-  # Ein Ersatz für die munmap-Funktion.
-  global int munmap (MMAP_ADDR_T addr, MMAP_SIZE_T len);
-  global int munmap(addr,len)
-    var MMAP_ADDR_T addr;
-    var MMAP_SIZE_T len;
-    { if (!VirtualFree(addr,len,MEM_DECOMMIT))
-        { var DWORD errcode = GetLastError();
-          asciz_out(DEUTSCH ? "VirtualFree() scheiterte." :
-                    ENGLISH ? "VirtualFree() failed." :
-                    FRANCAIS ? "VirtualFree() a échoué." :
-                    ""
-                   );
-          errno_out(errcode);
-          return -1;
-        }
-      return 0;
-    }
-
-  # Ein Ersatz für die mprotect-Funktion.
-  global int mprotect (MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot);
-  global int mprotect(addr,len,prot)
-    var MMAP_ADDR_T addr;
-    var MMAP_SIZE_T len;
-    var int prot;
-    { var DWORD oldprot;
-      if (!VirtualProtect(addr,len,prot,&oldprot))
-        { var DWORD errcode = GetLastError();
-          asciz_out(DEUTSCH ? "VirtualProtect() scheiterte." :
-                    ENGLISH ? "VirtualProtect() failed." :
-                    FRANCAIS ? "VirtualProtect() a échoué." :
-                    ""
-                   );
-          errno_out(errcode);
-          return -1;
-        }
-      return 0;
-    }
-
-#else
-
-# Beide mmap()-Methoden gleichzeitig anzuwenden, ist unnötig:
-#ifdef HAVE_MMAP_ANON
-  #undef HAVE_MMAP_DEVZERO
+  #define SINGLEMAP_MEMORY_RELOCATE
 #endif
-
-#ifdef HAVE_MMAP_DEVZERO
-  local int zero_fd; # Handle von /dev/zero
-  # Zugriff auf /dev/zero: /dev/zero hat manchmal Permissions 0644. Daher
-  # OPEN() mit nur O_RDONLY statt O_RDWR. Daher MAP_PRIVATE statt MAP_SHARED.
-  #ifdef MAP_FILE
-    #define map_flags  MAP_FILE | MAP_PRIVATE
-  #else
-    #define map_flags  MAP_PRIVATE
-  #endif
-#endif
-#ifdef HAVE_MMAP_ANON
-  #define zero_fd  -1 # irgendein ungültiges Handle geht!
-  #define map_flags  MAP_ANON | MAP_PRIVATE
-#endif
-
-  local int initmap (void);
-  local int initmap()
-    {
-      #ifdef HAVE_MMAP_DEVZERO
-      { var int fd = OPEN("/dev/zero",O_RDONLY,my_open_mask);
-        if (fd<0)
-          { asciz_out(DEUTSCH ? "Kann /dev/zero nicht öffnen." :
-                      ENGLISH ? "Cannot open /dev/zero ." :
-                      FRANCAIS ? "Ne peux pas ouvrir /dev/zero ." :
-                      ""
-                     );
-            errno_out(errno);
-            return -1; # error
-          }
-        zero_fd = fd;
-      }
-      #endif
-      return 0;
-    }
-
-  #define prepare_zeromap(map_addr,map_endaddr,shrinkp)  0
-
-  local int zeromap (void* map_addr, uintL map_len);
-  local int zeromap(map_addr,map_len)
-    var void* map_addr;
-    var uintL map_len;
-    { if ( (void*) mmap((MMAP_ADDR_T)map_addr, # gewünschte Adresse
-                        map_len, # Länge
-                        PROT_READ_WRITE, # Zugriffsrechte
-                        map_flags | MAP_FIXED, # genau an diese Adresse!
-                        zero_fd, 0 # leere Seiten legen
-                       )
-           == (void*)(-1)
-         )
-        { asciz_out_1(DEUTSCH ? "Kann keinen Speicher an Adresse 0x%x legen." :
-                      ENGLISH ? "Cannot map memory to address 0x%x ." :
-                      FRANCAIS ? "Ne peux pas placer de la mémoire à l'adresse 0x%x ." :
-                      "",
-                      map_addr
-                     );
-          errno_out(errno);
-          return -1; # error
-        }
-      return 0;
-    }
-
-  #ifdef HAVE_MMAP
-  local void* filemap (void* map_addr, uintL map_len, int fd, off_t offset);
-  local void* filemap(map_addr,map_len,fd,offset)
-    var void* map_addr;
-    var uintL map_len;
-    var int fd;
-    var off_t offset;
-    { return (void*) mmap((MMAP_ADDR_T)map_addr,
-                          map_len,
-                          PROT_READ_WRITE,
-                          MAP_FIXED | MAP_PRIVATE,
-                          fd, offset
-                         );
-    }
-  #endif
-
-#endif # !(HAVE_MACH_VM || HAVE_WIN32_VM)
 
 # Immutable Objekte gibt es nicht.
   #define fehler_immutable()
@@ -12569,6 +12225,9 @@ local uintC generation;
      }
      #endif
      # Speicher holen:
+     #if defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)
+     mmap_init_pagesize();
+     #endif
      #ifdef SPVW_PURE
      { var uintL heapnr;
        for (heapnr=0; heapnr<heapcount; heapnr++)
@@ -12651,28 +12310,7 @@ local uintC generation;
         #elif defined(MULTIMAP_MEMORY_VIA_SHM)
         SHMLBA
         #elif defined(SELFMADE_MMAP) || defined(GENERATIONAL_GC)
-          #if (defined(UNIX_SUNOS5) || defined(UNIX_LINUX)) && defined(SPARC)
-          # Normal SPARCs have PAGESIZE=4096, UltraSPARCs have PAGESIZE=8192.
-          # For compatibility of the .mem files between the architectures,
-          # choose the same value for both here.
-          8192
-          #elif defined(UNIX_IRIX) && defined(MIPS)
-          # Normal MIPSs have pagesize=4096, the Onyx platform has it =16384.
-          # For compatibility of the .mem files between the architectures,
-          # choose the same value for both here.
-          16384
-          #elif defined(HAVE_GETPAGESIZE) || defined(HAVE_WIN32_VM)
-          getpagesize()
-          #elif defined(HAVE_MACH_VM)
-          vm_page_size
-          #elif defined(UNIX_SUNOS5)
-          # UNIX_SUNOS5 (Solaris < 2.5) has mmap(), but no getpagesize() !
-          PAGESIZE # see <sys/param.h>
-          #elif defined(UNIX_SINIX) && defined(MIPS)
-          16384
-          #else
-          ??
-          #endif
+        mmap_pagesize
         #else # wenn die System-Speicherseiten-Länge keine Rolle spielt
         teile*varobject_alignment
         #endif
@@ -12807,26 +12445,7 @@ local uintC generation;
         #endif
       #endif
       #if defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) # <==> SPVW_PURE_BLOCKS || TRIVIALMAP_MEMORY
-        map_pagesize = # Länge einer Hardware-Speicherseite
-          #if (defined(UNIX_SUNOS5) || defined(UNIX_LINUX)) && defined(SPARC)
-          8192 # for compatibility of the .mem files
-          #elif defined(UNIX_IRIX) && defined(MIPS)
-          16384 # for compatibility of the .mem files
-          #elif defined(HAVE_GETPAGESIZE) || defined(HAVE_WIN32_VM)
-          getpagesize()
-          #elif defined(HAVE_MACH_VM)
-          vm_page_size
-          #elif defined(HAVE_SHM)
-          SHMLBA
-          #elif defined(UNIX_SUNOS5)
-          # UNIX_SUNOS5 (Solaris < 2.5) has mmap(), but no getpagesize() !
-          PAGESIZE # see <sys/param.h>
-          #elif defined(UNIX_SINIX) && defined(MIPS)
-          16384
-          #else
-          4096
-          #endif
-          ;
+        map_pagesize = mmap_pagesize; # Länge einer Hardware-Speicherseite
         if ( initmap() <0) goto no_mem;
         #ifdef SINGLEMAP_MEMORY
         # Alle Heaps vor-initialisieren:
