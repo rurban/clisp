@@ -849,9 +849,7 @@ executes a compiled version of form.</para>
  <listitem><simpara>You need not worry about the values of
   &print-base-var;, &print-radix-var;, &print-case-var;,
   &print-gensym-var;, &print-array-var;, &pr-closure;,
-  <link linkend="pr-rpars"><varname>custom:*print-rpars*</varname></link>,
-  <link linkend="pr-indent"
-   ><varname>custom:*print-indent-lists*</varname></link>
+  &pr-rpars;, &pr-indent;.
   </simpara></listitem>
 </itemizedlist>
 
@@ -1241,7 +1239,7 @@ executes a compiled version of form.</para>
 
 <formalpara><title><function>ext:without-floating-point-underflow</function></title>
 <para>The macro <literal
- role="sexp">(<function>without-floating-point-underflow</function>
+ role="sexp">(<function>ext:without-floating-point-underflow</function>
  {<replaceable>form</replaceable>}*)</literal> executes the
  <replaceable>form</replaceable>s, with errors of type
  &floating-point-underflow-type; inhibited.
@@ -4436,30 +4434,27 @@ functions are provided:</para>
 <section><title><ulink url="&clhs;/Body/sec_22-1-1-1.html">
     22.1.1.1 Multiple Possible Textual Representations</ulink></title>
 
-<para id="pr-closure">An additional variable <emphasis
- role="strong"><varname>custom:*print-closure*</varname></emphasis>
- controls whether compiled and interpreted functions (closures) are
- output in detailed form.  If <varname>custom:*print-closure*</varname> is
- non-&nil;, compiled closures are output in <keysym>#Y</keysym> syntax
- which the reader understands.  <varname>custom:*print-closure*</varname>
- is initially set to &nil;.</para>
+<formalpara id="pr-closure"><title>&pr-closure;</title>
+<para>An additional variable &pr-closure; controls whether compiled and
+ interpreted functions (closures) are output in detailed form.
+ If &pr-closure; is non-&nil;, compiled closures are output in
+ <keysym>#Y</keysym> syntax which the reader understands.
+ &pr-closure; is initially set to &nil;.</para></formalpara>
 
-<para id="pr-rpars">An additional variable <emphasis
- role="strong"><varname>custom:*print-rpars*</varname></emphasis> controls
- the output of the right (closing) parentheses. If
- <varname>custom:*print-rpars*</varname> is non-&nil;, closing parentheses
- which do not fit onto the same line as the the corresponding opening
- parenthesis are output just below their corresponding opening
- parenthesis, in the same column.  <varname>custom:*print-rpars*</varname>
- is initially set to &nil;.</para>
+<formalpara id="pr-rpars"><title>&pr-rpars;</title>
+<para>An additional variable &pr-rpars; controls
+ the output of the right (closing) parentheses.
+ If &pr-rpars; is non-&nil;, closing parentheses which do not fit onto
+ the same line as the the corresponding opening parenthesis are output
+ just below their corresponding opening parenthesis, in the same column.
+ &pr-rpars; is initially set to &nil;.</para></formalpara>
 
-<para id="pr-indent">An additional variable <emphasis
- role="strong"><varname>custom:*print-indent-lists*</varname></emphasis>
- controls the indentation of lists that span more than one line. It
- specifies by how many characters items within the list will be indented
- relative to the beginning of the list.
- <varname>custom:*print-indent-lists*</varname> is initially set to
- <literal>1</literal>.</para>
+<formalpara id="pr-indent"><title>&pr-indent;</title>
+<para>An additional variable &pr-indent; controls the indentation of
+ lists that span more than one line.
+ It specifies by how many characters items within the list will be
+ indented relative to the beginning of the list.
+ &pr-indent; is initially set to <literal>1</literal>.</para></formalpara>
 
 </section>
 
@@ -4490,12 +4485,19 @@ functions are provided:</para>
 
 </section>
 
+<section><title><ulink url="&clhs;/Body/sec_22-2.html">
+    22.2 The Lisp Pretty Printer</ulink></title>
+
+<para>The List Pretty Printer is not implemented yet.</para>
+
+</section>
+
 <section><title><ulink url="&clhs;/Body/sec_the_printer_dictionary.html">
     22.4 The Printer Dictionary</ulink></title>
 
-<formalpara><title> &write; &amp; &write-to-string;</title>
+<formalpara><title>&write; &amp; &write-to-string;</title>
 <para>The functions &write; and &write-to-string; have an additional
- keyword <constant>:closure</constant> that can be used to bind
+ keyword argument <constant>:closure</constant> which is used to bind
  &pr-closure;.</para></formalpara>
 
 <section><title>&format;</title>
@@ -4548,22 +4550,21 @@ functions are provided:</para>
 <para>Pathnames are printed as follows: If &print-escape-var; is &nil;,
  only the namestring is printed; otherwise it is printed with
  <filename>#P""</filename> syntax, as per &ansi-cl; Issue <ulink
- url="&clhs;/Issues/iss276.html">
- PRINT-READABLY-BEHAVIOR:CLARIFY</ulink>.  But, if &print-readably-var;
- is true, we are in trouble as <filename>#P""</filename> is ambiguous
- (which is verboten when &print-readably-var; is true), while being
- mandated by the &ansi-cl;.  Therefore, in this case, we print it like
- this:
-<computeroutput>#-CLISP #P"" #+CLISP #S(PATHNAME ...)</computeroutput></para>
-
-<para>When the variable &pathprint; is &nil;, otherwise the
+ url="&clhs;/Issues/iss276.html">PRINT-READABLY-BEHAVIOR:CLARIFY</ulink>.
+ But, if &print-readably-var; is true, we are in trouble as
+ <filename>#P""</filename> is ambiguous (which is verboten when
+ &print-readably-var; is true), while being mandated by the &ansi-cl;.
+ Therefore, in this case, &clisp;'s behavior is determined by the value
+ of &pathprint;: when it is &nil;, we print pathnames like this:
+<computeroutput>#-CLISP #P"" #+CLISP #S(PATHNAME ...)</computeroutput>.
+ Otherwise, when the variable &pathprint; is non-&nil;, the
  <function>#P""</function> notation is used as per <ulink
  url="&clhs;/Body/sec_1-5-1-4.html">1.5.1.4.1 Resolution of Apparent
  Conflicts in Exceptional Situations</ulink>.</para>
 
 </section>
 
-<section><title>misc</title>
+<section><title>Miscellaneous Issues</title>
 
 <para>&print-case-var; controls the output not only of symbols, but also
  of characters and some <computeroutput>#&lt;...&gt;</computeroutput>
@@ -5251,6 +5252,7 @@ compiles a file to platform-independent bytecode.</para>
 <para>&hyperspec; access is provided via <literal
   role="sexp">(<function>ext:clhs</function>
   <replaceable>symbol</replaceable> &key-amp;
+  <literal>:browser</literal>
   <replaceable>browser</replaceable>)</literal> function which uses
   your web browser.  <replaceable>browser</replaceable> should be a
   valid keyword in the <varname>custom:*browsers*</varname> alist.
