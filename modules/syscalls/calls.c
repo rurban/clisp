@@ -4,27 +4,46 @@
  * GPL2
  */
 
-/* #define DEBUG */
-#ifdef DEBUG
-# include <stdio.h>
-#else
-# define OBJECT_OUT(o,l)
-#endif
-
 #include "clisp.h"
 
-#ifdef DEBUG
+#include "config.h"
+
+#if defined(TIME_WITH_SYS_TIME)
+# include <sys/time.h>
+# include <time.h>
+#else
+# if defined(HAVE_SYS_TIME_H)
+#  include <sys/time.h>
+# elif defined(HAVE_TIME_H)
+#  include <time.h>
+# endif
+#endif
+#if defined(HAVE_UNISTD_H)
+# include <unistd.h>
+#endif
+#if defined(HAVE_SYS_UNISTD_H)
+# include <sys/unistd.h>
+#endif
+#if defined(HAVE_ERRNO_H)
+# include <errno.h>
+#endif
+
+/* #define DEBUG */
+#if defined(DEBUG)
+# include <stdio.h>
 extern object nobject_out (FILE* stream, object obj);
 # define XOUT(obj,label)                                                \
   (printf("[%s:%d] %s: %s:\n",__FILE__,__LINE__,STRING(obj),label),     \
    obj=nobject_out(stdout,obj), printf("\n"))
 #else
+# undef OBJECT_OUT
+# define OBJECT_OUT(o,l)
 # define XOUT(o,l)
 #endif
 
 DEFMODULE(syscalls,"POSIX");
 
-#ifdef UNICODE
+#if defined(UNICODE)
 DEFVAR(misc_encoding, (funcall(L(misc_encoding),0),value1));
 DEFVAR(pathname_encoding, (funcall(L(pathname_encoding),0),value1));
 #else
@@ -32,10 +51,10 @@ DEFVAR(misc_encoding, (funcall(L(default_file_encoding),0),value1));
 DEFVAR(pathname_encoding, O(misc_encoding));
 #endif
 
-#ifdef HAVE_FLOCK
+#if defined(HAVE_FLOCK)
 
-#ifdef HAVE_SYS_FILE_H
-#include <sys/file.h>
+#if defined(HAVE_SYS_FILE_H)
+# include <sys/file.h>
 #endif
 
 DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED)
@@ -77,8 +96,10 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED)
 #define VAL_ID(func)  \
  double xx=D_S; int nn=I_S; double res=func(nn,xx); N_D(res,value1)
 
-#if !defined(WIN32_NATIVE)
+#if defined(HAVE_ERFC)
 DEFUNF(POSIX::ERF,x) { VAL_D(erf); mv_count=1; }
+#endif
+#if defined(HAVE_ERFC)
 DEFUNF(POSIX::ERFC,x) { VAL_D(erfc); mv_count=1; }
 #endif
 
@@ -89,25 +110,23 @@ DEFUNF(POSIX::Y0,x) { VAL_D(y0); mv_count=1; }
 DEFUNF(POSIX::Y1,x) { VAL_D(y1); mv_count=1; }
 DEFUNF(POSIX:YN,i y){ VAL_ID(yn); mv_count=1; }
 
-#if !defined(WIN32_NATIVE)
-DEFUNF(POSIX::GAMMA,x) { VAL_D(gamma); mv_count=1; }
-DEFUNF(POSIX::LGAMMA,1) {
-# if defined(_REENTRANT)
+#if defined(HAVE_LGAMMA) || defined(HAVE_LGAMMA_R)
+DEFUNF(POSIX::LGAMMA,x) {
+# if defined(HAVE_LGAMMA_R)
   int sign;
   double res = lgamma_r(D_S,&sign);
-  value2 = sfixnum(sign);
+  value2 = (sign > 0 ? Fixnum_1 : Fixnum_minus1);
 # else
   double res = lgamma(D_S);
-  value2 = sfixnum(signgam);
+  value2 = (signgam > 0 ? Fixnum_1 : Fixnum_minus1);
 # endif
   N_D(res,value1); mv_count=2;
 }
 #endif
 
-#include <time.h>
-
-DEFUN(bogomips,)
-{ /* (POSIX:BOGOMIPS) */
+#if defined(HAVE_CLOCK)
+DEFUN(POSIX:BOGOMIPS,)
+{
   if (clock() != (clock_t)-1) {
     unsigned long loops = 1;
     while ((loops <<= 1)) {
@@ -124,6 +143,7 @@ DEFUN(bogomips,)
   }
   N_D(-1.0,value1); mv_count=1;
 }
+#endif /* HAVE_CLOCK */
 
 #undef D_S
 #undef I_S
@@ -133,7 +153,6 @@ DEFUN(bogomips,)
 
 
 /* ========= SYSTEM INFORMATION ========== */
-#if !defined(WIN32_NATIVE)
 
 #if defined(HAVE_SYSCONF) || defined(HAVE_UNAME)
 #if defined(HAVE_SYS_UTSNAME_H)
@@ -146,7 +165,7 @@ DEFUN(POSIX::SYSINFO-INTERNAL,)
  you should modify POSIX:SYSINFO in posix.lisp accordingly */
   long res, count = 0;
 
-#ifdef HAVE_UNAME
+#if defined(HAVE_UNAME)
   struct utsname utsname;
   begin_system_call(); uname(&utsname); end_system_call();
 #define UN(str) pushSTACK(asciz_to_string(str,O(misc_encoding))); count++;
@@ -158,37 +177,37 @@ DEFUN(POSIX::SYSINFO-INTERNAL,)
 #undef UN
 #endif /* HAVE_UNAME */
 
-#ifdef HAVE_SYSCONF
+#if defined(HAVE_SYSCONF)
 #define SC_S(cmd) \
   begin_system_call(); res = sysconf(cmd); end_system_call(); \
   pushSTACK(res == -1 ? T : L_to_I(res)); count++;
 
-#ifdef _SC_PAGESIZE
+#if defined(_SC_PAGESIZE)
   SC_S(_SC_PAGESIZE);
 #else
   pushSTACK(NIL); count++;
 #endif
-#ifdef _SC_PHYS_PAGES
+#if defined(_SC_PHYS_PAGES)
   SC_S(_SC_PHYS_PAGES);
 #else
   pushSTACK(NIL); count++;
 #endif
-#ifdef _SC_AVPHYS_PAGES
+#if defined(_SC_AVPHYS_PAGES)
   SC_S(_SC_AVPHYS_PAGES);
 #else
   pushSTACK(NIL); count++;
 #endif
-#ifdef _SC_NPROCESSORS_CONF
+#if defined(_SC_NPROCESSORS_CONF)
   SC_S(_SC_NPROCESSORS_CONF);
 #else
   pushSTACK(NIL); count++;
 #endif
-#ifdef _SC_NPROCESSORS_ONLN
+#if defined(_SC_NPROCESSORS_ONLN)
   SC_S(_SC_NPROCESSORS_ONLN);
 #else
   pushSTACK(NIL); count++;
 #endif
-#ifdef _SC_THREAD_THREADS_MAX
+#if defined(_SC_THREAD_THREADS_MAX)
   SC_S(_SC_THREAD_THREADS_MAX);
 #else
   pushSTACK(NIL); count++;
@@ -204,7 +223,7 @@ DEFUN(POSIX::SYSINFO-INTERNAL,)
 # include <sys/resource.h>
 #endif
 
-#ifdef HAVE_GETRUSAGE
+#if defined(HAVE_GETRUSAGE)
 #define GETRU(who)                                              \
   begin_system_call(); getrusage(who,&ru); end_system_call();   \
   pushSTACK(L_to_I(ru.ru_utime.tv_sec));  count++;              \
@@ -233,7 +252,7 @@ DEFUN(POSIX::SYSINFO-INTERNAL,)
   pushSTACK(Fixnum_0)
 #endif
 
-#ifdef HAVE_GETRLIMIT
+#if defined(HAVE_GETRLIMIT)
 #define RLIM(what)                                                      \
   begin_system_call(); getrlimit(what,&rl); end_system_call(); count += 2; \
   pushSTACK(rl.rlim_cur == RLIM_INFINITY ? T : L_to_I(rl.rlim_cur));    \
@@ -298,16 +317,19 @@ DEFUN(POSIX::RESOURCE-USAGE-LIMITS-INTERNAL,)
   pushSTACK(NIL); pushSTACK(NIL); count += 2;
 # endif
 
-# ifdef RLIM
+# if defined(RLIM)
 #  undef RLIM
 # endif
 
   funcall(L(values),count);
 }
 #endif /* HAVE_GETRLIMIT || HAVE_GETRUSAGE */
-#endif /* !defined(WIN32_NATIVE) */
 
 /* ==== SOCKETS ===== */
+#if defined(HAVE_NETDB_H)
+# include <netdb.h>
+#endif
+
 #define H_ERRMSG                                                           \
         (h_errno == HOST_NOT_FOUND ? "host not found" :                    \
          (h_errno == TRY_AGAIN ? "try again later" :                       \
@@ -317,15 +339,15 @@ DEFUN(POSIX::RESOURCE-USAGE-LIMITS-INTERNAL,)
              "unknown error")))))
 
 #if 0
-void print_he (struct hostent he) {
+void print_he (struct hostent *he) {
  int ii;
  char **pp;
  struct in_addr in;
  printf("h_name: %s; h_length: %d; h_addrtype: %d\n [size in.s_addr: %d]\n",
-        he.h_name,he.h_length,he.h_addrtype,sizeof(in.s_addr));
- for (pp = he.h_aliases; *pp != 0; pp++) printf("\t%s", *pp);
+        he->h_name,he->h_length,he->h_addrtype,sizeof(in.s_addr));
+ for (pp = he->h_aliases; *pp != 0; pp++) printf("\t%s", *pp);
  printf("\n IP:");
- for (pp = he.h_addr_list; *pp != 0; pp++) {
+ for (pp = he->h_addr_list; *pp != 0; pp++) {
    (void) memcpy(&in.s_addr, *pp, sizeof (in.s_addr));
    (void) printf("\t%s", inet_ntoa(in));
  }
@@ -366,7 +388,7 @@ DEFUN(POSIX::RESOLVE-HOST-IPADDR-INTERNAL,host)
   struct hostent *he = NULL;
 
   if (nullp(arg)) {
-#  if defined(WIN32_NATIVE) || !defined(HAVE_GETHOSTENT)
+#  if !defined(HAVE_GETHOSTENT)
     VALUES1(NIL);
 #  else
     int count = 0;
@@ -397,7 +419,13 @@ DEFUN(POSIX::RESOLVE-HOST-IPADDR-INTERNAL,host)
 }
 
 /* ===== PATH ===== */
-#ifdef UNIX
+#if defined(UNIX)
+
+#if defined(HAVE_GETLOGIN) && defined(HAVE_GETPWNAM) && defined(HAVE_GETPWUID) && defined(HAVE_GETUID)
+
+#if defined(HAVE_PWD_H)
+# include <pwd.h>
+#endif
 
 #define PASSWD_TO_STACK(pwd)                                   \
   pushSTACK(asciz_to_string(pwd->pw_name,O(misc_encoding)));   \
@@ -416,6 +444,7 @@ DEFUN(POSIX::USER-DATA-INTERNAL, user) {
   object user = popSTACK();
   struct passwd *pwd = NULL;
 
+# if defined(HAVE_GETPWENT)
   if (nullp(user)) { /* all users as a list */
     int count = 0;
     begin_system_call();
@@ -429,13 +458,18 @@ DEFUN(POSIX::USER-DATA-INTERNAL, user) {
     VALUES1(listof(count));
     return;
   }
+#endif
 
   begin_system_call();
   if (posfixnump(user))
     pwd = getpwuid(posfixnum_to_L(user));
-  else if (eq(user,`:DEFAULT`))
-    pwd = unix_user_pwd();
-  else if (symbolp(user)) {
+  else if (eq(user,`:DEFAULT`)) {
+    char *username = getlogin();
+    if (username != NULL)
+      pwd = getpwnam(username);
+    else
+      pwd = getpwuid(getuid());
+  } else if (symbolp(user)) {
     with_string_0(Symbol_name(user),O(misc_encoding),userz,
                   { pwd = getpwnam(userz); });
   } else if (stringp(user)) {
@@ -449,6 +483,17 @@ DEFUN(POSIX::USER-DATA-INTERNAL, user) {
   if (NULL == pwd) { OS_error(); }
   PASSWD_TO_STACK(pwd);
   funcall(L(values),7);
+}
+#endif  /* getlogin getpwent getpwnam getpwuid getuid */
+
+#if defined(HAVE_FSTAT) && defined(HAVE_LSTAT) && defined(HAVE_STAT)
+
+#if defined(HAVE_SYS_STAT_H)
+# include <sys/stat.h>
+#endif
+
+static object whole_namestring (object path) {
+  pushSTACK(path); funcall(L(namestring),1); return value1;
 }
 
 /* Lisp interface to stat(2), lstat(2) and fstat(2)
@@ -502,19 +547,49 @@ DEFUN(POSIX::FILE-STAT-INTERNAL, file &optional linkp) {
   pushSTACK(UL_to_I(buf.st_ctime+UNIX_LISP_TIME_DIFF));/*time of last change*/
   funcall(L(values),14);
 }
-
+#endif  /* fstat lstat fstat */
 #endif /* UNIX */
 
 /* COPY-FILE related functions. */
 
-static object whole_namestring (object path) {
-  pushSTACK(path); funcall(L(namestring),1); return value1;
+/* Hard/Soft Link a file
+ > old_pathstring: old file name, ASCIZ-String
+ > new_pathstring: new file name, ASCIZ-String
+ > STACK_3: old pathname
+ > STACK_1: new pathname */
+#if defined(HAVE_CREATEHARDLINK)
+/* we are on woe32 */
+# define HAVE_LINK
+# define link(x,y) CreateHardLink(y,x,NULL)
+# define errno  GetLastError()
+# define ENOENT ERROR_FILE_NOT_FOUND
+#endif
+#if defined(HAVE_LINK)
+static inline void hardlink_file (char* old_pathstring, char* new_pathstring) {
+  begin_system_call();
+  if (link(old_pathstring,new_pathstring) < 0) { /* hardlink file */
+    if (errno==ENOENT) OS_file_error(STACK_3);
+    else OS_file_error(STACK_1);
+  }
+  end_system_call();
 }
+#endif
+#if defined(HAVE_SYMLINK)
+static inline void symlink_file (char* old_pathstring, char* new_pathstring) {
+  begin_system_call();
+  if (symlink(old_pathstring,new_pathstring) < 0) { /* symlink file */
+    if (errno==ENOENT) OS_file_error(STACK_3);
+    else OS_file_error(STACK_1);
+  }
+  end_system_call();
+}
+#endif
 
 /* Copy attributes from stream STACK_1 to stream STACK_0 and close them
    can trigger GC */
 static void copy_attributes_and_close () {
 # if defined(UNIX)
+#  if defined(HAVE_FSTAT)       /* no go without fstat() */
   Handle source_fd = stream_lend_handle(STACK_1,true,NULL);
   Handle dest_fd = stream_lend_handle(STACK_0,true,NULL);
   struct stat source_sb;
@@ -528,17 +603,21 @@ static void copy_attributes_and_close () {
     pushSTACK(file_stream_truename(STACK_0));
     goto close_and_err;
   }
-  /*** file mode ***/
+# if defined(HAVE_CHMOD) /*** file mode ***/
   if (((source_sb.st_mode & 0777) != (dest_sb.st_mode & 0777))
       && (fchmod(dest_fd, source_sb.st_mode & 0777) == -1)) {
     pushSTACK(file_stream_truename(STACK_0));
     goto close_and_err;
   }
-  /*** owner/group ***/
+# endif
+
+# if defined(HAVE_FCHOWN) /*** owner/group ***/
   if (fchown(dest_fd, source_sb.st_uid, source_sb.st_gid) == -1) {
     pushSTACK(file_stream_truename(STACK_0));
     goto close_and_err;
   }
+# endif
+# if defined(HAVE_UTIMES)
   { /*** access/mod times ***/
     struct timeval utb[2];
     int utimes_ret;
@@ -557,7 +636,9 @@ static void copy_attributes_and_close () {
       goto close_and_err;
     }
   }
+# endif
   goto close_success;
+#  endif  /* fstat() */
 # else
   /*** FIXME: windows? amiga? riscos? ***/
 # endif
@@ -758,26 +839,22 @@ static void copy_one_file (object source, object src_path,
       source = STACK_4; dest = STACK_1;
       break;
     case COPY_METHOD_SYMLINK:
-#    ifdef UNIX
+#    if defined(UNIX)
       /* use the original argument, not the truename here,
          so that the user can create relative symlinks */
       source = stringp(STACK_5) ? (object)STACK_5 : whole_namestring(STACK_4);
       with_string_0(source, O(pathname_encoding), source_asciz, {
-        with_string_0(dest, O(pathname_encoding), dest_asciz, {
-          delete_file_if_exists(dest_asciz);
-          symlink_file(source_asciz,dest_asciz);
-        });
+        with_string_0(dest, O(pathname_encoding), dest_asciz,
+                      { symlink_file(source_asciz,dest_asciz); });
       });
       break;
 #    endif
       /* FALLTHROUGH if no symlinks */
     case COPY_METHOD_HARDLINK:
-#    ifdef UNIX
+#    if defined(UNIX)
       with_string_0(source, O(pathname_encoding), source_asciz, {
-        with_string_0(dest, O(pathname_encoding), dest_asciz, {
-          delete_file_if_exists(dest_asciz);
-          hardlink_file(source_asciz,dest_asciz);
-        });
+        with_string_0(dest, O(pathname_encoding), dest_asciz,
+                      { hardlink_file(source_asciz,dest_asciz); });
       });
       break;
 #    endif
