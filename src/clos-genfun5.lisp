@@ -203,6 +203,12 @@
   (:method ((gf standard-generic-function) (method standard-method))
     (std-remove-method gf method)))
 
+;; MOP p. 40
+(fmakunbound 'compute-discriminating-function)
+(defgeneric compute-discriminating-function (gf)
+  (:method ((gf standard-generic-function))
+    (compute-discriminating-function-<standard-generic-function> gf)))
+
 ;; MOP p. 35
 (fmakunbound 'compute-applicable-methods)
 (defgeneric compute-applicable-methods (gf args)
