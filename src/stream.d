@@ -4665,36 +4665,16 @@ typedef struct strm_u_file_extrafields_struct {
         }
     }
 
-# UP: erzeugt ein File-Handle-Stream
-# make_unbuffered_stream(type,handle_tty,direction,&eltype)
-# > STACK_1: Element-Type
-# > STACK_0: Handle des geöffneten Files
-# > type: stream type
-# > direction: Modus (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
+# UP: Fills in the pseudofunctions for an unbuffered stream.
+# fill_pseudofuns_unbuffered(stream,&eltype);
+# > stream: stream being built up, with correct strmflags
 # > eltype: Element-Type in decoded form
-# > handle_tty: ob das Handle ein tty ist (nur nötig falls direction & bit(0))
-# < ergebnis: File-Handle-Stream, Handle_{input,output}_init noch aufzurufen
-# < STACK: aufgeräumt
-# kann GC auslösen
-  local object make_unbuffered_stream (uintB type, uintB direction, const decoded_eltype* eltype, boolean handle_tty);
-  local object make_unbuffered_stream(type,direction,eltype,handle_tty)
-    var uintB type;
-    var uintB direction;
+  local void fill_pseudofuns_unbuffered (object stream, const decoded_eltype* eltype);
+  local void fill_pseudofuns_unbuffered(stream,eltype)
+    var object stream;
     var const decoded_eltype* eltype;
-    var boolean handle_tty;
-    { # Flags:
-      var uintB flags =
-          ((direction & bit(0)) ? strmflags_rd_B : 0) # evtl. READ-CHAR, READ-BYTE erlaubt
-        | ((direction & bit(2)) ? strmflags_wr_B : 0) # evtl. WRITE-CHAR, WRITE-BYTE erlaubt
-        ;
-      if (eltype->kind == eltype_ch)
-        { flags &= strmflags_ch_B; }
-        else
-        { flags &= strmflags_by_B; flags |= strmflags_ia_B; }
-     {# Stream allozieren:
-      var object stream = allocate_stream(flags,type,strm_handle_len,sizeof(strm_u_file_extrafields_struct));
-      # und füllen:
-      if (direction & bit(0))
+    { var uintB flags = TheStream(stream)->strmflags;
+      if (flags & strmflags_rd_B)
         { if (eltype->kind==eltype_ch)
             { TheStream(stream)->strm_rd_by = P(rd_by_error);
               TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
@@ -4725,7 +4705,7 @@ typedef struct strm_u_file_extrafields_struct {
           TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
         }
       TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-      if (direction & bit(2))
+      if (flags & strmflags_wr_B)
         { if (eltype->kind == eltype_ch)
             { TheStream(stream)->strm_wr_by = P(wr_by_error);
               TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
@@ -4758,6 +4738,38 @@ typedef struct strm_u_file_extrafields_struct {
           TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
           TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
         }
+    }
+
+# UP: erzeugt ein File-Handle-Stream
+# make_unbuffered_stream(type,handle_tty,direction,&eltype)
+# > STACK_1: Element-Type
+# > STACK_0: Handle des geöffneten Files
+# > type: stream type
+# > direction: Modus (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
+# > eltype: Element-Type in decoded form
+# > handle_tty: ob das Handle ein tty ist (nur nötig falls direction & bit(0))
+# < ergebnis: File-Handle-Stream, Handle_{input,output}_init noch aufzurufen
+# < STACK: aufgeräumt
+# kann GC auslösen
+  local object make_unbuffered_stream (uintB type, uintB direction, const decoded_eltype* eltype, boolean handle_tty);
+  local object make_unbuffered_stream(type,direction,eltype,handle_tty)
+    var uintB type;
+    var uintB direction;
+    var const decoded_eltype* eltype;
+    var boolean handle_tty;
+    { # Flags:
+      var uintB flags =
+          ((direction & bit(0)) ? strmflags_rd_B : 0) # evtl. READ-CHAR, READ-BYTE erlaubt
+        | ((direction & bit(2)) ? strmflags_wr_B : 0) # evtl. WRITE-CHAR, WRITE-BYTE erlaubt
+        ;
+      if (eltype->kind == eltype_ch)
+        { flags &= strmflags_ch_B; }
+        else
+        { flags &= strmflags_by_B; flags |= strmflags_ia_B; }
+     {# Stream allozieren:
+      var object stream = allocate_stream(flags,type,strm_handle_len,sizeof(strm_u_file_extrafields_struct));
+      # und füllen:
+      fill_pseudofuns_unbuffered(stream,eltype);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
       {var object handle = popSTACK();
        if (direction & bit(0))
@@ -4771,9 +4783,9 @@ typedef struct strm_u_file_extrafields_struct {
       TheStream(stream)->strm_isatty = (handle_tty ? T : NIL);
       TheStream(stream)->strm_eltype = popSTACK();
       HandleStream_buffered(stream) = FALSE;
-      if (eltype->kind == eltype_ch)
-        { HandleStream_lineno(stream) = 1; }
-        else
+      # element-type dependent initializations:
+      HandleStream_lineno(stream) = 1; # initialize always (cf. set-stream-element-type)
+      if (!(eltype->kind == eltype_ch))
         # File-Stream für Integers
         { HandleStream_bitsize(stream) = eltype->size;
           # Bitbuffer allozieren:
@@ -6093,6 +6105,87 @@ typedef struct strm_i_file_extrafields_struct {
         TheStream(stream)->strmflags &= ~strmflags_unread_B;
     }}}
 
+# UP: Fills in the pseudofunctions for a buffered stream.
+# fill_pseudofuns_buffered(stream,&eltype);
+# > stream: stream being built up, with correct strmflags
+# > eltype: Element-Type in decoded form
+  local void fill_pseudofuns_buffered (object stream, const decoded_eltype* eltype);
+  local void fill_pseudofuns_buffered(stream,eltype)
+    var object stream;
+    var const decoded_eltype* eltype;
+    { var uintB flags = TheStream(stream)->strmflags;
+      var uintB art = flags & strmflags_i_B;
+      switch (eltype->kind)
+        { case eltype_ch:
+            TheStream(stream)->strm_rd_ch = P(rd_ch_ch_file);
+            TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+            TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_ch_file);
+            TheStream(stream)->strm_wr_ch = P(wr_ch_ch_file);
+            TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_ch_file);
+            TheStream(stream)->strm_wr_ss = P(wr_ss_ch_file);
+            break;
+          case eltype_iu:
+            TheStream(stream)->strm_rd_by =
+              (art==strmflags_ia_B
+               ? (eltype->size == 8 ? P(rd_by_iau8_file) : P(rd_by_iau_file))
+               : art==strmflags_ib_B ? P(rd_by_ibu_file) : P(rd_by_icu_file)
+              );
+            TheStream(stream)->strm_rd_by_array =
+              (art==strmflags_ia_B && (eltype->size == 8)
+               ? P(read_byte_array_iau8_file)
+               : P(rd_by_array_dummy)
+              );
+            TheStream(stream)->strm_wr_by =
+              (art==strmflags_ia_B
+               ? (eltype->size == 8 ? P(wr_by_iau8_file) : P(wr_by_iau_file))
+               : art==strmflags_ib_B ? P(wr_by_ibu_file) : P(wr_by_icu_file)
+              );
+            TheStream(stream)->strm_wr_by_array =
+              (art==strmflags_ia_B && (eltype->size == 8)
+               ? P(write_byte_array_iau8_file)
+               : P(wr_by_array_dummy)
+              );
+            break;
+          case eltype_is:
+            TheStream(stream)->strm_rd_by =
+              (art==strmflags_ia_B ? P(rd_by_ias_file) :
+               art==strmflags_ib_B ? P(rd_by_ibs_file) :
+                                     P(rd_by_ics_file)
+              );
+            TheStream(stream)->strm_rd_by_array = P(rd_by_array_dummy);
+            TheStream(stream)->strm_wr_by =
+              (art==strmflags_ia_B ? P(wr_by_ias_file) :
+               art==strmflags_ib_B ? P(wr_by_ibs_file) :
+                                     P(wr_by_ics_file)
+              );
+            TheStream(stream)->strm_wr_by_array = P(wr_by_array_dummy);
+            break;
+          default: NOTREACHED
+        }
+      # Default für READ-BYTE-Pseudofunktion:
+      if ((flags & strmflags_rd_by_B)==0)
+        { TheStream(stream)->strm_rd_by = P(rd_by_error);
+          TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
+        }
+      # Default für WRITE-BYTE-Pseudofunktion:
+      if ((flags & strmflags_wr_by_B)==0)
+        { TheStream(stream)->strm_wr_by = P(wr_by_error);
+          TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
+        }
+      # Default für READ-CHAR-Pseudofunktion:
+      if ((flags & strmflags_rd_ch_B)==0)
+        { TheStream(stream)->strm_rd_ch = P(rd_ch_error);
+          TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
+          TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
+        }
+      # Default für WRITE-CHAR-Pseudofunktion:
+      if ((flags & strmflags_wr_ch_B)==0)
+        { TheStream(stream)->strm_wr_ch = P(wr_ch_error);
+          TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
+          TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
+        }
+    }
+
 # UP: erzeugt ein File-Stream
 # make_file_stream(direction,append_flag)
 # > STACK_3: :ELEMENT-TYPE argument
@@ -6195,77 +6288,8 @@ typedef struct strm_i_file_extrafields_struct {
        {# Stream allozieren:
         var object stream = allocate_stream(flags,strmtype_file,strm_handle_len,xlen);
         # und füllen:
-        # Komponenten aller Streams:
-        switch (eltype.kind)
-          { case eltype_ch:
-              TheStream(stream)->strm_rd_ch = P(rd_ch_ch_file);
-              TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-              TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_ch_file);
-              TheStream(stream)->strm_wr_ch = P(wr_ch_ch_file);
-              TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_ch_file);
-              TheStream(stream)->strm_wr_ss = P(wr_ss_ch_file);
-              break;
-            case eltype_iu:
-              TheStream(stream)->strm_rd_by =
-                (art==strmflags_ia_B
-                 ? (eltype.size == 8 ? P(rd_by_iau8_file) : P(rd_by_iau_file))
-                 : art==strmflags_ib_B ? P(rd_by_ibu_file) : P(rd_by_icu_file)
-                );
-              TheStream(stream)->strm_rd_by_array =
-                (art==strmflags_ia_B && (eltype.size == 8)
-                 ? P(read_byte_array_iau8_file)
-                 : P(rd_by_array_dummy)
-                );
-              TheStream(stream)->strm_wr_by =
-                (art==strmflags_ia_B
-                 ? (eltype.size == 8 ? P(wr_by_iau8_file) : P(wr_by_iau_file))
-                 : art==strmflags_ib_B ? P(wr_by_ibu_file) : P(wr_by_icu_file)
-                );
-              TheStream(stream)->strm_wr_by_array =
-                (art==strmflags_ia_B && (eltype.size == 8)
-                 ? P(write_byte_array_iau8_file)
-                 : P(wr_by_array_dummy)
-                );
-              break;
-            case eltype_is:
-              TheStream(stream)->strm_rd_by =
-                (art==strmflags_ia_B ? P(rd_by_ias_file) :
-                 art==strmflags_ib_B ? P(rd_by_ibs_file) :
-                                       P(rd_by_ics_file)
-                );
-              TheStream(stream)->strm_rd_by_array = P(rd_by_array_dummy);
-              TheStream(stream)->strm_wr_by =
-                (art==strmflags_ia_B ? P(wr_by_ias_file) :
-                 art==strmflags_ib_B ? P(wr_by_ibs_file) :
-                                       P(wr_by_ics_file)
-                );
-              TheStream(stream)->strm_wr_by_array = P(wr_by_array_dummy);
-              break;
-            default: NOTREACHED
-          }
-        # Default für READ-BYTE-Pseudofunktion:
-        if ((flags & strmflags_rd_by_B)==0)
-          { TheStream(stream)->strm_rd_by = P(rd_by_error);
-            TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
-          }
-        # Default für WRITE-BYTE-Pseudofunktion:
-        if ((flags & strmflags_wr_by_B)==0)
-          { TheStream(stream)->strm_wr_by = P(wr_by_error);
-            TheStream(stream)->strm_wr_by_array = P(wr_by_array_error);
-          }
-        # Default für READ-CHAR-Pseudofunktion:
-        if ((flags & strmflags_rd_ch_B)==0)
-          { TheStream(stream)->strm_rd_ch = P(rd_ch_error);
-            TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-            TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_error);
-          }
+        fill_pseudofuns_buffered(stream,&eltype);
         TheStream(stream)->strm_rd_ch_last = NIL; # Lastchar := NIL
-        # Default für WRITE-CHAR-Pseudofunktion:
-        if ((flags & strmflags_wr_ch_B)==0)
-          { TheStream(stream)->strm_wr_ch = P(wr_ch_error);
-            TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_error);
-            TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
-          }
         TheStream(stream)->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
         # Komponenten von File-Streams:
         #if defined(FOREIGN_HANDLE) || !NIL_IS_CONSTANT
@@ -6288,10 +6312,8 @@ typedef struct strm_i_file_extrafields_struct {
             FileStream_index(stream) = 0; # index := 0
             FileStream_modified(stream) = FALSE; # Buffer unmodifiziert
             FileStream_position(stream) = 0; # position := 0
-            if (eltype.kind==eltype_ch)
-              # File-Stream für Characters
-              { HandleStream_lineno(stream) = 1; }
-              else
+            HandleStream_lineno(stream) = 1; # initialize always (cf. set-stream-element-type)
+            if (!(eltype.kind==eltype_ch))
               # File-Stream für Integers
               { HandleStream_bitsize(stream) = eltype.size;
                 # Bitbuffer allozieren:
@@ -13900,6 +13922,123 @@ LISPFUNN(stream_element_type,1)
               }
       }   }
     value1 = eltype; mv_count=1;
+  }}
+
+LISPFUNN(set_stream_element_type,2)
+# (SYSTEM::SET-STREAM-ELEMENT-TYPE stream element-type)
+  { var object stream = STACK_1;
+    if (!streamp(stream)) { fehler_stream(stream); }
+   {var decoded_eltype eltype;
+    test_eltype_arg(&STACK_0,&eltype);
+    pushSTACK(canon_eltype(&eltype));
+    # Stack contents: stream, element-type, canon-element-type.
+    stream = STACK_2;
+    start:
+    switch (TheStream(stream)->strmtype)
+      {
+        case strmtype_synonym:
+          # Synonym-Stream: weiterverfolgen
+          { var object symbol = TheStream(stream)->strm_synonym_symbol;
+            stream = get_synonym_stream(symbol);
+            goto start;
+          }
+        case strmtype_file:
+        #ifdef PIPES
+        case strmtype_pipe_in:
+        case strmtype_pipe_out:
+        #endif
+        #ifdef SOCKET_STREAMS
+        case strmtype_socket:
+        #endif
+          if (!equal(STACK_0,TheStream(stream)->strm_eltype)) # nothing to change?
+            { # Check eltype.
+              if (HandleStream_buffered(stream))
+                { if (!((((TheStream(stream)->strmflags & strmflags_i_B) == 0)
+                         || ((TheStream(stream)->strmflags & strmflags_i_B) == strmflags_ia_B)
+                        )
+                        &&
+                        ((eltype.kind == eltype_ch)
+                         || ((eltype.size % 8) == 0)
+                        )
+                     ) )
+                    { # canon-element-type in STACK_0.
+                      pushSTACK(TheStream(stream)->strm_eltype);
+                      pushSTACK(stream);
+                      pushSTACK(S(Kelement_type));
+                      pushSTACK(S(set_stream_element_type));
+                      fehler(error,
+                             DEUTSCH ? "~: Der ~ von ~ kann nicht von ~ auf ~ geändert werden." :
+                             ENGLISH ? "~: The ~ of ~ cannot be changed from ~ to ~." :
+                             FRANCAIS ? "~ : Le ~ de ~ ne peux pas être changé de ~ en ~." :
+                             ""
+                            );
+                }   }
+                else
+                { check_unbuffered_eltype(&eltype); }
+              # Transform the lastchar back, if possible.
+              if (TheStream(stream)->strmflags & strmflags_open_B) # stream open?
+                if (!(eltype.kind == eltype_ch))
+                  # New element type is an integer type.
+                  if ((TheStream(stream)->strmflags & strmflags_i_B) == 0)
+                    { # Old element type was CHARACTER.
+                      # Transform the lastchar back to bytes.
+                      if (charp(TheStream(stream)->strm_rd_ch_last)
+                          && (TheStream(stream)->strmflags & strmflags_unread_B)
+                         )
+                        { var uintB b = as_cint(char_code(TheStream(stream)->strm_rd_ch_last));
+                          if (HandleStream_buffered(stream))
+                            { if ((FileStream_index(stream) > 0)
+                                  && (FileStream_position(stream) > 0)
+                                  && (TheSbvector(TheStream(stream)->strm_file_buffer)->data[FileStream_index(stream)-1] == b)
+                                 )
+                                { # index und position decrementieren:
+                                  FileStream_index(stream) -= 1;
+                                  FileStream_position(stream) -= 1;
+                                  TheStream(stream)->strm_rd_ch_last = NIL;
+                                  TheStream(stream)->strmflags &= ~strmflags_unread_B;
+                            }   }
+                            else
+                            { if (FileStream_status(stream) == 0)
+                                { FileStream_lastbyte(stream) = b;
+                                  FileStream_status(stream) = 1;
+                                  TheStream(stream)->strm_rd_ch_last = NIL;
+                                  TheStream(stream)->strmflags &= ~strmflags_unread_B;
+                            }   }
+                    }   }
+              # Actually change the stream's element type.
+              { var uintB flags = TheStream(stream)->strmflags;
+                flags = (flags & ~strmflags_open_B & ~strmflags_i_B)
+                        | (flags & strmflags_rd_B ? strmflags_rd_B : 0)
+                        | (flags & strmflags_wr_B ? strmflags_wr_B : 0);
+                if (eltype.kind == eltype_ch)
+                  { # New element type is CHARACTER.
+                    flags &= ~(strmflags_open_B & ~strmflags_ch_B);
+                  }
+                  else
+                  { # New element type is an integer type.
+                    HandleStream_bitsize(stream) = eltype.size;
+                    # Bitbuffer allozieren:
+                    pushSTACK(stream);
+                   {var object bitbuffer = allocate_bit_vector(eltype.size);
+                    stream = popSTACK();
+                    TheStream(stream)->strm_bitbuffer = bitbuffer;
+                    flags &= ~(strmflags_open_B & ~strmflags_by_B);
+                    flags |= strmflags_ia_B;
+                  }}
+                TheStream(stream)->strmflags = flags;
+              }
+              if (HandleStream_buffered(stream))
+                { fill_pseudofuns_buffered(stream,&eltype); }
+                else
+                { fill_pseudofuns_unbuffered(stream,&eltype); }
+              TheStream(stream)->strm_eltype = STACK_0;
+            }
+          break;
+        default:
+          fehler_illegal_streamop(S(set_stream_element_type),stream);
+      }
+    value1 = STACK_1; mv_count=1;
+    skipSTACK(3);
   }}
 
 LISPFUNN(stream_external_format,1)
