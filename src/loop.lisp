@@ -3,7 +3,7 @@
 ;; <http://www.lisp.org/HyperSpec/Body/sec_6-1.html>
 ;; <http://www.lisp.org/HyperSpec/Body/mac_loop.html>
 ;; Bruno Haible 1991-2002
-;; Sam Steingold 1999-2002
+;; Sam Steingold 1999-2004
 
 (in-package "COMMON-LISP")
 (export '(loop loop-finish))

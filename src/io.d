@@ -2,7 +2,7 @@
  * Input/Output for CLISP
  * Bruno Haible 1990-2004
  * Marcus Daniels 11.3.1997
- * Sam Steingold 1998-2003
+ * Sam Steingold 1998-2004
  * German comments translated into English: Stefan Kain 2001-06-12
  */
 

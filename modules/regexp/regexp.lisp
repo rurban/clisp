@@ -1,6 +1,6 @@
 ;; Module for regular expression searching/matching in CLISP
 ;; Bruno Haible 14.4.1995, 18.4.1995 -- 2003
-;; Sam Steingold 1999-10-28 -- 2003
+;; Sam Steingold 1999-10-28 -- 2004
 
 (defpackage "REGEXP"
   (:documentation

@@ -1,5 +1,8 @@
-# Diverse Funktionen für CLISP
-# Bruno Haible 1990-2003
+/*
+ * Miscellaneous CLISP functions
+ * Bruno Haible 1990-2003
+ * Sam Steingold 1999-2004
+ */
 
 #include "lispbibl.c"
 

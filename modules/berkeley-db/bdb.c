@@ -1,6 +1,6 @@
 /*
  * CLISP: GDBM <http://www.gnu.org/software/gdbm/>
- * Copyright (C) 2003 by Sam Steingold
+ * Copyright (C) 2003-2004 by Sam Steingold
  */
 
 /* have to undefing UNICODE _here_ because clisp.h will #include <windows.h> */

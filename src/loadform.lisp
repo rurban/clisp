@@ -1,5 +1,6 @@
 ;;; MAKE-LOAD-FORM for CLISP
-;;; Sam Steingold 2001-07-24
+;;; Sam Steingold 2001-2004
+;;; Bruno Haible 2004
 
 ;; this could have been placed in in clos.lisp,
 ;; but `make-init-form' uses conditions

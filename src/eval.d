@@ -1,7 +1,7 @@
 /*
  * EVAL, APPLY and bytecode interpreter for CLISP
  * Bruno Haible 1990-2003
- * Sam Steingold 1998-2002
+ * Sam Steingold 1998-2004
  * German comments translated into English: Stefan Kain 2001-08-13
  */
 #include "lispbibl.c"
