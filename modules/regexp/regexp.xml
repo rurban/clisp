@@ -123,19 +123,11 @@ such as your local &regex-h; manual and &emacs; info pages.</para>
 
 <varlistentry id="re-cflags"><term>&re-cflags-opts;</term>
  <listitem><simpara>These options control compilation of a pattern.
-   You can specify <replaceable>cflags</replaceable> directly by
-   combining <constant>REGEXP::REG_EXTENDED</constant>,
-   <constant>REGEXP::REG_ICACE</constant>,
-   <constant>REGEXP::REG_NEWLINE</constant>, and
-   <constant>REGEXP::REG_NOSUB</constant>.
    See &regex-h; for their meaning.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="re-eflags"><term>&re-eflags-opts;</term>
  <listitem><simpara>These options constrol execution of a pattern.
-   You can specify <replaceable>eflags</replaceable> directly by
-   combining <constant>REGEXP::REG_NOTBOL</constant>, and
-   <constant>REGEXP::REG_NOTEOL</constant>.
    See &regex-h; for their meaning.
 </simpara></listitem></varlistentry>
 
