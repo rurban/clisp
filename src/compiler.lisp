@@ -282,7 +282,8 @@ and <http://clisp.cons.org/impnotes.html#bytecode>.
 (dotimes (i (length instruction-table))
   (setf (get (first (svref instruction-table i)) 'INSTRUCTION) i))
 (defconstant instruction-codes
-  (let ((hashtable (make-hash-table :test #'eq)))
+  (let ((hashtable (make-hash-table :key-type 'symbol :value-type 'fixnum
+                                    :test #'eq)))
     (dotimes (i (length instruction-table))
       (setf (gethash (first (svref instruction-table i)) hashtable) i))
     hashtable))
@@ -638,7 +639,8 @@ for-value   NIL or T
 |#
 
 (defconstant function-codes
-  (let ((hashtable (make-hash-table :test #'eq)))
+  (let ((hashtable (make-hash-table :key-type 'symbol :value-type 'fixnum
+                                    :test #'eq)))
     (dotimes (i (* 3 256))
       (let ((sym (%funtabref i))) ; Name of the Function FUNTAB[i]
         (when sym (setf (gethash sym hashtable) i))))
@@ -1904,7 +1906,8 @@ for-value   NIL or T
 ;; c-form-table contains the handler function (to be called without arguments)
 ;; for all functions/specialforms/macros, that have to be treated specially.
 (defconstant c-form-table
-  (let ((hashtable (make-hash-table :test #'eq)))
+  (let ((hashtable (make-hash-table :key-type 'symbol :value-type '(or symbol function)
+                                    :test #'eq)))
     (mapc
      #'(lambda (acons) (setf (gethash (car acons) hashtable) (cdr acons)))
      `(;; Special forms:
@@ -8057,7 +8060,8 @@ New Operations:
                  (emit-jmp (second item))
                  (setq *dead-code* t)))))
           (JMPHASH
-           (let ((hashtable (make-hash-table :test (second item)))
+           (let ((hashtable (make-hash-table :key-type 't :value-type 'fixnum
+                                             :test (second item)))
                  (labels (cddddr item)))
              (dolist (acons (third item))
                (setf (gethash (car acons) hashtable)
@@ -8320,7 +8324,8 @@ Simplification-Rules for Operations:
 ;; The Hash-Table one-value-ops contains those instructions,
 ;; that create exactly one value.
 (defconstant one-value-ops
-  (let ((ht (make-hash-table :test #'eq)))
+  (let ((ht (make-hash-table :key-type 'symbol :value-type '(eql t)
+                             :test #'eq)))
     (dolist (op '(NIL T CONST LOAD LOADI LOADC LOADV LOADIC STORE STOREI
                   STOREC STOREV STOREIC GETVALUE SETVALUE POP VENV
                   COPY-CLOSURE BOUNDP VALUES1 MV-TO-LIST TAGBODY-CLOSE-NIL
@@ -8338,7 +8343,8 @@ Simplification-Rules for Operations:
 ;; Operations, that do not change their values, are not
 ;; listed here.
 (defconstant for-value-table
-  (let ((ht (make-hash-table :test #'eq)))
+  (let ((ht (make-hash-table :key-type 'symbol :value-type '(member NIL ONE ALL)
+                             :test #'eq)))
     (dolist (op '(NIL PUSH-NIL T CONST LOAD LOADI LOADC LOADV LOADIC
                   GETVALUE POP JSR JMPTAIL BARRIER VENV COPY-CLOSURE CALL
                   CALL0 CALLS1 CALLS2 CALLSR FUNCALL PUSH-UNBOUND JMPIFBOUNDP
@@ -9039,7 +9045,8 @@ Optimizations that might apply after this one are retried.
   (let ((parts-ht ; A Hashtable, that realizes the mapping:
                   ; code-end --> list of all indices of code-parts,
                   ;              that end with the same code-piece
-         (let ((ht (make-hash-table :test #'equal :size (length indexlist))))
+         (let ((ht (make-hash-table :value-type 'list
+                                    :test #'equal :size (length indexlist))))
            (dolist (index indexlist)
              (let ((code (aref *code-parts* index))) ; a code-piece
                ;; only pieces are coalesced that match in
@@ -10899,7 +10906,8 @@ The function make-closure is required.
                     (open liboutput-file :direction :output) nil))
                (*coutput-stream* nil) ; a Stream or NIL at the moment
                (*ffi-module* nil) ; NIL at the moment
-               (*load-forms* (make-hash-table :test 'eq))
+               (*load-forms* (make-hash-table :key-type 't :value-type 't
+                                              :test 'eq))
                (compilation-successful nil))
           (when *fasoutput-stream* (sys::allow-read-eval *fasoutput-stream* t))
           (when *liboutput-stream* (sys::allow-read-eval *liboutput-stream* t))

@@ -37,6 +37,9 @@
  # a hash table for the non-base characters.
 local object allocate_perchar_table (void) {
    # Allocate the hash table.
+   # (MAKE-HASH-TABLE :KEY-TYPE 'CHARACTER
+   #                  :VALUE-TYPE '(OR FUNCTION SIMPLE-VECTOR)
+   #                  :TEST 'EQ)
    pushSTACK(S(Ktest)); pushSTACK(S(eq)); funcall(L(make_hash_table),2);
    pushSTACK(value1);
    # Allocate the simple-vector.
@@ -64,6 +67,9 @@ local void perchar_table_put (object table, chart c, object value) {
 local object copy_perchar_table (object table) {
   pushSTACK(copy_svector(table));
   # Allocate a new hash table.
+  # (MAKE-HASH-TABLE :KEY-TYPE 'CHARACTER
+  #                  :VALUE-TYPE '(OR FUNCTION SIMPLE-VECTOR)
+  #                  :TEST 'EQ)
   pushSTACK(S(Ktest)); pushSTACK(S(eq)); funcall(L(make_hash_table),2);
   pushSTACK(value1);
   # stack layout: table, newht.
@@ -129,6 +135,9 @@ local object copy_perchar_table (object table) {
  # (graphic_char_p(ch) ? syntax_constituent : syntax_illegal).
 local object allocate_syntax_table (void) {
   # Allocate the hash table.
+  # (MAKE-HASH-TABLE :KEY-TYPE 'CHARACTER
+  #                  :VALUE-TYPE 'FIXNUM
+  #                  :TEST 'EQ)
   pushSTACK(S(Ktest)); pushSTACK(S(eq)); funcall(L(make_hash_table),2);
   pushSTACK(value1);
   # Allocate the simple-bit-vector.
@@ -359,6 +368,9 @@ local object copy_readtable_contents (object from_readtable,
     pushSTACK(to_readtable);
     pushSTACK(from_readtable);
     # Allocate a new hash table.
+    # (MAKE-HASH-TABLE :KEY-TYPE 'CHARACTER
+    #                  :VALUE-TYPE 'FIXNUM
+    #                  :TEST 'EQ)
     pushSTACK(S(Ktest)); pushSTACK(S(eq)); funcall(L(make_hash_table),2);
     pushSTACK(value1);
     # stack layout: to-readtable, from-readtable, newht.
@@ -403,6 +415,9 @@ local object copy_readtable_contents (object from_readtable,
     pushSTACK(mtable2);
     pushSTACK(mtable1);
     # Allocate a new hash table.
+    # (MAKE-HASH-TABLE :KEY-TYPE 'CHARACTER
+    #                  :VALUE-TYPE '(OR FUNCTION SIMPLE-VECTOR)
+    #                  :TEST 'EQ)
     pushSTACK(S(Ktest)); pushSTACK(S(eq)); funcall(L(make_hash_table),2);
     mtable1 = STACK_0;
     STACK_0 = value1;

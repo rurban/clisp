@@ -16,7 +16,8 @@
   (do-all-symbols (s) (remprop s 'CLOSCLASS)))
 
 ;; An empty hash table.
-(defconstant empty-ht (make-hash-table :test #'eq :size 0))
+(defconstant empty-ht (make-hash-table :key-type 'symbol :value-type 't
+                                       :test #'eq :size 0))
 
 ;; Definition of <class> and its subclasses.
 
@@ -594,7 +595,8 @@
       (when (standard-class-p super)
         (add-direct-subclass super class))))
   (setf (class-slots class) (std-compute-slots class))
-  (setf (class-slot-location-table class) (make-hash-table :test #'eq))
+  (setf (class-slot-location-table class)
+        (make-hash-table :key-type 'symbol :value-type 't :test #'eq))
   (setf (class-instance-size class) 1) ; slot 0 is the class_version pointer
   (let ((shared-index (std-layout-slots class (class-slots class))))
     (when (plusp shared-index)
@@ -781,7 +783,8 @@
 
 ;; Stuff all superclasses (from the precedence-list) into a hash-table.
 (defun std-compute-superclasses (precedence-list)
-  (let ((ht (make-hash-table :test #'eq)))
+  (let ((ht (make-hash-table :key-type 'class :value-type '(eql t)
+                             :test #'eq)))
     (mapc #'(lambda (superclass) (setf (gethash superclass ht) t))
           precedence-list)
     ht))
@@ -828,7 +831,8 @@
             (class-precedence-list class))))
     ;; Partition by slot-names:
     (setq all-slots
-          (let ((ht (make-hash-table :test #'eql)))
+          (let ((ht (make-hash-table :key-type 'symbol :value-type 't
+                                     :test #'eql)))
             (dolist (slot+alloc all-slots)
               (let ((slot-name (slot-definition-name (car slot+alloc))))
                 (push slot+alloc (gethash slot-name ht nil))))
@@ -1133,7 +1137,8 @@
                (if (<= (length list) 10)
                  (setf (ext:weak-list-list direct-subclasses) list)
                  (setf (class-direct-subclasses class)
-                       (let ((ht (make-hash-table :test #'eq :weak :key)))
+                       (let ((ht (make-hash-table :key-type 'class :value-type '(eql t)
+                                                  :test #'eq :weak :key)))
                          (dolist (x list) (setf (gethash x ht) t))
                          ht))))))
           (t (setf (gethash subclass direct-subclasses) t)))))
@@ -1165,7 +1170,8 @@
 (defun list-all-subclasses (class)
   ; Use a breadth-first search which removes duplicates.
   (let ((as-list '())
-        (as-set (make-hash-table :test #'eq :rehash-size 2s0))
+        (as-set (make-hash-table :key-type 'class :value-type '(eql t)
+                                 :test #'eq :rehash-size 2s0))
         (pending (list class)))
     (loop
       (unless pending (return))
@@ -1274,7 +1280,9 @@
       (setq slots (class-slots (first direct-superclasses)))
       (setq size (class-instance-size (first direct-superclasses)))))
   (setf (class-slot-location-table class)
-        (make-hash-table :test #'eq
+        (make-hash-table
+          :key-type 'symbol :value-type 't
+          :test #'eq
           :initial-contents
             (mapcar #'(lambda (slot)
                         (cons (slot-definition-name slot) (slot-definition-location slot)))

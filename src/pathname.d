@@ -2139,7 +2139,8 @@ LISPFUN(translate_logical_pathname,seclass_default,1,0,norest,key,1,
   }
   if (logpathnamep(pathname)) {
     /* Conversion of a logical into a normal pathname:
-     (let ((ht (make-hash-table :test #'equal)))
+     (let ((ht (make-hash-table :key-type 'logical-pathname :value-type '(eql t)
+                                :test #'equal)))
        (loop
          (when (gethash pathname ht) (error "Translation loop"))
          (setf (gethash pathname ht) t)
@@ -7177,8 +7178,10 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
     if (dsp->circle_p) { /* query :CIRCLE-Flag */
       /* maintain hash-table of all scanned directories so far (as
        cons (dev . ino)) : */
+      /* (MAKE-HASH-TABLE :KEY-TYPE '(CONS INTEGER INTEGER) :VALUE-TYPE '(EQL T)
+                          :TEST 'EQUAL) */
       pushSTACK(S(Ktest)); pushSTACK(S(equal));
-      funcall(L(make_hash_table),2); /* (MAKE-HASH-TABLE :TEST 'EQUAL) */
+      funcall(L(make_hash_table),2);
       pushSTACK(value1);
     } else
    #endif

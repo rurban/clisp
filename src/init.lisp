@@ -477,7 +477,8 @@
           ((fboundp sym)            (TEXT "function"))))))
 
 (proclaim '(special *documentation*))
-(setq *documentation* (make-hash-table :test 'eq :size 1000)) ; :weak :key
+(setq *documentation* (make-hash-table :key-type 'symbol :value-type 'list
+                                       :test 'eq :size 1000)) ; :weak :key
 (sys::%putd 'sys::%set-documentation
   (function sys::%set-documentation (lambda (symbol doctype value)
     #| ;; cannot use due to bootstrapping
