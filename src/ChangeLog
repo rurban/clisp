@@ -1,5 +1,13 @@
 1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * constobj.d (O(type_string_integer)): Renamed from O(type_gensym_arg).
+        * symbol.d (GENSYM): Update.
+        * lispbibl.d (fehler_string_integer): Renamed from fehler_string_int.
+        * error.d (fehler_string_integer): Renamed from fehler_string_int.
+          Use O(type_string_integer). Fix error message. Update translations.
+
+1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * describe.lsp (describe-slotted-object): Define code in package
           SYSTEM, not package CLOS.
           (describe-object): Likewise. Reindent.
