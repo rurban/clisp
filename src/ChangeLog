@@ -1,3 +1,10 @@
+1999-10-29  Sam Steingold  <sds@ksp.com>
+
+	* modules/regexp/regexp.lsp (with-loop-split): New macro.
+	(regexp-compile, regexp-exec, regexp-split): New functions.
+	(match-once, %match): Use `regexp-compile' and `regexp-exec'.
+	(regexp-compile, regexp-exec, regexp-split, with-loop-split): Export.
+
 1999-10-22  Sam Steingold  <sds@ksp.com>
 
 	* modules/clx/new-clx/demos/clx-demos.lsp (x-host-display):
