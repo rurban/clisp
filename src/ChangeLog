@@ -1,5 +1,10 @@
 2004-10-17  Bruno Haible  <bruno@clisp.org>
 
+	* inspect.lisp (inspect-backend@structure-object): Protect against
+	unbound slots. (Can occur in objects created through make-instance.)
+
+2004-10-17  Bruno Haible  <bruno@clisp.org>
+
 	* clos-class3.lisp (shared-initialize-<structure-class>): Don't use
 	the superclass' slots unmodified, since the initform may be different
 	in the class being defined than in the superclass.

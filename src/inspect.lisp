@@ -337,7 +337,10 @@ Supplies some HTTP/1.0 headers and calls `with-html-output'."
              :num-slots (length slots)
              :nth-slot (lambda (ii)
                          (let ((slot (nth ii slots)))
-                           (values (clos:slot-value obj slot) slot)))
+                           (values (if (clos:slot-boundp obj slot)
+                                       (clos:slot-value obj slot)
+                                       *inspect-unbound-value*)
+                                   slot)))
              :set-slot (lambda (ii val)
                          (setf (clos:slot-value obj (nth ii slots)) val))
              :self obj :title "structure object"
