@@ -1802,8 +1802,15 @@ LISPFUNN(list_llength,1)
         }
       return l;
       index_too_large:
+        pushSTACK(index); # Wert für Slot DATUM von TYPE-ERROR
+        pushSTACK(NIL);
         pushSTACK(seq); pushSTACK(index); pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,
+        { var object tmp;
+          pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(n);
+          tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
+          STACK_3 = tmp; # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        }
+        fehler(type_error,
                DEUTSCH ? "~: Index ~ zu groß für ~" :
                ENGLISH ? "~: index ~ too large for ~" :
                FRANCAIS ? "~ : L'index ~ est trop grand pour ~." :

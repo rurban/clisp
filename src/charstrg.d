@@ -1408,14 +1408,22 @@ LISPFUNN(set_char_bit,3) # (SET-CHAR-BIT char name newvalue), CLTL S. 244
     }   }
 
 # Fehler, wenn Index-Argument nicht <= Grenze.
-  nonreturning_function(local, fehler_cmp_inclusive, (object kw, object obj));
-  local void fehler_cmp_inclusive(kw,obj)
+  nonreturning_function(local, fehler_cmp_inclusive, (object kw, object obj, uintL grenze));
+  local void fehler_cmp_inclusive(kw,obj,grenze)
     var object kw;
     var object obj;
-    { pushSTACK(obj);
+    var uintL grenze;
+    { pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(NIL);
+      pushSTACK(obj);
+      { var object tmp;
+        pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(grenze));
+        tmp = listof(3);
+        STACK_1 = tmp; # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      }
       if (eq(kw,nullobj))
         { pushSTACK(TheSubr(subr_self)->name);
-          fehler(error,
+          fehler(type_error,
                  DEUTSCH ? "~: Index ~ darf die Stringlänge nicht überschreiten." :
                  ENGLISH ? "~: index ~ should not be greater than the length of the string" :
                  FRANCAIS ? "~: L'index ~ ne peut pas être plus grand que la longueur de la chaîne." :
@@ -1424,7 +1432,7 @@ LISPFUNN(set_char_bit,3) # (SET-CHAR-BIT char name newvalue), CLTL S. 244
         }
         else
         { pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
-          fehler(error,
+          fehler(type_error,
                  DEUTSCH ? "~: ~-Index ~ darf die Stringlänge nicht überschreiten." :
                  ENGLISH ? "~: ~-index ~ should not be greater than the length of the string" :
                  FRANCAIS ? "~: L'index ~ = ~ ne peut pas être plus grand que la longueur de la chaîne." :
@@ -1433,14 +1441,22 @@ LISPFUNN(set_char_bit,3) # (SET-CHAR-BIT char name newvalue), CLTL S. 244
     }   }
 
 # Fehler, wenn Index-Argument nicht < Grenze.
-  nonreturning_function(local, fehler_cmp_exclusive, (object kw, object obj));
-  local void fehler_cmp_exclusive(kw,obj)
+  nonreturning_function(local, fehler_cmp_exclusive, (object kw, object obj, uintL grenze));
+  local void fehler_cmp_exclusive(kw,obj,grenze)
     var object kw;
     var object obj;
-    { pushSTACK(obj);
+    var uintL grenze;
+    { pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(NIL);
+      pushSTACK(obj);
+      { var object tmp;
+        pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(grenze));
+        tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
+        STACK_1 = tmp; # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      }
       if (eq(kw,nullobj))
         { pushSTACK(TheSubr(subr_self)->name);
-          fehler(error,
+          fehler(type_error,
                  DEUTSCH ? "~: Index ~ muß kleiner als die Stringlänge sein." :
                  ENGLISH ? "~: index ~ should be less than the length of the string" :
                  FRANCAIS ? "~: L'index ~ doit être plus petit que la longueur de la chaîne." :
@@ -1449,7 +1465,7 @@ LISPFUNN(set_char_bit,3) # (SET-CHAR-BIT char name newvalue), CLTL S. 244
         }
         else
         { pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
-          fehler(error,
+          fehler(type_error,
                  DEUTSCH ? "~: ~-Index ~ muß kleiner als die Stringlänge sein." :
                  ENGLISH ? "~: ~-index ~ should be less than the length of the string" :
                  FRANCAIS ? "~: L'index ~ = ~ doit être plus petit que la longueur de la chaîne." :
@@ -1485,10 +1501,10 @@ LISPFUNN(set_char_bit,3) # (SET-CHAR-BIT char name newvalue), CLTL S. 244
              ) )                                                                \
             { if (0 vergleich 0)                                                \
                 # "<= grenze" - Vergleich nicht erfüllt                         \
-                { fehler_cmp_inclusive(kw,index); }                             \
+                { fehler_cmp_inclusive(kw,index,grenze); }                      \
                 else                                                            \
                 # "< grenze" - Vergleich nicht erfüllt                          \
-                { fehler_cmp_exclusive(kw,index); }                             \
+                { fehler_cmp_exclusive(kw,index,grenze); }                      \
             }                                                                   \
     }   }
 

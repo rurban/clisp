@@ -393,14 +393,24 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
 # Fehlermeldung
 # > argcount : Anzahl der Subscripts, über ihnen der Array
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_subscript_range, (uintC argcount));
-  local void fehler_subscript_range(argcount)
+  nonreturning_function(local, fehler_subscript_range, (uintC argcount, uintL subscript, uintL bound));
+  local void fehler_subscript_range(argcount,subscript,bound)
     var uintC argcount;
+    var uintL subscript;
+    var uintL bound;
     { var object list = listof(argcount); # Subscript-Liste
-      # Nun ist STACK_0 der Array.
       pushSTACK(list);
+      # Stackaufbau: Array, subscript-list.
+      pushSTACK(UL_to_I(subscript)); # Wert für Slot DATUM von TYPE-ERROR
+      { var object tmp;
+        pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(bound));
+        tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
+        pushSTACK(tmp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      }
+      pushSTACK(STACK_(1+2));
+      pushSTACK(STACK_(0+3));
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,
+      fehler(type_error,
              DEUTSCH ? "~: Subscripts ~ für ~ liegen nicht im erlaubten Bereich." :
              ENGLISH ? "~: subscripts ~ for ~ are out of range" :
              FRANCAIS ? "~: Les indices ~ pour ~ ne sont pas dans l'intervalle permis." :
@@ -437,7 +447,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
            {var uintL subscript = posfixnum_to_L(subscriptobj); # als uintL
             var uintL dim = *dimptr++; # entsprechende Dimension
             if (!(subscript<dim)) # Subscript muß kleiner als Dimension sein
-              fehler_subscript_range(argcount);
+              fehler_subscript_range(argcount,subscript,dim);
             # Bilde row_major_index := row_major_index*dim+subscript:
             row_major_index =
               mulu32_unchecked(row_major_index,dim)+subscript;
@@ -475,10 +485,18 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
 # > STACK_1: Array (meist Vektor)
 # > STACK_0: (fehlerhafter) Index
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_index_range, (void));
-  local void fehler_index_range()
-    { pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,
+  nonreturning_function(local, fehler_index_range, (uintL bound));
+  local void fehler_index_range(bound)
+    var uintL bound;
+    { var object tmp;
+      pushSTACK(STACK_0); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(bound));
+      tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
+      pushSTACK(tmp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(STACK_(1+2));
+      pushSTACK(STACK_(0+3));
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
              DEUTSCH ? "~: Index ~ für ~ ist zu groß." :
              ENGLISH ? "~: index ~ for ~ is out of range" :
              FRANCAIS ? "~: L'index ~ pour ~ est trop grand." :
@@ -497,7 +515,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
         fehler_index_type();
      {var uintL index = posfixnum_to_L(STACK_0); # Index als uintL
       if (!(index < Sarray_length(STACK_1))) # Index muß kleiner als Länge sein
-        fehler_index_range();
+        fehler_index_range(Sarray_length(STACK_1));
       return index;
     }}
 
@@ -719,7 +737,7 @@ LISPFUNN(row_major_aref,2)
     if (!posfixnump(STACK_0)) fehler_index_type();
    {var uintL index = posfixnum_to_L(STACK_0);
     if (!(index < array_total_size(array))) # Index muß kleiner als Größe sein
-      fehler_index_range();
+      fehler_index_range(array_total_size(array));
     if (!array_simplep(array))
       { array = notsimple_displace(array,&index); }
     value1 = datenvektor_aref(array,index); mv_count=1;
@@ -737,7 +755,7 @@ LISPFUNN(row_major_store,3)
     if (!posfixnump(STACK_0)) fehler_index_type();
    {var uintL index = posfixnum_to_L(STACK_0);
     if (!(index < array_total_size(array))) # Index muß kleiner als Größe sein
-      fehler_index_range();
+      fehler_index_range(array_total_size(array));
     if (!array_simplep(array))
       { array = notsimple_displace(array,&index); }
     datenvektor_store(array,index,element);
@@ -1699,7 +1717,7 @@ LISPFUNN(set_fill_pointer,2) # (SYS::SET-FILL-POINTER vector index)
       fehler_index_type();
    {var uintL newfillp = posfixnum_to_L(STACK_0); # als uintL
     if (!(newfillp <= fillp[-1])) # muß kleinergleich der Länge sein
-      fehler_index_range();
+      fehler_index_range(fillp[-1]+1);
     *fillp = newfillp; # neuen Fill-Pointer eintragen
     value1 = STACK_0; mv_count=1; # neuen Fillpointer zurück
     skipSTACK(2);
