@@ -603,6 +603,7 @@
 <!ENTITY esd-r "<replaceable>effective-slot-definition</replaceable>">
 <!ENTITY dsd-r "<replaceable>direct-slot-definition</replaceable>">
 <!ENTITY slot-name-r "<replaceable>slot-name</replaceable>">
+<!ENTITY slot-spec-r "<replaceable>slot-spec</replaceable>">
 <!ENTITY sock-r "<replaceable>socket</replaceable>">
 <!ENTITY sose-r "<replaceable>socket-server</replaceable>">
 <!ENTITY sost-r "<replaceable>socket-stream</replaceable>">
