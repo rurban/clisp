@@ -277,11 +277,6 @@
           ) )
         )
         ((and (consp args) (listp (first args)) (consp (cdr args)) (listp (second args)))
-         (when (null (second args))
-           (error-of-type 'source-program-error
-             :form whole-form
-             :detail args
-             (TEXT "~S ~S: Missing store variable.") 'defsetf accessfn))
          (multiple-value-bind (body-rest declarations docstring)
              (system::parse-body (cddr args) t)
            (let* ((storevars (second args))
