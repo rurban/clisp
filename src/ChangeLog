@@ -1,5 +1,9 @@
 2004-10-17  Bruno Haible  <bruno@clisp.org>
 
+	* init.lisp (custom:*suppress-check-redefinition*): Initialize to nil.
+
+2004-10-17  Bruno Haible  <bruno@clisp.org>
+
 	Notion of preliminary function and macro definitions.
 	* record.d ((setf sys::closure-name)): New function.
 	* init.lisp: Export ext:preliminary.
