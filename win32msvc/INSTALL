@@ -3,13 +3,11 @@ Installation on Win32 (WinNT, Win95) using the MSVC4.0 or MSVC5.0 or MSVC6.0
 development environment, using native system calls
 ==================================================
 
-0. Build a few recommended libraries: libiconv and libsigsegv.
+1. Build a few recommended libraries: libiconv and libsigsegv.
    - GNU libsigsegv (highly recommended for C stack overflow detection),
    - GNU libiconv (for more character set conversions).
 
-1. On a Unix NFS server, unpack the source.
-
-2. On a Win32 NFS client, start a console with a shell (ksh for example).
+1. Unpack the source, start a console with a shell.
    Make sure that the MSVC4.0 or MSVC5.0 or MSVC6.0 utilities ("cl" etc.)
    are found in PATH. For example, I use the following settings:
 
@@ -44,15 +42,12 @@ development environment, using native system calls
 
         copy win32msvc\makefile.msvc5 src\makefile
 
-   If you are using MSVC6.0, edit Microsoft's <winnt.h> include file and
-   replace `unused' with `__unused' in macro `DECLARE_HANDLE'.
-
    Modify the value of MSVCDIR in src\makefile to match your site. Then
 
         cd src
         nmake
 
-3. On the Unix NFS server:
+3. (optional) Using cygwin:
 
         cd src
         make distrib
