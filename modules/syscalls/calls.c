@@ -184,6 +184,7 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
 
 /* process priority */
 DEFCHECKER(check_priority_value,suffix=PRIORITY_CLASS,default=0,        \
+           reverse=sint_to_I,                                           \
            REALTIME HIGH ABOVE-NORMAL NORMAL BELOW-NORMAL LOW IDLE)
 DEFCHECKER(check_priority_which,prefix=PRIO,default=0, PROCESS PGRP USER)
 DEFUN(OS:PRIORITY, pid &optional which) {
@@ -196,7 +197,6 @@ DEFUN(OS:PRIORITY, pid &optional which) {
   res = getpriority(which,pid);
   end_system_call();
   if (errno) OS_error();
-  VALUES1(sint32_to_I(res));
 #elif defined(WIN32_NATIVE)
   DWORD res;
   HANDLE handle;
@@ -206,10 +206,10 @@ DEFUN(OS:PRIORITY, pid &optional which) {
   res = GetPriorityClass(handle);
   CloseHandle(handle);
   end_system_call();
-  VALUES1(uint32_to_I(res));
 #else
   NOTREACHED;
 #endif
+  VALUES1(check_priority_value_reverse(res));
 }
 DEFUN(OS:SET-PRIORITY, pid which value) {
   int value = check_priority_value(STACK_0);
