@@ -811,15 +811,16 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL) {
   var object direction = popSTACK();
   var object symbol = test_symbol(popSTACK());
   VALUES1(var_stream(symbol,(uintB)(
-                    eq(direction,S(Kinput)) ? strmflags_rd_ch_B : /* :INPUT */
-                    eq(direction,S(Koutput)) ? strmflags_wr_ch_B : /* :OUTPUT */
-                    eq(direction,S(Kio)) ?
-                    strmflags_rd_ch_B | strmflags_wr_ch_B : # :IO
-                    0))); /* :PROBE or not given */
+       eq(direction,S(Kinput)) ? strmflags_rd_ch_B : /* :INPUT */
+       eq(direction,S(Koutput)) ? strmflags_wr_ch_B : /* :OUTPUT */
+       eq(direction,S(Kio)) ?
+       strmflags_rd_ch_B | strmflags_wr_ch_B : # :IO
+       0))); /* :PROBE or not given */
 }
 
 # signal an error if for some obscure reason a WRITE should not work:
-nonreturning_function(local, fehler_unwritable, (object caller, object stream)) {
+nonreturning_function(local, fehler_unwritable, (object caller, object stream))
+{
   pushSTACK(stream); # FILE-ERROR slot PATHNAME
   pushSTACK(stream);
   pushSTACK(caller);
@@ -835,6 +836,7 @@ nonreturning_function(local, fehler_wr_char, (object stream, object obj)) {
   pushSTACK(obj);
   fehler(type_error,GETTEXT("~ is not a character, cannot be output onto ~"));
 }
+#define check_wr_char(s,c)  if(!charp(c)) fehler_wr_char(s,c)
 
 # signal an error if an Object is not an Integer:
 # fehler_wr_integer(stream,obj);
@@ -2144,8 +2146,7 @@ LISPFUNN(string_input_stream_index,1) {
 # WRITE-CHAR - Pseudo-Function for String-Output-Streams:
 local void wr_ch_str_out (const object* stream_, object ch) {
   var object stream = *stream_;
-  if (!charp(ch)) # obj must be a character
-    fehler_wr_char(stream,ch);
+  check_wr_char(stream,ch);
   # push Character in the String:
   ssstring_push_extend(TheStream(stream)->strm_str_out_string,char_code(ch));
 }
@@ -2243,8 +2244,7 @@ LISPFUNN(get_output_stream_string,1) {
 # WRITE-CHAR - Pseudo-Function for String-Push-Streams:
 local void wr_ch_str_push (const object* stream_, object ch) {
   var object stream = *stream_;
-  if (!charp(ch)) # ch must be a character
-    fehler_wr_char(stream,ch);
+  check_wr_char(stream,ch);
   # push Character in the String:
   pushSTACK(ch); pushSTACK(TheStream(stream)->strm_str_push_string);
   funcall(L(vector_push_extend),2); # (VECTOR-PUSH-EXTEND ch string)
@@ -2305,8 +2305,7 @@ LISPFUNN(string_stream_p,1) {
 # WRITE-CHAR - Pseudo-Function for Pretty-Printer-Auxiliary-Streams:
 local void wr_ch_pphelp (const object* stream_, object ch) {
   var object stream = *stream_;
-  if (!charp(ch)) # ch must be a character
-    fehler_wr_char(stream,ch);
+  check_wr_char(stream,ch);
   var chart c = char_code(ch); # Character
   # At NL: Now  Mode := Multi-liner
   if (chareq(c,ascii(NL))) {
@@ -2602,8 +2601,7 @@ local void clear_output_buff_out (object stream) {
 # WRITE-CHAR - Pseudo-Function for Buffered-Output-Streams:
 local void wr_ch_buff_out (const object* stream_, object ch) {
   var object stream = *stream_;
-  if (!charp(ch)) # obj must be a character
-    fehler_wr_char(stream,ch);
+  check_wr_char(stream,ch);
   # push Character in the String:
   ssstring_push_extend(TheStream(stream)->strm_buff_out_string,char_code(ch));
   # After #\Newline pass on Buffer:
@@ -5400,8 +5398,7 @@ local void wr_by_array_iau8_unbuffered (const object* stream_,
 # WRITE-CHAR - Pseudo-Function for Unbuffered-Channel-Streams:
 local void wr_ch_unbuffered_unix (const object* stream_, object ch) {
   var object stream = *stream_;
-  if (!charp(ch)) # ch must be a character
-    fehler_wr_char(stream,ch);
+  check_wr_char(stream,ch);
   var chart c = char_code(ch); # Code of the character
   #ifdef UNICODE
   var uintB buf[max_bytes_per_chart];
@@ -5444,8 +5441,7 @@ local void wr_ch_array_unbuffered_unix (const object* stream_,
 # WRITE-CHAR - Pseudo-Function for Unbuffered-Channel-Streams:
 local void wr_ch_unbuffered_mac (const object* stream_, object ch) {
   var object stream = *stream_;
-  if (!charp(ch)) # ch must be a character
-    fehler_wr_char(stream,ch);
+  check_wr_char(stream,ch);
   var chart c = char_code(ch); # Code of the character
   if (chareq(c,ascii(NL)))
     c = ascii(CR);
@@ -5509,8 +5505,7 @@ local void wr_ch_array_unbuffered_mac (const object* stream_,
 # WRITE-CHAR - Pseudo-Function for Unbuffered-Channel-Streams:
 local void wr_ch_unbuffered_dos (const object* stream_, object ch) {
   var object stream = *stream_;
-  if (!charp(ch)) # ch must be a character
-    fehler_wr_char(stream,ch);
+  check_wr_char(stream,ch);
   var chart c = char_code(ch); # Code of the character
   static chart const crlf[2] = { ascii(CR), ascii(LF) };
   #ifdef UNICODE
@@ -6577,8 +6572,7 @@ local void write_byte_buffered (object stream, uintB b) {
 # WRITE-CHAR - Pseudo-Function for File-Streams of Characters
 local void wr_ch_buffered_unix (const object* stream_, object obj) {
   var object stream = *stream_;
-  if (!charp(obj)) # obj must be a character
-    fehler_wr_char(stream,obj);
+  check_wr_char(stream,obj);
   var chart c = char_code(obj);
  #ifdef UNICODE
   var uintB buf[max_bytes_per_chart];
@@ -6628,8 +6622,7 @@ local void wr_ch_array_buffered_unix (const object* stream_,
 # WRITE-CHAR - Pseudo-Function for File-Streams of Characters
 local void wr_ch_buffered_mac (const object* stream_, object obj) {
   var object stream = *stream_;
-  if (!charp(obj)) # obj must be a character
-    fehler_wr_char(stream,obj);
+  check_wr_char(stream,obj);
   var chart c = char_code(obj);
   if (chareq(c,ascii(NL)))
     c = ascii(CR);
@@ -6704,8 +6697,7 @@ local void wr_ch_array_buffered_mac (const object* stream_,
 # WRITE-CHAR - Pseudo-Function for File-Streams of Characters
 local void wr_ch_buffered_dos (const object* stream_, object obj) {
   var object stream = *stream_;
-  if (!charp(obj)) # obj must be a character
-    fehler_wr_char(stream,obj);
+  check_wr_char(stream,obj);
   var chart c = char_code(obj);
 #ifdef UNICODE
   static chart const crlf[2] = { ascii(CR), ascii(LF) };
@@ -9274,8 +9266,7 @@ local bool clear_input_terminal (object stream) {
 # > ch: character to be written
 local void wr_ch_terminal (const object* stream_, object ch) {
   var object stream = *stream_;
-  if (!charp(ch)) # ch must be a character
-    fehler_wr_char(stream,ch);
+  check_wr_char(stream,ch);
   begin_call();
   nxterminal_write_char(char_code(ch));
   end_call();
@@ -9853,8 +9844,7 @@ local bool clear_input_terminal3 (object stream) {
 # > stream: Terminal-Stream
 # > ch: character to be written
 local void wr_ch_terminal3 (const object* stream_, object ch) {
-  if (!charp(ch)) # ch must be a character
-    fehler_wr_char(*stream_,ch);
+  check_wr_char(*stream_,ch);
  #if TERMINAL_OUTBUFFERED
   {
     var chart c = char_code(ch); # Code of the character
@@ -10576,8 +10566,7 @@ local int COLS;  # number of columns, number of characters per line
 # > stream: Window-Stream
 # > ch: character to be written
 local void wr_ch_window (const object* stream_, object ch) {
-  if (!charp(ch)) # ch must be a character
-    fehler_wr_char(*stream_,ch);
+  check_wr_char(*stream_,ch);
   var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
   # write Code c via the Video-Library to the screen:
   if (c==NL) {
@@ -10976,8 +10965,7 @@ local void wr_ch_window (const object* stream_, object ch) {
   var COORD  pos    = ConsoleData(*stream_)->cursor_position;
   var COORD  sz     = ConsoleData(*stream_)->console_size;
   var uintW  attr   = attr_table[ConsoleData(*stream_)->attribute];
-  if (!charp(ch)) # ch must be a character
-    fehler_wr_char(*stream_,ch);
+  check_wr_char(*stream_,ch);
   var chart c = char_code(ch);
  #ifdef UNICODE
   var uintB buf[max_bytes_per_chart];
@@ -12798,8 +12786,7 @@ local void init_curr (void) {
 # > stream: Window-Stream
 # > ch: character to be written
 local void wr_ch_window (const object* stream_, object ch) {
-  if (!charp(ch)) # ch must be a character
-    fehler_wr_char(*stream_,ch);
+  check_wr_char(*stream_,ch);
   var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
   begin_system_call();
   if (graphic_char_p(as_chart(c))) {
@@ -13026,8 +13013,7 @@ LISPFUNN(window_cursor_off,1) {
 # > stream: Window-Stream
 # > ch: character to be written
 local void wr_ch_window (const object* stream_, object ch) {
-  if (!charp(ch)) # ch must be a character
-    fehler_wr_char(*stream_,ch);
+  check_wr_char(*stream_,ch);
   var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
   begin_system_call();
   if (graphic_char_p(as_chart(c))) { # let only printable characters pass to the screen
@@ -13198,8 +13184,7 @@ local void wr_window (const uintB* outbuffer, uintL count) {
 # > stream: Window-Stream
 # > ch: character to be written
 local void wr_ch_window (const object* stream_, object ch) {
-  if (!charp(ch)) # ch must be a character
-    fehler_wr_char(*stream_,ch);
+  check_wr_char(*stream_,ch);
   var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
   ??
 }
@@ -13334,8 +13319,7 @@ LISPFUNN(window_cursor_off,1) {
 # WRITE-CHAR - Pseudo-Function for Printer-Streams:
 local void wr_ch_printer (const object* stream_, object ch) {
   var object stream = *stream_;
-  if (!charp(ch)) # ch must be a character
-    fehler_wr_char(stream,ch);
+  check_wr_char(stream,ch);
   begin_system_call();
   var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
   var long result = # try to write character
@@ -17330,9 +17314,8 @@ LISPFUNN(file_string_length,2) {
       VALUES1(vector_length(obj) == 0 ? Fixnum_0 : NIL);
     } else if (charp(obj)) {
       VALUES1(NIL);
-    } else {
+    } else
       fehler_wr_char(stream,obj);
-    }
     return;
   }
  #endif
@@ -17349,9 +17332,8 @@ LISPFUNN(file_string_length,2) {
       unpack_sstring_alloca(string,len,offset, charptr=);
     } else if (charp(obj)) {
       auxch = char_code(obj); charptr = &auxch; len = 1;
-    } else {
+    } else
       fehler_wr_char(stream,obj);
-    }
     if (eq(TheEncoding(encoding)->enc_eol,S(Kunix))) {
       # Treat all the characters all at once.
       var uintL result = cslen(encoding,charptr,len);
@@ -17405,9 +17387,8 @@ LISPFUNN(file_string_length,2) {
       VALUES1(UL_to_I(result*bytes_per_char)); return;
     } else if (charp(obj)) {
       VALUES1(fixnum(bytes_per_char)); return;
-    } else {
+    } else
       fehler_wr_char(stream,obj);
-    }
   }
   if (eq(TheEncoding(encoding)->enc_eol,S(Kdos))) {
     # Take into account the NL -> CR/LF translation.
@@ -17432,9 +17413,8 @@ LISPFUNN(file_string_length,2) {
       if (chareq(char_code(obj),ascii(NL)))
         result++;
       VALUES1(fixnum(result*bytes_per_char)); return;
-    } else {
+    } else
       fehler_wr_char(stream,obj);
-    }
   }
   NOTREACHED;
   #undef bytes_per_char
