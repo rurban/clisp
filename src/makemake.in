@@ -3327,7 +3327,7 @@ fi
 echol
 echol "# Distribution file"
 PROC=`((uname -p) 2>/dev/null || mach 2>/dev/null) | $tolower`;
-echol "DISTFILE=\$(PACKDIR)/\$(TOPDIR)-${HSYS:-unknown}-${PROC:-unknown}-${HSYSOS:-unknown}-`uname -r`\$(PACKEXT)"
+echol "DISTFILE=\$(PACKDIR)/\$(TOPDIR)-${HSYS:-unknown}-${PROC:-unknown}-${HSYSOS:-unknown}-`uname -r|sed 's/(.*)//g'`\$(PACKEXT)"
 echol
 needs='all'
 if test "$HLN" != ln; then

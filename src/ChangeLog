@@ -1,5 +1,9 @@
 2002-08-01  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (DISTFILE): strip parens from OS version for cygwin
+
+2002-08-01  Sam Steingold  <sds@gnu.org>
+
 	* defs1.lisp (load-lpt-many): simplified messages
 	* init.lisp (load): likewise
 
