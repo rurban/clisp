@@ -1,3 +1,7 @@
+2000-05-25  Bruno Haible  <haible@clisp.cons.org>
+
+        * Makefile.msvc: Use 'copy' and 'ren' instead of 'cp' and 'mv'.
+
 2000-04-02  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Allow building on filesystems lacking symlinks and hard links.

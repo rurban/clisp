@@ -20,8 +20,9 @@ CPP = cl -E
 INCLUDES = -I. -I$(srcdir)
 AR = lib
 AR_FLAGS = /out:
-MV = mv
-LN = cp
+MV = ren
+CP = copy
+LN = copy
 RM = del
 
 # Programs used by "make install":
@@ -38,7 +39,7 @@ OBJECTS = handler.obj dispatcher.obj
 all : sigsegv.lib
 
 sigsegv.h :
-	cp $(srcdir)/sigsegv.h.in sigsegv.h
+	$(CP) $(srcdir)\sigsegv.h.in sigsegv.h
 
 handler.obj : $(srcdir)/handler.c sigsegv.h
 	$(CC) $(CFLAGS) -c $(srcdir)/handler.c
