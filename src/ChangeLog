@@ -1,5 +1,24 @@
 1999-01-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Optimize read-byte and write-byte for integer streams of type ia.
+        * stream.d (read_byte_array_b_file): Don't update the position.
+          (write_byte_array_b_file): Likewise.
+          (wr_ch_array_ch_file): Increment the position here.
+          (rd_by_iu_I, rd_by_is_I): Assume the bitbuffer contents is in little
+          endian order.
+          (rd_by_iax_file): Fill bitbuffer in little endian order. Use
+          read_byte_array_b_file for speed.
+          (rd_by_icx_file): Fill bitbuffer in little endian order.
+          (wr_by_ia): Fill bitbuffer in little endian order. Use
+          write_byte_array_b_file for speed.
+          (wr_by_ic): Fill bitbuffer in little endian order.
+          (wr_by_ixu_file, wr_by_ixs_file): Assume the bitbuffer contents is
+          in little endian order.
+          (read_byte_array_iau8_file, write_byte_array_iau8_file): Increment
+          the position here.
+
+1999-01-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * pathname.d (OPEN): Add keyword argument :BUFFERED.
           (SYS::OLD-OPEN): Temporary hack, in order to preserve binary
           compatibility.
