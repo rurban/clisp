@@ -1269,6 +1269,7 @@
         # zu SPVW:
         define_variable(S(init_hooks),NIL);             # SYS::*INIT-HOOKS* := NIL
         define_variable(S(quiet),NIL);                  # SYS::*QUIET* := NIL
+        define_variable(S(args),NIL);                   # EXT:*ARGS* := NIL
         # zu FOREIGN:
         #ifdef DYNAMIC_FFI
         define_constant(S(fv_flag_readonly),fixnum(fv_readonly));  # FFI::FV-FLAG-READONLY
@@ -2804,15 +2805,15 @@ local void print_banner ()
           funcall(L(set_dispatch_macro_character),3);
           #endif
           Symbol_value(S(load_verbose)) = NIL;
-          { if (argv_execute_arg_count > 0)
-              { var char** argsptr = argv_execute_args;
-                var uintL count;
-                dotimespL(count,argv_execute_arg_count,
-                  { pushSTACK(asciz_to_string(*argsptr++,O(misc_encoding))); });
-              }
-            define_variable(S(args),listof(argv_execute_arg_count));
+          if (argv_execute_arg_count > 0) {
+            var char** argsptr = argv_execute_args;
+            var uintL count;
+            dotimespL(count,argv_execute_arg_count,
+              { pushSTACK(asciz_to_string(*argsptr++,O(misc_encoding))); });
           }
-          { var object form;
+          Symbol_value(S(args)) = listof(argv_execute_arg_count);
+          if (!asciz_equal(argv_execute_file,"")) {
+            var object form;
             pushSTACK(S(load));
             if (asciz_equal(argv_execute_file,"-")) {
               pushSTACK(S(standard_input)); # *STANDARD-INPUT*
@@ -2832,8 +2833,8 @@ local void print_banner ()
             pushSTACK(S(batchmode_errors)); pushSTACK(form);
             form = listof(2); # `(SYS::BATCHMODE-ERRORS (LOAD "..."))
             eval_noenv(form); # ausführen
+            quit();
           }
-          quit();
         }
       if (!(argv_expr == NULL))
         {
