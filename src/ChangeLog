@@ -38,6 +38,11 @@
 	by the MOP. Call add-direct-method for each specializer.
 	(std-remove-method): Call remove-direct-method for each specializer.
 
+2004-09-06  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* foreign.d (find_name) [WIN32_NATIVE]: ensure end_system_call()
+	takes place in all execution paths.
+
 2004-08-31  Bruno Haible  <bruno@clisp.org>
 
 	* spvw.d (parse_options): Don't do destructive side effects on argv[].

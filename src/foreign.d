@@ -3677,16 +3677,18 @@ local inline void* find_name (void *handle, char *name)
       /* first call: try to load EnumProcessModules */
       HMODULE psapi = LoadLibrary("psapi.dll");
       if (psapi == NULL) fEnumProcessModules = NULL;
-      else fEnumProcessModules = GetProcAddress(psapi,"EnumProcessModules");
+      else fEnumProcessModules =
+        (EnumProcessModules_t)GetProcAddress(psapi,"EnumProcessModules");
     }
-    if (NULL == fEnumProcessModules) return NULL;
-    cur_proc = GetCurrentProcess();
-    if (!fEnumProcessModules(cur_proc,NULL,0,&needed)) OS_error();
-    modules = (HMODULE*)alloca(needed);
-    if (!fEnumProcessModules(cur_proc,modules,needed,&needed)) OS_error();
-    for (i=0; i < needed/sizeof(HMODULE); i++)
-      if ((ret = (void*)GetProcAddress(modules[i],name)))
-        break;
+    if (NULL != fEnumProcessModules) {
+      cur_proc = GetCurrentProcess();
+      if (!fEnumProcessModules(cur_proc,NULL,0,&needed)) OS_error();
+      modules = (HMODULE*)alloca(needed);
+      if (!fEnumProcessModules(cur_proc,modules,needed,&needed)) OS_error();
+      for (i=0; i < needed/sizeof(HMODULE); i++)
+        if ((ret = (void*)GetProcAddress(modules[i],name)))
+          break;
+    } else ret = NULL;
   } else ret = (void*)GetProcAddress((HMODULE)handle,name);
  #else
   ret = dlsym(handle,name);
