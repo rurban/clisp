@@ -151,6 +151,15 @@
                   );                                                        \
            highlow32(_hi,_lo);                                              \
          })
+    #elif defined(SPARC64) && !defined(NO_ASM)
+      #define mulu16(arg1,arg2)  \
+        ({ var register uint64 _result;                         \
+           __asm__("umul %1,%2,%0"                              \
+                   : "=&r" (_result)                            \
+                   : "r" ((uint16)(arg1)), "r" ((uint16)(arg2)) \
+                  );                                            \
+           (uint32)_result;                                     \
+         })
     #endif
   #else
     #if defined(SPARC)
@@ -263,12 +272,6 @@
              lo_zuweisung _lo;    \
            })
       #endif
-    #elif defined(SPARC)
-      #define mulu32(x,y,hi_zuweisung,lo_zuweisung)  \
-        ({ lo_zuweisung mulu32_(x,y); # extern in Assembler \
-          {var register uint32 _hi __asm__("%g1");          \
-           hi_zuweisung _hi;                                \
-         }})
     #elif defined(ARM) && 0 # see comment ariarm.d
       #define mulu32(x,y,hi_zuweisung,lo_zuweisung)  \
         ({ lo_zuweisung mulu32_(x,y); # extern in Assembler \
@@ -285,6 +288,16 @@
                   );                                                  \
            hi_zuweisung _hi; lo_zuweisung _lo;                        \
          })
+    #elif defined(SPARC64) && !defined(NO_ASM)
+      #define mulu32(x,y,hi_zuweisung,lo_zuweisung)  \
+        ({ var register uint64 _hi;                            \
+           var register uint64 _lo;                            \
+           __asm__("umul %2,%3,%0\n\trd %y,%1"                 \
+                   : "=&r" (_lo), "=r" (_hi)                   \
+                   : "r" ((uint32)(x)), "r" ((uint32)(y))      \
+                  );                                           \
+           hi_zuweisung (uint32)_hi; lo_zuweisung (uint32)_lo; \
+         })
     #elif defined(MIPS) && !defined(NO_ASM)
       #define mulu32(x,y,hi_zuweisung,lo_zuweisung)  \
         ({ var register uint32 _hi;                       \
@@ -295,6 +308,12 @@
                   );                                      \
            hi_zuweisung _hi; lo_zuweisung _lo;            \
          })
+    #elif defined(SPARC)
+      #define mulu32(x,y,hi_zuweisung,lo_zuweisung)  \
+        ({ lo_zuweisung mulu32_(x,y); # extern in Assembler \
+          {var register uint32 _hi __asm__("%g1");          \
+           hi_zuweisung _hi;                                \
+         }})
     #elif defined(HAVE_LONGLONG) && !defined(ARM)
       #define mulu32(x,y,hi_zuweisung,lo_zuweisung)  \
         ({ var register uint64 _prod = (uint64)(x) * (uint64)(y); \
@@ -379,6 +398,15 @@
                  + mulu16(low16(x),(uint16)(y));
       }
     #endif
+  #elif defined(GNU) && defined(SPARC64) && !defined(NO_ASM)
+    #define mulu32_unchecked(arg1,arg2)  \
+      ({ var register uint64 _result;                         \
+         __asm__("umul %1,%2,%0"                              \
+                 : "=&r" (_result)                            \
+                 : "r" ((uint32)(arg1)), "r" ((uint32)(arg2)) \
+                );                                            \
+         (uint32)_result;                                     \
+       })
   #elif defined(SPARC)
     extern_C uint32 mulu32_unchecked (uint32 x, uint32 y); # extern in Assembler
   #else
@@ -421,7 +449,23 @@
 #   MOVE.L D0,D1
 #   SWAP D1
   #ifdef GNU
-    #if defined(SPARC)
+    #if defined(SPARC64) && !defined(NO_ASM)
+      #define divu_3216_1616(x,y,q_zuweisung,r_zuweisung)  \
+        ({var uint32 __x = (x);        \
+          var uint16 __y = (y);        \
+          var uint64 __q;              \
+          var uint64 __r;              \
+          __asm__ __volatile__ (       \
+            "wr %%g0,%%g0,%%y\n\t"     \
+            "udiv %2,%3,%0\n\t"        \
+            "umul %0,%3,%1"            \
+            "sub %2,%1,%1"             \
+            : "=&r" (__q), "=&r" (__r) \
+            : "r" (__x), "r" (__y));   \
+          q_zuweisung (uint16)__q;     \
+          r_zuweisung (uint16)__r;     \
+         })
+    #elif defined(SPARC)
       #define divu_3216_1616(x,y,q_zuweisung,r_zuweisung)  \
         ({ var uint32 __qr = divu_3216_1616_(x,y); # extern in Assembler \
            q_zuweisung low16(__qr);  \
@@ -534,7 +578,23 @@
 #   MOVE.W D0,D1   ; r = Rest der zweiten Division
 #   MOVE.W D3,D0
 #   SWAP D0        ; beide Quotienten kombinieren, liefert q
-  #if defined(SPARC) || defined(I80386)
+  #if defined(GNU) && defined(SPARC64) && !defined(NO_ASM)
+    #define divu_3216_3216(x,y,q_zuweisung,r_zuweisung)  \
+      ({var uint32 __x = (x);        \
+        var uint16 __y = (y);        \
+        var uint64 __q;              \
+        var uint64 __r;              \
+        __asm__ __volatile__ (       \
+          "wr %%g0,%%g0,%%y\n\t"     \
+          "udiv %2,%3,%0\n\t"        \
+          "umul %0,%3,%1"            \
+          "sub %2,%1,%1"             \
+          : "=&r" (__q), "=&r" (__r) \
+          : "r" (__x), "r" (__y));   \
+        q_zuweisung (uint32)__q;     \
+        r_zuweisung (uint16)__r;     \
+       })
+  #elif defined(SPARC) || defined(I80386)
     #define divu_3216_3216  divu_3232_3232
   #elif 1
     # Methode: (beta = 2^16)
@@ -600,7 +660,23 @@
 # < x = q*y+r
   extern_C uint32 divu_3232_3232_ (uint32 x, uint32 y); # -> Quotient q
   extern uint32 divu_32_rest;                           # -> Rest r
-  #if defined(SPARC) || defined(I80386) || defined(HPPA_DIV_WORKS)
+  #if defined(GNU) && defined(SPARC64) && !defined(NO_ASM)
+    #define divu_3232_3232(x,y,q_zuweisung,r_zuweisung)  \
+      ({var uint32 __x = (x);        \
+        var uint32 __y = (y);        \
+        var uint64 __q;              \
+        var uint64 __r;              \
+        __asm__ __volatile__ (       \
+          "wr %%g0,%%g0,%%y\n\t"     \
+          "udiv %2,%3,%0\n\t"        \
+          "umul %0,%3,%1"            \
+          "sub %2,%1,%1"             \
+          : "=&r" (__q), "=&r" (__r) \
+          : "r" (__x), "r" (__y));   \
+        q_zuweisung (uint32)__q;     \
+        r_zuweisung (uint32)__r;     \
+       })
+  #elif defined(SPARC) || defined(I80386) || defined(HPPA_DIV_WORKS)
     #define divu_3232_3232(x,y,q_zuweisung,r_zuweisung)  \
       divu_6432_3232(0,x,y,_EMA_ q_zuweisung,_EMA_ r_zuweisung)
     #define divu_3232_3232_(x,y) divu_6432_3232_(0,x,y)
@@ -722,6 +798,23 @@
          })
       #define divu_6432_3232_(xhi,xlo,y) \
         ({var uint32 ___q; divu_6432_3232(xhi,xlo,y,___q=,); ___q; })
+    #elif defined(SPARC64) && !defined(NO_ASM)
+      #define divu_6432_3232(xhi,xlo,y,q_zuweisung,r_zuweisung)  \
+        ({var uint32 __xhi = (xhi);    \
+          var uint32 __xlo = (xlo);    \
+          var uint32 __y = (y);        \
+          var uint64 __q;              \
+          var uint64 __r;              \
+          __asm__ __volatile__ (       \
+            "wr %2,%%g0,%%y\n\t"       \
+            "udiv %3,%4,%0\n\t"        \
+            "umul %0,%4,%1"            \
+            "sub %3,%1,%1"             \
+            : "=&r" (__q), "=&r" (__r) \
+            : "r" (__xhi), "r" (__xlo), "r" (__y)); \
+          q_zuweisung (uint32)__q;     \
+          r_zuweisung (uint32)__r;     \
+         })
     #elif defined(SPARC)
       #define divu_6432_3232(xhi,xlo,y,q_zuweisung,r_zuweisung)  \
         ({ var uint32 _q = divu_6432_3232_(xhi,xlo,y); # extern in Assembler \

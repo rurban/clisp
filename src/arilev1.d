@@ -238,7 +238,11 @@ typedef struct { uintD* MSDptr; uintC len; uintD* LSDptr; } DS;
       #endif
     #endif
     #if defined(SPARC)
-      #include "arisparc.c"
+      #if defined(SPARC64)
+        #include "arisparc64.c"
+      #else
+        #include "arisparc.c"
+      #endif
     #endif
     #if defined(I80386)
       #include "ari80386.c"
