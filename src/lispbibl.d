@@ -11511,14 +11511,14 @@ extern object char_name (chart code);
 extern object name_char (object string);
 # is used by IO
 
-# UP: tests the limits for a String argument
-# test_string_limits_ro(&arg)  [for read-only access]
-# > STACK_2: String-Argument
-# > STACK_1: optional :start-Argument
-# > STACK_0: optional :end-Argument
-# < stringarg arg: description of the argument
-# < result: String-Argument
-# increases STACK by 3
+/* UP: tests the limits for a String argument
+ test_string_limits_ro(&arg)  [for read-only access]
+ > STACK_2: String-Argument
+ > STACK_1: optional :start-Argument
+ > STACK_0: optional :end-Argument
+ < stringarg arg: description of the argument
+ < result: String-Argument
+ increases STACK by 3 */
 typedef struct stringarg {
   object string; # data vector, a simple-string
   uintL offset;  # offset into this string
@@ -11526,7 +11526,18 @@ typedef struct stringarg {
   uintL len;     # :end - :start
 } stringarg;
 extern object test_string_limits_ro (stringarg* arg);
-/* is used by STREAM, PATHNAME, IO, ENCODING */
+/* used by STREAM, PATHNAME, IO, ENCODING */
+
+/* UP: checks the limits for a vector argument
+ > STACK_2: vector-argument
+ > STACK_1: optional :start-argument
+ > STACK_0: optional :end-argument
+ < stringarg arg: description of the argument
+     (string, len & offset must be pre-set!)
+ < result: vector-argument
+ increases STACK by 3 */
+extern object test_vector_limits (stringarg* arg);
+/* used by ENCODING */
 
 /* UP: checks a string/symbol/character-argument
  > obj: argument
