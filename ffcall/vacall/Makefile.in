@@ -170,7 +170,7 @@ minitests.s : $(srcdir)/minitests.c $(srcdir)/tests.c vacall.h
 minitests : minitests.o libvacall.a
 	$(CC) $(CFLAGS) @GCC_X_NONE@ minitests.o libvacall.a -o minitests
 
-minicheck : all minitests
+check : all minitests
 	./minitests > minitests.out
 	uniq -u < minitests.out > minitests.output.$(HOST)
 	test '!' -s minitests.output.$(HOST)
@@ -184,7 +184,7 @@ tests.s : $(srcdir)/tests.c vacall.h
 tests : tests.o libvacall.a
 	$(CC) $(CFLAGS) @GCC_X_NONE@ tests.o libvacall.a -o tests
 
-check : all tests
+extracheck : all tests
 	./tests > tests.out
 	uniq -u < tests.out > tests.output.$(HOST)
 	test '!' -s tests.output.$(HOST)
