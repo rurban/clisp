@@ -35,3 +35,6 @@ dd p { margin: 0pt; }
 
 /* no border for images */
 img { border-width: 0; }
+
+/* epigraph: flush right, large left margin */
+.epigraph { text-align: right; margin-left: 50%; }
