@@ -727,6 +727,7 @@ void I_III_simulator _P((data,alist), void* data _ va_alist alist)
   fflush(out);
   va_return_struct(alist, Int, r);
 }}
+#ifndef SKIP_EXTRA_STRUCTS
 void C_CdC_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&C_CdC) { fprintf(out,"wrong data for C_CdC\n"); exit(1); }
@@ -775,6 +776,7 @@ void D_fDd_simulator _P((data,alist), void* data _ va_alist alist)
   fflush(out);
   va_return_struct(alist, Double, r);
 }}
+#endif
 void J_JiJ_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&J_JiJ) { fprintf(out,"wrong data for J_JiJ\n"); exit(1); }
@@ -791,6 +793,7 @@ void J_JiJ_simulator _P((data,alist), void* data _ va_alist alist)
   fflush(out);
   va_return_struct(alist, J, r);
 }}
+#ifndef SKIP_EXTRA_STRUCTS
 void T_TcT_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&T_TcT) { fprintf(out,"wrong data for T_TcT\n"); exit(1); }
@@ -828,6 +831,7 @@ void X_BcdB_simulator _P((data,alist), void* data _ va_alist alist)
   fflush(out);
   va_return_struct(alist, X, r);
 }}
+#endif
 #endif
 
 /*
@@ -1116,6 +1120,7 @@ int main ()
     fprintf(out,"->{%d}\n",Ir.x);
     fflush(out);
 
+#ifndef SKIP_EXTRA_STRUCTS
     Cr = C_CdC(C1,d2,C3);
     fprintf(out,"->{'%c'}\n",Cr.x);
     fflush(out);
@@ -1142,6 +1147,7 @@ int main ()
     Dr = (FTYPE(Double,(float,Double,double)) callback) (f1,D2,d3);
     fprintf(out,"->{%g}\n",Dr.x);
     fflush(out);
+#endif
 
     Jr = J_JiJ(J1,i2,J2);
     fprintf(out,"->{%d,%d}\n",Jr.l1,Jr.l2);
@@ -1152,6 +1158,7 @@ int main ()
     fprintf(out,"->{%d,%d}\n",Jr.l1,Jr.l2);
     fflush(out);
 
+#ifndef SKIP_EXTRA_STRUCTS
 #ifndef SKIP_T
     Tr = T_TcT(T1,' ',T2);
     fprintf(out,"->{\"%c%c%c\"}\n",Tr.c[0],Tr.c[1],Tr.c[2]);
@@ -1172,6 +1179,7 @@ int main ()
     Xr = (FTYPE(X,(B,char,double,B)) callback) (B1,c2,d3,B2);
     fprintf(out,"->{\"%s\",'%c'}\n",Xr.c,Xr.c1);
     fflush(out);
+#endif
 #endif
   }
 #endif

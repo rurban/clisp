@@ -285,7 +285,6 @@ long long ll_flli _P((a,b,c), float a _ long long b _ int c)
 }
 #endif
 
-#ifndef SKIP_STRUCTS
 Int I_III _P((a,b,c), Int a _ Int b _ Int c)
 {
   Int r;
@@ -294,6 +293,7 @@ Int I_III _P((a,b,c), Int a _ Int b _ Int c)
   fflush(out);
   return r;
 }
+#ifndef SKIP_EXTRA_STRUCTS
 Char C_CdC _P((a,b,c), Char a _ double b _ Char c)
 {
   Char r;
@@ -318,6 +318,7 @@ Double D_fDd _P((a,b,c), float a _ Double b _ double c)
   fflush(out);
   return r;
 }
+#endif
 J J_JiJ _P((a,b,c), J a _ int b _ J c)
 {
   J r;
@@ -326,6 +327,7 @@ J J_JiJ _P((a,b,c), J a _ int b _ J c)
   fflush(out);
   return r;
 }
+#ifndef SKIP_EXTRA_STRUCTS
 T T_TcT _P((a,b,c), T a _ char b _ T c)
 {
   T r;
@@ -764,7 +766,6 @@ void
   T Tr;
   X Xr;
 
-#ifndef SKIP_STRUCTS
   Ir = I_III(I1,I2,I3);
   fprintf(out,"->{%d}\n",Ir.x);
   fflush(out);
@@ -777,6 +778,7 @@ void
   fprintf(out,"->{%d}\n",Ir.x);
   fflush(out);
 
+#ifndef SKIP_EXTRA_STRUCTS
   Cr = C_CdC(C1,d2,C3);
   fprintf(out,"->{'%c'}\n",Cr.x);
   fflush(out);
@@ -812,6 +814,7 @@ void
   av_call(a);
   fprintf(out,"->{%g}\n",Dr.x);
   fflush(out);
+#endif
 
   Jr = J_JiJ(J1,i2,J2);
   fprintf(out,"->{%d,%d}\n",Jr.l1,Jr.l2);
@@ -825,6 +828,7 @@ void
   fprintf(out,"->{%d,%d}\n",Jr.l1,Jr.l2);
   fflush(out);
 
+#ifndef SKIP_EXTRA_STRUCTS
 #ifndef SKIP_T
   Tr = T_TcT(T1,' ',T2);
   fprintf(out,"->{\"%c%c%c\"}\n",Tr.c[0],Tr.c[1],Tr.c[2]);
