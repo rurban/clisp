@@ -59,8 +59,7 @@ DEFUN(REGEXP::REGEXP-FREE, compiled)
     if (re) {
       regfree(re); free(re);
       TheFpointer(fp)->fp_pointer = NULL;
-      /* mark_fp_invalid() is not exported from clisp.h */
-      /* mark_fp_invalid(TheFpointer(fp)); */
+      mark_fp_invalid(TheFpointer(fp));
       VALUES1(T);
     } else VALUES1(NIL);
   } else VALUES1(NIL);

@@ -1,3 +1,7 @@
+2004-11-19  Sam Steingold  <sds@gnu.org>
+
+	* modules/regexp/regexi.c (REGEXP-FREE): invalidate the fpointer
+
 2004-11-13  Bruno Haible  <bruno@clisp.org>
 
 	* clos-genfun3.lisp (make-generic-function): Add method-class-p,
