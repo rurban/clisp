@@ -1,7 +1,7 @@
 /*
  * Information about the build environment
  * Bruno Haible 2004-2005
- * Sam Steingold 2004
+ * Sam Steingold 2004-2005
  */
 
 #include "lispbibl.c"
