@@ -2078,7 +2078,10 @@ DEFUN(MY-PACKAGE:MY-FUNCTION-NAME, arg1 arg2 &key-amp; FOO BAR) {
 Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
  T)</literal> will return <literal role="sexp">(A 12 T 0
  MY-PACKAGE::SOME-SYMBOL #(:THIS :IS :A :VECTOR)
- #'MY-PACKAGE::MY-FUNCTION-NAME)</literal>.</para>
+ #&lt;ADD-ON-SYSTEM-FUNCTION MY-PACKAGE:MY-FUNCTION-NAME&gt;)</literal>
+(assuming you &export;ed <literal>MY-FUNCTION-NAME</literal> from
+ <quote role="package">MY-PACKAGE</quote>).</para>
+
 <para>Another useful macro is <function>DEFVAR</function> which lets
  you create a GC-visible object.</para>
 <para>See <filename>modules/syscalls</filename> and other included
