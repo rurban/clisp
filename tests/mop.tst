@@ -101,7 +101,7 @@ T
     slot1
     (slot2 t)
     (slot3 (floor pi))
-    #-SBCL (slot4 44))
+    #-(or CMU SBCL) (slot4 44))
   (defclass structure02b (structure02a)
     ((slot4 :initform -44)
      (slot5)
@@ -156,7 +156,7 @@ T
     slot5
     (slot6 t)
     (slot7 (floor (* pi pi)))
-    #-SBCL (slot8 88))
+    #-(or CMU SBCL) (slot8 88))
   (defclass structure03c (structure03b)
     ((slot8 :initform -88)
      (slot9)
@@ -701,7 +701,7 @@ T
 
 
 ;; Check that defgeneric supports user-defined options.
-#-OpenMCL
+#-(or CMU SBCL OpenMCL)
 (progn
   (defclass option-generic-function (standard-generic-function)
     ((option :accessor gf-option :initarg :my-option))
@@ -723,7 +723,7 @@ T
               (:my-option bar)
               (:other-option baz)
               (:generic-function-class option-generic-function))))))
-#-OpenMCL
+#-(or CMU SBCL OpenMCL)
 (T (FOO) NIL NIL)
 
 
