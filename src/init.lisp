@@ -1480,6 +1480,24 @@
           (return-from open-for-load (values nil filename))))
       (go proceed)))))
 
+;; Mapping funname -> symbol (required by PROCLAIM SPECIAL)
+(sys::%putd 'get-funname-symbol
+  (function get-funname-symbol (lambda (funname)
+    (if (atom funname)
+      funname
+      (get-setf-symbol (second funname))))))
+
+(proclaim '(inline eval-loaded-form-low))
+(defun eval-loaded-form-low (obj)
+  (multiple-value-list
+   (cond ((compiled-function-p obj) (funcall obj))
+         (*load-compiling* (funcall (compile-form-in-toplevel-environment obj)))
+         (t (eval obj)))))
+
+;; redefined in condition.lisp
+(proclaim '(notinline eval-loaded-form))
+(defun eval-loaded-form (obj) (eval-loaded-form-low obj))
+
 ;; (LOAD filename [:verbose] [:print] [:if-does-not-exist] [:external-format]
 ;;                [:echo] [:compiling] [:extra-file-types] [:obsolete-action]),
 ;; CLTL p. 426
@@ -1539,12 +1557,9 @@
              (when *load-echo* (fresh-line))
              (let ((obj (read input-stream nil eof-indicator)))
                (when (eql obj eof-indicator) (go done))
-               (setq obj (multiple-value-list
-                          (cond ((compiled-function-p obj) (funcall obj))
-                                (*load-compiling*
-                                 (funcall (compile-form-in-toplevel-environment
-                                           obj)))
-                                (t (eval obj)))))
+               (case (setq obj (eval-loaded-form obj))
+                 (skip (go weiter))
+                 (stop (go done)))
                (when *load-print* (when obj (print (first obj)))))
              (go weiter) done)
         (or (eq input-stream stream)
@@ -1726,13 +1741,6 @@
 #-compiler
 (defmacro COMPILER::EVAL-WHEN-COMPILE (&body body) ; preliminary
   `(eval-when (compile) ,@body))
-
-;; Mapping funname -> symbol
-(sys::%putd 'get-funname-symbol
-  (function get-funname-symbol (lambda (funname)
-    (if (atom funname)
-      funname
-      (get-setf-symbol (second funname))))))
 
 ;; return 2 values: ordinary lambda list and reversed list of type declarations
 (sys::%putd 'sys::specialized-lambda-list-to-ordinary

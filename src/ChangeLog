@@ -1,3 +1,12 @@
+2004-10-15  Sam Steingold  <sds@gnu.org>
+
+	LOAD can now restart when it encounters errors
+	* init.lisp (eval-loaded-form-low): new function
+	(eval-loaded-form): dummy definition
+	(load): use EVAL-LOADED-FORM
+	* condition.lisp (eval-loaded-form): redefine with two restarts:
+	SKIP and STOP
+
 2004-10-10  Bruno Haible  <bruno@clisp.org>
 
 	New generic function (setf method-generic-function).
