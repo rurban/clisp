@@ -719,6 +719,36 @@ t
           '("#(foo bar baz)" "#P(:type :lisp)" "#c1.2")))
 (NIL NIL NIL)
 
+;; pretty printer
+(defun my-pprint-reverse (out list)
+  (write-char #\( out)
+  (when (setq list (reverse list))
+    (loop (write (pop list) :stream out)
+      (when (endp list) (return))
+      (write-char #\Space out)))
+  (write-char #\) out))
+MY-PPRINT-REVERSE
+
+(let ((*print-pprint-dispatch* (copy-pprint-dispatch)))
+  (set-pprint-dispatch '(cons (member foo)) 'my-pprint-reverse 0)
+  (write-to-string '(foo bar :boo 1) :pretty t :escape t))
+"(1 :BOO BAR FOO)"
+
+(defun my-pprint-logical (out list)
+  (pprint-logical-block (out list :prefix "(" :suffix ")")
+    (when list
+      (loop (write-char #\? out)
+        (write (pprint-pop) :stream out)
+        (write-char #\? out)
+        (pprint-exit-if-list-exhausted)
+        (write-char #\Space out)))))
+MY-PPRINT-LOGICAL
+
+(let ((*print-pprint-dispatch* (copy-pprint-dispatch)))
+  (set-pprint-dispatch '(cons (member bar)) 'my-pprint-logical 0)
+  (write-to-string '(bar foo :boo 1) :pretty t :escape t))
+"(?BAR? ?FOO? ?:BOO? ?1?)"
+
 ;; local variables:
 ;; eval: (make-local-variable 'write-file-functions)
 ;; eval: (remove-hook 'write-file-functions 'delete-trailing-whitespace t)
