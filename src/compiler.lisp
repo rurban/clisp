@@ -6846,9 +6846,9 @@ for-value   NIL or T
 ;; mostly for (defstruct (foo (:type list))) accessors
 (macrolet ((simple-index-p (ival func)
              `(and ,ival (or (integerp ,ival)
-                              (error-of-type 'source-program-error
-                                (TEXT "~S: index must be an integer, not ~S")
-                                ',func ,ival))
+                             (c-warn
+                              (TEXT "~S: index should be an integer, not ~S")
+                              ,func ,ival))
                    (<= 0 ,ival 9))))
 (defun c-NTH ()
   (test-list *form* 3 3)
@@ -6860,7 +6860,7 @@ for-value   NIL or T
          `(,(svref #(FIRST SECOND THIRD FOURTH FIFTH SIXTH SEVENTH EIGHTH
                      NINTH TENTH) i-val)
            ,list))
-        (c-GLOBAL-FUNCTION-CALL-form `(nth ,(or i-val index) ,list)))))
+        (c-GLOBAL-FUNCTION-CALL 'NTH))))
 (defun c-SETNTH ()
   (test-list *form* 4 4)
   (let* ((index (macroexpand-form (second *form*)))
