@@ -4,12 +4,11 @@
 (export '(saveinitmem))
 (in-package "SYSTEM")
 
-;;-----------------------------------------------------------------------------
-
-; Speichert den momentanen Speicherinhalt unter Weglassen überflüssiger
-; Objekte ab als LISPIMAG.MEM.
-; Diese Funktion bekommt keine Argumente und hat keine lokalen Variablen, da
-; sonst in interpretiertem Zustand die Variablenwerte mit abgespeichert würden.
+;;---------------------------------------------------------------------------
+;; Stores the current memory contents after omitting the unnecessarily
+;; objects as "LISPIMAG.MEM".
+;; This function does not take arguments and has no local variables, there
+;; otherwise in the interpreted mode the values of variables were stored.
 (defun %saveinitmem ()
   (do-all-symbols (sym) (remprop sym 'sys::definition))
   (when (fboundp 'clos::install-dispatch)
@@ -24,8 +23,8 @@
   (room nil)
 )
 
-; Speichert den momentanen Speicherinhalt ab.
-; Läuft nur in compiliertem Zustand!
+;; Store the current memory contents.
+;; Use only in the compiled state!
 (defun saveinitmem (&optional (filename "lispinit.mem")
                     &key ((:quiet *quiet*) nil) init-function)
   (let ((- nil) (+ nil) (++ nil) (+++ nil)
