@@ -1200,7 +1200,7 @@ LISPSPECFORM(block, 1,0,body)
   { var object body = popSTACK();
     var object name = popSTACK();
     if (!symbolp(name)) { fehler_symbol(name); }
-   {var jmp_buf returner; # Rücksprungpunkt
+   {var sp_jmp_buf returner; # Rücksprungpunkt
     # Block-Frame aufbauen:
     { var object* top_of_frame = STACK; # Pointer übern Frame
       pushSTACK(name); # Block-Name
@@ -1517,7 +1517,7 @@ LISPSPECFORM(tagbody, 0,0,body)
                 }
     }   }   }
     if (tagcount>0)
-      { var jmp_buf returner; # Rücksprungpunkt
+      { var sp_jmp_buf returner; # Rücksprungpunkt
         pushSTACK(aktenv.go_env); # aktuelles GO_ENV als NEXT_ENV
         finish_entry_frame(ITAGBODY,&!returner,, goto go_entry; );
         # GO_ENV erweitern:
@@ -1807,7 +1807,7 @@ LISPSPECFORM(catch, 1,0,body)
     # CATCH-Frame zu Ende aufbauen:
    {var object body = popSTACK(); # ({form})
     var object* top_of_frame = STACK STACKop 1; # Pointer übern Frame
-    var jmp_buf returner; # Rücksprungpunkt merken
+    var sp_jmp_buf returner; # Rücksprungpunkt merken
     finish_entry_frame(CATCH,&!returner,, goto catch_return; );
     # Body ausführen:
     implicit_progn(body,NIL);
@@ -1823,7 +1823,7 @@ LISPSPECFORM(unwind_protect, 1,0,body)
     # UNWIND-PROTECT-Frame aufbauen:
     pushSTACK(cleanup);
    {var object* top_of_frame = STACK;
-    var jmp_buf returner; # Rücksprungpunkt
+    var sp_jmp_buf returner; # Rücksprungpunkt
     finish_entry_frame(UNWIND_PROTECT,&!returner,, goto throw_save; );
     # Protected form auswerten:
     eval(form);

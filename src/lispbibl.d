@@ -1105,6 +1105,14 @@
 # Den Offset eines Arrays 'ident' in einem Struct vom Typ 'type' bestimmen:
   #define offsetofa(type,ident)  offsetof(type,ident[0])
 
+# alignof(type) is a constant expression, returning the alignment of type.
+  #ifdef __cplusplus
+    template <class type> struct alignof_helper { char slot1; type slot2; };
+    #define alignof(type)  offsetof(alignof_helper<type>, slot2)
+  #else
+    #define alignof(type)  offsetof(struct { char slot1; type slot2; }, slot2)
+  #endif
+
 # Unspezifizierte Länge von Arrays in Structures:
 # struct { ...; ...; type x[unspecified]; }
 # Statt sizeof(..) muss man dann aber immer offsetof(..,x) schreiben.
@@ -7448,8 +7456,15 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
        item_zuweisung __item;                                                             \
       }
   #endif
-# Größe eines jmp_buf im SP:
-  #define jmpbufsize  ceiling(sizeof(jmp_buf),sizeof(SPint))
+# An sp_jmp_buf is exactly the same as a jmp_buf, except that on Irix 6.5 in
+# 32-bit mode, a jmp_buf has alignment 8, whereas an SPint only has alignment 4.
+# Need to add some padding. Then jmpbufsize = sizeof(sp_jmp_buf)/sizeof(SPint).
+  #define sp_jmp_buf_incr  (alignof(jmp_buf)>alignof(SPint)?alignof(jmp_buf)-alignof(SPint):0)
+  #define sp_jmp_buf_to_jmp_buf(x)  (*(jmp_buf*)(((long)&(x)+(long)sp_jmp_buf_incr)&-(long)(alignof(jmp_buf)>alignof(SPint)?alignof(jmp_buf):1)))
+  #define setjmpspl(x)  setjmpl(sp_jmp_buf_to_jmp_buf(x))
+  #define longjmpspl(x,y)  longjmpl(sp_jmp_buf_to_jmp_buf(x),y)
+  #define jmpbufsize  ceiling(sizeof(jmp_buf)+sp_jmp_buf_incr,sizeof(SPint))
+  typedef SPint sp_jmp_buf[jmpbufsize];
 
 # LISP-Stack: STACK
   #if !defined(STACK_register)
@@ -9973,7 +9988,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # Beendet einen Frame mit Entrypoint und setzt den Einsprungpunkt hierher.
 # finish_entry_frame(frametype,returner,retval_zuweisung,reentry_statement);
 # > object* top_of_frame: Pointer übern Frame
-# > jmp_buf* returner: longjmp-Buffer für Wiedereintritt
+# > sp_jmp_buf* returner: longjmp-Buffer für Wiedereintritt
 # > retval_zuweisung: Zuweisung des setjmp()-Wertes an eine Variable
 # > reentry_statement: Was sofort nach Wiedereintritt zu tun ist.
 # erniedrigt STACK um 1
@@ -9981,7 +9996,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
     { pushSTACK(as_object((aint)(returner))); # SP in den Stack                 \
       pushSTACK(nullobj); # Dummy in den Stack, bis Wiedereintritt erlaubt ist  \
       begin_setjmp_call();                                                      \
-      if (!((retval_zuweisung setjmpl(returner))==0)) # Wiedereinspungpunkt herstellen \
+      if (!((retval_zuweisung setjmpspl(returner))==0)) # Wiedereinspungpunkt herstellen \
         { end_longjmp_call(); LONGJMP_RESTORE_mv_count(); LONGJMP_RESTORE_value1(); reentry_statement } # nach dem Wiedereintritt \
         else                                                                    \
         { end_setjmp_call(); STACK_0 = framebottomword(frametype##_frame_info,top_of_frame,STACK); } \
@@ -9995,17 +10010,17 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # Die multiple values werden übergeben.
 # enter_frame_at_STACK();
   #define enter_frame_at_STACK()  \
-    { var jmp_buf* returner = (jmp_buf*)(aint)as_oint(STACK_(frame_SP)); # der returner von finish_entry_frame \
-      LONGJMP_SAVE_value1(); LONGJMP_SAVE_mv_count();                                                          \
-      begin_longjmp_call();                                                                                    \
-      longjmpl(&!*returner,(aint)returner); # dorthin springen, eigene Adresse (/=0) übergeben                 \
-      NOTREACHED                                                                                               \
+    { var sp_jmp_buf* returner = (sp_jmp_buf*)(aint)as_oint(STACK_(frame_SP)); # der returner von finish_entry_frame \
+      LONGJMP_SAVE_value1(); LONGJMP_SAVE_mv_count();                                                                \
+      begin_longjmp_call();                                                                                          \
+      longjmpspl(&!*returner,(aint)returner); # dorthin springen, eigene Adresse (/=0) übergeben                     \
+      NOTREACHED                                                                                                     \
     }
 # wird verwendet von EVAL
 
 # Bei Driver-Frames ist evtl. auch noch der Wert
 # von NUM_STACK_normal vor Aufbau des Frames enthalten:
-  typedef struct { jmp_buf returner; # zuerst - wie bei allen - der jmp_buf
+  typedef struct { sp_jmp_buf returner; # zuerst - wie bei allen - der jmp_buf
                    #ifdef HAVE_NUM_STACK
                    uintD* old_NUM_STACK_normal;
                    #endif
@@ -10018,7 +10033,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > object types_labels_vector_list: a list containing a simple-vector: (#(type1 label1 ... typem labelm))
 # > handler: void (*) (void* sp, object* frame, object label, object condition)
 # > sp_arg: any void*
-# > jmp_buf* returner: longjmp-Buffer für Wiedereintritt
+# > sp_jmp_buf* returner: longjmp-Buffer für Wiedereintritt
 # > reentry_statement: Was sofort nach Wiedereintritt zu tun ist.
   #define make_HANDLER_frame(types_labels_vector_list,handler,sp_arg)  \
     { var object* top_of_frame = STACK;      \
