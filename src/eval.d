@@ -2221,6 +2221,61 @@ LISPFUNN(subr_info,1)
         }}
     }}}}
 
+# Fehler, wenn aufzurufendes Symbol eine Spezialform ist.
+# fehler_specialform(caller,funname);
+# > caller: Aufrufer (ein Symbol)
+# > funname: ein Symbol
+  nonreturning_function(local, fehler_specialform, (object caller, object funname));
+  local void fehler_specialform(caller,funname)
+    var object caller;
+    var object funname;
+    { pushSTACK(funname);
+      pushSTACK(caller);
+      fehler(error,
+             DEUTSCH ? "~: ~ ist eine Spezialform, keine Funktion." :
+             ENGLISH ? "~: ~ is a special form, not a function" :
+             FRANCAIS ? "~ : ~ est une forme spéciale et non une fonction." :
+             ""
+            );
+    }
+
+# Fehler, wenn aufzurufendes Symbol ein Macro ist.
+# fehler_macro(caller,funname);
+# > caller: Aufrufer (ein Symbol)
+# > funname: ein Symbol
+  nonreturning_function(local, fehler_macro, (object caller, object funname));
+  local void fehler_macro(caller,funname)
+    var object caller;
+    var object funname;
+    { pushSTACK(funname);
+      pushSTACK(caller);
+      fehler(error, # dpANS sagt: undefined_function ??
+             DEUTSCH ? "~: ~ ist ein Macro und keine Funktion." :
+             ENGLISH ? "~: ~ is a macro, not a function" :
+             FRANCAIS ? "~ : ~ est une macro et non une fonction." :
+             ""
+            );
+    }
+
+# Fehlermeldung wegen undefinierter Funktion.
+# fehler_undefined(caller,funname);
+# > caller: Aufrufer (ein Symbol)
+# > funname: Symbol oder (SETF symbol)
+  nonreturning_function(local, fehler_undefined, (object caller, object funname));
+  local void fehler_undefined(caller,funname)
+    var object caller;
+    var object funname;
+    { pushSTACK(funname); # Wert für Slot NAME von CELL-ERROR
+      pushSTACK(funname);
+      pushSTACK(caller);
+      fehler(undefined_function,
+             DEUTSCH ? "~: Die Funktion ~ ist undefiniert." :
+             ENGLISH ? "~: the function ~ is undefined" :
+             FRANCAIS ? "~ : La fonction ~ n'est pas définie." :
+             ""
+            );
+    }
+
 # UP: Wandelt ein Argument in eine Funktion um.
 # coerce_function(obj)
 # > obj: Objekt
@@ -3138,14 +3193,7 @@ LISPFUNN(subr_info,1)
                           }
                         break;
                       default: undef:
-                        pushSTACK(Car(form)); # Wert für Slot NAME von CELL-ERROR
-                        pushSTACK(STACK_0);
-                        fehler(undefined_function,
-                               DEUTSCH ? "EVAL: Die Funktion ~ ist undefiniert." :
-                               ENGLISH ? "EVAL: undefined function ~" :
-                               FRANCAIS ? "EVAL: La fonction ~ n'est pas définie." :
-                               ""
-                              );
+                        fehler_undefined(S(eval),Car(form));
                 }   }
               elif (consp(fun) && eq(Car(fun),S(lambda))) # Lambda-Ausdruck?
                 { pushSTACK(Cdr(form)); # Argumentliste
@@ -4113,36 +4161,15 @@ LISPFUNN(subr_info,1)
                 { fun = fdef; goto call_ffunction; }
               #endif
               # FSUBR -> Fehler
-              pushSTACK(fun);
-              fehler(error,
-                     DEUTSCH ? "APPLY: ~ ist eine Spezialform, keine Funktion." :
-                     ENGLISH ? "APPLY: ~ is a special form, not a function" :
-                     FRANCAIS ? "APPLY: ~ est une forme spéciale et non une fonction." :
-                     ""
-                    );
+              fehler_specialform(S(apply),fun);
             }
           elif (consp(fdef)) # Macro-Cons -> Fehler
-            { pushSTACK(fun);
-              fehler(error,
-                     DEUTSCH ? "APPLY: ~ ist ein Macro, keine Funktion." :
-                     ENGLISH ? "APPLY: ~ is a macro, not a function" :
-                     FRANCAIS ? "APPLY: ~ est un macro et non une fonction." :
-                     ""
-                    );
-            }
+            { fehler_macro(S(apply),fun); }
           else
             # wenn kein SUBR, keine Closure, kein FSUBR, kein Cons:
             # Symbol_function(fun) muß #<UNBOUND> sein.
             undef:
-            { pushSTACK(fun); # Wert für Slot NAME von CELL-ERROR
-              pushSTACK(fun);
-              fehler(undefined_function,
-                     DEUTSCH ? "APPLY: Die Funktion ~ ist undefiniert." :
-                     ENGLISH ? "APPLY: the function ~ is undefined" :
-                     FRANCAIS ? "APPLY: La fonction ~ n'est pas définie." :
-                     ""
-                    );
-            }
+            { fehler_undefined(S(apply),fun); }
         }
       elif (funnamep(fun)) # Liste (SETF symbol) ?
         # globale Definition (symbol-function (get-setf-symbol symbol)) gilt.
@@ -5046,36 +5073,15 @@ LISPFUNN(subr_info,1)
                 { fun = fdef; goto call_ffunction; }
               #endif
               # FSUBR -> Fehler
-              pushSTACK(fun);
-              fehler(error, # dpANS sagt: undefined_function ??
-                     DEUTSCH ? "FUNCALL: ~ ist eine Spezialform, keine Funktion." :
-                     ENGLISH ? "FUNCALL: ~ is a special form, not a function" :
-                     FRANCAIS ? "FUNCALL: ~ est une forme spéciale et non une fonction." :
-                     ""
-                    );
+              fehler_specialform(S(funcall),fun);
             }
           elif (consp(fdef)) # Macro-Cons -> Fehler
-            { pushSTACK(fun);
-              fehler(error, # dpANS sagt: undefined_function ??
-                     DEUTSCH ? "FUNCALL: ~ ist ein Macro, keine Funktion." :
-                     ENGLISH ? "FUNCALL: ~ is a macro, not a function" :
-                     FRANCAIS ? "FUNCALL: ~ est un macro et non une fonction." :
-                     ""
-                    );
-            }
+            { fehler_macro(S(funcall),fun); }
           else
             # wenn kein SUBR, keine Closure, kein FSUBR, kein Cons:
             # Symbol_function(fun) muß #<UNBOUND> sein.
             undef:
-            { pushSTACK(fun); # Wert für Slot NAME von CELL-ERROR
-              pushSTACK(fun);
-              fehler(undefined_function,
-                     DEUTSCH ? "FUNCALL: Die Funktion ~ ist undefiniert." :
-                     ENGLISH ? "FUNCALL: the function ~ is undefined" :
-                     FRANCAIS ? "FUNCALL: La fonction ~ n'est pas définie." :
-                     ""
-                    );
-            }
+            { fehler_undefined(S(funcall),fun); }
         }
       elif (funnamep(fun)) # Liste (SETF symbol) ?
         # globale Definition (symbol-function (get-setf-symbol symbol)) gilt.
@@ -7838,18 +7844,10 @@ LISPFUNN(subr_info,1)
             csf_kein_symbol:
               fehler_kein_symbol(S(symbol_function),symbol);
             csf_unbound:
-              pushSTACK(symbol); # Wert für Slot NAME von CELL-ERROR
-              # (Das ist zwar evtl. nicht der eigentliche Funktionsname, denn
+              # (symbol zwar evtl. nicht der eigentliche Funktionsname, denn
               # z.B. (FUNCTION FOO) wird in (SYMBOL-FUNCTION '#:|(SETF FOO)|)
               # umgewandelt, aber für die Fehlermeldung reicht das wohl.)
-              pushSTACK(symbol);
-              pushSTACK(S(symbol_function));
-              fehler(undefined_function,
-                     DEUTSCH ? "~: ~ hat keine Funktionsdefinition." :
-                     ENGLISH ? "~: the function ~ is undefined" :
-                     FRANCAIS ? "~: la fonction ~ n'est pas définie." :
-                     ""
-                    );
+              fehler_undefined(S(symbol_function),symbol);
             }
             {var object vec; var object index;
             CASE cod_svref:                  # (SVREF)
