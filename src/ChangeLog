@@ -1,6 +1,13 @@
+2001-03-15  Bruno Haible  <haible@clisp.cons.org>
+
+	* Makefile.devel (all): Depend on src/VERSION instead of src/version.h.
+	* spvw_memfile.d (savemem): Zero-fill the rest of _dumphost.
+	* spvw.d (main): Do complain about missing -B in all cases.
+	(usage): Internationalize.
+
 2001-03-14  Sam Steingold  <sds@gnu.org>
 
-	New versioning system adompted
+	New versioning system adopted.
 	* spvw.d (main): --version works without -B and -M
 	  we are now GNU CLISP!
 	  do not complain about missing -B when given -x
@@ -19,7 +26,7 @@
 
 2001-03-13  Sam Steingold  <sds@gnu.org>
 
-	X3J13 vote <72> unconditionally implemented
+	X3J13 vote <72> unconditionally implemented.
 	* compiler.lisp (c-form): do not check (package-use-list *package*)
 	* eval.d (other_self_evaluating_p): removed
 	(eval1): do not call it
