@@ -569,24 +569,26 @@ T
 1
 (fmakunbound 'zz) zz
 
-(defun use-value-string->symbol (c)
+(defun use-value-read (c)
+  (princ (type-of c)) (terpri)
   (princ c) (terpri)
-  (use-value (intern (string-upcase
-                      (etypecase c
-                        (type-error (type-error-datum c))
-                        (cell-error (cell-error-name c)))))))
-use-value-string->symbol
+  (use-value (read-from-string
+              (etypecase c
+                (source-program-error (source-program-error-form c))
+                (type-error (type-error-datum c))
+                (cell-error (cell-error-name c))))))
+use-value-read
 
 (handler-bind ((error (lambda (c) (princ c) (terpri) (use-value '+))))
   (eval '(function "+")))
 #.#'+
 
-(handler-bind ((error #'use-value-string->symbol))
+(handler-bind ((error #'use-value-read))
   (funcall "+" 1 2 3))
 6
 
 ;; progv
-(handler-bind ((type-error #'use-value-string->symbol))
+(handler-bind ((type-error #'use-value-read))
   (progv '("foo") '(123) foo))
 123
 
@@ -594,7 +596,7 @@ use-value-string->symbol
   (progv '(:const-var) '(123) zz))
 123
 
-(handler-bind ((type-error #'use-value-string->symbol))
+(handler-bind ((type-error #'use-value-read))
   (multiple-value-setq (a "foo") (values 123 321))
   (list foo a))
 (321 123)
@@ -622,29 +624,29 @@ use-value-string->symbol
   (let ((:const-var 64)) zz))
 64
 
-;; either TYPE-ERROR or PROGRAM-ERROR is reasonable here
-;; (handler-bind ((program-error #'use-value-string->symbol)
-;;                (type-error #'use-value-string->symbol))
+;; either TYPE-ERROR or SOURCE-PROGRAM-ERROR is reasonable here
+;; (handler-bind ((source-program-error #'use-value-read)
+;;                (type-error #'use-value-read))
 ;;   ((lambda (x "y") (+ x y)) 1 3))
 ;; 4
 
-;; (handler-bind ((program-error #'use-value-string->symbol)
-;;                (type-error #'use-value-string->symbol))
+;; (handler-bind ((source-program-error #'use-value-read)
+;;                (type-error #'use-value-read))
 ;;   ((lambda (x &optional ("y" 10)) (+ x y)) 1 3))
 ;; 4
 
-;; (handler-bind ((program-error #'use-value-string->symbol)
-;;                (type-error #'use-value-string->symbol))
+;; (handler-bind ((source-program-error #'use-value-read)
+;;                (type-error #'use-value-read))
 ;;   ((lambda (x &key ("y" 10)) (+ x y)) 1 :y 3))
 ;; 4
 
-;; (handler-bind ((program-error #'use-value-string->symbol)
-;;                (type-error #'use-value-string->symbol))
+;; (handler-bind ((source-program-error #'use-value-read)
+;;                (type-error #'use-value-read))
 ;;   ((lambda (x &aux ("y" 10)) (+ x y)) 1))
 ;; 11
 
-;; (handler-bind ((program-error #'use-value-string->symbol)
-;;                (type-error #'use-value-string->symbol))
+;; (handler-bind ((source-program-error #'use-value-read)
+;;                (type-error #'use-value-read))
 ;;   (let ((f (lambda ("a" &optional "b" ("c" 1) &rest "d"
 ;;                     &key "e" ("f" 2) ("g" 3 "gp") (("hk" "ha") 4 "hp")
 ;;                     ("i" 5 "ip")
@@ -653,6 +655,17 @@ use-value-string->symbol
 ;;     (print f)
 ;;     (funcall f 11 22 33 :e 44 :g 55 'hk 66)))
 ;; (11 22 33 &REST (:E 44 :G 55 HK 66) E 44 F 2 G 55 T H 66 T I 5 NIL J 6)
+
+(handler-bind ((type-error #'use-value-read)
+               (source-program-error #'use-value-read))
+  (funcall "CAR" '(1 . 1)))
+1
+
+(handler-bind ((type-error #'use-value-read)
+               (source-program-error #'use-value-read))
+  (setq "FOO" 1)
+  (symbol-value 'foo))
+1
 
 ;; make-hash-table
 (flet ((mht (test) (make-hash-table :test test)))
