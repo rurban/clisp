@@ -1896,9 +1896,9 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
  <listitem><simpara>the space-separated list of Lisp files to load
   into an intermediate &lispinit; file, before building the &lispinit;
   belonging to a new &linkset;.
-  This variable is usually used for defining Lisp packages which must be
-  present when the new &c-file; files are initialized.  E.g., the
-  &def-call-in; functions must reside in already defined packages;
+  This variable is usually used for defining Lisp &package-t;s which
+  must be present when the new &c-file; files are initialized.
+  E.g., the &def-call-in; functions must reside in already defined packages;
   see <xref linkend="ex-call-in"/>.</simpara></listitem></varlistentry>
 </variablelist>
 
@@ -2074,7 +2074,7 @@ Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
  </simpara></listitem>
  <listitem><simpara>Variables of this type are invalidated by
    <link linkend="gc-safety">memory allocation</link> and must be saved
-   on the &STACK; using macros <function>pushSTASH()</function>,
+   on the &STACK; using macros <function>pushSTASK()</function>,
    <function>popSTACK()</function> and <function>skipSTACK()</function>.
  </simpara></listitem>
  <listitem><simpara>Access object slots using the
