@@ -1,5 +1,17 @@
 2004-08-11  Sam Steingold  <sds@gnu.org>
 
+	finished the *DEFUN-ACCEPT-SPECIALIZED-LAMBDA-LIST* patch
+	* init.lisp (specialized-lambda-list-to-ordinary): new function
+	(*defun-accept-specialized-lambda-list*): enable just before the end
+	(defun): use it when *DEFUN-ACCEPT-SPECIALIZED-LAMBDA-LIST* is non-NIL
+	* compiler.lisp (c-LAMBDABODY, c-LABELS, c-FUNCALL-INLINE): ditto
+	* eval.d (get_closure): ditto
+	* constsym.d (spelalist_to_ordinary): added
+	* clos-method2.lisp (program-error-reporter): new helper macro
+	(extract-lambda-list, extract-specializer-names): use it
+
+2004-08-11  Sam Steingold  <sds@gnu.org>
+
 	ANSI compliance <http://www.lisp.org/HyperSpec/Body/sec_19-2-3.html>:
 	"for functions that manipulate or inquire about files in the file
 	 system, the pathname argument to such a function is merged with

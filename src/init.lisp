@@ -1682,6 +1682,26 @@
       funname
       (get-setf-symbol (second funname))))))
 
+;; return 2 values: ordinary lambda list and reversed list of type declarations
+(sys::%putd 'sys::specialized-lambda-list-to-ordinary
+  (function sys::specialized-lambda-list-to-ordinary (lambda (spelalist caller)
+    (multiple-value-bind (lalist speclist)
+        #+clos (clos::decompose-specialized-lambda-list
+                spelalist (clos::program-error-reporter caller))
+        #-clos (copy-list spelalist) ; pacify "make check-recompile"
+      (values
+       lalist ; MAPCAN needs a LAMBDA which leads to infinite recursion
+       (let (arg spec decls)
+         (block spelalist-to-ordinary
+           (tagbody start
+             (if (null lalist) (return-from spelalist-to-ordinary decls))
+             (if (null speclist) (return-from spelalist-to-ordinary decls))
+             (setq arg (car lalist) spec (car speclist)
+                   lalist (cdr lalist) speclist (cdr speclist))
+             (if (not (eq 'T spec))
+                 (setq decls (cons (list spec arg) decls)))
+             (go start)))))))))
+
 (sys::%putd 'defun
   (sys::make-macro
     (function defun (lambda (form env)
@@ -1703,19 +1723,10 @@
         (multiple-value-bind (body-rest declarations docstring)
             (sys::parse-body body t)
           (if *defun-accept-specialized-lambda-list*
-            (let ((rest lambdalist) this)
-              (tagbody start
-                (if (null rest) (go finish))
-                (setq this (car rest))
-                (if (memq this lambda-list-keywords) (go finish))
-                (if (consp this)
-                  (let ((var (first this)))
-                    (setq declarations
-                          (cons `(TYPE ,(second this) ,var)
-                                declarations))
-                    (rplaca rest var)))
-                (setq rest (cdr rest)) (go start)
-               finish)))
+            (multiple-value-bind (lalist decl-list)
+                (sys::specialized-lambda-list-to-ordinary lambdalist 'defun)
+              (setq lambdalist lalist
+                    declarations (nreconc decl-list declarations))))
           (let ((symbolform
                  (if (atom name)
                    `',name
@@ -2035,6 +2046,7 @@
 
 (LOAD "config")    ; configuration parameters to be adjusted by the user
 
+(setq *defun-accept-specialized-lambda-list* t);was disabled for bootstrapping
 (setq sys::*home-package* nil ext:*command-index* 0)
 
 (in-package "CL-USER")        ; make the default package the current one
