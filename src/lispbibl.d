@@ -302,8 +302,8 @@
     #define UNIX_NEXTSTEP  # NeXTstep
     # define NEXTAPP       # Define this to get a NeXTstep-GUI application
 
-    #define MAYBE_NEXTAPP  # a little hack, to make the .mem files between
-                           # CLISP with NEXTAPP and without NEXTAPP compatible
+    #define MAYBE_NEXTAPP  # a little hack, to make the .mem files compatible
+                           # between CLISP with NEXTAPP and without NEXTAPP
   #endif
   #if defined(__APPLE__) && defined(__MACH__)
     #define UNIX_MACOSX  # MacOS X
@@ -327,7 +327,7 @@
 #ifdef OS2
   #define MSDOS
   #ifdef __EMX__
-    #define EMUNIX  # UNIX-emulation baed on OS2 by Eberhard Mattes
+    #define EMUNIX  # UNIX-emulation based on OS2 by Eberhard Mattes
     # Only emx >= 0.9c is still supported.
   #endif
 #endif
@@ -514,7 +514,7 @@
 # Selection of the safety-level:
 # SAFETY=0 : all optimizations are turned on
 # SAFETY=1 : all optimizatiosn, but still STACKCHECKs
-# SAFETY=2 : only simple nur assembler-support
+# SAFETY=2 : only simple assembler-support
 # SAFETY=3 : no optimization
 #ifndef SAFETY
   #define SAFETY 0
@@ -538,7 +538,7 @@
   #define __CHAR_UNSIGNED__
 #endif
 
-# gcc-2.7.2 has a bug: it interprets `const' as meaning `not modified by
+# gcc-2.7.2 has a bug: it interpretes `const' as meaning `not modified by
 # other parts of the program', and thus miscompiles at least justify_empty_2
 # and pr_enter_1 in io.d.
 #if defined(GNU) && (__GNUC__ == 2) && (__GNUC_MINOR__ == 7)
@@ -666,9 +666,9 @@
   # - If STACK is in a "used"/"save" register, it needs to be saved into
   #   saved_STACK upon begin_call(), so that asynchronous interrupts will
   #   be able to restore it.
-  # - All of the "used" registers need to be backuped upon begin_call()
+  # - All of the "used" registers need to be backed up upon begin_call()
   #   and restored during end_call().
-  # - All of the "save" registers need to be backuped upon begin_callback()
+  # - All of the "save" registers need to be backed up upon begin_callback()
   #   and restored during end_callback().
   # - When the interpreter does a longjmp(), the registers STACK, mv_count,
   #   value1 may need to be temporarily saved. This is highly machine
@@ -680,8 +680,8 @@
     #define STACK_register "a4" # highest address register after sp=A7,fp=A6/A5
   #endif
   #if defined(I80386) && !defined(UNIX_BEOS) && !defined(DYNAMIC_MODULES)
-    # On BeOS, everything is compiled as PIC, whence %ebx is already booked.
-    # If DYNAMIC_MODULES is defined, external modules are compuled as PIC,
+    # On BeOS, everything is compiled as PIC, hence %ebx is already booked.
+    # If DYNAMIC_MODULES is defined, external modules are compiled as PIC,
     # which is why %ebx is already in use.
     #if (__GNUC__ >= 2) # The register names have changed
       #define STACK_register  "%ebx"  # one of the call-saved registers without special hardware commands
@@ -702,10 +702,10 @@
     #define STACK_register  "%r8"   # one of the general registers %r4..%r8
   #endif
   #if defined(DECALPHA)
-    #define STACK_register  "$9"    # one of the general egisters $9..$14
+    #define STACK_register  "$9"    # one of the general registers $9..$14
   #endif
   #if defined(S390)
-    #define STACK_register  "9"     # one of the general registes %r8..%r9
+    #define STACK_register  "9"     # one of the general registers %r8..%r9
   #endif
   # What about NEED_temp_STACK ?? Needed if STACK is in a "used" register??
   # Register for mv_count.
@@ -910,7 +910,7 @@
   #define inline      # inline foo() {...} --> foo() {...}
 #endif
 
-# Definititions for C++-Compilers:
+# Definitions for C++-Compilers:
 #ifdef __cplusplus
   #define BEGIN_DECLS  extern "C" {
   #define END_DECLS    }
@@ -1044,7 +1044,7 @@
 # Ignore C++ keyword.
 #define export export_sym
 
-# Swap the contents of to variables:  swap(register int, x1, x2);
+# Swap the contents of two variables:  swap(register int, x1, x2);
 #define swap(swap_type,swap_var1,swap_var2)  \
   do { var swap_type swap_temp;                                          \
     swap_temp = swap_var1; swap_var1 = swap_var2; swap_var2 = swap_temp; \
@@ -1434,7 +1434,7 @@ typedef unsigned_int_with_n_bits(pointer_bitsize)  uintP;
   #define intWLsize intLsize
   #define intBWLsize intLsize
 #elif defined(I80386)
-  # If you compute uising uintB and uintW on a 80386, there will be many
+  # If you compute using uintB and uintW on a 80386, there will be many
   # Zero-Extends, that will - because there aren't enough registers - load
   # other variables into memory, which is rather unnecessary.
   #define intBWsize intWsize
@@ -1467,7 +1467,7 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
 # dotimesL(countvar,count,statement);  if  count only fits into a uintL,
 # dotimespW(countvar,count,statement);  if count fits into a uintW and is >0,
 # dotimespL(countvar,count,statement);  if count fits only into a uintL and is >0.
-# The variable countvar has to be priorly declared, be of type uintW or uintL,
+# The variable countvar has to be declared previously, be of type uintW or uintL,
 # and will be changed by this expression.
 # It must not be used in the statement itself!
 # The expression count will only be evaluated once (at the beginning).
@@ -1550,7 +1550,7 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
   # If not, you'll see a linker error.
   #define dotimes_check_sizeof(countvar,type)  \
     if (!(sizeof(countvar)==sizeof(type))) { dotimes_called_with_count_of_wrong_size(); }
-  extern void dotimes_called_with_count_of_wrong_size (void); # nicht existente Funktion
+  extern void dotimes_called_with_count_of_wrong_size (void); # non-existing function
 #else
   #define dotimes_check_sizeof(countvar,type)
 #endif
@@ -1571,7 +1571,7 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
     dotimespL_(countvar_from_dotimespL,count_from_dotimespL,statement_from_dotimespL); \
   }
 # doconsttimes(count,statement);
-# executes a statement count timess (count times the code!),
+# executes a statement count times (count times the code!),
 # where count is a constant-expression >=0, <=8.
 #define doconsttimes(count_from_doconsttimes,statement_from_doconsttimes)  \
     { if (0 < (count_from_doconsttimes)) { statement_from_doconsttimes; } \
@@ -1613,7 +1613,7 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
 #endif
 # Use 'uintC' for counters, which are small most of the time.
 
-# The arithmetics use "digit sequences" from "digits".
+# The arithmetics use "digit sequences" of "digits".
 # They are unsigned ints with intDsize bits (should be =8 or =16 or =32).
 # If  HAVE_DD: "double-digits" are unsigned ints with 2*intDsize<=32 bits.
 #if defined(MC680X0) && !defined(MC680Y0)
@@ -1652,7 +1652,7 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 #   sizeof(void*) > sizeof(uintL) = 32 bit ist. It also requires that
 #   sizeof(long) = sizeof(void*) = 64 bit, because some 64-bit numbers
 #   appear as pre-processor constants.
-# Model WIDE_SOFT szands for sizeof(oint) = 64 bit and sizeof(aint) = 32 bit.
+# Model WIDE_SOFT stands for sizeof(oint) = 64 bit and sizeof(aint) = 32 bit.
 #   This modell can be chosen on any 32-Bit-Maschine, if the
 #   compiler has 64-bit numbers (in software or hardware). You'll also need to
 #   choose it, if there wouldn't be enough space for the type-bits in a
@@ -1827,7 +1827,7 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 
 # At first dependencies that are visible to the LISP-level:
 
-# Einstellung der Tabelle von Zeichennamen:
+# setting of the table of character-names:
 #ifdef AMIGA
   #define AMIGA_CHARNAMES
 #endif
@@ -1917,7 +1917,7 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 #endif
 # When changed: do nothing
 
-# Whether the OS provides the required information for then
+# Whether the OS provides the required information for the
 # functions  MACHINE-TYPE, MACHINE-VERSION, MACHINE-INSTANCE
 #if defined(UNIX) || defined(WIN32_NATIVE)
   #define MACHINE_KNOWN
@@ -1947,7 +1947,7 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 #endif
 # When changed: extend stream.d
 
-# Whethter external communication via Rexx is supported.
+# Whether external communication via Rexx is supported.
   #ifdef AMIGAOS
   #define REXX
   # define REXX_SERVER  # not yet ?JCH?
@@ -1967,7 +1967,7 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 #endif
 # When changed: extend pathname.d
 
-# Whethter a foreign function interface is provided:
+# Whether a foreign function interface is provided:
 #if (defined(UNIX) && !defined(UNIX_BINARY_DISTRIB)) || defined(DYNAMIC_FFI)
   #define HAVE_FFI
 #endif
@@ -2130,7 +2130,7 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 #define STACKCHECKP  (SAFETY >= 1) # in the printer
 # When changed: do nothing
 
-# Whether we try to initialize subr_tab statitically.
+# Whether we try to initialize subr_tab statically.
 #if !(defined(WIDE_SOFT) && !defined(WIDE_STRUCT))
   #define INIT_SUBR_TAB
 #endif
@@ -2213,8 +2213,8 @@ finite number of special values, such as #<UNBOUND>.)
 
 2.2. SUBRs
 
-They are immediate in the sense that they don not move (they do not need to,
-because they are allocated statically), but they have to traversed by GC.
+They are immediate in the sense that they do not move (they do not need to,
+because they are allocated statically), but they have to be traversed by GC.
 
 2.3. Pairs
 
@@ -2275,14 +2275,14 @@ Ratio and Complex (only if SPVW_MIXED).
 
 #if !defined(WIDE_SOFT)
 
-  # An object pointer if an empty pointer to begin with (so you cannot do
+  # An object pointer is an empty pointer to begin with (so you cannot do
   # anything unwanted with it in C):
   #ifdef OBJECT_STRUCT
     typedef struct { uintP one; } object;
   #else
     typedef  void *  object;
   #endif
-  # But there are  an address and type bits in the representation.
+  # But there is an address and type bits in the representation.
 
   # An (unsigned) Integer of the object's size:
   typedef  uintP  oint;
@@ -2411,7 +2411,7 @@ Ratio and Complex (only if SPVW_MIXED).
     #   Shared libraries:      0x0000015555xxxxxx
     #   Virtual address limit: 0x0000040000000000
     #if defined(NO_SINGLEMAP)
-      # If MAP_MEMORY is not demanded, this is the safes.
+      # If MAP_MEMORY is not demanded, this is the safest.
       # Bits 63..48 = type code, Bits 47..0 = address
       #define oint_type_shift 48
       #define oint_type_len 16
@@ -2441,7 +2441,7 @@ Ratio and Complex (only if SPVW_MIXED).
     #endif
   #endif
   #if defined(MIPS64)
-    # Bits 63..32 = type code, bits 31..0 = adress
+    # Bits 63..32 = type code, bits 31..0 = address
     #define oint_type_shift 32
     #define oint_type_len 32
     #define oint_type_mask 0xFFFFFFFF00000000UL
@@ -2488,8 +2488,8 @@ Ratio and Complex (only if SPVW_MIXED).
     # MALLOC_ADDRESS_RANGE = 0x6000000000000000UL (region 3)
     # STACK_ADDRESS_RANGE  = 0x9FFFFFFFFF000000UL (region 4)
     #if defined(NO_SINGLEMAP)
-      # Wenn MAP_MEMORY nicht gefordert ist, ist das das sicherste.
-      # Bits 63..48 = Typcode, Bits 47..0 = Adress
+      # If MAP_MEMORY is not demanded, this is the safest.
+      # Bits 63..48 = Typcode, Bits 47..0 = address
       #define oint_type_shift 48
       #define oint_type_len 16
       #define oint_type_mask 0x1FFF000000000000UL
@@ -2500,7 +2500,7 @@ Ratio and Complex (only if SPVW_MIXED).
       #define oint_data_len 32
       #define oint_data_mask 0x00000000FFFFFFFFUL
     #else
-      # Bits 63..32 = Typcode, Bits 31..0 = Adress
+      # Bits 63..32 = Typcode, Bits 31..0 = address
       #define oint_type_shift 32
       #define oint_type_len 32
       #define oint_type_mask 0x1FFFFFFF00000000UL
@@ -2513,16 +2513,16 @@ Ratio and Complex (only if SPVW_MIXED).
     #endif
   #endif
 #elif defined(WIDE_SOFT)
-  # separate one 32-bit word for typcode and adress.
+  # separate one 32-bit word for typcode and address.
   #if WIDE_ENDIANNESS
-    # Bits 63..32 = Typcode, Bits 31..0 = Adress
+    # Bits 63..32 = Typcode, Bits 31..0 = address
     #define oint_type_shift 32
     #define oint_type_len 32
     #define oint_type_mask 0xFFFFFFFF00000000ULL
     #define oint_addr_shift 0
     #define oint_addr_len 32
     #define oint_addr_mask 0x00000000FFFFFFFFULL
-  #else # umgekehrt ist es etwas langsamer:
+  #else # conversely it is a little slower:
     # Bits 63..32 = Adress, Bits 31..0 = Typcode
     #define oint_type_shift 0
     #define oint_type_len 32
@@ -2575,7 +2575,7 @@ Ratio and Complex (only if SPVW_MIXED).
 #endif
 
 # Generally we use all of the space of an address for the data of Fixnums etc.
-# Always     [oint_data_shift..oint_data_shift+oint_data_len-1] subset
+# Always     [oint_data_shift..oint_data_shift+oint_data_len-1] is subset of
 #            [oint_addr_shift..oint_addr_shift+oint_addr_len-1],
 # thus       oint_data_len <= oint_addr_len,
 # but also   oint_data_len <= intLsize = 32 .
@@ -2608,7 +2608,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #endif
 #endif
 
-# Bismask of a tint, which really belong to the type:
+# mask of those bits of a tint, which really belong to the type:
 # tint_type_mask = oint_type_mask >> oint_type_shift
 # (a constant expression, without any 'long long's in it!)
 #ifdef WIDE_SOFT
@@ -2709,7 +2709,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
       ((aint)(as_oint(expr) >> oint_addr_shift) & (aint)(oint_addr_mask >> oint_addr_shift))
   #else
     # On a SPARC processor long constants are slower than shifts:
-    # Eventually one does not need to use AND here.
+    # Possibly, one does not need to use AND here.
     #define untype(expr)  \
       ((aint)((as_oint(expr) << (32-oint_addr_len-oint_addr_shift)) >> (32-oint_addr_len)))
   #endif
@@ -2726,18 +2726,18 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
     #define type_untype_object(type,address)  \
       (as_object(  ((oint)(tint)(type) << oint_type_shift) + \
                    ((oint)(aint)(address) << oint_addr_shift) ))
-  #else # you don't have to shift at oint_addr_shift=0:
+  #else # you don't have to shift if oint_addr_shift=0:
     #if defined(WIDE_SOFT)
-      # Beware: Conversion of  address to oint through Zero-Extend!
+      # Beware: Conversion of  address to oint by Zero-Extend!
       #define type_untype_object(type,address)              \
         objectplus((oint)(aint)(address),(oint)(tint)(type)<<oint_type_shift)
     #elif defined(OBJECT_STRUCT)
       #define type_untype_object(type,address)              \
         as_object((oint)pointerplus((address),(oint)(tint)(type)<<oint_type_shift))
     #else # normal case
-      # In order for this to be a valid initialiser under gcc-2.5.8
-      # (NIL_IS_CONSTANT), you must not cast from pointer to oint and then
-      # back to pointer, and you'll have to stay in the pointer's range..
+      # In order for this (NIL_IS_CONSTANT) to be a valid initializer
+      # under gcc-2.5.8, you must not cast from pointer to oint and then
+      # back to pointer, but you'll have to stay in the pointer's range..
       #define type_untype_object(type,address)              \
         as_object(pointerplus((address),(oint)(tint)(type)<<oint_type_shift))
     #endif
@@ -2755,7 +2755,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
     #define type_data_object(type,data)  \
       (as_object(  ((oint)(tint)(type) << oint_type_shift) + \
                    ((oint)(aint)(data) << oint_addr_shift) ))
-  #else # at oint_addr_shift=0 you don't have to shift:
+  #else # if oint_addr_shift=0, you don't have to shift:
     #define type_data_object(type,data)  \
       (as_object( ((oint)(tint)(type) << oint_type_shift) + (oint)(aint)(data) ))
   #endif
@@ -2781,7 +2781,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
     #define type_pointer_object(type,address)  \
       type_untype_object(type,(aint)(address)>>addr_shift)
   #else # more efficient,
-    # but this means that, you bust be able to device address by 2^addr_shift:
+    # but this requires address to be divisible by 2^addr_shift:
     #define type_pointer_object(type,address)  \
       (as_object(  ((oint)(tint)(type) << oint_type_shift) + \
                    ((oint)(aint)(address) << (oint_addr_shift-addr_shift)) ))
@@ -2888,7 +2888,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)) && !defined(MULTIMAP_MEMORY) && !(defined(UNIX_SINIX) || defined(UNIX_AIX)) && !defined(NO_SINGLEMAP)
     # Access to LISP-objects is made easier by putting each LISP-object
     # to an address that already contains its type information.
-    # But this does not owrk on SINIX and AIX.
+    # But this does not work on SINIX and AIX.
       #define SINGLEMAP_MEMORY
   #endif
 
@@ -2920,7 +2920,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 #endif
 
 #if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)) && !defined(MAP_MEMORY) && !(defined(UNIX_HPUX) || defined(UNIX_AIX)) && !defined(NO_TRIVIALMAP)
-  # mmap() allows a more flexibke way of memory management than malloc().
+  # mmap() allows for a more flexible way of memory management than malloc().
   # It's not really memory-mapping, but a more comfortable way to
   # manage two large memory blocks.
   # But is doesn't work on HP-UX 9 and AIX.
@@ -2977,7 +2977,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 #endif
 #if defined(MC680X0)
   #if !(addr_shift==0)
-    #define varobject_alignment  bit(addr_shift)  # because of the condensed distriubution of typecodes
+    #define varobject_alignment  bit(addr_shift)  # because of the condensed distribution of typecodes
   #else
     #define varobject_alignment  2
   #endif
@@ -3004,7 +3004,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 #if !((varobject_alignment & (varobject_alignment-1)) ==0)
   #error "Bogus varobject_alignment -- readjust varobject_alignment!!"
 #endif
-# varobject_alignment sollte ein Vielfaches von 2^addr_shift sein:
+# varobject_alignment should be a multiple of 2^addr_shift :
 #if (varobject_alignment % bit(addr_shift))
   #error "Bogus varobject_alignment -- readjust varobject_alignment!!"
 #endif
@@ -3023,7 +3023,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
           { case_machine:                      \
             case_char: case_subr: case_system: \
             case_fixnum: case_sfloat:          \
-            /* bei WIDE auch: case_ffloat: */  \
+            /* with WIDE also: case_ffloat: */  \
               _erg = true; break;              \
             default: _erg = false; break;      \
           }                                    \
@@ -3037,7 +3037,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 
 # There are 7 to 8 type bits available: TB7, [TB6,] TB5, TB4, ..., TB0.
 # All of them have to be set in tint_allowed_type_mask and thus in tint_type_mask as well
-# We distribute them assume that only one bit is missing in tint_type_mask.
+# We distribute them under the assumption that only one bit is missing in tint_type_mask.
 # TB6 will be set to -1, if it can't be used.
 #if ((0xFF & ~tint_allowed_type_mask) == 0)
   #define TB7 7
@@ -3144,12 +3144,12 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 
 #if (defined(MC680X0) || (defined(SPARC) && !defined(SUN4_29))) && defined(UNIX_LINUX)
   # At 0x50000000 there are shared libraries located.
-  # But this doesn't mean we have to change the type code distribiton.
+  # But this doesn't mean we have to change the type code distribution.
 #endif
 
 #if (defined(MIPS) || defined(RS6000)) && defined(UNIX_LINUX)
   # At 0x2AAAB000 there are shared libraries located.
-  # But this doesn't mean we have to change the type code distribiton.
+  # But this doesn't mean we have to change the type code distribution.
 #endif
 
 #if defined(DECALPHA) && defined(UNIX_OSF) && !(defined(NO_SINGLEMAP) || defined(NO_TRIVIALMAP))
@@ -3159,7 +3159,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 
 #if defined(SPARC64) && defined(UNIX_LINUX)
   # At 0x70000000 there are shared libraries located.
-  # But this doesn't mean we have to change the type code distribiton.
+  # But this doesn't mean we have to change the type code distribution.
 #endif
 
 # Type bits:
@@ -3176,12 +3176,12 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #define float2_bit_t     TB2
   #define ratio_bit_t      TB3
   #define bignum_bit_t     TB2
-# in Objekten (oint):
+# in Objects (oint):
   #define garcol_bit_o     (garcol_bit_t+oint_type_shift)    # only set during the garbage collection!
   #if (TB6 >= 0)
     #define cons_bit_o     (cons_bit_t+oint_type_shift)      # only set for cons CONS
   #endif
-  #define number_bit_o     (number_bit_t+oint_type_shift)    # only set for nimbers
+  #define number_bit_o     (number_bit_t+oint_type_shift)    # only set for numbers
   #define notsimple_bit_o  (notsimple_bit_t+oint_type_shift) # for arrays: deleted for simple arrays
   #define sign_bit_o       (sign_bit_t+oint_type_shift)      # Sign for real numbers
   #define float_bit_o      (float_bit_t+oint_type_shift)
@@ -3249,7 +3249,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 
 #ifndef WIDE
   # type is GC-invariant, if
-  # type-info-byte >=0, <= system_type oder >= fixnum_type, < bignum_type.
+  # type-info-byte >=0, <= system_type or >= fixnum_type, < bignum_type.
     #define gcinvariant_type_p(type)  \
       (((type) & ~(BTB5|BTB1|BTB0)) == 0)
 #else
@@ -3295,11 +3295,11 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #define hardware_addressbus_mask  ~0UL  # Default: nothing is dropped
 #endif
 # Clever memory-mapping spares us from masking out of certain
-# bits before on accesses the address
+# bits before one accesses the address
 #define addressbus_mask  hardware_addressbus_mask
 #ifdef MAP_MEMORY
   #if defined(SUN4_29)
-    # Memory-mapping makes the bits bits 28..24 of an address redundant now.
+    # Memory-mapping makes the bits 28..24 of an address redundant now.
     #undef addressbus_mask
     #define addressbus_mask  0xE0FFFFFFUL
   #elif defined(DECALPHA) && defined(UNIX_OSF)
@@ -3358,7 +3358,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #define SPVW_MIXED
 #elif defined(SINGLEMAP_MEMORY)
   # SINGLEMAP_MEMORY -> Ony pure pages/blocks make sense, since
-  # the address of a page determines the type ot he objects it contains.
+  # the address of a page determines the type of the objects it contains.
   #define SPVW_PURE
 #elif !defined(TYPECODES) || defined(MC68000) || defined(SUN3) || defined(AMIGA) || defined(SPVW_BLOCKS) || defined(TRIVIALMAP_MEMORY)
   # !TYPECODES -> there aren't real typecodes, only Cons and Varobject.
@@ -3403,7 +3403,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 #endif
 
 
-# ################# definitions of cases after type codes ################## #
+# ################# definitions by cases with respect to type codes ################## #
 
 #ifdef TYPECODES
 
@@ -3509,7 +3509,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 #endif
 
 
-# ################## Structure of memory of LISP objects#################### #
+# ################## Structure of memory of LISP objects #################### #
 
 # uintWC is the Integer type for the lengths of Bignum, Lfloat, Iarray.
 # Subset relation: uintW <= uintWC <= uintC.
@@ -3523,7 +3523,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   typedef uintW uintWC;
   typedef sintW sintWC;
 #endif
-# uintWCoverflow(x) check, if there has been an overflow after the execution
+# uintWCoverflow(x) checks, if there has been an overflow after the execution
 # of an x++.
 #define uintWCoverflow(x)  ((intWCsize<intLsize) && ((uintWC)(x)==0))
 
@@ -3586,7 +3586,7 @@ typedef varobject_ *  Varobject;
   #endif
   # it applies  mtypecode(((Varobject)p)->GCself) =
   # (((Varobject)p)->header_flags >> (oint_type_shift%hfintsize)) & tint_type_mask
-  # Symbols in the self pointer (see above):
+  # Bits for Symbols in the self pointer (see above):
   # define constant_bit_t  ...  # shows whether the symbol is a constant
   # define special_bit_t   ...  # shows whether the symbol is proclaimed SPECIAL
   #define constant_bit_hf  (constant_bit_t+(oint_type_shift%hfintsize))
@@ -3604,7 +3604,7 @@ typedef varobject_ *  Varobject;
     ((uintL)(uintB)(type)+((uintL)(uintB)(flags)<<8)+((uintL)(uintB)(length)<<16)+((uintL)(uintB)(xlength)<<24))
   #define varobject_type(ptr) ((sintB)((ptr)->tfl & 0xFF))
   #if defined(__GNUC__) && (__GNUC__ == 2) && ((__GNUC_MINOR__ == 8) || (__GNUC_MINOR__ == 90))
-    # Work around a gcc bug present (at least) in gcc-2.8.1 on hppa and
+    # Work around for a gcc bug present (at least) in gcc-2.8.1 on hppa and
     # egcs-1.0.3a on i386. It miscompiles xpathnamep.
     #undef varobject_type
     #define varobject_type(ptr) ((sintB)((sintL)((ptr)->tfl) & 0xFF))
@@ -3876,7 +3876,7 @@ typedef symbol_ *  Symbol;
     (((sym)->header_flags) |= bit(constant_bit_hf))
 
 # Delete the constant-flag of a symbol:
-# (Symbol darf kein Keyword sein, vgl. spvw.d:case_symbolwithflags)
+# (Symbol must not be a Keyword, comp. spvw.d:case_symbolwithflags)
   #define clear_const_flag(sym)  \
     (((sym)->header_flags) &= ~bit(constant_bit_hf))
 
@@ -3884,7 +3884,7 @@ typedef symbol_ *  Symbol;
   #define set_special_flag(sym)  \
     (((sym)->header_flags) |= bit(special_bit_hf))
 
-# Delete the special-flag of a Symbols:
+# Delete the special-flag of a symbol:
   #define clear_special_flag(sym)  \
     (((sym)->header_flags) &= ~bit(special_bit_hf))
 
@@ -3939,9 +3939,9 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
       ((cint)(as_oint(char_from_char_int)>>oint_data_shift))
   #endif
 #else
-  # If oint_data_shift=0, untype needs not to shift. If also
+  # If oint_data_shift=0, untype does not need to shift. If also
   # char_int_len<=oint_data_len, and if a cint has exactly char_int_len
-  # bits, untype needs not to AND.
+  # bits, untype does not need to AND.
   #define char_int(char_from_char_int)  \
     ((cint)as_oint(char_from_char_int))
 #endif
@@ -4030,14 +4030,14 @@ typedef unsigned_int_with_n_bits(small_char_int_len)  scint;
 
 # Absolute value of a negative fixnum:
 # negfixnum_abs_L(obj)
-# Ergebnis ist > 0, <= 2^oint_data_len.
+# Result is > 0, <= 2^oint_data_len.
 # Beware: Possible wraparound at oint_data_len=intLsize!
 #define negfixnum_abs_L(obj)  \
   ((uintL)((as_oint(fixnum_inc(Fixnum_minus1,1))-as_oint(obj))>>oint_data_shift))
 
 # Value of a fixnum, obj should be a variable:
 # fixnum_to_L(obj)
-# Result is >= - 2^oint_data_len, < 2^oint_data_len und vom Typ sintL.
+# Result is >= - 2^oint_data_len, < 2^oint_data_len and of Type sintL.
 # This macro should only be used for oint_data_len+1 <= intLsize!
 #if (oint_data_len>=intLsize)
   # No space left for the sign-bit, thus fixnum_to_L = posfixnum_to_L = negfixnum_to_L !
@@ -4095,7 +4095,7 @@ typedef unsigned_int_with_n_bits(small_char_int_len)  scint;
 # x is a constant-expression with -2^oint_data_len <= x < 2^oint_data_len.
 #define sfixnum(x) ((x)>=0 ? posfixnum(x) : negfixnum(x))
 
-# Convert a character into a fixnum >=0 (like with char-int):
+# Convert a character into a fixnum >=0 (the same as for char-int):
 #ifdef WIDE_STRUCT
   #define char_to_fixnum(obj)  \
     type_data_object(fixnum_type,untype(obj))
@@ -4104,7 +4104,7 @@ typedef unsigned_int_with_n_bits(small_char_int_len)  scint;
     objectplus(obj,type_zero_oint(fixnum_type)-type_zero_oint(char_type))
 #endif
 
-# Make a character from a fitting fixnum >=0 (like with int-char):
+# Make a character from a fitting fixnum >=0 (the same as for int-char):
 #ifdef WIDE_STRUCT
   #define fixnum_to_char(obj)  \
     type_data_object(char_type,untype(obj))
@@ -4176,7 +4176,7 @@ typedef struct {
 } dfloat_;
 typedef dfloat_ *  Dfloat;
 
-# Single- und Double-Floats
+# Single- and Double-Floats
   #define float_value  representation.eksplicit
 
 # Long-Floats
@@ -4254,9 +4254,9 @@ typedef struct {
   #endif
   object data;      # data vector
   uintL totalsize;  # totalsize = product of the n dimensions
-  uintL dims[unspecified]; # evtl. displaced-offset,
+  uintL dims[unspecified]; # poss. displaced-offset,
                            # n dimensions,
-                           # evtl. fill-pointer
+                           # poss. fill-pointer
 } iarray_;
 typedef iarray_ *  Iarray;
 #define iarray_data_offset  offsetof(iarray_,data)
@@ -4720,7 +4720,7 @@ typedef struct {
     XRECORD_HEADER
     uintB strmfiller1;
     uintB strmflags; # Flags
-    uintB strmtype;  # Untertyp
+    uintB strmtype;  # Subtype
     uintB strmfiller2;
   #endif
   object strm_rd_by;
@@ -4743,7 +4743,7 @@ typedef struct {
 #define Stream_length(obj)  stream_length(TheStream(obj))
 #define Stream_xlength(obj)  stream_xlength(TheStream(obj))
 # Bit-masks in the Flags:
-  #define strmflags_open_B   0xF0  # gibt an, ob der Stream offen ist
+  #define strmflags_open_B   0xF0  #  set, if the Stream is open
   #define strmflags_immut_bit_B  1  # set if read literals are immutable
   #define strmflags_reval_bit_B  2  # set, if Read-Eval is permitted
   #define strmflags_rd_by_bit_B  4  # set, if READ-BYTE is possible
@@ -4824,7 +4824,7 @@ typedef struct {
   # - the 12 jumptables for STREAM-ELEMENT-TYPE, SET-STREAM-ELEMENT-TYPE,
   #   STREAM-EXTERNAL-FORMAT, SET-STREAM-EXTERNAL-FORMAT, INTERACTIVE-STREAM-P,
   #   CLOSE, LISTEN-CHAR, CLEAR_INPUT, LISTEN-BYTE, FINISH_OUTPUT,
-  #   FORCE_OUTPUT, CLEAR_OUTPUT in STREAM.D und
+  #   FORCE_OUTPUT, CLEAR_OUTPUT in STREAM.D and
   # - the name-table in CONSTOBJ.D and
   # - the jumptable for PR_STREAM in IO.D and
   # - the pseudo-function-table in PSEUDOFUN.D
@@ -4940,7 +4940,7 @@ typedef struct {
 #define clos_venv  clos_consts[0]
 typedef struct {
   LRECORD_HEADER # self-pointer for GC, length in bits
-  # Ab hier der Inhalt des Bitvektors.
+  # Here: Content of the Bitvector.
   uintW  ccv_spdepth_1;          # maximal SP-depth, 1-part
   uintW  ccv_spdepth_jmpbufsize; # maximal SP-depth, jmpbufsize-part
   uintW  ccv_numreq;    # number of required parameters
@@ -4980,7 +4980,7 @@ typedef struct {
   #define return_Values  return_void
   # A Lisp-function is a pointer to a C-function without returned value.
   typedef Values (*lisp_function)();
-# If this is changedm, , every call of a C-function with the result type
+# If this is changed, every call of a C-function with the result type
 # 'Values' (especially 'funcall', 'apply', 'eval') is to be checked.
 
 # FSUBRs
@@ -5020,7 +5020,7 @@ typedef struct {
     object keywords;        # NIL or vector with the keywords
     uintW argtype;          # short for the argument-type
     uintW req_anz;          # number of required parameters
-    uintW opt_anz;          # number of optionaler parameters
+    uintW opt_anz;          # number of optional parameters
     uintB rest_flag;        # flag for arbitrary number of arguments
     uintB key_flag;         # flag for keywords
     uintW key_anz;          # number of keyword parameter
@@ -5134,7 +5134,7 @@ typedef struct {
 #ifdef TYPECODES
 
 # You have to remove the typebits in order to access the components
-# of an obkect.
+# of an object.
   #if !((oint_addr_shift==0) && (addr_shift==0))
     #define pointable(obj)  ((void*)upointer(obj))
   #else
@@ -5184,7 +5184,7 @@ typedef struct {
 #endif # TYPECODES
 
 # TheCons(object) yields the Cons that's equivalent to object.
-# The information that is is a Cons has to be put into it.
+# The information that it is a Cons has to be put into it.
 # The other type conversions are similar.
 #ifdef TYPECODES
   #define TheCons(obj)  ((Cons)(types_pointable(cons_type,obj)))
@@ -5391,7 +5391,7 @@ typedef struct {
  (Record_type(obj) < rectype_limit ? Srecord_length(obj) : Xrecord_length(obj))
 
 
-# ####################### type test predicates############################### #
+# ####################### type test predicates ############################### #
 # There are two kinds of predicates:
 # 1.  ???p, query with 'if':  if ???p(object)
 # 2.  if_???p, called as
@@ -5458,7 +5458,7 @@ typedef struct {
   #define matomp(obj)  atomp(obj)
 #endif
 
-# For all type tests below this line, the argument must be side-effect free.
+# For all type tests below this line, the argument must be side-effect-free.
 # Ideally a variable, but a STACK_(n) reference works as well.
 
 # Test for List
@@ -6231,7 +6231,7 @@ typedef struct {
 # float_bit:
 # in a number : Bit set, if it's a Float.
 #                Bit unset, if it's a rational or complex number.
-# (Bei NUMBER_BITS_INVERTED genau umgekehrt.)
+# (For NUMBER_BITS_INVERTED it's exactly the other way around.)
 # #define float_bit_t      1
 # #define float_bit_o      (float_bit_t+oint_type_shift)
 
@@ -6375,7 +6375,7 @@ typedef struct {
   #define R_rationalp(obj)  (!floatp(obj))
 #endif
 
-# Tests a real number whether it's a Float ist.
+# Tests a real number whether it's a Float.
 #ifdef TYPECODES
   #ifndef NUMBER_BITS_INVERTED
     # define R_floatp(obj)  ( as_oint(obj) & wbit(float_bit_o) )
@@ -6558,7 +6558,7 @@ typedef struct {
                        # 'uintL' for tv_sec is good for 136 years.
       uintL tv_usec;   # additional microseconds
     } internal_time;
-    #define ticks_per_second  1000000UL  # 1 Tick = 1 µsec
+    #define ticks_per_second  1000000UL  # 1 Tick = 1 mu-sec
     #define sub_internal_time(x,y, z)  # z:=x-y  \
       { (z).tv_sec = (x).tv_sec - (y).tv_sec;                   \
         if ((x).tv_usec < (y).tv_usec)                          \
@@ -6574,9 +6574,9 @@ typedef struct {
   #endif
   #ifdef TIME_WIN32
     typedef # struct _FILETIME { DWORD dwLowDateTime; DWORD dwHighDateTime; }
-            FILETIME  # number of 0.1 µsec since 1.1.1601 00:00 GMT.
+            FILETIME  # number of 0.1 mu-sec since 1.1.1601 00:00 GMT.
             internal_time;
-    #define ticks_per_second  10000000UL  # 1 Tick = 0.1 µsec
+    #define ticks_per_second  10000000UL  # 1 Tick = 0.1 mu-sec
     #define sub_internal_time(x,y, z)  # z:=x-y  \
       { (z).dwHighDateTime = (x).dwHighDateTime - (y).dwHighDateTime;         \
         if ((x).dwLowDateTime < (y).dwLowDateTime) { (z).dwHighDateTime -= 1;}\
@@ -6679,7 +6679,7 @@ typedef struct {
 #                   Bits 10..5:  minute in {0,...,59},
 #                   Bits 4..0:   second/2 in {0,...,29}.
 # > uintW date: Datum
-#         Als Word: Bits 15..9: year-1980 in {0,...,119},
+#         As Word:  Bits 15..9: year-1980 in {0,...,119},
 #                   Bits 8..5:  month in {1,...,12},
 #                   Bits 4..0:  day in {1,...,31}.
 # < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
@@ -6743,7 +6743,7 @@ typedef struct {
 #ifdef WIN32_NATIVE
 # UP: converts the system time-format into Universal-Time.
 # convert_time_to_universal(&time)
-# > FILETIME time: Zeit im System-Zeitformat
+# > FILETIME time: Time in the system-time-format
 # < result: integer denoting the seconds since 1900-01-01 00:00 GMT
 # can trigger GC
   extern object convert_time_to_universal (const FILETIME* time);
@@ -6756,7 +6756,7 @@ typedef struct {
 # is used by SPVW
 
 
-# ####################### SPVWBIBL zu SPVW.D ############################## #
+# ####################### SPVWBIBL for SPVW.D ############################## #
 
 /*
                           The Stacks
@@ -6766,10 +6766,10 @@ Two Stacks are being used :
   - the C-program stack (Stackpointer SP = Register A7),
   - the LISP-Stack (Stackpointer STACK).
 All calls of sub-programs are done through BSR/JSR via the program stack;
-it's also used to store data that is not a LISP-object temporarilyer.
-The LISP-Stack is used store frames and for the temporary storage
+it's also used to temporarily store data, that is not a LISP-object.
+The LISP-Stack is used to store frames and for the temporary storage
 of LISP-objects.
-For both stacks the limits of growth are controled by the memory management
+For both stacks the limits of growth are controlled by the memory management
 and the following macros:
   check_SP();             tests the program stack for overflow
   check_STACK();          tests the LISP-Stack for overflow
@@ -6832,12 +6832,12 @@ All other long words on the LISP-Stack are LISP-objects.
 #if defined(GNU) && !defined(NO_ASM)
   # Assembler-instruction that copies the SP-register into a variable.
   #ifdef MC680X0
-    #ifdef __REGISTER_PREFIX__ # GNU C Version >= 2.4 hat %/ und __REGISTER_PREFIX__
+    #ifdef __REGISTER_PREFIX__ # GNU C Version >= 2.4 has %/ and __REGISTER_PREFIX__
       # But the value of __REGISTER_PREFIX__ is useless, because we might be
       # cross-compiling.
       #define REGISTER_PREFIX  "%/"
     #else
-      #define REGISTER_PREFIX  "" # oder "%%", depends on the assembler that's being used
+      #define REGISTER_PREFIX  "" # or "%%", depends on the assembler that's being used
     #endif
     #define ASM_get_SP_register(resultvar)  ("movel "REGISTER_PREFIX"sp,%0" : "=g" (resultvar) : )
   #endif
@@ -6935,7 +6935,7 @@ All other long words on the LISP-Stack are LISP-objects.
 #        wide as uintL and at least as wide as aint resp. void*.
 # SP_(n) = (n+1)th longword on the SP.
 # _SP_(n) = &SP_(n).
-# pushSP(item)  puts a lognword on the SP. Synonym: -(SP).
+# pushSP(item)  puts a longword on the SP. Synonym: -(SP).
 # popSP(item=)  returns item=SP_(0) and takes it off the SP.
 # skipSP(n);  takes n long words of the SP.
 #if (oint_addr_len <= intLsize)
@@ -7025,7 +7025,7 @@ typedef SPint sp_jmp_buf[jmpbufsize];
   #define STACK  _getSTACK()
   extern_C object* _getSTACK (void);
   #define setSTACK(allocation)  \
-    { var object* tempSTACK; _setSTACK(temp##allocation); } # Ähem, igitt!
+    { var object* tempSTACK; _setSTACK(temp##allocation); } # hem, yuck!
   extern_C void _setSTACK (void* new_STACK);
 #else
   #define setSTACK(allocation)  allocation
@@ -7109,7 +7109,7 @@ typedef SPint sp_jmp_buf[jmpbufsize];
   #define end_callback()  SAVE_GLOBALS(); RESTORE_REGISTERS(;)
 #endif
 
-# Every OS-call (or a sequence of thereof) has to be framed with
+# Every OS-call (or a sequence thereof) has to be framed with
 #   begin_system_call();
 # and
 #   end_system_call();
@@ -7130,7 +7130,7 @@ typedef SPint sp_jmp_buf[jmpbufsize];
   #define begin_system_call()  begin_call()
   #define end_system_call()  end_call()
 #endif
-# The same holds for setjmp()/longjmp(). Here we avoide an unneeded overhead
+# The same holds for setjmp()/longjmp(). Here we avoid an unneeded overhead
 # if at all possible.
 # You don't have to use these macros when a break-semaphore has been
 # set.
@@ -7155,7 +7155,7 @@ typedef SPint sp_jmp_buf[jmpbufsize];
   #define end_longjmp_call()  end_system_call()
 #endif
 # The same holds for arithmetics-functions that use the STACK_registers.
-# Das sind auf I80386 (%ebx) die SHIFT_LOOPS, MUL_LOOPS, DIV_LOOPS.
+# On I80386 (%ebx) these are SHIFT_LOOPS, MUL_LOOPS, DIV_LOOPS.
 #if defined(I80386) && !defined(NO_ARI_ASM) && (SAFETY < 3) && defined(HAVE_SAVED_STACK)
   #define begin_arith_call()  begin_system_call()
   #define end_arith_call()  end_system_call()
@@ -7591,7 +7591,7 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
 # UP: allocates Structure
 # allocate_structure(reclen)
 # > uintC reclen: length
-# < result: LISP-Objekt Structure (Elemente werden mit NIL initialisiert)
+# < result: LISP-Object Structure (Elements are initialized with NIL)
 # can trigger GC
 #ifdef case_structure
   #define allocate_structure(reclen)  \
@@ -7727,8 +7727,8 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
 #ifdef FOREIGN
 # UP: allocates a foreign-pointer packing
 # allocate_fpointer(foreign)
-# > foreign: vom Typ FOREIGN
-# < result: LISP-object, contains the foreign
+# > foreign: of Type FOREIGN
+# < result: LISP-object, contains the foreign pointer
 # can trigger GC
   extern object allocate_fpointer (FOREIGN foreign);
 # is used by REXX
@@ -7847,7 +7847,7 @@ extern object allocate_ffloat (ffloat value);
 # > uintL expo: exponent
 # > signean sign: sign (0 = +, -1 = -)
 # < result: new Long-Float, without mantissa
-# It will only be a LISP-object whem the mantissa has been entered!
+# It will only be a LISP-object when the mantissa has been entered!
 # can trigger GC
 extern object allocate_lfloat (uintC len, uintL expo, signean sign);
 # is used by LISPARIT
@@ -7878,11 +7878,11 @@ extern object make_complex (object real, object imag);
 extern uintL asciz_length (const char * asciz);
 # is used by SPVW
 
-# UP: Vergleicht zwei ASCIZ-Strings.
+# UP: Compares two ASCIZ-Strings.
 # asciz_equal(asciz1,asciz2)
-# > char* asciz1: erster ASCIZ-String
-# > char* asciz2: zweiter ASCIZ-String
-# < result: true falls die Zeichenfolgen gleich sind
+# > char* asciz1: first ASCIZ-String
+# > char* asciz2: second ASCIZ-String
+# < result: true if the number-sequences are equal
 extern bool asciz_equal (const char * asciz1, const char * asciz2);
 # is used by STREAM
 
@@ -7893,48 +7893,48 @@ extern bool asciz_equal (const char * asciz1, const char * asciz2);
 #endif
 #ifndef asciz_length
   #ifdef HAVE_SAVED_STACK
-    # Kann nicht strlen() statt asciz_length() benutzen, denn das würde
-    # ein begin_system_call()/end_system_call() erfordern.
+    # can not use strlen() instead of asciz_length() , because this would
+    # require a begin_system_call()/end_system_call() .
   #else
-    # Gehen wir davon aus, dass strlen() effizient implementiert ist.
+    # let us presume, that strlen() is implemented efficiently.
     #ifdef STDC_HEADERS
-      #include <string.h> # deklariert strlen()
+      #include <string.h> # declares strlen()
     #endif
-    #ifdef RETSTRLENTYPE # wenn strlen() kein Macro ist
+    #ifdef RETSTRLENTYPE # if strlen() is no Macro
       extern_C RETSTRLENTYPE strlen (STRLEN_CONST char* s);
     #endif
     #define asciz_length(a)  ((uintL)strlen(a))
   #endif
 #endif
 
-# UP: Liefert eine Tabelle aller Zirkularitäten innerhalb eines Objekts.
-# (Eine Zirkularität ist ein in diesem Objekt enthaltenes Teil-Objekt,
-# auf den es mehr als einen Zugriffsweg gibt.)
+# UP: Returns a Table of all circularities within an Object.
+# (A circularity is a Sub-Object contained within this Object,
+# which has more than one access-path to it.)
 # get_circularities(obj,pr_array,pr_closure)
-# > object obj: Objekt
-# > bool pr_array: Flag, ob Arrayelemente rekursiv als Teilobjekte gelten
-# > bool pr_closure: Flag, ob Closurekomponenten rekursiv als Teilobjekte gelten
-# < result: T falls Stacküberlauf eintrat,
-#             NIL falls keine Zirkularitäten vorhanden,
-#             #(0 ...) ein (n+1)-elementiger Vektor, der die Zahl 0 und die n
-#                      Zirkularitäten als Elemente enthält, n>0.
+# > object obj: Object
+# > bool pr_array: Flag, if Array-Elements recursively count as Sub-Objects
+# > bool pr_closure: Flag, if Closure-Components recursively count as Sub-Objects
+# < result: T if Stack-Overflow occurred,
+#             NIL if no circularities available,
+#             #(0 ...) an (n+1)-element Vector, that contains the number 0 and the n
+#                      circularities as Elements, n>0.
 # can trigger GC
 extern object get_circularities (object obj, bool pr_array, bool pr_closure);
 # is used by IO
 
-# UP: Entflicht #n# - Referenzen im Objekt *ptr mit Hilfe der Aliste alist.
-# > *ptr : Objekt
-# > alist : Aliste (Read-Label --> zu substituierendes Objekt)
-# < *ptr : Objekt mit entflochtenen Referenzen
-# < ergebnis : fehlerhafte Referenz oder nullobj falls alles OK
+# UP: unentangles #n# - References in Object *ptr with help from Aliste alist.
+# > *ptr : Object
+# > alist : Alist (Read-Label --> Object, to be substituted)
+# < *ptr : Object with unentangled References
+# < result : erroneous Reference or nullobj if everything is OK
 extern object subst_circ (object* ptr, object alist);
 # is used by IO
 
-# UP: Läuft durch den gesamten Speicher durch, und ruft dabei für jedes
-# Objekt obj: fun(arg,obj,bytelen) auf.
+# UP: Runs through the whole memory, and calls for each
+# Object obj: fun(arg,obj,bytelen) .
 # map_heap_objects(fun,arg);
-# > fun: C-Funktion
-# > arg: beliebiges vorgegebenes Argument
+# > fun: C-Function
+# > arg: arbitrary given Argument
 typedef void map_heap_function (void* arg, object obj, uintL bytelen);
 extern void map_heap_objects (map_heap_function* fun, void* arg);
 # is used by PREDTYPE
@@ -7942,16 +7942,16 @@ extern void map_heap_objects (map_heap_function* fun, void* arg);
 # UP: returns the size (in Bytes) of an object.
 # varobject_bytelength(obj)
 # > obj: Heap-object with variable length
-# < result; the number of bytes occupied by it (header incuded)
+# < result; the number of bytes occupied by it (header included)
 extern uintL varobject_bytelength (object obj);
 # is used by PREDTYPE
 
-# Break-Semaphoren
-# Solange eine Break-Semaphore gesetzt ist, kann das Lisp-Programm nicht
-# unterbrochen werden. Zweck:
-# - Sicherstellung von Konsistenzen,
-# - Nicht reentrante Datenstrukturen (wie z.B. DTA_buffer) können nicht
-#   rekursiv verwendet werden.
+# Break-Semaphores
+# As long as a Break-Semaphore is set, the Lisp-Program can not
+# be interrupted. Purpose:
+# - backup of Consistencies,
+# - Non-reentrant Data-Structures (like e.g. DTA_buffer) can not
+#   be used recursively.
 typedef union {uintB einzeln[8]; uintL gesamt[2]; } break_sems_;
 extern break_sems_ break_sems;
 #define break_sem_0  break_sems.einzeln[0]
@@ -8042,11 +8042,11 @@ extern break_sems_ break_sems;
 # Flag, whether SYS::READ-FORM should behave compatible to ILISP
 extern bool ilisp_mode;
 
-# returns the amount of space occupied by static LISP-objectes
+# returns the amount of space occupied by static LISP-objects
 extern uintL static_space (void);
 # is used by DEBUG
 
-# returns the amount of space occupied by LISP-objectes
+# returns the amount of space occupied by LISP-objects
 extern uintL used_space (void);
 # is used by TIME, DEBUG
 
@@ -8214,9 +8214,9 @@ extern struct symbol_tab_ {
 #define NIL  S(nil)
 #define T    S(t)
 
-# The mactos NIL_IS_CONSTANT tells , whether NIL is recognized
+# The macro NIL_IS_CONSTANT tells , whether NIL is recognized
 # as 'constant expression' by the C-Compiler. If so, tables can
-# be already be initialized largely by the C-Compiler.
+# already be initialized largely by the C-Compiler.
 #if (oint_addr_shift==0)
   #define NIL_IS_CONSTANT  true
 #else
@@ -8231,7 +8231,7 @@ extern struct object_tab_ {
 #undef LISPOBJ
 # is used by Macro O
 
-# Abkürzung für sonstiges LISP-object mit einem gegebenem Namen:
+# Abbreviation for other LISP-object with a given Name:
 #define O(name)  (object_tab.name)
 
 # Shorthand for a LISP-object with a given name that depends on language:
@@ -8257,7 +8257,7 @@ extern struct object_tab_ {
 #endif
 
 
-# ###################### MODBIBL zu MODULES.D ############################ #
+# ###################### MODBIBL for MODULES.D ############################ #
 
 #if defined(DYNAMIC_MODULES) && !defined(HAVE_DYNLOAD)
   #error "Dynamic modules require dynamic loading!"
@@ -8268,8 +8268,8 @@ extern uintC module_count;
 
 # Data for initialization of a module's subr_tab:
 typedef struct {
-  const char* packname; # Name der Home-Package des Symbols oder NULL
-  const char* symname; # Name des Symbols
+  const char* packname; # Name of the Home-Package of the Symbol or NULL
+  const char* symname; # Name of the Symbol
 } subr_initdata;
 
 # Data for initialization of a module's object_tab:
@@ -8277,24 +8277,24 @@ typedef struct {
   const char* initstring; # Initialization-String
 } object_initdata;
 
-# Tabelle bzw. Liste der Module:
+# Table resp. List of Modules:
 typedef struct module_ {
   const char* name; # Name
   subr_* stab; const uintC* stab_size; # a separate subr_tab
   object* otab; const uintC* otab_size; # a separate object_tab
   bool initialized;
-  # Daten zur Initialisierung:
+  # Data for Initialization:
   const subr_initdata* stab_initdata;
   const object_initdata* otab_initdata;
-  # Funktionen zur Initialisierung
+  # Functions for Initialization
   void (*initfunction1) (struct module_ *); # only once
   void (*initfunction2) (struct module_ *); # always at start up
   #ifdef DYNAMIC_MODULES
-    struct module_ * next; # verkettete Liste
+    struct module_ * next; # linked List
   #endif
 } module_;
 #ifdef DYNAMIC_MODULES
-  extern module_ modules[]; # Listenanfang
+  extern module_ modules[]; # List-Start
   BEGIN_DECLS
   extern void add_module (module_ * new_module);
   END_DECLS
@@ -8309,7 +8309,7 @@ typedef struct module_ {
 #endif
 
 
-# ####################### EVALBIBL zu EVAL.D ############################## #
+# ####################### EVALBIBL for EVAL.D ############################## #
 
 /*
 
@@ -8333,7 +8333,7 @@ Values
 
 The following format is used for the passing of multiple values:
 value1 contains the first value (NIL if there aren't values).
-mv_count contaisn the number of values..
+mv_count contains the number of values..
 If there is at least one value       : value1 = first value.
 If there are at least two values     : value2 = second value.
 If there are at least three values   : value3 = third value .
@@ -8352,12 +8352,12 @@ Passing of parameters to SUBRs
 ==============================
 
 The arguments are passed on the LISP-stack, with the first one being on the
-top. The required arhiments come first, then the optional ones
+top. The required arguments come first, then the optional ones
 (each #UNBOUND, if not specified), then come the
 keyword-arguments (again, each #UNBOUND, if not specified).
 The SUBR-object can be found in subr_self.
 This is all if no &REST-argument is planned. But if a &REST-argument
-is planned, all futher arguments follow (the optional ones) on the stack
+is planned, all further arguments follow (the optional ones) on the stack
 one by one, and this will be passed: the number of these arguments and a pointer
 above the first of these arguments. (This means that the number of LISP-objects on
 the stack is not always the same!)
@@ -8404,7 +8404,7 @@ DECL_(A3)=DECL_ENV.
 The variables-environment
 -------------------------
 It contains the local variable-bindings.
-A variables-enviroment is given trhogu a pointer to a
+A variables-enviroment is given through a pointer to a
 variable-binding frame, or NIL  (which means an empty lexical
 environment) or a vector that is built as follows:
 The vector contains n bindings and has the length 2n+1. The elements are
@@ -8416,16 +8416,16 @@ The functions- and macro-environment
 ------------------------------------
 It contains the local function- and macro-definitions.
 A functions- and macro-environment is given through a pointer to
-a funktions- or macrobindings-frame or NIL (which means an empty
+a functions- or macrobindings-frame or NIL (which means an empty
 lexical environment) or through a vector that is built as follows:
 The vector contains n bindings and has length 2n+1. The elements are
-n-time each funktion name (a symbol) and the definiton that belongs to it (a
+n-time each function-name (a symbol) and the definiton that belongs to it (a
 closure or NIL or a Cons (SYS::MACRO . Closure) ) and as last element
 the predecessor environment.
 
 The block-environment
 ---------------------
-It contains the lexically visibe block-exitpoints.
+It contains the lexically visible block-exitpoints.
 A block-environment is given through a pointer to a block-frame
 or through an association-list, whose elements each have the block-name (a symbol)
 as CAR and as CDR either the pointer to the appropriate
@@ -8444,20 +8444,20 @@ The declarations-environment
 ----------------------------
 It contains the lexically visible declarations.
 A declarations-environment is given through a list of declaration-
-specifiers, whose CAR is each either  OPTIMIZE or DECLARATION or
+specifiers, whose CAR is each either OPTIMIZE or DECLARATION or
 a user-specified declaration-type.
 
 Passing of environtments to LISP-functions
 ------------------------------------------
 There are two data structures for this:
-When it is passed as second argument to macro-expander-funktions (CLTL S.
-145-146) and when it is recepted by MACROEXPAND and MACROEXPAND-1 (CLTL S. 151)
-it is simply a Simple-Vector with 2 elementd, consisting of a nested
+When it is passed as second argument to macro-expander-functions (CLTL p.
+145-146) and when it is receipted by MACROEXPAND and MACROEXPAND-1 (CLTL p. 151)
+it is simply a Simple-Vector with 2 elements, consisting of a nested
 variable-environment and a nested functions- and macro-environment.
 The same for passing to  SYSTEM::%EXPAND-LAMBDABODY-MAIN and the like.
 If it is passed as second argument to the value of *EVALHOOK* or as third one
-to the value of *APPLYHOOK* (CLTL S. 322) and on reception by
-EVALHOOK and APPLYHOOK (CLTL S. 323) it is a Simple-Vector with
+to the value of *APPLYHOOK* (CLTL p. 322) and on reception by
+EVALHOOK and APPLYHOOK (CLTL p. 323) it is a Simple-Vector with
 five elements with all five components nested.
 
 Frames
@@ -8483,12 +8483,12 @@ Right at the bottom of a frame there is a long-word, that contains the
 frame-type information and a pointer above the frame (= the value of the
 STACK before and after the frame has been built).
 In the frame-info there are the bits
-  SKIP2_BIT      deleted, if another long-word comes above itf,
+  SKIP2_BIT      deleted, if another long-word comes above it,
                    that is not a LISP-object and thus has to be skipped
                    by the GC,
   EXITPOINT_BIT  set for all but VAR and FUN,
   NESTED_BIT     set for IBLOCK and ITAGBODY, if the exitpoint or
-                   the Go-label have already been put into an Alist.
+                   the Go-label has already been put into an Alist.
 The default-values for  the frame-type info-bytes are ENVxx_FRAME_INFO,
 APPLY_FRAME_INFO, EVAL_FRAME_INFO, VAR_FRAME_INFO, FUN_FRAME_INFO,
 IBLOCK_FRAME_INFO, CBLOCK_FRAME_INFO, ITAGBODY_FRAME_INFO, CTAGBODY_FRAME_INFO,
@@ -8503,7 +8503,7 @@ setjmp/longjmp-buffer.
 Environmentbindings-frames
 --------------------------
 They contain dynamic bindings of a maximum of 5 environments.
-ENVxx_FRAME_INFO  is frame-info (xx depending on the envrionment that is
+ENVxx_FRAME_INFO  is frame-info (xx depending on the environment that is
 bound here). Structure:
     Offset        Stack-Contents
   20/16/12/8/4  [old value ofDECL_ENV]
@@ -8608,10 +8608,10 @@ dynamic. (Dynamic references are marked as lexical with
 the special value #SPECDECL!).
 NEXT_ENV is next upper variables-environment.
 m is a long-word, 0 <= m <= n, and stands for the number of bindings that
-have not yet been put into a vector by NEST-pperationes. Thus
+have not yet been put into a vector by NEST-operations. Thus
 the symbol/value-pairs 1,...,n-m have been active but been nested meanwhile
 and thus inactive again on the stack (if the bindings were static).
-Only some of the pairs n-m+1,...,n can be staic and active.
+Only some of the pairs n-m+1,...,n can be static and active.
 The frameinfo-byte contains VAR_FRAME_INFO.
 
 Function- and Macrobindings-Frames
@@ -8718,7 +8718,7 @@ They are created by the  Special-Form CATCH. Its structure is as follows:
    0        Frame-Info; pointer above frame
 TAG is the tag of the catcher.
 SP is a pointer into the program stack, (SP).L is a routine, that unwinds
-the Frame auflöst and returns the values A0-A2/...
+the Frame and returns the values A0-A2/...
 Frame-Info is CATCH_FRAME_INFO.
 
 Unwind-Protect-Frames
@@ -8872,7 +8872,7 @@ re-enters the corresponding top-level loop.
 #define STACK_8  (STACK_(8))
 #define STACK_9  (STACK_(9))
 #define STACK_10  (STACK_(10))
-# usw.
+# etc.
 
 
 # Values:
@@ -8886,7 +8886,7 @@ re-enters the corresponding top-level loop.
 #   For mv_count=0 the first value = NIL.
 #   The values in mv_space are not subject to the Garbage Collection!
 #if !defined(mv_count_register)
-  # eine globale Variable
+  # a global Variable
   #ifndef MULTITHREAD
     extern uintC mv_count;
   #else
@@ -8906,7 +8906,7 @@ re-enters the corresponding top-level loop.
   #ifndef MULTITHREAD
     #define value1  mv_space[0]
   #else
-    # The first value mv_space[0] is moved to the beginning og struct thread_:
+    # The first value mv_space[0] is moved to the beginning of struct thread_:
     #define value1  (current_thread()->_value1)
     #define VALUE1_EXTRA # and thus has to be treated extra every time...
   #endif
@@ -8985,7 +8985,7 @@ re-enters the corresponding top-level loop.
 # mv_to_STACK()
 # > mv_count/mv_space : values
 # < values on the Stack (first value on top)
-# STACK-Overflow wird abgeprüft.
+# STACK-Overflow is checked.
 # modifies STACK
 #if !defined(VALUE1_EXTRA)
   #define mv_to_STACK()  \
@@ -9106,7 +9106,7 @@ nonreturning_function(extern, fehler_mv_zuviel, (object caller));
 #   Additionally possible:
 #     object* args_pointer = rest_args_pointer STACKop (fixed number of arguments);
 #                                 Pointer above the first argument
-#   Typische Abarbeitungsschleifen:
+#   Typical Loop-Processing:
 #     from the front:
 #       until (argcount==0) {
 #         var object arg = NEXT(rest_args_pointer); ...; argcount--;
@@ -9145,14 +9145,14 @@ nonreturning_function(extern, fehler_mv_zuviel, (object caller));
 # Environments:
 
 typedef struct {
-  object var_env;   # Variablenbindings-Environment
-  object fun_env;   # Functionsbindungs-Environment
+  object var_env;   # Variable-Bindings-Environment
+  object fun_env;   # Function-Bindings-Environment
   object block_env; # Block-Environment
   object go_env;    # Tagbody/Go-Environment
   object decl_env;  # Declarations-Environment
 } environment;
 
-# The curent Environment:
+# The current Environment:
 #ifndef MULTITHREAD
   extern environment aktenv;
 #else
@@ -9216,11 +9216,11 @@ typedef struct {
   # Bit is unset for VAR/FUN-Frame and CALLBACK-Frame.
   # for further discrimination in BLOCK/TAGBODY/APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/DRIVER:
   #define blockgo_bit_t    FB3  # Bit set for BLOCK- and TAGBODY-FRAME
-  # zur näheren Unterscheidung in BLOCK/TAGBODY:
-  #define cframe_bit_t     FB1  # gesetzt bei compilierten, gelöscht bei
-                                # interpretierten BLOCK/TAGBODY-Frames
-  #define nested_bit_t unwind_bit_t # für IBLOCK und ITAGBODY, gesetzt,
-                                    # wenn Exitpoint bzw. Tags genestet wurden
+  # for further discrimination in BLOCK/TAGBODY:
+  #define cframe_bit_t     FB1  # set for compiled BLOCK/TAGBODY-Frames,
+                                # unset for interpreted BLOCK/TAGBODY-Frames
+  #define nested_bit_t unwind_bit_t # set for IBLOCK and ITAGBODY,
+                                    # if Exitpoint resp. Tags were nested
   # for further discrimination in APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/DRIVER:
   #define dynjump_bit_t  FB2    # unset for APPLY and EVAL, set
                                 # for CATCH/UNWIND_PROTECT/DRIVER-Frames
@@ -9255,7 +9255,7 @@ typedef struct {
   #define     driver_bit_o     (driver_bit_t+oint_type_shift)
   #define    handler_bit_o    (handler_bit_t+oint_type_shift)
   #define        fun_bit_o        (fun_bit_t+oint_type_shift)
-  # einzelne Frame-Info-Bytes:
+  # single Frame-Info-Bytes:
   #define DYNBIND_frame_info          /* %1110... */ (bit(FB7)|bit(FB6)|bit(FB5))
   #define ENV1V_frame_info            /* %1111000 */ (bit(FB7)|bit(FB6)|bit(FB5)|bit(FB4))
   #define ENV1F_frame_info            /* %1111001 */ (bit(FB7)|bit(FB6)|bit(FB5)|bit(FB4)|bit(FB1))
@@ -9319,7 +9319,7 @@ typedef struct {
   # above: for VAR/FUN-Frame and CALLBACK-Frame.
   # for further discrimination in BLOCK/TAGBODY/APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/DRIVER:
   #define blockgo_bit_t    FB3  # Bit set for BLOCK- and TAGBODY-FRAME
-  # for further discimination in BLOCK/TAGBODY:
+  # for further discrimination in BLOCK/TAGBODY:
   #define cframe_bit_t   FB4  # set for compiled, unset for
                               # interpreted BLOCK/TAGBODY-Frames
   #define nested_bit_t   FB2  # set for IBLOCK and ITAGBODY,
@@ -9337,12 +9337,12 @@ typedef struct {
                               # unset for UNWIND_PROTECT-Frames
   #define handler_bit_t  FB1  # set for HANDLER-Frames,
                               # unset for CATCH-Frames
-  # for further discimination in VAR/FUN/CALLBACK:
+  # for further discrimination in VAR/FUN/CALLBACK:
   #define callback_bit_t   FB2  # Bit is unset for CALLBACK-Frames.
                                 # Bit is set for VAR/FUN-Frames.
   # for further discrimination in VAR/FUN:
   #define fun_bit_t      FB1  # set for FUN-Frame, unset for VAR-Frame
-  # in Objekten auf dem STACK (oint):
+  # in Objects on the STACK (oint):
   #define    frame_bit_o    (frame_bit_t+oint_type_shift)
   #define    skip2_bit_o    (skip2_bit_t+oint_type_shift)
   #define  envbind_bit_o  (envbind_bit_t+oint_type_shift)
@@ -9356,7 +9356,7 @@ typedef struct {
   #define   driver_bit_o   (driver_bit_t+oint_type_shift)
   #define  handler_bit_o  (handler_bit_t+oint_type_shift)
   #define      fun_bit_o      (fun_bit_t+oint_type_shift)
-  # einzelne Frame-Info-Bytes:
+  # single Frame-Info-Bytes:
   #define APPLY_frame_info            /* %100000 */ (bit(FB6))
   #define EVAL_frame_info             /* %100001 */ (bit(FB6)|bit(FB1))
   #define CATCH_frame_info            /* %100010 */ (bit(FB6)|bit(FB2))
@@ -9403,7 +9403,7 @@ typedef struct {
     # bit(active_bit),bit(dynam_bit),bit(svar_bit) must be true divisors
     # of varobject_alignment:
     #if (varobject_alignment % bit(active_bit+1)) || (varobject_alignment % bit(dynam_bit+1)) || (varobject_alignment % bit(svar_bit+1))
-      #error "No more room for three bits in a symbol -- Kein Platz für drei Bits in der Adresse eines Symbols!"
+      #error "No more room for three bits in a symbol -- Kein Platz fuer drei Bits in der Adresse eines Symbols!"
     #endif
   #endif
 #endif
@@ -9450,7 +9450,7 @@ typedef struct {
 
 # Handling Frames:
 # A local variable FRAME contains the value of STACK after
-# creating a Frame. Then you can access with FRAME_(n) just
+# creating a Frame. Then you can access with FRAME_(n) just like
 # with likeSTACK_(n):
 #ifdef STACK_DOWN
   #define FRAME_(n)  (FRAME[(sintP)(n)])
@@ -9458,11 +9458,11 @@ typedef struct {
 #ifdef STACK_UP
   #define FRAME_(n)  (FRAME[-1-(sintP)(n)])
 #endif
-# make_framepointer(FRAME) ist der Frame-Pointer als LISP-object.
-# framecode(FRAME_(0)) ist das Frame-Info-Byte (vom Typ fcint),
-# topofframe(FRAME_(0)) ist ein Pointer über den Frame.
+# make_framepointer(FRAME) is the Frame-Pointer as LISP-object.
+# framecode(FRAME_(0)) is the Frame-Info-Byte (of Type fcint),
+# topofframe(FRAME_(0)) is a Pointer above the Frame.
 # FRAME = uTheFramepointer(obj) is a Frame-Pointer as pointer into the Stack.
-#         [uTheFramepointer ist is the exact opposite of make_framepointer.]
+#         [uTheFramepointer is the exact opposite of make_framepointer.]
 # FRAME = TheFramepointer(obj) as well, but possibly still with type info!
 #         [An attenuation of uTheFramepointer, that is enough for access.]
 #ifdef TYPECODES
@@ -9499,7 +9499,7 @@ typedef struct {
 # STACK_item_count(new_STACK_ptr,old_STACK_ptr)
 # calculates the number of STACK-elements between an older stack pointer
 # old_STACK_ptr and a new one new_STACK_ptr.
-# (Also count mit  old_STACK_ptr = new_STACK_ptr STACKop count .)
+# (That's count with old_STACK_ptr = new_STACK_ptr STACKop count .)
 #ifdef STACK_DOWN
   #define STACK_item_count(new_STACK_ptr,old_STACK_ptr)  \
     (uintL)((old_STACK_ptr) - (new_STACK_ptr))
@@ -9517,7 +9517,7 @@ typedef struct {
   #if !defined(SINGLEMAP_MEMORY_STACK)
     #define framebottomword(type,top_of_frame,bot_of_frame)  \
       type_pointer_object(type,top_of_frame)
-  #else # top_of_frame hat selber schon Typinfo system_type
+  #else # top_of_frame has already Typinfo system_type
     #define framebottomword(type,top_of_frame,bot_of_frame)  \
       as_object(type_zero_oint(type)-type_zero_oint(system_type)+(oint)(top_of_frame))
   #endif
@@ -9557,7 +9557,7 @@ typedef struct {
 # > sp_jmp_buf* returner: longjmp-Buffer for re-entry
 # > retval_allocation: allocated of the setjmp()-value to a variable
 # > reentry_statement: what is to be done immediately after re-entry.
-# erniedrigt STACK um 1
+# decreases STACK by 1
 #define finish_entry_frame(frametype,returner,retval_allocation,reentry_statement)  \
   { pushSTACK(as_object((aint)(returner))); # SP onto the Stack               \
     pushSTACK(nullobj); # dummy onto the Stack, until re-entry is permitted   \
@@ -9576,7 +9576,7 @@ typedef struct {
 # The multiple values are passed.
 # enter_frame_at_STACK();
 #define enter_frame_at_STACK() \
-  { var sp_jmp_buf* returner = (sp_jmp_buf*)(aint)as_oint(STACK_(frame_SP)); # der returner von finish_entry_frame \
+  { var sp_jmp_buf* returner = (sp_jmp_buf*)(aint)as_oint(STACK_(frame_SP)); # the returner of finish_entry_frame \
     LONGJMP_SAVE_value1(); LONGJMP_SAVE_mv_count(); \
     begin_longjmp_call(); \
     longjmpspl(&!*returner,(aint)returner); # jump to there, pass own addess (/=0) \
@@ -9610,7 +9610,7 @@ typedef struct {
 # UP: Applies a function to its arguments.
 # apply(function,args_on_stack,other_args);
 # > function: function
-# > Argumente: args_on_stack arguments on the STACK,
+# > Arguments: args_on_stack arguments on the STACK,
 #              remaining argument-list in other_args
 # < STACK: cleaned (ie. STACK is increased by args_on_stack)
 # < mv_count/mv_space: values
@@ -9621,17 +9621,17 @@ extern Values apply (object fun, uintC args_on_stack, object other_args);
 # UP: Applies a function to its arguments.
 # funcall(function,argcount);
 # > function: function
-# > Argumente: argcount arguments on the STACK
+# > Arguments: argcount arguments on the STACK
 # < STACK: cleaned (ie. STACK is increased by argcount)
 # < mv_count/mv_space: values
 # modifies STACK, can trigger GC
 extern Values funcall (object fun, uintC argcount);
-# is used by allen Modulen
+# is used by all Modules
 
 # UP: Evaluates a Form in the current Environment.
 # eval(form);
 # > form: Form
-# < mv_count/mv_space: Werte
+# < mv_count/mv_space: values
 # can trigger GC
 extern Values eval (object form);
 # is used by CONTROL, DEBUG
@@ -9666,7 +9666,7 @@ extern Values eval_noenv (object form);
 extern Values eval_no_hooks (object form);
 # is used by CONTROL
 
-# UP: bindy *EVALHOOK* and *APPLYHOOK* dynamically to the given values.
+# UP: binds *EVALHOOK* and *APPLYHOOK* dynamically to the given values.
 # bindhooks(evalhook_value,applyhook_value);
 # > evalhook_value: Value for *EVALHOOK*
 # > applyhook_value: Value for *APPLYHOOK*
@@ -9677,7 +9677,7 @@ extern void bindhooks (object evalhook_value, object applyhook_value);
 # UP: Unwinds a Frame, to which STACK points.
 # unwind();
 # The values mv_count/mv_space aren't changed.
-# If it's no Unwind-Protect-Frame: returns normally.
+# If it is no Unwind-Protect-Frame: returns normally.
 # If it is an Unwind-Protect-Frame:
 #   saves the values, climbs up the STACK and SP
 #   and then jumps to unwind_protect_to_save.fun.
@@ -9702,7 +9702,7 @@ extern void unwind (void);
 nonreturning_function(extern, reset, (void));
 # is used by SPVW, CONTROL
 
-# UP: binds the symbolds of the list symlist dynamically
+# UP: binds the symbols of the list symlist dynamically
 # to the values of the list vallist.
 # progv(symlist,vallist);
 # > symlist, vallist: two lists
@@ -9722,7 +9722,7 @@ extern void progv (object symlist, object vallist);
 nonreturning_function(extern, unwind_upto, (object* upto_frame));
 # is used by CONTROL, DEBUG
 
-# UP: throws to the Tag tag and and passes the values mv_count/mv_space.
+# UP: throws to the Tag tag and passes the values mv_count/mv_space.
 # Only returns, if there is no CATCH-Frame of this tag.
 # throw_to(tag);
 extern void throw_to (object tag);
@@ -9794,7 +9794,7 @@ extern void setq (object sym, object value);
 extern object sym_function (object sym, object fenv);
 # is used by CONTROL
 
-# UP: "nests" an FUN-Environment, ie. writes all active bidnings
+# UP: "nests" an FUN-Environment, ie. writes all active bindings
 # from the Stack to freshly allocated Vectors..
 # nest_fun(env)
 # > env: FUN-Env
@@ -9803,7 +9803,7 @@ extern object sym_function (object sym, object fenv);
 extern object nest_fun (object env);
 # is used by CONTROL
 
-# UP: Nests the Environments in *env (ie. write al information
+# UP: Nests the Environments in *env (ie. write all information
 # to Stack-independent structures) and pushes it onto the STACK.
 # nest_env(env)
 # > environment* env: Pointer to five single Environments
@@ -9815,7 +9815,7 @@ extern environment* nest_env (environment* env);
 # UP: Nests the current environments (ie. writes all information
 # to Stack-independent structures) and pushes them onto the STACK.
 # (The values VAR_ENV, FUN_ENV, BLOCK_ENV, GO_ENV, DECL_ENV aren't
-# modigied, since there might be inactive bidnings in frames that cannot
+# modified, since there might be inactive bindings in frames that cannot
 # be activated without modifying VAR_ENV .)
 # nest_aktenv()
 # < environment* result: Pointer to the Environments on the STACK
@@ -9833,7 +9833,7 @@ extern environment* nest_env (environment* env);
 extern object augment_decl_env (object new_declspec, object env);
 # is used by CONTROL
 
-# UP: expands a Form, if pissible, (but not, if FSUBR-call
+# UP: expands a Form, if possible, (but not, if FSUBR-call
 # or Symbol or FunctionMacro-call) in an Environment
 # macroexp(form,venv,fenv);
 # > form: Form
@@ -9858,23 +9858,22 @@ extern void macroexp (object form, object venv, object fenv);
 extern void macroexp0 (object form, object env);
 # is used by CONTROL
 
-# UP: Parse-Declarations-Docstring. Trennt von einer Formenliste diejenigen
-# ab, die als Deklarationen bzw. Dokumentationsstring angesehen werden
-# müssen.
+# UP: Parse-Declarations-Docstring. Detaches from a Form-list those,
+# that must be viewed as Declarations resp. Documentation-string.
 # parse_dd(formlist,venv,fenv)
 # > formlist: ( {decl|doc-string} . body )
-# > venv: ein Variablen- und Symbolmacro-Environment (für die Macroexpansionen)
-# > fenv: Funktions- und Macrobindungs-Environment (für die Macroexpansionen)
+# > venv: a Variables- and Symbolmacro-Environment (for the Macroexpansions)
+# > fenv: Functions- and Macrobindings-Environment (for the Macroexpansions)
 # < value1: body
-# < value2: Liste der decl-specs
-# < value3: Doc-String oder NIL
-# < result: true falls eine (COMPILE)-Deklaration vorkam, false sonst
+# < value2: list of decl-specs
+# < value3: Doc-String or NIL
+# < result: true if an (COMPILE)-Declaration occurred, else false
 # can trigger GC
 extern bool parse_dd (object formlist, object venv, object fenv);
 # is used by CONTROL
 
 # UP: Creates a corresponding Closure for a Lambda-body by disassembling
-# the Lambda-list and possible macro-expanding of all forms.
+# the Lambda-list and possibly macro-expanding of all forms.
 # get_closure(lambdabody,name,blockp,env)
 # > lambdabody: (lambda-list {decl|doc} {form})
 # > name: Name, a Symbol or (SETF symbol)
@@ -9898,7 +9897,7 @@ extern object coerce_function (object obj);
 # is used by IO, FOREIGN
 
 # Binds a Symbol dynamically to a value.
-# Creates a dynamic variablen-bindings frame for 1 variable.
+# Creates a dynamic variable-bindings frame for 1 variable.
 # dynamic_bind(var,val)
 # > var: a Symbol
 # > val: the new value
@@ -9923,7 +9922,7 @@ extern object coerce_function (object obj);
 #define dynamic_unbind()  \
   do { # write value back:               \
     Symbol_value(STACK_(1)) = STACK_(2); \
-    # Frame abbauen:                     \
+    # dismantle Frame:                   \
     skipSTACK(3);                        \
   } while(0)
 # is used by IO, DEBUG
@@ -9947,7 +9946,7 @@ extern object coerce_function (object obj);
 #define lp_limit_1  ((uintL)(bitm(intCsize)-1))
 
 # Highest number of arguments for a function call
-# (= valze of CALL-ARGUMENTS-LIMIT - 1)
+# (= value of CALL-ARGUMENTS-LIMIT - 1)
 #define ca_limit_1  ((uintL)(bitm(intCsize)-1))
 
 # The macro LISPSPECFORM initiates the declaration of a LISP-Special-Form.
@@ -9965,7 +9964,7 @@ extern object coerce_function (object obj);
 # > name: the name of the function (a C-Identifier)
 # > req_anz: number of required parameters (a number)
 # > opt_anz: number of optional parameters (a number)
-# > rest_flag: entweder norest oder rest, zeigt an, ob &REST vorhanden
+# > rest_flag: either norest or rest, depending on whether &REST exists or not
 # > key_flag: either nokey or key, depending on whether &KEY exists or not
 # > key_anz: number of keyword-parameters, a number (0 if nokey)
 # > allow_flag: either noallow or allow, depending on whether &ALLOW-OTHER-KEYS
@@ -9978,13 +9977,13 @@ extern object coerce_function (object obj);
 
 # The macro LISPFUNN initiates a simple declaration of a LISP-function.
 # LISPFUNN(name,req_anz)
-# > name: the funktion-name (a C-Identifier)
+# > name: the function-name (a C-Identifier)
 # > req_anz: the (fixed) number of arguments (a number)
 # See SUBR.D
 # is used by all modules
 
 
-# ##################### CTRLBIBL zu CONTROL.D ############################# #
+# ##################### CTRLBIBL for CONTROL.D ############################# #
 
 # Error if a block has already been left.
 # fehler_block_left(name);
@@ -9999,7 +9998,7 @@ nonreturning_function(extern, fehler_block_left, (object name));
 nonreturning_function(extern, fehler_undef_function, (object caller, object symbol));
 # is used by PREDTYPE
 
-# ########################## zu ENCODING.D ################################ #
+# ########################## for ENCODING.D ################################ #
 
 # Initialize the encodings.
 # init_encodings();
@@ -10035,13 +10034,13 @@ extern void init_dependent_encodings (void);
 #endif
 # is used by PATHNAME
 
-# UP: Converts a ASCIZ-String to a LISP-String.
+# UP: Converts an ASCIZ-String to a LISP-String.
 # asciz_to_string(asciz,encoding)
 # ascii_to_string(asciz)
 # > char* asciz: ASCIZ-String
 #       (address of a null-terminated character-sequence)
 # > object encoding: Encoding
-# < result: Normal-Simple-String with the character sequence (sans null-byte) as contents.
+# < result: Normal-Simple-String with the character sequence (without null-byte) as contents.
 # can trigger GC
 #ifdef UNICODE
   extern object asciz_to_string (const char * asciz, object encoding);
@@ -10052,13 +10051,13 @@ extern void init_dependent_encodings (void);
 extern object ascii_to_string (const char * asciz);
 # is used by SPVW/CONSTSYM, STREAM, PATHNAME, PACKAGE, GRAPH
 
-# UP: Converts a String to a ASCIZ-String.
+# UP: Converts a String to an ASCIZ-String.
 # string_to_asciz(obj,encoding)
 # > object obj: String
 # > object encoding: Encoding
 # < result: Simple-Bit-Vector with the same characters as bytes and one
 #             additional null-byte at the end
-# < TheAsciz(ergebnis): address of the byte-sequence contained in there
+# < TheAsciz(result): address of the byte-sequence contained in there
 # can trigger GC
 #ifdef UNICODE
   extern object string_to_asciz (object obj, object encoding);
@@ -10069,7 +10068,7 @@ extern object ascii_to_string (const char * asciz);
 #define TheAsciz(obj)  ((char*)(&TheSbvector(obj)->data[0]))
 # is used by STREAM, PATHNAME
 
-# Converts a String to a ASCIZ-String on the C-Stack.
+# Converts a String to an ASCIZ-String on the C-Stack.
 # with_string_0(string,encoding,asciz,statement);
 # with_sstring_0(simple_string,encoding,asciz,statement);
 # copies the contents of string (which should be a Lisp string) to a safe area
@@ -10156,7 +10155,7 @@ extern object ascii_to_string (const char * asciz);
   }}
 # is used by PATHNAME
 
-# ####################### ARRBIBL zu ARRAY.D ############################## #
+# ####################### ARRBIBL for ARRAY.D ############################## #
 
 # ARRAY-TOTAL-SIZE-LIMIT is chosen as large as possible, respecting the
 # constraint that the total-size of any array is a fixnum
@@ -10232,10 +10231,10 @@ extern object iarray_displace_check (object array, uintL size, uintL* index);
 extern object array_displace_check (object array, uintL size, uintL* index);
 # used by HASHTABL, PREDTYPE, IO, FOREIGN
 
-# Fehlermeldung
-# > STACK_1: Array (meist Vektor)
-# > STACK_0: (fehlerhafter) Index
-# > subr_self: Aufrufer (ein SUBR)
+# error-message
+# > STACK_1: Array (usually a Vector)
+# > STACK_0: (erroneous) Index
+# > subr_self: Caller (a SUBR)
 nonreturning_function(extern, fehler_index_range, (uintL bound));
 # used by SEQUENCE
 
@@ -10250,7 +10249,7 @@ extern object storagevector_aref (object storagevector, uintL index);
 
 # Error when attempting to store an invalid value in an array.
 # fehler_store(array,value);
-# > subr_self: Aufrufer (ein SUBR)
+# > subr_self: Caller (a SUBR)
 nonreturning_function(extern, fehler_store, (object array, object value));
 # used by SEQUENCE
 
@@ -10474,9 +10473,9 @@ extern object make_ssbvector (uintL len);
 extern object ssbvector_push_extend (object ssbvector, uintB b);
 # used by IO
 
-# ##################### CHARBIBL zu CHARSTRG.D ############################ #
+# ##################### CHARBIBL for CHARSTRG.D ############################ #
 
-# Special Characters: (siehe auch oben)
+# Special Characters: (refer to above)
 # #define BEL   7  #  #\Bell
 # #define BS    8  #  #\Backspace
 # #define TAB   9  #  #\Tab
@@ -10484,9 +10483,9 @@ extern object ssbvector_push_extend (object ssbvector, uintB b);
 # #define CR   13  #  #\Return
 # #define PG   12  #  #\Page
 #define NL   10  #  #\Newline
-#define NLstring  "\n"  # C-String, der #\Newline enthält
+#define NLstring  "\n"  # C-String, that contains #\Newline
 #define ESC  27  #  #\Escape
-#define ESCstring  "\033"  # C-String, der #\Escape enthält
+#define ESCstring  "\033"  # C-String, that contains #\Escape
 
 # Converts Byte ch to upcase
 # up_case(ch)
@@ -10498,10 +10497,10 @@ extern chart up_case (chart ch);
 extern chart down_case (chart ch);
 # is used by IO, PATHNAME
 
-# Checks whether a Character is alphanumeris.
+# Checks whether a Character is alphanumeric.
 # alphanumericp(ch)
 # > ch: Character-Code
-# < result: true if alphanumeris, else false.
+# < result: true if alphanumeric, else false.
 extern bool alphanumericp (chart ch);
 # is used by IO, PATHNAME
 
@@ -10577,20 +10576,20 @@ extern uintL char_width (chart ch);
     });
 # is used by
 
-# UP: verfolgt einen String.
+# UP: unpacks a String.
 # unpack_string_rw(string,&len)  [for read-write access]
-# > object string: ein String.
-# < uintL len: Anzahl der Zeichen des Strings.
-# < chart* result: Anfangsadresse der Characters
+# > object string: a String.
+# < uintL len: number of characters of the String.
+# < chart* result: start-address of the Characters
 extern chart* unpack_string_rw (object string, uintL* len);
 # is used by AFFI
 
-# UP: verfolgt einen String.
+# UP: unpacks a String.
 # unpack_string_ro(string,&len,&offset)  [for read-only access]
-# > object string: ein String.
-# < uintL len: Anzahl der Zeichen des Strings.
-# < uintL offset: Offset in den Datenvektor.
-# < object result: Datenvektor
+# > object string: a String.
+# < uintL len: number of characters of the String.
+# < uintL offset: Offset in the Data-Vector.
+# < object result: Data-Vector
 extern object unpack_string_ro (object string, uintL* len, uintL* offset);
 # is used by STREAM, HASHTABL, PACKAGE, SEQUENCE, ENCODING
 
@@ -10616,7 +10615,7 @@ extern bool string_equal (object string1, object string2);
 # > uintL len: desired length of vector
 # > on STACK: len Characters, first one on top
 # < result: Simple-String with these objects
-# Erhöht STACK
+# increases STACK
 # modifies STACK, can trigger GC
   extern object stringof (uintL len);
 # is used by ENCODING, STREAM
@@ -10663,7 +10662,7 @@ extern object coerce_ss (object obj);
 # is used by PATHNAME
 
 #if 0 # unused
-# UP: converts a String to a immutable Normal-Simple-String.
+# UP: converts a String to an immutable Normal-Simple-String.
 # coerce_imm_normal_ss(obj)
 # > obj: Lisp-Object, should be a String.
 # < result: immutable Normal-Simple-String with the same characters
@@ -10691,10 +10690,10 @@ extern object coerce_char (object obj);
 extern object char_name (chart code);
 # is used by IO
 
-# UP: Bestimmt das Character mit einem gegebenen Namen
+# UP: Determines the Character with a given Name
 # name_char(string)
 # > string: String
-# < result: Character mit diesem Namen, oder NIL falls keins existiert
+# < result: Character with this Name, or NIL if none exists
 extern object name_char (object string);
 # is used by IO
 
@@ -10706,9 +10705,9 @@ extern object name_char (object string);
 # > subr_self: caller (a SUBR)
 # < stringarg arg: description of the argument
 # < result: String-Argument
-# erhöht STACK um 3
+# increases STACK by 3
 typedef struct stringarg {
-  object string; # data vectoe, a simple-string
+  object string; # data vector, a simple-string
   uintL offset;  # offset into this string
   uintL index;   # :start index
   uintL len;     # :end - :start
@@ -10791,7 +10790,7 @@ extern object subsstring (object string, uintL start, uintL end);
 extern object string_concat (uintC argcount);
 # is used by PACKAGE, PATHNAME, DEBUG, SYMBOL
 
-# ###################### DEBUGBIB zu DEBUG.D ############################ #
+# ###################### DEBUGBIB for DEBUG.D ############################ #
 
 # Starts the normal driver (Read-Eval-Print-Loop)
 # driver();
@@ -10805,7 +10804,7 @@ extern void driver (void);
 extern void break_driver (object continuable);
 # is used by ERROR, EVAL
 
-# ##################### HASHBIBL zu HASHTABL.D ########################## #
+# ##################### HASHBIBL for HASHTABL.D ########################## #
 
 # UP: Gets the hash of an object from a hash-table.
 # gethash(obj,ht)
@@ -10825,12 +10824,12 @@ extern object gethash (object obj, object ht);
 extern object shifthash (object ht, object obj, object value);
 # is used by SEQUENCE, PATHNAME, FOREIGN
 
-# Macro: Durchläuft eine Hash-Tabelle.
+# Macro: Runs through a Hash-Tabelle.
 # map_hashtable(ht,key,value,statement)
 # map_hashtable_nogc(ht,key,value,statement)
 # > ht: Hash-Tabelle
-# Ruft statement auf, wobei key und value jeweils ein Paar aus der Tabelle
-# sind. Die erste Form ist nötig, wenn das statement GC auslösen kann.
+# Calls 'statement', where key and value are a pair from the table.
+# The first form is necessary, if the statement can trigger GC.
 #define map_hashtable(ht,key,value,statement)  \
   { var object ht_from_map_hashtable = (ht);                              \
     var uintL index_from_map_hashtable =                                  \
@@ -10864,13 +10863,13 @@ extern object shifthash (object ht, object obj, object value);
   }
 # is used by IO
 
-# ######################### IOBIBL zu IO.D ############################## #
+# ######################### IOBIBL for IO.D ############################## #
 
 # check a cint for being a whitespace
 #define cint_white_p(c)   \
   ((c)==' ' || (c)=='\n' || (c)=='\r' || (c)=='\t' || (c)=='\v' || (c)=='\f')
 
-# spezielles Objekt, das EOF anzeigt
+# special Object, that indicates EOF
 #define eof_value  make_system(0xE0FE0FUL)
 # is used by IO, STREAM, DEBUG, SPVW
 
@@ -10892,7 +10891,7 @@ extern void init_reader (void);
 extern object cons_ssstring (const object* stream_, object nl_type);
 # used by io.d and stream.d
 
-# UP: Reads on object.
+# UP: Reads an object.
 # stream_read(&stream,recursive-p,whitespace-p)
 # > recursive-p: tells whether there's a recursive call of READ,
 #                with error at EOF
@@ -10922,7 +10921,7 @@ extern void write_sstring (const object* stream_, object string);
 extern void write_string (const object* stream_, object string);
 # is used by PACKAGE, DEBUG
 
-# UP: Writes an opbject to a Stream.
+# UP: Writes an object to a Stream.
 # prin1(&stream,obj);
 # > obj: Objekt
 # > stream: Stream
@@ -10940,7 +10939,7 @@ extern void prin1 (const object* stream_, object obj);
 #define terpri(stream_)  write_ascii_char(stream_,NL)
 # is used by IO, DEBUG, PACKAGE, ERROR, SPVW
 
-# ####################### LISTBIBL zu LIST.D ############################## #
+# ####################### LISTBIBL for LIST.D ############################## #
 
 # UP: Copies a list
 # copy_list(list)
@@ -10953,7 +10952,7 @@ extern object copy_list (object list);
 # UP: Reverses a list constructively.
 # reverse(list)
 # > list: list (x1 ... xm)
-# < result: reversed liste (xm ... x1)
+# < result: reversed list (xm ... x1)
 # can trigger GC
 extern object reverse (object list);
 # is used by SEQUENCE, PACKAGE, PATHNAME
@@ -11004,12 +11003,12 @@ extern object deleteq (object list, object obj);
 # > uintC len: desired list length
 # > auf STACK: len objects, first one on top
 # < result: list of those objects
-# Erhöht STACK
+# Increases STACK
 # modifies STACK, can trigger GC
 extern object listof (uintC len);
 # is used by STREAM, PATHNAME, PACKAGE, ARRAY, EVAL, PREDTYPE, REXX, ERROR, SPVW
 
-# ####################### MISCBIBL zu MISC.D ############################## #
+# ####################### MISCBIBL for MISC.D ############################## #
 
 #ifdef HAVE_ENVIRONMENT
 # Modify the environment variables.
@@ -11019,7 +11018,7 @@ extern object listof (uintC len);
 
 #endif
 
-# ####################### ERRBIBL zu ERROR.D ############################## #
+# ####################### ERRBIBL for ERROR.D ############################## #
 
 # Classification of the known condition-types:
 # (More precisely, all these are the SIMPLE-... types.)
@@ -11111,8 +11110,8 @@ nonreturning_function(extern, OS_filestream_error, (object stream));
   extern void errno_out (DWORD errorcode);
 #endif
 
-# UP: Executes break-loop becaue of a keyboard-interrupt.
-# > -(STACK) : calling cuntion
+# UP: Executes break-loop because of a keyboard-interrupt.
+# > -(STACK) : calling funtion
 # modifies STACK, can trigger GC
 extern void tast_break (void);
 # is used by EVAL, IO, SPVW, STREAM
@@ -11194,7 +11193,7 @@ nonreturning_function(extern, fehler_sstring, (object obj));
 #else
   #define check_sstring_mutable(obj)  \
      if (!(Record_type(obj) == Rectype_Sstring)) fehler_sstring_immutable(obj);
-  # Fehlermeldung, falls ein Simple-String immutable ist:
+  # Error message, if a Simple-String is immutable:
   # fehler_sstring_immutable(obj);
   # > obj: der String
   nonreturning_function(extern, fehler_sstring_immutable, (object obj));
@@ -11228,7 +11227,7 @@ nonreturning_function(extern, fehler_streamtype, (object obj, object type));
 nonreturning_function(extern, fehler_function, (object obj));
 # is used by RECORD
 
-# Error message, if an argument is a lambda-expression and instead of a fuction:
+# Error message, if an argument is a lambda-expression instead of a function:
 # fehler_lambda_expression(obj);
 # obj: the faulty argument
 # > subr_self: caller(a SUBR)
@@ -11288,9 +11287,9 @@ nonreturning_function(extern, fehler_uint8, (object obj));
   nonreturning_function(extern, fehler_ffloat, (object obj));
   nonreturning_function(extern, fehler_dfloat, (object obj));
 #endif
-# is used by STREAM, vom FFI
+# is used by STREAM, FFI
 
-# ##################### PACKBIBL zu PACKAGE.D ############################# #
+# ##################### PACKBIBL for PACKAGE.D ############################# #
 
 # UP: tests whether a symbol is accessible in a package and isn't hidden
 # by a another symbol with the same name.
@@ -11302,7 +11301,7 @@ nonreturning_function(extern, fehler_uint8, (object obj));
 extern bool accessiblep (object sym, object pack);
 # is used by IO
 
-# UP: tests whether a symbol is accessable as external symbol in a package
+# UP: tests whether a symbol is accessible as external symbol in a package
 # externalp(sym,pack)
 # > sym: Symbol
 # > pack: Package
@@ -11327,7 +11326,7 @@ extern bool find_external_symbol (object string, object pack, object* sym_);
 extern object find_package (object string);
 # is used by IO, EVAL
 
-# UP: Interns a symbol with a given printmane in a package.
+# UP: Interns a symbol with a given printname in a package.
 # intern(string,pack,&sym)
 # > string: String
 # > pack: Package
@@ -11379,16 +11378,16 @@ extern object get_current_package (void);
 extern void init_packages (void);
 # is used by SPVW
 
-# ##################### PATHBIBL zu PATHNAME.D ############################ #
+# ##################### PATHBIBL for PATHNAME.D ############################ #
 
 # UP: Gives the directory-namestring in OS-format of a halfway checked
 #     pathname assuming that the directory of the pathname exists.
 # assume_dir_exists()
 # > STACK_0: absolute pathname, halfway checked
-# < STACK_0: (evtl. the same) pathname, better resolved
+# < STACK_0: (poss. the same) pathname, better resolved
 # < result:
-#     falls Name=NIL: Directory-Namestring (for the OS)
-#     falls Name/=NIL: Namestring (for the OS, with nullbyte at the end)
+#     if Name=NIL: Directory-Namestring (for the OS)
+#     if Name/=NIL: Namestring (for the OS, with nullbyte at the end)
 # can trigger GC
 extern object assume_dir_exists (void);
 # is used by STREAM
@@ -11455,9 +11454,9 @@ typedef enum {
 } if_exists_t;
 extern if_exists_t check_if_exists (object if_exists);
 
-# ##################### PREDBIBL zu PREDTYPE.D ############################ #
+# ##################### PREDBIBL for PREDTYPE.D ############################ #
 
-# UP: test for atmomic equality EQL
+# UP: test for atomic equality EQL
 # eql(obj1,obj2)
 # > obj1,obj2: Lisp-objects
 # < result: true, if objects are equal
@@ -11485,13 +11484,13 @@ typedef void gc_function (void);
 extern void with_gc_statistics (gc_function* fun);
 # is used by SPVW
 
-# ###################### SEQBIBL zu SEQUENCE.D ############################ #
+# ###################### SEQBIBL for SEQUENCE.D ############################ #
 
 # UP: Converts an object into a sequence of a given type.
 # coerce_sequence(obj,result_type)
 # > obj: Object, should be a sequence
 # > result_type: Identifier  (symbol) of the sequence-type
-# < Wert: Sequence of type result_type
+# < value: Sequence of type result_type
 # can trigger GC
 extern Values coerce_sequence (object sequence, object result_type);
 # is used by PREDTYPE, EVAL
@@ -11500,7 +11499,7 @@ extern Values coerce_sequence (object sequence, object result_type);
 #
 # map_sequence(obj,fun,arg);
 # > obj: Object, should be a sequence
-# > fun: Function, fun(arg,element) darf GC auslösen
+# > fun: Function, fun(arg,element) may trigger GC
 # > arg: arbitrary given argument
 # can trigger GC
 typedef void map_sequence_function (void* arg, object element);
@@ -11513,7 +11512,7 @@ extern void map_sequence (object obj, map_sequence_function* fun, void* arg);
 nonreturning_function(extern, fehler_both_tests, (void));
 # is used by LIST
 
-# ###################### STRMBIBL zu STREAM.D ############################# #
+# ###################### STRMBIBL for STREAM.D ############################# #
 
 # UP: Initializes the stream-variables.
 # init_streamvars(unixyp);
@@ -11523,7 +11522,7 @@ nonreturning_function(extern, fehler_both_tests, (void));
 extern void init_streamvars (bool unixyp);
 # is used by SPVW
 
-# Error-message, if a stream-operaton is not permitted on a stream.
+# Error-message, if a stream-operation is not permitted on a stream.
 # fehler_illegal_streamop(caller,stream);
 # > caller: Caller (a symbol)
 # > stream: Stream
@@ -11538,10 +11537,10 @@ nonreturning_function(extern, fehler_illegal_streamop, (object caller, object st
 extern object read_byte (object stream);
 # is used by SEQUENCE
 
-# Writes a bite onto a stream.
+# Writes a byte onto a stream.
 # write_byte(stream,byte);
 # > stream: Stream
-# > byte: Integer that shall be written
+# > byte: Integer to be written
 # can trigger GC
 extern void write_byte(object stream, object byte);
 # is used by SEQUENCE
@@ -11585,7 +11584,7 @@ extern bool read_line (const object* stream_, const object* buffer_);
 
 # Write a character onto a stream.
 # write_char(&stream,ch);
-# > ch: auszugebendes Character
+# > ch: Character to be written
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
@@ -11812,11 +11811,11 @@ extern object make_twoway_stream (object input_stream, object output_stream);
 extern object make_string_output_stream (void);
 # is used by IO, EVAL, DEBUG, ERROR
 
-# UP: Liefert das von einem String-Output-Stream Angesammelte.
+# UP: Returns the collected contents of a String-Output-Stream.
 # get_output_stream_string(&stream)
 # > stream: String-Output-Stream
-# < stream: geleerter Stream
-# < result: Angesammeltes, ein Simple-String
+# < stream: emptied Stream
+# < result: the aggregation, a Simple-String
 # can trigger GC
 extern object get_output_stream_string (const object* stream_);
 # is used by IO, EVAL, DEBUG, ERROR
@@ -11873,7 +11872,7 @@ extern bool terminal_stream_p(object stream);
 #endif # UNIX
 #endif # EXPORT_SYSCALLS
 
-# ####################### SYMBIBL zu SYMBOL.D ############################# #
+# ####################### SYMBIBL for SYMBOL.D ############################# #
 
 # UP: Returns the gobal definition of a symbol's function,
 # and tests, whether the symbol is a global function.
@@ -11883,15 +11882,15 @@ extern bool terminal_stream_p(object stream);
 extern object Symbol_function_checked (object symbol);
 # is used by
 
-# UP: gets a property from a symbol's property liste.
+# UP: gets a property from a symbol's property list.
 # get(symbol,key)
 # > symbol: a symbold
 # > key: a key that is comparable with EQ
-# < value: corresponding value from the property liste of 'symbol', or unbound.
+# < value: corresponding value from the property list of 'symbol', or unbound.
 extern object get (object symbol, object key);
 # is used by IO, CONTROL, EVAL, PREDTYPE, SEQUENCE
 
-# ##################### ARITBIBL zu LISTARIT.D ############################ #
+# ##################### ARITBIBL for LISTARIT.D ############################ #
 
 # UP: Initializes the arithmetics.
 # init_arith();
@@ -11986,7 +11985,7 @@ extern object L2_to_I (sint32 wert_hi, uint32 wert_lo);
   #define ulong_to_I(val)  uint64_to_I(val)
   #define slong_to_I(val)  sint64_to_I(val)
 #endif
-# is used by MISC, vom FFI
+# is used by MISC, for FFI
 
 # Converts an Integer >=0 into an unsigned longword.
 # I_to_UL(obj)
@@ -12008,7 +12007,7 @@ extern sintL I_to_L (object obj);
   # > obj: an object, should be an Integer >=0, <2^64
   # < result: the Integer's vaulue as unsigned quadword
   extern uint64 I_to_UQ (object obj);
-  # is used by FOREIGN, vom FFI
+  # is used by FOREIGN, for FFI
 #endif
 
 #if defined(HAVE_FFI) && defined(HAVE_LONGLONG)
@@ -12017,7 +12016,7 @@ extern sintL I_to_L (object obj);
   # > obj: an object, should be an Integer >=-2^63, <2^63
   # < result: the Integer's value as quadword.
   extern sint64 I_to_Q (object obj);
-  # is used by FOREIGN, vom FFI
+  # is used by FOREIGN, for FFI
 #endif
 
 # Converts an Integer into a C-Integer of a given type.
@@ -12056,7 +12055,7 @@ extern sintL I_to_L (object obj);
     #define I_to_slong  I_to_sint64
   #endif
 #endif
-# is used byFFI
+# is used by FFI
 
 # I_I_comp(x,y) compares two Integers x and y.
 # Result: 0 if x=y, +1 if x>y, -1 if x<y.
@@ -12111,15 +12110,16 @@ extern void FF_to_c_float (object obj, ffloatjanus* val_);
 extern object c_double_to_DF (const dfloatjanus* val_);
 
 # DF_to_c_double(obj,&val);
-# convernts a double-float obj into an IEEE-double-float val.
+# converts a double-float obj into an IEEE-double-float val.
 extern void DF_to_c_double (object obj, dfloatjanus* val_);
 
-# UP: turns a string with Tnteger syntax into an Integer number
+# UP: turns a string with Integer syntax into an Integer number
 # Points will be ignored
 # read_integer(base,sign,string,index1,index2)
 # > base: read base(>=2, <=36)
 # > sign: sign (/=0 if negative)
-# > string: simple-string (contains digit with values <base and eventually a point)
+# > string: simple-string (contains digits with values
+#   <base and eventually a point)
 # > index1: Index of the first digit
 # > index2: Index after the last digit
 #   (thus index2-index1 digits, incl. a decimal point that can be at the end)
@@ -12132,11 +12132,13 @@ extern object read_integer (uintWL base, signean sign, object string, uintL inde
 # read_rational(base,sign,string,index1,index3,index2)
 # > base: read base (>=2, <=36)
 # > sign: sign (/=0 if negative)
-# > string: Normal-Simple-String (enthält Ziffern mit Wert <base und Bruchstrich)
+# > string: Normal-Simple-String (contains digits with values
+#           <base and fraction bar)
 # > index1: Index of the first digit
 # > index3: Index of '/'
 # > index2: Index after the last digit
-#   (thus index3-index1 digits of the numerator, index2-index3-1 digits of the denominator)
+#   (thus index3-index1 digits of the numerator,
+#    index2-index3-1 digits of the denominator)
 # < result: rational number
 # can trigger GC
 extern object read_rational (uintWL base, signean sign, object string, uintL index1, uintL index3, uintL index2);
@@ -12146,7 +12148,8 @@ extern object read_rational (uintWL base, signean sign, object string, uintL ind
 # read_float(base,sign,string,index1,index4,index2,index3)
 # > base: read base (=10)
 # > sign: Sign (/=0 if negative)
-# > string: normal-simple-string (contains digits and evtually point and exponent marker)
+# > string: normal-simple-string (contains digits and eventually
+#           point and exponent marker)
 # > index1: Index of the beginning of the mantissa (without sign)
 # > index4: Index after the end of the mantissa
 # > index2: Index at the end of the character
@@ -12154,7 +12157,7 @@ extern object read_rational (uintWL base, signean sign, object string, uintL ind
 #   (thus mantissa with index4-index1 characters: digits and max. 1 '.')
 #   (thus index4-index3 digits after the decimal point)
 #   (thus at index4<index2: index4 = index of the exponent marker,
-#    index4+1 = index of the exponent's sign or the firs digit
+#    index4+1 = index of the exponent's sign or the first digit
 #    of the exponent)
 # < result: Float
 # can trigger GC
@@ -12180,7 +12183,7 @@ extern void print_integer (object z, uintWL base, const object* stream_);
 extern void print_float (object z, const object* stream_);
 # is used by IO
 
-# UP: Multiply an Integer by10 and add another digit
+# UP: Multiply an Integer by 10 and add another digit
 # mal_10_plus_x(y,x)
 # > y: Integer Y (>=0)
 # > x: digit value X (>=0,<10)
@@ -12215,7 +12218,7 @@ extern object coerce_float (object obj, object type);
 extern object decimal_string (object x);
 # is used b PATHNAME
 
-# ###################### FRGNIBL zu FOREIGN.D ############################# #
+# ###################### FOREIGNBIBL for FOREIGN.D ########################## #
 
 #ifdef DYNAMIC_FFI
 
