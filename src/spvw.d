@@ -79,13 +79,14 @@
       }
   #else
     #define for_all_subrs(statement)  \
-      { var module_* module; # modules durchgehen                           \
-        for_modules(all_modules,                                            \
-          { if (module->initialized)                                        \
-              { var subr_* ptr = module->stab;                              \
-                var uintC count;                                            \
-                dotimesC(count,*module->stab_size, { statement; ptr++; } ); \
-              });                                                           \
+      { var module_* module; # modules durchgehen                              \
+        for_modules(all_modules,                                               \
+          { if (module->initialized)                                           \
+              if (*module->stab_size > 0)                                      \
+                { var subr_* ptr = module->stab;                               \
+                  var uintC count;                                             \
+                  dotimespC(count,*module->stab_size, { statement; ptr++; } ); \
+                });                                                            \
       }   }
   #endif
 
@@ -109,13 +110,14 @@
 
 # Durchlaufen durch object_tab:
   #define for_all_constobjs(statement)  \
-    { var module_* module; # modules durchgehen                               \
-      for_modules(all_modules,                                                \
-        { if (module->initialized)                                            \
-            { var object* objptr = module->otab; # object_tab durchgehen      \
-              var uintC count;                                                \
-              dotimesC(count,*module->otab_size, { statement; objptr++; } );  \
-            });                                                               \
+    { var module_* module; # modules durchgehen                                 \
+      for_modules(all_modules,                                                  \
+        { if (module->initialized)                                              \
+            if (*module->otab_size > 0)                                         \
+              { var object* objptr = module->otab; # object_tab durchgehen      \
+                var uintC count;                                                \
+                dotimespC(count,*module->otab_size, { statement; objptr++; } ); \
+              });                                                               \
     }   }
 
 # Semaphoren: entscheiden, ob eine Unterbrechung unwirksam (/=0) oder
@@ -1046,13 +1048,15 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         #endif
         { var module_* module;
           for_modules(all_other_modules,
-            { var subr_* ptr = module->stab; # subr_tab durchgehen
-              var uintC count;
-              dotimesC(count,*module->stab_size,
-                { ptr->argtype =
-                    (uintW)subr_argtype(ptr->req_anz,ptr->opt_anz,(subr_rest_t)(ptr->rest_flag),(subr_key_t)(ptr->key_flag));
-                  ptr++;
-                });
+            { if (*module->stab_size > 0)
+                { var subr_* ptr = module->stab; # subr_tab durchgehen
+                  var uintC count;
+                  dotimespC(count,*module->stab_size,
+                    { ptr->argtype =
+                        (uintW)subr_argtype(ptr->req_anz,ptr->opt_anz,(subr_rest_t)(ptr->rest_flag),(subr_key_t)(ptr->key_flag));
+                      ptr++;
+                    });
+                }
             });
         }
         #ifdef MAP_MEMORY_TABLES
@@ -1061,10 +1065,12 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
           var module_* module;
           main_module.stab = newptr; newptr += subr_anz;
           for_modules(all_other_modules,
-            { var subr_* oldptr = module->stab;
-              var uintC count;
-              module->stab = newptr;
-              dotimesC(count,*module->stab_size, { *newptr++ = *oldptr++; } );
+            { if (*module->stab_size > 0)
+                { var subr_* oldptr = module->stab;
+                  var uintC count;
+                  module->stab = newptr;
+                  dotimespC(count,*module->stab_size, { *newptr++ = *oldptr++; } );
+                }
             });
           ASSERT(newptr == (subr_*)&subr_tab + total_subr_anz);
         }
@@ -1103,15 +1109,19 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
       { var module_* module;
         #if defined(INIT_OBJECT_TAB) && NIL_IS_CONSTANT # object_tab schon vorinitialisiert?
           for_modules(all_other_modules,
-            { var object* ptr = module->otab; # object_tab durchgehen
-              var uintC count;
-              dotimesC(count,*module->otab_size, { *ptr++ = NIL; });
+            { if (*module->otab_size > 0)
+                { var object* ptr = module->otab; # object_tab durchgehen
+                  var uintC count;
+                  dotimespC(count,*module->otab_size, { *ptr++ = NIL; });
+                }
             });
         #else
           for_modules(all_modules,
-            { var object* ptr = module->otab; # object_tab durchgehen
-              var uintC count;
-              dotimesC(count,*module->otab_size, { *ptr++ = NIL; });
+            { if (*module->otab_size > 0)
+                { var object* ptr = module->otab; # object_tab durchgehen
+                  var uintC count;
+                  dotimespC(count,*module->otab_size, { *ptr++ = NIL; });
+                }
             });
         #endif
         O(all_weakpointers) = Fixnum_0;
@@ -1123,11 +1133,13 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
       { var module_* module;
         for_modules(all_other_modules,
           { # Pointer in der Subr-Tabelle mit NIL füllen, damit GC möglich wird:
-            var subr_* ptr = module->stab;
-            var uintC count;
-            dotimesC(count,*module->stab_size,
-              { ptr->name = NIL; ptr->keywords = NIL; ptr++; }
-              );
+            if (*module->stab_size > 0)
+              { var subr_* ptr = module->stab;
+                var uintC count;
+                dotimespC(count,*module->stab_size,
+                  { ptr->name = NIL; ptr->keywords = NIL; ptr++; }
+                  );
+              }
             # Die Pointer in der Objekt-Tabelle hat init_object_tab_1() schon vorinitialisiert.
           });
       }
@@ -1557,57 +1569,61 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
     local void init_module_2(module)
       var module_* module;
       { # subr_tab, object_tab vorinitialisieren, damit GC möglich wird:
-        { var subr_* ptr = module->stab; # subr_tab durchgehen
-          var uintC count;
-          dotimesC(count,*module->stab_size, { ptr->name = NIL; ptr->keywords = NIL; ptr++; });
-        }
-        { var object* ptr = module->otab; # object_tab durchgehen
-          var uintC count;
-          dotimesC(count,*module->otab_size, { *ptr++ = NIL; });
-        }
+        if (*module->stab_size > 0)
+          { var subr_* ptr = module->stab; # subr_tab durchgehen
+            var uintC count;
+            dotimespC(count,*module->stab_size, { ptr->name = NIL; ptr->keywords = NIL; ptr++; });
+          }
+        if (*module->otab_size > 0)
+          { var object* ptr = module->otab; # object_tab durchgehen
+            var uintC count;
+            dotimespC(count,*module->otab_size, { *ptr++ = NIL; });
+          }
         # GC darf dieses subr_tab, object_tab nun sehen:
         module->initialized = TRUE;
         # Subr-Symbole eintragen:
-        { var subr_* subr_ptr = module->stab;
-          var const subr_initdata* init_ptr = module->stab_initdata;
-          var uintC count;
-          dotimesC(count,*module->stab_size,
-            { var const char* packname = init_ptr->packname;
-              var object symname = asciz_to_string(init_ptr->symname,O(internal_encoding));
-              var object symbol;
-              if (packname==NULL)
-                { symbol = make_symbol(symname); }
-                else
-                { var object pack = find_package(asciz_to_string(packname,O(internal_encoding)));
-                  if (nullp(pack)) # Package nicht gefunden?
-                    { asciz_out_ss(DEUTSCH ? "Modul `%s' benötigt Package %s." NLstring :
-                                   ENGLISH ? "module `%s' requires package %s." NLstring :
-                                   FRANCAIS ? "Pas de module «%s» sans le paquetage %s." NLstring :
-                                   "",
-                                   module->name, packname
-                                  );
-                      quit_sofort(1);
-                    }
-                  intern(symname,pack,&symbol);
-                }
-              subr_ptr->name = symbol; # Subr komplett machen
-              Symbol_function(symbol) = subr_tab_ptr_as_object(subr_ptr); # Funktion definieren
-              init_ptr++; subr_ptr++;
-            });
-        }
+        if (*module->stab_size > 0)
+          { var subr_* subr_ptr = module->stab;
+            var const subr_initdata* init_ptr = module->stab_initdata;
+            var uintC count;
+            dotimespC(count,*module->stab_size,
+              { var const char* packname = init_ptr->packname;
+                var object symname = asciz_to_string(init_ptr->symname,O(internal_encoding));
+                var object symbol;
+                if (packname==NULL)
+                  { symbol = make_symbol(symname); }
+                  else
+                  { var object pack = find_package(asciz_to_string(packname,O(internal_encoding)));
+                    if (nullp(pack)) # Package nicht gefunden?
+                      { asciz_out_ss(DEUTSCH ? "Modul `%s' benötigt Package %s." NLstring :
+                                     ENGLISH ? "module `%s' requires package %s." NLstring :
+                                     FRANCAIS ? "Pas de module «%s» sans le paquetage %s." NLstring :
+                                     "",
+                                     module->name, packname
+                                    );
+                        quit_sofort(1);
+                      }
+                    intern(symname,pack,&symbol);
+                  }
+                subr_ptr->name = symbol; # Subr komplett machen
+                Symbol_function(symbol) = subr_tab_ptr_as_object(subr_ptr); # Funktion definieren
+                init_ptr++; subr_ptr++;
+              });
+          }
         # Objekte eintragen:
-        { var object* object_ptr = module->otab;
-          var const object_initdata* init_ptr = module->otab_initdata;
-          var uintC count;
-          dotimesC(count,*module->otab_size,
-            { pushSTACK(asciz_to_string(init_ptr->initstring,O(internal_encoding))); # String
-              funcall(L(make_string_input_stream),1); # in Stream verpacken
-              pushSTACK(value1);
-              *object_ptr = stream_read(&STACK_0,NIL,NIL); # Objekt lesen
-              skipSTACK(1);
-              object_ptr++; init_ptr++;
-            });
-        }
+        if (*module->otab_size > 0)
+          { var object* object_ptr = module->otab;
+            var const object_initdata* init_ptr = module->otab_initdata;
+            var uintC count;
+            dotimespC(count,*module->otab_size,
+              { pushSTACK(asciz_to_string(init_ptr->initstring,O(internal_encoding))); # String
+                funcall(L(make_string_input_stream),1); # in Stream verpacken
+                pushSTACK(value1);
+                *object_ptr = stream_read(&STACK_0,NIL,NIL); # Objekt lesen
+                skipSTACK(1);
+                object_ptr++; init_ptr++;
+              });
+          }
         # Initialisierungsfunktion aufrufen:
         (*module->initfunction1)(module);
       }
@@ -2905,13 +2921,14 @@ local void print_banner ()
                   argcount += 2;
                 }
               # Alle Argumente quotieren:
-             {var object* ptr = args_end_pointer;
-              var uintC c;
-              dotimesC(c,argcount,
-                { pushSTACK(S(quote)); pushSTACK(Before(ptr));
-                  BEFORE(ptr) = listof(2);
-                });
-             }
+              if (argcount > 0)
+                { var object* ptr = args_end_pointer;
+                  var uintC c;
+                  dotimespC(c,argcount,
+                    { pushSTACK(S(quote)); pushSTACK(Before(ptr));
+                      BEFORE(ptr) = listof(2);
+                    });
+                }
              {var object form = listof(1+argcount); # `(COMPILE-FILE ',...)
               pushSTACK(S(batchmode_errors));
               pushSTACK(form);
@@ -3175,14 +3192,15 @@ local void print_banner ()
             while (mcount-- > 0)
               { add_module(module);
                 # Vorinitialisierung, vgl. init_subr_tab_1.
-                { var subr_* ptr = module->stab; # subr_tab durchgehen
-                  var uintC count;
-                  dotimesC(count,*module->stab_size,
-                    { ptr->argtype =
-                        (uintW)subr_argtype(ptr->req_anz,ptr->opt_anz,(subr_rest_t)(ptr->rest_flag),(subr_key_t)(ptr->key_flag));
-                      ptr++;
-                    });
-                }
+                if (*module->stab_size > 0)
+                  { var subr_* ptr = module->stab; # subr_tab durchgehen
+                    var uintC count;
+                    dotimespC(count,*module->stab_size,
+                      { ptr->argtype =
+                          (uintW)subr_argtype(ptr->req_anz,ptr->opt_anz,(subr_rest_t)(ptr->rest_flag),(subr_key_t)(ptr->key_flag));
+                        ptr++;
+                      });
+                  }
                 #if (defined(MULTIMAP_MEMORY) || defined(SINGLEMAP_MEMORY)) && defined(MAP_MEMORY_TABLES)
                 { var subr_* newptr = (subr_*)&subr_tab + total_subr_anz;
                   var uintC count = *module->stab_size;

@@ -950,16 +950,17 @@
                   var uintC rank1 = Iarray_rank(obj1);
                   if (!(rank1 == Iarray_rank(obj2))) goto no;
                   # Dimensionen vergleichen:
-                  { var uintL* dimptr1 = &TheIarray(obj1)->dims[0];
-                    if (Iarray_flags(obj1) & bit(arrayflags_dispoffset_bit))
-                      dimptr1++;
-                   {var uintL* dimptr2 = &TheIarray(obj2)->dims[0];
-                    if (Iarray_flags(obj2) & bit(arrayflags_dispoffset_bit))
-                      dimptr2++;
-                    dotimesC(rank1,rank1,
-                      { if (!(*dimptr1++ == *dimptr2++)) goto no; }
-                      );
-                } }}
+                  if (rank1 > 0)
+                    { var uintL* dimptr1 = &TheIarray(obj1)->dims[0];
+                      if (Iarray_flags(obj1) & bit(arrayflags_dispoffset_bit))
+                        dimptr1++;
+                     {var uintL* dimptr2 = &TheIarray(obj2)->dims[0];
+                      if (Iarray_flags(obj2) & bit(arrayflags_dispoffset_bit))
+                        dimptr2++;
+                      dotimespC(rank1,rank1,
+                        { if (!(*dimptr1++ == *dimptr2++)) goto no; }
+                        );
+                }   }}
                 # Inhalt vergleichen:
                 { var uintL len1 = TheIarray(obj1)->totalsize;
                   # muss als Produkt der Dimensionen auch = TheIarray(obj2)->totalsize sein.

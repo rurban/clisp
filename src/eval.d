@@ -2134,23 +2134,24 @@ LISPFUNN(subr_info,1)
         # gesetzt, falls sie unter den SPECIAL-deklarierten vorkommt.
           if (!(spec_count==0))
             { # Schleife über die übrigen Variablen:
-              var object* othervarptr = &TheSvector(vars)->data[spec_count];
-              var uintB* othervarflagsptr = &TheSbvector(varflags)->data[0];
-              var uintC count1;
-              dotimesC(count1,var_count-spec_count,
-                { var object othervar = *othervarptr++; # nächste Variable
-                  # Suche sie in den SPECIAL-deklarierten Variablen:
-                  {var object* specvarptr = &TheSvector(vars)->data[0];
-                   var uintC count2;
-                   dotimespC(count2,spec_count,
-                     { if (eq(*specvarptr++,othervar)) # gefunden?
-                         # ja -> also ist die Variable othervar dynamisch zu binden.
-                         { *othervarflagsptr |= bit(dynam_bit); break; }
-                     });
-                  }
-                  othervarflagsptr++;
-                });
-            }
+              if (var_count-spec_count > 0)
+                { var object* othervarptr = &TheSvector(vars)->data[spec_count];
+                  var uintB* othervarflagsptr = &TheSbvector(varflags)->data[0];
+                  var uintC count1;
+                  dotimespC(count1,var_count-spec_count,
+                    { var object othervar = *othervarptr++; # nächste Variable
+                      # Suche sie in den SPECIAL-deklarierten Variablen:
+                      {var object* specvarptr = &TheSvector(vars)->data[0];
+                       var uintC count2;
+                       dotimespC(count2,spec_count,
+                         { if (eq(*specvarptr++,othervar)) # gefunden?
+                             # ja -> also ist die Variable othervar dynamisch zu binden.
+                             { *othervarflagsptr |= bit(dynam_bit); break; }
+                         });
+                      }
+                      othervarflagsptr++;
+                    });
+            }   }
         # Schließlich noch die akkumulierten Listen in der Closure umdrehen:
           nreverse(TheIclosure(closure)->clos_opt_inits);
           nreverse(TheIclosure(closure)->clos_keywords);
@@ -2519,16 +2520,17 @@ LISPFUNN(subr_info,1)
               pushSTACK_symbolwithflags(*varptr++,wbit(active_bit_o)); # Bindung schon mal als aktiv vormerken
             });
           frame_pointer = args_end_pointer;
-         {var uintB* varflagsptr = &TheSbvector(TheIclosure(closure)->clos_varflags)->data[0];
-          dotimesC(count,var_count-spec_count,
-            { pushSTACK(NIL); # NIL als vorläufiger Wert
-             {var object next_var = *varptr++; # nächste Variable
-              var oint next_varflags = (oint)(*varflagsptr++)<<oint_symbolflags_shift; # mit evtl. dynam_bit, svar_bit
-              if (special_var_p(TheSymbol(next_var))) # SPECIAL-proklamiert?
-                { next_varflags |= wbit(dynam_bit_o); } # -> dynamisch binden
-              pushSTACK_symbolwithflags(next_var,next_varflags);
-            }});
-        }}
+          if (var_count-spec_count > 0)
+            { var uintB* varflagsptr = &TheSbvector(TheIclosure(closure)->clos_varflags)->data[0];
+              dotimespC(count,var_count-spec_count,
+                { pushSTACK(NIL); # NIL als vorläufiger Wert
+                 {var object next_var = *varptr++; # nächste Variable
+                  var oint next_varflags = (oint)(*varflagsptr++)<<oint_symbolflags_shift; # mit evtl. dynam_bit, svar_bit
+                  if (special_var_p(TheSymbol(next_var))) # SPECIAL-proklamiert?
+                    { next_varflags |= wbit(dynam_bit_o); } # -> dynamisch binden
+                  pushSTACK_symbolwithflags(next_var,next_varflags);
+                }});
+        }   }
         # VAR_ENV der Closure wird NEXT_ENV im Frame:
         pushSTACK(TheIclosure(closure)->clos_var_env);
         pushSTACK(as_object(var_count)); # var_count Bindungen, alle noch ungenestet
@@ -2714,35 +2716,36 @@ LISPFUNN(subr_info,1)
                     );
                   #undef for_every_keyword
                 # Jetzt die Key-Werte zuordnen und die Key-Inits auswerten:
-                 {var object key_inits = TheIclosure(closure)->clos_key_inits;
-                  var uintC count;
-                  dotimesC(count,posfixnum_to_L(TheIclosure(closure)->clos_key_anz),
-                    { var object keyword = Car(keywords); # Keyword
-                      var object var_value;
-                      var object svar_value;
-                      # Zu diesem Keyword das Paar Key.Wert suchen:
-                      find_keyword_value(
-                        # nicht gefunden, muss den Init auswerten:
-                        { pushSTACK(keywords); pushSTACK(key_inits);
-                          var_value = (eval(Car(key_inits)),value1);
-                          key_inits = popSTACK(); keywords = popSTACK();
-                          svar_value = NIL; # NIL für evtl. supplied-p-Parameter
-                        },
-                        # gefunden -> Wert nehmen:
-                        { var_value = value;
-                          svar_value = T; # T für evtl. supplied-p-Parameter
-                        }
-                        );
-                      {var object* keymarkptr;
-                       bind_next_var(var_value,keymarkptr=); # Keyword-Variable binden
-                       if (*(oint*)keymarkptr & wbit(svar_bit_o)) # supplied-p-Parameter folgt?
-                         { *(oint*)keymarkptr &= ~wbit(svar_bit_o);
-                           bind_next_var(svar_value,); # ja -> an NIL bzw. T binden
-                      }  }
-                      keywords = Cdr(keywords);
-                      key_inits = Cdr(key_inits);
-                    });
-                }}
+                 {var uintC count = posfixnum_to_L(TheIclosure(closure)->clos_key_anz);
+                  if (count > 0)
+                    { var object key_inits = TheIclosure(closure)->clos_key_inits;
+                      dotimespC(count,count,
+                        { var object keyword = Car(keywords); # Keyword
+                          var object var_value;
+                          var object svar_value;
+                          # Zu diesem Keyword das Paar Key.Wert suchen:
+                          find_keyword_value(
+                            # nicht gefunden, muss den Init auswerten:
+                            { pushSTACK(keywords); pushSTACK(key_inits);
+                              var_value = (eval(Car(key_inits)),value1);
+                              key_inits = popSTACK(); keywords = popSTACK();
+                              svar_value = NIL; # NIL für evtl. supplied-p-Parameter
+                            },
+                            # gefunden -> Wert nehmen:
+                            { var_value = value;
+                              svar_value = T; # T für evtl. supplied-p-Parameter
+                            }
+                            );
+                          {var object* keymarkptr;
+                           bind_next_var(var_value,keymarkptr=); # Keyword-Variable binden
+                           if (*(oint*)keymarkptr & wbit(svar_bit_o)) # supplied-p-Parameter folgt?
+                             { *(oint*)keymarkptr &= ~wbit(svar_bit_o);
+                               bind_next_var(svar_value,); # ja -> an NIL bzw. T binden
+                          }  }
+                          keywords = Cdr(keywords);
+                          key_inits = Cdr(key_inits);
+                        });
+                }}  }
                 closure = *closure_;
           }   }
         aux: # &AUX-Parameter behandeln:
@@ -2795,13 +2798,14 @@ LISPFUNN(subr_info,1)
       { var object* keywords_pointer = &TheSvector(TheSubr(fun)->keywords)->data[0];
         var uintC key_anz = TheSubr(fun)->key_anz;
         #define for_every_keyword(statement)  \
-          { var object* keywordptr = keywords_pointer; \
-            var uintC count;                           \
-            dotimesC(count,key_anz,                    \
-              { var object keyword = *keywordptr++;    \
-                statement;                             \
-              });                                      \
-          }
+          if (key_anz > 0)                               \
+            { var object* keywordptr = keywords_pointer; \
+              var uintC count;                           \
+              dotimespC(count,key_anz,                   \
+                { var object keyword = *keywordptr++;    \
+                  statement;                             \
+                });                                      \
+            }
         check_for_illegal_keywords(
           TheSubr(fun)->key_flag == subr_key_allow,
           { pushSTACK(bad_keyword); # fehlerhaftes Keyword retten
@@ -2814,20 +2818,21 @@ LISPFUNN(subr_info,1)
           );
         #undef for_every_keyword
       # Jetzt Argumente und Parameter zuordnen:
-       {var object* keywordptr = keywords_pointer;
-        var object* key_args_ptr = key_args_pointer;
-        var uintC count;
-        dotimesC(count,key_anz,
-          { var object keyword = *keywordptr++; # Keyword
-            # Zu diesem Keyword das Paar Key.Wert suchen:
-            find_keyword_value(
-              # nicht gefunden -> Wert bleibt #<UNBOUND> :
-              { NEXT(key_args_ptr); },
-              # gefunden -> Wert eintragen:
-              { NEXT(key_args_ptr) = value; }
-              );
-          });
-      }}
+        if (key_anz > 0)
+          { var object* keywordptr = keywords_pointer;
+            var object* key_args_ptr = key_args_pointer;
+            var uintC count;
+            dotimespC(count,key_anz,
+              { var object keyword = *keywordptr++; # Keyword
+                # Zu diesem Keyword das Paar Key.Wert suchen:
+                find_keyword_value(
+                  # nicht gefunden -> Wert bleibt #<UNBOUND> :
+                  { NEXT(key_args_ptr); },
+                  # gefunden -> Wert eintragen:
+                  { NEXT(key_args_ptr) = value; }
+                  );
+              });
+      }   }
       # evtl. Rest-Parameter versorgen:
       if (TheSubr(fun)->rest_flag == subr_norest)
         # SUBR ohne &REST-Flag: restliche Argumente vergessen:
@@ -2872,13 +2877,14 @@ LISPFUNN(subr_info,1)
          );
       # Test auf unerlaubte Keywords:
         #define for_every_keyword(statement)  \
-          { var object* keywordptr = keywords_pointer; \
-            var uintC count;                           \
-            dotimesC(count,key_anz,                    \
-              { var object keyword = *keywordptr++;    \
-                statement;                             \
-              });                                      \
-          }
+          if (key_anz > 0)                               \
+            { var object* keywordptr = keywords_pointer; \
+              var uintC count;                           \
+              dotimespC(count,key_anz,                   \
+                { var object keyword = *keywordptr++;    \
+                  statement;                             \
+                });                                      \
+            }
         check_for_illegal_keywords(
           !((TheCodevec(codevec)->ccv_flags & bit(6)) == 0),
           { pushSTACK(bad_keyword); # retten
@@ -2892,20 +2898,21 @@ LISPFUNN(subr_info,1)
           );
         #undef for_every_keyword
       # Jetzt Argumente und Parameter zuordnen:
-       {var object* keywordptr = keywords_pointer;
-        var object* key_args_ptr = key_args_pointer;
-        var uintC count;
-        dotimesC(count,key_anz,
-          { var object keyword = *keywordptr++; # Keyword
-            # Zu diesem Keyword das Paar Key.Wert suchen:
-            find_keyword_value(
-              # nicht gefunden -> Wert bleibt #<UNBOUND> :
-              { NEXT(key_args_ptr); },
-              # gefunden -> Wert eintragen:
-              { NEXT(key_args_ptr) = value; }
-              );
-          });
-      }}
+        if (key_anz > 0)
+          { var object* keywordptr = keywords_pointer;
+            var object* key_args_ptr = key_args_pointer;
+            var uintC count;
+            dotimespC(count,key_anz,
+              { var object keyword = *keywordptr++; # Keyword
+                # Zu diesem Keyword das Paar Key.Wert suchen:
+                find_keyword_value(
+                  # nicht gefunden -> Wert bleibt #<UNBOUND> :
+                  { NEXT(key_args_ptr); },
+                  # gefunden -> Wert eintragen:
+                  { NEXT(key_args_ptr) = value; }
+                  );
+              });
+      }   }
       # evtl. Rest-Parameter versorgen:
       if (TheCodevec(codevec)->ccv_flags & bit(0)) # Rest-Flag?
         # Closure mit Keywords und &REST-Flag:
@@ -4891,10 +4898,11 @@ LISPFUNN(subr_info,1)
           }
           apply_cclosure_key_noargs:
           { var uintC key_anz = TheCodevec(codevec)->ccv_numkey; # Anzahl Keyword-Parameter
-            get_space_on_STACK(sizeof(object) * (uintL)key_anz);
-            {var uintC count;
-             dotimesC(count,key_anz, { pushSTACK(unbound); } ); # mit #<UNBOUND> initialisieren
-            }
+            if (key_anz > 0)
+              { get_space_on_STACK(sizeof(object) * (uintL)key_anz);
+               {var uintC count;
+                dotimespC(count,key_anz, { pushSTACK(unbound); } ); # mit #<UNBOUND> initialisieren
+              }}
             goto apply_cclosure_key;
           }
           apply_cclosure_key_withlist:
@@ -4955,15 +4963,17 @@ LISPFUNN(subr_info,1)
             # Closure mit nur REST, ohne KEY:
             { # muss noch args_on_stack Argumente aus dem Stack auf args consen:
               pushSTACK(args);
-              pushSTACK(closure); # Closure muss gerettet werden
-              dotimesC(args_on_stack,args_on_stack,
-                { var object new_cons = allocate_cons();
-                  Cdr(new_cons) = STACK_1;
-                  Car(new_cons) = STACK_2; # nächstes Argument draufconsen
-                  STACK_2 = new_cons;
-                  STACK_1 = STACK_0; skipSTACK(1);
-                });
-              closure = popSTACK(); codevec = TheCclosure(closure)->clos_codevec;
+              if (args_on_stack > 0)
+                { pushSTACK(closure); # Closure muss gerettet werden
+                  dotimespC(args_on_stack,args_on_stack,
+                    { var object new_cons = allocate_cons();
+                      Cdr(new_cons) = STACK_1;
+                      Car(new_cons) = STACK_2; # nächstes Argument draufconsen
+                      STACK_2 = new_cons;
+                      STACK_1 = STACK_0; skipSTACK(1);
+                    });
+                  closure = popSTACK(); codevec = TheCclosure(closure)->clos_codevec;
+                }
               goto apply_cclosure_nokey;
             }
           apply_cclosure_nokey: # Closure ohne &KEY anspringen:
@@ -5321,21 +5331,23 @@ LISPFUNN(subr_info,1)
         if (args_on_stack <= opt_anz)
           # Argumente im Stack reichen nicht für die optionalen
           { opt_anz = opt_anz - args_on_stack; # soviele müssen noch auf den STACK
-            # Platz auf dem STACK reservieren:
-            get_space_on_STACK(sizeof(object) * (uintL)(opt_anz + key_anz));
-            # Alle weiteren count optionalen Parameter bekommen den "Wert"
-            # #<UNBOUND>, auch die Keyword-Parameter:
-            { var uintC count;
-              dotimesC(count,opt_anz + key_anz, { pushSTACK(unbound); } );
-              if (TheSubr(fun)->rest_flag == subr_rest) # &REST-Flag?
-                # ja -> 0 zusätzliche Argumente:
-                { argcount = 0; rest_args_pointer = args_end_pointer;
-                  goto apply_subr_rest;
-                }
-                else
-                # nein -> nichts zu tun
-                { goto apply_subr_norest; }
-          } }
+            if (opt_anz + key_anz > 0)
+              { # Platz auf dem STACK reservieren:
+                get_space_on_STACK(sizeof(object) * (uintL)(opt_anz + key_anz));
+                # Alle weiteren count optionalen Parameter bekommen den "Wert"
+                # #<UNBOUND>, auch die Keyword-Parameter:
+                { var uintC count;
+                  dotimespC(count,opt_anz + key_anz, { pushSTACK(unbound); } );
+              } }
+            if (TheSubr(fun)->rest_flag == subr_rest) # &REST-Flag?
+              # ja -> 0 zusätzliche Argumente:
+              { argcount = 0; rest_args_pointer = args_end_pointer;
+                goto apply_subr_rest;
+              }
+              else
+              # nein -> nichts zu tun
+              { goto apply_subr_norest; }
+          }
         args_on_stack -= opt_anz; # verbleibende Anzahl (> 0)
         if (TheSubr(fun)->key_flag == subr_nokey)
           # SUBR ohne KEY
@@ -5745,14 +5757,15 @@ LISPFUNN(subr_info,1)
            if (args_on_stack <= opt_anz)
              # Argumente im Stack reichen nicht für die optionalen
              { opt_anz = opt_anz - args_on_stack; # soviele müssen noch auf den STACK
-               # Platz auf dem STACK reservieren:
-               get_space_on_STACK(sizeof(object) * (uintL)opt_anz);
-               # Alle weiteren count optionalen Parameter bekommen den "Wert"
-               # #<UNBOUND>, der &REST-Parameter den Wert NIL,
-               # die Keyword-Parameter den Wert #<UNBOUND> :
-               { var uintC count;
-                 dotimesC(count,opt_anz, { pushSTACK(unbound); } );
-               }
+               if (opt_anz > 0)
+                 { # Platz auf dem STACK reservieren:
+                   get_space_on_STACK(sizeof(object) * (uintL)opt_anz);
+                   # Alle weiteren count optionalen Parameter bekommen den "Wert"
+                   # #<UNBOUND>, der &REST-Parameter den Wert NIL,
+                   # die Keyword-Parameter den Wert #<UNBOUND> :
+                   { var uintC count;
+                     dotimespC(count,opt_anz, { pushSTACK(unbound); } );
+                 } }
                if (flags & bit(0)) # &REST-Flag?
                  { pushSTACK(NIL); } # ja -> mit NIL initialisieren
                if (flags & bit(7)) # &KEY-Flag?
@@ -5774,10 +5787,11 @@ LISPFUNN(subr_info,1)
           }
           apply_cclosure_key_noargs:
           { var uintC key_anz = TheCodevec(codevec)->ccv_numkey; # Anzahl Keyword-Parameter
-            get_space_on_STACK(sizeof(object) * (uintL)key_anz);
-            {var uintC count;
-             dotimesC(count,key_anz, { pushSTACK(unbound); } ); # mit #<UNBOUND> initialisieren
-            }
+            if (key_anz > 0)
+              { get_space_on_STACK(sizeof(object) * (uintL)key_anz);
+               {var uintC count;
+                dotimespC(count,key_anz, { pushSTACK(unbound); } ); # mit #<UNBOUND> initialisieren
+              }}
             goto apply_cclosure_key;
           }
           apply_cclosure_key_withargs:
@@ -5815,16 +5829,17 @@ LISPFUNN(subr_info,1)
             # Closure mit nur REST, ohne KEY:
             { # muss noch args_on_stack Argumente aus dem Stack zusammenconsen:
               pushSTACK(NIL);
-              pushSTACK(closure); # Closure muss gerettet werden
-              dotimesC(args_on_stack,args_on_stack,
-                { var object new_cons = allocate_cons();
-                  Cdr(new_cons) = STACK_1;
-                  Car(new_cons) = STACK_2; # nächstes Argument draufconsen
-                  STACK_2 = new_cons;
-                  STACK_1 = STACK_0; skipSTACK(1);
-                });
-              closure = popSTACK(); codevec = TheCclosure(closure)->clos_codevec;
-            }
+              if (args_on_stack > 0)
+                { pushSTACK(closure); # Closure muss gerettet werden
+                  dotimesC(args_on_stack,args_on_stack,
+                    { var object new_cons = allocate_cons();
+                      Cdr(new_cons) = STACK_1;
+                      Car(new_cons) = STACK_2; # nächstes Argument draufconsen
+                      STACK_2 = new_cons;
+                      STACK_1 = STACK_0; skipSTACK(1);
+                    });
+                  closure = popSTACK(); codevec = TheCclosure(closure)->clos_codevec;
+            }   }
           apply_cclosure_nokey: # Closure ohne &KEY anspringen:
             interpret_bytecode(closure,codevec,CCV_START_NONKEY); # Bytecode ab Byte 8 abinterpretieren
           done:

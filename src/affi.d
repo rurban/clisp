@@ -309,127 +309,129 @@ local void affi_call_argsa(address, ffinfo, args, count)
     #define ACCEPT_NIL_ARG       bit(4)
     #define ACCEPT_NUM_ARG       bit(5)
     { var DYNAMIC_ARRAY(things,aint,count);
-      var object* types = &TheSvector(ffinfo)->data[2];
-      var aint* thing = &things[0];
-      dotimesC(count,count,
-        { var object type = *types++;
-          var object arg = NEXT(args);
-          if (fixnump(type))
-            { if (integerp(arg))
-                { switch (fixnum_to_L(type))
-                    { case 1L:
-                        if (!uint8_p(arg)) goto bad_arg; # Fehlermeldung mit O(type_uint8) denkbar
-                          else *thing = I_to_uint8(arg);
-                        break;
-                      case 2L:
-                        if (!uint16_p(arg)) goto bad_arg;
-                          else *thing = I_to_uint16(arg);
-                        break;
-                      case 4L:
-                        if (!uint32_p(arg)) goto bad_arg;
-                          else *thing = I_to_uint32(arg);
-                        break;
-                      case -1L:
-                        if (!sint8_p(arg)) goto bad_arg;
-                          else *thing = I_to_sint8(arg);
-                        break;
-                      case -2L:
-                        if (!sint16_p(arg)) goto bad_arg;
-                          else *thing = I_to_sint16(arg);
-                        break;
-                      case -4L:
-                        if (!sint32_p(arg)) goto bad_arg;
-                          else *thing = I_to_sint32(arg);
-                        break;
-                      default: goto bad_proto;
+      if (count > 0)
+        { var const object* types = &TheSvector(ffinfo)->data[2];
+          var aint* thing = &things[0];
+          dotimespC(count,count,
+            { var object type = *types++;
+              var object arg = NEXT(args);
+              if (fixnump(type))
+                { if (integerp(arg))
+                    { switch (fixnum_to_L(type))
+                        { case 1L:
+                            if (!uint8_p(arg)) goto bad_arg; # Fehlermeldung mit O(type_uint8) denkbar
+                              else *thing = I_to_uint8(arg);
+                            break;
+                          case 2L:
+                            if (!uint16_p(arg)) goto bad_arg;
+                              else *thing = I_to_uint16(arg);
+                            break;
+                          case 4L:
+                            if (!uint32_p(arg)) goto bad_arg;
+                              else *thing = I_to_uint32(arg);
+                            break;
+                          case -1L:
+                            if (!sint8_p(arg)) goto bad_arg;
+                              else *thing = I_to_sint8(arg);
+                            break;
+                          case -2L:
+                            if (!sint16_p(arg)) goto bad_arg;
+                              else *thing = I_to_sint16(arg);
+                            break;
+                          case -4L:
+                            if (!sint32_p(arg)) goto bad_arg;
+                              else *thing = I_to_sint32(arg);
+                            break;
+                          default: goto bad_proto;
+                    }   }
+                    else
+                    { bad_arg:
+                      fehler_ffi_argtype(arg,type,ffinfo);
                 }   }
-                else
-                { bad_arg:
-                  fehler_ffi_argtype(arg,type,ffinfo);
-            }   }
-            else # !fixnump(type)
-            { var uintBWL accept;
-              if (eq(type,S(mal))) # Zeiger
-                  { accept = ACCEPT_ADDR_ARG | ACCEPT_UBVECTOR_ARG | ACCEPT_STRING_ARG | ACCEPT_MAKE_ASCIZ | ACCEPT_NIL_ARG; }
-              elif (eq(type,S(string)))
-                  { accept = ACCEPT_ADDR_ARG | ACCEPT_STRING_ARG | ACCEPT_MAKE_ASCIZ | ACCEPT_NIL_ARG; }
-              elif (eq(type,S(Kio)))
-                  { accept = ACCEPT_ADDR_ARG | ACCEPT_UBVECTOR_ARG | ACCEPT_STRING_ARG; }
-              elif (eq(type,S(Kexternal)))
-                  { accept = ACCEPT_ADDR_ARG | ACCEPT_NIL_ARG; }
-              else goto bad_proto;
-              #ifdef TYPECODES
-              switch (typecode(arg))
-              #else
-              if (posfixnump(arg)) { goto case_posfixnum; }
-              elif (orecordp(arg)) { goto case_orecord; }
-              else switch (0)
-              #endif
-                { case_posfixnum: case_posbignum:
-                    if (!(accept & ACCEPT_ADDR_ARG)) goto bad_arg;
-                    *thing = (aint)I_to_UL(arg);
-                    break;
-                  case_string:
-                    if (!(accept & ACCEPT_STRING_ARG)) goto bad_arg;
-                    # Cf. with_string_0() macro in lispbibl.d
-                    { var uintL length;
-                      var const chart* charptr = unpack_string_ro(arg,&length);
-                      if (accept & ACCEPT_MAKE_ASCIZ)
-                        { var uintL bytelength = cslen(O(foreign_encoding),charptr,length);
-                          var uintB* ptr = alloca(1+bytelength); # TODO Ergebnis testen
-                          *thing = (aint)ptr;
-                          cstombs(O(foreign_encoding),charptr,length,ptr,bytelength);
-                          ptr[bytelength] = '\0';
-                        }
-                        else
-                        { var uintB* ptr = alloca(length); # TODO Ergebnis testen
-                          *thing = (aint)ptr;
-                          dotimesL(length,length, { *ptr++ = as_cint(*charptr++); } );
-                          #error "Ich bin mir nicht sicher, ob das das Gewünschte ist."
-                          #error "Gibt es FFI-Bindings, die versuchen, in einen String hineinzuschreiben?"
-                        }
-                    }
-                    break;
-                  case_symbol:
-                    if (!(accept & ACCEPT_NIL_ARG)) goto bad_arg;
-                    if (!nullp(arg)) goto bad_arg;
-                    *thing = (aint)0;
-                    break;
-                  case_orecord:
-                    switch (Record_type(arg))
-                      {
-                        #ifndef TYPECODES
-                        case Rectype_Bignum:
-                          if (BN_positivep(arg)) goto case_posbignum;
-                          goto bad_arg;
-                        #endif
-                        case_Rectype_string_above;
-                        case_Rectype_Symbol_above;
-                        case_Rectype_obvector_above;
-                        case Rectype_Fpointer:
-                          if (!(accept & ACCEPT_ADDR_ARG)) goto bad_arg;
-                          if (fp_validp(TheFpointer(arg)))
-                            { *thing = (aint)(TheFpointer(arg)->fp_pointer);
-                              break;
+                else # !fixnump(type)
+                { var uintBWL accept;
+                  if (eq(type,S(mal))) # Zeiger
+                      { accept = ACCEPT_ADDR_ARG | ACCEPT_UBVECTOR_ARG | ACCEPT_STRING_ARG | ACCEPT_MAKE_ASCIZ | ACCEPT_NIL_ARG; }
+                  elif (eq(type,S(string)))
+                      { accept = ACCEPT_ADDR_ARG | ACCEPT_STRING_ARG | ACCEPT_MAKE_ASCIZ | ACCEPT_NIL_ARG; }
+                  elif (eq(type,S(Kio)))
+                      { accept = ACCEPT_ADDR_ARG | ACCEPT_UBVECTOR_ARG | ACCEPT_STRING_ARG; }
+                  elif (eq(type,S(Kexternal)))
+                      { accept = ACCEPT_ADDR_ARG | ACCEPT_NIL_ARG; }
+                  else goto bad_proto;
+                  #ifdef TYPECODES
+                  switch (typecode(arg))
+                  #else
+                  if (posfixnump(arg)) { goto case_posfixnum; }
+                  elif (orecordp(arg)) { goto case_orecord; }
+                  else switch (0)
+                  #endif
+                    { case_posfixnum: case_posbignum:
+                        if (!(accept & ACCEPT_ADDR_ARG)) goto bad_arg;
+                        *thing = (aint)I_to_UL(arg);
+                        break;
+                      case_string:
+                        if (!(accept & ACCEPT_STRING_ARG)) goto bad_arg;
+                        # Cf. with_string_0() macro in lispbibl.d
+                        { var uintL length;
+                          var const chart* charptr = unpack_string_ro(arg,&length);
+                          if (accept & ACCEPT_MAKE_ASCIZ)
+                            { var uintL bytelength = cslen(O(foreign_encoding),charptr,length);
+                              var uintB* ptr = alloca(1+bytelength); # TODO Ergebnis testen
+                              *thing = (aint)ptr;
+                              cstombs(O(foreign_encoding),charptr,length,ptr,bytelength);
+                              ptr[bytelength] = '\0';
                             }
-                          goto bad_arg;
-                        default:
-                          goto bad_arg;
-                      }
-                    break;
-                  case_obvector:
-                    if (!(accept & ACCEPT_UBVECTOR_ARG)) goto bad_arg;
-                    { var uintBWL bsize = Iarray_flags(arg) & arrayflags_atype_mask;
-                      if (!((bsize==Atype_8Bit) || (bsize==Atype_16Bit) || (bsize==Atype_32Bit))) goto bad_arg;
-                     {var uintL index = 0;
-                      arg = iarray_displace_check(arg,0,&index); # UNSAFE
-                      *thing = (aint)&TheSbvector(TheIarray(arg)->data)->data[index];
-                    }}
-                    break;
-                  default: goto bad_arg;
-            }   }
-          thing++;
-        });
+                            else
+                            { var uintB* ptr = alloca(length); # TODO Ergebnis testen
+                              *thing = (aint)ptr;
+                              dotimesL(length,length, { *ptr++ = as_cint(*charptr++); } );
+                              #error "Ich bin mir nicht sicher, ob das das Gewünschte ist."
+                              #error "Gibt es FFI-Bindings, die versuchen, in einen String hineinzuschreiben?"
+                            }
+                        }
+                        break;
+                      case_symbol:
+                        if (!(accept & ACCEPT_NIL_ARG)) goto bad_arg;
+                        if (!nullp(arg)) goto bad_arg;
+                        *thing = (aint)0;
+                        break;
+                      case_orecord:
+                        switch (Record_type(arg))
+                          {
+                            #ifndef TYPECODES
+                            case Rectype_Bignum:
+                              if (BN_positivep(arg)) goto case_posbignum;
+                              goto bad_arg;
+                            #endif
+                            case_Rectype_string_above;
+                            case_Rectype_Symbol_above;
+                            case_Rectype_obvector_above;
+                            case Rectype_Fpointer:
+                              if (!(accept & ACCEPT_ADDR_ARG)) goto bad_arg;
+                              if (fp_validp(TheFpointer(arg)))
+                                { *thing = (aint)(TheFpointer(arg)->fp_pointer);
+                                  break;
+                                }
+                              goto bad_arg;
+                            default:
+                              goto bad_arg;
+                          }
+                        break;
+                      case_obvector:
+                        if (!(accept & ACCEPT_UBVECTOR_ARG)) goto bad_arg;
+                        { var uintBWL bsize = Iarray_flags(arg) & arrayflags_atype_mask;
+                          if (!((bsize==Atype_8Bit) || (bsize==Atype_16Bit) || (bsize==Atype_32Bit))) goto bad_arg;
+                         {var uintL index = 0;
+                          arg = iarray_displace_check(arg,0,&index); # UNSAFE
+                          *thing = (aint)&TheSbvector(TheIarray(arg)->data)->data[index];
+                        }}
+                        break;
+                      default: goto bad_arg;
+                }   }
+              thing++;
+            });
+        }
       affi_callit(address,ffinfo,&things[0]);
       FREE_DYNAMIC_ARRAY(things);
       return;

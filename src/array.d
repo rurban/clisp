@@ -889,16 +889,17 @@ LISPFUNN(array_dimension,2) # (ARRAY-DIMENSION array axis-number), CLTL S. 292
         # nicht-simpler Array: alle Dimensionen als Fixnums auf den STACK,
         # dann eine Liste daraus machen.
         { var uintC rank = Iarray_rank(array);
-          var uintL* dimptr = &TheIarray(array)->dims[0]; # Zeiger auf Dimensionen
-          if (Iarray_flags(array) & bit(arrayflags_dispoffset_bit))
-            dimptr++; # evtl. Displaced-Offset überspringen
-          get_space_on_STACK(sizeof(object)*(uintL)rank); # STACK überprüfen
-          { var uintC count;
-            dotimesC(count,rank,
-              { # nächste Dimension als Fixnum in den Stack:
-                pushSTACK(fixnum(*dimptr++));
-              });
-          }
+          if (rank > 0)
+            { var uintL* dimptr = &TheIarray(array)->dims[0]; # Zeiger auf Dimensionen
+              if (Iarray_flags(array) & bit(arrayflags_dispoffset_bit))
+                dimptr++; # evtl. Displaced-Offset überspringen
+              get_space_on_STACK(sizeof(object)*(uintL)rank); # STACK überprüfen
+              { var uintC count;
+                dotimespC(count,rank,
+                  { # nächste Dimension als Fixnum in den Stack:
+                    pushSTACK(fixnum(*dimptr++));
+                  });
+            } }
           return listof(rank); # Liste bilden
         }
     }
@@ -919,24 +920,26 @@ LISPFUNN(array_dimensions,1) # (ARRAY-DIMENSIONS array), CLTL S. 292
     var object array;
     var array_dim_size* dims_sizes;
     { var uintC r = Iarray_rank(array); # Rang
-      var const uintL* dimptr = &TheIarray(array)->dims[0]; # Zeiger auf Dimensionen
-      if (Iarray_flags(array) & bit(arrayflags_dispoffset_bit))
-        dimptr++; # evtl. Displaced-Offset überspringen
-      dimptr = &dimptr[(uintL)r]; # Zeiger hinter die Dimensionen
-     {var uintL produkt = 1;
-      dotimesC(r,r, # Schleife über die r Dimensionen von hinten
-        { var uintL dim = *--dimptr; # nächste Dimension
-          produkt = mulu32_unchecked(produkt,dim); # aufs Produkt multiplizieren
-          # Das gibt keinen Überlauf, weil dies
-          # < Produkt der bisherigen Dimensionen
-          # <= Produkt aller Dimensionen < arraysize_limit <= 2^32 ist.
-          # (Ausnahme: Falls eine Dimension kleinerer Nummer =0 ist.
-          # Aber dann ist das jetzige Produkt sowieso irrelevant, da
-          # jede Schleife über diese Dimension eine Leerschleife ist.)
-          dims_sizes->dim = dim; dims_sizes->dimprod = produkt;
-          dims_sizes++;
-        });
-    }}
+      if (r > 0)
+        { var const uintL* dimptr = &TheIarray(array)->dims[0]; # Zeiger auf Dimensionen
+          if (Iarray_flags(array) & bit(arrayflags_dispoffset_bit))
+            dimptr++; # evtl. Displaced-Offset überspringen
+          dimptr = &dimptr[(uintL)r]; # Zeiger hinter die Dimensionen
+         {var uintL produkt = 1;
+          dotimespC(r,r, # Schleife über die r Dimensionen von hinten
+            { var uintL dim = *--dimptr; # nächste Dimension
+              produkt = mulu32_unchecked(produkt,dim); # aufs Produkt multiplizieren
+              # Das gibt keinen Überlauf, weil dies
+              # < Produkt der bisherigen Dimensionen
+              # <= Produkt aller Dimensionen < arraysize_limit <= 2^32 ist.
+              # (Ausnahme: Falls eine Dimension kleinerer Nummer =0 ist.
+              # Aber dann ist das jetzige Produkt sowieso irrelevant, da
+              # jede Schleife über diese Dimension eine Leerschleife ist.)
+              dims_sizes->dim = dim; dims_sizes->dimprod = produkt;
+              dims_sizes++;
+            });
+        }}
+    }
 
 LISPFUNN(array_total_size,1) # (ARRAY-TOTAL-SIZE array), CLTL S. 292
   { var object array = popSTACK();
@@ -971,20 +974,21 @@ LISPFUN(array_in_bounds_p,1,0,rest,nokey,0,NIL)
         if (!(argcount == Iarray_rank(array))) # sollte = Rang sein
           fehler_subscript_anz(array,argcount);
         # Subscripts selbst überprüfen:
-        {var uintL* dimptr = &TheIarray(array)->dims[0]; # Zeiger auf Dimensionen
-         if (Iarray_flags(array) & bit(arrayflags_dispoffset_bit))
-           dimptr++; # evtl. Displaced-Offset überspringen
-         { var uintC count;
-           dotimesC(count,argcount,
-             { var object subscriptobj = NEXT(argptr); # Subscript als Objekt
-               if (!integerp(subscriptobj)) { fehler_subscript_type(argcount); } # muss Integer sein
-               # Subscript muss Fixnum>=0 sein,
-               # Subscript als uintL muss kleiner als die entsprechende Dimension sein:
-               if (!( (posfixnump(subscriptobj))
-                      && (posfixnum_to_L(subscriptobj) < *dimptr++) ))
-                 goto no;
-             });
-        }}
+        if (argcount > 0)
+          {var uintL* dimptr = &TheIarray(array)->dims[0]; # Zeiger auf Dimensionen
+           if (Iarray_flags(array) & bit(arrayflags_dispoffset_bit))
+             dimptr++; # evtl. Displaced-Offset überspringen
+           { var uintC count;
+             dotimespC(count,argcount,
+               { var object subscriptobj = NEXT(argptr); # Subscript als Objekt
+                 if (!integerp(subscriptobj)) { fehler_subscript_type(argcount); } # muss Integer sein
+                 # Subscript muss Fixnum>=0 sein,
+                 # Subscript als uintL muss kleiner als die entsprechende Dimension sein:
+                 if (!( (posfixnump(subscriptobj))
+                        && (posfixnum_to_L(subscriptobj) < *dimptr++) ))
+                   goto no;
+               });
+          }}
         goto yes;
       }
     yes: value1 = T; mv_count=1; set_args_end_pointer(rest_args_pointer); return;
@@ -1472,14 +1476,15 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
                 # Rang vergleichen:
                 if (!(rank == iarray_rank(array2))) goto fehler2;
                 # Dimensionen vergleichen:
-                { var uintC count;
-                  var uintL* dimptr1 = dimptr;
-                  var uintL* dimptr2;
-                  dimptr2 = &array2->dims[0];
-                  if (iarray_flags(array2) & bit(arrayflags_dispoffset_bit))
-                    dimptr2++;
-                  dotimesC(count,rank, { if (!(*dimptr1++==*dimptr2++)) goto fehler2; });
-                }
+                if (rank > 0)
+                  { var uintC count;
+                    var uintL* dimptr1 = dimptr;
+                    var uintL* dimptr2;
+                    dimptr2 = &array2->dims[0];
+                    if (iarray_flags(array2) & bit(arrayflags_dispoffset_bit))
+                      dimptr2++;
+                    dotimespC(count,rank, { if (!(*dimptr1++==*dimptr2++)) goto fehler2; });
+                  }
                 break;
               }
             default:
@@ -1493,11 +1498,12 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
              array3 = allocate_iarray(bit(arrayflags_notbytep_bit)|Atype_Bit,rank,Array_type_mdarray); # Array erzeugen
              TheIarray(array3)->data = STACK_0; # Datenvektor eintragen
              # Dimensionen eintragen:
-             { var uintC count;
-               var uintL* dimptr1 = dimptr;
-               var uintL* dimptr2 = &TheIarray(array3)->dims[0];
-               dotimesC(count,rank, { *dimptr1++ = *dimptr2++; });
-             }
+             if (rank > 0)
+               { var uintC count;
+                 var uintL* dimptr1 = dimptr;
+                 var uintL* dimptr2 = &TheIarray(array3)->dims[0];
+                 dotimespC(count,rank, { *dimptr1++ = *dimptr2++; });
+               }
              STACK_0 = array3; # neuen Array ablegen
            }
            else
@@ -1517,14 +1523,15 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
                        # Rang vergleichen:
                        if (!(rank == iarray_rank(array3))) goto fehler3;
                        # Dimensionen vergleichen:
-                       { var uintC count;
-                         var uintL* dimptr1 = dimptr;
-                         var uintL* dimptr2;
-                         dimptr2 = &array3->dims[0];
-                         if (iarray_flags(array3) & bit(arrayflags_dispoffset_bit))
-                           dimptr2++;
-                         dotimesC(count,rank, { if (!(*dimptr1++==*dimptr2++)) goto fehler3; });
-                       }
+                       if (rank > 0)
+                         { var uintC count;
+                           var uintL* dimptr1 = dimptr;
+                           var uintL* dimptr2;
+                           dimptr2 = &array3->dims[0];
+                           if (iarray_flags(array3) & bit(arrayflags_dispoffset_bit))
+                             dimptr2++;
+                           dotimespC(count,rank, { if (!(*dimptr1++==*dimptr2++)) goto fehler3; });
+                         }
                        break;
                      }
                    default:
