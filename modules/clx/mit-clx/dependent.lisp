@@ -469,7 +469,10 @@
 ;;; MAKE-PROCESS-LOCK: Creating a process lock.
 
 (defun make-process-lock (name)
-  (error "~S(~S) is not implemented" 'make-process-lock name))
+  #+(or sbcl clisp) (declare (ignore name))
+  #-(or sbcl clisp)
+  (port::make-lock :name name))
+
 
 ;;; HOLDING-LOCK: Execute a body of code with a lock held.
 
@@ -480,10 +483,9 @@
 (defmacro holding-lock ((lock display &optional (whostate "CLX wait")
 			      &key timeout)
 			&body body)
-  (declare (ignore ))
-  `(progn (warn "~S(~S ~S ~S ~S): converted to ~S"
-                'holding-lock ,lock ,display ,whostate ,timeout 'progn)
-          ,@body))
+  (declare (ignore lock display whostate timeout))
+  `(progn
+     ,@body))
 
 
 ;;; WITHOUT-ABORTS
@@ -514,7 +516,9 @@
 (declaim (inline process-wakeup))
 
 (defun process-wakeup (process)
-  (error "~S(~S) is not implemented" 'process-wakeup process))
+  (declare (ignore process))
+  #-(or clisp sbcl)
+  (port:process-yield))
 
 ;;; CURRENT-PROCESS: Return the current process object for input locking and
 ;;; for calling PROCESS-WAKEUP.
