@@ -61,6 +61,7 @@ DTD=http://www.oasis-open.org/docbook/xml/$(DTDVER)/docbookx.dtd
 FILLIN=sed -e 's,@DTD@,$(DTD),' \
 	    -e 's,@DTDVER@,$(DTDVER),' \
 	    -e 's,@VERSION@,'`cat ../src/VERSION`',' \
+	    -e 's,@PLATFORM@,'`uname`',' \
 	    -e 's,@TODAY@,'`date +"%Y-%m-%d"`','
 
 SGML_UNCOMMENT=-e 's/^ *<!-- *//' -e 's/ *--> *$$//' \
