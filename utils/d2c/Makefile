@@ -14,20 +14,15 @@ all:
 	@echo "Pick a phase."
 
 clean:
-	rm comment5 ansidecl ansidecl.c
+	rm -fv comment5 ansidecl ansidecl.c
 
-convert: phase-0 phase-1 phase-2 phase-3 phase-4 phase-5 phase-6
+convert: phase-1 phase-2 phase-3 phase-4 phase-5 # phase-6
 
-# Phase zero: small tweaks to some .d files to prepare them for
-# subsequent conversion. These changes aren't actually required until
-# phase-3 but need to be applied now before we start converting the
-# source.
-
-phase-0:
-	cd ../..; patch -p1 < $(here)/phase-0-patch
-
-undo-phase-0:
-	cd ../..; patch -R -p1 < $(here)/phase-0-patch
+PATCHED=$(shell egrep '^---' *-patch | sed -e 's,^[^/]*/,,' -e 's,	.*$$,,')
+undo:
+	cd ../../src; for f in *.ORIG; do mv -fv $$f `basename $$f .ORIG`; done
+	cd ../;       for f in *.ORIG; do mv -fv $$f `basename $$f .ORIG`; done
+	cd ../..; rm -fv $(PATCHED); cvs up $(PATCHED);
 
 # Phase One: get rid of the #-style comments and the infrastructure
 # that supports them. And convert all .d files to 7-bit ascii.
@@ -70,8 +65,6 @@ undo-phase-2:
 	cd ../../utils; for f in *.d; do mv $$f.PHASE-1 $$f; done
 
 # Phase Three: get rid of preprocessor macros global, local, and var.
-# Requires a small patch to some .d files (done in phase-0) to put
-# back some blocks that used to be inserted by varbrace.
 
 phase-3: $(addprefix var-global-and-local-,$(conversions))
 
@@ -176,14 +169,7 @@ phase-6: convert-makefiles
 convert-makefiles:
 	cd ../..; $(MAKE) -f Makefile.devel makefiles
 
-clean-up:
-	cd ../../src;				\
-	rm -f *.c~;				\
-	rm *.d.ORIG;				\
-	rm *.d.PHASE-1;				\
-	rm *.d.PHASE-2;				\
-	rm *.d.PHASE-3;				\
-	rm *.UNINDENTED-*;			\
-	rm *.indent-errors-*;			\
-	rm *.UNSPLIT				\
-	rm *.UNALIGNED
+clean-src:
+	cd ../../src; rm -fv *.c~ *.d.ORIG *.d.PHASE-* *.UNINDENTED-* \
+		*.indent-errors-* *.UNSPLIT *.UNALIGNED;
+	cd ../; rm -fv *.d.ORIG *.d.PHASE-*;
