@@ -1,3 +1,8 @@
+2002-10-09  Sam Steingold  <sds@gnu.org>
+
+	* spvw_memfile.d (loadmem_from_handle): accept a second argument
+	'filename' for better error reporting
+
 2002-10-06  Sam Steingold  <sds@gnu.org>
 
 	* realelem.d (F_R_float_F, RA_R_float_F): use Lfloat_length(y)
