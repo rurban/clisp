@@ -2,22 +2,42 @@
  *  Transzendente Funktionen für komplexe Zahlen
  */
 
-/* N_phase_R(x) liefert (phase x), wo x eine Zahl ist.
+/* N_phase_R(x,want_exact) liefert (phase x), wo x eine Zahl ist.
  Ergebnis rational nur wenn (= x 0) oder wenn x reell und >0.
  can trigger GC */
-  local object N_phase_R (object x);
+  local object N_phase_R (object x, bool want_exact);
 /* Methode:
  (= x 0) -> willkürliches Ergebnis 0
  x reell -> Winkel von (x,0) in Polarkoordinaten
  x komplex -> Winkel von ((realpart x),(imagpart x)) in Polarkoordinaten */
-  local object N_phase_R (object x)
+  local object N_phase_R (object x, bool want_exact)
   {
-    if (N_zerop(x))
-      return Fixnum_0;
-    elif (N_realp(x))
-      return R_R_atan_R(x,Fixnum_0);
-    else
-      return R_R_atan_R(TheComplex(x)->c_real,TheComplex(x)->c_imag);
+    if (N_realp(x)) {
+      /* For nonnegative real numbers, the natural mathematical result is the
+         exact 0. But ANSI CL wants a floating-point 0 result. If x is a non-
+         negative float, *FLOATING-POINT-RATIONAL-CONTAGION-ANSI* achieves this.
+         If x is a nonnegative rational number, we look at *PHASE-ANSI*. */
+      if (!R_minusp(x)) {
+        if (want_exact)
+          return Fixnum_0;
+        else if (R_rationalp(x))
+          return (nullpSv(phase_ansi) ? Fixnum_0 : I_float_F(Fixnum_0));
+        else
+          return RA_F_exact_contagion_R(Fixnum_0,x);
+      } else
+        return R_R_atan_R(x,Fixnum_0);
+    } else {
+      /* Handle (= x 0) specially. */
+      if (N_zerop(x)) {
+        if (want_exact)
+          return Fixnum_0;
+        else {
+          var object fx = R_R_contagion_R(TheComplex(x)->c_real,TheComplex(x)->c_imag);
+          return RA_F_exact_contagion_R(Fixnum_0,fx);
+        }
+      } else
+        return R_R_atan_R(TheComplex(x)->c_real,TheComplex(x)->c_imag);
+    }
   }
 
 /* N_exp_N(x) liefert (exp x), wo x eine Zahl ist.
@@ -87,7 +107,7 @@ local object N_log_N (object x, bool start_p, gcv_object_t *end_p)
       }
     }
   }
-  STACK_1 = N_phase_R(STACK_1); /* (phase x) */
+  STACK_1 = N_phase_R(STACK_1,true); /* (phase x) */
   if (end_p != NULL && floatp(STACK_1))
     STACK_1 = F_R_float_F(STACK_1,*end_p);
   { /* (complex (log (abs x)) (phase x)) */
@@ -131,7 +151,7 @@ local object N_log_N (object x, bool start_p, gcv_object_t *end_p)
         pushSTACK(a); pushSTACK(b); /* a,b retten */
         /* Imaginärteil (/ (phase a) (log b)) errechnen: */
         {
-          var object angle = N_phase_R(a); /* (phase a) */
+          var object angle = N_phase_R(a,true); /* (phase a) */
           if (eq(angle,Fixnum_0)) /* = Fixnum 0 <==> (= a 0) -> Error */
             divide_0();
           /* durch (log b) dividieren, liefert den Imaginärteil: */
@@ -208,8 +228,21 @@ local object N_log_N (object x, bool start_p, gcv_object_t *end_p)
   {
     if (N_realp(x)) /* x reell -> schnellere Routine */
       return R_I_expt_R(x,y);
-    if (eq(y,Fixnum_0)) /* y=0 -> Ergebnis 1 */
-      return Fixnum_1;
+    if (eq(y,Fixnum_0)) {
+      /* y=0 -> Ergebnis 1 */
+      if (R_rationalp(TheComplex(x)->c_real) && R_rationalp(TheComplex(x)->c_imag)) {
+        return Fixnum_1;
+      } else {
+        var object fx = R_R_contagion_R(TheComplex(x)->c_real,TheComplex(x)->c_imag);
+        pushSTACK(fx);
+        pushSTACK(RA_F_exact_contagion_R(Fixnum_0,fx));
+        fx = STACK_1;
+        STACK_1 = RA_F_exact_contagion_R(Fixnum_1,fx);
+        var object z = R_R_complex_N(STACK_1,STACK_0);
+        skipSTACK(2);
+        return z;
+      }
+    }
     pushSTACK(x);
     /* Betrag von y nehmen: */
     var bool y_negative = false;
@@ -288,28 +321,26 @@ local object N_log_N (object x, bool start_p, gcv_object_t *end_p)
       if (RA_integerp(y)) {
         /* y Integer */
         if (eq(y,Fixnum_0)) {
-          #ifdef STRICT_CLTL
           /* y=0 -> 1 im Format von x. */
           if (N_realp(x)) {
             if (R_rationalp(x))
               return Fixnum_1;
             else
-              return I_F_float_F(Fixnum_1,x);
+              return RA_F_exact_contagion_R(Fixnum_1,x);
           } else {
-            x = R_R_contagion_R(TheComplex(x)->c_real,TheComplex(x)->c_imag);
-            if (R_rationalp(x)) {
+            if (R_rationalp(TheComplex(x)->c_real) && R_rationalp(TheComplex(x)->c_imag)) {
               return Fixnum_1;
             } else {
-              x = I_F_float_F(Fixnum_0,x); /* 0.0 */
-              pushSTACK(x);
-              x = I_F_float_F(Fixnum_1,x); /* 1.0 */
-              return R_R_complex_C(x,popSTACK()); /* #C(1.0 0.0) */
+              var object fx = R_R_contagion_R(TheComplex(x)->c_real,TheComplex(x)->c_imag);
+              pushSTACK(fx);
+              pushSTACK(RA_F_exact_contagion_R(Fixnum_0,fx));
+              fx = STACK_1;
+              STACK_1 = RA_F_exact_contagion_R(Fixnum_1,fx);
+              var object z = R_R_complex_N(STACK_1,STACK_0);
+              skipSTACK(2);
+              return z;
             }
           }
-          #else
-          /* Exponent exakt 0 -> Ergebnis exakt 1 */
-          return Fixnum_1;
-          #endif
         }
         if (I_fixnump(y)) /* |y| klein ? */
           return N_I_expt_N(x,y);
@@ -452,8 +483,9 @@ local object N_cos_N (object x)
     STACK_1 = R_R_mal_R(STACK_1,STACK_3); /* cos(a)*cosh(b) */
     STACK_2 = R_R_contagion_R(STACK_4,STACK_5);
     { var object erg;
-      if (eq(STACK_0,Fixnum_0)) erg = R_R_float_F(STACK_1,STACK_2);
-      else {
+      if (eq(STACK_0,Fixnum_0)) {
+        erg = R_R_float_F(STACK_1,STACK_2);
+      } else {
         STACK_1 = R_R_float_F(STACK_1,STACK_2);
         STACK_0 = F_R_float_F(STACK_0,STACK_2);
         erg = R_R_complex_C(STACK_1,STACK_0);

@@ -1,5 +1,25 @@
 2004-04-11  Bruno Haible  <bruno@clisp.org>
 
+	ANSI CL compliance: Optionally return floating-point results when
+	ANSI CL says so.
+	* realelem.d (warn_floating_point_rational_contagion): New function.
+	(RA_F_exact_contagion_R): New function.
+	(R_R_mal_R, R_R_durch_R, R_I_expt_R): Use RA_F_exact_contagion_R.
+	* realtran.d (R_R_atan_R, R_R_log_R): Likewise.
+	* comptran.d (N_phase_R): Add argument want_exact. Use
+	RA_F_exact_contagion_R.
+	(N_log_N, N_N_log_N): Update.
+	(N_I_expt_N, N_N_expt_N): Use R_R_contagion_R and RA_F_exact_contagion_R.
+	* lisparit.d (PHASE): Pass want_exact=false.
+	(init_arith): Initialize *FLOATING-POINT-RATIONAL-CONTAGION-ANSI* and
+	*PHASE-ANSI* to NIL, and *WARN-ON-FLOATING-POINT-RATIONAL-CONTAGION* to
+	T.
+	* misc.d (SYS::SET-ANSI): Set *FLOATING-POINT-RATIONAL-CONTAGION-ANSI*
+	and *PHASE-ANSI* as well.
+	* places.lisp (*ansi*): Update documentation.
+
+2004-04-11  Bruno Haible  <bruno@clisp.org>
+
 	* package.d (correct_packname): Fix typo in restart description.
 
 2004-04-20  Sam Steingold  <sds@gnu.org>

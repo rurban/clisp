@@ -140,6 +140,39 @@ local object N_N_contagion_R (object x, object y)
   return R_R_contagion_R(x,y);
 }
 
+/* Warns, if floating-point and rational numbers are combined, and the
+ mathematical result could be a rational number.
+ warn_floating_point_rational_contagion();
+ can trigger GC */
+local void warn_floating_point_rational_contagion (void) {
+  pushSTACK(CLSTEXT("Numerical operation combines exact and inexact numbers (rational numbers\n"
+                    "and floating-point numbers), and the mathematical result is exact.\n"
+                    "See ANSI CL 12.1.4.1 and the CLISP impnotes for details.\n"
+                    "The result's actual exactness is controlled by\n"
+                    "~S.\n"
+                    "To shut off this warning, set ~S to ~S."));
+  pushSTACK(S(floating_point_rational_contagion_ansi));
+  pushSTACK(S(warn_on_floating_point_rational_contagion));
+  pushSTACK(NIL);
+  funcall(eq(Symbol_value(S(warn_on_floating_point_rational_contagion)),S(error))
+          ? S(error) : S(warn),4);
+}
+
+/* When an operation combines a rational and a floating-point number and the
+ mathematical result is a rational number, this returns the actual result.
+ RA_F_exact_contagion_R(result,float_argument)
+ can trigger GC */
+local object RA_F_exact_contagion_R (object result, object float_argument) {
+  if (!nullpSv(floating_point_rational_contagion_ansi))
+    result = RA_F_float_F(result,float_argument);
+  if (!nullpSv(warn_on_floating_point_rational_contagion)) {
+    pushSTACK(result);
+    warn_floating_point_rational_contagion();
+    result = popSTACK();
+  }
+  return result;
+}
+
 /* Macro: distributes according to the default-float-type to 4 statements.
  defaultfloatcase(symbol, SF_statement,FF_statement,DF_statement,LF_statement,
                   save_statement,restore_statement);
@@ -385,17 +418,25 @@ local object R_abs_R (object x)
 /* R_R_plus_R(x,y) => (+ x y), with x and y being real numbers.
  can trigger GC */
 local object R_R_plus_R (object x, object y)
-{ if (eq(y,Fixnum_0)) return x;
-  else if (eq(x,Fixnum_0)) return y;
-  else GEN_R_op21(x,y,plus,return);
+{
+  if (eq(y,Fixnum_0))
+    return x;
+  else if (eq(x,Fixnum_0))
+    return y;
+  else
+    GEN_R_op21(x,y,plus,return);
 }
 
 /* R_R_minus_R(x,y) => (- x y), with x and y being real numbers.
  can trigger GC */
 local object R_R_minus_R (object x, object y)
-{ if (eq(y,Fixnum_0)) return x;
-  else if (eq(x,Fixnum_0)) return R_minus_R(y);
-  else GEN_R_op21(x,y,minus,return);
+{
+  if (eq(y,Fixnum_0))
+    return x;
+  else if (eq(x,Fixnum_0))
+    return R_minus_R(y);
+  else
+    GEN_R_op21(x,y,minus,return);
 }
 
 /* R_square_R(x) => (* x x), with x being a real number.
@@ -406,9 +447,21 @@ local object R_square_R (object x)
 /* R_R_mal_R(x,y) => (* x y), with x and y being real numbers.
  can trigger GC */
 local object R_R_mal_R (object x, object y)
-{ if (eq(x,Fixnum_0)) return x; /* 0 * y = exact 0 */
-  else if (eq(y,Fixnum_0)) return y; /* x * 0 = exact 0 */
-  else GEN_R_op21(x,y,mal,return);
+{
+  if (eq(x,Fixnum_0)) {
+    /* 0 * y = exact 0 */
+    if (R_floatp(y))
+      return RA_F_exact_contagion_R(x,y);
+    else
+      return x;
+  } else if (eq(y,Fixnum_0)) {
+    /* x * 0 = exact 0 */
+    if (R_floatp(x))
+      return RA_F_exact_contagion_R(y,x);
+    else
+      return y;
+  } else
+    GEN_R_op21(x,y,mal,return);
 }
 
 /* R_durch_R(x) => (/ x), with x being a real number.
@@ -421,7 +474,11 @@ local object R_durch_R (object x)
 local object R_R_durch_R (object x, object y)
 {
   if (eq(x,Fixnum_0)) { /* 0 / y = exact 0, except if y=0 */
-    if (R_zerop(y)) { divide_0(); } else return x;
+    if (R_zerop(y)) { divide_0(); }
+    if (R_floatp(y))
+      return RA_F_exact_contagion_R(x,y);
+    else
+      return x;
   } else
     GEN_R_op21(x,y,durch,return);
 }
@@ -1045,7 +1102,13 @@ local object R_sqrt_R (object x)
  Forr y<0: (/ (expt x (- y))). */
 local object R_I_expt_R (object x, object y)
 {
-  if (eq(y,Fixnum_0)) return Fixnum_1; /* y=0 -> result 1 */
+  if (eq(y,Fixnum_0)) {
+    /* y=0 -> result 1 */
+    if (R_floatp(x))
+      return RA_F_exact_contagion_R(Fixnum_1,x);
+    else
+      return Fixnum_1;
+  }
   pushSTACK(x);
  {var bool y_negative = false;
   if (R_minusp(y)) /* take absolute value of y */
