@@ -6747,7 +6747,11 @@ local void pr_symbol (const gcv_object_t* stream_, object sym) {
     # with escape-character and maybe package-name:
     var bool case_sensitive = false;
     var object curr_pack = get_current_package();
-    if (accessiblep(sym,curr_pack)
+    if (keywordp(sym)) { # Keyword ?
+      pushSTACK(sym); # save symbol
+      write_ascii_char(stream_,':');
+      sym = popSTACK(); # move sym back
+    } else if (accessiblep(sym,curr_pack)
         # When *PRINT-READABLY*, print PACK::SYMBOL even when the symbol is
         # accessible. This is to satisfy the contract of *PRINT-READABLY*,
         # but is also useful when writing .fas files.
@@ -6756,11 +6760,8 @@ local void pr_symbol (const gcv_object_t* stream_, object sym) {
       # print no package-name and no package-markers.
       case_sensitive = pack_casesensitivep(curr_pack);
     } else {
-      var object home;
       pushSTACK(sym); # save symbol
-      if (keywordp(sym)) # Keyword ?
-        goto one_marker; # yes -> print only 1 package-marker
-      home = Symbol_package(sym); # home-package of the symbol
+      var object home = Symbol_package(sym); # home-package of the symbol
       if (nullp(home)) { # print uninterned symbol
         # query *PRINT-GENSYM*:
         if (!nullpSv(print_gensym) || !nullpSv(print_readably)) {
