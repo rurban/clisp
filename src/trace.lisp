@@ -38,8 +38,7 @@
 (in-package "COMMON-LISP")
 (export '(trace untrace))
 (in-package "EXT")
-(export '(*trace-function* *trace-args* *trace-form* *trace-values*
-          fdefinition-local))
+(export '(*trace-function* *trace-args* *trace-form* *trace-values*))
 (in-package "SYSTEM")
 
 (proclaim '(special *trace-function* *trace-args* *trace-form* *trace-values*))
@@ -58,29 +57,56 @@
 ;; <==>   (get symbol 'sys::traced-definition)
 (defvar *trace-level* 0) ; nesting depth for Trace-Output
 
-(defun fdefinition-local (spec)
+(labels ((subclosure-pos (closure name)
+           (do ((length (sys::%record-length closure))
+                ;; compiler::symbol-suffix is defined in compiler.lisp
+                (nm (compiler::symbol-suffix (closure-name closure) name))
+                (pos 2 (1+ pos)) obj)
+               ((= pos length)
+                (error (ENGLISH "~s: no local name ~s in ~s")
+                       'local name closure))
+             (setq obj (sys::%record-ref closure pos))
+             (when (and (closurep obj) (eq nm (closure-name obj)))
+               (return pos))))
+         (force-cclosure (name)
+           (let ((closure (fdefinition name)))
+             (unless (closurep closure)
+               (error-of-type 'type-error
+                 :datum closure :expected-type 'closure
+                 (ENGLISH "~S: ~S must name a closure") 'local name))
+             (if (compiled-function-p closure) closure
+                 (compile name closure))))
+         (local-helper (spec)
+           (do* ((spe (cdr spec) (cdr spe))
+                 (clo (force-cclosure (car spec))
+                      (sys::%record-ref clo pos))
+                 (pos (subclosure-pos clo (car spe))
+                      (subclosure-pos clo (car spe))))
+                ((endp (cdr spe)) (values clo pos)))))
+
+  (defun %local-get (spec)
+    (multiple-value-bind (clo pos) (local-helper spec)
+      (sys::%record-ref clo pos)))
+  (defun %local-set (new-def spec)
+    (multiple-value-bind (clo pos) (local-helper spec)
+      (sys::%record-store clo pos new-def))))
+
+(defmacro local (&rest spec)
   "Return the closure defined locally with LABELS or FLET.
 SPEC is a list of (CLOSURE SUB-CLOSURE SUB-SUB-CLOSURE ...)
 CLOSURE must be compiled."
-  (flet ((subclosure (closure name)
-           (let ((consts (closure-consts closure))
-                 ;; compiler::symbol-suffix is defined in compiler.lisp
-                 (nm (compiler::symbol-suffix (closure-name closure) name)))
-             (or (find nm consts :test #'eq :key
-                       (lambda (obj) (and (closurep obj) (closure-name obj))))
-                 (error (ENGLISH "~s: no local name ~s in ~s")
-                        'fdefinition-local name closure)))))
-    (let ((closure (fdefinition (car spec))))
-      (unless (closurep closure)
-        (error-of-type 'type-error
-          :datum closure :expected-type 'closure
-          (ENGLISH "~S: ~S must name a closure")
-          'fdefinition-local (car spec)))
-      (unless (compiled-function-p closure)
-        (setq closure (compile nil closure)))
-      (dolist (spe (cdr spec))
-        (setq closure (subclosure closure spe)))
-      closure)))
+  (%local-get spec))
+
+(define-setf-expander local (&rest spec)
+  "Modify the local definition (LABELS or FLET).
+This will not work with closures that use lexical variables!"
+  (let ((store (gensym "LOCAL-")))
+    (values nil nil `(,store) `(%local-set ,store ',spec)
+            `(%local-get ,spec))))
+
+;; check whether the object might name a local (LABELS or FLET) function
+(defun local-function-name-p (obj)
+  (and (consp obj) (eq 'local (car obj))))
 
 ;; Functions, that the Tracer calls at runtime and that the user could
 ;; trace, must be called in their untraced form.
