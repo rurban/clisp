@@ -56,7 +56,7 @@
 (element quote
    (let ((role (attribute-string (normalize "role"))))
      (case role
-       (("pacakge")
+       (("package")
         (make element gi: "STRONG" attributes: (list (list "CLASS" role))
               (next-match)))
        (else (next-match)))))
