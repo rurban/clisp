@@ -80,11 +80,11 @@
 #
 # Revision 1.6  1997/08/30 14:04:08  clinares
 # El 100% de los mensajes están traducidos :)
-# En total, 9 meses de trabajo (es decir, ¡¡ha sido un parto!! :)
+# En total, 9 meses de trabajo (es decir, aha sido un parto!! :)
 #
 # Revision 1.5  1997/08/27 00:48:46  clinares
 # Esta es la traducción que resulta de programar todos los cambios
-# propuestos por lsg (Leonardo Sarasúa García). En total, ¡¡alrededor de
+# propuestos por lsg (Leonardo Sarasúa García). En total, aalrededor de
 # 800 líneas!!, ahí es nada :)
 #
 # Muchísimas gracias, Leo. Te debo la cerveza más grande del mundo, ...
@@ -172,7 +172,7 @@ msgstr "el símbolo ~S debe ser importado a ~S antes de ser exportado."
 # La misma cuestión anterior entre imperativo e infinitivo - lsg
 #
 #: constobj.d:407
-msgid "((\"I\" \"import the symbol first\" T) (\"N\" \"do nothing, don't export the symbol\" NIL))"
+msgid "((\"I\" \"import the symbol first\" T) (\"N\" \"do nothing, do not export the symbol\" NIL))"
 msgstr "((\"I\" importar el símbolo primero\" T) (\"N\" \"no hacer nada, no exportar el símbolo\"))"
 
 #: constobj.d:410
@@ -310,7 +310,7 @@ msgstr "Compilador de C++"
 msgid "C compiler"
 msgstr "Compilador de C"
 
-# Ojo: ¿¿No sería "INGLÉS"?? sv
+# Ojo: ß¿No sería "INGLÉS"?? sv
 #
 # No, esto está bien, esta expresión se utiliza en una parte del código
 # de CLisp en la que se realiza la inicialiación dependiente del idioma,
@@ -515,7 +515,7 @@ msgstr ""
 # sino por `encajada', haciendo referencia a la trama a la que se llega
 # por el uso de las etiquetas de salto, ...
 #
-# Sin embargo, no estoy demasiado seguro, ... ¡¡Socorro!! - cll
+# Sin embargo, no estoy demasiado seguro, ... aSocorro!! - cll
 #
 # A propósito de esta cuestión, pregunté en la lista de correo de CLisp:
 #
@@ -706,7 +706,7 @@ msgid ""
 "internal error: statement in file ~, line ~ has been reached!!\n"
 "Please send the authors of the program a description how you produced this error!"
 msgstr ""
-"error interno: ¡¡en la sentencia del fichero ~, línea ~!!\n"
+"error interno: aen la sentencia del fichero ~, línea ~!!\n"
 "¡Por favor, envíe a los autores del programa una descripción de cómo\n"
 "se produjo este error!"
 
@@ -726,7 +726,7 @@ msgstr ""
 msgid "Unknown signature of an FSUBR\n"
 msgstr "Tipo de argumento desconocido para FSUBR\n"
 
-# ¿¿Tipo de argumento?? sv
+# ß¿Tipo de argumento?? sv
 #
 # Claro, "tipo de argumento", es decir, "según sea el argumento". De
 # todos modos, este mensaje está pendiente de remodelación. Ya he puesto
@@ -920,7 +920,7 @@ msgstr ""
 # ¿Es tan fundamentalmente distinto version y port en este contexto como
 # para que no se pueda utilizar también versión para "port"? sv
 #
-# ¡¡Madre mía!! Eso de "antes de entrar" me ha dado muchísimo miedo,
+# aMadre mía!! Eso de "antes de entrar" me ha dado muchísimo miedo,
 # ... :) Asi que no se hable más, pongo "versión" :) No, ahora fuera
 # cachondeo, en el contexto de estos mensajes la expresión "versión" es
 # perfecta, ... - cll
@@ -973,18 +973,18 @@ msgstr "El valor devuelto por malloc() = %x no es compatible con la distribución
 # solo es con acento.
 # "sólo %d bytes disponibles\n" - lsg
 #
-# ¡¡Madre mía!! Tienes toda la razón del mundo - cll :)
+# aMadre mía!! Tienes toda la razón del mundo - cll :)
 #
 #: spvw.d:2169
 msgid "Only %d bytes available.\n"
 msgstr "Sólo quedan %d bytes disponibles.\n"
 
-# Duda: Imagino que SP es el "Stack Pointer". Pero entonces, ¿a qué
+# Duda: Imagino que SP es el "Stack Pointer". Pero entonces, ¿a qu
 # viene decir "SP stack"? ¿Se referirán con ello a la pila del sistema?
 # - cll
 #
 #: spvw.d:2403
-msgid "Couldn't determine the end of the SP stack!\n"
+msgid "Could not determine the end of the SP stack!\n"
 msgstr "No fue posible determinar el final de la pila SP!\n"
 
 # "AVISO: No se ha especificado un fichero de inicializacion.\n" - lsg
@@ -1258,7 +1258,7 @@ msgstr ""
 
 #: spvw_sigsegv.d:73
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!\n"
-msgstr "Escenario Apollo 13: Falló la manipulación del desbordamiento de pila. ¡¡¡ Nos estrellaremos en el siguiente desbordamiento de pila !!!\n"
+msgstr "Escenario Apollo 13: Falló la manipulación del desbordamiento de pila. a¡ Nos estrellaremos en el siguiente desbordamiento de pila !!!\n"
 
 #: spvw_sigint.d:76 spvw_sigint.d:157
 msgid "Ctrl-C: User break"
@@ -1440,7 +1440,7 @@ msgstr "FUNCTION: ~ no es un símbolo, no puede usarse como una variable"
 # me comería el "y por ello", todo el mundo lo entenderá, y además no
 # está en el original. sv
 #
-# No sólo eso, sino que además el mensaje queda demasiado largo. Será
+# No sólo eso, sino que además el mensaje queda demasiado largo. Ser
 # mucho más cómodo, para quien esté trabajando, ver mensajes cortos,
 # ... sugerencia aceptada. cll
 #
@@ -1614,7 +1614,7 @@ msgstr "no pueden realizarse asignaciones sobre el símbolo constante ~"
 #
 # "~: se ha invocado ~ con demasiados argumentos" - lsg
 #
-# ¡¡¡ Traducción brillantísima !!! Te ha quedado perfecto. Lo que yo había puesto:
+# a¡ Traducción brillantísima !!! Te ha quedado perfecto. Lo que yo había puesto:
 #
 # "~: se han entregado demasiados argumentos a ~"
 #
@@ -1625,7 +1625,7 @@ msgid "~: too many arguments given to ~"
 msgstr "~: se ha invocado ~ con demasiados argumentos"
 
 # Duda: tagbody es de muy difícil traducción.
-#       Echando un ojo a la traducción en francés me he encontrado con que está
+#       Echando un ojo a la traducción en francés me he encontrado con que est
 #       tal cual, ... De momento se queda así hasta que otros miembros del
 #       equipo decidan cualquier otra cosa, ...
 #
@@ -1898,7 +1898,7 @@ msgstr "~: ~ no es un registro"
 # de vuelo del juego "X-Wing vs. Tie-fighter" se había utilizado esta
 # traducción?. De modo que yo también voy a hacer lo mismo, ... cll
 #
-# (A propósito, el juego ese de LucasArts es ¡¡¡GENIAL!!!
+# (A propósito, el juego ese de LucasArts es a¡GENIAL!!!
 # 					Telepromoción - cll) :)
 #
 #
@@ -1921,7 +1921,7 @@ msgstr "~: nombre de anfitrión inválido ~"
 # de vuelo del juego "X-Wing vs. Tie-fighter" se había utilizado esta
 # traducción?. De modo que yo también voy a hacer lo mismo, ... cll
 #
-# (A propósito, el juego ese de LucasArts es ¡¡¡GENIAL!!!
+# (A propósito, el juego ese de LucasArts es a¡GENIAL!!!
 # 					Telepromoción - cll) :)
 #
 #: pathname.d:1299
@@ -1956,7 +1956,7 @@ msgstr "~: error de sintáxis en el nombre del fichero ~, en la posición ~"
 # de vuelo del juego "X-Wing vs. Tie-fighter" se había utilizado esta
 # traducción?. De modo que yo también voy a hacer lo mismo, ... cll
 #
-# (A propósito, el juego ese de LucasArts es ¡¡¡GENIAL!!!
+# (A propósito, el juego ese de LucasArts es a¡GENIAL!!!
 # 					Telepromoción - cll) :)
 #
 #: pathname.d:2682 pathname.d:2697
@@ -2030,7 +2030,7 @@ msgid "\"..\\\\\" after \"...\\\\\" is invalid: ~"
 msgstr "\"..\\\\\" después de \"...\\\\\" es inválido: ~"
 
 #: pathname.d:6721
-msgid "Couldn't access current directory"
+msgid "Could not access current directory"
 msgstr "No se pudo acceder al directorio actual"
 
 #: pathname.d:6871
@@ -2054,7 +2054,7 @@ msgstr "Se produjo un error UNIX durante la ejecución de GETWD: ~"
 # la frase resultante no tiene mucho sentido.
 # Sugerencia: "La ejecución de GETWD en Unix devolvió ~" sv
 #
-# Hmmm, ..., podría ser, pero verás: en primer lugar, el texto que está
+# Hmmm, ..., podría ser, pero verás: en primer lugar, el texto que est
 # asociado con la etiqueta "UNIX GETWD returned ~" es "UNIX error while
 # GETWD" (fichero pathname.d, línea 6176); segundo, en CLisp se sigue la
 # convención de colocar primero un mensaje y después, al final, aquello
@@ -2427,7 +2427,7 @@ msgstr "~: el paquete SCREEN no está implementado"
 # de vuelo del juego "X-Wing vs. Tie-fighter" se había utilizado esta
 # traducción?. De modo que yo también voy a hacer lo mismo, ... cll
 #
-# (A propósito, el juego ese de LucasArts es ¡¡¡GENIAL!!!
+# (A propósito, el juego ese de LucasArts es a¡GENIAL!!!
 # 					Telepromoción - cll) :)
 #
 #: stream.d:14889
@@ -2438,7 +2438,7 @@ msgstr "el anfitrión debe ser una cadena de caracteres y no ~"
 # cual. Pienso que todo el mundo sabe lo que es un `display' ¿no?
 #
 # Por otra parte (como ya sucedió en un mensaje anterior), ..., `fixnum'
-# por ser el nombre de un subtipo (o tipo, si se quiere) en Lisp, está
+# por ser el nombre de un subtipo (o tipo, si se quiere) en Lisp, est
 # sin traducir, ...
 #
 #: stream.d:14897
@@ -2810,7 +2810,7 @@ msgid "~ from ~: bad syntax for array: #A~"
 msgstr "~ en ~: sintaxis incorrecta en la matriz: #A~"
 
 #: io.d:3776
-msgid "~ from ~: ~ = ~ doesn't allow the evaluation of ~"
+msgid "~ from ~: ~ = ~ does not allow the evaluation of ~"
 msgstr "~ en ~: ~ = ~ no permite la evaluación de ~"
 
 #: io.d:3903
@@ -3013,7 +3013,7 @@ msgid "~: an unknown record type has been generated!"
 msgstr "~: se ha generado un tipo de registro desconocido!"
 
 #
-# ¡¡Large no es largo, sino grande!! - lsg
+# aLarge no es largo, sino grande!! - lsg
 #
 # Tienes toda la razón, ya lo he cambiado en todos los mensajes - cll
 #
@@ -4104,7 +4104,7 @@ msgstr "Es un directorio"
 # que habla de "neolengua", el único idioma del mundo que tiene
 # cada vez menos palabras, en vez de más... sv
 #
-# ¡¡¡Por supuestísimo!!! Tienes toda la razón del mundo. De hecho, si
+# a¡Por supuestísimo!!! Tienes toda la razón del mundo. De hecho, si
 # echas un ojo al resto de los mensajes verás que yo siempre he
 # traducido "invalid" por "inválido" salvo en tres ocasiones: en dos
 # preferí la expresión "no es correcto" y en la otra lo dejé como "no es
@@ -4281,7 +4281,7 @@ msgstr "Dirección en uso"
 #
 # ¡Vale!, "No puede asignarse ..." es demasiado, ..., ¿impersonal? cll
 #: errunix.d:390
-msgid "Can't assign requested address"
+msgid "Cannot assign requested address"
 msgstr "No se puede asignar la dirección requerida"
 
 # Sugerencia: no está operativa. sv
@@ -4355,11 +4355,11 @@ msgstr "El `socket' no está conectado"
 # cuando no nos queda más remedio que poner la palabra inglesa.
 # Así al menos reconocemos que es una palabra extraña. sv
 #: errunix.d:444
-msgid "Can't send after socket shutdown"
+msgid "Cannot send after socket shutdown"
 msgstr "No se puede enviar después de la ruptura del `socket'"
 
 #: errunix.d:450
-msgid "Too many references: can't splice"
+msgid "Too many references: cannot splice"
 msgstr ""
 
 # Duda: ¿ Se excedió el tiempo para la conexión ?
@@ -4394,7 +4394,7 @@ msgstr "El software ha provocado la interrupción de la conexión"
 # Para mas inri, yo no estoy de acuerdo con ninguno de los dos :) Verás,
 # un host puede estar "caído" (que así es como se suele decir aunque es,
 # evidentemente, incorrecto) y por ello no tiene por qué no estar
-# operativo (en libc lo habeis traducido como "el `host' no está
+# operativo (en libc lo habeis traducido como "el `host' no est
 # operativo"). De hecho, puede estar operando pero, por algún problema
 # de la red o de tu propia transmisión, resultar inalcanzable, ... En
 # fin, por este motivo prefiero "El `host' no está disponible"
@@ -4567,7 +4567,7 @@ msgstr "~: el tipo de atributo ~ no está soportado"
 
 #: predtype.d:1682 predtype.d:1886
 msgid "~: unidentifiable type!!!"
-msgstr "~: ¡¡¡tipo irreconocible!!!"
+msgstr "~: a¡tipo irreconocible!!!"
 
 #: predtype.d:1893
 msgid "~: type ~ does not correspond to a class"
@@ -4739,7 +4739,7 @@ msgstr "aparición de NaN en coma flotante"
 # Duda: ¿alguien sabe qué es eso de ARexx?
 #
 #: rexx.d:34
-msgid "Communication with ARexx isn't possible."
+msgid "Communication with ARexx is not possible."
 msgstr "La comunicación con ARexx no es posible."
 
 #
@@ -5071,7 +5071,7 @@ msgstr " ..."
 msgid "Loading of file "
 msgstr "La carga del fichero "
 
-# Nota: `is finished' debería traducirse por `está finalizado' o `está
+# Nota: `is finished' debería traducirse por `está finalizado' o `est
 #       finalizada'. Sin embargo, esta parte se compondrá con otras
 #       donde la traducción `ha finalizado' sigue siendo igualmente válida y,
 #       además, nos evitamos la utilización de una forma eminentemente
@@ -5281,7 +5281,7 @@ msgid "Macro ~S is missing a lambda list."
 msgstr "La macro ~S necesita una lista lambda."
 
 #: macros1.lisp:20 macros1.lisp:43
-msgid "~S: non-symbol ~S can't be a variable"
+msgid "~S: non-symbol ~S cannot be a variable"
 msgstr "~S: sólo los símbolos pueden ser variables, y no ~S"
 
 #: macros1.lisp:25 macros1.lisp:48
@@ -5289,7 +5289,7 @@ msgid "~S: the constant ~S must not be redefined to be a variable"
 msgstr "~S: la constante ~S no debe redefinirse como una variable"
 
 #: macros1.lisp:62
-msgid "~S: non-symbol ~S can't be a defined constant"
+msgid "~S: non-symbol ~S cannot be a defined constant"
 msgstr "~S: ~S no es un símbolo, y por lo tanto no puede definirse como una constante"
 
 #: macros1.lisp:95
@@ -5694,7 +5694,7 @@ msgid "~S ~S: ~S is not a slot option."
 msgstr "~S ~S: ~S no es una opción de ranura."
 
 #: defstruct.lisp:695
-msgid "~S ~S: structure of type ~S can't hold the name."
+msgid "~S ~S: structure of type ~S cannot hold the name."
 msgstr "~S ~S: una estructura del tipo ~S no puede contener el nombre."
 
 #: defstruct.lisp:746
@@ -5897,7 +5897,7 @@ msgstr "Longitud incorrecta del vector de cerradura: ~S"
 # Aquí también junto las exclamaciones. sv
 #: compiler.lisp:1792
 msgid "Compiler bug!! Occurred in ~A~@[ at ~A~]."
-msgstr "¡¡Error del compilador!! Ocurrió en ~A~@[ en ~A~]."
+msgstr "aError del compilador!! Ocurrió en ~A~@[ en ~A~]."
 
 # Soy alérgico al verbo "ignorar". Ignorar en español significa no saber.
 # Y eso en inglés se dice "not to know".
@@ -6370,7 +6370,7 @@ msgid "No rest parameter"
 msgstr "Sin parámetro de resto"
 
 #
-# ¡¡Atención a la utilización de la directiva ~P!!
+# aAtención a la utilización de la directiva ~P!!
 #
 # Bueno, en este caso es perfecta :) No hay ningún problema de ningún
 # tipo
@@ -6608,7 +6608,7 @@ msgid "~S ~S: There may be only one direct slot with the name ~S."
 msgstr "~S ~S: Sólo puede haber una ranura directa con el nombre ~S."
 
 #: clos.lisp:591
-msgid "~S ~S: slot options for slot ~S don't come in pairs"
+msgid "~S ~S: slot options for slot ~S must come in pairs"
 msgstr "~S ~S: las opciones de ranura para ~S no aparecen por pares"
 
 #: clos.lisp:602
@@ -6648,7 +6648,7 @@ msgid "~S ~S: option ~S should be written ~S"
 msgstr "~S ~S: la opción ~S debe escribirse como ~S"
 
 #: clos.lisp:747
-msgid "~S ~S, option ~S: arguments don't come in pairs"
+msgid "~S ~S, option ~S: arguments must come in pairs"
 msgstr "~S ~S, opción ~S: los argumentos no aparecen en pares"
 
 #: clos.lisp:763
@@ -7034,7 +7034,7 @@ msgstr "Por favor, responda con yes(si) o no(no) : "
 #
 # Bueno, podría parecer muy conveniente. Sin embargo, verás, ..., lo de
 # *package* está puesto a nivel de programa. Es decir, Bruno Haible y
-# compañía lo tienen puesto así desde su propio programa. Por lo tanto,
+# compañÂía lo tienen puesto así desde su propio programa. Por lo tanto,
 # si lo cambio en un par de mensajes seguirá apareciendo en muchos otros
 # sitios. Prefiero ser consistente y dejarlo así. cll
 #
@@ -7165,7 +7165,7 @@ msgstr "Puede continuar (tecleando `continue')."
 # dejaré `restart' sin traducir hasta que se me ocurra algo más
 # original.
 #
-# ¡¡Necesito ayuda!! :)
+# aNecesito ayuda!! :)
 #
 #: reploop.lisp:441
 #, fuzzy
@@ -7194,7 +7194,7 @@ msgstr "Es posible continuar en los siguientes puntos:"
 # paso 1 --> (+ 2 3)
 # Step 1>
 #
-# A mi me gusta así, ..., ¡¡A SACO!!
+# A mi me gusta así, ..., aA SACO!!
 #
 #: reploop.lisp:539 reploop.lisp:578
 msgid "step "
@@ -7401,7 +7401,7 @@ msgstr "el símbolo ~S"
 msgid "lies in ~S"
 msgstr "está en el ~S"
 
-# Duda: He traducido al estilo del mensaje en francés: "n'appartient à
+# Duda: He traducido al estilo del mensaje en francés: "n'appartient
 # aucun paquetage"
 #
 #: describe.lisp:246
@@ -7619,7 +7619,7 @@ msgstr "un paquete borrado."
 # Asimismo, debieran revisarse otras directivas de `format' como, por
 # ejemplo, ~@P, ~:R, etc.
 #
-# ¡¡Pues no!! Cuando le dije esto a Bruno Haible, él me dijo que el
+# aPues no!! Cuando le dije esto a Bruno Haible, él me dijo que el
 # estándar Common Lisp - The Language, no contemplaba la realización de
 # este tipo de directivas en otros idiomas, sino especificamente en
 # inglés. Ni español, ni alemán, ni francés, ...
@@ -8029,7 +8029,7 @@ msgstr "~: ~ no es un SOCKET-SERVER"
 #~ msgid "Attempt to remove the current directory"
 #~ msgstr "Intento de borrar el directorio actual"
 
-#~ msgid "Can't move to other than the same device"
+#~ msgid "Cannot move to other than the same device"
 #~ msgstr "No se puede cambiar de dispositivo"
 
 #~ msgid "No more files"
@@ -8141,7 +8141,7 @@ msgstr "~: ~ no es un SOCKET-SERVER"
 #       con la intención de recordar al usuario lo que se quiere decir con
 #       Tubería, ...
 #
-# Si en los cursillos de Unix se enseñara a los niños que esto | 
+# Si en los cursillos de Unix se enseñara a los niños que esto |
 # es una tubería, no tendríamos que andar haciendo estas tonterías.
 # Voto por eliminarlas de una vez por todas.
 # "Tubería rota". sv
@@ -8150,7 +8150,7 @@ msgstr "~: ~ no es un SOCKET-SERVER"
 # (todavía no he enviado mi mensaje con mi opinión, pero lo haré,
 # ...). La verdad es que creo que tienes razón. Sin ser exagerados y
 # "eliminar de una vez por todas", creo que, en este caso, hay que
-# arriesgarse y tirar p'alante, ¿no? ¡¡pues eso!! ¡¡¡"Tuberías rotas" al
+# arriesgarse y tirar p'alante, ¿no? apues eso!! a¡"Tuberías rotas" al
 # poder!!! - cll
 #
 #~ msgid "Broken pipe"

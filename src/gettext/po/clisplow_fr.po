@@ -159,7 +159,7 @@ msgstr "La valeur de malloc() = %x n'est pas compatible avec le codage des types
 msgid "Only %d bytes available.\n"
 msgstr "Seuls %d octets libres.\n"
 
-msgid "Couldn't determine the end of the SP stack!\n"
+msgid "Could not determine the end of the SP stack!\n"
 msgstr "Impossible de savoir où se termine la pile SP!\n"
 
 msgid ""
@@ -464,7 +464,7 @@ msgstr "Famille d'adresses non supportée par le protocole"
 msgid "Address already in use"
 msgstr "Adresse déjà utilisée"
 
-msgid "Can't assign requested address"
+msgid "Cannot assign requested address"
 msgstr "Ne peut pas assigner l'adresse demandée"
 
 msgid "Network is down"
@@ -491,10 +491,10 @@ msgstr "Le socket est déjà connecté"
 msgid "Socket is not connected"
 msgstr "Le socket n'est pas connecté"
 
-msgid "Can't send after socket shutdown"
+msgid "Cannot send after socket shutdown"
 msgstr "Impossibilité d'envoyer après un arrêt de socket"
 
-msgid "Too many references: can't splice"
+msgid "Too many references: cannot splice"
 msgstr ""
 
 msgid "Connection timed out"

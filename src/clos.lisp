@@ -582,7 +582,7 @@
                                  (documentation nil))
                              (when (oddp (length slot-options))
                                (error-of-type 'sys::source-program-error
-                                 (ENGLISH "~S ~S: slot options for slot ~S don't come in pairs")
+                                 (ENGLISH "~S ~S: slot options for slot ~S must come in pairs")
                                  'defclass name slot-name
                              ) )
                              (do ((optionsr slot-options (cddr optionsr)))
@@ -738,7 +738,7 @@
                             ) )
                             (when (oddp (length list))
                               (error-of-type 'sys::source-program-error
-                                (ENGLISH "~S ~S, option ~S: arguments don't come in pairs")
+                                (ENGLISH "~S ~S, option ~S: arguments must come in pairs")
                                 'defclass name option
                             ) )
                             (setq direct-default-initargs

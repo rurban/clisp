@@ -387,7 +387,7 @@
           #ifdef EADDRNOTAVAIL
           if (errcode == EADDRNOTAVAIL) {
             errormsg->name = "EADDRNOTAVAIL";
-            errormsg->msg = GETTEXTL("Can't assign requested address");
+            errormsg->msg = GETTEXTL("Cannot assign requested address");
           }
           #endif
           #ifdef ENETDOWN
@@ -441,13 +441,13 @@
           #ifdef ESHUTDOWN
           if (errcode == ESHUTDOWN) {
             errormsg->name = "ESHUTDOWN";
-            errormsg->msg = GETTEXTL("Can't send after socket shutdown");
+            errormsg->msg = GETTEXTL("Cannot send after socket shutdown");
           }
           #endif
           #ifdef ETOOMANYREFS
           if (errcode == ETOOMANYREFS) {
             errormsg->name = "ETOOMANYREFS";
-            errormsg->msg = GETTEXTL("Too many references: can't splice");
+            errormsg->msg = GETTEXTL("Too many references: cannot splice");
           }
           #endif
           #ifdef ETIMEDOUT

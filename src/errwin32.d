@@ -1004,7 +1004,7 @@
           #ifdef ERROR_NESTING_NOT_ALLOWED
           case ERROR_NESTING_NOT_ALLOWED:
             errorname = "ERROR_NESTING_NOT_ALLOWED";
-            errormsg = "Can't nest calls to LoadModule.";
+            errormsg = "Cannot nest calls to LoadModule.";
             break;
           #endif
           #ifdef ERROR_BAD_PIPE
@@ -4014,7 +4014,7 @@
             break;
           case WSAEADDRNOTAVAIL:
             errorname = "EADDRNOTAVAIL";
-            errormsg="Can't assign requested address";
+            errormsg="Cannot assign requested address";
             break;
           case WSAENETDOWN:
             errorname = "ENETDOWN";
@@ -4050,11 +4050,11 @@
             break;
           case WSAESHUTDOWN:
             errorname = "ESHUTDOWN";
-            errormsg="Can't send after socket shutdown";
+            errormsg="Cannot send after socket shutdown";
             break;
           case WSAETOOMANYREFS:
             errorname = "ETOOMANYREFS";
-            errormsg="Too many references: can't splice";
+            errormsg="Too many references: cannot splice";
             break;
           case WSAETIMEDOUT:
             errorname = "ETIMEDOUT";

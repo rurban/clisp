@@ -62,7 +62,7 @@ msgid "symbol ~S should be imported into ~S before being exported."
 msgstr "Le symbole ~S devrait d'abord être importé avant de pouvoir être exporté."
 
 #: constobj.d:407
-msgid "((\"I\" \"import the symbol first\" T) (\"N\" \"do nothing, don't export the symbol\" NIL))"
+msgid "((\"I\" \"import the symbol first\" T) (\"N\" \"do nothing, do not export the symbol\" NIL))"
 msgstr "((\"I\" \"Tout d'abord importer le symbole\" NIL) (\"N\" \"Ne rien faire, ne pas exporter le symbole\" T))"
 
 #: constobj.d:410
@@ -594,7 +594,7 @@ msgid "Only %d bytes available.\n"
 msgstr "Seuls %d octets libres.\n"
 
 #: spvw.d:2403
-msgid "Couldn't determine the end of the SP stack!\n"
+msgid "Could not determine the end of the SP stack!\n"
 msgstr "Impossible de savoir où se termine la pile SP!\n"
 
 #: spvw.d:2624
@@ -1298,7 +1298,7 @@ msgid "\"..\\\\\" after \"...\\\\\" is invalid: ~"
 msgstr "\"..\\\\\" après \"...\\\\\" n'est pas permis : ~"
 
 #: pathname.d:6721
-msgid "Couldn't access current directory"
+msgid "Could not access current directory"
 msgstr "Le répertoire courant n'est pas accessible."
 
 #: pathname.d:6871
@@ -1805,7 +1805,7 @@ msgid "~ from ~: bad syntax for array: #A~"
 msgstr "~ de ~ : Syntaxe inadmissible pour une matrice: #A~"
 
 #: io.d:3776
-msgid "~ from ~: ~ = ~ doesn't allow the evaluation of ~"
+msgid "~ from ~: ~ = ~ does not allow the evaluation of ~"
 msgstr "~ de ~ : ~ = ~ ne permet pas l'évaluation de ~"
 
 #: io.d:3903
@@ -3018,7 +3018,7 @@ msgid "Address already in use"
 msgstr "Adresse déjà utilisée"
 
 #: errunix.d:390
-msgid "Can't assign requested address"
+msgid "Cannot assign requested address"
 msgstr "Ne peut pas assigner l'adresse demandée"
 
 #: errunix.d:396
@@ -3054,11 +3054,11 @@ msgid "Socket is not connected"
 msgstr "Le socket n'est pas connecté"
 
 #: errunix.d:444
-msgid "Can't send after socket shutdown"
+msgid "Cannot send after socket shutdown"
 msgstr "Impossibilité d'envoyer après un arrêt de socket"
 
 #: errunix.d:450
-msgid "Too many references: can't splice"
+msgid "Too many references: cannot splice"
 msgstr ""
 
 #: errunix.d:456
@@ -3350,7 +3350,7 @@ msgid "floating point NaN occurred"
 msgstr "apparition d'un NaN au lieu d'un nombre à virgule flottante"
 
 #: rexx.d:34
-msgid "Communication with ARexx isn't possible."
+msgid "Communication with ARexx is not possible."
 msgstr "La communication avec ARexx n'est pas possible."
 
 #: rexx.d:116
@@ -3836,7 +3836,7 @@ msgid "Macro ~S is missing a lambda list."
 msgstr "Le macro ~S ne possède pas de lambda-liste."
 
 #: macros1.lisp:20 macros1.lisp:43
-msgid "~S: non-symbol ~S can't be a variable"
+msgid "~S: non-symbol ~S cannot be a variable"
 msgstr "~S : Seuls les symboles peuvent servir de variable et non ~S."
 
 #: macros1.lisp:25 macros1.lisp:48
@@ -3844,7 +3844,7 @@ msgid "~S: the constant ~S must not be redefined to be a variable"
 msgstr "~S : La constante ~S ne peut pas être redéfinie en variable."
 
 #: macros1.lisp:62
-msgid "~S: non-symbol ~S can't be a defined constant"
+msgid "~S: non-symbol ~S cannot be a defined constant"
 msgstr "~S : Seuls les symboles peuvent servir de constante et non ~S."
 
 #: macros1.lisp:95
@@ -4200,7 +4200,7 @@ msgid "~S ~S: ~S is not a slot option."
 msgstr "~S ~S : ~S n'est pas une option de composant."
 
 #: defstruct.lisp:695
-msgid "~S ~S: structure of type ~S can't hold the name."
+msgid "~S ~S: structure of type ~S cannot hold the name."
 msgstr "~S ~S : Une structure de type ~S ne peut pas contenir le nom."
 
 #: defstruct.lisp:746
@@ -4762,7 +4762,7 @@ msgstr "~S ~A : Ceci n'est pas une option ~S: ~S"
 
 #: defs2.lisp:245
 msgid "This symbol will be created."
-msgstr "Ce symbole sera créé."
+msgstr "Ce symbole sera créÂé."
 
 #: defs2.lisp:246
 msgid "~S ~A: There is no symbol ~A::~A ."
@@ -4917,7 +4917,7 @@ msgid "~S ~S: There may be only one direct slot with the name ~S."
 msgstr "~S ~S : Il ne peut pas y avoir plusieurs composants directs avec le même nom ~S."
 
 #: clos.lisp:591
-msgid "~S ~S: slot options for slot ~S don't come in pairs"
+msgid "~S ~S: slot options for slot ~S must come in pairs"
 msgstr "~S ~S : Les options pour le composant ~S ne viennent pas deux à deux."
 
 #: clos.lisp:602
@@ -4957,7 +4957,7 @@ msgid "~S ~S: option ~S should be written ~S"
 msgstr "~S ~S : L'option ~S devrait être écrite ~S."
 
 #: clos.lisp:747
-msgid "~S ~S, option ~S: arguments don't come in pairs"
+msgid "~S ~S, option ~S: arguments must come in pairs"
 msgstr "~S ~S, option ~S : Les arguments ne viennent pas deux à deux."
 
 #: clos.lisp:763
@@ -6096,7 +6096,7 @@ msgstr "~S : ~S n'est pas un SOCKET-SERVER"
 #~ msgid "Attempt to remove the current directory"
 #~ msgstr "Le répertoire courant ne peut pas être effacé"
 
-#~ msgid "Can't move to other than the same device"
+#~ msgid "Cannot move to other than the same device"
 #~ msgstr "ne peux pas déplacer au-delà de l'unité"
 
 #~ msgid "No more files"
@@ -6150,7 +6150,7 @@ msgstr "~S : ~S n'est pas un SOCKET-SERVER"
 #~ "Backtrace   = montrer la pile en mode actuel\n"
 #~ "Break+ = placer un point d'interception dans le «frame» EVAL\n"
 #~ "Break- = enlever le point d'interception du «frame» EVAL\n"
-#~ "Redo   = réévaluer la forme dans le «frame» EVAL\n"
+#~ "Redo   = réÂévaluer la forme dans le «frame» EVAL\n"
 #~ "Return = quitter le «frame» EVAL avec certaines valeurs"
 
 #~ msgid "stack overflow during bignum arithmetic"

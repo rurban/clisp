@@ -3545,7 +3545,7 @@ nonreturning_function(local, fehler_read_eval_forbidden, (object* stream_, objec
   pushSTACK(*stream_); # Stream
   pushSTACK(S(read));
   fehler(stream_error,
-         GETTEXT("~ from ~: ~ = ~ doesn't allow the evaluation of ~"));
+         GETTEXT("~ from ~: ~ = ~ does not allow the evaluation of ~"));
 }
 
 # (set-dispatch-macro-character #\# #\.

@@ -164,7 +164,7 @@ msgstr "Waarde van malloc() = %x stemt niet overeen met de typecodes.\n"
 msgid "Only %d bytes available.\n"
 msgstr "Nog maar %d bytes beschikbaar.\n"
 
-msgid "Couldn't determine the end of the SP stack!\n"
+msgid "Could not determine the end of the SP stack!\n"
 msgstr "Kan het einde van de SP stack niet bepalen!\n"
 
 msgid ""
@@ -471,7 +471,7 @@ msgstr "Adresfamilie niet ondersteund door protocolfamilie"
 msgid "Address already in use"
 msgstr "Adres is al in gebruik"
 
-msgid "Can't assign requested address"
+msgid "Cannot assign requested address"
 msgstr "Kan aangevraagd adres niet toekennen"
 
 msgid "Network is down"
@@ -498,10 +498,10 @@ msgstr "Socket is al verbonden"
 msgid "Socket is not connected"
 msgstr "Socket is niet verbonden"
 
-msgid "Can't send after socket shutdown"
+msgid "Cannot send after socket shutdown"
 msgstr "Kan niet naar gesloten socket zenden"
 
-msgid "Too many references: can't splice"
+msgid "Too many references: cannot splice"
 msgstr "Te veel verwijzingen; kan niet verbinden"
 
 msgid "Connection timed out"
