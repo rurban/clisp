@@ -61,7 +61,7 @@ static int              rollback(struct db_conn *);
 static int              set_auto_commit(struct db_conn *, int);
 
 /* Purely local routines */
-static void      append_oci_error(char *, OCIError *);
+static void      append_oci_error(char *, void *, int);
 static int       init_session(struct db_conn *, char *, char *, char *, char*, int);
 static int       get_cols(struct db_conn *);
 static int       get_param_attr(CONST dvoid *, int, struct db_conn *, dvoid *, ub4 *, char *, ub4);
@@ -283,7 +283,7 @@ static int fetch_row(struct db_conn * db)
   if ( fetch_status != OCI_SUCCESS && fetch_status != OCI_SUCCESS_WITH_INFO ) {
     /* Error fetching */
     sprintf(db->errmsg, "Fetch error %d:\n", fetch_status);
-    append_oci_error(db->errmsg, db->err);
+    append_oci_error(db->errmsg, db->err, 0);
     return db->success = 0;
   }
   
@@ -324,7 +324,7 @@ static int fetch_row(struct db_conn * db)
 	  ; /* Ignore */
     else {
       sprintf(db->errmsg, "Unknown Oracle warning %d\n", errcode);
-      append_oci_error(db->errmsg, db->err);
+      append_oci_error(db->errmsg, db->err, 0);
       return db->success = 0;
     }
   }
@@ -334,7 +334,7 @@ static int fetch_row(struct db_conn * db)
 	char * defind = db->long_len == DEFAULT_LONG_LEN ? "default" : "specified";
 	sprintf(db->errmsg,
 			"Size of a LONG column exceeds %s maximum of %d.\nYou must either increase size of LONG/BLOB fetch buffer, or set flag allowing truncation.\n", defind, db->long_len);
-	append_oci_error(db->errmsg, db->err);
+	append_oci_error(db->errmsg, db->err, 0);
 	return db->success = 0;
   }
   
@@ -369,12 +369,12 @@ static int fetch_row(struct db_conn * db)
 					"Size of BLOB/CLOB column '%s' exceeds %s maximum of %d.\n"
 					"You must either increase size of LONG/BLOB fetch buffer, or set flag allowing truncation.\n",
 					col->name, defind, db->long_len);
-			append_oci_error(db->errmsg, db->err);
+			append_oci_error(db->errmsg, db->err, 0);
 			return db->success = 0;
 		  }
 		  else if ( lob_read_status != OCI_SUCCESS ) {
 			sprintf(db->errmsg, "Error reading LOB column '%s'\n", col->name);
-			append_oci_error(db->errmsg, db->err);
+			append_oci_error(db->errmsg, db->err, 0);
 			return db->success = 0;
 		  }
 		
@@ -386,7 +386,7 @@ static int fetch_row(struct db_conn * db)
       r->is_null = 1;
     else {
       sprintf(db->errmsg, "Bad indicator value %d for column %d\n", col->indicator, n);
-      append_oci_error(db->errmsg, db->err);
+      append_oci_error(db->errmsg, db->err, 0);
     }
   }
   
@@ -432,7 +432,7 @@ static int get_cols(struct db_conn * db)
   if ( attr_status != OCI_SUCCESS ) {
     /* Error getting param info */
     sprintf(db->errmsg, "Error getting param count:\n");
-    append_oci_error(db->errmsg, db->err);
+    append_oci_error(db->errmsg, db->err, 0);
     return db->success = 0;
   }
 
@@ -479,7 +479,7 @@ static int get_cols(struct db_conn * db)
       else {
         /* A real error */
         sprintf(db->errmsg, "Error getting param col %d:\n", ncol);
-        append_oci_error(db->errmsg, db->err);
+        append_oci_error(db->errmsg, db->err, 0);
         return db->success = 0;
       }
     }
@@ -551,7 +551,7 @@ static int get_cols(struct db_conn * db)
                                    &col->indicator, &col->nfetched, &col->rcode, OCI_DEFAULT);
     if ( define_status != OCI_SUCCESS ) {
       sprintf(db->errmsg, "Error setting up define for column '%s':\n", col->name);
-      append_oci_error(db->errmsg, db->err);
+      append_oci_error(db->errmsg, db->err, 0);
       return db->success = 0;
     }
   }
@@ -601,7 +601,7 @@ static int commit(struct db_conn * db)
   status = OCITransCommit(db->svc, db->err, OCI_DEFAULT);
   if ( status != OCI_SUCCESS ) {
     sprintf(db->errmsg, "Error commiting transaction:\n");
-    append_oci_error(db->errmsg, db->err);
+    append_oci_error(db->errmsg, db->err, 0);
     return db->success = 0;
   }
 
@@ -628,7 +628,7 @@ static int rollback(struct db_conn * db)
   status = OCITransRollback(db->svc, db->err, OCI_DEFAULT);
   if ( status != OCI_SUCCESS ) {
     sprintf(db->errmsg, "Error rolling back transaction:\n");
-    append_oci_error(db->errmsg, db->err);
+    append_oci_error(db->errmsg, db->err, 0);
     return db->success = 0;
   }
 
@@ -690,7 +690,7 @@ static int exec_sql(struct db_conn * db, char * sql, struct sqlparam ** params, 
   }
   if ( OCI_SUCCESS !=  OCIHandleAlloc(db->env, (dvoid **) &db->stmt, OCI_HTYPE_STMT, 0, 0) ) {
     sprintf(db->errmsg, "Error allocating statement handle\n");
-    append_oci_error(db->errmsg, db->err);
+    append_oci_error(db->errmsg, db->err, 0);
     return db->success = 0;
   }
 
@@ -698,7 +698,7 @@ static int exec_sql(struct db_conn * db, char * sql, struct sqlparam ** params, 
   status = OCIStmtPrepare(db->stmt, db->err, sql, strlen(sql), OCI_NTV_SYNTAX, OCI_DEFAULT);
   if ( status != OCI_SUCCESS ) {
     sprintf(db->errmsg, "Error parsing SQL text:\n%s\n", sql);
-    append_oci_error(db->errmsg, db->err);
+    append_oci_error(db->errmsg, db->err, 0);
     return db->success = 0;
   }
 
@@ -742,7 +742,7 @@ static int exec_sql(struct db_conn * db, char * sql, struct sqlparam ** params, 
     if ( status != OCI_SUCCESS ) {
       sprintf(db->errmsg, "Error binding SQL input parameter '%s' to value '%s' in query:\n---\n%s\n---\n",
               pname, data, sql);
-      append_oci_error(db->errmsg, db->err);
+      append_oci_error(db->errmsg, db->err, 0);
       return db->success = 0;
     }
 
@@ -777,14 +777,14 @@ static int exec_sql(struct db_conn * db, char * sql, struct sqlparam ** params, 
       strcat(db->errmsg, "---\n");
     }
     
-    append_oci_error(db->errmsg, db->err);
+    append_oci_error(db->errmsg, db->err, 0);
 
     /* Get the parse error offset so we can print an indicator as to
        where the error occurred */
     status = OCIAttrGet(db->stmt, OCI_HTYPE_STMT, (dvoid *) &err_offset, (ub4 *) 0, OCI_ATTR_PARSE_ERROR_OFFSET, db->err);
     if ( OCI_SUCCESS != status ) {
       strcat(db->errmsg, "Could not get parse error offset:\n");
-      append_oci_error(db->errmsg, db->err);
+      append_oci_error(db->errmsg, db->err, 0);
     }
     else {
       char p[100];
@@ -821,7 +821,7 @@ static int exec_sql(struct db_conn * db, char * sql, struct sqlparam ** params, 
     attr_status = OCIAttrGet((dvoid *) db->stmt, OCI_HTYPE_STMT, &db->rows_affected, 0, OCI_ATTR_ROW_COUNT, db->err);
     if ( attr_status != OCI_SUCCESS ) {
       sprintf(db->errmsg, "Error getting row count for command:\n");
-      append_oci_error(db->errmsg, db->err);
+      append_oci_error(db->errmsg, db->err, 0);
       return db->success = 0;
     }
   }
@@ -851,7 +851,7 @@ static int init_session(struct db_conn * db, char *user, char * schema, char *pa
   /* If already connected, drop and re-connect */
   if ( db->env )
     disconnect(db);
-
+  
   /* Clear out results */
   *db->errmsg = '\0';
   db->env = 0;
@@ -872,27 +872,39 @@ static int init_session(struct db_conn * db, char *user, char * schema, char *pa
   }
   
   /* Init Oracle library */
-  /* TODO: use mode OCI_OBJECT so that we can describe tables w/ BLOB cols */
+  /* If the Oracle 8 version is really old (< 8.1.5) use these old calls instead of OCIEnvCreate */
+#if 0
   status = OCIInitialize(OCI_OBJECT,
                          0,         /* Context for mode OCI_OBJECT */
                          0,         /* Our malloc() func */
                          0,         /* Our realloc() func */
                          0);        /* Our free() func */
-
-  /* Init an Oracle "environment handle" */
   status = OCIEnvInit(&db->env,     /* Returned: new handle */
                       OCI_DEFAULT,  /* Use mutexes */
                       0,            /* Our memory size */
                       0);           /* Returned: alloc'ed memory */
+#endif
+
+  /* Create the environment */
+  status = OCIEnvCreate(&db->env,     /* Returned: new handle */
+						OCI_OBJECT,   /* Use object features */
+                        0,            /* Context */
+                        0,            /* Our malloc() func */
+                        0,            /* Our realloc() func */
+                        0,            /* Our free() func */
+						0,            /* Our memory size */
+						0);           /* Returned: alloc'ed memory */
   if ( OCI_SUCCESS != status ) {
-    sprintf(db->errmsg, "Error initializing OCI library: OCIEnvInit() returned %s", status);
+    sprintf(db->errmsg, "Error initializing OCI library: OCIEnvCreate/OCIEnvInit() returned %d:\n", status);
+	append_oci_error(db->errmsg, db->env, 1);
     return db->success = 0;
   }
 
   /* Get an error handle */
   status = OCIHandleAlloc(db->env, (dvoid **) &db->err, OCI_HTYPE_ERROR, 0, 0);
   if ( OCI_SUCCESS != status ) {
-    sprintf(db->errmsg, "Error initializing OCI error handle: OCIHandleAlloc(OCI_HTYPE_ERROR) returned %s", status);
+    sprintf(db->errmsg, "Error initializing OCI error handle: OCIHandleAlloc(OCI_HTYPE_ERROR) returned %d:\n", status);
+	append_oci_error(db->errmsg, db->env, 1);
     OCIHandleFree(db->env, OCI_HTYPE_ENV);
     db->env = 0;
     return db->success = 0;
@@ -903,7 +915,7 @@ static int init_session(struct db_conn * db, char *user, char * schema, char *pa
                     user, strlen(user), password, strlen(password), sid, strlen(sid));
   if ( OCI_SUCCESS != status ) {
     sprintf(db->errmsg, "Error logging on to Oracle service '%s' as user '%s':\n", sid, user);
-    append_oci_error(db->errmsg, db->err);
+    append_oci_error(db->errmsg, db->err, 0);
     OCIHandleFree(db->env, OCI_HTYPE_ENV);
     db->env = 0;
     return db->success = 0;
@@ -940,7 +952,7 @@ static int init_session(struct db_conn * db, char *user, char * schema, char *pa
   status = OCIAttrSet(db->stmt, OCI_HTYPE_STMT, &attval, 0, OCI_ATTR_PREFETCH_MEMORY, db->err);
   if ( status != OCI_SUCCESS ) {
     sprintf(db->errmsg, "Error %d setting prefetch memory:\n", status);
-    append_oci_error(db->errmsg, db->err);
+    append_oci_error(db->errmsg, db->err, 0);
     return db->success = 0;
   }
     
@@ -955,7 +967,7 @@ static int init_session(struct db_conn * db, char *user, char * schema, char *pa
   status = OCIAttrSet(db->stmt, OCI_HTYPE_STMT, &attval, 0, OCI_ATTR_PREFETCH_ROWS, db->err);
   if ( status != OCI_SUCCESS ) {
     sprintf(db->errmsg, "Error settgin prefetch row count:\n");
-    append_oci_error(db->errmsg, db->err);
+    append_oci_error(db->errmsg, db->err, 0);
     return db->success = 0;
   }
 
@@ -974,7 +986,7 @@ static int get_param_attr(CONST dvoid * param, int ncol, struct db_conn * db, dv
   if ( attr_status != OCI_SUCCESS ) {
     /* Error getting param info */
     sprintf(db->errmsg, "Error getting column %s for col %d:\n", prompt, ncol);
-    append_oci_error(db->errmsg, db->err);
+    append_oci_error(db->errmsg, db->err, 0);
     return db->success = 0;
   }
 
@@ -984,8 +996,9 @@ static int get_param_attr(CONST dvoid * param, int ncol, struct db_conn * db, dv
 
 /* ------------------------------------------------------------------------------------------------------------- */
 
-/* Append Oracle error to our specific error */
-static void append_oci_error(char *errbuf, OCIError * err)
+/* Append Oracle error to our specific error.  Error pointer is
+   usually (OCIError *) but sometimes (OCIEnv *), if isenv true */
+static void append_oci_error(char *errbuf, void * err, int isenv)
 {
   sword status      = 0;
   char *dummy = 0;
@@ -997,10 +1010,18 @@ static void append_oci_error(char *errbuf, OCIError * err)
     
   /* Hack: this is highly language dependent */
   char * leading = "Error while trying to retrieve text for error";
+
+  /* Do nothing if don't have a handle */
+  if ( ! err )
+	return;
     
-  status = OCIErrorGet(err, 1, dummy, &errcode, buf, sizeof buf, OCI_HTYPE_ERROR);
-  if ( status )
+  status = OCIErrorGet(err, 1, dummy, &errcode, buf, sizeof buf, isenv ? OCI_HTYPE_ENV : OCI_HTYPE_ERROR);
+  if ( status ) {
+	char reason[1000];
+	sprintf(reason, "[Could not get error message from Oracle: OCIErrorGet() returned %d]\n", status);
+    strcat(errbuf, reason);
     return;
+  }
 
   /* Append Oracle error */
   strcat(errbuf, buf);
