@@ -761,11 +761,11 @@
 
 (defmacro with-interval-designators ((&rest vars) &body body)
   "(with-interval-designators ((interval exclusive-p number) ...) ...)"
-  `(let* ,(mapcan (lambda (var)
-                    (let* ((i-d (pop var)) (excl-p (pop var)) (num (pop var))
-                           (v-i-d (gensym "INTERVAL-")))
-                      `((,v-i-d ,i-d) (,excl-p (consp ,v-i-d))
-                        (,num (if ,excl-p (car ,v-i-d) ,v-i-d)))))
+  `(let* ,(mapcan #'(lambda (var)
+                      (let* ((i-d (pop var)) (excl-p (pop var)) (num (pop var))
+                             (v-i-d (gensym "INTERVAL-")))
+                        `((,v-i-d ,i-d) (,excl-p (consp ,v-i-d))
+                          (,num (if ,excl-p (car ,v-i-d) ,v-i-d)))))
                   vars)
      ,@body))
 
@@ -1324,7 +1324,7 @@ head: AND/OR: (head (real lo1 hi1) (real lo2 hi2))"
       ((CHARACTER ENCODING FUNCTION HASH-TABLE PACKAGE PATHNAME RANDOM-STATE
         READTABLE SYMBOL)
        (if (eq type2 'ATOM) (yes) (no)))
-      ((CLOS:GENERIC-FUNCTION COMPILED-FUNCTION #+ffi FFI:FOREIGN-FUNCTION)
+      ((CLOS:GENERIC-FUNCTION COMPILED-FUNCTION #+ffi FFI::FOREIGN-FUNCTION)
        (if (or (eq type2 'FUNCTION) (eq type2 'ATOM)) (yes) (no)))
       (CLOS:STANDARD-GENERIC-FUNCTION
        (if (or (eq type2 'CLOS:GENERIC-FUNCTION) (eq type2 'FUNCTION)
