@@ -1,5 +1,9 @@
 2003-08-06  Sam Steingold  <sds@gnu.org>
 
+	Unified modules postgresql632 and postgresql642 into postgresql
+
+2003-08-06  Sam Steingold  <sds@gnu.org>
+
 	the demo now works just fine
 	* modules/netica/demo.lisp: use DEFPARAMETER
 	* modules/netica/wrap.lisp (null-pointer): removed (use NIL instead)
