@@ -469,6 +469,49 @@ local bool wr_ss_lpos (object stream, const chart* ptr, uintL len) {
   return result;
 }
 
+# Function: Returns the last character read (and not yet unread) from a stream.
+# stream_get_lastchar(stream)
+# > stream: a stream
+# < result: the last character read, or NIL
+# can trigger GC
+global maygc object stream_get_lastchar (object stream) {
+  if (builtin_stream_p(stream)) {
+    return TheStream(stream)->strm_rd_ch_last;
+  } else {
+    # (SLOT-VALUE stream '$lastchar):
+    var object stream_forwarded = stream;
+    instance_un_realloc(stream_forwarded);
+    instance_update(stream,stream_forwarded);
+    var object cv = TheInstance(stream_forwarded)->inst_class_version;
+    var object clas = TheClassVersion(cv)->cv_class;
+    var object slotinfo = gethash(S(lastchar),TheClass(clas)->slot_location_table,false);
+    if (!eq(slotinfo,nullobj))
+      return TheSrecord(stream_forwarded)->recdata[posfixnum_to_L(slotinfo)];
+    else
+      return NIL;
+  }
+}
+
+# Function: Sets the last character read (and not yet unread) of a stream.
+# stream_set_lastchar(stream,ch);
+# > stream: a non-builtin stream
+# > ch: an object (usually a character or NIL)
+# can trigger GC
+local maygc void stream_set_lastchar (object stream, object ch) {
+  ASSERT(!builtin_stream_p(stream));
+  # (SETF (SLOT-VALUE stream '$lastchar) ch):
+  pushSTACK(ch);
+  var object stream_forwarded = stream;
+  instance_un_realloc(stream_forwarded);
+  instance_update(stream,stream_forwarded);
+  var object cv = TheInstance(stream_forwarded)->inst_class_version;
+  var object clas = TheClassVersion(cv)->cv_class;
+  var object slotinfo = gethash(S(lastchar),TheClass(clas)->slot_location_table,false);
+  ch = popSTACK();
+  if (!eq(slotinfo,nullobj))
+    TheSrecord(stream_forwarded)->recdata[posfixnum_to_L(slotinfo)] = ch;
+}
+
 # Reads a Byte from a Stream.
 # read_byte(stream)
 # > stream: Stream
@@ -658,13 +701,16 @@ global maygc object read_char (const gcv_object_t* stream_) {
       return ret;
     }
   } else {
+    pushSTACK(stream);
     # Call the generic function (STREAM-READ-CHAR stream):
     pushSTACK(stream); funcall(S(stream_read_char),1);
     var object result = value1;
     if (eq(result,S(Keof)))
-      return eof_value;
-    else
-      return result;
+      result = eof_value;
+    # Store the result as slot $lastchar:
+    stream = STACK_0; STACK_0 = result;
+    stream_set_lastchar(stream,result);
+    return popSTACK();
   }
 }
 
@@ -713,8 +759,11 @@ global maygc void unread_char (const gcv_object_t* stream_, object ch) {
       }
     }
   } else {
+    pushSTACK(stream);
     # Call the generic function (STREAM-UNREAD-CHAR stream ch):
     pushSTACK(stream); pushSTACK(ch); funcall(S(stream_unread_char),2);
+    # Set $lastchar := NIL:
+    stream_set_lastchar(popSTACK(),NIL);
   }
 }
 
@@ -787,6 +836,7 @@ global maygc uintL read_char_array (const gcv_object_t* stream_,
     TheStream(stream)->strmflags &= ~strmflags_unread_B;
     return index - start;
   } else {
+    pushSTACK(stream);
     # Call the generic function
     # (STREAM-READ-CHAR-SEQUENCE stream chararray start start+len):
     pushSTACK(stream); pushSTACK(*chararray_);
@@ -802,6 +852,15 @@ global maygc uintL read_char_array (const gcv_object_t* stream_,
       pushSTACK(value1);
       fehler(error,GETTEXT("Return value ~S of call to ~S should be an integer between ~S and ~S."));
     }
+    # Set the stream's $lastchar := last char or #<EOF>:
+    var object lastchar;
+    if (result-start == len) {
+      var object chararray = *chararray_;
+      sstring_un_realloc(chararray);
+      lastchar = code_char(schar(chararray,result-1));
+    } else
+      lastchar = eof_value;
+    stream_set_lastchar(popSTACK(),lastchar);
     return result-start;
   }
 }
@@ -15820,6 +15879,7 @@ global maygc bool read_line (const gcv_object_t* stream_, const gcv_object_t* bu
     TheStream(stream)->strmflags &= ~strmflags_unread_B;
     return eofp;
   } else {
+    pushSTACK(stream);
     # Call the generic function (STREAM-READ-LINE stream):
     pushSTACK(stream); funcall(S(stream_read_line),1);
     if (!stringp(value1)) {
@@ -15838,6 +15898,8 @@ global maygc bool read_line (const gcv_object_t* stream_, const gcv_object_t* bu
       if (simple_nilarray_p(srcstring)) fehler_nilarray_retrieve();
       ssstring_append_extend(*buffer_,srcstring,offset,len);
     }
+    # Set the stream's $lastchar := #\Newline or #<EOF>:
+    stream_set_lastchar(popSTACK(), eofp ? eof_value : ascii_char(NL));
     return eofp;
   }
 }

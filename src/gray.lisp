@@ -89,8 +89,8 @@
 )
 
 (clos:defclass fundamental-character-input-stream (fundamental-input-stream fundamental-character-stream)
-  ()
-)
+  (($lastchar :initform nil) ; last character read (and not yet unread)
+) )
 
 (clos:defclass fundamental-character-output-stream (fundamental-output-stream fundamental-character-stream)
   ()
