@@ -350,9 +350,23 @@ DEFUN(POSIX:GETPGRP, pid) {
 #if defined(HAVE_SETPGRP)
 DEFUN(POSIX:SETPGRP,) {
   pid_t ret;
+# if defined(HAVE_SETPGRP_POSIX)
   begin_system_call(); ret=setpgrp(); end_system_call();
+# else  /* BSD version, identical to setpgid() */
+  begin_system_call(); ret=setpgrp(0,0); end_system_call();
+# endif
   if (ret==(pid_t)-1) OS_error();
   VALUES1(fixnum(ret));
+}
+#endif
+#if defined(HAVE_SETPGID)
+DEFUN(POSIX:SETPGID, pid pgid) {
+  pid_t pgid = posfixnum_to_L(check_posfixnum(popSTACK()));
+  pid_t pid = posfixnum_to_L(check_posfixnum(popSTACK()));
+  int ret;
+  begin_system_call(); ret=setpgid(pid,pgid); end_system_call();
+  if (ret==-1) OS_error();
+  VALUES0;
 }
 #endif
 #if defined(HAVE_SIGNAL_H)
