@@ -1,5 +1,9 @@
 2002-04-16  Joerg-Cyril Hoehle  <Joerg-Cyril.Hoehle@t-systems.com>
 
+	* regexp.lisp (regexp-exec): correct positions for ()-group submatches
+
+2002-04-16  Joerg-Cyril Hoehle  <Joerg-Cyril.Hoehle@t-systems.com>
+
 	* foreign.d (convert_from_foreign): fix c-array uint8/16/32 return
 	broken since CVS 1999-09-13
 
