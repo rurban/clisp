@@ -48,7 +48,7 @@ dnl Written by David MacKenzie, with help from
 dnl Franc,ois Pinard, Karl Berry, Richard Pixley, Ian Lance Taylor,
 dnl Roland McGrath, Noah Friedman, david d zuhn, and many others.
 dnl
-dnl Changed by Bruno Haible, 27 September 1997
+dnl Changed by Bruno Haible, 31 May 1998
 
 
 dnl ### Checks for programs
@@ -152,7 +152,9 @@ dnl    CXXFLAGS="-g -O"
 dnl    CXXFLAGS="-O"
     # Add "-O" to both the CXX and CXXCPP commands, to eliminate possible confu-
     # sion that results from __OPTIMIZE__ being defined for CXX but not CXXCPP.
+changequote(, )dnl
     if echo "$CXX " | grep ' -O[1-9 ]' > /dev/null; then
+changequote([, ])dnl
       : # already optimizing
     else
       CXX="$CXX -O"
