@@ -1,5 +1,9 @@
 2004-12-13  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (clear_output_terminal3): fix a GC-safety bug
+
+2004-12-13  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d (print_license, print_banner): (FRESH-LINE *STANDARD-OUTPUT*)
 	to clean up after *INIT-HOOKS*
 
