@@ -42,11 +42,11 @@ XPSEUDOCODE(bool, equalp, (object obj1, object obj2))
 XPSEUDOCODE(uint32, hashcode2, (object obj))
 XPSEUDOCODE(uint32, hashcode3, (object obj))
 XPSEUDOCODE(uint32, hashcode4, (object obj))
-XPSEUDOCODE(bool, hash_lookup_builtin, (object ht, object obj, gcv_object_t** KVptr_, gcv_object_t** Nptr_, gcv_object_t** Iptr_))
+XPSEUDOCODE(bool, hash_lookup_builtin, (object ht, object obj, gcv_object_t** KVptr_, gcv_object_t** Iptr_))
 #ifndef GENERATIONAL_GC
-XPSEUDOCODE(bool, hash_lookup_builtin_with_rehash, (object ht, object obj, gcv_object_t** KVptr_, gcv_object_t** Nptr_, gcv_object_t** Iptr_))
+XPSEUDOCODE(bool, hash_lookup_builtin_with_rehash, (object ht, object obj, gcv_object_t** KVptr_, gcv_object_t** Iptr_))
 #endif
-XPSEUDOCODE(bool, hash_lookup_user, (object ht, object obj, gcv_object_t** KVptr_, gcv_object_t** Nptr_, gcv_object_t** Iptr_))
+XPSEUDOCODE(bool, hash_lookup_user, (object ht, object obj, gcv_object_t** KVptr_, gcv_object_t** Iptr_))
 
 LPSEUDOCODE(rd_by_error) LPSEUDOCODE(rd_by_array_error) LPSEUDOCODE(rd_by_array_dummy)
 LPSEUDOCODE(wr_by_error) LPSEUDOCODE(wr_by_array_error) LPSEUDOCODE(wr_by_array_dummy)
