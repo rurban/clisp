@@ -1,6 +1,7 @@
 2003-10-14  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (buffered_nextbyte): return -1 only when no_hang
+	(listen_char_buffered): pass no_hang=true to buffered_nextbyte()
 
 2003-10-11  Sam Steingold  <sds@gnu.org>
 

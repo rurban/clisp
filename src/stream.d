@@ -6497,19 +6497,20 @@ local object rd_ch_buffered (const gcv_object_t* stream_) {
   return code_char(c);
 }
 
-# Determines, if a character is available on a File-Stream.
-# listen_char_buffered(stream)
-# > stream: File-Stream of Characters
-# < result:   ls_avail if a character is available,
-#             ls_eof   if EOF is reached,
-#             ls_wait  if no character is available, but not because of EOF
+/* Determines, if a character is available on a File-Stream.
+ listen_char_buffered(stream)
+ > stream: File-Stream of Characters
+ < result:   ls_avail if a character is available,
+             ls_eof   if EOF is reached,
+             ls_wait  if no character is available, but not because of EOF */
 local signean listen_char_buffered (object stream) {
-  if (buffered_nextbyte(stream,false) == (uintB*)NULL)
-    return ls_eof; # EOF
-  # In case of UNICODE, the presence of a byte does not guarantee the
-  # presence of a multi-byte character. Returning ls_avail here is
-  # therefore not correct. But this doesn't matter since programs seeing
-  # ls_avail will call read-char, and this will do the right thing anyway.
+  uintB* buf = buffered_nextbyte(stream,true);
+  if (buf == (uintB*)NULL) return ls_eof; /* EOF */
+  if (buf == (uintB*)-1)   return ls_wait; /* will hang */
+  /* In case of UNICODE, the presence of a byte does not guarantee the
+   presence of a multi-byte character. Returning ls_avail here is
+   therefore not correct. But this doesn't matter since programs seeing
+   ls_avail will call read-char, and this will do the right thing anyway. */
   return ls_avail;
 }
 
