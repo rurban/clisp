@@ -1,5 +1,9 @@
 2004-06-01  Sam Steingold  <sds@gnu.org>
 
+	* tests.lisp (run-test): bind *PRINT-CIRCLE* to T
+
+2004-06-01  Sam Steingold  <sds@gnu.org>
+
 	* lists152.tst (butlast): check for circular lists
 
 2004-05-23  Bruno Haible  <bruno@clisp.org>
