@@ -4364,10 +4364,10 @@ for-value   NIL or T
                                 ((NIL) '((VALUES0)))
                                 (ONE '((VALUES1)))
                                 ((T) '()))
-                        (UNWIND-PROTECT-NORMAL-EXIT)
-                        ,label
-                        ,anode2
-                        (UNWIND-PROTECT-CLOSE ,label)))))))
+                            (UNWIND-PROTECT-NORMAL-EXIT)
+                            ,label
+                            ,anode2
+                            (UNWIND-PROTECT-CLOSE ,label)))))))
 
 ;; compile (PROGV form1 form2 {form}*)
 (defun c-PROGV ()
@@ -7669,10 +7669,10 @@ New Operations:
            (push item *code-part*)
            (push item (symbol-value (third item)))
            (setq *current-value* nil *current-vars* '()))
-          ((CATCH-OPEN UNWIND-PROTECT-OPEN)
+          (CATCH-OPEN
            (push item *code-part*)
            (push item (symbol-value (second item))))
-          (UNWIND-PROTECT-CLOSE
+          ((UNWIND-PROTECT-OPEN UNWIND-PROTECT-CLOSE)
            (push item *code-part*)
            (push item (symbol-value (second item)))
            ;; values are thrown away
@@ -8053,7 +8053,7 @@ Simplification-Rules for Operations:
                   (LIST* ; rule 7
                    (when (equal (rest (car middle)) '(1))
                      (replace1 '(CONS)))))))
-            (when (atom middle) (return))
+              (when (atom middle) (return))
             ;; calculate new for-value, depending on (car middle):
             (setq for-value
                   (gethash (first (car middle)) for-value-table for-value))
