@@ -1516,7 +1516,7 @@ dnl
 AC_DEFUN(CL_SIGNAL_UNBLOCK,
 [AC_REQUIRE([CL_SIGNAL_REINSTALL])AC_REQUIRE([CL_SIGNALBLOCK])dnl
 case "$signalblocks" in
-  *BSD*)
+  *POSIX* | *BSD*)
 AC_CACHE_CHECK(whether signals are blocked when signal handlers are entered, cl_cv_func_signal_blocked, [
 AC_TRY_RUN([
 #if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
@@ -1576,7 +1576,7 @@ dnl
 AC_DEFUN(CL_SIGNAL_BLOCK_OTHERS,
 [AC_REQUIRE([CL_SIGNAL_REINSTALL])AC_REQUIRE([CL_SIGNALBLOCK])dnl
 case "$signalblocks" in
-  *BSD*)
+  *POSIX* | *BSD*)
 AC_CACHE_CHECK(whether other signals are blocked when signal handlers are entered, cl_cv_func_signal_blocked_others, [
 AC_TRY_RUN([
 #if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
@@ -1716,7 +1716,7 @@ AC_REQUIRE([CL_SIGACTION_REINSTALL])dnl
 AC_REQUIRE([CL_SIGNALBLOCK])dnl
 if test -n "$have_sigaction"; then
 case "$signalblocks" in
-  *BSD*)
+  *POSIX* | *BSD*)
 AC_CACHE_CHECK(whether signals are blocked when sigaction handlers are entered, cl_cv_func_sigaction_blocked, [
 AC_TRY_RUN([
 #if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
