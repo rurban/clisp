@@ -44,6 +44,7 @@
       (if file                  ; already dribbling
         (warn (TEXT "Already dribbling ~S to ~S") source target)
         (progn
+          (fresh-line target)
           (format target (TEXT ";; Dribble of ~S finished ") source)
           (funcall (date-format) target (multiple-value-list (get-decoded-time)))
           (terpri target)
