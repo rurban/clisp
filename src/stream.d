@@ -8761,7 +8761,9 @@ LISPFUNN(make_keyboard_stream,0)
     var char* text; # text[0..end-start-1] = the_line[start..end-1]
     var int start;
     var int end;
-    { # (SYS::COMPLETION text start end) aufrufen:
+    { # Dies ist eine Callback-Funktion, wir müssen den Stack wieder korrekt setzen:
+      begin_callback();
+      # (SYS::COMPLETION text start end) aufrufen:
       pushSTACK(asciz_to_string(text,O(terminal_encoding)));
       pushSTACK(fixnum((uintL)start));
       pushSTACK(fixnum((uintL)end));
@@ -9293,8 +9295,6 @@ LISPFUNN(make_keyboard_stream,0)
     { if ((start>=2) && (rl_line_buffer[start-2]=='#') && (rl_line_buffer[start-1]== '\"'))
         # Vervollständigung nach #" bezieht sich auf Filenamen:
         { want_filename_completion = TRUE; return NULL; }
-      # Dies ist eine Callback-Funktion, wir müssen den Stack wieder korrekt setzen:
-      begin_callback();
      {var char** result = lisp_completion(rl_line_buffer,start,end);
       want_filename_completion = FALSE;
       return result;
