@@ -2129,6 +2129,7 @@ global int main (argc_t argc, char* argv[]) {
             argv_selection_array[argc-1- argv_expr_count++] = arg; break;
           default: NOTREACHED;
         }
+        argv_for = for_exec;
       }
     }
     batchmode_p = /* '-c' or '-x' or file => batch-mode: */
