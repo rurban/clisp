@@ -1,3 +1,9 @@
+2004-04-28  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (SstringCase) [!UNICODE]: Add 5th argument.
+	* subtypep.lisp (subtypep-CHARACTER-pre-simplify): Make it work when
+	#-UNICODE.
+
 2004-04-25  Bruno Haible  <bruno@clisp.org>
 
 	* record.d (check_generic_function_replacement): New function,
