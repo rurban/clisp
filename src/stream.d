@@ -2215,7 +2215,7 @@ LISPFUNN(string_input_stream_index,1)
 LISPFUN(make_string_output_stream,0,0,norest,key,2, (kw(element_type),kw(line_position)))
 # (MAKE-STRING-OUTPUT-STREAM [:element-type] [:line-position])
   { # line-position überprüfen:
-    if (eq(STACK_0,unbound))
+    if (eq(STACK_0,unbound) || nullp(STACK_0))
       { STACK_0 = Fixnum_0; } # Defaultwert 0
       else
       # line-position angegeben, sollte ein Fixnum >=0 sein:
@@ -16346,7 +16346,8 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
 # UP: Liefert die Line-Position eines Streams.
 # get_line_position(stream)
 # > stream: Stream
-# < ergebnis: Line-Position (Fixnum >=0)
+# < ergebnis: Line-Position (Fixnum >=0 or NIL)
+# can trigger GC
   global object get_line_position (object stream);
   global object get_line_position(stream)
     var object stream;

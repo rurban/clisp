@@ -12012,7 +12012,8 @@ extern object stream_fd (object stream);
 # UP: Liefert die Line-Position eines Streams.
 # get_line_position(stream)
 # > stream: Stream
-# < ergebnis: Line-Position (Fixnum >=0)
+# < ergebnis: Line-Position (Fixnum >=0 or NIL)
+# can trigger GC
   extern object get_line_position (object stream);
 # wird verwendet von IO, DEBUG
 
