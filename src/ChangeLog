@@ -1,5 +1,17 @@
 2004-04-07  Sam Steingold  <sds@gnu.org>
 
+	fill/indent warnings and error messages
+	* fill-out.lisp: extracted from describe.lisp
+	* describe.lisp (describe-stream): moved to fill-out.lisp
+	(describe): DESCRIBE-STREAM is now called FILL-STREAM
+	* condition.lisp (pretty-print-condition): new function
+	(warn, maybe-continue): use it
+	* reploop.lisp (print-error, break-loop): ditto
+	* makemake.in (LPARTS): added fill-out
+	* po/Makefile.devel (LISPSOURCES): ditto
+
+2004-04-07  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d (main): use UNIXy i/o (*ERROR-OUTPUT* = stderr) in batch
 	mode under the same conditions as *DEBUG-IO* being non-interactive
 

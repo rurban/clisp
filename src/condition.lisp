@@ -368,6 +368,9 @@
     (if fstring
       (apply #'format stream fstring (simple-condition-format-arguments condition))
       (clos:call-next-method))))
+(defun pretty-print-condition (condition stream &key (indent 6))
+  (with-fill-stream (out stream :indent indent)
+    (print-condition condition out)))
 
 ;; conditions usually created by ERROR or CERROR
 (define-condition simple-error (simple-condition error) ())
@@ -1390,9 +1393,8 @@
           (with-condition-restarts condition (list (find-restart 'MUFFLE-WARNING))
             (signal condition)))
         (terpri *error-output*)
-        (write-string (TEXT "WARNING:") *error-output* )
-        (terpri *error-output*)
-        (print-condition condition *error-output*)
+        (write-string (TEXT "WARNING: ") *error-output*)
+        (pretty-print-condition condition *error-output* :indent 9)
         (when *break-on-warnings*
           (with-restarts
               ((CONTINUE
@@ -1432,7 +1434,7 @@ Todo:
              (progn
                (write-string "** - Continuable Error" *error-output*)
                (terpri *error-output*)
-               (print-condition condition *error-output*)
+               (pretty-print-condition condition *error-output* :indent 5)
                (invoke-restart-interactively restart))
              (exitunconditionally condition)))
           (otherwise            ; general automatic error handling

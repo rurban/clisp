@@ -239,8 +239,8 @@
 ;;; print it
 (defun print-error (condition)
   (terpri *debug-io*)
-  (format *debug-io* (TEXT "Last error is: >> ~A <<")
-          (print-condition condition nil)))
+  (write-string (TEXT "The last error:") *debug-io*)
+  (pretty-print-condition condition *debug-io* :indent 3))
 
 ;; extended commands
 (defun commands0 ()
@@ -451,7 +451,8 @@ Continue       :c       switch off single step mode, continue evaluation
           (setq *recursive-error-count* 0)
           (write-string (TEXT "Unprintable error message.")
                         *error-output*))
-        (sys::print-condition condition *error-output*)))
+        (pretty-print-condition condition *error-output*
+                                :indent (if may-continue 5 6))))
 
     ;; Now the error message is on the screen; give the user some information
     ;; how to continue from continuable errors.

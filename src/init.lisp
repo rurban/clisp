@@ -1832,6 +1832,11 @@
 
 (LOAD "clos")                   ; CLOS
 
+;; ftp://parcftp.xerox.com/pub/cl/cleanup/mail/stream-definition-by-user.mail
+(LOAD "gray")                   ; STREAM-DEFINITION-BY-USER:GENERIC-FUNCTIONS
+
+(LOAD "fill-out")               ; FILL-OUTPUT-STREAM (for condition & describe)
+
 (LOAD "disassem")               ; Disassembler
 
 (LOAD "condition")              ; Conditions
@@ -1843,8 +1848,6 @@
 #+mt (load "threads")           ; Multi-Threading
 
 ;; Fancy streams:
-
-(load "gray")
 #+generic-streams
 (LOAD "gstream")                ; generic streams, optional
 

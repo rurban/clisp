@@ -79,64 +79,6 @@ to print the corresponding values, or T for all of them.")
 ;; Number of recursive calls since the top-level call.
 (defvar *describe-nesting*)
 
-;; A stream whose purpose is
-;; 1. to provide automatic indentation,
-;; 2. to distinguish top-level calls from recursive calls.
-(clos:defclass describe-stream (fundamental-character-output-stream)
-  ((target-stream :initarg :stream :type stream)
-   (buffer :type string :initform
-           (make-array (or *print-right-margin* sys::*prin-linelength*)
-                       :element-type 'character :fill-pointer 0
-                       :adjustable t))
-   (indent :initform 0 :type integer) ; current line's indentation
-   (pending-indent :initform nil :type (or null integer))))
-;; flush the buffer and print a newline (when NEWLINE-P is non-NIL)
-(defun describe-stream-flush-buffer (stream newline-p)
-  (clos:with-slots (target-stream buffer pending-indent indent) stream
-    (flet ((newline ()          ; terpri
-             (setq indent (* *describe-nesting* *print-indent-lists*)
-                   pending-indent indent)
-             (terpri target-stream)))
-      ;; fill: if the buffer does not fit on the line, TERPRI
-      (let ((pos (sys::line-position target-stream)))
-        (when (and pos
-                   (<= (or *print-right-margin* sys::*prin-linelength*)
-                       (+ (length buffer) pos)))
-          (newline)))
-      (when pending-indent      ; do the indent
-        (sys::write-spaces pending-indent target-stream)
-        (setq pending-indent nil))
-      (write-char-sequence buffer target-stream)
-      (setf (fill-pointer buffer) 0)
-      (when newline-p (newline)))))
-(clos:defmethod stream-write-char ((stream describe-stream) ch)
-  (clos:with-slots (target-stream buffer indent pending-indent) stream
-    (case ch
-      (#\Newline (describe-stream-flush-buffer stream t))
-      ((#\Space #\Tab)
-       (describe-stream-flush-buffer stream nil)
-       (write-char #\Space target-stream))
-      (t (vector-push-extend ch buffer)))))
-(clos:defmethod stream-line-column ((stream describe-stream))
-  (clos:with-slots (target-stream buffer indent) stream
-    (let ((pos (sys::line-position target-stream)))
-      (if pos (max (- (+ (length buffer) pos) indent) 0) nil))))
-(clos:defmethod stream-start-line-p ((stream describe-stream))
-  (clos:with-slots (target-stream buffer indent) stream
-    (let ((pos (sys::line-position target-stream)))
-      (if pos (<= (+ (length buffer) pos) indent) nil))))
-(clos:defmethod stream-finish-output ((stream describe-stream))
-  (describe-stream-flush-buffer stream nil)
-  (finish-output (clos:slot-value stream 'target-stream)))
-(clos:defmethod stream-force-output ((stream describe-stream))
-  (describe-stream-flush-buffer stream nil)
-  (force-output (clos:slot-value stream 'target-stream)))
-(clos:defmethod stream-clear-output ((stream describe-stream))
-  (clos:with-slots (target-stream buffer pending-indent) stream
-    (setq pending-indent nil)
-    (setf (fill-pointer buffer) 0)
-    (clear-output target-stream)))
-
 ; List of objects which have been described during the current top-level call.
 (defvar *describe-done*)
 
@@ -536,7 +478,7 @@ to print the corresponding values, or T for all of them.")
   (finish-output stream))
 
 (defun describe (obj &optional stream)
-  (cond ((typep stream 'describe-stream) ; Recursive call
+  (cond ((typep stream 'fill-stream) ; Recursive call
          ;; flush the pending output _before_ increasing indentation
          (force-output stream)
          (let ((*describe-nesting* (1+ *describe-nesting*))
@@ -551,8 +493,9 @@ to print the corresponding values, or T for all of them.")
          (let ((*print-circle* t)
                (*describe-nesting* 0)
                (*describe-done* nil))
-           (describe1 obj (clos:make-instance 'describe-stream
-                                              :stream stream)))))
+           (describe1 obj (clos:make-instance
+                           'fill-stream :stream stream
+                           :indent '*describe-nesting*)))))
   (values))
 
 ;;-----------------------------------------------------------------------------
