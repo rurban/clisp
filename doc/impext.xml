@@ -3502,10 +3502,27 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    other two are just accessors to the internal data structure, and
    basically return the arguments given to the function which created
    the &socket-stream;.</simpara></listitem></varlistentry>
+ <varlistentry id="sost-shut"><term><literal role="sexp">(&sost-shut;
+    &sost-r; <replaceable>direction</replaceable>)</literal></term>
+  <listitem><simpara>Some Internet protocols, such as HTTP, provide for
+   closing the connection in one direction using &shutdown;.
+   This function provides an interface to this &unix; system call.
+   <replaceable>direction</replaceable> can be &input-k; or &output-k;.
+   Note that you should still call &close; after you are done with your
+   &sost-r;; this is best accomplished by using &with-open-stream;.</simpara>
+   <para>All &socket-stream;s are &io-k; streams (i.e., both
+   &input-stream-p; and &output-stream-p; return &t; for them).
+   &sost-shut; <emphasis>breaks</emphasis> this:
+   the invariant is that whenever
+   <itemizedlist><listitem><simpara>a stream is open
+    (i.e., &open-stream-p; returns &t;) and</simpara></listitem>
+   <listitem><simpara>a stream is an &input-k; stream
+    (i.e., &input-stream-p; returns &t;)</simpara></listitem></itemizedlist>
+   the stream can be read from (e.g., with &read-char; or &read-byte;).
+   This is not the case for a &socket-stream; which was shut down in
+   the &input-k; direction: it is still open (for output) but it cannot
+   be read from.</para></listitem></varlistentry>
 </variablelist>
-<para>If you need to &shutdown; the socket stream in just one direction,
-you can use the <constant>:DIRECTION</constant> argument to
-<link linkend="close"><function>CLOSE</function></link>.</para>
 <!-- #endif -->
 </section>
 

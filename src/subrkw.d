@@ -171,7 +171,7 @@ v(3, (kw(element_type),kw(external_format),kw(buffered)) )
 s(socket_accept)
 s(socket_connect)
 #endif
-v(1, (kw(direction)) )
+v(1, (kw(abort)) )
 s(built_in_stream_close)
 #ifdef REXX
 v(5, (kw(result),kw(string),kw(token),kw(host),kw(io)) )

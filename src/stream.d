@@ -15103,6 +15103,77 @@ LISPFUNN(socket_stream_handle,1) {
 
 #endif
 
+#ifdef HAVE_SHUTDOWN
+
+# close a socket stream using shutdown(2)
+# if DIRECTION is not :IO, CLOSE is also required!
+# (SOCKET-STREAM-SHUTDOWN socket direction)
+LISPFUNN(socket_stream_shutdown,2) {
+  var direction_t dir = check_direction(popSTACK());
+  var object socket = test_socket_stream(STACK_0,false);
+  var int shutdown_how = -1;
+  var bool rd_p = ((TheStream(STACK_0)->strmflags & strmflags_rd_B) != 0);
+  var bool wr_p = ((TheStream(STACK_0)->strmflags & strmflags_wr_B) != 0);
+  switch (dir) {
+    case DIRECTION_PROBE: # INPUT/OUTPUT/IO
+      if (rd_p) {
+        if (wr_p) value1 = S(Kio);
+        else value1 = S(Kinput);
+      } else {
+        if (wr_p) value1 = S(Koutput);
+        else value1 = NIL;
+      }
+      goto done;
+    case DIRECTION_INPUT_IMMUTABLE: case DIRECTION_INPUT:
+      if (!wr_p) { # already not writable => CLOSE
+        TheStream(STACK_0)->strmflags ^= strmflags_wr_B; # restore :IO
+        funcall(L(built_in_stream_close),1); return;
+      } else if (!rd_p) { # not readable => done
+        value1 = NIL; goto done;
+      } else {
+        shutdown_how = SHUT_RD;
+        TheStream(STACK_0)->strmflags &= ~strmflags_rd_B;
+      }
+      break;
+    case DIRECTION_OUTPUT:
+      if (!rd_p) { # already not readable => CLOSE
+        TheStream(STACK_0)->strmflags ^= strmflags_rd_B; # restore :IO
+        funcall(L(built_in_stream_close),1); return;
+      } else if (!wr_p) { # not writable => done
+        value1 = NIL; goto done;
+      } else {
+        shutdown_how = SHUT_WR;
+        TheStream(STACK_0)->strmflags &= ~strmflags_wr_B;
+      }
+      break;
+    case DIRECTION_IO: funcall(L(built_in_stream_close),1); return;
+  }
+  # still open in both directions
+  switch (TheStream(STACK_0)->strmtype) {
+    case strmtype_twoway_socket:
+      if (dir == DIRECTION_OUTPUT) {
+        STACK_0 = TheStream(STACK_0)->strm_twoway_socket_output;
+        TheStream(STACK_0)->strmflags &= ~strmflags_wr_B;
+      } else { # DIRECTION_INPUT || DIRECTION_INPUT_IMMUTABLE
+        STACK_0 = TheStream(STACK_0)->strm_twoway_socket_input;
+        TheStream(STACK_0)->strmflags &= ~strmflags_rd_B;
+      } /*FALLTHROUGH*/
+    case strmtype_socket:
+      if (ChannelStream_buffered(STACK_0))
+        buffered_flush_everything(STACK_0);
+      begin_system_call();
+      if (shutdown(ChannelStream_ihandle(STACK_0),shutdown_how))
+        { OS_error(); }
+      end_system_call();
+      break;
+    default: NOTREACHED;
+  }
+ done:
+  skipSTACK(1);
+  mv_count = 1;
+}
+#endif
+
 #endif # SOCKET_STREAMS
 
 
@@ -15999,82 +16070,6 @@ LISPFUNN(interactive_stream_p,1) {
   value1 = (interactive_stream_p(arg) ? T : NIL); mv_count=1;
 }
 
-#define DIRECTION_IN_OUT(d,in,out)              \
-  do { switch (d) {                             \
-    case DIRECTION_INPUT:  in;  break;          \
-    case DIRECTION_OUTPUT: out; break;          \
-    default: NOTREACHED;                        \
-  }} while(0)
-
-# UP: Closes half of a stream
-# > stream: Builtin-Stream
-# < stream: Builtin-Stream
-# can trigger GC
-local void builtin_stream_close_partial (const object* stream_,
-                                         direction_t dir) {
-  var object stream = *stream_;
-  var object dir_sym = NIL;
-  var int shutdown_how = -1;
-  if ((TheStream(stream)->strmflags & strmflags_open_B) == 0)
-    return; # Stream already closed - done
-  DIRECTION_IN_OUT(dir,{
-    if ((TheStream(stream)->strmflags & strmflags_wr_B) == 0) {
-      builtin_stream_close(stream_); # read-only stream - full close
-      return;
-    }
-    dir_sym = S(Kinput); shutdown_how = SHUT_RD;
-  },{
-    if ((TheStream(stream)->strmflags & strmflags_rd_B) == 0) {
-      builtin_stream_close(stream_); # write-only stream - full close
-      return;
-    }
-    dir_sym = S(Koutput); shutdown_how = SHUT_WR;
-  });
-  # stream is still open in both directions
-  switch (TheStream(stream)->strmtype) {
-    case strmtype_twoway:
-      DIRECTION_IN_OUT(dir,{
-        pushSTACK(TheStream(stream)->strm_twoway_input);
-        TheStream(stream)->strmflags &= ~strmflags_rd_B;
-      },{
-        pushSTACK(TheStream(stream)->strm_twoway_output);
-        TheStream(stream)->strmflags &= ~strmflags_wr_B;
-      });
-      builtin_stream_close(&STACK_0);
-      skipSTACK(1);
-      break;
-   #if defined(SOCKET_STREAMS) && defined(HAVE_SHUTDOWN)
-    case strmtype_socket:
-      DIRECTION_IN_OUT(dir,{
-        if (ChannelStream_buffered(stream)) buffered_flush_everything(stream);
-        TheStream(stream)->strmflags &= ~strmflags_rd_B;
-      },{ TheStream(stream)->strmflags &= ~strmflags_wr_B; });
-      if (shutdown(ChannelStream_ihandle(stream),shutdown_how))
-        { OS_error(); }
-      break;
-    case strmtype_twoway_socket:
-      DIRECTION_IN_OUT(dir,{
-        pushSTACK(TheStream(stream)->strm_twoway_socket_input);
-        TheStream(stream)->strmflags &= ~strmflags_rd_B;
-      },{
-        pushSTACK(TheStream(stream)->strm_twoway_socket_output);
-        TheStream(stream)->strmflags &= ~strmflags_wr_B;
-      });
-      ChannelStreamLow_close(STACK_0) = &low_close_socket_nop;
-      builtin_stream_close(&STACK_0);
-      if (shutdown(ChannelStream_ihandle(STACK_0),shutdown_how))
-        { OS_error(); }
-      skipSTACK(1);
-      break;
-   #endif
-    default:
-      pushSTACK(TheSubr(subr_self)->name);
-      pushSTACK(dir_sym);
-      fehler_illegal_streamop(listof(2),*stream_);
-  }
-}
-#undef DIRECTION_IN_OUT
-
 # UP: Closes a Stream.
 # builtin_stream_close(&stream);
 # > stream: Builtin-Stream
@@ -16191,21 +16186,12 @@ global void closed_all_files (void) {
   O(open_files) = NIL; # no more open Files
 }
 
-# (SYS::BUILT-IN-STREAM-CLOSE stream :direction)
-LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(direction)) ) {
-  var direction_t dir = (eq(STACK_0,unbound) || eq(STACK_0,NIL)
-                         ? skipSTACK(1),DIRECTION_IO
-                         : check_direction(popSTACK()));
+# (SYS::BUILT-IN-STREAM-CLOSE stream :abort)
+LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) ) {
+  skipSTACK(1); # ignore the :ABORT argument
   var object stream = STACK_0; # Argument
   check_builtin_stream(stream); # must be a Stream
-  switch (dir) {
-    case DIRECTION_PROBE: return funcall(L(built_in_stream_open_p),1);
-    case DIRECTION_INPUT_IMMUTABLE: dir = DIRECTION_INPUT; /*FALLTHROUGH*/
-    case DIRECTION_INPUT: case DIRECTION_OUTPUT:
-      builtin_stream_close_partial(&STACK_0,dir); break;
-    case DIRECTION_IO: builtin_stream_close(&STACK_0); break;
-    default: NOTREACHED;
-  }
+  builtin_stream_close(&STACK_0);
   skipSTACK(1);
   value1 = T; mv_count=1; # T as result
 }

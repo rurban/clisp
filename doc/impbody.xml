@@ -975,6 +975,10 @@ can use <function>EXT:WITHOUT-PACKAGE-LOCK</function>:
 (without-package-lock ("LISP" "EXT" "CLOS")
   (defun restart () ...))
 </programlisting>
+or
+<programlisting>
+(without-package-lock ("LISP") (trace read-line))
+</programlisting>
 <literal role="sexp" >(without-package-lock () ...)</literal> unlocks
 all packages in &sys-pack-list;.</para></formalpara>
 
@@ -3962,17 +3966,6 @@ functions are provided:</para>
 <section id="close"><title>Function &close;</title>
 
 <para>&close; ignores its &abort-k; argument.</para>
-
-<para>&close; accepts an additional keyword argument
- <constant>:DIRECTION</constant> (like &open;), which defaults to
- &io-k; (i.e., full close).
-This is mostly for the benefit of Internet protocol implementors who
-need to &shutdown; a socket to signal the end of a request:
-<informalexample><programlisting>
-   (&close; &sost-r; :DIRECTION &input-k;)
- = shutdown(fd,SHUT_RD)
-</programlisting></informalexample>
-</para>
 
 </section>
 
