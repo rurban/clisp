@@ -1,3 +1,9 @@
+2002-01-09  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (signature-to-list): do not intern ARG# symbols
+	in SYSTEM
+	(c-DEFUN): print signatures with ~A, not ~S, to avoid package prefixes
+
 2002-01-08  Sam Steingold  <sds@gnu.org>
 
 	* deprecated.lisp (deprecate): added optional DEF argument
