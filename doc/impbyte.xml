@@ -1403,7 +1403,7 @@ nevertheless, through the use of &load-time-value;.)</para>
  <varlistentry><term>&flags; (1 byte)</term>
   <listitem><variablelist>
    <varlistentry><term>bit 0</term>
-    <listitem><simpara>set if the function has an &rest-amp; parameter
+    <listitem><simpara>set if the function has the &rest-amp; parameter
     </simpara></listitem></varlistentry>
    <varlistentry><term>bit 7</term>
     <listitem><simpara>set if the function has &key-amp; parameters
