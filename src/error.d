@@ -42,6 +42,9 @@
           # *PRINT-PRETTY* an NIL binden (um Speicher zu sparen):
           dynamic_bind(S(print_pretty),NIL);
           fehler(serious_condition,
+                 # Note: All translations of this error message should be in
+                 # pure ASCII, to avoid endless recursion if *terminal-encoding*
+                 # supports only ASCII characters.
                  DEUTSCH ? "Unausgebbare Fehlermeldung" :
                  ENGLISH ? "Unprintable error message" :
                  FRANCAIS ? "Message inimprimable" :

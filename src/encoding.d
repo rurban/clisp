@@ -934,7 +934,7 @@ global void nls_mbstowcs(encoding,stream,srcp,srcend,destp,destend)
     var uintL count = destend-dest;
     if (count > srcend-src) { count = srcend-src; }
     if (count > 0)
-      { var const nls_table* table = (const nls_table*) ThePseudofun(TheEncoding(encoding)->enc_table);
+      { var const nls_table* table = (const nls_table*) TheMachine(TheEncoding(encoding)->enc_table);
         var const unsigned short* cvtable = table->charset2uni;
         var uintB b;
         dotimespL(count,count,
@@ -963,7 +963,7 @@ global void nls_asciiext_mbstowcs(encoding,stream,srcp,srcend,destp,destend)
     var uintL count = destend-dest;
     if (count > srcend-src) { count = srcend-src; }
     if (count > 0)
-      { var const nls_table* table = (const nls_table*) ThePseudofun(TheEncoding(encoding)->enc_table);
+      { var const nls_table* table = (const nls_table*) TheMachine(TheEncoding(encoding)->enc_table);
         var const unsigned short* cvtable = table->charset2uni;
         var uintB b;
         dotimespL(count,count,
@@ -1004,7 +1004,7 @@ global void nls_wcstombs(encoding,stream,srcp,srcend,destp,destend)
     var uintL count = srcend-src;
     if (count > destend-dest) { count = destend-dest; }
     if (count > 0)
-      { var const nls_table* table = (const nls_table*) ThePseudofun(TheEncoding(encoding)->enc_table);
+      { var const nls_table* table = (const nls_table*) TheMachine(TheEncoding(encoding)->enc_table);
         var const unsigned char* const* cvtable = table->page_uni2charset;
         var chart ch;
         dotimespL(count,count,
@@ -1033,7 +1033,7 @@ global void nls_asciiext_wcstombs(encoding,stream,srcp,srcend,destp,destend)
     var uintL count = srcend-src;
     if (count > destend-dest) { count = destend-dest; }
     if (count > 0)
-      { var const nls_table* table = (const nls_table*) ThePseudofun(TheEncoding(encoding)->enc_table);
+      { var const nls_table* table = (const nls_table*) TheMachine(TheEncoding(encoding)->enc_table);
         var const unsigned char* const* cvtable = table->page_uni2charset;
         var chart ch;
         dotimespL(count,count,
@@ -1060,7 +1060,7 @@ global object nls_range(encoding,start,end)
   var uintL start;
   var uintL end;
   { var uintL count = 0; # number of intervals already on the STACK
-    var const nls_table* table = (const nls_table*) ThePseudofun(TheEncoding(encoding)->enc_table);
+    var const nls_table* table = (const nls_table*) TheMachine(TheEncoding(encoding)->enc_table);
     var const unsigned char* const* cvtable = table->page_uni2charset;
     var uintL i1;
     var uintL i2;
@@ -1494,7 +1494,7 @@ LISPFUNN(charset_range,3)
                                                    : P(nls_wcstombs)
                                                   );
             TheEncoding(encoding)->enc_range    = P(nls_range);
-            TheEncoding(encoding)->enc_table    = P(**ptr);
+            TheEncoding(encoding)->enc_table    = make_machine(*ptr);
             TheEncoding(encoding)->min_bytes_per_char = 1;
             TheEncoding(encoding)->max_bytes_per_char = 1;
             define_constant(symbol,encoding);
@@ -1517,10 +1517,21 @@ LISPFUNN(charset_range,3)
       define_constant(S(windows_1257),Symbol_value(S(cp1257)));
       define_constant(S(windows_1258),Symbol_value(S(cp1258)));
       #endif
+      # Initialize O(internal_encoding):
+        #ifdef UNICODE
+        pushSTACK(Symbol_value(S(iso8859_1)));
+        #else
+        pushSTACK(unbound);
+        #endif
+        pushSTACK(S(Kunix));
+        C_make_encoding();
+        O(internal_encoding) = value1;
       # Initialize O(default_file_encoding):
         #ifdef UNICODE
         #if defined(ISOLATIN_CHS)
         pushSTACK(Symbol_value(S(iso8859_1)));
+        #elif defined(HPROMAN8_CHS)
+        pushSTACK(Symbol_value(S(hp_roman8)));
         #elif defined(NEXTSTEP_CHS)
         pushSTACK(Symbol_value(S(nextstep)));
         #elif defined(IBMPC_CHS)
@@ -1540,7 +1551,6 @@ LISPFUNN(charset_range,3)
         O(default_file_encoding) = value1;
       #ifdef UNICODE
       { var object encoding = O(default_file_encoding);
-        O(internal_encoding) = encoding;
         O(pathname_encoding) = encoding;
         O(terminal_encoding) = encoding;
         #if defined(HAVE_FFI) || defined(HAVE_AFFI)
