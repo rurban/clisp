@@ -735,9 +735,6 @@ or "limit stacksize 8192" is you are using a CSH-derivative.
 
 Remove all optimization options ("-O", "-O2") from the CC and CFLAGS variables
 in the Makefile. Apple's cc crashes when compiling eval.d with optimization.
-You will also need to set the envoronment variable CC:
-bash: export CC="cc -traditional-cpp -I/sw/include -L/sw/lib"
-csh:  setenv CC "cc -traditional-cpp -I/sw/include -L/sw/lib"
 
 FFI does not work yet, you will have to ignore the "avcall-*.h" errors
 in ./configure.
