@@ -239,8 +239,13 @@ extern void mregfree (regex_t *preg);
                          :displaced-index-offset start)))
          (matches (mregexec compiled-pattern string eflags)))
     (declare (string string))
-    (when matches
-      (values-list (coerce matches 'list)))))
+    (unless (zerop (length matches))
+      (values-list (if (zerop start) (coerce matches 'list)
+                       (map 'list (lambda (match)
+                                    (incf (match-start match) start)
+                                    (incf (match-end match) start)
+                                    match)
+                            matches))))))
 
 (define-compiler-macro regexp-exec (&whole form compiled-pattern string &key
                                            start end notbol noteol eflags)
