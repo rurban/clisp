@@ -1131,21 +1131,23 @@ local object wpeek_char_eof (const object* stream_) {
 # a_digit partially into a_alpha or a_letter or a_expo_m.
 
 # meaning of the entries in attribute_table:
-  #define a_illg     0   # illegal constituent
-  #define a_pack_m   1   # ':' = Package-marker
-  #define a_alpha    2   # character without special property (alphabetic)
-  #define a_escaped  3   # character without special property, not subject to case conversion
-  #define a_ratio    4   # '/'
-  #define a_dot      5   # '.'
-  #define a_plus     6   # '+'
-  #define a_minus    7   # '-'
-  #define a_extens   8   # '_^' extension characters
-  #define a_digit    9   # '0123456789'
-  #define a_letter  10   # 'A'-'Z','a'-'z', not 'esfdlESFDL'
-  #define a_expo_m  11   # 'esfdlESFDL'
-  #    >= a_letter       #  'A'-'Z','a'-'z'
-  #    >= a_digit        # '0123456789','A'-'Z','a'-'z'
-  #    >= a_ratio        # what a potential number must consist of
+  #define a_illg          0   # illegal constituent
+  #define a_pack_m        1   # ':' = Package-marker
+  #define a_alpha         2   # character without special property (alphabetic)
+  #define a_escaped       3   # character without special property, not subject to case conversion
+  #define a_ratio         4   # '/'
+  #define a_dot           5   # '.'
+  #define a_plus          6   # '+'
+  #define a_minus         7   # '-'
+  #define a_extens        8   # '_^' extension characters
+  #define a_digit         9   # '0123456789'
+  #define a_letterdigit  10   # 'A'-'Z','a'-'z' less than base, not 'esfdlESFDL'
+  #define a_expodigit    11   # 'esfdlESFDL' less than base
+  #define a_letter       12   # 'A'-'Z','a'-'z', not 'esfdlESFDL'
+  #define a_expo_m       13   # 'esfdlESFDL'
+  #    >= a_letter            #  'A'-'Z','a'-'z'
+  #    >= a_digit             # '0123456789','A'-'Z','a'-'z'
+  #    >= a_ratio             # what a potential number must consist of
 
 # attribute-table for constituents, first interpretation:
 # note: first, 0-9,A-Z,a-z are interpreted as a_digit or a_expo_m,
@@ -1429,7 +1431,7 @@ local void read_token_1 (const object* stream_, object ch, uintWL scode) {
 # < base: base of number-system (= 10 or old base)
 # conversion takes place within O(token_buff_2):
 #   if potential number:
-#     >=a_letter above the base of number-system -> a_alpha
+#     >=a_letter below the base of number-system -> a_letterdigit, a_expodigit
 #   if not potential number:
 #     distinction between [a_pack_m | a_dot | others] is preserved.
 # < result: true, if potential number
@@ -1451,13 +1453,14 @@ local bool test_potential_number_syntax (uintWL* base_, token_info_t* info) {
   # - it does not end with '+' or '-'.
   # Verification:
   # 1. Search for a dot. if ther is one ===> Base:=10.
-  # 2. Every char that is >=a_letter (also 'A'-'Z','a'-'z')  and has a value <Basis,
-  #    will be converted to an a_digit.
-  # (Now a_digit is interpreted as "digit" and >=a_letter as "letter".)
-  # 3. Test, if only chars >=a_ratio are in the token. No -> no potential number.
+  # 2. Test, if only chars >=a_ratio are in the token. No -> no potential number.
+  # 3. Every char that is >=a_letter (also 'A'-'Z','a'-'z')  and has a value < base,
+  #    will be converted to a_letterdigit or a_expodigit.
+  # (Now a_digit,a_letterdigit,a_expodigit is interpreted as "digit" and
+  #  >=a_letter as "letter".)
   # 4. Test, if an a_digit is in the token. No -> no potential number.
   # (No the length is >0.)
-  # 5. Test, if adjacend >=a_letter are in the token.
+  # 5. Test, if adjacent >=a_letter are in the token.
   #    Yes -> no potential number.
   # 6. Test, if first character attribute is  >=a_dot and <=a_digit.
   #    No -> no potential number.
@@ -1475,7 +1478,7 @@ local bool test_potential_number_syntax (uintWL* base_, token_info_t* info) {
     buff = O(token_buff_2); # Semi-Simple Byte-Vektor
     attrptr0 = &TheSbvector(TheIarray(buff)->data)->data[0]; # attributecodes from this point on
   }
-  # 1. search, if thereis a dot:
+  # 1. search, if there is a dot:
   {
     if (len > 0) {
       var uintB* attrptr = attrptr0;
@@ -1490,7 +1493,16 @@ local bool test_potential_number_syntax (uintWL* base_, token_info_t* info) {
   dot: *base_ = 10;
   no_dot: ;
   }
-  # 2. translate everything  >=a_letter with value <Basis into a_digit:
+  # 2. Test, if only attributecodes >=a_ratio occur:
+  if (len > 0) {
+    var uintB* attrptr = attrptr0;
+    var uintL count;
+    dotimespL(count,len, {
+      if (!(*attrptr++ >= a_ratio))
+        return false; # no -> no potential number
+    });
+  }
+  # 3. translate everything  >=a_letter with value < base into a_letterdigit, a_expodigit:
   if (len > 0) {
     var uintB* attrptr = attrptr0;
     var chart* charptr = charptr0;
@@ -1500,27 +1512,19 @@ local bool test_potential_number_syntax (uintWL* base_, token_info_t* info) {
         var cint c = as_cint(*charptr); # character, must be 'A'-'Z','a'-'Z'
         if (c >= 'a') { c -= 'a'-'A'; }
         if ((c - 'A') + 10 < *base_) # value < base ?
-          *attrptr = a_digit; # translate into a_digit
+          *attrptr -= 2; # a_letter -> a_letterdigit, a_expo_m -> a_expodigit
       }
       attrptr++; charptr++;
     });
   }
-  # 3. Test, if only attributecodes >=a_ratio occur:
-  if (len > 0) {
-    var uintB* attrptr = attrptr0;
-    var uintL count;
-    dotimespL(count,len, {
-      if (!(*attrptr++ >= a_ratio))
-        return false; # no -> no potential number
-    });
-  }
-  # 4. Test, if an a_digit occurs:
+  # 4. Test, if an a_*digit occurs:
   {
     if (len > 0) {
       var uintB* attrptr = attrptr0;
       var uintL count;
       dotimespL(count,len, {
-        if (*attrptr++ == a_digit)
+        var uintB attr = *attrptr++;
+        if (attr >= a_digit && attr <= a_expodigit)
             goto digit_ok;
       });
     }
@@ -1538,10 +1542,10 @@ local bool test_potential_number_syntax (uintWL* base_, token_info_t* info) {
           return false;
     });
   }
-  # 6. Test, if first attributecode is >=a_dot and <=a_digit:
+  # 6. Test, if first attributecode is >=a_dot and <=a_*digit:
   {
     var uintB attr = attrptr0[0];
-    if (!((attr >= a_dot) && (attr <= a_digit)))
+    if (!((attr >= a_dot) && (attr <= a_expodigit)))
       return false;
   }
   # 7. Test, if last attributecode is  =a_plus or =a_minus:
@@ -1609,10 +1613,7 @@ local uintWL test_number_syntax (uintWL* base_, object* string_,
   #    { a_plus | a_minus | }                               # already read
   #    { a_digit < base }+ { a_ratio { a_digit < base }+ | }
   #    is matching.
-  # 4. set base:=10, and if base was >10 beforehand, assign the attributcodes to
-  #    the Characters 'A'-'Z','a'-'z' (which have been  a_letter oder a_expo_m earlier,
-  #    but might have been transformed in a_digit by test_potential_number_syntax)
-  #    according to table again (a_letter -> no number or a_expo_m).
+  # 4. set base:=10.
   # 5. try to interprete the token as a  floating-point-number or decimal-integer:
   #    Test, if the syntax
   #    { a_plus | a_minus | }                               # already read
@@ -1677,7 +1678,7 @@ local uintWL test_number_syntax (uintWL* base_, object* string_,
       if (index>=len)
         break;
       var uintB attr = *attrptr++; # its attributcode
-      if (attr==a_digit) {
+      if (attr>=a_digit && attr<=a_expodigit) {
         var cint c = as_cint(*charptr++); # character (Digit, namely '0'-'9','A'-'Z','a'-'z')
         # determine value (== wert):
         var uintB wert = (c<'A' ? c-'0' : c<'a' ? c-'A'+10 : c-'a'+10);
@@ -1696,7 +1697,7 @@ local uintWL test_number_syntax (uintWL* base_, object* string_,
         info->index3 = index; # store index of '/'
         charptr++; index++;
       } else
-        # Attributecode /= a_digit, a_ratio -> not a rational number
+        # Attributecode /= a_*digit, a_ratio -> not a rational number
         goto schritt4;
     }
     # Token finished
@@ -1711,26 +1712,7 @@ local uintWL test_number_syntax (uintWL* base_, object* string_,
       return 2;
   }
  schritt4:
-  # 4. base:=10, with elimination of 'A'-'Z','a'-'z'
-  if (*base_ > 10) {
-    var uintL count = len-index0;
-    if (count > 0) {
-      var chart* charptr = charptr0;
-      var uintB* attrptr = attrptr0;
-      dotimespL(count,count, {
-        var chart ch = *charptr++; # next character
-        var cint c = as_cint(ch);
-        if (((c>='A') && (c<='Z')) || ((c>='a') && (c<='z'))) {
-          var uintB attr = attribute_of(ch); # its true Attributcode
-          if (attr == a_letter) # is er = a_letter ?
-            return 0; # yes -> not a number
-          # otherwise write (must be a_expo_m):
-          *attrptr = attr;
-        }
-        attrptr++;
-      });
-    }
-  }
+  # 4. base:=10
   *base_ = 10;
   # 5. Floating-Point-Number or decimal-integer
   {
@@ -1759,7 +1741,7 @@ local uintWL test_number_syntax (uintWL* base_, object* string_,
         flags &= ~bit(3); # reset flag
         index++;
         info->index3 = index; # store index after the '.'
-      } else if (attr==a_expo_m)
+      } else if (attr==a_expo_m || attr==a_expodigit)
         goto expo; # treat exponent
       else
         return 0; # not a float, thus not a number
