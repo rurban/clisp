@@ -944,7 +944,8 @@ When &loop-ansi; is non-&nil;, an &err-sig;.</para></section>
 
 <para>The error message prefix for the first line is <quote>*** - </quote>.
  All subsequent lines are indented by 6 characters.
- Long lines are broken on white spaces.</para>
+ Long lines are broken on &whitespace;
+ (see <xref linkend="fill-stream"/>).</para>
 
 </section>
 
@@ -2838,22 +2839,7 @@ checks whether the &hash-table-t; is weak.</para>
 
 </variablelist>
 
-<!-- #if !defined(USER_HOMEDIR) -->
-<variablelist>
-<varlistentry><term>Platform dependent: unknown platforms only.</term>
-<listitem><simpara>The function &user-homedir-pathname; is not implemented.
-</simpara></listitem></varlistentry>
-</variablelist>
-<!-- #endif -->
-
 </section>
-
-<!-- #ifdef LOGICAL_PATHNAMES -->
-<section id="log-path"><title>Logical Pathnames
-  <ulink url="&clhs;/Body/sec_19-3.html">[CLHS-19.3]</ulink></title>
- <para>No notes.</para>
-</section>
-<!-- #endif -->
 
 <section id="filename-dict"><title>The Filenames Dictionary
    <ulink url="&clhs;/Body/sec_the_filen_s_dictionary.html"
@@ -2894,7 +2880,7 @@ checks whether the &hash-table-t; is weak.</para>
  directory, therefore rendering pathnames suitable for the OS and
  external programs.  So, to pass a pathname to an external program, you
  do <code>(&namestring; (&translate-pathname; &path-r;
- #p"" #p"" &absolute-k; &t;))</code> or <code>(&namestring;
+ #P"" #P"" &absolute-k; &t;))</code> or <code>(&namestring;
  (&absolute-pathname; &path-r;))</code>.</para>
 
 </section>
@@ -2963,9 +2949,9 @@ checks whether the &hash-table-t; is weak.</para>
 <para>Now, <code>(&merge-pathnames; (&merge-pathnames; #P"x/" #P"y/")
   #P"y/")</code> and <code>(&merge-pathnames; #P"x/" #P"y/")</code> are
  &equal; in &clisp; (when &pathmerge; is &nil;), but not in
- implementations that strictly follow the &ansi-cl; spec.  In fact, the
- above twice-default = once-default rule holds for all pathnames in
- &clisp;.</para>
+ implementations that strictly follow the &ansi-cl; spec.
+ In fact, the above <emphasis>twice-default = once-default</emphasis>
+ rule holds for all pathnames in &clisp;.</para>
 
 <para>Conversely, when &pathmerge; is non-&nil;, the normal &ansi-cl;
  behavior is exhibited: <code>(&merge-pathnames; #P"x/" #P"y/")</code>
@@ -4378,7 +4364,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  which are similar to the main &repl; except for the
  <link linkend="prompt">prompt</link> and the set of available commands.
  Commands must be typed literally, in any case,
- without surrounding quotes or white space.
+ without surrounding quotes or &whitespace;.
  Each command has a keyword abbreviation,
  indicated in the second column.</para>
 
