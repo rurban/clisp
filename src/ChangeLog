@@ -1,5 +1,9 @@
 1999-06-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * makemake.in (callback.h): Copy also vacall_r.h and trampoline_r.h.
+
+1999-06-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d (GETTEXT): Define also if not using GNU_GETTEXT.
 
 1999-06-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
