@@ -12450,9 +12450,12 @@ extern /*maygc*/ object gethash (object obj, object ht, bool allowgc);
 # > ht: hash-table
 # > obj: object
 # > value: new value
+# > allowgc: whether GC is allowed during hash lookup
+#            (should be true if the hash-table has a user-defined test or
+#             if the hash-table is not known to already contain a value for obj)
 # < result: old value
-# can trigger GC
-extern maygc object shifthash (object ht, object obj, object value);
+# can trigger GC - if allowgc is true
+extern /*maygc*/ object shifthash (object ht, object obj, object value, bool allowgc);
 # is used by SEQUENCE, PATHNAME, FOREIGN
 
 /* hash_table_weak_type(ht)
