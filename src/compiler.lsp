@@ -4526,7 +4526,7 @@ der Docstring (oder NIL).
                     (or
                       (symbolp (car item))
                       (and (consp (car item))
-                           (keywordp (caar item))
+                           (symbolp (caar item))
                            (consp (cdar item))
                            (symbolp (cadar item))
                            (null (cddar item))
