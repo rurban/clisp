@@ -760,12 +760,12 @@ localized.</para>
  &gnu; glibc-2.1 supports in particular, among others:</simpara>
 
 <itemizedlist id="gnu-extra-charset-list">
-  <listitem id="charset-EUC-JP"><simpara><literal>EUC-JP</literal> and
+  <listitem id="charset-EUC-JP-gnu"><simpara><literal>EUC-JP</literal> and
   <literal>SHIFT-JIS</literal>, for the Japanese language,</simpara></listitem>
-  <listitem id="charset-EUC-CN"><simpara><literal>EUC-CN</literal>,
+  <listitem id="charset-EUC-CN-gnu"><simpara><literal>EUC-CN</literal>,
   <literal>EUC-TW</literal>, <literal>BIG5</literal> and
   <literal>GB</literal>, for the Chinese language,</simpara></listitem>
-  <listitem id="charset-EUC-KR"><simpara><literal>EUC-KR</literal> and
+  <listitem id="charset-EUC-KR-gnu"><simpara><literal>EUC-KR</literal> and
   <literal>ISO-2022-KR</literal>, for the Korean language.</simpara></listitem>
 </itemizedlist>
 
