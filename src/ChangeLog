@@ -1,5 +1,11 @@
 2000-06-11  Bruno Haible  <haible@clisp.cons.org>
 
+        * init.lisp (MACRO-EXPANDER): Remove macro.
+        * macros1.lisp (defmacro-special): New macro.
+          (and, or, prog1, prog2, when, unless, psetq, multiple-value-list,
+           multiple-value-bind, multiple-value-setq, locally, case, cond):
+          Define macros using defmacro-special.
+
         * constobj.d (O(version)): Bump version number.
           (O(old_version)): Remove.
         * misc.d (SYSTEM::VERSION): Don't test for O(old_version) any more.
