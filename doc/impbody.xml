@@ -196,15 +196,6 @@ ignored by the interpreter.</para>
         &value-r;) ...)</literal>
    are ignored by the interpreter and the compiler.</para>
 
-<para>The &ansi-cl; declaration <literal role="sexp">(&optimize-dec;
- (debug ...))</literal> is legal.</para>
-
-<para>The &ansi-cl; declaration <literal role="sexp">(&ignorable-dec;
- &var-r; ...)</literal> affects the variable
- binding for the variable &var-r;.  The compiler
- will not warn about the variable, regardless whether it is used or
- not.</para>
-
 <section id="compile-decl"><title>Additional declarations</title>
 
 <para>The declaration &compile-decl; has the effect that the current
