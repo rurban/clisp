@@ -157,6 +157,11 @@ local function (LABEL/FLET) calls waste heap (COPY-CLOSURE).
  use STACK instead?
 
 
+:CASE-SENSITIVE for PACKAGE is immutable.
+1. add an accessor PACKAGE-CASE-SENSITIVE-P
+2. make it mutable via DEFPACKAGE.
+
+
 
 MAYBE
 =====
