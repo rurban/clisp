@@ -5593,11 +5593,11 @@ typedef struct {
   gcv_object_t initialized              _attribute_aligned_object_; # set to true when the class is initialized
   # from here on only for metaclass = <standard-class> or metaclass = <structure-class>
   gcv_object_t subclass_of_stablehash_p _attribute_aligned_object_; /* true if <standard-stablehash> or <structure-stablehash> is among the superclasses */
+  gcv_object_t direct_accessors         _attribute_aligned_object_;
   gcv_object_t valid_initargs           _attribute_aligned_object_;
   gcv_object_t instance_size            _attribute_aligned_object_;
   # from here on only for metaclass = <standard-class>
   gcv_object_t current_version          _attribute_aligned_object_; /* most recent class-version, points back to this class */
-  gcv_object_t direct_accessors         _attribute_aligned_object_;
   gcv_object_t fixed_slot_locations     _attribute_aligned_object_;
   gcv_object_t instantiated             _attribute_aligned_object_;
   gcv_object_t finalized_direct_subclasses _attribute_aligned_object_; /* weak-list or weak-hash-table of all finalized direct subclasses */

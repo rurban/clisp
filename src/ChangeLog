@@ -1,3 +1,15 @@
+2004-05-31  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (Class): Move the direct_accessors field.
+	* clos-class1.lisp (slotted-class): Add direct-accessors slot.
+	(standard-class): Remove direct-accessors slot.
+	(class-direct-accessors): Now belongs to slotted-class.
+	(shared-initialize-<slotted-class>): Initialize direct-accessors slot.
+	* clos-class3.lisp (shared-initialize-<standard-class>): Don't
+	initialize direct-accessors slot here.
+	* clos-class6.lisp (class-direct-accessors): Now belongs to
+	slotted-class.
+
 2004-07-19  Sam Steingold  <sds@gnu.org>
 
 	* spvw_language.d (init_language): save the whales, free the mallocs!
