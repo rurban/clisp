@@ -3486,12 +3486,15 @@ function <a href="CLHSROOT/Body/fun_directory.html">
 <code>directory</code></a> for this purpose.
 
 <p><a href="CLHSROOT/Body/fun_file-author.html">
-<code>file-author</code></a> always returns <code>nil</code>, while many
-other CL implementations return the user name of the file owner.  The
-rationale for the CLISP behavior is that file owner is not the same as
-file author, in particular it is not preserved by copying (while,
-legally speaking, the authorship <em>is</em> preserved), and it can be
-changed by the UNIX chown(2) system call.
+<code>file-author</code></a> always returns <code>nil</code>, because the
+operating systems CLISP is ported to don't store a file's author in the
+file system. Some operating systems, such as Unix, have the notion of
+a file's owner, and some other CL implementations return the user name
+of the file owner. CLISP does not do this, because <em>owner</em> and
+<em>author</em> are not the same; in particular, authorship is preserved
+by copying, while ownership is not.
+
+<h4>probe-directory</h4>
 
 <p><code>(<strong>lisp:probe-directory</strong>
 <var>pathname</var>)</code> tests whether <var>pathname</var> exists and
