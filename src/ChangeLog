@@ -1,3 +1,7 @@
+2000-03-03  Sam Steingold  <sds@gnu.org>
+
+	* clhs.lsp (browse-url): expanded error message.
+
 2000-03-02  Sam Steingold  <sds@gnu.org>
 
 	* describe.lsp (list-length-dotted): new function.

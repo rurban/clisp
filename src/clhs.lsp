@@ -39,14 +39,16 @@ The keyword argument OUT specifies the output for log messages."
                    internal-time-units-per-second))))))
 
 (defun browse-url (url &key (browser :netscape) (out *standard-output*))
-  "Run the browser (a keyword in `*browsers*' or a list on the URL."
-  (let* ((command (etypecase browser
-                    (list browser)
-                    (symbol (or (cdr (assoc browser *browsers* :test #'eq))
-                                (error "unknown browser: `~s'" browser)))))
+  "Run the browser (a keyword in `*browsers*' or a list) on the URL."
+  (let* ((command
+          (etypecase browser
+            (list browser)
+            (symbol (or (cdr (assoc browser *browsers* :test #'eq))
+                        (error "unknown browser: `~s' (must be a key in `~s')"
+                               browser '*browsers*)))))
          (args (mapcar (lambda (arg) (format nil arg url)) (cdr command))))
     (when out
-      (format out "~&;; running ~s on ~s..." (car command) args)
+      (format out "~&;; running [~s~{ ~s~}]..." (car command) args)
       (force-output (if (eq out t) *standard-output* out)))
     (run-program (car command) :arguments args)
     (when out
