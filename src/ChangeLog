@@ -1,3 +1,12 @@
+2004-05-25  Bruno Haible  <bruno@clisp.org>
+
+	* clos-class5.lisp: Include contents of clos-class3.lisp.
+	* clos-class3.lisp: Renamed from clos-class2.lisp. Old contents moved
+	to clos-class5.lisp.
+	* clos-class2.lisp: Renamed from clos-class1.lisp. Old contents moved
+	to clos-class3.lisp.
+	* clos.lisp: Update.
+
 2004-06-21  Sam Steingold  <sds@gnu.org>
 
 	* clisp.spec (debug_package): set to %{nil} to prevent CLISP

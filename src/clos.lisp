@@ -14,10 +14,10 @@
 ;; <...> = (class ...), mostly = (find-class '...)
 ;; em = effective method
 
-(load "clos-class1")
 ; Now DEFCLASS works (except for accessor methods).
-(load "clos-slots1")
 (load "clos-class2")
+(load "clos-slots1")
+(load "clos-class3")
 (load "clos-method1")
 (load "clos-methcomb1")
 (load "clos-genfun1")
@@ -27,7 +27,6 @@
 (load "clos-genfun3")
 (load "clos-genfun4")
 ; Now DEFGENERIC, DEFMETHOD work. DEFCLASS works fully.
-(load "clos-class3")
 (load "clos-genfun5")
 (load "clos-method3")
 (load "clos-slots2")
