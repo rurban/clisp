@@ -6026,8 +6026,8 @@ local object OSnamestring (object dir_namestring) {
 # > object pathname: Pathname (für Fehlermeldungszwecke)
 # < ergebnis: aktuelles Directory (als Pathname)
 # can trigger GC
-# Working Directory (von DOS) ist das aktuelle Directory:
 local object default_directory_of (uintB drive, object pathname) {
+# Working Directory (von DOS) ist das aktuelle Directory:
 #if defined(WIN32_NATIVE)
   var char currpath[4];
   var DWORD path_buflen = _MAX_PATH;
