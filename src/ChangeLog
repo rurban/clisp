@@ -1,3 +1,8 @@
+2004-06-06  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (TRANSLATE-LOGICAL-PATHNAME): accept :ABSOLUTE
+	* subr.d, subrkw.d (translate_logical_pathname): updated
+
 2004-06-06  Arseny Slobodjuk  <ampy@ich.dvo.ru>
 
 	* lispbibl.d (offsetofa): Define without braces for MSVC
