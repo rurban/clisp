@@ -2276,12 +2276,12 @@ metaobject.  Portable programs must not call &change-class; to change
 the class of any slot definition metaobject or to turn a
 non-slot-definition object into a slot definition metaobject.</para>
 
-<para>Since metaobject classes may not be redefined, no behavior is
-specified for the result of calls to
-&update-instance-for-redefined-class; on slot definition metaobjects.
-Since the class of a slot definition metaobject cannot be changed, no
-behavior is specified for the result of calls to
-&update-instance-for-different-class; on slot definition metaobjects.</para>
+<para>Since metaobject classes may not be redefined,
+ no behavior is specified for the result of calls to
+ &update-instance-for-redefined-class; on slot definition metaobjects.
+ Since the class of a slot definition metaobject cannot be changed,
+ no behavior is specified for the result of calls to
+ &update-instance-for-different-class; on slot definition metaobjects.</para>
 
 <para>During initialization, each initialization argument is checked for
 errors and then associated with the slot definition metaobject.  The
@@ -2614,13 +2614,12 @@ Portable programs must not call &change-class; to change the class of
 any generic function metaobject or to turn a non-generic-function object
 into a generic function metaobject.</para>
 
-<para>Since metaobject classes may not be redefined, no behavior is
-specified for the result of calls to
-&update-instance-for-redefined-class; on generic function metaobjects.
-Since the class of a generic function metaobject may not be changed, no
-behavior is specified for the results of calls to
-&update-instance-for-different-class; on generic function metaobjects.
-</para>
+<para>Since metaobject classes may not be redefined,
+ no behavior is specified for the result of calls to
+ &update-instance-for-redefined-class; on generic function metaobjects.
+ Since the class of a generic function metaobject may not be changed,
+ no behavior is specified for the results of calls to
+ &update-instance-for-different-class; on generic function metaobjects.</para>
 
 <para>During initialization or reinitialization, each initialization
 argument is checked for errors and then associated with the generic
@@ -3680,9 +3679,9 @@ example is comparable to the method definition shown
  <title>Initialization of Method Metaobjects</title>
 
 <para>A method metaobject can be created by calling &make-instance;.
-The initialization arguments establish the definition of the method.  A
-method metaobject cannot be redefined; calling &reinitialize-instance;
-&sig-err;.</para>
+The initialization arguments establish the definition of the method.
+A method metaobject cannot be redefined;
+calling &reinitialize-instance; &sig-err;.</para>
 
 <para>Initialization of a method metaobject must be done by calling
 &make-instance; and allowing it to call &initialize-instance;.  Portable
@@ -3692,12 +3691,12 @@ directly to initialize a method metaobject.  Portable programs must not
 call &change-class; to change the class of any method metaobject or to
 turn a non-method object into a method metaobject.</para>
 
-<para>Since metaobject classes may not be redefined, no behavior is
-specified for the result of calls to
-&update-instance-for-redefined-class; on method metaobjects.  Since the
-class of a method metaobject cannot be changed, no behavior is specified
-for the result of calls to &update-instance-for-different-class; on
-method metaobjects.</para>
+<para>Since metaobject classes may not be redefined,
+ no behavior is specified for the result of calls to
+ &update-instance-for-redefined-class; on method metaobjects.
+ Since the class of a method metaobject cannot be changed,
+ no behavior is specified for the result of calls to
+ &update-instance-for-different-class; on method metaobjects.</para>
 
 <para>During initialization, each initialization argument is checked
 for errors and then associated with the method metaobject.  The value
