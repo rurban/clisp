@@ -11,8 +11,8 @@
 )
 #+ALLEGRO
 (defun my-cpl (class)
-  (finalize-inheritance (find-class class))
-  (class-precedence-list (find-class class))
+  (clos:finalize-inheritance (find-class class))
+  (clos:class-precedence-list (find-class class))
 )
 MY-CPL
 

@@ -1,3 +1,7 @@
+1998-06-04  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
+        * conditions.tst (my-cpl): Support ACL 5.0 beta.
+
 1997-06-19  Pierpaolo Bernardi  <bernardp@cli.di.unipi.it>
 	
 	* testsuite: (characters.tst, macro8.tst): Added two simple tests
