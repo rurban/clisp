@@ -1,5 +1,14 @@
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
+	Make it possible to macroexpand a TRACE form referring to functions
+	that are not yet defined.
+	* trace.lisp (trace): Move the check-traceable to execution time.
+	Remove the check-traceable call.
+	(trace1): Perform the check-traceable call here.
+	Found by Paul Dietz's ansi-tests test suite.
+
+2005-01-23  Bruno Haible  <bruno@clisp.org>
+
 	New condition type ARGUMENT-LIST-DOTTED.
 	* lispbibl.d (argument_list_dotted): New enum value.
 	* error.d (end_error): For type argument-list-dotted, expect the
