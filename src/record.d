@@ -91,7 +91,7 @@ nonreturning_function(local, fehler_record_length, (void)) {
   /* STACK_0 = length, TYPE-ERROR slot DATUM */
   pushSTACK(O(type_posint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(O(type_posint16)); /* type */
-  pushSTACK(S(length)); pushSTACK(STACK_1); /* length */
+  pushSTACK(STACK_2); pushSTACK(S(length)); /* length */
   pushSTACK(TheSubr(subr_self)->name); /* function name */
   fehler(type_error,GETTEXT("~: ~ ~ should be of type ~"));
 }
