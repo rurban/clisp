@@ -3574,7 +3574,7 @@ functions are provided:
     will significantly speed up your i/o;</simpara></listitem>
    <listitem><simpara>for functions that <link linkend="open">open</link>
     files, &default-k; means that buffered file streams will be returned
-    for regular files and (on Unix) block-devices, and unbuffered file
+    for regular files and (on &unix;) block-devices, and unbuffered file
     streams for special files.</simpara></listitem>
   </itemizedlist>
   Note that some files, notably those on the <filename>/proc</filename>
