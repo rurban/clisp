@@ -290,79 +290,79 @@
   (flet ((typecase-errorstring (keyform keyclauselist)
            (let ((typelist (mapcar #'first keyclauselist)))
              `(TYPECASE-ERROR-STRING ',keyform ',typelist)
-             ) )
+         ) )
          (typecase-expected-type (keyclauselist)
            `(OR ,@(mapcar #'first keyclauselist))
-           )
+         )
          (case-errorstring (keyform keyclauselist)
            (let ((caselist
-                  (mapcap #'(lambda (keyclause)
-                              (setq keyclause (car keyclause))
-                              (if (listp keyclause) keyclause (list keyclause))
-                              )
-                          keyclauselist
-                          )) )
+                   (mapcap #'(lambda (keyclause)
+                               (setq keyclause (car keyclause))
+                               (if (listp keyclause) keyclause (list keyclause))
+                             )
+                           keyclauselist
+                )) )
              `(CASE-ERROR-STRING ',keyform ',caselist)
-             ) )
+         ) )
          (case-expected-type (keyclauselist)
            `(MEMBER ,@(mapcap #'(lambda (keyclause)
                                   (setq keyclause (car keyclause))
                                   (if (listp keyclause) keyclause (list keyclause))
-                                  )
+                                )
                               keyclauselist
-                              )         )
-           )
+            )         )
+         )
          (simply-error (casename form clauselist errorstring expected-type)
            (let ((var (gensym)))
              `(LET ((,var ,form))
-               (,casename ,var
-                ,@(parenthesize-keys clauselist)
-                (OTHERWISE
-                 (ERROR-OF-TYPE 'TYPE-ERROR
-                                :DATUM ,var :EXPECTED-TYPE ',expected-type
-                                (TYPE-ERROR-STRING)
-                                ,errorstring ,var
-                                ) ) ) )
-             ) )
+                (,casename ,var
+                  ,@(parenthesize-keys clauselist)
+                  (OTHERWISE
+                    (ERROR-OF-TYPE 'TYPE-ERROR
+                                   :DATUM ,var :EXPECTED-TYPE ',expected-type
+                                   (TYPE-ERROR-STRING)
+                                   ,errorstring ,var
+              ) ) ) )
+         ) )
          (retry-loop (casename place clauselist errorstring)
            (let ((g (gensym))
                  (h (gensym)))
              `(BLOCK ,g
-               (TAGBODY
+                (TAGBODY
                   ,h
                   (RETURN-FROM ,g
                     (,casename ,place
-                               ,@(parenthesize-keys clauselist)
-                               (OTHERWISE
-                                (CERROR (REPORT-ONE-NEW-VALUE-STRING)
-                                        (TYPE-ERROR-STRING)
-                                        ,errorstring
-                                        ,place
-                                        )
-                                (FORMAT *QUERY-IO* (PROMPT-FOR-NEW-VALUE-STRING) ',place)
-                                (SETF ,place (READ *QUERY-IO*))
-                                (GO ,h)
-                                ) ) ) ) )
-             )) )
+                      ,@(parenthesize-keys clauselist)
+                      (OTHERWISE
+                        (CERROR (REPORT-ONE-NEW-VALUE-STRING)
+                                (TYPE-ERROR-STRING)
+                                ,errorstring
+                                ,place
+                        )
+                        (FORMAT *QUERY-IO* (PROMPT-FOR-NEW-VALUE-STRING) ',place)
+                        (SETF ,place (READ *QUERY-IO*))
+                        (GO ,h)
+              ) ) ) ) )
+        )) )
     (defmacro etypecase (keyform &rest keyclauselist)
       (simply-error 'TYPECASE keyform keyclauselist
                     (typecase-errorstring keyform keyclauselist)
                     (typecase-expected-type keyclauselist)
-                    ) )
+    ) )
     (defmacro ctypecase (keyplace &rest keyclauselist)
       (retry-loop 'TYPECASE keyplace keyclauselist
                   (typecase-errorstring keyplace keyclauselist)
-                  ) )
+    ) )
     (defmacro ecase (keyform &rest keyclauselist)
       (simply-error 'CASE keyform keyclauselist
                     (case-errorstring keyform keyclauselist)
                     (case-expected-type keyclauselist)
-                    ) )
+    ) )
     (defmacro ccase (keyform &rest keyclauselist)
       (retry-loop 'CASE keyform keyclauselist
                   (case-errorstring keyform keyclauselist)
-                  ) )
     ) )
+) )
 
 ;-------------------------------------------------------------------------------
 (defmacro deftype (name lambdalist &body body &environment env)
