@@ -3397,6 +3397,11 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    <simpara><replaceable>socket-stream-or-list</replaceable> is an open
    &socket-stream; (one symbol is returned) or a list of streams (a list
    of symbols, one for each stream, is returned).</simpara>
+   <simpara>The optional arguments specify the timeout. &nil; means wait
+   forever, 0 means poll.  Note that this function never waits for input
+   or output to arrive, only for information on input or output
+   presense (so that &read-char; or &write-char; will not block) to
+   become available.</simpara>
    <simpara>For each &socket-stream; this function returns</simpara>
    <variablelist><title>Return values of
       <function>lisp:socket-status</function></title>
