@@ -9,7 +9,8 @@ others) and needs only 2 MB of RAM.
 It is Free Software and may be distributed under the terms of GNU GPL,
 while it is possible to distribute commercial applications compiled
 with GNU CLISP.
-The user interface comes in German, English, French, Spanish and Dutch.
+The user interface comes in German, English, French, Spanish, Dutch
+and Russian.
 GNU CLISP includes an interpreter, a compiler, a debugger, a large
 subset of CLOS, a foreign language interface and a socket interface.
 An X11 interface is available through CLX and Garnet.

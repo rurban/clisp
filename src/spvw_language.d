@@ -40,6 +40,7 @@ local bool init_language_from (const char* langname);
   #define language_francais  2
   #define language_spanish   3
   #define language_dutch     4
+  #define language_russian   5
 #endif
 
 local object current_language_o (uintL lang) {
@@ -50,6 +51,7 @@ local object current_language_o (uintL lang) {
     case language_francais: return S(french);
     case language_spanish:  return S(spanish);
     case language_dutch:    return S(dutch);
+    case language_russian:  return S(russian);
    #endif
     default: NOTREACHED;
   }
@@ -79,6 +81,16 @@ local bool init_language_from (const char* langname) {
      #endif
       || asciz_equal(langname,"SPANISH") || asciz_equal(langname,"spanish")) {
     language = language_spanish; return true;
+  }
+  if (asciz_equal(langname,"russian") || asciz_equal(langname,"RUSSIAN")
+     #ifndef ASCII_CHS
+      || asciz_equal(langname,"\320\240\320\243\320\241\320\241\320\232\320\230\320\231")
+      || asciz_equal(langname,"\321\200\321\203\321\201\321\201\320\272\320\270\320\271")
+      || asciz_equal(langname,"\240\243\241\241\232\230\231")
+      || asciz_equal(langname,"\200\203\201\201\272\270\271")
+     #endif
+      ) {
+    language = language_russian; return true;
   }
   if (asciz_equal(langname,"NEDERLANDS") || asciz_equal(langname,"nederlands")
       || asciz_equal(langname,"DUTCH") || asciz_equal(langname,"dutch")) {
@@ -158,6 +170,7 @@ global void init_language (const char* argv_language,
       language == language_francais ? "fr_FR" :
       language == language_spanish ? "es_ES" :
       language == language_dutch ? "nl_NL" :
+      language == language_russian ? "ru_RU" :
       "";
     if (getenv("LANGUAGE"))
       clisp_setenv("LANGUAGE","");
