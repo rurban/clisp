@@ -5258,7 +5258,7 @@ local uintL rd_ch_array_unbuffered (const gcv_object_t* stream_,
       skipSTACK(1);
     }
     #else
-    count = UnbufferedStreamLow_read_array(stream)(stream,tmpbuf,remaining,false) - &tmpbuf[0];
+    count = (chart*)UnbufferedStreamLow_read_array(stream)(stream,(uintB*)tmpbuf,remaining,false) - &tmpbuf[0];
     #endif
     if (count == 0)
       break;
@@ -5467,7 +5467,7 @@ local void wr_ch_array_unbuffered_unix (const gcv_object_t* stream_,
   } until (charptr == endptr);
   #undef tmpbufsize
   #else
-  var const chart* endptr = UnbufferedStreamLow_write_array(stream)(stream,charptr,len);
+  var const chart* endptr = (const chart*)UnbufferedStreamLow_write_array(stream)(stream,(const uintB*)charptr,len);
   #endif
   wr_ss_lpos(stream,endptr,len); # update Line-Position
 }
@@ -5527,7 +5527,7 @@ local void wr_ch_array_unbuffered_mac (const gcv_object_t* stream_,
       ASSERT(cptr == tmpptr);
       UnbufferedStreamLow_write_array(stream)(stream,&tmptmpbuf[0],bptr-&tmptmpbuf[0]);
       #else
-      UnbufferedStreamLow_write_array(stream)(stream,tmpbuf,n);
+      UnbufferedStreamLow_write_array(stream)(stream,(const uintB*)tmpbuf,n);
       #endif
     }
     remaining -= n;
@@ -5559,7 +5559,7 @@ local void wr_ch_unbuffered_dos (const gcv_object_t* stream_, object ch) {
   UnbufferedStreamLow_write_array(stream)(stream,&buf[0],bptr-&buf[0]);
   #else
   if (chareq(c,ascii(NL))) {
-    UnbufferedStreamLow_write_array(stream)(stream,crlf,2);
+    UnbufferedStreamLow_write_array(stream)(stream,(const uintB*)crlf,2);
   } else {
     UnbufferedStreamLow_write(stream)(stream,as_cint(c));
   }
@@ -5603,7 +5603,7 @@ local void wr_ch_array_unbuffered_dos (const gcv_object_t* stream_,
       ASSERT(cptr == tmpptr);
       UnbufferedStreamLow_write_array(stream)(stream,&tmptmpbuf[0],bptr-&tmptmpbuf[0]);
       #else
-      UnbufferedStreamLow_write_array(stream)(stream,tmpbuf,tmpptr-&tmpbuf[0]);
+      UnbufferedStreamLow_write_array(stream)(stream,(const uintB*)tmpbuf,tmpptr-&tmpbuf[0]);
       #endif
     }
     remaining -= n;
@@ -6674,7 +6674,7 @@ local void wr_ch_array_buffered_unix (const gcv_object_t* stream_,
   } until (charptr == endptr);
   #undef tmpbufsize
  #else
-  write_byte_array_buffered(stream,charptr,len);
+  write_byte_array_buffered(stream,(const uintB*)charptr,len);
   # increment position
   BufferedStream_position(stream) += len;
  #endif
@@ -17030,8 +17030,8 @@ local bool test_endianness_arg (object arg) {
 
 
 # UP: give away corresponding underlying handle
-# making sure buffers were flushed. One can then use the 
-# handle outside of stream object as far as the latter 
+# making sure buffers were flushed. One can then use the
+# handle outside of stream object as far as the latter
 # is not used and not GCed.
 # stream_lend_handle(stream, inputp, handletype)
 # > stream: stream for handle to extract
@@ -17056,7 +17056,7 @@ global Handle stream_lend_handle (object stream, bool inputp, int * handletype) 
           if (ChannelStream_buffered(stream)) {# reposition index back to not yet read position
             sync_file_buffered(stream);
             return TheHandle(TheStream(stream)->strm_buffered_channel);
-          } 
+          }
           return TheHandle(TheStream(stream)->strm_ochannel);
         }
       case strmtype_twoway:
@@ -17082,7 +17082,7 @@ global Handle stream_lend_handle (object stream, bool inputp, int * handletype) 
       default:
         break;
     }
-  } 
+  }
   pushSTACK(stream);                      # TYPE-ERROR slot DATUM
   pushSTACK(O(type_open_file_stream));    # TYPE-ERROR slot EXPECTED-TYPE
   pushSTACK(stream);

@@ -794,8 +794,8 @@
                                 &key encoding null-terminated-p start end)
                                &body body)
   (declare (ignore encoding null-terminated-p start end)) ; get them via keywords
-  `((lambda (thunk string &key (encoding custom:*foreign-encoding*)
-                               (null-terminated-p t) (start 0) (end nil))
+  `((lambda (thunk string &key (null-terminated-p t) (start 0) (end nil)
+             (encoding #+UNICODE custom:*foreign-encoding* #+UNICODE nil))
       (call-with-foreign-string thunk encoding string start end
                                 (if null-terminated-p
                                     (sys::encoding-zeroes encoding) 0)))

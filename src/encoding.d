@@ -1752,6 +1752,10 @@ LISPFUN(make_encoding,seclass_read,0,0,norest,key,5,
   /* string -> symbol in CHARSET */
   if (!boundp(arg) || eq(arg,S(Kdefault))) {
     arg = O(default_file_encoding);
+   #ifndef UNICODE
+    if (nullp(arg)) /* initialization */
+      goto create_new_encoding;
+   #endif
   } else if (encodingp(arg)) {
   }
  #ifdef UNICODE
@@ -1847,15 +1851,16 @@ LISPFUN(make_encoding,seclass_read,0,0,norest,key,5,
           && (!boundp(STACK_0)
               || eq(STACK_0,TheEncoding(STACK_3)->enc_tombs_error)))) {
     VALUES1(STACK_3);
-  } else {
+  } else create_new_encoding: {
     var object encoding = allocate_encoding();
     var object old_encoding = STACK_3;
-    {
+    if (encodingp(old_encoding)) {
       var const gcv_object_t* ptr1 = &TheRecord(old_encoding)->recdata[0];
       var gcv_object_t* ptr2 = &TheRecord(encoding)->recdata[0];
-      var uintC count;
-      dotimesC(count,encoding_length, { *ptr2++ = *ptr1++; } );
-      copy_mem_b(ptr2,ptr1,encoding_xlength);
+      var uintC count = encoding_length;
+      do { *ptr2++ = *ptr1++; } while (--count);
+      if (encoding_xlength > 0)
+        copy_mem_b(ptr2,ptr1,encoding_xlength);
     }
     if (boundp(STACK_2))
       TheEncoding(encoding)->enc_eol = STACK_2;
