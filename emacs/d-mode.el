@@ -11,7 +11,8 @@
 (require 'cl)                   ; `subst'
 
 (defvar d-font-lock-extra-types
-  '(nconc (list "object" "chart" "signean" "u?int[LB0-9]*")
+  '(nconc (list "bool" "object" "chart" "[otac]int" "signean" "u?int[LB0-9]*"
+           "Values")
     c-font-lock-extra-types)
   "Extra types to be fontified as such.")
 
@@ -27,7 +28,8 @@
 
 (defvar d-extra-keywords
   (eval-when-compile
-   (regexp-opt '("var" "local" "global" "dotimes[a-zA-Z]*"))))
+   (regexp-opt '("var" "local" "global" "dotimesp?[CLW]" "true" "false"
+                 "NIL" "T" "loop" "inline" "NULL" "[a-z]*STACK"))))
 
 (defvar d-font-lock-keywords-1
   (mapcar #'d-mode-modify-font-lock c-font-lock-keywords-1))
