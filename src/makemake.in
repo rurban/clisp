@@ -1196,7 +1196,7 @@ fi
 
 # Other dependencies:
 
-FILES='lisp.a'
+FILES=''
 
 if [ "${with_unicode}" != "0" ]; then
   XCFLAGS="$XCFLAGS -DUNICODE"
@@ -1231,13 +1231,27 @@ if test -n "$with_dynamic_ffi"; then
     XCL_FFILIBS='libavcall.a libcallback.a'
   fi
   LIBS=$XCL_FFILIBS' '$LIBS
-  FILES=$FILES' '$XCL_FFILIBS
+  FILES=$XCL_FFILIBS' '$FILES
 else
   XCL_FFILIBS=''
 fi
 
 if test -n "$with_dynamic_modules"; then
   XCFLAGS="$XCFLAGS -DDYNAMIC_MODULES"
+fi
+
+USE_LIBCHARSET=''
+if [ $HOS = unix -o $HOS = win32 ] ; then
+  USE_LIBCHARSET=yes
+  if [ ${LIB_TYPE} = "unix" ] ; then
+    # use symbolic link
+    XCL_CHARSETLIB='libcharset.a'
+    FILES='libcharset.a '$FILES
+  fi
+  if [ ${LIB_TYPE} = "win32" ] ; then
+    XCL_CHARSETLIB='charset.lib'
+  fi
+  LIBS=$XCL_CHARSETLIB' '$LIBS
 fi
 
 TERMINAL='generic'
@@ -1257,7 +1271,7 @@ if [ $TOS = unix -o $TOS = os2 ] ; then
     if [ $HOS = unix ] ; then
       # use symbolic link
       XCL_READLINELIB='libreadline.a'
-      FILES=$FILES' libnoreadline.a libreadline.a'
+      FILES='libnoreadline.a libreadline.a '$FILES
     else
       XCL_READLINELIB=$READLINELIB
     fi
@@ -1282,7 +1296,7 @@ if [ -n "$USE_TERMCAP" ] ; then
   if [ $HOS = unix ] ; then
     # use symbolic link
     XCL_TERMCAPLIB='libtermcap.a'
-    FILES=$FILES' libtermcap.a'
+    FILES='libtermcap.a '$FILES
   else
     XCL_TERMCAPLIB=$TERMCAPLIB
   fi
@@ -1290,20 +1304,6 @@ if [ -n "$USE_TERMCAP" ] ; then
 fi
 if [ "${with_termcap_ncurses}" = "0" ] ; then
   XCFLAGS=$XCFLAGS' -DNO_TERMCAP_NCURSES'
-fi
-
-USE_LIBCHARSET=''
-if [ $HOS = unix -o $HOS = win32 ] ; then
-  USE_LIBCHARSET=yes
-  if [ ${LIB_TYPE} = "unix" ] ; then
-    # use symbolic link
-    XCL_CHARSETLIB='libcharset.a'
-    FILES=$FILES' libcharset.a'
-  fi
-  if [ ${LIB_TYPE} = "win32" ] ; then
-    XCL_CHARSETLIB='charset.lib'
-  fi
-  LIBS=$XCL_CHARSETLIB' '$LIBS
 fi
 
 USE_GETTEXT=''
@@ -1331,13 +1331,15 @@ if [ $HOS = unix -o $HOS = win32 ] ; then
   if [ ${LIB_TYPE} = "unix" ] ; then
     # use symbolic link
     XCL_SIGSEGVLIB='libsigsegv.a'
-    FILES=$FILES' libsigsegv.a'
+    FILES='libsigsegv.a '$FILES
   fi
   if [ ${LIB_TYPE} = "win32" ] ; then
     XCL_SIGSEGVLIB='sigsegv.lib'
   fi
   LIBS=$XCL_SIGSEGVLIB' '$LIBS
 fi
+
+FILES='lisp.a '$FILES
 
 CPARTS='        spvw spvwtabf spvwtabs spvwtabo'
 CPARTS=$CPARTS' eval control'
