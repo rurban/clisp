@@ -1,3 +1,9 @@
+2001-11-09  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (CD): append a slash when the string does not end
+	with it (compatibility with CMUCL &al); the original behavior is
+	still available as (cd (pathname string))
+
 2001-11-08  Sam Steingold  <sds@gnu.org>
 
 	* defs1.lisp (load-lpt-many): evaluate the definition for
