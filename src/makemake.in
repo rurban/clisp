@@ -1366,9 +1366,8 @@ if [ -z "$with_nounicode" ] ; then
   UNICODE_INCLUDES=$UNICODE_INCLUDES' uni_upcase uni_downcase uni_attribute uninames'
 fi
 
-NLS_INCLUDES=''
+NLS_INCLUDES=' nls_ascii'
 if [ -z "$with_nounicode" ] ; then
-  NLS_INCLUDES=$NLS_INCLUDES' nls_ascii'
   NLS_INCLUDES=$NLS_INCLUDES' nls_iso8859_1 nls_iso8859_2 nls_iso8859_3'
   NLS_INCLUDES=$NLS_INCLUDES' nls_iso8859_4 nls_iso8859_5 nls_iso8859_6'
   NLS_INCLUDES=$NLS_INCLUDES' nls_iso8859_7 nls_iso8859_8 nls_iso8859_9'
