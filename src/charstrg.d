@@ -454,9 +454,7 @@ global uintL char_width (chart ch) {
  > uint8* dest: destination
  > uintL len: number of elements to be copied, > 0 */
 global void copy_8bit_8bit (const uint8* src, uint8* dest, uintL len) {
-  dotimespL(len,len, {
-    *dest++ = *src++;
-  });
+  do { *dest++ = *src++; } while (--len);
 }
 #endif
 
@@ -467,9 +465,7 @@ global void copy_8bit_8bit (const uint8* src, uint8* dest, uintL len) {
  > uint16* dest: destination
  > uintL len: number of elements to be copied, > 0 */
 global void copy_8bit_16bit (const uint8* src, uint16* dest, uintL len) {
-  dotimespL(len,len, {
-    *dest++ = *src++;
-  });
+  do { *dest++ = *src++; } while (--len);
 }
 #endif
 
@@ -480,9 +476,7 @@ global void copy_8bit_16bit (const uint8* src, uint16* dest, uintL len) {
  > uint32* dest: destination
  > uintL len: number of elements to be copied, > 0 */
 global void copy_8bit_32bit (const uint8* src, uint32* dest, uintL len) {
-  dotimespL(len,len, {
-    *dest++ = *src++;
-  });
+  do { *dest++ = *src++; } while (--len);
 }
 #endif
 
@@ -494,9 +488,7 @@ global void copy_8bit_32bit (const uint8* src, uint32* dest, uintL len) {
  > uint8* dest: destination
  > uintL len: number of elements to be copied, > 0 */
 global void copy_16bit_8bit (const uint16* src, uint8* dest, uintL len) {
-  dotimespL(len,len, {
-    *dest++ = *src++;
-  });
+  do { *dest++ = *src++; } while (--len);
 }
 #endif
 
@@ -507,9 +499,7 @@ global void copy_16bit_8bit (const uint16* src, uint8* dest, uintL len) {
  > uint16* dest: destination
  > uintL len: number of elements to be copied, > 0 */
 global void copy_16bit_16bit (const uint16* src, uint16* dest, uintL len) {
-  dotimespL(len,len, {
-    *dest++ = *src++;
-  });
+  do { *dest++ = *src++; } while (--len);
 }
 #endif
 
@@ -520,9 +510,7 @@ global void copy_16bit_16bit (const uint16* src, uint16* dest, uintL len) {
  > uint32* dest: destination
  > uintL len: number of elements to be copied, > 0 */
 global void copy_16bit_32bit (const uint16* src, uint32* dest, uintL len) {
-  dotimespL(len,len, {
-    *dest++ = *src++;
-  });
+  do { *dest++ = *src++; } while (--len);
 }
 #endif
 
@@ -534,9 +522,7 @@ global void copy_16bit_32bit (const uint16* src, uint32* dest, uintL len) {
  > uint8* dest: destination
  > uintL len: number of elements to be copied, > 0 */
 global void copy_32bit_8bit (const uint32* src, uint8* dest, uintL len) {
-  dotimespL(len,len, {
-    *dest++ = *src++;
-  });
+  do { *dest++ = *src++; } while (--len);
 }
 #endif
 
@@ -548,9 +534,7 @@ global void copy_32bit_8bit (const uint32* src, uint8* dest, uintL len) {
  > uint16* dest: destination
  > uintL len: number of elements to be copied, > 0 */
 global void copy_32bit_16bit (const uint32* src, uint16* dest, uintL len) {
-  dotimespL(len,len, {
-    *dest++ = *src++;
-  });
+  do { *dest++ = *src++; } while (--len);
 }
 #endif
 
@@ -561,9 +545,7 @@ global void copy_32bit_16bit (const uint32* src, uint16* dest, uintL len) {
  > uint32* dest: destination
  > uintL len: number of elements to be copied, > 0 */
 global void copy_32bit_32bit (const uint32* src, uint32* dest, uintL len) {
-  dotimespL(len,len, {
-    *dest++ = *src++;
-  });
+  do { *dest++ = *src++; } while (--len);
 }
 #endif
 
@@ -723,9 +705,9 @@ global object sstring_store_array (object string, uintL offset,
         var bool fits_in_8bit = true;
         var bool fits_in_16bit = true;
         {
-          var uintL n;
+          var uintL n = len;
           var const chart* p = charptr;
-          dotimespL(n,len, {
+          do {
             if (!(as_cint(*p) < cint8_limit))
               fits_in_8bit = false;
             if (!(as_cint(*p) < cint16_limit)) {
@@ -733,16 +715,16 @@ global object sstring_store_array (object string, uintL offset,
               break;
             }
             p++;
-          });
+          } while (--n);
         }
         if (fits_in_8bit) {
           var const chart* p = charptr;
           var cint8* q = &TheS8string(inner_string)->data[offset];
-          dotimespL(len,len, {
+          do {
             *q = as_cint(*p);
             p++;
             q++;
-          });
+          } while (--len);
           break;
         }
         ASSERT(eq(string,inner_string));
@@ -751,45 +733,45 @@ global object sstring_store_array (object string, uintL offset,
           inner_string = TheSiarray(string)->data;
           var const chart* p = charptr;
           var cint16* q = &TheS16string(inner_string)->data[offset];
-          dotimespL(len,len, {
+          do {
             *q = as_cint(*p);
             p++;
             q++;
-          });
+          } while (--len);
           break;
         }
         string = reallocate_small_string(inner_string,Rectype_S32string);
         inner_string = TheSiarray(string)->data;
         var const chart* p = charptr;
         var cint32* q = &TheS32string(inner_string)->data[offset];
-        dotimespL(len,len, {
+        do {
           *q = as_cint(*p);
           p++;
           q++;
-        });
+        } while (--len);
       }
         break;
       case Rectype_S16string: { /* mutable Simple-String */
         var bool fits_in_16bit = true;
         {
-          var uintL n;
+          var uintL n = len;
           var const chart* p = charptr;
-          dotimespL(n,len, {
+          do {
             if (!(as_cint(*p) < cint16_limit)) {
               fits_in_16bit = false;
               break;
             }
             p++;
-          });
+          } while (--n);
         }
         if (fits_in_16bit) {
           var const chart* p = charptr;
           var cint16* q = &TheS16string(inner_string)->data[offset];
-          dotimespL(len,len, {
+          do {
             *q = as_cint(*p);
             p++;
             q++;
-          });
+          } while (--len);
           break;
         }
         pushSTACK(string);
@@ -802,22 +784,22 @@ global object sstring_store_array (object string, uintL offset,
       case Rectype_S32string: { /* mutable Simple-String */
         var const chart* p = charptr;
         var cint32* q = &TheS32string(inner_string)->data[offset];
-        dotimespL(len,len, {
+        do {
           *q = as_cint(*p);
           p++;
           q++;
-        });
+        } while (--len);
       }
         break;
   #else
       case Rectype_S8string: { /* mutable Simple-String */
         var const chart* p = charptr;
         var cint8* q = &TheS8string(inner_string)->data[offset];
-        dotimespL(len,len, {
+        do {
           *q = as_cint(*p);
           p++;
           q++;
-        });
+        } while (--len);
       }
         break;
   #endif
@@ -825,11 +807,11 @@ global object sstring_store_array (object string, uintL offset,
       case Array_type_sstring: { /* Simple-String */
         var const chart* p = charptr;
         var cint8* q = &TheS8string(inner_string)->data[offset];
-        dotimespL(len,len, {
+        do {
           *q = as_cint(*p);
           p++;
           q++;
-        });
+        } while (--len);
       }
         break;
  #endif
@@ -853,9 +835,8 @@ global object stringof (uintL len) {
     var gcv_object_t* topargptr = STACK STACKop len;
     var gcv_object_t* argptr = topargptr;
     var chart* ptr = &TheSstring(new_string)->data[0];
-    dotimespL(len,len, {
-      *ptr++ = char_code(NEXT(argptr));
-    });
+    do { *ptr++ = char_code(NEXT(argptr));
+    } while (--len);
     set_args_end_pointer(topargptr);
   }
   return new_string;
@@ -975,14 +956,14 @@ global object coerce_imm_ss (object obj)
             var bool fits_in_8bit = true;
             if (len > 0) {
               var const cint16* ptr = &TheS16string(string)->data[offset];
-              var uintL count;
-              dotimespL(count,len, {
+              var uintL count = len;
+              do {
                 if (!(*ptr < cint8_limit)) {
                   fits_in_8bit = false;
                   break;
                 }
                 ptr++;
-              });
+              } while (--count);
             }
             pushSTACK(string);
             var object new_string =
@@ -1010,8 +991,8 @@ global object coerce_imm_ss (object obj)
             var bool fits_in_16bit = true;
             if (len > 0) {
               var const cint32* ptr = &TheS32string(string)->data[offset];
-              var uintL count;
-              dotimespL(count,len, {
+              var uintL count = len;
+              do {
                 if (!(*ptr < cint8_limit))
                   fits_in_8bit = false;
                 if (!(*ptr < cint16_limit)) {
@@ -1019,7 +1000,7 @@ global object coerce_imm_ss (object obj)
                   break;
                 }
                 ptr++;
-              });
+              } while (--count);
             }
             if (fits_in_16bit) {
               pushSTACK(string);
@@ -1273,12 +1254,12 @@ global object char_name (chart code) {
   {
     var const uintB* codes_ptr = &charname_table_codes[0];
     var const gcv_object_t* strings_ptr = &charname_table[0];
-    var uintC count;
-    dotimesC(count,charname_table_length, {
+    var uintC count = charname_table_length;
+    while (count--) {
       if (c == *codes_ptr++) /* compare code with charname_table_codes[i] */
         return *strings_ptr; /* return string charname_table[i] from the table */
       strings_ptr++;
-    });
+    }
   }
   /* not found */
  #ifdef UNICODE
@@ -1304,11 +1285,11 @@ global object char_name (chart code) {
                 var uintL count = i2-i1;
                 if (count > 0) {
                   var chart* ptr = &TheSstring(name)->data[0];
-                  dotimespL(count,count, {
+                  do {
                     if (chareq(*ptr,ascii(' ')))
                       *ptr = ascii('_');
                     ptr++;
-                  });
+                  } while (--count);
                 }
                 return name;
               }
@@ -1380,12 +1361,12 @@ global object name_char (object string) {
   {
     var const uintB* codes_ptr = &charname_table_codes[0];
     var const gcv_object_t* strings_ptr = &charname_table[0];
-    var uintC count;
-    dotimesC(count,charname_table_length, {
+    var uintC count = charname_table_length;
+    while (count--) {
       if (string_equal(string,*strings_ptr++)) /* compare string with charname_table[i] */
         return code_char(as_chart(*codes_ptr)); /* return Code charname_table_codes[i] from the table */
       codes_ptr++;
-    });
+    }
   }
   /* no character with the name name found */
  #ifdef UNICODE
@@ -1530,9 +1511,11 @@ LISPFUNNF(both_case_p,1)
  test_radix_arg()
  > STACK_0: argument, default is 10
  < result: radix, an integer >=2, <=36
- increases STACK by 1 */
+ removes one element from STACK
+ can trigger GC */
 local uintWL test_radix_arg (void) {
   var object arg = popSTACK(); /* argument */
+ restart_radix_check:
   if (!boundp(arg))
     return 10;
   if (posfixnump(arg)) {
@@ -1540,11 +1523,13 @@ local uintWL test_radix_arg (void) {
     if ((2 <= radix) && (radix <= 36))
       return radix;
   }
-  /* error */
+  pushSTACK(NIL); /* no PLACE */
   pushSTACK(arg); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_radix)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: the radix must be an integer between 2 and 36, not ~"));
+  check_value(type_error,GETTEXT("~: the radix must be an integer between 2 and 36, not ~"));
+  arg = value1;
+  goto restart_radix_check;
 }
 
 LISPFUN(digit_char_p,seclass_foldable,1,1,norest,nokey,0,NIL)
@@ -1650,29 +1635,32 @@ LISPFUNNF(alphanumericp,1)
 /* UP: tests, if all argcount+1 arguments below args_pointer
  are characters. if not, Error.
  > argcount: number of arguments - 1
- > args_pointer: pointer to the arguments */
-local void test_char_args (uintC argcount, const gcv_object_t* args_pointer) {
-  dotimespC(argcount,argcount+1, {
-    var object arg = NEXT(args_pointer); /* next argument */
+ > args_pointer: pointer to the arguments
+ can trigger GC */
+local void test_char_args (uintC argcount, gcv_object_t* args_pointer) {
+  do {
+    var gcv_object_t* argptr = &NEXT(args_pointer);
+    var object arg = *argptr; /* next argument */
     if (!charp(arg)) /* must be a character */
-      fehler_char(arg);
-  });
+      *argptr = check_char(arg);
+  } while (argcount--); /* sic: not --argcount! */
 }
 
 /* UP: tests, if all argcount+1 arguments below args_pointer
  are characters. If not, error. Discards bits and font
  and transforms them into uppercase letters.
  > argcount: number of arguments - 1
- > args_pointer: pointer to the arguments */
+ > args_pointer: pointer to the arguments
+ can trigger GC */
 local void test_char_args_upcase (uintC argcount, gcv_object_t* args_pointer) {
-  dotimespC(argcount,argcount+1, {
+  do {
     var gcv_object_t* argptr = &NEXT(args_pointer);
     var object arg = *argptr; /* next argument */
     if (!charp(arg)) /* must be a character */
-      fehler_char(arg);
+      arg = check_char(arg);
     /* replace by uppercase letters: */
     *argptr = code_char(up_case(char_code(arg)));
-  });
+  } while (argcount--); /* sic: not --argcount! */
 }
 
 /* UP: (CHAR= char {char}) for checked arguments */
@@ -1682,17 +1670,13 @@ local Values char_gleich (uintC argcount, gcv_object_t* args_pointer) {
  x:=Arg[n].
  for i:=n-1 to 0 step -1 do ( if Arg[i]/=x then return(NIL) ), return(T). */
   var object x = popSTACK(); /* take last argument */
-  dotimesC(argcount,argcount, {
-    if (!eq(popSTACK(),x)) {
+  while (argcount--) {
+    if (!eq(popSTACK(),x))
       goto no;
-    }
-  });
- yes:
-  VALUES1(T); goto ok;
- no:
-  VALUES1(NIL); goto ok;
- ok:
-  set_args_end_pointer(args_pointer);
+  }
+ yes: VALUES1(T); goto ok;
+ no: VALUES1(NIL); goto ok;
+ ok: set_args_end_pointer(args_pointer);
 }
 
 /* UP: (CHAR/= char {char}) for checked arguments */
@@ -1709,11 +1693,11 @@ local Values char_ungleich (uintC argcount, gcv_object_t* args_pointer) {
     var object x = BEFORE(arg_j_ptr); /* second last argument */
     /* compare with all previous arguments: */
     var gcv_object_t* arg_i_ptr = arg_j_ptr;
-    var uintC i;
-    dotimespC(i,j, {
+    var uintC i = j;
+    do {
       if (eq(BEFORE(arg_i_ptr),x))
         goto no;
-    });
+    } while (--i);
     j--;
   }
  yes: VALUES1(T); goto ok;
@@ -1728,11 +1712,11 @@ local Values char_kleiner (uintC argcount, gcv_object_t* args_pointer) {
      for i:=n to 1 step -1 do
        x:=Arg[i], if x char<= Arg[i-1] then return(NIL),
      return(T). */
-  dotimesC(argcount,argcount, {
+  while (argcount--) {
     var object x = popSTACK();
     if (as_oint(x) <= as_oint(STACK_0))
       goto no;
-  });
+  }
  yes: VALUES1(T); goto ok;
  no: VALUES1(NIL); goto ok;
  ok: set_args_end_pointer(args_pointer);
@@ -1746,11 +1730,11 @@ local Values char_groesser (uintC argcount, gcv_object_t* args_pointer)
     x:=Arg[i], if x char>= Arg[i-1] then return(NIL),
  return(T). */
 {
-  dotimesC(argcount,argcount, {
+  while (argcount--) {
     var object x = popSTACK();
     if (as_oint(x) >= as_oint(STACK_0))
       goto no;
-  });
+  }
  yes: VALUES1(T); goto ok;
  no: VALUES1(NIL); goto ok;
  ok: set_args_end_pointer(args_pointer);
@@ -1764,11 +1748,11 @@ local Values char_klgleich (uintC argcount, gcv_object_t* args_pointer)
     x:=Arg[i], if x char< Arg[i-1] then return(NIL),
  return(T). */
 {
-  dotimesC(argcount,argcount, {
+  while (argcount--) {
     var object x = popSTACK();
     if (as_oint(x) < as_oint(STACK_0))
       goto no;
-  });
+  }
  yes: VALUES1(T); goto ok;
  no: VALUES1(NIL); goto ok;
  ok: set_args_end_pointer(args_pointer);
@@ -1782,11 +1766,11 @@ local Values char_grgleich (uintC argcount, gcv_object_t* args_pointer)
     x:=Arg[i], if x char> Arg[i-1] then return(NIL),
  return(T). */
 {
-  dotimesC(argcount,argcount, {
+  while (argcount) {
     var object x = popSTACK();
     if (as_oint(x) > as_oint(STACK_0))
       goto no;
-  });
+  }
  yes: VALUES1(T); goto ok;
  no: VALUES1(NIL); goto ok;
  ok: set_args_end_pointer(args_pointer);
@@ -2276,6 +2260,7 @@ local object test_string_limits_rw (stringarg* arg) {
  < ergebnis: argument as string
  can trigger GC */
 global object test_stringsymchar_arg (object obj) {
+ restart_stringsymchar:
   if (stringp(obj)) /* string: return unchanged */
     return obj;
   if (symbolp(obj)) /* symbol: user print name */
@@ -2285,10 +2270,13 @@ global object test_stringsymchar_arg (object obj) {
     TheSstring(new_string)->data[0] = char_code(obj);
     return new_string;
   }
+  pushSTACK(NIL); /* no PLACE */
   pushSTACK(obj); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_stringsymchar)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: argument ~ should be a string, a symbol or a character"));
+  check_value(type_error,GETTEXT("~: argument ~ should be a string, a symbol or a character"));
+  obj = value1;
+  goto restart_stringsymchar;
 }
 
 /* UP: checks the limits for 1 string/symbol-argument and copies it
@@ -2408,15 +2396,16 @@ local void test_2_stringsym_limits (stringarg* arg1, stringarg* arg2) {
  > string2,offset2: here are the addressed characters in string2
  > len: number of addressed characters in String1 and in String2, > 0
  < result: true if equal, else false. */
-global bool string_eqcomp (object string1, uintL offset1, object string2, uintL offset2, uintL len) {
+global bool string_eqcomp (object string1, uintL offset1, object string2,
+                           uintL offset2, uintL len) {
   SstringDispatch(string1,X1, {
     var const cintX1* charptr1 = &((SstringX1)TheVarobject(string1))->data[offset1];
     SstringDispatch(string2,X2, {
       var const cintX2* charptr2 = &((SstringX2)TheVarobject(string2))->data[offset2];
-      dotimespL(len,len, {
+      do {
         if (!chareq(as_chart(*charptr1++),as_chart(*charptr2++)))
           goto no;
-      });
+      } while (--len);
     });
   });
   return true;
@@ -2607,10 +2596,10 @@ global bool string_eqcomp_ci (object string1, uintL offset1, object string2,
     var const cintX1* charptr1 = &((SstringX1)TheVarobject(string1))->data[offset1];
     SstringDispatch(string2,X2, {
       var const cintX2* charptr2 = &((SstringX2)TheVarobject(string2))->data[offset2];
-      dotimespL(len,len, {
+      do {
         if (!chareq(up_case(as_chart(*charptr1++)),up_case(as_chart(*charptr2++))))
           goto no;
-      });
+      } while (--len);
     });
   });
   return true;
@@ -2826,13 +2815,13 @@ local object string_search (const stringarg* arg1, const stringarg* arg2,
     var uintL offset1 = arg1->offset + arg1->index;
     var object string2 = arg2->string;
     var uintL offset2 = arg2->offset + arg2->index;
-    var uintL count;
+    var uintL count = len2-len1+1;
     if (len1==0) goto found;
-    dotimespL(count,len2-len1+1, {
+    do {
       if ((*eqcomp)(string1,offset1,string2,offset2,len1)) /* compare */
         goto found;
       offset2++;
-    });
+    } while (--count);
     goto notfound;
    found: return fixnum(offset2 - arg2->offset);
   }
@@ -2911,26 +2900,26 @@ LISPFUN(make_string,seclass_no_se,1,0,norest,key,2,
         new_string = allocate_s8string(size);
         if (size !=0) {
           var cint8* pdata = TheS8string(new_string)->data;
-          dotimespL(size,size, { *pdata++ = c; } );
+          do { *pdata++ = c; } while (--size);
         }
       } else if (c < cint16_limit) {
         new_string = allocate_s16string(size);
         if (size !=0) {
           var cint16* pdata = TheS16string(new_string)->data;
-          dotimespL(size,size, { *pdata++ = c; } );
+          do { *pdata++ = c; } while (--size);
         }
       } else {
         new_string = allocate_s32string(size);
         if (size !=0) {
           var cint32* pdata = TheS32string(new_string)->data;
-          dotimespL(size,size, { *pdata++ = c; } );
+          do { *pdata++ = c; } while (--size);
         }
       }
      #else
       new_string = allocate_string(size);
       if (size!=0) {
         var chart* charptr = &TheSstring(new_string)->data[0];
-        dotimespL(size,size, { *charptr++ = ch; } );
+        do { *charptr++ = ch; }  while (--size);
       }
      #endif
     }
@@ -3003,10 +2992,10 @@ LISPFUN(string_width,seclass_default,1,0,norest,key,2, (kw(start),kw(end)) )
   var uintL len = arg.len;
   if (len > 0) {
     SstringDispatch(string,X, {
-      var const cintX* charptr = &((SstringX)TheVarobject(arg.string))->data[arg.offset+arg.index];
-      dotimespL(len,len, {
-        width += char_width(as_chart(*charptr)); charptr++;
-      });
+      var const cintX* charptr =
+        &((SstringX)TheVarobject(arg.string))->data[arg.offset+arg.index];
+      do { width += char_width(as_chart(*charptr)); charptr++;
+      } while (--len);
     });
   }
   /* width <= 2*arg.len. */
@@ -3044,9 +3033,8 @@ global void nstring_upcase (object dv, uintL offset, uintL len) {
       } while (len > 0);
     },{
       var cint32* charptr = &TheS32string(dv)->data[offset];
-      dotimespL(len,len, {
-        *charptr = as_cint(up_case(as_chart(*charptr))); charptr++;
-      });
+      do { *charptr = as_cint(up_case(as_chart(*charptr))); charptr++;
+      } while (--len);
     });
 }
 
@@ -3117,9 +3105,8 @@ global void nstring_downcase (object dv, uintL offset, uintL len) {
       } while (len > 0);
     },{
       var cint32* charptr = &TheS32string(dv)->data[offset];
-      dotimespL(len,len, {
-              *charptr = as_cint(down_case(as_chart(*charptr))); charptr++;
-      });
+      do { *charptr = as_cint(down_case(as_chart(*charptr))); charptr++;
+      } while (--len);
     });
 }
 
