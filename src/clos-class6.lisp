@@ -318,6 +318,22 @@
 
 ;;; Class definition customization
 
+;; MOP p. 47
+(fmakunbound 'ensure-class-using-class)
+(defgeneric ensure-class-using-class (class name
+                                      &key metaclass
+                                           direct-superclasses
+                                           direct-slots
+                                           direct-default-initargs
+                                           documentation
+                                           ; CLISP specific extension:
+                                           fixed-slot-locations
+                                      &allow-other-keys)
+  (:method ((class class) name &rest args)
+    (apply #'ensure-class-using-class-<t> class name args))
+  (:method ((class null) name &rest args)
+    (apply #'ensure-class-using-class-<t> class name args)))
+
 ;; MOP p. 102
 (fmakunbound 'validate-superclass)
 (defgeneric validate-superclass (class superclass)
