@@ -13,7 +13,7 @@ AC_PROG_CPP
 AC_HEADER_STDC
 
 dnl Search for libpari and define LIBPARI, LTLIBPARI and INCPARI.
-AC_CONFIG_AUX_DIR(../../src/autoconf)
+AC_CONFIG_AUX_DIR(../../src/build-aux)
 AC_LIB_LINKFLAGS([pari])
 
 AC_MSG_NOTICE([* PARI (Headers)])

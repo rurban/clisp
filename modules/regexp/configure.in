@@ -5,7 +5,7 @@ dnl Sam Steingold 2003-2005
 AC_PREREQ(2.57)
 AC_INIT(regexp, 1.0, clisp-list)
 AC_CONFIG_SRCDIR(regexp.lisp)
-AC_CONFIG_AUX_DIR(../../src/autoconf)
+AC_CONFIG_AUX_DIR(../../src/build-aux)
 AC_CONFIG_HEADERS(config.h)
 
 AC_MSG_NOTICE([* Regexp (Checks)])
