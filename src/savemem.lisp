@@ -1,7 +1,7 @@
 ;;;; Saving memory images
 
-(in-package "LISP")
-(export '(saveinitmem))
+(in-package "EXT")
+(export '(saveinitmem *command-index*))
 (in-package "SYSTEM")
 
 ;;---------------------------------------------------------------------------

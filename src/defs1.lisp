@@ -1,10 +1,15 @@
 ;;;; Einige Definitionen von Standard-Funktionen in LISP
 ;;;; 1.8.1989, 2.9.1989, 8.10.1989
 
-(in-package "LISP")
-(export '(doseq dohash #-(or UNIX WIN32) *default-time-zone*))
-(in-package "SYSTEM")
+(in-package "EXT")
+(export '(doseq dohash))
 
+#-(or UNIX WIN32)
+(export '(custom::*default-time-zone*) "CUSTOM")
+#-(or UNIX WIN32)
+(ext:re-export "CUSTOM" "EXT")
+
+(in-package "SYSTEM")
 
 ;;; Funktionen für Symbole (Kapitel 10)
 
@@ -766,17 +771,6 @@
       (intern (subseq str 1) *keyword-package*)
       (intern str)
 ) ) )
-
-; Liefert den Typ eines Symbols sym mit (fboundp sym).
-(defun fbound-string (sym)
-  (cond ((special-operator-p sym)
-         (ENGLISH "special operator")
-        )
-        ((functionp (symbol-function sym))
-         (ENGLISH "function")
-        )
-        (t (ENGLISH "macro"))
-) )
 
 ; *ERROR-HANDLER* should be NIL or a function which accepts the following
 ; arguments:

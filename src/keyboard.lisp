@@ -1,6 +1,6 @@
 ;; Keyboard stream
 
-(in-package "LISP")
+(in-package "EXT")
 (export '(with-keyboard *keyboard-input*))
 (in-package "SYSTEM")
 

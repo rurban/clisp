@@ -1,7 +1,8 @@
 ;;; Foreign function interface for CLISP
 ;;; Bruno Haible 19.2.1995
 
-(in-package "FFI" :use '("LISP"))
+(use-package '("COMMON-LISP" "EXT") "FFI")
+(in-package "FFI")
 
 (export '(def-c-type def-c-var
           def-c-call-out def-call-out #+AMIGA def-lib-call-out

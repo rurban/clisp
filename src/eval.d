@@ -87,8 +87,9 @@
     _(package_shadowing_symbols), _(list_all_packages), _(intern),
     _(find_symbol), _(unintern), _(export), _(unexport), _(import),
     _(shadowing_import), _(shadow), _(use_package), _(unuse_package),
-    _(make_package), _(pin_package), _(in_package), _(find_all_symbols),
+    _(make_package), _(pin_package), _(find_all_symbols),
     _(map_symbols), _(map_external_symbols), _(map_all_symbols),
+    _(pfind_package), _(reexport),
     # PATHNAME : 27 SUBRs
     _(parse_namestring), _(pathname), _(pathnamehost), _(pathnamedevice),
     _(pathnamedirectory), _(pathnamename), _(pathnametype),
@@ -3358,7 +3359,7 @@ LISPFUNN(subr_info,1)
             pushSTACK(form);
             pushSTACK(Car(form));
             fehler(source_program_error,
-                   GETTEXT("EVAL: dotted parameter list for special form ~: ~")
+                   GETTEXT("EVAL: dotted parameter list for special operator ~: ~")
                   );
           }
         #undef REQ_PAR

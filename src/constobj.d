@@ -443,7 +443,7 @@
   LISPOBJ_LS(delpack_string4,
     /* ENGLISH */ "~S: ~S is used by ~{~S~^, ~}.")
   # Default-Use-List:
-  LISPOBJ(use_default,"(\"LISP\" \"CLOS\")")
+  LISPOBJ(use_default,"(\"COMMON-LISP\")")
   # Default-Package bei ANSI-CL-Compliance:
   LISPOBJ(ansi_user_package_name,"\"COMMON-LISP-USER\"")
 # zu SYMBOL.D:

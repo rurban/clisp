@@ -463,14 +463,5 @@ LISPFUNN(set_ansi,1)
     Symbol_value(S(sequence_count_ansi)) = val;
     # (SETQ *COERCE-FIXNUM-CHAR-ANSI* val)
     Symbol_value(S(coerce_fixnum_char_ansi)) = val;
-    # *FEATURES*: PUSHNEW or DELETE
-    {
-      pushSTACK(S(Kansi_cl)); pushSTACK(Symbol_value(S(features)));
-      if (eq(val,T))      # (ADJOIN :ANSI-CL *FEATURES*)
-        funcall(L(adjoin),2);
-      else                # (DELETE :ANSI-CL *FEATURES*)
-        funcall(L(delete),2);
-      Symbol_value(S(features)) = value1;
-    }
     value1 = val; mv_count = 1;
   }

@@ -1,7 +1,7 @@
 ;;;; Ed, Edit-file, Uncompile
 
-(in-package "LISP")
-(export '(*editor* editor-name editor-tempfile edit-file uncompile))
+(in-package "EXT")
+(export '(editor-name editor-tempfile edit-file uncompile))
 (in-package "SYSTEM")
 
 ;;-----------------------------------------------------------------------------

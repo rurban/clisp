@@ -1,6 +1,7 @@
 ;;;;   INITIALISIERUNGS-FILE
 
-(in-package "LISP")
+(eval-when (compile load eval)
+  (setq *package* (sys::%find-package "COMMON-LISP")))
 
 (shadow 'system::debug (find-package "SYSTEM"))
 
@@ -9,17 +10,14 @@
 ;; Typen:
 array atom base-char base-string bignum bit bit-vector boolean character
 compiled-function complex cons double-float extended-char fixnum float
-function hash-table integer keyword list #+LOGICAL-PATHNAMES logical-pathname
+function hash-table integer keyword list list* char-code-limit
+#+LOGICAL-PATHNAMES logical-pathname
 long-float nil null number package pathname random-state ratio rational
 readtable real sequence short-float simple-array simple-base-string
 simple-bit-vector simple-string simple-vector single-float standard-char
 stream file-stream synonym-stream broadcast-stream concatenated-stream
-two-way-stream echo-stream string-stream string string-char symbol t vector
+two-way-stream echo-stream string-stream string symbol t vector
 satisfies values mod signed-byte unsigned-byte
-; Pseudo-Typen:
-simple-2bit-vector 2bit-vector simple-4bit-vector 4bit-vector
-simple-8bit-vector 8bit-vector simple-16bit-vector 16bit-vector
-simple-32bit-vector 32bit-vector special-form system-function
 ;; Konstanten:
 lambda-list-keywords lambda-parameters-limit nil t call-arguments-limit
 multiple-values-limit pi boole-clr boole-set boole-1 boole-2 boole-c1 boole-c2
@@ -39,20 +37,19 @@ least-positive-normalized-long-float least-negative-normalized-long-float
 short-float-epsilon single-float-epsilon double-float-epsilon
 long-float-epsilon short-float-negative-epsilon single-float-negative-epsilon
 double-float-negative-epsilon long-float-negative-epsilon
-char-code-limit char-font-limit char-bits-limit char-control-bit char-meta-bit
-char-super-bit char-hyper-bit array-rank-limit array-dimension-limit
+array-rank-limit array-dimension-limit
 array-total-size-limit internal-time-units-per-second
 ;; Variablen:
 *macroexpand-hook* *gensym-counter* *package* *modules* *random-state*
-*evalhook* *applyhook* + ++ +++ - * ** *** / // /// *standard-input*
++ ++ +++ - * ** *** / // /// *standard-input*
 *standard-output* *error-output* *query-io* *debug-io* *terminal-io*
 *trace-output* *read-base* *read-suppress* *read-eval* *readtable*
 *print-readably* *print-escape* *print-pretty* *print-circle* *print-base*
 *print-radix* *print-case* *print-gensym* *print-level* *print-length*
 *print-array* *print-right-margin*
 *read-default-float-format* *default-pathname-defaults*
-*load-paths* *load-verbose* *load-print* *load-echo* *load-compiling*
-*load-pathname* *load-truename* *break-on-warnings* *compile-warnings*
+*load-verbose* *load-print*
+*load-pathname* *load-truename*
 *compile-verbose* *compile-print* *compile-file-pathname*
 *compile-file-truename* *features*
 ;; Funktionen:
@@ -61,8 +58,8 @@ atom consp listp numberp integerp rationalp floatp realp complexp characterp
 stringp bit-vector-p vectorp simple-vector-p simple-string-p
 simple-bit-vector-p arrayp packagep functionp compiled-function-p eq
 eql equal equalp not symbol-value symbol-function fdefinition boundp fboundp
-special-operator-p special-form-p set makunbound fmakunbound
-get-setf-expansion get-setf-method get-setf-method-multiple-value
+special-operator-p set makunbound fmakunbound
+get-setf-expansion
 apply funcall mapcar maplist mapc mapl mapcan
 mapcon values values-list macro-function macroexpand macroexpand-1 proclaim
 get remprop symbol-plist getf get-properties symbol-name make-symbol
@@ -80,12 +77,12 @@ integer-decode-float complex realpart imagpart logior logxor logand logeqv
 lognand lognor logandc1 logandc2 logorc1 logorc2 boole lognot logtest logbitp
 ash logcount integer-length byte byte-size byte-position ldb ldb-test mask-field
 dpb deposit-field random make-random-state random-state-p standard-char-p
-graphic-char-p string-char-p alpha-char-p upper-case-p lower-case-p
+graphic-char-p alpha-char-p upper-case-p lower-case-p
 both-case-p digit-char-p alphanumericp char= char/= char< char> char<= char>=
 char-equal char-not-equal char-lessp char-greaterp char-not-greaterp
-char-not-lessp char-code char-bits char-font code-char make-char character
-char-upcase char-downcase digit-char char-int int-char char-name name-char
-char-bit set-char-bit complement constantly elt subseq copy-seq length reverse
+char-not-lessp char-code code-char character
+char-upcase char-downcase digit-char char-int char-name name-char
+complement constantly elt subseq copy-seq length reverse
 nreverse make-sequence concatenate map map-into some every notany notevery
 reduce fill replace remove remove-if remove-if-not delete delete-if
 delete-if-not remove-duplicates delete-duplicates substitute substitute-if
@@ -95,7 +92,7 @@ mismatch search sort stable-sort merge car cdr caar cadr cdar cddr caaar
 caadr cadar caddr cdaar cdadr cddar cdddr caaaar caaadr caadar caaddr cadaar
 cadadr caddar cadddr cdaaar cdaadr cdadar cdaddr cddaar cddadr cdddar cddddr
 cons tree-equal endp list-length nth first second third fourth fifth sixth
-seventh eighth ninth tenth rest nthcdr last list list* make-list append
+seventh eighth ninth tenth rest nthcdr last list make-list append
 copy-list copy-alist copy-tree revappend nconc nreconc butlast nbutlast ldiff
 rplaca rplacd subst subst-if subst-if-not nsubst nsubst-if nsubst-if-not sublis
 nsublis member member-if member-if-not tailp adjoin union nunion intersection
@@ -115,7 +112,7 @@ string-not-greaterp string-not-lessp string-not-equal make-string string-trim
 string-left-trim string-right-trim string-upcase string-downcase
 string-capitalize nstring-upcase nstring-downcase nstring-capitalize string
 copy-structure
-eval evalhook applyhook constantp make-synonym-stream make-broadcast-stream
+eval constantp make-synonym-stream make-broadcast-stream
 make-concatenated-stream make-two-way-stream make-echo-stream
 make-string-input-stream make-string-output-stream get-output-stream-string
 streamp open-stream-p input-stream-p output-stream-p stream-element-type
@@ -151,13 +148,13 @@ get-internal-run-time get-internal-real-time sleep lisp-implementation-type
 lisp-implementation-version machine-type machine-version machine-instance
 software-type software-version short-site-name long-site-name identity
 ;; Special-forms:
-eval-when quote function setq progn let let* locally compiler-let progv flet
+eval-when quote function setq progn let let* locally progv flet
 labels macrolet symbol-macrolet if block return-from tagbody go
 multiple-value-call multiple-value-prog1 catch unwind-protect throw declare
 the load-time-value
 ;; Macros:
 deftype defun defvar defparameter defconstant and or psetq setf psetf shiftf
-rotatef define-modify-macro defsetf define-setf-expander define-setf-method
+rotatef define-modify-macro defsetf define-setf-expander
 prog1 prog2 when unless cond
 case typecase  otherwise ; otherwise als Marker für die catchall-clause
 return loop do do* dolist dotimes prog prog* multiple-value-list
@@ -166,96 +163,22 @@ do-external-symbols do-all-symbols with-package-iterator incf decf
 push pushnew pop defstruct
 with-open-stream with-input-from-string with-output-to-string
 with-standard-io-syntax with-open-file define-symbol-macro
-check-type assert etypecase ctypecase ecase ccase trace untrace step time space
+check-type assert etypecase ctypecase ecase ccase trace untrace step time
 formatter
-english deutsch francais
-;; Symbol-Macros:
-*ansi*
-*default-file-encoding*
-#+UNICODE *pathname-encoding*
-#+UNICODE *terminal-encoding*
-#+UNICODE *misc-encoding*
 ;; sonstige Markierer:
 ; EVAL-WHEN-Situationen:
 eval load compile
 ; DECLARE-Specifier:
 special type ftype function inline notinline ignore ignorable optimize speed
 space safety compilation-speed debug declaration dynamic-extent compile
-constant-inline constant-notinline
-))
-
-(proclaim
-  '(constant-notinline
-    ;; These constants are platform dependent and therefore shouldn't be
-    ;; inlined in compiled bytecode files.
-    lambda-parameters-limit call-arguments-limit
-    system::*jmpbuf-size* system::*big-endian*
-    most-positive-fixnum most-negative-fixnum
-    most-positive-short-float most-negative-short-float
-    least-positive-short-float least-negative-short-float
-    most-positive-single-float most-negative-single-float
-    least-positive-single-float least-negative-single-float
-    most-positive-double-float most-negative-double-float
-    least-positive-double-float least-negative-double-float
-    short-float-epsilon short-float-negative-epsilon
-    single-float-epsilon single-float-negative-epsilon
-    double-float-epsilon double-float-negative-epsilon
-    char-code-limit
-    array-total-size-limit array-dimension-limit array-rank-limit
-    internal-time-units-per-second
-)  )
-
-(sys::%proclaim-constant 'lambda-list-keywords
-  '(&optional &rest &key &allow-other-keys &aux &body &whole &environment)
-)
-(export lambda-list-keywords)
-
-(sys::%putd 'exit #'sys::%exit)
-(sys::%putd 'quit #'sys::%exit)
-(sys::%putd 'bye #'sys::%exit)
-(export '(exit quit bye))
-
-(export 'the-environment)
-
-(proclaim '(special *features*))
-
-(in-package "SYSTEM" :nicknames '("SYS" "COMPILER") :use '("LISP"))
-(proclaim '(special compiler::*compiling*))
-(setq compiler::*compiling* nil)
-
-(in-package "CLOS" :use '("LISP"))
-;;; Exportierungen:
-(export '(
-  ;; Namen von Funktionen und Macros:
-  slot-value slot-boundp slot-makunbound slot-exists-p with-slots with-accessors
-  find-class class-of defclass defmethod call-next-method next-method-p
-  defgeneric generic-function generic-flet generic-labels
-  class-name
-  no-applicable-method no-primary-method no-next-method
-  find-method add-method remove-method
-  compute-applicable-methods method-qualifiers function-keywords
-  slot-missing slot-unbound
-  print-object describe-object
-  make-instance allocate-instance initialize-instance reinitialize-instance
-  shared-initialize
-  ;; Namen von Klassen:
-  class standard-class structure-class built-in-class
-  standard-object structure-object
-  generic-function standard-generic-function method standard-method
-  ;; andere Symbole:
-  standard ; Methoden-Kombination
-))
-
-(in-package "LISP")
-; Exportierungen von condition.lisp
-(export '(
+  ;; Exportierungen von condition.lisp
   handler-bind                  ; vorgezogen für compiler.lisp
   find-restart compute-restarts ; vorgezogen für user1.lisp
   invoke-restart-interactively  ; dito
   restart                       ; vermeide Konflikt mit user1.lisp
   continue                      ; vermeide Konflikt mit user1.lisp
   end-of-file                   ; vermeide Konflikt mit init.lisp, user2.lisp
-  ; Typen für error-of-type:
+  ;; types for error-of-type:
   condition warning serious-condition error storage-condition type-error
   program-error control-error package-error print-not-readable parse-error
   stream-error end-of-file reader-error file-error cell-error unbound-variable
@@ -264,13 +187,19 @@ constant-inline constant-notinline
   floating-point-invalid-operation
 ))
 
-(in-package "USER" :use '("LISP" "CLOS"))
+(sys::%proclaim-constant 'lambda-list-keywords
+  '(&optional &rest &key &allow-other-keys &aux &body &whole &environment)
+)
+(export lambda-list-keywords)
 
-; Optionale Files wie macros3.lisp, defs2.lisp, loop.lisp, defs3.lisp machen ihre
-; Exportierungen selber.
+(proclaim '(special *features*))
+(proclaim '(special compiler::*compiling*))
+(setq compiler::*compiling* nil)
 
-
-(in-package "SYSTEM")
+(use-package '("COMMON-LISP" "EXT") "SYSTEM")
+;; (in-package "SYSTEM")
+(common-lisp:eval-when (common-lisp:compile common-lisp:load common-lisp:eval)
+  (common-lisp:setq common-lisp:*package* (sys::%find-package "SYSTEM")))
 
 #-COMPILER ; nur beim Bootstrappen
 (progn
@@ -305,6 +234,174 @@ constant-inline constant-notinline
 
 )
 
+(sys::%putd 'in-package
+  (sys::make-macro
+    (function in-package
+      (lambda (form env)
+        (declare (ignore env))
+        (let ((package-name (cadr form)))
+          (cond ((stringp package-name))
+                ((symbolp package-name)
+                 (setq package-name (symbol-name package-name)))
+                (t (error-of-type
+                    'source-program-error
+                    (i18n::ENGLISH
+                     "~S: argument ~S should be a string or a symbol")
+                    'common-lisp:in-package package-name)))
+          (list 'EVAL-WHEN '(COMPILE LOAD EVAL)
+                (list 'SETQ 'COMMON-LISP::*PACKAGE*
+                      (list 'SYS::%FIND-PACKAGE package-name))))))))
+;; temporary definitions, until defs3.lisp
+(sys::%putd 'flet
+  (sys::make-macro
+    (function flet
+      (lambda (form env)
+        (declare (ignore env))
+        (cons 'sys::%flet (cdr form))))))
+(sys::%putd 'labels
+  (sys::make-macro
+    (function labels
+      (lambda (form env)
+        (declare (ignore env))
+        (cons 'sys::%labels (cdr form))))))
+(sys::%putd 'macrolet
+  (sys::make-macro
+    (function macrolet
+      (lambda (form env)
+        (declare (ignore env))
+        (cons 'sys::%macrolet (cdr form))))))
+
+;; this is yet another temporary definition
+(sys::%putd 'cerror
+  (function cerror
+    (lambda (&rest args)
+      (fresh-line) (princ "cerror: ") (prin1 args) (terpri))))
+
+;; the following is a temporary hack
+(sys::%putd 'format
+  (function format (lambda (&rest rest) (print rest))))
+;(setq custom:*error-handler* 'format)
+
+(use-package '("COMMON-LISP" "CUSTOM") "EXT")
+
+(in-package "EXT")
+
+(sys::%putd 'exit #'sys::%exit)
+(sys::%putd 'quit #'sys::%exit)
+(sys::%putd 'bye #'sys::%exit)
+
+(export
+ '(re-export make-encoding encoding show-stack gc exit quit bye
+   probe-directory cd make-dir delete-dir default-directory dir
+   xgcd exquo ! evalhook applyhook substring string-concat
+   string-char make-char string-width char-width
+   int-char char-bits char-font char-bit set-char-bit
+   base-char-code-limit char-font-limit char-bits-limit char-control-bit
+   char-meta-bit char-super-bit char-hyper-bit string-char-p
+   long-float-digits special-form-p
+   the-environment arglist getenv special-variable-p
+   *driver* *break-driver* *args* *keyboard-input* clhs-root shell
+   ;; declarations
+   constant-inline constant-notinline
+   ;; pseudo-types:
+   simple-2bit-vector 2bit-vector simple-4bit-vector 4bit-vector
+   simple-8bit-vector 8bit-vector simple-16bit-vector 16bit-vector
+   simple-32bit-vector 32bit-vector special-form system-function
+   function-macro foreign-pointer symbol-macro symbol-macro-expand designator
+   address special-operator finalize finalizer
+   weak-pointer make-weak-pointer weak-pointer-p weak-pointer-value
+   read-integer read-float write-integer write-float
+   read-byte-lookahead read-byte-will-hang-p read-byte-no-hang
+   read-char-will-hang-p
+   read-char-sequence write-char-sequence
+   read-byte-sequence write-byte-sequence
+   convert-string-from-bytes convert-string-to-bytes
+   #+(or UNIX OS/2 WIN32) make-pipe-output-stream
+   #+(or UNIX OS/2 WIN32) make-pipe-input-stream
+   #+(or UNIX OS/2 WIN32) make-pipe-io-stream
+   make-buffered-input-stream make-buffered-output-stream
+   define-setf-method get-setf-method get-setf-method-multiple-value
+   compiler-let load-time-eval)
+ "EXT")
+
+(common-lisp:in-package "CUSTOM")
+
+(common-lisp:export
+ '(*load-paths* *editor* *clhs-root-default*
+   *load-echo* *applyhook* *evalhook* *load-compiling* *compile-warnings*
+   *ansi* *default-file-encoding* ; places.lisp
+   #+UNICODE *misc-encoding*
+   #+UNICODE *terminal-encoding*
+   #+UNICODE *pathname-encoding*
+   *source-file-types* *compiled-file-types*)
+ "CUSTOM")
+(common-lisp:in-package "SYSTEM")
+
+(ext:re-export "CUSTOM" "EXT")
+
+(in-package "COMMON-LISP")
+(proclaim
+  '(constant-notinline
+    ;; These constants are platform dependent and therefore shouldn't be
+    ;; inlined in compiled bytecode files.
+    lambda-parameters-limit call-arguments-limit
+    system::*jmpbuf-size* system::*big-endian*
+    most-positive-fixnum most-negative-fixnum
+    most-positive-short-float most-negative-short-float
+    least-positive-short-float least-negative-short-float
+    most-positive-single-float most-negative-single-float
+    least-positive-single-float least-negative-single-float
+    most-positive-double-float most-negative-double-float
+    least-positive-double-float least-negative-double-float
+    short-float-epsilon short-float-negative-epsilon
+    single-float-epsilon single-float-negative-epsilon
+    double-float-epsilon double-float-negative-epsilon
+    char-code-limit
+    array-total-size-limit array-dimension-limit array-rank-limit
+    internal-time-units-per-second
+)  )
+
+(use-package '("COMMON-LISP") "CLOS")
+(in-package "CLOS")
+
+;;; Exportierungen:
+(export
+ '(;; Namen von Funktionen und Macros:
+   slot-value slot-boundp slot-makunbound slot-exists-p with-slots
+   with-accessors
+   find-class class-of defclass defmethod call-next-method next-method-p
+   defgeneric generic-function
+   class-name no-applicable-method no-next-method
+   find-method add-method remove-method
+   compute-applicable-methods method-qualifiers function-keywords
+   slot-missing slot-unbound
+   print-object describe-object
+   make-instance allocate-instance initialize-instance reinitialize-instance
+   shared-initialize
+   ;; Namen von Klassen:
+   class standard-class structure-class built-in-class
+   standard-object structure-object
+   generic-function standard-generic-function method standard-method
+   ;; andere Symbole:
+   standard)) ; Methoden-Kombination
+
+(use-package '("CLOS") "COMMON-LISP")
+(ext:re-export "CLOS" "COMMON-LISP")
+(let ((clos-extra '(generic-flet generic-labels no-primary-method)))
+  ;; not in ANSI - export separately, after `re-export' above
+  (export clos-extra "CLOS")
+  ;; so that they are available in CL-USER even though it does not use CLOS
+  (import clos-extra "EXT")
+  (export clos-extra "EXT"))
+
+(in-package "SYSTEM")
+
+(use-package '("COMMON-LISP" "EXT") "CL-USER")
+
+(export '(i18n::english i18n::deutsch i18n::francais) "I18N")
+(use-package '("I18N") "EXT")
+(ext:re-export "I18N" "EXT")
+
 ;; Handling for internationalized strings. New translations are not defined
 ;; through `deflocalized'; instead, they are produced using GNU gettext and
 ;; retrieved using SYS::LANGUAGE, which calls the C function gettext().
@@ -327,29 +424,30 @@ constant-inline constant-notinline
   (function sys::exported-lisp-symbol-p
     (lambda (symbol)
       (let ((string (symbol-name symbol)))
-        (or (let ((p (find-package "LISP")))
-              (and p
-                (multiple-value-bind (s f) (find-symbol string p)
-                  (and (eq s symbol) (eq f ':external))
-            ) ) )
-            (let ((p (find-package "COMMON-LISP")))
-              (and p
-                (multiple-value-bind (s f) (find-symbol string p)
-                  (and (eq s symbol) (eq f ':external))
-    ) ) )   ) ) )
-) )
+        (let ((p (find-package "COMMON-LISP")))
+          (and p
+               (multiple-value-bind (s f) (find-symbol string p)
+                 (and (eq s symbol) (eq f ':external)))))))))
+
+(sys::%putd 'sys::fbound-string
+  (function sys::fbound-string
+    (lambda (sym)
+      (cond ((special-operator-p sym)
+             (ENGLISH "special operator"))
+            ((functionp (symbol-function sym))
+             (ENGLISH "function"))
+            (t (ENGLISH "macro"))))))
 
 (sys::%putd 'sys::remove-old-definitions
   (function sys::remove-old-definitions
     (lambda (symbol) ; entfernt die alten Funktionsdefinitionen eines Symbols
       (if (special-operator-p symbol)
         (error-of-type 'error
-          (ENGLISH "~S is a special form and may not be redefined.")
+          (ENGLISH "~S is a special operator and may not be redefined.")
           symbol
       ) )
       (if (and (or (fboundp symbol) (macro-function symbol))
-               (sys::exported-lisp-symbol-p symbol)
-          )
+               (sys::exported-lisp-symbol-p symbol))
         (cerror (ENGLISH "The old definition will be lost")
                 (ENGLISH "Redefining the COMMON LISP ~A ~S")
                 (fbound-string symbol) ; "Funktion" bzw. "Macro"
@@ -744,7 +842,7 @@ constant-inline constant-notinline
                       (first form) nil
                       (%expand-list (rest form))
               ) ) ) )
-              (FLET ; Funktionsdefinitionen expandieren,
+              (SYS::%FLET ; expand function definitions
                     ; Body im erweiterten Environment expandieren
                 (if (null (second form))
                   (values (%expand-form (cons 'PROGN (cddr form))) t)
@@ -756,7 +854,7 @@ constant-inline constant-notinline
                         (let ((*fenv* (apply #'vector newfenv)))
                           (%expand-list (cddr form))
               ) ) ) ) ) )
-              (LABELS ; Funktionsdefinitionen und Body im erweiterten Environment expandieren
+              (SYS::%LABELS ; expand function definitions and body in the extended environment
                 (if (null (second form))
                   (values (%expand-form (cons 'PROGN (cddr form))) t)
                   (let ((newfenv (%expand-fundefs-1 (second form))))
@@ -767,7 +865,7 @@ constant-inline constant-notinline
                           (%expand-fundefs-2 (second form))
                           (%expand-list (cddr form))
               ) ) ) ) ) )
-              (MACROLET ; Body im erweiterten Environment expandieren
+              (SYS::%MACROLET ; expand the body in the extended environment
                 (do ((L1 (second form) (cdr L1))
                      (L2 nil))
                     ((atom L1)
@@ -1242,6 +1340,7 @@ constant-inline constant-notinline
 
 ;; ab hier ist FUNCTION funktionsfähig, soweit kein MACROLET darin vorkommt.
 
+
 (PROGN
 
 (proclaim '(special *load-paths*))
@@ -1278,7 +1377,6 @@ constant-inline constant-notinline
 ; (LOAD filename [:verbose] [:print] [:if-does-not-exist] [:external-format]
 ;                [:echo] [:compiling] [:extra-file-types]),
 ; CLTL S. 426
-(fmakunbound 'load)
 (defun load (filename
              &key (verbose *load-verbose*) (print *load-print*)
                   (if-does-not-exist t) (external-format ':default)
@@ -1693,6 +1791,7 @@ constant-inline constant-notinline
 (VALUES) )
 
 ;; ab hier sind DEFMACRO und DEFUN funktionsfähig.
+(in-package "SYSTEM")
 
 (LOAD "macros1")  ;; Kontrollstrukturen - Macros
 (LOAD "macros2")  ;; weitere Macros
@@ -1715,8 +1814,6 @@ constant-inline constant-notinline
 
 ;; ab hier ist FORMATTER funktionsfähig.
 
-(in-package "LISP")
-(export '(default-directory dir))
 (in-package "SYSTEM")
 
 ; (default-directory) ist ein Synonym für (cd).
@@ -1826,7 +1923,7 @@ constant-inline constant-notinline
 
 ;; At this point saveinitmem works.
 
-; preliminary definition of CERROR, CLtL2 p. 887
+;; preliminary definition of CERROR, CLtL2 p. 887
 (defun cerror (continue-format-string error-format-string &rest args)
   (if *error-handler*
     (apply *error-handler*
@@ -1852,11 +1949,14 @@ constant-inline constant-notinline
 
 ;; this should come before `compiler'
 #+syscalls
-(in-package "POSIX" :use '("LISP" "CLOS"))
+(use-package '("COMMON-LISP") "POSIX")
 #+syscalls
-(export '(resolve-host-ipaddr hostent user-data file-stat sysinfo bogomips
-          resource-usage-limits
-          erf erfc j0 j1 jn y0 y1 yn gamma lgamma))
+(in-package "POSIX")
+#+syscalls
+(let ((posix-math '(erf erfc j0 j1 jn y0 y1 yn gamma lgamma)))
+  (export posix-math "POSIX")
+  (import posix-math "EXT")
+  (export posix-math "EXT"))
 #+syscalls
 (in-package "SYSTEM")
 
@@ -1879,6 +1979,8 @@ constant-inline constant-notinline
 
 ;; Fancy streams:
 
+(load "gray")
+#+generic-streams
 (LOAD "gstream")   ;; generic streams, optional
 
 (LOAD "xcharin")   ;; extended character input, optional
@@ -1891,6 +1993,24 @@ constant-inline constant-notinline
 
 
 ;; Environmental facilities:
+;#+sockets
+;(use-package '("COMMON-LISP") "SOCKET")
+#+sockets
+(use-package '("SOCKET") "EXT")
+#+sockets
+(in-package "SOCKET")
+#+sockets
+(common-lisp:export
+ '(socket-server socket-server-close socket-server-port socket-server-host
+   socket-accept socket-wait socket-status socket-connect
+   socket-stream-host socket-stream-port socket-stream-peer socket-stream-local
+   #+win32 socket-stream-handle
+   socket-service-port)
+ "SOCKET")
+#+sockets
+(ext:re-export "SOCKET" "EXT")
+
+(common-lisp:in-package "SYSTEM")
 
 #+AMIGA
 (LOAD "amigasock") ;; sockets, optional
@@ -1920,7 +2040,7 @@ constant-inline constant-notinline
 
 ;; Random extensions:
 
-;(LOAD "macros3")  ;; more macros, optional
+(LOAD "macros3")  ;; more macros, optional
 
 #+FFI ; when (find-package "FFI")
 (LOAD "foreign1")  ;; foreign function interface, optional
@@ -1936,7 +2056,7 @@ constant-inline constant-notinline
 ;; http://www.UNIX-systems.org/online.html
 #+syscalls (load "posix")
 
-(LOAD "defs3")     ;; the COMMON-LISP package
+(LOAD "defs3")                  ; flet, labels, macrolet
 
 #+GETTEXT (LOAD "german") ;; Deutsche Meldungen
 #+GETTEXT (LOAD "french") ;; Französische Meldungen
@@ -1948,6 +2068,4 @@ constant-inline constant-notinline
 
 (LOAD "config")    ;; configuration parameters to be adjusted by the user
 
-
-(in-package "USER") ;; make the default package the current one
-
+(in-package "CL-USER") ;; make the default package the current one

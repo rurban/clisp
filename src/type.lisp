@@ -15,7 +15,7 @@
 ;;;   Expander: eine Funktion, die den zu expandierenden Type-Specifier (eine
 ;;;   mindestens einelementige Liste) als Argument bekommt.
 
-(in-package "LISP")
+(in-package "EXT")
 (export '(type-expand-1 type-expand))
 (in-package "SYSTEM")
 

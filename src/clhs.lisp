@@ -2,7 +2,7 @@
 ;;; This file is a part of CLISP (http://clisp.cons.org), and, as such,
 ;;; is distributed under the GNU GPL (http://www.gnu.org/copyleft/gpl.html)
 
-(in-package "LISP")
+(in-package "EXT")
 
 (export '(clhs clhs-root *browsers* *browser* read-from-file browse-url))
 
@@ -72,7 +72,7 @@ The keyword argument OUT specifies the output for log messages."
   "Dump the CLHS doc for the symbol."
   (unless *clhs-table*
     (setq *clhs-table* (read-from-file (clhs-file) :out out)))
-  (let* ((clhs-root (lisp::clhs-root))
+  (let* ((clhs-root (clhs-root))
          (slash (if (and (> (length clhs-root) 0)
                          (eql (char clhs-root (- (length clhs-root) 1)) #\/))
                   ""

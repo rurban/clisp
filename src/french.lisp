@@ -1,13 +1,14 @@
 ;;; French translations of DEFINTERNATIONALed values.
 ;;; Bruno Haible, Jörg Höhle
 
-(in-package "LISP")
+(in-package "I18N")
+(common-lisp:export 'FRANCAIS)
+(common-lisp:import 'FRANCAIS "EXT")
+(common-lisp:export 'FRANCAIS "EXT")
 
-(export 'FRANCAIS)
+(common-lisp:in-package "SYSTEM")
 
 (deflanguage FRANCAIS)
-
-(in-package "SYSTEM")
 
 (deflocalized date-format FRANCAIS
   (formatter "~1{~3@*~D/~4@*~D/~5@*~D ~2@*~2,'0D:~1@*~2,'0D:~0@*~2,'0D~:}")

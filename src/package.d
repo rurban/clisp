@@ -2445,7 +2445,7 @@ LISPFUN(unuse_package,1,1,norest,nokey,0,NIL)
       return coerce_imm_ss(name);
     }
 
-# UP für MAKE-PACKAGE und IN-PACKAGE:
+# UP für MAKE-PACKAGE und %IN-PACKAGE:
 # Bildet eine neue Package und liefert sie als Wert.
 # > STACK_3: name-Argument
 # > STACK_2: nicknames-Argument
@@ -2580,18 +2580,8 @@ LISPFUN(pin_package,1,0,norest,key,3, (kw(nicknames),kw(use),kw(case_sensitive))
       }
       # Die Use-List ist korrekt angepasst.
       skipSTACK(3); # uselist, nicknames usw. vergessen
-      value1 = popSTACK(); mv_count=1; # pack als Wert
+      value1 = popSTACK(); mv_count=1;
     }
-  }
-
-LISPFUN(in_package,1,0,norest,key,3, (kw(nicknames),kw(use),kw(case_sensitive)) )
-# (IN-PACKAGE name [:NICKNAMES nicknames] [:USE uselist]
-#                  [:CASE-SENSITIVE sensitivep]),
-# CLTL S. 183
-  {
-    C_pin_package();
-    # Ergebnis an *PACKAGE* zuweisen:
-    Symbol_value(S(packagestern)) = value1;
   }
 
 local one_sym_function delete_package_aux;
@@ -2794,6 +2784,33 @@ LISPFUNN(map_all_symbols,1)
     value1 = NIL; mv_count=1; # NIL als Wert
   }
 
+local void export_symbol_from (object* pack, object sym) { export(&sym,pack); }
+
+LISPFUNN(reexport,2)
+# (EXT:RE-EXPORT "FROM-PACK" "TO-PACK")
+# export all external symbols in FROM-PACK from TO-PACK
+{
+  STACK_1 = test_package_arg(STACK_1); # FROM-PACK
+  STACK_0 = test_package_arg(STACK_0); # TO-PACK
+  # TO-PACK must be already using FROM-PACK
+  var object pack_u_l = ThePackage(STACK_0)->pack_use_list;
+  while (consp(pack_u_l)) {
+    if (eq(STACK_1,Car(pack_u_l)))
+      goto pack_ok;
+    pack_u_l = Cdr(pack_u_l);
+  }
+  pushSTACK(STACK_0); # TO-PACK: PACKAGE slot of PACKAGE-ERROR
+  pushSTACK(STACK_2); # FROM-PACK
+  pushSTACK(STACK_1); # TO-PACK
+  fehler(package_error,GETTEXT("~ is not using ~"));
+ pack_ok:
+  map_symtab_c(&export_symbol_from,&STACK_0,
+               ThePackage(STACK_1)->pack_external_symbols);
+  value1 = NIL;
+  mv_count = 1;
+  skipSTACK(2);
+}
+
 # Hilfsfunktionen für WITH-PACKAGE-ITERATOR, CLtL2 S. 275, und LOOP:
 # (SYSTEM::PACKAGE-ITERATOR package flags) liefert einen internen Zustand
 # für das Iterieren durch die Package.
@@ -2915,37 +2932,43 @@ LISPFUNN(package_iterate,1)
     value1 = NIL; mv_count=1; return; # 1 Wert NIL
   }
 
-# UP: Initialisiert die Packageverwaltung
+# UP: initialize the package list
 # init_packages();
   global void init_packages (void);
   global void init_packages()
     {
+      pushSTACK(coerce_imm_ss(ascii_to_string("COMMON-LISP")));
       pushSTACK(coerce_imm_ss(ascii_to_string("LISP")));
+      pushSTACK(coerce_imm_ss(ascii_to_string("CL")));
+      pushSTACK(coerce_imm_ss(ascii_to_string("COMMON-LISP-USER")));
+      pushSTACK(coerce_imm_ss(ascii_to_string("CL-USER")));
+      pushSTACK(coerce_imm_ss(ascii_to_string("USER")));
       pushSTACK(coerce_imm_ss(ascii_to_string("SYSTEM")));
+      pushSTACK(coerce_imm_ss(ascii_to_string("COMPILER")));
       pushSTACK(coerce_imm_ss(ascii_to_string("SYS")));
       pushSTACK(coerce_imm_ss(ascii_to_string("KEYWORD")));
       pushSTACK(coerce_imm_ss(ascii_to_string("")));
       pushSTACK(coerce_imm_ss(ascii_to_string("CHARSET")));
-      # Stackaufbau: "LISP", "SYSTEM", "SYS", "KEYWORD", "", "CHARSET".
       O(all_packages) = NIL; # ALL_PACKAGES := NIL
-      # #<PACKAGE CHARSET> einrichten:
+      # #<PACKAGE CHARSET>:
       O(charset_package) = make_package(popSTACK(),NIL,false); # "CHARSET",()
-      # #<PACKAGE KEYWORD> einrichten:
-      {
-        var object new_cons = allocate_cons();
-        Car(new_cons) = popSTACK(); # ""
-        O(keyword_package) = make_package(popSTACK(),new_cons,false); # "KEYWORD",("")
+      # #<PACKAGE KEYWORD>:
+      { var object nicks = listof(1); # ("")
+        O(keyword_package) = make_package(popSTACK(),nicks,false); # "KEYWORD"
       }
-      # #<PACKAGE SYSTEM> einrichten:
-      {
-        var object new_cons = allocate_cons();
-        Car(new_cons) = popSTACK(); # "SYS"
-        make_package(popSTACK(),new_cons,false); # "SYSTEM",("SYS")
+      # #<PACKAGE SYSTEM>:
+      { var object nicks = listof(2); # ("COMPILER" "SYS")
+        make_package(popSTACK(),nicks,false); # "SYSTEM"
       }
-      # #<PACKAGE LISP> einrichten:
-      O(default_package) = # und zur Default-Package machen
-      make_package(popSTACK(),NIL,false); # "LISP",()
-      # Alle weiteren Packages einrichten, ans Ende der Liste ALL_PACKAGES hängen:
+      # #<package COMMON-LISP-USER>
+      { var object nicks = listof(2); # ("CL-USER","USER")
+        make_package(popSTACK(),nicks,false); # "COMMON-LISP-USER"
+      }
+      # #<PACKAGE LISP>:
+      { var object nicks = listof(2); # ("LISP" "CL")
+        O(default_package) = make_package(popSTACK(),nicks,false); # "COMMON-LISP"
+      }
+      # created all packages, now at the end of ALL_PACKAGES:
       nreverse(O(all_packages));
       #define LISPPACK  LISPPACK_B
       #include "constpack.c"

@@ -1,7 +1,7 @@
 ;;;; Definitionen für Kontrollstrukturen etc.
 ;;;; 29. 4. 1988, 3. 9. 1988
 
-(in-package "LISP")
+(in-package "EXT")
 (export '(mapcap maplap))
 (in-package "SYSTEM")
 

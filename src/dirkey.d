@@ -156,7 +156,7 @@ local object registry_value_to_object (DWORD type, DWORD size,
 #endif
 
 LISPFUNN(dir_key_type,1)
-# (LISP:DIR-KEY-TYPE dkey)
+# (LDAP:DIR-KEY-TYPE dkey)
 # return the type of the key (:win32 or :gnome-config or :ldap)
 {
   var object dkey = test_dir_key(popSTACK(),false);
@@ -164,7 +164,7 @@ LISPFUNN(dir_key_type,1)
 }
 
 LISPFUNN(dir_key_path,1)
-# (LISP:DIR-KEY-PATH dkey)
+# (LDAP:DIR-KEY-PATH dkey)
 # return the path of the key (a string)
 {
   var object dkey = test_dir_key(popSTACK(),false);
@@ -172,7 +172,7 @@ LISPFUNN(dir_key_path,1)
 }
 
 LISPFUNN(dir_key_direction,1)
-# (LISP:DIR-KEY-DIRECTION dkey)
+# (LDAP:DIR-KEY-DIRECTION dkey)
 # return the direction of this key - :input :output or :io
 {
   var object dkey = test_dir_key(popSTACK(),true);
@@ -180,7 +180,7 @@ LISPFUNN(dir_key_direction,1)
 }
 
 LISPFUNN(dir_key_open_p,1)
-# (LISP:DIR-KEY-OPEN-P dkey)
+# (LDAP:DIR-KEY-OPEN-P dkey)
 # return T if the key is open
 {
   var object dkey = test_dir_key(popSTACK(),false);
@@ -188,7 +188,7 @@ LISPFUNN(dir_key_open_p,1)
 }
 
 LISPFUNN(dir_key_close,1)
-# (LISP:DIR-KEY-CLOSE dkey)
+# (LDAP:DIR-KEY-CLOSE dkey)
 # close the supplied DIR-KEY
 {
   var object dkey = popSTACK();
@@ -373,7 +373,7 @@ local uintL parse_direction (object* direction_arg)
 }
 
 LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
-# (LISP:DIR-KEY-OPEN key path [:direction] [:if-does-not-exist])
+# (LDAP:DIR-KEY-OPEN key path [:direction] [:if-does-not-exist])
 # return the DIR-KEY object corresponding to the PATH under KEY
 # PATH should be a string, like "HKEY_LOCAL_MACHINE\\Something"
 # KEY can be either a DIR-KEY or a (MEMBER :win32 :gnome :ldap),
@@ -510,7 +510,7 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
   mv_count = 1
 
 LISPFUNN(dir_key_subkeys,1)
-# (LISP:DIR-KEY-SUBKEYS key)
+# (LDAP:DIR-KEY-SUBKEYS key)
 # return the list of subkey names of the given KEY
 {
   if (eq(STACK_0,S(Kwin32))) { # top-level keys
@@ -529,7 +529,7 @@ LISPFUNN(dir_key_subkeys,1)
 }
 
 LISPFUNN(dir_key_attributes,1)
-# (LISP:DIR-KEY-ATTRIBUTES key)
+# (LDAP:DIR-KEY-ATTRIBUTES key)
 # return the list of attribute names of the given KEY
 {
   MAKE_OBJECT_LIST(RegQueryInfoKey(hkey,NULL,NULL,NULL,NULL,NULL,NULL,
@@ -591,7 +591,7 @@ local int parse_scope (object scope) {
 }
 
 LISPFUNN(dkey_search_iterator,3)
-# (SYS::DKEY-SEARCH-ITERATOR key path scope)
+# (LDAP::DKEY-SEARCH-ITERATOR key path scope)
 # return a simple vector with the iteration state
 # < dkey path scope
 # > #(dkey init-path scope (node ...))
@@ -703,7 +703,7 @@ local object state_next_key (object state)
 }
 
 LISPFUNN(dkey_search_next_key,1)
-# (SYS::DKEY-SEARCH-NEXT-KEY state)
+# (LDAP::DKEY-SEARCH-NEXT-KEY state)
 # return the next key of this iteration
 # and T if open failed
 # can trigger GC
@@ -748,7 +748,7 @@ LISPFUNN(dkey_search_next_key,1)
 }
 
 LISPFUNN(dkey_search_next_att,1)
-# (SYS::DKEY-SEARCH-NEXT-ATT state)
+# (LDAP::DKEY-SEARCH-NEXT-ATT state)
 # return the next attribute and its value of this iteration
 # can trigger GC
 {
@@ -802,7 +802,7 @@ LISPFUNN(dkey_search_next_att,1)
 #undef NODE_HANDLE
 
 LISPFUN(dir_key_value,2,1,norest,nokey,0,NILL)
-# (LISP:DIR-KEY-VALUE key name [default])
+# (LDAP:DIR-KEY-VALUE key name [default])
 # return the value of the given NAME in the KEY
 # KEY must be an open DIR-KEY, NAME - a string
 # if the name does not exists, return the DEFAULT (or signal an error)
@@ -841,7 +841,7 @@ LISPFUN(dir_key_value,2,1,norest,nokey,0,NILL)
 }
 
 LISPFUNN(set_dkey_value,3)
-# (SYS::SET-DKEY-VALUE key name value)
+# (LDAP::SET-DKEY-VALUE key name value)
 # set the given NAME in the KEY to the VALUE
 {
   var object value = popSTACK();
@@ -889,13 +889,13 @@ LISPFUNN(set_dkey_value,3)
   mv_count = 1
 
 LISPFUNN(dir_key_subkey_delete,2)
-# (LISP:DIR-KEY-SUBKEY-DELETE key name)
+# (LDAP:DIR-KEY-SUBKEY-DELETE key name)
 # delete the specified subkey (and all its subkeys)
 {
   REG_KEY_DEL(RegDeleteKey);
 }
 LISPFUNN(dir_key_value_delete,2)
-# (LISP:DIR-KEY-VALUE-DELETE key name)
+# (LDAP:DIR-KEY-VALUE-DELETE key name)
 # delete the specified value
 {
   REG_KEY_DEL(RegDeleteValue);
@@ -903,7 +903,7 @@ LISPFUNN(dir_key_value_delete,2)
 #undef REG_KEY_DEL
 
 LISPFUNN(dkey_info,1)
-# (SYS::DKEY-INFO key)
+# (LDAP::DKEY-INFO key)
 # return all the info about the key, as 10 values:
 # class; class_length;
 # num_sub_keys; max_sub_key_length; max_class_length;
