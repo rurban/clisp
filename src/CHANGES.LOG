@@ -2,6 +2,8 @@
 User visible changes
 --------------------
 
+* Added a new module - "postgresql": interface to the PostgreSQL ODBMS.
+
 * Implemented ANSI CL macro WITH-PACKAGE-ITERATOR.
 
 * Conforming to ANSI CL issue <GENERIC-FLET-POORLY-DESIGNED:DELETE>: The
