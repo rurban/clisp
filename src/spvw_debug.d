@@ -62,9 +62,12 @@ global void nobject_out (FILE* out, object obj) {
       string_out(out,name,O(terminal_encoding));
     }
   } else if (symbolp(obj)) {
-    string_out(out,ThePackage(Symbol_package(obj))->pack_name,
-               O(terminal_encoding));
-    fputs("::",out);
+    var object pack = Symbol_package(obj);
+    if (nullp(pack)) fputs("#:",out); /* uninterned symbol */
+    else {
+      string_out(out,ThePackage(pack)->pack_name,O(terminal_encoding));
+      fputs("::",out);
+    }
     string_out(out,Symbol_name(obj),O(terminal_encoding));
   } else if (simple_vector_p(obj)) {
     var uintL len = vector_length(obj);
@@ -99,9 +102,6 @@ global void nobject_out (FILE* out, object obj) {
                  ? O(printstring_subr) : O(printstring_addon_subr),
                  O(terminal_encoding));
       obj = TheSubr(obj)->name;
-    } else if (fsubrp(obj)) {
-      string_out(out,O(printstring_fsubr),O(terminal_encoding));
-      obj = TheFsubr(obj)->name;
     } else if (cclosurep(obj)) {
       string_out(out,
                  genericfunctionp(obj)
@@ -123,6 +123,12 @@ global void nobject_out (FILE* out, object obj) {
     fputc(' ',out);
     nobject_out(out,obj);
     fputc('>',out);
+  } else if (fsubrp(obj)) {
+    fputs("#<",out);
+    string_out(out,O(printstring_fsubr),O(terminal_encoding));
+    fputc(' ',out);
+    nobject_out(out,TheFsubr(obj)->name);
+    fputc('>',out);
   } else if (fixnump(obj)) fprintf(out,"%d",fixnum_to_L(obj));
   else NOTREACHED; /* FIXME */
 }
@@ -130,18 +136,18 @@ global void nobject_out (FILE* out, object obj) {
 /* use (struct backtrace_t*) and not p_backtrace_t
    so that this is useable from the p_backtrace_t C++ definition */
 local int back_trace_depth (const struct backtrace_t *bt) {
-  var uintL index = 1;
+  var uintL index = 0;
   for (bt = (bt ? bt : back_trace); bt; bt=bt->bt_next, index++)
     if (bt == bt->bt_next) return -index;
   return index;
 }
 
 local uintL back_trace_out (FILE* out, const struct backtrace_t *bt) {
-  var uintL index = 1;
+  var uintL index = 0;
   if (out == NULL) out = stdout;
   if (!bt) bt = back_trace;
   for (; bt; bt=bt->bt_next, index++) {
-    fprintf(out,"[%d/0x%x]> ",index,bt);
+    fprintf(out,"[%d/0x%x]%s ",index,bt,bt_beyond_stack_p(bt,STACK)?"<":">");
     nobject_out(out,bt->bt_caller);
     if (bt->bt_num_arg >= 0)
       fprintf(out," %d args",bt->bt_num_arg);
