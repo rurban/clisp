@@ -688,6 +688,10 @@
   LISPOBJ(compiled_file_type,"#\".fas\"")
   LISPOBJ(listing_file_type,"#\".lis\"")
 # zu STREAM.D:
+  #if defined(SPVW_PURE) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0)
+  LISPOBJ(dynamic_bit_vector,"NIL") # Cache for macro DYNAMIC_BIT_VECTOR
+  LISPOBJ(dynamic_string,"NIL") # Cache for macro DYNAMIC_STRING
+  #endif
   LISPOBJ(type_input_stream,"(SATISFIES INPUT-STREAM-P)") # Typ für Fehlermeldung
   LISPOBJ(type_output_stream,"(SATISFIES OUTPUT-STREAM-P)") # Typ für Fehlermeldung
   LISPOBJ(type_string_with_fill_pointer,"(AND STRING (SATISFIES ARRAY-HAS-FILL-POINTER-P))") # Typ für Fehlermeldung

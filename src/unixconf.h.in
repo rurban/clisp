@@ -609,6 +609,8 @@
 #define MALLOC_ADDRESS_RANGE 0
 /* Define as the address range of shared library code, if present. */
 #define SHLIB_ADDRESS_RANGE 0
+/* Define as the address range of the C stack. */
+#define STACK_ADDRESS_RANGE 0
 
 /* CL_GETPAGESIZE */
 /* Define if you have getpagesize(). */
