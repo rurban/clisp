@@ -1,3 +1,18 @@
+2004-07-10  Bruno Haible  <bruno@clisp.org>
+
+	* clos-methcomb2.lisp (method-combination-with-options): New function.
+	(find-method-combination-<generic-function>-<symbol>): Use it.
+	(coerce-to-method-combination): Remove function.
+	* clos-genfun3.lisp (make-generic-function): Accept a
+	method-combination object instead of a method-combination designator.
+	(analyze-defgeneric): Return a lambda expression for producing the
+	method-combination, instead of the method-combination designator.
+	Improve checking of :method-combination option.
+	(defgeneric, make-generic-function-form): Emit code to convert the
+	method-combination designator to a method-combination object.
+	* clos-methcomb4.lisp (find-method-combination): Define using
+	allow-making-generic.
+
 2004-09-01  Sam Steingold  <sds@gnu.org>
 
 	* foreign1.lisp (DEF-CALL-OUT, DEF-C-VAR):

@@ -1282,37 +1282,18 @@ Long-form options are a list of method-group specifiers,
 
 ;;; ---------------------------------- Misc ----------------------------------
 
+(defun method-combination-with-options (gf-name combination options)
+  (funcall (method-combination-check-options combination)
+           gf-name combination options)
+  (when options
+    (setq combination (copy-method-combination combination))
+    (setf (method-combination-options combination) (copy-list options)))
+  combination)
+
 (defun find-method-combination-<generic-function>-<symbol> (gf name options)
   (let ((combination (get-method-combination name 'defgeneric)))
-    (funcall (method-combination-check-options combination)
-             (sys::closure-name gf) combination options)
-    (when options
-      (setq combination (copy-method-combination combination))
-      (setf (method-combination-options combination) (copy-list options)))
-    combination))
+    (method-combination-with-options (sys::closure-name gf) combination options)))
 
 ;; Preliminary.
 (defun find-method-combination (gf name options)
   (find-method-combination-<generic-function>-<symbol> gf name options))
-
-;; Converts a method-combination designator, e.g. a method combination name
-;; or a list consisting of a method combination name and options, to a
-;; method-combination instance.
-(defun coerce-to-method-combination (gf-name method-combo)
-  (flet ((mc (designator)
-           (typecase designator
-             (symbol (get-method-combination designator 'defgeneric))
-             (method-combination designator)
-             (t (error-of-type 'program-error
-                  (TEXT "~S is not a valid a ~S designator")
-                  designator 'method-combination)))))
-    (if (consp method-combo)
-      (let ((combination (mc (first method-combo)))
-            (options (rest method-combo)))
-        (funcall (method-combination-check-options combination)
-                 gf-name combination options)
-        (when options
-          (setq combination (copy-method-combination combination))
-          (setf (method-combination-options combination) (copy-list options)))
-        combination)
-      (mc method-combo))))
