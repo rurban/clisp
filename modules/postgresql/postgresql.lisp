@@ -76,11 +76,14 @@
 ;;(def-c-struct PGresult) ; components unknown
 (def-c-type PGconn c-pointer) ; components unknown
 (def-c-type PGresult c-pointer) ; components unknown
+(def-c-type PGcancel c-pointer) ; components unknown
 
 (def-c-struct PGnotify
   (result c-string)             ; (c-array character #.NAMEDATALEN)???
   (be_pid int)
-  (extra c-string))
+  (extra c-string)
+  ;; private:
+  (next (c-pointer PGnotify)))
 
 ;; typedef void (*PQnoticeReceiver) (void *arg, const PGresult *res)
 ;; typedef void (*PQnoticeProcessor) (void *arg, const char *message)
@@ -164,7 +167,19 @@
 ;; extern void PQreset(PGconn *conn);
 (def-call-out PQreset (:return-type nil) (:arguments (conn PGconn)))
 
+;; request a cancel structure
+(def-call-out PQgetCancel (:return-type PGcancel) (:arguments (conn PGconn)))
+;; free a cancel structure
+(def-call-out PQfreeCancel (:return-type nil) (:arguments (conn PGcancel)))
+;; issue a cancel request
+(def-call-out PQcancel (:return-type int)
+  (:arguments (cancel PGcancel)
+              (errbuf (c-ptr (c-array-max char #.BUFSIZ)) :out :alloca)
+              (errbufsize int))) ; pass BUFSIZ
+;; backwards compatible version of PQcancel; not thread-safe
 (def-call-out PQrequestCancel (:return-type int) (:arguments (conn PGconn)))
+
+;; Accessor functions for PGconn objects
 (def-call-out PQdb (:return-type c-string) (:arguments (conn PGconn)))
 (def-call-out PQuser (:return-type c-string) (:arguments (conn PGconn)))
 (def-call-out PQpass (:return-type c-string) (:arguments (conn PGconn)))
@@ -178,6 +193,7 @@
 (def-call-out PQparameterStatus (:return-type c-string)
   (:arguments (conn PGconn) (param-name c-string)))
 (def-call-out PQprotocolVersion (:return-type int) (:arguments (conn PGconn)))
+(def-call-out PQserverVersion (:return-type int) (:arguments (conn PGconn)))
 (def-call-out PQerrorMessage (:return-type c-string) (:arguments (conn PGconn)))
 (def-call-out PQsocket (:return-type int) (:arguments (conn PGconn)))
 (def-call-out PQbackendPID (:return-type int) (:arguments (conn PGconn)))
@@ -187,6 +203,9 @@
 
 ;; ifdef USE_SSL
 ;; (def-call-out PQgetssl (:arguments (conn PGconn)) (:return-type SSL))
+(def-call-out PQgetssl (:arguments (conn PGconn)) (:return-type c-pointer))
+;; Tell libpq whether it needs to initialize OpenSSL
+(def-call-out PQinitSSL (:return-type nil) (:arguments (do_init int)))
 
 (def-call-out PQsetErrorVerbosity (:return-type PGVerbosity)
   (:arguments (conn PGconn) (verbosity PGVerbosity)))
@@ -201,6 +220,14 @@
 (def-call-out PQsetNoticeProcessor (:return-type PQnoticeProcessor)
   (:arguments (conn PGconn) (proc PQnoticeProcessor)
               (arg c-pointer)))
+
+;; Used to set callback that prevents concurrent access to
+;; non-thread safe functions that libpq needs.
+;; The default implementation uses a libpq internal mutex.
+;; Only required for multithreaded apps that use kerberos
+;; both within their app and for postgresql connections.
+;;typedef void (*pgthreadlock_t) (int acquire);
+;;extern pgthreadlock_t PQregisterThreadLock(pgthreadlock_t newhandler);
 
 ;; === fe-exec.c ===
 ;; Simple synchronous query
@@ -392,7 +419,10 @@
 ;; === fe-misc.c ===
 ;; Determine length of multibyte encoded char at *s
 (def-call-out PQmblen (:return-type int)
-  (:arguments (s (c-ptr uchar)) (encoding int)))
+  (:arguments (s (c-pointer uchar)) (encoding int)))
+;; Determine display length of multibyte encoded char at *s
+(def-call-out PQdsplen (:return-type int)
+  (:arguments (s (c-pointer uchar)) (encoding int)))
 ;; Get encoding id from environment variable PGCLIENTENCODING
 (def-call-out PQenv2encoding (:return-type int) (:arguments))
 
