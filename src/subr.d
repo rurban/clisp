@@ -671,10 +671,12 @@ LISPFUNN(lib_directory,0)
 #ifdef UNIX
 LISPFUNN(user_data_,1)
 LISPFUN(file_stat_,1,1,norest,nokey,0,NIL)
-LISPFUNN(sysinfo_,0)
-LISPFUNN(bogomips,0)
-LISPFUNN(resource_usage_limits_,0)
 #endif
+#endif
+# ---------- POSIXMISC ----------
+#ifdef EXPORT_SYSCALLS
+LISPFUNN(sysinfo_,0)
+LISPFUNN(resource_usage_limits_,0)
 #endif
 # ---------- PREDTYPE ----------
 LISPFUNN(eq,2)
@@ -1097,6 +1099,7 @@ LISPFUNN(y1,1)
 LISPFUNN(yn,2)
 LISPFUNN(gamma,1)
 LISPFUNN(lgamma,1)
+LISPFUNN(bogomips,0)
 #endif # EXPORT_SYSCALLS
 # ---------- REXX ----------
 #ifdef REXX

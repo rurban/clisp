@@ -610,10 +610,12 @@ LISPSYM(lib_directory,"LIB-DIRECTORY",system)
 #ifdef UNIX
 LISPSYM(user_data_,"USER-DATA-INTERNAL",posix)
 LISPSYM(file_stat_,"FILE-STAT-INTERNAL",posix)
-LISPSYM(sysinfo_,"SYSINFO-INTERNAL",posix)
-LISPSYM(bogomips,"BOGOMIPS",posix)
-LISPSYM(resource_usage_limits_,"RESOURCE-USAGE-LIMITS-INTERNAL",posix)
 #endif
+#endif
+# ---------- POSIXMISC ----------
+#ifdef EXPORT_SYSCALLS
+LISPSYM(sysinfo_,"SYSINFO-INTERNAL",posix)
+LISPSYM(resource_usage_limits_,"RESOURCE-USAGE-LIMITS-INTERNAL",posix)
 #endif
 # ---------- PREDTYPE ----------
 LISPSYM(eq,"EQ",lisp)
@@ -1003,6 +1005,7 @@ LISPSYM(y1,"Y1",posix)
 LISPSYM(yn,"YN",posix)
 LISPSYM(gamma,"GAMMA",posix)
 LISPSYM(lgamma,"LGAMMA",posix)
+LISPSYM(bogomips,"BOGOMIPS",posix)
 #endif # EXPORT_SYSCALLS
 # ---------- REXX ----------
 #ifdef REXX
