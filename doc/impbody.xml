@@ -3701,8 +3701,16 @@ functions are provided:
 </section>
 
 <section id="stream-buffer"><title>Functions
-  <function>EXT:MAKE-BUFFERED-INPUT-STREAM</function> and
-  <function>EXT:MAKE-BUFFERED-OUTPUT-STREAM</function></title>
+  <firstterm><function>EXT:MAKE-BUFFERED-INPUT-STREAM</function>
+   <indexterm id="stream-buffer-i" significance="preferred">
+    <primary id="stream-buffer-i-i">
+     <function>EXT:MAKE-BUFFERED-INPUT-STREAM</function>
+  </primary></indexterm></firstterm> and
+  <firstterm><function>EXT:MAKE-BUFFERED-OUTPUT-STREAM</function>
+   <indexterm id="stream-buffer-o" significance="preferred">
+    <primary id="stream-buffer-o-i">
+     <function>EXT:MAKE-BUFFERED-OUTPUT-STREAM</function>
+ </primary></indexterm></firstterm></title>
 
 <para><literal role="sexp">(EXT:MAKE-BUFFERED-OUTPUT-STREAM &func-r;)</literal>
  returns a buffered &out-s;.
