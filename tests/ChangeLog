@@ -1,5 +1,16 @@
 2005-01-13  Sam Steingold  <sds@gnu.org>
 
+	allow compilation instead/in addition to evaluation of test forms
+	* tests.lisp (*eval-method*, *test-ignore-errors*): new variables
+	(my-eval): new function
+	(do-test, do-errcheck): not accept accept optional parameters, use
+	*TEST-IGNORE-ERRORS* instead; use MY-EVAL instead of EVAL
+	(*run-test-ignore-errors*) : removed
+	(run-test, run-some-tests, run-all-tests): accept keyword instead
+	of optional parameters
+
+2005-01-13  Sam Steingold  <sds@gnu.org>
+
 	* bind.tst: new file: test non-global special bindings
 
 2005-01-05  Bruno Haible  <bruno@clisp.org>
