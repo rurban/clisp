@@ -10866,6 +10866,10 @@ extern object shifthash (object ht, object obj, object value);
 
 # ######################### IOBIBL zu IO.D ############################## #
 
+# check a cint for being a whitespace
+#define cint_white_p(c)   \
+  ((c)==' ' || (c)=='\n' || (c)=='\r' || (c)=='\t' || (c)=='\v' || (c)=='\f')
+
 # spezielles Objekt, das EOF anzeigt
 #define eof_value  make_system(0xE0FE0FUL)
 # is used by IO, STREAM, DEBUG, SPVW

@@ -1,3 +1,14 @@
+2001-09-22  Sam Steingold  <sds@gnu.org>
+
+	new built-ins: SYS::WHITESPACEP & SYS::WRITE-SPACES
+	* constsym.d, subr.d (whitespacep, write_spaces): added
+	* io.d (write_spaces, whitespacep): implemented
+	* lispbibl.d (cint_white_p): new macro
+	* stream.d (strip_white): use it
+	* compiler.lisp (stream-tab): use write-spaces
+	* describe.lisp (describe-stream): ditto
+	* format.lisp (whitespacep): commented out
+
 2001-09-21  Sam Steingold  <sds@gnu.org>
 
 	binary i/o on True64

@@ -379,6 +379,8 @@ LISPSYM(force_output,"FORCE-OUTPUT",lisp)
 LISPSYM(clear_output,"CLEAR-OUTPUT",lisp)
 LISPSYM(write_unreadable,"WRITE-UNREADABLE",system)
 LISPSYM(line_position,"LINE-POSITION",system)
+LISPSYM(whitespacep,"WHITESPACEP",system)
+LISPSYM(write_spaces,"WRITE-SPACES",system)
 # ---------- LIST ----------
 LISPSYM(car,"CAR",lisp)
 LISPSYM(cdr,"CDR",lisp)

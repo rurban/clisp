@@ -9815,18 +9815,15 @@ LISPFUNN(make_keyboard_stream,0)
 # Borrowed from BASH 2.05
 # we do not strip the initial whitespace
 # since it is needed for indentation.
-#define whitespacep(c)   \
-  ((c)==' ' || (c)=='\n' || (c)=='\r' || (c)=='\t' || (c)=='\v' || (c)=='\f')
 local char * strip_white (char *string) {
   char *end, *beg=string;
   if (beg == NULL) return NULL;
-  # while (whitespacep(*beg)) beg++;
+  # while (ch_blank_p(*beg)) beg++;
   if (*beg == 0) return beg;
-  for (end = beg + strlen (beg) - 1; end > beg && whitespacep (*end); end--);
+  for (end = beg + strlen (beg) - 1; end > beg && cint_white_p (*end); end--);
   *++end = '\0';
   return beg;
 }
-#undef whitespace
 
 # In the implementation of rd_ch_terminal3 and listen_char_terminal3, we
 # should not use the corresponding rd_ch_unbuffered and listen_char_unbuffered
