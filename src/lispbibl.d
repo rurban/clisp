@@ -10687,8 +10687,9 @@ extern object coerce_function (object obj);
 # is used by CONTROL
 
 /* The macro LISPFUN initiates a declaration of a LISP functions.
- LISPFUN(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)
+ LISPFUN(name,seclass,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)
  > name: the name of the function (a C-Identifier)
+ > seclass: the side-effect class (seclass_t, see above)
  > req_anz: number of required parameters (a number)
  > opt_anz: number of optional parameters (a number)
  > rest_flag: either norest or rest, depending on whether &REST exists or not
@@ -10701,12 +10702,14 @@ extern object coerce_function (object obj);
 #define LISPFUN  LISPFUN_B
 /* is used by all modules */
 
-# The macro LISPFUNN initiates a simple declaration of a LISP-function.
-# LISPFUNN(name,req_anz)
-# > name: the function-name (a C-Identifier)
-# > req_anz: the (fixed) number of arguments (a number)
-# See SUBR.D
-# is used by all modules
+/* The macro LISPFUNN initiates a simple declaration of a LISP-function.
+ LISPFUNN(name,req_anz)
+ > name: the function-name (a C-Identifier)
+ > req_anz: the (fixed) number of arguments (a number)
+ LISPFUNNF - ditto, but seclass_foldable instead of seclass_default
+ LISPFUNNR - ditto, but seclass_read instead of seclass_default
+ See SUBR.D
+ is used by all modules */
 
 
 # ##################### CTRLBIBL for CONTROL.D ############################# #
