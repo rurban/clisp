@@ -1,3 +1,7 @@
+2004-12-07  Bruno Haible  <bruno@clisp.org>
+
+	* stream.d (same_handle_p): Parenthesize the TIME_EQ arguments.
+
 2004-12-09  Bruno Haible  <bruno@clisp.org>
 
 	* stream.d (rd_ch_array_str_in): Fix GC-safety bug introduced on
