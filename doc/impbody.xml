@@ -1277,8 +1277,8 @@ performance considerations.
   <listitem><simpara> Rounding errors accumulate, and if a computation
   is conducted with insufficient precision, an outright incorrect
   result can be returned.
-  (E.g., <literal>E(x<superscript>2</superscript>) -
-  E(x)<superscript>2</superscript></literal> can be negative!)
+  (E.g., <code>E(x<superscript>2</superscript>) -
+  E(x)<superscript>2</superscript></code> can be negative!)
   The user should not mix floats of different precision (that's what
   &warn-fpc; is for), but one should not be penalized for this too
   harshly.</simpara></listitem></varlistentry>
@@ -1296,8 +1296,8 @@ performance considerations.
 <variablelist>
 <varlistentry><term>Rationale:</term>
  <listitem><simpara> See it mathematically.  Add intervals:
-  <literal>{1.0 &plusmn; 1e-8} + {1.0 &plusmn; 1e-16} = {2.0 &plusmn;
-  1e-8}</literal>.  So, if we add <literal>1.0s0</literal> and
+  <code>{1.0 &plusmn; 1e-8} + {1.0 &plusmn; 1e-16} = {2.0 &plusmn;
+  1e-8}</code>.  So, if we add <literal>1.0s0</literal> and
   <literal>1.0d0</literal>, we should get <literal>2.0s0</literal>.
   </simpara></listitem></varlistentry>
 <varlistentry><term>Brief:</term>
