@@ -575,7 +575,7 @@ global SOCKET connect_to_x_server(host,display)
 
   # (conntype == conn_none)
   {
-    errno = ENOSYS; return INVALID_SOCKET;
+    OS_set_errno(ENOSYS); return INVALID_SOCKET;
   }
 
   #ifndef WIN32

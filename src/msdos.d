@@ -22,6 +22,7 @@
     extern int errno; # letzter Fehlercode
   #endif
   #define OS_errno errno
+  #define OS_set_errno(e) (errno=(e))
   extern const int sys_nerr; # Anzahl der Betriebssystem-Fehlermeldungen
   extern const char* const sys_errlist[]; # Betriebssystem-Fehlermeldungen
   # siehe PERROR(3)

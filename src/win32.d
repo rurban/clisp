@@ -16,9 +16,16 @@
   #undef UNICODE
 #endif
 
+/* for _clisp.c */
+#define STDC_HEADERS
+#define HAVE_UNISTD_H
+#define HAVE_PERROR_DECL
+
 # Declaration of operating system functions
   #define WIN32_LEAN_AND_MEAN  # avoid including junk
   #ifdef __MINGW32__
+    /* need this for isatty(), write() &c in <mingw/io.h> */
+    #define _UWIN
     # `unused' is used in function declarations.
     #undef unused
     #define ULONGLONG OS_ULONGLONG
@@ -38,7 +45,8 @@
   # extern DWORD FormatMessage (DWORD Flags, LPCVOID Source, DWORD MessageId, DWORD LanguageId, LPTSTR Buffer, DWORD Size, va_list* Arguments);
   # extern int WSAGetLastError (void);
   #define OS_errno GetLastError()
-# used by error.d, spvw.d, stream.d, pathname.d
+  #define OS_set_errno(e) SetLastError(e)
+# used by error.d, spvw.d, stream.d, pathname.d, socket.d
 
 # Getting memory.
   #include <stdlib.h>

@@ -28,6 +28,7 @@
   # Zugriff und Zuweisung auf errno durch begin_system_call()/end_system_call()
   # geschützt sein.
   #define OS_errno errno
+  #define OS_set_errno(e) (errno=(e))
   #ifdef HAVE_STRERROR
     #include <string.h>
     extern_C char* strerror (int errnum);
