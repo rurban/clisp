@@ -5448,8 +5448,8 @@
 
 2004-09-17  Bruno Haible  <bruno@clisp.org>
 
-	* constsym.d (CUSTOM:*DEFUN-ACCEPT-SPECIALIZED-LAMBDA-LIST*,
-	SYS::SPECIALIZED-LAMBDA-LIST-TO-ORDINARY): Align C names.
+	* constsym.d (CUSTOM:*DEFUN-ACCEPT-SPECIALIZED-LAMBDA-LIST*)
+	(SYS::SPECIALIZED-LAMBDA-LIST-TO-ORDINARY): Align C names.
 	* spvw.d (init_symbol_values): Update.
 	* eval.d (get_closure): Update.
 	* misc.d (SYS::SET-ANSI): Update.
@@ -6325,8 +6325,8 @@
 
 2004-06-20  Bruno Haible  <bruno@clisp.org>
 
-	* record.d (CLOS:STANDARD-INSTANCE-ACCESS,
-	(SETF CLOS:STANDARD-INSTANCE-ACCESS)): New functions.
+	* record.d (CLOS:STANDARD-INSTANCE-ACCESS)
+	((SETF CLOS:STANDARD-INSTANCE-ACCESS)): New functions.
 	* init.lisp: Export standard-instance-access.
 	* clos-package.lisp: Likewise.
 	* places.lisp (clos:standard-instance-access): Define setf function.
