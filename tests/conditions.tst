@@ -475,6 +475,8 @@ check-use-value
 (check-use-value char-code #\1 12 :test =) t
 (check-use-value symbol-name good "bad" :test string=) t
 (check-use-value intern "BAR" bar :test eq) t
+(check-use-value fboundp cons "CONS") t
+(check-use-value fdefinition cons "CONS") t
 
 ;; make-hash-table
 (flet ((mht (test) (make-hash-table :test test)))
