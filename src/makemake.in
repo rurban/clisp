@@ -1437,11 +1437,8 @@ if [ $XCC_GCC = false ] ; then
     SP_ASMS=$SP_ASMS' sp68000'
   fi
   if [ "$cpu" = sparc ] ; then
-    # durch cc_sparc.il überflüssig:
-    if [ $TSYS != sun4 -o -n "$XCC_SUNPRO" ] ; then
-      SP_ASMD=$SP_ASMD' spsparc'
-      SP_ASMS=$SP_ASMS' spsparc'
-    fi
+    SP_ASMD=$SP_ASMD' spsparc'
+    SP_ASMS=$SP_ASMS' spsparc'
   fi
   if [ "$cpu" = mips -o "$cpu" = mips64 ] ; then
     SP_ASMD=$SP_ASMD' spmips'
@@ -2013,9 +2010,6 @@ for util in $UTILS ; do
   line=$line" ${util}${HEXE}"
 done
 line=$line" \$(DFILES) modules.h"
-if [ $TSYS = sun4 -a "$CC" = cc -a -z "$XCC_SUNPRO" ] ; then
-  line=$line" cc_sparc.il"
-fi
 if [ -n "${SRCDIR}" ] ; then
   for f in $UNICODE_INCLUDES $NLS_INCLUDES ; do
     line=$line" ${f}.c"
@@ -2133,11 +2127,6 @@ if [ -n "${SRCDIR}" ] ; then
       echotab "-\$(LN) ${SRCDIR}${f} ${f}"
       echol
     done
-    if [ $TSYS = sun4 -a "$CC" = cc -a -z "$XCC_SUNPRO" ] ; then
-      echol "cc_sparc.il : ${SRCDIR}cc_sparc.il"
-      echotab "-\$(LN) ${SRCDIR}cc_sparc.il cc_sparc.il"
-      echol
-    fi
     echol
   fi
 fi
@@ -2309,13 +2298,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
     fi
     dependsc=$dependsc' modules.h'
   fi
-  if [ $TSYS = sun4 -a "$CC" = cc -a -z "$XCC_SUNPRO" ] ; then
-    flags2=$flags' cc_sparc.il'
-    dependsc2=' cc_sparc.il'
-  else
-    flags2=$flags
-    dependsc2=''
-  fi
+  flags2=$flags
   if [ $f = genclisph -a $XCC_GCC = true ] ; then
     flags2=$flags2' -O0' # no need to optimize this
   fi
@@ -2324,13 +2307,13 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   echol
   if [ $XCC_UNUSABLE_CPP = true ] ; then
     if [ $HSYS = win32msvc -o $HSYS = win32bc ] ; then
-      echol "${f}.s : ${f}.c${dependsc}${dependsc2}"
+      echol "${f}.s : ${f}.c${dependsc}"
       echotab "${XCPP} ${flags} ${f}.c > ${f}.i.c"
       echotab "${XCC} ${flags2} -c ${f}.i.c /FAs /Fa${f}.s"
       echotab "\$(RM) ${f}.i${TOBJ}"
       echotab "\$(RM) ${f}.i.c"
       echol
-      echol "${f}${TOBJ} : ${f}.c${dependsc}${dependsc2}"
+      echol "${f}${TOBJ} : ${f}.c${dependsc}"
       echotab "${XCPP} ${flags} ${f}.c > ${f}.i.c"
       echotab "${XCC} ${flags2} -c ${f}.i.c"
       echotab "\$(RM) ${f}${TOBJ}"
@@ -2338,13 +2321,13 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
       echotab "\$(RM) ${f}.i.c"
       echol
     else
-      echol "${f}.s : ${f}.c${dependsc}${dependsc2}"
+      echol "${f}.s : ${f}.c${dependsc}"
       echotab "${XCPP} ${flags} ${f}.c > ${f}.i.c"
       echotab "${XCC} ${flags2} -S ${f}.i.c"
       echotab "\$(MV) ${f}.i.s ${f}.s"
       echotab "\$(RM) ${f}.i.c"
       echol
-      echol "${f}${TOBJ} : ${f}.c${dependsc}${dependsc2}"
+      echol "${f}${TOBJ} : ${f}.c${dependsc}"
       echotab "${XCPP} ${flags} ${f}.c > ${f}.i.c"
       echotab "${XCC} ${flags2} -c ${f}.i.c"
       echotab "\$(MV) ${f}.i${TOBJ} ${f}${TOBJ}"
@@ -2357,11 +2340,11 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
       echotab "\$(DISASM) ${f}${TOBJ} -l=${f}.s"
       echol
     else
-      echol "${f}.s : ${f}.c${dependsc}${dependsc2}"
+      echol "${f}.s : ${f}.c${dependsc}"
       echotab "${XCC} ${flags2} -S ${f}.c"
       echol
     fi
-    echol "${f}${TOBJ} : ${f}.c${dependsc}${dependsc2}"
+    echol "${f}${TOBJ} : ${f}.c${dependsc}"
     echotab "${XCC} ${flags2} -c ${f}.c"
     echol
   fi
