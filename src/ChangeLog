@@ -1,5 +1,11 @@
 2003-02-13  Sam Steingold  <sds@gnu.org>
 
+	* io.d (PARSE-INTEGER): signal a PARSE-ERROR on bad syntax and
+	report only the substring being parsed, not the whole string
+	Reported by Joerg Hoehle
+
+2003-02-13  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #[ 685855 ]: ext:string-width ignores :start
 	* charstrg.d (STRING-WIDTH): start with :START, not 0
 
