@@ -175,10 +175,10 @@
 # UDS_to_DIGITS(MSDptr,len,base, &ergebnis);
 # > MSDptr/len/..: eine UDS
 # > base: Stellensystem-Basis, 2 <= base <= 36.
-# > ergebnis.LSBptr: darunter ist mindestens digits_need(len) Bytes Platz
+# > ergebnis.LSBptr: darunter ist mindestens digits_need(len) Zeichen Platz
 # < ergebnis: fertige Folge MSBptr/len/LSBptr von Ziffern
 # Die UDS MSDptr/len/.. wird zerstört.
-  typedef struct { uintB* MSBptr; uintL len; uintB* LSBptr; } DIGITS;
+  typedef struct { chart* MSBptr; uintL len; chart* LSBptr; } DIGITS;
   local void UDS_to_DIGITS (uintD* MSDptr, uintC len, uintD base, DIGITS* erg);
 # Methode:
 # Umwandlung ins Stellensystem der Basis b geht durch Umwandlung ins Stellen-
@@ -209,9 +209,9 @@
       var const power_table_entry * tableptr = &table[base-2];
       var uintC k_1 = tableptr->k_1; # k-1
       var uintD b_hoch_k = tableptr->b_hoch_k; # b^k
-      var uintB* erg_ptr = erg->LSBptr;
+      var chart* erg_ptr = erg->LSBptr;
       begin_arith_call();
-      #define next_digit(d)  { *--erg_ptr = (d<10 ? '0'+d : 'A'-10+d); }
+      #define next_digit(d)  { *--erg_ptr = ascii(d<10 ? '0'+d : 'A'-10+d); }
       # normalisiere zu einer NUDS:
       loop
         { if (len==0) { next_digit(0); goto fertig; } # 0 -> eine Ziffer '0'
@@ -242,7 +242,7 @@
         }}
       #undef next_digit
       # Streiche führende Nullen:
-      while (*erg_ptr == '0') { erg_ptr++; }
+      while (chareq(*erg_ptr,ascii('0'))) { erg_ptr++; }
       fertig:
       erg->MSBptr = erg_ptr;
       erg->len = erg->LSBptr - erg_ptr;

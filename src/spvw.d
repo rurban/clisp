@@ -737,9 +737,9 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
     var const uintB* charptr;
     var uintL len;
     { var object obj = allocate_string(len); # String allozieren
-      var uintB* ptr = &TheSstring(obj)->data[0];
+      var chart* ptr = &TheSstring(obj)->data[0];
       # Zeichenfolge von charptr nach ptr kopieren:
-      dotimesL(len,len, { *ptr++ = *charptr++; } );
+      dotimesL(len,len, { *ptr++ = as_chart(*charptr++); } );
       return(obj);
     }
 
@@ -808,13 +808,13 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
      {var object newasciz = allocate_bit_vector((vector_length(obj)+1)*8);
       obj = popSTACK(); # String zurück
       { var uintL len;
-        var const uintB* sourceptr = unpack_string(obj,&len);
+        var const chart* sourceptr = unpack_string(obj,&len);
         # Source-String: Länge in len, Bytes ab sourceptr
         var uintB* destptr = &TheSbvector(newasciz)->data[0];
         # Destination-String: Bytes ab destptr
         { # Kopierschleife:
           var uintL count;
-          dotimesL(count,len, { *destptr++ = *sourceptr++; } );
+          dotimesL(count,len, { *destptr++ = as_cint(*sourceptr++); } );
           *destptr++ = 0; # Nullbyte anfügen
       } }
       return newasciz;
@@ -2900,7 +2900,7 @@ local void usage (int exit_code)
         {
           #ifdef UNIX
           # Make clisp ignore the leading #! line.
-          pushSTACK(code_char('#')); pushSTACK(code_char('!'));
+          pushSTACK(ascii_char('#')); pushSTACK(ascii_char('!'));
           pushSTACK(L(unix_executable_reader));
           funcall(L(set_dispatch_macro_character),3);
           #endif

@@ -38,7 +38,7 @@
      {var object newvector = allocate_bit_vector(length); # gleichlanger Vektor
       vector = popSTACK();
       if (!(length==0))
-        { var uintB* ptr1 = &TheSbvector(vector)->data[0];
+        { var const uintB* ptr1 = &TheSbvector(vector)->data[0];
           var uintB* ptr2 = &TheSbvector(newvector)->data[0];
           dotimespL(length,ceiling(length,8), { *ptr2++ = *ptr1++; } );
         }
@@ -1857,7 +1857,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
                       if (len>0)
                         { var uintL index = 0;
                           var object datenvektor = iarray_displace_check(array,len,&index);
-                          var object* ptr1 = &TheSvector(datenvektor)->data[index];
+                          var const object* ptr1 = &TheSvector(datenvektor)->data[index];
                           var uintL count;
                           dotimespL(count,len, { *ptr2++ = *ptr1++; } );
                         }
@@ -1868,12 +1868,12 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
                   case Atype_Char: # array ist ein String
                     neuer_datenvektor = allocate_string(newlen);
                     array = STACK_0; # array wieder holen
-                    { var uintB* ptr2 = &TheSstring(neuer_datenvektor)->data[0];
+                    { var chart* ptr2 = &TheSstring(neuer_datenvektor)->data[0];
                       # alten in neuen Datenvektor kopieren:
                       if (len>0)
                         { var uintL index = 0;
                           var object datenvektor = iarray_displace_check(array,len,&index);
-                          var uintB* ptr1 = &TheSstring(datenvektor)->data[index];
+                          var const chart* ptr1 = &TheSstring(datenvektor)->data[index];
                           var uintL count;
                           dotimespL(count,len, { *ptr2++ = *ptr1++; } );
                         }
@@ -1895,7 +1895,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
                       { var uintL index = 0;
                         var object datenvektor = iarray_displace_check(array,len,&index);
                         index = index << atype;
-                       {var uint_bitpack* ptr1 = &((uint_bitpack*)(&TheSbvector(atype==Atype_Bit ? datenvektor : TheIarray(datenvektor)->data)->data[0]))[index/bitpack];
+                       {var const uint_bitpack* ptr1 = &((uint_bitpack*)(&TheSbvector(atype==Atype_Bit ? datenvektor : TheIarray(datenvektor)->data)->data[0]))[index/bitpack];
                         var uint_bitpack* ptr2 = (uint_bitpack*)(&TheSbvector(atype==Atype_Bit ? neuer_datenvektor : TheIarray(neuer_datenvektor)->data)->data[0]);
                         var uintL bitpackcount = ceiling(len<<atype,bitpack); # Anzahl der zu schreibenden Worte
                         # kopiere bitpackcount Words, von ptr1 ab (dabei um
@@ -2033,10 +2033,10 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
 # > ch: Character
 # < ergebnis: derselbe Semi-Simple String
 # kann GC auslösen
-  global object ssstring_push_extend (object ssstring, uintB ch);
+  global object ssstring_push_extend (object ssstring, chart ch);
   global object ssstring_push_extend(ssstring,ch)
     var object ssstring;
-    var uintB ch;
+    var chart ch;
     { var object sstring = TheIarray(ssstring)->data; # Datenvektor (ein Simple-String)
       if (TheIarray(ssstring)->dims[1] # Fill-Pointer
           >= Sstring_length(sstring) ) # >= Länge ?
@@ -2047,8 +2047,8 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
           # neuer Simple-String der doppelten Länge
           sstring = popSTACK(); # sstring zurück
           # Stringinhalt von String sstring nach String neuer_sstring kopieren:
-          { var uintB* ptr1 = &TheSstring(sstring)->data[0];
-            var uintB* ptr2 = &TheSstring(neuer_sstring)->data[0];
+          { var const chart* ptr1 = &TheSstring(sstring)->data[0];
+            var chart* ptr2 = &TheSstring(neuer_sstring)->data[0];
             var uintL count;
             dotimespL(count,Sstring_length(sstring), { *ptr2++ = *ptr1++; } );
           }
@@ -2090,8 +2090,8 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
           # neuer Simple-String mindestens der gewünschten und der doppelten Länge
           sstring = popSTACK(); # sstring zurück
           # Stringinhalt von String sstring nach String neuer_sstring kopieren:
-          { var uintB* ptr1 = &TheSstring(sstring)->data[0];
-            var uintB* ptr2 = &TheSstring(neuer_sstring)->data[0];
+          { var const chart* ptr1 = &TheSstring(sstring)->data[0];
+            var chart* ptr2 = &TheSstring(neuer_sstring)->data[0];
             var uintL count;
             dotimespL(count,Sstring_length(sstring), { *ptr2++ = *ptr1++; } );
           }
@@ -2264,7 +2264,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       if (eq(STACK_1,unbound)) { STACK_1 = NIL; }
       # Testen, ob mehr als eine Initialisierung
       # (:initial-element, :initial-contents, :displaced-to) angegeben wurde:
-      { var uintB initcount = 0; # Zähler
+      { var uintC initcount = 0; # Zähler
         if (!(eq(STACK_4,unbound))) { initcount++; } # initial-element angegeben?
         if (!(eq(STACK_3,unbound))) { initcount++; } # initial-contents angegeben?
         if (!nullp(STACK_1)) { initcount++; } # displaced-to angegeben?
@@ -2338,10 +2338,10 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
               if (!(eq(STACK_4,unbound))) # initial-element angegeben?
                 { # ja -> überprüfen, muss Character sein:
                   if (!charp(STACK_4)) goto fehler_init;
-                 {var uintB initial_char = char_code(STACK_4);
+                 {var chart initial_char = char_code(STACK_4);
                   if (!(len==0)) # und Länge > 0 ?
                     { # ja -> Vektor mit initial-element füllen:
-                      var uintB* ptr = &TheSstring(vektor)->data[0];
+                      var chart* ptr = &TheSstring(vektor)->data[0];
                       dotimespL(len,len, { *ptr++ = initial_char; });
                 }}  }
               return vektor;

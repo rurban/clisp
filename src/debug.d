@@ -164,7 +164,7 @@
                   if (eq(ch,eof_value))
                     break;
                   read_char(&STACK_(3+1));
-                  if (eq(ch,code_char(NL)))
+                  if (eq(ch,ascii_char(NL)))
                     break;
             }   }
           value1 = popSTACK(); value2 = NIL; mv_count=2; # obj, NIL als Werte
