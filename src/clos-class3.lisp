@@ -463,7 +463,8 @@
                            all-keys)
                     ;; FIXME: Need to handle changes of shared slots here?
                     (update-subclasses-for-redefined-class class
-                      was-finalized must-be-finalized old-direct-superclasses))))))))
+                      was-finalized must-be-finalized old-direct-superclasses)))))))
+        (install-class-direct-accessors class))
       (setf (find-class name)
             (setq class
               (apply (cond ((eq metaclass <standard-class>)
@@ -477,7 +478,6 @@
                      :name name
                      :direct-superclasses direct-superclasses
                      all-keys))))
-    (install-class-direct-accessors class)
     class))
 (defun equal-direct-slots (slots1 slots2)
   (or (and (null slots1) (null slots2))
@@ -1290,7 +1290,9 @@
                                              &key &allow-other-keys)
   ;; Don't add functionality here! This is a preliminary definition that is
   ;; replaced with #'initialize-instance later.
-  (apply #'shared-initialize-<built-in-class> class 't args))
+  (apply #'shared-initialize-<built-in-class> class 't args)
+  (install-class-direct-accessors class)
+  class)
 
 (defun shared-initialize-<built-in-class> (class situation &rest args
                                            &key (name nil name-p)
@@ -1339,7 +1341,9 @@
                                               &key &allow-other-keys)
   ;; Don't add functionality here! This is a preliminary definition that is
   ;; replaced with #'initialize-instance later.
-  (apply #'shared-initialize-<structure-class> class 't args))
+  (apply #'shared-initialize-<structure-class> class 't args)
+  (install-class-direct-accessors class)
+  class)
 
 (defun shared-initialize-<structure-class> (class situation &rest args
                                             &key (name nil name-p)
@@ -1470,7 +1474,9 @@
                                              &key &allow-other-keys)
   ;; Don't add functionality here! This is a preliminary definition that is
   ;; replaced with #'initialize-instance later.
-  (apply #'shared-initialize-<standard-class> class 't args))
+  (apply #'shared-initialize-<standard-class> class 't args)
+  (install-class-direct-accessors class)
+  class)
 
 (defun shared-initialize-<standard-class> (class situation &rest args
                                            &key (direct-superclasses '() direct-superclasses-p)
