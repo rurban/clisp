@@ -670,7 +670,7 @@ LISPFUNN(subr_info,1)
                       new_range.high_limit = topofframe(FRAME_(0));
                       new_range.next = other_ranges;
                       {var object* top_of_frame = STACK;
-                       var jmp_buf returner; # Rücksprungpunkt
+                       var sp_jmp_buf returner; # Rücksprungpunkt
                        finish_entry_frame(UNWIND_PROTECT,&!returner,,
                          { var restart fun = unwind_protect_to_save.fun;
                            var object* arg = unwind_protect_to_save.upto_frame;
@@ -2421,7 +2421,7 @@ LISPFUNN(subr_info,1)
     var object* args_pointer;
     var uintC argcount;
     { # 1. Schritt: APPLY-Frame zu Ende aufbauen:
-      var jmp_buf my_jmp_buf;
+      var sp_jmp_buf my_jmp_buf;
       #ifdef DEBUG_EVAL
       if (streamp(Symbol_value(S(funcall_trace_output))))
         { pushSTACK(closure); trace_call(closure,'F','I'); closure = popSTACK(); }
@@ -2900,7 +2900,7 @@ LISPFUNN(subr_info,1)
           form = popSTACK();
           goto start;
         });
-     {var jmp_buf my_jmp_buf;
+     {var sp_jmp_buf my_jmp_buf;
       # EVAL-Frame aufbauen:
       { var object* top_of_frame = STACK; # Pointer übern Frame
         pushSTACK(form); # Form
@@ -2945,7 +2945,7 @@ LISPFUNN(subr_info,1)
   global Values eval_no_hooks (object form);
   global Values eval_no_hooks(form)
     var object form;
-    { var jmp_buf my_jmp_buf;
+    { var sp_jmp_buf my_jmp_buf;
       # EVAL-Frame aufbauen:
       { var object* top_of_frame = STACK; # Pointer übern Frame
         pushSTACK(form); # Form
@@ -5911,38 +5911,38 @@ LISPFUNN(subr_info,1)
          #define pushSP(item)  (*--private_SP = (item))
          #define popSP(item_zuweisung)  (item_zuweisung *private_SP++)
        #endif
-       # var JMPBUF_on_SP(name);  alloziert einen jmp_buf im SP.
+       # var JMPBUF_on_SP(name);  alloziert einen sp_jmp_buf im SP.
        # FREE_JMPBUF_on_SP();  dealloziert ihn wieder.
        # finish_entry_frame_1(frametype,returner,reentry_statement);  ist wie
        # finish_entry_frame(frametype,returner,,reentry_statement);  nur dass
        # auch private_SP gerettet wird.
        #ifndef FAST_SP
          #define JMPBUF_on_SP(name)  \
-           jmp_buf* name = (jmp_buf*)(private_SP -= jmpbufsize);
+           sp_jmp_buf* name = (sp_jmp_buf*)(private_SP -= jmpbufsize);
          #define FREE_JMPBUF_on_SP()  \
            private_SP += jmpbufsize;
          #define finish_entry_frame_1(frametype,returner,reentry_statement)  \
            finish_entry_frame(frametype,&!*returner, # Beim Eintritt: returner = private_SP      \
-             returner = (jmp_buf*) , # returner wird beim Rücksprung wieder gesetzt              \
+             returner = (sp_jmp_buf*) , # returner wird beim Rücksprung wieder gesetzt           \
              { private_SP = (SPint*)returner; reentry_statement } # und private_SP rekonstruiert \
              )
        #else
          #ifdef SP_DOWN
            #define JMPBUF_on_SP(name)  \
-             jmp_buf* name;                   \
-             {var SPint* sp = (SPint*)SP();   \
-              sp -= jmpbufsize;               \
-              setSP(sp);                      \
-              name = (jmp_buf*)&sp[SPoffset]; \
+             sp_jmp_buf* name;                   \
+             {var SPint* sp = (SPint*)SP();      \
+              sp -= jmpbufsize;                  \
+              setSP(sp);                         \
+              name = (sp_jmp_buf*)&sp[SPoffset]; \
              }
          #endif
          #ifdef SP_UP
            #define JMPBUF_on_SP(name)  \
-             jmp_buf* name;                     \
-             {var SPint* sp = (SPint*)SP();     \
-              name = (jmp_buf*)&sp[SPoffset+1]; \
-              sp += jmpbufsize;                 \
-              setSP(sp);                        \
+             sp_jmp_buf* name;                     \
+             {var SPint* sp = (SPint*)SP();        \
+              name = (sp_jmp_buf*)&sp[SPoffset+1]; \
+              sp += jmpbufsize;                    \
+              setSP(sp);                           \
              }
          #endif
          #define FREE_JMPBUF_on_SP()  \
