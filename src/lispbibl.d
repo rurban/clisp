@@ -178,6 +178,9 @@
   #endif
   #if defined(sparc) || defined(__sparc__)
     #define SPARC
+    #if defined(__arch64__)
+      #define SPARC64
+    #endif
   #endif
   #if defined(mips) || defined(__mips)
     #define MIPS
@@ -609,7 +612,7 @@
 # WIDE_HARD means on a 64-bit platform.
 # WIDE_SOFT means on a 32-bit platform, each object pointer occupies 2 words.
 
-#if defined(DECALPHA) || defined(MIPS64)
+#if defined(DECALPHA) || defined(MIPS64) || defined(SPARC64)
   #define WIDE_HARD
 #endif
 
@@ -1355,7 +1358,7 @@
   #define intLsize 32
   typedef signed_int_with_n_bits(intLsize)    sintL;
   typedef unsigned_int_with_n_bits(intLsize)  uintL;
-  #if defined(DECALPHA) || defined(MIPS64)
+  #if defined(DECALPHA) || defined(MIPS64) || defined(SPARC64)
     # Maschine hat echte 64-Bit-Zahlen in Hardware.
     #define intQsize 64
     typedef signed_int_with_n_bits(intQsize)    sintQ;
@@ -1585,7 +1588,7 @@
   #endif
   typedef unsigned_int_with_n_bits(intDsize)  uintD;
   typedef signed_int_with_n_bits(intDsize)    sintD;
-  #if (intDDsize<=32) || ((intDDsize<=64) && (defined(DECALPHA) || defined(MIPS64)))
+  #if (intDDsize<=32) || ((intDDsize<=64) && (defined(DECALPHA) || defined(MIPS64) || defined(SPARC64)))
     #define HAVE_DD 1
     typedef unsigned_int_with_n_bits(intDDsize)  uintDD;
     typedef signed_int_with_n_bits(intDDsize)    sintDD;
@@ -2374,6 +2377,33 @@ Ratio and Complex (only if SPVW_MIXED).
     #define oint_data_shift 0
     #define oint_data_len 32
     #define oint_data_mask 0x00000000FFFFFFFFUL
+  #endif
+  #if defined(SPARC64)
+    # Virtual address limit on some systems: -2^43..2^43.
+    #if defined(NO_SINGLEMAP)
+      # Wenn MAP_MEMORY nicht gefordert ist, ist das das sicherste.
+      # Bits 63..48 = Typcode, Bits 47..0 = Adresse
+      #define oint_type_shift 48
+      #define oint_type_len 16
+      #define oint_type_mask 0xFFFF000000000000UL
+      #define oint_addr_shift 0
+      #define oint_addr_len 48
+      #define oint_addr_mask 0x0000FFFFFFFFFFFFUL
+      #define oint_data_shift 0
+      #define oint_data_len 32
+      #define oint_data_mask 0x00000000FFFFFFFFUL
+    #else
+      # Bits 63..32 = Typcode, Bits 31..0 = Adresse
+      #define oint_type_shift 32
+      #define oint_type_len 32
+      #define oint_type_mask 0xFFFFFFFF00000000UL
+      #define oint_addr_shift 0
+      #define oint_addr_len 32
+      #define oint_addr_mask 0x00000000FFFFFFFFUL
+      #define oint_data_shift 0
+      #define oint_data_len 32
+      #define oint_data_mask 0x00000000FFFFFFFFUL
+    #endif
   #endif
 #elif defined(WIDE_SOFT)
   # Getrennte 32-Bit-Wörter für Typcode und Adresse.
