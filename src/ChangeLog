@@ -1,3 +1,21 @@
+2004-05-29  Bruno Haible  <bruno@clisp.org>
+
+	Make the reader/writer method classes customizable.
+	* init.lisp: Export standard-reader-method, standard-writer-method,
+	reader-method-class, writer-method-class.
+	* clos-package.lisp: Likewise.
+	* clos-class2.lisp (<standard-reader-method>, <standard-writer-method>):
+	New variables.
+	* clos-class3.lisp (ensure-class): Call reader-method-class to
+	determine the class of reader methods, and writer-method-class to
+	determine the class of writer methods. Add :slot-definition to the
+	accessor method's initargs.
+	(reader-method-class, writer-method-class): New functions.
+	* clos-method1.lisp: Initialize <standard-reader-method>,
+	<standard-writer-method>.
+	* clos-class6.lisp (reader-method-class, writer-method-class): New
+	generic functions.
+
 2004-07-15  Sam Steingold  <sds@gnu.org>
 
 	support binary i/o for fixed-record-length databases
