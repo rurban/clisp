@@ -1,3 +1,9 @@
+1999-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * pathname.d (init_pathnames) [WIN32_NATIVE]: Follow documented
+          calling convention for GetVersionInfoEx.
+        * misc.d (MACHINE-VERSION) [WIN32_NATIVE]: Likewise.
+
 1999-07-26  Jörg Höhle  <hoehle@tzd.telekom.de>
 
         * screen.lsp (generic-stream-read-char-will-hang-p,
