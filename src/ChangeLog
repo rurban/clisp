@@ -1,3 +1,8 @@
+2004-06-13  Bruno Haible  <bruno@clisp.org>
+
+	* lambdalist.lisp (analyze-lambdalist, analyze-defsetf-lambdalist):
+	Improved error messages.
+
 2004-06-05  Bruno Haible  <bruno@clisp.org>
 
 	* clos-genfun5.lisp (missing-required-method): New function.
