@@ -88,7 +88,7 @@ global uintL vector_length (object vector) {
 /* Function: Canonicalizes an array element-type and returns its
  element type code.
  ** When this function is changed, also update UPGRADED-ARRAY-ELEMENT-TYPE
- ** in type.lisp!
+ ** and SUBTYPE-SEQUENCE in type.lisp!
  eltype_code(element_type)
  > element_type: type specifier
  < result: element type code Atype_xxx
