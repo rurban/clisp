@@ -1,7 +1,19 @@
+2000-08-17  Sam Steingold  <sds@gnu.org>
+
+	ANSI `parse-namestring' when LISP:*PARSE-NAMESTRING-ANSI* is non-NIL
+	* pathname.d (logical_host): New function.
+	(parse_logical_pathnamestring): Use it.
+	(string_logical_path_p): New function.
+	(parse_namestring): Use it.
+	* constsym.d (parse_namestring_ansi): New variable.
+	* spvw.d (init_symbol_values): Define it.
+	* misc.d (set_ansi): Set it.
+	* places.lisp (*ansi*): Added it to the doc.
+
 2000-08-17  Bruno Haible  <haible@clisp.cons.org>
 
-        * pathname.d (open_file): Pass tolerantp = TRUE to assure_dir_exists
-          also if if_not_exists = 2 and direction != 0.
+	* pathname.d (open_file): Pass tolerantp = TRUE to assure_dir_exists
+	also if if_not_exists = 2 and direction != 0.
 
 2000-07-27  Bruno Haible  <haible@clisp.cons.org>
 
