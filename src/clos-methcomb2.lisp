@@ -564,13 +564,10 @@ and with the next-method support."
 
 (defun short-form-method-combination-expander
     (*method-combination-generic-function* *method-combination* methods options)
-  (let ((em-form (compute-short-form-effective-method-form
-                   *method-combination* options methods)))
-    (typecase em-form
-      (function em-form)
-      (list (compute-effective-method-function
-             *method-combination-generic-function*
-             *method-combination* methods em-form)))))
+  (compute-effective-method-function
+    *method-combination-generic-function* *method-combination* methods
+    (compute-short-form-effective-method-form
+      *method-combination* options methods)))
 
 (defun short-form-method-combination-check-method-qualifiers (gf method-combo method)
   (standard-method-combination-check-method-qualifiers gf method-combo method)
@@ -604,13 +601,9 @@ and with the next-method support."
 (defun long-form-method-combination-expander
     (*method-combination-generic-function* *method-combination* methods options
      long-expander)
-  (let ((em-form (apply long-expander *method-combination-generic-function*
-                        methods options)))
-    (typecase em-form
-      (function em-form)
-      (list (compute-effective-method-function
-             *method-combination-generic-function*
-             *method-combination* methods em-form)))))
+  (compute-effective-method-function
+    *method-combination-generic-function* *method-combination* methods
+    (apply long-expander *method-combination-generic-function* methods options)))
 
 (defun long-form-method-combination-call-next-method-allowed (gf method-combo method)
   (declare (ignore gf method-combo method))
