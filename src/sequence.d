@@ -1,32 +1,30 @@
 /*
  * Sequences for CLISP
- * Bruno Haible 1987-2002
- * Sam Steingold 1998-2002
+ * Bruno Haible 1987-2003
+ * Sam Steingold 1998-2003
  */
 #include "lispbibl.c"
 
 
-# O(seq_types) contains a list of type descriptors for sequences.
-# These are simple-vectors of length 16, containing:
-#  SEQ-TYPE        ; the type of the sequence, usually a symbol
-#  access functions:
-#  SEQ-INIT
-#  SEQ-UPD
-#  SEQ-ENDTEST
-#  SEQ-FE-INIT
-#  SEQ-FE-UPD
-#  SEQ-FE-ENDTEST
-#  SEQ-ACCESS
-#  SEQ-ACCESS-SET
-#  SEQ-COPY
-#  SEQ-LENGTH
-#  SEQ-MAKE
-#  SEQ-ELT
-#  SEQ-SET-ELT
-#  SEQ-INIT-START
-#  SEQ-FE-INIT-END
-
-/*
+/* O(seq_types) contains a list of type descriptors for sequences.
+ These are simple-vectors of length 16, containing:
+  SEQ-TYPE        ; the type of the sequence, usually a symbol
+  access functions:
+  SEQ-INIT
+  SEQ-UPD
+  SEQ-ENDTEST
+  SEQ-FE-INIT
+  SEQ-FE-UPD
+  SEQ-FE-ENDTEST
+  SEQ-ACCESS
+  SEQ-ACCESS-SET
+  SEQ-COPY
+  SEQ-LENGTH
+  SEQ-MAKE
+  SEQ-ELT
+  SEQ-SET-ELT
+  SEQ-INIT-START
+  SEQ-FE-INIT-END
 
  Explanation of the functions SEQ-XXX:
 
@@ -240,54 +238,52 @@ local object valid_type (object name) {
 # get_seq_type(seq)
 # > seq: eine Sequence
 # < ergebnis: Typdescriptor oder NIL
-local object get_seq_type (object seq) { var object name;
- if (listp(seq)) name = S(list); # Typ LIST
- else if (vectorp(seq)) {
-   switch (Array_type(seq)) {
-     case Array_type_sstring: case Array_type_string:
-       name = S(string); break; # Typ STRING
-     case Array_type_sbvector: case Array_type_bvector:
-       name = S(bit_vector); break; # Typ BIT-VECTOR
-     case Array_type_sb2vector:
-     case Array_type_sb4vector:
-     case Array_type_sb8vector:
-     case Array_type_sb16vector:
-     case Array_type_sb32vector: # Typ n, bedeutet (VECTOR (UNSIGNED-BYTE n))
-       name = fixnum(bit(sbNvector_atype(seq))); break;
-     case Array_type_b2vector:
-     case Array_type_b4vector:
-     case Array_type_b8vector:
-     case Array_type_b16vector:
-     case Array_type_b32vector: # Typ n, bedeutet (VECTOR (UNSIGNED-BYTE n))
-       name = fixnum(bit(bNvector_atype(seq))); break;
-     default:
-       name = S(vector); break; # Typ [GENERAL-]VECTOR
-   }
- } else if (structurep(seq)) {
-   name = TheStructure(seq)->structure_types; # Structure-Typen-List*e
-   while (consp(name)) { name = Cdr(name); } # davon den letzten Typ nehmen
- } else return NIL;
- # SEQ-TYPES-Liste durchgehen:
- return find_seq_type(name);
+local object get_seq_type (object seq) {
+  var object name;
+  if (listp(seq)) name = S(list); # Typ LIST
+  else if (vectorp(seq)) {
+    switch (Array_type(seq)) {
+      case Array_type_sstring: case Array_type_string:
+        name = S(string); break; # Typ STRING
+      case Array_type_sbvector: case Array_type_bvector:
+        name = S(bit_vector); break; # Typ BIT-VECTOR
+      case Array_type_sb2vector:
+      case Array_type_sb4vector:
+      case Array_type_sb8vector:
+      case Array_type_sb16vector:
+      case Array_type_sb32vector: # Typ n, bedeutet (VECTOR (UNSIGNED-BYTE n))
+        name = fixnum(bit(sbNvector_atype(seq))); break;
+      case Array_type_b2vector:
+      case Array_type_b4vector:
+      case Array_type_b8vector:
+      case Array_type_b16vector:
+      case Array_type_b32vector: # Typ n, bedeutet (VECTOR (UNSIGNED-BYTE n))
+        name = fixnum(bit(bNvector_atype(seq))); break;
+      default:
+        name = S(vector); break; # Typ [GENERAL-]VECTOR
+    }
+  } else if (structurep(seq)) {
+    name = TheStructure(seq)->structure_types; # Structure-Typen-List*e
+    while (consp(name)) { name = Cdr(name); } # davon den letzten Typ nehmen
+  } else return NIL;
+  # SEQ-TYPES-Liste durchgehen:
+  return find_seq_type(name);
 }
 
-# UP: liefert den Typdescriptor einer Sequence, evtl. Fehlermeldung
-# get_valid_seq_type(seq)
-# > seq: eine Sequence
-# < ergebnis: Typdescriptor
-  local object get_valid_seq_type (object seq);
-  local object get_valid_seq_type(seq)
-    var object seq;
-    { var object typdescr = get_seq_type(seq); # Typdescriptor bestimmen
-      if (!(nullp(typdescr))) { return typdescr; } # gefunden -> OK
-      # sonst Fehler melden:
-      pushSTACK(seq);         # TYPE-ERROR slot DATUM
-      pushSTACK(S(sequence)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(seq);
-      fehler(type_error,
-             GETTEXT("~ is not a sequence")
-            );
-    }
+/* UP: return the type descriptor for the sequence, or report an error
+ get_valid_seq_type(seq)
+ > seq: eine Sequence
+ < ergebnis: Typdescriptor */
+local object get_valid_seq_type (object seq)
+{
+  var object typdescr = get_seq_type(seq); /* find type descriptor */
+  if (!(nullp(typdescr))) { return typdescr; } /* found -> OK */
+  /* error: */
+  pushSTACK(seq);         /* TYPE-ERROR slot DATUM */
+  pushSTACK(S(sequence)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(seq); pushSTACK(TheSubr(subr_self)->name);
+  fehler(type_error,GETTEXT("~: ~ is not a sequence"));
+}
 
 # Fehler, wenn der Sequence-Typ eine andere Länge vorgibt als die, die
 # herauskommt.
@@ -312,17 +308,16 @@ nonreturning_function(local, fehler_seqtype_length,
 #define SEQTYPE_LENGTH_MATCH(cl,stl)                            \
   (eq(cl,Fixnum_minus1) ? !eq(Fixnum_0,stl) : eql(cl,stl))
 
-# Fehler, wenn Argument kein Integer >=0
-  nonreturning_function(local, fehler_posint, (object fun, object kw, object obj)) {
-    pushSTACK(obj);                # TYPE-ERROR slot DATUM
-    pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(obj);
-    pushSTACK(kw);
-    pushSTACK(fun);
-    fehler(type_error,
-           GETTEXT("~: ~ should be an integer >=0, not ~")
-          );
-  }
+/* error when the argument is not an integer >=0 */
+nonreturning_function(local, fehler_posint,
+                      (object fun, object kw, object obj)) {
+  pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
+  pushSTACK(O(type_posinteger)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(obj);
+  pushSTACK(kw);
+  pushSTACK(fun);
+  fehler(type_error,GETTEXT("~: ~ should be an integer >=0, not ~"));
+}
 
 # Macro: Trägt NIL als Defaultwert eines Parameters in den Stack ein:
 # default_NIL(par);
@@ -367,9 +362,7 @@ nonreturning_function(local, fehler_seqtype_length,
           pushSTACK(end); pushSTACK(kwptr[1]);
           pushSTACK(start); pushSTACK(kwptr[0]);
           pushSTACK(TheSubr(subr_self)->name);
-          fehler(error,
-                 GETTEXT("~: ~ = ~ should not be greater than ~ = ~")
-                );
+          fehler(error,GETTEXT("~: ~ = ~ should not be greater than ~ = ~"));
         }
     }}
 
@@ -397,9 +390,7 @@ nonreturning_function(local, fehler_seqtype_length,
           pushSTACK(end); pushSTACK(kwptr[1]);
           pushSTACK(start); pushSTACK(kwptr[0]);
           pushSTACK(TheSubr(subr_self)->name);
-          fehler(error,
-                 GETTEXT("~: ~ = ~ should not be greater than ~ = ~")
-                );
+          fehler(error,GETTEXT("~: ~ = ~ should not be greater than ~ = ~"));
         }
     }}
 
@@ -821,9 +812,7 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
         pushSTACK(seq); funcall(seq_length(typdescr),1); # (SEQ-LENGTH seq)
         if (!(posfixnump(value1))) # sollte ein Fixnum >=0 sein
           { pushSTACK(value1); pushSTACK(S(nreverse));
-            fehler(error,
-                   GETTEXT("~: bad length ~")
-                  );
+            fehler(error,GETTEXT("~: bad length ~"));
           }
         {var uintL len = posfixnum_to_L(value1); # len
          # Grundidee: Um eine Sequence mit len Elementen umzudrehen, müssen
@@ -922,17 +911,14 @@ LISPFUN(make_sequence,seclass_default,2,0,norest,key,2,
       { pushSTACK(size);               # TYPE-ERROR slot DATUM
         pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(size); pushSTACK(S(make_sequence));
-        fehler(type_error,
-               GETTEXT("~: size should be an integer >=0, not ~")
-              );
+        fehler(type_error,GETTEXT("~: size should be an integer >=0, not ~"));
       }
     # initial-element bei Strings defaultmäßig ergänzen:
     if (!boundp(STACK_2)) /* :initial-element not supplied? */
       { if (boundp(STACK_1)) /* :update without :initial-element -> Error */
           { pushSTACK(S(make_sequence));
             fehler(error,
-                   GETTEXT("~: :update must not be specified without :initial-element")
-                  );
+                   GETTEXT("~: :update must not be specified without :initial-element"));
           }
         else if (posfixnump(seq_type(typdescr))) /* type name integer? (means byte-vector) */
           { STACK_2 = Fixnum_0; } # initial-element := 0
@@ -1120,9 +1106,7 @@ LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
              {var object len = NEXT(ptr); # nächste Länge
               if (!(posfixnump(len)))
                 { pushSTACK(len); pushSTACK(S(concatenate));
-                  fehler(error,
-                         GETTEXT("~: bad length ~")
-                        );
+                  fehler(error,GETTEXT("~: bad length ~"));
                 }
               total_length = I_I_plus_I(total_length,len); # total_length = total_length + len
             }});
@@ -1957,12 +1941,11 @@ LISPFUN(replace,seclass_default,2,0,norest,key,4,
 
 # Fehler, wenn beide :TEST, :TEST-NOT - Argumente angegeben wurden.
 # fehler_both_tests();
-  nonreturning_function(global, fehler_both_tests, (void)) {
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,
-           GETTEXT("~: Must not specify both arguments to :TEST and :TEST-NOT")
-          );
-  }
+nonreturning_function(global, fehler_both_tests, (void)) {
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(error,
+         GETTEXT("~: Must not specify both arguments to :TEST and :TEST-NOT"));
+}
 
 # UP: Überprüft die :TEST, :TEST-NOT - Argumente
 # test_test_args(stackptr)
@@ -2082,9 +2065,7 @@ LISPFUN(replace,seclass_default,2,0,norest,key,4,
         if (!(posfixnump(bvsize))) # Fixnum?
           { pushSTACK(*(stackptr STACKop 0)); # sequence
             pushSTACK(TheSubr(subr_self)->name);
-            fehler(error,
-                   GETTEXT("~: sequence ~ is too long")
-                  );
+            fehler(error,GETTEXT("~: sequence ~ is too long"));
           }
         bvl = posfixnum_to_L(bvsize); # Länge des Bitvektors als Longword
       }
@@ -2538,9 +2519,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
           # size = (- end start), ein Integer >=0
           if (!(posfixnump(size)))
             { pushSTACK(*(stackptr STACKop 0)); # sequence
-              fehler(error,
-                     GETTEXT("too long sequence ~")
-                    );
+              fehler(error,GETTEXT("too long sequence ~"));
             }
           bvl = posfixnum_to_L(size);
         }
@@ -2554,8 +2533,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
         if (!(up2_fun == &up2_test)) goto standard;
         { var object test = STACK_(1+3);
           if (!(eq(test,L(eq)) || eq(test,L(eql)) || eq(test,L(equal))
-                || eq(test,S(eq)) || eq(test,S(eql)) || eq(test,S(equal))
-             ) )
+                || eq(test,S(eq)) || eq(test,S(eql)) || eq(test,S(equal))))
             goto standard;
         }
         if (false)
