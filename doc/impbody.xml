@@ -3882,16 +3882,15 @@ functions are provided:
 
 </section>
 
-<section id="print-unreadable-object"><title>Function &print-unreadable-object;</title>
-
+<section id="print-unreadable-object">
+ <title>Macro &print-unreadable-object;</title>
 <formalpara id="pr-unreadable-ansi"><title>Variable &pr-unreadable-ansi;</title>
 <para>The macro &print-unreadable-object;, when invoked without body forms,
  suppresses the trailing space if only the type is to be printed, and
- suppresses the leading space if only the identity is to be printed. This
+ suppresses the leading space if only the identity is to be printed.  This
  behaviour can be turned off set setting the variable &pr-unreadable-ansi;
  to a non-&nil; value: in this case, a trailing or leading space are output,
- as prescribed by &ansi;.</para></formalpara>
-
+ as prescribed by &ansi-cl;.</para></formalpara>
 </section>
 
 <section id="pathprint"><title>Pathnames</title>
