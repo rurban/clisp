@@ -3203,7 +3203,27 @@ fi
 ])dnl
 dnl
 AC_DEFUN(CL_TCPCONN,
-[AC_CHECK_HEADERS(netinet/in.h arpa/inet.h)dnl
+[CL_COMPILE_CHECK([IPv4 sockets], cl_cv_socket_ipv4,
+[#include <sys/socket.h>
+#include <netinet/in.h>],
+[int x = AF_INET; struct in_addr y; struct sockaddr_in z;],
+AC_DEFINE(HAVE_IPV4))
+CL_COMPILE_CHECK([IPv6 sockets], cl_cv_socket_ipv6,
+[#include <sys/socket.h>
+#include <netinet/in.h>],
+[int x = AF_INET6; struct in6_addr y; struct sockaddr_in6 z;],
+AC_DEFINE(HAVE_IPV6))
+if test $cl_cv_socket_ipv6 = no; then
+CL_COMPILE_CHECK([IPv6 sockets in linux/in6.h], cl_cv_socket_ipv6_linux,
+[#include <sys/socket.h>
+#include <netinet/in.h>
+#include <linux/in6.h>],
+[int x = AF_INET6; struct in6_addr y; struct sockaddr_in6 z;],
+AC_DEFINE(IPV6_NEED_LINUX_IN6_H)
+AC_DEFINE(HAVE_IPV6))
+fi
+AC_CHECK_FUNCS(inet_pton inet_ntop)
+AC_CHECK_HEADERS(netinet/in.h arpa/inet.h)dnl
 CL_PROTO([inet_addr], [
 for x in '' 'const'; do
 for y in 'struct in_addr' 'unsigned long' 'unsigned int'; do

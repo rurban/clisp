@@ -1852,17 +1852,24 @@
   #endif
 # Bei Erweiterung: STREAM und USER2.LSP erweitern.
 
-# Ob es Socket-Streams gibt:
-  #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME)
-    # Damit Socket-Streams sinnvoll sind, muss socket.d compilierbar sein.
-    # Dazu muss netdb.h oder sun/netdb.h existieren, was zufällig auch der
-    # Existenz von gethostbyname() entspricht.
-    #define X11SOCKETS
-    #if defined(HAVE_NETINET_IN_H) || defined(WIN32_NATIVE) # see socket.d
+# If the system has sockets, we support socket streams:
+  # We assume that if we have gethostbyname(), we have a networking OS
+  # (Unix or Win32). Then we decide independently about UNIX domain connections
+  # and TCP/IP connections.
+  #if defined(HAVE_GETHOSTBYNAME) # implies defined(UNIX) || defined(WIN32_NATIVE)
+    #ifdef HAVE_SYS_UN_H  # have <sys/un.h> and Unix domain sockets?
+      #define UNIXCONN  # use Unix domain sockets
+    #endif
+    #if defined(HAVE_NETINET_IN_H) || defined(WIN32_NATIVE)  # have <netinet/in.h> ?
+      #define TCPCONN  # use TCP/IP sockets
+    #endif
+    # Now, which kinds of socket streams:
+    #define X11SOCKETS  # works even without TCPCONN (very young Linux)
+    #ifdef TCPCONN
       #define SOCKET_STREAMS
     #endif
   #endif
-# Bei Erweiterung: STREAM erweitern.
+# Bei Erweiterung: STREAM, SOCKET erweitern.
 
 # Whether there are generic streams:
   #if 1
@@ -1875,7 +1882,7 @@
   #if defined(UNIX) || defined(WIN32_NATIVE)
     #define MACHINE_KNOWN
   #endif
-# Bei Erweiterung: MISC erweitern.
+# Bei Erweiterung: MISC, SOCKET erweitern.
 
 # Ob es LOGICAL-PATHNAMEs gibt:
   #if 1
@@ -5246,10 +5253,13 @@ typedef struct { XRECORD_HEADER
 #define socket_server_length  ((sizeof(*(Socket_server)0)-offsetofa(record_,recdata))/sizeof(object))
 
 # Information about any of the two ends of a socket connection.
+#ifndef MAXHOSTNAMELEN
+  #define MAXHOSTNAMELEN 64
+#endif
 typedef struct host_data {
-  unsigned long host;    # IP address
-  char hostname[20];     # IP address in aaa.bbb.ccc.ddd notation
-  const char * truename; # hostname, with or without domain name
+  char hostname[45+1];   # IP address in presentable, printable format
+                         # (IPv4 max. 15 characters, IPv6 max. 45 characters)
+  char truename[MAXHOSTNAMELEN+1]; # hostname, with or without domain name
   unsigned int port;
 } host_data;
 #endif

@@ -1,3 +1,61 @@
+1999-03-10  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Support for IPv6 sockets.
+        * aclocal.m4 (CL_TCPCONN): Add checks for IPv4 and IPv6 facilities.
+          Add checks for `inet_pton' and `inet_ntop' functions.
+        * unixconf.h.in (CL_TCPCONN): Conditionally define HAVE_IPV4,
+          HAVE_IPV6, IPV6_NEED_LINUX_IN6_H, HAVE_INET_PTON, HAVE_INET_NTOP.
+        * lispbibl.d (UNIXCONN, TCPCONN): Define here, not in socket.d.
+          Make SOCKET_STREAMS depend on TCPCONN.
+          (host_data): Remove the `host' field. Make the `hostname' field
+          large enough for IPv6. Change the `truename' field into an array,
+          so it does not need to point to static or temporary data.
+          (MAXHOSTNAMELEN): Define.
+        * win32.d: Define HAVE_IPV4, don't define HAVE_IPV6.
+        * stream.d (publish_host_data): Test hd.truename for being "", not
+          NULL. Allocate the temporary string on the stack, instead of malloc.
+        * misc.d (MACHINE-INSTANCE): Moved to socket.d.
+        * socket.d: Don't define UNIXCONN, TCPCONN, SOCKET_STREAMS here.
+          Don't define MAXHOSTNAMELEN here.
+          (get_hostname): New macro.
+          (ipv4_ntop, ipv6_ntop): New macros.
+          (MACHINE-INSTANCE): Moved here from socket.d. Consider h->h_addrtype
+          instead of blindly assuming it's AF_INET. Use ipv4_ntop macro
+          for building the dotted address string, instead of doing it by hand.
+          (CLOSESOCKET): Only define if UNIXCONN || TCPCONN.
+          (saving_sock_errno): New macro.
+          (all_digits_dots): New function, for distinguishing IPv4 addresses
+          and FQDNs. The old method of looking at the first character is no
+          longer valid.
+          (with_hostname): New function, taken out of connect_to_x_server.
+          Support IPv6. Compare the inet_addr() return value with (uint32)(-1),
+          not (unsigned long)(-1) [matters for 64-bit platforms].
+          (connect_to_x_via_ip): New function, taken out of
+          connect_to_x_server.
+          (connect_to_x_server): Use with_hostname and connect_to_x_via_ip.
+          Use get_hostname.
+          (memset, bzero, bcopy): Remove declarations.
+          (fill_hostname): Remove function, obsoleted by ipv4_ntop.
+          (sockaddr_max): New type.
+          (socket_getlocalname_aux): New function, taken out of
+          socket_getlocalname. Don't need to bzero() the result. Support IPv6.
+          (socket_getlocalname): Use socket_getlocalname_aux. Return the true
+          host name instead of "localhost".
+          (socket_getpeername): Don't need to bzero() the result. Support IPv6.
+          If truename unknown, return it as "" instead of NULL.
+          (bindlisten_via_ip): New function, taken out of create_server_socket.
+          Close the socket in case of failure.
+          (create_server_socket): Use with_hostname and bindlisten_via_ip.
+          Don't need to bzero() the addr. Use the true host name instead of
+          "localhost". After calling getsockname(), support IPv6. Make the
+          final getsockname() after listen(), not before. Don't need to
+          bzero() the result.
+          (accept_connection): Support IPv6.
+          (connect_via_ip): New function, taken out of create_client_socket.
+          If connect() fails, save errno during closesocket.
+          (create_client_socket): Don't need to bzero() the sockaddr. Use
+          with_hostname and connect_via_ip.
+
 1999-03-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * makemake.in (XCFLAGS): When compiling for sparc, use

@@ -234,6 +234,8 @@
   #define CONNECT_NAME_T struct sockaddr
   #define CONNECT_CONST const
   #define CONNECT_ADDRLEN_T int
+  #define HAVE_IPV4
+  #undef HAVE_IPV6
   #undef HAVE_NETINET_IN_H
   #undef HAVE_ARPA_INET_H
   #define RET_INET_ADDR_TYPE unsigned long

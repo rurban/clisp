@@ -455,7 +455,6 @@ LISPSYM(version,"VERSION",system)
 #ifdef MACHINE_KNOWN
 LISPSYM(machinetype,"MACHINE-TYPE",lisp)
 LISPSYM(machine_version,"MACHINE-VERSION",lisp)
-LISPSYM(machine_instance,"MACHINE-INSTANCE",lisp)
 #endif
 #ifdef HAVE_ENVIRONMENT
 LISPSYM(get_env,"GETENV",system)
@@ -472,6 +471,10 @@ LISPSYM(address_of,"ADDRESS-OF",system)
 #ifdef HAVE_DISASSEMBLER
 LISPSYM(code_address_of,"CODE-ADDRESS-OF",system)
 LISPSYM(program_id,"PROGRAM-ID",system)
+#endif
+# ---------- SOCKET ----------
+#ifdef MACHINE_KNOWN
+LISPSYM(machine_instance,"MACHINE-INSTANCE",lisp)
 #endif
 # ---------- TIME ----------
 LISPSYM(get_universal_time,"GET-UNIVERSAL-TIME",lisp)
