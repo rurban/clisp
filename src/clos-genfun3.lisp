@@ -467,7 +467,7 @@
                         ;; ensure-generic-function, and the GF has not yet been
                         ;; created and initialized at this moment.
                         `(FIND-METHOD-COMBINATION
-                           (MAKE-GENERIC-FUNCTION-INSTANCE GF-CLASS :NAME ',funname)
+                           (MAKE-GENERIC-FUNCTION-PROTOTYPE GF-CLASS :NAME ',funname)
                            ',method-combination-name ',options)
                         `(METHOD-COMBINATION-WITH-OPTIONS ',funname ',method-combination-name ',options))))
                 method-class-form

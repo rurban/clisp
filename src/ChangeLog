@@ -1,4 +1,16 @@
+2004-11-08  Bruno Haible  <bruno@clisp.org>
+
+	Don't call initialize-instance for dummy generic-function instances.
+	* clos-genfun2b.lisp (allocate-generic-function-instance,
+	make-generic-function-prototype): New functions.
+	* clos-genfun3.lisp (analyze-defgeneric): Use
+	make-generic-function-prototype instead of
+	make-generic-function-instance.
+	* clos-genfun5.lisp (allocate-generic-function-instance): New function.
+	Reported by Pascal Costanza <costanza@web.de>.
+
 2004-11-17  John Hinsdale  <hin@alma.com>
+
 	* oracle.lisp: fix default for truncation parameter
 	* orafns.c: handle truncation cases correctly
 
