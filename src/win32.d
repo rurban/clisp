@@ -279,7 +279,7 @@ extern int write_helper (HANDLE fd, const void* buf, int nbyte, bool no_hang);
    extern void SOCK_error (void);
    Reading and writing from a socket */
 extern int sock_read (SOCKET fd, void* buf, int nbyte);
-extern int sock_write (SOCKET fd, const void* buf, int nbyte);
+extern int sock_write (SOCKET fd, const void* buf, int nbyte, bool no_hang);
 /* Interruptible wait for something on socket */
 typedef enum { socket_wait_read, socket_wait_write, socket_wait_except } socket_wait_event;
 extern int interruptible_socket_wait (SOCKET socket_handle, socket_wait_event waitwhat, struct timeval * timeout_ptr);
