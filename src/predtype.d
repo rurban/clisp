@@ -150,6 +150,8 @@
             # Längen vergleichen:
             var uintL len1 = vector_length(obj1);
             if (!(len1 == vector_length(obj2))) goto no;
+            if (len1 == 0)
+              return TRUE;
             # Inhalt vergleichen:
             var uintL index1 = 0;
             var uintL index2 = 0;

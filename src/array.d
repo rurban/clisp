@@ -1198,7 +1198,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
 # > index1: absolute index into array1
 # > array2: second simple-bit-vector
 # > index2: absolute index into array2
-# > count: number of bits to be compared
+# > count: number of bits to be compared, > 0
 # < result: TRUE, if both slices are the same, bit for bit, else FALSE.
   global boolean bit_compare (object array1, uintL index1,
                               object array2, uintL index2,
@@ -1214,13 +1214,28 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
       var const uint_bitpack* ptr2 = &((uint_bitpack*)(&TheSbvector(array2)->data[0]))[index2/bitpack];
       # ptr1 zeigt auf das erste teilnehmende Word des 1. Bit-Arrays.
       # ptr2 zeigt auf das erste teilnehmende Word des 2. Bit-Arrays.
-      var uintL bitpackcount = bitcount / bitpack;
-      # bitpackcount = Anzahl der ganzen Words
-      var uintL bitcount_rest = bitcount % bitpack;
-      # bitcount_rest = Anzahl der übrigbleibenden Bits
       index1 = index1 % bitpack; # Bit-Offset im 1. Bit-Array
       index2 = index2 % bitpack; # Bit-Offset im 2. Bit-Array
-      if ((index1==0) && (index2==0)) {
+      if (index1 == index2) {
+        # Erstes Word behandeln:
+        if (!(index1 == 0)) {
+          var uintL count1 = bitpack - index1;
+          if (count1 >= bitcount) {
+            # Vergleiche Bits bitpack-index1-1..bitpack-index1-bitcount
+            # in *ptr1 und *ptr2.
+            return (((*ptr1 ^ *ptr2) & (bit(count1)-bit(count1-bitcount))) == 0);
+          }
+          if (((*ptr1 ^ *ptr2) & (bit(count1)-1)) != 0)
+            return FALSE;
+          ptr1++;
+          ptr2++;
+          bitcount -= count1; # still > 0
+        }
+        # Ab jetzt kann man index1 = index2 = 0 annehmen.
+        var uintL bitpackcount = bitcount / bitpack;
+        # bitpackcount = Anzahl der ganzen Words
+        var uintL bitcount_rest = bitcount % bitpack;
+        # bitcount_rest = Anzahl der übrigbleibenden Bits
         # einfache Schleife, da alle Bit-Offsets im Word =0 sind:
         dotimesL(bitpackcount,bitpackcount, {
           if (!(*ptr1++ == *ptr2++))
@@ -1239,62 +1254,158 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
         return TRUE;
       } else {
         # kompliziertere Schleife:
-        var uint_2bitpack carry1 = LR_bitpack_0((*ptr1++) << index1);
-        # carry1 hat in seinen oberen bitpack-index1 Bits (Bits 2*bitpack-1..bitpack+index1)
-        # die betroffenen Bits des 1. Words des 1. Arrays, sonst Nullen.
-        var uint_2bitpack carry2 = LR_bitpack_0((*ptr2++) << index2);
-        # carry2 hat in seinen oberen bitpack-index2 Bits (Bits 2*bitpack-1..bitpack+index2)
-        # die betroffenen Bits des 1. Words des 2. Arrays, sonst Nullen.
-        dotimesL(bitpackcount,bitpackcount, {
-          # Vergleichsschleife (jeweils wortweise):
-          # Nach n>=0 Schleifendurchläufen ist
-          # ptr1 und ptr2 um n+1 Words weitergerückt, also Pointer aufs
-          # nächste zu lesende Word des 1. bzw. 2. Arrays,
-          # bitpackcount = Zahl zu verknüpfender ganzer Words - n,
-          # carry1 = Übertrag vom 1. Array
-          #          (in den bitpack-index1 oberen Bits, sonst Null),
-          # carry2 = Übertrag vom 2. Array
-          #          (in den bitpack-index2 oberen Bits, sonst Null).
-          if (!(
-                ( carry1 |=
-                    LR_0_bitpack(*ptr1++) # nächstes Word des 1. Arrays lesen
-                    << index1, # zum carry1 dazunehmen
-                  L_bitpack(carry1) # und davon das linke Word verwenden
-                )
-                ==
-                ( carry2 |=
-                    LR_0_bitpack(*ptr2++) # nächstes Word des 2. Arrays lesen
-                    << index2, # zum carry2 dazunehmen
-                  L_bitpack(carry2) # und davon das linke Word verwenden
-                )
-             ) )
-            return FALSE;
-          carry1 = LR_bitpack_0(R_bitpack(carry1)); # carry1 := rechtes Word von carry1
-          carry2 = LR_bitpack_0(R_bitpack(carry2)); # carry2 := rechtes Word von carry2
-        });
-        # Noch bitcount_rest Bits zu vergleichen:
-        if (!(bitcount_rest==0)) {
-          # letztes Word vergleichen:
-          if (!(( (
-                   ( carry1 |=
-                       LR_0_bitpack(*ptr1++) # nächstes Word des 1. Arrays lesen
-                       << index1, # zum carry1 dazunehmen
-                     L_bitpack(carry1) # und davon das linke Word verwenden
-                   )
-                   ^
-                   ( carry2 |=
-                       LR_0_bitpack(*ptr2++) # nächstes Word des 2. Arrays lesen
-                       << index2, # zum carry2 dazunehmen
-                     L_bitpack(carry2) # und davon das linke Word verwenden
-                   )
+        var uintL bitpackcount = bitcount / bitpack;
+        # bitpackcount = Anzahl der ganzen Words
+        var uintL bitcount_rest = bitcount % bitpack;
+        # bitcount_rest = Anzahl der übrigbleibenden Bits
+        # We distinguish three cases in order to avoid a memory overrun bug.
+        # The tighter loops are just an added benefit for speed.
+        if (index1 == 0) {
+          # index1 = 0, index2 > 0.
+          var uint_2bitpack carry2 = LR_bitpack_0((*ptr2++) << index2);
+          # carry2 hat in seinen oberen bitpack-index2 Bits (Bits 2*bitpack-1..bitpack+index2)
+          # die betroffenen Bits des 1. Words des 2. Arrays, sonst Nullen.
+          dotimesL(bitpackcount,bitpackcount, {
+            # Vergleichsschleife (jeweils wortweise):
+            # Nach n>=0 Schleifendurchläufen ist
+            # ptr1 um n, und ptr2 um n+1 Words weitergerückt, also Pointer aufs
+            # nächste zu lesende Word des 1. bzw. 2. Arrays,
+            # bitpackcount = Zahl zu verknüpfender ganzer Words - n,
+            # carry2 = Übertrag vom 2. Array
+            #          (in den bitpack-index2 oberen Bits, sonst Null).
+            if (!(
+                  *ptr1++
+                  ==
+                  ( carry2 |=
+                      LR_0_bitpack(*ptr2++) # nächstes Word des 2. Arrays lesen
+                      << index2, # zum carry2 dazunehmen
+                    L_bitpack(carry2) # und davon das linke Word verwenden
                   )
-                  & # Bitmaske mit Bits bitpack-1..bitpack-bitcount_rest gesetzt
-                    ~( (uint_bitpack)(bitm(bitpack)-1) >> bitcount_rest)
-                ) ==0
-             ) )
-            return FALSE;
+               ) )
+              return FALSE;
+            carry2 = LR_bitpack_0(R_bitpack(carry2)); # carry2 := rechtes Word von carry2
+          });
+          # Noch bitcount_rest Bits zu vergleichen:
+          if (!(bitcount_rest==0)) {
+            # letztes Word vergleichen:
+            if (!(( (
+                     *ptr1++
+                     ^
+                     ( carry2 |=
+                         LR_0_bitpack(*ptr2++) # nächstes Word des 2. Arrays lesen
+                         << index2, # zum carry2 dazunehmen
+                       L_bitpack(carry2) # und davon das linke Word verwenden
+                     )
+                    )
+                    & # Bitmaske mit Bits bitpack-1..bitpack-bitcount_rest gesetzt
+                      ~( (uint_bitpack)(bitm(bitpack)-1) >> bitcount_rest)
+                  ) ==0
+               ) )
+              return FALSE;
+          }
+          return TRUE;
+        } elif (index2 == 0) {
+          # index1 > 0, index2 = 0.
+          var uint_2bitpack carry1 = LR_bitpack_0((*ptr1++) << index1);
+          # carry1 hat in seinen oberen bitpack-index1 Bits (Bits 2*bitpack-1..bitpack+index1)
+          # die betroffenen Bits des 1. Words des 1. Arrays, sonst Nullen.
+          dotimesL(bitpackcount,bitpackcount, {
+            # Vergleichsschleife (jeweils wortweise):
+            # Nach n>=0 Schleifendurchläufen ist
+            # ptr1 um n+1, und ptr2 um n Words weitergerückt, also Pointer aufs
+            # nächste zu lesende Word des 1. bzw. 2. Arrays,
+            # bitpackcount = Zahl zu verknüpfender ganzer Words - n,
+            # carry1 = Übertrag vom 1. Array
+            #          (in den bitpack-index1 oberen Bits, sonst Null),
+            if (!(
+                  ( carry1 |=
+                      LR_0_bitpack(*ptr1++) # nächstes Word des 1. Arrays lesen
+                      << index1, # zum carry1 dazunehmen
+                    L_bitpack(carry1) # und davon das linke Word verwenden
+                  )
+                  ==
+                  *ptr2++
+               ) )
+              return FALSE;
+            carry1 = LR_bitpack_0(R_bitpack(carry1)); # carry1 := rechtes Word von carry1
+          });
+          # Noch bitcount_rest Bits zu vergleichen:
+          if (!(bitcount_rest==0)) {
+            # letztes Word vergleichen:
+            if (!(( (
+                     ( carry1 |=
+                         LR_0_bitpack(*ptr1++) # nächstes Word des 1. Arrays lesen
+                         << index1, # zum carry1 dazunehmen
+                       L_bitpack(carry1) # und davon das linke Word verwenden
+                     )
+                     ^
+                     *ptr2++
+                    )
+                    & # Bitmaske mit Bits bitpack-1..bitpack-bitcount_rest gesetzt
+                      ~( (uint_bitpack)(bitm(bitpack)-1) >> bitcount_rest)
+                  ) ==0
+               ) )
+              return FALSE;
+          }
+          return TRUE;
+        } else {
+          var uint_2bitpack carry1 = LR_bitpack_0((*ptr1++) << index1);
+          # carry1 hat in seinen oberen bitpack-index1 Bits (Bits 2*bitpack-1..bitpack+index1)
+          # die betroffenen Bits des 1. Words des 1. Arrays, sonst Nullen.
+          var uint_2bitpack carry2 = LR_bitpack_0((*ptr2++) << index2);
+          # carry2 hat in seinen oberen bitpack-index2 Bits (Bits 2*bitpack-1..bitpack+index2)
+          # die betroffenen Bits des 1. Words des 2. Arrays, sonst Nullen.
+          dotimesL(bitpackcount,bitpackcount, {
+            # Vergleichsschleife (jeweils wortweise):
+            # Nach n>=0 Schleifendurchläufen ist
+            # ptr1 und ptr2 um n+1 Words weitergerückt, also Pointer aufs
+            # nächste zu lesende Word des 1. bzw. 2. Arrays,
+            # bitpackcount = Zahl zu verknüpfender ganzer Words - n,
+            # carry1 = Übertrag vom 1. Array
+            #          (in den bitpack-index1 oberen Bits, sonst Null),
+            # carry2 = Übertrag vom 2. Array
+            #          (in den bitpack-index2 oberen Bits, sonst Null).
+            if (!(
+                  ( carry1 |=
+                      LR_0_bitpack(*ptr1++) # nächstes Word des 1. Arrays lesen
+                      << index1, # zum carry1 dazunehmen
+                    L_bitpack(carry1) # und davon das linke Word verwenden
+                  )
+                  ==
+                  ( carry2 |=
+                      LR_0_bitpack(*ptr2++) # nächstes Word des 2. Arrays lesen
+                      << index2, # zum carry2 dazunehmen
+                    L_bitpack(carry2) # und davon das linke Word verwenden
+                  )
+               ) )
+              return FALSE;
+            carry1 = LR_bitpack_0(R_bitpack(carry1)); # carry1 := rechtes Word von carry1
+            carry2 = LR_bitpack_0(R_bitpack(carry2)); # carry2 := rechtes Word von carry2
+          });
+          # Noch bitcount_rest Bits zu vergleichen:
+          if (!(bitcount_rest==0)) {
+            # letztes Word vergleichen:
+            if (!(( (
+                     ( carry1 |=
+                         LR_0_bitpack(*ptr1++) # nächstes Word des 1. Arrays lesen
+                         << index1, # zum carry1 dazunehmen
+                       L_bitpack(carry1) # und davon das linke Word verwenden
+                     )
+                     ^
+                     ( carry2 |=
+                         LR_0_bitpack(*ptr2++) # nächstes Word des 2. Arrays lesen
+                         << index2, # zum carry2 dazunehmen
+                       L_bitpack(carry2) # und davon das linke Word verwenden
+                     )
+                    )
+                    & # Bitmaske mit Bits bitpack-1..bitpack-bitcount_rest gesetzt
+                      ~( (uint_bitpack)(bitm(bitpack)-1) >> bitcount_rest)
+                  ) ==0
+               ) )
+              return FALSE;
+          }
+          return TRUE;
         }
-        return TRUE;
       }
     }
 
