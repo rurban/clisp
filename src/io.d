@@ -9302,7 +9302,7 @@ local void pr_cclosure_lang (const gcv_object_t* stream_, object obj) {
     # print Codevector bytewise, treat possible circularity:
     pr_circle(stream_,TheClosure(*obj_)->clos_codevec,&pr_cclosure_codevector);
     JUSTIFY_SPACE;
-    prin_object(stream_,seclass_object(Cclosure_seclass(*obj_)));
+    prin_object(stream_,seclass_object((seclass_t)Cclosure_seclass(*obj_)));
     pr_record_ab(stream_,obj_,2,2); # print remaining components
     JUSTIFY_END_ENG;
     INDENT_END;
