@@ -207,18 +207,23 @@ This may be
 #endif
 #ifdef GNU_GETTEXT
 <code>english</code>, <code>deutsch</code>, <code>francais</code>,
-<code>espanol</code>.
+<code>espanol</code>, <code>dutch</code>.
 Other languages may be specified through the environment variable
 <code>LANG</code>,
 provided the corresponding message catalog is installed.
 #endif
+The language may be changed at run-time using the symbol macro
+<a href="impnotes.html#language">*current-language*</a>,
 <p/></dd>
 
 <dt id="opt-locale"><strong><code>-N</code>
     <var>localedir</var></strong></dt>
 <dd>Specifies the base directory of locale files. <code>clisp</code>
 will search its message catalogs in
-<var>localedir</var><code>/</code><var>language</var><code>/LC_MESSAGES/clisp.mo</code>.<p/></dd>
+<var>localedir</var><code>/</code><var>language</var><code>/LC_MESSAGES/clisp.mo</code>.
+This directory may be changed at run-time using the symbol macro
+<a href="impnotes.html#language">*current-language*</a>,
+<p/></dd>
 
 <dt id="opt-enc"><strong><code>-E</code><var>domain</var>
     <var>encoding</var></strong></dt>
