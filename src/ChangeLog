@@ -1,5 +1,10 @@
 2003-01-23  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (arrayrank_limit_1): set to lp_limit_1 because
+	array_dimensions() pushes the dimensions on the STACK
+
+2003-01-23  Sam Steingold  <sds@gnu.org>
+
 	* type.lisp (upgraded-array-element-type): accept an &optional
 	environment argument, as per ANSI CL
 	(subtypep): fixed a typo (quote '(and))

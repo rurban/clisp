@@ -10805,9 +10805,12 @@ extern object ascii_to_string (const char * asciz);
 # (>=0, <2^oint_data_len):
 #define arraysize_limit_1  ((uintL)(bitm(oint_data_len)-1))
 
-# ARRAY-RANK-LIMIT is chosen as large as possible, respecting the constraint
-# that the rank of any array is an uintWC:
-#define arrayrank_limit_1  ((uintL)(bitm(intWCsize)-1))
+/* ARRAY-RANK-LIMIT is chosen as large as possible, respecting the constraint
+ that the rank of any array is an uintWC:
+  #define arrayrank_limit_1  ((uintL)(bitm(intWCsize)-1))
+ array dimensions are pushed on STACK in array_dimensions()
+ so we are limited like with LAMBDA-PARAMETERS-LIMIT */
+#define arrayrank_limit_1  lp_limit_1
 
 # Macro: Follows the Siarray chain, to get from a simple array (actually,
 # a string) to its storage vector.
