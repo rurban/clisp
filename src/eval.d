@@ -2406,6 +2406,8 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
   }
   var gcv_object_t* closure_ = &STACK_(frame_closure); /* &closure */
   var gcv_object_t* frame_pointer; /* pointer to the frame */
+  var uintC spec_count = posfixnum_to_L(TheIclosure(closure)->clos_spec_anz);
+  var gcv_object_t *spec_ptr;
   { /* 2nd step: build variable-binding-frame: */
     var gcv_object_t* top_of_frame = STACK; /* Pointer to Frame */
     var object vars = TheIclosure(closure)->clos_vars; /* Vector of variable-names */
@@ -2413,9 +2415,9 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
     get_space_on_STACK(var_count*varframe_binding_size*sizeof(gcv_object_t));
     {
       var gcv_object_t* varptr = &TheSvector(vars)->data[0]; /* Pointer to variables in vector */
-      var uintC spec_count = posfixnum_to_L(TheIclosure(closure)->clos_spec_anz);
       var uintC count;
       /* the special-references first: */
+      spec_ptr = args_end_pointer;
       dotimesC(count,spec_count, {
         pushSTACK(specdecl); /* SPECDECL as "value" */
         pushSTACK_symbolwithflags(*varptr++,0); /* INactive */
@@ -2468,6 +2470,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
           TheSymbolflagged(sym)->symvalue;                              \
         /* new value in value-cell: */                                  \
         TheSymbolflagged(sym)->symvalue = (value);                      \
+        activate_specdecl(sym,spec_ptr,spec_count);                     \
       } else { /* activate static binding: */                           \
         /* new value in frame: */                                       \
         *(markptr STACKop varframe_binding_value) = (value);            \
