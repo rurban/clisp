@@ -2668,8 +2668,9 @@ only.</subtitle>
  <term><varname>FFI:*OUTPUT-C-VARIABLES*</varname></term>
  <listitem><simpara>&clisp; will write the <type>extern</type>
    declarations for foreign functions (defined with &def-call-out;) and
-   foreign variables (defined with &def-c-var;) into the output
-   &c-file; <emphasis>unless</emphasis> these variables are &nil;.
+   foreign variables (defined with &def-c-var;) into the output &c-file;
+   (when the Lisp file is compiled with &compile-file;)
+   <emphasis>unless</emphasis> these variables are &nil;.
    They are &nil; by default, so the <type>extern</type>
    declarations are not &not-e; written; you are encouraged to use
    &c-lines; to include the appropriate &c-lang; headers.
@@ -3196,6 +3197,7 @@ It is possible to call this function from Lisp using the file
 <programlisting>
 (&defpackage; "TEST-C-CALL" (:use "LISP" "FFI"))
 (&in-package; "TEST-C-CALL")
+(eval-when (compile) (setq &ffi-out-fun; t))
 (def-c-struct cfunr (x int) (s c-string))
 (default-foreign-language :stdc)
 (def-call-out cfun
@@ -3279,6 +3281,7 @@ This is accompanied by <filename>sort2.lisp</filename>:
 <programlisting>
 (&defpackage; "FFI-TEST" (:use "LISP" "FFI"))
 (&in-package; "FFI-TEST")
+(eval-when (compile) (setq &ffi-out-fun; t))
 (def-call-in lispsort_begin (:arguments (n int))
   (:return-type nil)
   (:language :stdc))
@@ -3298,6 +3301,7 @@ This is accompanied by <filename>sort2.lisp</filename>:
 To test this, use the following test file <filename>sorttest.lisp</filename>:
 
 <programlisting>
+(eval-when (compile) (setq &ffi-out-fun; t))
 (def-call-out sort10
   (:name "lispsort_double")
   (:language :stdc)
