@@ -1,3 +1,9 @@
+2002-12-04  Sam Steingold  <sds@gnu.org>
+
+	* defmacro.lisp (make-length-test): use EXT:LIST-LENGTH-DOTTED
+	instead if LENGTH because the argument may be dotted when it comes
+	from a destructuring lambda list
+
 2002-12-03  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (MAKE-WINDOW): do not assume that *TERMINAL-IO* is a
