@@ -1,7 +1,8 @@
-# Sequences for CLISP
-# Bruno Haible 1987-2001
-# Sam Steingold 2001
-
+/*
+ * Sequences for CLISP
+ * Bruno Haible 1987-2002
+ * Sam Steingold 1998-2002
+ */
 #include "lispbibl.c"
 
 
@@ -142,8 +143,11 @@ local object valid_type1 (object name) {
   name = expand_deftype(name,false);
   if (symbolp(name)) {
     if (eq(name,S(list))) { goto expanded_unconstrained; }
-    if (eq(name,S(null)) || eq(name,S(cons)))
-      { name = S(list); goto expanded_unconstrained; }
+    if (eq(name,S(null)))
+      { pushSTACK(Fixnum_0); name = S(list); goto expanded; }
+    if (eq(name,S(cons)))
+      /* -1 means length at least 1 */
+      { pushSTACK(Fixnum_minus1); name = S(list); goto expanded; }
     if (eq(name,S(vector))) { goto expanded_unconstrained; }
     if (eq(name,S(simple_vector)))
       { name = S(vector); goto expanded_unconstrained; }
@@ -287,17 +291,26 @@ local object get_seq_type (object seq) { var object name;
 
 # Fehler, wenn der Sequence-Typ eine andere Länge vorgibt als die, die
 # herauskommt.
-  nonreturning_function(local, fehler_seqtype_length, (object seqtype_length, object computed_length)) {
-    pushSTACK(computed_length); # TYPE-ERROR slot DATUM
-    pushSTACK(NIL);
-    pushSTACK(computed_length);
+nonreturning_function(local, fehler_seqtype_length,
+                      (object seqtype_length, object computed_length)) {
+  pushSTACK(computed_length); /* TYPE-ERROR slot DATUM */
+  pushSTACK(NIL); /* TYPE-ERROR slot EXPECTED-TYPE - filled later */
+  pushSTACK(computed_length);
+  if (eq(seqtype_length,Fixnum_minus1)) {
+    pushSTACK(O(type_posfixnum1));
+    STACK_2 = O(type_posfixnum1); /* EXPECTED-TYPE */
+  } else {
     pushSTACK(seqtype_length);
     pushSTACK(S(eql)); pushSTACK(seqtype_length);
-    { var object type = listof(2); STACK_2 = type; } # TYPE-ERROR slot EXPECTED-TYPE
-    fehler(type_error,
-           GETTEXT("sequence type forces length ~, but result has length ~")
-          );
+    { var object type = listof(2); STACK_2 = type; } /* EXPECTED-TYPE */
   }
+  /* FIXME: pushSTACK(TheSubr(subr_self)->name); */
+  fehler(type_error,
+         GETTEXT("sequence type forces length ~, but result has length ~"));
+}
+/* check whether the computed_length CL matches seqtype_length STL */
+#define SEQTYPE_LENGTH_MATCH(cl,stl)                            \
+  (eq(cl,Fixnum_minus1) ? !eq(Fixnum_0,stl) : eql(cl,stl))
 
 # Fehler, wenn Argument kein Integer >=0
   nonreturning_function(local, fehler_posint, (object fun, object kw, object obj)) {
@@ -932,7 +945,7 @@ LISPFUN(make_sequence,2,0,norest,key,2,
         else if (posfixnump(seq_type(typdescr))) /* type name integer? (means byte-vector) */
           { STACK_2 = Fixnum_0; } # initial-element := 0
       }
-    if (boundp(STACK_0) && !eql(STACK_0,size))
+    if (boundp(STACK_0) && !SEQTYPE_LENGTH_MATCH(STACK_0,size))
       { fehler_seqtype_length(STACK_0,size); }
     STACK_0 = size; funcall(seq_make(typdescr),1); # (SEQ-MAKE size)
     # Stackaufbau: typdescr, size, initial-element, updatefun.
@@ -995,7 +1008,7 @@ global Values coerce_sequence (object sequence, object result_type,
         # beide Typen dieselben -> nichts zu tun
         if (boundp(STACK_1)) {
           pushSTACK(STACK_3); funcall(seq_length(typdescr1),1); # (SEQ1-LENGTH seq1)
-          if (!eql(value1,STACK_1))
+          if (!SEQTYPE_LENGTH_MATCH(STACK_1,value1))
             fehler_seqtype_length(STACK_1,value1);
         }
         skipSTACK(3); VALUES1(popSTACK()); /* return seq1 */
@@ -1003,7 +1016,7 @@ global Values coerce_sequence (object sequence, object result_type,
         STACK_2 = typdescr1;
         # Stackaufbau: seq1, typdescr1, typdescr2-len, typdescr2.
         pushSTACK(STACK_3); funcall(seq_length(typdescr1),1); # (SEQ1-LENGTH seq1)
-        if (boundp(STACK_1) && !eql(value1,STACK_1))
+        if (boundp(STACK_1) && !SEQTYPE_LENGTH_MATCH(STACK_1,value1))
           fehler_seqtype_length(STACK_1,value1);
         pushSTACK(value1);
         # Stackaufbau: seq1, typdescr1, typdescr2-len, typdescr2, len.
@@ -1044,7 +1057,7 @@ LISPFUN(coerced_subseq,2,0,norest,key,2, (kw(start),kw(end)) )
     # Determine result sequence length.
     STACK_3 = I_I_minus_I(STACK_3,STACK_4); # count := (- end start)
     # Stack layout: sequence, result-type, start, count, typdescr, typdescr2-len, typdescr2.
-    if (boundp(STACK_1) && !eql(STACK_3,STACK_1))
+    if (boundp(STACK_1) && !SEQTYPE_LENGTH_MATCH(STACK_1,STACK_3))
       fehler_seqtype_length(STACK_1,STACK_3);
     if (eq(seq_type(STACK_2),seq_type(STACK_0))) {
       # Same types of sequences.
@@ -1125,7 +1138,8 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
             }});
         }
       { var object result_type_len = Before(behind_args_pointer);
-        if (boundp(result_type_len) && !eql(total_length,result_type_len))
+        if (boundp(result_type_len)
+            && !SEQTYPE_LENGTH_MATCH(result_type_len,total_length))
           { fehler_seqtype_length(result_type_len,total_length); }
       }
       pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL); # Dummies
@@ -1368,7 +1382,8 @@ LISPFUN(map,3,0,rest,nokey,0,NIL)
         #         [typdescr_pointer] {typdescr, pointer, pointer},
         #         size [STACK].
         { var object result_type_len = Before(typdescr_pointer);
-          if (boundp(result_type_len) && !eql(STACK_0,result_type_len))
+          if (boundp(result_type_len)
+              && !SEQTYPE_LENGTH_MATCH(result_type_len,STACK_0))
             { fehler_seqtype_length(result_type_len,STACK_0); }
         }
         # Neue Sequence der Länge size allozieren:
@@ -4121,7 +4136,7 @@ LISPFUN(merge,4,0,norest,key,1, (kw(key)) )
     }
     # beide Längen addieren und neue Sequence der Gesamtlänge bilden:
     { pushSTACK(I_I_plus_I(STACK_1,STACK_0)); # (+ len1 len2)
-      if (boundp(STACK_(1+3)) && !eql(STACK_0,STACK_(1+3)))
+      if (boundp(STACK_(1+3)) && !SEQTYPE_LENGTH_MATCH(STACK_(1+3),STACK_0))
         { fehler_seqtype_length(STACK_(1+3),STACK_0); }
       funcall(seq_make(STACK_(0+2+1)),1); # (SEQ-MAKE (+ len1 len2))
       STACK_(1+2) = value1; # ersetzt result-type-len im Stack

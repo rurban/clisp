@@ -1,5 +1,13 @@
 2002-11-01  Sam Steingold  <sds@gnu.org>
 
+	* sequence.d (valid_type1): NULL --> (LIST 0); CONS --> (LIST (0) *)
+	(fehler_seqtype_length): adjusted accordingly
+	(SEQTYPE_LENGTH_MATCH): new macro
+	(MAKE-SEQUENCE, coerce_sequence, COERCED-SUBSEQ, CONCATENATE, MAP)
+	(MERGE): use it
+
+2002-11-01  Sam Steingold  <sds@gnu.org>
+
 	* loop.lisp (li-vars): new inline function
 	(expand-loop): check for duplicate iteration variables;
 	use ATOM for ON iteration, as per ANSI CL spec

@@ -35,7 +35,10 @@ User visible changes
     MAPC, MAPCAR, MAPCAN, MAPL, MAPLIST, MAPCON now require their list
       arguments to be proper lists;
     TAILP uses EQL, not EQ, to compare the sublists;
-    sequence functions (MAP, LENGTH and such) no longer accept dotted lists;
+    LOOP uses ATOM as the end test for ON iteration and checks for
+      duplicate variables in iteration clauses;
+    sequence functions (MAP, LENGTH and such) no longer accept dotted lists
+      and treat NULL as LIST of length 0 and CONS as LIST of positive length;
     a character is now accepted as a package designator.
 
 * FUNCTION-LAMBDA-EXPRESSION now always returns the correct function name.
