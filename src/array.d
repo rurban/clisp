@@ -53,7 +53,7 @@ global object copy_sbvector (object vector) {
   return newvector;
 }
 
-LISPFUNN(copy_simple_vector,1)
+LISPFUNNR(copy_simple_vector,1)
 { /* (SYS::%COPY-SIMPLE-VECTOR vector) returns a copy
      of the simple-vector VECTOR. */
   var object obj = popSTACK();
@@ -166,7 +166,7 @@ global object vectorof (uintC len) {
   return new_vector;
 }
 
-LISPFUN(vector,0,0,rest,nokey,0,NIL)
+LISPFUN(vector,seclass_no_se,0,0,rest,nokey,0,NIL)
 { /* (VECTOR {object}), CLTL p. 290 */
   VALUES1(vectorof(argcount));
 }
@@ -631,7 +631,7 @@ local object storagevector_store (object datenvektor, uintL index,
   fehler_store(STACK_0,element);
 }
 
-LISPFUN(aref,1,0,rest,nokey,0,NIL)
+LISPFUN(aref,seclass_read,1,0,rest,nokey,0,NIL)
 { /* (AREF array {subscript}), CLTL p. 290 */
   var object array = Before(rest_args_pointer); /* fetch array */
   /* process subscripts and fetch data vector and index: */
@@ -642,7 +642,7 @@ LISPFUN(aref,1,0,rest,nokey,0,NIL)
   skipSTACK(1);
 }
 
-LISPFUN(store,2,0,rest,nokey,0,NIL)
+LISPFUN(store,seclass_default,2,0,rest,nokey,0,NIL)
 { /* (SYS::STORE array {subscript} object)
    = (SETF (AREF array {subscript}) object), CLTL p. 291 */
   rest_args_pointer skipSTACKop 1; /* pointer to first Subscript */
@@ -658,7 +658,7 @@ LISPFUN(store,2,0,rest,nokey,0,NIL)
   skipSTACK(1);
 }
 
-LISPFUNN(svref,2)
+LISPFUNNR(svref,2)
 { /* (SVREF simple-vector index), CLTL p. 291 */
   /* check simple-vector: */
   if (!simple_vector_p(STACK_1))
@@ -698,7 +698,7 @@ LISPFUNN(psvstore,3)
   skipSTACK(3);
 }
 
-LISPFUNN(row_major_aref,2)
+LISPFUNNR(row_major_aref,2)
 { /* (ROW-MAJOR-AREF array index), CLtL2 p. 450 */
   var object array = test_array(STACK_1);
   /* check index: */
@@ -793,19 +793,19 @@ global object array_element_type (object array) {
   return listof(2);
 }
 
-LISPFUNN(array_element_type,1)
+LISPFUNNF(array_element_type,1)
 { /* (ARRAY-ELEMENT-TYPE array), CLTL p. 291 */
   var object array = test_array(popSTACK());
   VALUES1(array_element_type(array));
 }
 
-LISPFUNN(array_rank,1)
+LISPFUNNF(array_rank,1)
 { /* (ARRAY-RANK array), CLTL p. 292 */
   var object array = test_array(popSTACK());
   VALUES1(arrayrank(array));
 }
 
-LISPFUNN(array_dimension,2)
+LISPFUNNR(array_dimension,2)
 { /* (ARRAY-DIMENSION array axis-number), CLTL p. 292 */
   var object axis_number = popSTACK();
   var object array = test_array(popSTACK());
@@ -875,7 +875,7 @@ global object array_dimensions (object array) {
   }
 }
 
-LISPFUNN(array_dimensions,1)
+LISPFUNNR(array_dimensions,1)
 { /* (ARRAY-DIMENSIONS array), CLTL p. 292 */
   var object array = test_array(popSTACK());
   VALUES1(array_dimensions(array));
@@ -909,13 +909,13 @@ global void iarray_dims_sizes (object array, array_dim_size_t* dims_sizes) {
   }
 }
 
-LISPFUNN(array_total_size,1)
+LISPFUNNR(array_total_size,1)
 { /* (ARRAY-TOTAL-SIZE array), CLTL p. 292 */
   var object array = test_array(popSTACK());
   VALUES1(fixnum(array_total_size(array)));
 }
 
-LISPFUN(array_in_bounds_p,1,0,rest,nokey,0,NIL)
+LISPFUN(array_in_bounds_p,seclass_read,1,0,rest,nokey,0,NIL)
 { /* (ARRAY-IN-BOUNDS-P array {subscript}), CLTL p. 292 */
   var gcv_object_t* argptr = rest_args_pointer;
   var object array = test_array(BEFORE(rest_args_pointer)); /* fetch array */
@@ -963,7 +963,7 @@ LISPFUN(array_in_bounds_p,1,0,rest,nokey,0,NIL)
   VALUES1(NIL); set_args_end_pointer(rest_args_pointer); return;
 }
 
-LISPFUN(array_row_major_index,1,0,rest,nokey,0,NIL)
+LISPFUN(array_row_major_index,seclass_read,1,0,rest,nokey,0,NIL)
 { /* (ARRAY-ROW-MAJOR-INDEX array {subscript}), CLTL p. 293 */
   var object array = test_array(Before(rest_args_pointer)); /* fetch array */
   var uintL index;
@@ -985,7 +985,7 @@ LISPFUN(array_row_major_index,1,0,rest,nokey,0,NIL)
   }
 }
 
-LISPFUNN(adjustable_array_p,1)
+LISPFUNNF(adjustable_array_p,1)
 { /* (ADJUSTABLE-ARRAY-P array), CLTL p. 293 */
   var object array = test_array(popSTACK()); /* fetch argument */
   VALUES_IF(!array_simplep(array) &&
@@ -1018,7 +1018,7 @@ nonreturning_function(local, fehler_bit_array, (void)) {
   fehler(type_error,GETTEXT("~: ~ is not an array of bits"));
 }
 
-LISPFUN(bit,1,0,rest,nokey,0,NIL)
+LISPFUN(bit,seclass_read,1,0,rest,nokey,0,NIL)
 { /* (BIT bit-array {subscript}), CLTL p. 293 */
   var object array = Before(rest_args_pointer); /* fetch array */
   /* process subscripts and fetch data vector and index: */
@@ -1032,7 +1032,7 @@ LISPFUN(bit,1,0,rest,nokey,0,NIL)
   skipSTACK(1);
 }
 
-LISPFUN(sbit,1,0,rest,nokey,0,NIL)
+LISPFUN(sbit,seclass_read,1,0,rest,nokey,0,NIL)
 { /* (SBIT bit-array {subscript}), CLTL p. 293 */
   var object array = Before(rest_args_pointer); /* fetch array */
   /* process subscripts and fetch data vector and index: */
@@ -1853,57 +1853,57 @@ local uint_bitpack_t bitpack_orc2 (uint_bitpack_t x, uint_bitpack_t y)
 local uint_bitpack_t bitpack_not (uint_bitpack_t x, uint_bitpack_t y)
 { return ~x; }
 
-LISPFUN(bit_and,2,1,norest,nokey,0,NIL)
+LISPFUN(bit_and,seclass_default,2,1,norest,nokey,0,NIL)
 { /* (BIT-AND bit-array1 bit-array2 [result-bit-array]), CLTL p. 294 */
   return_Values bit_up(&bitpack_and);
 }
 
-LISPFUN(bit_ior,2,1,norest,nokey,0,NIL)
+LISPFUN(bit_ior,seclass_default,2,1,norest,nokey,0,NIL)
 { /* (BIT-IOR bit-array1 bit-array2 [result-bit-array]), CLTL p. 294 */
   return_Values bit_up(&bitpack_ior);
 }
 
-LISPFUN(bit_xor,2,1,norest,nokey,0,NIL)
+LISPFUN(bit_xor,seclass_default,2,1,norest,nokey,0,NIL)
 { /* (BIT-XOR bit-array1 bit-array2 [result-bit-array]), CLTL p. 294 */
   return_Values bit_up(&bitpack_xor);
 }
 
-LISPFUN(bit_eqv,2,1,norest,nokey,0,NIL)
+LISPFUN(bit_eqv,seclass_default,2,1,norest,nokey,0,NIL)
 { /* (BIT-EQV bit-array1 bit-array2 [result-bit-array]), CLTL p. 294 */
   return_Values bit_up(&bitpack_eqv);
 }
 
-LISPFUN(bit_nand,2,1,norest,nokey,0,NIL)
+LISPFUN(bit_nand,seclass_default,2,1,norest,nokey,0,NIL)
 { /* (BIT-NAND bit-array1 bit-array2 [result-bit-array]), CLTL p. 294 */
   return_Values bit_up(&bitpack_nand);
 }
 
-LISPFUN(bit_nor,2,1,norest,nokey,0,NIL)
+LISPFUN(bit_nor,seclass_default,2,1,norest,nokey,0,NIL)
 { /* (BIT-NOR bit-array1 bit-array2 [result-bit-array]), CLTL p. 294 */
   return_Values bit_up(&bitpack_nor);
 }
 
-LISPFUN(bit_andc1,2,1,norest,nokey,0,NIL)
+LISPFUN(bit_andc1,seclass_default,2,1,norest,nokey,0,NIL)
 { /* (BIT-ANDC1 bit-array1 bit-array2 [result-bit-array]), CLTL p. 294 */
   return_Values bit_up(&bitpack_andc1);
 }
 
-LISPFUN(bit_andc2,2,1,norest,nokey,0,NIL)
+LISPFUN(bit_andc2,seclass_default,2,1,norest,nokey,0,NIL)
 { /* (BIT-ANDC2 bit-array1 bit-array2 [result-bit-array]), CLTL p. 294 */
   return_Values bit_up(&bitpack_andc2);
 }
 
-LISPFUN(bit_orc1,2,1,norest,nokey,0,NIL)
+LISPFUN(bit_orc1,seclass_default,2,1,norest,nokey,0,NIL)
 { /* (BIT-ORC1 bit-array1 bit-array2 [result-bit-array]), CLTL p. 294 */
   return_Values bit_up(&bitpack_orc1);
 }
 
-LISPFUN(bit_orc2,2,1,norest,nokey,0,NIL)
+LISPFUN(bit_orc2,seclass_default,2,1,norest,nokey,0,NIL)
 { /* (BIT-ORC2 bit-array1 bit-array2 [result-bit-array]), CLTL p. 294 */
   return_Values bit_up(&bitpack_orc2);
 }
 
-LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
+LISPFUN(bit_not,seclass_default,1,1,norest,nokey,0,NIL)
 { /* (BIT-NOT bit-array [result-bit-array]), CLTL p. 295 */
   /* double first argument (is ignored during the operation): */
   var object array3 = STACK_0;
@@ -3485,8 +3485,8 @@ global bool array_has_fill_pointer_p (object array) {
   }
 }
 
-/* (ARRAY-HAS-FILL-POINTER-P array), CLTL p. 296 */
-LISPFUNN(array_has_fill_pointer_p,1) {
+LISPFUNNR(array_has_fill_pointer_p,1)
+{ /* (ARRAY-HAS-FILL-POINTER-P array), CLTL p. 296 */
   var object array = test_array(popSTACK());
   VALUES_IF(array_has_fill_pointer_p(array));
 }
@@ -3517,7 +3517,7 @@ local uintL* get_fill_pointer (object obj) {
   fehler(type_error,GETTEXT("~: vector ~ has no fill pointer"));
 }
 
-LISPFUNN(fill_pointer,1) { /* (FILL-POINTER vector), CLTL p. 296 */
+LISPFUNNR(fill_pointer,1) { /* (FILL-POINTER vector), CLTL p. 296 */
   var object obj = popSTACK();
   VALUES1(fixnum(* get_fill_pointer(obj))); /* get fill-pointer as Fixnum */
 }
@@ -3576,7 +3576,7 @@ nonreturning_function(local, fehler_extension, (object extension)) {
          GETTEXT("~: extending the vector by ~ elements makes it too long"));
 }
 
-LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
+LISPFUN(vector_push_extend,seclass_default,2,1,norest,nokey,0,NIL)
 { /* (VECTOR-PUSH-EXTEND new-element vector [extension]), CLTL p. 296 */
   var uintL* fillp = get_fill_pointer(STACK_1); /* fillpointer-address */
   var uintL oldfillp = *fillp; /* old value of the fillpointer */
@@ -4324,7 +4324,7 @@ local uintL test_fillpointer (uintL totalsize) {
   }
 }
 
-LISPFUN(make_array,1,0,norest,key,7,
+LISPFUN(make_array,seclass_read,1,0,norest,key,7,
         (kw(adjustable),kw(element_type),kw(initial_element),
          kw(initial_contents),kw(fill_pointer),
          kw(displaced_to),kw(displaced_index_offset)) )
@@ -4568,7 +4568,7 @@ local void reshape (object newvec, object newdims, object oldvec,
 /* (ADJUST-ARRAY array dimensions :element-type :initial-element
    :initial-contents :fill-pointer :displaced-to :displaced-index-offset),
    CLTL p. 297 */
-LISPFUN(adjust_array,2,0,norest,key,6,
+LISPFUN(adjust_array,seclass_default,2,0,norest,key,6,
         (kw(element_type),kw(initial_element),
          kw(initial_contents),kw(fill_pointer),
          kw(displaced_to),kw(displaced_index_offset)) )

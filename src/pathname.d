@@ -1919,7 +1919,7 @@ local void split_name_type (uintL skip) {
 
 # (PARSE-NAMESTRING thing [host [defaults [:start] [:end] [:junk-allowed]]]),
 # CLTL p. 414
-LISPFUN(parse_namestring,1,2,norest,key,3,
+LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
         (kw(start),kw(end),kw(junk_allowed)) ) {
   # stack layout: thing, host, defaults, start, end, junk-allowed.
   var bool junk_allowed;
@@ -2826,12 +2826,12 @@ local object coerce_xpathname (object obj) {
   }
 }
 
-LISPFUNN(pathname,1) { /* (PATHNAME pathname), CLTL p. 413 */
+LISPFUNNR(pathname,1) { /* (PATHNAME pathname), CLTL p. 413 */
   VALUES1(coerce_xpathname(popSTACK()));
 }
 
 # (PATHNAME-HOST pathname [:case]), CLTL p. 417, CLtL2 p. 644
-LISPFUN(pathnamehost,1,0,norest,key,1, (kw(case))) {
+LISPFUN(pathnamehost,seclass_read,1,0,norest,key,1, (kw(case))) {
   var object pathname = coerce_xpathname(STACK_1);
  #ifdef LOGICAL_PATHNAMES
   if (logpathnamep(pathname)) {
@@ -2850,7 +2850,7 @@ LISPFUN(pathnamehost,1,0,norest,key,1, (kw(case))) {
 }
 
 # (PATHNAME-DEVICE pathname [:case]), CLTL p. 417, CLtL2 p. 644
-LISPFUN(pathnamedevice,1,0,norest,key,1, (kw(case))) {
+LISPFUN(pathnamedevice,seclass_read,1,0,norest,key,1, (kw(case))) {
   var object pathname = coerce_xpathname(STACK_1);
  #ifdef LOGICAL_PATHNAMES
   if (logpathnamep(pathname)) {
@@ -2869,7 +2869,7 @@ LISPFUN(pathnamedevice,1,0,norest,key,1, (kw(case))) {
 }
 
 # (PATHNAME-DIRECTORY pathname [:case]), CLTL p. 417, CLtL2 p. 644
-LISPFUN(pathnamedirectory,1,0,norest,key,1, (kw(case))) {
+LISPFUN(pathnamedirectory,seclass_read,1,0,norest,key,1, (kw(case))) {
   var object pathname = coerce_xpathname(STACK_1);
  #ifdef LOGICAL_PATHNAMES
   if (logpathnamep(pathname)) {
@@ -2884,7 +2884,7 @@ LISPFUN(pathnamedirectory,1,0,norest,key,1, (kw(case))) {
 }
 
 # (PATHNAME-NAME pathname [:case]), CLTL p. 417, CLtL2 p. 644
-LISPFUN(pathnamename,1,0,norest,key,1, (kw(case))) {
+LISPFUN(pathnamename,seclass_read,1,0,norest,key,1, (kw(case))) {
   var object pathname = coerce_xpathname(STACK_1);
  #ifdef LOGICAL_PATHNAMES
   if (logpathnamep(pathname)) {
@@ -2900,7 +2900,7 @@ LISPFUN(pathnamename,1,0,norest,key,1, (kw(case))) {
 }
 
 # (PATHNAME-TYPE pathname [:case]), CLTL p. 417, CLtL2 p. 644
-LISPFUN(pathnametype,1,0,norest,key,1, (kw(case))) {
+LISPFUN(pathnametype,seclass_read,1,0,norest,key,1, (kw(case))) {
   var object pathname = coerce_xpathname(STACK_1);
  #ifdef LOGICAL_PATHNAMES
   if (logpathnamep(pathname)) {
@@ -2916,7 +2916,7 @@ LISPFUN(pathnametype,1,0,norest,key,1, (kw(case))) {
 }
 
 # (PATHNAME-VERSION pathname), CLTL p. 417, CLtL2 p. 644
-LISPFUNN(pathnameversion,1) {
+LISPFUNNR(pathnameversion,1) {
   var object pathname = coerce_xpathname(popSTACK());
  #ifdef LOGICAL_PATHNAMES
   if (logpathnamep(pathname)) {
@@ -2938,8 +2938,8 @@ local object parse_as_logical (object obj) {
   return value1;
 }
 
-# (LOGICAL-PATHNAME thing), CLtL2 p. 631
-LISPFUNN(logical_pathname,1) {
+LISPFUNNR(logical_pathname,1)
+{ /* (LOGICAL-PATHNAME thing), CLtL2 p. 631 */
   var object thing = popSTACK();
   if (logpathnamep(thing)) {
     # nothing to do for logical pathnames.
@@ -2957,7 +2957,7 @@ LISPFUNN(logical_pathname,1) {
 }
 
 # (TRANSLATE-LOGICAL-PATHNAME pathname &key), CLtL2 p. 631
-LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_) {
+LISPFUN(translate_logical_pathname,seclass_default,1,0,norest,key,0,_EMA_) {
   var object pathname;
   # It is not clear from the ANSI CL spec how the argument shall be coerced
   # to a pathname. But the examples in the spec indicate that if the
@@ -3359,20 +3359,20 @@ local inline object file_namestring (object pathname) {
   return string_concat(file_namestring_parts(pathname));
 }
 
-# (FILE-NAMESTRING pathname), CLTL p. 417
-LISPFUNN(file_namestring,1) {
+LISPFUNNR(file_namestring,1)
+{ /* (FILE-NAMESTRING pathname), CLTL p. 417 */
   var object pathname = coerce_xpathname(popSTACK());
   VALUES1(file_namestring(pathname));
 }
 
-# (DIRECTORY-NAMESTRING pathname), CLTL p. 417
-LISPFUNN(directory_namestring,1) {
+LISPFUNNR(directory_namestring,1)
+{ /* (DIRECTORY-NAMESTRING pathname), CLTL p. 417 */
   var object pathname = coerce_xpathname(popSTACK());
   VALUES1(directory_namestring(pathname));
 }
 
-# (HOST-NAMESTRING pathname), CLTL p. 417
-LISPFUNN(host_namestring,1) {
+LISPFUNNR(host_namestring,1)
+{ /* (HOST-NAMESTRING pathname), CLTL p. 417 */
   var object pathname = coerce_xpathname(popSTACK());
   VALUES1(xpathname_host(logpathnamep(pathname),pathname));
 }
@@ -3636,7 +3636,7 @@ local object merge_dirs (object p_directory, object d_directory, bool p_log,
 #    are equal in CLISP's implementation, but not in implementations
 #    that strictly follow the Common Lisp spec. In fact, the above
 #    twice-default = once-default rule holds for all pathnames in CLISP.
-LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild))) {
+LISPFUN(merge_pathnames,seclass_read,1,2,norest,key,1, (kw(wild))) {
   # :wild #'make-pathname causes NIL components to be considered specified,
   # only #<unbound> components are considered unspecified.
   var bool called_from_make_pathname = eq(STACK_0,L(make_pathname));
@@ -3873,7 +3873,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild))) {
 #define SET_NEWP(slot,value)                            \
       if (log2) TheLogpathname(newp)->slot = value;     \
       else ThePathname(newp)->slot = value;
-LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL) {
+LISPFUN(enough_namestring,seclass_read,1,1,norest,nokey,0,NIL) {
   # check pathname and defaults:
   # turn pathname into a Pathname:
   STACK_1 = coerce_xpathname(STACK_1);
@@ -4153,7 +4153,7 @@ local bool directory_list_valid_p (bool logical, object dirlist) {
 # (MAKE-PATHNAME [:host] [:device] [:directory] [:name] [:type] [:version]
 #                [:defaults] [:case]),
 # CLTL p. 416, CLtL2 p. 643
-LISPFUN(make_pathname,0,0,norest,key,8,
+LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
         (kw(defaults),kw(case),kw(host),kw(device),kw(directory),
          kw(name),kw(type),kw(version)) ) {
   # stack layout: defaults, case, host, device, directory, name, type, version.
@@ -4484,7 +4484,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,
 # (MAKE-LOGICAL-PATHNAME [:host] [:device] [:directory] [:name]
 #                        [:type] [:version] [:defaults] [:case]),
 # like MAKE-PATHNAME, except that a Logical Pathname is built.
-LISPFUN(make_logical_pathname,0,0,norest,key,8,
+LISPFUN(make_logical_pathname,seclass_read,0,0,norest,key,8,
         (kw(defaults),kw(case),kw(host),kw(device),
          kw(directory),kw(name),kw(type),kw(version)) ) {
   # A logical pathname as :HOST-Argument for MAKE-PATHNAME
@@ -4501,7 +4501,7 @@ LISPFUN(make_logical_pathname,0,0,norest,key,8,
 
 #ifdef USER_HOMEDIR
 # (USER-HOMEDIR-PATHNAME [host]), CLTL p. 418
-LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL) {
+LISPFUN(user_homedir_pathname,seclass_default,0,1,norest,nokey,0,NIL) {
   DOUT("user-homedir-pathname:[host]",STACK_0);
  #if HAS_HOST
   STACK_0 = test_optional_host(STACK_0,false); # check Host
@@ -4754,8 +4754,8 @@ local void check_no_wildcards (object pathname) {
   fehler(file_error,GETTEXT("wildcards are not allowed here: ~"));
 }
 
-# (WILD-PATHNAME-P pathname [field-key]), CLtL2 p. 623
-LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL) {
+LISPFUN(wild_pathname_p,seclass_read,1,1,norest,nokey,0,NIL)
+{ /* (WILD-PATHNAME-P pathname [field-key]), CLtL2 p. 623 */
   var object pathname = coerce_xpathname(STACK_1);
   var object key = STACK_0;
   var bool erg;
@@ -5017,8 +5017,8 @@ local bool version_match (object pattern, object sample, bool logical) {
  #endif
 }
 
-# (PATHNAME-MATCH-P pathname wildname), CLtL2 p. 623
-LISPFUNN(pathname_match_p,2) {
+LISPFUNNR(pathname_match_p,2)
+{ /* (PATHNAME-MATCH-P pathname wildname), CLtL2 p. 623 */
   # stack layout: pathname, wildname.
   var bool logical = false;
   STACK_1 = coerce_xpathname(STACK_1);
@@ -5796,7 +5796,8 @@ local object translate_pathname (gcv_object_t* subst, object pattern) {
 # :all = T --> return a list of all fitting pathnames
 # :all = NIL --> Error, if more than one pathname fits
 # :merge = NIL --> skip last MERGE-PATHNAMES step
-LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge))) {
+LISPFUN(translate_pathname,seclass_default,3,0,norest,key,2,
+        (kw(all),kw(merge))) {
   # stack layout: sample, pattern1, pattern2, all, merge.
   var bool logical = false; # Flag, if sample and pattern are logical pathnames
   var bool logical2 = false; # Flag, if pattern2 is a logical pathname
@@ -7575,7 +7576,7 @@ local void change_default (void) {
 # (NAMESTRING pathname), CLTL p. 417
 # (NAMESTRING pathname t) -> namestring in external format
 #   Unix: with default-directory
-LISPFUN(namestring,1,1,norest,nokey,0,NIL) {
+LISPFUN(namestring,seclass_read,1,1,norest,nokey,0,NIL) {
   var object flag = popSTACK(); # optional argument flag
   var object pathname = coerce_xpathname(popSTACK());
  #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) || defined(PATHNAME_RISCOS) || defined(PATHNAME_WIN32)
@@ -7682,8 +7683,8 @@ local object true_namestring (object pathname, bool noname_p, bool tolerantp) {
   return assure_dir_exists(false,tolerantp);
 }
 
-# (TRUENAME pathname), CLTL p. 413
-LISPFUNN(truename,1) {
+LISPFUNNR(truename,1)
+{ /* (TRUENAME pathname), CLTL p. 413 */
   var object pathname = popSTACK(); # pathname-argument
   if (builtin_stream_p(pathname)) { # stream -> treat extra:
     # must be file-stream:
@@ -7713,8 +7714,8 @@ LISPFUNN(truename,1) {
   }
 }
 
-# (PROBE-FILE filename), CLTL p. 424
-LISPFUNN(probe_file,1) {
+LISPFUNNR(probe_file,1)
+{ /* (PROBE-FILE filename), CLTL p. 424 */
   var object pathname = popSTACK(); # pathname-argument
   if (builtin_stream_p(pathname)) { # stream -> treat extra:
     # must be file-stream:
@@ -7864,8 +7865,8 @@ local bool directory_exists (object pathname) {
   return exists;
 }
 
-# (PROBE-DIRECTORY filename) tests, if a directory exists.
-LISPFUNN(probe_directory,1) {
+LISPFUNNR(probe_directory,1)
+{ /* (PROBE-DIRECTORY filename) tests, if a directory exists. */
   var object pathname = popSTACK(); # pathname-argument
   pathname = coerce_pathname(pathname); # turn into a pathname
   check_no_wildcards(pathname); # with wildcards -> error
@@ -8669,7 +8670,7 @@ local object open_file (object filename, direction_t direction,
 
 # (OPEN filename :direction :element-type :if-exists :if-does-not-exist
 #                :external-format :buffered)
-LISPFUN(open,1,0,norest,key,6,
+LISPFUN(open,seclass_default,1,0,norest,key,6,
         (kw(direction),kw(element_type),kw(if_exists),
          kw(if_does_not_exist),kw(external_format),kw(buffered)) ) {
   var object filename = STACK_6; # filename
@@ -9938,7 +9939,8 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
 
 /* (DIRECTORY [pathname [:circle] [:full] [:if-does-not-exist]]),
    CLTL p. 427 */
-LISPFUN(directory,0,1,norest,key,3,(kw(if_does_not_exist),kw(circle),kw(full)))
+LISPFUN(directory,seclass_read,0,1,norest,key,3,
+        ( kw(if_does_not_exist),kw(circle),kw(full) ))
 { /* stack layout: pathname, if-does-not-exist, circle, full. */
   var dir_search_param_t dsp;
   if (!boundp(STACK_2) || eq(STACK_2,S(Kdiscard)))
@@ -10017,7 +10019,7 @@ local object ensure_last_slash (object dir_string) {
 }
 
 # (CD [pathname]) sets the current drive and the current directory.
-LISPFUN(cd,0,1,norest,nokey,0,NIL) {
+LISPFUN(cd,seclass_default,0,1,norest,nokey,0,NIL) {
   var object pathname = popSTACK();
   if (!boundp(pathname)) { pathname = O(empty_string); } /* "" */
   else if (stringp(pathname)) # make sure it ends with a slash
@@ -10148,7 +10150,8 @@ LISPFUNN(delete_dir,1) {
 #         )
 #         (values pathspec t)
 # ) ) ) )
-LISPFUN(ensure_directories_exist,1,0,norest,key,1,(kw(verbose))) {
+LISPFUN(ensure_directories_exist,seclass_default,1,0,norest,key,1,
+        (kw(verbose))) {
   var object pathname = coerce_pathname(STACK_1); # turn argument into a pathname
   pathname = copy_pathname(pathname); # copy and discard name, type
   ThePathname(pathname)->pathname_name = NIL;
@@ -10343,7 +10346,7 @@ global void init_pathnames (void) {
 }
 
 # (FILE-WRITE-DATE file), CLTL p. 424
-LISPFUNN(file_write_date,1) {
+LISPFUNNR(file_write_date,1) {
  #ifdef AMIGAOS
   var struct DateStamp file_datetime; # buffer for date/time of a file
  #endif
@@ -10452,7 +10455,7 @@ LISPFUNN(file_write_date,1) {
 }
 
 # (FILE-AUTHOR file), CLTL p. 424
-LISPFUNN(file_author,1) {
+LISPFUNNR(file_author,1) {
   var object pathname = popSTACK(); # pathname-argument
   if (builtin_stream_p(pathname)) { # stream -> treat extra:
     # must be file-stream:
@@ -10509,7 +10512,7 @@ LISPFUNN(file_author,1) {
 #if defined(UNIX) || defined(MSDOS) || defined(RISCOS)
 
 # (EXECUTE file arg1 arg2 ...) calls a file with the given arguments.
-LISPFUN(execute,1,0,rest,nokey,0,NIL) {
+LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL) {
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   {
     var gcv_object_t* argptr = args_pointer; # Pointer to the arguments
@@ -10636,7 +10639,7 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL) {
 
 # (EXECUTE command-string) sends a string to the operating system.
 # in this case this is synonymous with (SHELL command-string).
-LISPFUN(execute,1,0,norest,nokey,0,NIL) {
+LISPFUN(execute,seclass_default,1,0,norest,nokey,0,NIL) {
   C_shell(); # call SHELL, same stack layout
 }
 
@@ -10650,7 +10653,7 @@ LISPFUN(execute,1,0,norest,nokey,0,NIL) {
 #if defined(AMIGAOS)
 #include <dos/dostags.h>         # for SystemTags()
 
-LISPFUN(shell,0,1,norest,nokey,0,NIL) {
+LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
   var object command = popSTACK();
   # As I/O is on the terminal and we obviously keep a handle on it,
   # we will also get ^C^D^E^F signals from it during command execution.
@@ -10716,7 +10719,7 @@ LISPFUNN(shell_name,0) {
   VALUES1(O(command_shell));
 }
 
-LISPFUN(shell,0,1,norest,nokey,0,NIL) {
+LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
   var object command = popSTACK();
   if (!boundp(command))
     command = O(command_shell);
@@ -10755,7 +10758,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL) {
 
 #else # UNIX || MSDOS || ...
 
-LISPFUN(shell,0,1,norest,nokey,0,NIL) {
+LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
   var object command = popSTACK();
   if (!boundp(command)) {
     # execute (EXECUTE shell) :
@@ -11096,7 +11099,7 @@ LISPFUNN(user_data_,1) {
 # (POSIX::FILE-STAT-INTERNAL file &optional link-p)
 # if you modify this function wrt its return values,
 # you should modify POSIX:FILE-STAT in posix.lisp accordingly
-LISPFUN(file_stat_,1,1,norest,nokey,0,NIL) {
+LISPFUN(file_stat_,seclass_default,1,1,norest,nokey,0,NIL) {
   var object link = popSTACK();
   var object file = popSTACK();
   struct stat buf;
@@ -11454,7 +11457,7 @@ local void copy_one_file (object source, object src_path,
  if-does-not-exist := nil ;; do nothing and return nil
                     | :error ;; (default) signal an error
  */
-LISPFUN(copy_file,2,0,norest,key,4,
+LISPFUN(copy_file,seclass_default,2,0,norest,key,4,
         (kw(method),kw(preserve),kw(if_exists),kw(if_does_not_exist)) )
 {
   var if_does_not_exist_t if_not_exists = check_if_does_not_exist(STACK_0);
@@ -11498,7 +11501,7 @@ LISPFUN(copy_file,2,0,norest,key,4,
 }
 
 /* Lisp interface to dup(2)/dup2(2). */
-LISPFUN(duplicate_handle,1,1,norest,nokey,0,NIL) {
+LISPFUN(duplicate_handle,seclass_default,1,1,norest,nokey,0,NIL) {
   var object new_fd = popSTACK();
   var object old_fd = popSTACK();
   if (!posfixnump(old_fd)) fehler_posfixnum(old_fd);

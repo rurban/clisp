@@ -8,7 +8,7 @@
 #include "lispbibl.c"
 
 /* (SYSTEM::%EXIT [errorp]) leaves the system */
-LISPFUN(exit,0,1,norest,nokey,0,NIL) {
+LISPFUN(exit,seclass_default,0,1,norest,nokey,0,NIL) {
   var object errorp = STACK_0;
   final_exitcode = missingp(errorp) ? 0 :
                    (posfixnump(errorp) ? posfixnum_to_L(errorp) : 1);
@@ -100,7 +100,7 @@ nonreturning_function(local, fehler_no_value, (object symbol)) {
   fehler(unbound_variable,GETTEXT("~: ~ has no dynamic value"));
 }
 
-LISPFUNN(psymbol_value,1)
+LISPFUNNR(psymbol_value,1)
 { /* (SYS::%SYMBOL-VALUE symbol), CLTL p. 90 */
   var object symbol = test_symbol(popSTACK());
   var object val = Symbol_value(symbol);
@@ -109,7 +109,7 @@ LISPFUNN(psymbol_value,1)
   VALUES1(val);
 }
 
-LISPFUNN(symbol_value,1)
+LISPFUNNR(symbol_value,1)
 { /* (SYMBOL-VALUE symbol), CLTL p. 90 */
   var object symbol = test_symbol(popSTACK());
   var object val = Symbol_value(symbol);
@@ -134,7 +134,7 @@ nonreturning_function(global, fehler_undef_function,
   fehler(undefined_function,GETTEXT("~: ~ has no global function definition"));
 }
 
-LISPFUNN(symbol_function,1)
+LISPFUNNR(symbol_function,1)
 { /* (SYMBOL-FUNCTION symbol), CLTL p. 90 */
   var object symbol = test_symbol(popSTACK());
   var object val = Symbol_function(symbol);
@@ -154,32 +154,32 @@ local object funname_to_symbol (object symbol) {
   return symbol;
 }
 
-LISPFUNN(fdefinition,1)
+LISPFUNNR(fdefinition,1)
 { /* (FDEFINITION funname), CLTL2 p. 120 */
   var object funname = popSTACK();
   var object symbol = funname_to_symbol(funname);
   if (!symbolp(symbol)) /* should be a symbol */
-      fehler_undef_function(S(fdefinition),funname); /* otherwise undefined */
+    fehler_undef_function(S(fdefinition),funname); /* otherwise undefined */
   var object val = Symbol_function(symbol);
   if (!boundp(val))
     fehler_undef_function(S(fdefinition),funname);
   VALUES1(val);
 }
 
-LISPFUNN(boundp,1)
+LISPFUNNR(boundp,1)
 { /* (BOUNDP symbol), CLTL p. 90 */
   var object symbol = test_symbol(popSTACK());
   VALUES_IF(boundp(Symbol_value(symbol)));
 }
 
-LISPFUNN(fboundp,1)
+LISPFUNNR(fboundp,1)
 { /* (FBOUNDP symbol), CLTL p. 90, CLTL2 p. 120 */
   var object symbol = funname_to_symbol(popSTACK());
   VALUES_IF(symbolp(symbol) && /* should be a symbol */
             boundp(Symbol_function(symbol)));
 }
 
-LISPFUNN(special_operator_p,1)
+LISPFUNNF(special_operator_p,1)
 { /* (SPECIAL-OPERATOR-P symbol), was (SPECIAL-FORM-P symbol), CLTL p. 91 */
   var object symbol = test_symbol(popSTACK());
   var object obj = Symbol_function(symbol);
@@ -319,7 +319,7 @@ LISPFUNN(fmakunbound,1)
   VALUES1(funname);
 }
 
-LISPFUN(apply,2,0,rest,nokey,0,NIL)
+LISPFUN(apply,seclass_default,2,0,rest,nokey,0,NIL)
 { /* (APPLY function {arg} arglist), CLTL p. 107 */
   BEFORE(rest_args_pointer);
   apply(Before(rest_args_pointer), /* function */
@@ -328,7 +328,7 @@ LISPFUN(apply,2,0,rest,nokey,0,NIL)
   skipSTACK(1); /* remove function from the stack */
 }
 
-LISPFUN(funcall,1,0,rest,nokey,0,NIL)
+LISPFUN(funcall,seclass_default,1,0,rest,nokey,0,NIL)
 { /* (FUNCALL function {arg}), CLTL p. 108 */
   funcall(Before(rest_args_pointer),argcount); skipSTACK(1);
 }
@@ -1471,35 +1471,35 @@ local inline void set_last_copy (object list) {
 
 #define Identity
 
-LISPFUN(mapcar,2,0,rest,nokey,0,NIL)
+LISPFUN(mapcar,seclass_default,2,0,rest,nokey,0,NIL)
 /* (MAPCAR fun list {list}), CLTL p. 128 */
   MAPCAR_MAPLIST_BODY(Car)
 
-LISPFUN(maplist,2,0,rest,nokey,0,NIL)
+LISPFUN(maplist,seclass_default,2,0,rest,nokey,0,NIL)
 /* (MAPLIST fun list {list}), CLTL p. 128 */
   MAPCAR_MAPLIST_BODY(Identity)
 
-LISPFUN(mapc,2,0,rest,nokey,0,NIL)
+LISPFUN(mapc,seclass_default,2,0,rest,nokey,0,NIL)
 /* (MAPC fun list {list}), CLTL p. 128 */
   MAPC_MAPL_BODY(Car)
 
-LISPFUN(mapl,2,0,rest,nokey,0,NIL)
+LISPFUN(mapl,seclass_default,2,0,rest,nokey,0,NIL)
 /* (MAPL fun list {list}), CLTL p. 128 */
   MAPC_MAPL_BODY(Identity)
 
-LISPFUN(mapcan,2,0,rest,nokey,0,NIL)
+LISPFUN(mapcan,seclass_default,2,0,rest,nokey,0,NIL)
 /* (MAPCAN fun list {list}), CLTL p. 128 */
   MAPCAN_MAPCON_BODY(Car,set_last_inplace)
 
-LISPFUN(mapcon,2,0,rest,nokey,0,NIL)
+LISPFUN(mapcon,seclass_default,2,0,rest,nokey,0,NIL)
 /* (MAPCON fun list {list}), CLTL p. 128 */
   MAPCAN_MAPCON_BODY(Identity,set_last_inplace)
 
-LISPFUN(mapcap,2,0,rest,nokey,0,NIL)
+LISPFUN(mapcap,seclass_default,2,0,rest,nokey,0,NIL)
 /* (EXT:MAPCAN fun list {list}) */
   MAPCAN_MAPCON_BODY(Car,set_last_copy)
 
-LISPFUN(maplap,2,0,rest,nokey,0,NIL)
+LISPFUN(maplap,seclass_default,2,0,rest,nokey,0,NIL)
 /* (EXT:MAPCAN fun list {list}) */
   MAPCAN_MAPCON_BODY(Identity,set_last_copy)
 
@@ -1644,14 +1644,15 @@ nonreturning_function(global, fehler_mv_zuviel, (object caller)) {
   fehler(error,GETTEXT("~: too many values"));
 }
 
-LISPFUN(values,0,0,rest,nokey,0,NIL)
-{ /* (VALUES {arg}), CLTL p. 134 */
+LISPFUN(values,seclass_no_se,0,0,rest,nokey,0,NIL)
+{ /* (VALUES {arg}), CLTL p. 134
+     [not foldable, in order to avoid infinite loop!]*/
   if (argcount >= mv_limit)
     fehler_mv_zuviel(S(values));
   STACK_to_mv(argcount);
 }
 
-LISPFUNN(values_list,1)
+LISPFUNNR(values_list,1)
 { /* (VALUES-LIST list), CLTL p. 135 */
   list_to_mv(popSTACK(), fehler_mv_zuviel(S(values_list)); );
 }
@@ -1946,7 +1947,7 @@ local void test_env (void) {
   }
 }
 
-LISPFUN(macro_function,1,1,norest,nokey,0,NIL)
+LISPFUN(macro_function,seclass_read,1,1,norest,nokey,0,NIL)
 { /* (MACRO-FUNCTION symbol [env]), CLTL p. 144;
      Issue MACRO-FUNCTION-ENVIRONMENT:YES */
   test_env();
@@ -1968,7 +1969,7 @@ LISPFUN(macro_function,1,1,norest,nokey,0,NIL)
   mv_count=1;
 }
 
-LISPFUN(macroexpand,1,1,norest,nokey,0,NIL)
+LISPFUN(macroexpand,seclass_default,1,1,norest,nokey,0,NIL)
 { /* (MACROEXPAND form [env]), CLTL p. 151 */
   test_env();
   var object env = popSTACK();
@@ -1984,7 +1985,7 @@ LISPFUN(macroexpand,1,1,norest,nokey,0,NIL)
   mv_count=2; skipSTACK(1);
 }
 
-LISPFUN(macroexpand_1,1,1,norest,nokey,0,NIL)
+LISPFUN(macroexpand_1,seclass_default,1,1,norest,nokey,0,NIL)
 { /* (MACROEXPAND-1 form [env]), CLTL p. 151 */
   test_env();
   var object env = popSTACK();
@@ -2125,7 +2126,7 @@ local void test_optional_env_arg (environment_t* env5) {
     fehler_environment(env);
 }
 
-LISPFUN(evalhook,3,1,norest,nokey,0,NIL)
+LISPFUN(evalhook,seclass_default,3,1,norest,nokey,0,NIL)
 { /* (EVALHOOK form evalhookfn applyhookfn [env]), CLTL p. 323 */
   var environment_t env5;
   test_optional_env_arg(&env5); /* env-argument after env5 */
@@ -2147,7 +2148,7 @@ LISPFUN(evalhook,3,1,norest,nokey,0,NIL)
   unwind(); /* unwind binding frame for *EVALHOOK* / *APPLYHOOK* */
 }
 
-LISPFUN(applyhook,4,1,norest,nokey,0,NIL)
+LISPFUN(applyhook,seclass_default,4,1,norest,nokey,0,NIL)
 { /* (APPLYHOOK function args evalhookfn applyhookfn [env]), CLTL p. 323 */
   var environment_t env5;
   test_optional_env_arg(&env5); /* env-Argument after env5 */
@@ -2187,58 +2188,53 @@ LISPFUN(applyhook,4,1,norest,nokey,0,NIL)
   unwind(); /* unwind binding frame for *EVALHOOK* / *APPLYHOOK* */
 }
 
-LISPFUN(constantp,1,1,norest,nokey,0,NIL)
-{ /* (CONSTANTP expr [env]), CLTL p. 324 */
-  skipSTACK(1); /* environment is not used */
-  var object arg = popSTACK();
- #ifdef TYPECODES
-  switch (typecode(arg))
- #else
-  if (orecordp(arg))
-    switch (Record_type(arg)) {
-      case_Rectype_Symbol_above;
-      case_Rectype_number_above;
-      case_Rectype_array_above;
-      default:
-        goto nein;
+/* check whether the form is a constant */
+local bool form_constant_p (object form) {
+  if (symbolp(form)) return constantp(TheSymbol(form));
+  if (consp(form)) {
+    var object head = Car(form);
+    if (eq(head,S(quote))) return true;
+    if (!funnamep(head)) return false;  /* what's this form? */
+    var object fdef = Symbol_function(funname_to_symbol(head));
+    if (subrp(fdef) && (TheSubr(fdef)->seclass & seclass_foldable)) {
+      loop {
+        form = Cdr(form);
+        if (nullp(form)) return true;  /* list is over */
+        if (!consp(form)) return false;  /* invalid form */
+        if (!form_constant_p(Car(form))) return false;
+      }
     }
-  else if (consp(arg))
-    goto case_cons;
-  else if (charp(arg))
-    goto case_char;
-  else if (immediate_number_p(arg))
-    goto case_number;
-  else switch (0)
- #endif
-    {
-      case_cons: /* cons */
-      if (eq(Car(arg),S(quote)))
-        goto ja;
-      else
-        goto nein;
-      case_symbol: /* symbol */
-      if (constantp(TheSymbol(arg)))
-        goto ja;
-      else
-        goto nein;
-      case_number: /* number */
-      case_char: /* character */
-      case_array: /* array */
-      goto ja;
-      default:
-        goto nein;
-    }
- ja: VALUES1(T); return;
- nein: VALUES1(NIL); return;
+    return false;
+  }
+  /* self-evaluating objects, i.e., (NOT (OR symbol cons)), are constants */
+  return true;
 }
 
-LISPFUNN(function_name_p,1)
+LISPFUN(constantp,seclass_read,1,1,norest,nokey,0,NIL)
+{ /* (CONSTANTP expr [env]), CLTL p. 324 */
+  skipSTACK(1); /* environment is not used */
+  VALUES_IF(form_constant_p(popSTACK()));
+}
+
+LISPFUNNR(function_side_effect,1)
+{ /* (FUNCTION-SIDE-EFFECT fun) -> read-p, write-p, foldable-p, */
+  var object fdef = Symbol_function(funname_to_symbol(popSTACK()));
+  if (subrp(fdef)) {
+    var uintW seclass = TheSubr(fdef)->seclass;
+    VALUES3(seclass & seclass_read     ? T : NIL,
+            seclass & seclass_write    ? T : NIL,
+            seclass & seclass_foldable ? T : NIL);
+  } else
+    VALUES3(T,T,NIL);
+}
+
+LISPFUNNR(function_name_p,1)
 { /* (SYS::FUNCTION-NAME-P expr) recognizes function name */
   var object arg = popSTACK();
   VALUES_IF(funnamep(arg));
 }
 
-LISPFUN(parse_body,1,2,norest,nokey,0,NIL)
+LISPFUN(parse_body,seclass_default,1,2,norest,nokey,0,NIL)
 { /* (SYS::PARSE-BODY body [docstring-allowed [env]])
  parses body, recognizes declarations, returns three values:
  1. body-rest, all forms after the declarations,
@@ -2406,7 +2402,7 @@ LISPSPECFORM(or, 0,0,body)
   }
 }
 
-LISPFUN(xor,0,0,rest,nokey,0,NIL)
+LISPFUN(xor,seclass_foldable,0,0,rest,nokey,0,NIL)
 { /* (XOR {form}) returns either 2 values: the unique non-NIL value
      and its index in the argument list; or NIL */
   VALUES1(NIL); /* for the case of all NILs*/

@@ -39,36 +39,36 @@ local int to_int(x)
  double xx=D_S; int nn=I_S; double res=func(nn,xx); N_D(res,value1)
 
 #if !defined(WIN32_NATIVE)
-LISPFUNN(erf,1)
+LISPFUNNF(erf,1)
 { VAL_D(erf); mv_count=1; }
 
-LISPFUNN(erfc,1)
+LISPFUNNF(erfc,1)
 { VAL_D(erfc); mv_count=1; }
 #endif
 
-LISPFUNN(j0,1)
+LISPFUNNF(j0,1)
 { VAL_D(j0); mv_count=1; }
 
-LISPFUNN(j1,1)
+LISPFUNNF(j1,1)
 { VAL_D(j1); mv_count=1; }
 
-LISPFUNN(jn,2)
+LISPFUNNF(jn,2)
 { VAL_ID(jn); mv_count=1; }
 
-LISPFUNN(y0,1)
+LISPFUNNF(y0,1)
 { VAL_D(y0); mv_count=1; }
 
-LISPFUNN(y1,1)
+LISPFUNNF(y1,1)
 { VAL_D(y1); mv_count=1; }
 
-LISPFUNN(yn,2)
+LISPFUNNF(yn,2)
 { VAL_ID(yn); mv_count=1; }
 
 #if !defined(WIN32_NATIVE)
-LISPFUNN(gamma,1)
+LISPFUNNF(gamma,1)
 { VAL_D(gamma); mv_count=1; }
 
-LISPFUNN(lgamma,1)
+LISPFUNNF(lgamma,1)
 {
 #if defined(_REENTRANT)
   int sign;

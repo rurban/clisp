@@ -2219,7 +2219,7 @@ LISPFUNN(foreign_size,1)
 
 # (FFI::%ELEMENT foreign-array-variable {index}*)
 # returns a foreign variable, corresponding to the specified array element.
-LISPFUN(element,1,0,rest,nokey,0,NIL)
+LISPFUN(element,seclass_default,1,0,rest,nokey,0,NIL)
   {
     var object fvar = Before(rest_args_pointer);
     # Check that fvar is a foreign variable:
@@ -2505,7 +2505,7 @@ LISPFUNN(offset,3) {
 # Calling with initarg is radically different than without one.
 # With an initarg, CLISP allocates an arbitrarily complex structure on the
 # stack. Without one, all it does is like a single calloc(1,sizeof(fvd))!
-LISPFUN(exec_on_stack,2,1,norest,nokey,0,NIL) {
+LISPFUN(exec_on_stack,seclass_default,2,1,norest,nokey,0,NIL) {
   if (!functionp(STACK_2)) { fehler_function(STACK_2); }
   var bool init = boundp(STACK_0); # Passing NIL is also an initialization
   var object fvd = STACK_1;
@@ -2835,7 +2835,7 @@ LISPFUNN(lookup_foreign_function,2)
 # (FFI::FOREIGN-CALL-OUT foreign-function . args)
 # calls a foreign function with Lisp data structures as arguments,
 # and returns the return value as a Lisp data structure.
-LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL) {
+LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
   var object ffun = Before(rest_args_pointer);
   if (!ffunctionp(ffun))
     fehler_foreign_function(ffun);
@@ -3499,7 +3499,7 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL) {
 
 # (FFI::FOREIGN-LIBRARY name [required-version])
 # returns a foreign library specifier.
-LISPFUN(foreign_library,1,1,norest,nokey,0,NIL)
+LISPFUN(foreign_library,seclass_default,1,1,norest,nokey,0,NIL)
   {
     var object name = STACK_1;
     if (!stringp(name))

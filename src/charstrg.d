@@ -1140,8 +1140,8 @@ global object coerce_imm_normal_ss (object obj)
 #endif
 #endif
 
-/* (SYS::STRING-INFO str) => char-len(8/16/32); immutable-p; realloc-p */
-LISPFUNN(string_info,1) {
+LISPFUNNR(string_info,1)
+{ /* (SYS::STRING-INFO str) => char-len(8/16/32); immutable-p; realloc-p */
   var object str = popSTACK();
   if (stringp(str)) {
    #ifdef HAVE_SMALL_SSTRING
@@ -1461,19 +1461,20 @@ local object test_char_arg (void) {
     fehler_char(arg);
 }
 
-LISPFUNN(standard_char_p,1) /* (STANDARD-CHAR-P char), CLTL p. 234 */
-{ /* (standard-char-p char) ==
-     (or (char= char #\Newline) (char<= #\Space char #\~))
+LISPFUNNF(standard_char_p,1)
+{ /* (STANDARD-CHAR-P char), CLTL p. 234
+  (standard-char-p char) ==
+   (or (char= char #\Newline) (char<= #\Space char #\~))
  Standard-Chars have a code c, with
-       $20 <= c <= $7E oder c = NL. */
+       $20 <= c <= $7E or c = NL. */
   var object arg = test_char_arg();
   var chart ch = char_code(arg);
   var cint c = as_cint(ch);
   VALUES_IF((('~' >= c) && (c >= ' ')) || (c == NL));
 }
 
-LISPFUNN(graphic_char_p,1) /* (GRAPHIC-CHAR-P char), CLTL p. 234 */
-{
+LISPFUNNF(graphic_char_p,1)
+{ /* (GRAPHIC-CHAR-P char), CLTL p. 234 */
   var object arg = test_char_arg();
   VALUES_IF(graphic_char_p(char_code(arg)));
 }
@@ -1484,8 +1485,8 @@ LISPFUNN(char_width,1) /* (CHAR-WIDTH char) */
   VALUES1(fixnum(char_width(char_code(arg))));
 }
 
-LISPFUNN(string_char_p,1) /* (STRING-CHAR-P char), CLTL p. 235 */
-{ /* all characters are string-chars. */
+LISPFUNNF(string_char_p,1)
+{ /* (STRING-CHAR-P char), CLTL p. 235 - all characters are string-chars. */
   var object arg = test_char_arg();
   VALUES1(T);
 }
@@ -1498,32 +1499,33 @@ LISPFUNN(base_char_p,1) /* (SYSTEM::BASE-CHAR-P char) */
 }
 #endif
 
-LISPFUNN(alpha_char_p,1) /* (ALPHA-CHAR-P char), CLTL p. 235 */
-{ /* Test with ALPHAP. */
+LISPFUNNF(alpha_char_p,1)
+{ /* (ALPHA-CHAR-P char), CLTL p. 235 - test with ALPHAP. */
   var object arg = test_char_arg();
   VALUES_IF(alphap(char_code(arg)));
 }
 
-LISPFUNN(upper_case_p,1) /* (UPPER-CASE-P char), CLTL p. 235 */
-{ /* upper-case-characters are those with a code c with 0 <= c < $100, that
-     are different from (downcase char) . */
+LISPFUNNF(upper_case_p,1)
+{ /* (UPPER-CASE-P char), CLTL p. 235: upper-case-characters are those with
+  a code c with 0 <= c < $100, that are different from (downcase char) . */
   var object arg = test_char_arg();
   var chart ch = char_code(arg);
   VALUES_IF(!chareq(down_case(ch),ch));
 }
 
-LISPFUNN(lower_case_p,1) /* (LOWER-CASE-P char), CLTL p. 235 */
-{ /* lower-case-characters are those with a code c with 0 <= c < $100, that
-     are different from (upcase char) . */
+LISPFUNNF(lower_case_p,1)
+{ /* (LOWER-CASE-P char), CLTL p. 235: lower-case-characters are those with
+  a code c with 0 <= c < $100, that are different from (upcase char) . */
   var object arg = test_char_arg();
   var chart ch = char_code(arg);
   VALUES_IF(!chareq(up_case(ch),ch));
 }
 
-LISPFUNN(both_case_p,1) /* (BOTH-CASE-P char), CLTL p. 235 */
-{ /* (both-case-p char) == (or (upper-case-p char) (lower-case-p char))
-     both-case-characters are those with a code c with 0 <= c < $100.
-     For them (downcase char) and (upcase char) are different. */
+LISPFUNNF(both_case_p,1)
+{ /* (BOTH-CASE-P char), CLTL p. 235
+ (both-case-p char) == (or (upper-case-p char) (lower-case-p char))
+ both-case-characters are those with a code c with 0 <= c < $100.
+ For them (downcase char) and (upcase char) are different. */
   var object arg = test_char_arg();
   var chart ch = char_code(arg);
   VALUES_IF(!chareq(down_case(ch),up_case(ch)));
@@ -1550,7 +1552,7 @@ local uintWL test_radix_arg (void) {
   fehler(type_error,GETTEXT("~: the radix must be an integer between 2 and 36, not ~"));
 }
 
-LISPFUN(digit_char_p,1,1,norest,nokey,0,NIL)
+LISPFUN(digit_char_p,seclass_foldable,1,1,norest,nokey,0,NIL)
 { /* (DIGIT-CHAR-P char [radix]), CLTL p. 236
  method:
  test, if radix is an integer >=2 and <=36 .
@@ -1637,9 +1639,9 @@ LISPFUN(digit_char_p,1,1,norest,nokey,0,NIL)
  no: VALUES1(NIL); return;
 }
 
-LISPFUNN(alphanumericp,1) /* (ALPHANUMERICP char), CLTL p. 236 */
-{ /* alphanumeric characters are the digits '0',...,'9' and the
-     alphabetic characters. */
+LISPFUNNF(alphanumericp,1)
+{ /* (ALPHANUMERICP char), CLTL p. 236 alphanumeric characters are the
+   digits '0',...,'9' and the alphabetic characters. */
   var object arg = test_char_arg();
   VALUES_IF(alphanumericp(char_code(arg)));
 }
@@ -1795,99 +1797,98 @@ local Values char_grgleich (uintC argcount, gcv_object_t* args_pointer)
  ok: set_args_end_pointer(args_pointer);
 }
 
-LISPFUN(char_gleich,1,0,rest,nokey,0,NIL)
+LISPFUN(char_gleich,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (CHAR= char {char}), CLTL p. 237 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args(argcount,args_pointer);
   return_Values char_gleich(argcount,args_pointer);
 }
 
-LISPFUN(char_ungleich,1,0,rest,nokey,0,NIL)
+LISPFUN(char_ungleich,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (CHAR/= char {char}), CLTL p. 237 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args(argcount,args_pointer);
   return_Values char_ungleich(argcount,args_pointer);
 }
 
-LISPFUN(char_kleiner,1,0,rest,nokey,0,NIL)
+LISPFUN(char_kleiner,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (CHAR< char {char}), CLTL p. 237 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args(argcount,args_pointer);
   return_Values char_kleiner(argcount,args_pointer);
 }
 
-LISPFUN(char_groesser,1,0,rest,nokey,0,NIL)
+LISPFUN(char_groesser,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (CHAR> char {char}), CLTL p. 237 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args(argcount,args_pointer);
   return_Values char_groesser(argcount,args_pointer);
 }
 
-LISPFUN(char_klgleich,1,0,rest,nokey,0,NIL)
+LISPFUN(char_klgleich,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (CHAR<= char {char}), CLTL p. 237 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args(argcount,args_pointer);
   return_Values char_klgleich(argcount,args_pointer);
 }
 
-LISPFUN(char_grgleich,1,0,rest,nokey,0,NIL)
+LISPFUN(char_grgleich,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (CHAR>= char {char}), CLTL p. 237 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args(argcount,args_pointer);
   return_Values char_grgleich(argcount,args_pointer);
 }
 
-LISPFUN(char_equal,1,0,rest,nokey,0,NIL)
+LISPFUN(char_equal,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (CHAR-EQUAL char {char}), CLTL p. 239 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args_upcase(argcount,args_pointer);
   return_Values char_gleich(argcount,args_pointer);
 }
 
-LISPFUN(char_not_equal,1,0,rest,nokey,0,NIL)
+LISPFUN(char_not_equal,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (CHAR-NOT-EQUAL char {char}), CLTL p. 239 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args_upcase(argcount,args_pointer);
   return_Values char_ungleich(argcount,args_pointer);
 }
 
-LISPFUN(char_lessp,1,0,rest,nokey,0,NIL)
+LISPFUN(char_lessp,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (CHAR-LESSP char {char}), CLTL p. 239 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args_upcase(argcount,args_pointer);
   return_Values char_kleiner(argcount,args_pointer);
 }
 
-LISPFUN(char_greaterp,1,0,rest,nokey,0,NIL)
+LISPFUN(char_greaterp,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (CHAR-GREATERP char {char}), CLTL p. 239 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args_upcase(argcount,args_pointer);
   return_Values char_groesser(argcount,args_pointer);
 }
 
-LISPFUN(char_not_greaterp,1,0,rest,nokey,0,NIL)
+LISPFUN(char_not_greaterp,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (CHAR-NOT-GREATERP char {char}), CLTL p. 239 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args_upcase(argcount,args_pointer);
   return_Values char_klgleich(argcount,args_pointer);
 }
 
-LISPFUN(char_not_lessp,1,0,rest,nokey,0,NIL)
+LISPFUN(char_not_lessp,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (CHAR-NOT-LESSP char {char}), CLTL p. 239 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args_upcase(argcount,args_pointer);
   return_Values char_grgleich(argcount,args_pointer);
 }
 
-LISPFUNN(char_code,1)
+LISPFUNNF(char_code,1)
 { /* (CHAR-CODE char), CLTL p. 239 */
   var object arg = test_char_arg();
   VALUES1(fixnum(as_cint(char_code(arg)))); /* ascii-code as fixnum */
 }
 
-LISPFUNN(code_char,1)
-/* (CODE-CHAR code) */
-{
+LISPFUNNF(code_char,1)
+{ /* (CODE-CHAR code) */
   var object codeobj = popSTACK(); /* code-argument */
   if (!integerp(codeobj)) {
     /* code-argument is not an integer. */
@@ -1908,8 +1909,8 @@ LISPFUNN(code_char,1)
   }
 }
 
-LISPFUNN(character,1) /* (CHARACTER object), CLTL p. 241 */
-{
+LISPFUNNR(character,1)
+{ /* (CHARACTER object), CLTL p. 241 */
   var object trial = coerce_char(STACK_0); /* convert argument into character */
   if (nullp(trial)) { /* unsuccessfully? */
     /* Argument still in STACK_0, TYPE-ERROR slot DATUM */
@@ -1922,26 +1923,25 @@ LISPFUNN(character,1) /* (CHARACTER object), CLTL p. 241 */
   }
 }
 
-LISPFUNN(char_upcase,1) /* (CHAR-UPCASE char), CLTL p. 241 */
-{
+LISPFUNNF(char_upcase,1)
+{ /* (CHAR-UPCASE char), CLTL p. 241 */
   var object arg = test_char_arg();
   VALUES1(code_char(up_case(char_code(arg)))); /* convert into uppercase letters */
 }
 
-LISPFUNN(char_downcase,1) /* (CHAR-DOWNCASE char), CLTL p. 241 */
-{
+LISPFUNNF(char_downcase,1)
+{ /* (CHAR-DOWNCASE char), CLTL p. 241 */
   var object arg = test_char_arg();
   VALUES1(code_char(down_case(char_code(arg)))); /* convert into lowercase letters */
 }
 
-LISPFUN(digit_char,1,1,norest,nokey,0,NIL)
-/* (DIGIT-CHAR weight [radix]), CLTL2 p. 384
+LISPFUN(digit_char,seclass_foldable,1,1,norest,nokey,0,NIL)
+{ /* (DIGIT-CHAR weight [radix]), CLTL2 p. 384
  method:
  all arguments have to be integers, radix between 2 and 36.
  if 0 <= weight < radix, construct
      a character from '0',...,'9','A',...,'Z' with value weight.
  else value NIL. */
-{
   var uintWL radix = test_radix_arg(); /* radix-argument, >=2, <=36 */
   var object weightobj = popSTACK(); /* weight-argument */
   if (!integerp(weightobj)) {
@@ -1961,19 +1961,18 @@ LISPFUN(digit_char,1,1,norest,nokey,0,NIL)
     if (weight > '9')
       weight += 'A'-'0'-10; /* or turn it into a letter */
     VALUES1(ascii_char(weight)); /* handicraft character */
-  } else {
+  } else
     VALUES1(NIL);
-  }
 }
 
-LISPFUNN(char_int,1) /* (CHAR-INT char), CLTL p. 242 */
-{
+LISPFUNNF(char_int,1)
+{ /* (CHAR-INT char), CLTL p. 242 */
   var object arg = test_char_arg();
   VALUES1(fixnum(as_cint(char_code(arg))));
 }
 
-LISPFUNN(int_char,1) /* (INT-CHAR integer), CLTL p. 242 */
-{
+LISPFUNNF(int_char,1)
+{ /* (INT-CHAR integer), CLTL p. 242 */
   var object arg = popSTACK(); /* integer-Argument */
   if (integerp(arg)) {
     /* turn into a character if 0 <= arg < char_code_limit, else NIL */
@@ -1991,8 +1990,8 @@ LISPFUNN(int_char,1) /* (INT-CHAR integer), CLTL p. 242 */
   }
 }
 
-LISPFUNN(char_name,1) /* (CHAR-NAME char), CLTL p. 242 */
-{
+LISPFUNNF(char_name,1)
+{ /* (CHAR-NAME char), CLTL p. 242 */
   var object arg = test_char_arg();
   VALUES1(char_name(char_code(arg)));
 }
@@ -2128,8 +2127,8 @@ local uintL test_index_arg (uintL len)
   return i;
 }
 
-LISPFUNN(char,2) /* (CHAR string index), CLTL p. 300 */
-{
+LISPFUNNR(char,2)
+{ /* (CHAR string index), CLTL p. 300 */
   var object string = STACK_1;
   if (!stringp(string))
     fehler_string(string);
@@ -2149,8 +2148,8 @@ LISPFUNN(char,2) /* (CHAR string index), CLTL p. 300 */
   skipSTACK(2);
 }
 
-LISPFUNN(schar,2) /* (SCHAR string integer), CLTL p. 300 */
-{
+LISPFUNNR(schar,2)
+{ /* (SCHAR string integer), CLTL p. 300 */
   var object string = STACK_1;
   if (!simple_string_p(string))
     fehler_sstring(string);
@@ -2536,7 +2535,7 @@ local signean string_comp (stringarg* arg1, const stringarg* arg2){
   });
 }
 
-LISPFUN(string_gleich,2,0,norest,key,4,
+LISPFUN(string_gleich,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 { /* (STRING= string1 string2 :start1 :end1 :start2 :end2), CLTL p. 300 */
   var stringarg arg1;
@@ -2551,7 +2550,7 @@ LISPFUN(string_gleich,2,0,norest,key,4,
                                  arg1.len)));
 }
 
-LISPFUN(string_ungleich,2,0,norest,key,4,
+LISPFUN(string_ungleich,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 { /* (STRING/= string1 string2 :start1 :end1 :start2 :end2), CLTL p. 301 */
   var stringarg arg1;
@@ -2562,7 +2561,7 @@ LISPFUN(string_ungleich,2,0,norest,key,4,
   VALUES1(string_comp(&arg1,&arg2)==0 ? NIL : fixnum(arg1.index));
 }
 
-LISPFUN(string_kleiner,2,0,norest,key,4,
+LISPFUN(string_kleiner,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 { /* (STRING< string1 string2 :start1 :end1 :start2 :end2), CLTL p. 301 */
   var stringarg arg1;
@@ -2573,7 +2572,7 @@ LISPFUN(string_kleiner,2,0,norest,key,4,
   VALUES1(string_comp(&arg1,&arg2)<0 ? fixnum(arg1.index) : NIL);
 }
 
-LISPFUN(string_groesser,2,0,norest,key,4,
+LISPFUN(string_groesser,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 { /* (STRING> string1 string2 :start1 :end1 :start2 :end2), CLTL p. 301 */
   var stringarg arg1;
@@ -2584,7 +2583,7 @@ LISPFUN(string_groesser,2,0,norest,key,4,
   VALUES1(string_comp(&arg1,&arg2)>0 ? fixnum(arg1.index) : NIL);
 }
 
-LISPFUN(string_klgleich,2,0,norest,key,4,
+LISPFUN(string_klgleich,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 { /* (STRING<= string1 string2 :start1 :end1 :start2 :end2), CLTL p. 301 */
   var stringarg arg1;
@@ -2595,7 +2594,7 @@ LISPFUN(string_klgleich,2,0,norest,key,4,
   VALUES1(string_comp(&arg1,&arg2)<=0 ? fixnum(arg1.index) : NIL);
 }
 
-LISPFUN(string_grgleich,2,0,norest,key,4,
+LISPFUN(string_grgleich,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 { /* (STRING>= string1 string2 :start1 :end1 :start2 :end2), CLTL p. 301 */
   var stringarg arg1;
@@ -2737,7 +2736,7 @@ local signean string_comp_ci (stringarg* arg1, const stringarg* arg2)
   });
 }
 
-LISPFUN(string_equal,2,0,norest,key,4,
+LISPFUN(string_equal,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 { /* (STRING-EQUAL string1 string2 :start1 :end1 :start2 :end2), CLTL p. 301 */
   var stringarg arg1;
@@ -2752,7 +2751,7 @@ LISPFUN(string_equal,2,0,norest,key,4,
                                     arg1.len)));
 }
 
-LISPFUN(string_not_equal,2,0,norest,key,4,
+LISPFUN(string_not_equal,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 { /* (STRING-NOT-EQUAL string1 string2 :start1 :end1 :start2 :end2),
      CLTL p. 302 */
@@ -2764,7 +2763,7 @@ LISPFUN(string_not_equal,2,0,norest,key,4,
   VALUES1(string_comp_ci(&arg1,&arg2)==0 ? NIL : fixnum(arg1.index));
 }
 
-LISPFUN(string_lessp,2,0,norest,key,4,
+LISPFUN(string_lessp,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 { /* (STRING-LESSP string1 string2 :start1 :end1 :start2 :end2), CLTL p. 302 */
   var stringarg arg1;
@@ -2775,7 +2774,7 @@ LISPFUN(string_lessp,2,0,norest,key,4,
   VALUES1(string_comp_ci(&arg1,&arg2)<0 ? fixnum(arg1.index) : NIL);
 }
 
-LISPFUN(string_greaterp,2,0,norest,key,4,
+LISPFUN(string_greaterp,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 { /* (STRING-GREATERP string1 string2 :start1 :end1 :start2 :end2),
      CLTL p. 302 */
@@ -2787,7 +2786,7 @@ LISPFUN(string_greaterp,2,0,norest,key,4,
   VALUES1(string_comp_ci(&arg1,&arg2)>0 ? fixnum(arg1.index) : NIL);
 }
 
-LISPFUN(string_not_greaterp,2,0,norest,key,4,
+LISPFUN(string_not_greaterp,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 { /* (STRING-NOT-GREATERP string1 string2 :start1 :end1 :start2 :end2),
      CLTL p. 302 */
@@ -2799,7 +2798,7 @@ LISPFUN(string_not_greaterp,2,0,norest,key,4,
   VALUES1(string_comp_ci(&arg1,&arg2)<=0 ? fixnum(arg1.index) : NIL);
 }
 
-LISPFUN(string_not_lessp,2,0,norest,key,4,
+LISPFUN(string_not_lessp,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 { /* (STRING-NOT-LESSP string1 string2 :start1 :end1 :start2 :end2),
      CLTL p. 302 */
@@ -2849,11 +2848,10 @@ local object string_search (const stringarg* arg1, const stringarg* arg2,
  notfound: return NIL;
 }
 
-LISPFUN(search_string_gleich,2,0,norest,key,4,
+LISPFUN(search_string_gleich,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 { /* (SYS::SEARCH-STRING= string1 string2 [:start1] [:end1] [:start2] [:end2])
    = (search string1 string2 :test #'char= [:start1] [:end1] [:start2] [:end2]) */
-
   var stringarg arg1;
   var stringarg arg2;
   /* check arguments: */
@@ -2862,7 +2860,7 @@ LISPFUN(search_string_gleich,2,0,norest,key,4,
   VALUES1(string_search(&arg1,&arg2,&string_eqcomp));
 }
 
-LISPFUN(search_string_equal,2,0,norest,key,4,
+LISPFUN(search_string_equal,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 { /* (SYS::SEARCH-STRING-EQUAL string1 string2 [:start1] [:end1] [:start2] [:end2])
    = (search string1 string2 :test #'char-equal [:start1] [:end1] [:start2] [:end2]) */
@@ -2874,9 +2872,9 @@ LISPFUN(search_string_equal,2,0,norest,key,4,
   VALUES1(string_search(&arg1,&arg2,&string_eqcomp_ci));
 }
 
-LISPFUN(make_string,1,0,norest,key,2, (kw(initial_element),kw(element_type)) )
-/* (MAKE-STRING size :initial-element :element-type) */
-{
+LISPFUN(make_string,seclass_no_se,1,0,norest,key,2,
+        (kw(initial_element),kw(element_type)) )
+{ /* (MAKE-STRING size :initial-element :element-type) */
   var uintL size;
   /* check size: */
   if (!posfixnump(STACK_2)) { /* size must be fixnum >= 0 */
@@ -2949,7 +2947,7 @@ LISPFUN(make_string,1,0,norest,key,2, (kw(initial_element),kw(element_type)) )
   VALUES1(new_string); skipSTACK(3);
 }
 
-LISPFUNN(string_both_trim,3)
+LISPFUNNR(string_both_trim,3)
 /* (SYS::STRING-BOTH-TRIM character-bag-left character-bag-right string)
  basic function for
  STRING-TRIM, STRING-LEFT-TRIM, STRING-RIGHT-TRIM, CLTL p. 302
@@ -3006,7 +3004,7 @@ LISPFUNN(string_both_trim,3)
   mv_count=1;
 }
 
-LISPFUN(string_width,1,0,norest,key,2, (kw(start),kw(end)) )
+LISPFUN(string_width,seclass_default,1,0,norest,key,2, (kw(start),kw(end)) )
 {
   var stringarg arg;
   var object string = test_string_limits_ro(&arg);
@@ -3075,7 +3073,7 @@ global object string_upcase (object string) {
   return string;
 }
 
-LISPFUN(nstring_upcase,1,0,norest,key,2, (kw(start),kw(end)) )
+LISPFUN(nstring_upcase,seclass_default,1,0,norest,key,2, (kw(start),kw(end)) )
 { /* (NSTRING-UPCASE string :start :end), CLTL p. 304 */
   var stringarg arg;
   var object string = test_string_limits_rw(&arg);
@@ -3084,7 +3082,7 @@ LISPFUN(nstring_upcase,1,0,norest,key,2, (kw(start),kw(end)) )
   VALUES1(popSTACK());
 }
 
-LISPFUN(string_upcase,1,0,norest,key,2, (kw(start),kw(end)) )
+LISPFUN(string_upcase,seclass_read,1,0,norest,key,2, (kw(start),kw(end)) )
 { /* (STRING-UPCASE string :start :end), CLTL p. 303 */
   var object string;
   var uintL offset;
@@ -3148,7 +3146,8 @@ global object string_downcase (object string) {
   return string;
 }
 
-LISPFUN(nstring_downcase,1,0,norest,key,2, (kw(start),kw(end)) )
+LISPFUN(nstring_downcase,seclass_default,1,0,norest,key,2,
+        (kw(start),kw(end)) )
 { /* (NSTRING-DOWNCASE string :start :end), CLTL p. 304 */
   var stringarg arg;
   var object string = test_string_limits_rw(&arg);
@@ -3157,7 +3156,7 @@ LISPFUN(nstring_downcase,1,0,norest,key,2, (kw(start),kw(end)) )
   VALUES1(popSTACK());
 }
 
-LISPFUN(string_downcase,1,0,norest,key,2, (kw(start),kw(end)) )
+LISPFUN(string_downcase,seclass_read,1,0,norest,key,2, (kw(start),kw(end)) )
 { /* (STRING-DOWNCASE string :start :end), CLTL p. 303 */
   var object string;
   var uintL offset;
@@ -3265,7 +3264,8 @@ global void nstring_capitalize (object dv, uintL offset, uintL len) {
   });
 }
 
-LISPFUN(nstring_capitalize,1,0,norest,key,2, (kw(start),kw(end)) )
+LISPFUN(nstring_capitalize,seclass_default,1,0,norest,key,2,
+        (kw(start),kw(end)) )
 { /* (NSTRING-CAPITALIZE string :start :end), CLTL p. 304 */
   var stringarg arg;
   var object string = test_string_limits_rw(&arg);
@@ -3274,7 +3274,7 @@ LISPFUN(nstring_capitalize,1,0,norest,key,2, (kw(start),kw(end)) )
   VALUES1(popSTACK());
 }
 
-LISPFUN(string_capitalize,1,0,norest,key,2, (kw(start),kw(end)) )
+LISPFUN(string_capitalize,seclass_read,1,0,norest,key,2, (kw(start),kw(end)) )
 { /* (STRING-CAPITALIZE string :start :end), CLTL p. 303 */
   var object string;
   var uintL offset;
@@ -3287,13 +3287,13 @@ LISPFUN(string_capitalize,1,0,norest,key,2, (kw(start),kw(end)) )
   VALUES1(string);
 }
 
-LISPFUNN(string,1) /* (STRING object), CLTL p. 304 */
-{
+LISPFUNNR(string,1)
+{ /* (STRING object), CLTL p. 304 */
   VALUES1(test_stringsymchar_arg(popSTACK()));
 }
 
-LISPFUNN(name_char,1) /* (NAME-CHAR name), CLTL p. 243 */
-{
+LISPFUNNR(name_char,1)
+{ /* (NAME-CHAR name), CLTL p. 243 */
   /* convert argument into a string, search character with this name: */
   VALUES1(name_char(test_stringsymchar_arg(popSTACK())));
 }
@@ -3328,7 +3328,7 @@ global object subsstring (object string, uintL start, uintL end) {
   return new_string;
 }
 
-LISPFUN(substring,2,1,norest,nokey,0,NIL)
+LISPFUN(substring,seclass_read,2,1,norest,nokey,0,NIL)
 { /* (SUBSTRING string start [end]) like SUBSEQ, but only for strings */
   var object string;
   var uintL len;
@@ -3431,7 +3431,7 @@ global object string_concat (uintC argcount) {
   return new_string;
 }
 
-LISPFUN(string_concat,0,0,rest,nokey,0,NIL)
+LISPFUN(string_concat,seclass_read,0,0,rest,nokey,0,NIL)
 { /* (STRING-CONCAT {string})
      creates a string by concatenating the arguments */
   VALUES1(string_concat(argcount));

@@ -253,7 +253,7 @@ local Values read_form(void)
 # Statt einer Form kann auch eine Sondertaste aus commandlist (eine frische
 # Aliste) oder SYS::*KEY-BINDINGS* eingegeben werden.
 # Werte: form, NIL oder (bei EOF) T, T
-LISPFUN(read_form,1,1,norest,nokey,0,NIL)
+LISPFUN(read_form,seclass_default,1,1,norest,nokey,0,NIL)
 { read_form(); skipSTACK(2); }
 
 # (SYS::READ-EVAL-PRINT prompt [commandlist])
@@ -262,7 +262,7 @@ LISPFUN(read_form,1,1,norest,nokey,0,NIL)
 # Statt einer Form kann auch eine Sondertaste aus commandlist (eine frische
 # Aliste) oder SYS::*KEY-BINDINGS* eingegeben werden.
 # Werte: NIL oder (bei Sondertaste oder EOF) T
-LISPFUN(read_eval_print,1,1,norest,nokey,0,NIL)
+LISPFUN(read_eval_print,seclass_default,1,1,norest,nokey,0,NIL)
 # (defun read-eval-print (prompt &optional (command-list nil))
 #   (multiple-value-bind (form flag)
 #       (read-form *standard-output* *standard-input* prompt command-list)
@@ -1403,7 +1403,7 @@ local inline uintL show_stack (climb_fun_t frame_up_x, uintL frame_limit,
   return count;
 }
 
-LISPFUN(show_stack,0,3,norest,nokey,0,NIL)
+LISPFUN(show_stack,seclass_default,0,3,norest,nokey,0,NIL)
 { /* (SHOW-STACK mode limit start-frame) print the stack contents. */
   var gcv_object_t* start_frame = (missingp(STACK_0) ? (skipSTACK(1), &STACK_1)
                                    : test_framepointer_arg());

@@ -8,12 +8,12 @@
 
 #ifdef MULTITHREAD
 
-LISPFUN(make_process,2,0,rest,nokey,0,NIL)
+LISPFUN(make_process,seclass_default,2,0,rest,nokey,0,NIL)
 { /* (MAKE-PROCESS name function &rest arguments) */
   NOTREACHED;
 }
 
-struct call_data {
+struct call_data_t {
   gcv_object_t *caller; /* points to STACK */
   uintC argcount; /* if this is non-0, the args should be on STACK */
   xmutex_t mutex;
@@ -22,11 +22,11 @@ struct call_data {
   thread_t *calling_thread;
 };
 
-/* execute the call specified by the call_data argument
+/* execute the call specified by the call_data_t argument
  can trigger GC */
 local void *exec_call (void *arg)
 {
-  struct call_data *pcd = (struct call_data*)arg;
+  struct call_data_t *pcd = (struct call_data_t*)arg;
   uintC argcount = pcd->argcount;
   xmutex_lock(&pcd->mutex); /* wait for the main thread to start waiting */
   /* init the current thread - same "stack group" */
@@ -55,7 +55,7 @@ LISPFUNN(call_with_timeout,3)
   var struct timeval *tvp = sec_usec(STACK_2,unbound,&tv);
   if (tvp) {
     var xthread_t xth;
-    var struct call_data cd;
+    var struct call_data_t cd;
     cd.caller = &STACK_0; /* body-function */
     cd.argcount = 0; cd.done = false; cd.calling_thread = current_thread();
     xcondition_init(&cd.cond); xmutex_init(&cd.mutex);
@@ -79,7 +79,7 @@ LISPFUNN(call_with_timeout,3)
   skipSTACK(3);
 }
 
-LISPFUN(process_wait,3,0,rest,nokey,0,NIL)
+LISPFUN(process_wait,seclass_default,3,0,rest,nokey,0,NIL)
 { /* (PROCESS-WAIT whostate timeout predicate &rest arguments)
    predicate may be a LOCK structure in which case we wait for its release
    timeout maybe NIL in which case we wait forever */
@@ -97,7 +97,7 @@ LISPFUNN(process_kill,1)
   NOTREACHED;
 }
 
-LISPFUN(process_interrupt,2,0,rest,nokey,0,NIL)
+LISPFUN(process_interrupt,seclass_default,2,0,rest,nokey,0,NIL)
 { /* (PROCESS-INTERRUPT process function &rest arguments) */
   NOTREACHED;
 }
