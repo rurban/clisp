@@ -1,6 +1,6 @@
 2000-12-21  Sam Steingold  <sds@gnu.org>
 
-	* dirkey.d: made the second half of the file GC safe (sort of)
+	* dirkey.d: made the second half of the file GC safe
 	(registry_value_to_object): Fixed the bugs introduced yesterday:
 	extra "" at the end of a REG_MULTI_SZ and a += instead of =.
 	(scope_error): Replaced with `parse_scope'.
