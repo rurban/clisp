@@ -1,3 +1,8 @@
+2002-12-03  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (MAKE-WINDOW): do not assume that *TERMINAL-IO* is a
+	terminal-stream
+
 2002-12-02  Sam Steingold  <sds@gnu.org>
 
 	* spvw_debug.d (nobject_out): handle characters
