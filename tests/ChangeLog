@@ -1,5 +1,12 @@
 2005-01-19  Bruno Haible  <bruno@clisp.org>
 
+	* tests.lisp (my-eval): Compare the two results with EQUALP, not EQUAL,
+	for consistency with do-test.
+	(run-test): Accept :logname argument.
+	(run-all-tests): Add bind.tst.
+
+2005-01-19  Bruno Haible  <bruno@clisp.org>
+
 	* strings.tst: Clean up after test added on 2001-12-04.
 
 2005-01-18  Bruno Haible  <bruno@clisp.org>
