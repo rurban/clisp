@@ -43,8 +43,10 @@
 	(bq-expand): Don't test *backquote-optimize* any more. Call
 	bq-append-multiple.
 	(bq-transform): Call bq-list.
-	(*backquote-optimize-...*): New variables, replacing
-	*backquote-optimize*.
+	(*backquote-optimize-cons*, *backquote-optimize-list*)
+	(*backquote-optimize-append*, *backquote-optimize-nconc*)
+	(*backquote-optimize-vector*): New variables replace
+	*BACKQUOTE-OPTIMIZE*.
 	(bq-splicing-p, bq-non-splicing): New functions.
 	(bq-cons, bq-list, bq-append, bq-nconc): New functions.
 	(bq-append-multiple): New function.
