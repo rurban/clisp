@@ -1,3 +1,9 @@
+2003-08-01  Sam Steingold  <sds@gnu.org>
+
+	* calls.c (FILE-LOCK): ported to win32;
+	use fcntl(2) instead of flock(2) on UNIX;
+	allow locking section of the file
+
 2003-08-01  Stefan Kain  <stefan.kain@freenet.de>
 
 	* realelem.d: translated all comments
