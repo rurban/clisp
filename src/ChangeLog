@@ -1,5 +1,11 @@
 2004-12-08  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (list_length): Mark as "can trigger GC".
+	* list.d (list_length): Likewise. Fix GC-safety bug introduced on
+	2004-02-17.
+
+2004-12-08  Bruno Haible  <bruno@clisp.org>
+
 	* array.d (SYS::STORE): Fix GC-safety bug introduced on 2002-05-22.
 	(SYS::ROW-MAJOR-STORE): Put the array into STACK_0, for error messages;
 	fixes a long-standing bug. Fix GC-safety bug introduced on 2002-05-22.
