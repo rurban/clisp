@@ -2526,9 +2526,10 @@ for-value   NIL or T
 
 ;; Note that a block is used by an inner fnode.
 (defun note-far-used-block (block)
-  (if (eq (block-fnode block) *func*)
-    (setf (block-used-far block) t)
-    (pushnew block (fnode-Blocks *func*))))
+  (do ((fnode *func* (fnode-enclosing fnode)))
+      ((eq fnode (block-fnode block)))
+    (pushnew block (fnode-blocks fnode)))
+  (setf (block-used-far block) t))
 
 ;; Note that a tag of a tagbody is used by an inner fnode.
 (defun note-far-used-tagbody (tagbody+tag)

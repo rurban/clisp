@@ -196,3 +196,20 @@ test11
 
 (test11)
 2
+
+;; http://sf.net/tracker/index.php?func=detail&aid=550864&group_id=1355&atid=101355
+(defun test12 ()
+  (flet ((test12-o ()
+           (flet ((test12-i () (return-from test12 nil)))
+             (test12-i))))
+    (test12-o)))
+test12
+
+(test12)
+nil
+
+(compile 'test12)
+test12
+
+(test12)
+nil
