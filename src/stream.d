@@ -12466,9 +12466,9 @@ local const uintB* low_write_array_unbuffered_pipe (object stream,
 
 #endif
 
-local void low_finish_output_unbuffered_pipe (object stream) {}; # do nothing
-local void low_force_output_unbuffered_pipe (object stream) {}; # do nothing
-local void low_clear_output_unbuffered_pipe (object stream) {}; # do nothing
+local void low_finish_output_unbuffered_pipe (object stream) {} # do nothing
+local void low_force_output_unbuffered_pipe (object stream) {} # do nothing
+local void low_clear_output_unbuffered_pipe (object stream) {} # do nothing
 
 #define UnbufferedPipeStream_output_init(stream)                        \
   { UnbufferedStreamLow_write(stream) = &low_write_unbuffered_pipe;     \
