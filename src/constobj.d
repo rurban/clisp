@@ -501,6 +501,9 @@
   LISPOBJ(type_endianness,"(MEMBER :LITTLE :BIG)") # type for error-message
   LISPOBJ(type_open_file_stream,"(AND FILE-STREAM (SATISFIES OPEN-STREAM-P))") # type for error-message
   LISPOBJ(strmtype_ubyte8,"(UNSIGNED-BYTE 8)") # as stream-element-type
+  LISPOBJ(standard_input_file_stream,"NIL")
+  LISPOBJ(standard_output_file_stream,"NIL")
+  LISPOBJ(standard_error_file_stream,"NIL")
 # for IO.D:
   # four readtable-case-values:
   LISPOBJ(rtcase_0,":UPCASE")
