@@ -27,6 +27,5 @@ cd ..
 rm -r cygwin32
 rm -r modules
 rm -r nextapp
-rm -r win32bc
 rm -r win32gcc
 rm -r win32msvc

@@ -1,3 +1,9 @@
+2004-01-18  Bruno Haible  <bruno@clisp.org>
+
+	Remove support for Borland C compiler on Woe32.
+	* win32bc: Remove directory.
+	* Makefile.devel, makemake.in: Remove Borland C support.
+
 2004-01-16  Sam Steingold  <sds@gnu.org>
 
 	* defmacro.lisp (kwd-arg-form, analyze-key): do not evaluate the key

@@ -87,7 +87,6 @@ EOP
 #   makemake win32gcc gcc > make.win32gcc/makefile
 #   makemake --with-dynamic-ffi win32msvc msvc4 > make.win32msvc/makefile.msvc4
 #   makemake --with-dynamic-ffi win32msvc msvc5 > make.win32msvc/makefile.msvc5
-#   makemake win32bc bcc32i > make.win32bc/makefile
 
 
 # Fix the "echo" command. The SysV /bin/sh (and also ksh, and also bash if
@@ -376,11 +375,11 @@ case $# in
      fi
      TSYS=$1
      COMPILER=$2
-     # TSYS should be (master|sun3|sun4|i[3456]86|mips|vax|os2|win32(msvc|bc)).
+     # TSYS should be (master|sun3|sun4|i[3456]86|mips|vax|os2|win32msvc).
      # COMPILER should be gcc or cc
      case ${TSYS} in
        os2 ) TOS=$TSYS ;;
-       win32msvc | win32bc ) TOS='win32' ;;
+       win32msvc ) TOS='win32' ;;
        *)         TOS='unix' ;;
      esac
      TSYSOS=$TSYS
@@ -400,17 +399,6 @@ case $# in
        CFLAGS='$(MFLAGS)'
        CC_NEED_CCPAUX=false
        AS_UNDERSCORE=false
-       CC_NEED_DEEMA=false
-     elif [ $TSYS = win32bc ] ; then
-       CC=$COMPILER # should be bcc32 or bcc32i
-       CC_GCC=false
-       # "-Od -v -R" means to compile for debugging.
-       # "-O2" means to optimize.
-       # "-g0" means not to treat 100 warnings as an error.
-       CFLAGS='-O2 -g0 -w-rch'
-       CPP='cpp32 -P-' # buggy!
-       CC_NEED_CCPAUX=false
-       AS_UNDERSCORE=true
        CC_NEED_DEEMA=false
      else
        if [ $COMPILER = gcc ] ; then
@@ -611,7 +599,7 @@ MODULESDIR="${SRCTOPDIR}modules${NEXT}"
 MODULESDIR_="${SRCTOPDIR_}modules${NEXT_}"
 MODULESDIR_M="${SRCTOPDIR_M}modules${NEXT_M}"
 
-if [ $CROSS = false ] && [ $HSYS = win32msvc -o $HSYS = win32bc ] ; then
+if [ $CROSS = false ] && [ $HSYS = win32msvc ] ; then
   NEXT_CC="$NEXT_"
   UTILDIR_CC="$UTILDIR_"
 else
@@ -701,11 +689,6 @@ if [ $TSYS = master -o $TOS = win32 ] ; then
       LIBS=$LIBS' user32.lib ws2_32.lib advapi32.lib'
     fi
     LIBS=$LIBS' ole32.lib shell32.lib'
-    # With Borland C++, we must generate stub libraries for system DLLs
-    # ourselves.
-    if [ $TSYS = win32bc ] ; then
-      SYSLIBS=' ole32.lib'
-    fi
   fi
 fi
 if [ $TSYS = master -o $TOS = unix -o $TOS = win32 ] ; then
@@ -732,7 +715,7 @@ else
 fi
 
 # TOBJ = extension for compiled modules on target
-if [ $TSYS = win32msvc -o $TSYS = win32bc ] ; then
+if [ $TSYS = win32msvc ] ; then
   TOBJ='.obj'
 else
   TOBJ='.o'
@@ -888,7 +871,7 @@ if [ $XCC_GCC = true ] ; then
 
 else
 
-  if [ "$TSYSOS" = aix -o "$TSYSOS" = ultrix -o $TSYS = win32msvc -o $TSYS = win32bc ] ; then
+  if [ "$TSYSOS" = aix -o "$TSYSOS" = ultrix -o $TSYS = win32msvc ] ; then
     # If one cannot use the default cc preprocessor: Use GNU cpp instead.
     # The Coherent386 cc preprocessor is not usable
     # 1. because of "macro expansion buffer overflow", 2. because it is an
@@ -932,11 +915,6 @@ else
           ;;
       esac
     fi
-    if [ $TSYS = win32bc ] ; then
-      # -+ means to accept C++ comments in BC's include files.
-      # -D__BORLANDC__=0x460 -D__TURBOC__=0x460 -D_M_IX86=300 -D__WIN32__ -D__FLAT__ means to simulate BC5 on i386.
-      XCPP="$XCPP -+ -D__BORLANDC__=0x460 -D__TURBOC__=0x460 -D_M_IX86=300 -D__WIN32__ -D__FLAT__ -I\$(BCDIR)/include"
-    fi
   fi
   if [ $TSYS = sun4 -a $CROSS = false ] ; then
     # Detect SUNWspro C compiler.
@@ -945,7 +923,7 @@ else
       XCC_SUNPRO=true
     fi
   fi
-  if [ $TSYS = win32msvc -o $TSYS = win32bc ] ; then
+  if [ $TSYS = win32msvc ] ; then
     XCFLAGS="$CFLAGS"
   else
     if [ $TSYS = sun4 -a -n "$XCC_SUNPRO" ] ; then
@@ -1391,10 +1369,8 @@ if [ "$cpu" = mips64 ] ; then
   ARI_ASMS=$ARI_ASMS' arimips64'
 fi
 if [ "$cpu" = i386 ] ; then
-  if [ $TSYS != win32bc ] ; then
-    ARI_ASMD=$ARI_ASMD' ari80386'
-    ARI_ASMS=$ARI_ASMS' ari80386'
-  fi
+  ARI_ASMD=$ARI_ASMD' ari80386'
+  ARI_ASMS=$ARI_ASMS' ari80386'
 fi
 if [ "$cpu" = hppa ] ; then
   ARI_ASMD=$ARI_ASMD' arihppa'
@@ -1421,10 +1397,8 @@ if [ $XCC_GCC = false ] ; then
     SP_ASMS=$SP_ASMS' spmips'
   fi
   if [ "$cpu" = i386 ] ; then
-    if [ $TSYS != win32bc ] ; then
-      SP_ASMD=$SP_ASMD' sp80386'
-      SP_ASMS=$SP_ASMS' sp80386'
-    fi
+    SP_ASMD=$SP_ASMD' sp80386'
+    SP_ASMS=$SP_ASMS' sp80386'
   fi
 fi
 
@@ -1480,36 +1454,9 @@ fi
 
 # echotabpipe line
 # outputs a line, split along pipe symbols, preceding with tabs.
-if [ $HSYS != win32bc ] ; then
 echotabpipe() {
 echotab "$1"
 }
-else
-echotabpipe() {
-line="$1"
-junk=''
-i=1
-while
-  linefirst=`echol "$line" | sed -e 's/|.*$//'`
-  test "$linefirst" != "$line"
-do
-  linefirst=`echol "$linefirst" | sed -e 's/[ 	]*$//'`
-  linerest=`echol "$line" | sed -e 's/^[^|]*|//' | sed -e 's/^[ 	]*//'`
-  tempfile='TMPPIPE'"$i"
-  echotab "$linefirst"" > $tempfile"
-  if test -n "$junk"; then
-    echotab "\$(RM) $junk"
-  fi
-  junk="$tempfile"
-  i=`expr "$i" + 1`
-  line=`echol "$linerest" | sed -e 's/[<>|].*$//' | sed -e 's/[ 	]*$//'`" < $tempfile "`echol "$linerest" | sed -e 's/^[^<>|]*//'`
-done
-echotab "$line"
-if test -n "$junk"; then
-  echotab "\$(RM) $junk"
-fi
-}
-fi
 
 # echolist prefix list suffix prefix
 # outputs a list of items, prefixed by backslashes and newlines to break long
@@ -1691,28 +1638,17 @@ if [ $HSYS = win32msvc ] ; then
     echol "#MSVCDIR = \"C:/Program Files/Microsoft Visual Studio/VC98\""
   fi
 fi
-if [ $HSYS = win32bc ] ; then
-  echol "BCDIR = d:/bc5"
-  echol "WIN32DIR = c:\\winnt35\\system32"
-fi
 # echotab_to_HEXE command source target
 # outputs a `make' statement that executes "command source" and creates
 # target${HEXE}.
-if [ $HSYS != win32msvc -a $HSYS != win32bc ] ; then
+if [ $HSYS != win32msvc ] ; then
   echotab_to_HEXE () {
     echotab "$1 $2 -o $3${HEXE}"
   }
 else
-  if [ $HSYS = win32msvc ] ; then
-    echotab_to_HEXE () {
-      echotab "$1 $2 /Fe$3${HEXE}"
-    }
-  fi
-  if [ $HSYS = win32bc ] ; then
-    echotab_to_HEXE () {
-      echotab "$1 -e$3${HEXE} $2"
-    }
-  fi
+  echotab_to_HEXE () {
+    echotab "$1 $2 /Fe$3${HEXE}"
+  }
 fi
 if [ -n "$CHSCONVERT" ] ; then
   echol "CHARSETCONVERT = ${CHSCONVERT}"
@@ -1960,7 +1896,7 @@ echodummyrule all
 echol
 
 # development targets
-if [ ! $TSYS = win32msvc -o $TSYS = win32bc ] ; then
+if [ ! $TSYS = win32msvc ] ; then
   echol "makemake : makemake.in config.status"
   echotab "./config.status --file=makemake"
   echol
@@ -2322,7 +2258,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   echotab "${XCPP} ${flags} ${f}.c > ${f}.i"
   echol
   if [ $XCC_UNUSABLE_CPP = true ] ; then
-    if [ $HSYS = win32msvc -o $HSYS = win32bc ] ; then
+    if [ $HSYS = win32msvc ] ; then
       echol "${f}.s : ${f}.c${dependsc}"
       echotab "${XCPP} ${flags} ${f}.c > ${f}.i.c"
       echotab "${XCC} ${flags2} -c ${f}.i.c /FAs /Fa${f}.s"
@@ -2533,7 +2469,7 @@ if [ $HOS != os2 -a $HOS != win32 ] ; then
   fi
   echol
 else
-  if [ $HSYS = win32gcc -o $HSYS = win32msvc -o $HSYS = win32bc ] ; then
+  if [ $HSYS = win32gcc -o $HSYS = win32msvc ] ; then
     if [ $HSYS = win32gcc ] ; then
       echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} -o lisp${LEXE}"
     fi
@@ -2549,9 +2485,6 @@ else
         # does not need this
         echotab "editbin /stack:3145728 lisp${LEXE}"
       fi
-    fi
-    if [ $HSYS = win32bc ] ; then
-      echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} -elisp${LEXE} \$(OBJECTS) modules${TOBJ} ${LIBS}"
     fi
   else
     # DOS has a very limited command line length
@@ -2756,7 +2689,7 @@ if [ $CROSS = false ] ; then
     echotab 'echo "Test passed."'
     echol
   else
-    if [ $HOS = os2 -o $HSYS = win32msvc -o $HSYS = win32bc ] ; then
+    if [ $HOS = os2 -o $HSYS = win32msvc ] ; then
       echotab "comp *.fas ${TESTDIR}"
       echotab "echo The test passed if only GENSYM differences were found."
       echol
