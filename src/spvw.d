@@ -1532,10 +1532,11 @@ nonreturning_function (local, usage, (int exit_code)) {
   printf(GETTEXTL(" -i file       - load initfile (can be repeated)" NLstring));
   printf(GETTEXTL("Actions:" NLstring));
   printf(GETTEXTL(" -c [-l] lispfile [-o outputfile] - compile LISPFILE" NLstring));
-  printf(GETTEXTL(" -x expression - execute the expression, then exit" NLstring));
+  printf(GETTEXTL(" -x expressions - execute the expressions, then exit" NLstring));
   printf(GETTEXTL(" lispfile [argument ...] - load lispfile, then exit" NLstring));
   printf(GETTEXTL("These actions put CLISP into a batch mode, which is overridden by" NLstring));
   printf(GETTEXTL(" -interactive-debug - allow interaction for failed ASSERT and friends" NLstring));
+  printf(GETTEXTL(" -repl              - enter the interactive read-eval-print loop when done" NLstring));
   printf(GETTEXTL("Default action is an interactive read-eval-print loop." NLstring));
   quit_sofort (exit_code); # abnormal end of program
 }
@@ -1708,25 +1709,24 @@ global int main (argc_t argc, char* argv[]) {
   var local char* argv_memfile = NULL;
   var local bool argv_load_compiling = false;
   var local uintL argv_init_filecount = 0;
-  var local char** argv_init_files;
   var local bool argv_compile = false;
   var local bool argv_compile_listing = false;
   var local bool argv_norc = false;
   var local bool argv_interactive_debug = false;
   var local uintL argv_compile_filecount = 0;
-  typedef struct { char* input_file; char* output_file; } argv_compile_file;
-  var local argv_compile_file* argv_compile_files;
+  typedef struct { char* input_file; char* output_file; } argv_compile_file_t;
+  var local argv_compile_file_t* argv_compile_files;
   var local char* argv_package = NULL;
   var local int argv_ansi = 0; # 0: default; 1: ANSI; 2: traditional
-  var local char* argv_expr = NULL;
+  var local bool argv_repl = false;
+  var local uintL argv_expr_count = 0;
   var local char* argv_execute_file = NULL;
   var local char** argv_execute_args = NULL;
   var local uintL argv_execute_arg_count;
   var local char* argv_language = NULL;
   var local char* argv_localedir = NULL;
-  {var DYNAMIC_ARRAY(argv_init_files_array,char*,(uintL)argc); # maximal argc init-files
-  argv_init_files = argv_init_files_array;
-  {var DYNAMIC_ARRAY(argv_compile_files_array,argv_compile_file,(uintL)argc); # maximal argc file-arguments
+  {var DYNAMIC_ARRAY(argv_selection_array,char*,(uintL)argc); # max argc -x/-i
+  var DYNAMIC_ARRAY(argv_compile_files_array,argv_compile_file_t,(uintL)argc); # maximal argc file-arguments
   argv_compile_files = argv_compile_files_array;
   if (!(setjmp(&!original_context) == 0)) goto end_of_main;
   # process arguments argv[0..argc-1] :
@@ -1752,6 +1752,7 @@ global int main (argc_t argc, char* argv[]) {
   #   -traditional    traditional (undoes -ansi)
   #   -x expr         execute LISP-expressions, then leave LISP
   #   -interactive-debug  override batch-mode for -c, -x and file
+  #   -repl           enter REPL after -c, -x and file
   #   -w              wait for keypress after termination
   #   --help          print usage and exit (should be the only option)
   #   --version       print version and exit (should be the only option)
@@ -1771,7 +1772,7 @@ global int main (argc_t argc, char* argv[]) {
   {
     var char** argptr = &argv[1];
     var char** argptr_limit = &argv[argc];
-    var enum { for_exec, for_init, for_compile } argv_for = for_exec;
+    var enum { for_exec, for_init, for_compile, for_expr } argv_for = for_exec;
     # loop and process options, replace processed options with NULL:
     while (argptr < argptr_limit) {
       var char* arg = *argptr++; # next argument
@@ -1910,6 +1911,10 @@ global int main (argc_t argc, char* argv[]) {
             argv_load_compiling = true;
             if (arg[2] != '\0') usage (1);
             break;
+          case 'r': /* -repl */
+            if (asciz_equal(&arg[1],"repl"))
+              argv_repl = true;
+            break;
           case 'i': # initialization files
             if (arg[2] == '\0') argv_for = for_init;
             else if (asciz_equal(&arg[1],"interactive-debug"))
@@ -1958,22 +1963,24 @@ global int main (argc_t argc, char* argv[]) {
             else usage(1);
             break;
           case 'x': # execute LISP-expression
-            OPTION_ARG;
-            if (argv_expr != NULL) usage (1);
-            argv_expr = arg;
+            if (arg[2] != '\0') usage (1);
+            argv_for = for_expr;
             break;
           case 'w': # wait for keypress after termination
             argv_wait_keypress = true;
             if (arg[2] != '\0') usage (1);
             break;
           case '-': # -- GNU-style long options
-            if (asciz_equal(&arg[2],"help"))
+            if (arg[2] == 0) /* "--" ==> and of options */
+              goto done_with_argv;
+            else if (asciz_equal(&arg[2],"help"))
               usage (0);
             else if (asciz_equal(&arg[2],"version")) {
-              if (argv_expr != NULL) usage (1);
+              argv_expr_count = 0;  /* discard previous -x */
               argv_quiet = true;
               argv_norc = true;
-              argv_expr = "(PROGN (PRINC \"GNU CLISP \")"
+              argv_repl = false;
+              arg = "(PROGN (PRINC \"GNU CLISP \")"
                 "(PRINC (LISP-IMPLEMENTATION-VERSION)) (TERPRI)"
                 "(PRINC \"Features"
                #ifdef DEBUG_SPVW
@@ -2007,11 +2014,16 @@ global int main (argc_t argc, char* argv[]) {
           default: # unknown option
             usage (1);
         }
+      } else if (arg[0] == 0) {  /* done with the arguments */
+       done_with_argv:
+        argv_execute_args = argptr;
+        argv_execute_arg_count = argptr_limit - argptr;
+        argptr = argptr_limit; /* abort loop */
       } else {
         # no option is interpreted as file to be loaded / compiled / executed
         switch (argv_for) {
           case for_init:
-            argv_init_files[argv_init_filecount++] = arg; break;
+            argv_selection_array[argv_init_filecount++] = arg; break;
           case for_compile:
             argv_compile_files[argv_compile_filecount].input_file = arg;
             argv_compile_files[argv_compile_filecount].output_file = NULL;
@@ -2028,6 +2040,8 @@ global int main (argc_t argc, char* argv[]) {
             argv_norc = true;
             argptr = argptr_limit; # abort loop
             break;
+          case for_expr:
+            argv_selection_array[argc-1- argv_expr_count++] = arg; break;
           default: NOTREACHED;
         }
       }
@@ -2057,9 +2071,9 @@ global int main (argc_t argc, char* argv[]) {
       if (argv_compile_listing) usage (1);
     } else {
       # Other options are useful only without '-c' :
-      if (argv_expr != NULL) usage (1);
+      if (argv_expr_count) usage (1);
     }
-    if (argv_expr && argv_execute_file) usage (1);
+    if (argv_expr_count && argv_execute_file) usage (1);
     # The argv_* variables now have their final values.
     # Analyze the environment variables determining the locale.
     # Deal with LC_CTYPE.
@@ -2670,7 +2684,13 @@ global int main (argc_t argc, char* argv[]) {
     { argv_quiet = true; } # prevents the greeting
   if (!argv_quiet || argv_license) print_banner();
   if (argv_license) print_license();
-  if ((argv_memfile == NULL) && (argv_expr == NULL)) {
+  if (argv_execute_arg_count > 0) {
+    var uintL count = argv_execute_arg_count;
+    do { pushSTACK(asciz_to_string(*argv_execute_args++,O(misc_encoding))); }
+    while (--count);
+    Symbol_value(S(args)) = listof(argv_execute_arg_count);
+  }
+  if ((argv_memfile == NULL) && (argv_expr_count == 0)) {
     # warning for beginners
     pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # auf *STANDARD-OUTPUT*
     write_sstring(&STACK_0,CLSTEXT(NLstring "WARNING: No initialization file specified." NLstring));
@@ -2697,8 +2717,8 @@ global int main (argc_t argc, char* argv[]) {
     pushSTACK(asciz_to_string(argv_lisplibdir,O(pathname_encoding)));
     funcall(L(set_lib_directory),1);
   }
-  if ((argv_compile || argv_expr != NULL || argv_execute_file != NULL)
-      && !argv_interactive_debug) {
+  if ((argv_compile || argv_expr_count || argv_execute_file != NULL)
+      && !argv_interactive_debug && !argv_repl) {
     # '-c' or '-x' or file specified -> LISP runs in batch-mode:
     # (setq *debug-io*
     #   (make-two-way-stream (make-string-input-stream "") *query-io*)
@@ -2751,7 +2771,7 @@ global int main (argc_t argc, char* argv[]) {
   }
   # execute (LOAD initfile) for each initfile:
   if (argv_init_filecount > 0) {
-    var char** fileptr = &argv_init_files[0];
+    var char** fileptr = &argv_selection_array[0];
     var uintL count;
     dotimespL(count,argv_init_filecount,{
       var object filename = asciz_to_string(*fileptr++,O(misc_encoding));
@@ -2768,7 +2788,7 @@ global int main (argc_t argc, char* argv[]) {
     #   ) ) )
     # for each file:
     if (argv_compile_filecount > 0) {
-      var argv_compile_file* fileptr = &argv_compile_files[0];
+      var argv_compile_file_t* fileptr = &argv_compile_files[0];
       var uintL count;
       dotimespL(count,argv_compile_filecount,{
         var uintC argcount = 1;
@@ -2822,7 +2842,7 @@ global int main (argc_t argc, char* argv[]) {
         fileptr++;
       });
     }
-    quit();
+    if (!argv_repl) quit();
   }
   if (argv_package != NULL) { # (IN-PACKAGE packagename)
     var object packname = asciz_to_string(argv_package,O(misc_encoding));
@@ -2837,18 +2857,16 @@ global int main (argc_t argc, char* argv[]) {
       skipSTACK(1);
     }
   }
-  if (!(argv_execute_file == NULL)) {
-    # execute:
+  if (argv_execute_file != NULL) {
+    #  execute:
     # (PROGN
     #   #+UNIX (SET-DISPATCH-MACRO-CHARACTER #\# #\!
-    #            #'SYS::UNIX-EXECUTABLE-READER)
+    #           (FUNCTION SYS::UNIX-EXECUTABLE-READER))
     #   (SETQ *LOAD-VERBOSE* NIL)
-    #   (DEFPARAMETER *ARGS* argv_execute_args)
     #   (EXIT-ON-ERROR
-    #     (APPEASE-CERRORS
-    #       (LOAD argv_execute_file :EXTRA-FILE-TYPES ...)))
-    #   (EXIT)
-    # )
+    #    (APPEASE-CERRORS
+    #     (LOAD argv_execute_file :EXTRA-FILE-TYPES ...)))
+    #   (UNLESS argv_repl (EXIT)))
    #if defined(UNIX) || defined(WIN32_NATIVE)
     # Make clisp ignore the leading #! line.
     pushSTACK(ascii_char('#')); pushSTACK(ascii_char('!'));
@@ -2856,43 +2874,43 @@ global int main (argc_t argc, char* argv[]) {
     funcall(L(set_dispatch_macro_character),3);
    #endif
     Symbol_value(S(load_verbose)) = NIL;
-    if (argv_execute_arg_count > 0) {
-      var char** argsptr = argv_execute_args;
-      var uintL count;
-      dotimespL(count,argv_execute_arg_count,
-      { pushSTACK(asciz_to_string(*argsptr++,O(misc_encoding))); });
+    var object form;
+    pushSTACK(S(load));
+    if (asciz_equal(argv_execute_file,"-")) {
+      pushSTACK(S(standard_input)); # *STANDARD-INPUT*
+    } else {
+      pushSTACK(asciz_to_string(argv_execute_file,O(misc_encoding)));
     }
-    Symbol_value(S(args)) = listof(argv_execute_arg_count);
-    if (!asciz_equal(argv_execute_file,"")) {
-      var object form;
-      pushSTACK(S(load));
-      if (asciz_equal(argv_execute_file,"-")) {
-        pushSTACK(S(standard_input)); # *STANDARD-INPUT*
-      } else {
-        pushSTACK(asciz_to_string(argv_execute_file,O(misc_encoding)));
-      }
-      pushSTACK(S(Kextra_file_types));
-     #ifdef WIN32_NATIVE
-      pushSTACK(S(quote));
-      pushSTACK(O(load_extra_file_types));
-      form = listof(2); # (QUOTE (".BAT"))
-      pushSTACK(form);
-     #else
-      pushSTACK(NIL);
-     #endif
-      form = listof(4);
-      if (argv_interactive_debug) pushSTACK(S(appease_cerrors));
-      else pushSTACK(S(batchmode_errors));
-      pushSTACK(form);
-      form = listof(2); # `(SYS::BATCHMODE-ERRORS (LOAD "..."))
-      eval_noenv(form); # execute
-      quit();
-    }
+    pushSTACK(S(Kextra_file_types));
+   #ifdef WIN32_NATIVE
+    pushSTACK(S(quote));
+    pushSTACK(O(load_extra_file_types));
+    form = listof(2); # (QUOTE (".BAT"))
+    pushSTACK(form);
+   #else
+    pushSTACK(NIL);
+   #endif
+    form = listof(4);
+    if (argv_interactive_debug) pushSTACK(S(appease_cerrors));
+    else pushSTACK(S(batchmode_errors));
+    pushSTACK(form);
+    form = listof(2); # `(SYS::BATCHMODE-ERRORS (LOAD "..."))
+    eval_noenv(form); # execute
+    if (!argv_repl) quit();
   }
-  if (argv_expr != NULL) {
-    # set *STANDARD-INPUT* to a stream, that produces argv_expr:
-    pushSTACK(asciz_to_string(argv_expr,O(misc_encoding)));
+  if (argv_expr_count) {
+    # set *STANDARD-INPUT* to a stream, that produces argv_exprs:
+    var uintL count = argv_expr_count;
+    var char** exprs = &argv_selection_array[argc-1];
+    do { pushSTACK(asciz_to_string(*exprs--,O(misc_encoding))); }
+    while (--count);
+    var object total = string_concat(argv_expr_count);
+    pushSTACK(total);
     funcall(L(make_string_input_stream),1);
+    if (argv_repl) {
+      pushSTACK(value1); pushSTACK(Symbol_value(S(standard_input)));
+      funcall(L(make_concatenated_stream),2);
+    }
     Symbol_value(S(standard_input)) = value1;
     # During bootstrapping, *DRIVER* has no value and SYS::BATCHMODE-ERRORS
     # is undefined. Do not set an error handler in that case.
@@ -2901,15 +2919,14 @@ global int main (argc_t argc, char* argv[]) {
       #   (EXIT-ON-ERROR (APPEASE-CERRORS (FUNCALL *DRIVER*)))
       #   ; Normally this will exit by itself once the string has reached EOF,
       #   ; but to be sure:
-      #   (EXIT)
-      # )
+      #   (UNLESS argv_repl (EXIT)))
       var object form;
       pushSTACK(S(funcall)); pushSTACK(S(driverstern)); form = listof(2);
       if (argv_interactive_debug) pushSTACK(S(appease_cerrors));
       else pushSTACK(S(batchmode_errors));
       pushSTACK(form); form = listof(2);
       eval_noenv(form);
-      quit();
+      if (!argv_repl) quit();
     }
   }
   # call read-eval-print-loop:
@@ -2928,8 +2945,8 @@ global int main (argc_t argc, char* argv[]) {
  #ifdef MULTIMAP_MEMORY
   exitmap();
  #endif
-  FREE_DYNAMIC_ARRAY(argv_compile_files); }
-  FREE_DYNAMIC_ARRAY(argv_init_files); }
+  FREE_DYNAMIC_ARRAY(argv_compile_files_array);
+  FREE_DYNAMIC_ARRAY(argv_selection_array); }
  #ifdef WIN32_NATIVE
   done_win32();
  #endif

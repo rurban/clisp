@@ -204,6 +204,7 @@ int main (int argc, char* argv[])
           case 'a':
           case 'w':
           case 'n': /* -norc */
+          case 'r': /* -repl */
           case '-':
             break;
           /* Skippable options with arguments. */

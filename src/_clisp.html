@@ -68,6 +68,7 @@
     <a href="#opt-quiet"><code>--quiet</code></a> |
     <a href="#opt-quiet"><code>--silent</code></a> ]
   [ <a href="#opt-interactive-debug"><code>-interactive-debug</code></a> ]
+  [ <a href="#opt-repl"><code>-repl</code></a> ]
   [ <a href="#opt-wait"><code>-w</code></a> ]
   [ <a href="#opt-ilisp"><code>-I</code></a> ]
   [ <a href="#opt-ansi"><code>-ansi</code></a> ]
@@ -80,7 +81,7 @@
     [ <a href="#opt-list"><code>-l</code></a> ]
     <var>lispfile</var>
     [ <a href="#opt-out"><code>-o</code></a> <var>outputfile</var> ] ... ]
-  [ <a href="#opt-exec-expr"><code>-x</code> <var>expression</var></a> ]
+  [ <a href="#opt-exec-expr"><code>-x</code> <var>expressions</var></a> ]
   [ <a href="#opt-exec-file"><var>lispfile</var></a>
     [ <a href="#opt-exec-file"><var>argument</var> ...</a> ] ]</p>
 
@@ -273,6 +274,13 @@ which depends on the environment variables <code>LC_ALL</code>,
   <a href="#opt-exec-file"><var>lispfile</var></a>
 and allow interactive handling of <code>ASSERT</code> and friends.</dd>
 
+<dt id="opt-repl"><code>-repl</code></dt>
+<dd>Start an interactive read-eval-print loop after processing the
+  <a href="#opt-compile"><code>-c</code></a>,
+  <a href="#opt-exec-expr"><code>-x</code></a>, and
+  <a href="#opt-exec-file"><var>lispfile</var></a>
+options.</dd>
+
 <dt id="opt-wait"><strong><code>-w</code></strong></dt>
 <dd>Wait for a keypress after program termination.<p/></dd>
 
@@ -386,7 +394,7 @@ thus permitting <code>clisp</code> to be used as a script interpreter.
 #endif
 If <var>lispfile</var> is <code>-</code>,
 the standard input is used instead of a file.
-If <var>lispfile</var> is an empty string <code>""</code>,
+If <var>lispfile</var> is the empty string <code>""</code> or <code>"--"</code>
 the rest of the arguments is still available in <code>*args*</code>,
 for parsing by the <code><a href="impnotes.html#image">init-function</a></code>
 of the current image.
