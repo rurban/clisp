@@ -1,3 +1,8 @@
+2002-09-12  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (form-name): removed
+	(compile-file): folded FORM-NAME; pass :PRETTY NIL to WRITE-TO-STRING
+
 2002-09-11  Stefan Kain  <stefan.kain@freenet.de>
 
 	* error.d, socket.d: translated all comments
