@@ -1853,7 +1853,6 @@ int main(int argc, char* argv[])
 
   printf("#define TheAsciz(obj)  ((char*)(&TheSbvector(obj)->data[0]))\n");
   printf("extern object vectorof (uintC len);\n");
-  printf("extern object allocate_bignum (uintC len, sintB sign);\n");
 #if notused
   printf("extern object allocate_bit_vector_0 (uintL len);\n");
   printf("extern chart up_case (chart ch);\n");
@@ -2145,6 +2144,8 @@ int main(int argc, char* argv[])
   printf("#define I_to_ulong  I_to_uint64\n");
   printf("#define I_to_slong  I_to_sint64\n");
 #endif
+  printf("extern object UDS_to_I (uintD* MSDptr, uintC len);\n");
+  printf("extern object DS_to_I (const uintD* MSDptr, uintC len);\n");
 #if notused
   printf("extern object I_1_plus_I (object x);\n");
   printf("extern object I_minus1_plus_I (object x);\n");

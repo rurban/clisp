@@ -1340,7 +1340,7 @@ local object NUDS_to_I (uintD* MSDptr, uintC len)
  convert UDS MSDptr/len/.. into Integer >=0 .
  there must be room for 1 digit below of MSDptr.
  can trigger GC */
-local object UDS_to_I (uintD* MSDptr, uintC len)
+global object UDS_to_I (uintD* MSDptr, uintC len)
 {
   while ( (len!=0) && (MSDptr[0]==0) ) { /* so long as len>0 and MSD = 0, */
     MSDptr++; len--; /* discard null-digit */
@@ -1361,7 +1361,7 @@ local object UDS_to_I (uintD* MSDptr, uintC len)
  DS_to_I(MSDptr,len)
  convert DS MSDptr/len/.. into Integer.
  can trigger GC */
-local object DS_to_I (const uintD* MSDptr, uintC len)
+global object DS_to_I (const uintD* MSDptr, uintC len)
 {
   /* first normalize. poss. increase MSDptr and decrease len: */
   if (len!=0) { /* empty DS is normalized */
