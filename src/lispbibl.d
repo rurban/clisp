@@ -11433,13 +11433,14 @@ extern int clisp_setenv (const char * name, const char * value);
 # check the :DIRECTION argument
 # return one of the following:
 typedef enum {
+  # see READ_P, RO_P and WRITE_P in <stream.d> regarding the choice of values
   DIRECTION_PROBE           = 0,
   DIRECTION_INPUT           = 1,
   DIRECTION_INPUT_IMMUTABLE = 3,
   DIRECTION_OUTPUT          = 4,
   DIRECTION_IO              = 5
 } direction_t;
-extern direction_t check_direction (object dir);
+extern direction_t check_direction (const object dir);
 
 # check the :IF-DOES-NOT-EXIST argument
 # return one of the following:

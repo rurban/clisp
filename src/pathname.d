@@ -8082,7 +8082,7 @@ LISPFUNN(rename_file,2)
     }
 
 # check the :DIRECTION argument
-global direction_t check_direction (object dir) {
+global direction_t check_direction (const object dir) {
   if (eq(dir,unbound) || eq(dir,S(Kinput)))
     return DIRECTION_INPUT;
   else if (eq(dir,S(Kinput_immutable)))
