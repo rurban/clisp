@@ -1,3 +1,9 @@
+2004-11-28  Bruno Haible  <bruno@clisp.org>
+
+	Don't recursively compile-file modules that have already been loaded.
+	* compiler.lisp (c-REQUIRE): Look for the module in both *modules* and
+	*compiled-modules*, not just *compiled-modules*.
+
 2004-12-12  Bruno Haible  <bruno@clisp.org>
 
 	* win32.d: Move include of <sys/types.h>.
