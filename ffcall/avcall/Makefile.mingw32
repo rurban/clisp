@@ -73,7 +73,7 @@ minitests.exe : minitests.o $(OBJECTS)
 
 check : all minitests.exe
 	minitests.exe > minitests.out
-	uniq -u < minitests.out > minitests.output.$(HOST)
+	LC_ALL=C uniq -u < minitests.out > minitests.output.$(HOST)
 # You have to check by hand that minitests.output.$(HOST) is empty.
 
 tests.o : $(srcdir)/tests.c avcall.h
@@ -87,7 +87,7 @@ tests.exe : tests.o $(OBJECTS)
 
 extracheck : all tests.exe
 	tests.exe > tests.out
-	uniq -u < tests.out > tests.output.$(HOST)
+	LC_ALL=C uniq -u < tests.out > tests.output.$(HOST)
 # You have to check by hand that tests.output.$(HOST) is empty.
 
 mostlyclean : clean

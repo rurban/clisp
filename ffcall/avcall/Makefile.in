@@ -191,7 +191,7 @@ minitests : minitests.o libavcall.la
 
 check : all minitests
 	./minitests > minitests.out
-	uniq -u < minitests.out > minitests.output.$(HOST)
+	LC_ALL=C uniq -u < minitests.out > minitests.output.$(HOST)
 	test '!' -s minitests.output.$(HOST)
 
 tests.o : $(srcdir)/tests.c avcall.h
@@ -205,7 +205,7 @@ tests : tests.o libavcall.la
 
 extracheck : all tests
 	./tests > tests.out
-	uniq -u < tests.out > tests.output.$(HOST)
+	LC_ALL=C uniq -u < tests.out > tests.output.$(HOST)
 	test '!' -s tests.output.$(HOST)
 
 mostlyclean : clean
