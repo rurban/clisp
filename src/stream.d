@@ -89,7 +89,7 @@
   # Specification for READ-BYTE-ARRAY - Pseudo-Function:
   # fun(&stream,&bytearray,start,len)
   # > stream: stream
-  # > object bytearray: simple-bit-vector
+  # > object bytearray: simple-8bit-vector
   # > uintL start: start index of byte sequence to be filled
   # > uintL len: length of byte sequence to be filled, >0
   # < uintL result: number of bytes that have been filled
@@ -106,7 +106,7 @@
   # Specification for WRITE-BYTE-ARRAY - Pseudo-Function:
   # fun(&stream,&bytearray,start,len)
   # > stream: stream
-  # > object bytearray: simple-bit-vector
+  # > object bytearray: simple-8bit-vector
   # > uintL start: start index of byte sequence to be written
   # > uintL len: length of byte sequence to be written, >0
   # can trigger GC
@@ -467,7 +467,7 @@ global object read_byte (object stream) {
 # Function: Reads several bytes from a stream.
 # read_byte_array(&stream,&bytearray,start,len)
 # > stream: stream (on the STACK)
-# > object bytearray: simple-bit-vector (on the STACK)
+# > object bytearray: simple-8bit-vector (on the STACK)
 # > uintL start: start index of byte sequence to be filled
 # > uintL len: length of byte sequence to be filled
 # < uintL result: number of bytes that have been filled
@@ -517,7 +517,7 @@ global void write_byte (object stream, object byte) {
 # Function: Writes several bytes to a stream.
 # write_byte_array(&stream,&bytearray,start,len)
 # > stream: Stream (on the STACK)
-# > object bytearray: simple-bit-vector (on the STACK)
+# > object bytearray: simple-8bit-vector (on the STACK)
 # > uintL start: start index of byte sequence to be written
 # > uintL len: length of byte sequence to be written
 global void write_byte_array (const gcv_object_t* stream_,
@@ -17001,7 +17001,7 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL) {
   var bool endianness = test_endianness_arg(STACK_2);
   var uintL bitsize = eltype.size;
   var uintL bytesize = bitsize/8;
-  var DYNAMIC_BIT_VECTOR(bitbuffer,bitsize);
+  var DYNAMIC_8BIT_VECTOR(bitbuffer,bytesize);
   pushSTACK(bitbuffer);
   # Stack layout: stream, element-type, endianness, eof-error-p, eof-value, bitbuffer.
   # Read the data.
@@ -17021,7 +17021,7 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL) {
         break;
       default: NOTREACHED;
     }
-    FREE_DYNAMIC_BIT_VECTOR(STACK_0);
+    FREE_DYNAMIC_8BIT_VECTOR(STACK_0);
     VALUES1(result);
     skipSTACK(6);
     return;
@@ -17050,7 +17050,7 @@ LISPFUN(read_float,2,3,norest,nokey,0,NIL) {
   var uintL bytesize = check_float_eltype(&STACK_3);
   # check Endianness:
   var bool endianness = test_endianness_arg(STACK_2);
-  var DYNAMIC_BIT_VECTOR(bitbuffer,bytesize*8);
+  var DYNAMIC_8BIT_VECTOR(bitbuffer,bytesize);
   pushSTACK(bitbuffer);
   # Stack layout: stream, element-type, endianness, eof-error-p, eof-value, bitbuffer.
   # Read the data.
@@ -17083,7 +17083,7 @@ LISPFUN(read_float,2,3,norest,nokey,0,NIL) {
       break;
     default: NOTREACHED;
   }
-  FREE_DYNAMIC_BIT_VECTOR(STACK_0);
+  FREE_DYNAMIC_8BIT_VECTOR(STACK_0);
   mv_count=1;
   skipSTACK(6);
   return;
@@ -17127,7 +17127,7 @@ LISPFUN(write_integer,3,1,norest,nokey,0,NIL) {
   var object obj = check_wr_int(stream,STACK_3);
   var uintL bitsize = eltype.size;
   var uintL bytesize = bitsize/8;
-  var DYNAMIC_BIT_VECTOR(bitbuffer,bitsize);
+  var DYNAMIC_8BIT_VECTOR(bitbuffer,bytesize);
   pushSTACK(bitbuffer);
   # Stack layout: obj, stream, element-type, endianness, bitbuffer.
   obj = STACK_4;
@@ -17146,7 +17146,7 @@ LISPFUN(write_integer,3,1,norest,nokey,0,NIL) {
     byte_swap(bitbuffer,bytesize);
   # Write the data.
   write_byte_array(&STACK_3,&STACK_0,0,bytesize);
-  FREE_DYNAMIC_BIT_VECTOR(STACK_0);
+  FREE_DYNAMIC_8BIT_VECTOR(STACK_0);
   VALUES1(STACK_4); /* return obj */
   skipSTACK(5);
 }
@@ -17184,7 +17184,7 @@ LISPFUN(write_float,3,1,norest,nokey,0,NIL) {
       break;
     default: NOTREACHED;
   }
-  var DYNAMIC_BIT_VECTOR(bitbuffer,bytesize*8);
+  var DYNAMIC_8BIT_VECTOR(bitbuffer,bytesize);
   pushSTACK(bitbuffer);
   # Stack layout: obj, stream, element-type, endianness, bitbuffer.
   obj = STACK_4;
@@ -17217,7 +17217,7 @@ LISPFUN(write_float,3,1,norest,nokey,0,NIL) {
     byte_swap(bitbuffer,bytesize);
   # Write the data.
   write_byte_array(&STACK_3,&STACK_0,0,bytesize);
-  FREE_DYNAMIC_BIT_VECTOR(STACK_0);
+  FREE_DYNAMIC_8BIT_VECTOR(STACK_0);
   VALUES1(STACK_4); /* return obj */
   skipSTACK(5);
 }

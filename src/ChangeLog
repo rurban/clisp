@@ -1,3 +1,11 @@
+2002-12-16  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (DYNAMIC_8BIT_VECTOR): Renamed from DYNAMIC_BIT_VECTOR.
+	Expect the length in bytes, not bits.
+	(FREE_DYNAMIC_8BIT_VECTOR): Renamed from FREE_DYNAMIC_BIT_VECTOR.
+	* stream.d: Update callers.
+	* pathname.d: Update callers.
+
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d: Reorder some definitions, so that 'object' and

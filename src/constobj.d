@@ -568,7 +568,7 @@
   LISPOBJ(listing_file_type,"#\".lis\"")
 # for STREAM.D:
   #if defined(SPVW_PURE) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0)
-  LISPOBJ(dynamic_bit_vector,"NIL") # cache for macro DYNAMIC_BIT_VECTOR
+  LISPOBJ(dynamic_8bit_vector,"NIL") # cache for macro DYNAMIC_8BIT_VECTOR
   LISPOBJ(dynamic_string,"NIL") # cache for macro DYNAMIC_STRING
   #endif
   LISPOBJ(class_fundamental_stream,"NIL") # #<STANDARD-CLASS FUNDAMENTAL-STREAM>
