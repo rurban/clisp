@@ -1579,7 +1579,7 @@
               (lambdalist (caddr form))
               (body (cdddr form)))
           (multiple-value-bind (body-rest declarations docstring)
-                               (sys::parse-body body t env)
+              (sys::parse-body body t env)
             (let ((symbolform
                    (if (atom name)
                        `',name
@@ -1594,9 +1594,7 @@
                     (if (and compiler::*compiling*
                              compiler::*compiling-from-file*)
                       (member name compiler::*inline-functions* :test #'equal)
-                      (eq (get (if (atom name) name
-                                   (get-setf-symbol (second name))) 'inlinable)
-                          'inline))
+                      (eq (get (get-funname-symbol name) 'inlinable) 'inline))
                     ;; Is the lexical environment the top-level environment?
                     ;; If yes, save the lambdabody for inline compilation.
                     (if compiler::*compiling*
