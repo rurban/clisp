@@ -59,12 +59,12 @@
 
 <preface id="preface"><title><inlinemediaobject>
  <imageobject>
-  <imagedata fileref="clisp.gif" width="48" depth="48"/>
+  <imagedata fileref="clisp.png" width="48" depth="48"/>
  </imageobject>
  <textobject><phrase>[CLISP icon]</phrase></textobject>
 </inlinemediaobject></title>
 
-<subtitle>Last modified: 2001-09-21</subtitle>
+<subtitle>Last modified: 2001-11-29</subtitle>
 
 <para>These notes discuss the &clisp; implementation of &cl; by
 <blockquote><address><honorific>Dr</honorific> <firstname>Bruno</firstname> <surname>Haible</surname>
