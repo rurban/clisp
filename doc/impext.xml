@@ -4361,10 +4361,11 @@ Compiled, it will have inlined the library function calls.
 <listitem><simpara>On Solaris and HP-UX, only the first
  <replaceable>interpreter-arg</replaceable> is passed to the &interp-r;.
  In order to pass more than one option (for example, &opt-M; and
- &opt-C;) to &clisp;, separate them by hard spaces (ISO Latin-1
- character 160) instead of normal spaces.  (But the separator between
+ &opt-C;) to &clisp;, separate them with
+ <ulink url="http://www.fileformat.info/info/unicode/char/00a0/">no-break
+ spaces</ulink> instead of normal spaces.  (But the separator between
  &interp-r; and &interp-args; must still be a normal space!) &clisp;
- will split the &interp-args; both at hard spaces and at normal spaces.
+ will split the &interp-args; both at no-break spaces and at normal spaces.
 </simpara></listitem></itemizedlist>
 
 <formalpara id="script-exec"><title>Script execution</title>
