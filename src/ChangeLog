@@ -1,3 +1,10 @@
+2005-01-06  Sam Steingold  <sds@gnu.org>
+
+	* socket.d (string_to_addr): new function
+	* genclisph.d (string_to_addr): declare
+	* modules/rawsock/rawsock.c (CONVERT-ADDRESS): implement
+	* modules/rawsock/sock.lisp (CONVERT-ADDRESS): export
+
 2004-12-24  Bruno Haible  <bruno@clisp.org>
 
 	* debug.d (print_back_trace, print_stackitem): Don't print a newline at

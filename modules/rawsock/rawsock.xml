@@ -48,6 +48,11 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
  they are available through &so-status;.</para>
 
 <variablelist id="rawsock-add-on"><title>Additional Functions</title>
+ <varlistentry><term><code>(RAWSOCK:CONVERT-ADDRESS
+    <replaceable>family</replaceable> &addr-r;)</code></term>
+  <listitem><simpara>convert between &string-t; and &integer-t; IP
+    &addr-r; representations using &inet_addr;, &inet_ntoa;, &inet_ntop;,
+    or &inet_pton;.</simpara></listitem></varlistentry>
  <varlistentry><term><code>(RAWSOCK:MAKE-SOCKADDR
     <replaceable>family</replaceable> &data-r;)</code></term>
   <listitem><simpara>create a <type>sockaddr</type> object.
@@ -83,11 +88,10 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
  <varlistentry><term><code>(RAWSOCK:RESIZE-BUFFER &size-r;)</code></term>
   <listitem><simpara>Resize the internal buffer.
  </simpara></listitem></varlistentry>
- <varlistentry><term><code>(RAWSOCK:CONFIGDEV &sock-r;
-    &name-r; <replaceable>ip-address</replaceable>
+ <varlistentry><term><code>(RAWSOCK:CONFIGDEV &sock-r; &name-r; &addr;
     &key-amp; <replaceable>promisc</replaceable>
     <replaceable>noarp</replaceable>)</code></term>
-  <listitem><simpara>Set some socket options and IP address with &ioctl;.
+  <listitem><simpara>Set some socket options and IP &addr; with &ioctl;.
  </simpara></listitem></varlistentry>
 </variablelist>
 

@@ -16,7 +16,7 @@
            #:sock-read #:sock-write #:sock-close
            #:sockaddr #:make-sockaddr #:sockaddr-family #:sockaddr-data
            #:sockaddr-family-size #:msghdr #:make-msghdr
-           #:htonl #:htons #:ntohl #:ntohs
+           #:htonl #:htons #:ntohl #:ntohs #:convert-address
            #:configdev #:ipcsum #:icmpcsum #:tcpcsum #:udpcsum))
 
 (in-package "RAWSOCK")
