@@ -3177,7 +3177,8 @@ for-value   NIL or T
 ;; auxiliary function: REQUIRE on file-compilation, cf. function REQUIRE
 (defun c-REQUIRE (module-name &optional (pathname nil p-given)
                   &aux (mod-name (module-name module-name)))
-  (unless (member mod-name *compiled-modules* :test #'string=)
+  (unless (or (member mod-name *modules* :test #'string=)
+              (member mod-name *compiled-modules* :test #'string=))
     (unless p-given (setq pathname (pathname mod-name)))
     (flet ((load-lib (file)
              (let* ((*load-paths*
