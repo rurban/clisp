@@ -1,5 +1,11 @@
 2004-05-25  Sam Steingold  <sds@gnu.org>
 
+	* clos-class2.lisp (make-instance-structure-class)
+	(define-structure-class): avoid some compilation warnings
+	* clos-class5.lisp (update-instance-for-redefined-class): ditto
+
+2004-05-25  Sam Steingold  <sds@gnu.org>
+
 	do not use the side-effect class of functions that might change,
 	as per <http://www.lisp.org/HyperSpec/Body/sec_3-2-2-3.html>
 	* control.d (FUNCTION-SIDE-EFFECT): also return FDEFINITION and NAME
