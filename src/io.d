@@ -522,7 +522,13 @@ local void fehler_readtable (object obj) {
   pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,GETTEXT("~: argument ~ is not a readtable"));
 }
-#define CHECK_READTABLE(obj)  if (!readtablep(obj)) fehler_readtable(obj)
+
+# Verifies an object is a readtable. Error if not.
+# check_readtable(obj);
+# > obj: argument
+# > subr_self: caller (a SUBR)
+#define check_readtable(obj) \
+  { if (!readtablep(obj)) fehler_readtable(obj); }
 
 LISPFUN(copy_readtable,0,2,norest,nokey,0,NIL)
 # (COPY-READTABLE [from-readtable [to-readtable]]), CLTL p. 361
@@ -534,11 +540,11 @@ LISPFUN(copy_readtable,0,2,norest,nokey,0,NIL)
       value1 = copy_readtable(from_readtable); # copy
     } else {
       if (nullp(from_readtable)) {
-        # instead of  NIL take the standard-readtable
+        # instead of NIL take the standard-readtable
         from_readtable = O(standard_readtable);
       } else {
         # check from-readtable:
-        CHECK_READTABLE(from_readtable);
+        check_readtable(from_readtable);
       }
       # from-readtable is OK
       var object to_readtable = STACK_0;
@@ -546,8 +552,8 @@ LISPFUN(copy_readtable,0,2,norest,nokey,0,NIL)
         # copy from-readtable, without to-readtable
         value1 = copy_readtable(from_readtable);
       } else {
-        # check to-readtable and copy it:
-        CHECK_READTABLE(to_readtable);
+        # check to-readtable and perform the copying:
+        check_readtable(to_readtable);
         value1 = copy_readtable_contents(from_readtable,to_readtable);
       }
     }
@@ -572,13 +578,13 @@ LISPFUN(set_syntax_from_char,2,2,norest,nokey,0,NIL)
     if (eq(to_readtable,unbound)) {
       get_readtable(to_readtable=); # default is the current readtable
     } else {
-      CHECK_READTABLE(to_readtable);
+      check_readtable(to_readtable);
     }
     # check from-readtable:
     if (eq(from_readtable,unbound) || nullp(from_readtable)) {
       from_readtable = O(standard_readtable); # default is the standard-readtable
     } else {
-      CHECK_READTABLE(from_readtable);
+      check_readtable(from_readtable);
     }
     STACK_1 = to_readtable;
     STACK_0 = from_readtable;
@@ -611,7 +617,7 @@ local object test_readtable_arg (void) {
   if (eq(readtable,unbound)) {
     get_readtable(readtable=); # the current readtable is default
   } else {
-    CHECK_READTABLE(readtable);
+    check_readtable(readtable);
   }
   return readtable;
 }
@@ -629,7 +635,7 @@ local object test_readtable_null_arg (void) {
   } else if (nullp(readtable)) {
     readtable = O(standard_readtable); # respectively the standard-readtable
   } else {
-    CHECK_READTABLE(readtable);
+    check_readtable(readtable);
   }
   return readtable;
 }
@@ -818,7 +824,7 @@ LISPFUNN(readtable_case,1)
 # (READTABLE-CASE readtable), CLTL2 S. 549
   {
     var object readtable = popSTACK(); # Readtable
-    CHECK_READTABLE(readtable);
+    check_readtable(readtable);
     value1 = (&O(rtcase_0))[RTCase(readtable)];
     mv_count=1;
   }
@@ -828,7 +834,7 @@ LISPFUNN(set_readtable_case,2)
   {
     var object value = popSTACK();
     var object readtable = popSTACK(); # Readtable
-    CHECK_READTABLE(readtable);
+    check_readtable(readtable);
     # convert symbol value into an index by searching in table O(rtcase..):
     var const object* ptr = &O(rtcase_0);
     var object rtcase = Fixnum_0;
