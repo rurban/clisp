@@ -61,6 +61,15 @@
 	* debug.d, error.d, eval.d, io.d, predtype.d, spvw_language.d:
 	pass the symbol argument to dynamic_unbind() whenever possible
 
+2003-04-25  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* foreign.d (convert_to_foreign): accept FOREIGN-VARIABLE object
+	for C-POINTER c-type declaration and move often used cases up in
+	the long if-then-else chain
+
+	* foreign1.lisp (allocate-shallow): fix typo,
+	and export FOREIGN-POINTER
+
 2003-04-22  Sam Steingold  <sds@gnu.org>
 
 	* _distmakefile, makemake.in: distribute clisp.ps and put it into
