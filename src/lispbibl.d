@@ -7817,6 +7817,29 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
   allocate_srecord(0,Rectype_Closure,reclen,closure_type)
 # is used by EVAL, RECORD
 
+/* copy a section of memory */
+#define copy_mem_b(dest,orig,len) /* bytes */                   \
+  do { var char* newptr = (char*)(dest);                        \
+       var char* oldptr = (char*)(orig);                        \
+       var uintL count;                                         \
+       var uintL leng = (len);                                  \
+       dotimespL(count,leng,{ *newptr++ = *oldptr++; });        \
+  } while(0)
+#define copy_mem_o(dest,orig,len) /* objects */                 \
+  do { var object* newptr = (object*)(dest);                    \
+       var object* oldptr = (object*)(orig);                    \
+       var uintC count;                                         \
+       var uintC leng = (len);                                  \
+       dotimespC(count,leng,{ *newptr++ = *oldptr++; });        \
+  } while(0)
+/* the libc alternative turns out to be ~3-5% slower
+#define copy_mem_o(dest,orig,len)                                       \
+    do { begin_system_call(); memcpy(dest,orig,len*sizeof(object));     \
+    end_system_call(); } while(0)
+#define copy_mem_b(dest,orig,len)                       \
+    do { begin_system_call(); memcpy(dest,orig,len);    \
+    end_system_call(); } while(0) */
+
 # Copying a compiled closure:
 # newclos = allocate_cclosure_copy(oldclos);
 # can trigger GC
@@ -7824,15 +7847,9 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
   allocate_closure(Cclosure_length(oldclos))
 # do_cclosure_copy(newclos,oldclos);
 #define do_cclosure_copy(newclos,oldclos)               \
-  memcpy(&((Srecord)TheCclosure(newclos))->recdata[0],  \
-         &((Srecord)TheCclosure(oldclos))->recdata[0],  \
-         Cclosure_length(oldclos)*sizeof(Srecord))
-/* do {                            \
-    var object* newptr = &((Srecord)TheCclosure(newclos))->recdata[0];    \
-    var object* oldptr = &((Srecord)TheCclosure(oldclos))->recdata[0];    \
-    var uintC count;                                                      \
-    dotimespC(count,Cclosure_length(oldclos),{ *newptr++ = *oldptr++; }); \
-    } while(0) */
+  copy_mem_o(((Srecord)TheCclosure(newclos))->recdata,  \
+             ((Srecord)TheCclosure(oldclos))->recdata,  \
+             Cclosure_length(oldclos))
 # is used by EVAL, IO, RECORD
 
 # UP: allocates Structure
