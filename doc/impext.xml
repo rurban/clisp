@@ -5062,14 +5062,14 @@ bash$
     <listitem><simpara>where the program's input is to come from: either
      <constant>:TERMINAL</constant> (the standard input, default) or
      &stream-k; (a Lisp &stream-t; to be created) or
-     a pathname (an input file) or
-     &nil; (no input at all).</simpara></listitem></varlistentry>
+     a &path-des; (an input file) or &nil; (no input at all).
+   </simpara></listitem></varlistentry>
    <varlistentry><term>&output-k;</term>
     <listitem><simpara>where the program's output is to be sent to: either
      <constant>:TERMINAL</constant> (the standard output, default) or
      &stream-k; (a Lisp &stream-t; to be created) or
-     a pathname (an output file) or
-     &nil; (ignore the output).</simpara></listitem></varlistentry>
+     a &path-des; (an output file) or &nil; (ignore the output).
+   </simpara></listitem></varlistentry>
    <varlistentry><term>&if-output-exists;</term>
     <listitem><simpara>what to do if the &output-k; file already exists.
      The possible values are &overwrite-k;, &append-k;, &error-k;,
