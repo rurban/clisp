@@ -1160,6 +1160,7 @@ LISPSYM(Ktoken,"TOKEN",keyword)
 #endif
 #ifdef WIN32_NATIVE
 LISPSYM(Kwin32,"WIN32",keyword)
+LISPSYM(Kldap,"LDAP",keyword)
 #endif
 #ifdef DIR_KEY
 LISPSYM(Kscope,"SCOPE",keyword)

@@ -1,40 +1,57 @@
+2001-03-02  Sam Steingold  <sds@gnu.org>
+
+	* dirkey.d: include winldap.h on WIN32_NATIVE and define LDAP there
+	(LDAP_PORT): conditionally define
+	(dir_key_open): early LDAP support
+	do not barf on ACCESS_DENIED in search:
+	(IDNE_IGNORE): new constant for `init_iteration_node'
+	(open_reg_key): handle it
+	(init_iteration_node): use it; return 2 values
+	(state_next_key): pop stack on NULL handle
+	(dkey_search_next_key): return 2 values
+	Bruno's memory fixes
+	(MAKE_OBJECT_LIST, dir_key_value, dkey_info): alloca may be a macro
+	* constsym.d (:LDAP): define on WIN32_NATIVE
+	* makemake.in (LIBS): link with wldap32 on WIN32_NATIVE
+	* dirkey.lisp (dir-key-dump-tree): reflect the new iteration interface
+
 2001-03-02  Bruno Haible  <haible@clisp.cons.org>
 
-        * stream.d (lisp_completion_ignore): New function.
-          (lisp_completion): Use CATCH and HANDLER-BIND to catch conversion
-          errors. Skip symbols that are not convertible to *terminal-encoding*.
+	* stream.d (lisp_completion_ignore): New function.
+	(lisp_completion): Use CATCH and HANDLER-BIND to catch conversion
+	  errors. Skip symbols that are not convertible to *terminal-encoding*.
 
 2001-02-28  Bruno Haible  <haible@clisp.cons.org>
             Sam Steingold  <sds@gnu.org>
 
-        * defmacro.lisp (analyze-rest): Allow destructuring for the
-          &REST/&BODY variable.
+	* defmacro.lisp (analyze-rest): Allow destructuring for the
+	  &REST/&BODY variable.
 
 2001-02-21  Bruno Haible  <haible@clisp.cons.org>
 
-        * places.lisp (PROGN, LOCALLY, IF): New defsetf expanders.
+	* places.lisp (PROGN, LOCALLY, IF): New defsetf expanders.
 
 2001-02-17  Arseny Slobodjuck <ampy@crosswinds.net>
             Bruno Haible  <haible@clisp.cons.org>
 
-        * lispbibl.d (SCREEN): Also define on WIN32_NATIVE.
-        * stream.d [WIN32_NATIVE]: Implement window streams for SCREEN package.
-          (console_handle, console_size, console_cursor_pos,
-           console_needtoclose, screenattr, attr_table, attr): New variables.
-          (InitConsole, DoneConsole, v_up, v_cb, v_cs, v_ce, v_cl, v_cd,
-           v_scroll, v_al, v_dl, v_su, v_move, v_put, wr_ch_window,
-           MAKE-WINDOW, close_window, WINDOW-*): New functions.
+	* lispbibl.d (SCREEN): Also define on WIN32_NATIVE.
+	* stream.d [WIN32_NATIVE]: Implement window streams for SCREEN package.
+	(console_handle, console_size, console_cursor_pos,
+	 console_needtoclose, screenattr, attr_table, attr): New variables.
+	(InitConsole, DoneConsole, v_up, v_cb, v_cs, v_ce, v_cl, v_cd,
+	 v_scroll, v_al, v_dl, v_su, v_move, v_put, wr_ch_window,
+	 MAKE-WINDOW, close_window, WINDOW-*): New functions.
 
 2001-02-08  Bruno Haible  <haible@clisp.cons.org>
 
-        * cfgunix.lisp: Mark the file as being UTF-8 encoded, so it can be
-          loaded and compiled in any locale.
-        * cfgacorn.lisp: Likewise.
-        * cfgamiga.lisp: Likewise.
-        * cfgdos.lisp: Likewise.
-        * cfgsunux.lisp: Likewise.
-        * cfgwin32.lisp: Likewise.
-        Reported by Ulrich Drepper <drepper@redhat.com>.
+	* cfgunix.lisp: Mark the file as being UTF-8 encoded, so it can be
+	  loaded and compiled in any locale.
+	* cfgacorn.lisp: Likewise.
+	* cfgamiga.lisp: Likewise.
+	* cfgdos.lisp: Likewise.
+	* cfgsunux.lisp: Likewise.
+	* cfgwin32.lisp: Likewise.
+	Reported by Ulrich Drepper <drepper@redhat.com>.
 
 2001-02-07  Sam Steingold  <sds@gnu.org>
 
