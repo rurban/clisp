@@ -60,6 +60,7 @@
 	* symbol.d (test_symbol): new function
 	(%PUTD, %FIND-SUBR, GET, %PUTPLIST, %PUT, REMPROP, SYMBOL-PACKAGE)
 	(SYMBOL-PLIST, SYMBOL-NAME, SPECIAL-VARIABLE-P): use it
+	* debug.d (climb_fun_t): renamed from `kletterfun'
 
 2002-09-22  Arseny Slobodjuck <ampy@ich.dvo.ru>
 
