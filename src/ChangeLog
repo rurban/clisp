@@ -1,3 +1,15 @@
+2002-05-18  Sam Steingold  <sds@gnu.org>
+
+	kill src/gettext; POs are now in src/po
+	* Makefile.devel (SOURCES3, CONFIGURES, configures, potfiles):
+	removed gettext/*
+	(src--distrib): do create a PO tar
+	* configure: removed gettext, replaced gettext/po with po
+	* configure.in (ALL_LINGUAS, po/Makefile.in): moved here from
+	gettext/configure.in
+	* makemake.in: removed gettext, replaced gettext/po with po
+	(ALL_LINGUAS): get it from src/configure.in
+
 2002-05-17  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 557155 ]: inspector :http broken Content-Length
