@@ -1,3 +1,7 @@
+1999-02-02  Sam Steingold  <sds@goems.com>
+
+	* clisp.spec: update 'release' with each build.
+
 1999-02-02  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * makemake.in (LPARTS): Add back config.lsp.
