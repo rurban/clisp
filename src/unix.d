@@ -95,6 +95,10 @@ extern_C char* strerror (int errnum);
       #undef HAVE_MSYNC
     #endif
   #endif
+  /* for MULTIMAP_MEMORY_VIA_FILE: */
+  #if defined(UNIX_SUNOS4) || defined(UNIX_LINUX) || defined(UNIX_FREEBSD)
+    #include <sys/statfs.h>
+  #endif
 #endif
 #ifdef HAVE_MACH_VM /* vm_allocate(), task_self(), ... available */
   /* the headers for UNIX_NEXTSTEP must look indescribable ... */

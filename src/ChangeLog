@@ -1,5 +1,10 @@
 2004-02-27  Bruno Haible  <bruno@clisp.org>
 
+	* spvw.d (main): Combine the handling of the options -t TMPDIR and
+	-traditional.
+
+2004-02-27  Bruno Haible  <bruno@clisp.org>
+
 	* unix.d: Include <sys/statfs.h>. Needed for MULTIMAP_MEMORY_VIA_FILE.
 
 2004-02-27  Bruno Haible  <bruno@clisp.org>
