@@ -1,3 +1,10 @@
+2002-08-26  Sam Steingold  <sds@gnu.org>
+
+	* list.d (sublis_assoc): moved saving/restoring alist (to/from
+	STACK) outside the loop because otherwise this function is
+	mis-compiled by gcc-3.2 on linux (go figure!)
+	Reported by James Mcclain <jmccla3@gl.umbc.edu>
+
 2002-08-19  Sam Steingold  <sds@gnu.org>
 
 	more win32gcc tweaks
