@@ -122,7 +122,8 @@ Optional arguments:
     buffer-      If you are very short of memory, or have a slow connection to Oracle,
     bytes        reduce this to 10000 or so.
 
-Returns: T if new connection was created, NIL if cache was used.
+Returns: T if a cached connection was re-used (NIL if a new connection
+         was created and cached).
 "
   (when *oracle-in-transaction* (error "CONNECT not allowed inside WITH-TRANSACTION"))
 
