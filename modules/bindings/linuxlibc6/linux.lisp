@@ -69,6 +69,7 @@
       (linux::c-array-ptr . ffi:c-array-ptr)
       (linux::c-function . ffi:c-function)
       (linux::c-ptr . ffi:c-ptr)
+      (linux::c-ptr-null . ffi:c-ptr-null)
       (linux::c-pointer . ffi:c-pointer)
       (linux::c-string . ffi:c-string)
       (linux::c-struct . ffi:c-struct)
@@ -773,8 +774,9 @@
 
 (def-call-out realpath
     (:arguments (name c-string)
-                (resolved (c-ptr (c-array-max char #.PATH_MAX)) :out :alloca))
-  (:return-type (c-ptr (c-array-max char #.PATH_MAX))))
+                (resolved (c-ptr (c-array-max character #.PATH_MAX))
+                          :out :alloca))
+  (:return-type (c-ptr (c-array-max character #.PATH_MAX))))
 
 (def-c-type comparison_fn_t
     (c-function (:arguments (p1 c-pointer) (p2 c-pointer))
@@ -807,10 +809,11 @@
     (:arguments (value double-float) (ndigit size_t)
                 (decpt (c-ptr int) :out) (sign (c-ptr int) :out))
   (:return-type c-string :none))
-;(def-call-out gcvt
-;    (:arguments (value double-float) (ndigit size_t)
-;                (buf (c-array character) :out)) ; ??
-;  (:return-type c-string))
+(def-call-out gcvt
+    (:arguments (value double-float) (ndigit size_t)
+                ;; size is actually ndigit, but is has to be a constant!
+                (buf (c-ptr (c-array-max character 64)) :out :alloca))
+  (:return-type c-string))
 
 (def-call-out mblen (:arguments (s c-string) (n size_t)) (:return-type int))
 (def-call-out mbtowc
@@ -1483,7 +1486,8 @@
 (eval-when (load compile eval)
   (defconstant MAXHOSTNAMELEN 64))
 (def-call-out gethostname
-    (:arguments (name (c-ptr (c-array-max char #.MAXHOSTNAMELEN)) :out :alloca)
+    (:arguments (name (c-ptr (c-array-max character #.MAXHOSTNAMELEN))
+                      :out :alloca)
                 (len size_t))
   (:return-type int))
 
@@ -1495,7 +1499,8 @@
 (def-call-out sethostid (:arguments (id long)) (:return-type int))
 
 (def-call-out getdomainname
-    (:arguments (name (c-ptr (c-array-max char #.MAXHOSTNAMELEN)) :out :alloca)
+    (:arguments (name (c-ptr (c-array-max character #.MAXHOSTNAMELEN))
+                      :out :alloca)
                 (len size_t))
   (:return-type int))
 
@@ -2499,11 +2504,13 @@ and SIG_IGN do anyway, by other means ... They are just sugar, really.
 
 (def-call-out sigaction-new
     (:arguments (sig int)
-                (act (c-ptr sigaction) :in :alloca)
-                (null c-string)) ;nil
+                (act (c-ptr-null sigaction) :in :alloca)
+                (null c-string)) ; nil
   (:name "sigaction")
   (:return-type int))
 ;; e.g.: (sigaction-new SIGINT newhandler nil) => 0
+;; to check whether the signal is valid:
+;;  (linux:sigaction-new linux:SIGINT nil nil) => 0
 
 (def-call-out sigaction-old
     (:arguments (sig int)
@@ -2512,15 +2519,6 @@ and SIG_IGN do anyway, by other means ... They are just sugar, really.
   (:name "sigaction")
   (:return-type int))
 ;; e.g.: (nth-value 1 (sigaction-old SIGINT nil)) => oldhandler
-
-(def-call-out sigaction-query
-    ;; if 2nd & 3rd args are null, query if signal SIG is valid
-    (:arguments (sig int)
-                (null1 c-string) ; nil
-                (null2 c-string)) ; nil
-  (:name "sigaction")
-  (:return-type int))
-;; e.g.: (linux:sigaction-query linux:SIGINT nil nil) => 0
 
 ;; miscellaneous signal stuff
 (def-call-out kill (:arguments (pid pid_t) (sig int)) (:return-type int))
