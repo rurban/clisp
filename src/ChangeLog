@@ -1,3 +1,10 @@
+2004-10-16  Bruno Haible  <bruno@clisp.org>
+
+	* defstruct.lisp (find-structure-class-slot-initfunction): New
+	function.
+	(defstruct): Change the initfunctionform to refer to the class instead
+	of the defstruct-description, if defining a class.
+
 2004-10-25  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (cflags.h): do not touch cflags.h when the changes
