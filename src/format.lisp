@@ -1335,6 +1335,7 @@
   (if (null count) (setq count 1))
   (dotimes (i count) (write-char #\~ stream)))
 
+#| have to support PPHELP streams separately, so this is in io.d now
 ;; ~T, CLTL p.398-399, CLtL2 p. 597-598
 (defun format-tabulate (stream colon-modifier atsign-modifier
                         &optional (colnum 1) (colinc 1))
@@ -1358,6 +1359,7 @@
             (format-padding (+ colinc (mod (- new-colnum pos) (- colinc)))
                             #\Space stream)))
         (format-padding 2 #\Space stream)))))
+|#
 
 ;; ~*, CLTL p.399, CLtL2 p. 598
 (defun format-goto (stream colon-modifier atsign-modifier
