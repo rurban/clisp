@@ -3452,6 +3452,8 @@ defun XLIB:CREATE-GCONTEXT (0, 0, norest, key, 26,
 	   :FILL-RULE :ARC-MODE :TILE :STIPPLE :TS-X :TS-Y :FONT
 	   :SUBWINDOW-MODE :EXPOSURES :CLIP-X :CLIP-Y :CLIP-MASK
 	   :CLIP-ORDERING :DASH-OFFSET :DASHES :CACHE-P))
+/* the keyword list must be in sync with
+   (defconstant *GCONTEXT-COMPONENTS* ...) in clx.lisp */
 {
   XGCValues values;
   unsigned long valuemask = 0;
