@@ -2829,7 +2829,7 @@ not specified.</simpara></listitem>
    end of the list of arguments to pass to &ensure-gf;. This is needed to
    make the generic function reflect the &defgeneric; form.</simpara>
 </note></listitem>
-<listitem><note>&clisp-only;<simpara id="mop-defgeneric-user-options">Any
+<listitem><note id="mop-defgeneric-user-options">&clisp-only;<simpara>Any
    other options become the value of keyword arguments with the same name.
    The value of the keyword argument is the tail of the option. An &err-sig;
    if any option appears more than once in the &defgeneric; form.</simpara>
@@ -5481,8 +5481,8 @@ cache of the dependent when it is updated.</para>
   The default superclass for &structure-class; instances is &structure-object-t;.
   Structure classes do not support multiple inheritance and reinitialization.
   See <xref linkend="mop-cl-init-mo"/>.</para></listitem>
-<listitem><para>The &defgeneric; macro supports user-defined options.  See
-  <xref linkend="mop-defgeneric-user-options"/>.</para></listitem>
+<listitem><para>The &defgeneric; macro supports user-defined options.
+  See <xref linkend="mop-defgeneric-user-options"/>.</para></listitem>
 <listitem><para>The class &method-t; is subclassable.
   See <xref linkend="mop-mo-cl-inheritance"/>.</para></listitem>
 <listitem><para>Slot names like &nil; and &t; are allowed.
