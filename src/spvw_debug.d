@@ -245,13 +245,19 @@ global void back_trace_check (const struct backtrace_t *bt,
 
 #ifdef DEBUG_SPVW
 #define FUN(from,to,name) local to CONCAT(name,_) (from x) { return name(x); }
-FUN(chart,cint,as_cint);
-FUN(cint,chart,as_chart);
-FUN(object,chart,char_code);
-FUN(chart,object,code_char);
-FUN(object,cint,char_int);
-FUN(cint,object,int_char);
-FUN(object,oint,as_oint);
-FUN(oint,object,as_object);
+FUN(chart,cint,as_cint)
+FUN(cint,chart,as_chart)
+FUN(object,chart,char_code)
+FUN(chart,object,code_char)
+FUN(object,cint,char_int)
+FUN(cint,object,int_char)
+FUN(object,oint,as_oint)
+FUN(oint,object,as_object)
+FUN(object,sintB,Record_type)
+FUN(object,uintB,Record_flags)
+FUN(object,sintB,Array_type)
+FUN(object,uintL,Srecord_length)
+FUN(object,uintL,Xrecord_length)
+FUN(object,uintL,Xrecord_xlength)
 #undef FUN
 #endif
