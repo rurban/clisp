@@ -59,7 +59,7 @@
           )
         (let ((tempfile (editor-tempfile)))
           (with-open-file (f tempfile :direction :output)
-            (pprint (car def) f)
+            (write (car def) :escape t :pretty t :stream f)
             (terpri f) (terpri f)
           )
           (let ((date (file-write-date tempfile)))
@@ -71,7 +71,8 @@
                   (loop
                     (let ((obj (read f nil end-of-file)))
                       (when (eql obj end-of-file) (return))
-                      (print (evalhook obj nil nil (cdr def)))
+                      (prin1 (evalhook obj nil nil (cdr def)))
+                      (terpri)
               ) ) ) )
               (when (sys::%compiled-function-p fun) (compile funname))
           ) )
