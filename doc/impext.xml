@@ -389,13 +389,15 @@ she will get the output
 <orderedlist id="charset-symbol-list">
  <title>Symbols in package &charset-pac;</title>
  <listitem id="charset-UCS-2"><simpara><literal>UCS-2</literal>
-   = <literal>UNICODE-16</literal> = <literal>UNICODE-16-BIG-ENDIAN</literal>,
+   &equiv; <literal>UNICODE-16</literal>
+   &equiv; <literal>UNICODE-16-BIG-ENDIAN</literal>,
    the 16-bit basic multilingual plane of the &unicode; character set.
    Every character is represented as two bytes.</simpara></listitem>
  <listitem id="charset-UNICODE-16-LITTLE-ENDIAN"><simpara><literal>UNICODE-16-LITTLE-ENDIAN</literal>
     </simpara></listitem>
  <listitem id="charset-UCS-4"><simpara><literal>UCS-4</literal>
-   = <literal>UNICODE-32</literal> = <literal>UNICODE-32-BIG-ENDIAN</literal>,
+   &equiv; <literal>UNICODE-32</literal>
+   &equiv; <literal>UNICODE-32-BIG-ENDIAN</literal>,
    the 21-bit &unicode; character set. Every character is represented as
    four bytes.</simpara></listitem>
  <listitem id="charset-UNICODE-32-LITTLE-ENDIAN"><simpara><literal>UNICODE-32-LITTLE-ENDIAN</literal>
@@ -507,7 +509,7 @@ she will get the output
  <listitem id="charset-MAC-ICELAND"><simpara><literal>MAC-ICELAND</literal>,
    &ascii-pl-ext;.</simpara></listitem>
  <listitem id="charset-MAC-ROMAN"><simpara><literal>MAC-ROMAN</literal>
-   = <literal>MACINTOSH</literal>,
+   &equiv; <literal>MACINTOSH</literal>,
    &ascii-pl-ext;.</simpara></listitem>
  <listitem id="charset-MAC-ROMANIA"><simpara><literal>MAC-ROMANIA</literal>,
    &ascii-pl-ext;.</simpara></listitem>
@@ -593,44 +595,44 @@ she will get the output
    an IBM variant of <literal>CP874</literal>.
  </simpara></listitem>
  <listitem id="charset-WINDOWS-1250"><simpara><literal>WINDOWS-1250</literal>
-   = <literal>CP1250</literal>,
+   &equiv; <literal>CP1250</literal>,
    &ascii-pl-ext;, heavily incompatible with ISO-8859-2.
  </simpara></listitem>
  <listitem id="charset-WINDOWS-1251"><simpara><literal>WINDOWS-1251</literal>
-   = <literal>CP1251</literal>,
+   &equiv; <literal>CP1251</literal>,
    &ascii-pl-ext;, heavily incompatible with ISO-8859-5,
    meant to be suitable for the Russian language.
  </simpara></listitem>
  <listitem id="charset-WINDOWS-1252"><simpara><literal>WINDOWS-1252</literal>
-   = <literal>CP1252</literal>,
+   &equiv; <literal>CP1252</literal>,
    a platform specific extension of the ISO-8859-1 character set.
  </simpara></listitem>
  <listitem id="charset-WINDOWS-1253"><simpara><literal>WINDOWS-1253</literal>
-   = <literal>CP1253</literal>,
+   &equiv; <literal>CP1253</literal>,
    &ascii-pl-ext;, gratuitously incompatible with ISO-8859-7,
    meant to be suitable for the Greek language.
  </simpara></listitem>
  <listitem id="charset-WINDOWS-1254"><simpara><literal>WINDOWS-1254</literal>
-   = <literal>CP1254</literal>,
+   &equiv; <literal>CP1254</literal>,
    a platform specific extension of the ISO-8859-9 character set.
  </simpara></listitem>
 <!-- #ifdef GNU_LIBICONV -->
  <listitem id="charset-WINDOWS-1255"><simpara><literal>WINDOWS-1255</literal>
-   = <literal>CP1255</literal>,
+   &equiv; <literal>CP1255</literal>,
    &ascii-pl-ext;, gratuitously incompatible with ISO-8859-8,
    suitable for the Hebrew language.
    &charset-glibc-libiconv;</simpara></listitem>
 <!-- #endif /* GNU_LIBICONV */ -->
  <listitem id="charset-WINDOWS-1256"><simpara><literal>WINDOWS-1256</literal>
-   = <literal>CP1256</literal>,
+   &equiv; <literal>CP1256</literal>,
    &ascii-pl-ext;, meant to be suitable for the Arabic language.
  </simpara></listitem>
  <listitem id="charset-WINDOWS-1257"><simpara><literal>WINDOWS-1257</literal>
-   = <literal>CP1257</literal>,
+   &equiv; <literal>CP1257</literal>,
    &ascii-pl-ext;.</simpara></listitem>
 <!-- #ifdef GNU_LIBICONV -->
  <listitem id="charset-WINDOWS-1258"><simpara><literal>WINDOWS-1258</literal>
-   = <literal>CP1258</literal>,
+   &equiv; <literal>CP1258</literal>,
    &ascii-pl-ext;, meant to be suitable for the Vietnamese language.
    &charset-glibc-libiconv;</simpara></listitem>
 <!-- #endif /* GNU_LIBICONV */ -->
@@ -1063,7 +1065,8 @@ N. Gray to X3J13.</para>
   <listitem><simpara>Fills the subsequence of &sequence-r; specified by
    &start-k; and &end-k; with characters consecutively read from &stream-r;.
    Returns the index of the first element of &sequence-r; that was not
-   updated (= &end-r; or &lt; &end-r; if the stream reached its end).</simpara>
+   updated (&areq; &end-r;, or &lst; &end-r; if the stream reached its end).
+   </simpara>
   <simpara>&sequence-r; is an &array-t; of &character-t;s, i.e. a &string-t;.
    &start-r; is a nonnegative &integer-t; and defaults to &zero;.
    &end-r; is a nonnegative &integer-t; or &nil; and defaults to &nil;,
@@ -1225,7 +1228,8 @@ N. Gray to X3J13.</para>
   <listitem><simpara>Fills the subsequence of &sequence-r; specified by
    &start-k; and &end-k; with integers consecutively read from &stream-r;.
    Returns the index of the first element of &sequence-r; that was not
-   updated (= &end-r; or &lt; &end-r; if the stream reached its end).</simpara>
+   updated (&areq; &end-r;, or &lst; &end-r; if the stream reached its end).
+   </simpara>
   <simpara>&sequence-r; is an &array-t; of &integer-t;s.
    &start-r; is a nonnegative &integer-t; and defaults to 0.
    &end-r; is a nonnegative &integer-t; or &nil; and defaults to &nil;,
@@ -2292,65 +2296,63 @@ only.</subtitle>
       This is dangerous (just think of overwriting a string with a
       longer one or storing some data in a &c-NULL; pointer...)  and
       deprecated.</simpara></listitem></varlistentry>
-   <varlistentry><term><literal role="sexp">(:LIBRARY
+   <varlistentry><term><literal role="sexp">(&library-k;
       &string-t;)</literal></term>
-    <listitem><simpara>specifies the (optional) dynamic library
+    <listitem><simpara>Specifies the (optional) dynamic library
       which contains the variable.
  </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
 
 <varlistentry id="def-call-out"><term><literal role="sexp">(&def-call-out;
               &name-r; {&option-r;}*)</literal></term>
-<listitem><informaltable id="def-call-out-bnf" frame="all" role="bnf">
- <tgroup cols="3" colsep="1" rowsep="1" align="left">
- <thead><row><entry>&option-r; ::==</entry>
- <entry/><entry/></row></thead><tbody>
-<row><entry/><entry/><entry><literal role="sexp">(&name-k;
-   &cname-r;)</literal></entry></row>
-<row><entry/><entry>|</entry><entry><literal role="sexp">(&arguments-k;
-   {(&arg-r; &ctype-r; [&param-mode; [&allocation;]])}*)</literal>
-</entry></row>
-<row><entry/><entry>|</entry><entry><literal role="sexp">(&ret-type-k;
-   &ctype-r; [&allocation;])</literal></entry></row>
-<row><entry/><entry>|</entry><entry><literal role="sexp">(&lang-k;
-   &lang-r;)</literal></entry></row>
-<row><entry/><entry>|</entry><entry><literal role="sexp">(:BUILT-IN
-   &boolean-t;)</literal></entry></row>
-<row><entry/><entry>|</entry><entry><literal role="sexp">(:LIBRARY
-   &string-t;)</literal></entry></row>
-</tbody></tgroup></informaltable>
-
-<simpara>This form defines a named call-out function (a foreign function
- called from Lisp: control flow temporarily leaves Lisp).  Any Lisp
- function call to <function>#'&name-r;</function>
- is redirected to call the &c-lang; function &cname-r;.
- <constant>:LIBRARY</constant> is the (optional) dynamic library which
- contains the function.
- When the function is a &c-lang; built-in, the full prototype will be
- output (unless suppressed by &ffi-out-fun;).
+<listitem><simpara>This form defines a named call-out function (a
+ foreign function called from Lisp: control flow temporarily leaves Lisp).
+ </simpara><variablelist id="def-call-out-opts">
+  <title>Options for &def-call-out;</title>
+<varlistentry><term><literal role="sexp">(&name-k; &cname-r;)</literal></term>
+<listitem><simpara>Any Lisp function call to <function>#'&name-r;</function>
+  is redirected to call the &c-lang; function &cname-r;.
 </simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(&arguments-k;
+   {(&arg-r; &ctype-r; [&param-mode; [&allocation;]])}*)</literal></term>
+ <term><literal role="sexp">(&ret-type-k; &ctype-r;
+   [&allocation;])</literal></term>
+ <listitem><simpara>Argument list and return value, see
+   <xref linkend="allocation"/> and <xref linkend="param-mode"/>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(&lang-k; &lang-r;)</literal></term>
+ <listitem><simpara>See <xref linkend="c-flavor"/>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(:BUILT-IN
+   &boolean-t;)</literal></term>
+ <listitem><simpara>When the function is a &c-lang; built-in, the full
+   prototype will be output (unless suppressed by &ffi-out-fun;).
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(&library-k;
+   &string-t;)</literal></term>
+ <listitem><simpara>Specifies the (optional) dynamic library
+  which contains the variable.
+</simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
 
 <varlistentry id="def-call-in"><term><literal role="sexp">(&def-call-in;
               &name-r; {&option-r;}*)</literal></term>
-<listitem><informaltable id="def-call-in-bnf" frame="all" role="bnf">
- <tgroup cols="3" colsep="1" rowsep="1" align="left">
- <thead><row><entry>&option-r; ::==</entry>
- <entry/><entry/></row></thead><tbody>
-<row><entry/><entry/><entry><literal role="sexp">(&name-k;
-   &cname-r;)</literal></entry></row>
-<row><entry/><entry>|</entry><entry><literal role="sexp">(&arguments-k;
-   {(&arg-r; &ctype-r; [&param-mode; [&allocation;]])}*)</literal>
-</entry></row>
-<row><entry/><entry>|</entry><entry><literal role="sexp">(&ret-type-k;
-   &ctype-r; [&allocation;])</literal></entry></row>
-<row><entry/><entry>|</entry><entry><literal role="sexp">(&lang-k;
-   &lang-r;)</literal></entry></row>
-</tbody></tgroup></informaltable>
-
-<simpara>This form defines a named call-in function (i.e., a Lisp
+<listitem><simpara>This form defines a named call-in function (i.e., a Lisp
  function called from the foreign language: control flow temporary
- enters Lisp).  Any &c-lang; function call to the &c-lang; function
- &cname-r; is redirected to call the &cl; function
- <function>#'&name-r;</function>.</simpara></listitem></varlistentry>
+ enters Lisp)</simpara><variablelist id="def-call-in-opts">
+  <title>Options for &def-call-in;</title>
+<varlistentry><term><literal role="sexp">(&name-k; &cname-r;)</literal></term>
+ <listitem><simpara>Any &c-lang; function call to the &c-lang; function
+   &cname-r; is redirected to call the &cl; function
+   <function>#'&name-r;</function>.</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(&arguments-k;
+   {(&arg-r; &ctype-r; [&param-mode; [&allocation;]])}*)</literal></term>
+ <term><literal role="sexp">(&ret-type-k; &ctype-r;
+   [&allocation;])</literal></term>
+ <listitem><simpara>Argument list and return value, see
+   <xref linkend="allocation"/> and <xref linkend="param-mode"/>.
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(&lang-k; &lang-r;)</literal></term>
+ <listitem><simpara>See <xref linkend="c-flavor"/>.
+</simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
 
 <varlistentry id="def-c-call-out"><term><literal role="sexp">(&def-c-call-out;
         &name-r; {&option-r;}*)</literal></term>
@@ -2571,7 +2573,7 @@ only.</subtitle>
    changes the &foreign-pointer-t; associated with the Lisp object of
    type &foreign-address-t;, &foreign-variable; or &foreign-function; to
    that of the other entity.
-   When &f-ptr; is &copy-k;, a fresh &foreign-pointer-t; is allocated.
+   When &f-ptr; is &copy-k;, a &fresh; &foreign-pointer-t; is allocated.
    &f-ent; still points to the same object. This is particularly useful
    with <literal role="sexp">(&setf; &validp;)</literal>.
 </simpara></listitem></varlistentry>
@@ -3190,8 +3192,8 @@ This translates to
 Sample call from within Lisp:
 
 <programlisting>
-&gt; (div 20 3)
-#S(DIV_T :QUOT 6 :REM 2)
+(div 20 3)
+<returnvalue>#S(DIV_T :QUOT 6 :REM 2)</returnvalue>
 </programlisting></para></example>
 
 <example id="dffi-extern-func2">
@@ -3219,7 +3221,8 @@ struct cfunr * cfun (int i,char *s,struct cfunr * r,int a[10]) {
 
 It is possible to call this function from Lisp using the file
 <filename>callcfun.lisp</filename> (do not call it
-<filename>cfun.lisp</filename> - &compile-file; would overwrite
+<filename>cfun.lisp</filename> - &compile-file; would
+<link linkend="c-file-overwrite">overwrite</link>
 <filename>cfun.c</filename>) whose contents is:
 
 <programlisting>
@@ -3454,7 +3457,7 @@ double test_dll(struct bar *ptr)
 }
 </programlisting></para>
 
-<para>This is compiled to <filename>libtest.so.0</filename> (or
+<para>This is compiled to <filename>libtest.so</filename> (or
  <filename>libtest.dll</filename>, depending on your platform).</para>
 
 <para>Use the following lisp code:
@@ -3467,14 +3470,14 @@ double test_dll(struct bar *ptr)
   (out double-float))
 
 (&def-call-out; get-own-c-float
-  (:library "libtest.so.0")
+  (:library "libtest.so")
   (:language :stdc)
   (:name "test_dll")
   (:arguments (ptr c-pointer :in :alloca))
   (:return-type double-float))
 
 (&def-c-var; my-c-var (:name "my_struct")
-  (:LIBRARY "libtest2.so.0") (:type (c-ptr bar)))
+  (:library "libtest.so") (:type (c-ptr bar)))
 </programlisting></para>
 
 <para>Note that <function>get-own-c-float</function> takes a
@@ -3550,12 +3553,10 @@ separate.</para>
 <para>These are the &affi-pac; forms:</para>
 
 <para><literal role="sexp">(declare-library-base
- <replaceable>keyword-base</replaceable>
- <replaceable>library-name</replaceable>)</literal></para>
+ <replaceable>keyword-base</replaceable> &lib-name;)</literal></para>
 
-<para><literal role="sexp">(require-library-functions
- <replaceable>library-name</replaceable> [(:import
- {<replaceable>string-name</replaceable>}*)])</literal></para>
+<para><literal role="sexp">(require-library-functions &lib-name;
+ [(:import {<replaceable>string-name</replaceable>}*)])</literal></para>
 
 <para><literal role="sexp">(open-library
  <replaceable>base-symbol</replaceable>)</literal></para>
@@ -3565,20 +3566,18 @@ separate.</para>
 
 <para><literal role="sexp">(with-open-library
  (<replaceable>base-symbol</replaceable> |
- <replaceable>library-name</replaceable>)
- {&form-r;}*)</literal></para>
+ &lib-name;) {&form-r;}*)</literal></para>
 
 <para><literal role="sexp">(defflibfun
  <replaceable>function-name</replaceable>
  <replaceable>base-symbol</replaceable>
- <replaceable>offset</replaceable> <replaceable>mask</replaceable>
+ &offset-r; <replaceable>mask</replaceable>
  <replaceable>result-type</replaceable>
  {<replaceable>argument-type</replaceable>}*)</literal></para>
 
 <para><literal role="sexp">(declare-library-function
  <replaceable>function-name</replaceable>
- <replaceable>library-name</replaceable>
- {&option-r;}*)</literal></para>
+ &lib-name; {&option-r;}*)</literal></para>
 
 <para><literal role="sexp">(flibcall <replaceable>function-name</replaceable>
  {&arg-r;}*)</literal></para>
@@ -3586,16 +3585,14 @@ separate.</para>
 <para><literal role="sexp">(mlibcall <replaceable>function-name</replaceable>
  {&arg-r;}*)</literal></para>
 
-<para><literal role="sexp">(mem-read <replaceable>address</replaceable>
- <replaceable>result-type</replaceable>
- [<replaceable>offset</replaceable>])</literal></para>
+<para><literal role="sexp">(mem-read &addr-r;
+  <replaceable>result-type</replaceable> [&offset-r;])</literal></para>
 
-<para><literal role="sexp">(mem-write <replaceable>address</replaceable>
- &type-r; &value-r; [<replaceable>offset</replaceable>])</literal></para>
+<para><literal role="sexp">(mem-write &addr-r;
+ &type-r; &value-r; [&offset-r;])</literal></para>
 
-<para><literal role="sexp">(mem-write-vector
- <replaceable>address</replaceable> <replaceable>vector</replaceable>
- [<replaceable>offset</replaceable>])</literal></para>
+<para><literal role="sexp">(mem-write-vector &addr-r;
+  <replaceable>vector</replaceable> [&offset-r;])</literal></para>
 
 <para><literal role="sexp">(nzero-pointer-p &value-r;)</literal></para>
 
@@ -3760,12 +3757,12 @@ on the input and the ability to use &finalize; for resource-tracking on
 the output side.</para>
 
 <para><literal role="sexp">(declare-library-function &name-r;
- <replaceable>library-name</replaceable> {&option-r;}*)</literal>
+ &lib-name; {&option-r;}*)</literal>
 
 <variablelist>
  <varlistentry><term>&option-r; ::==</term>
  <listitem><informaltable id="affi-dec-lib-fun-opt-bnf" frame="all" role="bnf">
-  <tgroup cols="3" colsep="1" rowsep="1" align="left"><tbody>
+  <tgroup cols="2" colsep="1" rowsep="1" align="left"><tbody>
   <row><entry/><entry><literal role="sexp">(:offset
     <replaceable>library-offset</replaceable>)</literal></entry></row>
   <row><entry>|</entry><entry><literal role="sexp">(&arguments-k;
@@ -3791,9 +3788,8 @@ inlined.</para>
 
 <section id="affi-memory-access"><title>Memory access</title>
 
-<para><literal role="sexp">(affi:mem-read <replaceable>address</replaceable>
-&type-r;
-<replaceable>offset</replaceable>)</literal> can read 8, 16 and 32 bit
+<para><literal role="sexp">(affi:mem-read &addr-r; &type-r;
+  &offset-r;)</literal> can read 8, 16 and 32 bit
 signed or unsigned integers (&affi-pac; types <type>-4</type>,
 <type>-2</type>, <type>-1</type>, <type>1</type>, <type>2</type>,
 <type>4</type>), a pointer (<type>*</type>), a &c-NULL;-terminated
@@ -3802,17 +3798,16 @@ string (<type>string</type>) or, if the type argument is of type
 &external-k; is not an acceptable type as no object can be created by
 using <function>affi:mem-read</function>.</para>
 
-<para><literal role="sexp">(affi:mem-write
-<replaceable>address</replaceable> &type-r; &value-r;
-[<replaceable>offset</replaceable>])</literal> writes integers (&affi-pac;
+<para><literal role="sexp">(affi:mem-write &addr-r; &type-r; &value-r;
+[&offset-r;])</literal> writes integers (&affi-pac;
 type <type>-4</type>, <type>-2</type>, <type>-1</type>, <type>1</type>,
 <type>2</type> and <type>4</type>) or pointer values (type
 <type>*</type>), but not vectors to the specified memory address.</para>
 
-<para><literal role="sexp">(affi:mem-write-vector
-<replaceable>address</replaceable> <replaceable>vector</replaceable>
-[<replaceable>offset</replaceable>])</literal> can write memory from the
-given vector (of type &string-t; or &unsigned-byte-vec;).</para>
+<para><literal role="sexp">(affi:mem-write-vector &addr-r;
+  <replaceable>vector</replaceable> [&offset-r;])</literal> can write
+memory from the given vector (of type &string-t; or &unsigned-byte-vec;).
+</para>
 
 </section>
 
@@ -4003,7 +3998,7 @@ Compiled, it will have inlined the library function calls.
     &sose-r; &key-amp; &eltype; &extfmt; &buffered;
     &timeout-k;)</literal></term>
   <listitem id="timeout-k"><simpara>Creates the server-side two-way
-   stream for the connection.
+    &socket-stream; for the connection.
    Waits for an attempt to connect to the server for no more than
    &timeout-k; seconds (which may be a non-negative real number or a
    list <literal role="sexp">(sec usec)</literal> or a pair
@@ -4179,7 +4174,7 @@ Compiled, it will have inlined the library function calls.
 <section id="quickstart">
    <title>Extensions-2.6. Quickstarting delivery with &clisp;</title>
 
-<para>This section describes four ways to turn &clisp; programs into
+<para>This section describes three ways to turn &clisp; programs into
  executable programs, which can be started as quickly as executables
  written in other languages.</para>
 
@@ -4187,21 +4182,21 @@ Compiled, it will have inlined the library function calls.
  <varlistentry><term>&unix;</term>
   <listitem><simpara>&clisp; can act as a script interpreter.
   </simpara></listitem></varlistentry>
- <varlistentry><term>Desktop environments such as <ulink
-    url="http://www.kde.org">KDE</ulink>, <ulink
-    url="http://www.gnome.org">GNOME</ulink>, or Windows.</term>
+ <varlistentry><term>Desktop environments such as
+   <ulink url="http://www.kde.org">KDE</ulink>,
+   <ulink url="http://www.gnome.org">GNOME</ulink>, or Windows.</term>
   <listitem><simpara>Files created with &clisp; can be associated with
-   the &clisp; executables so that clicking on them would make &clisp;
+   the &clisp; executable so that clicking on them would make &clisp;
    execute the appropriate code.</simpara></listitem></varlistentry>
  <varlistentry><term>&linux; kernel with
-               <option>CONFIG_BINFMT_MISC=y</option></term>
+   <option>CONFIG_BINFMT_MISC=y</option></term>
   <listitem><simpara>Associate the extensions &fasl-file;
-   and &lisp-file; with &clisp;; then you can make the
-   files executable and run them from the command line.
-  </simpara></listitem></varlistentry>
+    and &lisp-file; with &clisp;; then you can make the
+    files executable and run them from the command line.
+ </simpara></listitem></varlistentry>
 </variablelist>
 
-<para>These four techniques apply to a single &lisp-file; or &fasl-file; file.
+<para>These three techniques apply to a single &lisp-file; or &fasl-file; file.
  If your application is made up of several &lisp-file; or &fasl-file; files,
  you can simply concatenate them (using &cat;) into one file;
  the techniques then apply to that concatenated file.</para>
