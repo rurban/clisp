@@ -837,43 +837,59 @@
                                 )) ) ) )
                                 (t
                                  (unless (symbolp pattern) (loop-syntax-error kw))
+                                 ;; ANSI CL 6.1.2.1.1 implies that the start/end/by
+                                 ;; clauses can come in any order, but only one of
+                                 ;; each kind.
                                  (let ((step-start-p nil)
                                        (step-end-p nil)
                                        (step-by-p nil)
                                        step-start-form
                                        step-end-form
-                                       step-by-form)
-                                   ;; 1st optional clause:
-                                   (block nil
-                                     (case preposition
-                                       (FROM (setq step-start-p 't))
-                                       (UPFROM (setq step-start-p 'up))
-                                       (DOWNFROM (setq step-start-p 'down))
-                                       (t (return))
+                                       step-by-form
+                                       dir)
+                                   (loop
+                                     (cond ((and (not step-start-p)
+                                                 (setq dir (case preposition
+                                                             (FROM 't)
+                                                             (UPFROM 'up)
+                                                             (DOWNFROM 'down)
+                                                             (t nil))))
+                                            (setq step-start-p dir)
+                                            (pop body-rest)
+                                            (setq step-start-form (parse-form preposition))
+                                            (push `(,pattern ,step-start-form) bindings)
+                                           )
+                                           ((and (not step-end-p)
+                                                 (setq dir (case preposition
+                                                             (TO 't)
+                                                             ((UPTO BELOW) 'up)
+                                                             ((DOWNTO ABOVE) 'down)
+                                                             (t nil))))
+                                            (setq step-end-p dir)
+                                            (pop body-rest)
+                                            (setq step-end-form (parse-form preposition))
+                                            (unless (constantp step-end-form)
+                                              (let ((step-end-var (gensym)))
+                                                (push `(,step-end-var ,step-end-form) bindings)
+                                                (setq step-end-form step-end-var)
+                                           )) )
+                                           ((and (not step-by-p)
+                                                 (eq preposition 'BY))
+                                            (setq step-by-p t)
+                                            (pop body-rest)
+                                            (setq step-by-form (parse-form 'by))
+                                            (unless (constantp step-by-form)
+                                              (let ((step-by-var (gensym)))
+                                                (push `(,step-by-var ,step-by-form) bindings)
+                                                (setq step-by-form step-by-var)
+                                           )) )
+                                           (t (return))
                                      )
-                                     (pop body-rest)
-                                     (setq step-start-form (parse-form preposition))
-                                   )
-                                   ;; 2nd optional clause:
-                                   (when (parse-kw-p 'by)
-                                     (setq step-by-p t)
-                                     (setq step-by-form (parse-form 'by)))
-                                   (block nil
                                      (setq preposition (next-kw))
-                                     (case preposition
-                                       (TO (setq step-end-p 't))
-                                       ((UPTO BELOW) (setq step-end-p 'up))
-                                       ((DOWNTO ABOVE) (setq step-end-p 'down))
-                                       (t (return))
-                                     )
-                                     (pop body-rest)
-                                     (setq step-end-form (parse-form preposition))
                                    )
-                                   ;; 3rd optional clause:
-                                   (when (and (not step-by-p) (parse-kw-p 'by))
-                                     (setq step-by-p t)
-                                     (setq step-by-form (parse-form 'by)))
-                                   ;; determine the direction of iteration:
+                                   ;; All parsing done, gather the declarations:
+                                   (setq declspecs (revappend new-declspecs declspecs))
+                                   ;; Determine the direction of iteration:
                                    (let ((step-direction
                                            (if (or (eq step-start-p 'down) (eq step-end-p 'down))
                                              (if (or (eq step-start-p 'up) (eq step-end-p 'up))
@@ -886,36 +902,23 @@
                                              )
                                              'up
                                         )) )
-                                     ;; determine start:
+                                     ;; Determine start, unless given:
                                      (unless step-start-p
-                                       (if (eq step-direction 'down)
+                                       (when (eq step-direction 'down)
                                          ; Abwärtsiteration ohne Startwert ist nicht erlaubt.
                                          ; Die zweite optionale Klausel (d.h. preposition) muss abwärts zeigen.
                                          (error (DEUTSCH "~S: Zusammen mit ~A muss FROM oder DOWNFROM angegeben werden."
                                                  ENGLISH "~S: specifying ~A requires FROM or DOWNFROM"
                                                  FRANCAIS "~S : ~A ne va qu'avec FROM ou DOWNFROM")
                                                 'loop (symbol-name preposition)
-                                         )
-                                         ; Aufwärtsiteration -> Startwert 0
-                                         (setq step-start-form '0)
-                                     ) )
-                                     (push `(,pattern ,step-start-form) bindings)
-                                     (setq declspecs (revappend new-declspecs declspecs))
-                                     ; Endwert bestimmen:
-                                     (when step-end-p
-                                       (unless (constantp step-end-form)
-                                         (let ((step-end-var (gensym)))
-                                           (push `(,step-end-var ,step-end-form) bindings)
-                                           (setq step-end-form step-end-var)
-                                     ) ) )
-                                     ; Schrittweite bestimmen:
+                                       ) )
+                                       ; Aufwärtsiteration -> Startwert 0
+                                       (setq step-start-form '0)
+                                       (push `(,pattern ,step-start-form) bindings)
+                                     )
+                                     ; Determine step, unless given:
                                      (unless step-by-p (setq step-by-form '1))
-                                     (unless (constantp step-by-form)
-                                       (let ((step-by-var (gensym)))
-                                         (push `(,step-by-var ,step-by-form) bindings)
-                                         (setq step-by-form step-by-var)
-                                     ) )
-                                     ; Endtest bestimmen:
+                                     ; Determine end test:
                                      (when step-end-p
                                        (let* ((compfun
                                                 (if (eq step-direction 'up)
