@@ -3830,7 +3830,12 @@ global void elt_nreverse (object dv, uintL index, uintL count) {
       break;
     case Array_type_sstring: # Simple-String
       check_sstring_mutable(dv);
-      SIMPLE_NREVERSE(chart,dv,index1,index2,count);
+      if (count > 0) {
+        var chart* ptr1 = &TheSstring(dv)->data[index1];
+        var chart* ptr2 = &TheSstring(dv)->data[index2];
+        dotimespL(count,count,
+                  { chart tmp = *ptr1; *ptr1++ = *ptr2; *ptr2-- = tmp; });
+      }
       break;
     default: NOTREACHED;
   }

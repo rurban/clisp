@@ -1,3 +1,8 @@
+2002-03-05  Sam Steingold  <sds@gnu.org>
+
+	* array.d (elt_nreverse): do not use SIMPLE_NREVERSE for simple strings
+	since TheSstring != TheSvector (breaks NREVERSE on Alpha)
+
 2002-03-03  Sam Steingold  <sds@gnu.org>
 
 	* version.h: 2.28 is released
