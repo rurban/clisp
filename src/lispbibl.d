@@ -3235,7 +3235,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #define dfloat_type     (     BTB5     |BTB3     |BTB1     ) # 0x2A  # %00101010  ; double-float
   #define complex_type    (     BTB5     |BTB3|BTB2          ) # 0x2C  # %00101100  ; complex
   #define lfloat_type     (     BTB5     |BTB3|BTB2|BTB1     ) # 0x2E  # %00101110  ; long-float
-  #define weakkvt_type    (     BTB5|BTB4|    |    |         ) # 0x30  # %00110000  ; weak-key-value-table
+  #define weakkvt_type    (     BTB5|BTB4                    ) # 0x30  # %00110000  ; weak-key-value-table
   #if (TB6 >= 0)
   #define cons_type       (BTB6                              ) # 0x40  # %01000000  ; cons
   #endif
