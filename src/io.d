@@ -9055,7 +9055,7 @@ local void pr_orecord (const object* stream_, object obj) {
 #endif
     case Rectype_Weakpointer: # #<WEAK-POINTER value> or #<BROKEN WEAK-POINTER>
       CHECK_PRINT_READABLY(obj);
-      if (!eq(TheWeakpointer(obj)->wp_cdr,unbound)) {
+      if (!weakpointer_broken_p(obj)) {
         LEVEL_CHECK;
         {
           pushSTACK(TheWeakpointer(obj)->wp_value); # save value
