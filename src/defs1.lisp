@@ -156,13 +156,18 @@
 
 (defvar *modules* nil)
 
-(defun provide (module-name)
-  (setq *modules* (adjoin (string module-name) *modules* :test #'string=))
-)
+(defun module-name (name)
+  (etypecase name
+    (symbol (string-downcase (symbol-name name)))
+    (string name)))
 
-(defun require (module-name &optional (pathname nil p-given))
-  (unless (member (string module-name) *modules* :test #'string-equal)
-    (unless p-given (setq pathname (pathname module-name)))
+(defun provide (name)
+  (setq *modules* (adjoin (module-name name) *modules* :test #'string=)))
+
+(defun require (module-name &optional (pathname nil p-given)
+                &aux (mod-name (module-name module-name)))
+  (unless (member mod-name *modules* :test #'string=)
+    (unless p-given (setq pathname (pathname mod-name)))
     (let (#+CLISP
           (*load-paths* (if (null *load-truename*) *load-paths*
                             (cons (make-pathname :name nil :type nil
