@@ -4,6 +4,8 @@ User visible changes
 * Implemented ANSI CL function INSPECT,
   and a function LISP:CLHS for access of Common Lisp HyperSpec.
 
+* Implemented ANSI CL macro WITH-COMPILATION-UNIT.
+
 
 2000-03-06
 ==========
@@ -12,8 +14,6 @@ User visible changes
 --------------------
 
 * New functions READ-FLOAT and WRITE-FLOAT.
-
-* Implemented ANSI CL macro WITH-COMPILATION-UNIT.
 
 * Unicode support: The pretty-printer and FORMAT ~T now handle non-spacing and
   double-width Unicode characters correctly. Pretty-printer slows down by 30%.
