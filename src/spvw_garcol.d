@@ -288,7 +288,7 @@ local void gc_mark (object obj)
       down_lrecord();
     case_sxrecord: /* Srecord/Xrecord */
       down_sxrecord();
-    case_machine: /* maschine address */
+    case_machine: /* machine address */
     case_char: /* character */
     case_system: /* frame-pointer, read-label, system */
     case_fixnum: /* fixnum */
@@ -408,7 +408,7 @@ local void gc_mark (object obj)
             up_sistring();
         }
         /*FALLTHROUGH*/
-      case_machine: /* maschine address */
+      case_machine: /* machine address */
       case_char: /* character */
       case_system: /* frame-pointer, read-label, system */
       case_fixnum: /* fixnum */
@@ -572,7 +572,7 @@ local void gc_markphase (void)
       case_subr: # Subr
         if (marked(pointerplus(TheSubr(obj),subr_const_offset)))
           return true; else return false;
-      case_machine: # Maschine Pointer
+      case_machine: # Machine Pointer
       case_char: # Character
       case_system: # Frame-pointer, Read-label, system
       case_fixnum: # Fixnum
