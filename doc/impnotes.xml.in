@@ -1,4 +1,6 @@
-              <!-- -*- sgml -*- -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V'$(DTDVER)'//EN"
+          "@DTD@" [
   <!ENTITY % cl-entities SYSTEM "cl-ent.xml">
   %cl-entities;
   <!ENTITY % imp-entities SYSTEM "impent.xml">
@@ -32,10 +34,10 @@
 
 <bookinfo>
  <title>Implementation Notes for &gnu; &clisp;.</title>
- <subtitle>These notes document &clisp; version 2.30.</subtitle>
+ <subtitle>These notes document &clisp; version @VERSION@.</subtitle>
  <graphic srccredit="[CLISP icon]" align="center"
           fileref="clisp.png" width="48" depth="48"/>
- <date>Last modified: 2002-09-04</date>
+ <date>Last modified: @TODAY@</date>
  <author id="bruno"><honorific>Dr</honorific> <firstname>Bruno</firstname>
    <surname>Haible</surname></author>
  <author id="sds"><honorific>Dr</honorific> <firstname>Sam</firstname>
@@ -137,13 +139,3 @@ and
 </bibliography>
 
 </book>
-
-<!--
-Local Variables:
-time-stamp-start: "<date>Last modified: "
-time-stamp-end: "</date>"
-time-stamp-format: "%:y-%02m-%02d"
-time-stamp-line-limit: 0
-eval: (add-hook 'write-file-hooks 'time-stamp)
-end:
--->

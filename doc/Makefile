@@ -50,12 +50,11 @@ DTD=http://www.oasis-open.org/docbook/xml/$(DTDVER)/docbookx.dtd
 
 all: check impnotes.html regexp.html wildcard.html
 
-impnotes.xml: impnotes.xml.in Makefile
+impnotes.xml: impnotes.xml.in $(IMPNOTES) ../src/VERSION Makefile
 	$(RM) $@
-	echo '<?xml version="1.0" encoding="UTF-8"?>' >> $@
-	echo '<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V'$(DTDVER)'//EN"' >> $@
-	echo '    "$(DTD)" ['>> $@
-	cat $< >> $@
+	sed -e 's,@DTD@,$(DTD),' \
+	    -e 's,@VERSION@,'`cat ../src/VERSION`',' \
+	    -e 's,@TODAY@,'`date +"%Y-%m-%d"`',' $< > $@
 
 check: impnotes.xml $(IMPNOTES)
 	$(NSGMLS) -s -wxml -c$(XMLSOC) $<
