@@ -85,6 +85,8 @@
 
 <!-- *** local *** -->
 <!ENTITY ansi "<link linkend='ansi'><varname>custom:*ansi*</varname></link>">
+<!ENTITY ansi-opt "<ulink url='clisp.html#opt-ansi'><option>-ansi</option></ulink>">
+<!ENTITY traditional-opt "<ulink url='clisp.html#opt-traditional'><option>-traditional</option></ulink>">
 <!ENTITY buffered "<link linkend='buffered'><constant>:buffered</constant></link>">
 <!ENTITY browser "<link linkend='browser'><constant>:browser</constant></link>">
 <!ENTITY eltype "<link linkend='eltype'><constant>:element-type</constant></link>">
