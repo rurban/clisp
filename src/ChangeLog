@@ -1,3 +1,8 @@
+2004-11-07  Bruno Haible  <bruno@clisp.org>
+
+	* clos-class5.lisp (update-instance-for-different-class@method):
+	Update the generic function to which the method belongs.
+
 2004-11-11  Bruno Haible  <bruno@clisp.org>
 
 	* m4/ioctl.m4 (CL_IOCTL): Test whether ioctl exists at all before

@@ -1,3 +1,7 @@
+2004-11-07  Bruno Haible  <bruno@clisp.org>
+
+	* mop.tst: Add test for notification upon change-class of a method.
+
 2004-11-10  Bruno Haible  <bruno@clisp.org>
 
 	* clos.tst: Comment out the print-object method return value test.
