@@ -1,5 +1,10 @@
 2002-12-17  Sam Steingold  <sds@gnu.org>
 
+	* describe.lisp (unicode-attributes-line): lines in
+	UnicodeDataFull.txt may start with up to 6 hex digits now
+
+2002-12-17  Sam Steingold  <sds@gnu.org>
+
 	* charstrg.d (DIGIT-CHAR-P): correctly identify MYANMAR,
 	ETHIOPIC, KHMER, and MONGOLIAN digits
 	* uni_upcase.c, uni_downcase.c, uni_attribute.c: regenerated
