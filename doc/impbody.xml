@@ -1867,10 +1867,10 @@ performance considerations.
   else &nil;.</simpara></listitem></varlistentry>
  <varlistentry><term><literal
    role="sexp">(<function>EXT:SET-CHAR-BIT</function>
-  &object-r; &name-r; <replaceable>newvalue</replaceable>)</literal></term>
+  &object-r; &name-r; &nval-r;)</literal></term>
  <listitem><simpara>returns a new &input-char; with the named bit set or
-  unset, depending on the boolean <replaceable>newvalue</replaceable>.
-  </simpara></listitem></varlistentry>
+   unset, depending on the &boolean-t; &nval-r;.
+ </simpara></listitem></varlistentry>
 </variablelist>
 
 <warning><para>&input-char; is &not-e; a subtype of
