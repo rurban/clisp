@@ -1,3 +1,8 @@
+2001-02-01  Bruno Haible  <haible@clisp.cons.org>
+
+        * stream.d (read_line): When EOF was reached, always set
+          strm_rd_ch_last to eof_value.
+
 2001-01-29  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (PARSE-NAMESTRING): use `slashp' when parsing UNC

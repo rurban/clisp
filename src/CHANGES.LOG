@@ -66,6 +66,9 @@ User visible changes
 * Fixed a bug: A garbage collection during the execution of a foreign function
   callback caused a crash.
 
+* Fixed a bug: Calling READ-LINE on a stream already positioned at EOF caused
+  a crash on 64-bit platforms.
+
 * Fixed a bug: For long-floats, (EQL x (- x)) returned true.
 
 * Fixed a bug: OPEN now returns NIL when the filename's directory does not

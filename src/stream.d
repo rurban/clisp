@@ -1,5 +1,5 @@
 # Streams für CLISP
-# Bruno Haible 1990-2000
+# Bruno Haible 1990-2001
 # Generic Streams: Marcus Daniels 8.4.1994
 
 #include "lispbibl.c"
@@ -17352,13 +17352,7 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
             break;
         }
         stream = *stream_;
-        if (!eofp) {
-          TheStream(stream)->strm_rd_ch_last = ascii_char(NL);
-        } else {
-          var uintL newfillptr = TheIarray(*buffer_)->dims[1];
-          TheStream(stream)->strm_rd_ch_last =
-            (newfillptr == oldfillptr ? code_char(TheSstring(TheIarray(*buffer_)->data)->data[newfillptr-1]) : eof_value);
-        }
+        TheStream(stream)->strm_rd_ch_last = (eofp ? eof_value : ascii_char(NL));
         TheStream(stream)->strmflags &= ~strmflags_unread_B;
         return eofp;
       } else {
