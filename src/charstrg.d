@@ -2231,12 +2231,17 @@ LISPFUNN(store_schar,3)
   skipSTACK(2);
 }
 
-/* UP: checks the limits for a vector argument
+/* UP: checks :START and :END limits for a vector argument
  > STACK_2: vector-argument
  > STACK_1: optional :start-argument
  > STACK_0: optional :end-argument
- < stringarg arg: description of the argument
-     (string, len & offset must be pre-set!)
+ > stringarg arg: arg.string its data vector,
+                  [arg.offset .. arg.offset+arg.len-1] the range within the
+                  data vector corresponding to the entire vector-argument
+ < stringarg arg: arg.string and arg.offset unchanged,
+                  [arg.offset+arg.index .. arg.offset+arg.index+arg.len-1] the
+                  range within the data vector corresponding to the selected
+                  vector slice
  < result: vector-argument
  increases STACK by 3 */
 global object test_vector_limits (stringarg* arg) {
@@ -2255,14 +2260,14 @@ global object test_vector_limits (stringarg* arg) {
      compare :START and :END arguments: */
   if (start > end) {
     pushSTACK(STACK_0); /* :END index */
-    pushSTACK(STACK_2); /* :START index */
+    pushSTACK(STACK_(1+1)); /* :START index */
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,GETTEXT("~S: :START-index ~S must not be greater than :END-index ~S"));
   }
-  skipSTACK(3);
+  skipSTACK(2);
   /* fill results: */
   arg->index = start; arg->len = end-start;
-  return arg->string;
+  return popSTACK();
 }
 
 /* UP: checks the limits for a string-argument
@@ -3085,11 +3090,11 @@ LISPFUNNR(string_both_trim,3)
 LISPFUN(string_width,seclass_default,1,0,norest,key,2, (kw(start),kw(end)) )
 {
   var stringarg arg;
-  var object string = test_string_limits_ro(&arg);
+  test_string_limits_ro(&arg);
   var uintL width = 0;
   var uintL len = arg.len;
   if (len > 0) {
-    SstringDispatch(string,X, {
+    SstringDispatch(arg.string,X, {
       var const cintX* charptr =
         &((SstringX)TheVarobject(arg.string))->data[arg.offset+arg.index];
       do { width += char_width(as_chart(*charptr)); charptr++;

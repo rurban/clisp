@@ -2485,8 +2485,11 @@ LISPFUN(convert_string_from_bytes,seclass_read,2,0,norest,key,2,
   var object array = STACK_3;
   if (!vectorp(array)) fehler_vector(array); /* check array */
   STACK_2 = check_encoding(STACK_2,DEFAULT_ENC,false);
-  STACK_3 = STACK_2; /* encoding */ STACK_2 = array; /* array */
-  if (!boundp(STACK_1)) STACK_1 = Fixnum_0; /* check start */
+  STACK_3 = STACK_2; /* encoding */
+  STACK_2 = array; /* array */
+  /* Stack layout: encoding, array, start, end. */
+  if (!boundp(STACK_1))
+    STACK_1 = Fixnum_0; /* check start */
   if (missingp(STACK_0)) /* check end */
     STACK_0 = fixnum(vector_length(array));
   /* Convert array to a vector with element type (UNSIGNED-BYTE 8): */
@@ -2503,11 +2506,12 @@ LISPFUN(convert_string_from_bytes,seclass_read,2,0,norest,key,2,
     STACK_1 = Fixnum_0; /* start := 0 */
   }
   /* Determine size of result string: */
+  STACK_2 = array;
   var stringarg sa;
-  sa.string = array; sa.offset = 0; sa.len = vector_length(array);
-  sa.string = STACK_2 = array
-    = array_displace_check(array,sa.len,&(sa.offset));
-  array = test_vector_limits(&sa);
+  sa.offset = 0; sa.len = vector_length(array);
+  sa.string = array_displace_check(array,sa.len,&sa.offset);
+  test_vector_limits(&sa);
+  array = sa.string;
   pushSTACK(array);
   /* stack layout: encoding, array */
   var uintL start = sa.offset + sa.index;
@@ -2544,9 +2548,12 @@ LISPFUN(convert_string_to_bytes,seclass_read,2,0,norest,key,2,
   /* Stack layout: string, encoding, start, end. */
   var object string = STACK_3;
   STACK_2 = check_encoding(STACK_2,DEFAULT_ENC,false);
-  STACK_3 = STACK_2; /* encoding */ STACK_2 = string; /* string */
+  STACK_3 = STACK_2; /* encoding */
+  STACK_2 = string; /* string */
+  /* Stack layout: encoding, string, start, end. */
   var stringarg sa;
-  string = test_string_limits_ro(&sa); /* check string */
+  test_string_limits_ro(&sa); /* check string */
+  string = sa.string;
   pushSTACK(string);
   /* Stack layout: encoding, string */
   var const chart* srcptr;
