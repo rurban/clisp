@@ -1,3 +1,11 @@
+2004-12-02  Bruno Haible  <bruno@clisp.org>
+
+	Make it possible again to do "make install" with a different user id
+	even when Makefile is newer than cflags.h.
+	* makemake.in (cflags.h.stamp): Renamed from cflags.h.
+	(cflags.h): New rule.
+	(clean4): Remove also cflags.h.stamp.
+
 2004-12-01  Sam Steingold  <sds@gnu.org>
 
 	* describe.lisp (arglist): COERCE the argument to FUNCTION
