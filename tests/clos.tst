@@ -562,6 +562,19 @@ FOO
   (list (slot-value i 'a) (slot-value i 'b) (slot-value i 'c)))
 (1 2 3)
 
+;; <https://sourceforge.net/tracker/?func=detail&aid=869187&group_id=1355&atid=101355>
+(progn
+  (defclass c1 () ())
+  (defclass c2 () ())
+  (list
+   (let ((c (make-instance 'c1)))
+     (list (type-of (change-class c 'c2))
+           (type-of (change-class c 'c1))))
+   (let ((c (make-instance 'c1)))
+     (list (type-of (change-class c 'c1))
+           (type-of (change-class c 'c1))))))
+((C2 C1) (C1 C1))
+
 ;; update-instance-for-redefined-class
 ;; <http://www.lisp.org/HyperSpec/Body/stagenfun_upd_efined-class.html>
 (progn
