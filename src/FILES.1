@@ -573,21 +573,21 @@ lists the features to be checked
 .B autoconf/autoconf.m4
 .IR autoconf "'s"
 driver macros.
-Part of GNU autoconf-2.13
+Part of GNU autoconf-2.53
 .TP
-.B autoconf/aclocal.m4
+.B m4/*.m4
 a repertoire of features.
-Use with GNU autoconf-2.13
+Use with GNU autoconf-2.53
 .TP
 .B configure
 configuration script, checks for dozens of features
 .TP
-.B intparam.d
+.B intparam.c
 figures out some machine parameters (word size, endianness etc.)
 .TP
-.B intparam.c
-preprocessed version of
-.I intparam.d
+.B floatparam.c
+figures out some floating point arithmetics parameters
+(rounding, epsilons etc.)
 .TP
 .B unixconf.h.in
 header file master. unixconf.h contains the values of the features
