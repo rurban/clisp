@@ -2722,6 +2722,9 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
               { # Application Keypad: ESC O M -> Return,
                 # ESC O k -> +, ESC O m -> -, ESC O j -> *, ESC O o -> /
                 # (ohne Hyper-Bit, da das zu Terminal-abhängig würde)
+                # ESC O x -> Up, ESC O r -> Down,
+                # ESC O v -> Right, ESC O t -> Left,
+                # ESC O p -> Insert, ESC O l -> Delete.
                 var char cap[4];
                 cap[0] = ESC; cap[1] = 'O'; cap[3] = '\0';
                 cap[2] = 'M'; keybinding(&!cap,'M'-64);
@@ -2729,6 +2732,15 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
                 cap[2] = '-'+64; keybinding(&!cap,'-');
                 cap[2] = '*'+64; keybinding(&!cap,'*');
                 cap[2] = '/'+64; keybinding(&!cap,'/');
+                cap[2] = '8'+64; keybinding(&!cap,24 | char_hyper_c); # #\Up
+                cap[2] = '2'+64; keybinding(&!cap,18 | char_hyper_c); # #\Down
+                cap[2] = '6'+64; keybinding(&!cap,22 | char_hyper_c); # #\Right
+                cap[2] = '4'+64; keybinding(&!cap,20 | char_hyper_c); # #\Left
+                cap[2] = '0'+64; keybinding(&!cap,16 | char_hyper_c); # #\Insert
+                cap[2] = '.'+64; keybinding(&!cap,127); # #\Delete
+                cap[2] = ','+64; keybinding(&!cap,127); # #\Delete
+                # "7" -> #\Home, "1" -> #\End, "9" -> #\PgUp, "3" -> #\PgDn,
+                # "5" -> #\Center are already handled above.
               }
               xterm:
               { # Pfeiltasten s.o.
