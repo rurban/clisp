@@ -1,7 +1,13 @@
 Installation on Win32 (WinNT, Win95) using the MSVC4.0 or MSVC5.0 or MSVC6.0
 ============================================================================
-development environment, using native system calls
-==================================================
+or MSVC7.0 development environment, using native system calls
+=============================================================
+
+0. Note! Binaries created with MSVC 7.0 with MFLAGS=-MD cannot be distributed:
+   They depend on a closed-source library 'msvcr70.dll' which is not normally
+   part of a Woe32 installation, therefore the distribution of such binaries
+   - with or without msvcr70.dll - would be a violation of the GPL. This
+   problem does not occur with MSVC 6.0 and earlier.
 
 1. Build a few recommended libraries: libiconv and libsigsegv.
    - GNU libsigsegv (highly recommended for C stack overflow detection),
