@@ -3236,9 +3236,17 @@ nonreturning_function(global, quit, (void)) {
   # Then, a farewell message:
   if (quit_retry==0) {
     quit_retry++; # If this fails, do not retry it. For robustness.
+    /* when running as a script, i.e. "clisp lisp-file",
+        *standard-input*  is /dev/fd/0
+        *standard-output* is /dev/fd/1
+        *error-output*    is /dev/fd/2
+       and *terminal-io* is an #<IO TERMINAL-STREAM>,
+       so they all need to be terminated individually */
     funcall(L(fresh_line),0); # (FRESH-LINE [*standard-output*])
     pushSTACK(var_stream(S(error_output),strmflags_wr_ch_B));
     funcall(L(fresh_line),1);   /* (FRESH-LINE *error-output*) */
+    pushSTACK(Symbol_value(S(terminal_io)));
+    funcall(L(fresh_line),1);   /* (FRESH-LINE *terminal-io*) */
     if (argv2.argv_verbose >= 2) {
       pushSTACK(CLSTEXT("Bye.")); funcall(L(write_line),1);
     }
