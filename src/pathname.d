@@ -1444,11 +1444,30 @@ nonreturning_function(local, fehler_file_stream_unnamed, (object stream)) {
 #define slashp(c)    pslashp(c)
 #endif
 
+# UP: add a character to an ASCII string and return as a Lisp string
+# can trigger GC
+#ifdef UNICODE
+local object asciz_add_char (const char* chars, uintL len, char ch,
+                             object encoding)
+#else
+#define asciz_add_char(chars,len,ch,encoding)  asciz_add_char_(chars,len,ch)
+local object asciz_add_char_ (const char* chars, uintL len, char ch)
+#endif
+{
+  var DYNAMIC_ARRAY(buf,char,len+1);
+  begin_system_call(); memcpy(buf,chars,len); end_system_call();
+  buf[len] = ch;
+  var object s = n_char_to_string(buf,len+1,encoding);
+  FREE_DYNAMIC_ARRAY(buf);
+  return s;
+}
+
 # UP: Converts a Unix-Directory-Specification into a pathname.
 # asciz_dir_to_pathname(path,encoding)
 # > const char* path: path as ASCIZ-String
 # > encoding: Encoding
 # < result: as a pathname without name and type
+# can trigger GC
 #ifdef UNICODE
 local object asciz_dir_to_pathname(const char* path, object encoding)
 #else
@@ -1464,15 +1483,10 @@ local object asciz_dir_to_pathname_(const char* path)
     pathptr++; len++;
   }
   # as long as the String does not end with '/' already, a '/' is added:
-  if ((len>0) && (pathptr[-1] == slash)) {
+  if ((len>0) && (pathptr[-1] == slash))
     pathname = n_char_to_string(path,len,encoding);
-  } else {
-    var DYNAMIC_ARRAY(pathbuf,char,len+1);
-    begin_system_call(); memcpy(pathbuf,path,len); end_system_call();
-    pathbuf[len] = slash;
-    pathname = n_char_to_string(pathbuf,len+1,encoding);
-    FREE_DYNAMIC_ARRAY(pathbuf);
-  }
+  else
+    pathname = asciz_add_char(path,len,slash,encoding);
   # and convert into a pathname:
   return coerce_pathname(pathname);
 }
@@ -9494,31 +9508,32 @@ LISPFUN(directory,0,1,norest,key,2, (kw(circle),kw(full)) ) {
   mv_count=1;
 }
 
+# UP: make sure that the supposed directory namestring ends with a slash
+# returns a new string with a slash appended or the same stirng
+# can trigger GC
+local object ensure_last_slash (object dir_string) {
+  ASSERT(stringp(dir_string));
+  var uintL len, offset;
+  var object str = unpack_string_ro(dir_string,&len,&offset);
+  var chart ch;
+  SstringDispatch(str,
+    { ch = TheSstring(str)->data[len+offset-1]; },
+    { ch = as_chart(TheSmallSstring(str)->data[len+offset-1]); });
+  if (!slashp(ch)) {
+    var char sl = (looks_logical_p(dir_string) ? ';' : slash);
+    with_sstring_0(str,O(pathname_encoding),asciz, {
+      dir_string = asciz_add_char(asciz,len,sl,O(pathname_encoding));
+    });
+  }
+  return dir_string;
+}
+
 # (CD [pathname]) sets the current drive and the current directory.
 LISPFUN(cd,0,1,norest,nokey,0,NIL) {
   var object pathname = popSTACK();
   if (eq(pathname,unbound)) { pathname = O(empty_string); } # ""
-  else if (stringp(pathname)) { # make sure it ends with a slash
-    var uintL len, offset;
-    var object str = unpack_string_ro(pathname,&len,&offset);
-    var chart ch;
-    SstringDispatch(str,
-    { ch = TheSstring(str)->data[len+offset-1]; },
-    { ch = as_chart(TheSmallSstring(str)->data[len+offset-1]); });
-    if (!slashp(ch)) {
-      pushSTACK(pathname);
-     #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-      pushSTACK(O(backslash_string));
-     #elif defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
-      pushSTACK(O(slash_string));
-     #elif defined(PATHNAME_RISCOS)
-      pushSTACK(O(dot_string));
-     #else
-      #error "what is your pathname type?"
-     #endif
-      pathname = string_concat(2);
-    }
-  }
+  else if (stringp(pathname)) # make sure it ends with a slash
+    pathname = ensure_last_slash(pathname);
   pathname = coerce_pathname(pathname); # turn into a pathname
   # copy and set name and type to NIL:
   pathname = copy_pathname(pathname);
@@ -10528,16 +10543,23 @@ LISPFUNN(program_name,0) {
 
 #endif
 
-global char* argv_lisplibdir = NULL; # set during main()
-# (SYS::LIB-DIRECTORY) returns clisp's private library directory (called
-# $(lisplibdir) in the Makefile).
+# (SYS::LIB-DIRECTORY) returns CLISP's private library directory
+# (called $(lisplibdir) in the Makefile).
 LISPFUNN(lib_directory,0) {
-  if (!(argv_lisplibdir==NULL)) {
-    value1 = asciz_dir_to_pathname(argv_lisplibdir,O(misc_encoding));
+  if (!nullp(O(lib_dir))) {
+    value1 = O(lib_dir);
   } else {
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,GETTEXT("~: library directory is not known, use a command line option to specify it"));
   }
+  mv_count=1;
+}
+
+# (SYS::SET-LIB-DIRECTORY path) sets the CLISP's private library directory
+LISPFUNN(set_lib_directory,1) {
+  var object path = popSTACK();
+  if (stringp(path)) path = ensure_last_slash(path);
+  value1 = O(lib_dir) = coerce_xpathname(path);
   mv_count=1;
 }
 

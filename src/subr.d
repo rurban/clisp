@@ -688,6 +688,7 @@ LISPFUNN(dynload_modules,2)
 LISPFUNN(program_name,0)
 #endif
 LISPFUNN(lib_directory,0)
+LISPFUNN(set_lib_directory,1)
 #if defined(EXPORT_SYSCALLS) && defined(UNIX)
 LISPFUNN(user_data_,1)
 LISPFUN(file_stat_,1,1,norest,nokey,0,NIL)

@@ -520,28 +520,31 @@ to print the corresponding values, or T for all of them.")
     (when s (format s "."))))
 
 ;;-----------------------------------------------------------------------------
+;; auxiliary functions for CLISP metadata
+
+(defun clisp-data-file (name)
+  ;; [ $(lisplibdir) == *lib-directory* ]/data/name
+  (let ((*merge-pathnames-ansi* t) path
+        (data (make-pathname :directory (list :relative "data"))))
+    (assert (probe-file
+             (setq path (merge-pathnames
+                         name (merge-pathnames data *lib-directory*))))
+            (*lib-directory*) "~s: file ~s does not exist - adjust ~s"
+            'clisp-data-file path '*lib-directory*)
+    path))
+
+;;-----------------------------------------------------------------------------
 ;; auxiliary functions for DESCRIBE of CHARACTER
 
 #+UNICODE (progn
 
-(defun unicode-data-file ()
-  ; $(lisplibdir)/data/UnicodeData.txt
-  (merge-pathnames
-    "UnicodeData.txt"
-    (let ((libdir (sys::lib-directory)))
-      (make-pathname
-        :host (pathname-host libdir)
-        :device (pathname-device libdir)
-        :directory #+UNIX (append (pathname-directory libdir) (list "data"))
-                   #-UNIX (pathname-directory libdir)
-) ) ) )
-
-; Return the line associated with a Unicode code in the Unicode data file.
-; Returns a simple-string or nil. Also used by the CHAR-NANE function.
+;; Return the line associated with a Unicode code in the Unicode data file.
+;; Returns a simple-string or nil. Also used by the CHAR-NANE function.
 (defun unicode-attributes-line (code)
-  (with-open-file (f (unicode-data-file) :direction :input
-                                         :element-type 'character
-                                         :external-format 'charset:ascii)
+  (with-open-file (f (clisp-data-file "UnicodeData.txt")
+                     :direction :input
+                     :element-type 'character
+                     :external-format 'charset:ascii)
     ;; We know that the file's lines are sorted according to the code, and
     ;; we use this fact to perform a fast binary search.
     (flet ((code-at-pos ()
