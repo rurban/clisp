@@ -1,3 +1,8 @@
+2002-05-07  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (ChannelStream_init): add an end_system_call() for
+	each begin_system_call()
+
 2002-05-06  Bruno Haible  <bruno@clisp.org>
 
 	* misc.d (LISP-IMPLEMENTATION-VERSION): Use casts to 'unsigned int'
