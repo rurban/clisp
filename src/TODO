@@ -134,6 +134,13 @@ parse_namestring: split_name_type(1), und bei make_pathname
 Klein->Großschreibung umwandeln, so dass (make-pathname :type "fas") immer geht.
 
 
+If you (TRACE generic-function) and then reload the file defining that
+function, you got an error saying that #<CLOSURE TRACED-xxx> is not a generic
+function. Now the function is silently untraced, which is just as bad. Need
+to untrace and then re-trace the function. This holds for both defmethod and
+defgeneric.
+
+
 clean up and modularize spvw.d
 
 
