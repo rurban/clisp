@@ -90,7 +90,7 @@
            (dispatching-arg
              (if (eq (std-gf-signature gf) (sys::%unbound))
                nil
-               (let ((reqnum (sig-req-num (std-gf-signature gf))))
+               (let ((reqnum (sig-req-num (safe-gf-signature gf))))
                  (single-dispatching-arg reqnum methods)))))
       (sys::retry-function-call
         (if dispatching-arg
@@ -112,7 +112,7 @@
            (dispatching-arg
              (if (eq (std-gf-signature gf) (sys::%unbound))
                nil
-               (let ((reqnum (sig-req-num (std-gf-signature gf))))
+               (let ((reqnum (sig-req-num (safe-gf-signature gf))))
                  (single-dispatching-arg reqnum methods)))))
       (if dispatching-arg
         (error-of-type 'method-call-type-error
@@ -135,7 +135,7 @@
            (dispatching-arg
              (if (eq (std-gf-signature gf) (sys::%unbound))
                nil
-               (let ((reqnum (sig-req-num (std-gf-signature gf))))
+               (let ((reqnum (sig-req-num (safe-gf-signature gf))))
                  (single-dispatching-arg reqnum methods)))))
       (sys::retry-function-call
         (if dispatching-arg
@@ -385,6 +385,25 @@
              'generic-function-lambda-list gf))
     (std-gf-lambda-list gf)))
 (initialize-extended-method-check #'generic-function-lambda-list)
+
+;; Not in MOP.
+(let ((*allow-making-generic* t))
+  (defgeneric generic-function-signature (generic-function)
+    (:method ((gf generic-function))
+      (let ((lambdalist (generic-function-lambda-list gf)))
+        (generic-function-lambda-list-to-signature lambdalist
+          #'(lambda (detail errorstring &rest arguments)
+              (declare (ignore detail))
+              (error (TEXT "Invalid ~S result ~S: ~A")
+                     'generic-function-lambda-list lambdalist
+                     (apply #'format nil errorstring arguments))))))
+    (:method ((gf standard-generic-function))
+      (check-generic-function-initialized gf)
+      (when (eq (std-gf-signature gf) (sys::%unbound))
+        (error (TEXT "~S: the lambda-list of ~S is not yet known")
+               'generic-function-lambda-list gf))
+      (std-gf-signature gf))))
+(setq |#'generic-function-signature| #'generic-function-signature)
 
 ;; MOP p. 80
 (defgeneric generic-function-method-combination (generic-function)

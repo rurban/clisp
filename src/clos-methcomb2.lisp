@@ -379,7 +379,7 @@
 ;; 5. a list of forms representing the arguments to pass to methods.
 ;; 6. a set of macro definitions that defines local macros.
 (defun effective-method-code-bricks (gf methods duplicates)
-  (let* ((signature (std-gf-signature gf))
+  (let* ((signature (safe-gf-signature gf))
          (req-num (sig-req-num signature))
          (req-vars (gensym-list req-num))
          (restp (gf-sig-restp signature))
@@ -542,7 +542,7 @@
                                          (subseq combination-arguments-lambda-list i)))))
                        (let* ((ll-req-num (length reqvars))
                               (ll-opt-num (length optvars))
-                              (signature (std-gf-signature generic-function))
+                              (signature (safe-gf-signature generic-function))
                               (gf-req-num (sig-req-num signature))
                               (gf-opt-num (sig-opt-num signature)))
                          ;; "If the section of the :arguments lambda-list is

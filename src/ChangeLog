@@ -1,5 +1,33 @@
 2004-10-11  Bruno Haible  <bruno@clisp.org>
 
+	Respect user-defined methods on generic-function-lambda-list.
+	* clos-genfun1.lisp (generic-function-signature): New preliminary
+	function.
+	(|#'generic-function-signature|): New variable.
+	(safe-gf-signature): New function.
+	* clos-methcomb2.lisp (effective-method-code-bricks,
+	build-effective-method-function-form): Call safe-gf-signature instead
+	of std-gf-signature.
+	* clos-genfun2.lisp (generic-function-lambda-list-to-signature): New
+	function, extracted from check-gf-lambdalist+argorder.
+	(check-gf-lambdalist+argorder): Use it.
+	(check-signature-congruence,
+	shared-initialize-<standard-generic-function>, std-find-method,
+	finalize-fast-gf, gf-never-called-p, compute-dispatch,
+	compute-applicable-methods-effective-method,
+	compute-applicable-methods-<standard-generic-function>,
+	compute-applicable-methods-using-classes-<standard-generic-function>,
+	compute-applicable-methods-effective-method-for-set,
+	compute-applicable-methods-for-set): Call safe-gf-signature instead of
+	std-gf-signature.
+	* clos-method2.lisp (analyze-method-description): Likewise.
+	* clos-genfun4.lisp (no-applicable-method, missing-required-method,
+	no-next-method): Likewise.
+	(generic-function-signature): New generic function. Initialize
+	|#'generic-function-signature|.
+
+2004-10-11  Bruno Haible  <bruno@clisp.org>
+
 	* clos-genfun4.lisp (generic-function-lambda-list,
 	generic-function-argument-precedence-order): Signal an error if the
 	lambda-list is not yet initialized.
