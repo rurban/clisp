@@ -1,3 +1,8 @@
+2002-09-17  Sam Steingold  <sds@gnu.org>
+
+	* lisparit.d (log_digits): fixed the 2002-09-11 patch:
+	give NULL as end_p to R_ln_R() and shorten the result
+
 2002-09-17  Bruno Haible  <bruno@clisp.org>
 
 	* loop.lisp (expand-loop): Warn if a sequence of forms is empty -
