@@ -6619,7 +6619,18 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
     } else {
       if (TrueName(path,resolved))
         substitute = true;
-      else error = true;
+      else { # A file doesn't exist. Maybe dir does ?
+        with_sstring_0(directory_namestring(STACK_0),O(pathname_encoding),dirpath, {
+          if (TrueName(dirpath,resolved)) { # need to substitute only dir here
+            var object resolved_string = asciz_to_string(resolved,O(pathname_encoding));
+            # turn it into a pathname and use its Directory:
+            var object resolved_pathname = coerce_pathname(resolved_string);
+            ThePathname(STACK_0)->pathname_directory
+              = ThePathname(resolved_pathname)->pathname_directory;
+          } else
+            error = true;
+        });
+      }
     }
     if (error) {
       if (tolerantp) return nullobj;
@@ -9520,12 +9531,12 @@ local void directory_search_scandir (bool recursively, signean next_task,
           if (!(equal(direntry,O(dot_string))
                 || equal(direntry,O(dotdot_string)))) {
             var shell_shortcut_target_t rresolved = shell_shortcut_notresolved;
-            var bool dont_follow_this_dir = false; # needed when :IF-DOES-NOT-EXIST :KEEP && recursively
             pushSTACK(direntry);
             # stack layout: ..., pathname, dir_namestring, direntry.
-            pushSTACK(NIL);       # will become found file full pathname
-            pushSTACK(NIL);       # true pathname of it
-            pushSTACK(direntry);  # here will come filename to wildcard match AKA result filename (no dir)
+            pushSTACK(NIL);       # will become found file full pathname,
+                                  # changed with symbolic name for resolved (maybe nonfound) links
+            pushSTACK(NIL);       # true pathname of it or whatever result to return
+            pushSTACK(direntry);  # here will come filename to wildcard match
             split_name_type(1);
             # stack layout: ..., pathname, dir_namestring, direntry, NIL, NIL, direntry-name, direntry-type.
 
@@ -9553,7 +9564,20 @@ local void directory_search_scandir (bool recursively, signean next_task,
                   var char resolved_f[MAX_PATH];
                   if (FullName(resolved,resolved_f))
                     full_resolved = resolved_f;
-                  STACK_(2) = coerce_pathname(asciz_to_string(full_resolved,O(pathname_encoding)));
+                  # hack direntry-pathname to make it a symbolic name
+                  # symbolic link names are direntry-pathnames w/o ".lnk"
+                  # so split the name again
+                  # hack it in-place since lnk filename is not need anymore
+                  pushSTACK(STACK_1);
+                  split_name_type(1);
+                  ThePathname(STACK_(3+2))->pathname_name = STACK_1;
+                  ThePathname(STACK_(3+2))->pathname_type = STACK_0;
+                  skipSTACK(2);
+                  # what to use as a result
+                  if (rresolved == shell_shortcut_notexists)
+                    STACK_(2) = STACK_(3); # use symbolic names as a result when target is not found
+                  else
+                    STACK_(2) = coerce_pathname(asciz_to_string(full_resolved,O(pathname_encoding)));
                 }
               });
             }
@@ -9567,7 +9591,7 @@ local void directory_search_scandir (bool recursively, signean next_task,
 
             skipSTACK(1); # drop direntry-type
             # stack layout: ..., pathname, dir_namestring, direntry,
-            #       direntry-pathname, true-pathname, direntry-name.
+            #       direntry-pathname, true-pathname, direntry-name-to-check.
 
             if (rresolved == shell_shortcut_notexists
                 && dsp->if_none == DIR_IF_NONE_ERROR)
@@ -9577,6 +9601,7 @@ local void directory_search_scandir (bool recursively, signean next_task,
                 || (dsp->if_none != DIR_IF_NONE_DISCARD &&
                     dsp->if_none != DIR_IF_NONE_IGNORE)) {
               if (READDIR_entry_ISDIR() || rresolved == shell_shortcut_directory) {
+                # nonfound shortcuts are threated as shortcuts to files
                 if (recursively) { # all recursive subdirectories wanted?
                   # yes -> push truename onto
                   # pathnames-to-insert (is inserted in front of
@@ -9601,21 +9626,11 @@ local void directory_search_scandir (bool recursively, signean next_task,
                 if (next_task>0) {
                   if (wildcard_match(STACK_(2+4+6),STACK_0)) {
                     # stack layout: ..., pathname, dir_namestring, direntry,
-                    #       direntry-maybhacked-pathname, true-pathname, direntry-name.
+                    #       direntry-maybhacked-pathname, true-pathname, direntry-name-to-check.
                     # test Full-Flag and poss. get more information:
-                    if (dsp->full_p
-                         && rresolved != shell_shortcut_notexists) { /* :FULL wanted? */
-                      if (rresolved == shell_shortcut_file) {
-                        # hack direntry-pathname to place it as symbolic name
-                        # symbolic link names are ones w/o ".lnk"
-                        # so split the name again
-                        # hack it in-place since lnk filename is not need anymore
-                        pushSTACK(STACK_0);
-                        split_name_type(1);
-                        ThePathname(STACK_(2+2))->pathname_name = STACK_1;
-                        ThePathname(STACK_(2+2))->pathname_type = STACK_0;
-                        skipSTACK(2);
-                      }
+
+                    if (dsp->full_p      /* :FULL wanted? */
+                         && rresolved != shell_shortcut_notexists) { /* treat nonexisting as :FULL NIL */
                       var decoded_time_t timepoint;
                       var uintL entry_size = 0;
                       # get file attributes into these vars
@@ -9655,7 +9670,7 @@ local void directory_search_scandir (bool recursively, signean next_task,
                     # now STACK_1 can contain either truename or
                     # list-of-file-information (both for insertion to result-list)
                     # stack layout: ..., pathname, dir_namestring, direntry,
-                    #       direntry-maybhacked-pathname, true-pathname-or-list-of-info, direntry-name.
+                    #       direntry-maybhacked-pathname, true-pathname-or-list-of-info, direntry-name-to-check.
                     { # push STACK_1 in front of result-list:
                       var object new_cons = allocate_cons();
                       Car(new_cons) = STACK_1;
