@@ -735,6 +735,20 @@ nil
 (progn (delete-package "LOOP-TEST") t)
 T
 
+;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-2-1-7-1.html>
+(unwind-protect
+     (let ((*package* (make-package "LOOP-TEST-PACKAGE-1")))
+       ;; For effect, intern some symbols
+       (read-from-string "(THIS IS A TEST)")
+       (export (intern "THIS"))
+       (set-exclusive-or
+        '("THIS" "IS" "A" "TEST")
+        (loop for x being each present-symbol of *package*
+          collect x)
+        :test #'string=))
+  (delete-package "LOOP-TEST-PACKAGE-1"))
+nil
+
 ;; local variables:
 ;; eval: (make-local-variable 'write-file-functions)
 ;; eval: (remove-hook 'write-file-functions 'delete-trailing-whitespace t)
