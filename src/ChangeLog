@@ -1,5 +1,9 @@
 2004-02-26  Bruno Haible  <bruno@clisp.org>
 
+	* makemake.in (XCFLAGS): Don't use -O2 with current gcc on x86_64.
+
+2004-02-26  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (oint_type_*, oint_addr_*, oint_data_*) [AMD64]: Define
 	appropriately for Linux/x86_64.
 	(SINGLEMAP_MEMORY, MULTIMAP_MEMORY) [AMD64 Linux]: Don't define on this
