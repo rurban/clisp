@@ -1701,9 +1701,9 @@ int main(int argc, char* argv[])
 #if notused
   printf("nonreturning_function(extern, fehler_mv_zuviel, (object caller));\n");
 #endif
-  printf("struct backtrace_t {\n  struct backtrace_t* bt_next;\n  gcv_object_t bt_caller;\n  gcv_object_t *bt_stack;\n  int bt_num_arg;\n};\n");
+  printf("struct backtrace_t {\n  struct backtrace_t* bt_next;\n  gcv_object_t bt_function;\n  gcv_object_t *bt_stack;\n  int bt_num_arg;\n};\n");
   emit_typedef("struct backtrace_t *","p_backtrace_t");
-  printf("#define subr_self  back_trace->bt_caller\n");
+  printf("#define subr_self  back_trace->bt_function\n");
 #if !defined(back_trace_register)
   printf("extern p_backtrace_t back_trace;\n");
 #else

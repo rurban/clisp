@@ -3180,7 +3180,7 @@ global int main (argc_t argc, char* argv[]) {
   # everything completely initialized.
  {var struct backtrace_t bt;
   bt.bt_next = NULL;
-  bt.bt_caller = L(driver);
+  bt.bt_function = L(driver);
   bt.bt_stack = STACK;
   bt.bt_num_arg = -1;
   back_trace = &bt;

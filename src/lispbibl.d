@@ -8129,7 +8129,7 @@ extern void* SP_anchor;
    Resides in the C stack. */
 struct backtrace_t {
   const struct backtrace_t* bt_next;
-  gcv_object_t bt_caller;
+  gcv_object_t bt_function;
   gcv_object_t *bt_stack;
   int bt_num_arg;
 };
@@ -8185,7 +8185,7 @@ typedef const struct backtrace_t* p_backtrace_t;
     p_backtrace_t bt_save = back_trace;                                 \
     struct backtrace_t bt_here;                                         \
     bt_here.bt_next = back_trace;                                       \
-    bt_here.bt_caller = (fun);                                          \
+    bt_here.bt_function = (fun);                                        \
     bt_here.bt_stack = STACK;                                           \
     bt_here.bt_num_arg = (num_arg);                                     \
     BT_CHECK1("w/s/b/t: before");                                       \
@@ -8200,7 +8200,7 @@ typedef const struct backtrace_t* p_backtrace_t;
 #define with_saved_back_trace(fun,num_arg,statement)           do {     \
     struct backtrace_t bt_here;                                         \
     bt_here.bt_next = back_trace;                                       \
-    bt_here.bt_caller = (fun);                                          \
+    bt_here.bt_function = (fun);                                        \
     bt_here.bt_stack = STACK;                                           \
     bt_here.bt_num_arg = (num_arg);                                     \
     back_trace = &bt_here;                                              \
@@ -10385,7 +10385,7 @@ nonreturning_function(extern, fehler_mv_zuviel, (object caller));
 #else
   register p_backtrace_t back_trace __asm__(back_trace_register);
 #endif
-#define subr_self  back_trace->bt_caller
+#define subr_self  back_trace->bt_function
 
 # Within the body of a SUBR: Access to the arguments.
 # A SUBR with a fixed number of arguments can access them through the STACK:

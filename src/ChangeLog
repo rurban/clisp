@@ -1,5 +1,16 @@
 2005-01-02  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (backtrace_t): Rename field bt_caller to bt_function.
+	(with_saved_back_trace, subr_self): Update.
+	* spvw.d (main): Update.
+	* spvw_update.d (update_back_traces): Update.
+	* spvw_garcol.d (gc_markphase): Update.
+	* spvw_debug.d (bt_out): Update.
+	* debug.d (driver, break_driver, print_back_trace): Update.
+	* genclisph.d (main): Update.
+
+2005-01-02  Bruno Haible  <bruno@clisp.org>
+
 	* lisparit.d (init_arith): Change initial value of
 	*WARN-ON-FLOATING-POINT-CONTAGION* and
 	*WARN-ON-FLOATING-POINT-RATIONAL-CONTAGION* to NIL.
