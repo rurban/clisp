@@ -2575,7 +2575,7 @@ if [ $HOS = unix ] ; then
       echotab "\$(AR) rcv lisp.a lisp.o"
     else
       # Test for libgcc.a because NeXT cc does not have it.
-      echotab "if test -f \$(LIBGCC) ; then mkdir libgcc ; (cd libgcc ; \$(AR) xv \$(LIBGCC)) ; \$(AR) rcv lisp.a lisp.o libgcc/*.o ; \$(RM) -r libgcc ; else \$(AR) rcv lisp.a lisp.o ; fi"
+      echotab "if test -f \$(LIBGCC) ; then mkdir libgcc ; (cd libgcc ; \$(AR) xv \$(LIBGCC)) ; \$(AR) rcv lisp.a lisp.o libgcc/*.o* ; \$(RM) -r libgcc ; else \$(AR) rcv lisp.a lisp.o ; fi"
     fi
     echotab "\$(RM) lisp.o"
   fi
