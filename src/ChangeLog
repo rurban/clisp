@@ -63,6 +63,8 @@
 	* misc.d (SYS::SET-ANSI): Set *FLOATING-POINT-RATIONAL-CONTAGION-ANSI*
 	and *PHASE-ANSI* as well.
 	* places.lisp (*ansi*): Update documentation.
+	* utils/clispload.lsp (*expected-failures*): Remove ATAN.4,
+	EXPT.{3,4,5,6}, EXPT.{8,9,10,11}, PHASE.{1,2,3,4,5,6,7}.
 
 2004-04-11  Bruno Haible  <bruno@clisp.org>
 
