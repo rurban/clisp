@@ -311,6 +311,8 @@ LISPFUNN(set_foreign_encoding,1)
 LISPFUNN(misc_encoding,0)
 LISPFUNN(set_misc_encoding,1)
 #endif
+LISPFUN(convert_string_from_bytes,2,0,norest,key,2, (kw(start),kw(end)) )
+LISPFUN(convert_string_to_bytes,2,0,norest,key,2, (kw(start),kw(end)) )
 # ---------- ERROR ----------
 LISPFUN(error,1,0,rest,nokey,0,NIL)
 LISPFUNN(defclcs,1)
@@ -788,6 +790,7 @@ LISPFUNN(reverse,1)
 LISPFUNN(nreverse,1)
 LISPFUN(make_sequence,2,0,norest,key,2,
         (kw(initial_element),kw(update)) )
+LISPFUN(coerced_subseq,2,0,norest,key,2, (kw(start),kw(end)) )
 LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
 LISPFUN(map,3,0,rest,nokey,0,NIL)
 LISPFUN(map_into,2,0,rest,nokey,0,NIL)
