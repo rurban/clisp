@@ -3536,6 +3536,7 @@ clean3 : clean2
 line="-\$(RM)"
 for f in ${LUTILS}; do line=$line" ${f}.fas"; done
 echotab "$line"
+echotab 'for m in $(MODULES); do $(RM) $$m/*.fas $$m/*.lib; done'
 cat <<!!
 
 # clean4 removes everything that becomes obsolete
