@@ -2984,20 +2984,12 @@
 
 ;;; ----------------------------- <sys/ioctl.h> ------------------------------
 
-(def-c-call-out ioctl-set
-    (:arguments (fd int) (request int)
-                (arg c-pointer))
-  (:return-type int)
-  (:name "ioctl"))
-(def-c-call-out ioctl-get
-    (:arguments (fd int) (request int)
-                (arg (c-ptr int) :out :alloca))
-  (:return-type int)
-  (:name "ioctl"))
-(def-c-call-out ioctl
-    (:arguments (fd int) (request int)
-                (arg (c-ptr int) :in-out :alloca))
-  (:return-type int))
+(def-c-call-out ioctl-set-int
+    (:arguments (fd int) (request int) (arg int))
+  (:return-type int) (:name "ioctl"))
+(def-c-call-out ioctl-get-int
+    (:arguments (fd int) (request int) (arg (c-ptr int) :out :alloca))
+  (:return-type int) (:name "ioctl"))
 
 ;;; ==========================================================================
 ;;; clean up
