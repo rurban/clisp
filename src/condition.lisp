@@ -73,8 +73,11 @@ abort continue muffle-warning store-value use-value
     (clos:call-next-method)
     (print-condition object stream)
 ) )
-; Avoid warnings caused by DEFCONDITION adding methods to PRINT-CONDITION.
-(pushnew 'print-condition clos::*dynamically-modifiable-generic-function-names*)
+
+;; Avoid warnings caused by DEFCONDITION adding methods to PRINT-CONDITION.
+(without-package-lock ("CLOS")
+  (pushnew 'print-condition
+           clos::*dynamically-modifiable-generic-function-names*))
 
 ;;; 29.4.5. Defining Conditions
 
