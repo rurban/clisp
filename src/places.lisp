@@ -263,7 +263,7 @@
 ) ) ) ) ) )
 ;;;----------------------------------------------------------------------------
 (defmacro defsetf (accessfn &rest args &environment env)
-  (cond ((and (consp args) (symbolp (first args)))
+  (cond ((and (consp args) (not (listp (first args))) (symbolp (first args)))
          `(EVAL-WHEN (LOAD COMPILE EVAL)
             (LET ()
               (REMPROP ',accessfn 'SYSTEM::DEFSTRUCT-WRITER)
