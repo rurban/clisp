@@ -90,6 +90,7 @@
 <!ENTITY buffered "<link linkend='buffered'><constant>:buffered</constant></link>">
 <!ENTITY browser "<link linkend='browser'><constant>:browser</constant></link>">
 <!ENTITY eltype "<link linkend='eltype'><constant>:element-type</constant></link>">
+<!ENTITY encoding "<link linkend='encoding'><classname>encoding</classname></link>">
 <!ENTITY endianness "<link linkend='endianness'><replaceable>endianness</replaceable></link>">
 <!ENTITY extfmt "<link linkend='extfmt'><constant>:external-format</constant></link>">
 <!ENTITY count-ansi "<link linkend='count-ansi'><varname>custom:*sequence-count-ansi*</varname></link>">
@@ -100,6 +101,7 @@
 <!ENTITY kbd-in "<link linkend='terminal'><varname>ext:*keyboard-input*</varname></link>">
 <!ENTITY lalist "<link linkend='lalist'>lambda list</link>">
 <!ENTITY lfd "<link linkend='lfd'><function>ext:long-float-digits</function></link>">
+<!ENTITY line-term "<link linkend='newline'>line terminator</link>">
 <!ENTITY parsename "<link linkend='parsename'><varname>custom:*parse-namestring-ansi*</varname></link>">
 <!ENTITY pathmerge "<link linkend='pathmerge'><varname>custom:*merge-pathnames-ansi*</varname></link>">
 <!ENTITY pathprint "<link linkend='pathprint'><varname>custom:*print-pathnames-ansi*</varname></link>">
@@ -152,6 +154,7 @@
 <!ENTITY simple-c-type "<link linkend='simple-c-type'><replaceable>simple-c-type</replaceable></link>">
 <!ENTITY allocation "<link linkend='allocation'><replaceable>allocation</replaceable></link>">
 <!ENTITY param-mode "<link linkend='param-mode'><replaceable>param-mode</replaceable></link>">
+<!ENTITY foreign-pointer "<classname>foreign-pointer</classname>">
 
 <!-- *** Byte code *** -->
 <!ENTITY SP "<link linkend='vm'><literal>SP</literal></link>">

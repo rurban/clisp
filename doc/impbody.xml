@@ -142,7 +142,7 @@
  <thead><row><entry>Macro</entry><entry>Meaning</entry></row></thead><tbody>
  <row><entry>#,</entry><entry>load-time evaluation</entry></row>
  <row><entry>#Y</entry><entry>function objects and file
-  encodings</entry></row>
+  &encoding;s</entry></row>
  <row><entry>#&quot;&quot;</entry><entry>pathname</entry></row>
 </tbody></tgroup></table>
 </para>
@@ -392,7 +392,7 @@ executes a compiled version of form.</para>
  <listitem><simpara><classname>special-operator</classname>,
   <classname>load-time-eval</classname>, &symbol-macro;,
   <link linkend="encoding"><classname>encoding</classname></link>,
-  <classname>foreign-pointer</classname>,
+  &foreign-pointer;,
   <classname>foreign-address</classname>,
   <classname>foreign-variable</classname>,
   <classname>foreign-function</classname></simpara></listitem>
@@ -1781,8 +1781,7 @@ blank here cannot be represented in this character set).
 </tbody></tgroup></table>
 <!-- #endif -->
 
-<para><keysym>#\Newline</keysym> is the <link
- linkend="newline">delimiter between lines</link>.</para>
+<para><keysym>#\Newline</keysym> is the &line-term;.</para>
 
 
 <table frame="all"><title>Additional Named Characters</title>
@@ -1974,11 +1973,10 @@ are simple characters.</para>
 <section id="clhs-newline"><title>Treatment of Newline during Input and Output
    <ulink url="&clhs;/Body/sec_13-1-8.html">[CLHS-13.1.8]</ulink></title>
 
-<para>Newlines are written according to the stream's encoding, see the
- function &stream-external-format; and the description of <link
- linkend="encoding">encodings</link>, in particular, <link
- linkend="newline">line terminators</link>.  The default behavior is as
- follows:</para>
+<para>Newlines are written according to the stream's &encoding;, see the
+ function &stream-external-format; and the description of &encoding;s,
+ in particular, &line-term;s.
+ The default behavior is as follows:</para>
 
 <!-- #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0)) -->
 <variablelist>
@@ -2012,8 +2010,7 @@ are simple characters.</para>
 <section><title>Documentation of Implementation-Defined Scripts
    <ulink url="&clhs;/Body/sec_13-1-10.html">[CLHS-13.1.10]</ulink></title>
 
-<para>See the description of <link
- linkend="encoding">encodings</link>.</para>
+<para>See the description of &encoding;s.</para>
 
 </section>
 
@@ -4286,11 +4283,10 @@ functions are provided:</para>
    stream is to be unbuffered, &n-r; must be a multiple of 8.
    </simpara></listitem></varlistentry>
  <varlistentry id="extfmt"><term><constant>:external-format</constant></term>
-  <listitem><simpara>encodings, (constant) symbols in the <link
-   linkend="encoding"><function>CHARSET</function></link> package,
-   strings (denoting <link linkend="iconv">iconv()</link> based
-   encodings), the symbol &default-k;, and the <link
-   linkend="newline">line terminator</link> keywords
+  <listitem><simpara>&encoding;s,
+   (constant) &symbol-class;s in the &charset-pac; package,
+   &string-class;s (denoting <link linkend="iconv">iconv()</link> based
+   encodings), the symbol &default-k;, and the &line-term; keywords
    <constant>:unix</constant>, <constant>:mac</constant>,
    <constant>:dos</constant>.  The default encoding is
    <link linkend="def-file-enc"
@@ -4599,7 +4595,7 @@ functions are provided:</para>
 
 <itemizedlist>
 <listitem><simpara><keysym>#Y</keysym> is used to read compiled
-  functions and to set the current input stream's encoding.
+  functions and to set the current input stream's &encoding;.
   </simpara></listitem>
 <listitem><simpara><filename>#""</filename> is used to read pathnames:
   <filename>#"test.lisp"</filename> is the value of <literal
