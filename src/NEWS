@@ -145,6 +145,10 @@ User visible changes
 * The BACKQUOTE reader has been reimplemented from scratch by
   Kaz Kylheku <kaz@ashi.footprints.net>.
 
+* New function EXT:MAKE-XTERM-IO-STREAM creates an input-output stream
+  that uses a separate X terminal.  UNIX platforms only.
+  See <http://clisp.cons.org/impnotes.html#separate-io> for details.
+
 * Fixed a bug in PEEK-CHAR with non-NIL peek-type on ECHO-STREAMS.
 
 * Fixed a bug in FILE-POSITION after UNREAD-CHAR (or PEEK-CHAR).

@@ -4,6 +4,7 @@
 (export '(custom::*prompt*) "CUSTOM")
 (export
  '(*command-index* prompt-new-package package-short-name
+   #+unix make-xterm-io-stream
    custom::*prompt*)
  "EXT")
 (in-package "SYSTEM")
@@ -639,6 +640,33 @@ Continue       :c       switch off single step mode, continue evaluation
       (setq *step-quit* 0)
       (go over))))
 
+;;;--------------------------------------------------------------------------
+#+unix
+(defun make-xterm-io-stream ()
+  (let* ((pipe (with-open-stream (s (make-pipe-input-stream
+                                     "mktemp /tmp/clisp-x-io-XXXXXX"))
+                 (read-line s)))
+         (title "CLISP I/O")
+         tty-name xio
+         (clos::*warn-if-gf-already-called* nil))
+    (shell (format nil "rm -f ~a; mknod ~a p; ~
+                   xterm -n ~s -T ~s -e 'tty >> ~a; cat ~a' &"
+                   pipe pipe title title pipe pipe))
+    (setq tty-name
+          (with-open-file (s pipe :direction :input) (read-line s))
+          xio (make-two-way-stream
+               (open tty-name :direction :input)
+               (open tty-name :direction :output)))
+    (defmethod close :after ((x (eql xio)) &rest junk)
+      (declare (ignore x junk))
+      (with-open-file (s pipe :direction :output)
+        (write-line (TEXT "Bye.") s))
+      (delete-file pipe)
+      (close (two-way-stream-input-stream xio))
+      (close (two-way-stream-output-stream xio))
+      (let ((clos::*warn-if-gf-already-called* nil))
+        (remove-method #'close (find-method #'close '(:after) `((eql ,xio))))))
+    xio))
 ;;;--------------------------------------------------------------------------
 
 ;; Now that condition.lisp is loaded and *break-driver* has a value:
