@@ -244,16 +244,16 @@
 ;;;   instead of          (LIST (foo) (bar))
 ;;; Backquote expansion optimizers are enabled by default, but can be turned
 ;;; off for debugging.
-(proclaim '(special *backquote-optimize1*))
-(setq *backquote-optimize1* t)
-(proclaim '(special *backquote-optimize2*))
-(setq *backquote-optimize2* t)
-(proclaim '(special *backquote-optimize3*))
-(setq *backquote-optimize3* t)
-(proclaim '(special *backquote-optimize4*))
-(setq *backquote-optimize4* t)
-(proclaim '(special *backquote-optimize5*))
-(setq *backquote-optimize5* t)
+(proclaim '(special *backquote-optimize-cons*))
+(setq *backquote-optimize-cons* t)
+(proclaim '(special *backquote-optimize-list*))
+(setq *backquote-optimize-list* t)
+(proclaim '(special *backquote-optimize-append*))
+(setq *backquote-optimize-append* t)
+(proclaim '(special *backquote-optimize-nconc*))
+(setq *backquote-optimize-nconc* t)
+(proclaim '(special *backquote-optimize-vector*))
+(setq *backquote-optimize-vector* t)
 
 ;;; This simplifes CONS, LIST, APPEND, NCONC calls that are emitted by the
 ;;; backquote expander. We are *not* allowed to collapse CONS or LIST calls
@@ -288,7 +288,7 @@
 ;;; given forms. Assumes that form2 is not splicing.
 (defun bq-cons (form1 form2)
   (let ((operator (if (bq-splicing-p form1) 'LIST* 'CONS)))
-    (if *backquote-optimize1*
+    (if *backquote-optimize-cons*
       ; Simplify `(CONS ,form1 ,form2) or `(LIST* ,form1... ,form2):
       (cond #|
             ((and (not (bq-splicing-p form1)) (constantp form1)
@@ -330,7 +330,7 @@
 ;;; BQ-LIST returns a form that returns a list of the result of the given form.
 (defun bq-list (form1)
   ; Equivalent to (bq-cons form1 'NIL).
-  (if *backquote-optimize2*
+  (if *backquote-optimize-list*
     (cond ((and (not (bq-splicing-p form1)) (constantp form1))
            ; Test case: `(c1)
            (list 'QUOTE (list (eval form1))))
@@ -340,7 +340,7 @@
 ;;; BQ-APPEND returns a form that returns the nondestructive concatenation of
 ;;; the results of the given forms.
 (defun bq-append (form1 form2)
-  (if *backquote-optimize3*
+  (if *backquote-optimize-append*
     ; Simplify `(APPEND ,form1 ,form2):
     (cond ((null form1)
            ; (APPEND NIL form2) -> (APPEND form2) -> form2
@@ -381,7 +381,7 @@
 ;;; BQ-NCONC returns a form that returns the destructive concatenation of the
 ;;; results of the given forms.
 (defun bq-nconc (form1 form2)
-  (if *backquote-optimize4*
+  (if *backquote-optimize-nconc*
     ; Simplify `(NCONC ,form1 ,form2):
     (cond ((null form1)
            ; (NCONC NIL form2) -> (NCONC form2) -> form2
@@ -452,7 +452,7 @@
 ;;; (nsplice ...) -> (values-list (nconc ...))
 ;;; other -> (values-list other)
 (defun bq-optimize-for-vector (unoptimized optimized)
-  (if *backquote-optimize5*
+  (if *backquote-optimize-vector*
     (cond ((or (eq optimized 'NIL)
                (and (consp optimized) (eq (first optimized) 'QUOTE)
                     (consp (cdr optimized)) (null (cddr optimized))
