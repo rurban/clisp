@@ -1,3 +1,17 @@
+2004-05-16  Bruno Haible  <bruno@clisp.org>
+
+	Generate direct slots for DEFSTRUCT.
+	* clos-slotdef1.lisp (*<structure-direct-slot-definition>-defclass*):
+	Add an initff slot.
+	(structure-direct-slot-definition-initff): New accessor.
+	(initialize-instance-<structure-direct-slot-definition>): Accept
+	initff argument.
+	(make-instance-<structure-direct-slot-definition>): Update.
+	(make-load-form-<structure-direct-slot-definition>): New function.
+	* defstruct.lisp (defstruct): Generate a list of direct slots as part
+	of the defstruct-description.
+	* io.d (structure_reader, pr_structure_default): Update.
+
 2004-05-09  Bruno Haible  <bruno@clisp.org>
 
 	Merge ht_kvtable and ht_ntable. For weak hash tables, use
