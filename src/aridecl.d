@@ -338,7 +338,7 @@
 #ifdef HAVE_LONGLONG
 # Returns 2^n, n being a constant expression.
 # Returns the same value as wbit(n), is however undefined if n<0 or n>=64.
-  #define wbitc(n)  (1ULL << (((n) >= 0 && (n) < intQsize) ? (n) : 0))
+  #define wbitc(n)  (1ULL << (((n) >= 0 && (n) < 2*intLsize) ? (n) : 0))
 #endif
 
 
