@@ -1,3 +1,9 @@
+2003-02-14  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 678194 ]: symbol-macrolet not always expanded
+	* eval.d (parse_dd): do not macroexpand the potential
+	declarations and docstrings (as per ANSI CL)
+
 2003-02-13  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (create_input_pipe, create_output_pipe, create_io_pipe):
