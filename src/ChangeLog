@@ -1,3 +1,10 @@
+2005-01-22  Bruno Haible  <bruno@clisp.org>
+
+	* compiler.lisp (c-DIRECT-FUNCTION-CALL): Fix error and wrong warning
+	when a call is compiled that has :ALLOW-OTHER-KEYS T and other keyword
+	arguments.
+	Found by Paul Dietz's ansi-tests test suite.
+
 2005-02-06  Sam Steingold  <sds@gnu.org>
 
 	* configure: accept --with-dynamic-modules

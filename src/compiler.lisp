@@ -2767,9 +2767,13 @@ for-value   NIL or T
                              ;; for-value = NIL: ALLOW-allowed Keyword
                              ;; or Slot already filled
                              (unless for-value
-                               (c-warn
-                                 (TEXT "~S: ignored duplicate keyword ~S ~S")
-                                 fun key arg))
+                               (if tripel
+                                 (c-warn
+                                   (TEXT "~S: ignored duplicate keyword ~S ~S")
+                                   fun key arg)
+                                 (unless (eq key ':ALLOW-OTHER-KEYS)
+                                   (c-warn (TEXT "~S: ignored keyword ~S ~S")
+                                           fun key arg))))
                              (let* ((*stackz* (cons 0 *stackz*)) ; 0 will be replaced later
                                     (anode (c-form arg (if for-value 'ONE 'NIL))))
                                (seclass-or-f seclass anode)
@@ -2778,7 +2782,8 @@ for-value   NIL or T
                                            anode
                                            *stackz*)
                                      L))
-                             (setf (third tripel) nil)))
+                             (when tripel
+                               (setf (third tripel) nil))))
                          (nreverse L))))
                 (let ((depth1 0)
                       (depth2 0)
