@@ -7793,7 +7793,7 @@ global Values funcall (object fun, uintC args_on_stack)
           {
             var uintC n;
             U_operand(n);
-            with_saved_context( { pushSTACK(listof(n)); } );
+            with_saved_context( { object res = listof(n); pushSTACK(res); } );
           }
           goto next_byte;
         CASE cod_liststern:              # (LIST* n)
