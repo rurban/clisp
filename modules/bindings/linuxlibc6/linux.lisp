@@ -762,7 +762,9 @@
 (def-call-out mktemp
     (:arguments (template c-string :in :alloca)) ; actually :in-out
   (:return-type c-string))
-(def-call-out mkstemp (:arguments (template c-string :in-out :alloca))
+(def-call-out mkstemp
+    (:arguments (template (c-ptr (c-array-max character #.PATH_MAX))
+                          :in-out :alloca))
   (:return-type int))
 
 (def-call-out system (:arguments (command c-string)) (:return-type int))
