@@ -93,17 +93,22 @@ set       toc,title
 <xsl:param name="section.label.includes.component.label" select="1"/>
 
 <xsl:template name="user.footer.content">
- <xsl:if test="//refentryinfo"><div class="refentryinfo">
+ <xsl:if test="/refentry/refentryinfo"><div class="refentryinfo">
    <hr width="100%"/><table width="100%" summary="man page meta info">
-    <th><td align="left"><xsl:value-of select="//refentryinfo/title"/></td>
-     <td align="center"><xsl:value-of select="//refentryinfo/subtitle"/></td>
-     <td align="right"><xsl:value-of select="//refentryinfo/date"/></td></th>
- </table></div></xsl:if>
- <xsl:if test="//bookinfo"><div class="bookinfo">
+    <th><td align="left">
+      <xsl:apply-templates select="/refentry/refentryinfo/title/node()"/>
+     </td><td align="center">
+      <xsl:apply-templates select="/refentry/refentryinfo/subtitle/node()"/>
+     </td><td align="right">
+      <xsl:apply-templates select="/refentry/refentryinfo/date/node()"/>
+ </td></th></table></div></xsl:if>
+ <xsl:if test="/book/bookinfo"><div class="bookinfo">
    <hr width="100%"/><table width="100%" summary="impnotes meta info">
-    <th><td align="left"><xsl:value-of select="//bookinfo/subtitle"/></td>
-     <td align="right"><xsl:value-of select="//bookinfo/date"/></td></th>
- </table></div></xsl:if>
+    <th><td align="left">
+      <xsl:apply-templates select="/book/bookinfo/subtitle/node()"/>
+     </td><td align="right">
+      <xsl:apply-templates select="/book/bookinfo/date/node()"/>
+ </td></th></table></div></xsl:if>
  <div class="custom-footer"><hr width="100%"/><table width="100%">
    <tr><td align="left"><a href="http://clisp.cons.org">
       <img src="clisp.png" width="48" height="48" alt="[CLISP home]"/></a></td>
