@@ -16,7 +16,7 @@ dnl along with the GNU CHARSET Library; see the file COPYING.LIB.  If not,
 dnl write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 dnl Boston, MA 02111-1307, USA.
 
-AC_PREREQ(2.13)
+AC_PREREQ(2.57)
 
 PACKAGE=libcharset
 VERSION=1.1
