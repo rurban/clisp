@@ -22,6 +22,8 @@
 (defvar <standard-generic-function>)   ; <built-in-class>
 ;(defvar <method>)                     ; here <structure-class>
 ;(defvar <standard-method>)            ; here <structure-class>
+(defvar <standard-reader-method>)      ; here <structure-class>
+(defvar <standard-writer-method>)      ; here <structure-class>
 ;(defvar <method-combination>)         ; here <structure-class>
 (defvar <array>)                       ; <built-in-class>
 (defvar <bit-vector>)                  ; <built-in-class>

@@ -51,7 +51,9 @@
 (defstruct (standard-reader-method (:include standard-accessor-method)
                                    (:copier nil))
 )
+(setq <standard-reader-method> (find-class 'standard-reader-method))
 
 (defstruct (standard-writer-method (:include standard-accessor-method)
                                    (:copier nil))
 )
+(setq <standard-writer-method> (find-class 'standard-writer-method))
