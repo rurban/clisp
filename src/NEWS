@@ -131,6 +131,9 @@ User visible changes
   optional arguments (this is not backwards compatible).
   See <http://clisp.cons.org/impnotes.html#regexp> for details.
 
+* The BACKQUOTE reader has been reimplemented from scratch by
+  Kaz Kylheku <kaz@ashi.footprints.net>.
+
 * Fixed a bug in PEEK-CHAR with non-NIL peek-type on ECHO-STREAMS.
 
 * Fixed a bug in FILE-POSITION after UNREAD-CHAR (or PEEK-CHAR).
