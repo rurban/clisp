@@ -8611,7 +8611,7 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
         var chart c = as_chart(0);
         var uintB buf[max_bytes_per_chart];
         var chart* cptr  = &c;
-        var char* bptr   = buf;
+        var const uintB* bptr  = buf;
         memset(buf,0,max_bytes_per_chart);
         buf[0] = (uintB) event.Event.KeyEvent.uAsciiChar;
         Encoding_mbstowcs(encoding)
@@ -10931,7 +10931,7 @@ local void wr_ch_array_window (const gcv_object_t* stream_,
     chart_str[strindex] = as_chart(0);
   });
  #ifdef UNICODE
-  var uintB *mb_str = (char*)malloc((len + 1)*sizeof(char)*max_bytes_per_chart);
+  var uintB *mb_str = (uintB*)malloc((len + 1)*sizeof(char)*max_bytes_per_chart);
   if (mb_str) {
     var object encoding = TheStream(*stream_)->strm_encoding;
     var const chart* cptr = chart_str;
@@ -10940,7 +10940,7 @@ local void wr_ch_array_window (const gcv_object_t* stream_,
     Encoding_wcstombs(encoding)
       (encoding,*stream_,&cptr,chart_str+strindex,
        &bptr,mb_str + len * max_bytes_per_chart);
-    v_puts(handle,mb_str,&pos,sz,attr); # will work only when multi == 1 in multibytes
+    v_puts(handle,(char*)mb_str,&pos,sz,attr); # will work only when multi == 1 in multibytes
     free(mb_str);
   }
  #else
@@ -13545,9 +13545,9 @@ local inline void create_input_pipe (const char* command) {
     if (stdinput == INVALID_HANDLE_VALUE) { OS_error(); }
     stderror = GetStdHandle(STD_ERROR_HANDLE);
     if (stderror == INVALID_HANDLE_VALUE) { OS_error(); }
-    if (!MyCreateProcess(command,stdinput,child_write_handle,stderror,&pinfo)) {
-      OS_error();
-    }
+    if (!MyCreateProcess((TCHAR*)command,stdinput,child_write_handle,
+                         stderror,&pinfo))
+      { OS_error(); }
     # Close our copy of the child's handle, so that the OS knows
     # that we won't write on it.
     if (!CloseHandle(child_write_handle)) { OS_error(); }
@@ -13760,9 +13760,9 @@ local inline void create_output_pipe (const char* command) {
     if (stdoutput == INVALID_HANDLE_VALUE) { OS_error(); }
     stderror = GetStdHandle(STD_ERROR_HANDLE);
     if (stderror == INVALID_HANDLE_VALUE) { OS_error(); }
-    if (!MyCreateProcess(command,child_read_handle,stdoutput,stderror,&pinfo)) {
-      OS_error();
-    }
+    if (!MyCreateProcess((TCHAR*)command,child_read_handle,stdoutput,
+                         stderror,&pinfo))
+      { OS_error(); }
     # Close our copy of the child's handle, so that the OS knows
     # that we won't read from it.
     if (!CloseHandle(child_read_handle)) { OS_error(); }
@@ -13951,7 +13951,8 @@ local inline void create_io_pipe (const char* command) {
     stderror = GetStdHandle(STD_ERROR_HANDLE);
     if (stderror == INVALID_HANDLE_VALUE) { OS_error(); }
     var PROCESS_INFORMATION pinfo;
-    if (!MyCreateProcess(command,child_read_handle,child_write_handle,stderror,&pinfo))
+    if (!MyCreateProcess((TCHAR*)command,child_read_handle,child_write_handle,
+                         stderror,&pinfo))
       { OS_error(); }
     # Close our copies of the child's handles, so that the OS knows
     # that we won't use them.
