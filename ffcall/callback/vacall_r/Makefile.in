@@ -125,6 +125,8 @@ uninstall : force
 #	$(RM) $(mandir)/man3/vacall_r.3
 #	$(RM) $(mandir)/html/vacall_r.html
 
+minicheck : all
+
 check : all
 
 mostlyclean : clean

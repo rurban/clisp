@@ -87,6 +87,23 @@ uninstall : force
 	$(RM) $(mandir)/man3/callback.3
 	$(RM) $(mandir)/html/callback.html
 
+minitests.o : $(srcdir)/minitests.c $(srcdir)/tests.c callback.h vacall_r.h trampoline_r.h
+	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/minitests.c
+
+minitests.s : $(srcdir)/minitests.c $(srcdir)/tests.c callback.h vacall_r.h trampoline_r.h
+	$(CC) $(CFLAGS) $(INCLUDES) -S $(srcdir)/minitests.c
+
+minitests : minitests.o vacall_r/libvacall.a trampoline_r/libtrampoline.a
+	$(CC) $(CFLAGS) @GCC_X_NONE@ minitests.o vacall_r/libvacall.a trampoline_r/libtrampoline.a -o minitests
+
+minicheck-subdirs : force
+	cd @subdir@; $(MAKE) minicheck
+
+minicheck : all minicheck-subdirs minitests
+	./minitests > minitests.out
+	uniq -u < minitests.out > minitests.output.$(HOST)
+	test '!' -s minitests.output.$(HOST)
+
 tests.o : $(srcdir)/tests.c callback.h vacall_r.h trampoline_r.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/tests.c
 
