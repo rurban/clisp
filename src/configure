@@ -7007,7 +7007,7 @@ extern
 #endif
 
 #if defined(__STDC__) || defined(__cplusplus)
-int getrusage (enum __rusage_who who, struct rusage * rusage);
+int getrusage (int who, struct rusage * rusage);
 #else
 int getrusage();
 #endif
@@ -7018,12 +7018,12 @@ int main() {
 EOF
 if { (eval echo configure:7020: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
-  cl_cv_proto_getrusage_arg1="enum __rusage_who"
+  cl_cv_proto_getrusage_arg1="int"
 else
   echo "configure: failed program was:" >&5
   cat conftest.$ac_ext >&5
   rm -rf conftest*
-  cl_cv_proto_getrusage_arg1="int"
+  cl_cv_proto_getrusage_arg1="enum __rusage_who"
 fi
 rm -f conftest*
 
