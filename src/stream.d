@@ -14878,7 +14878,7 @@ LISPFUNN(write_n_bytes,4)
     var uintL bufflen;
     { begin_system_call();
      {var sintL result = # Buffer hinausschreiben
-        full_write(TheSocket(TheStream(stream)->strm_buffered_channel), # Handle
+        sock_write(TheSocket(TheStream(stream)->strm_buffered_channel), # Handle
                    &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[0], # Bufferadresse
                    bufflen
                   );
