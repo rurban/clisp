@@ -2237,20 +2237,25 @@ LISPFUN(constantp,seclass_read,1,1,norest,nokey,0,NIL)
 }
 
 LISPFUNNR(function_side_effect,1)
-{ /* (FUNCTION-SIDE-EFFECT fun) -> seclass
+{ /* (FUNCTION-SIDE-EFFECT fun) -> seclass, fdefinition, name
  this function is called at compile time, so the argument does not have to
  be a function, it may be a variable name whose value will be some function
- at run time, therefore we never signal errors, just return (T . T) */
-  var object fdef = popSTACK();
+ at run time, therefore we never signal errors, just return *SECLASS-DIRTY* */
+  var object fdef = popSTACK(), name=unbound;
   if (consp(fdef) && (eq(S(quote),Car(fdef)) || eq(S(function),Car(fdef))))
     fdef = Car(Cdr(fdef));
-  if (funnamep(fdef)) fdef = funname_to_symbol(fdef);  /* won't cons! */
+  if (funnamep(fdef)) fdef = funname_to_symbol(name=fdef);  /* won't cons! */
   if (symbolp(fdef)) fdef = Symbol_function(fdef);
   /* if the argument was a constant function, then we have it now */
   var seclass_t seclass = seclass_default;
   if (subrp(fdef)) seclass = (seclass_t)TheSubr(fdef)->seclass;
   else if (cclosurep(fdef)) seclass = (seclass_t)Cclosure_seclass(fdef);
-  VALUES1(seclass_object(seclass));
+  if (!boundp(name) && boundp(fdef)) {
+    if (subrp(fdef)) name = TheSubr(fdef)->name;
+    else if (closurep(fdef)) name = TheClosure(fdef)->clos_name;
+  }
+  VALUES3(seclass_object(seclass),boundp(fdef) ? fdef : NIL,
+          boundp(name) ? name : NIL);
 }
 
 LISPFUNNR(function_name_p,1)
