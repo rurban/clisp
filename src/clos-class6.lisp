@@ -259,10 +259,10 @@
 
 ;; Not in MOP.
 (defun class-funcallablep (class)
-  (accessor-typecheck class 'semi-standard-class 'class-instantiated)
+  (accessor-typecheck class 'semi-standard-class 'class-funcallablep)
   (sys::%record-ref class *<semi-standard-class>-funcallablep-location*))
 (defun (setf class-funcallablep) (new-value class)
-  (accessor-typecheck class 'semi-standard-class '(setf class-instantiated))
+  (accessor-typecheck class 'semi-standard-class '(setf class-funcallablep))
   (setf (sys::%record-ref class *<semi-standard-class>-funcallablep-location*) new-value))
 
 ;; Not in MOP.
