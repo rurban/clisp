@@ -155,7 +155,8 @@
 # CONVEX == the Convex processor
 # ARM == the ARM processor
 # DECALPHA == the DEC Alpha superchip
-# IA64 == the Intel IA-64 vaporware chip
+# IA64 == the Intel IA-64 latecomer chip
+# AMD64 == the AMD hammer chip
 # S390 == the IBM S/390 processor
 #ifdef AMIGA
   #define MC680X0
@@ -220,6 +221,9 @@
   #endif
   #ifdef __ia64__
     #define IA64
+  #endif
+  #if defined(__x86_64__) || defined(__amd64__)
+    #define AMD64
   #endif
   #ifdef __s390__
     #define S390
@@ -552,7 +556,7 @@
 # A property of the processor:
 # The sequence in which words/long-words are being put into bytes
 #if defined(short_little_endian) || defined(int_little_endian) || defined(long_little_endian)
-  # Z80, VAX, I80386, DECALPHA, MIPSEL, IA64, ...:
+  # Z80, VAX, I80386, DECALPHA, MIPSEL, IA64, AMD64, ...:
   # Low Byte is the lowest, High Byte in a higher address
   #if defined(BIG_ENDIAN_P)
     #error "Bogus BIG_ENDIAN_P -- set BIG_ENDIAN_P again!"
@@ -581,7 +585,7 @@
   #define C_CODE_ALIGNMENT  8
   #define log2_C_CODE_ALIGNMENT  3
 #endif
-#if (defined(I80386) && defined(GNU)) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(ARM) || defined(S390)
+#if (defined(I80386) && defined(GNU)) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(ARM) || defined(AMD64) || defined(S390)
   # When using gcc on i386, this assumes that -malign-functions has not been
   # used to specify an alignment smaller than 4 bytes.
   #define C_CODE_ALIGNMENT  4
@@ -623,7 +627,7 @@
 # WIDE_AUXI means on a 32-bit platform, each object occupies 2 words, the
 #           pointer and some auxiliary word.
 
-#if defined(DECALPHA) || defined(MIPS64) || defined(SPARC64) || defined(IA64)
+#if defined(DECALPHA) || defined(MIPS64) || defined(SPARC64) || defined(IA64) || defined(AMD64)
   #define WIDE_HARD
 #endif
 
@@ -657,6 +661,7 @@
  DECALPHA      save     save      save
  CONVEX                 used      used     used     (??)
  IA64
+ AMD64
  S390          save
 
  Special notes:
@@ -1422,8 +1427,8 @@ typedef SLONG   sint32;  # signed 32 bit Integer
 #define intLsize 32
   typedef signed_int_with_n_bits(intLsize)    sintL;
   typedef unsigned_int_with_n_bits(intLsize)  uintL;
-#if defined(DECALPHA) || defined(MIPS64) || defined(SPARC64) || defined(IA64)
-  # Mashine has real 64-Bit-numbers in hardware.
+#if defined(DECALPHA) || defined(MIPS64) || defined(SPARC64) || defined(IA64) || defined(AMD64)
+  # Machine has real 64-bit integers in hardware.
   #define intQsize 64
   typedef signed_int_with_n_bits(intQsize)    sintQ;
   typedef unsigned_int_with_n_bits(intQsize)  uintQ;
@@ -1456,7 +1461,7 @@ typedef unsigned_int_with_n_bits(pointer_bitsize)  uintP;
   #define intBWsize intWsize
   #define intWLsize intLsize
   #define intBWLsize intLsize
-#elif defined(I80386)
+#elif defined(I80386) || defined(AMD64)
   # If you compute using uintB and uintW on a 80386, there will be many
   # Zero-Extends, that will - because there aren't enough registers - load
   # other variables into memory, which is rather unnecessary.
@@ -1643,7 +1648,7 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
   #define intDsize 16
   #define intDDsize 32  # = 2*intDsize
   #define log2_intDsize  4  # = log2(intDsize)
-#elif defined(MC680Y0) || defined(I80386) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(VAX) || defined(CONVEX) || defined(ARM) || defined(DECALPHA) || defined(IA64) || defined(S390)
+#elif defined(MC680Y0) || defined(I80386) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(VAX) || defined(CONVEX) || defined(ARM) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390)
   #define intDsize 32
   #define intDDsize 64  # = 2*intDsize
   #define log2_intDsize  5  # = log2(intDsize)
@@ -1652,7 +1657,7 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
 #endif
 typedef unsigned_int_with_n_bits(intDsize)  uintD;
 typedef signed_int_with_n_bits(intDsize)    sintD;
-#if (intDDsize<=32) || ((intDDsize<=64) && (defined(DECALPHA) || defined(MIPS64) || defined(SPARC64) || defined(IA64)))
+#if (intDDsize<=32) || ((intDDsize<=64) && (defined(DECALPHA) || defined(MIPS64) || defined(SPARC64) || defined(IA64) || defined(AMD64)))
   #define HAVE_DD 1
   typedef unsigned_int_with_n_bits(intDDsize)  uintDD;
   typedef signed_int_with_n_bits(intDDsize)    sintDD;
@@ -3154,7 +3159,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 #if defined(I80386) || defined(RS6000) || defined(CONVEX) || defined(ARM) || defined(S390)
   #define varobject_alignment  4
 #endif
-#if defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(DECALPHA) || defined(IA64)
+#if defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(DECALPHA) || defined(IA64) || defined(AMD64)
   #define varobject_alignment  8
 #endif
 #if (!defined(TYPECODES) || defined(GENERATIONAL_GC)) && (varobject_alignment < 4)
@@ -7330,6 +7335,9 @@ All other long words on the LISP-Stack are LISP-objects.
   #ifdef IA64
     #define SP_register "r12"
   #endif
+  #ifdef AMD64
+    #define SP_register "%rsp"
+  #endif
   #ifdef S390
     #define SP_register "15"
   #endif
@@ -7375,6 +7383,9 @@ All other long words on the LISP-Stack are LISP-objects.
   #endif
   #ifdef IA64
     #define ASM_get_SP_register(resultvar)  ("mov %0 = r12" : "=r" (resultvar) : )
+  #endif
+  #ifdef AMD64
+    #define ASM_get_SP_register(resultvar)  ("movq %%rsp,%0" : "=g" (resultvar) : )
   #endif
   #ifdef S390
     #define ASM_get_SP_register(resultvar)  ("lr %0,%%r15" : "=r" (resultvar) : )
@@ -7427,7 +7438,7 @@ All other long words on the LISP-Stack are LISP-objects.
   # access function portable in C
   extern void* SP (void);
 #endif
-#if defined(stack_grows_down) # defined(MC680X0) || defined(I80386) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(DECALPHA) || defined(IA64) || defined(S390) || ...
+#if defined(stack_grows_down) # defined(MC680X0) || defined(I80386) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(DECALPHA) || defined(IA64) || defined(AMD64) || defined(S390) || ...
   #define SP_DOWN # SP grows downward
   #define SPoffset 0 # top-of-SP ist *(SP+SPoffset)
 #endif

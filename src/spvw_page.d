@@ -113,7 +113,7 @@ typedef NODE Page;
       # only a 2^32 size address space.
       #define oint_addr_relevant_len  32
     #endif
-    #if defined(IA64) && defined(UNIX_LINUX)
+    #if (defined(IA64) || defined(AMD64)) && defined(UNIX_LINUX)
       # It is unlikely that more than 4 GB will be used.
       #define oint_addr_relevant_len  32
     #endif
