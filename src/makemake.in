@@ -246,6 +246,7 @@ while test -z "$endofargs"; do
       fsstnd=`echol "$1" | sed 's/-*fsstnd=//'`
       shift
       ;;
+    --win32gcc) HSYS="win32gcc"; shift; ;;
     --hyperspec=*)
       arg=`echol "$1" | sed 's/-*hyperspec=//'`
       case "$arg" in
@@ -302,26 +303,32 @@ esac
 
 case $# in
   0 | 1)
-     # Assume we are on Unix, and target=host (not cross-compiling).
+     # Assume we are on Unix (or win32gcc); target=host (not cross-compiling).
      CROSS=false
-     # Some shells (A/UX and OSF/1) need the parentheses around "arch" below.
-     HSYS=`((arch) 2>/dev/null || uname -m 2>/dev/null) | $tolower` # system name in lowercase
-     HSYSOS=`((uname) 2>/dev/null || arch 2>/dev/null) | $tolower` # OS name in lowercase
-     if [ "$HSYS" = 386bsd -o "$HSYS" = sun386 -o "$HSYS" = "386/at" -o "$HSYS" = i86pc ] ; then
-       HSYS='i386'
+     if [ -z "$HSYS" ]; then # not win32gcc
+       # some shells (A/UX and OSF/1) need the parentheses around "arch" below.
+       HSYS=`((arch) 2>/dev/null || uname -m 2>/dev/null) | $tolower` # system name in lowercase
+       HSYSOS=`((uname) 2>/dev/null || arch 2>/dev/null) | $tolower` # OS name in lowercase
+       if [ "$HSYS" = 386bsd -o "$HSYS" = sun386 -o "$HSYS" = "386/at" -o "$HSYS" = i86pc ] ; then
+         HSYS='i386'
+       fi
+       if [ "$HSYS" = sun4m ] ; then
+         HSYS='sun4'
+       fi
+       case "$HSYSOS" in
+         # Canonicalize cygwin32/nt and cygwin32/95 to plain cygwin32.
+         cygwin*) HSYSOS=cygwin32 ;;
+       esac
+       HOS='unix'
+       COMPILER=??
+     else                       # win32gcc
+       HSYSOS=$HSYS
+       HOS=win32
+       COMPILER=gcc
      fi
-     if [ "$HSYS" = sun4m ] ; then
-       HSYS='sun4'
-     fi
-     case "$HSYSOS" in
-       # Canonicalize cygwin32/nt and cygwin32/95 to plain cygwin32.
-       cygwin*) HSYSOS=cygwin32 ;;
-     esac
-     HOS='unix'
      TSYS="$HSYS"
      TSYSOS="$HSYSOS"
      TOS="$HOS"
-     COMPILER=??
      # These variables are set by configure:
      # srcdir='@srcdir@'                 # either '.' or '../src', see above
      CP='@CP@'                           # either 'cp -p' or 'cp'
@@ -368,12 +375,12 @@ case $# in
      fi
      TSYS=$1
      COMPILER=$2
-     # TSYS should be (master|sun3|sun4|i[3456]86|mips|vax|amiga|acorn|os2|win32(gcc|msvc|bc)).
+     # TSYS should be (master|sun3|sun4|i[3456]86|mips|vax|amiga|acorn|os2|win32(msvc|bc)).
      # COMPILER should be gcc or cc
      if [ $TSYS = amiga -o $TSYS = acorn -o $TSYS = os2 ] ; then
        TOS=$TSYS
      else
-       if [ $TSYS = win32gcc -o $TSYS = win32msvc -o $TSYS = win32bc ] ; then
+       if [ $TSYS = win32msvc -o $TSYS = win32bc ] ; then
          TOS='win32'
        else
          TOS='unix'
@@ -442,10 +449,6 @@ case $# in
      X_INCLUDES=''
      X_LIBS=''
      shift 2
-     if [ ${TSYS} = "win32gcc" ]; then
-       CC="gcc -mno-cygwin";
-       CPP="${CC} -E";
-     fi
      ;;
 esac
 
@@ -748,7 +751,7 @@ if [ $TSYS = master -o $TOS = win32 ] ; then
   OS_INCLUDES=$OS_INCLUDES' win32'
   if [ $TSYS = win32gcc ] ; then
     # I don't know why advapi32 is not needed here.
-    LIBS=$LIBS' -luser32 -lws2_32 -lole32 -luuid'
+    LIBS=$LIBS' -luser32 -lws2_32 -lole32 -luuid '$LIBSIGSEGV
   else
     if [ $TSYS = win32msvc ] ; then
       LIBS=$LIBS' user32.lib ws2_32.lib advapi32.lib'
@@ -878,7 +881,7 @@ if [ $XCC_GCC = true ] ; then
     # Acorn/RISCOS specific gcc option??
     XCFLAGS=$XCFLAGS' -mthrowback'
   fi
-  if [ $TOS = unix -a $CROSS = false ] ; then
+  if [ $CROSS = false ] ; then
     case "$XCC_GCC_VERSION" in
       # gcc 2.7 introduced an annoying warning, but gcc 2.8 has a workaround:
       2.[8-9]* | 3.* | egcs-2.*)
@@ -1837,22 +1840,19 @@ if [ $HOS = win32 -a $HSYS != win32gcc ] ; then
   else
     echol "MAKE = amake"
   fi
+  echol "RM = -${RM}"
+  echol "RMRF = -${RMRF}"
+  echol "TOUCH = -${TOUCH}"
 else
   echol "MAKE = ${MAKE:-make}"
+  echol "RM = ${RM}"
+  echol "RMRF = ${RMRF}"
+  echol "TOUCH = ${TOUCH}"
 fi
 echol "CP = ${CP}"
 echol "LN_S = ${LN_S}"
 echol "MV = ${MV}"
 echol "CAT = ${CAT}"
-if [ $HOS = win32 ] ; then
-  echol "RM = -${RM}"
-  echol "RMRF = -${RMRF}"
-  echol "TOUCH = -${TOUCH}"
-else
-  echol "RM = ${RM}"
-  echol "RMRF = ${RMRF}"
-  echol "TOUCH = ${TOUCH}"
-fi
 echol "GREP = ${GREP}"
 if [ $HOS = acorn ] ; then
   echol "SED = sed"
