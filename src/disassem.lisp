@@ -53,7 +53,7 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
                 (format nil "0x~X" (sys::code-address-of object)))))
     (unless (sys::closurep object)
       (warn (TEXT "Cannot disassemble natively compiled function ~S") object)
-      (describe object))
+      (return-from disassemble (describe object)))
     ;; the object is a closure.
     (unless (sys::%compiled-function-p object)
       (setq object
