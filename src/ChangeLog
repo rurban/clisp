@@ -1,4 +1,21 @@
-2004-10-11  Bruno Haible  <bruno@clisp.org>
+2004-10-12  Bruno Haible  <bruno@clisp.org>
+
+	Respect user-defined methods on
+	generic-function-argument-precedence-order.
+	* clos-genfun1.lisp (generic-function-argorder): New preliminary
+	function.
+	(|#'generic-function-argorder|): New variable.
+	(safe-gf-argorder): New function.
+	* clos-genfun2.lisp
+	(generic-function-argument-precedence-order-to-argorder): New function,
+	extracted from check-gf-lambdalist+argorder.
+	(check-gf-lambdalist+argorder): Use it.
+	(compute-dispatch, compute-applicable-methods,
+	compute-applicable-methods-using-classes-<standard-generic-function>,
+	compute-applicable-methods-for-set): Call safe-gf-argorder instead of
+	std-gf-argorder.
+	* clos-genfun4.lisp (generic-function-argorder): New generic function.
+	Initialize |#'generic-function-argorder|.
 
 	Respect user-defined methods on generic-function-method-combination.
 	* clos-genfun1.lisp (generic-function-method-combination): New
