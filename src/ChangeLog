@@ -1,5 +1,11 @@
 2001-08-05  Bruno Haible  <haible@clisp.cons.org>
 
+	* spvw.d (loadmem): Take a 'const char*'.
+	* spvw_memfile.d (loadmem): Take a 'const char*'. Create CYGDRIVE
+	replacement using alloca. Fix oversized memmove argument.
+
+2001-08-05  Bruno Haible  <haible@clisp.cons.org>
+
 	* pathname.d (PARSE-NAMESTRING): Verify consp before accessing Cdr.
 
 2001-07-31  Arseny Slobodjuck <ampy@crosswinds.net>
