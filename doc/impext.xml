@@ -3401,7 +3401,8 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
                  &timeout-arg;)</literal></term>
   <listitem><simpara>Checks whether it is possible to read from or write
    to a &socket-stream; or whether a connection is available on a
-   &socket-server; without blocking.
+   &socket-server; without blocking.  (For the cognoscenti:
+   this is the interface to <function>select(2)</function>).
    This is similar to &listen;, which checks only one stream and only for
    input, and &so-wait;, which works only with &socket-server;s.</simpara>
    <variablelist><title>Possible values of
