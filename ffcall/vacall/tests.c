@@ -706,6 +706,7 @@ void simulator _P((alist), va_alist alist)
       fflush(out);
       va_return_struct(alist, Int, r);
     }
+#ifndef SKIP_EXTRA_STRUCTS
   else if (current_function == (void*)&C_CdC)
     {
       Char a;
@@ -751,6 +752,7 @@ void simulator _P((alist), va_alist alist)
       fflush(out);
       va_return_struct(alist, Double, r);
     }
+#endif
   else if (current_function == (void*)&J_JiJ)
     {
       J a;
@@ -766,6 +768,7 @@ void simulator _P((alist), va_alist alist)
       fflush(out);
       va_return_struct(alist, J, r);
     }
+#ifndef SKIP_EXTRA_STRUCTS
   else if (current_function == (void*)&T_TcT)
     {
       T a;
@@ -801,6 +804,7 @@ void simulator _P((alist), va_alist alist)
       fflush(out);
       va_return_struct(alist, X, r);
     }
+#endif
 #endif
 
   else
@@ -1072,6 +1076,7 @@ int main ()
     fprintf(out,"->{%d}\n",Ir.x);
     fflush(out);
 
+#ifndef SKIP_EXTRA_STRUCTS
     Cr = C_CdC(C1,d2,C3);
     fprintf(out,"->{'%c'}\n",Cr.x);
     fflush(out);
@@ -1095,6 +1100,7 @@ int main ()
     current_function = &D_fDd; Dr = (FTYPE(Double,(float,Double,double)) vacall) (f1,D2,d3);
     fprintf(out,"->{%g}\n",Dr.x);
     fflush(out);
+#endif
 
     Jr = J_JiJ(J1,i2,J2);
     fprintf(out,"->{%d,%d}\n",Jr.l1,Jr.l2);
@@ -1104,6 +1110,7 @@ int main ()
     fprintf(out,"->{%d,%d}\n",Jr.l1,Jr.l2);
     fflush(out);
 
+#ifndef SKIP_EXTRA_STRUCTS
 #ifndef SKIP_T
     Tr = T_TcT(T1,' ',T2);
     fprintf(out,"->{\"%c%c%c\"}\n",Tr.c[0],Tr.c[1],Tr.c[2]);
@@ -1122,6 +1129,7 @@ int main ()
     current_function = &X_BcdB; Xr = (FTYPE(X,(B,char,double,B)) vacall) (B1,c2,d3,B2);
     fprintf(out,"->{\"%s\",'%c'}\n",Xr.c,Xr.c1);
     fflush(out);
+#endif
 #endif
   }
 #endif
