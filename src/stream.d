@@ -13630,7 +13630,7 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,
   ChannelStreamLow_close(stream) = &low_close_pipe;
   TheStream(stream)->strm_pipe_pid = popSTACK(); # Child-Pid
   skipSTACK(4);
-  value1 = stream; mv_count=1; # stream as value
+  value1 = add_to_open_streams(stream); mv_count=1; # stream as value
 }
 
 
@@ -13843,7 +13843,7 @@ LISPFUN(make_pipe_output_stream,1,0,norest,key,3,
   ChannelStreamLow_close(stream) = &low_close_pipe;
   TheStream(stream)->strm_pipe_pid = popSTACK(); # Child-Pid
   skipSTACK(4);
-  value1 = stream; mv_count=1; # stream as value
+  value1 = add_to_open_streams(stream); mv_count=1; # stream as value
 }
 
 #ifdef PIPES2
@@ -14031,7 +14031,7 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,
     }
     ChannelStreamLow_close(stream) = &low_close_pipe;
     TheStream(stream)->strm_pipe_pid = STACK_2; # Child-Pid
-    STACK_1 = stream;
+    STACK_1 = add_to_open_streams(stream);
   }
   # allocate Output-Stream:
   {
@@ -14050,7 +14050,7 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,
     }
     ChannelStreamLow_close(stream) = &low_close_pipe;
     TheStream(stream)->strm_pipe_pid = STACK_2; # Child-Pid
-    STACK_0 = stream;
+    STACK_0 = add_to_open_streams(stream);
   }
  #ifdef EMUNIX
   # combine both pipes, for frictionless close:
@@ -14319,7 +14319,7 @@ LISPFUNN(make_x11socket_stream,2) {
   UnbufferedSocketStream_output_init(stream);
   ChannelStreamLow_close(stream) = &low_close_socket;
   TheStream(stream)->strm_x11socket_connect = popSTACK(); # two-element list
-  value1 = stream; mv_count=1; # stream as value
+  value1 = add_to_open_streams(stream); mv_count=1; # stream as value
 }
 
 # The two following functions should
@@ -14700,6 +14700,7 @@ LISPFUN(socket_accept,1,0,norest,key,3,
   value1 = make_socket_stream(handle,&eltype,buffered,
                               TheSocketServer(STACK_3)->host,
                               TheSocketServer(STACK_3)->port);
+  value1 = add_to_open_streams(value1);
   mv_count = 1;
   skipSTACK(4);
 }
@@ -14791,8 +14792,9 @@ LISPFUN(socket_connect,1,1,norest,key,3,
   value1 = make_socket_stream(handle,&eltype,buffered,
                               asciz_to_string(hostname,O(misc_encoding)),
                               STACK_4);
-  skipSTACK(5);
   mv_count = 1;
+  value1 = add_to_open_streams(value1);
+  skipSTACK(5);
 }
 
 local object test_socket_stream (object obj, bool check_open) {
@@ -15940,6 +15942,8 @@ global void builtin_stream_close (const object* stream_) {
           close_ochannel(stream);
         else
           close_ichannel(stream);
+        # remove stream from the List of all open File-Streams:
+        O(open_files) = deleteq(O(open_files),stream);
       }
       break;
     #ifdef SOCKET_STREAMS

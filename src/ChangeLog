@@ -1,9 +1,13 @@
 2002-01-11  Sam Steingold  <sds@gnu.org>
 
+	close all inaccessible PIPE and SOCKET streams on GC, like file streams
 	* stream.d (add_to_open_streams): new function
 	(make_file_stream, make_terminal_stream, make_printer_stream):
 	 use it instead of in-line code
-	From Todd Sabin <tas@webspan.net>
+	(MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM, MAKE-PIPE-IO-STREAM)
+	(SOCKET-ACCEPT, SOCKET-CONNECT, SYS::MAKE-SOCKET-STREAM):
+	 call add_to_open_streams() too
+	Reported by Todd Sabin <tas@webspan.net>
 
 2002-01-10  Sam Steingold  <sds@gnu.org>
 
