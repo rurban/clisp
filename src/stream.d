@@ -13930,6 +13930,54 @@ LISPFUNN(file_length,1)
      value1 = endposition; mv_count=1; # Ende-Position als Wert
   }}}
 
+LISPFUNN(file_string_length,2)
+# (FILE-STRING-LENGTH stream object)
+  { var object stream = check_open_file_stream(STACK_1); # stream überprüfen
+    var object obj = STACK_0;
+    skipSTACK(2);
+    if (!(TheStream(stream)->strmflags & strmflags_wr_ch_B))
+      { fehler_illegal_streamop(S(file_string_length),stream); }
+    if (eq(TheStream(stream)->strm_wr_ch,P(wr_ch_sch_file)))
+      { # Possibly take into account the NL -> CR/LF translation.
+        #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
+        if (stringp(obj))
+          { var uintL len;
+            var uintB* charptr = unpack_string(obj,&len);
+            var uintL result = len;
+            var uintL count;
+            dotimesL(count,len, { if (*charptr++ == NL) result++; } );
+            value1 = UL_to_I(result); mv_count=1; return;
+          }
+        elif (string_char_p(obj))
+          { var uintL result = 1;
+            if (char_code(obj) == NL) result++;
+            value1 = fixnum(result); mv_count=1; return;
+          }
+        #else
+        if (stringp(obj))
+          { var uintL result = vector_length(obj);
+            value1 = fixnum(result); mv_count=1; return;
+          }
+        elif (string_char_p(obj))
+          { value1 = fixnum(1); mv_count=1; return; }
+        #endif
+        else
+          { fehler_wr_string_char(stream,obj); }
+      }
+    elif (eq(TheStream(stream)->strm_wr_ch,P(wr_ch_ch_file)))
+      { if (stringp(obj))
+          { var uintL result = vector_length(obj)*char_size;
+            value1 = UL_to_I(result); mv_count=1; return;
+          }
+        elif (charp(obj))
+          { value1 = fixnum(1*char_size); mv_count=1; return; }
+        else
+          { fehler_wr_char(stream,obj); }
+      }
+    else # Shouldn't happen, since all cases have been covered.
+      { value1 = NIL; mv_count=1; return; }
+  }
+
 LISPFUNN(line_number,1)
 # (SYS::LINE-NUMBER stream) liefert die aktuelle Zeilennummer (falls stream
 # ein String-Char-File-Input-Stream ist, von dem nur gelesen wurde).
