@@ -12411,6 +12411,18 @@ extern void init_packages (void);
 
 # ##################### PATHBIBL for PATHNAME.D ############################ #
 
+#ifdef WIN32_NATIVE
+/* UP: ultimate shortcut megaresolver
+   style inspired by directory_search_scandir
+ > namein: filename pointing to file or directory
+            wildcards (only asterisk) may appear only as filename
+ < nameout: filename with directory and file shortcuts resolved
+             on failure holds filename resolved so far
+ < result:  true if resolving succeeded */
+extern bool TrueName (LPCSTR namein, LPSTR nameout);
+/* used by SPVW for loadmem() */
+#endif
+
 # UP: Gives the directory-namestring in OS-format of a halfway checked
 #     pathname assuming that the directory of the pathname exists.
 # assume_dir_exists()

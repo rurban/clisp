@@ -761,10 +761,12 @@ local void loadmem (const char* filename)
     }
   #undef CYGDRIVE
   #undef CYGDRIVE_LEN
-  var Handle handle = CreateFile(filename, GENERIC_READ,
-                                 FILE_SHARE_READ | FILE_SHARE_WRITE,
-                                 NULL, OPEN_EXISTING,
-                                 FILE_ATTRIBUTE_NORMAL, NULL);
+  var char resolved[MAX_PATH];
+  var Handle handle =
+    /* try to resolve shell shortcuts in the filename */
+    CreateFile(TrueName(filename,resolved) ? filename : resolved,
+               GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
+               NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
   if (handle==INVALID_HANDLE_VALUE) goto abort1;
  #endif
   end_system_call();
