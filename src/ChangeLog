@@ -1,5 +1,11 @@
 2004-05-21  Bruno Haible  <bruno@clisp.org>
 
+	* Makefile.devel (multibuild-linux-x86): Add builds with both
+	HEAPCODES variants, and build with spvw_mixed_blocks-staggered
+	and -fixedmemsize.
+
+2004-05-21  Bruno Haible  <bruno@clisp.org>
+
 	Make it possible to combine GENERATIONAL_GC, HEAPCODES, NO_MORRIS_GC.
 	* spvw_garcol.d (update): Provide a definition for the case
 	GENERATIONAL_GC && HEAPCODES && !MORRIS_GC.
