@@ -1249,7 +1249,7 @@ global int main()
 # #endif
   printf("extern object asciz_to_string (const char * asciz);\n");
 # printf("extern object string_to_asciz (object obj);\n");
-# printf("#define TheAsciz(obj)  ((char*)(&TheSstring(obj)->data[0]))\n");
+# printf("#define TheAsciz(obj)  ((char*)(&TheSbvector(obj)->data[0]))\n");
 # printf("typedef Values subr_norest_function (void);\n");
 # printf("typedef Values subr_rest_function (uintC argcount, object* rest_args_pointer);\n");
   printf("extern struct subr_tab_ {\n");
