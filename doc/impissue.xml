@@ -317,16 +317,14 @@
  <varlistentry id="iss287"><term><ulink url="&clhs;/Issues/iss287.html">READ-MODIFY-WRITE-EVALUATION-ORDER:DELAYED-ACCESS-STORES</ulink></term>&no;</varlistentry>
  <varlistentry id="iss288"><term><ulink url="&clhs;/Issues/iss288.html">READ-SUPPRESS-CONFUSING:GENERALIZE</ulink></term>
      <listitem><simpara>yes, except that &read-delimited-list; still
-     constructs a list</simpara></listitem></varlistentry>
+     constructs a &list-t;</simpara></listitem></varlistentry>
  <varlistentry id="iss289"><term><ulink url="&clhs;/Issues/iss289.html">READER-ERROR:NEW-TYPE</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss290"><term><ulink url="&clhs;/Issues/iss290.html">REAL-NUMBER-TYPE:X3J13-MAR-89</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss291"><term><ulink url="&clhs;/Issues/iss291.html">RECURSIVE-DEFTYPE:EXPLICITLY-VAGUE</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss292"><term><ulink url="&clhs;/Issues/iss292.html">REDUCE-ARGUMENT-EXTRACTION</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss293"><term><ulink url="&clhs;/Issues/iss293.html">REMF-DESTRUCTION-UNSPECIFIED:X3J13-MAR-89</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss294"><term><ulink url="&clhs;/Issues/iss294.html">REQUIRE-PATHNAME-DEFAULTS-AGAIN:X3J13-DEC-91</ulink></term>&yes;</varlistentry>
- <varlistentry id="iss295"><term><ulink url="&clhs;/Issues/iss295.html">REQUIRE-PATHNAME-DEFAULTS-YET-AGAIN:RESTORE-ARGUMENT</ulink></term>
-     <listitem><simpara>yes, except that &require; wants a pathname, not
-     a list of pathnames</simpara></listitem></varlistentry>
+ <varlistentry id="iss295"><term><ulink url="&clhs;/Issues/iss295.html">REQUIRE-PATHNAME-DEFAULTS-YET-AGAIN:RESTORE-ARGUMENT</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss296"><term><ulink url="&clhs;/Issues/iss296.html">REQUIRE-PATHNAME-DEFAULTS:ELIMINATE</ulink></term>
      <listitem><simpara>superseded by <ulink url="&clhs;/Issues/iss294.html">REQUIRE-PATHNAME-DEFAULTS-AGAIN:X3J13-DEC-91</ulink></simpara></listitem></varlistentry>
  <varlistentry id="iss297"><term><ulink url="&clhs;/Issues/iss297.html">REST-LIST-ALLOCATION:MAY-SHARE</ulink></term>&yes;</varlistentry>
