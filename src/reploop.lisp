@@ -532,7 +532,7 @@ Continue       :c       switch off single step mode, continue evaluation
 (defvar *step-watch* nil)		; terminating condition
 
 (defmacro step (form)
-  "(STEP form), CLTL S. 441"
+  "(STEP form), CLTL p. 441"
   `(let* ((*step-level* 0)
           (*step-quit* most-positive-fixnum)
           (*step-watch* nil)
