@@ -1,3 +1,9 @@
+2004-01-09  Sam Steingold  <sds@gnu.org>
+
+	* list.d (fehler_nth, fehler_butlast): removed
+	(NTH, NTHCDR, LAST, MAKE-LIST, BUTLAST, NBUTLAST):
+	use check_posfixnum() instead
+
 2004-01-08  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 873204 ]: infinite recursion with pprint-logical-block
