@@ -2325,15 +2325,6 @@ nonreturning_function(local, fehler_key_unpaarig, (object fun)) {
          GETTEXT("EVAL/APPLY: keyword arguments for ~ should occur pairwise"));
 }
 
-# error-message for too many keyword-arguments
-# fehler_key_zuviel(fun); (error_key_toomany)
-# > fun: function
-nonreturning_function(local, fehler_key_zuviel, (object fun)) {
-  pushSTACK(fun);
-  fehler(program_error,
-         GETTEXT("EVAL/APPLY: too many arguments given to ~"));
-}
-
 # error-message for flawed keyword
 # fehler_key_notkw(kw);
 # > kw: Non-Symbol
@@ -2775,7 +2766,7 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
         # number was odd -> not paired:
         fehler_key_unpaarig(fun);
       if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
-        fehler_key_zuviel(fun);
+        fehler_too_many_args(unbound,fun,argcount,ca_limit_1);
       # Due to argcount <= ca_limit_1, all count's fit in a uintC.
       argcount = argcount/2;
       # test for illegal Keywords:
@@ -2852,7 +2843,7 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
         # number was ood -> not paired:
         fehler_key_unpaarig(closure);
       if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
-        fehler_key_zuviel(closure);
+        fehler_too_many_args(unbound,closure,argcount,ca_limit_1);
       # Due to argcount <= ca_limit_1, all count's fit in a uintC.
       argcount = argcount/2;
       var object codevec = TheCclosure(closure)->clos_codevec; # Code-Vector
@@ -4153,9 +4144,11 @@ local Values apply_closure(object fun, uintC args_on_stack, object other_args);
 
 # Error because of dotted argument-list
 # > name: name of function
-nonreturning_function(local, fehler_apply_dotted, (object name)) {
+nonreturning_function(local, fehler_apply_dotted, (object name, object end)) {
+  pushSTACK(end);
   pushSTACK(name);
-  fehler(program_error,GETTEXT("APPLY: argument list given to ~ is dotted"));
+  pushSTACK(S(apply));
+  fehler(program_error,GETTEXT("~: argument list given to ~ is dotted (terminated by ~)"));
 }
 
 # Error because of too many arguments
@@ -4530,7 +4523,7 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun));
       # gathered error messages:
      fehler_zuwenig: fehler_subr_zuwenig(fun);
      fehler_zuviel: fehler_subr_zuviel(fun);
-     fehler_dotted: fehler_apply_dotted(TheSubr(fun)->name);
+     fehler_dotted: fehler_apply_dotted(TheSubr(fun)->name,args);
     }
 
 # Error because of too many arguments for a Closure
@@ -4956,7 +4949,7 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
         # Gathered error-messages:
        fehler_zuwenig: fehler_closure_zuwenig(closure);
        fehler_zuviel: fehler_closure_zuviel(closure);
-       fehler_dotted: fehler_apply_dotted(closure);
+       fehler_dotted: fehler_apply_dotted(closure,args);
       } else {
         # closure is an interpreted Closure
         # reserve space on STACK:
