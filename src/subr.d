@@ -320,8 +320,8 @@ LISPFUN(error_of_type,2,0,rest,nokey,0,NIL)
 LISPFUNN(invoke_debugger,1)
 LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
 # ---------- HASHTABL ----------
-LISPFUN(make_hash_table,0,0,norest,key,5,
-        (kw(initial_contents),
+LISPFUN(make_hash_table,0,0,norest,key,6,
+        (kw(weak),kw(initial_contents),
          kw(test),kw(size),kw(rehash_size),kw(rehash_threshold)) )
 LISPFUN(gethash,2,1,norest,nokey,0,NIL)
 LISPFUNN(puthash,3)
@@ -335,6 +335,8 @@ LISPFUNN(hash_table_size,1)
 LISPFUNN(hash_table_test,1)
 LISPFUNN(hash_table_iterator,1)
 LISPFUNN(hash_table_iterate,1)
+LISPFUNN(hash_table_weak_p,1)
+LISPFUNN(set_hash_table_weak_p,2)
 LISPFUNN(class_gethash,2)
 LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL)
 LISPFUNN(sxhash,1)

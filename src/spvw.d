@@ -942,6 +942,7 @@
             });
         #endif
         O(all_weakpointers) = Fixnum_0;
+        O(all_weakkvtables) = Fixnum_0;
         O(all_finalizers) = Fixnum_0; O(pending_finalizers) = Fixnum_0;
       }
   # andere Module grob initialisieren:

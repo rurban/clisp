@@ -49,7 +49,7 @@ s(convert_string_from_bytes)
 s(convert_string_to_bytes)
 v(4, (kw(charset),kw(line_terminator),kw(input_error_action),kw(output_error_action)) )
 s(make_encoding)
-v(5, (kw(initial_contents),
+v(6, (kw(weak),kw(initial_contents),
       kw(test),kw(size),kw(rehash_size),kw(rehash_threshold)) )
 s(make_hash_table)
 v(3, (kw(preserve_whitespace),kw(start),kw(end)) )

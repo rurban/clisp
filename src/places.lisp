@@ -346,6 +346,7 @@
 ;;; Definition of places:
 ;;;----------------------------------------------------------------------------
 (defsetf package-lock SYSTEM::%SET-PACKAGE-LOCK)
+(defsetf hash-table-weak-p SYSTEM::%SET-HASH-TABLE-WEAK-P)
 ;;;----------------------------------------------------------------------------
 (defsetf aref (array &rest indices) (value)
   `(SYSTEM::STORE ,array ,@indices ,value))

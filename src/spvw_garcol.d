@@ -1564,6 +1564,7 @@
     { var uintL gcstart_space; # belegter Speicher bei GC-Start
       var uintL gcend_space; # belegter Speicher bei GC-Ende
       var object all_weakpointers; # Liste der aktiven Weak-Pointer
+      var object all_weakkvtables; # list of active weak key-value tables
       var object all_finalizers; # Liste der Finalisierer
       #ifdef GC_CLOSES_FILES
       var object files_to_close; # Liste der zu schließenden Files
@@ -1607,6 +1608,7 @@
       CHECK_GC_GENERATIONAL();
       # Markierungsphase:
         all_weakpointers = O(all_weakpointers); O(all_weakpointers) = Fixnum_0;
+        all_weakkvtables = O(all_weakkvtables); O(all_weakkvtables) = Fixnum_0;
         all_finalizers = O(all_finalizers); O(all_finalizers) = Fixnum_0;
         #ifdef GC_CLOSES_FILES
         files_to_close = O(open_files); O(open_files) = NIL; # O(files_to_close) = NIL;
@@ -1660,8 +1662,8 @@
           var object* L1 = &O(all_weakpointers);
           while (!eq(Lu,Fixnum_0)) {
             if (!alive(Lu)) {
-              # The weak-pointer itself is being GCed. Don't care about its
-              # contents. Remove it from the list.
+              # The weak-pointer itself is being GCed.
+              # Don't care about its contents. Remove it from the list.
               Lu = TheWeakpointer(Lu)->wp_cdr;
             } else if (!alive(TheWeakpointer(Lu)->wp_value)) {
               # The referenced value is being GCed. Break the
@@ -1681,6 +1683,40 @@
         { var object L = O(all_weakpointers); # mark the list
           while (!eq(L,Fixnum_0))
             { gc_mark(L); L = TheWeakpointer(L)->wp_cdr; }
+        }
+        { # (still unmarked) shorten the all_weakkvtables list:
+          var object Lu = all_weakkvtables;
+          var object* L1 = &O(all_weakkvtables);
+          while (!eq(Lu,Fixnum_0)) {
+            ASSERT(weakkvtp(Lu));
+            if (!alive(Lu)) {
+              # The weak key-value table itself is being GCed.
+              # Don't care about its contents. Remove it from the list.
+              Lu = TheWeakKVT(Lu)->wkvt_cdr;
+            } else {
+              # kill the key/value pairs where the key is dead
+              var uintL len = Weakkvt_length(Lu);
+              var uintL idx = 0;
+              var WeakKVT wt = TheWeakKVT(Lu);
+              var object* data = wt->data;
+              for (; idx < len; idx += 2) {
+                var object key = data[idx];
+                if (!eq(unbound,key)) {
+                  if (alive(key)) # mark value
+                    gc_mark(data[idx+1]);
+                  else # drop both key and value from the table
+                    data[idx] = data[idx+1] = unbound;
+                }
+              }
+              # Keep the WeakKVT in the list.
+              *L1 = Lu; L1 = &TheWeakKVT(Lu)->wkvt_cdr; Lu = *L1;
+            }
+          }
+          *L1 = Fixnum_0;
+        }
+        { var object L = O(all_weakkvtables); # mark the list
+          while (!eq(L,Fixnum_0))
+            { gc_mark(L); L = TheWeakKVT(L)->wkvt_cdr; }
         }
       # Jetzt sind alle aktiven Objekte markiert:
       # Aktive Objekte variabler Länge wie auch aktive Zwei-Pointer-Objekte tragen
@@ -1784,6 +1820,8 @@
             update_STACKs();
           # Update weak-pointers:
             update_weakpointers_mod();
+          # Update weak kvtables:
+            update_weakkvtables_mod();
           # Programmkonstanten aktualisieren:
             update_tables();
           #ifndef MORRIS_GC
@@ -2312,6 +2350,8 @@
             update_STACKs();
           # Update weak-pointers:
             update_weakpointers_mod();
+          # Update weak kvtables:
+            update_weakkvtables_mod();
           # Programmkonstanten aktualisieren:
             update_tables();
           # Pointer in den Cons-Zellen aktualisieren:
@@ -2517,6 +2557,8 @@
             #undef update_stackobj
           # Update weak-pointers:
             update_weakpointers_mod();
+          # Update weak kvtables:
+            update_weakkvtables_mod();
           # Programmkonstanten aktualisieren:
             update_tables();
           # Pointer in den Cons-Zellen aktualisieren:

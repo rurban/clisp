@@ -34,6 +34,8 @@
 # for SPVW.D:
   # chained list of all active weak-pointers:
   LISPOBJ(all_weakpointers,"0")
+  # chained list of all active weak key-value tables:
+  LISPOBJ(all_weakkvtables,"0")
   # list of all finalizers:
   LISPOBJ(all_finalizers,"0")
   # During GC: the list of finalizers to be processed after the GC:
@@ -314,6 +316,7 @@
   LISPOBJ(hs_foreign_function,"FFI::FOREIGN-FUNCTION")
   #endif
   LISPOBJ(hs_weakpointer,"EXT::WEAK-POINTER")
+  LISPOBJ(hs_weakkvt,"EXT::WEAK-KEY-VALUE-TABLE")
   LISPOBJ(hs_finalizer,"EXT::FINALIZER")
   #ifdef SOCKET_STREAMS
   LISPOBJ(hs_socket_server,"SOCKET::SOCKET-SERVER")
@@ -371,7 +374,7 @@
   LISPOBJ(memory_image_host,"NIL") # the host on which this image was dumped
   # The date of the last change of the bytecode interpreter
   # or the arglist of any built-in function in FUNTAB
-  LISPOBJ(version,"(20010726)")
+  LISPOBJ(version,"(20020129)")
   #ifdef MACHINE_KNOWN
     LISPOBJ(machine_type_string,"NIL")
     LISPOBJ(machine_version_string,"NIL")

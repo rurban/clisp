@@ -37,6 +37,8 @@
 # Same, but here update(objptr) may modify *objptr. and the
 # value before update should be taken while following the list.
 #   update_weakpointers_mod();
+# ditto for weak key-value tables:
+#   update_weakkvtables() and update_weakkvtables_mod()
 
 # Update the stacks.
 #   #define update_stackobj ...
@@ -283,6 +285,28 @@
                update_weakpointer(L);                           \
                L = next;                                        \
         }    } while(0)
+
+    # update weak key-value tables
+      #define update_weakkvtable(wkvt)                                  \
+        do { # weak key-value table is just another fancy svector       \
+          var object* p = TheSvector(wkvt)->data; # nothing GC-visible  \
+          var uintL count = Svector_length(wkvt);                       \
+          dotimespL(count,count,{ update(p); p++; });                   \
+        } while(0)
+      #define update_weakkvtables()                     \
+        do { var object L = O(all_weakkvtables);        \
+             while (!eq(L,Fixnum_0)) {                  \
+               update_weakkvtable(L);                   \
+               L = TheWeakKVT(L)->wkvt_cdr;             \
+        }    } while(0)
+      #define update_weakkvtables_mod()                         \
+        do { var object L = O(all_weakkvtables);                \
+             while (!eq(L,Fixnum_0)) {                          \
+               var object next = TheWeakKVT(L)->wkvt_cdr;       \
+               update_weakkvtable(L);                           \
+               L = next;                                        \
+        }    } while(0)
+
 
     # STACKs aktualisieren:
       #define update_stackobj_normal(objptr)  \
