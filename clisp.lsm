@@ -1,7 +1,7 @@
 Begin4
 Title:          GNU CLISP - and ANSI Common Lisp
-Version:        2.33
-Entered-date:   2004-03-17
+Version:        2.33.1
+Entered-date:   2004-05-22
 Description:    GNU CLISP is an ANSI Common Lisp implementation.
                 Includes an interpreter, a compiler, a debugger, a CLOS
                 implementation, a foreign language interface, fast bignums,
@@ -15,8 +15,8 @@ Author:         bruno@clisp.org (Bruno Haible),
                 sds@gnu.org (Sam Steingold)
 Maintained-by:  sds@gnu.org (Sam Steingold)
 Primary-site:   ftp://sunsite.unc.edu:/pub/Linux/devel/lang/lisp/
-                clisp-2.33.tar.bz2
-                clisp-2.33.tar.gz
+                clisp-2.33.1.tar.bz2
+                clisp-2.33.1.tar.gz
 Alternate-site: http://ftp.gnu.org/gnu/clisp/
 Original-site:  http://clisp.cons.org
 Platforms:      C/C++ compiler on Unix, Win32.
