@@ -204,7 +204,7 @@
     [The Language]</tocentry>
    <tocentry><xref linkend="encoding"/>
     [Encodings]</tocentry>
-   <tocentry><xref linkend="gstream"/>
+   <tocentry><xref linkend="clos-stream"/>
     [Defining new kinds of Streams]</tocentry>
    <tocentry><xref linkend="weak"/>
     [Weak Pointers]</tocentry>
