@@ -1523,7 +1523,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
   goto abort_quit;
  abort_quit:
   /* close the file beforehand. */
- #ifdef (UNIX
+ #ifdef UNIX
   begin_system_call(); CLOSE(handle); end_system_call();
  #endif
  #ifdef WIN32_NATIVE
