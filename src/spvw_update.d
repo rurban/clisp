@@ -16,6 +16,7 @@
 #   update_conspage_normal
 
 # Update the varobject heaps.
+#   #define update_hashtable_invalid ...
 #   #define update_ht_invalid ...
 #   #define update_unrealloc ...
 #   #define update_ss_unrealloc ...
@@ -35,6 +36,7 @@
 #   #undef update_ss_unrealloc
 #   #undef update_unrealloc
 #   #undef update_ht_invalid
+#   #undef update_hashtable_invalid
 # Some possible implementation of update_page.
 #   update_page_normal
 
@@ -130,7 +132,8 @@
     # on update of pointers, the hash-tables are invalidated              \
     # (because the hash function of an object depends on its address,     \
     # which is now changed).                                              \
-    if (record_type((Record)ptr) == Rectype_Hashtable) { # a hash-table ? \
+    if (update_hashtable_invalid && # a hash-table ?                      \
+        record_type((Record)ptr) == Rectype_Hashtable) {                  \
       update_ht_invalid((Hashtable)ptr); # yes -> note for reorganisation \
     } else if (update_unrealloc && # Instance ?                           \
                (record_type((Record)ptr) == Rectype_Instance)) {          \

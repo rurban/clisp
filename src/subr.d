@@ -405,8 +405,9 @@ LISPFUN(error_of_type,seclass_default,2,0,rest,nokey,0,NIL)
 LISPFUNN(invoke_debugger,1)
 LISPFUN(clcs_signal,seclass_default,1,0,rest,nokey,0,NIL)
 /* ---------- HASHTABL ---------- */
-LISPFUN(make_hash_table,seclass_read,0,0,norest,key,8,
-        (kw(weak),kw(initial_contents),kw(key_type),kw(value_type),
+LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
+        (kw(initial_contents),kw(key_type),kw(value_type),
+         kw(warn_if_needs_rehash_after_gc),kw(weak),
          kw(test),kw(size),kw(rehash_size),kw(rehash_threshold)) )
 LISPFUN(gethash,seclass_default,2,1,norest,nokey,0,NIL)
 LISPFUNN(puthash,3)
@@ -418,6 +419,8 @@ LISPFUNNR(hash_table_rehash_size,1)
 LISPFUNNR(hash_table_rehash_threshold,1)
 LISPFUNNR(hash_table_size,1)
 LISPFUNNF(hash_table_test,1)
+LISPFUNNF(fasthash_stable_p,1)
+LISPFUNNR(stablehash_stable_p,1)
 LISPFUNNR(hash_table_iterator,1)
 LISPFUNN(hash_table_iterate,1)
 LISPFUNNR(hash_table_weak_p,1)

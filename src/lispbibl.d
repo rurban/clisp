@@ -4927,17 +4927,28 @@ typedef struct {
   #define hashtable_length  10
 #endif
 #define hashtable_xlength  (sizeof(*(Hashtable)0)-offsetofa(record_,recdata)-hashtable_length*sizeof(gcv_object_t))
-# Mark a Hash Table as new to reorganize
+# Mark a Hash Table as now to reorganize
 # set_ht_invalid(TheHashtable(ht));
 # mark_ht_invalid(TheHashtable(ht));
+# A bit that is set when the list structure is invalid and a rehash is needed.
+#define htflags_invalid_B  bit(7)
+# A bit that is set if the table has a key whose hash code is not GC-invariant.
+#define htflags_gc_rehash_B  bit(6)
 #ifdef GENERATIONAL_GC
-  #define mark_ht_invalid(ptr)  (ptr)->ht_lastrehash = unbound
-  #define mark_ht_valid(ptr)  (ptr)->ht_lastrehash = O(gc_count)
-  #define ht_validp(ptr)  eq((ptr)->ht_lastrehash,O(gc_count))
+  #define mark_ht_invalid(ptr)  \
+    (record_flags_set(ptr,htflags_invalid_B), \
+     (ptr)->ht_lastrehash = unbound)
+  #define mark_ht_valid(ptr)  \
+    (record_flags_clr(ptr,htflags_invalid_B), \
+     (ptr)->ht_lastrehash = O(gc_count))
+  #define ht_validp(ptr)  \
+    ((record_flags(ptr) & htflags_invalid_B) == 0       \
+     && ((record_flags(ptr) & htflags_gc_rehash_B) == 0 \
+         || eq((ptr)->ht_lastrehash,O(gc_count))))
 #else
-  #define mark_ht_invalid(ptr)  record_flags_set(ptr,bit(7))
-  #define mark_ht_valid(ptr)  record_flags_clr(ptr,bit(7))
-  #define ht_validp(ptr)  ((record_flags(ptr) & bit(7)) == 0)
+  #define mark_ht_invalid(ptr)  record_flags_set(ptr,htflags_invalid_B)
+  #define mark_ht_valid(ptr)  record_flags_clr(ptr,htflags_invalid_B)
+  #define ht_validp(ptr)  ((record_flags(ptr) & htflags_invalid_B) == 0)
 #endif
 #ifdef GENERATIONAL_GC
   #define set_ht_invalid(ptr)  mark_ht_invalid(ptr)
@@ -4954,7 +4965,14 @@ typedef struct {
      eq((ptr)->ht_lookupfn,P(hash_lookup_builtin_with_rehash)) \
      ? ((ptr)->ht_lookupfn = P(hash_lookup_builtin), 0) : 0)
 #endif
-#define ht_test_code(flags) (flags & (bit(0) | bit(1) | bit(2) | bit(3)))
+#define set_ht_invalid_if_needed(ptr)  \
+  if (record_flags(ptr) & htflags_gc_rehash_B) \
+    set_ht_invalid(ptr)/*;*/
+# A bit that indicates whether to warn about this situation.
+#define htflags_warn_gc_rehash_B  bit(5)
+# Extract the part of the flags that encodes the test.
+#define ht_test_code(flags)  \
+  (flags & (bit(0) | bit(1) | bit(2) | bit(3) | bit(4)))
 # Test whether a hash table is weak.
 #define ht_weak_p(ht)  \
   !simple_vector_p(TheHashtable(ht)->ht_kvtable)
@@ -5502,6 +5520,7 @@ typedef struct {
   gcv_object_t slot_location_table     _attribute_aligned_object_; # hashtable slotname -> where the slot is located
   gcv_object_t documentation           _attribute_aligned_object_; # string or NIL
   # from here on only for metaclass = <standard-class> or metaclass = <structure-class>
+  gcv_object_t subclass_of_stablehash_p _attribute_aligned_object_; /* true if <standard-stablehash> or <structure-stablehash> is among the superclasses */
   gcv_object_t slots                   _attribute_aligned_object_;
   gcv_object_t default_initargs        _attribute_aligned_object_;
   gcv_object_t valid_initargs          _attribute_aligned_object_;
@@ -5548,6 +5567,22 @@ typedef struct {
   #define instflags_relocated_B    bit(2)
   #define mark_inst_clean(ptr)  \
     record_flags_clr(ptr,instflags_backpointer_B|instflags_relocated_B)
+
+# Structures that inherit from <structure-stablehash>
+typedef struct {
+  SRECORD_HEADER
+  gcv_object_t structure_types    _attribute_aligned_object_;
+  gcv_object_t stablehashcode     _attribute_aligned_object_;
+  gcv_object_t other[unspecified] _attribute_aligned_object_;
+} *  StablehashStructure;
+
+# CLOS instances that inherit from <standard-stablehash>
+typedef struct {
+  SRECORD_HEADER
+  gcv_object_t inst_class_version _attribute_aligned_object_; # indirect pointer to a CLOS-class
+  gcv_object_t stablehashcode     _attribute_aligned_object_;
+  gcv_object_t other[unspecified] _attribute_aligned_object_;
+} *  StablehashInstance;
 
 # Slot definitions (= instances of <slot-definition>, see clos-slotdef1.lisp
 typedef struct {

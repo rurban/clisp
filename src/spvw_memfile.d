@@ -470,6 +470,7 @@ global void savemem (object stream)
           updater(typecode_at(ptr)); /* and advance */                  \
         }} while(0)
     #endif
+    #define update_hashtable_invalid  true
     #define update_unrealloc  false
     #define update_ss_unrealloc(obj)
     #define update_in_unrealloc(obj)
@@ -534,6 +535,7 @@ global void savemem (object stream)
     #undef update_in_unrealloc
     #undef update_ss_unrealloc
     #undef update_unrealloc
+    #undef update_hashtable_invalid
     #undef update_page
     #undef update_conspage
     WRITE(&rheader,sizeof(rheader));
@@ -1357,6 +1359,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
        #undef update_conspage
         /* update pointers in the objects of variable length: */
        #define update_page  update_page_normal
+       #define update_hashtable_invalid  true
        #define update_unrealloc  false
        #define update_ss_unrealloc(ptr)
        #define update_in_unrealloc(ptr)
@@ -1366,7 +1369,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
          #define update_fpointer_invalid  false
        #endif
        #define update_fsubr_function  true
-       #define update_ht_invalid  set_ht_invalid
+       #define update_ht_invalid  set_ht_invalid_if_needed
        #define update_fp_invalid  mark_fp_invalid
        #define update_fs_function  loadmem_update_fsubr
         update_varobjects();
@@ -1378,6 +1381,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
        #undef update_in_unrealloc
        #undef update_ss_unrealloc
        #undef update_unrealloc
+       #undef update_hashtable_invalid
        #undef update_page
       }
      #endif  /* SPVW_PURE_BLOCKS || SINGLEMAP_MEMORY_RELOCATE */
@@ -1409,7 +1413,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
           var uintL count;
           READ(&htbuf[0],rheader.htcount*sizeof(Hashtable));
           dotimespL(count,rheader.htcount, {
-            var Hashtable ptr = *htbufptr++; set_ht_invalid(ptr);
+            var Hashtable ptr = *htbufptr++; set_ht_invalid_if_needed(ptr);
           });
           FREE_DYNAMIC_ARRAY(htbuf);
         }
