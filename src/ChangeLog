@@ -1,5 +1,12 @@
 2000-03-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * describe.lsp (describe-object) [FUNCTION]: If the function's name
+          names a macro, recommend (DISASSEMBLE (MACRO-FUNCTION 'name))
+          instead of (DISASSEMBLE #'name).
+          Reported by Tijs van Bakel <smoke@casema.net>.
+
+2000-03-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * stream.d (make_terminal_stream_, rl_memory_abort): Use
           rl_gnu_readline_p instead of rl_present_p.
           (init_streamvars): Call _rl_enable_paren_matching.
