@@ -2354,7 +2354,7 @@ local object encoding_from_name (const char* name, const char* context) {
     { "UTF-8", Symbol_value(S(utf_8)) }
   };
   int ii;
-  name = canonicalize_encoding(name);
+  name = canonicalize_encoding((char*)name);
   for (ii=0; ii < sizeof(encoding_table)/sizeof(struct enc_tab); ii++)
     if (asciz_equal(name,encoding_table[ii].name)) break;
   if (ii < sizeof(encoding_table)/sizeof(struct enc_tab)) /* found! */

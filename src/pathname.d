@@ -5908,7 +5908,7 @@ LISPFUNN(delete_file,1) {
     }
   });
   /* file existed, was deleted -> pathname (/=NIL) as value */
-  VALUES1(nullp(O(ansi)) ? STACK_1 : T); skipSTACK(2);
+  VALUES1(nullp(O(ansi)) ? (object)STACK_1 : T); skipSTACK(2);
 }
 
 /* error-message because of renaming attempt of an opened file
