@@ -123,6 +123,7 @@
                             old-method gf))
                     (remove old-method (std-gf-methods gf)))
                   (std-gf-methods gf))))
+    (setf (std-gf-effective-method-cache gf) '())
     (finalize-fast-gf gf))
   ;;(sys::closure-set-seclass gf
   ;;  (sys::seclass-or (sys::function-side-effect gf)
@@ -153,6 +154,7 @@
       ;;                   (sys::seclass-or (sys::function-side-effect (std-method-function method))
       ;;                                    (sys::function-side-effect (std-method-fast-function method))))
       ;;          :initial-value sys::*seclass-foldable*))
+      (setf (std-gf-effective-method-cache gf) '())
       (finalize-fast-gf gf)))
   gf)
 

@@ -193,6 +193,10 @@
      ($declspecs           ; a list of declaration-specifiers
        :type list
        :accessor std-gf-declspecs)
+     ($effective-method-cache ; an alist mapping a list of methods to the
+                           ; effective method as function
+       :type list
+       :accessor std-gf-effective-method-cache)
      ($initialized         ; true if an instance has already been created
        :type boolean
        :accessor std-gf-initialized))
@@ -234,6 +238,10 @@
                     (:name $declspecs
                      :readers (std-gf-declspecs)
                      :writers ((setf std-gf-declspecs))
+                     :type list)
+                    (:name $effective-method-cache
+                     :readers (std-gf-effective-method-cache)
+                     :writers ((setf std-gf-effective-method-cache))
                      :type list)
                     (:name $initialized
                      :readers (std-gf-initialized)

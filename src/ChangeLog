@@ -1,3 +1,14 @@
+2004-06-19  Bruno Haible  <bruno@clisp.org>
+
+	* clos-genfun1.lisp (standard-generic-function): New slot
+	effective-method-cache.
+	* clos-genfun2.lisp (shared-initialize-<standard-generic-function>):
+	Initialize it.
+	(compute-applicable-methods-effective-method): Cache the effective
+	method in the effective-method-cache alist.
+	* clos-genfun3.lisp (std-add-method, std-remove-method): Clear the
+	effective-method-cache.
+
 2004-08-19  Sam Steingold  <sds@gnu.org>
 
 	recoverable FUNCTION-NAME and SYMBOL source checks

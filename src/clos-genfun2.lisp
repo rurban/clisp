@@ -152,6 +152,8 @@
     (setf (std-gf-declspecs gf) declarations))
   (when (eq situation 't)
     (setf (std-gf-methods gf) '()))
+  (when (or (eq situation 't) lambda-list-p method-combination-p)
+    (setf (std-gf-effective-method-cache gf) '()))
   ; Now allow the user to call the generic-function-xxx accessor functions.
   (setf (std-gf-initialized gf) t)
   gf)
@@ -775,8 +777,12 @@
             (return-from compute-applicable-methods-effective-method
               (no-method-caller 'no-applicable-method gf)))
           ;; Combine the methods to an effective method:
-          (let ((*method-combination-arguments* args))
-            (compute-effective-method-as-function gf (std-gf-method-combination gf) methods))))
+          (or (cdr (assoc methods (std-gf-effective-method-cache gf) :test #'equal))
+              (let ((effective-method
+                      (let ((*method-combination-arguments* args))
+                        (compute-effective-method-as-function gf (std-gf-method-combination gf) methods))))
+                (push (cons methods effective-method) (std-gf-effective-method-cache gf))
+                effective-method))))
       (error (TEXT "~S: ~S has ~S required argument~:P, but only ~S arguments were passed to ~S: ~S")
              'compute-applicable-methods-effective-method gf req-num (length args)
              'compute-applicable-methods-effective-method args))))
