@@ -15,7 +15,7 @@
           def-c-call-out def-call-out #+AFFI def-lib-call-out
           def-c-call-in def-call-in default-foreign-language
           c-lines *output-c-functions* *output-c-variables*
-          c-init-once c-init-always
+          c-init-once c-init-always c-finalize
           nil boolean character char uchar short ushort int uint long ulong
           uint8 sint8 uint16 sint16 uint32 sint32 uint64 sint64
           single-float double-float
@@ -520,6 +520,7 @@
                                :test 'stablehash-eq :warn-if-needs-rehash-after-gc t))
   (init-once '())
   (init-always '())
+  (finalize '())
   (variable-list '())
   (function-list '()))
 (define-symbol-macro *name*
@@ -534,6 +535,8 @@
     (ffi-module-init-once *ffi-module*))
 (define-symbol-macro *init-always*
     (ffi-module-init-always *ffi-module*))
+(define-symbol-macro *c-finalize*
+    (ffi-module-finalize *ffi-module*))
 (define-symbol-macro *variable-list*
     (ffi-module-variable-list *ffi-module*))
 (define-symbol-macro *function-list*
@@ -732,7 +735,10 @@
               "  register_foreign_function((void*)&~A,~A,~D);~%"
               (first function) (to-c-string (first function))
               (svref (second function) 3)))
-    (format *coutput-stream* "}~%")))
+    (format *coutput-stream*
+            "}~2%void module__~A__exit_function (module_t* module)~%~
+            {~{~%~A~}~%}~%"
+            *c-name* *c-finalize*)))
 
 ; Allocate a new object in the module's object_tab.
 (defun new-object (read-only-p initstring)
@@ -779,6 +785,14 @@
   (when (compiler::prepare-coutput-file)
     (prepare-module)
     (push (apply #'format nil format-string args) *init-always*)))
+
+(defmacro C-FINALIZE (format-string &rest args)
+  `(EVAL-WHEN (COMPILE)
+     (DO-C-FINALIZE ,format-string ,@args)))
+(defun do-c-finalize (format-string &rest args) ; ABI
+  (when (compiler::prepare-coutput-file)
+    (prepare-module)
+    (push (apply #'format nil format-string args) *c-finalize*)))
 
 
 ;; ============================ named C variables ============================

@@ -3251,6 +3251,13 @@ nonreturning_function(global, quit, (void)) {
     funcall(S(wait_keypress),0); # (SYS::WAIT-KEYPRESS)
   }
   close_all_files(); # close all files
+  { /* module finalization: */
+    var module_t* module;       /* loop over modules */
+    for_modules(all_other_modules,{
+      if (module->exitfunction) /* call exit function: */
+        (*module->exitfunction)(module);
+    });
+  }
  #ifdef DYNAMIC_FFI
   exit_ffi(); # close FFI
  #endif
@@ -3378,6 +3385,13 @@ global void dynload_modules (const char * library, uintC modcount,
           {
             sprintf(symbolbuf,"module__%s__init_function_2",modname);
             module->initfunction2 = (void (*) (module_t*))
+              dlsym(libhandle,symbolbuf);
+            err = dlerror();
+            if (err) fehler_dlerror("dlsym",symbolbuf,err);
+          }
+          {
+            sprintf(symbolbuf,"module__%s__exit_function",modname);
+            module->exitfunction = (void (*) (module_t*))
               dlsym(libhandle,symbolbuf);
             err = dlerror();
             if (err) fehler_dlerror("dlsym",symbolbuf,err);

@@ -419,6 +419,7 @@
 <!ENTITY c-array-ptr "<link linkend='c-array-ptr'><type>FFI:C-ARRAY-PTR</type></link>">
 <!ENTITY c-function "<link linkend='c-function'><type>FFI:C-FUNCTION</type></link>">
 <!ENTITY c-lines "<link linkend='c-lines'><function>FFI:C-LINES</function></link>">
+<!ENTITY c-finalize "<link linkend='c-exit'><function>FFI:C-FINALIZE</function></link>">
 <!ENTITY c-init-once "<link linkend='c-init'><function>FFI:C-INIT-ONCE</function></link>">
 <!ENTITY c-init-always "<link linkend='c-init'><function>FFI:C-INIT-ALWAYS</function></link>">
 <!ENTITY c-pointer "<link linkend='c-pointer'><type>FFI:C-POINTER</type></link>">
