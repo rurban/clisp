@@ -2761,7 +2761,7 @@ local void print_banner ()
       if (!argv_quiet || argv_license) print_banner();
       if (argv_license) print_license();
       if ((argv_memfile == NULL) && (argv_expr == NULL))
-        # Warnung für Anfänger
+        # Warning for beginners
         { pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # auf *STANDARD-OUTPUT*
           write_sstring(&STACK_0,
             asciz_to_string(GETTEXT(NLstring "WARNING: No initialisation file specified." NLstring),
@@ -2779,6 +2779,15 @@ local void print_banner ()
           #endif
           skipSTACK(1);
         }
+      if (argv_lisplibdir == NULL) {
+        # Warning for beginners and careless developers
+        pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # on *STANDARD-OUTPUT*
+        write_sstring(&STACK_0,asciz_to_string(GETTEXT(NLstring "WARNING: No installation directory specified." NLstring),O(internal_encoding)));
+        write_sstring(&STACK_0,asciz_to_string(GETTEXT("Please try: "),O(internal_encoding)));
+        write_string(&STACK_0,asciz_to_string(program_name,O(pathname_encoding)));
+        write_string(&STACK_0,ascii_to_string(" -B /usr/local/lib/clisp" NLstring));
+        skipSTACK(1);
+      }
       if (argv_compile || !(argv_expr == NULL) || !(argv_execute_file == NULL))
         # '-c' oder '-x' oder file angegeben -> LISP läuft im Batch-Modus:
         { # (setq *debug-io*
