@@ -1,3 +1,14 @@
+2004-06-04  Bruno Haible  <bruno@clisp.org>
+
+	Fix LOAD-TIME-VALUE.
+	* compiler.lisp (const): Add ltv-form slot.
+	(fnode): Add consts-ltv-forms slot.
+	(c-LOAD-TIME-VALUE): Store the entire *form* in the const.
+	(value-form-index): Add a ltv-form argument.
+	(constvalue-index): Update.
+	(kvalue-form-index): Add a ltv-form argument.
+	(const-index): Update.
+
 2004-06-03  Bruno Haible  <bruno@clisp.org>
 
 	Improved lambda list checking in DEFSTRUCT and DEFMETHOD.

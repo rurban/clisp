@@ -1241,6 +1241,7 @@ for-value   NIL or T
 (defstruct (const (:copier nil))
   value         ; value of the Constant
   form          ; form, that evaluates to value
+  ltv-form      ; (LOAD-TIME-VALUE form) as it occurs in the source, or nil
   horizon       ; validity range of value and form:
                 ; :VALUE  -  only value is valid
                 ;            (then form is implicitly: form = `(QUOTE ,value) )
@@ -1431,6 +1432,8 @@ for-value   NIL or T
   (consts nil)    ; List of other constants of this function
                   ; this list is built up foremost in the second pass.
   (consts-forms nil) ; List of poss. Forms, that result in these constants
+  (consts-ltv-forms nil) ; List of poss. (load-time-value ...) source forms
+                  ; that correspond to these constants
   gf-p            ; Flag, if a generic function is produced
                   ; (implies Blocks-Offset = Tagbodys-Offset = Keyword-Offset
                   ;  = 0 or 1)
@@ -4177,11 +4180,17 @@ for-value   NIL or T
      :code (if *for-value*
                `((CONST ,(if *fasoutput-stream* ; not called right away
                            (if (and (symbolp form) (c-constantp form))
-                             (make-const :horizon ':all :form form
+                             (make-const :horizon ':all
+                                         :form form
+                                         :ltv-form *form*
                                          :value (c-constant-value form))
-                             (make-const :horizon ':form :form form))
-                           (make-const :horizon ':all :value (eval form)
-                                       :form form))))
+                             (make-const :horizon ':form
+                                         :form form
+                                         :ltv-form *form*))
+                           (make-const :horizon ':all
+                                       :value (eval form)
+                                       :form form
+                                       :ltv-form *form*))))
                '()))))
 
 ;; compile (CATCH tag {form}*)
@@ -7584,18 +7593,22 @@ New Operations:
 ;; value is the Value of the constant,
 ;; form is a Form with this value or NIL,
 ;; horizon = :value (then form = NIL) or :all or :form.
-(defun value-form-index (value form horizon &optional (func *func*))
+(defun value-form-index (value form ltv-form horizon &optional (func *func*))
   (let ((const-list (fnode-consts func))
         (forms-list (fnode-consts-forms func))
+        (ltv-forms-list (fnode-consts-ltv-forms func))
         (n (fnode-Consts-Offset func)))
     (if (null const-list)
       (progn
         (setf (fnode-consts func) (list value))
         (setf (fnode-consts-forms func) (list form))
+        (setf (fnode-consts-ltv-forms func) (list ltv-form))
         n)
       (loop
         (when (if (eq horizon ':form)
-                (eql (car forms-list) form)
+                (and (eql (car forms-list) form)
+                     (let ((ltv1 (car ltv-forms-list)) (ltv2 ltv-form))
+                       (or (null ltv1) (null ltv2) (eq ltv1 ltv2))))
                 ;; When horizon = :value or :all, we will compare only value.
                 (eql (car const-list) value))
           (return n))
@@ -7603,29 +7616,31 @@ New Operations:
         (when (null (cdr const-list))
           (setf (cdr const-list) (list value))
           (setf (cdr forms-list) (list form))
+          (setf (cdr ltv-forms-list) (list ltv-form))
           (return n))
         (setq const-list (cdr const-list))
-        (setq forms-list (cdr forms-list))))))
+        (setq forms-list (cdr forms-list))
+        (setq ltv-forms-list (cdr ltv-forms-list))))))
 (defun constvalue-index (value)
-  (value-form-index value nil ':value))
+  (value-form-index value nil nil ':value))
 
 ;; searches a constant in (fnode-Keywords *func*) and in (fnode-Consts *func*),
 ;; possibly registers it in (fnode-Consts *func*) . Returns its Index n.
-(defun kvalue-form-index (value form horizon &optional (func *func*))
+(defun kvalue-form-index (value form ltv-form horizon &optional (func *func*))
   (when (and (not (eq horizon ':form)) (symbolp value))
     ;; the search only pays off for Symbols (formerly: Keywords)
     (do ((n (fnode-Keyword-Offset func) (1+ n))
          (L (fnode-Keywords func) (cdr L)))
         ((null L))
       (if (eq (car L) value) (return-from kvalue-form-index n))))
-  (value-form-index value form horizon func))
+  (value-form-index value form ltv-form horizon func))
 (defun kconstvalue-index (value)
-  (kvalue-form-index value nil ':value))
+  (kvalue-form-index value nil nil ':value))
 (defun const-index (const)
   (if (and *compiling-from-file* (not (eq (const-horizon const) ':value)))
     (kvalue-form-index (const-value const) (const-form const)
-                       (const-horizon const))
-    (kvalue-form-index (const-value const) nil ':value)))
+                       (const-ltv-form const) (const-horizon const))
+    (kvalue-form-index (const-value const) nil nil ':value)))
 
 ;; (make-const-code const) returns the Code, that moves the value of the
 ;; constant as 1 value to A0 .

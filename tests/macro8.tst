@@ -606,6 +606,45 @@ dm2b
   nil)
 nil
 
+;; compile-file is allowed to collapse different occurrences of the same
+;; LOAD-TIME-VALUE form, and in fact, CLISP does so.
+(let ((file "tmp.lisp"))
+  (with-open-file (out file :direction :output #+SBCL :if-exists #+SBCL :supersede)
+    (write-string "(defun ltv1 () (eq #1=(load-time-value (cons nil nil)) #1#))" out))
+  (unwind-protect
+      (progn (compile-file file) (load (compile-file-pathname file)))
+    (delete-file file)
+    (delete-file (compile-file-pathname file))
+    #+clisp (delete-file (make-pathname :type "lib" :defaults file)))
+  (ltv1))
+#+CLISP T #+(or CMUCL SBCL) NIL
+#-(or CLISP CMUCL SBCL) UNKNOWN
+
+;; compile-file is not allowed to collapse different LOAD-TIME-VALUE forms
+;; even if the inner form is the same.
+(let ((file "tmp.lisp"))
+  (with-open-file (out file :direction :output #+SBCL :if-exists #+SBCL :supersede)
+    (write-string "(defun ltv2 () (eq (load-time-value #1=(cons nil nil)) (load-time-value #1#)))" out))
+  (unwind-protect
+      (progn (compile-file file) (load (compile-file-pathname file)))
+    (delete-file file)
+    (delete-file (compile-file-pathname file))
+    #+clisp (delete-file (make-pathname :type "lib" :defaults file)))
+  (ltv2))
+NIL
+
+;; compile-file is not allowed to collapse different LOAD-TIME-VALUE forms.
+(let ((file "tmp.lisp"))
+  (with-open-file (out file :direction :output #+SBCL :if-exists #+SBCL :supersede)
+    (write-string "(defun ltv3 () (eq (load-time-value (cons nil nil)) (load-time-value (cons nil nil))))" out))
+  (unwind-protect
+      (progn (compile-file file) (load (compile-file-pathname file)))
+    (delete-file file)
+    (delete-file (compile-file-pathname file))
+    #+clisp (delete-file (make-pathname :type "lib" :defaults file)))
+  (ltv3))
+NIL
+
 (FUNCALL
  (COMPILE NIL (LAMBDA (A) (UNWIND-PROTECT (BLOCK B2 (RETURN-FROM B2 A)))))
  77759)
