@@ -16,7 +16,7 @@ XMLHOME=/usr/local/src/xml
 NSGMLS=nsgmls
 XMLSOC=/usr/local/src/sp/pubtext/xml.soc
 XALAN=/usr/local/src/xml/xalan-j_2_0_0
-CLASSPATH=$(XALAN)/bin/xerces.jar:$(XALAN)/bin/xalan.jar \
+CLASSPATH=$(XALAN)/bin/xerces.jar:$(XALAN)/bin/xalan.jar
 JAVA=java
 endif
 
