@@ -10,16 +10,14 @@
 
 (defvar *clisp-home* (namestring (default-directory)))
 (defvar *clisp-runtime*
-  (if (position #\Space *clisp-home*)
-      (concatenate 'string "\"" *clisp-home* "\\base\\lisp.exe\"")
-      (concatenate 'string *clisp-home* "lisp.exe")))
+  (concatenate 'string "\"" *clisp-home* "base\\lisp.exe\""))
 (defvar *clisp-some-args*
   (concatenate 'string " -B \"" (substitute #\/ #\\ *clisp-home*) "\" -M "))
 (defvar *clisp-some-cmd*
   (concatenate 'string *clisp-runtime* *clisp-some-args*))
 (defvar *clisp-args*
   (concatenate 'string *clisp-some-args* "\""
-               *clisp-home* "/base/lispinit.mem\""))
+               *clisp-home* "base\\lispinit.mem\""))
 (defvar *clisp-cmd*
   (concatenate 'string *clisp-runtime* *clisp-args*))
 
