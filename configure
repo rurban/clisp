@@ -438,7 +438,13 @@ if test -n "$do_config"; then
   fi # do_ffi
   for subdir in libcharset; do
     if test -d $subdir; then
-      conf_dir $subdir --srcdir="$RREL_SRCDIR/$subdir" \
+      case `uname` in
+        # on cygwin and mingw, this is required to avoid the _WinMain@16 error
+        # this gross hack should be removed as soon as Bruno fixes libcharset
+        CYGWIN* )  NOSHARED=--enable-shared=no; ;;
+        *) NOSHARED=""; ;;
+      esac
+      conf_dir $subdir --srcdir="$RREL_SRCDIR/$subdir" ${NOSHARED} \
         $subdir_configure_args --cache-file=../config.cache
     fi
   done
