@@ -1,5 +1,16 @@
 2002-06-10  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (common_case, test_optional_host, all_digits)
+	(split_name_type, legal_logical_word, legal_type, wild_p)
+	(word_wild_p, Z_AT_SLASH): adjusted for the new SIMPLE-STRING
+	model by using SstringDispatch (for the 2002-05-26 UCS-4 patch)
+	(schar, copy_upcase): new functions
+	(parse_logical_word, translate_nametype_aux, PARSE-NAMESTRING)
+	(parse_logical_host_prefix, parse_logical_pathnamestring)
+	(wildcard_diff_ab): use them
+
+2002-06-10  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in: when running CLISP, pass "-E UTF-8" instead of
 	"-Efile UTF-8" for the sake of "make check" on badly localized
 	machines (ascii terminals make UNICODE warnings into errors)
