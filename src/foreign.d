@@ -87,7 +87,7 @@ LISPFUNN(validp,1)
     var const char * name_asciz;
     var uintBWL flags;
     var uintL size;
-    { var object name = asciz_to_string(name_asciz);
+    { var object name = asciz_to_string(name_asciz,O(internal_encoding));
       var object obj = gethash(name,O(foreign_variable_table));
       if (!eq(obj,nullobj))
         { obj = TheFvariable(obj)->fv_address;
@@ -129,7 +129,7 @@ LISPFUNN(validp,1)
     var void* address;
     var const char * name_asciz;
     var uintWL flags;
-    { var object name = asciz_to_string(name_asciz);
+    { var object name = asciz_to_string(name_asciz,O(internal_encoding));
       var object obj = gethash(name,O(foreign_function_table));
       if (!eq(obj,nullobj))
         { obj = TheFfunction(obj)->ff_address;
@@ -864,7 +864,14 @@ global object convert_from_foreign (object fvd, const void* data);
     { if (eq(eltype,S(character)))
         { var const uintB* ptr1 = (const uintB*)data;
           var chart* ptr2 = &TheSstring(array)->data[0];
+          #ifdef UNICODE
+          var object encoding = O(foreign_encoding);
+          ASSERT(Encoding_mblen(encoding)(encoding,ptr1,ptr1+size) == size);
+          Encoding_mbstowcs(encoding)(encoding,&ptr1,ptr1+size,&ptr2,ptr2+size);
+          ASSERT(ptr1 == (const uintB*)data+size);
+          #else
           dotimesL(size,size, { *ptr2++ = as_chart(*ptr1++); } );
+          #endif
         }
       elif (eq(eltype,S(uint8)))
         { var const uint8* ptr1 = (const uint8*)data;
@@ -921,7 +928,19 @@ global object convert_from_foreign(fvd,data)
           }
         elif (eq(fvd,S(character)))
           { var const uintB* pdata = (const unsigned char *)data;
-            return code_char(as_chart(*pdata));
+            var chart ch;
+            #ifdef UNICODE
+            var object encoding = O(foreign_encoding);
+            var chart chbuf[1];
+            var const uintB* ptr1 = pdata;
+            var chart* ptr2 = &chbuf[0];
+            Encoding_mbstowcs(encoding)(encoding,&ptr1,ptr1+1,&ptr2,ptr2+1);
+            ASSERT(ptr2 == &chbuf[1]);
+            ch = chbuf[0];
+            #else
+            ch = as_chart(*pdata);
+            #endif
+            return code_char(ch);
           }
         elif (eq(fvd,S(char)) || eq(fvd,S(sint8)))
           { var const sint8* pdata = (const sint8*)data;
@@ -1006,7 +1025,7 @@ global object convert_from_foreign(fvd,data)
             if (asciz == NULL)
               { return NIL; }
               else
-              { return asciz_to_string(asciz); }
+              { return asciz_to_string(asciz,O(foreign_encoding)); }
           }
       }
     elif (simple_vector_p(fvd))
@@ -1617,9 +1636,15 @@ local void convert_to_foreign(fvd,obj,data)
         elif (eq(fvd,S(character)))
           { var uintB* pdata = (unsigned char *)data;
             if (!charp(obj)) goto bad_obj;
-            *pdata = as_cint(char_code(obj));
+           {var chart ch = char_code(obj);
+            #ifdef UNICODE
+            ASSERT(cslen(O(foreign_encoding),&ch,1) == 1);
+            cstombs(O(foreign_encoding),&ch,1,pdata,1);
+            #else
+            *pdata = as_cint(ch);
+            #endif
             return;
-          }
+          }}
         elif (eq(fvd,S(char)) || eq(fvd,S(sint8)))
           { var sint8* pdata = (sint8*)data;
             if (!sint8_p(obj)) goto bad_obj;
@@ -1730,12 +1755,10 @@ local void convert_to_foreign(fvd,obj,data)
             if (!stringp(obj)) goto bad_obj;
            {var uintL len;
             var const chart* ptr1 = unpack_string(obj,&len);
-            var char* asciz = converter_malloc(*(char**)data,len+1,1);
-            {var uintB* ptr2 = (uintB*)asciz;
-             var uintL count;
-             dotimesL(count,len, { *ptr2++ = as_cint(*ptr1++); } );
-             *ptr2++ = '\0';
-            }
+            var uintL bytelen = cslen(O(foreign_encoding),ptr1,len);
+            var char* asciz = converter_malloc(*(char**)data,bytelen+1,1);
+            cstombs(O(foreign_encoding),ptr1,len,(uintB*)asciz,bytelen);
+            asciz[bytelen] = '\0';
             *(char**)data = asciz;
             return;
           }}
@@ -1815,9 +1838,8 @@ local void convert_to_foreign(fvd,obj,data)
                 if (eq(eltype,S(character)) && stringp(obj))
                   { var uintL len;
                     var const chart* ptr1 = unpack_string(obj,&len);
-                    var uintB* ptr2 = (uintB*)data;
-                    var uintL count;
-                    dotimesL(count,len, { *ptr2++ = as_cint(*ptr1++); } );
+                    ASSERT(cslen(O(foreign_encoding),ptr1,len) == len);
+                    cstombs(O(foreign_encoding),ptr1,len,(uintB*)data,len);
                   }
                 elif (eq(eltype,S(uint8))
                       && general_byte_vector_p(obj)
@@ -1878,10 +1900,9 @@ local void convert_to_foreign(fvd,obj,data)
                 if (eq(eltype,S(character)) && stringp(obj))
                   { var uintL dummy_len;
                     var const chart* ptr1 = unpack_string(obj,&dummy_len);
-                    var uintB* ptr2 = (uintB*)data;
-                    var uintL count;
-                    dotimesL(count,len, { *ptr2++ = as_cint(*ptr1++); } );
-                    if (len < maxdim) { *ptr2 = '\0'; }
+                    ASSERT(cslen(O(foreign_encoding),ptr1,len) == len);
+                    cstombs(O(foreign_encoding),ptr1,len,(uintB*)data,len);
+                    if (len < maxdim) { ((uintB*)data)[len] = '\0'; }
                   }
                 elif (eq(eltype,S(uint8))
                       && general_byte_vector_p(obj)
@@ -3451,7 +3472,7 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL)
     var object name;
     var uintL version;
     { var struct Library * libaddr;
-      with_string_0(name,libname,
+      with_string_0(name,O(misc_encoding),libname,
         { begin_system_call();
           libaddr = OpenLibrary(libname,version);
           end_system_call();

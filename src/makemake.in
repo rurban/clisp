@@ -29,6 +29,7 @@ options:
        --with-gettext          internationalization library gettext-0.10.27
        --with-nogettext        static internationalization (en,de,fr only)
        --with-termcap          termcap-1.3 library (needed only on cygwin32)
+       --with-unicode          Unicode character set
        --with-dynamic-ffi      a foreign language interface
        --with-dynamic-modules  dynamic loading of foreign language modules
        --with-module=wildcard
@@ -48,6 +49,7 @@ EOP
 #        noreadline       no readline library at all
 #        gettext          internationalization library gettext-0.10.27
 #        nogettext        static internationalization (en,de,fr only)
+#        unicode          Unicode character set
 #        termcap          termcap-1.3 library (needed only on cygwin32)
 #        dynamic-ffi      a dynamic foreign language interface
 #        dynamic-modules  dynamic loading of foreign language modules
@@ -1102,6 +1104,10 @@ fi
 
 FILES='lisp.a'
 
+if test -n "$with_unicode"; then
+  XCFLAGS="$XCFLAGS -DUNICODE"
+fi
+
 if test -n "$with_dynamic_ffi"; then
   XCFLAGS="$XCFLAGS -DDYNAMIC_FFI"
   if [ $HOS = win32 ] ; then
@@ -1278,6 +1284,38 @@ if [ $TSYS = master -o $TSYS = amiga ] ; then
 fi
 
 SPVW_INCLUDES=' spvw_module spvw_debug spvw_alloca spvw_mmap spvw_multimap spvw_singlemap spvw_page spvw_heap spvw_global spvw_gcstat spvw_space spvw_mark spvw_objsize spvw_update spvw_fault spvw_sigsegv spvw_sigcld spvw_sigint spvw_sigwinch spvw_garcol spvw_genera1 spvw_genera2 spvw_genera3 spvw_allocate spvw_typealloc spvw_circ spvw_walk spvw_language spvw_memfile'
+
+UNICODE_INCLUDES=''
+if [ -n "$with_unicode" ] ; then
+  UNICODE_INCLUDES=$UNICODE_INCLUDES' uni_upcase uni_downcase uni_attribute'
+fi
+
+NLS_INCLUDES=''
+if [ -n "$with_unicode" ] ; then
+  NLS_INCLUDES=$NLS_INCLUDES' nls_ascii'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_iso8859_1 nls_iso8859_2 nls_iso8859_3'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_iso8859_4 nls_iso8859_5 nls_iso8859_6'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_iso8859_7 nls_iso8859_8 nls_iso8859_9'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_iso8859_14 nls_iso8859_15'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_koi8_r'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_mac_arabic nls_mac_centraleurope'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_mac_croatian nls_mac_cyrillic nls_mac_dingbat'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_mac_greek nls_mac_hebrew nls_mac_iceland'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_mac_roman nls_mac_romania nls_mac_symbol'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_mac_thai nls_mac_turkish nls_mac_ukraine'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_cp437_ms nls_cp437_ibm nls_cp737 nls_cp775'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_cp850 nls_cp852_ms nls_cp852_ibm nls_cp855'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_cp857 nls_cp860_ms nls_cp860_ibm nls_cp861_ms'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_cp861_ibm nls_cp862_ms nls_cp862_ibm'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_cp863_ms nls_cp863_ibm nls_cp864_ms'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_cp864_ibm nls_cp865_ms nls_cp865_ibm'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_cp866 nls_cp869_ms nls_cp869_ibm nls_cp874_ms'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_cp874_ibm'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_cp1250 nls_cp1251 nls_cp1252 nls_cp1253'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_cp1254 nls_cp1255 nls_cp1256 nls_cp1257'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_cp1258'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_nextstep'
+fi
 
 ERROR_INCLUDES=''
 if [ $TSYS = master -o $TSYS = amiga ] ; then
@@ -1843,7 +1881,7 @@ echol
 echolist "DFILES =" "$DFILES $ARI_ASMD $SP_ASMD" ".d"
 echol
 
-echolist "CFILES =" "$DFILES $ARI_ASMD $ARI_ASMC $SP_ASMD" ".c"
+echolist "CFILES =" "$DFILES $ARI_ASMD $ARI_ASMC $SP_ASMD $UNICODE_INCLUDES $NLS_INCLUDES" ".c"
 echol
 
 echolist "OBJECTS =" "$CPARTS $ARI_ASMS $SP_ASMS $GMALLOC" "${TOBJ}"
@@ -2018,6 +2056,11 @@ if [ -n "${SRCDIR}" ] ; then
       echotab "-\$(LN) ${SRCDIR}${f}.d ${f}.d"
       echol
     done
+    for f in $UNICODE_INCLUDES $NLS_INCLUDES ; do
+      echol "${f}.c : ${SRCDIR}${f}.c"
+      echotab "-\$(LN) ${SRCDIR}${f}.c ${f}.c"
+      echol
+    done
     for f in version.h modules.h ; do
       echol "${f} : ${SRCDIR}${f}"
       echotab "-\$(LN) ${SRCDIR}${f} ${f}"
@@ -2153,6 +2196,12 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   fi
   if [ $f = spvw -o $f = hashtabl ] ; then
     depends=$depends' aridecl'
+  fi
+  if [ $f = charstrg ] ; then
+    depends=$depends''$UNICODE_INCLUDES
+  fi
+  if [ $f = encoding ] ; then
+    depends=$depends''$NLS_INCLUDES
   fi
   if [ $f = error ] ; then
     depends=$depends''$ERROR_INCLUDES

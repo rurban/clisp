@@ -1299,24 +1299,30 @@ local boolean legal_logical_word_char(ch)
 #endif
 
 # UP: Wandelt eine Unix-Directory-Angabe in ein Pathname um.
-# asciz_dir_to_pathname(path)
+# asciz_dir_to_pathname(path,encoding)
 # > const char* path: path als ASCIZ-String
+# > encoding: Encoding
 # < ergebnis: als Pathname ohne Name und Typ
-  local object asciz_dir_to_pathname (const char* path);
-  local object asciz_dir_to_pathname(path)
-    var const char* path;
+ #ifdef UNICODE
+  local object asciz_dir_to_pathname (const char* path, object encoding);
+  local object asciz_dir_to_pathname(const char* path, object encoding)
+ #else
+  #define asciz_dir_to_pathname(path,encoding)  asciz_dir_to_pathname_(path)
+  local object asciz_dir_to_pathname_ (const char* path);
+  local object asciz_dir_to_pathname_(const char* path)
+ #endif
      { var object pathname;
        var const char* pathptr = path;
        var uintL len = 0; # Stringlänge
        until (*pathptr == 0) { pathptr++; len++; } # ASCIZ-Stringende suchen
        # Sofern der String nicht schon mit '/' endet, wird ein '/' angefügt:
        if ((len>0) && (pathptr[-1]==slash))
-         { pathname = make_string((const uintB*)path,len); }
+         { pathname = make_string((const uintB*)path,len,encoding); }
          else
          { var DYNAMIC_ARRAY(pathbuf,char,len+1);
            begin_system_call(); memcpy(pathbuf,path,len); end_system_call();
            pathbuf[len] = slash;
-           pathname = make_string((const uintB*)pathbuf,len+1);
+           pathname = make_string((const uintB*)pathbuf,len+1,encoding);
            FREE_DYNAMIC_ARRAY(pathbuf);
          }
        # und in ein Pathname umwandeln:
@@ -1777,7 +1783,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                   if (z.index - startz.index - 2 == 0) goto no_envvar;
                   {var object envvar = subsstring(STACK_0,startz.index+1,z.index-1);
                    # Deren Wert holen:
-                   with_sstring_0(envvar,envvar_asciz,
+                   with_sstring_0(envvar,O(misc_encoding),envvar_asciz,
                      { begin_system_call();
                       {var const char* envval = getenv(envvar_asciz);
                        end_system_call();
@@ -1791,7 +1797,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                                   ""
                                  );
                          }
-                       pushSTACK(asciz_to_string(envval)); # Wert der Variablen als String
+                       pushSTACK(asciz_to_string(envval,O(misc_encoding))); # Wert der Variablen als String
                      }});
                   }
                   # Reststück bilden:
@@ -2024,7 +2030,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                     { # Username bauen:
                       var object username = subsstring(STACK_2,z.index,z.index+charcount);
                       # Dessen Home-Directory aus dem Passwort-File holen:
-                      with_sstring_0(username,username_asciz,
+                      with_sstring_0(username,O(misc_encoding),username_asciz,
                         { begin_system_call();
                           errno = 0;
                          {var struct passwd * userpasswd = getpwnam(username_asciz);
@@ -2042,7 +2048,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                                     );
                             }
                           end_system_call();
-                          userhomedir = asciz_dir_to_pathname(userpasswd->pw_dir); # Homedir als Pathname
+                          userhomedir = asciz_dir_to_pathname(userpasswd->pw_dir,O(misc_encoding)); # Homedir als Pathname
                         }});
                     }
                   # Directory aus dem Pathname userhomedir kopieren:
@@ -2082,7 +2088,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                   # Environment-Variable hat charcount Zeichen.
                   { var object envvar = subsstring(STACK_2,z.index,z.index+charcount);
                     # Deren Wert holen:
-                    with_sstring_0(envvar,envvar_asciz,
+                    with_sstring_0(envvar,O(misc_encoding),envvar_asciz,
                       { begin_system_call();
                        {var const char* envval = getenv(envvar_asciz);
                         end_system_call();
@@ -2096,7 +2102,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                                    ""
                                   );
                           }
-                        envval_dir = asciz_dir_to_pathname(envval); # Wert der Variablen als Pathname
+                        envval_dir = asciz_dir_to_pathname(envval,O(misc_encoding)); # Wert der Variablen als Pathname
                       }});
                   }
                   # Directory aus dem Pathname envval_dir kopieren:
@@ -6079,7 +6085,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       # da DOS und unser PARSE-NAMESTRING auch Filenamen mit '/' statt '\'
       # verstehen).
       # in Pathname umwandeln:
-      return asciz_dir_to_pathname(&path_buffer[0]);
+      return asciz_dir_to_pathname(&path_buffer[0],O(pathname_encoding));
     }
 
 # UP: Füllt Default-Drive und Default-Directory in einen Pathname ein.
@@ -6212,7 +6218,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                   #endif
                ) )
               { var struct stat statbuf;
-                with_sstring(dir_namestring,path,len,
+                with_sstring(dir_namestring,O(pathname_encoding),path,len,
                   { ASSERT((len > 0) && (path[len-1] == '\\'));
                     path[len-1] = '\0'; # '\' am Schluss durch Nullbyte ersetzen
                     begin_system_call();
@@ -6232,7 +6238,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           #endif
           #ifdef WIN32_NATIVE
             var DWORD fileattr;
-            with_sstring_0(dir_namestring,path,
+            with_sstring_0(dir_namestring,O(pathname_encoding),path,
               { if (!nullp(Cdr(ThePathname(STACK_0)->pathname_directory)))
                   { var uintL len = Sstring_length(dir_namestring);
                     ASSERT((len > 0) && (path[len-1] == '\\'));
@@ -6297,7 +6303,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
             end_system_call();
            }
             # seinen Namen verwenden:
-           {var object name = asciz_to_string(&fibptr->fib_FileName[0]);
+           {var object name = asciz_to_string(&fibptr->fib_FileName[0],O(pathname_encoding));
             # zum Parent-Directory hochsteigen:
             var BPTR parentlock;
             begin_system_call();
@@ -6445,7 +6451,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           }
           pushSTACK(dir_namestring);
           dir_namestring = OSdirnamestring(dir_namestring); # ohne überflüssigen '/' am Schluss
-          with_sstring_0(dir_namestring,dir_namestring_asciz,
+          with_sstring_0(dir_namestring,O(pathname_encoding),dir_namestring_asciz,
             { # Lock für dieses Directory holen:
               set_break_sem_4(); # Unterbrechungen währenddessen verhindern
               begin_system_call();
@@ -6525,7 +6531,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
         stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
         stringcount += file_namestring_parts(pathname); # Strings für den Filename
        {var object namestring = string_concat(stringcount); # zusammenhängen
-        with_sstring_0(namestring,namestring_asciz,
+        with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
           {  # Lock für dieses File holen:
              set_break_sem_4(); # Unterbrechungen währenddessen verhindern
              begin_system_call();
@@ -6564,7 +6570,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                { pushSTACK(namestring);
                  # Die Groß-/Kleinschreibung des Truename wird bestimmt durch
                  # das bereits existierende File.
-                 pushSTACK(asciz_to_string(&statusptr->fib_FileName[0]));
+                 pushSTACK(asciz_to_string(&statusptr->fib_FileName[0],O(pathname_encoding)));
                  split_name_type(1);
                 {var object pathname = STACK_(0+3); # der kopierte Pathname
                  ThePathname(pathname)->pathname_type = popSTACK();
@@ -6598,7 +6604,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       if ( getwd(&path_buffer[0]) ==NULL)
         { end_system_call();
           pushSTACK(O(punkt_string)); # Wert für Slot PATHNAME von FILE-ERROR
-          pushSTACK(asciz_to_string(&path_buffer[0])); # Meldung
+          pushSTACK(asciz_to_string(&path_buffer[0],O(pathname_encoding))); # Meldung
           fehler(file_error,
                  DEUTSCH ? "UNIX-Fehler bei GETWD: ~" :
                  ENGLISH ? "UNIX error while GETWD: ~" :
@@ -6610,7 +6616,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       # Es muss mit '/' anfangen:
       if (!(path_buffer[0] == '/'))
         { pushSTACK(O(punkt_string)); # Wert für Slot PATHNAME von FILE-ERROR
-          pushSTACK(asciz_to_string(&path_buffer[0]));
+          pushSTACK(asciz_to_string(&path_buffer[0],O(pathname_encoding)));
           fehler(file_error,
                  DEUTSCH ? "UNIX GETWD lieferte ~" :
                  ENGLISH ? "UNIX GETWD returned ~" :
@@ -6619,7 +6625,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                 );
         }
       # in Pathname umwandeln:
-      return asciz_dir_to_pathname(&path_buffer[0]);
+      return asciz_dir_to_pathname(&path_buffer[0],O(pathname_encoding));
     }
 
 # UP: Füllt Default-Directory in einen Pathname ein.
@@ -6685,13 +6691,13 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
               pushSTACK(O(punkt_string)); # und "."
              {var object string = string_concat(stringcount+1); # zusammenhängen
               # symbolische Links darin auflösen:
-              with_sstring_0(string,string_asciz,
+              with_sstring_0(string,O(pathname_encoding),string_asciz,
                 { begin_system_call();
                   if ( realpath(string_asciz,&path_buffer[0]) ==NULL)
                     { if (!(errno==ENOENT)) { end_system_call(); OS_file_error(STACK_0); }
                       end_system_call();
                       if (!tolerantp)
-                        { fehler_dir_not_exists(asciz_dir_to_pathname(&path_buffer[0])); } # fehlerhafte Komponente
+                        { fehler_dir_not_exists(asciz_dir_to_pathname(&path_buffer[0],O(pathname_encoding))); } # fehlerhafte Komponente
                       end_system_call();
                       FREE_DYNAMIC_ARRAY(string_asciz);
                       return nullobj;
@@ -6702,7 +6708,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
             # Neuer Directory-Path muss mit '/' anfangen:
             if (!(path_buffer[0] == '/'))
               { # STACK_0 = Wert für Slot PATHNAME von FILE-ERROR
-                pushSTACK(asciz_to_string(&path_buffer[0]));
+                pushSTACK(asciz_to_string(&path_buffer[0],O(pathname_encoding)));
                 fehler(file_error,
                        DEUTSCH ? "UNIX REALPATH lieferte ~" :
                        ENGLISH ? "UNIX REALPATH returned ~" :
@@ -6717,7 +6723,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
              if (!((len>0) && (pathptr[-1]=='/')))
                { *pathptr = '/'; len++; } # ein '/' anfügen
             # und in einen String umwandeln:
-             { var object new_string = make_string((uintB*)(&path_buffer[0]),len);
+             { var object new_string = make_string((uintB*)(&path_buffer[0]),len,O(pathname_encoding));
             # Pathname draus machen und dessen Directory verwenden:
               {var object new_pathname = coerce_pathname(new_string);
                ThePathname(STACK_0)->pathname_directory
@@ -6734,7 +6740,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
            {var object namestring = string_concat(stringcount); # zusammenhängen
             # Information holen:
             local struct stat status;
-            with_sstring_0(namestring,namestring_asciz,
+            with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
               { begin_system_call();
                 if (!( lstat(namestring_asciz,&status) ==0))
                   { if (!(errno==ENOENT)) { end_system_call(); OS_file_error(STACK_0); }
@@ -6771,7 +6777,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                {var uintL linklen = status.st_size; # vermutliche Länge des Link-Inhalts
                 retry_readlink:
                 { var DYNAMIC_ARRAY(linkbuf,char,linklen+1); # Buffer für den Link-Inhalt
-                  with_sstring_0(namestring,namestring_asciz,
+                  with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
                     { # Link-Inhalt lesen:
                       begin_system_call();
                      {var int result = readlink(namestring_asciz,linkbuf,linklen);
@@ -6784,7 +6790,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                   # Daraus ein Pathname machen:
                   # (MERGE-PATHNAMES (PARSE-NAMESTRING linkbuf) pathname-without-name&type)
                   pushSTACK(subr_self);
-                  pushSTACK(make_string(linkbuf,linklen));
+                  pushSTACK(make_string(linkbuf,linklen,O(pathname_encoding)));
                   FREE_DYNAMIC_ARRAY(linkbuf);
                 }
                 funcall(L(parse_namestring),1);
@@ -6830,7 +6836,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       if ( realpath("@",&path_buffer[0]) ==NULL) { OS_error(); }
       end_system_call();
       # in Pathname umwandeln:
-      return asciz_dir_to_pathname(&path_buffer[0]);
+      return asciz_dir_to_pathname(&path_buffer[0],O(pathname_encoding));
     }
 
 #if 0 # unbenutzt
@@ -6842,13 +6848,13 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
   local object canonicalise_filename(filename)
     var object filename;
     { var char path_buffer[MAXPATHLEN];
-      with_string_0(filename,filename_asciz,
+      with_string_0(filename,O(pathname_encoding),filename_asciz,
         { begin_system_call();
           if ( realpath(filename_asciz,&path_buffer[0]) ==NULL) { OS_error(); }
           end_system_call();
         });
       # in Pathname umwandeln:
-      return coerce_pathname(asciz_to_string(&path_buffer[0]));
+      return coerce_pathname(asciz_to_string(&path_buffer[0],O(pathname_encoding)));
     }
 #endif
 
@@ -6873,7 +6879,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       }   }
       pushSTACK(dirname);
       {var object dir_string = string_concat(stringcount+1);
-       with_sstring(dir_string,dir_path,len,
+       with_sstring(dir_string,O(pathname_encoding),dir_path,len,
          { # Punkt am Schluss durch Nullbyte ersetzen:
            ASSERT((len > 0) && (dir_path[len-1] == '.'));
            dir_path[len-1] = '\0';
@@ -6885,7 +6891,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
            end_system_call();
            skipSTACK(1);
            # in Pathname umwandeln:
-           dir_string = asciz_dir_to_pathname(&path_buffer[0]);
+           dir_string = asciz_dir_to_pathname(&path_buffer[0],O(pathname_encoding));
          }});
        return dir_string;
     }}}
@@ -7074,7 +7080,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       if (!links_resolved)
         { # Existenztest:
           var struct stat statbuf;
-          with_sstring(dir_namestring,dir_namestring_asciz,len,
+          with_sstring(dir_namestring,O(pathname_encoding),dir_namestring_asciz,len,
             { ASSERT((len > 0) && (dir_namestring_asciz[len-1]=='.'));
               dir_namestring_asciz[len-1] = '\0'; # '.' am Schluss durch Nullbyte ersetzen
               begin_system_call();
@@ -7098,7 +7104,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
         { var object namestring = OSnamestring(dir_namestring);
           # Information holen:
           local struct stat status;
-          with_sstring_0(namestring,namestring_asciz,
+          with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
             { begin_system_call();
               if (stat(namestring_asciz,&status) < 0)
                 { if (!(errno==ENOENT)) { end_system_call(); OS_file_error(STACK_0); }
@@ -7206,7 +7212,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
         if (mconsp(Cdr(ThePathname(pathname)->pathname_directory)))
           { skipSTACK(1); stringcount--; }
        {var object string = string_concat(stringcount); # zusammenhängen
-        with_sstring_0(string,asciz,
+        with_sstring_0(string,O(pathname_encoding),asciz,
           { # Default-Directory ändern:
             change_current_directory(asciz);
           });
@@ -7231,7 +7237,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
         directory_namestring_parts(STACK_0); # Strings fürs Directory
       var object dir_namestring = string_concat(stringcount);
       dir_namestring = OSdirnamestring(dir_namestring); # ohne überflüssigen '/' am Schluss
-      with_sstring_0(dir_namestring,dir_namestring_asciz,
+      with_sstring_0(dir_namestring,O(pathname_encoding),dir_namestring_asciz,
         { # Default-Directory ändern:
           set_break_sem_4();
           begin_system_call();
@@ -7260,7 +7266,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     { var uintC stringcount = host_namestring_parts(STACK_0); # Strings für den Host
       stringcount += directory_namestring_parts(STACK_0); # Strings fürs Directory
      {var object string = string_concat(stringcount); # zusammenhängen
-      with_sstring_0(string,asciz,
+      with_sstring_0(string,O(pathname_encoding),asciz,
         { # Default-Directory ändern:
           begin_system_call();
           if (!( chdir(asciz) ==0)) { end_system_call(); OS_file_error(STACK_0); }
@@ -7279,7 +7285,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       var uintC stringcount = host_namestring_parts(pathname); # Strings für den Host
       stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
      {var object dir_namestring = string_concat(stringcount); # zusammenhängen
-      with_sstring(dir_namestring,dir_namestring_asciz,len,
+      with_sstring(dir_namestring,O(pathname_encoding),dir_namestring_asciz,len,
         { ASSERT((len > 0) && (dir_namestring_asciz[len-1]=='.'));
           dir_namestring_asciz[len-1] = '\0'; # '.' am Schluss durch Nullbyte ersetzen
           begin_system_call();
@@ -7380,7 +7386,7 @@ LISPFUN(namestring,1,1,norest,nokey,0,NIL)
     local boolean file_exists(namestring)
       var object namestring;
       { var boolean exists;
-        with_sstring_0(namestring,namestring_asciz,
+        with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
           { exists = (access0(namestring_asciz)==0); });
         return exists;
       }
@@ -7510,7 +7516,7 @@ LISPFUNN(probe_file,1)
               || equal(Cdr(ThePathname(STACK_0)->pathname_directory),O(pipe_subdirs))
               #endif
            ) )
-          { with_sstring(dir_namestring,dir_namestring_asciz,len,
+          { with_sstring(dir_namestring,O(pathname_encoding),dir_namestring_asciz,len,
               { ASSERT((len > 0) && (dir_namestring_asciz[len-1] == '\\'));
                 dir_namestring_asciz[len-1] = '\0'; # '\' am Schluss durch Nullbyte ersetzen
                {var struct stat statbuf;
@@ -7528,7 +7534,7 @@ LISPFUNN(probe_file,1)
           }
       #endif
       #ifdef WIN32_NATIVE
-        with_sstring_0(dir_namestring,dir_namestring_asciz,
+        with_sstring_0(dir_namestring,O(pathname_encoding),dir_namestring_asciz,
           { if (!nullp(Cdr(ThePathname(STACK_0)->pathname_directory)))
               { var uintL len = Sstring_length(dir_namestring);
                 ASSERT((len > 0) && (dir_namestring_asciz[len-1] == '\\'));
@@ -7550,7 +7556,7 @@ LISPFUNN(probe_file,1)
       #endif
       #ifdef PATHNAME_AMIGAOS
         dir_namestring = OSdirnamestring(dir_namestring); # ohne überflüssigen '/' am Schluss
-        with_sstring_0(dir_namestring,dir_namestring_asciz,
+        with_sstring_0(dir_namestring,O(pathname_encoding),dir_namestring_asciz,
           { # Lock für dieses Directory holen:
             set_break_sem_4(); # Unterbrechungen währenddessen verhindern
             begin_system_call();
@@ -7581,7 +7587,7 @@ LISPFUNN(probe_file,1)
         pushSTACK(dir_namestring);
         pushSTACK(O(punkt_string)); # und "."
         dir_namestring = string_concat(2); # zusammenhängen
-        with_sstring_0(dir_namestring,dir_namestring_asciz,
+        with_sstring_0(dir_namestring,O(pathname_encoding),dir_namestring_asciz,
           { var struct stat statbuf;
             begin_system_call();
             if (stat(dir_namestring_asciz,&statbuf) < 0)
@@ -7596,7 +7602,7 @@ LISPFUNN(probe_file,1)
           });
       #endif
       #ifdef PATHNAME_RISCOS
-        with_sstring(dir_namestring,dir_namestring_asciz,len,
+        with_sstring(dir_namestring,O(pathname_encoding),dir_namestring_asciz,len,
           { ASSERT((len > 0) && (dir_namestring_asciz[len-1]=='.'));
             dir_namestring_asciz[len-1] = '\0'; # '.' am Schluss durch Nullbyte ersetzen
            {var struct stat statbuf;
@@ -7707,7 +7713,7 @@ LISPFUNN(delete_file,1)
     if (!file_exists(namestring))
       { skipSTACK(1); value1 = NIL; mv_count=1; return; } # File existiert nicht -> Wert NIL
     #endif
-    with_sstring_0(namestring,namestring_asciz,
+    with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
       { if (!delete_file_if_exists(namestring_asciz))
           { # File existiert nicht -> Wert NIL
             FREE_DYNAMIC_ARRAY(namestring_asciz); skipSTACK(1);
@@ -7783,8 +7789,8 @@ LISPFUNN(delete_file,1)
       #              oldtruename, oldnamestring, newtruename, newnamestring.
       # Nun kann gefahrlos umbenannt werden:
       prepare_create(STACK_4);
-      with_sstring_0(STACK_2,oldnamestring_asciz,
-        with_sstring_0(STACK_0,newnamestring_asciz,
+      with_sstring_0(STACK_2,O(pathname_encoding),oldnamestring_asciz,
+        with_sstring_0(STACK_0,O(pathname_encoding),newnamestring_asciz,
           { rename_file_to_nonexisting(oldnamestring_asciz,newnamestring_asciz); } ); );
     }
 
@@ -8107,7 +8113,7 @@ LISPFUNN(rename_file,2)
         if (openp(filename)) { fehler_delete_open(filename); } # Keine offenen Dateien löschen!
         new_namestring = assure_dir_exists(FALSE,FALSE); # Filename fürs Betriebssystem
       #endif
-      with_sstring_0(new_namestring,new_namestring_asciz,
+      with_sstring_0(new_namestring,O(pathname_encoding),new_namestring_asciz,
         { # Datei (oder Link) mit diesem Namen löschen, falls vorhanden:
           delete_file_before_rename(new_namestring_asciz);
           # Datei vom alten auf diesen Namen umbenennen:
@@ -8165,7 +8171,7 @@ LISPFUNN(rename_file,2)
                   if (!(if_not_exists==3)) # nichts oder NIL -> NIL
                     goto ergebnis_NIL;
                   # :CREATE -> Datei mit open erzeugen und schließen:
-                  with_sstring_0(namestring,namestring_asciz,
+                  with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
                     { prepare_create(STACK_0);
                       create_new_file(namestring_asciz);
                     });
@@ -8179,7 +8185,7 @@ LISPFUNN(rename_file,2)
                 if (!file_exists(namestring))
                   { pushSTACK(namestring); prepare_create(STACK_1); namestring = popSTACK(); }
                 #endif
-                with_sstring_0(namestring,namestring_asciz,
+                with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
                   { result = open_input_file(namestring_asciz,if_not_exists==3,&handl); }
                   );
                 if (!result)
@@ -8201,7 +8207,7 @@ LISPFUNN(rename_file,2)
                 # Defaultwert für if_exists ist :NEW-VERSION :
                 if (if_exists==0) { if_exists = 5; }
                 #if defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM)
-                  with_sstring_0(namestring,namestring_asciz,
+                  with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
                     { # Bei if_exists=5 und if_not_exists=3 kann man sofort
                       # CREAT ansteuern, sonst muss man vorher OPEN versuchen:
                       if (!((if_exists==5) && (if_not_exists==3)))
@@ -8268,7 +8274,7 @@ LISPFUNN(rename_file,2)
                     });
                 #endif
                 #if defined(UNIX) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
-                  with_sstring_0(namestring,namestring_asciz,
+                  with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
                     { if (file_exists(namestring))
                         # Datei existiert
                         { # :IF-EXISTS-Argument entscheidet:
@@ -8585,13 +8591,13 @@ LISPFUN(open,1,0,norest,key,6,\
               break; # ist der Name zu Ende
             ptr++; count++; # weiterrücken
           }
-        pushSTACK(make_string(asciz,count)); # String für Name erzeugen
+        pushSTACK(make_string(asciz,count,O(pathname_encoding))); # String für Name erzeugen
         if (*ptr++ == 0) # mit Nullbyte beendet ?
           ; # ja -> Typ bleibt Default
           else
           { asciz = ptr; count = 0;
             until (*ptr++ == 0) { count++; } # bei Nullbyte ist der Typ zu Ende
-            STACK_1 = make_string(asciz,count); # String für Typ erzeugen
+            STACK_1 = make_string(asciz,count,O(pathname_encoding)); # String für Typ erzeugen
           }
       }}
   #
@@ -8607,7 +8613,7 @@ LISPFUN(open,1,0,norest,key,6,\
       var object pathstring;
       {
        #ifdef MSDOS
-        with_sstring_0(pathstring,pathstring_asciz,
+        with_sstring_0(pathstring,O(pathname_encoding),pathstring_asciz,
           { # Dateisuche gemäß DOS-Konvention:
             READDIR_var_declarations;
             # Suchanfang, suche nach Ordnern und normalen Dateien:
@@ -8713,7 +8719,7 @@ LISPFUN(open,1,0,norest,key,6,\
       var object pathstring;
       {
         #ifdef MSDOS
-          with_sstring_0(pathstring,pathstring_asciz,
+          with_sstring_0(pathstring,O(pathname_encoding),pathstring_asciz,
             { # Dateisuche gemäß DOS-Konvention:
               READDIR_var_declarations;
               # Suchanfang, suche nur nach normalen Dateien:
@@ -8941,7 +8947,7 @@ LISPFUN(open,1,0,norest,key,6,\
       newlist = listof(4); # 4-elementige Liste bauen
       #endif
       #ifdef AMIGAOS
-      pushSTACK(asciz_to_string(&filestatus->fib_Comment[0])); # Kommentar als 5. Listenelement
+      pushSTACK(asciz_to_string(&filestatus->fib_Comment[0],O(pathname_encoding))); # Kommentar als 5. Listenelement
       newlist = listof(5); # 5-elementige Liste bauen
       #endif
       pushSTACK(Car(newlist)); # pathname wieder in den Stack
@@ -9032,7 +9038,7 @@ LISPFUN(open,1,0,norest,key,6,\
   local void directory_search_1subdir(subdir,namestring)
     var object subdir;
     var object namestring;
-    { with_sstring_0(namestring,namestring_asciz,
+    { with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
         { check_stat_directory(namestring_asciz,
                                { OS_file_error(STACK_0); },
             { # pathname kopieren und dessen Directory um subdir verlängern:
@@ -9062,7 +9068,7 @@ LISPFUN(open,1,0,norest,key,6,\
       pushSTACK(O(punkt_string)); # und "."
      {var object namestring = string_concat(2); # zusammenhängen
       var struct stat status;
-      with_sstring_0(namestring,namestring_asciz,
+      with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
         { begin_system_call();
           if (!( stat(namestring_asciz,&status) ==0)) # Information holen
             { if (!(errno==ENOENT)) { end_system_call(); OS_file_error(STACK_1); }
@@ -9092,7 +9098,7 @@ LISPFUN(open,1,0,norest,key,6,\
     var object namestring;
     var struct stat * statbuf;
     { var boolean exists = TRUE;
-      with_sstring_0(namestring,namestring_asciz,
+      with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
         { begin_system_call();
           if (!( stat_for_search(namestring_asciz,statbuf) ==0))
             { if (!((errno==ENOENT) || (errno==ELOOP_VALUE)))
@@ -9134,15 +9140,15 @@ LISPFUN(open,1,0,norest,key,6,\
          {var DIR* dirp;
           set_break_sem_4();
           #ifdef UNIX
-          with_sstring_0(namestring,namestring_asciz,
+          with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
             { begin_system_call();
               dirp = opendir(namestring_asciz); # Directory öffnen
               end_system_call();
             });
           #endif
           #ifdef RISCOS
-          with_sstring_0(namestring,namestring_asciz,
-            with_sstring_0(wildcard_mask,wildcard_mask_asciz,
+          with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
+            with_sstring_0(wildcard_mask,O(pathname_encoding),wildcard_mask_asciz,
               { # In wildcard_mask_asciz die Wildchar-Characters '?' ins synonyme '#' umwandeln:
                 { var uintB* ptr = wildcard_mask_asciz;
                   while (*ptr != '\0') { if (*ptr == '?') { *ptr = '#'; } ptr++; }
@@ -9186,7 +9192,7 @@ LISPFUN(open,1,0,norest,key,6,\
                #else
                direntry_len = dp->d_namlen;
                #endif
-               direntry = make_string((const uintB*)(&dp->d_name[0]),direntry_len);
+               direntry = make_string((const uintB*)(&dp->d_name[0]),direntry_len,O(pathname_encoding));
               }
               #ifndef RISCOS
               # "." und ".." übergehen:
@@ -9297,7 +9303,7 @@ LISPFUN(open,1,0,norest,key,6,\
       #ifdef AMIGAOS
         # Directory absuchen:
         { var object namestring = OSdirnamestring(STACK_0);
-          with_sstring_0(namestring,namestring_asciz,
+          with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
             { set_break_sem_4();
               begin_system_call();
              {var BPTR lock = Lock(namestring_asciz,ACCESS_READ);
@@ -9312,7 +9318,7 @@ LISPFUN(open,1,0,norest,key,6,\
                     break;
                   end_system_call();
                   # Directory-Eintrag in String umwandeln:
-                 {var object direntry = asciz_to_string(&fibptr->fib_FileName[0]);
+                 {var object direntry = asciz_to_string(&fibptr->fib_FileName[0],O(pathname_encoding));
                   pushSTACK(direntry);
                   # Stackaufbau: ..., pathname, dir_namestring, direntry.
                   # Feststellen, ob es ein Directory oder ein File ist:
@@ -9322,7 +9328,7 @@ LISPFUN(open,1,0,norest,key,6,\
                        # das geht, denn Lock() löst Links auf (bzw. versucht es)
                        pushSTACK(STACK_1); pushSTACK(STACK_(0+1));
                       {var object direntry_namestring = string_concat(2);
-                       with_sstring_0(direntry_namestring,direntry_namestring_asciz,
+                       with_sstring_0(direntry_namestring,O(pathname_encoding),direntry_namestring_asciz,
                          {  begin_system_call();
                             # TODO olddir = CurrentDir(lock); ... CurrentDir(olddir)
                           { var BPTR direntry_lock = Lock(direntry_namestring_asciz,ACCESS_READ);
@@ -9420,7 +9426,7 @@ LISPFUN(open,1,0,norest,key,6,\
         pushSTACK(STACK_0); # Directory-Name
         pushSTACK(READDIR_wildnametype_suffix); # und "*.*" bzw. "*"
         { var object namestring = string_concat(2); # zusammenhängen
-          with_sstring_0(namestring,namestring_asciz,
+          with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
             { # Directory absuchen, gemäß DOS-Konvention bzw. Win32-Konvention:
               READDIR_var_declarations;
               # Suchanfang, suche nach Ordnern und normalen Dateien:
@@ -9432,7 +9438,7 @@ LISPFUN(open,1,0,norest,key,6,\
                 loop
                   { end_system_call();
                    {# Directory-Eintrag in String umwandeln:
-                    var object direntry = asciz_to_string(READDIR_entry_name());
+                    var object direntry = asciz_to_string(READDIR_entry_name(),O(pathname_encoding));
                     # "." und ".." übergehen:
                     if (!(equal(direntry,O(punkt_string))
                           || equal(direntry,O(punktpunkt_string))
@@ -9816,7 +9822,7 @@ LISPFUN(directory,0,1,norest,key,2, (kw(circle),kw(full)) )
         {var uintB drive;
          for (drive='A'; drive<='Z'; drive++) # alle Drives durchlaufen
            if (good_drive(drive))
-             { pushSTACK(make_string(&drive,1)); # Device, einelementiger String
+             { pushSTACK(make_string(&drive,1,O(pathname_encoding))); # Device, einelementiger String
               {var object newpathname = copy_pathname(STACK_(2+2+1)); # Pathname kopieren
                ThePathname(newpathname)->pathname_device = popSTACK(); # Drive übernehmen
                # innerhalb eines Laufwerks suchen:
@@ -9925,7 +9931,7 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
 LISPFUNN(make_dir,1)
 # (MAKE-DIR pathname) legt ein neues Unterdirectory pathname an.
   { var object pathstring = shorter_directory(STACK_0,TRUE);
-    with_sstring_0(pathstring,pathstring_asciz,
+    with_sstring_0(pathstring,O(pathname_encoding),pathstring_asciz,
       { make_directory(pathstring_asciz); });
     skipSTACK(2);
     value1 = T; mv_count=1; # 1 Wert T
@@ -9934,7 +9940,7 @@ LISPFUNN(make_dir,1)
 LISPFUNN(delete_dir,1)
 # (DELETE-DIR pathname) entfernt das Unterdirectory pathname.
   { var object pathstring = shorter_directory(STACK_0,TRUE);
-    with_sstring_0(pathstring,pathstring_asciz,
+    with_sstring_0(pathstring,O(pathname_encoding),pathstring_asciz,
       { delete_directory(pathstring_asciz); });
     skipSTACK(2);
     value1 = T; mv_count=1; # 1 Wert T
@@ -9998,7 +10004,7 @@ LISPFUN(ensure_directories_exist,1,0,norest,key,1,(kw(verbose)))
                 # NB: Brauche hier keine Links aufzulösen, weil man ja hier
                 # sowieso ab der Wurzel schrittweise vorgeht.
                {var object pathstring = shorter_directory(STACK_2,FALSE);
-                with_sstring_0(pathstring,pathstring_asciz,
+                with_sstring_0(pathstring,O(pathname_encoding),pathstring_asciz,
                   { make_directory(pathstring_asciz); });
                 skipSTACK(1);
               }}
@@ -10017,7 +10023,7 @@ LISPFUN(ensure_directories_exist,1,0,norest,key,1,(kw(verbose)))
       #if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
       { # Default-Drive initialisieren:
         var uintB drive = default_drive();
-        O(default_drive) = make_string(&drive,1);
+        O(default_drive) = make_string(&drive,1,O(pathname_encoding));
       }
       #endif
       # *DEFAULT-PATHNAME-DEFAULTS* initialisieren:
@@ -10039,7 +10045,7 @@ LISPFUN(ensure_directories_exist,1,0,norest,key,1,(kw(verbose)))
        {var const char* homedir = getenv("HOME");
         end_system_call();
         if (!(homedir==NULL)) # gefunden?
-          { O(user_homedir) = asciz_dir_to_pathname(homedir); } # ja -> eintragen
+          { O(user_homedir) = asciz_dir_to_pathname(homedir,O(misc_encoding)); } # ja -> eintragen
           else
           # nein -> Home-Directory aus dem Passwort-File holen:
           { # empfohlene Methode (siehe GETLOGIN(3V)): erst
@@ -10066,7 +10072,7 @@ LISPFUN(ensure_directories_exist,1,0,norest,key,1,(kw(verbose)))
             if (!(userpasswd==NULL)) # gefunden?
               { userpasswd_ok:
                 end_system_call();
-                O(user_homedir) = asciz_dir_to_pathname(userpasswd->pw_dir); # ja -> Homedir als Pathname eintragen
+                O(user_homedir) = asciz_dir_to_pathname(userpasswd->pw_dir,O(misc_encoding)); # ja -> Homedir als Pathname eintragen
               }
               else
               { if (!(errno==0)) { OS_error(); } # Error melden
@@ -10085,7 +10091,7 @@ LISPFUN(ensure_directories_exist,1,0,norest,key,1,(kw(verbose)))
         home = getenv("HOME");
         if (!(home==NULL))
           { end_system_call();
-            O(user_homedir) = asciz_dir_to_pathname(home);
+            O(user_homedir) = asciz_dir_to_pathname(home,O(misc_encoding));
           }
           else
           { var const char * homedrive = getenv("HOMEDRIVE");
@@ -10097,10 +10103,10 @@ LISPFUN(ensure_directories_exist,1,0,norest,key,1,(kw(verbose)))
                 while ((*ptr = *homedrive) != '\0') { homedrive++; ptr++; }
                 while ((*ptr = *homepath) != '\0') { homepath++; ptr++; }
                 *ptr = '\0';
-                O(user_homedir) = asciz_dir_to_pathname(homeall);
+                O(user_homedir) = asciz_dir_to_pathname(homeall,O(misc_encoding));
               }
               else
-              { O(user_homedir) = use_default_dir(asciz_dir_to_pathname(".")); }
+              { O(user_homedir) = use_default_dir(asciz_dir_to_pathname(".",Symbol_value(S(ascii)))); }
       }   }
       #endif
       #endif
@@ -10113,7 +10119,7 @@ LISPFUN(ensure_directories_exist,1,0,norest,key,1,(kw(verbose)))
        {var const char* shell = getenv("SHELL");
         end_system_call();
         if (!(shell==NULL)) # gefunden?
-          { O(user_shell) = asciz_to_string(shell); } # ja -> eintragen
+          { O(user_shell) = asciz_to_string(shell,O(misc_encoding)); } # ja -> eintragen
           # sonst bleibt O(user_shell) auf dem Defaultwert "/bin/csh".
       }}
       #endif
@@ -10123,7 +10129,7 @@ LISPFUN(ensure_directories_exist,1,0,norest,key,1,(kw(verbose)))
        {var const char* shell = getenv("COMSPEC");
         end_system_call();
         if (!(shell==NULL)) # gefunden?
-          { O(command_shell) = asciz_to_string(shell); } # ja -> eintragen
+          { O(command_shell) = asciz_to_string(shell,O(misc_encoding)); } # ja -> eintragen
           # sonst bleibt O(command_shell) auf dem Defaultwert "\\COMMAND.COM".
       }}
       #endif
@@ -10133,7 +10139,7 @@ LISPFUN(ensure_directories_exist,1,0,norest,key,1,(kw(verbose)))
        {var const char* shell = getenv("COMSPEC");
         if (!(shell==NULL))
           { end_system_call();
-            O(command_shell) = asciz_to_string(shell); # eintragen
+            O(command_shell) = asciz_to_string(shell,O(misc_encoding)); # eintragen
           }
           else
           { var OSVERSIONINFO v;
@@ -10145,7 +10151,7 @@ LISPFUN(ensure_directories_exist,1,0,norest,key,1,(kw(verbose)))
               # Windows 95 or else
               { shell = "command.com"; }
             end_system_call();
-            O(command_shell) = asciz_to_string(shell); # eintragen
+            O(command_shell) = ascii_to_string(shell); # eintragen
           }
       }}
       #endif
@@ -10264,7 +10270,7 @@ LISPFUNN(file_write_date,1)
         var object namestring = assure_dir_exists(FALSE,FALSE); # Filename fürs Betriebssystem
         #ifdef MSDOS
          #if defined(DJUNIX) || defined(WATCOM)
-          with_sstring_0(namestring,namestring_asciz,
+          with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
             { # Datei öffnen:
               begin_system_call();
               { var sintW ergebnis = # Datei zu öffnen versuchen
@@ -10279,7 +10285,7 @@ LISPFUNN(file_write_date,1)
               end_system_call();
             });
          #else # defined(EMUNIX)
-          with_sstring_0(namestring,namestring_asciz,
+          with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
             { var struct stat statbuf;
               begin_system_call();
               if (stat(namestring_asciz,&statbuf) < 0)
@@ -10300,7 +10306,7 @@ LISPFUNN(file_write_date,1)
         #endif
         #ifdef WIN32_NATIVE
         # Only a directory search gives us the times.
-        with_sstring_0(namestring,namestring_asciz,
+        with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
           { var HANDLE search_handle;
             begin_system_call();
             search_handle = FindFirstFile(namestring_asciz,&filedata);
@@ -10373,7 +10379,7 @@ LISPFUNN(file_author,1)
         var object namestring = assure_dir_exists(FALSE,FALSE); # Filename fürs Betriebssystem
         #ifdef MSDOS
          #if 1
-          with_sstring_0(namestring,namestring_asciz,
+          with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
             { # Datei öffnen:
               begin_system_call();
               { var sintW ergebnis = # Datei zu öffnen versuchen
@@ -10387,7 +10393,7 @@ LISPFUNN(file_author,1)
               end_system_call();
             });
          #else
-          with_sstring_0(namestring,namestring_asciz,
+          with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
             { var struct stat statbuf;
               begin_system_call();
               if (stat(namestring_asciz,&statbuf) < 0)
@@ -10425,7 +10431,7 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL)
       var object namestring = assure_dir_exists(FALSE,FALSE); # Filename fürs Betriebssystem
       # Überprüfe, ob die Datei existiert:
       if (!file_exists(namestring)) { fehler_file_not_exists(); }
-      *file_ = string_to_asciz(namestring); # retten
+      *file_ = string_to_asciz(namestring,O(pathname_encoding)); # retten
       skipSTACK(1);
     }}
     # restliche Argumente überprüfen:
@@ -10433,7 +10439,7 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL)
       dotimesC(count,argcount,
         { var object* arg_ = &NEXT(argptr);
           pushSTACK(*arg_); funcall(L(string),1); # nächstes Argument in String umwandeln
-          *arg_ = string_to_asciz(value1); # und ASCIZ-String umwandeln
+          *arg_ = string_to_asciz(value1,O(misc_encoding)); # und ASCIZ-String umwandeln
         });
    }}
    #if defined(EMUNIX_PORTABEL)
@@ -10627,7 +10633,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
                    ""
                   );
           }
-        with_string_0(command,command_asciz,
+        with_string_0(command,O(misc_encoding),command_asciz,
           { # Kommando ausführen:
             run_time_stop();
             begin_system_call();
@@ -10675,7 +10681,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
               );
       }
    {var HANDLE prochandle;
-    with_string_0(command, command_asciz,
+    with_string_0(command,O(misc_encoding),command_asciz,
       { # Start new process.
         var HANDLE stdinput;
         var HANDLE stdoutput;
@@ -10737,7 +10743,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
                    ""
                   );
           }
-        with_string_0(command,command_asciz,
+        with_string_0(command,O(misc_encoding),command_asciz,
           { begin_system_call();
             # Programm aufrufen:
            {var int ergebnis = system(command_asciz);
@@ -10820,12 +10826,12 @@ LISPFUNN(dynload_modules,2)
     { var uintL count;
       dotimesL(count,stringcount,
         { if (!stringp(Car(*arg_))) fehler_string(Car(*arg_));
-          pushSTACK(string_to_asciz(Car(*arg_)));
+          pushSTACK(string_to_asciz(Car(*arg_),Symbol_value(S(ascii))));
           *arg_ = Cdr(*arg_);
         });
       # test for nullp(*arg_) ??
     }
-    { var const char * libpath = TheAsciz(string_to_asciz(*(arg_ STACKop 1)));
+    { var const char * libpath = TheAsciz(string_to_asciz(*(arg_ STACKop 1),O(pathname_encoding)));
       var DYNAMIC_ARRAY(modnames,const char *,stringcount);
       { var uintL count;
         var object* ptr1 = STACK STACKop stringcount;
@@ -10963,7 +10969,7 @@ global int find_executable(program_name)
 
 # (SYS::PROGRAM-NAME) returns the executable's name.
 LISPFUNN(program_name,0)
-{ value1 = asciz_to_string(executable_name); mv_count=1; }
+{ value1 = asciz_to_string(executable_name,O(pathname_encoding)); mv_count=1; }
 
 #endif
 

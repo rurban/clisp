@@ -15,11 +15,11 @@ LISPFUNN(lisp_implementation_version,0)
   { value1 = O(lisp_implementation_version_string);
     if (nullp(value1)) # noch unbekannt?
       { pushSTACK(O(lisp_implementation_version_date_string));
-        pushSTACK(asciz_to_string(" ("));
+        pushSTACK(ascii_to_string(" ("));
         pushSTACK(OLS(lisp_implementation_version_month_string));
-        pushSTACK(asciz_to_string(" "));
+        pushSTACK(ascii_to_string(" "));
         pushSTACK(O(lisp_implementation_version_year_string));
-        pushSTACK(asciz_to_string(")"));
+        pushSTACK(ascii_to_string(")"));
         value1 = O(lisp_implementation_version_string) = string_concat(6);
       }
     mv_count=1;
@@ -57,7 +57,7 @@ LISPFUNN(machinetype,0)
             begin_system_call();
             if ( uname(&utsname) <0) { OS_error(); }
             end_system_call();
-            pushSTACK(asciz_to_string(&!utsname.machine));
+            pushSTACK(asciz_to_string(&!utsname.machine,O(misc_encoding)));
             funcall(L(nstring_upcase),1); # in Großbuchstaben umwandeln
             erg = value1;
           #else
@@ -68,11 +68,11 @@ LISPFUNN(machinetype,0)
             #     (read-line stream nil nil)
             # ) )
             #if defined(UNIX_SUNOS4)
-              pushSTACK(asciz_to_string("/bin/arch"));
+              pushSTACK(ascii_to_string("/bin/arch"));
             #elif defined(UNIX_NEXTSTEP)
-              pushSTACK(asciz_to_string("/usr/bin/arch"));
+              pushSTACK(ascii_to_string("/usr/bin/arch"));
             #else
-              pushSTACK(asciz_to_string("uname -m"));
+              pushSTACK(ascii_to_string("uname -m"));
             #endif
             funcall(L(make_pipe_input_stream),1); # (MAKE-PIPE-INPUT-STREAM "/bin/arch")
             pushSTACK(value1); # Stream retten
@@ -93,7 +93,7 @@ LISPFUNN(machinetype,0)
             GetSystemInfo(&info);
             end_system_call();
             if (info.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_INTEL)
-              { erg = asciz_to_string("PC/386"); }
+              { erg = ascii_to_string("PC/386"); }
           }
         #endif
         # Das Ergebnis merken wir uns für's nächste Mal:
@@ -113,7 +113,7 @@ LISPFUNN(machine_version,0)
             begin_system_call();
             if ( uname(&utsname) <0) { OS_error(); }
             end_system_call();
-            pushSTACK(asciz_to_string(&!utsname.machine));
+            pushSTACK(asciz_to_string(&!utsname.machine,O(misc_encoding)));
             funcall(L(nstring_upcase),1); # in Großbuchstaben umwandeln
           #else
             # Betriebssystem-Kommando 'uname -m' bzw. 'arch -k' ausführen und
@@ -123,9 +123,9 @@ LISPFUNN(machine_version,0)
             #     (read-line stream nil nil)
             # ) )
             #if defined(UNIX_SUNOS4)
-              pushSTACK(asciz_to_string("/bin/arch -k"));
+              pushSTACK(ascii_to_string("/bin/arch -k"));
             #else
-              pushSTACK(asciz_to_string("uname -m"));
+              pushSTACK(ascii_to_string("uname -m"));
             #endif
             funcall(L(make_pipe_input_stream),1); # (MAKE-PIPE-INPUT-STREAM "/bin/arch -k")
             pushSTACK(value1); # Stream retten
@@ -143,7 +143,7 @@ LISPFUNN(machine_version,0)
             GetSystemInfo(&info);
             end_system_call();
             if (info.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_INTEL)
-              { erg = asciz_to_string("PC/386");
+              { erg = ascii_to_string("PC/386");
                 TheSstring(erg)->data[3] = '0'+info.wProcessorLevel;
           }   }
         #endif
@@ -188,7 +188,7 @@ LISPFUNN(machine_instance,0)
         #else
           ??
         #endif
-        erg = asciz_to_string(&!hostname); # Hostname als Ergebnis
+        erg = asciz_to_string(&!hostname,O(misc_encoding)); # Hostname als Ergebnis
         #ifdef HAVE_GETHOSTBYNAME
           pushSTACK(erg); # Hostname als 1. String
           { var uintC stringcount = 1;
@@ -200,16 +200,16 @@ LISPFUNN(machine_instance,0)
             if ((!(h == (struct hostent *)NULL)) && (!(h->h_addr == (char*)NULL))
                 && (h->h_length > 0)
                )
-              { pushSTACK(asciz_to_string(" ["));
+              { pushSTACK(ascii_to_string(" ["));
                {var uintB* ptr = (uintB*)h->h_addr;
                 var uintC count;
                 dotimesC(count,h->h_length,
                   pushSTACK(fixnum(*ptr++));
                   funcall(L(decimal_string),1); # nächstes Byte in dezimal
                   pushSTACK(value1);
-                  pushSTACK(asciz_to_string(".")); # und ein Punkt als Trennung
+                  pushSTACK(ascii_to_string(".")); # und ein Punkt als Trennung
                   );
-                STACK_0 = asciz_to_string("]"); # kein Punkt am Schluss
+                STACK_0 = ascii_to_string("]"); # kein Punkt am Schluss
                 stringcount += (2*h->h_length + 1);
               }}
             # Strings zusammenhängen:
@@ -233,13 +233,13 @@ LISPFUNN(get_env,1)
   { var object arg = popSTACK();
     if (stringp(arg))
       { var const char* found;
-        with_string_0(arg,envvar,
+        with_string_0(arg,O(misc_encoding),envvar,
           { begin_system_call();
             found = getenv(envvar);
             end_system_call();
           });
         if (!(found==NULL))
-          { value1 = asciz_to_string(found); } # gefunden -> String als Wert
+          { value1 = asciz_to_string(found,O(misc_encoding)); } # gefunden -> String als Wert
           else
           { value1 = NIL; } # nicht gefunden -> Wert NIL
       }
@@ -257,8 +257,8 @@ LISPFUNN(registry,2)
 # Used to implement SHORT-SITE-NAME and LONG-SITE-NAME.
   { if (!stringp(STACK_1)) { fehler_string(STACK_1); }
     if (!stringp(STACK_0)) { fehler_string(STACK_0); }
-    with_string_0(STACK_1,pathz,
-      with_string_0(STACK_0,namez,
+    with_string_0(STACK_1,O(misc_encoding),pathz,
+      with_string_0(STACK_0,O(misc_encoding),namez,
         { LONG err;
           HKEY key;
           DWORD type;
@@ -282,7 +282,7 @@ LISPFUNN(registry,2)
                   err = RegCloseKey(key);
                   if (!(err == ERROR_SUCCESS)) { SetLastError(err); OS_error(); }
                   end_system_call();
-                  value1 = asciz_to_string(buf);
+                  value1 = asciz_to_string(buf,O(misc_encoding));
                 }
                 break;
               default:

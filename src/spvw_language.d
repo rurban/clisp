@@ -393,12 +393,15 @@
       return translated_msg;
     }
 
+  # FIXME: Don't hardwire ISO-8859-1. The catalog's character set is
+  # given by the "Content-Type:" line in the meta information.
+
   global object localized_string (object obj);
   global object localized_string(obj)
     var object obj;
     { ASSERT(stringp(obj));
-      with_string_0(obj,asciz,
-        { obj = asciz_to_string(clgettext(asciz)); });
+      with_string_0(obj,Symbol_value(S(iso8859_1)),asciz,
+        { obj = asciz_to_string(clgettext(asciz),Symbol_value(S(iso8859_1))); });
       return obj;
     }
 
@@ -406,8 +409,8 @@
   global object localized_object(obj)
     var object obj;
     { ASSERT(stringp(obj));
-      with_string_0(obj,asciz,
-        { obj = asciz_to_string(clgettext(asciz)); });
+      with_string_0(obj,Symbol_value(S(iso8859_1)),asciz,
+        { obj = asciz_to_string(clgettext(asciz),Symbol_value(S(iso8859_1))); });
       dynamic_bind(S(packagestern),O(default_package)); # *PACKAGE* binden
       pushSTACK(obj); funcall(L(read_from_string),1); # READ-FROM-STRING ausführen
       dynamic_unbind();

@@ -490,7 +490,12 @@
         ) )
         (unless flag (setq arg nil))
       )
-      (let ((macrodef (svref vector (char-int (char-upcase subch)))))
+      (let* ((subc (char-upcase subch))
+             (macrodef
+               (if (base-char-p subc)
+                 (svref vector (char-code subc))
+                 (gethash subc (svref vector base-char-code-limit))
+            )) )
         (unless macrodef
           (error-of-type 'stream-error
             :stream stream

@@ -726,23 +726,6 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 # -----------------------------------------------------------------------------
 #                  Elementare Stringfunktionen
 
-# UP: Liefert einen LISP-String mit vorgegebenem Inhalt.
-# make_string(charptr,len)
-# > uintB* charptr: Adresse einer Zeichenfolge
-# > uintL len: Länge der Zeichenfolge
-# < ergebnis: Simple-String mit den len Zeichen ab charptr als Inhalt
-# kann GC auslösen
-  global object make_string (const uintB* charptr, uintL len);
-  global object make_string(charptr,len)
-    var const uintB* charptr;
-    var uintL len;
-    { var object obj = allocate_string(len); # String allozieren
-      var chart* ptr = &TheSstring(obj)->data[0];
-      # Zeichenfolge von charptr nach ptr kopieren:
-      dotimesL(len,len, { *ptr++ = as_chart(*charptr++); } );
-      return(obj);
-    }
-
 #ifndef asciz_length
 # UP: Liefert die Länge eines ASCIZ-Strings.
 # asciz_length(asciz)
@@ -781,45 +764,6 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
     }
 #endif
 
-# UP: Wandelt einen ASCIZ-String in einen LISP-String um.
-# asciz_to_string(asciz)
-# > char* asciz: ASCIZ-String
-#       (Adresse einer durch ein Nullbyte abgeschlossenen Zeichenfolge)
-# < ergebnis: String mit der Zeichenfolge (ohne Nullbyte) als Inhalt
-# kann GC auslösen
-  global object asciz_to_string (const char * asciz);
-  global object asciz_to_string(asciz)
-    var const char* asciz;
-    { return make_string((const uintB*)asciz,asciz_length(asciz)); }
-
-# UP: Wandelt einen String in einen ASCIZ-String um.
-# string_to_asciz(obj,encoding)
-# > object obj: String
-# > object encoding: Encoding
-# < ergebnis: Simple-Bit-Vektor mit denselben Zeichen als Bytes und einem
-#             Nullbyte mehr am Schluss
-# < TheAsciz(ergebnis): Adresse der darin enthaltenen Bytefolge
-# kann GC auslösen
-  global object string_to_asciz (object obj);
-  global object string_to_asciz (obj)
-    var object obj;
-    { # (vgl. copy_string in CHARSTRG)
-      pushSTACK(obj); # String retten
-     {var object newasciz = allocate_bit_vector((vector_length(obj)+1)*8);
-      obj = popSTACK(); # String zurück
-      { var uintL len;
-        var const chart* sourceptr = unpack_string(obj,&len);
-        # Source-String: Länge in len, Bytes ab sourceptr
-        var uintB* destptr = &TheSbvector(newasciz)->data[0];
-        # Destination-String: Bytes ab destptr
-        { # Kopierschleife:
-          var uintL count;
-          dotimesL(count,len, { *destptr++ = as_cint(*sourceptr++); } );
-          *destptr++ = 0; # Nullbyte anfügen
-      } }
-      return newasciz;
-    }}
-
 # -----------------------------------------------------------------------------
 #                  Andere globale Hilfsfunktionen
 
@@ -848,7 +792,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
     var uintL line;
     { end_system_call(); # just in case
       pushSTACK(fixnum(line));
-      pushSTACK(asciz_to_string(file));
+      pushSTACK(ascii_to_string(file));
       fehler(serious_condition,
              DEUTSCH ? "Interner Fehler: Anweisung in File ~, Zeile ~ wurde ausgeführt!!" NLstring
                        "Bitte schicken Sie eine Mitteilung an die Programm-Autoren, "
@@ -1051,7 +995,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
     var uintP address;
     var object symbol;
     { asciz_out("C_CODE_ALIGNMENT is wrong. ");
-      asciz_out_s("&%s",TheAsciz(string_to_asciz(Symbol_name(symbol))));
+      asciz_out_s("&%s",TheAsciz(string_to_asciz(Symbol_name(symbol),O(terminal_encoding))));
       asciz_out_1(" = 0x%x." NLstring,address);
       abort();
     }
@@ -1260,18 +1204,22 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
        {var symbol_* ptr = (symbol_*)&symbol_tab; # symbol_tab durchgehen
         var const char * const * pname_ptr = &pname_table[0]; # pname_table durchgehen
         var const uintB* index_ptr = &package_index_table[0]; # package_index_table durchgehen
-        var uintC count;
-        dotimesC(count,symbol_anz,
-          { ptr->pname = asciz_to_string(*pname_ptr++); # Printnamen eintragen
-           {var uintB index = *index_ptr++;
-            var object* package_ = &STACK_(package_anz-1) STACKop -(uintP)index; # Pointer auf Package
-            pushSTACK(symbol_tab_ptr_as_object(ptr)); # Symbol
-            import(&STACK_0,package_); # erst normal importieren
-            if (index == (uintB)enum_lisp_index) # in #<PACKAGE LISP> ?
-              { export(&STACK_0,package_); } # ja -> auch exportieren
-            Symbol_package(popSTACK()) = *package_; # und die Home-Package setzen
-            ptr++;
-          }});
+        var uintC count = symbol_anz;
+        do { ptr->pname = ascii_to_string(*pname_ptr++); # Printnamen eintragen
+            {var uintB index = *index_ptr++;
+             var object* package_ = &STACK_(package_anz-1) STACKop -(uintP)index; # Pointer auf Package
+             pushSTACK(symbol_tab_ptr_as_object(ptr)); # Symbol
+             import(&STACK_0,package_); # erst normal importieren
+             if (index == (uintB)enum_lisp_index # in #<PACKAGE LISP> ?
+                 #ifdef UNICODE
+                 || index == (uintB)enum_charset_index # in #<PACKAGE CHARSET> ?
+                 #endif
+                )
+               { export(&STACK_0,package_); } # ja -> auch exportieren
+             Symbol_package(popSTACK()) = *package_; # und die Home-Package setzen
+             ptr++;
+           }}
+           until (--count == 0);
         skipSTACK(package_anz);
       }}
   # FSUBRs/SUBRs in ihre Symbole eintragen:
@@ -1519,6 +1467,9 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
             #ifdef GNU_GETTEXT
               " :GETTEXT"
             #endif
+            #ifdef UNICODE
+              " :UNICODE"
+            #endif
             #ifdef AMIGA
               " :AMIGA"
             #endif
@@ -1543,7 +1494,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
             #endif
             ")"
             ;
-          pushSTACK(asciz_to_string(features_initstring));
+          pushSTACK(ascii_to_string(features_initstring));
          {var object list = (funcall(L(read_from_string),1), value1);
           define_variable(S(features),list);             # *FEATURES*
         }}
@@ -1555,9 +1506,9 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
             { var const char * string = *stringptr++;
               if (*string == '@')
                 # Kein READ-FROM-STRING für LISPOBJ_L && GNU_GETTEXT
-                { *objptr = asciz_to_string(&string[1]); }
+                { *objptr = asciz_to_string(&string[1],O(internal_encoding)); }
                 else
-                { pushSTACK(asciz_to_string(string)); # String
+                { pushSTACK(asciz_to_string(string,O(internal_encoding))); # String
                   funcall(L(make_string_input_stream),1); # in Stream verpacken
                   pushSTACK(value1);
                  {var object obj = stream_read(&STACK_0,NIL,NIL); # Objekt lesen
@@ -1619,12 +1570,12 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
           var uintC count;
           dotimesC(count,*module->stab_size,
             { var const char* packname = init_ptr->packname;
-              var object symname = asciz_to_string(init_ptr->symname);
+              var object symname = asciz_to_string(init_ptr->symname,O(internal_encoding));
               var object symbol;
               if (packname==NULL)
                 { symbol = make_symbol(symname); }
                 else
-                { var object pack = find_package(asciz_to_string(packname));
+                { var object pack = find_package(asciz_to_string(packname,O(internal_encoding)));
                   if (nullp(pack)) # Package nicht gefunden?
                     { asciz_out_ss(DEUTSCH ? "Modul `%s' benötigt Package %s." NLstring :
                                    ENGLISH ? "module `%s' requires package %s." NLstring :
@@ -1646,7 +1597,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
           var const object_initdata* init_ptr = module->otab_initdata;
           var uintC count;
           dotimesC(count,*module->otab_size,
-            { pushSTACK(asciz_to_string(init_ptr->initstring)); # String
+            { pushSTACK(asciz_to_string(init_ptr->initstring,O(internal_encoding))); # String
               funcall(L(make_string_input_stream),1); # in Stream verpacken
               pushSTACK(value1);
               *object_ptr = stream_read(&STACK_0,NIL,NIL); # Objekt lesen
@@ -1730,7 +1681,7 @@ local void print_license (void)
   var uintC count;
   pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));
   dotimesC(count,sizeof(license)/sizeof(license[0]),
-           { write_sstring(&STACK_0,asciz_to_string(*ptr++));});
+           { write_sstring(&STACK_0,asciz_to_string(*ptr++,O(internal_encoding)));});
   skipSTACK(1);
   quit_sofort (0);
 }
@@ -1790,14 +1741,14 @@ local void print_banner ()
   var uintC count;
   pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # auf *STANDARD-OUTPUT*
   dotimesC(count,sizeof(banner0)/sizeof(banner0[0]),
-           { write_sstring(&STACK_0,asciz_to_string(&(*ptr++)[offset])); });
+           { write_sstring(&STACK_0,asciz_to_string(&(*ptr++)[offset],O(internal_encoding))); });
   ptr = banner1;
   dotimesC(count,sizeof(banner1)/sizeof(banner1[0]),
-           { write_sstring(&STACK_0,asciz_to_string(*ptr++)); });
+           { write_sstring(&STACK_0,asciz_to_string(*ptr++,O(internal_encoding))); });
   #if defined(AMIGA) || defined(RISCOS) || defined(DJUNIX)
-  write_sstring(&STACK_0,asciz_to_string(&banner2[offset]));
+  write_sstring(&STACK_0,asciz_to_string(&banner2[offset],O(internal_encoding)));
   #endif
-  write_sstring(&STACK_0,asciz_to_string(&banner3[offset]));
+  write_sstring(&STACK_0,asciz_to_string(&banner3[offset],O(internal_encoding)));
   skipSTACK(1);
 }
 
@@ -2819,19 +2770,21 @@ local void print_banner ()
             asciz_to_string(DEUTSCH ? NLstring "WARNUNG: Kein Initialisierungsfile angegeben." NLstring :
                             ENGLISH ? NLstring "WARNING: No initialisation file specified." NLstring :
                             FRANCAIS ? NLstring "AVERTISSEMENT : Pas de fichier d'initialisation." NLstring :
-                            ""
+                            "",
+                            O(internal_encoding)
                            ));
           write_sstring(&STACK_0,
             asciz_to_string(DEUTSCH ? "Versuchen Sie: " :
                             ENGLISH ? "Please try: " :
                             FRANCAIS ? "Essayez: " :
-                            ""
+                            "",
+                            O(internal_encoding)
                            ));
-          write_string(&STACK_0,asciz_to_string(program_name));
+          write_string(&STACK_0,asciz_to_string(program_name,O(pathname_encoding)));
           #ifdef RISCOS
-          write_string(&STACK_0,asciz_to_string(" -M mem.lispinit" NLstring));
+          write_string(&STACK_0,ascii_to_string(" -M mem.lispinit" NLstring));
           #else
-          write_string(&STACK_0,asciz_to_string(" -M lispinit.mem" NLstring));
+          write_string(&STACK_0,ascii_to_string(" -M lispinit.mem" NLstring));
           #endif
           skipSTACK(1);
         }
@@ -2863,7 +2816,7 @@ local void print_banner ()
         } } }
       if (!(argv_package == NULL))
         # (IN-PACKAGE packagename) ausführen:
-        { var object packname = asciz_to_string(argv_package);
+        { var object packname = asciz_to_string(argv_package,O(misc_encoding));
           pushSTACK(packname); funcall(L(in_package),1);
         }
       if (argv_load_compiling)
@@ -2878,13 +2831,13 @@ local void print_banner ()
          # )
          pushSTACK(S(Kname));
          #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
-           pushSTACK(asciz_to_string(".clisprc"));
+           pushSTACK(ascii_to_string(".clisprc"));
          #endif
          #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
-           pushSTACK(asciz_to_string("_clisprc"));
+           pushSTACK(ascii_to_string("_clisprc"));
          #endif
          #if defined(PATHNAME_MSDOS)
-           pushSTACK(asciz_to_string("_CLISPRC"));
+           pushSTACK(ascii_to_string("_CLISPRC"));
          #endif
          funcall(L(make_pathname),2);
          pushSTACK(value1);
@@ -2900,7 +2853,7 @@ local void print_banner ()
       { var char** fileptr = &argv_init_files[0];
         var uintL count;
         dotimesL(count,argv_init_filecount,
-          { var object filename = asciz_to_string(*fileptr++);
+          { var object filename = asciz_to_string(*fileptr++,O(misc_encoding));
             pushSTACK(filename); funcall(S(load),1);
           });
       }
@@ -2917,7 +2870,7 @@ local void print_banner ()
           var uintL count;
           dotimesL(count,argv_compile_filecount,
             { var uintC argcount = 1;
-              var object filename = asciz_to_string(fileptr->input_file);
+              var object filename = asciz_to_string(fileptr->input_file,O(misc_encoding));
               pushSTACK(S(compile_file));
               pushSTACK(filename);
               pushSTACK(O(source_file_type)); # #".lsp"
@@ -2927,7 +2880,7 @@ local void print_banner ()
               funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES file ...)
               pushSTACK(value1);
               if (fileptr->output_file)
-                { filename = asciz_to_string(fileptr->output_file);
+                { filename = asciz_to_string(fileptr->output_file,O(misc_encoding));
                   pushSTACK(S(Koutput_file));
                   pushSTACK(filename);
                   pushSTACK(O(compiled_file_type)); # #".fas"
@@ -2987,7 +2940,7 @@ local void print_banner ()
           { var char** argsptr = argv_execute_args;
             var uintL count;
             dotimesL(count,argv_execute_arg_count,
-              { pushSTACK(asciz_to_string(*argsptr++)); });
+              { pushSTACK(asciz_to_string(*argsptr++,O(misc_encoding))); });
             define_variable(S(args),listof(argv_execute_arg_count));
           }
           { var object form;
@@ -2995,7 +2948,7 @@ local void print_banner ()
             if (asciz_equal(argv_execute_file,"-"))
               { pushSTACK(S(standard_input)); } # *STANDARD-INPUT*
               else
-              { pushSTACK(asciz_to_string(argv_execute_file)); } # "..."
+              { pushSTACK(asciz_to_string(argv_execute_file,O(misc_encoding))); } # "..."
             form = listof(2);
             pushSTACK(S(batchmode_errors)); pushSTACK(form);
             form = listof(2); # `(SYS::BATCHMODE-ERRORS (LOAD "..."))
@@ -3005,7 +2958,7 @@ local void print_banner ()
         }
       if (!(argv_expr == NULL))
         # *STANDARD-INPUT* auf einen Stream setzen, der argv_expr produziert:
-        { pushSTACK(asciz_to_string(argv_expr));
+        { pushSTACK(asciz_to_string(argv_expr,O(misc_encoding)));
           funcall(L(make_string_input_stream),1);
           Symbol_value(S(standard_input)) = value1;
           # Dann den Driver aufrufen. Stringende -> EOF -> Programmende.
@@ -3118,9 +3071,9 @@ local void print_banner ()
     var const char * errstring;
     { end_system_call();
       if (errstring == NULL) { errstring = "Unknown error"; }
-      pushSTACK(asciz_to_string(errstring));
-      if (!(symbol == NULL)) { pushSTACK(asciz_to_string(symbol)); }
-      pushSTACK(asciz_to_string(func));
+      pushSTACK(asciz_to_string(errstring,O(misc_encoding)));
+      if (!(symbol == NULL)) { pushSTACK(asciz_to_string(symbol,O(internal_encoding))); }
+      pushSTACK(asciz_to_string(func,O(internal_encoding)));
       pushSTACK(TheSubr(subr_self)->name);
       fehler(error, (symbol == NULL ? "~: ~ -> ~" : "~: ~(~) -> ~"));
     }

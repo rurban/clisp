@@ -866,9 +866,9 @@ void care_about_packages (FILE *sink)
 	         module_name, module_name);
   for (q = to_create; q; q = q->cdr)
     {
-      fprintf (sink, "  if (nullp (find_package (asciz_to_string (\"%s\"))))\n"
+      fprintf (sink, "  if (nullp (find_package (ascii_to_string (\"%s\"))))\n"
 	             "    {\n"
-	             "      pushSTACK (asciz_to_string (\"%s\"));\n"
+	             "      pushSTACK (ascii_to_string (\"%s\"));\n"
 	             "      funcall (L (make_package), 1);\n"
 	             "    }\n",
 	       q->car, q->car);

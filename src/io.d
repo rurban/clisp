@@ -10,24 +10,76 @@
 # Readtable-Funktionen
 # =============================================================================
 
-# Syntax tables, indexed by characters.
-# allocate_syntax_table()
-# syntax_table_get(table,c)
-# syntax_table_put(table,c,value)
-  #define allocate_syntax_table()  allocate_bit_vector(char_code_limit*8)
-  #define syntax_table_get(table,c)  TheSbvector(table)->data[as_cint(c)]
-  #define syntax_table_put(table,c,value)  (TheSbvector(table)->data[as_cint(c)] = (value))
+#ifdef UNICODE
+# inline boolean graphic_char_p (chart ch);
+# see charstrg.d
+  extern const uintB * const unicode_attribute_table[];
+  #define unicode_attribute(c)  \
+    ((unicode_attribute_table[(c)>>10][((c)>>2)&0xFF] >> (((c)&0x3)*2)) & 0x3)
+  #define graphic_char_p(ch)  (!(unicode_attribute(as_cint(ch)) == 0))
+#endif
 
 # Tables indexed by characters.
 # allocate_perchar_table()
 # perchar_table_get(table,c)
 # perchar_table_put(table,c,value)
 # copy_perchar_table(table)
-  # A simple-vector of char_code_limit elements.
-  #define allocate_perchar_table()  allocate_vector(char_code_limit)
-  #define perchar_table_get(table,c)  TheSvector(table)->data[(uintP)as_cint(c)]
-  #define perchar_table_put(table,c,value)  (TheSvector(table)->data[(uintP)as_cint(c)] = (value))
-  #define copy_perchar_table(table)  copy_svector(table)
+  #if (base_char_code_limit < char_code_limit)
+    # A simple-vector of base_char_code_limit+1 elements, the last entry being
+    # a hash table for the non-base characters.
+    local object allocate_perchar_table (void);
+    local object allocate_perchar_table()
+      { # Allocate the hash table.
+        pushSTACK(S(Ktest)); pushSTACK(S(eq)); funcall(L(make_hash_table),2);
+        pushSTACK(value1);
+        # Allocate the simple-vector.
+       {var object table = allocate_vector(base_char_code_limit+1);
+        TheSvector(table)->data[base_char_code_limit] = popSTACK();
+        return table;
+      }}
+    local object perchar_table_get (object table, chart c);
+    local object perchar_table_get(table,c)
+      var object table;
+      var chart c;
+      { if (as_cint(c) < base_char_code_limit)
+          { return TheSvector(table)->data[as_cint(c)]; }
+        else
+          { var object value = gethash(code_char(c),TheSvector(table)->data[base_char_code_limit]);
+            return (eq(value,nullobj) ? NIL : value);
+      }   }
+    local void perchar_table_put (object table, chart c, object value);
+    local void perchar_table_put(table,c,value)
+      var object table;
+      var chart c;
+      var object value;
+      { if (as_cint(c) < base_char_code_limit)
+          { TheSvector(table)->data[as_cint(c)] = value; }
+        else
+          { shifthash(TheSvector(table)->data[base_char_code_limit],code_char(c),value); }
+      }
+    local object copy_perchar_table (object table);
+    local object copy_perchar_table(table)
+      var object table;
+      { pushSTACK(copy_svector(table));
+        # Allocate a new hash table.
+        pushSTACK(S(Ktest)); pushSTACK(S(eq)); funcall(L(make_hash_table),2);
+        pushSTACK(value1);
+        # Stackaufbau: table, newht.
+        map_hashtable(TheSvector(STACK_1)->data[base_char_code_limit],key,value,
+                      { shifthash(STACK_(0+1),key,value); }
+                     );
+       {var object newht = popSTACK();
+        var object table = popSTACK();
+        TheSvector(table)->data[base_char_code_limit] = newht;
+        return table;
+      }}
+  #else
+    # A simple-vector of char_code_limit elements.
+    #define allocate_perchar_table()  allocate_vector(char_code_limit)
+    #define perchar_table_get(table,c)  TheSvector(table)->data[(uintP)as_cint(c)]
+    #define perchar_table_put(table,c,value)  (TheSvector(table)->data[(uintP)as_cint(c)] = (value))
+    #define copy_perchar_table(table)  copy_svector(table)
+  #endif
 
 # Aufbau von Readtables (siehe LISPBIBL.D):
   # readtable_syntax_table
@@ -63,8 +115,62 @@
 # >= syntax_t_macro : Macro-Zeichen.
 #                     Wenn ein Objekt damit anfängt: Macro-Funktion aufrufen.
 
+# Syntax tables, indexed by characters.
+# allocate_syntax_table()
+# syntax_table_get(table,c)
+# syntax_table_put(table,c,value) [kann GC auslösen]
+  #if (base_char_code_limit < char_code_limit)
+    # A cons, consisting of a simple-bit-vector with base_char_code_limit
+    # bytes, and a hash table mapping characters to fixnums. Characters not
+    # found in the hash table are assumed to have the syntax code
+    # (graphic_char_p(ch) ? syntax_constituent : syntax_illegal).
+    local object allocate_syntax_table (void);
+    local object allocate_syntax_table()
+      { # Allocate the hash table.
+        pushSTACK(S(Ktest)); pushSTACK(S(eq)); funcall(L(make_hash_table),2);
+        pushSTACK(value1);
+        # Allocate the simple-bit-vector.
+        pushSTACK(allocate_bit_vector(base_char_code_limit*8));
+       {var object new_cons = allocate_cons();
+        Car(new_cons) = popSTACK();
+        Cdr(new_cons) = popSTACK();
+        return new_cons;
+      }}
+    #define syntax_table_get(table,c)  \
+      (as_cint(c) < base_char_code_limit           \
+       ? TheSbvector(Car(table))->data[as_cint(c)] \
+       : syntax_table_get_notinline(table,c)       \
+      )
+    local uintB syntax_table_get_notinline (object table, chart c);
+    local uintB syntax_table_get_notinline(table,c)
+      var object table;
+      var chart c;
+      { var object val = gethash(Cdr(table),code_char(c));
+        if (!eq(val,nullobj))
+          return posfixnum_to_L(val);
+        else
+          return (graphic_char_p(c) ? syntax_constituent : syntax_illegal);
+      }
+    #define syntax_table_put(table,c,value)  \
+      (as_cint(c) < base_char_code_limit                       \
+       ? (TheSbvector(Car(table))->data[as_cint(c)] = (value)) \
+       : syntax_table_put_notinline(table,c,value)             \
+      )
+    local void syntax_table_put_notinline (object table, chart c, uintB value);
+    local void syntax_table_put_notinline(table,c,value)
+      var object table;
+      var chart c;
+      var uintB value;
+      { shifthash(Cdr(table),code_char(c),fixnum(value)); }
+  #else
+    # A simple-bit-vector with char_code_limit bytes.
+    #define allocate_syntax_table()  allocate_bit_vector(char_code_limit*8)
+    #define syntax_table_get(table,c)  TheSbvector(table)->data[as_cint(c)]
+    #define syntax_table_put(table,c,value)  (TheSbvector(table)->data[as_cint(c)] = (value))
+  #endif
+
 # originale Syntaxtabelle für eingelesene Zeichen:
-  local const uintB orig_syntax_table [char_code_limit] = {
+  local const uintB orig_syntax_table [base_char_code_limit] = {
     #define illg  syntax_illegal
     #define sesc  syntax_single_esc
     #define mesc  syntax_multi_esc
@@ -88,29 +194,29 @@
       cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,   # 'hijklmno'
       cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,   # 'pqrstuvw'
       cnst,cnst,cnst,cnst,mesc,cnst,cnst,cnst,   # 'xyz{|}~',chr(127)
-    #if defined(IBMPC_CHS)
-      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-    #elif defined(ISOLATIN_CHS) || defined(HPROMAN8_CHS)
+    #if defined(UNICODE) || defined(ISOLATIN_CHS) || defined(HPROMAN8_CHS)
       illg,illg,illg,illg,illg,illg,illg,illg,
       illg,illg,illg,illg,illg,illg,illg,illg,
       illg,illg,illg,illg,illg,illg,illg,illg,
       illg,illg,illg,illg,illg,illg,illg,illg,
       whsp,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
+      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
+      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
+      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
+      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
+      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
+      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
+      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
+      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
+      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
+      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
+      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
+    #elif defined(IBMPC_CHS)
+      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
+      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
+      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
+      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
+      cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
       cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
       cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
       cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
@@ -139,7 +245,7 @@
       cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
       cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
       cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-    #else # defined(ASCII_CHS)
+    #else # defined(ASCII_CHS) && !defined(UNICODE)
       illg,illg,illg,illg,illg,illg,illg,illg,
       illg,illg,illg,illg,illg,illg,illg,illg,
       illg,illg,illg,illg,illg,illg,illg,illg,
@@ -165,6 +271,15 @@
     #undef tmac
     #undef nmac
     };
+  #if (base_char_code_limit < char_code_limit)
+    #define orig_syntax_table_get(c)  \
+      (as_cint(c) < base_char_code_limit                           \
+       ? orig_syntax_table[as_cint(c)]                             \
+       : (graphic_char_p(c) ? syntax_constituent : syntax_illegal) \
+      )
+  #else
+    #define orig_syntax_table_get(c)  orig_syntax_table[as_cint(c)]
+  #endif
 
 # UP: Liefert die originale Readtable.
 # orig_readtable()
@@ -176,10 +291,13 @@
       { var object s_table = allocate_syntax_table(); # neuer Bitvektor
         pushSTACK(s_table); # retten
         # und mit dem Original füllen:
+        #if (base_char_code_limit < char_code_limit)
+        s_table = Car(s_table);
+        #endif
         { var const uintB * ptr1 = &orig_syntax_table[0];
           var uintB* ptr2 = &TheSbvector(s_table)->data[0];
           var uintC count;
-          dotimesC(count,char_code_limit, { *ptr2++ = *ptr1++; } );
+          dotimesC(count,base_char_code_limit, { *ptr2++ = *ptr1++; } );
       } }
       # Dispatch-Macro '#' initialisieren:
       { var object d_table = allocate_perchar_table(); # neuer Vektor
@@ -254,17 +372,41 @@
     { # den Case-Slot kopieren:
       TheReadtable(to_readtable)->readtable_case = TheReadtable(from_readtable)->readtable_case;
       # die Syntaxtabelle kopieren:
-      { var uintB* ptr1 = &TheSbvector(TheReadtable(from_readtable)->readtable_syntax_table)->data[0];
-        var uintB* ptr2 = &TheSbvector(TheReadtable(to_readtable)->readtable_syntax_table)->data[0];
+      { var object stable1;
+        var object stable2;
+        #if (base_char_code_limit < char_code_limit)
+          pushSTACK(to_readtable);
+          pushSTACK(from_readtable);
+          # Allocate a new hash table.
+          pushSTACK(S(Ktest)); pushSTACK(S(eq)); funcall(L(make_hash_table),2);
+          pushSTACK(value1);
+          # Stackaufbau: to-readtable, from-readtable, newht.
+          map_hashtable(Cdr(TheReadtable(STACK_1)->readtable_syntax_table),ch,entry,
+                        { shifthash(STACK_(0+1),ch,entry); }
+                       );
+         {var object newht = popSTACK();
+          from_readtable = popSTACK();
+          to_readtable = popSTACK();
+          stable1 = Car(TheReadtable(from_readtable)->readtable_syntax_table);
+          stable2 = TheReadtable(to_readtable)->readtable_syntax_table;
+          Cdr(stable2) = newht;
+          stable2 = Car(stable2);
+         }
+        #else
+          stable1 = TheReadtable(from_readtable)->readtable_syntax_table;
+          stable2 = TheReadtable(to_readtable)->readtable_syntax_table;
+        #endif
+       {var const uintB* ptr1 = &TheSbvector(stable1)->data[0];
+        var uintB* ptr2 = &TheSbvector(stable2)->data[0];
         var uintC count;
-        dotimesC(count,char_code_limit, { *ptr2++ = *ptr1++; } );
-      }
+        dotimesC(count,base_char_code_limit, { *ptr2++ = *ptr1++; } );
+      }}
       # die Macro-Tabelle kopieren:
       pushSTACK(to_readtable); # to-readtable retten
       { var object mtable1 = TheReadtable(from_readtable)->readtable_macro_table;
         var object mtable2 = TheReadtable(to_readtable)->readtable_macro_table;
         var uintL i;
-        for (i=0; i<char_code_limit; i++)
+        for (i = 0; i < base_char_code_limit; i++)
           { # Eintrag Nummer i kopieren:
             var object entry = TheSvector(mtable1)->data[i];
             if (simple_vector_p(entry))
@@ -274,7 +416,24 @@
                 mtable2 = popSTACK(); mtable1 = popSTACK();
               }
             TheSvector(mtable2)->data[i] = entry;
-      }   }
+          }
+        #if (base_char_code_limit < char_code_limit)
+          pushSTACK(mtable2);
+          pushSTACK(mtable1);
+          # Allocate a new hash table.
+          pushSTACK(S(Ktest)); pushSTACK(S(eq)); funcall(L(make_hash_table),2);
+          mtable1 = STACK_0;
+          STACK_0 = value1;
+          # Stackaufbau: mtable2, newht.
+          map_hashtable(TheSvector(mtable1)->data[base_char_code_limit],ch,entry,
+                        { if (simple_vector_p(entry))
+                            { entry = copy_perchar_table(entry); }
+                          shifthash(STACK_(0+1),ch,entry);
+                        });
+          TheSvector(STACK_1)->data[base_char_code_limit] = STACK_0;
+          skipSTACK(2);
+        #endif
+      }
       return popSTACK(); # to-readtable als Ergebnis
     }
 
@@ -438,7 +597,6 @@ LISPFUN(set_syntax_from_char,2,2,norest,nokey,0,NIL)
     var object from_char = STACK_2;
     var object to_readtable = STACK_1;
     var object from_readtable = STACK_0;
-    skipSTACK(4);
     # to-char überprüfen:
     if (!charp(to_char)) { fehler_char(to_char); } # muss ein Character sein
     # from-char überprüfen:
@@ -453,6 +611,8 @@ LISPFUN(set_syntax_from_char,2,2,norest,nokey,0,NIL)
       { from_readtable = O(standard_readtable); } # Default ist die Standard-Readtable
       else
       { if (!readtablep(from_readtable)) { fehler_readtable(from_readtable); } }
+    STACK_1 = to_readtable;
+    STACK_0 = from_readtable;
     # Nun sind to_char, from_char, to_readtable, from_readtable OK.
     { var chart to_c = char_code(to_char);
       var chart from_c = char_code(from_char);
@@ -460,16 +620,14 @@ LISPFUN(set_syntax_from_char,2,2,norest,nokey,0,NIL)
       syntax_table_put(TheReadtable(to_readtable)->readtable_syntax_table,to_c,
         syntax_table_get(TheReadtable(from_readtable)->readtable_syntax_table,from_c));
       # Macro-Funktion/Vektor kopieren:
-     {var object entry = perchar_table_get(TheReadtable(from_readtable)->readtable_macro_table,from_c);
+     {var object entry = perchar_table_get(TheReadtable(STACK_0)->readtable_macro_table,from_c);
       if (simple_vector_p(entry))
         # Ist entry ein Simple-Vector, so muss er kopiert werden:
-        { pushSTACK(to_readtable);
-          entry = copy_perchar_table(entry);
-          to_readtable = popSTACK();
-        }
-      perchar_table_put(TheReadtable(to_readtable)->readtable_macro_table,to_c,entry);
+        { entry = copy_perchar_table(entry); }
+      perchar_table_put(TheReadtable(STACK_1)->readtable_macro_table,to_c,entry);
     }}
     value1 = T; mv_count=1; # Wert T
+    skipSTACK(4);
   }
 
 # UP: Überprüft ein optionales Readtable-Argument,
@@ -542,13 +700,14 @@ LISPFUN(set_macro_character,2,2,norest,nokey,0,NIL)
     }
    {var object readtable = test_readtable_arg(); # Readtable
     var uintB syntaxcode = test_nontermp_arg(); # neuer Syntaxcode
-    var object function = popSTACK();
-    var chart c = char_code(popSTACK());
+    var chart c = char_code(STACK_1);
+    STACK_1 = readtable;
     # Syntaxcode setzen:
     syntax_table_put(TheReadtable(readtable)->readtable_syntax_table,c,syntaxcode);
     # Macrodefinition eintragen:
-    perchar_table_put(TheReadtable(readtable)->readtable_macro_table,c,function);
+    perchar_table_put(TheReadtable(STACK_1)->readtable_macro_table,c,STACK_0);
     value1 = T; mv_count=1; # 1 Wert T
+    skipSTACK(2);
   }}
 
 LISPFUN(get_macro_character,1,1,norest,nokey,0,NIL)
@@ -609,15 +768,14 @@ LISPFUN(make_dispatch_macro_character,1,2,norest,nokey,0,NIL)
    {var chart c = char_code(ch);
     # neue (leere) Dispatch-Macro-Tabelle holen:
     pushSTACK(readtable);
-    {var object dm_table = allocate_perchar_table(); # Vektor, mit NIL gefüllt
-     readtable = popSTACK();
+    pushSTACK(allocate_perchar_table()); # Vektor, mit NIL gefüllt
     # alles in der Readtable ablegen:
-     # Syntaxcode in die Syntax-Table:
-     syntax_table_put(TheReadtable(readtable)->readtable_syntax_table,c,syntaxcode);
-     # neue Dispatch-Macro-Tabelle in die Macrodefinitionen-Tabelle:
-     perchar_table_put(TheReadtable(readtable)->readtable_macro_table,c,dm_table);
-    }
+    # Syntaxcode in die Syntax-Table:
+    syntax_table_put(TheReadtable(STACK_1)->readtable_syntax_table,c,syntaxcode);
+    # neue Dispatch-Macro-Tabelle in die Macrodefinitionen-Tabelle:
+    perchar_table_put(TheReadtable(STACK_1)->readtable_macro_table,c,STACK_0);
     value1 = T; mv_count=1; # 1 Wert T
+    skipSTACK(2);
   }}
 
 # UP: Überprüft die Argumente disp-char und sub-char.
@@ -980,7 +1138,7 @@ LISPFUNN(set_readtable_case,2)
 # Anmerkung: 0-9,A-Z,a-z werden erst als a_digit oder a_expo_m interpretiert,
 # dann (falls sich kein Integer aus einem Token ergibt) wird a_digit
 # oberhalb von *READ-BASE* als a_alpha (alphabetic) interpretiert.
-  local const uintB attribute_table[char_code_limit] = {
+  local const uintB attribute_table[base_char_code_limit] = {
     a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,   # chr(0) bis chr(7)
     a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,   # chr(8) bis chr(15)
     a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,   # chr(16) bis chr(23)
@@ -997,30 +1155,30 @@ LISPFUNN(set_readtable_case,2)
     a_letter,a_letter,a_letter,a_letter,a_expo_m,a_letter,a_letter,a_letter, # 'hijklmno'
     a_letter,a_letter,a_letter,a_expo_m,a_letter,a_letter,a_letter,a_letter, # 'pqrstuvw'
     a_letter,a_letter,a_letter,a_alpha, a_alpha, a_alpha, a_alpha,           # 'xyz{|}~'
-    #if defined(IBMPC_CHS)
-                                                                   a_alpha,
-    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-    #elif defined(ISOLATIN_CHS) || defined(HPROMAN8_CHS)
+    #if defined(UNICODE) || defined(ISOLATIN_CHS) || defined(HPROMAN8_CHS)
                                                                    a_illg,
     a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,
     a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,
     a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,
     a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,
+    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
+    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
+    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
+    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
+    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
+    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
+    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
+    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
+    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
+    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
+    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
+    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
+    #elif defined(IBMPC_CHS)
+                                                                   a_alpha,
+    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
+    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
+    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
+    a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
     a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
     a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
     a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
@@ -1051,7 +1209,7 @@ LISPFUNN(set_readtable_case,2)
     a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
     a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
     a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-    #else # defined(ASCII_CHS)
+    #else # defined(ASCII_CHS) && !defined(UNICODE)
                                                                    a_illg,
     a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,
     a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,
@@ -1076,7 +1234,15 @@ LISPFUNN(set_readtable_case,2)
 # attribute_of(c)
 # > chart c: character code
 # < uintB result: attribute code
-  #define attribute_of(c)  attribute_table[as_cint(c)]
+  #if (base_char_code_limit < char_code_limit) # i.e. defined(UNICODE)
+    #define attribute_of(c)  \
+      (as_cint(c) < base_char_code_limit        \
+       ? attribute_table[as_cint(c)]            \
+       : (graphic_char_p(c) ? a_alpha : a_illg) \
+      )
+  #else
+    #define attribute_of(c)  attribute_table[as_cint(c)]
+  #endif
 
 # Flag. Zeigt an, ob im letztgelesenen Token
 # ein Single-Escape- oder Multiple-Escape-Zeichen vorkam:
@@ -2881,7 +3047,7 @@ LISPFUNN(char_reader,3) # liest #\
            if (!string_equal(hstring,O(charname_prefix))) # = "Code" ?
              goto not_codexxxx; # nein -> weiter
            # Dezimalzahl entziffern:
-          {var uintWL code = 0; # bisher gelesenes xxxx (<char_code_limit)
+          {var uintL code = 0; # bisher gelesenes xxxx (<char_code_limit)
            var uintL index = pos+4;
            var const chart* charptr = &TheSstring(token)->data[index];
            loop
@@ -2898,6 +3064,33 @@ LISPFUNN(char_reader,3) # liest #\
            value1 = code_char(as_chart(code)); mv_count=1; skipSTACK(3); return;
          }}
        not_codexxxx:
+       #ifdef UNICODE
+       # Test auf Characternamen "Uxxxx" (xxxx Hexadezimalzahl)
+       if (sub_len == 5)
+         { var chart ch = TheSstring(token)->data[pos];
+           if (chareq(ch,ascii('U')) || chareq(ch,ascii('u')))
+             # Hexadezimalzahl entziffern:
+             { var uintL code = 0;
+               var uintL index = pos+1;
+               var const chart* charptr = &TheSstring(token)->data[index];
+               loop
+                 { var cint c = as_cint(*charptr++); # nächstes Character
+                   # soll Hexadezimalziffer sein:
+                   if (c > 'f') break;
+                   if (c >= 'a') { c -= 'a'-'A'; }
+                   if (c < '0') break;
+                   if (c <= '9') { c = c - '0'; }
+                   else if ((c >= 'A') && (c <= 'F')) { c = c - 'A' + 10; }
+                   else break;
+                   code = 16*code + c; # Ziffer dazunehmen
+                   # code soll < char_code_limit bleiben:
+                   if (code >= char_code_limit) break; # sollte nicht passieren
+                   index++;
+                   if (index == len)
+                     # Charactername war vom Typ "Uxxxx" mit code = xxxx < char_code_limit
+                     { value1 = code_char(as_chart(code)); mv_count=1; skipSTACK(3); return; }
+         }   }   }
+       #endif
        # Test auf Pseudo-Character-Namen ^X:
        if ((sub_len == 2) && chareq(TheSstring(token)->data[pos],ascii('^')))
          { var cint code = as_cint(TheSstring(token)->data[pos+1])-64;
@@ -4859,7 +5052,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       loop
         { if (count==0) goto badsyntax; # Stringstück schon zu Ende ?
           c = *charptr; # nächstes Character
-          if (!(orig_syntax_table[as_cint(c)] == syntax_whitespace)) # kein Whitespace?
+          if (!(orig_syntax_table_get(c) == syntax_whitespace)) # kein Whitespace?
             break;
           charptr++; index++; count--; # Whitespacezeichen übergehen
         }
@@ -4903,7 +5096,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       if (!junk_allowed) # (falls junk_allowed, ist nichts zu tun)
         { while (!(count==0))
             { var chart c = *charptr; # nächstes Character
-              if (!(orig_syntax_table[as_cint(c)] == syntax_whitespace)) # kein Whitespace?
+              if (!(orig_syntax_table_get(c) == syntax_whitespace)) # kein Whitespace?
                 goto badsyntax;
               charptr++; index++; count--; # Whitespacezeichen übergehen
             }
@@ -8473,6 +8666,14 @@ LISPFUNN(print_structure,2)
               write_sstring_case(stream_,O(printstring_encoding)); # "ENCODING"
               {var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
                var uintL length = 0; # bisherige Länge := 0
+               #ifdef UNICODE
+               # auf Erreichen von *PRINT-LENGTH* prüfen:
+               if (length >= length_limit) goto encoding_end;
+               JUSTIFY_SPACE; # Space ausgeben
+               # Charset ausgeben:
+               prin_object(stream_,TheEncoding(*obj_)->enc_charset);
+               length++; # bisherige Länge erhöhen
+               #endif
                # auf Erreichen von *PRINT-LENGTH* prüfen:
                if (length >= length_limit) goto encoding_end;
                JUSTIFY_SPACE; # Space ausgeben

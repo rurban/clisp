@@ -12,13 +12,16 @@
 
 # Expander für die Konstruktion der Liste O(all_packages):
   #define LISPPACK_B(abbrev,packname)  \
-    make_package(asciz_to_string(packname),NIL,FALSE);
+    make_package(ascii_to_string(packname),NIL,FALSE);
 
 # Welcher Expander benutzt wird, muss vom Hauptfile aus eingestellt werden.
 
 
 LISPPACK(clos,"CLOS")
 LISPPACK(user,"USER")
+#ifdef UNICODE
+LISPPACK(charset,"CHARSET")
+#endif
 #ifdef SCREEN
 LISPPACK(screen,"SCREEN")
 #endif

@@ -265,7 +265,7 @@ local void affi_callit(address, ffinfo, args)
                   default: value1 = NIL;
             }   }
           elif (eq(rtype,S(string)))    # string
-            { value1 = (thing == 0 ? NIL : asciz_to_string((const char*)thing)); }
+            { value1 = (thing == 0 ? NIL : asciz_to_string((const char*)thing,O(foreign_encoding))); }
           elif (eq(rtype,S(mal)))       # *
             { value1 = UL_to_I(thing); }
           elif (eq(rtype,S(Kexternal))) # :external
@@ -375,10 +375,11 @@ local void affi_call_argsa(address, ffinfo, args, count)
                     { var uintL length;
                       var chart* charptr = unpack_string(arg,&length);
                       if (accept & ACCEPT_MAKE_ASCIZ)
-                        { var uintB* ptr = alloca(1+length); # TODO Ergebnis testen
+                        { var uintL bytelength = cslen(O(foreign_encoding),charptr,length);
+                          var uintB* ptr = alloca(1+bytelength); # TODO Ergebnis testen
                           *thing = (aint)ptr;
-                          dotimesL(length,length, { *ptr++ = as_cint(*charptr++); } );
-                          *ptr = '\0';
+                          cstombs(O(foreign_encoding),charptr,length,ptr,bytelength);
+                          ptr[bytelength] = '\0';
                         }
                         else
                         { var uintB* ptr = alloca(length); # TODO Ergebnis testen
@@ -497,11 +498,19 @@ LISPFUN(mem_read,2,1,norest,nokey,0,NIL)
         value1 = L_to_I(content);
       }
     elif (eq(into,S(string))) # make a LISP string
-      { value1 = asciz_to_string((uintB*)address); }
+      { value1 = asciz_to_string((uintB*)address,O(foreign_encoding)); }
     elif (stringp(into)) # copy memory into a LISP string
       { var uintL length;
         var chart* charptr = unpack_string(into,&length);
+        #ifdef UNICODE
+        var object encoding = O(foreign_encoding);
+        var const uintB* byteptr = (uintB*)address;
+        ASSERT(Encoding_mblen(encoding)(encoding,byteptr,byteptr+length) == length);
+        Encoding_mbstowcs(encoding)(encoding,&byteptr,byteptr+length,&charptr,charptr+length);
+        ASSERT(byteptr == (uintB*)address+length);
+        #else
         dotimesL(length,length, { *charptr++ = as_chart(*((uintB*)address)++); } );
+        #endif
         value1 = into;
       }
     elif (!bit_vector_p(into) # copy memory into a LISP unsigned-byte vector
@@ -571,8 +580,9 @@ LISPFUN(mem_write_vector,2,1,norest,nokey,0,NIL)
     if (stringp(from)) # write a LISP string to memory
       { var uintL length;
         var const chart* charptr = unpack_string(from,&length);
-        dotimesL(length,length, { *((uintB*)address)++ = as_cint(*charptr++); } );
-        *(uintB*)address = '\0'; # and zero-terminate memory!
+        var uintL bytelength = cslen(O(foreign_encoding),charptr,length);
+        cstombs(O(foreign_encoding),charptr,length,(uintB*)address,bytelength);
+        ((uintB*)address)[bytelength] = '\0'; # and zero-terminate memory!
       }
     elif (!bit_vector_p(from) # copy memory into a LISP unsigned-byte vector
           && general_byte_vector_p(from))
@@ -665,7 +675,6 @@ subr_ module__affi__subr_tab[subr_anz] = {
   LISPFUN(mem_write,3,1,norest,nokey,0,NIL)
   LISPFUN(mem_write_vector,2,1,norest,nokey,0,NIL)
   LISPFUN(affi_nonzerop,1,0,norest,nokey,0,NIL)
-# LISPFUNN(string_to_asciz,1)
 };
 
 subr_initdata module__affi__subr_tab_initdata[subr_anz] = {
@@ -674,7 +683,6 @@ subr_initdata module__affi__subr_tab_initdata[subr_anz] = {
   LISPSYM(mem_write,"MEM-WRITE",system)
   LISPSYM(mem_write_vector,"MEM-WRITE-VECTOR",system)
   LISPSYM(affi_nonzerop,"NZERO-POINTER-P",system)
-# LISPSYM(string_to_asciz,"STRING-TO-ASCIZ",system)
 };
 
 # called once when module is initialized, not called if found in .mem file
