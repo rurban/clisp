@@ -92,9 +92,36 @@
     (method-combination-name (std-gf-method-combination gf)) gf
     (std-method-qualifiers method) method))
 
+;; MOP p. 62 says that the lambda-list of a generic function may become
+;; determined only at the moment when the first method is added.
+(defun gf-lambdalist-from-first-method (m-lambdalist m-signature)
+  (let* ((req-num (sig-req-num m-signature))
+         (opt-num (sig-opt-num m-signature))
+         (rest-p (sig-rest-p m-signature)))
+    (values
+      ;; The inferred lambda-list:
+      (append (subseq m-lambdalist 0 req-num)
+              (if (> opt-num 0)
+                (cons '&OPTIONAL
+                      (mapcar #'(lambda (item) (if (consp item) (first item) item))
+                              (subseq m-lambdalist (+ req-num 1) (+ req-num 1 opt-num))))
+                '())
+              (if rest-p
+                (list '&REST
+                      (let ((i (position '&REST m-lambdalist)))
+                        (if i (nth (+ i 1) m-lambdalist) (gensym))))
+               '()))
+      ;; Its corresponding signature:
+      (make-signature :req-num req-num :opt-num opt-num :rest-p rest-p))))
+
 ;; Add a method to a generic function.
 (defun std-add-method (gf method)
-  (check-signature-congruence gf method)
+  (if (eq (std-gf-signature gf) (sys::%unbound))
+    ;; The first added method determines the generic-function's signature.
+    (shared-initialize-<standard-generic-function> gf nil
+      :lambda-list (gf-lambdalist-from-first-method (std-method-lambda-list method)
+                                                    (std-method-signature method)))
+    (check-signature-congruence gf method))
   (when (std-method-generic-function method)
     (error-of-type 'error
       "~S: ~S already belongs to ~S, cannot also add it to ~S"
@@ -160,31 +187,35 @@
 
 ;; Find a method in a generic function.
 (defun std-find-method (gf qualifiers specializers &optional (errorp t))
-  (let ((n (sig-req-num (std-gf-signature gf))))
-    (unless (listp specializers)
-      (error-of-type 'error
-        (TEXT "~S: the specializers argument is not a list: ~S")
-        'find-method specializers))
-    (unless (eql (length specializers) n)
-      (error-of-type 'error
-        (TEXT "~S: the specializers argument has length ~D, but ~S has ~D required parameter~:P")
-        'find-method (length specializers) gf n))
-    ; Convert (EQL object) -> #<EQL-SPECIALIZER object>:
-    (setq specializers
-          (mapcar #'(lambda (specializer)
-                      (if (and (consp specializer) (eq (car specializer) 'EQL)
-                               (consp (cdr specializer)) (null (cddr specializer)))
-                        (intern-eql-specializer (second specializer))
-                        specializer))
-                  specializers)))
-  ;; Simulate
-  ;;   (find hypothetical-method (std-gf-methods gf) :test #'methods-agree-p)
-  ;; cf. methods-agree-p
-  (dolist (method (std-gf-methods gf))
-    (when (and (equal (std-method-qualifiers method) qualifiers)
-               (specializers-agree-p (std-method-specializers method)
-                                     specializers))
-      (return-from std-find-method method)))
+  (unless (listp specializers)
+    (error-of-type 'error
+      (TEXT "~S: the specializers argument is not a list: ~S")
+      'find-method specializers))
+  (if (eq (std-gf-signature gf) (sys::%unbound))
+    ;; Signature not known yet, hence no methods installed.
+    (assert (null (std-gf-methods gf)))
+    (progn
+      (let ((n (sig-req-num (std-gf-signature gf))))
+        (unless (eql (length specializers) n)
+          (error-of-type 'error
+            (TEXT "~S: the specializers argument has length ~D, but ~S has ~D required parameter~:P")
+            'find-method (length specializers) gf n))
+        ; Convert (EQL object) -> #<EQL-SPECIALIZER object>:
+        (setq specializers
+              (mapcar #'(lambda (specializer)
+                          (if (and (consp specializer) (eq (car specializer) 'EQL)
+                                   (consp (cdr specializer)) (null (cddr specializer)))
+                            (intern-eql-specializer (second specializer))
+                            specializer))
+                      specializers)))
+      ;; Simulate
+      ;;   (find hypothetical-method (std-gf-methods gf) :test #'methods-agree-p)
+      ;; cf. methods-agree-p
+      (dolist (method (std-gf-methods gf))
+        (when (and (equal (std-method-qualifiers method) qualifiers)
+                   (specializers-agree-p (std-method-specializers method)
+                                         specializers))
+          (return-from std-find-method method)))))
   (if errorp
     (error-of-type 'error
       (TEXT "~S has no method with qualifiers ~:S and specializers ~:S")
@@ -298,23 +329,10 @@
                                  (getf method-or-initargs 'signature))
                          (values (std-method-lambda-list method-or-initargs)
                                  (std-method-signature method-or-initargs)))
-                     (let* ((req-num (sig-req-num m-signature))
-                            (opt-num (sig-opt-num m-signature))
-                            (rest-p (sig-rest-p m-signature))
-                            (gf-lambdalist (append (subseq m-lambdalist 0 req-num)
-                                                   (if (> opt-num 0)
-                                                     (cons '&OPTIONAL
-                                                       (mapcar #'(lambda (item) (if (consp item) (first item) item))
-                                                               (subseq m-lambdalist (+ req-num 1) (+ req-num 1 opt-num))))
-                                                     '())
-                                                   (if rest-p
-                                                     (list '&REST
-                                                           (let ((i (position '&REST m-lambdalist)))
-                                                             (if i (nth (+ i 1) m-lambdalist) (gensym))))
-                                                     '()))))
-                         ; gf-lambdalist's signature is
-                         ; (make-signature :req-num req-num :opt-num opt-num :rest-p rest-p).
-                         (make-fast-gf <standard-generic-function> funname gf-lambdalist (subseq m-lambdalist 0 req-num) <standard-method> '() nil))))))
+                     (let ((req-num (sig-req-num m-signature))
+                           (gf-lambdalist
+                             (gf-lambdalist-from-first-method m-lambdalist m-signature)))
+                       (make-fast-gf <standard-generic-function> funname gf-lambdalist (subseq m-lambdalist 0 req-num) <standard-method> '() nil))))))
          (method
            (if (listp method-or-initargs)
              (apply #'make-method-instance (std-gf-default-method-class gf)

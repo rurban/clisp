@@ -393,36 +393,46 @@
 
 (let ((prototype-factory-table
         (make-hash-table :key-type '(cons fixnum boolean) :value-type '(cons function (simple-array (unsigned-byte 8) (*)))
-                         :test 'ext:stablehash-equal :warn-if-needs-rehash-after-gc t)))
+                         :test 'ext:stablehash-equal :warn-if-needs-rehash-after-gc t))
+      (uninitialized-prototype-factory
+        (eval `#'(LAMBDA (GF)
+                   (DECLARE (COMPILE))
+                   (%GENERIC-FUNCTION-LAMBDA (&REST ARGS)
+                     (DECLARE (INLINE FUNCALL) (IGNORE ARGS))
+                     (FUNCALL 'NO-METHOD-CALLER 'NO-APPLICABLE-METHOD GF))))))
   (defun finalize-fast-gf (gf)
-    (let* ((signature (std-gf-signature gf))
-           (reqnum (sig-req-num signature))
-           (restp (gf-sig-restp signature))
-           (hash-key (cons reqnum restp))
-           (prototype-factory
-             (car
-               (or (gethash hash-key prototype-factory-table)
-                   (setf (gethash hash-key prototype-factory-table)
-                         (let* ((reqvars (gensym-list reqnum))
-                                (prototype-factory
-                                  (eval `#'(LAMBDA (GF)
-                                             (DECLARE (COMPILE))
-                                             (%GENERIC-FUNCTION-LAMBDA
-                                               (,@reqvars ,@(if restp '(&REST ARGS) '()))
-                                               (DECLARE (INLINE FUNCALL) (IGNORABLE ,@reqvars ,@(if restp '(ARGS) '())))
-                                               (FUNCALL 'INITIAL-FUNCALL-GF GF))))))
-                           (assert (<= (sys::%record-length (funcall prototype-factory 'dummy)) 3))
-                           (cons prototype-factory
-                                 (sys::closure-codevec (funcall prototype-factory 'dummy)))))))))
+    (let ((prototype-factory
+            (if (eq (std-gf-signature gf) (sys::%unbound))
+              ;; gf has uninitialized lambda-list, hence no methods.
+              uninitialized-prototype-factory
+              (let* ((signature (std-gf-signature gf))
+                     (reqnum (sig-req-num signature))
+                     (restp (gf-sig-restp signature))
+                     (hash-key (cons reqnum restp)))
+                (car
+                  (or (gethash hash-key prototype-factory-table)
+                      (setf (gethash hash-key prototype-factory-table)
+                            (let* ((reqvars (gensym-list reqnum))
+                                   (prototype-factory
+                                     (eval `#'(LAMBDA (GF)
+                                                (DECLARE (COMPILE))
+                                                (%GENERIC-FUNCTION-LAMBDA
+                                                  (,@reqvars ,@(if restp '(&REST ARGS) '()))
+                                                  (DECLARE (INLINE FUNCALL) (IGNORABLE ,@reqvars ,@(if restp '(ARGS) '())))
+                                                  (FUNCALL 'INITIAL-FUNCALL-GF GF))))))
+                              (assert (<= (sys::%record-length (funcall prototype-factory 'dummy)) 3))
+                              (cons prototype-factory
+                                    (sys::closure-codevec (funcall prototype-factory 'dummy)))))))))))
       (set-funcallable-instance-function gf (funcall prototype-factory gf))))
   (defun gf-never-called-p (gf)
-    (let* ((signature (std-gf-signature gf))
-           (reqnum (sig-req-num signature))
-           (restp (gf-sig-restp signature))
-           (hash-key (cons reqnum restp))
-           (prototype-factory+codevec (gethash hash-key prototype-factory-table)))
-      (assert prototype-factory+codevec)
-      (eq (sys::closure-codevec gf) (cdr prototype-factory+codevec))))
+    (or (eq (std-gf-signature gf) (sys::%unbound))
+        (let* ((signature (std-gf-signature gf))
+               (reqnum (sig-req-num signature))
+               (restp (gf-sig-restp signature))
+               (hash-key (cons reqnum restp))
+               (prototype-factory+codevec (gethash hash-key prototype-factory-table)))
+          (assert prototype-factory+codevec)
+          (eq (sys::closure-codevec gf) (cdr prototype-factory+codevec)))))
   (defvar *dynamically-modifiable-generic-function-names*
     ;; A list of names of functions, which ANSI CL explicitly denotes as
     ;; "Standard Generic Function"s, meaning that the user may add methods.
@@ -495,6 +505,14 @@
 ;; One does not need to write (APPLY ... Arguments),
 ;; it is done by %GENERIC-FUNCTION-LAMBDA automatically.
 (defun compute-dispatch (gf)
+  (when (eq (std-gf-signature gf) (sys::%unbound))
+    ;; gf has uninitialized lambda-list, hence no methods.
+    (return-from compute-dispatch
+      (values
+        '()
+        `((&REST ,(gensym))
+          (DECLARE (INLINE FUNCALL))
+          (FUNCALL 'NO-METHOD-CALLER 'NO-APPLICABLE-METHOD ',gf)))))
   (let* ((signature (std-gf-signature gf))
          (req-anz (sig-req-num signature))
          (req-vars (gensym-list req-anz))
@@ -741,7 +759,7 @@
             (BLOCK ,block-name
               ,form
               ,@(if maybe-no-applicable
-                  `((funcall 'no-method-caller 'no-applicable-method
+                  `((FUNCALL 'NO-METHOD-CALLER 'NO-APPLICABLE-METHOD
                              ',gf))))))))))
 
 (defun no-method-caller (no-method-name gf)
@@ -805,6 +823,10 @@
 ;;; for the same EQL and class restrictions as the given arguments,
 ;;; therefore compute dispatch is already taken care of.
 (defun compute-applicable-methods-effective-method (gf &rest args)
+  (when (eq (std-gf-signature gf) (sys::%unbound))
+    ;; gf has uninitialized lambda-list, hence no methods.
+    (return-from compute-applicable-methods-effective-method
+      (no-method-caller 'no-applicable-method gf)))
   (let ((req-num (sig-req-num (std-gf-signature gf))))
     (if (>= (length args) req-num)
       (let ((req-args (subseq args 0 req-num)))
@@ -841,24 +863,27 @@
   (compute-applicable-methods-<standard-generic-function> gf args))
 
 (defun compute-applicable-methods-<standard-generic-function> (gf args)
-  (let ((req-num (sig-req-num (std-gf-signature gf))))
-    (if (>= (length args) req-num)
-      ;; 0. Check the method specializers:
-      (let ((methods (std-gf-methods gf)))
-        (dolist (method methods)
-          (check-method-only-standard-specializers gf method
-            'compute-applicable-methods))
-        ;; 1. Select the applicable methods:
-        (let ((req-args (subseq args 0 req-num)))
-          (setq methods
-                (remove-if-not #'(lambda (method)
-                                   (method-applicable-p method req-args))
-                               (the list methods)))
-          ;; 2. Sort the applicable methods by precedence order:
-          (sort-applicable-methods methods (mapcar #'class-of req-args) (std-gf-argorder gf))))
-      (error (TEXT "~S: ~S has ~S required argument~:P, but only ~S arguments were passed to ~S: ~S")
-             'compute-applicable-methods gf req-num (length args)
-             'compute-applicable-methods args))))
+  (if (eq (std-gf-signature gf) (sys::%unbound))
+    ;; gf has uninitialized lambda-list, hence no methods.
+    '()
+    (let ((req-num (sig-req-num (std-gf-signature gf))))
+      (if (>= (length args) req-num)
+        ;; 0. Check the method specializers:
+        (let ((methods (std-gf-methods gf)))
+          (dolist (method methods)
+            (check-method-only-standard-specializers gf method
+              'compute-applicable-methods))
+          ;; 1. Select the applicable methods:
+          (let ((req-args (subseq args 0 req-num)))
+            (setq methods
+                  (remove-if-not #'(lambda (method)
+                                     (method-applicable-p method req-args))
+                                 (the list methods)))
+            ;; 2. Sort the applicable methods by precedence order:
+            (sort-applicable-methods methods (mapcar #'class-of req-args) (std-gf-argorder gf))))
+        (error (TEXT "~S: ~S has ~S required argument~:P, but only ~S arguments were passed to ~S: ~S")
+               'compute-applicable-methods gf req-num (length args)
+               'compute-applicable-methods args)))))
 
 ;; compute-applicable-methods-using-classes is just plain redundant, and must
 ;; be a historical relic of the time before CLOS had EQL specializers (or a
@@ -872,45 +897,48 @@
   (unless (and (proper-list-p req-arg-classes) (every #'class-p req-arg-classes))
     (error (TEXT "~S: argument should be a proper list of classes, not ~S")
            'compute-applicable-methods-using-classes req-arg-classes))
-  (let ((req-num (sig-req-num (std-gf-signature gf))))
-    (if (= (length req-arg-classes) req-num)
-      ;; 0. Check the method specializers:
-      (let ((methods (std-gf-methods gf)))
-        (dolist (method methods)
-          (check-method-only-standard-specializers gf method
-            'compute-applicable-methods-using-classes))
-        ;; 1. Select the applicable methods. Note that the arguments are
-        ;; assumed to be _direct_ instances of the given classes, i.e.
-        ;; classes = (mapcar #'class-of required-arguments).
-        (setq methods
-              (remove-if-not #'(lambda (method)
-                                 (let ((specializers (std-method-specializers method))
-                                       (applicable t) (unknown nil))
-                                   (mapc #'(lambda (arg-class specializer)
-                                             (if (class-p specializer)
-                                               ;; For class specializers,
-                                               ;; (typep arg specializer) is equivalent to
-                                               ;; (subtypep (class-of arg) specializer).
-                                               (unless (subclassp arg-class specializer)
-                                                 (setq applicable nil))
-                                               ;; For EQL specializers,
-                                               ;; (typep arg specializer) is certainly false
-                                               ;; if (class-of arg) and (class-of (eql-specializer-object specializer))
-                                               ;; differ. Otherwise unknown.
-                                               (if (eq arg-class (class-of (eql-specializer-object specializer)))
-                                                 (setq unknown t)
-                                                 (setq applicable nil))))
-                                         req-arg-classes specializers)
-                                   (when (and applicable unknown)
-                                     (return-from compute-applicable-methods-using-classes-<standard-generic-function>
-                                       (values nil nil)))
-                                   applicable))
-                             (the list methods)))
-        ;; 2. Sort the applicable methods by precedence order:
-        (values (sort-applicable-methods methods req-arg-classes (std-gf-argorder gf)) t))
-      (error (TEXT "~S: ~S has ~S required argument~:P, but ~S classes were passed to ~S: ~S")
-             'compute-applicable-methods-using-classes gf req-num (length req-arg-classes)
-             'compute-applicable-methods-using-classes req-arg-classes))))
+  (if (eq (std-gf-signature gf) (sys::%unbound))
+    ;; gf has uninitialized lambda-list, hence no methods.
+    '()
+    (let ((req-num (sig-req-num (std-gf-signature gf))))
+      (if (= (length req-arg-classes) req-num)
+        ;; 0. Check the method specializers:
+        (let ((methods (std-gf-methods gf)))
+          (dolist (method methods)
+            (check-method-only-standard-specializers gf method
+              'compute-applicable-methods-using-classes))
+          ;; 1. Select the applicable methods. Note that the arguments are
+          ;; assumed to be _direct_ instances of the given classes, i.e.
+          ;; classes = (mapcar #'class-of required-arguments).
+          (setq methods
+                (remove-if-not #'(lambda (method)
+                                   (let ((specializers (std-method-specializers method))
+                                         (applicable t) (unknown nil))
+                                     (mapc #'(lambda (arg-class specializer)
+                                               (if (class-p specializer)
+                                                 ;; For class specializers,
+                                                 ;; (typep arg specializer) is equivalent to
+                                                 ;; (subtypep (class-of arg) specializer).
+                                                 (unless (subclassp arg-class specializer)
+                                                   (setq applicable nil))
+                                                 ;; For EQL specializers,
+                                                 ;; (typep arg specializer) is certainly false
+                                                 ;; if (class-of arg) and (class-of (eql-specializer-object specializer))
+                                                 ;; differ. Otherwise unknown.
+                                                 (if (eq arg-class (class-of (eql-specializer-object specializer)))
+                                                   (setq unknown t)
+                                                   (setq applicable nil))))
+                                           req-arg-classes specializers)
+                                     (when (and applicable unknown)
+                                       (return-from compute-applicable-methods-using-classes-<standard-generic-function>
+                                         (values nil nil)))
+                                     applicable))
+                               (the list methods)))
+          ;; 2. Sort the applicable methods by precedence order:
+          (values (sort-applicable-methods methods req-arg-classes (std-gf-argorder gf)) t))
+        (error (TEXT "~S: ~S has ~S required argument~:P, but ~S classes were passed to ~S: ~S")
+               'compute-applicable-methods-using-classes gf req-num (length req-arg-classes)
+               'compute-applicable-methods-using-classes req-arg-classes)))))
 
 ;; There's no real reason for checking the method specializers in
 ;; compute-applicable-methods, rather than in
