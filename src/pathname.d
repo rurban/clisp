@@ -6666,7 +6666,7 @@ local object use_default_dir (object pathname) {
   return pathname;
 }
 
-# UP: Assures, that the directory of a pathname exists, und thereby resolves
+# UP: Assures, that the directory of a pathname exists, and thereby resolves
 # symbolic links.
 # assure_dir_exists(tolerantp)
 # > STACK_0: non-logical pathname, whose directory does not contain :RELATIVE.
@@ -6702,15 +6702,15 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
       var char path_buffer[MAXPATHLEN]; # cf. REALPATH(3)
       {
         var object pathname = STACK_0;
-        var uintC stringcount = host_namestring_parts(pathname); # Strings for the Host
-        stringcount += directory_namestring_parts(pathname); # Strings for the Directory
-        pushSTACK(O(dot_string)); # und "."
+        var uintC stringcount = host_namestring_parts(pathname); # host strings
+        stringcount += directory_namestring_parts(pathname); # directory strings
+        pushSTACK(O(dot_string)); # and "."
         var object string = string_concat(stringcount+1); # concatenate
         # resolve symbolic links therein:
         with_sstring_0(string,O(pathname_encoding),string_asciz, {
           begin_system_call();
           if ( realpath(string_asciz,&path_buffer[0]) ==NULL) {
-            if (!(errno==ENOENT)) { end_system_call(); OS_file_error(STACK_0); }
+            if (errno!=ENOENT) { end_system_call(); OS_file_error(STACK_0); }
             end_system_call();
             if (!tolerantp)
               fehler_dir_not_exists(asciz_dir_to_pathname(&path_buffer[0],O(pathname_encoding))); # erroneous component
