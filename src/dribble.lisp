@@ -34,12 +34,11 @@
     (unless ta (error 'type-error :datum ds :expected-type 'dribble-stream))
     ta))
 (defun dribble-toggle (stream &optional file)
-  (multiple-value-bind (so ta) (dribble-stream-p stream)
+  (multiple-value-bind (so ta) (dribble-stream stream)
     (if so
       (if file                  ; already dribbling
         (warn (TEXT "Already dribbling ~S to ~S") so ta)
         (progn
-          (setf (symbol-value symbol) so)
           (format ta (TEXT ";; Dribble of ~S finished ") so)
           (funcall (date-format) ta (multiple-value-list (get-decoded-time)))
           (terpri ta)
@@ -54,11 +53,12 @@
           (format ta (TEXT ";; Dribble of ~S started ") stream)
           (funcall (date-format) ta (multiple-value-list (get-decoded-time)))
           (terpri ta)
-          (values (make-dribble-stream (symbol-value symbol) ta) ta))
-        (warn (TEXT "Currently not dribbling from ~S.") symbol)))))
+          (values (make-dribble-stream stream ta) ta))
+        (warn (TEXT "Currently not dribbling from ~S.") stream)))))
 
 (defun dribble (&optional file)
   (multiple-value-bind (so ta) (dribble-toggle *terminal-io* file)
-    (when (streamp so) (setq *terminal-io* so))
-    (close ta)
+    (when (streamp so)          ; no warning
+      (unless file (close ta))  ; dribble off
+      (setq *terminal-io* so))
     ta))
