@@ -11,7 +11,6 @@ AC_PREREQ(2.13)
 
 AC_DEFUN([CL_ADDRESS_RANGE],
 [AC_REQUIRE([AC_PROG_CC])dnl
-AC_REQUIRE([CL_CC_ANSI])dnl
 AC_REQUIRE([CL_MALLOC])dnl
 address_range_prog='
 #include <stdio.h>
