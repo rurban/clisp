@@ -159,7 +159,7 @@ Common Lisp programs are
 
 Our Common Lisp CLISP
   * needs only 2 MB of memory
-  * implements 99% of the CLtL1 standard, as well as some extensions
+  * implements most of the ANSI standard, as well as some extensions
   * can call your preferred editor
   * is freely distributable
 
