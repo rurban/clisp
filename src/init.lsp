@@ -1277,7 +1277,8 @@ interpreter compiler
           (write-string indent)
           (write-string (ENGLISH "Loading file "))
           (princ filename)
-          (write-string " ..."))
+          (write-string (ENGLISH " ..."))
+        )
         (sys::allow-read-eval input-stream t)
         (block nil
           (unwind-protect
