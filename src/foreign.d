@@ -109,7 +109,8 @@ LISPFUNN(set_validp,2)
     if (!new_value) {
       if (eq(fp,O(fp_zero))) {
         pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,GETTEXT("~: must not invalidate sole FFI session pointer"));
+        fehler(error,
+               GETTEXT("~: must not invalidate the sole FFI session pointer"));
       }
       mark_fp_invalid(TheFpointer(fp));
     }
@@ -2633,26 +2634,37 @@ LISPFUN(exec_on_stack,seclass_default,2,1,norest,nokey,0,NIL) {
   }
   STACK_0 = allocate_fpointer(result_address); # Release initarg early
   pushSTACK(make_faddress(STACK_0,0));
-  { # Stack layout: thunk fvd fp fa.
-    var object fvar = allocate_fvariable();
-    # TODO better name (subr_self is lost at this point)
-    TheFvariable(fvar)->fv_name    = TheSymbol(S(foreign_variable))->pname;
-    TheFvariable(fvar)->fv_address = popSTACK();
-    var object fp_obj = popSTACK();
-    TheFvariable(fvar)->fv_size    = fixnum(result_size);
-    TheFvariable(fvar)->fv_type    = STACK_0;
-    record_flags_replace(TheFvariable(fvar), 0); # TODO needed?
-    { var object thunk = STACK_1;
-      STACK_1 = fp_obj;
-      STACK_0 = fvar;
-      funcall(thunk,1); # (funcall thunk fvar)
-    }
-    fp_obj = popSTACK();
-    # TODO how to create unwind-protect frame in C?
-    mark_fp_invalid(TheFpointer(fp_obj));
+  # Stack layout: thunk fvd fp fa.
+  var object fvar = allocate_fvariable();
+  TheFvariable(fvar)->fv_name    = Symbol_name(TheSubr(subr_self)->name);
+  TheFvariable(fvar)->fv_address = popSTACK();
+  var object fp_obj = popSTACK();
+  TheFvariable(fvar)->fv_size    = fixnum(result_size);
+  TheFvariable(fvar)->fv_type    = STACK_0;
+  record_flags_replace(TheFvariable(fvar), 0); # TODO needed?
+  var object thunk = STACK_1;
+  STACK_1 = fp_obj; skipSTACK(1);
+  { var gcv_object_t* top_of_frame = STACK;
+    var sp_jmp_buf returner; /* return point */
+    finish_entry_frame(UNWIND_PROTECT,&!returner,, goto clean_up; );
   }
+  pushSTACK(fvar); funcall(thunk,1); /* protected: (funcall thunk fvar) */
+  /* normal clean-up: */
+  skipSTACK(2); /* unwind UNWIND-PROTECT-frame */
+  fp_obj = popSTACK();
+  mark_fp_invalid(TheFpointer(fp_obj));
   FREE_DYNAMIC_ARRAY(total_room);
-  # values, mv_count are set by funcall
+  return;
+ clean_up: {
+    var restartf_t fun = unwind_protect_to_save.fun;
+    var gcv_object_t* arg = unwind_protect_to_save.upto_frame;
+    skipSTACK(2); /* unwind UNWIND-PROTECT-frame */
+    fp_obj = popSTACK();
+    mark_fp_invalid(TheFpointer(fp_obj));
+    FREE_DYNAMIC_ARRAY(total_room);
+    fun(arg); /* jump further */
+  }
+  /* values, mv_count are set by funcall */
 }
 
 /* (FFI::CALL-WITH-FOREIGN-STRING thunk encoding string start end extra-zeroes)
