@@ -81,7 +81,7 @@
                              (and (compiler-macro-function name)
                                   "compiler macro"))
     `(EVAL-WHEN (COMPILE LOAD EVAL)
-      ,@(when docstring
-         `((SYSTEM::%SET-DOCUMENTATION ',name 'COMPILER-MACRO ,docstring)))
-      (setf (compiler-macro-function ',name) ,expansion)
-      ',name)))
+       ,@(when docstring
+           `((SYSTEM::%SET-DOCUMENTATION ',name 'COMPILER-MACRO ,docstring)))
+       (SETF (COMPILER-MACRO-FUNCTION ',name) ,expansion)
+       ',name)))
