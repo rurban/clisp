@@ -1,6 +1,7 @@
 # Ausgabe aller Definitionen aus lispbibl.d, die an externe Module
 # exportiert werden.
 # Bruno Haible 1994-2002
+# Sam Steingold 1998-2002
 
 #include "lispbibl.c"
 
@@ -156,6 +157,16 @@ global void printf_with_args(string,argcount,args)
     printf_with_args(string,7,args); \
   }
 
+global void print_file (const char* fname) {
+  char buf[BUFSIZ];
+  FILE* includefile = fopen(fname,"r");
+  char* line;
+  if (includefile == NULL) { perror(fname); exit(1); }
+  while ((line = fgets(buf,BUFSIZ,includefile)) != NULL)
+    fputs(line,stdout);
+  if (ferror(includefile) || fclose(includefile)) { perror(fname); exit(1); }
+}
+
 global int main()
 {
   # Was hier ausgegeben wird, kann voraussetzen, dass unixconf.h und intparam.h
@@ -287,15 +298,7 @@ global int main()
   #ifdef HAVE_STDBOOL_H
     printf("#include <stdbool.h>\n");
   #else
-    {
-      char buf[1000];
-      FILE* includefile = fopen("stdbool.h","r");
-      char* line;
-      if (includefile == NULL) { exit(1); }
-      while ((line = fgets(buf,sizeof(buf),includefile)) != NULL)
-        fputs(line,stdout);
-      if (ferror(includefile) || fclose(includefile)) { exit(1); }
-    }
+    print_file("stdbool.h");
   #endif
   printf("#undef NULL\n");
   #ifdef __cplusplus
