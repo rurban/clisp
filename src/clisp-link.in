@@ -5,10 +5,13 @@
 # For more usage information, see <doc/impnotes.html#modules>.
 # Or <http://clisp.cons.org/impnotes.html#modules>.
 # Bruno Haible 19.10.1994
-# Sam Steingold 2002-08-11
+# Sam Steingold 2002-2005
 
 # This could as well be written in Lisp, for portability. But I don't like
 # the idea to have one Lisp process running while the next one is built.
+
+# Nuisances.
+(unset CDPATH) >/dev/null 2>&1 && unset CDPATH
 
 usage () {
 echo "Usage: $0 [ link | create-module-set | add-module-set | add-module-sets | run ] ..." 1>&2
