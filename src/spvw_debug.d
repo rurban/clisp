@@ -50,6 +50,7 @@ local void string_out (FILE* out, object str, object encoding) {
 
 /* non-consing, STACK non-modifying */
 global void nobject_out (FILE* out, object obj) {
+  if (out == NULL) out = stdout;
   if (stringp(obj)) {
     fputc('"',out);
     string_out(out,obj,O(terminal_encoding));
