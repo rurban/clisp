@@ -311,7 +311,7 @@
 ; SETF-GET-DEFAULT:EVALUATED-BUT-IGNORED                     yes
 ; SETF-MACRO-EXPANSION:LAST                                  yes
 ; SETF-METHOD-VS-SETF-METHOD:RENAME-OLD-TERMS                yes
-; SETF-MULTIPLE-STORE-VARIABLES:ALLOW                        yes for everything but ASSERT
+; SETF-MULTIPLE-STORE-VARIABLES:ALLOW                        yes
 ; SETF-OF-APPLY:ONLY-AREF-AND-FRIENDS                        yes
 ; SETF-OF-VALUES:ADD                                         yes
 ; SETF-SUB-METHODS:DELAYED-ACCESS-STORES                     yes
