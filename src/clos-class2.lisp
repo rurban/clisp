@@ -12,12 +12,14 @@
 
 ;; Metaclasses:
 (defvar <potential-class>)             ; <standard-class>
-(defvar <forward-referenced-class>)    ; <standard-class>
 (defvar <defined-class>)               ; <standard-class>
 (defvar <standard-class>)              ; <standard-class>
 (defvar <funcallable-standard-class>)  ; <standard-class>
 (defvar <structure-class>)             ; <standard-class>
 (defvar <built-in-class>)              ; <standard-class>
+;; Not really metaclasses:
+(defvar <forward-reference-to-class>)  ; <standard-class>
+(defvar <misdesigned-forward-referenced-class>) ; <standard-class>
 ;; Classes:
 (defvar <standard-object>)             ; <standard-class>
 (defvar <funcallable-standard-object>) ; <funcallable-standard-class>
@@ -110,7 +112,7 @@
     ;; says that "the class object itself is not affected".
     (sys::check-redefinition symbol '(setf find-class)
                              (and (defined-class-p h) "class"))
-    (when (and h (typep-class h <forward-referenced-class>) new-value)
+    (when (and h (forward-reference-to-class-p h) new-value)
       ;; Move the list of subclasses from the old class object to the new one.
       (dolist (subclass (class-direct-subclasses h))
         (add-direct-subclass new-value subclass))))

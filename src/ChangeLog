@@ -1,3 +1,64 @@
+2004-11-19  Bruno Haible  <bruno@clisp.org>
+
+	Repair the rest of the forward-referenced-class misdesign.
+	* clos-class1.lisp (super-class): New class.
+	(*<super-class>-defclass*): New variable.
+	(potential-class): Inherit all slots from super-class.
+	(class-direct-subclasses-table): Make it work also for objects
+	that are not of type <potential-class>.
+	(forward-referenced-class): Remove class.
+	(*<forward-referenced-class>-defclass*): Remove variable.
+	(forward-reference-to-class): New class.
+	(*<forward-reference-to-class>-defclass*): New variable.
+	(misdesigned-forward-referenced-class): New class.
+	(*<misdesigned-forward-referenced-class>-defclass*): New variable.
+	(shared-initialize-<defined-class>): Test for defined-class or
+	forward-reference-to-class, instead of for potential-class.
+	(forward-reference-to-class-p): New function.
+	(print-object-<forward-reference-to-class>): New function.
+	* clos-class2.lisp (<forward-referenced-class>): Remove variable.
+	(<forward-reference-to-class>, <misdesigned-forward-referenced-class>):
+	New variables.
+	((setf find-class)): Use forward-reference-to-class-p instead of typep.
+	* clos-class3.lisp (ensure-class-using-class-<t>): Test for
+	defined-class or forward-reference-to-class, instead of for
+	potential-class.
+	(reinitialize-instance-<defined-class>): Likewise.
+	(finalize-class): Likewise.
+	Define <super-class>.
+	Define <forward-reference-to-class>,
+	<misdesigned-forward-referenced-class> instead of
+	<forward-referenced-class>.
+	* clos-class6.lisp (class-name@forward-reference-to-class): Renamed
+	from class-name@forward-referenced-class. Don't use class-classname.
+	(class-direct-subclasses-table): Make it work also for objects that are
+	not of type <potential-class>.
+	(class-direct-subclasses@forward-reference-to-class): Renamed from
+	class-direct-subclasses@forward-referenced-class.
+	(class-direct-superclasses@forward-reference-to-class): Renamed from
+	class-direct-superclasses@forward-referenced-class. Don't use
+	class-classname.
+	(class-direct-slots@forward-reference-to-class): Renamed from
+	class-direct-slots@forward-referenced-class. Don't use class-classname.
+	(class-direct-default-initargs@forward-reference-to-class): Renamed
+	from class-direct-default-initargs@forward-referenced-class. Don't use
+	class-classname.
+	(class-finalized-p@forward-reference-to-class): Renamed from
+	class-finalized-p@forward-referenced-class.
+	(add-direct-subclass@super-class@potential-class): Renamed from
+	add-direct-subclass@potential-class@potential-class.
+	(remove-direct-subclass@super-class@potential-class): Renamed from
+	remove-direct-subclass@potential-class@potential-class.
+	* clos-print.lisp (print-object@forward-reference-to-class): New
+	method.
+	* clos-custom.lisp ((setf <forward-referenced-class>-under-<class>)):
+	Call also set-<forward-referenced-class>-...
+	(set-<class>-<potential-class>, set-<class>-<defined-class>): Disable
+	package lock.
+	(set-<forward-referenced-class>-<misdesigned-forward-referenced-class>,
+	set-<forward-referenced-class>-<forward-reference-to-class>): New
+	functions.
+
 2004-11-18  Bruno Haible  <bruno@clisp.org>
 
 	Repair part of the forward-referenced-class misdesign.

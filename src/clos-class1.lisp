@@ -40,11 +40,11 @@
 
 ;;; ===========================================================================
 
-;;; The abstract class <potential-class> allows defined classes and
+;;; The abstract class <super-class> allows defined classes and
 ;;; forward-references to classes to be treated in a homogenous way.
 
-(defvar *<potential-class>-defclass*
-  '(defclass potential-class (specializer)
+(defvar *<super-class>-defclass*
+  '(defclass super-class (standard-stablehash metaobject)
      (($classname          ; (class-name class) = (class-classname class),
                            ; a symbol
         :type symbol
@@ -53,6 +53,16 @@
                            ; weak-hash-table or NIL
         :type (or hash-table weak-list null)
         :initform nil))
+     (:fixed-slot-locations nil)))
+
+;;; ===========================================================================
+
+;;; The abstract class <potential-class> is the abstract base class of all
+;;; classes.
+
+(defvar *<potential-class>-defclass*
+  '(defclass potential-class (specializer super-class)
+     ()
      (:fixed-slot-locations t)))
 
 ;; Fixed slot locations.
@@ -65,9 +75,13 @@
 (predefun (setf class-classname) (new-value object)
   (setf (sys::%record-ref object *<potential-class>-classname-location*) new-value))
 (predefun class-direct-subclasses-table (object)
-  (sys::%record-ref object *<potential-class>-direct-subclasses-location*))
+  (if (potential-class-p object)
+    (sys::%record-ref object *<potential-class>-direct-subclasses-location*)
+    (slot-value object '$direct-subclasses)))
 (predefun (setf class-direct-subclasses-table) (new-value object)
-  (setf (sys::%record-ref object *<potential-class>-direct-subclasses-location*) new-value))
+  (if (potential-class-p object)
+    (setf (sys::%record-ref object *<potential-class>-direct-subclasses-location*) new-value)
+    (setf (slot-value object '$direct-subclasses) new-value)))
 
 ;; Initialization of a <potential-class> instance.
 (defun shared-initialize-<potential-class> (class situation &rest args
@@ -120,16 +134,25 @@
 ;;;
 ;;; A better design would be to define an abstract class <superclass> and
 ;;; let <forward-referenced-class> inherit from it:
-;;;   (defclass superclass () ...)
-;;;   (defclass class (superclass specializer) ...)
-;;;   (defclass forward-referenced-class (superclass) ...)
+;;;   (defclass super-class () ...)
+;;;   (defclass class (super-class specializer) ...)
+;;;   (defclass forward-referenced-class (super-class) ...)
 ;;; and (class-direct-superclasses class) would simply be a list of
-;;; <superclass> instances.
+;;; <super-class> instances.
 
-(defvar *<forward-referenced-class>-defclass*
-  '(defclass forward-referenced-class (potential-class)
+;; The proper <forward-referenced-class> inherits from <super-class> but
+;; not from <specializer>.
+(defvar *<forward-reference-to-class>-defclass*
+  '(defclass forward-reference-to-class (super-class)
      ()
-     (:fixed-slot-locations t)))
+     (:fixed-slot-locations nil)))
+
+;; The crappy <forward-referenced-class> from the MOP is subclass of
+;; <potential-class> and thus also of <specializer>.
+(defvar *<misdesigned-forward-referenced-class>-defclass*
+  '(defclass misdesigned-forward-referenced-class (forward-reference-to-class potential-class)
+     ()
+     (:fixed-slot-locations nil)))
 
 ;;; ===========================================================================
 
@@ -293,7 +316,10 @@
       (error (TEXT "(~S ~S) for class ~S: The ~S argument should be a proper list, not ~S")
              (if (eq situation 't) 'initialize-instance 'shared-initialize)
              'class name ':direct-superclasses direct-superclasses))
-    (unless (every #'potential-class-p direct-superclasses)
+    (unless (every #'(lambda (x)
+                       (or (defined-class-p x)
+                           (forward-reference-to-class-p x)))
+                   direct-superclasses)
       (error (TEXT "(~S ~S) for class ~S: The direct-superclasses list should consist of classes, not ~S")
              (if (eq situation 't) 'initialize-instance 'shared-initialize)
              'class name direct-superclasses))
@@ -632,6 +658,11 @@
 (sys::def-atomic-type structure-class structure-class-p)
 (sys::def-atomic-type standard-class standard-class-p)
 
+(defun forward-reference-to-class-p (object)
+  (and (std-instance-p object)
+       (gethash <forward-reference-to-class>
+                (class-all-superclasses (class-of object)))))
+
 ;;; ===========================================================================
 
 ;;; Copying.
@@ -666,6 +697,10 @@
           (progn
             (write-string " " stream)
             (write :uninitialized :stream stream)))))))
+
+(defun print-object-<forward-reference-to-class> (object stream)
+  (print-unreadable-object (object stream :type t)
+    (write (slot-value object '$classname) :stream stream)))
 
 ;; Preliminary.
 ;; Now we can at least print classes.
