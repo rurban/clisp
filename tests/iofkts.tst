@@ -1,4 +1,4 @@
-;; -*- Lisp -*-
+;; -*- mode: Lisp; write-file-hooks: nil -*-
 ;;****************************************************************************
 ;;*      Test the I/O functions                                              *
 ;;****************************************************************************
@@ -307,21 +307,21 @@ ERROR
 "EOF"
 
 (PROGN (SETQ A (MAKE-STRING-INPUT-STREAM "1   2   ;32  abA"))
-(SETQ B (MAKE-STRING-INPUT-STREAM " 1 2 3 A x y z
-a b c")) T)
+(SETQ B (MAKE-STRING-INPUT-STREAM " 1 2 3 A x y z 
+a b c  ")) T)
 T
 
 (READ-DELIMITED-LIST #\A B)
 (1 2 3)
 
 (SETQ C (MULTIPLE-VALUE-LIST (READ-LINE B)))
-(" x y z" NIL)
+(" x y z " NIL)
 
 (LENGTH C)
 2
 
 (MULTIPLE-VALUE-LIST (READ-LINE B))
-("a b c" T)
+("a b c  " T)
 
 (MULTIPLE-VALUE-LIST (READ-LINE B))
 ERROR
