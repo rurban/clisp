@@ -1,15 +1,15 @@
 #!/bin/sh
 # Usage: clisp-link command [more args]
-# where   command = link, create-module-set, add-module-set, join-modules
-# For more usage information, see file `doc/module.txt' or
-# <doc/impnotes.html#modules>.
+# where
+#   command = link, create-module-set, add-module-set, add-module-sets, run
+# For more usage information, see <doc/impnotes.html#modules>.
 # Bruno Haible 19.10.1994
 
 # This could as well be written in Lisp, for portability. But I don't like
 # the idea to have one Lisp process running while the next one is built.
 
 usage () {
-echo "Usage: $0 [ link | create-module-set | add-module-set | join-modules | add-module-sets | run ] ..." 1>&2
+echo "Usage: $0 [ link | create-module-set | add-module-set | add-module-sets | run ] ..." 1>&2
 exit 1
 }
 
