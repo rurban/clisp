@@ -2302,13 +2302,14 @@ local object encoding_from_name (const char* name) {
 # init_dependent_encodings();
 global void init_dependent_encodings(void) {
 #ifdef UNICODE
+  extern const char* locale_encoding; # GNU canonical name of locale encoding
   extern const char* argv_encoding_file; # override for *default-file-encoding*
   extern const char* argv_encoding_pathname; # override for *pathname-encoding*
   extern const char* argv_encoding_terminal; # override for *terminal-encoding*
   extern const char* argv_encoding_foreign; # override for *foreign-encoding*
   extern const char* argv_encoding_misc; # override for *misc-encoding*
   begin_system_call();
-  var const char* locale_encoding = locale_charset(); # depends on environment variables
+  locale_encoding = locale_charset(); # depends on environment variables
   end_system_call();
   pushSTACK(encoding_from_name(locale_encoding));
   # Initialize each encoding as follows: If the corresponding -E....
