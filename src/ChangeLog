@@ -1,3 +1,8 @@
+2004-07-22  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (bitbuff_ixs_sub): fixed bitbufferptr initialization
+	Reported by "Randolph Udodenko" <udodenko@users.sourceforge.net>
+
 2004-06-01  Bruno Haible  <bruno@clisp.org>
 
 	Thinner type checks.
