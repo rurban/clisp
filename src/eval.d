@@ -1096,7 +1096,8 @@ LISPFUNN(subr_info,1)
                         }
                         else
                         # statische Bindung, lexikalische Sichtbarkeit
-                        { *(oint*)(bindingsptr STACKop varframe_binding_mark) &= ~wbit(active_bit_o); # Bindung inaktivieren
+                        { *(bindingsptr STACKop varframe_binding_mark) =
+                            as_object(as_oint(*(bindingsptr STACKop varframe_binding_mark)) & ~wbit(active_bit_o)); # Bindung inaktivieren
                           *ptr++ = *(bindingsptr STACKop varframe_binding_sym); # Bindung in den Vektor kopieren
                           *ptr++ = *(bindingsptr STACKop varframe_binding_value);
                         }
@@ -2492,17 +2493,17 @@ LISPFUNN(subr_info,1)
         #define bind_next_var(value,markptr_zuweisung)  \
           { frame_pointer skipSTACKop -varframe_binding_size;                                  \
            {var object* markptr = markptr_zuweisung &Before(frame_pointer);                    \
-            if (*(oint*)(markptr) & wbit(dynam_bit_o))                                         \
+            if (as_oint(*markptr) & wbit(dynam_bit_o))                                         \
               # dynamische Bindung aktivieren:                                                 \
               { var object sym = *(markptr STACKop varframe_binding_sym); # Variable           \
                 *(markptr STACKop varframe_binding_value) = TheSymbolflagged(sym)->symvalue; # alten Wert in den Frame \
-                *(oint*)(markptr) |= wbit(active_bit_o); # Bindung aktivieren                  \
+                *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); # Bindung aktivieren \
                 TheSymbolflagged(sym)->symvalue = (value); # neuen Wert in die Wertzelle       \
               }                                                                                \
               else                                                                             \
               # statische Bindung aktivieren:                                                  \
               { *(markptr STACKop varframe_binding_value) = (value); # neuen Wert in den Frame \
-                *(oint*)(markptr) |= wbit(active_bit_o); # Bindung aktivieren                  \
+                *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); # Bindung aktivieren \
               }                                                                                \
           }}
         # required-Parameter abarbeiten:
@@ -2532,8 +2533,8 @@ LISPFUNN(subr_info,1)
               {var object next_arg = NEXT(args_pointer); # nächstes Argument
                {var object* optmarkptr;
                 bind_next_var(next_arg,optmarkptr=); # nächste Variable binden
-                if (*(oint*)optmarkptr & wbit(svar_bit_o)) # supplied-p-Parameter folgt?
-                  { *(oint*)optmarkptr &= ~wbit(svar_bit_o);
+                if (as_oint(*optmarkptr) & wbit(svar_bit_o)) # supplied-p-Parameter folgt?
+                  { *optmarkptr = as_object(as_oint(*optmarkptr) & ~wbit(svar_bit_o));
                     bind_next_var(T,); # ja -> an T binden
                }  }
                inits = Cdr(inits); # Init-Formen-Liste verkürzen
@@ -2550,8 +2551,8 @@ LISPFUNN(subr_info,1)
               inits = (eval(Car(inits)),value1); # nächste Initform, ausgewertet
              {var object* optmarkptr;
               bind_next_var(inits,optmarkptr=); # nächste Variable binden
-              if (*(oint*)optmarkptr & wbit(svar_bit_o)) # supplied-p-Parameter folgt?
-                { *(oint*)optmarkptr &= ~wbit(svar_bit_o);
+              if (as_oint(*optmarkptr) & wbit(svar_bit_o)) # supplied-p-Parameter folgt?
+                { *optmarkptr = as_object(as_oint(*optmarkptr) & ~wbit(svar_bit_o));
                   bind_next_var(NIL,); # ja -> an NIL binden
              }  }
             });
@@ -2569,8 +2570,8 @@ LISPFUNN(subr_info,1)
                   inits = (eval(Car(inits)),value1); # nächste Initform, ausgewertet
                  {var object* keymarkptr;
                   bind_next_var(inits,keymarkptr=); # nächste Variable binden
-                  if (*(oint*)keymarkptr & wbit(svar_bit_o)) # supplied-p-Parameter folgt?
-                    { *(oint*)keymarkptr &= ~wbit(svar_bit_o);
+                  if (as_oint(*keymarkptr) & wbit(svar_bit_o)) # supplied-p-Parameter folgt?
+                    { *keymarkptr = as_object(as_oint(*keymarkptr) & ~wbit(svar_bit_o));
                       bind_next_var(NIL,); # ja -> an NIL binden
                  }  }
                 });
@@ -2662,8 +2663,8 @@ LISPFUNN(subr_info,1)
                             );
                           {var object* keymarkptr;
                            bind_next_var(var_value,keymarkptr=); # Keyword-Variable binden
-                           if (*(oint*)keymarkptr & wbit(svar_bit_o)) # supplied-p-Parameter folgt?
-                             { *(oint*)keymarkptr &= ~wbit(svar_bit_o);
+                           if (as_oint(*keymarkptr) & wbit(svar_bit_o)) # supplied-p-Parameter folgt?
+                             { *keymarkptr = as_object(as_oint(*keymarkptr) & ~wbit(svar_bit_o));
                                bind_next_var(svar_value,); # ja -> an NIL bzw. T binden
                           }  }
                           keywords = Cdr(keywords);

@@ -51,7 +51,7 @@
       #define down_pair()  \
         if (in_old_generation(dies,typecode(dies),1))           \
           goto up; # ältere Generation nicht markieren          \
-        { var oint* dies_ = (oint*)ThePointer(dies);            \
+        { var object* dies_ = (object*)ThePointer(dies);        \
           if (marked(dies_)) goto up; # markiert -> hoch        \
           mark(dies_); # markieren                              \
         }                                                       \
@@ -71,7 +71,7 @@
       #define down_varobject(The,first_offset,last_offset)  \
         if (in_old_generation(dies,typecode(dies),0))           \
           goto up; # ältere Generation nicht markieren          \
-        { var oint* dies_ = (oint*)The(dies);                   \
+        { var object* dies_ = (object*)The(dies);               \
           if (marked(dies_)) goto up; # markiert -> hoch        \
           mark(dies_); # markieren                              \
           mark(pointerplus(dies_,first_offset)); # ersten Pointer markieren \
@@ -96,7 +96,7 @@
       #define down_iarray()  \
         if (in_old_generation(dies,typecode(dies),0))           \
           goto up; # ältere Generation nicht markieren          \
-        { var oint* dies_ = (oint*)TheIarray(dies);             \
+        { var object* dies_ = (object*)TheIarray(dies);         \
           if (marked(dies_)) goto up; # markiert -> hoch        \
           mark(dies_); # markieren                              \
         }                                                       \
@@ -116,7 +116,7 @@
       #define down_svector()  \
         if (in_old_generation(dies,typecode(dies),0))           \
           goto up; # ältere Generation nicht markieren          \
-        { var oint* dies_ = (oint*)TheSvector(dies);            \
+        { var object* dies_ = (object*)TheSvector(dies);        \
           if (marked(dies_)) goto up; # markiert -> hoch        \
           mark(dies_); # markieren                              \
         }                                                       \
@@ -142,7 +142,7 @@
       #define down_record()  \
         if (in_old_generation(dies,typecode(dies),0))           \
           goto up; # ältere Generation nicht markieren          \
-        { var oint* dies_ = (oint*)TheRecord(dies);             \
+        { var object* dies_ = (object*)TheRecord(dies);         \
           if (marked(dies_)) goto up; # markiert -> hoch        \
           mark(dies_); # markieren                              \
         }                                                       \
@@ -166,7 +166,7 @@
           vorg = vorvorg; goto up; # weiter aufsteigen          \
         }
       #define down_subr()  \
-        { var oint* dies_ = (oint*)pointerplus(TheSubr(dies),subr_const_offset); \
+        { var object* dies_ = (object*)pointerplus(TheSubr(dies),subr_const_offset); \
           if (marked(dies_)) goto up; # markiert -> hoch        \
           # markieren später                                    \
         }                                                       \
@@ -382,8 +382,8 @@
     local void gc_mark_stack(objptr)
       var object* objptr;
       { until (eq(*objptr,nullobj)) # bis STACK zu Ende ist:
-          { if ( *((oint*)objptr) & wbit(frame_bit_o) ) # Beginnt hier ein Frame?
-             { if (( *((oint*)objptr) & wbit(skip2_bit_o) ) == 0) # Ohne skip2-Bit?
+          { if ( as_oint(*objptr) & wbit(frame_bit_o) ) # Beginnt hier ein Frame?
+             { if (( as_oint(*objptr) & wbit(skip2_bit_o) ) == 0) # Ohne skip2-Bit?
                 objptr skipSTACKop 2; # ja -> um 2 weiterrücken
                 else
                 objptr skipSTACKop 1; # nein -> um 1 weiterrücken
@@ -455,7 +455,7 @@
             if (in_old_generation(obj,typecode(obj),0)) return TRUE;
             if (marked(ThePointer(obj))) return TRUE; else return FALSE;
           case_subr: # Subr
-            if (marked((oint*)pointerplus(TheSubr(obj),subr_const_offset)))
+            if (marked(pointerplus(TheSubr(obj),subr_const_offset)))
               return TRUE; else return FALSE;
           case_machine: # Maschinenpointer
           case_char: # Character
@@ -480,7 +480,7 @@
             if (in_old_generation(obj,,1)) return TRUE;
             if (marked(ThePointer(obj))) return TRUE; else return FALSE;
           case subr_bias:
-            if (marked((oint*)pointerplus(TheSubr(obj),subr_const_offset)))
+            if (marked(pointerplus(TheSubr(obj),subr_const_offset)))
               return TRUE; else return FALSE;
           default:
             return TRUE;
@@ -805,7 +805,7 @@
                       else
                         # Objekt variabler Länge
                         { if (marked(ThePointer(obj))) # markiert?
-                            *(object*)p2 = as_object((as_oint(obj) & nonimmediate_bias_mask) | (*(oint*)ThePointer(obj) & ~wbit(garcol_bit_o) & ~(oint)nonimmediate_bias_mask));
+                            *(object*)p2 = as_object((as_oint(obj) & nonimmediate_bias_mask) | (as_oint(*(object*)ThePointer(obj)) & ~wbit(garcol_bit_o) & ~(oint)nonimmediate_bias_mask));
                         }
                   }
               #endif
@@ -1002,7 +1002,7 @@
                       else
                       # Objekt variabler Länge
                       { if (marked(ThePointer(obj))) # markiert?
-                          *(object*)p2 = as_object((as_oint(obj) & nonimmediate_bias_mask) | (*(oint*)ThePointer(obj) & ~wbit(garcol_bit_o) & ~(oint)nonimmediate_bias_mask));
+                          *(object*)p2 = as_object((as_oint(obj) & nonimmediate_bias_mask) | (as_oint(*(object*)ThePointer(obj)) & ~wbit(garcol_bit_o) & ~(oint)nonimmediate_bias_mask));
                           else
                           *(object*)p2 = obj;
                       }
@@ -1285,7 +1285,7 @@
                   # nein -> nichts zu tun (Objekt blieb stehen)             \
                   # ja -> neue Adresse eintragen                            \
                   *(object*)objptr =                                        \
-                    as_object((as_oint(obj) & nonimmediate_bias_mask) | (*(oint*)ThePointer(obj) & ~wbit(garcol_bit_o))); \
+                    as_object((as_oint(obj) & nonimmediate_bias_mask) | (as_oint(*(object*)ThePointer(obj)) & ~wbit(garcol_bit_o))); \
           }
       #endif
     #else # defined(MORRIS_GC)
@@ -1326,7 +1326,7 @@
                     # Objekt variabler Länge                                      \
                     { if (!in_old_generation(obj,,0))                             \
                         { if (marked(ThePointer(obj))) # markiert?                \
-                            *(object*)objptr = as_object((as_oint(obj) & nonimmediate_bias_mask) | (*(oint*)ThePointer(obj) & ~wbit(garcol_bit_o) & ~(oint)nonimmediate_bias_mask)); \
+                            *(object*)objptr = as_object((as_oint(obj) & nonimmediate_bias_mask) | (as_oint(*(object*)ThePointer(obj)) & ~wbit(garcol_bit_o) & ~(oint)nonimmediate_bias_mask)); \
                     }   }                                                         \
             }   }
         #endif
@@ -1360,7 +1360,7 @@
                 var oint flags = as_oint(obj1) ^ as_oint(obj2);   \
                 *objptr = obj2; # vorerst Flags löschen           \
                 update(objptr); # dann aktualisieren              \
-                *(oint*)objptr |= flags; # dann Flags wieder rein \
+                *objptr = as_object(as_oint(*objptr) | flags); # dann Flags wieder rein \
                 break;                                            \
               }                                                   \
             default: update(objptr); break;                       \
@@ -2480,14 +2480,17 @@
         # Aktualisierung eines Objekts *objptr :
           #ifdef TYPECODES
             #define update(objptr)  \
-              { switch (mtypecode(*(object*)(objptr)))   \
-                  { case_pair: # Zwei-Pointer-Objekt?    \
-                      *(oint*)(objptr) += odelta; break; \
-                    default: break;                      \
+              { switch (mtypecode(*(object*)(objptr)))                                      \
+                  { case_pair: # Zwei-Pointer-Objekt?                                       \
+                      *(object*)(objptr) = as_object(as_oint(*(object*)(objptr)) + odelta); \
+                      break;                                                                \
+                    default: break;                                                         \
               }   }
           #else
             #define update(objptr)  \
-              { if (consp(*(object*)(objptr))) *(oint*)(objptr) += odelta; }
+              { if (consp(*(object*)(objptr)))                                          \
+                  *(object*)(objptr) = as_object(as_oint(*(object*)(objptr)) + odelta); \
+              }
           #endif
         # Durchlaufen durch alle LISP-Objekte und aktualisieren:
           # Update pointers in all LISP-stacks:
