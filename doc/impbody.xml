@@ -3228,34 +3228,37 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
 <section id="file-dict"><title>The Files Dictionary
    <ulink url="&clhs;/Body/sec_the_files_dictionary.html">[CLHS-20.2]</ulink></title>
 
-<formalpara id="probe-file"><title>Function &probe-file;</title>
+<simplesect id="probe-file"><title>Function &probe-file;</title>
 <para>&probe-file; cannot be used to check whether a directory exists.
- Use functions &probe-dir; or &directory; for this.</para></formalpara>
+ Use functions &probe-dir; or &directory; for this.</para></simplesect>
 
-<formalpara id="file-author"><title>Function &file-author;</title>
+<simplesect id="file-author"><title>Function &file-author;</title>
 <para>&file-author; always returns &nil;, because the operating systems
  &clisp; is ported to do not store a file's author in the file system.
  Some operating systems, such as &unix;, have the notion of a file's
- owner, and some other &cl; implementations return the user name of the
- file owner.  &clisp; does not do this, because
+ <emphasis>owner</emphasis>, and some other &cl; implementations return
+ the user name of the file owner.  &clisp; does not do this, because
  <emphasis>owner</emphasis> and <emphasis>author</emphasis> are not the
  same; in particular, authorship is preserved by copying, while
- ownership is not.</para></formalpara>
+ ownership is not.</para>
+<para>Use
+ <link linkend="file-owner"><function>POSIX:FILE-OWNER</function></link>
+ to find the owner of the file.</para></simplesect>
 
-<formalpara id="probe-dir"><title>Function &probe-dir;</title>
+<simplesect id="probe-dir"><title>Function &probe-dir;</title>
 <para><code>(&probe-dir; &path-r;)</code> tests whether &path-r; exists
  and is a directory.
  It will, unlike &probe-file; or &truename;, not &signal; an &error-t;
- if the parent directory of &path-r; does not exist.</para></formalpara>
+ if the parent directory of &path-r; does not exist.</para></simplesect>
 
-<formalpara id="del-file"><title>Function &delete-file;</title>
+<simplesect id="del-file"><title>Function &delete-file;</title>
 <para><code>(&delete-file; &path-r;)</code> deletes the pathname
  &path-r;, not its &truename;, and returns the absolute pathname it
  actually removed or &nil; if &path-r; did not exist.
  When &path-r; points to a file which is currently open in &clisp;,
- an &err-sig;.</para></formalpara>
+ an &err-sig;.</para></simplesect>
 
-<section id="dir"><title>Function &directory;</title>
+<simplesect id="dir"><title>Function &directory;</title>
 
 <para><code>(&directory; &optional-amp; &path-r; &key-amp;
   :FULL :CIRCLE &if-does-not-exist;)</code> can run in two modes:
@@ -3313,17 +3316,15 @@ pointing to non-existent files and can take the following values:
  <listitem><simpara>Similar to <constant>:DISCARD</constant>, but also
    do not signal an error when a directory is unaccessible (contrary to
    the &ansi-cl; specification).</simpara></listitem></varlistentry>
-</variablelist>
+</variablelist></para></simplesect>
 
-</para>
-
-<formalpara><title>Function <function>EXT:DIR</function></title>
+<simplesect><title>Function <function>EXT:DIR</function></title>
 <para><code>(<function>EXT:DIR</function> &optional-amp;
  &path-r;)</code> is like &directory;, but displays the pathnames
  instead of returning them. <code>(EXT:DIR)</code>
- shows the contents of the current directory.</para></formalpara>
+ shows the contents of the current directory.</para></simplesect>
 
-<formalpara id="cd"><title>Function &cd;</title>
+<simplesect id="cd"><title>Function &cd;</title>
 <para><code>(&cd; &path-r;)</code> sets it, <code>(&cd;)</code> returns it.
 <variablelist>
 <!-- #if defined(PATHNAME_UNIX) -->
@@ -3336,26 +3337,25 @@ pointing to non-existent files and can take the following values:
    manages the current device and the current directory.
    </simpara></listitem></varlistentry>
 <!-- #endif -->
-</variablelist></para></formalpara>
+</variablelist></para></simplesect>
 
-<formalpara><title>Function <function>EXT:DEFAULT-DIRECTORY</function></title>
+<simplesect><title>Function <function>EXT:DEFAULT-DIRECTORY</function></title>
 <para><code>(<function>EXT:DEFAULT-DIRECTORY</function>)</code> is
  equivalent to <code>(&cd;)</code>.
  <code>(&setf; (<function>EXT:DEFAULT-DIRECTORY</function>)
  &path-r;)</code> is equivalent to <code>(&cd; &path-r;)</code>,
- except for the return value.</para></formalpara>
+ except for the return value.</para></simplesect>
 
-<formalpara><title>Function <function>EXT:MAKE-DIR</function></title>
+<simplesect><title>Function <function>EXT:MAKE-DIR</function></title>
 <para><code>(<function>EXT:MAKE-DIR</function>
  <replaceable>directory-pathname</replaceable>)</code>
- creates a new subdirectory.</para></formalpara>
+ creates a new subdirectory.</para></simplesect>
 
-<formalpara><title>Function <function>EXT:DELETE-DIR</function></title>
+<simplesect><title>Function <function>EXT:DELETE-DIR</function></title>
 <para><code>(<function>EXT:DELETE-DIR</function>
  <replaceable>directory-pathname</replaceable>)</code> removes an
- (empty) subdirectory.</para></formalpara>
+ (empty) subdirectory.</para></simplesect>
 
-</section>
 </section>
 </chapter>
 
