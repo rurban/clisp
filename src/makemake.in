@@ -5,7 +5,7 @@
 # Simple usage:
 #        ./makemake [--with-PACKAGE] [debug] > Makefile
 
-hyperspec=${CLHSROOT:-"http://www.harlequin.com/education/books/HyperSpec"}
+hyperspec=${CLHSROOT:-"http://www.xanalys.com/software_tools/reference/HyperSpec"}
 
 info_help () {
 cat << EOP
@@ -24,7 +24,9 @@ options:
                                redhat - RedHat
                                debian - Debian, Slackware.
        --hyperspec=URL         the path to the Common Lisp HyperSpec
-          (the default is ${hyperspec}).
+           (the default is
+            http://www.xanalys.com/software_tools/reference/HyperSpec
+            or the value of the environment variable CLHSROOT, if set).
     The following options add support for specific separate packages. See the
     main INSTALL file for how to get them.
        --with-oldoldreadline   the good old (gdb-4.17 based) readline library
@@ -2537,7 +2539,7 @@ if [ -n "$USE_GETTEXT" ] ; then
   else
     echotab "mkdir locale"
     eval `grep ALL_LINGUAS= src/gettext/configure.in`
-    for lang in ${ALL_LINGUAS-en de fr}; do
+    for lang in ${ALL_LINGUAS:-"en de fr"}; do
       echotab "mkdir locale${NEXT_}${lang}"
       echotab "mkdir locale${NEXT_}${lang}${NEXT_}LC_MESSAGES"
       echotab "\$(LN) gettext${NEXT_}po${NEXT_}${lang}.gmo locale${NEXT_}${lang}${NEXT_}LC_MESSAGES${NEXT_}clisp.mo"

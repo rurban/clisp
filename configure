@@ -35,8 +35,9 @@ options: The following options are recognized:
          --with-module=MODULE  build with add-on MODULE
          --with-export-syscalls export some UNIX syscalls to Lisp
          --hyperspec=URL       the path to the Common Lisp HyperSpec
-            (the default is http://www.harlequin.com/education/books/HyperSpec
-             or ${CLHSROOT}, if set).
+           (the default is
+            http://www.xanalys.com/software_tools/reference/HyperSpec
+            or the value of the environment variable CLHSROOT, if set).
 Example:
          configure --build built-with-gcc
          su bin

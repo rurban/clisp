@@ -1,6 +1,6 @@
 # Makefile for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host laplace.ilog.fr as the output of the command:
+# This file was created on host david as the output of the command:
 # ./makemake win32gcc gcc
 
 # -------------- Start of configurable section --------------------
@@ -408,6 +408,7 @@ macros3.lsp \
 posix.lsp \
 foreign1.lsp \
 defs3.lsp \
+clhs.lsp \
 german.lsp \
 french.lsp \
 spanish.lsp \
@@ -452,6 +453,7 @@ macros3.fas \
 posix.fas \
 foreign1.fas \
 defs3.fas \
+clhs.fas \
 german.fas \
 french.fas \
 spanish.fas \
@@ -501,6 +503,7 @@ stage/macros3.lsp \
 stage/posix.lsp \
 stage/foreign1.lsp \
 stage/defs3.lsp \
+stage/clhs.lsp \
 stage/german.lsp \
 stage/french.lsp \
 stage/spanish.lsp \
@@ -545,6 +548,7 @@ stage/macros3.fas \
 stage/posix.fas \
 stage/foreign1.fas \
 stage/defs3.fas \
+stage/clhs.fas \
 stage/german.fas \
 stage/french.fas \
 stage/spanish.fas \
@@ -1193,7 +1197,10 @@ sigsegv.lib : ../sigsegv/sigsegv.lib
 
 UnicodeData.txt :
 	$(LN) ../utils\unicode\ftp.unicode.org\UnicodeData.txt UnicodeData.txt
-lisp.exe : $(OBJECTS) modules.o     sigsegv.lib UnicodeData.txt
+
+clhs.txt :
+	$(LN) ../src\clhs.txt clhs.txt
+lisp.exe : $(OBJECTS) modules.o     sigsegv.lib UnicodeData.txt clhs.txt
 	$(CC) $(CFLAGS) $(CLFLAGS) $(OBJECTS) modules.o $(LIBS) -o lisp.exe
 
 
@@ -1317,6 +1324,9 @@ foreign1.fas : foreign1.lsp lisp.exe interpreted.mem
 
 defs3.fas : defs3.lsp lisp.exe interpreted.mem
 	lisp.exe -m 1000KW -M interpreted.mem -B . -Efile ISO-8859-1 -norc -q -c defs3.lsp
+
+clhs.fas : clhs.lsp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -Efile ISO-8859-1 -norc -q -c clhs.lsp
 
 german.fas : german.lsp lisp.exe interpreted.mem
 	lisp.exe -m 1000KW -M interpreted.mem -B . -Efile ISO-8859-1 -norc -q -c german.lsp
@@ -1469,6 +1479,9 @@ stage/foreign1.lsp : foreign1.lsp
 stage/defs3.lsp : defs3.lsp
 	$(LN) defs3.lsp stage
 
+stage/clhs.lsp : clhs.lsp
+	$(LN) clhs.lsp stage
+
 stage/german.lsp : german.lsp
 	$(LN) german.lsp stage
 
@@ -1595,6 +1608,9 @@ stage/foreign1.fas : stage/foreign1.lsp lisp.exe lispinit.mem
 stage/defs3.fas : stage/defs3.lsp lisp.exe lispinit.mem
 	lisp.exe -M lispinit.mem -B . -Efile ISO-8859-1 -norc -q -c stage/defs3.lsp
 
+stage/clhs.fas : stage/clhs.lsp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -Efile ISO-8859-1 -norc -q -c stage/clhs.lsp
+
 stage/german.fas : stage/german.lsp lisp.exe lispinit.mem
 	lisp.exe -M lispinit.mem -B . -Efile ISO-8859-1 -norc -q -c stage/german.lsp
 
@@ -1620,7 +1636,7 @@ READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es
 MANUALS = clisp.1 clisp.html $(TXTFILES) impnotes.html clisp.gif
 
 impnotes.html : _impnotes.html
-	sed -e 's,href="CLHSROOT/,href="http://www.harlequin.com/education/books/HyperSpec/,' _impnotes.html > impnotes.html
+	sed -e 's,href="CLHSROOT/,href="http://www.xanalys.com/software_tools/reference/HyperSpec/,' _impnotes.html > impnotes.html
 
 manual : $(READMES) $(MANUALS)
 
@@ -1669,7 +1685,7 @@ clisp.1 : _clisp.1 lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c w
 clisp.html : _clisp.html lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c iconv.h sigsegv.h txt2c.exe
 	$(TXT2C) < _clisp.html > txt.c
 	$(CC) $(CFLAGS) $(CLFLAGS) -O0 txt.c -o txt.exe
-	txt | sed -e 's,HREF="CLHSROOT/,HREF="http://www.harlequin.com/education/books/HyperSpec/,' > clisp.html
+	txt | sed -e 's,HREF="CLHSROOT/,HREF="http://www.xanalys.com/software_tools/reference/HyperSpec/,' > clisp.html
 	$(RM) txt.c
 	$(RM) txt.exe
 

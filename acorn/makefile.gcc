@@ -1,6 +1,6 @@
 # Makefile for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host laplace.ilog.fr as the output of the command:
+# This file was created on host david as the output of the command:
 # ./makemake acorn gcc
 
 # -------------- Start of configurable section --------------------
@@ -409,6 +409,7 @@ lsp.macros3 \
 lsp.posix \
 lsp.foreign1 \
 lsp.defs3 \
+lsp.clhs \
 lsp.german \
 lsp.french \
 lsp.spanish \
@@ -453,6 +454,7 @@ fas.macros3 \
 fas.posix \
 fas.foreign1 \
 fas.defs3 \
+fas.clhs \
 fas.german \
 fas.french \
 fas.spanish \
@@ -502,6 +504,7 @@ stage.lsp.macros3 \
 stage.lsp.posix \
 stage.lsp.foreign1 \
 stage.lsp.defs3 \
+stage.lsp.clhs \
 stage.lsp.german \
 stage.lsp.french \
 stage.lsp.spanish \
@@ -546,6 +549,7 @@ stage.fas.macros3 \
 stage.fas.posix \
 stage.fas.foreign1 \
 stage.fas.defs3 \
+stage.fas.clhs \
 stage.fas.german \
 stage.fas.french \
 stage.fas.spanish \
@@ -1623,7 +1627,10 @@ o.ariarm : s.ariarm
 
 txt.UnicodeData :
 	$(LN) ^.utils.unicode.ftp.unicode.org.txt.UnicodeData txt.UnicodeData
-lisp : $(OBJECTS) o.modules      txt.UnicodeData
+
+txt.clhs :
+	$(LN) ^.src.txt.clhs txt.clhs
+lisp : $(OBJECTS) o.modules      txt.UnicodeData txt.clhs
 	$(CC) $(CFLAGS) $(CLFLAGS) $(OBJECTS) o.modules $(LIBS) -o lisp
 
 
@@ -1748,6 +1755,9 @@ fas.foreign1 : lsp.foreign1 lisp mem.interpre
 
 fas.defs3 : lsp.defs3 lisp mem.interpre
 	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c defs3.lsp
+
+fas.clhs : lsp.clhs lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c clhs.lsp
 
 fas.german : lsp.german lisp mem.interpre
 	/@.lisp -m 1000KW -M mem.interpre -B . -Efile ISO-8859-1 -norc -q -c german.lsp
@@ -1900,6 +1910,9 @@ stage.lsp.foreign1 : lsp.foreign1
 stage.lsp.defs3 : lsp.defs3
 	$(LN) lsp.defs3 stage
 
+stage.lsp.clhs : lsp.clhs
+	$(LN) lsp.clhs stage
+
 stage.lsp.german : lsp.german
 	$(LN) lsp.german stage
 
@@ -2026,6 +2039,9 @@ stage.fas.foreign1 : stage.lsp.foreign1 lisp mem.lispinit
 stage.fas.defs3 : stage.lsp.defs3 lisp mem.lispinit
 	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.defs3.lsp
 
+stage.fas.clhs : stage.lsp.clhs lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.clhs.lsp
+
 stage.fas.german : stage.lsp.german lisp mem.lispinit
 	/@.lisp -M mem.lispinit -B . -Efile ISO-8859-1 -norc -q -c stage.german.lsp
 
@@ -2051,7 +2067,7 @@ READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README_de README_es
 MANUALS = 1.clisp html.clisp $(TXTFILES) html.impnotes clisp.gif
 
 html.impnotes : html._impnotes
-	sed -e 's,href="CLHSROOT/,href="http://www.harlequin.com/education/books/HyperSpec/,' html._impnotes > html.impnotes
+	sed -e 's,href="CLHSROOT/,href="http://www.xanalys.com/software_tools/reference/HyperSpec/,' html._impnotes > html.impnotes
 
 manual : $(READMES) $(MANUALS)
 	$(TOUCH) manual
@@ -2105,7 +2121,7 @@ html.clisp : html._clisp c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.cons
 	$(TXT2C) < html._clisp > text.c
 	$(CC) $(CFLAGS) $(CLFLAGS) -O0 c.text -o text
 	/@.text > TMPPIPE1
-	sed -e 's,HREF="CLHSROOT/,HREF="http://www.harlequin.com/education/books/HyperSpec/,' < TMPPIPE1 > html.clisp
+	sed -e 's,HREF="CLHSROOT/,HREF="http://www.xanalys.com/software_tools/reference/HyperSpec/,' < TMPPIPE1 > html.clisp
 	$(RM) TMPPIPE1
 	$(RM) c.text
 	$(RM) text
