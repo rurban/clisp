@@ -1,5 +1,12 @@
 2005-02-20  Bruno Haible  <bruno@clisp.org>
 
+	* realtran.d (R_cosh_sinh_R_R): Remove start_p argument.
+	(R_tanh_R): Update.
+	* comptran.d (N_sin_N, N_cos_N, N_tan_N, N_sinh_N, N_cosh_N, N_tanh_N):
+	Update.
+
+2005-02-20  Bruno Haible  <bruno@clisp.org>
+
 	* realtran.d (R_ln_R): Remove start_p argument.
 	(R_R_log_R): Update.
 	* comptran.d (N_log_N, N_N_log_N, R_R_atanh_R_R, R_R_asinh_R_R,

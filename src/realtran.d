@@ -778,7 +778,7 @@ local maygc object R_tan_R (object x)
              );
   }
 
-# R_ln_R(x) liefert zu einer reellen Zahl x>0 die Zahl ln(x).
+# R_ln_R(x,&end_precision) liefert zu einer reellen Zahl x>0 die Zahl ln(x).
 # can trigger GC
 # Methode:
 # x rational -> bei x=1 0 als Ergebnis, sonst x in Float umwandeln.
@@ -788,7 +788,7 @@ local maygc object R_tan_R (object x)
 #   (m,e) := (decode-float x), so dass 1/2 <= m < 1.
 #   m<2/3 -> m:=2m, e:=e-1, so dass 2/3 <= m <= 4/3.
 #   ln(m) errechnen, ln(x)=ln(m)+e*ln(2) als Ergebnis.
-local maygc object R_ln_R (object x, bool start_p, gcv_object_t* end_p)
+local maygc object R_ln_R (object x, gcv_object_t* end_p)
 {
   if (R_rationalp(x)) {
     if (eq(x,Fixnum_1)) { return Fixnum_0; } /* x=1 -> return 0 */
@@ -796,8 +796,7 @@ local maygc object R_ln_R (object x, bool start_p, gcv_object_t* end_p)
   }
   /* x -- float */
   pushSTACK(x); /* save x */
-  if (start_p) /* increase computational precision */
-    x = F_extend2_F(x);
+  x = F_extend2_F(x); /* increase computational precision */
   F_decode_float_F_I_F(x); /* compute m,e,s */
   /* Stack layout: x, m, e, s. */
   if (F_F_comp(STACK_2,
@@ -1006,8 +1005,8 @@ local maygc object R_ln_R (object x, bool start_p, gcv_object_t* end_p)
       }
     }
     # Nun a,b beide Floats.
-    pushSTACK(R_ln_R(STACK_1,true,NULL)); /* (ln a) */
-    pushSTACK(R_ln_R(STACK_1,true,NULL)); /* (ln b) */
+    pushSTACK(R_ln_R(STACK_1,NULL)); /* (ln a) */
+    pushSTACK(R_ln_R(STACK_1,NULL)); /* (ln b) */
     STACK_0 = F_F_durch_F(STACK_1,STACK_0); /* (/ (ln a) (ln b)) */
     STACK_1 = R_R_contagion_R(STACK_2,STACK_3);
     var object ret = F_R_float_F(STACK_0,STACK_1);
