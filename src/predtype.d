@@ -1169,6 +1169,10 @@ LISPFUNN(streamp,1)
 # (STREAMP object), CLTL S. 332
   { value1 = (streamp(STACK_0) ? T : NIL); mv_count=1; skipSTACK(1); }
 
+LISPFUNN(built_in_stream_p,1)
+# (SYS::BUILT-IN-STREAM-P object)
+  { value1 = (builtin_stream_p(STACK_0) ? T : NIL); mv_count=1; skipSTACK(1); }
+
 LISPFUNN(random_state_p,1)
 # (RANDOM-STATE-P object), CLTL S. 231
   { var object arg = popSTACK();
