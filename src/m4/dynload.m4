@@ -14,49 +14,7 @@ AC_DEFUN([CL_DYNLOAD],
 [dnl Some systems have dlopen in libc, some have it in libdl.
 AC_CHECK_HEADERS(dlfcn.h)
 if test "$ac_cv_header_dlfcn_h" = yes; then
-AC_CACHE_CHECK(for dlopen, cl_cv_func_dlopen, [
-cl_cv_func_dlopen=no
-cl_cv_lib_dl=no
-AC_TRY_LINK(AC_LANG_EXTERN[char dlopen();], [dlopen();],
-cl_cv_func_dlopen=yes)
-if test "$cl_cv_func_dlopen" = no; then
-cl_save_LIBS="$LIBS"
-LIBS="$LIBS -ldl"
-AC_TRY_LINK(AC_LANG_EXTERN[char dlopen();], [dlopen();],
-cl_cv_lib_dl=yes
-cl_cv_func_dlopen=yes)
-LIBS="$cl_save_LIBS"
+  AC_SEARCH_LIBS(dlopen, dl)
+  AC_CHECK_FUNCS(dlopen dlsym dlerror dlclose)
 fi
-])
-else cl_cv_func_dlopen=no;
-fi
-if test "$cl_cv_func_dlopen" = yes; then
-  AC_DEFINE(HAVE_DLOPEN,,[have dlopen()])
-  CL_PROTO([dlsym], [
-  CL_PROTO_CONST([
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <dlfcn.h>
-], [void* dlsym (void* handle, char* symbol);], [void* dlsym();],
-cl_cv_proto_dlsym_arg2)],
-[extern void* dlsym (void* handle, $cl_cv_proto_dlsym_arg2 char* symbol);])
-  AC_DEFINE_UNQUOTED(DLSYM_CONST,$cl_cv_proto_dlsym_arg2,[declaration of dlsym() needs const])
-  CL_PROTO([dlerror], [
-  CL_PROTO_CONST([
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <dlfcn.h>
-], [char * dlerror ();], [char * dlerror();], cl_cv_proto_dlerror_ret)
-], [extern $cl_cv_proto_dlerror_ret char * dlerror ();])
-  AC_DEFINE_UNQUOTED(DLERROR_CONST,$cl_cv_proto_dlerror_ret,[declaration of dlerror() needs const])
-fi
-LIBDL=
-if test "$cl_cv_lib_dl" = yes; then
-  LIBDL="-ldl"
-fi
-AC_SUBST(LIBDL)
 ])

@@ -2175,6 +2175,8 @@ only.</subtitle>
   <replaceable>boolean</replaceable>)</literal></entry></row>
 <row><entry/><entry>|</entry><entry><literal role="sexp">(:ALLOC
   &allocation;)</literal></entry></row>
+<row><entry/><entry>|</entry><entry><literal role="sexp">(:LIBRARY
+   &string-t;)</literal></entry></row>
 </tbody></tgroup></informaltable>
 
 <simpara>This form defines a &foreign-variable;.  &name-r; is the Lisp
@@ -2202,6 +2204,9 @@ only.</subtitle>
  string with a longer one or storing some data in a &c-NULL; pointer...)
  and deprecated.</simpara>
 
+<simpara><constant>:LIBRARY</constant> is the (optional) dynamic library
+ which contains the variable.</simpara>
+
 </listitem></varlistentry>
 
 <varlistentry id="def-call-out"><term><literal role="sexp">(&def-call-out;
@@ -2221,14 +2226,19 @@ only.</subtitle>
    &lang-r;)</literal></entry></row>
 <row><entry/><entry>|</entry><entry><literal role="sexp">(:BUILT-IN
    &boolean-t;)</literal></entry></row>
+<row><entry/><entry>|</entry><entry><literal role="sexp">(:LIBRARY
+   &string-t;)</literal></entry></row>
 </tbody></tgroup></informaltable>
 
 <simpara>This form defines a named call-out function (a foreign function
  called from Lisp: control flow temporarily leaves Lisp).  Any Lisp
  function call to <function>#'&name-r;</function>
  is redirected to call the &c-lang; function &cname-r;.
- When the function is a &c-lang; built-in, full prototype has to be
- output.</simpara></listitem></varlistentry>
+ <constant>:LIBRARY</constant> is the (optional) dynamic library which
+ contains the function.
+ When the function is a &c-lang; built-in, the full prototype will be
+ output (unless suppressed by &ffi-out-fun;).
+</simpara></listitem></varlistentry>
 
 <varlistentry id="def-call-in"><term><literal role="sexp">(&def-call-in;
               &name-r; {&option-r;}*)</literal></term>
@@ -2406,7 +2416,7 @@ only.</subtitle>
 
 <varlistentry id="fa-null">
   <term><literal role="sexp">(&foreign-address-null; &f-ent;)</literal></term>
-<listitem><simpara>This predicate returns &nil; if the
+<listitem><simpara>This predicate returns &t; if the
   &f-ent; refers to the &c-NULL; address (and thus &f-ent; should
   probably not be passed to most foreign functions).
  </simpara></listitem></varlistentry>
@@ -2606,8 +2616,7 @@ only.</subtitle>
 (with-c-place (place foo) (element place 0))</programlisting>
 </para></listitem></varlistentry>
 
-<varlistentry id="ffi-extern-output">
- <term><varname>FFI:*OUTPUT-C-FUNCTIONS*</varname></term>
+<varlistentry id="ffi-extern-output"><term>&ffi-out-fun;</term>
  <term><varname>FFI:*OUTPUT-C-VARIABLES*</varname></term>
  <listitem><simpara>&clisp; will write the <type>extern</type>
    declarations for foreign functions (defined with &def-call-out;) and

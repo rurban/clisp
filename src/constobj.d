@@ -754,9 +754,9 @@ LISPOBJ(seclass_default,"(T . T)")
   LISPOBJ(fp_zero,"NIL")
   LISPOBJ(foreign_variable_table,"#.(make-hash-table :test #'equal)")
   LISPOBJ(foreign_function_table,"#.(make-hash-table :test #'equal)")
-  #ifdef AMIGAOS
+ #if defined(AMIGAOS) || defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
   LISPOBJ(foreign_libraries,"NIL")
-  #endif
+ #endif
   LISPOBJ(foreign_callin_table,"#.(make-hash-table :test #'eq)")
   LISPOBJ(foreign_callin_vector,"#.(let ((array (make-array 1 :adjustable t :fill-pointer 1))) (sys::store array 0 0) array)")
  #endif

@@ -348,7 +348,6 @@ case $# in
      GMALLOC='@GMALLOC@'                 # either 'gmalloc' or ''
      LIBS='@LIBS@'                       # list of system libraries
      LIBTERMCAP='@LIBTERMCAP@'           # either '-ltermcap' or '-lncurses'
-     LIBDL='@LIBDL@'                     # either '-ldl' or ''
      LIBICONV='@LIBICONV@'               # either '-liconv' or ''
      LIBSIGSEGV='@LTLIBSIGSEGV@'         # '-lsigsegv -L/usr/local/lib' or ''
      X_INCLUDES='@X_INCLUDES@'           # either '-I/usr/somewhere/include' or ''
@@ -442,7 +441,6 @@ case $# in
      GROFF='groff'
      GMALLOC=''
      LIBS=''
-     LIBDL=''
      LIBICONV=''
      LIBSIGSEGV=''
      X_INCLUDES=''
@@ -731,7 +729,7 @@ fi
 OS_INCLUDES=''
 if [ $TSYS = master -o $TOS = unix ] ; then
   OS_INCLUDES=$OS_INCLUDES' unix'
-  LIBS=$LIBS' '$LIBDL' '$LIBICONV' '$LIBSIGSEGV
+  LIBS=$LIBS' '$LIBICONV' '$LIBSIGSEGV
 fi
 if [ $TSYS = master -o $TOS = amiga ] ; then
   OS_INCLUDES=$OS_INCLUDES' amiga'
