@@ -1,3 +1,39 @@
+2004-02-25  Bruno Haible  <bruno@clisp.org>
+
+	* makemake.in (XCPPFLAGS): New variable.
+	(XCFLAGS): Don't add the value of XCPPFLAGS here.
+	(MODULE_CPPFLAGS_VAR): New variable.
+	(all .c compilation rules): Use CPPFLAGS before CFLAGS.
+	* clisp-link.in: Use CPPFLAGS variable that is read from 'makevars'.
+	* modules/berkeley-db/link.sh.in: Pass CPPFLAGS to the Makefile.
+	* modules/berkeley-db/Makefile.in (CPPFLAGS): New variable.
+	* modules/bindings/glibc/link.sh: Pass CPPFLAGS to the Makefile.
+	* modules/bindings/glibc/Makefile (CPPFLAGS): New variable.
+	* modules/bindings/win32/link.sh: Pass CPPFLAGS to the Makefile.
+	* modules/bindings/win32/Makefile (CPPFLAGS): New variable.
+	* modules/clx/mit-clx/link.sh: Pass CPPFLAGS to the Makefile.
+	* modules/clx/new-clx/link.sh.in: Pass CPPFLAGS to the Makefile.
+	* modules/clx/new-clx/Makefile.in (CPPFLAGS): New variable.
+	* modules/dirkey/link.sh: Pass CPPFLAGS to the Makefile.
+	* modules/dirkey/Makefile.in (CPPFLAGS): New variable.
+	* modules/fastcgi/link.sh: Pass CPPFLAGS to the Makefile.
+	* modules/fastcgi/Makefile.in (CPPFLAGS): New variable.
+	* modules/netica/link.sh: Pass CPPFLAGS to the Makefile.
+	* modules/netica/Makefile (CPPFLAGS): New variable.
+	* modules/oracle/link.sh: Pass CPPFLAGS to the Makefile.
+	* modules/oracle/Makefile.in (CPPFLAGS): New variable.
+	* modules/pcre/link.sh.in: Pass CPPFLAGS to the Makefile.
+	* modules/pcre/Makefile.in (CPPFLAGS): New variable.
+	* modules/postgresql/link.sh.in: Pass CPPFLAGS to the Makefile.
+	* modules/postgresql/Makefile.in (CPPFLAGS): New variable.
+	* modules/queens/Makefile (CPPFLAGS): New variable.
+	* modules/regexp/link.sh.in: Pass CPPFLAGS to the Makefile.
+	* modules/regexp/Makefile.in (CPPFLAGS): New variable.
+	* modules/syscalls/link.sh.in: Pass CPPFLAGS to the Makefile.
+	* modules/syscalls/Makefile.in (CPPFLAGS): New variable.
+	* modules/wildcard/link.sh.in: Pass CPPFLAGS to the Makefile.
+	* modules/wildcard/Makefile.in (CPPFLAGS): New variable.
+
 2004-02-25  Sam Steingold  <sds@gnu.org>
 
 	* m4/ldap.m4 (CL_LDAP): Solaris/cc requires <lber.h> before <ldap.h>
@@ -2140,7 +2176,7 @@
 2003-08-02  John Hinsdale <hin@alma.com>
 
 	* modules/oracle/orafns.c, oracle.lisp, oiface.h:
-        support access to Oracle's BLOB/CLOB data types
+	support access to Oracle's BLOB/CLOB data types
 
 2003-08-01  Sam Steingold  <sds@gnu.org>
 
@@ -3724,7 +3760,7 @@
 
 	patch #[ 678216 ]: FFI:WITH-FOREIGN-STRING
 	* foreign.lisp (with-foreign-string): store string on C stack
-        using any encoding
+	using any encoding
 	* foreign.d (call_with_foreign_string): ditto
 	* subr.d, constsym.d (call_with_foreign_string): added
 	* type.lisp (encoding-zeroes): how many terminating \0 bytes does

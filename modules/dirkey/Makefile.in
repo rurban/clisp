@@ -1,6 +1,7 @@
 # Makefile for CLISP module set dirkey
 
 CC = @CC@
+CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
 INCLUDES= ../
 MODPREP = ../modprep.fas
@@ -24,7 +25,7 @@ dirkey.m.c: dirkey.c $(MODPREP)
 	$(CLISP) $(MODPREP) dirkey.c
 
 dirkey.o : dirkey.m.c
-	$(CC) $(CFLAGS) -I$(INCLUDES) -c dirkey.m.c -o dirkey.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c dirkey.m.c -o dirkey.o
 
 # Make a module
 clisp-module : all

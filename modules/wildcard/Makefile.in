@@ -1,6 +1,7 @@
 # Makefile for CLISP module set wildcard
 
 CC = @CC@
+CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
 INCLUDES= ../
 FNMATCH_O = @FNMATCH_O@
@@ -22,10 +23,10 @@ wildcard.c : wildcard.lisp
 	$(CLISP) -c wildcard.lisp
 
 wildcard.o : wildcard.c
-	$(CC) $(CFLAGS) -I$(INCLUDES) -c wildcard.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c wildcard.c
 
 fnmatch.o : fnmatch.c fnmatch_loop.c fnmatch.h
-	$(CC) $(CFLAGS) -I. -DHAVE_CONFIG_H -c fnmatch.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I. -DHAVE_CONFIG_H -c fnmatch.c
 
 fnmatch.h : fnmatch_.h
 	cp fnmatch_.h fnmatch.h-t

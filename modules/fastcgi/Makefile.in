@@ -4,6 +4,7 @@
 # $Id
 
 CC = @CC@
+CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
 
 LN = ln
@@ -21,10 +22,10 @@ fastcgi.c:       fastcgi.lisp
 	$(CLISP) -c fastcgi.lisp
 
 fastcgi.o:       fastcgi.c
-	$(CC) $(CFLAGS) $(INCLUDES) -I.. -c fastcgi.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDES) -I.. -c fastcgi.c
 
 fastcgi_wrappers.o:       fastcgi_wrappers.c
-	$(CC) $(CFLAGS) $(INCLUDES) -I.. -c fastcgi_wrappers.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDES) -I.. -c fastcgi_wrappers.c
 
 # Make a module
 clisp-module : all

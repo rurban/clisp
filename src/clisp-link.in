@@ -80,11 +80,11 @@ case "$1" in
     dir="$2"
     # What to do if we abort.
     trap 'rm -f "$dir"/${LISPRUN} "$dir"/w${LISPRUN}' 1 2 15
-    # Read the variables CC, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
+    # Read the variables CC, CPPFLAGS, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
     . "$dir"/makevars
     vecho "$0: Entering directory \`$dir'"
     # Generate new modules.o, compiled from modules.c, includes modules.h
-    (cd "$dir" ; link "$absolute_linkkitdir"/modules.c modules.c ; verbose ${CC} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c ; rm -f modules.c)
+    (cd "$dir" ; link "$absolute_linkkitdir"/modules.c modules.c ; verbose ${CC} ${CPPFLAGS} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c ; rm -f modules.c)
     # Generate new ${LISPRUN}
     (cd "$dir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o ${LISPRUN})
     vecho "$0: Leaving directory \`$dir'"
@@ -136,7 +136,7 @@ case "$1" in
          fo=`echo "$fc" | sed -e 's,\.c$,,'`.o
          echo 'if test -r '"$fc"'; then'
          echo "  if test '"'!'"' -f $fo || test $fo -ot $fc; then"
-         echo '    ${CC} ${CFLAGS} -I"$absolute_linkkitdir" -c '"$fc"
+         echo '    ${CC} ${CPPFLAGS} ${CFLAGS} -I"$absolute_linkkitdir" -c '"$fc"
          echo '  fi'
          echo '  file_list="$file_list"'"' $fo'"
          echo 'fi'
@@ -150,6 +150,7 @@ case "$1" in
       (echo "# Makefile for CLISP module set $modulename"
        echo
        echo "CC ="
+       echo "CPPFLAGS ="
        echo "CFLAGS ="
        echo "INCLUDES="
        echo
@@ -160,7 +161,7 @@ case "$1" in
        for fc in $files_c; do
          fo=`echo "$fc" | sed -e 's,\.c$,,'`.o
          echo "$fo : $fc"
-         echotab '$(CC) $(CFLAGS) -I$(INCLUDES) -c '"$fc"
+         echotab '$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c '"$fc"
          echo
        done
        echo "clisp-module :$files_o"
@@ -177,7 +178,7 @@ case "$1" in
          echo '  mod_list="$mod_list"'"' $mod'"
          echo 'fi'
        done
-       echo 'make clisp-module CC="${CC}" CFLAGS="${CFLAGS}" INCLUDES="$absolute_linkkitdir"'
+       echo 'make clisp-module CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" INCLUDES="$absolute_linkkitdir"'
        echo 'NEW_FILES="$file_list"'
        echo 'NEW_LIBS="$file_list"'
        echo 'NEW_MODULES="$mod_list"'
@@ -232,7 +233,7 @@ case "$1" in
       exit 1
     fi
     modulename=`echo "$moduledir" | sed -e 's,^.*/,,'`
-    # Read the variables CC, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
+    # Read the variables CC, CPPFLAGS, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
     . "$sourcedir"/makevars
     # Prepare the module directory and read the variables NEW_FILES, NEW_LIBS
     NEW_FILES=''
@@ -260,7 +261,7 @@ case "$1" in
     LIBS=${NEW_LIBS}' '${LIBS}
     FILES=${FILES}' '${NEW_FILES}
     # Generate new modules.o, compiled from modules.c, includes new modules.h
-    (cd "$destinationdir" ; link "$absolute_linkkitdir"/modules.c modules.c ; verbose ${CC} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c ; rm -f modules.c)
+    (cd "$destinationdir" ; link "$absolute_linkkitdir"/modules.c modules.c ; verbose ${CC} ${CPPFLAGS} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c ; rm -f modules.c)
     # Generate new ${LISPRUN}
     (cd "$destinationdir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o ${LISPRUN})
     if [ -n "$TO_PRELOAD" ] ; then
@@ -342,7 +343,7 @@ case "$1" in
         exit 1
       fi
     done
-    # Read the variables CC, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
+    # Read the variables CC, CPPFLAGS, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
     . "$sourcedir"/makevars
     if [ -z "$moduledirs" ] ; then
       # Just make links from $destinationdir to $sourcedir
@@ -407,7 +408,7 @@ case "$1" in
         done
       done
       # Generate new modules.o, compiled from modules.c, includes new modules.h
-      (cd "$destinationdir" ; link "$absolute_linkkitdir"/modules.c modules.c ; verbose ${CC} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c ; rm -f modules.c)
+      (cd "$destinationdir" ; link "$absolute_linkkitdir"/modules.c modules.c ; verbose ${CC} ${CPPFLAGS} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c ; rm -f modules.c)
       # Generate new ${LISPRUN}
       (cd "$destinationdir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o ${LISPRUN})
       if [ -n "$PRELOAD" ] ; then
@@ -465,7 +466,7 @@ case "$1" in
           exit 1
         fi
       done
-      # Read the variables CC, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
+      # Read the variables CC, CPPFLAGS, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
       . "$sourcedir"/makevars
       if [ -z "$moduledirs" ] ; then
         "$sourcedir"/${LISPRUN} -B "$installbasedir" -M "$sourcedir"/lispinit.mem
