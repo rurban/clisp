@@ -1,10 +1,12 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the GNU CLISP package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: YYYY-MM-DD HH:MM:SS TZ\n"
 "PO-Revision-Date: YYYY-MM-DD HH:MM:SS TZ\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
