@@ -501,9 +501,6 @@ global int main()
 # printf("#define oint_data_len  %d\n",oint_data_len);
 # printf1("#define oint_data_mask  %x\n",(oint)oint_data_mask);
 # printf("#define addr_shift  %d\n",addr_shift);
-# #ifdef vm_addr_mask
-#   printf1("#define vm_addr_mask  %x\n",(oint)vm_addr_mask);
-# #endif
   printf("typedef uint%d tint;\n",oint_type_len);
   printf("typedef uint%d aint;\n",oint_addr_len);
 # printf("typedef sint%d saint;\n",oint_addr_len);
@@ -766,7 +763,11 @@ global int main()
 # printf("typedef struct { SRECORD_HEADER object class; object other[unspecified]; } *  Instance;\n");
   printf("typedef void Values;\n");
   printf("typedef Values (*lisp_function)();\n");
-  printf("typedef struct { lisp_function function; object name; object keywords; uintW argtype; uintW req_anz; uintW opt_anz; uintB rest_flag; uintB key_flag; uintW key_anz; } subr_;\n");
+  printf("typedef struct { lisp_function function; object name; object keywords; uintW argtype; uintW req_anz; uintW opt_anz; uintB rest_flag; uintB key_flag; uintW key_anz; } subr_");
+  #if defined(NO_TYPECODES) && (alignment_long < 4) && defined(GNU)
+    printf(" __attribute__ ((aligned (4)))");
+  #endif
+  printf(";\n");
 # printf("typedef subr_ *  Subr;\n");
   printf("typedef enum { subr_norest, subr_rest } subr_rest_t;\n");
   printf("typedef enum { subr_nokey, subr_key, subr_key_allow } subr_key_t;\n");
@@ -913,7 +914,7 @@ global int main()
 #   printf2("#define immediate_number_p(obj)  ((as_oint(obj) & %d) == %d)\n",(4 << imm_type_shift) | immediate_bias,(fixnum_type&sfloat_type));
 # #endif
 # #ifdef TYPECODES
-#   printf2("#define vectorp(obj)  ((tint)((typecode(obj) & ~%d)-1) <= (tint)%d)\n",(tint)bit(notsimple_bit_t),(tint)(svector_type-1));
+#   printf2("#define vectorp(obj)  ((tint)(typecode(obj) - %d) <= (tint)%d)\n",(tint)sbvector_type,(tint)(vector_type-sbvector_type));
 # #else
 #   printf1("#define vectorp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= %d))\n",9-1);
 # #endif
@@ -963,7 +964,7 @@ global int main()
 #   printf1("#define general_byte_vector_p(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_bvector);
 # #endif
 # #ifdef TYPECODES
-#   printf2("#define arrayp(obj)  ((tint)(typecode(obj) - 1) <= (tint)%d)\n",(tint)(vector_type-1));
+#   printf2("#define arrayp(obj)  ((tint)(typecode(obj) - %d) <= (tint)%d)\n",(tint)mdarray_type,(tint)(vector_type-mdarray_type));
 # #else
 #   printf1("#define arrayp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= %d))\n",10-1);
 # #endif

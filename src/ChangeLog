@@ -1,3 +1,24 @@
+1999-10-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Make the TYPECODES model more extensible.
+        * lispbibl.d (SUN4_29_1, SUN4_29_2, ACORN_1, ACORN_2, UNIX_SYSV_UHC_2):
+          Remove definitions.
+          (TYPECODES): Don't define if we can force alignof(subr_) = 4.
+          (oint_type_mask, oint_addr_mask): Remove most old, hand-determined
+          definitions.
+          (TB7, ..., TB0): Never define TB5 to -1.
+          (SUN3_TYPECODES, PACKED_TYPECODES, STANDARD_TYPECODES,
+           SIXBIT_TYPECODES, SEVENBIT_TYPECODES): Remove all. Replace with
+          STANDARD_8BIT_TYPECODES.
+          (BTB7, ..., BTB0): Define.
+          (addressbus_mask): Use SUN4_29 instead of SUN4_29_1.
+          (subr_): Force alignment 4 if necessary.
+          (vectorp, simplep, array_simplep, arrayp): Update for new typecodes.
+        * genclisph.d (subr_): Force alignment 4 if necessary.
+          (vectorp, arrayp): Update for new typecodes.
+        * spvw.d (init_subr_tab_1): If NO_TYPECODES, verify subr_ alignment.
+        * spvw_memfile.d (memflags): Update.
+
 1999-10-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * spvw_garcol.d (update): Insert braces to avoid gcc warning.

@@ -997,6 +997,16 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
     local void init_subr_tab_1 (void);
     local void init_subr_tab_1()
       {
+        #if defined(NO_TYPECODES)
+          # lispbibl.d normally takes care of this, using a gcc __attribute__.
+          # But __attribute__((aligned(4))) is ignored for some GCC targets,
+          # so we check it here for safety.
+          if (alignof(subr_) < 4) {
+            asciz_out("Alignment of SUBRs is less than 4. NO_TYPECODES requires it to be at least 4." NLstring);
+            asciz_out("Recompile CLISP with -DNO_TYPECODES." NLstring);
+            abort();
+          }
+        #endif
         #if defined(INIT_SUBR_TAB)
           #ifdef MAP_MEMORY_TABLES
             # Tabelle in den vorgesehenen Bereich kopieren:
