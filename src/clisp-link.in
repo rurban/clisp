@@ -226,7 +226,7 @@ case "$1" in
       echo "$0: directories $sourcedir and $destinationdir may not be the same" 1>&2
       exit 1
     fi
-    if [ ! -r "$sourcedir"/lisp.a -o ! -x "$sourcedir"/lisp.run -o ! -r "$sourcedir"/lispinit.mem -o ! -r "$sourcedir"/modules.h -o ! -r "$sourcedir"/makevars ] ; then
+    if [ ! -r "$sourcedir"/lisp.a -o ! -x "$sourcedir"/lisp.run -o ! -r "$sourcedir"/lispinit.mem -o ! -r "$sourcedir"/modules.h -o ! -r "$sourcedir"/modules.o -o ! -r "$sourcedir"/makevars ] ; then
       echo "$0: directory $sourcedir does not contain a clisp linking set" 1>&2
       exit 1
     fi
@@ -332,7 +332,7 @@ case "$1" in
       echo "$0: directories $sourcedir and $destinationdir may not be the same" 1>&2
       exit 1
     fi
-    if [ ! -r "$sourcedir"/lisp.a -o ! -x "$sourcedir"/lisp.run -o ! -r "$sourcedir"/lispinit.mem -o ! -r "$sourcedir"/modules.h -o ! -r "$sourcedir"/makevars ] ; then
+    if [ ! -r "$sourcedir"/lisp.a -o ! -x "$sourcedir"/lisp.run -o ! -r "$sourcedir"/lispinit.mem -o ! -r "$sourcedir"/modules.h -o ! -r "$sourcedir"/modules.o -o ! -r "$sourcedir"/makevars ] ; then
       echo "$0: directory $sourcedir does not contain a clisp linking set" 1>&2
       exit 1
     fi
@@ -346,12 +346,9 @@ case "$1" in
     . "$sourcedir"/makevars
     if [ -z "$moduledirs" ] ; then
       # Just make links from $destinationdir to $sourcedir
-      for f in lisp.run lispinit.mem modules.h makevars ${FILES}; do
+      for f in lisp.run lispinit.mem modules.h modules.o makevars ${FILES}; do
         link "$sourcedir"/$f "$destinationdir"/$f
       done
-      if [ -r "$sourcedir"/modules.o ] ; then
-        link "$sourcedir"/modules.o "$destinationdir"/modules.o
-      fi
     else
       # Prepare the module directories and read their variables
       allmodulevars=''
@@ -455,7 +452,7 @@ case "$1" in
         fi
       done
       absolute_currentdir=`/bin/pwd`
-      if [ ! -r "$sourcedir"/lisp.a -o ! -x "$sourcedir"/lisp.run -o ! -r "$sourcedir"/lispinit.mem -o ! -r "$sourcedir"/modules.h -o ! -r "$sourcedir"/makevars ] ; then
+      if [ ! -r "$sourcedir"/lisp.a -o ! -x "$sourcedir"/lisp.run -o ! -r "$sourcedir"/lispinit.mem -o ! -r "$sourcedir"/modules.h -o ! -r "$sourcedir"/modules.o -o ! -r "$sourcedir"/makevars ] ; then
         echo "$0: directory $sourcedir does not contain a clisp linking set" 1>&2
         exit 1
       fi
