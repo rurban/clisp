@@ -867,11 +867,13 @@ if [ $XCC_GCC = true ] ; then
 
 else
 
-  if [ "$TSYSOS" = ultrix -o $TSYS = win32msvc -o $TSYS = win32bc ] ; then
+  if [ "$TSYSOS" = aix -o "$TSYSOS" = ultrix -o $TSYS = win32msvc -o $TSYS = win32bc ] ; then
     # If one cannot use the default cc preprocessor: Use GNU cpp instead.
     # The Coherent386 cc preprocessor is not usable
     # 1. because of "macro expansion buffer overflow", 2. because it is an
     # ANSI like preprocessor (## and the like) in front of a K&R C compiler.
+    # The AIX 4.2 xlc preprocessor is not usable because when avl.c is included
+    # twice from spvw.d, the second inclusion produces no expansion at all.
     # The Ultrix cc preprocessor is not usable because it does not
     # expand the `alloc_FNDS_nocopy' macro in lisparit.
     # The MSVC4 preprocessor is not usable because of its treatment of empty
@@ -882,6 +884,12 @@ else
     XCPP="${UTILDIR_}gcc-cccp${NEXT_}cccp -U__GNUC__"
     XCC_NEED_CCPAUX=false
     XCC_NEED_DEEMA=false
+    XCPP_POSTPROCESS=""
+    if [ "$TSYSOS" = aix ] ; then
+      XCPP="$XCPP -D_AIX -D_IBMR2"
+      # AIX 4.2 xlc doesn't like "#nnn" line number notes. Must filter them out.
+      XCPP_POSTPROCESS=" | sed -e '/^#/d'"
+    fi
     if [ "$TSYSOS" = ultrix ] ; then
       # Add some flags for the Ultrix include files.
       XCPP="$XCPP -traditional -P -Dunix -Dmips -Dultrix -D__mips -D__MIPSEB -D__LANGUAGE_C -D_CFE"
@@ -2025,7 +2033,11 @@ fi
 if [ $XCC_UNUSABLE_CPP = true ] ; then
   echol "${SRCTOPDIR}utils/gcc-cccp/cccp${HEXE} :"
   if [ $HOS = unix ] ; then
-    echotab "cd ${SRCTOPDIR}utils/gcc-cccp && \$(MAKE)"
+    if [ "$TSYSOS" = aix ] ; then
+      echotab "cd ${SRCTOPDIR}utils/gcc-cccp && \$(MAKE) ALLOCA=alloca.o"
+    else
+      echotab "cd ${SRCTOPDIR}utils/gcc-cccp && \$(MAKE)"
+    fi
   fi
   echol
 fi
@@ -2314,13 +2326,13 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
       echol
     else
       echol "${f}.s : ${f}.c${dependsc}"
-      echotab "${XCPP} ${flags} ${f}.c > ${f}.i.c"
+      echotab "${XCPP} ${flags} ${f}.c${XCPP_POSTPROCESS} > ${f}.i.c"
       echotab "${XCC} ${flags2} -S ${f}.i.c"
       echotab "\$(MV) ${f}.i.s ${f}.s"
       echotab "\$(RM) ${f}.i.c"
       echol
       echol "${f}${TOBJ} : ${f}.c${dependsc}"
-      echotab "${XCPP} ${flags} ${f}.c > ${f}.i.c"
+      echotab "${XCPP} ${flags} ${f}.c${XCPP_POSTPROCESS} > ${f}.i.c"
       echotab "${XCC} ${flags2} -c ${f}.i.c"
       echotab "\$(MV) ${f}.i${TOBJ} ${f}${TOBJ}"
       echotab "\$(RM) ${f}.i.c"
@@ -2958,7 +2970,7 @@ for f in $TXT_FILES ; do
   echol "${f} : ${SRCDIR}_${f}${TXT_INCLUDES}${depends} txt2c${HEXE}"
   echotab "\$(TXT2C) < ${SRCDIR}_${f} > $txt.c"
   if [ $CROSS = false -a $XCC_UNUSABLE_CPP = true ] ; then
-    echotab "${XCPP} ${XCFLAGS}${flags} $txt.c > $txt.i.c"
+    echotab "${XCPP} ${XCFLAGS}${flags} $txt.c${XCPP_POSTPROCESS} > $txt.i.c"
     echotab_to_HEXE "${XCC} ${XCFLAGS} ${XCLFLAGS}${XCC_NOOPTFLAGS}" "$txt.i.c" "$txt"
     echotab "\$(RM) $txt.i.c"
     if [ $HSYS = win32msvc ] ; then
