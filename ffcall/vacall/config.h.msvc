@@ -9,9 +9,3 @@
  * on this software.
  */
 
-/* CL_ABORT */
-/* Define as the return type of abort(). */
-#define RETABORTTYPE void
-/* Define as __volatile__ if the declaration of abort() needs it. */
-#define ABORT_VOLATILE
-
