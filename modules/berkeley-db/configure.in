@@ -1,0 +1,31 @@
+dnl AUTOCONF configuration for Berkeley-DB
+dnl Copyright (C) 2003  Sam Steingold <sds@gnu.org>
+dnl GNU GPL2
+
+AC_PREREQ(2.57)
+AC_INIT(Berkeley-DB, 1.0, clisp-list)
+AC_CONFIG_SRCDIR(dbi.lisp)
+AC_CONFIG_HEADERS(config.h)
+
+AC_MSG_NOTICE([ * Berkeley-DB (Tools):])
+AC_PROG_CC
+AC_PROG_CPP
+
+AC_MSG_NOTICE([ * Berkeley-DB (Headers):])
+AC_HEADER_STDC
+AC_CHECK_HEADERS(db.h)
+if test "$ac_cv_header_db_h" = "no"; then
+  AC_MSG_ERROR([cannot find Berkeley-DB headers])
+fi
+
+AC_MSG_NOTICE([ * Berkeley-DB (Functions):])
+AC_SEARCH_LIBS(db_env_create, db)
+if test "$ac_cv_search_db_env_create" = "no"; then
+  AC_MSG_ERROR([cannot find Berkeley-DB library])
+fi
+
+AC_MSG_NOTICE([ * Berkeley-DB (Output):])
+AC_CONFIG_FILES(Makefile link.sh)
+AC_OUTPUT
+
+AC_MSG_NOTICE([ * Berkeley-DB (Done)])

@@ -67,7 +67,7 @@ echo "Uncomment 'configure' in 'clisp.spec' if you want to build";
 #rm -rf %{builddir}
 #./configure --prefix=%{prefix} --fsstnd=redhat --with-module=regexp \
 #    --with-module=bindings/glibc --with-module=clx/new-clx \
-#    --with-module=syscalls --build %{builddir}
+#    --with-module=syscalls --with-module=berkeley-db --build %{builddir}
 %install
 cd %{builddir}
 make DESTDIR=$RPM_BUILD_ROOT install

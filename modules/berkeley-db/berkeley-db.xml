@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<section id="berkeley-db"><title>Berkeley DB access.</title>
+
+<para>This interface to &sleepycat-berkeley-db; exports almost all
+ functions in the official &c-lang; API.</para>
+
+<section><title>Database Environment</title>
+
+<variablelist>
+ <varlistentry><term><literal role="sexp">(BDB:DB-VERSION)</literal></term>
+  <listitem><simpara>Return version information as 4 values: descriptive
+    &string-t; and 3 &fixnum-t;s: major, minor and patch number (&db_version;).
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(BDB:ENV-CREATE &key-amp;
+    :PASSWORD :ENCRYPT :HOST :CLIENT-TIMEOUT :SERVER-TIMEOUT)</literal></term>
+  <listitem><simpara>Create an environment handle (&dbe_create;),
+    possibly connecting to a remote host (&DBE_set_rpc_server;) and
+    possibly using encryption with password (&DBE_set_encrypt;).
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(BDB:ENV-CLOSE dbe)</literal></term>
+  <listitem><simpara>Close an environment (&DBE_close;).
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(BDB:DBREMOVE dbe file
+    database &key-amp; :TRANSACTION :AUTO-COMMIT)</literal></term>
+  <listitem><simpara>Remove a database (&DBE_dbremove;).
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(BDB:DBREMOVE dbe file
+    database newname &key-amp; :TRANSACTION :AUTO-COMMIT)</literal></term>
+  <listitem><simpara>Rename a database (&DBE_dbrename;).
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(BDB:ENV-OPEN dbe &key-amp;
+    :HOME :JOIN :INIT-CDB :INIT-LOCK :INIT-LOG :INIT-MPOOL :INIT-TXN
+    :RECOVER :RECOVER-FATAL :USE-ENVIRON :USE-ENVIRON-ROOT :CREATE
+    :LOCKDOWN :PRIVATE :SYSTEM-MEM :THREAD :MODE)</literal></term>
+  <listitem><simpara>Open an environment (&DBE_open;).
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(BDB:ENV-REMOVE dbe &key-amp;
+    :HOME :FORCE :USE-ENVIRON :USE-ENVIRON-ROOT)</literal></term>
+  <listitem><simpara>Destroy an environment (&DBE_remove;).
+ </simpara></listitem></varlistentry>
+</variablelist>
+</section>
+
+<section><title>Environment Configuration</title>
+
+<variablelist>
+<varlistentry><term><literal role="sexp">(BDB:ENV-SET-OPTIONS dbe
+   &key-amp; :DATA-DIR :TMP-DIR :AUTO-COMMIT :CDB-ALLDB :DIRECT-DB
+   :DIRECT-LOG :NOLOCKING :NOMMAP :NOPANIC :OVERWRITE :PANIC-ENVIRONMENT
+   :REGION-INIT :TXN-NOSYNC :TXN-WRITE-NOSYNC :YIELDCPU :VERB-CHKPOINT
+   :VERB-DEADLOCK :VERB-RECOVERY :VERB-REPLICATION :VERB-WAITSFOR
+   :VERBOSE)</literal></term>
+ <listitem><simpara>Set some environment options using &DBE_set_flags;,
+   &DBE_set_verbose;, &DBE_set_tmp_dir; and &DBE_set_data_dir;.
+</simpara></listitem></varlistentry>
+</variablelist>
+</section>
+
+
+<section><title>Database Operations</title>
+
+ <!--
+ DB->associate	Associate a secondary index
+ DB->err	Error message with error string
+ DB->errx	Error message
+ DB->join	Perform a database join on cursors
+ DB->key_range	Return estimate of key location
+ DB->verify	Verify/salvage a database
+ -->
+<variablelist>
+<varlistentry><term><literal role="sexp">(BDB:DB-CREATE dbe &key-amp;
+   :XA)</literal></term>
+ <listitem><simpara>Create a database handle (&db_create;).
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:DB-CLOSE dbe &key-amp;
+   :NOSYNC)</literal></term>
+ <listitem><simpara>Close a database (&DB_close;).
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:DB-DEL dbe key &key-amp;
+   :TRANSACTION :AUTO-COMMIT)</literal></term>
+ <listitem><simpara>Delete items from a database (&DB_del;).
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:DB-FD db)</literal></term>
+ <listitem><simpara>Return a file descriptor from a database (&DB_fd;).
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:DB-GET db key &key-amp;
+   :CONSUME :CONSUME-WAIT :DIRTY-READ :RMW :TRANSACTION)</literal></term>
+ <listitem><simpara>Get items from a database (&DB_get;).
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:DB-PUT db key val
+   &key-amp; :APPEND :NODUPDATA :NOOVERWRITE :AUTO-COMMIT
+   :TRANSACTION)</literal></term>
+<listitem><simpara>Store items into a database (&DB_put;).
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:DB-STAT db &key-amp;
+   :FAST-STAT)</literal></term>
+ <listitem><simpara>Return database statistics (&DB_get_byteswapped;,
+   &DB_get_type;, &DB_stat;).</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:DB-OPEN db file &key-amp;
+   :DATABASE :TYPE :MODE :CREATE :DIRTY-READ :EXCL :NOMMAP :RDONLY
+   :THREAD :TRUNCATE :AUTO-COMMIT :TRANSACTION)</literal></term>
+ <listitem><simpara>Open a database (&DB_open;).
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:DB-SYNC db)</literal></term>
+ <listitem><simpara>Flush a database to stable storage (&DB_sync;).
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:DB-TRUNCATE db &key-amp;
+   :TRANSACTION :AUTO-COMMIT)</literal></term>
+ <listitem><simpara>Empty a database (&DB_truncate;).
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:DB-UPGRADE, db file
+   &key-amp; :DUPSORT)</literal></term>
+ <listitem><simpara>Upgrade a database (&DB_upgrade;).
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:DB-RENAME db file database
+   newname)</literal></term>
+ <listitem><simpara>Rename a database (&DB_rename;).
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:DB-REMOVE db file
+   database)</literal></term>
+ <listitem><simpara>Remove a database (&DB_remove;).
+</simpara></listitem></varlistentry>
+</variablelist>
+</section>
+
+
+<section><title>Database Configuration</title>
+ <!--
+ DB->set_alloc	Set local space allocation functions
+ DB->set_cache_priority	Set the database cache priority
+ DB->set_cachesize	Set the database cache size
+ DB->set_dup_compare	Set a duplicate comparison function
+ DB->set_encrypt	Set the database cryptographic key
+ DB->set_errcall	Set error message callback
+ DB->set_errfile	Set error message FILE
+ DB->set_errpfx	Set error message prefix
+ DB->set_feedback	Set feedback callback
+ DB->set_flags	General database configuration
+ DB->set_lorder	Set the database byte order
+ DB->set_pagesize	Set the underlying database page size
+ DB->set_paniccall	Set panic callback
+ -->
+<variablelist>
+<varlistentry><term><literal role="sexp">()</literal></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+</variablelist>
+</section>
+
+
+
+<section><title>Btree/Recno Configuration</title>
+
+ <!--
+ DB->set_append_recno	Set record append callback
+ DB->set_bt_compare	Set a Btree comparison function
+ DB->set_bt_minkey	Set the minimum number of keys per Btree page
+ DB->set_bt_prefix	Set a Btree prefix comparison function
+ DB->set_re_delim	Set the variable-length record delimiter
+ DB->set_re_len	Set the fixed-length record length
+ DB->set_re_pad	Set the fixed-length record pad byte
+ DB->set_re_source	Set the backing Recno text file
+ -->
+
+<variablelist>
+<varlistentry><term><literal role="sexp">()</literal></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+</variablelist>
+</section>
+
+
+<section><title>Hash/Queue Configuration</title>
+ <!--
+ DB->set_h_ffactor	Set the Hash table density
+ DB->set_h_hash	Set a hashing function
+ DB->set_h_nelem	Set the Hash table size
+ DB->set_q_extentsize	Set Queue database extent size
+ -->
+<variablelist>
+<varlistentry><term><literal role="sexp">()</literal></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+</variablelist>
+</section>
+
+
+<section><title>Database Cursor Operations</title>
+ <!--
+ DB->cursor	Create a cursor handle
+ DBcursor->c_close	Close a cursor
+ DBcursor->c_count	Return count of duplicates
+ DBcursor->c_del	Delete by cursor
+ DBcursor->c_dup	Duplicate a cursor
+ DBcursor->c_get, DBcursor->c_pget	Retrieve by cursor
+ DBcursor->c_put	Store by cursor
+ -->
+<variablelist>
+<varlistentry><term><literal role="sexp">()</literal></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+</variablelist>
+</section>
+
+
+<section><title>Lock Subsystem</title>
+ <!--
+ DB_ENV->set_lk_conflicts	Set lock conflicts matrix
+ DB_ENV->set_lk_detect	Set automatic deadlock detection
+ DB_ENV->set_lk_max_lockers	Set maximum number of lockers
+ DB_ENV->set_lk_max_locks	Set maximum number of locks
+ DB_ENV->set_lk_max_objects	Set maximum number of lock objects
+ DB_ENV->lock_detect	Perform deadlock detection
+ DB_ENV->lock_get	Acquire a lock
+ DB_ENV->lock_id	Acquire a locker ID
+ DB_ENV->lock_id_free	Release a locker ID
+ DB_ENV->lock_put	Release a lock
+ DB_ENV->lock_stat	Return lock subsystem statistics
+ DB_ENV->lock_vec	Acquire/release locks
+ -->
+<variablelist>
+<varlistentry><term><literal role="sexp">()</literal></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+</variablelist>
+</section>
+
+
+<section><title>Log Subsystem</title>
+ <!--
+ DB_ENV->set_lg_bsize	Set log buffer size
+ DB_ENV->set_lg_dir	Set the environment logging directory
+ DB_ENV->set_lg_max	Set log file size
+ DB_ENV->set_lg_regionmax	Set logging region size
+ DB_ENV->log_archive	List log and database files
+ DB_ENV->log_file	Map Log Sequence Numbers to log files
+ DB_ENV->log_flush	Flush log records
+ DB_ENV->log_put	Write a log record
+ DB_ENV->log_stat	Return log subsystem statistics
+ -->
+<variablelist>
+<varlistentry><term><literal role="sexp">()</literal></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+</variablelist>
+</section>
+
+
+<section><title>Log Cursor Operations</title>
+ <!--
+ DB_ENV->log_cursor	Create a log cursor handle
+ DB_LOGC->close	Close a log cursor
+ DB_LOGC->get	Retrieve a log record
+ -->
+<variablelist>
+<varlistentry><term><literal role="sexp">()</literal></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+</variablelist>
+</section>
+
+
+<section><title>Log Sequence Numbers</title>
+ <!-- log_compare	Compare two Log Sequence Numbers -->
+<variablelist>
+<varlistentry><term><literal role="sexp">()</literal></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+</variablelist>
+</section>
+
+
+<section><title>Memory Pool Subsystem</title>
+ <!--
+ DB_ENV->set_cachesize	Set the environment cache size
+ DB_ENV->set_mp_mmapsize	Set maximum mapped-in database file size
+ DB_ENV->memp_register	Register input/output functions for a file in a memory pool
+ DB_ENV->memp_stat	Return memory pool statistics
+ DB_ENV->memp_sync	Flush pages from a memory pool
+ DB_ENV->memp_trickle	Trickle flush pages from a memory pool
+
+Memory Pool Files
+ DB_ENV->memp_fcreate	Open a file in a memory pool
+ DB_MPOOLFILE->close	Close a file in a memory pool
+ DB_MPOOLFILE->get	Get page from a file in a memory pool
+ DB_MPOOLFILE->open	Open a file in a memory pool
+ DB_MPOOLFILE->put	Return a page to a memory pool
+ DB_MPOOLFILE->set	Set memory pool page status
+ DB_MPOOLFILE->sync	Flush pages from a file in a memory pool
+ DB_MPOOLFILE->set_clear_len	Set file page bytes to be cleared
+ DB_MPOOLFILE->set_fileid	Set file unique identifier
+ DB_MPOOLFILE->set_ftype	Set file type
+ DB_MPOOLFILE->set_lsn_offset	Set file log-sequence-number offset
+ DB_MPOOLFILE->set_pgcookie	Set file cookie for pgin/pgout
+ -->
+<variablelist>
+<varlistentry><term><literal role="sexp">()</literal></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+</variablelist>
+</section>
+
+
+
+<section><title>Transaction Subsystem</title>
+ <!--
+ DB_ENV->set_tx_max	Set maximum number of transactions
+ DB_ENV->set_tx_timestamp	Set recovery timestamp
+ DB_ENV->txn_checkpoint	Checkpoint the transaction subsystem
+ DB_ENV->txn_recover	Distributed transaction recovery
+ DB_ENV->txn_stat	Return transaction subsystem statistics
+ DB_TXN->abort	Abort a transaction
+ DB_TXN->commit	Commit a transaction
+ DB_TXN->discard	Discard a prepared but not resolved transaction handle
+ DB_TXN->id	Return a transaction's ID
+ DB_TXN->prepare	Prepare a transaction for commit
+ DB_TXN->set_timeout	Set transaction timeout
+ -->
+<variablelist>
+<varlistentry><term><literal role="sexp">(BDB:TXN-BEGIN dbe &key-amp;
+   :PARENT :DIRTY-READ :NOSYNC :NOWAIT :SYNC)</literal></term>
+ <listitem><simpara>Begin a transaction (&DBE_txn_begin;).
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:TXN-ABORT txn)</literal></term>
+ <listitem><simpara>Abort a transaction (&TXN_abort;).
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:TXN-COMMIT txn &key-amp;
+   :NOSYNC :SYNC)</literal></term>
+ <listitem><simpara>Commit a transaction (&TXN_commit;).
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:TXN-DISCARD txn)</literal></term>
+ <listitem><simpara>Discard a transaction (&TXN_discard;).
+</simpara></listitem></varlistentry>
+</variablelist>
+</section>
+
+
+<section><title>Replication</title>
+ <!--
+ DB_ENV->set_rep_transport	Configure replication transport
+ DB_ENV->rep_elect	Hold a replication election
+ DB_ENV->set_rep_limit	Limit data sent in response to a single message
+ DB_ENV->rep_process_message	Process a replication message
+ DB_ENV->rep_start	Configure an environment for replication
+ DB_ENV->rep_stat	Replication statistics
+  -->
+
+<variablelist>
+<varlistentry><term><literal role="sexp">()</literal></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+</variablelist>
+</section>
+
+
+<section><title></title>
+
+<variablelist>
+<varlistentry><term><literal role="sexp">()</literal></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+</variablelist>
+</section>
+
+
+
+
+
+
+</section>

@@ -44,6 +44,7 @@ options:
        --with-module=bindings/amigaos
        --with-module=bindings/glibc
        --with-module=dirkey
+       --with-module=berkeley-db
        --with-module=postgresql
        --with-module=regexp
        --with-module=syscalls
@@ -1722,6 +1723,7 @@ echol
 echol     "# (partial) list of available add-on modules:"
 echol     "# queens               the queens function as a separate module"
 echol     "# dirkey               the directory access (LDAP, win32 registry)"
+echol     "# berkeley-db          the Berkeley DB access"
 echol     "# syscalls             export some POSIX (and other) system calls"
 if test -n "$with_dynamic_ffi"; then
   echol   "# wildcard             wildcard matching"
