@@ -1,5 +1,11 @@
 1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * makemake.in (installdirs, install-bin, install-man): Make sure
+          the directories $(prefix) and $(exec_prefix) exist.
+        * _distmakefile (install-bin, install-man): Likewise.
+
+1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * stream.d (make_file_stream): Fix the STACK offsets used to fill in
           truename and pathname of unbuffered streams.
 

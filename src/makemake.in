@@ -2995,6 +2995,8 @@ if [ $CROSS = false ] ; then
     echodummyrule install
     echol
     echol "installdirs : force"
+    echotab "if [ ! -d \$(prefix) ] ; then mkdir \$(prefix) ; fi"
+    echotab "if [ ! -d \$(exec_prefix) ] ; then mkdir \$(exec_prefix) ; fi"
     echotab "if [ ! -d \$(libdir) ] ; then mkdir \$(libdir) ; fi"
     echotab "if [ ! -d \$(lisplibdir) ] ; then mkdir \$(lisplibdir) ; fi"
     echotab "if [ ! -d \$(lisplibdir)/full ] ; then mkdir \$(lisplibdir)/full ; fi"
@@ -3018,6 +3020,8 @@ if [ $CROSS = false ] ; then
     esac
     echol
     echol "install-bin : lisp${LEXE} lispinit.mem clisp.c force"
+    echotab "if [ ! -d \$(prefix) ] ; then mkdir \$(prefix) ; fi"
+    echotab "if [ ! -d \$(exec_prefix) ] ; then mkdir \$(exec_prefix) ; fi"
     echotab "if [ ! -d \$(libdir) ] ; then mkdir \$(libdir) ; fi"
     echotab "if [ ! -d \$(lisplibdir) ] ; then mkdir \$(lisplibdir) ; fi"
     echotab "if [ ! -d \$(lisplibdir)/full ] ; then mkdir \$(lisplibdir)/full ; fi"
@@ -3058,6 +3062,8 @@ if [ $CROSS = false ] ; then
         echol "install-man : clisp.1 clisp.html force"
       fi
     fi
+    echotab "if [ ! -d \$(prefix) ] ; then mkdir \$(prefix) ; fi"
+    echotab "if [ ! -d \$(exec_prefix) ] ; then mkdir \$(exec_prefix) ; fi"
     echotab "if [ ! -d \$(mandir) ] ; then mkdir \$(mandir) ; fi"
     echotab "if [ ! -d \$(mandir)/man1 ] ; then mkdir \$(mandir)/man1 ; fi"
     echotab "\$(INSTALL_DATA) clisp.1 \$(mandir)/man1/clisp.1"
