@@ -7755,6 +7755,245 @@ LISPFUNN(rename_file,2)
     mv_count=3; skipSTACK(8); # 3 Werte
   }
 
+# Create a file.
+# create_new_file(pathstring);
+# It is known that the file does not already exist.
+# > pathstring: file name, ASCIZ-String
+# > STACK_0: pathname
+  local inline void create_new_file (char* pathstring);
+  local inline void create_new_file(pathstring)
+    var char* pathstring;
+    {
+      #ifdef AMIGAOS
+        var Handle handle;
+        begin_system_call();
+        handle = Open(pathstring,MODE_NEWFILE);
+        if (handle == Handle_NULL) { end_system_call(); OS_file_error(STACK_0); } # Error melden
+        # Datei wurde erzeugt, handle ist das Handle.
+        # Datei wieder schlieﬂen:
+        (void) Close(handle);
+        end_system_call();
+      #endif
+      #ifdef WIN32_NATIVE
+        var Handle handle;
+        begin_system_call();
+        handle = CreateFile(pathstring, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+        if (handle==INVALID_HANDLE_VALUE) { end_system_call(); OS_file_error(STACK_0); }
+        # Datei wurde erzeugt, handle ist das Handle.
+        # Datei wieder schlieﬂen:
+        if (!CloseHandle(handle)) { end_system_call(); OS_file_error(STACK_0); }
+        end_system_call();
+      #endif
+      #if defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM)
+        var int result;
+        begin_system_call();
+        result = creat(pathstring,my_open_mask);
+        if (result<0) { end_system_call(); OS_file_error(STACK_0); } # Error melden
+        setmode(ergebnis,O_BINARY);
+        # Datei wurde erzeugt, ergebnis ist das Handle.
+        # Datei wieder schlieﬂen:
+        if (!(CLOSE(result)==0)) { end_system_call(); OS_file_error(STACK_0); } # Error melden
+        end_system_call();
+      #endif
+      #if defined(UNIX) || defined(RISCOS)
+        var int result;
+        begin_system_call();
+        result = OPEN(pathstring, O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, my_open_mask);
+        if (result<0) { end_system_call(); OS_file_error(STACK_0); } # Error melden
+        # Datei wurde erzeugt, ergebnis ist das Handle.
+        # Datei wieder schlieﬂen:
+        if (!(CLOSE(result)==0)) { end_system_call(); OS_file_error(STACK_0); } # Error melden
+        end_system_call();
+      #endif
+    }
+
+# Open a file for input.
+# open_input_file(pathstring,create_if_not_exists,&handle)
+# > vorausgegangen: assure_dir_exists()
+# > pathstring: file name, ASCIZ-String
+# > create_if_not_exists: if true, the file must be created
+# > STACK_0: pathname
+# < handle: open file handle
+# < result: whether the file could be opened (necessarily TRUE if create_if_not_exists)
+  local inline boolean open_input_file (char* pathstring, boolean create_if_not_exists, Handle* handle_);
+  local inline boolean open_input_file(pathstring,create_if_not_exists,handle_)
+    var char* pathstring;
+    var boolean create_if_not_exists;
+    var Handle* handle_;
+    {
+      #if defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM)
+        var sintW result;
+        # Datei zu ˆffnen versuchen:
+        #ifdef FILE_EXISTS_TRIVIAL
+          if (file_exists(_EMA_))
+            { begin_system_call();
+              result = open(pathstring,O_RDONLY);
+            }
+            else
+            { # Datei existiert nicht
+              if (!create_if_not_exists) return FALSE;
+              # Datei mit creat erzeugen:
+              begin_system_call();
+              result = creat(pathstring,my_open_mask);
+            }
+          if (result<0) { end_system_call(); OS_file_error(STACK_0); }
+        #else
+          # erst mit open erfragen, ob die Datei existiert:
+          begin_system_call();
+          result = open(pathstring,O_RDONLY);
+          if (result<0)
+            { if (errno == ENOENT) # nicht gefunden?
+                { # Datei existiert nicht
+                  if (!create_if_not_exists) { end_system_call(); return FALSE; }
+                  # Datei mit creat erzeugen:
+                  result = creat(pathstring,my_open_mask);
+                  if (result<0) { end_system_call(); OS_file_error(STACK_0); }
+                }
+                else
+                { end_system_call(); OS_file_error(STACK_0); } # sonstigen Error melden
+            }
+        #endif
+        setmode(result,O_BINARY);
+        end_system_call();
+        *handle_ = result; return TRUE;
+      #endif
+      #ifdef AMIGAOS
+        var Handle handle;
+        #ifdef FILE_EXISTS_TRIVIAL
+          if (file_exists(_EMA_))
+            { begin_system_call();
+              handle = Open(pathstring,MODE_OLDFILE);
+            }
+            else
+            { # Datei existiert nicht
+              if (!create_if_not_exists) return FALSE;
+              # Datei mit Open erzeugen:
+              begin_system_call();
+              handle = Open(pathstring,MODE_READWRITE);
+            }
+        #else
+          # erst mit Open erfragen, ob die Datei existiert:
+          begin_system_call();
+          handle = Open(pathstring,MODE_OLDFILE);
+          if (handle==Handle_NULL)
+            { if (IoErr()==ERROR_OBJECT_NOT_FOUND)
+                { # Datei existiert nicht
+                  if (!create_if_not_exists) { end_system_call(); return FALSE; }
+                  # Datei mit Open erzeugen:
+                  handle = Open(pathstring,MODE_READWRITE);
+            }   }
+        #endif
+        end_system_call();
+        if (handle==Handle_NULL) { OS_file_error(STACK_0); }
+        *handle_ = handle; return TRUE;
+      #endif
+      #if defined(UNIX) || defined(RISCOS)
+        var int result;
+        #ifdef FILE_EXISTS_TRIVIAL
+          var int oflags = O_RDONLY | O_BINARY;
+          if (!file_exists(_EMA_))
+            { # Datei existiert nicht
+              if (!create_if_not_exists) return FALSE;
+              # Datei mit open erzeugen:
+              oflags |= O_CREAT;
+            }
+          begin_system_call();
+          result = OPEN(pathstring,oflags,my_open_mask);
+          end_system_call();
+          if (result<0) { OS_file_error(STACK_0); }
+        #else
+          var int oflags = O_RDONLY | O_BINARY;
+          if (create_if_not_exists) { oflags |= O_CREAT; }
+          begin_system_call();
+          result = OPEN(pathstring,oflags,my_open_mask);
+          if (result<0)
+            { if (errno == ENOENT) # nicht gefunden?
+                { # Datei existiert nicht
+                  if (!create_if_not_exists) { end_system_call(); return FALSE; }
+                }
+              end_system_call(); OS_file_error(STACK_0); # sonstigen Error melden
+            }
+          end_system_call();
+        #endif
+        *handle_ = result; return TRUE;
+      #endif
+      #ifdef WIN32_NATIVE
+        var Handle handle;
+        #ifdef FILE_EXISTS_TRIVIAL
+          var DWORD flag = OPEN_EXISTING;
+          if (!file_exists(_EMA_))
+            { # Datei existiert nicht
+              if (!create_if_not_exists) return FALSE;
+              # Datei mit CreateFile erzeugen:
+              flag = OPEN_ALWAYS;
+            }
+          begin_system_call();
+          handle = CreateFile(pathstring, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
+                              NULL, flag, FILE_ATTRIBUTE_NORMAL, NULL);
+          end_system_call();
+          if (handle==INVALID_HANDLE_VALUE) { OS_file_error(STACK_0); }
+        #else
+          var DWORD flag = OPEN_EXISTING;
+          if (create_if_not_exists) { flag = OPEN_ALWAYS; }
+          begin_system_call();
+          handle = CreateFile(pathstring, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
+                              NULL, flag, FILE_ATTRIBUTE_NORMAL, NULL);
+          if (handle==INVALID_HANDLE_VALUE)
+            { if (GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND) # nicht gefunden?
+                { # Datei existiert nicht
+                  if (!create_if_not_exists) { end_system_call(); return FALSE; }
+                }
+              end_system_call(); OS_file_error(STACK_0); # sonstigen Error melden
+            }
+          end_system_call();
+        #endif
+        *handle_ = handle; return TRUE;
+      #endif
+    }
+
+#if defined(UNIX) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
+# Open a file for output.
+# open_output_file(pathstring,truncate_if_exists)
+# > pathstring: file name, ASCIZ-String
+# > truncate_if_exists: if true, the file is truncated to zero size
+# > STACK_0: pathname
+# < result: open file handle
+  local inline Handle open_output_file (char* pathstring, boolean truncate_if_exists);
+  local inline Handle open_output_file(pathstring,truncate_if_exists)
+    var char* pathstring;
+    var boolean truncate_if_exists;
+    {
+      #ifdef AMIGAOS
+        var Handle handle;
+        begin_system_call();
+        handle = Open(pathstring, (truncate_if_exists ? MODE_NEWFILE : MODE_READWRITE));
+        end_system_call();
+        if (handle==Handle_NULL) { OS_file_error(STACK_0); } # Error melden
+        return handle;
+      #endif
+      #if defined(UNIX) || defined(RISCOS)
+        var int result;
+        begin_system_call();
+        result = OPEN(pathstring,
+                      (truncate_if_exists ? O_RDWR | O_BINARY | O_CREAT | O_TRUNC
+                                          : O_RDWR | O_BINARY | O_CREAT),
+                      my_open_mask);
+        end_system_call();
+        if (result<0) { OS_file_error(STACK_0); } # Error melden
+        return result;
+      #endif
+      #ifdef WIN32_NATIVE
+        var Handle handle;
+        begin_system_call();
+        handle = CreateFile(pathstring, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
+                            NULL, (truncate_if_exists ? CREATE_ALWAYS : OPEN_ALWAYS), FILE_ATTRIBUTE_NORMAL, NULL);
+        end_system_call();
+        if (handle==INVALID_HANDLE_VALUE) { OS_file_error(STACK_0); }
+        return handle;
+       #endif
+    }
+#endif
+
 # UP: erzeugt ein File-Stream
 # open_file(filename,direction,if_exists,if_not_exists,type,eltype_size)
 # > filename: Filename, ein Pathname
@@ -7799,7 +8038,6 @@ LISPFUNN(rename_file,2)
               if (eq(namestring,nullobj))
                 # Pfad zur Datei existiert nicht, und :IF-DOES-NOT-EXIST = nichts oder NIL
                 goto ergebnis_NIL;
-              #if defined(UNIX) || defined(AMIGAOS) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS) || defined(WIN32_NATIVE)
               if (!file_exists(namestring))
                 # Datei existiert nicht
                 { # :IF-DOES-NOT-EXIST-Argument entscheidet:
@@ -7810,150 +8048,28 @@ LISPFUNN(rename_file,2)
                   #ifdef PATHNAME_RISCOS
                   pushSTACK(namestring); prepare_create(STACK_1); namestring = popSTACK();
                   #endif
-                 {# :CREATE -> Datei mit open erzeugen und schlieﬂen:
-                  #ifdef AMIGAOS
-                  var Handle handle;
-                  begin_system_call();
-                  handle = Open(TheAsciz(namestring),MODE_NEWFILE);
-                  if (handle == Handle_NULL) { end_system_call(); OS_file_error(STACK_0); } # Error melden
-                  # Datei wurde erzeugt, handle ist das Handle.
-                  # Datei wieder schlieﬂen:
-                  (void) Close(handle);
-                  end_system_call();
-                  #endif
-                  #ifdef WIN32_NATIVE
-                  var Handle handle;
-                  begin_system_call();
-                  handle = CreateFile(TheAsciz(namestring), 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-                  if (handle==INVALID_HANDLE_VALUE) { end_system_call(); OS_file_error(STACK_0); }
-                  # Datei wurde erzeugt, handle ist das Handle.
-                  # Datei wieder schlieﬂen:
-                  if (!CloseHandle(handle)) { end_system_call(); OS_file_error(STACK_0); }
-                  end_system_call();
-                  #endif
-                  #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
-                  var int ergebnis;
-                  begin_system_call();
-                  #if defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM)
-                  ergebnis = creat(TheAsciz(namestring),my_open_mask);
-                  if (ergebnis<0) { end_system_call(); OS_file_error(STACK_0); } # Error melden
-                  setmode(ergebnis,O_BINARY);
-                  #endif
-                  #if defined(UNIX) || defined(RISCOS)
-                  ergebnis = OPEN(TheAsciz(namestring),
-                                  O_WRONLY | O_BINARY | O_CREAT | O_TRUNC,
-                                  my_open_mask
-                                 );
-                  if (ergebnis<0) { end_system_call(); OS_file_error(STACK_0); } # Error melden
-                  #endif
-                  # Datei wurde erzeugt, ergebnis ist das Handle.
-                  # Datei wieder schlieﬂen:
-                  ergebnis = CLOSE(ergebnis);
-                  if (!(ergebnis==0)) { end_system_call(); OS_file_error(STACK_0); } # Error melden
-                  end_system_call();
-                  #endif
-                }}
+                  # :CREATE -> Datei mit open erzeugen und schlieﬂen:
+                  create_new_file(TheAsciz(namestring));
+                }
               handle = NIL; # Handle := NIL
               break;
-              #endif
             case 1: case 3: # Modus ist :INPUT
-              #if defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM)
-              { # erst mit open erfragen, ob die Datei existiert:
-                var sintW ergebnis;
-                # Datei zu ˆffnen versuchen:
-                begin_system_call();
-                ergebnis = open(TheAsciz(namestring),O_RDONLY);
-                if (ergebnis<0)
-                  { if (errno == ENOENT) # nicht gefunden?
-                      # Datei existiert nicht
-                      { # :IF-DOES-NOT-EXIST-Argument entscheidet:
-                        if (if_not_exists==2) # NIL -> NIL
-                          goto ergebnis_NIL;
-                        if (!(if_not_exists==3)) # nichts oder :ERROR -> Error
-                          goto fehler_notfound;
-                        # :CREATE -> Datei mit creat erzeugen:
-                        ergebnis = creat(TheAsciz(namestring),my_open_mask);
-                        if (ergebnis<0) { end_system_call(); OS_file_error(STACK_0); }
-                      }
-                      else
-                      { end_system_call(); OS_file_error(STACK_0); } # sonstigen Error melden
-                  }
-                setmode(ergebnis,O_BINARY);
-                end_system_call();
-                # Datei existiert, ergebnis ist das Handle
-                handle = allocate_handle(ergebnis); # Handle
-              }
-              #endif
-              #ifdef AMIGAOS
-              { # erst mit Open erfragen, ob die Datei existiert:
-                var Handle handl;
-                begin_system_call();
-                handl = Open(TheAsciz(namestring),MODE_OLDFILE);
-                if (handl==Handle_NULL)
-                  { if (IoErr()==ERROR_OBJECT_NOT_FOUND)
-                      # Datei existiert nicht
-                      { # :IF-DOES-NOT-EXIST-Argument entscheidet:
-                        if (if_not_exists==2) # NIL -> NIL
-                          goto ergebnis_NIL;
-                        if (!(if_not_exists==3)) # nichts oder :ERROR -> Error
-                          goto fehler_notfound;
-                        # :CREATE -> Datei mit Open erzeugen:
-                        handl = Open(TheAsciz(namestring),MODE_READWRITE);
-                  }   }
-                end_system_call();
-                if (handl==Handle_NULL) { OS_file_error(STACK_0); } # Error melden
-                # Datei existiert, handl ist das Handle
-                handle = allocate_handle(handl); # Handle als Lisp-Objekt
-              }
-              #endif
-              #if defined(UNIX) || defined(RISCOS)
-              { var int o_flags = O_RDONLY | O_BINARY;
+              { var Handle handl;
+                var boolean result;
+                #ifdef PATHNAME_RISCOS
                 if (!file_exists(namestring))
-                  # Datei existiert nicht
+                  { pushSTACK(namestring); prepare_create(STACK_1); namestring = popSTACK(); }
+                #endif
+                result = open_input_file(TheAsciz(namestring),if_not_exists==3,&handl);
+                if (!result)
                   { # :IF-DOES-NOT-EXIST-Argument entscheidet:
                     if (if_not_exists==2) # NIL -> NIL
                       goto ergebnis_NIL;
-                    if (!(if_not_exists==3)) # nichts oder :ERROR -> Error
+                      else # nichts oder :ERROR -> Error
                       goto fehler_notfound;
-                    # :CREATE -> Datei mit open erzeugen
-                    #ifdef PATHNAME_RISCOS
-                    pushSTACK(namestring); prepare_create(STACK_1); namestring = popSTACK();
-                    #endif
-                    o_flags |= O_CREAT;
                   }
-               {var int ergebnis;
-                begin_system_call();
-                ergebnis = OPEN(TheAsciz(namestring),
-                                o_flags, # O_RDONLY | O_BINARY bzw. O_RDONLY | O_BINARY | O_CREAT
-                                my_open_mask
-                               );
-                end_system_call();
-                if (ergebnis<0) { OS_file_error(STACK_0); } # Error melden
-                # Datei existiert, ergebnis ist das Handle
-                handle = allocate_handle(ergebnis); # Handle
-              }}
-              #endif
-              #ifdef WIN32_NATIVE
-              { var DWORD flag = OPEN_EXISTING;
-                if (!file_exists(namestring))
-                  # Datei existiert nicht
-                  { # :IF-DOES-NOT-EXIST-Argument entscheidet:
-                    if (if_not_exists==2) # NIL -> NIL
-                      goto ergebnis_NIL;
-                    if (!(if_not_exists==3)) # nichts oder :ERROR -> Error
-                      goto fehler_notfound;
-                    # :CREATE -> Datei mit CreateFile erzeugen
-                    flag = OPEN_ALWAYS;
-                  }
-               {var Handle handl;
-                begin_system_call();
-                handl = CreateFile(TheAsciz(namestring), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, flag, FILE_ATTRIBUTE_NORMAL, NULL);
-                end_system_call();
-                if (handl==INVALID_HANDLE_VALUE) { OS_file_error(STACK_0); }
-                # Datei existiert, handl ist das Handle
-                handle = allocate_handle(handl); # Handle als Lisp-Objekt
-              }}
-              #endif
+                handle = allocate_handle(handl);
+              }
               break;
             default: # Modus ist :OUTPUT oder :IO
               { # Defaultwert f¸r if_not_exists ist von if_exists abh‰ngig:
@@ -8123,38 +8239,8 @@ LISPFUNN(rename_file,2)
                 { # if-exists-Handling: bei if_exists<=5 Inhalt lˆschen,
                   # sonst (bei :APPEND, :OVERWRITE) bestehenden Inhalt lassen.
                   # if-not-exists-Handling: neue Datei erzeugen.
-                  #ifdef AMIGAOS
-                  var Handle handl;
-                  begin_system_call();
-                  handl = Open(TheAsciz(namestring),
-                               (if_exists<=5 ? MODE_NEWFILE : MODE_READWRITE)
-                              );
-                  end_system_call();
-                  if (handl==Handle_NULL) { OS_file_error(STACK_0); } # Error melden
+                  var Handle handl = open_output_file(TheAsciz(namestring),if_exists<=5);
                   handle = allocate_handle(handl);
-                  #endif
-                  #if defined(UNIX) || defined(RISCOS)
-                  var int ergebnis;
-                  begin_system_call();
-                  ergebnis = OPEN(TheAsciz(namestring),
-                                  (if_exists<=5 ? O_RDWR | O_BINARY | O_CREAT | O_TRUNC
-                                                : O_RDWR | O_BINARY | O_CREAT
-                                  ),
-                                  my_open_mask
-                                 );
-                  end_system_call();
-                  if (ergebnis<0) { OS_file_error(STACK_0); } # Error melden
-                  # Datei wurde geˆffnet, ergebnis ist das Handle.
-                  handle = allocate_handle(ergebnis);
-                  #endif
-                  #ifdef WIN32_NATIVE
-                  var Handle handl;
-                  begin_system_call();
-                  handl = CreateFile(TheAsciz(namestring), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, (if_exists<=5 ? CREATE_ALWAYS : OPEN_ALWAYS), FILE_ATTRIBUTE_NORMAL, NULL);
-                  end_system_call();
-                  if (handl==INVALID_HANDLE_VALUE) { OS_file_error(STACK_0); }
-                  handle = allocate_handle(handl);
-                  #endif
                 }
                 #endif
                 break;
