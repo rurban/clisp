@@ -1547,7 +1547,7 @@ local object lambdabody_source (object lambdabody) {
       pushSTACK(value3); # docstring
       pushSTACK(funname_blockname(STACK_(1+2))); # blockname
       pushSTACK(value1); # body-rest
-      # stack structure: name, lambdabody, declarations, docstring, blockname, body-rest.
+      # stack layout: name, lambdabody, declarations, docstring, blockname, body-rest.
       {
         var object tmp = allocate_cons();
         Cdr(tmp) = popSTACK(); Car(tmp) = STACK_0;
@@ -1558,13 +1558,13 @@ local object lambdabody_source (object lambdabody) {
         Car(tmp) = S(block); Cdr(tmp) = STACK_0;
         STACK_0 = tmp;
       }
-      # stack structure: name, lambdabody, declarations, docstring, block-form.
+      # stack layout: name, lambdabody, declarations, docstring, block-form.
       {
         var object tmp = allocate_cons();
         Car(tmp) = popSTACK();
         new_body = tmp;
       }
-      # stack structure: name, lambdabody, declarations, docstring.
+      # stack layout: name, lambdabody, declarations, docstring.
       if (nullp(STACK_0)) {
         skipSTACK(1);
       } else {
@@ -1573,7 +1573,7 @@ local object lambdabody_source (object lambdabody) {
         Cdr(tmp) = popSTACK(); Car(tmp) = popSTACK();
         new_body = tmp;
       }
-      # stack structure: name, lambdabody, declarations.
+      # stack layout: name, lambdabody, declarations.
       if (nullp(STACK_0)) {
         STACK_0 = new_body;
       } else {
@@ -1589,7 +1589,7 @@ local object lambdabody_source (object lambdabody) {
           STACK_0 = tmp;
         }
       }
-      # stack structure: name, lambdabody, new-body.
+      # stack layout: name, lambdabody, new-body.
       {
         var object tmp = allocate_cons();
         Cdr(tmp) = popSTACK(); Car(tmp) = Car(STACK_0);
@@ -1597,499 +1597,491 @@ local object lambdabody_source (object lambdabody) {
       }
     }
 
-# UP: Creates the corresponding Closure for a Lambdabody by decomposition
-# of the lambda list and poss. macro-expansion of all forms.
-# get_closure(lambdabody,name,blockp,env)
-# > lambdabody: (lambda-list {decl|doc} {form})
-# > name: Name, a Symbol or (SETF symbol)
-# > blockp: if an implicit BLOCK has to be inserted
-# > env: Pointer to the five distinct environments:
-#        env->var_env = VENV, env->fun_env = FENV,
-#        env->block_env = BENV, env->go_env = GENV,
-#        env->decl_env = DENV.
-# < result: Closure
-# can trigger GC
-  global object get_closure (object lambdabody, object name, bool blockp, gcv_environment_t* env);
-  global object get_closure(lambdabody,name,blockp,env)
-    var object lambdabody;
-    var object name;
-    var bool blockp;
-    var gcv_environment_t* env;
-    {
-      # Lambdabody must be a Cons:
-      if (atomp(lambdabody)) {
-        pushSTACK(name);
-        fehler(source_program_error,
-               GETTEXT("FUNCTION: lambda-list for ~ is missing"));
-      }
-      # and the CAR must be a List:
-      {
-        var object lambdalist = Car(lambdabody);
-        if (!listp(lambdalist)) {
-          pushSTACK(lambdalist);
-          pushSTACK(name);
-          fehler(source_program_error,
-                 GETTEXT("FUNCTION: lambda-list for ~ should be a list, not ~"));
-        }
-      }
-      pushSTACK(name);
-      pushSTACK(lambdabody);
-      # stack structure: name, lambdabody.
-      if (parse_dd(Cdr(lambdabody),env->var_env,env->fun_env)) { # decompose ({decl|doc} {form})
-        # A (COMPILE)-Declaration occurred.
-        # replace Lambdabody by its source (because some Macros
-        # can be compiled more efficiently than their Macro-Expansion):
-        {
-          var object source = lambdabody_source(STACK_0);
-          if (!boundp(source)) {
-            if (blockp)
-              add_implicit_block();
-          } else {
-            STACK_0 = source;
-          }
-        }
-        # nest environments:
-        {
-          var gcv_environment_t* stack_env = nest_env(env); # nest, push on STACK
-          #if !defined(STACK_UP)
-          # and transfer over here
-          var object my_var_env = stack_env->var_env;
-          var object my_fun_env = stack_env->fun_env;
-          var object my_block_env = stack_env->block_env;
-          var object my_go_env = stack_env->go_env;
-          var object my_decl_env = stack_env->decl_env;
-          skipSTACK(5); # and pop from STACK again
-          pushSTACK(my_var_env);
-          pushSTACK(my_fun_env);
-          pushSTACK(my_block_env);
-          pushSTACK(my_go_env);
-          pushSTACK(my_decl_env);
-          #endif
-          # stack structure: name, lambdabody, venv, fenv, benv, genv, denv.
-        }
-        # execute (SYS::COMPILE-LAMBDA name lambdabody venv fenv benv genv denv t) :
-        pushSTACK(T); funcall(S(compile_lambda),8);
-        return value1; # compiled Closure as value
-      }
-      # build Interpreted Closure:
-      {
-        var object source = lambdabody_source(STACK_0);
-        if (!boundp(source)) {
-          # no source specified -> expand Lambdabody:
-          if (blockp)
-            add_implicit_block();
-          # call (SYS::%EXPAND-LAMBDABODY-MAIN lambdabody venv fenv) :
-          pushSTACK(STACK_0); # Lambdabody as 1. Argument
-          pushSTACK(nest_var(env->var_env)); # Variable-Environment nested as 2. Argument
-          pushSTACK(nest_fun(env->fun_env)); # Function-Environment nested as 3. Argument
-          funcall(S(expand_lambdabody_main),3);
-          lambdabody = value1; # expanded Lambdabody
-        } else {
-          # Source specified -> it replaces the old Lambdabody:
-          lambdabody = STACK_0; # Lambdabody
-          STACK_0 = source; # Source-Lambdabody
-        }
-      }
-      # Now  STACK_0      is the Source-Lambdabody,
-      #      lambdabody   is the Lambdabody to be used.
-      pushSTACK(Car(lambdabody)); # Lambdalist
-      parse_dd(Cdr(lambdabody),env->var_env,env->fun_env); # decompose ({decl|doc} {form})
-      pushSTACK(value1); # Body
-      pushSTACK(value2); # Declarations
-      pushSTACK(value3); # Doc-String or NIL
-      var gcv_object_t* closure_; # Pointer to the Closure in the STACK
-      # create Closure (filled with NIL):
-      {
-        var object closure = allocate_closure(iclos_length,seclass_default);
-        # and fill partially:
-        TheIclosure(closure)->clos_docstring = popSTACK(); # Doc-String
-        var object declarations              = popSTACK(); # Declarations
-        TheIclosure(closure)->clos_body      = popSTACK(); # Body
-        var object lambdalist                = popSTACK(); # Lambda-List
-        TheIclosure(closure)->clos_form      = popSTACK(); # Source-Lambdabody
-        TheIclosure(closure)->clos_name      = STACK_0;    # Name
-        # and save:
-        STACK_0 = closure;
-        # stack structure: closure.
-        closure_ = &STACK_0; # Pointer to the Closure in the STACK
-        pushSTACK(lambdalist); pushSTACK(declarations);
-      }
-      # nest Environments and put them nested in the closure:
-      {
-        var gcv_environment_t* stack_env = nest_env(env);
-        var object closure = *closure_;
-        TheIclosure(closure)->clos_var_env   = stack_env->var_env  ;
-        TheIclosure(closure)->clos_fun_env   = stack_env->fun_env  ;
-        TheIclosure(closure)->clos_block_env = stack_env->block_env;
-        TheIclosure(closure)->clos_go_env    = stack_env->go_env   ;
-        TheIclosure(closure)->clos_decl_env  = stack_env->decl_env ;
-        skipSTACK(5);
-        TheIclosure(closure)->clos_keywords = Fixnum_0; # keywords:=0, as long as &KEY is missing
-      }
-      # stack structure: closure, lambdalist, declarations.
-      var uintL spec_count = 0; # number of dynamic references
-      var uintL req_count  = 0; # number of required-parameters
-      var uintL opt_count  = 0; # number of optional-parameters
-      var uintL key_count  = 0; # number of keyword-parameters
-      var uintL aux_count  = 0; # number of &AUX-variables
-      var uintL var_count  = 0; # total number of the variables lying on the STACK
-      {
-        var object declarations = popSTACK();
-        # process deklarations:
-        # read dynamically referenced variables from the decl-spec-list
-        # declarations and push them on STACK. Other to be respected
-        # declarations change the declarations-environment of the Closure.
-        while (consp(declarations)) { # all decl-specs processed?
-          var object declspec = Car(declarations);
-          # declspec must be a List:
-          if (atomp(declspec)) {
-            pushSTACK(declspec);
-            fehler(source_program_error,
-                   GETTEXT("FUNCTION: illegal declaration ~"));
-          }
-          # process SPECIAL-declaration:
-          if (eq(Car(declspec),S(special))) { # SPECIAL-declaration ?
-            var object declspecrest = Cdr(declspec);
-            while (consp(declspecrest)) {
-              var object sym = Car(declspecrest);
-              if (!symbolp(sym)) {
-                pushSTACK(sym);
-                fehler(source_program_error,
-                       GETTEXT("FUNCTION: ~ is not a symbol, cannot be declared SPECIAL"));
-              }
-              # push Symbol on STACK:
-              check_STACK(); pushSTACK(sym); spec_count++; var_count++;
-              declspecrest = Cdr(declspecrest);
-            }
-          }
-          # process other declaration:
-          pushSTACK(Cdr(declarations)); # shorten and save declarations
-          {
-            var object denv = TheIclosure(*closure_)->clos_decl_env;
-            denv = augment_decl_env(declspec,denv);
-            TheIclosure(*closure_)->clos_decl_env = denv;
-          }
-          declarations = popSTACK();
-        }
-      }
-      var object lambdalist = *(closure_ STACKop -1); # remaining lambda list
-      var object item; # element of the lambda list
-      # Macro:
-      # NEXT_ITEM(&OPTIONAL_label,&REST_label,&KEY_label,
-      #           &ALLOW-OTHER-KEYS_label,&AUX_label,Ende_label)
-      # shortens the rest of the lambda list, moves the next Element to "item"
-      # and in case of one of the 6 specified lambda-list-markers, it jumps to
-      # the respective locations.
-        #define NEXT_ITEM(opt_label,rest_label,key_label,allow_label,aux_label,end_label)  \
-          { if (atomp(lambdalist)) goto end_label; # Lambda-List finished?              \
-            item = Car(lambdalist); # next Element                                      \
-            lambdalist = Cdr(lambdalist); # shorten List                                \
-            if (eq(item,S(LLoptional)))         goto opt_label;   # &OPTIONAL ?         \
-            if (eq(item,S(LLrest)))             goto rest_label;  # &REST ?             \
-            if (eq(item,S(LLkey)))              goto key_label;   # &KEY ?              \
-            if (eq(item,S(LLallow_other_keys))) goto allow_label; # &ALLOW-OTHER-KEYS ? \
-            if (eq(item,S(LLaux)))              goto aux_label;   # &AUX ?              \
-            if (eq(item,S(LLbody)))             goto badLLkey;    # &BODY ?             \
-          }
-     req: # process required-parameter push on STACK:
-      loop {
-        NEXT_ITEM(opt,rest,key,badLLkey,aux,ende);
-        test_symbol_non_constant(S(function),item);
-        # push Variable on STACK:
-        check_STACK();
-        pushSTACK(item); pushSTACK(Fixnum_0); req_count++; var_count++;
-      }
-     opt: # process &OPTIONAL-parameter, push on STACK ablegen and
-          # put Init-Forms into the Closure:
-      loop {
-        NEXT_ITEM(badLLkey,rest,key,badLLkey,aux,ende);
-        var object init_form;
-        # Parse variable spezification in item:
-        #   var  or  (var [init [svar]])
-        # push var and poss. svar on STACK, set in var poss.
-        # the svar_bit. Returns also init (or NIL) in init_form.
-        check_STACK();
-        if (atomp(item)) {
-          test_symbol_non_constant(S(function),item);
-          # push variable on STACK:
-          pushSTACK(item); pushSTACK(Fixnum_0); opt_count++; var_count++;
-          init_form = NIL; # Default-Init
-        } else {
-          var object item_rest = Cdr(item);
-          /* first list-element: var */
-          item = test_symbol_non_constant(S(function),Car(item));
-          # push variable on STACK:
-          pushSTACK(item); pushSTACK(Fixnum_0); opt_count++; var_count++;
-          if (consp(item_rest)) {
-            init_form = Car(item_rest); # second list-element: init
-            item_rest = Cdr(item_rest);
-            if (consp(item_rest)) {
-              if (mconsp(Cdr(item_rest))) {
-                # varspec is too lang
-                pushSTACK(*(closure_ STACKop -1)); # entire Lambda-Liste
-                fehler(source_program_error,
-                       GETTEXT("FUNCTION: too long variable specification after &OPTIONAL: ~"));
-              }
-              /* third list-element: svar */
-              item = test_symbol_non_constant(S(function),Car(item_rest));
-              # set svar-bit for var:
-              STACK_0 = fixnum_inc(STACK_0,bit(svar_bit));
-              # push variable on STACK:
-              pushSTACK(item); pushSTACK(Fixnum_0); var_count++;
-            }
-          } else {
-            init_form = NIL; # Default-Init
-          }
-        }
-        # push init_form in front of (clos_opt_inits closure) :
-        pushSTACK(lambdalist); pushSTACK(init_form);
-        {
-          var object new_cons = allocate_cons();
-          Car(new_cons) = popSTACK();
-          var object closure = *closure_;
-          Cdr(new_cons) = TheIclosure(closure)->clos_opt_inits;
-          TheIclosure(closure)->clos_opt_inits = new_cons;
-        }
-        lambdalist = popSTACK();
-      }
-     rest: # process &REST-parameter and push on Stack:
-      NEXT_ITEM(badrest,badrest,badrest,badrest,badrest,badrest);
-      test_symbol_non_constant(S(function),item);
-      # push variable on STACK:
-      pushSTACK(item); pushSTACK(Fixnum_0); var_count++;
-      # set Rest-Flag to T:
-      TheIclosure(*closure_)->clos_rest_flag = T;
-      NEXT_ITEM(badLLkey,badLLkey,key,badLLkey,aux,ende);
-      pushSTACK(*(closure_ STACKop -1)); # entire Lambda-List
+/* UP: Creates the corresponding Closure for a Lambdabody by decomposition
+ of the lambda list and poss. macro-expansion of all forms.
+ get_closure(lambdabody,name,blockp,env)
+ > lambdabody: (lambda-list {decl|doc} {form})
+ > name: Name, a Symbol or (SETF symbol)
+ > blockp: if an implicit BLOCK has to be inserted
+ > env: Pointer to the five distinct environments:
+        env->var_env = VENV, env->fun_env = FENV,
+        env->block_env = BENV, env->go_env = GENV,
+        env->decl_env = DENV.
+ < result: Closure
+ can trigger GC */
+global object get_closure (object lambdabody, object name, bool blockp,
+                           gcv_environment_t* env)
+{
+  /* Lambdabody must be a Cons: */
+  if (atomp(lambdabody)) {
+    pushSTACK(name);
+    fehler(source_program_error,
+           GETTEXT("~: lambda-list for ~ is missing"));
+  }
+  { /* and the CAR must be a List: */
+    var object lambdalist = Car(lambdabody);
+    if (!listp(lambdalist)) {
+      pushSTACK(lambdalist);
+      pushSTACK(name); pushSTACK(S(function));
       fehler(source_program_error,
-             GETTEXT("FUNCTION: &REST var must be followed by &KEY or &AUX or end of list: ~"));
-     badrest:
-      pushSTACK(*(closure_ STACKop -1)); # entire Lambda-List
-      fehler(source_program_error,
-             GETTEXT("FUNCTION: &REST must be followed by a variable: ~"));
-     key: # process &KEY-Parameter, push on STACK
-          # and put Init-Forms in the Closure:
-      TheIclosure(*closure_)->clos_keywords = NIL; # keywords:=NIL
-      loop {
-        NEXT_ITEM(badLLkey,badLLkey,badLLkey,allow,aux,ende);
-        var object keyword;
-        var object init_form;
-        # Parse variable-spezification in item:
-        #   var  or  (var [init [svar]])  or ((key var) [init [svar]])
-        # push var and poss. svar on STACK, set in var poss.
-        # the svar_bit. Returns also the Keyword in keyword and
-        # init (or NIL) in init_form.
-        check_STACK();
-        if (atomp(item)) {
-          test_symbol_non_constant(S(function),item);
-          # push variable on STACK:
-          pushSTACK(item); pushSTACK(Fixnum_0); key_count++; var_count++;
-          # fetch Keyword:
-          pushSTACK(lambdalist);
-          keyword = intern_keyword(Symbol_name(item));
-          lambdalist = popSTACK();
-          # Default-Init:
-          init_form = NIL;
-        } else {
-          var object item_rest = Cdr(item); # ([init [svar]])
-          item = Car(item); # first list-element: var or (key var)
-          if (atomp(item)) {
-            test_symbol_non_constant(S(function),item); /* item = var */
-            # push variable on STACK:
-            pushSTACK(item); pushSTACK(Fixnum_0); key_count++; var_count++;
-            # fetch Keyword:
-            pushSTACK(item_rest); pushSTACK(lambdalist);
-            keyword = intern_keyword(Symbol_name(item));
-            lambdalist = popSTACK(); item_rest = popSTACK();
-          } else {
-            # item = (key var)
-            keyword = Car(item); # key
-            # should be a Symbol (formerly: Keyword) :
-            if (!symbolp(keyword)) {
-              pushSTACK(*(closure_ STACKop -1)); # entire Lambda-List
-              pushSTACK(keyword);
-              fehler(source_program_error,
-                     GETTEXT("FUNCTION: ~ in ~ is not a symbol"));
-            }
-            item = Cdr(item); # (var)
-            if (!(consp(item) && matomp(Cdr(item))))
-              goto fehler_keyspec;
-            item = test_symbol_non_constant(S(function),Car(item)); /* var */
-            # push variable on STACK:
-            pushSTACK(item); pushSTACK(Fixnum_0); key_count++; var_count++;
-          }
-          if (consp(item_rest)) {
-            init_form = Car(item_rest); # second list-element: init
-            item_rest = Cdr(item_rest); # ([svar])
-            if (consp(item_rest)) {
-              if (mconsp(Cdr(item_rest)))
-                goto fehler_keyspec;
-              /* third list-element: svar */
-              item = test_symbol_non_constant(S(function),Car(item_rest));
-              # set svar-Bit in var:
-              STACK_0 = fixnum_inc(STACK_0,bit(svar_bit));
-              # push variable on STACK:
-              pushSTACK(item); pushSTACK(Fixnum_0); var_count++;
-            }
-          } else {
-            init_form = NIL; # Default-Init
-          }
-        }
-        # push keyword in front of (clos_keywords closure) and
-        # push init_form in front of (clos_key_inits closure) :
-        pushSTACK(lambdalist); pushSTACK(init_form); pushSTACK(keyword);
-        {
-          var object new_cons = allocate_cons();
-          Car(new_cons) = popSTACK();
-          var object closure = *closure_;
-          Cdr(new_cons) = TheIclosure(closure)->clos_keywords;
-          TheIclosure(closure)->clos_keywords = new_cons;
-        }
-        {
-          var object new_cons = allocate_cons();
-          Car(new_cons) = popSTACK();
-          var object closure = *closure_;
-          Cdr(new_cons) = TheIclosure(closure)->clos_key_inits;
-          TheIclosure(closure)->clos_key_inits = new_cons;
-        }
-        lambdalist = popSTACK();
-      }
-     fehler_keyspec:
-      pushSTACK(*(closure_ STACKop -1)); # entire Lambda-List
-      fehler(source_program_error,
-             GETTEXT("FUNCTION: incorrect variable specification after &KEY: ~"));
-     allow: # process &ALLOW-OTHER-KEYS:
-      TheIclosure(*closure_)->clos_allow_flag = T; # set Flag to T
-      NEXT_ITEM(badLLkey,badLLkey,badLLkey,badLLkey,aux,ende);
-      pushSTACK(*(closure_ STACKop -1)); # entire Lambda-List
-      fehler(source_program_error,
-             GETTEXT("FUNCTION: &ALLOW-OTHER-KEYS must be followed by &AUX or end of list: ~"));
-     aux: # process &AUX-Parameter, push on STACK and
-          # put Init-Forms in the Closure:
-      loop {
-        NEXT_ITEM(badLLkey,badLLkey,badLLkey,badLLkey,badLLkey,ende);
-        var object init_form;
-        # Parse variable-spezification in item:
-        #   var  or  (var [init])
-        # push var on STACK.
-        # Returns also init (or NIL) in init_form.
-        check_STACK();
-        if (atomp(item)) {
-          test_symbol_non_constant(S(function),item);
-          # push variable on STACK:
-          pushSTACK(item); pushSTACK(Fixnum_0); aux_count++; var_count++;
-          init_form = NIL; # Default-Init
-        } else {
-          var object item_rest = Cdr(item);
-          /* first list-element: var */
-          item = test_symbol_non_constant(S(function),Car(item));
-          # push variable on STACK:
-          pushSTACK(item); pushSTACK(Fixnum_0); aux_count++; var_count++;
-          if (consp(item_rest)) {
-            init_form = Car(item_rest); # second list-element: init
-            if (mconsp(Cdr(item_rest))) {
-              # varspec too long
-              pushSTACK(*(closure_ STACKop -1)); # entire Lambda-List
-              fehler(source_program_error,
-                     GETTEXT("FUNCTION: too long variable specification after &AUX: ~"));
-            }
-          } else {
-            init_form = NIL; # Default-Init
-          }
-        }
-        # push init_form in front of (clos_aux_inits closure) :
-        pushSTACK(lambdalist); pushSTACK(init_form);
-        {
-          var object new_cons = allocate_cons();
-          Car(new_cons) = popSTACK();
-          var object closure = *closure_;
-          Cdr(new_cons) = TheIclosure(closure)->clos_aux_inits;
-          TheIclosure(closure)->clos_aux_inits = new_cons;
-        }
-        lambdalist = popSTACK();
-      }
-      # Collected error messages:
-     badLLkey:
-      pushSTACK(*(closure_ STACKop -1)); # entire Lambda-List
-      pushSTACK(item);
-      fehler(source_program_error,
-             GETTEXT("FUNCTION: badly placed lambda-list keyword ~: ~"));
-     ende: # reached list-end
-      #undef NEXT_ITEM
-      if (((uintL)~(uintL)0 > lp_limit_1) && (var_count > lp_limit_1)) { # too many parameters?
-        pushSTACK(*(closure_ STACKop -1)); # entire Lambda-List
-        fehler(source_program_error,
-               GETTEXT("FUNCTION: too many parameters in the lambda-list ~"));
-      }
-      # var_count <= lp_limit_1, therefore all counts fit in an uintC.
-      if (!nullp(lambdalist)) { # is Lambda-List a Dotted List?
-        pushSTACK(*(closure_ STACKop -1)); # entire Lambda-List
-        fehler(source_program_error,
-               GETTEXT("FUNCTION: a dot in a lambda-list is allowed only for macros, not here: ~"));
-      }
-      # Collect variables into a vector and put it into the Closure,
-      # Collect variable-flags into a Byte-Vector and put it into the Closure:
-      pushSTACK(allocate_bit_vector(Atype_8Bit,var_count-spec_count)); # create Byte-Vector
-      var object vars = allocate_vector(var_count); # create Vector
-      var object varflags = popSTACK();
-      # write variables in the Vector (last one to the back, leading ones in front):
-      {
-        var gcv_object_t* ptr = &TheSvector(vars)->data[var_count];
-        var uintB* ptrflags = &TheSbvector(varflags)->data[var_count-spec_count];
-        var uintC count;
-        dotimesC(count,var_count-spec_count, {
-          *--ptrflags = (uintB)posfixnum_to_L(popSTACK());
-          *--ptr = popSTACK();
-        });
-        dotimesC(count,spec_count, {
-          *--ptr = popSTACK();
-        });
-      }
-      var object closure = *closure_;
-      TheIclosure(closure)->clos_vars     = vars;
-      TheIclosure(closure)->clos_varflags = varflags;
-      # write counts in the Closure:
-      TheIclosure(closure)->clos_spec_anz = fixnum(spec_count);
-      TheIclosure(closure)->clos_req_anz  = fixnum(req_count);
-      TheIclosure(closure)->clos_opt_anz  = fixnum(opt_count);
-      TheIclosure(closure)->clos_key_anz  = fixnum(key_count);
-      TheIclosure(closure)->clos_aux_anz  = fixnum(aux_count);
-      # In the Variable-Vector the first spec_count variables are the
-      # SPECIAL-declared ones. In each remaining variable the DYNAM_BIT is
-      # set, if it occurs among the SPECIAL-declared one.
-      if (!(spec_count==0)) {
-        # loop over the remaining variables:
-        if (var_count-spec_count > 0) {
-          var gcv_object_t* othervarptr = &TheSvector(vars)->data[spec_count];
-          var uintB* othervarflagsptr = &TheSbvector(varflags)->data[0];
-          var uintC count1;
-          dotimespC(count1,var_count-spec_count, {
-            var object othervar = *othervarptr++; # next variable
-            # Search it among the SPECIAL-declared variables:
-            {
-              var gcv_object_t* specvarptr = &TheSvector(vars)->data[0];
-              var uintC count2;
-              dotimespC(count2,spec_count, {
-                if (eq(*specvarptr++,othervar)) { # found?
-                  # yes -> so the variable othervar is to be bound dynamically.
-                  *othervarflagsptr |= bit(dynam_bit); break;
-                }
-              });
-            }
-            othervarflagsptr++;
-          });
-        }
-      }
-      # Finally reverse the accumulated lists in the Closure:
-      nreverse(TheIclosure(closure)->clos_opt_inits);
-      nreverse(TheIclosure(closure)->clos_keywords);
-      nreverse(TheIclosure(closure)->clos_key_inits);
-      nreverse(TheIclosure(closure)->clos_aux_inits);
-      # finished.
-      # stack structure: closure, lambdalist.
-      skipSTACK(2);
-      return closure;
+             GETTEXT("~: lambda-list for ~ should be a list, not ~"));
     }
+  }
+  pushSTACK(name);
+  pushSTACK(lambdabody);
+  /* stack layout: name, lambdabody.
+     decompose ({decl|doc} {form}) */
+  if (parse_dd(Cdr(lambdabody),env->var_env,env->fun_env)) {
+    /* A (COMPILE)-Declaration occurred.
+       replace Lambdabody by its source (because some Macros
+       can be compiled more efficiently than their Macro-Expansion): */
+    { var object source = lambdabody_source(STACK_0);
+      if (!boundp(source)) {
+        if (blockp)
+          add_implicit_block();
+      } else {
+        STACK_0 = source;
+      }
+    }
+    { /* nest environments: */
+      var gcv_environment_t* stack_env = nest_env(env); /* push on STACK */
+     #if !defined(STACK_UP)
+      /* and transfer over here */
+      var object my_var_env = stack_env->var_env;
+      var object my_fun_env = stack_env->fun_env;
+      var object my_block_env = stack_env->block_env;
+      var object my_go_env = stack_env->go_env;
+      var object my_decl_env = stack_env->decl_env;
+      skipSTACK(5); /* and pop from STACK again */
+      pushSTACK(my_var_env);
+      pushSTACK(my_fun_env);
+      pushSTACK(my_block_env);
+      pushSTACK(my_go_env);
+      pushSTACK(my_decl_env);
+     #endif
+      /* stack layout: name, lambdabody, venv, fenv, benv, genv, denv. */
+    }
+    /* (SYS::COMPILE-LAMBDA name lambdabody venv fenv benv genv denv t) : */
+    pushSTACK(T); funcall(S(compile_lambda),8);
+    return value1; /* compiled Closure as value */
+  }
+  { /* build Interpreted Closure: */
+    var object source = lambdabody_source(STACK_0);
+    if (!boundp(source)) { /* no source specified -> expand Lambdabody: */
+      if (blockp)
+        add_implicit_block();
+      /* call (SYS::%EXPAND-LAMBDABODY-MAIN lambdabody venv fenv) : */
+      pushSTACK(STACK_0); /* Lambdabody */
+      pushSTACK(nest_var(env->var_env)); /* nested Variable Environment */
+      pushSTACK(nest_fun(env->fun_env)); /* nested Function Environment */
+      funcall(S(expand_lambdabody_main),3);
+      lambdabody = value1; /* expanded Lambdabody */
+    } else { /* Source specified -> it replaces the old Lambdabody: */
+      lambdabody = STACK_0; /* Lambdabody */
+      STACK_0 = source; /* Source-Lambdabody */
+    }
+  }
+  /* Now  STACK_0      is the Source-Lambdabody,
+          lambdabody   is the Lambdabody to be used. */
+  pushSTACK(Car(lambdabody)); /* Lambdalist */
+  /* decompose ({decl|doc} {form}) : */
+  parse_dd(Cdr(lambdabody),env->var_env,env->fun_env);
+  pushSTACK(value1); /* Body */
+  pushSTACK(value2); /* Declarations */
+  pushSTACK(value3); /* Doc-String or NIL */
+  var gcv_object_t* closure_; /* Pointer to the Closure in the STACK */
+  { /* create Closure (filled with NIL): */
+    var object closure = allocate_closure(iclos_length,seclass_default);
+    /* and fill partially: */
+    TheIclosure(closure)->clos_docstring = popSTACK(); /* Doc-String */
+    var object declarations              = popSTACK(); /* Declarations */
+    TheIclosure(closure)->clos_body      = popSTACK(); /* Body */
+    var object lambdalist                = popSTACK(); /* Lambda-List */
+    TheIclosure(closure)->clos_form      = popSTACK(); /* Source-Lambdabody */
+    TheIclosure(closure)->clos_name      = STACK_0;    /* Name */
+    /* and save: */
+    STACK_0 = closure;
+    /* stack layout: closure. */
+    closure_ = &STACK_0; /* Pointer to the Closure in the STACK */
+    pushSTACK(lambdalist); pushSTACK(declarations);
+  }
+  { /* nest Environments and put them nested in the closure: */
+    var gcv_environment_t* stack_env = nest_env(env);
+    var object closure = *closure_;
+    TheIclosure(closure)->clos_var_env   = stack_env->var_env  ;
+    TheIclosure(closure)->clos_fun_env   = stack_env->fun_env  ;
+    TheIclosure(closure)->clos_block_env = stack_env->block_env;
+    TheIclosure(closure)->clos_go_env    = stack_env->go_env   ;
+    TheIclosure(closure)->clos_decl_env  = stack_env->decl_env ;
+    skipSTACK(5);
+    /* keywords:=0, as long as &KEY is missing: */
+    TheIclosure(closure)->clos_keywords = Fixnum_0;
+  }
+  /* stack layout: closure, lambdalist, declarations. */
+  var uintL spec_count = 0; /* number of dynamic references */
+  var uintL req_count  = 0; /* number of required-parameters */
+  var uintL opt_count  = 0; /* number of optional-parameters */
+  var uintL key_count  = 0; /* number of keyword-parameters */
+  var uintL aux_count  = 0; /* number of &AUX-variables */
+  var uintL var_count  = 0; /* total number of the variables on the STACK */
+  { /* process declarations:
+       read dynamically referenced variables from the decl-spec-list
+       declarations and push them on STACK. Other to be respected
+       declarations change the declarations-environment of the Closure. */
+    var object declarations = popSTACK();
+    while (consp(declarations)) { /* all decl-specs processed? */
+      var object declspec = Car(declarations);
+      /* declspec must be a List: */
+      if (atomp(declspec)) {
+        pushSTACK(declspec); pushSTACK(S(function));
+        fehler(source_program_error,
+               GETTEXT("~: illegal declaration ~"));
+      }
+      /* process SPECIAL-declaration: */
+      if (eq(Car(declspec),S(special))) { /* SPECIAL-declaration ? */
+        var object declspecrest = Cdr(declspec);
+        while (consp(declspecrest)) {
+          var object sym = Car(declspecrest);
+          if (!symbolp(sym)) {
+            pushSTACK(S(special)); pushSTACK(sym); pushSTACK(S(function));
+            fehler(source_program_error,
+                   GETTEXT("~: ~ is not a symbol, cannot be declared ~"));
+          }
+          /* push Symbol on STACK: */
+          check_STACK(); pushSTACK(sym); spec_count++; var_count++;
+          declspecrest = Cdr(declspecrest);
+        }
+      }
+      /* process other declaration: */
+      pushSTACK(Cdr(declarations)); /* shorten and save declarations */
+      {
+        var object denv = TheIclosure(*closure_)->clos_decl_env;
+        denv = augment_decl_env(declspec,denv);
+        TheIclosure(*closure_)->clos_decl_env = denv;
+      }
+      declarations = popSTACK();
+    }
+  }
+  var object lambdalist = *(closure_ STACKop -1); /* remaining lambda list */
+  var object item; /* element of the lambda list */
+  /* Macro:
+     NEXT_ITEM(&OPTIONAL_label,&REST_label,&KEY_label,
+               &ALLOW-OTHER-KEYS_label,&AUX_label,Ende_label)
+     shortens the rest of the lambda list, moves the next Element to "item"
+     and in case of one of the 6 specified lambda-list-markers, it jumps to
+     the respective locations. */
+  #define NEXT_ITEM(opt_label,rest_label,key_label,allow_label,aux_label,end_label) \
+    { if (atomp(lambdalist)) goto end_label; /* Lambda-List finished? */ \
+      item = Car(lambdalist); /* next Element */                        \
+      lambdalist = Cdr(lambdalist); /* shorten List */                  \
+      if (eq(item,S(LLoptional)))         goto opt_label;   /* &OPTIONAL ? */ \
+      if (eq(item,S(LLrest)))             goto rest_label;  /* &REST ? */ \
+      if (eq(item,S(LLkey)))              goto key_label;   /* &KEY ? */ \
+      if (eq(item,S(LLallow_other_keys))) goto allow_label; /* &ALLOW-OTHER-KEYS ? */ \
+      if (eq(item,S(LLaux)))              goto aux_label;   /* &AUX ? */ \
+      if (eq(item,S(LLbody)))             goto badLLkey;    /* &BODY ? */ \
+    }
+ req: /* process required-parameter push on STACK: */
+  while (1) {
+    NEXT_ITEM(opt,rest,key,badLLkey,aux,ende);
+    test_symbol_non_constant(S(function),item);
+    /* push Variable on STACK: */
+    check_STACK();
+    pushSTACK(item); pushSTACK(Fixnum_0); req_count++; var_count++;
+  }
+ opt: /* process &OPTIONAL-parameter, push on STACK and
+         put Init-Forms into the Closure: */
+  while(1) {
+    NEXT_ITEM(badLLkey,rest,key,badLLkey,aux,ende);
+    var object init_form;
+    /* Parse variable spezification in item:
+         var  or  (var [init [svar]])
+       push var and poss. svar on STACK, set in var poss.
+       the svar_bit. Returns also init (or NIL) in init_form. */
+    check_STACK();
+    if (atomp(item)) {
+      test_symbol_non_constant(S(function),item);
+      /* push variable on STACK: */
+      pushSTACK(item); pushSTACK(Fixnum_0); opt_count++; var_count++;
+      init_form = NIL; /* Default-Init */
+    } else {
+      var object item_rest = Cdr(item);
+      /* first list-element: var */
+      item = test_symbol_non_constant(S(function),Car(item));
+      /* push variable on STACK: */
+      pushSTACK(item); pushSTACK(Fixnum_0); opt_count++; var_count++;
+      if (consp(item_rest)) {
+        init_form = Car(item_rest); /* second list-element: init */
+        item_rest = Cdr(item_rest);
+        if (consp(item_rest)) {
+          if (mconsp(Cdr(item_rest))) { /* varspec is too lang */
+            pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-Liste */
+            pushSTACK(S(LLoptional)); pushSTACK(S(function));
+            fehler(source_program_error,
+                   GETTEXT("~: variable specification after ~ too long: ~"));
+          }
+          /* third list-element: svar */
+          item = test_symbol_non_constant(S(function),Car(item_rest));
+          /* set svar-bit for var: */
+          STACK_0 = fixnum_inc(STACK_0,bit(svar_bit));
+          /* push variable on STACK: */
+          pushSTACK(item); pushSTACK(Fixnum_0); var_count++;
+        }
+      } else
+        init_form = NIL; /* Default-Init */
+    }
+    /* push init_form in front of (clos_opt_inits closure) : */
+    pushSTACK(lambdalist); pushSTACK(init_form);
+    {
+      var object new_cons = allocate_cons();
+      Car(new_cons) = popSTACK();
+      var object closure = *closure_;
+      Cdr(new_cons) = TheIclosure(closure)->clos_opt_inits;
+      TheIclosure(closure)->clos_opt_inits = new_cons;
+    }
+    lambdalist = popSTACK();
+  }
+ rest: /* process &REST-parameter and push on Stack: */
+  NEXT_ITEM(badrest,badrest,badrest,badrest,badrest,badrest);
+  test_symbol_non_constant(S(function),item);
+  /* push variable on STACK: */
+  pushSTACK(item); pushSTACK(Fixnum_0); var_count++;
+  /* set Rest-Flag to T: */
+  TheIclosure(*closure_)->clos_rest_flag = T;
+  NEXT_ITEM(badLLkey,badLLkey,key,badLLkey,aux,ende);
+  pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
+  pushSTACK(S(LLaux)); pushSTACK(S(LLkey));
+  pushSTACK(S(LLrest)); pushSTACK(S(function));
+  fehler(source_program_error,
+         GETTEXT("~: ~ var must be followed by ~ or ~ or end of list: ~"));
+ badrest:
+  pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
+  pushSTACK(S(LLrest)); pushSTACK(S(function));
+  fehler(source_program_error,
+         GETTEXT("~: ~ must be followed by a variable: ~"));
+ key: /* process &KEY-Parameter, push on STACK
+         and put Init-Forms in the Closure: */
+  TheIclosure(*closure_)->clos_keywords = NIL; /* keywords:=NIL */
+  while(1) {
+    NEXT_ITEM(badLLkey,badLLkey,badLLkey,allow,aux,ende);
+    var object keyword;
+    var object init_form;
+    /* Parse variable-spezification in item:
+         var  or  (var [init [svar]])  or ((key var) [init [svar]])
+       push var and poss. svar on STACK, set in var poss.
+       the svar_bit. Returns also the Keyword in keyword and
+       init (or NIL) in init_form. */
+    check_STACK();
+    if (atomp(item)) {
+      test_symbol_non_constant(S(function),item);
+      /* push variable on STACK: */
+      pushSTACK(item); pushSTACK(Fixnum_0); key_count++; var_count++;
+      /* fetch Keyword: */
+      pushSTACK(lambdalist);
+      keyword = intern_keyword(Symbol_name(item));
+      lambdalist = popSTACK();
+      /* Default-Init: */
+      init_form = NIL;
+    } else {
+      var object item_rest = Cdr(item); /* ([init [svar]]) */
+      item = Car(item); /* first list-element: var or (key var) */
+      if (atomp(item)) {
+        test_symbol_non_constant(S(function),item); /* item = var */
+        /* push variable on STACK: */
+        pushSTACK(item); pushSTACK(Fixnum_0); key_count++; var_count++;
+        /* fetch Keyword: */
+        pushSTACK(item_rest); pushSTACK(lambdalist);
+        keyword = intern_keyword(Symbol_name(item));
+        lambdalist = popSTACK(); item_rest = popSTACK();
+      } else {
+        /* item = (key var) */
+        keyword = Car(item); /* key */
+        /* should be a Symbol (formerly: Keyword) : */
+        if (!symbolp(keyword)) {
+          pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
+          pushSTACK(keyword); pushSTACK(S(function));
+          fehler(source_program_error,
+                 GETTEXT("~: ~ in ~ is not a symbol"));
+        }
+        item = Cdr(item); /* (var) */
+        if (!(consp(item) && matomp(Cdr(item))))
+          goto fehler_keyspec;
+        item = test_symbol_non_constant(S(function),Car(item)); /* var */
+        /* push variable on STACK: */
+        pushSTACK(item); pushSTACK(Fixnum_0); key_count++; var_count++;
+      }
+      if (consp(item_rest)) {
+        init_form = Car(item_rest); /* second list-element: init */
+        item_rest = Cdr(item_rest); /* ([svar]) */
+        if (consp(item_rest)) {
+          if (mconsp(Cdr(item_rest)))
+            goto fehler_keyspec;
+          /* third list-element: svar */
+          item = test_symbol_non_constant(S(function),Car(item_rest));
+          /* set svar-Bit in var: */
+          STACK_0 = fixnum_inc(STACK_0,bit(svar_bit));
+          /* push variable on STACK: */
+          pushSTACK(item); pushSTACK(Fixnum_0); var_count++;
+        }
+      } else
+        init_form = NIL; /* Default-Init */
+    }
+    /* push keyword in front of (clos_keywords closure) and
+       push init_form in front of (clos_key_inits closure) : */
+    pushSTACK(lambdalist); pushSTACK(init_form); pushSTACK(keyword);
+    {
+      var object new_cons = allocate_cons();
+      Car(new_cons) = popSTACK();
+      var object closure = *closure_;
+      Cdr(new_cons) = TheIclosure(closure)->clos_keywords;
+      TheIclosure(closure)->clos_keywords = new_cons;
+    }
+    {
+      var object new_cons = allocate_cons();
+      Car(new_cons) = popSTACK();
+      var object closure = *closure_;
+      Cdr(new_cons) = TheIclosure(closure)->clos_key_inits;
+      TheIclosure(closure)->clos_key_inits = new_cons;
+    }
+    lambdalist = popSTACK();
+  }
+ fehler_keyspec:
+  pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
+  pushSTACK(S(LLkey)); pushSTACK(S(function));
+  fehler(source_program_error,
+         GETTEXT("~: incorrect variable specification after ~: ~"));
+ allow: /* process &ALLOW-OTHER-KEYS: */
+  TheIclosure(*closure_)->clos_allow_flag = T; /* set Flag to T */
+  NEXT_ITEM(badLLkey,badLLkey,badLLkey,badLLkey,aux,ende);
+  pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
+  pushSTACK(S(LLaux)); pushSTACK(S(LLallow_other_keys));
+  pushSTACK(S(function));
+  fehler(source_program_error,
+         GETTEXT("~: ~ must be followed by ~ or end of list: ~"));
+ aux: /* process &AUX-Parameter, push on STACK and
+         put Init-Forms in the Closure: */
+  while(1) {
+    NEXT_ITEM(badLLkey,badLLkey,badLLkey,badLLkey,badLLkey,ende);
+    var object init_form;
+    /* Parse variable-spezification in item:
+         var  or  (var [init])
+       push var on STACK.
+       Returns also init (or NIL) in init_form. */
+    check_STACK();
+    if (atomp(item)) {
+      test_symbol_non_constant(S(function),item);
+      /* push variable on STACK: */
+      pushSTACK(item); pushSTACK(Fixnum_0); aux_count++; var_count++;
+      init_form = NIL; /* Default-Init */
+    } else {
+      var object item_rest = Cdr(item);
+      /* first list-element: var */
+      item = test_symbol_non_constant(S(function),Car(item));
+      /* push variable on STACK: */
+      pushSTACK(item); pushSTACK(Fixnum_0); aux_count++; var_count++;
+      if (consp(item_rest)) {
+        init_form = Car(item_rest); /* second list-element: init */
+        if (mconsp(Cdr(item_rest))) { /* varspec too long */
+          pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
+          pushSTACK(S(LLaux)); pushSTACK(S(function));
+          fehler(source_program_error,
+                 GETTEXT("~: variable specification after ~ too long : ~"));
+        }
+      } else
+        init_form = NIL; /* Default-Init */
+    }
+    /* push init_form in front of (clos_aux_inits closure) : */
+    pushSTACK(lambdalist); pushSTACK(init_form);
+    {
+      var object new_cons = allocate_cons();
+      Car(new_cons) = popSTACK();
+      var object closure = *closure_;
+      Cdr(new_cons) = TheIclosure(closure)->clos_aux_inits;
+      TheIclosure(closure)->clos_aux_inits = new_cons;
+    }
+    lambdalist = popSTACK();
+  }
+  /* Collected error messages: */
+ badLLkey:
+  pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
+  pushSTACK(item); pushSTACK(S(function));
+  fehler(source_program_error,
+         GETTEXT("~: badly placed lambda-list keyword ~: ~"));
+ ende: /* reached list-end */
+#undef NEXT_ITEM
+  if (((uintL)~(uintL)0 > lp_limit_1) && (var_count > lp_limit_1)) {
+    /* too many parameters? */
+    pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
+    pushSTACK(S(function));
+    fehler(source_program_error,
+           GETTEXT("~: too many parameters in the lambda-list ~"));
+  }
+  /* var_count <= lp_limit_1, therefore all counts fit in an uintC. */
+  if (!nullp(lambdalist)) { /* is Lambda-List a Dotted List? */
+    pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
+    pushSTACK(S(function));
+    fehler(source_program_error,
+           GETTEXT("~: a dot in a lambda-list is allowed only for macros, not here: ~"));
+  }
+  /* Collect variables into a vector and put it into the Closure,
+     Collect variable-flags into a Byte-Vector and put it into the Closure: */
+  pushSTACK(allocate_bit_vector(Atype_8Bit,var_count-spec_count)); /* create Byte-Vector */
+  var object vars = allocate_vector(var_count); /* create Vector */
+  var object varflags = popSTACK();
+  { /* write variables in the Vector (last one to the back,
+       leading ones in front): */
+    var gcv_object_t* ptr = &TheSvector(vars)->data[var_count];
+    var uintB* ptrflags = &TheSbvector(varflags)->data[var_count-spec_count];
+    var uintC count = var_count-spec_count;
+    while (count--) {
+      *--ptrflags = (uintB)posfixnum_to_L(popSTACK());
+      *--ptr = popSTACK();
+    }
+    for (count = spec_count; count--;)
+      *--ptr = popSTACK();
+  }
+  var object closure = *closure_;
+  TheIclosure(closure)->clos_vars     = vars;
+  TheIclosure(closure)->clos_varflags = varflags;
+  /* write counts in the Closure: */
+  TheIclosure(closure)->clos_spec_anz = fixnum(spec_count);
+  TheIclosure(closure)->clos_req_anz  = fixnum(req_count);
+  TheIclosure(closure)->clos_opt_anz  = fixnum(opt_count);
+  TheIclosure(closure)->clos_key_anz  = fixnum(key_count);
+  TheIclosure(closure)->clos_aux_anz  = fixnum(aux_count);
+  /* In the Variable-Vector the first spec_count variables are the
+     SPECIAL-declared ones. In each remaining variable the DYNAM_BIT is
+     set, if it occurs among the SPECIAL-declared one. */
+  if (spec_count) { /* loop over the remaining variables: */
+    if (var_count-spec_count > 0) {
+      var gcv_object_t* othervarptr = &TheSvector(vars)->data[spec_count];
+      var uintB* othervarflagsptr = &TheSbvector(varflags)->data[0];
+      var uintC count1 = var_count-spec_count;
+      do {
+        var object othervar = *othervarptr++; /* next variable */
+        { /* Search for it among the SPECIAL-declared variables: */
+          var gcv_object_t* specvarptr = &TheSvector(vars)->data[0];
+          var uintC count2 = spec_count;
+          do {
+            if (eq(*specvarptr++,othervar)) { /* found? */
+              /* yes -> so the variable othervar is to be bound dynamically. */
+              *othervarflagsptr |= bit(dynam_bit); break;
+            }
+          } while (--count2);
+        }
+        othervarflagsptr++;
+      } while (--count1);
+    }
+  }
+  /* Finally reverse the accumulated lists in the Closure: */
+  nreverse(TheIclosure(closure)->clos_opt_inits);
+  nreverse(TheIclosure(closure)->clos_keywords);
+  nreverse(TheIclosure(closure)->clos_key_inits);
+  nreverse(TheIclosure(closure)->clos_aux_inits);
+  /* stack layout: closure, lambdalist. */
+  skipSTACK(2);
+  return closure;
+}
 
 # error, if symbol to be called is a special form.
 # fehler_specialform(caller,funname);  (transl.: error_specialfor(...);)
