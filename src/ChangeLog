@@ -1,7 +1,13 @@
 2003-07-21  Sam Steingold  <sds@gnu.org>
 
-	* _clisp.c (shell_quote): copied here from pathname.d
-	(main): use it for CreateProcess()
+	* _clisp.c (main): use shell_quote() and real_path()
+	for CreateProcess()
+	* w32shell.c: new file (extracted from pathname.d)
+	* makemake.in (clisp) [WIN32_NATIVE]: put the icon into the
+	executable; depend on w32shell.c
+	(pathname.o) [WIN32_NATIVE]: depend on w32shell.c
+	* pathname.d, spvw_memfile.d [WIN32_NATIVE]:
+	renamed TrueName() to real_path()
 
 2003-07-18  Sam Steingold  <sds@gnu.org>
 
