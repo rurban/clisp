@@ -1,5 +1,25 @@
 2003-05-09  Sam Steingold  <sds@gnu.org>
 
+	function-name error can now be recovered from
+	* error.d (fehler_funname_source, fehler_funname_type): merged
+	into check_funname()
+	* lispbibl.d (fehler_funname_source, fehler_funname_type):
+	replaced with check_funname()
+	* control.d (FUNCTION, FLET, LABELS): use check_funname()
+	instead of fehler_funname_source()
+	(funname_to_symbol): use check_funname()
+	instead of fehler_funname_type()
+	* eval.d (eval1): use check_funname()
+	instead of fehler_funname_source()
+	(apply, funcall): use check_funname()
+	instead of fehler_funname_type()
+	* trace.lisp (check-function-name): replaces error-function-name
+	(check-traceable): modified to use check-function-name
+	* clos.lisp (documentation): ditto
+	* cmacros.lisp (compiler-macro-function): ditto
+
+2003-05-09  Sam Steingold  <sds@gnu.org>
+
 	* type.lisp (%the): ANSI compliance: following issue 348, ignore
 	discrepancies between the number of values and types
 

@@ -476,6 +476,11 @@ check-use-value
 (check-use-value symbol-name good "bad" :test string=) t
 (check-use-value intern "BAR" bar :test eq) t
 
+(handler-bind ((program-error (lambda (c) (princ c) (terpri) (use-value '1+)))
+               (type-error (lambda (c) (princ c) (terpri) (use-value '1-))))
+  (list (eval '(1 10)) (funcall 1 100) (apply 1 '(1000))))
+(11 99 999)
+
 (progn (makunbound 'bar)
 (handler-bind ((unbound-variable
                 (lambda (c) (declare (ignore c)) (store-value 41))))

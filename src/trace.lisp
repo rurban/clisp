@@ -148,32 +148,37 @@ This will not work with closures that use lexical variables!"
                          `(trace1 ,trr)))))
               funs))))
 
-(defun error-function-name (caller funname)
-  (error-of-type 'source-program-error
-    (TEXT "~s: ~s is not a function name")
-    caller funname))
+(defun check-function-name (caller funname)
+  (do () ((function-name-p funname) funname)
+    (setq funname (check-value nil (coerce-to-condition
+                                    (TEXT "~s: ~s is not a function name")
+                                    (list caller funname)
+                                    'check-function-name
+                                    'simple-source-program-error)))))
 
 ;; check whether the FUNNAME can be traced,
 ;; fill SYMB, CUR-DEF and LOCAL-P slots of TRR and return TRR
 (defun check-traceable (funname trr caller)
-  (cond ((function-name-p funname)
-         (let ((sym (get-funname-symbol funname)))
-           (unless (fboundp sym)
-             (error (TEXT "~S: undefined function ~S") caller funname))
-           (when (special-operator-p sym)
-             (error (TEXT "~S: cannot trace special operator ~S")
-                    caller funname))
-           (setf (tracer-symb trr) sym
-                 (tracer-cur-def trr) (symbol-function sym)
-                 (tracer-local-p trr) nil)))
-        ((local-function-name-p funname)
-         (setf (tracer-cur-def trr) (%local-get (rest funname))
-               (tracer-symb trr) (closure-name (tracer-cur-def trr))
-               (tracer-local-p trr) t)
-         (when (get (tracer-symb trr) 'sys::untraced-name)
-           (setf (tracer-symb trr)
-                 (get (tracer-symb trr) 'sys::untraced-name))))
-        (t (error-function-name caller funname)))
+  (tagbody restart
+    (cond ((function-name-p funname)
+           (let ((sym (get-funname-symbol funname)))
+             (unless (fboundp sym)
+               (error (TEXT "~S: undefined function ~S") caller funname))
+             (when (special-operator-p sym)
+               (error (TEXT "~S: cannot trace special operator ~S")
+                      caller funname))
+             (setf (tracer-symb trr) sym
+                   (tracer-cur-def trr) (symbol-function sym)
+                   (tracer-local-p trr) nil)))
+          ((local-function-name-p funname)
+           (setf (tracer-cur-def trr) (%local-get (rest funname))
+                 (tracer-symb trr) (closure-name (tracer-cur-def trr))
+                 (tracer-local-p trr) t)
+           (when (get (tracer-symb trr) 'sys::untraced-name)
+             (setf (tracer-symb trr)
+                   (get (tracer-symb trr) 'sys::untraced-name))))
+          (t (setq funname (check-function-name caller funname))
+             (go restart))))
   (check-redefinition funname caller "function")
   trr)
 
