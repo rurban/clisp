@@ -2800,7 +2800,7 @@ else
   localeflags=' -B .'
 fi
 
-echol "RUN= ${HERE}lisp${LEXE}$localeflags -Efile UTF-8 -norc";
+echol "RUN= ${HERE}lisp${LEXE}$localeflags -E UTF-8 -norc";
 echol;
 
 if [ $CROSS = false ] ; then
@@ -2842,7 +2842,7 @@ else
 
   for f in $LPARTS ; do
     echol "${f}.fas : ${f}.lisp"
-    echotab 'clisp -M cross.mem$localeflags -Efile UTF-8 -norc -q -x "(cross:compile-file \"'"${f}.lisp"'\")"'
+    echotab 'clisp -M cross.mem$localeflags -E UTF-8 -norc -q -x "(cross:compile-file \"'"${f}.lisp"'\")"'
     echol
   done
 
@@ -2892,7 +2892,7 @@ if [ -n "$USE_GETTEXT" ] ; then
 else
   localeflags=' -B `pwd`'
 fi
-CLISP_="${HERE_}lisp${LEXE} -M ${HERE_}lispinit.mem$localeflags -Efile UTF-8 -norc"
+CLISP_="${HERE_}lisp${LEXE} -M ${HERE_}lispinit.mem$localeflags -E UTF-8 -norc"
 
 if [ $CROSS = false ] ; then
 

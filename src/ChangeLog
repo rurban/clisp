@@ -1,5 +1,11 @@
 2002-06-10  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in: when running CLISP, pass "-E UTF-8" instead of
+	"-Efile UTF-8" for the sake of "make check" on badly localized
+	machines (ascii terminals make UNICODE warnings into errors)
+
+2002-06-10  Sam Steingold  <sds@gnu.org>
+
 	user can now control the exit code better
 	* lispbibl.d, spvw.d (final_exitcode): int, not bool (spvw.d
 	and win32aux.d already assign it non-bool values)
