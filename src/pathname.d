@@ -27,10 +27,9 @@
 local object debug_output (const char* label,object obj,const int pos) {
   # fprintf(stdout,"[%d] %s: ",pos,label);fflush(stdout);
   asciz_out_1("[%d] ",pos); asciz_out_s("%s: ",label);
-  pushSTACK(obj);pushSTACK(subr_self);
+  pushSTACK(obj);
   # gar_col();fprintf(stdout,"[gc] ");fflush(stdout);
   object_out(STACK_1);
-  subr_self = popSTACK();
   return popSTACK();
 }
 local void debug_printf (const char* label,object obj,const int pos) {
@@ -1200,7 +1199,6 @@ local bool legal_hostchar (chart ch) {
 # test_optional_host(host,convert)
 # > host: Host-Argument
 # > convert: Flag, if case-conversion is undesired
-# > subr_self: Caller (a SUBR)
 # < result: valid host-component
 # can trigger GC
 local object test_optional_host (object host, bool convert) {
@@ -1244,7 +1242,6 @@ local object test_optional_host (object host, bool convert) {
 # UP: check an optional HOST argument
 # test_optional_host(host)
 # > host: Host-Argument
-# > subr_self: Aufrufer (ein SUBR)
 # < result: valid host-component
 # can trigger GC
 local object test_optional_host (object host) {
@@ -1287,7 +1284,6 @@ local object test_optional_host (object host) {
 # UP: check an optional HOST argument
 # test_optional_host(host);
 # > host: Host-Argument
-# > subr_self: Caller (a SUBR)
 # < result: valid host-component
 local object test_optional_host (object host) {
   if (boundp(host)) { # not specified -> OK
@@ -1406,7 +1402,6 @@ local object test_default_pathname (object defaults) {
 # error-message because of illegal pathname-argument.
 # fehler_pathname_designator(thing); ( fehler_... = error_... )
 # > thing: (erroneous) argument
-# > subr_self: caller (a SUBR)
 nonreturning_function(global, fehler_pathname_designator, (object thing)) {
   pushSTACK(thing);                       # TYPE-ERROR slot DATUM
   pushSTACK(O(type_designator_pathname)); # TYPE-ERROR slot EXPECTED-TYPE
@@ -1422,7 +1417,6 @@ nonreturning_function(global, fehler_pathname_designator, (object thing)) {
 # as_file_stream(stream)
 # > stream: Builtin-Stream
 # < stream: File-Stream
-# > subr_self: caller (a SUBR)
 local object as_file_stream (object stream) {
   var object s = stream;
   loop {
@@ -1441,7 +1435,6 @@ local object as_file_stream (object stream) {
 # a file-name associated with it.
 # test_file_stream_named(stream)
 # > stream: File-Stream
-# > subr_self: caller (a SUBR)
 #define test_file_stream_named(stream)  \
   do { if (nullp(TheStream(stream)->strm_file_truename)) \
          fehler_file_stream_unnamed(stream);             \
@@ -2831,9 +2824,7 @@ local object coerce_xpathname (object obj) {
     return obj;
   } else {
     # else: call PARSE-NAMESTRING:
-    pushSTACK(subr_self); # save subr_self (for subsequent error-messages)
     pushSTACK(obj); funcall(L(parse_namestring),1);
-    subr_self = popSTACK();
     return value1;
   }
 }
@@ -2942,13 +2933,11 @@ LISPFUNN(pathnameversion,1) {
 #ifdef LOGICAL_PATHNAMES
 
 local object parse_as_logical (object obj) {
-  pushSTACK(subr_self); # save subr_self (for error messages)
   # the value of (PARSE-NAMESTRING obj nil empty-logical-pathname)
   # is always a logical pathname.
   pushSTACK(obj); pushSTACK(NIL);
   pushSTACK(O(empty_logical_pathname));
   funcall(L(parse_namestring),3);
-  subr_self = popSTACK();
   return value1;
 }
 
@@ -3078,9 +3067,7 @@ local object coerce_pathname (object obj) {
     return obj;
   } else if (logpathnamep(obj)) {
     # call TRANSLATE-LOGICAL-PATHNAME:
-    pushSTACK(subr_self); # save subr_self (for the error message)
     pushSTACK(obj); funcall(L(translate_logical_pathname),1);
-    subr_self = popSTACK();
     return value1;
   } else
     NOTREACHED;
@@ -3350,7 +3337,6 @@ local object whole_namestring (object pathname) {
 # UP: Returns the string for the directory of a pathname.
 # directory_namestring(pathname)
 # > pathname: non-logical pathname
-# > subr_self: caller (a SUBR)
 # < result: Normal-Simple-String
 # can trigger GC
 local object directory_namestring (object pathname) {
@@ -3370,7 +3356,6 @@ local object directory_namestring (object pathname) {
 # UP: Returns the string identifying a file in its directory.
 # file_namestring(pathname)
 # > pathname: non-logical pathname
-# > subr_self: caller (a SUBR)
 # < result: normal-simple-string
 # can trigger GC
 local inline object file_namestring (object pathname) {
@@ -3400,7 +3385,6 @@ LISPFUNN(host_namestring,1) {
 # test_optional_version(def);
 # > STACK_0: VERSION-Argument
 # > def: default value for it
-# > subr_self: caller (a SUBR)
 # < result: valid version-component
 local object test_optional_version (object def) {
   var object version = STACK_0;
@@ -3431,7 +3415,6 @@ local object test_optional_version (object def) {
 # UP: check an optional VERSION argument.
 # test_optional_version();
 # > STACK_0: VERSION-Argument
-# > subr_self: caller (a SUBR)
 #define test_optional_version(def)  test_optional_version_()
 local void test_optional_version_ (void) {
   var object version = STACK_0;
@@ -3520,14 +3503,11 @@ local object defaults_pathname (void) {
   if (xpathnamep(pathname)) { # is a pathname -> OK
     return pathname;
   } else { # else warning:
-    pushSTACK(subr_self); # save subr_self (for subsequent error-messages)
     pushSTACK(CLSTEXT("The value of ~S was not a pathname. ~:*~S is being reset."));
     pushSTACK(S(default_pathname_defaults));
     funcall(S(warn),2);
     # and re-calculate:
-    pathname = recalc_defaults_pathname();
-    subr_self = popSTACK();
-    return pathname;
+    return recalc_defaults_pathname();
   }
 }
 
@@ -4019,8 +3999,7 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL) {
   }
   skipSTACK(3);
   # build (namestring new) :
-  subr_self = L(namestring); # ("current" SUBR for error-message)
-  VALUES1(whole_namestring(newp));
+  with_saved_back_trace(L(namestring),-1,VALUES1(whole_namestring(newp)));
 }
 #undef SET_NEWP
 
@@ -5967,7 +5946,6 @@ nonreturning_function(local, fehler_dir_not_exists, (object obj)) {
 
 # error, if a file already exits
 # > STACK_0: pathname
-# > subr_self: caller (a SUBR)
 nonreturning_function(local, fehler_file_exists, (void)) {
   # STACK_0 = FILE-ERROR slot PATHNAME
   pushSTACK(STACK_0); # pathname
@@ -6800,7 +6778,6 @@ local object OSdirnamestring (object namestring) {
 # > links_resolved: Flag, if all links in the directory of the pathname are
 #     already resolved and if it is known as existing
 # > tolerantp: Flag, if an error is to be avoided
-# > subr_self: caller (a SUBR)
 # < STACK_0: (poss. the same) pathname, but resolved.
 # < result:
 #     if Name=NIL: Directory-Namestring (for AMIGAOS, wit '/' at the end)
@@ -6943,7 +6920,9 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
 # the same, under the assumption that the directory already exists.
 # (No simplification, because we have to determine the truename.??)
 global object assume_dir_exists (void) {
-  subr_self = L(open); return assure_dir_exists(true,false);
+  var object ret;
+  with_saved_back_trace(L(open),-1,ret=assure_dir_exists(true,false));
+  return ret;
 }
 
 #endif
@@ -7011,7 +6990,6 @@ local object use_default_dir (object pathname) {
 # > links_resolved: Flag, if all links in the directory of the pathname
 #     are already resolved and if it is known to exist
 # > tolerantp: flag, if an error is to be avoided
-# > subr_self: caller (a SUBR)
 # < STACK_0: (poss. the same) pathname, whereas neither for the directory nor
 #            for the Filename a symbolic link is to be tracked.
 # < result:
@@ -7133,18 +7111,16 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
           }
           # turn it into a pathname:
           # (MERGE-PATHNAMES (PARSE-NAMESTRING linkbuf) pathname-without-name&type)
-          pushSTACK(subr_self);
           pushSTACK(n_char_to_string(linkbuf,linklen,O(pathname_encoding)));
           FREE_DYNAMIC_ARRAY(linkbuf);
         }
         funcall(L(parse_namestring),1);
         pushSTACK(value1);
-        var object pathname = copy_pathname(STACK_(0+2));
+        var object pathname = copy_pathname(STACK_(0+1));
         ThePathname(pathname)->pathname_name = NIL;
         ThePathname(pathname)->pathname_type = NIL;
         pushSTACK(pathname);
         funcall(L(merge_pathnames),2);
-        subr_self = popSTACK();
         STACK_0 = value1;
       }
      ) # HAVE_LSTAT
@@ -7159,7 +7135,9 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
 # (only a little simplification, as the file can be a symbolic link into a
 # different directory, and this must be tested to exist.)
 global object assume_dir_exists (void) {
-  subr_self = L(open); return assure_dir_exists(true,false);
+  var object ret;
+  with_saved_back_trace(L(open),-1,ret=assure_dir_exists(true,false));
+  return ret;
 }
 
 #endif
@@ -7452,7 +7430,9 @@ local object assure_dir_exists_ (bool links_resolved, bool tolerantp,
 # the same under the assumption, that the directory already exists.
 # (No simplification, because we have to determine the truename.??)
 global object assume_dir_exists (void) {
-  subr_self = L(open); return assure_dir_exists(true,false);
+  var object ret;
+  with_saved_back_trace(L(open),-1,ret=assure_dir_exists(true,false));
+  return ret;
 }
 
 # A file "name.type" is conciliated to RISCOS as "type.name" , thereby "type"
@@ -7470,14 +7450,12 @@ local void prepare_create (object pathname) {
     ThePathname(pathname)->pathname_name = NIL;
     ThePathname(pathname)->pathname_type = NIL;
     # call MAKE-DIR if the directory does not exist:
-    pushSTACK(subr_self); # save subr_self
     pushSTACK(pathname);
     if (eq(assure_dir_exists(false,true),nullobj)) {
       funcall(L(make_dir),1);
     } else {
       skipSTACK(1);
     }
-    subr_self = popSTACK(); # restore subr_self
   }
 }
 
@@ -7618,7 +7596,6 @@ LISPFUN(namestring,1,1,norest,nokey,0,NIL) {
     # and Win32 is multitasking)
   }
  #endif
-  subr_self = L(namestring); # ("current" SUBR for error-message)
   VALUES1(whole_namestring(pathname));
 }
 
@@ -7694,7 +7671,6 @@ nonreturning_function(local, fehler_notdir, (object pathname)) {
 # error-message because of non-existent file
 # fehler_file_not_exists();
 # > STACK_0: pathname
-# > subr_self: caller (a SUBR)
 nonreturning_function(local, fehler_file_not_exists, (void)) {
   # STACK_0 = FILE-ERROR slot PATHNAME
   pushSTACK(STACK_0); # pathname
@@ -9807,10 +9783,9 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
     if (dsp->circle_p) { /* query :CIRCLE-Flag */
       # maintain hash-table of all scanned directories so far (as
       # cons (dev . ino)) :
-      pushSTACK(subr_self); # save subr_self
       pushSTACK(S(Ktest)); pushSTACK(S(equal));
       funcall(L(make_hash_table),2); # (MAKE-HASH-TABLE :TEST 'EQUAL)
-      subr_self = STACK_0; STACK_0 = value1;
+      pushSTACK(value1);
     } else
    #endif
       pushSTACK(NIL);
@@ -10880,9 +10855,8 @@ LISPFUNN(savemem,1) {
 # loads a shared library, containing a number of modules.
 LISPFUNN(dynload_modules,2) {
   # convert pathname into string:
-  pushSTACK(subr_self); # save subr_self
-  pushSTACK(STACK_2); pushSTACK(T); funcall(L(namestring),2); # (NAMESTRING pathname T)
-  STACK_2 = value1; subr_self = popSTACK();
+  pushSTACK(STACK_1); pushSTACK(T); funcall(L(namestring),2); # (NAMESTRING pathname T)
+  STACK_1 = value1;
   # check strings and store in the stack:
   var uintL stringcount = llength(STACK_0);
   var object* arg_ = &STACK_0;
@@ -11361,7 +11335,6 @@ local void copy_one_file (object source, object src_path,
   /* merge source into dest: "cp foo bar/" --> "cp foo bar/foo" */
   pushSTACK(STACK_2); /* src_path */
   funcall(L(merge_pathnames),2); pushSTACK(value1); /* dest_path */
-  subr_self = L(copy_file); /* restore */
 
   if (method == COPY_METHOD_COPY) {
     copy_file_low(STACK_2,STACK_0,preserve_p,if_exists,if_not_exists,retval);

@@ -330,6 +330,9 @@ LISPFUN(read_eval_print,1,1,norest,nokey,0,NIL)
   global void driver (void);
   global void driver()
     {
+      var struct backtrace_t *bt_save = back_trace;
+      var struct backtrace_t bt_here = {NULL, L(driver), STACK , -1};
+      back_trace = &bt_here;
       loop {
         var object driverfun = Symbol_value(S(driverstern)); # Wert von *DRIVER*
         if (nullp(driverfun))
@@ -353,6 +356,7 @@ LISPFUN(read_eval_print,1,1,norest,nokey,0,NIL)
         }
         skipSTACK(2); # Driver-Frame auflösen
       }
+      back_trace = bt_save;
     }
 
 /* Starts a secondary driver (Read-Eval-Print-Loop)
@@ -367,6 +371,9 @@ global void break_driver (bool continuable_p) {
     if (!continuable_p) /* not continuable? */
       reset(); /* -> back to the previous REPLoop */
   } else {
+    var struct backtrace_t *bt_save = back_trace;
+    var struct backtrace_t bt_here = {NULL, S(break_driver), STACK , -1};
+    back_trace = &bt_here;
     /* Default-Driver: (CLEAR-INPUT *DEBUG-IO*), since whatever has been
        typed so far, was not typed in anticipation of this error */
     clear_input(var_stream(S(debug_io),strmflags_rd_ch_B|strmflags_wr_ch_B));
@@ -415,6 +422,7 @@ global void break_driver (bool continuable_p) {
       dynamic_unbind(); dynamic_unbind(); dynamic_unbind();
       dynamic_unbind(); dynamic_unbind();
     }
+    back_trace = bt_save;
   }
 }
 
@@ -708,7 +716,6 @@ local const climb_fun_t frame_down_table[] =
 # test_mode_arg(table)
 # > STACK_0: mode
 # > table: Tabelle der Routinen zum Hochsteigen bzw. zum Absteigen
-# > subr_self: Aufrufer (ein SUBR)
 # < ergebnis: Routine zum Hochsteigen bzw. zum Absteigen
 # erhöht STACK um 1
 local climb_fun_t test_mode_arg (const climb_fun_t* table) {
@@ -729,7 +736,6 @@ local climb_fun_t test_mode_arg (const climb_fun_t* table) {
 # UP: Überprüft ein Frame-Pointer-Argument.
 # test_framepointer_arg()
 # > STACK_0: Lisp-Objekt, sollte ein Frame-Pointer sein
-# > subr_self: Aufrufer (ein SUBR)
 # < ergebnis: Frame-Pointer
 # erhöht STACK um 1
   local object* test_framepointer_arg (void);
@@ -923,7 +929,6 @@ LISPFUNN(driver_frame_p,1)
 
 # Fehlermeldung, wenn kein EVAL/APPLY-Frame-Pointer vorliegt.
 # fehler_evalframe(obj);
-# > subr_self: Aufrufer (ein SUBR)
 # > obj: kein EVAL/APPLY-Frame-Pointer
   nonreturning_function(local, fehler_evalframe, (object obj)) {
     pushSTACK(obj);
@@ -989,6 +994,29 @@ LISPFUNN(return_from_eval_frame,2)
 
 # ------------------------------------------------------------------------- #
 #                                 Debug aux
+
+local void print_back_trace (const object* stream_, struct backtrace_t *bt,
+                             int index) {
+  terpri(stream_);
+  write_ascii_char(stream_,'[');
+  if (index >= 0) prin1(stream_,fixnum(index));
+  else write_ascii_char(stream_,'#');
+  write_ascii_char(stream_,']');
+  write_ascii_char(stream_,'>');
+  write_ascii_char(stream_,' ');
+  prin1(stream_,bt->caller);
+  if (bt->num_arg >= 0) {
+    write_ascii_char(stream_,' ');
+    prin1(stream_,fixnum(bt->num_arg));
+  }
+}
+
+local void back_trace_out (void) {
+  struct backtrace_t *bt = back_trace;
+  var int index = 1;
+  pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));
+  for (;bt; bt=bt->next, index++) print_back_trace(&STACK_0,bt,index);
+}
 
 # UP: Gibt das Stackitem FRAME_(0) detailliert auf den Stream aus
 # und liefert den nächsthöheren stackptr.
@@ -1303,25 +1331,55 @@ LISPFUNN(describe_frame,2)
 # Pointer zeigt, detailliert aus.
   {
     var object* FRAME = test_framepointer_arg(); # Pointer in den Stack
-    if (!streamp(STACK_0))
-      fehler_stream(STACK_0);
+    if (!streamp(STACK_0)) fehler_stream(STACK_0);
+    { var struct backtrace_t *bt = back_trace;
+      unwind_back_trace(bt,FRAME);
+      if (bt->stack == FRAME) print_back_trace(&STACK_0,bt,0); }
     print_stackitem(&STACK_0,FRAME); # Stack-Item ausgeben
     skipSTACK(1); VALUES0; /* no values */
   }
 
-LISPFUNN(show_stack,0)
-# (SHOW-STACK) zeigt den Inhalt des Stacks an.
-  {
-    var object* FRAME = STACK; # läuft durch den Stack nach oben
-    pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # Stream *STANDARD-OUTPUT*
-    var object* stream_ = &STACK_0;
-    var uintL count = 0;
-    until (eq(FRAME_(0),nullobj)) { # Nullword = oberes Stackende
-      FRAME = print_stackitem(stream_,FRAME); # Stack-Item ausgeben
-      count++;
+/* UP: print the stack (up to frame_limit frames, if that is non-0)
+ frame by frame (moving using frame_up_x) or all stack items if that is NULL.
+ starting with start_frame or STACK if that is NULL
+ In debugger, use 'show_stack(0,0,0)'
+ can trigger GC */
+local inline uintL show_stack (climb_fun_t frame_up_x, uintL frame_limit,
+                               object* start_frame)
+{ /* run along the stack upwards */
+  var object* FRAME = (start_frame == NULL ? STACK : start_frame);
+  pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));
+  var object* stream_ = &STACK_0;
+  var uintL count = 0;
+  var struct backtrace_t *bt = back_trace;
+  while (!eq(FRAME_(0),nullobj) /* nullobj = stack end */
+         && (frame_limit==0 || count<frame_limit)) {
+    while (bt_beyond_stack_p(bt,FRAME)) {
+      print_back_trace(stream_,bt,++count);
+      bt = bt->next;
     }
-    skipSTACK(1); VALUES1(UL_to_I(count));
+    if (frame_up_x != NULL) {
+      var object* next_frame = (*frame_up_x)(FRAME);
+      if (next_frame == FRAME) break;
+      print_stackitem(stream_,FRAME = next_frame);
+    } else
+      FRAME = print_stackitem(stream_,FRAME);
   }
+  skipSTACK(1); /* drop *STANDARD-OUTPUT* */
+  return count;
+}
+
+LISPFUN(show_stack,0,3,norest,nokey,0,NIL)
+{ /* (SHOW-STACK mode limit start-frame) print the stack contents. */
+  var object* start_frame = (missingp(STACK_0) ? (skipSTACK(1), &STACK_1)
+                             : test_framepointer_arg());
+  var uintL frame_limit = (missingp(STACK_0) ? (skipSTACK(1), 0) :
+                           posfixnump(STACK_0) ? posfixnum_to_L(popSTACK())
+                           : (fehler_posfixnum(popSTACK()), 0));
+  var climb_fun_t frame_up_x = (missingp(STACK_0) ? (skipSTACK(1), NULL)
+                                : test_mode_arg(&frame_up_table[0]));
+  VALUES1(UL_to_I(show_stack(frame_up_x,frame_limit,start_frame)));
+}
 
 LISPFUNN(debug,0)
 # (SYSTEM::DEBUG) springt in einen im Hintergrund sitzenden Debugger.

@@ -186,8 +186,8 @@ global int main()
     #ifdef value1_register
       printf("register long value1_reg __asm__(\"%s\");\n",value1_register);
     #endif
-    #ifdef subr_self_register
-      printf("register long subr_self_reg __asm__(\"%s\");\n",subr_self_register);
+    #ifdef back_trace_register
+      printf("register long back_trace_reg __asm__(\"%s\");\n",back_trace_register);
     #endif
     printf("struct registers { ");
     #ifdef STACK_register
@@ -199,8 +199,8 @@ global int main()
     #ifdef value1_register
       printf("long value1_register_contents; ");
     #endif
-    #ifdef subr_self_register
-      printf("long subr_self_register_contents; ");
+    #ifdef back_trace_register
+      printf("long back_trace_register_contents; ");
     #endif
     printf("};\n");
     printf("extern struct registers * callback_saved_registers;\n");
@@ -1127,8 +1127,8 @@ global int main()
   #ifdef HAVE_SAVED_value1
     printf("extern object saved_value1;\n");
   #endif
-  #ifdef HAVE_SAVED_subr_self
-    printf("extern object saved_subr_self;\n");
+  #ifdef HAVE_SAVED_back_trace
+    printf("extern struct backtrace_t* saved_back_trace;\n");
   #endif
   #if defined(HAVE_SAVED_STACK)
     printf("extern object* saved_STACK;\n");
@@ -1140,8 +1140,8 @@ global int main()
          #ifdef HAVE_SAVED_value1
            printf(" saved_value1 = value1;");
          #endif
-         #ifdef HAVE_SAVED_subr_self
-           printf(" saved_subr_self = subr_self;");
+         #ifdef HAVE_SAVED_back_trace
+           printf(" saved_back_trace = back_trace;");
          #endif
          #ifdef HAVE_SAVED_STACK
            printf(" saved_STACK = STACK;");
@@ -1154,8 +1154,8 @@ global int main()
          #ifdef HAVE_SAVED_value1
            printf(" value1 = saved_value1;");
          #endif
-         #ifdef HAVE_SAVED_subr_self
-           printf(" subr_self = saved_subr_self;");
+         #ifdef HAVE_SAVED_back_trace
+           printf(" back_trace = saved_back_trace;");
          #endif
          #ifdef HAVE_SAVED_STACK
            printf(" saved_STACK = (object*)NULL;");
@@ -1173,8 +1173,8 @@ global int main()
            #ifdef value1_register
              printf(" registers->value1_register_contents = value1_reg;");
            #endif
-           #ifdef subr_self_register
-             printf(" registers->subr_self_register_contents = subr_self_reg;");
+           #ifdef back_trace_register
+             printf(" registers->back_trace_register_contents = back_trace_reg;");
            #endif
            #ifdef HAVE_SAVED_STACK
              printf(" STACK = saved_STACK;");
@@ -1189,8 +1189,8 @@ global int main()
          #ifdef HAVE_SAVED_value1
            printf(" saved_value1 = value1;");
          #endif
-         #ifdef HAVE_SAVED_subr_self
-           printf(" saved_subr_self = subr_self;");
+         #ifdef HAVE_SAVED_back_trace
+           printf(" saved_back_trace = back_trace;");
          #endif
          #ifdef HAVE_SAVED_REGISTERS
            printf(" { struct registers * registers = callback_saved_registers; if (!(framecode(STACK_(0)) == CALLBACK_frame_info)) abort(); callback_saved_registers = (struct registers *)(aint)as_oint(STACK_(1)); skipSTACK(2);");
@@ -1206,8 +1206,8 @@ global int main()
            #ifdef value1_register
              printf(" value1_reg = registers->value1_register_contents;");
            #endif
-           #ifdef subr_self_register
-             printf(" subr_self_reg = registers->subr_self_register_contents;");
+           #ifdef back_trace_register
+             printf(" back_trace_reg = registers->back_trace_register_contents;");
            #endif
            printf(" }");
          #endif
@@ -1379,11 +1379,13 @@ global int main()
 # printf("#define value2  mv_space[1]\n");
 # printf("#define value3  mv_space[2]\n");
 # printf("nonreturning_function(extern, fehler_mv_zuviel, (object caller));\n");
-  #if !defined(subr_self_register)
-    printf("extern object subr_self;\n");
+    printf("struct backtrace_t {\n  struct backtrace_t* next;\n  object caller;\n  object *stack;\n  int num_arg;\n};\n");
+    printf("#define subr_self  back_trace->caller\n");
+  #if !defined(back_trace_register)
+    printf("extern struct backtrace_t* back_trace;\n");
   #else
     printf("#ifndef IN_MODULE_CC\n");
-    printf("register object subr_self __asm__(\"%s\");\n",subr_self_register);
+    printf("register object back_trace __asm__(\"%s\");\n",back_trace_register);
     printf("#endif\n");
   #endif
 # printf("#define args_end_pointer  STACK\n");

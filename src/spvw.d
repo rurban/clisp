@@ -282,11 +282,11 @@ local int exitcode;
   #endif
 
   # During the execution of a SUBR, FSUBR: the current SUBR resp. FSUBR
-  #if !defined(subr_self_register)
-    global object subr_self;
+  #if !defined(back_trace_register)
+    global struct backtrace_t *back_trace=NULL;
   #endif
-  #ifdef HAVE_SAVED_subr_self
-    global object saved_subr_self;
+  #ifdef HAVE_SAVED_back_trace
+    global object saved_back_trace;
   #endif
 
   # during callbacks, the saved registers:
@@ -2536,7 +2536,8 @@ global int main (argc_t argc, char* argv[]) {
   aktenv.go_env    = NIL;
   aktenv.decl_env  = O(top_decl_env);
   # everything completely initialized.
-  subr_self = NIL; # some valid lisp-object
+  var struct backtrace_t bt = { NULL, NIL, STACK, -1 };
+  back_trace = &bt;
   clear_break_sems(); set_break_sem_1();
   begin_system_call();
   # establish interrupt-handler:

@@ -17,7 +17,6 @@
 # > STACK_1: record
 # > STACK_0: (bad) index
 # > limit: exclusive upper bound on the index
-# > subr_self: caller (a SUBR)
 nonreturning_function(local, fehler_index, (uintL limit)) {
   pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
   {
@@ -34,7 +33,6 @@ nonreturning_function(local, fehler_index, (uintL limit)) {
 
 # Error message
 # > STACK_0: (bad) record
-# > subr_self: caller (a SUBR)
 nonreturning_function(local, fehler_record, (void)) {
   pushSTACK(TheSubr(subr_self)->name); # function name
   fehler(error, # type_error ??
@@ -44,7 +42,6 @@ nonreturning_function(local, fehler_record, (void)) {
 # Subroutine for record access functions
 # > STACK_1: record argument
 # > STACK_0: index argument
-# > subr_self: caller (a SUBR)
 # < STACK: cleared up
 # < returns: the address of the referred record item
 local object* record_up (void) {
@@ -83,7 +80,6 @@ LISPFUNN(record_length,1) {
 
 # check that the length is of type (INTEGER (0) (65536))
 # > STACK_0: length
-# > subr_self: caller (a SUBR)
 # < uintL length: checked length
 #define test_record_length(length)                                           \
   if (!(posfixnump(STACK_0)                                                  \
@@ -119,7 +115,6 @@ nonreturning_function(local, fehler_record_length, (void)) {
 # > STACK_2: type-argument
 # > STACK_1: structure-argument
 # > STACK_0: index-argument
-# > subr_self: caller (a SUBR)
 # < result: Address of the structure-element
 local object* structure_up (void) {
   # structure must be of Type structure:
@@ -705,7 +700,6 @@ LISPFUNN(std_instance_p,1) {
 
 # error-message if an object is not a class.
 # fehler_keine_klasse(caller,obj);
-# > subr_self: caller
 # > obj: non-class
 nonreturning_function(local, fehler_keine_klasse, (object obj)) {
   pushSTACK(obj); # TYPE-ERROR slot DATUM

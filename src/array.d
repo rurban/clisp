@@ -120,9 +120,9 @@ global uintB eltype_code (object obj)
   } else if (eq(obj,S(t))) { /* symbol T ? */
     return Atype_T;
   }
-  pushSTACK(obj); pushSTACK(subr_self); /* save obj and subr_self */
+  pushSTACK(obj); /* save obj */
   pushSTACK(obj); funcall(S(subtype_integer),1); /* (SYS::SUBTYPE-INTEGER obj) */
-  subr_self = popSTACK(); obj = popSTACK(); /* restore obj and subr_self */
+  obj = popSTACK(); /* restore obj */
   if ((mv_count>1) && integerp(value1) &&
       positivep(value1) && integerp(value2)) {
     var uintL l = I_integer_length(value2); /* (INTEGER-LENGTH high) */
@@ -292,8 +292,7 @@ global object array_displace_check (object array, uintL size, uintL* index) {
 /* Accessing and storing a single element */
 
 /* error: not an array
- > obj: non-array
- > subr_self: caller (a SUBR) */
+ > obj: non-array */
 nonreturning_function(local, fehler_array, (object obj)) {
   pushSTACK(obj); /* slot DATUM of TYPE-ERROR */
   pushSTACK(S(array)); /* slot EXPECTED-TYPE of TYPE-ERROR */
@@ -303,7 +302,6 @@ nonreturning_function(local, fehler_array, (object obj)) {
 
 /* Checks an array argument.
  > array: argument
- > subr_self: caller (a SUBR)
  test_array(object) */
 local inline object test_array (object array) {
   if (!arrayp(array)) fehler_array(array);
@@ -321,8 +319,7 @@ local inline object test_array (object array) {
 
 /* error: bad number of subscripts
  > array: array
- > argcount: (wrong) number of subscripts
- > subr_self: caller (a SUBR) */
+ > argcount: (wrong) number of subscripts */
 nonreturning_function(local, fehler_subscript_anz,
                       (object array, uintC argcount)) {
   pushSTACK(arrayrank(array));
@@ -335,8 +332,7 @@ nonreturning_function(local, fehler_subscript_anz,
 /* error: bas subscript values
  > argcount: number of subscripts
  > STACK_(argcount): array
- > STACK_(argcount-1),...,STACK_(0): subscripts
- > subr_self: caller (a SUBR) */
+ > STACK_(argcount-1),...,STACK_(0): subscripts */
 nonreturning_function(local, fehler_subscript_type, (uintC argcount)) {
   var object list = listof(argcount); /* list of subscripts */
   /* STACK_0 is now the array. */
@@ -348,8 +344,7 @@ nonreturning_function(local, fehler_subscript_type, (uintC argcount)) {
 /* error: bad subscript values
  > argcount: number of subscripts
  > STACK_(argcount): array
- > STACK_(argcount-1),...,STACK_(0): subscripts
- > subr_self: caller (a SUBR) */
+ > STACK_(argcount-1),...,STACK_(0): subscripts */
 nonreturning_function(local, fehler_subscript_range,
                       (uintC argcount, uintL subscript, uintL bound)) {
   var object list = listof(argcount); /* list of subscripts */
@@ -411,8 +406,7 @@ local uintL test_subscripts (object array, object* argptr, uintC argcount) {
 
 /* error: bad index
  > STACK_1: array (mostly a vector)
- > STACK_0: (erroneous) index
- > subr_self: caller (a SUBR) */
+ > STACK_0: (erroneous) index */
 nonreturning_function(local, fehler_index_type, (void)) {
   pushSTACK(STACK_0); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_array_index)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -424,8 +418,7 @@ nonreturning_function(local, fehler_index_type, (void)) {
 
 /* error: bad index
  > STACK_1: array (mostly a vector)
- > STACK_0: (erroneous) index
- > subr_self: caller (a SUBR) */
+ > STACK_0: (erroneous) index */
 nonreturning_function(global, fehler_index_range, (uintL bound)) {
   var object tmp;
   pushSTACK(STACK_0); /* TYPE-ERROR slot DATUM */
@@ -508,8 +501,7 @@ global object storagevector_aref (object datenvektor, uintL index) {
 }
 
 /* error: attempting to store an invalid value in an array.
- fehler_store(array,value);
- > subr_self: caller (a SUBR) */
+ fehler_store(array,value); */
 nonreturning_function(global, fehler_store, (object array, object value)) {
   pushSTACK(array);
   pushSTACK(value); /* TYPE-ERROR slot DATUM */
@@ -527,7 +519,6 @@ nonreturning_function(global, fehler_store, (object array, object value)) {
  > element : (unchecked) object to be written
  > maygc : whether GC is allowed, if datenvektor is a string and element is a character
  > STACK_0 : array (for error-message)
- > subr_self: caller (a SUBR)
  < datenvektor: possibly reallocated storage vector
  can trigger GC, if datenvektor is a string and element is a character */
 local object storagevector_store (object datenvektor, uintL index,
@@ -3503,8 +3494,7 @@ LISPFUNN(array_has_fill_pointer_p,1) {
 /* check, if object is a vektor with fill-pointer, and returns
  the address of the fill-pointer.
  *get_fill_pointer(obj) is the fill-pointer itself.
- get_fill_pointer(obj)[-1] is the length (dimension 0) of the vector.
- > subr_self: caller (a SUBR) */
+ get_fill_pointer(obj)[-1] is the length (dimension 0) of the vector. */
 local uintL* get_fill_pointer (object obj) {
   /* obj must be a vector: */
   if (!vectorp(obj))
@@ -3768,8 +3758,7 @@ global void sbvector_bset (object sbvector, uintL index) {
 #endif
 
 /* error: bad dimension
- > dim: wrong dimension
- > subr_self: caller (a SUBR) */
+ > dim: wrong dimension */
 nonreturning_function(local, fehler_dim_type, (object dim)) {
   pushSTACK(dim); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_array_index)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -3997,7 +3986,6 @@ global object ssbvector_push_extend (object ssbvector, uintB b) {
  checks the dimensions and returns the rank and the total size.
  test_dims(&totalsize)
  > STACK_7: dimension or dimension list
- > subr_self: caller (a SUBR)
  < totalsize: total size = product of the dimensions
  < result: Rang = number of the dimensions */
 local uintL test_dims (uintL* totalsize_) {
@@ -4084,7 +4072,6 @@ local void test_otherkeys (void) {
  > len: length
  > eltype: elementtype-code
  > STACK_4: initial-element
- > subr_self: caller (a SUBR)
  < result: simple vector of given type, poss. filled.
  can trigger GC */
 local object make_storagevector (uintL len, uintB eltype) {
@@ -4174,9 +4161,7 @@ local object initial_contents (object datenvektor, object dims, uintL rank,
   locals.index = 0; /* index := 0 */
   locals.depth = rank; /* depth := rank */
   pushSTACK(datenvektor); /* push data vector on Stack */
-  pushSTACK(subr_self); /* save current SUBR */
   initial_contents_aux(&locals,contents); /* call initial_contents_aux */
-  subr_self = popSTACK(); /* pop current SUBR */
   datenvektor = popSTACK(); /* pop data vector */
   skipSTACK(rank); /* clean up STACK */
   return datenvektor;
@@ -4197,7 +4182,6 @@ local void initial_contents_aux (void* arg, object obj) {
   if (locals->depth==0) {
     /* depth 0 -> store element obj in the data vector: */
     var object datenvektor = *(localptr STACKop -1);
-    subr_self = *(localptr STACKop -2);
     pushSTACK(obj);
     pushSTACK(datenvektor);
     datenvektor = storagevector_store(datenvektor,locals->index,STACK_1,true);
@@ -4215,7 +4199,7 @@ local void initial_contents_aux (void* arg, object obj) {
     /* must be EQL (which means EQ) to dimension *(localptr+depth) : */
     if (!(eq(value1,*(localptr STACKop locals->depth)))) {
       /* defective sequence seq still in STACK_0. */
-      pushSTACK(TheSubr(*(localptr STACKop -2))->name);
+      pushSTACK(TheSubr(subr_self)->name);
       fehler(error,GETTEXT("~: ~ is of incorrect length"));
     }
     /* length is correct, now execute (MAP NIL #'INITIAL-CONTENTS-AUX seq) : */
@@ -4230,7 +4214,6 @@ local void initial_contents_aux (void* arg, object obj) {
  test_displaced(eltype,totalsize)
  > eltype: elementtype-code of the creating array
  > totalsize: total size of the creating array
- > subr_self: caller (a SUBR)
  < result: value of the displaced-index-offset */
 local uintL test_displaced (uintB eltype, uintL totalsize) {
   /* check displaced-to, must be a array: */
@@ -4317,7 +4300,6 @@ local uintL test_displaced (uintB eltype, uintL totalsize) {
  check a fill-pointer-argument /=NIL.
  test_fillpointer(len)
  > totalsize: maximum value of fill-pointer
- > subr_self: caller (a SUBR)
  < result: value of the fill-pointer */
 local uintL test_fillpointer (uintL totalsize) {
   /* fill-pointer was supplied and /=NIL */

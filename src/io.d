@@ -603,7 +603,6 @@ LISPFUNN(defio,2) {
 # error, if argument is no Readtable.
 # fehler_readtable(obj);  means: error_readtable(obj);
 # > obj: erroneous Argument
-# > subr_self: caller (a SUBR)
 nonreturning_function(local, fehler_readtable, (object obj)) {
   pushSTACK(obj);          # TYPE-ERROR slot DATUM
   pushSTACK(S(readtable)); # TYPE-ERROR slot EXPECTED-TYPE
@@ -615,7 +614,6 @@ nonreturning_function(local, fehler_readtable, (object obj)) {
 # Verifies an object is a readtable. Error if not.
 # check_readtable(obj);
 # > obj: argument
-# > subr_self: caller (a SUBR)
 #define check_readtable(obj) \
   { if (!readtablep(obj)) fehler_readtable(obj); }
 
@@ -698,7 +696,6 @@ LISPFUN(set_syntax_from_char,2,2,norest,nokey,0,NIL)
 # UP: checks an optional readtable-argument,
 # with default = current readtable.
 # > STACK_0: Argument
-# > subr_self: caller (a SUBR)
 # < STACK: increased by 1
 # < result: readtable
 local object test_readtable_arg (void) {
@@ -714,7 +711,6 @@ local object test_readtable_arg (void) {
 # UP: checks an optional readtable-argument,
 # with default = current readtable, nil = standard-readtable.
 # > STACK_0: Argument
-# > subr_self: caller (a SUBR)
 # < STACK: increased by 1
 # < result: readtable
 local object test_readtable_null_arg (void) {
@@ -732,7 +728,6 @@ local object test_readtable_null_arg (void) {
 # UP: checks the next-to-last optional argument of
 # SET-MACRO-CHARACTER and MAKE-DISPATCH-MACRO-CHARACTER.
 # > STACK_0: non-terminating-p - Argument
-# > subr_self: caller (a SUBR)
 # < STACK: increased by 1
 # < result: new syntaxcode
 local uintB test_nontermp_arg (void) {
@@ -850,7 +845,6 @@ LISPFUN(make_dispatch_macro_character,1,2,norest,nokey,0,NIL)
 # UP: checks the arguments disp-char and sub-char.
 # > STACK: STACK_1 = disp-char, STACK_0 = sub-char
 # > readtable: Readtable
-# > subr_self: caller (a SUBR)
 # < result: the dispatch-macro-table for disp-char,
 #             nullobj if sub-char is a digit.
 local object test_disp_sub_char (object readtable) {
@@ -882,7 +876,6 @@ LISPFUN(set_dispatch_macro_character,3,1,norest,nokey,0,NIL)
   {
     # check function and convert it into an object of Type FUNCTION:
     STACK_1 = coerce_function(STACK_1);
-    subr_self = L(set_dispatch_macro_character);
     var object readtable = test_readtable_arg(); # Readtable
     var object function = popSTACK(); # function
     var object dm_table = test_disp_sub_char(readtable);
@@ -2603,7 +2596,6 @@ local object read_delimited_list_recursive (const object* stream_, object endch,
 # Macro: checks the Stream-Argument of a SUBRs.
 # stream_ = test_stream_arg(stream);
 # > stream: Stream-Argument in STACK
-# > subr_self: Caller (a SUBR)
 # < stream_: &stream
 #define test_stream_arg(stream)  \
     (!streamp(stream) ? (fehler_stream(stream), (object*)NULL) : &(stream))
@@ -2798,7 +2790,6 @@ nonreturning_function(local, fehler_dispatch_zahl, (void)) {
 # UP: checks the absence of Infix-Argument n
 # test_no_infix()
 # > stack layout: Stream, sub-char, n.
-# > subr_self: Caller (ein SUBR)
 # < result: &stream
 # increases STACK by 1
 # modifies STACK
@@ -3100,7 +3091,6 @@ local Values radix_2 (uintWL base) {
   # radix_1(base)
   # > base: Base (>=2, <=36)
   # > stack layout: Stream, sub-char, n.
-  # > subr_self: caller (ein SUBR)
   # < STACK: cleaned
   # < mv_space/mv_count: values
   # can trigger GC
@@ -3918,7 +3908,6 @@ local uintWL interpret_feature (object expr) {
 # feature(sollwert)
 # > expected value: exprected truth value of Feature-Expression
 # > Stack Structure: Stream, sub-char, n.
-# > subr_self: caller (a SUBR)
 # < STACK: increased by 3
 # < mv_space/mv_count: values
 # can trigger GC
@@ -4457,7 +4446,6 @@ LISPFUNN(unix_executable_reader,3) { # reads #!
 # UP: checks an Input-Stream-Argument.
 # Default is the value of *STANDARD-INPUT*.
 # test_istream(&stream);
-# > subr_self: caller (ein SUBR)
 # > stream: Input-Stream-Argument
 # < stream: Input-Stream (a Stream)
 local void test_istream (object* stream_) {
@@ -4500,7 +4488,6 @@ local Values eof_handling (int mvc) {
 # read_w(whitespace-p)
 # > whitespace-p: indicates, if whitespace has to be consumed afterwards
 # > stack layout: input-stream, eof-error-p, eof-value, recursive-p.
-# > subr_self: caller (a SUBR) (unnecessary, if input-stream is a Stream)
 # < STACK: cleaned up
 # < mv_space/mv_count: values
 local Values read_w (object whitespace_p) {
@@ -9579,7 +9566,6 @@ global void print (const object* stream_, object obj) {
 # UP: Check ein Output-Stream-Argument.
 # The value of *STANDARD-OUTPUT* is default.
 # test_ostream();
-# > subr_self: caller (ein SUBR)
 # > STACK_0: Output-Stream-Argument
 # < STACK_0: Output-Stream (a Stream)
 local void test_ostream (void) {
@@ -10044,7 +10030,6 @@ LISPFUN(write_char,1,1,norest,nokey,0,NIL) {
 
 # UP: for WRITE-STRING and WRITE-LINE:
 # checks the Arguments and prints a sub-string to stream.
-# > subr_self: caller (a SUBR)
 # > stack layout: String-Argument, Stream-Argument, :START-Argument, :END-Argument.
 # < stack layout: Stream, String.
 # can trigger GC

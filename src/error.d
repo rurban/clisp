@@ -675,8 +675,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
 
 /* error-message, if an object is not a list.
  fehler_list(obj);
- > obj: non-list
- > subr_self: caller (a SUBR) */
+ > obj: non-list */
 nonreturning_function(global, fehler_list, (object obj)) {
   pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
   pushSTACK(S(list)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -711,7 +710,6 @@ nonreturning_function(global, fehler_kein_symbol, (object caller, object obj))
 
 /* error-message, if an object is not a symbol.
  fehler_symbol(obj);
- > subr_self: caller (a SUBR or FSUBR)
  > obj: non-symbol */
 nonreturning_function(global, fehler_symbol, (object obj)) {
   var object aufrufer = subr_self;
@@ -751,7 +749,6 @@ nonreturning_function(global, fehler_kein_svector, (object caller, object obj))
 
 /* error-message, if an object is not a vector.
  fehler_vector(obj);
- > subr_self: caller (a SUBR)
  > obj: non-vector */
 nonreturning_function(global, fehler_vector, (object obj)) {
   pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
@@ -762,7 +759,6 @@ nonreturning_function(global, fehler_vector, (object obj)) {
 
 /* error-message, if an object is not an environment.
  fehler_environment(obj);
- > subr_self: caller (a SUBR)
  > obj: non-vector */
 nonreturning_function(global, fehler_environment, (object obj)) {
   pushSTACK(obj);              /* TYPE-ERROR slot DATUM */
@@ -773,8 +769,7 @@ nonreturning_function(global, fehler_environment, (object obj)) {
 
 /* error-message, if an argument is not a Fixnum >=0 :
  fehler_posfixnum(obj);
- > obj: the erroneous argument
- > subr_self: caller (a SUBR) */
+ > obj: the erroneous argument */
 nonreturning_function(global, fehler_posfixnum, (object obj)) {
   pushSTACK(obj);               /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_posfixnum)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -784,8 +779,7 @@ nonreturning_function(global, fehler_posfixnum, (object obj)) {
 
 /* error-message, if an argument is not a Character:
  fehler_char(obj);
- > obj: the erroneous argument
- > subr_self: caller (a SUBR) */
+ > obj: the erroneous argument */
 nonreturning_function(global, fehler_char, (object obj)) {
   pushSTACK(obj);          /* TYPE-ERROR slot DATUM */
   pushSTACK(S(character)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -794,8 +788,7 @@ nonreturning_function(global, fehler_char, (object obj)) {
 }
 
 /* error-message, if an argument is not a String:
- > obj: the erroneous argument
- > subr_self: caller (a SUBR) */
+ > obj: the erroneous argument */
 nonreturning_function(global, fehler_string, (object obj)) {
   pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
   pushSTACK(S(string)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -804,8 +797,7 @@ nonreturning_function(global, fehler_string, (object obj)) {
 }
 
 /* error-message, if an argument is not a Simple-String:
- > obj: the erroneous argument
- > subr_self: caller (a SUBR) */
+ > obj: the erroneous argument */
 nonreturning_function(global, fehler_sstring, (object obj)) {
   pushSTACK(obj);              /* TYPE-ERROR slot DATUM */
   pushSTACK(S(simple_string)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -824,8 +816,7 @@ nonreturning_function(global, fehler_sstring_immutable, (object obj)) {
 #endif
 
 /* Error message, if an argument is not of type (OR STRING INTEGER).
- fehler_string_integer(obj);
- > subr_self: caller (a SUBR) */
+ fehler_string_integer(obj)  */
 nonreturning_function(global, fehler_string_integer, (object obj)) {
   pushSTACK(obj);                    /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_string_integer)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -836,8 +827,7 @@ nonreturning_function(global, fehler_string_integer, (object obj)) {
 
 /* error-message, if an argument is not a Stream:
  fehler_stream(obj);
- > obj: the erroneous argument
- > subr_self: caller (a SUBR) */
+ > obj: the erroneous argument */
 nonreturning_function(global, fehler_stream, (object obj)) {
   pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
   pushSTACK(S(stream)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -848,8 +838,7 @@ nonreturning_function(global, fehler_stream, (object obj)) {
 /* error-message, if an argument is not a Stream of required stream type:
  fehler_streamtype(obj,type);
  > obj: the erroneous argument
- > type: required stream-type
- > subr_self: caller (a SUBR) */
+ > type: required stream-type */
 nonreturning_function(global, fehler_streamtype, (object obj, object type)) {
   pushSTACK(obj);  /* TYPE-ERROR slot DATUM */
   pushSTACK(type); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -859,8 +848,7 @@ nonreturning_function(global, fehler_streamtype, (object obj, object type)) {
 
 /* error-message, if an argument is not a Function:
  fehler_function(obj);
- > obj: the erroneous argument
- > subr_self: caller (a SUBR) */
+ > obj: the erroneous argument */
 nonreturning_function(global, fehler_function, (object obj)) {
   pushSTACK(obj);         /* TYPE-ERROR slot DATUM */
   pushSTACK(S(function)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -885,10 +873,10 @@ nonreturning_function(global, fehler_funname_source,
 }
 
 /* error-message, if an argument is a lambda-expression instead of a function:
- fehler_lambda_expression(caller,obj);
  caller: caller (a symbol)
  obj: the erroneous argument */
-nonreturning_function(global, fehler_lambda_expression, (object caller, object obj)) {
+nonreturning_function(global, fehler_lambda_expression,
+                      (object caller, object obj)) {
   pushSTACK(obj);         /* TYPE-ERROR slot DATUM */
   pushSTACK(S(function)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(caller);
@@ -934,8 +922,7 @@ nonreturning_function(global, fehler_too_few_args,
 
 /* error, if argument is not an integer of type `uint8' .
  fehler_uint8(obj);
- > obj: erroneous argument
- > subr_self: caller (a SUBR) */
+ > obj: erroneous argument */
 nonreturning_function(global, fehler_uint8, (object obj)) {
   pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_uint8)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -947,8 +934,7 @@ nonreturning_function(global, fehler_uint8, (object obj)) {
 
 /* error, if argument is not an integer of type `sint8' .
  fehler_sint8(obj);
- > obj: erroneous argument
- > subr_self: caller (a SUBR) */
+ > obj: erroneous argument */
 nonreturning_function(global, fehler_sint8, (object obj)) {
   pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_sint8)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -958,8 +944,7 @@ nonreturning_function(global, fehler_sint8, (object obj)) {
 
 /* error, if argument is not an integer of type `uint16' .
  fehler_uint16(obj);
- > obj: erroneous argument
- > subr_self: caller (a SUBR) */
+ > obj: erroneous argument */
 nonreturning_function(global, fehler_uint16, (object obj)) {
   pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_uint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -969,8 +954,7 @@ nonreturning_function(global, fehler_uint16, (object obj)) {
 
 /* error, if argument is not an integer of type `sint16' .
  fehler_sint16(obj);
- > obj: erroneous argument
- > subr_self: caller (a SUBR) */
+ > obj: erroneous argument */
 nonreturning_function(global, fehler_sint16, (object obj)) {
   pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_sint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -980,8 +964,7 @@ nonreturning_function(global, fehler_sint16, (object obj)) {
 
 /* error, if argument is not an integer of type `uint32' .
  fehler_uint32(obj);
- > obj: erroneous argument
- > subr_self: caller (a SUBR) */
+ > obj: erroneous argument */
 nonreturning_function(global, fehler_uint32, (object obj)) {
   pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_uint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -991,8 +974,7 @@ nonreturning_function(global, fehler_uint32, (object obj)) {
 
 /* error, if argument is not an integer of type `sint32' .
  fehler_sint32(obj);
- > obj: erroneous argument
- > subr_self: caller (a SUBR) */
+ > obj: erroneous argument */
 nonreturning_function(global, fehler_sint32, (object obj)) {
   pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_sint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -1002,8 +984,7 @@ nonreturning_function(global, fehler_sint32, (object obj)) {
 
 /* error, if argument is not an integer of type `uint64' .
  fehler_uint64(obj);
- > obj: erroneous argument
- > subr_self: caller (a SUBR) */
+ > obj: erroneous argument */
 nonreturning_function(global, fehler_uint64, (object obj)) {
   pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_uint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -1013,8 +994,7 @@ nonreturning_function(global, fehler_uint64, (object obj)) {
 
 /* error, if argument is not an integer of type `sint64' .
  fehler_sint64(obj);
- > obj: erroneous argument
- > subr_self: caller (a SUBR) */
+ > obj: erroneous argument */
 nonreturning_function(global, fehler_sint64, (object obj)) {
   pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_sint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -1024,8 +1004,7 @@ nonreturning_function(global, fehler_sint64, (object obj)) {
 
 /* error, if argument is not an integer of type `uint' .
  fehler_uint(obj);
- > obj: erroneous argument
- > subr_self: caller (a SUBR) */
+ > obj: erroneous argument */
 nonreturning_function(global, fehler_uint, (object obj)) {
   pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
  #if (int_bitsize==16)
@@ -1039,8 +1018,7 @@ nonreturning_function(global, fehler_uint, (object obj)) {
 
 /* error, if argument is not an integer of type `sint' .
  fehler_sint(obj);
- > obj: erroneous argument
- > subr_self: caller (a SUBR) */
+ > obj: erroneous argument */
 nonreturning_function(global, fehler_sint, (object obj)) {
   pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
  #if (int_bitsize==16)
@@ -1054,8 +1032,7 @@ nonreturning_function(global, fehler_sint, (object obj)) {
 
 /* error, if argument is not an integer of type `ulong' .
  fehler_ulong(obj);
- > obj: erroneous argument
- > subr_self: caller (a SUBR) */
+ > obj: erroneous argument */
 nonreturning_function(global, fehler_ulong, (object obj)) {
   pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
  #if (long_bitsize==32)
@@ -1069,8 +1046,7 @@ nonreturning_function(global, fehler_ulong, (object obj)) {
 
 /* error, if argument is not an integer of type `slong' .
  fehler_slong(obj);
- > obj: erroneous argument
- > subr_self: caller (a SUBR) */
+ > obj: erroneous argument */
 nonreturning_function(global, fehler_slong, (object obj)) {
   pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
  #if (long_bitsize==32)
@@ -1084,8 +1060,7 @@ nonreturning_function(global, fehler_slong, (object obj)) {
 
 /* error, if argument is not a Single-Float.
  fehler_ffloat(obj);
- > obj: erroneous argument
- > subr_self: caller (a SUBR) */
+ > obj: erroneous argument */
 nonreturning_function(global, fehler_ffloat, (object obj)) {
   pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
   pushSTACK(S(single_float)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -1095,8 +1070,7 @@ nonreturning_function(global, fehler_ffloat, (object obj)) {
 
 /* error, if argument is not a Double-Float.
  fehler_dfloat(obj);
- > obj: erroneous argument
- > subr_self: caller (a SUBR) */
+ > obj: erroneous argument */
 nonreturning_function(global, fehler_dfloat, (object obj)) {
   pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
   pushSTACK(S(double_float)); /* TYPE-ERROR slot EXPECTED-TYPE */

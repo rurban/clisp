@@ -92,8 +92,7 @@ LISPSPECFORM(function, 1,1,nobody)
 }
 
 /* error-message, if a symbol has no value.
- > symbol: symbol
- > subr_self: caller (a SUBR) */
+ > symbol: symbol */
 nonreturning_function(local, fehler_no_value, (object symbol)) {
   pushSTACK(symbol); /* CELL-ERROR Slot NAME */
   pushSTACK(symbol);
@@ -2088,7 +2087,6 @@ LISPSPECFORM(load_time_value, 1,1,nobody)
 
 /* UP: Checks an optional environment-argument for EVALHOOK and APPLYHOOK.
  test_optional_env_arg(&env5);
- > subr_self: Caller (a SUBR)
  < env5: 5 components of the environment
  increases STACK by 1 */
 local void test_optional_env_arg (environment_t* env5) {

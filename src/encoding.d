@@ -1826,8 +1826,7 @@ LISPFUNN(encodingp,1) {
 }
 
 /* Report an error when the argument is not an encoding:
- > obj: the bad argument
- > subr_self: caller (a SUBR) */
+ > obj: the bad argument */
 nonreturning_function(local, fehler_encoding, (object obj)) {
   pushSTACK(obj); /* TYPE-ERROR slot DATUM */
   pushSTACK(S(encoding)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -2495,12 +2494,10 @@ LISPFUN(convert_string_from_bytes,2,0,norest,key,2, (kw(start),kw(end)) ) {
   if (!bit_vector_p(Atype_8Bit,array)) {
     /* (SYS::COERCED-SUBSEQ array '(ARRAY (UNSIGNED-BYTE 8) (*))
                             [:start] [:end]) */
-    var object old_subr_self = subr_self; /* current SUBR, GC invariant! */
     pushSTACK(array); pushSTACK(O(type_uint8_vector));
     pushSTACK(S(Kstart)); pushSTACK(STACK_(1+3));
     pushSTACK(S(Kend)); pushSTACK(STACK_(0+5));
     funcall(L(coerced_subseq),6);
-    subr_self = old_subr_self;
     array = value1;
     if (!bit_vector_p(Atype_8Bit,array)) { NOTREACHED; }
     STACK_0 = I_I_minus_I(STACK_0,STACK_1); /* end := (- end start) */

@@ -1449,7 +1449,6 @@ global object name_char (object string) {
 /* UP: checks a character that is to be inserted into a string
  test_char_arg()
  > STACK_0: argument
- > subr_self: caller (a SUBR)
  < result: argument as character
  increases STACK by 1 */
 local object test_char_arg (void) {
@@ -1531,7 +1530,6 @@ LISPFUNN(both_case_p,1) /* (BOTH-CASE-P char), CLTL p. 235 */
 /* UP: Checks an optional radix-argument
  test_radix_arg()
  > STACK_0: argument, default is 10
- > subr_self: caller (a SUBR)
  < result: radix, an integer >=2, <=36
  increases STACK by 1 */
 local uintWL test_radix_arg (void) {
@@ -1638,8 +1636,7 @@ LISPFUNN(alphanumericp,1) /* (ALPHANUMERICP char), CLTL p. 236 */
 /* UP: tests, if all argcount+1 arguments below args_pointer
  are characters. if not, Error.
  > argcount: number of arguments - 1
- > args_pointer: pointer to the arguments
- > subr_self: caller (a SUBR) */
+ > args_pointer: pointer to the arguments */
 local void test_char_args (uintC argcount, const object* args_pointer) {
   dotimespC(argcount,argcount+1, {
     var object arg = NEXT(args_pointer); /* next argument */
@@ -1652,8 +1649,7 @@ local void test_char_args (uintC argcount, const object* args_pointer) {
  are characters. If not, error. Discards bits and font
  and transforms them into uppercase letters.
  > argcount: number of arguments - 1
- > args_pointer: pointer to the arguments
- > subr_self: caller (a SUBR) */
+ > args_pointer: pointer to the arguments */
 local void test_char_args_upcase (uintC argcount, object* args_pointer) {
   dotimespC(argcount,argcount+1, {
     var object* argptr = &NEXT(args_pointer);
@@ -2106,7 +2102,6 @@ nonreturning_function(local, fehler_cmp_exclusive, (object kw, object obj,
 /* UP: check the index argument for string functions
  > STACK_0: Argument
  > len: length of the strings (< array-total-size-limit)
- > subr_self: caller (a SUBR)
  < return: index in the string */
 local uintL test_index_arg (uintL len)
 {
@@ -2195,7 +2190,6 @@ LISPFUNN(store_schar,3)
  > STACK_2: string-argument
  > STACK_1: optional :start-argument
  > STACK_0: optional :end-argument
- > subr_self: caller (a SUBR)
  < stringarg arg: description of the argument
  < result: string-argument
  increases STACK by 3 */
@@ -2235,7 +2229,6 @@ global object test_string_limits_ro (stringarg* arg) {
  > STACK_2: string-argument
  > STACK_1: optional :start-argument
  > STACK_0: optional :end-argument
- > subr_self: caller (a SUBR)
  < stringarg arg: description of the argument
  < result: string-argument
  increases STACK by 3 */
@@ -2263,7 +2256,6 @@ local object test_string_limits_rw (stringarg* arg) {
 
 /* UP: checks a string/symbol/character-argument
  > obj: argument
- > subr_self: caller (a SUBR)
  < ergebnis: argument as string
  can trigger GC */
 global object test_stringsymchar_arg (object obj) {
@@ -2287,7 +2279,6 @@ global object test_stringsymchar_arg (object obj) {
  > STACK_2: string/symbol-argument
  > STACK_1: optional :start-argument
  > STACK_0: optional :end-argument
- > subr_self: caller (a SUBR)
  < object string: copy of the string
  < uintL offset: index of first affected character
  < uintL len: number of affected characters
@@ -2332,7 +2323,6 @@ local void test_1_stringsym_limits (object* string_, uintL* offset_,
  > STACK_2: optional :end1-argument
  > STACK_1: optional :start2-argument
  > STACK_0: optional :end2-argument
- > subr_self: caller (a SUBR)
  < stringarg arg1: description of argument1
  < stringarg arg2: description of argument2
  increases STACK by 6 */
@@ -3368,7 +3358,6 @@ LISPFUN(substring,2,1,norest,nokey,0,NIL)
  string_concat(argcount)
  > uintC argcount: number of arguments
  > on the STACK: the arguments (should be strings)
- > subr_self: caller (a SUBR) (unnecessary, if all arguments are strings)
  < result: total string, freshly created
  < STACK: cleaned up
  can trigger GC */
