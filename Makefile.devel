@@ -216,10 +216,10 @@ src/asmi386.h : src/asmi386.hh
 	sed -e 's,//.*$$,,' < src/asmi386.hh > src/asmi386.h
 
 src/ari80386.msvc.c : src/ari80386.d src/asmi386.sh
-	src/asmi386.sh < src/ari80386.d > src/ari80386.msvc.c
+	src/asmi386.sh -no-C < src/ari80386.d > src/ari80386.msvc.c
 
 src/sp80386.msvc.c : src/sp80386.d src/asmi386.sh
-	src/asmi386.sh < src/sp80386.d > src/sp80386.msvc.c
+	src/asmi386.sh -no-C < src/sp80386.d > src/sp80386.msvc.c
 
 ffcall/avcall/avcall.h.msvc : ffcall/avcall/avcall.h.in
 	cd ffcall ; $(MAKE) -f Makefile.devel avcall/avcall.h.msvc
