@@ -89,10 +89,6 @@
 ;;    invocation. However, for CALL-NEXT-METHOD, NO-NEXT-METHOD and
 ;;    METHOD-GENERIC-FUNCTION the generic function must be known. So we have
 ;;    to store a generic function backpointer in the method.
-;;    Now, in ANSI CL, methods do not belong to specific generic functions in
-;;    principle (because of ADD-METHOD); therefore we must copy the method
-;;    during ADD-METHOD. And during REMOVE-METHOD, we determine the identity
-;;    of two copies of the same method by looking at std-method-initfunction.
 
 (defun method-lambda-list-to-signature (lambda-list errfunc)
   (multiple-value-bind (reqvars optvars optinits optsvars rest
@@ -180,6 +176,12 @@
   (unless (typep wants-next-method-p 'boolean)
     (error (TEXT "(~S ~S): The ~S argument should be a NIL or T, not ~S")
            'initialize-instance 'standard-method 'wants-next-method-p  wants-next-method-p))
+  ; Determine function from initfunction:
+  (when (and (null function) (null fast-function))
+    (let ((h (funcall initfunction method)))
+      (setq fast-function (car h))
+      (when (car (cdr h)) ; could the variable ",cont" be optimized away?
+        (setq wants-next-method-p nil))))
   ; Check the documentation.
   (unless (or (null documentation) (stringp documentation))
     (error (TEXT "(~S ~S): The ~S argument should be a string or NIL, not ~S")
