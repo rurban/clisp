@@ -748,6 +748,7 @@ LISPSYM(make_closure,"%MAKE-CLOSURE",system)
 LISPSYM(make_constant_initfunction,"MAKE-CONSTANT-INITFUNCTION",system)
 LISPSYM(constant_initfunction_p,"CONSTANT-INITFUNCTION-P",system)
 LISPSYM(closure_set_seclass,"CLOSURE-SET-SECLASS",system)
+LISPSYM(set_funcallable_instance_function,"SET-FUNCALLABLE-INSTANCE-FUNCTION",clos)
 LISPSYM(copy_generic_function,"%COPY-GENERIC-FUNCTION",system)
 LISPSYM(generic_function_effective_method_function,"GENERIC-FUNCTION-EFFECTIVE-METHOD-FUNCTION",system)
 LISPSYM(make_load_time_eval,"MAKE-LOAD-TIME-EVAL",system)
@@ -764,8 +765,10 @@ LISPSYM(function_macro_expander,"FUNCTION-MACRO-EXPANDER",system)
 LISPSYM(finalize,"FINALIZE",ext)
 LISPSYM(structure_object_p,"STRUCTURE-OBJECT-P",clos)
 LISPSYM(std_instance_p,"STD-INSTANCE-P",clos)
+LISPSYM(funcallable_instance_p,"FUNCALLABLE-INSTANCE-P",clos)
 LISPSYM(allocate_metaobject_instance,"ALLOCATE-METAOBJECT-INSTANCE",clos)
 LISPSYM(allocate_std_instance,"ALLOCATE-STD-INSTANCE",clos)
+LISPSYM(allocate_funcallable_instance,"ALLOCATE-FUNCALLABLE-INSTANCE",clos)
 LISPSYM(pallocate_instance,"%ALLOCATE-INSTANCE",clos)
 LISPSYM(slot_value,"SLOT-VALUE",clos)
 LISPSYM(set_slot_value,"SET-SLOT-VALUE",clos)
@@ -1317,6 +1320,7 @@ LISPSYM(base_char_cod_limit,"BASE-CHAR-CODE-LIMIT",ext) /* constant in CHARSTRG 
 LISPSYM(unicode_attributes_line,"UNICODE-ATTRIBUTES-LINE",system) /* function in CHARSTRG */
 #endif
 LISPSYM(designator,"DESIGNATOR",ext) /* type for CHARSTRG */
+LISPSYM(make_trampoline,"MAKE-TRAMPOLINE",system) /* function for RECORD */
 LISPSYM(make_instance,"MAKE-INSTANCE",clos) /* error reporting in record.d */
 LISPSYM(shared_initialize,"SHARED-INITIALIZE",clos) /* ditto */
 LISPSYM(reinitialize_instance,"REINITIALIZE-INSTANCE",clos) /* ditto */

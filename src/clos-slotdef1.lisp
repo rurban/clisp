@@ -378,7 +378,7 @@
   (mapcar #'(lambda (slot-spec)
               (let ((slot-definition-class
                       (apply #'direct-slot-definition-class class slot-spec)))
-                (cond ((standard-class-p class)
+                (cond ((semi-standard-class-p class)
                        (unless (or ; for bootstrapping
                                    (eq slot-definition-class 'standard-direct-slot-definition)
                                    (and (class-p slot-definition-class)

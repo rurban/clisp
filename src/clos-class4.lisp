@@ -59,6 +59,19 @@
 
 ;;; ===========================================================================
 
+(defmethod shared-initialize ((class funcallable-standard-class) situation &rest args
+                              &key name direct-superclasses direct-slots
+                                   direct-default-initargs documentation
+                                   (generic-accessors t)
+                                   (fixed-slot-locations nil)
+                              &allow-other-keys)
+  (declare (ignore name direct-superclasses direct-slots
+                   direct-default-initargs documentation generic-accessors
+                   fixed-slot-locations))
+  (apply #'shared-initialize-<funcallable-standard-class> class situation args))
+
+;;; ===========================================================================
+
 ;; Now that all the predefined subclasses of <class> have been defined,
 ;; CLASS-OF can work on all existing <class> instances. Therefore now, not
 ;; earlier, it's possible to pass these <class> instances to generic

@@ -234,7 +234,7 @@
 ;; MOP p. 45
 (fmakunbound 'direct-slot-definition-class)
 (defgeneric direct-slot-definition-class (class &rest initargs)
-  (:method ((class standard-class) &rest initargs)
+  (:method ((class semi-standard-class) &rest initargs)
     (declare (ignore initargs))
     <standard-direct-slot-definition>)
   (:method ((class structure-class) &rest initargs)
@@ -244,14 +244,9 @@
 ;; MOP p. 45
 (fmakunbound 'effective-slot-definition-class)
 (defgeneric effective-slot-definition-class (class &rest initargs)
-  (:method ((class standard-class) &rest initargs)
+  (:method ((class semi-standard-class) &rest initargs)
     (declare (ignore initargs))
     <standard-effective-slot-definition>)
-  #|
-  (:method ((class funcallable-standard-class) &rest initargs)
-    (declare (ignore initargs))
-    <standard-effective-slot-definition>)
-  |#
   (:method ((class structure-class) &rest initargs)
     (declare (ignore initargs))
     <structure-effective-slot-definition>))

@@ -13,10 +13,12 @@
 ;; Metaclasses:
 (defvar <class>)                       ; <standard-class>
 (defvar <standard-class>)              ; <standard-class>
+(defvar <funcallable-standard-class>)  ; <standard-class>
 (defvar <structure-class>)             ; <standard-class>
 (defvar <built-in-class>)              ; <standard-class>
 ;; Classes:
 (defvar <standard-object>)             ; <standard-class>
+(defvar <funcallable-standard-object>) ; <funcallable-standard-class>
 (defvar <structure-object>)            ; <structure-class>
 (defvar <generic-function>)            ; <built-in-class>
 (defvar <standard-generic-function>)   ; <built-in-class>

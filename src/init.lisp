@@ -472,6 +472,8 @@
           ;; MOP for method combinations
           find-method-combination
           ;; MOP for generic functions
+          funcallable-standard-class funcallable-standard-object
+          set-funcallable-instance-function
           ;; CLISP specific symbols
           generic-flet generic-labels no-primary-method
           method-call-error method-call-type-error

@@ -269,6 +269,8 @@ LISPFUNNR(structure_type_p,2) {
    with 0 arguments, returns the given value.
  (SYS::CONSTANT-INITFUNCTION-P object) tests whether an object was returned by
    SYS::MAKE-CONSTANT-INITFUNCTION.
+ (CLOS:SET-FUNCALLABLE-INSTANCE-FUNCTION closure function) redirects closure
+   so that it calls the given function.
  (SYS::%COPY-GENERIC-FUNCTION venv closure) copies the closure, which must be
    a generic function with venv slot, copying in the given venv.
  (SYS::GENERIC-FUNCTION-EFFECTIVE-METHOD-FUNCTION generic-function)
@@ -403,7 +405,7 @@ LISPFUNNR(make_closure,4) {
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,GETTEXT("~S: function ~S is too big: ~S"));
   }
-  var object closure = allocate_closure(length,seclass);
+  var object closure = allocate_closure(length,seclass<<4);
   TheCclosure(closure)->clos_name_or_class_version = STACK_2; /* fill name */
   TheCclosure(closure)->clos_codevec = STACK_1; /* fill codevector */
   { /* fill constants: */
@@ -447,6 +449,46 @@ LISPFUNN(closure_set_seclass,2)
   VALUES1(seclass_object((seclass_t)Cclosure_seclass(closure)));
   Cclosure_set_seclass(closure,new_seclass);
   skipSTACK(2);
+}
+
+/* (CLOS:SET-FUNCALLABLE-INSTANCE-FUNCTION closure function) redirects closure
+   so that it calls the given function. */
+LISPFUNN(set_funcallable_instance_function,2)
+{
+  var object closure = STACK_1;
+  if (!funcallable_instance_p(closure)) {
+    pushSTACK(closure); pushSTACK(TheSubr(subr_self)->name);
+    fehler(error, /* type_error ?? */
+           GETTEXT("~S: argument is not a funcallable instance: ~S"));
+  }
+  var object function = STACK_0;
+  if (!(subrp(function) || closurep(function) || ffunctionp(function))) {
+    pushSTACK(function);    /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(function)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(function); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error, GETTEXT("~S: argument is not a function: ~S"));
+  }
+  var object codevec;
+  var object venv;
+  if (cclosurep(function) && Cclosure_length(function) <= 3) {
+    codevec = TheCclosure(function)->clos_codevec;
+    venv = (Cclosure_length(function) >= 3 ? TheCclosure(function)->clos_venv : NIL);
+  } else {
+    codevec = (pushSTACK(function), funcall(S(make_trampoline),1), value1);
+    venv = STACK_0;
+    closure = STACK_1;
+  }
+  if (record_flags(TheClosure(closure)) & instflags_forwarded_B) {
+    var object closure_forwarded = TheClosure(closure)->clos_name_or_class_version;
+    /* We know that there is at most one indirection. */
+    ASSERT(!(record_flags(TheClosure(closure_forwarded)) & instflags_forwarded_B));
+    /* Replace codevec and venv in both the original and the forwarded closure. */
+    TheCclosure(closure_forwarded)->clos_codevec = codevec;
+    TheCclosure(closure_forwarded)->clos_venv = venv;
+  }
+  TheCclosure(closure)->clos_codevec = codevec;
+  TheCclosure(closure)->clos_venv = venv;
+  VALUES1(closure); skipSTACK(2);
 }
 
 /* check_generic_function(obj)
@@ -701,11 +743,20 @@ LISPFUNNF(structure_object_p,1)
   VALUES_IF(structurep(obj));
 }
 
-/* (CLOS::STD-INSTANCE-P object) tests if object is a CLOS-object. */
+/* (CLOS::STD-INSTANCE-P object) tests if object is a CLOS-object
+   (funcallable or not). */
 LISPFUNNF(std_instance_p,1)
 {
   var object obj = popSTACK();
   VALUES_IF(instancep(obj));
+}
+
+/* (CLOS::FUNCALLABLE-INSTANCE-P object) tests if object is a funcallable
+   CLOS-object. */
+LISPFUNNF(funcallable_instance_p,1)
+{
+  var object obj = popSTACK();
+  VALUES_IF(funcallable_instance_p(obj));
 }
 
 /* returns (CLOS:CLASS-OF object). Especially efficient for CLOS objects.
@@ -787,6 +838,38 @@ LISPFUNN(allocate_std_instance,2) {
   VALUES1(instance); /* instance as value */
 }
 
+/* (CLOS::ALLOCATE-FUNCALLABLE-INSTANCE class n) returns a funcallable
+ CLOS-instance of length n, with Class class and n-3 additional slots. */
+LISPFUNN(allocate_funcallable_instance,2) {
+  /* check length, should be a fixnum >3 that fits into a uintW: */
+  var uintL length;
+  test_record_length(length);
+  if (!(length>3)) fehler_record_length();
+  skipSTACK(1);
+  { /* Fetch the class-version now, before any possible GC, at which the
+       user could redefine the class of which we are creating an instance. */
+    var object clas = STACK_0;
+    if_classp(clas, ; , fehler_class(clas); );
+    TheClass(clas)->instantiated = T;
+    STACK_0 = TheClass(clas)->current_version;
+  }
+  var object instance =
+    allocate_srecord(closflags_instance_B|(seclass_default<<4),
+                     Rectype_Closure,length,closure_type);
+  TheCclosure(instance)->clos_name_or_class_version = popSTACK();
+  /* Provide a dummy codevector, in case the funcallable instance is called too
+     early. */
+  TheCclosure(instance)->clos_codevec = O(endless_loop_code);
+  TheCclosure(instance)->clos_venv = NIL;
+  /* fill the slots of the instance with #<UNBOUND> : */
+  length -= 3;
+  {
+    var gcv_object_t* ptr = &TheCclosure(instance)->clos_consts[1];
+    dotimespL(length,length, { *ptr++ = unbound; } );
+  }
+  VALUES1(instance); /* instance as value */
+}
+
 /* Checks that the argcount last words on the STACK form an
    "initialization argument list". */
 local inline void check_initialization_argument_list (uintL argcount, object caller) {
@@ -819,11 +902,11 @@ LISPFUN(pallocate_instance,seclass_read,1,0,rest,nokey,0,NIL) {
   return_Values do_allocate_instance(popSTACK());
 }
 local Values do_allocate_instance (object clas) {
-  /* Make a distinction between <standard-class> and <structure-class> for
-     allocate-instance: Is (class-shared-slots class) a vector or NIL, or
+  /* Make a distinction between <semi-standard-class> and <structure-class> for
+     allocate-instance: Is (class-current-version class) a vector, or
      is (class-names class) a cons? */
   if (matomp(TheClass(clas)->current_version)) {
-    /* <standard-class>. */
+    /* <semi-standard-class>. */
     if (nullp(TheClass(clas)->precedence_list)) {
       /* Call (CLOS:FINALIZE-INHERITANCE class). */
       pushSTACK(clas); /* save clas */
@@ -833,9 +916,18 @@ local Values do_allocate_instance (object clas) {
          not done its job. */
       ASSERT(!nullp(TheClass(clas)->precedence_list));
     }
-    /* (CLOS::ALLOCATE-STD-INSTANCE class (class-instance-size class)) */
+    /* Make a distinction between <standard-class> and
+       <funcallable-standard-class>. */
     pushSTACK(clas); pushSTACK(TheClass(clas)->instance_size);
-    C_allocate_std_instance();
+    if (nullp(TheClass(clas)->funcallablep)) {
+      /* <standard-class>. */
+      /* (CLOS::ALLOCATE-STD-INSTANCE class (class-instance-size class)) */
+      C_allocate_std_instance();
+    } else {
+      /* <funcallable-standard-class>. */
+      /* (CLOS::ALLOCATE-FUNCALLABLE-INSTANCE class (class-instance-size class)) */
+      C_allocate_funcallable_instance();
+    }
   } else {
     /* <structure-class>. */
     /* (SYS::%MAKE-STRUCTURE (class-names class) (class-instance-size class))*/
@@ -1073,9 +1165,13 @@ global object update_instance (object user_obj, object obj) {
     # ANSI CL 4.3.6.1. Modifying the Structure of Instances
     {
       var object newclass = TheClassVersion(TheClassVersion(cv)->cv_next)->cv_class;
-      /* (CLOS::ALLOCATE-STD-INSTANCE newclass (class-instance-size newclass)): */
+      /* (CLOS::ALLOCATE-STD-INSTANCE newclass (class-instance-size newclass)) or
+         (CLOS::ALLOCATE-FUNCALLABLE-INSTANCE newclass (class-instance-size newclass)): */
       pushSTACK(newclass); pushSTACK(TheClass(newclass)->instance_size);
-      C_allocate_std_instance();
+      if (nullp(TheClass(newclass)->funcallablep))
+        C_allocate_std_instance();
+      else
+        C_allocate_funcallable_instance();
     }
     obj = value1;
     record_flags_set(TheInstance(obj),instflags_beingupdated_B);
