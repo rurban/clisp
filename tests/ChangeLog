@@ -1,3 +1,8 @@
+2004-01-03  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (do-test, do-errcheck): fixed an off-by-one
+	error in total-count
+
 2004-01-02  Sam Steingold  <sds@gnu.org>
 
 	* macro8.tst (test-compiler): new function, used throughout the file
