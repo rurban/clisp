@@ -1,8 +1,16 @@
 2004-05-06  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/rawsock.c: Solaris compilation fixes:
+	include <string.h> for memcpy() &Co
+	include <net/if.h> before <netinet/if_ether.h>
+	declare check_socket_domain() before it is first used
+
+2004-05-06  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #[ 948784 ]: crash in pcre_free
-	* cpcre.c (module__pcre__init_function_2): reset pcre_malloc to
-	malloc() and pcre_free to free() to avoid a crash in FINALIZE
+	* modules/pcre/cpcre.c (module__pcre__init_function_2): reset
+	pcre_malloc to malloc() and pcre_free to free() to avoid
+	the FINALIZE crash
 
 2004-04-24  Bruno Haible  <bruno@clisp.org>
 
