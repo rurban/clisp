@@ -1,5 +1,12 @@
 1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_mark.d: New file.
+        * spvw.d (mark, unmark, marked, with_mark_bit, without_mark_bit): Move
+          out.
+        * makemake.in (SPVW_INCLUDES): Adjust.
+
+1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw_update.d: New file.
         * spvw.d (aktualisiere_STACK, aktualisiere_subr_tab,
            aktualisiere_symbol_tab, aktualisiere_object_tab, aktualisiere_tab,
