@@ -43,13 +43,14 @@ DSOURCES = \
  foreign \
  unixaux win32aux
 
+# Keep this in the same order as the LPARTS variable in makemake.in !
 LISPSOURCES = init defseq backquote defmacro macros1 macros2 defs1 \
               timezone places floatprint type defstruct format international \
               savemem trace cmacros compiler defs2 loop clos \
-              disassem condition threads gstream xcharin keyboard \
+              disassem condition loadform gstream xcharin keyboard \
               screen beossock runprog query reploop dribble complete \
               describe room edit macros3 clhs inspect gray \
-              foreign1 german french spanish dutch russian \
+              threads foreign1 german french spanish russian dutch \
               deprecated affi1
 
 SOURCES := $(patsubst %,%.d,$(DSOURCES)) $(patsubst %,%.lisp,$(LISPSOURCES))
