@@ -1,5 +1,10 @@
 2001-06-27  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (strip_white): new local function
+	(rd_ch_terminal3): use it to trim the line
+
+2001-06-27  Sam Steingold  <sds@gnu.org>
+
 	non-whole byte i/o finally works
 	* stream.d (rd_by_aux_icx_buffered): fixed
 
