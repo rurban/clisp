@@ -2,11 +2,11 @@
 ;;; DEFMACRO macro and a few utility functions for complex macros.
 ;;; 1988-01-09
 ;;; Adapted from DEFTYPE on 1989-10-06
-;;; German comments translated by Mirian Lennox <mirian@cosmic.com> 2003-19-01
+;;; German comments translated by Mirian Lennox <mirian@cosmic.com> 2003-01-19
 
 (in-package "SYSTEM")
 
-;; Import from CONTROL.Q:
+;; Import from CONTROL.D:
 
 #| (SYSTEM::PARSE-BODY body &optional docstring-allowed env)
    expands the first forms in the form list body (in the macro-expansion
@@ -21,12 +21,6 @@
    keywords which come from the list kwlist, or else contains a
    keyword/value pair :ALLOW-OTHER-KEYS with value other than NIL.
    If not, an error is raised.
-|#
-#| (keyword-test arglist kwlist) determines whether only keywords from
-kwlist (a list of keyword/value pairs), or else a keyword/value pair
-with keyword = :ALLOW-OTHER-KEYS and value other than NIL, appears
-in arglist.  If this is not the case, an error message is returned.
-
  (defun keyword-test (arglist kwlist)
   (let ((unallowed-arglistr nil)
         (allow-other-keys-flag nil))
