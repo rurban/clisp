@@ -1618,6 +1618,15 @@ LISPFUN(random,seclass_default,1,1,norest,nokey,0,NIL)
          GETTEXT("~S: argument should be positive and an integer or float, not ~S"));
 }
 
+/* (SYS::RANDOM-POSFIXNUM [state]) returns a random nonnegative fixnum.
+   Doesn't trigger GC. */
+LISPFUN(random_posfixnum,seclass_default,0,1,norest,nokey,0,NIL)
+{
+  var object r = check_random_state(popSTACK());
+  var uintL value = random_L(r) >> (32-oint_data_len);
+  VALUES1(fixnum(value));
+}
+
 /* make_random_state(r) returns a new random-state with initial state
  - random, if r=T,
  - from random-state *RANDOM-STATE*, if r=NIL or r=unbound,
