@@ -1,3 +1,8 @@
+1999-11-30  Sam Steingold  <sds@gnu.org>
+
+	* spvw.d (init_object_tab): add :SYSCALLS to *FEATURES* when
+	EXPORT_SYSCALLS is defined.
+
 1999-11-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * encoding.d (utf8_mblen, utf8_mbstowcs): Make the UTF-8 decoder
