@@ -2,14 +2,15 @@
 
 <section id="syscalls"><title>System Calls</title>
 
-<para>The &posix-pac; module makes some system calls
- available from lisp.</para>
+<para>The &posix-pac; module makes some system calls available from lisp.
+ Not all of these system calls are actually POSIX, so this package has a
+ nickname <quote role="package">OS</quote>.</para>
 
 <variablelist>
  <varlistentry><term><literal
     role="sexp">(<function>POSIX:RESOLVE-HOST-IPADDR</function>
     &optional-amp; &host-r;)</literal></term>
- <listitem><simpara>Returns the <type>hostent</type> struct (name,
+ <listitem><simpara>Returns the <type>HOSTENT</type> structure (name,
    list of aliases, list of IP addresses as dotted quads (for IPv4) or
    coloned octets (for IPv6), address type - IPv4 or IPv6).
    When &host-r; is omitted or &default-k;, return the data for the
@@ -22,7 +23,7 @@
  <varlistentry id="file-stat"><term><literal
       role="sexp">(<function>POSIX:FILE-STAT</function> &path-r;
       &optional-amp; <replaceable>link-p</replaceable>)</literal></term>
-  <listitem><para>Return the <type>file-stat</type> struct.
+  <listitem><para>Return the <type>FILE-STAT</type> structure.
    &path-r; can be a &stream-t;, a &pathname-t;, a &string-t; or a
    &number-t; (on a &unix; system, meaning &file-des;).
    The first slot of the structure returned is the string or the
@@ -84,7 +85,7 @@
  <varlistentry id="stat-vfs"><term><literal
       role="sexp">(<function>POSIX:STAT-VFS</function>
     &path-r;)</literal></term>
- <listitem><para>Return the <type>stat-vfs</type> struct.
+ <listitem><para>Return the <type>STAT-VFS</type> structure.
    &path-r; can be a &stream-t;, a &pathname-t;, a &string-t; or a
    &number-t; (on a &unix; system, meaning &file-des;).
    The first slot of the structure returned is the string
@@ -127,9 +128,9 @@
   </para><simpara>[&unix; systems only at this time, patches are welcome.]
  </simpara></listitem></varlistentry>
  <varlistentry id="file-info"><term><literal
-    role="sexp">(<function>POSIX:FILE-INFO</function>
+    role="sexp">(<function>OS:FILE-INFO</function>
     &path-r;)</literal></term>
- <listitem><simpara>Return the <type>file-info</type> struct.
+ <listitem><simpara>Return the <type>FILE-INFO</type> structure.
    &path-r; should be a &path-des;. The 8 slots are attributes, ctime,
    atime, wtime, high and low sizes, name and short name.
    </simpara><simpara>[&win32; systems only at this time, patches are welcome.]
@@ -137,8 +138,8 @@
  <varlistentry><term><literal
     role="sexp">(<function>POSIX:USER-DATA</function>
     &optional-amp; <replaceable>user</replaceable>)</literal></term>
- <listitem><simpara>Return the <type>passwd</type> struct (name, encoded
-   password, UID, GID, full name, home directory, shell).
+ <listitem><simpara>Return the <type>PASSWD</type> structure (name,
+   encoded password, UID, GID, full name, home directory, shell).
    When <replaceable>user</replaceable> is &nil;, return all users.
    When <replaceable>user</replaceable> is &default-k; or
    not supplied, return the information about the current user.
@@ -149,19 +150,19 @@
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
    role="sexp">(<function>POSIX:UNAME</function>)</literal></term>
-  <listitem><simpara>Return a struct describing the OS, derived from
+  <listitem><simpara>Return a structure describing the OS, derived from
     &uname;.</simpara></listitem></varlistentry>
  <varlistentry><term><literal
    role="sexp">(<function>POSIX:SYSCONF</function>)</literal></term>
-  <listitem><simpara>Return a struct describing the system
+  <listitem><simpara>Return a structure describing the system
     configuration, derived from &sysconf;.</simpara></listitem></varlistentry>
  <varlistentry><term><literal
    role="sexp">(<function>POSIX:LIMITS</function>)</literal></term>
-  <listitem><simpara>Return a struct describing the resource limits,
+  <listitem><simpara>Return a structure describing the resource limits,
     derived from &getrlimit;.</simpara></listitem></varlistentry>
  <varlistentry><term><literal
    role="sexp">(<function>POSIX:USAGE</function>)</literal></term>
-  <listitem><simpara>Return 2 structs describing the resource usage by
+  <listitem><simpara>Return 2 structures describing the resource usage by
     the lisp process its children, derived from &getrusage;.
   </simpara></listitem></varlistentry>
  <varlistentry>
@@ -228,18 +229,23 @@
   <listitem><simpara>This is an interface to the &dup; system calls on
    &unix; systems and to <function>DuplicateHandle</function> system
    call on &win32;.</simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(POSIX:SHORTCUT-INFO
+ <varlistentry><term><literal role="sexp">(OS:SHORTCUT-INFO
     &path-r;)</literal></term>
   <listitem><simpara>Return information about a &win32; shortcut
-    (<filename>#P".lnk"</filename>) file contents in
-    a <type>shortcut-info</type> struct.
-  </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(POSIX:MAKE-SHORTCUT
+    (<filename>#P".lnk"</filename>) file contents in a
+    <type>SHORTCUT-INFO</type> structure.</simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(OS:MAKE-SHORTCUT
     &path-r; &key-amp; :WORKING-DIRECTORY :ARGUMENTS :SHOW-COMMAND :ICON
     :DESCRIPTION :HOT-KEY :PATH)</literal></term>
   <listitem><simpara>Create (or modify the properties of an existing one)
     a &win32; shortcut (<filename>#P".lnk"</filename>) file.
  </simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(OS:SYSTEM-INFO)</literal></term>
+  <listitem><simpara>Return &win32; system information in a
+    <type>SYSTEM-INFO</type> structure.</simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(OS:VERSION)</literal></term>
+  <listitem><simpara>Return &win32; version information in a
+    <type>SYSTEM-INFO</type> structure.</simpara></listitem></varlistentry>
 </variablelist>
 
 </section>
