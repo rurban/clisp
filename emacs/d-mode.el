@@ -12,7 +12,7 @@
 
 (defun d-mode-translate-word (word)
   "translate the word at point from German into English"
-  (interactive (list (read-string "translate: " (word-at-point))))
+  (interactive (list (read-string "translate: " (thing-at-point 'word))))
   (shell-command (format "wordtrans -d de-en -i %s" word)))
 
 (defun d-mode-current-defun-function ()
