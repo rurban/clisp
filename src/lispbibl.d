@@ -1905,13 +1905,6 @@
   #endif
 # Bei Erweiterung: REXX erweitern.
 
-# Ob Graphik-Operationen unterstützt werden.
-  #if defined(EMUNIX) || (defined(UNIX_LINUX) && defined(PC386))
-    #define GRAPHICS
-    #define GRAPHICS_SWITCH  # Umschalten zwischen Text-Modus und Grafik-Modus
-  #endif
-# Bei Erweiterung: GRAPH erweitern.
-
 # Ob das Betriebssystem ein Environment verwaltet, das Strings zu Strings
 # assoziiert:
   #if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32)
@@ -12408,16 +12401,6 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # close_rexx();
   extern void close_rexx (void);
 # wird verwendet von SPVW
-
-#endif
-
-# ######################## GRAPHBIBL zu GRAPH.D ########################### #
-
-#ifdef GRAPHICS_SWITCH
-
-# Schaltet die Grafik auf Text-Modus zurück.
-# switch_text_mode();
-  extern void switch_text_mode (void);
 
 #endif
 
