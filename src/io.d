@@ -9745,7 +9745,7 @@ LISPFUN(format_tabulate,seclass_default,3,2,norest,nokey,0,NIL) {
       var object new_cons = allocate_cons();
       Car(new_cons) = popSTACK();
       Cdr(new_cons) = Cdr(TheStream(STACK_0)->strm_pphelp_strings);
-      TheStream(STACK_0)->strm_pphelp_strings = new_cons;
+      Cdr(TheStream(STACK_0)->strm_pphelp_strings) = new_cons;
     } else {
       pushSTACK(make_ssstring(SEMI_SIMPLE_DEFAULT_SIZE));
       swap(object,STACK_0,STACK_1);

@@ -641,12 +641,10 @@ bar 41
 
 (slot-value bar 'zot-foo) 41
 
-#+:enable-risky-tests
 (progn
   (define-condition xyzzy ()
     ((f1 :accessor my-f1 :initarg :f1-is))
     (:report (lambda (c s)
                (format s "~1Txyzzy: My f1 is ~A" (my-f1 c)))))
   (princ-to-string (make-condition 'xyzzy :f1-is "a silly string")))
-#+:enable-risky-tests
 " xyzzy: My f1 is a silly string"
