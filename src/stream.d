@@ -3591,12 +3591,6 @@ global uintL iconv_wcslen (object encoding, const chart* src, const chart* srcen
 global void iconv_wcstombs (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
 global object iconv_range (object encoding, uintL start, uintL end);
 
-# fehler_iconv_invalid_charset(encoding);
-nonreturning_function(local, fehler_iconv_invalid_charset, (object encoding)) {
-  pushSTACK(TheEncoding(encoding)->enc_charset);
-  fehler(error,GETTEXT("unknown character set ~"));
-}
-
 # Error, when a character cannot be converted to an encoding.
 # fehler_unencodable(encoding);
 nonreturning_function(extern, fehler_unencodable, (object encoding, chart ch));
@@ -3613,6 +3607,33 @@ nonreturning_function(extern, fehler_unencodable, (object encoding, chart ch));
   #endif
 #endif
 
+# open the iconv conversion and signal errors when necessary
+# begin_system_call() must be called before this!!!
+# end_system_call() must be called after this!!!
+local iconv_t open_iconv (const char * to_code, const char * from_code,
+                          object charset) {
+  var iconv_t cd = iconv_open(to_code,from_code);
+  if (cd == (iconv_t)(-1)) {
+    if (errno == EINVAL) {
+      end_system_call();
+      pushSTACK(charset);
+      fehler(error,GETTEXT("unknown character set ~"));
+    }
+    OS_error();
+  }
+  return cd;
+}
+
+# check whether the charset is valid
+global void check_charset (const char * code, object charset) {
+  begin_system_call();
+  var iconv_t cd = open_iconv(CLISP_INTERNAL_CHARSET,code,charset);
+  if (iconv_close(cd) < 0) { OS_error(); }
+  cd = open_iconv(code,CLISP_INTERNAL_CHARSET,charset);
+  if (iconv_close(cd) < 0) { OS_error(); }
+  end_system_call();
+}
+
 # Bytes to characters.
 
 global uintL iconv_mblen (object encoding, const uintB* src,
@@ -3623,12 +3644,8 @@ global uintL iconv_mblen (object encoding, const uintB* src,
   with_sstring_0(TheEncoding(encoding)->enc_charset,Symbol_value(S(ascii)),
                  charset_asciz, {
     begin_system_call();
-    var iconv_t cd = iconv_open(CLISP_INTERNAL_CHARSET,charset_asciz);
-    if (cd == (iconv_t)(-1)) {
-      if (errno == EINVAL)
-        { end_system_call(); fehler_iconv_invalid_charset(encoding); }
-      OS_error();
-    }
+    var iconv_t cd = open_iconv(CLISP_INTERNAL_CHARSET,charset_asciz,
+                                TheEncoding(encoding)->enc_charset);
     {
       var const char* inptr = (const char*)src;
       var size_t insize = srcend-src;
@@ -3674,12 +3691,8 @@ global void iconv_mbstowcs (object encoding, object stream,
     with_sstring_0(TheEncoding(encoding)->enc_charset,Symbol_value(S(ascii)),
                    charset_asciz, {
       begin_system_call();
-      var iconv_t cd = iconv_open(CLISP_INTERNAL_CHARSET,charset_asciz);
-      if (cd == (iconv_t)(-1)) {
-        if (errno == EINVAL)
-          { end_system_call(); fehler_iconv_invalid_charset(encoding); }
-        OS_error();
-      }
+      var iconv_t cd = open_iconv(CLISP_INTERNAL_CHARSET,charset_asciz,
+                                  TheEncoding(encoding)->enc_charset);
       while (insize > 0 && outsize > 0) {
         var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
         if (res == (size_t)(-1)) {
@@ -3754,12 +3767,8 @@ global uintL iconv_wcslen (object encoding, const chart* src,
   with_sstring_0(TheEncoding(encoding)->enc_charset,Symbol_value(S(ascii)),
                  charset_asciz, {
     begin_system_call();
-    var iconv_t cd = iconv_open(charset_asciz,CLISP_INTERNAL_CHARSET);
-    if (cd == (iconv_t)(-1)) {
-      if (errno == EINVAL)
-        { end_system_call(); fehler_iconv_invalid_charset(encoding); }
-      OS_error();
-    }
+    var iconv_t cd = open_iconv(charset_asciz,CLISP_INTERNAL_CHARSET,
+                                TheEncoding(encoding)->enc_charset);
     {
       var const char* inptr = (const char*)src;
       var size_t insize = (char*)srcend-(char*)src;
@@ -3832,12 +3841,8 @@ global void iconv_wcstombs (object encoding, object stream,
     with_sstring_0(TheEncoding(encoding)->enc_charset,Symbol_value(S(ascii)),
                    charset_asciz, {
       begin_system_call();
-      var iconv_t cd = iconv_open(charset_asciz,CLISP_INTERNAL_CHARSET);
-      if (cd == (iconv_t)(-1)) {
-        if (errno == EINVAL)
-          { end_system_call(); fehler_iconv_invalid_charset(encoding); }
-        OS_error();
-      }
+      var iconv_t cd = open_iconv(charset_asciz,CLISP_INTERNAL_CHARSET,
+                                  TheEncoding(encoding)->enc_charset);
       while (insize > 0) {
         var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
         if (res == (size_t)(-1)) {
@@ -3950,12 +3955,8 @@ global object iconv_range (object encoding, uintL start, uintL end) {
   with_sstring_0(TheEncoding(encoding)->enc_charset,Symbol_value(S(ascii)),
                  charset_asciz, {
     begin_system_call();
-    var iconv_t cd = iconv_open(charset_asciz,CLISP_INTERNAL_CHARSET);
-    if (cd == (iconv_t)(-1)) {
-      if (errno == EINVAL)
-        { end_system_call(); fehler_iconv_invalid_charset(encoding); }
-      OS_error();
-    }
+    var iconv_t cd = open_iconv(charset_asciz,CLISP_INTERNAL_CHARSET,
+                                TheEncoding(encoding)->enc_charset);
     end_system_call();
     {
       var uintL i1;
@@ -4028,25 +4029,17 @@ local void ChannelStream_init (object stream) {
       var uintB flags = TheStream(stream)->strmflags;
       if (flags & strmflags_rd_B) {
         begin_system_call();
-        var iconv_t cd = iconv_open(CLISP_INTERNAL_CHARSET,charset_asciz);
-        if (cd == (iconv_t)(-1)) {
-          if (errno == EINVAL)
-            { end_system_call(); fehler_iconv_invalid_charset(encoding); }
-          OS_error();
-        }
-        ChannelStream_iconvdesc(stream) = cd;
+        ChannelStream_iconvdesc(stream) =
+          open_iconv(CLISP_INTERNAL_CHARSET,charset_asciz,
+                     TheEncoding(encoding)->enc_charset);
       } else {
         ChannelStream_iconvdesc(stream) = (iconv_t)0;
       }
       if (flags & strmflags_wr_B) {
         begin_system_call();
-        var iconv_t cd = iconv_open(charset_asciz,CLISP_INTERNAL_CHARSET);
-        if (cd == (iconv_t)(-1)) {
-          if (errno == EINVAL)
-            { end_system_call(); fehler_iconv_invalid_charset(encoding); }
-          OS_error();
-        }
-        ChannelStream_oconvdesc(stream) = cd;
+        ChannelStream_oconvdesc(stream) =
+          open_iconv(charset_asciz,CLISP_INTERNAL_CHARSET,
+                     TheEncoding(encoding)->enc_charset);
       } else {
         ChannelStream_oconvdesc(stream) = (iconv_t)0;
       }

@@ -1,3 +1,15 @@
+2002-05-06  Sam Steingold  <sds@gnu.org>
+
+	do not create unusable iconv encodings
+	* stream.d (fehler_iconv_invalid_charset): removed
+	(open_iconv): open the iconv conversion and signal all errors
+	(check_charset): check whether the charset is valid
+	(iconv_mblen, iconv_mbstowcs, iconv_wcslen, iconv_wcstombs)
+	(iconv_range, ChannelStream_init): use open_iconv()
+	* lispbibl.d (check_charset): declare
+	* encoding.d (MAKE-ENCODING): check the iconv charset for
+	validity before making the charset
+
 2002-05-03  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 550864 ]: cannot use RETURN-FROM in deep nesting

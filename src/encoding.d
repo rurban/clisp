@@ -1340,6 +1340,8 @@ LISPFUN(make_encoding,0,0,norest,key,4,
   }
   #if defined(GNU_LIBICONV) || defined(HAVE_ICONV)
   else if (stringp(arg)) {
+    with_string_0(arg,Symbol_value(S(ascii)),charset_ascii,
+                  { check_charset(charset_ascii,arg); });
     pushSTACK(coerce_ss(arg));
     var object encoding = allocate_encoding();
     TheEncoding(encoding)->enc_eol = S(Kunix);
