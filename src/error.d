@@ -937,7 +937,7 @@ global object check_encoding (object arg, const gcv_object_t *e_default,
     C_make_encoding();
     return value1;
   }
-  pushSTACK(NIL); /* PLACE */
+  pushSTACK(NIL); /* no PLACE */
   pushSTACK(arg);                     /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_external_format)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(arg);
@@ -1015,7 +1015,7 @@ global object check_funname (condition_t errtype,object caller, object obj) {
   pushSTACK(caller); /* save */
   while (!funnamep(obj)) {
     caller = STACK_0;
-    pushSTACK(NIL); /* PLACE */
+    pushSTACK(NIL); /* no PLACE */
     switch (errtype) {
       case type_error:
         pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
