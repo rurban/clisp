@@ -26,39 +26,97 @@
 
    slotlist is a packed description of the slots of a structure:
    slotlist = ({slot}*)
-   slot = #(name initargs offset initer default type readonly)
-   where name is the slotname,
-         initargs is a list containing the initialization argument,
+   slot = an instance of structure-direct-slot-definition, containing:
+         name - the slotname,
+         initargs - a list containing the initialization argument,
               or NIL for the pseudo-slot containing the structure name in
               named structures,
-         offset is the location of the slot in any instance,
-         default is the default value:
-              either a constant, that evaluates to the default value,
-              or a form (a symbol or a list (SVREF ...)), that yields
+         offset - the location of the slot in any instance,
+         initer = (initform . initfunction) - as usual,
+         init-function-form -
+              a form (a symbol or a list (SVREF ...)), that yields
               upon evaluation in an arbitrary environment a function,
               that returns the default value, when called.
-         type being the declared type for this slot,
+         type - the declared type for this slot,
          readonly = NIL or = T specifying, if this slot is readonly, i.e.
               after the construction of the Structure the slot cannot be
-               changed with (setf ...) anymore.
+              changed with (setf ...) anymore.
          (See also pr_structure_default() in io.d.)
+   The initializations are specified as follows:
+     - not real slot (i.e. initargs = ()):
+       initform           = `(QUOTE ,name)
+       initfunction       = a constant-initfunction for name
+       init-function-form = `(MAKE-CONSTANT-INITFUNCTION ',name)
+     - real slot with constant initform:
+       initform           = as specified by the user
+       initfunction       = a constant-initfunction for the initform's value
+       init-function-form = `(MAKE-CONSTANT-INITFUNCTION ,initform)
+     - real slot with non-constant initform:
+       initform           = as specified by the user
+       initfunction       = a closure taking 0 arguments, or nil
+       init-function-form = for inherited slots: `(SVREF ...)
+                            for direct slots: `(FUNCTION (LAMBDA () ,initform))
+                            In both cases, after some processing: a gensym
+                            referring to a binding.
+
    if type = T, the Structure-Name occupies the slot 0, but is not mentioned
      in the slotlist, because there is nothing to do for its initialization.
 |#
 
-(defun make-ds-slot (name initargs offset initer default type readonly)
-  (vector name initargs offset initer default type readonly))
-(proclaim '(inline ds-slot-name))
-(defun ds-slot-name (slot) (svref slot 0))
-(proclaim '(inline ds-slot-initargs))
-(defun ds-slot-initargs (slot) (svref slot 1)) ; used in clos.lisp
-(defmacro ds-slot-offset (slot) `(svref ,slot 2))
-(defmacro ds-slot-initer (slot) `(svref ,slot 3)) ; used in clos.lisp
-(defmacro ds-slot-default (slot) `(svref ,slot 4))
-(defmacro ds-slot-type (slot) `(svref ,slot 5))
-(defmacro ds-slot-readonly (slot) `(svref ,slot 6))
-(defun copy-ds-slot (slot) (sys::%copy-simple-vector slot))
+#| OLD:
+                      initer                 default
+not real slot         `(NIL . ,name)                    name
+constant default      `(NIL . ,value)                   default
+other default         `(,(add-unquote default) . NIL)   default  gensym or non-constant form
+inherited default     likewise                          `(SVREF ...)
+
+NEW:
+                      initform      initfunction                          initff
+not real slot        `(QUOTE ,name)  (make-constant-initfunction name)    `(MAKE-CONSTANT-INITFUNCTION ',name)
+constant default      default        (make-constant-initfunction value)   `(MAKE-CONSTANT-INITFUNCTION ,default)
+other default         default        closure or nil                       gensym or non-constant form          
+inherited default                                                        `(SVREF ...)
+
+|#
+
+(defun make-ds-slot (name initargs offset initer initff type readonly)
+  (clos::make-instance-<structure-effective-slot-definition>
+    clos::<structure-effective-slot-definition>
+    :name name
+    :initargs initargs
+    :initform (car initer) :initfunction (cdr initer) 'clos::inheritable-initer initer
+    'clos::initff initff
+    :type type
+    'clos::readonly readonly
+    'clos::location offset))
+(defmacro ds-slot-name (slot)
+  `(clos::slot-definition-name ,slot))
+(defmacro ds-slot-initargs (slot)
+  `(clos::slot-definition-initargs ,slot))
+(defmacro ds-slot-offset (slot)
+  `(clos::slot-definition-location ,slot))
+(defmacro ds-slot-initer (slot)
+  `(clos::slot-definition-inheritable-initer ,slot))
+(defmacro ds-slot-initfunctionform (slot)
+  `(clos::structure-effective-slot-definition-initff ,slot))
+(defmacro ds-slot-type (slot)
+  `(clos::slot-definition-type ,slot))
+(defmacro ds-slot-readonly (slot)
+  `(clos::structure-effective-slot-definition-readonly ,slot))
+(defun copy-ds-slot (slot)
+  (make-ds-slot
+    (ds-slot-name slot)
+    (ds-slot-initargs slot)
+    (ds-slot-offset slot)
+    (ds-slot-initer slot)
+    (ds-slot-initfunctionform slot)
+    (ds-slot-type slot)
+    (ds-slot-readonly slot)))
 (defmacro ds-real-slot-p (slot) `(not (null (ds-slot-initargs ,slot))))
+(defmacro ds-pseudo-slot-default (slot)
+  ;; The pseudo-slots have an initform = (QUOTE name) and an initfunction which
+  ;; returns the name.
+  `(funcall (clos::slot-definition-initfunction ,slot)))
 
 #| The type test comes in 4 variants. Keep them in sync! |#
 
@@ -75,7 +133,7 @@
                (dolist (slot (svref desc 4) t)
                  (unless (ds-real-slot-p slot)
                    (unless (eq (nth (ds-slot-offset slot) object)
-                               (ds-slot-default slot))
+                               (ds-pseudo-slot-default slot))
                      (return nil)))))
           (and (vectorp object) (simple-array-p object)
                (>= (length object) size)
@@ -87,7 +145,7 @@
                  (unless (ds-real-slot-p slot)
                    (unless (and (simple-vector-p object)
                                 (eq (svref object (ds-slot-offset slot))
-                                    (ds-slot-default slot)))
+                                    (ds-pseudo-slot-default slot)))
                      (return nil))))))))))
 
 #| Type test expansion, for TYPEP compiler macro. |#
@@ -106,7 +164,7 @@
                     ,@(mapcan #'(lambda (slot)
                                   (unless (ds-real-slot-p slot)
                                     `((EQ (NTH ,(ds-slot-offset slot) ,tmp)
-                                          ',(ds-slot-default slot)))))
+                                          ',(ds-pseudo-slot-default slot)))))
                               (svref desc 4)))
               (let ((eltype (if (consp type)
                               (upgraded-array-element-type (second type))
@@ -122,7 +180,7 @@
                       ,@(mapcan #'(lambda (slot)
                                     (unless (ds-real-slot-p slot)
                                       `((EQ (SVREF ,tmp ,(ds-slot-offset slot))
-                                            ',(ds-slot-default slot)))))
+                                            ',(ds-pseudo-slot-default slot)))))
                                 (svref desc 4))))))))))
 
 #| Type canonicalization, for SUBTYPEP. |#
@@ -144,7 +202,7 @@
                     (let ((resttype resulttype))
                       (dotimes (j (ds-slot-offset slot))
                         (setq resttype (third resttype)))
-                      (setf (second resttype) `(EQL ,(ds-slot-default slot))))))
+                      (setf (second resttype) `(EQL ,(ds-pseudo-slot-default slot))))))
                 resulttype)
               `(AND (SIMPLE-ARRAY ,(if (consp type) (second type) 'T) (*))
                     ;; Constraints that cannot be represented through ANSI CL
@@ -193,7 +251,7 @@
                    ,@(mapcan #'(lambda (slot)
                                  (unless (ds-real-slot-p slot)
                                    `((EQ (NTH ,(ds-slot-offset slot) OBJECT)
-                                         ',(ds-slot-default slot)))))
+                                         ',(ds-pseudo-slot-default slot)))))
                              slotlist))
              ; This code is only used when there is at least one named slot.
              ; Therefore the vector's upgraded element type must contain
@@ -203,7 +261,7 @@
                    ,@(mapcan #'(lambda (slot)
                                  (unless (ds-real-slot-p slot)
                                    `((EQ (SVREF OBJECT ,(ds-slot-offset slot))
-                                         ',(ds-slot-default slot)))))
+                                         ',(ds-pseudo-slot-default slot)))))
                              slotlist))))))))
 
 #| auxiliary function for both constructors:
@@ -213,12 +271,11 @@
 |#
 
 (defun ds-arg-default (arg slot)
-  (let ((default (ds-slot-default slot)))
+  (let ((initer (ds-slot-initer slot)))
     `(,arg
-      ;; default is either constant or function or symbol
-      ,(if (constantp default)
-         default
-         `(FUNCALL ,default)))))
+      ,(if (constant-initfunction-p (cdr initer)) ; equivalent to (constantp (car initer))
+         (car initer) ; initform
+         `(FUNCALL ,(ds-slot-initfunctionform slot))))))
 
 #| auxiliary function for both constructors:
    (ds-make-constructor-body type name names size slotlist get-var)
@@ -236,7 +293,7 @@
     `(,type ,@(mapcar #'(lambda (slot var)
                           (if (ds-real-slot-p slot)
                             `(THE ,(ds-slot-type slot) ,var)
-                            `(QUOTE ,(ds-slot-default slot))))
+                            `(QUOTE ,(ds-pseudo-slot-default slot))))
                        slotlist varlist))
     `(LET ((OBJECT
              ,(cond ((eq type 'T) `(%MAKE-STRUCTURE ,names ,size))
@@ -256,7 +313,7 @@
                        (t `(AREF OBJECT ,offset) ))
                 ,(if (ds-real-slot-p slot)
                    `(THE ,(ds-slot-type slot) ,var)
-                   `(QUOTE ,(ds-slot-default slot)))))
+                   `(QUOTE ,(ds-pseudo-slot-default slot)))))
            slotlist varlist)
        OBJECT)))
 
@@ -274,7 +331,7 @@
     ;; no default value in the lambda-list
     (let* ((var (if (listp arg) (first arg) arg))
            (slot (find (if (consp var) (second var) var) slotlist
-                       :key #'ds-slot-name :test #'eq)))
+                       :key #'clos::slot-definition-name :test #'eq)))
       (if slot
         ;; slot found -> take its default value
         (ds-arg-default var slot)
@@ -353,7 +410,7 @@
                   (nreverse slotinitlist)))))
       `(DEFUN ,constructorname ,new-arglist
          ,(ds-make-constructor-body type name names size slotlist
-                                    (mapcar #'ds-slot-name slotlist))))))
+                                    (mapcar #'clos::slot-definition-name slotlist))))))
 
 #| (ds-make-keyword-constructor descriptor type name names size slotlist)
    returns the form, that defines the keyword-constructor. |#
@@ -495,6 +552,7 @@
         (slotlist                          nil)
         (slotdefaultvars                   nil)
         (slotdefaultfuns                   nil)
+        (slotdefaultslots                  nil)
          constructor-forms                      )
     ;; check name-and-options:
     (when (listp name-and-options)
@@ -655,10 +713,11 @@
           (nreverse
             (mapcar #'(lambda (slot)
                         (setq slot (copy-ds-slot slot))
-                        (when (car (ds-slot-initer slot))
-                          (setf (ds-slot-initer slot)
-                                (cons (add-unquote (ds-slot-default slot))
-                                      'NIL)))
+                        #| FIXME: This needs testing.
+                        (unless (constant-initfunction-p (cdr (ds-slot-initer slot)))
+                          (setf (ds-slot-initfunctionform slot)
+                                (add-unquote (ds-slot-initfunctionform slot))))
+                        |#
                         slot)
                     (svref incl-desc 4))))
         ;; slotlist is the reversed list of the inherited slots.
@@ -670,24 +729,30 @@
         ;; process further arguments of the :INCLUDE-option:
         (dolist (slotarg (rest option))
           (let* ((slotname (if (atom slotarg) slotarg (first slotarg)))
-                 (slot (find slotname slotlist :key #'ds-slot-name
+                 (slot (find slotname slotlist :key #'clos::slot-definition-name
                              :test #'eq)))
             (when (null slot)
               (error-of-type 'source-program-error
                 (TEXT "~S ~S: included structure ~S has no component with name ~S.")
                 'defstruct name subname slotname))
             (if (atom slotarg)
-              (setf (ds-slot-default slot) 'NIL) ; overwrite default to NIL
+              ; overwrite default to NIL
+              (setf (ds-slot-initer slot) (cons 'NIL (make-constant-initfunction 'NIL))
+                    (ds-slot-initfunctionform slot) `(MAKE-CONSTANT-INITFUNCTION NIL))
               (progn
-                (let ((default (second slotarg)))
-                  (unless (constantp default)
-                    (push
-                      `(FUNCTION ,(concat-pnames "DEFAULT-" slotname)
-                         (LAMBDA () ,default))
-                      slotdefaultfuns)
-                    (setq default (gensym))
-                    (push default slotdefaultvars))
-                  (setf (ds-slot-default slot) default))
+                (let ((initform (second slotarg)))
+                  (if (constantp initform)
+                    (setf (ds-slot-initer slot) (cons initform (make-constant-initfunction (eval initform)))
+                          (ds-slot-initfunctionform slot) `(MAKE-CONSTANT-INITFUNCTION ,initform))
+                    (let ((variable (gensym)))
+                      (push
+                        `(FUNCTION ,(concat-pnames "DEFAULT-" slotname)
+                           (LAMBDA () ,initform))
+                        slotdefaultfuns)
+                      (push variable slotdefaultvars)
+                      (push slot slotdefaultslots)
+                      (setf (ds-slot-initer slot) (cons initform nil) ; FIXME
+                            (ds-slot-initfunctionform slot) variable))))
                 ;; process the slot-options of this Slot-Specifier:
                 (do ((slot-arglistr (cddr slotarg) (cddr slot-arglistr)))
                     ((endp slot-arglistr))
@@ -751,7 +816,8 @@
           (make-ds-slot nil
                         '()
                         initial-offset
-                        (cons 'NIL name) name ; "default value" = name
+                        (cons `(QUOTE ,name) (make-constant-initfunction name))
+                        `(MAKE-CONSTANT-INITFUNCTION ',name)
                         'SYMBOL ; type = symbol
                         T)      ; read-only
           slotlist)
@@ -763,17 +829,12 @@
     (let ((offset initial-offset))
       (dolist (slotarg slotargs)
         (let (slotname
-              default)
+              initform
+              initfunction
+              initfunctionform)
           (if (atom slotarg)
-            (setq slotname slotarg  default nil)
-            (setq slotname (first slotarg)  default (second slotarg)))
-          (unless (constantp default)
-            (push
-              `(FUNCTION ,(concat-pnames "DEFAULT-" slotname)
-                 (LAMBDA () ,default))
-              slotdefaultfuns)
-            (setq default (gensym))
-            (push default slotdefaultvars))
+            (setq slotname slotarg  initform nil)
+            (setq slotname (first slotarg)  initform (second slotarg)))
           ;; Here we compare slot names through their symbol-names, not through
           ;; #'eq, because if we have two slots P::X and Q::X, the two accessor
           ;; functions would have the same name FOO-X.
@@ -800,24 +861,35 @@
                         (t (error-of-type 'source-program-error
                              (TEXT "~S ~S: ~S is not a slot option.")
                              'defstruct name slot-keyword))))))
+            (if (constantp initform)
+              (setq initfunction (make-constant-initfunction (eval initform))
+                    initfunctionform `(MAKE-CONSTANT-INITFUNCTION ,initform))
+              (let ((variable (gensym)))
+                (push
+                  `(FUNCTION ,(concat-pnames "DEFAULT-" slotname)
+                     (LAMBDA () ,initform))
+                  slotdefaultfuns)
+                (push variable slotdefaultvars)
+                (setq initfunction nil ; FIXME
+                      initfunctionform variable)))
             (push (make-ds-slot slotname
                                 (list (intern (symbol-name slotname)
                                               *keyword-package*)) ; initargs
                                 offset ; location
-                                (if (constantp default)
-                                  ;; default is a constant
-                                  (cons 'NIL (eval default))
-                                  ;; default is a gensym
-                                  (cons (add-unquote default) 'NIL))
+                                (cons initform initfunction) ; FIXME: add-unquote?
+                                initfunctionform
                                 ;; The following are defstruct specific.
-                                default type read-only)
-                  slotlist)))
+                                type read-only)
+                  slotlist)
+            (unless (constantp initform)
+              (push (car slotlist) slotdefaultslots))))
         (incf offset))
       (setq size offset))
     ;; size = total length of the structure
     (setq slotlist (nreverse slotlist))
     (setq slotdefaultfuns (nreverse slotdefaultfuns))
     (setq slotdefaultvars (nreverse slotdefaultvars))
+    (setq slotdefaultslots (nreverse slotdefaultslots))
     ;; the slots in slotlist are now sorted in ascending order again.
     (setq constructor-forms
       (mapcar
@@ -834,20 +906,25 @@
         constructor-option-list))
     ;; constructor-forms = list of forms, that define the constructors.
     (let ((index 5))
-      (dolist (defaultvar slotdefaultvars)
-        (setf (ds-slot-default (find defaultvar slotlist :test #'eq
-                                     :key #'(lambda (x) (ds-slot-default x))))
-              `(SVREF (GET ',name 'DEFSTRUCT-DESCRIPTION) ,index))
-        (incf index)))
+      (mapc #'(lambda (defaultvar slot)
+                (setf (ds-slot-initfunctionform slot)
+                      `(SVREF (GET ',name 'DEFSTRUCT-DESCRIPTION) ,index))
+                (incf index))
+            slotdefaultvars slotdefaultslots))
     ;; now, slotlist contains no more slotdefaultvars.
     `(EVAL-WHEN (LOAD COMPILE EVAL)
        (LET ()
-         (LET ,(append namesbinding (mapcar #'list slotdefaultvars
-                                            slotdefaultfuns))
+         (LET ,(append namesbinding (mapcar #'list slotdefaultvars slotdefaultfuns))
            ,@constructor-forms
            (%PUT ',name 'DEFSTRUCT-DESCRIPTION
                  (VECTOR ,namesform ',type-option ,size ',keyword-constructor
-                         ,(add-backquote slotlist)
+                         (LIST
+                           ,@(mapcar #'(lambda (slot)
+                                         (clos::make-load-form-<structure-effective-slot-definition>
+                                           slot
+                                           (let ((i (position slot slotdefaultslots)))
+                                             (if i (nth i slotdefaultvars) nil))))
+                                     slotlist))
                          ,@slotdefaultvars)))
          ,(if (eq type-option 'T)
             `(CLOS::DEFINE-STRUCTURE-CLASS ',name)

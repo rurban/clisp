@@ -1,3 +1,81 @@
+2004-04-24  Bruno Haible  <bruno@clisp.org>
+
+	Metaobject protocol for slot definitions.
+	* lispbibl.d (classversion_length): New macro.
+	(SlotDefinition): New type.
+	(TheSlotDefinition): New macro.
+	* record.d (SYS::%STRUCTURE-REF): Use new slot-definition-* accessors.
+	(CLOS::ALLOCATE-METAOBJECT-INSTANCE): New function.
+	(slot_in_arglist): Use new SlotDefinition accessors.
+	(CLOS::%SHARED-INITIALIZE): Use new slot-definition-* accessors.
+	Update for new initer layout: Avoid funcalling the initfunction by
+	looking whether it's a constant_initfunction.
+	(CLOS::%REINITIALIZE-INSTANCE): Use new SlotDefinition accessors.
+	(do_initialize_instance): Use new slot-definition-* accessors.
+	Update for new initer layout: Avoid funcalling the initfunction by
+	looking whether it's a constant_initfunction.
+	(CLOS::%MAKE-INSTANCE): Update for new initer layout: Avoid funcalling
+	the initfunction by looking whether it's a constant_initfunction.
+	* io.d (some_printable_slots, pr_structure_default): Use new
+	SlotDefinition accessors.
+	* clos-slotdef1.lisp: New file.
+	* clos-slotdef2.lisp: New file.
+	* clos-slotdef3.lisp: New file.
+	* init.lisp: Export symbols of the slot-definition MOP.
+	Load clos-slotdef1.
+	* clos-package.lisp: Export symbols of the slot-definition MOP.
+	* clos.lisp: Load clos-slotdef2 and clos-slotdef3.
+	* defstruct.lisp (make-ds-slot, ds-slot-name, ds-slot-initargs,
+	ds-slot-offset, ds-slot-initer, ds-slot-default, ds-slot-type,
+	ds-slot-readonly, copy-ds-slot): Rewrite using slot-definition.
+	(ds-slot-initfunctionform, ds-pseudo-slot-default): New macros.
+	(ds-typep, ds-typep-expansion, ds-canonicalize-type): Use
+	ds-pseudo-slot-default.
+	(ds-arg-default): Rewritten using new initer semantics.
+	(ds-make-pred, ds-make-constructor-body): Use ds-pseudo-slot-default.
+	(defstruct): New initer semantics. Old initer semantics was completely
+	unintelligible. Avoid add-backquote and add-unquote. Use new
+	slot-definition-* accessors.
+	* clos-class2.lisp (replace-class-version): New function.
+	(defclass): Don't put :ACCESSORS into the slot specifiers for
+	ensure-class. Use make-initfunction-form and put :INITFORM instead of
+	:INITER into the slot-specifiers. Use make-initfunction-form also for
+	the :DIRECT-DEFAULT-INITARGS argument.
+	(make-initer): Remove function.
+	(slot-definition, standard-slot-definition): Remove. Replaced by
+	clos-slotdef1.lisp.
+	(make-slotdef): Remove function.
+	(ensure-class): Invoke convert-direct-slots. Invoke equal-direct-slots
+	instead of equal-slots. In case of class redefinition, update
+	slot-definition instances instead of lists.
+	(equal-direct-slots): Renamed from equal-slots.
+	(equal-slot): Remove function. Moved to clos-slotdef1.lisp.
+	(initialize-instance-standard-class): Accept te direct-slots list in two
+	different forms.
+	(finalize-instance-standard-class): Use new slot-definition-* accessors.
+	Use only the initfunction instead of the initer.
+	(std-compute-slots): Works on direct-slot-definition instances now,
+	instead of plists. Create effective-slot-definition instances, instead
+	of slotdef instances. Don't lose the type and documentation of each
+	slot. Rework the initform/initfunction handling. Call the MOP function
+	effective-slot-definition-class.
+	(std-layout-slots): Use new slot-definition-* accessors.
+	(class-version-compute-slotlists): Likewise.
+	(initialize-instance-structure-class): Likewise. Invoke
+	convert-direct-slots.
+	(define-structure-class): Use new slot-definition-* accessors.
+	* clos-class5.lisp (change-class, update-instance-for-different-class):
+	Use new slot-definition-* accessors.
+	(slot-names): Likewise.
+	* loadform.lisp (make-load-form-saving-slots): Use new slot-definition-*
+	accessors.
+	* documentation.lisp (documentation, (setf documentation)): Add a
+	method for slot-definition.
+	* makemake.in (LPARTS): Add clos-slotdef1, clos-slotdef2,
+	clos-slotdef3.
+	* po/Makefile.devel (LISPSOURCES): Add clos-slotdef1, clos-slotdef2,
+	clos-slotdef3.
+
 2004-05-07  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (unix) [__OpenBSD__]: define

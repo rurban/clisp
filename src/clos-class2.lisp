@@ -34,7 +34,7 @@
 
 (defstruct (slotted-class (:inherit class) (:predicate nil) (:copier nil)
                           (:conc-name "CLASS-"))
-  slots                    ; list of all slots (as slot-definitions)
+  slots                    ; list of all slots (as effective-slot-definitions)
   default-initargs         ; default-initargs (as alist initarg -> initer)
   valid-initargs           ; list of valid initargs
   instance-size)           ; number of slots of the direct instances + 1
@@ -44,7 +44,7 @@
 
 (defstruct (standard-class (:inherit slotted-class) (:conc-name "CLASS-"))
   current-version          ; most recent class-version, points back to this class
-  direct-slots             ; list of all freshly added slots (as plists)
+  direct-slots             ; list of all freshly added slots (as direct-slot-definition instances)
   direct-default-initargs  ; freshly added default-initargs (as plist)
   direct-accessors         ; automatically generated accessor methods (as plist)
   fixed-slot-locations     ; flag whether to guarantee same slot locations in all subclasses
@@ -73,6 +73,11 @@
           'stream 'file-stream 'synonym-stream 'broadcast-stream
           'concatenated-stream 'two-way-stream 'echo-stream 'string-stream
           'string 'symbol 't 'vector))
+
+;; Bootstrapping support.
+(defun replace-class-version (class class-version)
+  (replace class-version (class-current-version class))
+  (setf (class-current-version class) class-version))
 
 ;;; -------------------------------- DEFCLASS --------------------------------
 
@@ -116,12 +121,11 @@
                                (TEXT "~S ~S: There may be only one direct slot with the name ~S.")
                                'defclass name slot-name)
                              (push slot-name slot-names))
-                           (let ((accessors '())
-                                 (readers '())
+                           (let ((readers '())
                                  (writers '())
                                  (allocation '())
                                  (initargs '())
-                                 (initform nil) (initer nil)
+                                 (initform nil) (initfunction nil)
                                  (types '())
                                  (documentation nil))
                              (when (oddp (length slot-options))
@@ -146,7 +150,6 @@
                                       (error-of-type 'sys::source-program-error
                                         (TEXT "~S ~S, slot option for slot ~S: ~S is not a symbol")
                                         'defclass name slot-name argument))
-                                    (push argument accessors)
                                     (push argument readers)
                                     (push `(SETF ,argument) writers))
                                    (:ALLOCATION
@@ -171,7 +174,7 @@
                                         (TEXT "~S ~S, slot option ~S for slot ~S may only be given once")
                                         'defclass name ':initform slot-name))
                                     (setq initform `(QUOTE ,argument)
-                                          initer (make-initer argument)))
+                                          initfunction (make-initfunction-form argument slot-name)))
                                    (:TYPE
                                     (when types
                                       (error-of-type 'sys::source-program-error
@@ -212,12 +215,11 @@
                                      accessor-def-forms))
                              `(LIST
                                 :NAME ',slot-name
-                                ,@(when accessors `(:ACCESSORS ',(nreverse accessors)))
                                 ,@(when readers `(:READERS ',readers))
                                 ,@(when writers `(:WRITERS ',writers))
                                 ,@(when (eq allocation ':class) `(:ALLOCATION :CLASS))
                                 ,@(when initargs `(:INITARGS ',(nreverse initargs)))
-                                ,@(when initform `(#| :INITFORM ,initform |# :INITER ,initer))
+                                ,@(when initform `(:INITFORM ',initform :INITFUNCTION ,initfunction))
                                 ,@(when types `(:TYPE ',(first types)))
                                 ,@(when documentation `(:DOCUMENTATION ',documentation))))))
                      slot-specs))))
@@ -279,7 +281,7 @@
                                            (push (first list) arglist)
                                            (push (second list) formlist))
                                          (mapcan #'(lambda (arg form)
-                                                     `(',arg ,(make-initer form)))
+                                                     `(',arg (CONS ',form ,(make-initfunction-form form arg))))
                                                  (nreverse arglist) (nreverse formlist)))))))
                           (return))
                          (:DOCUMENTATION
@@ -302,53 +304,8 @@
        (LET ((,classvar (FIND-CLASS ',name)))
          ,@(nreverse accessor-def-forms) ; the DEFMETHODs
          ,classvar))))
-;; At runtime, an initer is - in order to save function calls -
-;; in general a cons (init-function . nil),
-;; for constants it is (nil . init-value).
-(defun make-initer (form)
-  (if (constantp form)
-    `(CONS 'NIL ,form)
-    `(CONS (FUNCTION (LAMBDA () ,form)) 'NIL)))
 
 ;; DEFCLASS execution:
-
-;; Information about a slot that is still significant at runtime:
-(defstruct (slot-definition
-             (:conc-name "SLOTDEF-")
-             (:type vector) (:predicate nil) (:copier nil) (:constructor nil))
-  (name nil :type symbol)
-  (initargs '() :type list)
-  (location nil :type (or null integer cons))
-  (initer nil :type (or null cons)))
-(defstruct (standard-slot-definition
-             (:inherit slot-definition) (:conc-name "SLOTDEF-")
-             (:type vector) (:predicate nil)
-             (:constructor make-standard-slot-definition
-                           (name allocation initargs location initer)))
-  (allocation :instance :type (or (member :class :instance) class)))
-
-(defun make-slotdef (&key name (allocation ':instance) (initargs '()) location
-                     (initer nil) (initform nil) (accessors '()) (readers '())
-                     (writers '()) type documentation)
-  (declare (ignore initform accessors readers writers type documentation))
-  (make-standard-slot-definition name allocation initargs location initer))
-
-#||
- ;; defstruct.lisp essentially contains the following.
- ;; In record.d and here we exploit that the first four attributes match!
- (defstruct (structure-slot-definition
-             (:include slot-definition) (:conc-name "DS-SLOT-")
-             (:type vector) (:predicate nil)
-             (:constructor make-ds-slot (name offset location initer
-                                         default type readonly)))
-   ;(name nil :type symbol)              ; ds-slot-name = slotdef-name !!
-   ;(initargs '() :type list)            ; ds-slot-initargs = slotdef-initargs !!
-   ;(offset nil :type (or null integer)) ; ds-slot-offset = slotdef-location !!
-   ;(initer nil :type (or null cons))    ; ds-slot-initer = slotdef-initer !!
-   (default nil)                         ; ds-slot-default
-   (type nil)                            ; ds-slot-type
-   (readonly nil))                       ; ds-slot-readonly
-||#
 
 ;; The function responsible for a MAKE-INSTANCES-OBSOLETE call.
 (defvar *make-instances-obsolete-caller* 'make-instances-obsolete)
@@ -394,12 +351,14 @@
             (let ((c (car l)))
               (unless (class-p c)
                 (setf (car l) (or (find-class c nil) c))))))
+        ;; Convert the direct-slots to <direct-slot-definition> instances.
+        (setq direct-slots (convert-direct-slots class direct-slots))
         ;; Trivial changes (that can occur when loading the same code twice)
         ;; do not require updating the instances:
         ;; changed slot-options :initform, :documentation,
         ;; changed class-options :default-initargs, :documentation.
         (if (and (equal direct-superclasses (class-direct-superclasses class))
-                 (equal-slots direct-slots (class-direct-slots class))
+                 (equal-direct-slots direct-slots (class-direct-slots class))
                  (equal-default-initargs direct-default-initargs
                                          (class-direct-default-initargs class))
                  (eq fixed-slot-locations (class-fixed-slot-locations class)))
@@ -408,12 +367,11 @@
             (do ((l-old (class-direct-slots class) (cdr l-old))
                  (l-new direct-slots (cdr l-new)))
                 ((null l-new))
-              (let ((old (getf (car l-old) ':initer))
-                    (new (getf (car l-new) ':initer)))
-                (when old
-                  ;; Move slot-initer new destructively into the slot-initer old:
-                  (setf (car old) (car new))
-                  (setf (cdr old) (cdr new)))))
+              (let ((old (car l-old))
+                    (new (car l-new)))
+                (setf (slot-definition-initform old) (slot-definition-initform new))
+                (setf (slot-definition-initfunction old) (slot-definition-initfunction new))
+                (setf (slot-definition-documentation old) (slot-definition-documentation new))))
             ;; Store new default-initargs:
             (do ((l-old (class-direct-default-initargs class) (cddr l-old))
                  (l-new direct-default-initargs (cddr l-new)))
@@ -424,7 +382,8 @@
                 (setf (car old) (car new))
                 (setf (cdr old) (cdr new))))
             ;; NB: These modifications are automatically inherited by the
-            ;; subclasses of class!
+            ;; subclasses of class! Due to <inheritable-slot-definition-initer>
+            ;; and <inheritable-slot-definition-doc>.
           )
           ;; Instances have to be updated:
           (let* ((was-finalized (class-precedence-list class))
@@ -477,6 +436,7 @@
                        class
                        :name name
                        :direct-superclasses direct-superclasses
+                       'direct-slots direct-slots
                        all-keys)
                 ;; FIXME: Need to handle changes of shared slots here?
                 (update-subclasses-for-redefined-class class
@@ -495,19 +455,11 @@
                    :name name
                    :direct-superclasses direct-superclasses
                    all-keys)))))
-(defun equal-slots (slots1 slots2)
+(defun equal-direct-slots (slots1 slots2)
   (or (and (null slots1) (null slots2))
       (and (consp slots1) (consp slots2)
-           (equal-slot (first slots1) (first slots2))
-           (equal-slots (rest slots1) (rest slots2)))))
-(defun equal-slot (slot1 slot2) ; slot1, slot2 Plists
-  (or (and (null slot1) (null slot2))
-      (and #| (consp slot1) (consp slot2) |#
-           (eq (first slot1) (first slot2))
-           (or (memq (first slot1)
-                     '(#| :initform |# :initer #| :documentation |# ))
-               (equal (second slot1) (second slot2)))
-           (equal-slot (cddr slot1) (cddr slot2)))))
+           (equal-direct-slot (first slots1) (first slots2))
+           (equal-direct-slots (rest slots1) (rest slots2)))))
 (defun equal-default-initargs (initargs1 initargs2)
   (or (and (null initargs1) (null initargs2))
       (and (consp initargs1) (consp initargs2)
@@ -538,8 +490,8 @@
 
 (defun make-instance-standard-class
     (metaclass &rest args
-     &key name (direct-superclasses '()) (direct-slots '())
-     (direct-default-initargs '()) &allow-other-keys)
+               &key name (direct-superclasses '()) (direct-slots '())
+                    (direct-default-initargs '()) &allow-other-keys)
   ;; metaclass = <standard-class>
   ;; Don't add functionality here! This is a preliminary definition that is
   ;; replaced with #'make-instance later.
@@ -550,8 +502,12 @@
     (apply #'initialize-instance-standard-class class args)))
 
 (defun initialize-instance-standard-class
-    (class &rest args &key (direct-superclasses '()) (direct-slots '())
-     (direct-default-initargs '()) (fixed-slot-locations nil) &allow-other-keys)
+    (class &rest args
+           &key (direct-superclasses '())
+                ((:direct-slots direct-slots-as-lists) '())
+                ((direct-slots direct-slots-as-metaobjects) '() direct-slots-as-metaobjects-p)
+                (direct-default-initargs '()) (fixed-slot-locations nil)
+           &allow-other-keys)
   (unless (slot-boundp class 'current-version)
     (setf (class-current-version class)
           (make-class-version :newest-class class
@@ -563,7 +519,10 @@
   (when *classes-finished*
     (apply #'%initialize-instance class args)) ; == (call-next-method)
   (setf (class-direct-superclasses class) (copy-list direct-superclasses))
-  (setf (class-direct-slots class) direct-slots)
+  (setf (class-direct-slots class)
+        (if direct-slots-as-metaobjects-p
+          direct-slots-as-metaobjects
+          (convert-direct-slots class direct-slots-as-lists)))
   (setf (class-direct-default-initargs class) direct-default-initargs)
   (setf (class-fixed-slot-locations class) fixed-slot-locations)
   (setf (class-precedence-list class) nil) ; mark as not yet finalized
@@ -639,19 +598,19 @@
             (let ((v (make-array shared-index))
                   (i 0))
               (dolist (slot (class-slots class) v)
-                (when (eq (slotdef-allocation slot) class)
+                (when (eq (slot-definition-allocation slot) class)
                   (setf (svref v i)
                         (let ((old-slot-location
-                                (gethash (slotdef-name slot) old-slot-location-table)))
+                                (gethash (slot-definition-name slot) old-slot-location-table)))
                           (if (and (consp old-slot-location)
                                    (eq (cv-newest-class (car old-slot-location)) class))
                             ;; The slot was already shared. Retain its value.
                             (svref (cv-shared-slots (car old-slot-location))
                                    (cdr old-slot-location))
                             ;; A new shared slot.
-                            (let ((init (slotdef-initer slot)))
-                              (if init
-                                (if (car init) (funcall (car init)) (cdr init))
+                            (let ((initfunction (slot-definition-initfunction slot)))
+                              (if initfunction
+                                (funcall initfunction)
                                 unbound)))))
                   (incf i)))))))
   ;; CLtL2 28.1.3.3., ANSI CL 4.3.4.2. Inheritance of Class Options
@@ -665,7 +624,7 @@
           :key #'car
           :from-end t))
   (setf (class-valid-initargs class)
-        (remove-duplicates (mapcap #'slotdef-initargs (class-slots class))))
+        (remove-duplicates (mapcap #'slot-definition-initargs (class-slots class))))
   (system::note-new-standard-class))
 ) ; let
 
@@ -840,94 +799,116 @@
 (defun std-compute-slots (class &optional (more-direct-slots '()))
   ;; Gather all slot-specifiers, ordered by precedence:
   (let ((all-slots
-         (mapcan
-          #'(lambda (c)
-              (mapcar #'(lambda (slot)
-                          (setq slot (plist-to-alist slot))
-                          (if (eq (cdr (assoc ':allocation slot)) ':class)
-                            (setf (cdr (assoc ':allocation slot)) c)
-                            (when (and (standard-class-p c)
-                                       (class-fixed-slot-locations c))
-                              (let* ((name (cdr (assoc ':name slot)))
-                                     (slot-in-c (find name (class-slots c) :key #'slotdef-name)))
-                                (when slot-in-c
-                                  (let ((location (slotdef-location slot-in-c)))
-                                    (assert (or (null location) (integerp location)))
-                                    (when location
-                                      (push (cons ':location location) (cdr slot))))))))
-                          slot)
-                      (reverse
-                        (append
-                          (if (standard-class-p c) (class-direct-slots c))
-                          (if (eq c class) more-direct-slots)))))
-          (class-precedence-list class))))
-    ;; partition by slot-names:
+          (mapcan
+            #'(lambda (c)
+                (mapcar #'(lambda (slot)
+                            (let ((alloc (slot-definition-allocation slot))
+                                  (loc nil))
+                              (if (eq alloc ':class)
+                                (setq alloc c)
+                                (when (and (not (eq c class))
+                                           (standard-class-p c)
+                                           (class-fixed-slot-locations c))
+                                  (let* ((name (slot-definition-name slot))
+                                         (slot-in-c (find name (class-slots c) :key #'slot-definition-name)))
+                                    (when slot-in-c
+                                      (let ((location (slot-definition-location slot-in-c)))
+                                        (assert (or (null location) (integerp location)))
+                                        (when location
+                                          (setq loc location)))))))
+                              (list* slot alloc loc)))
+                        (reverse
+                          (append
+                            (if (standard-class-p c) (class-direct-slots c))
+                            (if (eq c class) more-direct-slots)))))
+            (class-precedence-list class))))
+    ;; Partition by slot-names:
     (setq all-slots
-          (let ((ht (make-hash-table :test #'eq)))
-            (dolist (slot all-slots)
-              (assert (eq (caar slot) ':name))
-              (push (cdr slot) (gethash (cdar slot) ht nil)))
+          (let ((ht (make-hash-table :test #'eql)))
+            (dolist (slot+alloc all-slots)
+              (let ((slot-name (slot-definition-name (car slot+alloc))))
+                (push slot+alloc (gethash slot-name ht nil))))
             (let ((L nil))
-              (maphash #'(lambda (name slots)
-                           (push (cons name (nreverse slots)) L))
+              (maphash #'(lambda (name slot+alloc-list)
+                           (push (cons name (nreverse slot+alloc-list)) L))
                        ht)
               L))) ; not (nreverse L), because maphash reverses the order
     ;; Bring the slots into final order: Superclass before subclass, and
     ;; inside each class, keeping the same order as in the direct-slots.
     (setq all-slots (nreverse all-slots))
     ;; all-slots is now a list of lists of the form
-    ;; (name most-specific-slotspec ... least-specific-slotspec).
+    ;; (name most-specific-slot+alloc ... least-specific-slot+alloc).
     (mapcar
-     #'(lambda (slot)
-         (let ((name (car slot))
-               (slotspecs (cdr slot)))
-           (apply #'make-slotdef
-                  :name name
-                  (alist-to-plist
-                   `(,(or (assoc ':allocation (first slotspecs))
-                          `(:allocation . :instance))
-                      #||
-                      ,@(let ((accessors
-                               (mapcap #'(lambda (slotspec) (cdr (assoc ':accessors slotspec)))
-                                       slotspecs)))
-                             (if accessors `((:accessors . ,accessors))))
-                      ||#
-                      ,@(let ((initargs
+      #'(lambda (slotbag)
+          (let* ((name (car slotbag))
+                 (slotspecs (cdr slotbag))
+                 (args
+                   `(:name ,name
+                     ; "The allocation of a slot is controlled by the most
+                     ;  specific slot specifier."
+                     :allocation ,(cadr (first slotspecs))
+                     ; "The set of initialization arguments that initialize a
+                     ;  given slot is the union of the initialization arguments
+                     ;  declared in the :initarg slot options in all the slot
+                     ;  specifiers.
+                     ,@(let ((initargs
                                (remove-duplicates
-                                (mapcap #'(lambda (slotspec)
-                                            (cdr (assoc ':initargs slotspec)))
-                                        slotspecs)
-                                :from-end t)))
-                             (if initargs `((:initargs . ,initargs))))
-                      ,@(dolist (slotspec slotspecs '())
-                          (when (assoc ':initer slotspec)
-                            (return `(#| ,(assoc ':initform slotspec) |#
-                                      ,(assoc ':initer slotspec)))))
-                      #||
-                      ,(let ((types '()))
-                            (dolist (slotspec slotspecs)
-                              (when (assoc ':type slotspec)
-                                (push (cdr (assoc ':type slotspec)) types)))
-                            `(:type . ,(if types `(AND ,@(nreverse types)) 'T)))
-                      ||#
-                      #||
-                      ,@(dolist (slotspec slotspecs '())
-                          (when (assoc ':documentation slotspec)
-                            (return `(,(assoc ':documentation slotspec)))))
-                      ||#
-                      ,@(let ((location nil))
-                          ;; Implementation of fixed-slot-locations policy, part 1.
-                          (dolist (slotspec slotspecs)
-                            (let ((guaranteed-location (cdr (assoc ':location slotspec))))
-                              (when guaranteed-location
-                                (if location
-                                  (unless (equal location guaranteed-location)
-                                    (error (TEXT "In class ~S, the slot ~S is constrained by incompatible constraints inherited from the superclasses.")
-                                           (class-name class) name))
-                                  (setq location guaranteed-location)))))
-                          (if location `((:location . ,location))))
-                      )))))
-            all-slots)))
+                                 (mapcap #'(lambda (slot+alloc)
+                                             (slot-definition-initargs (car slot+alloc)))
+                                         slotspecs)
+                                 :from-end t)))
+                         (if initargs `(:initargs ,initargs)))
+                     ; "The default initial value form for a slot is the value
+                     ;  of the :initform slot option in the most specific slot
+                     ;  specifier that contains one."
+                     ,@(dolist (slot+alloc slotspecs '())
+                         (when (slot-definition-initfunction (car slot+alloc))
+                           (return `(:initform ,(slot-definition-initform (car slot+alloc))
+                                     :initfunction ,(slot-definition-initfunction (car slot+alloc))
+                                     inheritable-initer ,(slot-definition-inheritable-initer (car slot+alloc))))))
+                     ; "The contents of a slot will always be of type
+                     ;  (and T1 ... Tn) where T1 ...Tn are the values of the
+                     ;  :type slot options contained in all of the slot specifiers."
+                     ,@(let ((types '()))
+                         (dolist (slot+alloc slotspecs)
+                           (push (slot-definition-type (car slot+alloc)) types))
+                         `(:type ,(if types `(AND ,@(nreverse types)) 'T)))
+                     ; "The documentation string for a slot is the value of the
+                     ;  :documentation slot option in the most specific slot
+                     ;  specifier that contains one."
+                     ,@(dolist (slot+alloc slotspecs '())
+                         (when (slot-definition-documentation (car slot+alloc))
+                           (return `(:documentation ,(slot-definition-documentation (car slot+alloc))
+                                     inheritable-doc ,(slot-definition-inheritable-doc (car slot+alloc))))))
+                     #|| ; Commented out because <effective-slot-definition>
+                         ; doesn't have readers and writers.
+                     ,@(let ((readers
+                               (mapcap #'(lambda (slot+alloc) (slot-definition-readers (car slot+alloc)))
+                                       slotspecs)))
+                         (if readers `(:readers ,readers)))
+                     ,@(let ((writers
+                               (mapcap #'(lambda (slot+alloc) (slot-definition-writers (car slot+alloc)))
+                                       slotspecs)))
+                         (if writers `(:writers ,writers)))
+                     ||#
+                     ,@(let ((location nil))
+                         ;; Implementation of fixed-slot-locations policy, part 1.
+                         (dolist (slot+alloc slotspecs)
+                           (let ((guaranteed-location (cddr slot+alloc)))
+                             (when guaranteed-location
+                               (if location
+                                 (unless (equal location guaranteed-location)
+                                   (error (TEXT "In class ~S, the slot ~S is constrained by incompatible constraints inherited from the superclasses.")
+                                          (class-name class) name))
+                                 (setq location guaranteed-location)))))
+                         (if location `(location ,location)))))
+                 (slot-definition-class
+                   (apply #'effective-slot-definition-class class args)))
+            (apply (cond ((eq slot-definition-class 'standard-effective-slot-definition)
+                          #'make-instance-<standard-effective-slot-definition>)
+                         (t #'make-instance))
+                   slot-definition-class args)))
+      all-slots)))
 
 ;; Allocation of local and shared slots
 
@@ -936,17 +917,17 @@
 (defun std-layout-slots (class slots)
   ;; Implementation of fixed-slot-locations policy, part 2.
   (let (constrained-indices)
-    (let ((constrained-slots (remove-if-not #'slotdef-location slots)))
+    (let ((constrained-slots (remove-if-not #'slot-definition-location slots)))
       (setq constrained-slots (copy-list constrained-slots))
-      (setq constrained-slots (sort constrained-slots #'< :key #'slotdef-location))
+      (setq constrained-slots (sort constrained-slots #'< :key #'slot-definition-location))
       (do ((l constrained-slots (cdr l)))
           ((null (cdr l)))
-        (when (= (slotdef-location (car l)) (slotdef-location (cadr l)))
+        (when (= (slot-definition-location (car l)) (slot-definition-location (cadr l)))
           (error (TEXT "In class ~S, the slots ~S and ~S are constrained from the superclasses to both be located at offset ~S.")
                  (class-name class)
-                 (slotdef-name (car l)) (slotdef-name (cadr l))
-                 (slotdef-location (car l)))))
-      (setq constrained-indices (mapcar #'slotdef-location constrained-slots)))
+                 (slot-definition-name (car l)) (slot-definition-name (cadr l))
+                 (slot-definition-location (car l)))))
+      (setq constrained-indices (mapcar #'slot-definition-location constrained-slots)))
     ;; Actually the constrained-indices must form a list of consecutive indices
     ;; (1 2 ... n), but we don't need to make use of this.
     ;; Now determine the location of each slot.
@@ -964,20 +945,20 @@
                    (return)))))
         (skip-constrained-indices)
         (dolist (slot slots)
-          (let* ((name (slotdef-name slot))
-                 (allocation (slotdef-allocation slot))
+          (let* ((name (slot-definition-name slot))
+                 (allocation (slot-definition-allocation slot))
                  (location
                    (if (eq allocation ':instance)
                      ; local slot
-                     (or (slotdef-location slot)
+                     (or (slot-definition-location slot)
                          (prog1
                            local-index
                            (incf local-index)
                            (skip-constrained-indices)))
                      ; shared slot
-                     (if (slotdef-location slot)
+                     (if (slot-definition-location slot)
                        (error (TEXT "In class ~S, shared slot ~S is constrained to be a local slot at offset ~S.")
-                              (class-name class) name (slotdef-location slot))
+                              (class-name class) name (slot-definition-location slot))
                        (if (eq allocation class)
                          ; new shared slot
                          (prog1
@@ -985,7 +966,7 @@
                            (incf shared-index))
                          ; inherited shared slot
                          (gethash name (class-slot-location-table allocation)))))))
-            (setf (slotdef-location slot) location)
+            (setf (slot-definition-location slot) location)
             (setf (gethash name ht) location)))
         ;; Actually the constrained-indices must already have been emptied by
         ;; the first (skip-constrained-indices) call, but we don't need to make
@@ -1097,22 +1078,22 @@
         (discarded '())
         (discarded2 '()))
     (dolist (old-slot (class-slots old-class))
-      (let* ((name (slotdef-name old-slot))
+      (let* ((name (slot-definition-name old-slot))
              (new-slot (find name (class-slots new-class)
-                             :test #'eq :key #'slotdef-name)))
-        (if (and new-slot (atom (slotdef-location new-slot)))
+                             :test #'eq :key #'slot-definition-name)))
+        (if (and new-slot (atom (slot-definition-location new-slot)))
           ;; Local slot remains local, or shared slot becomes local.
-          (setq kept2 (list* (slotdef-location old-slot)
-                             (slotdef-location new-slot)
+          (setq kept2 (list* (slot-definition-location old-slot)
+                             (slot-definition-location new-slot)
                              kept2))
-          (if (atom (slotdef-location old-slot))
+          (if (atom (slot-definition-location old-slot))
             ;; Local slot is discarded or becomes shared.
             (setq discarded (cons name discarded)
-                  discarded2 (list* name (slotdef-location old-slot) discarded2))))))
+                  discarded2 (list* name (slot-definition-location old-slot) discarded2))))))
     (dolist (new-slot (class-slots new-class))
-      (let* ((name (slotdef-name new-slot))
+      (let* ((name (slot-definition-name new-slot))
              (old-slot (find name (class-slots old-class)
-                             :test #'eq :key #'slotdef-name)))
+                             :test #'eq :key #'slot-definition-name)))
         (unless old-slot
           ;; Newly added local slot.
           (setq added (cons name added)))))
@@ -1219,11 +1200,12 @@
 
 (defun make-instance-structure-class
     (metaclass &rest args
-     &key name (direct-superclasses '())
-     ;; The following keys come from ENSURE-CLASS.
-     (direct-slots '()) (direct-default-initargs '())
-     ;; The following keys come from DEFINE-STRUCTURE-CLASS.
-     names (slots '()) (size 1) &allow-other-keys)
+               &key name (direct-superclasses '())
+                    ;; The following keys come from ENSURE-CLASS.
+                    (direct-slots '()) (direct-default-initargs '())
+                    ;; The following keys come from DEFINE-STRUCTURE-CLASS.
+                    names (slots '()) (size 1)
+               &allow-other-keys)
   ;; metaclass = <structure-class>
   ;; Don't add functionality here! This is a preliminary definition that is
   ;; replaced with #'make-instance later.
@@ -1235,11 +1217,13 @@
     (apply #'initialize-instance-structure-class class args)))
 
 (defun initialize-instance-structure-class
-    (class &rest args &key name (direct-superclasses '())
-     ;; The following keys come from ENSURE-CLASS.
-     (direct-slots '()) (direct-default-initargs '())
-     ;; The following keys come from DEFINE-STRUCTURE-CLASS.
-     names (slots '()) (size 1) &allow-other-keys)
+    (class &rest args
+           &key name (direct-superclasses '())
+                ;; The following keys come from ENSURE-CLASS.
+                (direct-slots '()) (direct-default-initargs '())
+                ;; The following keys come from DEFINE-STRUCTURE-CLASS.
+                names (slots '()) (size 1)
+           &allow-other-keys)
   ;; metaclass <= <structure-class>
   (when *classes-finished*
     (apply #'%initialize-instance class args)) ; == (call-next-method)
@@ -1271,14 +1255,14 @@
         (make-hash-table :test #'eq
           :initial-contents
             (mapcar #'(lambda (slot)
-                        (cons (slotdef-name slot) (slotdef-location slot)))
+                        (cons (slot-definition-name slot) (slot-definition-location slot)))
                     slots)))
   (setf (class-instance-size class) size)
   (setf (class-slots class) slots)
   ;; When called via ENSURE-CLASS,
   ;; we may have to treat additional direct slots.
   (when direct-slots
-    (let* ((more-slots (std-compute-slots class direct-slots))
+    (let* ((more-slots (std-compute-slots class (convert-direct-slots class direct-slots)))
            (shared-index (std-layout-slots class more-slots)))
       (when (plusp shared-index)
         (error-of-type 'error
@@ -1296,7 +1280,7 @@
           :key #'car
           :from-end t))
   (setf (class-valid-initargs class)
-        (remove-duplicates (mapcap #'slotdef-initargs (class-slots class))))
+        (remove-duplicates (mapcap #'slot-definition-initargs (class-slots class))))
   (setf (class-names class) names)
   (system::note-new-structure-class)
   class)
@@ -1307,7 +1291,7 @@
     (when descr
       (let* ((names (svref descr 0))
              (all-slots (svref descr 4))
-             (slots (remove-if-not #'sys::ds-slot-initargs ; means #'sys::ds-real-slot-p
+             (slots (remove-if-not #'slot-definition-initargs ; means #'sys::ds-real-slot-p
                                    all-slots)))
         (setf (find-class name)
               (make-instance-structure-class <structure-class>

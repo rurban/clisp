@@ -423,6 +423,16 @@
 (let ((clos-extra
         '(;; MOP for dependents
           ;; MOP for slot definitions
+          slot-definition
+          direct-slot-definition standard-direct-slot-definition
+          effective-slot-definition standard-effective-slot-definition
+          slot-definition-name
+          slot-definition-initform slot-definition-initfunction
+          slot-definition-type slot-definition-allocation
+          slot-definition-initargs
+          slot-definition-readers slot-definition-writers
+          slot-definition-location
+          direct-slot-definition-class effective-slot-definition-class
           ;; MOP for slot access
           ;; MOP for classes
           class-prototype class-finalized-p finalize-inheritance
@@ -1740,6 +1750,7 @@
 
 (LOAD "clos-package")           ; Early CLOS
 (LOAD "clos-class0")
+(LOAD "clos-slotdef1")
 
 (LOAD "defstruct")              ; DEFSTRUCT-macro
 
