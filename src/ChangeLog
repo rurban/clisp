@@ -1,5 +1,11 @@
 2004-05-25  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #[ 959549 ]: Win32 bug: LISTEN eats the first character
+	* stream.d (listen_handle): always place the byte read() into *byte
+	(low_fill_buffered_handle): do not lose the byte read by listen_handle()
+
+2004-05-25  Sam Steingold  <sds@gnu.org>
+
 	* clos-class2.lisp (make-instance-structure-class)
 	(define-structure-class): avoid some compilation warnings
 	* clos-class5.lisp (update-instance-for-redefined-class): ditto
