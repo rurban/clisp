@@ -12,6 +12,9 @@
 #endif
 
 
+# ==============================================================================
+#                       Low level functions
+
 #ifdef UNIX
   # Library-Funktion realpath implementieren:
   # [Copyright: SUN Microsystems, B. Haible]
@@ -212,6 +215,248 @@
       return resolved_path;
     }
 #endif
+
+# Creates a new subdirectory.
+# make_directory(pathstring);
+# > pathstring: result of shorter_directory(...)
+# > STACK_0: pathname
+  local inline void make_directory (char* pathstring);
+  local inline void make_directory(pathstring)
+    var char* pathstring;
+    {
+      #ifdef AMIGAOS
+      set_break_sem_4();
+      begin_system_call();
+      {var BPTR lock = CreateDir(pathstring); # Unterdirectory erzeugen
+       if (lock==BPTR_NULL) { end_system_call(); OS_file_error(STACK_0); }
+       UnLock(lock); # Lock freigeben
+      }
+      end_system_call();
+      clr_break_sem_4();
+      #endif
+      #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
+      begin_system_call();
+      if (mkdir(pathstring,0777)) # Unterdirectory erzeugen
+        { end_system_call(); OS_file_error(STACK_0); }
+      end_system_call();
+      #endif
+      #ifdef WIN32_NATIVE
+      begin_system_call();
+      if (! CreateDirectory(pathstring,NULL) ) # Unterdirectory erzeugen
+        { end_system_call(); OS_file_error(STACK_0); }
+      end_system_call();
+      #endif
+    }
+
+# Deletes a subdirectory.
+# delete_directory(pathstring);
+# > pathstring: result of shorter_directory(...)
+# > STACK_0: pathname
+  local inline void delete_directory (char* pathstring);
+  local inline void delete_directory(pathstring)
+    var char* pathstring;
+    {
+      #ifdef AMIGAOS
+      # Noch Test, ob's auch ein Directory und kein File ist??
+      begin_system_call();
+      if (! DeleteFile(pathstring) ) # Unterdirectory löschen
+        { end_system_call(); OS_file_error(STACK_0); }
+      end_system_call();
+      #endif
+      #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM)
+      begin_system_call();
+      if (rmdir(pathstring)) # Unterdirectory löschen
+        { end_system_call(); OS_file_error(STACK_0); }
+      end_system_call();
+      #endif
+      #ifdef RISCOS
+      begin_system_call();
+      if (unlink(pathstring)) # Unterdirectory löschen
+        { end_system_call(); OS_file_error(STACK_0); }
+      end_system_call();
+      #endif
+      #ifdef WIN32_NATIVE
+      begin_system_call();
+      if (! RemoveDirectory(pathstring) ) # Unterdirectory löschen
+        { end_system_call(); OS_file_error(STACK_0); }
+      end_system_call();
+      #endif
+    }
+
+#if defined(MSDOS) || defined(WIN32_NATIVE)
+# Changes the operating system's current directory.
+# change_directory(pathstring);
+# > pathstring: directory, ASCIZ-String
+# > STACK_0: pathname
+  local inline void change_current_directory (char* pathstring);
+  local inline void change_current_directory(pathstring)
+    var char* pathstring;
+    {
+      begin_system_call();
+      #ifdef MSDOS
+        if (!( chdir(pathstring) ==0))
+          { end_system_call(); OS_file_error(STACK_0); }
+      #endif
+      #ifdef WIN32_NATIVE
+        if (!SetCurrentDirectory(pathstring))
+          { end_system_call(); OS_file_error(STACK_0); }
+      #endif
+      end_system_call();
+    }
+#endif
+
+# Delete a file.
+# delete_existing_file(pathstring);
+# It is known that the file exists.
+# > pathstring: file name, ASCIZ-String
+# > STACK_0: pathname
+  local inline void delete_existing_file (char* pathstring);
+  local inline void delete_existing_file(pathstring)
+    var char* pathstring;
+    {
+      #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
+        begin_system_call();
+        if (!( unlink(pathstring) ==0))
+          { end_system_call(); OS_file_error(STACK_0); }
+        end_system_call();
+      #endif
+      #if defined(AMIGAOS) || defined(WIN32_NATIVE)
+        begin_system_call();
+        if (! DeleteFile(pathstring) )
+          { end_system_call(); OS_file_error(STACK_0); }
+        end_system_call();
+      #endif
+    }
+
+# Delete a file.
+# delete_file_if_exists(pathstring);
+# No error is signalled if the file does not exist.
+# > pathstring: file name, ASCIZ-String
+# > STACK_0: pathname
+# < result: whether the file existed
+  local inline boolean delete_file_if_exists (char* pathstring);
+  local inline boolean delete_file_if_exists(pathstring)
+    var char* pathstring;
+    { var boolean exists = TRUE;
+      #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
+        begin_system_call();
+        if (!( unlink(pathstring) ==0))
+          { if (!(errno==ENOENT)) # nicht gefunden -> OK
+              { end_system_call(); OS_file_error(STACK_0); } # sonstigen Error melden
+            exists = FALSE;
+          }
+        end_system_call();
+      #endif
+      #ifdef AMIGAOS
+        begin_system_call();
+        if (! DeleteFile(pathstring) )
+          { if (!(IoErr()==ERROR_OBJECT_NOT_FOUND)) # nicht gefunden -> OK
+              { end_system_call(); OS_file_error(STACK_0); } # sonstigen Error melden
+            exists = FALSE;
+          }
+        end_system_call();
+      #endif
+      #ifdef WIN32_NATIVE
+        begin_system_call();
+        if (! DeleteFile(pathstring) )
+          { if (!(GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND))
+              { end_system_call(); OS_file_error(STACK_0); }
+            exists = FALSE;
+          }
+        end_system_call();
+      #endif
+      return exists;
+    }
+
+# Delete a file being the target of a subsequent rename.
+# delete_file_before_rename(pathstring);
+# No error is signalled if the file does not exist.
+# > pathstring: file name, ASCIZ-String
+# > STACK_0: pathname
+  local inline void delete_file_before_rename (char* pathstring);
+  local inline void delete_file_before_rename(pathstring)
+    var char* pathstring;
+    {
+      #if !defined(UNIX) # rename() on Unix does it automatically
+        delete_file_if_exists(pathstring);
+      #endif
+    }
+
+# Rename a file.
+# rename_existing_file(old_pathstring,new_pathstring);
+# It is known that the old_pathstring exists.
+# On platforms except UNIX, it is known that new_pathstring does not exist.
+# > old_pathstring: old file name, ASCIZ-String
+# > new_pathstring: new file name, ASCIZ-String
+# > STACK_0: pathname
+  local inline void rename_existing_file (char* old_pathstring, char* new_pathstring);
+  local inline void rename_existing_file(old_pathstring,new_pathstring)
+    var char* old_pathstring;
+    var char* new_pathstring;
+    {
+      #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
+        begin_system_call();
+        if ( rename(old_pathstring,new_pathstring) <0) # Datei umbenennen
+          { end_system_call(); OS_file_error(STACK_0); } # Error melden
+        end_system_call();
+      #endif
+      #ifdef AMIGAOS
+        begin_system_call();
+        if (! Rename(old_pathstring,new_pathstring) )
+          { end_system_call(); OS_file_error(STACK_0); }
+        end_system_call();
+      #endif
+      #ifdef WIN32_NATIVE
+        begin_system_call();
+        if (! MoveFile(old_pathstring,new_pathstring) )
+          { end_system_call(); OS_file_error(STACK_0); }
+        end_system_call();
+      #endif
+    }
+
+# Rename a file.
+# rename_file_to_nonexisting(old_pathstring,new_pathstring);
+# It is known that new_pathstring does not exist.
+# > old_pathstring: old file name, ASCIZ-String
+# > new_pathstring: new file name, ASCIZ-String
+# > STACK_3: old pathname
+# > STACK_1: new pathname
+  local inline void rename_file_to_nonexisting (char* old_pathstring, char* new_pathstring);
+  local inline void rename_file_to_nonexisting(old_pathstring,new_pathstring)
+    var char* old_pathstring;
+    var char* new_pathstring;
+    {
+      #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
+        begin_system_call();
+        if ( rename(old_pathstring,new_pathstring) <0) # Datei umbenennen
+          { if (errno==ENOENT)
+              { end_system_call(); OS_file_error(STACK_3); }
+              else
+              { end_system_call(); OS_file_error(STACK_1); }
+          }
+        end_system_call();
+      #endif
+      #ifdef AMIGAOS
+        begin_system_call();
+        if (! Rename(old_pathstring,new_pathstring) )
+          { if (IoErr()==ERROR_OBJECT_NOT_FOUND)
+              { end_system_call(); OS_file_error(STACK_3); }
+              else
+              { end_system_call(); OS_file_error(STACK_1); }
+          }
+        end_system_call();
+      #endif
+      #ifdef WIN32_NATIVE
+        begin_system_call();
+        if (! MoveFile(old_pathstring,new_pathstring) )
+          { if (GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND)
+              { end_system_call(); OS_file_error(STACK_3); }
+              else
+              { end_system_call(); OS_file_error(STACK_1); }
+          }
+        end_system_call();
+      #endif
+    }
 
 
 # ==============================================================================
@@ -6988,16 +7233,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           { pushSTACK(O(null_string)); stringcount++; }
        {var object string = string_concat(stringcount); # zusammenhängen
         # Default-Directory ändern:
-        begin_system_call();
-        #ifdef MSDOS
-          if (!( chdir(TheAsciz(string)) ==0))
-            { end_system_call(); OS_file_error(STACK_0); }
-        #endif
-        #ifdef WIN32_NATIVE
-          if (!SetCurrentDirectory(TheAsciz(string)))
-            { end_system_call(); OS_file_error(STACK_0); }
-        #endif
-        end_system_call();
+        change_current_directory(TheAsciz(pathstring));
       }}
       # Default-Drive neu setzen:
       O(default_drive) = ThePathname(STACK_0)->pathname_device;
@@ -7132,40 +7368,43 @@ LISPFUN(namestring,1,1,norest,nokey,0,NIL)
 # > vorausgegangen: assure_dir_exists()
 # > STACK_0: Pathname, wie nach Ausführung von assure_dir_exists(), Name/=NIL
 # > namestring: dessen Namestring als ASCIZ-String
-  #ifdef MSDOS
-    local int access0 (CONST char* path);
-    local int access0(path)
-      var CONST char* path;
-      { var int erg;
-        begin_system_call();
-        erg = access(path,0);
-        end_system_call();
-        return erg;
-      }
-    #define file_exists(namestring)  (access0(TheAsciz(namestring))==0)
-  #endif
-  #ifdef WIN32_NATIVE
-    local int access0 (const char* path);
-    local int access0(path)
-      var const char* path;
-      { var DWORD fileattr;
-        begin_system_call();
-        fileattr = GetFileAttributes(path);
-        if (fileattr == 0xFFFFFFFF)
-          { if (GetLastError()==ERROR_FILE_NOT_FOUND)
-              { end_system_call(); return -1; }
-            end_system_call(); OS_file_error(STACK_0);
-          }
-        end_system_call();
-        return 0;
-      }
+  #if defined(MSDOS) || defined(WIN32_NATIVE)
+    #ifdef MSDOS
+      local inline int access0 (CONST char* path);
+      local inline int access0(path)
+        var CONST char* path;
+        { var int erg;
+          begin_system_call();
+          erg = access(path,0);
+          end_system_call();
+          return erg;
+        }
+    #endif
+    #ifdef WIN32_NATIVE
+      local inline int access0 (const char* path);
+      local inline int access0(path)
+        var const char* path;
+        { var DWORD fileattr;
+          begin_system_call();
+          fileattr = GetFileAttributes(path);
+          if (fileattr == 0xFFFFFFFF)
+            { if (GetLastError()==ERROR_FILE_NOT_FOUND)
+                { end_system_call(); return -1; }
+              end_system_call(); OS_file_error(STACK_0);
+            }
+          end_system_call();
+          return 0;
+        }
+    #endif
     #define file_exists(namestring)  (access0(TheAsciz(namestring))==0)
   #endif
   #ifdef AMIGAOS
     #define file_exists(namestring)  (!(filestatus == (struct FileInfoBlock *)NULL))
+    #define FILE_EXISTS_TRIVIAL
   #endif
   #if defined(UNIX) || defined(RISCOS)
     #define file_exists(namestring)  (!(filestatus == (struct stat *)NULL))
+    #define FILE_EXISTS_TRIVIAL
   #endif
 
 # Fehlermeldung wegen nicht existenter Datei
@@ -7473,23 +7712,13 @@ LISPFUNN(delete_file,1)
       { skipSTACK(1); value1 = NIL; mv_count=1; return; }
     if (openp(STACK_0)) { fehler_delete_open(STACK_0); } # Keine offenen Dateien löschen!
     # Datei löschen:
-    #if defined(AMIGAOS) || defined(WIN32_NATIVE)
+    #ifdef FILE_EXISTS_TRIVIAL
     if (!file_exists(namestring))
       { skipSTACK(1); value1 = NIL; mv_count=1; return; } # File existiert nicht -> Wert NIL
-    begin_system_call();
-    if (! DeleteFile(TheAsciz(namestring)) ) { end_system_call(); OS_file_error(STACK_0); }
-    end_system_call();
     #endif
-    #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
-    begin_system_call();
-    if (!( unlink(TheAsciz(namestring)) ==0))
-      { if (!(errno==ENOENT)) { end_system_call(); OS_file_error(STACK_0); }
-        end_system_call();
-        # File existiert nicht -> Wert NIL
-        skipSTACK(1); value1 = NIL; mv_count=1; return;
-      }
-    end_system_call();
-    #endif
+    if (!delete_file_if_exists(TheAsciz(namestring)))
+      # File existiert nicht -> Wert NIL
+      { skipSTACK(1); value1 = NIL; mv_count=1; return; }
     # Datei existierte, wurde gelöscht -> Pathname (/=NIL) als Wert
     value1 = popSTACK(); mv_count=1;
   }}
@@ -7552,7 +7781,6 @@ LISPFUNN(delete_file,1)
       # Stackaufbau: filename, newname, oldpathname, newpathname,
       #              oldtruename, oldnamestring, newtruename, newnamestring.
       # 4. Datei umbenennen:
-      #if defined(UNIX) || defined(AMIGAOS) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS) || defined(WIN32_NATIVE)
       { var object new_namestring = popSTACK();
         if (file_exists(new_namestring))
           # Datei existiert bereits -> nicht ohne Vorwarnung löschen
@@ -7563,29 +7791,7 @@ LISPFUNN(delete_file,1)
       #ifdef PATHNAME_RISCOS
       prepare_create(STACK_4);
       #endif
-      begin_system_call();
-      #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
-      if (!( rename(TheAsciz(STACK_2),TheAsciz(STACK_0)) ==0))
-        { if (errno==ENOENT)
-            { end_system_call(); OS_file_error(STACK_3); }
-            else
-            { end_system_call(); OS_file_error(STACK_1); }
-        }
-      #endif
-      #ifdef AMIGAOS
-      if (! Rename(TheAsciz(STACK_2),TheAsciz(STACK_0)) )
-        { end_system_call(); OS_file_error(STACK_1); }
-      #endif
-      #ifdef WIN32_NATIVE
-      if (! MoveFile(TheAsciz(STACK_2),TheAsciz(STACK_0)) )
-        { if (GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND)
-            { end_system_call(); OS_file_error(STACK_3); }
-            else
-            { end_system_call(); OS_file_error(STACK_1); }
-        }
-      #endif
-      end_system_call();
-      #endif
+      rename_file_to_nonexisting(TheAsciz(STACK_2),TheAsciz(STACK_0));
     }
 
 LISPFUNN(rename_file,2)
@@ -7890,25 +8096,13 @@ LISPFUNN(rename_file,2)
                            {# Directory existiert schon:
                             var object new_namestring = assume_dir_exists(); # Filename als ASCIZ-String
                             # Datei mit diesem Namen löschen, falls vorhanden:
-                            begin_system_call();
-                            if ( unlink(TheAsciz(new_namestring)) <0) # Datei zu löschen versuchen
-                              { if (!(errno==ENOENT)) # nicht gefunden -> OK
-                                  { end_system_call(); OS_file_error(STACK_0); } # sonstigen Error melden
-                              }
-                            end_system_call();
+                            delete_file_before_rename(TheAsciz(new_namestring));
                             # Datei vom alten auf diesen Namen umbenennen:
                             namestring = STACK_1; # namestring zurück
-                            begin_system_call();
-                            if ( rename(TheAsciz(namestring),TheAsciz(new_namestring)) <0) # Datei umbenennen
-                              { end_system_call(); OS_file_error(STACK_0); } # Error melden
-                            end_system_call();
+                            rename_existing_file(TheAsciz(namestring),TheAsciz(new_namestring));
                             # :RENAME-AND-DELETE -> löschen:
                             if (if_exists==4)
-                              { begin_system_call();
-                                if ( unlink(TheAsciz(new_namestring)) <0)
-                                  { end_system_call(); OS_file_error(STACK_0); } # Error melden
-                                end_system_call();
-                              }
+                              { delete_existing_file(TheAsciz(new_namestring)); }
                             skipSTACK(2);
                           }}
                       }
@@ -7966,61 +8160,13 @@ LISPFUNN(rename_file,2)
                             new_namestring = assure_dir_exists(FALSE,FALSE);
                             #endif
                             # Datei (oder Link) mit diesem Namen löschen, falls vorhanden:
-                            #ifdef AMIGAOS
-                            begin_system_call();
-                            if (! DeleteFile(TheAsciz(new_namestring)) )
-                              { if (!(IoErr()==ERROR_OBJECT_NOT_FOUND))
-                                  { end_system_call(); OS_file_error(STACK_0); } # Error melden
-                                # nicht gefunden -> OK
-                              }
-                            end_system_call();
-                            #endif
-                            #if (defined(UNIX) && 0) || defined(RISCOS) # Das tut UNIX nachher automatisch, RISCOS aber nicht
-                            begin_system_call();
-                            if (!( unlink(TheAsciz(new_namestring)) ==0))
-                              { if (!(errno==ENOENT))
-                                  { end_system_call(); OS_file_error(STACK_0); } # Error melden
-                                # nicht gefunden -> OK
-                              }
-                            end_system_call();
-                            #endif
-                            #ifdef WIN32_NATIVE
-                            begin_system_call();
-                            if (! DeleteFile(TheAsciz(new_namestring)) )
-                              { if (!(GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND))
-                                  { end_system_call(); OS_file_error(STACK_0); } # Error melden
-                                # nicht gefunden -> OK
-                              }
-                            end_system_call();
-                            #endif
+                            delete_file_before_rename(TheAsciz(new_namestring));
                             # Datei vom alten auf diesen Namen umbenennen:
                             namestring = STACK_1; # namestring zurück
-                            begin_system_call();
-                            #ifdef AMIGAOS
-                            if (! Rename(TheAsciz(namestring),TheAsciz(new_namestring)) )
-                              { end_system_call(); OS_file_error(STACK_0); }
-                            #endif
-                            #if defined(UNIX) || defined(RISCOS)
-                            if (!( rename(TheAsciz(namestring),TheAsciz(new_namestring)) ==0))
-                              { end_system_call(); OS_file_error(STACK_0); }
-                            #endif
-                            #ifdef WIN32_NATIVE
-                            if (! MoveFile(TheAsciz(namestring),TheAsciz(new_namestring)) )
-                              { end_system_call(); OS_file_error(STACK_0); }
-                            #endif
+                            rename_existing_file(TheAsciz(namestring),TheAsciz(new_namestring));
                             # :RENAME-AND-DELETE -> löschen:
                             if (if_exists==4)
-                              {
-                                #if defined(AMIGAOS) || defined(WIN32_NATIVE)
-                                if (! DeleteFile(TheAsciz(new_namestring)) )
-                                  { end_system_call(); OS_file_error(STACK_0); }
-                                #endif
-                                #if defined(UNIX) || defined(RISCOS)
-                                if (!( unlink(TheAsciz(new_namestring)) ==0))
-                                  { end_system_call(); OS_file_error(STACK_0); }
-                                #endif
-                              }
-                            end_system_call();
+                              { delete_existing_file(TheAsciz(new_namestring)); }
                             skipSTACK(2);
                           }
                           #endif
@@ -9709,38 +9855,6 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
           return dirstring;
     } }}}}
 
-# Legt ein neues Unterdirectory an.
-# make_directory(pathstring);
-# > pathstring: Ergebnis von shorter_directory(...)
-# > STACK_0: Pathname
-  local void make_directory (char* pathstring);
-  local void make_directory(pathstring)
-    var char* pathstring;
-    {
-      #ifdef AMIGAOS
-      set_break_sem_4();
-      begin_system_call();
-      {var BPTR lock = CreateDir(pathstring); # Unterdirectory erzeugen
-       if (lock==BPTR_NULL) { end_system_call(); OS_file_error(STACK_0); }
-       UnLock(lock); # Lock freigeben
-      }
-      end_system_call();
-      clr_break_sem_4();
-      #endif
-      #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
-      begin_system_call();
-      if (mkdir(pathstring,0777)) # Unterdirectory erzeugen
-        { end_system_call(); OS_file_error(STACK_0); }
-      end_system_call();
-      #endif
-      #ifdef WIN32_NATIVE
-      begin_system_call();
-      if (! CreateDirectory(pathstring,NULL) ) # Unterdirectory erzeugen
-        { end_system_call(); OS_file_error(STACK_0); }
-      end_system_call();
-      #endif
-    }
-
 LISPFUNN(make_dir,1)
 # (MAKE-DIR pathname) legt ein neues Unterdirectory pathname an.
   { var object pathstring = shorter_directory(STACK_0,TRUE);
@@ -9752,31 +9866,7 @@ LISPFUNN(make_dir,1)
 LISPFUNN(delete_dir,1)
 # (DELETE-DIR pathname) entfernt das Unterdirectory pathname.
   { var object pathstring = shorter_directory(STACK_0,TRUE);
-    #ifdef AMIGAOS
-    # Noch Test, ob's auch ein Directory und kein File ist??
-    begin_system_call();
-    if (! DeleteFile(TheAsciz(pathstring)) ) # Unterdirectory löschen
-      { end_system_call(); OS_file_error(STACK_0); }
-    end_system_call();
-    #endif
-    #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM)
-    begin_system_call();
-    if (rmdir(TheAsciz(pathstring))) # Unterdirectory löschen
-      { end_system_call(); OS_file_error(STACK_0); }
-    end_system_call();
-    #endif
-    #ifdef RISCOS
-    begin_system_call();
-    if (unlink(TheAsciz(pathstring))) # Unterdirectory löschen
-      { end_system_call(); OS_file_error(STACK_0); }
-    end_system_call();
-    #endif
-    #ifdef WIN32_NATIVE
-    begin_system_call();
-    if (! RemoveDirectory(TheAsciz(pathstring)) ) # Unterdirectory löschen
-      { end_system_call(); OS_file_error(STACK_0); }
-    end_system_call();
-    #endif
+    delete_directory(TheAsciz(pathstring));
     skipSTACK(2);
     value1 = T; mv_count=1; # 1 Wert T
   }
