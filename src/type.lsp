@@ -575,9 +575,11 @@
                (NUMBER '(OR REAL COMPLEX))
                (RATIO '(AND RATIONAL (NOT INTEGER)))
                (SEQUENCE '(OR LIST VECTOR)) ; user-defined sequences??
+               (SIGNED-BYTE 'INTEGER)
                (STANDARD-CHAR '(AND CHARACTER (SATISFIES STANDARD-CHAR-P)))
                (STRING-CHAR 'CHARACTER)
                ((T) '(AND))
+               (UNSIGNED-BYTE '(INTEGER 0 *))
                ((ARRAY SIMPLE-ARRAY BIT-VECTOR SIMPLE-BIT-VECTOR
                  STRING SIMPLE-STRING VECTOR SIMPLE-VECTOR
                  COMPLEX REAL INTEGER RATIONAL FLOAT
