@@ -53,6 +53,7 @@ all: check impnotes.html regexp.html wildcard.html
 impnotes.xml: impnotes.xml.in $(IMPNOTES) ../src/VERSION Makefile
 	$(RM) $@
 	sed -e 's,@DTD@,$(DTD),' \
+	    -e 's,@DTDVER@,$(DTDVER),' \
 	    -e 's,@VERSION@,'`cat ../src/VERSION`',' \
 	    -e 's,@TODAY@,'`date +"%Y-%m-%d"`',' $< > $@
 
