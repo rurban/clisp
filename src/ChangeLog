@@ -1,5 +1,19 @@
 2002-03-15  Sam Steingold  <sds@gnu.org>
 
+	Incorporated more of Joerg's suggestions
+	* bindings/linuxlibc6/linux.lisp (substitution): added ffi:c-ptr-null
+	(realpath, gethostname, getdomainname): using arrays of `character'
+	as opposed to `char' results in strings being returned instead of
+	byte arrays (char=uint8, character is a lisp CHARACTER)
+	(gcvt): appears to work
+	(sigaction-new): allow NULL (NIL) first arg
+	(sigaction-query): removed (superseded by sigaction-new)
+	* bindings/linuxlibc6/wrap.lisp (vec2string): obsolete, commented out
+	(real-path, get-host-name, get-domain-name): do not use it
+	(signal-valid-p): use sigaction-new
+
+2002-03-15  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (expand-compiler-macro): do not expand compiler
 	macros for functions declared NOTINLINE
 

@@ -19,10 +19,12 @@
   (setf (package-lock "SYS") nil))
 (push "LINUX" *system-package-list*)
 
-(defun vec2string (vec)
-  ;; Convert a char[] to a lisp STRING.
-  (convert-string-from-bytes vec *foreign-encoding*
-                             :end (position 0 vec)))
+;; if you think you need this, you should use (array character)
+;; instead of (array char)
+;;(defun vec2string (vec)
+;;  ;; Convert a char[] to a lisp STRING.
+;;  (convert-string-from-bytes vec *foreign-encoding*
+;;                             :end (position 0 vec)))
 
 (defun linux:linux-error (caller)
   (error "~s: ~a" caller (linux::strerror linux::errno)))
@@ -34,28 +36,28 @@
       ;; :out or :in-out parameters are returned via multiple values
       (linux::realpath name)
     (unless success (linux:linux-error 'linux:real-path))
-    (vec2string resolved)))
+    resolved))
 
 (defun linux:get-host-name ()
   (multiple-value-bind (success name)
       ;; :out or :in-out parameters are returned via multiple values
       (linux::gethostname linux::MAXHOSTNAMELEN)
     (linux:check-res success 'linux:get-host-name)
-    (vec2string name)))
+    name))
 
 (defun linux:get-domain-name ()
   (multiple-value-bind (success name)
       ;; :out or :in-out parameters are returned via multiple values
       (linux::getdomainname linux::MAXHOSTNAMELEN)
     (linux:check-res success 'linux:get-domain-name)
-    (vec2string name)))
+    name))
 
 ;; convenience functions for ffi sigaction definitions
 ;; Peter Wood 2002
 
 (defun linux:signal-valid-p (signal)
   "Is SIGNAL valid for this machine?"
-  (zerop (linux::sigaction-query signal nil nil)))
+  (zerop (linux::sigaction-new signal nil nil)))
 
 (defun linux:signal-action-retrieve (signal)
   "Return the presently installed sigaction structure for SIGNAL"
