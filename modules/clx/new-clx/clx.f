@@ -753,15 +753,7 @@ static void *get_ptr_object_and_display (object type, object obj,
 
     pushSTACK(STACK_0)/* 'obj' */; pushSTACK(`XLIB::PTR`);
     funcall(L(slot_value), 2);
-    ASSERT(fpointerp (value1)); /* FIXME raise hash-error? */
-
-    if (!fp_validp (TheFpointer(value1))) {
-      /* Raise an error message. */
-      pushSTACK(STACK_1);
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler (error, "~: Wanted to refer to a dead CLX object of type ~.");
-    }
-
+    value1 = check_fpointer(value1,false);
     skipSTACK(2);              /* clean up */
     return TheFpointer(value1)->fp_pointer; /* all done */
   } else my_type_error(STACK_1/*type*/,STACK_0/*obj*/);
@@ -1006,14 +998,7 @@ XFontStruct *get_font_info_and_display (object obj, gcv_object_t* fontf,
 
   pushSTACK(STACK_1); pushSTACK(`XLIB::FONT-INFO`);
   funcall(L(slot_value),2); /* (slot-value obj 'font-info) */
-
-  if (!(fpointerp (value1) && fp_validp (TheFpointer(value1)))) {
-    /* Raise an error message. */
-    pushSTACK(STACK_0);
-    pushSTACK(TheSubr (subr_self)->name);
-    fehler (error, "~: Wanted to refer to a dead font: ~");
-  }
-
+  value1 = check_fpointer(value1,false);
   info = TheFpointer(value1)->fp_pointer;
   if (!info) {
     /* We have no font information already, so go and ask the server for it. */
@@ -1147,11 +1132,11 @@ static Font get_font (object self)
         return font;            /* all done */
       } else { /* We could not open the font, so emit an error message */
         pushSTACK(TheSubr(subr_self)->name);    /* function name */
-        fehler (error, "~: Cannot not open pseudo font ~");
+        fehler (error, "~: Cannot open pseudo font ~");
       }
     } else {                 /* We have no name, tell that the luser. */
       pushSTACK(TheSubr(subr_self)->name);     /* function name */
-      fehler (error, "~: Cannot not open pseudo font ~, since it has no name associated with it.");
+      fehler (error, "~: Cannot open pseudo font ~, since it has no name associated with it.");
     }
   }
 }
@@ -1796,10 +1781,7 @@ DEFUN(XLIB:OPEN-DISPLAY, &rest args)
   Display *dpy;
   gcv_object_t *display_arg = NULL;
 
-  if (argcount % 2 != 1) {
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler (error, ("~: Keyword arguments should occur pairwise."));
-  }
+  if (argcount % 2 != 1) fehler_key_odd(argcount,TheSubr(subr_self)->name);
 
   if (argcount > 0) {
     pushSTACK(STACK_(argcount-1)); /* the first argument */
@@ -2188,11 +2170,9 @@ DEF_SCREEN_PROP(XLIB:SCREEN-SAVE-UNDERS-P,        bool,       DoesSaveUnders)
 DEFUN(XLIB:SCREEN-BACKING-STORES, screen) /* OK */
 {
   int a = DoesBackingStore (get_screen (popSTACK()));
-  value1 =
-    (a == NotUseful) ? `:NEVER` : /* Why here :never but not :not-useful?! */
-    (a == WhenMapped) ? `:WHEN-MAPPED` :
-    `:ALWAYS`;
-  mv_count = 1;
+  VALUES1((a == NotUseful) ? `:NEVER` : /* Why :NEVER but not :NOT-USEFUL?! */
+          (a == WhenMapped) ? `:WHEN-MAPPED` :
+          `:ALWAYS`);
 }
 
 DEFUN(XLIB:SCREEN-DEFAULT-COLORMAP, screen) /* OK */
@@ -2295,6 +2275,11 @@ DEFUN(XLIB:VISUAL-INFO, display visual-id)      /* NIM / OK */
 /* -----------------------------------------------------------------------
  *  Chapter 4   Windows and Pixmaps
  * ----------------------------------------------------------------------- */
+
+nonreturning_function(static, error_required_keywords, (object list)) {
+  pushSTACK(list); pushSTACK(TheSubr(subr_self)->name);
+  fehler(error,"~: At least ~ must be specified");
+}
 
 /* 4.1 Drawables */
 
@@ -2423,8 +2408,7 @@ DEFUN(XLIB:CREATE-WINDOW, &key WINDOW PARENT X Y WIDTH HEIGHT           \
   return;
 
  required:
-  pushSTACK(`XLIB::CREATE-WINDOW`); /* function name */
-  fehler (error, ("~: At least :X, :Y, :WIDTH, :HEIGHT and :PARENT must be specified"));
+  error_required_keywords(`(:X :Y :WIDTH :HEIGHT :PARENT)`);
 }
 
 ##define DEF_DRAWABLE_GEOM_GETTER(type, lspnam, attr)                   \
@@ -4052,6 +4036,16 @@ static void ensure_valid_put_image_args (int src_x, int src_y, int w, int h,
   }
 }
 
+static void* my_malloc (int size) {
+  void *data;
+  X_CALL(data = malloc (size));
+  if (data == 0) {
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler (error, "~: Could not malloc.");
+  }
+  return data;
+}
+
 static void handle_image_z (int src_x, int src_y, int x, int y, int w, int h,
                             GC gcontext, Drawable drawable,
                             int bitmap_p, Display *dpy)
@@ -4084,12 +4078,7 @@ static void handle_image_z (int src_x, int src_y, int x, int y, int w, int h,
   }
 
   /* Allocate memory */
-  X_CALL(data = malloc (bytes_per_line * height));
-
-  if (data == 0) {
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler (error, "~: Could not malloc.");
-  }
+  data = my_malloc (bytes_per_line * height);
 
   /* Actually create the image */
   X_CALL(im = XCreateImage (dpy, 0, depth,
@@ -4270,12 +4259,7 @@ DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
           goto fake;
       }
 
-      X_CALL(data = malloc (bytes_per_line * height));
-
-      if (data == 0) {
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler (error, "~: Could not malloc.");
-      }
+      data = my_malloc (bytes_per_line * height);
 
       X_CALL(im = XCreateImage (dpy, 0, depth,
                                 (bitmap_p && depth == 1) ? XYBitmap : ZPixmap,
@@ -4383,14 +4367,7 @@ DEFUN(XLIB:DISCARD-FONT-INFO, font)
 
   pushSTACK(STACK_0); pushSTACK(`XLIB::FONT-INFO`);
   funcall(L(slot_value), 2);    /* (slot-value obj `font-info) */
-
-  ASSERT (fpointerp (value1));
-  if (!fp_validp (TheFpointer(value1))) {
-    /* Raise an error message. */
-    pushSTACK(STACK_1);
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler (error, "~: Wanted to refer to a dead font.");
-  }
+  value1 = check_fpointer(value1,false);
   info = TheFpointer(value1)->fp_pointer;
   TheFpointer(value1)->fp_pointer = NULL; /* No longer valid */
 
@@ -4438,7 +4415,7 @@ DEFUN(XLIB:SET-FONT-PATH, arg1 arg2)
     if (stringp (value1)) {
       with_string_0 (value1, GLO(misc_encoding), frob, {
         uintL j = asciz_length (frob)+1; /* das ist bloed, denn laenge ist ja schon bekannt 8-( */
-        pathen [i] = malloc (j); /* warum eigendlich kein begin/end_call hier? 8-? */
+        pathen [i] = my_malloc (j);
         while (j--) pathen[i][j] = frob[j];
       });
     } else my_type_error(S(string),value1);
@@ -4893,6 +4870,15 @@ DEFUN(XLIB:COLORMAP-VISUAL-INFO, colormap)
   skipSTACK(1);
 }
 
+nonreturning_function(static, error_no_such_color,
+                      (object display, object color)) {
+  pushSTACK(display); /* get_display_obj() can trigger GC! */
+  pushSTACK(color); /* color argument */
+  pushSTACK(TheSubr(subr_self)->name);
+  STACK_2 = get_display_obj(STACK_2); /* display argument */
+  fehler(error,"~: Color ~ is unknown to display ~.");
+}
+
 DEFUN(XLIB:ALLOC-COLOR, arg1 arg2)
 {
   Display *dpy;
@@ -4937,12 +4923,8 @@ DEFUN(XLIB:ALLOC-COLOR, arg1 arg2)
   skipSTACK(2);
   return;
 
- failed: {
-    /* I have to see what the MIT-CLX implementation does here ... */
-    pushSTACK(get_display_obj(STACK_1)); /* display argument */
-    pushSTACK(STACK_1);                  /* color argument */
-    fehler (error, ("Color ~ is unknown to display ~."));
-  }
+ failed: /* I have to see what the MIT-CLX implementation does here ... */
+  error_no_such_color(STACK_1,STACK_0);
 }
 
 /* XLIB:ALLOC-COLOR-CELLS colormap colors &key (:planes 0) :contiguous_p
@@ -5084,9 +5066,7 @@ DEFUN(XLIB:LOOKUP-COLOR, colormap name) /* [OK] */
         mv_count = 2;
       } else {
         end_x_call();
-        pushSTACK(get_display_obj (STACK_1));   /* display argument */
-        pushSTACK(STACK_1);                     /* color argument */
-        fehler (error, ("Color ~ is unknown to display ~."));
+        error_no_such_color(STACK_1,STACK_0);
       }
     });
   skipSTACK(2);
@@ -5242,8 +5222,7 @@ DEFUN(XLIB:CREATE-CURSOR, &key SOURCE MASK X Y FOREGROUND BACKGROUND)
   return;
 
  required:
-  pushSTACK(TheSubr(subr_self)->name);  /* function name */
-  fehler (type_error, ("~: At least :SOURCE :X, :Y, :FOREGROUND, and :BACKGROUND must be specified"));
+  error_required_keywords(`(:SOURCE :X :Y :FOREGROUND :BACKGROUND)`);
 }
 
 /*  XLIB:CREATE-GLYPH-CURSOR &key [5]:source-font [4]:source-char
@@ -5294,8 +5273,7 @@ DEFUN(XLIB:CREATE-GLYPH-CURSOR, &key SOURCE-FONT SOURCE-CHAR MASK-FONT  \
   return;
 
  required:
-  pushSTACK(TheSubr(subr_self)->name);  /* function name */
-  fehler (type_error, ("~: At least :SOURCE-FONT, :SOURCE-CHAR, :FOREGROUND, and :BACKGROUND must be specified"));
+  error_required_keywords(`(:SOURCE-FONT :SOURCE-CHAR :FOREGROUND :BACKGROUND)`);
 }
 
 DEFUN(XLIB:FREE-CURSOR, cursor)
@@ -7658,9 +7636,9 @@ DEFUN(XLIB:SET-STANDARD-COLORMAP, a1 a2 a3 a4 a5 a6) {UNDEFINED;}
 /* ] */
 ##endif
 /* Puh! That is really lots of typing ...
-    ... But what don`t I do to get (hopyfully) GARNET working? */
+    ... But what wouldn't I do to get (hopefully) GARNET working? */
 
-/* But we not yet finished, we yet to finish the libX11 :-) */
+/* But we are not finished yet, we have yet to finish the libX11 :-) */
 
 
 /* -----------------------------------------------------------------------
