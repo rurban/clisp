@@ -17,28 +17,15 @@
       # variables:
       # 1. environment variable LC_ALL - an override for all LC_* variables,
       # 2. environment variable LC_CTYPE,
-      # 3. environment variable LANG - an override for all LC_* variables.
+      # 3. environment variable LANG - a default for all LC_* variables.
       var const char * locale;
       locale = getenv("CLISP_LC_CTYPE");
-      if (!locale)
+      if (!locale || !*locale)
         { locale = getenv("LC_ALL");
-          if (!locale)
+          if (!locale || !*locale)
             { locale = getenv("LC_CTYPE");
-              if (!locale)
-                { locale = getenv("LANG");
-                  if (locale)
-                    { # LANG may have the form "lang1:lang2:...", extract the
-                      # first part.
-                      var const char* colon = strchr(locale,':');
-                      if (colon != NULL)
-                        { var uintL n = colon-locale;
-                          var char* part = (char*)malloc(n+1);
-                          memcpy(part,locale,n);
-                          part[n] = '\0';
-                          locale = part;
-                        }
-                    }
-                }
+              if (!locale || !*locale)
+                { locale = getenv("LANG"); }
             }
         }
       #ifdef HAVE_LOCALE_H
@@ -46,7 +33,7 @@
       # variable is set accordingly.
       # (We don't use these functions directly, but additional modules like
       # regexp use them and profit from this.)
-      if (locale)
+      if (locale && *locale)
         { setlocale(LC_CTYPE,locale); }
       #endif
       #ifdef UNICODE
@@ -375,94 +362,114 @@
       #   swedish                 sv_SE.ISO-8859-1
       #   turkish                 tr_TR.ISO-8859-9
       #
-      if (locale)
-        { var const char* dot = strchr(locale,'.');
-          if (dot)
+      if (locale && *locale)
+        { # The most general syntax of a locale (not all optional parts
+          # recognized by all systems) is
+          # language[_territory][.codeset][@modifier][+special][,[sponsor][_revision]]
+          # To retrieve the codeset, search the first dot. Stop searching when
+          # a '@' or '+' or ',' is encountered.
+          var DYNAMIC_ARRAY(buf,char,strlen(locale)+1);
+          var const char* codeset = NULL;
+          { var const char* cp = locale;
+            for (; *cp != '\0' && *cp != '@' && *cp != '+' && *cp != ','; cp++) {
+              if (*cp == '.') {
+                codeset = ++cp;
+                for (; *cp != '\0' && *cp != '@' && *cp != '+' && *cp != ','; cp++);
+                if (*cp != '\0') {
+                  var uintL n = cp-codeset;
+                  memcpy(buf,codeset,n);
+                  buf[n] = '\0';
+                  codeset = buf;
+                }
+                break;
+              }
+            }
+          }
+          if (codeset)
             { # Canonicalize the charset given after the dot.
-              dot++;
-              if (   asciz_equal(dot,"ISO8859-1")
-                  || asciz_equal(dot,"ISO_8859-1")
-                  || asciz_equal(dot,"iso88591")
-                  || asciz_equal(dot,"88591")
-                  || asciz_equal(dot,"88591.en")
-                  || asciz_equal(dot,"8859")
-                  || asciz_equal(dot,"8859.in")
-                  || asciz_equal(dot,"ascii")
+              if (   asciz_equal(codeset,"ISO8859-1")
+                  || asciz_equal(codeset,"ISO_8859-1")
+                  || asciz_equal(codeset,"iso88591")
+                  || asciz_equal(codeset,"88591")
+                  || asciz_equal(codeset,"88591.en")
+                  || asciz_equal(codeset,"8859")
+                  || asciz_equal(codeset,"8859.in")
+                  || asciz_equal(codeset,"ascii")
                  )
                 { locale_charset = "ISO-8859-1"; }
               else
-              if (   asciz_equal(dot,"ISO8859-2")
-                  || asciz_equal(dot,"ISO_8859-2")
-                  || asciz_equal(dot,"iso88592")
+              if (   asciz_equal(codeset,"ISO8859-2")
+                  || asciz_equal(codeset,"ISO_8859-2")
+                  || asciz_equal(codeset,"iso88592")
                  )
                 { locale_charset = "ISO-8859-2"; }
               else
-              if (   asciz_equal(dot,"ISO8859-5")
-                  || asciz_equal(dot,"ISO_8859-5")
-                  || asciz_equal(dot,"iso88595")
+              if (   asciz_equal(codeset,"ISO8859-5")
+                  || asciz_equal(codeset,"ISO_8859-5")
+                  || asciz_equal(codeset,"iso88595")
                  )
                 { locale_charset = "ISO-8859-5"; }
               else
-              if (   asciz_equal(dot,"ISO8859-6")
-                  || asciz_equal(dot,"ISO_8859-6")
-                  || asciz_equal(dot,"iso88596")
+              if (   asciz_equal(codeset,"ISO8859-6")
+                  || asciz_equal(codeset,"ISO_8859-6")
+                  || asciz_equal(codeset,"iso88596")
                  )
                 { locale_charset = "ISO-8859-6"; }
               else
-              if (   asciz_equal(dot,"ISO8859-7")
-                  || asciz_equal(dot,"ISO_8859-7")
-                  || asciz_equal(dot,"iso88597")
+              if (   asciz_equal(codeset,"ISO8859-7")
+                  || asciz_equal(codeset,"ISO_8859-7")
+                  || asciz_equal(codeset,"iso88597")
                  )
                 { locale_charset = "ISO-8859-7"; }
               else
-              if (   asciz_equal(dot,"ISO8859-8")
-                  || asciz_equal(dot,"iso88598")
+              if (   asciz_equal(codeset,"ISO8859-8")
+                  || asciz_equal(codeset,"iso88598")
                  )
                 { locale_charset = "ISO-8859-8"; }
               else
-              if (   asciz_equal(dot,"ISO8859-9")
-                  || asciz_equal(dot,"ISO_8859-9")
-                  || asciz_equal(dot,"iso88599")
+              if (   asciz_equal(codeset,"ISO8859-9")
+                  || asciz_equal(codeset,"ISO_8859-9")
+                  || asciz_equal(codeset,"iso88599")
                  )
                 { locale_charset = "ISO-8859-9"; }
               else
-              if (asciz_equal(dot,"KOI8-R"))
+              if (asciz_equal(codeset,"KOI8-R"))
                 { locale_charset = "KOI8-R"; }
               else
-              if (   asciz_equal(dot,"eucJP")
-                  || asciz_equal(dot,"ujis")
-                  || asciz_equal(dot,"AJEC")
+              if (   asciz_equal(codeset,"eucJP")
+                  || asciz_equal(codeset,"ujis")
+                  || asciz_equal(codeset,"AJEC")
                  )
                 { locale_charset = "eucJP"; }
               else
-              if (   asciz_equal(dot,"JIS7")
-                  || asciz_equal(dot,"jis7")
-                  || asciz_equal(dot,"JIS")
-                  || asciz_equal(dot,"ISO-2022-JP")
+              if (   asciz_equal(codeset,"JIS7")
+                  || asciz_equal(codeset,"jis7")
+                  || asciz_equal(codeset,"JIS")
+                  || asciz_equal(codeset,"ISO-2022-JP")
                  )
                 { locale_charset = "JIS7"; }
               else
-              if (   asciz_equal(dot,"SJIS")
-                  || asciz_equal(dot,"mscode")
-                  || asciz_equal(dot,"932")
+              if (   asciz_equal(codeset,"SJIS")
+                  || asciz_equal(codeset,"mscode")
+                  || asciz_equal(codeset,"932")
                  )
                 { locale_charset = "SJIS"; }
               else
-              if (   asciz_equal(dot,"eucKR")
-                  || asciz_equal(dot,"949")
+              if (   asciz_equal(codeset,"eucKR")
+                  || asciz_equal(codeset,"949")
                  )
                 { locale_charset = "eucKR"; }
               else
-              if (asciz_equal(dot,"eucCN"))
+              if (asciz_equal(codeset,"eucCN"))
                 { locale_charset = "eucCN"; }
               else
-              if (asciz_equal(dot,"eucTW"))
+              if (asciz_equal(codeset,"eucTW"))
                 { locale_charset = "eucTW"; }
               else
-              if (asciz_equal(dot,"TACTIS"))
+              if (asciz_equal(codeset,"TACTIS"))
                 { locale_charset = "TACTIS"; }
               else
-              if (asciz_equal(dot,"EUC") || asciz_equal(dot,"euc"))
+              if (asciz_equal(codeset,"EUC") || asciz_equal(codeset,"euc"))
                 { if (locale[0]=='j' && locale[1]=='a')
                     { locale_charset = "eucJP"; }
                   elif (locale[0]=='k' && locale[1]=='o')
@@ -476,8 +483,8 @@
                 }
               else
               # The following are CLISP extensions.
-              if (   asciz_equal(dot,"UTF-8")
-                  || asciz_equal(dot,"utf8")
+              if (   asciz_equal(codeset,"UTF-8")
+                  || asciz_equal(codeset,"utf8")
                  )
                 { locale_charset = "UTF-8"; }
             }
@@ -538,10 +545,9 @@
                   var const char* lang;
                   if (underscore)
                     { var uintL n = underscore-locale;
-                      var char* part = (char*)malloc(n+1);
-                      memcpy(part,locale,n);
-                      part[n] = '\0';
-                      lang = part;
+                      memcpy(buf,locale,n);
+                      buf[n] = '\0';
+                      lang = buf;
                     }
                     else
                     { lang = locale; }
@@ -635,6 +641,7 @@
                   {}
                 }
             }
+          FREE_DYNAMIC_ARRAY(buf);
         }
       #endif # UNICODE
       #endif # HAVE_LOCALE_H || UNICODE
