@@ -1,3 +1,8 @@
+2004-04-22  Sam Steingold  <sds@gnu.org>
+
+	* genclisph.d (check_fpointer, check_fpointer_replacement): moved
+	to a later place so that clisp.h will be compilable
+
 2004-04-22  Bruno Haible  <bruno@clisp.org>
 
 	* genclisph.d (main): Emit definitions for check_fpointer,

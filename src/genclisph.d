@@ -1820,14 +1820,6 @@ int main(int argc, char* argv[])
   printf("nonreturning_function(extern, OS_error, (void));\n");
   printf("nonreturning_function(extern, OS_file_error, (object pathname));\n");
   printf("nonreturning_function(extern, OS_filestream_error, (object stream));\n");
- #ifdef FOREIGN
-  printf("extern object check_fpointer_replacement (object obj, bool restart_p);\n");
-  printf("static inline object check_fpointer (object obj, bool restart_p) {"
-          " if (!(fpointerp(obj) && fp_validp(TheFpointer(obj))))"
-            " obj = check_fpointer_replacement(obj,restart_p);"
-          " return obj;"
-        " }\n");
- #endif
 #if notused
   printf("nonreturning_function(extern, fehler_list, (object obj));\n");
   printf("extern object check_list_replacement (object obj);\n");
@@ -2113,6 +2105,12 @@ int main(int argc, char* argv[])
     #endif
     printf("extern object allocate_fpointer (FOREIGN foreign);\n");
     printf("#define fp_validp(ptr)  ((record_flags(ptr) & bit(7)) == 0)\n");
+    printf("extern object check_fpointer_replacement (object obj, bool restart_p);\n");
+    printf("static inline object check_fpointer (object obj, bool restart_p) {"
+           "  if (!(fpointerp(obj) && fp_validp(TheFpointer(obj))))"
+           "    obj = check_fpointer_replacement(obj,restart_p);"
+           "  return obj;"
+           "}\n");
   #endif
   printf("extern void* my_malloc (size_t size);\n");
   printf("#define unused %s\n",STRINGIFY(unused));
