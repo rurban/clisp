@@ -2069,11 +2069,19 @@ local Values apply_symbols (sym_pack_function_t* fun) {
   test_optional_package_arg();
   /* stack-layout: symarg, pack. */
   /* apply fun to all symbols: */
-  if (matomp(STACK_1)) { /* single symbol */
-    /* stack-layout: sym, pack. */
-    (*fun)(&STACK_1,&STACK_0);
+  if (matomp(STACK_1)) {
+    if (nullp(STACK_1)) {
+      /* ANSI CL 11.1.1. says
+         "Where an operator takes an argument that is either a symbol or a list of
+          symbols, an argument of nil is treated as an empty list of symbols." */
+    } else {
+      /* single symbol */
+      /* stack-layout: sym, pack. */
+      (*fun)(&STACK_1,&STACK_0);
+    }
     skipSTACK(2);
-  } else { /* non-empty symbol-list */
+  } else {
+    /* non-empty symbol-list */
     pushSTACK(NIL);
     do {
       var object symlistr = STACK_2;
