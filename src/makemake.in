@@ -786,7 +786,7 @@ if [ $XCC_GCC = true ] ; then
   if [ $CROSS = false ] ; then
     case "$XCC_GCC_VERSION" in
       # gcc 2.7 introduced an annoying warning, but gcc 2.8 has a workaround:
-      2.[8-9]* | 3.* | egcs-2.*)
+      2.[8-9]* | 3.* | 4.* | egcs-2.*)
         XCFLAGS=$XCFLAGS' -Wno-sign-compare'
         ;;
       * ) ;;
@@ -795,7 +795,7 @@ if [ $XCC_GCC = true ] ; then
   if [ $CROSS = false -a $CC_CPLUSPLUS = true ] ; then
     case "$XCC_GCC_VERSION" in
       # g++ 3.4 introduced an annoying warning, but has a workaround:
-      3.[4-9]*)
+      3.[4-9]* | 4.*)
         XCFLAGS=$XCFLAGS' -Wno-invalid-offsetof'
         ;;
       * ) ;;
@@ -810,7 +810,7 @@ if [ $XCC_GCC = true ] ; then
             # gcc-2.7.2 has a strength-reduction bug (fixed in gcc-2.7.2.1,
             # also fixed through the specs file of some Linux distributions).
             XCFLAGS=$XCFLAGS' -O2 -fexpensive-optimizations -fno-strength-reduce' ;;
-          2.3.[2-9]* | 2.[4-9]* | 3.* | egcs-2.*)
+          2.3.[2-9]* | 2.[4-9]* | 3.* | 4.* | egcs-2.*)
             XCFLAGS=$XCFLAGS' -O2 -fexpensive-optimizations' ;;
           * )
             XCFLAGS=$XCFLAGS' -O' ;;
@@ -829,7 +829,7 @@ if [ $XCC_GCC = true ] ; then
             # egcs-1.0.3 and egcs-1.1.1 produce incorrect code when compiling
             # lisparit (function UDS_divide_).
             XCFLAGS=$XCFLAGS' -O2 -fno-schedule-insns' ;;
-          2.9* | 3.*)
+          2.9* | 3.* | 4.*)
             # gcc-2.95 produces incorrect code when compiling predtype
             # (function C_coerce).
             XCFLAGS=$XCFLAGS' -O2 -fno-schedule-insns -fno-gcse' ;;
@@ -867,7 +867,7 @@ if [ $XCC_GCC = true ] ; then
     esac
   else
     case "$XCC_GCC_VERSION" in
-      3*) # on linux: C_CODE_ALIGNMENT is wrong. &EVAL-WHEN = 0x806D512
+      3* | 4*) # on linux: C_CODE_ALIGNMENT is wrong. &EVAL-WHEN = 0x806D512
         XCFLAGS=$XCFLAGS' -falign-functions=4'
     esac
   fi # DEBUGGING
