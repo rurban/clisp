@@ -196,6 +196,7 @@
 <!ENTITY uni-time "<ulink url='&clhs;/Body/sec_25-1-4-2.html'>universal time</ulink>">
 <!ENTITY int-time "<ulink url='&clhs;/Body/sec_25-1-4-3.html'>internal time</ulink>">
 <!ENTITY seconds "<ulink url='&clhs;/Body/sec_25-1-4-4.html'>seconds</ulink>">
+<!ENTITY TZ "<ulink url='&clhs;/Body/glo_t.html#time_zone'>time zone</ulink>">
 
 <!-- *** variables, bindings etc *** -->
 <!ENTITY environment "<ulink url='&clhs;/Body/sec_3-1-1.html'>environment</ulink>">
