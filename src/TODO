@@ -6,6 +6,10 @@ URGENT PROBLEMS
 Should handle these soon.
 
 
+The 1999-03-16 patch for HPPA is not complete. Must not use ThePseudofun
+in spvw_memfile.d. Instead, the Pseudofun_tab must consist of objects.
+
+
 print-readably for interpreted closures and #<specdecl> and #<unbound> ?
 
 
