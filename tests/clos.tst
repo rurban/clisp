@@ -960,6 +960,14 @@ error
 (1 (STRING . "a"))
 
 (progn
+  (defgeneric test-mc-standard-bad-qualifiers (x y))
+  (defmethod test-mc-standard-bad-qualifiers ((x integer) (y integer)) (+ x y))
+  (defmethod test-mc-standard-bad-qualifiers ((x float) (y float)) (+ x y))
+  (defmethod test-mc-standard-bad-qualifiers :beffor ((x float) (y float))
+    (format t "x = ~S, y = ~S~%" x y)))
+ERROR
+
+(progn
   (defgeneric test-mc-progn (x s)
     (:method-combination progn)
     (:method progn ((x string) s) (vector-push-extend 'string s))
