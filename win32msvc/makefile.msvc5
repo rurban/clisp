@@ -1,6 +1,6 @@
 # -*- Makefile -*- for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host loiso.podval.org as the output of the command:
+# This file was created on host HAMPY as the output of the command:
 # ./makemake --with-dir-key --with-export-syscalls --with-dynamic-ffi win32msvc msvc5
 
 # -------------- Start of configurable section --------------------
@@ -18,6 +18,7 @@ MFLAGS=
 prefix = 
 exec_prefix = $(prefix)
 bindir  = $(exec_prefix)\bin
+shared  = $(prefix)\share
 mandir  = $(prefix)\share\man
 htmldir = $(prefix)\share\html
 dvidir  = $(prefix)\share\dvi
@@ -40,7 +41,7 @@ MODULES =
 
 # Programs used by "make":
 CC = cl $(MFLAGS) -G5 -Os -Oy -Ob1 -Gs -Gf -Gy
-CFLAGS =  -DUNICODE -DEXPORT_SYSCALLS -DDIR_KEY -DDYNAMIC_FFI -DNO_GETTEXT
+CFLAGS =  -DUNICODE -DEXPORT_SYSCALLS -DDIR_KEY -DDYNAMIC_FFI -DNO_GETTEXT -I.
 CPP = ..\utils\gcc-cccp\cccp -U__GNUC__ -+ -D_MSC_VER=1100 -D_M_IX86=500 -D_WIN32 -D_INTEGRAL_MAX_BITS=64 -I$(MSVCDIR)/include
 CLFLAGS = 
 LIBS = sigsegv.lib charset.lib avcall.lib callback.lib  user32.lib ws2_32.lib advapi32.lib ole32.lib wldap32.lib
@@ -453,6 +454,7 @@ dirkey1.lisp \
 german.lisp \
 french.lisp \
 spanish.lisp \
+russian.lisp \
 dutch.lisp \
 deprecated.lisp \
 config.lisp
@@ -507,6 +509,7 @@ dirkey1.fas \
 german.fas \
 french.fas \
 spanish.fas \
+russian.fas \
 dutch.fas \
 deprecated.fas \
 config.fas
@@ -566,6 +569,7 @@ stage\dirkey1.lisp \
 stage\german.lisp \
 stage\french.lisp \
 stage\spanish.lisp \
+stage\russian.lisp \
 stage\dutch.lisp \
 stage\deprecated.lisp \
 stage\config.lisp
@@ -620,6 +624,7 @@ stage\dirkey1.fas \
 stage\german.fas \
 stage\french.fas \
 stage\spanish.fas \
+stage\russian.fas \
 stage\dutch.fas \
 stage\deprecated.fas \
 stage\config.fas
@@ -627,9 +632,9 @@ stage\config.fas
 
 all : init allc allo lisp.exe interpreted.mem halfcompiled.mem lispinit.mem manual
 
-makemake : makemake.in
-	sh config.status --file=makemake
-	chmod +x makemake
+makemake : makemake.in config.status
+	./config.status --file=makemake
+	./config.status makemake
 
 unixconf.h : unixconf.h.in config.status
 	sh config.status --header=unixconf.h
@@ -667,20 +672,14 @@ varbrace.exe : ..\utils\varbrace.d comment5.exe ansidecl.exe
 	$(CC) $(CFLAGS) $(CLFLAGS) varbrace.c /Fevarbrace.exe
 	$(RM) varbrace.c
 
-txt2c.exe : ..\utils\txt2c.c ansidecl.exe
-	$(ANSIDECL) < ..\utils\txt2c.c > txt2c.c
-	$(CC) $(CFLAGS) $(CLFLAGS) txt2c.c /Fetxt2c.exe
-	$(RM) txt2c.c
+txt2c.exe : ..\utils\txt2c.c
+	$(CC) $(CFLAGS) $(CLFLAGS)  ..\utils\txt2c.c /Fetxt2c.exe
 
-ccmp2c.exe : ..\utils\ccmp2c.d comment5.exe ansidecl.exe
-	$(COMMENT5) ..\utils\ccmp2c.d | $(ANSIDECL) > ccmp2c.c
-	$(CC) $(CFLAGS) $(CLFLAGS) -I. ccmp2c.c /Feccmp2c.exe
-	$(RM) ccmp2c.c
+ccmp2c.exe : ..\utils\ccmp2c.c
+	$(CC) $(CFLAGS) $(CLFLAGS)  -I. ..\utils\ccmp2c.c /Feccmp2c.exe
 
-modprep.exe : ..\utils\modprep.d comment5.exe ansidecl.exe
-	$(COMMENT5) ..\utils\modprep.d | $(ANSIDECL) > modprep.c
-	$(CC) $(CFLAGS) $(CLFLAGS) modprep.c /Femodprep.exe
-	$(RM) modprep.c
+modprep.exe : ..\utils\modprep.c
+	$(CC) $(CFLAGS) $(CLFLAGS)  ..\utils\modprep.c /Femodprep.exe
 
 
 stdbool.h : stdbool.h.in
@@ -1303,16 +1302,16 @@ sequence.obj : sequence.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c const
 	$(MV) sequence.i.obj sequence.obj
 	$(RM) sequence.i.c
 
-charstrg.i : charstrg.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c uni_upcase.c uni_downcase.c uni_attribute.c uniname.c stdbool.h stdint.h libcharset.h sigsegv.h
+charstrg.i : charstrg.c streq.h cjk.h uniwidth.h width.c unitypes.h uniname.h uninames.h lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c uni_upcase.c uni_downcase.c uni_attribute.c uniname.c stdbool.h stdint.h libcharset.h sigsegv.h
 	$(CPP) $(CFLAGS) charstrg.c > charstrg.i
 
-charstrg.s : charstrg.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c uni_upcase.c uni_downcase.c uni_attribute.c uniname.c stdbool.h stdint.h libcharset.h sigsegv.h
+charstrg.s : charstrg.c streq.h cjk.h uniwidth.h width.c unitypes.h uniname.h uninames.h lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c uni_upcase.c uni_downcase.c uni_attribute.c uniname.c stdbool.h stdint.h libcharset.h sigsegv.h
 	$(CPP) $(CFLAGS) charstrg.c > charstrg.i.c
 	$(CC) $(CFLAGS) -c charstrg.i.c /FAs /Facharstrg.s
 	$(RM) charstrg.i.obj
 	$(RM) charstrg.i.c
 
-charstrg.obj : charstrg.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c uni_upcase.c uni_downcase.c uni_attribute.c uniname.c stdbool.h stdint.h libcharset.h sigsegv.h
+charstrg.obj : charstrg.c streq.h cjk.h uniwidth.h width.c unitypes.h uniname.h uninames.h lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c uni_upcase.c uni_downcase.c uni_attribute.c uniname.c stdbool.h stdint.h libcharset.h sigsegv.h
 	$(CPP) $(CFLAGS) charstrg.c > charstrg.i.c
 	$(CC) $(CFLAGS) -c charstrg.i.c
 	$(RM) charstrg.obj
@@ -1623,7 +1622,7 @@ data : ..\utils\unicode\ftp.unicode.org\UnicodeData.txt ..\src\clhs.txt
 	cd data && $(LN_S) ..\..\utils\unicode\ftp.unicode.org\UnicodeData.txt .
 	cd data && $(LN_S) ..\..\src\clhs.txt .
 
-lisp.exe : $(OBJECTS) modules.obj avcall.lib callback.lib    sigsegv.lib data
+lisp.exe : $(OBJECTS) modules.obj avcall.lib callback.lib  sigsegv.lib charset.lib  data
 	$(RM) lisp.ilk
 	$(CC) $(CFLAGS) $(CLFLAGS) $(OBJECTS) modules.obj $(LIBS) /link /out:lisp.exe
 	editbin /stack:3145728 lisp.exe
@@ -1634,7 +1633,7 @@ alllisp : $(LISPFILES)
 config.lisp : cfgwin32.lisp
 	$(CP) cfgwin32.lisp config.lisp
 
-RUN= lisp.exe -B . -Efile UTF-8 -norc
+RUN= lisp.exe -B . -E UTF-8 -norc
 
 interpreted.mem : lisp.exe $(LISPFILES)
 	-$(RM) interpreted.mem
@@ -1788,6 +1787,9 @@ french.fas : french.lisp lisp.exe halfcompiled.mem
 spanish.fas : spanish.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c spanish.lisp
 
+russian.fas : russian.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1000KW -M halfcompiled.mem -q -c russian.lisp
+
 dutch.fas : dutch.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c dutch.lisp
 
@@ -1809,6 +1811,11 @@ lispinit.mem : lisp.exe $(FASFILES)
 
 # Perform self-tests.
 check : test testsuite
+
+# check the sources: subr.d, fsubr.d, subrkw.d and
+# all the LISPFUNs must add up
+check-sources : # lisp.run lispinit.mem
+	$(RUN) -M lispinit.mem -C -i check-lispfun.lisp -x '(check-lisp-defs "")'
 
 # Test: recompile $(LISPFILES) and compare their contents.
 test : lispinit.mem stage $(TESTLISPFILES) $(TESTFASFILES)
@@ -1964,6 +1971,9 @@ stage\french.lisp : french.lisp
 
 stage\spanish.lisp : spanish.lisp
 	$(LN_S) spanish.lisp stage
+
+stage\russian.lisp : russian.lisp
+	$(LN_S) russian.lisp stage
 
 stage\dutch.lisp : dutch.lisp
 	$(LN_S) dutch.lisp stage
@@ -2124,6 +2134,9 @@ stage\french.fas : stage\french.lisp lisp.exe stage\testinit.mem
 stage\spanish.fas : stage\spanish.lisp lisp.exe stage\testinit.mem
 	$(RUN) -M stage\testinit.mem -q -c stage\spanish.lisp
 
+stage\russian.fas : stage\russian.lisp lisp.exe stage\testinit.mem
+	$(RUN) -M stage\testinit.mem -q -c stage\russian.lisp
+
 stage\dutch.fas : stage\dutch.lisp lisp.exe stage\testinit.mem
 	$(RUN) -M stage\testinit.mem -q -c stage\dutch.lisp
 
@@ -2140,7 +2153,7 @@ lispinit2.mem : lisp.exe $(TESTFASFILES)
 
 
 testsuite : suite lisp.exe lispinit.mem
-	LISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -Efile UTF-8 -norc"; export LISP; cd suite; $(MAKE) LISP="$$LISP"
+	LISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -E UTF-8 -norc"; export LISP; cd suite; $(MAKE) LISP="$$LISP"
 
 suite :
 	-mkdir suite
@@ -2176,13 +2189,13 @@ base : modular lispinit.mem
 anymodule $(MODULES) : lisp.exe lispinit.mem force
 	test -d $@ || lndir ..\modules/$@ $@
 	if test -f $@/configure -a '!' -f $@/config.status ; then cd $@ ; ./configure --cache-file=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g'`config.cache ; fi
-	CLISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -Efile UTF-8 -norc" ; cd $@ ; dots=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g'` ; $(MAKE) clisp-module CC="$(CC)" CFLAGS="$(CFLAGS)" INCLUDES="$$dots" LISPBIBL_INCLUDES=" $${dots}lispbibl.c $${dots}fsubr.c $${dots}subr.c $${dots}pseudofun.c $${dots}constsym.c $${dots}constobj.c $${dots}win32.c $${dots}xthread.c $${dots}stdbool.h $${dots}stdint.h $${dots}libcharset.h $${dots}sigsegv.h" CLFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q"
+	CLISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -E UTF-8 -norc" ; cd $@ ; dots=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g'` ; $(MAKE) clisp-module CC="$(CC)" CFLAGS="$(CFLAGS)" INCLUDES="$$dots" LISPBIBL_INCLUDES=" $${dots}lispbibl.c $${dots}fsubr.c $${dots}subr.c $${dots}pseudofun.c $${dots}constsym.c $${dots}constobj.c $${dots}win32.c $${dots}xthread.c $${dots}stdbool.h $${dots}stdint.h $${dots}libcharset.h $${dots}sigsegv.h" CLFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q"
 
 full : modular base $(MODULES)
 	test -d full || CLISP_LINKKIT=. clisp-link add-module-sets base full $(MODULES) || ($(RMRF) full ; exit 1)
 
 READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es
-IMPNOTES = impnotes.html impnotes.css clisp.png
+IMPNOTES = impnotes.html impnotes.css clisp.png clisp.ico
 MANUALS = clisp.1 clisp.html $(TXTFILES) $(IMPNOTES)
 
 impnotes.html : ..\doc\impnotes.html
@@ -2193,6 +2206,9 @@ impnotes.css : ..\doc\impnotes.css
 
 clisp.png : ..\doc\clisp.png
 	$(LN_S) ..\doc\clisp.png clisp.png
+
+clisp.ico : ..\doc\clisp.ico
+	$(LN_S) ..\doc\clisp.ico clisp.ico
 
 manual : $(READMES) $(MANUALS)
 
@@ -2260,6 +2276,16 @@ clisp.html : _clisp.html lispbibl.c fsubr.c subr.c pseudofun.c constsym.c consto
 	$(RM) txt.c
 	$(RM) txt.exe
 
+clisp.c : _clisp.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h stdint.h libcharset.h sigsegv.h txt2c.exe
+	$(TXT2C) < _clisp.c > txt.c
+	$(CPP) $(CFLAGS) txt.c > txt.i.c
+	$(CC) $(CFLAGS) $(CLFLAGS) txt.i.c /Fetxt.exe
+	$(RM) txt.i.c
+	$(RM) txt.i.obj
+	txt > clisp.c
+	$(RM) txt.c
+	$(RM) txt.exe
+
 clisp.dvi : clisp.1
 	$(ROFF_DVI) clisp.1 > clisp.dvi
 
@@ -2275,6 +2301,9 @@ CLOS-guide.txt : ..\doc\CLOS-guide.txt
 editors.txt : ..\doc\editors.txt
 	-$(LN_S) ..\doc\editors.txt editors.txt
 
+
+clisp : clisp.c
+	$(CC) $(CFLAGS) $(CLFLAGS) -DLISPLIBDIR='"/cygdrive/d/clisp-cvs/clisp"' -DLOCALEDIR='"/cygdrive/d/clisp-cvs/clisp/locale"' clisp.c -o clisp
 
 # Distribution, to be executed on a Unix host or using Cygwin.
 distrib : force
@@ -2312,7 +2341,7 @@ distrib : force
 
 # clean0 is harmless: removes only superfluous things: temporary files.
 clean0 : force
-	-$(RM) core ansidecl.c varbrace.c ccmp2c.c modprep.c genclisph.exe txt.c txt.exe txt.i.c
+	-$(RM) core ansidecl.c varbrace.c genclisph.exe txt.c txt.exe txt.i.c
 	-$(RMRF) linkkit
 
 # clean1 removes everything that becomes obsolete once lisp.exe is recompiled
@@ -2354,7 +2383,7 @@ clean5 : clean4
 	-$(RM) ANNOUNCE COPYRIGHT GNU-GPL SUMMARY
 	-$(RM) config.lisp
 	-$(RMRF) data
-	-$(RM) comment5.exe ansidecl.exe varbrace.exe ccpaux.exe deema.exe txt2c.exe ccmp2c.exe modprep.exe
+	-$(RM) comment5.exe ansidecl.exe varbrace.exe ccpaux.exe deema.exe txt2c.exe ccmp2c.exe modprep.exe clisp.exe
 
 # clean6 lets us go back to "makemake > Makefile".
 clean6 : clean5
