@@ -15,7 +15,7 @@ all:
 clean:
 	rm comment5 ansidecl ansidecl.c
 
-convert: phase-0 phase-1 phase-2 phase-3 phase-4 phase-5 phase-omega
+convert: phase-0 phase-1 phase-2 phase-3 phase-4 phase-5 phase-6
 
 # Phase zero: small tweaks to some .d files to prepare them for
 # subsequent conversion. These changes aren't actually required until
@@ -158,11 +158,17 @@ phase-5:
 # need it during builds and it's slow so we don't do it all the time.
 # This should be run after all the patches have been applied.
 
-phase-omega: convert-makefiles clean-up
+phase-6: convert-makefiles
 
 convert-makefiles:
 	cd ../..; $(MAKE) -f Makefile.devel makefiles
 
 clean-up:
 	cd ../../src; \
-	rm -f *.c~ *.d.ORIG *.d.PHASE-1 *.d.PHASE-2 *.d.PHASE-3
+	rm -f *.c~; \
+	rm *.d.ORIG; \
+	rm *.d.PHASE-1; \
+	rm *.d.PHASE-2; \
+	rm *.d.PHASE-3; \
+	rm *.UNINDENTED; \
+	rm *.indent-errors
