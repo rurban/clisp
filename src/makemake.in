@@ -33,7 +33,7 @@ options:
     main INSTALL file for how to get them.
        --with-readline         the (readline-4.1 based) readline lib
        --with-noreadline       no readline library
-       --with-gettext          internationalization library gettext-0.10.38
+       --with-gettext          internationalization, needs GNU gettext
        --with-nogettext        static internationalization (en only)
        --with-termcap          termcap-1.3 library (needed only on cygwin32)
        --without-unicode       no Unicode character set, only 8-bit characters
@@ -62,7 +62,7 @@ EOP
 #  where PACKAGE is one of
 #        readline         the (readline-4.1 based) readline library
 #        noreadline       no readline library
-#        gettext          internationalization library gettext-0.10.38
+#        gettext          internationalization, needs GNU gettext
 #        nogettext        static internationalization (en only)
 #        unicode          Unicode character set
 #        termcap          termcap-1.3 library (needed only on cygwin32)
@@ -322,6 +322,7 @@ case $# in
      HLN='@HLN@'                         # either 'ln' or 'hln'
      CC="@CC@"                           # either 'gcc -O' or 'cc'
      CPP="@CPP@"                         # either $CC' -E' or '/lib/cpp'
+     CPPFLAGS='@CPPFLAGS@'               # additional options for $CC and $CPP
      CC_GCC='@CC_GCC@'                   # either true or false
      CC_ANSI='@CC_ANSI@'                 # either true or false
      CC_NEED_CCPAUX='@CC_NEED_CCPAUX@'   # either true or false
@@ -427,6 +428,7 @@ case $# in
        CFLAGS='-O'
        CLFLAGS=''
        CPP="${CC} -E"
+       CPPFLAGS=''
        if [ $COMPILER = gcc -o $COMPILER = ansi ] ; then
          CC_ANSI=true
          CC_NEED_CCPAUX=false
@@ -461,6 +463,7 @@ if [ $CROSS = true ] ; then
   # We can cross-compile only with GCC 2
   XCC="gcc-${TSYS}"
   XCPP="${XCC} -E"
+  XCPPFLAGS=''
   XCC_GCC=true
   XCC_ANSI=true
   XCC_NEED_CCPAUX=false
@@ -470,6 +473,7 @@ else
   TOS="$HOS"
   XCC="${CC}"
   XCPP="${CPP}"
+  XCPPFLAGS="${CPPFLAGS}"
   XCC_GCC="${CC_GCC}"
   XCC_ANSI="${CC_ANSI}"
   XCC_NEED_CCPAUX="${CC_NEED_CCPAUX}"
@@ -822,6 +826,7 @@ if [ $XCC_GCC = true ] ; then
     # DOS has a very limited command line length
     XCFLAGS=''
   fi
+  XCFLAGS="$XCPPFLAGS $XCFLAGS"
   if [ "$DEBUGGING" != debug ] ; then
     # Frame-Pointer brauchen wir nicht. Da, wo wir ihn brauchen (in eval.d:
     # interpret_bytecode_()), erzwingen wir ihn durch Benutzung von alloca().
@@ -1160,7 +1165,7 @@ if [ "$cpu" = i386 -o $TSYS = sun4 ] && [ $CROSS = false ] ; then
       # - for gethostname() we need libnsl.a,
       # - for connect() and socket() we need libsocket.a,
       # - for these we need libdl_stubs.a and everything required by this one,
-      # - a second pass through the libraries is needed to satisfy cyclic
+      # - a second pass through the libraries is needed to satisfy circular
       #   dependencies.
       if test -f /usr/lib/libdl_stubs.a; then
         LIBS=$LIBS' -lnsl -lsocket -ldl_stubs -lnswfiles -lnswnis -lnswnisplus -ltcpip -lswitch -lnswcompat -lstraddr -lintl'
@@ -1283,51 +1288,33 @@ if [ "${with_termcap_ncurses}" = "0" ] ; then
   XCFLAGS=$XCFLAGS' -DNO_TERMCAP_NCURSES'
 fi
 
-USE_LIBICONV=''
+USE_LIBCHARSET=''
 if [ $HOS = unix -o $HOS = win32 ] ; then
-  USE_LIBICONV=yes
+  USE_LIBCHARSET=yes
   if [ ${LIB_TYPE} = "unix" ] ; then
     # use symbolic link
-    XCL_ICONVLIB='libiconv.a'
-    FILES=$FILES' libiconv.a'
+    XCL_CHARSETLIB='libcharset.a'
+    FILES=$FILES' libcharset.a'
   fi
   if [ ${LIB_TYPE} = "win32" ] ; then
-    XCL_ICONVLIB='iconv.lib'
+    XCL_CHARSETLIB='charset.lib'
   fi
-  LIBS=$XCL_ICONVLIB' '$LIBS
+  LIBS=$XCL_CHARSETLIB' '$LIBS
 fi
 
 USE_GETTEXT=''
-GETTEXTLIB=''
 XCL_GETTEXTLIB=''
 if [ $TOS = unix ] || [ $TOS = os2 ] ; then
   if [ "${with_gettext}" = "0" ]; then
     XCFLAGS=$XCFLAGS' -DNO_GETTEXT'
   else
-    USE_GETTEXT=yes
-    if [ -f gettext/config.status ] ; then
-      if grep '@USE_INCLUDED_LIBINTL@.*yes' gettext/config.status > /dev/null; then
-        use_included_libintl=yes
-      else
-        use_included_libintl=''
-      fi
+    if [ @USE_NLS@ = yes ] ; then
+      USE_GETTEXT=yes
+      LIBS='@LIBINTL@ '$LIBS
+      XCL_GETTEXTLIB=$XCL_GETTEXTLIB' locale'
     else
-      use_included_libintl=yes
+      XCFLAGS=$XCFLAGS' -DNO_GETTEXT'
     fi
-    # Do we build libintl.a, or is it already contained in the system libraries?
-    if [ -n "$use_included_libintl" ] ; then
-      # Don't put "-lintl" into LIBS for the same reasons as above.
-      GETTEXTLIB='gettext/intl/libintl.a'
-      if [ $HOS = unix ] ; then
-        # use symbolic link
-        XCL_GETTEXTLIB='libintl.a'
-        FILES=$FILES' libintl.a'
-      else
-        XCL_GETTEXTLIB=$GETTEXTLIB
-      fi
-      LIBS=$XCL_GETTEXTLIB' '$LIBS
-    fi
-    XCL_GETTEXTLIB=$XCL_GETTEXTLIB' locale'
   fi
 fi
 if [ $TOS = win32 ] ; then
@@ -1392,11 +1379,8 @@ if [ $TOS = unix ] ; then
 else
   EVERY_INCLUDES_H=$EVERY_INCLUDES_H' stdbool.h'
 fi
-if [ -n "$GETTEXTLIB" ] ; then
-  EVERY_INCLUDES_H=$EVERY_INCLUDES_H' libintl.h'
-fi
-if [ -n "$USE_LIBICONV" ] ; then
-  EVERY_INCLUDES_H=$EVERY_INCLUDES_H' iconv.h'
+if [ -n "$USE_LIBCHARSET" ] ; then
+  EVERY_INCLUDES_H=$EVERY_INCLUDES_H' libcharset.h'
 fi
 if [ -n "$USE_SIGSEGV" ] ; then
   EVERY_INCLUDES_H=$EVERY_INCLUDES_H' sigsegv.h'
@@ -2604,23 +2588,6 @@ fi
 
 if [ -n "$USE_GETTEXT" ] ; then
 
-  if [ -n "$GETTEXTLIB" ] ; then
-    if [ $HOS = unix ] ; then
-      echol "${GETTEXTLIB} :"
-      echotab "cd gettext/intl && \$(MAKE) -r CC='${XCC}' CFLAGS='${XCFLAGS}' RANLIB='\$(RANLIB)'"
-      echol
-      echol "libintl.a : ${GETTEXTLIB}"
-      echotab "-\$(LN_S) ${GETTEXTLIB} libintl.a"
-      echol
-      echol "libintl.h : ${GETTEXTLIB}"
-      echotab "-\$(LN_S) gettext${NEXT_}intl${NEXT_}libintl.h libintl.h"
-      echol
-    else
-      echol "libintl.h :"
-      echotab "-\$(LN_S) gettext${NEXT_}intl${NEXT_}libintl.h libintl.h"
-      echol
-    fi
-  fi
   echol "locale :"
   if [ $HOS = unix ] ; then
     echotab "if test -d locale; then rm -rf locale; fi"
@@ -2654,33 +2621,25 @@ if [ -n "$USE_TERMCAP" ] ; then
 
 fi
 
-for f in libiconv; do
+for f in libcharset; do
   if [ ${LIB_TYPE} = "unix" ] ; then
     if [ ${TSYS} = "win32gcc" ]; then
-      link_dep iconv.h ${SRCTOPDIR_}$f${NEXT_}include${NEXT_}iconv.h
+      link_dep libcharset.h ${SRCTOPDIR_}$f${NEXT_}include${NEXT_}libcharset.h
       echol
-      link_dep libiconv.a ${SRCTOPDIR_}$f${NEXT_}lib${NEXT_}libiconv.a
-      echol
-      link_dep libcharset.h ${SRCTOPDIR_}$f${NEXT_}libcharset${NEXT_}include${NEXT_}libcharset.h
+      link_dep libcharset.a ${SRCTOPDIR_}$f${NEXT_}lib${NEXT_}libcharset.a
       echol
     else
-      echol "iconv.h libiconv.a :"
+      echol "libcharset.h libcharset.a :"
       echotab "builddir=\"\`pwd\`\"; cd $f && \$(MAKE) && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
-      echol
-      echol "libcharset.h :"
-      echotab "builddir=\"\`pwd\`\"; cd $f/libcharset && \$(MAKE) && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
       echol
     fi
   fi
   if [ ${LIB_TYPE} = "win32" ] ; then
-    echol "iconv.h : ${SRCTOPDIR_M}$f${NEXT_M}include${NEXT_M}iconv.h"
-    echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}include${NEXT_}iconv.h iconv.h"
+    echol "libcharset.h : ${SRCTOPDIR_M}$f${NEXT_M}include${NEXT_M}libcharset.h"
+    echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}include${NEXT_}libcharset.h libcharset.h"
     echol
-    echol "iconv.lib : ${SRCTOPDIR_M}$f${NEXT_M}lib${NEXT_M}iconv.lib"
-    echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}lib${NEXT_}iconv.lib iconv.lib"
-    echol
-    echol "libcharset.h : ${SRCTOPDIR_M}$f${NEXT_M}libcharset${NEXT_M}include${NEXT_M}libcharset.h"
-    echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}libcharset${NEXT_}include${NEXT_}libcharset.h libcharset.h"
+    echol "charset.lib : ${SRCTOPDIR_M}$f${NEXT_M}lib${NEXT_M}charset.lib"
+    echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}lib${NEXT_}charset.lib charset.lib"
     echol
   fi
 done
@@ -3170,12 +3129,7 @@ for f in $TXT_FILES ; do
     line=$line" | sed -e 's,HREF=\"CLHSROOT/,HREF=\"${hyperspec}/,'"
   fi
   if [ $f = distmakefile ] ; then
-    if [ -n "$USE_GETTEXT" ] ; then
-      localesed=" -e 's%@DATADIRNAME@%share%g'"
-    else
-      localesed=""
-    fi
-    line=$line" | (libs=''; for f in modules.o lisp.a \$(LIBS); do case \$\$f in -*) libs=\"\$\$libs \$\$f\";; *) libs=\"\$\$libs\"' base/'\"\$\$f\";; esac; done; files=''; for f in modules.o ${FILES}; do files=\"\$\$files\"' base/'\"\$\$f\"; done; sed$localesed -e \"s,@@BASE_LIBS@@,\$\$libs,g\" -e \"s,@@BASE_FILES@@,\$\$files,g\")"
+    line=$line" | (libs=''; for f in modules.o lisp.a \$(LIBS); do case \$\$f in -*) libs=\"\$\$libs \$\$f\";; *) libs=\"\$\$libs\"' base/'\"\$\$f\";; esac; done; files=''; for f in modules.o ${FILES}; do files=\"\$\$files\"' base/'\"\$\$f\"; done; sed -e \"s,@@BASE_LIBS@@,\$\$libs,g\" -e \"s,@@BASE_FILES@@,\$\$files,g\")"
   fi
   echotabpipe "${line} > ${f}"
   echotab "\$(RM) $txt.c"
@@ -3670,11 +3624,11 @@ clean1 : clean0
 !!
 if [ ${LIB_TYPE} = "win32" ] ; then
 cat <<!!
-	-\$(RM) sigsegv.lib iconv.lib avcall.lib callback.lib
+	-\$(RM) sigsegv.lib charset.lib avcall.lib callback.lib
 !!
 else
 cat <<!!
-	-\$(RM) libsigsegv.* libiconv.* libavcall.* libcallback.*
+	-\$(RM) libsigsegv.* libcharset.* libavcall.* libcallback.*
 !!
 fi
 cat <<!!
@@ -3711,19 +3665,13 @@ cat <<!!
 fi
 if [ -n "$USE_GETTEXT" ] ; then
 cat <<!!
-	cd gettext/intl && \$(MAKE) clean
 	cd gettext/po && \$(MAKE) clean
 	-\$(RMRF) locale
 !!
-if [ -n "$GETTEXTLIB" ] ; then
-cat <<!!
-	-\$(RM) libintl.h
-!!
 fi
-fi
-if [ -n "$USE_LIBICONV" ] ; then
+if [ -n "$USE_LIBCHARSET" ] ; then
 cat <<!!
-	-\$(RM) iconv.h
+	-\$(RM) libcharset.h
 !!
 fi
 if [ -n "$USE_SIGSEGV" ] ; then
@@ -3772,7 +3720,6 @@ cat <<!!
 fi
 if [ -n "$USE_GETTEXT" ] ; then
 cat <<!!
-	cd gettext/intl && \$(MAKE) distclean
 	cd gettext/po && \$(MAKE) distclean
 	-\$(RMRF) locale
 !!

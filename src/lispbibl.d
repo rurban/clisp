@@ -1850,14 +1850,6 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 #endif
 # When changed: extend CONSTOBJ, CHARSTRG, FORMAT.LISP.
 
-# Whether to link with GNU libiconv, for character set conversion.
-#if 1
-  # When glibc-2.2 comes out, we can use glibc's iconv(). Until then, prefer
-  # libiconv.  FIXME: glibc-2.2 is out!!!
-  #define GNU_LIBICONV
-#endif
-# When changed: do nothing
-
 # Whether to use the GNU gettext library for internationalization:
 #if !defined(LANGUAGE_STATIC) && !defined(__cplusplus) && (defined(ISOLATIN_CHS) || defined(IBMPC_CHS)) && !defined(NO_GETTEXT)
   # If only one language is needed, we don't have to use gettext.
@@ -2163,8 +2155,18 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 
 # Feature dependent include files.
 
-#ifdef GNU_LIBICONV
-  #include "iconv.h"
+#if HAVE_ICONV
+  #include <stdlib.h>
+  #include <iconv.h>
+  #if _LIBICONV_VERSION
+    # We use GNU libiconv.
+    #define GNU_LIBICONV
+  #elif (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 2))
+    # glibc-2.2 iconv is also very reliable. Use it.
+  #else
+    # Other iconv implementations are too unreliable.
+    #undef HAVE_ICONV
+  #endif
 #endif
 
 
@@ -7354,7 +7356,7 @@ nonreturning_function(extern, fehler_not_R, (object obj));
     #define GETTEXT(english)  english
     #define GETTEXTL(english)  english
   #else # GNU_GETTEXT
-    #include "libintl.h"
+    #include <libintl.h>
     # Fetch the message translations from a message catalog.
     #ifndef gettext  # Sometimes `gettext' is a macro...
       extern char* gettext (const char * msgid);
