@@ -729,11 +729,18 @@
   (:method ((previous class) (current standard-object) &rest initargs)
     (declare (ignore initargs))
     (update-metaobject-instance-for-different-class previous))
-  #| ;; MOP p. 61. We support this anyway, as an extension.
+  ;; MOP p. 61.
   (:method ((previous generic-function) (current standard-object) &rest initargs)
     (declare (ignore initargs))
-    (update-metaobject-instance-for-different-class previous))
-  |#
+    #| ;; MOP p. 61.
+    (update-metaobject-instance-for-different-class previous)
+    |# ;; We support this anyway, as an extension.
+    (let ((gf current))
+      (when (typep-class gf <standard-generic-function>)
+        ;; Clear the effective method cache and the discriminating function.
+        (setf (std-gf-effective-method-cache gf) '())
+        (finalize-fast-gf gf)))
+    (call-next-method))
   ;; MOP p. 64.
   (:method ((previous method) (current standard-object) &rest initargs)
     (declare (ignore initargs))

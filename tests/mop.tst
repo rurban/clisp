@@ -1975,6 +1975,48 @@ T
 (OLD-INTEGER REAL NEW-RATIONAL NEW-RATIONAL)
 
 
+;; Check that changing a generic function's class clears its
+;; effective-methods and discriminating-function cache.
+; The effective-methods cache:
+(progn
+  (defgeneric testgf35 (x))
+  (defmethod testgf35 ((x integer))
+    (cons 'integer (if (next-method-p) (call-next-method))))
+  (defmethod testgf35 ((x real))
+    (cons 'real (if (next-method-p) (call-next-method))))
+  (defclass customized5-generic-function (standard-generic-function)
+    ()
+    (:metaclass clos:funcallable-standard-class))
+  (defmethod clos:compute-effective-method ((gf customized5-generic-function) method-combination methods)
+    `(REVERSE ,(call-next-method)))
+  (list
+    (testgf35 3)
+    (progn
+      (change-class #'testgf35 'customized5-generic-function)
+      (testgf35 3))))
+((INTEGER REAL) (REAL INTEGER))
+; The discriminating-function cache:
+(progn
+  (defgeneric testgf36 (x))
+  (defmethod testgf36 ((x integer))
+    (cons 'integer (if (next-method-p) (call-next-method))))
+  (defmethod testgf36 ((x real))
+    (cons 'real (if (next-method-p) (call-next-method))))
+  (defclass customized6-generic-function (standard-generic-function)
+    ()
+    (:metaclass clos:funcallable-standard-class))
+  (defmethod clos:compute-discriminating-function ((gf customized6-generic-function))
+    (let ((orig-df (call-next-method)))
+      #'(lambda (&rest arguments)
+          (reverse (apply orig-df arguments)))))
+  (list
+    (testgf36 3)
+    (progn
+      (change-class #'testgf36 'customized6-generic-function)
+      (testgf36 3))))
+((INTEGER REAL) (REAL INTEGER))
+
+
 #| ;; Not implemented, because the MOP's description of
    ;; compute-discriminating-function doesn't say that we need to invalidate
    ;; the effective method cache in this case.
