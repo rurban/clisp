@@ -9139,8 +9139,8 @@ global char** lisp_completion (char* text, int start, int end) {
     end_callback();
     return NULL;
   } else if (eq(mlist,Fixnum_0)) { # complete called describe => redraw
-    rl_refresh_line(0,0);
     end_callback();
+    rl_refresh_line(0,0);
     return NULL;
   } else if (!consp(mlist)) {
     # This error message is self-defense against people who fiddle
@@ -9165,7 +9165,6 @@ global char** lisp_completion (char* text, int start, int end) {
     while (mconsp(STACK_0)) {
       var object m = Car(STACK_0);
       if (!simple_string_p(m)) {
-        end_callback();
         pushSTACK(m);                # slot DATUM of TYPE-ERROR
         pushSTACK(S(simple_string)); # slot EXPECTED-TYPE of TYPE-ERROR
         pushSTACK(S(simple_string));
