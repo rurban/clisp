@@ -1202,12 +1202,16 @@ LISPFUNN(string_info,1) {
    #endif
     value2 = NIL;
     switch (Record_type(str)) {
+     #ifdef TYPECODES
+      case Array_type_sstring: value1 = fixnum(32); break;
+     #else
       case Rectype_Imm_S32string: value2 = T; /*FALLTHROUGH*/
       case Rectype_S32string: value1 = fixnum(32); break;
       case Rectype_Imm_S16string: value2 = T; /*FALLTHROUGH*/
       case Rectype_S16string: value1 = fixnum(16); break;
       case Rectype_Imm_S8string: value2 = T; /*FALLTHROUGH*/
       case Rectype_S8string: value1 = fixnum(8); break;
+     #endif
       default: NOTREACHED;
     }
   } else value1 = value2 = value3 = NIL;
