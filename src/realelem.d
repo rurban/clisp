@@ -830,6 +830,7 @@
 # aber so gemacht, dass (hashcode (rational x)) = (hashcode x)
 # und (hashcode 0.0) = 0 (wichtig wegen "complex canonicalization").
   global uint32 hashcode4_real (object obj);
+  global uint32 hashcode4_uint32 (uint32 x);
   #define hashcode4_(msd,exp,sign)  \
     (((((uint32)(msd) << 7) | ((uint32)(msd) >> 25)) ^ ((sint32)(sign) << 30)) + (uintL)(exp))
   #define hashcode4_one  hashcode4_(bit(31),1,0)
@@ -933,6 +934,15 @@
         RESTORE_NUM_STACK # num_stack zurück
         return 0;
     }}
+  global uint32 hashcode4_uint32(x)
+    var uint32 x;
+    { if (x == 0) return 0;
+      # Führendes Bit auf 1 normalisieren:
+     {var uintL exp;
+      integerlength32(x, exp = );
+      {var uint32 msd = x << (32-exp);
+       return hashcode4_(msd,exp,0);
+    }}}
 
 # R_R_max_R(x,y) liefert (max x y), wo x und y reelle Zahlen sind.
 # kann GC auslösen
