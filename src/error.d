@@ -809,7 +809,7 @@ global object check_list_replacement (object obj) {
   return obj;
 }
 
-/* error-message, if an object is not a true list.
+/* error-message, if an object is not a proper list.
  fehler_proper_list(caller,obj);
  > caller: the caller (a symbol)
  > obj: end of the list, non-list */
@@ -818,7 +818,7 @@ nonreturning_function(global, fehler_proper_list, (object caller, object obj))
   pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
   pushSTACK(S(list)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(caller);
-  fehler(type_error,GETTEXT("~S: A true list must not end with ~S"));
+  fehler(type_error,GETTEXT("~S: A proper list must not end with ~S"));
 }
 
 /* check_symbol_replacement(obj)

@@ -1201,6 +1201,14 @@ LISPFUNNF(listp,1)
   VALUES_IF(listp(STACK_0)); skipSTACK(1);
 }
 
+/* (EXT:PROPER-LIST-P object) returns true if the object is a proper list,
+   i.e. a list which is neither dotted nor circular, i.e. a list which ends
+   in NIL. */
+LISPFUNNR(proper_list_p,1)
+{
+  VALUES_IF(proper_list_p(STACK_0)); skipSTACK(1);
+}
+
 LISPFUNNF(integerp,1)
 { /* (INTEGERP object), CLTL p. 74 */
   VALUES_IF(integerp(STACK_0)); skipSTACK(1);

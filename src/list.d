@@ -590,6 +590,28 @@ LISPFUNNR(list_length_dotted,1)
   else VALUES2(len,tail);
 }
 
+/* proper_list_p(obj)
+   returns true if obj is a proper list, i.e. a list which is neither dotted
+   nor circular, i.e. a list which ends in NIL. */
+global bool proper_list_p (object obj) {
+  var object fast = obj;
+  var object slow = fast;
+  while (consp(fast)) {
+    fast = Cdr(fast);
+    if (atomp(fast))
+      break;
+    if (eq(fast,slow))
+      goto no;
+    fast = Cdr(fast);
+    slow = Cdr(slow);
+  }
+  if (nullp(fast))
+    return true;
+  else {
+   no: return false;
+  }
+}
+
 /* we cannot have lists longer than 1<<32 for RAM reasons
  but we must accept arbitrary positive integers in NTH, LAST &c.
  Here we truncate large integers to ~0.

@@ -318,6 +318,7 @@
  '(re-export make-encoding encoding
    encoding-line-terminator #+UNICODE encoding-charset
    times show-stack gc exit quit bye expand-form xor mapcap maplap
+   proper-list-p
    probe-directory cd make-dir delete-dir default-directory dir
    xgcd exquo mod-expt ! evalhook applyhook substring string-concat
    string-char make-char string-width char-width

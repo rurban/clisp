@@ -1,3 +1,11 @@
+2004-05-27  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (proper_list_p): New declaration.
+	* list.d (proper_list_p): New function.
+	* predtype.d (EXT:PROPER-LIST-P): New function.
+	* error.d (fehler_proper_list): Tweak error message.
+	* init.lisp: Export ext:proper-list-p.
+
 2004-05-23  Bruno Haible  <bruno@clisp.org>
 
 	* backquote.lisp (bq-nconcable): Renamed from bq-nconc.

@@ -12399,6 +12399,12 @@ extern object deleteq (object list, object obj);
 extern bool endp (object obj);
 /* used by CONTROL */
 
+/* proper_list_p(obj)
+   returns true if obj is a proper list, i.e. a list which is neither dotted
+   nor circular, i.e. a list which ends in NIL. */
+extern bool proper_list_p (object obj);
+/* used by PREDTYPE */
+
 # UP: Creates a list with given elements.
 # listof(len)
 # > uintC len: desired list length
