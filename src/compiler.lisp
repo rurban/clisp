@@ -5647,23 +5647,10 @@ for-value   NIL or T
     (let ((s (car l)))
       (when (and (symbolp s) (venv-search-macro s)) (return t)))))
 
-;; see package.d:symbol_value_check_lock()
-(macrolet ((symbol-value-check-lock (symbol)
-             `(let ((pack (symbol-package ,symbol)))
-                (and pack (not (eq *package* pack))
-                     (ext::package-lock pack)
-                     (sys::special-variable-p ,symbol)
-                     (not (find-symbol (symbol-name ,symbol) *package*))))))
-  (defun set-check-lock (caller symbol)
-    (when (symbol-value-check-lock symbol)
-      (c-warn (TEXT "~S: assignment to the internal special symbol ~S")
-              caller symbol)))
-  (defun bind-check-lock (caller varlist)
-    (dolist (var varlist)
-      (when (symbol-value-check-lock (var-name var))
-        (c-warn (TEXT "~S: binding the internal special symbol ~S")
-                caller (var-name var)))))
-  )
+(defun set-check-lock (caller symbol)
+  (when (symbol-value-lock symbol)
+    (c-warn (TEXT "~S: assignment to the internal special symbol ~S")
+            caller symbol)))
 
 ;; compile (SETQ {symbol form}*)
 ;; execute all assignments one after the other
@@ -5884,7 +5871,6 @@ for-value   NIL or T
                 (closuredummy-venvc *venvc*))
             (multiple-value-bind (varlist anodelist stackzlist)
                 (process-movable-var-list symbols initforms *-flag)
-              (bind-check-lock (first *form*) varlist)
               (unless *-flag (push 0 *stackz*)) ; room for closing-bindings
               (let ((body-anode (c-form `(PROGN ,@body-rest)))) ; compile Body
                 ;; check the variables:
@@ -5961,7 +5947,6 @@ for-value   NIL or T
                 (push nil *venvc*) ; visibility of Closure-Dummyvar
                 (multiple-value-bind (varlist stackvarlist)
                     (process-fixed-var-list symbols)
-                  (bind-check-lock (first *form*) varlist)
                   (push 0 *stackz*) ; room for Closure-Dummyvar
                   (let* ((closuredummy-stackz *stackz*)
                          (closuredummy-venvc *venvc*)

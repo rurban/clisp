@@ -990,8 +990,8 @@ temporarily unlocks all packages in &sys-pack-list;.</para></formalpara>
 </programlisting>
 and allow enforcing modularity.
 Note that you will also get the continuable error when you try to
-assign (with &setq;, &psetq;, etc.) a value to a special variable
-living in a locked package and not accessible in your current
+assign (with &setq;, &psetq;, etc.) a value to an internal special
+variable living in a locked package and not accessible in your current
 &package-var;, but only in the interpreted code and during compilation.
 There is no check for package locks in compiled code because of the
 performance considerations.

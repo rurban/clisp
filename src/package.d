@@ -2050,12 +2050,21 @@ LISPFUNN(set_package_lock,2) {
    being modified from a non-home package.
    See compiler.lisp:symbol-value-check-lock.
    can trigger GC */
+#define SYM_VAL_LOCK(symbol,pack)                                         \
+  (!nullp(pack) && !eq(pack,Symbol_value(S(packagestern))) /* non-home */ \
+   && special_var_p(TheSymbol(symbol))  /* special */                     \
+   && !externalp(symbol,pack) /* for IN-PACKAGE forms */                  \
+   && !accessiblep(symbol,Symbol_value(S(packagestern)))) /* accessible */
 global void symbol_value_check_lock (object caller, object symbol) {
   var object pack = Symbol_package(symbol);
-  if (!nullp(pack) && !eq(pack,Symbol_value(S(packagestern))) /* non-home */
-      && special_var_p(TheSymbol(symbol))  /* special */
-      && !accessiblep(symbol,Symbol_value(S(packagestern)))) /* accessible */
+  if (SYM_VAL_LOCK(symbol,pack))
     check_pack_lock(caller,pack,symbol);
+}
+LISPFUNN(symbol_value_lock,1) {
+  var object symb = popSTACK();
+  var object pack = Symbol_package(symb);
+  value1 = SYM_VAL_LOCK(symb,pack) ? T : NIL;
+  mv_count = 1;
 }
 
 /* (SYSTEM::CHECK-PACKAGE-LOCK caller package symbol)
