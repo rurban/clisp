@@ -456,7 +456,7 @@
                                               (LIST 'METH
                                                     (LIST 'APPLY
                                                           '#'ALLOCATE-METHOD-INSTANCE
-                                                           '',(std-gf-default-method-class gf)
+                                                           '',(safe-gf-default-method-class gf)
                                                           'INITARGS)))
                                         (LIST 'APPLY
                                               '#'INITIALIZE-METHOD-INSTANCE

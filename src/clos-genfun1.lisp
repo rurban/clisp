@@ -196,6 +196,8 @@
 ;; During bootstrapping, only <standard-generic-function> instances are used.
 (defun generic-function-methods (gf)
   (std-gf-methods gf))
+(defun generic-function-method-class (gf)
+  (std-gf-default-method-class gf))
 
 ;; ============================================================================
 
@@ -206,6 +208,7 @@
 (defvar |#'compute-applicable-methods-using-classes| nil)
 (defvar |#'compute-effective-method| nil)
 (defvar |#'generic-function-methods| nil)
+(defvar |#'generic-function-method-class| nil)
 (defvar |#'method-qualifiers| nil)
 (defvar |#'method-specializers| nil)
 
@@ -215,6 +218,12 @@
           (eq gf |#'compute-effective-method|))
     (std-gf-methods gf)
     (generic-function-methods gf)))
+
+(defun safe-gf-default-method-class (gf)
+  (if (or (eq gf |#'generic-function-method-class|)
+          (eq gf |#'compute-effective-method|))
+    (std-gf-default-method-class gf)
+    (generic-function-method-class gf)))
 
 (defun safe-method-qualifiers (method gf)
   (if (or (eq gf #'method-qualifiers) ; for bootstrapping
