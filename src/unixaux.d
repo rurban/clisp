@@ -276,12 +276,17 @@ local inline int fd_read_will_hang_p (int fd)
   #endif
 }
 
-/* a wrapper for read(). */
+/* A wrapper around read() that supports different perseverances.
+   Return value like read().
+   When the return value is 0, it sets errno to indicate whether EOF has been
+   seen (ENOENT) or whether it is not yet known (EAGAIN). */
 global ssize_t fd_read (int fd, void* bufarea, size_t nbyte, perseverance_t persev)
 {
   var char* buf = (char*) bufarea;
-  if (nbyte == 0)
+  if (nbyte == 0) {
+    errno = EAGAIN;
     return 0;
+  }
  #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
   /* Must adjust the memory permissions before calling read().
    - On SunOS4 a missing write permission causes the read() call to hang
@@ -296,26 +301,33 @@ global ssize_t fd_read (int fd, void* bufarea, size_t nbyte, perseverance_t pers
  #endif
   if (persev == persev_immediate || persev == persev_bonus) {
     int will_hang = fd_read_will_hang_p(fd);
-    if (will_hang > 0)
+    if (will_hang > 0) {
+      errno = EAGAIN;
       return 0;
+    }
     if (will_hang < 0) {
       #if (defined(HAVE_POLL) && defined(HAVE_RELIABLE_POLL)) || (defined(HAVE_SELECT) && !defined(UNIX_BEOS) && defined(HAVE_RELIABLE_SELECT))
         NOTREACHED;
       #else
-        if (persev == persev_bonus)
+        if (persev == persev_bonus) {
           # Non-blocking I/O is not worth it unless absolutely necessary.
+          errno = EAGAIN;
           return 0;
+        }
         # As a last resort, use non-blocking I/O.
         var ssize_t done = 0;
         NO_BLOCK_DECL(fd);
         START_NO_BLOCK(fd);
         do {
           var ssize_t retval = read(fd,buf,nbyte);
-          if (retval == 0)
+          if (retval == 0) {
+            errno = EAGAIN;
             break;
-          else if (retval < 0) {
-            if (errno == EAGAIN || errno == EWOULDBLOCK)
+          } else if (retval < 0) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+              errno = EAGAIN;
               break;
+            }
            #ifdef EINTR
             if (errno != EINTR)
            #endif
@@ -336,9 +348,10 @@ global ssize_t fd_read (int fd, void* bufarea, size_t nbyte, perseverance_t pers
   var ssize_t done = 0;
   do {
     var ssize_t retval = read(fd,buf,nbyte);
-    if (retval == 0)
+    if (retval == 0) {
+      errno = ENOENT;
       break;
-    else if (retval < 0) {
+    } else if (retval < 0) {
      #ifdef EINTR
       if (errno != EINTR)
      #endif
@@ -409,38 +422,50 @@ local inline int fd_write_will_hang_p (int fd)
   #endif
 }
 
-/* a wrapper for write(). */
+/* A wrapper around write() that supports different perseverances.
+   Return value like write().
+   When the return value is 0, it sets errno to indicate whether EOWF has been
+   seen (ENOENT) or whether it is not yet known (EAGAIN). */
 global ssize_t fd_write (int fd, const void* bufarea, size_t nbyte, perseverance_t persev)
 {
   var const char* buf = (const char*) bufarea;
-  if (nbyte == 0)
+  if (nbyte == 0) {
+    errno = EAGAIN;
     return 0;
+  }
  #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
   /* Must adjust the memory permissions before calling write(). */
   handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte);
  #endif
   if (persev == persev_immediate || persev == persev_bonus) {
     int will_hang = fd_write_will_hang_p(fd);
-    if (will_hang > 0)
+    if (will_hang > 0) {
+      errno = EAGAIN;
       return 0;
+    }
     if (will_hang < 0) {
       #if (defined(HAVE_POLL) && defined(HAVE_RELIABLE_POLL)) || (defined(HAVE_SELECT) && !defined(UNIX_BEOS) && defined(HAVE_RELIABLE_SELECT))
         NOTREACHED;
       #else
-        if (persev == persev_bonus)
+        if (persev == persev_bonus) {
           # Non-blocking I/O is not worth it unless absolutely necessary.
+          errno = EAGAIN;
           return 0;
+        }
         # As a last resort, use non-blocking I/O.
         var ssize_t done = 0;
         NO_BLOCK_DECL(fd);
         START_NO_BLOCK(fd);
         do {
           var ssize_t retval = write(fd,buf,nbyte);
-          if (retval == 0)
+          if (retval == 0) {
+            errno = EAGAIN;
             break;
-          else if (retval < 0) {
-            if (errno == EAGAIN || errno == EWOULDBLOCK)
+          } else if (retval < 0) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+              errno = EAGAIN;
               break;
+            }
            #ifdef EINTR
             if (errno != EINTR)
            #endif
@@ -461,9 +486,10 @@ global ssize_t fd_write (int fd, const void* bufarea, size_t nbyte, perseverance
   var ssize_t done = 0;
   do {
     var ssize_t retval = write(fd,buf,nbyte);
-    if (retval == 0)
+    if (retval == 0) {
+      errno = ENOENT;
       break;
-    else if (retval < 0) {
+    } else if (retval < 0) {
      #ifdef EINTR
       if (errno != EINTR)
      #endif
@@ -507,34 +533,44 @@ local inline int sock_read_will_hang_p (int fd)
   return 0;
 }
 
-/* A wrapper around the recv() function. */
+/* A wrapper around recv() that supports different perseverances.
+   Return value like read().
+   When the return value is 0, it sets errno to indicate whether EOF has been
+   seen (ENOENT) or whether it is not yet known (EAGAIN). */
 global ssize_t sock_read (int fd, void* bufarea, size_t nbyte, perseverance_t persev) {
   var char* buf = (char*) bufarea;
-  if (nbyte == 0)
+  if (nbyte == 0) {
+    errno = EAGAIN;
     return 0;
+  }
  #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
   /* Must adjust the memory permissions before calling recv(). */
   handle_fault_range(PROT_READ_WRITE,(aint)buf,(aint)buf+nbyte);
  #endif
   if (persev == persev_immediate || persev == persev_bonus) {
     int will_hang = sock_read_will_hang_p(fd);
-    if (will_hang > 0)
+    if (will_hang > 0) {
+      errno = EAGAIN;
       return 0;
+    }
     if (will_hang < 0) {
       #if 1
         NOTREACHED;
       #else
-        if (persev == persev_bonus)
+        if (persev == persev_bonus) {
+          errno = EAGAIN;
           return 0;
+        }
       #endif
     }
   }
   var ssize_t done = 0;
   do {
     var ssize_t retval = recv(fd,buf,nbyte,0);
-    if (retval == 0)
+    if (retval == 0) {
+      errno = ENOENT;
       break;
-    else if (retval < 0) {
+    } else if (retval < 0) {
      #ifdef EINTR
       if (errno != EINTR)
      #endif
@@ -577,35 +613,47 @@ local inline int sock_write_will_hang_p (int fd)
   #endif
 }
 
-/* A wrapper around the send() function. */
+/* A wrapper around send() that supports different perseverances.
+   Return value like write().
+   When the return value is 0, it sets errno to indicate whether EOWF has been
+   seen (ENOENT) or whether it is not yet known (EAGAIN). */
 global ssize_t sock_write (int fd, const void* bufarea, size_t nbyte, perseverance_t persev)
 {
   var const char* buf = (const char*) bufarea;
-  if (nbyte == 0)
+  if (nbyte == 0) {
+    errno = EAGAIN;
     return 0;
+  }
  #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
   /* Must adjust the memory permissions before calling send(). */
   handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte);
  #endif
   if (persev == persev_immediate || persev == persev_bonus) {
     int will_hang = sock_write_will_hang_p(fd);
-    if (will_hang > 0)
+    if (will_hang > 0) {
+      errno = EAGAIN;
       return 0;
+    }
     if (will_hang < 0) {
-      if (persev == persev_bonus)
+      if (persev == persev_bonus) {
         # Non-blocking I/O is not worth it unless absolutely necessary.
+        errno = EAGAIN;
         return 0;
+      }
       # As a last resort, use non-blocking I/O.
       var ssize_t done = 0;
       NO_BLOCK_DECL(fd);
       START_NO_BLOCK(fd);
       do {
         var ssize_t retval = send(fd,buf,nbyte,0);
-        if (retval == 0)
+        if (retval == 0) {
+          errno = EAGAIN;
           break;
-        else if (retval < 0) {
-          if (errno == EAGAIN || errno == EWOULDBLOCK)
+        } else if (retval < 0) {
+          if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            errno = EAGAIN;
             break;
+          }
          #ifdef EINTR
           if (errno != EINTR)
          #endif
@@ -625,9 +673,10 @@ global ssize_t sock_write (int fd, const void* bufarea, size_t nbyte, perseveran
   var ssize_t done = 0;
   do {
     var ssize_t retval = send(fd,buf,nbyte,0);
-    if (retval == 0)
+    if (retval == 0) {
+      errno = ENOENT;
       break;
-    else if (retval < 0) {
+    } else if (retval < 0) {
      #ifdef EINTR
       if (errno != EINTR)
      #endif
