@@ -256,7 +256,7 @@
       var uintL used_time; # verbrauchte Zeit, gemessen in 1/HZ Sekunden
       var struct tms tms;
       begin_system_call();
-      if (times(&tms) == (CLOCK_T)(-1))
+      if (times(&tms) == (clock_t)(-1))
         { used_time = 0; } # times scheitert -> used_time unbekannt
         else
         { used_time = tms.tms_utime + tms.tms_stime; } # User time + System time

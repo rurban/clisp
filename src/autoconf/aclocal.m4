@@ -1168,28 +1168,6 @@ fi
 ]
 )dnl
 dnl
-AC_DEFUN(CL_CLOCK_T,
-[AC_CACHE_CHECK(for clock_t in sys/types.h etc., cl_cv_type_clock_t, [
-AC_EGREP_HEADER(clock_t, sys/types.h, have_clock=1)dnl
-if test -z "$have_clock"; then
-AC_EGREP_HEADER(clock_t, sys/times.h, have_clock=1)dnl
-fi
-if test -z "$have_clock"; then
-AC_EGREP_HEADER(clock_t, time.h, have_clock=1)dnl
-fi
-if test -z "$have_clock"; then
-  cl_cv_type_clock_t=no
-else
-  cl_cv_type_clock_t=yes
-fi
-])
-if test $cl_cv_type_clock_t = yes; then
-  AC_DEFINE(CLOCK_T, clock_t)
-else
-  AC_DEFINE(CLOCK_T, int)
-fi
-])dnl
-dnl
 AC_DEFUN(CL_DIRENT_WITHOUT_NAMLEN,
 [CL_COMPILE_CHECK([d_namlen in struct dirent], cl_cv_struct_dirent_d_namlen,
 [#include <dirent.h>], [struct dirent d; d.d_namlen;],

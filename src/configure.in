@@ -120,8 +120,6 @@ AC_TYPE_OFF_T
                       dnl DEFS off_t
 CL_CADDR_T
                       dnl DEFS CADDR_T
-CL_CLOCK_T
-                      dnl DEFS CLOCK_T
 dnl
 dnl           checks for structure members
 dnl
