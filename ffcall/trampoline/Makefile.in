@@ -16,6 +16,8 @@ exec_prefix = $(prefix)
 libdir = $(exec_prefix)/lib
 includedir = $(prefix)/include
 mandir = $(exec_prefix)/man
+datadir = $(prefix)/share
+htmldir = $(datadir)/html
 
 # Programs used by "make":
 CC = @CC@
@@ -62,7 +64,7 @@ cache-sparc.o : cache-sparc.s
 	$(CC) @GCC_X_NONE@ -c cache-sparc.s
 
 cache-sparc.s : $(srcdir)/cache-sparc.S
-	$(CPP) $(ASPFLAGS) $(srcdir)/cache-sparc.S > cache-sparc.s
+	$(CPP) $(ASPFLAGS) $(srcdir)/cache-sparc.S | grep -v '^ *#line' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,//.*$$,,' -e 's,\$$,#,g' > cache-sparc.s
 
 cache-alpha.o : $(srcdir)/cache-alpha.s
 	$(CC) @GCC_X_NONE@ -c $(srcdir)/cache-alpha.s
@@ -82,6 +84,8 @@ libtrampoline.a : $(OBJECTS)
 	$(RANLIB) libtrampoline.a
 
 install : all force
+	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
+	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
 	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
 	$(INSTALL_DATA) libtrampoline.a $(libdir)/libtrampoline.a
 	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
@@ -89,21 +93,25 @@ install : all force
 	if [ ! -d $(mandir) ] ; then mkdir $(mandir) ; fi
 	if [ ! -d $(mandir)/man3 ] ; then mkdir $(mandir)/man3 ; fi
 	$(INSTALL_DATA) $(srcdir)/trampoline.3 $(mandir)/man3/trampoline.3
-	if [ ! -d $(mandir)/html ] ; then mkdir $(mandir)/html ; fi
-	$(INSTALL_DATA) $(srcdir)/trampoline.html $(mandir)/html/trampoline.html
+	if [ ! -d $(datadir) ] ; then mkdir $(datadir) ; fi
+	if [ ! -d $(htmldir) ] ; then mkdir $(htmldir) ; fi
+	$(INSTALL_DATA) $(srcdir)/trampoline.html $(htmldir)/trampoline.html
 
 installdirs : force
+	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
+	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
 	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
 	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
 	if [ ! -d $(mandir) ] ; then mkdir $(mandir) ; fi
 	if [ ! -d $(mandir)/man3 ] ; then mkdir $(mandir)/man3 ; fi
-	if [ ! -d $(mandir)/html ] ; then mkdir $(mandir)/html ; fi
+	if [ ! -d $(datadir) ] ; then mkdir $(datadir) ; fi
+	if [ ! -d $(htmldir) ] ; then mkdir $(htmldir) ; fi
 
 uninstall : force
 	$(RM) $(libdir)/libtrampoline.a
 	$(RM) $(includedir)/trampoline.h
 	$(RM) $(mandir)/man3/trampoline.3
-	$(RM) $(mandir)/html/trampoline.html
+	$(RM) $(htmldir)/trampoline.html
 
 test1.o : $(srcdir)/test1.c trampoline.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/test1.c
