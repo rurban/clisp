@@ -2766,14 +2766,14 @@ fi
 
 
 echol "clisp.h clisp-test.c : genclisph.o unixconf.h ${PARAMS_H}"
-echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "genclisph.o" "genclisph"
+echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "genclisph.o ${LIBS}" "genclisph"
 echotab "(echo '#ifndef _CLISP_H' ; echo '#define _CLISP_H' ; echo; echo '/* unixconf */' ; grep '^#' unixconf.h ) > clisp.h"
 for parf in ${PARAMS_H}; do
   echotab "(echo; echo '/* '${parf}' */' ; grep '^#' ${parf} ) >> clisp.h"
 done
 echotab "(echo; echo '/* genclisph */' ; ${HERE}genclisph clisp-test.c; echo ; echo '#endif /* _CLISP_H */') >> clisp.h"
 echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DUSE_CLISP_H=1" "clisp-test.c" "clisp-test-clisp"
-echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DUSE_CLISP_H=0" "clisp-test.c" "clisp-test-lispbibl"
+echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DUSE_CLISP_H=0" "clisp-test.c ${LIBS}" "clisp-test-lispbibl"
 echotab "${HERE}clisp-test-clisp > clisp-test-clisp.out"
 echotab "${HERE}clisp-test-lispbibl > clisp-test-lispbibl.out"
 if [ $HOS = unix -o $HSYS = win32gcc ]; then
@@ -2913,13 +2913,13 @@ for f in $TXT_FILES ; do
   echotab "\$(TXT2C) < ${sourcedir}_${f} > txt.c"
   if [ $CROSS = false -a $XCC_UNUSABLE_CPP = true ] ; then
     echotab "${XCPP} ${XCPPFLAGS} ${XCFLAGS}${flags} txt.c${XCPP_POSTPROCESS} > txt.i.c"
-    echotab_to_HEXE "${XCC} ${XCPPFLAGS} ${XCFLAGS} ${XCLFLAGS}${XCC_NOOPTFLAGS}" "txt.i.c" "txt"
+    echotab_to_HEXE "${XCC} ${XCPPFLAGS} ${XCFLAGS} ${XCLFLAGS}${XCC_NOOPTFLAGS} ${LIBS}" "txt.i.c" "txt"
     echotab "\$(RM) txt.i.c"
     if [ $HSYS = win32msvc ] ; then
       echotab "\$(RM) txt.i${TOBJ}"
     fi
   else
-    echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS)${flags} \$(CLFLAGS)${XCC_NOOPTFLAGS}" "txt.c" "txt"
+    echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS)${flags} \$(CLFLAGS)${XCC_NOOPTFLAGS} ${LIBS}" "txt.c" "txt"
   fi
   line="${HERE}txt"
   if [ $f = clisp.1 ] ; then
