@@ -6,7 +6,7 @@
   (:nicknames re)
   (:documentation
    "POSIX Regular Expressions - matching, compiling, executing.")
-  (:use #+ansi-cl common-lisp #-ansi-cl lisp ffi)
+  (:use lisp ffi)
   (:export match match-start match-end match-string regexp-quote
            regexp-compile regexp-exec regexp-split with-loop-split))
 
@@ -187,10 +187,11 @@ extern void mregfree (regex_t *preg);
     (mregfree compiled-pattern)))
 
 (defun regexp-compile (pattern &optional case-insensitive)
-  (multiple-value-bind (errcode compiled-pattern)
-      (mregcomp pattern (if case-insensitive REG_ICASE 0))
-    (unless (zerop errcode)
-      (error "~s: ~a" 'regexp-compile (mregerror errcode compiled-pattern)))
+  (let (errcode compiled-pattern)
+    (assert (zerop (setf (values errcode compiled-pattern)
+                         (mregcomp pattern (if case-insensitive REG_ICASE 0))))
+            (pattern)
+            "~s: ~a" 'regexp-compile (mregerror errcode compiled-pattern))
     ;; Arrange that when compiled-pattern is garbage-collected,
     ;; mregfree will be called.
     (finalize compiled-pattern #'mregfree-finally)
@@ -199,20 +200,23 @@ extern void mregfree (regex_t *preg);
 (eval-when (compile load eval)
 (setf (fdefinition 'match-start) (fdefinition 'regmatch_t-rm_so))
 (setf (fdefinition '(setf match-start))
-      #'(lambda (new-value match) (setf (regmatch_t-rm_so match) new-value)))
+      (lambda (new-value match) (setf (regmatch_t-rm_so match) new-value)))
 
 (setf (fdefinition 'match-end) (fdefinition 'regmatch_t-rm_eo))
 (setf (fdefinition '(setf match-end))
-      #'(lambda (new-value match) (setf (regmatch_t-rm_eo match) new-value)))
-)
+      (lambda (new-value match) (setf (regmatch_t-rm_eo match) new-value))))
 
 (defun regexp-exec (compiled-pattern string &key (start 0) end)
+  (assert (stringp string) (string)
+          "~s: the second argument must be a string, not ~s"
+          'regexp-exec string)
   (let* ((len (length string)) (end (or end len))
          ;; Prepare the string.
          (string (if (and (eql start 0) (eql end len)) string
                      (make-array (- end start) :element-type 'character
                                  :displaced-to string
                                  :displaced-index-offset start))))
+    (declare (string string) (fixnum len end))
     (multiple-value-bind (errcode matches)
         (regexec compiled-pattern string #.num-matches 0)
       ;; Compute return values.
@@ -220,10 +224,10 @@ extern void mregfree (regex_t *preg);
           (values-list          ; the first value will be non-NIL
            (map 'list (if (eql start 0)
                           #'identity
-                          #'(lambda (match)
-                              (incf (match-start match) start)
-                              (incf (match-end match) start)
-                              match))
+                          (lambda (match)
+                            (incf (match-start match) start)
+                            (incf (match-end match) start)
+                            match))
                 (delete-if #'minusp matches :key #'match-start)))
           nil))))
 
@@ -277,17 +281,13 @@ extern void mregfree (regex_t *preg);
 (defun regexp-quote (string)
   (let ((qstring (make-array 10 :element-type 'character
                                 :adjustable t :fill-pointer 0)))
-    (map nil #'(lambda (c)
-                 (case c
-                   ((#\$ #\^ #\. #\* #\[ #\] #\\) ; #\+ #\?
-                    (vector-push-extend #\\ qstring)
-                 ) )
-                 (vector-push-extend c qstring)
-               )
-             string
-    )
-    qstring
-) )
+    (map nil (lambda (c)
+               (case c
+                 ((#\$ #\^ #\. #\* #\[ #\] #\\) ; #\+ #\?
+                  (vector-push-extend #\\ qstring)))
+               (vector-push-extend c qstring))
+         string)
+    qstring))
 
 (defun regexp-split (pattern string &key (start 0) end case-insensitive)
   "Split the STRING by the regexp PATTERN."
