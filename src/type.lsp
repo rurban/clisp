@@ -31,7 +31,7 @@
     fun type
 ) )
 
-;-------------------------------------------------------------------------------
+;===============================================================================
 
 ;;; TYPEP, CLTL S. 72, S. 42-51
 (defun typep (x y &aux f) ; x = Objekt, y = Typ
@@ -85,104 +85,8 @@
     (t (typespec-error 'typep y))
 ) )
 
-; CLTL S. 43
-(%put 'ARRAY 'TYPE-SYMBOL #'arrayp)
-(%put 'ATOM 'TYPE-SYMBOL #'atom)
-(%put 'BASE-CHAR 'TYPE-SYMBOL
-  #+BASE-CHAR=CHARACTER
-  #'characterp
-  #-BASE-CHAR=CHARACTER
-  (function type-symbol-base-char
-    (lambda (x) (and (characterp x) (base-char-p x)))
-) )
-(%put 'BASE-STRING 'TYPE-SYMBOL #'stringp)
-(%put 'BIGNUM 'TYPE-SYMBOL
-  (function type-symbol-bignum
-    (lambda (x) (and (integerp x) (not (fixnump x))))
-) )
-(%put 'BIT 'TYPE-SYMBOL
-  (function type-symbol-bit
-    (lambda (x) (or (eql x 0) (eql x 1)))
-) )
-(%put 'BIT-VECTOR 'TYPE-SYMBOL #'bit-vector-p)
-(%put 'BOOLEAN 'TYPE-SYMBOL
-  (function type-symbol-boolean
-    (lambda (x) (or (eq x 'nil) (eq x 't)))
-) )
-(%put 'CHARACTER 'TYPE-SYMBOL #'characterp)
-(%put 'COMMON 'TYPE-SYMBOL #'commonp)
-(%put 'COMPILED-FUNCTION 'TYPE-SYMBOL #'compiled-function-p)
-(%put 'COMPLEX 'TYPE-SYMBOL #'complexp)
-(%put 'CONS 'TYPE-SYMBOL #'consp)
-(%put 'DOUBLE-FLOAT 'TYPE-SYMBOL #'double-float-p)
-(%put 'ENCODING 'TYPE-SYMBOL #'encodingp)
-(%put 'EXTENDED-CHAR 'TYPE-SYMBOL
-  (function type-symbol-extended-char
-    #+BASE-CHAR=CHARACTER
-    (lambda (x) (declare (ignore x)) nil)
-    #-BASE-CHAR=CHARACTER
-    (lambda (x) (and (characterp x) (not (base-char-p x))))
-) )
-(%put 'FIXNUM 'TYPE-SYMBOL #'fixnump)
-(%put 'FLOAT 'TYPE-SYMBOL #'floatp)
-(%put 'FUNCTION 'TYPE-SYMBOL #'functionp)
-(%put 'CLOS:GENERIC-FUNCTION 'TYPE-SYMBOL #'clos::generic-function-p)
-(%put 'HASH-TABLE 'TYPE-SYMBOL #'hash-table-p)
-(%put 'INTEGER 'TYPE-SYMBOL #'integerp)
-(%put 'KEYWORD 'TYPE-SYMBOL #'keywordp)
-(%put 'LIST 'TYPE-SYMBOL #'listp)
-#+LOGICAL-PATHNAMES
-(%put 'LOGICAL-PATHNAME 'TYPE-SYMBOL #'logical-pathname-p)
-(%put 'LONG-FLOAT 'TYPE-SYMBOL #'long-float-p)
-(%put 'NIL 'TYPE-SYMBOL
-  (function type-symbol-nil
-    (lambda (x) (declare (ignore x)) nil)
-) )
-(%put 'NULL 'TYPE-SYMBOL #'null)
-(%put 'NUMBER 'TYPE-SYMBOL #'numberp)
-(%put 'PACKAGE 'TYPE-SYMBOL #'packagep)
-(%put 'PATHNAME 'TYPE-SYMBOL #'pathnamep)
-(%put 'RANDOM-STATE 'TYPE-SYMBOL #'random-state-p)
-(%put 'RATIO 'TYPE-SYMBOL
-  (function type-symbol-ratio
-    (lambda (x) (and (rationalp x) (not (integerp x))))
-) )
-(%put 'RATIONAL 'TYPE-SYMBOL #'rationalp)
-(%put 'READTABLE 'TYPE-SYMBOL #'readtablep)
-(%put 'REAL 'TYPE-SYMBOL #'realp)
-(%put 'SEQUENCE 'TYPE-SYMBOL #'sequencep)
-(%put 'SHORT-FLOAT 'TYPE-SYMBOL #'short-float-p)
-(%put 'SIMPLE-ARRAY 'TYPE-SYMBOL #'simple-array-p)
-(%put 'SIMPLE-BASE-STRING 'TYPE-SYMBOL #'simple-string-p)
-(%put 'SIMPLE-BIT-VECTOR 'TYPE-SYMBOL #'simple-bit-vector-p)
-(%put 'SIMPLE-STRING 'TYPE-SYMBOL #'simple-string-p)
-(%put 'SIMPLE-VECTOR 'TYPE-SYMBOL #'simple-vector-p)
-(%put 'SINGLE-FLOAT 'TYPE-SYMBOL #'single-float-p)
-(%put 'STANDARD-CHAR 'TYPE-SYMBOL
-  (function type-symbol-standard-char
-    (lambda (x) (and (characterp x) (standard-char-p x)))
-) )
-(%put 'CLOS:STANDARD-GENERIC-FUNCTION 'TYPE-SYMBOL #'clos::generic-function-p)
-(%put 'CLOS:STANDARD-OBJECT 'TYPE-SYMBOL #'clos::std-instance-p)
-(%put 'STREAM 'TYPE-SYMBOL #'streamp)
-(%put 'FILE-STREAM 'TYPE-SYMBOL #'file-stream-p)
-(%put 'SYNONYM-STREAM 'TYPE-SYMBOL #'synonym-stream-p)
-(%put 'BROADCAST-STREAM 'TYPE-SYMBOL #'broadcast-stream-p)
-(%put 'CONCATENATED-STREAM 'TYPE-SYMBOL #'concatenated-stream-p)
-(%put 'TWO-WAY-STREAM 'TYPE-SYMBOL #'two-way-stream-p)
-(%put 'ECHO-STREAM 'TYPE-SYMBOL #'echo-stream-p)
-(%put 'STRING-STREAM 'TYPE-SYMBOL #'string-stream-p)
-(%put 'STRING 'TYPE-SYMBOL #'stringp)
-(%put 'STRING-CHAR 'TYPE-SYMBOL #'characterp)
-(%put 'CLOS:STRUCTURE-OBJECT 'TYPE-SYMBOL #'clos::structure-object-p)
-(%put 'SYMBOL 'TYPE-SYMBOL #'symbolp)
-(%put 'T 'TYPE-SYMBOL
-  (function type-symbol-t
-    (lambda (x) (declare (ignore x)) t)
-) )
-(%put 'VECTOR 'TYPE-SYMBOL #'vectorp)
+;-------------------------------------------------------------------------------
 
-; CLTL S. 46-50
 (defun upgraded-array-element-type (type)
   ; siehe array.d
   (case type
@@ -207,66 +111,210 @@
              'T
   ) )  ) ) )
 )
-(%put 'ARRAY 'TYPE-LIST
-  (function type-list-array
-    (lambda (x &optional (el-type '*) (dims '*))
-      (and (arrayp x)
-           (or (eq el-type '*)
-               (equal (array-element-type x) (upgraded-array-element-type el-type))
+
+;-------------------------------------------------------------------------------
+
+;; Macros for defining the various built-in "atomic type specifier"s and
+;; "compound type specifier"s. The following macros add information for both
+;; the TYPEP function above and the c-TYPEP in the compiler.
+
+; Alist symbol -> funname, used by the compiler.
+(defparameter c-typep-alist1 '())
+; Alist symbol -> lambdabody, used by the compiler.
+(defparameter c-typep-alist2 '())
+; Alist symbol -> expander function, used by the compiler.
+(defparameter c-typep-alist3 '())
+
+; (def-atomic-type symbol function-name)
+; defines an atomic type. The function-name designates a function taking one
+; argument and returning a generalized boolean value. It can be either a
+; symbol or a lambda expression.
+(defmacro def-atomic-type (symbol funname)
+  (let ((lambdap (and (consp funname) (eq (car funname) 'LAMBDA))))
+    `(PROGN
+       (SETF (GET ',symbol 'TYPE-SYMBOL)
+             ,(if lambdap
+                `(FUNCTION ,(concat-pnames "TYPE-SYMBOL-" symbol) ,funname)
+                `(FUNCTION ,funname)
+              )
+       )
+       ,(if lambdap
+          `(SETQ C-TYPEP-ALIST2
+                 (NCONC C-TYPEP-ALIST2 (LIST (CONS ',symbol ',(cdr funname))))
            )
-           (or (eq dims '*)
-               (if (numberp dims)
-                 (eql dims (array-rank x))
-                 (and (eql (length dims) (array-rank x))
-                      (every #'(lambda (a b) (or (eq a '*) (eql a b)))
-                             dims (array-dimensions x)
-  ) ) )    )   ) )    )
-)
-(%put 'SIMPLE-ARRAY 'TYPE-LIST
-  (function type-list-simple-array
-    (lambda (x &optional (el-type '*) (dims '*))
-      (and (simple-array-p x)
-           (or (eq el-type '*)
-               (equal (array-element-type x) (upgraded-array-element-type el-type))
+          `(SETQ C-TYPEP-ALIST1
+                 (NCONC C-TYPEP-ALIST1 (LIST (CONS ',symbol ',funname)))
            )
-           (or (eq dims '*)
-               (if (numberp dims)
-                 (eql dims (array-rank x))
-                 (and (eql (length dims) (array-rank x))
-                      (every #'(lambda (a b) (or (eq a '*) (eql a b)))
-                             dims (array-dimensions x)
-  ) ) )    )   ) )    )
+        )
+       ',symbol
+     )
+) )
+
+; (def-compound-type symbol lambda-list (x) check-form typep-form c-typep-form)
+; defines a compound type. The lambda-list is of the form (&optional ...)
+; where the arguments come from the CDR of the type specifier.
+; For typep-form, x is an object.
+; For c-typep-form, x is a multiply evaluatable form (actually a gensym).
+; check-form is a form performing error checking, may call `error'.
+; typep-form should return a generalized boolean value.
+; c-typep-form should produce a form returning a generalized boolean value.
+(defmacro def-compound-type (symbol lambdalist (var) check-form typep-form c-typep-form)
+  `(PROGN
+     (SETF (GET ',symbol 'TYPE-LIST)
+           (FUNCTION ,(concat-pnames "TYPE-LIST-" symbol)
+             (LAMBDA (,var ,@lambdalist)
+               ,@(if check-form
+                   `((MACROLET ((ERROR (&REST ERROR-ARGS)
+                                  (LIST* 'ERROR-OF-TYPE ''ERROR ERROR-ARGS)
+                               ))
+                       ,check-form
+                    ))
+                 )
+               ,typep-form
+     )     ) )
+     (SETQ C-TYPEP-ALIST3
+           (NCONC C-TYPEP-ALIST3
+                  (LIST (CONS ',symbol
+                              #'(LAMBDA (,var ,@lambdalist &REST ILLEGAL-ARGS)
+                                  (DECLARE (IGNORE ILLEGAL-ARGS))
+                                  ,@(if check-form
+                                      `((MACROLET ((ERROR (&REST ERROR-ARGS)
+                                                     (LIST 'PROGN
+                                                           (LIST* 'C-WARN ERROR-ARGS)
+                                                           '(THROW 'C-TYPEP NIL)
+                                                  )) )
+                                          ,check-form
+                                       ))
+                                    )
+                                  ,c-typep-form
+                                )
+     )     )      )     )
+     ',symbol
+   )
 )
-(%put 'VECTOR 'TYPE-LIST
-  (function type-list-vector
-    (lambda (x &optional (el-type '*) (size '*))
-      (and (vectorp x)
-           (or (eq el-type '*)
-               (equal (array-element-type x) (upgraded-array-element-type el-type))
-           )
-           (or (eq size '*) (eql (array-dimension x 0) size))
-  ) ) )
+
+; CLtL1 p. 43
+(def-atomic-type ARRAY arrayp)
+(def-atomic-type ATOM atom)
+(def-atomic-type BASE-CHAR
+  #+BASE-CHAR=CHARACTER
+  characterp
+  #-BASE-CHAR=CHARACTER
+  (lambda (x) (and (characterp x) (base-char-p x)))
 )
-(%put 'SIMPLE-VECTOR 'TYPE-LIST
-  (function type-list-simple-vector
-    (lambda (x &optional (size '*))
-      (and (simple-vector-p x)
-           (or (eq size '*) (eql size (array-dimension x 0)))
-  ) ) )
+(def-atomic-type BASE-STRING stringp)
+(def-atomic-type BIGNUM
+  (lambda (x) (and (integerp x) (not (fixnump x))))
 )
-(%put 'COMPLEX 'TYPE-LIST
-  (function type-list-complex
-    (lambda (x &optional (rtype '*) (itype rtype))
-      (and (complexp x)
-           (or (eq rtype '*) (typep (realpart x) rtype))
-           (or (eq itype '*) (typep (imagpart x) itype))
-  ) ) )
+(def-atomic-type BIT
+  (lambda (x) (or (eql x 0) (eql x 1)))
 )
-(%put 'INTEGER 'TYPE-LIST
-  (function type-list-integer
-    (lambda (x &optional (low '*) (high '*))
-      (typep-number-test x low high #'integerp 'INTEGER)
-  ) )
+(def-atomic-type BIT-VECTOR bit-vector-p)
+(def-atomic-type BOOLEAN
+  (lambda (x) (or (eq x 'nil) (eq x 't)))
+)
+(def-atomic-type CHARACTER characterp)
+(def-atomic-type COMMON commonp)
+(def-atomic-type COMPILED-FUNCTION compiled-function-p)
+(def-atomic-type COMPLEX complexp)
+(def-atomic-type CONS consp)
+(def-atomic-type DOUBLE-FLOAT double-float-p)
+(def-atomic-type ENCODING encodingp)
+(def-atomic-type EXTENDED-CHAR
+  #+BASE-CHAR=CHARACTER
+  (lambda (x) (declare (ignore x)) nil)
+  #-BASE-CHAR=CHARACTER
+  (lambda (x) (and (characterp x) (not (base-char-p x))))
+)
+(def-atomic-type FIXNUM fixnump)
+(def-atomic-type FLOAT floatp)
+(def-atomic-type FUNCTION functionp)
+(def-atomic-type CLOS:GENERIC-FUNCTION clos::generic-function-p)
+(def-atomic-type HASH-TABLE hash-table-p)
+(def-atomic-type INTEGER integerp)
+(def-atomic-type KEYWORD keywordp)
+(def-atomic-type LIST listp)
+#+LOGICAL-PATHNAMES
+(def-atomic-type LOGICAL-PATHNAME logical-pathname-p)
+(def-atomic-type LONG-FLOAT long-float-p)
+(def-atomic-type NIL
+  (lambda (x) (declare (ignore x)) nil)
+)
+(def-atomic-type NULL null)
+(def-atomic-type NUMBER numberp)
+(def-atomic-type PACKAGE packagep)
+(def-atomic-type PATHNAME pathnamep)
+(def-atomic-type RANDOM-STATE random-state-p)
+(def-atomic-type RATIO
+  (lambda (x) (and (rationalp x) (not (integerp x))))
+)
+(def-atomic-type RATIONAL rationalp)
+(def-atomic-type READTABLE readtablep)
+(def-atomic-type REAL realp)
+(def-atomic-type SEQUENCE sequencep)
+(def-atomic-type SHORT-FLOAT short-float-p)
+(def-atomic-type SIMPLE-ARRAY simple-array-p)
+(def-atomic-type SIMPLE-BASE-STRING simple-string-p)
+(def-atomic-type SIMPLE-BIT-VECTOR simple-bit-vector-p)
+(def-atomic-type SIMPLE-STRING simple-string-p)
+(def-atomic-type SIMPLE-VECTOR simple-vector-p)
+(def-atomic-type SINGLE-FLOAT single-float-p)
+(def-atomic-type STANDARD-CHAR
+  (lambda (x) (and (characterp x) (standard-char-p x)))
+)
+(def-atomic-type CLOS:STANDARD-GENERIC-FUNCTION clos::generic-function-p)
+(def-atomic-type CLOS:STANDARD-OBJECT clos::std-instance-p)
+(def-atomic-type STREAM streamp)
+(def-atomic-type FILE-STREAM file-stream-p)
+(def-atomic-type SYNONYM-STREAM synonym-stream-p)
+(def-atomic-type BROADCAST-STREAM broadcast-stream-p)
+(def-atomic-type CONCATENATED-STREAM concatenated-stream-p)
+(def-atomic-type TWO-WAY-STREAM two-way-stream-p)
+(def-atomic-type ECHO-STREAM echo-stream-p)
+(def-atomic-type STRING-STREAM string-stream-p)
+(def-atomic-type STRING stringp)
+(def-atomic-type STRING-CHAR characterp)
+(def-atomic-type CLOS:STRUCTURE-OBJECT clos::structure-object-p)
+(def-atomic-type SYMBOL symbolp)
+(def-atomic-type T
+  (lambda (x) (declare (ignore x)) t)
+)
+(def-atomic-type VECTOR vectorp)
+
+; CLtL1 p. 46-50
+(defun c-typep-array (tester el-type dims x)
+  `(AND (,tester ,x)
+        ,@(if (eq el-type '*)
+            '()
+            `((EQUAL (ARRAY-ELEMENT-TYPE ,x) ',(upgraded-array-element-type el-type)))
+          )
+        ,@(if (eq dims '*)
+            '()
+            (if (numberp dims)
+              `((EQL ,dims (ARRAY-RANK ,x)))
+              `((EQL ,(length dims) (ARRAY-RANK ,x))
+                ,@(let ((i 0))
+                    (mapcap #'(lambda (dim)
+                                (prog1
+                                  (if (eq dim '*)
+                                    '()
+                                    `((EQL ',dim (ARRAY-DIMENSION ,x ,i)))
+                                  )
+                                  (incf i)
+                              ) )
+                            dims
+                  ) )
+               )
+          ) )
+   )
+)
+(defun c-typep-vector (tester size x)
+  `(AND (,tester ,x)
+        ,@(if (eq size '*)
+            '()
+            `((EQL (ARRAY-DIMENSION ,x 0) ',size))
+          )
+   )
 )
 (defun typep-number-test (x low high test type)
   (and (funcall test x)
@@ -288,133 +336,232 @@
                   (ENGLISH "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
                   'typep type type type high
 ) )    )     )  )
-(%put 'MOD 'TYPE-LIST
-  (function type-list-mod
-    (lambda (x n)
-      (unless (integerp n)
-        (error-of-type 'error
-          (ENGLISH "~S: argument to MOD must be an integer: ~S")
-          'typep n
-      ) )
-      (and (integerp x) (<= 0 x) (< x n))
+(defun c-typep-number (caller tester low high x)
+  `(AND (,tester ,x)
+        ,@(cond ((eq low '*) '())
+                ((funcall tester low) `((<= ,low ,x)))
+                ((and (consp low) (null (rest low)) (funcall tester (first low)))
+                 `((< ,(first low) ,x))
+                )
+                (t (c-warn (ENGLISH "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
+                           'typep caller caller caller low
+                   )
+                   (throw 'c-TYPEP nil)
+          )     )
+        ,@(cond ((eq high '*) '())
+                ((funcall tester high) `((>= ,high ,x)))
+                ((and (consp high) (null (rest high)) (funcall tester (first high)))
+                 `((> ,(first high) ,x))
+                )
+                (t (c-warn (ENGLISH "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
+                           'typep caller caller caller high
+                   )
+                   (throw 'c-TYPEP nil)
+          )     )
+   )
+)
+(def-compound-type ARRAY (&optional (el-type '*) (dims '*)) (x)
+  nil
+  (and (arrayp x)
+       (or (eq el-type '*)
+           (equal (array-element-type x) (upgraded-array-element-type el-type))
+       )
+       (or (eq dims '*)
+           (if (numberp dims)
+             (eql dims (array-rank x))
+             (and (eql (length dims) (array-rank x))
+                  (every #'(lambda (a b) (or (eq a '*) (eql a b)))
+                         dims (array-dimensions x)
+  )    )   ) )    )
+  (c-typep-array 'ARRAYP el-type dims x)
+)
+(def-compound-type SIMPLE-ARRAY (&optional (el-type '*) (dims '*)) (x)
+  nil
+  (and (simple-array-p x)
+       (or (eq el-type '*)
+           (equal (array-element-type x) (upgraded-array-element-type el-type))
+       )
+       (or (eq dims '*)
+           (if (numberp dims)
+             (eql dims (array-rank x))
+             (and (eql (length dims) (array-rank x))
+                  (every #'(lambda (a b) (or (eq a '*) (eql a b)))
+                         dims (array-dimensions x)
+  )    )   ) )    )
+  (c-typep-array 'SIMPLE-ARRAY-P el-type dims x)
+)
+(def-compound-type VECTOR (&optional (el-type '*) (size '*)) (x)
+  nil
+  (and (vectorp x)
+       (or (eq el-type '*)
+           (equal (array-element-type x) (upgraded-array-element-type el-type))
+       )
+       (or (eq size '*) (eql (array-dimension x 0) size))
+  )
+  `(AND (VECTORP ,x)
+        ,@(if (eq el-type '*)
+            '()
+            `((EQUAL (ARRAY-ELEMENT-TYPE ,x) ',(upgraded-array-element-type el-type)))
+          )
+        ,@(if (eq size '*)
+            '()
+            `((EQL (ARRAY-DIMENSION ,x 0) ',size))
+          )
+   )
+)
+(def-compound-type SIMPLE-VECTOR (&optional (size '*)) (x)
+  nil
+  (and (simple-vector-p x)
+       (or (eq size '*) (eql size (array-dimension x 0)))
+  )
+  (c-typep-vector 'SIMPLE-VECTOR-P size x)
+)
+(def-compound-type COMPLEX (&optional (rtype '*) (itype rtype)) (x)
+  nil
+  (and (complexp x)
+       (or (eq rtype '*) (typep (realpart x) rtype))
+       (or (eq itype '*) (typep (imagpart x) itype))
+  )
+  `(AND (COMPLEXP ,x)
+        ,@(if (eq rtype '*)
+            '()
+            `((TYPEP (REALPART ,x) ',rtype))
+          )
+        ,@(if (eq itype '*)
+            '()
+            `((TYPEP (IMAGPART ,x) ',itype))
+          )
+   )
+)
+(def-compound-type INTEGER (&optional (low '*) (high '*)) (x)
+  nil
+  (typep-number-test x low high #'integerp 'INTEGER)
+  (c-typep-number 'INTEGER 'INTEGERP low high x)
+)
+(def-compound-type MOD (n) (x)
+  (unless (integerp n)
+    (error (ENGLISH "~S: argument to MOD must be an integer: ~S")
+           'typep n
   ) )
+  (and (integerp x) (<= 0 x) (< x n))
+  `(AND (INTEGERP ,x) (NOT (MINUSP ,x)) (< ,x ,n))
 )
-(%put 'SIGNED-BYTE 'TYPE-LIST
-  (function type-list-signed-byte
-    (lambda (x &optional (n '*))
-      (unless (or (eq n '*) (integerp n))
-        (error-of-type 'error
-          (ENGLISH "~S: argument to SIGNED-BYTE must be an integer or * : ~S")
-          'typep n
-      ) )
-      (and (integerp x) (or (eq n '*) (< (integer-length x) n)))
+(def-compound-type SIGNED-BYTE (&optional (n '*)) (x)
+  (unless (or (eq n '*) (integerp n))
+    (error (ENGLISH "~S: argument to SIGNED-BYTE must be an integer or * : ~S")
+           'typep n
   ) )
+  (and (integerp x) (or (eq n '*) (< (integer-length x) n)))
+  `(AND (INTEGERP ,x)
+        ,@(if (eq n '*) '() `((< (INTEGER-LENGTH ,x) ,n)))
+   )
 )
-(%put 'UNSIGNED-BYTE 'TYPE-LIST
-  (function type-list-unsigned-byte
-    (lambda (x &optional (n '*))
-      (unless (or (eq n '*) (integerp n))
-        (error-of-type 'error
-          (ENGLISH "~S: argument to UNSIGNED-BYTE must be an integer or * : ~S")
-          'typep n
-      ) )
-      (and (integerp x)
-           (not (minusp x))
-           (or (eq n '*) (<= (integer-length x) n))
-  ) ) )
-)
-(%put 'REAL 'TYPE-LIST
-  (function type-list-real
-    (lambda (x &optional (low '*) (high '*))
-      (typep-number-test x low high #'realp 'REAL)
+(def-compound-type UNSIGNED-BYTE (&optional (n '*)) (x)
+  (unless (or (eq n '*) (integerp n))
+    (error (ENGLISH "~S: argument to UNSIGNED-BYTE must be an integer or * : ~S")
+           'typep n
   ) )
+  (and (integerp x)
+       (not (minusp x))
+       (or (eq n '*) (<= (integer-length x) n))
+  )
+  `(AND (INTEGERP ,x) (NOT (MINUSP ,x))
+        ,@(if (eq n '*) '() `((<= (INTEGER-LENGTH ,x) ,n)))
+   )
 )
-(%put 'RATIONAL 'TYPE-LIST
-  (function type-list-rational
-    (lambda (x &optional (low '*) (high '*))
-      (typep-number-test x low high #'rationalp 'RATIONAL)
-  ) )
+(def-compound-type REAL (&optional (low '*) (high '*)) (x)
+  nil
+  (typep-number-test x low high #'realp 'REAL)
+  (c-typep-number 'REAL 'REALP low high x)
 )
-(%put 'FLOAT 'TYPE-LIST
-  (function type-list-float
-    (lambda (x &optional (low '*) (high '*))
-      (typep-number-test x low high #'floatp 'FLOAT)
-  ) )
+(def-compound-type RATIONAL (&optional (low '*) (high '*)) (x)
+  nil
+  (typep-number-test x low high #'rationalp 'RATIONAL)
+  (c-typep-number 'RATIONAL 'RATIONALP low high x)
 )
-(%put 'SHORT-FLOAT 'TYPE-LIST
-  (function type-list-short-float
-    (lambda (x &optional (low '*) (high '*))
-      (typep-number-test x low high #'short-float-p 'SHORT-FLOAT)
-  ) )
+(def-compound-type FLOAT (&optional (low '*) (high '*)) (x)
+  nil
+  (typep-number-test x low high #'floatp 'FLOAT)
+  (c-typep-number 'FLOAT 'FLOATP low high x)
 )
-(%put 'SINGLE-FLOAT 'TYPE-LIST
-  (function type-list-single-float
-    (lambda (x &optional (low '*) (high '*))
-      (typep-number-test x low high #'single-float-p 'SINGLE-FLOAT)
-  ) )
+(def-compound-type SHORT-FLOAT (&optional (low '*) (high '*)) (x)
+  nil
+  (typep-number-test x low high #'short-float-p 'SHORT-FLOAT)
+  (c-typep-number 'SHORT-FLOAT 'SHORT-FLOAT-P low high x)
 )
-(%put 'DOUBLE-FLOAT 'TYPE-LIST
-  (function type-list-double-float
-    (lambda (x &optional (low '*) (high '*))
-      (typep-number-test x low high #'double-float-p 'DOUBLE-FLOAT)
-  ) )
+(def-compound-type SINGLE-FLOAT (&optional (low '*) (high '*)) (x)
+  nil
+  (typep-number-test x low high #'single-float-p 'SINGLE-FLOAT)
+  (c-typep-number 'SINGLE-FLOAT 'SINGLE-FLOAT-P low high x)
 )
-(%put 'LONG-FLOAT 'TYPE-LIST
-  (function type-list-long-float
-    (lambda (x &optional (low '*) (high '*))
-      (typep-number-test x low high #'long-float-p 'LONG-FLOAT)
-  ) )
+(def-compound-type DOUBLE-FLOAT (&optional (low '*) (high '*)) (x)
+  nil
+  (typep-number-test x low high #'double-float-p 'DOUBLE-FLOAT)
+  (c-typep-number 'DOUBLE-FLOAT 'DOUBLE-FLOAT-P low high x)
 )
-(%put 'STRING 'TYPE-LIST
-  (function type-list-string
-    (lambda (x &optional (size '*))
-      (and (stringp x)
-           (or (eq size '*) (eql size (array-dimension x 0)))
-  ) ) )
+(def-compound-type LONG-FLOAT (&optional (low '*) (high '*)) (x)
+  nil
+  (typep-number-test x low high #'long-float-p 'LONG-FLOAT)
+  (c-typep-number 'LONG-FLOAT 'LONG-FLOAT-P low high x)
 )
-(%put 'SIMPLE-STRING 'TYPE-LIST
-  (function type-list-simple-string
-    (lambda (x &optional (size '*))
-      (and (simple-string-p x)
-           (or (eq size '*) (eql size (array-dimension x 0)))
-  ) ) )
+(def-compound-type STRING (&optional (size '*)) (x)
+  nil
+  (and (stringp x)
+       (or (eq size '*) (eql size (array-dimension x 0)))
+  )
+  (c-typep-vector 'STRINGP size x)
 )
-(%put 'BASE-STRING 'TYPE-LIST
-  (function type-list-base-string
-    (lambda (x &optional (size '*))
-      (and (stringp x)
-           (or (eq size '*) (eql size (array-dimension x 0)))
-  ) ) )
+(def-compound-type SIMPLE-STRING (&optional (size '*)) (x)
+  nil
+  (and (simple-string-p x)
+       (or (eq size '*) (eql size (array-dimension x 0)))
+  )
+  (c-typep-vector 'SIMPLE-STRING-P size x)
 )
-(%put 'SIMPLE-BASE-STRING 'TYPE-LIST
-  (function type-list-simple-base-string
-    (lambda (x &optional (size '*))
-      (and (simple-string-p x)
-           (or (eq size '*) (eql size (array-dimension x 0)))
-  ) ) )
+(def-compound-type BASE-STRING (&optional (size '*)) (x)
+  nil
+  (and (stringp x)
+       (or (eq size '*) (eql size (array-dimension x 0)))
+  )
+  (c-typep-vector 'STRINGP size x)
 )
-(%put 'BIT-VECTOR 'TYPE-LIST
-  (function type-list-bit-vector
-    (lambda (x &optional (size '*))
-      (and (bit-vector-p x)
-           (or (eq size '*) (eql size (array-dimension x 0)))
-  ) ) )
+(def-compound-type SIMPLE-BASE-STRING (&optional (size '*)) (x)
+  nil
+  (and (simple-string-p x)
+       (or (eq size '*) (eql size (array-dimension x 0)))
+  )
+  (c-typep-vector 'SIMPLE-STRING-P size x)
 )
-(%put 'SIMPLE-BIT-VECTOR 'TYPE-LIST
-  (function type-list-simple-bit-vector
-    (lambda (x &optional (size '*))
-      (and (simple-bit-vector-p x)
-           (or (eq size '*) (eql size (array-dimension x 0)))
-  ) ) )
+(def-compound-type BIT-VECTOR (&optional (size '*)) (x)
+  nil
+  (and (bit-vector-p x)
+       (or (eq size '*) (eql size (array-dimension x 0)))
+  )
+  (c-typep-vector 'BIT-VECTOR-P size x)
 )
-(%put 'CONS 'TYPE-LIST
-  (function type-cons
-    (lambda (x &optional (car-type '*) (cdr-type '*))
-      (and (consp x)
-           (or (eq car-type '*) (typep (car x) car-type))
-           (or (eq cdr-type '*) (typep (cdr x) cdr-type))
-  ) ) )
+(def-compound-type SIMPLE-BIT-VECTOR (&optional (size '*)) (x)
+  nil
+  (and (simple-bit-vector-p x)
+       (or (eq size '*) (eql size (array-dimension x 0)))
+  )
+  (c-typep-vector 'SIMPLE-BIT-VECTOR-P size x)
 )
+(def-compound-type CONS (&optional (car-type '*) (cdr-type '*)) (x)
+  nil
+  (and (consp x)
+       (or (eq car-type '*) (typep (car x) car-type))
+       (or (eq cdr-type '*) (typep (cdr x) cdr-type))
+  )
+  `(AND (CONSP ,x)
+        ,@(if (eq car-type '*) '() `((TYPEP (CAR ,x) ',car-type)))
+        ,@(if (eq cdr-type '*) '() `((TYPEP (CDR ,x) ',cdr-type)))
+   )
+)
+
+(fmakunbound 'def-atomic-type)
+(fmakunbound 'def-compound-type)
+
+;-------------------------------------------------------------------------------
 
 ; Typtest ohne Gefahr einer Fehlermeldung. Für SIGNAL und HANDLER-BIND.
 (defun safe-typep (x y)
@@ -566,7 +713,7 @@
       (near-typep (if (consp values) (car values) nil) type) ; 1. Wert abtesten
 ) ) )
 
-;-------------------------------------------------------------------------------
+;===============================================================================
 
 ;;; SUBTYPEP, vorläufige Version
 (defun canonicalize-type (type) ; type ein wenig vereinfachen, nicht rekursiv
@@ -1140,7 +1287,7 @@ Calling (equal type1 type2) is wrong: they may be MEMBER or EQL specifiers
 referring to circular lists.
 |#
 
-;-------------------------------------------------------------------------------
+;===============================================================================
 
 (defun type-expand-1 (typespec &aux f)
   (cond ((symbolp typespec)
@@ -1182,4 +1329,4 @@ referring to circular lists.
       (values typespec nil)
 ) ) )
 
-;-------------------------------------------------------------------------------
+;===============================================================================

@@ -1,5 +1,11 @@
 1999-05-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * type.lsp: (def-atomic-type, def-compound-type): New macros.
+          (c-typep-alist1, c-typep-alist2, c-typep-alist3): Fill here.
+        * compiler.lsp: Not here.
+
+1999-05-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * makemake.in (clean1): Remove libsigsegv.la.
           (clean4): Remove libintl.h, sigsegv.h.
           (clean5): Remove ANNOUNCE, GNU-GPL, SUMMARY, version.h, NEWS,
