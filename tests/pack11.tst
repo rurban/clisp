@@ -97,7 +97,7 @@ T
         nil)
 nil
 
-(package-name (in-package 'test2 :nicknames '("T2" "TST2") :use 'test1))
+(package-name (in-package 'test2 :nicknames '("T2" "TST2") :use '(test1)))
 "TEST2"
 
 (lisp:package-name (lisp:find-package 'test2))
@@ -405,7 +405,7 @@ inheritb
 (export '(a b) (find-package 'inherit))
 T
 
-(and (make-package 'inherit1 :use 'inherit)(in-package 'inherit1) T)
+(and (make-package 'inherit1 :use '(inherit)) (in-package 'inherit1) T)
 T
 
 a
@@ -417,7 +417,7 @@ inherit::inheritb
 (lisp:setf c 'inherit1c)
 inherit1c
 
-(lisp:and (lisp:make-package 'inherit2 :use 'inherit1)
+(lisp:and (lisp:make-package 'inherit2 :use '(inherit1))
           (lisp:in-package 'inherit2) lisp:T)
 LISP:T
 
@@ -498,7 +498,7 @@ nil
 ; modules | provide | (require nicht getestet !)
 
 (and *modules* T)
-#+XCL T #+CLISP NIL #-(or XCL CLISP) UNKNOWN
+#+(or XCL ECL) T #+CLISP NIL #-(or XCL CLISP ECL) UNKNOWN
 
 (and (provide 'provide-test) t)
 t

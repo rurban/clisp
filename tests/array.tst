@@ -127,30 +127,30 @@
 (let ((s (prin1-to-string ARRAY-RANK-LIMIT )))
   (or #+XCL (equal s "256")
       #+CLISP (equal s "4294967296") #+CLISP (equal s "65536")
-      #+AKCL (equal s "64") #+GCL (equal s "63")
+      #+(or AKCL ECL) (equal s "64") #+GCL (equal s "63")
       #+ALLEGRO (equal s "65536")
       #+CMU (equal s "65529")
-      #-(or XCL CLISP AKCL ALLEGRO CMU) "UNKNOWN"
+      #-(or XCL CLISP AKCL ECL GCL ALLEGRO CMU) "UNKNOWN"
 ) )
 T
 
 (let ((s (prin1-to-string ARRAY-DIMENSION-LIMIT )))
   (or #+XCL (equal s "17920")
-      #+AKCL (equal s "16777216") #+GCL (equal s "2147483647")
+      #+(or AKCL ECL) (equal s "16777216") #+GCL (equal s "2147483647")
       #+CLISP (equal s (prin1-to-string (1+ most-positive-fixnum)))
       #+ALLEGRO (equal s "16777216")
       #+CMU (equal s "536870911")
-      #-(or XCL CLISP AKCL ALLEGRO CMU) "UNKNOWN"
+      #-(or XCL CLISP AKCL ECL GCL ALLEGRO CMU) "UNKNOWN"
 ) )
 T
 
 (let ((s (prin1-to-string ARRAY-TOTAL-SIZE-LIMIT )))
   (or #+XCL (equal s "17920")
-      #+AKCL (equal s "16777216")
+      #+(or AKCL ECL) (equal s "16777216")
       #+CLISP (equal s (prin1-to-string (1+ most-positive-fixnum)))
       #+ALLEGRO (equal s "16777216")
       #+CMU (equal s "536870911")
-      #-(or XCL CLISP AKCL ALLEGRO CMU) "UNKNOWN"
+      #-(or XCL CLISP AKCL ECL ALLEGRO CMU) "UNKNOWN"
 ) )
 T
 
@@ -181,8 +181,8 @@ T
 (ARRAY-ELEMENT-TYPE SV)   T
 
 (ARRAY-ELEMENT-TYPE DA1)
-#+(or XCL ALLEGRO CMU) DOUBLE-FLOAT #+CLISP T #+AKCL LONG-FLOAT
-#-(or XCL CLISP AKCL ALLEGRO CMU) UNKNOWN
+#+(or XCL ALLEGRO CMU) DOUBLE-FLOAT #+CLISP T #+(or AKCL ECL) LONG-FLOAT
+#-(or XCL CLISP AKCL ECL ALLEGRO CMU) UNKNOWN
 
 (FORMAT T "~%Test Rang~%")   NIL
 
@@ -210,7 +210,9 @@ T
 
 (SETF (AREF ZERO) 4)   4
 
-(SETF (AREF ZERO) 1.0)   #+(or XCL CLISP AKCL ALLEGRO CMU) ERROR #-(or XCL CLISP AKCL ALLEGRO CMU) UNKNOWN
+(SETF (AREF ZERO) 1.0)
+#+(or XCL CLISP AKCL ECL ALLEGRO CMU) ERROR
+#-(or XCL CLISP AKCL ECL ALLEGRO CMU) UNKNOWN
 
 (FORMAT T "~%Erzeuge ein 3-dim gen. Feld~%")   NIL
 
@@ -637,6 +639,6 @@ T)   T
 (VECTOR-POP VMFAD)   0.0D0
 
 (VECTOR-PUSH-EXTEND 5.0S0 VMFAD)
-#+(or XCL GCL ALLEGRO CMU) ERROR #+(or CLISP (and AKCL (not GCL))) 0
-#-(or XCL CLISP AKCL ALLEGRO CMU) UNKNOWN
+#+(or XCL GCL ALLEGRO CMU) ERROR #+(or CLISP (and AKCL (not GCL)) ECL) 0
+#-(or XCL CLISP AKCL ECL ALLEGRO CMU) UNKNOWN
 
