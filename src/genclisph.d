@@ -375,9 +375,9 @@ int main(int argc, char* argv[])
 #if notused
   printf("#define minus_bitm(n)  (-2%s<<((n)-1))\n",Lsuffix);
 #endif
-  printf("#define floor(a_from_floor,b_from_floor)  ((a_from_floor) / (b_from_floor))\n");
+  printf("#define ifloor(a_from_floor,b_from_floor)  ((a_from_floor) / (b_from_floor))\n");
   printf("#define ceiling(a_from_ceiling,b_from_ceiling)  (((a_from_ceiling) + (b_from_ceiling) - 1) / (b_from_ceiling))\n");
-  printf("#define round_down(a_from_round,b_from_round)  (floor(a_from_round,b_from_round)*(b_from_round))\n");
+  printf("#define round_down(a_from_round,b_from_round)  (ifloor(a_from_round,b_from_round)*(b_from_round))\n");
   printf("#define round_up(a_from_round,b_from_round)  (ceiling(a_from_round,b_from_round)*(b_from_round))\n");
  #if defined(GNU)
    #ifdef DECALPHA
