@@ -1,4 +1,4 @@
-;;;;   INITIALIZATION-FILE
+;;;;   INITIALIZATION FILE
 
 ;; German comments translated into English: Stefan Kain 2001-08-27
 
@@ -321,6 +321,7 @@
 (common-lisp:export
  '(*load-paths* *editor* *clhs-root-default* *browsers* *browser*
    *load-echo* *applyhook* *evalhook* *load-compiling* *compile-warnings*
+   *load-obsolete-action*
    ;; places.lisp
    *ansi* *current-language* *lib-directory* *default-file-encoding*
    #+UNICODE *misc-encoding*
@@ -1184,7 +1185,7 @@
 #|
 ;; expands a Form in a given Function-Environment
 ;; can be called by EVAL on demand.
-(defun %expand-form-main (form *fenv*)
+ (defun %expand-form-main (form *fenv*)
   (%expand-form form))
 |#
 
@@ -1231,108 +1232,142 @@
 (setq *load-input-stream* nil)
 (proclaim '(special *load-level*))
 (setq *load-level* 0)
+(proclaim '(special *load-obsolete-action*))
+(setq *load-obsolete-action* nil)
 #+ffi ; the default :language for DEF-CALL-* & C-FUNCTION -- see foreign1.lisp
 (proclaim '(special ffi::*foreign-language*))
 #+ffi (setq ffi::*foreign-language* nil)
 
+;; preliminary; needed here for open-for-load
+(sys::%putd 'warn #'format)
+(defun open-for-load (filename extra-file-types external-format
+                      &aux stream (present-files t) obj path)
+ (block open-for-load
+  (when (streamp filename)
+    (return-from open-for-load (values filename filename)))
+  (labels ((compiledp (name)
+             (member (pathname-type name) *compiled-file-types*
+                     :test #'string=))
+           (my-open (name)
+             (open name :direction :input-immutable :element-type 'character
+                   #+UNICODE :external-format
+                   #+UNICODE (if (compiledp name)
+                                 charset:utf-8
+                                 external-format)
+                   :if-does-not-exist nil))
+           (bad (error-p stream message)
+             (close stream)
+             (when (eq *load-obsolete-action* :delete) (delete-file stream))
+             (if error-p
+                 (error-of-type 'file-error :pathname (pathname stream)
+                                message 'load (pathname stream))
+                 (warn message 'load (pathname stream))))
+           (check-compiled-file (stream last-p obj)
+             (and (or (and (consp obj) (eq (car obj) 'system::version))
+                      (bad last-p stream (TEXT "~s: compiled file ~s lacks a version marker")))
+                  (or (= 2 (length obj))
+                      (bad last-p stream (TEXT "~s: compiled file ~s has a corrupt version marker ~s")))
+                  (or (equal (system::version) (eval (second obj)))
+                      (bad last-p stream (TEXT "~s: compiled file ~s has an older version marker"))))))
+    (setq filename (pathname filename) path filename stream (my-open path))
+    (tagbody proceed
+      (when (and stream
+                 (or (not (compiledp stream))
+                     (check-compiled-file
+                      stream (or (eq *load-obsolete-action* :error)
+                                 (eq present-files t)
+                                 (cdr present-files))
+                      (setq obj (read stream)))))
+        (return-from open-for-load (values stream path)))
+      (when (eq present-files t)
+        ;; File with precisely this name not present OR bad
+        ;; Search among the files the most recent one
+        ;; with the same name and the Extensions "LISP", "FAS":
+        (setq present-files (search-file filename
+                                         (append extra-file-types
+                                                 *compiled-file-types*
+                                                 *source-file-types*))))
+      (if present-files
+        ;; proceed with the next present file
+        (setq path (car present-files) present-files (cdr present-files)
+              stream (my-open path))
+        (if stream
+          ;; bad compiled STREAM, nowhere else to look ==> die
+          (check-compiled-file stream t obj)
+          ;; no file - return NIL
+          (return-from open-for-load (values nil filename))))
+      (go proceed)))))
+
 ;; (LOAD filename [:verbose] [:print] [:if-does-not-exist] [:external-format]
-;;                [:echo] [:compiling] [:extra-file-types]),
+;;                [:echo] [:compiling] [:extra-file-types] [:obsolete-action]),
 ;; CLTL p. 426
 (defun load (filename
-             &key (verbose *load-verbose*) (print *load-print*)
+             &key ((:verbose *load-verbose*) *load-verbose*)
+                  ((:print *load-print*) *load-print*)
                   (if-does-not-exist t) (external-format ':default)
-                  (echo *load-echo*) (compiling *load-compiling*)
-                  (extra-file-types '()))
-  (let ((stream
-         (if (streamp filename)
-           filename
-           (or (open (setq filename (pathname filename))
-                     :direction :input-immutable
-                     :element-type 'character
-                     #+UNICODE :external-format
-                     #+UNICODE (if (member (pathname-type filename)
-                                           *compiled-file-types*
-                                           :test #'string=)
-                                   charset:utf-8
-                                   external-format)
-                     :if-does-not-exist nil)
-               ;; File with precisely this name not present.
-               ;; Search among the files the most recent one
-               ;; with the same name and the Extensions "LISP", "FAS":
-               (let ((present-files
-                      (search-file filename
-                                   (append extra-file-types
-                                           *compiled-file-types*
-                                           *source-file-types*))))
-                 (if (endp present-files) nil
-                   (open (setq filename (first present-files))
-                         :direction :input-immutable
-                         :element-type 'character
-                         #+UNICODE :external-format
-                         #+UNICODE (if (member (pathname-type filename)
-                                               *compiled-file-types*
-                                               :test #'string=)
-                                       charset:utf-8
-                                       external-format))))))))
-    (if stream
-      (let* ((input-stream
-              (if echo
-                  (make-echo-stream stream *standard-output*)
-                  stream))
-             (*load-level* (1+ *load-level*))
-             (indent (if (null verbose) ""
-                         (make-string *load-level* :initial-element #\Space)))
-             (*load-input-stream* input-stream)
-             ;; :verbose, :print, :echo and :compiling do not act recursively -
-             ;; for that you have the special variables *LOAD-VERBOSE* etc.
-             ;; (*load-verbose* verbose)
-             ;; (*load-print* print)
-             ;; (*load-echo* echo)
-             ;; (*load-compiling* compiling)
-             (*load-pathname* (if (pathnamep filename) filename nil))
-             (*load-truename*
-              (if (pathnamep filename) (truename filename) nil))
-             #+ffi (ffi::*foreign-language* ffi::*foreign-language*)
-             (*package* *package*) ; bind *PACKAGE*
-             (*readtable* *readtable*) ; bind *READTABLE*
-             (end-of-file "EOF")) ; one-time Object
-        (when verbose
-          (fresh-line)
-          (write-string ";;")
-          (write-string indent)
-          (write-string (TEXT "Loading file "))
-          (princ filename)
-          (write-string (TEXT " ...")))
-        (sys::allow-read-eval input-stream t)
-        (block nil
-          (unwind-protect
-               (tagbody weiter
-                  (when echo (fresh-line))
-                  (let ((obj (read input-stream nil end-of-file)))
-                    (when (eql obj end-of-file) (return-from nil))
-                    (setq obj (multiple-value-list
-                               (cond ((compiled-function-p obj) (funcall obj))
-                                     (compiling (funcall (compile-form-in-toplevel-environment obj)))
-                                     (t (eval obj)))))
-                    (when print (when obj (print (first obj)))))
-                  (go weiter))
-            (or (eq input-stream stream)
-                (sys::built-in-stream-close input-stream))
-            (or (eq stream filename)
-                (sys::built-in-stream-close stream))))
-        (when verbose
-          (fresh-line)
-          (write-string ";;")
-          (write-string indent)
-          (write-string (TEXT "Loaded file "))
-          (princ filename))
-        t)
-      (if if-does-not-exist
+                  ((:echo *load-echo*) *load-echo*)
+                  ((:compiling *load-compiling*) *load-compiling*)
+                  ((:obsolete-action *load-obsolete-action*)
+                   *load-obsolete-action*)
+                  (extra-file-types '())
+             &aux stream)
+  (multiple-value-setq (stream filename)
+    (open-for-load filename extra-file-types external-format))
+  (unless stream
+    (if if-does-not-exist
         (error-of-type 'file-error
           :pathname filename
-          (TEXT "A file with name ~A does not exist")
-          filename)
-        nil))))
+          (TEXT "~S: A file with name ~A does not exist")
+          'load filename)
+        (return-from load nil)))
+  (let* ((input-stream
+          (if *load-echo*
+              (make-echo-stream stream *standard-output*)
+              stream))
+         (*load-level* (1+ *load-level*))
+         (indent (if (null *load-verbose*) ""
+                     (make-string *load-level* :initial-element #\Space)))
+         (*load-input-stream* input-stream)
+         (*load-pathname* (if (pathnamep filename) filename nil))
+         (*load-truename*
+          (if (pathnamep filename) (truename filename) nil))
+         #+ffi (ffi::*foreign-language* ffi::*foreign-language*)
+         (*package* *package*) ; bind *PACKAGE*
+         (*readtable* *readtable*) ; bind *READTABLE*
+         (end-of-file "EOF")) ; one-time Object
+    (when *load-verbose*
+      (fresh-line)
+      (write-string ";;")
+      (write-string indent)
+      (write-string (TEXT "Loading file "))
+      (princ filename)
+      (write-string " ..."))
+    (sys::allow-read-eval input-stream t)
+    (block nil
+      (unwind-protect
+           (tagbody weiter
+             (when *load-echo* (fresh-line))
+             (let ((obj (read input-stream nil end-of-file)))
+               (when (eql obj end-of-file) (return-from nil))
+               (setq obj (multiple-value-list
+                          (cond ((compiled-function-p obj) (funcall obj))
+                                (*load-compiling*
+                                 (funcall (compile-form-in-toplevel-environment
+                                           obj)))
+                                (t (eval obj)))))
+               (when *load-print* (when obj (print (first obj)))))
+             (go weiter))
+        (or (eq input-stream stream)
+            (sys::built-in-stream-close input-stream))
+        (or (eq stream filename)
+            (sys::built-in-stream-close stream))))
+    (when *load-verbose*
+      (fresh-line)
+      (write-string ";;")
+      (write-string indent)
+      (write-string (TEXT "Loaded file "))
+      (princ filename))
+    t))
 
 (sys::%putd 'check-symbol
   (function check-symbol

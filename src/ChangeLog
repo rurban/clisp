@@ -1,3 +1,10 @@
+2002-09-20  Sam Steingold  <sds@gnu.org>
+
+	LOAD now takes an additional :OBSOLETE-ACTION keyword
+	* init.lisp (open-for-load): new function
+	(load): use it to open the file
+	(*load-obsolete-action*): new user variable
+
 2002-09-20  Stefan Kain  <stefan.kain@freenet.de>
 
 	* constsym.d, subr.d, encoding.d, predtype.d, intlog.d:
