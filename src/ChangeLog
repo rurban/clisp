@@ -1,5 +1,10 @@
 2005-03-12  Bruno Haible  <bruno@clisp.org>
 
+	* syscalls/calls.c: Assume limits.h exists.
+	* syscalls/configure.in: Don't test whether limits.h exists.
+
+2005-03-12  Bruno Haible  <bruno@clisp.org>
+
 	* clisp-link.in (prepare_dynamic_module): Indentation.
 
 2005-03-12  Arseny Slobodyuk  <ampy@users.sourceforge.net>
