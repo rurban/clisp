@@ -5765,7 +5765,7 @@ global Values funcall (object fun, uintC args_on_stack)
     #endif
     # situate argument byteptr in register:
     #ifdef byteptr_register
-    var const uintB* byteptr __asm__(byteptr_register);
+    var register const uintB* byteptr __asm__(byteptr_register);
     byteptr = byteptr_in;
     #endif
     TRACE_CALL(closure,'B','C');
