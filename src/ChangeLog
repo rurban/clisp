@@ -1,3 +1,9 @@
+2005-01-24  Bruno Haible  <bruno@clisp.org>
+
+	* i18n/gettext.c (do_gettext, do_ngettext): Don't define if GNU_GETTEXT
+	is not defined. Needed for platforms without gettext().
+	* makemake.in (BASE_MODULES): Add i18n always.
+
 2005-01-22  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (small_read_label_type): Renamed from read_label_type.
