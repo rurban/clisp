@@ -23,7 +23,11 @@ User visible changes
       SLOT-DEFINITION-LOCATION.
     New customizable generic functions
       DIRECT-SLOT-DEFINITION-CLASS, EFFECTIVE-SLOT-DEFINITION-CLASS.
-  These changes obsoleted *.fas files.
+  + Specializers:
+    New generic functions
+      SPECIALIZER-DIRECT-GENERIC-FUNCTIONS, SPECIALIZER-DIRECT-METHODS.
+    New functions
+      EQL-SPECIALIZER-OBJECT, INTERN-EQL-SPECIALIZER.
 
 * Several new datatypes that manage weak references:
     WEAK-LIST, WEAK-AND-RELATION, WEAK-OR-RELATION,
