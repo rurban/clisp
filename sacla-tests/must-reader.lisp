@@ -1,7 +1,7 @@
 ;; Copyright (C) 2002-2004, Yuji Minejima <ggb01164@nifty.ne.jp>
 ;; ALL RIGHTS RESERVED.
 ;;
-;; $ Id: must-reader.lisp,v 1.10 2004/02/26 02:30:57 yuji Exp $
+;; $ Id: must-reader.lisp,v 1.11 2004/08/09 02:49:54 yuji Exp $
 ;;
 ;; Redistribution and use in source and binary forms, with or without
 ;; modification, are permitted provided that the following conditions
@@ -79,20 +79,14 @@
 (equal (read-from-string "(a b c d e f)") '(a b c d e f))
 (equal (read-from-string "(a b c d e f g)") '(a b c d e f g))
 (equal (read-from-string "(a b c d e f g h)") '(a b c d e f g h))
-(progn
-  #-clispxxx
-  (handler-case (read-from-string ".")
-    (reader-error () t)
-    (error () nil)
-    (:no-error (&rest rest) (declare (ignore rest)) nil))
-  #+clispxxx 'skipped)
-(progn
-  #-clispxxx
-  (handler-case (read-from-string "...")
-    (reader-error () t)
-    (error () nil)
-    (:no-error (&rest rest) (declare (ignore rest)) nil))
-  #+clispxxx 'skipped)
+(handler-case (read-from-string ".")
+  (reader-error () t)
+  (error () nil)
+  (:no-error (&rest rest) (declare (ignore rest)) nil))
+(handler-case (read-from-string "...")
+  (reader-error () t)
+  (error () nil)
+  (:no-error (&rest rest) (declare (ignore rest)) nil))
 
 (let ((*read-base* 8)) (= (read-from-string "0") 0))
 (let ((*read-base* 8)) (= (read-from-string "1") 1))
@@ -1495,27 +1489,18 @@ b)") '(a b))
   (and (simple-bit-vector-p x)
        (= 100 (length x))
        (every #'(lambda (n) (= 1 n)) x)))
-(progn
-  #-clispxxx
-  (handler-case (read-from-string "#3*1110")
-    (reader-error () t)
-    (error () nil)
-    (:no-error (&rest rest) (declare (ignore rest)) nil))
-  #+clispxxx 'skipped)
-(progn
-  #-clispxxx
-  (handler-case (read-from-string "#3*")
-    (reader-error () t)
-    (error () nil)
-    (:no-error (&rest rest) (declare (ignore rest)) nil))
-  #+clispxxx 'skipped)
-(progn
-  #-clispxxx
-  (handler-case (read-from-string "#3*abc")
-    (reader-error () t)
-    (error () nil)
-    (:no-error (&rest rest) (declare (ignore rest)) nil))
-  #+clispxxx 'skipped)
+(handler-case (read-from-string "#3*1110")
+  (reader-error () t)
+  (error () nil)
+  (:no-error (&rest rest) (declare (ignore rest)) nil))
+(handler-case (read-from-string "#3*")
+  (reader-error () t)
+  (error () nil)
+  (:no-error (&rest rest) (declare (ignore rest)) nil))
+(handler-case (read-from-string "#3*abc")
+  (reader-error () t)
+  (error () nil)
+  (:no-error (&rest rest) (declare (ignore rest)) nil))
 
 (let ((symbol (read-from-string "#:ok")))
   (and (null (symbol-package symbol)) (string= (symbol-name symbol) "OK")))
@@ -1536,13 +1521,10 @@ b)") '(a b))
 (packagep (read-from-string "#.*package*"))
 (= 11 (read-from-string "#.(let ((x 10)) (1+ x))"))
 (= 4 (read-from-string "#.(1+ 3)"))
-(progn
-  #-clispxxx
-  (handler-case (let ((*read-eval* nil)) (read-from-string "#.(1+ 3)"))
-    (reader-error () t)
-    (error () nil)
-    (:no-error (&rest rest) (declare (ignore rest)) nil))
-  #+clispxxx 'skipped)
+(handler-case (let ((*read-eval* nil)) (read-from-string "#.(1+ 3)"))
+  (reader-error () t)
+  (error () nil)
+  (:no-error (&rest rest) (declare (ignore rest)) nil))
 (equal '(a b . 3) (read-from-string "#.(let ((x 3)) `(a b . ,x))"))
 
 
@@ -1828,8 +1810,8 @@ b)") '(a b))
 
 
 (progn
-  #-CLISP ; ANSI CL 2.2. refers to the spec of READ, which says that an error
-          ; of type end-of-file is signalled.
+  #-CLISP ;Bruno: ANSI CL 2.2. refers to the spec of READ, which says that
+          ; an error of type end-of-file is signalled.
   (handler-case (null (let ((*features* '())) (read-from-string "#+test1 a")))
     (error () nil))
   #+CLISP 'skipped)
@@ -2142,35 +2124,23 @@ comment
    still comment
 |# a") 'a)
 
-(progn
-  #-clispxxx
-  (handler-case (read-from-string "#<invalid-token>")
-    (reader-error () t)
-    (error () nil)
-    (:no-error (&rest rest) (declare (ignore rest)) nil))
-  #+clispxxx 'skipped)
-(progn
-  #-clispxxx
-  (handler-case (read-from-string "# ")
-    (reader-error () t)
-    (error () nil)
-    (:no-error (&rest rest) (declare (ignore rest)) nil))
-  #+clispxxx 'skipped)
-(progn
-  #-clispxxx
-  (handler-case (read-from-string "#
+(handler-case (read-from-string "#<invalid-token>")
+  (reader-error () t)
+  (error () nil)
+  (:no-error (&rest rest) (declare (ignore rest)) nil))
+(handler-case (read-from-string "# ")
+  (reader-error () t)
+  (error () nil)
+  (:no-error (&rest rest) (declare (ignore rest)) nil))
+(handler-case (read-from-string "#
 ")
-    (reader-error () t)
-    (error () nil)
-    (:no-error (&rest rest) (declare (ignore rest)) nil))
-  #+clispxxx 'skipped)
-(progn
-  #-clispxxx
-  (handler-case (read-from-string "#)")
-    (reader-error () t)
-    (error () nil)
-    (:no-error (&rest rest) (declare (ignore rest)) nil))
-  #+clispxxx 'skipped)
+  (reader-error () t)
+  (error () nil)
+  (:no-error (&rest rest) (declare (ignore rest)) nil))
+(handler-case (read-from-string "#)")
+  (reader-error () t)
+  (error () nil)
+  (:no-error (&rest rest) (declare (ignore rest)) nil))
 
 (let ((*readtable* (copy-readtable nil)))
   (setf (readtable-case *readtable*) :upcase)
@@ -2369,56 +2339,50 @@ comment
 (not (eq (copy-readtable nil) *readtable*))
 (not (eq (copy-readtable nil) (copy-readtable nil)))
 
-(progn
-  #-clispxxx
-  (let ((*readtable* (copy-readtable nil)))
-    (and (handler-case (read-from-string "#<abc")
-           (reader-error () t)
-           (error () nil)
-           (:no-error (&rest rest) (declare (ignore rest)) nil))
-         (set-dispatch-macro-character #\# #\<
-                                       #'(lambda (s c n)
-                                           (declare (ignore c n))
-                                           (read-char s t nil t)
-                                           (read s t nil t)))
-         (eq 'bc (read-from-string "#<abc"))
-         (setq *readtable* (copy-readtable))
-         (eq 'bc (read-from-string "#<abc"))
-         (setq *readtable* (copy-readtable nil))
-         (handler-case (read-from-string "#<abc")
-           (reader-error () t)
-           (error () nil)
-           (:no-error (&rest rest) (declare (ignore rest)) nil))))
-  #+clispxxx 'skipped)
+(let ((*readtable* (copy-readtable nil)))
+  (and (handler-case (read-from-string "#<abc")
+         (reader-error () t)
+         (error () nil)
+         (:no-error (&rest rest) (declare (ignore rest)) nil))
+       (set-dispatch-macro-character #\# #\<
+                                     #'(lambda (s c n)
+                                         (declare (ignore c n))
+                                         (read-char s t nil t)
+                                         (read s t nil t)))
+       (eq 'bc (read-from-string "#<abc"))
+       (setq *readtable* (copy-readtable))
+       (eq 'bc (read-from-string "#<abc"))
+       (setq *readtable* (copy-readtable nil))
+       (handler-case (read-from-string "#<abc")
+         (reader-error () t)
+         (error () nil)
+         (:no-error (&rest rest) (declare (ignore rest)) nil))))
 
-(progn
-  #-clispxxx
-  (let ((*readtable* (copy-readtable nil)))
-    (and (handler-case (read-from-string "#<abc")
-           (reader-error () t)
-           (error () nil)
-           (:no-error (&rest rest) (declare (ignore rest)) nil))
-         (set-dispatch-macro-character #\# #\<
-                                       #'(lambda (s c n)
-                                           (declare (ignore c n))
-                                           (read-char s t nil t)
-                                           (read s t nil t)))
-         (eq 'bc (read-from-string "#<abc"))
-         (setq *readtable* (copy-readtable))
-         (eq 'bc (read-from-string "#<abc"))
-         (set-dispatch-macro-character #\# #\<
-                                       #'(lambda (s c n)
-                                           (declare (ignore c n))
-                                           (read-char s t nil t)
-                                           (read-char s t nil t)
-                                           (read s t nil t)))
-         (eq 'c (read-from-string "#<abc"))
-         (setq *readtable* (copy-readtable nil))
-         (handler-case (read-from-string "#<abc")
-           (reader-error () t)
-           (error () nil)
-           (:no-error (&rest rest) (declare (ignore rest)) nil))))
-  #+clispxxx 'skipped)
+(let ((*readtable* (copy-readtable nil)))
+  (and (handler-case (read-from-string "#<abc")
+         (reader-error () t)
+         (error () nil)
+         (:no-error (&rest rest) (declare (ignore rest)) nil))
+       (set-dispatch-macro-character #\# #\<
+                                     #'(lambda (s c n)
+                                         (declare (ignore c n))
+                                         (read-char s t nil t)
+                                         (read s t nil t)))
+       (eq 'bc (read-from-string "#<abc"))
+       (setq *readtable* (copy-readtable))
+       (eq 'bc (read-from-string "#<abc"))
+       (set-dispatch-macro-character #\# #\<
+                                     #'(lambda (s c n)
+                                         (declare (ignore c n))
+                                         (read-char s t nil t)
+                                         (read-char s t nil t)
+                                         (read s t nil t)))
+       (eq 'c (read-from-string "#<abc"))
+       (setq *readtable* (copy-readtable nil))
+       (handler-case (read-from-string "#<abc")
+         (reader-error () t)
+         (error () nil)
+         (:no-error (&rest rest) (declare (ignore rest)) nil))))
 
 
 (let ((table (copy-readtable nil)))
@@ -2449,13 +2413,10 @@ comment
   (error () nil)
   (:no-error (&rest rest) (declare (ignore rest)) nil))
 
-(progn
-  #-clispxxx
-  (handler-case (setf (readtable-case (copy-readtable nil)) :no-such-mode)
-    (type-error () t)
-    (error () nil)
-    (:no-error (&rest rest) (declare (ignore rest)) nil))
-  #+clispxxx 'skipped)
+(handler-case (setf (readtable-case (copy-readtable nil)) :no-such-mode)
+  (type-error () t)
+  (error () nil)
+  (:no-error (&rest rest) (declare (ignore rest)) nil))
 
 (let ((table (copy-readtable nil)))
   (and (eq :upcase (readtable-case table))
@@ -2589,15 +2550,12 @@ comment
        (eq t (make-dispatch-macro-character #\{))
        (get-macro-character #\{)))
 
-(progn
-  #-clispxxx
-  (let ((*readtable* (copy-readtable nil)))
-    (and (eq t (make-dispatch-macro-character #\{))
-         (handler-case (read-from-string "{$a")
-           (reader-error () t)
-           (error () nil)
-           (:no-error (&rest rest) (declare (ignore rest)) nil))))
-  #+clispxxx 'skipped)
+(let ((*readtable* (copy-readtable nil)))
+  (and (eq t (make-dispatch-macro-character #\{))
+       (handler-case (read-from-string "{$a")
+         (reader-error () t)
+         (error () nil)
+         (:no-error (&rest rest) (declare (ignore rest)) nil))))
 
 
 (let ((*readtable* (copy-readtable nil)))

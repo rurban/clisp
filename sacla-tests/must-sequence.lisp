@@ -1,7 +1,7 @@
 ;; Copyright (C) 2002-2004, Yuji Minejima <ggb01164@nifty.ne.jp>
 ;; ALL RIGHTS RESERVED.
 ;;
-;; $ Id: must-sequence.lisp,v 1.30 2004/02/20 07:23:42 yuji Exp $
+;; $ Id: must-sequence.lisp,v 1.31 2004/08/09 02:49:54 yuji Exp $
 ;;
 ;; Redistribution and use in source and binary forms, with or without
 ;; modification, are permitted provided that the following conditions
@@ -517,12 +517,8 @@
 (equal (map 'list #'+ '(0 1 2) '(1 2 3) '(2 3 4) '(3 4 5) '()) '())
 
 (equal (map 'cons #'+ '(0 1 2) '(2 1 0)) '(2 2 2))
-(progn
-  #-clispxxx (equal (map '(cons number cons) #'+ '(0 1 2) '(2 1 0)) '(2 2 2))
-  #+clispxxx 'skipped)
-(progn
-  #-clispxxx (equal (map '(cons number (cons number *)) #'+ '(0 1 2) '(2 1 0)) '(2 2 2))
-  #+clispxxx 'skipped)
+(equal (map '(cons number cons) #'+ '(0 1 2) '(2 1 0)) '(2 2 2))
+(equal (map '(cons number (cons number *)) #'+ '(0 1 2) '(2 1 0)) '(2 2 2))
 (null (map 'null #'+ '()))
 
 
@@ -9545,9 +9541,9 @@
   (equal list '(0 4 5 6)))
 
 
-#-CLISP ; The tests ignores ANSI CL "remove-duplicates returns a sequence that
-        ; may share with sequence or may be identical to sequence if no elements
-        ; need to be removed."
+#-CLISP ;Bruno: The tests ignores ANSI CL "remove-duplicates returns a sequence
+        ; that may share with sequence or may be identical to sequence
+        ; if no elements need to be removed."
 (let* ((list0 (list 0 1 2))
        (list (remove-duplicates list0)))
   (and (not (eq list0 list))
@@ -9558,9 +9554,9 @@
   (and (not (eq list0 list))
        (equal list0 '(2 1 0 1 0 1 2))
        (equal list '(0 1 2))))
-#-CLISP ; The tests ignores ANSI CL "remove-duplicates returns a sequence that
-        ; may share with sequence or may be identical to sequence if no elements
-        ; need to be removed."
+#-CLISP ;Bruno: The tests ignores ANSI CL "remove-duplicates returns a sequence
+        ; that may share with sequence or may be identical to sequence if no
+        ; elements need to be removed."
 (let* ((vector0 (vector 0 1 2))
        (vector (remove-duplicates vector0)))
   (and (not (eq vector0 vector))

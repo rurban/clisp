@@ -1,7 +1,7 @@
 ;; Copyright (C) 2002-2004, Yuji Minejima <ggb01164@nifty.ne.jp>
 ;; ALL RIGHTS RESERVED.
 ;;
-;; $ Id: must-eval.lisp,v 1.7 2004/02/20 07:23:42 yuji Exp $
+;; $ Id: must-eval.lisp,v 1.8 2004/08/09 02:49:54 yuji Exp $
 ;;
 ;; Redistribution and use in source and binary forms, with or without
 ;; modification, are permitted provided that the following conditions
@@ -36,5 +36,9 @@
 (every #'special-operator-p '(block catch eval-when flet function go if labels let let* load-time-value locally macrolet multiple-value-call multiple-value-prog1 progn progv quote return-from setq symbol-macrolet tagbody the throw unwind-protect))
 (not (special-operator-p 'car))
 (not (special-operator-p 'cdr))
-#-CLISP (not (special-operator-p 'cond))
+;; Bruno: The spec of MACRO-FUNCTION says that an implementation can have
+;; additional special operators provided the macro expander is available through
+;; MACRO-FUNCTION.
+#-CLISP
+(not (special-operator-p 'cond))
 (not (special-operator-p 'values))

@@ -1,7 +1,7 @@
 ;; Copyright (C) 2002-2004, Yuji Minejima <ggb01164@nifty.ne.jp>
 ;; ALL RIGHTS RESERVED.
 ;;
-;; $ Id: should-array.lisp,v 1.11 2004/02/20 07:23:42 yuji Exp $
+;; $ Id: should-array.lisp,v 1.12 2004/08/09 02:49:55 yuji Exp $
 ;;
 ;; Redistribution and use in source and binary forms, with or without
 ;; modification, are permitted provided that the following conditions
@@ -31,7 +31,7 @@
   (ERROR NIL NIL)
   (:NO-ERROR (&REST REST) (DECLARE (IGNORE REST)) NIL))
 
-#-CLISP ; Why expect an error? A string _is_ an array.
+#-CLISP ;Bruno: Why expect an error? A string _is_ an array.
 (progn
   #-(or cmu clispxxx)
   (HANDLER-CASE (PROGN (ADJUSTABLE-ARRAY-P "not-a-symbol"))

@@ -1,7 +1,7 @@
 ;; Copyright (C) 2002-2004, Yuji Minejima <ggb01164@nifty.ne.jp>
 ;; ALL RIGHTS RESERVED.
 ;;
-;; $ Id: must-array.lisp,v 1.8 2004/02/20 07:23:42 yuji Exp $
+;; $ Id: must-array.lisp,v 1.9 2004/08/09 02:49:54 yuji Exp $
 ;;
 ;; Redistribution and use in source and binary forms, with or without
 ;; modification, are permitted provided that the following conditions
@@ -377,14 +377,11 @@
                            '(3 2) :initial-element 'undefined)))
   (equal (array-dimensions array) '(3 2)))
 
-(progn
-  #-cmu
-  (let ((array (adjust-array (make-array '(2 3)
-                                         :initial-contents '((0 1 2) (3 4 5))
-                                         :adjustable t)
-                             '(3 2) :initial-element 'undefined)))
-    (not (array-has-fill-pointer-p array)))
-  #+cmu 'skipped)
+(let ((array (adjust-array (make-array '(2 3)
+                                       :initial-contents '((0 1 2) (3 4 5))
+                                       :adjustable t)
+                           '(3 2) :initial-element 'undefined)))
+  (not (array-has-fill-pointer-p array)))
 
 (let ((array (make-array '(2 3) :initial-contents '((0 1 2) (3 4 5)))))
   (not (array-has-fill-pointer-p array)))
@@ -685,81 +682,66 @@
        (eql (bit ba 2 1) 1)
        (zerop (bit ba 2 2))))
 
-(progn
-  #-cmu
-  (let ((ba (make-array '(3 3)
-                        :element-type 'bit
-                        :initial-contents '((0 1 0) (1 0 1) (0 1 0)))))
-    (and (zerop (sbit ba 0 0))
-         (eql (sbit ba 0 1) 1)
-         (zerop (sbit ba 0 2))
-         (eql (sbit ba 1 0) 1)
-         (zerop (sbit ba 1 1))
-         (eql (sbit ba 1 2) 1)
-         (zerop (sbit ba 2 0))
-         (eql (sbit ba 2 1) 1)
-         (zerop (sbit ba 2 2))))
-  #+cmu 'skipped)
+(let ((ba (make-array '(3 3)
+                      :element-type 'bit
+                      :initial-contents '((0 1 0) (1 0 1) (0 1 0)))))
+  (and (zerop (sbit ba 0 0))
+       (eql (sbit ba 0 1) 1)
+       (zerop (sbit ba 0 2))
+       (eql (sbit ba 1 0) 1)
+       (zerop (sbit ba 1 1))
+       (eql (sbit ba 1 2) 1)
+       (zerop (sbit ba 2 0))
+       (eql (sbit ba 2 1) 1)
+       (zerop (sbit ba 2 2))))
 
-(progn
-  #-cmu
-  (let ((ba (make-array '(3 3 3) :element-type 'bit)))
-    (dotimes (i (* 3 3 3))
-      (setf (bit ba
-                 (floor i 9)
-                 (floor (mod i 9) 3)
-                 (mod i 3))
-            (if (evenp i) 0 1)))
-    (dotimes (i (* 3 3 3) t)
-      (unless (eql (row-major-aref ba i) (if (evenp i) 0 1))
-        (return nil))))
-  #+cmu 'skipped)
+(let ((ba (make-array '(3 3 3) :element-type 'bit)))
+  (dotimes (i (* 3 3 3))
+    (setf (bit ba
+               (floor i 9)
+               (floor (mod i 9) 3)
+               (mod i 3))
+          (if (evenp i) 0 1)))
+  (dotimes (i (* 3 3 3) t)
+    (unless (eql (row-major-aref ba i) (if (evenp i) 0 1))
+      (return nil))))
 
-(progn
-  #-cmu
-  (let ((ba (make-array '(3 3 3) :element-type 'bit)))
-    (dotimes (i (* 3 3 3))
-      (setf (sbit ba
-                  (floor i 9)
-                  (floor (mod i 9) 3)
-                  (mod i 3))
-            (if (evenp i) 0 1)))
-    (dotimes (i (* 3 3 3) t)
-      (unless (eql (row-major-aref ba i) (if (evenp i) 0 1))
-        (return nil))))
-  #+cmu 'skipped)
+(let ((ba (make-array '(3 3 3) :element-type 'bit)))
+  (dotimes (i (* 3 3 3))
+    (setf (sbit ba
+                (floor i 9)
+                (floor (mod i 9) 3)
+                (mod i 3))
+          (if (evenp i) 0 1)))
+  (dotimes (i (* 3 3 3) t)
+    (unless (eql (row-major-aref ba i) (if (evenp i) 0 1))
+      (return nil))))
 
-(progn
-  #-cmu
-  (let ((ba (make-array '(1 2 3 4 5) :element-type 'bit)))
-    (dotimes (i (* 1 2 3 4 5))
-      (setf (bit ba
-                 (floor i (* 1 2 3 4 5))
-                 (floor (mod i (* 2 3 4 5)) (* 3 4 5))
-                 (floor (mod i (* 3 4 5)) (* 4 5))
-                 (floor (mod i (* 4 5)) 5)
-                 (mod i 5))
-            (if (evenp i) 0 1)))
-    (dotimes (i (* 1 2 3 4 5) t)
-      (unless (eql (row-major-aref ba i) (if (evenp i) 0 1))
-        (return nil))))
-  #+cmu 'skipped)
+(let ((ba (make-array '(1 2 3 4 5) :element-type 'bit)))
+  (dotimes (i (* 1 2 3 4 5))
+    (setf (bit ba
+               (floor i (* 1 2 3 4 5))
+               (floor (mod i (* 2 3 4 5)) (* 3 4 5))
+               (floor (mod i (* 3 4 5)) (* 4 5))
+               (floor (mod i (* 4 5)) 5)
+               (mod i 5))
+          (if (evenp i) 0 1)))
+  (dotimes (i (* 1 2 3 4 5) t)
+    (unless (eql (row-major-aref ba i) (if (evenp i) 0 1))
+      (return nil))))
 
-(progn
-  #-cmu
-  (let ((ba (make-array '(1 2 3 4 5) :element-type 'bit)))
-    (dotimes (i (* 1 2 3 4 5))
-      (setf (sbit ba
-                  (floor i (* 1 2 3 4 5))
-                  (floor (mod i (* 2 3 4 5)) (* 3 4 5))
-                  (floor (mod i (* 3 4 5)) (* 4 5))
-                  (floor (mod i (* 4 5)) 5)
-                  (mod i 5))
-            (if (evenp i) 0 1)))
-    (dotimes (i (* 1 2 3 4 5) t)
-      (unless (eql (row-major-aref ba i) (if (evenp i) 0 1))
-        (return nil))))
-  #+cmu 'skipped)
+(let ((ba (make-array '(1 2 3 4 5) :element-type 'bit)))
+  (dotimes (i (* 1 2 3 4 5))
+    (setf (sbit ba
+                (floor i (* 1 2 3 4 5))
+                (floor (mod i (* 2 3 4 5)) (* 3 4 5))
+                (floor (mod i (* 3 4 5)) (* 4 5))
+                (floor (mod i (* 4 5)) 5)
+                (mod i 5))
+          (if (evenp i) 0 1)))
+  (dotimes (i (* 1 2 3 4 5) t)
+    (unless (eql (row-major-aref ba i) (if (evenp i) 0 1))
+      (return nil))))
 
 (let ((ba (make-array 8 :element-type 'bit  :initial-element 1)))
   (and (eql (setf (bit ba 3) 0) 0)
@@ -831,32 +813,26 @@
        (not (eq ba2 ba3))
        (not (eq ba2 ba4))))
 
-(progn
-  #-clispxxx
-  (equalp (bit-and (make-array '(2 3)
-                               :element-type 'bit
-                               :initial-contents '(#*010 #*101))
-                   (make-array '(2 3)
-                               :element-type 'bit
-                               :initial-contents '(#*101 #*010)))
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*000 #*000)))
-  #+clispxxx 'skipped)
+(equalp (bit-and (make-array '(2 3)
+                             :element-type 'bit
+                             :initial-contents '(#*010 #*101))
+                 (make-array '(2 3)
+                             :element-type 'bit
+                             :initial-contents '(#*101 #*010)))
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*000 #*000)))
 
-(progn
-  #-clispxxx
-  (equalp (bit-and (make-array '(2 3)
-                               :element-type 'bit
-                               :initial-contents '(#*010 #*101))
-                   (make-array '(2 3)
-                               :element-type 'bit
-                               :initial-contents '(#*101 #*010))
-                   nil)
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*000 #*000)))
-  #+clispxxx 'skipped)
+(equalp (bit-and (make-array '(2 3)
+                             :element-type 'bit
+                             :initial-contents '(#*010 #*101))
+                 (make-array '(2 3)
+                             :element-type 'bit
+                             :initial-contents '(#*101 #*010))
+                 nil)
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*000 #*000)))
 
 
 (equalp (bit-and (make-array '(2 3)
@@ -882,22 +858,19 @@
                     :element-type 'bit
                     :initial-contents '(#*000 #*000)))
 
-(progn
-  #-clispxxx
-  (let* ((ba1 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*010 #*101)))
-         (ba2 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*101 #*010)))
-         (ba  (bit-and ba1 ba2)))
-    (and (not (eq ba1 ba))
-         (not (eq ba2 ba))
-         (not (eq ba1 ba2))
-         (equalp ba (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*000 #*000)))))
-  #+clispxxx 'skipped)
+(let* ((ba1 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*010 #*101)))
+       (ba2 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*101 #*010)))
+       (ba  (bit-and ba1 ba2)))
+  (and (not (eq ba1 ba))
+       (not (eq ba2 ba))
+       (not (eq ba1 ba2))
+       (equalp ba (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*000 #*000)))))
 
 
 (let* ((ba1 (make-array '(2 3)
@@ -971,32 +944,26 @@
        (not (eq ba2 ba3))
        (not (eq ba2 ba4))))
 
-(progn
-  #-clispxxx
-  (equalp (bit-andc1 (make-array '(2 3)
-                                 :element-type 'bit
-                                 :initial-contents '(#*010 #*101))
-                     (make-array '(2 3)
-                                 :element-type 'bit
-                                 :initial-contents '(#*101 #*010)))
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*101 #*010)))
-  #+clispxxx 'skipped)
+(equalp (bit-andc1 (make-array '(2 3)
+                               :element-type 'bit
+                               :initial-contents '(#*010 #*101))
+                   (make-array '(2 3)
+                               :element-type 'bit
+                               :initial-contents '(#*101 #*010)))
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*101 #*010)))
 
-(progn
-  #-clispxxx
-  (equalp (bit-andc1 (make-array '(2 3)
-                                 :element-type 'bit
-                                 :initial-contents '(#*010 #*101))
-                     (make-array '(2 3)
-                                 :element-type 'bit
-                                 :initial-contents '(#*101 #*010))
-                     nil)
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*101 #*010)))
-  #+clispxxx 'skipped)
+(equalp (bit-andc1 (make-array '(2 3)
+                               :element-type 'bit
+                               :initial-contents '(#*010 #*101))
+                   (make-array '(2 3)
+                               :element-type 'bit
+                               :initial-contents '(#*101 #*010))
+                   nil)
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*101 #*010)))
 
 (equalp (bit-andc1 (make-array '(2 3)
                                :element-type 'bit
@@ -1021,22 +988,19 @@
                     :element-type 'bit
                     :initial-contents '(#*101 #*010)))
 
-(progn
-  #-clispxxx
-  (let* ((ba1 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*010 #*101)))
-         (ba2 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*101 #*010)))
-         (ba  (bit-andc1 ba1 ba2)))
-    (and (not (eq ba1 ba))
-         (not (eq ba2 ba))
-         (not (eq ba1 ba2))
-         (equalp ba (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*101 #*010)))))
-  #+clispxxx 'skipped)
+(let* ((ba1 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*010 #*101)))
+       (ba2 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*101 #*010)))
+       (ba  (bit-andc1 ba1 ba2)))
+  (and (not (eq ba1 ba))
+       (not (eq ba2 ba))
+       (not (eq ba1 ba2))
+       (equalp ba (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*101 #*010)))))
 
 (let* ((ba1 (make-array '(2 3)
                         :element-type 'bit
@@ -1107,114 +1071,93 @@
        (not (eq ba2 ba3))
        (not (eq ba2 ba4))))
 
-(progn
-  #-clispxxx
-  (equalp (bit-andc2 (make-array '(2 3)
-                                 :element-type 'bit
-                                 :initial-contents '(#*010 #*101))
-                     (make-array '(2 3)
-                                 :element-type 'bit
-                                 :initial-contents '(#*101 #*010)))
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*010 #*101)))
-  #+clispxxx 'skipped)
+(equalp (bit-andc2 (make-array '(2 3)
+                               :element-type 'bit
+                               :initial-contents '(#*010 #*101))
+                   (make-array '(2 3)
+                               :element-type 'bit
+                               :initial-contents '(#*101 #*010)))
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*010 #*101)))
 
-(progn
-  #-clispxxx
-  (equalp (bit-andc2 (make-array '(2 3)
-                                 :element-type 'bit
-                                 :initial-contents '(#*010 #*101))
-                     (make-array '(2 3)
-                                 :element-type 'bit
-                                 :initial-contents '(#*101 #*010))
-                     nil)
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*010 #*101)))
-  #+clispxxx 'skipped)
+(equalp (bit-andc2 (make-array '(2 3)
+                               :element-type 'bit
+                               :initial-contents '(#*010 #*101))
+                   (make-array '(2 3)
+                               :element-type 'bit
+                               :initial-contents '(#*101 #*010))
+                   nil)
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*010 #*101)))
 
-(progn
-  #-clispxxx
-  (equalp (bit-andc2 (make-array '(2 3)
-                                 :element-type 'bit
-                                 :initial-contents '(#*010 #*101))
-                     (make-array '(2 3)
-                                 :element-type 'bit
-                                 :initial-contents '(#*101 #*010))
-                     t)
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*010 #*101)))
-  #+clispxxx 'skipped)
+(equalp (bit-andc2 (make-array '(2 3)
+                               :element-type 'bit
+                               :initial-contents '(#*010 #*101))
+                   (make-array '(2 3)
+                               :element-type 'bit
+                               :initial-contents '(#*101 #*010))
+                   t)
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*010 #*101)))
 
-(progn
-  #-clispxxx
-  (equalp (bit-andc2 (make-array '(2 3)
-                                 :element-type 'bit
-                                 :initial-contents '(#*010 #*101))
-                     (make-array '(2 3)
-                                 :element-type 'bit
-                                 :initial-contents '(#*101 #*010))
-                     (make-array '(2 3)
-                                 :element-type 'bit))
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*010 #*101)))
-  #+clispxxx 'skipped)
+(equalp (bit-andc2 (make-array '(2 3)
+                               :element-type 'bit
+                               :initial-contents '(#*010 #*101))
+                   (make-array '(2 3)
+                               :element-type 'bit
+                               :initial-contents '(#*101 #*010))
+                   (make-array '(2 3)
+                               :element-type 'bit))
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*010 #*101)))
 
-(progn
-  #-clispxxx
-  (let* ((ba1 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*010 #*101)))
-         (ba2 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*101 #*010)))
-         (ba  (bit-andc2 ba1 ba2)))
-    (and (not (eq ba1 ba))
-         (not (eq ba2 ba))
-         (not (eq ba1 ba2))
-         (equalp ba (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*010 #*101)))))
-  #+clispxxx 'skipped)
+(let* ((ba1 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*010 #*101)))
+       (ba2 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*101 #*010)))
+       (ba  (bit-andc2 ba1 ba2)))
+  (and (not (eq ba1 ba))
+       (not (eq ba2 ba))
+       (not (eq ba1 ba2))
+       (equalp ba (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*010 #*101)))))
 
-(progn
-  #-clispxxx
-  (let* ((ba1 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*010 #*101)))
-         (ba2 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*101 #*010)))
-         (ba  (bit-andc2 ba1 ba2 t)))
-    (and (eq ba1 ba)
-         (equalp ba1 (make-array '(2 3)
-                                 :element-type 'bit
-                                 :initial-contents '(#*010 #*101)))))
-  #+clispxxx 'skipped)
+(let* ((ba1 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*010 #*101)))
+       (ba2 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*101 #*010)))
+       (ba  (bit-andc2 ba1 ba2 t)))
+  (and (eq ba1 ba)
+       (equalp ba1 (make-array '(2 3)
+                               :element-type 'bit
+                               :initial-contents '(#*010 #*101)))))
 
-(progn
-  #-clispxxx
-  (let* ((ba1 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*010 #*101)))
-         (ba2 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*101 #*010)))
-         (ba3 (make-array '(2 3)
-                          :element-type 'bit))
-         (ba4 (bit-andc2 ba1 ba2 ba3)))
-    (and (eq ba3 ba4)
-         (equalp ba3 (make-array '(2 3)
-                                 :element-type 'bit
-                                 :initial-contents '(#*010 #*101)))
-         (not (eq ba1 ba3))
-         (not (eq ba1 ba4))
-         (not (eq ba2 ba3))
-         (not (eq ba2 ba4))))
-  #+clispxxx 'skipped)
+(let* ((ba1 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*010 #*101)))
+       (ba2 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*101 #*010)))
+       (ba3 (make-array '(2 3)
+                        :element-type 'bit))
+       (ba4 (bit-andc2 ba1 ba2 ba3)))
+  (and (eq ba3 ba4)
+       (equalp ba3 (make-array '(2 3)
+                               :element-type 'bit
+                               :initial-contents '(#*010 #*101)))
+       (not (eq ba1 ba3))
+       (not (eq ba1 ba4))
+       (not (eq ba2 ba3))
+       (not (eq ba2 ba4))))
 
 
 (equal (bit-eqv #*11101010 #*01101011) #*01111110)
@@ -1255,32 +1198,26 @@
        (not (eq ba2 ba3))
        (not (eq ba2 ba4))))
 
-(progn
-  #-clispxxx
-  (equalp (bit-eqv (make-array '(2 3)
-                               :element-type 'bit
-                               :initial-contents '(#*010 #*101))
-                   (make-array '(2 3)
-                               :element-type 'bit
-                               :initial-contents '(#*101 #*010)))
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*000 #*000)))
-  #+clispxxx 'skipped)
+(equalp (bit-eqv (make-array '(2 3)
+                             :element-type 'bit
+                             :initial-contents '(#*010 #*101))
+                 (make-array '(2 3)
+                             :element-type 'bit
+                             :initial-contents '(#*101 #*010)))
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*000 #*000)))
 
-(progn
-  #-clispxxx
-  (equalp (bit-eqv (make-array '(2 3)
-                               :element-type 'bit
-                               :initial-contents '(#*010 #*101))
-                   (make-array '(2 3)
-                               :element-type 'bit
-                               :initial-contents '(#*101 #*010))
-                   nil)
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*000 #*000)))
-  #+clispxxx 'skipped)
+(equalp (bit-eqv (make-array '(2 3)
+                             :element-type 'bit
+                             :initial-contents '(#*010 #*101))
+                 (make-array '(2 3)
+                             :element-type 'bit
+                             :initial-contents '(#*101 #*010))
+                 nil)
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*000 #*000)))
 
 
 (equalp (bit-eqv (make-array '(2 3)
@@ -1306,22 +1243,19 @@
                     :element-type 'bit
                     :initial-contents '(#*000 #*000)))
 
-(progn
-  #-clispxxx
-  (let* ((ba1 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*010 #*101)))
-         (ba2 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*101 #*010)))
-         (ba  (bit-eqv ba1 ba2)))
-    (and (not (eq ba1 ba))
-         (not (eq ba2 ba))
-         (not (eq ba1 ba2))
-         (equalp ba (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*000 #*000)))))
-  #+clispxxx 'skipped)
+(let* ((ba1 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*010 #*101)))
+       (ba2 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*101 #*010)))
+       (ba  (bit-eqv ba1 ba2)))
+  (and (not (eq ba1 ba))
+       (not (eq ba2 ba))
+       (not (eq ba1 ba2))
+       (equalp ba (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*000 #*000)))))
 
 
 (let* ((ba1 (make-array '(2 3)
@@ -1394,32 +1328,26 @@
        (not (eq ba2 ba3))
        (not (eq ba2 ba4))))
 
-(progn
-  #-clispxxx
-  (equalp (bit-ior (make-array '(2 3)
-                               :element-type 'bit
-                               :initial-contents '(#*010 #*101))
-                   (make-array '(2 3)
-                               :element-type 'bit
-                               :initial-contents '(#*101 #*010)))
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*111 #*111)))
-  #+clispxxx 'skipped)
+(equalp (bit-ior (make-array '(2 3)
+                             :element-type 'bit
+                             :initial-contents '(#*010 #*101))
+                 (make-array '(2 3)
+                             :element-type 'bit
+                             :initial-contents '(#*101 #*010)))
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*111 #*111)))
 
-(progn
-  #-clispxxx
-  (equalp (bit-ior (make-array '(2 3)
-                               :element-type 'bit
-                               :initial-contents '(#*010 #*101))
-                   (make-array '(2 3)
-                               :element-type 'bit
-                               :initial-contents '(#*101 #*010))
-                   nil)
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*111 #*111)))
-  #+clispxxx 'skipped)
+(equalp (bit-ior (make-array '(2 3)
+                             :element-type 'bit
+                             :initial-contents '(#*010 #*101))
+                 (make-array '(2 3)
+                             :element-type 'bit
+                             :initial-contents '(#*101 #*010))
+                 nil)
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*111 #*111)))
 
 (equalp (bit-ior (make-array '(2 3)
                              :element-type 'bit
@@ -1442,22 +1370,19 @@
         (make-array '(2 3)
                     :element-type 'bit
                     :initial-contents '(#*111 #*111)))
-(progn
-  #-clispxxx
-  (let* ((ba1 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*010 #*101)))
-         (ba2 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*101 #*010)))
-         (ba  (bit-ior ba1 ba2)))
-    (and (not (eq ba1 ba))
-         (not (eq ba2 ba))
-         (not (eq ba1 ba2))
-         (equalp ba (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*111 #*111)))))
-  #+clispxxx 'skipped)
+(let* ((ba1 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*010 #*101)))
+       (ba2 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*101 #*010)))
+       (ba  (bit-ior ba1 ba2)))
+  (and (not (eq ba1 ba))
+       (not (eq ba2 ba))
+       (not (eq ba1 ba2))
+       (equalp ba (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*111 #*111)))))
 
 
 (let* ((ba1 (make-array '(2 3)
@@ -1528,32 +1453,26 @@
        (not (eq ba1 ba4))
        (not (eq ba2 ba3))
        (not (eq ba2 ba4))))
-(progn
-  #-clispxxx
-  (equalp (bit-nand (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*010 #*101))
-                    (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*101 #*010)))
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*111 #*111)))
-  #+clispxxx 'skipped)
+(equalp (bit-nand (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*010 #*101))
+                  (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*101 #*010)))
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*111 #*111)))
 
-(progn
-  #-clispxxx
-  (equalp (bit-nand (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*010 #*101))
-                    (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*101 #*010))
-                    nil)
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*111 #*111)))
-  #+clispxxx 'skipped)
+(equalp (bit-nand (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*010 #*101))
+                  (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*101 #*010))
+                  nil)
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*111 #*111)))
 
 (equalp (bit-nand (make-array '(2 3)
                               :element-type 'bit
@@ -1576,22 +1495,19 @@
         (make-array '(2 3)
                     :element-type 'bit
                     :initial-contents '(#*111 #*111)))
-(progn
-  #-clispxxx
-  (let* ((ba1 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*010 #*101)))
-         (ba2 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*101 #*010)))
-         (ba  (bit-nand ba1 ba2)))
-    (and (not (eq ba1 ba))
-         (not (eq ba2 ba))
-         (not (eq ba1 ba2))
-         (equalp ba (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*111 #*111)))))
-  #+clispxxx 'skipped)
+(let* ((ba1 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*010 #*101)))
+       (ba2 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*101 #*010)))
+       (ba  (bit-nand ba1 ba2)))
+  (and (not (eq ba1 ba))
+       (not (eq ba2 ba))
+       (not (eq ba1 ba2))
+       (equalp ba (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*111 #*111)))))
 
 (let* ((ba1 (make-array '(2 3)
                         :element-type 'bit
@@ -1659,32 +1575,26 @@
        (not (eq ba1 ba4))
        (not (eq ba2 ba3))
        (not (eq ba2 ba4))))
-(progn
-  #-clispxxx
-  (equalp (bit-nor (make-array '(2 3)
-                               :element-type 'bit
-                               :initial-contents '(#*010 #*101))
-                   (make-array '(2 3)
-                               :element-type 'bit
-                               :initial-contents '(#*101 #*010)))
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*000 #*000)))
-  #+clispxxx 'skipped)
+(equalp (bit-nor (make-array '(2 3)
+                             :element-type 'bit
+                             :initial-contents '(#*010 #*101))
+                 (make-array '(2 3)
+                             :element-type 'bit
+                             :initial-contents '(#*101 #*010)))
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*000 #*000)))
 
-(progn
-  #-clispxxx
-  (equalp (bit-nor (make-array '(2 3)
-                               :element-type 'bit
-                               :initial-contents '(#*010 #*101))
-                   (make-array '(2 3)
-                               :element-type 'bit
-                               :initial-contents '(#*101 #*010))
-                   nil)
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*000 #*000)))
-  #+clispxxx 'skipped)
+(equalp (bit-nor (make-array '(2 3)
+                             :element-type 'bit
+                             :initial-contents '(#*010 #*101))
+                 (make-array '(2 3)
+                             :element-type 'bit
+                             :initial-contents '(#*101 #*010))
+                 nil)
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*000 #*000)))
 
 (equalp (bit-nor (make-array '(2 3)
                              :element-type 'bit
@@ -1707,22 +1617,19 @@
         (make-array '(2 3)
                     :element-type 'bit
                     :initial-contents '(#*000 #*000)))
-(progn
-  #-clispxxx
-  (let* ((ba1 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*010 #*101)))
-         (ba2 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*101 #*010)))
-         (ba  (bit-nor ba1 ba2)))
-    (and (not (eq ba1 ba))
-         (not (eq ba2 ba))
-         (not (eq ba1 ba2))
-         (equalp ba (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*000 #*000)))))
-  #+clispxxx 'skipped)
+(let* ((ba1 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*010 #*101)))
+       (ba2 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*101 #*010)))
+       (ba  (bit-nor ba1 ba2)))
+  (and (not (eq ba1 ba))
+       (not (eq ba2 ba))
+       (not (eq ba1 ba2))
+       (equalp ba (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*000 #*000)))))
 
 (let* ((ba1 (make-array '(2 3)
                         :element-type 'bit
@@ -1790,32 +1697,26 @@
        (not (eq ba1 ba4))
        (not (eq ba2 ba3))
        (not (eq ba2 ba4))))
-(progn
-  #-clispxxx
-  (equalp (bit-orc1 (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*010 #*101))
-                    (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*101 #*010)))
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*101 #*010)))
-  #+clispxxx 'skipped)
+(equalp (bit-orc1 (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*010 #*101))
+                  (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*101 #*010)))
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*101 #*010)))
 
-(progn
-  #-clispxxx
-  (equalp (bit-orc1 (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*010 #*101))
-                    (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*101 #*010))
-                    nil)
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*101 #*010)))
-  #+clispxxx 'skipped)
+(equalp (bit-orc1 (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*010 #*101))
+                  (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*101 #*010))
+                  nil)
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*101 #*010)))
 
 (equalp (bit-orc1 (make-array '(2 3)
                               :element-type 'bit
@@ -1838,22 +1739,19 @@
         (make-array '(2 3)
                     :element-type 'bit
                     :initial-contents '(#*101 #*010)))
-(progn
-  #-clispxxx
-  (let* ((ba1 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*010 #*101)))
-         (ba2 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*101 #*010)))
-         (ba  (bit-orc1 ba1 ba2)))
-    (and (not (eq ba1 ba))
-         (not (eq ba2 ba))
-         (not (eq ba1 ba2))
-         (equalp ba (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*101 #*010)))))
-  #+clispxxx 'skipped)
+(let* ((ba1 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*010 #*101)))
+       (ba2 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*101 #*010)))
+       (ba  (bit-orc1 ba1 ba2)))
+  (and (not (eq ba1 ba))
+       (not (eq ba2 ba))
+       (not (eq ba1 ba2))
+       (equalp ba (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*101 #*010)))))
 
 (let* ((ba1 (make-array '(2 3)
                         :element-type 'bit
@@ -1920,114 +1818,93 @@
        (not (eq ba1 ba4))
        (not (eq ba2 ba3))
        (not (eq ba2 ba4))))
-(progn
-  #-clispxxx
-  (equalp (bit-orc2 (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*010 #*101))
-                    (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*101 #*010)))
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*010 #*101)))
-  #+clispxxx 'skipped)
+(equalp (bit-orc2 (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*010 #*101))
+                  (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*101 #*010)))
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*010 #*101)))
 
-(progn
-  #-clispxxx
-  (equalp (bit-orc2 (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*010 #*101))
-                    (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*101 #*010))
-                    nil)
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*010 #*101)))
-  #+clispxxx 'skipped)
+(equalp (bit-orc2 (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*010 #*101))
+                  (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*101 #*010))
+                  nil)
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*010 #*101)))
 
-(progn
-  #-clispxxx
-  (equalp (bit-orc2 (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*010 #*101))
-                    (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*101 #*010))
-                    t)
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*010 #*101)))
-  #+clispxxx 'skipped)
+(equalp (bit-orc2 (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*010 #*101))
+                  (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*101 #*010))
+                  t)
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*010 #*101)))
 
-(progn
-  #-clispxxx
-  (equalp (bit-orc2 (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*010 #*101))
-                    (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*101 #*010))
-                    (make-array '(2 3)
-                                :element-type 'bit))
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*010 #*101)))
-  #+clispxxx 'skipped)
+(equalp (bit-orc2 (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*010 #*101))
+                  (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*101 #*010))
+                  (make-array '(2 3)
+                              :element-type 'bit))
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*010 #*101)))
 
-(progn
-  #-clispxxx
-  (let* ((ba1 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*010 #*101)))
-         (ba2 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*101 #*010)))
-         (ba  (bit-orc2 ba1 ba2)))
-    (and (not (eq ba1 ba))
-         (not (eq ba2 ba))
-         (not (eq ba1 ba2))
-         (equalp ba (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*010 #*101)))))
-  #+clispxxx 'skipped)
+(let* ((ba1 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*010 #*101)))
+       (ba2 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*101 #*010)))
+       (ba  (bit-orc2 ba1 ba2)))
+  (and (not (eq ba1 ba))
+       (not (eq ba2 ba))
+       (not (eq ba1 ba2))
+       (equalp ba (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*010 #*101)))))
 
-(progn
-  #-clispxxx
-  (let* ((ba1 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*010 #*101)))
-         (ba2 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*101 #*010)))
-         (ba  (bit-orc2 ba1 ba2 t)))
-    (and (eq ba1 ba)
-         (equalp ba1 (make-array '(2 3)
-                                 :element-type 'bit
-                                 :initial-contents '(#*010 #*101)))))
-  #+clispxxx 'skipped)
+(let* ((ba1 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*010 #*101)))
+       (ba2 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*101 #*010)))
+       (ba  (bit-orc2 ba1 ba2 t)))
+  (and (eq ba1 ba)
+       (equalp ba1 (make-array '(2 3)
+                               :element-type 'bit
+                               :initial-contents '(#*010 #*101)))))
 
-(progn
-  #-clispxxx
-  (let* ((ba1 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*010 #*101)))
-         (ba2 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*101 #*010)))
-         (ba3 (make-array '(2 3)
-                          :element-type 'bit))
-         (ba4 (bit-orc2 ba1 ba2 ba3)))
-    (and (eq ba3 ba4)
-         (equalp ba3 (make-array '(2 3)
-                                 :element-type 'bit
-                                 :initial-contents '(#*010 #*101)))
-         (not (eq ba1 ba3))
-         (not (eq ba1 ba4))
-         (not (eq ba2 ba3))
-         (not (eq ba2 ba4))))
-  #+clispxxx 'skipped)
+(let* ((ba1 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*010 #*101)))
+       (ba2 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*101 #*010)))
+       (ba3 (make-array '(2 3)
+                        :element-type 'bit))
+       (ba4 (bit-orc2 ba1 ba2 ba3)))
+  (and (eq ba3 ba4)
+       (equalp ba3 (make-array '(2 3)
+                               :element-type 'bit
+                               :initial-contents '(#*010 #*101)))
+       (not (eq ba1 ba3))
+       (not (eq ba1 ba4))
+       (not (eq ba2 ba3))
+       (not (eq ba2 ba4))))
 
 
 
@@ -2066,32 +1943,26 @@
        (not (eq ba1 ba4))
        (not (eq ba2 ba3))
        (not (eq ba2 ba4))))
-(progn
-  #-clispxxx
-  (equalp (bit-xor (make-array '(2 3)
-                               :element-type 'bit
-                               :initial-contents '(#*010 #*101))
-                   (make-array '(2 3)
-                               :element-type 'bit
-                               :initial-contents '(#*101 #*010)))
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*111 #*111)))
-  #+clispxxx 'skipped)
+(equalp (bit-xor (make-array '(2 3)
+                             :element-type 'bit
+                             :initial-contents '(#*010 #*101))
+                 (make-array '(2 3)
+                             :element-type 'bit
+                             :initial-contents '(#*101 #*010)))
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*111 #*111)))
 
-(progn
-  #-clispxxx
-  (equalp (bit-xor (make-array '(2 3)
-                               :element-type 'bit
-                               :initial-contents '(#*010 #*101))
-                   (make-array '(2 3)
-                               :element-type 'bit
-                               :initial-contents '(#*101 #*010))
-                   nil)
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*111 #*111)))
-  #+clispxxx 'skipped)
+(equalp (bit-xor (make-array '(2 3)
+                             :element-type 'bit
+                             :initial-contents '(#*010 #*101))
+                 (make-array '(2 3)
+                             :element-type 'bit
+                             :initial-contents '(#*101 #*010))
+                 nil)
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*111 #*111)))
 
 (equalp (bit-xor (make-array '(2 3)
                              :element-type 'bit
@@ -2114,22 +1985,19 @@
         (make-array '(2 3)
                     :element-type 'bit
                     :initial-contents '(#*111 #*111)))
-(progn
-  #-clispxxx
-  (let* ((ba1 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*010 #*101)))
-         (ba2 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*101 #*010)))
-         (ba  (bit-xor ba1 ba2)))
-    (and (not (eq ba1 ba))
-         (not (eq ba2 ba))
-         (not (eq ba1 ba2))
-         (equalp ba (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*111 #*111)))))
-  #+clispxxx 'skipped)
+(let* ((ba1 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*010 #*101)))
+       (ba2 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*101 #*010)))
+       (ba  (bit-xor ba1 ba2)))
+  (and (not (eq ba1 ba))
+       (not (eq ba2 ba))
+       (not (eq ba1 ba2))
+       (equalp ba (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*111 #*111)))))
 
 (let* ((ba1 (make-array '(2 3)
                         :element-type 'bit
@@ -2189,26 +2057,20 @@
        (not (eq ba1 ba2))
        (not (eq ba1 ba3))))
 
-(progn
-  #-clispxxx
-  (equalp (bit-not (make-array '(2 3)
-                               :element-type 'bit
-                               :initial-contents '(#*010 #*101)))
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*101 #*010)))
-  #+clispxxx 'skipped)
+(equalp (bit-not (make-array '(2 3)
+                             :element-type 'bit
+                             :initial-contents '(#*010 #*101)))
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*101 #*010)))
 
-(progn
-  #-clispxxx
-  (equalp (bit-not (make-array '(2 3)
-                               :element-type 'bit
-                               :initial-contents '(#*010 #*101))
-                   nil)
-          (make-array '(2 3)
-                      :element-type 'bit
-                      :initial-contents '(#*101 #*010)))
-  #+clispxxx 'skipped)
+(equalp (bit-not (make-array '(2 3)
+                             :element-type 'bit
+                             :initial-contents '(#*010 #*101))
+                 nil)
+        (make-array '(2 3)
+                    :element-type 'bit
+                    :initial-contents '(#*101 #*010)))
 
 (equalp (bit-not (make-array '(2 3)
                              :element-type 'bit
@@ -2225,17 +2087,14 @@
         (make-array '(2 3)
                     :element-type 'bit
                     :initial-contents '(#*101 #*010)))
-(progn
-  #-clispxxx
-  (let* ((ba1 (make-array '(2 3)
-                          :element-type 'bit
-                          :initial-contents '(#*010 #*101)))
-         (ba  (bit-not ba1)))
-    (and (not (eq ba1 ba))
-         (equalp ba (make-array '(2 3)
-                                :element-type 'bit
-                                :initial-contents '(#*101 #*010)))))
-  #+clispxxx 'skipped)
+(let* ((ba1 (make-array '(2 3)
+                        :element-type 'bit
+                        :initial-contents '(#*010 #*101)))
+       (ba  (bit-not ba1)))
+  (and (not (eq ba1 ba))
+       (equalp ba (make-array '(2 3)
+                              :element-type 'bit
+                              :initial-contents '(#*101 #*010)))))
 
 
 
@@ -2273,92 +2132,74 @@
 (simple-bit-vector-p #*1)
 (simple-bit-vector-p (make-array 6 :element-type 'bit))
 
-(progn
-  #-clispxxx
-  (equal (concatenate 'list
-                      (adjust-array (make-array 5 :initial-contents '(0 1 2 3 4))
-                                    10
-                                    :initial-element -1))
-         '(0 1 2 3 4 -1 -1 -1 -1 -1))
-  #+clispxxx 'skipped)
+(equal (concatenate 'list
+                    (adjust-array (make-array 5 :initial-contents '(0 1 2 3 4))
+                                  10
+                                  :initial-element -1))
+       '(0 1 2 3 4 -1 -1 -1 -1 -1))
 
 
-(progn
-  #-clispxxx
-  (let* ((array0 (make-array '(3 2)
-                             :initial-contents
-                             '((e0-0 e0-1) (e1-0 e1-1) (e2-0 e2-1))))
-         (array (adjust-array array0
-                              '(4 3)
-                              :initial-element 0)))
-    (and (eq (aref array 0 0) 'e0-0)
-         (eq (aref array 0 1) 'e0-1)
-         (eql (aref array 0 2) '0)
-         (eq (aref array 1 0) 'e1-0)
-         (eq (aref array 1 1) 'e1-1)
-         (eql (aref array 1 2) 0)
-         (eq (aref array 2 0) 'e2-0)
-         (eq (aref array 2 1) 'e2-1)
-         (eql (aref array 2 2) 0)))
-  #+clispxxx 'skipped)
+(let* ((array0 (make-array '(3 2)
+                           :initial-contents
+                           '((e0-0 e0-1) (e1-0 e1-1) (e2-0 e2-1))))
+       (array (adjust-array array0
+                            '(4 3)
+                            :initial-element 0)))
+  (and (eq (aref array 0 0) 'e0-0)
+       (eq (aref array 0 1) 'e0-1)
+       (eql (aref array 0 2) '0)
+       (eq (aref array 1 0) 'e1-0)
+       (eq (aref array 1 1) 'e1-1)
+       (eql (aref array 1 2) 0)
+       (eq (aref array 2 0) 'e2-0)
+       (eq (aref array 2 1) 'e2-1)
+       (eql (aref array 2 2) 0)))
 
 
-(progn
-  #-clispxxx
-  (let* ((array0 (make-array '(3 2)
-                             :initial-contents
-                             '((e0-0 e0-1) (e1-0 e1-1) (e2-0 e2-1))))
-         (array (adjust-array array0
-                              '(1 1)
-                              :initial-element 0)))
-    (eq (aref array 0 0) 'e0-0))
-  #+clispxxx 'skipped)
+(let* ((array0 (make-array '(3 2)
+                           :initial-contents
+                           '((e0-0 e0-1) (e1-0 e1-1) (e2-0 e2-1))))
+       (array (adjust-array array0
+                            '(1 1)
+                            :initial-element 0)))
+  (eq (aref array 0 0) 'e0-0))
 
 
-(progn
-  #-clispxxx
-  (let* ((array0 (make-array '(3 2) :initial-element 0))
-         (array1 (make-array 6 :initial-element 1))
-         (array (adjust-array array1 3 :displaced-to array0)))
-    (and (equal (array-dimensions array) '(3))
-         (every #'zerop array)))
-  #+clispxxx 'skipped)
+(let* ((array0 (make-array '(3 2) :initial-element 0))
+       (array1 (make-array 6 :initial-element 1))
+       (array (adjust-array array1 3 :displaced-to array0)))
+  (and (equal (array-dimensions array) '(3))
+       (every #'zerop array)))
 
 
 
-(progn
-  #-clispxxx
-  (let* ((array0 (make-array '(3 2) :initial-contents '((0 1) (2 3) (4 5))))
-         (array1 (make-array 6 :initial-element 1))
-         (array (adjust-array array1 3
-                              :displaced-to array0
-                              :displaced-index-offset 3)))
-    (and (equal (array-dimensions array) '(3))
-         (eql (aref array 0) 3)
-         (eql (aref array 1) 4)
-         (eql (aref array 2) 5)))
-  #+clispxxx 'skipped)
+(let* ((array0 (make-array '(3 2) :initial-contents '((0 1) (2 3) (4 5))))
+       (array1 (make-array 6 :initial-element 1))
+       (array (adjust-array array1 3
+                            :displaced-to array0
+                            :displaced-index-offset 3)))
+  (and (equal (array-dimensions array) '(3))
+       (eql (aref array 0) 3)
+       (eql (aref array 1) 4)
+       (eql (aref array 2) 5)))
 
 
-(progn
-  #-clispxxx
-  (let* ((array0 (make-array '(3 2) :initial-contents '((0 1) (2 3) (4 5))))
-         (array1 (make-array 6 :displaced-to array0))
-         (array (adjust-array array1 9 :initial-element '-1)))
-    (and (equal (array-dimensions array) '(9))
-         (multiple-value-bind (displaced-to displaced-index-offset)
-             (array-displacement array)
-           (and (null displaced-to) (zerop displaced-index-offset)))
-         (eql (aref array 0) 0)
-         (eql (aref array 1) 1)
-         (eql (aref array 2) 2)
-         (eql (aref array 3) 3)
-         (eql (aref array 4) 4)
-         (eql (aref array 5) 5)
-         (eql (aref array 6) -1)
-         (eql (aref array 7) -1)
-         (eql (aref array 8) -1)))
-  #+clispxxx 'skipped)
+(let* ((array0 (make-array '(3 2) :initial-contents '((0 1) (2 3) (4 5))))
+       (array1 (make-array 6 :displaced-to array0))
+       (array (adjust-array array1 9 :initial-element '-1)))
+  (and (equal (array-dimensions array) '(9))
+       (multiple-value-bind (displaced-to displaced-index-offset)
+           (array-displacement array)
+         (and (null displaced-to) (zerop displaced-index-offset)))
+       (eql (aref array 0) 0)
+       (eql (aref array 1) 1)
+       (eql (aref array 2) 2)
+       (eql (aref array 3) 3)
+       (eql (aref array 4) 4)
+       (eql (aref array 5) 5)
+       (eql (aref array 6) -1)
+       (eql (aref array 7) -1)
+       (eql (aref array 8) -1)))
 
 
 (let* ((array0 (make-array '(4 4)
@@ -2393,27 +2234,24 @@
        (eq (aref array2 1) 'b)
        (eq (aref array2 2) 'c)))
 
-(progn
-  #-cmu
-  (let* ((str0 (make-array 10
-                           :element-type 'character
-                           :initial-contents "abcdefghij"))
-         (str1 (make-array 7
-                           :adjustable t
-                           :element-type 'character
-                           :displaced-to str0
-                           :displaced-index-offset 3))
-         (str2 (make-array 3
-                           :element-type 'character
-                           :displaced-to str1
-                           :displaced-index-offset 4)))
-    (and (string= str0 "abcdefghij")
-         (string= str1 "defghij")
-         (string= str2 "hij")
-         (adjustable-array-p str1)
-         (eq str1 (adjust-array str1 10 :initial-contents "QRSTUVWXYZ"))
-         (string= str2 "UVW")))
-  #+cmu 'skipped)
+(let* ((str0 (make-array 10
+                         :element-type 'character
+                         :initial-contents "abcdefghij"))
+       (str1 (make-array 7
+                         :adjustable t
+                         :element-type 'character
+                         :displaced-to str0
+                         :displaced-index-offset 3))
+       (str2 (make-array 3
+                         :element-type 'character
+                         :displaced-to str1
+                         :displaced-index-offset 4)))
+  (and (string= str0 "abcdefghij")
+       (string= str1 "defghij")
+       (string= str2 "hij")
+       (adjustable-array-p str1)
+       (eq str1 (adjust-array str1 10 :initial-contents "QRSTUVWXYZ"))
+       (string= str2 "UVW")))
 
 
 (let* ((bv (make-array 10

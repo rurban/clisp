@@ -1,7 +1,7 @@
 ;; Copyright (C) 2002-2004, Yuji Minejima <ggb01164@nifty.ne.jp>
 ;; ALL RIGHTS RESERVED.
 ;;
-;; $ Id: must-hash-table.lisp,v 1.7 2004/02/20 07:23:42 yuji Exp $
+;; $ Id: must-hash-table.lisp,v 1.8 2004/08/09 02:49:54 yuji Exp $
 ;;
 ;; Redistribution and use in source and binary forms, with or without
 ;; modification, are permitted provided that the following conditions
@@ -42,13 +42,13 @@
 
 (make-hash-table)
 (hash-table-p (make-hash-table))
-#-CLISP ; unfounded expectations about hash-table-test
+#-CLISP ; Bruno: unfounded expectations about hash-table-test
 (dolist (test '(eq eql equal equalp) t)
   (let ((hash-table (make-hash-table :test test)))
     (unless (and (hash-table-p hash-table)
                  (eq (hash-table-test hash-table) test))
       (return nil))))
-#-CLISP ; unfounded expectations about hash-table-test
+#-CLISP ; Bruno: unfounded expectations about hash-table-test
 (dolist (test '(eq eql equal equalp) t)
   (let* ((test-function (symbol-function test))
          (hash-table (make-hash-table :test test-function)))
@@ -116,33 +116,33 @@
        (= (hash-table-count table) 1)))
 
 
-#-CLISP ; unfounded expectations about hash-table-rehash-size
+#-CLISP ;Bruno: unfounded expectations about hash-table-rehash-size
 (let ((table (make-hash-table :size 100 :rehash-size 1.4)))
   (= (hash-table-rehash-size table) 1.4))
 
-#-CLISP ; unfounded expectations about hash-table-rehash-threshold
+#-CLISP ;Bruno: unfounded expectations about hash-table-rehash-threshold
 (let ((table (make-hash-table :size 100 :rehash-threshold 0.5)))
   (= (hash-table-rehash-threshold table) 0.5))
 
 (<= 0 (hash-table-size (make-hash-table)))
 
-#-CLISP ; unfounded expectations about hash-table-test
+#-CLISP ;Bruno: unfounded expectations about hash-table-test
 (eq 'eq (hash-table-test (make-hash-table :test 'eq)))
-#-CLISP ; unfounded expectations about hash-table-test
+#-CLISP ;Bruno: unfounded expectations about hash-table-test
 (eq 'eq (hash-table-test (make-hash-table :test #'eq)))
-#-CLISP ; unfounded expectations about hash-table-test
+#-CLISP ;Bruno: unfounded expectations about hash-table-test
 (eq 'eql (hash-table-test (make-hash-table)))
-#-CLISP ; unfounded expectations about hash-table-test
+#-CLISP ;Bruno: unfounded expectations about hash-table-test
 (eq 'eql (hash-table-test (make-hash-table :test 'eql)))
-#-CLISP ; unfounded expectations about hash-table-test
+#-CLISP ;Bruno: unfounded expectations about hash-table-test
 (eq 'eql (hash-table-test (make-hash-table :test #'eql)))
-#-CLISP ; unfounded expectations about hash-table-test
+#-CLISP ;Bruno: unfounded expectations about hash-table-test
 (eq 'equal (hash-table-test (make-hash-table :test 'equal)))
-#-CLISP ; unfounded expectations about hash-table-test
+#-CLISP ;Bruno: unfounded expectations about hash-table-test
 (eq 'equal (hash-table-test (make-hash-table :test #'equal)))
-#-CLISP ; unfounded expectations about hash-table-test
+#-CLISP ;Bruno: unfounded expectations about hash-table-test
 (eq 'equalp (hash-table-test (make-hash-table :test 'equalp)))
-#-CLISP ; unfounded expectations about hash-table-test
+#-CLISP ;Bruno: unfounded expectations about hash-table-test
 (eq 'equalp (hash-table-test (make-hash-table :test #'equalp)))
 
 (let* ((table0 (make-hash-table))
