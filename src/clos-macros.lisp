@@ -49,6 +49,7 @@
         (t (setf (gethash element set) t))))
 
 (defun remove-from-weak-set (holder set element)
+  (declare (ignore holder))
   (cond ((null set))
         ((ext:weak-list-p set)
          (let ((list (ext:weak-list-list set)))
@@ -61,5 +62,5 @@
         ((ext:weak-list-p set)
          (ext:weak-list-list set))
         (t (let ((l '()))
-             (maphash #'(lambda (x y) (push x l)) set)
+             (maphash #'(lambda (x y) (declare (ignore y)) (push x l)) set)
              l))))
