@@ -652,7 +652,7 @@ typedef struct
 /* Some arguments are passed in registers. Query the macro AV_ARG_REGNUM.
  * This should really be an argument to __av_word.
  */
-#undef __av_word
+#undef __av_word /**/
 #define __av_word(LIST,VAL)						\
   ((AV_ARG_REGNUM) >= 0							\
    ? ((AV_ARG_REGNUM) < 8+7						\
