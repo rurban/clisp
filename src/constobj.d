@@ -989,9 +989,9 @@
     /* ENGLISH */ "The variable ~S had an illegal value." NLstring "~S has been reset to ~S.",
     /* FRANCAIS */ "Une valeur invalide fut trouvée dans la variable ~S," NLstring "~S fut réinitialisé à ~S.")
   LISPOBJ_LS(fpcontagion_warn_string,
-     /* DEUTSCH */ "Floating-Point-Operation kombiniert Zahlen verschiedener Genauigkeit." NLstring "***" NLstring "Die effektive Genauigkeit des Ergebnisses wird von" NLstring "~S kontrolliert." NLstring "Um diese Warnung abzuschalten, ~S auf ~S setzen.",
+     /* DEUTSCH */ "Floating-Point-Operation kombiniert Zahlen verschiedener Genauigkeit." NLstring "Genaueres dazu in ANSI CL 12.1.4.4 und den CLISP impnotes." NLstring "Die effektive Genauigkeit des Ergebnisses wird von" NLstring "~S kontrolliert." NLstring "Um diese Warnung abzuschalten, ~S auf ~S setzen.",
      /* ENGLISH */ "Floating point operation combines numbers of different precision." NLstring "See ANSI CL 12.1.4.4 and the CLISP impnotes for details." NLstring "The result's actual precision is controlled by" NLstring "~S." NLstring "To shut off this warning, set ~S to ~S.",
-     /* FRANCAIS */ "Opération sur nombres flottants de précisions différentes." NLstring "***" NLstring "La précision effective du résultat dépend de" NLstring "~S." NLstring "Pour éviter cet avertissement, mettre ~S à ~S.")
+     /* FRANCAIS */ "Opération sur nombres flottants de précisions différentes." NLstring "Pour plus de détails, voir ANSI CL 12.1.4.4 et les impnotes de CLISP." NLstring "La précision effective du résultat dépend de" NLstring "~S." NLstring "Pour éviter cet avertissement, mettre ~S à ~S.")
 # zu EVAL.D:
   # Toplevel-Deklarations-Environment:
   LISPOBJ(top_decl_env,"(NIL)") # Liste aus O(declaration_types) (wird nachinitialisiert)

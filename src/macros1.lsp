@@ -162,13 +162,13 @@
        FRANCAIS "La clause de sortie dans ~S doit être une liste.")
       do
   ) )
-  (flet ((bad-syntax (form)
+  (flet ((bad-syntax (formpiece)
            (error-of-type 'source-program-error
-             (DEUTSCH "***"                        ; FIXME
-              ENGLISH "Bad syntax in ~S: ~S."      ; FIXME
-              FRANCAIS "***")                      ; FIXME
-             (if (eq psetq 'PSETQ) 'DO 'DO*)
-             form ) ))
+             (DEUTSCH "Ungültige Syntax in ~S-Form: ~S."
+              ENGLISH "Invalid syntax in ~S form: ~S."
+              FRANCAIS "Syntax invalide dans forme ~S : ~S.")
+             do
+             formpiece ) ))
     (let ((bindlist nil)
           (reinitlist nil)
           (testtag (gensym))

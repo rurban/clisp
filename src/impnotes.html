@@ -1583,15 +1583,13 @@ In absence of <CODE>sys::write-float</CODE>, floating point numbers are output i
 If <CODE>*print-readably*</CODE> is true, <CODE>*read-default-float-format*</CODE> has no influence on
 the way floating point numbers are printed.
 <P>
-Pathnames are printed as follows: if <CODE>(eq *print-escape*
-nil)</CODE>, only the namestring is printed; otherwise it is printed
-with <CODE>#P&quot;&quot;</CODE> syntax, as per ANSI CL
-<PRINT-READABLY-BEHAVIOR:CLARIFY>.  But, is <CODE>(eq *print-readably*
-t)</CODE>, we are in trouble as <CODE>#P&quot;&quot;</CODE> is ambiguous
-(which is verbotten when <CODE>*print-readably*</CODE> is
-<CODE>t</CODE>), while being mandated by the ANSI.  Therefore, in this
-case, we print it like this:
-<p> <CODE>#-CLISP #P&quot;...&quot; #+CLISP #S(PATHNAME ...)</CODE>
+Pathnames are printed as follows: If <CODE>*print-escape*</CODE> is <CODE>nil</CODE>, only the
+namestring is printed; otherwise it is printed with <CODE>#P&quot;&quot;</CODE> syntax, as per
+ANSI CL &lt;PRINT-READABLY-BEHAVIOR:CLARIFY&gt;.  But, if <CODE>*print-readably*</CODE> is true,
+we are in trouble as <CODE>#P&quot;&quot;</CODE> is ambiguous (which is verboten when
+<CODE>*print-readably*</CODE> is true), while being mandated by the ANSI.  Therefore, in
+this case, we print it like this:
+<P> <CODE>#-CLISP #P&quot;...&quot; #+CLISP #S(PATHNAME ...)</CODE>
 <P>
 <CODE>*print-case*</CODE> controls the output not only of symbols, but also of characters
 and some <CODE>#&lt;...&gt;</CODE> objects.
