@@ -1027,9 +1027,9 @@ global maygc object Q_to_I (sint64 wert)
       var object newnum = allocate_bignum(i,-1); \
       var uintD* ptr = &TheBignum(newnum)->data[i-1];
     #define IF_LENGTH(i)  \
-      if ((bn_minlength <= i) && (i*intDsize <= 64))          \
-        if (!((i+1)*intDsize <= 64)                           \
-            || ((uint64)wert >= (uint64)(-bit(i*intDsize-1))) \
+      if ((bn_minlength <= i) && (i*intDsize <= 64))             \
+        if (!((i+1)*intDsize <= 64)                              \
+            || ((uint64)wert >= (uint64)minus_bit(i*intDsize-1)) \
            )
     IF_LENGTH(1)
       { ALLOC(1); FILL_1; OK; } /* bignum with 1 digit */
