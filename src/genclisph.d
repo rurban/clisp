@@ -2003,6 +2003,7 @@ int main(int argc, char* argv[])
 #endif
   printf("extern bool typep_class (object obj, object clazz);\n");
   printf("extern bool typep_classname (object obj, object classname);\n");
+  printf("extern object check_classname (object obj, object classname);\n");
 #if notused
   printf("extern object get (object symbol, object key);\n");
 #endif
