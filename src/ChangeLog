@@ -1,5 +1,11 @@
 2004-09-16  Bruno Haible  <bruno@clisp.org>
 
+	* init.lisp: Export metaobject, specializer, eql-specializer,
+	compute-effective-method.
+	* clos-package.lisp: Likewise.
+
+2004-09-16  Bruno Haible  <bruno@clisp.org>
+
 	* utils/clispload.lsp (*expected-failures*): Many new failures to be
 	revisited.
 
