@@ -1,6 +1,6 @@
 2003-05-18  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
-	* pathname.d (LAUNCH) [WIN32_NATIVE]: used sfixnum.
+	* pathname.d (LAUNCH) [WIN32_NATIVE]: small fixes.
 	(LAUNCH) [UNIX || RISCOS]: implemented for these 
 	systems (like EXECUTE). Moved out of HAVE_SHELL.
 	* subr.d (LAUNCH): changed conditionals for declaration.
