@@ -1289,7 +1289,7 @@ for f in $EVERY_INCLUDES ; do
   EVERY_INCLUDES_C=$EVERY_INCLUDES_C' '$f'.c'
 done
 
-EVERY_INCLUDES_H=''
+EVERY_INCLUDES_H=' cflags.h'
 if [ $TOS = unix ] ; then
   if [ -n '@STDBOOL_H@' -o -n '@STDINT_H@' ]; then
     EVERY_INCLUDES_H=${EVERY_INCLUDES_H}' @STDBOOL_H@ @STDINT_H@'
@@ -1968,6 +1968,13 @@ if [ ! $TSYS = win32msvc ] ; then
     done
   fi
 fi
+
+echol "cflags.h : Makefile"
+echotab "echo '/* generated from Makefile */' > cflags.h"
+for x in CC CFLAGS CPP CPPLAGS CLFLAGS LIBS X_LIBS; do
+  echotab "echo '#define $x \"\$($x)\"' >> cflags.h"
+done
+echol
 
 UTILS=''
 if [ $NEED_CCPAUX = true ] ; then
