@@ -19,12 +19,12 @@
    <filename>${windir}/system32/etc/hosts</filename> on a Win32 system).
    This is an interface to &gethostbyname;/&gethostbyaddr;.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal
+ <varlistentry id="file-stat"><term><literal
       role="sexp">(<function>POSIX:FILE-STAT</function> &path-r;
       &optional-amp; <replaceable>link-p</replaceable>)</literal></term>
- <listitem><simpara>Return the stat struct.  &path-r; can be a
-   &stream-t;, a &pathname-t;, a &string-t; or a &number-t;
-   (on a &unix; system, meaning &file-des;).
+ <listitem><simpara>Return the <type>file-stat</type> struct.
+   &path-r; can be a &stream-t;, a &pathname-t;, a &string-t; or a
+   &number-t; (on a &unix; system, meaning &file-des;).
    The first slot of the struct returned is the string or the number on
    which &stat;/&fstat;/&lstat; was called.  The other 13 slots are
    numbers, members of the stat struct: device, inode, protection,
@@ -35,6 +35,14 @@
    (e.g., Win32 does not have hard links), &nil; (or the default, like 1
    for the number of hard links for Win32 or DOS) is returned.
    </simpara><simpara>[&unix; systems only at this time, patches are welcome.]
+  </simpara></listitem></varlistentry>
+ <varlistentry id="file-info"><term><literal
+    role="sexp">(<function>POSIX:FILE-INFO</function>
+    &path-r;)</literal></term>
+ <listitem><simpara>Return the <type>file-info</type> struct.
+   &path-r; should be a &path-des;. The 8 slots are attributes, ctime,
+   atime, wtime, high and low sizes, name and short name.
+   </simpara><simpara>[&win32; systems only at this time, patches are welcome.]
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>POSIX:USER-DATA</function>
@@ -50,14 +58,21 @@
    </simpara><simpara>[&unix; systems only at this time, patches are welcome.]
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-   role="sexp">(<function>POSIX:SYSINFO</function>)</literal></term>
- <listitem><simpara>Return a struct describing the OS, derived from
-   &uname; and &sysconf;.</simpara></listitem></varlistentry>
+   role="sexp">(<function>POSIX:UNAME</function>)</literal></term>
+  <listitem><simpara>Return a struct describing the OS, derived from
+    &uname;.</simpara></listitem></varlistentry>
  <varlistentry><term><literal
-   role="sexp">(<function>POSIX:RESOURCE-USAGE-LIMITS</function>)</literal>
-   </term>
-  <listitem><simpara>Return 3 structs describing the resources usage and
-    limits, derived from &getrlimit; and &getrusage;.
+   role="sexp">(<function>POSIX:SYSCONF</function>)</literal></term>
+  <listitem><simpara>Return a struct describing the system
+    configuration, derived from &sysconf;.</simpara></listitem></varlistentry>
+ <varlistentry><term><literal
+   role="sexp">(<function>POSIX:LIMITS</function>)</literal></term>
+  <listitem><simpara>Return a struct describing the resource limits,
+    derived from &getrlimit;.</simpara></listitem></varlistentry>
+ <varlistentry><term><literal
+   role="sexp">(<function>POSIX:USAGE</function>)</literal></term>
+  <listitem><simpara>Return 2 structs describing the resource usage by
+    the lisp process its children, derived from &getrusage;.
   </simpara></listitem></varlistentry>
  <varlistentry>
    <term><literal role="sexp">(<function>POSIX:ERF</function>
@@ -85,7 +100,6 @@
    be available in libm.so.  Please note that these functions do not
    provide lisp-style error handling and precision, and do all the
    computations at the double float level.
-  </simpara><simpara>[&unix; systems only at this time, patches are welcome.]
  </simpara></listitem></varlistentry>
  <varlistentry><term>
    <literal role="sexp">(<function>POSIX:STREAM-LOCK</function> &stream-r;
@@ -124,6 +138,18 @@
   <listitem><simpara>This is an interface to the &dup; system calls on
    &unix; systems and to <function>DuplicateHandle</function> system
    call on &win32;.</simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(POSIX:SHORTCUT-INFO
+    &path-r;)</literal></term>
+  <listitem><simpara>Return information about a &win32; shortcut
+    (<filename>#P".lnk"</filename>) file contents in
+    a <type>shortcut-info</type> struct.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(POSIX:MAKE-SHORTCUT
+    &path-r; &key-amp; :WORKING-DIRECTORY :ARGUMENTS :SHOW-COMMAND :ICON
+    :DESCRIPTION :HOT-KEY :PATH)</literal></term>
+  <listitem><simpara>Create (or modify the properties of an existing one)
+    a &win32; shortcut (<filename>#P".lnk"</filename>) file.
+ </simpara></listitem></varlistentry>
 </variablelist>
 
 </section>
