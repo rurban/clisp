@@ -535,10 +535,9 @@ DEFUN(BDB:DB-DEL, dbe key &key :TRANSACTION :AUTO-COMMIT)
 
 DEFUN(BDB:DB-FD, db)
 { /* Return a file descriptor from a database */
-  DB *db = object_handle(STACK_3,`BDB::DB`,false);
+  DB *db = object_handle(popSTACK(),`BDB::DB`,false);
   int fd;
   SYSCALL(db->fd,(db,&fd));
-  skipSTACK(1);
   VALUES1(fixnum(fd));
 }
 
