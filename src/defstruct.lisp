@@ -1,5 +1,5 @@
 ;;; Sources for CLISP DEFSTRUCT macro
-;;; Bruno Haible 1988-2003
+;;; Bruno Haible 1988-2004
 ;;; Sam Steingold 1998-2004
 ;;; German comments translated into English: Stefan Kain 2003-01-14
 
@@ -10,7 +10,7 @@
 #| Explanation of the appearing data types:
 
    (get name 'DEFSTRUCT-DESCRIPTION) =
-     #(names type keyword-constructor slotlist defaultfun0 defaultfun1 ...)
+     #(names type size keyword-constructor slotlist defaultfun0 defaultfun1 ...)
 
    names is a coding of the INCLUDE-nesting for Structure name:
    names = (name_1 ... name_i-1 name_i) with name=name_1,
@@ -21,6 +21,8 @@
       = LIST                   storage as list
       = VECTOR                 storage as (simple-)vector
       = (VECTOR element-type)  storage as vector with element-type
+
+   size is the structure size / list length / vector length.
 
    keyword-constructor = NIL or the name of the keyword-constructor
 
@@ -537,7 +539,7 @@
                                 (cons (add-unquote (ds-slot-default slot))
                                       'NIL)))
                         slot)
-                    (svref incl-desc 3))))
+                    (svref incl-desc 4))))
         ;; slotlist is the reversed list of the inherited slots
         (when slotlist
           (setq include-skip (1+ (ds-slot-offset (first slotlist)))))
@@ -709,7 +711,7 @@
                  slotlist))))
         constructor-option-list))
     ;; constructor-forms = list of forms, that define the constructors.
-    (let ((index 4))
+    (let ((index 5))
       (dolist (defaultvar slotdefaultvars)
         (setf (ds-slot-default (find defaultvar slotlist :test #'eq
                                      :key #'(lambda (x) (ds-slot-default x))))
@@ -722,7 +724,7 @@
                                             slotdefaultfuns))
            ,@constructor-forms
            (%PUT ',name 'DEFSTRUCT-DESCRIPTION
-                 (VECTOR ,namesform ',type-option ',keyword-constructor
+                 (VECTOR ,namesform ',type-option ,size ',keyword-constructor
                          ,(add-backquote slotlist)
                          ,@slotdefaultvars)))
          ,@(if (eq type-option 'T) `((CLOS::DEFINE-STRUCTURE-CLASS ',name)))

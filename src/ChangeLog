@@ -1,3 +1,12 @@
+2004-04-03  Bruno Haible  <bruno@clisp.org>
+
+	Store a structure's size in the DEFSTRUCT-DESCRIPTION.
+	* defstruct.lisp (defstruct): Add the instance size as third slot of
+	the DEFSTRUCT-DESCRIPTION.
+	* io.d (structure_reader, pr_structure_default): Update.
+	* clos-class2.lisp (define-structure-class): Update.
+	* foreign1.lisp (c-struct-constructor): Update.
+
 2004-04-08  Sam Steingold  <sds@gnu.org>
 
 	* init.lisp: export ABORT here to avoid conflict with gray.lisp
