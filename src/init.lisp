@@ -209,7 +209,7 @@
 (export lambda-list-keywords)
 
 (proclaim '(special *features*))
-(proclaim '(special compiler::*compiling*))
+(proclaim '(special compiler::*compiling* compiler::*compiling-from-file*))
 (setq compiler::*compiling* nil)
 
 (use-package '("COMMON-LISP" "EXT") "SYSTEM")
@@ -654,12 +654,13 @@
                ;; the same values.
                ;; Else expand all arguments from the second one as forms.
                (if (member 'COMPILE (second form)) ; not :COMPILE-TOPLEVEL !
-                 (values
-                  (list 'values-list
-                        (list 'quote
-                              (multiple-value-list
-                               (eval (cons 'PROGN (cddr form))))))
-                  t)
+                 (let ((compiler::*compiling-from-file* nil))
+                   (values
+                    (list 'values-list
+                          (list 'quote
+                                (multiple-value-list
+                                 (eval (cons 'PROGN (cddr form))))))
+                    t))
                  (multiple-value-call #'%expand-cons form
                    (first form) nil
                    (multiple-value-call #'%expand-cons (rest form)
