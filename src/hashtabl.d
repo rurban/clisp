@@ -2198,7 +2198,17 @@ LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL)
 
 # (SXHASH object), CLTL S. 285
 LISPFUNN(sxhash,1)
-  {
-    value1 = UL_to_I(sxhash(popSTACK())); mv_count=1; # Hashcode als Integer
-  }
+{
+  uint32 sx = sxhash(popSTACK());
+#if oint_data_len >= 32
+  value1 = fixnum(sx);
+#elif oint_data_len >= 24
+  value1 = fixnum((sx & 0x0000ffff) ^ ((sx & 0xffff0000) >> 8));
+#elif oint_data_len >= 16
+  value1 = fixnum((sx >> 16) ^ (sx & 0x0000ffff));
+#else
+#error "sxhash results do not fit in a fixnum"
+#endif
+  mv_count=1;
+}
 
