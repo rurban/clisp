@@ -1,5 +1,10 @@
 2005-03-22  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #[ 1167991 ]: Compiler bug, Occurred in SP-DEPTH at <0.
+	* compiler.lisp (optimize-short): do not short the same refindex twice
+
+2005-03-22  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/dbi.lisp, modules/bindings/glibc/wrap.lisp:
 	* modules/dirkey/dirkey1.lisp, modules/matlab/wrap.lisp:
 	* modules/netica/wrap.lisp, modules/rawsock/sock.lisp:

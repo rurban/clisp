@@ -1,3 +1,7 @@
+2005-03-22  Sam Steingold  <sds@gnu.org>
+
+	* macro8.tst: bug 1167991 (SP-DEPTH <0)
+
 2005-03-08  Sam Steingold  <sds@gnu.org>
 
 	* excepsit.tst: check that RANDOM does not accept RATIOs
@@ -865,12 +869,12 @@
 2004-04-17  Bruno Haible  <bruno@clisp.org>
 
 	Add support for SBCL.
-	* tests.lisp, alltest.tst, array.tst, bin-io.tst, characters.tst,
-	conditions.tst, encoding.tst, eval20.tst, excepsit.tst, format.tst,
-	hashlong.tst, iofkts.tst, lambda.tst, lists152.tst, lists154.tst,
-	lists155.tst, lists156.tst, loop.tst, macro8.tst, map.tst, mop.tst,
-	path.tst, setf.tst, streams.tst, streamslong.tst, strings.tst,
-	symbol10.tst, symbols.tst, type.tst: Add results for SBCL 0.8.9 when
+	* tests.lisp, alltest.tst, array.tst, bin-io.tst, characters.tst:
+	* conditions.tst, encoding.tst, eval20.tst, excepsit.tst, format.tst:
+	* hashlong.tst, iofkts.tst, lambda.tst, lists152.tst, lists154.tst:
+	* lists155.tst, lists156.tst, loop.tst, macro8.tst, map.tst, mop.tst:
+	* path.tst, setf.tst, streams.tst, streamslong.tst, strings.tst:
+	* symbol10.tst, symbols.tst, type.tst: Add results for SBCL 0.8.9 when
 	they are allowed by ANSI CL.
 
 2004-04-26  Sam Steingold  <sds@gnu.org>
@@ -880,8 +884,8 @@
 
 2004-04-17  Bruno Haible  <bruno@clisp.org>
 
-	* alltest.tst, array.tst, clos.tst, eval20.tst, hashlong.tst,
-	iofkts.tst, lists152.tst, macro8.tst, map.tst, type.tst: Make many
+	* alltest.tst, array.tst, clos.tst, eval20.tst, hashlong.tst:
+	* iofkts.tst, lists152.tst, macro8.tst, map.tst, type.tst: Make many
 	tests independent of CLISP. Mark those which are dependent of CLISP
 	with #+CLISP.
 
@@ -1550,7 +1554,7 @@
 
 1997-06-19  Pierpaolo Bernardi	<bernardp@cli.di.unipi.it>
 
-	* testsuite: (characters.tst, macro8.tst): Added two simple tests
+	* testsuite (characters.tst, macro8.tst): Added two simple tests
 	  which fail on ACL.
 
 1997-10-18  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
