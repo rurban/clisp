@@ -1,150 +1,46 @@
-This is GNU CLISP, a Common Lisp implementation.
+This is GNU CLISP, an ANSI Common Lisp implementation.
 
 CLISP is mostly ANSI CL compliant, including a CLOS implementation.
 
 
-FTP resources
-=============
+Availability
+============
 
-CLISP is available via anonymous ftp from clisp.cons.org, directory
-/pub/lisp/clisp/.
+GNU CLISP is available via anonymous ftp (sources and selected binaries) from
+  <ftp://cvs2.cons.org/pub/lisp/clisp/>,
+  <ftp://ftp.gnu.org/pub/gnu/clisp/>
+and their mirrors.
+More information at
+  <http://clisp.cons.org/>,
+  <http://www.clisp.org/>,
+  <http://www.gnu.org/software/clisp/> and
+  <http://clisp.sourceforge.net/>.
 
-This directory is mirrored by the following FTP sites:
-  USA:
-     ftp.freesoftware.com [209.155.82.20]
-       /pub/lisp/clisp
-  Europe:
-     ftp.hrz.tu-darmstadt.de [130.83.47.112]
-       /pub/programming/languages/lisp/clisp
-
-Other ftp sites, carrying old versions of CLISP, are
-  USA:
-     gatekeeper.dec.com [16.1.0.2]
-       pub/plan/lisp/clisp/
-  New Zealand, Australia:
-     ftp.math.waikato.ac.nz [130.217.237.9]
-       /pub/clisp-mirror
-  USA:
-     ftp.cs.cmu.edu [128.2.206.173]
-       user/ai/lang/lisp/impl/clisp/
-
-
-WWW resources
-=============
-
-* About CLISP:
-
-  Homepage
-  http://clisp.cons.org/
-  [Sam Steingold]
-
-  Source
-  ftp://clisp.cons.org/pub/lisp/clisp/source/
-  [Bruno Haible]
-
-  Source and current development stuff
-  ftp://clisp.sourceforge.net/pub/clisp/
-  [Sam Steingold, Bruno Haible]
-
-  Current development snapshot (may or may not work!)
-  ftp://cellar.goems.com/pub/clisp/
-  [Sam Steingold]
-
-  Binaries for different Unix, DOS, OS/2, Win32, Amiga, Acorn platforms
-  ftp://clisp.cons.org/pub/lisp/clisp/binaries/
-  [Bruno Haible]
-
-  Binaries for i386-linux also at
-  ftp://sunsite.unc.edu/pub/Linux/devel/lang/lisp/
-
-  RedHat 5.2 RPMs (source and i386 binary) are at
-  ftp://cellar.goems.com/pub/clisp/
-  [Sam Steingold]
-
-  Survey about possible use of CLISP together with Emacs (see also
-  the file doc/editors.txt)
-  http://sayre.sysc.pdx.edu:8001/clisp_and_emacs/
-  [Marcus Daniels]
-
-  CLISP on Amiga
-  http://zeus.gmd.de/~hoehle/amiga-clisp.html
-  [Jörg Höhle]
-
-* Documentation about Common Lisp:
-
-  CLtL2 manual in HTML
-  ftp://ftp.cs.cmu.edu/user/ai/lang/lisp/doc/cltl/cltl_ht.tgz
-  http://www.cs.cmu.edu/afs/cs.cmu.edu/project/ai-repository/ai/html/cltl/cltl2.html
-  [Mark Kantrowitz]
-
-  ANSI CL in HTML
-  http://www.lisp.org/HyperSpec/FrontMatter/
-  [Kent Pitman at Harlequin Ltd.]
-
-* About Lisp in general:
-
-  http://linus.cast.uni-linz.ac.at/st/vision/software/lisp.html
-  [Wilhelm Burger]
-  http://zeus.gmd.de/~hoehle/links.html#Lisp
-  [Jörg Höhle]
-  http://www.elwood.com/alu/table/contents.htm
-  [Howard R. Stearns, howard@elwood.com]
-  http://dir.yahoo.com/Computers_and_Internet/Programming_Languages/Lisp/
-  [Yahoo]
-
-  The FAQ of the comp.lang.lisp newsgroup, posted regularly.
-  http://www.cis.ohio-state.edu/hypertext/faq/usenet/lisp-faq/top.html
-
-* About packages running in CLISP:
-
-  Various packages in
-  ftp://clisp.cons.org/pub/lisp/clisp/packages/
-  ftp://clisp.cons.org/pub/lisp/clisp/contrib/
-  [Bruno Haible]
-
-  Garnet 3.0
-  http://www.cs.cmu.edu/afs/cs.cmu.edu/project/garnet/www/garnet-home.html
-  [Brad A. Myers, Andrew Mickish and others]
-
-  Hybrid graphic expert system shell
-  http://wmwap1.math.uni-wuppertal.de/EMA-XPS/
-  [Hans Groschwitz]
-
-  Punimax, a rather antiquated computer algebra system
-  ftp://tsx-11.mit.edu/pub/linux/packages/lisp/
-  http://www.can.nl/SystemsOverview/General/PUNIMAX.html
-
-  New Millenium Space Flight Mission
-  (They chose Harlequin CL for the space flight, with CLISP as
-  second-to-best alternative.)
-  http://www-aig.jpl.nasa.gov/home/gat/home.html
-  [Erann Gat]
-
-  Yahoo! Store
-  http://store.yahoo.com
-  [Paul Graham <pg@yahoo-inc.com>]
-
+See file <resources.html> on these sites, e.g.
+  <http://clisp.cons.org/resources.html>,
+where you will find links to general Common Lisp information
+and documentation, as well as CLISP-specific links.
 
 Mailing lists
 =============
 
-There are three mailing lists for users of CLISP. You find subscription
-information and archives on the homepage http://clisp.cons.org/.
+There are three mailing lists for users of CLISP.  You will find
+subscription information and archives on the homepage mentioned above.
 
 
 -------------------------------------------------------------------------------
-
                         Common Lisp CLISP
 
 Common Lisp is
-  * a convential programming language and an AI language
+  * a general-purpose programming language and an AI language
   * interactive
   * a Lisp for professional use
 
 Common Lisp programs are
   * easy to test (interactive)
   * easy to maintain (depending on programming style)
-  * portable (there is a standard for the language and the library functions)
+  * portable across hardware/OS platforms and implementations
+    (there is a standard for the language and the library functions)
 
 Our Common Lisp CLISP
   * needs only 2 MB of memory
@@ -156,7 +52,7 @@ Common Lisp provides
   * clear syntax, carefully designed semantics
   * several data types: numbers, strings, arrays, lists, characters, symbols,
     structures, streams etc.
-  * runtime typing: the programmer needn't bother about type declarations,
+  * runtime typing: the programmer need not bother about type declarations,
     but he gets notified on type violations.
   * many generic functions:
     88 arithmetic functions for all kinds of numbers (integers, ratios,
@@ -173,7 +69,7 @@ Our Common Lisp CLISP provides
   * all data types with unlimited size (the size need never be declared,
     the size of lists and arrays may be changed dynamically)
   * integers of arbitrary length, unlimited floating point number precision
-  * 594 library functions, 542 of them written in C
+  * 800+ library functions and macros, 600+ of them written in C
 
 CLISP compares well with other ANSI CL implementations wrt performance
 in most areas, such as CLOS, I/O, lists, integer arithmetics (CLISP's
