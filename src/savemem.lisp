@@ -59,7 +59,6 @@
                (funcall *driver*)
              )
         ))
-    (savemem filename)
-  )
+    (savemem (merge-pathnames #p".mem" filename)))
   (room nil)
 )

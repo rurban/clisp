@@ -1,3 +1,7 @@
+2001-10-08  Sam Steingold  <sds@gnu.org>
+
+	* savemem.lisp (saveinitmem): default image type is .mem
+
 2001-10-05  Sam Steingold  <sds@gnu.org>
 
 	* io.d (pr_enter_1): set indent if not skipping a newline after a TAB
