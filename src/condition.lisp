@@ -1217,6 +1217,10 @@ abort continue muffle-warning store-value use-value
   (write-string (report-new-values-string) stream)
 )
 
+;; this is the same as `default-restart-interactive' but it must
+;; be kept a separate object for the benefit of `appease-cerrors'
+(defun assert-restart-no-prompts () nil)
+
 ;; ASSERT, CLtL2 p. 891
 (defmacro assert (test-form &optional (place-list nil) (datum nil) &rest args)
   (let ((tag1 (gensym))
@@ -1225,43 +1229,40 @@ abort continue muffle-warning store-value use-value
        ,tag1
        (WHEN ,test-form (GO ,tag2))
        (RESTART-CASE
-         (PROGN ; no need for explicit association, see applicable-restart-p
+           ;; no need for explicit association, see APPLICABLE-RESTART-P
            (ERROR ; of-type ??
-             ,@(if datum
-                 `(,datum ,@args) ; use coerce-to-condition??
-                 `("~A" (ASSERT-ERROR-STRING ',test-form))
-               )
-         ) )
-         ; only one restart: CONTINUE
+            ,@(if datum
+                `(,datum ,@args) ; use coerce-to-condition??
+                `("~A" (ASSERT-ERROR-STRING ',test-form))))
+         ;; only one restart: CONTINUE
          (CONTINUE
-           :REPORT ,(case (length place-list)
-                      (0 'REPORT-NO-NEW-VALUE)
-                      (1 'REPORT-NEW-VALUE)
-                      (t 'REPORT-NEW-VALUES)
-                    )
-           :INTERACTIVE
-             (LAMBDA ()
-               (APPEND
-                ,@(mapcar #'(lambda (place) `(PROMPT-FOR-NEW-VALUE ',place))
-                          place-list
-                  )
-             ) )
-           ,@(do ((pl place-list (cdr pl))
-                  (all-setter-vars '())
-                  (all-setter-forms '()))
-                 ((endp pl)
-                  (cons (nreverse all-setter-vars) (nreverse all-setter-forms)))
-               (multiple-value-bind (vr vl sv se ge)
-                   (get-setf-expansion (car pl))
-                 (declare (ignore ge))
-                 (setq all-setter-vars (revappend sv all-setter-vars))
-                 (push `(LET* ,(mapcar #'list vr vl) ,se) all-setter-forms)
-             ) )
-       ) )
+             :REPORT ,(case (length place-list)
+                            (0 'REPORT-NO-NEW-VALUE)
+                            (1 'REPORT-NEW-VALUE)
+                            (t 'REPORT-NEW-VALUES))
+             :INTERACTIVE
+               ,(let ((prompts (mapcar #'(lambda (place)
+                                           `(PROMPT-FOR-NEW-VALUE ',place))
+                                       place-list)))
+                     (if prompts
+                         (compile 'assert-restart-prompt
+                                  `(LAMBDA () (APPEND ,@prompts)))
+                         'assert-restart-no-prompts))
+               ,@(do ((pl place-list (cdr pl))
+                      (all-setter-vars '())
+                      (all-setter-forms '()))
+                     ((endp pl)
+                      (cons (nreverse all-setter-vars)
+                            (nreverse all-setter-forms)))
+                     (multiple-value-bind (vr vl sv se ge)
+                         (get-setf-expansion (car pl))
+                       (declare (ignore ge))
+                       (setq all-setter-vars
+                             (revappend sv all-setter-vars))
+                       (push `(LET* ,(mapcar #'list vr vl) ,se)
+                             all-setter-forms)))))
        (GO ,tag1)
-       ,tag2
-     )
-) )
+       ,tag2)))
 
 ;;; 29.4.3. Exhaustive Case Analysis
 
@@ -1530,12 +1531,42 @@ Todo:
 
 ;; Extensions. They assume *USE-CLCS* is T.
 
+(defun maybe-continue (condition report-p)
+  (let ((restart (find-restart 'CONTINUE condition)))
+    (when restart
+      (let ((res-int (restart-interactive restart)))
+        (case (and res-int (closure-name res-int))
+          ((assert-restart-no-prompts)
+           (if (interactive-stream-p *debug-io*)
+               (invoke-debugger condition)
+               (exitunconditionally condition)))
+          ((assert-restart-prompt) ; prompt for new values
+           (if (interactive-stream-p *query-io*)
+             (progn
+               (write-string "** - Continuable Error" *error-output*)
+               (terpri *error-output*)
+               (print-condition condition *error-output*)
+               (invoke-restart-interactively restart))
+             (exitunconditionally condition)))
+          (otherwise            ; general automatic error handling
+           (when report-p
+             (warn "~A" (with-output-to-string (stream)
+                          (print-condition condition stream)
+                          (let ((report-function (restart-report restart)))
+                            (when report-function
+                           (terpri stream)
+                           (funcall report-function stream))))))
+           (if (restart-interactive restart)
+             (invoke-restart-interactively restart)
+             (invoke-restart restart))))))))
+
+(defun muffle-cerror (condition) (maybe-continue condition nil))
 (defmacro muffle-cerrors (&body body)
   "(MUFFLE-CERRORS {form}*) executes the forms, but when a continuable
 error occurs, the CONTINUE restart is silently invoked."
-  `(HANDLER-BIND ((ERROR #'CONTINUE))
+  `(HANDLER-BIND ((ERROR #'MUFFLE-CERROR))
      ,@body))
-#| ; This works as well, but looks more like a hack.
+#|| ; This works as well, but looks more like a hack.
 (defmacro muffle-cerrors (&body body)
   (let ((old-debugger-hook (gensym)))
     `(LET* ((,old-debugger-hook *DEBUGGER-HOOK*)
@@ -1545,18 +1576,9 @@ error occurs, the CONTINUE restart is silently invoked."
                (WHEN ,old-debugger-hook
                  (FUNCALL ,old-debugger-hook CONDITION ,old-debugger-hook)))))
       (PROGN ,@body))))
-|#
+||#
 
-(defun appease-cerror (condition)
-  (let ((restart (find-restart 'CONTINUE condition)))
-    (when restart
-      (warn "~A" (with-output-to-string (stream)
-                   (print-condition condition stream)
-                   (let ((report-function (restart-report restart)))
-                     (when report-function
-                       (terpri stream)
-                       (funcall report-function stream)))))
-      (invoke-restart restart))))
+(defun appease-cerror (condition) (maybe-continue condition t))
 (defmacro appease-cerrors (&body body)
   "(APPEASE-CERRORS {form}*) executes the forms, but turns continuable errors
 into warnings. A continuable error is signalled again as a warning, then
