@@ -306,7 +306,28 @@ local bool all_digits_dots (const char* host) {
 }
 #endif
 
-/* for system call module */
+/* for syscalls and rawsock modules */
+global object string_to_addr (char* name) {
+  char buffer[MAXHOSTNAMELEN];
+  object ret;
+  begin_system_call();
+ #ifdef HAVE_INET_PTON
+  if (inet_pton(AF_INET,name,(void*)buffer) > 0)
+    ret = uint32_to_I(*(uint32*)buffer);
+  #ifdef HAVE_IPV6
+  else if (inet_pton(AF_INET6,name,buffer) > 0)
+    ret = uint64_to_I(*(uint64*)buffer);
+  #endif /* HAVE_IPV6 */
+ #else /* HAVE_INET_PTON */
+  if (all_digits_dots(name)) {
+    ret = uint32_to_I(inet_addr(name) INET_ADDR_SUFFIX);
+  }
+ #endif /* HAVE_INET_PTON */
+  else
+    ret = NIL;
+  end_system_call();
+  return ret;
+}
 local struct hostent* resolve_host1 (char* name) {
   struct hostent* he;
   char buffer[MAXHOSTNAMELEN];
