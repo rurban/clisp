@@ -951,7 +951,7 @@ LISPFUN(resolve_host_ipaddr_,1,0,norest,nokey,0,NIL)
   var char buffer[MAXHOSTNAMELEN];
 
   if (nullp(arg)) {
-   #ifdef _MSC_VER
+   #ifdef WIN32_NATIVE
     value1 = NIL;
    #else
     int count = 0;
