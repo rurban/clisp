@@ -411,7 +411,11 @@
                         (MAPCAR #'(LAMBDA (NEXT-METHOD)
                                     (IF (TYPEP NEXT-METHOD <METHOD>)
                                       NEXT-METHOD ; no need to quote, since self-evaluating
-                                      (LIST 'MAKE-INSTANCE-<STANDARD-METHOD> '<STANDARD-METHOD>
+                                      ;; During bootstrap, the only used method-class is <standard-method>.
+                                      ;; After bootstrap, make-instance-<standard-method> is the same
+                                      ;; as the general make-instance.
+                                      (LIST 'MAKE-INSTANCE-<STANDARD-METHOD>
+                                        '',(std-gf-default-method-class gf)
                                         ''FAST-FUNCTION
                                           (LET ((CONT (GENSYM)))
                                             (LIST 'FUNCTION
