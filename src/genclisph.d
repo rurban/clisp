@@ -1743,8 +1743,8 @@ int main()
   printf("extern void builtin_stream_close (const gcv_object_t* stream_);\n");
   printf("extern object file_stream_truename (object s);\n");
   printf("extern object open_file_stream_handle (object stream, Handle *fd);\n");
-  printf("extern int full_write (Handle fd, const void* buf, int nbyte);\n");
-  printf("extern int read_helper (Handle fd, void* buf, int nbyte, bool partial_p);\n");
+  printf("extern int write_helper (Handle fd, const void* buf, int nbyte, bool no_hang);\n");
+  printf("extern int read_helper (Handle fd, void* buf, int nbyte, bool no_hang);\n");
   printf("extern object addr_to_string (short type, char *addr);\n");
   printf("extern struct hostent* resolve_host (object arg);\n");
   printf("#define strm_buffered_bufflen %d\n",strm_buffered_bufflen);

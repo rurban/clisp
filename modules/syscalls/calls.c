@@ -749,7 +749,7 @@ static void copy_file_low (object source, object dest,
     while ((bytes_read = read_helper(fd_in,buffer,strm_buffered_bufflen,
                                      true))) {
       total_count += bytes_read;
-      full_write(fd_ou,buffer,bytes_read);
+      write_helper(fd_ou,buffer,bytes_read,false);
     }
   }
   if (!preserve_p) {
