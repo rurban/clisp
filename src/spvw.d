@@ -1538,8 +1538,9 @@ nonreturning_function (local, usage, (int exit_code)) {
   printf(GETTEXTL(" -N nlsdir     - NLS catalog directory" NLstring));
   printf(GETTEXTL(" -Edomain encoding - set encoding" NLstring));
   printf(GETTEXTL("Interoperability:" NLstring));
-  printf(GETTEXTL(" -q, --quiet, --silent - do not print the banner" NLstring));
-  printf(GETTEXTL("     additional -q sets *LOAD-VERBOSE* and *COMPILE-VERBOSE* to NIL" NLstring));
+  printf(GETTEXTL(" -q, --quiet, --silent, -v, --verbose - verbosity level:" NLstring
+                  "     affects banner, *LOAD-VERBOSE*/*COMPILE-VERBOSE*," NLstring
+                  "     and *LOAD-PRINT*/*COMPILE-PRINT*" NLstring));
   printf(GETTEXTL(" -w            - wait for keypress after program termination" NLstring));
   printf(GETTEXTL(" -I            - be ILISP-friendly" NLstring));
   printf(GETTEXTL("Startup actions:" NLstring));
@@ -1547,7 +1548,6 @@ nonreturning_function (local, usage, (int exit_code)) {
   printf(GETTEXTL(" -traditional  - traditional (undoes -ansi)" NLstring));
   printf(GETTEXTL(" -p package    - start in the package" NLstring));
   printf(GETTEXTL(" -C            - set *LOAD-COMPILING* to T" NLstring));
-  printf(GETTEXTL(" -v, --verbose - set *LOAD-PRINT* and *COMPILE-PRINT* to T" NLstring));
   printf(GETTEXTL(" -norc         - do not load the user ~/.clisprc file" NLstring));
   printf(GETTEXTL(" -i file       - load initfile (can be repeated)" NLstring));
   printf(GETTEXTL("Actions:" NLstring));
@@ -1660,7 +1660,7 @@ global const char* argv_encoding_file = NULL; # ... for *default-file-encoding*
 global const char* argv_encoding_pathname = NULL; # ... for *pathname-encoding*
 global const char* argv_encoding_terminal = NULL; # ... for *terminal-encoding*
 global const char* argv_encoding_foreign = NULL; # ... for *foreign-encoding*
-local int argv_quiet = 0; # if quiet-option is specified at start
+local int argv_verbose = 2;    /* verbosity level */
 local bool argv_wait_keypress = false;
 local bool argv_license = false;
 global int main (argc_t argc, char* argv[]) {
@@ -1736,7 +1736,6 @@ global int main (argc_t argc, char* argv[]) {
   var local bool argv_developer = false;
   var local char* argv_memfile = NULL;
   var local bool argv_load_compiling = false;
-  var local bool argv_verbose = false;
   var local uintL argv_init_filecount = 0;
   var local bool argv_compile = false;
   var local bool argv_compile_listing = false;
@@ -1758,46 +1757,47 @@ global int main (argc_t argc, char* argv[]) {
   var DYNAMIC_ARRAY(argv_compile_files_array,argv_compile_file_t,(uintL)argc); # maximal argc file-arguments
   argv_compile_files = argv_compile_files_array;
   if (!(setjmp(original_context) == 0)) goto end_of_main;
-  # process arguments argv[0..argc-1] :
-  #   -h              Help
-  #   -m size         Memory size (size = xxxxxxxB oder xxxxKB oder xMB)
-  #   -s size         Stack size (size = xxxxxxxB oder xxxxKB oder xMB)
-  #   -t directory    temporary directory
-  #   -B directory    set lisplibdir
-  #   -K linkingset   specify executable and mem file
-  #   -M file         load MEM-file
-  #   -L language     set the user language
-  #   -N directory    NLS catalog directory
-  #   -Edomain encoding  set encoding
-  #   -q              quiet: no splash-screen ...
-  #   -q -q           ... and set *LOAD-VERBOSE* and *COMPILE-VERBOSE* to NIL
-  #   -norc           do not load the user ~/.clisprc file
-  #   -I              ILISP-friendly
-  #   -C              set *LOAD-COMPILING* to T
-  #   -V --verbose    set *LOAD-PRINT* and *COMPILE-PRINT* to T
-  #   -i file ...     load LISP-file for initialization
-  #   -c file ...     compile LISP-files, then leave LISP
-  #   -l              At compilation: create listings
-  #   -p package      set *PACKAGE*
-  #   -ansi           more ANSI CL Compliance
-  #   -traditional    traditional (undoes -ansi)
-  #   -x expr         execute LISP-expressions, then leave LISP
-  #   -interactive-debug  override batch-mode for -c, -x and file
-  #   -repl           enter REPL after -c, -x and file
-  #   -w              wait for keypress after termination
-  #   --help          print usage and exit (should be the only option)
-  #   --version       print version and exit (should be the only option)
-  #   file [arg ...]  load LISP-file in batch-mode and execute,
-  #                   then leave LISP
-  # -d -- developer mode -- undocumented, unsupported &c
-  #    - unlock all packages.
+  /* process arguments argv[0..argc-1] :
+     -h              Help
+     -m size         Memory size (size = xxxxxxxB oder xxxxKB oder xMB)
+     -s size         Stack size (size = xxxxxxxB oder xxxxKB oder xMB)
+     -t directory    temporary directory
+     -B directory    set lisplibdir
+     -K linkingset   specify executable and mem file
+     -M file         load MEM-file
+     -L language     set the user language
+     -N directory    NLS catalog directory
+     -Edomain encoding  set encoding
+     -q/-v           verbosity level:
+        3:   banner, VERBOSE=T, PRINT=T
+      * 2:   banner, VERBOSE=T, PRINT=NIL  ======= default
+        1:   no banner, VERBOSE=T, PRINT=NIL
+        0:   no banner, VERBOSE=NIL, PRINT=NIL
+     -norc           do not load the user ~/.clisprc file
+     -I              ILISP-friendly
+     -C              set *LOAD-COMPILING* to T
+     -i file ...     load LISP-file for initialization
+     -c file ...     compile LISP-files, then leave LISP
+     -l              At compilation: create listings
+     -p package      set *PACKAGE*
+     -ansi           more ANSI CL Compliance
+     -traditional    traditional (undoes -ansi)
+     -x expr         execute LISP-expressions, then leave LISP
+     -interactive-debug  override batch-mode for -c, -x and file
+     -repl           enter REPL after -c, -x and file
+     -w              wait for keypress after termination
+     --help          print usage and exit (should be the only option)
+     --version       print version and exit (should be the only option)
+     file [arg ...]  load LISP-file in batch-mode and execute, then leave LISP
+   -d -- developer mode -- undocumented, unsupported &c
+      - unlock all packages.
 
-  # Newly added options have to be lised:
-  # - in the above table,
-  # - in the usage-message here,
-  # - in the options parser,
-  # - in the options parser in _clisp.c,
-  # - in the manual-pages _clisp.1 and _clisp.html.
+   Newly added options have to be lised:
+   - in the above table,
+   - in the usage-message here,
+   - in the options parser,
+   - in the options parser in _clisp.c,
+   - in the manual-pages _clisp.1 and _clisp.html. */
 
   program_name = argv[0]; # argv[0] is the program name
   {
@@ -1930,8 +1930,12 @@ global int main (argc_t argc, char* argv[]) {
             else
               usage(1);
             break;
-          case 'q': # no banner, *LOAD-VERBOSE* and *COMPILE-VERBOSE* = NIL
-            argv_quiet++;
+          case 'q':             /* verbosity level */
+            argv_verbose--;
+            if (arg[2] != '\0') usage (1);
+            break;
+          case 'v':             /* verbosity level */
+            argv_verbose++;
             if (arg[2] != '\0') usage (1);
             break;
           case 'I': # ILISP-friendly
@@ -1941,10 +1945,6 @@ global int main (argc_t argc, char* argv[]) {
           case 'C': # set *LOAD-COMPILING*
             argv_load_compiling = true;
             if (arg[2] != '\0') usage (1);
-            break;
-          case 'v': /* set *LOAD-PRINT* & *COMPILE-PRINT* */
-            argv_verbose = true;
-            if (!asciz_equal(&arg[1],"verbose") && arg[2] != '\0') usage (1);
             break;
           case 'r': /* -repl */
             if (asciz_equal(&arg[1],"repl"))
@@ -2012,7 +2012,7 @@ global int main (argc_t argc, char* argv[]) {
               usage (0);
             else if (asciz_equal(&arg[2],"version")) {
               argv_expr_count = 0;  /* discard previous -x */
-              argv_quiet = 1;
+              argv_verbose = 2;
               argv_norc = true;
               argv_repl = false;
               /* force processing this argument again,
@@ -2043,11 +2043,11 @@ global int main (argc_t argc, char* argv[]) {
               break;
             } else if (asciz_equal(&arg[2],"quiet")
                        || asciz_equal(&arg[2],"silent")) {
-              argv_quiet++; break;
+              argv_verbose--; break;
+            } else if (asciz_equal(&arg[2],"verbose")) {
+              argv_verbose++; break;
             } else if (asciz_equal(&arg[2],"license")) {
               argv_license = true; break;
-            } else if (asciz_equal(&arg[2],"verbose")) {
-              argv_verbose = true; break;
             } else
               usage (1); # unknown option
             break;
@@ -2722,11 +2722,11 @@ global int main (argc_t argc, char* argv[]) {
     skipSTACK(1);
   }
   /* print greeting: */
-  if (!nullpSv(quiet)) /* SYS::*QUIET* /= NIL ? */
-    { argv_quiet = 1; }          /* prevents the greeting */
+  if (!nullpSv(quiet))           /* SYS::*QUIET* /= NIL ? */
+    { argv_verbose = 1; }        /* prevents the greeting */
   if (argv_execute_file != NULL) /* batch-mode ? */
-    { argv_quiet = 1; }          /* prevents the greeting */
-  if (argv_quiet==0 || argv_license) print_banner();
+    { argv_verbose = 1; }        /* prevents the greeting */
+  if (argv_verbose<2 || argv_license) print_banner();
   if (argv_license) print_license();
   if (argv_execute_arg_count > 0) {
     var uintL count = argv_execute_arg_count;
@@ -2782,9 +2782,9 @@ global int main (argc_t argc, char* argv[]) {
   }
   if (argv_load_compiling) # (SETQ *LOAD-COMPILING* T) :
     { Symbol_value(S(load_compiling)) = T; }
-  if (argv_quiet > 1) /* (setq *load-verbose* nil *compile-verbose* nil) */
+  if (argv_verbose < 1) /* (setq *load-verbose* nil *compile-verbose* nil) */
     Symbol_value(S(load_verbose)) = Symbol_value(S(compile_verbose)) = NIL;
-  if (argv_verbose) /* (setq *load-print* t *compile-print* t) */
+  if (argv_verbose > 2) /* (setq *load-print* t *compile-print* t) */
     Symbol_value(S(load_print)) = Symbol_value(S(compile_print)) = T;
   if (argv_developer) { /* developer mode */
     /* unlock all packages */
@@ -3033,7 +3033,7 @@ nonreturning_function(global, quit, (void)) {
   if (quit_retry==0) {
     quit_retry++; # If this fails, do not retry it. For robustness.
     funcall(L(fresh_line),0); # (FRESH-LINE [*standard-output*])
-    if (argv_quiet == 0) {
+    if (argv_verbose >= 2) {
       pushSTACK(CLSTEXT("Bye.")); funcall(L(write_line),1);
     }
     pushSTACK(var_stream(S(error_output),strmflags_wr_ch_B)); # Stream *ERROR-OUTPUT*
