@@ -1,5 +1,10 @@
 2001-12-20  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (c-seqop): do not need to check whether the user
+	rebound NOT (this optimization does not depend on it)
+
+2001-12-20  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (unixconf.h): a separate target
 	(makemake): recreate only makemake, not the whole configuration
 
@@ -10,7 +15,7 @@
 
 2001-12-20  Sam Steingold  <sds@gnu.org>
 
-	Minor code tweaks and simplifications:
+	* compiler.lisp: Minor code tweaks and simplifications:
 	(analyze-lambdalist): new MACROLET macro PUSH-OPT
 	(closuredummy-add-stack-slot): new function
 	(c-LAMBDABODY, c-LET/LET*, c-MULTIPLE-VALUE-BIND, c-FLET)
