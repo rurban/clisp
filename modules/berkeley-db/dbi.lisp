@@ -101,12 +101,41 @@
        (UNWIND-PROTECT (PROGN ,@body-rest)
          (WHEN ,var (BDB:DB-CLOSE ,var))))))
 
-#| sample
+(ext:without-package-lock ("CL")
+(defmethod close ((dbe env) &key abort)
+  (declare (ignore abort))
+  (env-close dbe))
+(defmethod close ((db db) &key abort)
+  (declare (ignore abort))
+  (db-close db))
+(defmethod close ((cu cursor) &key abort)
+  (declare (ignore abort))
+  (cursor-close cu))
+)
+
+
+#+(or)
+(progn ;; sample
  (bdb:db-version)
  (setq dbe (bdb:env-create))
- (bdb:env-set-options dbe :data-dir "/etc/setup/")
- (bdb:env-open dbe)
-|#
+ (bdb:env-get-options dbe)
+ (bdb:env-set-options dbe :data_dir "d:/sds/work/eeld/Test BDBs/")
+ (bdb:env-open dbe) ; does not work!
+ (bdb:env-close dbe)
+
+ (setq db (bdb:db-create nil))
+ (bdb:db-open db "d:/sds/work/eeld/Test BDBs/35_teth_db/admin.db" :rdonly t)
+ (bdb:db-open db "d:/sds/work/eeld/Test BDBs/35_teth_db/index.db" :rdonly t)
+ (bdb:db-stat db)
+ (bdb:db-fd db)
+
+ (setq cu (bdb:make-cursor db))
+ (bdb:cursor-get cu nil nil :DB_NEXT)
+ (bdb:db-get db (ext:convert-string-to-bytes "foo" *misc-encoding*))
+
+ (bdb:db-close db)
+ (bdb:cursor-close cu)
+)
 
 ;;; restore locks
 (push "BDB" *system-package-list*)
