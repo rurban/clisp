@@ -85,7 +85,7 @@ case "$1" in
     # Generate new modules.o, compiled from modules.c, includes modules.h
     (cd "$dir" ; link "$absolute_linkkitdir"/modules.c modules.c ; verbose ${CC} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c ; rm -f modules.c)
     # Generate new lisp.run
-    (cd "$dir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} ${X_LIBS} -o lisp.run)
+    (cd "$dir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o lisp.run)
     vecho "$0: Leaving directory \`$dir'"
     # Done.
     trap '' 1 2 15
@@ -265,7 +265,7 @@ case "$1" in
     # Generate new modules.o, compiled from modules.c, includes new modules.h
     (cd "$destinationdir" ; link "$absolute_linkkitdir"/modules.c modules.c ; verbose ${CC} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c ; rm -f modules.c)
     # Generate new lisp.run
-    (cd "$destinationdir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} ${X_LIBS} -o lisp.run)
+    (cd "$destinationdir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o lisp.run)
     if [ -n "$TO_PRELOAD" ] ; then
       # Generate new preliminary lispinit.mem
       to_preload=''
@@ -412,7 +412,7 @@ case "$1" in
       # Generate new modules.o, compiled from modules.c, includes new modules.h
       (cd "$destinationdir" ; link "$absolute_linkkitdir"/modules.c modules.c ; verbose ${CC} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c ; rm -f modules.c)
       # Generate new lisp.run
-      (cd "$destinationdir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} ${X_LIBS} -o lisp.run)
+      (cd "$destinationdir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} -o lisp.run)
       if [ -n "$PRELOAD" ] ; then
         # Generate new preliminary lispinit.mem
         verbose "$sourcedir"/lisp.run -M "$sourcedir"/lispinit.mem -q -i ${PRELOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
