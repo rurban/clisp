@@ -1,6 +1,6 @@
 # Detection of circularities. Used by the printer and reader.
 
-# ------------------------------ Specification ---------------------------------
+# ------------------------------ Specification --------------------------------
 
 # get_circularities(obj,pr_array,pr_closure)
 # Returns a table of all circularities of an object.
@@ -16,7 +16,7 @@
 #           #(0 ...) a vector of length (n+1), containing the integer 0 and
 #                    the n circularities, n>0.
 # can trigger GC
-  global object get_circularities (object obj, bool pr_array, bool pr_closure);
+global object get_circularities (object obj, bool pr_array, bool pr_closure);
 
 # subst_circ(ptr,alist)
 # Resolves #n# references in the object *ptr, using the alist as a replacement
@@ -25,12 +25,12 @@
 # > alist : alist (read-label --> object to be substituted)
 # < *ptr : object with resolved references
 # < result : first invalid reference found, or nullobj if everything is OK
-  global object subst_circ (object* ptr, object alist);
+global object subst_circ (object* ptr, object alist);
 # Note: This substitution must respect circularities, so that it can be
 # applied to circular structures, such as values of #. (in particular
 # #.(FIND-CLASS 'FOO)).
 
-# ------------------------------ Implementation --------------------------------
+# ------------------------------ Implementation -------------------------------
 
 # Common subroutines.
 
@@ -383,15 +383,15 @@
     object* abbruch_STACK;
   } get_circ_global;
 
-# UP: markiert das Objekt obj, legt auftretende Zirkularitäten auf den STACK
-# und zählt sie in env->counter mit.
+# UP: marks the object obj, pushes occurring circularities on the STACK
+# and counts them in env->counter.
   local void get_circ_mark(obj,env)
     var object obj;
     var get_circ_global* env;
     {
      entry:
       #ifdef TYPECODES
-      switch (typecode(obj)) # je nach Typ
+      switch (typecode(obj)) # according to type
       #else
       if (orecordp(obj)) {
         goto case_orecord;
@@ -404,21 +404,21 @@
       #endif
       {
         case_cons:
-          if (mlb_add(&env->bitmap,obj)) goto m_schon_da; # markiert?
+          if (mlb_add(&env->bitmap,obj)) goto m_schon_da; # marked?
           {
-            var object obj_cdr = Cdr(obj); # Komponenten
+            var object obj_cdr = Cdr(obj); # components
             var object obj_car = Car(obj);
-            if (SP_overflow()) # SP-Tiefe überprüfen
-              longjmp(env->abbruch_context,true); # Abbruch
-            get_circ_mark(obj_car,env); # CAR markieren (rekursiv)
-            obj = obj_cdr; goto entry; # CDR markieren (tail-end-rekursiv)
+            if (SP_overflow()) # check SP-depth
+              longjmp(env->abbruch_context,true); # abort
+            get_circ_mark(obj_car,env); # mark CAR (recursive)
+            obj = obj_cdr; goto entry; # mark CDR (tail-end-recursive)
           }
         case_symbol:
-          if (mlb_add(&env->bitmap,obj)) # markiert?
-            if (eq(Symbol_package(obj),NIL)) # uninterniertes Symbol?
-              goto m_schon_da; # ja -> war schon da, merken
+          if (mlb_add(&env->bitmap,obj)) # marked?
+            if (eq(Symbol_package(obj),NIL)) # uninterned symbol?
+              goto m_schon_da; # yes -> was already there, memorize
             else
-              goto m_end; # nein -> war zwar schon da, aber unberücksichtigt lassen
+              goto m_end; # no -> was already there, but leave unconsidered
           goto m_end;
         case_bvector: # Bit-Vector
         case_b2vector: # 2Bit-Vector
@@ -435,46 +435,46 @@
         case_lfloat: # Long-Float
         case_ratio: # Ratio
         case_complex: # Complex
-          # Objekt ohne Komponenten, die ausgegeben werden:
-          if (mlb_add(&env->bitmap,obj)) goto m_schon_da; # markiert?
+          # Object without components, that are printed:
+          if (mlb_add(&env->bitmap,obj)) goto m_schon_da; # marked?
           goto m_end;
         case_svector: # Simple-Vector
-          if (mlb_add(&env->bitmap,obj)) goto m_schon_da; # markiert?
-          # bisher unmarkiert
-          if (env->pr_array) { # Komponenten weiterzuverfolgen?
+          if (mlb_add(&env->bitmap,obj)) goto m_schon_da; # marked?
+          # so far unmarked
+          if (env->pr_array) { # track components?
             var uintL count = Svector_length(obj);
             if (!(count==0)) {
-              # markiere count>0 Komponenten
+              # mark count>0 components
               var object* ptr = &TheSvector(obj)->data[0];
-              if (SP_overflow()) # SP-Tiefe überprüfen
-                longjmp(env->abbruch_context,true); # Abbruch
-              dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); # markiere Komponenten (rekursiv)
+              if (SP_overflow()) # check SP-depth
+                longjmp(env->abbruch_context,true); # abort
+              dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); # mark components (recursive)
             }
           }
           goto m_end;
         case_mdarray: case_ovector:
-          # Nicht-simpler Array mit Komponenten, die Objekte sind:
-          if (mlb_add(&env->bitmap,obj)) goto m_schon_da; # markiert?
-          # bisher unmarkiert
-          if (env->pr_array) { # Komponenten weiterzuverfolgen?
-            obj = TheIarray(obj)->data; goto entry; # Datenvektor (tail-end-rekursiv) markieren
+          # non-simple Array with components, that are objects:
+          if (mlb_add(&env->bitmap,obj)) goto m_schon_da; # marked?
+          # so far unmarked
+          if (env->pr_array) { # track components?
+            obj = TheIarray(obj)->data; goto entry; # mark data-vector (tail-end-recursive)
           } else
             goto m_end;
         case_closure: # Closure
-          if (mlb_add(&env->bitmap,obj)) goto m_schon_da; # markiert?
-          # bisher unmarkiert
-          if (env->pr_closure) # Komponenten weiterzuverfolgen?
-            goto m_record_components; # alle Komponenten werden ausgeben (s. unten)
-          else { # nur den Namen (tail-end-rekursiv) markieren
+          if (mlb_add(&env->bitmap,obj)) goto m_schon_da; # marked?
+          # so far unmarked
+          if (env->pr_closure) # track components?
+            goto m_record_components; # all components are printed (see below)
+          else { # only mark the name (tail-end-recursive)
             obj = TheClosure(obj)->clos_name; goto entry;
           }
         case_structure: # Structure
-          if (mlb_add(&env->bitmap,obj)) goto m_schon_da; # markiert?
-          # bisher unmarkiert
+          if (mlb_add(&env->bitmap,obj)) goto m_schon_da; # marked?
+          # so far unmarked
           goto m_record_components;
         case_stream: # Stream
-          if (mlb_add(&env->bitmap,obj)) goto m_schon_da; # markiert?
-          # bisher unmarkiert
+          if (mlb_add(&env->bitmap,obj)) goto m_schon_da; # marked?
+          # so far unmarked
           switch (TheStream(obj)->strmtype) {
             case strmtype_broad:
             case strmtype_concat:
@@ -482,11 +482,11 @@
             default:
               goto m_end;
           }
-        case_instance: # CLOS-Instanz
-          if (mlb_add(&env->bitmap,obj)) goto m_schon_da; # markiert?
-          # bisher unmarkiert
+        case_instance: # CLOS-instance
+          if (mlb_add(&env->bitmap,obj)) goto m_schon_da; # marked?
+          # so far unmarked
           goto m_record_components;
-        case_orecord: # sonstigen Record markieren:
+        case_orecord: # mark other record:
           switch (Record_type(obj)) {
             #ifndef TYPECODES
             case_Rectype_Symbol_above;
@@ -513,46 +513,46 @@
             case_Rectype_Instance_above;
             default: ;
           }
-          if (mlb_add(&env->bitmap,obj)) goto m_schon_da; # markiert?
-          # bisher unmarkiert
+          if (mlb_add(&env->bitmap,obj)) goto m_schon_da; # marked?
+          # so far unmarked
           switch (Record_type(obj)) {
             case Rectype_Hashtable:
-              # Hash-Table: je nach Array-Ausgabe-Flag
+              # Hash-Table: according to Array-Output-Flag
               if (env->pr_array) break; else goto m_end;
             case Rectype_Package:
-              # Packages werden nicht komponentenweise ausgegeben
+              # Packages are not printed component-wise
               goto m_end;
             case Rectype_Readtable:
-              # Readtables werden nicht komponentenweise ausgegeben
+              # Readtables are not printed component-wise
               goto m_end;
             default: break;
           }
           # Pathnames, Random-States, Bytes, Fsubrs, Loadtimeevals,
-          # Symbol-Macros und evtl. Hash-Tables werden evtl.
-          # komponentenweise ausgegeben.
-         m_record_components: # Komponenten eines Records markieren:
+          # Symbol-Macros and poss. Hash-Tables are poss.
+          # printed component-wise.
+         m_record_components: # mark components of a Record:
           {
             var uintC count = Record_length(obj);
             if (!(count==0)) {
-              # markiere count>0 Komponenten
+              # mark count>0 components
               var object* ptr = &TheRecord(obj)->recdata[0];
-              if (SP_overflow()) # SP-Tiefe überprüfen
-                longjmp(env->abbruch_context,true); # Abbruch
-              dotimespC(count,count, { get_circ_mark(*ptr++,env); } ); # markiere Komponenten (rekursiv)
+              if (SP_overflow()) # check SP-depth
+                longjmp(env->abbruch_context,true); # abort
+              dotimespC(count,count, { get_circ_mark(*ptr++,env); } ); # mark components (recursive)
             }
           }
           goto m_end;
          m_schon_da:
-          # Objekt wurde markiert, war aber schon markiert.
-          # Es ist eine Zirkularität.
-          if (STACK_overflow()) # STACK-Tiefe überprüfen
-            longjmp(env->abbruch_context,true); # Abbruch
-          # Objekt im STACK ablegen:
+          # object was marked, but has already been marked.
+          # It is a circularity.
+          if (STACK_overflow()) # check STACK-depth
+            longjmp(env->abbruch_context,true); # abort
+          # store object in STACK:
           pushSTACK(obj);
-          env->counter++; # und mitzählen
+          env->counter++; # and count
           goto m_end;
         #ifdef TYPECODES
-        case_machine: # Maschinenpointer
+        case_machine: # Machine Pointer
         case_char: # Character
         case_subr: # Subr
         case_system: # Frame-pointer, Read-label, system
@@ -563,9 +563,9 @@
         #endif
         #endif
         default:
-          # Objekt kann nicht markiert werden -> fertig
+          # object cannot be marked -> finished
           goto m_end;
-         m_end: ; # fertig
+         m_end: ; # finished
       }
     }
 
@@ -574,52 +574,52 @@
     var bool pr_array;
     var bool pr_closure;
     {
-      var get_circ_global my_global; # Zähler und Kontext (incl. STACK-Wert)
-                                     # für den Fall eines Abbruchs
-      set_break_sem_1(); # Break unmöglich machen
-      if (!setjmp(my_global.abbruch_context)) { # Kontext abspeichern
+      var get_circ_global my_global; # counter and context (incl. STACK-value)
+                                     # for the case of an abort
+      set_break_sem_1(); # make Break impossible
+      if (!setjmp(my_global.abbruch_context)) { # save context
         bcopy(my_global.abbruch_context,my_global.bitmap.oom_context,sizeof(jmp_buf));
-        mlb_alloc(&my_global.bitmap); # Bitmap allozieren
+        mlb_alloc(&my_global.bitmap); # allocate bitmap
         my_global.pr_array = pr_array;
         my_global.pr_closure = pr_closure;
-        my_global.counter = 0; # Zähler := 0
+        my_global.counter = 0; # counter := 0
         my_global.abbruch_STACK = STACK;
-        # Die Kontext-Konserve my_global ist jetzt fertig.
-        get_circ_mark(obj,&my_global); # Objekt markieren, mehrfache
-                                       # Strukturen auf dem STACK ablegen
-                                       # in my_global.counter zählen
-        mlb_free(&my_global.bitmap); # Bitmap freigeben
-        clr_break_sem_1(); # Break wieder möglich
-        var uintL n = my_global.counter; # Anzahl der Objekte auf dem STACK
+        # the context-backup my_global is now ready.
+        get_circ_mark(obj,&my_global); # mark object, push multiple
+                                       # structures on the STACK
+                                       # count in my_global.counter
+        mlb_free(&my_global.bitmap); # free Bitmap
+        clr_break_sem_1(); # allow Break again
+        var uintL n = my_global.counter; # number of objects on the STACK
         if (n==0) {
-          return NIL; # keine da -> NIL zurück und fertig
+          return NIL; # none there -> return NIL and finished
         } else {
-          var object vector = allocate_vector(n+1); # Vektor mit n+1 Elementen
-          # füllen:
+          var object vector = allocate_vector(n+1); # vector with n+1 elements
+          # fill:
           var object* ptr = &TheSvector(vector)->data[0];
-          *ptr++ = Fixnum_0; # erstes Element = Fixnum 0
-          # restliche Elemente eintragen (mindestens eins):
+          *ptr++ = Fixnum_0; # first element = Fixnum 0
+          # store remaining elements (at least one):
           dotimespL(n,n, { *ptr++ = popSTACK(); } );
-          return vector; # Vektor als Ergebnis
+          return vector; # vector as result
         }
       } else {
-        # nach Abbruch wegen SP- oder STACK-Überlauf
-        setSTACK(STACK = my_global.abbruch_STACK); # STACK wieder zurücksetzen
-        # Der Kontext ist jetzt wiederhergestellt.
-        mlb_free(&my_global.bitmap); # Bitmap freigeben
-        clr_break_sem_1(); # Break wieder möglich
-        return T; # T als Ergebnis
+        # after abort because of SP- or STACK-overflow
+        setSTACK(STACK = my_global.abbruch_STACK); # reset STACK again
+        # the context is now reestablished.
+        mlb_free(&my_global.bitmap); # free Bitmap
+        clr_break_sem_1(); # Break again possible
+        return T; # T as result
       }
     }
 
 #else # !MULTITHREAD
 
 # get_circularities(obj,pr_array,pr_closure)
-# Methode:
-# Markiere rekursiv das Objekt, lege dabei die Zirkularitäten auf den STACK,
-# demarkiere rekursiv das Objekt,
+# Method:
+# Mark the object recursively, push the circularities on the STACK,
+# unmark the object recursively,
 # allocate a vector for the circularities (can trigger GC!),
-# fülle die Zirkularitäten vom STACK in den Vektor um.
+# fill the circularities from the STACK into the vector.
   typedef struct {
     bool pr_array;
     bool pr_closure;
@@ -627,7 +627,7 @@
     jmp_buf abbruch_context;
     object* abbruch_STACK;
   } get_circ_global;
-  # Darauf muss man aus den zwei lokalen Routinen heraus zugreifen.
+  # It has to be accessed from within the two local routines.
   local void get_circ_mark (object obj, get_circ_global* env);
   local void get_circ_unmark (object obj, get_circ_global* env);
   global object get_circularities(obj,pr_array,pr_closure)
@@ -635,50 +635,50 @@
     var bool pr_array;
     var bool pr_closure;
     {
-      var get_circ_global my_global; # Zähler und Kontext (incl. STACK-Wert)
-                                     # für den Fall eines Abbruchs
-      set_break_sem_1(); # Break unmöglich machen
-      if (!setjmp(my_global.abbruch_context)) { # Kontext abspeichern
+      var get_circ_global my_global; # counter and context (incl. STACK-value)
+                                     # in case of an abort
+      set_break_sem_1(); # make Break impossible
+      if (!setjmp(my_global.abbruch_context)) { # save context
         my_global.pr_array = pr_array;
         my_global.pr_closure = pr_closure;
-        my_global.counter = 0; # Zähler := 0
+        my_global.counter = 0; # counter := 0
         my_global.abbruch_STACK = STACK;
-        # Die Kontext-Konserve my_global ist jetzt fertig.
-        get_circ_mark(obj,&my_global); # Objekt markieren, mehrfache
-                                       # Strukturen auf dem STACK ablegen
-                                       # in my_global.counter zählen
-        get_circ_unmark(obj,&my_global); # Markierungen wieder löschen
-        clr_break_sem_1(); # Break wieder möglich
-        var uintL n = my_global.counter; # Anzahl der Objekte auf dem STACK
+        # the context-backup my_global is now ready.
+        get_circ_mark(obj,&my_global); # mark object, push multiple
+                                       # structures on the STACK
+                                       # count in my_global.counter
+        get_circ_unmark(obj,&my_global); # delete marks again
+        clr_break_sem_1(); # make Break possible again
+        var uintL n = my_global.counter; # number of objects on the STACK
         if (n==0) {
-          return NIL; # keine da -> NIL zurück und fertig
+          return NIL; # none there -> return NIL and finished
         } else {
-          var object vector = allocate_vector(n+1); # Vektor mit n+1 Elementen
-          # füllen:
+          var object vector = allocate_vector(n+1); # vector with n+1 elements
+          # fill:
           var object* ptr = &TheSvector(vector)->data[0];
-          *ptr++ = Fixnum_0; # erstes Element = Fixnum 0
-          # restliche Elemente eintragen (mindestens eins):
+          *ptr++ = Fixnum_0; # first element = Fixnum 0
+          # store remaining elements (at least one):
           dotimespL(n,n, { *ptr++ = popSTACK(); } );
-          return vector; # Vektor als Ergebnis
+          return vector; # vector as result
         }
       } else {
-        # nach Abbruch wegen SP- oder STACK-Überlauf
-        setSTACK(STACK = my_global.abbruch_STACK); # STACK wieder zurücksetzen
-        # Der Kontext ist jetzt wiederhergestellt.
-        get_circ_unmark(obj,&my_global); # Markierungen wieder löschen
-        clr_break_sem_1(); # Break wieder möglich
-        return T; # T als Ergebnis
+        # after abort because of SP- or STACK-overflow
+        setSTACK(STACK = my_global.abbruch_STACK); # reset STACK again
+        # the context is now reestablished.
+        get_circ_unmark(obj,&my_global); # delete marks again
+        clr_break_sem_1(); # Break is possible again
+        return T; # T as result
       }
     }
-# UP: markiert das Objekt obj, legt auftretende Zirkularitäten auf den STACK
-# und zählt sie in env->counter mit.
+# UP: marks the object obj, pushes occurring circularities on the STACK
+# and counts them in env->counter.
   local void get_circ_mark(obj,env)
     var object obj;
     var get_circ_global* env;
     {
      entry:
       #ifdef TYPECODES
-      switch (typecode(obj)) # je nach Typ
+      switch (typecode(obj)) # according to type
       #else
       if (orecordp(obj)) {
         goto case_orecord;
@@ -691,25 +691,25 @@
       #endif
       {
         case_cons:
-          if (marked(TheCons(obj))) goto m_schon_da; # markiert?
+          if (marked(TheCons(obj))) goto m_schon_da; # marked?
           {
-            var object obj_cdr = Cdr(obj); # Komponenten (ohne Markierungsbit)
+            var object obj_cdr = Cdr(obj); # components (without mark bit)
             var object obj_car = Car(obj);
-            mark(TheCons(obj)); # markieren
-            if (SP_overflow()) # SP-Tiefe überprüfen
-              longjmp(env->abbruch_context,true); # Abbruch
-            get_circ_mark(obj_car,env); # CAR markieren (rekursiv)
-            obj = obj_cdr; goto entry; # CDR markieren (tail-end-rekursiv)
+            mark(TheCons(obj)); # mark
+            if (SP_overflow()) # check SP-depth
+              longjmp(env->abbruch_context,true); # abort
+            get_circ_mark(obj_car,env); # mark CAR (recursive)
+            obj = obj_cdr; goto entry; # mark CDR (tail-end-recursive)
           }
         case_symbol:
-          if (marked(TheSymbol(obj))) { # markiert?
-            if (eq(Symbol_package(obj),NIL)) # uninterniertes Symbol?
-              goto m_schon_da; # ja -> war schon da, merken
+          if (marked(TheSymbol(obj))) { # marked?
+            if (eq(Symbol_package(obj),NIL)) # uninterned symbol?
+              goto m_schon_da; # yes -> was already there, memorize
             else
-              goto m_end; # nein -> war zwar schon da, aber unberücksichtigt lassen
+              goto m_end; # no -> was already there, but leave unconsidered
           }
-          # bisher unmarkiertes Symbol
-          mark(TheSymbol(obj)); # markieren
+          # so far unmarked symbol
+          mark(TheSymbol(obj)); # mark
           goto m_end;
         case_bvector: # Bit-Vector
         case_b2vector: # 2Bit-Vector
@@ -726,54 +726,54 @@
         case_lfloat: # Long-Float
         case_ratio: # Ratio
         case_complex: # Complex
-          # Objekt ohne Komponenten, die ausgegeben werden:
-          if (marked(ThePointer(obj))) goto m_schon_da; # markiert?
-          # bisher unmarkiert
-          mark(ThePointer(obj)); # markieren
+          # object without components that are printed:
+          if (marked(ThePointer(obj))) goto m_schon_da; # marked?
+          # so far unmarked
+          mark(ThePointer(obj)); # marked
           goto m_end;
         case_svector: # Simple-Vector
-          if (marked(TheSvector(obj))) goto m_schon_da; # markiert?
-          # bisher unmarkiert
-          mark(TheSvector(obj)); # markieren
+          if (marked(TheSvector(obj))) goto m_schon_da; # marked?
+          # so far unmarked
+          mark(TheSvector(obj)); # mark
          m_svector:
-          if (env->pr_array) { # Komponenten weiterzuverfolgen?
+          if (env->pr_array) { # track components?
             var uintL count = Svector_length(obj);
             if (!(count==0)) {
-              # markiere count>0 Komponenten
+              # mark count>0 components
               var object* ptr = &TheSvector(obj)->data[0];
-              if (SP_overflow()) # SP-Tiefe überprüfen
-                longjmp(env->abbruch_context,true); # Abbruch
-              dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); # markiere Komponenten (rekursiv)
+              if (SP_overflow()) # check SP-depth
+                longjmp(env->abbruch_context,true); # abort
+              dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); # mark components (recursive)
             }
           }
           goto m_end;
         case_mdarray: case_ovector:
-          # Nicht-simpler Array mit Komponenten, die Objekte sind:
-          if (marked(TheIarray(obj))) goto m_schon_da; # markiert?
-          # bisher unmarkiert
-          mark(TheIarray(obj)); # markieren
+          # non-simple array with components that are objects:
+          if (marked(TheIarray(obj))) goto m_schon_da; # marked?
+          # so far unmarked
+          mark(TheIarray(obj)); # mark
          m_array:
-          if (env->pr_array) { # Komponenten weiterzuverfolgen?
-            obj = TheIarray(obj)->data; goto entry; # Datenvektor (tail-end-rekursiv) markieren
+          if (env->pr_array) { # track components?
+            obj = TheIarray(obj)->data; goto entry; # mark data vector (tail-end-recursive)
           } else
             goto m_end;
         case_closure: # Closure
-          if (marked(TheClosure(obj))) goto m_schon_da; # markiert?
-          # bisher unmarkiert
-          mark(TheClosure(obj)); # markieren
-          if (env->pr_closure) # Komponenten weiterzuverfolgen?
-            goto m_record_components; # alle Komponenten werden ausgeben (s. unten)
-          else { # nur den Namen (tail-end-rekursiv) markieren
+          if (marked(TheClosure(obj))) goto m_schon_da; # marked?
+          # so far unmarked
+          mark(TheClosure(obj)); # mark
+          if (env->pr_closure) # track components?
+            goto m_record_components; # all components are printed (see below)
+          else { # only mark the name (tail-end-recursive)
             obj = TheClosure(obj)->clos_name; goto entry;
           }
         case_structure: # Structure
-          if (marked(TheStructure(obj))) goto m_schon_da; # markiert?
-          # bisher unmarkiert
-          mark(TheStructure(obj)); # markieren
+          if (marked(TheStructure(obj))) goto m_schon_da; # marked?
+          # so far unmarked
+          mark(TheStructure(obj)); # mark
           goto m_record_components;
         case_stream: # Stream
-          if (marked(TheStream(obj))) goto m_schon_da; # markiert?
-          # bisher unmarkiert
+          if (marked(TheStream(obj))) goto m_schon_da; # marked?
+          # so far unmarked
           mark(TheStream(obj));
           switch (TheStream(obj)->strmtype) {
             case strmtype_broad:
@@ -782,12 +782,12 @@
             default:
               goto m_end;
           }
-        case_instance: # CLOS-Instanz
-          if (marked(TheInstance(obj))) goto m_schon_da; # markiert?
-          # bisher unmarkiert
-          mark(TheInstance(obj)); # markieren
+        case_instance: # CLOS-instance
+          if (marked(TheInstance(obj))) goto m_schon_da; # marked?
+          # so far unmarked
+          mark(TheInstance(obj)); # mark
           goto m_record_components;
-        case_orecord: # sonstigen Record markieren:
+        case_orecord: # mark other record:
           switch (Record_type(obj)) {
             #ifndef TYPECODES
             case_Rectype_Symbol_above;
@@ -814,47 +814,47 @@
             case_Rectype_Instance_above;
             default: ;
           }
-          if (marked(TheRecord(obj))) goto m_schon_da; # markiert?
-          # bisher unmarkiert
-          mark(TheRecord(obj)); # markieren
+          if (marked(TheRecord(obj))) goto m_schon_da; # marked?
+          # so far unmarked
+          mark(TheRecord(obj)); # mark
           switch (Record_type(obj)) {
             case Rectype_Hashtable:
-              # Hash-Table: je nach Array-Ausgabe-Flag
+              # Hash-Table: according to the Array-Print-Flag
               if (env->pr_array) break; else goto m_end;
             case Rectype_Package:
-              # Packages werden nicht komponentenweise ausgegeben
+              # Packages are not printed component-wise
               goto m_end;
             case Rectype_Readtable:
-              # Readtables werden nicht komponentenweise ausgegeben
+              # Readtables are not printed component-wise
               goto m_end;
             default: break;
           }
           # Pathnames, Random-States, Bytes, Fsubrs, Loadtimeevals,
-          # Symbol-Macros und evtl. Hash-Tables werden evtl.
-          # komponentenweise ausgegeben.
-         m_record_components: # Komponenten eines Records markieren:
+          # Symbol-Macros and poss. Hash-Tables are poss.
+          # printed component-wise.
+         m_record_components: # mark the components of a Record:
           {
             var uintC count = Record_length(obj);
             if (!(count==0)) {
-              # markiere count>0 Komponenten
+              # mark count>0 components
               var object* ptr = &TheRecord(obj)->recdata[0];
-              if (SP_overflow()) # SP-Tiefe überprüfen
-                longjmp(env->abbruch_context,true); # Abbruch
-              dotimespC(count,count, { get_circ_mark(*ptr++,env); } ); # markiere Komponenten (rekursiv)
+              if (SP_overflow()) # check SP-depth
+                longjmp(env->abbruch_context,true); # abort
+              dotimespC(count,count, { get_circ_mark(*ptr++,env); } ); # mark components (recursive)
             }
           }
           goto m_end;
          m_schon_da:
-          # Objekt wurde markiert, war aber schon markiert.
-          # Es ist eine Zirkularität.
-          if (STACK_overflow()) # STACK-Tiefe überprüfen
-            longjmp(env->abbruch_context,true); # Abbruch
-          # Objekt mit gelöschtem garcol_bit im STACK ablegen:
+          # Object has been marked, but was already marked.
+          # It is a circularity.
+          if (STACK_overflow()) # check STACK-depth
+            longjmp(env->abbruch_context,true); # abort
+          # store object with deleted garcol_bit in STACK:
           pushSTACK(without_mark_bit(obj));
-          env->counter++; # und mitzählen
+          env->counter++; # and count
           goto m_end;
         #ifdef TYPECODES
-        case_machine: # Maschinenpointer
+        case_machine: # Machine Pointer
         case_char: # Character
         case_subr: # Subr
         case_system: # Frame-pointer, Read-label, system
@@ -865,19 +865,19 @@
         #endif
         #endif
         default:
-          # Objekt kann nicht markiert werden -> fertig
+          # Object cannot be marked -> finished
           goto m_end;
-       m_end: ; # fertig
+       m_end: ; # finished
       }
     }
-# UP: Demarkiert Objekt obj.
+# UP: Unmarks object obj.
   local void get_circ_unmark(obj,env)
     var object obj;
     var get_circ_global* env;
     {
      entry:
       #ifdef TYPECODES
-      switch (typecode(obj) & ~bit(garcol_bit_t)) # je nach Typinfo ohne garcol_bit
+      switch (typecode(obj) & ~bit(garcol_bit_t)) # according to typeinfo without garcol_bit
       #else
       if (orecordp(obj)) {
         goto case_orecord;
@@ -890,10 +890,10 @@
       #endif
       {
         case_cons:
-          if (!marked(TheCons(obj))) goto u_end; # schon demarkiert?
-          unmark(TheCons(obj)); # demarkieren
-          get_circ_unmark(Car(obj),env); # CAR demarkieren (rekursiv)
-          obj = Cdr(obj); goto entry; # CDR demarkieren (tail-end-rekursiv)
+          if (!marked(TheCons(obj))) goto u_end; # already unmarked?
+          unmark(TheCons(obj)); # unmark
+          get_circ_unmark(Car(obj),env); # unmark CAR (recursive)
+          obj = Cdr(obj); goto entry; # unmark CDR (tail-end-recursive)
         case_bvector: # Bit-Vector
         case_b2vector: # 2Bit-Vector
         case_b4vector: # 4Bit-Vector
@@ -902,7 +902,7 @@
         case_b32vector: # 32Bit-Vector
         case_string: # String
         case_symbol:
-          # Symbol demarkieren. Wertzelle etc. für PRINT unwesentlich.
+          # unmark symbol. value cell etc. irrelevant for PRINT.
         case_bignum: # Bignum
         #ifndef WIDE
         case_ffloat: # Single-Float
@@ -911,47 +911,47 @@
         case_lfloat: # Long-Float
         case_ratio: # Ratio
         case_complex: # Complex
-          # Objekt demarkieren, das keine markierten Komponenten hat:
-          unmark(ThePointer(obj)); # demarkieren
+          # unmark object, that has no marked components:
+          unmark(ThePointer(obj)); # unmark
           goto u_end;
         case_svector:
-          # Simple-Vector demarkieren, seine Komponenten ebenfalls:
-          if (!marked(TheSvector(obj))) goto u_end; # schon demarkiert?
-          unmark(TheSvector(obj)); # demarkieren
+          # unmark Simple-Vector, including its components:
+          if (!marked(TheSvector(obj))) goto u_end; # already unmarked?
+          unmark(TheSvector(obj)); # unmark
          u_svector:
-          if (env->pr_array) { # wurden die Komponenten weiterverfolgt?
+          if (env->pr_array) { # were the components tracked?
             var uintL count = Svector_length(obj);
             if (!(count==0)) {
-              # demarkiere count>0 Komponenten
+              # unmark count>0 components
               var object* ptr = &TheSvector(obj)->data[0];
-              dotimespL(count,count, { get_circ_unmark(*ptr++,env); } ); # demarkiere Komponenten (rekursiv)
+              dotimespL(count,count, { get_circ_unmark(*ptr++,env); } ); # unmark components (recursive)
             }
           }
           goto u_end;
         case_mdarray: case_ovector:
-          # Nicht-simpler Array mit Komponenten, die Objekte sind:
-          if (!marked(TheIarray(obj))) goto u_end; # schon demarkiert?
-          unmark(TheIarray(obj)); # demarkieren
+          # non-simple Array with components that are objects:
+          if (!marked(TheIarray(obj))) goto u_end; # already unmarked?
+          unmark(TheIarray(obj)); # unmark
          u_array:
-          if (env->pr_array) { # wurden die Komponenten weiterverfolgt?
-            obj = TheIarray(obj)->data; goto entry; # Datenvektor (tail-end-rekursiv) demarkieren
+          if (env->pr_array) { # were the components tracked?
+            obj = TheIarray(obj)->data; goto entry; # unmark data vector (tail-end-recursive)
           } else
             goto u_end;
-        case_closure: # Closure demarkieren
-          if (!marked(TheClosure(obj))) goto u_end; # schon demarkiert?
-          unmark(TheClosure(obj)); # demarkieren
-          if (env->pr_closure) # wurden Komponenten weiterverfolgt?
-            goto u_record_components; # alle Komponenten werden ausgeben (s. unten)
-          else { # nur den Namen (tail-end-rekursiv) demarkieren
+        case_closure: # unmark Closure
+          if (!marked(TheClosure(obj))) goto u_end; # already unmarked?
+          unmark(TheClosure(obj)); # unmark
+          if (env->pr_closure) # were components tracked?
+            goto u_record_components; # all components are printed (see below)
+          else { # only unmark the name (tail-end-recursive)
             obj = TheClosure(obj)->clos_name; goto entry;
           }
-        case_structure: # Structure demarkieren:
-          if (!marked(TheStructure(obj))) goto u_end; # schon demarkiert?
-          unmark(TheStructure(obj)); # demarkieren
+        case_structure: # unmark structure:
+          if (!marked(TheStructure(obj))) goto u_end; # already unmarked?
+          unmark(TheStructure(obj)); # unmark
           goto u_record_components;
-        case_stream: # Stream demarkieren:
-          if (!marked(TheStream(obj))) goto u_end; # schon demarkiert?
-          unmark(TheStream(obj)); # demarkieren
+        case_stream: # unmark stream:
+          if (!marked(TheStream(obj))) goto u_end; # already unmarked?
+          unmark(TheStream(obj)); # unmark
           switch (TheStream(obj)->strmtype) {
             case strmtype_broad:
             case strmtype_concat:
@@ -959,11 +959,11 @@
             default:
               goto u_end;
           }
-        case_instance: # CLOS-Instanz demarkieren:
-          if (!marked(TheInstance(obj))) goto u_end; # schon demarkiert?
-          unmark(TheInstance(obj)); # demarkieren
+        case_instance: # unmark CLOS-instance:
+          if (!marked(TheInstance(obj))) goto u_end; # already unmarked?
+          unmark(TheInstance(obj)); # unmark
           goto u_record_components;
-        case_orecord: # sonstigen Record demarkieren:
+        case_orecord: # unmark other record:
           switch (Record_type(obj)) {
             #ifndef TYPECODES
             case_Rectype_bvector_above;
@@ -990,35 +990,35 @@
             case_Rectype_Instance_above;
             default: ;
           }
-          if (!marked(TheRecord(obj))) goto u_end; # schon demarkiert?
-          unmark(TheRecord(obj)); # demarkieren
+          if (!marked(TheRecord(obj))) goto u_end; # already unmarked?
+          unmark(TheRecord(obj)); # unmark
           switch (Record_type(obj)) {
             case Rectype_Hashtable:
-              # Hash-Table: je nach Array-Ausgabe-Flag
+              # Hash-Table: according to Array-Print-Flag
               if (env->pr_array) break; else goto u_end;
             case Rectype_Package:
-              # Packages werden nicht komponentenweise ausgegeben
+              # Packages are not printed component-wise
               goto u_end;
             case Rectype_Readtable:
-              # Readtables werden nicht komponentenweise ausgegeben
+              # Readtables are not printed component-wise
               goto u_end;
             default: break;
           }
           # Pathnames, Random-States, Bytes, Fsubrs, Loadtimeevals,
-          # Symbol-Macros und evtl. Hash-Tables werden evtl.
-          # komponentenweise ausgegeben.
-         u_record_components: # Komponenten eines Records demarkieren:
+          # Symbol-Macros and poss. Hash-Tables are poss.
+          # printed component-wise.
+         u_record_components: # unmark components of a record:
           {
             var uintC count = Record_length(obj);
             if (!(count==0)) {
-              # demarkiere count>0 Komponenten
+              # unmark count>0 components
               var object* ptr = &TheRecord(obj)->recdata[0];
-              dotimespC(count,count, { get_circ_unmark(*ptr++,env); } ); # demarkiere Komponenten (rekursiv)
+              dotimespC(count,count, { get_circ_unmark(*ptr++,env); } ); # unmark components (recursive)
             }
           }
           goto u_end;
         #ifdef TYPECODES
-        case_machine: # Maschinenpointer
+        case_machine: # Maschine Pointer
         case_char: # Character
         case_subr: # Subr
         case_system: # Frame-pointer, Read-label, system
@@ -1029,9 +1029,9 @@
         #endif
         #endif
         default:
-          # Objekt demarkieren, das gar keine Markierung haben kann:
+          # unmark object that cannot have a mark at all:
           goto u_end;
-       u_end: ; # fertig
+       u_end: ; # finished
       }
     }
 
@@ -1056,21 +1056,21 @@
     var subst_circ_global* env;
     {
       #if !(defined(NO_SP_CHECK) || defined(NOCOST_SP_CHECK))
-      if (SP_overflow()) { # SP-Tiefe überprüfen
-        env->bad = nullobj; longjmp(env->abbruch_context,true); # Abbruch
+      if (SP_overflow()) { # check SP-depth
+        env->bad = nullobj; longjmp(env->abbruch_context,true); # abort
       }
       #endif
      enter_subst:
       {
         var object obj = *ptr;
-        # Fallunterscheidung nach Typ:
-        # Objekte ohne Teilobjekte (Maschinenpointer, Bit-Vektoren,
-        # Strings, Characters, SUBRs, Integers, Floats) enthalten
-        # keine Referenzen. Ebenso Symbole und rationale Zahlen (bei ihnen
-        # können die Teilobjekte nicht in #n= - Syntax eingegeben worden
-        # sein) und komplexe Zahlen (für ihre Komponenten sind nur
-        # Integers, Floats, rationale Zahlen zugelassen, also Objekte,
-        # die ihrerseits keine Referenzen enthalten können).
+        # fall differentiation by type:
+        # Objects without sub-objects (maschine pointers, bit-vectors,
+        # strings, characters, subrs, integers, floats) contain no
+        # references. The same holds true for Symbols and rational numbers (their
+        # sub-objects could not have been entered in #n= - Syntax)
+        # and complex numbers (for their components only
+        # integers, floats, rational numbers are allowed, which means objects,
+        # that cannot contain references themselves).
         #ifdef TYPECODES
         switch (typecode(obj))
         #else
@@ -1094,8 +1094,8 @@
         #endif
         {
           case_svector: # Simple-Vector
-            if (mlb_add(&env->bitmap,obj)) return; # Objekt schon markiert?
-            # alle Elemente durchlaufen:
+            if (mlb_add(&env->bitmap,obj)) return; # Object already marked?
+            # traverse all elements:
             {
               var uintL len = Svector_length(obj);
               if (!(len==0)) {
@@ -1106,9 +1106,9 @@
             return;
           case_mdarray:
           case_ovector:
-            # nicht-simpler Array, kein String oder Bit-Vektor
-            if (mlb_add(&env->bitmap,obj)) return; # Objekt schon markiert?
-            # Datenvektor durchlaufen: endrekursiv subst_circ_mark(Datenvektor)
+            # non-simple array, no string or bit-vector
+            if (mlb_add(&env->bitmap,obj)) return; # object already marked?
+            # traverse data-vector: end-recursive subst_circ_mark(data-vector)
             ptr = &TheIarray(obj)->data; goto enter_subst;
           case_closure: _case_structure _case_stream case_orecord: case_instance: # Record
             #ifndef TYPECODES
@@ -1128,13 +1128,13 @@
               default: ;
             }
             #endif
-            if (mlb_add(&env->bitmap,obj)) return; # Objekt schon markiert?
-            # Beim Ersetzen von Read-Labels in Hash-Tables verliert deren
-            # Aufbau seinen Gültigkeit (denn die Hashfunktion der in ihr
-            # gespeicherten Objekte verändert sich).
-            if (Record_type(obj) == Rectype_Hashtable) # eine Hash-Table ?
-              mark_ht_invalid(TheHashtable(obj)); # ja -> für Reorganisation vormerken
-            # alle Elemente durchlaufen:
+            if (mlb_add(&env->bitmap,obj)) return; # object already marked?
+            # On replacement of Read-Labels in Hash-Tables their structure
+            # is invalidated (because the hash-function of the objects stored
+            # in it changes).
+            if (Record_type(obj) == Rectype_Hashtable) # a hash-table?
+              mark_ht_invalid(TheHashtable(obj)); # yes -> note for reorganization
+            # traverse all elements:
             {
               var uintC len = Record_length(obj);
               if (!(len==0)) {
@@ -1144,11 +1144,11 @@
             }
             return;
           #ifdef TYPECODES
-          case_system: # Frame-Pointer oder Read-Label oder System
+          case_system: # Frame-Pointer or Read-Label or System
             if (!(as_oint(obj) & wbit(0+oint_addr_shift))) {
               # Frame-Pointer
             } else
-              # Read-Label oder System
+              # Read-Label or System
               if (as_oint(obj) & wbit(oint_data_len-1+oint_addr_shift)) {
                 # System
               } else
@@ -1156,43 +1156,43 @@
               case_read_label:
                 # Read-Label
                 {
-                  # Read-Label obj in der Aliste suchen:
+                  # search Read-Label obj in the Alist:
                   var object alist = env->alist;
                   while (consp(alist)) {
                     var object acons = Car(alist);
                     if (eq(Car(acons),obj)) {
-                      # gefunden
-                      # *ptr = obj = (car acons) durch (cdr acons) ersetzen,
-                      # dabei aber das Markierungsbit unverändert lassen:
+                      # found
+                      # replace *ptr = obj = (car acons) with (cdr acons) ,
+                      # but leave the mark bit untouched:
                       *ptr = (marked(ptr) ? with_mark_bit(Cdr(acons)) : Cdr(acons));
                       return;
                     }
                     alist = Cdr(alist);
                   }
-                  # nicht gefunden -> Abbruch
+                  # not found -> abort
                   env->bad = obj;
                   longjmp(env->abbruch_context,true);
                 }
             return;
           case_cons: # Cons
-            if (mlb_add(&env->bitmap,obj)) return; # Objekt schon markiert?
-            # rekursiv: subst_circ_mark(&Car(obj))
+            if (mlb_add(&env->bitmap,obj)) return; # Object already marked?
+            # recursive: subst_circ_mark(&Car(obj))
             subst_circ_mark(&TheCons(obj)->car,env);
-            # endrekursiv: subst_circ_mark(&Cdr(obj))
+            # end-recursive: subst_circ_mark(&Cdr(obj))
             ptr = &TheCons(obj)->cdr; goto enter_subst;
-          case_machine: # Maschinenpointer
-          case_bvector: # Bit-Vektor
-          case_b2vector: # 2Bit-Vektor
-          case_b4vector: # 4Bit-Vektor
-          case_b8vector: # 8Bit-Vektor
-          case_b16vector: # 16Bit-Vektor
-          case_b32vector: # 32Bit-Vektor
+          case_machine: # Machine Pointer
+          case_bvector: # Bit-Vector
+          case_b2vector: # 2Bit-Vector
+          case_b4vector: # 4Bit-Vector
+          case_b8vector: # 8Bit-Vector
+          case_b16vector: # 16Bit-Vector
+          case_b32vector: # 32Bit-Vector
           case_string: # String
           case_char: # Character
           case_subr: # SUBR
           case_number: # Zahl
           case_symbol: # Symbol
-            # Objekt enthält keine Referenzen -> nichts zu tun
+            # Object contains no references -> do nothing
             return;
           default: NOTREACHED;
         }
@@ -1205,30 +1205,30 @@
     {
       var subst_circ_global my_global;
       my_global.alist = alist;
-      set_break_sem_1(); # Break unmöglich machen
+      set_break_sem_1(); # disable Break
       if (!setjmp(my_global.abbruch_context)) {
         bcopy(my_global.abbruch_context,my_global.bitmap.oom_context,sizeof(jmp_buf));
         mlb_alloc(&my_global.bitmap);
-        subst_circ_mark(ptr,&my_global); # markieren und substituieren
+        subst_circ_mark(ptr,&my_global); # mark and substitute
         mlb_free(&my_global.bitmap);
-        clr_break_sem_1(); # Break wieder möglich
+        clr_break_sem_1(); # allow Break again
         return nullobj;
       } else {
-        # Abbruch aus subst_circ_mark() heraus
+        # abort from within subst_circ_mark()
         mlb_free(&my_global.bitmap);
-        clr_break_sem_1(); # Break wieder möglich
+        clr_break_sem_1(); # allow Break again
         #if !(defined(NO_SP_CHECK) || defined(NOCOST_SP_CHECK))
         if (eq(my_global.bad,nullobj)) {
           SP_ueber();
         }
         #endif
-        return my_global.bad; # wegen fehlerhafter Referenz
+        return my_global.bad; # because of erroneous reference
       }
     }
 
 #else # !MULTITHREAD
 
-#if 0 # ohne Zirkularitätenberücksichtigung
+#if 0 # without consideration of circularities
 
   local void subst (object* ptr);
   local object subst_circ_alist;
@@ -1243,7 +1243,7 @@
       if (!setjmp(subst_circ_jmpbuf)) {
         end_setjmp_call(); subst(ptr); return nullobj;
       } else {
-        # Abbruch wegen fehlerhafter Referenz
+        # abort because of erroneous reference
         end_longjmp_call(); return subst_circ_bad;
       }
     }
@@ -1254,14 +1254,14 @@
      enter_subst:
       {
         var object obj = *ptr;
-        # Fallunterscheidung nach Typ:
-        # Objekte ohne Teilobjekte (Maschinenpointer, Bit-Vektoren,
-        # Strings, Characters, SUBRs, Integers, Floats) enthalten
-        # keine Referenzen. Ebenso Symbole und rationale Zahlen (bei ihnen
-        # können die Teilobjekte nicht in #n= - Syntax eingegeben worden
-        # sein) und komplexe Zahlen (für ihre Komponenten sind nur
-        # Integers, Floats, rationale Zahlen zugelassen, also Objekte,
-        # die ihrerseits keine Referenzen enthalten können).
+        # fall differentiation by type:
+        # Objects without sub-objects (maschine pointers, bit-vectors,
+        # strings, characters, subrs, integers, floats) contain no
+        # references. The same holds true for Symbols and rational numbers (their
+        # sub-objects could not have been entered in #n= - Syntax)
+        # and complex numbers (for their components only
+        # integers, floats, rational numbers are allowed, which means: objects,
+        # that cannot contain references themselves).
         #ifdef TYPECODES
         switch (mtypecode(*ptr))
         #else
@@ -1285,7 +1285,7 @@
         #endif
         {
           case_svector: # Simple-Vector
-            # alle Elemente durchlaufen:
+            # traverse all elements:
             {
               var uintL len = Svector_length(obj);
               if (!(len==0)) {
@@ -1296,8 +1296,8 @@
             break;
           case_mdarray:
           case_ovector:
-            # nicht-simpler Array, kein String oder Bit-Vektor
-            # Datenvektor durchlaufen: endrekursiv subst(Datenvektor)
+            # non-simple array, no string or bit-vector
+            # traverse data-vector: end-recursive subst(data-vector)
             ptr = &TheIarray(obj)->data; goto enter_subst;
           case_closure: _case_structure _case_stream case_orecord: case_instance: # Record
             #ifndef TYPECODES
@@ -1317,7 +1317,7 @@
               default: ;
             }
             #endif
-            # alle Elemente durchlaufen:
+            # traverse all elements:
             {
               var uintC len = Record_length(obj);
               if (!(len==0)) {
@@ -1327,11 +1327,11 @@
             }
             break;
           #ifdef TYPECODES
-          case_system: # Frame-Pointer oder Read-Label oder System
+          case_system: # Frame-Pointer or Read-Label or System
             if (!(as_oint(obj) & wbit(0+oint_addr_shift))) {
               # Frame-Pointer
             } else
-              # Read-Label oder System
+              # Read-Label or System
               if (as_oint(obj) & wbit(oint_data_len-1+oint_addr_shift)) {
                 # System
               } else
@@ -1339,53 +1339,53 @@
               case_read_label:
                 # Read-Label
                 {
-                  # Read-Label obj in der Aliste suchen:
+                  # search Read-Label obj in the Alist:
                   var object alist = subst_circ_alist;
                   while (consp(alist)) {
                     var object acons = Car(alist);
                     if (eq(Car(acons),obj)) {
-                      # gefunden
-                      # *ptr = obj = (car acons) durch (cdr acons) ersetzen:
+                      # found
+                      # replace *ptr = obj = (car acons) with (cdr acons) :
                       *ptr = Cdr(acons);
                       return;
                     }
                     alist = Cdr(alist);
                   }
-                  # nicht gefunden -> Abbruch
+                  # not found -> abort
                   subst_circ_bad = obj;
                   begin_longjmp_call();
                   longjmp(subst_circ_jmpbuf,true);
                 }
             break;
           case_cons: # Cons
-            # rekursiv: subst(&Car(obj))
+            # recursive: subst(&Car(obj))
             subst(&TheCons(obj)->car);
-            # endrekursiv: subst(&Cdr(obj))
+            # endrecursive: subst(&Cdr(obj))
             ptr = &TheCons(obj)->cdr; goto enter_subst;
-          case_machine: # Maschinenpointer
-          case_bvector: # Bit-Vektor
-          case_b2vector: # 2Bit-Vektor
-          case_b4vector: # 4Bit-Vektor
-          case_b8vector: # 8Bit-Vektor
-          case_b16vector: # 16Bit-Vektor
-          case_b32vector: # 32Bit-Vektor
+          case_machine: # Machine Pointer
+          case_bvector: # Bit-Vector
+          case_b2vector: # 2Bit-Vector
+          case_b4vector: # 4Bit-Vector
+          case_b8vector: # 8Bit-Vector
+          case_b16vector: # 16Bit-Vector
+          case_b32vector: # 32Bit-Vector
           case_string: # String
           case_char: # Character
           case_subr: # SUBR
           case_number: # Zahl
           case_symbol: # Symbol
-            # Objekt enthält keine Referenzen -> nichts zu tun
+            # Object contains no references -> do nothing
             break;
           default: NOTREACHED;
         }
       }
     }
 
-#else # mit Zirkularitätenberücksichtigung
+#else # with consideration of circularities
 
-# Methode:
-# Markiere rekursiv die Objekte, in denen die Substitution gerade durchgeführt
-# wird/wurde. Danach demarkiere rekursiv das Objekt.
+# Method:
+# Mark the objects recursively, in which the substitution has just been
+# performed. Then unmark the object recursively.
 
   local void subst_circ_mark (object* ptr);
   local void subst_circ_unmark (object* ptr);
@@ -1397,43 +1397,43 @@
     var object alist;
     {
       subst_circ_alist = alist;
-      set_break_sem_1(); # Break unmöglich machen
+      set_break_sem_1(); # disable Break
       if (!setjmp(subst_circ_jmpbuf)) {
-        subst_circ_mark(ptr); # markieren und substituieren
-        subst_circ_unmark(ptr); # Markierungen wieder löschen
-        clr_break_sem_1(); # Break wieder möglich
+        subst_circ_mark(ptr); # mark and substitute
+        subst_circ_unmark(ptr); # delete marks again
+        clr_break_sem_1(); # allow Break again
         return nullobj;
       } else {
-        # Abbruch aus subst_circ_mark() heraus
-        subst_circ_unmark(ptr); # erst alles demarkieren
-        clr_break_sem_1(); # Break wieder möglich
+        # abort from within subst_circ_mark()
+        subst_circ_unmark(ptr); # first unmark everything
+        clr_break_sem_1(); # allow Break again
         #if !(defined(NO_SP_CHECK) || defined(NOCOST_SP_CHECK))
         if (eq(subst_circ_bad,nullobj)) {
           SP_ueber();
         }
         #endif
-        return subst_circ_bad; # wegen fehlerhafter Referenz
+        return subst_circ_bad; # because of erroneous reference
       }
     }
   local void subst_circ_mark(ptr)
     var object* ptr;
     {
       #if !(defined(NO_SP_CHECK) || defined(NOCOST_SP_CHECK))
-      if (SP_overflow()) { # SP-Tiefe überprüfen
-        subst_circ_bad = nullobj; longjmp(subst_circ_jmpbuf,true); # Abbruch
+      if (SP_overflow()) { # check SP-depth
+        subst_circ_bad = nullobj; longjmp(subst_circ_jmpbuf,true); # abort
       }
       #endif
      enter_subst:
       {
         var object obj = without_mark_bit(*ptr);
-        # Fallunterscheidung nach Typ:
-        # Objekte ohne Teilobjekte (Maschinenpointer, Bit-Vektoren,
-        # Strings, Characters, SUBRs, Integers, Floats) enthalten
-        # keine Referenzen. Ebenso Symbole und rationale Zahlen (bei ihnen
-        # können die Teilobjekte nicht in #n= - Syntax eingegeben worden
-        # sein) und komplexe Zahlen (für ihre Komponenten sind nur
-        # Integers, Floats, rationale Zahlen zugelassen, also Objekte,
-        # die ihrerseits keine Referenzen enthalten können).
+        # fall differentiation by type:
+        # Objects without sub-objects (maschine pointers, bit-vectors,
+        # strings, characters, subrs, integers, floats) contain no
+        # references. The same holds true for Symbols and rational numbers (their
+        # sub-objects could not have been entered in #n= - Syntax)
+        # and complex numbers (for their components only
+        # integers, floats, rational numbers are allowed, which means: objects,
+        # that cannot contain references themselves).
         #ifdef TYPECODES
         switch (typecode(obj))
         #else
@@ -1457,9 +1457,9 @@
         #endif
         {
           case_svector: # Simple-Vector
-            if (marked(TheSvector(obj))) return; # Objekt schon markiert?
-            mark(TheSvector(obj)); # markieren
-            # alle Elemente durchlaufen:
+            if (marked(TheSvector(obj))) return; # object already marked?
+            mark(TheSvector(obj)); # mark
+            # traverse all elements:
             {
               var uintL len = Svector_length(obj);
               if (!(len==0)) {
@@ -1470,10 +1470,10 @@
             return;
           case_mdarray:
           case_ovector:
-            # nicht-simpler Array, kein String oder Bit-Vektor
-            if (marked(TheIarray(obj))) return; # Objekt schon markiert?
-            mark(TheIarray(obj)); # markieren
-            # Datenvektor durchlaufen: endrekursiv subst_circ_mark(Datenvektor)
+            # non-simple array, no string or bit-vector
+            if (marked(TheIarray(obj))) return; # object already marked?
+            mark(TheIarray(obj)); # mark
+            # traverse data-vector: end-recursive subst_circ_mark(data-vector)
             ptr = &TheIarray(obj)->data; goto enter_subst;
           case_closure: _case_structure _case_stream case_orecord: case_instance: # Record
             #ifndef TYPECODES
@@ -1493,14 +1493,14 @@
               default: ;
             }
             #endif
-            if (marked(TheRecord(obj))) return; # Objekt schon markiert?
-            mark(TheRecord(obj)); # markieren
-            # Beim Ersetzen von Read-Labels in Hash-Tables verliert deren
-            # Aufbau seinen Gültigkeit (denn die Hashfunktion der in ihr
-            # gespeicherten Objekte verändert sich).
-            if (Record_type(obj) == Rectype_Hashtable) # eine Hash-Table ?
-              mark_ht_invalid(TheHashtable(obj)); # ja -> für Reorganisation vormerken
-            # alle Elemente durchlaufen:
+            if (marked(TheRecord(obj))) return; # object already marked?
+            mark(TheRecord(obj)); # mark
+            # On replacement of Read-Labels in Hash-Tables their structure
+            # is invalidated (because the hash-function of the objects stored
+            # in it changes).
+            if (Record_type(obj) == Rectype_Hashtable) # a Hash-Table ?
+              mark_ht_invalid(TheHashtable(obj)); # yes -> note for reorganization
+            # traverse all elements:
             {
               var uintC len = Record_length(obj);
               if (!(len==0)) {
@@ -1510,11 +1510,11 @@
             }
             return;
           #ifdef TYPECODES
-          case_system: # Frame-Pointer oder Read-Label oder System
+          case_system: # Frame-Pointer or Read-Label or System
             if (!(as_oint(obj) & wbit(0+oint_addr_shift))) {
               # Frame-Pointer
             } else
-              # Read-Label oder System
+              # Read-Label or System
               if (as_oint(obj) & wbit(oint_data_len-1+oint_addr_shift)) {
                 # System
               } else
@@ -1522,44 +1522,44 @@
               case_read_label:
                 # Read-Label
                 {
-                  # Read-Label obj in der Aliste suchen:
+                  # search Read-Label obj in the Alist:
                   var object alist = subst_circ_alist;
                   while (consp(alist)) {
                     var object acons = Car(alist);
                     if (eq(Car(acons),obj)) {
-                      # gefunden
-                      # *ptr = obj = (car acons) durch (cdr acons) ersetzen,
-                      # dabei aber das Markierungsbit unverändert lassen:
+                      # found
+                      # replace *ptr = obj = (car acons) with (cdr acons) ,
+                      # but leave the mark bit untouched:
                       *ptr = (marked(ptr) ? with_mark_bit(Cdr(acons)) : Cdr(acons));
                       return;
                     }
                     alist = Cdr(alist);
                   }
-                  # nicht gefunden -> Abbruch
+                  # not found -> abort
                   subst_circ_bad = obj;
                   longjmp(subst_circ_jmpbuf,true);
                 }
             return;
           case_cons: # Cons
-            if (marked(TheCons(obj))) return; # Objekt schon markiert?
-            mark(TheCons(obj)); # markieren
-            # rekursiv: subst_circ_mark(&Car(obj))
+            if (marked(TheCons(obj))) return; # object already marked?
+            mark(TheCons(obj)); # mark
+            # recursive: subst_circ_mark(&Car(obj))
             subst_circ_mark(&TheCons(obj)->car);
-            # endrekursiv: subst_circ_mark(&Cdr(obj))
+            # end-recursive: subst_circ_mark(&Cdr(obj))
             ptr = &TheCons(obj)->cdr; goto enter_subst;
-          case_machine: # Maschinenpointer
-          case_bvector: # Bit-Vektor
-          case_b2vector: # 2Bit-Vektor
-          case_b4vector: # 4Bit-Vektor
-          case_b8vector: # 8Bit-Vektor
-          case_b16vector: # 16Bit-Vektor
-          case_b32vector: # 32Bit-Vektor
+          case_machine: # Machine Pointer
+          case_bvector: # Bit-Vector
+          case_b2vector: # 2Bit-Vector
+          case_b4vector: # 4Bit-Vector
+          case_b8vector: # 8Bit-Vector
+          case_b16vector: # 16Bit-Vector
+          case_b32vector: # 32Bit-Vector
           case_string: # String
           case_char: # Character
           case_subr: # SUBR
           case_number: # Zahl
           case_symbol: # Symbol
-            # Objekt enthält keine Referenzen -> nichts zu tun
+            # Object contains no references -> do nothing
             return;
           default: NOTREACHED;
         }
@@ -1571,7 +1571,7 @@
      enter_subst:
       {
         var object obj = *ptr;
-        # Fallunterscheidung nach Typ, wie oben:
+        # fall differentiation according to type, like above:
         #ifdef TYPECODES
         switch (typecode(obj))
         #else
@@ -1593,9 +1593,9 @@
         #endif
         {
           case_svector: # Simple-Vector
-            if (!marked(TheSvector(obj))) return; # schon demarkiert?
-            unmark(TheSvector(obj)); # demarkieren
-            # alle Elemente durchlaufen:
+            if (!marked(TheSvector(obj))) return; # already unmarked?
+            unmark(TheSvector(obj)); # unmark
+            # traverse all elements:
             {
               var uintL len = Svector_length(obj);
               if (!(len==0)) {
@@ -1606,10 +1606,10 @@
             return;
           case_mdarray:
           case_ovector:
-            # nicht-simpler Array, kein String oder Bit-Vektor
-            if (!marked(TheIarray(obj))) return; # schon demarkiert?
-            unmark(TheIarray(obj)); # demarkieren
-            # Datenvektor durchlaufen: endrekursiv subst_circ_unmark(Datenvektor)
+            # non-simple array, no string or bit-vector
+            if (!marked(TheIarray(obj))) return; # already unmarked?
+            unmark(TheIarray(obj)); # unmark
+            # traverse data-vector: end-recursive subst_circ_unmark(data-vector)
             ptr = &TheIarray(obj)->data; goto enter_subst;
           case_closure: _case_structure _case_stream case_orecord: case_instance: # Record
             #ifndef TYPECODES
@@ -1629,9 +1629,9 @@
               default: ;
             }
             #endif
-            if (!marked(TheRecord(obj))) return; # schon demarkiert?
-            unmark(TheRecord(obj)); # demarkieren
-            # alle Elemente durchlaufen:
+            if (!marked(TheRecord(obj))) return; # already unmarked?
+            unmark(TheRecord(obj)); # unmark
+            # traverse all elements:
             {
               var uintC len = Record_length(obj);
               if (!(len==0)) {
@@ -1641,26 +1641,26 @@
             }
             return;
           case_cons: # Cons
-            if (!marked(TheCons(obj))) return; # schon demarkiert?
-            unmark(TheCons(obj)); # demarkieren
-            # rekursiv: subst_circ_unmark(&Car(obj))
+            if (!marked(TheCons(obj))) return; # already unmarked?
+            unmark(TheCons(obj)); # unmark
+            # recursive: subst_circ_unmark(&Car(obj))
             subst_circ_unmark(&TheCons(obj)->car);
-            # endrekursiv: subst_circ_unmark(&Cdr(obj))
+            # end-recursive: subst_circ_unmark(&Cdr(obj))
             ptr = &TheCons(obj)->cdr; goto enter_subst;
-          case_system: # Frame-Pointer oder Read-Label oder System
-          case_machine: # Maschinenpointer
-          case_bvector: # Bit-Vektor
-          case_b2vector: # 2Bit-Vektor
-          case_b4vector: # 4Bit-Vektor
-          case_b8vector: # 8Bit-Vektor
-          case_b16vector: # 16Bit-Vektor
-          case_b32vector: # 32Bit-Vektor
+          case_system: # Frame-Pointer or Read-Label or System
+          case_machine: # Machine Pointer
+          case_bvector: # Bit-Vector
+          case_b2vector: # 2Bit-Vector
+          case_b4vector: # 4Bit-Vector
+          case_b8vector: # 8Bit-Vector
+          case_b16vector: # 16Bit-Vector
+          case_b32vector: # 32Bit-Vector
           case_string: # String
           case_char: # Character
           case_subr: # SUBR
           case_number: # Zahl
           case_symbol: # Symbol
-            # Objekt enthält keine Referenzen -> nichts zu tun
+            # Object contains no references -> do nothing
             return;
           default: NOTREACHED;
         }
