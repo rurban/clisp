@@ -1,5 +1,9 @@
 2004-10-22  Sam Steingold  <sds@gnu.org>
 
+	* utils/modprep.lisp (new-fundef): fixed the package name case check
+
+2004-10-22  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (MAKE-STREAM): really duplicate the handle, as per the spec
 	Reported by Pascal J.Bourguignon <pjb@informatimago.com>
 
