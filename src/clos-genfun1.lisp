@@ -18,7 +18,7 @@
 (defconstant *<funcallable-standard-class>-instance-size* 27)
 
 ;; For DEFCLASS macro expansions.
-(defconstant *<funcallable-standard-class>-valid-initialization-keywords*
+(defconstant *<funcallable-standard-class>-valid-initialization-keywords* ; ABI
              *<standard-class>-valid-initialization-keywords*)
 
 (defun make-instance-<funcallable-standard-class> (metaclass &rest args

@@ -668,6 +668,7 @@
 
 ;; The RESTART type, CLtL2 p. 916
 ;; Also defines RESTART-NAME, CLtL2 p. 911
+;; Also defines MAKE-RESTART, ABI
 (defstruct restart
   name             ; its name, or NIL if it is not named
   (test #'default-restart-test) ; function that tests whether this restart
@@ -719,15 +720,15 @@
          `(:INTERACTIVE ,interactive))))
 
 ;; The list of active restarts.
-(defvar *active-restarts* nil)
+(defvar *active-restarts* nil) ; ABI
 
 ;; A list of pairs of conditions and restarts associated with them. We have to
 ;; keep the associations separate because there can be a many-to-many mapping
 ;; between restarts and conditions, and this mapping has dynamic extent.
-(defvar *condition-restarts* nil)
+(defvar *condition-restarts* nil) ; ABI
 
 ; Add an association between a condition and a couple of restarts.
-(defun add-condition-restarts (condition restarts)
+(defun add-condition-restarts (condition restarts) ; ABI
   (dolist (restart restarts)
     (push (cons condition restart) *condition-restarts*)))
 
@@ -1111,7 +1112,7 @@
 
 ;; These macros supersede the corresponding ones from macros2.lisp.
 
-(defun prompt-for-new-value (place &optional instead-p)
+(defun prompt-for-new-value (place &optional instead-p) ; ABI
   (let ((nn (length (nth-value 2 (get-setf-expansion place)))))
     (cond ((= nn 1)
            (format *debug-io*
@@ -1158,7 +1159,7 @@
 
 ;; this is the same as `default-restart-interactive' but it must
 ;; be kept a separate object for the benefit of `appease-cerrors'
-(defun assert-restart-no-prompts () nil)
+(defun assert-restart-no-prompts () nil) ; ABI
 
 ;; ASSERT, CLtL2 p. 891
 (defmacro assert (test-form &optional (place-list nil) (datum nil) &rest args)
@@ -1569,7 +1570,7 @@ Todo:
              (invoke-restart-interactively restart)
              (invoke-restart restart))))))))
 
-(defun muffle-cerror (condition) (maybe-continue condition nil))
+(defun muffle-cerror (condition) (maybe-continue condition nil)) ; ABI
 (defmacro muffle-cerrors (&body body)
   "(MUFFLE-CERRORS {form}*) executes the forms, but when a continuable
 error occurs, the CONTINUE restart is silently invoked."
@@ -1587,7 +1588,7 @@ error occurs, the CONTINUE restart is silently invoked."
       (PROGN ,@body))))
 ||#
 
-(defun appease-cerror (condition) (maybe-continue condition t))
+(defun appease-cerror (condition) (maybe-continue condition t)) ; ABI
 (defmacro appease-cerrors (&body body)
   "(APPEASE-CERRORS {form}*) executes the forms, but turns continuable errors
 into warnings. A continuable error is signalled again as a warning, then
@@ -1595,12 +1596,12 @@ its CONTINUE restart is invoked."
   `(HANDLER-BIND ((ERROR #'APPEASE-CERROR))
      ,@body))
 
-(defun exitunconditionally (condition)
+(defun exitunconditionally (condition) ; ABI
   (terpri *error-output*)
   (write-string "*** - " *error-output*)
   (print-condition condition *error-output*)
   (exit t))                     ; exit Lisp with error
-(defun exitonerror (condition)
+(defun exitonerror (condition) ; ABI
   (unless (find-restart 'CONTINUE condition)
     (exitunconditionally condition)))
 (defmacro exit-on-error (&body body)

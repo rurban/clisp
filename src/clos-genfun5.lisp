@@ -10,7 +10,7 @@
 (setf (fdefinition 'make-instance-<standard-generic-function>) #'make-instance)
 
 ;; Make creation of generic-function instances customizable.
-(setf (fdefinition 'make-generic-function-instance) #'make-instance)
+(setf (fdefinition 'make-generic-function-instance) #'make-instance) ; ABI
 
 ;;; ===========================================================================
 

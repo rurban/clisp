@@ -21,7 +21,7 @@
 (defvar <funcallable-standard-object>) ; <funcallable-standard-class>
 (defvar <structure-object>)            ; <structure-class>
 (defvar <generic-function>)            ; <funcallable-standard-class>
-(defvar <standard-generic-function>)   ; <funcallable-standard-class>
+(defvar <standard-generic-function>)   ; <funcallable-standard-class> ; ABI
 ;(defvar <method>)                     ; <standard-class>
 ;(defvar <standard-method>)            ; <standard-class>
 (defvar <standard-reader-method>)      ; <standard-class>

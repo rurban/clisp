@@ -1745,7 +1745,7 @@
   class)
 
 ;; DEFSTRUCT-Hook
-(defun define-structure-class (name names keyword-constructor all-slots direct-slots)
+(defun define-structure-class (name names keyword-constructor all-slots direct-slots) ; ABI
   (setf (find-class name)
         (make-instance-<structure-class> <structure-class>
           :name name
@@ -1760,7 +1760,7 @@
                   (1+ (slot-definition-location (car (last all-slots))))
                   1)
           :generic-accessors nil)))
-(defun undefine-structure-class (name)
+(defun undefine-structure-class (name) ; ABI
   (setf (find-class name) nil))
 
 ;; ------------- Creation of an instance of <semi-standard-class> -------------

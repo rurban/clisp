@@ -77,7 +77,7 @@
         `(LET ((<DESTRUCTURING-FORM> ,form)) ,mainform)
 ) ) ) )
 
-(defun destructuring-error (destructuring-form min.max)
+(defun destructuring-error (destructuring-form min.max) ; ABI
   (let ((min (car min.max))
         (max (cdr min.max)))
     (error-of-type 'program-error
@@ -110,7 +110,7 @@
 
 ;; part of X3J13 vote <40>
 
-(defconstant *common-lisp-user-package* (find-package "COMMON-LISP-USER"))
+(defconstant *common-lisp-user-package* (find-package "COMMON-LISP-USER")) ; ABI
 
 (defmacro with-standard-io-syntax (&body body)
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
@@ -403,7 +403,7 @@
 ) )
 
 #-BASE-CHAR=CHARACTER
-(defun base-char-designator-p (obj)
+(defun base-char-designator-p (obj) ; ABI
   (base-char-p (char (coerce obj 'string) 0))
 )
 

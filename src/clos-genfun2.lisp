@@ -135,7 +135,7 @@
                                 &optional (method-combination (safe-gf-method-combination gf)))
   (funcall (method-combination-check-method-qualifiers method-combination)
            gf method-combination method))
-(defun invalid-method-qualifiers-error (gf method)
+(defun invalid-method-qualifiers-error (gf method) ; ABI
   (error-of-type 'program-error
     (TEXT "~S method combination, used by ~S, does not allow the method qualifiers ~:S: ~S")
     (method-combination-name (safe-gf-method-combination gf)) gf
@@ -551,7 +551,7 @@
   (let ((gf (%allocate-instance <standard-generic-function>)))
     (apply #'initialize-instance-<generic-function> gf args)))
 
-(defun make-generic-function-instance (class &rest args
+(defun make-generic-function-instance (class &rest args ; ABI
                                        &key &allow-other-keys)
   ;; During bootstrapping, only <standard-generic-function> instances are used.
   (apply #'make-instance-<standard-generic-function> class args))

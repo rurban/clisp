@@ -57,7 +57,7 @@
               (cons `(:ARGUMENTS ,object-var) options)))))
 
 ;; Another DEFSTRUCT hook.
-(defun defstruct-remove-print-object-method (name)
+(defun defstruct-remove-print-object-method (name) ; ABI
   (let ((method (find-method #'print-object nil
                              (list (find-class name) <t>) nil)))
     (when method (remove-method #'print-object method))))

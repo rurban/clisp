@@ -337,7 +337,7 @@
     (:STDC-STDCALL (+ ff-language-ansi-c ff-language-stdcall))))
 
 ;; the default foreign language
-(defvar *foreign-language* nil)
+(defvar *foreign-language* nil) ; ABI
 
 (defmacro default-foreign-language (lang)
   (language-to-flag lang)       ; error checking
@@ -750,7 +750,7 @@
 (defmacro C-LINES (format-string &rest args)
   `(EVAL-WHEN (COMPILE)
      (DO-C-LINES ,format-string ,@args)))
-(defun do-c-lines (format-string &rest args)
+(defun do-c-lines (format-string &rest args) ; ABI
   (when (compiler::prepare-coutput-file)
     (prepare-module)
     (apply #'format *coutput-stream* format-string args)))
@@ -813,7 +813,7 @@
          (FOREIGN-VALUE (LOAD-TIME-VALUE (GET ',name 'FOREIGN-VARIABLE))))
        ',name)))
 
-(defun note-c-var (c-name type flags)
+(defun note-c-var (c-name type flags) ; ABI
   (when (compiler::prepare-coutput-file)
     (prepare-module)
     (push (list c-name (parse-c-type type) flags) *variable-list*)))
@@ -857,6 +857,7 @@
       (PARSE-C-TYPE ,c-type)
       . ,(if init-p (list init)))))
 
+; ABI
 (defun exec-with-foreign-string (thunk string
                                  &key (encoding #+UNICODE custom:*foreign-encoding*
                                                 #-UNICODE custom:*default-file-encoding*)
@@ -920,7 +921,7 @@
                `(LOOKUP-FOREIGN-FUNCTION ',c-name ,parsed-function))))
        ',name)))
 
-(defun note-c-fun (c-name alist whole)
+(defun note-c-fun (c-name alist whole) ; ABI
   (when (compiler::prepare-coutput-file)
     (prepare-module)
     (push (list c-name (parse-c-function alist whole)
@@ -962,7 +963,7 @@
          (NOTE-C-CALL-IN ',name ',c-name ',alist ',whole-form))
        ',name)))
 
-(defun note-c-call-in (name c-name alist whole)
+(defun note-c-call-in (name c-name alist whole) ; ABI
   (when (compiler::prepare-coutput-file)
     (prepare-module)
     (let* ((fvd (parse-c-function alist whole))

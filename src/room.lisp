@@ -98,7 +98,7 @@
 ;;     - the data structures which form the ldifference between the two
 ;;       calls to (gc-statistics).
 
-(defun %space1 ()
+(defun %space1 () ; ABI
   (gc)
   (values
     (heap-statistics)
@@ -107,12 +107,12 @@
 
 ; %space1 returns two values, so var3 and var4 are initially bound to nil.
 
-(defun %space2 ()
+(defun %space2 () ; ABI
   (gc)
   (gc-statistics)
 )
 
-(defun %space (heap-stat-1 gc-stat-1 vallist gc-stat-2)
+(defun %space (heap-stat-1 gc-stat-1 vallist gc-stat-2) ; ABI
   (let ((heap-stat-2 (heap-statistics)))
     ;; Now we have all the statistics, and are free to do any kind
     ;; of allocations.
