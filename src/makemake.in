@@ -23,7 +23,8 @@ options:
        --fsstnd=std            installation according to FileSystem Standards:
                                suse - SuSE-Linux conventions
                                redhat - RedHat
-                               debian - Debian, Slackware.
+                               debian - Debian, Slackware
+                               netbsd - NetBSD
        --hyperspec=URL         the path to the Common Lisp HyperSpec
            (the default is ${HSDEFAULT}
             or the value of the environment variable CLHSROOT, if set).
@@ -151,7 +152,7 @@ hostname=`(hostname || uname -n) 2>/dev/null | sed 1q`
 srcdir=''
 prefix=''
 exec_prefix=''
-fsstnd=gnu_ext # supported styles: gnu, gnu_ext, suse, redhat, debian
+fsstnd=gnu_ext # supported styles: gnu, gnu_ext, suse, redhat, debian, netbsd
 MODULES=''
 CP='cp -p'
 LN_S='ln -s'
@@ -1587,6 +1588,10 @@ case "$fsstnd" in
     ;;
   debian)
     echol "docdir = \$(exec_prefix)${NEXT_}doc"
+    echol "lispdocdir = \$(docdir)${NEXT_}clisp"
+    ;;
+  netbsd)
+    echol "docdir = \$(exec_prefix)${NEXT_}share${NEXT_}doc"
     echol "lispdocdir = \$(docdir)${NEXT_}clisp"
     ;;
 esac
@@ -3072,10 +3077,19 @@ if [ $CROSS = false ] ; then
         echotab "if [ ! -d \$(install_root)\$(htmldir) ] ; then mkdir \$(install_root)\$(htmldir) ; fi"
         echotab "if [ ! -d \$(install_root)\$(dvidir) ] ; then mkdir \$(install_root)\$(dvidir) ; fi"
         ;;
+      netbsd)
+        echotab "if [ ! -d \$(install_root)\$(lispdocdir) ] ; then mkdir \$(install_root)\$(lispdocdir) ; fi"
+        ;;
     esac
     echotab "if [ ! -d \$(install_root)\$(docdir) ] ; then mkdir \$(install_root)\$(docdir) ; fi"
     echotab "if [ ! -d \$(install_root)\$(lispdocdir) ] ; then mkdir \$(install_root)\$(lispdocdir) ; fi"
-    echotab "if [ ! -d \$(install_root)\$(lispdocdir)/doc ] ; then mkdir \$(install_root)\$(lispdocdir)/doc ; fi"
+    case "$fsstnd" in
+      netbsd)
+        ;;
+      *)
+        echotab "if [ ! -d \$(install_root)\$(lispdocdir)/doc ] ; then mkdir \$(install_root)\$(lispdocdir)/doc ; fi"
+        ;;
+    esac
     echol
     echol "install-bin : lisp${LEXE} lispinit.mem clisp.c force"
     echotab "if [ ! -d \$(install_root)\$(prefix) ] ; then mkdir \$(install_root)\$(prefix) ; fi"
@@ -3136,6 +3150,13 @@ if [ $CROSS = false ] ; then
           echotab "\$(INSTALL_DATA) clreadline.dvi \$(install_root)\$(dvidir)/clreadline.dvi"
         fi
         ;;
+      netbsd)
+        echotab "if [ ! -d \$(install_root)\$(lispdocdir) ] ; then mkdir \$(install_root)\$(lispdocdir) ; fi"
+        echotab "\$(INSTALL_DATA) clisp.html \$(install_root)\$(lispdocdir)/clisp.html"
+        if [ $TERMINAL = readline ] ; then
+          echotab "\$(INSTALL_DATA) clreadline.html \$(install_root)\$(lispdocdir)/clreadline.html"
+        fi
+        ;;
     esac
     echol
     echol "install-doc : \$(READMES) \$(MANUALS)${manual_dvi} force"
@@ -3143,9 +3164,16 @@ if [ $CROSS = false ] ; then
     echotab "if [ ! -d \$(install_root)\$(exec_prefix) ] ; then mkdir \$(install_root)\$(exec_prefix) ; fi"
     echotab "if [ ! -d \$(install_root)\$(docdir) ] ; then mkdir \$(install_root)\$(docdir) ; fi"
     echotab "if [ ! -d \$(install_root)\$(lispdocdir) ] ; then mkdir \$(install_root)\$(lispdocdir) ; fi"
-    echotab "if [ ! -d \$(install_root)\$(lispdocdir)/doc ] ; then mkdir \$(install_root)\$(lispdocdir)/doc ; fi"
     echotab "\$(INSTALL_DATA) \$(READMES) \$(install_root)\$(lispdocdir)/"
-    echotab "\$(INSTALL_DATA) \$(MANUALS)${manual_dvi} \$(install_root)\$(lispdocdir)/doc/"
+    case "$fsstnd" in
+      netbsd)
+        echotab "\$(INSTALL_DATA) \$(MANUALS)${manual_dvi} \$(install_root)\$(lispdocdir)/"
+        ;;
+      *)
+        echotab "if [ ! -d \$(install_root)\$(lispdocdir)/doc ] ; then mkdir \$(install_root)\$(lispdocdir)/doc ; fi"
+        echotab "\$(INSTALL_DATA) \$(MANUALS)${manual_dvi} \$(install_root)\$(lispdocdir)/doc/"
+        ;;
+    esac
     echol
     echol
     echol "installcheck : ${TESTSDIR} force"
@@ -3181,9 +3209,22 @@ if [ $CROSS = false ] ; then
           echotab "\$(RM) \$(install_root)\$(dvidir)/clreadline.dvi"
         fi
         ;;
+      netbsd)
+        echotab "\$(RM) \$(install_root)\$(lispdocdir)/clisp.html"
+        if [ $TERMINAL = readline ] ; then
+          echotab "\$(RM) \$(install_root)\$(lispdocdir)/clreadline.html"
+        fi
+        ;;
     esac
     echotab "for f in \$(READMES); do \$(RM) \$(install_root)\$(lispdocdir)/\$\$f; done"
-    echotab "for f in \$(MANUALS)${manual_dvi}; do \$(RM) \$(install_root)\$(lispdocdir)/doc/\$\$f; done"
+    case "$fsstnd" in
+      netbsd)
+        echotab "for f in \$(MANUALS)${manual_dvi}; do \$(RM) \$(install_root)\$(lispdocdir)/\$\$f; done"
+        ;;
+      *)
+        echotab "for f in \$(MANUALS)${manual_dvi}; do \$(RM) \$(install_root)\$(lispdocdir)/doc/\$\$f; done"
+        ;;
+    esac
     echol
     echol
   fi
