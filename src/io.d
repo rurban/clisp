@@ -7906,7 +7906,7 @@ local void pr_array (const gcv_object_t* stream_, object obj) {
       var gcv_object_t* obj_ = &STACK_0; # and memorize, where it is
       # fetch data-vector:
       var uintL size = TheIarray(obj)->totalsize;
-      if ((size==0 && nullpSv(print_empty_arrays_ansi))
+      if ((size==0 && (!nullpSv(print_readably) || nullpSv(print_empty_arrays_ansi)))
           || locals.pr_one_elt==NULL)
         readable = true; # or else you would not even know the dimensions
       obj = iarray_displace_check(obj,size,&locals.info.index); # data-vector
