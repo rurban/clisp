@@ -2165,12 +2165,8 @@ nonreturning_function(local, fehler_undefined, (object caller, object funname)) 
           fehler_undefined(TheSubr(subr_self)->name,obj);
       } elif (consp(obj) && eq(Car(obj),S(lambda))) { # Cons (LAMBDA . ...) ?
         fehler_lambda_expression(obj);
-      } else {
-        pushSTACK(obj);
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,
-               GETTEXT("~: ~ is not a function"));
-      }
+      } else
+        fehler_function(obj);
     }
 
 #ifdef DEBUG_EVAL
