@@ -1872,7 +1872,6 @@
 
 (LOAD "clos")                   ; CLOS
 
-;; ftp://parcftp.xerox.com/pub/cl/cleanup/mail/stream-definition-by-user.mail
 (LOAD "gray")                   ; STREAM-DEFINITION-BY-USER:GENERIC-FUNCTIONS
 
 (LOAD "fill-out")               ; FILL-OUTPUT-STREAM (for condition & describe)

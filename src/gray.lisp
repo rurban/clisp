@@ -1,4 +1,5 @@
 ;;; Gray streams, following David N. Gray's STREAM-DEFINITION-BY-USER proposal
+;;; ftp://parcftp.xerox.com/pub/cl/cleanup/mail/stream-definition-by-user.mail
 
 (in-package "GRAY")
 (common-lisp:export
