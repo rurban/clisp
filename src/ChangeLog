@@ -1,5 +1,13 @@
 2003-08-05  Sam Steingold  <sds@gnu.org>
 
+	* foreign.d (convert_from_foreign): treat NULL as NIL
+	(convert_to_foreign): treat NIL as NULL
+	* foreign1.lisp (foreign-address-null): removed
+	* deprecated.lisp (deprecate): export from the home package
+	(foreign-address-null): deprecated
+
+2003-08-05  Sam Steingold  <sds@gnu.org>
+
 	* misc.d (MODULE-INFO): argument `O' returns a copy of
 	O(foreign_libraries)
 	(environ) [!HAVE_DECL_ENVIRON]: declare

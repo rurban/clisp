@@ -22,7 +22,7 @@
           c-function c-ptr c-ptr-null c-array-ptr
           def-c-enum def-c-struct element deref slot cast typeof
           sizeof bitsizeof c-var-object c-var-address offset
-          validp with-c-place foreign-address-null foreign-value
+          validp with-c-place foreign-value
           foreign-address foreign-address-unsigned unsigned-foreign-address
           with-foreign-object with-c-var with-foreign-string
           foreign-allocate allocate-deep allocate-shallow foreign-free
@@ -780,9 +780,6 @@
   (let ((fv (gensym (symbol-name var))))
     `(LET ((,fv ,fvar))
        (SYMBOL-MACROLET ((,var (FOREIGN-VALUE ,fv))) ,@body))))
-
-(defun foreign-address-null (fadr)
-  (zerop (foreign-address-unsigned fadr)))
 
 ;; ============================ Stack allocation ============================
 

@@ -1063,13 +1063,11 @@ global object convert_from_foreign (object fvd, const void* data)
       var const dfloatjanus* pdata = (const dfloatjanus*) data;
       return c_double_to_DF(pdata);
     } else if (eq(fvd,S(c_pointer))) {
-      return make_faddress(O(fp_zero),(uintP)(*(void* const *) data));
+      var const uintP address = (uintP)(*(void* const *) data);
+      return address==0 ? NIL : make_faddress(O(fp_zero),address);
     } else if (eq(fvd,S(c_string))) {
       var const char * asciz = *(const char * const *) data;
-      if (asciz == NULL)
-        return NIL;
-      else
-        return asciz_to_string(asciz,O(foreign_encoding));
+      return asciz==NULL ? NIL : asciz_to_string(asciz,O(foreign_encoding));
     }
   } else if (simple_vector_p(fvd)) {
     var uintL fvdlen = Svector_length(fvd);
@@ -1673,6 +1671,7 @@ local void convert_to_foreign (object fvd, object obj, void* data)
     if (eq(fvd,S(c_pointer))) {
       if (fvariablep(obj))
         obj = TheFvariable(obj)->fv_address;
+      else if (nullp(obj)) { *(void**)data = NULL; return; }
       else if (!faddressp(obj)) goto bad_obj;
       *(void**)data = Faddress_value(obj);
       return;
