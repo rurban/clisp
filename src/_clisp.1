@@ -330,6 +330,11 @@ You have to use the init file or init-function to set them on startup.
 Quiet:
 .B clisp
 displays no banner at startup and no good-bye message when quitting.
+Additional
+.B -q
+sets variables
+.I *load-verbose* " and " *compile-verbose* " to " nil "."
+Note that this setting persists into the read-eval-print loop.
 
 .TP
 .B \-interactive-debug
