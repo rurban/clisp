@@ -5,6 +5,7 @@
 <para>This interface to &sleepycat-berkeley-db; exports almost all
  functions in the official &c-lang; API.</para>
 
+
 <section id="bdb-objects"><title>Berkeley-DB Objects</title>
 
 <para>Thie module exports the following object types:
@@ -23,12 +24,14 @@
   <listitem><simpara>memory pool file handle</simpara></listitem></varlistentry>
 </variablelist></para></section>
 
+
 <section id="bdb-close"><title>Closing handles</title>
 
 <para>&close; will close (or commit, in the case of a transaction) the
  DB handle objects.  &gc;or will also call &close;.
  Closing an object will first close all its dependents.</para>
 </section>
+
 
 <section id="bdb-db-environment"><title>Database Environment</title>
 
@@ -66,6 +69,7 @@
  </simpara></listitem></varlistentry>
 </variablelist>
 </section>
+
 
 <section id="bdb-environment-config"><title>Environment Configuration</title>
 
@@ -201,14 +205,12 @@
 </variablelist></para></listitem></varlistentry>
 </variablelist></section>
 
+
 <section id="bdb-operations"><title>Database Operations</title>
 <!--
  DB->associate	Associate a secondary index
  DB->err	Error message with error string
  DB->errx	Error message
- DB->join	Perform a database join on cursors
- DB->key_range	Return estimate of key location
- DB->verify	Verify/salvage a database
  -->
 <variablelist>
 <varlistentry><term><literal role="sexp">(BDB:DB-CREATE dbe &key-amp;
@@ -282,7 +284,7 @@
 </simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:DB-JOIN db cursor-sequence
    &key-amp; JOIN_NOSORT)</literal></term>
- <listitem><simpara>create a specialized join cursor for use in
+ <listitem><simpara>Create a specialized join cursor for use in
    performing equality or natural joins on secondary indices (&DB_join;).
 </simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:DB-KEY-RANGE db key
@@ -309,28 +311,16 @@
 <section id="bdb-db-config"><title>Database Configuration</title>
 <!--
  DB->set_alloc	Set local space allocation functions
- DB->set_cache_priority	Set the database cache priority
- DB->set_cachesize	Set the database cache size
  DB->set_dup_compare	Set a duplicate comparison function
  DB->set_errcall	Set error message callback
  DB->set_errfile	Set error message FILE
  DB->set_errpfx	Set error message prefix
  DB->set_feedback	Set feedback callback
- DB->set_lorder	Set the database byte order
- DB->set_pagesize	Set the underlying database page size
  DB->set_paniccall	Set panic callback
  DB->set_append_recno	Set record append callback
  DB->set_bt_compare	Set a Btree comparison function
- DB->set_bt_minkey	Set the minimum number of keys per Btree page
  DB->set_bt_prefix	Set a Btree prefix comparison function
- DB->set_re_delim	Set the variable-length record delimiter
- DB->set_re_len	Set the fixed-length record length
- DB->set_re_pad	Set the fixed-length record pad byte
- DB->set_re_source	Set the backing Recno text file
- DB->set_h_ffactor	Set the Hash table density
  DB->set_h_hash	Set a hashing function
- DB->set_h_nelem	Set the Hash table size
- DB->set_q_extentsize	Set Queue database extent size
  -->
 <variablelist>
 <varlistentry><term><literal role="sexp">(BDB:DB-SET-OPTIONS db
@@ -436,16 +426,9 @@
 </listitem></varlistentry>
 </variablelist></section>
 
+
 <section id="bdb-cursor"><title>Database Cursor Operations</title>
-<!--
- DB->cursor	Create a cursor handle
- DBcursor->c_close	Close a cursor
- DBcursor->c_count	Return count of duplicates
- DBcursor->c_del	Delete by cursor
- DBcursor->c_dup	Duplicate a cursor
- DBcursor->c_get, DBcursor->c_pget	Retrieve by cursor
- DBcursor->c_put	Store by cursor
--->
+
 <variablelist>
 <varlistentry><term><literal role="sexp">(BDB:MAKE-DBC db &key-amp;
    DIRTY_READ WRITECURSOR TRANSACTION)</literal></term>
@@ -501,20 +484,7 @@
 
 
 <section id="bdb-lock"><title>Lock Subsystem</title>
-<!--
- DB_ENV->set_lk_conflicts	Set lock conflicts matrix
- DB_ENV->set_lk_detect	Set automatic deadlock detection
- DB_ENV->set_lk_max_lockers	Set maximum number of lockers
- DB_ENV->set_lk_max_locks	Set maximum number of locks
- DB_ENV->set_lk_max_objects	Set maximum number of lock objects
- DB_ENV->lock_detect	Perform deadlock detection
- DB_ENV->lock_get	Acquire a lock
- DB_ENV->lock_id	Acquire a locker ID
- DB_ENV->lock_id_free	Release a locker ID
- DB_ENV->lock_put	Release a lock
- DB_ENV->lock_stat	Return lock subsystem statistics
- DB_ENV->lock_vec	Acquire/release locks
- -->
+
 <variablelist>
 <varlistentry><term><literal role="sexp">(BDB:LOCK-DETECT dbe
    action)</literal></term>
@@ -554,17 +524,7 @@
 
 
 <section id="bdb-log"><title>Log Subsystem</title>
-<!--
- DB_ENV->set_lg_bsize	Set log buffer size
- DB_ENV->set_lg_dir	Set the environment logging directory
- DB_ENV->set_lg_max	Set log file size
- DB_ENV->set_lg_regionmax	Set logging region size
- DB_ENV->log_archive	List log and database files
- DB_ENV->log_file	Map Log Sequence Numbers to log files
- DB_ENV->log_flush	Flush log records
- DB_ENV->log_put	Write a log record
- DB_ENV->log_stat	Return log subsystem statistics
- -->
+
 <variablelist>
 <varlistentry><term><literal role="sexp">(BDB:LOG-ARCHIVE dbe
    &key-amp; :ARCH_ABS :ARCH_DATA :ARCH_LOG :ARCH_REMOVE)</literal></term>
@@ -589,11 +549,6 @@
 </variablelist>
 
 <section id="bdb-log-cursor"><title>Log Cursor Operations</title>
-<!--
- DB_ENV->log_cursor	Create a log cursor handle
- DB_LOGC->close	Close a log cursor
- DB_LOGC->get	Retrieve a log record
- -->
 <variablelist>
 <varlistentry><term><literal role="sexp">(BDB:LOG-CURSOR dbe)</literal></term>
  <listitem><simpara>Create a log cursor handle
@@ -625,18 +580,17 @@
 </para></listitem></varlistentry>
 </variablelist></section>
 
-
 <section id="bdb-log-seq"><title>Log Sequence Numbers</title>
-
 <para>Use &equalp; to check similarity of <type>BDB:LSN</type> objects.</para>
-
 <variablelist>
 <varlistentry><term><literal role="sexp">(BDB:LOG-COMPARE
    lsn1 lsn2)</literal></term>
  <listitem><simpara>Compare two Log Sequence Numbers (&db_log_compare;).
 </simpara></listitem></varlistentry>
 </variablelist></section>
+
 </section>
+
 
 <section id="bdb-mem-pool"><title>Memory Pool Subsystem</title>
 <!--
@@ -668,21 +622,8 @@ Memory Pool Files
 </section>
 
 
-
 <section id="bdb-transaction"><title>Transaction Subsystem</title>
-<!--
- DB_ENV->set_tx_max	Set maximum number of transactions
- DB_ENV->set_tx_timestamp	Set recovery timestamp
- DB_ENV->txn_checkpoint	Checkpoint the transaction subsystem
- DB_ENV->txn_recover	Distributed transaction recovery
- DB_ENV->txn_stat	Return transaction subsystem statistics
- DB_TXN->abort	Abort a transaction
- DB_TXN->commit	Commit a transaction
- DB_TXN->discard	Discard a prepared but not resolved transaction handle
- DB_TXN->id	Return a transaction's ID
- DB_TXN->prepare	Prepare a transaction for commit
- DB_TXN->set_timeout	Set transaction timeout
- -->
+
 <variablelist>
 <varlistentry><term><literal role="sexp">(BDB:TXN-BEGIN dbe &key-amp;
    PARENT DIRTY_READ NOSYNC NOWAIT SYNC)</literal></term>
@@ -734,7 +675,6 @@ Memory Pool Files
  DB_ENV->rep_start	Configure an environment for replication
  DB_ENV->rep_stat	Replication statistics
   -->
-
 <variablelist>
 <varlistentry><term><literal role="sexp">()</literal></term>
  <listitem><simpara></simpara></listitem></varlistentry>
