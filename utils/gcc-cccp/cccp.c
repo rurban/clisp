@@ -4197,10 +4197,22 @@ output_line_command (ip, op, conditional, file_change)
   }
 
 #ifdef OUTPUT_LINE_COMMANDS
-  sprintf (line_cmd_buf, "#line %d \"%s\"", ip->lineno, ip->fname);
+  sprintf (line_cmd_buf, "#line %d ", ip->lineno);
 #else
-  sprintf (line_cmd_buf, "# %d \"%s\"", ip->lineno, ip->fname);
+  sprintf (line_cmd_buf, "# %d ", ip->lineno);
 #endif
+  {
+    char *cp, *fcp;
+    cp = line_cmd_buf + strlen (line_cmd_buf);
+    *cp++ = '"';
+    for (fcp = ip->fname; *fcp != '\0'; fcp++) {
+      if (*fcp == '"' || *fcp == '\\')
+        *cp++ = '\\';
+      *cp++ = *fcp;
+    }
+    *cp++ = '"';
+    *cp = '\0';
+  }
 #ifdef OUTPUT_EXTENDED_LINE_COMMANDS
   /* gcc likes this, but msvc gives a warning about each of these. */
   if (file_change != same_file)
