@@ -420,6 +420,9 @@ MLF-TESTER
   (defmethod make-load-form ((obj test-class1) &optional environment)
     (declare (ignore environment))
     `(make-instance 'test-class1 :foo ',(foo obj)))
+  (defmethod make-load-form ((obj test-class2) &optional environment)
+    (declare (ignore environment))
+    `(make-instance 'test-class2 :foo ',(foo obj)))
   (defparameter *t-list*
     (list (make-instance 'test-class1 :foo 100)
           (make-instance 'test-class2 :foo 200)))
