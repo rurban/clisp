@@ -1,3 +1,13 @@
+2002-04-24  Hoehle, Joerg-Cyril  <Joerg-Cyril.Hoehle@t-systems.com>
+	    Sam Steingold  <sds@gnu.org>
+
+	patch [ 548089 ]: FOREIGN-FUNCTION+VARIABLE for everybody
+	this allows CLISP FFI self-test (and dozens of hacks)
+	* foreign.d (ffi_identity): new function
+	(ffi_user_pointer): new variable
+	(init_ffi): register them
+	* foreign.lisp (ffi_identity, ffi_user_pointer) [commented]: define
+
 2002-04-23  Hoehle, Joerg-Cyril  <Joerg-Cyril.Hoehle@t-systems.com>
 	    Sam Steingold  <sds@gnu.org>
 

@@ -3636,35 +3636,42 @@ LISPFUNN(foreign_library_function,4)
 
 #endif
 
+# Allow everybody the creation of a FOREIGN-VARIABLE and FOREIGN-FUNCTION
+# object, even without any module.
+# This allows, among others, a self-test of the FFI (see testsuite).
+local uintL ffi_identity(uintL arg) { return arg; }
+global void* ffi_user_pointer = NULL;
+
 # Initialize the FFI.
-  global void init_ffi (void);
-  global void init_ffi()
-    {
-      # Allocate a fresh zero foreign pointer:
-      O(fp_zero) = allocate_fpointer((void*)0);
-    }
+global void init_ffi (void) {
+  # Allocate a fresh zero foreign pointer:
+  O(fp_zero) = allocate_fpointer((void*)0);
+  ffi_user_pointer = NULL;
+  register_foreign_variable(&ffi_user_pointer,"ffi_user_pointer",
+                            0,sizeof(ffi_user_pointer));
+  register_foreign_function(&ffi_identity,"ffi_identity",ff_lang_ansi_c);
+}
 
 # De-Initialize the FFI.
-  global void exit_ffi (void);
-  global void exit_ffi()
-    {
-      #ifdef AMIGAOS
-      # Close all foreign libraries.
-        var object alist = O(foreign_libraries);
-        while (consp(alist)) {
-          var object acons = Car(alist);
-          var object obj = Cdr(acons);
-          if (fp_validp(TheFpointer(obj))) {
-            var struct Library * libaddr = (struct Library *)(TheFpointer(obj)->fp_pointer);
-            begin_system_call();
-            CloseLibrary(libaddr);
-            end_system_call();
-          }
-          alist = Cdr(alist);
-        }
-        O(foreign_libraries) = NIL;
-      #endif
+global void exit_ffi (void) {
+ #ifdef AMIGAOS
+  # Close all foreign libraries.
+  var object alist = O(foreign_libraries);
+  while (consp(alist)) {
+    var object acons = Car(alist);
+    var object obj = Cdr(acons);
+    if (fp_validp(TheFpointer(obj))) {
+      var struct Library * libaddr =
+        (struct Library *)(TheFpointer(obj)->fp_pointer);
+      begin_system_call();
+      CloseLibrary(libaddr);
+      end_system_call();
     }
+    alist = Cdr(alist);
+  }
+  O(foreign_libraries) = NIL;
+ #endif
+}
 
 #endif
 
