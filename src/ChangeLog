@@ -1,7 +1,6 @@
 2003-05-13  Jörg Höhle  <hoehle@users.sourceforge.net>
 
-	* ffi.tst: raised test coverage from 53 to 75% of foreign.d
-	* foreign.d (FFI::FOREIGN-SIZE): remove
+	* foreign.d (FFI::FOREIGN-SIZE): remove unreferenced function
 
 2003-05-12  Sam Steingold  <sds@gnu.org>
 
@@ -333,7 +332,6 @@
 
 2003-04-29  Jörg Höhle  <hoehle@users.sourceforge.net>
 
-	* ffi.tst: Augmented FFI testsuite
 	* foreign1.lisp: added FFI:WITH-C-PLACE, FFI:C-VAR-OBJECT
 
 2003-04-28  Jörg Höhle  <hoehle@users.sourceforge.net>

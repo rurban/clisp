@@ -1,3 +1,11 @@
+2003-05-13  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* ffi.tst: raised test coverage from 53 to 75% of foreign.d
+
+2003-04-29  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* ffi.tst: Augmented FFI testsuite
+
 2003-04-18  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (with-ignored-errors) [CLISP]: bind *PRINT-READABLY*
