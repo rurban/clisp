@@ -1,7 +1,8 @@
 2000-03-08  Martin Atzmueller  <marty@cs.utexas.edu>
 
-	* posix.lsp (resolve-host-ipaddr): fixed a "typo":
-	use :addr-type instead of :addrtype
+	* posix.lsp (resolve-host-ipaddr):
+	use :addrtype everywhere
+	(hostent): define struct-slot "addrtype" instead of "addr-type"
 
 2000-03-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
