@@ -398,13 +398,13 @@ FEXPAND-1
     (bar 10)))
 22
 
-(progn
+(let ((f (gensym "FUNC-")) (a (gensym "A-")) (b (gensym "B-")))
   (eval
-   '(defun func124 ()
-     (let ((a 1) (b 2))
-       (symbol-macrolet ((a 5))
-         (symbol-macrolet ((b a)) b)))))
-  (func124))
+   `(defun ,f ()
+      (let ((,a 1) (,b 2))
+        (symbol-macrolet ((,a 5))
+          (symbol-macrolet ((,b ,a)) ,b)))))
+  (funcall f))
 5
 
 ;; <https://sourceforge.net/tracker/index.php?func=detail&aid=678194&group_id=1355&atid=101355>
