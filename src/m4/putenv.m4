@@ -10,8 +10,18 @@ dnl From Bruno Haible, Marcus Daniels.
 AC_PREREQ(2.13)
 
 AC_DEFUN([CL_PUTENV],
-[AC_CHECK_FUNCS(putenv)dnl
+[dnl Not AC_CHECK_FUNCS(putenv) because it doesn't work when CC=g++.
+AC_CACHE_CHECK([for putenv], ac_cv_func_putenv, [
+AC_TRY_LINK(AC_LANG_EXTERN[
+#ifdef __cplusplus
+int putenv(char*);
+#else
+int putenv();
+#endif
+], [putenv("");],
+ac_cv_func_putenv=yes, ac_cv_func_putenv=no)])
 if test $ac_cv_func_putenv = yes; then
+AC_DEFINE(HAVE_PUTENV, 1, [Define if you have the putenv() function.])
 CL_PROTO([putenv], [
 CL_PROTO_CONST([
 #include <stdlib.h>

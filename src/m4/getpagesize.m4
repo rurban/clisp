@@ -26,7 +26,8 @@ CL_PROTO_RET([
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-], [int getpagesize();], cl_cv_proto_getpagesize_ret, int, size_t)
+], [int getpagesize();], [int getpagesize();],
+cl_cv_proto_getpagesize_ret, int, size_t)
 ], [extern $cl_cv_proto_getpagesize_ret getpagesize (void);])
 AC_DEFINE_UNQUOTED(RETGETPAGESIZETYPE,$cl_cv_proto_getpagesize_ret)
 else
