@@ -36,6 +36,7 @@ UnicodeData.txt
 clisp.1
 clisp.man
 clisp.html
+impnotes.html
 Makefile.readline
 ansidecl
 txt2c
