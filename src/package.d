@@ -1886,8 +1886,12 @@ local object test_stringsym_arg (object obj) {
 }
 
 LISPFUNN(find_package,1) { /* (FIND-PACKAGE name), CLTL p. 183 */
-  var object name = test_stringsym_arg(popSTACK()); /* argument as string */
-  VALUES1(find_package(name)); /* search package */
+  var object pack = popSTACK();
+  if (packagep(pack)) VALUES1(pack);
+  else {
+    var object name = test_stringsym_arg(pack);
+    VALUES1(find_package(name)); /* search package */
+  }
 }
 
 LISPFUNN(pfind_package,1) { /* (SYSTEM::%FIND-PACKAGE name) */
