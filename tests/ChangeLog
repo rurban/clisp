@@ -1,5 +1,10 @@
 2004-04-19  Sam Steingold  <sds@gnu.org>
 
+	* path.tst, excepsit.tst: added tests for
+	pathname.d:simplify_directory()
+
+2004-04-19  Sam Steingold  <sds@gnu.org>
+
 	* strings.tst: add a (NSTRING-UPCASE #A(NIL (0))) test
 	enable string un-realloc test (was risky)
 

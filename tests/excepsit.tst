@@ -1124,6 +1124,12 @@ file-error
 (truename "./*/x")
 file-error
 
+;; <http://www.lisp.org/HyperSpec/Body/sec_19-2-2-4-3.html>
+(make-pathname :directory '(:absolute :up))   file-error
+(make-pathname :directory '(:absolute :back)) file-error
+(make-pathname :directory '(:absolute :wild-inferiors :up))   file-error
+(make-pathname :directory '(:relative :wild-inferiors :back)) file-error
+
 (typep nil 'values)
 error
 
