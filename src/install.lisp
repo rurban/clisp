@@ -3,7 +3,7 @@
 
 ;; load this file in the directory where your CLISP distribution is located
 ;;  - to set the Registry appropriately
-;;  - to create CLISP.BAT on your desktop
+;;  - to create CLISP.BAT & CLISP.URL on your desktop
 
 (defvar *clisp-home* (namestring (default-directory)))
 (defvar *clisp-base-cmd*
@@ -80,11 +80,17 @@
     (add-fas-file c1)
     (add-mem-file c1)))
 
-(let ((bat-file (concatenate 'string
-                             (dir-key-single-value :win32 "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders" "Common Desktop")
-                             "\\clisp.bat")))
+(let* ((desktop (dir-key-single-value :win32 "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders" "Common Desktop"))
+       (bat-file (concatenate 'string desktop "\\clisp.bat"))
+       (url-file (concatenate 'string desktop "\\clisp home.url")))
   (when (y-or-n-p "Create CLISP bat file on your desktop <~s>?" bat-file)
     (with-open-file (bat bat-file :direction :output)
       (format t "~&writing <~a>..." bat-file) (force-output)
       (format bat "@echo off~%~a %1 %2 %3 %4 %5 %6 %7 %8 %9~%" *clisp-cmd*)
+      (format t "done~%")))
+  (when (y-or-n-p "Create CLISP URL file on your desktop <~s>?" url-file)
+    (with-open-file (url (substitute #\/ #\\ url-file) :direction :output)
+      (format t "~&writing <~a>..." url-file) (force-output)
+      (format url "[Internetshortcut]~%URL=http://clisp.cons.org
+IconFile=~adoc\\clisp.ico~%" *clisp-home*)
       (format t "done~%"))))
