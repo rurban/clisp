@@ -10160,14 +10160,17 @@ LISPFUNN(make_keyboard_stream,0)
       pushSTACK(fixnum((uintL)end));
       funcall(S(completion),3);
       var object mlist = value1; # Liste der Möglichkeiten
-      end_callback();
       # Liste von Simple-Strings in mallozierten Array von mallozierten
       # Asciz-Strings umbauen:
-      if (nullp(mlist))
+      if (nullp(mlist)) {
+        end_callback();
         return NULL;
+      }
       var char** array = (char**) malloc((llength(mlist)+1)*sizeof(char*));
-      if (array==NULL)
+      if (array==NULL) {
+        end_callback();
         return NULL;
+      }
       {
         var char** ptr = array;
         while (consp(mlist)) {
@@ -10175,12 +10178,16 @@ LISPFUNN(make_keyboard_stream,0)
           var const chart* ptr1;
           unpack_sstring_alloca(Car(mlist),charcount,0, ptr1=);
           var uintL bytecount = cslen(O(terminal_encoding),ptr1,charcount);
+          begin_system_call();
           var char* ptr2 = (char*) malloc((bytecount+1)*sizeof(char));
           if (ptr2==NULL) { # malloc scheitert -> alles zurückgeben
             until (ptr==array) { free(*--ptr); }
             free(array);
+            end_system_call();
+            end_callback();
             return NULL;
           }
+          end_system_call();
           cstombs(O(terminal_encoding),ptr1,charcount,(uintB*)ptr2,bytecount);
           ptr2[bytecount] = '\0';
           *ptr++ = ptr2;
@@ -10188,6 +10195,7 @@ LISPFUNN(make_keyboard_stream,0)
         }
         *ptr = NULL;
       }
+      end_callback();
       return array;
     }
 #endif
