@@ -148,22 +148,26 @@
             alist = Cdr(alist);
           }
         }
-        # String-Input-Stream für diese Zeile basteln:
+        # tweak string-input-stream for this line:
         if (nullp(value2)) {
           pushSTACK(line); pushSTACK(O(newline_string));
-          line = string_concat(2); # evtl. noch ein Newline anhängen
+          line = string_concat(2); # maybe need another Newline
         }
         pushSTACK(line); funcall(L(make_string_input_stream),1);
-        # Concatenated-Stream basteln:
+        # make concatenated-stream:
         pushSTACK(value1); pushSTACK(*inputstream_);
         funcall(L(make_concatenated_stream),2);
-        *inputstream_ = value1; # und an inputstream zuweisen
+        dynamic_bind(S(terminal_read_stream),value1);
+        *inputstream_ = Symbol_value(S(terminal_read_stream));
       }
       #endif
       dynamic_bind(S(read_suppress),NIL); # *READ-SUPPRESS* = NIL
-      var object obj = stream_read(inputstream_,NIL,NIL); # Objekt lesen (recursive-p=NIL, whitespace-p=NIL)
-      dynamic_unbind();
-      dynamic_unbind();
+      var object obj = stream_read(inputstream_,NIL,NIL); # read object (recursive-p=NIL, whitespace-p=NIL)
+      dynamic_unbind(); # S(read_suppress)
+      dynamic_unbind(); # S(key_bindings)
+      #if !defined(TERMINAL_USES_KEYBOARD)
+      if (!ls_avail_p(status)) dynamic_unbind(); # S(terminal_read_stream)
+      #endif
       if (!eq(obj,eof_value)) { # EOF (nach Whitespace) abfragen
         pushSTACK(obj);
         pushSTACK(STACK_(4+1)); pushSTACK(STACK_(0+1+1)); funcall(L(terminal_raw),2);
