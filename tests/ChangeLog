@@ -1,3 +1,9 @@
+2004-10-31  Bruno Haible  <bruno@clisp.org>
+
+	* lambda.tst: On BeOS, disable tests that fail on BeOS.
+	* excepsit.tst: Likewise.
+	* ffi.tst: Likewise.
+
 2004-10-29  Bruno Haible  <bruno@clisp.org>
 
 	* conditions.tst: Override outermost handlers.
