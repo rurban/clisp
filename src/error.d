@@ -29,6 +29,9 @@
           end_system_call();
         #endif
       #endif
+      #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
+        writing_to_subprocess = FALSE;
+      #endif
       # Error-Count erhöhen, bei >3 Ausgabe-Abbruch:
       dynamic_bind(S(recursive_error_count),fixnum_inc(Symbol_value(S(recursive_error_count)),1));
       if (!posfixnump(Symbol_value(S(recursive_error_count)))) # sollte ein Fixnum >=0 sein
@@ -581,6 +584,9 @@ LISPFUNN(invoke_debugger,1)
           #endif
           end_system_call();
         #endif
+      #endif
+      #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
+        writing_to_subprocess = FALSE;
       #endif
       # Simuliere begin_error(), 7 Elemente auf den STACK:
       pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL);

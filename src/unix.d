@@ -314,6 +314,8 @@
   # Wir haben das Glück, mit read() nur in den C-Stack und in Strings zu
   # schreiben, nicht jedoch in eventuell mprotect-geschützte Bereiche.
   #endif
+  # Ein Signal veranlassen.
+  extern_C int raise (int sig);
 # wird verwendet von SPVW
 
 # Environment-Variablen abfragen:

@@ -1,3 +1,27 @@
+1999-03-02  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Handle SIGPIPE on Unix.
+        * spvw_sigpipe.d: New file.
+        * spvw.d: Include it.
+          (main): Call install_sigpipe_handler.
+        * makemake.in (SPVW_INCLUDES): Add spvw_sigpipe.
+        * gettext/po/Makefile.devel (DSOURCES): Add spvw_sigpipe. Split line
+          into multiple pieces, to avoid 1023 character line length limit of
+          patch-2.1.
+        * lispbibl.d (writing_to_subprocess): New declaration.
+        * stream.d (low_flush_buffered_pipe): New function.
+          (BufferedPipeStreamInit): New macro.
+          (MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM,
+           MAKE-PIPE-IO-STREAM): Use it.
+          (low_write_unbuffered_pipe, low_write_array_unbuffered_pipe): New
+          functions.
+          (UnbufferedPipeStream_output_init): Use them.
+        * error.d (begin_error, tast_break): Set writing_to_subprocess=FALSE.
+        * unix.d (raise): New declaration.
+        * msdos.d (raise): Likewise.
+        * acorn.d (raise): Likewise.
+        * errunix.d (EPIPE): Improve error messages.
+
 1999-03-01  Sam Steingold  <sds@goems.com>
 
 	* spvw.d: removed :IEEE-FLOATING-POINT from *features*.  Use

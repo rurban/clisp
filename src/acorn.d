@@ -109,6 +109,8 @@
   #if defined(SIGCHLD) && !defined(SIGCLD)
     #define SIGCLD  SIGCHLD
   #endif
+  # Ein Signal veranlassen.
+  extern_C int raise (int sig);
 # wird verwendet von SPVW
 
 # Environment-Variablen abfragen:

@@ -13295,6 +13295,45 @@ LISPFUNN(make_printer_stream,0)
     #define low_close_pipe  low_close_handle
   #endif
 
+#if defined(HAVE_SIGNALS) && defined(SIGPIPE)
+
+  # Be careful to disable SIGPIPE during write() to a subprocess.
+
+  local void low_flush_buffered_pipe (object stream, uintL bufflen);
+  local void low_flush_buffered_pipe(stream,bufflen)
+    var object stream;
+    var uintL bufflen;
+    { begin_system_call();
+      writing_to_subprocess = TRUE;
+     {var sintL ergebnis = # Buffer hinausschreiben
+        full_write(TheHandle(TheStream(stream)->strm_buffered_channel), # Handle
+                   &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[0], # Bufferadresse
+                   bufflen
+                  );
+      writing_to_subprocess = FALSE;
+      if (ergebnis==bufflen)
+        # alles korrekt geschrieben
+        { end_system_call(); BufferedStream_modified(stream) = FALSE; }
+        else
+        # Nicht alles geschrieben
+        { if (ergebnis<0) # Fehler aufgetreten?
+              { end_system_call(); OS_filestream_error(stream); }
+          end_system_call();
+          fehler_unwritable(TheSubr(subr_self)->name,stream);
+        }
+    }}
+
+#else
+
+  #define low_flush_buffered_pipe  low_flush_buffered_handle
+
+#endif
+
+#define BufferedPipeStream_init(stream)  \
+  { BufferedStreamLow_fill(stream) = &low_fill_buffered_handle; \
+    BufferedStreamLow_flush(stream) = &low_flush_buffered_pipe; \
+  }
+
 # Pipe-Input-Stream
 # =================
 
@@ -13435,7 +13474,7 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
         }
         else
         { stream = make_buffered_stream(strmtype_pipe_in,1,&eltype,FALSE,FALSE);
-          BufferedHandleStream_init(stream);
+          BufferedPipeStream_init(stream);
         }
       ChannelStreamLow_close(stream) = &low_close_pipe;
       TheStream(stream)->strm_pipe_pid = popSTACK(); # Child-Pid
@@ -13448,6 +13487,58 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
 # ==================
 
 # Low-level.
+
+#if defined(HAVE_SIGNALS) && defined(SIGPIPE)
+
+  # Be careful to disable SIGPIPE during write() to a subprocess.
+
+  local void low_write_unbuffered_pipe (object stream, uintB b);
+  local void low_write_unbuffered_pipe(stream,b)
+    var object stream;
+    var uintB b;
+    { var Handle handle = TheHandle(TheStream(stream)->strm_ochannel);
+     restart_it:
+      begin_system_call();
+      # Try to output the byte.
+      writing_to_subprocess = TRUE;
+     {var int result = write(handle,&b,1);
+      writing_to_subprocess = FALSE;
+      if (result<0)
+        { if (errno==EINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
+            { end_system_call();
+              interruptp({ fehler_interrupt(); });
+              goto restart_it;
+            }
+          OS_error(); # Error melden
+        }
+      end_system_call();
+      if (result==0) # not successful?
+        { fehler_unwritable(TheSubr(subr_self)->name,stream); }
+    }}
+
+  local const uintB* low_write_array_unbuffered_pipe (object stream, const uintB* byteptr, uintL len);
+  local const uintB* low_write_array_unbuffered_pipe(stream,byteptr,len)
+    var object stream;
+    var const uintB* byteptr;
+    var uintL len;
+    { var Handle handle = TheHandle(TheStream(stream)->strm_ochannel);
+      begin_system_call();
+      writing_to_subprocess = TRUE;
+     {var sintL result = full_write(handle,byteptr,len);
+      writing_to_subprocess = FALSE;
+      if (result<0) { OS_error(); } # Error melden
+      end_system_call();
+      if (!(result==(sintL)len)) # not successful?
+        { fehler_unwritable(TheSubr(subr_self)->name,stream); }
+      return byteptr+result;
+    }}
+
+#else
+
+  #define low_write_unbuffered_pipe  low_write_unbuffered_handle
+  #define low_write_array_unbuffered_pipe  low_write_array_unbuffered_handle
+
+#endif
 
   local void low_finish_output_unbuffered_pipe (object stream);
   local void low_finish_output_unbuffered_pipe(stream)
@@ -13465,8 +13556,8 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
     { } # impossible to clear past output
 
   #define UnbufferedPipeStream_output_init(stream)  \
-    { UnbufferedStreamLow_write(stream) = &low_write_unbuffered_handle;               \
-      UnbufferedStreamLow_write_array(stream) = &low_write_array_unbuffered_handle;   \
+    { UnbufferedStreamLow_write(stream) = &low_write_unbuffered_pipe;                 \
+      UnbufferedStreamLow_write_array(stream) = &low_write_array_unbuffered_pipe;     \
       UnbufferedStreamLow_finish_output(stream) = &low_finish_output_unbuffered_pipe; \
       UnbufferedStreamLow_force_output(stream) = &low_force_output_unbuffered_pipe;   \
       UnbufferedStreamLow_clear_output(stream) = &low_clear_output_unbuffered_pipe;   \
@@ -13604,7 +13695,7 @@ LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
         }
         else
         { stream = make_buffered_stream(strmtype_pipe_out,4,&eltype,FALSE,FALSE);
-          BufferedHandleStream_init(stream);
+          BufferedPipeStream_init(stream);
         }
       ChannelStreamLow_close(stream) = &low_close_pipe;
       TheStream(stream)->strm_pipe_pid = popSTACK(); # Child-Pid
@@ -13790,7 +13881,7 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
         }
         else
         { stream = make_buffered_stream(strmtype_pipe_in,1,&eltype,FALSE,FALSE);
-          BufferedHandleStream_init(stream);
+          BufferedPipeStream_init(stream);
         }
       ChannelStreamLow_close(stream) = &low_close_pipe;
       TheStream(stream)->strm_pipe_pid = STACK_2; # Child-Pid
@@ -13807,7 +13898,7 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
         }
         else
         { stream = make_buffered_stream(strmtype_pipe_out,4,&eltype,FALSE,FALSE);
-          BufferedHandleStream_init(stream);
+          BufferedPipeStream_init(stream);
         }
       ChannelStreamLow_close(stream) = &low_close_pipe;
       TheStream(stream)->strm_pipe_pid = STACK_2; # Child-Pid

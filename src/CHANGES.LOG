@@ -64,6 +64,10 @@ User visible changes
 * On Unix, calling OPEN on a block device now returns a buffered stream
   instead of an unbuffered stream.
 
+* On Unix, writing to a pipe created by MAKE-PIPE-OUTPUT-STREAM or
+  MAKE-PIPE-IO-STREAM after the corresponding child process has exited
+  now leads to an error message instead of terminating the CLISP process.
+
 * The function XGCD now really always returns coefficients of smallest
   possible absolute value.
 
