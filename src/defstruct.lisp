@@ -21,9 +21,9 @@
    size is the list length / vector length.
 
    keyword-constructor = NIL or the name of the keyword-constructor
-   boa-constructors = list of BOA constructors
-   copier = NIL or the copier
-   predicate = NIL or the predicate
+   boa-constructors = list of names of BOA constructors
+   copier = NIL or the name of the copier function
+   predicate = NIL or the name of the predicate function
 
    slotlist is a packed description of the slots of a structure:
    slotlist = ({slot}*)
@@ -66,6 +66,7 @@
    ALLOCATE-INSTANCE, without need for corresponding effective-slot-definition.
 |#
 
+;; Indices of the fixed elements of a defstruct-description:
 (defconstant *defstruct-description-type-location* 0)
 (defconstant *defstruct-description-size-location* 1)
 (defconstant *defstruct-description-kconstructor-location* 2)
@@ -74,12 +75,12 @@
 (defconstant *defstruct-description-copier-location* 5)
 (defconstant *defstruct-description-predicate-location* 6)
 (proclaim '(constant-inline *defstruct-description-type-location*
-            *defstruct-description-size-location*
-            *defstruct-description-kconstructor-location*
-            *defstruct-description-slots-location*
-            *defstruct-description-boa-constructors-location*
-            *defstruct-description-copier-location*
-            *defstruct-description-predicate-location*))
+                            *defstruct-description-size-location*
+                            *defstruct-description-kconstructor-location*
+                            *defstruct-description-slots-location*
+                            *defstruct-description-boa-constructors-location*
+                            *defstruct-description-copier-location*
+                            *defstruct-description-predicate-location*))
 
 (defun make-ds-slot (name initargs offset initer type readonly)
   (clos::make-instance-<structure-effective-slot-definition>
@@ -564,10 +565,6 @@
 
 ;; A hook for CLOS
 (predefun clos::defstruct-remove-print-object-method (name) ; preliminary
-  (declare (ignore name))
-  nil)
-
-(predefun clos::structure-undefine-accessories (name) ; preliminary
   (declare (ignore name))
   nil)
 
@@ -1073,11 +1070,17 @@
     `(EVAL-WHEN (LOAD COMPILE EVAL)
        (LET ()
          (LET ,(append namesbinding (mapcar #'list slotdefaultvars slotdefaultfuns))
-           (CLOS::STRUCTURE-UNDEFINE-ACCESSORIES ',name)
+           ;; ANSI CL doesn't specify what happens when a structure is
+           ;; redefined with different specification. We do here what DEFCLASS
+           ;; also does: remove the accessory functions defined by the previous
+           ;; specification.
+           (STRUCTURE-UNDEFINE-ACCESSORIES ',name)
            ,(if (eq type-option 'T)
               `(REMPROP ',name 'DEFSTRUCT-DESCRIPTION)
               `(%PUT ',name 'DEFSTRUCT-DESCRIPTION
-                     (VECTOR ',type-option ,size ',keyword-constructor
+                     (VECTOR ',type-option
+                             ,size
+                             ',keyword-constructor
                              (LIST
                                ,@(mapcar #'(lambda (slot+initff)
                                              (let ((slot (car slot+initff)))
@@ -1086,12 +1089,16 @@
                                                  (let ((i (position slot+initff slotdefaultslots)))
                                                    (if i (nth i slotdefaultvars) (cdr slot+initff))))))
                                          slotlist))
-                             ',boa-constructors ',copier-option
+                             ',boa-constructors
+                             ',copier-option
                              ',predicate-option)))
            ,(if (eq type-option 'T)
               `(CLOS::DEFINE-STRUCTURE-CLASS ',name
-                 ,namesform ',keyword-constructor ',boa-constructors
-                 ',copier-option ',predicate-option
+                 ,namesform
+                 ',keyword-constructor
+                 ',boa-constructors
+                 ',copier-option
+                 ',predicate-option
                  (LIST
                    ,@(mapcar #'(lambda (slot+initff)
                                  (let ((slot (car slot+initff)))
@@ -1127,3 +1134,111 @@
                     (PROGN ,print-object-option))
                  `(CLOS::DEFSTRUCT-REMOVE-PRINT-OBJECT-METHOD ',name))))
          ',name))))
+
+
+;; A kind of Meta-Object Protocol for structures.
+;; These function apply to structures of any representation
+;; (structure classes as well as subtypes of LIST or VECTOR).
+;; This differs from the CLOS MOP
+;;   1. in the use of a structure name (symbol) instead of a class,
+;;   2. in the different set of available operations: classes in general
+;;      don't have kconstructors, boa-constructors, copier, predicate,
+;;      whereas on the other hand structures in general don't have a prototype
+;;      and finalization.
+
+(defun structure-slots (name)
+  (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
+    (if desc
+      (svref desc *defstruct-description-slots-location*)
+      (let ((class (find-class name)))
+        (clos::accessor-typecheck class 'structure-class 'structure-slots)
+        (clos::class-slots class)))))
+#|
+(defun (setf structure-slots) (new-value name)
+  (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
+    (if desc
+      (setf (svref desc *defstruct-description-slots-location*) new-value)
+      (let ((class (find-class name)))
+        (clos::accessor-typecheck class 'structure-class '(setf structure-slots))
+        (setf (clos::class-slots class) new-value)))))
+|#
+
+(defun structure-instance-size (name)
+  (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
+    (if desc
+      (svref desc *defstruct-description-size-location*)
+      (let ((class (find-class name)))
+        (clos::accessor-typecheck class 'structure-class 'structure-instance-size)
+        (clos::class-instance-size class)))))
+#|
+(defun (setf structure-instance-size) (new-value name)
+  (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
+    (if desc
+      (setf (svref desc *defstruct-description-size-location*) new-value)
+      (let ((class (find-class name)))
+        (clos::accessor-typecheck class 'structure-class '(setf structure-instance-size))
+        (setf (clos::class-instance-size class) new-value)))))
+|#
+
+(defun structure-kconstructor (name)
+  (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
+    (if desc
+      (svref desc *defstruct-description-kconstructor-location*)
+      (clos::class-kconstructor (find-class name)))))
+#|
+(defun (setf structure-kconstructor) (new-value name)
+  (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
+    (if desc
+      (setf (svref desc *defstruct-description-kconstructor-location*) new-value)
+      (setf (clos::class-kconstructor (find-class name)) new-value))))
+|#
+
+(defun structure-boa-constructors (name)
+  (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
+    (if desc
+      (svref desc *defstruct-description-boa-constructors-location*)
+      (clos::class-boa-constructors (find-class name)))))
+#|
+(defun (setf structure-boa-constructors) (new-value name)
+  (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
+    (if desc
+      (setf (svref desc *defstruct-description-boa-constructors-location*) new-value)
+      (setf (clos::class-boa-constructors (find-class name)) new-value))))
+|#
+
+(defun structure-copier (name)
+  (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
+    (if desc
+      (svref desc *defstruct-description-copier-location*)
+      (clos::class-copier (find-class name)))))
+#|
+(defun (setf structure-copier) (new-value name)
+  (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
+    (if desc
+      (setf (svref desc *defstruct-description-copier-location*) new-value)
+      (setf (clos::class-copier (find-class name)) new-value))))
+|#
+
+(defun structure-predicate (name)
+  (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
+    (if desc
+      (svref desc *defstruct-description-predicate-location*)
+      (clos::class-predicate (find-class name)))))
+#|
+(defun (setf structure-predicate) (new-value name)
+  (let ((desc (get name 'DEFSTRUCT-DESCRIPTION)))
+    (if desc
+      (setf (svref desc *defstruct-description-predicate-location*) new-value)
+      (setf (clos::class-predicate (find-class name)) new-value))))
+|#
+
+(defun structure-undefine-accessories (name) ; ABI
+  (when (or (get name 'DEFSTRUCT-DESCRIPTION)
+            (clos::structure-class-p (find-class name nil)))
+    (macrolet ((fmakunbound-if-present (symbol-form)
+                 `(let ((symbol ,symbol-form))
+                    (when symbol (fmakunbound symbol)))))
+      (fmakunbound-if-present (structure-kconstructor name))
+      (mapc #'fmakunbound (structure-boa-constructors name))
+      (fmakunbound-if-present (structure-copier name))
+      (fmakunbound-if-present (structure-predicate name)))))

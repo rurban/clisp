@@ -483,11 +483,11 @@
         :type cons)        ; name_1 contains name_2, ..., name_i-1 contains name_i.
       ($kconstructor       ; name of keyword constructor function
         :type symbol)
-      ($boa-constructors   ; list of all BOA constructor functions
+      ($boa-constructors   ; list of all BOA constructor function names
        :type list)
-      ($copier             ; name of the copier
+      ($copier             ; name of the copier function
        :type symbol)
-      ($predicate          ; name of the predicate
+      ($predicate          ; name of the predicate function
        :type symbol))
      (:fixed-slot-locations t)))
 (defvar *<structure-class>-class-version* (make-class-version))
