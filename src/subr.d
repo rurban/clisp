@@ -907,7 +907,7 @@ LISPFUN(stable_sort,2,0,norest,key,3, (kw(key),kw(start),kw(end)) )
 LISPFUN(merge,4,0,norest,key,1, (kw(key)) )
 LISPFUN(read_char_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
 LISPFUN(write_char_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
-LISPFUN(read_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
+LISPFUN(read_byte_sequence,2,0,norest,key,3, (kw(start),kw(end),kw(no_hang)) )
 LISPFUN(write_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
 /* ---------- STREAM ---------- */
 LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)

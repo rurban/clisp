@@ -4217,10 +4217,11 @@ LISPFUN(write_char_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
     VALUES1(popSTACK()); /* return sequence */
   }
 
-LISPFUN(read_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
-{ /* (READ-BYTE-SEQUENCE sequence stream [:start] [:end]),
+LISPFUN(read_byte_sequence,2,0,norest,key,3, (kw(start),kw(end),kw(no_hang)) )
+{ /* (READ-BYTE-SEQUENCE sequence stream [:start] [:end] [:no-hang]),
     cf. dpANS p. 21-26 */
-  /* stack layout: sequence, stream, start, end. */
+  /* stack layout: sequence, stream, start, end, no-hang. */
+  var bool no_hang = !missingp(STACK_0); skipSTACK(1);
   pushSTACK(get_valid_seq_type(STACK_3)); /* check sequence */
   /* stack layout: sequence, stream, start, end, typdescr. */
   if (!streamp(STACK_3)) fehler_stream(STACK_3); /* check stream */
@@ -4234,7 +4235,7 @@ LISPFUN(read_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
     var uintL index = 0;
     STACK_0 = array_displace_check(STACK_4,end,&index);
    {var uintL result =
-     read_byte_array(&STACK_3,&STACK_0,index+start,end-start);
+     read_byte_array(&STACK_3,&STACK_0,index+start,end-start,no_hang);
     VALUES1(fixnum(start+result));
     skipSTACK(5);
     return;
@@ -4245,7 +4246,9 @@ LISPFUN(read_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
   pushSTACK(value1); /* =: pointer */
   /* stack layout: sequence, stream, index, end, typdescr, pointer. */
   while (!eql(STACK_3,STACK_2)) { /* index = end (both integers) -> done */
-    var object item = read_byte(STACK_4); /* get an element */
+    var object item = /* get an element */
+      (no_hang && !ls_avail_p(listen_byte(STACK_4))
+       ? eof_value : read_byte(STACK_4));
     if (eq(item,eof_value)) break; /* EOF -> done */
     /* (SEQ-ACCESS-SET sequence pointer item): */
     pushSTACK(STACK_5); pushSTACK(STACK_(0+1)); pushSTACK(item);
@@ -4260,7 +4263,9 @@ LISPFUN(read_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
 
 LISPFUN(write_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
 { /* (WRITE-BYTE-SEQUENCE sequence stream [:start] [:end]),
-    cf. dpANS S. 21-27 */
+     it is not clear what this should return when :NO-HANG is T
+     and only a part of the sequence was written!
+    cf. dpANS p. 21-27 */
   /* stack layout: sequence, stream, start, end. */
   pushSTACK(get_valid_seq_type(STACK_3)); /* sequence check */
   /* stack layout: sequence, stream, start, end, typdescr. */

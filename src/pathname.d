@@ -11257,7 +11257,7 @@ local void copy_file_low (object source, object dest,
     /* copy loop */
     var uintL bytes_read = 0;
     loop {
-      bytes_read = read_byte_array(&STACK_2,&STACK_0,0,buffer_size);
+      bytes_read = read_byte_array(&STACK_2,&STACK_0,0,buffer_size,false);
       if (bytes_read == 0)
         break;
       total_count += bytes_read;

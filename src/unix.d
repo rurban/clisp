@@ -824,7 +824,7 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
     /* extern int closesocket (int socket); */
   #else
     /* Reading and writing from a socket */
-    #define sock_read   safe_read
+    #define sock_read(s,b,l)   read_helper(s,b,l,true)
     #define sock_write  full_write
     /* Closing a socket */
     #define closesocket  close
