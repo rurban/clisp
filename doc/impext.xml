@@ -2023,6 +2023,7 @@ In other words, each pair is:
  <listitem><simpara>Setting &flocont; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &floratcont; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &phasecont; to &t;.</simpara></listitem>
+ <listitem><simpara>Setting &pr-empty-arr-ansi; to &t;.</simpara></listitem>
 </orderedlist>
 
 <para>Note that if you run &clisp; with the &ansi-opt; switch or set
@@ -2044,6 +2045,7 @@ In other words, each pair is:
  <listitem><simpara>Setting &flocont; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &floratcont; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &phasecont; to &nil;.</simpara></listitem>
+ <listitem><simpara>Setting &pr-empty-arr-ansi; to &nil;.</simpara></listitem>
 </orderedlist>
 
 </section>
@@ -2205,6 +2207,7 @@ here <function>WITH-FOO</function> does not receive the
   <member>&phasecont;</member>
   <member>&ppr-first-newline;</member>
   <member>&pr-closure;</member>
+  <member>&pr-empty-arr-ansi;</member>
   <member>&pr-indent;</member>
   <member>&pathprint;</member>
   <member><varname>CUSTOM:*PRINT-PRETTY-FILL*</varname></member>

@@ -3725,6 +3725,16 @@ functions are provided:
  used.  Otherwise, the syntax <literal role="data">#A(&eltype-r;
  &dimensions-r; &cont-r;)</literal> is used.</para>
 
+<formalpara id="pr-empty-arr-ansi"><title>Variable &pr-empty-arr-ansi;</title>
+<para>Empty &array-t;s, i.e., arrays with no elements and zero
+ &array-total-size; (because one of its dimensions is zero) are printed
+ with the readable syntax <literal role="data">#A(&eltype-r;
+ &dimensions-r; &cont-r;)</literal>, unless the variable
+ &pr-empty-arr-ansi; is non-&nil, in which case the arrays are printed
+ using the &ansi;-prescribed syntax
+ <literal role="data">#<replaceable>rank</replaceable>A &cont-r;</literal>
+ which often loses the dimension information.</para></formalpara>
+
 </section>
 
 <section id="clpp"><title>The Lisp Pretty Printer
