@@ -82,6 +82,18 @@
 ;;    during ADD-METHOD. And during REMOVE-METHOD, we determine the identity
 ;;    of two copies of the same method by looking at std-method-initfunction.
 
+(defun method-lambda-list-to-signature (lambda-list errfunc)
+  (multiple-value-bind (reqvars optvars optinits optsvars rest
+                        keyp keywords keyvars keyinits keysvars
+                        allowp auxvars auxinits)
+      (analyze-lambdalist lambda-list errfunc)
+    (declare (ignore optinits optsvars keyvars keyinits keysvars
+                     auxvars auxinits))
+    (make-signature
+      :req-num (length reqvars) :opt-num (length optvars)
+      :rest-p (or keyp (not (eql rest 0))) :keys-p keyp
+      :keywords keywords :allow-p allowp)))
+
 (defun initialize-instance-<standard-method> (method &rest args
                                               &key (qualifiers '())
                                                    (lambda-list nil lambda-list-p)
@@ -110,29 +122,20 @@
   (unless lambda-list-p
     (error (TEXT "(~S ~S): Missing ~S argument.")
            'initialize-instance 'standard-method ':lambda-list))
-  (multiple-value-bind (reqvars optvars optinits optsvars rest
-                        keyp keywords keyvars keyinits keysvars
-                        allowp auxvars auxinits)
-      (analyze-lambdalist lambda-list
-        #'(lambda (detail errorstring &rest arguments)
-            (declare (ignore detail))
-            (error (TEXT "(~S ~S): Invalid ~S argument: ~A")
-                   'initialize-instance 'standard-method ':lambda-list
-                   (apply #'format nil errorstring arguments))))
-    (declare (ignore optinits optsvars keyvars keyinits keysvars
-                     auxvars auxinits))
+  (let ((sig (method-lambda-list-to-signature lambda-list
+               #'(lambda (detail errorstring &rest arguments)
+                   (declare (ignore detail))
+                   (error (TEXT "(~S ~S): Invalid ~S argument: ~A")
+                          'initialize-instance 'standard-method ':lambda-list
+                          (apply #'format nil errorstring arguments))))))
     ; Check the signature argument. It is optional; specifying it only has
     ; the purpose of saving memory allocation (by sharing the same signature
     ; for all reader methods and the same signature for all writer methods).
-    (let ((sig (make-signature
-                 :req-num (length reqvars) :opt-num (length optvars)
-                 :rest-p (or keyp (not (eql rest 0))) :keys-p keyp
-                 :keywords keywords :allow-p allowp)))
-      (if signature-p
-        (unless (equalp sig signature)
-          (error (TEXT "(~S ~S): Lambda-list ~S and signature ~S are inconsistent.")
-                 'initialize-instance 'standard-method lambda-list signature))
-        (setq signature sig))))
+    (if signature-p
+      (unless (equalp sig signature)
+        (error (TEXT "(~S ~S): Lambda-list ~S and signature ~S are inconsistent.")
+               'initialize-instance 'standard-method lambda-list signature))
+      (setq signature sig)))
   ; Check the specializers.
   (unless specializers-p
     (error (TEXT "(~S ~S): Missing ~S argument.")
@@ -207,10 +210,22 @@
       (write :uninitialized :stream stream))))
 
 ;; Preliminary.
+;; During bootstrapping, only <standard-method> instances are used.
 (defun make-method-instance (class &rest args
                              &key &allow-other-keys)
-  ;; During bootstrapping, only <standard-method> instances are used.
   (apply #'make-instance-<standard-method> class args))
+(defun method-function (method)
+  (std-method-function-or-substitute method))
+(defun method-qualifiers (method)
+  (std-method-qualifiers method))
+(defun method-lambda-list (method)
+  (std-method-lambda-list method))
+(defun method-signature (method)
+  (std-method-signature method))
+(defun method-specializers (method)
+  (std-method-specializers method))
+(defun method-generic-function (method)
+  (std-method-generic-function method))
 
 ;;; ---------------------------------------------------------------------------
 
