@@ -58,10 +58,16 @@ int main ()
     exit(0);
 
   switch (setjmp(mainloop)) {
-    case -1: printf("emergency exit\n"); exit(1);
-    case 0: case 1: recurse(0); printf("no endless recursion?!\n"); exit(1);
-    case 2: printf("Test passed.\n"); exit(0);
-    default: abort();
+    case -1:
+      printf("emergency exit\n"); exit(1);
+    case 0: case 1:
+      printf("Starting recursion pass %d.\n",pass+1);
+      recurse(0);
+      printf("no endless recursion?!\n"); exit(1);
+    case 2:
+      printf("Test passed.\n"); exit(0);
+    default:
+      abort();
   }
 }
 

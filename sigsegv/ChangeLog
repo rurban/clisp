@@ -1,5 +1,7 @@
 1999-05-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * test3.c (main): Make more verbose.
+
         Avoid a "make check" failure with "cc" on DEC OSF/1 4.0.
         * test2.c (barrier): New function.
           (main): Call it at the right moment.
