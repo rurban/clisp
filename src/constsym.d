@@ -24,11 +24,11 @@
 #else
   #if defined(LINUX_NOEXEC_HEAPCODES) && 0
     #define LISPSYM_B(name,printname,package)  \
-      { S(name), xrecord_tfl(Rectype_Symbol,0,5,0), \
+      { S(name), xrecord_tfl(Rectype_Symbol,0,symbol_length,0), \
         unbound, unbound, unbound, NIL, NIL, NIL, unbound, },
   #else
     #define LISPSYM_B(name,printname,package)  \
-      { S(name), xrecord_tfl(Rectype_Symbol,0,5,0), \
+      { S(name), xrecord_tfl(Rectype_Symbol,0,symbol_length,0), \
         unbound, unbound, unbound, NIL, NIL, NIL, },
   #endif
 #endif
