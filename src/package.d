@@ -2373,7 +2373,7 @@ LISPFUN(cs_make_package,seclass_default,1,0,norest,key,4,
 }
 
 /* (SYSTEM::%IN-PACKAGE name [:NICKNAMES nicknames] [:USE uselist]
-                             [:CASE-SENSITIVE sensitivep] [:CASE-INVERTED invertedp])
+                        [:CASE-SENSITIVE sensitivep] [:CASE-INVERTED invertedp])
  is like (IN-PACKAGE name [:NICKNAMES nicknames] [:USE uselist]), CLTL p. 183,
  except that *PACKAGE* is not modified. */
 LISPFUN(pin_package,seclass_default,1,0,norest,key,4,
@@ -2394,16 +2394,18 @@ LISPFUN(pin_package,seclass_default,1,0,norest,key,4,
         pushSTACK(CLSTEXT("One should not change the case sensitiveness of ~S."));
         pushSTACK(pack);
         funcall(S(warn),2);
+        pack = STACK_4;         /* restore for GC-safety */
       }
       if (value) mark_pack_casesensitive(pack);
       else mark_pack_caseinsensitive(pack);
     }
-    if (boundp(STACK_0)) { /* check the case-inverted: */
+    if (boundp(STACK_0)) { /* check the case-invertedness: */
       var bool value = !nullp(STACK_0);
       if (pack_caseinvertedp(pack) != value) {
         pushSTACK(CLSTEXT("One should not change the case inversion of ~S."));
         pushSTACK(pack);
         funcall(S(warn),2);
+        pack = STACK_4;         /* restore for GC-safety */
       }
       if (value) mark_pack_caseinverted(pack);
       else mark_pack_casepreserved(pack);
