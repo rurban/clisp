@@ -1696,7 +1696,7 @@ LISPFUNN(tailp,2) # (TAILP sublist list), CLTL S. 275
   #else
   # (defun tailp (sublist list)
   #   (loop
-  #     (when (eq sublist list) (return t))
+  #     (when (eql sublist list) (return t))
   #     (when (atom list) (return nil))
   #     (setq list (cdr list))
   # ) )
@@ -1716,7 +1716,7 @@ LISPFUNN(tailp,2) # (TAILP sublist list), CLTL S. 275
       goto yes;
     #else
     loop {
-      if (eq(list,sublist))
+      if (eql(list,sublist))
         goto yes;
       if (atomp(list))
         break;
