@@ -3145,6 +3145,10 @@ LISPFUNN(generic_stream_p,1)
 
 #if defined(AMIGAOS)
 
+# UP: Löscht bereits eingegebenen interaktiven Input von einem Handle.
+  local void clear_tty_input (Handle handle);
+  #define clear_tty_input(handle)
+
 # UP: Bringt den wartenden Output eines Handles ans Ziel.
   local void finish_tty_output (Handle handle);
   # Wir können nichts tun, da wir handle nicht schließen dürfen und
@@ -3256,7 +3260,13 @@ typedef struct strm_handle_extrafields_struct {
 # Additional binary (not GCed) fields, used by unbuffered streams only:
 typedef struct strm_u_file_extrafields_struct {
   strm_handle_extrafields_struct _parent;
+  # The low_... operations operate on bytes only, and independently of the
+  # stream's element type. They cannot cause GC.
   # Fields used for the input side only:
+  sintL        (* low_read)          (object stream);
+  signean      (* low_listen)        (object stream);
+  boolean      (* low_clear_input)   (object stream);
+  uintB*       (* low_read_array)    (object stream, uintB* byteptr, uintL len);
   sintL status;                        # -1 means EOF reached
                                        # 0 means unknown, last_byte invalid
                                        # 1 means last_byte valid, to be consumed
@@ -3264,7 +3274,12 @@ typedef struct strm_u_file_extrafields_struct {
   #ifdef AMIGAOS
   LONG rawp;                           # current mode: 0 = CON, 1 = RAW
   #endif
-  # Fields used for the output side only: none
+  # Fields used for the output side only:
+  void         (* low_write)         (object stream, uintB b);
+  const uintB* (* low_write_array)   (object stream, const uintB* byteptr, uintL len);
+  void         (* low_finish_output) (object stream);
+  void         (* low_force_output)  (object stream);
+  void         (* low_clear_output)  (object stream);
 } strm_u_file_extrafields_struct;
 
 # Accessors.
@@ -3274,48 +3289,66 @@ typedef struct strm_u_file_extrafields_struct {
 #define HandleStream_ohandle(stream)  TheStream(stream)->strm_ohandle
 #define HandleStream_buffered(stream)   ((strm_handle_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->buffered
 #define HandleStream_lineno(stream)   ((strm_handle_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->lineno
+#define FileStreamLow_read(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_read
+#define FileStreamLow_listen(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_listen
+#define FileStreamLow_clear_input(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_clear_input
+#define FileStreamLow_read_array(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_read_array
 #define FileStream_status(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->status
 #define FileStream_lastbyte(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->lastbyte
 #ifdef AMIGAOS
 #define FileStream_rawp(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->rawp
 #endif
+#define FileStreamLow_write(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_write
+#define FileStreamLow_write_array(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_write_array
+#define FileStreamLow_finish_output(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_finish_output
+#define FileStreamLow_force_output(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_force_output
+#define FileStreamLow_clear_output(stream)  ((strm_u_file_extrafields_struct*)&TheStream(stream)->strm_handle_extrafields)->low_clear_output
+
+# Error message after user interrupt.
+# fehler_interrupt();
+# > subr_self: calling function
+  nonreturning_function(local, fehler_interrupt, (void));
+  local void fehler_interrupt()
+    { pushSTACK(TheSubr(subr_self)->name);
+      fehler(serious_condition,
+             DEUTSCH ? "~: Ctrl-C: Tastatur-Interrupt" :
+             ENGLISH ? "~: Ctrl-C: User break" :
+             FRANCAIS ? "~ : Ctrl-C : Interruption clavier" :
+             ""
+            );
+    }
 
 # Handle-Streams, Input side
 # ==========================
 
-# Dass beim Input EOF erreicht ist, erkennt man an
-# TheStream(stream)->strm_rd_ch_last = eof_value.
-
-# READ-CHAR - Pseudofunktion für Handle-Streams:
-  local object rd_ch_handle (const object* stream_);
-  local object rd_ch_handle(stream_)
-    var const object* stream_;
-    {   restart_it:
-     {  var object stream = *stream_;
-        if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF?
-          { return eof_value; }
+  local sintL file_low_read (object stream);
+  local sintL file_low_read(stream)
+    var object stream;
+    { if (FileStream_status(stream) < 0) # already EOF?
+        { return -1; }
+      if (FileStream_status(stream) > 0) # lastbyte valid?
+        { FileStream_status(stream) = 0; return FileStream_lastbyte(stream); }
       { var Handle handle = TheHandle(TheStream(stream)->strm_ihandle);
-        var uintB c;
+        var uintB b;
+       restart_it:
         #if defined(AMIGAOS)
-        interruptp({ pushSTACK(S(read_char)); tast_break(); # Ctrl-C -> Break-Schleife aufrufen
-                     return read_char(stream_);
-                   });
+        interruptp({ fehler_interrupt(); });
         #endif
         run_time_stop(); # Run-Time-Stoppuhr anhalten
         begin_system_call();
         #ifdef GRAPHICS_SWITCH
         if (handle == stdin_handle) switch_text_mode();
         #endif
-       {var int ergebnis = read(handle,&c,1); # Zeichen lesen versuchen
+       {var int result = read(handle,&b,1); # Zeichen lesen versuchen
         end_system_call();
         run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
-        if (ergebnis<0)
+        if (result<0)
           {
             #if !(defined(AMIGAOS) || defined(WIN32_NATIVE))
             begin_system_call();
             if (errno==EINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
               { end_system_call();
-                interruptp({ pushSTACK(S(read_char)); tast_break(); }); # Break-Schleife aufrufen
+                interruptp({ fehler_interrupt(); });
                 goto restart_it;
               }
             #endif
@@ -3323,68 +3356,56 @@ typedef struct strm_u_file_extrafields_struct {
             begin_system_call();
             if (GetLastError()==ERROR_SIGINT) # Unterbrechung durch Ctrl-C ?
               { end_system_call();
-                pushSTACK(S(read_char)); tast_break(); # Break-Schleife aufrufen
-                goto restart_it;
+                fehler_interrupt();
               }
             #endif
             OS_error();
           }
-        if (ergebnis==0)
-          # kein Zeichen verfügbar -> muss EOF sein
-          { return eof_value; }
+        if (result==0)
+          # no byte available -> must be EOF
+          { FileStream_status(stream) = -1; return -1; }
           else
-          { if (c == NL)
-              # lineno incrementieren:
-              { HandleStream_lineno(stream) += 1; }
+          {
             #if defined(AMIGAOS)
             # Ctrl-C wird meist während des Read()-Aufrufs festgestellt, und
             # Read() liefert dann "unschuldig" ein Zeichen ab. Wir behandeln
-            # das Ctrl-C jetzt. Damit das Zeichen nicht verlorengeht, wird
-            # es wie durch unread_char() zurückgelegt.
+            # das Ctrl-C jetzt. Damit das Byte nicht verlorengeht, wird
+            # es in lastbyte zurückgelegt.
             interruptp(
-              { TheStream(stream)->strm_rd_ch_last = code_char(as_chart(c));
-                TheStream(stream)->strmflags |= strmflags_unread_B;
-                pushSTACK(S(read_char)); tast_break(); # Break-Schleife aufrufen
-                return read_char(stream_);
+              { FileStream_lastbyte(stream) = b; FileStream_status(stream) = 1;
+                fehler_interrupt();
               });
             #endif
-            return code_char(as_chart(c));
+            return b;
           }
-    }}}}
+    } }}
 
-# Stellt fest, ob ein Handle-Stream ein Zeichen verfügbar hat.
-# listen_handle(stream)
-# > stream: Handle-Stream
-# < ergebnis: ls_avail if a character is available,
-#             ls_eof   if EOF is reached,
-#             ls_wait  if no character is available, but not because of EOF
-  local signean listen_handle (object stream);
-  local signean listen_handle(stream)
+  local signean file_low_listen (object stream);
+  local signean file_low_listen(stream)
     var object stream;
-    { if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF ?
+    { if (FileStream_status(stream) < 0) # already EOF?
         { return ls_eof; }
-      # Methode 1: select, siehe SELECT(2)
-      # Methode 2: ioctl FIONREAD, siehe FILIO(4)
-      # Methode 3: kurzzeitig auf non-blocking I/O schalten und read versuchen,
-      #            siehe READ(2V) und FILIO(4), bzw.
-      #            siehe READ(2V), FCNTL(2V) und FCNTL(5)
+      if (FileStream_status(stream) > 0) # lastbyte valid?
+        { return ls_avail; }
+      # Method 1: select, see SELECT(2)
+      # Method 2: ioctl FIONREAD, see FILIO(4)
+      # Method 3: switch temporarily to non-blocking I/O and try read(),
+      #           see READ(2V), FILIO(4), or
+      #           see READ(2V), FCNTL(2V), FCNTL(5)
      {var Handle handle = TheHandle(TheStream(stream)->strm_ihandle);
       #if defined(MSDOS) && !defined(EMUNIX_PORTABEL)
       { var uintB status;
         begin_system_call();
         get_handle_input_status(handle,status);
         end_system_call();
-        if (status) { return ls_avail; } # Zeichen verfügbar
+        if (status) { return ls_avail; }
       }
       if (!nullp(TheStream(stream)->strm_isatty))
         # Terminal
-        { return ls_wait; } # kein Zeichen verfügbar
+        { return ls_wait; }
         else
         # File
-        # kein Zeichen verfügbar -> EOF erkennen
-        { TheStream(stream)->strm_rd_ch_last = eof_value;
-          return ls_eof;
-        }
+        { FileStream_status(stream) = -1; return ls_eof; }
       #elif defined(EMUNIX_PORTABEL)
       { var struct termio oldtermio;
         var struct termio newtermio;
@@ -3395,66 +3416,64 @@ typedef struct strm_u_file_extrafields_struct {
         newtermio.c_lflag &= ~IDEFAULT & ~ICANON;
         if (!( ioctl(handle,TCSETA,&newtermio) ==0))
           { if (!((errno==ENOTTY)||(errno==EINVAL))) { OS_error(); } }
-       {var unsigned long chars_ready = 0;
-        var int result = ioctl(handle,FIONREAD,&chars_ready); # abfragen
-        # (Seit emx 0.8f könnte man das auch mit select() machen.)
+       {var unsigned long bytes_ready = 0;
+        var int result = ioctl(handle,FIONREAD,&bytes_ready); # abfragen
+        # (Starting with emx 0.8f this could also be done using select().)
         if (!( ioctl(handle,TCSETA,&oldtermio) ==0))
           { if (!((errno==ENOTTY)||(errno==EINVAL))) { OS_error(); } }
         end_system_call();
         if (result == 0)
-          # Abfrage gelungen
-          { if (chars_ready > 0) { return ls_avail; } } # welche verfügbar?
+          # Enquiry succeeded.
+          { if (bytes_ready > 0) { return ls_avail; } }
         begin_system_call();
         if (!isatty(handle))
           { result = eof(handle);
             if (result<0)
-              { if (!(errno==ESPIPE)) { OS_error(); } } # "Illegal seek error" ist OK
+              { if (!(errno==ESPIPE)) { OS_error(); } } # "Illegal seek error" is OK
               else
               { end_system_call();
-                if (result>0) # EOF erreicht?
+                if (result>0) # EOF reached?
                   { return ls_eof; }
                   else
                   { return ls_avail; }
           }   }
         end_system_call();
-        return ls_wait; # offenbar kein Zeichen verfügbar
+        return ls_wait;
       }}
       #elif !(defined(AMIGAOS) || defined(WIN32_NATIVE))
       #ifdef HAVE_SELECT
-      { # Verwende select mit readfds = einelementige Menge {handle}
-        # und timeout = Null-Zeitintervall.
-        var fd_set handle_menge; # Menge von Handles := {handle}
-        var struct timeval zero_time; # Zeitintervall := 0
+      { # Use select() with readfds = singleton set {handle}
+        # and timeout = zero interval.
+        var fd_set handle_menge; # set of handles := {handle}
+        var struct timeval zero_time; # time interval := 0
         begin_system_call();
         FD_ZERO(&handle_menge); FD_SET(handle,&handle_menge);
         restart_select:
         zero_time.tv_sec = 0; zero_time.tv_usec = 0;
-       {var int ergebnis;
-        ergebnis = select(FD_SETSIZE,&handle_menge,NULL,NULL,&zero_time);
-        if (ergebnis<0)
+       {var int result;
+        result = select(FD_SETSIZE,&handle_menge,NULL,NULL,&zero_time);
+        if (result<0)
           { if (errno==EINTR) goto restart_select;
             if (!(errno==EBADF)) { OS_error(); } # UNIX_LINUX liefert bei Files EBADF !
             end_system_call();
           }
           else
           { end_system_call();
-            # ergebnis = Anzahl der Handles in handle_menge, bei denen read
-            # sofort ein Ergebnis liefern würde.
-            if (ergebnis==0)
-              { return ls_wait; } # kein Zeichen verfügbar
-            # ergebnis=1
-            # Wenn read() sofort ein Ergebnis liefern würde, kann das auch EOF
-            # sein! (Beispiel: Linux und Pipes.) Wir hüten uns daher vor
-            # einem  { return ls_avail; }  und versuchen stattdessen
-            # erst noch Methoden 2 und 3.
+            # result = number of handles in handle_menge for which read() would
+            # return without blocking.
+            if (result==0) { return ls_wait; }
+            # result=1
+            # When read() returns a result without blocking, this can also be
+            # EOF! (Example: Linux and pipes.) We therefore refrain from simply
+            # doing  { return ls_avail; }  and instead try methods 2 and 3.
       }}  }
       #endif
       begin_system_call();
       #ifdef HAVE_FIONREAD
-      # versuche die Zahl der verfügbaren Zeichen abzufragen:
-      {var unsigned long chars_ready;
-       if ( ioctl(handle,FIONREAD,&chars_ready) <0) # abfragen
-         # Abfrage misslungen, war wohl kein File
+      # Try to enquire the number of available bytes:
+      {var unsigned long bytes_ready;
+       if ( ioctl(handle,FIONREAD,&bytes_ready) <0)
+         # Enquiry failed, probably wasn't a file
          { if (!((errno == ENOTTY)
                  || (errno == EINVAL)
                  #ifdef ENOSYS # for UNIX_IRIX
@@ -3464,13 +3483,12 @@ typedef struct strm_u_file_extrafields_struct {
              { OS_error(); }
          }
          else
-         # Abfrage gelungen, also war's ein File
+         # Enquiry succeeded, so it was a file
          { end_system_call();
-           if (chars_ready > 0) { return ls_avail; } # welche verfügbar?
+           if (bytes_ready > 0) { return ls_avail; }
            #ifdef HAVE_RELIABLE_FIONREAD
-           # sonst EOF des File erkennen:
-           TheStream(stream)->strm_rd_ch_last = eof_value;
-           return ls_eof;
+           # else we have reached the file's EOF:
+           FileStream_status(stream) = -1; return ls_eof;
            #endif
          }
       }
@@ -3481,16 +3499,16 @@ typedef struct strm_u_file_extrafields_struct {
       #ifndef HAVE_SELECT
       if (!nullp(TheStream(stream)->strm_isatty))
         # Terminal
-        { # in Non-blocking-Modus umschalten, dann read() versuchen:
-          var uintB c;
-          var int ergebnis;
+        { # switch to non-blocking mode, then try read():
+          var uintB b;
+          var int result;
           restart_read_tty:
           #ifdef FIONBIO # non-blocking I/O à la BSD 4.2
           { var int non_blocking_io;
             non_blocking_io = 1;
             if (!( ioctl(handle,FIONBIO,&non_blocking_io) ==0))
               { OS_error(); }
-            ergebnis = read(handle,&c,1); # Zeichen lesen versuchen
+            result = read(handle,&b,1);
             non_blocking_io = 0;
             if (!( ioctl(handle,FIONBIO,&non_blocking_io) ==0))
               { OS_error(); }
@@ -3499,11 +3517,11 @@ typedef struct strm_u_file_extrafields_struct {
           { var int fcntl_flags;
             if (( fcntl_flags = fcntl(handle,F_GETFL,0) )<0) { OS_error(); }
             if ( fcntl(handle,F_SETFL,fcntl_flags|O_NDELAY) <0) { OS_error(); }
-            ergebnis = read(handle,&c,1); # Zeichen lesen versuchen
+            result = read(handle,&b,1);
             if ( fcntl(handle,F_SETFL,fcntl_flags) <0) { OS_error(); }
           }
           #endif
-          if (ergebnis < 0)
+          if (result < 0)
             { if (errno==EINTR) goto restart_read_tty;
               #ifdef FIONBIO
               if (errno==EWOULDBLOCK) # BSD 4.2 Error-Code
@@ -3514,74 +3532,60 @@ typedef struct strm_u_file_extrafields_struct {
                   #endif
                  )
               #endif
-                { return ls_wait; } # kein Zeichen verfügbar
+                { return ls_wait; }
               OS_error();
             }
           end_system_call();
-          if (ergebnis==0)
-            # kein Zeichen verfügbar
+          if (result==0)
             { return ls_wait; }
             else
-            # Zeichen verfügbar
-            { TheStream(stream)->strm_rd_ch_last = code_char(as_chart(c));
-              TheStream(stream)->strmflags |= strmflags_unread_B;
+            { # Stuff the read byte into the buffer, for next low_read call.
+              FileStream_lastbyte(stream) = b; FileStream_status(stream) = 1;
               return ls_avail;
             }
-          # Sollte das nicht gehen, einen Timer von 1/10 sec verwenden??
+          # If this doesn't work, should be use a timer 0.1 sec ??
         }
         else
       #endif
-        # File (oder Pipe)
-        { # ein Zeichen lesen versuchen (wie bei peek_char):
+        # file (or pipe)
+        { # try to read a byte:
           restart_read_other:
-         {var uintB c;
-          var int ergebnis = read(handle,&c,1); # Zeichen lesen versuchen
-          if (ergebnis<0)
+         {var uintB b;
+          var int result = read(handle,&b,1);
+          if (result<0)
             { if (errno==EINTR) goto restart_read_other;
               OS_error();
             }
           end_system_call();
-          if (ergebnis==0)
-            # kein Zeichen verfügbar -> EOF erkennen
-            { TheStream(stream)->strm_rd_ch_last = eof_value;
-              return ls_eof;
-            }
-            else # Zeichen verfügbar
-            { if (c == NL)
-                # lineno incrementieren:
-                { HandleStream_lineno(stream) += 1; }
-              TheStream(stream)->strm_rd_ch_last = code_char(as_chart(c));
-              TheStream(stream)->strmflags |= strmflags_unread_B;
+          if (result==0)
+            { FileStream_status(stream) = -1; return ls_eof; }
+            else
+            { # Stuff the read byte into the buffer, for next low_read call.
+              FileStream_lastbyte(stream) = b; FileStream_status(stream) = 1;
               return ls_avail;
             }
         }}
       #elif defined(AMIGAOS)
       begin_system_call();
       if (!nullp(TheStream(stream)->strm_isatty))
-        # interaktiv
-        { if (WaitForChar(handle,0L)) # 0 usec auf ein Zeichen warten
-            { end_system_call(); return ls_avail; } # eins da
+        # interactive
+        { if (WaitForChar(handle,0)) # wait 0 usec for a byte
+            { end_system_call(); return ls_avail; }
             else
-            { end_system_call(); return ls_wait; } # keins da
+            { end_system_call(); return ls_wait; }
         }
         else
-        # nicht interaktiv
-        { # ein Zeichen lesen versuchen (wie bei peek_char):
-          var uintB c;
-          var long ergebnis = Read(handle,&c,1L); # Zeichen lesen versuchen
+        # not interactive
+        { # try to read a byte:
+          var uintB b;
+          var long result = Read(handle,&b,1);
           end_system_call();
-          if (ergebnis<0) { OS_error(); }
-          if (ergebnis==0)
-            # kein Zeichen verfügbar -> EOF erkennen
-            { TheStream(stream)->strm_rd_ch_last = eof_value;
-              return ls_eof;
-            }
-            else # Zeichen verfügbar
-            { if (c == NL)
-                # lineno incrementieren:
-                { HandleStream_lineno(stream) += 1; }
-              TheStream(stream)->strm_rd_ch_last = code_char(as_chart(c));
-              TheStream(stream)->strmflags |= strmflags_unread_B;
+          if (result<0) { OS_error(); }
+          if (result==0)
+            { FileStream_status(stream) = -1; return ls_eof; }
+            else
+            { # Stuff the read byte into the buffer, for next low_read call.
+              FileStream_lastbyte(stream) = b; FileStream_status(stream) = 1;
               return ls_avail;
             }
         }
@@ -3598,7 +3602,6 @@ typedef struct strm_u_file_extrafields_struct {
               if (GetNumberOfConsoleInputEvents(handle,&nevents))
                 # It's a console.
                 { if (nevents==0)
-                    # kein Zeichen verfügbar
                     { end_system_call(); return ls_wait; }
                  {var INPUT_RECORD* events = (INPUT_RECORD*)alloca(nevents*sizeof(INPUT_RECORD));
                   var DWORD nevents_read;
@@ -3606,7 +3609,6 @@ typedef struct strm_u_file_extrafields_struct {
                   if (!PeekConsoleInput(handle,events,nevents,&nevents_read))
                     { OS_error(); }
                   if (nevents_read==0)
-                    # kein Zeichen verfügbar
                     { end_system_call(); return ls_wait; }
                   if (!GetConsoleMode(handle,&mode)) { OS_error(); }
                   if (mode & ENABLE_LINE_INPUT)
@@ -3616,7 +3618,7 @@ typedef struct strm_u_file_extrafields_struct {
                         { if (events[i].EventType == KEY_EVENT
                               && events[i].Event.KeyEvent.bKeyDown
                               && events[i].Event.KeyEvent.uAsciiChar == CR)
-                            # Zeichen vermutlich verfügbar (außer falls Ctrl-Z)
+                            # probably a byte available (except if it is Ctrl-Z)
                             goto peek_one;
                     }   }
                     else
@@ -3626,10 +3628,9 @@ typedef struct strm_u_file_extrafields_struct {
                         { if (events[i].EventType == KEY_EVENT
                               && events[i].Event.KeyEvent.bKeyDown
                               && events[i].Event.KeyEvent.uAsciiChar != 0)
-                            # Zeichen vermutlich verfügbar (außer falls Ctrl-Z)
+                            # probably a byte available (except if it is Ctrl-Z)
                             goto peek_one;
                     }   }
-                  # kein Zeichen verfügbar
                   end_system_call(); return ls_wait;
                 }}
               elif (!(GetLastError()==ERROR_INVALID_HANDLE)) { OS_error(); }
@@ -3637,10 +3638,9 @@ typedef struct strm_u_file_extrafields_struct {
             # Not a console.
             switch (WaitForSingleObject(handle,0))
               { case WAIT_OBJECT_0:
-                  # Zeichen verfügbar oder EOF
+                  # a byte is available, or EOF
                   break;
                 case WAIT_TIMEOUT:
-                  # kein Zeichen verfügbar
                   end_system_call(); return ls_wait;
                 default:
                   OS_error();
@@ -3650,45 +3650,39 @@ typedef struct strm_u_file_extrafields_struct {
           default:
             # It's a file (or something unknown).
             peek_one:
-            { var uintB c;
-              var int ergebnis = read(handle,&c,1); # Zeichen lesen versuchen
-              if (ergebnis<0) { OS_error(); }
+            # try to read a byte
+            { var uintB b;
+              var int result = read(handle,&b,1);
+              if (result<0) { OS_error(); }
               end_system_call();
-              if (ergebnis==0)
-                # kein Zeichen verfügbar -> EOF erkennen
-                { TheStream(stream)->strm_rd_ch_last = eof_value;
-                  return ls_eof;
-                }
-                else # Zeichen verfügbar
-                { if (c == NL)
-                    # lineno incrementieren:
-                    { HandleStream_lineno(stream) += 1; }
-                  TheStream(stream)->strm_rd_ch_last = code_char(as_chart(c));
-                  TheStream(stream)->strmflags |= strmflags_unread_B;
+              if (result==0)
+                { FileStream_status(stream) = -1; return ls_eof; }
+                else
+                { # Stuff the read byte into the buffer, for next low_read call.
+                  FileStream_lastbyte(stream) = b; FileStream_status(stream) = 1;
                   return ls_avail;
-            }   }
+                }
+            }
           case FILE_TYPE_PIPE:
-            { var DWORD nchars;
-              if (PeekNamedPipe(handle,NULL,0,NULL,&nchars,NULL))
+            { var DWORD nbytes;
+              if (PeekNamedPipe(handle,NULL,0,NULL,&nbytes,NULL))
                 # It's a pipe (input).
                 { end_system_call();
-                  if (nchars > 0)
-                    # Zeichen verfügbar
+                  if (nbytes > 0)
                     return ls_avail;
                   else
-                    # kein Zeichen verfügbar
                     return ls_wait;
                 }
               elif (GetLastError()==ERROR_BROKEN_PIPE)
                 # EOF reached
                 { end_system_call();
-                  TheStream(stream)->strm_rd_ch_last = eof_value;
+                  FileStream_status(stream) = -1;
                   return ls_eof;
                 }
               elif (GetLastError()==ERROR_ACCESS_DENIED)
                 # It's a pipe (output). Let's fake EOF.
                 { end_system_call();
-                  TheStream(stream)->strm_rd_ch_last = eof_value;
+                  FileStream_status(stream) = -1;
                   return ls_eof;
                 }
               else
@@ -3699,6 +3693,108 @@ typedef struct strm_u_file_extrafields_struct {
       #endif
     }}
 
+  local boolean file_low_clear_input (object stream);
+  local boolean file_low_clear_input(stream)
+    var object stream;
+    { if (nullp(TheStream(stream)->strm_isatty))
+        { return FALSE; } # it's a file -> nothing to do
+      FileStream_status(stream) = 0; # forget about past EOF
+      # Terminal (interactive on AMIGAOS)
+      clear_tty_input(TheHandle(TheStream(stream)->strm_ihandle));
+      # In case this didn't work, and as a general method for platforms on
+      # which clear_tty_input() does nothing: read a byte, as long as listen
+      # says that a byte is available.
+      while (ls_avail_p(file_low_listen(stream))) { file_low_read(stream); }
+      return TRUE;
+    }
+
+  local uintB* file_low_read_array (object stream, uintB* byteptr, uintL len);
+  local uintB* file_low_read_array(stream,byteptr,len)
+    var object stream;
+    var uintB* byteptr;
+    var uintL len;
+    { if (FileStream_status(stream) < 0) # already EOF?
+        { return byteptr; }
+      if (FileStream_status(stream) > 0) # lastbyte valid?
+        { FileStream_status(stream) = 0;
+          *byteptr++ = FileStream_lastbyte(stream);
+          len--;
+          if (len == 0) { return byteptr; }
+        }
+      { var Handle handle = TheHandle(TheStream(stream)->strm_ihandle);
+        run_time_stop(); # Run-Time-Stoppuhr anhalten
+        begin_system_call();
+        #ifdef GRAPHICS_SWITCH
+        if (handle == stdin_handle) switch_text_mode();
+        #endif
+       {var sintL result = full_read(handle,byteptr,len);
+        end_system_call();
+        run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
+        if (result<0)
+          {
+            #if !(defined(AMIGAOS) || defined(WIN32_NATIVE))
+            begin_system_call();
+            if (errno==EINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
+              interruptp({ end_system_call(); fehler_interrupt(); });
+            #endif
+            #ifdef WIN32_NATIVE
+            begin_system_call();
+            if (GetLastError()==ERROR_SIGINT) # Unterbrechung durch Ctrl-C ?
+              { end_system_call(); fehler_interrupt(); }
+            #endif
+            OS_error(); # Error melden
+          }
+        byteptr += result;
+        return byteptr;
+    } }}
+
+# READ-BYTE - Pseudofunktion für Handle-Streams:
+  local object rd_by_handle (object stream);
+  local object rd_by_handle(stream)
+    var object stream;
+    { var sintL b = FileStreamLow_read(stream)(stream);
+      if (b < 0) { return eof_value; }
+      return fixnum((uintB)b);
+    }
+
+# READ-BYTE-ARRAY - Pseudofunktion für Handle-Streams:
+  local uintB* rd_by_array_handle (object stream, uintB* byteptr, uintL len);
+  local uintB* rd_by_array_handle(stream,byteptr,len)
+    var object stream;
+    var uintB* byteptr;
+    var uintL len;
+    { return FileStreamLow_read_array(stream)(stream,byteptr,len); }
+
+# READ-CHAR - Pseudofunktion für Handle-Streams:
+  local object rd_ch_handle (const object* stream_);
+  local object rd_ch_handle(stream_)
+    var const object* stream_;
+    {  var object stream = *stream_;
+       if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF?
+         { return eof_value; }
+     { var sintL b = FileStreamLow_read(stream)(stream);
+       if (b < 0) { return eof_value; }
+      {var chart c = as_chart((uintB)b);
+       if (chareq(c,ascii(NL)))
+         # lineno incrementieren:
+         { HandleStream_lineno(stream) += 1; }
+       return code_char(c);
+    }}}
+
+# Stellt fest, ob ein Handle-Stream ein Zeichen verfügbar hat.
+# listen_handle(stream)
+# > stream: Handle-Stream
+# < ergebnis: ls_avail if a character is available,
+#             ls_eof   if EOF is reached,
+#             ls_wait  if no character is available, but not because of EOF
+  local signean listen_handle (object stream);
+  local signean listen_handle(stream)
+    var object stream;
+    { if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF ?
+        { return ls_eof; }
+      return FileStreamLow_listen(stream)(stream);
+    }
+
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Handle-Stream.
 # clear_input_handle(stream);
 # > stream: Handle-Stream
@@ -3706,34 +3802,11 @@ typedef struct strm_u_file_extrafields_struct {
   local boolean clear_input_handle (object stream);
   local boolean clear_input_handle(stream)
     var object stream;
-    { var Handle handle = TheHandle(TheStream(stream)->strm_ihandle);
-      if (nullp(TheStream(stream)->strm_isatty))
-        # File -> nichts tun
-        { return FALSE; }
-      #if !defined(AMIGAOS)
-      # Terminal
-      TheStream(stream)->strm_rd_ch_last = NIL; # gewesenes EOF vergessen
-      clear_tty_input(handle);
-      # Für den Fall, das das nicht funktionierte:
-      # Zeichen lesen, solange listen_handle() 0 liefert.
-      pushSTACK(stream);
-      while (listen_handle(STACK_0) == 0) { read_char(&STACK_0); }
-      skipSTACK(1);
+    { if (nullp(TheStream(stream)->strm_isatty))
+        { return FALSE; } # it's a file -> nothing to do
+      TheStream(stream)->strm_rd_ch_last = NIL; # forget about past EOF
+      FileStreamLow_clear_input(stream)(stream);
       return TRUE;
-      #else # defined(AMIGAOS)
-      # interaktiv
-      { begin_system_call();
-        loop
-          { if (!WaitForChar(handle,0L)) # 0 usec auf ein Zeichen warten
-              break; # keins mehr da -> fertig
-           {var uintB c;
-            var long ergebnis = Read(handle,&c,1L); # Zeichen lesen versuchen
-            if (ergebnis<0) { OS_error(); }
-          }}
-        end_system_call();
-        return TRUE;
-      }
-      #endif
     }
 
 # READ-CHAR-ARRAY - Pseudofunktion für Handle-Streams:
@@ -3742,107 +3815,31 @@ typedef struct strm_u_file_extrafields_struct {
     var object stream;
     var chart* charptr;
     var uintL len;
-    { # FIXME: Transform this into a as_chart(...) loop.
-      var Handle handle = TheHandle(TheStream(stream)->strm_ihandle);
-      run_time_stop(); # Run-Time-Stoppuhr anhalten
-      begin_system_call();
-      #ifdef GRAPHICS_SWITCH
-      if (handle == stdin_handle) switch_text_mode();
-      #endif
-     {var sintL ergebnis = full_read(handle,charptr,len);
-      end_system_call();
-      run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
-      if (ergebnis<0)
-        {
-          #if !(defined(AMIGAOS) || defined(WIN32_NATIVE))
-          begin_system_call();
-          if (errno==EINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
-            interruptp(
-              { end_system_call();
-                pushSTACK(S(read_char_sequence));
-                fehler(serious_condition,
-                       DEUTSCH ? "~: Ctrl-C: Tastatur-Interrupt" :
-                       ENGLISH ? "~: Ctrl-C: User break" :
-                       FRANCAIS ? "~ : Ctrl-C : Interruption clavier" :
-                       ""
-                      );
-              });
-          #endif
-          #ifdef WIN32_NATIVE
-          begin_system_call();
-          if (GetLastError()==ERROR_SIGINT) # Unterbrechung durch Ctrl-C ?
-            { end_system_call();
-              pushSTACK(S(read_char_sequence));
-              fehler(serious_condition,
-                     DEUTSCH ? "~: Ctrl-C: Tastatur-Interrupt" :
-                     ENGLISH ? "~: Ctrl-C: User break" :
-                     FRANCAIS ? "~ : Ctrl-C : Interruption clavier" :
-                     ""
-                    );
-            }
-          #endif
-          OS_error(); # Error melden
-        }
-      # Update lineno:
-      { var const chart* ptr = charptr;
-        var uintL count;
-        dotimespL(count,ergebnis,
-          { if (chareq(*ptr++,ascii(NL))) { HandleStream_lineno(stream) += 1; } }
-          );
-      }
-      charptr += ergebnis;
-      return charptr;
-    }}
+    { var chart* endptr = FileStreamLow_read_array(stream)(stream,charptr,len);
+      var uintL count = endptr - charptr;
+      dotimesL(count,count,
+        { if (chareq(*charptr++,ascii(NL))) { HandleStream_lineno(stream) += 1; } }
+        );
+      return endptr;
+    }
 
-# READ-BYTE-ARRAY - Pseudofunktion für Handle-Streams:
-  local uintB* rd_by_array_handle (object stream, uintB* byteptr, uintL len);
-  local uintB* rd_by_array_handle(stream,byteptr,len)
-    var object stream;
-    var uintB* byteptr;
-    var uintL len;
-    { var Handle handle = TheHandle(TheStream(stream)->strm_ihandle);
-      run_time_stop(); # Run-Time-Stoppuhr anhalten
-      begin_system_call();
-      #ifdef GRAPHICS_SWITCH
-      if (handle == stdin_handle) switch_text_mode();
-      #endif
-     {var sintL ergebnis = full_read(handle,byteptr,len);
-      end_system_call();
-      run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
-      if (ergebnis<0)
-        {
-          #if !(defined(AMIGAOS) || defined(WIN32_NATIVE))
-          begin_system_call();
-          if (errno==EINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
-            interruptp(
-              { end_system_call();
-                pushSTACK(S(read_byte_sequence));
-                fehler(serious_condition,
-                       DEUTSCH ? "~: Ctrl-C: Tastatur-Interrupt" :
-                       ENGLISH ? "~: Ctrl-C: User break" :
-                       FRANCAIS ? "~ : Ctrl-C : Interruption clavier" :
-                       ""
-                      );
-              });
-          #endif
-          #ifdef WIN32_NATIVE
-          begin_system_call();
-          if (GetLastError()==ERROR_SIGINT) # Unterbrechung durch Ctrl-C ?
-            { end_system_call();
-              pushSTACK(S(read_byte_sequence));
-              fehler(serious_condition,
-                     DEUTSCH ? "~: Ctrl-C: Tastatur-Interrupt" :
-                     ENGLISH ? "~: Ctrl-C: User break" :
-                     FRANCAIS ? "~ : Ctrl-C : Interruption clavier" :
-                     ""
-                    );
-            }
-          #endif
-          OS_error(); # Error melden
-        }
-      byteptr += ergebnis;
-      return byteptr;
-    }}
+# Initializes the input side fields of a handle stream.
+# HandleStream_input_init(stream);
+  #define HandleStream_input_init(stream)  \
+    { FileStreamLow_read(stream) = &file_low_read;               \
+      FileStreamLow_listen(stream) = &file_low_listen;           \
+      FileStreamLow_clear_input(stream) = &file_low_clear_input; \
+      FileStreamLow_read_array(stream) = &file_low_read_array;   \
+      HandleStream_input_init_data(stream);                      \
+    }
+  #define HandleStream_input_init_data(stream)  \
+    FileStream_status(stream) = 0;         \
+    HandleStream_input_init_amiga(stream);
+  #ifdef AMIGAOS
+    #define HandleStream_input_init_amiga(stream)  FileStream_rawp(stream) = 0;
+  #else
+    #define HandleStream_input_init_amiga(stream)
+  #endif
 
 # Schließt einen Handle-Stream.
 # close_ihandle(stream);
@@ -3864,49 +3861,44 @@ typedef struct strm_u_file_extrafields_struct {
 # Handle-Streams, Output side
 # ===========================
 
-# WRITE-CHAR - Pseudofunktion für Handle-Streams:
-  local void wr_ch_handle (const object* stream_, object ch);
-  local void wr_ch_handle(stream_,ch)
-    var const object* stream_;
-    var object ch;
-    { var Handle handle = TheHandle(TheStream(*stream_)->strm_ohandle);
-      # ch sollte Character sein:
-      if (!charp(ch)) { fehler_wr_char(*stream_,ch); }
-     {var uintB c = as_cint(char_code(ch)); # Code des Zeichens
-      restart_it:
+  local void file_low_write (object stream, uintB b);
+  local void file_low_write(stream,b)
+    var object stream;
+    var uintB b;
+    { var Handle handle = TheHandle(TheStream(stream)->strm_ohandle);
+     restart_it:
       begin_system_call();
       #ifdef GRAPHICS_SWITCH
       if (handle == stdout_handle) switch_text_mode();
       #endif
-      {
-       #if !defined(AMIGAOS)
-       var int ergebnis = write(handle,&c,1); # Zeichen auszugeben versuchen
-       if (ergebnis<0)
-         {
-           #if !defined(WIN32_NATIVE)
-           if (errno==EINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
-             { end_system_call();
-               interruptp({ pushSTACK(S(write_char)); tast_break(); }); # Break-Schleife aufrufen
-               goto restart_it;
-             }
-           #endif
-           OS_error(); # Error melden
-         }
-       end_system_call();
-       #else # defined(AMIGAOS)
-       var long ergebnis = Write(handle,&c,1L); # Zeichen auszugeben versuchen
-       end_system_call();
-       if (ergebnis<0) { OS_error(); } # Error melden
-       interruptp({ pushSTACK(S(write_char)); tast_break(); }); # Ctrl-C -> Break-Schleife aufrufen
-       #endif
-       if (ergebnis==0) # nicht erfolgreich?
-         { fehler_unwritable(S(write_char),*stream_); }
-      }
+      # Try to output the byte.
+     {
+      #if !defined(AMIGAOS)
+      var int result = write(handle,&b,1);
+      if (result<0)
+        {
+          #if !defined(WIN32_NATIVE)
+          if (errno==EINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
+            { end_system_call();
+              interruptp({ fehler_interrupt(); });
+              goto restart_it;
+            }
+          #endif
+          OS_error(); # Error melden
+        }
+      end_system_call();
+      #else # defined(AMIGAOS)
+      var long result = Write(handle,&b,1);
+      end_system_call();
+      if (result<0) { OS_error(); } # Error melden
+      interruptp({ fehler_interrupt(); }); # Ctrl-C -> Break-Schleife aufrufen
+      #endif
+      if (result==0) # not successful?
+        { fehler_unwritable(TheSubr(subr_self)->name,stream); }
     }}
 
-# WRITE-BYTE-ARRAY - Pseudofunktion für Handle-Streams:
-  local const uintB* wr_by_array_handle (object stream, const uintB* byteptr, uintL len);
-  local const uintB* wr_by_array_handle(stream,byteptr,len)
+  local const uintB* file_low_write_array (object stream, const uintB* byteptr, uintL len);
+  local const uintB* file_low_write_array(stream,byteptr,len)
     var object stream;
     var const uintB* byteptr;
     var uintL len;
@@ -3915,34 +3907,71 @@ typedef struct strm_u_file_extrafields_struct {
       #ifdef GRAPHICS_SWITCH
       if (handle == stdout_handle) switch_text_mode();
       #endif
-     {var sintL ergebnis = full_write(handle,byteptr,len);
-      if (ergebnis<0) { OS_error(); } # Error melden
+     {var sintL result = full_write(handle,byteptr,len);
+      if (result<0) { OS_error(); } # Error melden
       end_system_call();
-      if (!(ergebnis==(sintL)len)) # nicht erfolgreich?
-        { fehler_unwritable(S(write_byte_sequence),stream); }
-      return byteptr+ergebnis;
+      if (!(result==(sintL)len)) # not successful?
+        { fehler_unwritable(TheSubr(subr_self)->name,stream); }
+      return byteptr+result;
+    }}
+
+  local void file_low_finish_output (object stream);
+  local void file_low_finish_output(stream)
+    var object stream;
+    { finish_tty_output(TheHandle(TheStream(stream)->strm_ohandle)); }
+
+  local void file_low_force_output (object stream);
+  local void file_low_force_output(stream)
+    var object stream;
+    { force_tty_output(TheHandle(TheStream(stream)->strm_ohandle)); }
+
+  local void file_low_clear_output (object stream);
+  local void file_low_clear_output(stream)
+    var object stream;
+    { clear_tty_output(TheHandle(TheStream(stream)->strm_ohandle)); }
+
+# WRITE-BYTE - Pseudofunktion für Handle-Streams:
+  local void wr_by_handle (object stream, object obj);
+  local void wr_by_handle(stream,obj)
+    var object stream;
+    var object obj;
+    { # obj überprüfen:
+      if (!integerp(obj)) { fehler_wr_integer(stream,obj); }
+      if (!(posfixnump(obj) && (posfixnum_to_L(obj) < bit(8))))
+        { fehler_bad_integer(stream,obj); }
+      FileStreamLow_write(stream)(stream,posfixnum_to_L(obj));
+    }
+
+# WRITE-BYTE-ARRAY - Pseudofunktion für Handle-Streams:
+  local const uintB* wr_by_array_handle (object stream, const uintB* byteptr, uintL len);
+  local const uintB* wr_by_array_handle(stream,byteptr,len)
+    var object stream;
+    var const uintB* byteptr;
+    var uintL len;
+    { return FileStreamLow_write_array(stream)(stream,byteptr,len); }
+
+# WRITE-CHAR - Pseudofunktion für Handle-Streams:
+  local void wr_ch_handle (const object* stream_, object ch);
+  local void wr_ch_handle(stream_,ch)
+    var const object* stream_;
+    var object ch;
+    { var object stream = *stream_;
+      # ch sollte Character sein:
+      if (!charp(ch)) { fehler_wr_char(stream,ch); }
+     {var uintB c = as_cint(char_code(ch)); # Code des Zeichens
+      FileStreamLow_write(stream)(stream,c);
     }}
 
 # WRITE-CHAR-ARRAY - Pseudofunktion für Handle-Streams:
-  local const chart* wr_ch_array_handle (object stream, const chart* ptr, uintL len);
-  local const chart* wr_ch_array_handle(stream,ptr,len)
+  local const chart* wr_ch_array_handle (object stream, const chart* charptr, uintL len);
+  local const chart* wr_ch_array_handle(stream,charptr,len)
     var object stream;
-    var const chart* ptr;
+    var const chart* charptr;
     var uintL len;
-    { var Handle handle = TheHandle(TheStream(stream)->strm_ohandle);
-      begin_system_call();
-      #ifdef GRAPHICS_SWITCH
-      if (handle == stdout_handle) switch_text_mode();
-      #endif
-     {var sintL ergebnis = full_write(handle,ptr,len); # Zeichen auszugeben versuchen
-      if (ergebnis<0) { OS_error(); } # Error melden
-      end_system_call();
-      if (!(ergebnis==(sintL)len)) # nicht erfolgreich?
-        { fehler_unwritable(S(write_string),stream); }
-      ptr += len;
-      wr_ss_lpos(stream,ptr,len); # Line-Position aktualisieren
-      return ptr;
-    }}
+    { var const chart* endptr = FileStreamLow_write_array(stream)(stream,charptr,len);
+      wr_ss_lpos(stream,endptr,endptr-charptr); # Line-Position aktualisieren
+      return endptr;
+    }
 
 # WRITE-SIMPLE-STRING - Pseudofunktion für Handle-Streams:
   local void wr_ss_handle (const object* stream_, object string, uintL start, uintL len);
@@ -3985,7 +4014,7 @@ typedef struct strm_u_file_extrafields_struct {
   local void finish_output_handle (object stream);
   local void finish_output_handle(stream)
     var object stream;
-    { finish_tty_output(TheHandle(TheStream(stream)->strm_ohandle)); }
+    { FileStreamLow_finish_output(stream)(stream); }
 
 # UP: Bringt den wartenden Output eines Handle-Stream ans Ziel.
 # force_output_handle(stream);
@@ -3994,7 +4023,7 @@ typedef struct strm_u_file_extrafields_struct {
   local void force_output_handle (object stream);
   local void force_output_handle(stream)
     var object stream;
-    { force_tty_output(TheHandle(TheStream(stream)->strm_ohandle)); }
+    { FileStreamLow_force_output(stream)(stream); }
 
 # UP: Löscht den wartenden Output eines Handle-Stream.
 # clear_output_handle(stream);
@@ -4003,31 +4032,16 @@ typedef struct strm_u_file_extrafields_struct {
   local void clear_output_handle (object stream);
   local void clear_output_handle(stream)
     var object stream;
-    { clear_tty_output(TheHandle(TheStream(stream)->strm_ohandle)); }
+    { FileStreamLow_clear_output(stream)(stream); }
 
-# READ-BYTE - Pseudofunktion für Handle-Streams:
-  local object rd_by_handle (object stream);
-  local object rd_by_handle(stream)
-    var object stream;
-    { pushSTACK(stream);
-     {var object obj = read_char(&STACK_0);
-      skipSTACK(1);
-      if (!eq(obj,eof_value)) { obj = char_to_fixnum(obj); }
-      return obj;
-    }}
-
-# WRITE-BYTE - Pseudofunktion für Handle-Streams:
-  local void wr_by_handle (object stream, object obj);
-  local void wr_by_handle(stream,obj)
-    var object stream;
-    var object obj;
-    { # obj überprüfen:
-      if (!integerp(obj)) { fehler_wr_integer(stream,obj); }
-      if (!(posfixnump(obj) && (posfixnum_to_L(obj) < char_code_limit)))
-        { fehler_bad_integer(stream,obj); }
-      pushSTACK(stream);
-      wr_ch_handle(&STACK_0,fixnum_to_char(obj));
-      skipSTACK(1);
+# Initializes the output side fields of a handle stream.
+# HandleStream_output_init(stream);
+  #define HandleStream_output_init(stream)  \
+    { FileStreamLow_write(stream) = &file_low_write;                 \
+      FileStreamLow_write_array(stream) = &file_low_write_array;     \
+      FileStreamLow_finish_output(stream) = &file_low_finish_output; \
+      FileStreamLow_force_output(stream) = &file_low_force_output;   \
+      FileStreamLow_clear_output(stream) = &file_low_clear_output;   \
     }
 
 # Schließt einen Handle-Stream.
@@ -4122,10 +4136,8 @@ typedef struct strm_u_file_extrafields_struct {
       HandleStream_buffered(stream) = FALSE;
       if (eq(TheStream(stream)->strm_eltype,S(character)))
         { HandleStream_lineno(stream) = 1; }
-      FileStream_status(stream) = 0;
-      #ifdef AMIGAOS
-      FileStream_rawp(stream) = 0;
-      #endif
+      if (direction & bit(0)) { HandleStream_input_init(stream); }
+      if (direction & bit(2)) { HandleStream_output_init(stream); }
       # Liste der offenen Streams um stream erweitern:
       pushSTACK(stream);
       {var object new_cons = allocate_cons();
@@ -7472,13 +7484,13 @@ local object make_key_event(event)
         s->strm_keyboard_buffer = NIL;
         s->strm_keyboard_keytab = popSTACK();
         HandleStream_buffered(stream) = FALSE;
-        FileStream_status(stream) = 0;
+        HandleStream_input_init(stream);
         #endif
         #ifdef WIN32_NATIVE
         s->strm_keyboard_isatty = T;
         s->strm_keyboard_handle = popSTACK();
         HandleStream_buffered(stream) = FALSE;
-        FileStream_status(stream) = 0;
+        HandleStream_input_init(stream);
         #endif
       return stream;
     }}
@@ -8343,8 +8355,8 @@ LISPFUNN(make_keyboard_stream,0)
           s->strm_terminal_ihandle = popSTACK();
           s->strm_terminal_ohandle = popSTACK();
         HandleStream_buffered(stream) = FALSE;
-        FileStream_status(stream) = 0;
-        FileStream_rawp(stream) = 0;
+        HandleStream_input_init(stream);
+        HandleStream_output_init(stream);
         return stream;
       }}
      #else
@@ -8434,7 +8446,8 @@ LISPFUNN(make_keyboard_stream,0)
               s->strm_terminal_outbuff = popSTACK(); # Zeilenbuffer eintragen
               #endif
             HandleStream_buffered(stream) = FALSE;
-            FileStream_status(stream) = 0;
+            HandleStream_input_init(stream);
+            HandleStream_output_init(stream);
             return stream;
           }}
         #endif
@@ -8470,7 +8483,8 @@ LISPFUNN(make_keyboard_stream,0)
               s->strm_terminal_index = Fixnum_0; # index := 0
               #endif
             HandleStream_buffered(stream) = FALSE;
-            FileStream_status(stream) = 0;
+            HandleStream_input_init(stream);
+            HandleStream_output_init(stream);
             return stream;
           }}
         #endif
@@ -8499,7 +8513,8 @@ LISPFUNN(make_keyboard_stream,0)
             s->strm_terminal_ihandle = popSTACK(); # Handle für listen_handle()
             s->strm_terminal_ohandle = popSTACK(); # Handle für Output
           HandleStream_buffered(stream) = FALSE;
-          FileStream_status(stream) = 0;
+          HandleStream_input_init(stream);
+          HandleStream_output_init(stream);
           return stream;
         }}
       }
@@ -12146,10 +12161,7 @@ LISPFUNN(make_pipe_input_stream,1)
       TheStream(stream)->strm_pipe_in_handle = popSTACK(); # Read-Handle
       TheStream(stream)->strm_isatty = NIL;
       HandleStream_buffered(stream) = FALSE;
-      FileStream_status(stream) = 0;
-      #ifdef AMIGAOS
-      FileStream_rawp(stream) = 0;
-      #endif
+      HandleStream_input_init(stream);
       value1 = stream; mv_count=1; # stream als Wert
   }}}
 
@@ -12333,10 +12345,7 @@ LISPFUNN(make_pipe_output_stream,1)
       TheStream(stream)->strm_pipe_pid = popSTACK(); # Child-Pid
       TheStream(stream)->strm_pipe_out_handle = popSTACK(); # Write-Handle
       HandleStream_buffered(stream) = FALSE;
-      FileStream_status(stream) = 0;
-      #ifdef AMIGAOS
-      FileStream_rawp(stream) = 0;
-      #endif
+      HandleStream_output_init(stream);
       value1 = stream; mv_count=1; # stream als Wert
   }}}
 
@@ -12513,10 +12522,7 @@ LISPFUNN(make_pipe_io_stream,1)
       TheStream(stream)->strm_pipe_in_handle = STACK_1; # Read-Handle
       TheStream(stream)->strm_isatty = NIL;
       HandleStream_buffered(stream) = FALSE;
-      FileStream_status(stream) = 0;
-      #ifdef AMIGAOS
-      FileStream_rawp(stream) = 0;
-      #endif
+      HandleStream_input_init(stream);
       STACK_1 = stream;
     }
     # Output-Stream allozieren:
@@ -12537,10 +12543,7 @@ LISPFUNN(make_pipe_io_stream,1)
       TheStream(stream)->strm_pipe_pid = STACK_2; # Child-Pid
       TheStream(stream)->strm_pipe_out_handle = STACK_0; # Write-Handle
       HandleStream_buffered(stream) = FALSE;
-      FileStream_status(stream) = 0;
-      #ifdef AMIGAOS
-      FileStream_rawp(stream) = 0;
-      #endif
+      HandleStream_output_init(stream);
       STACK_0 = stream;
     }
     #ifdef EMUNIX
@@ -12564,306 +12567,209 @@ LISPFUNN(make_pipe_io_stream,1)
 # X11-Socket-Stream, Socket-Stream
 # ================================
 
-# READ-CHAR - Pseudofunktion für Socket-Streams:
-  #ifdef WIN32_NATIVE
-    local object rd_ch_socket (const object* stream_);
-    local object rd_ch_socket(stream_)
-      var const object* stream_;
-      {   restart_it:
-       {  var object stream = *stream_;
-          if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF?
-            { return eof_value; }
-        { var SOCKET handle = TheSocket(TheStream(stream)->strm_ihandle);
-          var uintB c;
-          begin_system_call();
-         {var int ergebnis = sock_read(handle,&c,1); # Zeichen lesen versuchen
-          if (ergebnis<0)
-            { if (WSAGetLastError()==WSAEINTR) # Unterbrechung durch Ctrl-C ?
-                { end_system_call();
-                  pushSTACK(S(read_char)); tast_break(); # Break-Schleife aufrufen
-                  goto restart_it;
-                }
-              SOCK_error();
-            }
-          end_system_call();
-          if (ergebnis==0)
-            # kein Zeichen verfügbar -> muss EOF sein
-            { return eof_value; }
-            else
-            { return code_char(as_chart(c)); }
-      }}}}
-  #else
-    #define rd_ch_socket  rd_ch_handle
-  #endif
+# Socket streams are just like handle streams (unbuffered file streams),
+# except that on WIN32_NATIVE, the low-level functions are different.
 
-# Stellt fest, ob ein Socket-Stream ein Zeichen verfügbar hat.
-# listen_socket(stream)
-# > stream : Socket-Stream
-# < ergebnis: ls_avail if a character is available,
-#             ls_eof   if EOF is reached,
-#             ls_wait  if no character is available, but not because of EOF
-# kann GC auslösen
-  #ifdef WIN32_NATIVE
-    local signean listen_socket (object stream);
-    local signean listen_socket(stream)
-      var object stream;
-      { restart_it:
-        if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF ?
-          { return ls_eof; }
-       {var SOCKET handle = TheSocket(TheStream(stream)->strm_ihandle);
-        # Verwende select mit readfds = einelementige Menge {handle}
-        # und timeout = Null-Zeitintervall.
-        var fd_set handle_menge; # Menge von Handles := {handle}
-        var struct timeval zero_time; # Zeitintervall := 0
-        var int ergebnis;
+#ifdef WIN32_NATIVE
+
+# Input side
+# ----------
+
+  local sintL socket_low_read (object stream);
+  local sintL socket_low_read(stream)
+    var object stream;
+    { if (FileStream_status(stream) < 0) # already EOF?
+        { return -1; }
+      if (FileStream_status(stream) > 0) # lastbyte valid?
+        { FileStream_status(stream) = 0; return FileStream_lastbyte(stream); }
+      { var SOCKET handle = TheSocket(TheStream(stream)->strm_ihandle);
+        var uintB b;
+        begin_system_call();
+       {var int result = sock_read(handle,&b,1); # Zeichen lesen versuchen
+        if (result<0)
+          { if (WSAGetLastError()==WSAEINTR) # Unterbrechung durch Ctrl-C ?
+              { end_system_call(); fehler_interrupt(); }
+            SOCK_error();
+          }
+        end_system_call();
+        if (result==0)
+          # no byte available -> must be EOF
+          { FileStream_status(stream) = -1; return -1; }
+          else
+          { return b; }
+    } }}
+
+  local signean socket_low_listen (object stream);
+  local signean socket_low_listen(stream)
+    var object stream;
+    { if (FileStream_status(stream) < 0) # already EOF?
+        { return ls_eof; }
+      if (FileStream_status(stream) > 0) # lastbyte valid?
+        { return ls_avail; }
+      { var SOCKET handle = TheSocket(TheStream(stream)->strm_ihandle);
+        # Use select() with readfds = singleton set {handle}
+        # and timeout = zero interval.
+        var fd_set handle_menge; # set of handles := {handle}
+        var struct timeval zero_time; # time interval := 0
         begin_system_call();
         FD_ZERO(&handle_menge); FD_SET(handle,&handle_menge);
         zero_time.tv_sec = 0; zero_time.tv_usec = 0;
-        ergebnis = select(FD_SETSIZE,&handle_menge,NULL,NULL,&zero_time);
-        if (ergebnis<0)
+       {var int result;
+        result = select(FD_SETSIZE,&handle_menge,NULL,NULL,&zero_time);
+        if (result<0)
           { if (WSAGetLastError()==WSAEINTR) # Unterbrechung durch Ctrl-C ?
-              { end_system_call();
-                pushSTACK(stream);
-                pushSTACK(S(read_char)); tast_break(); # Break-Schleife aufrufen
-                stream = popSTACK();
-                goto restart_it;
-              }
+              { end_system_call(); fehler_interrupt(); }
             SOCK_error();
           }
           else
-          { # ergebnis = Anzahl der Handles in handle_menge, bei denen read
-            # sofort ein Ergebnis liefern würde.
-            if (ergebnis==0)
-              { end_system_call(); return ls_wait; } # kein Zeichen verfügbar
-            # ergebnis=1
-            # Wenn read() sofort ein Ergebnis liefern würde, kann das auch EOF
-            # sein!
-            # ein Zeichen lesen versuchen (wie bei peek_char):
-           {var uintB c;
-            var int ergebnis = sock_read(handle,&c,1); # Zeichen lesen versuchen
-            if (ergebnis<0)
+          { # result = number of handles in handle_menge for which read() would
+            # return without blocking.
+            if (result==0) { end_system_call(); return ls_wait; }
+            # result=1
+            # When read() returns a result without blocking, this can also be
+            # EOF!
+            # try to read a byte:
+           {var uintB b;
+            var int result = sock_read(handle,&b,1);
+            if (result<0)
               { if (WSAGetLastError()==WSAEINTR) # Unterbrechung durch Ctrl-C ?
-                  { end_system_call();
-                    pushSTACK(stream);
-                    pushSTACK(S(read_char)); tast_break(); # Break-Schleife aufrufen
-                    stream = popSTACK();
-                    goto restart_it;
-                  }
+                  { end_system_call(); fehler_interrupt(); }
                 SOCK_error();
               }
             end_system_call();
-            if (ergebnis==0)
-              # kein Zeichen verfügbar -> EOF erkennen
-              { TheStream(stream)->strm_rd_ch_last = eof_value;
-                return ls_eof;
-              }
-              else # Zeichen verfügbar
-              { TheStream(stream)->strm_rd_ch_last = code_char(as_chart(c));
-                TheStream(stream)->strmflags |= strmflags_unread_B;
+            if (result==0)
+              { FileStream_status(stream) = -1; return ls_eof; }
+              else
+              { # Stuff the read byte into the buffer, for next low_read call.
+                FileStream_lastbyte(stream) = b; FileStream_status(stream) = 1;
                 return ls_avail;
               }
           }}
-      }}
-  #else
-    #define listen_socket  listen_handle
-  #endif
+    } }}
 
-# READ-CHAR-ARRAY - Pseudofunktion für Socket-Streams:
-  #ifdef WIN32_NATIVE
-    local chart* rd_ch_array_socket (object stream, chart* charptr, uintL len);
-    local chart* rd_ch_array_socket(stream,charptr,len)
-      var object stream;
-      var chart* charptr;
-      var uintL len;
-      { var SOCKET handle = TheSocket(TheStream(stream)->strm_ihandle);
-        begin_system_call();
-        # This loop is probably not needed, because sock_read() returns
-        # only when done or EOF. Keep it nevertheless, for the sake of EINTR.
-        # FIXME: Transform this into a as_chart(...) loop.
-        loop
-          { var sintL ergebnis = sock_read(handle,charptr,len);
-            if (ergebnis<0)
-              { if (WSAGetLastError()==WSAEINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
-                  { end_system_call();
-                    pushSTACK(S(read_char_sequence));
-                    fehler(serious_condition,
-                           DEUTSCH ? "~: Ctrl-C: Tastatur-Interrupt" :
-                           ENGLISH ? "~: Ctrl-C: User break" :
-                           FRANCAIS ? "~ : Ctrl-C : Interruption clavier" :
-                           ""
-                          );
-                  }
-                SOCK_error(); # Error melden
-              }
-            if (ergebnis==0) break; # EOF -> fertig
-            charptr += ergebnis; len -= ergebnis;
-            if (len==0) break; # fertig?
-          }
-        end_system_call();
-        return charptr;
-      }
-  #else
-    #define rd_ch_array_socket  rd_ch_array_handle
-  #endif
+  local boolean socket_low_clear_input (object stream);
+  local boolean socket_low_clear_input(stream)
+    var object stream;
+    { # This is not called anyway, because TheStream(stream)->strm_isatty = NIL.
+      return FALSE; # Not sure whether this is the correct behaviour??
+    }
 
-# WRITE-CHAR - Pseudofunktion für Socket-Streams:
-  #ifdef WIN32_NATIVE
-    local void wr_ch_socket (const object* stream_, object ch);
-    local void wr_ch_socket(stream_,ch)
-      var const object* stream_;
-      var object ch;
-      { restart_it:
-       {  var SOCKET handle = TheSocket(TheStream(*stream_)->strm_ohandle);
-          # ch sollte Character sein:
-          if (!charp(ch)) { fehler_wr_char(*stream_,ch); }
-        { var uintB c = as_cint(char_code(ch)); # Code des Zeichens
-          begin_system_call();
-         {var int ergebnis = sock_write(handle,&c,1); # Zeichen auszugeben versuchen
-          if (ergebnis<0)
-            { if (WSAGetLastError()==WSAEINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
-                { end_system_call();
-                  interruptp({ pushSTACK(S(write_char)); tast_break(); }); # Break-Schleife aufrufen
-                  goto restart_it;
-                }
-              SOCK_error(); # Error melden
-            }
-          end_system_call();
-          if (ergebnis==0) # nicht erfolgreich?
-            { fehler_unwritable(S(write_char),*stream_); }
-      }}}}
-  #else
-    #define wr_ch_socket  wr_ch_handle
-  #endif
-
-# WRITE-CHAR-ARRAY - Pseudofunktion für Socket-Streams:
-  #ifdef WIN32_NATIVE
-    local const chart* wr_ch_array_socket (object stream, const chart* ptr, uintL len);
-    local const chart* wr_ch_array_socket(stream,ptr,len)
-      var object stream;
-      var const chart* ptr;
-      var uintL len;
-      { var SOCKET handle = TheSocket(TheStream(stream)->strm_ohandle);
-        var uintL remaining = len;
-        begin_system_call();
-        # This loop is probably not needed, because sock_write() returns
-        # only when done or EOF. Keep it nevertheless.
-        # FIXME: Transform this into a as_cint(...) loop.
-        loop
-          { var int ergebnis = sock_write(handle,ptr,remaining); # Zeichen auszugeben versuchen
-            if (ergebnis<0) { SOCK_error(); } # Error melden
-            if (ergebnis==0) # nicht erfolgreich?
-              { end_system_call(); fehler_unwritable(S(write_string),stream); }
-            ptr += ergebnis; remaining -= ergebnis;
-            if (remaining==0) break; # fertig?
-          }
-        end_system_call();
-        wr_ss_lpos(stream,ptr,len); # Line-Position aktualisieren
-        return ptr;
-      }
-  #else
-    #define wr_ch_array_socket  wr_ch_array_handle
-  #endif
-
-# WRITE-SIMPLE-STRING - Pseudofunktion für Socket-Streams:
-  #ifdef WIN32_NATIVE
-    local void wr_ss_socket (const object* stream_, object string, uintL start, uintL len);
-    local void wr_ss_socket(stream_,string,start,len)
-      var const object* stream_;
-      var object string;
-      var uintL start;
-      var uintL len;
-      { if (len==0) return;
-        wr_ch_array_socket(*stream_,&TheSstring(string)->data[start],len);
-      }
-  #else
-    #define wr_ss_socket  wr_ss_handle
-  #endif
-
-# READ-BYTE - Pseudofunktion für Socket-Streams:
-  #ifdef WIN32_NATIVE
-    local object rd_by_socket (object stream);
-    # This code is identical to rd_by_handle, but nevertheless a distinct
-    # function, so that function pointers can be compared.
-    local object rd_by_socket(stream)
-      var object stream;
-      { pushSTACK(stream);
-       {var object obj = read_char(&STACK_0);
-        skipSTACK(1);
-        if (!eq(obj,eof_value)) { obj = char_to_fixnum(obj); }
-        return obj;
-      }}
-  #else
-    #define rd_by_socket  rd_by_handle
-  #endif
-
-# READ-BYTE-ARRAY - Pseudofunktion für Socket-Streams:
-  #ifdef WIN32_NATIVE
-    local uintB* rd_by_array_socket (object stream, uintB* byteptr, uintL len);
-    local uintB* rd_by_array_socket(stream,byteptr,len)
+  local uintB* socket_low_read_array (object stream, uintB* byteptr, uintL len);
+  local uintB* socket_low_read_array(stream,byteptr,len)
     var object stream;
     var uintB* byteptr;
     var uintL len;
-    { var SOCKET handle = TheSocket(TheStream(stream)->strm_ihandle);
+    { if (FileStream_status(stream) < 0) # already EOF?
+        { return byteptr; }
+      if (FileStream_status(stream) > 0) # lastbyte valid?
+        { FileStream_status(stream) = 0;
+          *byteptr++ = FileStream_lastbyte(stream);
+          len--;
+          if (len == 0) { return byteptr; }
+        }
+      { var SOCKET handle = TheSocket(TheStream(stream)->strm_ihandle);
+        begin_system_call();
+       {var sintL result = sock_read(handle,byteptr,len);
+        if (result<0)
+          { if (WSAGetLastError()==WSAEINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
+              { end_system_call(); fehler_interrupt(); }
+            OS_error(); # Error melden
+          }
+        end_system_call();
+        byteptr += result;
+        return byteptr;
+    } }}
+
+# Initializes the input side fields of a socket stream.
+# SocketStream_input_init(stream);
+  #define SocketStream_input_init(stream)  \
+    { FileStreamLow_read(stream) = &socket_low_read;               \
+      FileStreamLow_listen(stream) = &socket_low_listen;           \
+      FileStreamLow_clear_input(stream) = &socket_low_clear_input; \
+      FileStreamLow_read_array(stream) = &socket_low_read_array;   \
+      HandleStream_input_init_data(stream);                        \
+    }
+
+# Output side
+# -----------
+
+  local void socket_low_write (object stream, uintB b);
+  local void socket_low_write(stream,b)
+    var object stream;
+    var uintB b;
+    { var SOCKET handle = TheSocket(TheStream(stream)->strm_ohandle);
       begin_system_call();
-      # This loop is probably not needed, because sock_read() returns
-      # only when done or EOF. Keep it nevertheless.
-      loop
-        { var sintL ergebnis = sock_read(handle,byteptr,len);
-          if (ergebnis<0) { SOCK_error(); } # Error melden
-          if (ergebnis==0) break; # EOF -> fertig
-          byteptr += ergebnis; len -= ergebnis;
-          if (len==0) break; # fertig?
+      # Try to output the byte.
+     {var int result = sock_write(handle,&b,1);
+      if (result<0)
+        { if (WSAGetLastError()==WSAEINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
+            { end_system_call(); fehler_interrupt(); }
+          SOCK_error(); # Error melden
         }
       end_system_call();
-      return byteptr;
-    }
-  #else
-    #define rd_by_array_socket  rd_by_array_handle
-  #endif
+      if (result==0) # not successful?
+        { fehler_unwritable(TheSubr(subr_self)->name,stream); }
+    }}
 
-# WRITE-BYTE - Pseudofunktion für Socket-Streams:
-  #ifdef WIN32_NATIVE
-    local void wr_by_socket (object stream, object obj);
-    local void wr_by_socket(stream,obj)
-      var object stream;
-      var object obj;
-      { # obj überprüfen:
-        if (!integerp(obj)) { fehler_wr_integer(stream,obj); }
-        if (!(posfixnump(obj) && (posfixnum_to_L(obj) < char_code_limit)))
-          { fehler_bad_integer(stream,obj); }
-        pushSTACK(stream);
-        wr_ch_socket(&STACK_0,fixnum_to_char(obj));
-        skipSTACK(1);
-      }
-  #else
-    #define wr_by_socket  wr_by_handle
-  #endif
-
-# WRITE-BYTE-ARRAY - Pseudofunktion für Socket-Streams:
-  #ifdef WIN32_NATIVE
-    local const uintB* wr_by_array_socket (object stream, const uintB* byteptr, uintL len);
-    local const uintB* wr_by_array_socket(stream,byteptr,len)
+  local const uintB* socket_low_write_array (object stream, const uintB* byteptr, uintL len);
+  local const uintB* socket_low_write_array(stream,byteptr,len)
     var object stream;
     var const uintB* byteptr;
     var uintL len;
     { var SOCKET handle = TheSocket(TheStream(stream)->strm_ohandle);
       begin_system_call();
-      # This loop is probably not needed, because sock_write() returns
-      # only when done or EOF. Keep it nevertheless.
-      loop
-        { var sintL ergebnis = sock_write(handle,byteptr,len);
-          if (ergebnis<0) { SOCK_error(); } # Error melden
-          if (ergebnis==0) # nicht erfolgreich?
-            { end_system_call(); fehler_unwritable(S(write_byte_sequence),stream); }
-          byteptr += ergebnis; len -= ergebnis;
-          if (len==0) break; # fertig?
+     {var sintL result = sock_write(handle,byteptr,len);
+      if (result<0)
+        { if (WSAGetLastError()==WSAEINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
+            { end_system_call(); fehler_interrupt(); }
+          SOCK_error(); # Error melden
         }
       end_system_call();
-      return byteptr;
+      if (!(result==(sintL)len)) # not successful?
+        { fehler_unwritable(TheSubr(subr_self)->name,stream); }
+      return byteptr+result;
+    }}
+
+  local void socket_low_finish_output (object stream);
+  local void socket_low_finish_output(stream)
+    var object stream;
+    { } # cannot do anything
+
+  local void socket_low_force_output (object stream);
+  local void socket_low_force_output(stream)
+    var object stream;
+    { } # cannot do anything
+
+  local void socket_low_clear_output (object stream);
+  local void socket_low_clear_output(stream)
+    var object stream;
+    { } # impossible to clear past output
+
+# Initializes the output side fields of a socket stream.
+# SocketStream_output_init(stream);
+  #define SocketStream_output_init(stream)  \
+    { FileStreamLow_write(stream) = &socket_low_write;                 \
+      FileStreamLow_write_array(stream) = &socket_low_write_array;     \
+      FileStreamLow_finish_output(stream) = &socket_low_finish_output; \
+      FileStreamLow_force_output(stream) = &socket_low_force_output;   \
+      FileStreamLow_clear_output(stream) = &socket_low_clear_output;   \
     }
-  #else
-    #define wr_by_array_socket  wr_by_array_handle
-  #endif
+
+#else
+
+  #define SocketStream_input_init(stream)  HandleStream_input_init(stream)
+  #define SocketStream_output_init(stream)  HandleStream_output_init(stream)
+
+#endif
+
+# Stellt fest, ob ein Socket-Stream ein Zeichen verfügbar hat.
+# listen_socket(stream)
+# > stream: Socket-Stream
+# < ergebnis: ls_avail if a character is available,
+#             ls_eof   if EOF is reached,
+#             ls_wait  if no character is available, but not because of EOF
+  local signean listen_socket (object stream);
+  #define listen_socket  listen_handle
 
 # Schließt einen Socket-Stream.
 # close_socket(stream);
@@ -12893,18 +12799,6 @@ LISPFUNN(make_pipe_io_stream,1)
 
 # Zusätzliche Komponenten:
   # define strm_x11socket_connect strm_field1 # Liste (host display)
-
-#define rd_ch_x11socket  rd_ch_socket
-#define listen_x11socket  listen_socket
-#define rd_ch_array_x11socket  rd_ch_array_socket
-#define wr_ch_x11socket  wr_ch_socket
-#define wr_ch_array_x11socket  wr_ch_array_socket
-#define wr_ss_x11socket  wr_ss_socket
-#define rd_by_x11socket  rd_by_socket
-#define rd_by_array_x11socket  rd_by_array_socket
-#define wr_by_x11socket  wr_by_socket
-#define wr_by_array_x11socket  wr_by_array_socket
-#define close_x11socket  close_socket
 
 extern SOCKET connect_to_x_server (const char* host, int display); # ein Stück X-Source...
 
@@ -12945,27 +12839,25 @@ LISPFUNN(make_x11socket_stream,2)
     # Stream allozieren:
     {var object stream = # neuer Stream, alles erlaubt
        allocate_stream(strmflags_open_B,strmtype_x11socket,strm_handle_len,sizeof(strm_u_file_extrafields_struct));
-     TheStream(stream)->strm_rd_by = P(rd_by_x11socket);
-     TheStream(stream)->strm_rd_by_array = P(rd_by_array_x11socket);
-     TheStream(stream)->strm_wr_by = P(wr_by_x11socket);
-     TheStream(stream)->strm_wr_by_array = P(wr_by_array_x11socket);
-     TheStream(stream)->strm_rd_ch = P(rd_ch_x11socket);
+     TheStream(stream)->strm_rd_by = P(rd_by_handle);
+     TheStream(stream)->strm_rd_by_array = P(rd_by_array_handle);
+     TheStream(stream)->strm_wr_by = P(wr_by_handle);
+     TheStream(stream)->strm_wr_by_array = P(wr_by_array_handle);
+     TheStream(stream)->strm_rd_ch = P(rd_ch_handle);
      TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-     TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_x11socket);
+     TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_handle);
      TheStream(stream)->strm_rd_ch_last = NIL;
-     TheStream(stream)->strm_wr_ch = P(wr_ch_x11socket);
-     TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_x11socket);
+     TheStream(stream)->strm_wr_ch = P(wr_ch_handle);
+     TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_handle);
      TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-     TheStream(stream)->strm_wr_ss = P(wr_ss_x11socket);
+     TheStream(stream)->strm_wr_ss = P(wr_ss_handle);
      TheStream(stream)->strm_ihandle =
      TheStream(stream)->strm_ohandle = popSTACK(); # Handle eintragen
      TheStream(stream)->strm_x11socket_connect = popSTACK(); # zweielementige Liste
      TheStream(stream)->strm_isatty = NIL;
      HandleStream_buffered(stream) = FALSE;
-     FileStream_status(stream) = 0;
-     #ifdef AMIGAOS
-     FileStream_rawp(stream) = 0;
-     #endif
+     SocketStream_input_init(stream);
+     SocketStream_output_init(stream);
      value1 = stream; mv_count=1; # stream als Wert
   }}}
 
@@ -13003,8 +12895,8 @@ LISPFUNN(make_x11socket_stream,2)
     var uintL* count_;
     { if (!streamp(STACK_3)) { fehler_stream(STACK_3); }
       {var object stream = STACK_3;
-       if (!(   eq(TheStream(stream)->strm_rd_by,P(rd_by_socket))
-             && eq(TheStream(stream)->strm_wr_by,P(wr_by_socket))
+       if (!(   eq(TheStream(stream)->strm_rd_by,P(rd_by_handle))
+             && eq(TheStream(stream)->strm_wr_by,P(wr_by_handle))
           ) )
          { pushSTACK(stream);
            pushSTACK(TheSubr(subr_self)->name);
@@ -13042,20 +12934,18 @@ LISPFUNN(read_n_bytes,4)
     var uintL totalcount;
     test_n_bytes_args(&startindex,&totalcount);
     if (!(totalcount==0))
-      { var SOCKET handle = TheSocket(TheStream(STACK_1)->strm_ihandle);
-        var uintL remaining = totalcount;
-        var uintB* ptr = &TheSbvector(TheIarray(STACK_0)->data)->data[startindex];
-        begin_system_call();
-        # This loop is probably not needed, because sock_read() returns
-        # only when done or EOF. Keep it nevertheless.
-        loop
-          { var sintL ergebnis = sock_read(handle,ptr,remaining);
-            if (ergebnis<0) { SOCK_error(); } # Error melden
-            ptr += ergebnis; startindex += ergebnis; remaining -= ergebnis;
-            if (remaining==0) break; # fertig?
-          }
-        end_system_call();
-      }
+      { var uintB* ptr = &TheSbvector(TheIarray(STACK_0)->data)->data[startindex];
+        if (!(read_byte_array(STACK_1,ptr,totalcount) == ptr+totalcount))
+          { pushSTACK(STACK_1); # Wert für Slot STREAM von STREAM-ERROR
+            pushSTACK(STACK_(1+1)); # Stream
+            pushSTACK(S(read_n_bytes));
+            fehler(end_of_file,
+                   DEUTSCH ? "~: Eingabestream ~ ist zu Ende." :
+                   ENGLISH ? "~: input stream ~ has reached its end" :
+                   FRANCAIS ? "~ : Le «stream» d'entrée ~ est épuisé." :
+                   ""
+                  );
+      }   }
     skipSTACK(2);
     value1 = T; mv_count=1; # Wert T
   }
@@ -13065,21 +12955,9 @@ LISPFUNN(write_n_bytes,4)
     var uintL totalcount;
     test_n_bytes_args(&startindex,&totalcount);
     if (!(totalcount==0))
-      { var SOCKET handle = TheSocket(TheStream(STACK_1)->strm_ihandle);
-        var uintL remaining = totalcount;
-        var uintB* ptr = &TheSbvector(TheIarray(STACK_0)->data)->data[startindex];
-        begin_system_call();
-        # This loop is probably not needed, because sock_write() returns
-        # only when done or EOF. Keep it nevertheless.
-        loop
-          { var sintL ergebnis = sock_write(handle,ptr,remaining);
-            if (ergebnis<0) { SOCK_error(); } # Error melden
-            if (ergebnis==0) # nicht erfolgreich?
-              { end_system_call(); fehler_unwritable(S(write_n_bytes),STACK_1); }
-            ptr += ergebnis; startindex += ergebnis; remaining -= ergebnis;
-            if (remaining==0) break; # fertig?
-          }
-        end_system_call();
+      { var const uintB* ptr = &TheSbvector(TheIarray(STACK_0)->data)->data[startindex];
+        if (!(write_byte_array(STACK_1,ptr,totalcount) == ptr+totalcount))
+          { fehler_unwritable(S(write_n_bytes),STACK_1); }
       }
     skipSTACK(2);
     value1 = T; mv_count=1; # Wert T
@@ -13106,28 +12984,26 @@ local object make_socket_stream(handle,host,port)
     # Stream allozieren:
    {var object stream = # neuer Stream, alles erlaubt
       allocate_stream(strmflags_open_B,strmtype_socket,strm_handle_len,sizeof(strm_u_file_extrafields_struct));
-    TheStream(stream)->strm_rd_by = P(rd_by_socket);
-    TheStream(stream)->strm_rd_by_array = P(rd_by_array_socket);
-    TheStream(stream)->strm_wr_by = P(wr_by_socket);
-    TheStream(stream)->strm_wr_by_array = P(wr_by_array_socket);
-    TheStream(stream)->strm_rd_ch = P(rd_ch_socket);
+    TheStream(stream)->strm_rd_by = P(rd_by_handle);
+    TheStream(stream)->strm_rd_by_array = P(rd_by_array_handle);
+    TheStream(stream)->strm_wr_by = P(wr_by_handle);
+    TheStream(stream)->strm_wr_by_array = P(wr_by_array_handle);
+    TheStream(stream)->strm_rd_ch = P(rd_ch_handle);
     TheStream(stream)->strm_pk_ch = P(pk_ch_dummy);
-    TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_socket);
+    TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_handle);
     TheStream(stream)->strm_rd_ch_last = NIL;
-    TheStream(stream)->strm_wr_ch = P(wr_ch_socket);
-    TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_socket);
+    TheStream(stream)->strm_wr_ch = P(wr_ch_handle);
+    TheStream(stream)->strm_wr_ch_array = P(wr_ch_array_handle);
     TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
-    TheStream(stream)->strm_wr_ss = P(wr_ss_socket);
+    TheStream(stream)->strm_wr_ss = P(wr_ss_handle);
     TheStream(stream)->strm_socket_port = port;
     TheStream(stream)->strm_socket_host = host;
     TheStream(stream)->strm_ihandle =
     TheStream(stream)->strm_ohandle = popSTACK(); # Handle eintragen
     TheStream(stream)->strm_isatty = NIL;
     HandleStream_buffered(stream) = FALSE;
-    FileStream_status(stream) = 0;
-    #ifdef AMIGAOS
-    FileStream_rawp(stream) = 0;
-    #endif
+    SocketStream_input_init(stream);
+    SocketStream_output_init(stream);
     return stream;
   }}
 
@@ -13932,7 +13808,7 @@ LISPFUNN(interactive_stream_p,1)
           #endif
           #ifdef X11SOCKETS
           case strmtype_x11socket:
-            close_x11socket(stream); break;
+            close_socket(stream); break;
           #endif
           #ifdef SOCKET_STREAMS
           case strmtype_socket:
@@ -14065,7 +13941,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               case strmtype_pipe_out: return ls_eof; # kein READ-CHAR
               #endif
               #ifdef X11SOCKETS
-              case strmtype_x11socket:   return listen_x11socket(stream);
+              case strmtype_x11socket:   return listen_socket(stream);
               #endif
               #ifdef SOCKET_STREAMS
               case strmtype_socket:   return listen_socket(stream);
