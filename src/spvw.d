@@ -1538,7 +1538,7 @@ local void init_module_2 (module_t* module) {
         var object pack =
           find_package(asciz_to_string(packname,O(internal_encoding)));
         if (nullp(pack)) { # package not found?
-          fprintf(stderr,GETTEXTL("module `%s' requires package %s.\n"),
+          fprintf(stderr,GETTEXTL("module '%s' requires package %s.\n"),
                   module->name, packname);
           quit_sofort(1);
         }
@@ -1582,7 +1582,7 @@ local void usage (void) {
   printf(GETTEXTL("Usage:  "));
   printf(program_name);
   printf(GETTEXTL(" [options] [lispfile [argument ...]]\n"
-                  " When `lispfile' is given, it is loaded and `*ARGS*' is set\n"
+                  " When 'lispfile' is given, it is loaded and '*ARGS*' is set\n"
                   " to the list of argument strings. Otherwise, an interactive\n"
                   " read-eval-print loop is entered.\n"));
   printf(GETTEXTL("Informative output:\n"));
@@ -1630,9 +1630,10 @@ local void usage (void) {
 /* argument diagnostics */
 local void arg_error (const char *error_message, const char *arg) {
   if (arg)
-    fprintf(stderr,"%s: %s: `%s'\n",PACKAGE_NAME,error_message,arg);
-  else fprintf(stderr,"%s: %s\n",PACKAGE_NAME,error_message);
-  fprintf(stderr,GETTEXTL("%s: use `-h' for help"),PACKAGE_NAME);
+    fprintf(stderr,"%s: %s: '%s'\n",PACKAGE_NAME,error_message,arg);
+  else
+    fprintf(stderr,"%s: %s\n",PACKAGE_NAME,error_message);
+  fprintf(stderr,GETTEXTL("%s: use '-h' for help"),PACKAGE_NAME);
   fputs("\n",stderr);
 }
 #define ILLEGAL_ARG(a)  arg_error(GETTEXTL("illegal argument"),a)
