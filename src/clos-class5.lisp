@@ -209,10 +209,10 @@
       (the list (gf-methods |#'allocate-instance|))))))
 (defun make-instance-table-entry1 (class)
   (values (valid-make-instance-keywords class)
-          (compute-effective-method |#'allocate-instance| class)))
+          (compute-applicable-methods-effective-method |#'allocate-instance| class)))
 (defun make-instance-table-entry2 (instance)
-  (values (compute-effective-method |#'initialize-instance| instance)
-          (compute-effective-method |#'shared-initialize| instance 'T)))
+  (values (compute-applicable-methods-effective-method |#'initialize-instance| instance)
+          (compute-applicable-methods-effective-method |#'shared-initialize| instance 'T)))
 
 ;; For REINITIALIZE-INSTANCE the following is necessary as keys:
 ;; - the initargs that are used for the initialization of slots,
@@ -426,8 +426,7 @@
     ;; CLtL2 28.1.9.2., ANSI CL 7.1.2. Validity of initialization arguments
     (unless (eq valid-keywords 't)
       (sys::keyword-test initargs valid-keywords))
-    (let ((si-ef (compute-effective-method
-                  |#'shared-initialize| instance 'NIL)))
+    (let ((si-ef (compute-applicable-methods-effective-method |#'shared-initialize| instance 'NIL)))
       (setf (gethash class *reinitialize-instance-table*)
             (cons valid-keywords si-ef))
       (apply si-ef instance 'NIL initargs))))
