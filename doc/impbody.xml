@@ -470,7 +470,7 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
  <listitem><simpara>&number-t;, &complex-t;, &real-t;, &float-t;,
    &rational-t;, &ratio-t;, &integer-t;</simpara></listitem>
  <listitem><simpara>&sequence-t;</simpara></listitem>
- <listitem><simpara>&array-t;, &vector-t;, &bit-vector-t;
+ <listitem><simpara>&array-t;, &vector-t;, &bit-vector-t;,
    &string-t;</simpara></listitem>
  <listitem><simpara>&list-t;, &cons-t;</simpara></listitem>
  <listitem><simpara>&symbol-t;, &null-t;</simpara></listitem>
@@ -479,13 +479,13 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
  <listitem><simpara>&hash-table-t;</simpara></listitem>
  <listitem><simpara>&package-t;</simpara></listitem>
  <listitem><simpara>&pathname-t;, &logical-pathname-t;
-  </simpara></listitem>
+ </simpara></listitem>
  <listitem><simpara>&random-state-t;</simpara></listitem>
  <listitem><simpara>&readtable-t;</simpara></listitem>
  <listitem><simpara>&stream-t;, &broadcast-stream-t;,
    &concatenated-stream-t;, &echo-stream-t;, &string-stream-t;,
-   &file-stream-t;, &synonym-stream-t;,
-   &two-way-stream-t;</simpara></listitem>
+   &file-stream-t;, &synonym-stream-t;, &two-way-stream-t;
+ </simpara></listitem>
 </itemizedlist></para>
 
 </section>
