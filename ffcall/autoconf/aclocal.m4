@@ -150,7 +150,7 @@ changequote(,)dnl
   alphaev[4-7] | alphaev56 | alphapca5[67] | alphaev6[78] )
     host_cpu=alpha
     ;;
-  hppa1.0 | hppa1.1 | hppa2.0* )
+  hppa1.0 | hppa1.1 | hppa2.0* | hppa64 )
     host_cpu=hppa
     ;;
   powerpc )
@@ -213,7 +213,7 @@ changequote(,)dnl
   alphaev[4-7] | alphaev56 | alphapca5[67] | alphaev6[78] )
     host_cpu=alpha
     ;;
-  hppa1.0 | hppa1.1 | hppa2.0* )
+  hppa1.0 | hppa1.1 | hppa2.0* | hppa64 )
     host_cpu=hppa
     ;;
   powerpc )
