@@ -3,6 +3,66 @@
 (in-package "SYSTEM")
 
 ;;-----------------------------------------------------------------------------
+;; APROPOS
+
+(defun apropos-list (string &optional (package nil))
+  (let* ((L nil)
+         (fun #'(lambda (sym)
+                  (when
+                      #| (search string (symbol-name sym) :test #'char-equal) |#
+                      (sys::search-string-equal string sym) ; 15 mal schneller!
+                    (push sym L)
+                ) )
+        ))
+    (if package
+      (system::map-symbols fun package)
+      (system::map-all-symbols fun)
+    )
+    (stable-sort (delete-duplicates L :test #'eq :from-end t)
+                 #'string< :key #'symbol-name
+    )
+) )
+
+(defvar *apropos-do-more* nil
+  "Print values of the symbols in `apropos'.
+It can be a list of :FUNCTION, :VARIABLE, :TYPE, :CLASS
+to print the corresponding values, or T for all of them.")
+
+(defun apropos (string &optional (package nil))
+  (dolist (sym (apropos-list string package) (terpri))
+    (format t "~&~s~40t" sym)
+    (when (fboundp sym)
+      (write-string "   ")
+      (write-string (fbound-string sym))
+      (when (or (eq t *apropos-do-more*)
+                (member :function *apropos-do-more* :test #'eq))
+        (format t " [~s]" (fdefinition sym))))
+    (when (boundp sym)
+      (write-string "   ")
+      (if (constantp sym)
+        (write-string (ENGLISH "constant"))
+        (write-string (ENGLISH "variable")))
+      (when (or (eq t *apropos-do-more*)
+                (member :variable *apropos-do-more* :test #'eq))
+        (format t " [~s]" (symbol-value sym))))
+    (let ((type (or (get sym 'system::type-symbol)
+                    (get sym 'system::defstruct-description))))
+      (when type
+        (write-string "   ")
+        (write-string (ENGLISH "type"))
+        (when (or (eq t *apropos-do-more*)
+                  (member :type *apropos-do-more* :test #'eq))
+          (format t " [~s]" type))))
+    (let ((class (get sym 'clos::closclass)))
+      (when class
+        (write-string "   ")
+        (write-string (ENGLISH "class"))
+        (when (or (eq t *apropos-do-more*)
+                  (member :class *apropos-do-more* :test #'eq))
+          (format t " [~s]" class)))))
+  (values))
+
+;;-----------------------------------------------------------------------------
 ;; DESCRIBE
 
 (defvar *describe-nesting*)
@@ -353,66 +413,6 @@
     (when (= 0 *describe-nesting*)
       (makunbound '*describe-nesting*)
       (makunbound '*describe-done*)))
-  (values))
-
-;;-----------------------------------------------------------------------------
-;; APROPOS
-
-(defun apropos-list (string &optional (package nil))
-  (let* ((L nil)
-         (fun #'(lambda (sym)
-                  (when
-                      #| (search string (symbol-name sym) :test #'char-equal) |#
-                      (sys::search-string-equal string sym) ; 15 mal schneller!
-                    (push sym L)
-                ) )
-        ))
-    (if package
-      (system::map-symbols fun package)
-      (system::map-all-symbols fun)
-    )
-    (stable-sort (delete-duplicates L :test #'eq :from-end t)
-                 #'string< :key #'symbol-name
-    )
-) )
-
-(defvar *apropos-do-more* nil
-  "Print values of the symbols in `apropos'.
-It can be a list of :FUNCTION, :VARIABLE, :TYPE, :CLASS
-to print the corresponding values, or T for all of them.")
-
-(defun apropos (string &optional (package nil))
-  (dolist (sym (apropos-list string package) (terpri))
-    (format t "~&~s~40t" sym)
-    (when (fboundp sym)
-      (write-string "   ")
-      (write-string (fbound-string sym))
-      (when (or (eq t *apropos-do-more*)
-                (member :function *apropos-do-more* :test #'eq))
-        (format t " [~s]" (fdefinition sym))))
-    (when (boundp sym)
-      (write-string "   ")
-      (if (constantp sym)
-        (write-string (ENGLISH "constant"))
-        (write-string (ENGLISH "variable")))
-      (when (or (eq t *apropos-do-more*)
-                (member :variable *apropos-do-more* :test #'eq))
-        (format t " [~s]" (symbol-value sym))))
-    (let ((type (or (get sym 'system::type-symbol)
-                    (get sym 'system::defstruct-description))))
-      (when type
-        (write-string "   ")
-        (write-string (ENGLISH "type"))
-        (when (or (eq t *apropos-do-more*)
-                  (member :type *apropos-do-more* :test #'eq))
-          (format t " [~s]" type))))
-    (let ((class (get sym 'clos::closclass)))
-      (when class
-        (write-string "   ")
-        (write-string (ENGLISH "class"))
-        (when (or (eq t *apropos-do-more*)
-                  (member :class *apropos-do-more* :test #'eq))
-          (format t " [~s]" class)))))
   (values))
 
 ;;-----------------------------------------------------------------------------
