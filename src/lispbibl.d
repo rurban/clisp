@@ -4644,11 +4644,19 @@ typedef symbol_ *  Symbol;
 # Conversion standard char (in ASCII encoding) --> object.
   #define ascii_char(x)  code_char(ascii(x))
 
-# Base characters are those whose code is < base_char_code_limit.
-  #define base_char_int_len 8
-  #define base_char_int_limit  (1UL<<base_char_int_len)
-  typedef unsigned_int_with_n_bits(base_char_int_len)  bcint;
-  #define base_char_code_limit  base_char_int_limit
+# Small characters are those whose code is < small_char_code_limit.
+  #define small_char_int_len 8
+  #define small_char_int_limit  (1UL<<small_char_int_len)
+  typedef unsigned_int_with_n_bits(small_char_int_len)  scint;
+  #define small_char_code_limit  small_char_int_limit
+
+# Base characters.
+  #define base_char_int_len char_int_len
+  #define base_char_code_limit  char_code_limit
+# The BASE-CHAR type is defined as (upgraded-array-element-type 'standard-char),
+# i.e. the element-type of arrays created with (make-array 'standard-char ...).
+# Since it defeats the purpose of UNICODE to have different 8-bit and 16-bit
+# character types, we define BASE-CHAR=CHARACTER.
 
 # Fixnums
 
@@ -6325,9 +6333,15 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
     #define charp(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias)) == char_type)
   #endif
 
+#if (base_char_code_limit < char_code_limit)
 # Test for base character
   #define base_char_p(obj)  \
     ((as_oint(obj) & ~((oint)(bit(base_char_int_len)-1)<<oint_data_shift)) == type_zero_oint(char_type))
+#endif
+
+# Test for small character
+  #define small_char_p(obj)  \
+    ((as_oint(obj) & ~((oint)(bit(small_char_int_len)-1)<<oint_data_shift)) == type_zero_oint(char_type))
 
 # Test auf SUBR (compiliertes funktionales Objekt)
   #ifdef TYPECODES

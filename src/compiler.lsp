@@ -8365,6 +8365,8 @@ der Docstring (oder NIL).
 (defconstant c-typep-alist1
   '((ARRAY . arrayp)
     (ATOM . atom)
+    #+BASE-CHAR=CHARACTER
+    (BASE-CHAR . characterp)
     (BASE-STRING . stringp)
     (BIT-VECTOR . bit-vector-p)
     (CHARACTER . characterp)
@@ -8417,10 +8419,14 @@ der Docstring (oder NIL).
     (VECTOR . vectorp)
 )  )
 (defconstant c-typep-alist2
-  '((BASE-CHAR . ((x) (and (characterp x) (base-char-p x))))
+  '(#-BASE-CHAR=CHARACTER
+    (BASE-CHAR . ((x) (and (characterp x) (base-char-p x))))
     (BIGNUM . ((x) (and (integerp x) (not (fixnump x)))))
     (BIT . ((x) (or (eql x 0) (eql x 1))))
     (BOOLEAN . ((x) (or (eq x 'nil) (eq x 't))))
+    #+BASE-CHAR=CHARACTER
+    (EXTENDED-CHAR . ((x) (declare (ignore x)) nil))
+    #-BASE-CHAR=CHARACTER
     (EXTENDED-CHAR . ((x) (and (characterp x) (not (base-char-p x)))))
     (NIL . ((x) (declare (ignore x)) nil))
     (RATIO . ((x) (and (rationalp x) (not (integerp x)))))
