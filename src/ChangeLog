@@ -1,3 +1,8 @@
+2003-12-01  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (distrib) [win32]: depend on clisp.man and
+	clisp.html instead of repeating the rules for them
+
 2003-11-17  Sam Steingold  <sds@gnu.org>
 
 	new module for interface to Berkley DB
