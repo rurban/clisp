@@ -327,7 +327,7 @@
   LISPOBJ(machine_version_string,"NIL")
   LISPOBJ(machine_instance_string,"NIL")
 #endif
-  LISPOBJ(software_type,NIL)
+  LISPOBJ(software_type,"NIL") # initialized later
  #if defined(GNU)
   LISPOBJ_S(c_compiler_version,__VERSION__)
  #endif
