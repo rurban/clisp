@@ -250,15 +250,61 @@
               (list 'SETQ 'COMMON-LISP::*PACKAGE*
                     (list 'SYS::%FIND-PACKAGE package-name))))))))
 
-;; this is yet another temporary definition
-(sys::%putd 'cerror
-  (function cerror (lambda (&rest args)
-    (fresh-line) (princ "cerror: ") (prin1 args) (terpri))))
-
-;; the following is a temporary hack
+;; A preliminary definition that understands only ~S, ~A and ~C.
 (sys::%putd 'format
-  (function format (lambda (&rest rest) (print rest))))
-;(setq custom:*error-handler* 'format)
+  (function format
+    (lambda (destination control-string &rest arguments &aux stream)
+      (cond ((null destination)
+             (setq stream (make-string-output-stream)))
+            ((eq destination 'T)
+             (setq stream *standard-output*))
+            ((streamp destination)
+             (setq stream destination))
+            (t (error (TEXT "The destination argument ~S is invalid (not NIL or T or a stream or a string).")
+                      destination)))
+      (unless (stringp control-string)
+        (error (TEXT "~S: The control-string must be a string, not ~S")
+               'format control-string))
+      (let ((i 0) (n (length control-string)))
+        (tagbody
+          next
+            (when (< i n)
+              (when (eq (char control-string i) #\~)
+                (when (< (1+ i) n)
+                  (let ((c (char control-string (1+ i))))
+                    (cond ((eq c #\S)
+                           (prin1 (car arguments) destination)
+                           (setq arguments (cdr arguments))
+                           (setq i (+ i 2))
+                           (go next))
+                          ((eq c #\A)
+                           (princ (car arguments) destination)
+                           (setq arguments (cdr arguments))
+                           (setq i (+ i 2))
+                           (go next))
+                          ((eq c #\C)
+                           (write-char (car arguments) destination)
+                           (setq arguments (cdr arguments))
+                           (setq i (+ i 2))
+                           (go next))))))
+              (write-char (char control-string i) destination)
+              (setq i (+ i 1))
+              (go next))))
+      (if (null destination)
+        (get-output-stream-string stream)
+        nil))))
+
+;; Yet another preliminary definition.
+(sys::%putd 'cerror
+  (function cerror
+    (lambda (continue-format-string error-format-string &rest args)
+      (terpri *error-output*)
+      (write-string "** - Continuable Error" *error-output*)
+      (terpri *error-output*)
+      (apply #'format *error-output* error-format-string args)
+      (terpri *debug-io*)
+      (apply #'format *debug-io* continue-format-string args)
+      nil)))
 
 (use-package '("COMMON-LISP" "CUSTOM") "EXT")
 
@@ -441,7 +487,7 @@
                         symbol)))
          symbol)
         (when what ; when not yet defined, `what' is NIL
-          (warn (TEXT "~a: redefining ~a ~s in ~a, was defined in ~a")
+          (warn (TEXT "~A: redefining ~A ~S in ~A, was defined in ~A")
                 caller what symbol (or cur-file "top-level")
                 (or old-file "top-level")))
         (system::%set-documentation symbol 'sys::file cur-file))))))
@@ -1236,7 +1282,12 @@
 #+ffi (setq ffi::*foreign-language* nil)
 
 ;; preliminary; needed here for open-for-load
-(defun warn (&rest args) (print (cons 'warn args)) nil)
+(defun warn (format-string &rest args)
+  (terpri *error-output*)
+  (write-string (TEXT "WARNING:") *error-output*)
+  (terpri *error-output*)
+  (apply #'format *error-output* format-string args)
+  nil)
 (defun open-for-load (filename extra-file-types external-format
                       &aux stream (present-files t) obj path)
  (block open-for-load
@@ -1338,15 +1389,7 @@
       (fresh-line)
       (write-string ";;")
       (write-string indent)
-      (let* ((msg (TEXT "Loading file ~A ..."))
-             ; We cannot use FORMAT here (bootstrapping constraint).
-             (pos (sys::search-string-equal "~A" msg)))
-        (if pos
-          (progn
-            (write-string (substring msg 0 pos))
-            (princ filename)
-            (write-string (substring msg (+ pos 2))))
-          (write-string msg))))
+      (format t (TEXT "Loading file ~A ...") filename))
     (when *load-compiling* (compiler::c-reset-globals))
     (sys::allow-read-eval input-stream t)
     ;; see `with-compilation-unit' -- `:compiling' sets a compilation unit
@@ -1379,15 +1422,7 @@
       (fresh-line)
       (write-string ";;")
       (write-string indent)
-      (let* ((msg (TEXT "Loaded file ~A"))
-             ; We cannot use FORMAT here (bootstrapping constraint).
-             (pos (sys::search-string-equal "~A" msg)))
-        (if pos
-          (progn
-            (write-string (substring msg 0 pos))
-            (princ filename)
-            (write-string (substring msg (+ pos 2))))
-          (write-string msg))))
+      (format t (TEXT "Loaded file ~A") filename))
     t))
 
 (sys::%putd 'check-symbol

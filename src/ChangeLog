@@ -1,5 +1,15 @@
 2004-04-11  Bruno Haible  <bruno@clisp.org>
 
+	Nicer bootstrapping.
+	* init.lisp (format, cerror, warn): Provide some more capable
+	preliminary definitions.
+	(sys::check-redefinition): Change the format string so that it works
+	with the preliminary FORMAT.
+	(load): Use FORMAT instead of emulating it.
+	* savemem.lisp (saveinitmem): Likewise.
+
+2004-04-11  Bruno Haible  <bruno@clisp.org>
+
 	Speed up the argument type checks.
 	* lispbibl.d (check_fpointer): Turn into an inline function.
 	(check_fpointer_replacement): New declaration.
