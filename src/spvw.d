@@ -684,6 +684,11 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 #include "spvw_space.c"
 
 # ------------------------------------------------------------------------------
+#                       Markierungen
+
+#include "spvw_mark.c"
+
+# ------------------------------------------------------------------------------
 #                   Speicherlängenbestimmung
 
 #include "spvw_objsize.c"
@@ -1275,24 +1280,6 @@ local void xmprotect(addr,len,prot)
   #  - ein SUBR/FSUBR: Bit garcol_bit,(X+const_offset) gesetzt
   #  - Character, Short-Float, Fixnum etc.: stets.
   local void gc_mark (object obj);
-  # Markierungsbit an einer Adresse setzen: mark(addr);
-    #define mark(addr)  *(oint*)(addr) |= wbit(garcol_bit_o)
-  # Markierungsbit an einer Adresse setzen: unmark(addr);
-    #define unmark(addr)  *(oint*)(addr) &= ~wbit(garcol_bit_o)
-  # Markierungsbit an einer Adresse abfragen: if (marked(addr)) ...
-    #ifdef fast_mtypecode
-      #define marked(addr)  (mtypecode(*(object*)(addr)) & bit(garcol_bit_t))
-    #else
-      #if !(garcol_bit_o == 32-1) || defined(WIDE)
-        #define marked(addr)  (*(oint*)(addr) & wbit(garcol_bit_o))
-      #else # garcol_bit_o = 32-1 = Vorzeichenbit
-        #define marked(addr)  (*(sintL*)(addr) < 0)
-      #endif
-    #endif
-  # Markierungsbit in einem Objekt setzen:
-    #define with_mark_bit(obj)  as_object(as_oint(obj) | wbit(garcol_bit_o))
-  # Markierungsbit in einem Objekt löschen:
-    #define without_mark_bit(obj)  as_object(as_oint(obj) & ~wbit(garcol_bit_o))
   local void gc_mark(obj)
     var object obj;
     { var object dies = obj; # aktuelles Objekt
