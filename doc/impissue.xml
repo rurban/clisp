@@ -118,7 +118,7 @@
  <varlistentry><term><ulink url="&clhs;/Issues/iss098.html">DECODE-UNIVERSAL-TIME-DAYLIGHT:LIKE-ENCODE</ulink></term>&yes;</varlistentry>
  <varlistentry><term><ulink url="&clhs;/Issues/iss099.html">DEFCONSTANT-SPECIAL:NO</ulink></term>&yes;</varlistentry>
  <varlistentry><term><ulink url="&clhs;/Issues/iss100.html">DEFGENERIC-DECLARE:ALLOW-MULTIPLE</ulink></term>&yes;</varlistentry>
- <varlistentry><term><ulink url="&clhs;/Issues/iss101.html">DEFINE-COMPILER-MACRO:X3J13-NOV89</ulink></term>&no;</varlistentry>
+ <varlistentry><term><ulink url="&clhs;/Issues/iss101.html">DEFINE-COMPILER-MACRO:X3J13-NOV89</ulink></term>&yes;</varlistentry>
  <varlistentry><term><ulink url="&clhs;/Issues/iss102.html">DEFINE-CONDITION-SYNTAX:INCOMPATIBLY-MORE-LIKE-DEFCLASS+EMPHASIZE-READ-ONLY</ulink></term>&yes;</varlistentry>
  <varlistentry><term><ulink url="&clhs;/Issues/iss103.html">DEFINE-METHOD-COMBINATION-BEHAVIOR:CLARIFY</ulink></term>&no;</varlistentry>
  <varlistentry><term><ulink url="&clhs;/Issues/iss104.html">DEFINING-MACROS-NON-TOP-LEVEL:ALLOW</ulink></term>&no;</varlistentry>
