@@ -1309,8 +1309,8 @@ removed, the discriminating function is recomputed.  The new
 discriminating function is then stored with
 &set-funcallable-instance-function;.</para>
 
-<para>Discriminating functions call &compute-applicable-methods; and
-&compute-applicable-methods-UC; to compute the methods
+<para>Discriminating functions call &compute-applicable-methods-mop;
+and &compute-applicable-methods-UC; to compute the methods
 applicable to the generic functions arguments.  Applicable methods are
 combined by &compute-effective-method; to produce
 an <firstterm>effective method</firstterm>.  Provisions are made to
@@ -1747,10 +1747,10 @@ use of this facility.</para></formalpara>
   </simplelist>.</para></section>
 
 <section id="compute-applicable-methods">
- <title>Generic Function &compute-applicable-methods;</title>
+ <title>Generic Function &compute-applicable-methods-mop;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
-  <listitem><simpara><literal role="sexp">&compute-applicable-methods;
+  <listitem><simpara><literal role="sexp">&compute-applicable-methods-mop;
      &gf-r; &args-r;)</literal></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
@@ -1775,7 +1775,7 @@ use of this facility.</para></formalpara>
    arguments.  Depending on the generic function and the arguments, this
    is done in one of three ways: using a memoized value; calling
    &compute-applicable-methods-UC;; or calling
-   &compute-applicable-methods;.
+   &compute-applicable-methods-mop;.
    (Refer to the description of &compute-discriminating-function; for
    the details of this process.)</simpara>
   <simpara>The &args-r; argument is permitted to contain more elements
@@ -1786,7 +1786,7 @@ use of this facility.</para></formalpara>
   &result-immutable;</listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
-<varlistentry><term><literal role="method">(&compute-applicable-methods;
+<varlistentry><term><literal role="method">(&compute-applicable-methods-mop;
    (&gf-r; &standard-generic-function-t;) &args-r;)</literal></term>
  <listitem><simpara>This method &sig-err; if any method of the generic
    function has a specializer which is neither a class metaobject nor an
@@ -1802,6 +1802,10 @@ use of this facility.</para></formalpara>
     (&standard-generic-function-t; &t-t;)</literal>.
 </simpara></listitem></varlistentry></variablelist>
 </section>
+
+<simplesect><title>Remarks</title> <!-- sds -->
+<para>See also the &ansi-cl; functions &compute-applicable-methods;.
+</para></simplesect>
 
 <section id="compute-applicable-methods-UC">
  <title>Generic Function &compute-applicable-methods-UC;</title>
@@ -1841,14 +1845,14 @@ use of this facility.</para></formalpara>
    arguments.  Depending on the generic function and the arguments, this
    is done in one of three ways: using a memoized value; calling
    &compute-applicable-methods-UC;; or calling
-   &compute-applicable-methods;.  (Refer to the description of
+   &compute-applicable-methods-mop;.  (Refer to the description of
    &compute-discriminating-function; for the details of this process.)
   </simpara><simpara>The following consistency relationship between
-   &compute-applicable-methods-UC; and &compute-applicable-methods; must
+   &compute-applicable-methods-UC; and &compute-applicable-methods-mop; must
    be maintained: for any given generic function and set of arguments,
    if &compute-applicable-methods-UC; returns a second value of true,
    the first value must be equal to the value that would be returned by
-   a corresponding call to &compute-applicable-methods;.  The results
+   a corresponding call to &compute-applicable-methods-mop;.  The results
    are undefined if a portable method on either of these generic
    functions causes this consistency to be violated.</simpara>
   &result-immutable;</listitem></varlistentry></variablelist>
@@ -1868,8 +1872,8 @@ use of this facility.</para></formalpara>
    false as its second value.</simpara>
   <simpara>This method can be overridden. Because of the consistency
    requirements between this generic function and
-   &compute-applicable-methods;, doing so may require also overriding
-   <literal role="method">&compute-applicable-methods;
+   &compute-applicable-methods-mop;, doing so may require also overriding
+   <literal role="method">&compute-applicable-methods-mop;
     (&standard-generic-function-t; &t-t;) </literal>.
 </simpara></listitem></varlistentry></variablelist>
 
@@ -1881,10 +1885,10 @@ lookup memoization found in many implementations.  (There is of course
 no requirement for an implementation to provide this optimization.)</para>
 
 <para>Such an extension can be implemented by two methods, one on this
-generic function and one on &compute-applicable-methods;.  Whenever the
-user extension is in effect, the first method will return a second value
-of true.  This should allow the implementation to absorb these cases
-into its own memoization scheme.</para>
+generic function and one on &compute-applicable-methods-mop;.  Whenever
+the user extension is in effect, the first method will return a second
+value of true.  This should allow the implementation to absorb these
+cases into its own memoization scheme.</para>
 
 <para>To get appropriate performance, other kinds of extensions may
 require methods on &compute-discriminating-function; which implement
@@ -2009,7 +2013,7 @@ their own memoization scheme.</para></simplesect>
   <simpara>To determine the ordered set of applicable methods, the
    discriminating function first calls &compute-applicable-methods-UC;.
    If &compute-applicable-methods-UC; returns a second value of false,
-   the discriminating function then calls &compute-applicable-methods;.
+   the discriminating function then calls &compute-applicable-methods-mop;.
   </simpara><para>When &compute-applicable-methods-UC; returns a second
    value of true, the discriminating function is permitted to memoize
    the first returned value as follows.  The discriminating function may
