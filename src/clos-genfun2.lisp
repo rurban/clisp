@@ -27,6 +27,34 @@
         (l '() (cons count l)))
        ((eql count 0) l)))
 
+;; Checks an argument-precedence-order list and converts it to a list of
+;; indices. reqvars is the required-variables portion of the lambda-list.
+;; Reports errors through errfunc (a function taking a detail object, an
+;; error format string and format string arguments).
+(defun generic-function-argument-precedence-order-to-argorder (argument-precedence-order reqnum reqvars errfunc)
+  (let ((indices
+          (mapcar #'(lambda (x)
+                      (or (position x reqvars)
+                          (funcall errfunc x
+                                   (TEXT "~S is not one of the required parameters: ~S")
+                                   x argument-precedence-order)))
+                  argument-precedence-order)))
+    ;; Is argument-precedence-order a permutation of reqvars?
+    ;; In other words: Is the mapping
+    ;;         argument-precedence-order --> reqvars
+    ;; resp.   indices                   --> {0, ..., reqnum-1}
+    ;; bijective?
+    (unless (or (<= (length indices) 1) (apply #'/= indices)) ; injective?
+      (funcall errfunc argument-precedence-order
+               (TEXT "Some variable occurs twice in ~S")
+               argument-precedence-order))
+    (unless (eql (length indices) reqnum) ; surjective?
+      (let ((missing (set-difference reqvars argument-precedence-order)))
+        (funcall errfunc missing
+                 (TEXT "The variables ~S are missing in ~S")
+                 missing argument-precedence-order)))
+    indices))
+
 ;; Checks a generic-function lambda-list and argument-precedence-order.
 ;; Returns three values:
 ;; 1. the lambda-list's signature,
@@ -52,27 +80,13 @@
                    (TEXT "The ~S argument should be a proper list, not ~S")
                    ':argument-precedence-order argument-precedence-order))
         (let ((indices
-                (mapcar #'(lambda (x)
-                            (or (position x reqvars)
-                                (funcall errfunc x
-                                         (TEXT "Incorrect ~S argument: ~S is not one of the required parameters: ~S")
-                                         ':argument-precedence-order x argument-precedence-order)))
-                        argument-precedence-order)))
-          ;; Is argument-precedence-order a permutation of reqvars?
-          ;; In other words: Is the mapping
-          ;;         argument-precedence-order --> reqvars
-          ;; resp.   indices                   --> {0, ..., reqnum-1}
-          ;; bijective?
-          (unless (or (<= (length indices) 1) (apply #'/= indices)) ; injective?
-            (funcall errfunc argument-precedence-order
-                     (TEXT "Incorrect ~S argument: Some variable occurs twice in ~S")
-                     ':argument-precedence-order argument-precedence-order))
-          (unless (eql (length indices) reqnum) ; surjective?
-            (let ((missing (set-difference reqvars argument-precedence-order)))
-              (funcall errfunc missing
-                       (TEXT "Incorrect ~S argument: The variables ~S are missing in ~S")
-                       ':argument-precedence-order
-                       missing argument-precedence-order)))
+                (generic-function-argument-precedence-order-to-argorder
+                  argument-precedence-order reqnum reqvars
+                  #'(lambda (detail errorstring &rest arguments)
+                      (funcall errfunc detail
+                               (TEXT "Incorrect ~S argument: ~A")
+                               ':argument-precedence-order
+                               (apply #'format nil errorstring arguments))))))
           (values signature argument-precedence-order indices)))
       (values signature reqvars (countup reqnum)))))
 
@@ -803,7 +817,7 @@
          (rest-var (if restp (gensym)))
          (apply-fun (if restp 'APPLY 'FUNCALL))
          (apply-args `(,@req-vars ,@(if restp `(,rest-var) '())))
-         (arg-order (std-gf-argorder gf))
+         (arg-order (safe-gf-argorder gf))
          (methods (safe-gf-methods gf))
          (block-name (gensym))
          (maybe-no-applicable nil)
@@ -1176,7 +1190,7 @@
                                      (method-applicable-p method req-args gf))
                                  (the list methods)))
             ;; 2. Sort the applicable methods by precedence order:
-            (sort-applicable-methods methods (mapcar #'class-of req-args) (std-gf-argorder gf) gf)))
+            (sort-applicable-methods methods (mapcar #'class-of req-args) (safe-gf-argorder gf) gf)))
         (error (TEXT "~S: ~S has ~S required argument~:P, but only ~S arguments were passed to ~S: ~S")
                'compute-applicable-methods gf req-num (length args)
                'compute-applicable-methods args)))))
@@ -1231,7 +1245,7 @@
                                      applicable))
                                (the list methods)))
           ;; 2. Sort the applicable methods by precedence order:
-          (values (sort-applicable-methods methods req-arg-classes (std-gf-argorder gf) gf) t))
+          (values (sort-applicable-methods methods req-arg-classes (safe-gf-argorder gf) gf) t))
         (error (TEXT "~S: ~S has ~S required argument~:P, but ~S classes were passed to ~S: ~S")
                'compute-applicable-methods-using-classes gf req-num (length req-arg-classes)
                'compute-applicable-methods-using-classes req-arg-classes)))))
@@ -1340,7 +1354,7 @@
                                      applicable))
                                (the list methods)))
           ;; 2. Sort the applicable methods by precedence order:
-          (let ((argument-order (std-gf-argorder gf)))
+          (let ((argument-order (safe-gf-argorder gf)))
             (values
               (sort (copy-list methods)
                     #'(lambda (method1 method2) ; method1 < method2 ?

@@ -426,6 +426,30 @@
       (mapcar #'(lambda (i) (nth i lambdalist)) argorder))))
 (initialize-extended-method-check #'generic-function-argument-precedence-order)
 
+;; Not in MOP.
+(fmakunbound 'generic-function-argorder)
+(defgeneric generic-function-argorder (generic-function)
+  (:method ((gf generic-function))
+    (let* ((lambdalist (generic-function-lambda-list gf))
+           (signature (generic-function-signature gf))
+           (reqnum (sig-req-num signature))
+           (reqvars (subseq lambdalist 0 reqnum))
+           (argument-precedence-order (generic-function-argument-precedence-order gf)))
+      (generic-function-argument-precedence-order-to-argorder
+        argument-precedence-order reqnum reqvars
+        #'(lambda (detail errorstring &rest arguments)
+            (declare (ignore detail))
+            (error (TEXT "Invalid ~S result ~S: ~A")
+                   'generic-function-argument-precedence-order argument-precedence-order
+                   (apply #'format nil errorstring arguments))))))
+  (:method ((gf standard-generic-function))
+    (check-generic-function-initialized gf)
+    (when (eq (std-gf-signature gf) (sys::%unbound))
+      (error (TEXT "~S: the lambda-list of ~S is not yet known")
+             'generic-function-argument-precedence-order gf))
+    (std-gf-argorder gf)))
+(setq |#'generic-function-argorder| #'generic-function-argorder)
+
 ;; MOP p. 79
 (defgeneric generic-function-declarations (generic-function)
   (:method ((gf standard-generic-function))
