@@ -965,9 +965,11 @@ A package (or list thereof) can be locked using <literal role="sexp"
 >(&setf; (&package-lock; <replaceable>package-or-list</replaceable>)
 &t;)</literal>.
 &clisp; locks its system packages (specified in the variable
-&sys-pack-list;).
-If you want to evaluate some forms with certain packages unlocked, you
-can use <function>EXT:WITHOUT-PACKAGE-LOCK</function>:
+&sys-pack-list;).</para></formalpara>
+
+<formalpara><title><function>EXT:WITHOUT-PACKAGE-LOCK</function></title>
+<para>If you want to evaluate some forms with certain packages unlocked,
+ you can use <function>EXT:WITHOUT-PACKAGE-LOCK</function>:
 <programlisting>
 (without-package-lock ("LISP" "EXT" "CLOS")
   (defun restart () ...))
@@ -976,8 +978,18 @@ or
 <programlisting>
 (without-package-lock ("LISP") (trace read-line))
 </programlisting>
-<literal role="sexp" >(without-package-lock () ...)</literal> unlocks
-all packages in &sys-pack-list;.</para></formalpara>
+<literal role="sexp" >(without-package-lock () ...)</literal>
+temporarily unlocks all packages in &sys-pack-list;.</para></formalpara>
+
+<formalpara><title>Rationale - see also
+  <ulink url="http://groups.google.com/groups?hl=en&amp;lr=&amp;ie=UTF-8&amp;selm=3C3E7F57.7F80395%40pacbell.net">the USENET posting</ulink> by
+<ulink url="mailto:haflich@pacbell.net">Steven M. Haflich</ulink></title>
+<para>This should prevent you from accidentally hosing yourself with
+<programlisting>
+ (defstruct instance ...)
+</programlisting>
+and allow enforcing modularity.
+</para></formalpara>
 
 </section>
 
@@ -994,7 +1006,7 @@ all packages in &sys-pack-list;.</para></formalpara>
 <para>The following additional packages exist:</para>
 <variablelist><title>Implementation-Defined Packages</title>
   <varlistentry><term>&clos-pac;</term><listitem>
-   <simpara>&export;s all &clos; specific symbols, including some
+   <simpara>&export;s all &clos;-specific symbols, including some
    <link linkend="clos-diff">additional symbols</link>.
    </simpara></listitem></varlistentry>
   <varlistentry id="sys-pac"><term>&sys-pac;</term><listitem>
@@ -3413,8 +3425,8 @@ non-&nil;.</para>
 <para>When both &path-r; and <replaceable>default-pathname</replaceable>
  are relative pathnames, the behavior depends on &pathmerge;: when it is
  &nil;, then &clisp; retains its traditional behavior:
- <literal role="sexp">(&merge-pathnames; #p"x/" #p"y/")</literal>
- evaluates to <filename>#p"x/"</filename></para>
+ <literal role="sexp">(&merge-pathnames; #P"x/" #P"y/")</literal>
+ evaluates to <filename>#P"x/"</filename></para>
 
 <para><emphasis>Rationale</emphasis>: &merge-pathnames; is used to
  specify default components for pathnames, so there is some analogy
@@ -3432,16 +3444,16 @@ non-&nil;.</para>
  <quote>pathnames with defaults not yet applied</quote>.)</para>
 
 <para>Now, <literal role="sexp">(&merge-pathnames; (&merge-pathnames;
- '#p"x/" '#p"y/") '#p"y/")</literal> and <literal
- role="sexp">(&merge-pathnames; '#p"x/" '#p"y/")</literal> are &equal;
+ #P"x/" #P"y/") #P"y/")</literal> and <literal
+ role="sexp">(&merge-pathnames; #P"x/" #P"y/")</literal> are &equal;
  in &clisp; (when &pathmerge; is &nil;), but not in implementations that
  strictly follow the &ansi-cl; spec.  In fact, the above twice-default =
  once-default rule holds for all pathnames in &clisp;.</para>
 
 <para>When &pathmerge; is non-&nil;, the normal
  &ansi-cl; behavior is exhibited:
- <literal role="sexp">(&merge-pathnames; #p"x/" #p"y/")</literal>
-  evaluates to <filename>#p"y/x/"</filename></para>
+ <literal role="sexp">(&merge-pathnames; #P"x/" #P"y/")</literal>
+  evaluates to <filename>#P"y/x/"</filename></para>
 
 <para>The rationale is that <quote>merge</quote> is
  <emphasis>merge</emphasis> and not <emphasis>or</emphasis>.</para>
@@ -4398,19 +4410,19 @@ functions are provided:</para>
 <section id="compilefile"><title>Function &compile-file;</title>
 
 <para><literal role="sexp">(&compile-file;
-          <replaceable>input-file</replaceable> &key-amp; :output-file
-          :listing &warnings-k; &verbose-k; &print-k;)</literal>
+          <replaceable>input-file</replaceable> &key-amp; :OUTPUT-FILE
+          :LISTING &warnings-k; &verbose-k; &print-k;)</literal>
 compiles a file to platform-independent bytecode.</para>
 
 <variablelist id="compile-file-arguments">
 <varlistentry><term><replaceable>input-file</replaceable></term>
  <listitem><simpara>should be a pathname/string/symbol.
  </simpara></listitem></varlistentry>
-<varlistentry><term><constant>:output-file</constant></term>
+<varlistentry><term><constant>:OUTPUT-FILE</constant></term>
  <listitem><simpara>should be &nil; or &t; or a pathname/string/symbol
  or an output-stream.  The default is &t;.
  </simpara></listitem></varlistentry>
-<varlistentry><term><constant>:listing</constant></term>
+<varlistentry><term><constant>:LISTING</constant></term>
  <listitem><simpara>should be &nil; or &t; or a pathname/string/symbol
  or an output-stream.  The default is &nil;.
  </simpara></listitem></varlistentry>
@@ -4427,7 +4439,7 @@ compiles a file to platform-independent bytecode.</para>
 </variablelist>
 
 <para>The variables <emphasis
- role="strong"><varname>custom:*compile-warnings*</varname></emphasis>,
+ role="strong"><varname>CUSTOM:*COMPILE-WARNINGS*</varname></emphasis>,
  &compile-verbose-var;, &compile-print-var; provide defaults for the
  &warnings-k;, &verbose-k;, &print-k; keyword arguments, respectively.
  For each input file (default file type: &lisp-file;)
@@ -4438,20 +4450,20 @@ compiles a file to platform-independent bytecode.</para>
   <thead><row><entry>File</entry><entry>When</entry>
   <entry>Default file type</entry><entry>Contents</entry></row></thead><tbody>
  <row><entry>output file</entry>
-   <entry>only if <constant>:output-file</constant> is not &nil;</entry>
+   <entry>only if <constant>:OUTPUT-FILE</constant> is not &nil;</entry>
    <entry>&fasl-file;</entry>
    <entry>can be loaded using the &load; function</entry></row>
  <row><entry>auxiliary output file</entry>
-   <entry>only if <constant>:output-file</constant> is not &nil;</entry>
+   <entry>only if <constant>:OUTPUT-FILE</constant> is not &nil;</entry>
    <entry>&lib-file;</entry>
    <entry>used by &compile-file; when compiling a &require; form referring
     to the input file</entry></row>
  <row><entry>listing file</entry>
-   <entry>only if <constant>:listing</constant> is not &nil;</entry>
+   <entry>only if <constant>:LISTING</constant> is not &nil;</entry>
    <entry><filename>#P".lis"</filename></entry>
    <entry>disassembly of the output file</entry></row>
  <row><entry>&c-lang; output file</entry>
-   <entry>only if <constant>:output-file</constant> is not &nil;</entry>
+   <entry>only if <constant>:OUTPUT-FILE</constant> is not &nil;</entry>
    <entry><filename>#P".c"</filename></entry>
    <entry>foreign function interface; this file is deleted if it is
     empty</entry></row>
@@ -4467,7 +4479,7 @@ the first one!</para></warning>
 
 <section id="compile-file-path">
    <title>Function &compile-file-pathname;</title>
-<para>The default for the <constant>:output-file</constant> argument is
+<para>The default for the <constant>:OUTPUT-FILE</constant> argument is
  &t;, which means &fasl-file;.</para></section>
 
 <section id="require"><title>Function &require;</title>
@@ -4478,7 +4490,7 @@ the first one!</para></warning>
 
 <para>At compile time, <literal role="sexp">(&require; &foo-f;)</literal>
 forms are treated specially:  &load-paths; is searched for
-&foolisp-f; <emphasis>and</emphasis> <filename>"foo.lib"</filename>.
+&foolisp-f; <emphasis>and</emphasis> <filename>#P"foo.lib"</filename>.
 If the latest such file is a &lisp-file;, it is compiled;
 otherwise the &lib-file; is loaded.
 The &lib-file; is a <quote>header</quote> file which contains the
@@ -4488,7 +4500,7 @@ definitions and calls that are not necessary for that.
 Thus it is <emphasis>not</emphasis> necessary to either enclose
 &require; forms in &eval-when; or to load the required files in the
 makefiles: if you have two files, &foolisp-f;
-and <filename>"bar.lisp"</filename>, and the latter requires the
+and <filename>#P"bar.lisp"</filename>, and the latter requires the
 former, you can write in your &make-file;:
 <programlisting>
 all: foo.fas bar.fas
@@ -4505,8 +4517,9 @@ usually smaller and load faster that &fasl-file;s):
 bar.fas: bar.lisp foo.fas
         clisp -i foo -c bar
 </programlisting>
-Thus, you do not need to &load; &foo-f;
-in order to &compile-file; <filename>"bar.lisp"</filename>.
+Thus, you do not need to <literal role="sexp">(&load; &foo-f;)</literal>
+in order to <literal role="sexp">(&compile-file;
+ <filename>#P"bar.lisp"</filename>)</literal>.
 If memory is tight, and if &foolisp-f; contains
 only a few inline functions, macros, constants or variables,
 this is a space and time saver.
