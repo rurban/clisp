@@ -1,5 +1,16 @@
 2004-09-13  Sam Steingold  <sds@gnu.org>
 
+	comply with <http://www.lisp.org/HyperSpec/Body/fun_compile-file.html>:
+	 If verbose is true, compile-file prints a message in the form of
+	 a comment (i.e., with a leading semicolon) to standard output
+	 indicating what file is being compiled and other useful
+	 information. If verbose is false, compile-file does not print
+	 this information.
+	* compiler.lisp (compile-file): prefix verbose output with ";; "
+	 and send it to *STANDARD-OUTPUT*
+
+2004-09-13  Sam Steingold  <sds@gnu.org>
+
 	* runprog.lisp (run-shell-command) [win32]: :INDIRECTP defaults to T
 	Reported by Jörg Höhle
 
