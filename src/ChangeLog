@@ -1,5 +1,14 @@
 2003-08-28  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (subr_argtype): accept additional argument for better
+	error reporting
+	(init_subr_tab_1): when initializing modules, pass subr_initdata
+	to subr_argtype()
+	still no error reporting for FSUBRs and main CLISP SUBRs because
+	we cannot print symbols before encodings have been initialized.
+
+2003-08-28  Sam Steingold  <sds@gnu.org>
+
 	* time.d (get_run_time) [TIME_UNIX]: when HZ is not defined, use
 	CLK_TCK or CLOCKS_PER_SECOND.
 	Reported by Prut Flut <prutflut@m-net.arbornet.org> (NetBSD)

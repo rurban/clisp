@@ -646,9 +646,9 @@ local char* program_name;
 # flag, if SYS::READ-FORM should behave ILISP-compatible:
 global bool ilisp_mode = false;
 
-# conversion of the argument types of a FSUBR into a code:
 local fsubr_argtype_t fsubr_argtype (uintW req_anz, uintW opt_anz,
-                                     fsubr_body_t body_flag) {
+                                     fsubr_body_t body_flag)
+{ /* conversion of the argument types of a FSUBR into a code: */
   switch (body_flag) {
     case fsubr_nobody:
       switch (opt_anz) {
@@ -680,14 +680,15 @@ local fsubr_argtype_t fsubr_argtype (uintW req_anz, uintW opt_anz,
     default: goto illegal;
   }
  illegal:
-  fputs(GETTEXTL("Unknown signature of an FSUBR" NLstring),stderr);
+  fprintf(stderr,GETTEXTL("Unknown FSUBR signature: %d %d %d" NLstring),
+          req_anz,opt_anz,body_flag);
   quit_sofort(1);
 }
 
-# conversion of the argument types of a FSUBR into a code:
 local subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz,
-                                   subr_rest_t rest_flag,
-                                   subr_key_t key_flag) {
+                                   subr_rest_t rest_flag, subr_key_t key_flag,
+                                   subr_initdata_t *sid)
+{ /* conversion of the argument types of a FSUBR into a code: */
   switch (key_flag) {
     case subr_nokey:
       switch (rest_flag) {
@@ -787,14 +788,18 @@ local subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz,
     default: goto illegal;
   }
  illegal:
-  fputs(GETTEXTL("Unknown signature of a SUBR" NLstring),stderr);
+  fprintf(stderr,GETTEXTL("Unknown SUBR signature: %d %d %d %d"),
+          req_anz,opt_anz,rest_flag,key_flag);
+  if (sid)
+    fprintf(stderr," (%s::%s)\n",sid->packname,sid->symname);
+  else fputs(NLstring,stderr);
   quit_sofort(1);
 }
 # set the argtype of a subr_t *ptr
-#define SUBR_SET_ARGTYPE(ptr)                                           \
+#define SUBR_SET_ARGTYPE(ptr,sid)                                       \
   ptr->argtype = (uintW)subr_argtype(ptr->req_anz,ptr->opt_anz,         \
                                      (subr_rest_t)(ptr->rest_flag),     \
-                                     (subr_key_t)(ptr->key_flag))
+                                     (subr_key_t)(ptr->key_flag),sid)
 
 # Verify that a code address has the C_CODE_ALIGNMENT.
 # This is important for calling make_machine_code, but it's easiest verified
@@ -854,7 +859,7 @@ local void init_subr_tab_1 (void) {
   { # now initialize the argtype-slot:
     var subr_t* ptr = (subr_t*)&subr_tab; # traverse subr_tab
     var uintC count;
-    dotimesC(count,subr_anz,{ SUBR_SET_ARGTYPE(ptr); ptr++; });
+    dotimesC(count,subr_anz,{ SUBR_SET_ARGTYPE(ptr,NULL); ptr++; });
   }
  #else
   { # initialize all slots except keywords:
@@ -868,9 +873,12 @@ local void init_subr_tab_1 (void) {
     var module_t* module;
     for_modules(all_other_modules,{
       if (*module->stab_size > 0) {
-        var subr_t* ptr = module->stab; # traverse subr_tab
-        var uintC count;
-        dotimespC(count,*module->stab_size,{ SUBR_SET_ARGTYPE(ptr); ptr++; });
+        var subr_t* stab_ptr = module->stab; /* traverse subr_tab */
+        var subr_initdata_t *stab_init_ptr = module->stab_initdata;
+        var uintC count = *module->stab_size;
+        do { SUBR_SET_ARGTYPE(stab_ptr,stab_init_ptr);
+          stab_ptr++; stab_init_ptr++;
+        } while (--count);
       }
     });
   }
@@ -1079,7 +1087,9 @@ local void init_symbol_functions (void) {
       var object sym = fsubr_name(ptr2);
       var object obj = allocate_fsubr();
       TheFsubr(obj)->name = sym;
-      TheFsubr(obj)->argtype = fixnum((uintW)fsubr_argtype(ptr2->req_anz,ptr2->opt_anz,(fsubr_body_t)(ptr2->body_flag)));
+      TheFsubr(obj)->argtype =
+        fixnum((uintW)fsubr_argtype(ptr2->req_anz,ptr2->opt_anz,
+                                    (fsubr_body_t)(ptr2->body_flag)));
       TheFsubr(obj)->function = (void*)(*ptr1);
       Symbol_function(sym) = obj;
       verify_code_alignment(*ptr1,sym);
@@ -3181,7 +3191,7 @@ global void dynload_modules (const char * library, uintC modcount,
             var subr_t* ptr = module->stab; # peruse subr_tab
             var uintC count;
             dotimespC(count,*module->stab_size,
-            { SUBR_SET_ARGTYPE(ptr); ptr++; });
+                      { SUBR_SET_ARGTYPE(ptr); ptr++; });
           }
          #if (defined(MULTIMAP_MEMORY) || defined(SINGLEMAP_MEMORY)) && defined(MAP_MEMORY_TABLES)
           {
