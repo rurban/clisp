@@ -1,3 +1,8 @@
+2001-06-15  Sam Steingold  <sds@gnu.org>
+
+	* threads.lisp (with-timeout, with-lock): do not use WITH-GENSYMS
+	which is defined only in inspect.lisp
+
 2001-06-14  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (stream_char_p): new macro
