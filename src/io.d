@@ -6,7 +6,7 @@
 #include "lispbibl.c"
 #include "arilev0.c" # for Division in pr_uint
 
-# define IO_DEBUG 0
+#define IO_DEBUG 0
 #ifdef IO_DEBUG
 #include <stdio.h>
 global object car (object o) { return Car(o); }
@@ -19,18 +19,23 @@ global char* clisp_type_of (object o) {
   var object ret = string_to_asciz(value1,O(misc_encoding));
   return TheSbvector(ret)->data;
 }
+global void sstring_printf (object sstr, uintL len, uintL offset) {
+  uintL idx;
+  ASSERT(simple_string_p(sstr));
+  printf("<%d/%d\"",len,offset);
+  for(idx=offset;idx<len;idx++) {
+    chart ch;
+    SstringDispatch(sstr,{ ch=TheSstring(sstr)->data[idx]; },
+                    { ch=as_chart(TheSmallSstring(sstr)->data[idx]); });
+    printf("%c",as_cint(ch));
+  }
+  printf("\">");
+}
 global void string_printf (object str) {
   uintL len, offset, idx;
   ASSERT(stringp(str));
   str = unpack_string_ro(str,&len,&offset);
-  printf("<%d\"",len);
-  for(idx=offset;idx<len;idx++) {
-    chart ch;
-    SstringDispatch(str,{ ch=TheSstring(str)->data[idx]; },
-                    { ch=as_chart(TheSmallSstring(str)->data[idx]); });
-    printf("%c",as_cint(ch));
-  }
-  printf("\">");
+  sstring_printf(str,len,offset);
 }
 #define NL_TYPE(x) \
  (eq(x,S(Klinear))? 'L' : eq(x,S(Kmiser)) ? 'M' : eq(x,S(Kfill)) ? 'F' : 'D')
@@ -9860,9 +9865,9 @@ LISPFUNN(ppprint_logical_block,3)
     var object stream = STACK_0;
     var object obj = STACK_1;
     var object func = STACK_2;
-    dynamic_bind(S(prin_pprinter),func); # modifies STACK
+    dynamic_bind(S(prin_pprinter),func); # *PRIN-PPRINTER*
     pr_enter(&stream,obj,&pprin_object);
-    dynamic_unbind();
+    dynamic_unbind(); # *PRIN-PPRINTER*
   } else
     pr_enter(&STACK_0,STACK_1,&prin_object);
   skipSTACK(3);
