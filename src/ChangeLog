@@ -3863,7 +3863,7 @@
 	* defs1.lisp (list-to-ht): use a heuristic to decide whether
 	HASH-TABLEs are better than LISTs in a particular case
 	(sys::member1): removed
-	(sys::member2): replaces with MEMBER? which does not cons
+	(sys::member2): replaced with MEMBER? which does not cons
 
 2004-10-30  Sam Steingold  <sds@gnu.org>
 
