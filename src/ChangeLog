@@ -4,6 +4,11 @@
 	of (COMPILE ... NIL) into the FAS files (e.g., (eval-when (eval))
 	should not produce any test in the FAS file)
 
+2003-05-09  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* inspect.lisp (with-http-output): fixed --without-unicode
+	to send Content-type: text/html without charset.
+
 2003-05-07  Sam Steingold  <sds@gnu.org>
 
 	* encoding.d (ENCODING-LINE-TERMINATOR): new function

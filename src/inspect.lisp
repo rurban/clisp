@@ -151,7 +151,8 @@ Supplies some HTTP/1.0 headers and calls `with-html-output'."
             (,vector (ext:convert-string-to-bytes ,string *http-encoding*))
             (,header (list (format nil "HTTP/1.0 ~d ~a"
                                    ,return-code ,return-name)
-                           "Content-type: text/html; charset=utf-8"
+                           #+UNICODE "Content-type: text/html; charset=utf-8"
+                           #-UNICODE "Content-type: text/html"
                            (format nil "Content-length: ~d" (length ,vector))
                            (format nil "Connection: ~:[close~;keep-alive~]"
                                    ,alive))))
