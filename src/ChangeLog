@@ -1,10 +1,15 @@
+2002-10-23  Sam Steingold  <sds@gnu.org>
+
+	* loop.lisp (expand-loop): separated `startup-code' from
+	`initially-code' so that INITIALLY clauses can access variables
+
 2002-10-23  Arseny Slobodjuck <ampy@ich.dvo.ru>
 
 	Bugfixing directory shortcuts on win32.
-	* pathname.d (assure_dir_exists) [WIN32_NATIVE]: 
-	handle situation when dir is exist but filename is not.
+	* pathname.d (assure_dir_exists) [WIN32_NATIVE]:
+	handle situation when dir exists but filename does not.
 	(directory_search_scandir) [WIN32_NATIVE]: return symbolic
-	name on nonexisting targets.
+	name for nonexisting targets.
 
 2002-10-22  Sam Steingold  <sds@gnu.org>
 

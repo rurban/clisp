@@ -757,6 +757,18 @@ nil
     finally (return (list alist blist))))
 ((1 3 5) (2 4 6))
 
+;; reported by "Thomas F. Burdick" <tfb@OCF.Berkeley.EDU>
+;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-7-2.html>
+;; According to the HyperSpec 6.1.2.1.4, in for-as-equals-then, var is
+;; initialized to the result of evaluating form1.  6.1.7.2 says that
+;; initially clauses are evaluated in the loop prologue, which precedes all
+;; loop code except for the initial settings provided by with, for, or as.
+(loop :for x = 0 :then (1+ x) :for y = (1+ x) :then (ash y 1)
+  :for z :across #(1 3 9 27 81 243) :for w = (+ x y z)
+  :initially (assert (zerop x)) :initially (assert (= 2 w))
+  :until (>= w 100) :collect w)
+(2 6 15 38)
+
 ;; local variables:
 ;; eval: (make-local-variable 'write-file-functions)
 ;; eval: (remove-hook 'write-file-functions 'delete-trailing-whitespace t)
