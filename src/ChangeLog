@@ -1,3 +1,15 @@
+2002-03-21  Sam Steingold  <sds@gnu.org>
+
+	* eval.d, ffcall/avcall/avcall.h.in
+	* ffcall/avcall/avcall.h.mingw32, ffcall/avcall/avcall.h.msvc
+	* ffcall/callback/vacall_r/vacall_r.h.in
+	* ffcall/callback/vacall_r/vacall_r.h.mingw32
+	* ffcall/callback/vacall_r/vacall_r.h.msvc
+	* ffcall/vacall/vacall.h.in, ffcall/vacall/vacall.h.mingw32
+	* ffcall/vacall/vacall.h.msvc: Never check for __GNUC_MINOR__
+	without first making sure that __GNUC__ is correct
+	Reported by Will Newton <will@misconception.org.uk>
+
 2002-03-18  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (main): void domain for the -E command line argment

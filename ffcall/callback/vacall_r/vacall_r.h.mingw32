@@ -1,4 +1,4 @@
-#ifndef _VACALL_R_H
+#ifndef _VACALL_R_H                             /*-*- C -*-*/
 #define _VACALL_R_H
 
 /*
@@ -208,7 +208,7 @@ enum __VA_alist_flags
 #if defined(__i386__) && defined(_MSC_VER) /* MSVC 4.0 */
 				  __VA_MSVC_STRUCT_RETURN |
 #endif
-#if defined(__hppa__) && defined(__GNUC__) && (__GNUC_MINOR__ < 7)
+#if defined(__hppa__) && defined(__GNUC__) && (__GNUC__ < 3) && (__GNUC_MINOR__ < 7)
 				  __VA_OLDGCC_STRUCT_RETURN |
 #endif
   				  0,
