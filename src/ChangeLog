@@ -4,10 +4,10 @@
 
 2004-05-15  Bruno Haible  <bruno@clisp.org>
 
-	* init.lisp, type.lisp, subtypep.lisp, compiler.lisp, loop.lisp,
-	clos-class2.lisp, clos-closs5.lisp, clos-genfun2.lisp, room.lisp,
-	foreign1.lisp, affi1.lisp: Annotate all make-hash-table calls with
-	:key-type and :value-type.
+	* init.lisp, type.lisp, subtypep.lisp, compiler.lisp, loop.lisp:
+	* clos-class2.lisp, clos-closs5.lisp, clos-genfun2.lisp, room.lisp:
+	* foreign1.lisp, affi1.lisp: Annotate all make-hash-table calls
+	with :key-type and :value-type.
 
 2004-05-15  Bruno Haible  <bruno@clisp.org>
 
