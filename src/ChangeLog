@@ -1,3 +1,9 @@
+2004-11-12  Bruno Haible  <bruno@clisp.org>
+
+	* clos-genfun3.lisp (defmethod, defgeneric): Simplify the macro-
+	expansion in the frequent case that the funname is a symbol.
+	(Problem introduced on 2004-10-18 and 2004-10-19.)
+
 2004-11-07  Bruno Haible  <bruno@clisp.org>
 
 	Implement notification from change-class to generic functions.
