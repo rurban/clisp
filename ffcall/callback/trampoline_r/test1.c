@@ -1,7 +1,7 @@
 /* Trampoline test */
 
 /*
- * Copyright 1995-1999, 2001-2002, 2004 Bruno Haible, <bruno@clisp.org>
+ * Copyright 1995-1999, 2001-2002, 2004-2005 Bruno Haible, <bruno@clisp.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -28,20 +28,9 @@ typedef int (*function)();
 #endif
 
 #if defined(__i386__)
-#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
 int f (void* env, int x)
 #else
-int f (env, x)
-  void* env;
-  int x;
-#endif
-#else
-#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
 int f (int x)
-#else
-int f (x)
-  int x;
-#endif
 #endif
 {
 #ifdef __GNUC__

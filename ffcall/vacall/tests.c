@@ -2,7 +2,7 @@
 
 /*
  * Copyright 1993 Bill Triggs, <Bill.Triggs@inrialpes.fr>
- * Copyright 1995-1999, 2002 Bruno Haible, <bruno@clisp.org>
+ * Copyright 1995-1999, 2001-2002, 2005 Bruno Haible, <bruno@clisp.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -15,21 +15,6 @@
 #include <string.h>
 #include "vacall.h"
 FILE* out;
-
-/* NB since K&R C always passes chars and shorts as ints and floats as doubles,
- * unprototyped ANSI-C functions must do the same, eg:
- * - foo(x) float x; { ... } passes x as a double & converts it to a float internally.
- * - foo(float x) { ... } passes x as a float.
- */
-#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
-#define _ ,
-#define _P(ARGS,TYPES) (TYPES)
-#define FTYPE(RETTYPE,ARGTYPES) (RETTYPE (*) ARGTYPES)
-#else
-#define _ ;
-#define _P(ARGS,TYPES) ARGS TYPES;
-#define FTYPE(RETTYPE,ARGTYPES) (RETTYPE (*) ())
-#endif
 
 #if defined(__hppa__) && defined(__GNUC__)
 #if (__GNUC__ == 2 && __GNUC_MINOR__ < 6)
@@ -105,7 +90,7 @@ float f1=0.1, f2=0.2, f3=0.3, f4=0.4, f5=0.5, f6=0.6, f7=0.7, f8=0.8, f9=0.9,
 double d1=0.1, d2=0.2, d3=0.3, d4=0.4, d5=0.5, d6=0.6, d7=0.7, d8=0.8, d9=0.9,
        d10=1.1, d11=1.2, d12=1.3, d13=1.4, d14=1.5, d15=1.6, d16=1.7;
 
-uchar uc1='a', uc2=127, uc3=128, uc4=255, uc5=-1;
+uchar uc1='a', uc2=127, uc3=128, uc4=255, uc5=(uchar)-1;
 ushort us1=1, us2=2, us3=3, us4=4, us5=5, us6=6, us7=7, us8=8, us9=9;
 uint ui1=1, ui2=2, ui3=3, ui4=4, ui5=5, ui6=6, ui7=7, ui8=8, ui9=9;
 ulong ul1=1, ul2=2, ul3=3, ul4=4, ul5=5, ul6=6, ul7=7, ul8=8, ul9=9;
@@ -124,52 +109,50 @@ T T1={'t','h','e'},T2={'f','o','x'};
 X X1={"abcdefghijklmnopqrstuvwxyzABCDEF",'G'}, X2={"123",'9'}, X3={"return-return-return",'R'};
 
 /* void tests */
-void v_v()
+void v_v (void)
 {
   fprintf(out,"void f(void):\n");
   fflush(out);
 }
 
 /* int tests */
-int i_v()
+int i_v (void)
 {
   int r=99;
   fprintf(out,"int f(void):");
   fflush(out);
   return r;
 }
-int i_i _P((a), int a)
+int i_i (int a)
 {
   int r=a+1;
   fprintf(out,"int f(int):(%d)",a);
   fflush(out);
   return r;
 }
-int i_i2 _P((a,b), int a _ int b)
+int i_i2 (int a, int b)
 {
   int r=a+b;
   fprintf(out,"int f(2*int):(%d,%d)",a,b);
   fflush(out);
   return r;
 }
-int i_i4 _P((a,b,c,d), int a _ int b _ int c _ int d)
+int i_i4 (int a, int b, int c, int d)
 {
   int r=a+b+c+d;
   fprintf(out,"int f(4*int):(%d,%d,%d,%d)",a,b,c,d);
   fflush(out);
   return r;
 }
-int i_i8 _P((a,b,c,d,e,f,g,h),
-            int a _ int b _ int c _ int d _ int e _ int f _ int g _ int h)
+int i_i8 (int a, int b, int c, int d, int e, int f, int g, int h)
 {
   int r=a+b+c+d+e+f+g+h;
   fprintf(out,"int f(8*int):(%d,%d,%d,%d,%d,%d,%d,%d)",a,b,c,d,e,f,g,h);
   fflush(out);
   return r;
 }
-int i_i16 _P((a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p),
-             int a _ int b _ int c _ int d _ int e _ int f _ int g _ int h
-             _ int i _ int j _ int k _ int l _ int m _ int n _ int o _ int p)
+int i_i16 (int a, int b, int c, int d, int e, int f, int g, int h,
+           int i, int j, int k, int l, int m, int n, int o, int p)
 {
   int r=a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p;
   fprintf(out,"int f(16*int):(%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d)",
@@ -179,38 +162,37 @@ int i_i16 _P((a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p),
 }
 
 /* float tests */
-float f_f _P((a), float a)
+float f_f (float a)
 {
   float r=a+1.0;
   fprintf(out,"float f(float):(%g)",a);
   fflush(out);
   return r;
 }
-float f_f2 _P((a,b), float a _ float b)
+float f_f2 (float a, float b)
 {
   float r=a+b;
   fprintf(out,"float f(2*float):(%g,%g)",a,b);
   fflush(out);
   return r;
 }
-float f_f4 _P((a,b,c,d), float a _ float b _ float c _ float d)
+float f_f4 (float a, float b, float c, float d)
 {
   float r=a+b+c+d;
   fprintf(out,"float f(4*float):(%g,%g,%g,%g)",a,b,c,d);
   fflush(out);
   return r;
 }
-float f_f8 _P((a,b,c,d,e,f,g,h), float a _ float b _ float c _ float d _ float e _ float f
-              _ float g _ float h)
+float f_f8 (float a, float b, float c, float d, float e, float f,
+            float g, float h)
 {
   float r=a+b+c+d+e+f+g+h;
   fprintf(out,"float f(8*float):(%g,%g,%g,%g,%g,%g,%g,%g)",a,b,c,d,e,f,g,h);
   fflush(out);
   return r;
 }
-float f_f16 _P((a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p),
-               float a _ float b _ float c _ float d _ float e _ float f _ float g _ float h
-               _ float i _ float j _ float k _ float l _ float m _ float n _ float o _ float p)
+float f_f16 (float a, float b, float c, float d, float e, float f, float g, float h,
+             float i, float j, float k, float l, float m, float n, float o, float p)
 {
   float r=a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p;
   fprintf(out,"float f(16*float):(%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g)",a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p);
@@ -219,40 +201,38 @@ float f_f16 _P((a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p),
 }
 
 /* double tests */
-double d_d _P((a), double a)
+double d_d (double a)
 {
   double r=a+1.0;
   fprintf(out,"double f(double):(%g)",a);
   fflush(out);
   return r;
 }
-double d_d2 _P((a,b), double a _ double b)
+double d_d2 (double a, double b)
 {
   double r=a+b;
   fprintf(out,"double f(2*double):(%g,%g)",a,b);
   fflush(out);
   return r;
 }
-double d_d4 _P((a,b,c,d), double a _ double b _ double c _ double d)
+double d_d4 (double a, double b, double c, double d)
 {
   double r=a+b+c+d;
   fprintf(out,"double f(4*double):(%g,%g,%g,%g)",a,b,c,d);
   fflush(out);
   return r;
 }
-double d_d8 _P((a,b,c,d,e,f,g,h),
-               double a _ double b _ double c _ double d _ double e _ double f
-               _ double g _ double h)
+double d_d8 (double a, double b, double c, double d, double e, double f,
+             double g, double h)
 {
   double r=a+b+c+d+e+f+g+h;
   fprintf(out,"double f(8*double):(%g,%g,%g,%g,%g,%g,%g,%g)",a,b,c,d,e,f,g,h);
   fflush(out);
   return r;
 }
-double d_d16 _P((a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p),
-                double a _ double b _ double c _ double d _ double e _ double f
-                _ double g _ double h _ double i _ double j _ double k _ double l
-                _ double m _ double n _ double o _ double p)
+double d_d16 (double a, double b, double c, double d, double e, double f,
+              double g, double h, double i, double j, double k, double l,
+              double m, double n, double o, double p)
 {
   double r=a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p;
   fprintf(out,"double f(16*double):(%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g)",a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p);
@@ -261,7 +241,7 @@ double d_d16 _P((a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p),
 }
 
 /* pointer tests */
-void* vp_vpdpcpsp _P((a,b,c,d), void* a _ double* b _ char* c _ Int* d)
+void* vp_vpdpcpsp (void* a, double* b, char* c, Int* d)
 {
   void* ret = (char*)b + 1;
   fprintf(out,"void* f(void*,double*,char*,Int*):(0x%lx,0x%lx,0x%lx,0x%lx)",(long)a,(long)b,(long)c,(long)d);
@@ -270,28 +250,28 @@ void* vp_vpdpcpsp _P((a,b,c,d), void* a _ double* b _ char* c _ Int* d)
 }
 
 /* mixed number tests */
-uchar uc_ucsil _P((a,b,c,d), uchar a _ ushort b _ uint c _ ulong d)
+uchar uc_ucsil (uchar a, ushort b, uint c, ulong d)
 {
-  uchar r = -1;
+  uchar r = (uchar)-1;
   fprintf(out,"uchar f(uchar,ushort,uint,ulong):(%u,%u,%u,%lu)",a,b,c,d);
   fflush(out);
   return r;
 }
-double d_iidd _P((a,b,c,d), int a _ int b _ double c _ double d)
+double d_iidd (int a, int b, double c, double d)
 {
   double r = a+b+c+d;
   fprintf(out,"double f(int,int,double,double):(%d,%d,%g,%g)",a,b,c,d);
   fflush(out);
   return r;
 }
-double d_idid _P((a,b,c,d), int a _ double b _ int c _ double d)
+double d_idid (int a, double b, int c, double d)
 {
   double r = a+b+c+d;
   fprintf(out,"double f(int,double,int,double):(%d,%g,%d,%g)",a,b,c,d);
   fflush(out);
   return r;
 }
-ushort us_cdcd _P((a,b,c,d), char a _ double b _ char c _ double d)
+ushort us_cdcd (char a, double b, char c, double d)
 {
   ushort r = (ushort)(a + b + c + d);
   fprintf(out,"ushort f(char,double,char,double):('%c',%g,'%c',%g)",a,b,c,d);
@@ -300,7 +280,7 @@ ushort us_cdcd _P((a,b,c,d), char a _ double b _ char c _ double d)
 }
 
 #ifdef HAVE_LONGLONG
-long long ll_flli _P((a,b,c), float a _ long long b _ int c)
+long long ll_flli (float a, long long b, int c)
 {
   long long r = (long long)(int)a + b + (long long)c;
   fprintf(out,"long long f(float,long long,int):(%g,0x%lx%08lx,0x%lx)",a,(long)(b>>32),(long)(b&0xffffffff),(long)c);
@@ -310,7 +290,7 @@ long long ll_flli _P((a,b,c), float a _ long long b _ int c)
 #endif
 
 /* structure tests */
-Int I_III _P((a,b,c), Int a _ Int b _ Int c)
+Int I_III (Int a, Int b, Int c)
 {
   Int r;
   r.x = a.x + b.x + c.x;
@@ -318,7 +298,7 @@ Int I_III _P((a,b,c), Int a _ Int b _ Int c)
   fflush(out);
   return r;
 }
-Char C_CdC _P((a,b,c), Char a _ double b _ Char c)
+Char C_CdC (Char a, double b, Char c)
 {
   Char r;
   r.x = (a.x + c.x)/2;
@@ -326,7 +306,7 @@ Char C_CdC _P((a,b,c), Char a _ double b _ Char c)
   fflush(out);
   return r;
 }
-Float F_Ffd _P((a,b,c), Float a _ float b _ double c)
+Float F_Ffd (Float a, float b, double c)
 {
   Float r;
   r.x = a.x + b + c;
@@ -334,7 +314,7 @@ Float F_Ffd _P((a,b,c), Float a _ float b _ double c)
   fflush(out);
   return r;
 }
-Double D_fDd _P((a,b,c), float a _ Double b _ double c)
+Double D_fDd (float a, Double b, double c)
 {
   Double r;
   r.x = a + b.x + c;
@@ -342,7 +322,7 @@ Double D_fDd _P((a,b,c), float a _ Double b _ double c)
   fflush(out);
   return r;
 }
-J J_JiJ _P((a,b,c), J a _ int b _ J c)
+J J_JiJ (J a, int b, J c)
 {
   J r;
   r.l1 = a.l1+c.l1; r.l2 = a.l2+b+c.l2;
@@ -350,7 +330,7 @@ J J_JiJ _P((a,b,c), J a _ int b _ J c)
   fflush(out);
   return r;
 }
-T T_TcT _P((a,b,c), T a _ char b _ T c)
+T T_TcT (T a, char b, T c)
 {
   T r;
   r.c[0]='b'; r.c[1]=c.c[1]; r.c[2]=c.c[2];
@@ -358,7 +338,7 @@ T T_TcT _P((a,b,c), T a _ char b _ T c)
   fflush(out);
   return r;
 }
-X X_BcdB _P((a,b,c,d), B a _ char b _ double c _ B d)
+X X_BcdB (B a, char b, double c, B d)
 {
   static X xr={"return val",'R'};
   X r;
@@ -374,7 +354,7 @@ X X_BcdB _P((a,b,c,d), B a _ char b _ double c _ B d)
 void* current_function;
 
 /* This function simulates the behaviour of current_function. */
-void simulator _P((alist), va_alist alist)
+void simulator (va_alist alist)
 {
   /* void tests */
   if (current_function == (void*)&v_v)
@@ -635,7 +615,7 @@ void simulator _P((alist), va_alist alist)
       ushort b = va_arg_ushort(alist);
       uint c = va_arg_uint(alist);
       ulong d = va_arg_ulong(alist);
-      uchar r=-1;
+      uchar r = (uchar)-1;
       fprintf(out,"uchar f(uchar,ushort,uint,ulong):(%u,%u,%u,%lu)",a,b,c,d);
       fflush(out);
       va_return_uchar(alist, r);
@@ -822,30 +802,27 @@ void simulator _P((alist), va_alist alist)
  * (traces) or the previous call. This may seriously fake the test.
  * Avoid this by clearing the registers between the first and the second call.
  */
-long clear_traces_i _P((a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p),
-  long a _ long b _ long c _ long d _ long e _ long f _ long g _ long h _
-  long i _ long j _ long k _ long l _ long m _ long n _ long o _ long p)
+long clear_traces_i (long a, long b, long c, long d, long e, long f, long g, long h,
+                     long i, long j, long k, long l, long m, long n, long o, long p)
 { return 0; }
-float clear_traces_f _P((a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p),
-  float a _ float b _ float c _ float d _ float e _ float f _ float g _
-  float h _ float i _ float j _ float k _ float l _ float m _ float n _
-  float o _ float p)
+float clear_traces_f (float a, float b, float c, float d, float e, float f, float g,
+                      float h, float i, float j, float k, float l, float m, float n,
+                      float o, float p)
 { return 0.0; }
-double clear_traces_d _P((a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p),
-  double a _ double b _ double c _ double d _ double e _ double f _ double g _
-  double h _ double i _ double j _ double k _ double l _ double m _ double n _
-  double o _ double p)
+double clear_traces_d (double a, double b, double c, double d, double e, double f, double g,
+                       double h, double i, double j, double k, double l, double m, double n,
+                       double o, double p)
 { return 0.0; }
-J clear_traces_J ()
+J clear_traces_J (void)
 { J j; j.l1 = j.l2 = 0; return j; }
-void clear_traces()
+void clear_traces (void)
 { clear_traces_i(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
   clear_traces_f(0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
   clear_traces_d(0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
   clear_traces_J();
 }
 
-int main ()
+int main (void)
 {
   out = stdout;
 
@@ -854,7 +831,7 @@ int main ()
   /* void tests */
   v_v();
   clear_traces();
-  current_function = (void*) &v_v; (FTYPE(void,(void)) vacall) ();
+  current_function = (void*) &v_v; ((void (*) (void)) vacall) ();
 
   /* int tests */
   { int ir;
@@ -863,7 +840,7 @@ int main ()
     fprintf(out,"->%d\n",ir);
     fflush(out);
     ir = 0; clear_traces();
-    current_function = (void*) &i_v; ir = (FTYPE(int,(void)) vacall) ();
+    current_function = (void*) &i_v; ir = ((int (*) (void)) vacall) ();
     fprintf(out,"->%d\n",ir);
     fflush(out);
 
@@ -871,7 +848,7 @@ int main ()
     fprintf(out,"->%d\n",ir);
     fflush(out);
     ir = 0; clear_traces();
-    current_function = (void*) &i_i; ir = (FTYPE(int,(int)) vacall) (i1);
+    current_function = (void*) &i_i; ir = ((int (*) (int)) vacall) (i1);
     fprintf(out,"->%d\n",ir);
     fflush(out);
 
@@ -879,7 +856,7 @@ int main ()
     fprintf(out,"->%d\n",ir);
     fflush(out);
     ir = 0; clear_traces();
-    current_function = (void*) &i_i2; ir = (FTYPE(int,(int,int)) vacall) (i1,i2);
+    current_function = (void*) &i_i2; ir = ((int (*) (int,int)) vacall) (i1,i2);
     fprintf(out,"->%d\n",ir);
     fflush(out);
 
@@ -887,7 +864,7 @@ int main ()
     fprintf(out,"->%d\n",ir);
     fflush(out);
     ir = 0; clear_traces();
-    current_function = (void*) &i_i4; ir = (FTYPE(int,(int,int,int,int)) vacall) (i1,i2,i3,i4);
+    current_function = (void*) &i_i4; ir = ((int (*) (int,int,int,int)) vacall) (i1,i2,i3,i4);
     fprintf(out,"->%d\n",ir);
     fflush(out);
 
@@ -895,7 +872,7 @@ int main ()
     fprintf(out,"->%d\n",ir);
     fflush(out);
     ir = 0; clear_traces();
-    current_function = (void*) &i_i8; ir = (FTYPE(int,(int,int,int,int,int,int,int,int)) vacall) (i1,i2,i3,i4,i5,i6,i7,i8);
+    current_function = (void*) &i_i8; ir = ((int (*) (int,int,int,int,int,int,int,int)) vacall) (i1,i2,i3,i4,i5,i6,i7,i8);
     fprintf(out,"->%d\n",ir);
     fflush(out);
 
@@ -903,7 +880,7 @@ int main ()
     fprintf(out,"->%d\n",ir);
     fflush(out);
     ir = 0; clear_traces();
-    current_function = (void*) &i_i16; ir = (FTYPE(int,(int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int)) vacall) (i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15,i16);
+    current_function = (void*) &i_i16; ir = ((int (*) (int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int)) vacall) (i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15,i16);
     fprintf(out,"->%d\n",ir);
     fflush(out);
   }
@@ -915,7 +892,7 @@ int main ()
     fprintf(out,"->%g\n",fr);
     fflush(out);
     fr = 0.0; clear_traces();
-    current_function = (void*) &f_f; fr = (FTYPE(float,(float)) vacall) (f1);
+    current_function = (void*) &f_f; fr = ((float (*) (float)) vacall) (f1);
     fprintf(out,"->%g\n",fr);
     fflush(out);
 
@@ -923,7 +900,7 @@ int main ()
     fprintf(out,"->%g\n",fr);
     fflush(out);
     fr = 0.0; clear_traces();
-    current_function = (void*) &f_f2; fr = (FTYPE(float,(float,float)) vacall) (f1,f2);
+    current_function = (void*) &f_f2; fr = ((float (*) (float,float)) vacall) (f1,f2);
     fprintf(out,"->%g\n",fr);
     fflush(out);
 
@@ -931,7 +908,7 @@ int main ()
     fprintf(out,"->%g\n",fr);
     fflush(out);
     fr = 0.0; clear_traces();
-    current_function = (void*) &f_f4; fr = (FTYPE(float,(float,float,float,float)) vacall) (f1,f2,f3,f4);
+    current_function = (void*) &f_f4; fr = ((float (*) (float,float,float,float)) vacall) (f1,f2,f3,f4);
     fprintf(out,"->%g\n",fr);
     fflush(out);
 
@@ -939,7 +916,7 @@ int main ()
     fprintf(out,"->%g\n",fr);
     fflush(out);
     fr = 0.0; clear_traces();
-    current_function = (void*) &f_f8; fr = (FTYPE(float,(float,float,float,float,float,float,float,float)) vacall) (f1,f2,f3,f4,f5,f6,f7,f8);
+    current_function = (void*) &f_f8; fr = ((float (*) (float,float,float,float,float,float,float,float)) vacall) (f1,f2,f3,f4,f5,f6,f7,f8);
     fprintf(out,"->%g\n",fr);
     fflush(out);
 
@@ -947,7 +924,7 @@ int main ()
     fprintf(out,"->%g\n",fr);
     fflush(out);
     fr = 0.0; clear_traces();
-    current_function = (void*) &f_f16; fr = (FTYPE(float,(float,float,float,float,float,float,float,float,float,float,float,float,float,float,float,float)) vacall) (f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16);
+    current_function = (void*) &f_f16; fr = ((float (*) (float,float,float,float,float,float,float,float,float,float,float,float,float,float,float,float)) vacall) (f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16);
     fprintf(out,"->%g\n",fr);
     fflush(out);
   }
@@ -959,7 +936,7 @@ int main ()
     fprintf(out,"->%g\n",dr);
     fflush(out);
     dr = 0.0; clear_traces();
-    current_function = (void*) &d_d; dr = (FTYPE(double,(double)) vacall) (d1);
+    current_function = (void*) &d_d; dr = ((double (*) (double)) vacall) (d1);
     fprintf(out,"->%g\n",dr);
     fflush(out);
 
@@ -967,7 +944,7 @@ int main ()
     fprintf(out,"->%g\n",dr);
     fflush(out);
     dr = 0.0; clear_traces();
-    current_function = (void*) &d_d2; dr = (FTYPE(double,(double,double)) vacall) (d1,d2);
+    current_function = (void*) &d_d2; dr = ((double (*) (double,double)) vacall) (d1,d2);
     fprintf(out,"->%g\n",dr);
     fflush(out);
 
@@ -975,7 +952,7 @@ int main ()
     fprintf(out,"->%g\n",dr);
     fflush(out);
     dr = 0.0; clear_traces();
-    current_function = (void*) &d_d4; dr = (FTYPE(double,(double,double,double,double)) vacall) (d1,d2,d3,d4);
+    current_function = (void*) &d_d4; dr = ((double (*) (double,double,double,double)) vacall) (d1,d2,d3,d4);
     fprintf(out,"->%g\n",dr);
     fflush(out);
 
@@ -983,7 +960,7 @@ int main ()
     fprintf(out,"->%g\n",dr);
     fflush(out);
     dr = 0.0; clear_traces();
-    current_function = (void*) &d_d8; dr = (FTYPE(double,(double,double,double,double,double,double,double,double)) vacall) (d1,d2,d3,d4,d5,d6,d7,d8);
+    current_function = (void*) &d_d8; dr = ((double (*) (double,double,double,double,double,double,double,double)) vacall) (d1,d2,d3,d4,d5,d6,d7,d8);
     fprintf(out,"->%g\n",dr);
     fflush(out);
 
@@ -991,7 +968,7 @@ int main ()
     fprintf(out,"->%g\n",dr);
     fflush(out);
     dr = 0.0; clear_traces();
-    current_function = (void*) &d_d16; dr = (FTYPE(double,(double,double,double,double,double,double,double,double,double,double,double,double,double,double,double,double)) vacall) (d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16);
+    current_function = (void*) &d_d16; dr = ((double (*) (double,double,double,double,double,double,double,double,double,double,double,double,double,double,double,double)) vacall) (d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16);
     fprintf(out,"->%g\n",dr);
     fflush(out);
   }
@@ -1003,7 +980,7 @@ int main ()
     fprintf(out,"->0x%lx\n",(long)vpr);
     fflush(out);
     vpr = 0; clear_traces();
-    current_function = (void*) &vp_vpdpcpsp; vpr = (FTYPE(void*,(void*,double*,char*,Int*)) vacall) (&uc1,&d2,str3,&I4);
+    current_function = (void*) &vp_vpdpcpsp; vpr = ((void* (*) (void*,double*,char*,Int*)) vacall) (&uc1,&d2,str3,&I4);
     fprintf(out,"->0x%lx\n",(long)vpr);
     fflush(out);
   }
@@ -1020,7 +997,7 @@ int main ()
     fprintf(out,"->%u\n",ucr);
     fflush(out);
     ucr = 0; clear_traces();
-    current_function = (void*) &uc_ucsil; ucr = (FTYPE(uchar,(uchar,ushort,uint,ulong)) vacall) (uc1,us2,ui3,ul4);
+    current_function = (void*) &uc_ucsil; ucr = ((uchar (*) (uchar,ushort,uint,ulong)) vacall) (uc1,us2,ui3,ul4);
     fprintf(out,"->%u\n",ucr);
     fflush(out);
 
@@ -1028,7 +1005,7 @@ int main ()
     fprintf(out,"->%g\n",dr);
     fflush(out);
     dr = 0.0; clear_traces();
-    current_function = (void*) &d_iidd; dr = (FTYPE(double,(int,int,double,double)) vacall) (i1,i2,d3,d4);
+    current_function = (void*) &d_iidd; dr = ((double (*) (int,int,double,double)) vacall) (i1,i2,d3,d4);
     fprintf(out,"->%g\n",dr);
     fflush(out);
 
@@ -1036,7 +1013,7 @@ int main ()
     fprintf(out,"->%g\n",dr);
     fflush(out);
     dr = 0.0; clear_traces();
-    current_function = (void*) &d_idid; dr = (FTYPE(double,(int,double,int,double)) vacall) (i1,d2,i3,d4);
+    current_function = (void*) &d_idid; dr = ((double (*) (int,double,int,double)) vacall) (i1,d2,i3,d4);
     fprintf(out,"->%g\n",dr);
     fflush(out);
 
@@ -1044,7 +1021,7 @@ int main ()
     fprintf(out,"->%u\n",usr);
     fflush(out);
     usr = 0; clear_traces();
-    current_function = (void*) &us_cdcd; usr = (FTYPE(ushort,(char,double,char,double)) vacall) (c1,d2,c3,d4);
+    current_function = (void*) &us_cdcd; usr = ((ushort (*) (char,double,char,double)) vacall) (c1,d2,c3,d4);
     fprintf(out,"->%u\n",usr);
     fflush(out);
 
@@ -1053,7 +1030,7 @@ int main ()
     fprintf(out,"->0x%lx%08lx\n",(long)(llr>>32),(long)(llr&0xffffffff));
     fflush(out);
     llr = 0; clear_traces();
-    current_function = (void*) &ll_flli; llr = (FTYPE(long long,(float,long long,int)) vacall) (f13,ll1,i13);
+    current_function = (void*) &ll_flli; llr = ((long long (*) (float,long long,int)) vacall) (f13,ll1,i13);
     fprintf(out,"->0x%lx%08lx\n",(long)(llr>>32),(long)(llr&0xffffffff));
     fflush(out);
 #endif
@@ -1073,7 +1050,7 @@ int main ()
     fprintf(out,"->{%d}\n",Ir.x);
     fflush(out);
     Ir.x = 0; clear_traces();
-    current_function = (void*) &I_III; Ir = (FTYPE(Int,(Int,Int,Int)) vacall) (I1,I2,I3);
+    current_function = (void*) &I_III; Ir = ((Int (*) (Int,Int,Int)) vacall) (I1,I2,I3);
     fprintf(out,"->{%d}\n",Ir.x);
     fflush(out);
 
@@ -1082,7 +1059,7 @@ int main ()
     fprintf(out,"->{'%c'}\n",Cr.x);
     fflush(out);
     Cr.x = '\0'; clear_traces();
-    current_function = (void*) &C_CdC; Cr = (FTYPE(Char,(Char,double,Char)) vacall) (C1,d2,C3);
+    current_function = (void*) &C_CdC; Cr = ((Char (*) (Char,double,Char)) vacall) (C1,d2,C3);
     fprintf(out,"->{'%c'}\n",Cr.x);
     fflush(out);
 
@@ -1090,7 +1067,7 @@ int main ()
     fprintf(out,"->{%g}\n",Fr.x);
     fflush(out);
     Fr.x = 0.0; clear_traces();
-    current_function = (void*) &F_Ffd; Fr = (FTYPE(Float,(Float,float,double)) vacall) (F1,f2,d3);
+    current_function = (void*) &F_Ffd; Fr = ((Float (*) (Float,float,double)) vacall) (F1,f2,d3);
     fprintf(out,"->{%g}\n",Fr.x);
     fflush(out);
 
@@ -1098,7 +1075,7 @@ int main ()
     fprintf(out,"->{%g}\n",Dr.x);
     fflush(out);
     Dr.x = 0.0; clear_traces();
-    current_function = (void*) &D_fDd; Dr = (FTYPE(Double,(float,Double,double)) vacall) (f1,D2,d3);
+    current_function = (void*) &D_fDd; Dr = ((Double (*) (float,Double,double)) vacall) (f1,D2,d3);
     fprintf(out,"->{%g}\n",Dr.x);
     fflush(out);
 #endif
@@ -1107,7 +1084,7 @@ int main ()
     fprintf(out,"->{%ld,%ld}\n",Jr.l1,Jr.l2);
     fflush(out);
     Jr.l1 = Jr.l2 = 0; clear_traces();
-    current_function = (void*) &J_JiJ; Jr = (FTYPE(J,(J,int,J)) vacall) (J1,i2,J2);
+    current_function = (void*) &J_JiJ; Jr = ((J (*) (J,int,J)) vacall) (J1,i2,J2);
     fprintf(out,"->{%ld,%ld}\n",Jr.l1,Jr.l2);
     fflush(out);
 
@@ -1117,7 +1094,7 @@ int main ()
     fprintf(out,"->{\"%c%c%c\"}\n",Tr.c[0],Tr.c[1],Tr.c[2]);
     fflush(out);
     Tr.c[0] = Tr.c[1] = Tr.c[2] = 0; clear_traces();
-    current_function = (void*) &T_TcT; Tr = (FTYPE(T,(T,char,T)) vacall) (T1,' ',T2);
+    current_function = (void*) &T_TcT; Tr = ((T (*) (T,char,T)) vacall) (T1,' ',T2);
     fprintf(out,"->{\"%c%c%c\"}\n",Tr.c[0],Tr.c[1],Tr.c[2]);
     fflush(out);
 #endif
@@ -1127,7 +1104,7 @@ int main ()
     fprintf(out,"->{\"%s\",'%c'}\n",Xr.c,Xr.c1);
     fflush(out);
     Xr.c[0]=Xr.c1='\0'; clear_traces();
-    current_function = (void*) &X_BcdB; Xr = (FTYPE(X,(B,char,double,B)) vacall) (B1,c2,d3,B2);
+    current_function = (void*) &X_BcdB; Xr = ((X (*) (B,char,double,B)) vacall) (B1,c2,d3,B2);
     fprintf(out,"->{\"%s\",'%c'}\n",Xr.c,Xr.c1);
     fflush(out);
 #endif

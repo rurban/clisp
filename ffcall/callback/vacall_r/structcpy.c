@@ -1,7 +1,7 @@
 /* copy structs */
 
 /*
- * Copyright 1995-1999 Bruno Haible, <bruno@clisp.org>
+ * Copyright 1995-1999, 2005 Bruno Haible, <bruno@clisp.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -9,25 +9,17 @@
  * on this software.
  */
 
-#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
-void __structcpy (void* dest, void* src, unsigned long size, unsigned long alignment)
-#else
-void __structcpy(dest,src,size,alignment)
-  void* dest;
-  void* src;
-  unsigned long size;
-  unsigned long alignment;
-#endif
+void __structcpy (void* dest, const void* src, unsigned long size, unsigned long alignment)
 {
   if (alignment % sizeof(long))
     { char* d = (char*)dest;
-      char* s = (char*)src;
+      const char* s = (const char*)src;
       do { *d++ = *s++; } while (--size > 0);
     }
   else
     /* If the alignment is a multiple of sizeof(long), the size is as well. */
     { long* d = (long*)dest;
-      long* s = (long*)src;
+      const long* s = (const long*)src;
       do { *d++ = *s++; } while ((size -= sizeof(long)) > 0);
     }
 }

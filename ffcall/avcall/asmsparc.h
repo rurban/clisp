@@ -3,11 +3,7 @@
 
 #ifdef ASM_UNDERSCORE
 // SunOS4, Linux/a.out
-#ifdef __STDC__
 #define C(entrypoint) _##entrypoint
-#else
-#define C(entrypoint) _/**/entrypoint
-#endif
 #else
 // Solaris, Linux/ELF
 #define C(entrypoint) entrypoint

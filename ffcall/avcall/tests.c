@@ -2,6 +2,7 @@
 #define _tests_c
 /**
   Copyright 1993 Bill Triggs, <Bill.Triggs@inrialpes.fr>
+  Copyright 1995-1999, 2001-2002, 2005 Bruno Haible, <bruno@clisp.org>
 
   This is free software distributed under the GNU General Public
   Licence described in the file COPYING. Contact the author if
@@ -22,19 +23,6 @@
 #include <string.h>
 #include "avcall.h"
 FILE* out;
-
-/* NB since K&R C always passes chars and shorts as ints and floats as doubles,
- * unprototyped ANSI-C functions must do the same, eg:
- * - foo(x) float x; { ... } passes x as a double & converts it to a float internally.
- * - foo(float x) { ... } passes x as a float.
- */
-#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
-#define _ ,
-#define _P(ARGS,TYPES) (TYPES)
-#else
-#define _ ;
-#define _P(ARGS,TYPES) ARGS TYPES;
-#endif
 
 #if defined(__hppa__) && defined(__GNUC__)
 #if (__GNUC__ == 2 && __GNUC_MINOR__ < 6)
@@ -88,7 +76,7 @@ float f1=0.1, f2=0.2, f3=0.3, f4=0.4, f5=0.5, f6=0.6, f7=0.7, f8=0.8, f9=0.9,
 double d1=0.1, d2=0.2, d3=0.3, d4=0.4, d5=0.5, d6=0.6, d7=0.7, d8=0.8, d9=0.9,
        d10=1.1, d11=1.2, d12=1.3, d13=1.4, d14=1.5, d15=1.6, d16=1.7;
 
-uchar uc1='a', uc2=127, uc3=128, uc4=255, uc5=-1;
+uchar uc1='a', uc2=127, uc3=128, uc4=255, uc5=(uchar)-1;
 ushort us1=1, us2=2, us3=3, us4=4, us5=5, us6=6, us7=7, us8=8, us9=9;
 uint ui1=1, ui2=2, ui3=3, ui4=4, ui5=5, ui6=6, ui7=7, ui8=8, ui9=9;
 ulong ul1=1, ul2=2, ul3=3, ul4=4, ul5=5, ul6=6, ul7=7, ul8=8, ul9=9;
@@ -106,50 +94,48 @@ J J1={47,11},J2={73,55};
 T T1={'t','h','e'},T2={'f','o','x'};
 X X1={"abcdefghijklmnopqrstuvwxyzABCDEF",'G'}, X2={"123",'9'}, X3={"return-return-return",'R'};
 
-void v_v()
+void v_v (void)
 {
   fprintf(out,"void f(void):\n");
   fflush(out);
 }
-int i_v()
+int i_v (void)
 {
   int r=99;
   fprintf(out,"int f(void):");
   fflush(out);
   return r;
 }
-int i_i _P((a), int a)
+int i_i (int a)
 {
   int r=a+1;
   fprintf(out,"int f(int):(%d)",a);
   fflush(out);
   return r;
 }
-int i_i2 _P((a,b), int a _ int b)
+int i_i2 (int a, int b)
 {
   int r=a+b;
   fprintf(out,"int f(2*int):(%d,%d)",a,b);
   fflush(out);
   return r;
 }
-int i_i4 _P((a,b,c,d), int a _ int b _ int c _ int d)
+int i_i4 (int a, int b, int c, int d)
 {
   int r=a+b+c+d;
   fprintf(out,"int f(4*int):(%d,%d,%d,%d)",a,b,c,d);
   fflush(out);
   return r;
 }
-int i_i8 _P((a,b,c,d,e,f,g,h),
-	    int a _ int b _ int c _ int d _ int e _ int f _ int g _ int h)
+int i_i8 (int a, int b, int c, int d, int e, int f, int g, int h)
 {
   int r=a+b+c+d+e+f+g+h;
   fprintf(out,"int f(8*int):(%d,%d,%d,%d,%d,%d,%d,%d)",a,b,c,d,e,f,g,h);
   fflush(out);
   return r;
 }
-int i_i16 _P((a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p),
-	     int a _ int b _ int c _ int d _ int e _ int f _ int g _ int h
-	     _ int i _ int j _ int k _ int l _ int m _ int n _ int o _ int p)
+int i_i16 (int a, int b, int c, int d, int e, int f, int g, int h,
+	   int i, int j, int k, int l, int m, int n, int o, int p)
 {
   int r=a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p;
   fprintf(out,"int f(16*int):(%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d)",
@@ -158,38 +144,37 @@ int i_i16 _P((a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p),
   return r;
 }
 
-float f_f _P((a), float a)
+float f_f (float a)
 {
   float r=a+1.0;
   fprintf(out,"float f(float):(%g)",a);
   fflush(out);
   return r;
 }
-float f_f2 _P((a,b), float a _ float b)
+float f_f2 (float a, float b)
 {
   float r=a+b;
   fprintf(out,"float f(2*float):(%g,%g)",a,b);
   fflush(out);
   return r;
 }
-float f_f4 _P((a,b,c,d), float a _ float b _ float c _ float d)
+float f_f4 (float a, float b, float c, float d)
 {
   float r=a+b+c+d;
   fprintf(out,"float f(4*float):(%g,%g,%g,%g)",a,b,c,d);
   fflush(out);
   return r;
 }
-float f_f8 _P((a,b,c,d,e,f,g,h), float a _ float b _ float c _ float d _ float e _ float f
-	      _ float g _ float h)
+float f_f8 (float a, float b, float c, float d, float e, float f,
+	    float g, float h)
 {
   float r=a+b+c+d+e+f+g+h;
   fprintf(out,"float f(8*float):(%g,%g,%g,%g,%g,%g,%g,%g)",a,b,c,d,e,f,g,h);
   fflush(out);
   return r;
 }
-float f_f16 _P((a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p),
-	       float a _ float b _ float c _ float d _ float e _ float f _ float g _ float h
-	       _ float i _ float j _ float k _ float l _ float m _ float n _ float o _ float p)
+float f_f16 (float a, float b, float c, float d, float e, float f, float g, float h,
+	     float i, float j, float k, float l, float m, float n, float o, float p)
 {
   float r=a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p;
   fprintf(out,"float f(16*float):(%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g)",a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p);
@@ -197,40 +182,38 @@ float f_f16 _P((a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p),
   return r;
 }
 
-double d_d _P((a), double a)
+double d_d (double a)
 {
   double r=a+1.0;
   fprintf(out,"double f(double):(%g)",a);
   fflush(out);
   return r;
 }
-double d_d2 _P((a,b), double a _ double b)
+double d_d2 (double a, double b)
 {
   double r=a+b;
   fprintf(out,"double f(2*double):(%g,%g)",a,b);
   fflush(out);
   return r;
 }
-double d_d4 _P((a,b,c,d), double a _ double b _ double c _ double d)
+double d_d4 (double a, double b, double c, double d)
 {
   double r=a+b+c+d;
   fprintf(out,"double f(4*double):(%g,%g,%g,%g)",a,b,c,d);
   fflush(out);
   return r;
 }
-double d_d8 _P((a,b,c,d,e,f,g,h),
-	       double a _ double b _ double c _ double d _ double e _ double f
-	       _ double g _ double h)
+double d_d8 (double a, double b, double c, double d, double e, double f,
+	     double g, double h)
 {
   double r=a+b+c+d+e+f+g+h;
   fprintf(out,"double f(8*double):(%g,%g,%g,%g,%g,%g,%g,%g)",a,b,c,d,e,f,g,h);
   fflush(out);
   return r;
 }
-double d_d16 _P((a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p),
-		double a _ double b _ double c _ double d _ double e _ double f
-		_ double g _ double h _ double i _ double j _ double k _ double l
-		_ double m _ double n _ double o _ double p)
+double d_d16 (double a, double b, double c, double d, double e, double f,
+	      double g, double h, double i, double j, double k, double l,
+	      double m, double n, double o, double p)
 {
   double r=a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p;
   fprintf(out,"double f(16*double):(%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g,%g)",a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p);
@@ -238,7 +221,7 @@ double d_d16 _P((a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p),
   return r;
 }
 
-void* vp_vpdpcpsp _P((a,b,c,d), void* a _ double* b _ char* c _ Int* d)
+void* vp_vpdpcpsp (void* a, double* b, char* c, Int* d)
 {
   void* ret = (char*)b + 1;
   fprintf(out,"void* f(void*,double*,char*,Int*):(0x%lx,0x%lx,0x%lx,0x%lx)",(long)a,(long)b,(long)c,(long)d);
@@ -246,29 +229,29 @@ void* vp_vpdpcpsp _P((a,b,c,d), void* a _ double* b _ char* c _ Int* d)
   return ret;
 }
 
-uchar uc_ucsil _P((a,b,c,d), uchar a _ ushort b _ uint c _ ulong d)
+uchar uc_ucsil (uchar a, ushort b, uint c, ulong d)
 {
-  uchar r = -1;
+  uchar r = (uchar)-1;
   fprintf(out,"uchar f(uchar,ushort,uint,ulong):(%u,%u,%u,%lu)",a,b,c,d);
   fflush(out);
   return r;
 }
 
-double d_iidd _P((a,b,c,d), int a _ int b _ double c _ double d)
+double d_iidd (int a, int b, double c, double d)
 {
   double r = a+b+c+d;
   fprintf(out,"double f(int,int,double,double):(%d,%d,%g,%g)",a,b,c,d);
   fflush(out);
   return r;
 }
-double d_idid _P((a,b,c,d), int a _ double b _ int c _ double d)
+double d_idid (int a, double b, int c, double d)
 {
   double r = a+b+c+d;
   fprintf(out,"double f(int,double,int,double):(%d,%g,%d,%g)",a,b,c,d);
   fflush(out);
   return r;
 }
-ushort us_cdcd _P((a,b,c,d), char a _ double b _ char c _ double d)
+ushort us_cdcd (char a, double b, char c, double d)
 {
   ushort r = (ushort)(a + b + c + d);
   fprintf(out,"ushort f(char,double,char,double):('%c',%g,'%c',%g)",a,b,c,d);
@@ -277,7 +260,7 @@ ushort us_cdcd _P((a,b,c,d), char a _ double b _ char c _ double d)
 }
 
 #ifdef HAVE_LONGLONG
-long long ll_flli _P((a,b,c), float a _ long long b _ int c)
+long long ll_flli (float a, long long b, int c)
 {
   long long r = (long long)(int)a + b + (long long)c;
   fprintf(out,"long long f(float,long long,int):(%g,0x%lx%08lx,0x%lx)",a,(long)(b>>32),(long)(b&0xffffffff),(long)c);
@@ -286,7 +269,7 @@ long long ll_flli _P((a,b,c), float a _ long long b _ int c)
 }
 #endif
 
-Int I_III _P((a,b,c), Int a _ Int b _ Int c)
+Int I_III (Int a, Int b, Int c)
 {
   Int r;
   r.x = a.x + b.x + c.x;
@@ -295,7 +278,7 @@ Int I_III _P((a,b,c), Int a _ Int b _ Int c)
   return r;
 }
 #ifndef SKIP_EXTRA_STRUCTS
-Char C_CdC _P((a,b,c), Char a _ double b _ Char c)
+Char C_CdC (Char a, double b, Char c)
 {
   Char r;
   r.x = (a.x + c.x)/2;
@@ -303,7 +286,7 @@ Char C_CdC _P((a,b,c), Char a _ double b _ Char c)
   fflush(out);
   return r;
 }
-Float F_Ffd _P((a,b,c), Float a _ float b _ double c)
+Float F_Ffd (Float a, float b, double c)
 {
   Float r;
   r.x = a.x + b + c;
@@ -311,7 +294,7 @@ Float F_Ffd _P((a,b,c), Float a _ float b _ double c)
   fflush(out);
   return r;
 }
-Double D_fDd _P((a,b,c), float a _ Double b _ double c)
+Double D_fDd (float a, Double b, double c)
 {
   Double r;
   r.x = a + b.x + c;
@@ -320,7 +303,7 @@ Double D_fDd _P((a,b,c), float a _ Double b _ double c)
   return r;
 }
 #endif
-J J_JiJ _P((a,b,c), J a _ int b _ J c)
+J J_JiJ (J a, int b, J c)
 {
   J r;
   r.l1 = a.l1+c.l1; r.l2 = a.l2+b+c.l2;
@@ -329,7 +312,7 @@ J J_JiJ _P((a,b,c), J a _ int b _ J c)
   return r;
 }
 #ifndef SKIP_EXTRA_STRUCTS
-T T_TcT _P((a,b,c), T a _ char b _ T c)
+T T_TcT (T a, char b, T c)
 {
   T r;
   r.c[0]='b'; r.c[1]=c.c[1]; r.c[2]=c.c[2];
@@ -337,7 +320,7 @@ T T_TcT _P((a,b,c), T a _ char b _ T c)
   fflush(out);
   return r;
 }
-X X_BcdB _P((a,b,c,d), B a _ char b _ double c _ B d)
+X X_BcdB (B a, char b, double c, B d)
 {
   static X xr={"return val",'R'};
   X r;
@@ -357,23 +340,20 @@ X X_BcdB _P((a,b,c,d), B a _ char b _ double c _ B d)
  * (traces) or the previous call. This may seriously fake the test.
  * Avoid this by clearing the registers between the first and the second call.
  */
-long clear_traces_i _P((a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p),
-  long a _ long b _ long c _ long d _ long e _ long f _ long g _ long h _
-  long i _ long j _ long k _ long l _ long m _ long n _ long o _ long p)
+long clear_traces_i (long a, long b, long c, long d, long e, long f, long g, long h,
+		     long i, long j, long k, long l, long m, long n, long o, long p)
 { return 0; }
-float clear_traces_f _P((a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p),
-  float a _ float b _ float c _ float d _ float e _ float f _ float g _
-  float h _ float i _ float j _ float k _ float l _ float m _ float n _
-  float o _ float p)
+float clear_traces_f (float a, float b, float c, float d, float e, float f, float g,
+		      float h, float i, float j, float k, float l, float m, float n,
+		      float o, float p)
 { return 0.0; }
-double clear_traces_d _P((a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p),
-  double a _ double b _ double c _ double d _ double e _ double f _ double g _
-  double h _ double i _ double j _ double k _ double l _ double m _ double n _
-  double o _ double p)
+double clear_traces_d (double a, double b, double c, double d, double e, double f, double g,
+		       double h, double i, double j, double k, double l, double m, double n,
+		       double o, double p)
 { return 0.0; }
-J clear_traces_J ()
+J clear_traces_J (void)
 { J j; j.l1 = j.l2 = 0; return j; }
-void clear_traces()
+void clear_traces (void)
 { clear_traces_i(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
   clear_traces_f(0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
   clear_traces_d(0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
@@ -381,7 +361,7 @@ void clear_traces()
 }
 
 void
-  void_tests()
+  void_tests (void)
 {
   av_alist a;
   v_v();
@@ -391,7 +371,7 @@ void
   return;
 }
 void
-  int_tests()
+  int_tests (void)
 {
   av_alist a;
   int ir;
@@ -484,7 +464,7 @@ void
   return;
 }
 void
-  float_tests()
+  float_tests (void)
 {
   av_alist a;
   float fr;
@@ -566,7 +546,7 @@ void
   fflush(out);
 }
 void
-  double_tests()
+  double_tests (void)
 {
   av_alist a;
   double dr;
@@ -650,7 +630,7 @@ void
   return;
 }
 void
-  mixed_number_tests()
+  mixed_number_tests (void)
 {
   av_alist a;
   uchar ucr;
@@ -735,7 +715,7 @@ void
   return;
 }
 void
-  pointer_tests()
+  pointer_tests (void)
 {
   av_alist a;
   void* vpr;
@@ -756,7 +736,7 @@ void
   return;
 }
 void
-  structure_tests()
+  structure_tests (void)
 {
   av_alist a;
   Int Ir;
@@ -861,7 +841,7 @@ void
   return;
 }
 int
-  main()
+  main (void)
 {
   out = stdout;
   void_tests();
