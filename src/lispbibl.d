@@ -10877,13 +10877,11 @@ extern void copy_32bit_32bit (const uint32* src, uint32* dest, uintL len);
     #define SstringCase(string,s8string_statement,s16string_statement,s32string_statement)  \
       { s32string_statement }
   #endif
-  global inline cint32 schar (object str, uintL idx);
 #else
   # In this case we take the s32string_statement, not the s8string_statement,
   # because the s32string_statement is the right one for normal simple strings.
   #define SstringCase(string,s8string_statement,s16string_statement,s32string_statement)  \
     { /*s8string_statement*/ s32string_statement }
-  #define schar(str,idx)    (((S32string)TheVarobject(str))->data[idx])
 #endif
 # is used by CHARSTRG, ARRAY, HASHTABL, PACKAGE, PATHNAME, PREDTYPE, STREAM
 
@@ -10947,6 +10945,22 @@ extern void copy_32bit_32bit (const uint32* src, uint32* dest, uintL len);
     charptr_assignment (const chart*) &TheSstring(string)->data[offset];
 #endif
 # is used by
+
+# UP: Fetches a character from a simple string.
+# schar(string,index)
+# > object string: a simple string
+# > uintL index: >= 0, < length of string
+# < chart result: character at the given position
+#ifdef UNICODE
+  static inline chart schar (object string, uintL index) {
+    SstringDispatch(string,X, {
+      return (cint32)(((SstringX)TheVarobject(string))->data[index]);
+    });
+  }
+#else
+  #define schar(string,index)  as_chart(TheS32string(string)->data[index])
+#endif
+# is used by PATHNAME, STREAM
 
 # UP: unpacks a String.
 # unpack_string_rw(string,&len,&offset)  [for read-write access]

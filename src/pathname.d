@@ -1100,7 +1100,7 @@ local object common_case (object string) {
   if (len > 0) {
     var object storage = string; simple_array_to_storage(storage);
     SstringDispatch(storage,X, {
-      var const cintX* ptr = ((SstringX)TheVarobject(storage))->data;
+      var const cintX* ptr = &((SstringX)TheVarobject(storage))->data[0];
       var uintL count;
       dotimespL(count,len, {
         var chart ch = as_chart(*ptr++);
@@ -1243,7 +1243,7 @@ local object test_optional_host (object host) {
     if (len > 0) {
       var object storage = host; simple_array_to_storage(storage);
       SstringDispatch(storage,X, {
-        var const cintX* ptr = ((SstringX)TheVarobject(storage))->data;
+        var const cintX* ptr = &((SstringX)TheVarobject(storage))->data[0];
         dotimespL(len,len, {
           var chart ch = as_chart(*ptr++);
           if (!legal_logical_word_char(ch))
@@ -1517,7 +1517,7 @@ typedef struct {
 
 # Tests whether the current character at Z satisfies pred.
 #define Z_AT_SLASH(z,pred,st) \
-  (((z).count != 0) && pred(schar(st,(z).index)))
+  (((z).count != 0) && pred(as_cint(schar(st,(z).index))))
 
 # Replace this string with a substring.
 #define Z_SUB(z,s) ((s) = subsstring((s),(z).index,(z).index+(z).count), (z).index = 0)
@@ -1536,10 +1536,10 @@ local object copy_upcase (object dest, uintL dest_offset,
                           object orig, uintL orig_offset, uintL len) {
   simple_array_to_storage(orig);
   SstringDispatch(orig,X1, {
-    var cintX1* ptr1 = ((SstringX1)TheVarobject(orig))->data + orig_offset;
+    var cintX1* ptr1 = &((SstringX1)TheVarobject(orig))->data[orig_offset];
     simple_array_to_storage(dest);
     SstringDispatch(dest,X2, {
-      var cintX2* ptr2 = ((SstringX2)TheVarobject(dest))->data + dest_offset;
+      var cintX2* ptr2 = &((SstringX2)TheVarobject(dest))->data[dest_offset];
       dotimespL(len,len, { *ptr2++ = as_cint(up_case(as_chart(*ptr1++))); });
     });
   });
@@ -1557,7 +1557,7 @@ local object copy_upcase (object dest, uintL dest_offset,
 local object parse_logical_word (zustand* z, bool subdirp) {
   ASSERT(sstring_normal_p(STACK_2));
   var zustand startz = *z; # start-state
-  var cint ch;
+  var chart ch;
   # Is there a sequence of alphanumeric characters or '*',
   # no two '*' adjacent (except "**", if subdirp),
   # and, if subdirp, a ';' ?
@@ -1567,8 +1567,8 @@ local object parse_logical_word (zustand* z, bool subdirp) {
     if (z->count == 0)
       break;
     ch = schar(STACK_2,z->index); # next character
-    if (!legal_logical_word_char(as_chart(ch))) {
-      if (ch == '*') {
+    if (!legal_logical_word_char(ch)) {
+      if (chareq(ch,ascii('*'))) {
         if (last_was_star) {
           if (subdirp && (z->index - startz.index == 1))
             seen_starstar = true;
@@ -1592,7 +1592,7 @@ local object parse_logical_word (zustand* z, bool subdirp) {
   }
   if (len==0)
     return NIL;
-  else if ((len==1) && (schar(STACK_2,startz.index) == '*'))
+  else if ((len==1) && chareq(schar(STACK_2,startz.index),ascii('*')))
     return S(Kwild);
   else if ((len==2) && seen_starstar)
     return S(Kwild_inferiors);
@@ -1609,7 +1609,7 @@ local bool all_digits (object string) {
   if (len > 0) {
     var object storage = string; simple_array_to_storage(storage);
     SstringDispatch(storage,X, {
-      var const cintX* ptr = ((SstringX)TheVarobject(storage))->data;
+      var const cintX* ptr = &((SstringX)TheVarobject(storage))->data[0];
       dotimespL(len,len, {
         var cintX c = *ptr++;
         if (!((c >= '0') && (c <= '9')))
@@ -1655,7 +1655,7 @@ local object parse_logical_host_prefix (zustand* zp, object string) {
   loop {
     if (zp->count==0)
       return NIL; # string already ended -> no host
-    ch = as_chart(schar(string,zp->index)); # next character
+    ch = schar(string,zp->index); # next character
     if (!legal_logical_word_char(ch))
       break;
     # go past alphanumeric character:
@@ -1784,7 +1784,7 @@ local uintL parse_logical_pathnamestring (zustand z) {
   { # parse Name:
     var object name = parse_logical_word(&z,false);
     TheLogpathname(STACK_1)->pathname_name = name;
-    if ((z.count > 0) && (schar(STACK_2,z.index) == '.')) {
+    if ((z.count > 0) && chareq(schar(STACK_2,z.index),ascii('.'))) {
       var zustand z_name = z;
       # skip Character '.' :
       Z_SHIFT(z,1);
@@ -1792,7 +1792,7 @@ local uintL parse_logical_pathnamestring (zustand z) {
       var object type = parse_logical_word(&z,false);
       TheLogpathname(STACK_1)->pathname_type = type;
       if (!nullp(type)) {
-        if ((z.count > 0) && (schar(STACK_2,z.index) == '.')) {
+        if ((z.count > 0) && chareq(schar(STACK_2,z.index),ascii('.'))) {
           var zustand z_type = z;
           # skip Character '.' :
           Z_SHIFT(z,1);
@@ -1879,7 +1879,7 @@ local void split_name_type (uintL skip) {
   # Search for the last dot:
   var uintL index = length;
   SstringDispatch(string,X, {
-    var const cintX* ptr = ((SstringX)TheVarobject(string))->data + index;
+    var const cintX* ptr = &((SstringX)TheVarobject(string))->data[index];
     while (index > skip) {
       if (*--ptr == '.') goto punkt;
       index--;
@@ -2356,7 +2356,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
      #if defined(USER_HOMEDIR) && defined(PATHNAME_UNIX)
       # if there is a '~' immediately, a username is read up to the next '/'
       # or string-end and the Home-Directory of this user is inserted:
-      if ((z.count != 0) && (schar(STACK_2,z.index) == '~')) {
+      if ((z.count != 0) && chareq(schar(STACK_2,z.index),ascii('~'))) {
         # there is a '~' immediately.
         # skip character:
         Z_SHIFT(z,1);
@@ -2365,7 +2365,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
         var uintL charcount = 0;
         SstringDispatch(STACK_2,X, {
           var const cintX* charptr =
-            ((SstringX)TheVarobject(STACK_2))->data + z.index;
+            &((SstringX)TheVarobject(STACK_2))->data[z.index];
           var uintL count;
           dotimesL(count,z.count, {
             if (*charptr++ == '/') break;
@@ -2529,7 +2529,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
             var chart ch;
             if (z.count == 0)
               break;
-            ch = as_chart(schar(STACK_2,z.index)); # next character
+            ch = schar(STACK_2,z.index); # next character
             if (!legal_namechar(ch)) # valid character ?
               break;
             # yes -> part of the name
@@ -4003,13 +4003,13 @@ local bool legal_logical_word (object obj) {
   if (len==0)
     return false; # empty word is forbidden
   SstringDispatch(obj,X, {
-    var const cintX* charptr = ((SstringX)TheVarobject(obj))->data;
+    var const cintX* charptr = &((SstringX)TheVarobject(obj))->data[0];
     var bool last_was_star = false;
     dotimespL(len,len, {
-      var cintX cc = *charptr++;
-      if (!(legal_logical_word_char(as_chart(cc)) || (cc == '*')))
+      var chart cc = as_chart(*charptr++);
+      if (!(legal_logical_word_char(cc) || chareq(cc,ascii('*'))))
         return false;
-      if (cc == '*') {
+      if (chareq(cc,ascii('*'))) {
         if (last_was_star)
           return false; # adjacent '*' are forbidden
         last_was_star = true;
@@ -4058,10 +4058,10 @@ local bool legal_type (object obj) {
   var uintL len = Sstring_length(obj);
   if (len > 0) {
     SstringDispatch(obj,X, {
-      var const cintX* charptr = ((SstringX)TheVarobject(obj))->data;
+      var const cintX* charptr = &((SstringX)TheVarobject(obj))->data[0];
       dotimespL(len,len, {
-        var cintX cc = *charptr++;
-        if ((cc == '.') || !legal_namechar(as_chart(cc)))
+        var chart cc = as_chart(*charptr++);
+        if (chareq(cc,ascii('.')) || !legal_namechar(cc))
           return false;
       });
     });
@@ -4586,7 +4586,7 @@ local bool wild_p (object obj, bool dirp) {
     var uintL len = Sstring_length(obj);
     if (len > 0) {
       SstringDispatch(obj,X, {
-        var const cintX* charptr = ((SstringX)TheVarobject(obj))->data;
+        var const cintX* charptr = &((SstringX)TheVarobject(obj))->data[0];
         dotimespL(len,len, {
           var chart ch = as_chart(*charptr++);
           if (wild_char_p(ch))
@@ -4610,9 +4610,9 @@ local bool word_wild_p (object obj, bool dirp) {
     var uintL len = Sstring_length(obj);
     if (len > 0) {
       SstringDispatch(obj,X, {
-        var const cintX* charptr = ((SstringX)TheVarobject(obj))->data;
+        var const cintX* charptr = &((SstringX)TheVarobject(obj))->data[0];
         dotimespL(len,len, {
-          if (*charptr++ == '*')
+          if (chareq(as_chart(*charptr++),ascii('*')))
             return true;
         });
       });
@@ -5097,7 +5097,7 @@ LISPFUNN(pathname_match_p,2) {
 local void wildcard_diff_ab (object pattern, object sample,
                              uintL m_index, uintL b_index,
                              const object* previous, object* solutions) {
-  var cint cc;
+  var chart cc;
   loop {
     if (m_index == Sstring_length(pattern)) {
       if (b_index == Sstring_length(sample))
@@ -5105,19 +5105,17 @@ local void wildcard_diff_ab (object pattern, object sample,
       return;
     }
     cc = schar(pattern,m_index++);
-    if (cc == '*')
+    if (chareq(cc,ascii('*')))
       break;
     if (b_index == Sstring_length(sample))
       return;
-    if (cc == '?') {
+    if (chareq(cc,ascii('?'))) {
       # recursive call to wildcard_diff_ab(), with extended previous:
       cc = schar(sample,b_index++);
       pushSTACK(pattern); pushSTACK(sample);
       {
         var object new_string = allocate_string(1);
-        SstringDispatch(new_string,X, {
-          ((SstringX)TheVarobject(new_string))->data[0] = cc;
-        });
+        TheS32string(new_string)->data[0] = as_cint(cc);
         pushSTACK(new_string);
       }
       {
@@ -5129,7 +5127,7 @@ local void wildcard_diff_ab (object pattern, object sample,
       skipSTACK(3);
       return;
     } else {
-      if (!equal_pathchar(as_chart(schar(sample,b_index++)),as_chart(cc)))
+      if (!equal_pathchar(schar(sample,b_index++),cc))
         return;
     }
   }
@@ -5139,10 +5137,9 @@ local void wildcard_diff_ab (object pattern, object sample,
     if (m_index == Sstring_length(pattern)
         ? b_index == Sstring_length(sample)
         : (cc = schar(pattern,m_index),
-           (cc == '*') || (cc == '?')
+           chareq(cc,ascii('*')) || chareq(cc,ascii('?'))
            || (b_index < Sstring_length(sample)
-               && equal_pathchar(as_chart(schar(sample,b_index)),
-                                 as_chart(cc))))) {
+               && equal_pathchar(as_chart(schar(sample,b_index)),cc)))) {
       # wildcard_diff_ab() recursive call, with extended previous:
       pushSTACK(pattern); pushSTACK(sample);
       # (SUBSTRING sample b_start_index b_index)
@@ -5610,15 +5607,15 @@ local object translate_nametype_aux (object* subst, object pattern,
     var uintL stringcount = 0; # number of strings on the stack
     loop {
       var uintL last_index = index;
-      var cint cc;
+      var chart cc;
       # search next wildcard-character:
       pattern = *pattern_;
       loop {
         if (index == len)
           break;
         cc = schar(pattern,index);
-        if (((cc == '*') # wildcard for arbitrary many characters
-             || (!logical && singlewild_char_p(as_chart(cc)))) # wildcard for exactly one character
+        if ((chareq(cc,ascii('*')) # wildcard for arbitrary many characters
+             || (!logical && singlewild_char_p(cc))) # wildcard for exactly one character
             && mconsp(*subst))
           break;
         index++;
@@ -9561,7 +9558,7 @@ local object ensure_last_slash (object dir_string) {
   ASSERT(stringp(dir_string));
   var uintL len, offset;
   var object str = unpack_string_ro(dir_string,&len,&offset);
-  var chart ch = as_chart(schar(str,len+offset-1));
+  var chart ch = schar(str,len+offset-1);
   if (!slashp(ch)) {
     var char sl = (looks_logical_p(dir_string) ? ';' : slash);
     with_sstring_0(str,O(pathname_encoding),asciz, {

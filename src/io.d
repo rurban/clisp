@@ -27,7 +27,7 @@ global void sstring_printf (object sstr, uintL len, uintL offset) {
   simple_array_to_storage(sstr);
   printf("<%d/%d\"",len,offset);
   for(idx=offset;idx<len;idx++)
-    printf("%c",schar(sstr,idx));
+    printf("%c",as_cint(schar(sstr,idx))); # FIXME: should use terminal_encoding
   printf("\">");
 }
 global void string_printf (object str) {
