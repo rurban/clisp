@@ -273,7 +273,7 @@
 (defun destructuring-error (destructuring-form min.max)
   (let ((min (car min.max))
         (max (cdr min.max)))
-    (error-of-type 'error
+    (error-of-type 'program-error
       (TEXT "The object to be destructured should be a list with ~:[at least ~*~S~;~:[from ~S to ~S~;~S~]~] elements, not ~4@*~S.")
       max (eql min max) min max destructuring-form
 ) ) )
