@@ -1402,7 +1402,7 @@ local void init_object_tab (void) {
      #ifdef WIN32
       " :WIN32"
      #endif
-      ":SAFETY=" STRINGIFY(SAFETY)
+      " :SAFETY=" STRINGIFY(SAFETY)
      #ifdef TYPECODES
       " :TYPECODES"
      #endif

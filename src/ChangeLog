@@ -1,3 +1,7 @@
+2004-05-22  Sam Steingold  <sds@gnu.org>
+
+	* spvw.d (init_object_tab): fixed a typo in features_initstring
+
 2004-05-22  Bruno Haible  <bruno@clisp.org>
 
 	* utils/clispload.lsp (regression-test::*expected-failures*):
