@@ -1,5 +1,12 @@
 2005-02-02  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d: reverted some of the 2005-01-31 patch
+	(substitute_resolved_path): removed
+	(assure_dir_exists) [WIN32_NATIVE]: use MERGE-PATHNAMES instead
+	[UNIX]: reverted
+
+2005-02-02  Sam Steingold  <sds@gnu.org>
+
 	* genclisph.d (perseverance_t): ensure the constants have the
 	right values (like with all the other enums)
 
