@@ -14,7 +14,7 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = cpcre.o link.sh Makefile pcre.lisp test.tst pcre.xml
+DISTRIBFILES = cpcre.o link.sh Makefile pcre.lisp test.tst pcre.xml preload.lisp
 distribdir =
 
 all : pcre.fas cpcre.o
