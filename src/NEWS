@@ -11,6 +11,14 @@ User visible changes
 * CLISP does not come with GNU readline anymore, because, starting with
   version 4.3, readline supports multibyte characters out of the box.
 
+* CLISP does not come with GNU libsigsegv anymore.  This means that in
+  certain cases of infinite recursion, the C stack overflow will not be
+  properly detected and will result in a segfault instead of an error.
+  You are urged to download and install GNU libsigsegv from
+  <ftp://ftp.gnu.org/pub/gnu/libsigsegv/> or
+  <http://sourceforge.net/projects/libsigsegv>
+  before configuring CLISP.
+
 * Strings can now hold UCS-4 characters, instead of only UCS-2 characters.
   CHAR-CODE-LIMIT increased from 65536 to 1114112.
 
