@@ -145,16 +145,15 @@ global bool equal (object obj1, object obj2)
       /* return equal(Cdr(obj1),Cdr(obj2)); */
       obj1 = Cdr(obj1); obj2 = Cdr(obj2);
       goto start;
-    case_nilvector: case_snilvector:
-      /* (VECTOR NIL) is a STRING _and_ a BIT-VECTOR ! */
+    case_nilvector: case_snilvector: /* (VECTOR NIL) is a STRING */
       if (nil_vector_p(obj2))
         return vector_length(obj1) == vector_length(obj2);
-      if (stringp(obj2) || bit_vector_p(Atype_Bit,obj2))
+      if (stringp(obj2))
         return vector_length(obj2) == 0 && vector_length(obj1) == 0;
       return false;
     case_sbvector: case_obvector: /* compare bit vectors element-wise: */
       if (!bit_vector_p(Atype_Bit,obj2))
-        return (nil_vector_0_p(obj2) && vector_length(obj1) == 0);
+        return false;
       { /* compare lengths: */
         var uintL len1 = vector_length(obj1);
         if (!(len1 == vector_length(obj2))) goto no;
