@@ -3450,11 +3450,11 @@ for-value   NIL or T
 (defun signature-to-list (req-num opt-num rest-p key-p keywords allow-p)
   (let ((args '()) (count -1))
     (dotimes (i req-num)
-      (push (intern (format nil "ARG~D" (incf count)) :sys) args))
+      (push (make-symbol (format nil "ARG~D" (incf count))) args))
     (when (plusp opt-num)
       (push '&OPTIONAL args)
       (dotimes (i opt-num)
-        (push (intern (format nil "ARG~D" (incf count)) :sys) args)))
+        (push (make-symbol (format nil "ARG~D" (incf count))) args)))
     (when rest-p
       (push '&REST args)
       (push 'other-args args))
@@ -4279,7 +4279,7 @@ for-value   NIL or T
           ;;   but misses `:method's in `defgeneric' forms
           ;; - the above check works only for already defined generic
           ;;   functions but not for generic functions defined in this file
-          (c-warn (ENGLISH "Function ~s~% was already defined~a~:[~% with the signature~%~s~% it is being re-defined with a new signature~%~s~;~2*~]")
+          (c-warn (ENGLISH "Function ~s~% was already defined~a~:[~% with the signature~%~a~% it is being re-defined with a new signature~%~a~;~2*~]")
                   symbol (c-source-point-location (second kf))
                   (equalp signature (cddr kf))
                   (sig-to-list (cddr kf))
