@@ -261,9 +261,6 @@
                  ',accessfn
              ) )
 ) ) ) ) ) )
-(defmacro define-setf-method (&rest args) ; backward compatibility
-  `(DEFINE-SETF-EXPANDER ,@args)
-)
 ;;;----------------------------------------------------------------------------
 (defmacro defsetf (accessfn &rest args &environment env)
   (cond ((and (consp args) (not (listp (first args))) (symbolp (first args)))
