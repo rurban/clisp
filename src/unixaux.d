@@ -54,7 +54,7 @@ global int select (int width, fd_set* readfds, fd_set* writefds,
     }
   }
   var int poll_timeout = timeout->tv_sec * 1000 + timeout->tv_usec / (1000000/1000);
-  var int result = poll(pollfd_count,&pollfd_bag[0],poll_timeout);
+  var int result = poll(&pollfd_bag[0],pollfd_count,poll_timeout);
   if (result>=0) {
     pollfd_ptr = &pollfd_bag[0];
     while (pollfd_count != 0) {
