@@ -7179,21 +7179,23 @@ local void pr_string (const object* stream_, object string) {
 
 #                    -------- Conses, Lists --------
 
-# UP: determines, if a Cons is to be printed in a special manner
-# special_list_p(obj)
-# > obj: object, a Cons
-# < result: address of the corresponding pr_list_xxx-routine, if yes,
-#                                                       NULL, if no.
-local pr_routine_t* special_list_p (object obj) {
+/* UP: determines, if a Cons is to be printed in a special manner
+ special_list_p(obj,dotted_p)
+ > obj: object, a Cons
+ > dotted_p: flag, indicating whether the output will be dotted
+             if this function returns non-NULL
+ < result: address of the corresponding pr_list_xxx-routine, if yes,
+                                                       NULL, if no. */
+local pr_routine_t* special_list_p (object obj, bool dotted_p) {
   # special lists are those of the form
   # (QUOTE a), (FUNCTION a), (SYS::BACKQUOTE a [b]) and
   # (SYS::SPLICE a), (SYS::NSPLICE a), (SYS::UNQUOTE a)
   # if SYS::*PRIN-BQLEVEL* > 0
   var object head = Car(obj);
   var pr_routine_t* pr_xxx;
-  if (eq(head,S(quote))) { # QUOTE
+  if (!dotted_p && eq(head,S(quote))) { /* QUOTE */
     pr_xxx = &pr_list_quote; goto test2;
-  } else if (eq(head,S(function))) { # FUNCTION
+  } else if (!dotted_p && eq(head,S(function))) { /* FUNCTION */
     pr_xxx = &pr_list_function; goto test2;
   } else if (eq(head,S(backquote))) { # SYS::BACKQUOTE
     pr_xxx = &pr_list_backquote;
@@ -7261,7 +7263,7 @@ local void pr_list (const object* stream_, object list) {
 # can trigger GC
 local void pr_cons (const object* stream_, object list) {
   { # treat special case:
-    var pr_routine_t* special = special_list_p(list);
+    var pr_routine_t* special = special_list_p(list,false);
     if (!(special == (pr_routine_t*)NULL)) {
       (*special)(stream_,list); # call special pr_list_xxx-routine
       return;
@@ -7300,7 +7302,7 @@ local void pr_cons (const object* stream_, object list) {
       list = *list_;
       if (circle_p(list,NULL)) # necessary because of circularity?
         goto dotted_list;
-      if (!(special_list_p(list) == (pr_routine_t*)NULL)) # necessary because of QUOTE or similar stuff?
+      if (special_list_p(list,true) != (pr_routine_t*)NULL) /* necessary because of QUOTE or similar stuff? */
         goto dotted_list;
     }
   dotted_list: # print list-remainder in dotted-list-notation:
@@ -8006,7 +8008,8 @@ local void pr_sharp_dot (const object* stream_,object obj) {
 # < stream: stream
 # can trigger GC
 local void pr_instance (const object* stream_, object obj) {
-  if (!nullpSv(compiling)) { # compiling - use MAKE-LOAD-FORM (clos.lisp)
+  if (!nullpSv(compiling) && !nullpSv(print_readably)) {
+    # compiling - use MAKE-LOAD-FORM (clos.lisp)
     pushSTACK(obj); # save obj
     pushSTACK(obj); funcall(S(make_init_form),1);
     obj = popSTACK(); # recall obj
