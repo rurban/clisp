@@ -2,7 +2,7 @@
  * Pathnames for CLISP
  * Bruno Haible 1990-2003
  * Logical Pathnames: Marcus Daniels 16.9.1994
- * ANSI compliance, bugs: Sam Steingold 1998-2003
+ * ANSI compliance, bugs: Sam Steingold 1998-2004
  * German comments translated into English: Stefan Kain 2002-01-03
  */
 
@@ -5887,7 +5887,7 @@ LISPFUNN(delete_file,1) {
     }
   });
   /* file existed, was deleted -> pathname (/=NIL) as value */
-  VALUES1(STACK_1); skipSTACK(2);
+  VALUES1(nullp(O(ansi)) ? STACK_1 : T); skipSTACK(2);
 }
 
 /* error-message because of renaming attempt of an opened file
