@@ -99,6 +99,9 @@
      <listitem><simpara>a &boolean-t; indicator of whether this
        option is set or not (&DBE_get_verbose; and &DBE_get_flags;).
     </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:DB_XIDDATASIZE</constant></term>
+     <listitem><simpara>the &length; of the globally unique
+       &unsigned-byte-vector; which must be passed to &TXN_prepare;.
 </variablelist></para></listitem></varlistentry>
 </variablelist>
 </section>
@@ -132,7 +135,7 @@
    CONSUME CONSUME_WAIT DIRTY_READ RMW TRANSACTION
    (ERROR &t;))</literal></term>
  <listitem><simpara>Get items from a database (&DB_get;).
-   If &error-k: is &nil; and the record is not found, no &err-sig;,
+   If &error-k; is &nil; and the record is not found, no &err-sig;,
    instead <constant>:NOTFOUND</constant> is returned.
 </simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:DB-PUT db key val
@@ -264,7 +267,7 @@
 <varlistentry><term><literal role="sexp">(BDB:CURSOR-GET
    cursor key data flag &key-amp; (ERROR &t;))</literal></term>
  <listitem><simpara>Retrieve by cursor (&DBC_get;).
-   If &error-k: is &nil; and the record is not found, no &err-sig;,
+   If &error-k; is &nil; and the record is not found, no &err-sig;,
    instead <constant>:NOTFOUND</constant> is returned.
 </simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:CURSOR-PUT
@@ -401,8 +404,19 @@ Memory Pool Files
 <varlistentry><term><literal role="sexp">(BDB:TXN-ID txn)</literal></term>
  <listitem><simpara>Return the transaction's ID (&TXN_id;).
 </simpara></listitem></varlistentry>
-</variablelist>
-</section>
+<varlistentry><term><literal role="sexp">(BDB:TXN-CHECKPOINT dbe
+   &key-amp; KBYTE MIN FORCE)</literal></term>
+ <listitem><simpara>Checkpoint the transaction subsystem
+   (&DBE_txn_checkpoint;).</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:TXN-PREPARE txn
+   id)</literal></term>
+ <listitem><simpara>initiate the beginning of a two-phase commit
+   (&TXN_prepare;).</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:TXN-RECOVER dbe &key-amp;
+   FIRST NEXT)</literal></term>
+ <listitem><simpara>return a list of prepared but not yet resolved
+   transactions (&DBE_txn_recover;)</simpara></listitem></varlistentry>
+</variablelist></section>
 
 
 <section id="bdb-replication"><title>Replication</title>
