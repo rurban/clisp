@@ -1,5 +1,10 @@
 1998-10-10  Bruno Haible  <linuix.math.u-bordeaux.fr>
 
+        * rlconf.h (PAREN_MATCHING): Define.
+        * parens.c (rl_insert_close): Define the timeout to 1 sec, not 0.5 sec.
+
+1998-10-10  Bruno Haible  <linuix.math.u-bordeaux.fr>
+
         * readline.h, readline.c (rl_already_prompted): New variable.
           Some applications have output the prompt themselves. readline
           needs to know about the prompt (for cursor movement) but must
