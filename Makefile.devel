@@ -274,6 +274,19 @@ ffcall/callback/trampoline_r/config.h.msvc : ffcall/callback/trampoline_r/config
 	cd ffcall ; $(MAKE) -f Makefile.devel callback/trampoline_r/config.h.msvc
 
 
+# Build and test all essential memory models on a Linux/x86 machine.
+MULTIBUILD_OPTIONS =
+multibuild-linux-x86:
+	CFLAGS="-O -g -falign-functions=4" CPPFLAGS="" \
+	  ./configure --build $(MULTIBUILD_OPTIONS) build-spvw_mixed_blocks
+	CFLAGS="-O -g -falign-functions=4" CPPFLAGS="-DWIDE" \
+	  ./configure --build $(MULTIBUILD_OPTIONS) build-wide
+	CFLAGS="-O -g -falign-functions=4" CPPFLAGS="-DNO_SINGLEMAP -DNO_TRIVIALMAP -DNO_MULTIMAP_FILE -DNO_MULTIMAP_SHM" \
+	  ./configure --build $(MULTIBUILD_OPTIONS) build-spvw_mixed_pages
+	CFLAGS="-O -g -falign-functions=4" CPPFLAGS="-DTYPECODES" \
+	  ./configure --build $(MULTIBUILD_OPTIONS) build-spvw_pure_blocks
+
+
 distrib : linux-distrib src-distrib
 
 ## Pre-release TODO:
