@@ -44,8 +44,10 @@ BuildRoot:    %{_tmppath}/%{name}-root
 %(cat SUMMARY)
 
 This binary distribution was built with the following modules:
- %{modules}
-(run "clisp -K full" to use them)
+ base: i18n regexp syscalls (run "clisp" or "clisp -K base" to use them)
+ full: in addition to the above, also
+   %{modules}
+ (run "clisp -K full" to use them)
 
 %prep
 cat <<EOF
