@@ -2,6 +2,8 @@
 
 	* user1.lsp (package-short-name): respect `*print-case*'.
 	(break-loop): add a space after "Break".
+	(prompt-index, prompt-new-package): Rewrite.
+	(*command-index*, *home-package*): New variables.
 
 1998-10-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
