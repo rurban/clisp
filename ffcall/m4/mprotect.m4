@@ -15,18 +15,6 @@ AC_DEFUN([CL_MPROTECT],
 AC_REQUIRE([CL_MMAP])dnl
 AC_CHECK_FUNCS(mprotect)dnl
 if test $ac_cv_func_mprotect = yes; then
-CL_PROTO([mprotect], [
-CL_PROTO_CONST([
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <sys/types.h>
-#include <sys/mman.h>
-], [int mprotect (void* addr, size_t len, int prot);],
-[int mprotect();], cl_cv_proto_mprotect_arg1)
-], [extern int mprotect ($cl_cv_proto_mprotect_arg1 void*, $cl_cv_proto_mmap_arg2, int);])
-AC_DEFINE_UNQUOTED(MPROTECT_CONST,$cl_cv_proto_mprotect_arg1,[declaration of mprotect() needs const])
 AC_CACHE_CHECK(for working mprotect, cl_cv_func_mprotect_works, [
 mprotect_prog='
 #include <sys/types.h>

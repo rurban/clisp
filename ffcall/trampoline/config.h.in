@@ -105,8 +105,6 @@
 #undef HAVE_MPROTECT
 /* Define if you have a working mprotect() function. */
 #undef HAVE_WORKING_MPROTECT
-/* Define as const if the declaration of mprotect() needs const. */
-#undef MPROTECT_CONST
 
 /* CL_SHMGET */
 /* Define as the type of `size' in shmget() declaration. */
