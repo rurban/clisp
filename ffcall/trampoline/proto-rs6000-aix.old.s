@@ -11,21 +11,28 @@ tramp:
 	.long .tramp, TOC[tc0], 0
 .csect .text[PR]
 .tramp:
+	.extern __mulh
+	.extern __mull
+	.extern __divss
+	.extern __divus
+	.extern __quoss
+	.extern __quous
 	mflr 0
 	st 0,8(1)
 	stu 1,-56(1)
-	liu 9,0x1234
-	oril 9,9,22136
-	liu 0,0x7355
-	oril 0,0,18193
-	st 0,0(9)
-	liu 9,0xbabe
-	oril 9,9,48832
-	l 0,0(9)
+	liu 11,0x1234
+	liu 9,0x7355
+	liu 0,0xbabe
+	oril 11,11,22136
+	oril 9,9,18193
+	oril 0,0,48832
+	st 9,0(11)
+	mr 8,0
 	st 2,20(1)
-	l 2,4(9)
-	l 11,8(9)
-	mtlr 0
+	l 10,0(8)
+	l 2,4(8)
+	mtlr 10
+	l 11,8(8)
 	brl
 	l 2,20(1)
 	cal 1,56(1)

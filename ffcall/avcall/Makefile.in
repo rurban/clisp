@@ -4,6 +4,7 @@
 
 HOST = @host@
 CPU = @host_cpu@
+OS = @host_os@
 
 # Directories used by "make":
 srcdir = @srcdir@
@@ -80,8 +81,8 @@ avcall-hppa.o : $(srcdir)/avcall-hppa.s
 avcall-arm.o : $(srcdir)/avcall-arm.s
 	$(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-arm.s
 
-avcall-rs6000.o : $(srcdir)/avcall-rs6000.s
-	$(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-rs6000.s
+avcall-rs6000.o : $(srcdir)/avcall-rs6000-aix.old.s $(srcdir)/avcall-rs6000-aix.new.s $(srcdir)/avcall-rs6000-sysv4.s
+	case "$(OS)" in aix3*) syntax=aix.old;; aix*) syntax=aix.new;; *) syntax=sysv4;; esac; $(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-rs6000-$${syntax}.s ; mv avcall-rs6000-$${syntax}.o avcall-rs6000.o
 
 avcall-m88k.o : $(srcdir)/avcall-m88k.s
 	$(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-m88k.s

@@ -254,7 +254,7 @@ enum __VA_alist_flags
 #if (defined(__mips__) || defined(__mipsn32__) || defined(__mips64__)) && !defined(__GNUC__) /* SGI mips cc */
   __VA_STRUCT_ARGS		= __VA_SGICC_STRUCT_ARGS,
 #else
-#if defined(__rs6000__) && !defined(__GNUC__) /* AIX cc, xlc */
+#if defined(__rs6000__) && defined(_AIX) && !defined(__GNUC__) /* AIX cc, xlc */
   __VA_STRUCT_ARGS		= __VA_AIXCC_STRUCT_ARGS,
 #else
   __VA_STRUCT_ARGS		= 0,
@@ -667,11 +667,11 @@ typedef __va_alist* va_alist;
 /* `long long's are passed embedded on the arg stack. */
 #define va_arg_longlong(LIST)	__va_arg_longlong(LIST,long long)
 #define va_arg_ulonglong(LIST)	__va_arg_longlong(LIST,unsigned long long)
-#if defined(__i386__) || defined(__m68k__) || defined(__arm__) || defined(__rs6000__) || defined(__convex__)
+#if defined(__i386__) || defined(__m68k__) || defined(__arm__) || (defined(__rs6000__) && defined(_AIX)) || defined(__convex__)
 /* `long long's are (at most) word-aligned. */
 #define __va_arg_longlong(LIST,TYPE)	__va_arg(LIST,TYPE)
 #endif
-#if defined(__mips__) || defined(__m88k__)
+#if defined(__mips__) || (defined(__rs6000__) && !defined(_AIX)) || defined(__m88k__)
 /* `long long's have alignment 8. */
 #define __va_arg_longlong(LIST,TYPE)					\
   ((LIST)->aptr = (((LIST)->aptr+__VA_alignof(TYPE)-1) & -(long)__VA_alignof(TYPE)), \
@@ -814,7 +814,7 @@ typedef __va_alist* va_alist;
     : *(double*)((LIST)->aptr - sizeof(double))				\
   ))
 #endif
-#ifdef __rs6000__
+#if defined(__rs6000__) && defined(_AIX)
 /* The first 13 floating-point args have been stored elsewhere. */
 #define __va_arg_float(LIST)  \
   ((LIST)->aptr += sizeof(float),					\
@@ -828,6 +828,22 @@ typedef __va_alist* va_alist;
    ((LIST)->memfargptr < &(LIST)->farg[13]				\
     ? *((LIST)->memfargptr++)						\
     : *(double*)((LIST)->aptr - sizeof(double))				\
+  ))
+#endif
+#if defined(__rs6000__) && !defined(_AIX)
+/* The first 8 floating-point args have been stored elsewhere. */
+#define __va_arg_float(LIST)  \
+  ((LIST)->memfargptr < &(LIST)->farg[8]				\
+   ? (float) *((LIST)->memfargptr++)					\
+   : ((LIST)->aptr += sizeof(float),					\
+      *(float*)((LIST)->aptr - sizeof(float))				\
+  ))
+#define va_arg_double(LIST)  \
+  ((LIST)->memfargptr < &(LIST)->farg[8]				\
+    ? *((LIST)->memfargptr++)						\
+    : (__va_align_double(LIST)						\
+       (LIST)->aptr += sizeof(double),					\
+       *(double*)((LIST)->aptr - sizeof(double))			\
   ))
 #endif
 #ifndef __va_arg_float
