@@ -1942,7 +1942,7 @@ LISPFUN(find_class,1,2,norest,nokey,0,NIL)
 # (recursively, unless once_p is true)
 # > type_spec: Lisp object
 # < result: the expansion (when not a deftyped type, returns the argument)
-extern object expand_deftype (object type_spec, bool once_p) {
+global object expand_deftype (object type_spec, bool once_p) {
   var uintL max_depth = posfixnump(Symbol_value(S(deftype_depth_limit))) ?
     posfixnum_to_L(Symbol_value(S(deftype_depth_limit))) :
     posfixnum_to_L(Symbol_value(S(most_positive_fixnum)));
@@ -1966,7 +1966,8 @@ extern object expand_deftype (object type_spec, bool once_p) {
       type_spec = value1; # use the return value as the new type-spec
       if (!once_p) goto start;
     }
-  } else if (mconsp(type_spec)) { # (GET (CAR type-spec) 'DEFTYPE-EXPANDER)
+  } else if (mconsp(type_spec) && symbolp(Car(type_spec))) {
+    # (GET (CAR type-spec) 'DEFTYPE-EXPANDER)
     var object expander = get(Car(type_spec),S(deftype_expander));
     if (!eq(expander,unbound)) {
       pushSTACK(type_spec); funcall(expander,1); # call expander
@@ -2257,9 +2258,11 @@ LISPFUNN(coerce,2)
       # type is some other symbol
     }
    fehler_type:
+    # due to the TYPEP call, which checks result-type,
+    # this should never happen
     # result-type in STACK_0
     pushSTACK(S(coerce));
-    fehler(error,GETTEXT("~: bad type specification ~"));
+    fehler(error,GETTEXT("~: invalid type specification ~"));
    fehler_object:
     # stack layout: object, result-type, type-error-datum, type-error-expected-type.
     pushSTACK(STACK_2); # result-type
