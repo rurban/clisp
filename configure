@@ -63,6 +63,11 @@ Specifying the C compiler:
                setenv CC "gcc -ansi"                 if using csh
                export CC="gcc -ansi"                 if using bash or ksh
                CC="gcc -ansi"; export CC             if using sh
+Using GNU libiconv (only needed if you do not have GNU LIBC 2.2 or better):
+         If you want to use GNU libiconv which is not installed system-wide,
+         you may supply a --with-libiconv-prefix argument
+         (type \`./src/configure --help' for details).
+         The same goes for non-standard locations of gettext.
 EOP
 }
 
