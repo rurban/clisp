@@ -196,14 +196,13 @@ extern void mregfree (regex_t *preg);
     (finalize compiled-pattern #'mregfree-finally)
     compiled-pattern))
 
-(eval-when (compile load eval)
 (setf (fdefinition 'match-start) (fdefinition 'regmatch_t-rm_so))
 (setf (fdefinition '(setf match-start))
       (lambda (new-value match) (setf (regmatch_t-rm_so match) new-value)))
 
 (setf (fdefinition 'match-end) (fdefinition 'regmatch_t-rm_eo))
 (setf (fdefinition '(setf match-end))
-      (lambda (new-value match) (setf (regmatch_t-rm_eo match) new-value))))
+      (lambda (new-value match) (setf (regmatch_t-rm_eo match) new-value)))
 
 (defun regexp-exec (compiled-pattern string &key (start 0) (end nil))
   (assert (stringp string) (string)
