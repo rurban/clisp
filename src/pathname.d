@@ -19,6 +19,43 @@
 # =============================================================================
 #                       Low level functions
 
+# UP: Tests whether a pathname is possibly a symlink.
+# possible_symlink(path)
+#ifdef UNIX_LINUX
+  local inline boolean possible_symlink (const char* path);
+  local inline boolean possible_symlink(path)
+    var const char* path;
+    { # In Linux 2.0.35, /proc/<pid>/{cwd,exe,root} and /proc/<pid>/fd/<n>
+      # are symlinks pointing to void. Treat them like non-symlinks, in order
+      # to avoid errors.
+      if (path[0]=='/'
+          && path[1]=='p' && path[2]=='r' && path[3]=='o' && path[4]=='c'
+          && path[5]=='/'
+          && (path[6]>='0' && path[6]<='9')
+         )
+        return FALSE;
+      return TRUE;
+    }
+#else
+  #define possible_symlink(path)  TRUE
+#endif
+
+#ifdef UNIX_LINUX
+  # The Linux /proc filesystem has some symlinks whose readlink value is
+  # zero-terminated: /proc/self in Linux 2.0.35, /proc/<pid>/fd/<n> in
+  # Linux 2.2.2. Remove this extraneous trailing zero byte.
+  local inline int my_readlink (const char* path, char* buf, size_t bufsiz);
+  local inline int my_readlink(path,buf,bufsiz)
+    var const char* path;
+    var char* buf;
+    var size_t bufsiz;
+    { var int linklen = readlink(path,buf,bufsiz);
+      if (linklen > 0 && buf[linklen-1] == '\0') { linklen--; }
+      return linklen;
+    }
+  #define readlink  my_readlink
+#endif
+
 #ifdef UNIX
   # Library-Funktion realpath implementieren:
   # [Copyright: SUN Microsystems, B. Haible]
@@ -108,68 +145,70 @@
                     default:
                       # nach einem normalen subdir
                       #ifdef HAVE_READLINK
-                      # symbolischen Link lesen:
-                      to_ptr[-1]=0; # '/' durch 0 ersetzen
-                      {
-                        #ifdef UNIX_CYGWIN32 # needed for Win95 only
-                        # readlink() doesn't work right on NFS mounted directories
-                        # (it returns -1,ENOENT or -1,EIO).
-                        # So check for a directory first.
-                        struct stat statbuf;
-                        if (lstat(resolved_path,&statbuf) < 0)
-                          { return NULL; } # Fehler
-                        if (S_ISDIR(statbuf.st_mode))
-                          # Verzeichnis, kein symbolisches Link
-                          { to_ptr[-1] = '/'; } # wieder den '/' eintragen
-                        else
-                        #endif
-                        { int linklen = readlink(resolved_path,mypath,sizeof(mypath)-1);
-                          if (linklen >=0)
-                            # war ein symbolisches Link
-                            { if (++symlinkcount > MAXSYMLINKS) { errno = ELOOP_VALUE; return NULL; }
-                              # noch aufzulösenden path-Anteil an den Link-Inhalt anhängen:
-                              { char* mypath_ptr = &mypath[linklen]; # ab hier ist Platz
-                                char* mypath_limit = &mypath[MAXPATHLEN-1]; # bis hierher
-                                if (mypath_ptr < mypath_limit) { *mypath_ptr++ = '/'; } # erst ein '/' anhängen
-                                # dann den Rest:
-                                while ((mypath_ptr <= mypath_limit) && (*mypath_ptr = *from_ptr++)) { mypath_ptr++; }
-                                *mypath_ptr = 0; # und mit 0 abschließen
-                              }
-                              # Dies ersetzt bzw. ergänzt den path:
-                              if (mypath[0] == '/')
-                                # ersetzt den path:
-                                { from_ptr = &mypath[0]; to_ptr = resolved_path;
-                                  while ((*to_ptr++ = *from_ptr++));
-                                  from_ptr = resolved_path;
-                                }
-                                else
-                                # ergänzt den path:
-                                { # Linknamen streichen. Dazu bis zum letzten '/' suchen:
-                                  { char* ptr = &to_ptr[-1];
-                                    while ((ptr > resolved_path) && !(ptr[-1] == '/')) { ptr--; }
-                                    from_ptr = ptr;
-                                  }
-                                  { char* mypath_ptr = &mypath[0]; to_ptr = from_ptr;
-                                    while ((to_ptr <= resolved_limit) && (*to_ptr++ = *mypath_ptr++));
-                                } }
-                              to_ptr = from_ptr;
-                            }
-                            else
-                            #if defined(UNIX_IRIX)
-                            if ((errno == EINVAL) || (errno == ENXIO))
-                            #elif defined(UNIX_MINT)
-                            if ((errno == EINVAL) || (errno == EACCESS))
-                            #elif defined(UNIX_CYGWIN32)
-                            if ((errno == EINVAL) || (errno == EACCES))
-                            #else
-                            if (errno == EINVAL)
-                            #endif
-                              # kein symbolisches Link
+                      if (possible_symlink(resolved_path))
+                        { # symbolischen Link lesen:
+                          to_ptr[-1]=0; # '/' durch 0 ersetzen
+                          {
+                            #ifdef UNIX_CYGWIN32 # needed for Win95 only
+                            # readlink() doesn't work right on NFS mounted directories
+                            # (it returns -1,ENOENT or -1,EIO).
+                            # So check for a directory first.
+                            struct stat statbuf;
+                            if (lstat(resolved_path,&statbuf) < 0)
+                              { return NULL; } # Fehler
+                            if (S_ISDIR(statbuf.st_mode))
+                              # Verzeichnis, kein symbolisches Link
                               { to_ptr[-1] = '/'; } # wieder den '/' eintragen
                             else
-                              { return NULL; } # Fehler
+                            #endif
+                            { int linklen = readlink(resolved_path,mypath,sizeof(mypath)-1);
+                              if (linklen >=0)
+                                # war ein symbolisches Link
+                                { if (++symlinkcount > MAXSYMLINKS) { errno = ELOOP_VALUE; return NULL; }
+                                  # noch aufzulösenden path-Anteil an den Link-Inhalt anhängen:
+                                  { char* mypath_ptr = &mypath[linklen]; # ab hier ist Platz
+                                    char* mypath_limit = &mypath[MAXPATHLEN-1]; # bis hierher
+                                    if (mypath_ptr < mypath_limit) { *mypath_ptr++ = '/'; } # erst ein '/' anhängen
+                                    # dann den Rest:
+                                    while ((mypath_ptr <= mypath_limit) && (*mypath_ptr = *from_ptr++)) { mypath_ptr++; }
+                                    *mypath_ptr = 0; # und mit 0 abschließen
+                                  }
+                                  # Dies ersetzt bzw. ergänzt den path:
+                                  if (mypath[0] == '/')
+                                    # ersetzt den path:
+                                    { from_ptr = &mypath[0]; to_ptr = resolved_path;
+                                      while ((*to_ptr++ = *from_ptr++));
+                                      from_ptr = resolved_path;
+                                    }
+                                    else
+                                    # ergänzt den path:
+                                    { # Linknamen streichen. Dazu bis zum letzten '/' suchen:
+                                      { char* ptr = &to_ptr[-1];
+                                        while ((ptr > resolved_path) && !(ptr[-1] == '/')) { ptr--; }
+                                        from_ptr = ptr;
+                                      }
+                                      { char* mypath_ptr = &mypath[0]; to_ptr = from_ptr;
+                                        while ((to_ptr <= resolved_limit) && (*to_ptr++ = *mypath_ptr++));
+                                    } }
+                                  to_ptr = from_ptr;
+                                }
+                                else
+                                #if defined(UNIX_IRIX)
+                                if ((errno == EINVAL) || (errno == ENXIO))
+                                #elif defined(UNIX_MINT)
+                                if ((errno == EINVAL) || (errno == EACCESS))
+                                #elif defined(UNIX_CYGWIN32)
+                                if ((errno == EINVAL) || (errno == EACCES))
+                                #else
+                                if (errno == EINVAL)
+                                #endif
+                                  # kein symbolisches Link
+                                  { to_ptr[-1] = '/'; } # wieder den '/' eintragen
+                                else
+                                  { return NULL; } # Fehler
+                            }
+                          }
                         }
-                      }
                       #endif
                       break;
               }   }
@@ -6753,6 +6792,11 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # kann GC auslösen
   local var struct stat * filestatus;
   local object assure_dir_exists (boolean links_resolved, boolean tolerantp);
+  #ifdef HAVE_LSTAT
+    #define if_HAVE_LSTAT(statement)  statement
+  #else
+    #define if_HAVE_LSTAT(statement)
+  #endif
   local object assure_dir_exists(links_resolved,tolerantp)
     var boolean links_resolved;
     var boolean tolerantp;
@@ -6824,35 +6868,33 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                     filestatus = (struct stat *)NULL; return namestring;
                   }
                 end_system_call();
-              });
-            # File existiert.
-            if (S_ISDIR(status.st_mode)) # Ist es ein Directory?
-              { # STACK_0 = Wert für Slot PATHNAME von FILE-ERROR
-                pushSTACK(whole_namestring(STACK_0));
-                pushSTACK(TheSubr(subr_self)->name);
-                fehler(file_error,
-                       DEUTSCH ? "~: ~ ist ein Directory und kein File." :
-                       ENGLISH ? "~: ~ names a directory, not a file" :
-                       FRANCAIS ? "~ : ~ désigne un répertoire et non un fichier." :
-                       ""
-                      );
-              }
-            #ifdef HAVE_LSTAT
-            elif (S_ISLNK(status.st_mode)) # Ist es ein symbolisches Link?
-              # ja -> weiterverfolgen:
-              { if (allowed_links==0) # keine Links mehr erlaubt?
-                  # ja -> UNIX-Error ELOOP simulieren
-                  { begin_system_call();
-                    errno = ELOOP_VALUE;
-                    end_system_call();
-                    OS_file_error(STACK_0);
+                # File existiert.
+                if (S_ISDIR(status.st_mode)) # Ist es ein Directory?
+                  { # STACK_0 = Wert für Slot PATHNAME von FILE-ERROR
+                    pushSTACK(whole_namestring(STACK_0));
+                    pushSTACK(TheSubr(subr_self)->name);
+                    fehler(file_error,
+                           DEUTSCH ? "~: ~ ist ein Directory und kein File." :
+                           ENGLISH ? "~: ~ names a directory, not a file" :
+                           FRANCAIS ? "~ : ~ désigne un répertoire et non un fichier." :
+                           ""
+                          );
                   }
-                allowed_links--; # danach ist ein Link weniger erlaubt
-               {var uintL linklen = status.st_size; # vermutliche Länge des Link-Inhalts
-                retry_readlink:
-                { var DYNAMIC_ARRAY(linkbuf,char,linklen+1); # Buffer für den Link-Inhalt
-                  with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
-                    { # Link-Inhalt lesen:
+                if_HAVE_LSTAT(
+                elif (possible_symlink(namestring_asciz) && S_ISLNK(status.st_mode)) # Ist es ein symbolisches Link?
+                  # ja -> weiterverfolgen:
+                  { if (allowed_links==0) # keine Links mehr erlaubt?
+                      # ja -> UNIX-Error ELOOP simulieren
+                      { begin_system_call();
+                        errno = ELOOP_VALUE;
+                        end_system_call();
+                        OS_file_error(STACK_0);
+                      }
+                    allowed_links--; # danach ist ein Link weniger erlaubt
+                   {var uintL linklen = status.st_size; # vermutliche Länge des Link-Inhalts
+                    retry_readlink:
+                    { var DYNAMIC_ARRAY(linkbuf,char,linklen+1); # Buffer für den Link-Inhalt
+                      # Link-Inhalt lesen:
                       begin_system_call();
                      {var int result = readlink(namestring_asciz,linkbuf,linklen);
                       end_system_call();
@@ -6860,27 +6902,28 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                         { OS_file_error(STACK_0); }
                       if (!(result == (int)linklen)) # manchmal (AIX, NFS) stimmt status.st_size nicht
                         { FREE_DYNAMIC_ARRAY(linkbuf); linklen = result; goto retry_readlink; }
-                    }});
-                  # Daraus ein Pathname machen:
-                  # (MERGE-PATHNAMES (PARSE-NAMESTRING linkbuf) pathname-without-name&type)
-                  pushSTACK(subr_self);
-                  pushSTACK(make_string(linkbuf,linklen,O(pathname_encoding)));
-                  FREE_DYNAMIC_ARRAY(linkbuf);
-                }
-                funcall(L(parse_namestring),1);
-                pushSTACK(value1);
-                pathname = copy_pathname(STACK_(0+2));
-                ThePathname(pathname)->pathname_name = NIL;
-                ThePathname(pathname)->pathname_type = NIL;
-                pushSTACK(pathname);
-                funcall(L(merge_pathnames),2);
-                subr_self = popSTACK();
-                STACK_0 = value1;
-              }}
-            #endif
-            else
-              # normales File
-              { filestatus = &status; return namestring; }
+                     }
+                      # Daraus ein Pathname machen:
+                      # (MERGE-PATHNAMES (PARSE-NAMESTRING linkbuf) pathname-without-name&type)
+                      pushSTACK(subr_self);
+                      pushSTACK(make_string(linkbuf,linklen,O(pathname_encoding)));
+                      FREE_DYNAMIC_ARRAY(linkbuf);
+                    }
+                    funcall(L(parse_namestring),1);
+                    pushSTACK(value1);
+                    pathname = copy_pathname(STACK_(0+2));
+                    ThePathname(pathname)->pathname_name = NIL;
+                    ThePathname(pathname)->pathname_type = NIL;
+                    pushSTACK(pathname);
+                    funcall(L(merge_pathnames),2);
+                    subr_self = popSTACK();
+                    STACK_0 = value1;
+                  }}
+                ) # HAVE_LSTAT
+                else
+                  # normales File
+                  { filestatus = &status; return namestring; }
+              });
           }}
     }   }
 

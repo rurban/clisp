@@ -1,3 +1,12 @@
+1999-04-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Improve handling of /proc/self/fd/* files on Linux.
+        * pathname.d (possible_symlink, my_readlink): New functions.
+          (realpath): Call possible_symlink before readlink.
+          (if_HAVE_LSTAT): New macro.
+          (assure_dir_exists) [UNIX]: Use it. Convert namestring to asciz once
+          only. Call possible_symlink before S_ISLNK and readlink.
+
 1999-03-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * Makefile.devel: Add rules for three files in the
