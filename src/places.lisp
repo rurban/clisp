@@ -191,7 +191,7 @@
             (setq new-form-reversed (cons new-subform new-form-reversed))))))))
 
 ; An empty binding list can be optimized away.
-(defun wrap-let* (bindlist form) ; ABI
+(defun wrap-let* (bindlist form)
   (if (and (null bindlist)
            ; But don't optimize the LET* away if the form is a PROGN form,
            ; because when it occurs as a top-level form in a file and refers
@@ -202,7 +202,7 @@
     `(LET* ,bindlist ,form)))
 
 ; In simple assignments like (SETQ foo #:G0) the #:G0 can be replaced directly.
-(defun simple-assignment-p (env store-form stores) ; ABI
+(defun simple-assignment-p (env store-form stores)
   (and (= (length stores) 1)
        (consp store-form)
        (eq (first store-form) 'SETQ)
@@ -216,23 +216,124 @@
       (and (consp form) (eq (first form) 'THE) (= (length form) 3)
            (simple-use-p (third form) var)
 ) )   )
+
+; Tests whether a variable (a gensym) occurs in the given form.
+; FIXME: This is still not correct: The form can contain macros or THE.
+(defun occurs-in-p (form var)
+  ; Don't use (tree-equal form form ...) here, since a form can contain
+  ; circular lists hidden behind QUOTE.
+  (if (atom form)
+    (eq form var)
+    (if (eq (car form) 'QUOTE)
+      nil
+      (do ((formr form (cdr formr)))
+          ((atom formr) (eq formr var))
+        (when (occurs-in-p (car formr) var) (return t))))))
+
+; Tests whether two forms are guaranteed to commute. The first is assumed to
+; be a symbol, the second one can be more complex.
+(defun commuting-forms-p (var form env)
+  (and (symbolp var)
+       (not (nth-value 1 (macroexpand-1 var env)))
+       (not (nth-value 1 (macroexpand-1 form env)))
+       (if (atom form)
+         (not (eq form var))
+         (let ((funname (first form))
+               (argforms (rest form)))
+           (and (function-name-p funname) ; we don't handle LAMBDAs here
+                (if (symbolp funname)
+                  (and (not (special-operator-p funname))
+                       (null (macro-function funname env)))
+                  t)
+                (not (compiler::fenv-search funname (and env (svref env 1))))
+                (every #'(lambda (argform) (commuting-forms-p var argform env))
+                       argforms))))))
+; For bootstrapping.
+(predefun compiler::fenv-search (funname fenv) nil)
+
+; In simple function calls like (SYSTEM::%RPLACA foo #:G0) the #:G0 can be
+; replaced directly if it occurs only once, as an argument, and the earlier
+; arguments commute with the value.
+(defun simple-occurrence-in-basic-block-p (env form var valform)
+  (if (atom form)
+    (eq form var)
+    (case (first form)
+      (SETQ
+        (and (= (length form) 3)
+             (symbolp (second form))
+             (not (nth-value 1 (macroexpand-1 (second form) env)))
+             (not (eq (second form) var))
+             (simple-occurrence-in-basic-block-p env (third form) var valform)))
+      (THE
+        (and (= (length form) 3)
+             (simple-occurrence-in-basic-block-p env (third form) var valform)))
+      (t
+        (let ((funname (first form))
+              (argforms (rest form)))
+          (and (function-name-p funname) ; we don't handle LAMBDAs here
+               (if (symbolp funname)
+                 (and (not (special-operator-p funname))
+                      (null (macro-function funname env)))
+                 t)
+               ; At this point we know it's a function call.
+               ; We assume the value to be put in for var does not change
+               ; funname's function definition,
+               (do ((earlier-argforms (reverse argforms) (cdr earlier-argforms)))
+                   ((null earlier-argforms) nil)
+                 (when (occurs-in-p (car earlier-argforms) var)
+                   ; Found the last argument form that refers to var.
+                   (return
+                     (and (simple-occurrence-in-basic-block-p env (car earlier-argforms) var valform)
+                          (every #'(lambda (argform)
+                                     (and (symbolp argform)
+                                          (not (nth-value 1 (macroexpand-1 argform env)))
+                                          (not (ext:special-variable-p argform env))
+                                          (not (eq argform var))
+                                          (commuting-forms-p argform valform env)))
+                                 (cdr earlier-argforms))))))))))))
+
+(defun optimized-wrap-let* (env bindlist form) ; ABI
+  (if (null bindlist)
+    form
+    (let* ((last-binding (car (last bindlist)))
+           (last-var (first last-binding))
+           (last-valform (second last-binding)))
+      (if (simple-occurrence-in-basic-block-p env form last-var last-valform)
+        (optimized-wrap-let* env (butlast bindlist)
+          (subst-in-form last-valform last-var form))
+        (wrap-let* bindlist form)))))
+
+(defun optimized-wrap-multiple-value-bind (env varlist valuesform form)
+  (cond ((null varlist)
+         `(PROGN ,valuesform ,form))
+        ((null (cdr varlist))
+         (optimized-wrap-let* env (list (list (car varlist) valuesform)) form))
+        (t `(MULTIPLE-VALUE-BIND ,varlist ,valuesform ,form))))
+
 ;;;----------------------------------------------------------------------------
 (defmacro push (item place &environment env)
   (multiple-value-bind (temps subforms stores setterform getterform)
       (get-setf-expansion place env)
-    (if (simple-assignment-p env setterform stores)
-      (subst-in-form `(CONS ,item ,getterform) (car stores) setterform)
-      (let* ((bindlist (mapcar #'list temps subforms))
-             (tempvars (gensym-list (length stores)))
-             (ns (sublis-in-form (mapcar #'(lambda (storevar tempvar)
-                                             (cons storevar
-                                                   `(CONS ,storevar ,tempvar)))
-                                         stores tempvars)
-                                 setterform)))
-        `(MULTIPLE-VALUE-BIND ,stores ,item
-           ,(wrap-let* bindlist
-              `(MULTIPLE-VALUE-BIND ,tempvars ,getterform
-                 ,ns)))))))
+    (let ((itemtemps (gensym-list (length stores)))
+          (bindlist (mapcar #'list temps subforms))
+          (oldtemps (gensym-list (length stores))))
+      (optimized-wrap-multiple-value-bind env itemtemps item
+        (wrap-let* bindlist
+          (optimized-wrap-multiple-value-bind env oldtemps getterform
+            ;; We're not blindly optimizing this to
+            ;;   (sublis-in-form
+            ;;     (mapcar #'(lambda (storevar itemvar oldvar)
+            ;;                 (cons storevar `(CONS ,itemvar ,oldvar)))
+            ;;             stores itemtemps oldtemps)
+            ;;     setterform)
+            ;; because we don't want the CONS forms to be evaluated multiple
+            ;; times. Instead we rely on simple-occurrence-in-basic-block-p for
+            ;; doing the analysis.
+            (optimized-wrap-let* env
+              (mapcar #'(lambda (storevar itemvar oldvar)
+                          (list storevar `(CONS ,itemvar ,oldvar)))
+                      stores itemtemps oldtemps)
+              setterform)))))))
 ;;;----------------------------------------------------------------------------
 (eval-when (load compile eval)
   (defun check-accessor-name (accessfn whole-form)
@@ -483,26 +584,46 @@
 (defmacro pop (place &environment env)
   (multiple-value-bind (temps subforms stores setterform getterform)
       (get-setf-expansion place env)
-    (if (and (symbolp getterform) (simple-assignment-p env setterform stores))
-      `(PROG1 (CAR ,getterform) ,(subst-in-form `(CDR ,getterform) (car stores) setterform))
-      ;; Be sure to call the CARs before the CDRs - it matters in case
-      ;; not all of the places evaluate to lists.
-      (let ((bindlist (mapcar #'list temps subforms)))
-        (if (= (length stores) 1)
-          (wrap-let* (nconc bindlist (list (list (car stores) getterform)))
-            `(PROG1
-               (CAR ,(car stores))
-               ,@(devalue-form (subst-in-form `(CDR ,(car stores)) (car stores) setterform))
-          )  )
-          (wrap-let* bindlist
-            `(MULTIPLE-VALUE-BIND ,stores ,getterform
-               (MULTIPLE-VALUE-PROG1
-                 (VALUES ,@(mapcar #'(lambda (storevar) `(CAR ,storevar)) stores))
-                 ,@(devalue-form
-                     (sublis-in-form (mapcar #'(lambda (storevar)
-                                                 (cons storevar `(CDR ,storevar)))
-                                             stores)
-                                     setterform))))))))))
+    ;; Be sure to call the CARs before the CDRs - it matters in case
+    ;; not all of the places evaluate to lists.
+    (let* ((bindlist (mapcar #'list temps subforms))
+           (oldtemps (gensym-list (length stores)))
+           (advance-and-set-form
+             ;; We're not blindly optimizing this to
+             ;;   (sublis-in-form
+             ;;     (mapcar #'(lambda (storevar oldvar) (cons storevar `(CDR ,oldvar)))
+             ;;             stores oldtemps)
+             ;;     setterform)
+             ;; because some part of the setterform could make side-effects that
+             ;; affect the value of the CDRs. Instead we rely on
+             ;; simple-occurrence-in-basic-block-p for doing the analysis.
+             (optimized-wrap-let* env
+               (mapcar #'(lambda (storevar oldvar)
+                           (list storevar `(CDR ,oldvar)))
+                       stores oldtemps)
+               setterform)))
+      (if (= (length stores) 1)
+        (let ((prog1-form
+                `(PROG1
+                   (CAR ,(car oldtemps))
+                   ,@(devalue-form advance-and-set-form))))
+          (if (and (symbolp getterform)
+                   (not (nth-value 1 (macroexpand-1 getterform env)))
+                   (simple-occurrence-in-basic-block-p env advance-and-set-form
+                     (car oldtemps) getterform))
+            ;; getterform can be evaluated multiple times instead of once, and
+            ;; nothing in the setterform interferes with its value. => Optimize
+            ;; away the binding of the oldtemps.
+            (optimized-wrap-let* env bindlist
+              (subst-in-form getterform (car oldtemps)
+                prog1-form))
+            (optimized-wrap-let* env (nconc bindlist (list (list (car oldtemps) getterform)))
+              prog1-form)))
+        (optimized-wrap-let* env bindlist
+          (optimized-wrap-multiple-value-bind env oldtemps getterform
+            `(MULTIPLE-VALUE-PROG1
+               (VALUES ,@(mapcar #'(lambda (oldvar) `(CAR ,oldvar)) oldtemps))
+               ,@(devalue-form advance-and-set-form))))))))
 ;----------------------------------------------------------------------------
 (defmacro psetf (&whole whole-form
                  &rest args &environment env)
@@ -525,39 +646,44 @@
 (defmacro pushnew (item place &rest keylist &environment env)
   (multiple-value-bind (temps subforms stores setterform getterform)
       (get-setf-expansion place env)
-    (if (simple-assignment-p env setterform stores)
-      (subst-in-form `(ADJOIN ,item ,getterform ,@keylist) (car stores) setterform)
-      (let* ((bindlist (mapcar #'list temps subforms))
-             (tempvars (gensym-list (length stores)))
-             (ns (sublis-in-form (mapcar #'(lambda (storevar tempvar)
-                                             (cons storevar `(ADJOIN ,storevar ,tempvar
-                                                              ,@keylist)))
-                                         stores tempvars)
-                         setterform)))
-        `(MULTIPLE-VALUE-BIND ,stores ,item
-           ,(wrap-let* bindlist
-              `(MULTIPLE-VALUE-BIND ,tempvars ,getterform
-                 ,ns)))))))
+    (let ((itemtemps (gensym-list (length stores)))
+          (bindlist (mapcar #'list temps subforms))
+          (oldtemps (gensym-list (length stores))))
+      (optimized-wrap-multiple-value-bind env itemtemps item
+        (wrap-let* bindlist
+          (optimized-wrap-multiple-value-bind env oldtemps getterform
+            ;; We're not blindly optimizing this to
+            ;;   (sublis-in-form
+            ;;     (mapcar #'(lambda (storevar itemvar oldvar)
+            ;;                 (cons storevar `(ADJOIN ,itemvar ,oldvar ,@keylist)))
+            ;;             stores itemtemps oldtemps)
+            ;;     setterform)
+            ;; because we don't want the ADJOIN forms to be evaluated multiple
+            ;; times. Instead we rely on simple-occurrence-in-basic-block-p for
+            ;; doing the analysis.
+            (optimized-wrap-let* env
+              (mapcar #'(lambda (storevar itemvar oldvar)
+                          (list storevar `(ADJOIN ,itemvar ,oldvar ,@keylist)))
+                      stores itemtemps oldtemps)
+              setterform)))))))
 ;;;----------------------------------------------------------------------------
 (defmacro remf (place indicator &environment env)
   (multiple-value-bind (temps subforms stores setterform getterform)
       (get-setf-method place env)
     (let* ((indicatorvar (gensym))
+           (oldtemps (gensym-list (length stores)))
            (bindlist
              ;; The order of the bindings is a not strictly left-to-right here,
              ;; but that's how ANSI CL 5.1.3 specifies it.
              `(,@(mapcar #'list temps subforms)
                (,indicatorvar ,indicator)
-               (,(first stores) ,getterform)))
-           (new-plist (gensym))
+               (,(first oldtemps) ,getterform)))
            (removed-p (gensym)))
       (wrap-let* bindlist
-        `(MULTIPLE-VALUE-BIND (,new-plist ,removed-p)
-             (SYSTEM::%REMF ,(first stores) ,indicatorvar)
-           (WHEN (AND ,removed-p (ATOM ,new-plist))
-             ,(if (simple-assignment-p env setterform stores)
-                (subst-in-form new-plist (first stores) setterform)
-                `(PROGN (SETQ ,(first stores) ,new-plist) ,setterform)))
+        `(MULTIPLE-VALUE-BIND (,(first stores) ,removed-p)
+             (SYSTEM::%REMF ,(first oldtemps) ,indicatorvar)
+           (WHEN (AND ,removed-p (ATOM ,(first stores)))
+             ,setterform)
            ,removed-p)))))
 ;;;----------------------------------------------------------------------------
 (export 'ext::remove-plist "EXT")
@@ -634,30 +760,21 @@
                ;; may be evaluated after the GETTER instead of before.
                (LET ((FUNCTION-APPLICATION
                        (LIST* ',function GETTERFORM ,@varlist ,restvar)))
-                 (IF (SIMPLE-ASSIGNMENT-P ENV SETTERFORM STORES)
-                   (WRAP-LET*
-                     LET-LIST
-                     (SUBST-IN-FORM FUNCTION-APPLICATION (CAR STORES) SETTERFORM))
-                   (WRAP-LET*
-                     (NCONC LET-LIST
-                            (LIST (LIST (CAR STORES) FUNCTION-APPLICATION)))
-                     SETTERFORM)))
+                 (OPTIMIZED-WRAP-LET* ENV
+                   (NCONC LET-LIST
+                          (LIST (LIST (CAR STORES) FUNCTION-APPLICATION)))
+                   SETTERFORM))
                ;; General case.
                (LET* ((ARGVARS
                         (MAPCAR #'(LAMBDA (VAR) (DECLARE (IGNORE VAR)) (GENSYM))
                                 (LIST* ,@varlist ,restvar)))
                       (FUNCTION-APPLICATION
                         (LIST* ',function GETTERFORM ARGVARS)))
-                 (IF (SIMPLE-ASSIGNMENT-P ENV SETTERFORM STORES)
-                   (WRAP-LET*
-                     (NCONC LET-LIST
-                            (MAPCAR #'LIST ARGVARS (LIST* ,@varlist ,restvar)))
-                     (SUBST-IN-FORM FUNCTION-APPLICATION (CAR STORES) SETTERFORM))
-                   (WRAP-LET*
-                     (NCONC LET-LIST
-                            (MAPCAR #'LIST ARGVARS (LIST* ,@varlist ,restvar))
-                            (LIST (LIST (CAR STORES) FUNCTION-APPLICATION)))
-                     SETTERFORM)))
+                 (OPTIMIZED-WRAP-LET* ENV
+                   (NCONC LET-LIST
+                          (MAPCAR #'LIST ARGVARS (LIST* ,@varlist ,restvar))
+                          (LIST (LIST (CAR STORES) FUNCTION-APPLICATION)))
+                   SETTERFORM))
        ) ) ) )
 ) ) )
 ;;;----------------------------------------------------------------------------
@@ -734,14 +851,17 @@
              (cond ((symbolp place)
                     `(SETQ ,place ,value)
                    )
-                   ((and (consp whole-form) (symbolp (car whole-form)))
+                   ((and (consp place) (symbolp (car place)))
                     (multiple-value-bind (temps subforms stores setterform getterform)
                         (get-setf-expansion place env)
                       (declare (ignore getterform))
-                      ; setterform hat die Gestalt `((SETF ,(first place)) ,@stores ,@temps).
-                      ; stores ist überflüssig.
-                      (wrap-let* (mapcar #'list temps subforms)
-                        (subst-in-form value (first stores) setterform)
+                      ; setterform probably looks like
+                      ;   `((SETF ,(first place)) ,@stores ,@temps).
+                      ; stores are probably superfluous and get optimized away.
+                      (optimized-wrap-let* env
+                        (nconc (mapcar #'list temps subforms)
+                               (list (list (first stores) value)))
+                        setterform
                       )
                    ))
                    (t (error-of-type 'source-program-error
