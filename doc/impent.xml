@@ -222,4 +222,5 @@
 <!ENTITY elt-val-meaning-header
  " <thead><row><entry>element</entry><entry>values</entry>
          <entry>meaning</entry></row></thead>">
-
+<!ENTITY malloc "<function>malloc()</function>">
+<!ENTITY free "<function>free()</function>">

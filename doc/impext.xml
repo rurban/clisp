@@ -1962,15 +1962,13 @@ within Lisp (using &setq; or similar).</simpara>
  or &malloc-free-k; and defaults to &none-k;.  If it is &malloc-free-k;,
  any values of type &c-string;, &c-ptr;, &c-ptr-null;, &c-array-ptr;
  within the foreign value are assumed to be pointers to
- <function>malloc()</function>-allocated storage, and when &setq;
- replaces an old value by a new one, the old storage is freed using
- <function>free()</function> and the new storage allocated using
- <function>malloc()</function>.  If it is &none-k;, &setq;
- assumes that the pointers point to good storage (not
- &c-NULL;!) and overwrites the old values by the new
- ones.  This is dangerous (just think of overwriting a string with a
- longer one or storing some data in a &c-NULL;
- pointer...) and deprecated.</simpara>
+ &malloc;-allocated storage, and when &setq; replaces an old value by a
+ new one, the old storage is freed using &free; and the new storage
+ allocated using &malloc;.  If it is &none-k;, &setq; assumes that the
+ pointers point to good storage (not &c-NULL;!) and overwrites the old
+ values by the new ones.  This is dangerous (just think of overwriting a
+ string with a longer one or storing some data in a &c-NULL; pointer...)
+ and deprecated.</simpara>
 
 </listitem></varlistentry>
 
@@ -2427,9 +2425,8 @@ within Lisp (using &setq; or similar).</simpara>
    <entry>no storage is allocated.</entry></row>
 <row><entry>&alloca-k;</entry><entry>allocation of storage on the
    stack, which has dynamic extent.</entry></row>
-<row><entry>&malloc-free-k;</entry><entry>storage will be allocated
-   via <function>malloc()</function> and freed via
-   <function>free()</function>.</entry></row>
+<row><entry>&malloc-free-k;</entry><entry>storage will be allocated via
+   &malloc; and freed via &free;.</entry></row>
 </tbody></tgroup></table>
 
 <para>If no &allocation; is specified, the default &allocation; is
@@ -2445,10 +2442,9 @@ within Lisp (using &setq; or similar).</simpara>
  <varlistentry><term>For arguments passed from Lisp to &c-lang;:</term>
   <listitem><variablelist>
    <varlistentry><term>If &allocation; is &malloc-free-k;:</term>
-    <listitem><simpara>Lisp allocates the storage using malloc() and
+    <listitem><simpara>Lisp allocates the storage using &malloc; and
      never deallocates it.  The &c-lang; function is supposed to call
-     free() when done with it.
-    </simpara></listitem></varlistentry>
+     &free; when done with it.</simpara></listitem></varlistentry>
    <varlistentry><term>If &allocation; is &alloca-k;:</term>
     <listitem><simpara>Lisp allocates the storage on the stack, with
      dynamic extent.  It is freed when the &c-lang; function returns.
@@ -2462,7 +2458,7 @@ within Lisp (using &setq; or similar).</simpara>
  <varlistentry><term>For results passed from &c-lang; to Lisp:</term>
   <listitem><variablelist>
    <varlistentry><term>If &allocation; is &malloc-free-k;:</term>
-    <listitem><simpara>Lisp calls free() on it when done.
+    <listitem><simpara>Lisp calls &free; on it when done.
     </simpara></listitem></varlistentry>
    <varlistentry><term>If &allocation; is &none-k;:</term>
     <listitem><simpara>Lisp does nothing.
@@ -2473,7 +2469,7 @@ within Lisp (using &setq; or similar).</simpara>
   <varlistentry><term>For arguments passed from &c-lang; to Lisp:</term>
    <listitem><variablelist>
     <varlistentry><term>If &allocation; is &malloc-free-k;:</term>
-     <listitem><simpara>Lisp calls free() on it when done.
+     <listitem><simpara>Lisp calls &free; on it when done.
      </simpara></listitem></varlistentry>
     <varlistentry><term>If &allocation; is &alloca-k; or &none-k;:</term>
      <listitem><simpara>Lisp does nothing.
@@ -2482,10 +2478,9 @@ within Lisp (using &setq; or similar).</simpara>
   <varlistentry><term>For results passed from Lisp to &c-lang;:</term>
    <listitem><variablelist>
     <varlistentry><term>If &allocation; is &malloc-free-k;:</term>
-     <listitem><simpara>Lisp allocates the storage using malloc() and
+     <listitem><simpara>Lisp allocates the storage using &malloc; and
       never deallocates it.  The &c-lang; function is supposed to call
-      free() when done with it.
-     </simpara></listitem></varlistentry>
+      &free; when done with it.</simpara></listitem></varlistentry>
    <varlistentry><term>If &allocation; is &none-k;:</term>
     <listitem><simpara>Lisp assumes that the pointer already points to a
      valid area of the proper size and puts the result value there.
@@ -2520,8 +2515,7 @@ within Lisp (using &setq; or similar).</simpara>
 <variablelist>
 <varlistentry><term>Platform dependent: &amiga; platforms only.</term>
 <listitem><simpara>&allocation; may not be &malloc-free-k; because there
- is no commonly used <function>malloc()/free()</function> library
- function.</simpara>
+ is no commonly used &malloc;/&free; library function.</simpara>
 
  <simpara>The &allocation; may be followed by a register specification,
  any of the symbols <constant>:d0</constant>, <constant>:d1</constant>,
@@ -2733,8 +2727,7 @@ $ rm -r base+cfun
 
 <para>Note that there is a memory leak here: The return value
 <varname>r2</varname> of <function>cfun()</function> is
-<function>malloc()</function>ed but never <function>free()</function>d.
-Specifying
+&malloc;ed but never &free;d. Specifying
 
 <programlisting>
 (:return-type (c-ptr cfunr) :malloc-free)

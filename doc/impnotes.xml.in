@@ -63,7 +63,7 @@
  <textobject><phrase>[CLISP icon]</phrase></textobject>
 </inlinemediaobject></title>
 
-<subtitle>Last modified: 2001-05-18</subtitle>
+<subtitle>Last modified: 2001-06-09</subtitle>
 
 <para>These notes discuss the &clisp; implementation of &cl; by
 <blockquote><address><honorific>Dr</honorific> <firstname>Bruno</firstname> <surname>Haible</surname>
@@ -161,7 +161,8 @@
    <ulink url="&clhs;/Issues/Issues-Categorized.html">[CLHS-ic]</ulink></tocentry>
 </tocpart>
 
-<tocpart><tocentry linkend="bytecode">Bytecode Specification</tocentry>
+<tocpart><tocentry linkend="internals">Internals of the
+ &clisp; Implementation</tocentry>
 <!-- filling this in would require some work and it is ignored anyway! -->
 </tocpart>
 
