@@ -8,8 +8,8 @@
 	* lispbibl.d (ht_test_code): Remove a bit.
 	(ht_test_code_user_p): New macro.
 	* hashtabl.d (htflags_test_builtin_B): New macro.
-	(htflags_test_eq_B, htflags_test_eql_B, htflags_test_equal_B,
-	htflags_test_equalp_B): Define using fewer bits.
+	(htflags_test_eq_B, htflags_test_eql_B, htflags_test_equal_B)
+	(htflags_test_equalp_B): Define using fewer bits.
 	(htflags_test_user_B): New macro.
 	(htflags_stablehash_B): Update.
 	(htflags_pending_warn_forced_gc_rehash): New macro.
@@ -29,8 +29,8 @@
 	(if_potential_class_p, if_defined_class_p): Pass allowgc = false.
 	(instanceof): Likewise.
 	* hashtabl.d (lookup_Pseudofun): Add allowgc argument.
-	(hash_lookup_builtin, hash_lookup_builtin_with_rehash,
-	hash_lookup_user, hash_lookup): Likewise.
+	(hash_lookup_builtin, hash_lookup_builtin_with_rehash)
+	(hash_lookup_user, hash_lookup): Likewise.
 	(MAKE-HASH-TABLE): Pass allowgc = true.
 	(gethash): Add allowgc argument.
 	(GETHASH, SYSTEM::PUTHASH, shifthash, REMHASH): Pass allowgc = true.
@@ -41,14 +41,14 @@
 	* io.d (perchar_table_get, syntax_table_get_notinline): Likewise.
 	* stream.d (stream_get_read_eval, stream_set_read_eval): Likewise.
 	* pathname.d (logical_host_p, TRANSLATE-LOGICAL-PATHNAME): Likewise.
-	* record.d (CLOS:SLOT-VALUE, CLOS::SET-SLOT-VALUE, CLOS:SLOT-BOUNDP,
-	CLOS:SLOT-MAKUNBOUND, CLOS:SLOT-EXISTS-P): Pass allowgc = false.
+	* record.d (CLOS:SLOT-VALUE, CLOS::SET-SLOT-VALUE, CLOS:SLOT-BOUNDP)
+	(CLOS:SLOT-MAKUNBOUND, CLOS:SLOT-EXISTS-P): Pass allowgc = false.
 	(CLOS::%REINITIALIZE-INSTANCE): Likewise.
 	(CLOS::%INITIALIZE-INSTANCE): Pass allowgc = true.
 	(CLOS::%MAKE-INSTANCE): Pass allowgc = false.
-	* foreign.d (register_foreign_variable, register_foreign_function,
-	convert_function_to_foreign, free_foreign_callin,
-	FFI::LOOKUP-FOREIGN-VARIABLE, FFI::LOOKUP-FOREIGN-FUNCTION): Pass
+	* foreign.d (register_foreign_variable, register_foreign_function)
+	(convert_function_to_foreign, free_foreign_callin)
+	(FFI::LOOKUP-FOREIGN-VARIABLE, FFI::LOOKUP-FOREIGN-FUNCTION): Pass
 	allowgc = false.
 	* genclisph.d (main): Update gethash declaration.
 	* modules/clx/new-clx/clx.f (make_xid_obj_2): Update.
