@@ -68,7 +68,7 @@ NIL
 
 (progn (print (bdb:dbe-get-options *dbe*)) nil) NIL
 
-(bdb:dbe-open *dbe* :home "bdb-home/" :create t :init_mpool t) NIL
+(bdb:dbe-open *dbe* :home "bdb-home/" :create t :init_mpool t :init_lock t) NIL
 
 (progn (print (bdb:dbe-get-options *dbe*)) nil) NIL
 
@@ -158,7 +158,14 @@ NIL
     (print db)))
 NIL
 
+;; locks - will NOT be automatically closed by DBE-CLOSE
+(defparameter *locker* (print (bdb:lock-id *dbe*))) *locker*
+(defparameter *lock* (print (bdb:lock-get *dbe* "foo" *locker* :DB_LOCK_READ)))
+*lock*
+
 (close *dbe*) T
+
+(close *lock*) ERROR
 
 (ext:dir "bdb-home/**") NIL
 (ext:dir "bdb-data/**") NIL
@@ -172,7 +179,9 @@ NIL
                      :data_dir "bdb-data/")
 NIL
 
-(bdb:dbe-open *dbe* :home "bdb-home/" :create t :init_mpool t :init_txn t) NIL
+(bdb:dbe-open *dbe* :home "bdb-home/" :create t :init_mpool t :init_txn t
+              :init_lock t)
+NIL
 
 (progn (print (bdb:dbe-get-options *dbe*)) nil) NIL
 
@@ -244,6 +253,10 @@ NIL
   (print (list txn (bdb:txn-begin *dbe* :parent txn) *dbe*))
   nil)
 nil
+
+;; *locker* & *lock* come from a previous incarnation of *dbe*
+(bdb:lock-put *dbe* (print *lock*)) NIL
+(bdb:lock-id-free *dbe* *locker*) NIL
 
 (close *dbe*)       T
 
