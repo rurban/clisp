@@ -1,5 +1,10 @@
 2001-08-05  Bruno Haible  <haible@clisp.cons.org>
 
+	* io.d (check_readtable): Renamed from CHECK_READTABLE. Add
+	documentation.
+
+2001-08-05  Bruno Haible  <haible@clisp.cons.org>
+
 	* pathname.d (version_diff): Fix syntax error.
 
 2001-08-21  Sam Steingold  <sds@gnu.org>
