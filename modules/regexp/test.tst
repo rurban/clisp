@@ -1,5 +1,5 @@
 ;; -*- Lisp -*-
-;; clisp -K full -E utf-8 -q -norc -i ../tests/tests -x '(run-test "regexp/test")'
+;; clisp -E utf-8 -q -norc -i ../tests/tests -x '(run-test "regexp/test")'
 
 (let ((rc (regexp:regexp-compile "a(a)*" :extended t)))
   (prog1 (multiple-value-list (regexp:regexp-exec rc "a"))
