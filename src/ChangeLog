@@ -1,3 +1,9 @@
+2004-04-28  Bruno Haible  <bruno@clisp.org>
+
+	Make DEBUG_GCSAFETY work with g++ 3.4.0.
+	* lispbibl.d (INIT_SUBR_TAB, INIT_SYMBOL_TAB, INIT_OBJECT_TAB): Treat
+	g++ 3.4 like g++ 3.3.
+
 2004-04-27  Kaz Kylheku  <kaz@ashi.footprints.net>
 
 	* backquote.lisp (quoted-bq-operator-p, bq-constant-p, bq-eval):
