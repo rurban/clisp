@@ -1913,11 +1913,13 @@ LISPFUNN(unwind_to_driver,0)
                 );
     }   }
 
-LISPFUNN(macro_function,1)
-# (MACRO-FUNCTION symbol), CLTL S. 144
-  { var object symbol = popSTACK();
+LISPFUN(macro_function,1,1,norest,nokey,0,NIL)
+# (MACRO-FUNCTION symbol), CLTL S. 144; Issue MACRO-FUNCTION-ENVIRONMENT:YES
+  { test_env();
+   {var object env = popSTACK();
+    var object symbol = popSTACK();
     if (!symbolp(symbol)) { fehler_symbol(symbol); }
-   {var object fundef = Symbol_function(symbol); # globale Funktionsdefinition
+   {var object fundef = sym_function(symbol,TheSvector(env)->data[1]);
     if (fsubrp(fundef))
       # ein FSUBR -> Propertyliste absuchen: (GET symbol 'SYS::MACRO)
       { var object got = get(symbol,S(macro)); # suchen
@@ -1929,7 +1931,7 @@ LISPFUNN(macro_function,1)
     else # SUBR/Closure/#<UNBOUND> -> keine Macrodefinition
       { nil: value1 = NIL; }
     mv_count=1;
-  }}
+  }}}
 
 LISPFUN(macroexpand,1,1,norest,nokey,0,NIL)
 # (MACROEXPAND form [env]), CLTL S. 151
