@@ -91,20 +91,9 @@ extern void (*tramp) (); /* trampoline prototype */
 #include <stdio.h> /* declares fprintf() */
 
 #include <sys/types.h>
-#include <stdlib.h> /* declares abort(), free() */
+#include <stdlib.h> /* declares abort(), malloc(), free() */
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
-
-/* Declare malloc(), free(). */
-#ifndef malloc
-#ifdef __cplusplus
-extern "C" RETMALLOCTYPE malloc (MALLOC_SIZE_T size);
-#elif defined(__STDC__)
-extern RETMALLOCTYPE malloc (MALLOC_SIZE_T size);
-#else
-extern RETMALLOCTYPE malloc();
-#endif
 #endif
 
 /* Declare getpagesize(). */
