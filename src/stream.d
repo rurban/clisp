@@ -3614,6 +3614,8 @@ typedef struct strm_unbuffered_extrafields_struct {
   #else
     #define CLISP_INTERNAL_CHARSET  "UNICODELITTLE"
   #endif
+#elif defined(UNIX_HPUX) && BIG_ENDIAN_P
+  #define CLISP_INTERNAL_CHARSET  "ucs2"
 #else
   #if BIG_ENDIAN_P
     #define CLISP_INTERNAL_CHARSET  "UCS-2"
