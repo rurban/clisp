@@ -1494,7 +1494,7 @@ LISPFUNNF(standard_char_p,1)
   var object arg = check_char(popSTACK());
   var chart ch = char_code(arg);
   var cint c = as_cint(ch);
-  VALUES_IF((('~' >= c) && (c >= ' ')) || (c == NL));
+  VALUES_IF(standard_cint_p(c));
 }
 
 LISPFUNNF(graphic_char_p,1)

@@ -1656,13 +1656,17 @@ LISPFUNNR(type_of,1)
                   ? name : clas);
       }
       break;
-    case_char: /* Character -> BASE-CHAR or CHARACTER */
+    case_char: /* Character -> STANDARD-CHAR or BASE-CHAR or CHARACTER */
      #if (base_char_code_limit < char_code_limit)
       if (as_cint(char_code(arg)) >= base_char_code_limit) {
         value1 = S(character); break;
       }
      #endif
-      value1 = S(base_char); break;
+      if (standard_cint_p(as_cint(char_code(arg))))
+        value1 = S(standard_char);
+      else
+        value1 = S(base_char);
+      break;
     case_subr: /* SUBR -> COMPILED-FUNCTION */
       value1 = S(compiled_function); break;
    #ifdef TYPECODES
