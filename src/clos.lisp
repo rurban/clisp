@@ -2875,37 +2875,40 @@
 (defvar |#'shared-initialize| nil)
 (defvar *gf-warn-on-replacing-method* t)
 
-; Hinzufügen einer Methode zu einer generischen Funktion:
+;; 28.1.6.4. congruent lambda lists
+(defun check-signature-congruence (gf method &optional
+                                   (gf-sign (gf-signature gf))
+                                   (m-sign (std-method-signature method)))
+  (unless (= (sig-req-num m-sign) (sig-req-num gf-sign))
+    (error-of-type 'error
+      (ENGLISH "~S has ~D, but ~S has ~D required parameter~:P")
+      method (sig-req-num m-sign) gf (sig-req-num gf-sign)))
+  (unless (= (sig-opt-num m-sign) (sig-opt-num gf-sign))
+    (error-of-type 'error
+      (ENGLISH "~S has ~D, but ~S has ~D optional parameter~:P")
+      method (sig-opt-num m-sign) gf (sig-opt-num gf-sign)))
+  (when (and (sig-rest-p m-sign) (not (sig-rest-p gf-sign)))
+    (error-of-type 'error
+      (ENGLISH "~S accepts &REST or &KEY, but ~S does not.")
+      method gf))
+  (when (and (sig-rest-p gf-sign) (not (sig-rest-p m-sign)))
+    (error-of-type 'error
+      (ENGLISH "~S accepts &REST or &KEY, but ~S does not.")
+      gf method))
+  (when (sig-keys-p gf-sign)    ; gf has keywords?
+    ;; yes ==> method must accept it
+    (unless (if (sig-keys-p m-sign)
+                (or (sig-allow-p m-sign) ; keywords match
+                    (subsetp (sig-keywords gf-sign) (sig-keywords m-sign)))
+                (sig-rest-p m-sign)) ; method must have &rest!
+      (error-of-type 'error
+        (ENGLISH "~S does not accept the keywords ~S of ~S")
+        method (sig-keywords gf-sign) gf))))
+
+;; Add a method to a generic function
 (defun std-add-method (gf method)
-  ; 28.1.6.4. congruent lambda lists
-  (let ((gf-sign (gf-signature gf))
-        (m-sign (std-method-signature method)))
-    (unless (= (sig-req-num m-sign) (sig-req-num gf-sign))
-      (error-of-type 'error
-        (ENGLISH "~S has ~D, but ~S has ~D required parameter~:P")
-        method (sig-req-num m-sign) gf (sig-req-num gf-sign)))
-    (unless (= (sig-opt-num m-sign) (sig-opt-num gf-sign))
-      (error-of-type 'error
-        (ENGLISH "~S has ~D, but ~S has ~D optional parameter~:P")
-        method (sig-opt-num m-sign) gf (sig-opt-num gf-sign)))
-    (when (and (sig-rest-p m-sign) (not (sig-rest-p gf-sign)))
-      (error-of-type 'error
-        (ENGLISH "~S accepts &REST or &KEY, but ~S does not.")
-        method gf))
-    (when (and (sig-rest-p gf-sign) (not (sig-rest-p m-sign)))
-      (error-of-type 'error
-        (ENGLISH "~S accepts &REST or &KEY, but ~S does not.")
-        gf method))
-    (when (sig-keys-p gf-sign) ; gf has keywords?
-      ;; yes ==> method must accept it
-      (unless (if (sig-keys-p m-sign)
-                  (or (sig-allow-p m-sign) ; keywords match
-                      (subsetp (sig-keywords gf-sign) (sig-keywords m-sign)))
-                  (sig-rest-p m-sign)) ; method must have &rest!
-        (error-of-type 'error
-          (ENGLISH "~S does not accept the keywords ~S of ~S")
-          method (sig-keywords gf-sign) gf))))
-  ; method kopieren, damit man gf eintragen kann:
+  (check-signature-congruence gf method)
+  ;; copy method, so that one can enter gf:
   (when (std-method-wants-next-method-p method)
     (setq method (copy-standard-method method))
     (setf (std-method-function method) nil)
