@@ -326,6 +326,10 @@ muffle-cerrors appease-cerrors exit-on-error
       (define-condition keyword-error (program-error type-error) ())
       ; CLISP specific
 
+      ; when some character does not belong to a given character set
+      (define-condition charset-type-error (type-error) ())
+      ; CLISP specific
+
     ; errors during operation on packages
     (define-condition package-error (error)
       (($package :initarg :package :reader package-error-package))
@@ -421,6 +425,7 @@ muffle-cerrors appease-cerrors exit-on-error
 (define-condition simple-undefined-function (simple-error undefined-function) ())
 (define-condition simple-unbound-slot (simple-error unbound-slot) ())
 (define-condition simple-keyword-error (simple-error keyword-error) ())
+(define-condition simple-charset-type-error (simple-error charset-type-error) ())
 (define-condition simple-package-error (simple-error package-error) ())
 (define-condition simple-print-not-readable (simple-error print-not-readable) ())
 (define-condition simple-parse-error (simple-error parse-error) ())
@@ -449,6 +454,7 @@ muffle-cerrors appease-cerrors exit-on-error
      (unbound-slot             . simple-unbound-slot)
      (type-error               . simple-type-error)
      (keyword-error            . simple-keyword-error)
+     (charset-type-error       . simple-charset-type-error)
      (package-error            . simple-package-error)
      (print-not-readable       . simple-print-not-readable)
      (parse-error              . simple-parse-error)
