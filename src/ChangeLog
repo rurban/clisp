@@ -24,7 +24,7 @@
 2000-07-19  Sam Steingold  <sds@gnu.org>
 
 	* socket.d (create_server_socket): use "0.0.0.0" instead of the
-	current host to allow anyone to connect to the our server
+	current host to allow anyone to connect to our server
 
 2000-06-23  Sam Steingold  <sds@gnu.org>
 
