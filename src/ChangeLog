@@ -1,3 +1,8 @@
+2003-09-15  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (SOCKET-OPTIONS): old systems might not have
+	SO_RCVLOWAT, SO_SNDLOWAT, SO_RCVTIMEO, SO_SNDTIMEO
+
 2003-09-13  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (setup.hint, cygwin.README) [cygwin]: new targets
