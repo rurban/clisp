@@ -361,9 +361,7 @@ to print the corresponding values, or T for all of them.")
             (mapcan #'(lambda (kw component)
                         (case component
                           ((nil :unspecific)) ; ignore
-                          (t (list (format nil "~%~A = ~A"
-                                           (symbol-name kw)
-                                           (make-pathname kw component))))))
+                          (t (list (format nil "~%~A = ~S" kw component)))))
                     '(:host :device :directory :name :type :version)
                     (list (pathname-host obj)
                           (pathname-device obj)
