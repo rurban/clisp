@@ -148,7 +148,7 @@
   #
   # Spezifikation für WRITE-CHAR-ARRAY - Pseudofunktion:
   # fun(&stream,&chararray,start,len)
-  # > stream: stream 
+  # > stream: stream
   # > object chararray: simple-string
   # > uintL start: start index of character sequence to be written
   # > uintL len: length of character sequence to be written, >0
@@ -1850,7 +1850,7 @@ LISPFUNN(concatenated_stream_streams,1)
         fehler_streamtype(stream,S(concatenated_stream));
     }
     # Liste der Streams sicherheitshalber kopieren:
-    value1 = copy_list(TheStream(stream)->strm_concat_totallist); mv_count=1;
+    value1 = copy_list(TheStream(stream)->strm_concat_list); mv_count=1;
   }
 
 
