@@ -19,6 +19,7 @@
   <!ENTITY matlab SYSTEM "../modules/matlab/matlab.xml">
   <!ENTITY regexp SYSTEM "../modules/regexp/regexp.xml">
   <!ENTITY pcre SYSTEM "../modules/pcre/pcre.xml">
+  <!ENTITY rawsock SYSTEM "../modules/rawsock/rawsock.xml">
   <!ENTITY syscalls SYSTEM "../modules/syscalls/syscalls.xml">
   <!ENTITY gfdl-text SYSTEM "http://www.gnu.org/licenses/fdl.xml">
 ]>
