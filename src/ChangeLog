@@ -1,3 +1,8 @@
+1999-01-29  Sam Steingold  <sds@goems.com>
+
+	* spvw.d (print_banner): do not cut the copyright on narrow
+	screens. 
+
 1999-01-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Mutable STREAM-ELEMENT-TYPE.
