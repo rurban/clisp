@@ -1706,90 +1706,125 @@ LISPFUNN(charset_range,3)
       init_dependent_encodings();
     }
 
+# Returns an encoding specified by a name. The line-termination is OS dependent.
+# encoding_from_name(name)
+# > char* name: Any of the canonical names used for the locale_charset variable.
+# can trigger GC
+  local object encoding_from_name (const char* name);
+  local object encoding_from_name(name)
+    var const char* name;
+    {
+      #ifdef UNICODE
+      if (name)
+        { # Use the character set implicitly specified by the locale.
+          if (asciz_equal(name,"ISO-8859-1"))
+            { pushSTACK(Symbol_value(S(iso8859_1))); }
+          elif (asciz_equal(name,"ISO-8859-2"))
+            { pushSTACK(Symbol_value(S(iso8859_2))); }
+          elif (asciz_equal(name,"ISO-8859-5"))
+            { pushSTACK(Symbol_value(S(iso8859_5))); }
+          elif (asciz_equal(name,"ISO-8859-6"))
+            { pushSTACK(Symbol_value(S(iso8859_6))); }
+          elif (asciz_equal(name,"ISO-8859-7"))
+            { pushSTACK(Symbol_value(S(iso8859_7))); }
+          elif (asciz_equal(name,"ISO-8859-8"))
+            { pushSTACK(Symbol_value(S(iso8859_8))); }
+          elif (asciz_equal(name,"ISO-8859-9"))
+            { pushSTACK(Symbol_value(S(iso8859_9))); }
+          elif (asciz_equal(name,"ISO-8859-10"))
+            { pushSTACK(Symbol_value(S(iso8859_10))); }
+          elif (asciz_equal(name,"ISO-8859-13"))
+            { pushSTACK(Symbol_value(S(iso8859_13))); }
+          elif (asciz_equal(name,"ISO-8859-14"))
+            { pushSTACK(Symbol_value(S(iso8859_14))); }
+          elif (asciz_equal(name,"ISO-8859-15"))
+            { pushSTACK(Symbol_value(S(iso8859_15))); }
+          elif (asciz_equal(name,"KOI8-R"))
+            { pushSTACK(Symbol_value(S(koi8_r))); }
+          #if (defined(UNIX_LINUX) || defined(UNIX_GNU)) && defined(HAVE_ICONV)
+          elif (asciz_equal(name,"eucJP"))
+            { pushSTACK(ascii_to_string("EUC-JP")); }
+          elif (asciz_equal(name,"JIS7"))
+            { pushSTACK(ascii_to_string("ISO-2022-JP")); }
+          elif (asciz_equal(name,"SJIS"))
+            { pushSTACK(ascii_to_string("SJIS")); }
+          elif (asciz_equal(name,"eucKR"))
+            { pushSTACK(ascii_to_string("EUC-KR")); }
+          elif (asciz_equal(name,"eucCN"))
+            { pushSTACK(ascii_to_string("EUC-CN")); }
+          elif (asciz_equal(name,"eucTW"))
+            { pushSTACK(ascii_to_string("EUC-TW")); }
+          #endif
+          #if 0
+          elif (asciz_equal(name,"TACTIS"))
+            { pushSTACK(??); }
+          #endif
+          elif (asciz_equal(name,"UTF-8"))
+            { pushSTACK(Symbol_value(S(utf_8))); }
+          else goto invalid;
+        }
+        else
+        invalid:
+        { # Use a reasonable default.
+          #if defined(ISOLATIN_CHS)
+          pushSTACK(Symbol_value(S(iso8859_1)));
+          #elif defined(HPROMAN8_CHS)
+          pushSTACK(Symbol_value(S(hp_roman8)));
+          #elif defined(NEXTSTEP_CHS)
+          pushSTACK(Symbol_value(S(nextstep)));
+          #elif defined(IBMPC_CHS)
+          pushSTACK(Symbol_value(S(cp437_ibm)));
+          #else
+          pushSTACK(Symbol_value(S(ascii)));
+          #endif
+        }
+      #else
+      unused name;
+      pushSTACK(unbound);
+      #endif
+      #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
+      pushSTACK(S(Kdos));
+      #else
+      pushSTACK(S(Kunix));
+      #endif
+      pushSTACK(unbound);
+      pushSTACK(unbound);
+      C_make_encoding();
+      return value1;
+    }
+
 # Initialize the encodings which depend on environment variables.
 # init_dependent_encodings();
   global void init_dependent_encodings (void);
   global void init_dependent_encodings()
-    { # Initialize O(default_file_encoding):
-        #ifdef UNICODE
-        { extern const char* locale_charset;
-          if (locale_charset)
-            { # Use the character set implicitly specified by the locale.
-              if (asciz_equal(locale_charset,"ISO-8859-1"))
-                { pushSTACK(Symbol_value(S(iso8859_1))); }
-              elif (asciz_equal(locale_charset,"ISO-8859-2"))
-                { pushSTACK(Symbol_value(S(iso8859_2))); }
-              elif (asciz_equal(locale_charset,"ISO-8859-5"))
-                { pushSTACK(Symbol_value(S(iso8859_5))); }
-              elif (asciz_equal(locale_charset,"ISO-8859-6"))
-                { pushSTACK(Symbol_value(S(iso8859_6))); }
-              elif (asciz_equal(locale_charset,"ISO-8859-7"))
-                { pushSTACK(Symbol_value(S(iso8859_7))); }
-              elif (asciz_equal(locale_charset,"ISO-8859-8"))
-                { pushSTACK(Symbol_value(S(iso8859_8))); }
-              elif (asciz_equal(locale_charset,"ISO-8859-9"))
-                { pushSTACK(Symbol_value(S(iso8859_9))); }
-              elif (asciz_equal(locale_charset,"KOI8-R"))
-                { pushSTACK(Symbol_value(S(koi8_r))); }
-              #if (defined(UNIX_LINUX) || defined(UNIX_GNU)) && defined(HAVE_ICONV)
-              elif (asciz_equal(locale_charset,"eucJP"))
-                { pushSTACK(ascii_to_string("EUC-JP")); }
-              elif (asciz_equal(locale_charset,"JIS7"))
-                { pushSTACK(ascii_to_string("ISO-2022-JP")); }
-              elif (asciz_equal(locale_charset,"SJIS"))
-                { pushSTACK(ascii_to_string("SJIS")); }
-              elif (asciz_equal(locale_charset,"eucKR"))
-                { pushSTACK(ascii_to_string("EUC-KR")); }
-              elif (asciz_equal(locale_charset,"eucCN"))
-                { pushSTACK(ascii_to_string("EUC-CN")); }
-              elif (asciz_equal(locale_charset,"eucTW"))
-                { pushSTACK(ascii_to_string("EUC-TW")); }
-              #endif
-              #if 0
-              elif (asciz_equal(locale_charset,"TACTIS"))
-                { pushSTACK(??); }
-              #endif
-              elif (asciz_equal(locale_charset,"UTF-8"))
-                { pushSTACK(Symbol_value(S(utf_8))); }
-              else goto no_locale;
-            }
-            else
-            no_locale:
-            { # The locale didn't specify a character set. Use a reasonable
-              # default.
-              #if defined(ISOLATIN_CHS)
-              pushSTACK(Symbol_value(S(iso8859_1)));
-              #elif defined(HPROMAN8_CHS)
-              pushSTACK(Symbol_value(S(hp_roman8)));
-              #elif defined(NEXTSTEP_CHS)
-              pushSTACK(Symbol_value(S(nextstep)));
-              #elif defined(IBMPC_CHS)
-              pushSTACK(Symbol_value(S(cp437_ibm)));
-              #else
-              pushSTACK(Symbol_value(S(ascii)));
-              #endif
-        }   }
-        #else
-        pushSTACK(unbound);
-        #endif
-        #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
-        pushSTACK(S(Kdos));
-        #else
-        pushSTACK(S(Kunix));
-        #endif
-        pushSTACK(unbound);
-        pushSTACK(unbound);
-        C_make_encoding();
-        O(default_file_encoding) = value1;
+    {
       #ifdef UNICODE
-      { var object encoding = O(default_file_encoding);
-        O(pathname_encoding) = encoding;
-        O(terminal_encoding) = encoding;
+        extern const char* locale_charset; # depends on environment variables
+        extern const char* argv_encoding_file; # override for *default-file-encoding*
+        extern const char* argv_encoding_pathname; # override for *pathname-encoding*
+        extern const char* argv_encoding_terminal; # override for *terminal-encoding*
+        extern const char* argv_encoding_foreign; # override for *foreign-encoding*
+        extern const char* argv_encoding_misc; # override for *misc-encoding*
+        pushSTACK(encoding_from_name(locale_charset));
+        # Initialize each encoding as follows: If the corresponding -E....
+        # option was not given, use the locale dependent locale_charset.
+        # If it was given, use that, and if the specified encoding was invalid,
+        # use a default encoding that does not depend on the locale.
+        O(default_file_encoding) =
+          (argv_encoding_file ? encoding_from_name(argv_encoding_file) : STACK_0);
+        O(pathname_encoding) =
+          (argv_encoding_pathname ? encoding_from_name(argv_encoding_pathname) : STACK_0);
+        O(terminal_encoding) =
+          (argv_encoding_terminal ? encoding_from_name(argv_encoding_terminal) : STACK_0);
         #if defined(HAVE_FFI) || defined(HAVE_AFFI)
-          O(foreign_encoding) = encoding;
+        O(foreign_encoding) =
+          (argv_encoding_foreign ? encoding_from_name(argv_encoding_foreign) : STACK_0);
         #endif
-        O(misc_encoding) = encoding;
-      }
+        O(misc_encoding) =
+          (argv_encoding_misc ? encoding_from_name(argv_encoding_misc) : STACK_0);
+        skipSTACK(1);
+      #else
+        O(default_file_encoding) = encoding_from_name(NULL);
       #endif
     }
 
