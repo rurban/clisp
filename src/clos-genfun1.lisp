@@ -192,6 +192,11 @@
     (:fixed-slot-locations t)
     (:generic-accessors nil)))
 
+;; Preliminary.
+;; During bootstrapping, only <standard-generic-function> instances are used.
+(defun generic-function-methods (gf)
+  (std-gf-methods gf))
+
 ;; ============================================================================
 
 ;; Generic functions which are used in implementing the generic function
@@ -200,8 +205,16 @@
 (defvar |#'compute-applicable-methods| nil)
 (defvar |#'compute-applicable-methods-using-classes| nil)
 (defvar |#'compute-effective-method| nil)
+(defvar |#'generic-function-methods| nil)
 (defvar |#'method-qualifiers| nil)
 (defvar |#'method-specializers| nil)
+
+(defun safe-gf-methods (gf)
+  (if (or (eq gf #'generic-function-methods) ; for bootstrapping
+          (eq gf |#'generic-function-methods|)
+          (eq gf |#'compute-effective-method|))
+    (std-gf-methods gf)
+    (generic-function-methods gf)))
 
 (defun safe-method-qualifiers (method gf)
   (if (or (eq gf #'method-qualifiers) ; for bootstrapping

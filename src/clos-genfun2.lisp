@@ -157,7 +157,7 @@
       ;; lists of all existing methods or there are no methods, the value is
       ;; changed; otherwise an error is signaled.
       (unless (equalp signature (std-gf-signature gf))
-        (dolist (method (std-gf-methods gf))
+        (dolist (method (safe-gf-methods gf))
           (check-signature-congruence gf method signature)))))
   (when (or (eq situation 't) method-class-p)
     ; Check the method-class.
@@ -192,7 +192,7 @@
              ':method-combination 'method-combination method-combination))
     (unless (eq situation 't)
       (unless (eq method-combination (std-gf-method-combination gf))
-        (dolist (method (std-gf-methods gf))
+        (dolist (method (safe-gf-methods gf))
           (check-method-qualifiers gf method method-combination)))))
   (when (or (eq situation 't) documentation-p)
     ; Check the documentation.
@@ -326,7 +326,7 @@
   (check-method-qualifiers gf method)
   ;; The method is checked. Now add it:
   (warn-if-gf-already-called gf)
-  (let ((old-method (find method (std-gf-methods gf) :test #'methods-agree-p)))
+  (let ((old-method (find method (safe-gf-methods gf) :test #'methods-agree-p)))
     (when old-method
       (when *gf-warn-on-replacing-method*
         (warn (TEXT "Replacing method ~S in ~S")
@@ -336,7 +336,7 @@
               (cons (sys::closure-name gf) *dynamically-modifiable-generic-function-names*)))
         (remove-method gf old-method))
       ;; Ensure that remove-method really has removed the method.
-      (when (memq method (std-gf-methods gf))
+      (when (memq method (safe-gf-methods gf))
         (error (TEXT "Wrong ~S behaviour: ~S has not been removed from ~S")
                'remove-method old-method gf))))
   (cond ((eq gf |#'allocate-instance|) (note-ai-change method))
@@ -346,7 +346,7 @@
         ((eq gf |#'update-instance-for-different-class|) (note-uidc-change method))
         ((eq gf |#'shared-initialize|) (note-si-change method)))
   ;; Step 1: Add method to the set.
-  (setf (std-gf-methods gf) (cons method (std-gf-methods gf))
+  (setf (std-gf-methods gf) (cons method (safe-gf-methods gf))
         (method-generic-function method) gf)
   ;; Step 2: Call add-direct-method for each specializer.
   (dolist (specializer (method-specializers method))
@@ -375,7 +375,7 @@
 
 ;; Remove a method from a generic function.
 (defun std-remove-method (gf method)
-  (let ((old-method (find method (std-gf-methods gf))))
+  (let ((old-method (find method (safe-gf-methods gf))))
     (when old-method
       (warn-if-gf-already-called gf)
       (when (need-gf-already-called-warning-p gf)
@@ -388,7 +388,7 @@
             ((eq gf |#'update-instance-for-different-class|) (note-uidc-change method))
             ((eq gf |#'shared-initialize|) (note-si-change method)))
       ;; Step 1: Remove method from the set.
-      (setf (std-gf-methods gf) (remove old-method (std-gf-methods gf))
+      (setf (std-gf-methods gf) (remove old-method (safe-gf-methods gf))
             (method-generic-function old-method) nil
             (method-from-defgeneric old-method) nil)
       ;; Step 2: Call remove-direct-method for each specializer.
@@ -419,7 +419,7 @@
       'find-method specializers))
   (if (eq (std-gf-signature gf) (sys::%unbound))
     ;; Signature not known yet, hence no methods installed.
-    (assert (null (std-gf-methods gf)))
+    (assert (null (safe-gf-methods gf)))
     (progn
       (let ((n (sig-req-num (std-gf-signature gf))))
         (unless (eql (length specializers) n)
@@ -435,9 +435,9 @@
                             specializer))
                       specializers)))
       ;; Simulate
-      ;;   (find hypothetical-method (std-gf-methods gf) :test #'methods-agree-p)
+      ;;   (find hypothetical-method (safe-gf-methods gf) :test #'methods-agree-p)
       ;; cf. methods-agree-p
-      (dolist (method (std-gf-methods gf))
+      (dolist (method (safe-gf-methods gf))
         (when (and (equal (method-qualifiers method) qualifiers)
                    (specializers-agree-p (method-specializers method)
                                          specializers))
@@ -495,7 +495,7 @@
                          (when (method-from-defgeneric method)
                            (setf (method-generic-function method) nil)
                            t))
-                     (std-gf-methods gf))))
+                     (safe-gf-methods gf))))
   (apply (cond ((eq (class-of gf) <standard-generic-function>)
                 #'shared-initialize-<standard-generic-function>)
                (t #'shared-initialize))
@@ -796,7 +796,7 @@
          (apply-fun (if restp 'APPLY 'FUNCALL))
          (apply-args `(,@req-vars ,@(if restp `(,rest-var) '())))
          (arg-order (std-gf-argorder gf))
-         (methods (std-gf-methods gf))
+         (methods (safe-gf-methods gf))
          (block-name (gensym))
          (maybe-no-applicable nil)
          (ht-vars '())) ; list of hashtable variables and their inits
@@ -1157,7 +1157,7 @@
     (let ((req-num (sig-req-num (std-gf-signature gf))))
       (if (>= (length args) req-num)
         ;; 0. Check the method specializers:
-        (let ((methods (std-gf-methods gf)))
+        (let ((methods (safe-gf-methods gf)))
           (dolist (method methods)
             (check-method-only-standard-specializers gf method
               'compute-applicable-methods))
@@ -1191,7 +1191,7 @@
     (let ((req-num (sig-req-num (std-gf-signature gf))))
       (if (= (length req-arg-classes) req-num)
         ;; 0. Check the method specializers:
-        (let ((methods (std-gf-methods gf)))
+        (let ((methods (safe-gf-methods gf)))
           (dolist (method methods)
             (check-method-only-standard-specializers gf method
               'compute-applicable-methods-using-classes))
@@ -1281,7 +1281,7 @@
     (let ((req-num (sig-req-num (std-gf-signature gf))))
       (if (= (length req-arg-specs) req-num)
         ;; 0. Check the method specializers:
-        (let ((methods (std-gf-methods gf)))
+        (let ((methods (safe-gf-methods gf)))
           (dolist (method methods)
             (check-method-only-standard-specializers gf method
               'compute-applicable-methods-for-set))
