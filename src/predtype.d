@@ -2065,20 +2065,22 @@ global bool typep_class (object obj, object clas) {
   var object objclass = value1;
   /* Look whether clas is a superclass of objclass.
      Equivalent to (CLOS::SUBCLASSP objclass clas), just a bit faster. */
-  /* Make a distinction between <semi-standard-class> and <structure-class>:
-     Is (class-current-version class) a vector, or is (class-names class)
-     a cons? */
-  if (matomp(TheClass(objclass)->current_version)) {
-    /* <semi-standard-class>. */
-    if (nullp(TheClass(objclass)->precedence_list)) /* not yet finalized? */
-      NOTREACHED; /* shouldn't happen because obj is already an instance */
-    var object superclasses_table = TheClass(objclass)->all_superclasses;
-    if (TheHashtable(superclasses_table)->ht_size > 7)
-      return !eq(gethash(clas,superclasses_table),nullobj);
-    /* Few superclasses -> not worth a hash table access. */
-  } else {
-    /* <structure-class>. */
-    /* There are few superclasses. Not worth a hash table access. */
+  if (srecord_length(TheClass(objclass)) > built_in_class_length) {
+    /* Make a distinction between <semi-standard-class> and <structure-class>:
+       Is (class-current-version class) a vector, or is (class-names class)
+       a cons? */
+    if (matomp(TheClass(objclass)->current_version)) {
+      /* <semi-standard-class>. */
+      if (nullp(TheClass(objclass)->precedence_list)) /* not yet finalized? */
+        NOTREACHED; /* shouldn't happen because obj is already an instance */
+      var object superclasses_table = TheClass(objclass)->all_superclasses;
+      if (TheHashtable(superclasses_table)->ht_size > 7)
+        return !eq(gethash(clas,superclasses_table),nullobj);
+      /* Few superclasses -> not worth a hash table access. */
+    } else {
+      /* <structure-class> or <built-in-class>. */
+      /* There are few superclasses. Not worth a hash table access. */
+    }
   }
   #if 0
     return !nullp(memq(clas,TheClass(objclass)->precedence_list));
@@ -2111,38 +2113,40 @@ global bool typep_classname (object obj, object classname) {
   /* Look whether classname names a superclass of objclass.
      Equivalent to (CLOS::SUBCLASSP objclass (find-class classname)),
      just a bit faster. */
-  /* Make a distinction between <semi-standard-class> and <structure-class>:
-     Is (class-current-version class) a vector, or is (class-names class)
-     a cons? */
-  if (matomp(TheClass(objclass)->current_version)) {
-    /* <semi-standard-class>. */
-    if (nullp(TheClass(objclass)->precedence_list)) /* not yet finalized? */
-      NOTREACHED; /* shouldn't happen because obj is already an instance */
-    var object superclasses_table = TheClass(objclass)->all_superclasses;
-    if (TheHashtable(superclasses_table)->ht_size > 7) {
-      var object clas = get(classname,S(closclass));
-      return !eq(gethash(clas,superclasses_table),nullobj);
+  if (srecord_length(TheClass(objclass)) > built_in_class_length) {
+    /* Make a distinction between <semi-standard-class> and <structure-class>:
+       Is (class-current-version class) a vector, or is (class-names class)
+       a cons? */
+    if (matomp(TheClass(objclass)->current_version)) {
+      /* <semi-standard-class> or <built-in-class>. */
+      if (nullp(TheClass(objclass)->precedence_list)) /* not yet finalized? */
+        NOTREACHED; /* shouldn't happen because obj is already an instance */
+      var object superclasses_table = TheClass(objclass)->all_superclasses;
+      if (TheHashtable(superclasses_table)->ht_size > 7) {
+        var object clas = get(classname,S(closclass));
+        return !eq(gethash(clas,superclasses_table),nullobj);
+      }
+      /* Few superclasses -> not worth a hash table access. */
+    } else {
+      /* <structure-class>. */
+      /* There are few superclasses. Not worth a hash table access. */
+      var object objclassnames = TheClass(objclass)->current_version;
+      #if 0
+        return !nullp(memq(classname,objclassnames));
+      #else /* inlined, for performance */
+        var object l;
+        for (l = objclassnames; consp(l); l = Cdr(l))
+          if (eq(Car(l),classname))
+            return true;
+        return false;
+      #endif
     }
-    /* Few superclasses -> not worth a hash table access. */
-    var object l;
-    for (l = TheClass(objclass)->precedence_list; consp(l); l = Cdr(l))
-      if (eq(TheClass(Car(l))->classname,classname))
-        return true;
-    return false;
-  } else {
-    /* <structure-class>. */
-    /* There are few superclasses. Not worth a hash table access. */
-    var object objclassnames = TheClass(objclass)->current_version;
-    #if 0
-      return !nullp(memq(classname,objclassnames));
-    #else /* inlined, for performance */
-      var object l;
-      for (l = objclassnames; consp(l); l = Cdr(l))
-        if (eq(Car(l),classname))
-          return true;
-      return false;
-    #endif
   }
+  var object l;
+  for (l = TheClass(objclass)->precedence_list; consp(l); l = Cdr(l))
+    if (eq(TheClass(Car(l))->classname,classname))
+      return true;
+  return false;
 }
 
 
