@@ -24,6 +24,7 @@
 
 (def-c-type handle c-pointer)
 (def-c-type dword uint32)
+(def-c-type word uint16)
 
 ;; this is not necessary: we are not creating a C file anyway
 ;;(c-lines "#define WINVER 0x0500~%#include <windows.h>~%")
@@ -149,6 +150,97 @@
 (def-call-out SetConsoleTitleA (:library "kernel32.dll")
   (:arguments (title c-string))
   (:return-type boolean))
+
+;; system information
+(def-call-out GetSystemDirectoryA (:library "kernel32.dll")
+  (:arguments (buffer (c-ptr (c-array-max character #.MAX_PATH)) :out :alloca)
+              (size uint)) ; pass MAX_PATH
+  (:return-type uint))
+(def-call-out GetWindowsDirectoryA (:library "kernel32.dll")
+  (:arguments (buffer (c-ptr (c-array-max character #.MAX_PATH)) :out :alloca)
+              (size uint)) ; pass MAX_PATH
+  (:return-type uint))
+(def-call-out GetCurrentDirectoryA (:library "kernel32.dll")
+  (:arguments (size dword) ; pass MAX_PATH
+              (buffer (c-ptr (c-array-max character #.MAX_PATH)) :out :alloca))
+  (:return-type dword))
+(def-call-out GetVersion (:library "kernel32.dll")
+  (:arguments) (:return-type dword))
+
+;; user name
+(eval-when (compile eval load)
+  (defconstant UNLEN 256)) ; <lmcons.h>
+(def-call-out GetUserNameA (:library "advapi32.dll")
+  (:arguments (buffer (c-ptr (c-array-max character #.UNLEN)) :out :alloca)
+              (size (c-ptr dword) :in-out)) ; pass UNLEN
+  (:return-type boolean))
+
+;; declared in <secext.h>, include <security.h>
+(def-c-enum EXTENDED_NAME_FORMAT
+  (NameUnknown 0)
+  (NameFullyQualifiedDN 1)
+  (NameSamCompatible 2)
+  (NameDisplay 3)
+  (NameUniqueId 6)
+  (NameCanonical 7)
+  (NameUserPrincipal 8)
+  (NameCanonicalEx 9)
+  (NameServicePrincipal 10))
+(def-call-out GetUserNameExA (:library "secur32.dll")
+  (:arguments (name-format EXTENDED_NAME_FORMAT)
+              (buffer (c-ptr (c-array-max character #.UNLEN)) :out :alloca)
+              (size (c-ptr ulong) :in-out)) ; pass UNLEN
+  (:return-type boolean))
+(def-call-out GetComputerObjectNameA (:library "secur32.dll")
+  (:arguments (name-format EXTENDED_NAME_FORMAT)
+              (buffer (c-ptr (c-array-max character #.UNLEN)) :out :alloca)
+              (size (c-ptr ulong) :in-out)) ; pass UNLEN
+  (:return-type boolean))
+
+;; computer name
+(eval-when (compile eval load)
+  (defconstant MAX_COMPUTERNAME_LENGTH 16)) ; <winbase.h>
+
+(def-call-out GetComputerNameA (:library "kernel32.dll")
+  (:arguments (buffer (c-ptr (c-array-max character #.MAX_COMPUTERNAME_LENGTH))
+                      :out :alloca)
+              (size (c-ptr dword) :in-out)) ; pass MAX_COMPUTERNAME_LENGTH
+  (:return-type boolean))
+
+(def-c-enum COMPUTER_NAME_FORMAT
+  ComputerNameNetBIOS
+  ComputerNameDnsHostname
+  ComputerNameDnsDomain
+  ComputerNameDnsFullyQualified
+  ComputerNamePhysicalNetBIOS
+  ComputerNamePhysicalDnsHostname
+  ComputerNamePhysicalDnsDomain
+  ComputerNamePhysicalDnsFullyQualified
+  ComputerNameMax)
+
+(def-call-out GetComputerNameExA (:library "kernel32.dll")
+  (:arguments (type-name COMPUTER_NAME_FORMAT)
+              (buffer (c-ptr (c-array-max character #.MAX_COMPUTERNAME_LENGTH))
+                      :out :alloca)
+              (size (c-ptr dword) :in-out)) ; pass MAX_COMPUTERNAME_LENGTH
+  (:return-type boolean))
+
+
+#|
+
+ (defun check-all (enum-type function buf-size)
+  (format t "~&;; ~s:~%" function)
+  (maphash (lambda (key val)
+             (let ((res (multiple-value-list (funcall function key buf-size))))
+               (format t " ~S -> ~S~@[ ~S~]~%" val res
+                       (unless (car res) (w32:GetLastError)))))
+           (ffi::enum-table enum-type)))
+ (check-all 'w32:EXTENDED_NAME_FORMAT 'w32:GetUserNameExA w32::UNLEN)
+ (check-all 'w32:EXTENDED_NAME_FORMAT 'w32:GetComputerObjectNameA w32::UNLEN)
+ (check-all 'w32:COMPUTER_NAME_FORMAT 'w32:GetComputerNameExA
+            w32::MAX_COMPUTERNAME_LENGTH)
+
+|#
 
 ;;; ==========================================================================
 ;;; clean up

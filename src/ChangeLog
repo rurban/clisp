@@ -1,3 +1,12 @@
+2003-12-10  Sam Steingold  <sds@gnu.org>
+
+	* modules/bindings/win32/win32.lisp (word): new type
+	(EXTENDED_NAME_FORMAT, COMPUTER_NAME_FORMAT): new enum types
+	(UNLEN, MAX_COMPUTERNAME_LENGTH): new constants
+	(GetSystemDirectoryA, GetWindowsDirectoryA, GetCurrentDirectoryA)
+	(GetVersion, GetUserNameA, GetUserNameExA, GetComputerObjectNameA)
+	(GetComputerNameExA): new functions
+
 2003-12-05  Sam Steingold  <sds@gnu.org>
 
 	code re-arrangement and streamlining
