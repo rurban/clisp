@@ -220,14 +220,14 @@
 #-COMPILER ; only for bootstrapping
 (progn
 
-;; preliminarily, no expansion at GET_CLOSURE:
+;; preliminary, no expansion at GET_CLOSURE:
 (sys::%putd '%expand-lambdabody-main
   (function %expand-lambdabody-main
     (lambda (lambdabody venv fenv)
       (declare (source nil) (ignore venv fenv))
       lambdabody)))
 
-;; preliminarily, defun is to be expanded trivially:
+;; preliminary, defun is to be expanded trivially:
 (sys::%putd 'defun
   (sys::make-macro
     (function defun
@@ -554,7 +554,7 @@
     'T)) ; not found
 ;; Determines, if a function-name S in function-environment FENV is not
 ;; defined and thus refers to the global function.
-(defun global-in-fenv-p (s fenv) ; preliminarily
+(defun global-in-fenv-p (s fenv) ; preliminary
   (eq (fenv-assoc s fenv) 'T))
 
 (proclaim '(special *venv*))
@@ -1352,7 +1352,7 @@
           filename)
         nil))))
 
-(sys::%putd 'defun              ; preliminarily:
+(sys::%putd 'defun              ; preliminary:
   (sys::make-macro
     (function defun
       (lambda (form env)
