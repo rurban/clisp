@@ -1,3 +1,7 @@
+1999-05-07  Sam Steingold  <sds@goems.com>
+
+	* spvw.d (usage): mention -K regardless of "UNIX_BINARY_DISTRIB".
+
 1999-05-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Support for Apple's MacOS X Server.
