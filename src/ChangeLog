@@ -1,5 +1,11 @@
 2004-10-14  Bruno Haible  <bruno@clisp.org>
 
+	* describe.lisp (describe-object@t): Handle the weak-list,
+	weak-and-relation, weak-or-relation, weak-mapping, weak-and-mapping,
+	weak-or-mapping, weak-alist types.
+
+2004-10-14  Bruno Haible  <bruno@clisp.org>
+
 	* clos-class3.lisp (shared-initialize-<structure-class>): Don't make
 	side-effects on empty-ht and on all other structure-class instances.
 
