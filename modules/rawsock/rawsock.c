@@ -107,6 +107,10 @@ DEFUN(RAWSOCK:SOCKADDR-FAMILY, sa) {
     (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,popSTACK(),&size);
   VALUES2(fixnum(sa->sa_family),fixnum(size));
 }
+DEFUN(RAWSOCK:SOCKADDR-FAMILY-SIZE,) {
+  struct sockaddr sa;
+  VALUES2(fixnum(sizeof(sa.sa_family)),fixnum(sizeof(struct sockaddr)));
+}
 
 /* can trigger GC */
 static object make_sockaddr (void) {
