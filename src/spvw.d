@@ -1221,8 +1221,10 @@
         define_variable(S(print_readably),NIL);         # *PRINT-READABLY* := NIL
         define_variable(S(print_lines),NIL);            # *PRINT-LINES* := NIL
         define_variable(S(print_miser_width),NIL);      # *PRINT-MISER-WIDTH* := NIL
+        define_variable(S(prin_line_prefix),unbound);   # *PRIN-LINE-PREFIX*
         define_variable(S(prin_miserp),unbound);        # *PRIN-MISERP*
         define_variable(S(prin_pprinter),unbound);      # *PRIN-PPRINTER*
+        define_variable(S(prin_indentation),unbound);   # *PRIN-INDENTATION*
         define_variable(S(print_pprint_dispatch),NIL);  # *PRINT-PPRINT-DISPATCH* := NIL
         define_variable(S(print_right_margin),NIL);     # *PRINT-RIGHT-MARGIN* := NIL
         define_variable(S(print_rpars),NIL);            # *PRINT-RPARS* := NIL
