@@ -69,34 +69,34 @@ all : makefiles configures potfiles src/FILES src/version.h utils/comment5.c src
 makefiles : dos/makefile dosdjgpp/makefile doswatcom/makefile os2/makefile win32gcc/makefile win32msvc/makefile.msvc4 win32msvc/makefile.msvc5 win32bc/makefile acorn/makefile.cc acorn/makefile.gcc src/readline/Makefile.dos src/readline/Makefile.os2 src/readline/Makefile.go32 src/newreadline/Makefile.dos src/newreadline/Makefile.os2 src/newreadline/Makefile.go32
 
 dos/makefile : makemake
-	./makemake dos gcc > dos/makefile
+	./makemake --with-unicode dos gcc > dos/makefile
 
 dosdjgpp/makefile : makemake
-	./makemake dosdjgpp gcc > dosdjgpp/makefile
+	./makemake --with-unicode dosdjgpp gcc > dosdjgpp/makefile
 
 doswatcom/makefile : makemake
-	./makemake doswatcom wcl386 > doswatcom/makefile
+	./makemake --with-unicode doswatcom wcl386 > doswatcom/makefile
 
 os2/makefile : makemake
-	./makemake os2 gcc > os2/makefile
+	./makemake --with-unicode os2 gcc > os2/makefile
 
 win32gcc/makefile : makemake
-	./makemake win32gcc gcc > win32gcc/makefile
+	./makemake --with-unicode win32gcc gcc > win32gcc/makefile
 
 win32msvc/makefile.msvc4 : makemake
-	./makemake --with-dynamic-ffi win32msvc msvc4 > win32msvc/makefile.msvc4
+	./makemake --with-unicode --with-dynamic-ffi win32msvc msvc4 > win32msvc/makefile.msvc4
 
 win32msvc/makefile.msvc5 : makemake
-	./makemake --with-dynamic-ffi win32msvc msvc5 > win32msvc/makefile.msvc5
+	./makemake --with-unicode --with-dynamic-ffi win32msvc msvc5 > win32msvc/makefile.msvc5
 
 win32bc/makefile : makemake
-	./makemake win32bc bcc32i > win32bc/makefile
+	./makemake --with-unicode win32bc bcc32i > win32bc/makefile
 
 acorn/makefile.cc : makemake src/VERSION
-	./makemake acorn ansi | acorn/swap-ext.pl > acorn/makefile.cc
+	./makemake --with-unicode acorn ansi | acorn/swap-ext.pl > acorn/makefile.cc
 
 acorn/makefile.gcc : makemake src/VERSION
-	./makemake acorn gcc | acorn/swap-ext.pl > acorn/makefile.gcc
+	./makemake --with-unicode acorn gcc | acorn/swap-ext.pl > acorn/makefile.gcc
 
 makemake : src/makemake.in
 	(echo "#!/bin/sh" ; cat src/makemake.in) > makemake

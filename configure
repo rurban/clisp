@@ -450,6 +450,7 @@ if test -n "$do_config"; then
 fi
 
 # Determine recommended makemake arguments.
+makemake_args="$makemake_args --with-unicode"
 if grep 'cl_cv_prog_cc_cplusplus.*yes' $ABS_DIRNAME/config.cache > /dev/null ; then
   makemake_args="$makemake_args --with-noreadline"
 else
