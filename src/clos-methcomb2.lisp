@@ -531,32 +531,22 @@ the next-method support."
         (unless (memq order '(:most-specific-first :most-specific-last))
           (invalid-sort-order-error 'order order))))))
 
-(defun compute-short-form-effective-method-form (gf combination options methods)
-  (destructuring-bind (&optional (order ':most-specific-first)) options
+(defun short-form-method-combination-expander (gf combination options methods)
+  (sys::simple-destructuring-bind (&optional (order ':most-specific-first)) options
     (let ((operator (method-combination-operator combination)))
       (multiple-value-bind (primary around)
            (let ((primary-methods '())
-                 (around-methods '())
-                 (qualifier (method-combination-name combination)))
+                 (around-methods '()))
              (dolist (method methods)
                (let ((quals (std-method-qualifiers method)))
                  (if (equal quals '(:around))
                    (push method around-methods)
                    (push method primary-methods))))
              (when (null primary-methods)
-               (return-from compute-short-form-effective-method-form
+               (return-from short-form-method-combination-expander
                  (let ((rest-variable (gensym)))
                    (values `(APPLY #'NO-PRIMARY-METHOD ',gf ,rest-variable)
                            `((:ARGUMENTS &WHOLE ,rest-variable))))))
-             ;; check that all qualifiers are singular and correct
-             ;; FIXME: move this check to check-method-qualifiers
-             (dolist (method primary-methods)
-               (let ((qualifiers (std-method-qualifiers method)))
-                 (unless (and (null (rest qualifiers))
-                              (eq (first qualifiers) qualifier))
-                   (invalid-method-error
-                    method (TEXT "qualifiers ~s not permitted for combination ~s.")
-                    qualifiers qualifier))))
              (values
                (ecase order
                  (:most-specific-first (nreverse primary-methods))
@@ -571,11 +561,6 @@ the next-method support."
             (setq form `(CALL-METHOD ,(first around)
                                      (,@(rest around) (make-method ,form)))))
           (values form '()))))))
-
-(defun short-form-method-combination-expander
-    (*method-combination-generic-function* *method-combination* options methods)
-  (compute-short-form-effective-method-form
-    *method-combination-generic-function* *method-combination* options methods))
 
 (defun short-form-method-combination-check-method-qualifiers (gf method-combo method)
   (standard-method-combination-check-method-qualifiers gf method-combo method)
