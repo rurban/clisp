@@ -120,6 +120,9 @@ CONFIGURES = src/configure src/gettext/configure modules/wildcard/configure modu
 
 configures : ffcall/autoconf/aclocal.m4 sigsegv/autoconf/aclocal.m4 $(CONFIGURES) src/gettext/config.h.in
 
+src/autoconf/aclocal.m4 : $(wildcard src/m4/*.m4)
+	cd src ; aclocal --acdir=m4 --output=autoconf/aclocal.m4
+
 AUTOCONF_FILES = src/autoconf/aclocal.m4 src/autoconf/autoconf.m4f
 
 src/configure : src/configure.in $(AUTOCONF_FILES)
