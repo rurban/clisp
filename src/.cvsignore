@@ -84,6 +84,7 @@ fsubr.c
 genclisph.c
 graph.c
 hashtabl.c
+i18n.c
 iconv.h
 int2adic.c
 intbyte.c
