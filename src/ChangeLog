@@ -1,5 +1,7 @@
 1999-01-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (with_sstring_0, with_sstring): New macros.
+
         * pathname.d (check_stat_directory): New macro.
           (directory_search): Use it.
 
