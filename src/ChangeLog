@@ -1,3 +1,7 @@
+2005-01-20  Sam Steingold  <sds@gnu.org>
+
+	* control.d (LET, LET*, MULTIPLE-VALUE-BIND): simplified control flow
+
 2004-01-20  Bruno Haible  <bruno@clisp.org>
 
 	* eval.d (symbol_env_search): Fix definition of binds_sym_p.
