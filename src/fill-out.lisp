@@ -24,7 +24,7 @@
   (with-slots (target-stream buffer pending-space) fill-stream
     (let ((pos (sys::line-position target-stream)))
       (if pos
-          (+ (length buffer) pos (if pending-space 1 0))
+          (+ pos (if pending-space 1 0) (string-width buffer))
           nil))))
 ;; flush the buffer and print a newline (when NEWLINE-P is non-NIL)
 (defun fill-stream-flush-buffer (stream newline-p)
