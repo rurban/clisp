@@ -250,7 +250,8 @@ local object F_R_float_F (object x, object y)
                    return F_to_SF(x),
                    return F_to_FF(x),
                    return F_to_DF(x),
-                   return F_to_LF(x,lfloat_length(TheLfloat(y))),
+                   return F_to_LF(x,(long_float_p(y) ? Lfloat_length(y)
+                                     : I_to_UL(O(LF_digits)))),
                    pushSTACK(x), x = popSTACK());
 }
 local object RA_R_float_F (object x, object y)
@@ -259,7 +260,8 @@ local object RA_R_float_F (object x, object y)
                    return RA_to_SF(x),
                    return RA_to_FF(x),
                    return RA_to_DF(x),
-                   return RA_to_LF(x,lfloat_length(TheLfloat(y))),
+                   return RA_to_LF(x,(long_float_p(y) ? Lfloat_length(y)
+                                      : I_to_UL(O(LF_digits)))),
                    pushSTACK(x), x = popSTACK());
 }
 local object R_R_float_F (object x, object y)
