@@ -5443,4 +5443,78 @@ cache of the dependent when it is updated.</para>
 </section><!-- mop-dep-maint-protocol -->
 </section><!-- mop-dep-maint -->
 
+<section id="mop-clisp"><title>&clisp; Specific Differences</title>
+
+<para>This section summarizes the differences between the &amop; and the
+&clisp; implementation of it.</para>
+
+<itemizedlist><title>Not implemented in &clisp;</title>
+<listitem><para>The class &forward-referenced-class; is not implemented.
+See <xref linkend="mop-mo-cl-inheritance"/>.
+</para></listitem>
+<listitem><para>The generic function &make-method-lambda; is not implemented.
+See <xref linkend="mop-gf-invocation"/>.
+</para></listitem>
+<listitem><para>Custom methods on &finalize-inheritance; sometimes have no
+effect. See <xref linkend="finalize-inheritance"/>.
+</para></listitem>
+</itemizedlist>
+
+<itemizedlist><title>Features implemented differently in &clisp;</title>
+<listitem><para>The class precedence list of &funcallable-standard-object-t;
+is different. See <xref linkend="mop-mo-cl-inheritance"/>.
+</para></listitem>
+<listitem><para>The &defclass; macro passes default values to &ensure-class;.
+See <xref linkend="mop-cl-defclass"/>.
+</para></listitem>
+<listitem><para>The &defgeneric; macro passes default values to &ensure-gf;.
+See <xref linkend="mop-gf-init-defgeneric"/>.
+</para></listitem>
+<listitem><para>The direct-superclasses list of non-finalized classes contains
+symbols instead of &forward-referenced-class; instances.
+See <xref linkend="mop-mo-cl-inheritance"/>.
+</para></listitem>
+<listitem><para>The function &gf-argument-precedence-order; signals an error
+if the generic function has no &lalist;.
+</para></listitem>
+</itemizedlist>
+
+<itemizedlist><title>Extensions specific to &clisp;</title>
+<listitem><para>The &amop; is applicable to classes of type &structure-class;.
+The default superclass for &structure-class; instances is &structure-object-t;.
+Structure classes don't support multiple inheritance and reinitialization.
+See <xref linkend="mop-cl-init-mo"/>.
+</para></listitem>
+<listitem><para>The class &method-t; is subclassable.
+See <xref linkend="mop-mo-cl-inheritance"/>.
+</para></listitem>
+<listitem><para>Slot names like &nil; and &t; are allowed. See
+<xref linkend="slotdef-name"/>.
+</para></listitem>
+<listitem><para>The &validate-superclass; method is more permissive by default
+and does not need to be overridden in some "obvious" cases.
+See <xref linkend="validate-superclass"/>.
+</para></listitem>
+<listitem><para>New generic function &compute-dsd-initargs;. It can sometimes
+be used when overriding &dsd-class; is cumbersome.
+</para></listitem>
+<listitem><para>New generic function &compute-esd-initargs;. It can sometimes
+be used when overriding &esd-class; is cumbersome.
+</para></listitem>
+<listitem><para>New function &compute-effective-method-as-function;. It can be
+used in overriding methods of &compute-discriminating-function;.
+</para></listitem>
+<listitem><para>The generic function &ensure-gf-UC; accepts a &declare-k;
+keyword.
+</para></listitem>
+<listitem><para>The function &standard-instance-access; supports non-updated
+obsolete instances and also supports slots with allocation &class-k;. 
+</para></listitem>
+<listitem><para>The existence of the &class-direct-subclasses; function does
+not prevent otherwise unreferenced classes from being &gc;ed.
+</para></listitem>
+</itemizedlist>
+
+</section><!-- mop-clisp -->
+
 </section>
