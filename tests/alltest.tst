@@ -2159,6 +2159,12 @@ test-hash-table-iterator
 )
 T
 
+(gethash "foo" (read-from-string
+                (prin1-to-string
+                 (make-hash-table :test 'equalp :initial-contents
+                                  '(("FOO" . "bar"))))))
+"bar"
+
 ;Kap 17 Felder
 ;-------------------------------------------------------------------------------
 
