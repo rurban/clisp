@@ -30,8 +30,7 @@
 (defvar *browser* nil
   "The default browser - a key in `*browsers*' or a list of strings.")
 
-(defun read-from-file (file &key (out *standard-output*)
-                       (package (find-package "KEYWORD")))
+(defun read-from-file (file &key (out *standard-output*) (package "KEYWORD"))
   "Read an object from a file.
 The keyword argument KEYWORD specifies the package to read in.
 The keyword argument OUT specifies the output for log messages."
@@ -42,10 +41,7 @@ The keyword argument OUT specifies the output for log messages."
                        file (file-length str))
                (force-output (if (eq out t) *standard-output* out)))
              (with-standard-io-syntax
-               (let ((*package* (etypecase package
-                                  (package package)
-                                  ((or string symbol)
-                                   (find-package package)))))
+               (let ((*package* (find-package package)))
                  (read str))))
       (when out
         (format out "done [~,2f sec]~%"
