@@ -408,7 +408,7 @@ to print the corresponding values, or T for all of them.")
              (format stream
                      (ENGLISH "~%~V,0T~a is ")
                      (* *describe-nesting* *print-indent-lists*)
-                     (sys::write-to-short-string obj sys::*prin-linelength*))
+                     (sys::write-to-short-string obj (or *print-right-margin* sys::*prin-linelength*)))
              (describe-object obj stream)))
     (when (= 0 *describe-nesting*)
       (makunbound '*describe-nesting*)

@@ -12227,8 +12227,10 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                     (setq *compile-file-lineno2* (line-number istream))
                     (when (eql form eof-value) (return))
                     (when *compile-print*
-                      (format t "~%; ~A" (sys::write-to-short-string form (- sys::*prin-linelength* 2)))
-                    )
+                      (format t "~%; ~A"
+                                (sys::write-to-short-string form
+                                  (- (or *print-right-margin* sys::*prin-linelength*) 2)
+                    ) )         )
                     (compile-toplevel-form form
                       (symbol-suffix '#:TOP-LEVEL-FORM (incf form-count))
                 ) ) )
