@@ -77,6 +77,23 @@ reference to the method with the signature shown above is written as:
 
 </section><!-- mop-intro-notation -->
 
+<section id="mop-package"><title>Package</title>
+
+<para>The package exporting the MOP symbols is unspecified.</para>
+
+<variablelist>
+<varlistentry><term>Implementation dependent: only in &clisp;.</term>
+<listitem><simpara>The symbols specified by the Metaobject Protocol are
+exported from the package <literal>"CLOS"</literal> and re-exported by
+the package <literal>"EXT"</literal>.</simpara></listitem></varlistentry>
+</variablelist>
+
+<para>The package exporting the MOP symbols is different in other implementations:
+In SBCL it is the package <literal>"SB-MOP"</literal>; in OpenMCL it is the
+package <literal>"OPENMCL-MOP"</literal>.</para>
+
+</section><!-- mop-package -->
+
 </section><!-- mop-intro -->
 
 <section id="mop-overview"><title>Overview</title>
@@ -292,63 +309,137 @@ combination metaobjects.</para></note>
  instances of the class &funcallable-standard-class;.
 <table id="mop-inherit-struct"><title>Direct Superclass Relationships
   Among The Specified Metaobject Classes</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">
-  <thead><row><entry>Abstract</entry><entry>Metaobject Class</entry>
+ <tgroup cols="4" colsep="1" rowsep="1" align="center">
+  <thead><row>
+    <entry>Metaobject Class</entry>
+    <entry>Abstract</entry><entry>Subclassable</entry>
     <entry>Direct Superclasses</entry></row></thead>
   <tbody>
-   <row><entry>no</entry><entry>&standard-object-t;</entry>
+   <row>
+    <entry>&standard-object-t;</entry>
+    <entry>no</entry><entry>yes</entry>
     <entry>(&t-t;)</entry></row>
-   <row><entry>no</entry><entry>&funcallable-standard-object-t;</entry>
+   <row>
+    <entry>&funcallable-standard-object-t;</entry>
+    <entry>no</entry><entry>yes</entry>
     <entry>(&standard-object-t; &function-t;)</entry></row>
-   <row><entry>yes</entry><entry>&metaobject-t;</entry>
+   <row>
+    <entry>&metaobject-t;</entry>
+    <entry>yes</entry><entry>no</entry>
     <entry>(&standard-object-t;)</entry></row>
-   <row><entry>yes</entry><entry>&generic-function-t;</entry>
+   <row>
+    <entry>&generic-function-t;</entry>
+    <entry>yes</entry><entry>no</entry>
     <entry>(&metaobject-t; &funcallable-standard-object-t;)</entry></row>
-   <row><entry>no</entry><entry>&standard-generic-function-t;</entry>
+   <row>
+    <entry>&standard-generic-function-t;</entry>
+    <entry>no</entry><entry>yes</entry>
     <entry>(&generic-function-t;)</entry></row>
-   <row><entry>yes</entry><entry>&method-t;</entry>
+   <row>
+    <entry>&method-t;</entry>
+    <entry>yes</entry><entry>no</entry>
     <entry>(&metaobject-t;)</entry></row>
-   <row><entry>no</entry><entry>&standard-method-t;</entry>
+   <row>
+    <entry>&standard-method-t;</entry>
+    <entry>no</entry><entry>yes</entry>
     <entry>(&method-t;)</entry></row>
-   <row><entry>yes</entry><entry>&standard-accessor-method-t;</entry>
+   <row>
+    <entry>&standard-accessor-method-t;</entry>
+    <entry>yes</entry><entry>no</entry>
     <entry>(&standard-method-t;)</entry></row>
-   <row><entry>no</entry><entry>&standard-reader-method-t;</entry>
+   <row>
+    <entry>&standard-reader-method-t;</entry>
+    <entry>no</entry><entry>yes</entry>
     <entry>(&standard-accessor-method-t;)</entry></row>
-   <row><entry>no</entry><entry>&standard-writer-method-t;</entry>
+   <row>
+    <entry>&standard-writer-method-t;</entry>
+    <entry>no</entry><entry>yes</entry>
     <entry>(&standard-accessor-method-t;)</entry></row>
-   <row><entry>yes</entry><entry>&method-combination-t;</entry>
+   <row>
+    <entry>&method-combination-t;</entry>
+    <entry>yes</entry><entry>no</entry>
     <entry>(&metaobject-t;)</entry></row>
-   <row><entry>yes</entry><entry>&slot-definition-t;</entry>
+   <row>
+    <entry>&slot-definition-t;</entry>
+    <entry>yes</entry><entry>no</entry>
     <entry>(&metaobject-t;)</entry></row>
-   <row><entry>yes</entry><entry>&dsd-t;</entry>
+   <row>
+    <entry>&dsd-t;</entry>
+    <entry>yes</entry><entry>no</entry>
     <entry>(&slot-definition-t;)</entry></row>
-   <row><entry>yes</entry><entry>&esd-t;</entry>
+   <row>
+    <entry>&esd-t;</entry>
+    <entry>yes</entry><entry>no</entry>
     <entry>(&slot-definition-t;)</entry></row>
-   <row><entry>yes</entry><entry>&standard-slotdef-t;</entry>
+   <row>
+    <entry>&standard-slotdef-t;</entry>
+    <entry>yes</entry><entry>no</entry>
     <entry>(&slot-definition-t;)</entry></row>
-   <row><entry>no</entry><entry>&standard-dsd-t;</entry>
+   <row>
+    <entry>&standard-dsd-t;</entry>
+    <entry>no</entry><entry>yes</entry>
     <entry>(&standard-slotdef-t; &dsd-t;)</entry></row>
-   <row><entry>no</entry><entry>&standard-esd-t;</entry>
+   <row>
+    <entry>&standard-esd-t;</entry>
+    <entry>no</entry><entry>yes</entry>
     <entry>(&standard-slotdef-t; &esd-t;)</entry></row>
-   <row><entry>yes</entry><entry>&specializer-t;</entry>
+   <row>
+    <entry>&specializer-t;</entry>
+    <entry>yes</entry><entry>no</entry>
     <entry>(&metaobject-t;)</entry></row>
-   <row><entry>no</entry><entry>&eql-specializer-t;</entry>
+   <row>
+    <entry>&eql-specializer-t;</entry>
+    <entry>no</entry><entry>no</entry>
     <entry>(&specializer-t;)</entry></row>
-   <row><entry>yes</entry><entry>&class;</entry>
+   <row>
+    <entry>&class;</entry>
+    <entry>yes</entry><entry>no</entry>
     <entry>(&specializer-t;)</entry></row>
-   <row><entry>no</entry><entry>&built-in-class;</entry>
+   <row>
+    <entry>&built-in-class;</entry>
+    <entry>no</entry><entry>no</entry>
     <entry>(&class;)</entry></row>
-   <row><entry>no</entry><entry>&forward-referenced-class;</entry>
+   <row>
+    <entry>&forward-referenced-class;</entry>
+    <entry>no</entry><entry>no</entry>
     <entry>(&class;)</entry></row>
-   <row><entry>no</entry><entry>&standard-class;</entry>
+   <row>
+    <entry>&standard-class;</entry>
+    <entry>no</entry><entry>yes</entry>
     <entry>(&class;)</entry></row>
-   <row><entry>no</entry><entry>&funcallable-standard-class;</entry>
+   <row>
+    <entry>&funcallable-standard-class;</entry>
+    <entry>no</entry><entry>yes</entry>
     <entry>(&class;)</entry></row>
  </tbody></tgroup></table>
-Each class with a <quote>yes</quote> in the <quote>Abstract</quote>
+</para>
+
+<para>Each class with a <quote>yes</quote> in the <quote>Abstract</quote>
 column is an <emphasis>abstract class</emphasis> and is not intended to
 be instantiated.  The results are undefined if an attempt is made to
 make an instance of one of these classes with &make-instance;.</para>
+
+<para>Each class with a <quote>yes</quote> in the <quote>Subclassable</quote>
+column can be used as direct superclass for portable programs.  It is not
+meaningful to subclass a class that has a <quote>no</quote> in this column.</para>
+
+<variablelist>
+<varlistentry><term>Implementation dependent: only in &clisp;.</term>
+<listitem><simpara>The class &method-t; is also subclassable: It is possible
+to create subclasses of &method-t; that don't inherit from &standard-method-t;.
+</simpara></listitem></varlistentry>
+</variablelist>
+
+<variablelist>
+<varlistentry><term>Implementation dependent: only in &clisp; and some
+ other implementations.</term>
+<listitem><simpara>The class &funcallable-standard-object-t;'s class precedence
+ list contains &function-t; before &standard-object-t;, not after &standard-object-t;.
+ This is the most transparent way to realize the &ansi-cl; requirement
+ (<ulink url="&clhs;/Body/sec_4-2-2.html">[CLHS-4.2.2]</ulink>) that
+ &generic-function-t;'s class precedence list contains &function-t; before
+ &standard-object-t;.</simpara></listitem></varlistentry>
+</variablelist>
 
 <para>The classes &standard-class;, &standard-dsd-t;,
  &standard-esd-t;, &standard-method-t;,
@@ -370,6 +461,28 @@ make an instance of one of these classes with &make-instance;.</para>
  definition of a class references another class which has not yet been
  defined, an instance of &forward-referenced-class; is used as a
  stand-in until the class is actually defined.</para>
+
+<variablelist>
+<varlistentry><term>Implementation dependent: only in &clisp;.</term>
+<listitem><simpara>The class &forward-referenced-class; is not
+implemented. In the direct-superclasses list of non-finalized classes,
+symbols are used instead of &forward-referenced-class; instances.
+This choice has been made because the concept of &forward-referenced-class;
+contradicts the &find-class; specification:</simpara>
+<orderedlist>
+ <listitem><simpara>The MOP says that the first argument of &ensure-class-UC;
+  can be a &forward-referenced-class;. But from the description of &ensure-class;,
+  it is clear that it can only be a class returned by &find-class;, and
+  &ansi-cl; &find-class; cannot return a &forward-referenced-class;.</simpara></listitem>
+ <listitem><simpara>The MOP says that &ensure-class-UC; creates a
+  &forward-referenced-class; for not-yet-defined class symbols among the
+  direct-superclasses list. But this leads to many &forward-referenced-class;
+  with the same name (since they cannot be stored and retrieved through
+  &find-class;), and since &change-class; preserves the &eq;-ness, after the
+  class is defined, we have many class objects with the same name.</simpara></listitem>
+</orderedlist>
+</listitem></varlistentry>
+</variablelist>
 
 <para>The class &standard-object-t; is the <emphasis>default direct
 superclass</emphasis> of the class &standard-class;.  When an instance
@@ -812,18 +925,61 @@ arguments received by the &ensure-class; function.  Examples of typical
   initarg is a list of three elements.  The first element is the name;
   the second is the actual form itself; and the third is a function of
   zero arguments which, when called, returns the result of evaluating
-  the default value form in its proper &lex-env;.</simpara></listitem>
+  the default value form in its proper &lex-env;.</simpara>
+  <variablelist>
+   <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+   <listitem><simpara>If a <replaceable>default initargs</replaceable>
+    class option is not present in the &defclass; form,
+    &direct-default-initargs-k; &nil; is passed to &ensure-class;.
+    This is needed to fulfill the &ansi-cl; requirement
+    (<ulink url="&clhs;/Body/sec_4-3-6.html">[CLHS-4.3.6]</ulink>)
+    that the resulting class object reflects the &defclass; form.
+   </simpara></listitem></varlistentry>
+  </variablelist>
+ </listitem>
 <listitem><simpara>The <replaceable>metaclass</replaceable> class
   option, if it is present in the &defclass; form, becomes the value of
-  the &metaclass-k; keyword argument to &ensure-class;.</simpara></listitem>
+  the &metaclass-k; keyword argument to &ensure-class;.</simpara>
+  <variablelist>
+   <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+   <listitem><simpara>If a <replaceable>metaclass</replaceable>
+    class option is not present in the &defclass; form,
+    &metaclass-k; <replaceable>&standard-class;</replaceable> is passed to &ensure-class;. 
+    This is needed to fulfill the &ansi-cl; requirement
+    (<ulink url="&clhs;/Body/sec_4-3-6.html">[CLHS-4.3.6]</ulink>)
+    that the resulting class object reflects the &defclass; form.
+   </simpara></listitem></varlistentry>
+  </variablelist>
+ </listitem>
 <listitem><simpara>The <replaceable>documentation</replaceable> class
   option, if it is present in the &defclass; form, becomes the value of
-  the &documentation-k; keyword argument to &ensure-class;.
-</simpara></listitem>
+  the &documentation-k; keyword argument to &ensure-class;.</simpara>
+  <variablelist>
+   <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+   <listitem><simpara>If a <replaceable>documentation</replaceable>
+    class option is not present in the &defclass; form,
+    &direct-default-initargs-k; &nil; is passed to &ensure-class;. 
+    This is needed to fulfill the &ansi-cl; requirement
+    (<ulink url="&clhs;/Body/sec_4-3-6.html">[CLHS-4.3.6]</ulink>)
+    that the resulting class object reflects the &defclass; form.
+   </simpara></listitem></varlistentry>
+  </variablelist>
+ </listitem>
 <listitem><simpara>Any other class options become the value of keyword
   arguments with the same name.  The value of the keyword argument is
   the tail of the class option.  An &err-sig; if any class
-  option appears more than once in the &defclass; form.</simpara></listitem>
+  option appears more than once in the &defclass; form.</simpara>
+  <variablelist>
+   <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+   <listitem><simpara>The default initargs of the
+    <replaceable>metaclass</replaceable> are added at the end of the list
+    of arguments to pass to &ensure-class;.
+    This is needed to fulfill the &ansi-cl; requirement
+    (<ulink url="&clhs;/Body/sec_4-3-6.html">[CLHS-4.3.6]</ulink>)
+    that the resulting class object reflects the &defclass; form.
+   </simpara></listitem></varlistentry>
+  </variablelist>
+ </listitem>
 </itemizedlist>
 
 <para>In the call to &ensure-class;, every element of its arguments
@@ -891,7 +1047,17 @@ elements of this list are class metaobjects.  The empty list is returned
 if &class-r; has no direct superclasses.  This is the defaulted value of
 the &direct-superclasses-k; initialization argument that was associated
 with the class during initialization or reinitialization.
-</para></simplesect>
+</para>
+
+<variablelist>
+<varlistentry><term>Implementation dependent: only in &clisp;.</term>
+<listitem><simpara>For a class that has not yet been finalized, the
+ returned list may contain symbols as placeholder for classes that
+ were not yet defined when finalization of the class was last attempted.
+ &clisp; does not support &forward-referenced-class; instances.</simpara>
+ </listitem></varlistentry>
+</variablelist>
+</simplesect>
 
 <simplesect id="class-direct-slots">
  <title>Generic Function &class-direct-slots;</title>
@@ -942,7 +1108,16 @@ of this set are class metaobjects that all mention this class among
 their direct superclasses.  The empty set is returned if &class-r; has
 no direct subclasses.  This value is maintained by the generic functions
 &add-direct-subclass; and &remove-direct-subclass;.
-</para></simplesect>
+</para>
+
+<variablelist>
+<varlistentry><term>Implementation dependent: only in &clisp;.</term>
+<listitem><simpara>The set of direct subclasses of a class is
+ internally managed as a &weak-list;. Therefore the existence of
+ the &class-direct-subclasses; function doesn't prevent otherwise
+ unreferenced classes from being &gc;ed.</simpara></listitem></varlistentry>
+</variablelist>
+</simplesect>
 
 <simplesect id="class-slots">
  <title>Generic Function &class-slots;</title>
@@ -1281,7 +1456,13 @@ previously stored value is left unchanged.</para>
    or one of its subclasses the default value is a list of the class
    &standard-object-t;; if the class is an instance of
    &funcallable-standard-class; or one of its subclasses the default
-   value is list of the class &funcallable-standard-object-t;.</simpara>
+   value is a list of the class &funcallable-standard-object-t;.</simpara>
+  <variablelist>
+   <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+   <listitem><simpara>If the class is an instance of &structure-class;
+    or one of its subclasses the default value is a list of the class
+    &structure-object-t;</simpara></listitem></varlistentry>
+  </variablelist>
   <simpara>After any defaulting of the value, the generic function
    &add-direct-subclass; is called once for each element of the list.
   </simpara><simpara>When the class metaobject is being reinitialized
@@ -1320,6 +1501,13 @@ inheritance and reinitialization.  Instances of the class
 &funcallable-standard-class; support multiple inheritance and
 reinitialization.  For forward referenced classes, all of the
 initialization arguments default to &nil;.</para>
+
+<variablelist>
+<varlistentry><term>Implementation dependent: only in &clisp;.</term>
+<listitem><simpara>Instances of the class &structure-class; don't
+support multiple inheritance and reinitialization.</simpara>
+</listitem></varlistentry>
+</variablelist>
 
 <para>Since built-in classes cannot be created or reinitialized by the
 user, an &err-sig; if &initialize-instance; or &reinitialize-instance;
@@ -1539,7 +1727,16 @@ any dependents of the class metaobject will be updated by calling
        <listitem><simpara>Otherwise an instance of the class
          &forward-referenced-class; is created and used.  The &proper-name-glo;
          of the newly created forward referenced class metaobject
-         is set to &name-r;.</simpara></listitem></itemizedlist>
+         is set to the element.</simpara>
+        <variablelist>
+         <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+         <listitem><simpara>The class &forward-referenced-class; is not
+          supported. In the &direct-superclasses-k; argument, symbols are used
+          to represent classes that have not yet been defined.</simpara>
+         </listitem></varlistentry>
+        </variablelist>
+       </listitem>
+      </itemizedlist>
     </para></listitem>
     <listitem><simpara>All other keyword arguments are included directly
       in the initialization arguments.</simpara></listitem>
@@ -1556,6 +1753,11 @@ any dependents of the class metaobject will be updated by calling
    reinitialized with the previously initialization arguments.  (This is
    a documented violation of the general constraint that &change-class;
    may not be used with class metaobjects.)</simpara>
+  <variablelist>
+   <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+   <listitem><simpara>Forward referenced class don't exist.</simpara>
+   </listitem></varlistentry>
+  </variablelist>
   <simpara>If the class of the &class-r; argument is not the same as the
    class specified by the &metaclass-k; argument, an &err-sig;.</simpara>
   <simpara>Otherwise, the class metaobject &class-r; is redefined by
@@ -1575,7 +1777,14 @@ any dependents of the class metaobject will be updated by calling
    &direct-superclasses-k; &allow-other-keys-amp;)</literal></term>
  <listitem><simpara>This method implements the behavior of the generic
    function in the case where the &class-r; argument is a forward
-   referenced class.</simpara></listitem></varlistentry>
+   referenced class.</simpara>
+ <variablelist>
+  <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+  <listitem><simpara>This method does not exist, because
+   &forward-referenced-class; is not supported. Use the method specialized
+   on &null-t; instead.</simpara></listitem></varlistentry>
+ </variablelist>
+ </listitem></varlistentry>
 <varlistentry><term><literal role="method">(&ensure-class-UC;
    (&class-r; &null-t;) &name-r; &key-amp; &metaclass-k;
    &direct-superclasses-k; &allow-other-keys-amp;)</literal></term>
@@ -1604,6 +1813,16 @@ any dependents of the class metaobject will be updated by calling
    metaobject is finalized and the result of calling &class-finalized-p;
    on the class metaobject will be true.
 </simpara></listitem></varlistentry></variablelist>
+
+<variablelist>
+<varlistentry><term>Implementation dependent: only in &clisp;.</term>
+<listitem><simpara>In some situations, the implementation finalizes a class
+ without being forced to do so, i.e. ahead of time. In these cases
+ &finalize-inheritance; is not called (because it would have to signal an
+ error if finalization is not yet possible). Therefore custom methods
+ on &finalize-inheritance; may have no effect.</simpara></listitem>
+</varlistentry>
+</variablelist>
 
 <variablelist><title>Methods</title>
 <varlistentry><term><literal role="method">(&finalize-inheritance;
@@ -1754,7 +1973,20 @@ any dependents of the class metaobject will be updated by calling
      &standard-class; and the class of the other is
      &funcallable-standard-class;.</simpara></listitem>
   </orderedlist>In all other cases, this method returns false.</para>
- &overridable;</listitem></varlistentry></variablelist>
+ &overridable;
+ <variablelist>
+  <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+  <listitem><simpara>This method also returns true in a fourth situation:
+   </simpara>
+   <orderedlist numeration="lowerroman">
+    <listitem><simpara>If the class of the &class-r; argument is a subclass
+     of the class of the &superclass-r; argument.
+    </simpara></listitem>
+   </orderedlist>
+  </listitem></varlistentry>
+ </variablelist>
+ </listitem>
+</varlistentry></variablelist>
 
 <formalpara><title>Remarks</title>
 <para>Defining a method on &validate-superclass; requires detailed
@@ -1947,7 +2179,68 @@ any dependents of the class metaobject will be updated by calling
   <simpara>This method can be extended, but the value returned by the
    extending method must be the value returned by this method.
 </simpara></listitem></varlistentry></variablelist>
+
+<variablelist>
+ <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+ <listitem><simpara>The initialization arguments that are passed to
+  &esd-class; and &make-instance; are computed through a call to
+  &compute-esd-initargs;. It is the &compute-esd-initargs; method which
+  implements the rules described in the &ansi-cl; section
+  <ulink url="&clhs;/Body/sec_7-5-3.html">7.5.3
+   <quote>Inheritance of Slots and Options</quote></ulink>.
+ </simpara></listitem></varlistentry>
+</variablelist>
 </section><!-- compute-esd -->
+
+<section id="compute-esd-initargs"><title>Generic Function &compute-esd-initargs;</title>
+
+<variablelist>
+<varlistentry><term>Implementation dependent: only in &clisp;.</term>
+<listitem>
+<variablelist><varlistentry><term>Syntax</term>
+ <listitem><simpara><literal role="sexp">(&compute-esd-initargs;
+    &class-r; <replaceable>direct-slot-definitions</replaceable>)
+ </literal></simpara></listitem></varlistentry>
+<varlistentry><term>Arguments</term>
+ <listitem><variablelist>
+   <varlistentry><term>&class-r;</term>
+    <listitem><simpara>a class metaobject.</simpara></listitem></varlistentry>
+   <varlistentry><term><replaceable>direct-slot-definitions</replaceable></term>
+    <listitem><simpara>an ordered list of direct slot definition
+      metaobjects.  The most specific direct slot definition metaobject
+      appears first in the list.</simpara></listitem></varlistentry>
+</variablelist></listitem></varlistentry>
+<varlistentry><term>Values</term>
+ <listitem><simpara>The value returned by this generic function is a
+   list of initialization arguments for an effective slot definition
+   metaobject.</simpara></listitem></varlistentry>
+<varlistentry><term>Purpose</term>
+ <listitem><simpara>This generic function determines the initialization
+   arguments for the effective slot definition for a slot in a class.
+   It is called by &compute-esd;.  The resulting initialization arguments
+   are passed to &esd-class; and then to &make-instance;.</simpara>
+  <simpara>This generic function uses the supplied list of direct slot
+   definition metaobjects to compute the inheritance of slot properties
+   for a single slot.  The returned effective slot definition initargs
+   represent the result of computing the inheritance.  The value of &name-k;
+   in the returned initargs is the same as the name of the direct slot
+   definitions supplied.</simpara></listitem></varlistentry></variablelist>
+
+<variablelist><title>Methods</title>
+<varlistentry><term><literal role="method">(&compute-esd-initargs;
+   (&class-r; &standard-class;)
+   <replaceable>direct-slot-definitions</replaceable>)</literal></term>
+ <term><literal role="method">(&compute-esd-initargs;
+   (&class-r; &funcallable-standard-class;)
+   <replaceable>direct-slot-definitions</replaceable>)</literal></term>
+ <listitem><simpara>This method implements the inheritance and
+   defaulting of slot options following the rules described in the
+   &ansi-cl; section <ulink url="&clhs;/Body/sec_7-5-3.html">7.5.3
+    <quote>Inheritance of Slots and Options</quote></ulink>.</simpara>
+  <simpara>This method can be extended.</simpara></listitem>
+</varlistentry></variablelist>
+</listitem></varlistentry></variablelist>
+</section><!-- compute-esd-initargs -->
 
 <section id="esd-class"><title>Generic Function &esd-class;</title>
 
@@ -2155,7 +2448,15 @@ implementation.</para>
 <para>Returns the name of &slot-r;.  This value is a symbol that can be
 used as a variable name.  This is the value of the &name-k;
 initialization argument that was associated with the slot definition
-metaobject during initialization.</para></simplesect>
+metaobject during initialization.</para>
+
+<variablelist>
+ <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+ <listitem><simpara>The slot name does not need to be usable as a variable
+  name. Slot names like &nil; or &t; are perfectly valid.</simpara>
+ </listitem></varlistentry>
+</variablelist>
+</simplesect>
 
 <simplesect id="slotdef-allocation">
  <title>Generic Function &slotdef-allocation;</title>
@@ -2346,7 +2647,14 @@ portable subclasses of the class &slotdef-t;.</para>
 <itemizedlist>
  <listitem><simpara>The &name-k; argument is a slot name.  An &err-sig;
    if this argument is not a symbol which can be used as a variable
-   name.  An &err-sig; if this argument is not supplied.</simpara></listitem>
+   name.  An &err-sig; if this argument is not supplied.</simpara>
+  <variablelist>
+   <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+   <listitem><simpara>The &name-k; argument does not need to be usable as a
+    variable name. Slot names like &nil; or &t; are perfectly valid.</simpara>
+   </listitem></varlistentry>
+  </variablelist>
+ </listitem>
  <listitem><simpara>The &initform-k; argument is a form. The
    &initform-k; argument defaults to &nil;.  An &err-sig; if the
    &initform-k; argument is supplied, but the &initfunction-k; argument
@@ -2500,7 +2808,14 @@ parameters in the &lalist; of the generic function.  This is the
 defaulted value of the &argument-precedence-order-k; initialization
 argument that was associated with the generic function metaobject during
 initialization or reinitialization.
-</para></simplesect>
+</para>
+
+<variablelist>
+ <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+ <listitem><simpara>An &err-sig; if the &lalist; has not yet been
+  supplied.</simpara></listitem></varlistentry>
+</variablelist>
+</simplesect>
 
 <!-- end generic-function basic introspection -->
 
@@ -2594,14 +2909,52 @@ argument to &ensure-gf;.</simpara></listitem>
 &method-class-k;, the value of the option becomes the value of the
 keyword argument with the same name.  If the option does not appear in
 the macro form, the keyword argument does not appear in the resulting
-call to &ensure-gf;.</simpara></listitem>
+call to &ensure-gf;.</simpara>
+<variablelist>
+ <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+ <listitem><simpara>If the option does not appear in the macro form, the
+  keyword argument appears in the resulting call to &ensure-gf;, with a
+  default value: the <replaceable>lambda list</replaceable> for
+  &argument-precedence-order-k;, &nil; for &documentation-k;, the class
+  &standard-generic-function-t; for &gf-class-k;, the class &standard-method-t;
+  for &method-class-k;. This is needed to make the generic function reflect
+  the &defgeneric; form.</simpara></listitem></varlistentry>
+</variablelist>
+</listitem>
 <listitem><simpara>For the option <literal>declare</literal>, the list
 of <quote>declarations</quote> becomes the value of the &declarations-k;
 keyword argument.  If the <literal>declare</literal> option does not
 appear in the macro form, the &declarations-k; keyword argument does not
-appear in the call to &ensure-gf;.</simpara></listitem>
+appear in the call to &ensure-gf;.</simpara>
+<variablelist>
+ <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+ <listitem><simpara>If the <literal>declare</literal> option does not appear
+  in the macro form, the &declarations-k; keyword argument appears in the
+  resulting call to &ensure-gf;, with a default value of &nil;. This is
+  needed to make the generic function reflect the &defgeneric; form.</simpara>
+ </listitem></varlistentry>
+</variablelist>
+</listitem>
 <listitem><simpara>The handling of the &method-combination-k; option is
 not specified.</simpara></listitem>
+<listitem>
+<variablelist>
+ <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+ <listitem><simpara>The &declare-k; keyword is recognized as equivalent to the
+  &declarations-k; keyword, for compatibility with &ensure-gf; in &ansi-cl;.
+  If both &declare-k; and &declarations-k; keyword arguments are specified,
+  an &err-sig;.</simpara>
+ <simpara>Any other generic function options become the value of
+  keyword arguments with the same name. The value of the keyword argument is
+  the tail of the generic function option. An &err-sig; if any generic function
+  option appears more than once in the &defgeneric; form.</simpara>
+ <simpara>The default initargs of the
+  <replaceable>generic-function-class</replaceable> are added at the end of
+  the list of arguments to pass to &ensure-gf;. This is needed to make the
+  generic function reflect the &defgeneric; form.</simpara>
+ </listitem></varlistentry>
+</variablelist>
+</listitem>
 </itemizedlist>
 
 <para>The result of the call to &ensure-gf; is returned as the result of
@@ -2647,6 +3000,13 @@ argument to &call-method;.  If &call-method; appears with additional
 arguments, these will be passed to the method functions as well; in
 these cases, &make-method-lambda; must have created the method lambdas
 to expect additional arguments.</para>
+<variablelist>
+ <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+ <listitem><simpara>&make-method-lambda; is not supported. &call-method;
+  doesn't accept more than two arguments.</simpara>
+ </listitem></varlistentry>
+</variablelist>
+
 </section><!-- mop-gf-invocation -->
 
 <section id="mop-gf-init-mo">
@@ -2893,7 +3253,16 @@ restrictions.</para>
    </simpara></listitem></varlistentry>
    <varlistentry><term>additional keyword arguments</term>
     <listitem><simpara>see <xref linkend="mop-gf-init-mo"/>.
-</simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
+   </simpara></listitem></varlistentry>
+   <varlistentry><term></term><listitem>
+    <variablelist>
+     <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+     <listitem><simpara>The &declare-k; keyword is recognized as equivalent to
+      the &declarations-k; keyword, for compatibility with &ensure-gf; in
+      &ansi-cl;.</simpara></listitem></varlistentry>
+    </variablelist>
+   </listitem></varlistentry>
+</variablelist></listitem></varlistentry>
 <varlistentry><term>Values</term>
  <listitem><simpara>The result is a generic function metaobject.
 </simpara></listitem></varlistentry>
@@ -3237,7 +3606,53 @@ their own memoization scheme.</para></simplesect>
  <listitem><simpara>This method computes the effective method according
    to the rules of the method combination type implemented by &mc-r;.</simpara>
   &overridable;</listitem></varlistentry></variablelist>
+
+<variablelist>
+ <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+ <listitem><simpara>The second return value may contain only one &arguments-k;
+  option and only one &gf-k; option. When overriding a
+  &compute-effective-method; method, before adding an &arguments-k; or &gf-k;
+  option, you therefore need to check whether it this option is already
+  present.</simpara></listitem></varlistentry>
+</variablelist>
 </section><!-- compute-effective-method -->
+
+<section id="compute-effective-method-as-function"><title>Function &compute-effective-method-as-function;</title>
+
+<variablelist>
+<varlistentry><term>Implementation dependent: only in &clisp;.</term>
+<listitem>
+<variablelist><varlistentry><term>Syntax</term>
+ <listitem><simpara><literal role="sexp">(&compute-effective-method-as-function;
+    &gf-r; &methods-r; &args-r;)</literal></simpara></listitem></varlistentry>
+<varlistentry><term>Arguments</term>
+ <listitem><variablelist>
+   <varlistentry><term>&gf-r;</term>
+    <listitem><simpara>a generic function metaobject.
+   </simpara></listitem></varlistentry>
+   <varlistentry><term>&methods-r;</term>
+    <listitem><simpara>a list of method metaobjects.
+   </simpara></listitem></varlistentry>
+   <varlistentry><term>&args-r;</term>
+    <listitem><simpara>a list of arguments.
+   </simpara></listitem></varlistentry>
+ </variablelist></listitem></varlistentry>
+<varlistentry><term>Values</term>
+ <listitem><simpara>This function returns the effective method as a function,
+   accepting any set of arguments for which all of the given methods are
+   applicable.</simpara></listitem></varlistentry>
+<varlistentry><term>Purpose</term>
+ <listitem><simpara>This function is called to determine the effective method
+   from a sorted list of method metaobjects, and convert it to a function.
+   The &args-r; are a set of arguments to which the methods are applicable,
+   and are used solely for error message purposes.</simpara>
+  <simpara>This function calls &compute-effective-method; using the &gf-r;'s
+   method combination, wraps local macro definitions for &call-method; and
+   &make-method; around it, handles the &arguments-k; and &gf-k; options,
+   and compiles the resulting form to a function.</simpara></listitem>
+</varlistentry></variablelist>
+</listitem></varlistentry></variablelist>
+</section><!-- compute-effective-method-as-function -->
 
 <section id="make-method-lambda">
  <title>Generic Function &make-method-lambda;</title>
@@ -3357,6 +3772,16 @@ override the system's definitions.</para>
   `(call-method ,(car methods) ,(cdr methods) ,(car methods)))
 </programlisting>
 </informalexample>
+
+<variablelist>
+ <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+ <listitem><simpara>The generic function &make-method-lambda; is not
+   implemented. Its specification is misdesigned: it mixes compile-time and
+   run-time behaviour.</simpara>
+  <simpara>&call-method; and method functions always expect exactly two
+   arguments: the list of arguments passed to the generic function, and the
+   list of next methods.</simpara></listitem></varlistentry>
+</variablelist>
 </section><!-- make-method-lambda -->
 
 <section id="compute-discriminating-function">
@@ -3423,6 +3848,15 @@ override the system's definitions.</para>
     (&gf-r; &standard-generic-function-t;))</literal></term>
   <listitem>&no-extra-spec;
    &overridable;</listitem></varlistentry></variablelist>
+
+<variablelist>
+ <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+ <listitem><simpara>Overriding methods can make use of the function
+   &compute-effective-method-as-function;. It is more convenient to call
+   &compute-effective-method-as-function; than &compute-effective-method;
+   because the definition of the local macros &call-method; and &make-method;
+   is implementation dependent.</simpara></listitem></varlistentry>
+</variablelist>
 </section><!-- compute-discriminating-function -->
 
 <!-- end generic-function advanced customization -->
@@ -3585,7 +4019,16 @@ argument is the method function.</simpara></listitem>
 argument is a list of the &declaration-specifier-glo;s from the
 &defmethod; form.  If there are no declarations in the macro form, this
 initialization argument either does not appear, or appears with a value
-of the empty list.</simpara></listitem>
+of the empty list.</simpara>
+<variablelist>
+ <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+ <listitem><simpara>No &declarations-k; initialization argument is
+  provided, because method initialization does not support a &declarations-k;
+  argument, and because the method function is already completely provided
+  through the &function-k; initialization argument.</simpara></listitem>
+ </varlistentry>
+</variablelist>
+</listitem>
 <listitem><simpara>The value of the &documentation-k; initialization
 argument is the documentation string from the &defmethod; form.  If
 there is no documentation string in the macro form this initialization
@@ -3699,6 +4142,13 @@ done by having the method lambda appear in the macro-expansion as the
 argument of the &function; special form.  During the subsequent
 evaluation of the macro-expansion, the result of the &function; special
 form is the method function.</para>
+
+<variablelist>
+ <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+ <listitem><simpara>The generic function &make-method-lambda; is not
+  implemented. Its specification is misdesigned: it mixes compile-time and
+  run-time behaviour.</simpara></listitem></varlistentry>
+</variablelist>
 </section><!-- mop-meth-init-defmethod-body -->
 
 <section id="mop-meth-init-defmethod-mo">
@@ -3731,6 +4181,18 @@ example is comparable to the method definition shown
                        initargs))))
 </programlisting></para>
 </section><!-- mop-meth-init-defmethod-mo -->
+
+<section id="mop-meth-efficiency"><title>Efficiency</title>
+
+<variablelist>
+ <varlistentry><term>Implementation dependent: only in &clisp; and some other
+   implementations.</term>
+ <listitem><simpara>Methods created through &defmethod; have a faster
+  calling convention than methods created through a portable &make-instance;
+  invocation.</simpara></listitem></varlistentry>
+</variablelist>
+</section><!-- mop-meth-efficiency -->
+
 </section><!-- mop-meth-init-defmethod -->
 
 <section id="mop-meth-init-mo">
@@ -3797,8 +4259,8 @@ subclasses of the class &method-t;.</para>
    defined for this class of method and generic function with which it
    will be used.  That is, it must accept the same number of arguments
    as all uses of &call-method; that will call it supply.  (See
-   &compute-effective-method; for more information.)  An &err-sig; if
-   this argument is not supplied.</simpara></listitem>
+   &compute-effective-method; and &make-method-lambda; for more information.)
+   An &err-sig; if this argument is not supplied.</simpara></listitem>
  <listitem><simpara> When the method being initialized is an instance of
    a subclass of &standard-accessor-method-t;, the &slotdef-k;
    initialization argument must be provided.  Its value is the direct
@@ -4488,6 +4950,14 @@ instances of <classname>point</classname> itself.
            2.0)))
 </programlisting>
 
+<variablelist>
+ <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+ <listitem><simpara>You cannot assume that the slot-location values start at 0.
+  In class <classname>point</classname>, for example,
+  <replaceable>x</replaceable> and <replaceable>y</replaceable> will be at slot
+  locations 1 and 2, not 0 and 1.</simpara></listitem></varlistentry>
+</variablelist>
+
 In more realistic uses of this mechanism, the calls to the low-level
 instance structure accessors would not actually appear textually in the
 source program, but rather would be generated by a meta-level analysis
@@ -4584,6 +5054,13 @@ objects linked, for example, by hash tables.)
     <listitem><simpara>The slot must be bound.</simpara></listitem>
    </itemizedlist></para>
   &else-undefined;</listitem></varlistentry></variablelist>
+
+<variablelist>
+ <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+ <listitem><simpara>The second and third restrictions don't apply in &clisp;.
+  &clisp;'s implementation supports non-updated obsolete instances and also
+  supports slots will allocation &class-k;.</simpara></listitem></varlistentry>
+</variablelist>
 </section><!-- standard-instance-access -->
 
 <section id="funcallable-standard-instance-access">
@@ -4619,6 +5096,13 @@ objects linked, for example, by hash tables.)
     </simpara></listitem><listitem><simpara>The slot must be bound.
    </simpara></listitem></itemizedlist></para>
   &else-undefined;</listitem></varlistentry></variablelist>
+
+<variablelist>
+ <varlistentry><term>Implementation dependent: only in &clisp;.</term>
+ <listitem><simpara>The second and third restrictions don't apply in &clisp;.
+  &clisp;'s implementation supports non-updated obsolete instances and also
+  supports slots will allocation &class-k;.</simpara></listitem></varlistentry>
+</variablelist>
 </section><!-- funcallable-standard-instance-access -->
 
 <section id="set-fif">
