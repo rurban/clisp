@@ -97,7 +97,15 @@ extern_C char* strerror (int errnum);
   #endif
   /* for MULTIMAP_MEMORY_VIA_FILE: */
   #if defined(UNIX_SUNOS4) || defined(UNIX_LINUX) || defined(UNIX_FREEBSD)
-    #include <sys/statfs.h>
+    #if HAVE_SYS_STATVFS_H
+      #include <sys/statvfs.h>
+    #elif HAVE_SYS_STATFS_H
+      #include <sys/statfs.h>
+    #else
+      /* Old BSDs define struct statfs in <sys/mount.h>. */
+      #include <sys/param.h>
+      #include <sys/mount.h>
+    #endif
   #endif
 #endif
 #ifdef HAVE_MACH_VM /* vm_allocate(), task_self(), ... available */
