@@ -1352,9 +1352,9 @@ The following additional packages exist:
   <li><b><code>SYSTEM</code></b>, with nicknames <b><code>SYS</code></b> and
       <b><code>COMPILER</code></b>, has no exported symbols. It defines many
       system internals.
-  <li><b><code>CHARSET</code></b> defines and exports some character sets,
-      for use with <code>make-encoding</code> and
-      as <code>:external-format</code> argument.
+  <li><a href="#encoding"><b><code>CHARSET</code></b></a> defines and
+      exports some character sets, for use with <code>make-encoding</code> and
+      as <a href="#extfmt"><code>:external-format</code></a> argument.
   <li><b><code>FFI</code></b> implements the <a href="#dffi">foreign function
       interface</a>. Not present on all platforms.
   <li><b><code>SCREEN</code></b> defines an API for <a href="#screen">random
@@ -1387,7 +1387,8 @@ keyword argument <code>:case-sensitive</code>.  Similarly,
 the package will be case sensitive, i.e. the reader will not
 case-convert symbol names before looking them up or creating them in
 this package. The package names are still subject to
-<code>(readtable-case *readtable*)</code>, though.
+<code>(<a href="CLHSROOT/Body/acc_readtable-case.html">readtable-case</a>
+<a href="CLHSROOT/Body/var_streadtablest.html">*readtable*</a>)</code>, though.
 
 <h2><a name="numbers"></a><a href="CLHSROOT/Body/chap-12.html">
     Chapter 12: Numbers</a></h2>
@@ -1454,13 +1455,13 @@ double-float and long-float:
 <table border=1>
   <tr> <th>type           <th>sign    <th>mantissa   <th>exponent  <th>comment
   <tr> <th>short-float    <td>1 bit   <td align=center>16+1 bits
-       <td align=center>8 bits   <td>&nbsp;
+       <td align=center>8 bits
   <tr> <th>single-float   <td>1 bit   <td align=center>23+1 bits
        <td align=center>8 bits   <td>CLISP uses IEEE format
   <tr> <th>double-float   <td>1 bit   <td align=center>52+1 bits
        <td align=center>11 bits  <td>CLISP uses IEEE format
   <tr> <th>long-float     <td>1 bit   <td align=center>&gt;=64 bits
-       <td align=center>32 bits   <TD>&nbsp;
+       <td align=center>32 bits
 </table>
 
 <P>The single and double float formats are those of the IEEE standard
@@ -3194,7 +3195,7 @@ the CLISP retains its traditional behavior:
 
 <p>Rationale: <code>merge-pathnames</code> is used to specify default
 components for pathnames, so there is some analogy between
-<code>(merge-pathnames a b)</code> and <code>(or a b)<code>. Obviously
+<code>(merge-pathnames a b)</code> and <code>(or a b)</code>. Obviously
 putting in the same default a second time should do the same as putting
 it in once: <code>(or a b b)</code> is the same as <code>(or a
 b)</code>, so <code>(merge-pathnames (merge-pathnames a b) b)</code>
@@ -3217,8 +3218,7 @@ non-<code>nil</code>, the normal ANSI CL behavior is exhibited:
             ==&gt; #P"y/x/"</code></pre>
 
 <p>The rationale is that "merge" is "merge" and not "or", in addition to
-simply being ANSI CL compliant and therefore not surprising to the
-users.
+simply being ANSI CL compliant and therefore not surprising to the users.
 
 <h2><a name="files"></a><a href="CLHSROOT/Body/chap-20.html">
     Chapter 20: Files</a></h2>
@@ -3262,19 +3262,18 @@ run in two modes:
  <LI>If <var>pathname</var> contains no name or type component, a list
   of all matching directories is produced.
  <LI>Otherwise a list of all matching files is returned. If the
-  <code>:full</code> argument is not <code>eq</code> to
-  <code>nil</code>, this contains additional information: for each
-  matching file you get a list of at least four elements
-  <code>(<var>file-pathname</var> <var>file-truename</var>
+  <code>:full</code> argument is non-<code>nil</code>, this contains
+  additional information: for each matching file you get a list of at
+  least four elements <code>(<var>file-pathname</var>
+  <var>file-truename</var>
   <var>file-write-date-as-decoded-time</var>
   <var>file-length</var>)</code>.
 </UL>
 <!-- #ifdef UNIX -->
 <DL>
 <DT><EM>Platform dependent: UNIX platforms only.</EM>
-<DD>If the <code>:circle</code> argument is not <code>eq</code> to
-<code>nil</code>, the function avoids endless loops that may result from
-symbolic links.
+<DD>If the <code>:circle</code> argument is non-<code>nil</code>, the
+function avoids endless loops that may result from symbolic links.
 </DL>
 <!-- #endif -->
 
@@ -3319,7 +3318,7 @@ to <code>(cd)</code>.  <code>(setf (lisp:default-directory)
 <h3><a href="CLHSROOT/Body/sec_21-1-1-1-3.html">
     21.1.1.1.3 Interactive Streams</a></h3>
 
-<p>Interactive streams are those whose next input might depend from a
+<p>Interactive streams are those whose next input might depend on a
 prompt one might output.
 
 <H3>terminal interaction.</H3>
@@ -3435,90 +3434,45 @@ This keyboard input is not echoed on the screen.  During execution of a
 
 <H3>printing and OS interface.</H3>
 
+<p>See also <A HREF="#shell"><code>(shell <var>command</var>)</code></A>.
+
 <p>The macro <code><STRONG>with-output-to-printer</STRONG></code>:<BR>
-       <code>(lisp:with-output-to-printer (<var>var</var> [:external-format])
+       <code>(lisp:with-output-to-printer (<var>var</var>
+         [<a href="#extfmt">:external-format</a>])
          {<var>declaration</var>}* {<var>form</var>}*)</code>
 binds the variable <var>var</var> to an output stream that sends its
 output to the printer.
-<br>Possible <code>:external-format</code> values are encodings,
-(constant) symbols in the <code>CHARSET</code> package, strings
-(denoting iconv() based encodings), the symbol <code>:default</code>,
-and the line terminator keywords <code>:unix</code>, <code>:mac</code>,
-<code>:dos</code>.
 
 <!-- #ifdef PIPES -->
 
-<P><DL>
+<P><a name="pipe"></a><DL>
 <DT><EM>Platform dependent: UNIX, OS/2, Win32 platforms only.</EM>
 
 <DD><code>(<STRONG>make-pipe-input-stream</STRONG> <var>command</var>
-[:element-type] [:external-format] [:buffered])</code> returns an input
-stream that will supply the output from the execution of the given
-operating system command.
-
-<br>Possible <code>:element-type</code> values are types equivalent to
-<code>character</code> or <code>(unsigned-byte <var>n</var>)</code>,
-<code>(signed-byte <var>n</var>)</code>; if the stream is to be
-unbuffered, <var>n</var> must be a multiple of 8.
-
-<br>Possible <code>:external-format</code> values are encodings,
-(constant) symbols in the <code>CHARSET</code> package, strings
-(denoting iconv() based encodings), the symbol <code>:default</code>,
-and the line terminator keywords <code>:unix</code>, <code>:mac</code>,
-<code>:dos</code>.
-
-<br>Possible <code>:buffered</code> values are <code>nil</code>,
-<code>t</code>, or <code>:default</code>; <code>:default</code> is
-equivalent to <code>nil</code>.
-
-<br>See also <A HREF="#shell"><code>(shell <var>command</var>)</code></A>.
+           [<a href="#eltype">:element-type</a>]
+           [<a href="#extfmt">:external-format</a>]
+           [<a href="#buffered">:buffered</a>])</code>
+returns an input stream that will supply the output from the execution
+of the given operating system command.
 
 <P><code>(<STRONG>make-pipe-output-stream</STRONG> <var>command</var>
-[:element-type] [:external-format] [:buffered])</code> returns an output
-stream that will pass its output as input to the execution of the given
-operating system command.
+          [<a href="#eltype">:element-type</a>]
+          [<a href="#extfmt">:external-format</a>]
+          [<a href="#buffered">:buffered</a>])</code>
+returns an output stream that will pass its output as input to the
+execution of the given operating system command.
 
-<br>Possible <code>:element-type</code> values are types equivalent to
-<code>character</code> or <code>(unsigned-byte <var>n</var>)</code>,
-<code>(signed-byte <var>n</var>)</code>; if the stream is to be
-unbuffered, <var>n</var> must be a multiple of 8.
-
-<br>Possible <code>:external-format</code> values are encodings,
-(constant) symbols in the <code>CHARSET</code> package, strings
-(denoting iconv() based encodings), the symbol <code>:default</code>,
-and the line terminator keywords <code>:unix</code>, <code>:mac</code>,
-<code>:dos</code>.
-
-<br>Possible <code>:buffered</code> values are <code>nil</code>,
-<code>t</code>, or <code>:default</code>; <code>:default</code> is
-equivalent to <code>nil</code>.
-
-<br>See also <A HREF="#shell"><code>(shell <var>command</var>)</code></A>.
 <!-- #ifdef PIPES2 -->
-
 <P><code>(<STRONG>make-pipe-io-stream</STRONG> <var>command</var>
-[:element-type] [:external-format] [:buffered])</code> returns three
-values. The first value is a bidirectional stream that will
-simultaneously pass its output as input to the execution of the given
-operating system command and supply the output from this command as
-input. The second and third value will be the input stream and the
+          [<a href="#eltype">:element-type</a>]
+          [<a href="#extfmt">:external-format</a>]
+          [<a href="#buffered">:buffered</a>])</code>
+returns three values. The first value is a bidirectional stream that
+will simultaneously pass its output as input to the execution of the
+given operating system command and supply the output from this command
+as input. The second and third value will be the input stream and the
 output stream that make up the I/O stream, respectively.  Note that they
 must be closed individually.
-
-<BR>Possible <code>:element-type</code> values are types equivalent to
-<code>character</code> or <code>(unsigned-byte <var>n</var>)</code>,
-<code>(signed-byte <var>n</var>)</code>; if the stream is to be
-unbuffered, <var>n</var> must be a multiple of 8.
-
-<br>Possible <code>:external-format</code> values are encodings,
-(constant) symbols in the <code>CHARSET</code> package, strings
-(denoting iconv() based encodings), the symbol <code>:default</code>,
-and the line terminator keywords <code>:unix</code>, <code>:mac</code>,
-<code>:dos</code>.
-
-<BR>Possible <code>:buffered</code> values are <code>nil</code>,
-<code>t</code>, or <code>:default</code>; <code>:default</code> is
-equivalent to <code>nil</code>.
 
 <BR>Warning: Improper use of this function can lead to deadlocks. You
 use it at your own risk!
@@ -3527,15 +3481,47 @@ use it at your own risk!
 read from each other at the same time or both try to write to each other
 at the same time. To avoid deadlocks, it is recommended that you fix a
 protocol between the command and your program and avoid any hidden
-buffering: Use <code>read-char</code>, <code>read-char-no-hang</code>,
-<code>listen</code> instead of <code>read-line</code> and
-<code>read</code> on the input side, and complete every output operation
-by a <code>finish-output</code>. The same cautions must apply to the
+buffering: Use <a href="CLHSROOT/Body/fun_read-char.html">
+<code>read-char</code></a>, <a href="CLHSROOT/Body/fun_read-char-no-hang.html">
+<code>read-char-no-hang</code></a>,
+<a href="CLHSROOT/Body/fun_listen.html">
+<code>listen</code></a> instead of <a href="CLHSROOT/Body/fun_read-line.html">
+<code>read-line</code></a> and
+<a href="CLHSROOT/Body/fun_readcm_re_g-whitespace.html">
+<code>read</code></a> on the input side, and complete every output operation
+by a <a href="CLHSROOT/Body/fun_finish-ou_clear-output.html">
+<code>finish-output</code></a>. The same cautions must apply to the
 called command as well.
 
-<br>See also <A HREF="#shell"><code>(shell <var>command</var>)</code></A>.
 <!-- #endif -->
 </DL>
+
+<p>For all functions that accept these keywords, the acceptable values are:
+<dl>
+ <dt><a name="eltype"<code>:element-type</code></a>
+  <dd>types equivalent to <code>character</code> or <code>(unsigned-byte
+   <var>n</var>)</code>, <code>(signed-byte <var>n</var>)</code>; if the
+   stream is to be unbuffered, <var>n</var> must be a multiple of 8.
+ <dt><a name="extfmt"><code>:external-format</code></a>
+  <dd>encodings, (constant) symbols in the <a
+   href="#encoding"><code>CHARSET</code></a> package, strings (denoting
+   <a href="#iconv">iconv()</a> based encodings), the symbol
+   <code>:default</code>, and the line terminator keywords
+   <code>:unix</code>, <code>:mac</code>, <code>:dos</code>.  The
+   default encoding is <code><strong>*default-file-encoding*</strong></code>.
+ <dt><a name="buffered"><code>:buffered</code>
+  <dd><code>nil</code>, <code>t</code>, or <code>:default</code>.
+  <ul>
+   <li>for functions that create <a href="#socket">sockets</a> and
+     <a href="#pipe">pipes</a>, <code>:default</code> is equivalent
+     to <code>nil</code>;
+    <li>for functions that <a href="#open">open</a> files,
+     <code>:default</code> means that buffered file streams will be
+     returned for regular files and (on Unix) block-devices, and
+     unbuffered file streams for special files.
+  </ul>
+</dl>
+
 <!-- #endif -->
 
 <!-- #ifdef GENERIC_STREAMS -->
@@ -3645,33 +3631,26 @@ if both the old and the new element type are either
 </DL>
 <!-- #endif -->
 
+<a name="open"></a>
 <h4><a href="CLHSROOT/Body/fun_open.html">
     open</a></h4>
 
-<p><code>open</code> cannot handle files of size &gt;= 4 GB.
+<p><a href="CLHSROOT/Body/fun_open.html">
+<code>open</code></a> cannot handle files of size &gt;= 4 GB.
 
-<p>Possible values for the <code>:external-format</code> argument of the
-function <code>open</code> are: encodings,
-(constant) symbols in the <code>CHARSET</code> package, strings
-(denoting iconv() based encodings), the symbol <code>:default</code>,
-and the line terminator keywords <code>:unix</code>, <code>:mac</code>,
-<code>:dos</code>.
-
-<p><code>open</code> has an additional keyword argument
-<code>:buffered</code>. It determines whether the file stream returned
-is buffered or not. Possible values for it are <code>nil</code>,
-<code>t</code>, or <code>:default</code>. If it is
-<code>:default</code>, buffered file streams will be returned for
-regular files and (on Unix) block-devices, and unbuffered file streams
-for special files.
+<p><a href="CLHSROOT/Body/fun_open.html">
+<code>open</code></a> accepts three additional keywords:
+<a href="#extfmt"><code>:external-format</code></a>,
+<a href="#eltype"><code>:element-type</code></a>, and
+<a href="#buffered"><code>:buffered</code></a>.
 
 <h4><a href="CLHSROOT/Body/syscla_broadcast-stream.html">
     broadcast-stream</a></h4>
 
-<a href="CLHSROOT/Body/fun_input-str_put-stream-p.html"><code>input-stream-p</code></a>
-and
-<a href="CLHSROOT/Body/fun_interactive-stream-p.html"><code>interactive-stream-p</code></a>
-return false for
+<a href="CLHSROOT/Body/fun_input-str_put-stream-p.html">
+<code>input-stream-p</code></a> and
+<a href="CLHSROOT/Body/fun_interactive-stream-p.html">
+<code>interactive-stream-p</code></a> return false for
 <a href="CLHSROOT/Body/glo_b.html#broadcast_stream">broadcast streams</a>.
 
 <h2><a name="printer"></a><a href="CLHSROOT/Body/chap-22.html">
@@ -3683,18 +3662,18 @@ return false for
 <P>An additional variable
 <code><strong>lisp:*print-closure*</strong></code> controls whether
 compiled and interpreted functions (closures) are output in detailed
-form. If <code>*print-closure*</code> not <code>eq</code> to
-<code>nil</code>, compiled closures are output in <code>#Y</code> syntax
-the reader understands. <code>*print-closure*</code> is initially set to
+form. If <code>*print-closure*</code> non-<code>nil</code>, compiled
+closures are output in <code>#Y</code> syntax the reader
+understands. <code>*print-closure*</code> is initially set to
 <code>nil</code>.
 
 <P>An additional variable
 <code><strong>lisp:*print-rpars*</strong></code> controls the output of
-right (closing) parentheses. If <code>*print-rpars*</code> not
-<code>eq</code> to <code>nil</code>, closing parentheses which don't fit
-onto the same line as the the corresponding opening parenthesis are
-output just below their corresponding opening parenthesis, in the same
-column.  <code>*print-rpars*</code> is initially set to <code>t</code>.
+right (closing) parentheses. If <code>*print-rpars*</code>
+non-<code>nil</code>, closing parentheses which don't fit onto the same
+line as the the corresponding opening parenthesis are output just below
+their corresponding opening parenthesis, in the same column.
+<code>*print-rpars*</code> is initially set to <code>t</code>.
 
 <P>An additional variable
 <code><strong>lisp:*print-indent-lists*</strong></code> controls the
@@ -5305,9 +5284,8 @@ set. See <a href="#characters">chapter 13</a>.
 <!-- #else -->
 <DT><EM>Platform dependent: Only in clisp binaries built with
         compile-time flag <code>UNICODE</code>.</EM>
-<DD>
-The following character sets are supported, as values of the corresponding
-(constant) symbol in the <code>CHARSET</code> package.
+<DD>The following character sets are supported, as values of the
+corresponding (constant) symbol in the <code>CHARSET</code> package.
 <ul>
   <li><code>UCS-2</code> = <code>UNICODE-16</code>
       = <code>UNICODE-16-BIG-ENDIAN</code>,
@@ -5491,24 +5469,28 @@ The following character sets are supported, as values of the corresponding
 <p>
 <!-- #ifdef HAVE_ICONV -->
 <DL>
-<DT><EM>Platform dependent: Only on Unix systems having the C library
-        function iconv().</EM>
+<DT><a name="iconv"></a><EM>Platform dependent: Only on Unix systems
+    having the C library function iconv().</EM>
 <DD>
 The character sets provided by the library function iconv() can also
 be used as encodings. To create such an encoding, call
 <code>make-encoding</code> with the character set name (a string) as
 <code>:charset</code> argument.
+
 <p>These encodings are not assigned to global variables, since there
 is no portable way to get the list of all character sets supported
 by iconv().
+
 <p>On Linux and GNU systems, you get this list by calling
 the <em>program</em> iconv: <code>iconv --list</code>. GNU glibc-2.1
 supports in particular, among others:
 <ul>
-  <li><code>EUC-JP</code> and <code>SHIFT-JIS</code>, for the Japanese language,
+  <li><code>EUC-JP</code> and <code>SHIFT-JIS</code>, for the Japanese
+      language,
   <li><code>EUC-TW</code>, <code>BIG5</code> and <code>GB</code>, for the
       Chinese language,
-  <li><code>EUC-KR</code> and <code>ISO-2022-KR</code>, for the Korean language.
+  <li><code>EUC-KR</code> and <code>ISO-2022-KR</code>, for the Korean
+      language.
 </ul>
 <p>HP-UX systems support in particular, among others:
 <ul>
@@ -5541,12 +5523,12 @@ and available across platforms.
 
 <p>The line terminator mode can be one of the following three keywords:
 <ul>
-  <li><code>:unix</code>.<br> Newline is represented by the ASCII LF character
-      (U000A).
-  <li><code>:mac</code>.<br> Newline is represented by the ASCII CR character
-      (U000D).
-  <li><code>:dos</code>.<br> Newline is represented by ASCII CR followed by
-      ASCII LF.
+  <li><code>:unix</code>.<br> Newline is represented by the ASCII LF
+      character (U000A).
+  <li><code>:mac</code>.<br> Newline is represented by the ASCII CR
+      character (U000D).
+  <li><code>:dos</code>.<br> Newline is represented by ASCII CR followed
+      by ASCII LF.
 </ul>
 Windows programs typically use the <code>:dos</code> line terminator,
 sometimes they also accept <code>:unix</code> line terminators or produce
@@ -5561,23 +5543,25 @@ LF, CR and CR/LF, you have to resort to binary input (function
 <p>The function <code>(<STRONG>lisp:make-encoding</STRONG> [:charset]
 [:line-terminator])</code> returns an encoding. The
 <code>:charset</code> argument may be an encoding, a string, or
-<code>:default</code>. The possible values for the
+<code>:default</code>.  The possible values for the
 <code>:line-terminator</code> argument are the keywords
 <code>:unix</code>, <code>:mac</code>, <code>:dos</code>.
 
-<p>Encodings are types. As such, they represent the set of characters
-encodable in the character set. In this context, the way characters are
+<p>Encodings are types.  As such, they represent the set of characters
+encodable in the character set.  In this context, the way characters are
 translated into raw bytes is ignored, and the line terminator mode is
 ignored as well. <a href="CLHSROOT/Body/fun_typep.html"><code>typep</code></a>
 and <a href="CLHSROOT/Body/fun_subtypep.html"><code>subtypep</code></a> can
 be used on encodings.
 
-<p>Besides every file/pipe/socket stream containing an encoding, the following
+<p>Besides every <a href="#open">file</a>/<a href="#pipe">pipe</a>/<a
+href="#socket">socket</a> stream containing an encoding, the following
 symbol-macro places contain global encodings.
 
 <p><code><strong>*default-file-encoding*</strong></code> is the encoding
-used for new file/pipe/socket streams, when no <code>:external-format</code>
-argument was specified.
+used for new <a href="#open">file</a>/<a href="#pipe">pipe</a>/<a
+href="#socket">socket</a> streams, when no <code><a
+href="#extfmt">:external-format</a></code> argument was specified.
 
 <!-- #ifdef UNICODE -->
 <DL>
@@ -5736,7 +5720,7 @@ platform-independent command line options:
               (make-pathname :name #+(unix amiga) ".clisprc"
                                    #+win32 "_clisprc" #+dos "_CLISPRC")
               (user-homedir-pathname)))</code></pre>
-  on before entering the Read/Eval/Print loop.
+  before entering the Read/Eval/Print loop.
  <dt><strong>-i file</strong>
   <dd>Load initfile, then enter the Read/Eval/Print loop.  This option
   can be repeated several times.
@@ -7390,12 +7374,16 @@ connect on the socket-server.  Without an argument,
 <code>socket-wait</code> blocks indefinitely.
 <DT>
 <code>(<STRONG>socket-accept</STRONG> <var>socket-server</var>
-       [:element-type] [:external-format] [:buffered])</code>
+       [<a href="#eltype">:element-type</a>]
+       [<a href="#extfmt">:external-format</a>]
+       [<a href="#buffered">:buffered</a>])</code>
 <DD>
 Creates the server-side two-way stream for the connection.
 <DT>
 <code>(<STRONG>socket-connect</STRONG> <var>port</var> [<var>host</var>]
-       [:element-type] [:external-format] [:buffered])</code>
+       [<a href="#eltype">:element-type</a>]
+       [<a href="#extfmt">:external-format</a>]
+       [<a href="#buffered">:buffered</a>])</code>
 <DD>
 Attempts to create a client-side two-way stream.  Blocks until
 the server accepts the connections.
@@ -7437,11 +7425,11 @@ name and port number, but for the local host.
 <a name="script"></a><H3>Extensions-3.7. CLISP as a script interpreter</H3>
 
 <EM>Platform dependent: UNIX platforms only.</EM>
-<P>
-On Unix, a script can be made executable by adding a first line of the form
-<PRE>
-<code>#!<var>interpreter</var> [<var>interpreter-args</var>]
-</code></PRE>
+<p>On Unix, a script can be made executable by adding a first line of
+the form
+
+<pre><code>#!<var>interpreter</var> [<var>interpreter-args</var>]</code></PRE>
+
 and <code>chmod</code>ing the script to be executable. CLISP can be used
 as a script interpreter under the following circumstances:
 <OL>
@@ -7482,16 +7470,36 @@ as a script interpreter under the following circumstances:
    split the <var>interpreter-args</var> at hard spaces and at normal
    spaces.
 </OL>
-<P>The script should contain Lisp forms, except in the #! line. The file
-is normally loaded, through the function <code>load</code>. Before it is
-loaded, the variable <code>*args*</code> is bound to a list of strings,
-representing the arguments given to the Lisp
-script. <code>*standard-input*</code> and <code>*standard-output*</code>
-are bound, as usual, to the Unix standard input and
-output. <code>*error-output*</code> is bound to the Unix error
-output. Continuable errors will be turned to warnings. Non-continuable
-errors and Ctrl-C interrupts will terminate the execution of the Lisp
-script with error status.
+
+<P>The script should contain Lisp forms, except in the #! line.  The
+file is normally loaded, through the function
+<a href="CLHSROOT/Body/fun_load.html">
+<code>load</code></a>.  Before it is loaded, the variable
+<code>lisp:*args*</code> is bound to a list of strings, representing the
+arguments given to the Lisp script.
+<a href="CLHSROOT/Body/var_stdebug-i_ace-outputst.html">
+<code>*standard-input*</code></a> and
+<a href="CLHSROOT/Body/var_stdebug-i_ace-outputst.html">
+<code>*standard-output*</code></a> are bound, as usual, to the Unix standard
+input and output.  <a href="CLHSROOT/Body/var_stdebug-i_ace-outputst.html">
+<code>*error-output*</code></a> is bound to the Unix error output.
+Continuable errors will be turned to warnings.  Non-continuable errors
+and Ctrl-C interrupts will terminate the execution of the Lisp script
+with error status.
+
+<p>Another, quite inferior, option is to put the following into a file:
+
+<pre><code>#!/bin/sh
+exec /usr/local/clisp/lisp.run -M /usr/local/clisp/lispinit.mem &lt;&lt;EOF
+(lisp-form)
+(another-lisp-form)
+(yet-another-lisp-form)
+EOF
+</pre></code>
+
+<p>The problem with this approach is that the return values of each form
+will be printed to the standard output.  Another problem is that no user
+imput will be available.
 
 <!-- #endif -->
 
@@ -7587,9 +7595,11 @@ function <code>make-pipe-io-stream</code>. This use of
 <DT><EM>Platform dependent: Amiga platforms only.
 </EM>
 <DD>
-To have <code>*debug-io*</code> and <code>*error-output*</code> point to
-separate console windows (thus keeping your standard console window
-clean from error messages) you can use
+To have <a href="CLHSROOT/Body/var_stdebug-i_ace-outputst.html">
+<code>*debug-io*</code></a> and
+<a href="CLHSROOT/Body/var_stdebug-i_ace-outputst.html">
+<code>*error-output*</code></a> point to separate console windows (thus
+keeping your standard console window clean from error messages) you can use
 <PRE>
 <code>  (setq *error-output*
     (setq *debug-io*
@@ -7619,14 +7629,15 @@ at startup.
 <HR>
 
 <h3>CLISP implementation notes</h3>
+
 <a href="mailto:haible@clisp.cons.org">Bruno Haible</a><br>
 <a href="mailto:sds@gnu.org">Sam Steingold</a>
-<p>
-<address><a href="mailto:clisp-list@clisp.cons.org">
- &lt;clisp-list@clisp.cons.org&gt;</a></address>
-<p>
 
-<center>
+<p>Bugs in both these notes and CLISP itself should be sent to:
+ <address><a href="mailto:clisp-list@clisp.cons.org">
+ &lt;clisp-list@clisp.cons.org&gt;</a></address>
+
+<p><center>
 <a href="http://validator.w3.org/">Valid HTML 3.2!</a>
 <!-- <img border=0 src="http://validator.w3.org/images/vh32.gif"
      alt="Valid HTML 3.2!" height=31 width=88> -->
