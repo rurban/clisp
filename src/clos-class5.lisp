@@ -358,7 +358,7 @@
 #||
  (defgeneric allocate-instance (class)
   (:method ((class standard-class))
-    (unless (class-precedence-list class) (class-finalize class t))
+    (unless (class-precedence-list class) (finalize-class class t))
     (allocate-std-instance class (class-instance-size class)))
   (:method ((class structure-class))
     (sys::%make-structure (class-names class) (class-instance-size class)
@@ -370,7 +370,7 @@
   ;; Quick and dirty dispatch among <standard-class> and <structure-class>.
   ;; (class-shared-slots class) is a simple-vector, (class-names class) a cons.
   (if (atom (class-shared-slots class))
-    (progn (unless (class-precedence-list class) (class-finalize class t))
+    (progn (unless (class-precedence-list class) (finalize-class class t))
       (allocate-std-instance class (class-instance-size class)))
     (sys::%make-structure (class-names class) (class-instance-size class)
                           :initial-element unbound)))
@@ -571,7 +571,7 @@
   (:method ((name symbol)) (class-finalized-p (find-class name))))
 
 (defgeneric finalize-inheritance (class)
-  (:method ((class standard-class)) (class-finalize class t))
+  (:method ((class standard-class)) (finalize-class class t))
   (:method ((name symbol)) (finalize-inheritance (find-class name))))
 
 ;;; Utility functions

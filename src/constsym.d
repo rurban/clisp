@@ -751,7 +751,6 @@ LISPSYM(finalize,"FINALIZE",ext)
 LISPSYM(structure_object_p,"STRUCTURE-OBJECT-P",clos)
 LISPSYM(std_instance_p,"STD-INSTANCE-P",clos)
 LISPSYM(allocate_std_instance,"ALLOCATE-STD-INSTANCE",clos)
-LISPSYM(class_finalize,"CLASS-FINALIZE",clos)
 LISPSYM(pallocate_instance,"%ALLOCATE-INSTANCE",clos)
 LISPSYM(slot_value,"SLOT-VALUE",clos)
 LISPSYM(set_slot_value,"SET-SLOT-VALUE",clos)
@@ -1271,6 +1270,7 @@ LISPSYM(initial_reinitialize_instance,"INITIAL-REINITIALIZE-INSTANCE",clos) /* f
 LISPSYM(initial_initialize_instance,"INITIAL-INITIALIZE-INSTANCE",clos) /* function for RECORD */
 LISPSYM(initial_make_instance,"INITIAL-MAKE-INSTANCE",clos) /* function for RECORD */
 LISPSYM(allocate_instance,"ALLOCATE-INSTANCE",clos) /* function for RECORD */
+LISPSYM(finalize_class,"FINALIZE-CLASS",clos) /* function for RECORD */
 LISPSYM(simple_vector,"SIMPLE-VECTOR",lisp) /* type in SEQUENCE, PREDTYPE */
 LISPSYM(simple_string,"SIMPLE-STRING",lisp) /* type in SEQUENCE, PREDTYPE */
 LISPSYM(base_string,"BASE-STRING",lisp) /* type in SEQUENCE, PREDTYPE */
