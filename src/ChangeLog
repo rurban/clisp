@@ -1,5 +1,10 @@
 2004-03-16  Bruno Haible  <bruno@clisp.org>
 
+	* arilev0.d (divu_3216_1616_, divu_3216_3216_): Change from K&R C to
+	ANSI C style function definition. Needed on AIX with xlc.
+
+2004-03-16  Bruno Haible  <bruno@clisp.org>
+
 	* stream.d (strm_unbuffered_extrafields_t, strm_buffered_extrafields_t):
 	Change type of bitfields from 'bool' to 'int', because 'bool' can now
 	be equivalent to 'long'. Needed on AIX 4 with xlc.
