@@ -2522,6 +2522,22 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
             ThePathname(pathname)->pathname_type = type;
           }
         #endif
+        #ifdef WIN32_NATIVE
+          var object pathname = STACK_0;
+          var object dir = ThePathname(pathname)->pathname_directory;
+          var object dev = Symbol_value(S(device_prefix));
+          if (nullp(ThePathname(pathname)->pathname_device) &&
+              eq(Car(dir),S(Kabsolute)) && !nullp(Cdr(Cdr(dir))) &&
+              stringp(dev) &&
+              string_eqcomp_ci(Car(Cdr(dir)),0,dev,0,vector_length(dev))) {
+            # path = (:ABSOLUTE "cygdrive" "drive" "dir1" ...) ===>
+            # path = (:ABSOLUTE "dir1" ...); device = "DRIVE"
+            ThePathname(pathname)->pathname_device = Car(Cdr(Cdr(dir)));
+            Cdr(dir) = Cdr(Cdr(Cdr(dir)));
+            ThePathname(pathname)->pathname_device =
+              string_upcase(ThePathname(pathname)->pathname_device);
+          }
+        #endif
       }
     }
     # Pathname is finished.

@@ -600,6 +600,7 @@ LISPSYM(execute,"EXECUTE",ext)
 #ifdef HAVE_SHELL
 #ifdef WIN32_NATIVE
 LISPSYM(shell_name,"SHELL-NAME",system)
+LISPSYM(device_prefix,"*DEVICE-PREFIX*",custom)
 #endif
 LISPSYM(shell,"SHELL",ext)
 #endif

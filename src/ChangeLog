@@ -1,5 +1,14 @@
 2001-07-25  Sam Steingold  <sds@gnu.org>
 
+	Win32: understand Cygwin's /sygdrive/[letter] pathnames
+	* pathname.d (parse_namestring): translate :directory (:absolute
+	*device-prefix* "c" ...) to :device "C" :device (:absolute ...)
+	* cfgwin32.lisp (*device-prefix*): set to "cygdrive"
+	* constsym.lisp (*device-prefix*): added
+	* spvw.d (*device-prefix*): defined
+
+2001-07-25  Sam Steingold  <sds@gnu.org>
+
 	* socket.d (create_client_socket, create_server_socket):
 	 avoid warnings
 
