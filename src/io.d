@@ -3573,7 +3573,7 @@ LISPFUNN(array_reader,3) { # reads #A
 # fehler_read_eval_forbidden(&stream,obj); english: erro_read_eval_forbidden(&stream,obj);
 # > stream: Stream
 # > obj: Object, whose Evaluation was examined
-nonreturning_function(local, fehler_read_eval_forbidden, (gcv_object_t* stream_, object obj)) {
+nonreturning_function(local, fehler_read_eval_forbidden, (const gcv_object_t* stream_, object obj)) {
   pushSTACK(*stream_); # STREAM-ERROR slot STREAM
   pushSTACK(obj); # Object
   pushSTACK(NIL); # NIL
@@ -5734,7 +5734,7 @@ local void klammer_zu (const gcv_object_t* stream_) {
 
 /* forward declarations for *PRINT-LINES* */
 local bool check_lines_limit (void);
-local void double_dots (const gcv_object_t*);
+local void double_dots (const gcv_object_t* stream_);
 #define CHECK_LINES_LIMIT(finally) \
   if (check_lines_limit()) { double_dots(stream_); finally; }
 
