@@ -7,7 +7,7 @@ RM = rm -f
 SED = sed
 ROFF_MAN = groff -Tascii -mandoc
 
-all : avcall-i386.S avcall-i386-msvc.c avcall.h.msvc avcall-m68k.mit.S avcall-m68k.mot.s avcall-m68k-amiga.s avcall-mips.S avcall-mipsn32.S avcall-mips64.S avcall-sparc.S avcall-alpha.s avcall-hppa.s avcall-arm.S avcall-rs6000-aix.old.s avcall-rs6000-aix.new.s avcall-rs6000-sysv4.s avcall-m88k.s avcall-convex.s avcall.man
+all : avcall-i386.S avcall-i386-msvc.c avcall.h.msvc avcall-m68k.mit.S avcall-m68k.mot.s avcall-m68k-amiga.s avcall-mips.S avcall-mipsn32.S avcall-mips64.S avcall-sparc.S avcall-sparc64.S avcall-alpha.s avcall-hppa.s avcall-arm.S avcall-rs6000-aix.old.s avcall-rs6000-aix.new.s avcall-rs6000-sysv4.s avcall-m88k.s avcall-convex.s avcall.man
 
 avcall-i386.S : avcall-i386.c avcall.h.in asmi386.sh
 	$(GCC) -V 2.7.2 -b i486-linuxaout $(GCCFLAGS) -D__i386__ -fno-omit-frame-pointer -S avcall-i386.c -o avcall-i386.s
@@ -50,6 +50,11 @@ avcall-sparc.S : avcall-sparc.c avcall.h.in asmsparc.sh
 	$(GCC) -V 2.6.3 -b sparc-sun $(GCCFLAGS) -D__sparc__ -S avcall-sparc.c -o avcall-sparc.s
 	(echo '#include "asmsparc.h"' ; ./asmsparc.sh < avcall-sparc.s) > avcall-sparc.S
 	$(RM) avcall-sparc.s
+
+avcall-sparc64.S : avcall-sparc64.c avcall.h.in asmsparc.sh
+	sparc64-linux-gcc -V 2.95 -b sparc64-linux $(GCCFLAGS) -D__sparc64__ -S avcall-sparc64.c -o avcall-sparc64.s
+	(echo '#include "asmsparc.h"' ; ./asmsparc64.sh < avcall-sparc64.s) > avcall-sparc64.S
+	$(RM) avcall-sparc64.s
 
 # Patrick Bridges says that on Linux/Alpha, avcall-alpha.s compiled with "-O"
 # works but compiled with "-O2" doesn't work.

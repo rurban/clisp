@@ -53,8 +53,11 @@ register void* env __asm__("$2");
 #ifdef __mips64__
 register void* env __asm__("$2");
 #endif
-#ifdef __sparc__
+#if defined(__sparc__) && !defined(__sparc64__)
 register void* env __asm__("%g2");
+#endif
+#ifdef __sparc64__
+register void* env __asm__("%g5");
 #endif
 #ifdef __alpha__
 register void* env __asm__("$1");

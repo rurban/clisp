@@ -21,6 +21,9 @@
 #ifndef __sparc__
 #undef __sparc__
 #endif
+#ifndef __sparc64__
+#undef __sparc64__
+#endif
 #ifndef __alpha__
 #undef __alpha__
 #endif

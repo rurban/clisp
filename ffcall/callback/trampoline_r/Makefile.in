@@ -74,6 +74,12 @@ cache-sparc.lo : cache-sparc.s
 cache-sparc.s : $(srcdir)/cache-sparc.S
 	$(CPP) $(ASPFLAGS) $(srcdir)/cache-sparc.S | grep -v '^ *#line' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,//.*$$,,' -e 's,\$$,#,g' > cache-sparc.s
 
+cache-sparc64.lo : cache-sparc64.s
+	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c cache-sparc64.s
+
+cache-sparc64.s : $(srcdir)/cache-sparc.S
+	$(CPP) $(ASPFLAGS) $(srcdir)/cache-sparc.S | grep -v '^ *#line' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,//.*$$,,' -e 's,\$$,#,g' > cache-sparc64.s
+
 cache-alpha.lo : $(srcdir)/cache-alpha.s
 	$(LIBTOOL_COMPILE) $(CC) @GCC_X_NONE@ -c $(srcdir)/cache-alpha.s
 
@@ -150,7 +156,7 @@ check : all test1 test2
 mostlyclean : clean
 
 clean : force
-	$(RM) $(OBJECTS) `echo $(OBJECTS) | sed -e 's/\.lo/.o/g'` tramp-rs6000.s cache-sparc.s libtrampoline.* core
+	$(RM) $(OBJECTS) `echo $(OBJECTS) | sed -e 's/\.lo/.o/g'` tramp-rs6000.s cache-sparc.s cache-sparc64.s libtrampoline.* core
 	$(RM) -r .libs _libs
 	$(RM) test1.o test1 test2.o test2
 

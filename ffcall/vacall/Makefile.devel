@@ -7,7 +7,7 @@ RM = rm -f
 SED = sed
 ROFF_MAN = groff -Tascii -mandoc
 
-all : vacall-i386.S vacall-i386-msvc.c vacall-m68k.mit.S vacall-m68k.mot.s vacall-mips.S vacall-mipsn32.S vacall-mips64.S vacall-sparc.S vacall-alpha.s vacall-hppa.s vacall-arm.S vacall-rs6000-aix.old.s vacall-rs6000-aix.new.s vacall-rs6000-sysv4.s vacall-m88k.s vacall-convex.s vacall.man \
+all : vacall-i386.S vacall-i386-msvc.c vacall-m68k.mit.S vacall-m68k.mot.s vacall-mips.S vacall-mipsn32.S vacall-mips64.S vacall-sparc.S vacall-sparc64.S vacall-alpha.s vacall-hppa.s vacall-arm.S vacall-rs6000-aix.old.s vacall-rs6000-aix.new.s vacall-rs6000-sysv4.s vacall-m88k.s vacall-convex.s vacall.man \
       vacall.h.msvc config.h.msvc
 
 vacall-i386.S : vacall-i386.c vacall.h.in asmi386.sh
@@ -45,6 +45,11 @@ vacall-sparc.S : vacall-sparc.c vacall.h.in asmsparc.sh
 	$(GCC) -V 2.6.3 -b sparc-sun $(GCCFLAGS) -D__sparc__ -S vacall-sparc.c -o vacall-sparc.s
 	(echo '#include "asmsparc.h"' ; ./asmsparc.sh < vacall-sparc.s) > vacall-sparc.S
 	$(RM) vacall-sparc.s
+
+vacall-sparc64.S : vacall-sparc64.c vacall.h.in asmsparc.sh
+	sparc64-linux-gcc -V 2.95 -b sparc64-linux $(GCCFLAGS) -D__sparc64__ -S vacall-sparc64.c -o vacall-sparc64.s
+	(echo '#include "asmsparc.h"' ; ./asmsparc64.sh < vacall-sparc64.s) > vacall-sparc64.S
+	$(RM) vacall-sparc64.s
 
 vacall-alpha.s : vacall-alpha.c vacall.h.in
 	$(GCC) -V 2.7.2 -b alpha-dec-osf $(GCCFLAGS) -D__alpha__ -S vacall-alpha.c -o vacall-alpha-temp.s
