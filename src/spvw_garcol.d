@@ -86,7 +86,7 @@ local void move_conses (sintL delta);
 local void gc_mark_stack (gcv_object_t* objptr)
 {
   while (!eq(*objptr,nullobj)) { /* until STACK is finished: */
-    IF_DEBUG_GC_MARK(fprintf(stderr,"gc_mark_stack: 0x%x/%u (%u)\n",
+    IF_DEBUG_GC_MARK(fprintf(stderr,"gc_mark_stack: 0x%lx/%lu (%lu)\n",
                              objptr,objptr,as_oint(*objptr)));
     if (as_oint(*objptr) & wbit(frame_bit_o)) { /* does a frame start here? */
       if ((as_oint(*objptr) & wbit(skip2_bit_o)) == 0) /* without skip2-Bit? */
@@ -1384,7 +1384,7 @@ local void gc_unmarkcheck (void) {
     while (p1!=p1end) { /* lower bound reached -> finished */
       /* next object has address p1 */
       if (marked(p1)) { /* marked? */
-        fprintf(stderr,"\nObject 0x%x marked!!\n",p1);
+        fprintf(stderr,"\nObject 0x%lx marked!!\n",p1);
         abort();
       }
       p1 += objsize((Varobject)p1);
@@ -1396,7 +1396,7 @@ local void gc_unmarkcheck (void) {
     while (p1!=p1end) { /* upper bound reached -> finished */
       /* next object has address p1 */
       if (marked(p1)) { /* marked? */
-        fprintf(stderr,"\nObject 0x%x marked!!\n",p1);
+        fprintf(stderr,"\nObject 0x%lx marked!!\n",p1);
         abort();
       }
       p1 += sizeof(cons_);

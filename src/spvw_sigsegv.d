@@ -23,7 +23,7 @@
 # Put a breakpoint here if you want to catch CLISP just before it dies.
 global void sigsegv_handler_failed (void* address) {
   fputs("\n",stderr);
-  fprintf(stderr,GETTEXTL("SIGSEGV cannot be cured. Fault address = 0x%x."),
+  fprintf(stderr,GETTEXTL("SIGSEGV cannot be cured. Fault address = 0x%lx."),
           address);
   fputs("\n",stderr);
 }

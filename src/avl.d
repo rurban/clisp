@@ -698,7 +698,7 @@ local void AVL(AVLID,out) (NODE* tree) {
     if (!(tree->nodedata.left==EMPTY)) {
       AVL(AVLID,out)(tree->nodedata.left); printf("<");
     }
-    printf("%x",tree);
+    printf("%lx",tree);
     if (!(tree->nodedata.right==EMPTY)) {
       printf(">"); AVL(AVLID,out)(tree->nodedata.right);
     }

@@ -202,7 +202,7 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     fputc('>',out);
   } else if (fpointerp(obj)) {
     fputs("#<",out); string_out(out,O(printstring_fpointer));
-    fprintf(out," 0x%x>",TheFpointer(obj)->fp_pointer);
+    fprintf(out," 0x%lx>",TheFpointer(obj)->fp_pointer);
   } else if (structurep(obj)) {
     var uintL ii;
     fputs("#<structure",out);

@@ -174,14 +174,14 @@ local handle_fault_result_t handle_fault (aint address, int verbose)
        error6: # handle_read_fault() failed
         if (verbose) {
           var int saved_errno = OS_errno;
-          fprintf(stderr,"\n*** - " "handle_fault error6 ! mprotect(0x%x,0x%x,...) -> ", address & -physpagesize, physpagesize);
+          fprintf(stderr,"\n*** - " "handle_fault error6 ! mprotect(0x%lx,0x%lx,...) -> ", address & -physpagesize, physpagesize);
           errno_out(saved_errno);
         }
         goto error;
        error7: # handle_readwrite_fault() failed
         if (verbose) {
           var int saved_errno = OS_errno;
-          fprintf(stderr,"\n*** - " "handle_fault error7 ! mprotect(0x%x,0x%x,%d) -> ", address & -physpagesize, physpagesize, PROT_READ_WRITE);
+          fprintf(stderr,"\n*** - " "handle_fault error7 ! mprotect(0x%lx,0x%lx,%d) -> ", address & -physpagesize, physpagesize, PROT_READ_WRITE);
           errno_out(saved_errno);
         }
         goto error;
@@ -205,7 +205,7 @@ local handle_fault_result_t handle_fault (aint address, int verbose)
     goto error;
    error2: # The address is outside of the used address range for this heap.
     if (verbose)
-      fprintf(stderr,"\n*** - " "handle_fault error2 ! address = 0x%x not in [0x%x,0x%x) !", address, heap->heap_mgen_start, heap->heap_mgen_end);
+      fprintf(stderr,"\n*** - " "handle_fault error2 ! address = 0x%lx not in [0x%lx,0x%lx) !", address, heap->heap_mgen_start, heap->heap_mgen_end);
     goto error;
     #endif
   }
@@ -264,7 +264,7 @@ global bool handle_fault_range (int prot, aint start_address, aint end_address)
 
 local void xmprotect (aint addr, uintL len, int prot) {
   if (mprotect((void*)addr,len,prot) < 0) {
-    fprintf(stderr,GETTEXTL("mprotect(0x%x,%d,%d) failed."),addr,len,prot);
+    fprintf(stderr,GETTEXTL("mprotect(0x%lx,%d,%d) failed."),addr,len,prot);
     errno_out(OS_errno);
     abort();
   }

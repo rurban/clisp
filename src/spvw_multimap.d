@@ -136,7 +136,7 @@
       var mmap_interval_t* ptr = &mmap_intervals[0];
       while (ptr != mmap_intervals_ptr) {
         if (msync((void*)ptr->mm_addr,ptr->mm_len,MS_INVALIDATE) < 0) {
-          fprintf(stderr,GETTEXTL("msync(0x%x,0x%x,MS_INVALIDATE) failed."),
+          fprintf(stderr,GETTEXTL("msync(0x%lx,0x%x,MS_INVALIDATE) failed."),
                   ptr->mm_addr, ptr->mm_len);
           errno_out(errno);
         }
@@ -158,7 +158,7 @@
                      )
          == (void*)(-1)
        ) {
-      fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%x ."),
+      fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%lx ."),
               map_addr);
       fputs("\n",stderr);
       errno_out(errno);
@@ -355,7 +355,7 @@
                shmflags # flags (default: read/write)
               )
          == (void*)(-1)) {
-      fprintf(stderr,GETTEXTL("Cannot map shared memory to address 0x%x."),
+      fprintf(stderr,GETTEXTL("Cannot map shared memory to address 0x%lx."),
               map_addr);
       errno_out(errno);
       return -1; # error
