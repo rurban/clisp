@@ -1,3 +1,7 @@
+2004-12-13  Sam Steingold  <sds@gnu.org>
+
+	* eval.d (progv): fixed a GC-safety bug
+
 2004-12-12  Bruno Haible  <bruno@clisp.org>
 
 	* spvw.d (main_actions): Fix GC-safety bug in argv_package handling.
