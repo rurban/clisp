@@ -1974,7 +1974,21 @@ local void print_banner ()
                 if (!(argv_expr == NULL)) usage (1);
                 argv_quiet = true;
                 argv_norc = true;
-                argv_expr = "(PROGN (PRINC \"GNU CLISP \") (PRINC (LISP-IMPLEMENTATION-VERSION)) (SYS::%EXIT))";
+                argv_expr = "(PROGN (PRINC \"GNU CLISP \") (PRINC (LISP-IMPLEMENTATION-VERSION)) (TERPRI) (PRINC \"Features"
+                #ifdef DEBUG_SPVW
+                  " [SAFETY=" STRINGIFY(SAFETY)
+                 #ifdef TYPECODES
+                  " TYPECODES"
+                 #endif
+                 #ifdef WIDE
+                  " WIDE"
+                 #endif
+                 #ifdef GENERATIONAL_GC
+                  " GENERATIONAL_GC"
+                 #endif
+                  "]"
+                #endif
+                  ": \") (PRINC *FEATURES*) (SYS::%EXIT))";
                 break;
               } else if (asciz_equal(&arg[2],"quiet")
                          || asciz_equal(&arg[2],"silent")) {
