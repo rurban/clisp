@@ -15334,6 +15334,7 @@ LISPFUN(socket_options,seclass_default,1,0,rest,nokey,0,NIL) {
     else if (eq(kwd,S(Kso_rcvbuf))) {
       sock_opt_int(handle,SO_RCVBUF,arg);
     }
+   #endif
    #ifdef SO_SNDBUF
     else if (eq(kwd,S(Kso_sndbuf))) {
       sock_opt_int(handle,SO_SNDBUF,arg);
