@@ -195,8 +195,9 @@
                   (dolist (slot slotlist)
                     (when (ds-slot-name slot)
                       (unless (memq (ds-slot-name slot) argnames)
-                        (push (ds-arg-with-default (ds-slot-name slot)
-                                                   slotlist) slotinitlist))))
+                        (push (ds-arg-with-default
+                               (ds-slot-name slot) slotlist)
+                              slotinitlist))))
                   (nreverse slotinitlist)))))
       `(DEFUN ,constructorname ,new-arglist
          ,(ds-make-constructor-body type name names size slotlist)))))
@@ -451,7 +452,7 @@
     ;; named-option (NIL or T) specifies, if the name is in the structure.
     (if named-option
       (when (eql predicate-option 0)
-        (setq predicate-option (concat-pnames name "-P")) ; defaultname)
+        (setq predicate-option (concat-pnames name "-P"))) ; defaultname
       (unless (or (eql predicate-option 0) (eq predicate-option 'NIL))
         (error-of-type 'source-program-error
           (TEXT "~S ~S: There is no :PREDICATE on unnamed structures.")
@@ -459,7 +460,7 @@
     ;; predicate-option is
     ;;   if named-option=T: either NIL or the name of the type-test-predicate,
     ;;   if named-option=NIL meaningless.
-    (if (eq conc-name-option 'T)
+    (when (eq conc-name-option 'T)
       (setq conc-name-option (string-concat (string name) "-")))
     ;; conc-name-option is the name prefix.
     (if (null constructor-option-list)
@@ -589,7 +590,7 @@
                (list
                 (setq namesform (gensym))
                 `(CONS ',name (SVREF (GET 'STRUCTURE-OBJECT
-                                          'DEFSTRUCT-DESCRIPTION) 0))))))))
+                                          'DEFSTRUCT-DESCRIPTION) 0)))))))
     ;; names is the include-nesting, namesform is the form belonging to it.
     ;; slotlist is the former slot list, reversed.
     ;; inherited-slot-count is the number of slots, that have to be ignored
