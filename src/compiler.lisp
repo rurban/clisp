@@ -5538,9 +5538,7 @@ for-value   NIL or T
                     situation))))
     (let ((form `(PROGN ,@(cddr *form*))))
       (when (and compile-p load-p) (c-write-lib form))
-      (when compile-p
-        ;; if FORM calls COMPILE, the result may be called right away
-        (let ((*fasoutput-stream* nil)) (eval form)))
+      (when compile-p (eval form))
       (funcall c (if (or load-p (and execute-p (not top-level-p)))
                      form nil)))))
 
@@ -10499,6 +10497,7 @@ The function make-closure is required.
             (*style-warning-count* 0)
             (*compiling-from-file* nil)
             (*c-listing-output* nil)
+            (*fasoutput-stream* nil) ; compiled code may be called right away
             (*c-error-output* *error-output*)
             (*known-special-vars* '())
             (*constant-special-vars* '())

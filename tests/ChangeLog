@@ -1,3 +1,7 @@
+2004-11-23  Sam Steingold  <sds@gnu.org>
+
+	* macro8.tst: test COMPILE+LOAD-TIME-VALUE inside COMPILE-FILE
+
 2004-11-17  Bruno Haible  <bruno@clisp.org>
 
 	* clos.tst: Add some tests for symbols naming forward-referenced
