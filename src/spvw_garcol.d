@@ -1,407 +1,403 @@
-# Garbage collector.
+/* Garbage collector. */
 
-# ------------------------------ Specification ------------------------------
+/* --------------------------- Specification --------------------------- */
 
-# Execute a simple garbage collection.
-# can trigger GC
-  local void gar_col_simple (void);
+/* Execute a simple garbage collection.
+ can trigger GC */
+local void gar_col_simple (void);
 
-# Execute a full garbage collection.
-# can trigger GC
-  global void gar_col (void);
+/* Execute a full garbage collection.
+ can trigger GC */
+global void gar_col (void);
 
 #ifdef SPVW_PAGES
-# Supplement a simple garbage collection with a compactification.
-# can trigger GC
-  local void gar_col_compact (void);
+/* Supplement a simple garbage collection with a compactification.
+ can trigger GC */
+local void gar_col_compact (void);
 #endif
 
 #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && RESERVE
-# Move the conses, to make a little more room.
-  local void move_conses (sintL delta);
+/* Move the conses, to make a little more room. */
+local void move_conses (sintL delta);
 #endif
 
-# ------------------------------ Implementation -----------------------------
+/* --------------------------- Implementation -------------------------- */
 
-# overall strategy:
-# 1. pseudo-recursive marking by setting of garcol_bit.
-# 2. relocate objects if fixed length (conses and similar),
-#    calculation of displacement of objects of variable length.
-# 3. update of pointers.
-# 4. perform the displacements of objects of variable length.
+/* overall strategy:
+ 1. pseudo-recursive marking by setting of garcol_bit.
+ 2. relocate objects if fixed length (conses and similar),
+    calculation of displacement of objects of variable length.
+ 3. update of pointers.
+ 4. perform the displacements of objects of variable length.
+ 5. relallocated objects are made to refer to the new location
+*/
 
 #include "spvw_genera1.c"
 
-# marking-subroutine
-  # procedure: marking routine without stack usage (i.e.
-  #  non-"recursive") by descent into the structure to be marked
-  #  with pointer-modification (pointer are reversed,
-  #  so that they can serve as "ariadne thread" )
-  # Convention: an object X counts as marked, if
-  #  - an object of variable length: bit garcol_bit,(X) is set
-  #  - a two-pointer-object: bit garcol_bit,(X) is set
-  #  - a SUBR/FSUBR: bit garcol_bit,(X+const_offset) is set
-  #  - Character, Short-Float, Fixnum etc.: always.
-  local void gc_mark (object obj);
-  local void gc_mark(obj)
-    var object obj;
-    { var object dies = obj; # current object
-      var object vorg = nullobj; # predecessor-object
+/* marking-subroutine
+ procedure: marking routine without stack usage (i.e.
+  non-"recursive") by descent into the structure to be marked
+  with pointer-modification (pointers are reversed,
+  so that they can serve as "ariadne thread")
+ Convention: an object X counts as marked, if
+  - an object of variable length: bit garcol_bit,(X) is set
+  - a two-pointer-object: bit garcol_bit,(X) is set
+  - a SUBR/FSUBR: bit garcol_bit,(X+const_offset) is set
+  - Character, Short-Float, Fixnum etc.: always. */
+local void gc_mark (object obj)
+{
+  var object dies = obj; /* current object */
+  var object vorg = nullobj; /* predecessor-object */
 
-      #define down_pair()  \
-        if (in_old_generation(dies,typecode(dies),1))           \
-          goto up; # do not mark older generation               \
-        { var object* dies_ = (object*)ThePointer(dies);        \
-          if (marked(dies_)) goto up; # marked -> go up         \
-          mark(dies_); # mark                                   \
-        }                                                       \
-        { var object dies_ = objectplus(dies,(soint)(sizeof(cons_)-sizeof(object))<<(oint_addr_shift-addr_shift)); \
-                           # start with the last pointer        \
-          var object nachf = *(object*)ThePointer(dies_); # successor \
-          *(object*)ThePointer(dies_) = vorg; # store predecessor     \
-          vorg = dies_; # current object becomes new predecessor \
-          dies = nachf; # successor becomes current object      \
-          goto down; # and descent                              \
-        }
-      #define up_pair()  \
-        { mark(ThePointer(vorg)); # mark again                  \
-          dies = vorg; # Cons becomes object                    \
-          vorg = vorvorg; goto up; # go further up              \
-        }
-      #define down_varobject(The,first_offset,last_offset)  \
-        if (in_old_generation(dies,typecode(dies),0))           \
-          goto up; # do not mark older generation               \
-        { var object* dies_ = (object*)The(dies);               \
-          if (marked(dies_)) goto up; # marked -> up            \
-          mark(dies_); # mark                                   \
-          mark(pointerplus(dies_,first_offset)); # mark first pointer \
-        }                                                       \
-        { var object dies_ = objectplus(dies,(soint)(last_offset)<<(oint_addr_shift-addr_shift)); \
-                           # start with the last pointer        \
-          var object nachf = *(object*)The(dies_); # successor  \
-          *(object*)The(dies_) = vorg; # store predecessor      \
-          vorg = dies_; # current object becomes new predecessor \
-          dies = nachf; # predecessor becomes current object     \
-          goto down; # and descent                               \
-        }
-      #define up_varobject(first_offset)  \
-        { dies = objectplus(vorg,-(soint)(first_offset)<<(oint_addr_shift-addr_shift)); # becomes current object \
-          vorg = vorvorg; goto up; # go further up              \
-        }
-      #define down_nopointers(The)  \
-        if (in_old_generation(dies,typecode(dies),0))           \
-          goto up; # do not mark older generation               \
-        mark(The(dies)); # mark                                 \
-        goto up; # and up
-      #define down_iarray()  \
-        if (in_old_generation(dies,typecode(dies),0))           \
-          goto up; # do not mark older generation               \
-        { var object* dies_ = (object*)TheIarray(dies);         \
-          if (marked(dies_)) goto up; # marked -> up            \
-          mark(dies_); # mark                                   \
-        }                                                       \
-        { var object dies_ = objectplus(dies,(soint)(iarray_data_offset)<<(oint_addr_shift-addr_shift)); \
-                           # data vector is the first and only pointer \
-          var object nachf = *(object*)TheIarray(dies_); # successor \
-          *(object*)TheIarray(dies_) = vorg; # stor predecessor \
-          mark(TheIarray(dies_)); # mark first and only pointer \
-          vorg = dies_; # current object becomes new predecessor \
-          dies = nachf; # predecessor becomes current object     \
-          goto down; # and descent                               \
-        }
-      #define up_iarray()  \
-        { dies = objectplus(vorg,-(soint)iarray_data_offset<<(oint_addr_shift-addr_shift)); # array becomes current object \
-          vorg = vorvorg; goto up; # go further up          \
-        }
-      #define down_svector()  \
-        if (in_old_generation(dies,typecode(dies),0))           \
-          goto up; # do not mark older generation               \
-        { var object* dies_ = (object*)TheSvector(dies);        \
-          if (marked(dies_)) goto up; # marked -> up            \
-          mark(dies_); # mark                                   \
-        }                                                       \
-        { var uintL len = Svector_length(dies);                 \
-          if (len==0) goto up; # Length 0: up again             \
-         {var object dies_ = objectplus(dies,                   \
-                               ((soint)offsetofa(svector_,data) << (oint_addr_shift-addr_shift)) \
-                               # the "<< 1" and "/2" are a workaround against a gcc-2.7.2 missed optimization in WIDE_SOFT mode \
-                               + (((soint)len << 1) * (soint)(sizeof(object)/2) << (oint_addr_shift-addr_shift)) \
-                               - ((soint)sizeof(object) << (oint_addr_shift-addr_shift)) ); \
-                               # start with the last pointer \
-          var object nachf = *(object*)TheSvector(dies_); # successor \
-          *(object*)TheSvector(dies_) = vorg; # store predecessor \
-          mark(&TheSvector(dies)->data[0]); # mark first pointer  \
-          vorg = dies_; # current object becomes new predecessor \
-          dies = nachf; # predecessor becomes current object     \
-          goto down; # and descent                               \
-        }}
-      #define up_svector()  \
-        { dies = objectplus(vorg,-(soint)offsetofa(svector_,data)<<(oint_addr_shift-addr_shift)); # Svector becomes current object \
-          vorg = vorvorg; goto up; # go further up          \
-        }
-      #define down_weakkvt()                                      \
-        if (in_old_generation(dies,typecode(dies),0)) goto up;    \
-        { var object* dies_ = (object*)TheSvector(dies);          \
-          if (marked(dies_)) goto up;                             \
-          mark(dies_);                                            \
-        } goto up; # no elements to "sub-mark"
-      #define up_weakkvt()  \
-        { dies = objectplus(vorg,-(soint)offsetofa(svector_,data)<<(oint_addr_shift-addr_shift)); # Svector becomes current object \
-          vorg = vorvorg; goto up; # go further up          \
-        }
-      #define down_record()  \
-        if (in_old_generation(dies,typecode(dies),0))           \
-          goto up; # do not mark older generation               \
-        { var object* dies_ = (object*)TheRecord(dies);         \
-          if (marked(dies_)) goto up; # marked -> up            \
-          mark(dies_); # marked                                 \
-        }                                                       \
-        { var uintL len = Record_length(dies);                  \
-          if (len==0) goto up; # Length 0: up again             \
-         {var object dies_ = objectplus(dies,                   \
-                               ((soint)offsetofa(record_,recdata) << (oint_addr_shift-addr_shift)) \
-                               # the "<< 1" and "/2" are a workaround against a gcc-2.7.2 missed optimization in WIDE_SOFT mode \
-                               + (((soint)len << 1) * (soint)(sizeof(object)/2) << (oint_addr_shift-addr_shift)) \
-                               - ((soint)sizeof(object) << (oint_addr_shift-addr_shift)) ); \
-                               # start with the last pointer \
-          var object nachf = *(object*)TheRecord(dies_); # successor \
-          *(object*)TheRecord(dies_) = vorg; # store predecessor \
-          mark(&TheRecord(dies)->recdata[0]); # mark first pointer \
-          vorg = dies_; # current object becomes new predecessor \
-          dies = nachf; # predecessor becomes current object     \
-          goto down; # and descent                               \
-        }}
-      #define up_record()  \
-        { dies = objectplus(vorg,-(soint)offsetofa(record_,recdata)<<(oint_addr_shift-addr_shift)); # record becomes current object \
-          vorg = vorvorg; goto up; # go further up          \
-        }
-      #define down_subr()  \
-        { var object* dies_ = (object*)pointerplus(TheSubr(dies),subr_const_offset); \
-          if (marked(dies_)) goto up; # marked -> up        \
-          # mark later                                      \
-        }                                                       \
-        { var object dies_ = objectplus(dies,                   \
-                               (soint)(subr_const_offset+(subr_const_anz-1)*sizeof(object))<<(oint_addr_shift-addr_shift)); \
-                               # start with the last pointer \
-          var object nachf = *(object*)TheSubr(dies_); # successor \
-          *(object*)TheSubr(dies_) = vorg; # store predecessor \
-          # mark first pointer (and thus the SUBR itself) : \
-          mark(pointerplus(TheSubr(dies),subr_const_offset));   \
-          vorg = dies_; # current object becomes new predecessor \
-          dies = nachf; # predecessor becomes current object     \
-          goto down; # and descent                               \
-        }
-      #define up_subr()  \
-        { mark(TheSubr(vorg)); # mark again               \
-          dies = objectplus(vorg,-(soint)subr_const_offset<<(oint_addr_shift-addr_shift)); # SUBR becomes current object \
-          vorg = vorvorg; goto up; # go further pu          \
-        }
+#define down_pair()                                                     \
+  if (in_old_generation(dies,typecode(dies),1))                         \
+    goto up; /* do not mark older generation */                         \
+  { var object* dies_ = (object*)ThePointer(dies);                      \
+    if (marked(dies_)) goto up; /* marked -> go up */                   \
+      mark(dies_); /* mark */                                           \
+  }                                                                     \
+  { var object dies_ = objectplus(dies,(soint)(sizeof(cons_)-sizeof(object))<<(oint_addr_shift-addr_shift)); \
+    /* start with the last pointer */                                   \
+    var object nachf = *(object*)ThePointer(dies_); /* successor */     \
+    *(object*)ThePointer(dies_) = vorg; /* store predecessor */         \
+    vorg = dies_; /* current object becomes new predecessor */          \
+    dies = nachf; /* successor becomes current object */                \
+    goto down; /* and descent */                                        \
+  }
+#define up_pair()                                       \
+  { mark(ThePointer(vorg)); /* mark again */            \
+    dies = vorg; /* Cons becomes object */              \
+    vorg = vorvorg; goto up; /* go further up */        \
+  }
+#define down_varobject(The,first_offset,last_offset)                    \
+  if (in_old_generation(dies,typecode(dies),0))                         \
+    goto up; /* do not mark older generation */                         \
+  { var object* dies_ = (object*)The(dies);                             \
+    if (marked(dies_)) goto up; /* marked -> up */                      \
+    mark(dies_); /* mark */                                             \
+    mark(pointerplus(dies_,first_offset)); /* mark first pointer */     \
+  }                                                                     \
+  { var object dies_ = objectplus(dies,(soint)(last_offset)<<(oint_addr_shift-addr_shift)); \
+    /* start with the last pointer */                                   \
+    var object nachf = *(object*)The(dies_); /* successor */            \
+    *(object*)The(dies_) = vorg; /* store predecessor */                \
+    vorg = dies_; /* current object becomes new predecessor */          \
+    dies = nachf; /* predecessor becomes current object */              \
+    goto down; /* and descent */                                        \
+  }
+#define up_varobject(first_offset)                                      \
+  { dies = objectplus(vorg,-(soint)(first_offset)<<(oint_addr_shift-addr_shift)); /* becomes current object */ \
+    vorg = vorvorg; goto up; /* go further up */                        \
+  }
+#define down_nopointers(The)                    \
+  if (in_old_generation(dies,typecode(dies),0)) \
+    goto up; /* do not mark older generation */ \
+  mark(The(dies)); /* mark */                   \
+  goto up; /* and up */
+#define down_iarray()                                                   \
+  if (in_old_generation(dies,typecode(dies),0))                         \
+    goto up; /* do not mark older generation */                         \
+  { var object* dies_ = (object*)TheIarray(dies);                       \
+    if (marked(dies_)) goto up; /* marked -> up */                      \
+    mark(dies_); /* mark */                                             \
+  }                                                                     \
+  { var object dies_ = objectplus(dies,(soint)(iarray_data_offset)<<(oint_addr_shift-addr_shift)); \
+    /* data vector is the first and only pointer */                     \
+    var object nachf = *(object*)TheIarray(dies_); /* successor */      \
+    *(object*)TheIarray(dies_) = vorg; /* stor predecessor */           \
+    mark(TheIarray(dies_)); /* mark first and only pointer */           \
+    vorg = dies_; /* current object becomes new predecessor */          \
+    dies = nachf; /* predecessor becomes current object */              \
+    goto down; /* and descent */                                        \
+  }
+#define up_iarray()                                                     \
+  { dies = objectplus(vorg,-(soint)iarray_data_offset<<(oint_addr_shift-addr_shift)); /* array becomes current object */ \
+    vorg = vorvorg; goto up; /* go further up */                        \
+  }
+#define down_svector()                                                  \
+  if (in_old_generation(dies,typecode(dies),0))                         \
+    goto up; /* do not mark older generation */                         \
+  { var object* dies_ = (object*)TheSvector(dies);                      \
+    if (marked(dies_)) goto up; /* marked -> up */                      \
+    mark(dies_); /* mark */                                             \
+  }                                                                     \
+  { var uintL len = Svector_length(dies);                               \
+    if (len==0) goto up; /* Length 0: up again */                       \
+   {var object dies_ = objectplus(dies,((soint)offsetofa(svector_,data) << (oint_addr_shift-addr_shift)) \
+    /* the "<< 1" and "/2" are a workaround against a gcc-2.7.2         \
+       missed optimization in WIDE_SOFT mode */                         \
+      + (((soint)len << 1) * (soint)(sizeof(object)/2) << (oint_addr_shift-addr_shift)) \
+      - ((soint)sizeof(object) << (oint_addr_shift-addr_shift)) );      \
+    /* start with the last pointer */                                   \
+    var object nachf = *(object*)TheSvector(dies_); /* successor */     \
+    *(object*)TheSvector(dies_) = vorg; /* store predecessor */         \
+    mark(&TheSvector(dies)->data[0]); /* mark first pointer */          \
+    vorg = dies_; /* current object becomes new predecessor */          \
+    dies = nachf; /* predecessor becomes current object */              \
+    goto down; /* and descent */                                        \
+  }}
+#define up_svector()                            \
+  { dies = objectplus(vorg,-(soint)offsetofa(svector_,data)<<(oint_addr_shift-addr_shift)); /* Svector becomes current object */ \
+    vorg = vorvorg; goto up; /* go further up */ \
+  }
+#define down_weakkvt()                                            \
+  if (in_old_generation(dies,typecode(dies),0)) goto up;          \
+  { var object* dies_ = (object*)TheSvector(dies);                \
+    if (marked(dies_)) goto up;                                   \
+    mark(dies_);                                                  \
+  } goto up; /* no elements to "sub-mark" */
+#define up_weakkvt()                             \
+  { dies = objectplus(vorg,-(soint)offsetofa(svector_,data)<<(oint_addr_shift-addr_shift)); /* Svector becomes current object */ \
+    vorg = vorvorg; goto up; /* go further up */ \
+  }
+#define down_record()                                                   \
+  if (in_old_generation(dies,typecode(dies),0))                         \
+    goto up; /* do not mark older generation */                         \
+  { var object* dies_ = (object*)TheRecord(dies);                       \
+    if (marked(dies_)) goto up; /* marked -> up */                      \
+    mark(dies_); /* marked */                                           \
+  }                                                                     \
+  { var uintL len = Record_length(dies);                                \
+    if (len==0) goto up; /* Length 0: up again */                       \
+   {var object dies_ = objectplus(dies,((soint)offsetofa(record_,recdata) << (oint_addr_shift-addr_shift)) \
+    /* the "<< 1" and "/2" are a workaround against a gcc-2.7.2         \
+       missed optimization in WIDE_SOFT mode */                         \
+      + (((soint)len << 1) * (soint)(sizeof(object)/2) << (oint_addr_shift-addr_shift)) \
+      - ((soint)sizeof(object) << (oint_addr_shift-addr_shift)) );      \
+    /* start with the last pointer */                                   \
+    var object nachf = *(object*)TheRecord(dies_); /* successor */      \
+    *(object*)TheRecord(dies_) = vorg; /* store predecessor */          \
+    mark(&TheRecord(dies)->recdata[0]); /* mark first pointer */        \
+    vorg = dies_; /* current object becomes new predecessor */          \
+    dies = nachf; /* predecessor becomes current object */              \
+    goto down; /* and descent */                                        \
+  }}
+#define up_record()                               \
+  { dies = objectplus(vorg,-(soint)offsetofa(record_,recdata)<<(oint_addr_shift-addr_shift)); /* record becomes current object */ \
+    vorg = vorvorg; goto up; /* go further up */  \
+  }
+#define down_subr()                                                     \
+  { var object* dies_ = (object*)pointerplus(TheSubr(dies),subr_const_offset);\
+    if (marked(dies_)) goto up; /* marked -> up */                      \
+    /* mark later */                                                    \
+  }                                                                     \
+  { var object dies_ = objectplus(dies,(soint)(subr_const_offset+(subr_const_anz-1)*sizeof(object))<<(oint_addr_shift-addr_shift)); \
+    /* start with the last pointer */                                   \
+    var object nachf = *(object*)TheSubr(dies_); /* successor */        \
+    *(object*)TheSubr(dies_) = vorg; /* store predecessor */            \
+    /* mark first pointer (and thus the SUBR itself) : */               \
+    mark(pointerplus(TheSubr(dies),subr_const_offset));                 \
+    vorg = dies_; /* current object becomes new predecessor */          \
+    dies = nachf; /* predecessor becomes current object */              \
+    goto down; /* and descent */                                        \
+  }
+#define up_subr()                                                       \
+  { mark(TheSubr(vorg)); /* mark again */                               \
+    dies = objectplus(vorg,-(soint)subr_const_offset<<(oint_addr_shift-addr_shift)); /* SUBR becomes current object */ \
+    vorg = vorvorg; goto up; /* go further up */                        \
+  }
 
-      down: # entry for further descent.
-            # dies = object to be marked (engl. this),
-            # vorg = its predecessor
-            #ifdef TYPECODES
-            switch (typecode(dies))
-              { case_pair:
-                  # object with exactly two 2 pointers (Cons and similar)
-                  down_pair();
-                case_symbol: # Symbol
-                  down_varobject(TheSymbol,symbol_objects_offset,sizeof(symbol_)-sizeof(object));
-                case_sbvector: # simple-bit-vector
-                case_sb2vector: # simple-2bit-vector
-                case_sb4vector: # simple-4bit-vector
-                case_sb8vector: # simple-8bit-vector
-                case_sb16vector: # simple-16bit-vector
-                case_sb32vector: # simple-32bit-vector
-                case_sstring: # simple-string
-                case_bignum: # Bignum
-                #ifndef WIDE
-                case_ffloat: # Single-Float
-                #endif
-                case_dfloat: # Double-Float
-                case_lfloat: # Long-Float
-                  # objects of variable length, that do not contain pointers:
-                  down_nopointers(TheVarobject);
-                case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector:
-                  # arrays, that are not simple:
-                  down_iarray();
-                case_svector: # simple-vector
-                  down_svector();
-                case_weakkvt: # weak-key-value-table
-                  down_weakkvt();
-                case_record: # Srecord/Xrecord
-                  down_record();
-                case_machine: # maschine address
-                case_char: # Character
-                case_system: # Frame-Pointer, Read-Label, System
-                case_fixnum: # Fixnum
-                case_sfloat: # Short-Float
-                #ifdef WIDE
-                case_ffloat: # Single-Float
-                #endif
-                  # These are direct objects, no pointers.
-                  goto up;
-                case_subr: # SUBR
-                  down_subr();
-                default:
-                  # These are no objects.
-                  /*NOTREACHED*/ abort();
-              }
-            #else
-            switch (as_oint(dies) & nonimmediate_bias_mask)
-              { case cons_bias: # Cons
-                  # NB: (immediate_bias & nonimmediate_bias_mask) == cons_bias.
-                  if (immediate_object_p(dies)) goto up;
-                  down_pair();
-                case varobject_bias:
-                  switch (Record_type(dies))
-                    { case Rectype_Sbvector:
-                      case Rectype_Sb2vector:
-                      case Rectype_Sb4vector:
-                      case Rectype_Sb8vector:
-                      case Rectype_Sb16vector:
-                      case Rectype_Sb32vector:
-                      case Rectype_S8string: case Rectype_Imm_S8string:
-                      case Rectype_S16string: case Rectype_Imm_S16string:
-                      case Rectype_S32string: case Rectype_Imm_S32string:
-                      case Rectype_Bignum:
-                      case Rectype_Ffloat:
-                      case Rectype_Dfloat:
-                      case Rectype_Lfloat:
-                        down_nopointers(TheRecord);
-                      case Rectype_Svector:
-                        down_svector();
-                      case Rectype_WeakKVT:
-                        down_weakkvt();
-                      case Rectype_mdarray:
-                      case Rectype_bvector:
-                      case Rectype_b2vector:
-                      case Rectype_b4vector:
-                      case Rectype_b8vector:
-                      case Rectype_b16vector:
-                      case Rectype_b32vector:
-                      case Rectype_reallocstring:
-                      case Rectype_string:
-                      case Rectype_vector:
-                        down_iarray();
-                      default: # Srecord/Xrecord
-                        down_record();
-                    }
-                case subr_bias: # SUBR
-                  down_subr();
-                case machine_bias:
-                  # These are direct objects, no pointers.
-                  goto up;
-                default:
-                  /*NOTREACHED*/ abort();
-              }
-            #endif
-      up:   # entry for ascent.
-            # dies = currently marked object, vorg = its predecessor
-            if (eq(vorg,nullobj)) # ending flag reached?
-              return; # yes -> finished
-            if (!marked(ThePointer(vorg))) # already through?
-              # no ->
-              # next element further left (come from 'up', go to 'down')
-              # dies = currently marked  object, store in *vorg
-              { var object vorvorg = *(object*)ThePointer(vorg); # old predecessor
-                *(object*)ThePointer(vorg) = dies; # write back component
-                vorg = objectplus(vorg,-(soint)(sizeof(object))<<(oint_addr_shift-addr_shift)); # go to next component
-                if (marked(ThePointer(vorg))) # already marked?
-                  { dies = # next component, without mark
-                           without_mark_bit(*(object*)ThePointer(vorg));
-                    *(object*)ThePointer(vorg) = # further relocate old predecessor, thereby renew mark
-                           with_mark_bit(vorvorg);
-                  }
-                  else
-                  { dies = *(object*)ThePointer(vorg); # next component, without mark
-                    *(object*)ThePointer(vorg) = vorvorg; # further relocate old predecessor
-                  }
-                goto down;
-              }
-            # already through -> ascent again
-            { var object vorvorg = # fetch old predecessor, without mark bit
-                                   without_mark_bit(*(object*)ThePointer(vorg));
-              *(object*)ThePointer(vorg) = dies; # write back first component
-              #ifdef TYPECODES
-              switch (typecode(vorg))
-                { case_pair:
-                    # object with exactly two pointers (Cons and similar)
-                    up_pair();
-                  case_symbol: # Symbol
-                    up_varobject(symbol_objects_offset);
-                  case_weakkvt: # weak-key-value-table
-                    up_weakkvt();
-                  case_svector: # simple-vector with at least 1 component
-                    up_svector();
-                  case_mdarray: case_obvector: case_ob2vector:
-                  case_ob4vector: case_ob8vector: case_ob16vector:
-                  case_ob32vector: case_ostring: case_ovector:
-                    # non-simple arrays:
-                    up_iarray();
-                  case_record: # Srecord/Xrecord
-                    up_record();
-                  case_subr: # SUBR
-                    up_subr();
-                  case_machine: # maschine address
-                  case_char: # Character
-                  case_system: # Frame-Pointer, Read-Label, System
-                  case_fixnum: # Fixnum
-                  case_sfloat: # Short-Float
-                  #ifdef WIDE
-                  case_ffloat: # Single-Float
-                  #endif
-                    # These are direct objects, no pointers.
-                  case_sbvector: # simple-bit-vector
-                  case_sb2vector: # simple-2bit-vector
-                  case_sb4vector: # simple-4bit-vector
-                  case_sb8vector: # simple-8bit-vector
-                  case_sb16vector: # simple-16bit-vector
-                  case_sb32vector: # simple-32bit-vector
-                  case_sstring: # simple-string
-                  case_bignum: # Bignum
-                  #ifndef WIDE
-                  case_ffloat: # Single-Float
-                  #endif
-                  case_dfloat: # Double-Float
-                  case_lfloat: # Long-Float
-                    # Objects of variable length, that do not contain pointers.
-                  default:
-                    # these are no objects.
-                    /*NOTREACHED*/ abort();
-                }
-              #else
-              switch (as_oint(vorg) & nonimmediate_bias_mask)
-                { case cons_bias: # Cons
-                    up_pair();
-                  case subr_bias: # SUBR
-                    up_subr();
-                  case varobject_bias:
-                    # This works only because all varobjects have the same
-                    # objects_offset!
-                    up_record();
-                  default:
-                    # these are no objects.
-                    /*NOTREACHED*/ abort();
-                }
-              #endif
-            }
-      #undef up_subr
-      #undef down_subr
-      #undef up_record
-      #undef down_record
-      #undef up_svector
-      #undef down_svector
-      #undef up_weakkvt
-      #undef down_weakkvt
-      #undef up_iarray
-      #undef down_iarray
-      #undef down_nopointers
-      #undef up_varobject
-      #undef down_varobject
-      #undef up_pair
-      #undef down_pair
+ down: /* entry for further descent.
+          dies = object to be marked (engl. this),
+          vorg = its predecessor */
+ #ifdef TYPECODES
+  switch (typecode(dies)) {
+   case_pair: /* object with exactly two 2 pointers (Cons and similar) */
+    down_pair();
+   case_symbol: /* Symbol */
+    down_varobject(TheSymbol,symbol_objects_offset,
+                   sizeof(symbol_)-sizeof(object));
+   case_sbvector: /* simple-bit-vector */
+   case_sb2vector: /* simple-2bit-vector */
+   case_sb4vector: /* simple-4bit-vector */
+   case_sb8vector: /* simple-8bit-vector */
+   case_sb16vector: /* simple-16bit-vector */
+   case_sb32vector: /* simple-32bit-vector */
+   case_sstring: /* simple-string */
+   case_bignum: /* bignum */
+  #ifndef WIDE
+   case_ffloat: /* single-float */
+  #endif
+   case_dfloat: /* double-float */
+   case_lfloat: /* long-float */
+    /* objects of variable length, that do not contain pointers: */
+    down_nopointers(TheVarobject);
+   case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector:
+   case_ob16vector: case_ob32vector: case_ostring: case_ovector:
+    /* arrays, that are not simple: */
+    down_iarray();
+   case_svector: /* simple-vector */
+    down_svector();
+   case_weakkvt: /* weak-key-value-table */
+    down_weakkvt();
+   case_record: /* Srecord/Xrecord */
+    down_record();
+   case_machine: /* maschine address */
+   case_char: /* character */
+   case_system: /* frame-pointer, read-label, system */
+   case_fixnum: /* fixnum */
+   case_sfloat: /* short-float */
+  #ifdef WIDE
+   case_ffloat: /* single-float */
+  #endif
+    /* These are direct objects, no pointers. */
+    goto up;
+   case_subr: /* SUBR */
+    down_subr();
+   default: /* These are no objects. */
+     /*NOTREACHED*/ abort();
+  }
+ #else
+  switch (as_oint(dies) & nonimmediate_bias_mask) {
+    case cons_bias: /* cons */
+      /* NB: (immediate_bias & nonimmediate_bias_mask) == cons_bias. */
+      if (immediate_object_p(dies)) goto up;
+      down_pair();
+    case varobject_bias:
+      switch (Record_type(dies)) {
+        case Rectype_Sbvector:
+        case Rectype_Sb2vector:
+        case Rectype_Sb4vector:
+        case Rectype_Sb8vector:
+        case Rectype_Sb16vector:
+        case Rectype_Sb32vector:
+        case Rectype_S8string: case Rectype_Imm_S8string:
+        case Rectype_S16string: case Rectype_Imm_S16string:
+        case Rectype_S32string: case Rectype_Imm_S32string:
+        case Rectype_Bignum:
+        case Rectype_Ffloat:
+        case Rectype_Dfloat:
+        case Rectype_Lfloat:
+          down_nopointers(TheRecord);
+        case Rectype_Svector:
+          down_svector();
+        case Rectype_WeakKVT:
+          down_weakkvt();
+        case Rectype_mdarray:
+        case Rectype_bvector:
+        case Rectype_b2vector:
+        case Rectype_b4vector:
+        case Rectype_b8vector:
+        case Rectype_b16vector:
+        case Rectype_b32vector:
+        case Rectype_reallocstring:
+        case Rectype_string:
+        case Rectype_vector:
+          down_iarray();
+        default: /* Srecord/Xrecord */
+          down_record();
+      }
+    case subr_bias: /* SUBR */
+      down_subr();
+    case machine_bias:
+      /* These are direct objects, no pointers. */
+      goto up;
+    default:
+      /*NOTREACHED*/ abort();
+  }
+ #endif
+ up: /* entry for ascent.
+        dies = currently marked object, vorg = its predecessor */
+  if (eq(vorg,nullobj)) /* ending flag reached? */
+    return; /* yes -> finished */
+  if (!marked(ThePointer(vorg))) { /* already through? */
+    /* no ->
+       next element further left (come from 'up', go to 'down')
+       dies = currently marked  object, store in *vorg */
+    var object vorvorg = *(object*)ThePointer(vorg); /* old predecessor */
+    *(object*)ThePointer(vorg) = dies; /* write back component */
+    vorg = objectplus(vorg,-(soint)(sizeof(object))<<(oint_addr_shift-addr_shift)); /* go to next component */
+    if (marked(ThePointer(vorg))) { /* already marked? */
+      dies = /* next component, without mark */
+        without_mark_bit(*(object*)ThePointer(vorg));
+      *(object*)ThePointer(vorg) = /* further relocate old predecessor, thereby renew mark */
+        with_mark_bit(vorvorg);
+    } else {
+      dies = *(object*)ThePointer(vorg); /* next component, without mark */
+      *(object*)ThePointer(vorg) = vorvorg; /* further relocate old predecessor */
     }
+    goto down;
+  }
+  { /* already through -> ascent again */
+    var object vorvorg = /* fetch old predecessor, without mark bit */
+      without_mark_bit(*(object*)ThePointer(vorg));
+    *(object*)ThePointer(vorg) = dies; /* write back first component */
+   #ifdef TYPECODES
+    switch (typecode(vorg)) {
+     case_pair: /* object with exactly two pointers (Cons and similar) */
+      up_pair();
+     case_symbol: /* Symbol */
+      up_varobject(symbol_objects_offset);
+     case_weakkvt: /* weak-key-value-table */
+      up_weakkvt();
+     case_svector: /* simple-vector with at least 1 component */
+      up_svector();
+     case_mdarray: case_obvector: case_ob2vector:
+     case_ob4vector: case_ob8vector: case_ob16vector:
+     case_ob32vector: case_ostring: case_ovector:
+      /* non-simple arrays: */
+      up_iarray();
+     case_record: /* Srecord/Xrecord */
+      up_record();
+     case_subr: /* SUBR */
+      up_subr();
+     case_machine: /* maschine address */
+     case_char: /* character */
+     case_system: /* frame-pointer, read-label, system */
+     case_fixnum: /* fixnum */
+     case_sfloat: /* short-float */
+    #ifdef WIDE
+     case_ffloat: /* single-float */
+    #endif
+      /* These are direct objects, no pointers. */
+     case_sbvector: /* simple-bit-vector */
+     case_sb2vector: /* simple-2bit-vector */
+     case_sb4vector: /* simple-4bit-vector */
+     case_sb8vector: /* simple-8bit-vector */
+     case_sb16vector: /* simple-16bit-vector */
+     case_sb32vector: /* simple-32bit-vector */
+     case_sstring: /* simple-string */
+     case_bignum: /* bignum */
+    #ifndef WIDE
+     case_ffloat: /* single-float */
+    #endif
+     case_dfloat: /* double-float */
+     case_lfloat: /* long-float */
+      /* Objects of variable length, that do not contain pointers. */
+     default: /* these are no objects. */
+      /*NOTREACHED*/ abort();
+    }
+   #else
+    switch (as_oint(vorg) & nonimmediate_bias_mask) {
+      case cons_bias: /* Cons */
+        up_pair();
+      case subr_bias: /* SUBR */
+        up_subr();
+      case varobject_bias:
+        /* This works only because all varobjects have the same
+           objects_offset! */
+        up_record();
+      default: /* these are no objects. */
+        /*NOTREACHED*/ abort();
+    }
+   #endif
+  }
+#undef up_subr
+#undef down_subr
+#undef up_record
+#undef down_record
+#undef up_svector
+#undef down_svector
+#undef up_weakkvt
+#undef down_weakkvt
+#undef up_iarray
+#undef down_iarray
+#undef down_nopointers
+#undef up_varobject
+#undef down_varobject
+#undef up_pair
+#undef down_pair
+}
 
 # pack a pointer into an object, without  typeinfo.
 # pointer_as_object(ptr): void* --> object
