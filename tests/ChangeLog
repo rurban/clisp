@@ -1,3 +1,8 @@
+2004-07-28  Sam Steingold  <sds@gnu.org>
+
+	* streams.tst: composite streams operate on their
+	constituent streams, not themselves
+
 2004-07-22  Sam Steingold  <sds@gnu.org>
 
 	* bin-io.tst (clisp-test-bin-i/o): check output of negative

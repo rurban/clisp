@@ -644,6 +644,16 @@ global void unread_char (const gcv_object_t* stream_, object ch) {
   if (builtin_stream_p(stream)) {
     if (eq(TheStream(stream)->strm_rd_ch_last,ch)
         && !(TheStream(stream)->strmflags & strmflags_unread_B)) {
+      /* composite streams operate on their constituent streams */
+      switch (TheStream(stream)->strmtype) {
+        case strmtype_concat:
+          stream = Car(TheStream(stream)->strm_concat_list);
+          break;
+        case strmtype_echo:
+        case strmtype_twoway:
+          stream = TheStream(stream)->strm_twoway_input;
+          break;
+      }
       TheStream(stream)->strmflags |= strmflags_unread_B; # set Flagbit
     } else {
       if (!nullp(TheStream(stream)->strm_rd_ch_last)
