@@ -387,13 +387,14 @@
             );
     }
 
-# check whether there is an inherited symbol with the given name
+# Check whether there is an inherited symbol with the given name.
 # inherited_lookup(string,pack,symb)
-# return true iff string is found in (package-use-list pack)
+# Return true iff string is found in (package-use-list pack).
 # STRING is a Lisp string object
 # PACK is a Lisp package object
-# the symbol found is returned in SYMB (if it not NULL)
-local bool inherited_lookup(object string,object pack,object* sym_) {
+# The symbol found is returned in *SYM_ (if SYM_ is not NULL).
+local bool inherited_lookup (object string, object pack, object* sym_)
+{
   var object packlistr = ThePackage(pack)->pack_use_list;
   while (consp(packlistr)) {
     var object usedpack = Car(packlistr);
@@ -404,11 +405,12 @@ local bool inherited_lookup(object string,object pack,object* sym_) {
   return false;
 }
 
-# check whether the symbol is inherited by the package
-# inherited_find(symbol, pack)
+# Check whether the symbol is inherited by the package.
+# inherited_find(symbol,pack)
 # SYMBOL is a Lisp symbol object
 # PACK is a Lisp package object
-local bool inherited_find(object symbol,object pack) {
+local bool inherited_find (object symbol, object pack)
+{
   var object list = ThePackage(pack)->pack_use_list;
   while (consp(list)) {
     if (symtab_find(symbol,ThePackage(Car(list))->pack_external_symbols))
@@ -429,8 +431,8 @@ local bool inherited_find(object symbol,object pack) {
 # pack_nicknames          die Nicknames, eine Liste von immutablen Simple-Strings
 
 # consistency rules:
-# 1. all packages are specified into ALL_PACKAGES exactly once
-# 2. the union over ALL_PACKAGES of { name } U nicknames is disjunctive
+# 1. All packages are listed in ALL_PACKAGES exactly once.
+# 2. The union over ALL_PACKAGES of { name } U nicknames is disjoint.
 # 3. for any two packages p,q:
 #    p in use_list(q) <==> q in used_by_list(q)
 # 4. p is a Package.
@@ -438,15 +440,15 @@ local bool inherited_find(object symbol,object pack) {
 #                    U { ESymbols(q) | q in use_list(p) }
 # 5. For each Package p
 #    shadowing_symbols(p) is a subset of ISymbols(p) U ESymbols(p)
-#                        and a subset of accessible(p).
+#    and therefore also      a subset of accessible(p).
 # 6. s is a string, p is a package.
-#    if more than one element of accessible(p) has print name = s, then
+#    If more than one element of accessible(p) has print name = s, then
 #    exactly one of these symbols is in shadowing_symbols(p).
 # 7. s is a string, p is a package.
-#    the most one symbol with the print name = s
+#    At most one symbol with the print name = s
 #    is in ISymbols(p) U ESymbols(p).
-# 8. S is a symbol with the Home Package p / = NIL,
-#    then S is in ISymbols(p) U ESymbols(p).
+# 8. If s is a symbol with the Home Package p /= NIL,
+#    then s is in ISymbols(p) U ESymbols(p).
 
 # UP: Erzeugt eine neue Package, ohne auf Namenskonflikte zu testen.
 # make_package(name,nicknames,case_sensitive_p)
