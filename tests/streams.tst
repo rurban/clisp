@@ -750,14 +750,15 @@ T
 (defvar *my-indent-level*)
 (with-output-to-string (out)
   (let ((*print-right-margin* 20)
+        (*print-pretty* t)
         (*my-indent-level* 2))
     (with-fill-stream (fill out :indent '*my-indent-level*)
       (format fill "~%this is some long sentence which will      be broken at spaces")
       (force-output fill)
       (let ((*my-indent-level* 5))
-        (format fill "~%and    properly indented to the level specified by the ~S argument which can be a sybol or an integer." :INDENT))
-      (format fill "~%Don't forget  to call ~S on it, and/or use ~S" 'force-output 'with-fill-stream))))
-)"
+        (format fill "~%and    properly indented to the level specified by the ~S argument which can be a ~S or an ~S - cool!" :INDENT 'symbol 'integer))
+      (format fill "~%Don't forget  to call ~S on it, and/or use ~S   Pretty formatting of the  S-expressions    printed with ~~S is  preserved: ~S" 'force-output 'with-fill-stream '(defun foo (x y z) (if x (+ y z) (* y z)))))))
+)#+clisp "
   this is some long
   sentence which
   will be broken at
@@ -768,12 +769,23 @@ T
      specified by
      the :INDENT
      argument which
-     can be a sybol
-     or an integer.
+     can be a
+SYMBOL
+     or an INTEGER
+     - cool!
   Don't forget to
   call FORCE-OUTPUT
   on it, and/or use
-  WITH-FILL-STREAM"
+WITH-FILL-STREAM
+  Pretty formatting
+  of the
+  S-expressions
+  printed with ~S
+  is preserved:
+\(DEFUN FOO (X Y Z)
+ (IF X (+ Y Z)
+  (* Y Z)))
+"
 
 (let ((f "foo.bar") fwd1)
   (unwind-protect
