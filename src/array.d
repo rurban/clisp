@@ -2386,7 +2386,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
           dotimespL(count,count, {
             var object value = *ptr1++;
             if (!charp(value)) fehler_store(dv2,value);
-            *ptr2++ = char_code(value);
+            *ptr2++ = as_cint(char_code(value));
           });
         }
         );
@@ -4475,8 +4475,8 @@ local object ssstring_extend_low (object ssstring, uintL size) {
     #else
     copy_8bit_8bit
     #endif
-      (TheSstring(TheIarray(ssstring)->data)->data,
-       TheSstring(new_data)->data,TheIarray(ssstring)->dims[1]);
+      (TheS32string(TheIarray(ssstring)->data)->data,
+       TheS32string(new_data)->data,TheIarray(ssstring)->dims[1]);
   }
   set_break_sem_1(); # forbid interrupts
   TheIarray(ssstring)->data = new_data;
