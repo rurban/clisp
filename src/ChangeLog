@@ -1,11 +1,13 @@
 2002-03-21  Sam Steingold  <sds@gnu.org>
 
-	more $host_cpu canonicalization (arm)
+	more $host_cpu canonicalization (arm, alpha)
 	* makemake.in (host_cpu): handle hppa* and arm* together
 	* ffcall/autoconf/aclocal.m4 (CL_CANONICAL_HOST_CPU_FOR_FFCALL):
-	canonicalize $host_cpu=arm* to arm
+	canonicalize $host_cpu=arm* to arm and alphaev6[78] to alpha
 	* autoconf/aclocal.m4 (CL_CANONICAL_HOST_CPU)
 	(CL_CANONICAL_HOST_CPU_FOR_FFCALL): ditto
+	* sigsegv/autoconf/aclocal.m4 (CL_CANONICAL_HOST_CPU): ditto
+	Suggested by Will Newton <will@misconception.org.uk>
 
 2002-03-21  Sam Steingold  <sds@gnu.org>
 

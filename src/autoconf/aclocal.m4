@@ -689,7 +689,7 @@ changequote(,)dnl
   i[4567]86 )
     host_cpu=i386
     ;;
-  alphaev[4-7] | alphaev56 | alphapca5[67] )
+  alphaev[4-7] | alphaev56 | alphapca5[67] | alphaev6[78] )
     host_cpu=alpha
     ;;
   hppa1.0 | hppa1.1 | hppa2.0* )
@@ -752,7 +752,7 @@ changequote(,)dnl
   i[4567]86 )
     host_cpu=i386
     ;;
-  alphaev[4-7] | alphaev56 | alphapca5[67] )
+  alphaev[4-7] | alphaev56 | alphapca5[67] | alphaev6[78] )
     host_cpu=alpha
     ;;
   hppa1.0 | hppa1.1 | hppa2.0* )
