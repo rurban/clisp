@@ -1,3 +1,12 @@
+2004-05-31  Bruno Haible  <bruno@clisp.org>
+
+	Let class redefinition go through REINITIALIZE-INSTANCE.
+	* clos-class3.lisp (ensure-class-using-class-<t>): Call
+	reinitialize-instance.
+	(reinitialize-instance-<class>): New function, extracted from
+	ensure-class-using-class-<t>.
+	* clos-class4.lisp (reinitialize-instance@class): New method.
+
 2004-07-20  Sam Steingold  <sds@gnu.org>
 
 	* modules/rawsock/rawsock.c (configdev): fixed STACK references
