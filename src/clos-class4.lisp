@@ -35,10 +35,11 @@
                                    (generic-accessors t)
                                    ((direct-slots direct-slots-as-metaobjects) '())
                                    ((names names) nil)
+                                   ((kconstructor kconstructor) nil)
                                    ((slots slots) '()) ((size size) 1))
   (declare (ignore name direct-superclasses direct-slots
                    direct-default-initargs documentation generic-accessors
-                   direct-slots-as-metaobjects names slots size))
+                   direct-slots-as-metaobjects names kconstructor slots size))
   (apply #'shared-initialize-<structure-class> class situation args))
 
 ;;; ===========================================================================

@@ -1622,6 +1622,7 @@
                                              (direct-default-initargs '()) (documentation nil)
                                              ;; The following keys come from DEFINE-STRUCTURE-CLASS.
                                              ((names names) nil)
+                                             ((kconstructor kconstructor) nil)
                                              ((direct-slots direct-slots-as-metaobjects) '())
                                              ((slots slots) '()) ((size size) 1)
                                         &allow-other-keys)
@@ -1630,7 +1631,7 @@
   ;; replaced with #'make-instance later.
   (declare (ignore metaclass name direct-superclasses direct-slots-as-lists
                    direct-default-initargs documentation
-                   names direct-slots-as-metaobjects slots size))
+                   names kconstructor direct-slots-as-metaobjects slots size))
   (let ((class (allocate-metaobject-instance *<structure-class>-class-version*
                                              *<structure-class>-instance-size*)))
     (apply #'initialize-instance-<structure-class> class args)))
@@ -1653,6 +1654,7 @@
                                                  (documentation nil documentation-p)
                                                  ;; The following keys come from DEFINE-STRUCTURE-CLASS.
                                                  ((names names) nil names-p)
+                                                 ((kconstructor kconstructor) nil kconstructor-p)
                                                  ((direct-slots direct-slots-as-metaobjects) '() direct-slots-as-metaobjects-p)
                                                  ((slots slots) '())
                                                  ((size size) 1)
@@ -1735,32 +1737,29 @@
                      (class-names (first direct-superclasses))
                      '()))))
     (setf (class-names class) names))
+  (when (or (eq situation 't) kconstructor-p)
+    (setf (class-kconstructor class) kconstructor))
   ; Done.
   (when (eq situation 't)
     (system::note-new-structure-class))
   class)
 
 ;; DEFSTRUCT-Hook
-(defun define-structure-class (name)
-  (let ((descr (get name 'sys::defstruct-description)))
-    (when descr
-      (let* ((names (svref descr 0))
-             (all-slots (svref descr 4))
-             (slots (remove-if-not #'slot-definition-initargs ; means #'sys::ds-real-slot-p
-                                   all-slots))
-             (direct-slots (svref descr 5)))
-        (setf (find-class name)
-              (make-instance-<structure-class> <structure-class>
-                :name name
-                :direct-superclasses
-                  (if (cdr names) (list (find-class (second names))) '())
-                'names names
-                'direct-slots direct-slots
-                'slots slots
-                'size (if all-slots
-                        (1+ (slot-definition-location (car (last all-slots))))
-                        1)
-                :generic-accessors nil))))))
+(defun define-structure-class (name names keyword-constructor all-slots direct-slots)
+  (setf (find-class name)
+        (make-instance-<structure-class> <structure-class>
+          :name name
+          :direct-superclasses
+            (if (cdr names) (list (find-class (second names))) '())
+          'names names
+          'kconstructor keyword-constructor
+          'direct-slots direct-slots
+          'slots (remove-if-not #'slot-definition-initargs ; means #'sys::ds-real-slot-p
+                                all-slots)
+          'size (if all-slots
+                  (1+ (slot-definition-location (car (last all-slots))))
+                  1)
+          :generic-accessors nil)))
 (defun undefine-structure-class (name)
   (setf (find-class name) nil))
 
