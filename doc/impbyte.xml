@@ -5,8 +5,7 @@
 <chapter id="gc"><title>Overview of &clisp;'s Garbage Collection</title>
  <subtitle>These are internals, which are of interest only to the
   &clisp; developers.
-  If you are not subscribed to
-  <email>clisp-devel@lists.sourceforge.net</email>,
+  If you are not subscribed to &clisp-devel;,
   this chapter is not for you.</subtitle>
 
 <section id="internals-intro"><title>Introduction</title>

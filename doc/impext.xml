@@ -741,9 +741,8 @@ localized.</para>
  that the other &iconv; implementations are broken in various ways and
  we do not want deal with random &clisp; crashes caused by those bugs.
  If your system supplies an &iconv; implementation which passes the
- &libiconv;'s test suite, please report that to
- <email>clisp-list@sf.net</email> and a future &clisp; version will use
- &iconv; on your system.</simpara>
+ &libiconv;'s test suite, please report that to &clisp-list; and a
+ future &clisp; version will use &iconv; on your system.</simpara>
 
 </listitem></varlistentry></variablelist>
 <!-- #endif /* HAVE_ICONV */ -->
