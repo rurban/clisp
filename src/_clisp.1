@@ -66,6 +66,10 @@ clisp \- ANSI Common Lisp compiler, interpreter and debugger.
 .B \-\-quiet
 |
 .B \-\-silent
+|
+.B \-v
+|
+.B \-\-verbose
 ]
 [
 .B \-interactive-debug
@@ -91,13 +95,6 @@ clisp \- ANSI Common Lisp compiler, interpreter and debugger.
 ]
 [
 .B \-C
-]
-[
-.B \-v
-|
-.B \-verbose
-|
-.B \-\-verbose
 ]
 [
 .B \-norc
@@ -326,15 +323,29 @@ Note that these values cannot be saved in a memory image.
 You have to use the init file or init-function to set them on startup.
 
 .TP
-.BR \-q ", " \-\-quiet ", " \-\-silent
-Quiet:
+.BR \-q ", " \-\-quiet ", " \-\-silent ", " \-v ", " \-verbose ", " \-\-verbose
+Change verbosity level: by default,
 .B clisp
-displays no banner at startup and no good-bye message when quitting.
-Additional
-.B -q
+displays a banner at startup and a good-bye message when quitting,
+and initializes
+.I *load-verbose* " and " *compile-verbose* " to " t " and "
+.I *load-print* " and " *compile-print* " to " nil ","
+as per the ANSI CL standard.
+The first
+.B \-q
+removes the banner and the good-bye message,
+the second sets variables
+.I *load-verbose* " and " *compile-verbose* " to " nil.
+.B \-v
 sets variables
-.I *load-verbose* " and " *compile-verbose* " to " nil "."
-Note that this setting persists into the read-eval-print loop.
+.I *load-print* " and " *compile-print* " to " t "."
+Note that these settings persists into the read-eval-print loop.
+Repeated
+.B \-q " and " \-v
+cancel each other, i.e.,
+.B \-q \-q \-v \-v \-v
+is equivalent to
+.B \-v "."
 
 .TP
 .B \-interactive-debug
@@ -348,7 +359,7 @@ and friends.
 .B \-repl
 Start an interactive read-eval-print loop after processing the
 .BR \-c ", " \-x ", and " lispfile
-option.
+options.
 
 .TP
 .B \-w
@@ -403,16 +414,6 @@ Code being
 .IR load ed
 will then be compiled on the fly.
 This results in slower loading, but faster execution.
-
-.TP
-.BR \-v ", " \-verbose ", " \-\-verbose
-Verbose loading (with
-.BI \-i
-) and compiling (with
-.BI \-c
-); this sets variables
-.I *load-print* " and " *compile-print* " to " t "."
-Note that this setting persists into the read-eval-print loop.
 
 .TP
 .BI "\-norc"

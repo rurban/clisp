@@ -1,3 +1,9 @@
+2003-12-20  Sam Steingold  <sds@gnu.org>
+
+	the initial verbosity level is controlled by the pair
+	of mutually cancelling options -q/-v - see manual
+	* spvw.d (argv_quiet): replaced with argv_verbose
+
 2003-12-19  Bruno Haible  <bruno@clisp.org>
 
 	* spvw_mmap.d (mprotect): Remove declaration. Needed for FreeBSD 5.
