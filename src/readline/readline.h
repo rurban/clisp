@@ -7,7 +7,7 @@
 
    The GNU Readline Library is free software; you can redistribute it
    and/or modify it under the terms of the GNU General Public License
-   as published by the Free Software Foundation; either version 1, or
+   as published by the Free Software Foundation; either version 2, or
    (at your option) any later version.
 
    The GNU Readline Library is distributed in the hope that it will be
@@ -18,7 +18,7 @@
    The GNU General Public License is often shipped with GNU software, and
    is generally kept in a file called COPYING or LICENSE.  If you do not
    have a copy of the license, write to the Free Software Foundation,
-   675 Mass Ave, Cambridge, MA 02139, USA. */
+   59 Temple Place, Suite 330, Boston, MA 02111 USA. */
 
 #if !defined (_READLINE_H_)
 #define _READLINE_H_
@@ -216,7 +216,7 @@ extern int rl_noninc_reverse_search _PROTO((int count, int key));
 extern int rl_noninc_forward_search_again _PROTO((int count, int key));
 extern int rl_noninc_reverse_search_again _PROTO((int count, int key));
 
-/* Not available unless readline is compiled -DPAREN_MATCHING. */
+/* Bindable command used when inserting a matching close character. */
 extern int rl_insert_close _PROTO((int count, int invoking_key));
 
 /* Not available unless READLINE_CALLBACKS is defined. */
@@ -458,6 +458,7 @@ extern void _rl_update_final _PROTO((void));
 extern void _rl_redisplay_after_sigwinch _PROTO((void));
 extern void _rl_clean_up_for_exit _PROTO((void));
 extern void _rl_erase_entire_line _PROTO((void));
+extern int _rl_current_display_line _PROTO((void));
 /* input.c */
 extern int _rl_any_typein _PROTO((void));
 extern int _rl_input_available _PROTO((void));
@@ -472,6 +473,7 @@ extern void _rl_kill_kbd_macro _PROTO((void));
 /* nls.c */
 extern int _rl_init_eightbit _PROTO((void));
 /* parens.c */
+extern void _rl_enable_paren_matching _PROTO((int on_or_off));
 extern int rl_insert_close _PROTO((int count, int invoking_key));
 /* readline.c */
 extern void _rl_init_line_state _PROTO((void));
@@ -489,7 +491,7 @@ extern char *readline_internal_teardown _PROTO((int eof));
 extern int readline_internal_char _PROTO((void));
 #endif
 /* shell.c */
-#include "shell.h"
+#include "rlshell.h"
 /* terminal.c */
 extern void _rl_get_screen_size _PROTO((int tty, int ignore_env));
 extern int _rl_init_terminal_io _PROTO((char *terminal_name));
@@ -561,9 +563,7 @@ extern char *possible_meta_prefixes[];
 extern int _rl_defining_kbd_macro;
 extern char *_rl_executing_macro;
 /* parens.c */
-#if defined (PAREN_MATCHING)
 extern int rl_blink_matching_paren;
-#endif /* PAREN_MATCHING */
 /* readline.c */
 extern int _rl_horizontal_scroll_mode;
 extern int _rl_mark_modified_lines;
@@ -611,6 +611,9 @@ extern char *term_up;
 extern char *term_dc;
 extern char *term_cr;
 extern char *term_IC;
+#if defined (HACK_TERMCAP_MOTION)
+extern char *term_forward_char;
+#endif
 extern int screenheight;
 extern int screenwidth;
 extern int screenchars;
@@ -628,11 +631,11 @@ extern int _rl_undo_group_level;
 /*								    */
 /* **************************************************************** */
 
-/* Always true. */
-extern int rl_present_p;
-
 /* The version of this incarnation of the readline library. */
 extern char *rl_library_version;
+
+/* True if this is real GNU readline. */
+extern int rl_gnu_readline_p;
 
 /* The name of the calling program.  You should initialize this to
    whatever was in argv[0].  It is used when parsing conditionals. */
@@ -675,10 +678,6 @@ extern FILE *rl_outstream;
    before readline_internal () prints the first prompt. */
 extern Function *rl_startup_hook;
 
-/* If non-zero, indicates that the caller of readline() has already
-   output the prompt. */
-extern int rl_already_prompted;
-
 /* If non-zero, this is the address of a function to call just before
    readline_internal_setup () returns and readline_internal starts
    reading input characters. */
@@ -702,6 +701,15 @@ extern Keymap rl_binding_keymap;
    if the only thing typed on an otherwise-blank line is something bound to
    rl_newline. */
 extern int rl_erase_empty_line;
+
+/* If non-zero, the application has already printed the prompt (rl_prompt)
+   before calling readline, so readline should not output it the first time
+   redisplay is done. */
+extern int rl_already_prompted;
+
+/* A non-zero value means to read only this many characters rather than
+   up to a character bound to accept-line. */
+extern int rl_num_chars_to_read;
 
 /* Variables to control readline signal handling. */
 /* If non-zero, readline will install its own signal handlers for

@@ -108,9 +108,12 @@ The  following  symbolic  character  names  are recognized
 while processing key bindings:
 <CODE>RUBOUT</CODE>, <CODE>DEL</CODE>, <CODE>ESC</CODE>, <CODE>LFD</CODE>,
 <CODE>NEWLINE</CODE>,  <CODE>RET</CODE>,  <CODE>RETURN</CODE>,  <CODE>SPC</CODE>,
-<CODE>SPACE</CODE>, and <CODE>TAB</CODE>.  In addition to
-command names, readline allows  keys  to  be  bound  to  a
-string that is inserted when the key is pressed (a <i>macro</i>).
+<CODE>SPACE</CODE>, and <CODE>TAB</CODE>.
+<P>
+
+In addition to command names, readline allows  keys  to  be
+bound  to  a string that is inserted when the key is pressed
+(a <i>macro</i>).
 <P>
 
 <H3><A NAME="Key Bindings">Key Bindings</A></H3>
@@ -434,7 +437,7 @@ unbound by default.
 are  composed  of  alphanumeric characters (letters
 and digits).
 <DT> <A NAME="backward-word"><CODE>backward-word</CODE></A> (<SAMP>M-b</SAMP>)
-<DD> Move back to the start of this,  or  the  previous,
+<DD> Move back to the start of the current or previous
 word.   Words  are composed of alphanumeric characters (letters and digits).
 <DT> <A NAME="clear-screen"><CODE>clear-screen</CODE></A> (<SAMP>C-l</SAMP>)
 <DD> Clear the screen leaving the current  line  at  the
@@ -975,9 +978,8 @@ the bell (subject to the setting of the  <A HREF="#bell-style"><CODE>bell-style<
 <H2><A NAME="Authors">Authors</A></H2>
 
 <UL>
-<LI> Brian   Fox,   Free  Software  Foundation  (primary
-author)<BR>
-<TT>bfox@ai.MIT.Edu</TT>
+<LI>Brian   Fox,   Free  Software  Foundation<BR>
+<TT>bfox@gnu.org</TT>
 <LI>Chet Ramey, Case Western Reserve University<BR>
 <TT>chet@ins.CWRU.Edu</TT>
 <LI>Bruno Haible<BR>
@@ -1000,7 +1002,7 @@ It's too big and too slow.
 Bruno Haible &lt;haible@clisp.cons.org&gt;
 </ADDRESS>
 <P>
-Last modified: 11 October 1998.
+Last modified: 23 January 2000.
 
 </BODY>
 

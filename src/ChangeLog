@@ -1,3 +1,10 @@
+2000-03-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * stream.d (make_terminal_stream_, rl_memory_abort): Use
+          rl_gnu_readline_p instead of rl_present_p.
+          (init_streamvars): Call _rl_enable_paren_matching.
+        * noreadline.d (rl_gnu_readline_p): Renamed from rl_present_p.
+
 2000-03-03  Sam Steingold  <sds@gnu.org>
 
 	* clhs.lsp (browse-url): expanded error message.

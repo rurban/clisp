@@ -271,7 +271,7 @@ extern char *xrealloc _PROTO((char *pointer, int bytes));
 /* **************************************************************** */
 
 /* Always true. */
-int rl_present_p = 1;
+int rl_gnu_readline_p = 1;
 
 static char *LibraryVersion = "2.0";
 
