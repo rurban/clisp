@@ -1,6 +1,4 @@
 
-allow Ctrl-C in accept(), connect(), select() on sockets
-
 todo:
 GETTEXT (for spanish)
 GNU_READLINE (for Win95 only, the WinNT console already has editing + history)
