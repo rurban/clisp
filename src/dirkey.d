@@ -828,7 +828,6 @@ LISPFUNN(set_dkey_value,3) {
   var object dkey = test_dir_key(STACK_2,true);
   var object name = STACK_1;
   var object value = STACK_0;
-  if (!stringp(name)) fehler_string(name);
   with_string_0(name,O(misc_encoding),namez, {
     if (stringp(value)) {
       with_string_0(value,O(misc_encoding),valz, {
@@ -861,7 +860,6 @@ LISPFUNN(set_dkey_value,3) {
   STACK_0 = check_string(STACK_0);                              \
  {var object dkey = test_dir_key(STACK_1,true);                 \
   var object name = STACK_0; skipSTACK(2);                      \
-  if (!stringp(name)) fehler_string(name);                      \
   with_string_0(name,O(misc_encoding),namez,{                   \
     SYSCALL_WIN32(call((HKEY)(TheDirKey(dkey)->handle),namez)); \
   });}                                                          \
