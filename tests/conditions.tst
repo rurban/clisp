@@ -401,6 +401,48 @@ NIL
 NIL
 
 ;;; from GCL ansi-test by Paul F. Dietz
+(macrolet ((%m (&rest args) (cons 'error args)))
+  (handler-bind ((error #'(lambda (c2)
+                            (invoke-restart (find-restart 'foo c2)))))
+    (handler-bind ((error #'(lambda (c) (declare (ignore c)) (error "blah"))))
+      (restart-case (restart-case (%m "boo!")
+                      (foo () 'bad))
+        (foo () 'good)))))
+good
+
+(symbol-macrolet ((%s (error "boo!")))
+  (handler-bind ((error #'(lambda (c2)
+                            (invoke-restart (find-restart 'foo c2)))))
+    (handler-bind ((error #'(lambda (c) (declare (ignore c)) (error "blah"))))
+      (restart-case (restart-case %s
+                      (foo () 'bad))
+        (foo () 'good)))))
+good
+
+(macrolet ((%m2 (&rest args) (cons 'error args)))
+  (macrolet ((%m (&rest args &environment env)
+               (macroexpand (cons '%m2 args) env)))
+    (handler-bind ((error #'(lambda (c2)
+                              (invoke-restart (find-restart 'foo c2)))))
+      (handler-bind ((error #'(lambda (c)
+                                (declare (ignore c)) (error "blah"))))
+        (restart-case (restart-case (%m "boo!")
+                        (foo () 'bad))
+          (foo () 'good))))))
+good
+
+(macrolet ((%m2 (&rest args) (cons 'error args)))
+  (macrolet ((%m (&rest args &environment env)
+               (macroexpand (cons '%m2 args) env)))
+    (handler-bind ((error #'(lambda (c2)
+                              (invoke-restart (find-restart 'foo c2)))))
+      (handler-bind ((error #'(lambda (c)
+                                (declare (ignore c)) (error "blah"))))
+        (restart-case (with-restarts ((foo () 'bad))
+                        (%m "boo!"))
+          (foo () 'good))))))
+good
+
 (multiple-value-list
  (with-simple-restart (foo "zzz")
    (invoke-restart 'foo)))
