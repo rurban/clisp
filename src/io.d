@@ -4911,8 +4911,8 @@ nonreturning_function(local, fehler_print_readably, (object obj)) {
 # error message for inadmissible value of *PRINT-CASE*.
 # fehler_print_case(); english: error_print_case();
 nonreturning_function(local, fehler_print_case, (void)) {
-  # (error "~: the value ~ of ~ is neither ~ nor ~ nor ~.
-  #         it is reset to ~."
+  # (error "~S: the value ~S of ~S is neither ~S nor ~S nor ~S.
+  #         it is reset to ~S."
   #        'print *print-case* '*print-case* ':upcase ':downcase ':capitalize
   #        ':upcase
   # )

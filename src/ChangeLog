@@ -1,3 +1,9 @@
+2004-04-25  Bruno Haible  <bruno@clisp.org>
+
+	Appendix to 2004-03-15 patch.
+	* record.d (check_initialization_argument_list): ~ -> ~S.
+	* sequence.d (remove_op, delete_op, substitute_op): Likewise.
+
 2004-04-24  Bruno Haible  <bruno@clisp.org>
 
 	* init.lisp: Remove vestiges of syscalls.
