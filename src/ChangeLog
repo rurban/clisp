@@ -1,5 +1,13 @@
 2000-05-09  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (sec_usec): new helper function.
+	(socket_wait): use it.
+	(socket_status): new Lisp function: interface to select(3).
+	(stream_listen): listen properly on binary streams too.
+	* constsym.d, subr.d: added LISP:SOCKET-STATUS.
+
+2000-05-09  Sam Steingold  <sds@gnu.org>
+
 	* disassem.lisp (disassemble-machine-code): do not call
 	the pager when running under Emacs.
 
