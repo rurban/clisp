@@ -809,6 +809,7 @@
                                             :requires-stepbefore seen-endtest))))))))
                                 (t
                                  (unless (symbolp pattern) (loop-syntax-error kw))
+                                 (unless pattern (setq pattern (gensym)))
                                  ;; ANSI CL 6.1.2.1.1 implies that the
                                  ;; start/end/by clauses can come in any
                                  ;; order, but only one of each kind.
