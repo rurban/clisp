@@ -689,6 +689,57 @@ cat >> confdefs.h <<EOF
 EOF
 ])dnl
 dnl
+AC_DEFUN(CL_CANONICAL_HOST_CPU_FOR_FFCALL,
+[AC_REQUIRE([CL_CANONICAL_HOST])AC_REQUIRE([AC_PROG_CC])
+if test "$host_cpu" = i486 -o "$host_cpu" = i586 -o "$host_cpu" = i686; then
+  host_cpu=i386
+fi
+if test "$host_cpu" = hppa1.0 -o "$host_cpu" = hppa1.1 -o "$host_cpu" = hppa2.0; then
+  host_cpu=hppa
+fi
+if test "$host_cpu" = powerpc; then
+  host_cpu=rs6000
+fi
+if test "$host_cpu" = c1 -o "$host_cpu" = c2 -o "$host_cpu" = c32 -o "$host_cpu" = c34 -o "$host_cpu" = c38 -o "$host_cpu" = c4; then
+  host_cpu=convex
+fi
+if test "$host_cpu" = mips; then
+  AC_CACHE_CHECK([for 64-bit MIPS], cl_cv_host_mips64, [
+AC_EGREP_CPP(yes,
+[#if defined(_MIPS_SZLONG)
+#if (_MIPS_SZLONG == 64)
+/* We should also check for (_MIPS_SZPTR == 64), but gcc keeps this at 32. */
+  yes
+#endif
+#endif
+], cl_cv_host_mips64=yes, cl_cv_host_mips64=no)
+])
+if test $cl_cv_host_mips64 = yes; then
+  host_cpu=mips64
+else
+  AC_CACHE_CHECK([for MIPS with n32 ABI], cl_cv_host_mipsn32, [
+dnl Strictly speaking, the MIPS ABI (-32 or -n32) is independent from the CPU
+dnl identification (-mips[12] or -mips[34]). But -n32 is commonly used together
+dnl with -mips3, and it's easier to test the CPU identification.
+AC_EGREP_CPP(yes,
+[#if __mips >= 3
+  yes
+#endif
+], cl_cv_host_mipsn32=yes, cl_cv_host_mipsn32=no)
+])
+if test $cl_cv_host_mipsn32 = yes; then
+  host_cpu=mipsn32
+fi
+fi
+fi
+dnl was AC_DEFINE_UNQUOTED(__${host_cpu}__) but KAI C++ 3.2d doesn't like this
+cat >> confdefs.h <<EOF
+#ifndef __${host_cpu}__
+#define __${host_cpu}__ 1
+#endif
+EOF
+])dnl
+dnl
 AC_DEFUN(RL_VOID,
 [CL_COMPILE_CHECK([working void], rl_cv_c_void, ,
 [void f();
