@@ -12,97 +12,23 @@
 
 (in-package "SYSTEM")
 
-;;; Handle the transformation of [x1] [x2] ... forms as described
-;;; in the HyperSpec. In addition, nested backquotes are handled here.
-(defun bq-transform (form)
-  (if (consp form)
-    (case (first form)
-      ((UNQUOTE) (list 'list (second form)))
-      ((SPLICE) (second form))
-      ;; (BQ-NCONC FORM) serves as a parse tree annotation which
-      ;; tells the optimizer that FORM may be destructively manipulated.
-      ((NSPLICE) (list 'bq-nconc (second form)))
-      ((BACKQUOTE) (list 'list (list 'BACKQUOTE (bq-expand (second form)))))
-      (otherwise (list 'list (bq-expand form))))
-    (list 'list (bq-expand form))))
+;;; ============================== Reader Macro ==============================
 
-;;; Handle the transformation of `(x1 x2 x3 ...) as described by HyperSpec
-;;; to produce a list of forms that can be combined into an APPEND form.
-;;; There is one deviation from the HyperSpec: namely, in the case
-;;; `(x1 x2 ... xn . atom) the atom is translated to (backquote atom)
-;;; rather than (quote atom). This allows for the atom to be a vector
-;;; with embedded unquotes, an apparently common extension.
-(defun bq-expand-list (form)
-  (cond
-    ((null form) nil)
-    ((consp (rest form))
-       (case (second form)
-         ;; well-defined dotted unquote `( ... . ,form)
-         ((UNQUOTE)
-            (list (bq-transform (first form)) (third form)))
-         ;; undefined dotted splice: `( ... . ,@form)
-         ((SPLICE NSPLICE)
-            (bq-dotted-splice-error (second form)))
-         (otherwise
-            (cons (bq-transform (first form))
-                  (bq-expand-list (rest form))))))
-    ((null (rest form))
-       (list (bq-transform (first form))))
-    (t (list (bq-transform (first form)) (list 'BACKQUOTE (rest form))))))
+;;; At this level, we do only parsing, not simplification, so that things
+;;; like `,A print as they were input. Parsing returns
+;;; the following                  for
+;;;   (BACKQUOTE x)                `x
+;;;   (UNQUOTE x)                  ,x
+;;;   (SPLICE x)                   ,@x
+;;;   (NSPLICE x)                  ,.x
 
-;;; Handle base cases as describe by HyperSpec, plus nested backquote:
-;;;
-;;; `,form     -->  form
-;;; `,@form    -->  error
-;;; ``form     -->  `form-expanded
-;;; list-form  -->  (append f1 f2 f3 ...) where (f1 f2 f3 ...)
-;;;                 is the output of (bq-expand-list list-form).
-
-(proclaim '(special *backquote-optimize*))
-(setq *backquote-optimize* t)
-
-(defun bq-expand-cons (form)
-  (case (first form)
-    ((UNQUOTE)
-       (second form))
-    ((SPLICE NSPLICE)
-       (bq-non-list-splice-error (second form)))
-    ((BACKQUOTE)
-       (list 'BACKQUOTE (bq-expand (second form))))
-    (otherwise
-       (if *backquote-optimize*
-         (bq-optimize (bq-expand-list form))
-         (cons 'append (bq-expand-list form))))))
-
-;;; Handle vector expansion, along the lines suggested by HyperSpec.
-(defun bq-vec-expand (vec-form)
-  (let ((expansion (bq-expand-list (map 'list #'identity vec-form))))
-    (if *backquote-optimize*
-      (bq-optimize-vec expansion)
-      (list 'apply #'vector (cons 'nconc expansion)))))
-
-;;; Top level cases
-;;;
-;;; `()        -->  ()
-;;; `cons      -->  result of (bq-expand-cons cons)
-;;; `#( ... )  -->  result of (bq-vec-expand #( ... ))
-;;;  other     -->  'other
-(defun bq-expand (form)
-  ;; we don't have TYPECASE at this stage
-  (cond
-    ((null form) nil)
-    ((consp form) (bq-expand-cons form))
-    ((or (stringp form) (bit-vector-p form)) (list 'quote form))
-    ((vectorp form) (bq-vec-expand form))
-    (t (list 'quote form))))
-
-;;; *unquote-occured* flips to T when a sub-reader encounters the unquote
+;;; *unquote-occurred* flips to T when a sub-reader encounters the unquote
 ;;; syntax. This variable is the basis for a trick by which we diagnose uses of
 ;;; the unquote syntax inside forms which are not vectors or lists, such as:
 ;;; #`#s(foo-structure :bar #,z) without an cooperation from the readers of
 ;;; these forms. In some cases, however, such unquote syntax will cause the
 ;;; reader of the subform to raise an error before we catch it.
-(proclaim '(special *unquote-occured*))
+(proclaim '(special *unquote-occurred*))
 
 ;;; *backquote-level* measures the level of backquote nesting that the reader
 ;;; is entangled in. It increases by one when reading the backquoted object,
@@ -121,7 +47,7 @@
 ;;; Handle the ` read syntax.
 (defun backquote-reader (stream char)
   (declare (ignore char))
-  (let* ((*unquote-occured* nil)
+  (let* ((*unquote-occurred* nil)
          (*reading-array* nil)
          (*reading-struct* nil)
          (*backquote-level* (1+ (or *backquote-level* 0)))
@@ -130,7 +56,7 @@
                      (not (stringp object))
                      (not (bit-vector-p object)))
                 (listp object))
-      (when *unquote-occured*
+      (when *unquote-occurred*
         (error-of-type 'reader-error
           (TEXT "~S: unquotes may occur only in (...) or #(...) forms")
           'read)))
@@ -163,7 +89,7 @@
     (error-of-type 'reader-error
       (TEXT "~S: unquotes may not occur in arrays")
       'read))
-  (setq *unquote-occured* t)
+  (setq *unquote-occurred* t)
   (let ((*backquote-level* (1- *backquote-level*))
         (next (peek-char nil stream)))
     (cond ((char= next #\@)
@@ -173,6 +99,17 @@
            (read-char stream)
            (list 'NSPLICE (read stream t nil t)))
           (t (list 'UNQUOTE (read stream t nil t))))))
+
+;;; Like MEMBER but handles improper lists without error.
+(defun bq-member (elem list &key (test #'eql))
+  (do ((list list (rest list)))
+      ((atom list) nil)
+   (when (funcall test (first list) elem)
+     (return list))))
+
+;;; ----------------------------- Error Messages -----------------------------
+
+;;; Used by the Reader Macro and the Macroexpander.
 
 ;;; Signal error for `,.form or `,@form.
 ;;; It's undefined behaviour; we signal an error for it.
@@ -194,42 +131,170 @@
       (TEXT "the syntax `( ... . ,@form) is invalid")
       (TEXT "the syntax `( ... . ,.form) is invalid"))))
 
-;;; Like MEMBER but handles improper lists without error.
-(defun bq-member (elem list &key (test #'eql))
-  (do ((list list (rest list)))
-      ((atom list) nil)
-   (when (funcall test (first list) elem)
-     (return list))))
+;;; ============================== Macroexpander ==============================
 
-;;;
-;;; Optimizer
-;;;
+;;; ------------------------------ Entry-points ------------------------------
 
-;;; BQ-OPTIMIZE takes as input a list of forms that are intended to be
-;;; the argument list of an APPEND call.  It tries to optimize the forms
+;; The BACKQUOTE macro just calls the backquote expander on its argument.
+(sys::%putd 'BACKQUOTE
+  (sys::make-macro
+    (function BACKQUOTE
+      (lambda (form env)
+        (declare (ignore env))
+        (bq-expand (second form))))))
+
+;; The BQ-NCONC form is a marker used in the backquote-generated code.
+;; It tells the optimizer that the enclosed forms may be combined with
+;; NCONC. By defining BQ-NCONC as a macro, we take care of any `surviving'
+;; occurrences that are not removed and processed by the optimizer.
+(sys::%putd 'BQ-NCONC
+  (sys::make-macro
+   (function BQ-NCONC
+     (lambda (form env)
+       (declare (ignore env))
+       (if (cddr form)
+         (cons 'NCONC (rest form))
+         (second form))))))
+
+;;; ----------------------- Recursive Expansion Engine -----------------------
+
+;;; Naive expansion produces inefficient construction forms, e.g.
+;;;   `(,(foo) ,(bar)) => (APPEND (LIST (foo)) (LIST (bar)))
+;;;   instead of          (LIST (foo) (bar))
+;;; Backquote expansion optimizers are enabled by default, but can be turned
+;;; off for debugging.
+(proclaim '(special *backquote-optimize*))
+(setq *backquote-optimize* t)
+
+;;; Top level cases
+;;;
+;;; `()        -->  ()
+;;; `cons      -->  result of (bq-expand-cons cons)
+;;; `#( ... )  -->  result of (bq-expand-vector #( ... ))
+;;;  other     -->  'other
+(defun bq-expand (form)
+  ;; we don't have TYPECASE at this stage
+  (cond
+    ((null form) nil)
+    ((consp form) (bq-expand-cons form))
+    ((or (stringp form) (bit-vector-p form)) (list 'quote form))
+    ((vectorp form) (bq-expand-vector form))
+    (t (list 'quote form))))
+
+;;; Handle the transformation of [x1] [x2] ... forms as described
+;;; in the HyperSpec. In addition, nested backquotes are handled here.
+(defun bq-transform (form)
+  (if (consp form)
+    (case (first form)
+      ((UNQUOTE) (list 'list (second form)))
+      ((SPLICE) (second form))
+      ;; (BQ-NCONC FORM) serves as a parse tree annotation which
+      ;; tells the optimizer that FORM may be destructively manipulated.
+      ((NSPLICE) (list 'bq-nconc (second form)))
+      ((BACKQUOTE) (list 'list (list 'BACKQUOTE (bq-expand (second form)))))
+      (otherwise (list 'list (bq-expand form))))
+    (list 'list (bq-expand form))))
+
+;;; Handle base cases as describe by HyperSpec, plus nested backquote:
+;;;
+;;; `,form     -->  form
+;;; `,@form    -->  error
+;;; ``form     -->  `form-expanded
+;;; list-form  -->  (append f1 f2 f3 ...) where (f1 f2 f3 ...)
+;;;                 is the output of (bq-expand-list list-form).
+(defun bq-expand-cons (form)
+  (case (first form)
+    ((UNQUOTE)
+       (second form))
+    ((SPLICE NSPLICE)
+       (bq-non-list-splice-error (second form)))
+    ((BACKQUOTE)
+       (list 'BACKQUOTE (bq-expand (second form))))
+    (otherwise
+       (if *backquote-optimize*
+         (bq-optimize-for-list (bq-expand-list form))
+         (cons 'append (bq-expand-list form))))))
+
+;;; Handle the transformation of `(x1 x2 x3 ...) as described by HyperSpec
+;;; to produce a list of forms that can be combined into an APPEND form.
+;;; There is one deviation from the HyperSpec: namely, in the case
+;;; `(x1 x2 ... xn . atom) the atom is translated to (backquote atom)
+;;; rather than (quote atom). This allows for the atom to be a vector
+;;; with embedded unquotes, an apparently common extension.
+(defun bq-expand-list (form)
+  (cond
+    ((null form) nil)
+    ((consp (rest form))
+       (case (second form)
+         ;; well-defined dotted unquote `( ... . ,form)
+         ((UNQUOTE)
+            (list (bq-transform (first form)) (third form)))
+         ;; undefined dotted splice: `( ... . ,@form)
+         ((SPLICE NSPLICE)
+            (bq-dotted-splice-error (second form)))
+         (otherwise
+            (cons (bq-transform (first form))
+                  (bq-expand-list (rest form))))))
+    ((null (rest form))
+       (list (bq-transform (first form))))
+    (t (list (bq-transform (first form)) (list 'BACKQUOTE (rest form))))))
+
+;;; Handle vector expansion, along the lines suggested by HyperSpec.
+(defun bq-expand-vector (vec-form)
+  (let ((expansion (bq-expand-list (map 'list #'identity vec-form))))
+    (if *backquote-optimize*
+      (bq-optimize-for-vector expansion)
+      (list 'apply #'vector (cons 'nconc expansion)))))
+
+;;; --------------------------- Expansion Optimizer ---------------------------
+
+;;; BQ-OPTIMIZE-FOR-LIST takes as input a list of forms that are intended to
+;;; be the argument list of an APPEND call.  It tries to optimize the forms
 ;;; to generate something more efficient than APPEND, but in the case
 ;;; that it does no optimizations, it just returns (cons 'append forms)
-(defun bq-optimize (forms)
+(defun bq-optimize-for-list (forms)
   (bq-reduce-nesting (bq-optimize-append forms)))
 
-;;; Returns true if form evaluates to itself.
-(defun eval-self-p (form)
-  (or (null form) (eq form t)
-      (keywordp form)
-      (not (or (symbolp form)
-               (consp form)))))
+;;; BQ-OPTIMIZE-FOR-VECTOR generates a better translation for a backquoted
+;;; vector. The vector has been already converted to a list, which
+;;; was subject to unoptimized backquote expansion. That resulting
+;;; list of append arguments is what is passed to this function.
+;;; The expansion is optimized and then converted to a vector
+;;; form according to these rules:
+;;;
+;;; '(...)  -> #(...)
+;;; (list ...) -> (vector ...)
+;;; (append ...) -> (multiple-value-call #'vector ...)
+;;;
+;;; The (append ...) case is based on the original unoptimized
+;;; append args. The arguments are each treated as follows:
+;;;
+;;; (list ...) -> (values ...)
+;;; (splice ...) -> (values-list (append ...))
+;;; (nsplice ...) -> (values-list (nconc ...))
+;;; other -> (values-list other)
+(defun bq-optimize-for-vector (unoptimized)
+  (let ((optimized (bq-optimize-for-list unoptimized)))
+    (cond
+      ((constantp optimized)
+         (apply #'vector (eval optimized)))
+      ((not (consp optimized))
+         (list 'apply '#'vector optimized))
+      ((eq (first optimized) 'list)
+         (cons 'vector (rest optimized)))
+      (t (list* 'multiple-value-call '#'vector
+                (mapcar #'(lambda (apply-arg)
+                            (cond
+                              ((atom apply-arg)
+                                 (list 'values-list apply-arg))
+                              ((memq (first apply-arg) '(SPLICE NSPLICE))
+                                 (list 'values-list (list 'append apply-arg)))
+                              ((eq (first apply-arg) 'list)
+                                 (list* 'values (rest apply-arg)))
+                              (t (list 'values-list apply-arg))))
+                           unoptimized))))))
 
-;;; quote if the form does not evaluate to itself
-(defun maybe-quote (form)
-  (if (eval-self-p form) form (list 'quote form)))
-
-;;; unquote if the quoted form evaluates to iteself
-(defun maybe-unquote (form)
-  (if (and (consp form)
-           (eq 'quote (first form))
-           (eval-self-p (second form)))
-      (second form)
-      form))
+;;; - - - - - - - - - - - - Expansion Optimizer Step 1 - - - - - - - - - - - -
 
 (defun bq-optimize-append (forms &aux butlast)
   (cond
@@ -325,23 +390,15 @@
         (t (bq-optimize-list
              (append '(list*) (butlast forms) (list last-opt))))))))
 
-;;; Test whether the argument is of the form (QUOTE (<oper> ...))
-;;; where <oper> is one of the backquote operators.
-(defun quoted-bq-operator-p (form)
-  (and (consp form)
-       (eq (first form) 'quote)
-       (consp (second form))
-       (memq (first (second form)) '(UNQUOTE SPLICE NSPLICE BACKQUOTE))))
-
-;;; BQ-CONSTANT-P determines whether the expression may be reduced
-;;; at expansion time by BQ-EVAL, similarly to how CONSTANTP determines
-;;; whether an expression may be reduced by EVAL at compile time.
-(defun bq-constant-p (form)
-  (if (quoted-bq-operator-p form)
-    (case (first (second form))
-      ((UNQUOTE) (bq-constant-p (bq-optimize-list (second (second form)))))
-      (otherwise nil))
-    (constantp form)))
+;;; BQ-OPTIMIZE-LIST tries to turn a (list ...) or
+;;; (list* ...) form into a '(...) form.
+(defun bq-optimize-list (form)
+  (if (and (consp form)
+           (memq (first form) '(list list*))
+           (every #'bq-constant-p (rest form)))
+    (list 'quote (apply (first form)
+                        (mapcar #'bq-eval (rest form))))
+    form))
 
 ;;; BQ-EVAL implements special evaluation rules for reducing constant
 ;;; expressions at backquote expansion time. Most constant expressions
@@ -357,15 +414,46 @@
       (otherwise form))
     (eval form)))
 
-;;; BQ-OPTIMIZE-LIST tries to turn a (list ...) or
-;;; (list* ...) form into a '(...) form.
-(defun bq-optimize-list (form)
+;;; BQ-CONSTANT-P determines whether the expression may be reduced
+;;; at expansion time by BQ-EVAL, similarly to how CONSTANTP determines
+;;; whether an expression may be reduced by EVAL at compile time.
+(defun bq-constant-p (form)
+  (if (quoted-bq-operator-p form)
+    (case (first (second form))
+      ((UNQUOTE) (bq-constant-p (bq-optimize-list (second (second form)))))
+      (otherwise nil))
+    (constantp form)))
+
+;;; - - - - - - - - - - - Nonrecursive auxiliary functions - - - - - - - - - - -
+
+;;; Returns true if form evaluates to itself.
+(defun eval-self-p (form)
+  (or (null form) (eq form t)
+      (keywordp form)
+      (not (or (symbolp form)
+               (consp form)))))
+
+;;; quote if the form does not evaluate to itself
+(defun maybe-quote (form)
+  (if (eval-self-p form) form (list 'quote form)))
+
+;;; unquote if the quoted form evaluates to iteself
+(defun maybe-unquote (form)
   (if (and (consp form)
-           (memq (first form) '(list list*))
-           (every #'bq-constant-p (rest form)))
-    (list 'quote (apply (first form)
-                        (mapcar #'bq-eval (rest form))))
-    form))
+           (eq 'quote (first form))
+           (eval-self-p (second form)))
+      (second form)
+      form))
+
+;;; Test whether the argument is of the form (QUOTE (<oper> ...))
+;;; where <oper> is one of the backquote operators.
+(defun quoted-bq-operator-p (form)
+  (and (consp form)
+       (eq (first form) 'quote)
+       (consp (second form))
+       (memq (first (second form)) '(UNQUOTE SPLICE NSPLICE BACKQUOTE))))
+
+;;; - - - - - - - - - - - - Expansion Optimizer Step 2 - - - - - - - - - - - -
 
 ;;; Reduce nested APPEND, NCONC and CONS expressions.
 ;;; This cleans up after the optimizer.
@@ -422,44 +510,7 @@
          (t nil)))
     (t form)))
 
-;;; BQ-OPTIMIZE-VEC generates a better translation for a backquoted
-;;; vector. The vector has been already converted to a list, which
-;;; was subject to unoptimized backquote expansion. That resulting
-;;; list of append arguments is what is passed to this function.
-;;; The expansion is optimized and then converted to a vector
-;;; form according to these rules:
-;;;
-;;; '(...)  -> #(...)
-;;; (list ...) -> (vector ...)
-;;; (append ...) -> (multiple-value-call #'vector ...)
-;;;
-;;; The (append ...) case is based on the original unoptimized
-;;; append args. The arguments are each treated as follows:
-;;;
-;;; (list ...) -> (values ...)
-;;; (splice ...) -> (values-list (append ...))
-;;; (nsplice ...) -> (values-list (nconc ...))
-;;; other -> (values-list other)
-(defun bq-optimize-vec (unoptimized)
-  (let ((optimized (bq-optimize unoptimized)))
-    (cond
-      ((constantp optimized)
-         (apply #'vector (eval optimized)))
-      ((not (consp optimized))
-         (list 'apply '#'vector optimized))
-      ((eq (first optimized) 'list)
-         (cons 'vector (rest optimized)))
-      (t (list* 'multiple-value-call '#'vector
-                (mapcar #'(lambda (apply-arg)
-                            (cond
-                              ((atom apply-arg)
-                                 (list 'values-list apply-arg))
-                              ((memq (first apply-arg) '(SPLICE NSPLICE))
-                                 (list 'values-list (list 'append apply-arg)))
-                              ((eq (first apply-arg) 'list)
-                                 (list* 'values (rest apply-arg)))
-                              (t (list 'values-list apply-arg))))
-                           unoptimized))))))
+;;; =========================== Other Entry-points ===========================
 
 ;;; Interfaces used by other modules within CLISP, and possibly
 ;;; by CLISP applications.
@@ -507,5 +558,5 @@
 
 (defun backquote-append (left right)
   (if *backquote-optimize*
-    (bq-optimize (list left right))
+    (bq-optimize-for-list (list left right))
     (list 'append left right)))
