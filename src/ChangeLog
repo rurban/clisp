@@ -1,5 +1,11 @@
 2001-08-21  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #446942
+	* makemake.in (DISTFILE): isulate from AIX uname which does not
+	have the -p option
+
+2001-08-21  Sam Steingold  <sds@gnu.org>
+
 	some symbols appeared in wrong packages - fix this
 	* international.lisp (textdomain, textdomaindir): use package
 	prefix before SET-TEXTDOMAIN and SET-TEXTDOMAINDIR
