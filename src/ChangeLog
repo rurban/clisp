@@ -1,3 +1,10 @@
+2002-10-30  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (restart): renamed the typedef to restartf_t
+	* control.d (UNWIND-PROTECT): ditto
+	* eval.d (reset, invoke_handlers, interpret_bytecode_): ditto
+	* spvw.d (quit): ditto
+
 2002-10-28  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (signature): make it (:TYPE VECTOR) to avoid

@@ -504,7 +504,7 @@ LISPFUNN(subr_info,1)
 nonreturning_function(global, reset, (void)) {
   # when unwinding UNWIND-PROTECT-frames, don't save values:
   VALUES0;
-  unwind_protect_to_save.fun = (restart)&reset;
+  unwind_protect_to_save.fun = (restartf_t)&reset;
   loop {
     # does STACK end here?
     if (eq(STACK_0,nullobj) && eq(STACK_1,nullobj)) {
@@ -652,7 +652,7 @@ global void invoke_handlers (object cond) {
             var object* top_of_frame = STACK;
             var sp_jmp_buf returner; # return point
             finish_entry_frame(UNWIND_PROTECT,&!returner,, {
-              var restart fun = unwind_protect_to_save.fun;
+              var restartf_t fun = unwind_protect_to_save.fun;
               var object* arg = unwind_protect_to_save.upto_frame;
               skipSTACK(2); # unwind Unwind-Protect-Frame
               # Cleanup: reactivate Handler:
@@ -7521,13 +7521,12 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             if (mvcount >= mv_limit) goto fehler_zuviele_werte;
             STACK_to_mv(mvcount);
           }
-          # return to the saved unwind_protect_to_save.fun :
-          {
-            var restart fun;
+          { /* return to the saved unwind_protect_to_save.fun : */
+            var restartf_t fun;
             var object* arg;
-            popSP( arg = (object*) ); popSP( fun = (restart) );
+            popSP( arg = (object*) ); popSP( fun = (restartf_t) );
             # return to uwp_continue or uwp_jmpback or unwind_upto:
-            if (!(fun == (restart)NULL)) {
+            if (fun != NULL) {
               (*fun)(arg); # return to unwind_upto or similar.
               NOTREACHED;
             }
