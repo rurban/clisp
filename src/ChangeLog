@@ -1,3 +1,8 @@
+2001-04-05  Sam Steingold  <sds@gnu.org>
+
+	* clos.lisp (initialize-instance): [ANSI] added &key and
+	&allow-other-keys to the lambda-list
+
 2001-03-28  Sam Steingold  <sds@gnu.org>
 
 	* condition.lisp (simple-type-error): [ANSI]
