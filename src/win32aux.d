@@ -529,10 +529,7 @@
         { var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
           var int retval = send(fd,buf,limited_nbyte,0);
           if (retval == 0) break;
-          elif (retval < 0)
-            {
-                return retval;
-            }
+          elif (retval < 0) { return retval; }
           else { buf += retval; done += retval; nbyte -= retval; }
         }
       return done;
