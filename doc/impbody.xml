@@ -106,9 +106,8 @@
 <variablelist id="extra-read-macro-table">
  <title>Additional reader macros</title>
  <varlistentry><term>#,</term>
-  <listitem><simpara>load-time evaluation, kept despite the &ansi-cl; issue
-    <ulink url="&clhs;/Issues/iss315.html">SHARP-COMMA-CONFUSION:REMOVE</ulink>
- </simpara></listitem></varlistentry>
+  <listitem><simpara>load-time evaluation, kept despite the &ansi-cl;
+    issue &iss315;.</simpara></listitem></varlistentry>
  <varlistentry><term>#Y</term>
   <listitem><simpara>function objects and file &encoding;s
  </simpara></listitem></varlistentry>
@@ -162,9 +161,7 @@
  treated as function forms. This makes the syntax
  <code>(&funcname-r; &args-r; ...)</code> consistent with the syntax
  <code>(&funcall; #'&funcname-r; &args-r; ...)</code>.
- It implements the item 7 of issue
- <ulink url="&clhs;/Issues/iss174.html">FUNCTION-NAME:LARGE</ulink> and the
- definition of
+ It implements the item 7 of the &ansi-cl; issue &iss174; and the definition of
  <ulink url="&clhs;/Body/glo_f.html#function_form">function form</ulink>s,
  and is consistent with the use of &funname;s elsewhere in &cl;.
 </para></section>
@@ -431,8 +428,7 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
  are implemented as macros, not as special operators (as permitted by
  <ulink url="&clhs;/Body/sec_3-1-2-1-2-2.html">Section 3.1.2.1.2.2</ulink>).
  They are not imported into the packages &clu-pac; and &cl-pac; because
- of the &ansi-cl; issue <ulink url="&clhs;/Issues/iss181.html"
- >GENERIC-FLET-POORLY-DESIGNED:DELETE</ulink>.</para>
+ of the &ansi-cl; issue &iss181;.</para>
 
 <para>&print-object; is only called on objects of type
  &standard-object-t; and &structure-object-t;.
@@ -2570,8 +2566,7 @@ and the international alphabetic characters from the character set:
  compacted below the new fill pointer.</para>
 
 <formalpara id="count-ansi"><title>Variable &count-ansi;</title>
-<para>Contrary to the &ansi-cl; issue 283 <ulink
- url="&clhs;/Issues/iss283.html">RANGE-OF-COUNT-KEYWORD:NIL-OR-INTEGER</ulink>,
+<para>Contrary to the &ansi-cl; issue &iss283;,
  negative &count-k; keyword arguments are not allowed unless you set
  &count-ansi; to a non-&nil; value, in which case <quote>using a
  negative integer value is functionally equivalent to using a value of
@@ -4157,8 +4152,7 @@ warning, you need to fix the source code of the incriminated method.</para>
 
 <para>Pathnames are printed as follows: If &print-escape-var; is &nil;,
  only the namestring is printed; otherwise it is printed with the
- &sharp-P; syntax, as per the &ansi-cl; Issue <ulink
- url="&clhs;/Issues/iss276.html">PRINT-READABLY-BEHAVIOR:CLARIFY</ulink>.
+ &sharp-P; syntax, as per the &ansi-cl; issue &iss276;.
  But, if &print-readably-var; is true, we are in trouble as &sharp-P; is
  ambiguous (which is verboten when &print-readably-var; is true), while
  being mandated by the &ansi-cl;.
