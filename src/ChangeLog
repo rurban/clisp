@@ -1,3 +1,9 @@
+2004-06-30  Sam Steingold  <sds@gnu.org>
+
+	* spvw.d (main): reset `argv_for' to `for_exec' after processing
+	the non-option argument so that "-i" will not disable scripting
+	Reported by VAUCHER L Ext SIRES <lvaucher.ext@francetelecom.com>
+
 2004-06-28  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/bdb.c (object_handle_t): new typedef
@@ -15,7 +21,7 @@
 2004-06-27  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/dbi.lisp (bdb-error): new condition
-	* modules/berkeley-db/bdb.c (*error_message): new static variable
+	* modules/berkeley-db/bdb.c (error_message): new static variable
 	(error_callback, error_message_reset): new functions
 	(error_bdb): signal BDB-ERROR, not ERROR; use error_message
 	(BDB:ENV-CREATE, BDB:DB-CREATE): set error callback to error_callback()
