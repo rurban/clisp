@@ -2249,7 +2249,7 @@ if [ -n "${SRCDIR}" ] ; then
     for f in $DFILES $ARI_ASMD $SP_ASMD ; do
       link_dep "${f}.d" "${SRCDIR}${f}.d"
     done
-    for f in $UNICODE_INCLUDES $NLS_INCLUDES w32shell; do
+    for f in $UNICODE_INCLUDES $NLS_INCLUDES spvw_calendar w32shell; do
       link_dep "${f}.c" "${SRCDIR}${f}.c"
     done
     for f in ${UNICODE_EXTRA} modules.h ; do
@@ -2377,7 +2377,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
     depends=$depends' avl'
   fi
   if [ $f = spvw ] ; then
-    depends=$depends''$SPVW_INCLUDES' sort subrkw'
+    depends=$depends''$SPVW_INCLUDES' sort subrkw spvw_calendar'
   fi
   if [ $f = eval ] ; then
     depends=$depends' bytecode'
