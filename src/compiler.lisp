@@ -12394,48 +12394,47 @@ Die Funktion make-closure wird dazu vorausgesetzt.
 ;; 2. the input file pathname.
 (defun compile-file-pathname-helper (file output-file)
   (let ((input-file
-          (or (first (search-file file *source-file-types*))
-                     (merge-pathnames file (merge-pathnames '#".lisp")))))
+         (or (and (not (logical-pathname-p file))
+                  (first (search-file file *source-file-types*)))
+             (merge-pathnames file (merge-pathnames '#".lisp")))))
     (values
       (if (or (null output-file) (streamp output-file))
         output-file
-        (let ((tmp (merge-pathnames '#".fas" input-file)))
+        (let ((tmp (merge-pathnames ".fas" input-file)))
           (if (eq output-file 'T)
             tmp
-            ; Not (merge-pathnames output-file tmp) because that doesn't
-            ; do the right thing when output-file is a relative pathname
-            ; and either *merge-pathnames-ansi* is true or input-file is
-            ; absolute.
+            ;; Not (merge-pathnames output-file tmp) because that doesn't
+            ;; do the right thing when output-file is a relative pathname
+            ;; and either *merge-pathnames-ansi* is true or input-file is
+            ;; absolute.
             (let ((output-file (merge-pathnames output-file)))
-              (make-pathname :host (if (pathname-host output-file)
-                                     (pathname-host output-file)
-                                     (pathname-host tmp))
-                             :device (if (pathname-host output-file)
-                                       (pathname-device output-file)
-                                       (if (pathname-host tmp)
-                                         (pathname-device tmp)
-                                         (if (pathname-device output-file)
-                                           (pathname-device output-file)
-                                           (pathname-device tmp))))
-                             :directory (if (pathname-host output-file)
-                                          (pathname-directory output-file)
-                                          (if (pathname-host tmp)
-                                            (pathname-directory tmp)
-                                            (if (pathname-device output-file)
-                                              (pathname-directory output-file)
-                                              (if (pathname-device tmp)
-                                                (pathname-directory tmp)
-                                                (pathname-directory output-file)))))
-                             :name (or (pathname-name output-file)
-                                       (pathname-name tmp))
-                             :type (or (pathname-type output-file)
-                                       (pathname-type tmp))
-                             :version (or (pathname-version output-file)
-                                          (pathname-version tmp))
-            ) )
-      ) ) )
-      input-file
-) ) )
+              (make-pathname
+               :host (if (pathname-host output-file)
+                       (pathname-host output-file)
+                       (pathname-host tmp))
+               :device (if (pathname-host output-file)
+                         (pathname-device output-file)
+                         (if (pathname-host tmp)
+                           (pathname-device tmp)
+                           (if (pathname-device output-file)
+                             (pathname-device output-file)
+                             (pathname-device tmp))))
+               :directory (if (pathname-host output-file)
+                            (pathname-directory output-file)
+                            (if (pathname-host tmp)
+                              (pathname-directory tmp)
+                              (if (pathname-device output-file)
+                                (pathname-directory output-file)
+                                (if (pathname-device tmp)
+                                  (pathname-directory tmp)
+                                  (pathname-directory output-file)))))
+               :name (or (pathname-name output-file)
+                         (pathname-name tmp))
+               :type (or (pathname-type output-file)
+                         (pathname-type tmp))
+               :version (or (pathname-version output-file)
+                            (pathname-version tmp)))))))
+      input-file)))
 
 ; Common-Lisp-Funktion COMPILE-FILE
 ; file          sollte ein Pathname/String/Symbol sein.
