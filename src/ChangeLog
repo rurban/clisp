@@ -1,3 +1,8 @@
+1999-06-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * aclocal.m4 (CL_CANONICAL_HOST_CPU, CL_CANONICAL_HOST_CPU_FOR_FFCALL):
+          Canonicalize alpha variants to alpha.
+
 1999-05-30  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * makemake.in (CFILES): Don't include $UNICODE_INCLUDES $NLS_INCLUDES.
