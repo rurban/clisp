@@ -3,6 +3,7 @@
 	* modules/matlab/wrap.lisp (copy-lisp-to-mxArray):
 	renamed from copy-lisp-to-matlab
 	(copy-mxArray-to-lisp): renamed from copy-matlab-to-lisp
+	check that mxArrays have data
 	(copy-lisp-to-matlab, copy-matlab-to-lisp): call them to copy variables
 	(invert-matrix): reuse the engine
 	* modules/matlab/matlab.lisp (engGetVisible, engSetVisible)
