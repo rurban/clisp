@@ -1,3 +1,9 @@
+2000-11-12  Bruno Haible  <haible@clisp.cons.org>
+
+        * lispbibl.d: Undefine TIME_ABSOLUTE and TIME_RELATIVE first.
+        * autoconf/config.guess, autoconf/config.sub: Upgrade to newest
+          version from GNU CVS.
+
 2000-11-10  Sam Steingold  <sds@gnu.org>
 
 	* inspect.lisp: workaround for the Linux bug.
