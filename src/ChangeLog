@@ -1,3 +1,16 @@
+2000-08-18  Bruno Haible  <haible@clisp.cons.org>
+
+        * pathname.d (parse_logical_host_prefix): Renamed from logical_host.
+          (string_logical_path_p): Remove function.
+          (parse_namestring): Integrate it here. When recognizing a logical
+          host, don't overwrite the :host argument.
+
+        ANSI CL wants (PATHNAME (OPEN filename ...)) to return filename if
+        filename is a logical pathname.
+        * pathname.d (open_file): Expect the original filename on the stack.
+          (OPEN): When the filename argument is a logical pathname, pass it
+          to open_file.
+
 2000-08-17  Sam Steingold  <sds@gnu.org>
 
 	ANSI `parse-namestring' when LISP:*PARSE-NAMESTRING-ANSI* is non-NIL
