@@ -830,11 +830,20 @@
     #define sock_set_errno(val)  (void)(errno = val)
     # Signalling a socket related error
     #define SOCK_error()  OS_error()
-    # Reading and writing from a socket
-    #define sock_read  full_read
-    #define sock_write  full_write
-    # Closing a socket
-    #define closesocket  close
+    #ifdef UNIX_BEOS
+      # BeOS 5 sockets cannot be used like file descriptors.
+      # Reading and writing from a socket
+      extern ssize_t sock_read (int socket, void* buf, size_t size);
+      extern ssize_t sock_write (int socket, const void* buf, size_t size);
+      # Closing a socket
+      # extern int closesocket (int socket);
+    #else
+      # Reading and writing from a socket
+      #define sock_read  full_read
+      #define sock_write  full_write
+      # Closing a socket
+      #define closesocket  close
+    #endif
     # Wrapping and unwrapping of a socket in a Lisp object
     #define allocate_socket(fd)  allocate_handle(fd)
     #define TheSocket(obj)  TheHandle(obj)
