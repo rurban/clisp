@@ -7,7 +7,8 @@
     local void get_OS_error_info(errcode,func)
       var DWORD errcode;
       var OS_error_info_callback* func;
-      { var const char* errorname = NULL;
+      {
+        var const char* errorname = NULL;
         var const char* errormsg = NULL;
         switch (errcode) {
           #ifdef ERROR_SUCCESS
