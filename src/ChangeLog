@@ -1,5 +1,9 @@
 1999-11-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * modules/clx/mit-clx/clx.lsp (base-char): Don't redefine in CLISP.
+
+1999-11-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * affi.d (affi_call_argsa): Treat simple 8/16/32-bit-vectors like
           non-simple ones. Use array_displace_check instead of
           iarray_displace_check.
