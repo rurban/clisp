@@ -1,5 +1,10 @@
 2004-08-07  Bruno Haible  <bruno@clisp.org>
 
+	* io.d (pr_array_recursion): Check *PRINT-LEVEL* before calling
+	pr_array_recursion recursively.
+
+2004-08-07  Bruno Haible  <bruno@clisp.org>
+
 	* io.d (read_delimited_list): If *read-suppress* is true, return NIL.
 
 2004-08-08  Bruno Haible  <bruno@clisp.org>
