@@ -1545,12 +1545,12 @@ int main()
  #endif
   printf("extern object ascii_to_string (const char * asciz);\n");
   printf("extern object string_concat (uintC argcount);\n");
-# #ifdef UNICODE
-#   printf("extern object string_to_asciz (object obj, object encoding);\n");
-# #else
-#   printf("#define string_to_asciz(obj,encoding)  string_to_asciz_(obj)\n");
-#   printf("extern object string_to_asciz_ (object obj);\n");
-# #endif
+ #ifdef UNICODE
+  printf("extern object string_to_asciz (object obj, object encoding);\n");
+ #else
+  printf("#define string_to_asciz(obj,encoding)  string_to_asciz_(obj)\n");
+  printf("extern object string_to_asciz_ (object obj);\n");
+ #endif
   printf("extern object unpack_string_ro (object string, uintL* len, uintL* offset);\n");
  #if defined(UNICODE)
   printf("extern uintL cslen_f (object encoding, const chart*src, uintL srclen);\n");
@@ -1648,7 +1648,7 @@ int main()
   printf("  charptr_assignment (const chart*) &TheSstring(string)->data[offset];\n");
 #endif
 
-# printf("#define TheAsciz(obj)  ((char*)(&TheSbvector(obj)->data[0]))\n");
+  printf("#define TheAsciz(obj)  ((char*)(&TheSbvector(obj)->data[0]))\n");
   printf("extern object vectorof (uintC len);\n");
 # printf("extern object allocate_bit_vector_0 (uintL len);\n");
 # printf("extern chart up_case (chart ch);\n");
