@@ -3403,7 +3403,7 @@ local maygc object canon_eltype (const decoded_el_t* decoded) {
       if (!( TCDRAIN(handle) ==0)) {
         if (!((errno==ENOTTY)||(errno==EINVAL)))
         #ifdef UNIX_DARWIN
-        if (!(errno==EOPNOTSUPP))
+        if (!((errno==EOPNOTSUPP)||(errno==ENODEV)))
         #endif
           { OS_error(); } # no TTY: OK, report other Error
       }
@@ -3474,7 +3474,7 @@ local maygc object canon_eltype (const decoded_el_t* decoded) {
         #endif
         if (!((errno==ENOTTY)||(errno==EINVAL)))
         #ifdef UNIX_DARWIN
-        if (!(errno==EOPNOTSUPP))
+        if (!((errno==EOPNOTSUPP)||(errno==ENODEV)))
         #endif
           { OS_error(); } # no TTY: OK, report other Error
       }
