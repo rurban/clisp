@@ -223,6 +223,103 @@ DEFUN(POSIX:CLOSELOG,) {
 #endif
 #endif  /* HAVE_SYSLOG */
 
+/* ================= user accounting database functions ================= */
+#if defined(HAVE_UTMPX_H)
+# include <utmpx.h>
+DEFCHECKER(check_ut_type,default=,EMPTY BOOT-TIME OLD-TIME NEW-TIME \
+           USER-PROCESS INIT-PROCESS LOGIN-PROCESS DEAD-PROCESS)
+/* convert C struct timeval to Lisp list
+ can trigger GC */
+static object time_val (struct timeval *tv) {
+#if SIZEOF_STRUCT_TIMEVAL == 16
+  pushSTACK(uint64_to_I(tv->tv_sec));
+  pushSTACK(uint64_to_I(tv->tv_usec));
+#else
+  pushSTACK(uint32_to_I(tv->tv_sec));
+  pushSTACK(uint32_to_I(tv->tv_usec));
+#endif
+  return listof(2);
+}
+/* convert C struct utmpx to Lisp
+ can trigger GC */
+static Values utmpx_to_lisp (struct utmpx *utmpx, gcv_object_t *utmpx_o) {
+  pushSTACK(check_ut_type_reverse(utmpx->ut_type));
+  pushSTACK(asciz_to_string(utmpx->ut_user,GLO(misc_encoding)));
+  pushSTACK(asciz_to_string(utmpx->ut_id,GLO(misc_encoding)));
+  pushSTACK(asciz_to_string(utmpx->ut_line,GLO(misc_encoding)));
+  pushSTACK(fixnum(utmpx->ut_pid));
+#if defined(HAVE_UTMPX_UT_HOST)
+  pushSTACK(asciz_to_string(utmpx->ut_host,GLO(misc_encoding)));
+#else
+  pushSTACK(NIL);
+#endif
+  pushSTACK(time_val(&(utmpx->ut_tv)));
+  if (utmpx_o) {
+    TheStructure(*utmpx_o)->recdata[7] = popSTACK(); /* tv */
+    TheStructure(*utmpx_o)->recdata[6] = popSTACK(); /* host */
+    TheStructure(*utmpx_o)->recdata[5] = popSTACK(); /* pid */
+    TheStructure(*utmpx_o)->recdata[4] = popSTACK(); /* line */
+    TheStructure(*utmpx_o)->recdata[3] = popSTACK(); /* id */
+    TheStructure(*utmpx_o)->recdata[2] = popSTACK(); /* user */
+    TheStructure(*utmpx_o)->recdata[1] = popSTACK(); /* type */
+    VALUES1(*utmpx_o);
+  } else funcall(`POSIX::MAKE-UTMPX`,7);
+}
+#if defined(HAVE_ENDUTXENT)
+DEFUN(POSIX::ENDUTXENT,) {
+  begin_system_call(); endutxent(); end_system_call(); VALUES0;
+}
+#endif
+#if defined(HAVE_GETUTXENT)
+DEFUN(POSIX::GETUTXENT, &optional utmpx) {
+  struct utmpx *utmpx;
+  if (!missingp(STACK_0)) STACK_0 = check_classname(STACK_0,`POSIX::UTMPX`);
+  begin_system_call(); utmpx=getutxent(); end_system_call();
+  if (utmpx) utmpx_to_lisp(utmpx,missingp(STACK_0) ? NULL : &STACK_0);
+  else VALUES1(NIL);
+  skipSTACK(1);
+}
+#endif
+#if defined(HAVE_GETUTXID)
+DEFUN(POSIX::GETUTXID, id) {
+  struct utmpx utmpx, *utmpx_p;
+  STACK_0 = check_classname(STACK_0,`POSIX::UTMPX`);
+  utmpx.ut_type = check_ut_type(TheStructure(STACK_0)->recdata[4]);
+  begin_system_call(); utmpx_p = getutxid(&utmpx); end_system_call();
+  if (utmpx_p) utmpx_to_lisp(utmpx_p,&STACK_0);
+  else VALUES1(NIL);
+  skipSTACK(1);
+}
+#endif
+#if defined(HAVE_GETUTXLINE)
+DEFUN(POSIX::GETUTXLINE, line) {
+  struct utmpx utmpx, *utmpx_p;
+  STACK_0 = check_classname(STACK_0,`POSIX::UTMPX`);
+  utmpx.ut_type = check_ut_type(TheStructure(STACK_0)->recdata[4]);
+  begin_system_call(); utmpx_p = getutxline(&utmpx); end_system_call();
+  if (utmpx_p) utmpx_to_lisp(utmpx_p,&STACK_0);
+  else VALUES1(NIL);
+  skipSTACK(1);
+}
+#endif
+#if defined(HAVE_PUTUTXLINE)
+DEFUN(POSIX::PUTUTXLINE, utmpx) {
+  struct utmpx utmpx, *utmpx_p;
+  STACK_0 = check_classname(STACK_0,`POSIX::UTMPX`);
+  utmpx.ut_type = check_ut_type(TheStructure(STACK_0)->recdata[4]);
+  begin_system_call(); utmpx_p = pututxline(&utmpx); end_system_call();
+  if (utmpx_p) utmpx_to_lisp(utmpx_p,&STACK_0);
+  else OS_error();
+  skipSTACK(1);
+}
+#endif
+#if defined(HAVE_SETUTXENT)
+DEFUN(POSIX::SETUTXENT,) {
+  begin_system_call(); setutxent(); end_system_call(); VALUES0;
+}
+#endif
+#endif  /* HAVE_UTMPX_H */
+
 /* ========================= processes & signals ========================= */
 #if defined(HAVE_GETSID)
 DEFUN(POSIX:GETSID, pid) {
