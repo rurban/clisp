@@ -269,7 +269,7 @@ static void set_flags (object arg, u_int32_t *flag_on, u_int32_t *flag_off,
     *(nullp(arg) ? flag_off : flag_on) |= values;
 }
 
-DEFUN(BDB:ENV-SET-OPTIONS, dbe &key :DATA_DIR :TMP_DIR                  \
+DEFUN(BDB:ENV-SET-OPTIONS, dbe &key :TX_TIMESTAMP :TX_MAX :DATA_DIR :TMP_DIR \
       :AUTO_COMMIT :CDB_ALLDB :DIRECT_DB :DIRECT_LOG :NOLOCKING         \
       :NOMMAP :NOPANIC :OVERWRITE :PANIC_ENVIRONMENT :REGION_INIT       \
       :TXN_NOSYNC :TXN_WRITE_NOSYNC :YIELDCPU                           \
@@ -306,16 +306,27 @@ DEFUN(BDB:ENV-SET-OPTIONS, dbe &key :DATA_DIR :TMP_DIR                  \
   set_flags(popSTACK(),&flags_on,&flags_off,DB_AUTO_COMMIT);
   if (flags_off) SYSCALL(dbe->set_flags,(dbe,flags_off,0));
   if (flags_on)  SYSCALL(dbe->set_flags,(dbe,flags_on,1));
-  /* tmp-dir */
+  /* TMP_DIR */
   if (!missingp(STACK_0)) {
     with_string_0(check_string(popSTACK()),GLO(misc_encoding),tmp_dir,
                   { SYSCALL(dbe->set_tmp_dir,(dbe,tmp_dir)); });
   } else skipSTACK(1);
-  /* data-dir */
+  /* DATA_DIR */
   if (!missingp(STACK_0)) {
     with_string_0(check_string(popSTACK()),GLO(misc_encoding),data_dir,
                   { SYSCALL(dbe->set_data_dir,(dbe,data_dir)); });
   } else skipSTACK(1);
+  /* TX_MAX */
+  if (!missingp(STACK_0))
+    SYSCALL(dbe->set_tx_max,(dbe,posfixnum_to_L(check_posfixnum(STACK_0))));
+  skipSTACK(1);
+  /* TX_TIMESTAMP */
+  if (!missingp(STACK_0)) {
+    time_t timestamp;
+    convert_time_from_universal(STACK_0,&timestamp);
+    SYSCALL(dbe->set_tx_timestamp,(dbe,&timestamp));
+  }
+  skipSTACK(1);
   VALUES0; skipSTACK(1);        /* skip dbe */
 }
 
@@ -353,7 +364,16 @@ static object env_data_dirs (DB_ENV *dbe) {
     return listof(ii);
   } else return NIL;
 }
-
+static object env_tx_max (DB_ENV *dbe) {
+  u_int32_t tx_max;
+  SYSCALL(dbe->get_tx_max,(dbe,&tx_max));
+  return fixnum(tx_max);
+}
+static object env_tx_timestamp (DB_ENV *dbe) {
+  time_t tx_timestamp;
+  SYSCALL(dbe->get_tx_timestamp,(dbe,&tx_timestamp));
+  return convert_time_to_universal(&tx_timestamp);
+}
 DEFUNR(BDB:ENV-GET-OPTIONS, dbe &optional what) {
   object what = popSTACK();
   DB_ENV *dbe = object_handle(popSTACK(),`BDB::ENV`,false);
@@ -377,13 +397,12 @@ DEFUNR(BDB:ENV-GET-OPTIONS, dbe &optional what) {
       if (flags & DB_CDB_ALLDB) { pushSTACK(`:CDB_ALLDB`); count++; }
       if (flags & DB_AUTO_COMMIT) { pushSTACK(`:AUTO_COMMIT`); count++; }
       value1 = listof(count); pushSTACK(value1); /* save */
-      pushSTACK(fixnum(flags));                  /* raw flags too! */
     }
-    /* tmp-dir */
-    pushSTACK(env_tmp_dir(dbe));
-    /* data-dir */
-    value1 = env_data_dirs(dbe); pushSTACK(value1);
-    funcall(L(values),5);
+    pushSTACK(env_tx_timestamp(dbe)); /* TX_TIMESTAMP */
+    pushSTACK(env_tx_max(dbe));       /* TX_MAX */
+    pushSTACK(env_tmp_dir(dbe));      /* TMP_DIR */
+    value1 = env_data_dirs(dbe); pushSTACK(value1);    /* DATA_DIR */
+    funcall(L(values),6);
   } else if (eq(what,S(Kverbose))) {
     VALUES1(env_verbose(dbe));
   } else if (eq(what,`:VERB_WAITSFOR`)) {
@@ -454,6 +473,10 @@ DEFUNR(BDB:ENV-GET-OPTIONS, dbe &optional what) {
     u_int32_t flags;
     SYSCALL(dbe->get_flags,(dbe,&flags));
     VALUES_IF(flags & DB_AUTO_COMMIT);
+  } else if (eq(what,`:TX_TIMESTAMP`)) {
+    VALUES1(env_tx_timestamp(dbe));
+  } else if (eq(what,`:TX_MAX`)) {
+    VALUES1(env_tx_max(dbe));
   } else if (eq(what,`:DATA_DIR`)) {
     VALUES1(env_data_dirs(dbe));
   } else if (eq(what,`:TMP_DIR`)) {
@@ -878,7 +901,6 @@ DEFUN(BDB:CURSOR-PUT, cursor key data flag)
 
 /* ===== transactions ===== */
 /* not exported:
- DB_TXN->id	Return a transaction's ID
  DB_TXN->prepare	Prepare a transaction for commit
  DB_TXN->set_timeout	Set transaction timeout
  */
@@ -917,4 +939,10 @@ DEFUN(BDB:TXN-DISCARD, txn)
   VALUES0;
 }
 
-
+DEFUN(BDB:TXN-ID, txn)
+{ /* Return the transaction's ID */
+  DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,true);
+  u_int32_t id;
+  begin_system_call(); id = txn->id(txn); end_system_call();
+  VALUES1(UL_to_I(id));
+}
