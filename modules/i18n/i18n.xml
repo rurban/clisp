@@ -93,7 +93,7 @@ location depends on the &category;: it will be expected at
 <filename>TEXTDOMAINDIR/ll/category/domain.mo</filename>.</para>
 </section>
 
-<example id="i18n-example"><title>Internationalization Example</title>
+<section id="i18n-example"><title>Internationalization Example</title>
 
 <para>A non-internationalized program simulating a restaurant dialogue
 might look as follows.</para>
@@ -152,10 +152,8 @@ through the command
 <screen>
 bash$ xgettext -o prog.pot prog.lisp
 </screen>
-</para>
-
 <note><title>Note</title>
- <para>xgettext version 0.11 or higher is required here.</para></note>
+ <para>xgettext version 0.11 or higher is required here.</para></note></para>
 
 <para>The message catalog template looks roughly like this.</para>
 
@@ -207,7 +205,7 @@ she will get the output
     2 morceaux de gateau
 </screen>
 </para>
-</example>
+</section>
 
 </section>
 
