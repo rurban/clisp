@@ -313,7 +313,7 @@ or
 .I blank,
 affecting all of the above.
 Note that these values cannot be saved in a memory image.
-You have to use the init file to set them on startup.
+You have to use the init file or init-function to set them on startup.
 
 .TP
 .BR \-q ", " \-\-quiet ", " \-\-silent
@@ -369,12 +369,8 @@ At startup the value of the variable
 will be set to the package named
 .IR packagename .
 The default is the package which was active when the image was saved, normally
-.BR USER ,
-or
 .B COMMON-LISP-USER
-if the option
-.B \-a
-was specified.
+.
 
 .TP
 .B \-C
@@ -384,8 +380,8 @@ will be set to
 .BR t .
 Code being
 .IR load ed
-will then be compiled on the fly. This results in slower loading, but faster
-execution.
+will then be compiled on the fly.
+This results in slower loading, but faster execution.
 
 .TP
 .BI "\-norc"
