@@ -519,6 +519,11 @@ FOO
   (mapc #'eval (multiple-value-list (make-load-form-saving-slots *foo*)))
   *initform-executed-counter*)
 1
+(progn
+  (defmethod print-object ((f foo) (o stream))
+    (format o "~1t<~a>" (foo-slot-1 f)))
+  (prin1-to-string (make-foo)))
+" <2>"
 
 ;; change-class
 ;; <http://www.lisp.org/HyperSpec/Body/stagenfun_change-class.html>

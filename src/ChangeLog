@@ -1,3 +1,7 @@
+2003-11-14  Sam Steingold  <sds@gnu.org>
+
+	* io.d (FORMAT-TABULATE): do not lose the top empty string
+
 2003-11-07  John Tang Boyland  <boyland@users.sf.net>
 	    Sam Steingold  <sds@gnu.org>
 
