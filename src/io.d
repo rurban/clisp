@@ -3966,7 +3966,7 @@ LISPFUNN(structure_reader,3) { # reads #S
                GETTEXT("~S from ~S: no structure of type ~S has been defined"));
       }
       # description must be a Simple-Vector of length >=5:
-      if (!(simple_vector_p(description) && (Svector_length(description) >= 5))) {
+      if (!(simple_vector_p(description) && (Svector_length(description) >= 6))) {
         pushSTACK(*stream_); # STREAM-ERROR slot STREAM
         pushSTACK(name);
         pushSTACK(S(defstruct_description));
@@ -8050,7 +8050,7 @@ local void pr_structure_default (const gcv_object_t* stream_, object structure)
     # stack layout: structure, name, description.
     # description must be a simple-vector of length >=5 !
     if (!(simple_vector_p(description)
-          && (Svector_length(description) >= 5))) {
+          && (Svector_length(description) >= 6))) {
     bad_description:
       pushSTACK(S(defstruct_description));
       pushSTACK(S(print));
