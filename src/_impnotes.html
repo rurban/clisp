@@ -21,6 +21,8 @@
     Please Keep your lines under 79 characters and remember that some
     people will be reading this document with "CLHSROOT" replaced with a
     long URL.
+  * If you are using Emacs, do (setq sentence-end-double-space t) and
+    put 2 spaces after a final period in a sentence.
   * Literal symbols are written in <code>...</code> font, in lowercase.
   * All tags are written in lowercase (which is more readable for a
     human).  "Low level" tags like <b> and <i> etc are to be avoided,
@@ -193,7 +195,7 @@ details.
    <li><a href="#socket">Socket Streams</a>
    <li><a href="#syscalls">System Calls</a>
    <li><a href="#app-dev">Application delivery with CLISP</a>
-   <li><a href="#shell">Shell</a>
+   <li><a href="#shell">Shell Access</a>
    <li><a href="#other">Other</a>
   </ol>
 </ol>
@@ -411,7 +413,9 @@ been part of the program text that environment came from.
 <h3><a href="CLHSROOT/Body/sec_3-2-4-2-2.html">
     3.2.4.2.2 Definition of Similarity</a></h3>
 
-<p>Hash tables are externalizable objects.
+<p>Hash tables are <a
+href="CLHSROOT/Body/glo_e.html#externalizable_object">externalizable
+object</a>s.
 
 <h3><a href="CLHSROOT/Body/sec_3-3.html">
     3.3 Declarations</a></h3>
@@ -475,10 +479,6 @@ list is the value of the corresponding slot's initial form.
 <h3><a href="CLHSROOT/Body/sec_4-2-3.html">
     4.2.3 Type Specifiers.</a></h3>
 
-<p>The ANSI CL type specifier <code>(<a
-href="CLHSROOT/Body/typspe_eql.html">eql</a> <var>object</var>)</code>
-denotes the singleton set {<var>object</var>}.
-
 <p>The general form of the
 <a href="CLHSROOT/Body/syscla_complex.html.html">
 <code>complex</code></a> type specifier is
@@ -494,7 +494,9 @@ denotes the real numbers between <var>low</var> and <var>high</var>.
 
 <p><a href="CLHSROOT/Body/mac_deftype.html">
 <code>deftype</code></a> lambda lists are subject to destructuring
-(nested lambda lists are allowed, as in <code>defmacro</code>) and may
+(nested lambda lists are allowed, as in
+<a href="CLHSROOT/Body/mac_defmacro.html">
+<code>defmacro</code></a>) and may
 contain a <a href="CLHSROOT/Body/sec_3-4-4.html">
 <code>&amp;whole</code></a> marker, but not an
 <a href="CLHSROOT/Body/sec_3-4-4.html">
@@ -621,7 +623,8 @@ type.
 
 <p>The CLOS symbols are exported from the package <code>"CLOS"</code>
 and thus normally visible in all user packages. If you do not want them
-(for example, if you want to use PCL instead of CLOS), do
+(for example, if you want to use the <a href="ftp://parcftp.xerox.com/pub/pcl/">PCL</a> implementation of CLOS instead
+of the native one), do
 <code>(<a href="CLHSROOT/Body/fun_unuse-package.html">unuse-package</a>
 "CLOS")</code>.
 
@@ -831,7 +834,7 @@ handlers. Therefore <a href="CLHSROOT/Body/typ_compiled-function.html">
 <code>eq</code></a> compares characters and fixnums as
 <a href="CLHSROOT/Body/fun_eql.html">
 <code>eql</code></a> does.  No unnecessary copies are made of characters
-and numbers. Nevertheless, one should use
+and numbers.  Nevertheless, one should use
 <a href="CLHSROOT/Body/fun_eql.html">
 <code>eql</code></a> as it is more portable across CL implementations.
 
@@ -1726,23 +1729,23 @@ with at least <var>digits</var> mantissa digits. The following holds:
 <h4><a href="CLHSROOT/Body/convar_boole-_cm_boole-xor.html">
     boolean operations</a></h4>
 
-<table>
-  <tr><th align=left><code>boole-clr</code>   <td>= <td align=right> 0
-  <tr><th align=left><code>boole-set</code>   <td>= <td align=right>15
-  <tr><th align=left><code>boole-1</code>     <td>= <td align=right>10
-  <tr><th align=left><code>boole-2</code>     <td>= <td align=right>12
-  <tr><th align=left><code>boole-c1</code>    <td>= <td align=right> 5
-  <tr><th align=left><code>boole-c2</code>    <td>= <td align=right> 3
-  <tr><th align=left><code>boole-and</code>   <td>= <td align=right> 8
-  <tr><th align=left><code>boole-ior</code>   <td>= <td align=right>14
-  <tr><th align=left><code>boole-xor</code>   <td>= <td align=right> 6
-  <tr><th align=left><code>boole-eqv</code>   <td>= <td align=right> 9
-  <tr><th align=left><code>boole-nand</code>  <td>= <td align=right> 7
-  <tr><th align=left><code>boole-nor</code>   <td>= <td align=right> 1
-  <tr><th align=left><code>boole-andc1</code> <td>= <td align=right> 4
-  <tr><th align=left><code>boole-andc2</code> <td>= <td align=right> 2
-  <tr><th align=left><code>boole-orc1</code>  <td>= <td align=right>13
-  <tr><th align=left><code>boole-orc2</code>  <td>= <td align=right>11
+<table border=1>
+  <tr><th align=left><code>boole-clr</code>   <td align=right> 0
+  <tr><th align=left><code>boole-set</code>   <td align=right>15
+  <tr><th align=left><code>boole-1</code>     <td align=right>10
+  <tr><th align=left><code>boole-2</code>     <td align=right>12
+  <tr><th align=left><code>boole-c1</code>    <td align=right> 5
+  <tr><th align=left><code>boole-c2</code>    <td align=right> 3
+  <tr><th align=left><code>boole-and</code>   <td align=right> 8
+  <tr><th align=left><code>boole-ior</code>   <td align=right>14
+  <tr><th align=left><code>boole-xor</code>   <td align=right> 6
+  <tr><th align=left><code>boole-eqv</code>   <td align=right> 9
+  <tr><th align=left><code>boole-nand</code>  <td align=right> 7
+  <tr><th align=left><code>boole-nor</code>   <td align=right> 1
+  <tr><th align=left><code>boole-andc1</code> <td align=right> 4
+  <tr><th align=left><code>boole-andc2</code> <td align=right> 2
+  <tr><th align=left><code>boole-orc1</code>  <td align=right>13
+  <tr><th align=left><code>boole-orc2</code>  <td align=right>11
 </table>
 
 <h4><a href="CLHSROOT/Body/convar_most-p_ative-fixnum.html">
@@ -2123,9 +2126,9 @@ are simple characters.
 <h3><a href="CLHSROOT/Body/sec_13-1-4-1.html">
     13.1.4.1 Graphic Characters</a></h3>
 
-The graphic characters are those Unicode characters which are defined
-by the Unicode standard, excluding the ranges U0000..U001F and
-U007F..U009F.
+The graphic characters are those Unicode characters which are defined by
+the Unicode standard, excluding the ranges <code>U0000..U001F</code> and
+<code>U007F..U009F</code>.
 
 <h3><a href="CLHSROOT/Body/sec_13-1-4-2.html">
     13.1.4.2 Alphabetic Characters</a></h3>
@@ -2223,7 +2226,7 @@ are equivalent to
 
 <p>The graphic characters have been described above.
 
-<p>The standard characters are <code>#\Newline</code> and those graphic
+<p>The standard characters are <code>#\Newline</code> and the graphic
 characters with a code between 32 and 126 (inclusive).
 
 <p>The alphabetic characters are these characters:
@@ -5178,18 +5181,19 @@ functions and macros.
     inspect</a></h4>
 
 <p>The function <strong><a href="CLHSROOT/Body/fun_inspect.html">
-<code>inspect</code></a></strong> is not implemented. (It is available
-as an add-on from the <a
-href="http://ftp2.cons.org/pub/lisp/clisp/contrib/">contrib</a>
-directory.)
+<code>inspect</code></a></strong> is not built in.  Two implementations
+are available as add-ons from the <a
+href="ftp://clisp.cons.org/pub/lisp/clisp/contrib/">
+ftp://clisp.cons.org/pub/lisp/clisp/contrib/</a> directory.)
 
 <a name="space"></a><h4>lisp:space</h4>
 
 <p>The macro <code><strong>lisp:space</strong></code> is like the macro
 <a href="CLHSROOT/Body/mac_time.html">
-<code>time</code></a>: <code>(lisp:space <var>form</var>)</code> evaluates
-the <var>form</var>, and, as a side effect, outputs information about
-the memory allocations caused by this evaluation.
+<code>time</code></a>: <code>(lisp:space <var>form</var>)</code>
+evaluates the <var>form</var>, and, as a side effect, outputs
+information about the memory allocations caused by this evaluation.  It
+also prints everything printed by <a href="#time"><code>time</code></a>.
 
 <h4><a href="CLHSROOT/Body/fun_room.html">
     room</a></h4>
@@ -5205,15 +5209,15 @@ garbage collection and its return value has the same meaning as the
 second value of <a href="CLHSROOT/Body/fun_room.html">
 <code>room</code></a>.
 
-<h4><a href="CLHSROOT/Body/mac_time.html">
+<a name="time"><h4><a href="CLHSROOT/Body/mac_time.html">
     time</a> macro</h4>
 
-<p>The timing data printed by the macro <a
-href="CLHSROOT/Body/mac_time.html"> <code>time</code></a> includes: The real
-time (elapsed time), the run time (processor time for this process), the
-number of bytes allocated (use the <a
-href="#space"><code>lisp:space</code></a> macro for more detailed
-analysis), and the number of GCs performed, if any.
+<p>The timing data printed by the macro
+<a href="CLHSROOT/Body/mac_time.html">
+<code>time</code></a> includes: The real time (elapsed time), the run
+time (processor time for this process), the number of bytes allocated
+(use the <a href="#space"><code>lisp:space</code></a> macro for more
+detailed analysis), and the number of GCs performed, if any.
 
 <h4><a href="CLHSROOT/Body/fun_ed.html">
     ed</a></h4>
@@ -5249,18 +5253,7 @@ but (as float or rational number) it should be a multiple of
 
 <p><table border=1>
 <tr><th><em>Platform dependent:</em>
-    <!-- #if defined(TIME_MSDOS) || defined(TIME_RISCOS) -->
-    <th>DOS, OS/2, Acorn
-    <!-- #endif -->
-    <!-- #ifdef TIME_AMIGAOS -->
-    <th>Amiga
-    <!-- #endif -->
-    <!-- #ifdef TIME_UNIX -->
-    <th>UNIX
-    <!-- #endif -->
-    <!-- #ifdef TIME_WIN32 -->
-    <th>Win32
-    <!-- #endif -->
+    <th>DOS, OS/2, Acorn <th>Amiga <th>UNIX <th>Win32
 <tr><th><a href="CLHSROOT/Body/convar_intern_s-per-second.html">
     <code>internal-time-units-per-second</code></a>
     <td>100 <td>50 <td>1,000,000 <td>10,000,000
@@ -8529,13 +8522,14 @@ lisp.
  <dd>Return the stat struct as multiple values.  <code>file</code> can
      be a stream, a pathname, a string or a number (on a UNIX system,
      meaning file descriptor).  The first value returned is the string
-     or the number on which stat(2)/fstat(2)/lstat(2) was called.  The
-     other 13 values are numbers, members of the stat struct: device,
-     inode, protection, number of hard links, owner's UID, owner's GID,
-     device type, total size (bytes), blocksize for filesystem I/O,
-     number of blocks allocated, atime, mtime, ctime (as number of
-     seconds since 1900-01-01).  If the system does not support a
-     particular field (e.g., Win32 does not have hard links),
+     or the number on which <code>stat</code>(2)/<code>fstat</code>(2)
+     /<code>lstat</code>(2) was called.  The other 13 values are
+     numbers, members of the stat struct: device, inode, protection,
+     number of hard links, owner's UID, owner's GID, device type, total
+     size (bytes), blocksize for filesystem I/O, number of blocks
+     allocated, atime, mtime, ctime (as number of seconds since
+     1900-01-01).  If the system does not support a particular field
+     (e.g., Win32 does not have hard links),
      <a href="CLHSROOT/Body/convar_nil.html">
      <code>nil</code></a> (or the default, like 1 for the number of
      hard links for Win32 or DOS) is returned.
@@ -8579,22 +8573,22 @@ lisp.
 <!-- #ifdef UNIX -->
 <dt><em>Platform dependent: <strong>UNIX</strong> platforms only.</em>
 
-<dd>On Unix, a script can be made executable by adding a first line of
-the form
+<dd>On Unix, a text file can be made executable by adding a first line
+of the form
 
 <pre><code>#!<var>interpreter</var> [<var>interpreter-args</var>]</code></pre>
 
-and <code>chmod</code>ing the script to be executable. CLISP can be used
-as a script interpreter under the following circumstances:
+and <code>chmod</code>ing the script to be executable.  CLISP can be
+used as a script interpreter under the following circumstances:
 <p>
 <ol>
-<li>The <var>interpreter</var> must be a full pathname of CLISP. I
+<li>The <var>interpreter</var> must be a full pathname of CLISP.  I
    recommend using <code>/usr/local/bin/clisp</code>, and if CLISP is
    actually installed elsewhere, letting
    <code>/usr/local/bin/clisp</code> be a symbolic link to the real
    CLISP.
 <p>
-<li>The CLISP <var>interpreter</var> must be a real executable, not a
+<li>The <var>interpreter</var> must be a real executable, not a
    script.  Unfortunately, in the binary distributions of CLISP on
    Solaris, <code>clisp</code> is a shell script because a C compiler
    cannot be assumed to be installed on this platform. If you have a C
@@ -8717,7 +8711,7 @@ for details.
 <p><br>
 </dl>
 
-<a name="shell"></a><h3>Extensions-2.9. Shell</h3>
+<a name="shell"></a><h3>Extensions-2.9. Shell Access</h3>
 
 <dl>
 <!-- #if defined(UNIX) || defined(MSDOS) || defined(RISCOS) -->
@@ -8769,14 +8763,13 @@ for details.
   <dt><em>Platform dependent: <strong>UNIX</strong> platforms only.</em>
   <dd>The shell the command is passed to is the value of the environment
    variable <code>SHELL</code>, which normally is
-   <code>/bin/sh</code>. The command should be a ``simple command''; a
+   <code>/bin/sh</code>.  The command should be a ``simple command''; a
    ``command list'' should be enclosed in "{ ... ; }" (for
-   <code>/bin/sh</code>) or "( ... )" (for
-   <code>/bin/csh</code>).
+   <code>/bin/sh</code>) or "( ... )" (for <code>/bin/csh</code>).
  </dl>
 <!-- #endif -->
  <dt><var>program</var>
-  <dd>the program. The directories listed in the
+  <dd>the program.  The directories listed in the
    <code>PATH</code> environment variable will be searched for it.
  <dt><code>:arguments</code>
   <dd>a list of arguments (strings) that are given to the program.
@@ -8804,8 +8797,8 @@ for details.
 <code>:output</code>, a Lisp stream is returned.  If
 <code>:stream</code> was specified for <code>:input</code> and
 <code>:output</code>, three Lisp streams are returned, as for the
-function <a href="#pipe"><code>lisp:make-pipe-io-stream</code></a>. This
-use of <code>lisp:run-program</code> can cause deadlocks, see <a
+function <a href="#pipe"><code>lisp:make-pipe-io-stream</code></a>.
+This use of <code>lisp:run-program</code> can cause deadlocks, see <a
 href="#pipe"><code>lisp:make-pipe-io-stream</code></a>.
 </dl>
 <p>
