@@ -123,7 +123,7 @@
 <!ENTITY dkey-open "<link linkend='dir-key-open'><function>LDAP:DIR-KEY-OPEN</function></link>">
 <!ENTITY dkey-close "<link linkend='dir-key-close'><function>LDAP:DIR-KEY-CLOSE</function></link>">
 <!ENTITY dkey-open "<link linkend='dir-key-open'><function>LDAP:DIR-KEY-OPEN</function></link>">
-<!ENTITY dk-type "<link linkend='dir-key-type'>directory key type</link>">
+<!ENTITY dk-t "<link linkend='dir-key-type'>directory key type</link>">
 <!ENTITY wdkey-open "<link linkend='with-dir-key-open'><function>LDAP:WITH-DIR-KEY-OPEN</function></link>">
 <!ENTITY wdkey-search "<link linkend='with-dir-key-search'><function>LDAP:WITH-DIR-KEY-SEARCH</function></link>">
 <!ENTITY doseq "<link linkend='doseq'><function>EXT:DOSEQ</function></link>">
@@ -482,8 +482,8 @@
 <!ENTITY subdir-r "<replaceable>subdir</replaceable>">
 <!ENTITY always-nil "<listitem><simpara>always &nil;</simpara></listitem>">
 <!ENTITY string-or-nil "<listitem><simpara>&nil; or a
-  &simple-string-type;</simpara></listitem>">
-<!ENTITY wild-string-or-nil "<listitem><simpara>&nil; or &simple-string-type;,
+  &simple-string-t;</simpara></listitem>">
+<!ENTITY wild-string-or-nil "<listitem><simpara>&nil; or &simple-string-t;,
   &maybe-wild;</simpara></listitem>">
 <!ENTITY path-comps "<title>Pathname components</title>">
 <!ENTITY maybe-wild "may contain wildcard characters &file-ques; and
@@ -504,7 +504,7 @@
 <!ENTITY subdir-string-or-wild " <row><entry>&subdir-r;</entry>
   <entry>&wild-inferiors-k;</entry><entry><filename>**</filename> or
   <filename>...</filename>, all subdirectories </entry></row>
- <row><entry>&subdir-r;</entry><entry>&simple-string-type;,
+ <row><entry>&subdir-r;</entry><entry>&simple-string-t;,
    &maybe-wild;</entry><entry/></row>">
 <!ENTITY foo-f "<filename>&quot;foo&quot;</filename>">
 <!ENTITY bar-f "<filename>&quot;bar&quot;</filename>">
@@ -512,14 +512,14 @@
 
 
 <!-- *** shortcuts *** -->
-<!ENTITY signed-byte-8 "<literal role='type'>(&signed-byte-type; 8)</literal>">
-<!ENTITY unsigned-byte-8 "<literal role='type'>(&unsigned-byte-type; 8)</literal>">
-<!ENTITY signed-byte-16 "<literal role='type'>(&signed-byte-type; 16)</literal>">
-<!ENTITY unsigned-byte-16 "<literal role='type'>(&unsigned-byte-type; 16)</literal>">
-<!ENTITY signed-byte-32 "<literal role='type'>(&signed-byte-type; 32)</literal>">
-<!ENTITY unsigned-byte-32 "<literal role='type'>(&unsigned-byte-type; 32)</literal>">
-<!ENTITY signed-byte-n "<literal role='type'>(&signed-byte-type; &n-r;)</literal>">
-<!ENTITY unsigned-byte-n "<literal role='type'>(&unsigned-byte-type; &n-r;)</literal>">
-<!ENTITY unsigned-byte-vec "<literal role='type'>(&vector-class; (&unsigned-byte-type; 8))</literal>">
+<!ENTITY signed-byte-8 "<literal role='type'>(&signed-byte-t; 8)</literal>">
+<!ENTITY unsigned-byte-8 "<literal role='type'>(&unsigned-byte-t; 8)</literal>">
+<!ENTITY signed-byte-16 "<literal role='type'>(&signed-byte-t; 16)</literal>">
+<!ENTITY unsigned-byte-16 "<literal role='type'>(&unsigned-byte-t; 16)</literal>">
+<!ENTITY signed-byte-32 "<literal role='type'>(&signed-byte-t; 32)</literal>">
+<!ENTITY unsigned-byte-32 "<literal role='type'>(&unsigned-byte-t; 32)</literal>">
+<!ENTITY signed-byte-n "<literal role='type'>(&signed-byte-t; &n-r;)</literal>">
+<!ENTITY unsigned-byte-n "<literal role='type'>(&unsigned-byte-t; &n-r;)</literal>">
+<!ENTITY unsigned-byte-vec "<literal role='type'>(&vector-t; (&unsigned-byte-t; 8))</literal>">
 <!ENTITY yes "<listitem><simpara>yes</simpara></listitem>">
 <!ENTITY no "<listitem><simpara>no</simpara></listitem>">

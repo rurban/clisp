@@ -36,8 +36,8 @@
 
 <para>The class precedence lists of the system classes &class;
  &built-in-class;, &structure-class;, &standard-class;,
- &standard-method-class; contain the class &structure-object-class;
- instead of the class &standard-object-class;.</para>
+ &standard-method-t; contain the class &structure-object-t;
+ instead of the class &standard-object-t;.</para>
 
 </section>
 
@@ -56,7 +56,7 @@
  <member>&make-instances-obsolete;</member>
  <member>&make-method;</member>
  <member>&method-combination-error;</member>
- <member>&method-combination-class;</member>
+ <member>&method-combination-t;</member>
  <member>&update-instance-for-different-class;</member>
  <member>&update-instance-for-redefined-class;</member>
 </simplelist>
@@ -141,8 +141,8 @@
 
 <para>All the functions built by &function;, &compile; and the like are
  atoms.  There are built-in functions written in &c-lang;, compiled
- functions (both of type &compiled-function-type;) and interpreted
- functions (of type &function-class;).</para>
+ functions (both of type &compiled-function-t;) and interpreted
+ functions (of type &function-t;).</para>
 
 <section id="evaluation"><title>Evaluation
   <ulink url="&clhs;/Body/sec_3-1.html">[CLHS-3.1]</ulink></title>
@@ -252,7 +252,8 @@ executes a compiled version of form.</para>
 </section>
 
 <section id="eval-comp"><title>The Evaluation and Compilation Dictionary
-  <ulink url="&clhs;/Body/sec_3-8.html">[CLHS-3.8]</ulink></title>
+  <ulink url="&clhs;/Body/sec_the_evalu_n_dictionary.html"
+         >[CLHS-3.8]</ulink></title>
 
 <section id="spec-decl"><title>Declaration &special-dec;</title>
 
@@ -294,14 +295,14 @@ executes a compiled version of form.</para>
 <section id="type-spec"><title>Type Specifiers
   <ulink url="&clhs;/Body/sec_4-2-3.html">[CLHS-4.2.3]</ulink></title>
 
-<para>The general form of the &complex-class; type specifier is <literal
- role="sexp">(&complex-class; <replaceable>type-of-real-part</replaceable>
+<para>The general form of the &complex-t; type specifier is <literal
+ role="sexp">(&complex-t; <replaceable>type-of-real-part</replaceable>
  <replaceable>type-of-imaginary-part</replaceable>)</literal>.  The type
- specifier <literal role="sexp">(&complex-class; &type-r;)</literal> is
- equivalent to <literal role="sexp">(&complex-class; &type-r;
+ specifier <literal role="sexp">(&complex-t; &type-r;)</literal> is
+ equivalent to <literal role="sexp">(&complex-t; &type-r;
  &type-r;)</literal>.</para>
 
-<para>The &ansi-cl; type specifier <literal role="sexp">(&real-class;
+<para>The &ansi-cl; type specifier <literal role="sexp">(&real-t;
  <replaceable>low</replaceable> <replaceable>high</replaceable>)</literal>
  denotes the real numbers between <replaceable>low</replaceable> and
  <replaceable>high</replaceable>.</para>
@@ -322,37 +323,33 @@ executes a compiled version of form.</para>
 </para></formalpara>
 
 <itemizedlist><title>The possible results of &type-of;</title>
- <listitem><simpara>&cons-class;</simpara></listitem>
- <listitem><simpara>&symbol-class;, &null-class;,
-  &boolean-type;</simpara></listitem>
- <listitem><simpara>&fixnum-type;, &bignum-type;, &rational-class;,
-  &short-float-type;, &single-float-type;, &double-float-type;,
-  &long-float-type;, &complex-class;</simpara></listitem>
- <listitem><simpara>&character-class;, &base-char-type;</simpara></listitem>
- <listitem><simpara><literal role="type">(&array-class; &eltype-r;
-  &dimensions-r;)</literal>, <literal role="type">(&simple-array-type;
+ <listitem><simpara>&cons-t;</simpara></listitem>
+ <listitem><simpara>&symbol-t;, &null-t;, &boolean-t;</simpara></listitem>
+ <listitem><simpara>&fixnum-t;, &bignum-t;, &rational-t;,
+  &short-float-t;, &single-float-t;, &double-float-t;,
+  &long-float-t;, &complex-t;</simpara></listitem>
+ <listitem><simpara>&character-t;, &base-char-t;</simpara></listitem>
+ <listitem><simpara><literal role="type">(&array-t; &eltype-r;
+  &dimensions-r;)</literal>, <literal role="type">(&simple-array-t;
   &eltype-r; &dimensions-r;)</literal></simpara></listitem>
- <listitem><simpara><literal role="type">(&vector-class; &t;
-  &size-r;)</literal>, <literal role="type">(&simple-vector-type;
+ <listitem><simpara><literal role="type">(&vector-t; &t;
+  &size-r;)</literal>, <literal role="type">(&simple-vector-t;
   &size-r;)</literal></simpara></listitem>
- <listitem><simpara><literal role="type">(&string-class;
-  &size-r;)</literal>, <literal role="type">(&simple-string-type;
+ <listitem><simpara><literal role="type">(&string-t;
+  &size-r;)</literal>, <literal role="type">(&simple-string-t;
   &size-r;)</literal></simpara></listitem>
- <listitem><simpara><literal role="type">(&base-string-type;
-  &size-r;)</literal>, <literal role="type">(&simple-base-string-type;
+ <listitem><simpara><literal role="type">(&base-string-t;
+  &size-r;)</literal>, <literal role="type">(&simple-base-string-t;
   &size-r;)</literal></simpara></listitem>
- <listitem><simpara><literal role="type">(&bit-vector-class;
-  &size-r;)</literal>, <literal role="type">(&simple-bit-vector-type;
+ <listitem><simpara><literal role="type">(&bit-vector-t;
+  &size-r;)</literal>, <literal role="type">(&simple-bit-vector-t;
   &size-r;)</literal></simpara></listitem>
- <listitem><simpara>&function-class;,
-  &compiled-function-type;</simpara></listitem>
- <listitem><simpara>&stream-class;, &file-stream-class;,
-  &synonym-stream-class;, &broadcast-stream-class;,
-  &concatenated-stream-class;, &two-way-stream-class;,
-  &echo-stream-class;, &string-stream-class;</simpara></listitem>
- <listitem><simpara>&package-class;, &hash-table-class;, &readtable-class;,
-  &pathname-class;, &logical-pathname-class;, &random-state-class;,
-  &byte-t;</simpara></listitem>
+ <listitem><simpara>&function-t;, &compiled-function-t;</simpara></listitem>
+ <listitem><simpara>&stream-t;, &file-stream-t;, &synonym-stream-t;,
+  &broadcast-stream-t;, &concatenated-stream-t;, &two-way-stream-t;,
+  &echo-stream-t;, &string-stream-t;</simpara></listitem>
+ <listitem><simpara>&package-t;, &hash-table-t;, &readtable-t;, &pathname-t;,
+  &logical-pathname-t;, &random-state-t;, &byte-t;</simpara></listitem>
  <listitem><simpara><classname>special-operator</classname>,
   <classname>load-time-eval</classname>, &symbol-macro;, &encoding;,
   &foreign-pointer;, <classname>foreign-address</classname>,
@@ -420,7 +417,7 @@ executes a compiled version of form.</para>
 <para>There is a generic function <emphasis
  role="strong"><function>CLOS:NO-PRIMARY-METHOD</function></emphasis>
  (similar to &no-applicable-method;) which is called when a generic
- function of the class &standard-generic-function-class; is invoked and
+ function of the class &standard-generic-function-t; is invoked and
  no primary method on that generic function is applicable.</para>
 
 <para><emphasis
@@ -439,9 +436,9 @@ executes a compiled version of form.</para>
  than the one the method came from.</para>
 
 <para>&print-object; is only called on objects of type
- &standard-object-class; and &structure-object-class;.
- It is not called on other objects, like &cons-class;es
- and &number-class;s, due to the performance concerns.</para>
+ &standard-object-t; and &structure-object-t;.
+ It is not called on other objects, like &cons-t;es
+ and &number-t;s, due to the performance concerns.</para>
 
 <para>&documentation; still has the &cltl1; implementation.</para>
 
@@ -455,28 +452,27 @@ executes a compiled version of form.</para>
  4-8</ulink>, only the following are instances of &built-in-class;:
 
 <itemizedlist>
- <listitem><simpara>&t-class;</simpara></listitem>
- <listitem><simpara>&character-class;</simpara></listitem>
- <listitem><simpara>&number-class;, &complex-class;, &real-class;,
-    &float-class;, &rational-class;, &ratio-class;, &integer-class;
+ <listitem><simpara>&t-t;</simpara></listitem>
+ <listitem><simpara>&character-t;</simpara></listitem>
+ <listitem><simpara>&number-t;, &complex-t;, &real-t;, &float-t;,
+   &rational-t;, &ratio-t;, &integer-t;</simpara></listitem>
+ <listitem><simpara>&sequence-t;</simpara></listitem>
+ <listitem><simpara>&array-t;, &vector-t;, &bit-vector-t;
+   &string-t;</simpara></listitem>
+ <listitem><simpara>&list-t;, &cons-t;</simpara></listitem>
+ <listitem><simpara>&symbol-t;, &null-t;</simpara></listitem>
+ <listitem><simpara>&function-t;, &generic-function-t;,
+   &standard-generic-function-t;</simpara></listitem>
+ <listitem><simpara>&hash-table-t;</simpara></listitem>
+ <listitem><simpara>&package-t;</simpara></listitem>
+ <listitem><simpara>&pathname-t;, &logical-pathname-t;
   </simpara></listitem>
- <listitem><simpara>&sequence-class;</simpara></listitem>
- <listitem><simpara>&array-class;, &vector-class;, &bit-vector-class;
-      &string-class;</simpara></listitem>
- <listitem><simpara>&list-class;, &cons-class;</simpara></listitem>
- <listitem><simpara>&symbol-class;, &null-class;</simpara></listitem>
- <listitem><simpara>&function-class;, &generic-function-class;,
-      &standard-generic-function-class;</simpara></listitem>
- <listitem><simpara>&hash-table-class;</simpara></listitem>
- <listitem><simpara>&package-class;</simpara></listitem>
- <listitem><simpara>&pathname-class;, &logical-pathname-class;
-  </simpara></listitem>
- <listitem><simpara>&random-state-class;</simpara></listitem>
- <listitem><simpara>&readtable-class;</simpara></listitem>
- <listitem><simpara>&stream-class;, &broadcast-stream-class;,
-    &concatenated-stream-class;, &echo-stream-class;,
-    &string-stream-class;, &file-stream-class;,
-    &synonym-stream-class;, &two-way-stream-class;</simpara></listitem>
+ <listitem><simpara>&random-state-t;</simpara></listitem>
+ <listitem><simpara>&readtable-t;</simpara></listitem>
+ <listitem><simpara>&stream-t;, &broadcast-stream-t;,
+   &concatenated-stream-t;, &echo-stream-t;, &string-stream-t;,
+   &file-stream-t;, &synonym-stream-t;,
+   &two-way-stream-t;</simpara></listitem>
 </itemizedlist></para>
 
 </section>
@@ -501,24 +497,24 @@ executes a compiled version of form.</para>
 <section id="type-class-int"><title>Integrating Types and Classes
   <ulink url="&clhs;/Body/sec_4-3-7.html">[CLHS-4.3.7]</ulink></title>
 
-<para>The class &method-combination-class; is not implemented.</para>
+<para>The class &method-combination-t; is not implemented.</para>
 
 </section>
 
 <section id="type-class-dict"><title>The Types and Classes Dictionary
-  <ulink url="&clhs;/Body/sec_the_types_s_dictionary.html">[CLHS-4.4]</ulink></title>
+  <ulink url="&clhs;/Body/sec_the_types_s_dictionary.html"
+         >[CLHS-4.4]</ulink></title>
 
 <section id="fixnum-char-ansi"><title>Function &coerce;</title>
 
-<para>&fixnum-type; is not a <ulink
+<para>&fixnum-t; is not a <ulink
   url="&clhs;/Body/glo_c.html#character_designator">character
   designator</ulink> in &ansi-cl;, although &code-char; provides an
-  obvious venue to &coerce; a &fixnum-type; to a &character-class;.
-  When &fixnum-char-ansi; is &nil;, &clisp; &coerce;s &fixnum-type;s to
-  &character-class;s via &code-char;.
-  When &fixnum-char-ansi; is non-&nil;, &fixnum-type;s cannot be
-  &coerce;d to &character-class;s.
-</para>
+  obvious venue to &coerce; a &fixnum-t; to a &character-t;.
+  When &fixnum-char-ansi; is &nil;, &clisp; &coerce;s &fixnum-t;s to
+  &character-t;s via &code-char;.
+  When &fixnum-char-ansi; is non-&nil;, &fixnum-t;s cannot be
+  &coerce;d to &character-t;s.</para>
 </section>
 </section>
 </chapter>
@@ -528,7 +524,8 @@ executes a compiled version of form.</para>
    <ulink url="&clhs;/Body/chap-5.html">[CLHS-5]</ulink></title>
 
 <section id="flow-dict"><title>The Data and Control Flow Dictionary
-   <ulink url="&clhs;/Body/sec_the_data__w_dictionary.html">[CLHS-5.3]</ulink></title>
+   <ulink url="&clhs;/Body/sec_the_data__w_dictionary.html"
+          >[CLHS-5.3]</ulink></title>
 
 <formalpara><title>&destructuring-bind;</title>
 <para>does not perform full error checking.</para></formalpara>
@@ -562,8 +559,8 @@ is the same as
 
 <section id="eq"><title>Function &eq;</title>
 
-<para>&eq; compares &character-class;s and &fixnum-type;s as &eql; does.
- No unnecessary copies are made of &character-class;s and &number-class;s.
+<para>&eq; compares &character-t;s and &fixnum-t;s as &eql; does.
+ No unnecessary copies are made of &character-t;s and &number-t;s.
  Nevertheless, one should use &eql; as it is more portable across &cl;
  implementations.</para>
 
@@ -577,7 +574,7 @@ is the same as
 <para><literal role="sexp">(&setf; (&symbol-function; &symbol-r;)
  &object-r;)</literal> requires &object-r; to be either a function, a
  &symbol-function; return value or a &lambda-expr;.  The &lambda-expr;
- is thereby immediately converted to a &function-class;.</para>
+ is thereby immediately converted to a &function-t;.</para>
 
 </section>
 
@@ -1074,23 +1071,23 @@ all packages in &sys-pack-list;.</para></formalpara>
 
 <section id="num-types"><title>Numeric Types</title>
 
-<para>The type &number-class; is the disjoint union of the types
- &real-class; and &complex-class; (<ulink
+<para>The type &number-t; is the disjoint union of the types
+ &real-t; and &complex-t; (<ulink
  url="&clhs;/Body/glo_e.html#exhaustive_partition"><quote>exhaustive
  partition</quote></ulink>)</para>
 
-<para>The type &real-class; is the disjoint union of the types
- &rational-class; and &float-class;.</para>
+<para>The type &real-t; is the disjoint union of the types
+ &rational-t; and &float-t;.</para>
 
-<para>The type &rational-class; is the disjoint union of the types
- &integer-class; and &ratio-class;.</para>
+<para>The type &rational-t; is the disjoint union of the types
+ &integer-t; and &ratio-t;.</para>
 
-<para>The type &integer-class; is the disjoint union of the types
- &fixnum-type; and &bignum-type;.</para>
+<para>The type &integer-t; is the disjoint union of the types
+ &fixnum-t; and &bignum-t;.</para>
 
-<para>The type &float-class; is the disjoint union of the types
- &short-float-type;, &single-float-type;, &double-float-type; and
- &long-float-type;.</para>
+<para>The type &float-t; is the disjoint union of the types
+ &short-float-t;, &single-float-t;, &double-float-t; and
+ &long-float-t;.</para>
 
 </section>
 
@@ -1101,7 +1098,7 @@ all packages in &sys-pack-list;.</para></formalpara>
    <ulink url="&clhs;/Body/sec_12-1-1-3-2.html">[CLHS-12.1.1.3.2]</ulink></title>
 
 <para>Byte specifiers are objects of built-in type &byte-t;,
- not &integer-class;s.</para>
+ not &integer-t;s.</para>
 
 </section>
 
@@ -1116,21 +1113,21 @@ all packages in &sys-pack-list;.</para></formalpara>
 <section id="float-comp"><title>Floating-point Computations
    <ulink url="&clhs;/Body/sec_12-1-4.html">[CLHS-12.1.4]</ulink></title>
 
-<para>There are four floating point types: &short-float-type;,
- &single-float-type;, &double-float-type; and &long-float-type;:</para>
+<para>There are four floating point types: &short-float-t;,
+ &single-float-t;, &double-float-t; and &long-float-t;:</para>
 
 <table id="floating-types-table" frame="all">
   <title>floating point types</title>
 <tgroup cols="5" colsep="1" rowsep="1" align="center">
 <thead><row><entry>type</entry><entry>sign</entry><entry>mantissa</entry>
        <entry>exponent</entry><entry>comment</entry></row></thead>
-<tbody><row><entry>&short-float-type;</entry><entry>1 bit</entry>
+<tbody><row><entry>&short-float-t;</entry><entry>1 bit</entry>
  <entry>16+1 bits</entry><entry>8 bits</entry><entry>immediate</entry></row>
-       <row><entry>&single-float-type;</entry><entry>1 bit</entry>
+       <row><entry>&single-float-t;</entry><entry>1 bit</entry>
  <entry>23+1 bits</entry><entry>8 bits</entry><entry>IEEE format</entry></row>
-       <row><entry>&double-float-type;</entry><entry>1 bit</entry>
+       <row><entry>&double-float-t;</entry><entry>1 bit</entry>
  <entry>52+1 bits</entry><entry>11 bits</entry><entry>IEEE format</entry></row>
-       <row><entry>&long-float-type;</entry><entry>1 bit</entry>
+       <row><entry>&long-float-t;</entry><entry>1 bit</entry>
  <entry>&gt;=64 bits</entry><entry>32 bits</entry><entry>variable
  length</entry></row></tbody></tgroup></table>
 
@@ -1156,8 +1153,8 @@ all packages in &sys-pack-list;.</para></formalpara>
 
 <para>The floating point contagion is controlled by the variable
  &flocont;.  When it is non-&nil;, contagion is done as per the
- &ansi-cl;: &short-float-type; &rarr; &single-float-type; &rarr;
- &double-float-type; &rarr; &long-float-type;.</para>
+ &ansi-cl;: &short-float-t; &rarr; &single-float-t; &rarr;
+ &double-float-t; &rarr; &long-float-t;.</para>
 
 <variablelist>
 <varlistentry><term>Rationale:</term>
@@ -1205,9 +1202,9 @@ all packages in &sys-pack-list;.</para></formalpara>
 <para>When &flocont; is &nil;, the traditional &clisp; method is used,
  namely the result of an arithmetic operation whose arguments are of
  different float types is rounded to the float format of the shortest
- (least precise) of the arguments: &rational-class; &rarr;
- &long-float-type; &rarr; &double-float-type; &rarr; &single-float-type;
- &rarr; &short-float-type; (in contrast to <ulink
+ (least precise) of the arguments: &rational-t; &rarr;
+ &long-float-t; &rarr; &double-float-t; &rarr; &single-float-t;
+ &rarr; &short-float-t; (in contrast to <ulink
  url="&clhs;/Body/sec_12-1-4-4.html">12.1.4.4 Rule of Float Precision
  Contagion</ulink>!)</para>
 
@@ -1256,14 +1253,14 @@ all packages in &sys-pack-list;.</para></formalpara>
  <literal>0.0</literal> (which would mean "approximately 0").</para>
 
 <para>The type specifier for this is <literal
- role="sexp">(&complex-class; &integer-class;
- &single-float-type;)</literal>, and <literal
- role="sexp">(&complex-class; <varname>type-of-real-part</varname>
+ role="sexp">(&complex-t; &integer-t;
+ &single-float-t;)</literal>, and <literal
+ role="sexp">(&complex-t; <varname>type-of-real-part</varname>
  <varname>type-of-imaginary-part</varname>)</literal> in general.</para>
 
-<para>The type specifier <literal role="sexp">(&complex-class;
+<para>The type specifier <literal role="sexp">(&complex-t;
  &type-r;)</literal> is equivalent to <literal
- role="sexp">(&complex-class; &type-r; &type-r;)</literal>.</para>
+ role="sexp">(&complex-t; &type-r; &type-r;)</literal>.</para>
 
 </section>
 
@@ -1291,7 +1288,7 @@ all packages in &sys-pack-list;.</para></formalpara>
 
 <formalpara><title>&upgraded-complex-part-type;</title>
 <para>&upgraded-complex-part-type; always returns &t;, since a
- &complex-class; number in &clisp; can always have &realpart; and
+ &complex-t; number in &clisp; can always have &realpart; and
  &imagpart; of any type.</para></formalpara>
 
 <formalpara id="default-float-format"><title>&default-float-format;</title>
@@ -1302,16 +1299,16 @@ all packages in &sys-pack-list;.</para></formalpara>
 <formalpara id="no-underflow"><title>&no-underflow;</title>
 <para>The macro <literal role="sexp">(&no-underflow;
  {&form-r;}*)</literal> executes the &form-r;s, with errors of type
- &floating-point-underflow-type; inhibited.  Floating point operations
+ &floating-point-underflow-t; inhibited.  Floating point operations
  will silently return zero instead of signalling an error of type
- &floating-point-underflow-type;.</para></formalpara>
+ &floating-point-underflow-t;.</para></formalpara>
 
 <section id="int-func-ext"><title>Additional Integer Functions</title>
 
 <formalpara><title><function>ext:!</function></title>
 <para><literal role="sexp">(<function>ext:!</function> &n-r;)</literal>
  returns the factorial of &n-r;, &n-r; being a nonnegative
- &integer-class;.</para></formalpara>
+ &integer-t;.</para></formalpara>
 
 <formalpara><title><function>ext:exquo</function></title>
 <para><literal role="sexp">(<function>ext:exquo</function> &x-r;
@@ -1345,7 +1342,7 @@ all packages in &sys-pack-list;.</para></formalpara>
  an error if <literal>&base-r; = 1</literal>.</para></formalpara>
 
 <formalpara><title>&pi;</title>
-<para>The value of &pi; is a &long-float-type; with the precision given
+<para>The value of &pi; is a &long-float-t; with the precision given
  by &lfd-l;.  When this precision is changed, the value of &pi; is
  automatically recomputed.  Therefore &pi; is a variable, not a
  constant.</para></formalpara>
@@ -1426,12 +1423,12 @@ all packages in &sys-pack-list;.</para></formalpara>
 </section>
 
 <section id="float-invalid-op">
-  <title>Condition &floating-point-invalid-operation-type;</title>
+  <title>Condition &floating-point-invalid-operation-t;</title>
 <para>This condition is never signaled by &clisp;.</para>
 </section>
 
 <section id="float-inexact">
-  <title>Condition &floating-point-inexact-type;</title>
+  <title>Condition &floating-point-inexact-t;</title>
 <para>This condition is never signaled by &clisp;.</para>
 </section>
 </section>
@@ -1725,7 +1722,7 @@ encoding.</para>
 <para>Characters do not have the &cltl1; font and bits attributes.
  For backward compatibility, there is a class &input-char; representing
  either a character with font and bits, or a keystroke.
- The following functions work with objects of types &character-class;
+ The following functions work with objects of types &character-t;
  and &input-char;.
  Note that &eql; or &equal; cannot be used to compare objects of type
  &input-char;.</para>
@@ -1746,11 +1743,11 @@ encoding.</para>
   </tbody></tgroup></table></listitem></varlistentry>
  <varlistentry><term><literal role="sexp">(<function>ext:char-font</function>
   &object-r;)</literal> </term>
- <listitem><simpara>returns the font of a &character-class; or &input-char;.
+ <listitem><simpara>returns the font of a &character-t; or &input-char;.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal role="sexp">(<function>ext:char-bits</function>
   &object-r;)</literal> </term>
- <listitem><simpara>returns the bits of a &character-class; or &input-char;.
+ <listitem><simpara>returns the bits of a &character-t; or &input-char;.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal role="sexp">(<function>ext:make-char</function>
   &ch-r; [<replaceable>bits</replaceable>
@@ -1785,7 +1782,7 @@ encoding.</para>
 <section id="char-script"><title>Character Scripts
    <ulink url="&clhs;/Body/sec_13-1-2-1.html">[CLHS-13.1.2.1]</ulink></title>
 
-<para>The only defined character script is the type &character-class;
+<para>The only defined character script is the type &character-t;
  itself.</para>
 
 </section>
@@ -1911,7 +1908,7 @@ are simple characters.</para>
 </tbody></tgroup></table>
 
 <para>The types <classname>ext:string-char</classname> and
- &base-char-type; are equivalent to &character-class;.</para>
+ &base-char-t; are equivalent to &character-t;.</para>
 
 <para>The graphic characters have been described above.</para>
 
@@ -2224,10 +2221,10 @@ and the international alphabetic characters from the character set:
 <formalpara><title>&make-array;</title>
 <para>&make-array; can return specialized arrays for the
  &array-element-type;s
- <literal role="type">(&unsigned-byte-type; 2)</literal>,
- <literal role="type">(&unsigned-byte-type; 4)</literal>,
+ <literal role="type">(&unsigned-byte-t; 2)</literal>,
+ <literal role="type">(&unsigned-byte-t; 4)</literal>,
  &unsigned-byte-8;, &unsigned-byte-16;, &unsigned-byte-32;,
- and, of course, &bit-type; and &character-class;.</para></formalpara>
+ and, of course, &bit-t; and &character-t;.</para></formalpara>
 
 <section id="array-elts"><title>Array Elements
    <ulink url="&clhs;/Body/sec_15-1-1.html">[CLHS-15.1.1]</ulink></title>
@@ -2321,8 +2318,8 @@ and the international alphabetic characters from the character set:
 
 <formalpara><title>&nreverse;</title>
 <para>The result of &nreverse; is always &eq; to the argument.
- &nreverse; on a &vector-class; swaps pairs of elements.
- &nreverse; on a &list-class; swaps the first and the last
+ &nreverse; on a &vector-t; swaps pairs of elements.
+ &nreverse; on a &list-t; swaps the first and the last
  element and reverses the list chaining between them.</para></formalpara>
 
 <formalpara><title>&nreconc;</title>
@@ -2337,8 +2334,8 @@ and the international alphabetic characters from the character set:
  their argument unchanged, if no element has to be removed.</para>
 
 <para>&delete;, &delete-if;, &delete-if-not;, &delete-duplicates;
- destructively modify their argument: If the argument is a &list-class;,
- the &cdr; parts are modified.  If the argument is a &vector-class; with
+ destructively modify their argument: If the argument is a &list-t;,
+ the &cdr; parts are modified.  If the argument is a &vector-t; with
  fill pointer, the fill pointer is lowered and the remaining elements are
  compacted below the new fill pointer.</para>
 
@@ -2395,15 +2392,15 @@ and &end-k;:</para>
  The <constant>:rehash-threshold</constant> argument is ignored.</para>
 
 <para>The boolean <constant>:weak</constant> argument defaults to &nil;
-and specifies whether the &hash-table-class; is <emphasis>weak</emphasis>:
+and specifies whether the &hash-table-t; is <emphasis>weak</emphasis>:
 the key is not considered accessible for the &gc;ion purposes, i.e., if
-is is only accessible in the weak &hash-table-class;, it is &gc;ed and
-removed from the weak &hash-table-class;.</para>
+is is only accessible in the weak &hash-table-t;, it is &gc;ed and
+removed from the weak &hash-table-t;.</para>
 
 <para>The &setf;able predicate <function>EXT:HASH-TABLE-WEAK-P</function>
-checks whether the &hash-table-class; is weak.</para>
+checks whether the &hash-table-t; is weak.</para>
 
-<para>Just like &weak-pointer;s, weak &hash-table-class;s cannot be
+<para>Just like &weak-pointer;s, weak &hash-table-t;s cannot be
 printed readably.</para>
 
 </section>
@@ -2696,7 +2693,7 @@ printed readably.</para>
 <varlistentry><term>Platform dependent: &win32; platforms only.</term>
 <listitem><variablelist>&path-comps;
 <varlistentry><term>&host-r;</term>
- <listitem><simpara>&nil; or &simple-string-type;, wildcard characters may
+ <listitem><simpara>&nil; or &simple-string-t;, wildcard characters may
    occur but don't act as wildcards</simpara></listitem></varlistentry>
 <varlistentry><term>&device-r;</term>
  <listitem><simpara>&nil; or &wild-k; or &file-letter-uc;
@@ -3213,15 +3210,15 @@ printed readably.</para>
  &subdirs-def;
  <row><entry>&subdir-r;</entry><entry>&parent-k;</entry></row>
  <row><entry>&subdir-r;</entry>
-   <entry>&simple-string-type;, may contain wildcard characters
+   <entry>&simple-string-t;, may contain wildcard characters
    &file-ques;, &file-hash; and &file-star;</entry></row>
  </tbody></tgroup></table></listitem></varlistentry>
 <varlistentry><term>&name-r;</term>
- <listitem><simpara>&simple-string-type; or &nil;, may contain wildcard
+ <listitem><simpara>&simple-string-t; or &nil;, may contain wildcard
  characters &file-ques;,&file-hash; and &file-star; (may also be
  specified as &wild-k;)</simpara></listitem></varlistentry>
 <varlistentry><term>&type-r;</term>
- <listitem><simpara>&nil; or &simple-string-type;, may contain wildcard
+ <listitem><simpara>&nil; or &simple-string-t;, may contain wildcard
  characters &file-ques;,&file-hash; and &file-star; (may also be
  specified as &wild-k;)</simpara></listitem></varlistentry>
 &version-nil;
@@ -3361,7 +3358,8 @@ printed readably.</para>
 <!-- #endif -->
 
 <section id="filename-dict"><title>The Filenames Dictionary
-   <ulink url="&clhs;/Body/sec_the_filen_s_dictionary.html">[CLHS-19.4]</ulink></title>
+   <ulink url="&clhs;/Body/sec_the_filen_s_dictionary.html"
+          >[CLHS-19.4]</ulink></title>
 
 <para>&pathname; always returns a physical pathname.</para>
 
@@ -3389,7 +3387,7 @@ printed readably.</para>
    <replaceable>junk-allowed</replaceable>)</literal>
  returns a logical pathname only if &host-r; is a
  <ulink url="&clhs;/Body/glo_l.html#logical_host">logical host</ulink>
- or &host-r; is &nil; and &defaults-r; is a &logical-pathname-class;.
+ or &host-r; is &nil; and &defaults-r; is a &logical-pathname-t;.
  To construct a logical pathname from a string, the function
  &logical-pathname; can be used.</para>
 
@@ -3630,7 +3628,7 @@ is not a defined logical host yet, we proceed as follows:
  <literal role="sexp">(&with-kbd; . &body-r;)</literal> form, <emphasis
  role="strong">&kbd-in;</emphasis> is the stream that reads the
  keystrokes from the keyboard.
- It returns every keystroke in detail, as &character-class; or
+ It returns every keystroke in detail, as &character-t; or
  &input-char; with the following bits:
 <variablelist>
 <!-- #if defined(MSDOS) || defined(WIN32) || defined(AMIGAOS) -->
@@ -3763,11 +3761,11 @@ is not a defined logical host yet, we proceed as follows:
 <section id="stream-eltype"><title>Function &stream-element-type;</title>
 
 <para>&stream-element-type; is &setf;able. The &stream-element-type; of
-  &stream-class;s created by the functions &open;, &mk-pipe-in;
+  &stream-t;s created by the functions &open;, &mk-pipe-in;
   &mk-pipe-out;, &mk-pipe-io;, &so-accept;, &so-connect;
   can be modified, if the old and the new &stream-element-type;s are either
 <itemizedlist>
-  <listitem><simpara>both equivalent to &character-class; or
+  <listitem><simpara>both equivalent to &character-t; or
       &unsigned-byte-8; or &signed-byte-8;; or</simpara></listitem>
   <listitem><simpara>both equivalent to &unsigned-byte-n; or
       &signed-byte-n;, with the same &n-r;.</simpara></listitem>
@@ -3784,7 +3782,7 @@ value of &terminal-io-var;).</para>
 
 <para>The function <literal role="sexp">(&rd-integer; &stream-r;
     &eltype-r; &optional-amp; &endianness; &eof-ep; &eof-v;)</literal>
- reads a multi-byte &integer-class; from &stream-r;.
+ reads a multi-byte &integer-t; from &stream-r;.
  &stream-r; should be a stream with &stream-element-type;
  &unsigned-byte-8;.
  &eltype-r; should be a type equivalent to &unsigned-byte-n;, where
@@ -3809,10 +3807,10 @@ value of &terminal-io-var;).</para>
 <para>The function <literal role="sexp">(&rd-float; &stream-r;
     &eltype-r; &optional-amp; &endianness; &eof-ep; &eof-v;)</literal>
  reads a floating-point number in IEEE binary representation from &stream-r;.
- &stream-r; should be a &stream-class; with &stream-element-type;
+ &stream-r; should be a &stream-t; with &stream-element-type;
  &unsigned-byte-8;.
  &eltype-r; should be a type equivalent to
- &single-float-type; or &double-float-type;.</para>
+ &single-float-t; or &double-float-t;.</para>
 
 </section>
 
@@ -3822,7 +3820,7 @@ value of &terminal-io-var;).</para>
 <para>The function <literal role="sexp">(&wr-integer;
     &int-r; &stream-r; &eltype-r; &optional-amp; &endianness;)</literal>
  writes a multi-byte integer to &stream-r;.
- &stream-r; should be a &stream-class; with &stream-element-type;
+ &stream-r; should be a &stream-t; with &stream-element-type;
  &unsigned-byte-8;.
  &eltype-r; should be a type equivalent to &unsigned-byte-n;, where
  &n-r; is a multiple of 8.</para>
@@ -3836,16 +3834,16 @@ value of &terminal-io-var;).</para>
 
 <para>Together with <literal role="sexp">(&setf;
   &stream-element-type;)</literal>, this function permits mixed
-  character/binary output to a &stream-class;.</para>
+  character/binary output to a &stream-t;.</para>
 
 <para>The function <literal role="sexp">(&wr-float;
     <replaceable>float</replaceable> &stream-r;
     &eltype-r; &optional-amp; &endianness;)</literal>
  writes a floating-point number in IEEE binary representation to &stream-r;.
- &stream-r; should be a &stream-class; with &stream-element-type;
+ &stream-r; should be a &stream-t; with &stream-element-type;
  &unsigned-byte-8;.
  &eltype-r; should be a type equivalent to
- &single-float-type; or &double-float-type;.</para>
+ &single-float-t; or &double-float-t;.</para>
 
 </section>
 
@@ -3860,12 +3858,12 @@ value of &terminal-io-var;).</para>
  <listitem><simpara><literal role="sexp">(&rd-by-seq; &sequence-r;
    &stream-r; &key-amp; &start-k; &end-k;)</literal> fills the
    subsequence of &sequence-r; specified by &start-k; and &end-k; with
-   &integer-class;s consecutively read from &stream-r;.  It returns the
+   &integer-t;s consecutively read from &stream-r;.  It returns the
    index of the first element of &sequence-r; that was not updated (=
    &end-r; or &lt; &end-r; if the &stream-r; reached its end).</simpara>
  <simpara>This function is especially efficient if &sequence-r; is a
    &unsigned-byte-vec; and &stream-r; is a &file-pipe-socket;
-   &stream-class; with &stream-element-type; &unsigned-byte-8;.
+   &stream-t; with &stream-element-type; &unsigned-byte-8;.
  </simpara></listitem></varlistentry>
  <varlistentry id="rd-ch-seq"><term>&rd-ch-seq;
    performs multiple &read-char; operations:</term>
@@ -3876,8 +3874,8 @@ value of &terminal-io-var;).</para>
   of the first element of &sequence-r; that was not updated (= &end-r;
   or &lt; &end-r; if the &stream-r; reached its end).</simpara>
  <simpara>This function is especially efficient if &sequence-r; is a
-  &string-class; and &stream-k; is a &file-pipe-socket; stream with
-  &stream-element-type; &character-class; or an <ulink
+  &string-t; and &stream-k; is a &file-pipe-socket; stream with
+  &stream-element-type; &character-t; or an <ulink
   url="&clhs;/Body/glo_i.html#input">input</ulink> <ulink
   url="&clhs;/Body/glo_s.html#string_stream">string stream</ulink>.
   </simpara></listitem></varlistentry>
@@ -3895,11 +3893,11 @@ functions are provided:</para>
    performs multiple &write-byte; operations:</term>
  <listitem><simpara><literal role="sexp">(&wr-by-seq; &sequence-r;
   &stream-k; &key-amp; &start-k; &end-k;)</literal> outputs the
-  &integer-class;s of the subsequence of &sequence-r; specified by
+  &integer-t;s of the subsequence of &sequence-r; specified by
   &start-k; and &end-k; to &stream-k;. It returns &sequence-r;.</simpara>
  <simpara>This function is especially efficient if &sequence-r; is a
   &unsigned-byte-vec; and &stream-r; is a &file-pipe-socket;
-  &stream-class; with &stream-element-type; &unsigned-byte-8;.
+  &stream-t; with &stream-element-type; &unsigned-byte-8;.
  </simpara></listitem></varlistentry>
 <varlistentry id="wr-ch-seq"><term>&wr-ch-seq;
   performs multiple &write-char; operations:</term>
@@ -3908,8 +3906,8 @@ functions are provided:</para>
   characters of the subsequence of &sequence-r; specified by &start-k;
   and &end-k; to &stream-k;.  It returns &sequence-r;.</simpara>
  <simpara>This function is especially efficient if &sequence-r; is a
-  &string-class; and &stream-k; is a &file-pipe-socket; &stream-class;
-  with &stream-element-type; &character-class;.
+  &string-t; and &stream-k; is a &file-pipe-socket; &stream-t;
+  with &stream-element-type; &character-t;.
   </simpara></listitem></varlistentry>
 </variablelist>
 </section>
@@ -3939,7 +3937,7 @@ functions are provided:</para>
 <variablelist><title>The acceptable values for the
    &file-pipe-socket; functions</title>
  <varlistentry id="eltype"><term>&eltype;</term>
-  <listitem><simpara>types equivalent to &character-class; or
+  <listitem><simpara>types equivalent to &character-t; or
     &unsigned-byte-n;, &signed-byte-n;; if the stream is to be
     unbuffered, &n-r; must be a multiple of 8.</simpara>
    <simpara>If &n-r; is not a multiple of 8, &clisp; will use the
@@ -3947,7 +3945,7 @@ functions are provided:</para>
     (as a number of &n-r;-bit bytes) in the preamble.</simpara>
    <simpara>This is done to ensure the input/output consistency.
     Suppose you open a file with &eltype; of <literal
-    role="sexp">(&unsigned-byte-type; 3)</literal> and write 7 bytes
+    role="sexp">(&unsigned-byte-t; 3)</literal> and write 7 bytes
     (i.e., 21 bit) there.
     The underlying OS can do input/output only in whole 8-bit bytes.
     Thus the OS will report the size of the file as 3 (8-bit) bytes.
@@ -3955,8 +3953,8 @@ functions are provided:</para>
     3-bit bytes to read from this file - 6, 7 or 8.
    </simpara></listitem></varlistentry>
  <varlistentry id="extfmt"><term>&extfmt;</term>
-  <listitem><simpara>&encoding;s, (constant) &symbol-class;s in the
-   &charset-pac; package, &string-class;s (denoting &iconv;-based
+  <listitem><simpara>&encoding;s, (constant) &symbol-t;s in the
+   &charset-pac; package, &string-t;s (denoting &iconv;-based
    encodings), the symbol &default-k;, and the &line-term; keywords
    &unix-k;, &mac-k;, &dos-k;.  The default encoding is &def-file-enc;.
   </simpara></listitem></varlistentry>
@@ -3988,7 +3986,7 @@ functions are provided:</para>
 
 </section>
 
-<section id="broadcast-stream"><title>Class &broadcast-stream-class;</title>
+<section id="broadcast-stream"><title>Class &broadcast-stream-t;</title>
 
 <para>&input-stream-p; and &interactive-stream-p; return false for
  <ulink url="&clhs;/Body/glo_b.html#broadcast_stream">broadcast
@@ -4044,7 +4042,7 @@ functions are provided:</para>
    <ulink url="&clhs;/Body/sec_22-1-3-7.html">[CLHS-22.1.3.7]</ulink></title>
 
 <para>When &print-readably-var; is true, other vectors are written as
- follows: if the &array-element-type; is &t-class;, the syntax <literal
+ follows: if the &array-element-type; is &t-t;, the syntax <literal
  role="sexp">#(<replaceable>x<subscript>0</subscript></replaceable>
  ... <replaceable>x<subscript>n-1</subscript></replaceable>)</literal>
  is used.  Otherwise, the syntax <literal role="sexp">#A(&eltype-r;
@@ -4056,7 +4054,7 @@ functions are provided:</para>
    <ulink url="&clhs;/Body/sec_22-1-3-8.html">[CLHS-22.1.3.8]</ulink></title>
 
 <para>When &print-readably-var; is true, other arrays are written as
- follows: if the &array-element-type; is &t-class;, the syntax <literal
+ follows: if the &array-element-type; is &t-t;, the syntax <literal
  role="sexp">#<replaceable>rank</replaceable>A &cont-r;</literal> is
  used.  Otherwise, the syntax <literal role="sexp">#A(&eltype-r;
  &dimensions-r; &cont-r;)</literal> is used.</para>
@@ -4360,7 +4358,7 @@ functions are provided:</para>
   <listitem><simpara>To be called only if &stream-r;'s
    &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
    Returns &t; if &read-byte; would return immediately with an
-   &integer-class; result.
+   &integer-t; result.
    Returns &eof-k; if the &eos; is already known to be reached.
    If &read-byte;'s value is not available immediately, returns &nil;
    instead of waiting.</simpara></listitem></varlistentry>
@@ -4376,7 +4374,7 @@ functions are provided:</para>
                  &stream-r; &optional-amp; &eof-ep; &eof-v;)</literal></term>
   <listitem><simpara>To be called only if &stream-r;'s
    &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
-   Returns an &integer-class; or does &eos; handling, like &read-byte;,
+   Returns an &integer-t; or does &eos; handling, like &read-byte;,
    if that would return immediately.
    If &read-byte;'s value is not available immediately, returns &nil;
    instead of waiting.</simpara></listitem></varlistentry>
@@ -4390,7 +4388,8 @@ functions are provided:</para>
    <ulink url="&clhs;/Body/chap-24.html">[CLHS-24]</ulink></title>
 
 <section id="system-dict"><title>The System Construction Dictionary
-   <ulink url="&clhs;/Body/sec_the_syste_n_dictionary.html">[CLHS-24.2]</ulink></title>
+   <ulink url="&clhs;/Body/sec_the_syste_n_dictionary.html"
+          >[CLHS-24.2]</ulink></title>
 
 <para>The compiler can be called not only by the functions &compile;,
  &compile-file; and &disassemble;, but also by the declaration <link
@@ -4869,13 +4868,13 @@ effects when being loaded, this is important as well.
 <para>No on-line documentation is available for the system functions
  (yet).  &documentation; still has the &cltl1; implementation.</para>
 
-<formalpara id="browser"><title><function>ext:clhs</function></title>
+<formalpara id="browser"><title>Function <function>EXT:CLHS</function></title>
 <para>&hyperspec; access is provided via <literal
-  role="sexp">(<function>ext:clhs</function> &symbol-r; &key-amp;
-  <literal>:browser</literal>)</literal>
+  role="sexp">(<function>EXT:CLHS</function> &symbol-r; &key-amp;
+  &browser;)</literal>
   function, which uses your web browser.
   <replaceable>browser</replaceable> should be a valid
-  keyword in the <varname>custom:*browsers*</varname> &alist;.
+  keyword in the <varname>CUSTOM:*BROWSERS*</varname> &alist;.
 </para></formalpara>
 
 </section>
@@ -5041,7 +5040,7 @@ exhaust the available line length.</para></formalpara>
 
 <para>The <ulink url="&clhs;/Body/glo_t.html#time_zone">time
  zone</ulink> in a decoded time must not necessarily be an
- &integer-class;, but (as &float-class; or &rational-class; number)
+ &integer-t;, but (as &float-t; or &rational-t; number)
  it should be a multiple of <literal>1/3600</literal>.</para>
 
 <table id="internal-time-units-table" frame="all">
