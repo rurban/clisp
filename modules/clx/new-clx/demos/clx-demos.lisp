@@ -2,9 +2,9 @@
 ;;; Copyright (C) 1999 by Sam Steingold (sds@gnu.org)
 ;;; GPL2 is applicable
 
-(defpackage clx-demos
-  (:use common-lisp)
-  (:export qix sokoban))
+(defpackage "CLX-DEMOS"
+  (:use "COMMON-LISP")
+  (:export "QIX" "SOKOBAN"))
 
 (in-package :clx-demos)
 
