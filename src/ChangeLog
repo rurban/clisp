@@ -1,5 +1,9 @@
 2000-04-02  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
+        * clhs.lisp (*browsers*): Add support for w3m.
+
+2000-04-02  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
+
         * stream.d (finish_tty_output, force_tty_output): Ignore errno value
           after calling fsync() on BeOS.
 
