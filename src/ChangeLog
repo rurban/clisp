@@ -1,3 +1,8 @@
+2002-03-12  Sam Steingold  <sds@gnu.org>
+
+	* unix.d (HAVE_DLOPEN) [UNIX_HPUX]: undef since dlopen() is
+	broken on HP-UX without a patch
+
 2002-03-11  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (c-warn, c-warn): CURRENT-FUNCTION does not
