@@ -3,6 +3,7 @@
 	* condition.lisp (check-value): use RETRY restart instead of CONTINUE
 	(retry): new function, invokes RETRY restart (similar to CONTINUE,
 	but is not triggered by EOF/Ctr-D)
+	(check-value): associate the new restarts with the condition
 
 2004-05-29  Bruno Haible  <bruno@clisp.org>
 
