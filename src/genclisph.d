@@ -40,28 +40,10 @@ typedef struct { char base; # 'd' für dezimal, 'x' für hexadezimal
     else abort();
 #endif
 
-local char* Lsuffix =
-  #ifdef ANSI
-    "L"
-  #else
-    ""
-  #endif
-  ;
-local char* ULsuffix =
-  #ifdef ANSI
-    "UL"
-  #else
-    ""
-  #endif
-  ;
+local char* Lsuffix = "L";
+local char* ULsuffix = "UL";
 #ifdef HAVE_LONGLONG
-local char* ULLsuffix =
-  #ifdef ANSI
-    "ULL"
-  #else
-    ""
-  #endif
-  ;
+local char* ULLsuffix = "ULL";
 #endif
 
 global void print_printf_arg (printf_arg* arg);
@@ -171,14 +153,7 @@ global void printf_with_args(string,argcount,args)
   }
 
 global int main()
-{ char* glue =
-    #ifdef ANSI
-    "##"
-    #else
-    "/**/"
-    #endif
-    ;
-  # Was hier ausgegeben wird, kann voraussetzen, dass unixconf.h und intparam.h
+{ # Was hier ausgegeben wird, kann voraussetzen, dass unixconf.h und intparam.h
   # schon includet wurden. (intparam.h z.Zt. nicht nötig, aber was soll's.)
 # #ifdef LANGUAGE_STATIC
 #   printf1("#define ENGLISH  %d\n",ENGLISH);
@@ -217,18 +192,6 @@ global int main()
     printf("extern struct registers * callback_saved_registers;\n");
     printf("#endif\n");
   #endif
-# #if !defined(ANSI) && !defined(UNIXCONF)
-#    printf("#define const\n");
-# #endif
-# #if !defined(ANSI)
-#   printf("#define volatile\n");
-# #endif
-# #if !defined(ANSI) && !defined(__CHAR_UNSIGNED__)
-#   printf("#define signed\n");
-# #endif
-  #if !defined(ANSI) && !defined(UNIXCONF)
-    printf("#define void  char\n");
-  #endif
 # #if !defined(GNU) && !defined(UNIXCONF)
 #   printf("#define inline\n");
 # #endif
@@ -239,19 +202,15 @@ global int main()
   printf("#define BEGIN_DECLS\n");
   printf("#define END_DECLS\n");
   printf("#endif\n");
-  printf("#define CONCAT_(xxx,yyy)  xxx%syyy\n",glue);
-  printf("#define CONCAT3_(aaa,bbb,ccc)  aaa%sbbb%sccc\n",glue,glue);
-# printf("#define CONCAT4_(aaa,bbb,ccc,ddd)  aaa%sbbb%sccc%sddd\n",glue,glue,glue);
-# printf("#define CONCAT5_(aaa,bbb,ccc,ddd,eee)  aaa%sbbb%sccc%sddd%seee\n",glue,glue,glue,glue);
+  printf("#define CONCAT_(xxx,yyy)  xxx##yyy\n");
+  printf("#define CONCAT3_(aaa,bbb,ccc)  aaa##bbb##ccc\n");
+# printf("#define CONCAT4_(aaa,bbb,ccc,ddd)  aaa##bbb##ccc##ddd\n");
+# printf("#define CONCAT5_(aaa,bbb,ccc,ddd,eee)  aaa##bbb##ccc##ddd##eee\n");
   printf("#define CONCAT(xxx,yyy)  CONCAT_(xxx,yyy)\n");
   printf("#define CONCAT3(aaa,bbb,ccc)  CONCAT3_(aaa,bbb,ccc)\n");
 # printf("#define CONCAT4(aaa,bbb,ccc,ddd)  CONCAT4_(aaa,bbb,ccc,ddd)\n");
 # printf("#define CONCAT5(aaa,bbb,ccc,ddd,eee)  CONCAT5_(aaa,bbb,ccc,ddd,eee)\n");
-  #ifdef ANSI
-    printf("#define STRING(token) #token\n");
-  #else
-    printf("#define STRING(token) \"token\"\n");
-  #endif
+  printf("#define STRING(token) #token\n");
   printf("#define STRINGIFY(token) STRING(token)\n");
   printf("#define global\n");
 # printf("#define local  static\n");
@@ -261,23 +220,12 @@ global int main()
     printf("#define nonreturning\n");
   #endif
   #ifdef GNU
-    #ifdef ANSI
-      printf("#define nonreturning_function(storclass,funname,arguments)  \\\n");
-      printf("  typedef void CONCAT3(funname,_function_,__LINE__) arguments; \\\n");
-      printf("  storclass nonreturning CONCAT3(funname,_function_,__LINE__) funname\n");
-    #else
-      printf("typedef void void_function ();\n");
-      printf("#define nonreturning_function(storclass,funname,arguments)  \\\n");
-      printf("  storclass nonreturning void_function funname\n");
-    #endif
+    printf("#define nonreturning_function(storclass,funname,arguments)  \\\n");
+    printf("  typedef void CONCAT3(funname,_function_,__LINE__) arguments; \\\n");
+    printf("  storclass nonreturning CONCAT3(funname,_function_,__LINE__) funname\n");
   #else
-    #ifdef ANSI
-      printf("#define nonreturning_function(storclass,funname,arguments)  \\\n");
-      printf("  storclass void funname arguments\n");
-    #else
-      printf("#define nonreturning_function(storclass,funname,arguments)  \\\n");
-      printf("  storclass void funname()\n");
-    #endif
+    printf("#define nonreturning_function(storclass,funname,arguments)  \\\n");
+    printf("  storclass void funname arguments\n");
   #endif
   printf("#define var\n");
 # printf("#define elif  else if\n");
@@ -1327,12 +1275,12 @@ global int main()
 #   #else
 #     printf1("#define subr_tab_ptr_as_object(subr_addr)  as_object((oint)(subr_addr)+%d)\n",subr_bias);
 #   #endif
-#   printf("#define L(name)  subr_tab_ptr_as_object(&subr_tab.D_%sname)\n",glue);
+#   printf("#define L(name)  subr_tab_ptr_as_object(&subr_tab.D_##name)\n");
 # #else
 #   printf1("#define subr_tab_addr  ((struct subr_tab_ *)type_zero_oint(%d))\n",(tint)subr_type);
 #   printf("#define subr_tab  (*subr_tab_addr)\n");
 #   printf("#define subr_tab_ptr_as_object(subr_addr)  (as_object((oint)(subr_addr)))\n");
-#   printf("#define L(name)  subr_tab_ptr_as_object(&subr_tab_addr->D_%sname)\n",glue);
+#   printf("#define L(name)  subr_tab_ptr_as_object(&subr_tab_addr->D_##name)\n");
 # #endif
   printf("extern struct symbol_tab_ {\n");
   #define LISPSYM(name,printname,package)  \
@@ -1340,7 +1288,7 @@ global int main()
   #include "constsym.c"
   #undef LISPSYM
   printf("} symbol_tab_data;\n");
-  printf("#define S(name)  S_help_(S_%sname)\n",glue);
+  printf("#define S(name)  S_help_(S_##name)\n");
   #if !defined(MAP_MEMORY_TABLES)
     printf("#define symbol_tab  symbol_tab_data\n");
     #ifdef TYPECODES
@@ -1460,15 +1408,10 @@ global int main()
   printf("extern Values funcall (object fun, uintC argcount);\n");
 # printf("extern Values eval (object form);\n");
   printf("#define LISPFUNN(name,req_anz)  LISPFUN(name,req_anz,0,norest,nokey,0,NIL)\n");
-  printf("#define LISPFUN_B(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  global Values C_%sname subr_%srest_flag%s_function_args\n",glue,glue,glue);
-  #ifdef ANSI
-    printf("#define subr_norest_function_args  (void)\n");
-    printf("#define subr_rest_function_args  (uintC argcount, object* rest_args_pointer)\n");
-  #else
-    printf("#define subr_norest_function_args  ()\n");
-    printf("#define subr_rest_function_args  (argcount,rest_args_pointer)  var uintC argcount; var object* rest_args_pointer;\n");
-  #endif
-  printf("#define LISPFUN_F(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { (lisp_function)(&C_%sname), nullobj, nullobj, 0, req_anz, opt_anz, (uintB)subr_%srest_flag, (uintB)subr_%skey_flag, key_anz, },\n",glue,glue,glue);
+  printf("#define LISPFUN_B(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  global Values C_##name subr_##rest_flag##_function_args\n");
+  printf("#define subr_norest_function_args  (void)\n");
+  printf("#define subr_rest_function_args  (uintC argcount, object* rest_args_pointer)\n");
+  printf("#define LISPFUN_F(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { (lisp_function)(&C_##name), nullobj, nullobj, 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, },\n");
   printf("#define LISPFUN  LISPFUN_B\n");
 # printf("extern object allocate_bit_vector_0 (uintL len);\n");
 # printf("extern uintB up_case (uintB ch);\n");

@@ -5370,13 +5370,11 @@ typedef struct { uintB** image; # image[y][x] ist das Zeichen an Position (x,y)
       #define RHargs(osp,oap,ofp,nsp,nap,nfp,y,x1,x2) (osp,nsp,y,x1,x2)
       #define RHparms(osp,oap,ofp,nsp,nap,nfp,y,x1,x2) (osp,nsp,y,x1,x2,oap,ofp,nap,nfp)
     #endif
-    #ifdef ANSI
     #undef RHparms
     #define RHparms  RHargs  # korrekt deklarieren
     local void redisplay_help RHparms (uintB* osp, uintB* oap, uintB* ofp, # old
                                        uintB* nsp, uintB* nap, uintB* nfp, # new
                                        int y, int x1, int x2); # Zeile y, von x1 bis x2-1
-    #endif
     local void redisplay_help RHparms(osp,oap,ofp,nsp,nap,nfp,y,x1,x2)
       var uintB* osp;
       var uintB* oap;
@@ -5451,12 +5449,10 @@ typedef struct { uintB** image; # image[y][x] ist das Zeichen an Position (x,y)
       #define RLargs(osp,oap,ofp,y,x1,x2) (osp,y,x1,x2)
       #define RLparms(osp,oap,ofp,y,x1,x2) (osp,y,x1,x2,oap,ofp)
     #endif
-    #ifdef ANSI
     #undef RHparms
     #define RHparms  RHargs  # korrekt deklarieren
     local void redisplay_line RLparms (uintB* osp, uintB* oap, uintB* ofp, # old
                                        int y, int x1, int x2); # Zeile y, von x1 bis x2-1
-    #endif
     local void redisplay_line RLparms(osp,oap,ofp,y,x1,x2)
       var uintB* osp;
       var uintB* oap;
