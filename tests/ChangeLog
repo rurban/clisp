@@ -1,3 +1,9 @@
+2002-07-12  Sam Steingold  <sds@gnu.org>
+
+	* alltest.tst (DOUBLE-FLOAT-EPSILON, DOUBLE-FLOAT-NEGATIVE-EPSILON):
+	restored PRIN1-TO-STRING CLISP tests, similar to
+	MOST-NEGATIVE-DOUBLE-FLOAT and friends
+
 2002-06-19  Sam Steingold  <sds@gnu.org>
 
 	* path.tst: more translate-pathname tests
