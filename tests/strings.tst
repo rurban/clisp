@@ -1197,7 +1197,7 @@ x             "edcba"
   (char y 5))
 error
 
-#+(and clisp unicode off)
+#+(and clisp unicode enable-risky-tests)
 (let ((s (make-array 10 :element-type 'character :initial-element #\a)))
   (list
    (multiple-value-list (sys::string-info s)) ; 8-bit string
@@ -1209,5 +1209,5 @@ error
           (multiple-value-list (sys::string-info s)))
    (progn (gc)                  ; GC --> un-realloc
           (multiple-value-list (sys::string-info s)))))
-#+(and clisp unicode off)
+#+(and clisp unicode enable-risky-tests)
 ((8 NIL NIL) (16 NIL T) (16 NIL NIL) (32 NIL T) (32 NIL NIL))
