@@ -1,3 +1,10 @@
+1999-02-14  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * compiler.lsp (compile-toplevel-form): Put a newline on
+          *fasoutput-stream* after the form, not before it.
+          (compile-file): Put a newline after the first form, and none before
+          closing *fasoutput-stream*.
+
 1999-02-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * lispbibl.d (with_sstring): Assign a value to lenvar.
