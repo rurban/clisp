@@ -476,6 +476,18 @@ check-use-value
 (check-use-value symbol-name good "bad" :test string=) t
 (check-use-value intern "BAR" bar :test eq) t
 
+;; make-hash-table
+(flet ((mht (test) (make-hash-table :test test)))
+  (check-use-value mht eql bazonk :test equalp)) t
+(flet ((mht (w) (make-hash-table :weak w)))
+  (check-use-value mht nil bazonk :test equalp)) t
+(flet ((mht (s) (make-hash-table :size s)))
+  (check-use-value mht 10 bazonk :test equalp)) t
+(flet ((mht (rs) (make-hash-table :rehash-size rs)))
+  (check-use-value mht 2d0 bazonk :test equalp)) t
+(flet ((mht (tr) (make-hash-table :rehash-threshold tr)))
+  (check-use-value mht 5d-1 bazonk :test equalp)) t
+
 (handler-bind ((program-error (lambda (c) (princ c) (terpri) (use-value '1+)))
                (type-error (lambda (c) (princ c) (terpri) (use-value '1-))))
   (list (eval '(1 10)) (funcall 1 100) (apply 1 '(1000))))

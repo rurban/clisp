@@ -279,6 +279,7 @@
    long-float-digits package-lock hash-table-weak-p weak-key-value-table
    the-environment arglist getenv special-variable-p list-length-dotted
    *driver* *break-driver* *args* *keyboard-input* clhs-root shell execute
+   define-hash-table-test
    ;; declarations
    constant-inline constant-notinline
    ;; pseudo-types:

@@ -1,3 +1,32 @@
+2003-05-13  Sam Steingold  <sds@gnu.org>
+
+	DEFINE-HASH-TABLE-TEST: user-defined hash table tests
+	* lispbibl.d (Hashtable): added slots ht_test and ht_hash
+	(hashtable_test): removed
+	(ht_test_code): added
+	(hash_table_test): declare
+	* hashtabl.d (hashcode5): new function - for user-defined ht_test
+	(hashcode_raw, hashcode_cook): split out from hashcode()
+	(hashcode): use them; may trigger GC for user-defined ht_test
+	(rehash, hash_lookup): may trigger GC for user-defined ht_test
+	(prepare_resize, check_weak): the error is now recoverable
+	(hash_prepare_store): use hashcode_raw() and hashcode_cook() to
+	call the user hash function just once
+	(MAKE-HASH-TABLE): accept user-defined ht_test
+	all errors are now recoverable
+	(fehler_hashtable): replaced with check_hashtable()
+	(shifthash): modified for the GC unsafe hash_lookup()
+	(hash_table_test): new function
+	(PUTHASH, REMHASH, MAPHASH, CLRHASH, HASH-TABLE-COUNT)
+	(HASH-TABLE-REHASH-SIZE, HASH-TABLE-REHASH-THRESHOLD)
+	(HASH-TABLE-SIZE, HASH-TABLE-TEST, HASH-TABLE-ITERATOR)
+	(HASH-TABLE-WEAK-P, %SET-HASH-TABLE-WEAK-P, CLASS-TUPLE-GETHASH):
+	use check_hashtable() instead of fehler_hashtable()
+	* defs2.lisp (define-hash-table-test): define
+	* init.lisp (define-hash-table-test): export
+	* io.d (pr_orecord): use hash_table_test()
+	* predtype.d (hash_table_equalp): use ht_test_code()
+
 2003-05-15  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (stream_lend_handle): handletype may be NULL

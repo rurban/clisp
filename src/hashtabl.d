@@ -8,85 +8,88 @@
 #include "aridecl.c" # for Short-Floats
 
 
-# Structure of a Hash-Table:
-# Pairs (Key . Value) are stored in a vector,
-# which is indexed by (hashcode Key).
-# For a running MAPHASH to be uninfluenced by a GC, this
-# vector is not reorganized because of GC. But as every (hashcode key) can
-# change on each GC, we build in an additional indexing-level:
-# (hashcode Key) indexes an index-vector; an index points into the
-# key-value-vector there, and the (key . value) is located there.
-# In order to save memory, we do not store a cons (key . value)
-# in the vector, but we simply store key and value consecutively.
-# One might want to resolve collisions [several keys have the same
-# (hascode Key)] with lists. Due to the fact that the key-value-vector
-# (again because of MAPHASH) should be uninfluenced on GC and GC changes
-# the set of collisions, we need an additional index-vector,
-# called the next-vector, which lies "in parallel with"
-# the key-value-vector and which contains a "list"-structure.
-# sketch:
-#   key --> (hashcode key) as index in index-vector.
-#   Key1 --> 3, Key2 --> 1, Key4 --> 3.
-#   index-vector      #( nix {indexkey2} nix {indexkey1,indexkey4} nix ... )
-#                   = #( nix 1 nix 0 nix ... )
-#   next-vector       #(     3        nix       leer      nix      leer   )
-#   key-value-vector  #( key1 val1 key2 val2 leer leer key4 val4 leer leer)
-# access to a (Key . Value) - pair works as follows:
-#   index := (aref Index-Vektor (hashcode Key))
-#   until index = nix
-#     if (eql Key (aref KVVektor 2*index)) return (aref KVVektor 2*index+1)
-#     index := (aref Next-Vektor index) ; take "CDR" of the list
-#   return notfound.
-# If the index-vector is enlarged, all hashcodes and the content of
-# index-vector and the content of next-vector have to be recalculated.
-# If the next-vector and key-value-vector are enlarged, the remaining
-# elements can be filled with "leer" , without having to calculate
-# a new hashcode.
-# In order to have a fast MAPHASH following a CLRHASH or multiple REMHASH,
-# when the table contains much fewer elements than its capacity,
-# the entries could be kept "left-aligned" in the key-value-vector, i.e.
-# all "leer" go to the right. Thus, MAPHASH only needs to graze over the
-# elements count-1,...,1,0 of the key-value-vector. But REMHASH must
-# - after it has created a gap - copy the last key-value-pair
-# (Nummer count-1) into the gap.
-# We treat such cases by possibly shrinking the key-value-vector and
-# the next-vector on CLRHASH and REMHASH.
-# We keep the "leer"-entries in next-vector in a free-"list", so that PUTHASH
-# finds a free entry.
-# The lengths of index-vector and next-vector do not depend on each other.
-# We choose the ratio of their lengths to be 2:1.
-# The hash-table is enlarged, when the free-list is empty, i.e.
-# COUNT becomes greater than MAXCOUNT. Thereby, MAXCOUNT and SIZE are
-# multiplied by REHASH-SIZE (>1).
-# The hash-table is reduced, when COUNT < MINCOUNT. Thereby,
-# MAXCOUNT and SIZE are multiplied with 1/REHASH-SIZE (<1) . We choose
-# MINCOUNT = MAXCOUNT / REHASH-SIZE^2, so that COUNT can vary
-# in both directions by the same amount (on a logarithmic scale)
-# after the enlargement of the table.
+/* Structure of a Hash-Table:
+ Pairs (Key . Value) are stored in a vector,
+ which is indexed by (hashcode Key).
+ For a running MAPHASH to be uninfluenced by a GC, this
+ vector is not reorganized because of GC. But as every (hashcode key) can
+ change on each GC, we build in an additional indexing-level:
+ (hashcode Key) indexes an index-vector; an index points into the
+ key-value-vector there, and the (key . value) is located there.
+ In order to save memory, we do not store a cons (key . value)
+ in the vector, but we simply store key and value consecutively.
+ One might want to resolve collisions [several keys have the same
+ (hascode Key)] with lists. Due to the fact that the key-value-vector
+ (again because of MAPHASH) should be uninfluenced on GC and GC changes
+ the set of collisions, we need an additional index-vector,
+ called the next-vector, which lies "in parallel with"
+ the key-value-vector and which contains a "list"-structure.
+ sketch:
+   key --> (hashcode key) as index in index-vector.
+   Key1 --> 3, Key2 --> 1, Key4 --> 3.
+   index-vector      #( nix {indexkey2} nix {indexkey1,indexkey4} nix ... )
+                   = #( nix 1 nix 0 nix ... )
+   next-vector       #(     3        nix       leer      nix      leer   )
+   key-value-vector  #( key1 val1 key2 val2 leer leer key4 val4 leer leer)
+ access to a (Key . Value) - pair works as follows:
+   index := (aref Index-Vektor (hashcode Key))
+   until index = nix
+     if (eql Key (aref KVVektor 2*index)) return (aref KVVektor 2*index+1)
+     index := (aref Next-Vektor index) ; take "CDR" of the list
+   return notfound.
+ If the index-vector is enlarged, all hashcodes and the content of
+ index-vector and the content of next-vector have to be recalculated.
+ If the next-vector and key-value-vector are enlarged, the remaining
+ elements can be filled with "leer" , without having to calculate
+ a new hashcode.
+ In order to have a fast MAPHASH following a CLRHASH or multiple REMHASH,
+ when the table contains much fewer elements than its capacity,
+ the entries could be kept "left-aligned" in the key-value-vector, i.e.
+ all "leer" go to the right. Thus, MAPHASH only needs to graze over the
+ elements count-1,...,1,0 of the key-value-vector. But REMHASH must
+ - after it has created a gap - copy the last key-value-pair
+ (Nummer count-1) into the gap.
+ We treat such cases by possibly shrinking the key-value-vector and
+ the next-vector on CLRHASH and REMHASH.
+ We keep the "leer"-entries in next-vector in a free-"list", so that PUTHASH
+ finds a free entry.
+ The lengths of index-vector and next-vector do not depend on each other.
+ We choose the ratio of their lengths to be 2:1.
+ The hash-table is enlarged, when the free-list is empty, i.e.
+ COUNT becomes greater than MAXCOUNT. Thereby, MAXCOUNT and SIZE are
+ multiplied by REHASH-SIZE (>1).
+ The hash-table is reduced, when COUNT < MINCOUNT. Thereby,
+ MAXCOUNT and SIZE are multiplied with 1/REHASH-SIZE (<1) . We choose
+ MINCOUNT = MAXCOUNT / REHASH-SIZE^2, so that COUNT can vary
+ in both directions by the same amount (on a logarithmic scale)
+ after the enlargement of the table.
 
-# data-structure of the hash-table (see LISPBIBL.D):
-# recflags codes the type and the state of the hash-table:
-#   Bit 0 set, when EQ-hashtable
-#   Bit 1 set, when EQL-hashtable
-#   Bit 2 set, when EQUAL-hashtable
-#   Bit 3 set, when EQUALP-hashtable
-#   Bit 4-6 =0
-#   Bit 7 set, when table must be reorganized after GC
-# ht_size                Fixnum>0 = length of the ITABLE
-# ht_maxcount            Fixnum>0 = length of the NTABLE
-# ht_itable              index-vector of length SIZE, contains indices
-# ht_ntable              next-vector of length MAXCOUNT, contains indices
-# ht_kvtable             key-value-vector, vector of length 2*MAXCOUNT
-# ht_freelist            start-index of the free-list in next-vector
-# ht_count               number of entries in the table, Fixnum >=0, <=MAXCOUNT
-# ht_rehash_size         groth-rate on reorganization. Float >1.1
-# ht_mincount_threshold  ratio MINCOUNT/MAXCOUNT = 1/rehash-size^2
-# ht_mincount            Fixnum>=0, lower bound for COUNT
-# entry "leer" in key-value-vector is = #<UNBOUND>.
-# entry "leer" in next-vector is filled by the free-list.
-# entry "nix" in index-vector and in next-vector is = #<UNBOUND>.
-  #define leer  unbound
-  #define nix   unbound
+ data-structure of the hash-table (see LISPBIBL.D):
+ recflags codes the type and the state of the hash-table:
+   Bit 0 set, when EQ-hashtable
+   Bit 1 set, when EQL-hashtable
+   Bit 2 set, when EQUAL-hashtable
+   Bit 3 set, when EQUALP-hashtable
+   When all bits 0-3 are not set, user-defined ht_test
+   Bit 4-6 =0
+   Bit 7 set, when table must be reorganized after GC
+ ht_size                Fixnum>0 = length of the ITABLE
+ ht_maxcount            Fixnum>0 = length of the NTABLE
+ ht_itable              index-vector of length SIZE, contains indices
+ ht_ntable              next-vector of length MAXCOUNT, contains indices
+ ht_kvtable             key-value-vector, vector of length 2*MAXCOUNT
+ ht_freelist            start-index of the free-list in next-vector
+ ht_count               number of entries in the table, Fixnum >=0, <=MAXCOUNT
+ ht_rehash_size         groth-rate on reorganization. Float >1.1
+ ht_mincount_threshold  ratio MINCOUNT/MAXCOUNT = 1/rehash-size^2
+ ht_mincount            Fixnum>=0, lower bound for COUNT
+ ht_test                hash-table-test - for define-hash-table-test
+ ht_hash                hash function  - for define-hash-table-test
+ entry "leer" in key-value-vector is = #<UNBOUND>.
+ entry "leer" in next-vector is filled by the free-list.
+ entry "nix" in index-vector and in next-vector is = #<UNBOUND>. */
+#define leer  unbound
+#define nix   unbound
 
 # Rotates a hashcode x by n bits to the left (0<n<32).
 # rotate_left(n,x)
@@ -824,31 +827,45 @@ local uint32 hashcode4 (object obj) {
   }
 }
 
-# UP: Calculates the hashcode of an object with reference to a hashtable.
-# hashcode(ht,obj)
-# > ht: hash-table
-# > obj: object
-# < result: index into the index-vector
-local uintL hashcode (object ht, object obj) {
-  # hashcode according to the hashtable-type:
-  var uintB flags = record_flags(TheHashtable(ht));
-  var uint32 code =
-    (flags & bit(0) ? hashcode1(obj) : # EQ-hashcode
-     flags & bit(1) ? hashcode2(obj) : # EQL-hashcode
-     flags & bit(2) ? hashcode3(obj) : # EQUAL-hashcode
-     flags & bit(3) ? hashcode4(obj) : # EQUALP-hashcode
-     0 /*NOTREACHED*/ );
-  # then divide by SIZE:
-  var uint32 rest;
-  divu_3232_3232(code,posfixnum_to_L(TheHashtable(ht)->ht_size),(void),rest=);
-  return rest;
+/* hashcode for user-defined ht_test */
+local uint32 hashcode5 (object fun, object obj) {
+  pushSTACK(obj); funcall(fun,1);
+  value1 = check_uint32(value1);
+  return I_to_UL(value1);
 }
 
-# UP: Reorganizes a hash-table, after the hashcodes of the keys
-# have been modified by a GC.
-# rehash(ht);
-# > ht: hash-table
-local void rehash (object ht) {
+/* UP: Calculates the hashcode of an object with reference to a hashtable.
+ hashcode(ht,obj)
+ > ht: hash-table
+ > obj: object
+ < result: index into the index-vector
+ can trigger GC - for user-defined ht_test */
+local inline uintL hashcode_raw (object ht, object obj) {
+  var uintB flags = record_flags(TheHashtable(ht));
+  return /* raw hashcode according to the hashtable-type: */
+    (flags & bit(0) ? hashcode1(obj) : /* EQ-hashcode */
+     flags & bit(1) ? hashcode2(obj) : /* EQL-hashcode */
+     flags & bit(2) ? hashcode3(obj) : /* EQUAL-hashcode */
+     flags & bit(3) ? hashcode4(obj) : /* EQUALP-hashcode */
+     hashcode5(TheHashtable(ht)->ht_hash,obj));
+}
+local inline uintL hashcode_cook (uint32 code, object size) {
+  /* divide raw hashcode CODE by SIZE: */
+  var uint32 rest;
+  divu_3232_3232(code,posfixnum_to_L(size),(void),rest=);
+  return rest;
+}
+local uintL hashcode (object ht, object obj) {
+  var object size = TheHashtable(ht)->ht_size;
+  return hashcode_cook(hashcode_raw(ht,obj),size);
+}
+
+/* UP: Reorganizes a hash-table, after the hashcodes of the keys
+ have been modified by a GC.
+ rehash(ht);
+ > ht: hash-table
+ can trigger GC - for user-defined ht_test */
+local object rehash (object ht) {
   # fill index-vector with "nix" :
   var object Ivektor = TheHashtable(ht)->ht_itable; # index-vector
   {
@@ -864,6 +881,7 @@ local void rehash (object ht) {
   var gcv_object_t* KVptr = ht_kvt_data(ht) + 2*maxcount; # end of kvtable
   var object freelist = nix;
   var object count = Fixnum_0;
+  var bool user_defined_p = (ht_test_code(record_flags(TheHashtable(ht)))==0);
   while (!eq(index,Fixnum_0)) { /* index=0 -> loop finished */
     # traverse the key-value-vector and the next-vector.
     # index = MAXCOUNT,...,0 (Fixnum),
@@ -875,7 +893,18 @@ local void rehash (object ht) {
     KVptr -= 2;
     var object key = KVptr[0]; # next key
     if (!eq(key,leer)) { # /= "leer" ?
+      if (user_defined_p) pushSTACK(ht); /* save */
       var uintL hashindex = hashcode(ht,key); # its hashcode
+      if (user_defined_p) { /* restore - don't have to restore fixnums! */
+        /* this implementation favors built-in ht-tests at the expense
+           of the user-defined ones */
+        var uintL idx = posfixnum_to_L(index);
+        ht = popSTACK();
+        Ivektor = TheHashtable(ht)->ht_itable;
+        Nvektor = TheHashtable(ht)->ht_ntable;
+        Nptr = TheSvector(Nvektor)->data + idx;
+        KVptr = ht_kvt_data(ht) + 2*idx;
+      }
       # "list", that starts at entry hashindex, in order to extend index:
       # copy entry from index-vector to the next-vector
       # end replace with index (a pointer to this location) :
@@ -890,35 +919,45 @@ local void rehash (object ht) {
   TheHashtable(ht)->ht_freelist = freelist; # save frelist
   TheHashtable(ht)->ht_count = count; # save number of pairs (for consistency)
   mark_ht_valid(TheHashtable(ht)); # hashtable is now completely organized
+  return ht;
 }
 
-# UP: Searches a key in a hash-table.
-# hash_lookup(ht,obj,&KVptr,&Nptr,&Iptr)
-# > ht: hash-table
-# > obj: object
-# < if found: result=true,
-#     KVptr[0], KVptr[1] : key, value in key-value-vector,
-#     *Nptr : associate entry in next-vector,
-#     *Iptr : previous index pointing to *Nptr
-# < if not found: result=false,
-#     *Iptr : entry belonging to key in index-vector
-#             or an arbitrary element of the "list" starting there
+/* UP: Searches a key in a hash-table.
+ hash_lookup(ht,obj,&KVptr,&Nptr,&Iptr)
+ > ht: hash-table
+ > obj: object
+ < if found: result=true,
+     KVptr[0], KVptr[1] : key, value in key-value-vector,
+     *Nptr : associate entry in next-vector,
+     *Iptr : previous index pointing to *Nptr
+ < if not found: result=false,
+     *Iptr : entry belonging to key in index-vector
+             or an arbitrary element of the "list" starting there
+ can trigger GC - for user-defined ht_test */
 local bool hash_lookup (object ht, object obj, gcv_object_t** KVptr_,
                         gcv_object_t** Nptr_, gcv_object_t** Iptr_) {
   var uintB flags = record_flags(TheHashtable(ht));
-  if (!ht_validp(TheHashtable(ht))) {
-    # hash-table must still be reorganized
-    rehash(ht);
-  }
+  if (!ht_validp(TheHashtable(ht))) /* hash-table must still be reorganized */
+    ht = rehash(ht);
+  var bool user_defined_p = (ht_test_code(flags)==0);
+  if (user_defined_p) { pushSTACK(ht); pushSTACK(obj); }
   var uintL hashindex = hashcode(ht,obj); # calculate hashcode
+  if (user_defined_p) { obj = popSTACK(); ht = popSTACK(); }
   var gcv_object_t* Nptr = # pointer to the current entry
     &TheSvector(TheHashtable(ht)->ht_itable)->data[hashindex];
   var gcv_object_t* kvt_data = ht_kvt_data(ht);
+  var uintL i_n; /* Iptr-Nptr */
+  var uintL size = posfixnum_to_L(TheHashtable(ht)->ht_size);
+  if (!ht_test_code(flags))
+    fprintf(stderr,"\n size=%d",size);
   while (!eq(*Nptr,nix)) { /* track "list" : "list" finished -> not found */
-    var uintL index = posfixnum_to_L(*Nptr); # next index
+    var int index = posfixnum_to_L(*Nptr); # next index
     var gcv_object_t* Iptr = Nptr;
+    if (!ht_test_code(flags))
+      fprintf(stderr,"\nindex=%d",index);
+    if (index>size) abort();
     Nptr = # pointer to entry in next-vector
-      &TheSvector(TheHashtable(ht)->ht_ntable)->data[index];
+      TheSvector(TheHashtable(ht)->ht_ntable)->data + index;
     var gcv_object_t* KVptr = # pointer to entries in key-value-vector
       kvt_data + 2*index;
     var object key = KVptr[0];
@@ -937,7 +976,13 @@ local bool hash_lookup (object ht, object obj, gcv_object_t** KVptr_,
         flags & bit(1) ? eql(key,obj) : # compare with EQL
         flags & bit(2) ? equal(key,obj) : # compare with EQUAL
         flags & bit(3) ? equalp(key,obj) : # compare with EQUALP
-        false) {
+        (/* here again we favor built-in HTs over user-defined ones */
+         pushSTACK(ht), pushSTACK(obj), i_n = Iptr - Nptr,
+         pushSTACK(key),pushSTACK(obj),funcall(TheHashtable(ht)->ht_test,2),
+         obj = popSTACK(), ht = popSTACK(), kvt_data = ht_kvt_data(ht),
+         Nptr = TheSvector(TheHashtable(ht)->ht_ntable)->data + index,
+         KVptr = kvt_data + 2*index, Iptr = Nptr + i_n,
+         !nullp(value1))) { /* user-defined ht_test */
       # object obj found
       *KVptr_ = KVptr; *Nptr_ = Nptr; *Iptr_ = Iptr; return true;
     }
@@ -953,27 +998,27 @@ local bool hash_lookup (object ht, object obj, gcv_object_t** KVptr_,
 # > key: key
 # > value: value
 # > gcv_object_t* Iptr: arbitrary element of the "list", that belongs to key
-#define hash_store(key,value)                                                \
-  do { var uintL index = posfixnum_to_L(freelist); # free index              \
-       var gcv_object_t* Nptr = # address of the free entry in next-vector     \
-         &TheSvector(TheHashtable(ht)->ht_ntable)->data[index];              \
-       var gcv_object_t* KVptr = # address of the free entries in key-value-vector \
-         ht_kvt_data(ht) + 2*index;                                           \
-       set_break_sem_2(); # protect from breaks                               \
-       # increment COUNT:                                                     \
-       TheHashtable(ht)->ht_count = fixnum_inc(TheHashtable(ht)->ht_count,1); \
-       # shorten free-list:                                                   \
-       TheHashtable(ht)->ht_freelist = *Nptr;                                 \
-       # save key and value:                                                  \
-       *KVptr++ = key; *KVptr++ = value;                                      \
-       # insert free list-element index into the "list"                       \
-       # (put it after resize to the list-start,                              \
-       #   because Iptr points into the index-vector,                         \
-       # else put it to the list-end,                                         \
-       #   because hash_lookup was ended with *Iptr=nix):                     \
-       *Nptr = *Iptr; *Iptr = freelist;                                       \
-       clr_break_sem_2(); # allow breaks again                                \
-    } while(0)
+#define hash_store(key,value)                                           \
+  do { var uintL index = posfixnum_to_L(freelist); # free index         \
+    var gcv_object_t* Nptr = # address of the free entry in next-vector \
+      &TheSvector(TheHashtable(ht)->ht_ntable)->data[index];            \
+    var gcv_object_t* KVptr = # address of the free entries in key-value-vector \
+      ht_kvt_data(ht) + 2*index;                                        \
+    set_break_sem_2(); # protect from breaks                            \
+    # increment COUNT:                                                  \
+    TheHashtable(ht)->ht_count = fixnum_inc(TheHashtable(ht)->ht_count,1); \
+    # shorten free-list:                                                \
+    TheHashtable(ht)->ht_freelist = *Nptr;                              \
+    # save key and value:                                               \
+    *KVptr++ = key; *KVptr++ = value;                                   \
+    # insert free list-element index into the "list"                    \
+    # (put it after resize to the list-start,                           \
+    #   because Iptr points into the index-vector,                      \
+    # else put it to the list-end,                                      \
+    #   because hash_lookup was ended with *Iptr=nix):                  \
+    *Nptr = *Iptr; *Iptr = freelist;                                    \
+    clr_break_sem_2(); # allow breaks again                             \
+  } while(0)
 
 /* UP: Provides the numbers and vectors for a new hash-table.
  prepare_resize(maxcount,mincount_threshold)
@@ -987,16 +1032,17 @@ local bool hash_lookup (object ht, object obj, gcv_object_t** KVptr_,
  can trigger GC */
 local uintL prepare_resize (object maxcount, object mincount_threshold,
                             object weak) {
+ prepare_resize_restart:
   # check, if maxcount is not a too big fixnum >0 :
   if (!posfixnump(maxcount))
-    goto fehler_maxcount;
+    goto check_maxcount;
   {
     var uintL maxcountL = posfixnum_to_L(maxcount);
     var uintL sizeL = 2*maxcountL+1;
     # SIZE odd in order to improve the hash-function!
     if (!(sizeL <= (uintL)(bitm(oint_data_len)-1)))
       # sizeL should fit into a fixnum
-      goto fehler_maxcount;
+      goto check_maxcount;
     # numbers on the stack:
     pushSTACK(maxcount); # MAXCOUNT
     pushSTACK(fixnum(sizeL)); # SIZE
@@ -1006,27 +1052,32 @@ local uintL prepare_resize (object maxcount, object mincount_threshold,
     pushSTACK(value1);
     # stack-layout: MAXCOUNT, SIZE, MINCOUNT.
     # allocate new vectors:
-    pushSTACK(allocate_vector(sizeL)); # supply index-vector
-    pushSTACK(allocate_vector(maxcountL)); # supply next-vector
-    if (!nullp(weak)) # supply key-value-vector
+    pushSTACK(allocate_vector(sizeL)); /* supply index-vector */
+    pushSTACK(allocate_vector(maxcountL)); /* supply next-vector */
+    if (!nullp(weak)) /* supply key-value-vector */
       pushSTACK(allocate_weakkvt(2*maxcountL,weak));
     else pushSTACK(allocate_vector(2*maxcountL));
-    # finished.
+    /* finished. */
     return maxcountL;
   }
- fehler_maxcount: # maxcount no fixnum or too big
-  pushSTACK(maxcount); # TYPE-ERROR slot DATUM
-  pushSTACK(O(type_hashtable_size)); # TYPE-ERROR slot EXPECTED-TYPE
+ check_maxcount: /* maxcount no fixnum or too big */
+  pushSTACK(weak); pushSTACK(mincount_threshold); /* save */
+  pushSTACK(NIL); /* no PLACE */
+  pushSTACK(maxcount); /* TYPE-ERROR slot DATUM */
+  pushSTACK(O(type_hashtable_size)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(maxcount);
-  fehler(type_error,GETTEXT("Hash table size ~ too large"));
+  check_value(type_error,GETTEXT("Hash table size ~ too large"));
+  maxcount = value1;
+  mincount_threshold = popSTACK(); weak = popSTACK(); /* restore */
+  goto prepare_resize_restart;
 }
 
-# UP: Enlarges or diminishes a hash-table
-# resize(ht,maxcount)
-# > ht: hash-table
-# > maxcount: wished new size MAXCOUNT
-# < result: hash-table, EQ to the old one
-# can trigger GC
+/* UP: Enlarges or diminishes a hash-table
+ resize(ht,maxcount)
+ > ht: hash-table
+ > maxcount: wished new size MAXCOUNT
+ < result: hash-table, EQ to the old one
+ can trigger GC */
 local object resize (object ht, object maxcount) {
   pushSTACK(ht);
   var uintL maxcountL =
@@ -1084,33 +1135,34 @@ local object resize (object ht, object maxcount) {
   return ht;
 }
 
-# Macro: Enlarges a hash-table until freelist /= nix
-# hash_prepare_store(key);
-# > object key: key (in STACK)
-# > object ht: hash-table
-# < object ht: hash-table
-# < object freelist: start of the free-list in the next-vector, /= nix
-# < gcv_object_t* Iptr: arbitrary element of the "list", that belongs to the key
-# can trigger GC
-#define hash_prepare_store(key)                                           \
-  do { retry:                                                             \
-    freelist = TheHashtable(ht)->ht_freelist;                             \
-    if (eq(freelist,nix)) { # free-list = empty "list" ?                  \
-      # yes -> hash-table must be enlarged:                               \
-      pushSTACK(ht); # save hashtable                                     \
-      # calculate new maxcount:                                           \
-      pushSTACK(TheHashtable(ht)->ht_maxcount);                           \
-      pushSTACK(TheHashtable(ht)->ht_rehash_size); # REHASH-SIZE (>1)     \
-      funcall(L(mal),2); # (* maxcount rehash-size), is > maxcount        \
-      pushSTACK(value1);                                                  \
-      funcall(L(ceiling),1); # (ceiling ...), integer > maxcount          \
-      ht = resize(popSTACK(),value1); # enlarge table                     \
-      rehash(ht); # and reorganize                                        \
-      # newly calculate the address of the entry in the index-vector:     \
-      {var uintL hashindex = hashcode(ht,key); # calculate hashcode       \
-       Iptr = &TheSvector(TheHashtable(ht)->ht_itable)->data[hashindex];} \
-      goto retry;                                                         \
-    }                                                                     \
+/* Macro: Enlarges a hash-table until freelist /= nix
+ hash_prepare_store(key_pos);
+ > int literal: key position in STACK
+ > int literal: hash-table position in STACK
+ < object ht: hash-table
+ < object freelist: start of the free-list in the next-vector, /= nix
+ < gcv_object_t* Iptr: arbitrary element of the "list", that belongs to the key
+ can trigger GC */
+#define hash_prepare_store(hash_pos,key_pos)                            \
+  do { var uintL hc_raw = hashcode_raw(STACK_(hash_pos),STACK_(key_pos)); \
+    ht = STACK_(hash_pos);                                              \
+   retry:                                                               \
+    freelist = TheHashtable(ht)->ht_freelist;                           \
+    if (eq(freelist,nix)) { /* free-list = empty "list" ? */            \
+      /* yes -> hash-table must be enlarged: */                         \
+      /* calculate new maxcount: */                                     \
+      pushSTACK(TheHashtable(ht)->ht_maxcount);                         \
+      pushSTACK(TheHashtable(ht)->ht_rehash_size); /* REHASH-SIZE (>1) */ \
+      funcall(L(mal),2); /* (* maxcount rehash-size), is > maxcount */  \
+      pushSTACK(value1);                                                \
+      funcall(L(ceiling),1); /* (ceiling ...), integer > maxcount */    \
+      ht = resize(STACK_(hash_pos),value1); /* enlarge table */         \
+      ht = rehash(ht); /* and reorganize */                             \
+      /* newly calculate the address of the entry in the index-vector: */ \
+     {var uintL hashindex = hashcode_cook(hc_raw,TheHashtable(ht)->ht_size); \
+      Iptr = &TheSvector(TheHashtable(ht)->ht_itable)->data[hashindex];} \
+      goto retry;                                                        \
+    }                                                                   \
   } while(0)
 
 # UP: Deletes the content of a hash-table.
@@ -1132,19 +1184,24 @@ local void clrhash (object ht) {
   clr_break_sem_2(); # allow breaks again
 }
 
-/* check the :WEAK argument and return it */
+/* check the :WEAK argument and return it
+ can trigger GC */
 local gcv_object_t check_weak (gcv_object_t weak) {
+ check_weak_restart:
   if (missingp(weak)) return NIL;
   if (eq(weak,S(Kkey)) || eq(weak,S(Kvalue)) ||
       eq(weak,S(Keither)) || eq(weak,S(Kboth)))
     return weak;
   /* invalid */
+  pushSTACK(NIL); /* no PLACE */
   pushSTACK(weak);            /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_weak_ht)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(NIL); pushSTACK(S(Kkey)); pushSTACK(S(Kvalue));
   pushSTACK(S(Keither)); pushSTACK(S(Kboth));
   pushSTACK(weak); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: argument ~ should be ~, ~, ~, ~ or ~."));
+  check_value(type_error,GETTEXT("~: argument ~ should be ~, ~, ~, ~ or ~."));
+  weak = value1;
+  goto check_weak_restart;
 }
 
 # (MAKE-HASH-TABLE [:test] [:size] [:rehash-size] [:rehash-threshold]
@@ -1163,8 +1220,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
   # stack-layout:
   #    weak, initial-contents, test, size, rehash-size, rehash-threshold.
   var uintB flags;
-  # check test-argument:
-  {
+ check_test_restart: { /* check test-argument: */
     var object test = STACK_3;
     if (!boundp(test))
       flags = bit(1); # EQL as Default
@@ -1176,129 +1232,135 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
       flags = bit(2); # EQUAL
     else if (eq(test,S(equalp)) || eq(test,L(equalp)))
       flags = bit(3); # EQUALP
-    else {
-      pushSTACK(test); # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_hashtable_test)); # TYPE-ERROR slot EXPECTED-TYPE
+    else if (symbolp(test)) {
+      var object ht_test = get(test,S(hash_table_test));
+      if (!consp(ht_test)) goto test_error;
+      STACK_3 = ht_test;
+      flags = 0; /* user-defined ht_test */
+    } else if (consp(test)) {
+      flags = 0; /* ad hoc (user-defined ht_test) */
+    } else { test_error:
+      pushSTACK(NIL); /* no PLACE */
+      pushSTACK(test); /* TYPE-ERROR slot DATUM */
+      pushSTACK(O(type_hashtable_test)); /* TYPE-ERROR slot EXPECTED-TYPE */
       pushSTACK(test); pushSTACK(S(Ktest));
       pushSTACK(S(make_hash_table));
-      fehler(type_error,GETTEXT("~: illegal ~ argument ~"));
+      check_value(type_error,GETTEXT("~: illegal ~ argument ~"));
+      STACK_3 = value1;
+      goto check_test_restart;
     }
-  }
-  # flags contains the flags for the test.
-  # check size-argument:
-  {
+  } /* flags contains the flags for the test. */
+ check_size: { /* check size-argument: */
     var object size = STACK_2;
     if (!boundp(size)) {
       STACK_2 = Fixnum_1; # 1 as default
     } else {
       if (!posfixnump(size)) {
-        pushSTACK(size); # TYPE-ERROR slot DATUM
-        pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
-        pushSTACK(size);
+        pushSTACK(NIL); /* no PLACE */
+        pushSTACK(size); /* TYPE-ERROR slot DATUM */
+        pushSTACK(O(type_posfixnum)); /* TYPE-ERROR slot EXPECTED-TYPE */
+        pushSTACK(size); pushSTACK(S(Ksize));
         pushSTACK(S(make_hash_table));
-        fehler(type_error,
-               GETTEXT("~: :SIZE argument should be a fixnum >=0, not ~"));
+        check_value(type_error,GETTEXT("~: ~ argument should be a fixnum >=0, not ~"));
+        STACK_2 = value1;
+        goto check_size;
       }
-      # size is a fixnum >=0
+      /* size is a fixnum >=0 */
       if (eq(size,Fixnum_0))
-        STACK_2 = Fixnum_1; # turn 0 into 1
+        STACK_2 = Fixnum_1; /* turn 0 into 1 */
     }
-  }
-  # size is now a fixnum >0.
-  # check rehash-size:
-  {
-    if (!boundp(STACK_1)) {
-      # default-rehash-size = 1.5s0
+  } /* size is now a fixnum >0. */
+  check_rehash_size: { /* check rehash-size: */
+    if (!boundp(STACK_1)) { /* default-rehash-size = 1.5s0 */
       STACK_1 = make_SF(0,SF_exp_mid+1,(bit(SF_mant_len)*3)/2);
     } else {
-      if (!floatp(STACK_1)) { # Float is OK
-        if (!posfixnump(STACK_1)) { # else it should be a fixnum >=0
-        fehler_rehash_size:
-          pushSTACK(STACK_1); # TYPE-ERROR slot DATUM
-          pushSTACK(O(type_hashtable_rehash_size)); # TYPE-ERROR slot EXPECTED-TYPE
-          pushSTACK(STACK_(1+2));
+      if (!floatp(STACK_1)) { /* Float is OK */
+        if (!posfixnump(STACK_1)) { /* else it should be a fixnum >=0 */
+         bad_rehash_size:
+          pushSTACK(NIL); /* no PLACE */
+          pushSTACK(STACK_(1+1)); /* TYPE-ERROR slot DATUM */
+          pushSTACK(O(type_hashtable_rehash_size)); /* EXPECTED-TYPE */
+          pushSTACK(STACK_(1+3)); pushSTACK(S(Krehash_size));
           pushSTACK(S(make_hash_table));
-          fehler(type_error,
-                 GETTEXT("~: :REHASH-SIZE argument should be a float > 1, not ~"));
+          check_value(type_error,
+                      GETTEXT("~: ~ argument should be a float > 1, not ~"));
+          STACK_1 = value1;
+          goto check_rehash_size;
         }
-        # As it is senseless to enlarge a table always only by a fixed
-        # number of elements (results in disastrous
-        # efficiency), we set
-        # rehash-size := min(1 + rehash-size/size , 2.0) .
-        pushSTACK(STACK_1); # rehash-size
-        pushSTACK(STACK_(2+1)); # size
-        funcall(L(durch),2); # (/ rehash-size size)
+        /* As it is senseless to enlarge a table always only by a fixed
+           number of elements (results in disastrous efficiency), we set
+           rehash-size := min(1 + rehash-size/size , 2.0) . */
+        pushSTACK(STACK_1); /* rehash-size */
+        pushSTACK(STACK_(2+1)); /* size */
+        funcall(L(durch),2); /* (/ rehash-size size) */
         pushSTACK(value1);
-        funcall(L(einsplus),1); # (1+ ...)
+        funcall(L(einsplus),1); /* (1+ ...) */
         pushSTACK(value1);
-        pushSTACK(make_SF(0,SF_exp_mid+2,bit(SF_mant_len))); # 2.0s0
-        funcall(L(min),2); # (MIN ... 2.0s0)
-        STACK_1 = value1; # =: rehash-size
+        pushSTACK(make_SF(0,SF_exp_mid+2,bit(SF_mant_len))); /* 2.0s0 */
+        funcall(L(min),2); /* (MIN ... 2.0s0) */
+        STACK_1 = value1; /* =: rehash-size */
       }
-      # check (> rehash-size 1) :
-      pushSTACK(STACK_1); # rehash-size
-      pushSTACK(Fixnum_1); # 1
-      funcall(L(groesser),2); # (> rehash-size 1)
-      if (nullp(value1)) goto fehler_rehash_size;
-      # convert rehash-size into a short-float:
-      pushSTACK(STACK_1); # rehash-size
-      pushSTACK(SF_0); # 0.0s0
-      funcall(L(float),2); # (FLOAT rehash-size 0.0s0) = (COERCE rehash-size 'SHORT-FLOAT)
-      # enforce (>= rehash-size 1.125s0) :
+      /* check (> rehash-size 1) : */
+      pushSTACK(STACK_1); /* rehash-size */
+      pushSTACK(Fixnum_1); /* 1 */
+      funcall(L(groesser),2); /* (> rehash-size 1) */
+      if (nullp(value1)) goto bad_rehash_size;
+      /* convert rehash-size into a short-float: */
+      pushSTACK(STACK_1); /* rehash-size */
+      pushSTACK(SF_0); /* 0.0s0 */
+      funcall(L(float),2); /* (FLOAT rehash-size 0.0s0) = (COERCE rehash-size 'SHORT-FLOAT) */
+      /* enforce (>= rehash-size 1.125s0) : */
       pushSTACK(value1);
-      pushSTACK(make_SF(0,SF_exp_mid+1,(bit(SF_mant_len)/8)*9)); # 1.125s0
-      funcall(L(max),2); # (max rehash-size 1.125s0)
-      STACK_1 = value1; # =: rehash-size
+      pushSTACK(make_SF(0,SF_exp_mid+1,(bit(SF_mant_len)/8)*9)); /* 1.125s0 */
+      funcall(L(max),2); /* (max rehash-size 1.125s0) */
+      STACK_1 = value1; /* =: rehash-size */
     }
-  }
-  # rehash-size is a short-float >= 1.125 .
-  # check rehash-threshold: should be a float >=0, <=1
-  {
+  } /* rehash-size is a short-float >= 1.125 . */
+ check_rehash_threshold: { /* check rehash-threshold: should be a float >=0, <=1 */
     var object rehash_threshold = STACK_0;
     if (boundp(rehash_threshold)) { /* not specified -> OK */
       if (!floatp(rehash_threshold)) {
-      fehler_rehash_threshold:
-        # Argument already in STACK_0, TYPE-ERROR slot DATUM
-        pushSTACK(O(type_hashtable_rehash_threshold)); # TYPE-ERROR slot EXPECTED-TYPE
-        pushSTACK(STACK_1);
+       bad_rehash_threshold:
+        pushSTACK(NIL); /* no PLACE */
+        pushSTACK(rehash_threshold); /* TYPE-ERROR slot DATUM */
+        pushSTACK(O(type_hashtable_rehash_threshold)); /* TYPE-ERROR slot EXPECTED-TYPE */
+        pushSTACK(STACK_1); pushSTACK(S(Krehash_threshold));
         pushSTACK(S(make_hash_table));
-        fehler(type_error,
-               GETTEXT("~: :REHASH-THRESHOLD argument should be a float between 0 and 1, not ~"));
+        check_value(type_error,GETTEXT("~: ~ argument should be a float between 0 and 1, not ~"));
+        STACK_0 = value1;
+        goto check_rehash_threshold;
       }
       pushSTACK(Fixnum_1);
       pushSTACK(rehash_threshold);
       pushSTACK(Fixnum_0);
-      funcall(L(grgleich),3); # (>= 1 rehash-threshold 0)
-      if (nullp(value1)) goto fehler_rehash_threshold;
+      funcall(L(grgleich),3); /* (>= 1 rehash-threshold 0) */
+      if (nullp(value1)) goto bad_rehash_threshold;
     }
   }
-  # Now all arguments are checked.
-  # If the initial-contents-argument is specified, we set
-  # size := (max size (length initial-contents)) , so afterwards, when
-  # the initial-contents are written, the table needs not be enlarged:
-  {
+  { /* If the initial-contents-argument is specified, we set
+     size := (max size (length initial-contents)) , so afterwards, when
+     the initial-contents are written, the table needs not be enlarged: */
     var object initial_contents = STACK_4;
     if (boundp(initial_contents)) { /* specified ? */
-      var uintL initial_length = llength(initial_contents); # length of the alist
-      if (initial_length > posfixnum_to_L(STACK_2)) # > size ?
-        STACK_2 = fixnum(initial_length); # yes -> enlarge size
+      var uintL initial_length = llength(initial_contents); /* length of the alist */
+      if (initial_length > posfixnum_to_L(STACK_2)) /* > size ? */
+        STACK_2 = fixnum(initial_length); /* yes -> enlarge size */
     }
-  }
-  # size is a fixnum >0, >= (length initial-contents) .
-  # calculate MINCOUNT-THRESHOLD = 1/rehash-size^2 :
-  {
+  } /* size is a fixnum >0, >= (length initial-contents) . */
+  { /* calculate MINCOUNT-THRESHOLD = 1/rehash-size^2 : */
     var object rehash_size = STACK_1;
     pushSTACK(rehash_size);
     pushSTACK(rehash_size);
-    funcall(L(mal),2); # (* rehash-size rehash-size)
+    funcall(L(mal),2); /* (* rehash-size rehash-size) */
     pushSTACK(value1);
-    funcall(L(durch),1); # (/ ...)
+    funcall(L(durch),1); /* (/ ...) */
     STACK_0 = value1;
   }
-  # stack-layout:
-  #   weak, initial-contents, test, size, rehash-size, mincount-threshold
-  # provide vectors etc., with size as MAXCOUNT: [STACK_5 == weak]
-  prepare_resize(STACK_2,STACK_0,STACK_5 = check_weak(STACK_5));
+  /* stack-layout:
+      weak, initial-contents, test, size, rehash-size, mincount-threshold
+    provide vectors etc., with size as MAXCOUNT: [STACK_5 == weak] */
+  STACK_5 = check_weak(STACK_5);
+  prepare_resize(STACK_2,STACK_0,STACK_5);
   var object ht = allocate_hash_table(); # new hash-tabelle
   # fill:
   TheHashtable(ht)->ht_kvtable = popSTACK(); # key-value-vector
@@ -1312,75 +1374,89 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,6,
   TheHashtable(ht)->ht_mincount_threshold = popSTACK(); # MINCOUNT-THRESHOLD
   TheHashtable(ht)->ht_rehash_size = popSTACK(); # REHASH-SIZE
   TheHashtable(ht)->ht_freelist = nix; # dummy as free-list
+  if (flags==0) { /* user-defined ht_test */
+    STACK_0 = ht;
+    var object test = coerce_function(Car(STACK_1)); pushSTACK(test);
+    var object hash = coerce_function(Cdr(STACK_2)); ht = STACK_1;
+    TheHashtable(ht)->ht_test = popSTACK();
+    TheHashtable(ht)->ht_hash = hash;
+  }
   record_flags_replace(TheHashtable(ht), flags);
   clrhash(ht); # empty table, COUNT := 0
   skipSTACK(2);
   # stack-layout: weak, initial-contents.
   {
-    var object alist = popSTACK(); # initial-contents
-    while (consp(alist)) { # if it was specified, so long as it was a cons:
-      var object next = Car(alist); # alist-element
-      if (consp(next)) { # a cons (Key . Value) ?
-        # execute (SYSTEM::PUTHASH (car next) hashtable (cdr next)) ,
-        # whereby the table cannot grow:
-        var object key = Car(next);
+    pushSTACK(ht);
+    while (consp(STACK_1)) { /* if it was specified, so long as it was a cons: */
+      var object next = Car(STACK_1); /* alist element */
+      if (consp(next)) { /* a cons (Key . Value) ? */
+        /* execute (SYSTEM::PUTHASH (car next) hashtable (cdr next)) ,
+           whereby the table cannot grow: */
         var gcv_object_t* KVptr;
         var gcv_object_t* Nptr;
         var gcv_object_t* Iptr;
-        if (hash_lookup(ht,key,&KVptr,&Nptr,&Iptr)) { # search in the hashtable
-          # already found -> was already contained in the alist further on the
-          # left, and in alists the first association (left)
-          # shades all other associations of the same key.
-        } else { # not found -> make new entry:
-          var object freelist = # start of the free-list in the next-vector
+        if (hash_lookup(STACK_0,Car(next),&KVptr,&Nptr,&Iptr)) { /* search */
+          /* already found -> was already contained in the alist further
+             on the left, and in alists the first association (left)
+             shadows all other associations of the same key. */
+        } else { /* not found -> make a new entry: */
+          var object freelist = /* start of the free-list in the next-vector */
             TheHashtable(ht)->ht_freelist;
-          if (eq(freelist,nix)) { # empty "list" ?
-            pushSTACK(ht); # hash-table
+          if (eq(freelist,nix)) { /* empty "list" ? */
+            pushSTACK(ht); /* hash-table */
             pushSTACK(S(make_hash_table));
             fehler(serious_condition,
                    GETTEXT("~: internal error while building ~"));
           }
-          hash_store(key,Cdr(next)); # make entry
+          next = Car(STACK_1); /* restore next */
+          hash_store(Car(next),Cdr(next)); /* make entry */
         }
       }
-      alist = Cdr(alist);
+      STACK_1 = Cdr(STACK_1); /* pop alist */
     }
+    skipSTACK(2); /* drop ht, initial-contents */
   }
-  skipSTACK(1); # drop WEAK
+  skipSTACK(1); /* drop WEAK */
   VALUES1(ht); /* hash-table as value */
 }
 
-# UP: Searches an object in a hash-table.
-# gethash(obj,ht)
-# > obj: object, as key
-# > ht: hash-table
-# < result: if found, belonging value, else nullobj
+/* UP: Searches an object in a hash-table.
+ gethash(obj,ht)
+ > obj: object, as key
+ > ht: hash-table
+ < result: if found, belonging value, else nullobj
+ can trigger GC - for user-defined ht_test */
 global object gethash (object obj, object ht) {
   var gcv_object_t* KVptr;
   var gcv_object_t* Nptr;
   var gcv_object_t* Iptr;
   if (hash_lookup(ht,obj,&KVptr,&Nptr,&Iptr))
-    return KVptr[1]; # found -> value
+    return KVptr[1]; /* found -> value */
   else
     return nullobj;
 }
 
-# error, if an argument is not a hash-table
-# fehler_hashtable(obj);
-# > obj: object
-nonreturning_function(local, fehler_hashtable, (object obj)) {
-  pushSTACK(obj); # TYPE-ERROR slot DATUM
-  pushSTACK(S(hash_table)); # TYPE-ERROR slot EXPECTED-TYPE
-  pushSTACK(obj);
-  pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: argument ~ is not a hash-table"));
+/* error, if an argument is not a hash-table
+ check_hashtable(obj);
+ > obj: object
+ < hashtable
+ can trigger GC */
+local object check_hashtable (object obj) {
+  while (!hash_table_p(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj); /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(hash_table)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(hash_table)); pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: argument ~ is not a ~"));
+    obj = value1;
+  }
+  return obj;
 }
-#define check_hashtable(ht) if(!hash_table_p(ht)) fehler_hashtable(ht)
 
 # (GETHASH key hashtable [default]), CLTL p. 284
 LISPFUN(gethash,seclass_read,2,1,norest,nokey,0,NIL) {
-  var object ht = STACK_1; # hashtable-argument
-  check_hashtable(ht);
+  var object ht = check_hashtable(STACK_1); /* hashtable argument */
   var gcv_object_t* KVptr;
   var gcv_object_t* Nptr;
   var gcv_object_t* Iptr;
@@ -1399,8 +1475,7 @@ LISPFUN(gethash,seclass_read,2,1,norest,nokey,0,NIL) {
 # (SYSTEM::PUTHASH key hashtable value) =
 # (SETF (GETHASH key hashtable) value), CLTL p. 284
 LISPFUNN(puthash,3) {
-  var object ht = STACK_1; # hashtable-argument
-  check_hashtable(ht);
+  var object ht = check_hashtable(STACK_1); /* hashtable argument */
   var gcv_object_t* KVptr;
   var gcv_object_t* Nptr;
   var gcv_object_t* Iptr;
@@ -1409,44 +1484,43 @@ LISPFUNN(puthash,3) {
     VALUES1(KVptr[1] = popSTACK()); skipSTACK(2);
   } else { # not found -> make new entry:
     var object freelist;
-    hash_prepare_store(STACK_2);
+    hash_prepare_store(1,2); /* ht==STACK_1, obj==STACK_2*/
     hash_store(STACK_2,STACK_0); # make entry
     VALUES1(popSTACK()); /* value as value */
     skipSTACK(2);
   }
 }
 
-# UP: Searches a key in a hash-table and returns the last value.
-# shifthash(ht,obj,value) == (SHIFTF (GETHASH obj ht) value)
-# > ht: hash-table
-# > obj: object
-# > value: new value
-# < result: old value
-# can trigger GC
+/* UP: Searches a key in a hash-table and returns the last value.
+ shifthash(ht,obj,value) == (SHIFTF (GETHASH obj ht) value)
+ > ht: hash-table
+ > obj: object
+ > value: new value
+ < result: old value
+ can trigger GC */
 global object shifthash (object ht, object obj, object value) {
   var gcv_object_t* KVptr;
   var gcv_object_t* Nptr;
   var gcv_object_t* Iptr;
-  # search key obj in the hash-table:
-  if (hash_lookup(ht,obj,&KVptr,&Nptr,&Iptr)) { # found -> replace value:
+  pushSTACK(ht); pushSTACK(obj); pushSTACK(value); /* save args */
+  /* search key obj in the hash-table: */
+  if (hash_lookup(ht,obj,&KVptr,&Nptr,&Iptr)) { /* found -> replace value: */
     var object oldvalue = KVptr[1];
-    KVptr[1] = value;
+    KVptr[1] = STACK_0; skipSTACK(3);
     return oldvalue;
-  } else { # not found -> build new entry:
-    pushSTACK(obj); pushSTACK(value); # save key and value
+  } else { /* not found -> build new entry: */
     var object freelist;
-    hash_prepare_store(STACK_1);
-    hash_store(STACK_1,STACK_0); # build entry
-    skipSTACK(2);
+    hash_prepare_store(2,1);  /* ht==STACK_2, obj==STACK_1 */
+    hash_store(STACK_1,STACK_0); /* build entry */
+    skipSTACK(3);
     return NIL; # default for the old value is NIL
   }
 }
 
 # (REMHASH key hashtable), CLTL p. 284
 LISPFUNN(remhash,2) {
-  var object ht = popSTACK(); # hashtable-argument
-  check_hashtable(ht);
-  var object key = popSTACK(); # key-argument
+  var object ht = check_hashtable(STACK_0); /* hashtable argument */
+  var object key = STACK_1; /* key-argument */
   var gcv_object_t* KVptr;
   var gcv_object_t* Nptr;
   var gcv_object_t* Iptr;
@@ -1456,6 +1530,7 @@ LISPFUNN(remhash,2) {
     var object index = *Iptr; # index in next-vector
     # with Nptr  = &TheSvector(TheHashtable(ht)->ht_ntable)->data[index]
     # and  KVptr = ht_kvt_data(ht) + [2*index]
+    ht = STACK_0; skipSTACK(2);
     set_break_sem_2(); # protect from breaks
     *Iptr = *Nptr; # shorten "list"
     *KVptr++ = leer; *KVptr = leer; # empty key and value
@@ -1483,14 +1558,13 @@ LISPFUNN(remhash,2) {
     }
     VALUES1(T);
   } else { # not found
-    VALUES1(NIL);
+    skipSTACK(2); VALUES1(NIL);
   }
 }
 
 # (MAPHASH function hashtable), CLTL p. 285
 LISPFUNN(maphash,2) {
-  var object ht = STACK_0; # hashtable-argument
-  check_hashtable(ht);
+  var object ht = check_hashtable(STACK_0); /* hashtable argument */
   # traverse the key-value-vector in reverse direction and
   # call the function for all key-value-pairs with key /= "leer" :
   var uintL index = 2*posfixnum_to_L(TheHashtable(ht)->ht_maxcount);
@@ -1511,8 +1585,7 @@ LISPFUNN(maphash,2) {
 
 # (CLRHASH hashtable), CLTL p. 285
 LISPFUNN(clrhash,1) {
-  var object ht = popSTACK(); # hashtable-argument
-  check_hashtable(ht);
+  var object ht = check_hashtable(popSTACK()); /* hashtable argument */
   clrhash(ht); # empty table
   # Shrink the hash-table when MINCOUNT > 0 :
   if (!eq(TheHashtable(ht)->ht_mincount,Fixnum_0))
@@ -1522,22 +1595,19 @@ LISPFUNN(clrhash,1) {
 
 LISPFUNNR(hash_table_count,1)
 { /* (HASH-TABLE-COUNT hashtable), CLTL p. 285, CLtL2 p. 439 */
-  var object ht = popSTACK(); /* hashtable argument */
-  check_hashtable(ht);
+  var object ht = check_hashtable(popSTACK()); /* hashtable argument */
   VALUES1(TheHashtable(ht)->ht_count); /* fixnum COUNT as value */
 }
 
 LISPFUNNR(hash_table_rehash_size,1)
 { /* (HASH-TABLE-REHASH-SIZE hashtable), CLtL2 p. 441, dpANS p. 18-7 */
-  var object ht = popSTACK(); /* hashtable argument */
-  check_hashtable(ht);
+  var object ht = check_hashtable(popSTACK()); /* hashtable argument */
   VALUES1(TheHashtable(ht)->ht_rehash_size); /* short-float REHASH-SIZE as value */
 }
 
 LISPFUNNR(hash_table_rehash_threshold,1)
 { /* (HASH-TABLE-REHASH-THRESHOLD hashtable), CLtL2 p. 441, dpANS p. 18-8 */
-  var object ht = popSTACK(); /* hashtable argument */
-  check_hashtable(ht);
+  var object ht = check_hashtable(popSTACK()); /* hashtable argument */
   # As MAKE-HASH-TABLE ignores the :REHASH-THRESHOLD argument, the value
   # is irrelevant here and arbitrary.
   VALUES1(make_SF(0,SF_exp_mid+0,(bit(SF_mant_len)/2)*3)); /* 0.75s0 as value */
@@ -1545,17 +1615,38 @@ LISPFUNNR(hash_table_rehash_threshold,1)
 
 LISPFUNNR(hash_table_size,1)
 { /* (HASH-TABLE-SIZE hashtable), CLtL2 p. 441, dpANS p. 18-9 */
-  var object ht = popSTACK(); /* hashtable argument */
-  check_hashtable(ht);
+  var object ht = check_hashtable(popSTACK()); /* hashtable argument */
   VALUES1(TheHashtable(ht)->ht_maxcount); /* Fixnum MAXCOUNT */
+}
+
+/* return the hash table symbol
+ or cons (test . hash) for user-defined ht_test
+ can trigger GC - for user-defined ht_test */
+global object hash_table_test (object ht) {
+  switch (ht_test_code(record_flags(TheHashtable(ht)))) {
+    case bit(0): return S(eq);
+    case bit(1): return S(eql);
+    case bit(2): return S(equal);
+    case bit(3): return S(equalp);
+    case 0: { /* user-defined ==> (test . hash) */
+      pushSTACK(ht);
+      var object ret = allocate_cons();
+      ht = popSTACK();
+      Car(ret) = TheHashtable(ht)->ht_test;
+      Cdr(ret) = TheHashtable(ht)->ht_hash;
+      /* should we do this at all? */
+      /*if (subrp(Car(ret))) Car(ret) = TheSubr(Car(ret))->name;
+        if (subrp(Cdr(ret))) Cdr(ret) = TheSubr(Cdr(ret))->name;*/
+      return ret;
+    }
+    default: NOTREACHED;
+  }
 }
 
 LISPFUNNF(hash_table_test,1)
 { /* (HASH-TABLE-TEST hashtable), CLtL2 p. 441, dpANS p. 18-9 */
-  var object ht = popSTACK(); /* hashtable argument */
-  check_hashtable(ht);
-  var uintB flags = record_flags(TheHashtable(ht));
-  VALUES1(hashtable_test(flags)); /* symbol as value */
+  var object ht = check_hashtable(popSTACK()); /* hashtable argument */
+  VALUES1(hash_table_test(ht)); /* symbol as value */
 }
 
 # auxiliary functions for WITH-HASH-TABLE-ITERATOR, CLTL2 p. 439:
@@ -1566,8 +1657,7 @@ LISPFUNNF(hash_table_test,1)
 # T, key, value of the next hash-table-entry resp. 1 value NIL at the end.
 
 LISPFUNNR(hash_table_iterator,1) {
-  var object ht = STACK_0; # hashtable-argument
-  check_hashtable(ht);
+  var object ht = check_hashtable(STACK_0); /* hashtable argument */
   # An internal state consists of the key-value-vector and an index.
   STACK_0 = TheHashtable(ht)->ht_kvtable; # key-value-vector
   var object maxcount = TheHashtable(ht)->ht_maxcount; # maxcount
@@ -1600,16 +1690,15 @@ LISPFUNN(hash_table_iterate,1) {
 
 LISPFUNNR(hash_table_weak_p,1)
 { # (EXT:HASH-TABLE-WEAK-P ht)
-  var object ht = popSTACK(); # hashtable-argument
-  check_hashtable(ht);
+  var object ht = check_hashtable(popSTACK()); /* hashtable argument */
   VALUES1(ht_weak(ht));
 }
 
 /* (SYS::%SET-HASH-TABLE-WEAK-P ht val) == (SETF (HASH-TABLE-WEAK-P ht) val) */
 LISPFUNN(set_hash_table_weak_p,2) {
+  STACK_1 = check_hashtable(STACK_1);
   var object val = check_weak(popSTACK()); /* weak-p */
   var object ht = STACK_0; /* hashtable argument */
-  check_hashtable(ht);
   if (nullp(val) && ht_weak_p(ht)) {
     var uintL len = Weakkvt_length(TheHashtable(ht)->ht_kvtable);
     var object vec = allocate_vector(len);
@@ -1629,8 +1718,7 @@ LISPFUNN(set_hash_table_weak_p,2) {
 
 # (CLOS::CLASS-GETHASH ht object) is like (GETHASH (CLASS-OF object) ht).
 LISPFUNN(class_gethash,2) {
-  var object ht = STACK_1; # hashtable-argument
-  check_hashtable(ht);
+  var object ht = check_hashtable(STACK_1); /* hashtable argument */
   C_class_of(); # value1 := (CLASS-OF object)
   var gcv_object_t* KVptr;
   var gcv_object_t* Nptr;
@@ -1745,12 +1833,9 @@ LISPFUN(class_tuple_gethash,seclass_default,2,0,rest,nokey,0,NIL) {
       NEXT(arg_pointer) = value1; # =: arg
     });
   }
-  var object ht = Before(rest_args_pointer); # hashtable-argument
-  check_hashtable(ht);
-  if (!ht_validp(TheHashtable(ht))) {
-    # table must still be reorganized
-    rehash(ht);
-  }
+  var object ht = check_hashtable(Before(rest_args_pointer));
+  if (!ht_validp(TheHashtable(ht))) /* hash-table must still be reorganized */
+    ht = rehash(ht);
   {
     var uint32 code = # calculate hashcode of the cons-tree
       hashcode_tuple(argcount,rest_args_pointer,0);

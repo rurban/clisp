@@ -2407,7 +2407,7 @@ and the international alphabetic characters from the character set:
   {&tag-r;|&form-r;}*)
 </programlisting>
 
-<para>&doseq; forms are &iter-forms;.</para>
+<para>&doseq; forms are &iter-form;s.</para>
 
 </section>
 </section>
@@ -2512,9 +2512,50 @@ printed readably.</para>
 
 </section>
 
+<section id="defhash"><title>Macro &defhash;</title>
+
+<para>You can define a new hash table test using the macro
+ &defhash;: <literal role="sexp">(&defhash; test-name &test-f;
+  &hash-f;)</literal>, after which <replaceable>test-name</replaceable>
+ can be passed as the <constant>:TEST</constant> argument to
+ &make-hash-table;.  E.g.: <programlisting>
+ (&defhash; string &string-eq; &sxhash;)
+ (&make-hash-table; :test 'string)
+</programlisting>
+(which is not too useful because it is equivalent to an &equal;
+&hash-table-t; but less efficient).</para>
+
+<para>The fundamental requirement is that the &test-f; and &hash-f; are
+ consistent: <programlisting>
+  (&funcall; &test-f; &x-r; &y-r;) ==&gt;
+  (&areq; (&funcall; &hash-f; &x-r;) (&funcall; &hash-f; &y-r;))
+ </programlisting>
+ This means that the following definition: <programlisting>
+  (&defhash; number &areq; &sxhash;) ; <emphasis role="strong">BAD!</emphasis>
+ </programlisting>
+ is &not-e; correct because <literal role="sexp">(&areq; 1 1d0)</literal> is
+ &t; but <literal role="sexp">(&areq; (&sxhash; 1) (&sxhash; 1d0))</literal>
+ is &nil;.  The correct way is, e.g.: <programlisting>
+  (&defhash; number &areq; (&lambda-m; (x) (&sxhash; (&coerce; x '&short-float-t;))))
+ </programlisting>
+ (note that
+ <literal role="sexp">(&coerce; &x-r; &short-float-t;)</literal>
+ does &not-e; cons while
+ <literal role="sexp">(&coerce; &x-r; &double-float-t;)</literal>
+ does).</para>
+
+</section>
+
+<section id="ht-test"><title>Function &hash-table-test;</title>
+<para>Function &hash-table-test; returns either one of the four standard
+ symbols &eq;, &eql;, &equal;, &equalp;, or, for &hash-table-t;s
+ created with a user-defined &hash-table-test; (see macro &defhash;),
+ a &cons-t; cell <literal role="sexp">(&test-f; . &hash-f;)</literal>.</para>
+</section>
+
 <section id="dohash"><title>Macro &dohash;</title>
 
-<para>For iteration through a hash table, a macro &dohash;,
+<para>For iteration through a &hash-table-t;, a macro &dohash;,
  similar to &dolist;, can be used instead of &maphash;:</para>
 
 <programlisting>
@@ -2523,7 +2564,7 @@ printed readably.</para>
   {&tag-r;|&form-r;}*)
 </programlisting>
 
-<para>&dohash; forms are &iter-forms;.</para>
+<para>&dohash; forms are &iter-form;s.</para>
 
 </section>
 </section>
@@ -3985,19 +4026,19 @@ pointing to non-existent files and can take the following values:
  To test this functionality interactively,
  you will need to open the standard input in the binary mode:
 <programlisting>
- (let ((buf (&make-array; (&parse-integer; (&getenv; "CONTENT_LENGTH"))
-                        :element-type &unsigned-byte-8;)))
-   (&with-open-stream; (in (&make-stream; &input-k; &eltype; &unsigned-byte-8;))
-     (&read-sequence; buf in))
-   buf)
+(let ((buf (&make-array; (&parse-integer; (&getenv; "CONTENT_LENGTH"))
+                       :element-type &unsigned-byte-8;)))
+  (&with-open-stream; (in (&make-stream; &input-k; &eltype; &unsigned-byte-8;))
+    (&read-sequence; buf in))
+  buf)
 </programlisting></para>
 </section>
 </section>
 
 <section id="make-stream"><title>Function &make-stream;</title>
-<para>Function &make-stream; creates a Lisp stream out of an OS handle:
- <programlisting>(&make-stream; &object-r; &direction-k; &eltype;
-        &extfmt; &buffered;)</programlisting></para>
+<para>Function &make-stream; creates a Lisp stream out of an OS file
+ handle: <literal role="sexp">(&make-stream; &object-r; &direction-k;
+  &eltype; &extfmt; &buffered;)</literal></para>
 <para>&object-r; designates an OS handle (a &file-des;),
  and should be one of the following:
  <variablelist>

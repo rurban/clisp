@@ -4720,6 +4720,8 @@ typedef struct {
   gcv_object_t ht_rehash_size;
   gcv_object_t ht_mincount_threshold;
   gcv_object_t ht_mincount;
+  gcv_object_t ht_test; /* hash-table-test - for define-hash-table-test */
+  gcv_object_t ht_hash; /* hash function */
 } *  Hashtable;
 #define hashtable_length  ((sizeof(*(Hashtable)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 # Mark a Hash Table as new to reorganize
@@ -4733,10 +4735,7 @@ typedef struct {
   #define mark_ht_valid(ptr)  record_flags_clr(ptr,bit(7))
   #define ht_validp(ptr)  ((record_flags(ptr) & bit(7)) == 0)
 #endif
-#define hashtable_test(flags)                                   \
-  (flags & bit(0) ? S(eq) :    flags & bit(1) ? S(eql) :        \
-   flags & bit(2) ? S(equal) : flags & bit(3) ? S(equalp) :     \
-   (NOTREACHED,nullobj))
+#define ht_test_code(flags) (flags & (bit(0) | bit(1) | bit(2) | bit(3)))
 # check whether the hash table is weak or not
 #define ht_weak_p(ht)                                           \
   (weakkvtp(TheHashtable(ht)->ht_kvtable) ? true :              \
@@ -11772,6 +11771,13 @@ static inline bool instanceof (object obj, object clas) {
 # can trigger GC
 extern object shifthash (object ht, object obj, object value);
 # is used by SEQUENCE, PATHNAME, FOREIGN
+
+/* HASH-TABLE-TEST (EQ/EQL/EQUAL/EQUALP)
+ > ht: hash-table
+ < result: symbol EQ/EQL/EQUAL/EQUALP or cons (TEST . HASH)
+ can trigger GC - for user-defined ht_test */
+global object hash_table_test (object ht);
+/* used by HASHTABL, IO */
 
 # Macro: Runs through a Hash-Tabelle.
 # map_hashtable(ht,key,value,statement)

@@ -1,3 +1,8 @@
+2003-05-13  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (run-all-tests) [CLISP]: run defhash
+	* defhash.tst: test DEFINE-HASH-TABLE-TEST
+
 2003-05-15  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (with-accumulating-errors): new macro
