@@ -882,7 +882,8 @@ LISPFUNNF(array_rank,1)
 LISPFUNNR(array_dimension,2)
 { /* (ARRAY-DIMENSION array axis-number), CLTL p. 292 */
   var object array = check_array(STACK_1);
-  var object axis_number = STACK_0; skipSTACK(2);
+  var object axis_number = STACK_0;
+  skipSTACK(2);
   if (array_simplep(array)) {
     /* simple vector: axis-number must be =0, value is then the length. */
     if (eq(axis_number,Fixnum_0)) {
