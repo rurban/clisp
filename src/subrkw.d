@@ -147,11 +147,26 @@ s(make_logical_pathname)
 v(2, (kw(all),kw(merge)) )
 s(translate_pathname)
 v(5, (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),kw(external_format)) )
+s(old_open)
+v(6, (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),kw(external_format),kw(buffered)) )
 s(open)
 v(2, (kw(circle),kw(full)) )
 s(directory)
 v(2, (kw(element_type),kw(line_position)) )
 s(make_string_output_stream)
+#ifdef PIPES
+v(3, (kw(element_type),kw(external_format),kw(buffered)) )
+s(make_pipe_input_stream)
+s(make_pipe_output_stream)
+#ifdef PIPES2
+s(make_pipe_io_stream)
+#endif
+#endif
+#ifdef SOCKET_STREAMS
+v(3, (kw(element_type),kw(external_format),kw(buffered)) )
+s(socket_accept)
+s(socket_connect)
+#endif
 v(1, (kw(abort)) )
 s(close)
 #ifdef REXX
