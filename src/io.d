@@ -24,8 +24,8 @@
 # perchar_table_get(table,c)
 # perchar_table_put(table,c,value)
 # copy_perchar_table(table)
-  #if (base_char_code_limit < char_code_limit)
-    # A simple-vector of base_char_code_limit+1 elements, the last entry being
+  #if (small_char_code_limit < char_code_limit)
+    # A simple-vector of small_char_code_limit+1 elements, the last entry being
     # a hash table for the non-base characters.
     local object allocate_perchar_table (void);
     local object allocate_perchar_table()
@@ -33,18 +33,18 @@
         pushSTACK(S(Ktest)); pushSTACK(S(eq)); funcall(L(make_hash_table),2);
         pushSTACK(value1);
         # Allocate the simple-vector.
-       {var object table = allocate_vector(base_char_code_limit+1);
-        TheSvector(table)->data[base_char_code_limit] = popSTACK();
+       {var object table = allocate_vector(small_char_code_limit+1);
+        TheSvector(table)->data[small_char_code_limit] = popSTACK();
         return table;
       }}
     local object perchar_table_get (object table, chart c);
     local object perchar_table_get(table,c)
       var object table;
       var chart c;
-      { if (as_cint(c) < base_char_code_limit)
+      { if (as_cint(c) < small_char_code_limit)
           { return TheSvector(table)->data[as_cint(c)]; }
         else
-          { var object value = gethash(code_char(c),TheSvector(table)->data[base_char_code_limit]);
+          { var object value = gethash(code_char(c),TheSvector(table)->data[small_char_code_limit]);
             return (eq(value,nullobj) ? NIL : value);
       }   }
     local void perchar_table_put (object table, chart c, object value);
@@ -52,10 +52,10 @@
       var object table;
       var chart c;
       var object value;
-      { if (as_cint(c) < base_char_code_limit)
+      { if (as_cint(c) < small_char_code_limit)
           { TheSvector(table)->data[as_cint(c)] = value; }
         else
-          { shifthash(TheSvector(table)->data[base_char_code_limit],code_char(c),value); }
+          { shifthash(TheSvector(table)->data[small_char_code_limit],code_char(c),value); }
       }
     local object copy_perchar_table (object table);
     local object copy_perchar_table(table)
@@ -65,12 +65,12 @@
         pushSTACK(S(Ktest)); pushSTACK(S(eq)); funcall(L(make_hash_table),2);
         pushSTACK(value1);
         # Stackaufbau: table, newht.
-        map_hashtable(TheSvector(STACK_1)->data[base_char_code_limit],key,value,
+        map_hashtable(TheSvector(STACK_1)->data[small_char_code_limit],key,value,
                       { shifthash(STACK_(0+1),key,value); }
                      );
        {var object newht = popSTACK();
         var object table = popSTACK();
-        TheSvector(table)->data[base_char_code_limit] = newht;
+        TheSvector(table)->data[small_char_code_limit] = newht;
         return table;
       }}
   #else
@@ -119,8 +119,8 @@
 # allocate_syntax_table()
 # syntax_table_get(table,c)
 # syntax_table_put(table,c,value) [kann GC auslösen]
-  #if (base_char_code_limit < char_code_limit)
-    # A cons, consisting of a simple-bit-vector with base_char_code_limit
+  #if (small_char_code_limit < char_code_limit)
+    # A cons, consisting of a simple-bit-vector with small_char_code_limit
     # bytes, and a hash table mapping characters to fixnums. Characters not
     # found in the hash table are assumed to have the syntax code
     # (graphic_char_p(ch) ? syntax_constituent : syntax_illegal).
@@ -130,14 +130,14 @@
         pushSTACK(S(Ktest)); pushSTACK(S(eq)); funcall(L(make_hash_table),2);
         pushSTACK(value1);
         # Allocate the simple-bit-vector.
-        pushSTACK(allocate_bit_vector(base_char_code_limit*8));
+        pushSTACK(allocate_bit_vector(small_char_code_limit*8));
        {var object new_cons = allocate_cons();
         Car(new_cons) = popSTACK();
         Cdr(new_cons) = popSTACK();
         return new_cons;
       }}
     #define syntax_table_get(table,c)  \
-      (as_cint(c) < base_char_code_limit           \
+      (as_cint(c) < small_char_code_limit           \
        ? TheSbvector(Car(table))->data[as_cint(c)] \
        : syntax_table_get_notinline(table,c)       \
       )
@@ -152,7 +152,7 @@
           return (graphic_char_p(c) ? syntax_constituent : syntax_illegal);
       }
     #define syntax_table_put(table,c,value)  \
-      (as_cint(c) < base_char_code_limit                       \
+      (as_cint(c) < small_char_code_limit                       \
        ? (TheSbvector(Car(table))->data[as_cint(c)] = (value)) \
        : syntax_table_put_notinline(table,c,value)             \
       )
@@ -170,7 +170,7 @@
   #endif
 
 # originale Syntaxtabelle für eingelesene Zeichen:
-  local const uintB orig_syntax_table [base_char_code_limit] = {
+  local const uintB orig_syntax_table [small_char_code_limit] = {
     #define illg  syntax_illegal
     #define sesc  syntax_single_esc
     #define mesc  syntax_multi_esc
@@ -271,9 +271,9 @@
     #undef tmac
     #undef nmac
     };
-  #if (base_char_code_limit < char_code_limit)
+  #if (small_char_code_limit < char_code_limit)
     #define orig_syntax_table_get(c)  \
-      (as_cint(c) < base_char_code_limit                           \
+      (as_cint(c) < small_char_code_limit                          \
        ? orig_syntax_table[as_cint(c)]                             \
        : (graphic_char_p(c) ? syntax_constituent : syntax_illegal) \
       )
@@ -291,13 +291,13 @@
       { var object s_table = allocate_syntax_table(); # neuer Bitvektor
         pushSTACK(s_table); # retten
         # und mit dem Original füllen:
-        #if (base_char_code_limit < char_code_limit)
+        #if (small_char_code_limit < char_code_limit)
         s_table = Car(s_table);
         #endif
         { var const uintB * ptr1 = &orig_syntax_table[0];
           var uintB* ptr2 = &TheSbvector(s_table)->data[0];
           var uintC count;
-          dotimesC(count,base_char_code_limit, { *ptr2++ = *ptr1++; } );
+          dotimesC(count,small_char_code_limit, { *ptr2++ = *ptr1++; } );
       } }
       # Dispatch-Macro '#' initialisieren:
       { var object d_table = allocate_perchar_table(); # neuer Vektor
@@ -374,7 +374,7 @@
       # die Syntaxtabelle kopieren:
       { var object stable1;
         var object stable2;
-        #if (base_char_code_limit < char_code_limit)
+        #if (small_char_code_limit < char_code_limit)
           pushSTACK(to_readtable);
           pushSTACK(from_readtable);
           # Allocate a new hash table.
@@ -399,14 +399,14 @@
        {var const uintB* ptr1 = &TheSbvector(stable1)->data[0];
         var uintB* ptr2 = &TheSbvector(stable2)->data[0];
         var uintC count;
-        dotimesC(count,base_char_code_limit, { *ptr2++ = *ptr1++; } );
+        dotimesC(count,small_char_code_limit, { *ptr2++ = *ptr1++; } );
       }}
       # die Macro-Tabelle kopieren:
       pushSTACK(to_readtable); # to-readtable retten
       { var object mtable1 = TheReadtable(from_readtable)->readtable_macro_table;
         var object mtable2 = TheReadtable(to_readtable)->readtable_macro_table;
         var uintL i;
-        for (i = 0; i < base_char_code_limit; i++)
+        for (i = 0; i < small_char_code_limit; i++)
           { # Eintrag Nummer i kopieren:
             var object entry = TheSvector(mtable1)->data[i];
             if (simple_vector_p(entry))
@@ -417,7 +417,7 @@
               }
             TheSvector(mtable2)->data[i] = entry;
           }
-        #if (base_char_code_limit < char_code_limit)
+        #if (small_char_code_limit < char_code_limit)
           pushSTACK(mtable2);
           pushSTACK(mtable1);
           # Allocate a new hash table.
@@ -425,12 +425,12 @@
           mtable1 = STACK_0;
           STACK_0 = value1;
           # Stackaufbau: mtable2, newht.
-          map_hashtable(TheSvector(mtable1)->data[base_char_code_limit],ch,entry,
+          map_hashtable(TheSvector(mtable1)->data[small_char_code_limit],ch,entry,
                         { if (simple_vector_p(entry))
                             { entry = copy_perchar_table(entry); }
                           shifthash(STACK_(0+1),ch,entry);
                         });
-          TheSvector(STACK_1)->data[base_char_code_limit] = STACK_0;
+          TheSvector(STACK_1)->data[small_char_code_limit] = STACK_0;
           skipSTACK(2);
         #endif
       }
@@ -1138,7 +1138,7 @@ LISPFUNN(set_readtable_case,2)
 # Anmerkung: 0-9,A-Z,a-z werden erst als a_digit oder a_expo_m interpretiert,
 # dann (falls sich kein Integer aus einem Token ergibt) wird a_digit
 # oberhalb von *READ-BASE* als a_alpha (alphabetic) interpretiert.
-  local const uintB attribute_table[base_char_code_limit] = {
+  local const uintB attribute_table[small_char_code_limit] = {
     a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,   # chr(0) bis chr(7)
     a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,   # chr(8) bis chr(15)
     a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,   # chr(16) bis chr(23)
@@ -1234,9 +1234,9 @@ LISPFUNN(set_readtable_case,2)
 # attribute_of(c)
 # > chart c: character code
 # < uintB result: attribute code
-  #if (base_char_code_limit < char_code_limit) # i.e. defined(UNICODE)
+  #if (small_char_code_limit < char_code_limit) # i.e. defined(UNICODE)
     #define attribute_of(c)  \
-      (as_cint(c) < base_char_code_limit        \
+      (as_cint(c) < small_char_code_limit       \
        ? attribute_table[as_cint(c)]            \
        : (graphic_char_p(c) ? a_alpha : a_illg) \
       )
