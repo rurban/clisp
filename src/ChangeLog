@@ -1,3 +1,21 @@
+2004-06-24  Bruno Haible  <bruno@clisp.org>
+
+	* clos-genfun2.lisp (finalize-fast-gf, gf-never-called-p,
+	compute-dispatch, compute-applicable-methods-effective-method,
+	compute-applicable-methods-<standard-generic-function>,
+	compute-applicable-methods-using-classes-<standard-generic-function>):
+	Handle the case that the generic-function's lambda-list is not yet
+	initialized.
+	* clos-genfun3.lisp (gf-lambdalist-from-first-method): New function.
+	(std-add-method, std-find-method): Handle the case that the
+	generic-function's lambda-list is not yet initialized.
+	(do-defmethod): Use gf-lambdalist-from-first-method.
+	* clos-genfun4.lisp (no-applicable-method, missing-required-method,
+	no-primary-method): Handle the case that the generic-function's
+	lambda-list is not yet initialized.
+	* clos-method2.lisp (analyze-method-description): Likewise.
+	* describe.lisp (describe-object@generic-function): Likewise.
+
 2004-06-20  Bruno Haible  <bruno@clisp.org>
 
 	* clos-genfun2.lisp (finalize-fast-gf, gf-never-called-p): Use a
