@@ -5,9 +5,9 @@
 	Renamed from add-direct-generic-function.
 	(remove-direct-generic-function-internal): Renamed from
 	remove-direct-generic-function.
-	(forget-direct-generic-functions, add-direct-generic-function,
-	compute-direct-generic-functions, update-list-direct-generic-functions):
-	New functions.
+	(forget-direct-generic-functions, add-direct-generic-function)
+	(compute-direct-generic-functions)
+	(update-list-direct-generic-functions): New functions.
 	(specializer-direct-generic-functions): Use
 	update-list-direct-generic-functions.
 	(add-direct-method-generic-function): New function.
