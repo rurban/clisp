@@ -493,7 +493,7 @@ dm2b
 (let ((file "tmp.lisp"))
   (with-open-file (o file :direction :output)
     (write-line "(defun caller (a b) (foo a b))" o)
-    (write-line "(defun foo (a b c) (list b c a))" o))
+    (write-line "(defun foo (a b c) (list a b c))" o))
   (unwind-protect (progn (load file #+CLISP :compiling #+CLISP t)
                          (foo 1 2 3))
     (delete-file file)))
