@@ -527,7 +527,7 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
           >[CLHS-5.3]</ulink></title>
 
 <formalpara id="fle"><title>Function &function-lambda-expression;</title>
-<para>The &name-r; of a &foreign-function; is a <emphasis>string</emphasis>
+<para>The &name-r; of a &foreign-function-t; is a <emphasis>string</emphasis>
 (the name of the underlying &c-lang; function), not a lisp &funname;.
 </para></formalpara>
 
@@ -583,7 +583,7 @@ is the same as
  returns &t;, regardless of &y-r;.</para>
 
 <warning><para><code>(&eq; x x)</code> might not be
- &t; for a &foreign-variable; &x-r;.</para></warning>
+ &t; for a &foreign-variable-t; &x-r;.</para></warning>
 
 </section>
 
@@ -3946,7 +3946,7 @@ warning, you need to fix the source code of the incriminated method.</para>
   <entry>built-in function written in &c-lang;</entry></row>
  <row><entry><literal>#&lt;ADD-ON-SYSTEM-FUNCTION
     &name-r;&gt;</literal></entry>
-  <entry>other function written in &c-lang;</entry></row>
+  <entry>&module; function written in &c-lang;</entry></row>
  <row><entry><literal>#&lt;SPECIAL-OPERATOR &name-r;&gt;</literal></entry>
   <entry>special operator handler</entry></row>
  <row><entry><literal>#&lt;COMPILED-CLOSURE &name-r;&gt;</literal></entry>
@@ -3980,23 +3980,23 @@ warning, you need to fix the source code of the incriminated method.</para>
  <row><entry><literal>#&lt;&foreign-address-t; #x...&gt;</literal></entry>
   <entry>foreign address <emphasis>(Platform dependent: &unix;,
     &win32; platforms only.)</emphasis></entry></row>
- <row><entry><literal>#&lt;&foreign-variable;
+ <row><entry><literal>#&lt;&foreign-variable-t;
     &name-r; #x...&gt;</literal></entry>
   <entry>foreign variable <emphasis>(Platform dependent: &unix;,
     &win32; platforms only.)</emphasis></entry></row>
- <row><entry><literal>#&lt;&foreign-function;
+ <row><entry><literal>#&lt;&foreign-function-t;
     &name-r; #x...&gt;</literal></entry>
   <entry>foreign function <emphasis>(Platform dependent: &unix;,
     &win32; platforms only.)</emphasis></entry></row>
 <!-- #endif -->
  <row><entry><literal>#&lt;UNBOUND&gt;</literal></entry>
-  <entry>"value" of a symbol without value, "value" of an unsupplied
+  <entry><quote>value</quote> of an unbound symbol, an unsupplied
    optional or keyword argument</entry></row>
  <row><entry><literal>#&lt;SPECIAL REFERENCE&gt;</literal></entry>
   <entry>environment marker for variables declared &special-dec;
  </entry></row>
  <row><entry><literal>#&lt;DOT&gt;</literal></entry>
-  <entry>internal &read; result for "."</entry></row>
+  <entry>internal &read; result for <quote>.</quote></entry></row>
  <row><entry><literal>#&lt;END OF FILE&gt;</literal></entry>
   <entry>internal &read; result, when the end of file is reached
  </entry></row>
@@ -4609,7 +4609,7 @@ E.g.,
  <listitem><simpara>&disassemble; can disassemble to machine code,
    provided that &gnu; &gdb; is present.
    In that case the argument may be a
-   <classname>EXT:SYSTEM-FUNCTION</classname>, a &foreign-function;, a
+   <classname>EXT:SYSTEM-FUNCTION</classname>, a &foreign-function-t;, a
    special operator handler, a &symbol-t; denoting one of these, an
    &integer-t; (address), or a &string-t;.
 </simpara></listitem></varlistentry>
