@@ -1,3 +1,7 @@
+2004-09-08  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* Makefile: %.erg shall not depend on ../lisp.run&../lispinit.mem
+
 2004-09-07  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* Makefile: target tests now works with MS-VC's nmake
