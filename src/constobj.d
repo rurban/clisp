@@ -142,6 +142,8 @@
   LISPOBJ(gc_count,"0")
  #endif
   LISPOBJ(type_weak_ht,"(MEMBER :BOTH :EITHER :VALUE :KEY NIL)")
+# for RECORD.D:
+  LISPOBJ(constant_initfunction_code,".")
 # for SEQUENCE.D:
   # internal list of all defined sequence-types:
   LISPOBJ(seq_types,"NIL")

@@ -1418,6 +1418,8 @@ local void init_object_tab (void) {
   }
   # build toplevel-declaration-environment
   Car(O(top_decl_env)) = O(declaration_types);
+  # Initialize compiled closures.
+  init_cclosures();
 }
 # manual initialization of all LISP-data:
 local void initmem (void) {

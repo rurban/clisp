@@ -284,14 +284,12 @@ local Values interpret_bytecode_ (object closure, Sbvector codeptr,
 #endif
 
 /* Values of the bytecodes (256 totally): */
-#ifndef FAST_DISPATCH
 typedef enum {
  #define BYTECODE(code)  code,
   #include "bytecode.c"
  #undef BYTECODE
   cod_for_broken_compilers_that_dont_like_trailing_commas
 } bytecode_enum_t;
-#endif
 
 
 /* ---------------------- LISP-FUNCTIONS ----------------------- */
@@ -8418,6 +8416,27 @@ global Values funcall (object fun, uintC args_on_stack)
     #endif
     return;
   }
+
+
+/* UP: initialize hand-made compiled closures
+ init_cclosures();
+ can trigger GC */
+global void init_cclosures (void) {
+  # Build #13Y(00 00 00 00 00 00 00 00 00 01 C5 19 01) ; (CONST 0) (SKIP&RET 1)
+  {
+    var object codevec = allocate_bit_vector(Atype_8Bit,CCV_START_NONKEY+3);
+    TheCodevec(codevec)->ccv_spdepth_1 = 0;
+    TheCodevec(codevec)->ccv_spdepth_jmpbufsize = 0;
+    TheCodevec(codevec)->ccv_numreq = 0;
+    TheCodevec(codevec)->ccv_numopt = 0;
+    TheCodevec(codevec)->ccv_flags = 0;
+    TheCodevec(codevec)->ccv_signature = cclos_argtype_0_0;
+    TheSbvector(codevec)->data[CCV_START_NONKEY+0] = cod_const0;
+    TheSbvector(codevec)->data[CCV_START_NONKEY+1] = cod_skip_ret;
+    TheSbvector(codevec)->data[CCV_START_NONKEY+2] = 1;
+    O(constant_initfunction_code) = codevec;
+  }
+}
 
 
 # where is check_SP() or check_STACK() to be inserted??
