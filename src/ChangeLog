@@ -1,5 +1,10 @@
 2004-12-05  Bruno Haible  <bruno@clisp.org>
 
+	* io.d (pretty_print_call): Fix GC-safety bug introduced on 2001-08-17.
+	Avoid goto.
+
+2004-12-05  Bruno Haible  <bruno@clisp.org>
+
 	* io.d (test_disp_sub_char): Expect readtable on the STACK. Fix
 	GC-safety bug introduced on 2004-06-02.
 	(SET-DISPATCH-MACRO-CHARACTER, GET-DISPATCH-MACRO-CHARACTER): Update.
