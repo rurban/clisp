@@ -1,3 +1,11 @@
+2003-12-05  Sam Steingold  <sds@gnu.org>
+
+	* eval.d (parse_dd): do not accept ENV args (not used since 2003-02-14)
+	(get_closure): do not pass ENV to parse_dd()
+	* control.d (LET, LET*, LOCALLY, SYMBOL-MACROLET)
+	(MULTIPLE-VALUE-BIND): ditto
+	* lispbibl.d (parse_dd): updated the prototype
+
 2003-12-04  Sam Steingold  <sds@gnu.org>
 
 	* hashtabl.d (hash_prepare_store): fixed a bug introduced in the

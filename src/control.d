@@ -625,7 +625,7 @@ local void make_variable_frame (object caller, object varspecs,
 LISPSPECFORM(let, 1,0,body)
 { /* (LET ({varspec}) {decl} {form}), CLTL p. 110 */
   /* separate {decl} {form}: */
-  var bool to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); /* incomplete var_env?? */
+  var bool to_compile = parse_dd(STACK_0);
   /* no docstring, please: */
   if (!nullp(value3))
     fehler_docstring(S(let),STACK_0);
@@ -678,7 +678,7 @@ LISPSPECFORM(let, 1,0,body)
 LISPSPECFORM(letstern, 1,0,body)
 { /* (LET* ({varspec}) {decl} {form}), CLTL p. 111 */
   /* separate {decl} {form} : */
-  var bool to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); /* incomplete var_env?? */
+  var bool to_compile = parse_dd(STACK_0);
   /* no docstring, please: */
   if (!nullp(value3))
     fehler_docstring(S(letstern),STACK_0);
@@ -723,7 +723,7 @@ LISPSPECFORM(letstern, 1,0,body)
 LISPSPECFORM(locally, 0,0,body)
 { /* (LOCALLY {decl} {form}), CLTL2 p. 221 */
   /* separate {decl} {form} : */
-  var bool to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); /* incomplete var_env?? */
+  var bool to_compile = parse_dd(STACK_0);
   /* please no docstring: */
   if (!nullp(value3))
     fehler_docstring(S(locally),STACK_0);
@@ -1101,7 +1101,7 @@ LISPSPECFORM(function_macro_let, 1,0,body)
 LISPSPECFORM(symbol_macrolet, 1,0,body)
 { /* (SYMBOL-MACROLET ({(var expansion)}) {decl} {form}), CLTL2 p. 155 */
   /* separate {decl} {form} : */
-  var bool to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); /* incomplete var_env?? */
+  var bool to_compile = parse_dd(STACK_0);
   /* please no docstring: */
   if (!nullp(value3))
     fehler_docstring(S(symbol_macrolet),STACK_0);
@@ -1740,7 +1740,7 @@ LISPSPECFORM(multiple_value_prog1, 1,0,body)
 LISPSPECFORM(multiple_value_bind, 2,0,body)
 { /* (MULTIPLE-VALUE-BIND ({var}) values-form {decl} {form}), CLTL p. 136 */
   /* separate {decl} {form} : */
-  var bool to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); /* incomplete var_env?? */
+  var bool to_compile = parse_dd(STACK_0);
   /* please no docstring: */
   if (!nullp(value3))
     fehler_docstring(S(multiple_value_bind),STACK_0);
