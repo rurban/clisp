@@ -202,7 +202,7 @@ local int mmap_zeromap (void* map_addr, uintL map_len);
       return 0;
     }
 
-local int mmap_zeromap (void* map_addr, uintL map_len);
+local int mmap_zeromap (void* map_addr, uintL map_len)
 {
   if (!VirtualAlloc(map_addr,map_len,MEM_COMMIT,PAGE_READWRITE)) {
     var DWORD errcode = GetLastError();
