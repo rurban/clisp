@@ -141,6 +141,9 @@ User visible changes
   See <http://clocc.sourceforge.net/clocc/src/gui/clue/> and
   <http://clisp.cons.org/impnotes.html#included-modules>.
 
+* Command line interface: allow multiple -x options.
+  New options -repl <http://clisp.cons.org/clisp.html#opt-repl>
+  and -v (--verbose) <http://clisp.cons.org/clisp.html#opt-verbose>.
 
 2.30 (2002-09-15)
 =================

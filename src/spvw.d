@@ -1275,6 +1275,10 @@ local void init_symbol_values (void) {
   define_variable(S(init_hooks),NIL);             # SYS::*INIT-HOOKS* := NIL
   define_variable(S(quiet),NIL);                  # SYS::*QUIET* := NIL
   define_variable(S(args),NIL);                   # EXT:*ARGS* := NIL
+  define_variable(S(load_compiling),NIL); /* *LOAD-COMPILING* := NIL */
+  define_variable(S(load_verbose),T); /* *LOAD-VERBOSE* := T */
+  define_variable(S(load_print),NIL); /* *LOAD-PRINT* := NIL */
+  define_variable(S(compile_print),NIL); /* *COMPILE-PRINT* := NIL */
   # for FOREIGN:
  #ifdef DYNAMIC_FFI
   define_constant(S(fv_flag_readonly),fixnum(fv_readonly));  # FFI::FV-FLAG-READONLY
@@ -1538,6 +1542,7 @@ nonreturning_function (local, usage, (int exit_code)) {
   printf(GETTEXTL(" -traditional  - traditional (undoes -ansi)" NLstring));
   printf(GETTEXTL(" -p package    - start in the package" NLstring));
   printf(GETTEXTL(" -C            - set *LOAD-COMPILING* to T" NLstring));
+  printf(GETTEXTL(" -v, --verbose - set *LOAD-PRINT* and *COMPILE-PRINT* to T" NLstring));
   printf(GETTEXTL(" -norc         - do not load the user ~/.clisprc file" NLstring));
   printf(GETTEXTL(" -i file       - load initfile (can be repeated)" NLstring));
   printf(GETTEXTL("Actions:" NLstring));
@@ -1718,6 +1723,7 @@ global int main (argc_t argc, char* argv[]) {
   var local bool argv_developer = false;
   var local char* argv_memfile = NULL;
   var local bool argv_load_compiling = false;
+  var local bool argv_verbose = false;
   var local uintL argv_init_filecount = 0;
   var local bool argv_compile = false;
   var local bool argv_compile_listing = false;
@@ -1754,6 +1760,7 @@ global int main (argc_t argc, char* argv[]) {
   #   -norc           do not load the user ~/.clisprc file
   #   -I              ILISP-friendly
   #   -C              set *LOAD-COMPILING* to T
+  #   -v --verbose    set *LOAD-PRINT* and *COMPILE-PRINT* to T
   #   -i file ...     load LISP-file for initialization
   #   -c file ...     compile LISP-files, then leave LISP
   #   -l              At compilation: create listings
@@ -1921,6 +1928,10 @@ global int main (argc_t argc, char* argv[]) {
             argv_load_compiling = true;
             if (arg[2] != '\0') usage (1);
             break;
+          case 'v': /* set *LOAD-PRINT* & *COMPILE-PRINT* */
+            argv_verbose = true;
+            if (!asciz_equal(&arg[1],"verbose") && arg[2] != '\0') usage (1);
+            break;
           case 'r': /* -repl */
             if (asciz_equal(&arg[1],"repl"))
               argv_repl = true;
@@ -2018,6 +2029,8 @@ global int main (argc_t argc, char* argv[]) {
               argv_quiet = true; break;
             } else if (asciz_equal(&arg[2],"license")) {
               argv_license = true; break;
+            } else if (asciz_equal(&arg[2],"verbose")) {
+              argv_verbose = true; break;
             } else
               usage (1); # unknown option
             break;
@@ -2748,6 +2761,8 @@ global int main (argc_t argc, char* argv[]) {
   }
   if (argv_load_compiling) # (SETQ *LOAD-COMPILING* T) :
     { Symbol_value(S(load_compiling)) = T; }
+  if (argv_verbose) /* (setq *load-print* t *compile-print* t) */
+    Symbol_value(S(load_print)) = Symbol_value(S(compile_print)) = T;
   if (argv_developer) { /* developer mode */
     /* unlock all packages */
     var object packlist = O(all_packages);
