@@ -165,6 +165,10 @@ rl_signal_handler (sig)
 #  endif /* HAVE_BSD_SIGNALS */
 #endif /* !HAVE_POSIX_SIGNALS */
 
+#if defined (__EMX__)
+      signal (sig, SIG_ACK);
+#endif
+
       kill (getpid (), sig);
 
       /* Let the signal that we just sent through.  */

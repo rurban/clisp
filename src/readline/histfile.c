@@ -102,7 +102,11 @@ history_filename (filename)
   return_val = xmalloc (2 + home_len + 8); /* strlen(".history") == 8 */
   strcpy (return_val, home);
   return_val[home_len] = '/';
+#if defined(__MSDOS__) || defined(__EMX__)
+  strcpy (return_val + home_len + 1, "!history");
+#else
   strcpy (return_val + home_len + 1, ".history");
+#endif
 
   return (return_val);
 }

@@ -319,9 +319,20 @@ _rl_init_terminal_io (terminal_name)
   if (tgetent (term_buffer, term) <= 0)
     {
       dumb_term = 1;
-      screenwidth = 79;
-      screenheight = 24;
-      screenchars = 79 * 24;
+#if defined(__EMX__)
+      {
+        int screensize[2];
+        _scrsize(screensize);
+        screenwidth = screensize[0] - 1;
+        screenheight = screensize[1];
+      }
+      if (screenwidth <= 0 || screenheight <= 0)
+#endif
+      {
+        screenwidth = 79;
+        screenheight = 24;
+      }
+      screenchars = screenwidth * screenheight;
       term_cr = "\r";
       term_im = term_ei = term_ic = term_IC = (char *)NULL;
       term_up = term_dc = term_DC = visible_bell = (char *)NULL;

@@ -42,7 +42,11 @@
 #define PREFIX_META_HACK
 
 /* The final, last-ditch effort file name for an init file. */
+#if defined(__MSDOS__) || defined(__EMX__)
+#define DEFAULT_INPUTRC "/!inputrc"
+#else
 #define DEFAULT_INPUTRC "~/.inputrc"
+#endif
 
 /* If defined, expand tabs to spaces. */
 #define DISPLAY_TABS

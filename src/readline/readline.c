@@ -54,11 +54,6 @@
 /* System-specific feature definitions and include files. */
 #include "rldefs.h"
 
-#if defined (__EMX__)
-#  define INCL_DOSPROCESS
-#  include <os2.h>
-#endif /* __EMX__ */
-
 /* Some standard library routines. */
 #include "readline.h"
 #include "history.h"
@@ -605,39 +600,10 @@ rl_initialize ()
   return 0;
 }
 
-#if defined (__EMX__)
-static void
-_emx_build_environ ()
-{
-  TIB *tibp;
-  PIB *pibp;
-  char *t, **tp;
-  int c;
-
-  DosGetInfoBlocks (&tibp, &pibp);
-  t = pibp->pib_pchenv;
-  for (c = 1; *t; c++)
-    t += strlen (t) + 1;
-  tp = environ = (char **)xmalloc ((c + 1) * sizeof (char *));
-  t = pibp->pib_pchenv;
-  while (*t)
-    {
-      *tp++ = t;
-      t += strlen (t) + 1;
-    }
-  *tp = 0;
-}
-#endif /* __EMX__ */
-
 /* Initialize the entire state of the world. */
 static void
 readline_initialize_everything ()
 {
-#if defined (__EMX__)
-  if (environ == 0)
-    _emx_build_environ ();
-#endif
-
   /* Find out if we are running in Emacs. */
   running_in_emacs = get_env_value ("EMACS") != (char *)0;
 
