@@ -159,7 +159,7 @@ hostname=`(hostname || uname -n) 2>/dev/null | sed 1q`
 srcdir=''
 prefix=''
 exec_prefix=''
-fsstnd=gnu_ext # supported styles: gnu, gnu_ext, suse, redhat, debian, *bsd
+fsstnd='' # supported styles: gnu, gnu_ext, suse, redhat, debian, *bsd
 MODULES=''
 CP='cp -p'
 LN_S='ln -s'
@@ -1670,6 +1670,14 @@ if [ ${TSYS} = win32gcc ]; then
   echol "PATH=/bin:."
   echol
 fi
+
+if -z "$fsstnd"; then           # default fsstnd depends on the OS
+  case ${HSYSOS} in
+    cygwin | win32gcc )  fsstnd=redhat; ;; # cygwin == redhat!
+    * ) fsstnd=gnu_ext; ;;
+  esac
+fi
+
 echol '# Directories used by "make install":'
 echol "prefix = ${PREFIX}"
 echol "exec_prefix = ${EXEC_PREFIX}"
