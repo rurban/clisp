@@ -8,18 +8,18 @@
 ;;;                                 Debugger
 
 ;; Number of active break-loops (Fixnum >=0)
-(defvar *break-count* 0)                
+(defvar *break-count* 0)
 
 ;; Defines how many frames will be displayed.
 ;; Initially nil, this means all frames will be printed.
-(defvar *debug-print-frame-limit* nil)  
+(defvar *debug-print-frame-limit* nil)
 
-                                        
+
 ;; Counter to avoid infinite recursion due to*error-output
-(defvar *recurse-count-error-output* 0) 
+(defvar *recurse-count-error-output* 0)
 
 ;; Counter to avoid infinite recursion due to *debug-io*
-(defvar *recurse-count-debug-io* 0)     
+(defvar *recurse-count-debug-io* 0)
 
 
 ;; Returns the shortest (nick)name of the package.
@@ -91,7 +91,7 @@ If anything else, printed.")
   (let ((frame (the-frame)))
     (let ((*frame-limit1* nil)
           (*frame-limit2* nil))
-      (dotimes (i frames-to-skip) (setq frame (frame-up-1 frame 1))))   
+      (dotimes (i frames-to-skip) (setq frame (frame-up-1 frame 1))))
     frame))
 
 (defun frame-limit2 ()
@@ -170,7 +170,7 @@ If anything else, printed.")
         (return)))
     (throw 'debug 'continue)))
 
-  
+
 (defun debug-backtrace-1 () (debug-backtrace 1))
 (defun debug-backtrace-2 () (debug-backtrace 2))
 (defun debug-backtrace-3 () (debug-backtrace 3))
@@ -211,7 +211,7 @@ If anything else, printed.")
    (ENGLISH "
 Help (abbrev :h) this list Use the usual editing capabilities.(quit)
 or (exit) leaves CLISP.")
-   
+
    (cons "Help"         #'debug-help)
    (cons ":h"           #'debug-help)))
 
@@ -334,9 +334,9 @@ Continue       :c      switch off single step mode, continue evaluation
    (cons ":su"          #'(lambda () (throw 'stepper (values 'into t))))
    (cons "Next-until"   #'(lambda () (throw 'stepper (values 'over t))))
    (cons ":nu"          #'(lambda () (throw 'stepper (values 'over t))))
-   (cons "Over-until"   #'(lambda () (throw 'stepper 
+   (cons "Over-until"   #'(lambda () (throw 'stepper
                                        (values 'over-this-level t))))
-   (cons ":ou"          #'(lambda () (throw 'stepper 
+   (cons ":ou"          #'(lambda () (throw 'stepper
                                        (values 'over-this-level t))))
    (cons "Continue-until" #'(lambda () (throw 'stepper (values 'continue t))))
    (cons ":cu"          #'(lambda () (throw 'stepper (values 'continue t))))))
@@ -363,7 +363,7 @@ Continue       :c      switch off single step mode, continue evaluation
 
 (defun break-loop (continuable &optional (condition nil) (print-it nil)
                    &aux
-                   (may-continue 
+                   (may-continue
                     (or continuable
                         (and condition (find-restart 'continue condition))))
                    (interactive-p (interactive-stream-p *debug-io*))
@@ -386,7 +386,7 @@ Continue       :c      switch off single step mode, continue evaluation
 
     (if may-continue
       (progn
-        (write-string "** - Continuable Error:" *error-output*)
+        (write-string "** - Continuable Error" *error-output*)
         (terpri *error-output*) )
       (write-string "*** - " *error-output*))
 
@@ -407,8 +407,8 @@ Continue       :c      switch off single step mode, continue evaluation
           (write-string (ENGLISH "You can continue (by typing 'continue').")
                         *debug-io*))
         (progn
+          (terpri *debug-io*)
           (when interactive-p
-            (terpri *debug-io*)
             (write-string (ENGLISH "If you continue (by typing 'continue'): ")
                           *debug-io*))
           (princ may-continue *debug-io*)))))
@@ -425,7 +425,7 @@ Continue       :c      switch off single step mode, continue evaluation
             *debug-io*))
         (let ((counter 0))
           (dolist (restart restarts)
-            (let* ((command 
+            (let* ((command
                     (string-concat "R" (sys::decimal-string (incf counter))))
                    (helpstring (string-concat "
 " command " = " (princ-to-string restart))))
@@ -445,7 +445,7 @@ Continue       :c      switch off single step mode, continue evaluation
   (force-output *debug-io*)
 
   (tagbody
-    (clear-input *debug-io*)             ; because the user didn't expect a break loop
+    (clear-input *debug-io*)    ; because the user didn't expect a break loop
     (let* ((*break-count* (1+ *break-count*))
            (stream (make-synonym-stream '*debug-io*))
            (*standard-input* stream)
@@ -468,8 +468,8 @@ Continue       :c      switch off single step mode, continue evaluation
             (case
                 (catch 'debug             ; catch (throw 'debug ...) and analyse
 
-                  ;; build environment *debug-frame* that is valid/equal for/to *debug-frame* 
-                  (same-env-as *debug-frame*                             
+                  ;; build environment *debug-frame* that is valid/equal for/to *debug-frame*
+                  (same-env-as *debug-frame*
                     #'(lambda ()
                         (if    ; read-eval-print INPUT-line
                             (read-eval-print
@@ -563,13 +563,13 @@ Continue       :c      switch off single step mode, continue evaluation
         (write form #|:stream *debug-io*|# :length 4 :level 3)
         (loop
           (multiple-value-bind (what watchp)
-              (catch 'stepper		
+              (catch 'stepper
                 ;; catch the (throw 'stepper ...) and analyse ...
-                (driver			
+                (driver
                   ;;  build driver frame and repeat #'lambda (infinitely ...)
                   #'(lambda ()
                       (case
-                          (catch 'debug	
+                          (catch 'debug
                             ;; catch the (throw 'debug ...) and analyse
                             (same-env-as *debug-frame*
                               ;; build environment *debug-frame* that
@@ -593,7 +593,7 @@ Continue       :c      switch off single step mode, continue evaluation
                         ))))
             (when watchp
               (let ((form (read-form (ENGLISH "condition when to stop: "))))
-                (setq *step-watch*	
+                (setq *step-watch*
                         ;; Funktion, that evaluates 'form' in/with *debug-frame*
                         (eval-at *debug-frame*
                                  `(function (lambda () ,form))))))
