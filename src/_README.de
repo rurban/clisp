@@ -420,7 +420,7 @@ CLISP läuft auch in der DOS-Box von Microsoft Windows 3.1.
 Dazu sind folgende zusätzliche Schritte notwendig:
 
 1. Besorgen Sie sich
-     ftp://ftp2.cons.org/pub/lisp/clisp/binaries/dos/clisp.zip
+     ftp://clisp.cons.org/pub/lisp/clisp/binaries/dos/clisp.zip
    und installieren Sie es, wie oben angegeben.
 
 2. Sollte rsx.exe nicht schon in clisp.zip vorhanden sein,
@@ -546,7 +546,7 @@ Quellen:
 --------
 
 Die Quellen von CLISP gibt es von
-     ftp://ftp2.cons.org/pub/lisp/clisp/source/clispsrc*
+     ftp://clisp.cons.org/pub/lisp/clisp/source/clispsrc*
 #ifdef UNIX_LINUX
 Die Quellen der jüngsten Distribution von CLISP für Linux findet man in
      ftp://sunsite.unc.edu/pub/Linux/devel/lang/lisp/clisp-source.tar.gz
@@ -556,14 +556,8 @@ Die Quellen der jüngsten Distribution von CLISP für Linux findet man in
 Mailing-Liste:
 --------------
 
-Für die Benutzer von CLISP gibt es eine Mailing-Liste. Sie ist das geeignete
-Korrespondenz-Forum für Fragen betreffend CLISP, Installationsprobleme,
-Fehlerbeschreibungen, Anwendungs-Pakete usw.
-
-Information über die Liste und wie man sie abonniert erhalten Sie, wenn Sie
-an listproc@clisp.cons.org eine Mail des folgenden Inhalts schicken:
-          help
-          information clisp-list
+Für die Benutzer von CLISP gibt es drei Mailing-Listen. Sie finden
+Abonnier-Informationen und Archive auf der Homepage http://clisp.cons.org/.
 
 
 Dank:
@@ -605,7 +599,7 @@ Autoren:
         Bruno Haible
         Michael Stoll
 
-Email: haible@clisp.cons.org
+Email: clisp-list@lists.sourceforge.net
 #ifdef AMIGAOS
 
 Portierung für den Amiga:

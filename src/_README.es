@@ -438,7 +438,7 @@ CLISP también se ejecuta en una ventana de DOS bajo Microsoft Windows
 3.1. Para ello, es necesario llevar a cabo los siguientes pasos:
 
 1. Consiga e instale
-     ftp://ftp2.cons.org/pub/lisp/clisp/binaries/dos/clisp.zip
+     ftp://clisp.cons.org/pub/lisp/clisp/binaries/dos/clisp.zip
    tal y como se describe más arriba.
 
 2. Si RSX.EXE no está ya en el fichero CLISP.ZIP, consiga e instálelo
@@ -574,7 +574,7 @@ Código fuente:
 --------------
 
 El código fuente de CLISP está disponible en
-     ftp://ftp2.cons.org/pub/lisp/clisp/source/clispsrc*
+     ftp://clisp.cons.org/pub/lisp/clisp/source/clispsrc*
 #ifdef UNIX_LINUX
 La última distribución binaria de CLISP para Linux tiene su propio
 código fuente en
@@ -582,18 +582,19 @@ código fuente en
 #endif
 
 
+#if 0
+<<<Mailing lists:>>>
+#endif
 Lista de correo:
 ----------------
 
+#if 0
 Hay una lista de correo para los usuarios de CLISP. Ése es el foro
 adecuado para cualquier cuestión relacionada con CLISP, problemas de
 instalación, errores, paquetes de aplicaciones, etc.
-
-Para cualquier información relacionada con la lista y cómo suscribirse
-a ella, envíe un mensaje a listproc@clisp.cons.org, con las dos líneas
-          help
-          information clisp-list
-en el cuerpo del mensaje.
+#endif
+<<<There are three mailing lists for users of CLISP. You find subscription
+information and archives on the homepage http://clisp.cons.org/.>>>
 
 
 Agradecimientos:
@@ -635,7 +636,7 @@ Autores:
         Bruno Haible
         Michael Stoll
 
-Email: haible@clisp.cons.org
+Email: clisp-list@lists.sourceforge.net
 #ifdef AMIGAOS
 
 Migración a Amiga por:
