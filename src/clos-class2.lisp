@@ -1301,7 +1301,7 @@
                 :names names
                 :slots slots
                 :size (if all-slots
-                        (1+ (sys::ds-slot-offset (car (last all-slots))))
+                        (1+ (slot-definition-location (car (last all-slots))))
                         1)))))))
 (defun undefine-structure-class (name)
   (setf (find-class name) nil))
