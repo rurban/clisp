@@ -597,6 +597,11 @@ else
   PARENT_M="$PARENT_"
   NEXT_M="$NEXT_"
 fi
+# maybe convert the cygwin cygdrive pathnames
+if [ ${HSYS} != win32gcc ]; then PWDCMD='`pwd`';
+else DEVPREFIX=`(cd c:; pwd | sed 's,^/\([a-z]*\)/.*,\1,')`;
+  PWDCMD='`pwd|sed '"'s,^/${DEVPREFIX}/\\(.\\),\1:,'"'`';
+fi
 HERE_='`pwd`'"${NEXT_}"
 
 if [ $H_DOS = "true" ] ; then
@@ -2743,7 +2748,7 @@ for f in $LPARTS ; do
       echotab "chmod +w ${f}.lisp"
       echotab "echo '(setq *clhs-root-default* \"${hyperspec}/\")' >> ${f}.lisp"
       if [ ${TSYSOS} = cygwin32 ]; then
-        echotab "echo '(setq *device-prefix* \""`(cd c:; pwd | sed 's,^/\([a-z]*\)/.*,\1,')`"\")' >> ${f}.lisp"
+        echotab "echo '(setq *device-prefix* \"${DEVPREFIX}\")' >> ${f}.lisp"
       fi
     fi
     echol
@@ -2907,7 +2912,7 @@ if [ $CROSS = false ] ; then
 
   for f in $LPARTS ; do
     echol "${TESTDIR}${NEXT_M}${f}.lisp : ${f}.lisp"
-    if [ $HOS = unix ] ; then
+    if [ $H_DOS != "true" -a $HOS != acorn ] ; then
       echotab "cd ${TESTDIR} && \$(LN_S) ${PARENT_}${f}.lisp ${f}.lisp"
     else
       echotab "\$(LN_S) ${f}.lisp ${TESTDIR}"
@@ -3164,7 +3169,7 @@ echol
 
 if [ $CROSS = false ] ; then
   echol "clisp : clisp.c"
-  echotab "\$(CC) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"`pwd`\"' -DLOCALEDIR='\"`pwd`/locale\"' clisp.c -o clisp"
+  echotab "builddir=\"${PWDCMD}\"; \$(CC) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"'"\$\$builddir"'\"' -DLOCALEDIR='\"'"\$\$builddir/locale"'\"' clisp.c -o clisp"
   echol
   if [ $HOS = unix ] ; then
     echol "install : install-bin install-man install-doc"
