@@ -9,7 +9,7 @@ RM = rm -f
 SED = sed
 ROFF_MAN = groff -Tascii -mandoc
 
-all : avcall-i386-macro.S avcall-i386-msvc.c avcall-i386-mingw32.c avcall.h.msvc avcall.h.mingw32 avcall-m68k.mit.S avcall-m68k.mot.s avcall-m68k-amiga.s avcall-mips.S avcall-mipsn32.S avcall-mips64.S avcall-sparc.S avcall-sparc64.S avcall-alpha.s avcall-hppa.s avcall-arm.S avcall-rs6000-aix.old.s avcall-rs6000-aix.new.s avcall-rs6000-sysv4.s avcall-rs6000-macos.s avcall-m88k.s avcall-convex.s avcall-ia64.s avcall-x86_64.s avcall.man
+all : avcall-i386-macro.S avcall-i386-msvc.c avcall-i386-mingw32.c avcall.h.msvc avcall.h.mingw32 avcall-m68k.mit.S avcall-m68k.mot.s avcall-m68k-amiga.s avcall-mips.S avcall-mipsn32.S avcall-mips64.S avcall-sparc.S avcall-sparc64.S avcall-alpha.s avcall-hppa-hpux.s avcall-arm.S avcall-rs6000-aix.old.s avcall-rs6000-aix.new.s avcall-rs6000-sysv4.s avcall-rs6000-macos.s avcall-m88k.s avcall-convex.s avcall-ia64.s avcall-x86_64.s avcall.man
 
 avcall-i386-macro.S : avcall-i386.c avcall.h.in asmi386.sh
 	$(GCC) -V 2.7.2 -b i486-linuxaout $(GCCFLAGS) -D__i386__ -fno-omit-frame-pointer -S avcall-i386.c -o avcall-i386.s
@@ -71,9 +71,9 @@ avcall-alpha.s : avcall-alpha.c avcall.h.in
 	$(SED) -e '/ldgp/d' < avcall-alpha-temp.s > avcall-alpha.s
 	$(RM) avcall-alpha-temp.s
 
-avcall-hppa.s : avcall-hppa.c avcall.h.in
+avcall-hppa-hpux.s : avcall-hppa.c avcall.h.in
 	$(GCC) -V 2.6.3 -b hppa1.0-hpux $(GCCFLAGS) -D__hppa__ -S avcall-hppa.c -o avcall-hppa-temp.s
-	$(SED) -e 's/120/1060/g' < avcall-hppa-temp.s > avcall-hppa.s
+	$(SED) -e 's/120/1060/g' < avcall-hppa-temp.s > avcall-hppa-hpux.s
 	$(RM) avcall-hppa-temp.s
 
 avcall-arm.S : avcall-arm.c avcall.h.in asmarm.sh
