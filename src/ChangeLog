@@ -1,5 +1,16 @@
 2002-10-12  Sam Steingold  <sds@gnu.org>
 
+	As per <http://www.lisp.org/HyperSpec/Body/sec_11-1-2-1-1.html>,
+	external symbols in COMMON-LISP cannot have properties accessible
+	in COMMON-LISP-USER, so we have to move EXT:MACRO to SYS::MACRO
+	* init.lisp: do not export MACRO from EXT
+	* lispbibl.d: fixed comments
+	* describe.lisp (describe-object): EXT:MACRO --> SYS::MACRO
+	* constsym.d (macro): EXT --> SYS
+	* constobj.d (hs_macro): EXT --> SYS
+
+2002-10-12  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (DELETE-FILE): delete the argument, not its TRUENAME
 
 2002-10-12  Sam Steingold  <sds@gnu.org>

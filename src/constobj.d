@@ -304,7 +304,7 @@
   LISPOBJ(hs_special_operator,"EXT::SPECIAL-OPERATOR")
   LISPOBJ(hs_load_time_eval,"EXT::LOAD-TIME-EVAL")
   LISPOBJ(hs_symbol_macro,"EXT::SYMBOL-MACRO")
-  LISPOBJ(hs_macro,"EXT::MACRO")
+  LISPOBJ(hs_macro,"SYS::MACRO")
   LISPOBJ(hs_function_macro,"EXT::FUNCTION-MACRO")
   LISPOBJ(hs_encoding,"EXT::ENCODING")
   #ifdef FOREIGN

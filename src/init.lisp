@@ -298,7 +298,7 @@
    ;; pseudo-types:
    simple-2bit-vector 2bit-vector simple-4bit-vector 4bit-vector
    simple-8bit-vector 8bit-vector simple-16bit-vector 16bit-vector
-   simple-32bit-vector 32bit-vector special-form system-function macro
+   simple-32bit-vector 32bit-vector special-form system-function
    function-macro foreign-pointer symbol-macro symbol-macro-expand designator
    address special-operator finalize finalizer
    weak-pointer make-weak-pointer weak-pointer-p weak-pointer-value
