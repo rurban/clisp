@@ -145,11 +145,11 @@ local object N_N_contagion_R (object x, object y)
  warn_floating_point_rational_contagion();
  can trigger GC */
 local void warn_floating_point_rational_contagion (void) {
-  pushSTACK(CLSTEXT("Numerical operation combines exact and inexact numbers (rational numbers\n"
-                    "and floating-point numbers), and the mathematical result is exact.\n"
-                    "See ANSI CL 12.1.4.1 and the CLISP impnotes for details.\n"
-                    "The result's actual exactness is controlled by\n"
-                    "~S.\n"
+  pushSTACK(CLSTEXT("Numerical operation combines exact and inexact numbers "
+                    "(rational numbers and floating-point numbers), "
+                    "and the mathematical result is exact. "
+                    "See ANSI CL 12.1.4.1 and the CLISP impnotes for details. "
+                    "The result's actual exactness is controlled by ~S. "
                     "To shut off this warning, set ~S to ~S."));
   pushSTACK(S(floating_point_rational_contagion_ansi));
   pushSTACK(S(warn_on_floating_point_rational_contagion));
