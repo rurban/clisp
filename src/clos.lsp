@@ -2281,10 +2281,12 @@
          )) )
       (setf (sys::%record-ref gf 1) (sys::%record-ref preliminary 1))
       (setf (sys::%record-ref gf 2)
-            (let ((consts (sys::%record-ref preliminary 3)))
-               (setf (svref consts 0) (sys::%record-ref preliminary 2))
-               consts
-      )     )
+            (case (sys::%record-length preliminary)
+              (3 (sys::%record-ref preliminary 2))
+              (4 (let ((consts (sys::%record-ref preliminary 3)))
+                   (setf (svref consts 0) (sys::%record-ref preliminary 2))
+                   consts
+      )     ) )  )
 ) ) )
 
 ; Berechnet den Dispatch-Code einer generischen Funktion.
