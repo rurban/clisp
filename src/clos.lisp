@@ -27,6 +27,9 @@
   compiler::memq compiler::*keyword-package*         ; in compiler.lisp definiert
   compiler::%generic-function-lambda                 ; in compiler.lisp definiert
   compiler::%optimize-function-lambda                ; in compiler.lisp definiert
+  compiler::make-signature compiler::sig-req-num compiler::sig-opt-num
+  compiler::sig-rest-p compiler::sig-keys-p compiler::sig-keywords
+  compiler::sig-allow-p         ; defined in compiled.lisp
 ; clos:generic-flet clos:generic-labels              ; in compiler.lisp behandelt
   ;; Export:
 ; clos::closclass   ; als Property in predtype.d, type.lisp, compiler.lisp benutzt
@@ -1659,7 +1662,7 @@
                          ; werden soll (= NIL bei :BEFORE- und :AFTER-Methoden)
   parameter-specializers ; Liste ({class | (EQL object)}*)
   qualifiers             ; Liste von Symbolen, z.B. (:before)
-  signature              ; Liste (reqanz optanz restp keyp keywords allowp)
+  signature              ; signature struct (see sompiler.lisp)
   gf                     ; die generische Funktion, zu der diese Methode
                          ; gehört (nur für den Bedarf von CALL-NEXT-METHOD und
                          ; NO-NEXT-METHOD)
@@ -1719,7 +1722,7 @@
           ((equal qualifiers '(:after)))
           ((equal qualifiers '(:around)))
           (t (error-of-type 'sys::source-program-error
-               (ENGLISH "STANDARD method combination doesn't allow the method qualifiers to be ~S")
+               (ENGLISH "STANDARD method combination does not allow the method qualifiers to be ~S")
                (nreverse qualifiers)
     )     )  )
     ; Lambdaliste bilden, Parameter-Specializer und Signatur extrahieren:
@@ -1930,8 +1933,11 @@
                                ))
                                ,@lambdabody-part2
                             ))
-                          )
-                )) ) ) )
+                          )))))
+                 (sig (make-signature :req-num reqanz :opt-num optanz
+                                      :rest-p restp :keys-p keyp
+                                      :keywords keywords :allow-p allowp)))
+            (values
             `(MAKE-STANDARD-METHOD
                :INITFUNCTION
                  #'(LAMBDA (,self)
@@ -1943,8 +1949,8 @@
                :WANTS-NEXT-METHOD-P ',wants-next-method-p
                :PARAMETER-SPECIALIZERS (LIST ,@(nreverse req-specializer-forms))
                :QUALIFIERS ',qualifiers
-               :SIGNATURE '(,reqanz ,optanz ,restp ,keyp ,keywords ,allowp)
-             )
+               :SIGNATURE ,sig)
+            sig)
 ) ) ) ) ) )
 
 ;; 28.1.6.3. agreement on parameter specializers and qualifiers
@@ -2159,7 +2165,7 @@
 
 ; Aufruf einer generischen Funktion
 (defun slow-funcall-gf (gf &rest args)
-  (let ((reqanz (first (gf-signature gf)))
+  (let ((reqanz (sig-req-num (gf-signature gf)))
         (arg-order (gf-argorder gf))
         (methods (gf-methods gf)))
     (unless (>= (length args) reqanz)
@@ -2236,6 +2242,8 @@
 
 |#
 
+(defun gf-sig-restp (sig)
+  (or (sig-rest-p sig) (> (sig-opt-num sig) 0)))
 
 ;; Generische Funktionen mit optimiertem Dispatch:
 
@@ -2248,8 +2256,8 @@
 (let ((prototype-table (make-hash-table :test #'equal)))
   (defun finalize-fast-gf (gf)
     (let* ((signature (gf-signature gf))
-           (reqanz (first signature))
-           (restp (or (third signature) (> (second signature) 0)))
+           (reqanz (sig-req-num signature))
+           (restp (gf-sig-restp signature))
            (hash-key (cons reqanz restp))
            (prototype
              (or (gethash hash-key prototype-table)
@@ -2272,8 +2280,8 @@
   ) )
   (defun gf-never-called-p (gf)
     (let* ((signature (gf-signature gf))
-           (reqanz (first signature))
-           (restp (or (third signature) (> (second signature) 0)))
+           (reqanz (sig-req-num signature))
+           (restp (gf-sig-restp signature))
            (hash-key (cons reqanz restp))
            (prototype (gethash hash-key prototype-table)))
       (eq (sys::%record-ref gf 1) prototype)
@@ -2340,9 +2348,9 @@
 ; %GENERIC-FUNCTION-LAMBDA automatisch.
 (defun compute-dispatch (gf)
   (let* ((signature (gf-signature gf))
-         (req-anz (first signature))
+         (req-anz (sig-req-num signature))
          (req-vars (n-gensyms req-anz))
-         (restp (or (third signature) (> (second signature) 0)))
+         (restp (gf-sig-restp signature))
          (rest-var (if restp (gensym)))
          (apply-fun (if restp 'APPLY 'FUNCALL))
          (apply-args `(,@req-vars ,@(if restp `(,rest-var) '())))
@@ -2677,18 +2685,18 @@
           (cons (cons (cons (cons t1 t2) (cons t3 t4)) (cons (cons t5 t6) (cons t7 t8))) (cons (cons (cons t9 t10) (cons t11 t12)) (cons (cons t13 t14) more-t))) ))
 ) )
 
-; Berechnet die effektive Methode zu gegebenen Argumenten.
-; Es ist eigentlich die effektive Methode zu allen Argumenten, die dieselben
-; EQL- und Klassen-Einschränkungen haben wie die gegebenen Argumente, aber
-; darum hat sich compute-dispatch schon gekümmert.
+;;; Calculate the effective method for the given arguments.
+;;; It is actually the effective method for all arguments,
+;;; for the same EQL and class restrictions as the given arguments,
+;;; therefore compute dispatch is already taken case of.
 (defun compute-effective-method (gf &rest args)
   (tagbody restart-compute
     (return-from compute-effective-method
       (let* ((signature (gf-signature gf))
-             (req-anz (first signature))
+             (req-anz (sig-req-num signature))
              (req-vars (n-gensyms req-anz))
              (req-args (subseq args 0 req-anz))
-             (restp (or (third signature) (> (second signature) 0)))
+             (restp (gf-sig-restp signature))
              (rest-var (if restp (gensym)))
              (apply-fun (if restp 'APPLY 'FUNCALL))
              (apply-args `(,@req-vars ,@(if restp `(,rest-var) '())))
@@ -2698,63 +2706,60 @@
              (lambdalist-keypart '())
              (arg-order (gf-argorder gf))
              (methods (gf-methods gf)))
-        ; Determine the effective method:
-        ; 1. Select the applicable methods:
+        ;; Determine the effective method:
+        ;; 1. Select the applicable methods:
         (setq methods
-          (remove-if-not #'(lambda (method) (method-applicable-p method req-args))
-                         methods
-        ) )
+              (remove-if-not #'(lambda (method)
+                                 (method-applicable-p method req-args))
+                             methods))
         (when (null methods)
           (apply #'no-applicable-method gf args)
-          (go restart-compute)
-        )
+          (go restart-compute))
         ; 28.1.6.4., 28.1.6.5.: Keyword arguments in generic functions
         (when restp
-          ; Die generische Funktion hat &REST oder &KEY, also auch alle Methoden.
-          ; "If the lambda-list of ... the generic function definition contains
-          ;  &allow-other-keys, all keyword arguments are accepted."
-          (unless (fifth signature)
-            ; "The specific set of keyword arguments accepted ... varies according
-            ;  to the applicable methods."
+          ;; The generic function has &REST or &KEY, thus try all methods.
+          ;; "If the lambda-list of ... the generic function definition
+          ;;  contains &allow-other-keys, all keyword arguments are accepted."
+          (unless (sig-allow-p signature)
+            ;; "The specific set of keyword arguments accepted ...
+            ;;  varies according to the applicable methods."
             (let ((signatures (mapcar #'std-method-signature methods)))
-              ; "A method that has &rest but not &key does not affect the set of
-              ;  acceptable keyword arguments."
-              (setq signatures (delete-if-not #'fourth signatures))
-              ; Keine Methode mit &key -> keine Einschränkung der Argumente.
+              ;; "A method that has &rest but not &key does not affect the
+              ;;   set of acceptable keyword arguments."
+              (setq signatures (delete-if-not #'sig-keys-p signatures))
+              ;; No method with &key ==> no restriction on the arguments
               (unless (null signatures)
-                ; "If the lambda-list of any applicable method ... contains
-                ;  &allow-other-keys, all keyword arguments are accepted."
-                (unless (some #'sixth signatures)
-                  ; "The set of keyword arguments accepted for a particular call
-                  ;  is the union of the keyword arguments accepted by all
-                  ;  applicable methods and the keyword arguments mentioned after
-                  ;  &key in the generic function definition."
+                ;; "If the lambda-list of any applicable method ... contains
+                ;;  &allow-other-keys, all keyword arguments are accepted."
+                (unless (some #'sig-allow-p signatures)
+                  ;; "The set of keyword arguments accepted for a
+                  ;;  particular call is the union of the keyword
+                  ;;  arguments accepted by all applicable methods and
+                  ;;  the keyword arguments mentioned after &key in the
+                  ;;  generic function definition."
                   (let ((keywords
-                          (remove-duplicates
-                            (append (fourth signature) (mapcap #'fifth signatures))
-                            :from-end t
-                       )) )
-                    (setq opt-vars (n-gensyms (second signature)))
+                         (remove-duplicates
+                          (append (sig-keywords signature)
+                                  (mapcap #'sig-keywords signatures))
+                            :from-end t)))
+                    (setq opt-vars (n-gensyms (sig-opt-num signature)))
                     (setq key-vars (n-gensyms (length keywords)))
                     (setq lambdalist-keypart
                           `(&KEY
                             ,@(mapcar #'(lambda (kw var) `((,kw ,var)))
-                                      keywords key-vars
-                              )
-                           )
-        ) ) ) ) ) ) )
-        ; 2. Sort the applicable methods by precedence order:
+                                      keywords key-vars)))))))))
+        ;; 2. Sort the applicable methods by precedence order:
         (setq methods (sort-applicable-methods methods req-args arg-order))
-        ; 3. Apply method combination:
-        ; Nur STANDARD Methoden-Kombination ist implementiert.
-        ; Aufspalten in einzelne Methoden-Typen:
-        (multiple-value-bind (primary-methods before-methods after-methods around-methods)
+        ;; 3. Apply method combination:
+        ;; only the STANDARD method combination is implemented.
+        ;; split up into individual method types.
+        (multiple-value-bind
+              (primary-methods before-methods after-methods around-methods)
             (partition-method-list methods)
           (when (null primary-methods)
             (apply #'no-primary-method gf args)
-            (go restart-compute)
-          )
-          ; Methoden zu einer "effektiven Methode" kombinieren:
+            (go restart-compute))
+          ;; combine methods into an "effectiven method":
           (labels ((ef-1 (primary-methods before-methods after-methods around-methods)
                      (if (null around-methods)
                        (ef-2 primary-methods before-methods after-methods)
@@ -2873,41 +2878,33 @@
 ; Hinzufügen einer Methode zu einer generischen Funktion:
 (defun std-add-method (gf method)
   ; 28.1.6.4. congruent lambda lists
-  (let ((gf-sign (gf-signature gf))             ; (reqanz optanz restp keywords allowp)
-        (m-sign (std-method-signature method))) ; (reqanz optanz restp keyp keywords allowp)
-    (unless (= (first m-sign) (first gf-sign))
+  (let ((gf-sign (gf-signature gf))
+        (m-sign (std-method-signature method)))
+    (unless (= (sig-req-num m-sign) (sig-req-num gf-sign))
       (error-of-type 'error
-        (ENGLISH "~S has ~S, but ~S has ~S required parameters")
-        method (first m-sign) gf (first gf-sign)
-    ) )
-    (unless (= (second m-sign) (second gf-sign))
+        (ENGLISH "~S has ~D, but ~S has ~D required parameter~:P")
+        method (sig-req-num m-sign) gf (sig-req-num gf-sign)))
+    (unless (= (sig-opt-num m-sign) (sig-opt-num gf-sign))
       (error-of-type 'error
-        (ENGLISH "~S has ~S, but ~S has ~S optional parameters")
-        method (second m-sign) gf (second gf-sign)
-    ) )
-    (when (and (third m-sign) (not (third gf-sign)))
+        (ENGLISH "~S has ~D, but ~S has ~D optional parameter~:P")
+        method (sig-opt-num m-sign) gf (sig-opt-num gf-sign)))
+    (when (and (sig-rest-p m-sign) (not (sig-rest-p gf-sign)))
       (error-of-type 'error
-        (ENGLISH "~S has &REST or &KEY, but ~S hasn't.")
-        method gf
-    ) )
-    (when (and (third gf-sign) (not (third m-sign)))
+        (ENGLISH "~S accepts &REST or &KEY, but ~S does not.")
+        method gf))
+    (when (and (sig-rest-p gf-sign) (not (sig-rest-p m-sign)))
       (error-of-type 'error
-        (ENGLISH "~S has &REST or &KEY, but ~S hasn't.")
-        gf method
-    ) )
-    (when (fourth gf-sign) ; gf hat Keywords?
-      ; ja -> Methode muss sie akzeptieren:
-      (unless (if (fourth m-sign) ; Methode hat &key ?
-                (or (sixth m-sign) ; Methode muss &allow-other-keys haben oder
-                    (subsetp (fourth gf-sign) (fifth m-sign)) ; die Keywords aufzählen
-                )
-                (third m-sign) ; Methode muss &rest haben!
-              )
+        (ENGLISH "~S accepts &REST or &KEY, but ~S does not.")
+        gf method))
+    (when (sig-keys-p gf-sign) ; gf has keywords?
+      ;; yes ==> method must accept it
+      (unless (if (sig-keys-p m-sign)
+                  (or (sig-allow-p m-sign) ; keywords match
+                      (subsetp (sig-keywords gf-sign) (sig-keywords m-sign)))
+                  (sig-rest-p m-sign)) ; method must have &rest!
         (error-of-type 'error
-          (ENGLISH "~S doesn't accept the keywords ~S of ~S")
-          method (fourth gf-sign) gf
-    ) ) )
-  )
+          (ENGLISH "~S does not accept the keywords ~S of ~S")
+          method (sig-keywords gf-sign) gf))))
   ; method kopieren, damit man gf eintragen kann:
   (when (std-method-wants-next-method-p method)
     (setq method (copy-standard-method method))
@@ -2995,12 +2992,11 @@
       (ENGLISH "~S: the name of a function must be a symbol, not ~S")
       'defmethod funname
   ) )
-  `(LET ()
-     (EVAL-WHEN (COMPILE) (COMPILER::C-DEFUN ',funname))
-     (DO-DEFMETHOD ',funname
-       ,(analyze-method-description 'defmethod funname method-description env)
-   ) )
-)
+  (multiple-value-bind (method sig)
+      (analyze-method-description 'defmethod funname method-description env)
+    `(LET ()
+      (EVAL-WHEN (COMPILE) (COMPILER::C-DEFUN ',funname ,sig))
+      (DO-DEFMETHOD ',funname ,method))))
 
 (defun do-defmethod (funname method)
   (std-add-method
@@ -3009,23 +3005,19 @@
         (if (clos::generic-function-p gf)
           gf
           (error-of-type 'error
-            (ENGLISH "~S doesn't name a generic function")
+            (ENGLISH "~S does not name a generic function")
             funname
       ) ) )
       (setf (fdefinition funname)
             (let ((signature (std-method-signature method)))
               (make-fast-gf funname
-                            ; GF-Signatur aus der Methoden-Signatur bestimmen:
-                            (list (first signature) ; reqanz
-                                  (second signature) ; optanz
-                                  (third signature) ; restp
-                                  '() ; keywords
-                                  nil ; allowp
-                            )
-                            ; argorder := (0 ... reqanz-1)
-                            (countup (first signature))
-      )     ) )
-    )
+                            ;; GF signature <== method signature
+                            (make-signature
+                             :req-num (sig-req-num signature)
+                             :opt-num (sig-opt-num signature)
+                             :rest-p (sig-rest-p signature))
+                            ;; argorder := (0 ... reqanz-1)
+                            (countup (sig-req-num signature))))))
     method
   )
   method
@@ -3053,7 +3045,7 @@
       caller funname lambdalist
   ) )
   ; Lambdaliste parsen:
-  (multiple-value-bind (reqanz req-vars optanz restp keywords allowp)
+  (multiple-value-bind (reqanz req-vars optanz restp keyp keywords allowp)
       (analyze-defgeneric-lambdalist caller funname lambdalist)
     ; Optionen abarbeiten:
     (let ((method-forms '())
@@ -3160,8 +3152,9 @@
                 )
                 (countup reqanz)
            )) )
-        (values ; Signatur
-                `(,reqanz ,optanz ,restp ,keywords ,allowp)
+        (values (make-signature :req-num reqanz :opt-num optanz
+                                :rest-p restp :keys-p keyp
+                                :keywords keywords :allow-p allowp)
                 ; argorder
                 argorder
                 ; Liste der Methoden-Formen
@@ -3172,7 +3165,7 @@
 ) ) ) )
 
 ; Lambdaliste parsen:
-; lambdalist --> reqanz, req-vars, optanz, restp, keywords, allowp
+; lambdalist --> reqanz, req-vars, optanz, restp, keyp, keywords, allowp
 (defun analyze-defgeneric-lambdalist (caller funname lambdalist)
   (let ((req-vars '())
         (optanz 0)
@@ -3223,7 +3216,7 @@
       )
       (when (and (consp lambdalist) (eq (first lambdalist) '&key))
         (pop lambdalist)
-        (setq restp t) ; &key impliziert &rest
+        (setq restp t keyp t) ; &key implies &rest
         (loop
           (when (or (atom lambdalist) (lambda-list-keyword-p (first lambdalist)))
             (return)
@@ -3248,14 +3241,13 @@
         caller funname lambdalist
     ) )
     (values (length req-vars) (nreverse req-vars) optanz
-            (or restp keyp) keywords allowp
-) ) )
+            restp keyp keywords allowp)))
 
 ; Lambdaliste in Aufrufkonvention umrechnen:
 (defun defgeneric-lambdalist-callinfo (caller funname lambdalist)
-  (multiple-value-bind (reqanz req-vars optanz restp keywords allowp)
+  (multiple-value-bind (reqanz req-vars optanz restp keyp keywords allowp)
       (analyze-defgeneric-lambdalist caller funname lambdalist)
-    (declare (ignore req-vars))
+    (declare (ignore req-vars keyp))
     (callinfo reqanz optanz restp keywords allowp)
 ) )
 
@@ -3266,7 +3258,7 @@
   (multiple-value-bind (signature argorder method-forms docstring)
       (analyze-defgeneric 'defgeneric funname lambda-list options env)
     `(LET ()
-       (EVAL-WHEN (COMPILE) (COMPILER::C-DEFUN ',funname))
+       (EVAL-WHEN (COMPILE) (COMPILER::C-DEFUN ',funname ',signature))
        ; NB: Kein (SYSTEM::REMOVE-OLD-DEFINITIONS ',funname)
        ,@(if docstring
            (let ((symbolform
@@ -3302,7 +3294,7 @@
             )
             (setf (gf-methods gf) nil)
           )
-          (unless (and (equal signature (gf-signature gf))
+          (unless (and (equalp signature (gf-signature gf))
                        (equal argorder (gf-argorder gf))
                   )
             (warn (ENGLISH "Modifying the parameter profile of ~S")
@@ -3316,7 +3308,7 @@
           gf
         )
         (error-of-type 'program-error
-          (ENGLISH "~S doesn't name a generic function")
+          (ENGLISH "~S does not name a generic function")
           funname
     ) ) )
     (setf (fdefinition funname)
@@ -3465,7 +3457,7 @@
 
 (defgeneric no-applicable-method (gf &rest args)
   (:method ((gf t) &rest args)
-    (let* ((reqanz (first (gf-signature gf)))
+    (let* ((reqanz (sig-req-num (gf-signature gf)))
            (methods (gf-methods gf))
            (dispatching-arg (single-dispatching-arg reqanz methods)))
       (if dispatching-arg
@@ -3482,7 +3474,7 @@
 
 (defgeneric no-primary-method (gf &rest args)
   (:method ((gf t) &rest args)
-    (let* ((reqanz (first (gf-signature gf)))
+    (let* ((reqanz (sig-req-num (gf-signature gf)))
            (methods (mapcan #'(lambda (method)
                                 (when (equal (std-method-qualifiers method) '())
                                   (list method)
@@ -3529,7 +3521,7 @@
 
 (defgeneric compute-applicable-methods (gf args)
   (:method ((gf standard-generic-function) args)
-    (let ((reqanz (first (gf-signature gf)))
+    (let ((reqanz (sig-req-num (gf-signature gf)))
           (methods (gf-methods gf)))
       (if (>= (length args) reqanz)
         (let ((req-args (subseq args 0 reqanz)))
@@ -3552,7 +3544,7 @@
 
 (defgeneric function-keywords (method)
   (:method ((method standard-method))
-    (values-list (cddddr (std-method-signature method)))
+    (values-list (sig-keywords (std-method-signature method)))
 ) )
 
 (defgeneric slot-missing (class instance slot-name operation &optional new-value)
@@ -3684,24 +3676,23 @@
       )
 ) ) )
 
-; Aus einer Liste von anwendbaren Methoden alle Keywords sammeln:
+;;; collect all keywords from a list of applicable methods
 (defun valid-initarg-keywords (class methods)
   (let ((signatures (mapcar #'std-method-signature methods)))
-    ; "A method that has &rest but not &key does not affect the set of
-    ;  acceptable keyword srguments."
-    (setq signatures (delete-if-not #'fourth signatures))
-    ; "The presence of &allow-other-keys in the lambda list of an applicable
-    ;  method disables validity checking of initialization arguments."
-    ; (ANSI CL section 7.1.2)
-    (if (some #'sixth signatures)
+    ;; "A method that has &rest but not &key does not affect the set of
+    ;;  acceptable keyword srguments."
+    (setq signatures (delete-if-not #'sig-keys-p signatures))
+    ;; "The presence of &allow-other-keys in the lambda list of an applicable
+    ;;  method disables validity checking of initialization arguments."
+    ;; (ANSI CL section 7.1.2)
+    (if (some #'sig-allow-p signatures)
       't
-      ; "The keyword name of each keyword parameter specified in the method's
-      ;  lambda-list becomes an initialization argument for all classes for
-      ;  which the method is applicable."
+      ;; "The keyword name of each keyword parameter specified in the method's
+      ;;  lambda-list becomes an initialization argument for all classes for
+      ;;  which the method is applicable."
       (remove-duplicates
-        (append (class-valid-initargs class) (mapcap #'fifth signatures))
-        :from-end t
-) ) ) )
+       (append (class-valid-initargs class) (mapcap #'sig-keywords signatures))
+       :from-end t))))
 
 ; NB: Beim Berechnen einer effektiven Methode kommt es auf die restlichen
 ; Argumente nicht an.
@@ -3787,8 +3778,7 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'standard-object) (find-class 't))
     :qualifiers '()
-    :signature '(2 0 t () () ())
-) )
+    :signature #s(compiler::signature :req-num 2 :rest-p t)))
 (do-defmethod 'shared-initialize
   (make-standard-method
     :initfunction #'(lambda (gf) (declare (ignore gf))
@@ -3797,8 +3787,7 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'structure-object) (find-class 't))
     :qualifiers '()
-    :signature '(2 0 t () () ())
-) )
+    :signature #s(compiler::signature :req-num 2 :rest-p t)))
 
 ; 28.1.12.
 (defgeneric reinitialize-instance (instance &rest initargs))
@@ -3846,8 +3835,7 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'standard-object))
     :qualifiers '()
-    :signature '(1 0 t () () ())
-) )
+    :signature #s(compiler::signature :req-num 1 :rest-p t)))
 (do-defmethod 'reinitialize-instance
   (make-standard-method
     :initfunction #'(lambda (gf) (declare (ignore gf))
@@ -3856,8 +3844,7 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'structure-object))
     :qualifiers '()
-    :signature '(1 0 t () () ())
-) )
+    :signature #s(compiler::signature :req-num 1 :rest-p t)))
 ; Beim ersten REINITIALIZE-INSTANCE-Aufruf einer jeden Klasse merkt man sich die
 ; benötigte Information in *reinitialize-instance-table*.
 (defun initial-reinitialize-instance (instance &rest initargs)
@@ -3931,8 +3918,7 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'standard-object))
     :qualifiers '()
-    :signature '(1 0 t () () ())
-) )
+    :signature #s(compiler::signature :req-num 1 :rest-p t)))
 (do-defmethod 'initialize-instance
   (make-standard-method
     :initfunction #'(lambda (gf) (declare (ignore gf))
@@ -3941,8 +3927,7 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'structure-object))
     :qualifiers '()
-    :signature '(1 0 t () () ())
-) )
+    :signature #s(compiler::signature :req-num 1 :rest-p t)))
 (defun initial-initialize-instance (instance &rest initargs)
   (let ((class (class-of instance)))
     (multiple-value-bind (valid-keywords ai-ef) (make-instance-table-entry1 class)
@@ -3983,8 +3968,7 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'standard-class))
     :qualifiers '()
-    :signature '(1 0 t () () ())
-) )
+    :signature #s(compiler::signature :req-num 1 :rest-p t)))
 (do-defmethod 'allocate-instance
   (make-standard-method
     :initfunction #'(lambda (gf) (declare (ignore gf))
@@ -3993,8 +3977,7 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'structure-class))
     :qualifiers '()
-    :signature '(1 0 t () () ())
-) )
+    :signature #s(compiler::signature :req-num 1 :rest-p t)))
 
 ; 28.1.9.7.
 (defgeneric make-instance (class &rest initargs)
@@ -4056,8 +4039,7 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'standard-class))
     :qualifiers '()
-    :signature '(1 0 t () () ())
-) )
+    :signature #s(compiler::signature :req-num 1 :rest-p t)))
 (do-defmethod 'make-instance
   (make-standard-method
     :initfunction #'(lambda (gf) (declare (ignore gf))
@@ -4066,8 +4048,7 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'structure-class))
     :qualifiers '()
-    :signature '(1 0 t () () ())
-) )
+    :signature #s(compiler::signature :req-num 1 :rest-p t)))
 (defun initial-make-instance (class &rest initargs)
   (multiple-value-bind (valid-keywords ai-ef) (make-instance-table-entry1 class)
     ; 28.1.9.2. validity of initialization arguments

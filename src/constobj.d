@@ -462,7 +462,7 @@
   LISPOBJ(lisp_implementation_version_string,"NIL") # ein Cache
   LISPOBJ(memory_image_timestamp,"NIL") # the dump date of the current image
   LISPOBJ(memory_image_host,"NIL") # the host on which this image was dumped
-  LISPOBJ(version,"(20010420)") # Date of last change of bytecode interpreter
+  LISPOBJ(version,"(20010503)") # Date of last change of bytecode interpreter
   #ifdef MACHINE_KNOWN
     LISPOBJ(machine_type_string,"NIL")
     LISPOBJ(machine_version_string,"NIL")
