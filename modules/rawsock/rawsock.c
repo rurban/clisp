@@ -91,7 +91,7 @@ static void* parse_buffer_arg (gcv_object_t *arg_, size_t *size) {
 }
 /* DANGER: the return value is invalidated by GC!
  can trigger GC */
-static void* check_struct_data (object type, object arg, size_t *size) {
+static void* check_struct_data (object type, object arg, socklen_t *size) {
   object vec = TheStructure(check_classname(arg,type))->recdata[1];
   *size = Sbvector_length(vec);
   return (void*)TheSbvector(vec)->data;
@@ -107,7 +107,7 @@ DEFUN(RAWSOCK:RESIZE-BUFFER,new-size) {
 }
 
 DEFUN(RAWSOCK:SOCKADDR-FAMILY, sa) {
-  size_t size;
+  socklen_t size;
   struct sockaddr *sa =
     (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,popSTACK(),&size);
   VALUES2(fixnum(sa->sa_family),fixnum(size));
@@ -227,7 +227,7 @@ DEFUN(RAWSOCK:SOCKETPAIR,domain type protocol) {
  DANGER: the return value is invalidated by GC!
  can trigger GC */
 void optional_sockaddr_argument (gcv_object_t *arg, struct sockaddr**sa,
-                                 size_t *size) {
+                                 socklen_t *size) {
   if (nullp(*arg)) *sa = NULL;
   else {
     if (eq(T,*arg)) *arg = make_sockaddr();
@@ -249,7 +249,7 @@ DEFUN(RAWSOCK:ACCEPT,socket sockaddr) {
 DEFUN(RAWSOCK:BIND,socket sockaddr) {
   rawsock_t sock = posfixnum_to_L(check_posfixnum(STACK_1));
   int retval;
-  size_t size;
+  socklen_t size;
   struct sockaddr *sa =
     (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,STACK_0,&size);
   /* no GC after this point! */
@@ -260,7 +260,7 @@ DEFUN(RAWSOCK:BIND,socket sockaddr) {
 DEFUN(RAWSOCK:CONNECT,socket sockaddr) {
   rawsock_t sock = posfixnum_to_L(check_posfixnum(STACK_1));
   int retval;
-  size_t size;
+  socklen_t size;
   struct sockaddr *sa =
     (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,STACK_0,&size);
   /* no GC after this point! */
@@ -343,7 +343,7 @@ DEFUN(RAWSOCK:RECVMSG,socket message &key MSG_PEEK MSG_OOB MSG_WAITALL) {
   int flags = recv_flags();
   rawsock_t sock = posfixnum_to_L(check_posfixnum(STACK_1));
   int retval;
-  size_t size;
+  socklen_t size;
   struct msghdr *message =
     (struct msghdr*)check_struct_data(`RAWSOCK::MSGHDR`,STACK_0,&size);
   SYSCALL(retval,sock,recvmsg(sock,message,flags));
@@ -380,7 +380,7 @@ DEFUN(RAWSOCK:SENDMSG,socket message &key MSG_OOB MSG_EOR) {
   int flags = send_flags();
   rawsock_t sock = posfixnum_to_L(check_posfixnum(STACK_1));
   int retval;
-  size_t size;
+  socklen_t size;
   struct msghdr *message =
     (struct msghdr*)check_struct_data(`RAWSOCK::MSGHDR`,STACK_0,&size);
   SYSCALL(retval,sock,sendmsg(sock,message,flags));
@@ -394,7 +394,8 @@ DEFUN(RAWSOCK:SENDTO, socket buffer address &key MSG_OOB MSG_EOR) {
   int retval;
   struct sockaddr *sa;
   void *buffer;
-  size_t buffer_len, size;
+  size_t buffer_len;
+  socklen_t size;
   STACK_1 = check_buffer_arg(STACK_1);
   sa = (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,STACK_0,&size);
   /* no GC after this point! */
