@@ -3,7 +3,8 @@
 
 DTDVER=4.1.2
 IMPNOTES=impnotes.dsl cl-ent.xml clhs-ent.xml impbody.xml impent.xml \
-	impext.xml impissue.xml impbyte.xml ../modules/regexp/regexp.xml
+	impext.xml impissue.xml impbyte.xml unix-ent.xml \
+	../modules/regexp/regexp.xml
 RM=/bin/rm -f
 # DOC=$(shell pwd)
 
