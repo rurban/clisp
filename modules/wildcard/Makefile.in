@@ -13,7 +13,6 @@ MAKE = make
 SHELL = /bin/sh
 
 DISTRIBFILES = wildcard.o fnmatch.o link.sh Makefile README wildcard.lsp wildcard.texinfo wildcard.dvi
-WDISTRIBFILES = $(DISTRIBFILES) wwildcard.o
 distribdir =
 
 all : wildcard.o fnmatch.o
@@ -24,23 +23,15 @@ wildcard.c : wildcard.lsp
 wildcard.o : wildcard.c
 	$(CC) $(CFLAGS) -I$(INCLUDES) -c wildcard.c
 
-wwildcard.o : wildcard.c
-	$(CC) $(CFLAGS) -DWIDE -I$(INCLUDES) -c wildcard.c -o wwildcard.o
-
 fnmatch.o : fnmatch.c fnmatch.h
 	$(CC) $(CFLAGS) -I. -DHAVE_CONFIG_H -D_LIBC -c fnmatch.c
 
 # Make a module
 clisp-module : all
 
-clisp-module-wide : all wwildcard.o
-
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
 	$(LN) $(DISTRIBFILES) $(distribdir)
-
-clisp-module-distrib-wide : clisp-module-wide force
-	$(LN) $(WDISTRIBFILES) $(distribdir)
 
 clean : force
 	rm -f core *.o *.a

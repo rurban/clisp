@@ -79,18 +79,13 @@ case "$1" in
     dir="$2"
     # What to do if we abort.
     trap 'rm -f "$dir"/lisp.run "$dir"/wlisp.run' 1 2 15
-    # Read the variables CC, CFLAGS, CLFLAGS, LIBS, WLIBS, X_LIBS, RANLIB, FILES
+    # Read the variables CC, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
     . "$dir"/makevars
     vecho "$0: Entering directory \`$dir'"
     # Generate new modules.o, compiled from modules.c, includes modules.h
     (cd "$dir" ; link "$absolute_linkkitdir"/modules.c modules.c ; verbose ${CC} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c ; rm -f modules.c)
     # Generate new lisp.run
     (cd "$dir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} modules.o ${LIBS} ${X_LIBS} -o lisp.run)
-    # Same thing in wide mode.
-    if test -r "$dir"/wlispinit.mem; then
-      (cd "$dir" ; link "$absolute_linkkitdir"/modules.c wmodules.c ; verbose ${CC} ${CFLAGS} -DWIDE -I"$absolute_linkkitdir" -c wmodules.c ; rm -f wmodules.c)
-      (cd "$dir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} wmodules.o ${WLIBS} ${X_LIBS} -o wlisp.run)
-    fi
     vecho "$0: Leaving directory \`$dir'"
     # Done.
     trap '' 1 2 15
@@ -145,21 +140,11 @@ case "$1" in
          echo "  if test '"'!'"' -f $fo || test $fo -ot $fc; then"
          echo '    ${CC} ${CFLAGS} -I"$absolute_linkkitdir" -c '"$fc"
          echo '  fi'
-         echo '  if test -n "$with_wide"; then'
-         echo "    if test '"'!'"' -f w$fo || test w$fo -ot $fc; then"
-         echo '      ${CC} ${CFLAGS} -DWIDE -I"$absolute_linkkitdir" -c '"$fc -o w$fo"
-         echo '    fi'
-         echo '  fi'
          echo '  file_list="$file_list"'"' $fo'"
-         echo '  wfile_list="$wfile_list"'"' w$fo'"
          echo 'fi'
        done
        echo 'NEW_FILES="$file_list"'
        echo 'NEW_LIBS="$file_list"'
-       echo 'NEW_WLIBS="$wfile_list"'
-       echo 'if test -n "$with_wide"; then'
-       echo '  NEW_FILES=$NEW_FILES"$wfile_list"'
-       echo 'fi'
        echo "TO_LOAD=''"
       ) > "$moduledir"/link.sh
     else
@@ -179,13 +164,8 @@ case "$1" in
          echo "$fo : $fc"
          echotab '$(CC) $(CFLAGS) -I$(INCLUDES) -c '"$fc"
          echo
-         echo "w$fo : $fc"
-         echotab '$(CC) $(CFLAGS) -DWIDE -I$(INCLUDES) -c '"$fc -o w$fo"
-         echo
        done
        echo "clisp-module :$files_o"
-       echo
-       echo "clisp-module-wide :$files_o$wfiles_o"
        echo
       ) > "$moduledir"/Makefile
       (echo "file_list=''"
@@ -201,13 +181,9 @@ case "$1" in
          echo '  mod_list="$mod_list"'"' $mod'"
          echo 'fi'
        done
-       echo 'make `if test -n "$with_wide"; then echo clisp-module-wide; else echo clisp-module; fi` CC="${CC}" CFLAGS="${CFLAGS}" INCLUDES="$absolute_linkkitdir"'
+       echo 'make clisp-module CC="${CC}" CFLAGS="${CFLAGS}" INCLUDES="$absolute_linkkitdir"'
        echo 'NEW_FILES="$file_list"'
        echo 'NEW_LIBS="$file_list"'
-       echo 'NEW_WLIBS="$wfile_list"'
-       echo 'if test -n "$with_wide"; then'
-       echo '  NEW_FILES=$NEW_FILES" $wfile_list"'
-       echo 'fi'
        echo 'NEW_MODULES="$mod_list"'
        echo "TO_LOAD=''"
       ) > "$moduledir"/link.sh
@@ -259,20 +235,14 @@ case "$1" in
       exit 1
     fi
     modulename=`echo "$moduledir" | sed -e 's,^.*/,,'`
-    # Read the variables CC, CFLAGS, CLFLAGS, LIBS, WLIBS, X_LIBS, RANLIB, FILES
+    # Read the variables CC, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
     . "$sourcedir"/makevars
-    # Prepare the module directory and read the variables NEW_FILES, NEW_LIBS, NEW_WLIBS
+    # Prepare the module directory and read the variables NEW_FILES, NEW_LIBS
     NEW_FILES=''
     NEW_LIBS=''
-    NEW_WLIBS=''
     NEW_MODULES=''
     TO_PRELOAD=''
     TO_LOAD=''
-    if [ -r "$sourcedir"/wlisp.a -a -x "$sourcedir"/wlisp.run -a -r "$sourcedir"/wlispinit.mem ] ; then
-      with_wide=yes
-    else
-      with_wide=''
-    fi
     cd "$moduledir"
     . ./link.sh
     cd "$absolute_currentdir"
@@ -289,9 +259,8 @@ case "$1" in
     for f in ${NEW_FILES}; do
       link "$moduledir"/$f "$destinationdir"/$f
     done
-    # Update the LIBS, WLIBS and FILES variables
+    # Update the LIBS and FILES variables
     LIBS=${NEW_LIBS}' '${LIBS}
-    WLIBS=${NEW_WLIBS}' '${WLIBS}
     FILES=${FILES}' '${NEW_FILES}
     # Generate new modules.o, compiled from modules.c, includes new modules.h
     (cd "$destinationdir" ; link "$absolute_linkkitdir"/modules.c modules.c ; verbose ${CC} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c ; rm -f modules.c)
@@ -314,17 +283,8 @@ case "$1" in
       to_load="$to_load $moduledir/$f"
     done
     verbose "$destinationdir"/lisp.run -M "$lispinitdir"/lispinit.mem -q -i $to_load -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
-    # Same thing in wide mode.
-    if test -n "$with_wide"; then
-      (cd "$destinationdir" ; link "$absolute_linkkitdir"/modules.c wmodules.c ; verbose ${CC} ${CFLAGS} -DWIDE -I"$absolute_linkkitdir" -c wmodules.c ; rm -f wmodules.c)
-      (cd "$destinationdir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} wmodules.o ${WLIBS} ${X_LIBS} -o wlisp.run)
-      if [ -n "$TO_PRELOAD" ] ; then
-        verbose "$sourcedir"/wlisp.run -M "$sourcedir"/wlispinit.mem -q -i $to_preload -x "(saveinitmem \"$destinationdir/wlispinit.mem\")"
-      fi
-      verbose "$destinationdir"/wlisp.run -M "$lispinitdir"/wlispinit.mem -q -i $to_load -x "(saveinitmem \"$destinationdir/wlispinit.mem\")"
-    fi
     # Generate new makevars
-    sed -e "s,^LIBS=.*\$,LIBS='${LIBS}'," -e "s,^WLIBS=.*\$,WLIBS='${WLIBS}'," -e "s,^FILES=.*\$,FILES='${FILES}'," < "$sourcedir"/makevars > "$destinationdir"/makevars
+    sed -e "s,^LIBS=.*\$,LIBS='${LIBS}'," -e "s,^FILES=.*\$,FILES='${FILES}'," < "$sourcedir"/makevars > "$destinationdir"/makevars
     # Done.
     trap '' 1 2 15
     ;;
@@ -382,33 +342,24 @@ case "$1" in
         exit 1
       fi
     done
-    # Read the variables CC, CFLAGS, CLFLAGS, LIBS, WLIBS, X_LIBS, RANLIB, FILES
+    # Read the variables CC, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
     . "$sourcedir"/makevars
-    if [ -r "$sourcedir"/wlisp.a -a -x "$sourcedir"/wlisp.run -a -r "$sourcedir"/wlispinit.mem ] ; then
-      with_wide=yes
-    else
-      with_wide=''
-    fi
     if [ -z "$moduledirs" ] ; then
       # Just make links from $destinationdir to $sourcedir
-      for f in lisp.run lispinit.mem `if test -n "$with_wide"; then echo wlisp.run wlispinit.mem; fi` modules.h makevars ${FILES}; do
+      for f in lisp.run lispinit.mem modules.h makevars ${FILES}; do
         link "$sourcedir"/$f "$destinationdir"/$f
       done
       if [ -r "$sourcedir"/modules.o ] ; then
         link "$sourcedir"/modules.o "$destinationdir"/modules.o
-        if test -n "$with_wide"; then
-          link "$sourcedir"/wmodules.o "$destinationdir"/wmodules.o
-        fi
       fi
     else
       # Prepare the module directories and read their variables
       allmodulevars=''
       for moduledir in $moduledirs; do
         modulename=`echo "$moduledir" | sed -e 's,^.*/,,'`
-        # Prepare the module directory and read the variables NEW_FILES, NEW_LIBS, NEW_WLIBS
+        # Prepare the module directory and read the variables NEW_FILES, NEW_LIBS
         NEW_FILES=''
         NEW_LIBS=''
-        NEW_WLIBS=''
         NEW_MODULES=''
         TO_PRELOAD=''
         TO_LOAD=''
@@ -420,7 +371,6 @@ case "$1" in
         allmodulevars="$allmodulevars""@@SEP2@@""modulename=\""`echo "$modulename" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
         allmodulevars="$allmodulevars""@@SEP2@@""NEW_FILES=\""`echo "$NEW_FILES" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
         allmodulevars="$allmodulevars""@@SEP2@@""NEW_LIBS=\""`echo "$NEW_LIBS" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
-        allmodulevars="$allmodulevars""@@SEP2@@""NEW_WLIBS=\""`echo "$NEW_WLIBS" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
         allmodulevars="$allmodulevars""@@SEP2@@""NEW_MODULES=\""`echo "$NEW_MODULES" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
         allmodulevars="$allmodulevars""@@SEP2@@""TO_PRELOAD=\""`echo "$TO_PRELOAD" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
         allmodulevars="$allmodulevars""@@SEP2@@""TO_LOAD=\""`echo "$TO_LOAD" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
@@ -449,9 +399,8 @@ case "$1" in
         for f in ${NEW_FILES}; do
           link "$moduledir"/$f "$destinationdir"/$f
         done
-        # Update the LIBS, WLIBS and FILES variables
+        # Update the LIBS and FILES variables
         LIBS=${NEW_LIBS}' '${LIBS}
-        WLIBS=${NEW_WLIBS}' '${WLIBS}
         FILES=${FILES}' '${NEW_FILES}
         for f in $TO_PRELOAD; do
           PRELOAD=${PRELOAD}' '"$moduledir/$f"
@@ -474,19 +423,8 @@ case "$1" in
       else
         verbose "$destinationdir"/lisp.run -M "$sourcedir"/lispinit.mem -q -i ${LOAD} -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
       fi
-      # Same thing in wide mode.
-      if test -n "$with_wide"; then
-        (cd "$destinationdir" ; link "$absolute_linkkitdir"/modules.c wmodules.c ; verbose ${CC} ${CFLAGS} -DWIDE -I"$absolute_linkkitdir" -c wmodules.c ; rm -f wmodules.c)
-        (cd "$destinationdir" ; verbose ${CC} ${CFLAGS} ${CLFLAGS} wmodules.o ${WLIBS} ${X_LIBS} -o wlisp.run)
-        if [ -n "$PRELOAD" ] ; then
-          verbose "$sourcedir"/wlisp.run -M "$sourcedir"/wlispinit.mem -q -i ${PRELOAD} -x "(saveinitmem \"$destinationdir/wlispinit.mem\")"
-          verbose "$destinationdir"/wlisp.run -M "$destinationdir"/wlispinit.mem -q -i ${LOAD} -x "(saveinitmem \"$destinationdir/wlispinit.mem\")"
-        else
-          verbose "$destinationdir"/wlisp.run -M "$sourcedir"/wlispinit.mem -q -i ${LOAD} -x "(saveinitmem \"$destinationdir/wlispinit.mem\")"
-        fi
-      fi
       # Generate new makevars
-      sed -e "s,^LIBS=.*\$,LIBS='${LIBS}'," -e "s,^WLIBS=.*\$,WLIBS='${WLIBS}'," -e "s,^FILES=.*\$,FILES='${FILES}'," < "$sourcedir"/makevars > "$destinationdir"/makevars
+      sed -e "s,^LIBS=.*\$,LIBS='${LIBS}'," -e "s,^FILES=.*\$,FILES='${FILES}'," < "$sourcedir"/makevars > "$destinationdir"/makevars
     fi
     # Done.
     trap '' 1 2 15
@@ -527,7 +465,7 @@ case "$1" in
           exit 1
         fi
       done
-      # Read the variables CC, CFLAGS, CLFLAGS, LIBS, WLIBS, X_LIBS, RANLIB, FILES
+      # Read the variables CC, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
       . "$sourcedir"/makevars
       if [ -z "$moduledirs" ] ; then
         "$sourcedir"/lisp.run -M "$sourcedir"/lispinit.mem
@@ -536,10 +474,9 @@ case "$1" in
         allmodulevars=''
         for moduledir in $moduledirs; do
           modulename=`echo "$moduledir" | sed -e 's,^.*/,,'`
-          # Prepare the module directory and read the variables NEW_FILES, NEW_LIBS, NEW_WLIBS
+          # Prepare the module directory and read the variables NEW_FILES, NEW_LIBS
           NEW_FILES=''
           NEW_LIBS=''
-          NEW_WLIBS=''
           NEW_MODULES=''
           TO_PRELOAD=''
           TO_LOAD=''
@@ -551,7 +488,6 @@ case "$1" in
           allmodulevars="$allmodulevars""@@SEP2@@""modulename=\""`echo "$modulename" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
           allmodulevars="$allmodulevars""@@SEP2@@""NEW_FILES=\""`echo "$NEW_FILES" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
           allmodulevars="$allmodulevars""@@SEP2@@""NEW_LIBS=\""`echo "$NEW_LIBS" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
-          allmodulevars="$allmodulevars""@@SEP2@@""NEW_WLIBS=\""`echo "$NEW_WLIBS" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
           allmodulevars="$allmodulevars""@@SEP2@@""NEW_MODULES=\""`echo "$NEW_MODULES" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
           allmodulevars="$allmodulevars""@@SEP2@@""TO_PRELOAD=\""`echo "$TO_PRELOAD" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""
           allmodulevars="$allmodulevars""@@SEP2@@""TO_LOAD=\""`echo "$TO_LOAD" | sed -e 's,",\\\\",g' -e 's, ,@@SEP3@@,g'`"\""

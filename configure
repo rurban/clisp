@@ -443,26 +443,6 @@ if test -d $ABS_DIRNAME/avcall -a -d $ABS_DIRNAME/callback; then
   (cd $ABS_DIRNAME/callback && make check) &&
   makemake_args="$makemake_args --with-dynamic-ffi"
 fi
-if grep 'cl_cv_prog_cc_gcc.*yes' $ABS_DIRNAME/config.cache > /dev/null ; then
-  if grep 'cl_cv_c_longlong.*yes' $ABS_DIRNAME/config.cache > /dev/null ; then
-    eval `grep '^cl_cv_host=' $ABS_DIRNAME/config.cache`
-    case "$cl_cv_host" in
-      mips-* | hppa*-* )
-        # 32-bit cpu, but gcc-2.7.2 crashes when compiling spvw.d with -DWIDE
-        ;;
-      m68k-* )
-        # 32-bit cpu, but gcc-2.7.2 crashes when compiling foreign.d with -DWIDE
-        ;;
-      i?86-* | m68k-* | mips-* | sparc-* | hppa*-* | arm-* | rs6000-* | m88k-* | convex*-* )
-        # 32-bit cpu
-        makemake_args="$makemake_args --with-wide"
-        ;;
-      alpha-* | mips64-* )
-        # 64-bit cpu
-        ;;
-    esac
-  fi
-fi
 
 if test -z "$do_build"; then
 

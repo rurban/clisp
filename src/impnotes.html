@@ -3197,7 +3197,6 @@ A <STRONG>linking set</STRONG> is a directory containing:
                         <DT><CODE>CFLAGS</CODE>   <DD>flags for the C compiler, when compiling
                         <DT><CODE>CLFLAGS</CODE>  <DD>flags for the C compiler, when linking
                         <DT><CODE>LIBS</CODE>     <DD>libraries to use when linking
-                        <DT><CODE>WLIBS</CODE>    <DD>libraries to use when linking in wide mode
                         <DT><CODE>X_LIBS</CODE>   <DD>additional X window system libraries to use
                         <DT><CODE>RANLIB</CODE>   <DD>the ranlib command
                         <DT><CODE>FILES</CODE>    <DD>the list of files needed when linking
@@ -3206,8 +3205,6 @@ A <STRONG>linking set</STRONG> is a directory containing:
 <DT>    all the <CODE>FILES</CODE> listed in <CODE>makevars</CODE>
 <DT>    <CODE>lisp.run</CODE>          <DD>the executable
 <DT>    <CODE>lispinit.mem</CODE>      <DD>the memory image
-<DT>    (maybe) <CODE>wlisp.run</CODE>         <DD>the executable in wide mode
-<DT>    (maybe) <CODE>wlispinit.mem</CODE>     <DD>the corresponding memory image
 </DL>
 To run a clisp contained in some linking set <VAR>dir</VAR>, call
 &quot;<CODE><VAR>dir</VAR>/lisp.run -M <VAR>dir</VAR>/lispinit.mem</VAR>&quot;.
@@ -3216,13 +3213,11 @@ A <STRONG>module set</STRONG> is a directory containing:
 <DL>
 <DT>    <CODE>link.sh</CODE>          <DD>some <CODE>/bin/sh</CODE> commands, which prepare the directory
                      before linking, and set the variables <CODE>NEW_FILES</CODE>, <CODE>NEW_LIBS</CODE>,
-                     <CODE>NEW_WLIBS</CODE>, <CODE>NEW_MODULES</CODE>, <CODE>TO_LOAD</CODE< and optionally <CODE>TO_PRELOAD</CODE>
+                     <CODE>NEW_MODULES</CODE>, <CODE>TO_LOAD</CODE< and optionally <CODE>TO_PRELOAD</CODE>
 <DT>
 and any other files needed by <CODE>link.sh</CODE>.
 </DL>
 Note that in <CODE>link.sh</CODE> the module set directory is referred to as <CODE>&quot;$modulename&quot;/</CODE>.
-Note also that <CODE>link.sh</CODE> must test the variable <CODE>&quot;$with_wide&quot;</CODE> and generate both
-standard mode and wide mode object files if <CODE>&quot;$with_wide&quot;</CODE> is non-empty.
 <DL>
 <DT>  The <CODE>NEW_FILES</CODE> variable <DD>shall contain a space-separated list of files that
   belong to the module set and will belong to every new linking set.
@@ -3230,12 +3225,6 @@ standard mode and wide mode object files if <CODE>&quot;$with_wide&quot;</CODE> 
 <DT>  The <CODE>NEW_LIBS</CODE> variable <DD>shall contain a space-separated list of files or C
   compiler switches that need to be passed to the C compiler when linking the
   lisp.run belonging to a new linking set.
-
-<DT>  The <CODE>NEW_WLIBS</CODE> variable <DD>shall contain a space-separated list of files or C
-  compiler switches that need to be passed to the C compiler when linking the
-  wlisp.run belonging to a new linking set. By convention, this is the same
-  as <CODE>NEW_LIBS</CODE>, with <CODE><VAR>xxx</VAR>.o</CODE> replaced by <CODE>w<VAR>xxx</VAR>.o</CODE> if <CODE><VAR>xxx</VAR>.o</CODE> depends on
-  <CODE>sizeof(object)</CODE>.
 
 <DT>  The <CODE>NEW_MODULES</CODE> variable <DD>shall contain a space-separated list of the module
   names belonging to the module set. Normally, every <CODE>.c</CODE> file in the module set
@@ -3281,10 +3270,8 @@ steps are needed. (Step 1 and step 2 need not be executed in this order.)
 </CODE></PRE>
    Modify the newly created <CODE>linux/link.sh</CODE> to add &quot;<CODE>-lm</CODE>&quot; to the libraries:
 <PRE><CODE>   NEW_LIBS=&quot;$file_list&quot;
-   NEW_WLIBS=&quot;$file_list&quot;
    --&gt;
    NEW_LIBS=&quot;$file_list -lm&quot;
-   NEW_WLIBS=&quot;$file_list -lm&quot;
 </CODE></PRE>
    Modify the newly created <CODE>linux/link.sh</CODE> to load <CODE>linux.fas</CODE> before saving
    the memory image:

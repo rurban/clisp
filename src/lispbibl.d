@@ -1563,9 +1563,15 @@
   #error "WIDE and NO_TYPECODES make no sense together, no need for WIDE"
 #endif
 
-#if !defined(NO_TYPECODES)
-  # Normally, use typecodes.
-  #define TYPECODES
+#if !(defined(TYPECODES) || defined(NO_TYPECODES))
+  # Choose typecodes on 64-bit machines (because there's enough room for type
+  # bits), but not on 32-bit machines (because a 16 MB limit is ridiculous
+  # today), except if support for immutable objects is requested.
+  #if defined(WIDE) || defined(IMMUTABLE)
+    #define TYPECODES
+  #else
+    #define NO_TYPECODES
+  #endif
 #endif
 
 #ifdef WIDE_SOFT

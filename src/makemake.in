@@ -27,7 +27,6 @@ options:
        --with-termcap          termcap-1.3 library (needed only on cygwin32)
        --with-dynamic-ffi      a foreign language interface
        --with-dynamic-modules  dynamic loading of foreign language modules
-       --with-wide             build wide-mode binaries as well
 debug: Specify this if you expect that you will need to debug the sources.
 Example:
        ./makemake --with-readline --with-dynamic-ffi > Makefile
@@ -1097,9 +1096,6 @@ fi
 # Other dependencies:
 
 FILES='lisp.a'
-if [ -n "$with_wide" ] ; then
-  FILES=$FILES' wlisp.a'
-fi
 
 if test -n "$with_dynamic_ffi"; then
   XCFLAGS="$XCFLAGS -DDYNAMIC_FFI"
@@ -1236,13 +1232,6 @@ if [ $TSYS = master -o $TOS = win32 ] ; then
 fi
 if [ $TSYS = master -o $TOS = acorn ] ; then
   CPARTS=$CPARTS' acornaux acornsig'
-fi
-
-if [ -n "$with_wide" ] ; then
-  WCPARTS=''
-  for f in $CPARTS ; do
-    WCPARTS=$WCPARTS' w'$f
-  done
 fi
 
 EVERY_INCLUDES='lispbibl fsubr subr pseudofun constsym constobj '$OS_INCLUDES
@@ -1728,14 +1717,6 @@ cat <<\!!
 #               foo.fas : foo.lsp
 #                       $(CLISP) -c foo.lsp
 # 
-#        clisp-module-wide
-# 
-#           This target does the same as clisp-module, plus it builds the
-#           object files in wide mode as well.
-#           Typically, you will have rules like this in your Makefile:
-#               wfoo.o : foo.c
-#                       $(CC) $(CFLAGS) -DWIDE -I$(INCLUDES) -c foo.c -o wfoo.o
-# 
 #        clisp-module-distrib
 # 
 #           This target copies the module into a temporary distribution
@@ -1746,20 +1727,9 @@ cat <<\!!
 #                              symbolic links)
 #           Typically, this target will look like this:
 #
-#               DISTRIBFILES = <the non-wide NEW_FILES mentioned in link.sh> \
-#                              <doc files>
+#               DISTRIBFILES = <the NEW_FILES mentioned in link.sh> <doc files>
 #               clisp-module-distrib : clisp-module force
 #                       $(LN) $(DISTRIBFILES) $(distribdir)
-# 
-#        clisp-module-distrib-wide
-# 
-#           This target does the same as clisp-module-distrib, but including
-#           the wide mode object files.
-#           Typically, this target will look like this:
-#
-#               WDISTRIBFILES = $(DISTRIBFILES) <the wide NEW_FILES in link.sh>
-#               clisp-module-distrib-wide : clisp-module-wide force
-#                       $(LN) $(WDISTRIBFILES) $(distribdir)
 # 
 # If these requirements are obeyed, this Makefile will automatically build
 # the add-on module and make it part of the "full" distribution -- all you
@@ -1852,11 +1822,6 @@ echol
 echolist "OBJECTS =" "$CPARTS $ARI_ASMS $SP_ASMS $GMALLOC" "${TOBJ}"
 echol
 
-if [ -n "$with_wide" ] ; then
-  echolist "wOBJECTS =" "$WCPARTS $ARI_ASMS $SP_ASMS $GMALLOC" "${TOBJ}"
-  echol
-fi
-
 echolist "LSPFILES =" "$LPARTS" ".lsp"
 echol
 
@@ -1871,13 +1836,6 @@ echol
 echolist "TESTFASFILES =" "$LPARTS" ".fas" "${TESTDIR}${NEXT_M}"
 echol
 
-if [ -n "$with_wide" ] ; then
-  echolist "wTESTLSPFILES =" "$LPARTS" ".lsp" "w${TESTDIR}${NEXT_M}"
-  echol
-  echolist "wTESTFASFILES =" "$LPARTS" ".fas" "w${TESTDIR}${NEXT_M}"
-  echol
-fi
-
 echol
 
 if [ $HOS = acorn ] ; then
@@ -1885,9 +1843,6 @@ if [ $HOS = acorn ] ; then
   echol "# If you have this problem, either swap $halfcompiled.mem and lispinit.mem in the next line, or use GNU make."
 fi
 needs="init allc allo lisp${LEXE} $interpreted.mem $halfcompiled.mem lispinit.mem manual"
-if [ -n "$with_wide" ] ; then
-  needs=$needs" wlisp${LEXE} wlispinit.mem"
-fi
 if [ $HOS = unix -a $CROSS = false ] ; then
   needs=$needs' modular $(MODULES) full clisp.c'
 fi
@@ -2150,35 +2105,6 @@ echol $line
 echodummyrule alli
 echol
 
-if [ -n "$with_wide" ] ; then
-
-  line="allwo : allc"
-  for f in $CPARTS ; do
-    line=$line" w${f}${TOBJ}"
-  done
-  echol $line
-  echodummyrule allwo
-  echol
-
-  line="allws : allc"
-  for f in $CPARTS ; do
-    line=$line" w${f}.s"
-  done
-  echol $line
-  echodummyrule allws
-  echol
-
-  echol "# Normally not used (just for debugging)."
-  line="allwi : allc"
-  for f in $CPARTS ; do
-    line=$line" w${f}.i"
-  done
-  echol $line
-  echodummyrule allwi
-  echol
-
-fi
-
 for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   depends=$EVERY_INCLUDES
   if [ $f = spvw -o $f = package ] ; then
@@ -2254,11 +2180,6 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   echol "${f}.i : ${f}.c${dependsc}"
   echotab "${XCPP} ${flags} ${f}.c > ${f}.i"
   echol
-  if [ -n "$with_wide" ] ; then
-    echol "w${f}.i : ${f}.c${dependsc}"
-    echotab "${XCPP} ${flags} -DWIDE ${f}.c > w${f}.i"
-    echol
-  fi
   if [ $XCC_UNUSABLE_CPP = true ] ; then
     if [ $HSYS = win32msvc -o $HSYS = win32bc ] ; then
       echol "${f}.s : ${f}.c${dependsc}${dependsc2}"
@@ -2274,20 +2195,6 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
       echotab "\$(MV) ${f}.i${TOBJ} ${f}${TOBJ}"
       echotab "\$(RM) ${f}.i.c"
       echol
-      if [ -n "$with_wide" ] ; then
-        echol "w${f}.s : ${f}.c${dependsc}${dependsc2}"
-        echotab "${XCPP} ${flags} -DWIDE ${f}.c > w${f}.i.c"
-        echotab "${XCC} ${flags2} -c w${f}.i.c /FAs /Faw${f}.s"
-        echotab "\$(RM) w${f}.i${TOBJ}"
-        echotab "\$(RM) w${f}.i.c"
-        echol
-        echol "w${f}${TOBJ} : ${f}.c${dependsc}${dependsc2}"
-        echotab "${XCPP} ${flags} -DWIDE ${f}.c > w${f}.i.c"
-        echotab "${XCC} ${flags2} -c w${f}.i.c"
-        echotab "\$(MV) w${f}.i${TOBJ} w${f}${TOBJ}"
-        echotab "\$(RM) w${f}.i.c"
-        echol
-      fi
     else
       echol "${f}.s : ${f}.c${dependsc}${dependsc2}"
       echotab "${XCPP} ${flags} ${f}.c > ${f}.i.c"
@@ -2301,20 +2208,6 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
       echotab "\$(MV) ${f}.i${TOBJ} ${f}${TOBJ}"
       echotab "\$(RM) ${f}.i.c"
       echol
-      if [ -n "$with_wide" ] ; then
-        echol "w${f}.s : ${f}.c${dependsc}${dependsc2}"
-        echotab "${XCPP} ${flags} -DWIDE ${f}.c > w${f}.i.c"
-        echotab "${XCC} ${flags2} -S w${f}.i.c"
-        echotab "\$(MV) w${f}.i.s w${f}.s"
-        echotab "\$(RM) w${f}.i.c"
-        echol
-        echol "w${f}${TOBJ} : ${f}.c${dependsc}${dependsc2}"
-        echotab "${XCPP} ${flags} -DWIDE ${f}.c > w${f}.i.c"
-        echotab "${XCC} ${flags2} -c w${f}.i.c"
-        echotab "\$(MV) w${f}.i${TOBJ} w${f}${TOBJ}"
-        echotab "\$(RM) w${f}.i.c"
-        echol
-      fi
     fi
   else
     if [ $HSYS = doswatcom ] ; then
@@ -2325,20 +2218,10 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
       echol "${f}.s : ${f}.c${dependsc}${dependsc2}"
       echotab "${XCC} ${flags2} -S ${f}.c"
       echol
-      if [ -n "$with_wide" ] ; then
-        echol "w${f}.s : ${f}.c${dependsc}${dependsc2}"
-        echotab "${XCC} ${flags2} -DWIDE -S ${f}.c -o w${f}.s"
-        echol
-      fi
     fi
     echol "${f}${TOBJ} : ${f}.c${dependsc}${dependsc2}"
     echotab "${XCC} ${flags2} -c ${f}.c"
     echol
-    if [ -n "$with_wide" ] ; then
-      echol "w${f}${TOBJ} : ${f}.c${dependsc}${dependsc2}"
-      echotab "${XCC} ${flags2} -DWIDE -c ${f}.c -o w${f}${TOBJ}"
-      echol
-    fi
   fi
 done
 
@@ -2413,24 +2296,6 @@ if [ $HOS = unix ] ; then
   fi
   echotab "\$(RANLIB) lisp.a"
   echol
-  if [ -n "$with_wide" ] ; then
-    echol "wlisp.a : \$(wOBJECTS) wmodules.o"
-    if [ "$HSYSOS" = cygwin32 ] ; then
-      echotab "\$(AR) rcv wlisp.a \$(wOBJECTS) wmodules.o"
-    else
-      echotab "ld -r -o wlisp.o \$(wOBJECTS)"
-      echotab "chmod a-x wlisp.o"
-      if test -z "$LIBGCC"; then
-        echotab "\$(AR) rcv wlisp.a wlisp.o wmodules.o"
-      else
-        # Test for libgcc.a because NeXT cc does not have it.
-        echotab "if test -f \$(LIBGCC) ; then mkdir libgcc ; (cd libgcc ; \$(AR) xv \$(LIBGCC)) ; \$(AR) rcv wlisp.a wlisp.o wmodules.o libgcc/*.o ; \$(RM) -r libgcc ; else \$(AR) rcv wlisp.a wlisp.o wmodules.o ; fi"
-      fi
-      echotab "\$(RM) wlisp.o"
-    fi
-    echotab "\$(RANLIB) wlisp.a"
-    echol
-  fi
   echol "libnoreadline.a : noreadline.o"
   echotab "\$(AR) rcv libnoreadline.a noreadline.o"
   echotab "\$(RANLIB) libnoreadline.a"
@@ -2524,85 +2389,82 @@ if [ $TOS = win32 ] ; then
   done
 fi
 
-for w in `if test -n "$with_wide"; then echol "'' 'w'"; else echol "''"; fi` ; do
-  eval "w=$w"
-  echol "${w}lisp${LEXE} : \$(${w}OBJECTS) ${w}modules${TOBJ} ${XCL_FFILIBS} ${XCL_READLINELIB} ${XCL_GETTEXTLIB} ${XCL_TERMCAPLIB}${SYSLIBS}"
-  if [ $HOS != dos -a $HOS != os2 -a $HOS != win32 ] ; then
-    if [ $XCC_GCC = true -a -n "$SOLARIS_LINKING" ] ; then
-      # Dynamically linking on Solaris 2.[23] is a pain.
-      LIBGCC_DIR='`'"${XCC} -print-libgcc-file-name"' | sed -e '"'"'s,[^/]*$$,,'"'"'`'
-      echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(${w}OBJECTS) ${w}modules${TOBJ} ${LIBS} ${X_LIBS} -o ${w}lisp${LEXE} || /usr/ccs/bin/ld -V -dy -Bdynamic -Y P,/usr/ccs/lib:/usr/lib -Qy -o ${w}lisp${LEXE} ${LIBGCC_DIR}crt1.o ${LIBGCC_DIR}crti.o /usr/ccs/lib/values-Xa.o ${LIBGCC_DIR}crtbegin.o \$(${w}OBJECTS) ${w}modules${TOBJ} -L${LIBGCC_DIR} -L/usr/ccs/bin ${LIBS} ${X_LIBS} -lgcc -lc ${LIBGCC_DIR}crtend.o ${LIBGCC_DIR}crtn.o -lgcc"
-    else
-      echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(${w}OBJECTS) ${w}modules${TOBJ} ${LIBS} ${X_LIBS} -o ${w}lisp${LEXE}"
-    fi
-    if [ $HOS = unix ] ; then
-      echotab "-sync"
-    fi
-    echol
+echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_FFILIBS} ${XCL_READLINELIB} ${XCL_GETTEXTLIB} ${XCL_TERMCAPLIB}${SYSLIBS}"
+if [ $HOS != dos -a $HOS != os2 -a $HOS != win32 ] ; then
+  if [ $XCC_GCC = true -a -n "$SOLARIS_LINKING" ] ; then
+    # Dynamically linking on Solaris 2.[23] is a pain.
+    LIBGCC_DIR='`'"${XCC} -print-libgcc-file-name"' | sed -e '"'"'s,[^/]*$$,,'"'"'`'
+    echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} ${X_LIBS} -o lisp${LEXE} || /usr/ccs/bin/ld -V -dy -Bdynamic -Y P,/usr/ccs/lib:/usr/lib -Qy -o lisp${LEXE} ${LIBGCC_DIR}crt1.o ${LIBGCC_DIR}crti.o /usr/ccs/lib/values-Xa.o ${LIBGCC_DIR}crtbegin.o \$(OBJECTS) modules${TOBJ} -L${LIBGCC_DIR} -L/usr/ccs/bin ${LIBS} ${X_LIBS} -lgcc -lc ${LIBGCC_DIR}crtend.o ${LIBGCC_DIR}crtn.o -lgcc"
   else
-    if [ $HSYS = win32gcc -o $HSYS = win32msvc -o $HSYS = win32bc ] ; then
-      if [ $HSYS = win32gcc ] ; then
-        echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(${w}OBJECTS) ${w}modules${TOBJ} ${LIBS} ${X_LIBS} -o ${w}lisp${LEXE}"
-      fi
-      if [ $HSYS = win32msvc ] ; then
-        # MSVC's incremental linking is buggy, avoid it.
-        echotab "\$(RM) ${w}lisp.ilk"
-        echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} /MD \$(${w}OBJECTS) ${w}modules${TOBJ} ${LIBS} ${X_LIBS} /link /out:${w}lisp${LEXE}"
-        # Need at least 1200 KB stack for creating the first interpreted.mem,
-        # but the default stack size is only 1 MB.
-        echotab "editbin /stack:2097152 ${w}lisp${LEXE}"
-      fi
-      if [ $HSYS = win32bc ] ; then
-        echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} -e${w}lisp${LEXE} \$(${w}OBJECTS) ${w}modules${TOBJ} ${LIBS} ${X_LIBS}"
-      fi
-    else
-      # DOS has a very limited command line length
+    echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} ${X_LIBS} -o lisp${LEXE}"
+  fi
+  if [ $HOS = unix ] ; then
+    echotab "-sync"
+  fi
+  echol
+else
+  if [ $HSYS = win32gcc -o $HSYS = win32msvc -o $HSYS = win32bc ] ; then
+    if [ $HSYS = win32gcc ] ; then
+      echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} ${X_LIBS} -o lisp${LEXE}"
+    fi
+    if [ $HSYS = win32msvc ] ; then
+      # MSVC's incremental linking is buggy, avoid it.
+      echotab "\$(RM) lisp.ilk"
+      echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} /MD \$(OBJECTS) modules${TOBJ} ${LIBS} ${X_LIBS} /link /out:lisp${LEXE}"
+      # Need at least 1200 KB stack for creating the first interpreted.mem,
+      # but the default stack size is only 1 MB.
+      echotab "editbin /stack:2097152 lisp${LEXE}"
+    fi
+    if [ $HSYS = win32bc ] ; then
+      echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} -elisp${LEXE} \$(OBJECTS) modules${TOBJ} ${LIBS} ${X_LIBS}"
+    fi
+  else
+    # DOS has a very limited command line length
+    if [ $HSYS = doswatcom ] ; then
+      echotab "\$(RM) lisp${LEXE}"
       if [ $HSYS = doswatcom ] ; then
-        echotab "\$(RM) lisp${LEXE}"
-        if [ $HSYS = doswatcom ] ; then
-          echotab "${XCC} ${XCFLAGS} -fe=lisp${LEXE} -fd=wcclink.lnk" # generate linker commands
-          echotab "wlink @wcclink.lnk @wcclink.in" # execute linker commands
-        fi
-        echotab "\$(RM) wcclink.lnk"
+        echotab "${XCC} ${XCFLAGS} -fe=lisp${LEXE} -fd=wcclink.lnk" # generate linker commands
+        echotab "wlink @wcclink.lnk @wcclink.in" # execute linker commands
+      fi
+      echotab "\$(RM) wcclink.lnk"
+    else
+      # XCLFLAGS=$XCLFLAGS' -s' # strip, geht unter emx0.8f nicht mehr
+      echotab "\$(RM) lisp"
+      echotab "\$(RM) lisp${LEXE}"
+      if [ $TOS = dos ] ; then
+        # Keine überlangen ${XCFLAGS} in die Link-Kommandozeile nehmen.
+        echotab "${XCC} -o lisp @gcclink.in ${XCLFLAGS} ${LIBS}"
       else
-        # XCLFLAGS=$XCLFLAGS' -s' # strip, geht unter emx0.8f nicht mehr
-        echotab "\$(RM) ${w}lisp"
-        echotab "\$(RM) ${w}lisp${LEXE}"
-        if [ $TOS = dos ] ; then
-          # Keine überlangen ${XCFLAGS} in die Link-Kommandozeile nehmen.
-          echotab "${XCC} -o ${w}lisp @${w}gcclink.in ${XCLFLAGS} ${LIBS}"
+        echotab "${XCC} ${XCFLAGS} -o lisp @gcclink.in ${XCLFLAGS} ${LIBS}"
+      fi
+      if [ $HSYS = dosdjgpp ] ; then
+        echotab "strip lisp"
+        echotab "\$(COFF2EXE) lisp lisp${HEXE}"
+      else
+        if [ $TSYS = dos ] ; then
+          # Nicht strippen, sonst meckert der emxbind.
+          # echotab "strip lisp"
+          # emx-Option -p hält das untere Megabyte frei, damit EXECUTE geht.
+          #   Bei lisp_1mb.exe nutzen wir dagegen soviel RAM wie möglich.
+          # emx-Option -C0 bewirkt, daß malloc() bei fehlendem Speicher und
+          #   Plattenplatz NULL liefert, statt es später auf einen Programm-Ausstieg
+          #   wegen "Out of swap space" ankommen zu lassen.
+          # emx-Option -aim bewirkt, daß der Zugriff auf die Grafikkarte und
+          #   den Bildschirmspeicher funktioniert.
+          echotab "emxbind -q \$(EMX) lisp lisp${LEXE} -p -C0 -aim"
+          echotab "emxbind -q \$(EMX) lisp lisp_1mb${LEXE} -C0 -aim"
         else
-          echotab "${XCC} ${XCFLAGS} -o ${w}lisp @${w}gcclink.in ${XCLFLAGS} ${LIBS}"
-        fi
-        if [ $HSYS = dosdjgpp ] ; then
-          echotab "strip ${w}lisp"
-          echotab "\$(COFF2EXE) ${w}lisp ${w}lisp${HEXE}"
-        else
-          if [ $TSYS = dos ] ; then
-            # Nicht strippen, sonst meckert der emxbind.
-            # echotab "strip ${w}lisp"
-            # emx-Option -p hält das untere Megabyte frei, damit EXECUTE geht.
-            #   Bei ${w}lisp_1mb.exe nutzen wir dagegen soviel RAM wie möglich.
-            # emx-Option -C0 bewirkt, daß malloc() bei fehlendem Speicher und
-            #   Plattenplatz NULL liefert, statt es später auf einen Programm-Ausstieg
-            #   wegen "Out of swap space" ankommen zu lassen.
-            # emx-Option -aim bewirkt, daß der Zugriff auf die Grafikkarte und
-            #   den Bildschirmspeicher funktioniert.
-            echotab "emxbind -q \$(EMX) ${w}lisp ${w}lisp${LEXE} -p -C0 -aim"
-            echotab "emxbind -q \$(EMX) ${w}lisp ${w}lisp_1mb${LEXE} -C0 -aim"
-          else
-            # emx-Option -acmi bewirkt, daß unter DOS der Zugriff auf den Bildschirm-
-            #   speicher und die Grafikkarten-Ports funktioniert.
-            echotab "emxbind -q \$(EMX) ${w}lisp ${w}lisp${LEXE} -p -acmi"
-            # Strippen darf man wegen -lvideo erst hinterher.
-            echotab "emxbind -s ${w}lisp${LEXE}"
-          fi
+          # emx-Option -acmi bewirkt, daß unter DOS der Zugriff auf den Bildschirm-
+          #   speicher und die Grafikkarten-Ports funktioniert.
+          echotab "emxbind -q \$(EMX) lisp lisp${LEXE} -p -acmi"
+          # Strippen darf man wegen -lvideo erst hinterher.
+          echotab "emxbind -s lisp${LEXE}"
         fi
       fi
     fi
-    echol
   fi
-done
+  echol
+fi
 
 echol
 
@@ -2704,20 +2566,17 @@ if [ $CROSS = false ] ; then
   echotab "\$(TOUCH) $halfcompiled.mem"
   echol
 
-  for w in `if test -n "$with_wide"; then echol "'' 'w'"; else echol "''"; fi` ; do
-    eval "w=$w"
-    echol "${w}lispinit.mem : ${w}lisp${LEXE} \$(FASFILES)"
-    if [ $HOS != unix ] ; then
-      echotab "-\$(RM) ${w}lispinit.mem"
-    fi
-    if [ $HOS != dos -a $HOS != os2 ] ; then
-      echotab "${HERE}${w}lisp${LEXE}$localeflags"' -x "(load \"init.fas\") (sys::%saveinitmem) (exit)"'
-    else
-      echotab "${HERE}${w}lisp${LEXE}$localeflags < lispinit.in"
-    fi
-    echotab "\$(MV) lispimag.mem ${w}lispinit.mem"
-    echol
-  done
+  echol "lispinit.mem : lisp${LEXE} \$(FASFILES)"
+  if [ $HOS != unix ] ; then
+    echotab "-\$(RM) lispinit.mem"
+  fi
+  if [ $HOS != dos -a $HOS != os2 ] ; then
+    echotab "${HERE}lisp${LEXE}$localeflags"' -x "(load \"init.fas\") (sys::%saveinitmem) (exit)"'
+  else
+    echotab "${HERE}lisp${LEXE}$localeflags < lispinit.in"
+  fi
+  echotab "\$(MV) lispimag.mem lispinit.mem"
+  echol
 
 fi
 
@@ -2726,71 +2585,59 @@ echol
 if [ $CROSS = false ] ; then
 
   echol "# Perform self-tests."
-  if [ -n "$with_wide" ] ; then
-    if [ $HOS = unix ] ; then
-      echol "check : test testsuite wtest wtestsuite"
-    else
-      echol "check : test wtest"
-    fi
+  if [ $HOS = unix ] ; then
+    echol "check : test testsuite"
   else
-    if [ $HOS = unix ] ; then
-      echol "check : test testsuite"
-    else
-      echol "check : test"
-    fi
+    echol "check : test"
   fi
   echodummyrule check
   echol
 
   echol "# Test: recompile \$(LSPFILES) and compare their contents."
-  for w in `if test -n "$with_wide"; then echol "'' 'w'"; else echol "''"; fi` ; do
-    eval "w=$w"
 
-    echol "${w}test : ${w}lispinit.mem ${w}${TESTDIR} \$(${w}TESTLSPFILES) \$(${w}TESTFASFILES)"
-    if [ $HOS = unix ] ; then
-      for f in $LPARTS ; do
-        echotab "cmp -s ${f}.fas ${w}${TESTDIR}/${f}.fas"' || (echo "Test failed." ; exit 1)'
-      done
-      echotab 'echo "Test passed."'
+  echol "test : lispinit.mem ${TESTDIR} \$(TESTLSPFILES) \$(TESTFASFILES)"
+  if [ $HOS = unix ] ; then
+    for f in $LPARTS ; do
+      echotab "cmp -s ${f}.fas ${TESTDIR}/${f}.fas"' || (echo "Test failed." ; exit 1)'
+    done
+    echotab 'echo "Test passed."'
+    echol
+  else
+    if [ $HOS = dos -o $HOS = os2 -o $HOS = win32 ] ; then
+      echotab "comp *.fas ${TESTDIR}"
+      echotab "REM The test passed if no differences were found."
       echol
     else
-      if [ $HOS = dos -o $HOS = os2 -o $HOS = win32 ] ; then
-        echotab "comp *.fas ${w}${TESTDIR}"
-        echotab "REM The test passed if no differences were found."
-        echol
-      else
-        echotab 'echo "Compare the .fas files by hand."'
-        echol
-      fi
+      echotab 'echo "Compare the .fas files by hand."'
+      echol
     fi
+  fi
 
-    echol "${w}${TESTDIR} :"
-    echotab "-mkdir ${w}${TESTDIR}"
+  echol "${TESTDIR} :"
+  echotab "-mkdir ${TESTDIR}"
+  echol
+
+  for f in $LPARTS ; do
+    echol "${TESTDIR}${NEXT_M}${f}.lsp : ${f}.lsp"
+    if [ $HOS = unix ] ; then
+      echotab "cd ${TESTDIR} && \$(LN) ${PARENT_}${f}.lsp ${f}.lsp"
+    else
+      echotab "\$(LN) ${f}.lsp ${TESTDIR}"
+    fi
     echol
-
-    for f in $LPARTS ; do
-      echol "${w}${TESTDIR}${NEXT_M}${f}.lsp : ${f}.lsp"
-      if [ $HOS = unix ] ; then
-        echotab "cd ${w}${TESTDIR} && \$(LN) ${PARENT_}${f}.lsp ${f}.lsp"
-      else
-        echotab "\$(LN) ${f}.lsp ${w}${TESTDIR}"
-      fi
-      echol
-    done
-
-    for f in $LPARTS ; do
-      echol "${w}${TESTDIR}${NEXT_M}${f}.fas : ${w}${TESTDIR}${NEXT_M}${f}.lsp ${w}lisp${LEXE} ${w}lispinit.mem"
-      echotab "${HERE}${w}lisp${LEXE} -M ${w}lispinit.mem$localeflags -q -c ${w}${TESTDIR}${NEXT}${f}.lsp"
-      echol
-    done
-
-    echol "${w}lispinit2.mem : ${w}lisp${LEXE} \$(${w}TESTFASFILES)"
-    echotab "${HERE}${w}lisp${LEXE}$localeflags"' -x "(cd \"'"${w}${TESTDIR}${NEXT}"'\") (load \"init.fas\") (cd \"'"${PARENT}"'\") (sys::%saveinitmem) (exit)"'
-    echotab "-\$(RM) ${w}lispinit2.mem"
-    echotab "\$(MV) lispimag.mem ${w}lispinit2.mem"
-    echol
-
   done
+
+  for f in $LPARTS ; do
+    echol "${TESTDIR}${NEXT_M}${f}.fas : ${TESTDIR}${NEXT_M}${f}.lsp lisp${LEXE} lispinit.mem"
+    echotab "${HERE}lisp${LEXE} -M lispinit.mem$localeflags -q -c ${TESTDIR}${NEXT}${f}.lsp"
+    echol
+  done
+
+  echol "lispinit2.mem : lisp${LEXE} \$(TESTFASFILES)"
+  echotab "${HERE}lisp${LEXE}$localeflags"' -x "(cd \"'"${TESTDIR}${NEXT}"'\") (load \"init.fas\") (cd \"'"${PARENT}"'\") (sys::%saveinitmem) (exit)"'
+  echotab "-\$(RM) lispinit2.mem"
+  echotab "\$(MV) lispimag.mem lispinit2.mem"
+  echol
 
   echol
 
@@ -2801,18 +2648,15 @@ if [ $CROSS = false ] ; then
     else
       localeflags=''
     fi
-    for w in `if test -n "$with_wide"; then echol "'' 'w'"; else echol "''"; fi` ; do
-      eval "w=$w"
-      echol "${w}testsuite : ${w}${TESTSDIR} ${w}lisp${LEXE} ${w}lispinit.mem"
-      echotab "LISP=\""'`pwd`'"/${w}lisp${LEXE} -M "'`pwd`'"/${w}lispinit.mem$localeflags\"; export LISP; cd ${w}${TESTSDIR}; \$(MAKE) LISP=\"\$\$LISP\""
-      echol
-      echol "${w}${TESTSDIR} :"
-      echotab "-mkdir ${w}${TESTSDIR}"
-      echotab "cd ${w}${TESTSDIR} && \$(LN) ${PARENT_SRCTOPDIR}tests/Makefile ."
-      echotab "cd ${w}${TESTSDIR} && \$(LN) ${PARENT_SRCTOPDIR}tests/*.lsp ."
-      echotab "cd ${w}${TESTSDIR} && \$(LN) ${PARENT_SRCTOPDIR}tests/*.tst ."
-      echol
-    done
+    echol "testsuite : ${TESTSDIR} lisp${LEXE} lispinit.mem"
+    echotab "LISP=\""'`pwd`'"/lisp${LEXE} -M "'`pwd`'"/lispinit.mem$localeflags\"; export LISP; cd ${TESTSDIR}; \$(MAKE) LISP=\"\$\$LISP\""
+    echol
+    echol "${TESTSDIR} :"
+    echotab "-mkdir ${TESTSDIR}"
+    echotab "cd ${TESTSDIR} && \$(LN) ${PARENT_SRCTOPDIR}tests/Makefile ."
+    echotab "cd ${TESTSDIR} && \$(LN) ${PARENT_SRCTOPDIR}tests/*.lsp ."
+    echotab "cd ${TESTSDIR} && \$(LN) ${PARENT_SRCTOPDIR}tests/*.tst ."
+    echol
     echol
 
   fi
@@ -2823,36 +2667,21 @@ if [ $HOS = unix ] && [ $XCC_GCC = true ] ; then
   echol "lispbibl.h :${EVERY_INCLUDES_C}${EVERY_INCLUDES_H}"
   echotab "((${XCPP} ${XCFLAGS} -P lispbibl.c | \$(GREP) -v \"^ *\$\$\") ; (${XCPP} ${XCFLAGS} -P -dM lispbibl.c | sort) ) > lispbibl.h"
   echol
-  if [ -n "$with_wide" ] ; then
-    echol "wlispbibl.h :${EVERY_INCLUDES_C}${EVERY_INCLUDES_H}"
-    echotab "((${XCPP} ${XCFLAGS} -DWIDE -P lispbibl.c | \$(GREP) -v \"^ *\$\$\") ; (${XCPP} ${XCFLAGS} -DWIDE -P -dM lispbibl.c | sort) ) > wlispbibl.h"
-    echol
-  fi
   echol
 fi
 
 if [ $HOS = unix ] && [ $CROSS = false ] ; then
-  if [ -n "$with_wide" ] ; then
-    echol "clisp.h : genclisph.o wgenclisph.o unixconf.h intparam.h"
-    echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "genclisph.o" "genclisph"
-    echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "wgenclisph.o" "wgenclisph"
-    echotab "(echo '#ifndef _CLISP_H' ; echo '#define _CLISP_H' ; echo ; grep '^#' unixconf.h ; echo ; grep '^#' intparam.h ; echo ; echo '#ifdef WIDE' ; echo ; ${HERE}wgenclisph ; echo ; echo '#else /* !WIDE */' ; echo ; ${HERE}genclisph ; echo ; echo '#endif /* WIDE */' ; echo ; echo '#endif /* _CLISP_H */') > clisp.h"
-    echotab "\$(RM) genclisph${HEXE}"
-    echotab "\$(RM) wgenclisph${HEXE}"
-    echol
-  else
-    echol "clisp.h : genclisph.o unixconf.h intparam.h"
-    echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "genclisph.o" "genclisph"
-    echotab "(echo '#ifndef _CLISP_H' ; echo '#define _CLISP_H' ; echo ; grep '^#' unixconf.h ; echo ; grep '^#' intparam.h ; echo ; ${HERE}genclisph ; echo ; echo '#endif /* _CLISP_H */') > clisp.h"
-    echotab "\$(RM) genclisph${HEXE}"
-    echol
-  fi
+  echol "clisp.h : genclisph.o unixconf.h intparam.h"
+  echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "genclisph.o" "genclisph"
+  echotab "(echo '#ifndef _CLISP_H' ; echo '#define _CLISP_H' ; echo ; grep '^#' unixconf.h ; echo ; grep '^#' intparam.h ; echo ; ${HERE}genclisph ; echo ; echo '#endif /* _CLISP_H */') > clisp.h"
+  echotab "\$(RM) genclisph${HEXE}"
+  echol
   echol
   echol "modular : ${FILES} clisp-link modules.d modules.c clisp.h modules.h makevars"
   echodummyrule modular
   echol
   echol "makevars :"
-  echotab "(echo 'CC='\"'\"'\$(CC)'\"'\" ; echo 'CFLAGS='\"'\"'\$(${MODULE_CFLAGS_VAR})'\"'\" ; echo 'CLFLAGS='\"'\"'\$(${MODULE_CLFLAGS_VAR})'\"'\" ; echo 'LIBS='\"'\"'lisp.a \$(LIBS)'\"'\" ; echo 'WLIBS='\"'\"'wlisp.a \$(LIBS)'\"'\" ; echo 'X_LIBS='\"'\"'\$(X_LIBS)'\"'\" ; echo 'RANLIB='\"'\"'\$(RANLIB)'\"'\" ; echo 'FILES='\"'\"'${FILES}'\"'\") > makevars"
+  echotab "(echo 'CC='\"'\"'\$(CC)'\"'\" ; echo 'CFLAGS='\"'\"'\$(${MODULE_CFLAGS_VAR})'\"'\" ; echo 'CLFLAGS='\"'\"'\$(${MODULE_CLFLAGS_VAR})'\"'\" ; echo 'LIBS='\"'\"'lisp.a \$(LIBS)'\"'\" ; echo 'X_LIBS='\"'\"'\$(X_LIBS)'\"'\" ; echo 'RANLIB='\"'\"'\$(RANLIB)'\"'\" ; echo 'FILES='\"'\"'${FILES}'\"'\") > makevars"
   echol
   for f in clisp-link ; do
     echol "${f} : ${SRCDIR}${f}.in"
@@ -2880,7 +2709,7 @@ if [ $HOS = unix ] && [ $CROSS = false ] ; then
   else
     localeflags=''
   fi
-  echotab "CLISP=\""'`pwd`'"/lisp${LEXE} -M "'`pwd`'"/lispinit.mem$localeflags\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) "`if [ -n "$with_wide" ] ; then echo clisp-module-wide; else echo clisp-module; fi`" CC=\"\$(CC)\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" LISPBIBL_INCLUDES=\"$EVERY_INCLUDES_DOTS_C\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
+  echotab "CLISP=\""'`pwd`'"/lisp${LEXE} -M "'`pwd`'"/lispinit.mem$localeflags\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(CC)\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" LISPBIBL_INCLUDES=\"$EVERY_INCLUDES_DOTS_C\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
   echol
   echol "full : modular \$(MODULES)"
   echotab "test -d full || CLISP_LINKKIT=. ./clisp-link add-module-sets base full \$(MODULES) || (\$(RM) -r full ; exit 1)"
@@ -2933,9 +2762,6 @@ for f in $TXT_FILES ; do
   if [ $f = README ] ; then
     depends=$depends" ${SRCDIR}_${f}.de ${SRCDIR}_${f}.en"
   fi
-  if [ $f = distmakefile -a -n "$with_wide" ] ; then
-    flags=$flags" -DWITH_WIDE"
-  fi
   echol "${f} : ${SRCDIR}_${f}${TXT_INCLUDES}${depends} txt2c${HEXE}"
   echotab "\$(TXT2C) < ${SRCDIR}_${f} > $txt.c"
   if [ $CROSS = false -a $XCC_UNUSABLE_CPP = true ] ; then
@@ -2969,7 +2795,7 @@ for f in $TXT_FILES ; do
     else
       localesed=""
     fi
-    line=$line" | (libs=''; for f in lisp.a \$(LIBS); do case \$\$f in -*) libs=\"\$\$libs \$\$f\";; *) libs=\"\$\$libs\"' base/'\"\$\$f\";; esac; done; wlibs=''; for f in wlisp.a \$(LIBS); do case \$\$f in -*) wlibs=\"\$\$wlibs \$\$f\";; *) wlibs=\"\$\$wlibs\"' base/'\"\$\$f\";; esac; done; files=''; for f in ${FILES}; do files=\"\$\$files\"' base/'\"\$\$f\"; done; sed$localesed -e \"s,@@BASE_LIBS@@,\$\$libs,g\" -e \"s,@@BASE_WLIBS@@,\$\$wlibs,g\" -e \"s,@@BASE_FILES@@,\$\$files,g\")"
+    line=$line" | (libs=''; for f in lisp.a \$(LIBS); do case \$\$f in -*) libs=\"\$\$libs \$\$f\";; *) libs=\"\$\$libs\"' base/'\"\$\$f\";; esac; done; wlibs=''; for f in wlisp.a \$(LIBS); do case \$\$f in -*) wlibs=\"\$\$wlibs \$\$f\";; *) wlibs=\"\$\$wlibs\"' base/'\"\$\$f\";; esac; done; files=''; for f in ${FILES}; do files=\"\$\$files\"' base/'\"\$\$f\"; done; sed$localesed -e \"s,@@BASE_LIBS@@,\$\$libs,g\" -e \"s,@@BASE_FILES@@,\$\$files,g\")"
   fi
   echotabpipe "${line} > ${f}"
   echotab "\$(RM) $txt.c"
@@ -3050,11 +2876,7 @@ if [ $CROSS = false ] ; then
         ;;
     esac
     echol
-    if [ -n "$with_wide" ] ; then
-      echol "install-bin : lisp${LEXE} lispinit.mem wlisp${LEXE} wlispinit.mem clisp.c force"
-    else
-      echol "install-bin : lisp${LEXE} lispinit.mem clisp.c force"
-    fi
+    echol "install-bin : lisp${LEXE} lispinit.mem clisp.c force"
     echotab "if [ ! -d \$(libdir) ] ; then mkdir \$(libdir) ; fi"
     echotab "if [ ! -d \$(lisplibdir) ] ; then mkdir \$(lisplibdir) ; fi"
     echotab "\$(INSTALL_PROGRAM) lisp${LEXE} \$(lisplibdir)/lisp${LEXE}"
@@ -3062,13 +2884,6 @@ if [ $CROSS = false ] ; then
     # echotab "strip \$(lisplibdir)/lisp${LEXE}"
     echotab "\$(RM) \$(lisplibdir)/lispinit.mem"
     echotab "\$(INSTALL_DATA) lispinit.mem \$(lisplibdir)/lispinit.mem"
-    if [ -n "$with_wide" ] ; then
-      echotab "\$(INSTALL_PROGRAM) wlisp${LEXE} \$(lisplibdir)/wlisp${LEXE}"
-      # Don't strip the executable, otherwise (disassemble #'cons) won't work.
-      # echotab "strip \$(lisplibdir)/wlisp${LEXE}"
-      echotab "\$(RM) \$(lisplibdir)/wlispinit.mem"
-      echotab "\$(INSTALL_DATA) wlispinit.mem \$(lisplibdir)/wlispinit.mem"
-    fi
     if [ -n "$USE_GETTEXT" ] ; then
       echotab "cd gettext/po && \$(MAKE) install prefix='\$(prefix)' exec_prefix='\$(exec_prefix)'"
       localeflags=" -N \$(localedir)"
@@ -3257,9 +3072,9 @@ if test -z "$BINARY_DISTRIB"; then
   echotab "\$(RM) \$(PACKDIR)/clisp\$(PACKEXT)"
   echotab "mkdir \$(TOPDIR)"
   echotab "${LN} ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es MAGIC.add \$(TOPDIR)"
-  echotab ". full/makevars ; full_files='' ; for f in modules.o \$\$FILES ; do full_files=\"\$\$full_files\"' full/'\"\$\$f\" ; done ; full_libs='' ; for f in modules.o \$\$LIBS ; do case \$\$f in -*) full_libs=\"\$\$full_libs \$\$f\";; *) full_libs=\"\$\$full_libs\"' full/'\"\$\$f\";; esac ; done ; full_wlibs='' ; for f in wmodules.o \$\$WLIBS ; do case \$\$f in -*) full_wlibs=\"\$\$full_wlibs \$\$f\";; *) full_wlibs=\"\$\$full_wlibs\"' full/'\"\$\$f\";; esac ; done ; sed -e \"s,@@FULL_FILES@@,\$\$full_files,\" -e \"s,@@FULL_LIBS@@,\$\$full_libs,\" -e \"s,@@FULL_WLIBS@@,\$\$full_wlibs,\" < distmakefile > \$(TOPDIR)/Makefile"
+  echotab ". full/makevars ; full_files='' ; for f in modules.o \$\$FILES ; do full_files=\"\$\$full_files\"' full/'\"\$\$f\" ; done ; full_libs='' ; for f in modules.o \$\$LIBS ; do case \$\$f in -*) full_libs=\"\$\$full_libs \$\$f\";; *) full_libs=\"\$\$full_libs\"' full/'\"\$\$f\";; esac ; done ; sed -e \"s,@@FULL_FILES@@,\$\$full_files,\" -e \"s,@@FULL_LIBS@@,\$\$full_libs,\" < distmakefile > \$(TOPDIR)/Makefile"
   echotab "mkdir \$(TOPDIR)/base"
-  echotab "${LN} ${FILES} modules.h makevars lispinit.mem "`if [ -n "$with_wide" ] ; then echo wlispinit.mem; fi`" \$(TOPDIR)/base"
+  echotab "${LN} ${FILES} modules.h makevars lispinit.mem \$(TOPDIR)/base"
   if [ -n "$USE_GETTEXT" ] ; then
     echotab "for f in \`find locale -type d -print\`; do mkdir \$(TOPDIR)/\$\$f; done"
     echotab "for f in \`find locale -type f -print\`; do ${LN} \$\$f \$(TOPDIR)/\$\$f; done"
@@ -3275,14 +3090,10 @@ if test -z "$BINARY_DISTRIB"; then
   echotab "mkdir \$(TOPDIR)/linkkit"
   echotab "${LN} modules.d modules.c clisp.h \$(TOPDIR)/linkkit"
   echotab "for module in '' \$(MODULES); do if test -n \"\$\$module\"; then \\"
-  echotab "  (dir=\$(TOPDIR)/ ; for subdir in "'`'"echo \$\$module/ | sed -e 's,/, ,g'"'`'" ; do dir=\$\${dir}\$\${subdir} ; test -d \$\${dir} || mkdir \$\${dir} ; dir=\$\${dir}/ ; done ; cd \$\$module ; dots="'`'"echo \$\$module/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) "`if [ -n "$with_wide" ] ; then echo clisp-module-distrib-wide; else echo clisp-module-distrib; fi`" distribdir=\$\${dots}\$(TOPDIR)/\$\$module LN="`if test "$LN" = ln; then echo 'ln'; else echo '$${dots}hln'; fi`") \\"
+  echotab "  (dir=\$(TOPDIR)/ ; for subdir in "'`'"echo \$\$module/ | sed -e 's,/, ,g'"'`'" ; do dir=\$\${dir}\$\${subdir} ; test -d \$\${dir} || mkdir \$\${dir} ; dir=\$\${dir}/ ; done ; cd \$\$module ; dots="'`'"echo \$\$module/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) clisp-module-distrib distribdir=\$\${dots}\$(TOPDIR)/\$\$module LN="`if test "$LN" = ln; then echo 'ln'; else echo '$${dots}hln'; fi`") \\"
   echotab "fi; done"
   echotab "mkdir \$(TOPDIR)/full"
-  # The next line is split into three parts to work around a bash-1.14.7 bug.
-  linepart1="${LN} "'`'". full/makevars ; for f in \$\$FILES modules.o modules.h makevars lispinit.mem "
-  linepart2=`if [ -n "$with_wide" ] ; then echo wmodules.o wlispinit.mem; fi`
-  linepart3=" ; do echo full/\$\$f ; done"'`'" \$(TOPDIR)/full"
-  echotab "${linepart1}${linepart2}${linepart3}"
+  echotab "${LN} "'`'". full/makevars ; for f in \$\$FILES modules.o modules.h makevars lispinit.mem ; do echo full/\$\$f ; done"'`'" \$(TOPDIR)/full"
   echotab "chmod a+r \$(TOPDIR) \$(TOPDIR)/* \$(TOPDIR)/*/*"
   echotab "chmod a+x \$(TOPDIR)/. \$(TOPDIR)/*/."
   echotab "\$(PACK) \$(PACKOPT) \$(PACKDIR)/clisp\$(PACKEXT) \$(TOPDIR)"
@@ -3301,13 +3112,6 @@ else
   # echotab "strip \$(TOPDIR)/base/lisp.run"
   echotab "chmod a+x \$(TOPDIR)/base/lisp.run"
   echotab "${LN} lispinit.mem \$(TOPDIR)/base"
-  if [ -n "$with_wide" ] ; then
-    echotab "cp wlisp.run \$(TOPDIR)/base/wlisp.run"
-    # Don't strip the executable, otherwise (disassemble #'cons) won't work.
-    # echotab "strip \$(TOPDIR)/base/wlisp.run"
-    echotab "chmod a+x \$(TOPDIR)/base/wlisp.run"
-    echotab "${LN} wlispinit.mem \$(TOPDIR)/base"
-  fi
   if [ -n "$USE_GETTEXT" ] ; then
     echotab "for f in \`find locale -type d -print\`; do mkdir \$(TOPDIR)/\$\$f; done"
     echotab "for f in \`find locale -type f -print\`; do ${LN} \$\$f \$(TOPDIR)/\$\$f; done"

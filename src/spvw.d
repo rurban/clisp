@@ -11855,7 +11855,7 @@ local uintC generation;
       #ifdef MULTIMAP_MEMORY_VIA_FILE
       var local char* argv_tmpdir = NULL;
       #endif
-      var local boolean argv_wide = FALSE;
+      var local boolean argv_wide = FALSE; # for backward compatibility
       var local char* argv_memfile = NULL;
       var local boolean argv_load_compiling = FALSE;
       var local uintL argv_init_filecount = 0;
@@ -12010,7 +12010,7 @@ local uintC generation;
                     argv_tmpdir = arg;
                     break;
                   #endif
-                  case 'W': # WIDE-Version wählen
+                  case 'W': # WIDE-Version wählen, for backward compatibility
                     argv_wide = TRUE;
                     if (!(arg[2] == '\0')) goto usage;
                     break;
@@ -12133,7 +12133,7 @@ local uintC generation;
       #endif
       #ifdef UNIX
       if (!(argv_memfile == NULL))
-        { # Search a ':' in argv_memfile.
+        { # Search a ':' in argv_memfile, for backward compatibility.
           var char* ptr = argv_memfile;
           until (*ptr == '\0' || *ptr == ':') { ptr++; }
           if (*ptr != '\0')
