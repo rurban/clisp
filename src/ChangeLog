@@ -1,3 +1,7 @@
+2002-12-05  Sam Steingold  <sds@gnu.org>
+
+	* clx.f (get_event_mask): fixed error handling
+
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
 	* foreign.d (convert_function_to_foreign, init_ffi): Add casts to make

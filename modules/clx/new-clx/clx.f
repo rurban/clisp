@@ -1,4 +1,4 @@
-// -*- mode: c++ -*-
+// -*- mode: d -*-
 // Copyright (c) 1996-1999 by Gilbert Baumann, distributed under GPL
 // ----------------------------------------------------------------------------
 //
@@ -1825,58 +1825,51 @@ local unsigned int get_modifier_mask (object obj)
 
 
 local unsigned long get_event_mask (object obj)
-     /* get_event_mask could handle a numerical and symbolic representation of an event mask */
+/* get_event_mask could handle a numerical and symbolic
+   representation of an event mask */
 {
-  if (uint32_p (obj))
-    {
-      return get_uint32 (obj);
+  if (uint32_p (obj)) {
+    return get_uint32 (obj);
+  } else if (listp (obj)) {
+    /* We have a list of keys */
+    unsigned long mask = 0;
+    for (; consp (obj); obj = Cdr (obj)) {
+      /* I know this is brute force, but ... */
+           if (eq(Car (obj), `:KEY-PRESS`))		mask |= (1L<<0);
+      else if (eq(Car (obj), `:KEY-RELEASE`))		mask |= (1L<<1);
+      else if (eq(Car (obj), `:BUTTON-PRESS`))		mask |= (1L<<2);
+      else if (eq(Car (obj), `:BUTTON-RELEASE`))	mask |= (1L<<3);
+      else if (eq(Car (obj), `:ENTER-WINDOW`))		mask |= (1L<<4);
+      else if (eq(Car (obj), `:LEAVE-WINDOW`))		mask |= (1L<<5);
+      else if (eq(Car (obj), `:POINTER-MOTION`))	mask |= (1L<<6);
+      else if (eq(Car (obj), `:POINTER-MOTION-HINT`))	mask |= (1L<<7);
+      else if (eq(Car (obj), `:BUTTON-1-MOTION`)) 	mask |= (1L<<8);
+      else if (eq(Car (obj), `:BUTTON-2-MOTION`)) 	mask |= (1L<<9);
+      else if (eq(Car (obj), `:BUTTON-3-MOTION`)) 	mask |= (1L<<10);
+      else if (eq(Car (obj), `:BUTTON-4-MOTION`)) 	mask |= (1L<<11);
+      else if (eq(Car (obj), `:BUTTON-5-MOTION`)) 	mask |= (1L<<12);
+      else if (eq(Car (obj), `:BUTTON-MOTION`))		mask |= (1L<<13);
+      else if (eq(Car (obj), `:KEYMAP-STATE`)) 		mask |= (1L<<14);
+      else if (eq(Car (obj), `:EXPOSURE`)) 		mask |= (1L<<15);
+      else if (eq(Car (obj), `:VISIBILITY-CHANGE`))	mask |= (1L<<16);
+      else if (eq(Car (obj), `:STRUCTURE-NOTIFY`)) 	mask |= (1L<<17);
+      else if (eq(Car (obj), `:RESIZE-REDIRECT`))	mask |= (1L<<18);
+      else if (eq(Car (obj), `:SUBSTRUCTURE-NOTIFY`))	mask |= (1L<<19);
+      else if (eq(Car (obj), `:SUBSTRUCTURE-REDIRECT`)) mask |= (1L<<20);
+      else if (eq(Car (obj), `:FOCUS-CHANGE`))		mask |= (1L<<21);
+      else if (eq(Car (obj), `:PROPERTY-CHANGE`)) 	mask |= (1L<<22);
+      else if (eq(Car (obj), `:COLORMAP-CHANGE`)) 	mask |= (1L<<23);
+      else if (eq(Car (obj), `:OWNER-GRAB-BUTTON`))	mask |= (1L<<24);
+      else goto raise_type_error;
     }
-  else
-    if (listp (obj))
-      {
-	/* We have a list of keys */
-	unsigned long mask = 0;
-	for (; consp (obj); obj = Cdr (obj))
-	  {
-	    /* I know this is brute force, but ... */
-	         if (eq(Car (obj), `:KEY-PRESS`))		mask |= (1L<<0);
-	    else if (eq(Car (obj), `:KEY-RELEASE`))		mask |= (1L<<1);
-	    else if (eq(Car (obj), `:BUTTON-PRESS`))		mask |= (1L<<2);
-	    else if (eq(Car (obj), `:BUTTON-RELEASE`))		mask |= (1L<<3);
-	    else if (eq(Car (obj), `:ENTER-WINDOW`))		mask |= (1L<<4);
-	    else if (eq(Car (obj), `:LEAVE-WINDOW`))		mask |= (1L<<5);
-	    else if (eq(Car (obj), `:POINTER-MOTION`))		mask |= (1L<<6);
-	    else if (eq(Car (obj), `:POINTER-MOTION-HINT`))	mask |= (1L<<7);
-	    else if (eq(Car (obj), `:BUTTON-1-MOTION`)) 	mask |= (1L<<8);
-	    else if (eq(Car (obj), `:BUTTON-2-MOTION`)) 	mask |= (1L<<9);
-	    else if (eq(Car (obj), `:BUTTON-3-MOTION`)) 	mask |= (1L<<10);
-	    else if (eq(Car (obj), `:BUTTON-4-MOTION`)) 	mask |= (1L<<11);
-	    else if (eq(Car (obj), `:BUTTON-5-MOTION`)) 	mask |= (1L<<12);
-	    else if (eq(Car (obj), `:BUTTON-MOTION`))		mask |= (1L<<13);
-	    else if (eq(Car (obj), `:KEYMAP-STATE`)) 		mask |= (1L<<14);
-	    else if (eq(Car (obj), `:EXPOSURE`)) 		mask |= (1L<<15);
-	    else if (eq(Car (obj), `:VISIBILITY-CHANGE`))	mask |= (1L<<16);
-	    else if (eq(Car (obj), `:STRUCTURE-NOTIFY`)) 	mask |= (1L<<17);
-	    else if (eq(Car (obj), `:RESIZE-REDIRECT`))		mask |= (1L<<18);
-	    else if (eq(Car (obj), `:SUBSTRUCTURE-NOTIFY`))	mask |= (1L<<19);
-	    else if (eq(Car (obj), `:SUBSTRUCTURE-REDIRECT`))	mask |= (1L<<20);
-	    else if (eq(Car (obj), `:FOCUS-CHANGE`))		mask |= (1L<<21);
-	    else if (eq(Car (obj), `:PROPERTY-CHANGE`)) 	mask |= (1L<<22);
-	    else if (eq(Car (obj), `:COLORMAP-CHANGE`)) 	mask |= (1L<<23);
-	    else if (eq(Car (obj), `:OWNER-GRAB-BUTTON`))	mask |= (1L<<24);
-	    else goto raise_type_error;
-	  }
-	if (!eq(obj, NIL))
-	  goto raise_type_error;
-
-	return mask;
-      }
-    else
-      goto raise_type_error;
-
+    if (!eq(obj, NIL))
+      fehler_proper_list(TheSubr(subr_self)->name,obj);
+    return mask;
+  }
  raise_type_error:
-    NOTIMPLEMENTED;
-  ;
+  pushSTACK(obj);
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(error,GETTEXT("~: invalid event mask ~"));
 }
 
 local object make_event_mask (unsigned long mask)
