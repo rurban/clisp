@@ -10497,6 +10497,11 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   extern void init_encodings (void);
 # wird verwendet von SPVW
 
+# Initialize the encodings which depend on environment variables.
+# init_dependent_encodings();
+  extern void init_dependent_encodings (void);
+# wird verwendet von SPVW
+
 # Maximum number of bytes needed to form a character, over all encodings.
 # max_bytes_per_chart
   #ifdef UNICODE
