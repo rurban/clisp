@@ -69,43 +69,43 @@ all : makefiles configures potfiles src/FILES src/version.h utils/comment5.c src
 makefiles : dos/makefile dosdjgpp/makefile doswatcom/makefile os2/makefile win32gcc/makefile win32msvc/makefile.msvc4 win32msvc/makefile.msvc5 win32bc/makefile acorn/makefile.cc acorn/makefile.gcc src/readline/Makefile.dos src/readline/Makefile.os2 src/readline/Makefile.go32 src/newreadline/Makefile.dos src/newreadline/Makefile.os2 src/newreadline/Makefile.go32
 
 dos/makefile : makemake
-	makemake dos gcc > dos/makefile.tmp
+	./makemake dos gcc > dos/makefile.tmp
 	utils/move-if-change dos/makefile.tmp dos/makefile
 
 dosdjgpp/makefile : makemake
-	makemake dosdjgpp gcc > dosdjgpp/makefile.tmp
+	./makemake dosdjgpp gcc > dosdjgpp/makefile.tmp
 	utils/move-if-change dosdjgpp/makefile.tmp dosdjgpp/makefile
 
 doswatcom/makefile : makemake
-	makemake doswatcom wcl386 > doswatcom/makefile.tmp
+	./makemake doswatcom wcl386 > doswatcom/makefile.tmp
 	utils/move-if-change doswatcom/makefile.tmp doswatcom/makefile
 
 os2/makefile : makemake
-	makemake os2 gcc > os2/makefile.tmp
+	./makemake os2 gcc > os2/makefile.tmp
 	utils/move-if-change os2/makefile.tmp os2/makefile
 
 win32gcc/makefile : makemake
-	makemake win32gcc gcc > win32gcc/makefile.tmp
+	./makemake win32gcc gcc > win32gcc/makefile.tmp
 	utils/move-if-change win32gcc/makefile.tmp win32gcc/makefile
 
 win32msvc/makefile.msvc4 : makemake
-	makemake --with-dynamic-ffi win32msvc msvc4 > win32msvc/makefile.tmp
+	./makemake --with-dynamic-ffi win32msvc msvc4 > win32msvc/makefile.tmp
 	utils/move-if-change win32msvc/makefile.tmp win32msvc/makefile.msvc4
 
 win32msvc/makefile.msvc5 : makemake
-	makemake --with-dynamic-ffi win32msvc msvc5 > win32msvc/makefile.tmp
+	./makemake --with-dynamic-ffi win32msvc msvc5 > win32msvc/makefile.tmp
 	utils/move-if-change win32msvc/makefile.tmp win32msvc/makefile.msvc5
 
 win32bc/makefile : makemake
-	makemake win32bc bcc32i > win32bc/makefile.tmp
+	./makemake win32bc bcc32i > win32bc/makefile.tmp
 	utils/move-if-change win32bc/makefile.tmp win32bc/makefile
 
 acorn/makefile.cc : makemake src/VERSION
-	makemake acorn ansi | acorn/swap-ext.pl > acorn/makefile.tmp
+	./makemake acorn ansi | acorn/swap-ext.pl > acorn/makefile.tmp
 	utils/move-if-change acorn/makefile.tmp acorn/makefile.cc
 
 acorn/makefile.gcc : makemake src/VERSION
-	makemake acorn gcc | acorn/swap-ext.pl > acorn/makefile.tmp
+	./makemake acorn gcc | acorn/swap-ext.pl > acorn/makefile.tmp
 	utils/move-if-change acorn/makefile.tmp acorn/makefile.gcc
 
 makemake : src/makemake.in
