@@ -1,5 +1,9 @@
 2004-02-14  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (cclosure_flags) [TYPECODES]: Fix.
+
+2004-02-14  Bruno Haible  <bruno@clisp.org>
+
 	* loadform.lisp (simple-missing-load-form): New type.
 	(signal-missing-load-form): Show the object as well.
 
