@@ -797,6 +797,24 @@
   (add-direct-subclass-internal class subclass))
 (defun remove-direct-subclass (class subclass)
   (remove-direct-subclass-internal class subclass))
+(defun class-direct-subclasses (class)
+  (list-direct-subclasses class))
+
+(defun checked-class-direct-subclasses (class)
+  (let ((result (class-direct-subclasses class)))
+    ; Some checks, to guarantee that user-defined methods on
+    ; class-direct-subclasses don't break our CLOS.
+    (unless (proper-list-p result)
+      (error (TEXT "Wrong ~S result for class ~S: not a proper list: ~S")
+             'class-direct-subclasses (class-name class) result))
+    (dolist (c result)
+      (unless (class-p c)
+        (error (TEXT "Wrong ~S result for class ~S: list element is not a class: ~S")
+               'class-direct-subclasses (class-name class) c))
+      (unless (memq class (class-direct-superclasses c))
+        (error (TEXT "Wrong ~S result for class ~S: ~S is not a direct superclass of ~S")
+               'class-direct-subclasses (class-name class) class c)))
+    result))
 
 (defun update-subclasses-sets (class old-direct-superclasses new-direct-superclasses)
   ;; Drop classes that are not yet defined; they have no subclasses list.
@@ -2051,7 +2069,7 @@
                          (list-finalized-direct-subclasses class)
                          ; <class> stores only the complete direct-subclasses list.
                          (remove-if-not #'(lambda (c) (= (class-initialized c) 6))
-                                        (list-direct-subclasses class)))
+                                        (checked-class-direct-subclasses class)))
                        new-pending))))
         (setq pending (nreverse new-pending))))
     ;; Now reorder the list so that superclasses come before, not after, a
