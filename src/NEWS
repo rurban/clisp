@@ -161,7 +161,7 @@ User visible changes
   + Documentation strings are now attached to class objects, not just to
     their name.
   + Arrays with total array size 0 are printed in a lossy way if
-    CUSTOM:*PRINT-EMPTY-ARRAYS-ANSI* is true.
+    CUSTOM:*PRINT-EMPTY-ARRAYS-ANSI* is true and *PRINT-READABLY* is false.
   + Allow () to match NIL in destructuring lambda lists.
   + Documentation strings at a place where only declarations and forms are
     allowed now give a warning, not an error.
@@ -183,6 +183,8 @@ User visible changes
     pathnames before accessing the file system.
   + LOGICAL-PATHNAME now gives an error if the argument string does not
     contain a host specification.
+  + The PRINT-UNREADABLE macro prints extraneous spaces if
+    CUSTOM:*PRINT-UNREADABLE-ANSI* is true.
   Thanks to Paul F. Dietz <dietz@dls.net> and his ANSI compliance
   suite, which helped detect some of these deficiencies.
   Thanks to Yuji Minejima <ggb01164@nifty.ne.jp> and his ANSI compliance
