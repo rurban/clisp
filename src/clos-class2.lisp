@@ -47,7 +47,7 @@
   direct-slots             ; list of all freshly added slots (as plists)
   direct-default-initargs  ; freshly added default-initargs (as plist)
   instantiated             ; true if an instance has already been created
-  direct-subclasses        ; list of weak-pointers to all direct subclasses
+  direct-subclasses        ; list of weak-pointers to all finalized direct subclasses
   proto)                   ; class prototype - an instance or NIL
 
 ;; CLtL2 28.1.4., ANSI CL 4.3.7. Integrating Types and Classes
@@ -439,7 +439,8 @@
             ;; subclasses of class!
           )
           ;; Instances have to be updated:
-          (progn
+          (let ((was-finalized (class-precedence-list class))
+                (old-direct-superclasses (class-direct-superclasses class)))
             (setf (class-proto class) nil)
             (let ((*make-instances-obsolete-caller* 'defclass))
               (make-instances-obsolete class))
@@ -455,7 +456,8 @@
                    :direct-superclasses direct-superclasses
                    all-keys)
             ;; FIXME: Need to handle changes of shared slots here?
-            (update-subclasses-for-redefined-class class)))
+            (update-subclasses-for-redefined-class class
+              was-finalized old-direct-superclasses)))
         ;; Modified class as value:
         class)
       (setf (find-class name)
@@ -940,16 +942,52 @@
 ;; After a class redefinition, finalize the subclasses so that the instances
 ;; can be updated.
 ;; FIXME: What should we do if this finalization fails?
-(defun update-subclasses-for-redefined-class (class)
-  (when (class-precedence-list class) ; nothing to do if not yet finalized
+(defun update-subclasses-for-redefined-class (class was-finalized old-direct-superclasses)
+  (when was-finalized ; nothing to do if not finalized before the redefinition
+    ;; Handle the class itself specially, because its superclasses list now is
+    ;; not the same as before.
+    (let ((old-augmented-direct-superclasses
+            (add-default-superclass old-direct-superclasses <standard-object>)))
+      (setf (class-precedence-list class) nil) ; mark as not yet finalized
+      (setf (class-all-superclasses class) nil) ; mark as not yet finalized
+      (if (class-instantiated class)
+        ;; The class remains finalized.
+        (progn
+          (finalize-class class t)
+          (let ((new-augmented-direct-superclasses
+                  (add-default-superclass (class-direct-superclasses class) <standard-object>)))
+            (unless (equal old-augmented-direct-superclasses new-augmented-direct-superclasses)
+              (let ((removed-direct-superclasses
+                      (set-difference old-augmented-direct-superclasses new-augmented-direct-superclasses))
+                    (added-direct-superclasses
+                      (set-difference new-augmented-direct-superclasses old-augmented-direct-superclasses)))
+                (dolist (super removed-direct-superclasses)
+                  (when (standard-class-p super)
+                    (remove-direct-subclass super class)))
+                (dolist (super added-direct-superclasses)
+                  (when (standard-class-p super)
+                    (add-direct-subclass super class)))))))
+        ;; The class becomes unfinalized.
+        (dolist (super old-augmented-direct-superclasses)
+          (when (standard-class-p super)
+            (remove-direct-subclass super class)))))
+    ;; Now handle the true subclasses.
     (mapc #'update-subclasses-for-redefined-class-nonrecursive
-          (list-all-subclasses class))))
+          (rest (list-all-subclasses class)))))
 
 (defun update-subclasses-for-redefined-class-nonrecursive (class)
-  (setf (class-precedence-list class) nil) ; mark as not yet finalized
-  (setf (class-all-superclasses class) nil) ; mark as not yet finalized
-  (when (class-instantiated class)
-    (finalize-class class t)))
+  (when (class-precedence-list class) ; nothing to do if not yet finalized
+    (setf (class-precedence-list class) nil) ; mark as not yet finalized
+    (setf (class-all-superclasses class) nil) ; mark as not yet finalized
+    (if (class-instantiated class)
+      ;; The class remains finalized.
+      (finalize-class class t)
+      ;; The class becomes unfinalized.
+      (let ((augmented-direct-superclasses
+              (add-default-superclass (class-direct-superclasses class) <standard-object>)))
+        (dolist (super augmented-direct-superclasses)
+          (when (standard-class-p super)
+            (remove-direct-subclass super class)))))))
 
 ;; Store the information needed by the update of obsolete instances in a
 ;; class-version object. Invoked when an instance needs to be updated.
@@ -989,6 +1027,13 @@
     (setf (cv-slotlists-valid-p old-version) t)))
 
 ;; --------------- Auxiliary functions for <standard-class> ---------------
+
+;;; Maintaining the weak references to the finalized direct subclasses.
+;;; (We need only the finalized subclasses, because:
+;;;  - The only use of these references is for make-instances-obsolete and for
+;;;    update-subclasses-for-redefined-class.
+;;;  - A non-finalized class cannot have instances.
+;;;  - Without an instance one cannot even access the shared slots.)
 
 ;; Iterates over the list of direct subclasses, cleaning unused weak-pointers.
 ;; Also removes those objects for which the function returns true.

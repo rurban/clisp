@@ -1,3 +1,8 @@
+2004-04-15  Bruno Haible  <bruno@clisp.org>
+
+	* clos.tst: Add tests regarding the update of the direct-subclasses
+	lists during redefinition of finalized and non-finalized classes.
+
 2004-04-25  Bruno Haible  <bruno@clisp.org>
 
 	* excepsit.tst: Invoke a nonexistent restart, instead of ABORT.
