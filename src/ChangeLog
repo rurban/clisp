@@ -1,5 +1,12 @@
 1998-05-17  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
+        * conditio.lsp (parse-error, reader-error): New classes.
+          Export PARSE-ERROR and READER-ERROR.
+        * init.lsp: Export PARSE-ERROR and READER-ERROR.
+        * defs3.lsp: Likewise.
+
+1998-05-17  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
         * record.d (SLOT-VALUE): Return only the first return value of
           SLOT-UNBOUND.
           (SYS::SET-SLOT-VALUE): Ignore the return values of SLOT-MISSING.

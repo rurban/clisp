@@ -11,9 +11,9 @@ arithmetic-error division-by-zero floating-point-overflow
 floating-point-underflow floating-point-inexact
 floating-point-invalid-operation
 cell-error unbound-variable undefined-function
-type-error package-error print-not-readable stream-error end-of-file
-file-error storage-condition warning simple-condition simple-error
-simple-type-error simple-warning
+type-error package-error print-not-readable parse-error stream-error
+end-of-file reader-error file-error storage-condition warning
+simple-condition simple-error simple-type-error simple-warning
 ;; macros:
 define-condition handler-bind ignore-errors handler-case
 with-condition-restarts restart-bind restart-case with-restarts
@@ -235,9 +235,15 @@ muffle-cerrors appease-cerrors exit-on-error
 ;   |   |   |
 ;   |   |   |-- program-error
 ;   |   |   |
-;   |   |   |-- stream-error
+;   |   |   |-- parse-error
 ;   |   |   |   |
-;   |   |   |   |-- end-of-file
+;   |   |   |   +---------------------+
+;   |   |   |                         |
+;   |   |   |-- stream-error          |
+;   |   |   |   |                     |
+;   |   |   |   |-- end-of-file       |
+;   |   |   |   |                     |
+;   |   |   |   +---------------------+-- reader-error
 ;   |   |   |
 ;   |   |   |-- type-error
 ;   |   |       |
@@ -324,7 +330,7 @@ muffle-cerrors appease-cerrors exit-on-error
       (($object :initarg :object :reader print-not-readable-object))
     )
 
-    #+ANSI-CL (define-condition parse-error (error) ())
+    (define-condition parse-error (error) ())
 
     ; errors while doing stream I/O
     (define-condition stream-error (error)
@@ -334,7 +340,7 @@ muffle-cerrors appease-cerrors exit-on-error
       ; unexpected end of stream
       (define-condition end-of-file (stream-error) ())
 
-      #+ANSI-CL (define-condition reader-error (parse-error stream-error) ())
+      (define-condition reader-error (parse-error stream-error) ())
 
     ; errors with pathnames, OS level errors with streams
     (define-condition file-error (error)

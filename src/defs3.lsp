@@ -26,9 +26,9 @@ concatenated-stream two-way-stream echo-stream string-stream string
 string-char symbol t vector satisfies values mod signed-byte unsigned-byte
 restart condition warning serious-condition error simple-condition
 simple-warning simple-error storage-condition type-error simple-type-error
-program-error control-error package-error print-not-readable stream-error
-end-of-file file-error cell-error unbound-variable undefined-function
-arithmetic-error division-by-zero floating-point-overflow
+program-error control-error package-error print-not-readable parse-error
+stream-error end-of-file reader-error file-error cell-error unbound-variable
+undefined-function arithmetic-error division-by-zero floating-point-overflow
 floating-point-underflow floating-point-inexact
 floating-point-invalid-operation
 ;; Klassen:
