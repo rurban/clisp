@@ -68,8 +68,8 @@
  <arg><option><link linkend="opt-verbose">--silent</link></option></arg>
  <arg>&opt-v;</arg>
  <arg><option><link linkend="opt-verbose">--verbose</link></option></arg></group>
-<arg><option><link linkend="opt-interactive-debug"
-                   >-interactive-debug</link></option></arg>
+<arg><option><link linkend="opt-on-error">-on-error
+   <replaceable>action</replaceable></link></option></arg>
 <arg><option><link linkend="opt-repl">-repl</link></option></arg>
 <arg><option><link linkend="opt-wait">-w</link></option></arg>
 <arg><option><link linkend="opt-ilisp">-I</link></option></arg>
@@ -286,7 +286,7 @@ compiles the specified lisp files to a platform-independent
  &load-print-var; and &compile-print-var; to &nil;, as per &ansi-cl;.
  The first <option>-q</option> removes the banner and the good-bye message,
  the second sets variables &load-verbose-var; and &compile-verbose-var; to
- &nil;.  <option>-v</option> sets variables &load-print-var; and
+ &nil;.  <option>-v</option> sets variables &err-pr-bt, &load-print-var; and
  &compile-print-var; to &t;.  These settings affect the output produced by
  <option><link linkend="opt-init">-i</link></option> and
  &opt-c; options.
@@ -295,13 +295,25 @@ compiles the specified lisp files to a platform-independent
  <option>-q -q -v -v -v</option> is equivalent to <option>-v</option>.
 </simpara></listitem></varlistentry>
 
-<varlistentry id="opt-interactive-debug">
- <term><option>-interactive-debug</option></term>
- <listitem><simpara>Override the batch mode imposed by
-   &opt-c;, &opt-x;, and <link linkend="opt-exec-file">&lf;</link>:
-   &cont-err;s are still turned into &warning-t;s,
-   but other &error-t;s are handled interactively.
-</simpara></listitem></varlistentry>
+<varlistentry id="opt-on-error">
+ <term><option>-on-error</option> <replaceable>action</replaceable></term>
+ <listitem><para>Override (or force) the batch mode imposed by
+   &opt-c;, &opt-x;, and <link linkend="opt-exec-file">&lf;</link>,
+   depending on <replaceable>action</replaceable>:<variablelist>
+    <varlistentry><term>appease</term>
+     <listitem><simpara>&cont-err;s are turned into &warning-t;s (with
+       &appease-cerrors;) other &error-t;s are handled in the default way
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>debug</term>
+     <listitem><simpara>&error-t;s &invoke-debugger;
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>abort</term>
+     <listitem><simpara>&cont-err;s are appeased, other &error-t;s
+       are &abort;ed with &abort-on-error;</simpara></listitem></varlistentry>
+    <varlistentry><term>exit</term>
+     <listitem><simpara>&cont-err;s are appeased, other &error-t;s terminate
+       &clisp; with &exit-on-error;</simpara></listitem></varlistentry>
+</variablelist></para></listitem></varlistentry>
 
 <varlistentry id="opt-repl"><term><option>-repl</option></term>
  <listitem><simpara>Start an interactive &repl; after processing the

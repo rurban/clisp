@@ -35,11 +35,14 @@
 (in-package "EXT")
 (export
  '(muffle-cerrors appease-cerrors exit-on-error with-restarts os-error
+   abort-on-error
    source-program-error source-program-error-form source-program-error-detail
    simple-condition-format-string simple-charset-type-error retry)
  "EXT")
 (in-package "CUSTOM")
-(common-lisp:export '(*break-on-warnings*) "CUSTOM")
+(common-lisp:export
+ '(*break-on-warnings* *report-error-print-backtrace*)
+ "CUSTOM")
 (ext:re-export "CUSTOM" "EXT")
 (common-lisp:in-package "SYSTEM")
 
@@ -1663,11 +1666,17 @@ its CONTINUE restart is invoked."
   `(HANDLER-BIND ((ERROR #'APPEASE-CERROR))
      ,@body))
 
-(defun exitunconditionally (condition) ; ABI
+(defvar *report-error-print-backtrace* nil)
+(defun report-error (condition)
+  (when *report-error-print-backtrace*
+    (print-backtrace :out *error-output*))
   (fresh-line *error-output*)
   (write-string "*** - " *error-output*)
   (pretty-print-condition condition *error-output*)
-  (elastic-newline *error-output*)
+  (elastic-newline *error-output*))
+
+(defun exitunconditionally (condition) ; ABI
+  (report-error condition)
   (exit t))                     ; exit Lisp with error
 (defun exitonerror (condition) ; ABI
   (unless (find-noninteractively-invokable-continue-restart condition)
@@ -1685,3 +1694,16 @@ just as a batch program should do: continuable errors are signalled as
 warnings, non-continuable errors and Ctrl-C interrupts cause Lisp to exit."
   `(EXIT-ON-ERROR (APPEASE-CERRORS ,@body)))
 
+(defun abortonerror (condition) ; ABI
+  (report-error condition)
+  (invoke-restart (find-restart 'abort condition)))
+
+(defmacro abort-on-error (&body body)
+  "(ABORT-ON-ERROR {form}*) executes the forms and aborts all errors."
+  `(HANDLER-BIND ((SERIOUS-CONDITION #'ABORTONERROR))
+     ,@body))
+
+(defmacro abort-errors (&body body)
+  "(ABORT-ERRORS {form}*) executes the forms
+and aborts all errors that it cannot appease."
+  `(ABORT-ON-ERROR (APPEASE-CERRORS ,@body)))

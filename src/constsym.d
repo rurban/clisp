@@ -1977,9 +1977,12 @@ LISPSYM(load_verbose,"*LOAD-VERBOSE*",lisp) /* variable for SPVW */
 LISPSYM(load_print,"*LOAD-PRINT*",lisp) /* variable for SPVW */
 LISPSYM(compile_print,"*COMPILE-PRINT*",lisp) /* variable for SPVW */
 LISPSYM(compile_verbose,"*COMPILE-VERBOSE*",lisp) /* variable for SPVW */
+LISPSYM(report_error_print_backtrace,"*REPORT-ERROR-PRINT-BACKTRACE*",custom) /* variable for SPVW */
 LISPSYM(args,"*ARGS*",ext) /* variable in SPVW */
 LISPSYM(appease_cerrors,"APPEASE-CERRORS",ext) /* macro for SPVW */
 LISPSYM(batchmode_errors,"BATCHMODE-ERRORS",system) /* macro for SPVW */
+LISPSYM(abort_errors,"ABORT-ERRORS",system) /* macro for SPVW */
+LISPSYM(lloop,"LOOP",lisp) /* macro for SPVW */
 LISPSYM(wait_keypress,"WAIT-KEYPRESS",system) /* function for SPVW */
 #ifdef UNIX
 LISPSYM(disassemble_use_live_process,"*DISASSEMBLE-USE-LIVE-PROCESS*",system) /* variable in SPVW */

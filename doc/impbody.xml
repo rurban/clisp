@@ -937,21 +937,31 @@ When &loop-ansi; is non-&nil;, an &err-sig;.</para></section>
  by the function &cerror;), no message is printed, instead, the &continue;
  &restart-t; is invoked.</para></formalpara>
 
+<formalpara id="abort-on-error"><title>Macro &abort-on-error;</title>
+<para>The macro <code>(&abort-on-error; {&form-r;}*)</code>
+ executes the &form-r;s; when an &error-t; occurs,
+ or when a <keycombo>&ctrl;<keysym>C</keysym></keycombo> interrupt occurs,
+ the error message is printed and the &abort-s; restart is invoked.
+</para></formalpara>
+
 <formalpara id="appease-cerrors"><title>Macro &appease-cerrors;</title>
 <para>The macro <code>(&appease-cerrors; {&form-r;}*)</code>
  executes the &form-r;s; when a &cont-err; occurs whose &continue; &restart-t;
- can be invoked non-interactively (this includes all &cont-err;s signalled
+ can be invoked non-interactively (this includes all &cont-err;s &signal;led
  by the function &cerror;), it is reported as a &warning-t;, and the
  &continue; &restart-t; is invoked.</para></formalpara>
 
 <formalpara id="exit-on-error"><title>Macro &exit-on-error;</title>
 <para>The macro <code>(&exit-on-error; {&form-r;}*)</code>
- executes the &form-r;s; when an &error-t; occurs which is not
- <ulink url='&clhs;/Body/glo_c.html#continuable'>continuable</ulink> or
- whose &continue; &restart-t; requires interactive processing, or when
- a <keycombo>&ctrl;<keysym>C</keysym></keycombo> interrupt occurs, the
- error message is printed and &clisp; terminates with an error
- status.</para></formalpara>
+ executes the &form-r;s; when an &error-t; occurs,
+ or when a <keycombo>&ctrl;<keysym>C</keysym></keycombo> interrupt occurs,
+ the error message is printed and &clisp; terminates with an error status.
+</para></formalpara>
+
+<formalpara id="err-pr-bt"><title>Variable &err-pr-bt;</title>
+<para>When this variable is non-&nil; the error message printed by
+ &abort-on-error; and &exit-on-error; includes the backtrace (stack).
+</para></formalpara>
 
 <formalpara id="with-restarts"><title>Macro &with-restarts;</title>
 <para>The macro &with-restarts; is like &restart-case;, except that the

@@ -102,7 +102,7 @@
 
 ;; Components of the Break-Loop:
 (defvar *debug-frame*)
-(defvar *debug-mode*)
+(defvar *debug-mode* 4)
 ; lower bound for frame-down/frame-down-1
 (defvar *frame-limit1* nil)
 ; upper bound for frame-up and frame-up-1
@@ -180,17 +180,25 @@
   (setq *debug-print-frame-limit* (get-frame-limit))
   (throw 'debug 'continue))
 
+(defun print-backtrace (&key ((:out *standard-output*) *standard-output*)
+                        (mode *debug-mode*) (limit *debug-print-frame-limit*))
+  ;; SHOW-STACK prints its output to *STANDARD-OUTPUT*, so we bind that
+  (let ((frame-count
+         (show-stack
+          mode limit
+          (frame-down-1 (frame-up-1 (or *frame-limit1* (frame-limit1 13)) mode)
+                        mode))))
+    (fresh-line *standard-output*)
+    (format *standard-output* (TEXT "Printed ~D frames") frame-count)
+    (elastic-newline *standard-output*)))
+
 ;;; debug-backtrace with-optional 'print-limit'
 (defun debug-backtrace (&optional (mode *debug-mode*)
                                   (limit *debug-print-frame-limit*)
                                   (prompt-limit-p nil))
-  (let ((frame-count
-         (show-stack mode       ; local limit takes precedence:
-                     (or (and prompt-limit-p (get-frame-limit)) limit)
-                     (frame-down-1 (frame-up-1 *frame-limit1* mode) mode))))
-    (fresh-line *debug-io*)
-    (format *debug-io* (TEXT "Printed ~D frames") frame-count)
-    (throw 'debug 'continue)))
+  (print-backtrace :out *debug-io* :mode mode
+                   :limit (or (and prompt-limit-p (get-frame-limit)) limit))
+  (throw 'debug 'continue))
 
 (defun debug-backtrace-1 () (debug-backtrace 1))
 (defun debug-backtrace-2 () (debug-backtrace 2))
@@ -532,7 +540,7 @@ Continue       :c       switch off single step mode, continue evaluation
                                   (prompt-body) (prompt-finish)))
            (*frame-limit1* (frame-limit1 13))
            (*frame-limit2* (frame-limit2))
-           (*debug-mode* 4)
+           (*debug-mode* *debug-mode*)
            (*debug-frame*
             (frame-down-1 (frame-up-1 *frame-limit1* *debug-mode*)
                           *debug-mode*))
@@ -626,7 +634,7 @@ Continue       :c       switch off single step mode, continue evaluation
                                     (prompt-body) (prompt-finish)))
              (*frame-limit1* (frame-limit1 11))
              (*frame-limit2* (frame-limit2))
-             (*debug-mode* 4)
+             (*debug-mode* *debug-mode*)
              (*debug-frame*
               (frame-down-1 (frame-up-1 *frame-limit1* *debug-mode*)
                             *debug-mode*))
