@@ -1518,21 +1518,12 @@ fi
 
 USE_GETTEXT=''
 XCL_GETTEXTLIB=''
-if [ $TOS = unix ] ; then
-  if [ "${with_gettext}" = no ]; then
-    XCFLAGS=$XCFLAGS' -DNO_GETTEXT'
-  else
-    if [ @USE_NLS@ = yes ] ; then
-      USE_GETTEXT=yes
-      LIBS='@LIBINTL@ '$LIBS
-      XCL_GETTEXTLIB=$XCL_GETTEXTLIB' locale'
-    else
-      XCFLAGS=$XCFLAGS' -DNO_GETTEXT'
-    fi
-  fi
-fi
-if [ $TOS = win32 ] ; then
+if [ "${with_gettext}" = no -o "@USE_NLS@" != yes ]; then
   XCFLAGS=$XCFLAGS' -DNO_GETTEXT'
+else
+  USE_GETTEXT=yes
+  LIBS='@LIBINTL@ '$LIBS
+  XCL_GETTEXTLIB=$XCL_GETTEXTLIB' locale'
 fi
 
 if test -z "$LIBSIGSEGV"; then
