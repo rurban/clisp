@@ -35,7 +35,7 @@ The input file is normal C code, modified like this:
 - DEFFLAGSET(c_name, C_CONST1 C_CONST2 C_CONST3)
   is converted to
   static uint32 c_name (void) {
-   {uint32 ret = 0
+   uint32 ret = 0
     #if defined(C_CONST3)
       | (missingp(STACK_0) ? 0 : C_CONST3)
     #endif
@@ -48,7 +48,7 @@ The input file is normal C code, modified like this:
       ;
     skipSTACK(3);
     return ret;
-  }}
+  }
   it is convenient for parsing flag arguments to DEFUNs
 - DEFCHECKER(c_name, [enum|type]=..., suffix= ..., prefix=..., default=...,
              reverse= ..., C_CONST1 C_CONST2 C_CONST3)
