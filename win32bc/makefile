@@ -10,8 +10,8 @@ prefix =
 exec_prefix = $(prefix)
 bindir  = $(exec_prefix)\bin
 shared  = $(prefix)\share
-mandir  = $(prefix)\share\man
-docdir  = $(prefix)\share\doc
+mandir  = $(shared)\man
+docdir  = $(shared)\doc
 lispdocdir = $(docdir)\clisp
 htmldir = $(lispdocdir)
 dvidir  = $(lispdocdir)
@@ -22,12 +22,14 @@ lisplibdir = $(libdir)\clisp
 # installation. This is useful when preparing a binary distribution.
 DESTDIR =
 
-# List of add-on modules:
+# (partial) list of available add-on modules:
 # queens               the queens function as a separate module
 # dirkey               the directory access (LDAP, win32 registry)
+# berkeley-db          the Berkeley DB access
 # syscalls             export some POSIX (and other) system calls
+# regexp               POSIX regular expressions
+# pcre                 Perl-compatible regular expressions
 # clx/mit-clx          classical X11 interface
-# If you change this after doing "make", you have to "rm -r full; make".
 MODULES =  
 
 # Programs used by "make":
@@ -131,7 +133,6 @@ ROFF_PS  = groff -Tps -mandoc # try "groff -Tps -mandoc"
 #
 
 COMMENT5 = comment5
-ANSIDECL = ansidecl
 VARBRACE = varbrace
 TXT2C = txt2c -I../
 
@@ -604,13 +605,13 @@ Makefile : makemake
 config.status : configure
 	sh config.status --recheck
 
-VERSION : version.h
+VERSION : configure
 	cd ..\ && $(MAKE) -f Makefile.devel src\VERSION
 
 configure : configure.in
 	cd ..\ && $(MAKE) -f Makefile.devel src\configure
 
-init : ../utils/gcc-cccp/cccp.exe comment5.exe ansidecl.exe varbrace.exe txt2c.exe ccmp2c.exe modprep.fas $(DFILES) modules.h
+init : ../utils/gcc-cccp/cccp.exe comment5.exe varbrace.exe txt2c.exe ccmp2c.exe $(DFILES) modules.h
 
 intparam.h : intparam.c unixconf.h
 	echo '#include "unixconf.h"' > tmp.c
@@ -631,17 +632,8 @@ floatparam.h : floatparam.c unixconf.h
 comment5.exe : ..\utils\comment5.c
 	$(CC) $(CFLAGS) $(CLFLAGS) -ecomment5.exe ..\utils\comment5.c
 
-ansidecl.exe : ..\utils\ansidecl.d comment5.exe
-	$(LN_S) ..\utils\ansidecl.d ansidecl.d
-	$(COMMENT5) ansidecl.d ansidecl.c
-	$(RM) ansidecl.d
-	$(CC) $(CFLAGS) $(CLFLAGS) -eansidecl.exe ansidecl.c
-	$(RM) ansidecl.c
-
-varbrace.exe : ..\utils\varbrace.d comment5.exe ansidecl.exe
-	$(COMMENT5) ..\utils\varbrace.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > varbrace.c
-	$(RM) TMPPIPE1
+varbrace.exe : ..\utils\varbrace.d comment5.exe
+	$(COMMENT5) ..\utils\varbrace.d > varbrace.c
 	$(CC) $(CFLAGS) $(CLFLAGS) -evarbrace.exe varbrace.c
 	$(RM) varbrace.c
 
@@ -660,740 +652,530 @@ stdint.h : stdint.h.in
 
 allc : init $(CFILES)
 
-spvw.c : spvw.d comment5.exe ansidecl.exe varbrace.exe
+spvw.c : spvw.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw.c
-	$(RM) TMPPIPE2
 
-spvwtabf.c : spvwtabf.d comment5.exe ansidecl.exe varbrace.exe
+spvwtabf.c : spvwtabf.d comment5.exe varbrace.exe
 	$(COMMENT5) spvwtabf.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvwtabf.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvwtabf.c
-	$(RM) TMPPIPE2
 
-spvwtabs.c : spvwtabs.d comment5.exe ansidecl.exe varbrace.exe
+spvwtabs.c : spvwtabs.d comment5.exe varbrace.exe
 	$(COMMENT5) spvwtabs.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvwtabs.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvwtabs.c
-	$(RM) TMPPIPE2
 
-spvwtabo.c : spvwtabo.d comment5.exe ansidecl.exe varbrace.exe
+spvwtabo.c : spvwtabo.d comment5.exe varbrace.exe
 	$(COMMENT5) spvwtabo.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvwtabo.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvwtabo.c
-	$(RM) TMPPIPE2
 
-eval.c : eval.d comment5.exe ansidecl.exe varbrace.exe
+eval.c : eval.d comment5.exe varbrace.exe
 	$(COMMENT5) eval.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > eval.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > eval.c
-	$(RM) TMPPIPE2
 
-control.c : control.d comment5.exe ansidecl.exe varbrace.exe
+control.c : control.d comment5.exe varbrace.exe
 	$(COMMENT5) control.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > control.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > control.c
-	$(RM) TMPPIPE2
 
-encoding.c : encoding.d comment5.exe ansidecl.exe varbrace.exe
+encoding.c : encoding.d comment5.exe varbrace.exe
 	$(COMMENT5) encoding.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > encoding.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > encoding.c
-	$(RM) TMPPIPE2
 
-pathname.c : pathname.d comment5.exe ansidecl.exe varbrace.exe
+pathname.c : pathname.d comment5.exe varbrace.exe
 	$(COMMENT5) pathname.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > pathname.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > pathname.c
-	$(RM) TMPPIPE2
 
-stream.c : stream.d comment5.exe ansidecl.exe varbrace.exe
+stream.c : stream.d comment5.exe varbrace.exe
 	$(COMMENT5) stream.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > stream.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > stream.c
-	$(RM) TMPPIPE2
 
-socket.c : socket.d comment5.exe ansidecl.exe varbrace.exe
+socket.c : socket.d comment5.exe varbrace.exe
 	$(COMMENT5) socket.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > socket.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > socket.c
-	$(RM) TMPPIPE2
 
-io.c : io.d comment5.exe ansidecl.exe varbrace.exe
+io.c : io.d comment5.exe varbrace.exe
 	$(COMMENT5) io.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > io.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > io.c
-	$(RM) TMPPIPE2
 
-array.c : array.d comment5.exe ansidecl.exe varbrace.exe
+array.c : array.d comment5.exe varbrace.exe
 	$(COMMENT5) array.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > array.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > array.c
-	$(RM) TMPPIPE2
 
-hashtabl.c : hashtabl.d comment5.exe ansidecl.exe varbrace.exe
+hashtabl.c : hashtabl.d comment5.exe varbrace.exe
 	$(COMMENT5) hashtabl.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > hashtabl.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > hashtabl.c
-	$(RM) TMPPIPE2
 
-list.c : list.d comment5.exe ansidecl.exe varbrace.exe
+list.c : list.d comment5.exe varbrace.exe
 	$(COMMENT5) list.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > list.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > list.c
-	$(RM) TMPPIPE2
 
-package.c : package.d comment5.exe ansidecl.exe varbrace.exe
+package.c : package.d comment5.exe varbrace.exe
 	$(COMMENT5) package.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > package.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > package.c
-	$(RM) TMPPIPE2
 
-record.c : record.d comment5.exe ansidecl.exe varbrace.exe
+record.c : record.d comment5.exe varbrace.exe
 	$(COMMENT5) record.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > record.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > record.c
-	$(RM) TMPPIPE2
 
-sequence.c : sequence.d comment5.exe ansidecl.exe varbrace.exe
+sequence.c : sequence.d comment5.exe varbrace.exe
 	$(COMMENT5) sequence.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > sequence.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > sequence.c
-	$(RM) TMPPIPE2
 
-charstrg.c : charstrg.d comment5.exe ansidecl.exe varbrace.exe
+charstrg.c : charstrg.d comment5.exe varbrace.exe
 	$(COMMENT5) charstrg.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > charstrg.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > charstrg.c
-	$(RM) TMPPIPE2
 
-debug.c : debug.d comment5.exe ansidecl.exe varbrace.exe
+debug.c : debug.d comment5.exe varbrace.exe
 	$(COMMENT5) debug.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > debug.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > debug.c
-	$(RM) TMPPIPE2
 
-error.c : error.d comment5.exe ansidecl.exe varbrace.exe
+error.c : error.d comment5.exe varbrace.exe
 	$(COMMENT5) error.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > error.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > error.c
-	$(RM) TMPPIPE2
 
-misc.c : misc.d comment5.exe ansidecl.exe varbrace.exe
+misc.c : misc.d comment5.exe varbrace.exe
 	$(COMMENT5) misc.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > misc.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > misc.c
-	$(RM) TMPPIPE2
 
-time.c : time.d comment5.exe ansidecl.exe varbrace.exe
+time.c : time.d comment5.exe varbrace.exe
 	$(COMMENT5) time.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > time.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > time.c
-	$(RM) TMPPIPE2
 
-predtype.c : predtype.d comment5.exe ansidecl.exe varbrace.exe
+predtype.c : predtype.d comment5.exe varbrace.exe
 	$(COMMENT5) predtype.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > predtype.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > predtype.c
-	$(RM) TMPPIPE2
 
-symbol.c : symbol.d comment5.exe ansidecl.exe varbrace.exe
+symbol.c : symbol.d comment5.exe varbrace.exe
 	$(COMMENT5) symbol.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > symbol.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > symbol.c
-	$(RM) TMPPIPE2
 
-lisparit.c : lisparit.d comment5.exe ansidecl.exe varbrace.exe
+lisparit.c : lisparit.d comment5.exe varbrace.exe
 	$(COMMENT5) lisparit.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > lisparit.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > lisparit.c
-	$(RM) TMPPIPE2
 
-i18n.c : i18n.d comment5.exe ansidecl.exe varbrace.exe
+i18n.c : i18n.d comment5.exe varbrace.exe
 	$(COMMENT5) i18n.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > i18n.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > i18n.c
-	$(RM) TMPPIPE2
 
-win32aux.c : win32aux.d comment5.exe ansidecl.exe varbrace.exe
+win32aux.c : win32aux.d comment5.exe varbrace.exe
 	$(COMMENT5) win32aux.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > win32aux.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > win32aux.c
-	$(RM) TMPPIPE2
 
-lispbibl.c : lispbibl.d comment5.exe ansidecl.exe varbrace.exe
+lispbibl.c : lispbibl.d comment5.exe varbrace.exe
 	$(COMMENT5) lispbibl.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > lispbibl.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > lispbibl.c
-	$(RM) TMPPIPE2
 
-fsubr.c : fsubr.d comment5.exe ansidecl.exe varbrace.exe
+fsubr.c : fsubr.d comment5.exe varbrace.exe
 	$(COMMENT5) fsubr.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > fsubr.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > fsubr.c
-	$(RM) TMPPIPE2
 
-subr.c : subr.d comment5.exe ansidecl.exe varbrace.exe
+subr.c : subr.d comment5.exe varbrace.exe
 	$(COMMENT5) subr.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > subr.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > subr.c
-	$(RM) TMPPIPE2
 
-pseudofun.c : pseudofun.d comment5.exe ansidecl.exe varbrace.exe
+pseudofun.c : pseudofun.d comment5.exe varbrace.exe
 	$(COMMENT5) pseudofun.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > pseudofun.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > pseudofun.c
-	$(RM) TMPPIPE2
 
-constsym.c : constsym.d comment5.exe ansidecl.exe varbrace.exe
+constsym.c : constsym.d comment5.exe varbrace.exe
 	$(COMMENT5) constsym.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > constsym.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > constsym.c
-	$(RM) TMPPIPE2
 
-constobj.c : constobj.d comment5.exe ansidecl.exe varbrace.exe
+constobj.c : constobj.d comment5.exe varbrace.exe
 	$(COMMENT5) constobj.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > constobj.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > constobj.c
-	$(RM) TMPPIPE2
 
-win32.c : win32.d comment5.exe ansidecl.exe varbrace.exe
+win32.c : win32.d comment5.exe varbrace.exe
 	$(COMMENT5) win32.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > win32.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > win32.c
-	$(RM) TMPPIPE2
 
-xthread.c : xthread.d comment5.exe ansidecl.exe varbrace.exe
+xthread.c : xthread.d comment5.exe varbrace.exe
 	$(COMMENT5) xthread.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > xthread.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > xthread.c
-	$(RM) TMPPIPE2
 
-constpack.c : constpack.d comment5.exe ansidecl.exe varbrace.exe
+constpack.c : constpack.d comment5.exe varbrace.exe
 	$(COMMENT5) constpack.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > constpack.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > constpack.c
-	$(RM) TMPPIPE2
 
-avl.c : avl.d comment5.exe ansidecl.exe varbrace.exe
+avl.c : avl.d comment5.exe varbrace.exe
 	$(COMMENT5) avl.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > avl.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > avl.c
-	$(RM) TMPPIPE2
 
-sort.c : sort.d comment5.exe ansidecl.exe varbrace.exe
+sort.c : sort.d comment5.exe varbrace.exe
 	$(COMMENT5) sort.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > sort.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > sort.c
-	$(RM) TMPPIPE2
 
-subrkw.c : subrkw.d comment5.exe ansidecl.exe varbrace.exe
+subrkw.c : subrkw.d comment5.exe varbrace.exe
 	$(COMMENT5) subrkw.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > subrkw.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > subrkw.c
-	$(RM) TMPPIPE2
 
-bytecode.c : bytecode.d comment5.exe ansidecl.exe varbrace.exe
+bytecode.c : bytecode.d comment5.exe varbrace.exe
 	$(COMMENT5) bytecode.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > bytecode.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > bytecode.c
-	$(RM) TMPPIPE2
 
-spvw_module.c : spvw_module.d comment5.exe ansidecl.exe varbrace.exe
+spvw_module.c : spvw_module.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_module.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_module.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_module.c
-	$(RM) TMPPIPE2
 
-spvw_debug.c : spvw_debug.d comment5.exe ansidecl.exe varbrace.exe
+spvw_debug.c : spvw_debug.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_debug.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_debug.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_debug.c
-	$(RM) TMPPIPE2
 
-spvw_alloca.c : spvw_alloca.d comment5.exe ansidecl.exe varbrace.exe
+spvw_alloca.c : spvw_alloca.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_alloca.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_alloca.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_alloca.c
-	$(RM) TMPPIPE2
 
-spvw_mmap.c : spvw_mmap.d comment5.exe ansidecl.exe varbrace.exe
+spvw_mmap.c : spvw_mmap.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_mmap.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_mmap.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_mmap.c
-	$(RM) TMPPIPE2
 
-spvw_multimap.c : spvw_multimap.d comment5.exe ansidecl.exe varbrace.exe
+spvw_multimap.c : spvw_multimap.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_multimap.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_multimap.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_multimap.c
-	$(RM) TMPPIPE2
 
-spvw_singlemap.c : spvw_singlemap.d comment5.exe ansidecl.exe varbrace.exe
+spvw_singlemap.c : spvw_singlemap.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_singlemap.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_singlemap.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_singlemap.c
-	$(RM) TMPPIPE2
 
-spvw_page.c : spvw_page.d comment5.exe ansidecl.exe varbrace.exe
+spvw_page.c : spvw_page.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_page.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_page.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_page.c
-	$(RM) TMPPIPE2
 
-spvw_heap.c : spvw_heap.d comment5.exe ansidecl.exe varbrace.exe
+spvw_heap.c : spvw_heap.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_heap.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_heap.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_heap.c
-	$(RM) TMPPIPE2
 
-spvw_global.c : spvw_global.d comment5.exe ansidecl.exe varbrace.exe
+spvw_global.c : spvw_global.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_global.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_global.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_global.c
-	$(RM) TMPPIPE2
 
-spvw_gcstat.c : spvw_gcstat.d comment5.exe ansidecl.exe varbrace.exe
+spvw_gcstat.c : spvw_gcstat.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_gcstat.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_gcstat.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_gcstat.c
-	$(RM) TMPPIPE2
 
-spvw_space.c : spvw_space.d comment5.exe ansidecl.exe varbrace.exe
+spvw_space.c : spvw_space.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_space.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_space.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_space.c
-	$(RM) TMPPIPE2
 
-spvw_mark.c : spvw_mark.d comment5.exe ansidecl.exe varbrace.exe
+spvw_mark.c : spvw_mark.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_mark.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_mark.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_mark.c
-	$(RM) TMPPIPE2
 
-spvw_objsize.c : spvw_objsize.d comment5.exe ansidecl.exe varbrace.exe
+spvw_objsize.c : spvw_objsize.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_objsize.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_objsize.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_objsize.c
-	$(RM) TMPPIPE2
 
-spvw_update.c : spvw_update.d comment5.exe ansidecl.exe varbrace.exe
+spvw_update.c : spvw_update.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_update.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_update.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_update.c
-	$(RM) TMPPIPE2
 
-spvw_fault.c : spvw_fault.d comment5.exe ansidecl.exe varbrace.exe
+spvw_fault.c : spvw_fault.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_fault.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_fault.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_fault.c
-	$(RM) TMPPIPE2
 
-spvw_sigsegv.c : spvw_sigsegv.d comment5.exe ansidecl.exe varbrace.exe
+spvw_sigsegv.c : spvw_sigsegv.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_sigsegv.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_sigsegv.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_sigsegv.c
-	$(RM) TMPPIPE2
 
-spvw_sigcld.c : spvw_sigcld.d comment5.exe ansidecl.exe varbrace.exe
+spvw_sigcld.c : spvw_sigcld.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_sigcld.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_sigcld.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_sigcld.c
-	$(RM) TMPPIPE2
 
-spvw_sigpipe.c : spvw_sigpipe.d comment5.exe ansidecl.exe varbrace.exe
+spvw_sigpipe.c : spvw_sigpipe.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_sigpipe.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_sigpipe.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_sigpipe.c
-	$(RM) TMPPIPE2
 
-spvw_sigint.c : spvw_sigint.d comment5.exe ansidecl.exe varbrace.exe
+spvw_sigint.c : spvw_sigint.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_sigint.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_sigint.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_sigint.c
-	$(RM) TMPPIPE2
 
-spvw_sigwinch.c : spvw_sigwinch.d comment5.exe ansidecl.exe varbrace.exe
+spvw_sigwinch.c : spvw_sigwinch.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_sigwinch.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_sigwinch.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_sigwinch.c
-	$(RM) TMPPIPE2
 
-spvw_garcol.c : spvw_garcol.d comment5.exe ansidecl.exe varbrace.exe
+spvw_garcol.c : spvw_garcol.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_garcol.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_garcol.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_garcol.c
-	$(RM) TMPPIPE2
 
-spvw_genera1.c : spvw_genera1.d comment5.exe ansidecl.exe varbrace.exe
+spvw_genera1.c : spvw_genera1.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_genera1.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_genera1.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_genera1.c
-	$(RM) TMPPIPE2
 
-spvw_genera2.c : spvw_genera2.d comment5.exe ansidecl.exe varbrace.exe
+spvw_genera2.c : spvw_genera2.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_genera2.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_genera2.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_genera2.c
-	$(RM) TMPPIPE2
 
-spvw_genera3.c : spvw_genera3.d comment5.exe ansidecl.exe varbrace.exe
+spvw_genera3.c : spvw_genera3.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_genera3.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_genera3.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_genera3.c
-	$(RM) TMPPIPE2
 
-spvw_allocate.c : spvw_allocate.d comment5.exe ansidecl.exe varbrace.exe
+spvw_allocate.c : spvw_allocate.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_allocate.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_allocate.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_allocate.c
-	$(RM) TMPPIPE2
 
-spvw_typealloc.c : spvw_typealloc.d comment5.exe ansidecl.exe varbrace.exe
+spvw_typealloc.c : spvw_typealloc.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_typealloc.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_typealloc.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_typealloc.c
-	$(RM) TMPPIPE2
 
-spvw_circ.c : spvw_circ.d comment5.exe ansidecl.exe varbrace.exe
+spvw_circ.c : spvw_circ.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_circ.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_circ.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_circ.c
-	$(RM) TMPPIPE2
 
-spvw_walk.c : spvw_walk.d comment5.exe ansidecl.exe varbrace.exe
+spvw_walk.c : spvw_walk.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_walk.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_walk.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_walk.c
-	$(RM) TMPPIPE2
 
-spvw_ctype.c : spvw_ctype.d comment5.exe ansidecl.exe varbrace.exe
+spvw_ctype.c : spvw_ctype.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_ctype.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_ctype.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_ctype.c
-	$(RM) TMPPIPE2
 
-spvw_language.c : spvw_language.d comment5.exe ansidecl.exe varbrace.exe
+spvw_language.c : spvw_language.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_language.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_language.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_language.c
-	$(RM) TMPPIPE2
 
-spvw_memfile.c : spvw_memfile.d comment5.exe ansidecl.exe varbrace.exe
+spvw_memfile.c : spvw_memfile.d comment5.exe varbrace.exe
 	$(COMMENT5) spvw_memfile.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > spvw_memfile.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > spvw_memfile.c
-	$(RM) TMPPIPE2
 
-errwin32.c : errwin32.d comment5.exe ansidecl.exe varbrace.exe
+errwin32.c : errwin32.d comment5.exe varbrace.exe
 	$(COMMENT5) errwin32.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > errwin32.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > errwin32.c
-	$(RM) TMPPIPE2
 
-aridecl.c : aridecl.d comment5.exe ansidecl.exe varbrace.exe
+aridecl.c : aridecl.d comment5.exe varbrace.exe
 	$(COMMENT5) aridecl.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > aridecl.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > aridecl.c
-	$(RM) TMPPIPE2
 
-arilev0.c : arilev0.d comment5.exe ansidecl.exe varbrace.exe
+arilev0.c : arilev0.d comment5.exe varbrace.exe
 	$(COMMENT5) arilev0.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > arilev0.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > arilev0.c
-	$(RM) TMPPIPE2
 
-arilev1.c : arilev1.d comment5.exe ansidecl.exe varbrace.exe
+arilev1.c : arilev1.d comment5.exe varbrace.exe
 	$(COMMENT5) arilev1.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > arilev1.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > arilev1.c
-	$(RM) TMPPIPE2
 
-intelem.c : intelem.d comment5.exe ansidecl.exe varbrace.exe
+intelem.c : intelem.d comment5.exe varbrace.exe
 	$(COMMENT5) intelem.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > intelem.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intelem.c
-	$(RM) TMPPIPE2
 
-intlog.c : intlog.d comment5.exe ansidecl.exe varbrace.exe
+intlog.c : intlog.d comment5.exe varbrace.exe
 	$(COMMENT5) intlog.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > intlog.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intlog.c
-	$(RM) TMPPIPE2
 
-intplus.c : intplus.d comment5.exe ansidecl.exe varbrace.exe
+intplus.c : intplus.d comment5.exe varbrace.exe
 	$(COMMENT5) intplus.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > intplus.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intplus.c
-	$(RM) TMPPIPE2
 
-intcomp.c : intcomp.d comment5.exe ansidecl.exe varbrace.exe
+intcomp.c : intcomp.d comment5.exe varbrace.exe
 	$(COMMENT5) intcomp.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > intcomp.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intcomp.c
-	$(RM) TMPPIPE2
 
-intbyte.c : intbyte.d comment5.exe ansidecl.exe varbrace.exe
+intbyte.c : intbyte.d comment5.exe varbrace.exe
 	$(COMMENT5) intbyte.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > intbyte.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intbyte.c
-	$(RM) TMPPIPE2
 
-intmal.c : intmal.d comment5.exe ansidecl.exe varbrace.exe
+intmal.c : intmal.d comment5.exe varbrace.exe
 	$(COMMENT5) intmal.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > intmal.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intmal.c
-	$(RM) TMPPIPE2
 
-intdiv.c : intdiv.d comment5.exe ansidecl.exe varbrace.exe
+intdiv.c : intdiv.d comment5.exe varbrace.exe
 	$(COMMENT5) intdiv.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > intdiv.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intdiv.c
-	$(RM) TMPPIPE2
 
-intgcd.c : intgcd.d comment5.exe ansidecl.exe varbrace.exe
+intgcd.c : intgcd.d comment5.exe varbrace.exe
 	$(COMMENT5) intgcd.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > intgcd.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intgcd.c
-	$(RM) TMPPIPE2
 
-int2adic.c : int2adic.d comment5.exe ansidecl.exe varbrace.exe
+int2adic.c : int2adic.d comment5.exe varbrace.exe
 	$(COMMENT5) int2adic.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > int2adic.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > int2adic.c
-	$(RM) TMPPIPE2
 
-intsqrt.c : intsqrt.d comment5.exe ansidecl.exe varbrace.exe
+intsqrt.c : intsqrt.d comment5.exe varbrace.exe
 	$(COMMENT5) intsqrt.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > intsqrt.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intsqrt.c
-	$(RM) TMPPIPE2
 
-intprint.c : intprint.d comment5.exe ansidecl.exe varbrace.exe
+intprint.c : intprint.d comment5.exe varbrace.exe
 	$(COMMENT5) intprint.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > intprint.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intprint.c
-	$(RM) TMPPIPE2
 
-intread.c : intread.d comment5.exe ansidecl.exe varbrace.exe
+intread.c : intread.d comment5.exe varbrace.exe
 	$(COMMENT5) intread.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > intread.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > intread.c
-	$(RM) TMPPIPE2
 
-rational.c : rational.d comment5.exe ansidecl.exe varbrace.exe
+rational.c : rational.d comment5.exe varbrace.exe
 	$(COMMENT5) rational.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > rational.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > rational.c
-	$(RM) TMPPIPE2
 
-sfloat.c : sfloat.d comment5.exe ansidecl.exe varbrace.exe
+sfloat.c : sfloat.d comment5.exe varbrace.exe
 	$(COMMENT5) sfloat.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > sfloat.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > sfloat.c
-	$(RM) TMPPIPE2
 
-ffloat.c : ffloat.d comment5.exe ansidecl.exe varbrace.exe
+ffloat.c : ffloat.d comment5.exe varbrace.exe
 	$(COMMENT5) ffloat.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > ffloat.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > ffloat.c
-	$(RM) TMPPIPE2
 
-dfloat.c : dfloat.d comment5.exe ansidecl.exe varbrace.exe
+dfloat.c : dfloat.d comment5.exe varbrace.exe
 	$(COMMENT5) dfloat.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > dfloat.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > dfloat.c
-	$(RM) TMPPIPE2
 
-lfloat.c : lfloat.d comment5.exe ansidecl.exe varbrace.exe
+lfloat.c : lfloat.d comment5.exe varbrace.exe
 	$(COMMENT5) lfloat.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > lfloat.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > lfloat.c
-	$(RM) TMPPIPE2
 
-flo_konv.c : flo_konv.d comment5.exe ansidecl.exe varbrace.exe
+flo_konv.c : flo_konv.d comment5.exe varbrace.exe
 	$(COMMENT5) flo_konv.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > flo_konv.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > flo_konv.c
-	$(RM) TMPPIPE2
 
-flo_rest.c : flo_rest.d comment5.exe ansidecl.exe varbrace.exe
+flo_rest.c : flo_rest.d comment5.exe varbrace.exe
 	$(COMMENT5) flo_rest.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > flo_rest.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > flo_rest.c
-	$(RM) TMPPIPE2
 
-realelem.c : realelem.d comment5.exe ansidecl.exe varbrace.exe
+realelem.c : realelem.d comment5.exe varbrace.exe
 	$(COMMENT5) realelem.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > realelem.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > realelem.c
-	$(RM) TMPPIPE2
 
-realrand.c : realrand.d comment5.exe ansidecl.exe varbrace.exe
+realrand.c : realrand.d comment5.exe varbrace.exe
 	$(COMMENT5) realrand.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > realrand.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > realrand.c
-	$(RM) TMPPIPE2
 
-realtran.c : realtran.d comment5.exe ansidecl.exe varbrace.exe
+realtran.c : realtran.d comment5.exe varbrace.exe
 	$(COMMENT5) realtran.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > realtran.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > realtran.c
-	$(RM) TMPPIPE2
 
-compelem.c : compelem.d comment5.exe ansidecl.exe varbrace.exe
+compelem.c : compelem.d comment5.exe varbrace.exe
 	$(COMMENT5) compelem.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > compelem.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > compelem.c
-	$(RM) TMPPIPE2
 
-comptran.c : comptran.d comment5.exe ansidecl.exe varbrace.exe
+comptran.c : comptran.d comment5.exe varbrace.exe
 	$(COMMENT5) comptran.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > comptran.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > comptran.c
-	$(RM) TMPPIPE2
 
-arilev1c.c : arilev1c.d comment5.exe ansidecl.exe varbrace.exe
+arilev1c.c : arilev1c.d comment5.exe varbrace.exe
 	$(COMMENT5) arilev1c.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > arilev1c.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > arilev1c.c
-	$(RM) TMPPIPE2
 
-arilev1e.c : arilev1e.d comment5.exe ansidecl.exe varbrace.exe
+arilev1e.c : arilev1e.d comment5.exe varbrace.exe
 	$(COMMENT5) arilev1e.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > arilev1e.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > arilev1e.c
-	$(RM) TMPPIPE2
 
-arilev1i.c : arilev1i.d comment5.exe ansidecl.exe varbrace.exe
+arilev1i.c : arilev1i.d comment5.exe varbrace.exe
 	$(COMMENT5) arilev1i.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > arilev1i.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > arilev1i.c
-	$(RM) TMPPIPE2
 
-genclisph.c : genclisph.d comment5.exe ansidecl.exe varbrace.exe
+genclisph.c : genclisph.d comment5.exe varbrace.exe
 	$(COMMENT5) genclisph.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > genclisph.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > genclisph.c
-	$(RM) TMPPIPE2
 
-modules.c : modules.d comment5.exe ansidecl.exe varbrace.exe
+modules.c : modules.d comment5.exe varbrace.exe
 	$(COMMENT5) modules.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > modules.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > modules.c
-	$(RM) TMPPIPE2
 
-noreadline.c : noreadline.d comment5.exe ansidecl.exe varbrace.exe
+noreadline.c : noreadline.d comment5.exe varbrace.exe
 	$(COMMENT5) noreadline.d > TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
+	$(VARBRACE) < TMPPIPE1 > noreadline.c
 	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > noreadline.c
-	$(RM) TMPPIPE2
 
 allo : allc spvw.obj spvwtabf.obj spvwtabs.obj spvwtabo.obj eval.obj control.obj encoding.obj pathname.obj stream.obj socket.obj io.obj array.obj hashtabl.obj list.obj package.obj record.obj sequence.obj charstrg.obj debug.obj error.obj misc.obj time.obj predtype.obj symbol.obj lisparit.obj i18n.obj win32aux.obj
 
@@ -1402,16 +1184,16 @@ alls : allc spvw.s spvwtabf.s spvwtabs.s spvwtabo.s eval.s control.s encoding.s 
 # Normally not used (just for debugging).
 alli : allc spvw.i spvwtabf.i spvwtabs.i spvwtabo.i eval.i control.i encoding.i pathname.i stream.i socket.i io.i array.i hashtabl.i list.i package.i record.i sequence.i charstrg.i debug.i error.i misc.i time.i predtype.i symbol.i lisparit.i i18n.i win32aux.i
 
-spvw.i : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c arilev0.c aridecl.c stdbool.h stdint.h libcharset.h version.h
+spvw.i : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c spvw_calendar.c arilev0.c aridecl.c stdbool.h stdint.h libcharset.h version.h
 	$(CPP) $(CFLAGS) spvw.c > spvw.i
 
-spvw.s : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c arilev0.c aridecl.c stdbool.h stdint.h libcharset.h version.h
+spvw.s : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c spvw_calendar.c arilev0.c aridecl.c stdbool.h stdint.h libcharset.h version.h
 	$(CPP) $(CFLAGS) spvw.c > spvw.i.c
 	$(CC) $(CFLAGS) -c spvw.i.c /FAs /Faspvw.s
 	$(RM) spvw.i.obj
 	$(RM) spvw.i.c
 
-spvw.obj : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c arilev0.c aridecl.c stdbool.h stdint.h libcharset.h version.h
+spvw.obj : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c spvw_calendar.c arilev0.c aridecl.c stdbool.h stdint.h libcharset.h version.h
 	$(CPP) $(CFLAGS) spvw.c > spvw.i.c
 	$(CC) $(CFLAGS) -c spvw.i.c
 	$(RM) spvw.obj
@@ -1911,6 +1693,11 @@ RUN= lisp.exe -B . -Efile UTF-8 -Eterminal UTF-8 -norc
 modprep.fas : ..\utils\modprep.lisp lisp.exe lispinit.mem
 	$(RUN) -M lispinit.mem -q -c ../utils/modprep.lisp -o modprep.fas
 
+modprep.lisp : ..\utils\modprep.lisp
+	-$(RM) modprep.lisp
+	-$(LN_S) ..\utils\modprep.lisp modprep.lisp
+
+
 interpreted.mem : lisp.exe $(LISPFILES)
 	-$(RM) interpreted.mem
 	$(RUN) -m 750KW -x "(and (load \"init.lisp\") (sys::%saveinitmem) (ext::exit))"
@@ -2397,38 +2184,45 @@ lispinit2.mem : lisp.exe $(TESTFASFILES)
 testsuite : suite lisp.exe lispinit.mem
 	cd suite && $(MAKE) LEXE=.exe
 
+testsuite-all : suite lisp.exe lispinit.mem
+	cd suite && $(MAKE) LEXE=.exe complete
+
 suite :
 	-mkdir suite
 	cd suite && $(LN_S) ..\..\tests\Makefile .
 	cd suite && $(LN_S) ..\..\tests\*.lisp .
 	cd suite && $(LN_S) ..\..\tests\*.tst .
 
-bench : benchmarks
-	CLISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -Efile UTF-8 -Eterminal UTF-8 -norc"; export CLISP; cd benchmarks; $(MAKE) CLISP="$$CLISP" clisp
 
-benchmarks :
-	-mkdir benchmarks
-	cd benchmarks && $(LN_S) ..\..\benchmarks\Makefile .
-	cd benchmarks && $(LN_S) ..\..\benchmarks\*.lisp .
-
-
-clisp.h : genclisph.o unixconf.h  intparam.h floatparam.h
+clisp.h clisp-test.c : genclisph.o unixconf.h  intparam.h floatparam.h
 	$(CC) $(CFLAGS) $(CLFLAGS) -egenclisph.exe genclisph.o
 	(echo '#ifndef _CLISP_H' ; echo '#define _CLISP_H' ; echo; echo '/* unixconf */' ; grep '^#' unixconf.h ) > clisp.h
 	(echo; echo '/* 'intparam.h' */' ; grep '^#' intparam.h ) >> clisp.h
 	(echo; echo '/* 'floatparam.h' */' ; grep '^#' floatparam.h ) >> clisp.h
-	(echo; echo '/* genclisph */' ; genclisph ; echo ; echo '#endif /* _CLISP_H */') >> clisp.h
-	$(RM) genclisph.exe
+	(echo; echo '/* genclisph */' ; genclisph clisp-test.c; echo ; echo '#endif /* _CLISP_H */') >> clisp.h
+	$(CC) $(CFLAGS) $(CLFLAGS) -DUSE_CLISP_H=1 -eclisp-test-clisp.exe clisp-test.c
+	$(CC) $(CFLAGS) $(CLFLAGS) -DUSE_CLISP_H=0 -eclisp-test-lispbibl.exe clisp-test.c
+	clisp-test-clisp > clisp-test-clisp.out
+	clisp-test-lispbibl > clisp-test-lispbibl.out
+	comp clisp-test-clisp.out clisp-test-lispbibl.out
+	$(RM) genclisph.exe clisp-test-clisp.exe clisp-test-lispbibl.exe clisp-test-clisp.out clisp-test-lispbibl.out
 
-linkkit : modules.d modules.c clisp.h
+linkkit : modules.d modules.c clisp.h exporting.lisp modprep.lisp
 	-$(RMRF) linkkit
 	mkdir linkkit
 	cd linkkit && $(LN_S) ..\modules.d modules.d
 	cd linkkit && $(LN_S) ..\modules.c modules.c
 	cd linkkit && $(LN_S) ..\clisp.h clisp.h
+	cd linkkit && $(LN_S) ..\exporting.lisp exporting.lisp
+	cd linkkit && $(LN_S) ..\modprep.lisp modprep.lisp
 
 exporting.fas : ..\modules\exporting.lisp lisp.exe lispinit.mem
 	$(RUN) -M lispinit.mem -q -c ../modules/exporting.lisp -o exporting.fas
+
+exporting.lisp : ..\modules\exporting.lisp
+	-$(RM) exporting.lisp
+	-$(LN_S) ..\modules\exporting.lisp exporting.lisp
+
 
 modular : lisp.a  clisp-link linkkit modules.h modules.o makevars
 
@@ -2524,7 +2318,9 @@ clisp.html : _clisp.html lispbibl.c fsubr.c subr.c pseudofun.c constsym.c consto
 	$(CPP) $(CFLAGS) txt.c > txt.i.c
 	$(CC) $(CFLAGS) $(CLFLAGS) -etxt.exe txt.i.c
 	$(RM) txt.i.c
-	txt > clisp.html
+	txt > TMPPIPE1
+	sed -e 's,="CLHSROOT/,="http://www.lisp.org/HyperSpec/,' -e "s,VERSION,`cat VERSION`," < TMPPIPE1 > clisp.html
+	$(RM) TMPPIPE1
 	$(RM) txt.c
 	$(RM) txt.exe
 
@@ -2566,19 +2362,19 @@ clisp : clisp.c clispres.o w32shell.c
 	builddir="`pwd`"; $(CC) $(CFLAGS) $(CLFLAGS) -DLISPLIBDIR='"'$$builddir'"' -DLOCALEDIR='"'$$builddir/locale'"' clisp.c clispres.o $(LIBS) -o clisp
 
 # Distribution, to be executed on a Unix host or using Cygwin.
-distrib : force
-	nroff -man clisp.1 > clisp.man
-	sed -e 's,="CLHSROOT/,="http://www.lisp.org/HyperSpec/,' -e "s,VERSION,`cat VERSION`," < clisp.html > clisp.html.new
-	mv clisp.html.new clisp.html
+distrib : install.lisp install.bat clisp.man clisp.html force
 	version=`cat VERSION` ; \
 	distdir=clisp-$$version ; \
-	distfile=clisp-$$version-win32.zip ; \
 	mkdir $$distdir ; \
-	for f in ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es ; do \
+	for f in ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es install.bat ; do \
 	  if test -f $$f ; then cp -p $$f $$distdir/$$f ; else cp -p `echo $$f | tr '[A-Z]' '[a-z]'` $$distdir/$$f ; fi ; \
 	done ; \
-	for f in lisp.exe lispinit.mem install.bat ; do \
-	  cp -p $$f $$distdir/$$f ; \
+	distfile=clisp-$$version-win32.zip ; \
+	for d in base full ; do \
+	  mkdir $$distdir/$$d ; \
+	  for f in lisp.exe lispinit.mem ; do \
+	    cp -p $$d/$$f $$distdir/$$d/$$f ; \
+	  done ; \
 	done ; \
 	mkdir $$distdir/data ; \
 	cp -p data/UnicodeDataFull.txt $$distdir/data/UnicodeDataFull.txt ; \
@@ -2594,14 +2390,14 @@ distrib : force
 	mkdir $$distdir/src ; \
 	cp -p $(LISPFILES) install.lisp $$distdir/src/ ; \
 	chmod 755 $$distdir/. $$distdir/*/. ; \
-	chmod 644 `find $$distdir -type f -print` ; \
+	find $$distdir -type f -exec chmod 664 {} \';\' ; \
 	rm -f $$distfile ; \
 	(echo "CLISP version $$version for Win32."; echo ".") | zip -r -9 -z $$distfile $$distdir ; \
-	$(RMRF) $$distdir
+	rm -rf $$distdir
 
 # clean0 is harmless: removes only superfluous things: temporary files.
 clean0 : force
-	-$(RM) core ansidecl.c varbrace.c genclisph.exe txt.c txt.exe txt.i.c
+	-$(RM) core varbrace.c genclisph.exe txt.c txt.exe txt.i.c
 	-$(RMRF) linkkit
 
 # clean1 removes everything that becomes obsolete once lisp.exe is recompiled
@@ -2624,6 +2420,7 @@ clean2 : clean1
 # is recompiled. It leaves everything generated by "make allc".
 clean3 : clean2
 	-$(RM) $(FASFILES) *.lib
+	-$(RM) modprep.fas
 
 # clean4 removes everything that becomes obsolete
 # when switching to a new version of the C compiler.
@@ -2640,7 +2437,7 @@ clean5 : clean4
 	-$(RM) ANNOUNCE COPYRIGHT GNU-GPL SUMMARY
 	-$(RM) config.lisp
 	-$(RMRF) data
-	-$(RM) clisp.exe clisp.rc comment5.exe ansidecl.exe varbrace.exe txt2c.exe ccmp2c.exe modprep.fas modprep.lib
+	-$(RM) clisp.exe clisp.rc comment5.exe varbrace.exe txt2c.exe ccmp2c.exe
 
 # clean6 lets us go back to "makemake > Makefile".
 clean6 : clean5
