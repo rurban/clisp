@@ -90,22 +90,28 @@ muffle-cerrors appease-cerrors exit-on-error
       (ENGLISH "~S: the slot description list must be a list, not ~S")
       'define-condition slot-specs
   ) )
-  (let ((docstring-option nil)
+  (let ((default-initargs-option nil)
+        (docstring-option nil)
         (report-function nil))
     (dolist (option options)
       (if (listp option)
-        (if (and (keywordp (car option)) (eql (length option) 2))
-          (case (first option)
-            (:DOCUMENTATION (setq docstring-option option))
-            (:REPORT (setq report-function (rest option)))
-            (T (error-of-type 'source-program-error
-                 (ENGLISH "~S ~S: unknown option ~S")
-                 'define-condition name (first option)
-          ) )  )
-          (error-of-type 'source-program-error
-            (ENGLISH "~S ~S: invalid syntax in ~S option: ~S")
-            'define-condition name 'define-condition option
-        ) )
+        (cond ((and (eq (car option) ':DEFAULT-INITARGS) (oddp (length option)))
+               (setq default-initargs-option option)
+              )
+              ((and (keywordp (car option)) (eql (length option) 2))
+               (case (first option)
+                 (:DOCUMENTATION (setq docstring-option option))
+                 (:REPORT (setq report-function (rest option)))
+                 (T (error-of-type 'source-program-error
+                      (ENGLISH "~S ~S: unknown option ~S")
+                      'define-condition name (first option)
+               ) )  )
+              )
+              (t
+               (error-of-type 'source-program-error
+                 (ENGLISH "~S ~S: invalid syntax in ~S option: ~S")
+                 'define-condition name 'define-condition option
+        )     ))
         (error-of-type 'source-program-error
           (ENGLISH "~S ~S: not a ~S option: ~S")
           'define-condition name 'define-condition option
@@ -115,6 +121,7 @@ muffle-cerrors appease-cerrors exit-on-error
                ,(clos::add-default-superclass parent-types 'CONDITION)
                ,slot-specs
                ,@(if docstring-option `(,docstring-option))
+               ,@(if default-initargs-option `(,default-initargs-option))
              )
          ))
       (if report-function
