@@ -4,48 +4,6 @@
 #include "lispbibl.c"
 
 
-# Der STACK:
-  #if !defined(STACK_register)
-    global object* STACK;
-  #endif
-  #ifdef HAVE_SAVED_STACK
-    global object* saved_STACK;
-  #endif
-
-# MULTIPLE-VALUE-SPACE:
-  #if !defined(mv_count_register)
-    global uintC mv_count;
-  #endif
-  #ifdef NEED_temp_mv_count
-    global uintC temp_mv_count;
-  #endif
-  #ifdef HAVE_SAVED_mv_count
-    global uintC saved_mv_count;
-  #endif
-  global object mv_space [mv_limit-1];
-  #ifdef NEED_temp_value1
-    global object temp_value1;
-  #endif
-  #ifdef HAVE_SAVED_value1
-    global object saved_value1;
-  #endif
-
-# Während der Ausführung eines SUBR, FSUBR: das aktuelle SUBR bzw. FSUBR
-  #if !defined(subr_self_register)
-    global object subr_self;
-  #endif
-  #ifdef HAVE_SAVED_subr_self
-    global object saved_subr_self;
-  #endif
-
-# Während Callbacks die geretteten Register:
-  #if defined(HAVE_SAVED_REGISTERS)
-    global struct registers * callback_saved_registers = NULL;
-  #endif
-
-# Das lexikalische Environment:
-  global environment aktenv;
-
 # Funktionen-Tabelle:
 # Darin stehen nur SUBRs, die der Compiler "inline" machen darf.
 # In FUNTAB1 und FUNTAB2 stehen SUBRs ohne Rest-Parameter (also
@@ -392,7 +350,6 @@ LISPFUNN(subr_info,1)
 #   und springt dann unwind_protect_to_save.fun an.
 # verändert STACK
 # kann GC auslösen
-  global unwind_protect_caller unwind_protect_to_save;
   global void unwind (void);
   global void unwind()
     { var fcint frame_info = framecode(STACK_0);
@@ -673,22 +630,8 @@ LISPFUNN(subr_info,1)
 # invoke_handlers(cond);
 # kann GC auslösen
   global void invoke_handlers (object cond);
-  # Variablen zur Übergabe von Information an den Beginn des Handlers:
-  local struct { object condition; object* stack; SPint* sp; object spdepth; }
-        handler_args;
 # Dies deaktiviert den Handler, der gerade aufgerufen wird,
 # und alle neueren Handler.
-  # Da immer nur ganze Bereiche von Handlers deaktiviert und wieder aktiviert
-  # werden, behandeln wir die Handler beim Deaktivieren nicht einzeln, sondern
-  # führen eine Liste der STACK-Bereiche, in denen die Handler deaktiviert sind.
-  typedef struct stack_range { struct stack_range * next;
-                               object* low_limit; object* high_limit;
-                             }
-          stack_range;
-  local stack_range * inactive_handlers = NULL;
-  # Ein Handler gilt genau dann als inaktiv, wenn für einen der in
-  # inactive_handlers aufgeführten Bereiche gilt:
-  # low_limit <= handler < high_limit.
   global void invoke_handlers(cond)
     var object cond;
     { # Die Handler-Bereiche, die ausgeblendet werden:

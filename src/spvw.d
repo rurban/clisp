@@ -116,13 +116,6 @@
             });                                                               \
     }   }
 
-  #define for_all_threadobjs(statement)  \
-    { var object* objptr = (object*)&aktenv;              \
-      var uintC count;                                    \
-      dotimespC(count,sizeof(environment)/sizeof(object), \
-        { statement; objptr++; });                        \
-    }
-
 # Semaphoren: entscheiden, ob eine Unterbrechung unwirksam (/=0) oder
 # wirksam (alle = 0) ist.
 # Werden mit set_break_sem_x gesetzt und mit clr_break_sem_x wieder gelöscht.
@@ -640,6 +633,12 @@ typedef struct malloca_header
 
 # ------------------------------------------------------------------------------
 #                          Page-Allozierung
+
+#if defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || defined(MULTITHREAD)
+
+#include "spvw_mmap.c"
+
+#endif # SINGLEMAP_MEMORY || TRIVIALMAP_MEMORY || MULTITHREAD
 
 # Anzahl der möglichen Typcodes überhaupt.
   #define typecount  bit(oint_type_len<=8 ? oint_type_len : 8)
@@ -1441,8 +1440,6 @@ typedef struct malloca_header
 # Länge einer Speicherseite des Betriebssystems:
   local /* uintL */ aint map_pagesize; # wird eine Zweierpotenz sein, meist 4096.
 
-#include "spvw_mmap.c"
-
 # Initialisierung:
 # initmap()
   #define initmap()  mmap_init()
@@ -1469,6 +1466,195 @@ typedef struct malloca_header
   #define fehler_immutable()
 
 #endif # SINGLEMAP_MEMORY || TRIVIALMAP_MEMORY
+
+# ------------------------------------------------------------------------------
+#                           Multithreading
+
+#ifndef MULTITHREAD
+
+  # Global variables.
+
+  # Der STACK:
+    #if !defined(STACK_register)
+      global object* STACK;
+    #endif
+    #ifdef HAVE_SAVED_STACK
+      global object* saved_STACK;
+    #endif
+
+  # MULTIPLE-VALUE-SPACE:
+    #if !defined(mv_count_register)
+      global uintC mv_count;
+    #endif
+    #ifdef NEED_temp_mv_count
+      global uintC temp_mv_count;
+    #endif
+    #ifdef HAVE_SAVED_mv_count
+      global uintC saved_mv_count;
+    #endif
+    global object mv_space [mv_limit-1];
+    #ifdef NEED_temp_value1
+      global object temp_value1;
+    #endif
+    #ifdef HAVE_SAVED_value1
+      global object saved_value1;
+    #endif
+
+  # Während der Ausführung eines SUBR, FSUBR: das aktuelle SUBR bzw. FSUBR
+    #if !defined(subr_self_register)
+      global object subr_self;
+    #endif
+    #ifdef HAVE_SAVED_subr_self
+      global object saved_subr_self;
+    #endif
+
+  # Während Callbacks die geretteten Register:
+    #if defined(HAVE_SAVED_REGISTERS)
+      global struct registers * callback_saved_registers = NULL;
+    #endif
+
+  # Stack-Grenzen:
+  #ifndef NO_SP_CHECK
+    global void* SP_bound;  # SP-Wachstumsgrenze
+  #endif
+  global void* STACK_bound; # STACK-Wachstumsgrenze
+
+  # Das lexikalische Environment:
+    global environment aktenv;
+
+  global unwind_protect_caller unwind_protect_to_save;
+
+  # Variablen zur Übergabe von Information an den Beginn des Handlers:
+  global handler_args_t handler_args;
+
+  # Da immer nur ganze Bereiche von Handlers deaktiviert und wieder aktiviert
+  # werden, behandeln wir die Handler beim Deaktivieren nicht einzeln, sondern
+  # führen eine Liste der STACK-Bereiche, in denen die Handler deaktiviert sind.
+  global stack_range* inactive_handlers = NULL;
+  # Ein Handler gilt genau dann als inaktiv, wenn für einen der in
+  # inactive_handlers aufgeführten Bereiche gilt:
+  # low_limit <= handler < high_limit.
+
+  #define for_all_threadobjs(statement)  \
+    { var object* objptr = (object*)&aktenv;              \
+      var uintC count;                                    \
+      dotimespC(count,sizeof(environment)/sizeof(object), \
+        { statement; objptr++; });                        \
+    }
+
+  #define for_all_STACKs(statement)         \
+    { var object* objptr = &STACK_0;        \
+      { statement; }                        \
+    }
+
+#else
+
+  # Mutex protecting the set of threads.
+    local xmutex_t allthreads_lock;
+
+  # Set of threads.
+    #define MAXNTHREADS  128
+    local uintC nthreads = 0;
+    local thread_* allthreads[MAXNTHREADS];
+
+  # Number of symbol values currently in use in every thread.
+    local uintL num_symvalues = 0;
+  # Maximum number of symbol values in every thread before new thread-local
+  # storage must be added.
+  # = floor(round_up(thread_size(num_symvalues),mmap_pagesize)-offsetofa(thread_,_symvalues),sizeof(object))
+    local uintL maxnum_symvalues;
+
+  # Initialization.
+  local void init_multithread (void);
+  local void init_multithread()
+    { xthread_init();
+      xmutex_init(&allthreads_lock);
+      maxnum_symvalues = floor(((thread_size(0)+mmap_pagesize-1)&-mmap_pagesize)-offsetofa(thread_,_symvalues),sizeof(object));
+    }
+
+  # Create a new thread.
+  local thread_* create_thread (void* sp);
+  local thread_* create_thread(sp)
+    var void* sp;
+    { var thread_* thread;
+      xmutex_lock(&allthreads_lock);
+      if (nthreads >= MAXNTHREADS) { thread = NULL; goto done; }
+      thread = sp_to_thread(sp);
+      if (mmap_zeromap(thread,(thread_size(num_symvalues)+mmap_pagesize-1)&-mmap_pagesize) < 0) { thread = NULL; goto done; }
+      thread->_index = nthreads;
+      { var object* objptr = (object*)((uintP)thread+thread_objects_offset(num_symvalues));
+        var uintC count;
+        dotimespC(count,thread_objects_anz(num_symvalues),
+          { *objptr++ = NIL; objptr++; });
+      }
+      allthreads[nthreads] = thread;
+      nthreads++;
+     done:
+      xmutex_unlock(&allthreads_lock);
+      return thread;
+    }
+
+  # Delete a thread.
+  local void delete_thread (thread_* thread);
+  local void delete_thread(thread)
+    var thread_* thread;
+    { xmutex_lock(&allthreads_lock);
+      ASSERT(thread->_index < nthreads);
+      ASSERT(allthreads[thread->_index] == thread);
+      allthreads[thread->_index] = allthreads[nthreads-1];
+      nthreads--;
+      xmutex_unlock(&allthreads_lock);
+    }
+
+  #define for_all_threads(statement)  \
+    { var thread_** _pthread = &allthreads[nthreads];     \
+      until (_pthread == &allthreads[0])                  \
+        { var thread_* thread = *--_pthread; statement; } \
+    }
+
+  # Add a new symbol value.
+  # > value: the default value in all threads
+  # < returns: the index in the every thread's _symvalues[] array
+  local uintL make_symvalue_perthread (object value);
+  local uintL make_symvalue_perthread(value)
+    var object value;
+    { var uintL index;
+      xmutex_lock(&allthreads_lock);
+      if (num_symvalues == maxnum_symvalues)
+        { for_all_threads(
+            { if (mmap_zeromap((void*)((uintP)thread+((thread_size(num_symvalues)+mmap_pagesize-1)&-mmap_pagesize)),mmap_pagesize) < 0) goto failed; }
+            );
+          maxnum_symvalues += mmap_pagesize/sizeof(object);
+        }
+      index = num_symvalues++;
+      for_all_threads({ thread->_symvalues[index] = value; });
+      xmutex_unlock(&allthreads_lock);
+      return index;
+     failed:
+      xmutex_unlock(&allthreads_lock);
+      fehler(error,
+             DEUTSCH ? "Konnte Symbol-Wert nicht per-Thread machen." :
+             ENGLISH ? "could not make symbol value per-thread" :
+             FRANCAIS ? "Ne peux pas rendre la valeur d'un symbole dépendant du thread." :
+             ""
+            );
+    }
+
+  #define for_all_threadobjs(statement)  \
+    for_all_threads(                                       \
+      { var object* objptr = (object*)((uintP)thread+thread_objects_offset(num_symvalues)); \
+        var uintC count;                                   \
+        dotimespC(count,thread_objects_anz(num_symvalues), \
+          { statement; objptr++; });                       \
+      })
+
+  #define for_all_STACKs(statement)  \
+    for_all_threads(                                         \
+      { var object* objptr = STACKpointable(thread->_STACK); \
+        { statement; }                                       \
+      })
+
+#endif
 
 # ------------------------------------------------------------------------------
 #                           Page-Verwaltung
@@ -1874,12 +2060,6 @@ typedef struct { Pages pages;
   #ifdef TRIVIALMAP_MEMORY
     #define RESERVE_FOR_MALLOC 0x100000L  # lasse 1 MByte Adreßraum frei, für malloc
   #endif
-
-# Stack-Grenzen:
-  #ifndef NO_SP_CHECK
-    global void* SP_bound;  # SP-Wachstumsgrenze
-  #endif
-  global void* STACK_bound; # STACK-Wachstumsgrenze
 
 # Bei Überlauf eines der Stacks:
   nonreturning_function(global, SP_ueber, (void));
@@ -12225,7 +12405,7 @@ local uintC generation;
      }
      #endif
      # Speicher holen:
-     #if defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)
+     #if (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || defined(MULTITHREAD)) && (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))
      mmap_init_pagesize();
      #endif
      #ifdef SPVW_PURE
@@ -12277,6 +12457,10 @@ local uintC generation;
      }   }   }
      #endif
      init_modules_0(); # Liste der Module zusammensetzen
+     #ifdef MULTITHREAD
+     init_multithread();
+     create_thread((void*)roughly_SP());
+     #endif
      #ifdef MAP_MEMORY_TABLES
      # total_subr_anz bestimmen:
      { var uintC total = 0;
