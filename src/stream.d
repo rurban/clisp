@@ -11181,8 +11181,12 @@ LISPFUNN(window_cursor_off,1) {
 
 # Routines for the Emulation of all VT100-Features on normal Terminals.
 # Idea: Oliver Laumann 1987
+/* Bruno Haible, Tue, 25 Feb 2003 22:23:11 +0100 (CET):
+ libtermcap is a permanent security problem. Better remove it from your
+ system, and use libncurses instead.
+ See also m4/termcap.m4: we look for these routines in libncurses first. */
 
-# Uses the TERMCAP-Library:
+# Uses the TERMCAP Library:
   # Gets the Capability-Informations for Terminal-Type name.
   # result: 1 if OK, 0 if name unknown, -1 on other error.
     extern_C int tgetent (const char* bp, const char* name);
