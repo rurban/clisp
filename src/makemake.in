@@ -2036,12 +2036,13 @@ echodummyrule all
 echol
 
 # development targets
-echol "makemake : makemake.in";
-echotab "./config.status";
-echol;
-echol "Makefile : makemake";
-echotab "$0$makemake_args > Makefile.tmp";
-echotab "\$(MV) Makefile.tmp Makefile";
+echol "makemake : makemake.in"
+echotab "./config.status"
+echol
+echol "Makefile : makemake"
+echotab "$0$makemake_args > Makefile.tmp"
+echotab "\$(MV) Makefile Makefile~"
+echotab "\$(MV) Makefile.tmp Makefile"
 echol;
 
 UTILS=''
