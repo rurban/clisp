@@ -104,7 +104,7 @@ win32bc/makefile : makemake
 	./makemake --with-dir-key win32bc bcc32i > win32bc/makefile
 
 acorn/makefile.cc : makemake src/VERSION
-	./makemake acorn ansi | $(PERL) acorn/swap-ext.pl > acorn/makefile.cc
+	./makemake acorn cc | $(PERL) acorn/swap-ext.pl > acorn/makefile.cc
 
 acorn/makefile.gcc : makemake src/VERSION
 	./makemake acorn gcc | $(PERL) acorn/swap-ext.pl > acorn/makefile.gcc
