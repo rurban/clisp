@@ -114,3 +114,22 @@ X
 ;; allow unquotes in the terminating atom.
 `(2 3 . #(,(+ 2 2) ,@(list 5)))
 (2 3 . #(4 5))
+
+#+:enable-risky-tests
+(let ((env 1))
+  (eval
+   (let ((get-code '(:a 12 :b 45 :double (* %buffer 2))))
+     `(defun get-macro (display event-key variable)
+        `(let ((%buffer ,display))
+           (declare (ignorable %buffer))
+           ,(getf `(:display (the t ,display) :event-key (the t ,event-key)
+                    ,@',(mapcar #'(lambda (form) (incf env env) form)
+                                get-code))
+                  variable)))))
+  (list (eval (get-macro 1234 5678 :display))
+        (eval (get-macro 1234 5678 :event-key))
+        (eval (get-macro 1234 5678 :a))
+        (eval (get-macro 1234 5678 :double))
+        env))
+#+:enable-risky-tests
+(1234 5678 12 2468 54)

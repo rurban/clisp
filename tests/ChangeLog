@@ -1,3 +1,8 @@
+2004-04-26  Sam Steingold  <sds@gnu.org>
+
+	* backquot.tst [enable-risky-tests]: added a test based on
+	mit-clx/input.lisp:declare-event/get-macro
+
 2004-04-17  Bruno Haible  <bruno@clisp.org>
 
 	* alltest.tst, array.tst, clos.tst, eval20.tst, hashlong.tst,
