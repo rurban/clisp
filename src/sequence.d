@@ -1802,10 +1802,13 @@ LISPFUN(replace,2,0,norest,key,4,\
     { var object count = STACK_1;
       if (eq(count,unbound))
         { STACK_1 = NIL; } # Defaultwert NIL
-        else
-        # COUNT-Argument muss NIL oder ein Integer >= 0 sein:
+      else { # COUNT-Argument muss NIL oder ein Integer >= 0 sein:
+        if (!nullp(Symbol_value(S(sequence_count_ansi))) &&
+            integerp(count) && !positivep(count))
+          { STACK_1 = count = Fixnum_0; }
         if (!(nullp(count) || (integerp(count) && positivep(count))))
           { fehler_posint(TheSubr(subr_self)->name,S(Kcount),count); }
+      }
     }
 
 # Fehler, wenn beide :TEST, :TEST-NOT - Argumente angegeben wurden.

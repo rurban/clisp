@@ -882,7 +882,8 @@ static const cint nop_page[256] = {
                   }
             } }
             else
-            if (nullp(Symbol_value(S(ansi))) && posfixnump(obj))
+            if (nullp(Symbol_value(S(coerce_fixnum_char_ansi)))
+                && posfixnump(obj))
               { var uintL code = posfixnum_to_L(obj);
                 if (code < char_code_limit)
                   # obj ist ein Fixnum >=0, < char_code_limit

@@ -657,6 +657,7 @@ LISPSYM(class_p,"CLASS-P",clos)
 LISPSYM(class_of,"CLASS-OF",clos)
 LISPSYM(find_class,"FIND-CLASS",clos)
 LISPSYM(coerce,"COERCE",lisp)
+LISPSYM(coerce_fixnum_char_ansi,"*COERCE-FIXNUM-CHAR-ANSI*",lisp)
 LISPSYM(note_new_structure_class,"NOTE-NEW-STRUCTURE-CLASS",system)
 LISPSYM(note_new_standard_class,"NOTE-NEW-STANDARD-CLASS",system)
 LISPSYM(heap_statistics,"HEAP-STATISTICS",system)
@@ -756,6 +757,7 @@ LISPSYM(read_char_sequence,"READ-CHAR-SEQUENCE",lisp)
 LISPSYM(write_char_sequence,"WRITE-CHAR-SEQUENCE",lisp)
 LISPSYM(read_byte_sequence,"READ-BYTE-SEQUENCE",lisp)
 LISPSYM(write_byte_sequence,"WRITE-BYTE-SEQUENCE",lisp)
+LISPSYM(sequence_count_ansi,"*SEQUENCE-COUNT-ANSI*",lisp)
 # ---------- STREAM ----------
 LISPSYM(symbol_stream,"SYMBOL-STREAM",system)
 LISPSYM(make_synonym_stream,"MAKE-SYNONYM-STREAM",lisp)
@@ -1229,6 +1231,7 @@ LISPSYM(trace_output,"*TRACE-OUTPUT*",lisp) # als Variable in STREAM
 LISPSYM(reval,"$REVAL",system) # als Slotname in STREAM
 LISPSYM(default_pathname_defaults,"*DEFAULT-PATHNAME-DEFAULTS*",lisp) # als Variable in PATHNAME
 LISPSYM(merge_pathnames_ansi,"*MERGE-PATHNAMES-ANSI*",lisp) # als Variable in PATHNAME
+LISPSYM(print_pathnames_ansi,"*PRINT-PATHNAMES-ANSI*",lisp) # als Variable in PATHNAME
 #ifdef LOGICAL_PATHNAMES
 LISPSYM(logpathname_translations,"*LOGICAL-PATHNAME-TRANSLATIONS*",system) # als Variable in PATHNAME
 #endif

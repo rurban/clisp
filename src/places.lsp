@@ -1029,6 +1029,14 @@
 ;;;                              Symbol-macros
 (define-symbol-macro *ansi* (sys::ansi))
 (defsetf sys::ansi sys::set-ansi)
+(system::%set-documentation '*ansi* 'variable
+ "This symbol-macro modifies some variables for maximum ANSI CL compliance.
+Variables affected: `lisp:*floating-point-contagion-ansi*',
+ `lisp:*merge-pathnames-ansi*', `lisp:*print-pathnames-ansi*',
+ `lisp:*sequence-count-ansi*', `lisp:*coerce-fixnum-char-ansi*'.
+Also, `:ansi-cl' is added to (or removed from) `*features*'.
+Invoking CLISP with `-a' sets this to T.")
+
 (define-symbol-macro *default-file-encoding* (system::default-file-encoding))
 (defsetf system::default-file-encoding system::set-default-file-encoding)
 #+UNICODE
