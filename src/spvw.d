@@ -2968,13 +2968,17 @@ local void print_banner ()
           }
           { var object form;
             pushSTACK(S(load));
-            if (asciz_equal(argv_execute_file,"-"))
-              { pushSTACK(S(standard_input)); } # *STANDARD-INPUT*
-              else
-              { pushSTACK(asciz_to_string(argv_execute_file,O(misc_encoding))); } # "..."
+            if (asciz_equal(argv_execute_file,"-")) {
+              pushSTACK(S(standard_input)); # *STANDARD-INPUT*
+            } else {
+              pushSTACK(asciz_to_string(argv_execute_file,O(misc_encoding)));
+            }
             pushSTACK(S(Kextra_file_types));
             #ifdef WIN32_NATIVE
+            pushSTACK(S(quote));
             pushSTACK(O(load_extra_file_types));
+            form = listof(2); # (QUOTE (".BAT"))
+            pushSTACK(form);
             #else
             pushSTACK(NIL);
             #endif
