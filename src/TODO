@@ -4,14 +4,7 @@ See also <https://sourceforge.net/tracker/?group_id=1355&atid=351355>
 MUST-FIX BEFORE NEXT RELEASE
 ============================
 
-Contagion warnings emitted by many floating-point operations.
-Even though the warnings are off by default now,
-the user who enables them will report bug
-<http://sourceforge.net/tracker/index.php?func=detail&aid=945469&group_id=1355&atid=101355>
-Examples:
-(LOG -3/4)
-(cosh #c(1d0 2d0))
-(expt 0.7877386934673366d0 0.4131787330316742d0)
+Restore interpretation of command-line options.
 
 Modules on 64-bit platforms:
 <http://article.gmane.org/gmane.lisp.clisp.devel:13255>
