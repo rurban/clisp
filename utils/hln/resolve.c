@@ -1,6 +1,6 @@
 /* resolve.c -- resolve symbolic links in a pathname
 
-   Copyright (C) 1995 Bruno Haible
+   Copyright (C) 1995-1999 Bruno Haible
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -116,8 +116,9 @@ char* resolve(path,resolved_path)
                               /* letztes subdir war '/../' */
                               /* Dafür das subdir davor entfernen: */
                               {
-                                while ((last_subdir_ptr > resolved_path) && !(*--last_subdir_ptr == '/')) ;
-                                to_ptr = last_subdir_ptr+1;
+                                while ((last_subdir_ptr > resolved_path) && !(last_subdir_ptr[-1] == '/'))
+                                  last_subdir_ptr--;
+                                to_ptr = last_subdir_ptr;
                           }   }
                         else if (*last_subdir_ptr == '/')
                           {
