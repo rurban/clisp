@@ -1,5 +1,9 @@
 2001-08-21  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d, stream.d (check_direction): const argument
+
+2001-08-21  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (stream_dummy_fill): fill the stream with error pseudofuns
 	(close_dummys): a macro now, uses stream_dummy_fill()
 	(make_broadcast_stream, make_concatenated_stream,
