@@ -1,5 +1,9 @@
 2004-12-05  Bruno Haible  <bruno@clisp.org>
 
+	* realelem.d (R_R_comp): Fix GC-safety bug introduced on 2004-09-18.
+
+2004-12-05  Bruno Haible  <bruno@clisp.org>
+
 	* stream.d (FILE-POSITION): Fix GC-safety bug introduced on 2004-02-15.
 
 2004-12-05  Bruno Haible  <bruno@clisp.org>
