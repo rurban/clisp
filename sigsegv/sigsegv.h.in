@@ -2,7 +2,7 @@
 #define _SIGSEGV_H
 
 /*
- * Copyright 1998 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1998, 1999 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -21,7 +21,10 @@
 #if defined(__NetBSD__) || defined(__FreeBSD__) /* NetBSD, FreeBSD */
 #define HAVE_SIGSEGV_RECOVERY
 #endif
-#if defined(linux) && defined(sparc) /* Linux */
+#if defined(linux) && defined(sparc) && 0 /* Linux */
+/* This used to work. But in Linux-2.0.33 and 2.2.0 a task's tss.sig_address
+ * is passed to the signal handler only if old SunOS signal frames are in use,
+ * and there is no reliable way to force this. Blech. */
 #define HAVE_SIGSEGV_RECOVERY
 #endif
 #if defined(sun) && defined(unix) && (defined(mc68020) || defined(sparc) || (defined(i386) || defined(__i386))) /* SunOS */
