@@ -127,19 +127,21 @@
   #endif
 #endif
 
-# Auswahl des Prozessors:
-# MC680X0 == alle Prozessoren der Motorola-68000-Serie
-# MC680Y0 == alle Prozessoren der Motorola-68000-Serie ab MC68020
-# SPARC == der Sun-SPARC-Prozessor
-# HPPA == alle Prozessoren der HP-Precision-Architecture
-# MIPS == der Mips-Prozessor
-# M88000 == alle Prozessoren der Motorola-88000-Serie
-# RS6000 == der IBM-RS/6000-Prozessor oder die PowerPC-Variante
-# I80386 == alle Prozessoren der Intel-8086-Serie ab 80386
-# VAX == der VAX-Prozessor
-# CONVEX == der Convex-Prozessor
-# ARM == der ARM-Prozessor
-# DECALPHA == der DEC-Alpha-Chip
+# Determine the processor:
+# MC680X0 == all processors of the Motorola 68000 series
+# MC680Y0 == all processors of the Motorola 68000 series, starting at MC68020
+# SPARC == the Sun SPARC prozessor
+# HPPA == all processors of the HP Precision Architecture
+# MIPS == all processors of the MIPS series
+# M88000 == all processors of the Motorola 88000 series
+# RS6000 == the IBM RS/6000 processor or the PowerPC variant.
+# I80386 == all processors of the Intel 8086 series, starting at 80386,
+#           nowadays called IA32
+# VAX == the VAX processor
+# CONVEX == the Convex processor
+# ARM == the ARM processor
+# DECALPHA == the DEC Alpha superchip
+# S390 == the IBM S/390 processor
 #ifdef AMIGA
   #define MC680X0
   #if defined(AMIGA3000) && !defined(MC680Y0)
@@ -200,6 +202,9 @@
   #endif
   #ifdef __alpha
     #define DECALPHA
+  #endif
+  #ifdef __s390__
+    #define S390
   #endif
 #endif
 
@@ -535,7 +540,7 @@
     #define BIG_ENDIAN_P  0
   #endif
   #if defined(short_big_endian) || defined(int_big_endian) || defined(long_big_endian)
-    # MC680X0, SPARC, HPPA, MIPSEB, M88000, RS6000, ...:
+    # MC680X0, SPARC, HPPA, MIPSEB, M88000, RS6000, S390, ...:
     # High Byte zuunterst, Low Byte an höherer Adresse (leichter zu lesen)
     #if defined(BIG_ENDIAN_P)
       #error "Bogus BIG_ENDIAN_P -- BIG_ENDIAN_P neu einstellen!"
@@ -552,7 +557,7 @@
     #define C_CODE_ALIGNMENT  8
     #define log2_C_CODE_ALIGNMENT  3
   #endif
-  #if (defined(I80386) && defined(GNU)) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(ARM)
+  #if (defined(I80386) && defined(GNU)) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(ARM) || defined(S390)
     # When using gcc on i386, this assumes that -malign-functions has not been
     # used to specify an alignment smaller than 4 bytes.
     #define C_CODE_ALIGNMENT  4
@@ -624,6 +629,7 @@
     # ARM           save
     # DECALPHA      save     save      save
     # CONVEX                 used      used     used     (??)
+    # S390          save
     #
     # Special notes:
     # - If STACK is in a "used"/"save" register, it needs to be saved into
@@ -665,6 +671,9 @@
       #endif
       #if defined(DECALPHA)
         #define STACK_register  "$9"  # eines der allgemeinen Register $9..$14
+      #endif
+      #if defined(S390)
+        #define STACK_register  "9"  # eines der allgemeinen Register %r8..%r9
       #endif
       # What about NEED_temp_STACK ?? Needed if STACK is in a "used" register??
     # Register for mv_count.
@@ -743,7 +752,7 @@
         register long subr_self_reg __asm__(subr_self_register);
       #endif
     # Saving "save" registers.
-    #if (defined(I80386) && !defined(DYNAMIC_MODULES)) || defined(HPPA) || defined(M88000) || defined(ARM) || defined(DECALPHA)
+    #if (defined(I80386) && !defined(DYNAMIC_MODULES)) || defined(HPPA) || defined(M88000) || defined(ARM) || defined(DECALPHA) || defined(S390)
       #define HAVE_SAVED_REGISTERS
       struct registers {
         #ifdef STACK_register
@@ -1366,7 +1375,7 @@
     #define intBWsize intBsize
     #define intWLsize intWsize
     #define intBWLsize intBsize
-  #elif (defined(MC680X0) && defined(HPUX_ASSEMBLER)) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(CONVEX)
+  #elif (defined(MC680X0) && defined(HPUX_ASSEMBLER)) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(CONVEX) || defined(S390)
     # Der Sparc-Prozessor kann mit uintB und uintW schlecht rechnen.
     # Anderen 32-Bit-Prozessoren geht es genauso.
     #define intBWsize intWsize
@@ -1559,7 +1568,7 @@
     #define intDsize 16
     #define intDDsize 32  # = 2*intDsize
     #define log2_intDsize  4  # = log2(intDsize)
-  #elif defined(MC680Y0) || defined(I80386) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(VAX) || defined(CONVEX) || defined(ARM) || defined(DECALPHA)
+  #elif defined(MC680Y0) || defined(I80386) || defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(RS6000) || defined(VAX) || defined(CONVEX) || defined(ARM) || defined(DECALPHA) || defined(S390)
     #define intDsize 32
     #define intDDsize 64  # = 2*intDsize
     #define log2_intDsize  5  # = log2(intDsize)
@@ -2863,7 +2872,7 @@ Ratio and Complex (only if SPVW_MIXED).
     #define varobject_alignment  2
   #endif
 #endif
-#if defined(I80386) || defined(RS6000) || defined(CONVEX) || defined(ARM)
+#if defined(I80386) || defined(RS6000) || defined(CONVEX) || defined(ARM) || defined(S390)
   #define varobject_alignment  4
 #endif
 #if defined(SPARC) || defined(HPPA) || defined(MIPS) || defined(M88000) || defined(DECALPHA)
@@ -6630,6 +6639,9 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
     #ifdef VAX
       #define SP_register "sp"
     #endif
+    #ifdef S390
+      #define SP_register "15"
+    #endif
   #endif
   #if defined(GNU) && !defined(NO_ASM)
     # Assembler-Anweisung, die das SP-Register in eine Variable kopiert.
@@ -6669,6 +6681,9 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
     #endif
     #ifdef I80386
       #define ASM_get_SP_register(resultvar)  ("movl %%esp,%0" : "=g" (resultvar) : )
+    #endif
+    #ifdef S390
+      #define ASM_get_SP_register(resultvar)  ("lr %0,%%r15" : "=r" (resultvar) : )
     #endif
   #endif
   #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
@@ -6715,7 +6730,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
     # Zugriffsfunktion portabel in C
     extern void* SP (void);
   #endif
-#if defined(stack_grows_down) # defined(MC680X0) || defined(I80386) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(DECALPHA) || ...
+#if defined(stack_grows_down) # defined(MC680X0) || defined(I80386) || defined(SPARC) || defined(MIPS) || defined(M88000) || defined(DECALPHA) || defined(S390) || ...
   #define SP_DOWN # SP wächst nach unten
   #define SPoffset 0 # top-of-SP ist *(SP+SPoffset)
 #endif
