@@ -1148,20 +1148,26 @@ local object resize (object ht, object maxcount) {
 }
 
 /* Macro: Enlarges a hash-table until freelist /= nix
- hash_prepare_store(key_pos);
- > int literal: key position in STACK
+ hash_prepare_store(hash_pos,key_pos);
  > int literal: hash-table position in STACK
+ > int literal: key position in STACK
  < object ht: hash-table
  < object freelist: start of the free-list in the next-vector, /= nix
  < gcv_object_t* Iptr: arbitrary element of the "list", that belongs to the key
+ for EQ/EQL hashtables the hash code changes after GC,
+ so the raw hashcode cannot be cached.
+ for EQUAL/EQUALP/user-defined hashtables, raw hashcode caching is good
+ (especially for the user-defined tables, where hashcode can trigger GC!)
  can trigger GC */
 #define hash_prepare_store(hash_pos,key_pos)                            \
-  do { var uintL hc_raw = hashcode_raw(STACK_(hash_pos),STACK_(key_pos)); \
-    ht = STACK_(hash_pos);                                              \
-   retry:                                                               \
+  do { ht = STACK_(hash_pos);                                           \
     freelist = TheHashtable(ht)->ht_freelist;                           \
     if (eq(freelist,nix)) { /* free-list = empty "list" ? */            \
-      /* yes -> hash-table must be enlarged: */                         \
+      var uintB flags = record_flags(TheHashtable(ht));                 \
+      var uintL hc_raw = 0;                                             \
+      var bool cacheable = !(flags & (bit(0)|bit(1))); /* not EQ|EQL */ \
+      if (cacheable) hc_raw = hashcode_raw(ht,STACK_(key_pos));         \
+     retry: /* hash-table must still be enlarged: */                    \
       /* calculate new maxcount: */                                     \
       pushSTACK(TheHashtable(ht)->ht_maxcount);                         \
       pushSTACK(TheHashtable(ht)->ht_rehash_size); /* REHASH-SIZE (>1) */ \
@@ -1171,9 +1177,12 @@ local object resize (object ht, object maxcount) {
       ht = resize(STACK_(hash_pos),value1); /* enlarge table */         \
       ht = rehash(ht); /* and reorganize */                             \
       /* newly calculate the address of the entry in the index-vector: */ \
-     {var uintL hashindex = hashcode_cook(hc_raw,TheHashtable(ht)->ht_size); \
+     {var uintL hashindex = cacheable                                   \
+         ? hashcode_cook(hc_raw,TheHashtable(ht)->ht_size)              \
+         : hashcode(ht,STACK_(key_pos));                                \
       Iptr = &TheSvector(TheHashtable(ht)->ht_itable)->data[hashindex];} \
-      goto retry;                                                        \
+     freelist = TheHashtable(ht)->ht_freelist;                          \
+     if (eq(freelist,nix)) goto retry;                                  \
     }                                                                   \
   } while(0)
 
