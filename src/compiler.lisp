@@ -3201,7 +3201,9 @@ der Docstring (oder NIL).
           (SYS::%FUNCALL . c-FUNCALL)
           (APPLY . c-APPLY)
           (+ . c-PLUS)
+          (* . c-STAR)
           (- . c-MINUS)
+          (/ . c-SLASH)
           (SYS::SVSTORE . c-SVSTORE)
           (EQ . c-EQ)
           (EQL . c-EQL)
@@ -8127,73 +8129,122 @@ der Docstring (oder NIL).
     ) ) ) )
 ) )
 
+;; macroexpand form and check for it being a constant number
+;; signal an error when it is not an number
+;; returns 2 values - value and constant-p
+(defun c-constant-number (form)
+  (let ((expanded (macroexpand-form form)))
+    (if (c-constantp expanded)
+      (let ((val (c-constant-value expanded)))
+        (if (numberp val) (values val t)
+          (c-error-c
+           (ENGLISH "Arithmetic operand ~s must evaluate to a number, not ~s")
+           form val)))
+      (values expanded nil))))
+
+;; return two values: the list of numeric constants
+;; and the list of other forms
+(defun c-collect-numeric-constants (forms)
+  (let ((consts nil) (others nil))
+    (dolist (form forms)
+      (multiple-value-bind (val const-p) (c-constant-number form)
+        (if const-p (push val consts) (push val others))))
+    (values consts (nreverse others))))
+
 (defun c-PLUS ()
   (test-list *form* 1)
-  ; bilde Teilsumme der konstanten Argumente, Rest dann dazu:
-  (let ((const-sum 0)
-        (other-parts '())
-        val
-       )
-    (dolist (form (cdr *form*))
-      (setq form (macroexpand-form form))
-      (if (and (c-constantp form) (numberp (setq val (c-constant-value form))))
-        (setq const-sum (+ const-sum val))
-        (push form other-parts)
-    ) )
-    (case (length other-parts)
-      (0 ; nur konstante Summanden
-         (c-form const-sum) ; Zahl const-sum wertet zu sich selbst aus
-      )
-      (1 ; nur ein variabler Summand
-         (case const-sum
-           (0 (c-form (first other-parts))) ; keine Addition nötig
-           (+1 (c-form `(1+ ,(first other-parts))))
-           (-1 (c-form `(1- ,(first other-parts))))
-           (t (c-GLOBAL-FUNCTION-CALL-form `(+ ,const-sum ,@other-parts)))
-      )  )
-      (t (setq other-parts (nreverse other-parts))
-         (unless (eql const-sum 0) (push const-sum other-parts))
-         (c-GLOBAL-FUNCTION-CALL-form `(+ ,@other-parts))
-) ) ) )
+  (multiple-value-bind (const-sum other-parts)
+      (c-collect-numeric-constants (cdr *form*))
+    (setq const-sum (reduce #'* const-sum))
+    (cond ((null other-parts)   ; constant summands only
+           (c-form const-sum))  ; ==> constant result
+          ((eql const-sum 0)    ; const-sum == 0 ==> skip it
+           ;; this is a bad optimization: THE is slower than #'+
+           ;;(if (cdr other-parts) (c-form `(the number ,@other-parts)) ...)
+           (c-GLOBAL-FUNCTION-CALL-form `(+ ,@other-parts)))
+          ((null (cdr other-parts)) ; just one non-constant summand
+           (case const-sum
+             (+1 (c-form `(1+ ,@other-parts)))
+             (-1 (c-form `(1- ,@other-parts)))
+             (t (c-GLOBAL-FUNCTION-CALL-form `(+ ,const-sum ,@other-parts)))))
+          (t (c-GLOBAL-FUNCTION-CALL-form `(+ ,const-sum ,@other-parts))))))
+
+(defun c-STAR ()
+  (test-list *form* 1)
+  (multiple-value-bind (const-prod other-parts)
+      (c-collect-numeric-constants (cdr *form*))
+    (setq const-prod (reduce #'* const-prod))
+    (cond ((null other-parts)   ; constant multiples only
+           (c-form const-prod)) ; ==> constant result
+          ;; this is a bad optimization: one call to #'* is cheaper than PROGN
+          ;;((eql const-prod 0)   ; const-prod == 0 ==> result == 0
+          ;; (c-form `(progn ,@(mapcar (lambda (form) `(the number ,form))
+          ;;                           other-parts)
+          ((eql const-prod 1)   ; const-prod == 1 ==> skip it
+           ;; this is a bad optimization: THE is slower than #'*
+           ;;(if (cdr other-parts) (c-form `(the number ,@other-parts)) ...)
+           (c-GLOBAL-FUNCTION-CALL-form `(* ,@other-parts)))
+          ((and (eql const-prod -1) (null (cdr other-parts)))
+           (c-GLOBAL-FUNCTION-CALL-form `(- ,@other-parts)))
+          (t (c-GLOBAL-FUNCTION-CALL-form `(* ,const-prod ,@other-parts))))))
 
 (defun c-MINUS ()
   (test-list *form* 2)
-  (let ((unary-p (= (length *form*) 2)) ; unäres Minus oder nicht?
-        (const-sum 0) ; Summe der konstanten Teile
-        (first-part 0) ; zu addierende Form
-        (other-parts '()) ; abzuziehende Formen
-        val
-       )
+  (let ((unary-p (= (length *form*) 2))
+        (const-sum 0)           ; the constant sum the tail
+        (first-part 0) (other-parts '()))
     (unless unary-p
-      (let ((form (macroexpand-form (second *form*))))
-        (if (and (c-constantp form) (numberp (setq val (c-constant-value form))))
+      (multiple-value-bind (val const-p) (c-constant-number (second *form*))
+        (if const-p
           (setq const-sum val)
-          (setq first-part form)
-    ) ) )
-    (dolist (form (if unary-p (cdr *form*) (cddr *form*)))
-      (setq form (macroexpand-form form))
-      (if (and (c-constantp form) (numberp (setq val (c-constant-value form))))
-        (setq const-sum (- const-sum val))
-        (push form other-parts)
-    ) )
-    (if (null other-parts)
-      ; nichts zu subtrahieren
+          (setq first-part val))))
+    (multiple-value-bind (consts others)
+        (c-collect-numeric-constants (if unary-p (cdr *form*) (cddr *form*)))
+      (setq const-sum (reduce #'- consts :initial-value const-sum)
+            other-parts others))
+    (if (null other-parts)      ; nothing to subtract
       (let ((*form* `(+ ,const-sum ,first-part))) (c-PLUS))
-      ; etwas zu subtrahieren
       (c-GLOBAL-FUNCTION-CALL-form
-        `(-
-          ,@(if (eql first-part 0) ; variable zu addierende Form?
-              (if (and (eql const-sum 0) (null (cdr other-parts)))
-                '()
-                `(,const-sum)
-              )
-              (if (eql const-sum 0)
-                `(,first-part)
-                `(,first-part ,(- const-sum))
-            ) )
-          ,@(nreverse other-parts)
-         )
-) ) ) )
+       `(- ,@(if (eql first-part 0)
+               (if (and (eql const-sum 0) (null (cdr other-parts)))
+                 '()
+                 `(,const-sum))
+               (if (eql const-sum 0)
+                 `(,first-part)
+                 `(,first-part ,(- const-sum))))
+           ,@other-parts)))))
+
+(defun c-SLASH ()
+  (test-list *form* 2)
+  (let ((unary-p (= (length *form*) 2))
+        (const-prod 1)          ; the constant product in the tail
+        (first-part 1) (other-parts '()))
+    (unless unary-p
+      (multiple-value-bind (val const-p) (c-constant-number (second *form*))
+        (if const-p
+          (setq const-prod val)
+          (setq first-part val))))
+    (multiple-value-bind (consts others)
+        (c-collect-numeric-constants (if unary-p (cdr *form*) (cddr *form*)))
+      (setq const-prod (reduce #'/ consts :initial-value const-prod)
+            other-parts others))
+    (cond ((null other-parts)      ; no divisors
+           (let ((*form* `(* ,const-prod ,first-part))) (c-STAR)))
+          ;; this is a bad optimization: one call to #'/ is cheaper than PROGN
+          ;;((eql first-part 0)
+          ;; (c-form `(progn ,@(mapcar (lambda (form) `(the number ,form))
+          ;;                           other-parts)
+          ;;                 0)))
+          (t
+           (c-GLOBAL-FUNCTION-CALL-form
+            `(/ ,@(if (eql first-part 1)
+                    (if (and (eql const-prod 1) (null (cdr other-parts)))
+                      '()
+                      `(,const-prod))
+                    (if (eql const-prod 1)
+                      `(,first-part)
+                      `(,first-part ,(/ const-prod))))
+                ,@other-parts))))))
 
 (defun c-SVSTORE ()
   (test-list *form* 4 4)

@@ -1,3 +1,11 @@
+2001-10-10  Sam Steingold  <sds@gnu.org>
+
+	optimize #'* and #'/
+	* compiler.lisp (c-form-table): map * to c-STAR and / to c-SLASH
+	(c-constant-number, c-collect-numeric-constants): added
+	(c-PLUS, c-MINUS): use them
+	(c-STAR, c-SLASH): new functions
+
 2001-10-08  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #462982: support ipv6 on i386 (cygwin32, mingw32, msvc)
