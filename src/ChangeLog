@@ -1,5 +1,26 @@
 2005-01-28  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (FAKE_8BIT_VECTOR): New macro.
+	(LEbytes_to_UI, LESbvector_to_UI, LEbytes_to_I, LESbvector_to_I,
+	UI_to_LEbytes, I_to_LEbytes): New declarations.
+	* intserial.d: New file, mostly extracted from stream.d.
+	* lisparit.d: Include intserial.c.
+	* stream.d (bitbuff_iu_I): Use LESbvector_to_UI.
+	(bitbuff_is_I): Use LESbvector_to_I.
+	(bitbuff_ixu_sub): Remove bytesize argument. Use UI_to_LEbytes. Don't
+	call ASSERT_wr_int here.
+	(wr_by_ixu_sub): Call ASSERT_wr_int here. Update.
+	(bitbuff_ixs_sub): Remove bytesize argument. Use I_to_LEbytes. Don't
+	call ASSERT_wr_int here.
+	(wr_by_ixs_sub): Call ASSERT_wr_int here. Update.
+	(WRITE-INTEGER): Update.
+	* genclisph.d (main): Emit declarations for LEbytes_to_UI, LEbytes_to_I,
+	UI_to_LEbytes, I_to_LEbytes.
+	* makemake.in (LISPARIT_SUBFILES): Add intserial.
+	* po/Makefile.devel (DSOURCES): Add intserial.
+
+2005-01-28  Bruno Haible  <bruno@clisp.org>
+
 	* io.d (pr_readlabel): Fix C++ compilation.
 
 2005-01-28  Bruno Haible  <bruno@clisp.org>
