@@ -737,6 +737,7 @@
                          (:NONE 0)
                          (:MALLOC-FREE fv-flag-malloc-free))
                        0))))
+         (library  (second (assoc :library alist)))
          #|
          (getter-function-name (sys::symbol-suffix name "%GETTER%"))
          (setter-function-name (sys::symbol-suffix name "%SETTER%"))
@@ -756,7 +757,11 @@
        |#
        (SYSTEM::%PUT ',name 'FOREIGN-VARIABLE
          (LOAD-TIME-VALUE
-           (LOOKUP-FOREIGN-VARIABLE ',c-name (PARSE-C-TYPE ',type))))
+           ,(if library
+              `(FFI::FOREIGN-LIBRARY-VARIABLE
+                ',c-name (FFI::FOREIGN-LIBRARY ',library)
+                nil (PARSE-C-TYPE ',type))
+              `(LOOKUP-FOREIGN-VARIABLE ',c-name (PARSE-C-TYPE ',type)))))
        (DEFINE-SYMBOL-MACRO ,name
          (FOREIGN-VALUE (LOAD-TIME-VALUE (GET ',name 'FOREIGN-VARIABLE))))
        ',name)))
@@ -849,20 +854,25 @@
 (defmacro DEF-CALL-OUT (&whole whole name &rest options)
   (check-symbol (first whole) name)
   (let* ((alist (parse-options options '(:name :arguments :return-type
-                                         :language :built-in)
+                                         :language :built-in :library)
                                whole))
          (parsed-function (parse-c-function alist whole))
          (signature (argvector-to-signature (svref parsed-function 2)))
-         (c-name (foreign-name name (assoc ':name alist))))
-    (setq alist (remove (assoc ':name alist) alist))
+         (library (second (assoc :library alist)))
+         (c-name (foreign-name name (assoc :name alist))))
+    (setq alist (remove-if (lambda (el) (sys::memq (car el) '(:name :library)))
+                           alist))
     `(PROGN
        (EVAL-WHEN (COMPILE) (NOTE-C-FUN ',c-name ',alist ',whole))
        (LET ()
          (SYSTEM::REMOVE-OLD-DEFINITIONS ',name)
          (COMPILER::EVAL-WHEN-COMPILE (COMPILER::C-DEFUN ',name ',signature))
          (SYSTEM::%PUTD ',name
-           (LOOKUP-FOREIGN-FUNCTION ',c-name
-                                    (PARSE-C-FUNCTION ',alist ',whole))))
+            ,(if library
+               `(ffi::foreign-library-function
+                 ',c-name (ffi::foreign-library ',library)
+                 nil ,parsed-function)
+               `(LOOKUP-FOREIGN-FUNCTION ',c-name ,parsed-function))))
        ',name)))
 
 (defun note-c-fun (c-name alist whole)

@@ -1,3 +1,16 @@
+2003-08-04  Sam Steingold  <sds@gnu.org>
+
+	extended dynamic object loading from AMIGAOS to WIN32_NATIVE & POSIX
+	* m4/dynload.m4 (CL_DYNLOAD): use AC_SEARCH_LIBS
+	* constobj.d (foreign_libraries): define
+	* constsym.d, subr.d (foreign_library, foreign_library_variable)
+	(foreign_library_function): added
+	* foreign.d (FOREIGN-LIBRARY, FOREIGN-LIBRARY-VARIABLE):
+	(FOREIGN-LIBRARY-FUNCTION): extended to win32 & posix
+	* foreign1.lisp (def-c-var, def-call-out): added :LIBRARY option
+	* makemake.in (LIBDL): absorbed into LIBS
+	* unix.d (dlopen, dlsym, dlclose, dlerror): removed prototypes
+
 2003-08-02  Wolfgang Jenkner <wjenkner@inode.at>
 	    Sam Steingold  <sds@gnu.org>
 
