@@ -10,41 +10,47 @@
 (import '(fill-stream with-fill-stream) "SYS")
 (in-package "SYSTEM")
 
+(declaim (inline right-margin))
+(defun right-margin () (or *print-right-margin* sys::*prin-linelength*))
+
 (defclass fill-stream (fundamental-character-output-stream)
   ((target-stream :initarg :stream :type stream)
    (buffer :type string :initform
-           (make-array (or *print-right-margin* sys::*prin-linelength*)
-                       :element-type 'character :fill-pointer 0
-                       :adjustable t))
+           (make-array (right-margin) :element-type 'character
+                       :fill-pointer 0 :adjustable t))
    (inside-sexp :initform nil :type boolean)
    ;; the indentation level variable or number:
    (indent-var :initarg :indent :initform 0 :type (or symbol integer))
    (pending-space :initform nil :type boolean)
    (current-indent :initform 0 :type integer) ; current line indentation
    (pending-indent :initform nil :type (or null integer))))
-(defun line-pos (fill-stream)
+
+(defun fill-stream-line-position (fill-stream)
   (with-slots (target-stream buffer pending-space) fill-stream
     (let ((pos (sys::line-position target-stream)))
       (if pos
           (+ pos (if pending-space 1 0) (string-width buffer))
           nil))))
+
+(defun fill-stream-text-indent (stream)
+  (let ((text-indent-raw (slot-value stream 'indent-var)))
+    (etypecase text-indent-raw
+      (number text-indent-raw)
+      (symbol (symbol-value text-indent-raw)))))
+
 ;; flush the buffer and print a newline (when NEWLINE-P is non-NIL)
 (defun fill-stream-flush-buffer (stream newline-p)
   (with-slots (target-stream buffer pending-indent current-indent indent-var
                pending-space inside-sexp)
       stream
     (flet ((newline ()          ; terpri
-             (setq current-indent
-                   (if (symbolp indent-var)
-                       (symbol-value indent-var)
-                       indent-var)
+             (setq current-indent (fill-stream-text-indent stream)
                    pending-indent current-indent)
              (terpri target-stream)))
       (when (plusp (length buffer)) ; something in the buffer to flush
         ;; fill: if the buffer does not fit on the line, TERPRI
-        (let ((pos (line-pos stream)))
-          (when (and pos
-                     (<= (or *print-right-margin* sys::*prin-linelength*) pos))
+        (let ((pos (fill-stream-line-position stream)))
+          (when (and pos (<= (right-margin) pos)) ; does not fit on this line
             (unless (find #\newline buffer) ; can happen only inside sexp
               (newline))
             (when inside-sexp ; just finished an S-expression
@@ -59,6 +65,7 @@
         (write-char-sequence buffer target-stream)
         (setf (fill-pointer buffer) 0))
       (when newline-p (newline)))))
+
 (progn
 (defmethod stream-write-char ((stream fill-stream) ch)
   (with-slots #1=(buffer pending-space inside-sexp) stream
@@ -78,11 +85,12 @@
     ;; Same body as in stream-write-char.
     (count-if (lambda (ch) #2#) sequence :start start :end end))
   sequence))
+
 (defmethod stream-line-column ((stream fill-stream))
-  (let ((pos (line-pos stream)))
+  (let ((pos (fill-stream-line-position stream)))
     (if pos (max (- pos (slot-value stream 'current-indent)) 0) nil)))
 (defmethod stream-start-line-p ((stream fill-stream))
-  (let ((pos (line-pos stream)))
+  (let ((pos (fill-stream-line-position stream)))
     (if pos (<= pos (slot-value stream 'current-indent)) nil)))
 (defmethod stream-finish-output ((stream fill-stream))
   (fill-stream-flush-buffer stream nil)
