@@ -5729,13 +5729,13 @@ global Values funcall (object fun, uintC args_on_stack)
     #define byteptr_in  byteptr
   #endif
   #ifdef DEBUG_SPVW
-    #define ERROR(label)  \
+    #define GOTO_ERROR(label)  \
       do {                                              \
         fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__); \
         goto label;                                     \
       } while(0)
   #else
-    #define ERROR(label)  goto label
+    #define GOTO_ERROR(label)  goto label
   #endif
   local Values interpret_bytecode_ (object closure_in, Sbvector codeptr, const uintB* byteptr_in)
   {
@@ -6468,7 +6468,7 @@ global Values funcall (object fun, uintC args_on_stack)
       CASE cod_unbind1:                # (UNBIND1)
         #if STACKCHECKC
         if (!(framecode(STACK_0) == DYNBIND_frame_info))
-          ERROR(fehler_STACK_putt);
+          GOTO_ERROR(fehler_STACK_putt);
         #endif
         # unwind variable-binding-frame:
         {
@@ -6493,7 +6493,7 @@ global Values funcall (object fun, uintC args_on_stack)
           do {
             #if STACKCHECKC
             if (!(framecode(FRAME_(0)) == DYNBIND_frame_info))
-              ERROR(fehler_STACK_putt);
+              GOTO_ERROR(fehler_STACK_putt);
             #endif
             # unwind variable-binding-frame:
             var gcv_object_t* new_FRAME = topofframe(FRAME_(0)); # pointer above frame
@@ -7018,7 +7018,7 @@ global Values funcall (object fun, uintC args_on_stack)
         {
           var uintL n;
           U_operand(n);
-          if (n >= mv_limit) ERROR(fehler_zuviele_werte);
+          if (n >= mv_limit) GOTO_ERROR(fehler_zuviele_werte);
           STACK_to_mv(n);
         }
         goto next_byte;
@@ -7061,7 +7061,7 @@ global Values funcall (object fun, uintC args_on_stack)
         VALUES1(popSTACK());
         goto next_byte;
       CASE cod_list_to_mv:             # (LIST-TO-MV)
-        list_to_mv(value1, ERROR(fehler_zuviele_werte));
+        list_to_mv(value1, GOTO_ERROR(fehler_zuviele_werte));
         goto next_byte;
       CASE cod_mvcallp:                # (MVCALLP)
         pushSP((aint)STACK); # save STACK
@@ -7133,7 +7133,7 @@ global Values funcall (object fun, uintC args_on_stack)
         # unwind CBLOCK-Frame:
         #if STACKCHECKC
         if (!(framecode(STACK_0) == CBLOCK_frame_info))
-          ERROR(fehler_STACK_putt);
+          GOTO_ERROR(fehler_STACK_putt);
         #endif
         {
           FREE_JMPBUF_on_SP();
@@ -7231,7 +7231,7 @@ global Values funcall (object fun, uintC args_on_stack)
         # unwind CTAGBODY-Frame:
         #if STACKCHECKC
         if (!(framecode(STACK_0) == CTAGBODY_frame_info))
-          ERROR(fehler_STACK_putt);
+          GOTO_ERROR(fehler_STACK_putt);
         #endif
         {
           FREE_JMPBUF_on_SP();
@@ -7336,12 +7336,12 @@ global Values funcall (object fun, uintC args_on_stack)
         # a CATCH-Frame has to come:
         #if STACKCHECKC
         if (!(framecode(STACK_0) == CATCH_frame_info))
-          ERROR(fehler_STACK_putt);
+          GOTO_ERROR(fehler_STACK_putt);
         #endif
         FREE_JMPBUF_on_SP();
         #if STACKCHECKC
         if (!(closureptr == (gcv_object_t*)SP_(0))) # that Closureptr must be the current one
-          ERROR(fehler_STACK_putt);
+          GOTO_ERROR(fehler_STACK_putt);
         #endif
         skipSP(2); skipSTACK(3); # unwind CATCH-Frame
         goto next_byte;
@@ -7401,9 +7401,9 @@ global Values funcall (object fun, uintC args_on_stack)
       CASE cod_uwp_normal_exit:        # (UNWIND-PROTECT-NORMAL-EXIT)
         #if STACKCHECKC
         if (!(framecode(STACK_0) == UNWIND_PROTECT_frame_info))
-          ERROR(fehler_STACK_putt);
+          GOTO_ERROR(fehler_STACK_putt);
         if (!(closureptr == (gcv_object_t*)SP_(jmpbufsize+0))) # that Closureptr must be the current one
-          ERROR(fehler_STACK_putt);
+          GOTO_ERROR(fehler_STACK_putt);
         #endif
         # unwind Frame:
         # nothing to do, because closure and byteptr stay unmodified.
@@ -7423,7 +7423,7 @@ global Values funcall (object fun, uintC args_on_stack)
           popSP( oldSTACK = (gcv_object_t*) );
           var uintL mvcount = # number of saved values on Stack
             STACK_item_count(STACK,oldSTACK);
-          if (mvcount >= mv_limit) ERROR(fehler_zuviele_werte);
+          if (mvcount >= mv_limit) GOTO_ERROR(fehler_zuviele_werte);
           STACK_to_mv(mvcount);
         }
         { /* return to the saved unwind_protect_to_save.fun : */
@@ -7454,9 +7454,9 @@ global Values funcall (object fun, uintC args_on_stack)
         # of the Cleanup-Code is necessary.
         #if STACKCHECKC
         if (!(framecode(STACK_0) == UNWIND_PROTECT_frame_info))
-          ERROR(fehler_STACK_putt);
+          GOTO_ERROR(fehler_STACK_putt);
         if (!(closureptr == (gcv_object_t*)SP_(jmpbufsize+0))) # that Closureptr must be the current one
-          ERROR(fehler_STACK_putt);
+          GOTO_ERROR(fehler_STACK_putt);
         #endif
         # closure remains, byteptr:=label_byteptr :
         {
