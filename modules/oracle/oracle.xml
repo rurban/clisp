@@ -239,19 +239,19 @@ one of three different forms, depending on the value of the symbol
 <thead><row><entry>Value of <replaceable>result-type</replaceable></entry><entry>Returned result</entry></row></thead>
 <tbody>
 
-<row><entry><classname>'ARRAY</classname></entry>
+<row><entry><classname>ARRAY</classname></entry>
 <entry>
 Values will be returned in an &array-t; with the same number of
 columns as in the SELECT statement, in the same order.
 This is the default.
 </entry></row>
-<row><entry><classname>'PAIRS</classname></entry>
+<row><entry><classname>PAIRS</classname></entry>
 <entry>
 A list of pairs, <literal>((column, value) ...)</literal> is be returned.  The
 number and order of pairs is the same as the columns in the
 SELECT statement.
 </entry></row>
-<row><entry><classname>'HASH</classname></entry>
+<row><entry><classname>HASH</classname></entry>
 <entry>
 A &hash-table-t; whose keys are the column names and whose values
 are the column values in the row.  The SELECT columns <emphasis>must
