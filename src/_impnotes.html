@@ -169,6 +169,7 @@ details.
    <li><a href="#weak">Weak Pointers</a>
    <li><a href="#final">Finalization</a>
    <li><a href="#prompt">The Prompt</a>
+   <li><a href="#syscalls">System Calls</a>
   </ol>
  <li><a href="#debugger"><b>The Debugger and Stepper</b></a>
  <li><a href="#platform"><b>Platform specific Extensions</b></a>
@@ -1860,7 +1861,7 @@ More precisely, CLISP uses the IBM PC character set (code page 437):
   <TR>       <TH>$40 <TD> @ <TD> A <TD> B <TD> C <TD> D <TD> E <TD> F <TD> G <TD> H <TD> I <TD> J <TD> K <TD> L <TD> M <TD> N <TD> O
   <TR>       <TH>$50 <TD> P <TD> Q <TD> R <TD> S <TD> T <TD> U <TD> V <TD> W <TD> X <TD> Y <TD> Z <TD> [ <TD> \ <TD> ] <TD> ^ <TD> _
   <TR>       <TH>$60 <TD> ` <TD> a <TD> b <TD> c <TD> d <TD> e <TD> f <TD> g <TD> h <TD> i <TD> j <TD> k <TD> l <TD> m <TD> n <TD> o
-  <TR>       <TH>$70 <TD> p <TD> q <TD> r <TD> s <TD> t <TD> u <TD> v <TD> w <TD> x <TD> y <TD> z <TD> { <TD> | <TD> } <TD> ~ <TD>  
+  <TR>       <TH>$70 <TD> p <TD> q <TD> r <TD> s <TD> t <TD> u <TD> v <TD> w <TD> x <TD> y <TD> z <TD> { <TD> | <TD> } <TD> ~ <TD>
   <TR>       <TH>$80 <TD> &Ccedil; <TD> &uuml; <TD> &eacute; <TD> &acirc; <TD> &auml; <TD> &agrave; <TD> &aring; <TD> &ccedil; <TD> &ecirc; <TD> &euml; <TD> &egrave; <TD> &iuml; <TD> &icirc; <TD> &igrave; <TD> &Auml; <TD> &Aring;
   <TR>       <TH>$90 <TD> &Eacute; <TD> &aelig; <TD> &AElig; <TD> &ocirc; <TD> &ouml; <TD> &ograve; <TD> &ucirc; <TD> &ugrave; <TD> &yuml; <TD> &Ouml; <TD> &Uuml; <TD> &cent; <TD> &pound; <TD> &yen;
   <TR>       <TH>$A0 <TD> &aacute; <TD> &iacute; <TD> &oacute; <TD> &uacute; <TD> &ntilde; <TD> &Ntilde; <TD> &ordf; <TD> &ordm; <TD> &iquest; <TD>   <TD> &not; <TD> &frac12; <TD> &frac14; <TD> &iexcl; <TD> &laquo; <TD> &raquo;
@@ -5311,10 +5312,10 @@ vote.
 <!-- ======================================================= -->
 <br><hr><br>
 
-<H2><a name="extensions">Extensions-1: Platform independent
-    Extensions</a></H2>
+<a name="extensions"></a>
+<H2>Extensions-1: Platform independent Extensions</H2>
 
-<H3><a name="image">Extensions-1.1. Saving an Image</a></H3>
+<a name="image"></a><H3>Extensions-1.1. Saving an Image</H3>
 
 <p>The function <code>(<STRONG>saveinitmem</STRONG> [<var>filename</var>
 [:quiet] [:init-function]])</code> saves the running CLISP's memory to a
@@ -5325,7 +5326,7 @@ message will be suppressed. The <code>:init-function</code> argument
 specifies a function that will be executed at startup of the saved
 image.
 
-<H3><a name="quit">Extensions-1.2. Quitting Lisp</a></H3>
+<a name="quit"></a><H3>Extensions-1.2. Quitting Lisp</H3>
 
 <p>The functions <code>(<STRONG>exit</STRONG>
 [<var>errorp</var>])</code>, <code>(<STRONG>quit</STRONG>
@@ -5335,7 +5336,7 @@ image.
 status, i.e. the environment is informed that the CLISP session didn't
 succeed.
 
-<H3><a name="language">Extensions-1.3. The Language</a></H3>
+<a name="language"></a><H3>Extensions-1.3. The Language</H3>
 
 <p>The language CLISP uses to communicate with the user can be either
 <code>ENGLISH</code> or <code>DEUTSCH</code> (i.e. german) or
@@ -5374,7 +5375,7 @@ the localized value through the function call
   [<var>language</var>])</code>.
 
 
-<H3><a name="encoding">Extensions-1.4. Encodings</a></H3>
+<a name="encoding"></a><H3>Extensions-1.4. Encodings</H3>
 
 <p>An <em>encoding</em> describes the correspondence between characters and
 raw bytes during input/output via streams with element-type
@@ -5582,7 +5583,7 @@ The following character sets are supported, as values of the corresponding
       a platform specific extension of the ASCII character set.
   <li><code>NEXTSTEP</code>,
       a platform specific extension of the ASCII character set.
-</ul>  
+</ul>
 
 <p>
 <!-- #ifdef HAVE_ICONV -->
@@ -5671,7 +5672,7 @@ line terminator mode is ignored.
 <!-- #endif -->
 
 
-<H3><a name="weak">Extensions-1.5. Weak Pointers</a></H3>
+<a name="weak"></a><H3>Extensions-1.5. Weak Pointers</H3>
 
 <p>A weak pointer is an object holding a reference to a given object,
 without keeping the latter from being garbage-collected.
@@ -5688,7 +5689,7 @@ returns true if the <var>object</var> is of type
 and <code>t</code>, if the value has not yet been garbage collected,
 else <code>nil</code> and <code>nil</code>.
 
-<H3><a name="final">Extensions-1.6. Finalization</a></H3>
+<a name="final"></a><H3>Extensions-1.6. Finalization</H3>
 
 <p>Calling <code>(<STRONG>finalize</STRONG> <var>object</var>
 <var>function</var>)</code> has the effect that when the specified
@@ -5713,7 +5714,7 @@ again.
 
 <P>No finalization request will be executed more than once.
 
-<H3><a name="prompt">Extensions-1.7. The Prompt</a></H3>
+<a name="prompt"></a><H3>Extensions-1.7. The Prompt</H3>
 
 <p>The variable <code>sys::*prompt*</code> controls the appearance of
 the prompt.  When its value is a function, it is called and it's value
@@ -5735,6 +5736,46 @@ returning its shortest name or nickname.  Also, a variable
 <code>sys::*command-index*</code> contains the current prompt number, it
 is your responsibility to increment it (you might also want to reset
 it).
+
+<a name="prompt"></a><H3>Extensions-1.8. System Calls</H3>
+
+<p>When CLISP is configured with an option
+<code>--export-syscalls</code>, some system calls are available from
+lisp.
+
+<dl>
+ <dt><code>(<strong>lisp:resolve-host-ipaddr </strong>
+            &amp;optional <var>host</var>)</code>
+ <dd>Returns the hostent struct as multiple values (name, list of
+     aliases, list of IP addresses as dotted quads (for IPv4) or coloned
+     octets (for IPv6), address type - IPv4 or IPv6).  When
+     <code>host</code> is omitted or <code>:default</code>, return the
+     data for the current host.  When <code>host</code> is given and is
+     <code>nil</code>, all the host database is returned as a list of
+     vectors of length 4 (this would be the contents of the /etc/hosts
+     file on a UNIX system).
+ <dt><code>(<strong>lisp:file-stat</strong>
+            <var>file</var> &amp;optional <var>link-p</var>)</code>
+ <dd>Return the stat struct as multiple values.  <code>file</code> can
+     be a stream, a pathname, a string or a number.  The first value
+     returned is the string or the number on which
+     stat(2)/fstat(2)/lstat(2) was called.  The other 13 values are
+     numbers, members of the stat struct: device, inode, protection,
+     number of hard links, owner's UID, owner's GID, device type, total
+     size (bytes), blocksize for filesystem I/O, number of blocks
+     allocated, atime, mtime, ctime.
+     [UNIX systems only at this time, patches are welcome.]
+ <dt><code>(<strong>lisp:user-data</strong>
+             &amp;optional <var>user</var>)</code>
+ <dd>Return the passwd struct as multiple values (name, encoded
+     password, UID, GID, full name, home directory, shell).  When
+     <code>user</code> is <code>nil</code>, return all users as a list
+     of vectors of length 7.  When <code>user</code> is
+     <code>:default</code> or <code>nil</code>, return the information
+     about the current user.
+     [UNIX systems only at this time, patches are welcome.]
+</dl>
+
 
 <a name="debugger"></a>
 <H2>Extensions-2: The Debugger and Stepper</H2>
@@ -5867,10 +5908,10 @@ help.
 
 <!-- #if defined(SCREEN) || defined(AMIGAOS) || defined(GRAPHICS) || defined(UNIX) || defined(DYNAMIC_FFI) || defined(SOCKET_STREAMS) -->
 
-<H2><a name="platform">Extensions-3: Platform specific Extensions</a></H2>
+<a name="platform"></a><H2>Extensions-3: Platform specific Extensions</H2>
 
 <!-- #if defined(SCREEN) || defined(AMIGAOS) -->
-<H3><a name="screen">Extensions-3.1. Random Screen Access</a></H3>
+<a name="screen"></a><H3>Extensions-3.1. Random Screen Access</H3>
 
 <EM>Platform dependent: UNIX, DOS, OS/2, Amiga platforms only.</EM>
 
@@ -5948,7 +5989,7 @@ help.
 <!-- #endif -->
 
 <!-- #ifdef UNIX -->
-<H3><a name="modules">Extensions-3.2. External Modules</a></H3>
+<a name="modules"></a><H3>Extensions-3.2. External Modules</H3>
 
 <EM>Platform dependent: UNIX platforms only.</EM>
 
@@ -6093,7 +6134,7 @@ this order.)
 <!-- #endif -->
 
 <!-- #ifdef DYNAMIC_FFI -->
-<H3><a name="dffi">Extensions-3.3. The Foreign Function Call Facility</a></H3>
+<a name="dffi"></a><H3>Extensions-3.3. The Foreign Function Call Facility</H3>
 
 <EM>Platform dependent: many UNIX, Win32 platforms only.</EM>
 
@@ -6882,7 +6923,8 @@ Now try
 <!-- #endif -->
 
 <!-- #ifdef HAVE_AFFI -->
-<H3><a name="affi">Extensions-3.4. The Amiga Foreign Function Call Facility</a></H3>
+<a name="affi"></a>
+<H3>Extensions-3.4. The Amiga Foreign Function Call Facility</H3>
 
 <EM>Platform dependent: Amiga platforms only.</EM>
 
@@ -7276,7 +7318,7 @@ have inlined the library function calls.
 <!-- #endif -->
 
 <!-- #ifdef AMIGAOS -->
-<H3><a name="rexx">Extensions-3.5. ARexx</a></H3>
+<a name="rexx"></a><H3>Extensions-3.5. ARexx</H3>
 
 <EM>Platform dependent: Amiga platforms only.</EM>
 
@@ -7323,7 +7365,7 @@ several sources, e.g. both a console and ARexx, at the same time.
 <!-- #endif -->
 
 <!-- #ifdef SOCKET_STREAMS -->
-<H3><a name="socket">Extensions-3.6. Socket Streams</a></H3>
+<a name="socket"></a><H3>Extensions-3.6. Socket Streams</H3>
 
 <EM>Platform dependent: UNIX, Win32 platforms only.</EM>
 
@@ -7372,9 +7414,15 @@ socket stream.  For a server, <code>socket-stream-host</code>
 returns <code>nil</code>.
 <DT>
 <code>(<STRONG>socket-service-port</STRONG>
-       &#34;<var>service-name</var>&#34;)</code>
+       &amp;optional &#34;<var>service-name</var>&#34;
+       (<var>protocol</var> "tcp"))</code>
 <DD>
 A convenience function for looking up a port given the service name.
+It returns the servent struct as multiple values (name, list of aliases,
+port, protocol) for the given <code>service-name</code> and
+<code>protocol</code>, or all services as the list of vectors of length
+4, if <code>service-name</code> is not given or is <code>:default</code>
+or <code>nil</code>.
 <DT>
 <code>(<STRONG>socket-stream-peer</STRONG> <var>socket-stream</var>)</code>
 <DD>
@@ -7391,7 +7439,7 @@ name and port number, but for the local host.
 <!-- #endif -->
 
 <!-- #ifdef UNIX -->
-<H3><a name="script">Extensions-3.7. CLISP as a script interpreter</a></H3>
+<a name="script"></a><H3>Extensions-3.7. CLISP as a script interpreter</H3>
 
 <EM>Platform dependent: UNIX platforms only.</EM>
 <P>
@@ -7452,7 +7500,7 @@ script with error status.
 
 <!-- #endif -->
 
-<H3><a name="shell">Extensions-3.8. Shell</a></H3>
+<a name="shell"></a><H3>Extensions-3.8. Shell</H3>
 
 <DL>
 <!-- #if defined(UNIX) || defined(MSDOS) || defined(RISCOS) -->
@@ -7537,7 +7585,7 @@ function <code>make-pipe-io-stream</code>. This use of
 <!-- #endif -->
 
 <!-- #ifdef AMIGAOS -->
-<H3><a name="other">Extensions-3.9. Other</a></H3>
+<a name="other"></a><H3>Extensions-3.9. Other</H3>
 
 <p>
 <DL>

@@ -786,14 +786,6 @@ global SOCKET create_client_socket(hostname,port)
   extern_C int atoi();
 #endif
 
-local int is_number (const char * s);
-local int is_number(s)
-  var const char * s;
-  {
-  for (;*s;s++) if (!(*s >= '0' && *s <= '9')) return 0;
-    return 1;
-  }
-
 #define SERVENT_TO_STACK(se)                                              \
   pushSTACK(asciz_to_string(se->s_name,Symbol_value(S(ascii))));          \
   ARR_TO_LIST(tmp,(NULL != se->s_aliases[ii]),                            \
@@ -809,16 +801,14 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
   var object tmp = popSTACK();
   var object serv = popSTACK();
   struct servent *se = NULL;
-  char * proto;
+  char * proto = NULL;
 
   if (eq(tmp,unbound) || nullp(tmp)) proto = "tcp";
   else if (stringp(tmp))
     proto = TheAsciz(string_to_asciz(tmp,Symbol_value(S(ascii))));
   else fehler_string(tmp);
 
-  if (symbolp(serv)) serv = Symbol_name(serv);
-
-  if (eq(serv,unbound)) { # all services as a list
+  if (eq(serv,unbound) || eq(serv,S(Kdefault)) || nullp(serv)) {
     int count = 0;
     begin_system_call();
     for (; (se = getservent()); count++) {
@@ -829,7 +819,8 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
     endservent();
     end_system_call();
     value1 = listof(count); mv_count = 1;
-  } else if (stringp(serv) || posfixnump(serv)) {
+  } else if (stringp(serv) || posfixnump(serv) || symbolp(serv)) {
+    if (symbolp(serv)) serv = Symbol_name(serv);
     begin_system_call();
     se = (fixnump(serv) ? getservbyport(htons(fixnum_to_L(serv)),proto) :
           getservbyname(TheAsciz(string_to_asciz(serv,Symbol_value(S(ascii)))),
@@ -853,23 +844,50 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
 	    ((h_errno == NO_ADDRESS) || (h_errno == NO_DATA) ? \
 	     "no IP address for this host" : "unknown error")))))
 
+#define HOSTENT_TO_STACK(he)                                               \
+  pushSTACK(ascii_to_string(he->h_name));                                  \
+  ARR_TO_LIST(tmp,(NULL != he->h_aliases[ii]),                             \
+              asciz_to_string(he->h_aliases[ii],O(misc_encoding)));        \
+  pushSTACK(tmp);                                                          \
+  ARR_TO_LIST(tmp,(ii < he->h_length/sizeof(uint32)),                      \
+              asciz_to_string(inet_ntop(he->h_addrtype,he->h_addr_list[ii],\
+                                        buffer,MAXHOSTNAMELEN),            \
+                              O(misc_encoding)));                          \
+  pushSTACK(tmp);                                                          \
+  pushSTACK(fixnum(he->h_addrtype))
+
 # Lisp interface to gethostbyname(3) and gethostbyaddr(3)
 LISPFUN(resolve_host_ipaddr,0,1,norest,nokey,0,NIL)
 # (LISP:RESOLVE-HOST-IPADDR &optional host)
 {
   var object arg = popSTACK();
-  struct hostent *he;
+  var struct hostent *he = NULL;
   var char buffer[MAXHOSTNAMELEN];
+  var object tmp;
 
-  if (symbolp(arg)) arg = Symbol_name(arg);
-
-  if (eq(arg,unbound)) {
+  if (nullp(arg)) {
+    int count = 0;
     begin_system_call();
-    if (0 != gethostname(buffer,MAXHOSTNAMELEN)) { OS_error(); }
-    he = gethostbyname(buffer);
+    for (; (he = gethostent()); count++) {
+      HOSTENT_TO_STACK(he);
+      funcall(L(vector),4);
+      pushSTACK(value1);
+    }
+    endhostent();
     end_system_call();
-  } else if (stringp(arg)) {
-    char * name = TheAsciz(string_to_asciz(arg,O(misc_encoding)));
+    value1 = listof(count); mv_count = 1;
+    return;
+  }
+
+  if (eq(arg,unbound) || eq(arg,S(Kdefault))) {
+    var char * host;
+    get_hostname(host =);
+    begin_system_call();
+    he = gethostbyname(host);
+    end_system_call();
+  } else if (stringp(arg) || symbolp(arg)) {
+    char * name = TheAsciz(string_to_asciz(stringp(arg)?arg:Symbol_name(arg),
+                                           O(misc_encoding)));
     begin_system_call();
     #ifdef HAVE_INET_PTON
     if (inet_pton(AF_INET,name,(void*)buffer) > 0)
@@ -903,16 +921,8 @@ LISPFUN(resolve_host_ipaddr,0,1,norest,nokey,0,NIL)
            "");
   }
 
-  value1 = ascii_to_string(he->h_name);
-  ARR_TO_LIST(value2,(NULL != he->h_aliases[ii]),
-              asciz_to_string(he->h_aliases[ii],O(misc_encoding)));
-  ARR_TO_LIST(value3,(ii < he->h_length/sizeof(uint32)),
-              asciz_to_string(inet_ntop(he->h_addrtype,he->h_addr_list[ii],
-                                        buffer,MAXHOSTNAMELEN),
-                              O(misc_encoding)));
-              # UL_to_I(*(uint32*)(he->h_addr_list[ii])));
-  value4 = fixnum(he->h_addrtype);
-  mv_count = 4;
+  HOSTENT_TO_STACK(he);
+  funcall(L(values),4);
 }
 
 #endif # EXPORT_SYSCALLS
