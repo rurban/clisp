@@ -2,6 +2,7 @@
 
 	* modules/rawsock/configure.in: check for <winsock2.h> only when
 	<sys/socket.h> is not found to avoid confusion on cygwin
+	* modules/rawsock/test.tst [win32]: do not test socketpair()
 
 2004-08-30  Sam Steingold  <sds@gnu.org>
 
