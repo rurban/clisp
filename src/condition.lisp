@@ -64,18 +64,20 @@
   (t ENGLISH))
 (deflocalized print-condition-format ENGLISH
   (formatter "Condition of type ~S."))
-(clos:defgeneric print-condition (condition stream)
-  (:method ((condition condition) stream)
-    (format stream (localized 'print-condition-format) (type-of condition))))
 (clos:defmethod clos:print-object ((object condition) stream)
   (if (or *print-escape* *print-readably*)
     (clos:call-next-method)
-    (print-condition object stream)))
-
-;; Avoid warnings caused by DEFCONDITION adding methods to PRINT-CONDITION.
-(ext:without-package-lock ("CLOS")
-  (pushnew 'print-condition
-           clos::*dynamically-modifiable-generic-function-names*))
+    (progn
+      (format stream (localized 'print-condition-format) (type-of condition))
+      object)))
+; Entry-points used by other parts of CLISP.
+(defun print-condition (condition stream)
+  (let ((*print-escape* nil)
+        (*print-readably* nil))
+    (print-object condition stream)))
+(defun pretty-print-condition (condition stream &key (indent 6))
+  (with-fill-stream (out stream :indent indent)
+    (print-condition condition out)))
 
 ;;; 29.4.5. Defining Conditions
 ;;; <http://www.lisp.org/HyperSpec/Body/sec_9-1-2.html>
@@ -129,10 +131,14 @@
       `(PROGN
          ,defclass-form
          ,@(when report-function
-             `((CLOS:DEFMETHOD PRINT-CONDITION ((CONDITION ,name) STREAM)
-                 ,(if (stringp (first report-function))
-                   `(WRITE-STRING ,(first report-function) STREAM)
-                   `(FUNCALL (FUNCTION ,@report-function) CONDITION STREAM)))))
+             `((CLOS:DEFMETHOD PRINT-OBJECT ((CONDITION ,name) STREAM)
+                 (IF (OR *PRINT-ESCAPE* *PRINT-READABLY*)
+                   (CLOS:CALL-NEXT-METHOD)
+                   (PROGN
+                     ,(if (stringp (first report-function))
+                       `(WRITE-STRING ,(first report-function) STREAM)
+                       `(FUNCALL (FUNCTION ,@report-function) CONDITION STREAM))
+                     CONDITION)))))
          ',name))))
 
 ;;; 29.4.6. Creating Conditions
@@ -397,16 +403,15 @@
                  (simple-condition-format-arguments condition))))))
   |#
 )
-;; We don't use the :report option here. Instead we define a print-condition
+;; We don't use the :report option here. Instead we define a print-object
 ;; method which will be executed regardless of the condition type's CPL.
-(clos:defmethod print-condition :around ((condition simple-condition) stream)
-  (let ((fstring (simple-condition-format-control condition)))
-    (if fstring
-      (apply #'format stream fstring (simple-condition-format-arguments condition))
-      (clos:call-next-method))))
-(defun pretty-print-condition (condition stream &key (indent 6))
-  (with-fill-stream (out stream :indent indent)
-    (print-condition condition out)))
+(clos:defmethod print-object :around ((condition simple-condition) stream)
+  (if (or *print-escape* *print-readably*)
+    (clos:call-next-method)
+    (let ((fstring (simple-condition-format-control condition)))
+      (if fstring
+        (apply #'format stream fstring (simple-condition-format-arguments condition))
+        (clos:call-next-method)))))
 
 ;; conditions usually created by ERROR or CERROR
 (define-condition simple-error (simple-condition error) ())

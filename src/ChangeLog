@@ -1,3 +1,14 @@
+2004-09-14  Bruno Haible  <bruno@clisp.org>
+
+	* condition.lisp (print-condition): Change from generic function to
+	plain function. Call print-object.
+	(print-object@condition): Don't call print-condition. Instead inline
+	its earlier definition.
+	(define-condition): Change the macroexpansion to define a method on
+	print-object, not on print-condition.
+	(print-condition@simple-condition): Remove.
+	(print-object@simple-condition): New method.
+
 2004-08-01  Bruno Haible  <bruno@clisp.org>
 
 	Make it possible to call class-precedence-list during compute-slots
