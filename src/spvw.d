@@ -2020,6 +2020,8 @@ global int main (argc_t argc, char* argv[]) {
               argv_for = for_expr;
               *--argptr = "(PROGN (PRINC \"" PACKAGE_NAME " \")"
                 "(PRINC (LISP-IMPLEMENTATION-VERSION)) (TERPRI)"
+                "(PRINC \"Software: \") (PRINC (SOFTWARE-VERSION))"
+                "(PRINC \" \") (PRINC (SOFTWARE-TYPE)) (TERPRI)"
                 "(PRINC \"Features"
                #ifdef DEBUG_SPVW
                 " [SAFETY=" STRINGIFY(SAFETY)
@@ -2039,6 +2041,9 @@ global int main (argc_t argc, char* argv[]) {
                 "(PRINC (SYS::LIB-DIRECTORY)) (TERPRI)"
                 "(PRINC \"User language: \")"
                 "(PRINC (SYS::CURRENT-LANGUAGE)) (TERPRI)"
+                "(PRINC \"Machine: \") (PRINC (MACHINE-TYPE))"
+                "(PRINC \"(\") (PRINC (MACHINE-VERSION))"
+                "(PRINC \")\") (PRINC (MACHINE-INSTANCE)) (TERPRI)"
                 "(SYS::%EXIT))";
               break;
             } else if (asciz_equal(&arg[2],"quiet")
