@@ -1087,6 +1087,8 @@ LISPSYM(Kline_terminator,"LINE-TERMINATOR",keyword)
 LISPSYM(Kunix,"UNIX",keyword)
 LISPSYM(Kmac,"MAC",keyword)
 LISPSYM(Kdos,"DOS",keyword)
+LISPSYM(Kinput_error_action,"INPUT-ERROR-ACTION",keyword)
+LISPSYM(Koutput_error_action,"OUTPUT-ERROR-ACTION",keyword)
 LISPSYM(Kansi_cl,"ANSI-CL",keyword)
 #ifdef REXX
 LISPSYM(Kresult,"RESULT",keyword)
@@ -1260,7 +1262,7 @@ LISPSYM(signed_byte,"SIGNED-BYTE",lisp) # als Argument in PATHNAME
 LISPSYM(Kdefault,"DEFAULT",keyword) # als Argument in PATHNAME
 LISPSYM(canonicalize_type,"CANONICALIZE-TYPE",system) # als Funktion für PATHNAME
 LISPSYM(subtypep,"SUBTYPEP",lisp) # als Funktion für PATHNAME
-LISPSYM(Kerror,"ERROR",keyword) # als Argument in PATHNAME
+LISPSYM(Kerror,"ERROR",keyword) # als Argument in PATHNAME, ENCODING
 LISPSYM(Knew_version,"NEW-VERSION",keyword) # als Argument in PATHNAME
 LISPSYM(Krename,"RENAME",keyword) # als Argument in PATHNAME
 LISPSYM(Krename_and_delete,"RENAME-AND-DELETE",keyword) # als Argument in PATHNAME
@@ -1269,6 +1271,7 @@ LISPSYM(Kappend,"APPEND",keyword) # als Argument in PATHNAME
 LISPSYM(Ksupersede,"SUPERSEDE",keyword) # als Argument in PATHNAME
 LISPSYM(Kcreate,"CREATE",keyword) # als Argument in PATHNAME
 LISPSYM(warn,"WARN",lisp) # als Funktion in STREAM, PATHNAME
+LISPSYM(Kignore,"IGNORE",keyword) # als Argument in ENCODING
 LISPSYM(with_output_to_string,"WITH-OUTPUT-TO-STRING",lisp) # als Fehlermelder in STREAM
 LISPSYM(integer,"INTEGER",lisp) # als Typ in STREAM
 LISPSYM(hash_table,"HASH-TABLE",lisp) # als Typ in IO, PREDTYPE

@@ -5118,6 +5118,8 @@ typedef struct { XRECORD_HEADER
 # Encoding
 typedef struct { XRECORD_HEADER
                  object enc_eol; # line termination, a keyword (:UNIX, :MAC, :DOS)
+                 object enc_towcs_error; # input error action, :ERROR or :IGNORE or a character
+                 object enc_tombs_error; # output error action, :ERROR or :IGNORE or a character or an uint8
                  #ifdef UNICODE
                  object enc_charset; # character set, a symbol in the CHARSET package
                                      # or a simple-string
@@ -5140,9 +5142,9 @@ typedef struct { XRECORD_HEADER
                }
         *  Encoding;
 #ifdef UNICODE
-  #define encoding_length  8
+  #define encoding_length  10
 #else
-  #define encoding_length  1
+  #define encoding_length  3
 #endif
 #define encoding_xlength  (sizeof(*(Encoding)0)-offsetofa(record_,recdata)-encoding_length*sizeof(object))
 #ifdef UNICODE
