@@ -9891,6 +9891,11 @@ LISPFUN(format_tabulate,3,2,norest,nokey,0,NIL)
 {
   swap(object,STACK_0,STACK_4); # get the stream into STACK_0
   test_ostream();
+ #define COL_ARG(x) (eq(x,unbound) ? Fixnum_1 : \
+                     (posfixnump(x) ? x : (fehler_posfixnum(x),Fixnum_1)))
+  STACK_1 = COL_ARG(STACK_1);
+  STACK_4 = COL_ARG(STACK_4);
+ #undef COL_ARG
   if (PPHELP_STREAM_P(STACK_0) && test_value(S(print_pretty))) {
     var object tab_spec = allocate_vector(4);
     PPH_TAB_COLON(tab_spec) = STACK_3;
