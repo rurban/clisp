@@ -1,5 +1,5 @@
-;;; testen von backquote
-
+;;; tests for backquote
+;;; -*- Lisp -*-
 
 (setf x '(a b c))
 (a b c)
@@ -13,10 +13,8 @@ ERROR
 `(,x . ,x)      ; = (append (list x) x)
 ((a b c) a b c)
 
-
 (read-from-string "`(,x . ,@x)")
 ERROR
-
 
 (read-from-string ",x")
 ERROR
@@ -24,3 +22,5 @@ ERROR
 `#(1 2 3 4)
 #(1 2 3 4)
 
+`#(,@x)
+#(a b c)
