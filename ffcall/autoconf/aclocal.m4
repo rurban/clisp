@@ -204,9 +204,10 @@ AC_SUBST(INSTALL_DATA)dnl
 dnl
 AC_DEFUN(CL_CANONICAL_HOST,
 [AC_REQUIRE([AC_PROG_CC]) dnl Actually: AC_REQUIRE([CL_CC_WORKS])
+dnl Set ac_aux_dir before the cache check, because AM_PROG_LIBTOOL needs it.
+ac_aux_dir=${srcdir}/$1
 AC_CACHE_CHECK(host system type, cl_cv_host, [
 dnl A substitute for AC_CONFIG_AUX_DIR_DEFAULT, so we don't need install.sh.
-ac_aux_dir=${srcdir}/$1
 ac_config_guess=$ac_aux_dir/config.guess
 ac_config_sub=$ac_aux_dir/config.sub
 dnl Mostly copied from AC_CANONICAL_HOST.
