@@ -9,45 +9,45 @@
 
 ;;; Lift the initialization protocol.
 
-(defmethod initialize-instance ((class class) &rest args
-                                &key name direct-superclasses direct-slots
-                                     direct-default-initargs documentation
-                                &allow-other-keys)
+(defmethod shared-initialize ((class class) situation &rest args
+                              &key name direct-superclasses direct-slots
+                                   direct-default-initargs documentation
+                              &allow-other-keys)
   (declare (ignore name direct-superclasses direct-slots
                    direct-default-initargs documentation))
-  (apply #'initialize-instance-<class> class args))
+  (apply #'shared-initialize-<class> class situation args))
 
 ;;; ===========================================================================
 
-(defmethod initialize-instance ((class built-in-class) &rest args
-                                &key name direct-superclasses
-                                &allow-other-keys)
+(defmethod shared-initialize ((class built-in-class) situation &rest args
+                              &key name direct-superclasses
+                              &allow-other-keys)
   (declare (ignore name direct-superclasses))
-  (apply #'initialize-instance-<built-in-class> class args))
+  (apply #'shared-initialize-<built-in-class> class situation args))
 
 ;;; ===========================================================================
 
-(defmethod initialize-instance ((class structure-class) &rest args
-                                &key name direct-superclasses direct-slots
-                                     direct-default-initargs documentation
-                                     ((direct-slots direct-slots-as-metaobjects) '())
-                                     ((names names) nil)
-                                     ((slots slots) '()) ((size size) 1)
-                                &allow-other-keys)
+(defmethod shared-initialize ((class structure-class) situation &rest args
+                              &key name direct-superclasses direct-slots
+                                   direct-default-initargs documentation
+                                   ((direct-slots direct-slots-as-metaobjects) '())
+                                   ((names names) nil)
+                                   ((slots slots) '()) ((size size) 1)
+                              &allow-other-keys)
   (declare (ignore name direct-superclasses direct-slots
                    direct-default-initargs documentation
                    direct-slots-as-metaobjects names slots size))
-  (apply #'initialize-instance-<structure-class> class args))
+  (apply #'shared-initialize-<structure-class> class situation args))
 
 ;;; ===========================================================================
 
-(defmethod initialize-instance ((class standard-class) &rest args
-                                &key name direct-superclasses direct-slots
-                                     direct-default-initargs documentation
-                                &allow-other-keys)
+(defmethod shared-initialize ((class standard-class) situation &rest args
+                              &key name direct-superclasses direct-slots
+                                   direct-default-initargs documentation
+                              &allow-other-keys)
   (declare (ignore name direct-superclasses direct-slots
                    direct-default-initargs documentation))
-  (apply #'initialize-instance-<standard-class> class args))
+  (apply #'shared-initialize-<standard-class> class situation args))
 
 ;;; ===========================================================================
 

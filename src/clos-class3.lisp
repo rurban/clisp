@@ -249,7 +249,14 @@
                    (error-of-type 'sys::source-program-error
                      (TEXT "~S ~S: invalid option ~S")
                      'defclass name option)))
-               `(,@metaclass ,@direct-default-initargs ,@documentation ,@fixed-slot-locations))))
+               `(,@metaclass
+                 ;; Here we use (or ... '(... NIL)) because when a class is
+                 ;; being redefined, :DOCUMENTATION NIL means to erase the
+                 ;; documentation string, while nothing means to keep it!
+                 ;; See MOP p. 57.
+                 ,@(or direct-default-initargs '(:DIRECT-DEFAULT-INITARGS NIL))
+                 ,@(or documentation '(:DOCUMENTATION NIL))
+                 ,@(or fixed-slot-locations '(:FIXED-SLOT-LOCATIONS NIL))))))
        ,@(nreverse accessor-decl-forms) ; the DECLAIM-METHODs
        (FIND-CLASS ',name))))
 
@@ -431,13 +438,14 @@
                                       (add-method (fdefinition funname) method)))
                                   (setf (class-direct-accessors class) old-direct-accessors))))
                     (apply (cond ((eq metaclass <standard-class>)
-                                  #'initialize-instance-<standard-class>)
+                                  #'shared-initialize-<standard-class>)
                                  ((eq metaclass <built-in-class>)
-                                  #'initialize-instance-<built-in-class>)
+                                  #'shared-initialize-<built-in-class>)
                                  ((eq metaclass <structure-class>)
-                                  #'initialize-instance-<structure-class>)
-                                 (t #'initialize-instance))
+                                  #'shared-initialize-<structure-class>)
+                                 (t #'shared-initialize))
                            class
+                           nil
                            :name name
                            :direct-superclasses direct-superclasses
                            'direct-slots direct-slots
@@ -1214,19 +1222,29 @@
     (apply #'initialize-instance-<built-in-class> class args)))
 
 (defun initialize-instance-<built-in-class> (class &rest args
-                                             &key name
-                                                  (direct-superclasses '())
-                                             &allow-other-keys)
-  (check-metaclass-mix name direct-superclasses
-                       #'built-in-class-p 'built-in-class)
-  (apply #'initialize-instance-<class> class args)
+                                             &key &allow-other-keys)
+  ;; Don't add functionality here! This is a preliminary definition that is
+  ;; replaced with #'initialize-instance later.
+  (apply #'shared-initialize-<built-in-class> class 't args))
+
+(defun shared-initialize-<built-in-class> (class situation &rest args
+                                           &key (name nil name-p)
+                                                (direct-superclasses '() direct-superclasses-p)
+                                           &allow-other-keys)
+  (when (or (eq situation 't) direct-superclasses-p)
+    (check-metaclass-mix (if name-p name (class-classname class))
+                         direct-superclasses
+                         #'built-in-class-p 'built-in-class))
+  (apply #'shared-initialize-<class> class situation args)
   ; Initialize the remaining <class> slots:
-  (setf (class-precedence-list class)
-        (checked-compute-class-precedence-list class))
-  (setf (class-all-superclasses class)
-        (std-compute-superclasses (%class-precedence-list class)))
-  (setf (class-slots class) '())
-  (setf (class-default-initargs class) '())
+  (when (or (eq situation 't) direct-superclasses-p)
+    (setf (class-precedence-list class)
+          (checked-compute-class-precedence-list class))
+    (setf (class-all-superclasses class)
+          (std-compute-superclasses (%class-precedence-list class))))
+  (when (eq situation 't)
+    (setf (class-slots class) '())
+    (setf (class-default-initargs class) '()))
   ; Done.
   class)
 
@@ -1253,69 +1271,90 @@
     (apply #'initialize-instance-<structure-class> class args)))
 
 (defun initialize-instance-<structure-class> (class &rest args
-                                              &key name (direct-superclasses '())
-                                                   ;; The following keys come from ENSURE-CLASS.
-                                                   ((:direct-slots direct-slots-as-lists) '())
-                                                   (direct-default-initargs '()) (documentation nil)
-                                                   ;; The following keys come from DEFINE-STRUCTURE-CLASS.
-                                                   ((names names) nil)
-                                                   ((direct-slots direct-slots-as-metaobjects) '())
-                                                   ((slots slots) '()) ((size size) 1)
-                                              &allow-other-keys)
+                                              &key &allow-other-keys)
+  ;; Don't add functionality here! This is a preliminary definition that is
+  ;; replaced with #'initialize-instance later.
+  (apply #'shared-initialize-<structure-class> class 't args))
+
+(defun shared-initialize-<structure-class> (class situation &rest args
+                                            &key (name nil name-p)
+                                                 (direct-superclasses '() direct-superclasses-p)
+                                                 ;; The following keys come from ENSURE-CLASS.
+                                                 ((:direct-slots direct-slots-as-lists) '() direct-slots-as-lists-p)
+                                                 (direct-default-initargs '() direct-default-initargs-p)
+                                                 (documentation nil documentation-p)
+                                                 ;; The following keys come from DEFINE-STRUCTURE-CLASS.
+                                                 ((names names) nil names-p)
+                                                 ((direct-slots direct-slots-as-metaobjects) '() direct-slots-as-metaobjects-p)
+                                                 ((slots slots) '())
+                                                 ((size size) 1)
+                                            &allow-other-keys)
   ;; metaclass <= <structure-class>
   (declare (ignore direct-slots-as-lists direct-slots-as-metaobjects
-                   documentation))
-  (check-metaclass-mix name direct-superclasses
-                       #'structure-class-p 'STRUCTURE-CLASS)
-  (apply #'initialize-instance-<slotted-class> class args)
+                   direct-default-initargs documentation documentation-p))
+  (when (or (eq situation 't) direct-superclasses-p)
+    (check-metaclass-mix (if name-p name (class-classname class))
+                         direct-superclasses
+                         #'structure-class-p 'STRUCTURE-CLASS))
+  (apply #'shared-initialize-<slotted-class> class situation args)
   (setq direct-superclasses (class-direct-superclasses class)) ; augmented
   ; Initialize the remaining <class> slots:
-  (setf (class-precedence-list class)
-        (checked-compute-class-precedence-list class))
-  (setf (class-all-superclasses class)
-        (std-compute-superclasses (%class-precedence-list class)))
-  (unless names
-    ;; When called via ENSURE-CLASS, we have to do inheritance of slots.
-    (when direct-superclasses
-      (setq slots (class-slots (first direct-superclasses)))
-      (setq size (class-instance-size (first direct-superclasses)))))
-  (setf (class-slots class) slots)
-  (setf (class-slot-location-table class) (compute-slot-location-table class))
-  (setf (class-instance-size class) size)
-  (unless names
-    (setf (class-instance-size class) 1)
-    (setf (class-slots class)
-          (compute-slots-<slotted-class>-around class
-            #'(lambda (c)
-                (append slots
-                  (remove-if (let ((slotnames (mapcar #'slot-definition-name slots)))
-                               #'(lambda (slot) (member (slot-definition-name slot) slotnames)))
-                             (compute-slots-<class>-primary c))))))
-    (setf (class-instance-size class) (max size (compute-instance-size class)))
-    (let ((ht (class-slot-location-table class)))
-      (dolist (slot (class-slots class))
-        (setf (gethash (slot-definition-name slot) ht)
-              (slot-definition-location slot))))
-    (when (plusp (compute-shared-size class))
-      (error-of-type 'error
-        (TEXT "(~S ~S): metaclass ~S does not support shared slots")
-              'DEFCLASS name 'STRUCTURE-CLASS)))
-  (setf (class-default-initargs class) (checked-compute-default-initargs class))
+  (when (or (eq situation 't) direct-superclasses-p)
+    (setf (class-precedence-list class)
+          (checked-compute-class-precedence-list class))
+    (setf (class-all-superclasses class)
+          (std-compute-superclasses (%class-precedence-list class))))
+  (when (or (eq situation 't) direct-superclasses-p
+            direct-slots-as-lists-p direct-slots-as-metaobjects-p)
+    (unless names
+      ;; When called via ENSURE-CLASS, we have to do inheritance of slots.
+      (when direct-superclasses
+        (setq slots (class-slots (first direct-superclasses)))
+        (setq size (class-instance-size (first direct-superclasses)))))
+    (setf (class-slots class) slots)
+    (setf (class-slot-location-table class) (compute-slot-location-table class))
+    (setf (class-instance-size class) size)
+    (unless names
+      (setf (class-instance-size class) 1)
+      (setf (class-slots class)
+            (compute-slots-<slotted-class>-around class
+              #'(lambda (c)
+                  (append slots
+                    (remove-if (let ((slotnames (mapcar #'slot-definition-name slots)))
+                                 #'(lambda (slot) (member (slot-definition-name slot) slotnames)))
+                               (compute-slots-<class>-primary c))))))
+      (setf (class-instance-size class) (max size (compute-instance-size class)))
+      (let ((ht (class-slot-location-table class)))
+        (dolist (slot (class-slots class))
+          (setf (gethash (slot-definition-name slot) ht)
+                (slot-definition-location slot))))
+      (when (plusp (compute-shared-size class))
+        (error-of-type 'error
+          (TEXT "(~S ~S): metaclass ~S does not support shared slots")
+                'DEFCLASS name 'STRUCTURE-CLASS))))
+  (when (or (eq situation 't) direct-superclasses-p direct-default-initargs-p)
+    (setf (class-default-initargs class)
+          (checked-compute-default-initargs class)))
   ; Initialize the remaining <slotted-class> slots:
-  (setf (class-subclass-of-stablehash-p class)
-        (std-compute-subclass-of-stablehash-p class))
-  (setf (class-valid-initargs class)
-        (remove-duplicates (mapcap #'slot-definition-initargs (class-slots class))))
+  (when (or (eq situation 't) direct-superclasses-p)
+    (setf (class-subclass-of-stablehash-p class)
+          (std-compute-subclass-of-stablehash-p class)))
+  (when (or (eq situation 't) direct-superclasses-p
+            direct-slots-as-lists-p direct-slots-as-metaobjects-p)
+    (setf (class-valid-initargs class)
+          (remove-duplicates (mapcap #'slot-definition-initargs (class-slots class)))))
   ; Initialize the remaining <structure-class> slots:
-  (unless names
-    (setq names
-          (cons name
-                (if direct-superclasses
-                   (class-names (first direct-superclasses))
-                   '()))))
-  (setf (class-names class) names)
+  (when (or (eq situation 't) direct-superclasses-p names-p)
+    (unless names
+      (setq names
+            (cons name
+                  (if direct-superclasses
+                     (class-names (first direct-superclasses))
+                     '()))))
+    (setf (class-names class) names))
   ; Done.
-  (system::note-new-structure-class)
+  (when (eq situation 't)
+    (system::note-new-structure-class))
   class)
 
 ;; DEFSTRUCT-Hook
@@ -1360,24 +1399,32 @@
     (apply #'initialize-instance-<standard-class> class args)))
 
 (defun initialize-instance-<standard-class> (class &rest args
-                                             &key (direct-superclasses '())
-                                                  ((:direct-slots direct-slots-as-lists) '())
-                                                  ((direct-slots direct-slots-as-metaobjects) '())
-                                                  (direct-default-initargs '()) (documentation nil)
-                                                  (fixed-slot-locations nil)
-                                             &allow-other-keys)
-  (declare (ignore direct-superclasses direct-slots-as-lists
-                   direct-slots-as-metaobjects direct-default-initargs
-                   documentation))
-  (apply #'initialize-instance-<slotted-class> class args)
-  (when (eq (sys::%record-ref class *<standard-class>-current-version-location*)
-            (sys::%unbound))
+                                             &key &allow-other-keys)
+  ;; Don't add functionality here! This is a preliminary definition that is
+  ;; replaced with #'initialize-instance later.
+  (apply #'shared-initialize-<standard-class> class 't args))
+
+(defun shared-initialize-<standard-class> (class situation &rest args
+                                           &key (direct-superclasses '() direct-superclasses-p)
+                                                ((:direct-slots direct-slots-as-lists) '() direct-slots-as-lists-p)
+                                                ((direct-slots direct-slots-as-metaobjects) '() direct-slots-as-metaobjects-p)
+                                                (direct-default-initargs '() direct-default-initargs-p)
+                                                (documentation nil documentation-p)
+                                                (fixed-slot-locations nil fixed-slot-locations-p)
+                                           &allow-other-keys)
+  (declare (ignore direct-superclasses direct-superclasses-p
+                   direct-slots-as-lists direct-slots-as-lists-p
+                   direct-slots-as-metaobjects direct-slots-as-metaobjects-p
+                   direct-default-initargs direct-default-initargs-p
+                   documentation documentation-p))
+  (apply #'shared-initialize-<slotted-class> class situation args)
+  (when (eq situation 't)
     (setf (class-current-version class)
           (make-class-version :newest-class class
                               :class class
                               :serial 0))
     (unless *classes-finished*
-      ; Bootstrapping: Simulate the effect of #'%initialize-instance.
+      ; Bootstrapping: Simulate the effect of #'%shared-initialize.
       (setf (class-direct-accessors class) '())
       (setf (class-instantiated class) nil)
       (setf (class-finalized-direct-subclasses-table class) '())))
@@ -1386,7 +1433,8 @@
   (setf (class-all-superclasses class) nil) ; mark as not yet finalized
   ; Initialize the remaining <slotted-class> slots:
   ; Initialize the remaining <standard-class> slots:
-  (setf (class-fixed-slot-locations class) fixed-slot-locations)
+  (when (or (eq situation 't) fixed-slot-locations-p)
+    (setf (class-fixed-slot-locations class) fixed-slot-locations))
   (setf (class-prototype class) nil)
   ; Try to finalize it.
   (finalize-class class nil)

@@ -22,13 +22,14 @@
 ;; No need for accessors. The hashcode is used by hashtabl.d.
 
 ;; Initialization of a <standard-stablehash> instance.
-(defun initialize-instance-<standard-stablehash> (object &rest args
-                                                  &key &allow-other-keys)
+(defun shared-initialize-<standard-stablehash> (object situation &rest args
+                                                &key &allow-other-keys)
   (if *classes-finished*
-    (apply #'%initialize-instance object args) ; == (call-next-method)
-    ; Bootstrapping: Simulate the effect of #'%initialize-instance.
-    (setf (sys::%record-ref object *<standard-stablehash>-hashcode-location*)
-          (sys::random-posfixnum)))
+    (apply #'%shared-initialize object situation args) ; == (call-next-method)
+    ; Bootstrapping: Simulate the effect of #'%shared-initialize.
+    (when (eq situation 't) ; called from initialize-instance?
+      (setf (sys::%record-ref object *<standard-stablehash>-hashcode-location*)
+            (sys::random-posfixnum))))
   object)
 
 ;;; ===========================================================================

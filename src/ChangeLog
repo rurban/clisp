@@ -1,3 +1,51 @@
+2004-05-30  Bruno Haible  <bruno@clisp.org>
+
+	Use SHARED-INITIALIZE instead of INITIALIZE-INSTANCE for the class
+	initialization behaviour.
+	* clos-stablehash1.lisp (shared-initialize-<standard-stablehash>):
+	Replaces initialize-instance-<standard-stablehash>.
+	* clos-stablehash2.lisp (shared-initialize@standard-stablehash):
+	Replaces initialize-instance@standard-stablehash.
+	* clos-specializer1.lisp (shared-initialize-<specializer>): Replaces
+	initialize-instance-<specializer>.
+	(shared-initialize-<eql-specializer>): Replaces
+	initialize-instance-<eql-specializer>.
+	(initialize-instance-<eql-specializer>): New function.
+	* clos-specializer2.lisp (shared-initialize@specializer): Replaces
+	initialize-instance@specializer.
+	(shared-initialize@eql-specializer): Replaces
+	initialize-instance@eql-specializer.
+	* clos-specializer3.lisp (initialize-instance-<eql-specializer>):
+	Set to #'initialize-instance.
+	* clos-class1.lisp (shared-initialize-<class>): Replaces
+	initialize-instance-<class>.
+	(shared-initialize-<slotted-class>): Replaces
+	initialize-instance-<slotted-class>.
+	* clos-class3.lisp (DEFCLASS): Always pass :DEFAULT-INITARGS,
+	:DOCUMENTATION, :FIXED-SLOT-LOCATIONS arguments.
+	(ensure-class-using-class-<t>): In the redefinition case, call
+	shared-initialize instead of initialize-instance.
+	(shared-initialize-<built-in-class>): Replaces
+	initialize-instance-<built-in-class>.
+	(initialize-instance-<built-in-class>): New function.
+	(shared-initialize-<structure-class>): Replaces
+	initialize-instance-<structure-class>.
+	(initialize-instance-<structure-class>): New function.
+	(shared-initialize-<standard-class>): Replaces
+	initialize-instance-<standard-class>.
+	(initialize-instance-<standard-class>): New function.
+	* clos-class4.lisp (shared-initialize@class): Replaces
+	initialize-instance@class.
+	(shared-initialize@built-in-class): Replaces
+	initialize-instance@built-in-class.
+	(shared-initialize@structure-class): Replaces
+	initialize-instance@structure-class.
+	(shared-initialize@standard-class): Replaces
+	initialize-instance@standard-class.
+	* clos-class6.lisp (initialize-instance-<built-in-class>,
+	initialize-instance-<structure-class>,
+	initialize-instance-<standard-class>): Set to #'initialize-instance.
+
 2004-07-18  Sam Steingold  <sds@gnu.org>
 
 	invalidate Fpointer instead of making it NULL on close
