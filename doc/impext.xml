@@ -4100,14 +4100,15 @@ Compiled, it will have inlined the library function calls.
    to a &socket-stream; or whether a connection is available on a
    &socket-server; without blocking.</simpara>
    <simpara>For the cognoscenti: this is the interface to &select;, so
-   it will work for any &clisp; &stream-t; which is based on a
-   &file-des;, e.g., &file-pipe-socket; and &kbd-in;.</simpara>
-   <simpara>This is similar to
-    &listen;, which checks only one &stream-t; and only for input, and
-    &so-wait;, which works only with &socket-server;s.</simpara>
+    it will work for any &clisp; &stream-t; which is based on a
+    &file-des;, e.g., &file-pipe-socket; and &kbd-in;, as well as
+    for <link linkend="rawsock">raw sockets</link>.</simpara>
+   <simpara>This is similar to &listen;, which checks only one
+    &stream-t; and only for input, and &so-wait;, which works only with
+    &socket-server;s.</simpara>
    <simpara>We define <quote>status</quote> for a &socket-server; or a
     &socket-stream; to be &error-k; if any i/o operation will cause an
-    error.</simpara>
+    &error-t;.</simpara>
    <simpara>Additionally, for a &socket-server;, we define
     <quote>status</quote> to be &t; if a connection is available, i.e.,
     is &so-accept; will not block, and &nil; otherwise.</simpara>
@@ -4174,7 +4175,7 @@ Compiled, it will have inlined the library function calls.
     You can pass this modified list to &so-status; again.</simpara>
    <simpara>The optional arguments specify the timeout. &nil; means
     wait forever, &zero; means poll.</simpara>
-    <simpara>The second value returned is the number of objects with
+   <simpara>The second value returned is the number of objects with
     non-&nil; status, i.e., <quote>actionable</quote> objects.
     &so-status; returns either due to a timeout or when this number is
     positive, i.e., if the timeout was &nil; and &so-status; did
@@ -4198,7 +4199,7 @@ Compiled, it will have inlined the library function calls.
    &default-k; or &nil;.</simpara></listitem></varlistentry>
  <varlistentry id="sost-peer"><term><literal role="sexp">(&sost-peer;
     &sost-r; [<replaceable>do-not-resolve-p</replaceable>])</literal></term>
-  <listitem><simpara>Given a socket stream, this function returns the
+  <listitem><simpara>Given a &socket-stream;, this function returns the
    name of the host on the opposite side of the connection and its port
    number; the server-side can use this to see who connected.</simpara>
    <simpara>When the optional second argument is non-&nil;, the hostname
