@@ -149,7 +149,7 @@
   local void write_errorasciz (const char* asciz);
   local void write_errorasciz(asciz)
     var const char* asciz;
-    { 
+    {
       write_errorasciz_substring((const uintB*)asciz,
                                  (const uintB*)(asciz + asciz_length(asciz)));
     }
@@ -723,8 +723,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_list(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(list)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);     # TYPE-ERROR slot DATUM
+      pushSTACK(S(list)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not a list")
@@ -739,8 +739,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_proper_list(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(list)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);     # TYPE-ERROR slot DATUM
+      pushSTACK(S(list)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: A true list must not end with ~")
@@ -756,8 +756,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
     var object caller;
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(symbol)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);       # TYPE-ERROR slot DATUM
+      pushSTACK(S(symbol)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj);
       pushSTACK(caller);
       fehler(type_error,
@@ -787,8 +787,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
     var object caller;
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(simple_vector)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);              # TYPE-ERROR slot DATUM
+      pushSTACK(S(simple_vector)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj);
       pushSTACK(caller);
       fehler(type_error,
@@ -804,8 +804,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_vector(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(vector)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);       # TYPE-ERROR slot DATUM
+      pushSTACK(S(vector)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not a vector")
@@ -820,8 +820,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_posfixnum(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);               # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ should be a nonnegative fixnum")
@@ -836,8 +836,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_char(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(character)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);          # TYPE-ERROR slot DATUM
+      pushSTACK(S(character)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ is not a character")
@@ -851,8 +851,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_string(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);       # TYPE-ERROR slot DATUM
+      pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ is not a string")
@@ -866,8 +866,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_sstring(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(simple_string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);              # TYPE-ERROR slot DATUM
+      pushSTACK(S(simple_string)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ is not a simple string")
@@ -896,8 +896,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_string_integer(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_string_integer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);                    # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_string_integer)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ is neither a string nor an integer")
@@ -912,8 +912,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_stream(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(stream)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);       # TYPE-ERROR slot DATUM
+      pushSTACK(S(stream)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ should be a stream")
@@ -930,8 +930,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
     var object obj;
     var object type;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(type); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);  # TYPE-ERROR slot DATUM
+      pushSTACK(type); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(type); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ should be a stream of type ~")
@@ -946,8 +946,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_function(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);         # TYPE-ERROR slot DATUM
+      pushSTACK(S(function)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not a function")
@@ -962,8 +962,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_lambda_expression(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);         # TYPE-ERROR slot DATUM
+      pushSTACK(S(function)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ is not a function." NLstring "To get a function in the current environment, write (FUNCTION ...)." NLstring "To get a function in the global environment, write (COERCE '... 'FUNCTION).")
@@ -978,8 +978,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_uint8(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_uint8)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);           # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_uint8)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not an 8-bit number")
@@ -996,8 +996,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_sint8(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_sint8)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);           # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_sint8)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not an 8-bit number")
@@ -1012,8 +1012,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_uint16(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_uint16)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);            # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_uint16)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not a 16-bit number")
@@ -1028,8 +1028,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_sint16(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_sint16)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);            # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_sint16)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not a 16-bit number")
@@ -1044,8 +1044,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_uint32(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_uint32)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);            # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_uint32)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not an 32-bit number")
@@ -1060,8 +1060,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_sint32(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_sint32)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);            # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_sint32)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not an 32-bit number")
@@ -1076,8 +1076,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_uint64(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_uint64)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);            # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_uint64)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not an 64-bit number")
@@ -1092,8 +1092,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_sint64(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_sint64)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);            # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_sint64)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not an 64-bit number")
@@ -1108,11 +1108,11 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_uint(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(obj);            # TYPE-ERROR slot DATUM
       #if (int_bitsize==16)
-      pushSTACK(O(type_uint16)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(O(type_uint16)); # TYPE-ERROR slot EXPECTED-TYPE
       #else # (int_bitsize==32)
-      pushSTACK(O(type_uint32)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(O(type_uint32)); # TYPE-ERROR slot EXPECTED-TYPE
       #endif
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -1128,11 +1128,11 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_sint(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(obj);            # TYPE-ERROR slot DATUM
       #if (int_bitsize==16)
-      pushSTACK(O(type_sint16)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(O(type_sint16)); # TYPE-ERROR slot EXPECTED-TYPE
       #else # (int_bitsize==32)
-      pushSTACK(O(type_sint32)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(O(type_sint32)); # TYPE-ERROR slot EXPECTED-TYPE
       #endif
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -1148,11 +1148,11 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_ulong(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(obj);            # TYPE-ERROR slot DATUM
       #if (long_bitsize==32)
-      pushSTACK(O(type_uint32)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(O(type_uint32)); # TYPE-ERROR slot EXPECTED-TYPE
       #else # (long_bitsize==64)
-      pushSTACK(O(type_uint64)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(O(type_uint64)); # TYPE-ERROR slot EXPECTED-TYPE
       #endif
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -1168,11 +1168,11 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_slong(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(obj);            # TYPE-ERROR slot DATUM
       #if (long_bitsize==32)
-      pushSTACK(O(type_sint32)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(O(type_sint32)); # TYPE-ERROR slot EXPECTED-TYPE
       #else # (long_bitsize==64)
-      pushSTACK(O(type_sint64)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(O(type_sint64)); # TYPE-ERROR slot EXPECTED-TYPE
       #endif
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -1188,8 +1188,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_ffloat(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(single_float)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);             # TYPE-ERROR slot DATUM
+      pushSTACK(S(single_float)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not a single-float")
@@ -1204,8 +1204,8 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
   global void fehler_dfloat(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(double_float)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);             # TYPE-ERROR slot DATUM
+      pushSTACK(S(double_float)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not a double-float")
