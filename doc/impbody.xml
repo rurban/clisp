@@ -309,11 +309,6 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
  equivalent to <literal role="type">(&complex-t; &type-r;
  &type-r;)</literal>.</para>
 
-<para>The &ansi-cl; type specifier <literal role="type">(&real-t;
- <replaceable>low</replaceable> <replaceable>high</replaceable>)</literal>
- denotes the real numbers between <replaceable>low</replaceable> and
- <replaceable>high</replaceable>.</para>
-
 <para>&deftype; &lalist;s are subject to destructuring (nested &lalist;s
  are allowed, as in &defmacro;) and may contain a &whole-amp; marker,
  but not an &environment-amp; marker.</para>
