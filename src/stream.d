@@ -16415,7 +16415,7 @@ LISPFUN(socket_server,0,1,norest,nokey,0,NIL)
     }
     pushSTACK(STACK_0);
     pushSTACK(S(stream)); # ??
-    pushSTACK(STACK_0);
+    pushSTACK(STACK_(0+2));
     pushSTACK(TheSubr(subr_self)->name);
     fehler(type_error,
            GETTEXT("~: argument ~ is neither an open SOCKET-STREAM nor a positive FIXNUM")
