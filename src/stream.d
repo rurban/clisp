@@ -16307,8 +16307,17 @@ LISPFUN(write_float,seclass_default,3,1,norest,nokey,0,NIL) {
 # check_open_file_stream(obj);
 # > obj: Argument
 # < result: open File-Stream
-local object check_open_file_stream (object obj) {
+local object check_open_file_stream (object obj, bool strict_p) {
+ check_open_file_stream_restart:
   obj = resolve_synonym_stream(obj);
+  if (streamp(obj) && TheStream(obj)->strmtype == strmtype_broad) {
+    var object last_stream = broadcast_stream_last(obj);
+    if (eq(last_stream,nullobj)) {
+      if (strict_p) goto fehler_bad_obj;
+      else return last_stream;
+    } else obj = last_stream;
+    goto check_open_file_stream_restart;
+  }
   if (!builtin_stream_p(obj)) # Stream ?
     goto fehler_bad_obj;
   if (!(TheStream(obj)->strmtype == strmtype_file)) # Streamtyp File-Stream ?
@@ -16329,7 +16338,7 @@ local object check_open_file_stream (object obj) {
 
 /* for syscall module */
 global object open_file_stream_handle (object stream, Handle *fd) {
-  stream = check_open_file_stream(stream);
+  stream = check_open_file_stream(stream,true);
   *fd = ChannelStream_ihandle(stream);
   return stream;
 }
@@ -16338,7 +16347,11 @@ global object open_file_stream_handle (object stream, Handle *fd) {
 LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL) {
   var object position = popSTACK();
   var object stream = popSTACK();
-  stream = check_open_file_stream(stream); # check stream
+  stream = check_open_file_stream(stream,false); /* check stream */
+  if (eq(stream,nullobj)) { /* empty BROADCAST-STREAM */
+    /* http://www.lisp.org/HyperSpec/Body/syscla_broadcast-stream.html */
+    VALUES1(Fixnum_0); return;
+  }
   if (!ChannelStream_buffered(stream)) {
     # Don't know how to deal with the file position on unbuffered streams.
     VALUES1(NIL);
@@ -16376,7 +16389,11 @@ LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL) {
 LISPFUNNR(file_length,1)
 { /* (FILE-LENGTH file-stream), CLTL p. 425 */
   var object stream = popSTACK();
-  stream = check_open_file_stream(stream); # check stream
+  stream = check_open_file_stream(stream,false); /* check stream */
+  if (eq(stream,nullobj)) { /* empty BROADCAST-STREAM */
+    /* http://www.lisp.org/HyperSpec/Body/syscla_broadcast-stream.html */
+    VALUES1(Fixnum_0); return;
+  }
   if (!ChannelStream_buffered(stream)) {
     # Don't know how to deal with the file position on unbuffered streams.
     VALUES1(NIL);
@@ -16395,9 +16412,13 @@ LISPFUNNR(file_length,1)
 
 LISPFUNN(file_string_length,2)
 { /* (FILE-STRING-LENGTH stream object) */
-  var object stream = check_open_file_stream(STACK_1); # check stream
+  var object stream = check_open_file_stream(STACK_1,false); /* check stream */
   var object obj = STACK_0;
   skipSTACK(2);
+  if (eq(stream,nullobj)) { /* empty BROADCAST-STREAM */
+    /* http://www.lisp.org/HyperSpec/Body/syscla_broadcast-stream.html */
+    VALUES1(Fixnum_1); return;
+  }
   if (!(TheStream(stream)->strmflags & strmflags_wr_ch_B))
     fehler_illegal_streamop(S(file_string_length),stream);
   var object encoding = TheStream(stream)->strm_encoding;
