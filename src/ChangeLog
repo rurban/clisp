@@ -1,5 +1,17 @@
 2001-09-20  Sam Steingold  <sds@gnu.org>
 
+	fixed WITH-COMPILATION-UNIT
+	* compiler.lisp (compile-warnings-p, compile-failure-p): new
+	helper functions
+	(compile, compile-file): use them
+	(c-report-problems): call c-reset-globals
+	(with-compilation-unit): bind *error-count* *warning-count* and
+	*style-warning-count* when *c-top-call*
+	(compile-file): use with-compilation-unit
+	(compile): flet closure-slot
+
+2001-09-20  Sam Steingold  <sds@gnu.org>
+
 	handle *PRINT-LEVEL* for CLOS instances correctly
 	* io.d (pr_instance, pr_structure_external): do level check
 	(pr_structure): do not do level check
