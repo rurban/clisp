@@ -1,3 +1,8 @@
+2002-08-23  Sam Steingold  <sds@gnu.org>
+
+	* lists154.tst: more SUBLIS tests: both key+test and from CLHS
+	<http://www.lisp.org/HyperSpec/Body/fun_subliscm_nsublis.html>
+
 2002-08-01  Sam Steingold  <sds@gnu.org>
 
 	* type.tst: Type COMPLEX now correctly uses UPGRADED-COMPLEX-PART-TYPE.
