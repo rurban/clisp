@@ -8809,7 +8809,7 @@ global int find_executable (const char * program_name) {
     return 0;
   }
 #elif defined(UNIX)
- #ifdef UNIX_LINUX
+ #if defined(UNIX_LINUX) || defined(UNIX_CYGWIN32)
   { /* The executable is accessible as /proc/<pid>/exe. We try this first
    because it is safer: no race condition w.r.t. the file system. It may
    fail, however, if the user has not compiled /proc support into his
