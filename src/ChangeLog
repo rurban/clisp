@@ -1,3 +1,9 @@
+1998-10-11  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * utils/modprep.d: New file.
+        * makemake.in: Build it.
+        * genclisp.h: Define DEFMODULE, DEFUN, DEFVAR, for use by modules.
+
 1998-10-10  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * stream.d (rd_ch_terminal3): Don't need to put newlines into the

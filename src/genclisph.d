@@ -1556,6 +1556,10 @@ global int main()
     printf("extern void convert_to_foreign_mallocing (object fvd, object obj, void* data);\n");
     printf("extern void convert_to_foreign_nomalloc (object fvd, object obj, void* data);\n");
   #endif
+# Additional stuff for modules.
+  printf("#define DEFMODULE(module_name,package_name)\n");
+  printf("#define DEFUN(funname,lambdalist,signature) LISPFUN signature\n");
+  printf("#define DEFVAR(varname)\n");
   if (ferror(stdout)) { exit(1); }
   exit(0);
 }
