@@ -1,86 +1,64 @@
 ;;;; Dribble
 
+(in-package "EXT")
+(export '(make-dribble-stream dribble-stream-p dribble-stream
+          dribble-stream-source dribble-stream-target dribble-toggle))
+
 (in-package "SYSTEM")
 
-;;-----------------------------------------------------------------------------
-;; DRIBBLE
+(defun make-dribble-stream (source target)
+  (make-two-way-stream (make-echo-stream source target)
+                       (make-broadcast-stream source target)))
+(defun dribble-stream (stream)
+  (and (sys::two-way-stream-p stream)
+       (let ((in (two-way-stream-input-stream stream))
+             (out (two-way-stream-output-stream stream)))
+         (and (sys::echo-stream-p in) (sys::broadcast-stream-p out)
+              (let ((so (echo-stream-input-stream in))
+                    (ta (echo-stream-output-stream in))
+                    (bl (broadcast-stream-streams out)))
+                (when (and (eq so (pop bl))
+                           (eq ta (pop bl)))
+                  (values so ta)))))))
+(defun dribble-stream-p (obj) (not (null (dribble-stream obj))))
+;; should this be integrated into CLOS and the rest of CLISP?
+;; right now DRIBBLE-STREAM is not a recognizable subtype of TWO-WAY-STREAM.
+;; should it be?  should is be printed specially?
+(deftype dribble-stream () '(satisfies dribble-stream-p))
+(defun dribble-stream-source (ds)
+  (let ((so (dribble-stream ds)))
+    (unless so (error 'type-error :datum ds :expected-type 'dribble-stream))
+    so))
+(defun dribble-stream-target (ds)
+  (let ((ta (nth-value 1 (dribble-stream ds))))
+    (unless ta (error 'type-error :datum ds :expected-type 'dribble-stream))
+    ta))
+(defun dribble-toggle (stream &optional file)
+  (multiple-value-bind (so ta) (dribble-stream-p stream)
+    (if so
+      (if file                  ; already dribbling
+        (warn (TEXT "Already dribbling ~S to ~S") so ta)
+        (progn
+          (setf (symbol-value symbol) so)
+          (format ta (TEXT ";; Dribble of ~S finished ") so)
+          (funcall (date-format) ta (multiple-value-list (get-decoded-time)))
+          (terpri ta)
+          (values so ta)))
+      (if file                    ; not dribbling
+        (let ((ta (if (and (streamp ta) (open-stream-p file)
+                           (output-stream-p file))
+                    file
+                    (open file :direction :output
+                          :if-exists :append
+                          :if-does-not-exist :create))))
+          (format ta (TEXT ";; Dribble of ~S started ") stream)
+          (funcall (date-format) ta (multiple-value-list (get-decoded-time)))
+          (terpri ta)
+          (values (make-dribble-stream (symbol-value symbol) ta) ta))
+        (warn (TEXT "Currently not dribbling from ~S.") symbol)))))
 
-;; The use of an intermediate synonym-stream is for robustness.
-;; (Just try dribbling to a file on a full disk partition...)
-(defvar *dribble-stream* nil)
-
-(let ((dribble-file nil) (dribbled-input nil) (dribbled-output nil)
-      (dribbled-error-output nil) (dribbled-trace-output nil)
-      (dribbled-query-io nil) (dribbled-debug-io nil))
-  (defun dribble-reset ()
-    (setq dribble-file nil dribbled-input nil dribbled-output nil
-          dribbled-error-output nil dribbled-trace-output nil
-          dribbled-query-io nil dribbled-debug-io nil
-          *dribble-stream* nil))
-  (defun dribble (&optional file)
-    (if file
-      (if dribble-file
-        (warn (TEXT "Already dribbling to ~S") *dribble-stream*)
-        ;; Dribbling means to redirect all screen output to the file.
-        ;; We redirect all standard streams. More precisely, those
-        ;; which are #<SYNONYM-STREAM *TERMINAL-IO*>. Those which are
-        ;; synonyms to other standard streams indirectly referring
-        ;; to #<SYNONYM-STREAM *TERMINAL-IO*> are not redirected,
-        ;; because that would cause each output to this stream to
-        ;; be written twice to the dribble-file.
-        (labels ((goes-to-terminal (stream) ; this is a hack
-                   (and (typep stream 'synonym-stream)
-                        (eq (synonym-stream-symbol stream) '*terminal-io*)))
-                 (goes-indirectly-to-terminal (stream) ; an even bigger hack
-                   (and (typep stream 'synonym-stream)
-                        (let ((sym (synonym-stream-symbol stream)))
-                          (and (boundp sym)
-                               (let ((stream (symbol-value sym)))
-                                 (or (goes-to-terminal stream)
-                                     (goes-indirectly-to-terminal
-                                      stream))))))))
-          (setq *dribble-stream* (open file :direction :output
-                                       :if-exists :append
-                                       :if-does-not-exist :create)
-                dribble-file (make-synonym-stream '*dribble-stream*))
-          (write-string (TEXT ";; Dribble started ") *dribble-stream*)
-          (funcall (date-format) *dribble-stream*
-                   (multiple-value-list (get-decoded-time)))
-          (terpri *dribble-stream*)
-          (macrolet ((save (glo loc type)
-                       `(if (goes-indirectly-to-terminal ,glo)
-                          (setq ,loc nil)
-                          (setq ,loc ,glo
-                                ,glo
-                                ,(ecase type
-                                   (:in `(make-echo-stream
-                                          ,glo dribble-file))
-                                   (:out `(make-broadcast-stream
-                                           ,glo dribble-file))
-                                   (:io `(make-two-way-stream
-                                          (make-echo-stream ,glo dribble-file)
-                                          (make-broadcast-stream
-                                           ,glo dribble-file))))))))
-            (save *standard-input*  dribbled-input        :in)
-            (save *standard-output* dribbled-output       :out)
-            (save *error-output*    dribbled-error-output :out)
-            (save *trace-output*    dribbled-trace-output :out)
-            (save *query-io*        dribbled-query-io     :io)
-            (save *debug-io*        dribbled-debug-io     :io))
-          *dribble-stream*))
-      (if dribble-file
-        (macrolet ((restore (loc glo) `(when ,loc (setq ,glo ,loc ,loc nil))))
-          (restore dribbled-input        *standard-input*)
-          (restore dribbled-output       *standard-output*)
-          (restore dribbled-error-output *error-output*)
-          (restore dribbled-trace-output *trace-output*)
-          (restore dribbled-query-io     *query-io*)
-          (restore dribbled-debug-io     *debug-io*)
-          (setq dribble-file nil)
-          (write-string (TEXT ";; Dribble finished ") *dribble-stream*)
-          (funcall (date-format) *dribble-stream*
-                   (multiple-value-list (get-decoded-time)))
-          (terpri *dribble-stream*)
-          (close *dribble-stream*)
-          (prog1 *dribble-stream* (setq *dribble-stream* nil)))
-        (warn (TEXT "Currently not dribbling."))))))
+(defun dribble (&optional file)
+  (multiple-value-bind (so ta) (dribble-toggle *terminal-io* file)
+    (when (streamp so) (setq *terminal-io* so))
+    (close ta)
+    ta))

@@ -3472,18 +3472,18 @@ printed readably.</para>
 <section id="translate-pathname"><title>Function &translate-pathname;</title>
 
 <para>&translate-pathname; has two additional keywords: <literal
- role="sexp">(&translate-pathname; <replaceable>source</replaceable>
+ role="sexp">(&translate-pathname; &source-r;
  <replaceable>from-wildname</replaceable>
  <replaceable>to-wildname</replaceable> &key-amp; &all-k;
  &merge-k;)</literal></para>
 
 <para>If &all-k; is specified and non-&nil;, a list of all resulting
  pathnames, corresponding to all matches of <literal
- role="sexp">(&pathname-match-p; <replaceable>source</replaceable>
+ role="sexp">(&pathname-match-p; &source-r;
  <replaceable>from-wildname</replaceable>)</literal>, is returned.  If
  &merge-k; is specified and &nil;, unspecified pieces of
  <replaceable>to-pathname</replaceable> are not replaced by
- corresponding pieces of <replaceable>source</replaceable>.</para>
+ corresponding pieces of &source-r;.</para>
 
 </section>
 
@@ -4505,7 +4505,7 @@ functions are provided:
 
 <itemizedlist>
 <listitem><simpara><keysym>#Y</keysym> is used to read compiled
-  functions and to set the current input stream's &encoding;.
+  functions and to set the current &in-s;'s &encoding;.
   </simpara></listitem>
 <listitem><simpara><filename>#""</filename> is used to read pathnames:
   <filename>#"test.lisp"</filename> is the value of <literal
@@ -5053,7 +5053,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <varlistentry><term>Platform dependent: &unix; platforms only.</term>
 <listitem><simpara>&disassemble; can disassemble to machine code,
  provided that &gnu; gdb is present.  In that case the argument may be a
- <classname>SYSTEM-FUNCTION</classname>, a
+ <classname>EXT:SYSTEM-FUNCTION</classname>, a
  &foreign-function;, a special operator indicator,
  a symbol denoting one of these, a number, or a string.
  </simpara></listitem></varlistentry>
@@ -5298,7 +5298,70 @@ exhaust the available line length.</para></formalpara>
  enabled, a warning is printed, and the new dribbling request is
  ignored.</para>
 
-</section>
+<para>Dribbling is implemented via a special (<emphasis>not</emphasis>
+ <ulink url="&clhs;/Body/glo_r.html#recognizable_subtype">recognizable</ulink>)
+ subtype of the &two-way-stream-t;, named &ds-t;.
+ If you have a &source-r; &bidi-s; &stream-t; &x-r; and you want all
+ transactions (input and output) on that stream to be copied to the
+ &target-r; &out-s; &stream-t; &y-r;, you can do
+ <programlisting>
+  (defvar *loggable* &x-r;)
+  (setq &x-r; (&make-synonym-stream; '*loggable*))
+  (defun toggle-logging (&optional-amp; s)
+    (multiple-value-bind (so ta) (dribble-toggle *loggable* s)
+      (when (streamp so) (setq *loggable* so))
+      ta))
+  (toggle-logging &y-r;) ; start logging
+  ...
+  (toggle-logging)       ; finish logging
+  ...
+  (toggle-logging &y-r;) ; restart logging
+  ...
+  (toggle-logging)       ; finish logging
+  (close &y-r;)
+ </programlisting></para>
+
+<variablelist>
+ <varlistentry id="drist"><term><literal role="sexp"
+   >(<function>EXT:DRIBBLE-STREAM</function> &stream-r;)</literal></term>
+  <listitem><simpara>When &stream-r; is a &ds-t;, returns two values:
+    the source and the target streams.  Otherwise returns &nil;.
+ </simpara></listitem></varlistentry>
+ <varlistentry id="drist-p"><term><literal role="sexp"
+   >(<function>EXT:DRIBBLE-STREAM-P</function> &stream-r;)</literal></term>
+  <listitem><simpara>When &stream-r; is a &ds-t;, returns &t;, otherwise
+    returns &nil;.</simpara></listitem></varlistentry>
+ <varlistentry id="drist-so"><term><literal role="sexp"
+   >(<function>EXT:DRIBBLE-STREAM-SOURCE</function>
+     &stream-r;)</literal></term>
+  <listitem><simpara>When &stream-r; is a &ds-t;, returns its
+    &source-r; stream, otherwise signals a &type-error-t;.
+ </simpara></listitem></varlistentry>
+ <varlistentry id="drist-ta"><term><literal role="sexp"
+   >(<function>EXT:DRIBBLE-STREAM-TARGET</function>
+     &stream-r;)</literal></term>
+  <listitem><simpara>When &stream-r; is a &ds-t;, returns its
+    &target-r; stream, otherwise signals a &type-error-t;.
+ </simpara></listitem></varlistentry>
+  <varlistentry id="mk-drist"><term><literal role="sexp"
+   >(<function>EXT:MAKE-DRIBBLE-STREAM</function>
+     &source-r; &target-r;)</literal></term>
+   <listitem><simpara>Create a new &ds-t;.
+ </simpara></listitem></varlistentry>
+ <varlistentry id="dri-toggle"><term><literal role="sexp"
+   >(<function>EXT:DRIBBLE-TOGGLE</function> &stream-r;
+     &optional-amp; &path-r;)</literal></term>
+  <listitem><simpara>When &stream-r; is a &ds-t;, and &path-r; is &nil;,
+    returns &stream-r;'s &source-r; and &target-r; &stream-t;s;
+    when &stream-r; is not a &ds-t; and &path-r; is non-&nil;,
+    create a new &ds-r;, dribbling from &stream-r; to &path-r;,
+    and return it (the second value is the &target-r; &stream-t;);
+    otherwise &warn; that no appropriate action may be taken.
+    &path-r; may be an open output stream or a
+    <ulink url="&clhs;/Body/glo_p.html#pathname_designator">pathname
+    designator</ulink>.
+    See above for the sample usage.
+</simpara></listitem></varlistentry></variablelist></section>
 
 <section id="version"><title>Function &lisp-implementation-version;</title>
 
