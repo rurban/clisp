@@ -471,35 +471,6 @@ LISPFUNN(software_version,0)
     mv_count=1;
   }
 
-LISPFUNN(current_language,0)
-# (SYS::CURRENT-LANGUAGE) liefert die aktuelle Sprache.
-  {
-    #ifndef GNU_GETTEXT
-      value1 = (ENGLISH ? S(english) : NIL);
-    #else # GNU_GETTEXT
-      if (nullp(O(current_language_cache))) {
-        O(current_language_cache) = OL(current_language);
-      }
-      value1 = O(current_language_cache);
-    #endif
-    mv_count=1;
-  }
-
-LISPFUNN(language,3)
-# (SYS::LANGUAGE english deutsch francais) liefert je nach der aktuellen
-# Sprache das entsprechende Argument.
-  {
-    #ifndef GNU_GETTEXT
-      value1 = (ENGLISH ? STACK_2 : NIL);
-    #else
-      if (!stringp(STACK_2))
-        fehler_string(STACK_2);
-      value1 = localized_string(STACK_2);
-    #endif
-    mv_count=1;
-    skipSTACK(3);
-  }
-
 LISPFUNN(identity,1)
 # (IDENTITY object), CLTL S. 448
   {

@@ -1792,7 +1792,7 @@ space safety compilation-speed debug declaration dynamic-extent compile
 
 (LOAD "places")   ;; SETF-Places: Definitionen und Macros
 
-;; ab hier ist SETF u.ä. funktionsfähig.
+;; From here on SETF etc. are working.
 
 (LOAD "floatprint") ;; Ausgabe von Floating-Points
 
@@ -1802,7 +1802,9 @@ space safety compilation-speed debug declaration dynamic-extent compile
 
 (LOAD "format")   ;; FORMAT
 
-;; ab hier ist FORMATTER funktionsfähig.
+;; From here on FORMATTER is working.
+
+(LOAD "international") ;; Internationalization
 
 (in-package "SYSTEM")
 

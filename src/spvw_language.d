@@ -145,23 +145,21 @@
           # We clobber LC_MESSAGES and unset the earlier two variables.
           {
             var const char * locale =
-              language == language_english ? "en" :
-              language == language_deutsch ? "de" :
-              language == language_francais ? "fr" :
-              language == language_spanish ? "es" :
-              language == language_dutch ? "nl" :
+              language == language_english ? "en_US" :
+              language == language_deutsch ? "de_DE" :
+              language == language_francais ? "fr_FR" :
+              language == language_spanish ? "es_ES" :
+              language == language_dutch ? "nl_NL" :
               "";
             if (getenv("LANGUAGE"))
               clisp_setenv("LANGUAGE","");
             if (getenv("LC_ALL"))
               clisp_setenv("LC_ALL","");
             clisp_setenv("LC_MESSAGES",locale);
-            #ifdef LC_MESSAGES # !(UNIX_NEXTSTEP || ...)
-            # Given the above, the following line is probably not needed.
-            # (Depends on the behaviour of setlocale(LC_MESSAGES,NULL) on
-            # your system.) Anyway it doesn't hurt.
+            # Given the above, the following line is only needed for those
+            # platforms for which gettext is compiled with HAVE_LOCALE_NULL
+            # defined.
             setlocale(LC_MESSAGES,locale);
-            #endif
           }
         #endif
        chosen2:

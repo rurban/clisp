@@ -7532,6 +7532,69 @@ LISPFUNN(probe_directory,1)
     value1 = (directory_exists(pathname) ? T : NIL); mv_count=1;
   }
 
+# Converts a directory pathname to an OS directory specification.
+# > pathname: an object
+# > use_default: whether to use the current default directory
+# < result: a simple-bit-vector containing an ASCIZ string in OS format
+# can trigger GC
+global object pathname_to_OSdir (object pathname, bool use_default)
+{
+  pathname = coerce_pathname(pathname); # convert to pathname
+  check_no_wildcards(pathname); # if it has wildcards -> error
+  if (use_default)
+    pathname = use_default_dir(pathname); # insert default directory
+  # Verify that name = NIL and type = NIL:
+  if (!(nullp(ThePathname(pathname)->pathname_name)
+        && nullp(ThePathname(pathname)->pathname_type)))
+    fehler_notdir(pathname);
+  pushSTACK(pathname); # save pathname
+  var object dir_namestring = directory_namestring(pathname);
+  #ifdef PATHNAME_AMIGAOS
+  dir_namestring = OSdirnamestring(dir_namestring);
+  #endif
+  var object dir_namestring_asciz =
+    string_to_asciz(dir_namestring,O(pathname_encoding));
+  var char* asciz = TheAsciz(dir_namestring_asciz);
+  var uintL len = asciz_length(asciz);
+  #ifdef MSDOS
+    if (!(nullp(Cdr(ThePathname(STACK_0)->pathname_directory))
+          #ifdef PATHNAME_OS2
+          || equal(Cdr(ThePathname(STACK_0)->pathname_directory),O(pipe_subdirs))
+          #endif
+       ) ) {
+      ASSERT((len > 0) && (asciz[len-1] == '\\'));
+      asciz[len-1] = '\0';
+    }
+  #endif
+  #ifdef WIN32_NATIVE
+    if (!nullp(Cdr(ThePathname(STACK_0)->pathname_directory))) {
+      ASSERT((len > 0) && (asciz[len-1] == '\\'));
+      asciz[len-1] = '\0';
+    }
+  #endif
+  #ifdef UNIX
+    if (!nullp(Cdr(ThePathname(STACK_0)->pathname_directory))) {
+      ASSERT((len > 0) && (asciz[len-1] == '/'));
+      asciz[len-1] = '\0';
+    }
+  #endif
+  #ifdef PATHNAME_RISCOS
+    ASSERT((len > 0) && (asciz[len-1]=='.'));
+    asciz[len-1] = '\0';
+  #endif
+  skipSTACK(1); # forget pathname
+  return dir_namestring_asciz;
+}
+
+# Converts an OS directory specification to a directory pathname.
+# > path: a pathname referring to a directory
+# < result: a pathname without name and type
+# can trigger GC
+global object OSdir_to_pathname (const char* path)
+{
+  return asciz_dir_to_pathname(path,O(pathname_encoding));
+}
+
 # UP: Stellt fest, ob eine Datei geöffnet ist.
 # openp(pathname)
 #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
