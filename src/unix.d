@@ -228,7 +228,7 @@
     #define USE_SIGACTION
   #endif
   extern signal_handler install_signal_handler (int sig, signal_handler handler);
-  #define SIGNAL(sig,handler)  nowarn install_signal_handler(sig,handler)
+  #define SIGNAL(sig,handler)  install_signal_handler(sig,handler)
   # Ein Signal blockieren und wieder freigeben:
   #if defined(SIGNALBLOCK_POSIX)
     extern_C int sigprocmask (int how, SIGPROCMASK_CONST sigset_t* set, sigset_t* oset); # siehe SIGPROCMASK(2V)
@@ -278,13 +278,13 @@
   # Die Ankunft eines Signals quittieren (aus dem Signal-Handler heraus):
   #ifdef USE_SIGACTION
     #ifdef SIGACTION_NEED_REINSTALL
-      #define signal_acknowledge(sig,handler)  nowarn install_signal_handler(sig,handler) # Handler bleibt weiter aktiv
+      #define signal_acknowledge(sig,handler)  install_signal_handler(sig,handler) # Handler bleibt weiter aktiv
     #else # Signalverwaltung nach BSD hat das nicht nötig
       #define signal_acknowledge(sig,handler)
     #endif
   #else
     #ifdef SIGNAL_NEED_REINSTALL # UNIX_SYSV || UNIX_LINUX || ...
-      #define signal_acknowledge(sig,handler)  nowarn install_signal_handler(sig,handler) # Handler bleibt weiter aktiv
+      #define signal_acknowledge(sig,handler)  install_signal_handler(sig,handler) # Handler bleibt weiter aktiv
     #else # Signalverwaltung nach BSD hat das nicht nötig
       #define signal_acknowledge(sig,handler)
     #endif

@@ -75,9 +75,9 @@
     # signal().
     #define USE_SIGACTION
   #endif
-  #define signal_acknowledge(sig,handler)  nowarn signal(sig,handler) # Handler bleibt weiter aktiv
+  #define signal_acknowledge(sig,handler)  signal(sig,handler) # Handler bleibt weiter aktiv
   #define siginterrupt(sig,flag)
-  #define SIGNAL(sig,handler)  nowarn signal(sig,handler)
+  #define SIGNAL(sig,handler)  signal(sig,handler)
   # Ein Signal blockieren und wieder freigeben:
   #if defined(SIGNALBLOCK_POSIX)
     extern_C int sigprocmask (int how, const sigset_t* set, sigset_t* oset); # siehe SIGPROCMASK(2V)
