@@ -1557,9 +1557,9 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,8,
   /* stack-layout:
       weak, initial-contents, key-type, value-type,
       test, size, rehash-size, mincount-threshold
-    provide vectors etc., with size as MAXCOUNT: [STACK_5 == weak] */
-  STACK_5 = check_weak(STACK_5);
-  prepare_resize(STACK_2,STACK_0,STACK_5);
+    provide vectors etc., with size as MAXCOUNT: [STACK_7 == weak] */
+  STACK_7 = check_weak(STACK_7);
+  prepare_resize(STACK_2,STACK_0,STACK_7);
   var object ht = allocate_hash_table(); /* new hash-tabelle */
   /* fill: */
   var object kvtable = popSTACK(); /* key-value-vector */
