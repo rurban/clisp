@@ -1,6 +1,8 @@
 2003-08-21  Sam Steingold  <sds@gnu.org>
 
 	* utils/modprep.c: rewrote in lisp
+	* modules/regexp/regexi.c (REGEXP-COMPILE): pass a subr instead
+	of a symbol to FINALIZE (supported by modprep.lisp)
 
 2003-08-20  Sam Steingold  <sds@gnu.org>
 
