@@ -471,24 +471,6 @@ global RETRWTYPE read_helper (int fd, RW_BUF_T bufarea, RW_SIZE_T nbyte,
 
 # =============================================================================
 
-#if defined(UNIX_LINUX) && (defined(FAST_FLOAT) || defined(FAST_DOUBLE)) && (defined(HAVE_FPU_CONTROL_T) || !defined(HAVE_SETFPUCW))
-
-# Damit Division durch 0.0 ein NaN und kein SIGFPE liefert:
-# Entweder mit -lieee linken,
-# oder libc-linux/sysdeps/linux/{i386,m68k}/ieee.c kopieren:
-
-#include <fpu_control.h>
-
-#if defined(HAVE_FPU_CONTROL_T)
-global fpu_control_t __fpu_control = _FPU_IEEE;
-#else # !defined(HAVE_FPU_CONTROL_T) && !defined(HAVE_SETFPUCW)
-global unsigned short __fpu_control = _FPU_IEEE;
-#endif
-
-#endif
-
-# =============================================================================
-
 #if defined(UNIX_CYGWIN32)
 
 # Prepare for <windows.h>.

@@ -1154,7 +1154,7 @@
 #     erhöhe den Exponenten um 1.
 #   Falls der Quotient <2^54 ist, runde das letzte Bit weg. Bei rounding
 #     overflow schiebe um ein weiteres Bit nach rechts, incr. Exponenten.
-#if defined(FAST_DOUBLE) && !defined(I80386)
+#if defined(FAST_DOUBLE) && !DOUBLE_DIV0_EXCEPTION && !defined(I80386)
   local object DF_DF_durch_DF(x1,x2)
     var object x1;
     var object x2;

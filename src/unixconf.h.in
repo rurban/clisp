@@ -706,6 +706,38 @@
 #undef __CHAR_UNSIGNED__
 #endif
 
+/* CL_FLOAT_DIV0 */
+/* Define to 1 if 'float' division by zero raises an exception. */
+#undef FLOAT_DIV0_EXCEPTION
+
+/* CL_FLOAT_OVERFLOW */
+/* Define to 1 if 'float' overflow raises an exception. */
+#undef FLOAT_OVERFLOW_EXCEPTION
+
+/* CL_FLOAT_UNDERFLOW */
+/* Define to 1 if 'float' underflow raises an exception. */
+#undef FLOAT_UNDERFLOW_EXCEPTION
+
+/* CL_FLOAT_INEXACT */
+/* Define to 1 if a 'float' inexact operation raises an exception. */
+#undef FLOAT_INEXACT_EXCEPTION
+
+/* CL_DOUBLE_DIV0 */
+/* Define to 1 if 'double' division by zero raises an exception. */
+#undef DOUBLE_DIV0_EXCEPTION
+
+/* CL_DOUBLE_OVERFLOW */
+/* Define to 1 if 'double' overflow raises an exception. */
+#undef DOUBLE_OVERFLOW_EXCEPTION
+
+/* CL_DOUBLE_UNDERFLOW */
+/* Define to 1 if 'double' underflow raises an exception. */
+#undef DOUBLE_UNDERFLOW_EXCEPTION
+
+/* CL_DOUBLE_INEXACT */
+/* Define to 1 if a 'double' inexact operation raises an exception. */
+#undef DOUBLE_INEXACT_EXCEPTION
+
 /* CL_MACHINE */
-/* see machine.h */
+/* see intparam.h, floatparam.h */
 
