@@ -28,6 +28,7 @@ User visible changes
 * Support Cygwin's "/cygdrive/drive/path" pathname symtax on Win32.
 
 * New macro EXT:FCASE which allows specifying comparison function in CASE.
+  See the impnotes <http://clisp.cons.org/impnotes.html#fcase> for details.
 
 * CLISP now supports internationalized Lisp programs, via GNU gettext.
   See the impnotes <http://clisp.cons.org/impnotes.html#i18n> for details.
