@@ -12,6 +12,7 @@
 #include "config.h"  /* Define __${host_cpu}__ */
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "trampoline_r.h"
 

@@ -9,6 +9,7 @@
 #endif
 
 #include <stddef.h> /* needed for NULL on SunOS4 */
+#include <stdlib.h> /* for abort, exit */
 #include <stdio.h> /* for printf */
 
 #include <setjmp.h>
