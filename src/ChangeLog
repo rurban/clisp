@@ -1,3 +1,7 @@
+1998-08-01  Bruno Haible  <haible@ilog.fr>
+
+        * clx/mit-clx/package.lsp: Shadow BOOLEAN and don't export it.
+
 1998-07-31  Bruno Haible  <haible@ilog.fr>
 
         * control.d (make_variable_frame): Don't call Car(NIL).

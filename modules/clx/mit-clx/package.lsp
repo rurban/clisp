@@ -22,6 +22,9 @@
     rational
     ))
 
+#+clisp
+(shadow :boolean)
+
 #+(and lispm (not clx-ansi-common-lisp))
 (import
   '(
@@ -74,7 +77,7 @@
     allow-events angle arc-seq array-index atom-error atom-name
     bell bit-gravity bitmap bitmap-format bitmap-format-lsb-first-p
     bitmap-format-p bitmap-format-pad bitmap-format-unit bitmap-image
-    boole-constant boolean card16 card29 card32 card8
+    boole-constant #-clisp boolean card16 card29 card32 card8
     card8->char change-active-pointer-grab change-keyboard-control
     change-keyboard-mapping change-pointer-control change-property
     char->card8 char-ascent char-attributes char-descent
@@ -249,7 +252,7 @@
     allow-events angle arc-seq array-index atom-error atom-name
     bell bit-gravity bitmap bitmap-format bitmap-format-lsb-first-p
     bitmap-format-p bitmap-format-pad bitmap-format-unit bitmap-image
-    boole-constant boolean card16 card29 card32 card8
+    boole-constant #-clisp boolean card16 card29 card32 card8
     card8->char change-active-pointer-grab change-keyboard-control
     change-keyboard-mapping change-pointer-control change-property
     char->card8 char-ascent char-attributes char-descent
