@@ -235,6 +235,10 @@ ffcall/avcall/avcall.h.msvc : ffcall/avcall/avcall.h.in
 ffcall/avcall/avcall-i386-msvc.c : ffcall/avcall/avcall-i386-macro.S ffcall/avcall/asmi386.sh
 	cd ffcall ; $(MAKE) -f Makefile.devel avcall/avcall-i386-msvc.c
 
+# ffcall/vacall/config.h.in , ffcall/trampoline/config.h.in,
+# all/callback/vacall_r/vacall_r.h.in, ffcall/callback/trampoline_r/config.h.in
+# are not auto-generated!  [FIXME!!!]
+ffcall/vacall/config.h.in :
 ffcall/vacall/config.h.msvc : ffcall/vacall/config.h.in
 	cd ffcall ; $(MAKE) -f Makefile.devel vacall/config.h.msvc
 
@@ -244,18 +248,21 @@ ffcall/vacall/vacall.h.msvc : ffcall/vacall/vacall.h.in
 ffcall/vacall/vacall-i386-msvc.c : ffcall/vacall/vacall-i386-macro.S ffcall/vacall/asmi386.sh
 	cd ffcall ; $(MAKE) -f Makefile.devel vacall/vacall-i386-msvc.c
 
+ffcall/trampoline/config.h.in :
 ffcall/trampoline/config.h.msvc : ffcall/trampoline/config.h.in
 	cd ffcall ; $(MAKE) -f Makefile.devel trampoline/config.h.msvc
 
 ffcall/callback/vacall_r/config.h.msvc : ffcall/callback/vacall_r/config.h.in
 	cd ffcall ; $(MAKE) -f Makefile.devel callback/vacall_r/config.h.msvc
 
+ffcall/callback/vacall_r/vacall_r.h.in :
 ffcall/callback/vacall_r/vacall_r.h.msvc : ffcall/callback/vacall_r/vacall_r.h.in
 	cd ffcall ; $(MAKE) -f Makefile.devel callback/vacall_r/vacall_r.h.msvc
 
 ffcall/callback/vacall_r/vacall-i386-msvc.c : ffcall/callback/vacall_r/vacall-i386-macro.S ffcall/callback/vacall_r/asmi386.sh
 	cd ffcall ; $(MAKE) -f Makefile.devel callback/vacall_r/vacall-i386-msvc.c
 
+ffcall/callback/trampoline_r/config.h.in :
 ffcall/callback/trampoline_r/config.h.msvc : ffcall/callback/trampoline_r/config.h.in
 	cd ffcall ; $(MAKE) -f Makefile.devel callback/trampoline_r/config.h.msvc
 
