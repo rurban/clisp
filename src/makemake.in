@@ -121,6 +121,10 @@ link_dep() {
   echol
 }
 
+if [ -f src/VERSION ]; then version=src/VERSION;
+elif [ -f ../src/VERSION ]; then version=../src/VERSION;
+fi
+
 # Handle --help and --version arguments.
 for arg do
   case "$arg" in
@@ -128,8 +132,9 @@ for arg do
       info_help
       exit 0 ;;
     --version | --versio | --versi | --vers | --ver | --ve | --v)
-      version="CLISP version "`cat ../src/VERSION`
-      echol $version
+      if [ -z "$version" ]; then echol "cannot find CLISP version file"
+      else echol "CLISP version "`cat $version`
+      fi
       exit 0 ;;
   esac
 done
@@ -1505,7 +1510,10 @@ if [ -z "$fsstnd" ]; then       # default fsstnd depends on the OS
   esac
 fi
 
-echol "VERSION="`cat VERSION`
+if [ -f ${SRCDIR}VERSION ]; then echol "VERSION="`cat ${SRCDIR}VERSION`;
+elif [ -n $version ]; then echol "VERSION="`cat $version`;
+else echol "no CLISP version file" >&2; exit 1;
+fi
 echol "CLISP_VERSION=clisp-\$(VERSION)"
 echol '# Directories used by "make install":'
 echol "prefix = ${PREFIX}"
