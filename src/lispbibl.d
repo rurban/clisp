@@ -9266,7 +9266,7 @@ extern struct object_tab_ {
 # Abbreviation for other LISP-object with a given Name:
 #define O(name)  (object_tab.name)
 
-#if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined()
+#if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
 # handle_fault_range(PROT_READ,start,end) makes an address range readable.
 # handle_fault_range(PROT_READ_WRITE,start,end) makes an address range writable.
   extern bool handle_fault_range (int prot, aint start_address, aint end_address);
