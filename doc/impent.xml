@@ -52,6 +52,7 @@
 <!ENTITY meta-k "<constant>:META</constant>">
 <!ENTITY metaclass-k "<constant>:METACLASS</constant>">
 <!ENTITY newest-k "<constant>:NEWEST</constant>">
+<!ENTITY name-k "<constant>:NAME</constant>">
 <!ENTITY none-k "<constant>:NONE</constant>">
 <!ENTITY overwrite-k "<constant>:OVERWRITE</constant>">
 <!ENTITY out-k "<constant>:OUT</constant>">
@@ -67,6 +68,7 @@
 <!ENTITY stdc-sc-k "<constant>:STDC-STDCALL</constant>">
 <!ENTITY stream-k "<constant>:STREAM</constant>">
 <!ENTITY super-k "<constant>:SUPER</constant>">
+<!ENTITY type-k "<constant>:TYPE</constant>">
 <!ENTITY use-k "<constant>:USE</constant>">
 <!ENTITY verbose-k "<constant>:VERBOSE</constant>">
 <!ENTITY wait-k "<constant>:WAIT</constant>">
@@ -278,6 +280,7 @@
 <!ENTITY foreign-address-null "<link
 linkend='fa-null'><function>FFI:FOREIGN-ADDRESS-NULL</function></link>">
 <!ENTITY f-ent "<replaceable>foreign-entity</replaceable>">
+<!ENTITY linkset "<link linkend='modules'>linking set</link>">
 
 <!-- *** Byte code *** -->
 <!ENTITY SP "<link linkend='vm'><literal>SP</literal></link>">
@@ -485,7 +488,7 @@ linkend='fa-null'><function>FFI:FOREIGN-ADDRESS-NULL</function></link>">
    &newest-k;)</simpara></listitem></varlistentry>">
 <!ENTITY name-type-split "filename is <link
    linkend='name-type-split'>split into name and type</link>.">
-<!ENTITY dir-title "<title><literal role='sexp'>(&startpoint-r;
+<!ENTITY dir-title "<title><literal role='sexp'>Directory = (&startpoint-r;
    . <replaceable>subdirs</replaceable>)</literal></title>">
 <!ENTITY startp-rel-abs "<row><entry>&startpoint-r;</entry>
    <entry>&relative-k; | &absolute-k;</entry></row>">
