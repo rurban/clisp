@@ -12786,7 +12786,7 @@ extern Handle stream_lend_handle (object stream, bool inputp, int * handletype);
  > object bytearray: simple-8bit-vector (on the STACK)
  > uintL start: start index of byte sequence to be filled
  > uintL len: length of byte sequence to be filled
- > bool no_hang: do not block
+ > bool no_hang: don't block, return already after partial read
  < uintL result: number of bytes that have been filled
  can trigger GC */
 extern uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, bool no_hang);
@@ -12798,7 +12798,8 @@ extern uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* b
 # > object bytearray: simple-8bit-vector (on the STACK)
 # > uintL start: start index of byte sequence to be written
 # > uintL len: length of byte sequence to be written
-# > bool no_hang: don't block, return #bytes written
+# > bool no_hang: don't block, return already after partial write
+# < uintL result: number of bytes that have been written
 extern uintL write_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, bool no_hang);
 # is used by SEQUENCE
 
