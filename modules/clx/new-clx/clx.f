@@ -6452,7 +6452,8 @@ DEFUN(XLIB:ALLOW-EVENTS, display mode &optional time)
  *  Chapter 13  Resources
  * ----------------------------------------------------------------------- */
 
-/* Maybe we want simply to drop in the LISP code here? */
+/* Maybe we want simply to drop in the LISP code here?
+   -- I did (sds) */
 
 /* 13.3  Basic Resource Database Functions */
 ##if 0
