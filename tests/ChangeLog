@@ -1,3 +1,7 @@
+2005-01-19  Sam Steingold  <sds@gnu.org>
+
+	* bind.tst: added tests of interaction with global specials
+
 2005-01-19  Bruno Haible  <bruno@clisp.org>
 
 	* tests.lisp (my-eval): Compare the two results with EQUALP, not EQUAL,
