@@ -490,7 +490,6 @@
   (setf (class-classname new-class-object) name)
   (setf (class-metaclass new-class-object) metaclass) ; = (class-of new-class-object)
   (apply #'initialize-instance-standard-class new-class-object args)
-  (call-next-method)
   new-class-object)
 (defmethod initialize-instance ((new-class-object structure-class) &rest args
                                 &key name (metaclass <structure-class>)
@@ -502,7 +501,6 @@
   (setf (class-classname new-class-object) name)
   (setf (class-metaclass new-class-object) metaclass) ; = (class-of new-class-object)
   (apply #'initialize-instance-structure-class new-class-object args)
-  (call-next-method)
   new-class-object)
 
 ;;; change-class
