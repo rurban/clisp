@@ -1,3 +1,7 @@
+2001-09-10  Sam Steingold  <sds@gnu.org>
+
+	* format.tst: test (format nil "~0f" 10)
+
 2001-08-29  Sam Steingold  <sds@gnu.org>
 
 	* path.tst: many more tests, inspired by
