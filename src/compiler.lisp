@@ -60,7 +60,7 @@
 ;; and it is used by other program parts.
 (import '(sys::function-name-p sys::parse-body sys::add-implicit-block
           sys::make-load-time-eval sys::make-macro-expander
-          sys::analyze-lambdalist
+          sys::analyze-lambdalist sys::specialized-lambda-list-to-ordinary
           sys::closure-name sys::closure-codevec sys::closure-consts
           sys::fixnump sys::short-float-p sys::single-float-p
           sys::double-float-p sys::long-float-p
@@ -3725,6 +3725,7 @@ for-value   NIL or T
          (*venvc* (cons *func* *venvc*))
          (*func-start-label* (make-label 'NIL))
          (*anonymous-count* 0)
+         (lalist (car lambdabody)) (type-decls '())
          (anode (catch 'c-error
     ;; here it starts to become complicated
     (multiple-value-bind (reqvar  optvar optinit optsvar  restvar
@@ -3733,7 +3734,12 @@ for-value   NIL or T
         (if fenv-cons
           ;; c-analyze-lambdalist was already called at c-LABELS
           (values-list (cddar fenv-cons))
-          (c-analyze-lambdalist (car lambdabody)))
+          (progn
+            (when *defun-accept-specialized-lambda-list*
+              (multiple-value-setq (lalist type-decls)
+                (sys::specialized-lambda-list-to-ordinary
+                 lalist 'compile)))
+            (c-analyze-lambdalist lalist)))
       (setf (fnode-req-anz *func*) (length reqvar)
             (fnode-opt-anz *func*) (length optvar)
             (fnode-rest-flag *func*) (not (eql restvar 0))
@@ -3743,6 +3749,7 @@ for-value   NIL or T
       (when fenv-cons (setf (caar fenv-cons) *func*)) ; Fixup for c-LABELS
       (multiple-value-bind (body-rest declarations)
           (parse-body (cdr lambdabody) t)
+        (setq declarations (nreconc type-decls declarations))
         (let ((oldstackz *stackz*)
               (*stackz* *stackz*)
               (*denv* *denv*)
@@ -5198,7 +5205,11 @@ for-value   NIL or T
                       (cons nil ; room for the FNODE
                         (cons 'LABELS
                           (multiple-value-list ; values from c-analyze-lambdalist
-                            (c-analyze-lambdalist (cadr fdef)))))
+                            (c-analyze-lambdalist
+                             (if *defun-accept-specialized-lambda-list*
+                                 (sys::specialized-lambda-list-to-ordinary
+                                  (cadr fdef) 'compile)
+                                 (cadr fdef))))))
                       ;; Variable
                       (car L2))
                     L5))
@@ -5833,7 +5844,12 @@ for-value   NIL or T
   (multiple-value-bind (reqvar  optvar optinit optsvar  restvar
                         keyflag keyword keyvar keyinit keysvar allow-other-keys
                         auxvar auxinit)
-      (c-analyze-lambdalist (pop lambdabody))
+      (let ((lalist (pop lambdabody)) (declarations '()))
+        (when *defun-accept-specialized-lambda-list*
+          (multiple-value-setq (lalist declarations)
+            (sys::specialized-lambda-list-to-ordinary lalist 'compile))
+          (push (cons 'DECLARE (nreverse declarations)) lambdabody))
+        (c-analyze-lambdalist lalist))
     (when (or keyflag keyword keyvar keyinit keysvar allow-other-keys)
       (compiler-error 'c-FUNCALL-INLINE funform))
     (let ((r (length reqvar)) ; number of required-arguments

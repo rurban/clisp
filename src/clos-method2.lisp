@@ -5,7 +5,6 @@
 
 (in-package "CLOS")
 
-
 ;; ANSI CL 3.4.3. Specialized Lambda Lists
 ;; Decompose a specialized lambda list into
 ;; 1. an ordinary lambda list,
@@ -39,25 +38,26 @@
       (analyze-lambdalist lambda-list errfunc)
       (values lambda-list (nreverse spec-list) (nreverse ignorable-req-vars)))))
 
+;; helper
+(defmacro program-error-reporter (caller)
+  `#'(lambda (errorstring &rest arguments)
+       (error-of-type 'program-error
+         (TEXT "~S: ~A") ,caller
+         (apply #'format nil errorstring arguments))))
+
 ;; MOP p. 52
 (defun extract-lambda-list (specialized-lambda-list)
   (nth-value 0
-    (decompose-specialized-lambda-list specialized-lambda-list
-      #'(lambda (errorstring &rest arguments)
-          (error-of-type 'program-error
-            (TEXT "~S: ~A")
-            'extract-lambda-list
-            (apply #'format nil errorstring arguments))))))
+    (decompose-specialized-lambda-list
+     specialized-lambda-list
+     (program-error-reporter 'extract-lambda-list))))
 
 ;; MOP p. 53
 (defun extract-specializer-names (specialized-lambda-list)
   (nth-value 1
-    (decompose-specialized-lambda-list specialized-lambda-list
-      #'(lambda (errorstring &rest arguments)
-          (error-of-type 'program-error
-            (TEXT "~S: ~A")
-            'extract-specializer-names
-            (apply #'format nil errorstring arguments))))))
+    (decompose-specialized-lambda-list
+     specialized-lambda-list
+     (program-error-reporter 'extract-specializer-names))))
 
 ;;; For DEFMETHOD, DEFGENERIC, GENERIC-FUNCTION, GENERIC-FLET,
 ;;;     GENERIC-LABELS, WITH-ADDED-METHODS
