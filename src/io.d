@@ -5608,7 +5608,6 @@ global object cons_ssstring (const object* stream_, object nl_type) {
 #define PPHELP_INDENTN Cdr
 
 # UP: tabulation (see format-tabulate here in io.d and in format.lisp)
-# can trigger GC
 #define PPH_TAB_COLON(tab_spec) TheSvector(tab_spec)->data[0]
 #define PPH_TAB_ATSIG(tab_spec) TheSvector(tab_spec)->data[1]
 #define PPH_TAB_COL_N(tab_spec) TheSvector(tab_spec)->data[2]
@@ -5645,6 +5644,7 @@ local uintL format_tab (object stream, object colon_p, object atsig_p,
          col_inc_i,new_col_i,new_inc_i,pos_i);
  #endif
   var uintL ret;
+  # MSVC6 has broken %, so both arguments to % must be non-negative!
   if (nullp(atsig_p)) {
     if (nullp(pos)) ret = 2;
     else if (pos_i < new_col_i) ret = new_col_i - pos_i;
@@ -5658,6 +5658,7 @@ local uintL format_tab (object stream, object colon_p, object atsig_p,
  #if IO_DEBUG > 1
   printf("%d\n",ret);
  #endif
+  ASSERT(ret>=0);
   return ret;
 }
 
