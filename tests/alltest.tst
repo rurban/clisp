@@ -581,6 +581,14 @@ NIL
 (funcall (compile nil (lambda (x) (flet ((foo (y) (+ y 1))) (foo (* 2 x))))) 3)
 7
 
+;; <http://www.lisp.org/HyperSpec/Body/fun_funcall.html>
+(flet ((cons (x y) `(kons ,x ,y)))
+  (let ((cons (symbol-function '+)))
+    (funcall #'cons
+             (funcall 'cons 1 2)
+             (funcall cons 1 2))))
+(KONS (1 . 2) 3)
+
 ;TAGBODY, GO, MULTIPLE-VALUE-LIST, MULTIPLE-VALUE-CALL, MULTIPLE-VALUE-PROG1,
 ;MULTIPLE-VALUE-BIND, MULTIPLE-VALUE-SETQ, VALUES, VALUES-LIST, CATCH,
 
