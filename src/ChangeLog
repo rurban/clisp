@@ -1,5 +1,13 @@
 2004-09-17  Bruno Haible  <bruno@clisp.org>
 
+	* constsym.d (CUSTOM:*DEFUN-ACCEPT-SPECIALIZED-LAMBDA-LIST*,
+	SYS::SPECIALIZED-LAMBDA-LIST-TO-ORDINARY): Align C names.
+	* spvw.d (init_symbol_values): Update.
+	* eval.d (get_closure): Update.
+	* misc.d (SYS::SET-ANSI): Update.
+
+2004-09-17  Bruno Haible  <bruno@clisp.org>
+
 	* init.lisp (remove-old-definitions, open-for-load,
 	specialized-lambda-list-to-ordinary, defun): Fix indentation. Use
 	'when' instead of 'if' without else-branch.

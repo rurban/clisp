@@ -598,7 +598,7 @@ LISPFUNN(set_ansi,1)
   /* (SETQ *PRINT-EMPTY-ARRAYS-ANSI* val) */
   Symbol_value(S(print_empty_arrays_ansi)) = val;
   /* (SETQ *DEFUN-ACCEPT-SPECIALIZED-LAMBDA-LIST* (not val)) */
-  Symbol_value(S(defun_accept_spelalist)) = notval;
+  Symbol_value(S(defun_accept_specialized_lambda_list)) = notval;
   VALUES1(val);
 }
 
