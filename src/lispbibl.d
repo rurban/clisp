@@ -7212,6 +7212,85 @@ typedef SPint sp_jmp_buf[jmpbufsize];
   #error "Unknown STACK direction -- readjust STACK_DOWN/STACK_UP!"
 #endif
 
+struct backtrace_t {
+  const struct backtrace_t* bt_next;
+  gcv_object_t bt_caller;
+  gcv_object_t *bt_stack;
+  int bt_num_arg;
+};
+extern void back_trace_check (const struct backtrace_t *bt,
+                              char* label,char* file,int line);
+#ifdef DEBUG_SPVW
+#define BT_CHECK(b,l) back_trace_check(b,l,__FILE__,__LINE__)
+#else
+#define BT_CHECK(b,l)
+#endif
+#define BT_CHECK1(l)  BT_CHECK(back_trace,l)
+
+#ifdef __cplusplus
+struct p_backtrace_t {
+  const struct backtrace_t * ba_tr_p;
+  p_backtrace_t (void* bt) { ba_tr_p = (struct backtrace_t*)bt; }
+  /* assignment should check for circularities */
+  p_backtrace_t& operator= (const struct backtrace_t *bt) {
+    if (this->ba_tr_p == bt) return *this;
+    BT_CHECK(bt,"=: new value");
+    BT_CHECK(ba_tr_p,"=: current value");
+    this->ba_tr_p = bt;
+    return *this;
+  };
+  /* back_trace->foo means back_trace.ba_tr_p->foo */
+  const struct backtrace_t* operator-> () {
+    BT_CHECK(ba_tr_p,"->");
+    return this->ba_tr_p;
+  };
+  /* cast p_backtrace_t to bool */
+  operator const bool () const {
+    BT_CHECK(ba_tr_p,"(bool)");
+    return (ba_tr_p != NULL);
+  };
+  /* cast p_backtrace_t to struct backtrace_t* */
+  operator const struct backtrace_t* () const {
+    BT_CHECK(ba_tr_p,"(struct backtrace_t*)");
+    return ba_tr_p;
+  }
+};
+#else
+typedef const struct backtrace_t* p_backtrace_t;
+#endif
+
+#define bt_beyond_stack_p(bt,st) (bt&&((aint)(bt->bt_stack)cmpSTACKop(aint)st))
+/* unwind backtrace to the stack location */
+#ifdef DEBUG_SPVW
+#define unwind_back_trace(bt,st)                                        \
+  do { BT_CHECK(bt,"unwind_back_trace");                                \
+    while (bt_beyond_stack_p(bt,st)) bt=bt->bt_next;                    \
+  } while(0)
+#else
+#define unwind_back_trace(bt,st) while(bt_beyond_stack_p(bt,st))bt=bt->bt_next
+#endif
+
+/* evaluate statement augmenting back_trace */
+#if defined(STACKCHECKS) || defined(STACKCHECKC)
+#define with_saved_back_trace(fun,num_arg,statement)           do {     \
+    p_backtrace_t bt_save = back_trace;                                 \
+    struct backtrace_t bt_here = { back_trace, fun, STACK, num_arg };   \
+    BT_CHECK1("w/s/b/t: before");                                       \
+    back_trace = &bt_here;                                              \
+    statement;                                                          \
+    if (back_trace->bt_next != bt_save) abort();                        \
+    BT_CHECK1("w/s/b/t: after");                                        \
+    back_trace = back_trace->bt_next;                                   \
+  } while(0)
+#else
+#define with_saved_back_trace(fun,num_arg,statement)           do {     \
+    struct backtrace_t bt_here = { back_trace, fun, STACK, num_arg };   \
+    back_trace = &bt_here;                                              \
+    statement;                                                          \
+    back_trace = back_trace->bt_next;                                   \
+  } while(0)
+#endif
+
 # Every call of an external function (or a sequence of those) has to be framed
 # with
 #   begin_call();
@@ -7252,7 +7331,7 @@ typedef SPint sp_jmp_buf[jmpbufsize];
 #endif
 #ifdef HAVE_SAVED_back_trace
   #ifndef MULTITHREAD
-    extern struct backtrace_t* saved_back_trace;
+    extern p_backtrace_t saved_back_trace;
   #else
     #define saved_back_trace  (current_thread()->_saved_back_trace)
   #endif
@@ -9319,54 +9398,14 @@ nonreturning_function(extern, fehler_mv_zuviel, (object caller));
 
 #if !defined(back_trace_register)
   #ifndef MULTITHREAD
-    extern struct backtrace_t *back_trace;
+    extern p_backtrace_t back_trace;
   #else
     #define back_trace  (current_thread()->_back_trace)
   #endif
 #else
-  register object back_trace __asm__(back_trace_register);
+  register p_backtrace_t back_trace __asm__(back_trace_register);
 #endif
 #define subr_self  back_trace->bt_caller
-struct backtrace_t {
-  struct backtrace_t* bt_next;
-  gcv_object_t bt_caller;
-  gcv_object_t *bt_stack;
-  int bt_num_arg;
-};
-#define bt_beyond_stack_p(bt,st) (bt&&((aint)(bt->bt_stack)cmpSTACKop(aint)st))
-/* unwind backtrace to the stack location */
-#ifdef DEBUG_SPVW
-#define BT_CHECK(bt) if(bt==bt->bt_next)abort()
-#define unwind_back_trace(bt,st)                                        \
-  do { var uintL count = 0;                                             \
-    /*fprintf(stderr,"<%s:%d:",__FILE__,__LINE__); fflush(stderr);*/    \
-    for (; bt_beyond_stack_p(bt,st); count++) {BT_CHECK(bt); bt=bt->bt_next;} \
-    /*fprintf(stderr,"skipped %d backtrace forms>\n",count);*/          \
-    BT_CHECK(bt);                                                       \
-  } while(0)
-#else
-#define BT_CHECK(bt)
-#define unwind_back_trace(bt,st) while(bt_beyond_stack_p(bt,st))bt=bt->bt_next
-#endif
-
-/* evaluate statement augmenting back_trace */
-#if defined(STACKCHECKS) || defined(STACKCHECKC)
-#define with_saved_back_trace(fun,num_arg,statement)           do {     \
-    struct backtrace_t *bt_save = back_trace;                           \
-    struct backtrace_t  bt_here = { back_trace, fun, STACK, num_arg };  \
-    back_trace = &bt_here;                                              \
-    statement;                                                          \
-    if (back_trace->bt_next != bt_save) abort();                        \
-    back_trace = back_trace->bt_next;                                   \
-  } while(0)
-#else
-#define with_saved_back_trace(fun,num_arg,statement)           do {     \
-    struct backtrace_t bt_here = { back_trace, fun, STACK, num_arg };   \
-    back_trace = &bt_here;                                              \
-    statement;                                                          \
-    back_trace = back_trace->bt_next;                                   \
-  } while(0)
-#endif
 
 # Within the body of a SUBR: Access to the arguments.
 # A SUBR with a fixed number of arguments can access them through the STACK:
@@ -12865,7 +12904,7 @@ extern object decimal_string (object x);
         object _value1;
       #endif
       #if !defined(back_trace_register)
-        object _back_trace;
+        p_backtrace_t _back_trace;
       #endif
     # Less often used:
       #ifndef NO_SP_CHECK
@@ -12889,7 +12928,7 @@ extern object decimal_string (object x);
         object _saved_value1;
       #endif
       #ifdef HAVE_SAVED_back_trace
-        object _saved_back_trace;
+        p_backtrace_t _saved_back_trace;
       #endif
       #if defined(HAVE_SAVED_REGISTERS)
         struct registers * _callback_saved_registers;
