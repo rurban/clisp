@@ -1781,7 +1781,7 @@ global object get_closure (object lambdabody, object name, bool blockp,
                &ALLOW-OTHER-KEYS_label,&AUX_label,Ende_label)
      shortens the rest of the lambda list, moves the next Element to "item"
      and in case of one of the 6 specified lambda-list-markers, it jumps to
-     the respective locations. */                                       \
+     the respective locations. */
   #define NEXT_ITEM(opt_label,rest_label,key_label,allow_label,aux_label,end_label) \
     { if (atomp(*lalist_)) goto end_label; /* Lambda-List finished? */  \
       item = Car(*lalist_); *lalist_save_ = *lalist_; /* next element */ \

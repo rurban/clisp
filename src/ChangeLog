@@ -1,3 +1,8 @@
+2004-03-10  Sam Steingold  <sds@gnu.org>
+
+	* eval.d (get_closure): removed a spurious backslash which broke
+	the build on Mac OS X
+
 2004-03-10  Bruno Haible  <bruno@clisp.org>
 
 	* modules/bindings/glibc/linux.lisp: Add a #include <signal.h>.
