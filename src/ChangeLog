@@ -1,5 +1,11 @@
 2004-08-04  Sam Steingold  <sds@gnu.org>
 
+	* modules/berkeley-db/bdb.c (time_stamp): new function
+	(CLOSE_ERRFILE): call time_stamp() before fclose()
+	(my_fopen): call time_stamp() after fopen()
+
+2004-08-04  Sam Steingold  <sds@gnu.org>
+
 	* modules/rawsock/rawsock.c (parse_buffer_arg): new function
 	(RECV, SOCK-READ, SEND, SOCK-WRITE): use it to correct STACK handling
 	* modules/rawsock/test.tst: new file
