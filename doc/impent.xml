@@ -265,6 +265,7 @@
 <!ENTITY pathmerge "<link linkend='pathmerge'><varname>CUSTOM:*MERGE-PATHNAMES-ANSI*</varname></link>">
 <!ENTITY pathprint "<link linkend='pathprint'><varname>CUSTOM:*PRINT-PATHNAMES-ANSI*</varname></link>">
 <!ENTITY phasecont "<link linkend='phasecont'><varname>CUSTOM:*PHASE-ANSI*</varname></link>">
+<!ENTITY loop-ansi "<link linkend='loop-ansi'><varname>CUSTOM:*LOOP-ANSI*</varname></link>">
 <!ENTITY ppr-first-newline "<link linkend='ppr-first-newline'><varname>CUSTOM:*PPRINT-FIRST-NEWLINE*</varname></link>">
 <!ENTITY pr-closure "<link linkend='pr-closure'><varname>CUSTOM:*PRINT-CLOSURE*</varname></link>">
 <!ENTITY pr-indent "<link linkend='pr-indent'><varname>CUSTOM:*PRINT-INDENT-LISTS*</varname></link>">

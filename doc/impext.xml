@@ -2037,6 +2037,7 @@ In other words, each pair is:
  <listitem><simpara>Setting &flocont; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &floratcont; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &phasecont; to &t;.</simpara></listitem>
+ <listitem><simpara>Setting &loop-ansi; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &pr-empty-arr-ansi; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &defun-accept-spelalist; to &nil;</simpara></listitem>
 </orderedlist>
@@ -2060,6 +2061,7 @@ In other words, each pair is:
  <listitem><simpara>Setting &flocont; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &floratcont; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &phasecont; to &nil;.</simpara></listitem>
+ <listitem><simpara>Setting &loop-ansi; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &pr-empty-arr-ansi; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &defun-accept-spelalist; to &t;</simpara></listitem>
 </orderedlist>
@@ -2215,6 +2217,7 @@ here <function>WITH-FOO</function> does not receive the
   <member>&load-lpt-db;</member>
   <member>&load-obs;</member>
   <member>&load-paths;</member>
+  <member>&loop-ansi;</member>
   <member>&pathmerge;</member>
   <member>&misc-enc;</member>
   <member><varname>CUSTOM:*PACKAGE-TASKS-TREAT-SPECIALLY*</varname></member>

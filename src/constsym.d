@@ -1717,6 +1717,7 @@ LISPSYM(floating_point_contagion_ansi,"*FLOATING-POINT-CONTAGION-ANSI*",custom)
 LISPSYM(warn_on_floating_point_rational_contagion,"*WARN-ON-FLOATING-POINT-RATIONAL-CONTAGION*",custom)
 LISPSYM(floating_point_rational_contagion_ansi,"*FLOATING-POINT-RATIONAL-CONTAGION-ANSI*",custom)
 LISPSYM(phase_ansi,"*PHASE-ANSI*",custom)
+LISPSYM(loop_ansi,"*LOOP-ANSI*",custom)
 LISPSYM(defun_accept_spelalist,"*DEFUN-ACCEPT-SPECIALIZED-LAMBDA-LIST*",custom)
 LISPSYM(pi,"PI",lisp) /* variable in LISPARIT */
 LISPSYM(number,"NUMBER",lisp) /* type for LISPARIT */

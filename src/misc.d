@@ -581,6 +581,8 @@ LISPFUNN(set_ansi,1)
   Symbol_value(S(floating_point_rational_contagion_ansi)) = val;
   /* (SETQ *PHASE-ANSI* val) */
   Symbol_value(S(phase_ansi)) = val;
+  /* (SETQ *LOOP-ANSI* val) */
+  Symbol_value(S(loop_ansi)) = val;
   /* (SETQ *MERGE-PATHNAMES-ANSI* val) */
   Symbol_value(S(merge_pathnames_ansi)) = val;
   /* (SETQ *PRINT-PATHNAMES-ANSI* val) */
