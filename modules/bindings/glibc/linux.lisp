@@ -1,160 +1,32 @@
 ;; Foreign functions provided by the Linux C library version 6,
 ;; i.e. the GNU C library version 2.0.7.
 ;; Bruno Haible 10.4.1998, 19.4.1998
-;; Sam Steingold 2002
+;; Sam Steingold 2002-2003
 
 (defpackage "LINUX"
   (:case-sensitive t)
   (:nicknames "UNIX" "GLIBC")
-  (:use)
-)
+  (:use))
 
 ;; This requires linking with NEW_LIBS='linux.o -lm'.
-
-(in-package "LISP")
 
 (ffi:default-foreign-language :stdc)
 
 (eval-when (compile eval)
-  ;; A temporary package, case-insensitive, so that we don't need to prefix
-  ;; everything with "lisp:" or "ffi:".
-  (defpackage "LINUX-AUX"
-    (:use "LISP" "FFI")))
-
-(eval-when (compile eval)
-  (in-package "LINUX-AUX"))
-
-(eval-when (compile eval)
-  ;; Symbols to be substituted
-  (defconstant substitution
-    '((linux::aref . lisp:aref)
-      (linux::AREF . lisp:aref)
-      (linux::ash . lisp:ash)
-      (linux::ASH . lisp:ash)
-      (linux::coerce . lisp:coerce)
-      (linux::compile . lisp:compile)
-      (linux::defconstant . lisp:defconstant)
-      (linux::dotimes . lisp:dotimes)
-      (linux::eval . lisp:eval)
-      (linux::fill . lisp:fill)
-      (linux::FLOOR . lisp:floor)
-      (linux::gensym . lisp:gensym)
-      (linux::let . lisp:let)
-      (linux::load . lisp:load)
-      (linux::load-time-value . lisp:load-time-value)
-      (linux::logand . lisp:logand)
-      (linux::logbitp . lisp:logbitp)
-      (linux::logior . lisp:logior)
-      (linux::lognot . lisp:lognot)
-      (linux::mod . lisp:mod)
-      (linux::multiple-value-bind . lisp:multiple-value-bind)
-      (linux::MULTIPLE-VALUE-BIND . lisp:multiple-value-bind)
-      (linux::not . lisp:not)
-      (linux::or . lisp:or)
-      (linux::progn . lisp:progn)
-      (linux::setf . lisp:setf)
-      (linux::t . lisp:t)
-      (linux::zerop . lisp:zerop)
-      (linux::+ . lisp:+)
-      (linux::- . lisp:-)
-      (linux::* . lisp:*)
-      (linux::= . lisp:=)
-      (linux::1- . lisp:1-)
-      (linux::bitsizeof . ffi:bitsizeof)
-      (linux::boolean . ffi:boolean)
-      (linux::cast . ffi:cast)
-      (linux::char . ffi:char)
-      (linux::character . ffi:character)
-      (linux::c-array . ffi:c-array)
-      (linux::c-array-max . ffi:c-array-max)
-      (linux::c-array-ptr . ffi:c-array-ptr)
-      (linux::c-function . ffi:c-function)
-      (linux::c-ptr . ffi:c-ptr)
-      (linux::c-ptr-null . ffi:c-ptr-null)
-      (linux::c-pointer . ffi:c-pointer)
-      (linux::c-string . ffi:c-string)
-      (linux::c-struct . ffi:c-struct)
-      (linux::deref . ffi:deref)
-      (linux::foreign-value . ffi::foreign-value)
-      (linux::double-float . ffi:double-float)
-      (linux::element . ffi:element)
-      (linux::int . ffi:int)
-      (linux::long . ffi:long)
-      (linux::nil . ffi:nil)
-      (linux::short . ffi:short)
-      (linux::sint8 . ffi:sint8)
-      (linux::sint16 . ffi:sint16)
-      (linux::sint32 . ffi:sint32)
-      (linux::sint64 . ffi:sint64)
-      (linux::single-float . ffi:single-float)
-      (linux::sizeof . ffi:sizeof)
-      (linux::slot . ffi:slot)
-      (linux::uchar . ffi:uchar)
-      (linux::uint . ffi:uint)
-      (linux::uint8 . ffi:uint8)
-      (linux::uint16 . ffi:uint16)
-      (linux::uint32 . ffi:uint32)
-      (linux::uint64 . ffi:uint64)
-      (linux::ulong . ffi:ulong)
-      (linux::ushort . ffi:ushort)
-      (linux::with-c-var . ffi:with-c-var))))
-
-(eval-when (compile eval)
-; We want to export all the symbols defined in this file.
-  (macrolet ((exporting (defining-macro-name)
-               (let ((original-macro-name (intern (string-upcase defining-macro-name) "FFI"))
-                     (new-macro-name (intern defining-macro-name "LINUX")))
-                 `(progn
-                    (defmacro ,new-macro-name (name &rest more)
-                      `(progn
-                         (export ',name)
-                         (,',original-macro-name ,name ,@(sublis substitution more))
-                       )
-                  ) )
-             ) )
-             (exporting-slots (defining-macro-name)
-               (let ((original-macro-name
-                      (intern (string-upcase defining-macro-name) "FFI"))
-                     (new-macro-name (intern defining-macro-name "LINUX")))
-                 `(defmacro ,new-macro-name (name &rest more)
-                    (let ((sname (if (consp name) (car name) name)))
-                      `(progn
-                         (export '(,sname
-                                   ,@(let ((cname (sys::string-concat
-                                                   (symbol-name sname) "-")))
-                                       (list*
-                                        (sys::concat-pnames "COPY-" cname)
-                                        (sys::concat-pnames "MAKE-" cname)
-                                        (sys::concat-pnames cname "-P")
-                                        (mapcar (lambda (slot)
-                                                  (sys::concat-pnames
-                                                   cname (car slot)))
-                                                more)))))
-                         (,',original-macro-name
-                          ,name ,@(sublis substitution more)))))))
-             (normal (defining-macro-name)
-               (let ((original-macro-name (intern (string-upcase defining-macro-name) "FFI"))
-                     (new-macro-name (intern defining-macro-name "LINUX")))
-                 `(progn
-                    (defmacro ,new-macro-name (&rest more)
-                      `(,',original-macro-name ,@(sublis substitution more))
-                  ) )
-            )) )
-    (exporting "defconstant")
-    (exporting "defun")
-    (exporting "defmacro")
-    (exporting "define-modify-macro")
-    (exporting "define-symbol-macro")
-    (exporting "defsetf")
-    (exporting "def-c-type")
-    (exporting "def-c-enum")
-    (exporting-slots "def-c-struct")
-    (exporting "def-c-var")
-    (exporting "def-call-out")
-    (normal "c-lines")
-    (normal "eval-when")
-  )
-)
+  ;; so that we don't need to prefix everything with "lisp:" or "ffi:".
+  (load "../../exporting")
+  (make-exporting "LINUX"
+    '(cl:aref cl:ash cl:coerce cl:compile cl:defconstant cl:dotimes cl:eval
+      cl:fill cl:floor cl:gensym cl:let cl:load cl:load-time-value cl:logand
+      cl:logbitp cl:logior cl:lognot cl:mod cl:multiple-value-bind cl:not
+      cl:or cl:progn cl:setf cl:t cl:zerop cl:+ cl:- cl:* cl:= cl:1-
+      ffi:bitsizeof ffi:boolean ffi:cast ffi:char ffi:character ffi:c-array
+      ffi:c-array-max ffi:c-array-ptr ffi:c-function ffi:c-ptr ffi:c-ptr-null
+      ffi:c-pointer ffi:c-string ffi:c-struct ffi:deref ffi::foreign-value
+      ffi:double-float ffi:element ffi:int ffi:long ffi:nil ffi:short ffi:sint8
+      ffi:sint16 ffi:sint32 ffi:sint64 ffi:single-float ffi:sizeof ffi:slot
+      ffi:uchar ffi:uint ffi:uint8 ffi:uint16 ffi:uint32 ffi:uint64 ffi:ulong
+      ffi:ushort ffi:with-c-var)))
 
 (in-package "LINUX")
 
@@ -215,11 +87,11 @@
 (eval-when (load compile eval)
   (defconstant __NFDBITS (* 8 (sizeof '__fd_mask)))
 )
-(defmacro __FDELT (d) `(FLOOR ,d __NFDBITS))
+(defmacro __FDELT (d) `(floor ,d __NFDBITS))
 (defmacro __FDMASK (d) `(ash 1 (mod ,d __NFDBITS)))
 
 (def-c-struct __fd_set
-  (fds_bits (c-array __fd_mask #.(lisp:/ __FD_SETSIZE __NFDBITS)))
+  (fds_bits (c-array __fd_mask #.(cl:/ __FD_SETSIZE __NFDBITS)))
 )
 
 (def-c-type __key_t int)
@@ -261,7 +133,7 @@
 ; -------------------------- <selectbits.h> -----------------------------------
 
 (defmacro __FD_ZERO (set)
-  `(dotimes (i #.(lisp:/ __FD_SETSIZE __NFDBITS))
+  `(dotimes (i #.(cl:/ __FD_SETSIZE __NFDBITS))
      (setf (element (slot (deref ,set) fds_bits) i) 0)
    )
 )
@@ -1980,7 +1852,7 @@
   (d_off off_t)
   (d_reclen ushort)
   (d_type uchar)
-  (d_name (c-array-max character #.(lisp:+ NAME_MAX 1)))
+  (d_name (c-array-max character #.(cl:+ NAME_MAX 1)))
 )
 
 ;;; ------------------------------ <dirent.h> --------------------------------
@@ -2477,7 +2349,7 @@ and SIG_IGN do anyway, by other means ... They are just sugar, really.
 ;;; --------------------------------- <bits/sigset.h> -----------------------
 (eval-when (load compile eval)
   (defconstant SIGSET_NWORDS
-    ;; #.(lisp:/ 1024 #.(lisp:* 8 (ffi:sizeof 'ffi:uint)))
+    ;; #.(cl:/ 1024 #.(cl:* 8 (ffi:sizeof 'ffi:uint)))
     32))
 
 (def-c-struct sigset_t
@@ -2581,9 +2453,5 @@ and SIG_IGN do anyway, by other means ... They are just sugar, really.
 
 ;;; ==========================================================================
 ;;; clean up
-(lisp:in-package "LISP")
-
-(eval-when (compile eval)
-  (lisp:delete-package "LINUX-AUX"))
-
+(cl:in-package "CL-USER")
 (provide "linux")

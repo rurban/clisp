@@ -6,89 +6,15 @@
   (:use))
 
 (eval-when (compile eval)
-  ;; A temporary package, case-insensitive, so that we don't need to prefix
-  ;; everything with "lisp:" or "ffi:".
-  (defpackage "SQL-AUX" (:use "CL" "FFI")))
-
-(eval-when (compile eval) (in-package "SQL-AUX"))
-
-(eval-when (compile eval)
-  ;; Symbols to be substituted
-  (defconstant substitution
-    '((sql::compile . lisp:compile)
-      (sql::eval . lisp:eval)
-      (sql::load . lisp:load)
-      (sql::load-time-value . lisp:load-time-value)
-      (sql::progn . lisp:progn)
-      (sql::setf . lisp:setf)
-      (sql::t . lisp:t)
-      (sql::defconstant . lisp:defconstant)
-      (sql::bitsizeof . ffi:bitsizeof)
-      (sql::boolean . ffi:boolean)
-      (sql::char . ffi:char)
-      (sql::character . ffi:character)
-      (sql::c-array . ffi:c-array)
-      (sql::c-array-max . ffi:c-array-max)
-      (sql::c-array-ptr . ffi:c-array-ptr)
-      (sql::c-function . ffi:c-function)
-      (sql::c-ptr . ffi:c-ptr)
-      (sql::c-pointer . ffi:c-pointer)
-      (sql::c-string . ffi:c-string)
-      (sql::c-struct . ffi:c-struct)
-      (sql::deref . ffi:deref)
-      (sql::double-float . ffi:double-float)
-      (sql::element . ffi:element)
-      (sql::int . ffi:int)
-      (sql::long . ffi:long)
-      (sql::nil . ffi:nil)
-      (sql::short . ffi:short)
-      (sql::sint8 . ffi:sint8)
-      (sql::sint16 . ffi:sint16)
-      (sql::sint32 . ffi:sint32)
-      (sql::sint64 . ffi:sint64)
-      (sql::single-float . ffi:single-float)
-      (sql::sizeof . ffi:sizeof)
-      (sql::slot . ffi:slot)
-      (sql::uchar . ffi:uchar)
-      (sql::uint . ffi:uint)
-      (sql::uint8 . ffi:uint8)
-      (sql::uint16 . ffi:uint16)
-      (sql::uint32 . ffi:uint32)
-      (sql::uint64 . ffi:uint64)
-      (sql::ulong . ffi:ulong)
-      (sql::ushort . ffi:ushort)))
-
-  ;; We want to export all the symbols defined in this file.
-  (macrolet ((exporting (defining-macro-name)
-               (let ((original-macro-name (intern (string-upcase
-                                                   defining-macro-name) "FFI"))
-                     (new-macro-name (intern defining-macro-name "SQL")))
-                 `(progn
-                   (defmacro ,new-macro-name (name &rest more)
-                     `(progn
-                       (export ',name)
-                       (,',original-macro-name ,name ,@(sublis substitution
-                                                               more)))))))
-             (normal (defining-macro-name)
-               (let ((original-macro-name (intern (string-upcase
-                                                   defining-macro-name) "FFI"))
-                     (new-macro-name (intern defining-macro-name "SQL")))
-                 `(progn
-                   (defmacro ,new-macro-name (&rest more)
-                     `(,',original-macro-name ,@(sublis substitution
-                                                        more)))))))
-    (exporting "defconstant")
-    (exporting "defun")
-    (exporting "defmacro")
-    (exporting "define-modify-macro")
-    (exporting "define-symbol-macro")
-    (exporting "def-c-type")
-    (exporting "def-c-enum")
-    (exporting "def-c-struct")
-    (exporting "def-c-var")
-    (exporting "def-call-out")
-    (normal "c-lines")
-    (normal "eval-when")))
+  (load "../exporting")
+  (make-exporting "SQL"
+    cl:compile cl:eval cl:load cl:defconstant
+    ffi:bitsizeof ffi:boolean ffi:char ffi:character ffi:c-array
+    ffi:c-array-max ffi:c-array-ptr ffi:c-function ffi:c-ptr ffi:c-pointer
+    ffi:c-string ffi:c-struct ffi:deref ffi:double-float ffi:element ffi:int
+    ffi:long ffi:nil ffi:short ffi:sint8 ffi:sint16 ffi:sint32 ffi:sint64
+    ffi:single-float ffi:sizeof ffi:slot ffi:uchar ffi:uint ffi:uint8
+    ffi:uint16 ffi:uint32 ffi:uint64 ffi:ulong ffi:ushort))
 
 (in-package "SQL")
 
@@ -344,5 +270,4 @@
 
 
 (cl:in-package "CL-USER")
-(eval-when (compile eval) (delete-package "SQL-AUX"))
 (provide "postgresql")

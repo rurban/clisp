@@ -9,148 +9,16 @@
   (:case-sensitive t) (:use))
 
 (eval-when (compile eval)
-  ;; A temporary package, case-insensitive, so that we don't need to prefix
-  ;; everything with "lisp:" or "ffi:".
-  (defpackage "NETICA-AUX" (:use "LISP" "FFI")))
-
-(eval-when (compile eval)
-  (in-package "NETICA-AUX"))
-
-(eval-when (compile eval)
-  ;; Symbols to be substituted
-  (defconstant substitution
-    '(;(netica::aref . lisp:aref)
-      ;(netica::AREF . lisp:aref)
-      ;(netica::ash . lisp:ash)
-      ;(netica::ASH . lisp:ash)
-      ;(netica::coerce . lisp:coerce)
-      (netica::compile . lisp:compile)
-      (netica::defconstant . lisp:defconstant)
-      ;(netica::dotimes . lisp:dotimes)
-      (netica::eval . lisp:eval)
-      ;(netica::fill . lisp:fill)
-      ;(netica::FLOOR . lisp:floor)
-      ;(netica::gensym . lisp:gensym)
-      ;(netica::let . lisp:let)
-      (netica::load . lisp:load)
-      ;(netica::load-time-value . lisp:load-time-value)
-      ;(netica::logand . lisp:logand)
-      ;(netica::logbitp . lisp:logbitp)
-      ;(netica::logior . lisp:logior)
-      ;(netica::lognot . lisp:lognot)
-      ;(netica::mod . lisp:mod)
-      ;(netica::multiple-value-bind . lisp:multiple-value-bind)
-      ;(netica::MULTIPLE-VALUE-BIND . lisp:multiple-value-bind)
-      ;(netica::not . lisp:not)
-      ;(netica::or . lisp:or)
-      ;(netica::progn . lisp:progn)
-      ;(netica::setf . lisp:setf)
-      (netica::t . lisp:t)
-      ;(netica::zerop . lisp:zerop)
-      ;(netica::+ . lisp:+)
-      ;(netica::- . lisp:-)
-      ;(netica::* . lisp:*)
-      ;(netica::= . lisp:=)
-      ;(netica::1- . lisp:1-)
-      (netica::bitsizeof . ffi:bitsizeof)
-      (netica::boolean . ffi:boolean)
-      (netica::cast . ffi:cast)
-      (netica::char . ffi:char)
-      (netica::character . ffi:character)
-      (netica::c-array . ffi:c-array)
-      (netica::c-array-max . ffi:c-array-max)
-      (netica::c-array-ptr . ffi:c-array-ptr)
-      (netica::c-function . ffi:c-function)
-      (netica::c-ptr . ffi:c-ptr)
-      (netica::c-ptr-null . ffi:c-ptr-null)
-      (netica::c-pointer . ffi:c-pointer)
-      (netica::c-string . ffi:c-string)
-      (netica::c-struct . ffi:c-struct)
-      (netica::deref . ffi:deref)
-      (netica::foreign-value . ffi::foreign-value)
-      (netica::double-float . ffi:double-float)
-      (netica::element . ffi:element)
-      (netica::int . ffi:int)
-      (netica::long . ffi:long)
-      (netica::nil . ffi:nil)
-      (netica::short . ffi:short)
-      (netica::sint8 . ffi:sint8)
-      (netica::sint16 . ffi:sint16)
-      (netica::sint32 . ffi:sint32)
-      (netica::sint64 . ffi:sint64)
-      (netica::single-float . ffi:single-float)
-      (netica::sizeof . ffi:sizeof)
-      (netica::slot . ffi:slot)
-      (netica::uchar . ffi:uchar)
-      (netica::uint . ffi:uint)
-      (netica::uint8 . ffi:uint8)
-      (netica::uint16 . ffi:uint16)
-      (netica::uint32 . ffi:uint32)
-      (netica::uint64 . ffi:uint64)
-      (netica::ulong . ffi:ulong)
-      (netica::ushort . ffi:ushort)
-      (netica::with-c-var . ffi:with-c-var))))
-
-(eval-when (compile eval)
-  ;; We want to export all the symbols defined in this file.
-  (macrolet ((exporting (defining-macro-name)
-               (let ((original-macro-name (intern (string-upcase defining-macro-name) "FFI"))
-                     (new-macro-name (intern defining-macro-name "NETICA")))
-                 `(defmacro ,new-macro-name (name &rest more)
-                    `(progn
-                       (export ',name)
-                       (,',original-macro-name
-                        ,name ,@(sublis substitution more))))))
-             (exporting-slots (defining-macro-name)
-               (let ((original-macro-name
-                      (intern (string-upcase defining-macro-name) "FFI"))
-                     (new-macro-name (intern defining-macro-name "NETICA")))
-                 `(defmacro ,new-macro-name (name &rest more)
-                    (let ((sname (if (consp name) (car name) name)))
-                      `(progn
-                         (export '(,sname
-                                   ,@(let ((cname (sys::string-concat
-                                                   (symbol-name sname) "-")))
-                                       (list*
-                                        (sys::concat-pnames "COPY-" cname)
-                                        (sys::concat-pnames "MAKE-" cname)
-                                        (sys::concat-pnames cname "-P")
-                                        (mapcar (lambda (slot)
-                                                  (sys::concat-pnames
-                                                   cname (car slot)))
-                                                more)))))
-                         (,',original-macro-name
-                          ,name ,@(sublis substitution more)))))))
-             (exporting-enums (defining-macro-name)
-               (let ((original-macro-name
-                      (intern (string-upcase defining-macro-name) "FFI"))
-                     (new-macro-name (intern defining-macro-name "NETICA")))
-                 `(defmacro ,new-macro-name (name &rest more)
-                    `(progn
-                       (export '(,name
-                                 ,@(mapcar (lambda (slot)
-                                             (if (consp slot) (car slot) slot))
-                                           more)))
-                       (,',original-macro-name
-                        ,name ,@(sublis substitution more))))))
-             (normal (defining-macro-name)
-               (let ((original-macro-name (intern (string-upcase defining-macro-name) "FFI"))
-                     (new-macro-name (intern defining-macro-name "NETICA")))
-                 `(defmacro ,new-macro-name (&rest more)
-                    `(,',original-macro-name ,@(sublis substitution more))))))
-    (exporting "defconstant")
-    (exporting "defun")
-    (exporting "defmacro")
-    (exporting "define-modify-macro")
-    (exporting "define-symbol-macro")
-    (exporting "defsetf")
-    (exporting "def-c-type")
-    (exporting-enums "def-c-enum")
-    (exporting-slots "def-c-struct")
-    (exporting "def-c-var")
-    (exporting "def-call-out")
-    (normal "c-lines")
-    (normal "eval-when")))
+  (load "../exporting")
+  (make-exporting "NETICA"
+    cl:compile cl:defconstant cl:eval cl:load
+    ffi:cast ffi:char ffi:character ffi:c-array ffi:c-array-max
+    ffi:c-array-ptr ffi:c-function ffi:c-ptr ffi:c-ptr-null ffi:c-pointer
+    ffi:c-string ffi:c-struct ffi:deref ffi::foreign-value ffi:double-float
+    ffi:element ffi:int ffi:long ffi:nil ffi:short ffi:sint8 ffi:sint16
+    ffi:sint32 ffi:sint64 ffi:single-float ffi:sizeof ffi:slot ffi:uchar
+    ffi:uint ffi:uint8 ffi:uint16 ffi:uint32 ffi:uint64 ffi:ulong ffi:ushort
+    ffi:with-c-var))
 
 (in-package "NETICA")
 
@@ -836,6 +704,4 @@
   (:return-type double-float))
 
 (cl:in-package "CL-USER")
-(eval-when (compile eval)
-  (cl:delete-package "NETICA-AUX"))
 (provide "netica")
