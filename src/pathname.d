@@ -1351,6 +1351,19 @@ local bool logical_host_p (object host) {
 #define wild2string(obj)  (eq(obj,S(Kwild)) ? (object)O(wild_string) : (obj))
 
 #ifdef PATHNAME_NOEXT
+/* can trigger GC */
+local void fix_parse_namestring_dot_file()
+{ /* make sure *PARSE-NAMESTRING-DOT-FILE* is valid */
+  Symbol_value(S(parse_namestring_dot_file)) = S(Ktype); /*CLISP default*/
+  pushSTACK(NIL);
+  pushSTACK(S(parse_namestring_dot_file));
+  pushSTACK(S(parse_namestring_dot_file));
+  pushSTACK(Symbol_value(S(parse_namestring_dot_file)));
+  STACK_3 = CLSTEXT("The variable ~S had an illegal value." NLstring
+                    "~S has been reset to ~S.");
+  funcall(S(warn),4);
+}
+
 /* auxiliary function for PARSE-NAMESTRING:
  splits a string (at the last dot) into Name and Type.
  split_name_type(skip);
@@ -1365,16 +1378,8 @@ local void split_name_type (uintL skip) {
     if (eq(Symbol_value(S(parse_namestring_dot_file)),S(Ktype))) { /* OK */
     } else if (eq(Symbol_value(S(parse_namestring_dot_file)),S(Kname))) {
       skip = 1; /* always have a name! */
-    } else {
-      Symbol_value(S(parse_namestring_dot_file)) = S(Ktype); /*CLISP default*/
-      pushSTACK(NIL);
-      pushSTACK(S(parse_namestring_dot_file));
-      pushSTACK(S(parse_namestring_dot_file));
-      pushSTACK(Symbol_value(S(parse_namestring_dot_file)));
-      STACK_3 = CLSTEXT("The variable ~S had an illegal value." NLstring
-                        "~S has been reset to ~S.");
-      funcall(S(warn),4);
-    }
+    } else
+      fix_parse_namestring_dot_file();
   }
   var object string = STACK_0;
   var uintL length = Sstring_length(string);
@@ -3114,24 +3119,30 @@ local bool legal_logical_word (object obj) {
  a Simple-String made of valid characters
  legal_name(object)
  > object: any object */
-local bool legal_name (object obj) {
+#define legal_name(obj)  check_name(obj,NULL)
+/* also, return the _BASE ONE_ index of the first dot in the string */
+local bool check_name (object obj, uintL *dot_pos_) {
+  if (dot_pos_) *dot_pos_ = 0;
   if (!stringp(obj)) return false;
   var uintL len, offset;
   obj = unpack_string_ro(obj,&len,&offset);
   if (len > 0) {
     SstringDispatch(obj,X, {
-      var const cintX* charptr = &((SstringX)TheVarobject(obj))->data[offset];
-      dotimespL(len,len, {
-        if (!legal_namechar(as_chart(*charptr++)))
-          return false;
-      });
+      var const cintX* start = ((SstringX)TheVarobject(obj))->data + offset;
+      var const cintX* charptr = start;
+      do { var chart cc = as_chart(*charptr++);
+        if (!legal_namechar(cc)) return false;
+        if (dot_pos_ && *dot_pos_==0 && dotp(cc))
+          *dot_pos_ = charptr - start;
+      } while(--len);
     });
   }
   return true;
 }
 
+
 /* UP: checks, if object is an admissible name:
- ein Simple-String made of valid characters, without '.'
+ a Simple-String made of valid characters, without '.'
  legal_type(object)
  > object: if a simple-string, a normal-simple-string */
 local bool legal_type (object obj);
@@ -3152,6 +3163,37 @@ local bool legal_type (object obj) {
     });
   }
   return true;
+}
+
+/* Check that the namestring for path will be parsed into a similar object
+ used by pr_orecord() in io.d
+ can trigger GC */
+global bool namestring_correctly_parseable_p (gcv_object_t *path_)
+{ /* #p".foo" can be either :name ".foo" or :type "foo" */
+  var object name = ThePathname(*path_)->pathname_name;
+  var object type = ThePathname(*path_)->pathname_type;
+  var uintL dot_position;
+  check_name(name,&dot_position); /* we know it's valid! */
+  if (eq(Symbol_value(S(parse_namestring_dot_file)),S(Ktype))) {
+   parse_namestring_dot_file_type: /* ".foo" ==> :type "foo" */
+    if (nullp(type) && dot_position>0) return false; /* name has '.' => bad */
+  } else if (eq(Symbol_value(S(parse_namestring_dot_file)),S(Kname))) {
+    /* ".foo" ==> :name ".foo" */
+    if (nullp(name) && !nullp(type)) return false;
+    /* has dots _inside_ the name, and type=nil */
+    if (nullp(type) && dot_position>1) return false;
+  } else {
+    fix_parse_namestring_dot_file(); /* set to :TYPE */
+    name = ThePathname(*path_)->pathname_name; /* restore after posible GC */
+    type = ThePathname(*path_)->pathname_type;
+    goto parse_namestring_dot_file_type;
+  }
+  /* name cannot be "": it is replaced with NIL by MAKE-PATHNAME */
+  return true
+   #if HAS_VERSION
+    && !integerp(ThePathname(*path_)->pathname_version)
+   #endif
+    ;
 }
 #endif
 
@@ -3385,7 +3427,7 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
     else if (eq(name,S(Kwild))) { /* :WILD is OK */
     }
    #endif
-    else if (legal_name(name)) { /* admissible Name ist OK */
+    else if (legal_name(name)) { /* admissible Name is OK */
       STACK_2 = name = coerce_normal_ss(name);
     } else if (xpathnamep(name)) { /* Pathname -> its Name */
       COERCE_PATHNAME_SLOT(name,name,STACK_2);

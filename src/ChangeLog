@@ -1,5 +1,17 @@
 2004-02-19  Sam Steingold  <sds@gnu.org>
 
+	* io.d (pr_orecord): signal PRINT-NOT-READABLE when *PRINT-READABLY*
+	and *PRINT-PATHNAMES-ANSI* are non-NIL, but the namestring will
+	not be parsed in to a similar pathname
+	* pathname.d (fix_parse_namestring_dot_file): extracted from
+	split_name_type
+	(split_name_type): use fix_parse_namestring_dot_file()
+	(namestring_correctly_parseable_p): check whether this pathname's
+	namestring will be parsed into a similar pathname
+	* lispbibl.d (namestring_correctly_parseable_p): prototype
+
+2004-02-19  Sam Steingold  <sds@gnu.org>
+
 	* hashtabl.d (MAKE-HASH-TABLE): :REHASH-THRESHOLD is a (REAL 0 1)
 	:REHASH-SIZE is a (OR (INTEGER 1 *) (FLOAT (1.0) *))
 	* constobj.d (type_hashtable_rehash_threshold)
