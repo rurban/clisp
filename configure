@@ -81,6 +81,8 @@ prev=''
 passnext=''
 passnextm=''
 debug=''
+do_ffi='yes'
+
 for arg # in "$@"
 do
   # If the previous option needs an argument, assign it.
@@ -174,6 +176,9 @@ do
 
       --with-debug)
         debug="debug" ;;
+
+      --without-dynamic-ffi | --with-dynamic-ffi=no | --with-no-dynamic-ffi)
+        do_ffi="no" ;;
 
       --with-* | --without-*)
         subdir_configure_args="$subdir_configure_args $arg"
@@ -326,14 +331,13 @@ if test -n "$do_config"; then
     #   a few files need to be linked over.
     # - readline, gettext: The Makefiles use VPATH=$(srcdir), which
     #   is not portable, hence all files need to be linked over.
-    for subdir in readline gettext termcap
-    do
+    for subdir in readline gettext termcap; do
       if [ -d src/$subdir ] ; then
         maybe_mkdir "${ABS_DIRNAME}/${subdir}";
       fi
     done
-    for f in readline readline/doc readline/examples readline/support readline/shlib \
-             gettext gettext/autoconf gettext/intl gettext/po
+    for f in readline readline/doc readline/examples readline/support \
+             readline/shlib gettext gettext/autoconf gettext/intl gettext/po
     do
       if [ -d src/$f ] ; then
         maybe_mkdir "${ABS_DIRNAME}/${f}";
@@ -347,53 +351,51 @@ if test -n "$do_config"; then
       maybe_link src/$f $ABS_DIRNAME/$f;
     done
   fi
-  # Create subdirectories for the modules parts, and fill them.
-  # The modules outright assumes that $(srcdir)='.', hence all files need to
-  # be linked over.
-  #for subdir in `cd modules > /dev/null ; find . -type d -print`
-  #do
-  #  maybe_mkdir "${ABS_DIRNAME}/${f}";
-  #done
-  #for f in `cd modules > /dev/null ; find . '!' -type d -print`
-  #do
-  #  link $f $ABS_DIRNAME/$f
-  #done
-  ( cd modules
-    for d in *
-    do
-      if [ -d "$d" -a '!' "$d" = CVS ] ; then
-        ../src/lndir "$d" "$ABS_DIRNAME/$d"
+  FFI_DIRS="";
+  if [ "$do_ffi" = "yes" ]; then
+    FFI_DIRS="avcall callback";
+    # Create subdirectories for the modules parts, and fill them.
+    # The modules outright assumes that $(srcdir)='.',
+    # hence all files need to be linked over.
+    #for subdir in `cd modules > /dev/null ; find . -type d -print`; do
+    #  maybe_mkdir "${ABS_DIRNAME}/${f}";
+    #done
+    #for f in `cd modules > /dev/null ; find . '!' -type d -print`; do
+    #  link $f $ABS_DIRNAME/$f
+    #done
+    ( cd modules
+        for d in *; do
+          if [ -d "$d" -a '!' "$d" = CVS ] ; then
+            ../src/lndir "$d" "$ABS_DIRNAME/$d"
+          fi
+        done
+    )
+    # Create subdirectories for the ffcall parts, and fill them.
+    # The Makefiles carefully use $(srcdir).
+    # Need to link over only a few files.
+    for subdir in ${FFI_DIRS}; do
+      if [ -d ffcall/$subdir ] ; then
+        maybe_mkdir "${ABS_DIRNAME}/${subdir}";
       fi
     done
-  )
-  # Create subdirectories for the ffcall parts, and fill them.
-  # The Makefiles carefully use $(srcdir). Need to link over only a few files.
-  for subdir in avcall callback
-  do
-    if [ -d ffcall/$subdir ] ; then
-      maybe_mkdir "${ABS_DIRNAME}/${subdir}";
-    fi
-  done
-  for subdir in avcall callback
-  do
-    f=$subdir/configure
-    maybe_link ffcall/$f $ABS_DIRNAME/$f
-  done
+    for subdir in ${FFI_DIRS}; do
+      f=$subdir/configure
+      maybe_link ffcall/$f $ABS_DIRNAME/$f
+    done
+  fi # do_ffi
   # Similarly for libiconv and sigsegv.
-  for subdir in libiconv sigsegv
-  do
+  for subdir in libiconv sigsegv; do
     if [ -d $subdir ] ; then
       maybe_mkdir "${ABS_DIRNAME}/${subdir}";
     fi
   done
-  for subdir in libiconv sigsegv
-  do
+  for subdir in libiconv sigsegv; do
     f=$subdir/configure
     maybe_link $f $ABS_DIRNAME/$f
   done
   # Prepare the configure files.
   chmod a+x $ABS_DIRNAME/configure
-  for subdir in readline avcall callback libiconv sigsegv; do
+  for subdir in readline ${FFI_DIRS} libiconv sigsegv; do
     if test -d $ABS_DIRNAME/$subdir; then
       chmod a+x $ABS_DIRNAME/$subdir/configure
     fi
@@ -406,11 +408,11 @@ if test -n "$do_config"; then
   else
     subdir_srcdir_args="--srcdir=$REL_SRCDIR/src"
   fi
-  ${CONFIG_SHELL-/bin/sh} configure $subdir_srcdir_args $subdir_configure_args \
-      --cache-file=config.cache
-  # libiconv must be built before gettext is even configured. This is because
-  # we want gettext to recognize libiconv as being present, even though we
-  # do not install it publicly.
+  ${CONFIG_SHELL-/bin/sh} configure $subdir_srcdir_args \
+      $subdir_configure_args --cache-file=config.cache
+  # libiconv must be built before gettext is even configured.
+  # This is because we want gettext to recognize libiconv as being present,
+  # even though we do not install it publicly.
   for subdir in libiconv; do
     if test -d $subdir; then
       echo "executing $DIRNAME/$subdir/configure ..."
@@ -456,15 +458,18 @@ if test -n "$do_config"; then
       )
     fi
   done
-  for subdir in avcall callback; do
-    if test -d $subdir; then
-      echo "executing $DIRNAME/$subdir/configure ..."
-      cd $subdir
-      ${CONFIG_SHELL-/bin/sh} configure --srcdir="$RREL_SRCDIR/ffcall/$subdir" \
+  if [ "$do_ffi" = "yes" ]; then
+    for subdir in ${FFI_DIRS}; do
+      if test -d $subdir; then
+        echo "executing $DIRNAME/$subdir/configure ..."
+        cd $subdir
+        ${CONFIG_SHELL-/bin/sh} configure \
+          --srcdir="$RREL_SRCDIR/ffcall/$subdir" \
           $subdir_configure_args --cache-file=../config.cache
-    cd ..
-    fi
-  done
+        cd ..
+      fi
+    done
+  fi # do_ffi
   for subdir in sigsegv; do
     if test -d $subdir; then
       echo "executing $DIRNAME/$subdir/configure ..."
@@ -475,7 +480,6 @@ if test -n "$do_config"; then
     fi
   done
   cd ..
-
 fi
 
 # Determine recommended makemake arguments.
