@@ -109,20 +109,19 @@
   ; CHANGE-CLASS.1.11 CHANGE-CLASS.3.2 CHANGE-CLASS.ERROR.4
   ; MAKE-INSTANCES-OBSOLETE.2 TYPES.7B TYPES.7C
   ; USER-CLASS-DISJOINTNESS USER-CLASS-DISJOINTNESS-2 TAC-3.16
-  ; PRINT.SYMBOL.PREFIX.3
 
   ;; test bug: PROBE-FILE on directory:
   ENSURE-DIRECTORIES-EXIST.8
+
+  ;; test bug
+  PRINT.SYMBOL.PREFIX.3
+
+  ;; win32 cannot disassemble subrs
+  #+win32 DISASSEMBLE.1 #+win32 DISASSEMBLE.2
 ))
 
 ;; A few tests call DISASSEMBLE. Make it work without user intervention.
 (setf (ext:getenv "PAGER") "cat")
-
-;; w2k exits on (disassemble 'car)
-#+(or win32 cygwin)
-(ext:without-package-lock ("SYS")
-  (defun sys::disassemble-machine-code (a b c)
-    (format t "~&<~S ~S ~S>~%" a b c)))
 
 ;; Then the tests.
 (load "gclload2.lsp")
