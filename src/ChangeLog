@@ -1,3 +1,14 @@
+2004-08-21  Bruno Haible  <bruno@clisp.org>
+
+	* m4/connect.m4 (CL_CONNECT): Bail out if the connect() declaration
+	could not be found.
+	* m4/ioctl.m4 (CL_IOCTL): Bail out if the ioctl() declaration could not
+	be found. Undo last patch.
+	* m4/select.m4 (CL_SELECT): Bail out if the select() declaration could
+	not be found.
+	* m4/tcpconn.m4 (CL_TCPCONN): Bail out if the inet_addr() or
+	setsockopt() declaration could not be found.
+
 2004-08-20  Sam Steingold  <sds@gnu.org>
 
 	* control.d (%CHECK-FUNCTION-NAME, %CHECK-SYMBOL): change the

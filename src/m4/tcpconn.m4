@@ -59,6 +59,12 @@ have_inet_addr=1])
 fi
 done
 done
+if test -z "$have_inet_addr"; then
+  echo "*** Missing autoconfiguration support for this platform." 1>&2
+  echo "*** Please report this as a bug to the CLISP developers." 1>&2
+  echo "*** When doing this, please also show your system's inet_addr() declaration." 1>&2
+  exit 1
+fi
 ], [extern $cl_cv_proto_inet_addr_ret inet_addr ($cl_cv_proto_inet_addr_arg1 char*);])
 AC_DEFINE_UNQUOTED(RET_INET_ADDR_TYPE,$cl_cv_proto_inet_addr_ret,[return type of inet_addr()])
 AC_DEFINE_UNQUOTED(INET_ADDR_CONST,$cl_cv_proto_inet_addr_arg1,[declaration of inet_addr() needs const])
@@ -90,6 +96,12 @@ fi
 done
 done
 done
+if test -z "$have_setsockopt_decl"; then
+  echo "*** Missing autoconfiguration support for this platform." 1>&2
+  echo "*** Please report this as a bug to the CLISP developers." 1>&2
+  echo "*** When doing this, please also show your system's setsockopt() declaration." 1>&2
+  exit 1
+fi
 ], [extern int setsockopt (int, int, int, $cl_cv_proto_setsockopt_const $cl_cv_proto_setsockopt_arg_t, $cl_cv_proto_setsockopt_optlen_t);])
 AC_DEFINE_UNQUOTED(SETSOCKOPT_CONST,$cl_cv_proto_setsockopt_const,[declaration of setsockopt() needs const])
 AC_DEFINE_UNQUOTED(SETSOCKOPT_ARG_T,$cl_cv_proto_setsockopt_arg_t,[type of `optval' in setsockopt() declaration])

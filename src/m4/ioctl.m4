@@ -82,9 +82,15 @@ have_ioctl=1])
 fi
 done
 done
+if test -z "$have_ioctl"; then
+  echo "*** Missing autoconfiguration support for this platform." 1>&2
+  echo "*** Please report this as a bug to the CLISP developers." 1>&2
+  echo "*** When doing this, please also show your system's ioctl() declaration." 1>&2
+  exit 1
+fi
 ], [extern int ioctl ($cl_cv_proto_ioctl_args);])
 AC_DEFINE_UNQUOTED(IOCTL_REQUEST_T,$cl_cv_proto_ioctl_arg2,[type of `request' in ioctl() declaration])
-if test "$cl_cv_proto_ioctl_dots" = yes; then
+if test $cl_cv_proto_ioctl_dots = yes; then
 AC_DEFINE(IOCTL_DOTS,,[declaration of ioctl() needs dots])
 else
 AC_DEFINE_UNQUOTED(IOCTL_ARGUMENT_T,$cl_cv_proto_ioctl_arg3,[type of `argument' in ioctl() declaration, if not superseded by dots])
