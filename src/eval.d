@@ -2509,7 +2509,7 @@ local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
         var gcv_object_t* rest_args_pointer = args_pointer;
         /* argcount = number of remaining arguments */
         /* halve argcount --> number of pairs Key.Value: */
-        if (argcount%2) /* number was odd ->  not paired: */
+        if (argcount%2) /* number was odd -> not paired: */
           fehler_key_odd(argcount,TheIclosure(closure)->clos_name);
         argcount = argcount/2;
         { /* test for illegal keywords: */
@@ -2601,9 +2601,8 @@ local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
     var gcv_object_t* key_args_pointer;
     var gcv_object_t* rest_args_pointer;
     {
-      # halve argcount --> the number of pairs Key.Value:
-      if (!((argcount%2)==0))
-        # number was odd -> not paired:
+      /* halve argcount --> the number of pairs Key.Value: */
+      if (argcount%2) /* number was odd -> not paired: */
         fehler_key_odd(argcount,fun);
       if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
         fehler_too_many_args(unbound,fun,argcount,ca_limit_1);
@@ -2679,9 +2678,8 @@ local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
     var gcv_object_t* key_args_pointer;
     var gcv_object_t* rest_args_pointer;
     {
-      # halve argcount --> number of pairs Key.Value:
-      if (!((argcount%2)==0))
-        # number was odd -> not paired:
+      /* halve argcount --> the number of pairs Key.Value: */
+      if (argcount%2) /* number was odd -> not paired: */
         fehler_key_odd(argcount,closure);
       if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
         fehler_too_many_args(unbound,closure,argcount,ca_limit_1);
