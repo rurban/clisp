@@ -1,5 +1,31 @@
 1999-06-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (Encoding): Add enc_towcs_error, enc_tombs_error slots.
+          (encoding_length): Update.
+        * encoding.d (uni32_mblen, uni32be_mbstowcs, uni32le_mbstowcs,
+           utf8_mblen, utf8_mbstowcs): Error handling respects enc_towcs_error.
+          (nls_asciiext_mblen, nls_asciiext_wcslen): New functions.
+          (nls_mblen, nls_mbstowcs, nls_asciiext_mbstowcs): Error handling
+          respects enc_towcs_error.
+          (nls_wcslen, nls_wcstombs, nls_asciiext_wcstombs): Error handling
+          respects enc_tombs_error.
+          (MAKE-ENCODING): Two new keyword arguments. Fully initialize newly
+          allocated encoding.
+          (init_encodings): Fully initialize newly allocated encodings.
+          Stuff in nls_asciiext_mblen, nls_asciiext_wcslen where appropriate.
+          Pass two more unbounds to C_make_encoding.
+        * stream.d (test_external_format_arg): Pass two more unbounds to
+          C_make_encoding.
+          (iconv_mblen, iconv_mbstowcs): EILSEQ treatment respects
+          enc_towcs_error.
+          (iconv_wcslen, iconv_wcstombs): EILSEQ treatment respects
+          enc_tombs_error.
+        * pseudofun.d: Add nls_asciiext_mblen, nls_asciiext_wcslen.
+        * type.lsp (canonicalize-type, encoding-charset): Update
+          sys::%record-ref argument.
+
+1999-06-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * aclocal.m4 (CL_CANONICAL_HOST_CPU, CL_CANONICAL_HOST_CPU_FOR_FFCALL):
           Canonicalize alpha variants to alpha.
 
