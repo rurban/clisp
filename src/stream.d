@@ -392,7 +392,7 @@
 
   # Am Ende eines wr_ch_array die Line-Position aktualisieren:
   # wr_ss_lpos(stream,ptr,len);
-  # > stream: Stream, nicht der Terminal-Stream
+  # > stream: Builtin-Stream, nicht der Terminal-Stream
   # > ptr: Pointer ans Ende(!) der bereits auf den Stream ausgegebenen Zeichen
   # > len: Anzahl der Zeichen, >0
   # < ergebnis: TRUE, falls ein NL unter den Zeichen ist, FALSE sonst
@@ -18951,7 +18951,7 @@ LISPFUNN(file_string_length,2)
 
 # UP: Tells whether a stream is buffered.
 # stream_isbuffered(stream)
-# > stream: a file stream
+# > stream: a channel or socket stream
 # < result: TRUE if stream is buffered, else FALSE
   global boolean stream_isbuffered (object stream);
   global boolean stream_isbuffered(stream)

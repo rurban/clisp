@@ -11505,9 +11505,9 @@ typedef struct {
     (asciz_out_s("\n[%s:",__FILE__), asciz_out_1("%d] ",__LINE__), (OS_file_error)(pathname))
 #endif
 
-# Just like OS_error, but takes a file stream and signals a FILE-ERROR.
+# Just like OS_error, but takes a channel stream and signals a FILE-ERROR.
 # OS_filestream_error(stream);
-# > stream: a file stream
+# > stream: a channel stream
 # > end_system_call() already called
   nonreturning_function(extern, OS_filestream_error, (object stream));
 #if defined(DEBUG_OS_ERROR)
@@ -12176,7 +12176,7 @@ typedef struct {
 
 # UP: Tells whether a stream is buffered.
 # stream_isbuffered(stream)
-# > stream: a file stream
+# > stream: a channel or socket stream
 # < result: TRUE if stream is buffered, else FALSE
   extern boolean stream_isbuffered (object stream);
 # wird verwendet von IO
