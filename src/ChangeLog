@@ -8,6 +8,7 @@
 	the DIRECT-SUPERCLASSES of this class
 	* lispbibl.d (Class): new slot direct_subclasses
 	* clos.lisp (class-and): new function
+	* type.lisp (canonicalize-type): use it
 
 2003-02-04  Sam Steingold  <sds@gnu.org>
 
