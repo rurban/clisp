@@ -204,8 +204,30 @@ not
 To many people this advice seems obvious; I am sorry that I have to repeat
 it here.
 
-                           Change Management
-                           -----------------
+                              Macros and ABI
+                              --------------
+
+Macro expanders must not perform side effects; only the execution of the
+macro expansion may perform side effects.
+
+If a macro expansion needs to perform complex actions, try to move as much
+of it as possible into functions that are then called from the macro
+expansion. In particular, don't put literal strings into macro expansions.
+This helps 1. keeping the size of compiled .fas files small, 2. reducing
+the probability that O(version) needs to be bumped when you change the
+effect of the macro.
+
+Macros expansions can refer to documented symbols and functions from public
+packages (COMMON-LISP, CLOS, EXT, FFI), as well as undocumented, unexported
+functions. Both kinds of functions, together with their calling conventions,
+form the ABI (= Application Binary Interface) of .fas files. When the ABI
+changes, O(version) needs to be bumped, thus declaring previously compiled
+.fas files as invalid. The second kind of function should be marked as
+"; ABI" in the *.lisp source code or "/* ABI */" in constsym.d, to make the
+developers aware.
+
+                            Change Management
+                            -----------------
 
 Even though CLISP is kept under the CVS, all functional changes require
 a ChangeLog entry.  If there is no ChangeLog file in the current
