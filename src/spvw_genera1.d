@@ -1047,25 +1047,29 @@ local uintC generation;
     local bool gc_check_at (gcv_object_t* objptr)
     {
       var object obj = *objptr;
+      var uintL heapnr;
+      #ifdef TYPECODES
       var tint type = typecode(obj);
       #ifdef SPVW_PURE
       if (is_unused_heap(type))
         return false;
+      heapnr = type;
       #else
       if (gcinvariant_type_p(type))
         return false;
+      heapnr = mem.heapnr_from_type[type];
+      #endif
+      #else
+      if (gcinvariant_object_p(obj))
+        return false;
+      heapnr = nonimmediate_heapnr(obj);
       #endif
       var aint addr = canonaddr(obj);
-      var Heap* heap;
-      #ifdef SPVW_PURE
-      heap = &mem.heaps[type];
-      #else # SPVW_MIXED
-      heap = &mem.heaps[mem.heapnr_from_type[type]];
-      #endif
+      var Heap* heap = &mem.heaps[heapnr];
       if ((addr >= heap->heap_gen0_start) && (addr < heap->heap_gen0_end))
         return false;
       #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
-      if (is_cons_heap(mem.heapnr_from_type[type])) {
+      if (is_cons_heap(heapnr)) {
         if ((addr >= heap->heap_start) && (addr < heap->heap_gen1_end))
           return true; # pointer into the new generation
       } else
@@ -1074,11 +1078,28 @@ local uintC generation;
         if ((addr >= heap->heap_gen1_start) && (addr < heap->heap_end))
           return true; # pointer into the new generation
       }
-      if ((type == symbol_type)
+      if (
+          #ifdef TYPECODES
+            (type == symbol_type)
+          #else
+            varobjectp(obj)
+          #endif
           && (as_oint(obj) - as_oint(symbol_tab_ptr_as_object(&symbol_tab))
               < (sizeof(symbol_tab)<<(oint_addr_shift-addr_shift))
          )   )
         return false;
+      #ifdef HEAPCODES
+      if (varobjectp(obj)) {
+        # Test for a Subr.
+        var module_t* module; # traverse modules
+        for_modules(all_modules,{
+          if (module->initialized && *module->stab_size > 0)
+            if (as_oint(obj) - as_oint(subr_tab_ptr_as_object(module->stab))
+                <= (*module->stab_size - 1) * (sizeof(subr_t)<<(oint_addr_shift-addr_shift)))
+              return false; /* Not belonging to any generation! */
+        });
+      }
+      #endif
       abort();
     }
   local void gc_overall_check()
