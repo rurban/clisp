@@ -6892,12 +6892,19 @@ for-value   NIL or T
                  (car *form*) destination)))
     (if (and (stringp (third *form*)) (not (fenv-search 'FORMATTER)))
       ;; precompile the format-string at compile-time.
-      (if (eq destination t)    ; avoid calling FORMAT altogether
-        (c-GLOBAL-FUNCTION-CALL-form
-         `(funcall (FORMATTER ,(third *form*)) nil ,@(cdddr *form*)))
-        (c-GLOBAL-FUNCTION-CALL-form
-         `(FORMAT ,(second *form*) (FORMATTER ,(third *form*))
-           ,@(cdddr *form*))))
+      (cond ((eq destination t) ; avoid calling FORMAT altogether
+             (c-GLOBAL-FUNCTION-CALL-form
+              `(funcall (FORMATTER ,(third *form*)) *standard-output*
+                        ,@(cdddr *form*))))
+            ((eq destination nil) ; avoid calling FORMAT altogether
+             (c-form ; we do not need full WITH-OUTPUT-TO-STRING here
+              `(let ((<format-stream> (make-string-output-stream)))
+                 (funcall (FORMATTER ,(third *form*)) <format-stream>
+                          ,@(cdddr *form*))
+                 (get-output-stream-string <format-stream>))))
+            ((c-GLOBAL-FUNCTION-CALL-form
+              `(FORMAT ,(second *form*) (FORMATTER ,(third *form*))
+                       ,@(cdddr *form*)))))
       (c-GLOBAL-FUNCTION-CALL 'FORMAT))))
 
 ;; c-REMOVE-IF, c-REMOVE-IF-NOT etc.
