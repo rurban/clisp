@@ -160,7 +160,7 @@
 ;;; global management of classes and their names:
 
 #|| ; see PREDTYPE.D
-(defun find-class (symbol &optional (errorp t) environment)
+ (defun find-class (symbol &optional (errorp t) environment)
   (declare (ignore environment)) ; what should be the meaning of the environment?
   (unless (symbolp symbol)
     (error-of-type 'type-error
@@ -210,7 +210,7 @@
 ;; SLOT-VALUE-USING-CLASS.
 
 ;; access to the slots of objects of the metaclass <standard-class>:
-(defun std-slot-value (instance slot-name)
+ (defun std-slot-value (instance slot-name)
   (declare (compile))
   (let* ((class (class-of instance))
          (slot-location (gethash slot-name (class-slot-location-table class))))
@@ -225,7 +225,7 @@
            (t ; access shared slot
             (svref (class-shared-slots (car slot-location))
                    (cdr slot-location)))))))
-(defun std-setf-slot-value (instance slot-name new-value)
+ (defun std-setf-slot-value (instance slot-name new-value)
   (let* ((class (class-of instance))
          (slot-location (gethash slot-name (class-slot-location-table class))))
     (cond ((null slot-location)
@@ -236,7 +236,7 @@
            (setf (svref (class-shared-slots (car slot-location))
                         (cdr slot-location))
                  new-value)))))
-(defun std-slot-boundp (instance slot-name)
+ (defun std-slot-boundp (instance slot-name)
   (declare (compile))
   (let* ((class (class-of instance))
          (slot-location (gethash slot-name (class-slot-location-table class))))
@@ -247,7 +247,7 @@
           (t ; access shared slot
            (not (eq (svref (class-shared-slots (car slot-location))
                            (cdr slot-location)) unbound))))))
-(defun std-slot-makunbound (instance slot-name)
+ (defun std-slot-makunbound (instance slot-name)
   (declare (compile))
   (let* ((class (class-of instance))
          (slot-location (gethash slot-name (class-slot-location-table class))))
@@ -259,39 +259,39 @@
            (setf (svref (class-shared-slots (car slot-location))
                         (cdr slot-location))
                  unbound)))))
-(defun std-slot-exists-p (instance slot-name)
+ (defun std-slot-exists-p (instance slot-name)
   (and (gethash slot-name (class-slot-location-table (class-of instance))) t))
 
 ;; general access to slots:
-(defun slot-value (object slot-name)
+ (defun slot-value (object slot-name)
   (let ((class (class-of object)))
     ;; treat metaclass <standard-class> separately
     ;; for efficiency reasons and because of bootstrapping
     (if (eq (class-of class) <standard-class>)
       (std-slot-value object slot-name)
       (slot-value-using-class class object slot-name))))
-(defun (setf slot-value) (new-value object slot-name)
+ (defun (setf slot-value) (new-value object slot-name)
   (let ((class (class-of object)))
     ;; treat metaclass <standard-class> separately
     ;; for efficiency reasons and because of bootstrapping
     (if (eq (class-of class) <standard-class>)
       (std-setf-slot-value object slot-name new-value)
       (setf-slot-value-using-class new-value class object slot-name))))
-(defun slot-boundp (object slot-name)
+ (defun slot-boundp (object slot-name)
   (let ((class (class-of object)))
     ;; treat metaclass <standard-class> separately
     ;; for efficiency reasons and because of bootstrapping
     (if (eq (class-of class) <standard-class>)
       (std-slot-boundp object slot-name)
       (slot-boundp-using-class class object slot-name))))
-(defun slot-makunbound (object slot-name)
+ (defun slot-makunbound (object slot-name)
   (let ((class (class-of object)))
     ;; treat metaclass <standard-class> separately
     ;; for efficiency reasons and because of bootstrapping
     (if (eq (class-of class) <standard-class>)
       (std-slot-makunbound object slot-name)
       (slot-makunbound-using-class class object slot-name))))
-(defun slot-exists-p (object slot-name)
+ (defun slot-exists-p (object slot-name)
   (let ((class (class-of object)))
     ;; treat metaclass <standard-class> separately
     ;; for efficiency reasons and because of bootstrapping
@@ -299,19 +299,19 @@
       (std-slot-exists-p object slot-name)
       (slot-exists-p-using-class class object slot-name))))
 
-(defun slot-value-using-class (class object slot-name)
+ (defun slot-value-using-class (class object slot-name)
   (no-slot-error class object slot-name))
-(defun setf-slot-value-using-class (new-value class object slot-name)
+ (defun setf-slot-value-using-class (new-value class object slot-name)
   (declare (ignore new-value))
   (no-slot-error class object slot-name))
-(defun slot-boundp-using-class (class object slot-name)
+ (defun slot-boundp-using-class (class object slot-name)
   (no-slot-error class object slot-name))
-(defun slot-makunbound-using-class (class object slot-name)
+ (defun slot-makunbound-using-class (class object slot-name)
   (no-slot-error class object slot-name))
-(defun slot-exists-p-using-class (class object slot-name)
+ (defun slot-exists-p-using-class (class object slot-name)
   (no-slot-error class object slot-name))
 
-(defun no-slot-error (class object slot-name)
+ (defun no-slot-error (class object slot-name)
   (declare (ignore slot-name))
   (error-of-type 'error
     (TEXT "instance ~S of class ~S has no slots (wrong metaclass)")
@@ -700,7 +700,7 @@
 #||
 ;; defstruct.lisp essentially contains the following.
 ;; In record.d and here we exploit that the first four attributes match!
-(defstruct (structure-slot-definition
+ (defstruct (structure-slot-definition
              (:include slot-definition) (:conc-name "DS-SLOT-")
              (:type vector) (:predicate nil)
              (:constructor make-ds-slot (name offset location initer
