@@ -6173,17 +6173,17 @@ local object use_default_dir (object pathname) {
   return pathname;
 }
 
-# UP: Stellt sicher, dass das Directory eines Pathname existiert.
-# Sonst Fehlermeldung.
+# UP: guarantees that the Directory of the Pathname exists
+# (signals an error if it does not)
 # assure_dir_exists(links_resolved,tolerantp)
-# > STACK_0: absoluter Pathname ohne Wildcards im Directory
-# > links_resolved: Flag, ob im Directory des Pathname schon alle Links
-#     aufgelöst sind und es als existierend bekannt ist
-# > tolerantp: Flag, ob ein Fehler vermieden werden soll
-# < ergebnis:
-#     falls Name=NIL: Directory-Namestring (für DOS)
-#     falls Name/=NIL: Namestring (für DOS)
-#     falls tolerantp evtl.: nullobj
+# > STACK_0: absolute pathname without wildcards in directory
+# > links_resolved: Flag, whether all links in the directory
+#                   of the pathname are already resolved
+# > tolerantp: Flag, whether an error should be avoided
+# < returns:
+#     if Name=NIL: Directory-Namestring (for DOS)
+#     if Name/=NIL: Namestring (for DOS)
+#     if tolerantp, maybe: nullobj
 # can trigger GC
 local object assure_dir_exists (bool links_resolved, bool tolerantp) {
   var object dir_namestring = directory_namestring(STACK_0);
@@ -6230,10 +6230,14 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
       }
       begin_system_call();
       fileattr = GetFileAttributes(path);
+      if (!(fileattr & FILE_ATTRIBUTE_DIRECTORY)) { # not a directory
+        fileattr = 0xFFFFFFFF;
+        SetLastError(ERROR_DIRECTORY);
+      }
       if (fileattr == 0xFFFFFFFF) {
-        if (!(tolerantp && (GetLastError()==ERROR_FILE_NOT_FOUND ||
-                            GetLastError()==ERROR_PATH_NOT_FOUND ||
-                            GetLastError()==ERROR_BAD_NETPATH))) {
+        if (!(GetLastError()==ERROR_FILE_NOT_FOUND ||
+              GetLastError()==ERROR_PATH_NOT_FOUND ||
+              GetLastError()==ERROR_BAD_NETPATH)) {
           end_system_call(); OS_file_error(STACK_0);
         }
         end_system_call();
@@ -7676,7 +7680,7 @@ LISPFUNN(delete_file,1)
     # Directory muss existieren:
     var object namestring = assure_dir_exists(false,true); # Filename fürs Betriebssystem
     if (eq(namestring,nullobj)) {
-      # Pfad zur Datei existiert nicht -> Wert NIL
+      # path to the file does not exist ==> return NIL
       skipSTACK(1); value1 = NIL; mv_count=1; return;
     }
     if (openp(STACK_0)) { fehler_delete_open(STACK_0); } # Keine offenen Dateien löschen!
