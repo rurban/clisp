@@ -17,15 +17,15 @@
 
 (defun resolve-host-ipaddr (&optional (host :default))
   (if host
-      (multiple-value-bind (name aliases addr-list addrtype)
+      (multiple-value-bind (name aliases addr-list addr-type)
           (resolve-host-ipaddr-internal host)
         (make-hostent :name name :aliases aliases
-                      :addr-list addr-list :addrtype addrtype))
+                      :addr-list addr-list :addr-type addr-type))
       (let ((li (resolve-host-ipaddr-internal nil)))
         (map-into li (lambda (he)
                        (make-hostent
                         :name (svref he 0) :aliases (svref he 1)
-                        :addr-list (svref he 2) :addrtype (svref he 3)))
+                        :addr-list (svref he 2) :addr-type (svref he 3)))
                   li))))
 
 ;;; ============================================================
