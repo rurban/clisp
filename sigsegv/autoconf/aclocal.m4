@@ -711,6 +711,51 @@ AC_CHECK_FUNCS(sigvec)dnl
 fi
 ])dnl
 dnl
+AC_DEFUN(CL_SIGALTSTACK,
+[AC_REQUIRE([CL_SIGACTION])dnl
+CL_LINK_CHECK(sigaltstack, cl_cv_func_sigaltstack,
+[#include <signal.h>], [stack_t ss; sigaltstack((stack_t*)0,&ss);],
+AC_DEFINE(HAVE_SIGALTSTACK))dnl
+])dnl
+dnl
+AC_DEFUN(CL_RLIMIT,
+[AC_CHECK_FUNCS(setrlimit)dnl
+if test $ac_cv_func_setrlimit = yes; then
+CL_PROTO([getrlimit], [
+CL_PROTO_TRY([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
+#include <stdlib.h>
+#endif
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#include <sys/types.h>
+#include <sys/resource.h>
+],
+[int getrlimit (enum __rlimit_resource resource, struct rlimit * rlim);],
+[int getrlimit();],
+[cl_cv_proto_getrlimit_arg1="enum __rlimit_resource"],
+[cl_cv_proto_getrlimit_arg1="int"])
+], [extern int getrlimit ($cl_cv_proto_getrlimit_arg1, struct rlimit *);])
+AC_DEFINE_UNQUOTED(RLIMIT_RESOURCE_T,$cl_cv_proto_getrlimit_arg1)
+CL_PROTO([setrlimit], [
+CL_PROTO_CONST([
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
+#include <stdlib.h>
+#endif
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#include <sys/types.h>
+#include <sys/resource.h>
+], [int setrlimit (RLIMIT_RESOURCE_T resource, struct rlimit * rlim);],
+[int setrlimit();],
+cl_cv_proto_setrlimit_arg2)
+], [extern int setrlimit ($cl_cv_proto_getrlimit_arg1, $cl_cv_proto_setrlimit_arg2 struct rlimit *);])
+AC_DEFINE_UNQUOTED(SETRLIMIT_CONST,$cl_cv_proto_setrlimit_arg2)
+fi
+])dnl
+dnl
 AC_DEFUN(CL_GETPAGESIZE,
 [AC_BEFORE([$0], [CL_MPROTECT])
 CL_LINK_CHECK([getpagesize], cl_cv_func_getpagesize, [
