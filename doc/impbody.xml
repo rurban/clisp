@@ -150,12 +150,12 @@
 <section id="eval-environ"><title>Introduction to Environments
   <ulink url="&clhs;/Body/sec_3-1-1.html">[CLHS-3.1.1]</ulink></title>
 
-<formalpara id="the-env"><title>&the-env;</title>
+<formalpara id="the-env"><title>Macro &the-env;</title>
 <para>As in Scheme, the macro <literal role="sexp">(&the-env;)</literal>
  returns the current lexical environment.  This works only in
  interpreted code and is not compilable!</para></formalpara>
 
-<formalpara id="eval-env"><title><literal role="sexp">(EXT:EVAL-ENV
+<formalpara id="eval-env"><title>Function <literal role="sexp">(EXT:EVAL-ENV
  &form-r; &optional-amp; &env-r;)</literal></title>
 <para>evaluates a form in a given lexical environment, just as if the
  form had been a part of the program that the environment came from.
@@ -311,9 +311,10 @@ executes a compiled version of form.</para>
  are allowed, as in &defmacro;) and may contain a &whole-amp; marker,
  but not an &environment-amp; marker.</para>
 
-<formalpara><title><literal role="sexp">(<function>ext:type-expand</function>
- <replaceable>typespec</replaceable> &optional-amp;
- <replaceable>once-p</replaceable>)</literal></title>
+<formalpara><title>Function
+  <literal role="sexp">(<function>EXT:TYPE-EXPAND</function>
+   <replaceable>typespec</replaceable> &optional-amp;
+   <replaceable>once-p</replaceable>)</literal></title>
 <para>If <replaceable>typespec</replaceable> is a user-defined type,
  this will expand it recursively until it is no longer a user-defined
  type (unless <replaceable>once-p</replaceable> is supplied and
@@ -399,7 +400,7 @@ executes a compiled version of form.</para>
 
 <section id="clos-diff"><title>Deviations from &ansi-cl;</title>
 
-<formalpara><title>&defclass;</title>
+<formalpara><title>Macro &defclass;</title>
 <para>It <emphasis>is</emphasis> required that the superclasses of a
  class be defined before the &defclass; form for the class is evaluated.
  </para></formalpara>
@@ -527,7 +528,7 @@ executes a compiled version of form.</para>
    <ulink url="&clhs;/Body/sec_the_data__w_dictionary.html"
           >[CLHS-5.3]</ulink></title>
 
-<formalpara><title>&destructuring-bind;</title>
+<formalpara><title>Macro &destructuring-bind;</title>
 <para>does not perform full error checking.</para></formalpara>
 
 <formalpara><title>&prog1;, &prog2;, &and;, &or;, &psetq;, &when;,
@@ -703,7 +704,7 @@ is the same as
 
 <section id="lambda"><title>Macro &lambda;</title>
 
-<formalpara><title>&lambda-list-keywords;</title>
+<formalpara><title>Constant &lambda-list-keywords;</title>
 <para><literal role="sexp">(&optional-amp; &rest-amp; &key-amp;
  &allow-other-keys-amp; &aux-amp; &body-amp; &whole-amp; &environment-amp;)
 </literal></para></formalpara>
@@ -846,21 +847,21 @@ is the same as
  there is one) lists the available <link linkend="debugger">debugging
  commands</link>.</para>
 
-<formalpara><title><function>EXT:MUFFLE-CERRORS</function></title>
+<formalpara><title>Macro <function>EXT:MUFFLE-CERRORS</function></title>
 <para>The macro <literal
  role="sexp">(<function>EXT:MUFFLE-CERRORS</function>
  {&form-r;}*)</literal> executes the &form-r;s.  When a continuable
  error occurs, no message is printed.  Instead, the &continue; restart
  is invoked.</para></formalpara>
 
-<formalpara><title><function>EXT:APPEASE-CERRORS</function></title>
+<formalpara><title>Macro <function>EXT:APPEASE-CERRORS</function></title>
 <para>The macro <literal
  role="sexp">(<function>EXT:APPEASE-CERRORS</function>
  {&form-r;}*)</literal> executes the &form-r;s.  When a continuable
  error occurs, the error is printed as a warning and the &continue;
  restart is invoked.</para></formalpara>
 
-<formalpara><title><function>EXT:EXIT-ON-ERROR</function></title>
+<formalpara><title>Macro <function>EXT:EXIT-ON-ERROR</function></title>
 <para>The macro <literal
  role="sexp">(<function>EXT:EXIT-ON-ERROR</function>
  {&form-r;}*)</literal> executes the &form-r;s.  When a non-continuable
@@ -868,7 +869,7 @@ is the same as
  interrupt occurs, the error is printed and &clisp; terminates with an
  error status.</para></formalpara>
 
-<formalpara><title><function>EXT:WITH-RESTARTS</function></title>
+<formalpara><title>Macro <function>EXT:WITH-RESTARTS</function></title>
 <para>The macro <function>EXT:WITH-RESTARTS</function> is like
  &restart-case;, except that the forms are specified after the restart
  clauses instead of before them, and the restarts created are not
@@ -892,12 +893,12 @@ is the same as
 <section id="cond-dict"><title>The Conditions Dictionary
    <ulink url="&clhs;/Body/sec_the_condi_s_dictionary.html">[CLHS-9.2]</ulink></title>
 
-<formalpara><title>&restart-case;</title>
+<formalpara><title>Macro &restart-case;</title>
 <para>In &restart-case; clauses the argument list can also be specified
  after the keyword/value pairs instead of before them.  The syntax
  therefore is
 
-<variablelist><title><literal role="sexp">(&restart-case; &form-r;
+<variablelist><title>Macro <literal role="sexp">(&restart-case; &form-r;
  {<varname>restart-clause</varname>}*)</literal></title>
  <varlistentry><term><varname>restart-clause</varname> ::==</term><listitem>
   <programlisting>
@@ -908,7 +909,7 @@ is the same as
 </programlisting></listitem></varlistentry></variablelist>
 </para></formalpara>
 
-<formalpara><title>&compute-restarts;</title>
+<formalpara><title>Function &compute-restarts;</title>
 <para>&compute-restarts; and &find-restart; behave as specified in
  &ansi-cl;: If the optional condition argument is non-&nil;, only
  restarts associated with that condition and restarts associated to no
@@ -953,7 +954,7 @@ is the same as
  Conforming Programs - package locking
  <ulink url="&clhs;/Body/sec_11-1-2-1-2.html">[CLHS-11.1.2.1.2]</ulink></title>
 
-<formalpara><title>&package-lock;</title>
+<formalpara><title>Function &package-lock;</title>
 <para>Packages can be <quote>locked</quote>.
 When a package is locked, attempts to change its symbol table or
 redefine functions which its symbols name result in a continuable error
@@ -967,7 +968,7 @@ A package (or list thereof) can be locked using <literal role="sexp"
 &clisp; locks its system packages (specified in the variable
 &sys-pack-list;).</para></formalpara>
 
-<formalpara><title><function>EXT:WITHOUT-PACKAGE-LOCK</function></title>
+<formalpara><title>Macro <function>EXT:WITHOUT-PACKAGE-LOCK</function></title>
 <para>If you want to evaluate some forms with certain packages unlocked,
  you can use <function>EXT:WITHOUT-PACKAGE-LOCK</function>:
 <programlisting>
@@ -1255,7 +1256,7 @@ performance considerations.
   </simpara></listitem></varlistentry>
 </variablelist>
 
-<formalpara id="warn-fpc"><title>&warn-fpc;</title>
+<formalpara id="warn-fpc"><title>Variable &warn-fpc;</title>
 <para>If the variable &warn-fpc; is non-&nil;, a warning is emitted for
  every coercion involving different floating-point types.
 </para></formalpara>
@@ -1306,17 +1307,21 @@ performance considerations.
 <section id="num-dict"><title>The Numbers Dictionary
    <ulink url="&clhs;/Body/sec_the_numbers_dictionary.html">[CLHS-12.2]</ulink></title>
 
-<formalpara><title>&upgraded-complex-part-type;</title>
-<para>&upgraded-complex-part-type; always returns &t;, since a
- &complex-t; number in &clisp; can always have &realpart; and
- &imagpart; of any type.</para></formalpara>
+<formalpara><title>Function &upgraded-complex-part-type;</title>
+<para>When the argument is not a
+ <ulink url="&clhs;/Body/glo_r.html#recognizable_subtype">recognizable
+ subtype</ulink> or &real-t;, &upgraded-complex-part-type; signals an
+ &error;, otherwise it returns &real-t;, since a &complex-t; number in
+ &clisp; can always have &realpart; and &imagpart; of any type.
+</para></formalpara>
 
-<formalpara id="default-float-format"><title>&default-float-format;</title>
+<formalpara id="default-float-format">
+ <title>Variable &default-float-format;</title>
 <para>When rational numbers are to be converted to floats (due to
  &float;, &coerce;, &sqrt; or a transcendental function), the result
  type is given by the variable &default-float-format;.</para></formalpara>
 
-<formalpara id="no-underflow"><title>&no-underflow;</title>
+<formalpara id="no-underflow"><title>Macro &no-underflow;</title>
 <para>The macro <literal role="sexp">(&no-underflow;
  {&form-r;}*)</literal> executes the &form-r;s, with errors of type
  &floating-point-underflow-t; inhibited.  Floating point operations
@@ -1325,19 +1330,19 @@ performance considerations.
 
 <section id="int-func-ext"><title>Additional Integer Functions</title>
 
-<formalpara><title><function>ext:!</function></title>
-<para><literal role="sexp">(<function>ext:!</function> &n-r;)</literal>
+<formalpara><title>Function <function>EXT:!</function></title>
+<para><literal role="sexp">(<function>EXT:!</function> &n-r;)</literal>
  returns the factorial of &n-r;, &n-r; being a nonnegative
  &integer-t;.</para></formalpara>
 
-<formalpara><title><function>ext:exquo</function></title>
-<para><literal role="sexp">(<function>ext:exquo</function> &x-r;
+<formalpara><title>Function <function>EXT:EXQUO</function></title>
+<para><literal role="sexp">(<function>EXT:EXQUO</function> &x-r;
  &y-r;)</literal> returns the integer quotient <varname>x/y</varname> of
  two integers &x-r;,&y-r;, and signals an error when the quotient is not
  integer.  (This is more efficient than &slash;.)</para></formalpara>
 
-<formalpara><title><function>ext:xgcd</function></title>
-<para><literal role="sexp">(<function>ext:xgcd</function>
+<formalpara><title>Function <function>EXT:XGCD</function></title>
+<para><literal role="sexp">(<function>EXT:XGCD</function>
  &x1-r; ... &xn-r;)</literal>
  returns the values &l-r;, &k1-r;, ..., &kn-r;, where &l-r; is the
  greatest common divisor of the integers &x1-r;, ..., &xn-r;, and
@@ -1351,21 +1356,21 @@ performance considerations.
 
 <section id="float-notes"><title>Floating Point</title>
 
-<formalpara><title>&expt;</title>
+<formalpara><title>Function &expt;</title>
 <para><literal role="sexp">(&expt; &base-r;
  <replaceable>exponent</replaceable>)</literal> is not very precise if
  <replaceable>exponent</replaceable> has a large absolute
  value.</para></formalpara>
 
-<formalpara><title>&log;</title>
+<formalpara><title>Function &log;</title>
 <para><literal role="sexp">(&log; &number-r; &base-r;)</literal> signals
  an error if <literal>&base-r; = 1</literal>.</para></formalpara>
 
-<formalpara><title>&pi;</title>
+<formalpara><title>Constant &pi;</title>
 <para>The value of &pi; is a &long-float-t; with the precision given
  by &lfd-l;.  When this precision is changed, the value of &pi; is
- automatically recomputed.  Therefore &pi; is a variable, not a
- constant.</para></formalpara>
+ automatically recomputed.  Therefore &pi; is a <emphasis>variable</emphasis>,
+ not a <emphasis>constant</emphasis>.</para></formalpara>
 
 </section>
 
@@ -1953,7 +1958,8 @@ and the international alphabetic characters from the character set:
 
 <section id="char-width"><title>Functions on characters</title>
 
-<formalpara><title><literal role="sexp">(&char-width; &ch-r;)</literal></title>
+<formalpara><title>Function
+  <literal role="sexp">(&char-width; &ch-r;)</literal></title>
 <para>returns the number of screen columns occupied by &ch-r;.
  This is 0 for non-spacing characters
   (such as control characters and many combining characters),
@@ -2238,7 +2244,7 @@ and the international alphabetic characters from the character set:
 <chapter id="arrays"><title>Arrays
    <ulink url="&clhs;/Body/chap-15.html">[CLHS-15]</ulink></title>
 
-<formalpara><title>&make-array;</title>
+<formalpara><title>Function &make-array;</title>
 <para>&make-array; can return specialized arrays for the
  &array-element-type;s
  <literal role="type">(&unsigned-byte-t; 2)</literal>,
@@ -2276,7 +2282,7 @@ and the international alphabetic characters from the character set:
 <section id="array-dict"><title>The Arrays Dictionary
    <ulink url="&clhs;/Body/sec_the_arrays_dictionary.html">[CLHS-15.2]</ulink></title>
 
-<formalpara><title>&adjust-array; for displaced arrays</title>
+<formalpara><title>Function &adjust-array; for displaced arrays</title>
 <para>An array to which another array is displaced should not be shrunk
  (using &adjust-array;) in such a way that the other array points into
  void space.  This is not checked at the time &adjust-array; is
@@ -2336,13 +2342,13 @@ and the international alphabetic characters from the character set:
 <section id="nreverse-nreconc">
    <title>Functions &nreverse; &amp; &nreconc;</title>
 
-<formalpara><title>&nreverse;</title>
+<formalpara><title>Function &nreverse;</title>
 <para>The result of &nreverse; is always &eq; to the argument.
  &nreverse; on a &vector-t; swaps pairs of elements.
  &nreverse; on a &list-t; swaps the first and the last
  element and reverses the list chaining between them.</para></formalpara>
 
-<formalpara><title>&nreconc;</title>
+<formalpara><title>Function &nreconc;</title>
 <para>The result of &nreconc; is &eq; to the first argument unless it is
  &nil;, in which case the result is &eq; to the second argument.</para>
 </formalpara>
@@ -2359,7 +2365,7 @@ and the international alphabetic characters from the character set:
  fill pointer, the fill pointer is lowered and the remaining elements are
  compacted below the new fill pointer.</para>
 
-<formalpara id="count-ansi"><title>&count-ansi;</title>
+<formalpara id="count-ansi"><title>Variable &count-ansi;</title>
 <para>Contrary to the &ansi-cl; issue 283 <ulink
  url="&clhs;/Issues/iss283.html">RANGE-OF-COUNT-KEYWORD:NIL-OR-INTEGER</ulink>,
  negative &count-k; keyword arguments are not allowed unless you set
@@ -3385,10 +3391,10 @@ printed readably.</para>
    designator</ulink>, namely its &symbol-name; is converted to the
   operating system's preferred pathname case.</para></formalpara>
 
-<formalpara><title>&pathname;</title>
+<formalpara><title>Function &pathname;</title>
  <para>&pathname; always returns a physical pathname.</para></formalpara>
 
-<formalpara><title>&pathname-match-p;</title>
+<formalpara><title>Function &pathname-match-p;</title>
  <para>&pathname-match-p; does not interpret missing components as
   wild.</para></formalpara>
 
@@ -3517,16 +3523,16 @@ is not a defined logical host yet, we proceed as follows:
 <section id="file-dict"><title>The Files Dictionary
    <ulink url="&clhs;/Body/sec_the_files_dictionary.html">[CLHS-20.2]</ulink></title>
 
-<formalpara><title>&rename-file;</title>
+<formalpara><title>Function &rename-file;</title>
 <para>&rename-file; always returns a non-logical pathname as
  its first value.</para></formalpara>
 
-<formalpara><title>&probe-file;</title>
+<formalpara><title>Function &probe-file;</title>
 <para>&probe-file; cannot be used to check whether a directory exists.
  Use the function &probe-dir; or the function &directory; for this
  purpose.</para></formalpara>
 
-<formalpara><title>&file-author;</title>
+<formalpara><title>Function &file-author;</title>
 <para>&file-author; always returns &nil;, because the operating systems
  &clisp; is ported to do not store a file's author in the file system.
  Some operating systems, such as Unix, have the notion of a file's
@@ -3536,7 +3542,7 @@ is not a defined logical host yet, we proceed as follows:
  same; in particular, authorship is preserved by copying, while
  ownership is not.</para></formalpara>
 
-<formalpara id="probe-dir"><title>&probe-dir;</title>
+<formalpara id="probe-dir"><title>Function &probe-dir;</title>
 <para><literal role="sexp">(&probe-dir; &path-r;)</literal> tests
  whether &path-r; exists and is a directory.
  It will, unlike &probe-file; or &truename;, not signal an error if the
@@ -3583,13 +3589,13 @@ use <literal role="sexp">(&nconc; (&directory; "**/")
 <!-- #endif -->
 </para>
 
-<formalpara><title><function>EXT:DIR</function></title>
+<formalpara><title>Function <function>EXT:DIR</function></title>
 <para><literal role="sexp">(<function>EXT:DIR</function> &optional-amp;
  &path-r;)</literal> is like &directory;, but displays the pathnames
  instead of returning them. <literal role="sexp">(EXT:DIR)</literal>
  shows the contents of the current directory.</para></formalpara>
 
-<formalpara id="cd"><title>&cd;</title>
+<formalpara id="cd"><title>Function &cd;</title>
 <para><literal role="sexp">(&cd; &path-r;)</literal> sets it,
  <literal role="sexp">(&cd;)</literal> returns it.
 <variablelist>
@@ -3611,7 +3617,7 @@ use <literal role="sexp">(&nconc; (&directory; "**/")
 <!-- #endif -->
 </variablelist></para></formalpara>
 
-<formalpara><title><function>EXT:DEFAULT-DIRECTORY</function></title>
+<formalpara><title>Function <function>EXT:DEFAULT-DIRECTORY</function></title>
 <para><literal
  role="sexp">(<function>EXT:DEFAULT-DIRECTORY</function>)</literal> is
  equivalent to <literal role="sexp">(&cd;)</literal>.  <literal
@@ -3619,12 +3625,12 @@ use <literal role="sexp">(&nconc; (&directory; "**/")
  &path-r;)</literal> is equivalent to <literal role="sexp">(&cd;
  &path-r;)</literal>, except for the return value.</para></formalpara>
 
-<formalpara><title><function>EXT:MAKE-DIR</function></title>
+<formalpara><title>Function <function>EXT:MAKE-DIR</function></title>
 <para><literal role="sexp">(<function>EXT:MAKE-DIR</function>
  <replaceable>directory-pathname</replaceable>)</literal>
  creates a new subdirectory.</para></formalpara>
 
-<formalpara><title><function>EXT:DELETE-DIR</function></title>
+<formalpara><title>Function <function>EXT:DELETE-DIR</function></title>
 <para><literal role="sexp">(<function>EXT:DELETE-DIR</function>
  <replaceable>directory-pathname</replaceable>)</literal> removes an
  (empty) subdirectory.</para></formalpara>
@@ -3666,7 +3672,7 @@ use <literal role="sexp">(&nconc; (&directory; "**/")
 <!-- #endif -->
 
 <!-- #if defined(KEYBOARD) || defined(AMIGAOS) -->
-<variablelist><title>&with-kbd;</title>
+<variablelist><title>Macro &with-kbd;</title>
 <varlistentry><term>Platform dependent: &unix;, &amiga;, &acorn;, &dos;,
   &os2;, &win32; platforms only.</term>
 <listitem><para>&terminal-io-var; is not the only stream that
@@ -4052,14 +4058,14 @@ functions are provided:</para>
 <section id="multi-rep"><title>Multiple Possible Textual Representations
    <ulink url="&clhs;/Body/sec_22-1-1-1.html">[CLHS-22.1.1.1]</ulink></title>
 
-<formalpara id="pr-closure"><title>&pr-closure;</title>
+<formalpara id="pr-closure"><title>Variable &pr-closure;</title>
 <para>An additional variable &pr-closure; controls whether compiled and
  interpreted functions (closures) are output in detailed form.
  If &pr-closure; is non-&nil;, compiled closures are output in
  <keysym>#Y</keysym> syntax which the reader understands.
  &pr-closure; is initially set to &nil;.</para></formalpara>
 
-<formalpara id="pr-rpars"><title>&pr-rpars;</title>
+<formalpara id="pr-rpars"><title>Variable &pr-rpars;</title>
 <para>An additional variable &pr-rpars; controls
  the output of the right (closing) parentheses.
  If &pr-rpars; is non-&nil;, closing parentheses which do not fit onto
@@ -4067,14 +4073,14 @@ functions are provided:</para>
  just below their corresponding opening parenthesis, in the same column.
  &pr-rpars; is initially set to &nil;.</para></formalpara>
 
-<formalpara id="pr-indent"><title>&pr-indent;</title>
+<formalpara id="pr-indent"><title>Variable &pr-indent;</title>
 <para>An additional variable &pr-indent; controls the indentation of
  lists that span more than one line.
  It specifies by how many characters items within the list will be
  indented relative to the beginning of the list.
  &pr-indent; is initially set to <literal>1</literal>.</para></formalpara>
 
-<formalpara id="ppr-first-newline"><title>&ppr-first-newline;</title>
+<formalpara id="ppr-first-newline"><title>Variable &ppr-first-newline;</title>
 <para>An additional variable &ppr-first-newline; controls
  pretty-printing of multi-line objects.
  When &ppr-first-newline; is non-&nil;,
@@ -4137,7 +4143,7 @@ functions are provided:</para>
 <section id="print-dict"><title>The Printer Dictionary
    <ulink url="&clhs;/Body/sec_the_printer_dictionary.html">[CLHS-22.4]</ulink></title>
 
-<formalpara><title>&write; &amp; &write-to-string;</title>
+<formalpara><title>Functions &write; &amp; &write-to-string;</title>
 <para>The functions &write; and &write-to-string; have an additional
  keyword argument <constant>:closure</constant> which is used to bind
  &pr-closure;.</para></formalpara>
@@ -4608,7 +4614,7 @@ effects when being loaded, this is important as well.
  </simpara></listitem></varlistentry>
 </variablelist>
 
-<formalpara id="load-paths"><title>&load-paths;</title>
+<formalpara id="load-paths"><title>Variable &load-paths;</title>
 <para>The variable &load-paths; contains a list of directories where the
  files are looked for - in addition to the specified or current
  directory - by &load;, &require;, &compile-file; and
@@ -5006,7 +5012,7 @@ and you can leave the function call with specified values by using
  role="sexp">(&setf; &symbol-r;)</literal> and to macros, but not to
  locally defined functions and macros.</para>
 
-<formalpara><title><varname>CUSTOM:*TRACE-INDENT*</varname></title>
+<formalpara><title>Variable <varname>CUSTOM:*TRACE-INDENT*</varname></title>
 <para>If you want the &trace; level to be indicated by the indentation
 in addition to the printed numbers,
 set <varname>CUSTOM:*TRACE-INDENT*</varname> to non-&nil;.
