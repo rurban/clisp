@@ -1,3 +1,11 @@
+2004-01-12  Sam Steingold  <sds@gnu.org>
+
+	* eval.d (TRACE_CALL, ERROR): new debugging macros
+	(funcall_iclosure, apply_subr, apply_closure, funcall_subr)
+	(funcall_closure): use TRACE_CALL() instead of trace_call()
+	(interpret_bytecode_): ditto
+	use ERROR instead of goto to find out where the error originated from
+
 2004-01-11  Bruno Haible  <bruno@clisp.org>
 
 	* modules/wildcard/fnmatch.h: Remove file.
@@ -36,7 +44,7 @@
 	* makemake.in: Remove useless trailing semicolons.
 
 	* clos.lisp (analyze-method-description, analyze-defgeneric,
-	make-generic-function-form, analyze-generic-fundefs): Remove
+	(make-generic-function-form, analyze-generic-fundefs): Remove
 	environment argument.
 	(defmethod, defgeneric, generic-flet, generic-labels): Update.
 	* compiler.lisp: Update clos::make-generic-function-form calls.
