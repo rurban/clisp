@@ -1,3 +1,17 @@
+2004-01-08  Sam Steingold  <sds@gnu.org>
+
+	made MAKE-INIT-FORM more robust
+	* condition.lisp (method-call-error, method-call-type-error):
+	new conditions
+	* clos.lisp (no-applicable-method, no-primary-method)
+	(no-next-method): signal METHOD-CALL-ERROR or METHOD-CALL-TYPE-ERROR
+	* init.lisp (method-call-error, method-call-type-error)
+	(method-call-error-generic-function, method-call-error-method)
+	(method-call-error-argument-list): export new CLOS extras
+	* loadform.lisp (make-init-form): use METHOD-CALL-ERROR to
+	determine that the error comes from MAKE-LOAD-FORM
+	Reported by Kaz Kylheku <kaz@ashi.footprints.net>
+
 2004-01-08  Stanislav Tsekhmistroh  <tcss@kometa.dp.ua>
 	    Arseny Slobodjuck  <ampy@ich.dvo.ru>
 

@@ -417,6 +417,12 @@ T
     #+clisp (delete-file (make-pathname :type "lib" :defaults lisp-file))))
 MLF-TESTER
 
+(defun mlf-kill (type)
+  (let ((m (find-method #'make-load-form nil (list (find-class type)) nil)))
+    (when m (remove-method #'make-load-form m)))
+  (setf (find-class type) nil))
+mlf-kill
+
 ;; from kmp
 (progn
   (defclass test-class1 () ((foo :initarg :foo :accessor foo :initform 0)))
@@ -451,11 +457,11 @@ FOO
 (progn
   (makunbound '*foo*)
   (defconstant bar-const 1)
-  (load (compile-file *tmp-file*))
-  (prog1 *foo*
+  (unwind-protect (progn (load (compile-file *tmp-file*)) *foo*)
     (delete-file *tmp-file*)
     (delete-file (compile-file-pathname *tmp-file*))
-    #+clisp (delete-file (make-pathname :type "lib" :defaults *tmp-file*))))
+    #+clisp (delete-file (make-pathname :type "lib" :defaults *tmp-file*))
+    (mlf-kill 'foo)))
 #S(FOO :A BAR-CONST)
 
 ;; <http://www.lisp.org/HyperSpec/Issues/iss215-writeup.html>
@@ -524,6 +530,32 @@ FOO
     (format o "~1t<~a>" (foo-slot-1 f)))
   (prin1-to-string (make-foo)))
 " <2>"
+
+(progn (mlf-kill 'foo) (defstruct foo slot))
+FOO
+
+;; From: Kaz Kylheku <kaz@ashi.footprints.net>
+;; Date: Sat, 3 Jan 2004 14:47:25 -0800 (PST)
+;; <http://article.gmane.org/gmane.lisp.clisp.general:7853>
+;; this is insane but necessary:
+;;   WITH-IGNORED-ERRORS in tests.lisp binds *ERROR-HANDLER* which
+;;   disables CLCS processing and thus compiled output breaks in
+;;   MAKE-INIT-FORM - NO-APPLICABLE-METHOD for MAKE-LOAD-FORM,
+;;   therefore we have to bind *ERROR-HANDLER* to NIL ourselves here
+(let* ((*ERROR-HANDLER* NIL)
+       (file "foo.lisp") c)
+  (unwind-protect
+       (progn
+         (makunbound '*foo*)
+         (with-open-file (f file :direction :output)
+           (format f "(defstruct foo slot)~@
+                      (defparameter *foo* #.(make-foo))~%"))
+         (load (setq c (compile-file file)))
+         *foo*)
+    (delete-file file)
+    (delete-file c)
+    #+clisp (delete-file (make-pathname :type "lib" :defaults file))))
+#S(FOO :SLOT NIL)
 
 ;; change-class
 ;; <http://www.lisp.org/HyperSpec/Body/stagenfun_change-class.html>
