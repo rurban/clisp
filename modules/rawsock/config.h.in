@@ -57,6 +57,9 @@
 /* Define to 1 if you have the `sendmsg' function. */
 #undef HAVE_SENDMSG
 
+/* Define to 1 if you have the `sockatmark' function. */
+#undef HAVE_SOCKATMARK
+
 /* Define to 1 if you have the `socketpair' function. */
 #undef HAVE_SOCKETPAIR
 
