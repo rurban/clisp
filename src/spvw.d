@@ -1717,11 +1717,12 @@ local void print_banner ()
   skipSTACK(1);
 }
 
-/* can trigger GC */
+/* Returns `(BATCHMODE-ERRORS ,form) or `(APPEASE-CERRORS ,form), as
+ appropriate.
+ can trigger GC */
 local object appease_form (bool interactive_debug, object form)
-{ /* return `(BATCHMODE-ERRORS ,form) */
-  if (interactive_debug) pushSTACK(S(appease_cerrors));
-  else pushSTACK(S(batchmode_errors));
+{
+  pushSTACK(interactive_debug ? S(appease_cerrors) : S(batchmode_errors));
   pushSTACK(form);
   return listof(2);
 }
