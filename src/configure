@@ -21045,9 +21045,81 @@ done
     if  test $ac_cv_func_rl_filename_completion_function = no ;
     then RL_FCF=filename_completion_function;
     else RL_FCF=rl_filename_completion_function; fi
+        echo "$as_me:$LINENO: checking for rl_filename_completion_function declaration" >&5
+echo $ECHO_N "checking for rl_filename_completion_function declaration... $ECHO_C" >&6
+if test "${cl_cv_proto_rl_filename_completion_function+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+      cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+#include <stdio.h>
+#include <readline/readline.h>
+
+extern
+#ifdef __cplusplus
+"C"
+#endif
+
+#if defined(__STDC__) || defined(__cplusplus)
+char* ${RL_FCF} (char *, int);
+#else
+char* ${RL_FCF}();
+#endif
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  cl_cv_proto_readline_const=""
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+cl_cv_proto_readline_const="const"
+fi
+rm -f conftest.$ac_objext conftest.$ac_ext
+
+
+cl_cv_proto_rl_filename_completion_function="extern char* ${RL_FCF}($cl_cv_proto_readline_const char*, int);"
+fi
+
+cl_cv_proto_rl_filename_completion_function=`echo "$cl_cv_proto_rl_filename_completion_function" | tr -s ' ' | sed -e 's/( /(/'`
+echo "$as_me:$LINENO: result: ${ac_t:-
+         }$cl_cv_proto_rl_filename_completion_function" >&5
+echo "${ECHO_T}${ac_t:-
+         }$cl_cv_proto_rl_filename_completion_function" >&6
+
 
 cat >>confdefs.h <<_ACEOF
 #define READLINE_FILE_COMPLETE ${RL_FCF}
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define READLINE_CONST $cl_cv_proto_readline_const
 _ACEOF
 
     echo "$as_me:$LINENO: checking whether rl_already_prompted is declared" >&5

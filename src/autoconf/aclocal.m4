@@ -6060,7 +6060,16 @@ if test $ac_cv_search_tgetent != no ; then
     if [ test $ac_cv_func_rl_filename_completion_function = no ];
     then RL_FCF=filename_completion_function;
     else RL_FCF=rl_filename_completion_function; fi
+    dnl READLINE_CONST is necessary for C++ compilation of stream.d
+    CL_PROTO([rl_filename_completion_function], [
+      CL_PROTO_CONST([
+#include <stdio.h>
+#include <readline/readline.h>
+      ],[char* ${RL_FCF} (char *, int);], [char* ${RL_FCF}();],
+      cl_cv_proto_readline_const) ],
+      [extern char* ${RL_FCF}($cl_cv_proto_readline_const char*, int);])
     AC_DEFINE_UNQUOTED(READLINE_FILE_COMPLETE,${RL_FCF},[The readline built-in filename completion function, either rl_filename_completion_function() or filename_completion_function()])
+    AC_DEFINE_UNQUOTED(READLINE_CONST,$cl_cv_proto_readline_const,[declaration of filename_completion_function() needs const in the first argument])
     AC_CHECK_DECLS(rl_already_prompted,,,[#include <stdio.h>
 #include <readline/readline.h>])
     if test "$ac_cv_have_decl_rl_already_prompted" = yes; then
