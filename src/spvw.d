@@ -26,6 +26,8 @@
   #include <fpu_control.h>
 #endif
 
+#include <stdio.h> # declares sprintf()
+
 #include <string.h> # declares strchr() and possibly memset()
 #ifdef MULTITHREAD
   #ifndef memset
@@ -2789,7 +2791,7 @@ local void print_banner ()
           #endif
           skipSTACK(1);
         }
-      if ((argv_lisplibdir == NULL) && (argv_expr == NULL)) {
+      if (argv_lisplibdir == NULL) {
         # Warning for beginners and careless developers
         pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # on *STANDARD-OUTPUT*
         write_sstring(&STACK_0,asciz_to_string(GETTEXT(NLstring "WARNING: No installation directory specified." NLstring),O(internal_encoding)));
