@@ -1,5 +1,11 @@
 2004-08-07  Bruno Haible  <bruno@clisp.org>
 
+	* io.d (read_macro, read_internal, fehler_dot, bit_vector_reader,
+	fehler_read_eval_forbidden, not_readable_reader, syntax_error_reader):
+	Signal READER-ERROR instead of STREAM-ERROR in some cases.
+
+2004-08-07  Bruno Haible  <bruno@clisp.org>
+
 	Fix crash of (COPY-READTABLE NIL some-readtable).
 	* io.d (COPY-READTABLE): Store from_readtable in the STACK. Fixes bug
 	introduced on 2003-06-08.
