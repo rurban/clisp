@@ -56,14 +56,17 @@ DEFUN(REGEXP::REGEXP-COMPILE, pattern &key EXTENDED IGNORE-CASE NEWLINE NOSUB)
 
 DEFUN(REGEXP::REGEXP-FREE, compiled)
 { /* release the contents and the data of the compiled pattern */
-  if (fpointerp(STACK_0) && fp_validp(TheFpointer(STACK_0))) {
-    regex_t *re = (regex_t*)TheFpointer(STACK_0)->fp_pointer;
-    regfree(re);
-    free(re);
-    VALUES1(T);
-  } else
-    VALUES1(NIL);
-  skipSTACK(1);
+  object fp = popSTACK();
+  if (fpointerp(fp) && fp_validp(TheFpointer(fp))) {
+    regex_t *re = (regex_t*)TheFpointer(fp)->fp_pointer;
+    if (re) {
+      regfree(re); free(re);
+      TheFpointer(fp)->fp_pointer = NULL;
+      /* mark_fp_invalid() is not exported from clisp.h */
+      /* mark_fp_invalid(TheFpointer(fp)); */
+      VALUES1(T);
+    } else VALUES1(NIL);
+  } else VALUES1(NIL);
 }
 
 DEFUN(REGEXP::REGEXP-EXEC, pattern string &key BOOLEAN START END NOTBOL NOTEOL)
