@@ -283,12 +283,6 @@
   LISPOBJ(charset_package,".")
   # the default-package for *PACKAGE*:
   LISPOBJ(default_package,".")
-  # various strings and lists for interactive conflict resolution:
-  LISPOBJ_S(query_string_10sp,"          ")
-  LISPOBJ_S(query_string_2dash,"  --  ")
-  LISPOBJ_S(query_string_prompt,">> ")
-  LISPOBJ_S(export_string_1,"1")
-  LISPOBJ_S(export_string_2,"2")
   # default-use-list:
   LISPOBJ(use_default,"(\"COMMON-LISP\")")
   # default-package for ANSI-CL-compliance:

@@ -1328,6 +1328,9 @@ LISPSYM(debugger_hook,"*DEBUGGER-HOOK*",lisp) /* variable in ERROR */
 LISPSYM(coerce_to_condition,"COERCE-TO-CONDITION",system) /* function for ERROR */
 LISPSYM(cerror,"CERROR",lisp) /* function for ERROR */
 LISPSYM(check_value,"CHECK-VALUE",system) /* function for ERROR */
+LISPSYM(correctable_error,"CORRECTABLE-ERROR",system) /* function for ERROR */
+LISPSYM(prompt_for_new_value,"PROMPT-FOR-NEW-VALUE",system) /* ditto */
+LISPSYM(continue,"CONTINUE",lisp) /* restart for ERROR */
 LISPSYM(break_on_signals,"*BREAK-ON-SIGNALS*",lisp) /* variable for ERROR */
 LISPSYM(safe_typep,"SAFE-TYPEP",system) /* function for ERROR */
 LISPSYM(stream_read_byte,"STREAM-READ-BYTE",gray)

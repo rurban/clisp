@@ -11811,6 +11811,8 @@ nonreturning_function(extern, fehler, (condition_t errortype, const char * error
  can trigger GC */
 extern void check_value (condition_t errortype, const char * errorstring);
 /* used by all modules */
+global void correctable_error (condition_t errortype, const char* errorstring);
+/* use by PACKAGE */
 
 # Just like OS_error, but signal a FILE-ERROR.
 # OS_file_error(pathname);
