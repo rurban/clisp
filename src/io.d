@@ -3110,9 +3110,7 @@ LISPFUNN(char_reader,3) # reads #\
         pushSTACK(STACK_(0+1)); # n
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read));
-        fehler(stream_error,
-               GETTEXT("~ from ~: font number ~ for character is too large, should be = 0")
-              );
+        fehler(stream_error,GETTEXT("~ from ~: font number ~ for character is too large, should be = 0"));
       }
     # Font ready.
     var object token = O(token_buff_1); # read Token as Semi-Simple-String
@@ -3121,103 +3119,70 @@ LISPFUNN(char_reader,3) # reads #\
     TheIarray(hstring)->data = token; # Data-vector := O(token_buff_1)
     token = TheIarray(token)->data; # Normal-Simple-String with Token
     var uintL pos = 0; # current Position in Token
-    loop { # search for next Hyphen
-      if (len-pos == 1) # Charactername consists of one character?
-        break;
-      var uintL hyphen = pos; # hyphen := pos
-      loop {
-        if (hyphen == len) # already at end of Token?
-          goto no_more_hyphen;
-        if (chareq(TheSstring(token)->data[hyphen],ascii('-'))) # Hyphen found?
-          break;
-        hyphen++; # no -> continue search
-      }
-      # Hyphen found at Position hyphen
-      var uintL sub_len = hyphen-pos;
-      TheIarray(hstring)->dims[0] = pos; # Displaced-Offset := pos
-      TheIarray(hstring)->totalsize =
-        TheIarray(hstring)->dims[1] = sub_len; # length := hyphen-pos
-      # now hstring = (subseq token pos hyphen)
-      # Displaced-String hstring is no Bitname -> Error
-      pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-      pushSTACK(copy_string(hstring)); # copy Displaced-String
-      pushSTACK(*stream_); # Stream
-      pushSTACK(S(read));
-      fehler(stream_error,
-             GETTEXT("~ from ~: there is no character bit with name ~")
-            );
-     bit_ok: # found Bitname, set Bit
-      # finished with this Bitname.
-      pos = hyphen+1; # go to the next
-    }
-    # Charactername consists of one letter
-    {
+    # do not search for bits since this interferes with
+    # Unicode names which contain hyphens
+    var uintL sub_len = len-pos; # Length of Character name
+    if (sub_len == 1) { # character name consists of one letter
       var chart code = TheSstring(token)->data[pos]; # (char token pos)
       value1 = code_char(code); mv_count=1; skipSTACK(3);
       return;
     }
-   no_more_hyphen: # no other Hyphen found.
-    {
-      var uintL sub_len = len-pos; # Length of  Character name
-      TheIarray(hstring)->dims[0] = pos; # Displaced-Offset := pos
-      /* TheIarray(hstring)->totalsize =          */
-      /*   TheIarray(hstring)->dims[1] = sub_len; */ # Länge := len-pos
-      # hstring = (subseq token pos hyphen) = restlicher Charactername
-      # Test auf Characternamen "CODExxxx" (xxxx Dezimalzahl <256):
-      if (sub_len > 4) {
-        TheIarray(hstring)->totalsize =
-          TheIarray(hstring)->dims[1] = 4;
-        # hstring = (subseq token pos (+ pos 4))
-        if (!string_equal(hstring,O(charname_prefix))) # = "Code" ?
-          goto not_codexxxx; # no -> continue
-        # decipher Decimal number:
-        var uintL code = 0; # so far read xxxx (<char_code_limit)
-        var uintL index = pos+4;
-        var const chart* charptr = &TheSstring(token)->data[index];
-        loop {
-          if (index == len) # reached end of Token?
-            break;
-          var cint c = as_cint(*charptr++); # next Character
-          # is to be digit:
-          if (!((c>='0') && (c<='9')))
-            goto not_codexxxx;
-          code = 10*code + (c-'0'); # add digit
-          # code is to be < char_code_limit:
-          if (code >= char_code_limit)
-            goto not_codexxxx;
-          index++;
-        }
-        # Charactername was of type Typ "Codexxxx" with code = xxxx < char_code_limit
-        value1 = code_char(as_chart(code)); mv_count=1; skipSTACK(3);
-        return;
-      }
-     not_codexxxx:
-      # Test for Pseudo-Character-Name ^X:
-      if ((sub_len == 2) && chareq(TheSstring(token)->data[pos],ascii('^'))) {
-        var cint code = as_cint(TheSstring(token)->data[pos+1])-64;
-        if (code < 32) {
-          value1 = ascii_char(code); mv_count=1; skipSTACK(3);
-          return;
-        }
-      }
-      # Test for Charactername like NAME-CHAR:
+    TheIarray(hstring)->dims[0] = pos; # Displaced-Offset := pos
+    /* TheIarray(hstring)->totalsize =          */
+    /*   TheIarray(hstring)->dims[1] = sub_len; */ # Länge := len-pos
+    # hstring = (subseq token pos hyphen) = restlicher Charactername
+    # Test auf Characternamen "CODExxxx" (xxxx Dezimalzahl <256):
+    if (sub_len > 4) {
       TheIarray(hstring)->totalsize =
-        TheIarray(hstring)->dims[1] = sub_len; # Length := len-pos
-      var object ch = name_char(hstring); # search Character with this Name
-      if (nullp(ch)) {
-        # not found -> Error
-        pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-        pushSTACK(copy_string(hstring)); # copy Charactername
-        pushSTACK(*stream_); # Stream
-        pushSTACK(S(read));
-        fehler(stream_error,
-               GETTEXT("~ from ~: there is no character with name ~")
-              );
+        TheIarray(hstring)->dims[1] = 4;
+      # hstring = (subseq token pos (+ pos 4))
+      if (!string_equal(hstring,O(charname_prefix))) # = "Code" ?
+        goto not_codexxxx; # no -> continue
+      # decipher Decimal number:
+      var uintL code = 0; # so far read xxxx (<char_code_limit)
+      var uintL index = pos+4;
+      var const chart* charptr = &TheSstring(token)->data[index];
+      loop {
+        if (index == len) # reached end of Token?
+          break;
+        var cint c = as_cint(*charptr++); # next Character
+        # is to be digit:
+        if (!((c>='0') && (c<='9')))
+          goto not_codexxxx;
+        code = 10*code + (c-'0'); # add digit
+        # code is to be < char_code_limit:
+        if (code >= char_code_limit)
+          goto not_codexxxx;
+        index++;
       }
-      # found
-      value1 = ch; mv_count=1; skipSTACK(3);
+      # Charactername was of type Typ "Codexxxx" with code = xxxx < char_code_limit
+      value1 = code_char(as_chart(code)); mv_count=1; skipSTACK(3);
       return;
     }
+  not_codexxxx:
+    # Test for Pseudo-Character-Name ^X:
+    if ((sub_len == 2) && chareq(TheSstring(token)->data[pos],ascii('^'))) {
+      var cint code = as_cint(TheSstring(token)->data[pos+1])-64;
+      if (code < 32) {
+        value1 = ascii_char(code); mv_count=1; skipSTACK(3);
+        return;
+      }
+    }
+    # Test for Charactername like NAME-CHAR:
+    TheIarray(hstring)->totalsize =
+      TheIarray(hstring)->dims[1] = sub_len; # Length := len-pos
+    var object ch = name_char(hstring); # search Character with this Name
+    if (nullp(ch)) { # not found -> Error
+      pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+      pushSTACK(copy_string(hstring)); # copy Charactername
+      pushSTACK(*stream_); # Stream
+      pushSTACK(S(read));
+      fehler(stream_error,
+             GETTEXT("~ from ~: there is no character with name ~"));
+    }
+    # found
+    value1 = ch; mv_count=1; skipSTACK(3);
+    return;
   }
 
 # (defun radix-1 (stream sub-char n base)
