@@ -1,5 +1,13 @@
 2005-01-22  Bruno Haible  <bruno@clisp.org>
 
+	* makemake.in (check-ansi-tests-debug): Make more similar to the
+	check-ansi-tests target.
+	(check-ansi-tests-compiled, check-ansi-tests-compiled-debug): New
+	targets.
+	(check): Depend on check-ansi-tests-compiled.
+
+2005-01-22  Bruno Haible  <bruno@clisp.org>
+
 	* compiler.lisp (c-FUNCALL-INLINE): Fix long-standing bug in the
 	handling of SPECIAL-declared optional variables: If the initforms
 	of these variables come from the lambdalist, use sequential calls to

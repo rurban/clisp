@@ -3002,7 +3002,7 @@ CLISP_="${HERE_}lisp${LEXE} -M ${HERE_}lispinit.mem ${localeflags}${someflags}"
 if [ $CROSS = false ] ; then
 
   echol "# Perform self-tests."
-  echol "check : check-recompile check-fresh-line check-tests check-sacla-tests check-ansi-tests"
+  echol "check : check-recompile check-fresh-line check-tests check-sacla-tests check-ansi-tests check-ansi-tests-compiled"
   echodummyrule check
   echol
 
@@ -3137,7 +3137,13 @@ if [ $CROSS = false ] ; then
   echotab "cd ${ANSITESTSDIR} && ${ANSI_CLISP} -x '(in-package \"CL-TEST\") (time (regression-test:do-tests)) (ext:exit (regression-test:pending-tests))' 2>&1 | tee ../ansi-tests-log"
   echol
   echol "check-ansi-tests-debug : ${ANSITESTSDIR} lisp${LEXE} lispinit.mem"
-  echotab "cd ${ANSITESTSDIR} && ${ANSI_CLISP} -p CL-TEST -repl"
+  echotab "cd ${ANSITESTSDIR} && ${ANSI_CLISP} -x '(in-package \"CL-TEST\")' -repl"
+  echol
+  echol "check-ansi-tests-compiled : ${ANSITESTSDIR} lisp${LEXE} lispinit.mem"
+  echotab "cd ${ANSITESTSDIR} && ${ANSI_CLISP} -x '(in-package \"CL-TEST\") (setq regression-test::*compile-tests* t) (time (regression-test:do-tests)) (ext:exit (regression-test:pending-tests))' 2>&1 | tee ../ansi-tests-compiled-log"
+  echol
+  echol "check-ansi-tests-compiled-debug : ${ANSITESTSDIR} lisp${LEXE} lispinit.mem"
+  echotab "cd ${ANSITESTSDIR} && ${ANSI_CLISP} -x '(in-package \"CL-TEST\") (setq regression-test::*compile-tests* t)' -repl"
   echol
   echol "${ANSITESTSDIR} :"
   echotab "-mkdir ${ANSITESTSDIR}"
