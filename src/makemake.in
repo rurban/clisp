@@ -1486,7 +1486,7 @@ case "$fsstnd" in
     echol "docdir = \$(exec_prefix)${NEXT_}doc${NEXT_}packages${NEXT_}clisp"
     ;;
   redhat)
-    echol "docdir = \$(exec_prefix)${NEXT_}doc${NEXT_}clisp-`cat src/VERSION | tr "-" "."`"
+    echol "docdir = \$(exec_prefix)${NEXT_}doc${NEXT_}clisp-`cat ../src/VERSION | tr "-" "."`"
     ;;
   debian)
     echol "docdir = \$(exec_prefix)${NEXT_}doc${NEXT_}clisp"
