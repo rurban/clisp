@@ -1065,21 +1065,28 @@ XFontStruct *get_font_info_and_display (object obj, gcv_object_t* fontf,
           status = XGetAtomNames (dpy, xatoms, 2, names); /* X11R6 */
 #        endif
           if (status) {
+            /* this encoding canonicalization was requested by
+               Pascal J.Bourguignon <pjb@informatimago.com>
+               in <http://article.gmane.org/gmane.lisp.clisp.general:7794> */
+            char* whole = alloca(strlen(names[0])+strlen(names[1])+3);
+            if (!strncasecmp(names[0],"iso",3) && names[0][3] != '-') {
+              strcpy(whole,"ISO-");
+              strcat(whole,names[0]+3);
+            } else strcpy(whole,names[0]);
+            strcat(whole,"-");
+            strcat(whole,names[1]);
             end_x_call();
-            pushSTACK(asciz_to_string (names[0], GLO(misc_encoding)));
-            pushSTACK(`"-"`);
-            pushSTACK(asciz_to_string (names[1], GLO(misc_encoding)));
-            value1 = string_concat(3);
-            pushSTACK(`:CHARSET`); pushSTACK(value1);
+            pushSTACK(`:CHARSET`);
+            pushSTACK(asciz_to_string(whole,GLO(misc_encoding)));
             pushSTACK(`:OUTPUT-ERROR-ACTION`);
             pushSTACK(fixnum(info->default_char));
-            funcall(L(make_encoding), 4);
+            funcall(L(make_encoding),4);
             pushSTACK(STACK_0); /* obj */
             pushSTACK(`XLIB::ENCODING`);
             pushSTACK(value1);
-            funcall (L(set_slot_value), 3);
+            funcall(L(set_slot_value),3);
+            begin_x_call();
           }
-          begin_x_call();
           if (names[0])
             XFree (names[0]);
           if (names[1])

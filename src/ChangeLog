@@ -1,7 +1,13 @@
+2004-01-23  Sam Steingold  <sds@gnu.org>
+
+	* clx.f (get_font_info_and_display): canonicalize encoding by
+	inserting "-" after "ISO" when necessary
+	Requested by Pascal J.Bourguignon <pjb@informatimago.com>
+
 2004-01-20  Bruno Haible  <bruno@clisp.org>
 
-	* po/clisp-xgettext (d-parse-string): Recognize \n as newline inside a
-	C string.
+	* po/clisp-xgettext (d-parse-string): Recognize \n as newline
+	inside a C string.
 
 2004-01-20  Bruno Haible  <bruno@clisp.org>
 
@@ -9,13 +15,14 @@
 	* os2: Remove directory.
 	* msdos.d: Remove file.
 	* cfgdos.lisp: Remove file.
-	* lispbibl.d, constobj.d, constsym.d, subr.d, pseudofun.d, genclisph.d,
-	spvw.d, spvw_language.d, spvw_memfile.d, spvw_sigint.d, io.d, stream.d,
-	pathname.d, predtype.d, charstrg.d, hashtabl.d, error.d, errunix.d,
-	encoding.d, time.d, lisparit.d, unixaux.d, init.lisp, defs1.lisp,
-	format.lisp, macros2.lisp, complete.lisp, xcharin.lisp, keyboard.lisp,
-	edit.lisp, runprog.lisp, makemake.in, Makefile.devel, po/Makefile.devel:
-	Remove MSDOS and OS/2 support.
+	* lispbibl.d, constobj.d, constsym.d, subr.d, pseudofun.d:
+	* genclisph.d, spvw.d, spvw_language.d, spvw_memfile.d:
+	* spvw_sigint.d, io.d, stream.d, pathname.d, predtype.d:
+	* charstrg.d, hashtabl.d, error.d, errunix.d, encoding.d, time.d:
+	* lisparit.d, unixaux.d, init.lisp, defs1.lisp, format.lisp:
+	* macros2.lisp, complete.lisp, xcharin.lisp, keyboard.lisp:
+	* edit.lisp, runprog.lisp, makemake.in, Makefile.devel:
+	* po/Makefile.devel: Remove MSDOS and OS/2 support.
 
 2004-01-19  Sam Steingold  <sds@gnu.org>
 
