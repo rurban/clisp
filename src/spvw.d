@@ -1407,6 +1407,9 @@ local void init_object_tab (void) {
      #ifdef UNIX
       " :UNIX"
      #endif
+     #ifdef UNIX_MACOSX
+      " :MACOS"
+     #endif
      #ifdef UNIX_CYGWIN32
       " :CYGWIN"
      #endif
