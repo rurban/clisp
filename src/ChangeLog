@@ -1,3 +1,7 @@
+2004-05-07  Bruno Haible  <bruno@clisp.org>
+
+	* clos-package.lisp: Trivially import a few symbols not yet defined.
+
 2004-04-24  Bruno Haible  <bruno@clisp.org>
 
 	Add ability to fix slot locations for all subclasses.
