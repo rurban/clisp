@@ -896,6 +896,7 @@ LISPFUN(read_byte,1,2,norest,nokey,0,NIL)
 LISPFUNN(write_byte,2)
 LISPFUN(file_position,1,1,norest,nokey,0,NIL)
 LISPFUNN(file_length,1)
+LISPFUNN(file_string_length,2)
 LISPFUNN(line_number,1)
 LISPFUN(allow_read_eval,1,1,norest,nokey,0,NIL)
 # ---------- SYMBOL ----------
