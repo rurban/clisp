@@ -5409,7 +5409,12 @@ LISPFUNN(pathname_match_p,2)
       DEBUG_DIFF(device_diff);
       #ifdef LOGICAL_PATHNAMES
       if (logical) {
-        push_solution_with(S(Kdevice)); return;
+        #if HAS_DEVICE
+        push_solution_with(S(Kdevice));
+        #else
+        push_solution();
+        #endif
+        return;
       }
       #endif
       #if HAS_DEVICE
