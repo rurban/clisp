@@ -1,5 +1,9 @@
 1999-03-11  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * encoding.d: Add the HP-ROMAN8 character set.
+
+1999-03-11  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * stream.d (FILE-STRING-LENGTH): Depend on the stream's encoding.
           Don't look at the strm_wr_ch pointer.
 

@@ -663,6 +663,7 @@ static const unsigned char nopage[256] = {
 #include "nls_cp1256.c"
 #include "nls_cp1257.c"
 #include "nls_cp1258.c"
+#include "nls_hp_roman8.c"
 #include "nls_nextstep.c"
 
 #define nls_first_sym  S(ascii)
@@ -732,6 +733,7 @@ static const nls_table * const nls_tables[] = {
   &nls_cp1256_table,
   &nls_cp1257_table,
   &nls_cp1258_table,
+  &nls_hp_roman8_table,
   &nls_nextstep_table
 };
 

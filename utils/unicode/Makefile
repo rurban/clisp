@@ -65,6 +65,7 @@ ALL = $(DESTDIR)uni_upcase.c $(DESTDIR)uni_downcase.c $(DESTDIR)uni_attribute.c 
  $(DESTDIR)nls_cp1256.c \
  $(DESTDIR)nls_cp1257.c \
  $(DESTDIR)nls_cp1258.c \
+ $(DESTDIR)nls_hp_roman8.c \
  $(DESTDIR)nls_nextstep.c
 
 JAVA = java
@@ -280,6 +281,9 @@ $(DESTDIR)nls_cp1257.c : nls_cp1257.in nls_table.class
 
 $(DESTDIR)nls_cp1258.c : nls_cp1258.in nls_table.class
 	$(JAVA) nls_table nls_cp1258.c $(DESTDIR) < nls_cp1258.in
+
+$(DESTDIR)nls_hp_roman8.c : nls_hp_roman8.in nls_table.class
+	$(JAVA) nls_table nls_hp_roman8.c $(DESTDIR) < nls_hp_roman8.in
 
 $(DESTDIR)nls_nextstep.c : nls_nextstep.in nls_table.class
 	$(JAVA) nls_table nls_nextstep.c $(DESTDIR) < nls_nextstep.in
@@ -527,6 +531,9 @@ nls_cp1258.in : nls_txt_to_in.class
 #	native2ascii -encoding Cp1258           < nls_table_in > nls_cp1258.in # old, lacks Euro sign
 #	$(ICONV) --from-code=CP1258 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_cp1258.in # old, lacks Euro sign
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/MS-WIN-CP1258.TXT > nls_cp1258.in
+
+nls_hp_roman8.in : nls_txt_to_in.class
+	$(ICONV) --from-code=HP-ROMAN8 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_hp_roman8.in
 
 nls_nextstep.in : nls_txt_to_in.class
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/NEXTSTEP.TXT > nls_nextstep.in

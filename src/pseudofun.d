@@ -172,6 +172,7 @@ XPSEUDO(struct nls_table, nls_cp1255_table,)
 XPSEUDO(struct nls_table, nls_cp1256_table,)
 XPSEUDO(struct nls_table, nls_cp1257_table,)
 XPSEUDO(struct nls_table, nls_cp1258_table,)
+XPSEUDO(struct nls_table, nls_hp_roman8_table,)
 XPSEUDO(struct nls_table, nls_nextstep_table,)
 #ifdef HAVE_ICONV
 XPSEUDO(uintL, iconv_mblen, (object encoding, const uintB* src, const uintB* srcend))
