@@ -153,12 +153,14 @@ Discussion:
    * Emacs 18.58 (text mode only);
    * Emacs 19.34 (GUI for X11 and Win32);
    * Emacs 20.7 (ditto);
-   * Emacs 21.1 (ditto);
+   * Emacs 21.1 (GUI for X11, Win32 and MacOS);
    * XEmacs 19.16 (GUI for X11);
    * XEmacs 20.4 (GUI for X11);
    * XEmacs 21.1 (GUI for X11 and Win32).
 
-  We recommend using the latest (21.*) version of either Emacs or XEmacs.
+  We recommend using the latest (21.*) version of either
+   - Emacs <http://www.gnu.org/software/emacs/> or
+   - XEmacs <http://www.xemacs.org>.
 
 * How to customize Emacs in general?
 
@@ -226,7 +228,7 @@ Discussion:
      To fix this, add the following to your <.emacs>:
 
          ;; Common Lisp indentation.
-         (load-library "cl-indent")
+         (autoload 'common-lisp-indent-function "cl-indent")
          (setq lisp-indent-function 'common-lisp-indent-function)
 
   2. You might try out syntactic colouring of your Lisp programs.
@@ -234,7 +236,7 @@ Discussion:
        M-x font-lock-mode RET
      You can also add
        (global-font-lock-mode 1)
-     to your <.emacs>
+     to your <.emacs>.
 
   3. The easiest way to start CLISP under Emacs is to type C-c C-z in a
      Lisp buffer or M-x run-lisp RET anywhere.  This creates a Lisp
@@ -298,4 +300,4 @@ Discussion:
   4. There is an even better Emacs mode, called ilisp-mode.
      [Merge here stuff from Marcus, Matthias, Peter.??]
      XEmacs 19.14 comes with ILISP version 5.7. A newer version with much
-     better support for CLISP is at http://ilisp.cons.org/ .
+     better support for CLISP is at <http://ilisp.cons.org/>.
