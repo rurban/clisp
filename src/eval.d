@@ -109,14 +109,15 @@
     _(simple_array_p), _(bit_vector_p), _(vectorp), _(simple_vector_p),
     _(simple_string_p), _(simple_bit_vector_p), _(commonp), _(type_of),
     _(class_of), _(find_class), _(coerce),
-    # RECORD : 22 SUBRs
+    # RECORD : 23 SUBRs
     _(record_ref), _(record_store), _(record_length), _(structure_ref),
     _(structure_store), _(make_structure), _(copy_structure),
     _(structure_type_p), _(closure_name), _(closure_codevec),
     _(closure_consts), _(make_code_vector), _(make_closure),
-    _(copy_generic_function), _(make_load_time_eval), _(structure_object_p),
-    _(std_instance_p), _(slot_value), _(set_slot_value), _(slot_boundp),
-    _(slot_makunbound), _(slot_exists_p),
+    _(copy_generic_function), _(make_load_time_eval),
+    _(function_macro_function), _(structure_object_p), _(std_instance_p),
+    _(slot_value), _(set_slot_value), _(slot_boundp), _(slot_makunbound),
+    _(slot_exists_p),
     # SEQUENCE : 40 SUBRs
     _(sequencep), _(elt), _(setelt), _(subseq), _(copy_seq), _(length),
     _(reverse), _(nreverse), _(make_sequence), _(reduce), _(fill),
@@ -160,7 +161,7 @@
     _(set_long_float_digits), _(log2), _(log10),
     # sonstige:
     };
-  # Das waren 525-43 SUBRs.
+  # Das waren 526-43 SUBRs.
   # Nun FUNTABR :
   local const Subr FUNTABR[] = {
     # SPVW : 0 SUBRs
@@ -917,7 +918,7 @@ LISPFUNN(subr_info,1)
 # > sym: Funktionsname (z.B. Symbol)
 # > fenv: ein Funktions- und Macrobindungs-Environment
 # < ergebnis: Funktionsdefinition, entweder unbound (falls undefinierte Funktion)
-#             oder Closure/SUBR/FSUBR oder ein Cons (SYS::MACRO . expander).
+#             oder Closure/SUBR/FSUBR/Macro/FunctionMacro.
   global object sym_function (object sym, object fenv);
   global object sym_function(sym,env)
     var object sym;
@@ -972,7 +973,7 @@ LISPFUNN(subr_info,1)
       }
       return Symbol_function(sym);
      fertig: # Symbol aktiv im Environment gefunden, "Wert" value
-      # (eine Closure oder NIL oder ein Cons (SYS::MACRO . expander) )
+      # (eine Closure oder Macro oder FunctionMacro oder NIL)
       # Falls Definition = NIL (während LABELS), gilt die Funktion als
       # undefiniert:
       if (nullp(value))
@@ -1347,7 +1348,7 @@ LISPFUNN(subr_info,1)
     }
 
 # UP: expandiert eine Form, falls möglich, (nicht jedoch, wenn FSUBR-Aufruf
-# oder Symbol) in einem Environment
+# oder Symbol oder FunctionMacro-Aufruf) in einem Environment
 # macroexp(form,venv,fenv);
 # > form: Form
 # > venv: ein Variablen- und Symbolmacro-Environment
@@ -1366,11 +1367,11 @@ LISPFUNN(subr_info,1)
         var object funname = Car(form); # Funktionsname
         if (symbolp(funname)) {
           var object fdef = sym_function(funname,fenv); # Funktionsdefinition holen
-          # Ist sie (SYS::MACRO . Expander) ?
-          if (consp(fdef) && eq(Car(fdef),S(macro))) {
+          # Ist sie #<MACRO expander> ?
+          if (macrop(fdef)) {
             # ja -> expandieren:
             # (FUNCALL *MACROEXPAND-HOOK* expander form env) ausführen:
-            pushSTACK(Cdr(fdef)); # Expander als erstes Argument
+            pushSTACK(TheMacro(fdef)->macro_expander); # Expander als erstes Argument
             pushSTACK(form); # Form als zweites Argument
             pushSTACK(fenv);
             pushSTACK(nest_var(venv)); # genestetes Variablen- und Symbolmacro-Environment
@@ -1389,8 +1390,8 @@ LISPFUNN(subr_info,1)
       value1 = form; value2 = NIL;
     }
 
-# UP: expandiert eine Form, falls möglich, (auch, wenn FSUBR-Aufruf)
-# in einem Environment
+# UP: expandiert eine Form, falls möglich, (auch, wenn FSUBR-Aufruf oder
+# Symbol, nicht jedoch, wenn FunctionMacro-Aufruf) in einem Environment
 # macroexp0(form,env);
 # > form: Form
 # > env: ein Macroexpansions-Environment
@@ -1422,25 +1423,25 @@ LISPFUNN(subr_info,1)
               return;
             }
           } else {
-            # 3 Möglichkeiten:
+            # 4 Möglichkeiten:
             # #UNBOUND/SUBR/Closure (globale oder lexikalische Funktionsdef.)
             #   -> nicht expandieren
-            # (SYS::MACRO . Expander) (lexikalische Macrodefinition)
+            # #<MACRO expander> (lexikalische Macrodefinition)
             #   -> expandieren (Expander aufrufen)
+            # #<FUNCTION-MACRO function expander> (lexikalische FunctionMacro-
+            #   Definition) -> nicht expandieren, weil
+            #   (MACRO-FUNCTION funname) => NIL liefert
             # Symbol (lexikalische Funktionsdefinition während SYS::%EXPAND)
             #   expandieren: (list* 'SYS::%FUNCALL Symbol (cdr form))
-            if (consp(fdef)) {
-              # Ist es (SYS::MACRO . Expander) ?
-              if (eq(Car(fdef),S(macro))) {
-                # ja -> expandieren:
-                # (FUNCALL *MACROEXPAND-HOOK* expander form env) ausführen:
-                pushSTACK(Cdr(fdef)); # Expander als erstes Argument
-                pushSTACK(form); # Form als zweites Argument
-                pushSTACK(env); # Environment als drittes Argument
-                funcall(Symbol_value(S(macroexpand_hook)),3);
-                value2 = T; # expandierte Form als 1. Wert, T als 2. Wert
-                return;
-              }
+            if (macrop(fdef)) {
+              # #<MACRO expander> -> expandieren:
+              # (FUNCALL *MACROEXPAND-HOOK* expander form env) ausführen:
+              pushSTACK(TheMacro(fdef)->macro_expander); # Expander als erstes Argument
+              pushSTACK(form); # Form als zweites Argument
+              pushSTACK(env); # Environment als drittes Argument
+              funcall(Symbol_value(S(macroexpand_hook)),3);
+              value2 = T; # expandierte Form als 1. Wert, T als 2. Wert
+              return;
             } elif (symbolp(fdef)) {
               # fdef ein Symbol
               # Muss zu (SYS::%FUNCALL fdef ...) expandieren:
@@ -1501,7 +1502,7 @@ LISPFUNN(subr_info,1)
       while (consp(body)) {
         pushSTACK(body); # body retten
         var object form = Car(body); # nächste Form
-        # evtl. macroexpandieren (ohne FSUBRs, Symbole zu expandieren):
+        # evtl. macroexpandieren (ohne FSUBRs, Symbole, FunctionMacros zu expandieren):
         do {
           macroexp(form,STACK_(3+1),STACK_(2+1)); form = value1;
         } until (nullp(value2));
@@ -3204,8 +3205,9 @@ LISPFUNN(subr_info,1)
           if (funnamep(fun)) {
             # Funktionsdefinition im Environment holen:
             fun = sym_function(fun,aktenv.fun_env);
+           fun_dispatch:
             # je nach Typ der Funktion verzweigen:
-            # unbound / SUBR/FSUBR/Closure / Macro-Cons
+            # unbound / SUBR/FSUBR/Closure / FunctionMacro / Macro
             #ifdef TYPECODES
             switch (typecode(fun))
             #else
@@ -3249,6 +3251,10 @@ LISPFUNN(subr_info,1)
                     eval_ffunction(fun);
                     break;
                   #endif
+                  case Rectype_FunctionMacro:
+                    # FunctionMacro -> treat like a function
+                    fun = TheFunctionMacro(fun)->functionmacro_function;
+                    goto fun_dispatch;
                   default:
                     goto undef;
                 }

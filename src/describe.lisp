@@ -182,6 +182,10 @@ to print the corresponding values, or T for all of them.")
        (format stream (ENGLISH "a load-time evaluation promise.")))
       (SYMBOL-MACRO
        (format stream (ENGLISH "a symbol macro handler.")))
+      (MACRO
+       (format stream (ENGLISH "a macro expander.")))
+      (FUNCTION-MACRO
+       (format stream (ENGLISH "a function with alternative macro expander.")))
       (ENCODING
        (format stream (ENGLISH "an encoding.")))
       (WEAK-POINTER

@@ -63,7 +63,7 @@
 ;; voraussetzen. Schreibe COMPILER::PNAME, wenn der Compiler das Symbol
 ;; deklariert und es von anderen Programmteilen benutzt wird.
 #+CLISP (import '(sys::function-name-p sys::parse-body sys::add-implicit-block
-                  sys::make-load-time-eval
+                  sys::make-load-time-eval sys::make-macro-expander
                   sys::closure-name sys::closure-codevec sys::closure-consts
                   sys::fixnump sys::short-float-p sys::single-float-p
                   sys::double-float-p sys::long-float-p
@@ -89,15 +89,25 @@
              (consp (setq form (cdr form))) (null (cdr form))
              (symbolp (car form))
   ) )   )
+  (defstruct (macro
+              (:predicate macrop)
+              (:constructor make-macro (expander)))
+    (expander nil :type function)
+  )
+  (defstruct (function-macro
+              (:predicate function-macro-p)
+              (:constructor make-function-macro (function expander)))
+    (function nil :type function)
+    (expander nil :type function)
+  )
   (defun macroexpand-1 (form &optional (env (vector nil nil)))
     (if (and (consp form) (symbolp (car form)))
-      (multiple-value-bind (a b c) (fenv-search (car form) (svref env 1))
-        (declare (ignore c))
-        (cond ((eq a 'system::macro) (values (funcall b form env) t))
-              ((macro-function (car form))
-               (values (funcall (macro-function (car form)) form env) t)
-              )
-              (t (values form nil))
+      (multiple-value-bind (a m)
+          (fenv-search (car form) (svref env 1))
+        (when (null a) (setq m (macro-function (car form))))
+        (if m
+          (values (funcall *macroexpand-hook* m form env) t)
+          (values form nil)
       ) )
       (if (symbolp form)
         (multiple-value-bind (macrop expansion)
@@ -206,10 +216,11 @@
   (defun make-macro-expander (macrodef)
     (let ((dummysym (make-symbol (symbol-name (car macrodef)))))
       (eval `(DEFMACRO ,dummysym ,@(cdr macrodef)))
-      #'(lambda (form &rest env)
-          (apply #'lisp:macroexpand-1 (cons dummysym (cdr form)) env)
-        )
-  ) )
+      (make-macro
+        #'(lambda (form &rest env)
+            (apply #'lisp:macroexpand-1 (cons dummysym (cdr form)) env)
+          )
+  ) ) )
   ; siehe DEFS1.LISP :
   (defun date-format ()
     (ENGLISH "~1{~5@*~D/~4@*~D/~3@*~D ~2@*~2,'0D.~1@*~2,'0D.~0@*~2,'0D~:}")
@@ -936,9 +947,10 @@ for-value   NIL oder T
        copy-structure system::%structure-type-p system::closure-name
        system::closure-codevec system::closure-consts system::make-code-vector
        system::%make-closure system::%copy-generic-function
-       system::make-load-time-eval clos::structure-object-p clos::std-instance-p
-       clos:slot-value clos::set-slot-value clos:slot-boundp
-       clos:slot-makunbound clos:slot-exists-p
+       system::make-load-time-eval system::function-macro-function
+       clos::structure-object-p clos::std-instance-p clos:slot-value
+       clos::set-slot-value clos:slot-boundp clos:slot-makunbound
+       clos:slot-exists-p
        system::sequencep elt system::%setelt subseq copy-seq length reverse
        nreverse make-sequence reduce fill replace remove remove-if remove-if-not
        delete delete-if delete-if-not remove-duplicates delete-duplicates
@@ -2020,9 +2032,12 @@ for-value   NIL oder T
 ; %fenv% = NIL oder #(f1 def1 ... fn defn NEXT-ENV), NEXT-ENV von derselben
 ; Gestalt.
 ; Damit ist eine Abbildung fi --> defi realisiert.
-; defi = (SYSTEM::MACRO . expander)  bedeutet einen lokalen Macro.
 ; defi = Closure                     bedeutet, dass defi die lokale
 ;                                    Funktionsdefinition von fi ist
+; defi = #<MACRO expander>           bedeutet einen lokalen Macro.
+; defi = #<FUNCTION-MACRO closure expander>
+;                                    bedeutet eine lokale Funktionsdefinition
+;                                    mit alternativem Macro-Expander
 ; defi = NIL                         bedeutet, dass eine lokale Funktions-
 ;                                    definition noch hineinkommt (vgl. LABELS)
 
@@ -2032,7 +2047,7 @@ for-value   NIL oder T
 ; *fenv* hat dieselbe Gestalt wie %fenv% und endet mit %fenv%:
 ; #(f1 def1 ... fn defn NEXT-ENV), was eine Abbildung fi --> defi
 ; realisiert.
-; defi = (SYSTEM::MACRO expander)  bedeutet einen lokalen Makro.
+; defi = #<MACRO expander>         bedeutet einen lokalen Makro.
 ; defi = (fdescr . var)            bedeutet, dass die lokale Funktionsdefinition
 ;           von fi zur Laufzeit in der lexikalischen Variablen var steckt.
 ;           fnode ist der zu fi gehörige fnode, anfangs noch NIL.
@@ -2043,15 +2058,25 @@ for-value   NIL oder T
 ;           fnode der zu fi gehörige fnode oder NIL,
 ;           lambdadescr = (LABELS . Liste der Werte von analyze-lambdalist)
 ;           oder lambdadescr = (GENERIC . Signature) oder NIL.
+; defi = (#<MACRO expander> fdescr . {var|const})
+;                                    bedeutet eine lokale Funktionsdefinition
+;                                    mit alternativem Macro-Expander
 
 ; Suche die lokale Funktionsdefinition des Symbols f in fenv :
 ; Ergebnis ist:
-; SYSTEM::MACRO, expander           bei einem lokalen Macro,
-; GLOBAL, Vektor, Index             wenn defi = (svref Vektor Index)
+; 1. Wert: T
+; 2. Wert: als Makro
+;    Macro-Expander                 falls lokale Macrodefinition vorhanden
+;    NIL                            falls nicht
+; ab 3. Wert: als Funktion
+;    GLOBAL, Vektor, Index, NIL     wenn defi = (svref Vektor Index)
 ;                                   (also in %fenv% gefunden)
-; LOCAL, def, fdescr                wenn defi = def eine Variable oder Konstante
+;    GLOBAL, Vektor, Index, T       ditto als FUNCTION-MACRO
+;    LOCAL, def, fdescr             wenn def = {var|const} = (cdr (last defi))
 ;                                   (also in *fenv* ohne %fenv% gefunden)
-; NIL                               falls nicht lokal definiert.
+;    NIL                            falls nur Makro
+; Oder:
+; 1. Wert: NIL                      falls nicht lokal definiert.
 (defun fenv-search (f &optional (fenv *fenv*))
   (loop
     (when (null fenv) (return-from fenv-search 'NIL))
@@ -2063,12 +2088,26 @@ for-value   NIL oder T
         (let ((def (svref fenv (1+ i))))
           (return-from fenv-search
             (if (consp def)
-              (if (eq (car def) 'SYSTEM::MACRO)
-                (values 'SYSTEM::MACRO (cdr def))
-                (values 'LOCAL (cdr def) (car def))
-              )
-              (values 'GLOBAL fenv (1+ i))
-  ) ) ) ) ) )
+              (if (macrop (car def))
+                (values 'T
+                        (macro-expander (car def))
+                        'LOCAL (cddr def) (cadr def)
+                )
+                (values 'T
+                        'NIL
+                        'LOCAL (cdr def) (car def)
+              ) )
+              (if (macrop def)
+                (values 'T (macro-expander def) 'NIL)
+                (if (function-macro-p def)
+                  (values 'T
+                          (function-macro-expander def)
+                          'GLOBAL fenv (1+ i) 'T
+                  )
+                  (values 'T
+                          'NIL
+                          'GLOBAL fenv (1+ i) 'NIL
+  ) ) ) ) ) ) ) ) )
 )
 ; Stellt fest, ob ein Funktionsname im Function-Environment fenv nicht
 ; definiert ist und daher auf die globale Funktion verweist.
@@ -3162,8 +3201,8 @@ der Docstring (oder NIL).
         )     )  )
         (let ((fun (first *form*)))
           (if (function-name-p fun)
-            (multiple-value-bind (a b c) (fenv-search fun)
-              (declare (ignore b))
+            (multiple-value-bind (a m f1 f2 f3 f4) (fenv-search fun)
+              (declare (ignore f2 f4))
               (if (null a)
                 ; nicht lokal definiert
                 (let ((handler (gethash fun c-form-table)))
@@ -3175,14 +3214,14 @@ der Docstring (oder NIL).
                         )
                       (funcall handler) ; ja -> aufrufen
                       (if (macro-function fun)
-                        (c-form (macroexpand-1 *form* (vector *venv* *fenv*))) ; -> expandieren
+                        (c-form (funcall *macroexpand-hook* (macro-function fun) *form* (vector *venv* *fenv*))) ; -> expandieren
                         ; normaler Aufruf globaler Funktion
                         (c-GLOBAL-FUNCTION-CALL fun)
                     ) )
                     ; nein -> jedenfalls keine Special-Form (die sind ja
                     ; alle in der Tabelle).
                     (if (and (symbolp fun) (macro-function fun)) ; globaler Macro ?
-                      (c-form (macroexpand-1 *form* (vector *venv* *fenv*))) ; -> expandieren
+                      (c-form (funcall *macroexpand-hook* (macro-function fun) *form* (vector *venv* *fenv*))) ; -> expandieren
                       ; globale Funktion
                       (if (and (equal fun (fnode-name *func*))
                                (not (declared-notinline fun))
@@ -3193,20 +3232,19 @@ der Docstring (oder NIL).
                         ; normaler Aufruf globaler Funktion
                         (c-GLOBAL-FUNCTION-CALL fun)
                 ) ) ) )
-                (case a
-                  (SYSTEM::MACRO ; lokaler Macro
-                    (c-form (macroexpand-1 *form* (vector *venv* *fenv*))) ; -> expandieren
-                  )
-                  (GLOBAL ; Funktion im Interpreter-Environment %fenv% gefunden
-                    ; (c-form `(SYS::%FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
-                    (c-FUNCALL-NOTINLINE `(FUNCTION ,fun) (cdr *form*))
-                  )
-                  (LOCAL ; lokale Funktion (in *fenv* gefunden)
-                    ; (c-form `(SYS::%FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
-                    (c-LOCAL-FUNCTION-CALL fun c (cdr *form*))
-                  )
-                  (t (compiler-error 'c-form))
-            ) ) )
+                (if (and m (not (and f1 (declared-notinline fun))))
+                  (c-form (funcall *macroexpand-hook* m *form* (vector *venv* *fenv*))) ; -> expandieren
+                  (case f1
+                    (GLOBAL ; Funktion im Interpreter-Environment %fenv% gefunden
+                      ; (c-form `(SYS::%FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
+                      (c-FUNCALL-NOTINLINE `(FUNCTION ,fun) (cdr *form*))
+                    )
+                    (LOCAL ; lokale Funktion (in *fenv* gefunden)
+                      ; (c-form `(SYS::%FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
+                      (c-LOCAL-FUNCTION-CALL fun f3 (cdr *form*))
+                    )
+                    (t (compiler-error 'c-form))
+            ) ) ) )
             (if (and (consp fun) (eq (car fun) 'LAMBDA))
               (c-form `(SYS::%FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
               #| nicht: (c-LAMBDA-FUNCTION-CALL fun (cdr *form*)) |#
@@ -3244,16 +3282,22 @@ der Docstring (oder NIL).
       )
       (let ((fun (first form)))
         (if (function-name-p fun)
-          (let ((a (fenv-search fun)))
-            (if (or (and (null a)
-                         ; nicht lokal definiert
-                         (symbolp fun) (macro-function fun) ; globaler Macro?
+          (multiple-value-bind (a m f1 f2 f3 f4) (fenv-search fun)
+            (declare (ignore f2 f3 f4))
+            (if a
+              ; lokal definiert
+              (when f1 ; lokale Funktion?
+                (setq m nil)
+              )
+              ; nicht lokal definiert
+              (when (and (symbolp fun) (macro-function fun) ; globaler Macro?
                          (not (gethash fun c-form-table))
                     )
-                    (eq a 'SYSTEM::MACRO) ; lokaler Macro?
-                )
+                (setq m (macro-function fun))
+            ) )
+            (if m ; Macro?
               (progn
-                (setq form (macroexpand-1 form (vector *venv* *fenv*))) ; -> expandieren
+                (setq form (funcall *macroexpand-hook* m form (vector *venv* *fenv*))) ; -> expandieren
                 (go reexpand)
               )
               (go done)
@@ -6590,49 +6634,56 @@ der Docstring (oder NIL).
   (let* ((longp (cddr *form*)) ; Flag, ob Langform (FUNCTION name funname)
          (name (second *form*)))
     (if (and (not longp) (function-name-p name))
-      (multiple-value-bind (a b c) (fenv-search name)
-        (case a
-          ((NIL)
-           (when *compiling-from-file* ; von COMPILE-FILE aufgerufen?
-             (note-function-used name)
-           )
-           (make-anode
-             :type 'FUNCTION
-             :sub-anodes '()
-             :seclass '(T . NIL)
-             :code (if (and (subr-info name) (not (declared-notinline name)))
-                     `((CONST ,(make-const :horizont ':all
-                                           :value (symbol-function name)
-                                           :form `(FUNCTION ,name)
-                      ))       )
-                     `((CONST ,(make-funname-const name)) (SYMBOL-FUNCTION))
-          ))       )
-          (SYSTEM::MACRO
-           (c-error (ENGLISH "~S is not a function. It is a locally defined macro.")
-                    name
-          ))
-          (GLOBAL ; gefunden in %fenv%
-           (make-anode
-             :type 'FUNCTION
-             :sub-anodes '()
-             :seclass '(T . NIL)
-             :code `((CONST ,(new-const b))
-                     (PUSH)
-                     (CONST ,(new-const c))
-                     (SVREF)
-          ))        )
-          (LOCAL ; gefunden in *fenv* ohne %fenv%
-           (if (const-p b)
+      (multiple-value-bind (a m f1 f2 f3 f4) (fenv-search name)
+        (if (null a)
+          (progn
+            (when *compiling-from-file* ; von COMPILE-FILE aufgerufen?
+              (note-function-used name)
+            )
+            (make-anode
+              :type 'FUNCTION
+              :sub-anodes '()
+              :seclass '(T . NIL)
+              :code (if (and (subr-info name) (not (declared-notinline name)))
+                      `((CONST ,(make-const :horizont ':all
+                                            :value (symbol-function name)
+                                            :form `(FUNCTION ,name)
+                       ))       )
+                      `((CONST ,(make-funname-const name)) (SYMBOL-FUNCTION))
+          ) )       )
+          (case f1
+            (GLOBAL ; gefunden in %fenv%
              (make-anode
                :type 'FUNCTION
                :sub-anodes '()
-               :seclass '(NIL . NIL)
-               :code `((FCONST ,(const-value b)))
-             )
-             (c-VAR (var-name b))
-          ))
-          (t (compiler-error 'c-FUNCTION))
-      ) )
+               :seclass '(T . NIL)
+               :code `((CONST ,(new-const f2))
+                       (PUSH)
+                       (CONST ,(new-const f3))
+                       (SVREF)
+                       ,@(if f4
+                           `((PUSH)
+                             ,(CALLS-code (gethash 'FUNCTION-MACRO-FUNCTION function-codes))
+                            )
+                           '()
+                         )
+            ))        )
+            (LOCAL ; gefunden in *fenv* ohne %fenv%
+             (if (const-p f2)
+               (make-anode
+                 :type 'FUNCTION
+                 :sub-anodes '()
+                 :seclass '(NIL . NIL)
+                 :code `((FCONST ,(const-value f2)))
+               )
+               (c-VAR (var-name f2))
+            ))
+            (t (if (and (null f1) m)
+                 (c-error (ENGLISH "~S is not a function. It is a locally defined macro.")
+                          name
+                 )
+                 (compiler-error 'c-FUNCTION)
+      ) ) ) )  )
       (let ((funname (car (last *form*))))
         (if (and (consp funname) (eq (car funname) 'LAMBDA) (consp (cdr funname)))
           (let ((*no-code* (or *no-code* (null *for-value*))))
@@ -7105,10 +7156,8 @@ der Docstring (oder NIL).
     (let* ((macrodef (car L1))
            (name (car macrodef)))
       (push name L2)
-      (push #+CLISP (sys::make-macro-expandercons macrodef)
-            #-CLISP (cons 'SYSTEM::MACRO (make-macro-expander macrodef))
-            L2
-  ) ) )
+      (push (make-macro-expander macrodef) L2)
+  ) )
 )
 
 ; compiliere (SYMBOL-MACROLET ({symdef}*) {declaration}* {form}*)
@@ -7893,36 +7942,36 @@ der Docstring (oder NIL).
                              nil ; kein SUBR-, sondern Cclosure-Aufruf
                              (cclosure-call-code-producer fun (car fdescr) req opt rest-flag key-flag keylist)
                 )) ) ) ) ) )
-            (multiple-value-bind (a b c) (fenv-search fun)
-              (declare (ignore b))
+            (multiple-value-bind (a m f1 f2 f3 f4) (fenv-search fun)
+              (declare (ignore m f2 f4))
               ; (APPLY #'fun . args) kann evtl. vereinfacht werden
-              (case a
-                ((NIL) ; globale Funktion
-                  (unless (and (symbolp fun) (or (special-operator-p fun) (macro-function fun))) ; Special-Form oder globaler Macro ?
-                    (when (and (equal fun (fnode-name *func*))
-                               (member `(SYS::IN-DEFUN ,fun) *denv* :test #'equal)
-                          )
-                      ; rekursiver Aufruf der aktuellen globalen Funktion
-                      (c-LOCAL-APPLY (cons *func* nil))
-                    )
-                    (let ((inline-lambdabody
-                            (or (and *compiling-from-file*
-                                     (cdr (assoc fun *inline-definitions* :test #'equal))
-                                )
-                                (get (get-funname-symbol fun) 'sys::inline-expansion)
-                         )) )
-                      (if (and #| inline-lambdabody |#
-                               (consp inline-lambdabody)
-                               (inline-callable-function-lambda-p `(FUNCTION (LAMBDA ,@inline-lambdabody)) n t)
-                          )
-                        ; Aufruf einer globalen Funktion INLINE möglich
-                        (return-from c-APPLY
-                          (c-FUNCALL-INLINE fun (butlast arglist) (last arglist) inline-lambdabody nil)
-                ) ) ) ) )
-                (LOCAL ; lokale Funktion
-                  (c-LOCAL-APPLY c)
-              ) )
-    ) ) ) ) )
+              (if (null a)
+                ; globale Funktion
+                (unless (and (symbolp fun) (or (special-operator-p fun) (macro-function fun))) ; Special-Form oder globaler Macro ?
+                  (when (and (equal fun (fnode-name *func*))
+                             (member `(SYS::IN-DEFUN ,fun) *denv* :test #'equal)
+                        )
+                    ; rekursiver Aufruf der aktuellen globalen Funktion
+                    (c-LOCAL-APPLY (cons *func* nil))
+                  )
+                  (let ((inline-lambdabody
+                          (or (and *compiling-from-file*
+                                   (cdr (assoc fun *inline-definitions* :test #'equal))
+                              )
+                              (get (get-funname-symbol fun) 'sys::inline-expansion)
+                       )) )
+                    (if (and #| inline-lambdabody |#
+                             (consp inline-lambdabody)
+                             (inline-callable-function-lambda-p `(FUNCTION (LAMBDA ,@inline-lambdabody)) n t)
+                        )
+                      ; Aufruf einer globalen Funktion INLINE möglich
+                      (return-from c-APPLY
+                        (c-FUNCALL-INLINE fun (butlast arglist) (last arglist) inline-lambdabody nil)
+                ) ) ) )
+                (if (eq f1 'LOCAL)
+                  ; lokale Funktion
+                  (c-LOCAL-APPLY f3)
+    ) ) ) ) ) ) )
     ; Wenn keine der Optimierungen möglich war:
     (let* ((anode1 (c-form funform 'ONE))
            (*stackz* (cons 1 *stackz*)))
@@ -11938,9 +11987,9 @@ Die Funktion make-closure wird dazu vorausgesetzt.
           (setq trace-flag t)
           (setq definition (symbol-function symbol))
         )
-        (when (and (consp definition) (eq (car definition) 'system::macro))
+        (when (macrop definition)
           (setq macro-flag t)
-          (setq definition (cdr definition))
+          (setq definition (macro-expander definition))
         )
         (when (compiled-function-p definition)
           (warn (ENGLISH "~S is already compiled.")
@@ -11996,7 +12045,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
             (if (zerop *error-count*)
               (if name
                 (progn
-                  (when macro-flag (setq funobj (cons 'system::macro funobj)))
+                  (when macro-flag (setq funobj (make-macro funobj)))
                   (if trace-flag
                     (setf (get symbol 'sys::traced-definition) funobj)
                     (setf (symbol-function symbol) funobj)
@@ -12041,8 +12090,8 @@ Die Funktion make-closure wird dazu vorausgesetzt.
       ) ) ) )
       (let ((fun (first form)))
         (when (symbolp fun)
-          (multiple-value-bind (a b c) (fenv-search fun)
-            (declare (ignore b c))
+          (multiple-value-bind (a m f1 f2 f3 f4) (fenv-search fun)
+            (declare (ignore f2 f3 f4))
             (if (null a)
               ; nicht lokal definiert
               (case fun
@@ -12071,12 +12120,12 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                 )
                 (t (when (macro-function fun) ; globaler Macro ?
                      (return-from compile-toplevel-form
-                       (compile-toplevel-form (macroexpand-1 form (vector *venv* *fenv*))) ; -> expandieren
+                       (compile-toplevel-form (funcall *macroexpand-hook* (macro-function fun) form (vector *venv* *fenv*))) ; -> expandieren
               ) )  ) )
               ; lokal definiert
-              (when (eq a 'SYSTEM::MACRO) ; lokaler Macro
+              (when (and m (null f1)) ; lokaler Macro, aber keine lokale Funktion
                 (return-from compile-toplevel-form
-                  (compile-toplevel-form (macroexpand-1 form (vector *venv* *fenv*))) ; -> expandieren
+                  (compile-toplevel-form (funcall *macroexpand-hook* m form (vector *venv* *fenv*))) ; -> expandieren
               ) )
     ) ) ) ) )
     ; 2. Schritt: compilieren und rausschreiben
@@ -12549,8 +12598,8 @@ Die Funktion make-closure wird dazu vorausgesetzt.
     (setq object (or (get object 'sys::traced-definition)
                      (symbol-function object)
   ) )            )
-  (when (and (consp object) (eq (car object) 'system::macro))
-    (setq object (cdr object))
+  (when (macrop object)
+    (setq object (macro-expander object))
   )
   #+UNIX (when (stringp object)
            (return-from disassemble

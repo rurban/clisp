@@ -582,6 +582,112 @@ LISPFUNN(symbol_macro_expand,1)
   }
 
 # ==============================================================================
+# Macro:
+
+# (SYS::MAKE-MACRO expander) returns a Macro object with the given expander
+# function.
+# (SYS::MACROP object) tests for a Macro.
+# (SYS::MACRO-EXPANDER macro) returns the macro's expander function.
+
+LISPFUNN(make_macro,1)
+# (SYS::MAKE-MACRO expander) returns a Macro object with the given expander
+# function.
+  {
+    var object m = allocate_macro();
+    var object arg = popSTACK();
+    if (!(subrp(arg) || closurep(arg) || ffunctionp(arg))) # Test for FUNCTIONP
+      fehler_function(arg);
+    TheMacro(m)->macro_expander = arg;
+    value1 = m; mv_count=1;
+  }
+
+LISPFUNN(macrop,1)
+# (SYS::MACROP object) tests for a Macro.
+  {
+    var object obj = popSTACK();
+    value1 = (macrop(obj) ? T : NIL); mv_count=1;
+  }
+
+LISPFUNN(macro_expander,1)
+# (SYS::MACRO-EXPANDER macro) returns the macro's expander function.
+  {
+    var object obj = popSTACK();
+    if (!macrop(obj)) {
+      pushSTACK(obj);
+      pushSTACK(S(macro_expander)); # Funktionsname
+      fehler(error, # type_error ??
+             GETTEXT("~: ~ is not a Macro")
+            );
+    }
+    value1 = TheMacro(obj)->macro_expander; mv_count=1;
+  }
+
+# ==============================================================================
+# FunctionMacro:
+
+# (SYS::MAKE-FUNCTION-MACRO function expander) returns a FunctionMacro object
+# for the given function and with the given expander function.
+# (SYS::FUNCTION-MACRO-P object) tests for a FunctionMacro.
+# (SYS::FUNCTION-MACRO-FUNCTION macro) returns the functionmacro's function.
+# (SYS::FUNCTION-MACRO-EXPANDER macro) returns the functionmacro's expander.
+
+LISPFUNN(make_function_macro,2)
+# (SYS::MAKE-FUNCTION-MACRO function expander) returns a FunctionMacro object
+# for the given function and with the given expander function.
+  {
+    var object m = allocate_functionmacro();
+    {
+      var object arg = STACK_1;
+      if (!(subrp(arg) || closurep(arg) || ffunctionp(arg))) # Test for FUNCTIONP
+        fehler_function(arg);
+      TheFunctionMacro(m)->functionmacro_function = arg;
+    }
+    {
+      var object arg = STACK_0;
+      if (!(subrp(arg) || closurep(arg) || ffunctionp(arg))) # Test for FUNCTIONP
+        fehler_function(arg);
+      TheFunctionMacro(m)->functionmacro_macro_expander = arg;
+    }
+    value1 = m; mv_count=1;
+    skipSTACK(2);
+  }
+
+LISPFUNN(function_macro_p,1)
+# (SYS::FUNCTION-MACRO-P object) tests for a FunctionMacro.
+  {
+    var object obj = popSTACK();
+    value1 = (functionmacrop(obj) ? T : NIL); mv_count=1;
+  }
+
+LISPFUNN(function_macro_function,1)
+# (SYS::FUNCTION-MACRO-FUNCTION macro) returns the functionmacro's function.
+  {
+    var object obj = popSTACK();
+    if (!functionmacrop(obj)) {
+      pushSTACK(obj);
+      pushSTACK(S(function_macro_function)); # Funktionsname
+      fehler(error, # type_error ??
+             GETTEXT("~: ~ is not a FunctionMacro")
+            );
+    }
+    value1 = TheFunctionMacro(obj)->functionmacro_function; mv_count=1;
+  }
+
+LISPFUNN(function_macro_expander,1)
+# (SYS::FUNCTION-MACRO-EXPANDER macro) returns the functionmacro's expander.
+  {
+    var object obj = popSTACK();
+    if (!functionmacrop(obj)) {
+      pushSTACK(obj);
+      pushSTACK(S(function_macro_expander)); # Funktionsname
+      fehler(error, # type_error ??
+             GETTEXT("~: ~ is not a FunctionMacro")
+            );
+    }
+    value1 = TheFunctionMacro(obj)->functionmacro_macro_expander; mv_count=1;
+  }
+
+# ==============================================================================
 # Weak-Pointer:
 
 LISPFUNN(make_weak_pointer,1)
