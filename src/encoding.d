@@ -894,6 +894,7 @@ static const unsigned char nopage[256] = {
 #include "nls_iso8859_13.c"
 #include "nls_iso8859_14.c"
 #include "nls_iso8859_15.c"
+#include "nls_iso8859_16.c"
 #include "nls_koi8_r.c"
 #include "nls_koi8_u.c"
 #include "nls_mac_arabic.c"
@@ -968,6 +969,7 @@ static const nls_table * const nls_tables[] = {
   &nls_iso8859_13_table,
   &nls_iso8859_14_table,
   &nls_iso8859_15_table,
+  &nls_iso8859_16_table,
   &nls_koi8_r_table,
   &nls_koi8_u_table,
   &nls_mac_arabic_table,
@@ -1903,6 +1905,8 @@ LISPFUNN(charset_range,3)
           pushSTACK(Symbol_value(S(iso8859_14)));
         elif (asciz_equal(name,"ISO-8859-15"))
           pushSTACK(Symbol_value(S(iso8859_15))); 
+        elif (asciz_equal(name,"ISO-8859-16"))
+          pushSTACK(Symbol_value(S(iso8859_16))); 
         elif (asciz_equal(name,"KOI8-R"))
           pushSTACK(Symbol_value(S(koi8_r)));
         elif (asciz_equal(name,"KOI8-U"))

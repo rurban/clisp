@@ -16,7 +16,7 @@ User visible changes
   as well as those libm.so functions which do not have a better
   counterpart in ANSI CL are available.
 
-* New supported character set CHARSET:KOI8-U.
+* New supported character sets CHARSET:KOI8-U, CHARSET:ISO-8859-16.
 
 Other modifications
 -------------------

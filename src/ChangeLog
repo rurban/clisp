@@ -1,3 +1,14 @@
+2000-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * utils/unicode/Makefile (ALL): Add nls_iso8859_16.c.
+          (nls_iso8859_16.c): New rule.
+        * nls_iso8859_16.c: New file.
+        * encoding.d: Include nls_iso8859_16.c.
+          (nls_tables): Add nls_iso8859_16.
+          (encoding_from_name): Accept ISO-8859-16.
+        * pseudofun.d (nls_iso8859_16_table): New entry.
+        * makemake.in (NLS_INCLUDES): Add nls_iso8859_16.
+
 2000-01-22  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * src/asmi386.sh: Terminate the here documents with EOF, not \EOF.

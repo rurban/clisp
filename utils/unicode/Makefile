@@ -21,6 +21,7 @@ ALL = $(DESTDIR)uni_upcase.c $(DESTDIR)uni_downcase.c $(DESTDIR)uni_attribute.c 
  $(DESTDIR)nls_iso8859_13.c \
  $(DESTDIR)nls_iso8859_14.c \
  $(DESTDIR)nls_iso8859_15.c \
+ $(DESTDIR)nls_iso8859_16.c \
  $(DESTDIR)nls_koi8_r.c \
  $(DESTDIR)nls_koi8_u.c \
  $(DESTDIR)nls_mac_arabic.c \
@@ -142,6 +143,9 @@ $(DESTDIR)nls_iso8859_14.c : $(TABLESDIR)/unicode.org-mappings/ISO8859/8859-14.T
 
 $(DESTDIR)nls_iso8859_15.c : $(TABLESDIR)/unicode.org-mappings/ISO8859/8859-15.TXT nls_table
 	./nls_table iso8859-15 nls_iso8859_15.c $(DESTDIR) < $<
+
+$(DESTDIR)nls_iso8859_16.c : $(TABLESDIR)/csets-new/ISO-8859-16.TXT nls_table
+	./nls_table iso8859-16 nls_iso8859_16.c $(DESTDIR) < $<
 
 $(DESTDIR)nls_koi8_r.c : $(TABLESDIR)/unicode.org-mappings/VENDORS/MISC/KOI8-R.TXT nls_table
 	./nls_table koi8-r nls_koi8_r.c $(DESTDIR) < $<
