@@ -2254,12 +2254,18 @@ if [ ! $TSYS = win32msvc ] ; then
 fi
 
 if [ $TSYS = win32msvc ] ; then
+# quote for command arguments when they are unnecessary on DOS 
   ARGQ=""
+# .. when they are mandatory
+  ARGQ1="\""
+# quotes to pass to a command escaped
+  QQUOT="\\\""
 else
   ARGQ="'"
+  ARGQ1="'"
+  QQUOT="\""
 fi
-# DOS echo just echoes all of its argument buffer.
-# Things to beware are only "echo on" and "echo off".
+
 # Do not touch cflags.h when the changes to Makefile do not modify it.
 # Cost: maybe a few extra "echo"s on each make
 # Benefit: lispinit.mem is not re-dumped when we add something to MODULES
@@ -3353,14 +3359,10 @@ for f in $TXT_FILES ; do
   fi
   line="${HERE}txt"
   if [ $f = clisp.1 ] ; then
-    line=$line" | \$(GREP) -v '^ *\$\$'"
+    line=$line" | \$(GREP) -v ${ARGQ1}^ *\$\$${ARGQ1}"
   fi
   if [ $f = clisp.html -a "${HSDEFAULT}" != "${hyperspec}" ] ; then
-    if [ $HSYS = win32msvc ] ; then
-      line=$line" | sed -e s,=\\\"${HSDEFAULT}/,=\\\"${hyperspec}/,"
-    else
-      line=$line" | sed -e 's,=\"${HSDEFAULT}/,=\"${hyperspec}/,'"
-    fi
+    line=$line" | sed -e  ${ARGQ}s,=${QQUOT}${HSDEFAULT}/,=${QQUOT}${hyperspec}/,${ARGQ}"
   fi
   if [ $f = distmakefile ] ; then
     line=$line" | sed -e \"s,@@LEXE@@,${LEXE},g\""

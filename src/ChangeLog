@@ -1,3 +1,9 @@
+2005-03-12  Arseny Slobodyuk  <ampy@users.sourceforge.net>
+
+	* makemake.in (ARGQ1, QQUOT): new variables.
+	(clisp.1): fixed for MSVC.
+	(clisp.html): use the new vars to remove conditional.
+
 2005-03-10  Sam Steingold  <sds@gnu.org>
 
 	relocatable driver on win32
