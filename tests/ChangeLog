@@ -1,5 +1,10 @@
 2004-04-18  Bruno Haible  <bruno@clisp.org>
 
+	* clos.tst: Check that calling class-prototype doesn't declare a class
+	as being instantiated.
+
+2004-04-18  Bruno Haible  <bruno@clisp.org>
+
 	* clos.tst: Add tests for error recovery in defclass.
 
 2004-05-02  Sam Steingold  <sds@gnu.org>

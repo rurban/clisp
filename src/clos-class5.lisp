@@ -565,12 +565,21 @@
     (declare (ignore discarded-slots property-list))
     (apply #'shared-initialize instance added-slots initargs)))
 
-;;; classs prototype (MOP)
+;;; class prototype (MOP)
 
 (defgeneric class-prototype (class)
   (:method ((class standard-class))
     (or (class-proto class)
-        (setf (class-proto class) (clos::%allocate-instance class))))
+        (setf (class-proto class)
+              (let ((old-instantiated (class-instantiated class)))
+                (prog1
+                  (clos::%allocate-instance class)
+                  ;; The allocation of the prototype doesn't need to flag the
+                  ;; class as being instantiated, because 1. the prototype is
+                  ;; thrown away when the class is redefined, 2. we don't want
+                  ;; a redefinition with nonexistent or non-finalized
+                  ;; superclasses to succeed despite of the prototype.
+                  (setf (class-instantiated class) old-instantiated))))))
   (:method ((name symbol)) (class-prototype (find-class name))))
 
 ;;; class finalization (MOP)

@@ -1106,9 +1106,11 @@ x-y-position
  T T NIL NIL T T NIL NIL NIL NIL)
 
 ;; It is possible to redefine a class in a way that makes it non-finalized,
-;; if it was not yet instantiated.
+;; if it was not yet instantiated. Fetching the class-prototype doesn't count
+;; as an instantiation.
 (progn
   (defclass foo95b () ((s :initarg :s :accessor foo95b-s)))
+  (class-prototype (find-class 'foo95b))
   (defclass foo95b (foo95a) ((s :accessor foo95b-s)))
   t)
 T
