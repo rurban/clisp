@@ -122,13 +122,13 @@
   (let ((error-count 0) (total-count 0)
         (*features* (if disable-risky *features*
                         (cons :enable-risky-tests *features*))))
-    (dolist (ff '(#-(or AKCL ECL)   "alltest"
+    (dolist (ff `(#-(or AKCL ECL)   "alltest"
                                     "array"
                                     "backquot"
                   #+CLISP           "bin-io"
                   #-AKCL            "characters"
                   #+(or CLISP ALLEGRO CMU) "clos"
-                  #+CLISP           "defhash"
+                  #+CLISP ,@(unless disable-risky '("defhash"))
                   #+(and CLISP UNICODE) "encoding"
                                     "eval20"
                   #+(and CLISP FFI) "ffi"
@@ -137,7 +137,7 @@
                   #+CLISP           "genstream"
                   #+XCL             "hash"
                                     "hashlong"
-                  #+CLISP           "hashweak"
+                  #+CLISP ,@(unless disable-risky '("hashweak"))
                                     "iofkts"
                                     "lambda"
                                     "lists151"
@@ -165,7 +165,7 @@
                   #+XCL             "tprint"
                   #+XCL             "tread"
                                     "type"
-                  #+CLISP           "weakptr"))
+                  #+CLISP ,@(unless disable-risky '("weakptr"))))
       (with-accumulating-errors (error-count total-count) (run-test ff)))
     #+(or CLISP ALLEGRO CMU)
     (with-accumulating-errors (error-count total-count)
