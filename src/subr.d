@@ -752,9 +752,9 @@ LISPFUN(user_homedir_pathname,seclass_default,0,1,norest,nokey,0,NIL)
 #endif
 LISPFUN(wild_pathname_p,seclass_read,1,1,norest,nokey,0,NIL)
 LISPFUNNR(pathname_match_p,2)
-LISPFUN(translate_pathname,seclass_default,3,0,norest,key,2,
-        (kw(all),kw(merge)))
-LISPFUN(namestring,seclass_read,1,1,norest,nokey,0,NIL)
+LISPFUN(translate_pathname,seclass_default,3,0,norest,key,3,
+        (kw(all),kw(merge),kw(absolute)))
+LISPFUNNR(namestring,1)
 LISPFUNNR(truename,1)
 LISPFUNNR(probe_file,1)
 LISPFUNNR(probe_directory,1)

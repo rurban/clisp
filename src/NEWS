@@ -105,6 +105,11 @@ User visible changes
   + Documentation strings at a place where only declarations and forms are
     allowed now give a warning, not an error.
   + LAST, BUTLAST and NBUTLAST check their list argument for circularity.
+  + NAMESTRING no longer accepts an optional second argument.
+
+* TRANSLATE-PATHNAME accepts a new keyword argument :ABSOLUTE which
+  makes it convert its return values to absolute pathnames.
+  See <http://clisp.cons.org/impnotes.html#translate-pathname> for details.
 
 * The behaviour of the function UPGRADED-COMPLEX-PART-TYPE has changed.
 

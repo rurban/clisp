@@ -29,7 +29,8 @@
 
 (defun edit-file (file)
   "(edit-file file) edits a file."
-  (execute (editor-name) (namestring file t)))
+  (execute (editor-name) (namestring (translate-pathname
+                                      file #p"" #p"" :absolute t))))
 
 ;; Treat Ctrl-Z in files as whitespace. Some losing middle-age
 ;; editors insist on appending this to files.

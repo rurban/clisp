@@ -117,7 +117,7 @@ s(make_pathname)
 #ifdef LOGICAL_PATHNAMES
 s(make_logical_pathname)
 #endif
-v(2, (kw(all),kw(merge)) )
+v(3, (kw(all),kw(merge),kw(absolute)) )
 s(translate_pathname)
 v(6, (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),kw(external_format),kw(buffered)) )
 s(open)
