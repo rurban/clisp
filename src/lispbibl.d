@@ -3729,10 +3729,10 @@ typedef varobject_ *  Varobject;
   #define special_bit_hf  (special_bit_t+(oint_type_shift%hfintsize))
 #else
   # Three possible layouts of type, flags, length:
-  #   8 bits type, 24 bits length [Lrecord]
+  #   8 bits type, 24 bits length [Vrecord]
   #   8 bits type, 8 bits flags, 16 bits length [Srecord]
   #   8 bits type, 8 bits flags, 8 bits length, 8 bits xlength [Xrecord]
-  #define lrecord_tfl(type,length)  \
+  #define vrecord_tfl(type,length)  \
     ((uintL)(uintB)(type)+((uintL)(length)<<8))
   #define srecord_tfl(type,flags,length)  \
     ((uintL)(uintB)(type)+((uintL)(uintB)(flags)<<8)+((uintL)(length)<<16))
@@ -3754,11 +3754,11 @@ typedef varobject_ *  Varobject;
 # Records
 # These are varobjects with a one-byte type field in memory.
 # There are three types of records:
-#   Long-Records can have up to 16777215 elements, but have no flags.
+#   Vector-Records can have up to 16777215 elements, but have no flags.
 #   Simple-Records can have up to 65535 elements,
 #   Extended-Records have room for up to 255 elements and 255 extra (non-Lisp)
 #   elements.
-# Long-Records are recognized by their type field:
+# Vector-Records are recognized by their type field:
 #   rectype == Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector,
 #              Rectype_S[8|16|32]string, Rectype_Imm_S[8|16|32]string,
 #              Rectype_Svector, Rectype_WeakKVT.
@@ -3801,21 +3801,21 @@ typedef record_ *  Record;
 #endif
 
 #ifdef TYPECODES
-  #define LRECORD_HEADER  \
+  #define VRECORD_HEADER  \
                  VAROBJECT_HEADER # self-pointer for GC \
                  uintL length;    # length
 #else
-  #define LRECORD_HEADER  \
+  #define VRECORD_HEADER  \
                  VAROBJECT_HEADER # self-pointer for GC, tfl
 #endif
 typedef struct {
-  LRECORD_HEADER
-} lrecord_;
-typedef lrecord_ *  Lrecord;
+  VRECORD_HEADER
+} vrecord_;
+typedef vrecord_ *  Vrecord;
 #ifdef TYPECODES
-  #define lrecord_length(ptr)  ((ptr)->length)
+  #define vrecord_length(ptr)  ((ptr)->length)
 #else
-  #define lrecord_length(ptr)  ((ptr)->tfl >> 8)
+  #define vrecord_length(ptr)  ((ptr)->tfl >> 8)
 #endif
 
 #ifdef TYPECODES
@@ -4366,15 +4366,15 @@ typedef lfloat_ *  Lfloat;
 
 # simple array (cover simple linear arrays: simple bit vector, simple vector)
 typedef struct {
-  LRECORD_HEADER # Self-pointer for GC, length in elements
+  VRECORD_HEADER # Self-pointer for GC, length in elements
 } sarray_;
 typedef sarray_ *  Sarray;
-#define sarray_length(ptr)  lrecord_length(ptr)
+#define sarray_length(ptr)  vrecord_length(ptr)
 #define Sarray_length(obj)  sarray_length(TheSarray(obj))
 
 # simple bit vector
 typedef struct {
-  LRECORD_HEADER # self-pointer for GC, length in bits
+  VRECORD_HEADER # self-pointer for GC, length in bits
   uint8  data[unspecified]; # Bits, divided into bytes
 } sbvector_;
 typedef sbvector_ *  Sbvector;
@@ -4449,7 +4449,7 @@ typedef sstring_ *  Sstring;
   #define sstring_tfl(eltype,imm,flags,length)  \
     (((length) << 6) + ((eltype) << 4) + ((imm) << 3) + (flags))
 #else
-  # This must be consistent with lrecord_tfl.
+  # This must be consistent with vrecord_tfl.
   #define sstringrecord_tfl(rectype,flags,length)  \
     (((length) << 10) + ((flags) << 8) + (rectype))
   #define sstring_tfl(eltype,imm,flags,length)  \
@@ -4500,7 +4500,7 @@ typedef sstring_ *  Sstring;
 
 # simple vector
 typedef struct {
-  LRECORD_HEADER # self-pointer for GC, length in objects
+  VRECORD_HEADER # self-pointer for GC, length in objects
   gcv_object_t data[unspecified] _attribute_aligned_object_; # elements
 } svector_;
 typedef svector_ *  Svector;
@@ -4935,7 +4935,7 @@ typedef struct {
 
 # weak key-value table for weak hashtables
 typedef struct {
-  LRECORD_HEADER
+  VRECORD_HEADER
   gcv_object_t wkvt_cdr  _attribute_aligned_object_; # active weak-kvts form a chained list
   gcv_object_t wkvt_type _attribute_aligned_object_; /* :KEY :VALUE :EITHER or :BOTH */
   gcv_object_t data[unspecified] _attribute_aligned_object_; # elements
@@ -5194,7 +5194,7 @@ typedef struct {
 
 # CLOS class-versions, see clos.lisp
 typedef struct {
-  LRECORD_HEADER
+  VRECORD_HEADER
   gcv_object_t cv_newest_class             _attribute_aligned_object_; # the CLASS object describing the newest available version
   gcv_object_t cv_class                    _attribute_aligned_object_; # the CLASS object describing the slots
   gcv_object_t cv_shared_slots             _attribute_aligned_object_; # simple-vector with the values of all shared slots, or nil
@@ -5290,7 +5290,7 @@ typedef struct {
 #define Cclosure_set_seclass(cc,se)  record_flags_replace(TheCclosure(cc),se)
 #define clos_venv  clos_consts[0]
 typedef struct {
-  LRECORD_HEADER # self-pointer for GC, length in bits
+  VRECORD_HEADER # self-pointer for GC, length in bits
   # Here: Content of the Bitvector.
   uintW  ccv_spdepth_1;          # maximal SP-depth, 1-part
   uintW  ccv_spdepth_jmpbufsize; # maximal SP-depth, jmpbufsize-part
@@ -7940,7 +7940,7 @@ extern object allocate_bit_vector (uintB atype, uintL len);
     #define DYNAMIC_8BIT_VECTOR(objvar,len)  \
       DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)+offsetofa(sbvector_,data),sizeof(gcv_object_t))); \
       var object objvar = ((Sbvector)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sb8vector_type,(Sbvector)objvar##_storage); \
-      ((Sbvector)objvar##_storage)->tfl = lrecord_tfl(Rectype_Sb8vector,len)
+      ((Sbvector)objvar##_storage)->tfl = vrecord_tfl(Rectype_Sb8vector,len)
   #endif
   #define FREE_DYNAMIC_8BIT_VECTOR(objvar)  \
     FREE_DYNAMIC_ARRAY(objvar##_storage)

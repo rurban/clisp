@@ -1,3 +1,17 @@
+2004-05-01  Bruno Haible  <bruno@clisp.org>
+
+	Rename LRECORD to VRECORD.
+	* lispbibl.d (vrecord_tfl): Renamed from lrecord_tfl.
+	(VRECORD_HEADER): Renamed from LRECORD_HEADER.
+	(vrecord_): Renamed from lrecord_.
+	(Vrecord): Renamed from Lrecord.
+	(vrecord_length): Renamed from lrecord_length.
+	(sarray_, sarray_length, sbvector_, svector_, weakkvt_t, ClassVersion,
+	Codevec, DYNAMIC_8BIT_VECTOR): Update.
+	* spvw_typealloc.d (allocate_vector, allocate_weakkvt_low,
+	allocate_bit_vector): Update.
+	* genclisph.d (main): Update.
+
 2004-05-11  Bruno Haible  <bruno@clisp.org>
 
 	* arilev0.d (divu_3232_3232_) [SPARC64]: Define also for SPARC64.
