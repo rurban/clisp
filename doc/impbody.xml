@@ -1737,6 +1737,10 @@ can give problems:
     <entry>-2<superscript>32</superscript> = -4294967296</entry></row>
 </tbody></tgroup></table></section>
 
+<para>Bignum Limits: Bignums are limited in size. Their maximum size is
+2097088 bits. The largest representable bignum is
+2<superscript>2097088</superscript>-1.</para>
+
 <section id="float-lim"><title>Float Limits
   <ulink url="&clhs;/Body/convar_most-p_d-long-float.html">[CLHS]</ulink></title>
 
