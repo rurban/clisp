@@ -88,3 +88,18 @@ nil
 (gethash "foo" tab) 1
 (gethash 1 tab) "bar"
 (gethash "zoo" tab) nil
+
+(let ((htv (make-hash-table :test 'eql :weak :value))
+      (htk (make-hash-table :test 'eql :weak :key))
+      (li nil))
+  (loop :for i :from 0 :to 1000
+    :for string = (format nil "~r" i)
+    :do (push string li)
+    (setf (gethash i htv) string
+          (gethash string htk) i))
+  (list (length li)
+        (cons (hash-table-count htv) (hash-table-count htk))
+        (progn (gc) (cons (hash-table-count htv) (hash-table-count htk)))
+        (progn (setq li nil) (gc)
+               (cons (hash-table-count htv) (hash-table-count htk)))))
+(1001 (1001 . 1001) (1001 . 1001) (0 . 0))
