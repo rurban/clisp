@@ -359,6 +359,21 @@ ERROR
 (PEEK-CHAR NIL A NIL "EOF")
 "EOF"
 
+(with-output-to-string (out)
+  (peek-char #\] (make-echo-stream (make-string-input-stream " ab cd e df s]")
+                                   out)))
+" ab cd e df s"
+
+(with-output-to-string (out)
+  (peek-char t (make-echo-stream (make-string-input-stream " ab cd e df s]")
+                                 out)))
+" "
+
+(with-output-to-string (out)
+  (peek-char nil (make-echo-stream (make-string-input-stream " ab cd e df s]")
+                                   out)))
+""
+
 (SETQ A (QUOTE
 ((BERLIN (DRESDEN FRANKFURT BONN MUENCHEN)) (MUELLER (KARL LUISE DIETER
 ALDO)))))
