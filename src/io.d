@@ -9,86 +9,15 @@
 #include "lispbibl.c"
 #include "arilev0.c" /* for Division in pr_uint */
 
-# IO_DEBUG must be undefined in the code comitted to CVS
+/* IO_DEBUG must be undefined in the code comitted to CVS */
 # define IO_DEBUG 0
 #ifdef IO_DEBUG
-global object car (object o) { return Car(o); }
-global object cdr (object o) { return Cdr(o); }
-global object pph_str (object o) { return TheStream(o)->strm_pphelp_strings; }
-global Stream thestream (object o) { return TheStream(o); }
-global char* clisp_type_of (object o) {
-  pushSTACK(o); funcall(L(type_of),1);
-  pushSTACK(value1); funcall(L(prin1_to_string),1);
-  var object ret = string_to_asciz(value1,O(misc_encoding));
-  return TheSbvector(ret)->data;
-}
-global void sstring_printf (object sstr, uintL len, uintL offset) {
-  var uintL index;
-  ASSERT(simple_string_p(sstr));
-  sstring_un_realloc(sstr);
-  printf("<%d/%d\"",len,offset);
-  for(index=offset;index<len;index++)
-    printf("%c",as_cint(schar(sstr,index))); # FIXME: should use terminal_encoding
-  printf("\">");
-}
-global void string_printf (object str) {
-  var uintL len, offset;
-  ASSERT(stringp(str));
-  str = unpack_string_ro(str,&len,&offset);
-  if (simple_nilarray_p(str))
-    printf("<%d/%d>",len,offset);
-  else
-    sstring_printf(str,len,offset);
-}
-#define NL_TYPE(x) \
- (eq(x,S(Klinear))? 'L' : eq(x,S(Kmiser)) ? 'M' : eq(x,S(Kfill)) ? 'F' : 'D')
-global void pph_top_printf (object top) {
-  if (stringp(top)) string_printf(top);
-  else if (posfixnump(top)) printf("%d",posfixnum_to_L(top));
-  else if (symbolp(top)) printf("%c",NL_TYPE(top));
-  else if (mconsp(top))
-    printf("%d/%c",posfixnum_to_L(Cdr(top)),NL_TYPE(Car(top)));
-  else if (vectorp(top)) {
-    var gcv_object_t* data = TheSvector(top)->data;
-    printf("[%c/%c/%d/%d]",
-           eq(data[0],T) ? 't' : 'n',eq(data[1],T) ? 't' : 'n',
-           posfixnum_to_L(data[2]),posfixnum_to_L(data[3]));
-  } else { object_out(top); NOTREACHED; }
-}
-#define PPH_TOP(label,top)                      \
-  do { printf(#label "[%d]: [",__LINE__);       \
-       pph_top_printf(top);                     \
-       printf("]\n"); } while(0)
-static bool inside_pp = false;
-global void pphelp_printf (object pph) {
-  if (inside_pp) return;
-  inside_pp = true;
-  ASSERT(streamp(pph));
-  var object zz = T;
-  var object yy = NIL;
-  var object list = TheStream(pph)->strm_pphelp_strings;
-  printf("#<pphelp[%c/%d]",
-         (nullp(TheStream(pph)->strm_pphelp_modus) ? 'e' : 'm'),
-         llength(list));
-  while (mconsp(list)) {
-    printf(" ");
-    pph_top_printf(Car(list));
-    list = Cdr(list);
-  }
-  printf(">");
-  inside_pp = false;
-}
-#undef NL_TYPE
-#define GC_CHECK \
-  do{printf("<%d",__LINE__);fflush(stdout);gar_col();printf(">\n");}while(0)
 #define PPH_OUT(label,stream)                   \
   do { printf(#label "[%d]: [",__LINE__);       \
-       pphelp_printf(stream);                   \
-       printf("]\n"); } while(0)
+    nobject_out(stdout,stream);                 \
+    printf("]\n"); } while(0)
 #else
-#define GC_CHECK
 #define PPH_OUT(l,s)
-#define PPH_TOP(l,s)
 #endif
 
 # =============================================================================
