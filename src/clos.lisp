@@ -1854,9 +1854,11 @@
             (declare (compile) (ignore args))
             (tagbody 1 (go 1))))
        (prototype-code (sys::%record-ref prototype 1)))
+  ;; seclass is (t . t) because a generic function
+  ;; can always signal a NO-APPLICABLE-METHOD error
   (defun %make-gf (name signature argorder methods)
     (sys::%make-closure name prototype-code
-                        (list nil signature argorder methods) nil)))
+                        (list nil signature argorder methods) '(t . t))))
 
 #||
  (defun make-gf (name lambdabody signature argorder methods)
@@ -2609,10 +2611,10 @@
                     (remove old-method (gf-methods gf)))
                   (gf-methods gf))))
     (finalize-fast-gf gf))
-  (sys::closure-set-seclass gf
-    (sys::seclass-or (sys::function-side-effect gf)
-                     (sys::function-side-effect
-                      (std-method-function method))))
+  ;;(sys::closure-set-seclass gf
+  ;;  (sys::seclass-or (sys::function-side-effect gf)
+  ;;                   (sys::function-side-effect
+  ;;                    (std-method-function method))))
   gf)
 
 ;; removal of a method from a generic function:
@@ -2628,11 +2630,11 @@
             ((eq gf |#'reinitialize-instance|) (note-ri-change method))
             ((eq gf |#'shared-initialize|) (note-si-change method)))
       (setf (gf-methods gf) (remove old-method (gf-methods gf)))
-      (sys::closure-set-seclass gf
-        (reduce #'sys::seclass-or (gf-methods gf)
-                :key (lambda (sm) (sys::function-side-effect
-                                   (std-method-function sm)))
-                :initial-value NIL))
+      ;;(sys::closure-set-seclass gf
+      ;;  (reduce #'sys::seclass-or (gf-methods gf)
+      ;;          :key (lambda (sm) (sys::function-side-effect
+      ;;                             (std-method-function sm)))
+      ;;          :initial-value NIL))
       (finalize-fast-gf gf)))
   gf)
 

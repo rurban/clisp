@@ -1,6 +1,10 @@
 2003-09-17  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (f-side-effect): NOTINLINE ==> seclass (t . t)
+	* clos.lisp (%make-gf): seclass is (t . t) because a generic
+	function can always signal a NO-APPLICABLE-METHOD error
+	(std-add-method, std-remove-method): since seclass is (t . t),
+	disable the CLOSURE-SET-SECLASS call
 
 2003-09-17  Sam Steingold  <sds@gnu.org>
 
