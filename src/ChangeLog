@@ -1,5 +1,10 @@
 2004-05-21  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (wr_ch_terminal3, wr_ch_array_terminal3): respect
+	the terminal stream encoding EOL slot
+
+2004-05-21  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d (init_object_tab): added memory model information to
 	*FEATURES*
 	* constobj.d (software_type): use "cflags.h"
