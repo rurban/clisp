@@ -3740,7 +3740,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
  <varlistentry><term>
    <literal role="sexp">(<function>POSIX:STREAM-LOCK</function> &stream-r;
             <replaceable>lock-p</replaceable>
-            &key-amp; (:block &t;) (:shared &nil;))</literal></term>
+            &key-amp; (:BLOCK &t;) (:SHARED &nil;))</literal></term>
   <listitem><simpara>This is an interface to the &flock; system call.
    It sets or removes a discretionary file lock for the file associated
    with &stream-r;, depending on <replaceable>lock-p</replaceable>.
@@ -3757,9 +3757,15 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    <literal role="sexp">(<function>POSIX:COPY-FILE</function>
     <replaceable>source-path</replaceable>
     <replaceable>destination-path</replaceable>
-    &key-amp; :link :preserve :if-exists :if-does-not-exist)</literal></term>
-  <listitem><simpara>This is an interface to the &symlink;, &link;, and
-    &rename; system calls.
+    &key-amp; :METHOD :PRESERVE :IF-EXISTS :IF-DOES-NOT-EXIST)</literal></term>
+  <listitem><simpara>This is an interface to the &symlink;
+    (when <replaceable>method</replaceable> is <constant>:SYMLINK</constant>),
+    &link; (when it is <constant>:HARDLINK</constant>), and &rename;
+    (when it is <constant>:RENAME</constant>) system calls, as well as,
+    you guessed it, a generic file copy utility
+    (when <replaceable>method</replaceable> is <constant>:COPY</constant>).
+   </simpara><simpara>Both <replaceable>source-path</replaceable> and
+    <replaceable>destination-path</replaceable> may be wild.
  </simpara></listitem></varlistentry>
  <varlistentry><term>
    <literal role="sexp">(<function>POSIX:DUPLICATE-HANDLE</function>
