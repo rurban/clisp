@@ -1,3 +1,9 @@
+2003-08-17  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (XCFLAGS) [darwin]: removed `--traditional-cpp'
+	Reported by Douglas Philips <dgou@mac.com>
+	<http://article.gmane.org/gmane.lisp.clisp.devel/10282>
+
 2003-08-15  Sam Steingold  <sds@gnu.org>
 
 	MATCH structure is now printable
