@@ -1,6 +1,6 @@
 /*
  * Sequences for CLISP
- * Bruno Haible 1987-2004
+ * Bruno Haible 1987-2005
  * Sam Steingold 1998-2004
  */
 #include "lispbibl.c"
@@ -511,11 +511,11 @@ nonreturning_function(local, fehler_posint, (object kw, object obj)) {
         var uintL index1 = posfixnum_to_L(STACK_1);
         var uintL index2 = posfixnum_to_L(STACK_0);
         if (index1+count > vector_length(STACK_6))
-          with_saved_back_trace(L(aref),-1,
-                                fehler_vector_index_range(STACK_6));
+          with_saved_back_trace_subr(L(aref),STACK STACKop -2,-1,
+            fehler_vector_index_range(STACK_6); );
         if (index2+count > vector_length(STACK_4))
-          with_saved_back_trace(L(store),-1,
-                                fehler_vector_index_range(STACK_4));
+          with_saved_back_trace_subr(L(store),STACK STACKop -3,-1,
+            fehler_vector_index_range(STACK_4); );
         var object dv1 = array_displace_check(STACK_6,count,&index1);
         var object dv2 = array_displace_check(STACK_4,count,&index2);
         if (eq(dv1,dv2))
@@ -1921,8 +1921,8 @@ LISPFUN(fill,seclass_default,2,0,norest,key,2, (kw(start),kw(end)) )
       if (count > 0) {
         var uintL index = posfixnum_to_L(STACK_2);
         if (index+count > vector_length(STACK_4))
-          with_saved_back_trace(L(store),-1,
-                                fehler_vector_index_range(STACK_4));
+          with_saved_back_trace_subr(L(store),STACK STACKop -3,-1,
+            fehler_vector_index_range(STACK_4); );
         var object dv = array_displace_check(STACK_4,count,&index);
         if (elt_fill(dv,index,count,STACK_3))
           fehler_store(STACK_4,STACK_3);

@@ -1,6 +1,6 @@
 /*
  * Pathnames for CLISP
- * Bruno Haible 1990-2004
+ * Bruno Haible 1990-2005
  * Logical Pathnames: Marcus Daniels 16.9.1994
  * ANSI compliance, bugs: Sam Steingold 1998-2004
  * German comments translated into English: Stefan Kain 2002-01-03
@@ -3129,7 +3129,8 @@ LISPFUN(enough_namestring,seclass_read,1,1,norest,nokey,0,NIL) {
   }
   skipSTACK(3);
   /* build (namestring new) : */
-  with_saved_back_trace(L(namestring),-1,VALUES1(whole_namestring(newp)));
+  with_saved_back_trace_subr(L(namestring),STACK STACKop -1,-1,
+    VALUES1(whole_namestring(newp)); );
 }
 #undef SET_NEWP
 
@@ -5681,7 +5682,8 @@ local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
    different directory, and this must be tested to exist.) */
 global maygc object assume_dir_exists (void) {
   var object ret;
-  with_saved_back_trace(L(open),-1,ret=assure_dir_exists(true,false));
+  with_saved_back_trace_subr(L(open),STACK STACKop -7,-1,
+    ret = assure_dir_exists(true,false); );
   return ret;
 }
 

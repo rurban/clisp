@@ -1,6 +1,6 @@
 /*
  * EVAL, APPLY and bytecode interpreter for CLISP
- * Bruno Haible 1990-2004
+ * Bruno Haible 1990-2005
  * Sam Steingold 1998-2004
  * German comments translated into English: Stefan Kain 2001-08-13
  */
@@ -270,7 +270,8 @@ typedef enum {
 local /*maygc*/ Values interpret_bytecode_ (object closure, Sbvector codeptr,
                                             const uintB* byteptr);
 #define interpret_bytecode(closure,codevec,index)                       \
-  with_saved_back_trace(closure,-1,interpret_bytecode_(closure,TheSbvector(codevec),&TheSbvector(codevec)->data[index]))
+  with_saved_back_trace_cclosure(closure,                               \
+    interpret_bytecode_(closure,TheSbvector(codevec),&TheSbvector(codevec)->data[index]); )
 
 /* GCC2 can jump directly to labels.
    This results in faster code than switch(). */
@@ -3117,8 +3118,10 @@ local maygc Values eval1 (object form)
         }
       #undef REQ_PAR
     }
-    # call FSUBR:
-    with_saved_back_trace(fun,-1,(*(fsubr_function_t*)(TheFsubr(fun)->function))());
+    # Now STACK = STACKbefore STACKop - (req + opt + (body-flag ? 1 : 0)).
+    # Call FSUBR:
+    with_saved_back_trace_fsubr(fun,
+      (*(fsubr_function_t*)(TheFsubr(fun)->function))(); );
     #if STACKCHECKS
      if (!(STACK == STACKbefore)) # STACK as before?
        abort(); # no -> go to Debugger
@@ -3480,11 +3483,14 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
     if (TheSubr(fun)->rest_flag == subr_norest) {
       # SUBR without &REST-Flag:
      apply_subr_norest:
-      with_saved_back_trace(fun,-1,(*(subr_norest_function_t*)(TheSubr(fun)->function))());
+      with_saved_back_trace_subr(fun,STACK,-1,
+        (*(subr_norest_function_t*)(TheSubr(fun)->function))(); );
     } else {
       # SUBR with &REST-Flag:
      apply_subr_rest:
-      with_saved_back_trace(fun,argcount,(*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer));
+      with_saved_back_trace_subr(fun,STACK,
+                                 TheSubr(fun)->req_anz + TheSubr(fun)->opt_anz + argcount,
+        (*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer); );
     }
     #if STACKCHECKS
     if (!(args_pointer == args_end_pointer)) # Stack cleaned up?
@@ -3861,7 +3867,8 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
         if (((uintL)~(uintL)0 > ca_limit_1) && (args_on_stack > ca_limit_1))
           goto fehler_zuviel;
       }
-      with_saved_back_trace(*closure_,args_on_stack,funcall_iclosure(*closure_,args_pointer,args_on_stack));
+      with_saved_back_trace_iclosure(*closure_,args_pointer,args_on_stack,
+        funcall_iclosure(*closure_,args_pointer,args_on_stack); );
       skipSTACK(1); # discard Closure
       unwind(); # unwind EVAL-Frame
       return; # finished
@@ -4374,12 +4381,15 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun));
    apply_subr_rest:
     if (!nullp(args))
       goto fehler_dotted;
-    with_saved_back_trace(fun,argcount,(*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer));
+    with_saved_back_trace_subr(fun,STACK,
+                               TheSubr(fun)->req_anz + TheSubr(fun)->opt_anz + argcount,
+      (*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer); );
     goto done;
    apply_subr_norest:
     if (!nullp(args))
       goto fehler_dotted;
-    with_saved_back_trace(fun,-1,(*(subr_norest_function_t*)(TheSubr(fun)->function))());
+    with_saved_back_trace_subr(fun,STACK,-1,
+      (*(subr_norest_function_t*)(TheSubr(fun)->function))(); );
    done:
     #if STACKCHECKS
     if (!(args_pointer == args_end_pointer)) # Stack cleaned up?
@@ -4813,7 +4823,9 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
         if (((uintL)~(uintL)0 > ca_limit_1) && (args_on_stack > ca_limit_1))
           goto fehler_zuviel;
       }
-      with_saved_back_trace(closure,args_on_stack,funcall_iclosure(closure,args_end_pointer STACKop args_on_stack,args_on_stack));
+      var gcv_object_t* args_pointer = args_end_pointer STACKop args_on_stack;
+      with_saved_back_trace_iclosure(closure,args_pointer,args_on_stack,
+        funcall_iclosure(closure,args_pointer,args_on_stack); );
       return; # finished
     }
     # Gathered error-messages:
@@ -5236,10 +5248,13 @@ global maygc Values funcall (object fun, uintC args_on_stack)
     argcount = args_on_stack;
     rest_args_pointer = args_end_pointer STACKop argcount;
    apply_subr_rest:
-    with_saved_back_trace(fun,argcount,(*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer));
+    with_saved_back_trace_subr(fun,STACK,
+                               TheSubr(fun)->req_anz + TheSubr(fun)->opt_anz + argcount,
+      (*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer); );
     goto done;
    apply_subr_norest:
-    with_saved_back_trace(fun,-1,(*(subr_norest_function_t*)(TheSubr(fun)->function))());
+    with_saved_back_trace_subr(fun,STACK,-1,
+      (*(subr_norest_function_t*)(TheSubr(fun)->function))(); );
    done:
     #if STACKCHECKS
     if (!(args_pointer == args_end_pointer)) # Stack cleaned up?
@@ -5694,8 +5709,12 @@ global maygc Values funcall (object fun, uintC args_on_stack)
         goto fehler_zuviel; # too many arguments
      fehler_zuwenig: fehler_closure_zuwenig(closure);
      fehler_zuviel: fehler_closure_zuviel(closure);
-    } else /* closure is an interpreted Closure */
-      with_saved_back_trace(closure,args_on_stack,funcall_iclosure(closure,args_end_pointer STACKop args_on_stack,args_on_stack));
+    } else {
+      /* closure is an interpreted Closure */
+      var gcv_object_t* args_pointer = args_end_pointer STACKop args_on_stack;
+      with_saved_back_trace_iclosure(closure,args_pointer,args_on_stack,
+        funcall_iclosure(closure,args_pointer,args_on_stack); );
+    }
   }
 
 
@@ -6735,12 +6754,13 @@ global maygc Values funcall (object fun, uintC args_on_stack)
         goto next_byte;
       # executes a (JSR label)-command.
       #define JSR()  \
-        check_STACK(); check_SP();                              \
-        { var const uintB* label_byteptr;                       \
-          L_operand(label_byteptr);                             \
-          with_saved_back_trace(closure,-1,with_saved_context(  \
-            interpret_bytecode_(closure,codeptr,label_byteptr); \
-          ));                                                   \
+        check_STACK(); check_SP();                                \
+        { var const uintB* label_byteptr;                         \
+          L_operand(label_byteptr);                               \
+          with_saved_context(                                     \
+            with_saved_back_trace_cclosure(closure,               \
+              interpret_bytecode_(closure,codeptr,label_byteptr); \
+          ));                                                     \
         }
       CASE cod_jsr:                    # (JSR label)
         JSR();
@@ -6875,38 +6895,38 @@ global maygc Values funcall (object fun, uintC args_on_stack)
         }
       # executes (CALLS1 n)-command.
       #define CALLS1()  \
-        { var uintL n;                                              \
-          B_operand(n);                                             \
-          # The compiler has already done the argument-check.       \
-         {var Subr fun = FUNTAB1[n];                                \
-          with_saved_back_trace(subr_tab_ptr_as_object(fun),-1,     \
-            with_saved_context(                                     \
-              (*(subr_norest_function_t*)(fun->function))();        \
-            ));                                                     \
+        { var uintL n;                                                       \
+          B_operand(n);                                                      \
+          # The compiler has already done the argument-check.                \
+         {var Subr fun = FUNTAB1[n];                                         \
+          with_saved_context(                                                \
+            with_saved_back_trace_subr(subr_tab_ptr_as_object(fun),STACK,-1, \
+              (*(subr_norest_function_t*)(fun->function))();                 \
+            ));                                                              \
         }}
       # executes (CALLS2 n)-command.
       #define CALLS2()  \
-        { var uintL n;                                              \
-          B_operand(n);                                             \
-          # The compiler has already done the argument-check.       \
-         {var Subr fun = FUNTAB2[n];                                \
-          with_saved_back_trace(subr_tab_ptr_as_object(fun),-1,     \
-            with_saved_context(                                     \
-              (*(subr_norest_function_t*)(fun->function))();        \
-            ));                                                     \
+        { var uintL n;                                                       \
+          B_operand(n);                                                      \
+          # The compiler has already done the argument-check.                \
+         {var Subr fun = FUNTAB2[n];                                         \
+          with_saved_context(                                                \
+            with_saved_back_trace_subr(subr_tab_ptr_as_object(fun),STACK,-1, \
+              (*(subr_norest_function_t*)(fun->function))();                 \
+            ));                                                              \
         }}
       # executes (CALLSR m n)-command.
       #define CALLSR()  \
-        { var uintL m;                                              \
-          var uintL n;                                              \
-          U_operand(m);                                             \
-          B_operand(n);                                             \
-          # The compiler has already done the argument-check.       \
-         {var Subr fun = FUNTABR[n];                                \
-          with_saved_back_trace(subr_tab_ptr_as_object(fun),m,      \
-            with_saved_context(                                     \
+        { var uintL m;                                                       \
+          var uintL n;                                                       \
+          U_operand(m);                                                      \
+          B_operand(n);                                                      \
+          # The compiler has already done the argument-check.                \
+         {var Subr fun = FUNTABR[n];                                         \
+          with_saved_context(                                                \
+            with_saved_back_trace_subr(subr_tab_ptr_as_object(fun),STACK,-1, \
               (*(subr_rest_function_t*)(fun->function))(m,args_end_pointer STACKop m); \
-            ));                                                     \
+            ));                                                              \
         }}
       CASE cod_call:                   # (CALL k n)
         CALL();
@@ -7599,7 +7619,8 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           } else if (nullp(arg)) {
             # (CAR NIL) = NIL: value1 remains NIL
           } else
-            with_saved_back_trace(L(car),-1,fehler_list(arg));
+            with_saved_back_trace_subr(L(car),STACK STACKop -1,-1,
+              fehler_list(arg); );
           mv_count=1;
         }
         goto next_byte;
@@ -7611,7 +7632,8 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           } else if (nullp(arg)) {
             pushSTACK(arg); # (CAR NIL) = NIL
           } else
-            with_saved_back_trace(L(car),-1,fehler_list(arg));
+            with_saved_back_trace_subr(L(car),STACK STACKop -1,-1,
+              fehler_list(arg); );
         }
         goto next_byte;
       CASE cod_load_car_push:          # (LOAD&CAR&PUSH n)
@@ -7624,7 +7646,8 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           } else if (nullp(arg)) {
             pushSTACK(arg); # (CAR NIL) = NIL
           } else
-            with_saved_back_trace(L(car),-1,fehler_list(arg));
+            with_saved_back_trace_subr(L(car),STACK STACKop -1,-1,
+              fehler_list(arg); );
         }
         goto next_byte;
       CASE cod_load_car_store:         # (LOAD&CAR&STORE m n)
@@ -7639,7 +7662,8 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           } else if (nullp(arg)) {
             STACK_(n) = value1 = arg; # (CAR NIL) = NIL
           } else
-            with_saved_back_trace(L(car),-1,fehler_list(arg));
+            with_saved_back_trace_subr(L(car),STACK STACKop -1,-1,
+              fehler_list(arg); );
           mv_count=1;
         }
         goto next_byte;
@@ -7651,7 +7675,8 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           } else if (nullp(arg)) {
             # (CDR NIL) = NIL: value1 remains NIL
           } else
-            with_saved_back_trace(L(cdr),-1,fehler_list(arg));
+            with_saved_back_trace_subr(L(cdr),STACK STACKop -1,-1,
+              fehler_list(arg); );
           mv_count=1;
         }
         goto next_byte;
@@ -7663,7 +7688,8 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           } else if (nullp(arg)) {
             pushSTACK(arg); # (CDR NIL) = NIL
           } else
-            with_saved_back_trace(L(cdr),-1,fehler_list(arg));
+            with_saved_back_trace_subr(L(cdr),STACK STACKop -1,-1,
+              fehler_list(arg); );
         }
         goto next_byte;
       CASE cod_load_cdr_push:          # (LOAD&CDR&PUSH n)
@@ -7676,7 +7702,8 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           } else if (nullp(arg)) {
             pushSTACK(arg); # (CDR NIL) = NIL
           } else
-            with_saved_back_trace(L(cdr),-1,fehler_list(arg));
+            with_saved_back_trace_subr(L(cdr),STACK STACKop -1,-1,
+              fehler_list(arg); );
         }
         goto next_byte;
       CASE cod_load_cdr_store:         # (LOAD&CDR&STORE n)
@@ -7690,7 +7717,8 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           } else if (nullp(arg)) {
             value1 = arg; # (CDR NIL) = NIL
           } else
-            with_saved_back_trace(L(cdr),-1,fehler_list(arg));
+            with_saved_back_trace_subr(L(cdr),STACK STACKop -1,-1,
+              fehler_list(arg); );
           mv_count=1;
         }
         goto next_byte;
@@ -7734,16 +7762,16 @@ global maygc Values funcall (object fun, uintC args_on_stack)
         goto next_byte;
       {var object symbol;
        var object fdef;
-#define CHECK_FDEF()                                                    \
-        if (!symbolp(symbol))                                         \
-          with_saved_back_trace(L(symbol_function),-1,                \
-                                symbol = check_symbol(symbol));       \
-        fdef = Symbol_function(symbol);                               \
-        if (!boundp(fdef))                                            \
-          /* (symbol may be not the actual function-name, for e.g.    \
-             (FUNCTION (SETF FOO)) shows as (SYMBOL-FUNCTION '#:|(SETF FOO)|),\
-             but that should be enough for the error message.) */     \
-          fdef = check_fdefinition(symbol,S(symbol_function))
+       #define CHECK_FDEF()                                                   \
+         if (!symbolp(symbol))                                                \
+           with_saved_back_trace_subr(L(symbol_function),STACK STACKop -1,-1, \
+             symbol = check_symbol(symbol); );                                \
+         fdef = Symbol_function(symbol);                                      \
+         if (!boundp(fdef))                                                   \
+           /* (symbol may be not the actual function-name, for e.g.           \
+              (FUNCTION (SETF FOO)) shows as (SYMBOL-FUNCTION '#:|(SETF FOO)|),\
+              but that should be enough for the error message.) */            \
+           fdef = check_fdefinition(symbol,S(symbol_function))
       CASE cod_symbol_function:        # (SYMBOL-FUNCTION)
         symbol = value1;
         CHECK_FDEF();
@@ -7900,24 +7928,32 @@ global maygc Values funcall (object fun, uintC args_on_stack)
       # Increment. Optimized specifically for Fixnums >=0.
       #define INC(arg,statement)  \
         { if (posfixnump(arg) # Fixnum >= 0 and < most-positive-fixnum ? \
-              && !eq(arg,fixnum(bitm(oint_data_len)-1)))                 \
-            { arg = fixnum_inc(arg,1); statement; }                      \
-            else                                                         \
-              { with_saved_back_trace(L(einsplus),1,with_saved_context( \
-                { pushSTACK(arg); C_einsplus(); } # funcall(L(einsplus),1); \
-                ));                                                   \
-              arg = value1;                                              \
-        }   }
+              && !eq(arg,fixnum(bitm(oint_data_len)-1))) {               \
+            arg = fixnum_inc(arg,1); statement;                          \
+          } else {                                                       \
+            with_saved_context(                                          \
+              /* funcall(L(einsplus),1): */                              \
+              pushSTACK(arg);                                            \
+              with_saved_back_trace_subr(L(einsplus),STACK,1,            \
+                { C_einsplus(); });                                      \
+            );                                                           \
+            arg = value1;                                                \
+          }                                                              \
+        }
       # Decrement. Optimized specifically for Fixnums >=0.
       #define DEC(arg,statement)  \
-        { if (posfixnump(arg) && !eq(arg,Fixnum_0)) # Fixnum > 0 ? \
-            { arg = fixnum_inc(arg,-1); statement; }               \
-            else                                                   \
-              { with_saved_back_trace(L(einsminus),1,with_saved_context( \
-                { pushSTACK(arg); C_einsminus(); } # funcall(L(einsminus),1); \
-                ));                                                   \
-              arg = value1;                                        \
-        }   }
+        { if (posfixnump(arg) && !eq(arg,Fixnum_0)) { # Fixnum > 0 ? \
+            arg = fixnum_inc(arg,-1); statement;                     \
+          } else {                                                   \
+            with_saved_context(                                      \
+              /* funcall(L(einsminus),1): */                         \
+              pushSTACK(arg);                                        \
+              with_saved_back_trace_subr(L(einsminus),STACK,1,       \
+                { C_einsminus(); });                                 \
+            );                                                       \
+            arg = value1;                                            \
+          }                                                          \
+        }
       CASE cod_load_inc_push:          # (LOAD&INC&PUSH n)
         {
           var uintL n;

@@ -1,3 +1,40 @@
+2005-01-02  Bruno Haible  <bruno@clisp.org>
+
+	Fix SHOW-STACK to show invocation activation at the right place, not
+	randomly interspersed in the stack.
+	* lispbibl.d (top_of_back_trace_frame): New declaration.
+	(bt_beyond_stack_p): Use it instead of bt_stack.
+	(with_saved_back_trace): Add stack argument.
+	(with_saved_back_trace_fsubr, with_saved_back_trace_subr,
+	with_saved_back_trace_cclosure, with_saved_back_trace_iclosure): New
+	macros.
+	* debug.d (driver): Correct bt_stack value.
+	(break_driver): Correct bt_stack and bt_function values.
+	(top_of_back_trace_frame): New function.
+	(SYS::DESCRIBE-FRAME): Use top_of_back_trace_frame instead of bt_stack.
+	* spvw.d (main): Correct bt_stack value.
+	* eval.d (interpret_bytecode): Use with_saved_back_trace_cclosure.
+	(eval_fsubr): Use with_saved_back_trace_fsubr.
+	(eval_subr): Use with_saved_back_trace_subr. Fix the argument count
+	in the &rest case.
+	(eval_closure): Use with_saved_back_trace_iclosure.
+	(apply_subr): Use with_saved_back_trace_subr. Fix the argument count
+	in the &rest case.
+	(apply_closure): Use with_saved_back_trace_iclosure.
+	(funcall_subr): Use with_saved_back_trace_subr. Fix the argument count
+	in the &rest case.
+	(funcall_closure): Use with_saved_back_trace_iclosure.
+	(interpret_bytecode_): In JSR, use with_saved_back_trace_cclosure.
+	In CALLS1, CALLS2, CALLSR, use with_saved_back_trace_subr. In CAR,
+	CDR, CHECK_FDEF, INC, DEC, use with_saved_back_trace_subr.
+	* pathname.d (ENOUGH-NAMESTRING, assume_dir_exists): Use
+	with_saved_back_trace_subr.
+	* sequence.d (copy_seqpart_into, FILL): Likewise.
+	* stream.d (read_line): Likewise.
+	* foreign.d (convert_function_to_foreign): Likewise.
+	* spvw_debug.d (bt_out): Use top_of_back_trace_frame instead of
+	bt_stack.
+
 2005-01-01  Bruno Haible  <bruno@clisp.org>
 
 	Reduce code size of some macro expansions.
