@@ -1266,9 +1266,9 @@ typedef __va_alist* va_alist;
  * Miscellaneous declarations.
  */
 #ifdef __cplusplus
-extern "C" void vacall (); /* the return type is variable, not void! */
+extern "C" void (*vacall) (); /* the return type is variable, not void! */
 #else
-extern void vacall (); /* the return type is variable, not void! */
+extern void (*vacall) (); /* the return type is variable, not void! */
 #endif
 #if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
 extern void (* vacall_function) (va_alist);
