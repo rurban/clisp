@@ -632,7 +632,7 @@ static const cint nop_page[256] = {
         { var object* topargptr = STACK STACKop len;
           var object* argptr = topargptr;
           var chart* ptr = &TheSstring(new_string)->data[0];
-          dotimespC(len,len, { *ptr++ = char_code(NEXT(argptr)); } );
+          dotimespL(len,len, { *ptr++ = char_code(NEXT(argptr)); } );
           set_args_end_pointer(topargptr);
         }
       return new_string;
