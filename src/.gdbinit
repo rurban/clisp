@@ -1,7 +1,26 @@
+# -*- sh -*-
 # CLISP .gdbinit
 
-file lisp.run
-set args -B . -M lispinit.mem -q -norc
+define base
+       file lisp.run
+       set args -B . -M lispinit.mem -q -norc
+end
+document base
+         debug the base linking set
+end
+
+define full
+       file full/lisp.run
+       set args -B . -M full/lispinit.mem -q -norc -i clx/new-clx/demos/clx-demos -p CLX-DEMOS
+       break my_standard_type_error
+       break closed_display_error
+end
+document full
+         debug the full linking set
+end
+
+# usually we are debugging the base set
+base
 
 define zout
         output object_out($arg0)
