@@ -1798,7 +1798,7 @@ if [ $HOS = win32 -a $HSYS != win32gcc ] ; then
     echol "MAKE = amake"
   fi
 else
-  echol "MAKE = make"
+  echol "MAKE = ${MAKE:-make}"
 fi
 echol "RM = ${RM}"
 echol "CP = ${CP}"

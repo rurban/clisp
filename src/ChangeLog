@@ -1,5 +1,9 @@
 2001-12-25  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (MAKE): set from the environment variable, if any
+
+2001-12-25  Sam Steingold  <sds@gnu.org>
+
 	The 2001-08-25 patch (autoconf-2.52 upgrade) broke FreeBSD build.
 	This patch appears to fix it.
 	* unixconf.h.in (ICONV_CONST): use #define, not undef
