@@ -10771,7 +10771,7 @@ LISPFUNN(lib_directory,0)
 # or a list of simple vectors of length 7 if user is NIL
 LISPFUN(user_data_,1,0,norest,nokey,0,NIL)
 # (POSIX::USER-DATA-INTERNAL user)
-# if you modify this function wrt it's return values,
+# if you modify this function wrt its return values,
 # you should modify POSIX:USER-DATA in posix.lsp accordingly
   {
     var object user = popSTACK();
@@ -10818,7 +10818,7 @@ LISPFUN(user_data_,1,0,norest,nokey,0,NIL)
 # as well as the 13 slots of the struct stat.
 LISPFUN(file_stat_,1,1,norest,nokey,0,NIL)
 # (POSIX::FILE-STAT-INTERNAL file &optional link-p)
-# if you modify this function wrt it's return values,
+# if you modify this function wrt its return values,
 # you should modify POSIX:FILE-STAT in posix.lsp accordingly
   {
     var object link = popSTACK();
