@@ -10,7 +10,7 @@
 
 2003-08-25  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
-	* utils/comment5.c (main): handle #s in traditional comments.
+	* utils/comment5.c (main): handle '# ' in traditional comments.
 	* makemake.in : do not treat pathname.d specially.
 
 2003-08-23  Sam Steingold  <sds@gnu.org>
@@ -62,7 +62,7 @@
 
 2003-08-15  Sam Steingold  <sds@gnu.org>
 
-	MATCH structure is now printable
+	MATCH structure is now printable readably
 	* modules/regexp/regexi.c (REGEXP-EXEC): use MAKE-MATCH-BOA
 	* modules/regexp/regexp.lisp (match): define a keyword
 	constructor too
