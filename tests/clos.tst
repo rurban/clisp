@@ -3709,6 +3709,90 @@ ERROR
  ("xyz" "def" RESULT A NIL :TEST EQ EQ NEQUAL T T (A :TEST EQ D :TEST EQ :TEST-NOT NEQUAL))
  ("xyz" "def" RESULT A NIL :TEST EQ EQL NEQUAL T T (A :TEST EQ D :TEST-NOT NEQUAL :TEST EQL :TEST-NOT NEQUALP)))
 
+; Check that it's possible to provide 'redo' and 'return' restarts for each
+; method invocation.
+(progn
+  (defun prompt-for-new-values ()
+    (format *debug-io* "~&New values: ")
+    (list (read *debug-io*)))
+  (defun add-method-restarts (form method)
+    (let ((block (gensym))
+          (tag (gensym)))
+      `(BLOCK ,block
+         (TAGBODY
+           ,tag
+           (RETURN-FROM ,block
+             (RESTART-CASE ,form
+               (METHOD-REDO ()
+                 :REPORT (LAMBDA (STREAM) (FORMAT STREAM "Try calling ~S again." ,method))
+                 (GO ,tag))
+               (METHOD-RETURN (L)
+                 :REPORT (LAMBDA (STREAM) (FORMAT STREAM "Specify return values for ~S call." ,method))
+                 :INTERACTIVE (LAMBDA () (PROMPT-FOR-NEW-VALUES))
+                 (RETURN-FROM ,block (VALUES-LIST L)))))))))
+  (defun convert-effective-method (efm)
+    (if (consp efm)
+      (if (eq (car efm) 'CALL-METHOD)
+        (let ((method-list (third efm)))
+          (if (or (typep (first method-list) 'method) (rest method-list))
+            ; Reduce the case of multiple methods to a single one.
+            ; Make the call to the next-method explicit.
+            (convert-effective-method
+              `(CALL-METHOD ,(second efm)
+                 ((MAKE-METHOD
+                    (CALL-METHOD ,(first method-list) ,(rest method-list))))))
+            ; Now the case of at most one method.
+            (if (typep (second efm) 'method)
+              ; Wrap the method call in a RESTART-CASE.
+              (add-method-restarts
+                (cons (convert-effective-method (car efm))
+                      (convert-effective-method (cdr efm)))
+                (second efm))
+              ; Normal recursive processing.
+              (cons (convert-effective-method (car efm))
+                    (convert-effective-method (cdr efm))))))
+        (cons (convert-effective-method (car efm))
+              (convert-effective-method (cdr efm))))
+      efm))
+  (define-method-combination standard-with-restarts ()
+         ((around (:around))
+          (before (:before))
+          (primary () :required t)
+          (after (:after)))
+    (flet ((call-methods-sequentially (methods)
+             (mapcar #'(lambda (method)
+                         `(CALL-METHOD ,method))
+                     methods)))
+      (let ((form (if (or before after (rest primary))
+                    `(MULTIPLE-VALUE-PROG1
+                       (PROGN
+                         ,@(call-methods-sequentially before)
+                         (CALL-METHOD ,(first primary) ,(rest primary)))
+                       ,@(call-methods-sequentially (reverse after)))
+                    `(CALL-METHOD ,(first primary)))))
+        (when around
+          (setq form
+                `(CALL-METHOD ,(first around)
+                              (,@(rest around) (MAKE-METHOD ,form)))))
+        (convert-effective-method form))))
+  (defgeneric testgf16 (x) (:method-combination standard-with-restarts))
+  (defclass testclass16a () ())
+  (defclass testclass16b (testclass16a) ())
+  (defclass testclass16c (testclass16a) ())
+  (defclass testclass16d (testclass16b testclass16c) ())
+  (defmethod testgf16 ((x testclass16a))
+    (list 'a
+          (not (null (find-restart 'method-redo)))
+          (not (null (find-restart 'method-return)))))
+  (defmethod testgf16 ((x testclass16b))
+    (cons 'b (call-next-method)))
+  (defmethod testgf16 ((x testclass16c))
+    (cons 'c (call-next-method)))
+  (defmethod testgf16 ((x testclass16d))
+    (cons 'd (call-next-method)))
+  (testgf16 (make-instance 'testclass16d)))
+(D B C A T T)
+
 
 ;; Method combination with user-defined methods
 
