@@ -951,6 +951,7 @@ for-value   NIL oder T
        ldb ldb-test mask-field dpb deposit-field random make-random-state !
        exquo long-float-digits system::%set-long-float-digits system::log2
        system::log10
+       system::%copy-generic-function
        vector aref system::store array-in-bounds-p array-row-major-index bit
        sbit char= char/= char< char> char<= char>= char-equal char-not-equal
        char-lessp char-greaterp char-not-greaterp char-not-lessp string-concat
@@ -1149,6 +1150,7 @@ for-value   NIL oder T
           (consp 1 0 nil nil nil)
           (constantp 1 0 nil nil nil)
           (copy-alist 1 0 nil nil nil)
+          (system::%copy-generic-function 2 0 nil nil nil)
           (copy-list 1 0 nil nil nil)
           (copy-readtable 0 2 nil nil nil)
           (copy-seq 1 0 nil nil nil)
@@ -5433,7 +5435,16 @@ der Docstring (oder NIL).
                     ) )
                   (fnode-Tagbodys fnode)
                 )
-              (COPY-CLOSURE ,fnode ,(fnode-keyword-offset fnode))
+              ,@(if (fnode-gf-p fnode)
+                  (progn
+                    (assert (= (fnode-keyword-offset fnode) 1))
+                    `((FCONST ,fnode)
+                      (PUSH)
+                      ,(CALLS-code (gethash 'SYSTEM::%COPY-GENERIC-FUNCTION function-codes))
+                     )
+                  )
+                  `((COPY-CLOSURE ,fnode ,(fnode-keyword-offset fnode)))
+                )
              )
           )
 ) )
@@ -11932,20 +11943,19 @@ Die Funktion make-closure wird dazu vorausgesetzt.
             byte-list
         ) )
       :consts
-        (let* ((spare-list (make-list (fnode-Keyword-Offset fnode)))
-               (l (append
-                    spare-list
-                    (fnode-keywords fnode)
-                    (if *compiling-from-file*
-                      (mapcar #'(lambda (value form)
-                                  (if form (make-load-time-eval form) value)
-                                )
-                              (fnode-Consts fnode) (fnode-Consts-forms fnode)
-                      )
-                      (fnode-Consts fnode)
-              ))  ) )
+        (let ((l (append
+                   (make-list (fnode-Keyword-Offset fnode))
+                   (fnode-keywords fnode)
+                   (if *compiling-from-file*
+                     (mapcar #'(lambda (value form)
+                                 (if form (make-load-time-eval form) value)
+                               )
+                             (fnode-Consts fnode) (fnode-Consts-forms fnode)
+                     )
+                     (fnode-Consts fnode)
+             ))  ) )
           (if (fnode-gf-p fnode)
-            (append spare-list (list (coerce l 'simple-vector)))
+            (list (coerce l 'simple-vector))
             l
         ) )
   ) )
