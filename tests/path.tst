@@ -473,6 +473,9 @@ error
 (progn (close file) t)
 error
 
+(truename "~/no/ such / path /  nicht-vorhandenes-file.new")
+error
+
 (null (setf file (open "nicht-vorhandenes-file.new"
                         :direction :io
                         :element-type 'string-char
