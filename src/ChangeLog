@@ -1,3 +1,8 @@
+2002-07-13  Sam Steingold  <sds@gnu.org>
+
+	fixed bug [ 514741 ]: ldap bugs (describe, dir-key-info)
+	* describe.lisp (describe-object): handle DIR-KEY
+
 2002-07-12  Sam Steingold  <sds@gnu.org>
 
 	reverted the last patch wrt bindings (it broke lots of stuff)
