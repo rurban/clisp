@@ -1,3 +1,7 @@
+2004-04-11  Bruno Haible  <bruno@clisp.org>
+
+	* package.d (correct_packname): Fix typo in restart description.
+
 2004-04-20  Sam Steingold  <sds@gnu.org>
 
 	* clispload.lsp (disassemble-machine-code) [win32, cygwin]: do
