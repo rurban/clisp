@@ -151,14 +151,17 @@ to print the corresponding values, or T for all of them.")
     (ecase (type-of obj)
       #+(or UNIX AMIGA FFI WIN32)
       (EXT::FOREIGN-POINTER
-       (format stream (TEXT "a foreign pointer")))
+       (format stream (TEXT "a foreign pointer.")))
       #+FFI
       (FFI::FOREIGN-ADDRESS
-       (format stream (TEXT "a foreign address")))
+       (format stream (TEXT "a foreign address.")))
       #+FFI
       (FFI::FOREIGN-VARIABLE
        (format stream (TEXT "a foreign variable of foreign type ~S.")
                (ffi::deparse-c-type (sys::%record-ref obj 3))))
+      #+SOCKETS
+      (SOCKET-SERVER
+       (format stream (TEXT "a server socket accepting connections.")))
       (BYTE
        (format stream (TEXT "a byte specifier, denoting the ~S bits starting at bit position ~S of an integer.")
                (byte-size obj) (byte-position obj)))

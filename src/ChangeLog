@@ -1,3 +1,8 @@
+2003-09-04  Sam Steingold  <sds@gnu.org>
+
+	* describe.lisp (describe-object) [SOCKETS]: handle SOCKET-SERVER
+	Reported by "John K. Hinsdale" <hin@alma.com>
+
 2003-09-03  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (distrib) [win32]: distribute both base and full
