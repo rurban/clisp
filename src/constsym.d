@@ -768,11 +768,6 @@ LISPSYM(preinitialize_instance,"%REINITIALIZE-INSTANCE",clos)
 LISPSYM(pinitialize_instance,"%INITIALIZE-INSTANCE",clos)
 LISPSYM(pmake_instance,"%MAKE-INSTANCE",clos)
 LISPSYM(pchange_class,"%CHANGE-CLASS",clos)
-LISPSYM(make_instance,"MAKE-INSTANCE",clos) /* error reporting in record.d */
-LISPSYM(shared_initialize,"SHARED-INITIALIZE",clos) /* ditto */
-LISPSYM(reinitialize_instance,"REINITIALIZE-INSTANCE",clos) /* ditto */
-LISPSYM(initialize_instance,"INITIALIZE-INSTANCE",clos) /* ditto */
-LISPSYM(update_instance_frc,"UPDATE-INSTANCE-FOR-REDEFINED-CLASS",clos)
 /* ---------- SEQUENCE ---------- */
 LISPSYM(sequencep,"SEQUENCEP",system)
 LISPSYM(defseq,"%DEFSEQ",system)
@@ -1268,6 +1263,11 @@ LISPSYM(base_char_cod_limit,"BASE-CHAR-CODE-LIMIT",ext) /* constant in CHARSTRG 
 LISPSYM(unicode_attributes_line,"UNICODE-ATTRIBUTES-LINE",system) /* function in CHARSTRG */
 #endif
 LISPSYM(designator,"DESIGNATOR",ext) /* type for CHARSTRG */
+LISPSYM(make_instance,"MAKE-INSTANCE",clos) /* error reporting in record.d */
+LISPSYM(shared_initialize,"SHARED-INITIALIZE",clos) /* ditto */
+LISPSYM(reinitialize_instance,"REINITIALIZE-INSTANCE",clos) /* ditto */
+LISPSYM(initialize_instance,"INITIALIZE-INSTANCE",clos) /* ditto */
+LISPSYM(update_instance_frc,"UPDATE-INSTANCE-FOR-REDEFINED-CLASS",clos)
 LISPSYM(class_slots,"CLASS-SLOTS",clos) /* function for RECORD */
 LISPSYM(slot_definition_location,"SLOT-DEFINITION-LOCATION",clos) /* function for RECORD, IO */
 LISPSYM(slot_definition_name,"SLOT-DEFINITION-NAME",clos) /* function for RECORD, IO */

@@ -505,20 +505,22 @@
 (defgeneric change-class (instance new-class &key &allow-other-keys)
   (:method ((instance standard-object) (new-class standard-class)
             &rest initargs)
-    (let* ((old-slots (class-slots (class-of instance)))
-           (new-slots (class-slots new-class))
-           (previous (%change-class instance new-class t)))
+    ;; ANSI CL 7.2.1. Modifying the Structure of the Instance.
+    (let ((previous (%change-class instance new-class)))
       ;; previous = a copy of instance
-      ;; instance: class is changed, slots unbound
-      ;; copy identically named slots
-      (dolist (slot old-slots)
-        (let ((name (slot-definition-name slot)))
-          (when (slot-boundp previous name)
-            (let ((new-slot (find name new-slots :test #'eq
-                                  :key #'slot-definition-name)))
-              (when new-slot
-                (setf (slot-value instance name)
-                      (slot-value previous name)))))))
+      ;; instance = mutated instance, with new class, slots unbound
+      ;; Copy identically named slots:
+      (let ((old-slots (class-slots (class-of previous)))
+            (new-slots (class-slots new-class)))
+        (dolist (slot old-slots)
+          (let ((name (slot-definition-name slot)))
+            (when (slot-boundp previous name)
+              (let ((new-slot (find name new-slots :test #'eq
+                                    :key #'slot-definition-name)))
+                (when new-slot
+                  (setf (slot-value instance name)
+                        (slot-value previous name))))))))
+      ;; ANSI CL 7.2.2. Initializing Newly Added Local Slots.
       (apply #'update-instance-for-different-class
              previous instance initargs)))
   (:method ((instance t) (new-class symbol) &rest initargs)
