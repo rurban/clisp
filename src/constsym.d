@@ -1426,6 +1426,7 @@ LISPSYM(print_pprint_dispatch,"*PRINT-PPRINT-DISPATCH*",lisp) # IO variable |
 LISPSYM(print_right_margin,"*PRINT-RIGHT-MARGIN*",lisp) # ------------------+
 LISPSYM(print_rpars,"*PRINT-RPARS*",custom) # IO variable
 LISPSYM(print_indent_lists,"*PRINT-INDENT-LISTS*",custom) # IO variable
+LISPSYM(print_pretty_fill,"*PRINT-PRETTY-FILL*",custom) # IO variable
 LISPSYM(print_circle_table,"*PRINT-CIRCLE-TABLE*",system) # IO variable
 LISPSYM(prin_level,"*PRIN-LEVEL*",system) # IO variable
 LISPSYM(prin_lines,"*PRIN-LINES*",system) # IO variable
