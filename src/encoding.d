@@ -4,227 +4,14 @@
 #include "lispbibl.c"
 
 # =============================================================================
-#                              General functions
-
-LISPFUN(make_encoding,0,0,norest,key,2,
-        (kw(charset),kw(line_terminator)) )
-# (MAKE-ENCODING [:charset] [:line-terminator])
-# creates a new encoding.
-  { var object arg;
-    # Check the :CHARSET argument.
-    arg = STACK_1;
-    if (eq(arg,unbound) || eq(arg,S(Kdefault)))
-      { arg = O(default_file_encoding); }
-    elif (encodingp(arg))
-      { }
-    #ifdef UNICODE
-    elif (symbolp(arg) && constantp(TheSymbol(arg))
-          && encodingp(Symbol_value(arg))
-         )
-      { arg = Symbol_value(arg); }
-    #ifdef HAVE_ICONV
-    elif (stringp(arg))
-      { pushSTACK(coerce_ss(arg));
-       {var object encoding = allocate_encoding();
-        TheEncoding(encoding)->enc_eol = S(Kunix);
-        TheEncoding(encoding)->enc_charset = popSTACK();
-        TheEncoding(encoding)->enc_mblen    = P(iconv_mblen);
-        TheEncoding(encoding)->enc_mbstowcs = P(iconv_mbstowcs);
-        TheEncoding(encoding)->enc_wcslen   = P(iconv_wcslen);
-        TheEncoding(encoding)->enc_wcstombs = P(iconv_wcstombs);
-        TheEncoding(encoding)->min_bytes_per_char = 1;
-        TheEncoding(encoding)->max_bytes_per_char = 6; # unfounded assumption
-        arg = encoding;
-      }}
-    #endif
-    #endif
-    else
-      { pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(S(encoding)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
-        pushSTACK(arg); pushSTACK(S(make_encoding));
-        fehler(type_error,
-               DEUTSCH ? "~: Als :CHARSET-Argument ist ~ unzulässig." :
-               ENGLISH ? "~: illegal :CHARSET argument ~" :
-               FRANCAIS ? "~ : ~ n'est pas permis comme argument pour :CHARSET." :
-               ""
-              );
-      }
-    STACK_1 = arg;
-    # Check the :LINE-TERMINATOR argument.
-    arg = STACK_0;
-    if (!(eq(arg,unbound)
-          || eq(arg,S(Kunix)) || eq(arg,S(Kmac)) || eq(arg,S(Kdos))
-       ) )
-      { pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_line_terminator)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
-        pushSTACK(arg); pushSTACK(S(make_encoding));
-        fehler(type_error,
-               DEUTSCH ? "~: Als :LINE-TERMINATOR-Argument ist ~ unzulässig." :
-               ENGLISH ? "~: illegal :LINE-TERMINATOR argument ~" :
-               FRANCAIS ? "~ : ~ n'est pas permis comme argument pour :LINE-TERMINATOR." :
-               ""
-              );
-      }
-    # Create a new encoding.
-    if (eq(arg,unbound) || eq(arg,TheEncoding(STACK_1)->enc_eol))
-      { value1 = STACK_1; }
-      else
-      { var object encoding = allocate_encoding();
-        var object old_encoding = STACK_1;
-        { var const object* ptr1 = &TheRecord(old_encoding)->recdata[0];
-          var object* ptr2 = &TheRecord(encoding)->recdata[0];
-          var uintC count;
-          dotimesC(count,encoding_length, { *ptr2++ = *ptr1++; } );
-          memcpy(ptr2,ptr1,encoding_xlength);
-        }
-        TheEncoding(encoding)->enc_eol = STACK_0;
-        value1 = encoding;
-      }
-    mv_count=1;
-    skipSTACK(2);
-  }
-
-# -----------------------------------------------------------------------------
-#                          Elementary string functions
-
-# UP: Liefert einen LISP-String mit vorgegebenem Inhalt.
-# make_string(charptr,len,encoding)
-# > uintB* charptr: Adresse einer Zeichenfolge
-# > uintL len: Länge der Zeichenfolge
-# > object encoding: Encoding
-# < ergebnis: Normal-Simple-String mit den len Zeichen ab charptr als Inhalt
-# kann GC auslösen
-  #ifdef UNICODE
-    global object make_string (const uintB* bptr, uintL blen, object encoding);
-    global object make_string(bptr,blen,encoding)
-      var const uintB* bptr;
-      var uintL blen;
-      var object encoding;
-      { var const uintB* bendptr = bptr+blen;
-        var uintL clen = Encoding_mblen(encoding)(encoding,bptr,bendptr);
-        pushSTACK(encoding);
-       {var object obj = allocate_string(clen);
-        encoding = popSTACK();
-        { var chart* cptr = &TheSstring(obj)->data[0];
-          var chart* cendptr = cptr+clen;
-          Encoding_mbstowcs(encoding)(encoding,&bptr,bendptr,&cptr,cendptr);
-          ASSERT(cptr == cendptr);
-        }
-        return obj;
-      }}
-  #else
-    global object make_string_ (const uintB* bptr, uintL len);
-    global object make_string_(bptr,len)
-      var const uintB* bptr;
-      var uintL len;
-      { var object obj = allocate_string(len); # String allozieren
-        if (len > 0)
-          { var chart* ptr = &TheSstring(obj)->data[0];
-            # Zeichenfolge von bptr nach ptr kopieren:
-            dotimespL(len,len, { *ptr++ = as_chart(*bptr++); } );
-          }
-        return obj;
-      }
-  #endif
-
-# UP: Wandelt einen ASCIZ-String in einen LISP-String um.
-# asciz_to_string(asciz,encoding)
-# ascii_to_string(asciz)
-# > char* asciz: ASCIZ-String
-#       (Adresse einer durch ein Nullbyte abgeschlossenen Zeichenfolge)
-# > object encoding: Encoding
-# < ergebnis: Normal-Simple-String mit der Zeichenfolge (ohne Nullbyte) als Inhalt
-# kann GC auslösen
-  #ifdef UNICODE
-    global object asciz_to_string (const char * asciz, object encoding);
-    global object asciz_to_string(asciz,encoding)
-      var const char* asciz;
-      var object encoding;
-      { return make_string((const uintB*)asciz,asciz_length(asciz),encoding); }
-  #else
-    global object asciz_to_string_ (const char * asciz);
-    global object asciz_to_string_(asciz)
-      var const char* asciz;
-      { return make_string_((const uintB*)asciz,asciz_length(asciz)); }
-  #endif
-  global object ascii_to_string (const char * asciz);
-  global object ascii_to_string(asciz)
-    var const char* asciz;
-    { var const uintB* bptr = (const uintB*)asciz;
-      var uintL len = asciz_length(asciz);
-      var object obj = allocate_string(len); # String allozieren
-      if (len > 0)
-        { var chart* ptr = &TheSstring(obj)->data[0];
-          # Zeichenfolge von bptr nach ptr kopieren:
-          dotimespL(len,len,
-            { var uintB b = *bptr++;
-              ASSERT(b < 0x80);
-              *ptr++ = as_chart(b);
-            });
-        }
-      return obj;
-    }
-
-# UP: Wandelt einen String in einen ASCIZ-String um.
-# string_to_asciz(obj,encoding)
-# > object obj: String
-# > object encoding: Encoding
-# < ergebnis: Simple-Bit-Vektor mit denselben Zeichen als Bytes und einem
-#             Nullbyte mehr am Schluss
-# < TheAsciz(ergebnis): Adresse der darin enthaltenen Bytefolge
-# kann GC auslösen
-  #ifdef UNICODE
-    global object string_to_asciz (object obj, object encoding);
-    global object string_to_asciz(obj,encoding)
-      var object obj;
-      var object encoding;
-      {  var uintL len;
-         var uintL offset;
-         var object string = unpack_string_ro(obj,&len,&offset);
-         var const chart* srcptr;
-         unpack_sstring_alloca(string,len,offset, srcptr=);
-       { var uintL bytelen = cslen(encoding,srcptr,len);
-         pushSTACK(encoding);
-         pushSTACK(string);
-        {var object newasciz = allocate_bit_vector((bytelen+1)*8);
-         string = popSTACK();
-         encoding = popSTACK();
-         unpack_sstring_alloca(string,len,offset, srcptr=);
-         cstombs(encoding,srcptr,len,&TheSbvector(newasciz)->data[0],bytelen);
-         TheSbvector(newasciz)->data[bytelen] = '\0';
-         return newasciz;
-      }}}
-  #else
-    global object string_to_asciz_ (object obj);
-    global object string_to_asciz_(obj)
-      var object obj;
-      { pushSTACK(obj); # String retten
-       {var object newasciz = allocate_bit_vector((vector_length(obj)+1)*8);
-        obj = popSTACK(); # String zurück
-        { var uintL len;
-          var uintL offset;
-          var object string = unpack_string_ro(obj,&len,&offset);
-          var const chart* sourceptr = &TheSstring(string)->data[offset];
-          # Source-String: Länge in len, Bytes ab sourceptr
-          var uintB* destptr = &TheSbvector(newasciz)->data[0];
-          # Destination-String: Bytes ab destptr
-          { # Kopierschleife:
-            var uintL count;
-            dotimesL(count,len, { *destptr++ = as_cint(*sourceptr++); } );
-            *destptr++ = '\0'; # Nullbyte anfügen
-        } }
-        return newasciz;
-      }}
-  #endif
-
-
-# =============================================================================
 #                             Individual encodings
 
 #ifdef UNICODE
 
-# NOTE 1! The mblen function has to be consistent with the mbstowcs function.
-# The wcslen function has to be consistent with the wcstombs function.
+# NOTE 1! The mblen function has to be consistent with the mbstowcs function
+# (when called with stream = nullobj).
+# The wcslen function has to be consistent with the wcstombs function (when
+# called with stream = nullobj).
 
 # NOTE 2! The conversion from bytes to characters (mbstowcs function) is
 # subject to the following restriction: At most one byte lookahead is needed.
@@ -238,8 +25,8 @@ local char hex_table[] = "0123456789ABCDEF";
 
 # Error, when a character cannot be converted to an encoding.
 # fehler_unencodable(encoding);
-  nonreturning_function(local, fehler_unencodable, (object encoding, chart ch));
-  local void fehler_unencodable(encoding,ch)
+  nonreturning_function(global, fehler_unencodable, (object encoding, chart ch));
+  global void fehler_unencodable(encoding,ch)
     var object encoding;
     var chart ch;
     { pushSTACK(TheEncoding(encoding)->enc_charset);
@@ -266,11 +53,11 @@ local char hex_table[] = "0123456789ABCDEF";
 # max. bytes per character = 2
 
 global uintL uni16_mblen (object encoding, const uintB* src, const uintB* srcend);
-global void uni16be_mbstowcs (object encoding, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
-global void uni16le_mbstowcs (object encoding, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
+global void uni16be_mbstowcs (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
+global void uni16le_mbstowcs (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
 global uintL uni16_wcslen (object encoding, const chart* src, const chart* srcend);
-global void uni16be_wcstombs (object encoding, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
-global void uni16le_wcstombs (object encoding, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
+global void uni16be_wcstombs (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
+global void uni16le_wcstombs (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
 
 # Bytes to characters.
 
@@ -280,8 +67,9 @@ global uintL uni16_mblen(encoding,src,srcend)
   var const uintB* srcend;
   { return floor(srcend-src,2); }
 
-global void uni16be_mbstowcs(encoding,srcp,srcend,destp,destend)
+global void uni16be_mbstowcs(encoding,stream,srcp,srcend,destp,destend)
   var object encoding;
+  var object stream;
   var const uintB* *srcp;
   var const uintB* srcend;
   var chart* *destp;
@@ -299,8 +87,9 @@ global void uni16be_mbstowcs(encoding,srcp,srcend,destp,destend)
         *destp = dest;
   }   }
 
-global void uni16le_mbstowcs(encoding,srcp,srcend,destp,destend)
+global void uni16le_mbstowcs(encoding,stream,srcp,srcend,destp,destend)
   var object encoding;
+  var object stream;
   var const uintB* *srcp;
   var const uintB* srcend;
   var chart* *destp;
@@ -326,8 +115,9 @@ global uintL uni16_wcslen(encoding,src,srcend)
   var const chart* srcend;
   { return (srcend-src)*2; }
 
-global void uni16be_wcstombs(encoding,srcp,srcend,destp,destend)
+global void uni16be_wcstombs(encoding,stream,srcp,srcend,destp,destend)
   var object encoding;
+  var object stream;
   var const chart* *srcp;
   var const chart* srcend;
   var uintB* *destp;
@@ -346,8 +136,9 @@ global void uni16be_wcstombs(encoding,srcp,srcend,destp,destend)
         *destp = dest;
   }   }
 
-global void uni16le_wcstombs(encoding,srcp,srcend,destp,destend)
+global void uni16le_wcstombs(encoding,stream,srcp,srcend,destp,destend)
   var object encoding;
+  var object stream;
   var const chart* *srcp;
   var const chart* srcend;
   var uintB* *destp;
@@ -388,9 +179,9 @@ global void uni16le_wcstombs(encoding,srcp,srcend,destp,destend)
 # max. bytes per character = 3
 
 global uintL utf8_mblen (object encoding, const uintB* src, const uintB* srcend);
-global void utf8_mbstowcs (object encoding, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
+global void utf8_mbstowcs (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
 global uintL utf8_wcslen (object encoding, const chart* src, const chart* srcend);
-global void utf8_wcstombs (object encoding, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
+global void utf8_wcstombs (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
 
 # Bytes to characters.
 
@@ -490,8 +281,9 @@ global uintL utf8_mblen(encoding,src,srcend)
     return count;
   }
 
-global void utf8_mbstowcs(encoding,srcp,srcend,destp,destend)
+global void utf8_mbstowcs(encoding,stream,srcp,srcend,destp,destend)
   var object encoding;
+  var object stream;
   var const uintB* *srcp;
   var const uintB* srcend;
   var chart* *destp;
@@ -546,8 +338,9 @@ global uintL utf8_wcslen(encoding,src,srcend)
     return destlen;
   }
 
-global void utf8_wcstombs(encoding,srcp,srcend,destp,destend)
+global void utf8_wcstombs(encoding,stream,srcp,srcend,destp,destend)
   var object encoding;
+  var object stream;
   var const chart* *srcp;
   var const chart* srcend;
   var uintB* *destp;
@@ -586,9 +379,9 @@ global void utf8_wcstombs(encoding,srcp,srcend,destp,destend)
 # max. bytes per character = 6
 
 global uintL java_mblen (object encoding, const uintB* src, const uintB* srcend);
-global void java_mbstowcs (object encoding, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
+global void java_mbstowcs (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
 global uintL java_wcslen (object encoding, const chart* src, const chart* srcend);
-global void java_wcstombs (object encoding, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
+global void java_wcstombs (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
 
 # Bytes to characters.
 
@@ -641,8 +434,9 @@ global uintL java_mblen(encoding,src,srcend)
     return count;
   }
 
-global void java_mbstowcs(encoding,srcp,srcend,destp,destend)
+global void java_mbstowcs(encoding,stream,srcp,srcend,destp,destend)
   var object encoding;
+  var object stream;
   var const uintB* *srcp;
   var const uintB* srcend;
   var chart* *destp;
@@ -729,8 +523,9 @@ global uintL java_wcslen(encoding,src,srcend)
     return destlen;
   }
 
-global void java_wcstombs(encoding,srcp,srcend,destp,destend)
+global void java_wcstombs(encoding,stream,srcp,srcend,destp,destend)
   var object encoding;
+  var object stream;
   var const chart* *srcp;
   var const chart* srcend;
   var uintB* *destp;
@@ -941,11 +736,11 @@ static const nls_table * const nls_tables[] = {
 };
 
 global uintL nls_mblen (object encoding, const uintB* src, const uintB* srcend);
-global void nls_mbstowcs (object encoding, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
-global void nls_asciiext_mbstowcs (object encoding, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
+global void nls_mbstowcs (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
+global void nls_asciiext_mbstowcs (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
 global uintL nls_wcslen (object encoding, const chart* src, const chart* srcend);
-global void nls_wcstombs (object encoding, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
-global void nls_asciiext_wcstombs (object encoding, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
+global void nls_wcstombs (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
+global void nls_asciiext_wcstombs (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
 
 # Bytes to characters.
 
@@ -972,8 +767,9 @@ global uintL nls_mblen(encoding,src,srcend)
   var const uintB* srcend;
   { return (srcend-src); }
 
-global void nls_mbstowcs(encoding,srcp,srcend,destp,destend)
+global void nls_mbstowcs(encoding,stream,srcp,srcend,destp,destend)
   var object encoding;
+  var object stream;
   var const uintB* *srcp;
   var const uintB* srcend;
   var chart* *destp;
@@ -1000,8 +796,9 @@ global void nls_mbstowcs(encoding,srcp,srcend,destp,destend)
   }   }
 
 # Same thing, specially optimized for ASCII extensions.
-global void nls_asciiext_mbstowcs(encoding,srcp,srcend,destp,destend)
+global void nls_asciiext_mbstowcs(encoding,stream,srcp,srcend,destp,destend)
   var object encoding;
+  var object stream;
   var const uintB* *srcp;
   var const uintB* srcend;
   var chart* *destp;
@@ -1040,8 +837,9 @@ global uintL nls_wcslen(encoding,src,srcend)
   var const chart* srcend;
   { return (srcend-src); }
 
-global void nls_wcstombs(encoding,srcp,srcend,destp,destend)
+global void nls_wcstombs(encoding,stream,srcp,srcend,destp,destend)
   var object encoding;
+  var object stream;
   var const chart* *srcp;
   var const chart* srcend;
   var uintB* *destp;
@@ -1068,8 +866,9 @@ global void nls_wcstombs(encoding,srcp,srcend,destp,destend)
   }   }
 
 # Same thing, specially optimized for ASCII extensions.
-global void nls_asciiext_wcstombs(encoding,srcp,srcend,destp,destend)
+global void nls_asciiext_wcstombs(encoding,stream,srcp,srcend,destp,destend)
   var object encoding;
+  var object stream;
   var const chart* *srcp;
   var const chart* srcend;
   var uintB* *destp;
@@ -1103,195 +902,235 @@ global void nls_asciiext_wcstombs(encoding,srcp,srcend,destp,destend)
 # -----------------------------------------------------------------------------
 #                             iconv-based encodings
 
-# Here enc_charset is a simple-string, not a symbol. The system decides
-# which encodings are available, and there is no API for getting them all.
-
-# FIXME: This doesn't work for streams yet. The stream should keep two iconv_t
-# pointers.
+# They are defined in stream.d because they need to access internals of
+# the ChannelStream.
 
 #ifdef HAVE_ICONV
 
-# Our internal encoding is UCS-2 with platform dependent endianness.
-#if BIG_ENDIAN_P
-  #define CLISP_INTERNAL_CHARSET  "UNICODEBIG//"
-#else
-  #define CLISP_INTERNAL_CHARSET  "UNICODELITTLE//"
-#endif
-
-# min. bytes per character = 1
-# max. bytes per character unknown, assume it's <= 6
-
-global uintL iconv_mblen (object encoding, const uintB* src, const uintB* srcend);
-global void iconv_mbstowcs (object encoding, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
-global uintL iconv_wcslen (object encoding, const chart* src, const chart* srcend);
-global void iconv_wcstombs (object encoding, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
-
-# fehler_iconv_invalid_charset(encoding);
-  nonreturning_function(local, fehler_iconv_invalid_charset, (object encoding));
-  local void fehler_iconv_invalid_charset(encoding)
-    var object encoding;
-    { pushSTACK(TheEncoding(encoding)->enc_charset);
-      fehler(error,
-             DEUTSCH ? "Unbekannter Zeichensatz ~" :
-             ENGLISH ? "unknown character set ~" :
-             FRANCAIS ? "jeu de caractères ~ inconnu" :
-             ""
-            );
-    }
-
-# Bytes to characters.
-
-global uintL iconv_mblen(encoding,src,srcend)
-  var object encoding;
-  var const uintB* src;
-  var const uintB* srcend;
-  { var uintL count = 0;
-    #define tmpbufsize 4096
-    var chart tmpbuf[tmpbufsize];
-    with_sstring_0(TheEncoding(encoding)->enc_charset,O(ascii_encoding),charset_asciz,
-      { begin_system_call();
-       {var iconv_t cd = iconv_open(CLISP_INTERNAL_CHARSET,charset_asciz);
-        if (cd == (iconv_t)(-1))
-          { if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
-            OS_error();
-          }
-        while (src < srcend)
-          { var const char* inptr = src;
-            var size_t insize = srcend-src;
-            var char* outptr = (char*)tmpbuf;
-            var size_t outsize = tmpbufsize*sizeof(chart);
-            var size_t res = iconv(cd,&inptr,&insize,&output,&outsize);
-            if (res == (size_t)(-1))
-              { if (!(errno == EINVAL))
-                  { var int saved_errno = errno;
-                    iconv_close(cd);
-                    errno = saved_errno;
-                    OS_error();
-              }   }
-            src = inptr; count += (outptr-(char*)tmpbuf);
-          }
-        if (iconv_close(cd) < 0) { OS_error(); }
-        end_system_call();
-      }});
-    #undef tmpbufsize
-    return count/sizeof(chart);
-  }
-
-global void iconv_mbstowcs(encoding,srcp,srcend,destp,destend)
-  var object encoding;
-  var const uintB* *srcp;
-  var const uintB* srcend;
-  var chart* *destp;
-  var chart* destend;
-  { var const char* inptr = *srcp;
-    var size_t insize = srcend-*srcp;
-    var char* outptr = (char*)*destp;
-    var size_t outsize = (char*)destend-(char*)*destp;
-    with_sstring_0(TheEncoding(encoding)->enc_charset,O(ascii_encoding),charset_asciz,
-      { begin_system_call();
-       {var iconv_t cd = iconv_open(CLISP_INTERNAL_CHARSET,charset_asciz);
-        if (cd == (iconv_t)(-1))
-          { if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
-            OS_error();
-          }
-        while (insize > 0 && outsize > 0)
-          { var size_t res = iconv(cd,&inptr,&insize,&output,&outsize);
-            if (res == (size_t)(-1))
-              { if (!(errno == EINVAL))
-                  { var int saved_errno = errno;
-                    iconv_close(cd);
-                    errno = saved_errno;
-                    OS_error();
-              }   }
-          }
-        if (iconv_close(cd) < 0) { OS_error(); }
-        end_system_call();
-        ASSERT(insize == 0 && outsize == 0);
-      }});
-    *srcp = (const uintB*)inptr;
-    *destp = (chart*)outptr;
-  }
-
-# Characters to bytes.
-
-global uintL iconv_wcslen(encoding,src,srcend)
-  var object encoding;
-  var const chart* src;
-  var const chart* srcend;
-  { var uintL count = 0;
-    #define tmpbufsize 4096
-    var uintB tmpbuf[tmpbufsize];
-    with_sstring_0(TheEncoding(encoding)->enc_charset,O(ascii_encoding),charset_asciz,
-      { begin_system_call();
-       {var iconv_t cd = iconv_open(charset_asciz,CLISP_INTERNAL_CHARSET);
-        if (cd == (iconv_t)(-1))
-          { if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
-            OS_error();
-          }
-        # FIXME: glibc2.1 recommends calling iconv(cd,NULL,....) to initialize.
-        while (src < srcend)
-          { var const char* inptr = src;
-            var size_t insize = (char*)srcend-(char*)src;
-            var char* outptr = (char*)tmpbuf;
-            var size_t outsize = tmpbufsize;
-            var size_t res = iconv(cd,&inptr,&insize,&output,&outsize);
-            if (res == (size_t)(-1))
-              { if (!(errno == EINVAL))
-                  { var int saved_errno = errno;
-                    iconv_close(cd);
-                    errno = saved_errno;
-                    OS_error();
-              }   }
-            src = (const chart*)inptr; count += (outptr-(char*)tmpbuf);
-          }
-        if (iconv_close(cd) < 0) { OS_error(); }
-        end_system_call();
-      }});
-    #undef tmpbufsize
-    return count;
-  }
-
-global void iconv_wcstombs(encoding,srcp,srcend,destp,destend)
-  var object encoding;
-  var const chart* *srcp;
-  var const chart* srcend;
-  var uintB* *destp;
-  var uintB* destend;
-  { var const char* inptr = (char*)*srcp;
-    var size_t insize = (char*)srcend-(char*)*srcp;
-    var char* outptr = *destp;
-    var size_t outsize = destend-*destp;
-    with_sstring_0(TheEncoding(encoding)->enc_charset,O(ascii_encoding),charset_asciz,
-      { begin_system_call();
-       {var iconv_t cd = iconv_open(charset_asciz,CLISP_INTERNAL_CHARSET);
-        if (cd == (iconv_t)(-1))
-          { if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
-            OS_error();
-          }
-        # FIXME: glibc2.1 recommends calling iconv(cd,NULL,....) to initialize.
-        while (insize > 0 && outsize > 0)
-          { var size_t res = iconv(cd,&inptr,&insize,&output,&outsize);
-            if (res == (size_t)(-1))
-              { if (!(errno == EINVAL))
-                  { var int saved_errno = errno;
-                    iconv_close(cd);
-                    errno = saved_errno;
-                    OS_error();
-              }   }
-          }
-        if (iconv_close(cd) < 0) { OS_error(); }
-        end_system_call();
-        ASSERT(insize == 0 && outsize == 0);
-      }});
-    *srcp = (const chart*)inptr;
-    *destp = (uintB*)outptr;
-  }
+extern uintL iconv_mblen (object encoding, const uintB* src, const uintB* srcend);
+extern void iconv_mbstowcs (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
+extern uintL iconv_wcslen (object encoding, const chart* src, const chart* srcend);
+extern void iconv_wcstombs (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
 
 #endif # HAVE_ICONV
 
 # -----------------------------------------------------------------------------
 
 #endif # UNICODE
+
+# =============================================================================
+#                              General functions
+
+LISPFUN(make_encoding,0,0,norest,key,2,
+        (kw(charset),kw(line_terminator)) )
+# (MAKE-ENCODING [:charset] [:line-terminator])
+# creates a new encoding.
+  { var object arg;
+    # Check the :CHARSET argument.
+    arg = STACK_1;
+    if (eq(arg,unbound) || eq(arg,S(Kdefault)))
+      { arg = O(default_file_encoding); }
+    elif (encodingp(arg))
+      { }
+    #ifdef UNICODE
+    elif (symbolp(arg) && constantp(TheSymbol(arg))
+          && encodingp(Symbol_value(arg))
+         )
+      { arg = Symbol_value(arg); }
+    #ifdef HAVE_ICONV
+    elif (stringp(arg))
+      { pushSTACK(coerce_ss(arg));
+       {var object encoding = allocate_encoding();
+        TheEncoding(encoding)->enc_eol = S(Kunix);
+        TheEncoding(encoding)->enc_charset = popSTACK();
+        TheEncoding(encoding)->enc_mblen    = P(iconv_mblen);
+        TheEncoding(encoding)->enc_mbstowcs = P(iconv_mbstowcs);
+        TheEncoding(encoding)->enc_wcslen   = P(iconv_wcslen);
+        TheEncoding(encoding)->enc_wcstombs = P(iconv_wcstombs);
+        TheEncoding(encoding)->min_bytes_per_char = 1;
+        TheEncoding(encoding)->max_bytes_per_char = 6; # unfounded assumption
+        arg = encoding;
+      }}
+    #endif
+    #endif
+    else
+      { pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
+        pushSTACK(S(encoding)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(arg); pushSTACK(S(make_encoding));
+        fehler(type_error,
+               DEUTSCH ? "~: Als :CHARSET-Argument ist ~ unzulässig." :
+               ENGLISH ? "~: illegal :CHARSET argument ~" :
+               FRANCAIS ? "~ : ~ n'est pas permis comme argument pour :CHARSET." :
+               ""
+              );
+      }
+    STACK_1 = arg;
+    # Check the :LINE-TERMINATOR argument.
+    arg = STACK_0;
+    if (!(eq(arg,unbound)
+          || eq(arg,S(Kunix)) || eq(arg,S(Kmac)) || eq(arg,S(Kdos))
+       ) )
+      { pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_line_terminator)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(arg); pushSTACK(S(make_encoding));
+        fehler(type_error,
+               DEUTSCH ? "~: Als :LINE-TERMINATOR-Argument ist ~ unzulässig." :
+               ENGLISH ? "~: illegal :LINE-TERMINATOR argument ~" :
+               FRANCAIS ? "~ : ~ n'est pas permis comme argument pour :LINE-TERMINATOR." :
+               ""
+              );
+      }
+    # Create a new encoding.
+    if (eq(arg,unbound) || eq(arg,TheEncoding(STACK_1)->enc_eol))
+      { value1 = STACK_1; }
+      else
+      { var object encoding = allocate_encoding();
+        var object old_encoding = STACK_1;
+        { var const object* ptr1 = &TheRecord(old_encoding)->recdata[0];
+          var object* ptr2 = &TheRecord(encoding)->recdata[0];
+          var uintC count;
+          dotimesC(count,encoding_length, { *ptr2++ = *ptr1++; } );
+          memcpy(ptr2,ptr1,encoding_xlength);
+        }
+        TheEncoding(encoding)->enc_eol = STACK_0;
+        value1 = encoding;
+      }
+    mv_count=1;
+    skipSTACK(2);
+  }
+
+# -----------------------------------------------------------------------------
+#                          Elementary string functions
+
+# UP: Liefert einen LISP-String mit vorgegebenem Inhalt.
+# make_string(charptr,len,encoding)
+# > uintB* charptr: Adresse einer Zeichenfolge
+# > uintL len: Länge der Zeichenfolge
+# > object encoding: Encoding
+# < ergebnis: Normal-Simple-String mit den len Zeichen ab charptr als Inhalt
+# kann GC auslösen
+  #ifdef UNICODE
+    global object make_string (const uintB* bptr, uintL blen, object encoding);
+    global object make_string(bptr,blen,encoding)
+      var const uintB* bptr;
+      var uintL blen;
+      var object encoding;
+      { var const uintB* bendptr = bptr+blen;
+        var uintL clen = Encoding_mblen(encoding)(encoding,bptr,bendptr);
+        pushSTACK(encoding);
+       {var object obj = allocate_string(clen);
+        encoding = popSTACK();
+        { var chart* cptr = &TheSstring(obj)->data[0];
+          var chart* cendptr = cptr+clen;
+          Encoding_mbstowcs(encoding)(encoding,nullobj,&bptr,bendptr,&cptr,cendptr);
+          ASSERT(cptr == cendptr);
+        }
+        return obj;
+      }}
+  #else
+    global object make_string_ (const uintB* bptr, uintL len);
+    global object make_string_(bptr,len)
+      var const uintB* bptr;
+      var uintL len;
+      { var object obj = allocate_string(len); # String allozieren
+        if (len > 0)
+          { var chart* ptr = &TheSstring(obj)->data[0];
+            # Zeichenfolge von bptr nach ptr kopieren:
+            dotimespL(len,len, { *ptr++ = as_chart(*bptr++); } );
+          }
+        return obj;
+      }
+  #endif
+
+# UP: Wandelt einen ASCIZ-String in einen LISP-String um.
+# asciz_to_string(asciz,encoding)
+# ascii_to_string(asciz)
+# > char* asciz: ASCIZ-String
+#       (Adresse einer durch ein Nullbyte abgeschlossenen Zeichenfolge)
+# > object encoding: Encoding
+# < ergebnis: Normal-Simple-String mit der Zeichenfolge (ohne Nullbyte) als Inhalt
+# kann GC auslösen
+  #ifdef UNICODE
+    global object asciz_to_string (const char * asciz, object encoding);
+    global object asciz_to_string(asciz,encoding)
+      var const char* asciz;
+      var object encoding;
+      { return make_string((const uintB*)asciz,asciz_length(asciz),encoding); }
+  #else
+    global object asciz_to_string_ (const char * asciz);
+    global object asciz_to_string_(asciz)
+      var const char* asciz;
+      { return make_string_((const uintB*)asciz,asciz_length(asciz)); }
+  #endif
+  global object ascii_to_string (const char * asciz);
+  global object ascii_to_string(asciz)
+    var const char* asciz;
+    { var const uintB* bptr = (const uintB*)asciz;
+      var uintL len = asciz_length(asciz);
+      var object obj = allocate_string(len); # String allozieren
+      if (len > 0)
+        { var chart* ptr = &TheSstring(obj)->data[0];
+          # Zeichenfolge von bptr nach ptr kopieren:
+          dotimespL(len,len,
+            { var uintB b = *bptr++;
+              ASSERT(b < 0x80);
+              *ptr++ = as_chart(b);
+            });
+        }
+      return obj;
+    }
+
+# UP: Wandelt einen String in einen ASCIZ-String um.
+# string_to_asciz(obj,encoding)
+# > object obj: String
+# > object encoding: Encoding
+# < ergebnis: Simple-Bit-Vektor mit denselben Zeichen als Bytes und einem
+#             Nullbyte mehr am Schluss
+# < TheAsciz(ergebnis): Adresse der darin enthaltenen Bytefolge
+# kann GC auslösen
+  #ifdef UNICODE
+    global object string_to_asciz (object obj, object encoding);
+    global object string_to_asciz(obj,encoding)
+      var object obj;
+      var object encoding;
+      {  var uintL len;
+         var uintL offset;
+         var object string = unpack_string_ro(obj,&len,&offset);
+         var const chart* srcptr;
+         unpack_sstring_alloca(string,len,offset, srcptr=);
+       { var uintL bytelen = cslen(encoding,srcptr,len);
+         pushSTACK(encoding);
+         pushSTACK(string);
+        {var object newasciz = allocate_bit_vector((bytelen+1)*8);
+         string = popSTACK();
+         encoding = popSTACK();
+         unpack_sstring_alloca(string,len,offset, srcptr=);
+         cstombs(encoding,srcptr,len,&TheSbvector(newasciz)->data[0],bytelen);
+         TheSbvector(newasciz)->data[bytelen] = '\0';
+         return newasciz;
+      }}}
+  #else
+    global object string_to_asciz_ (object obj);
+    global object string_to_asciz_(obj)
+      var object obj;
+      { pushSTACK(obj); # String retten
+       {var object newasciz = allocate_bit_vector((vector_length(obj)+1)*8);
+        obj = popSTACK(); # String zurück
+        { var uintL len;
+          var uintL offset;
+          var object string = unpack_string_ro(obj,&len,&offset);
+          var const chart* sourceptr = &TheSstring(string)->data[offset];
+          # Source-String: Länge in len, Bytes ab sourceptr
+          var uintB* destptr = &TheSbvector(newasciz)->data[0];
+          # Destination-String: Bytes ab destptr
+          { # Kopierschleife:
+            var uintL count;
+            dotimesL(count,len, { *destptr++ = as_cint(*sourceptr++); } );
+            *destptr++ = '\0'; # Nullbyte anfügen
+        } }
+        return newasciz;
+      }}
+  #endif
 
 # =============================================================================
 #                               Initialization
