@@ -274,7 +274,7 @@ local Values interpret_bytecode_ (object closure, Sbvector codeptr,
 
 /* GCC2 can jump directly to labels.
    This results in faster code than switch(). */
-#ifdef GNU
+#if defined(GNU) && !defined(__APPLE_CC__)
   #if (__GNUC__ >= 2) && !defined(UNIX_HPUX) && !defined(NO_FAST_DISPATCH) /* work around HP-UX Linker Bug */
     #define FAST_DISPATCH
     #if (__GNUC__ >= 3) || (__GNUC_MINOR__ >= 7) /* work around gcc-2.6.3 Bug (-fno-defer-pop ginge auch) */
