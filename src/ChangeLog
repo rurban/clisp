@@ -1,5 +1,10 @@
 1999-07-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * stream.d (wr_ch_unbuffered_dos, wr_ch_buffered_dos): Output crlf
+          only when obj is #\Newline.
+
+1999-07-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * misc.d (MACHINE-VERSION) [WIN32]: On Win95, use info.dwProcessorType.
 
 1999-07-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
