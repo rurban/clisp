@@ -100,6 +100,17 @@ You can use this memory image with the &opt-M; option.
 On &unix; systems, you may compress it with &gnu; &gzip; to save disk
 space.</para>
 
+<warning id="image-portability"><title>Image Portability</title>
+ <para>Memory images are &not-e; portable across different platforms
+  (in contrast with platform-independent &fasl-file; files).
+  They are &not-e; even portable across &linkset;s: image saved using
+  the <command>full</command> &linkset; cannot be used with
+  the <command>base</command> runtime:<screen>
+$ clisp -K full -x '(ext:saveinitmem)'
+$ clisp -K base -M lispinit.mem
+base/lisp.run: initialization file `lispinit.mem' was not created by this version of CLISP runtime
+</screen></para></warning>
+
 </section>
 
 <section id="quit"><title>Quitting &clisp;</title>
