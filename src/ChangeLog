@@ -1,3 +1,9 @@
+2004-05-11  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (c-form-table): treat =,/=,>,>=,<,<= specially
+	(c-COMPARE-NUMBERS): try to convert = and other numeric
+	comparisons to ZEROP &c
+
 2004-05-08  Bruno Haible  <bruno@clisp.org>
 
 	* control.d (check_setq_body): Fix GC-safety bug introduced on
