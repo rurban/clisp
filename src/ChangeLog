@@ -1,3 +1,8 @@
+2003-12-01  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (c-UNWIND-PROTECT): discard side-effect free
+	cleanup forms
+
 2003-12-10  Sam Steingold  <sds@gnu.org>
 
 	* modules/bindings/win32/win32.lisp (word): new type

@@ -4309,22 +4309,24 @@ for-value   NIL or T
   (test-list *form* 2)
   (let* ((anode1 (let ((*stackz* (cons 'UNWIND-PROTECT *stackz*)))
                    (c-form (second *form*))))
-         (anode2 (let ((*stackz* (cons 'CLEANUP *stackz*)))
+         (anode2 (let ((*stackz* (cons 'CLEANUP *stackz*)) (*for-value* nil))
                    (c-form `(PROGN ,@(cddr *form*)) 'NIL)))
          (label (make-label 'NIL)))
-    (make-anode :type 'UNWIND-PROTECT
-                :sub-anodes (list anode1 anode2)
-                :seclass (anodes-seclass-or anode1 anode2)
-                :code `((UNWIND-PROTECT-OPEN ,label)
-                        ,anode1
-                        ,@(case *for-value*
-                            ((NIL) '((VALUES0)))
-                            (ONE '((VALUES1)))
-                            ((T) '()))
+    (if (cdr (anode-seclass anode2)) ; cleanup forms have side effects
+        (make-anode :type 'UNWIND-PROTECT
+                    :sub-anodes (list anode1 anode2)
+                    :seclass (anodes-seclass-or anode1 anode2)
+                    :code `((UNWIND-PROTECT-OPEN ,label)
+                            ,anode1
+                            ,@(case *for-value*
+                                ((NIL) '((VALUES0)))
+                                (ONE '((VALUES1)))
+                                ((T) '()))
                         (UNWIND-PROTECT-NORMAL-EXIT)
                         ,label
                         ,anode2
-                        (UNWIND-PROTECT-CLOSE ,label)))))
+                        (UNWIND-PROTECT-CLOSE ,label)))
+        anode1))) ; cleanup forms are side-effect free ==> ignore them
 
 ;; compile (PROGV form1 form2 {form}*)
 (defun c-PROGV ()
