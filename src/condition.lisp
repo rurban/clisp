@@ -1136,26 +1136,29 @@
 (defmacro check-type (place typespec &optional (string nil))
   (let ((tag1 (gensym))
         (tag2 (gensym))
-        (var (gensym))
-        (reporter `(lambda (stream)
-                     (format stream (report-one-new-value-string) ',place))))
+        (var (gensym)))
     `(TAGBODY
        ,tag1
        (LET ((,var ,place))
          (WHEN (TYPEP ,var ',typespec) (GO ,tag2))
-         (RESTART-CASE
-           (ERROR-OF-TYPE 'TYPE-ERROR
-             :DATUM ,var :EXPECTED-TYPE ',typespec
-             (TYPE-ERROR-STRING)
-             (CHECK-TYPE-ERROR-STRING ',place ,string ',typespec)
-             ,var)
-           ;; only one restart, will "continue" invoke it? - no!
-           (STORE-VALUE
-             :REPORT ,reporter
-             :INTERACTIVE (LAMBDA () (PROMPT-FOR-NEW-VALUE ',place))
-             (NEW-VALUE) (SETF ,place NEW-VALUE))))
+         (CHECK-TYPE-FAILED ',place ,var #'(LAMBDA (NEW-VALUE) (SETF ,place NEW-VALUE))
+                            ,string ',typespec))
        (GO ,tag1)
        ,tag2)))
+(defun check-type-failed (place place-oldvalue place-setter string typespec) ; ABI
+  (restart-case
+    (error-of-type 'type-error
+      :datum place-oldvalue :expected-type typespec
+      (type-error-string)
+      (check-type-error-string place string typespec)
+      place-oldvalue)
+    ;; Only one restart. Call it STORE-VALUE, not CONTINUE, so that it's not
+    ;; chosen by "continue".
+    (STORE-VALUE
+      :report (lambda (stream)
+                (format stream (report-one-new-value-string) place))
+      :interactive (lambda () (prompt-for-new-value place))
+      (new-value) (funcall place-setter new-value))))
 
 ;; this is the same as `default-restart-interactive' but it must
 ;; be kept a separate object for the benefit of `appease-cerrors'
@@ -1165,50 +1168,66 @@
 (defmacro assert (test-form &optional (place-list nil) (datum nil) &rest args)
   (let ((tag1 (gensym))
         (tag2 (gensym)))
-    `(flet ((assert-restart-prompt ()
-              (nconc
-               ,@(mapcar #'(lambda (place)
-                             `(PROMPT-FOR-NEW-VALUE ',place))
-                         place-list))))
-       ,(when place-list
-          `(setf (closure-name #'assert-restart-prompt)
-                 'assert-restart-prompt))
-       (TAGBODY
-         ,tag1
-         (WHEN ,test-form (GO ,tag2))
-         (RESTART-CASE
-             ;; no need for explicit association, see APPLICABLE-RESTART-P
-             (ERROR ; of-type ??
-              ,@(if datum
-                  `(,datum ,@args) ; use coerce-to-condition??
-                  `("~A" (ASSERT-ERROR-STRING ',test-form))))
-           ;; only one restart: CONTINUE
-           (CONTINUE
-             :REPORT (LAMBDA (STREAM)
-                       (APPLY #'FORMAT STREAM
-                               (,(case (length place-list)
-                                   (0 'REPORT-NO-NEW-VALUE-STRING)
-                                   (1 'REPORT-ONE-NEW-VALUE-STRING)
-                                   (t 'REPORT-NEW-VALUES-STRING)))
-                               ',place-list))
-             :INTERACTIVE ,(if place-list
-                             'assert-restart-prompt
-                             'assert-restart-no-prompts)
-             ,@(do ((pl place-list (cdr pl))
-                    (all-setter-vars '())
-                    (all-setter-forms '()))
-                   ((endp pl)
-                    (cons (nreverse all-setter-vars)
-                          (nreverse all-setter-forms)))
-                 (multiple-value-bind (temps subforms stores setterform getterform)
-                     (get-setf-expansion (car pl))
-                   (declare (ignore getterform))
-                   (setq all-setter-vars
-                         (revappend stores all-setter-vars))
-                   (push (wrap-let* (mapcar #'list temps subforms) setterform)
-                         all-setter-forms)))))
-         (GO ,tag1)
-         ,tag2))))
+    `(TAGBODY
+       ,tag1
+       (WHEN ,test-form (GO ,tag2))
+       (,@(if place-list
+            (let ((all-setter-vars '())
+                  (all-setter-forms '()))
+              (do ((pl place-list (cdr pl)))
+                  ((endp pl))
+                (multiple-value-bind (temps subforms stores setterform getterform)
+                    (get-setf-expansion (car pl) env)
+                  (declare (ignore getterform))
+                  (push (length stores) all-numvalues)
+                  (setq all-setter-vars
+                        (revappend stores all-setter-vars))
+                  (push (wrap-let* (mapcar #'list temps subforms) setterform)
+                        all-setter-forms)))
+              (setq all-setter-vars (nreverse all-setter-vars))
+              (setq all-setter-forms (nreverse all-setter-forms))
+              `(ASSERT-FAILED ',place-list
+                              #'(LAMBDA ,all-setter-vars ,@all-setter-forms)))
+            `(SIMPLE-ASSERT-FAILED))
+        ,@(if datum
+            `(NIL ,datum ,@args) ; use coerce-to-condition??
+            `((ASSERT-ERROR-STRING ',test-form))))
+       (GO ,tag1)
+       ,tag2)))
+(defun assert-failed (place-list places-setter error-string &rest condition-datum+args) ; ABI
+  (flet ((assert-restart-prompt ()
+           (mapcan #'(lambda (place)
+                       (prompt-for-new-value place))
+                   place-list)))
+    (setf (closure-name #'assert-restart-prompt) 'assert-restart-prompt)
+    (restart-case
+      ;; No need for explicit association, see APPLICABLE-RESTART-P.
+      (if error-string
+        (error ; of-type ??
+          "~A" error-string)
+        (apply #'error condition-datum+args)) ; use coerce-to-condition??
+      ;; Only one restart: CONTINUE.
+      (CONTINUE
+        :REPORT (lambda (stream)
+                  (apply #'format stream
+                         (if (= (length place-list) 1)
+                           (report-one-new-value-string)
+                           (report-new-values-string))
+                         place-list))
+        :INTERACTIVE assert-restart-prompt
+        (&rest new-values) (apply places-setter new-values)))))
+(defun simple-assert-failed (error-string &rest condition-datum+args) ; ABI
+  (restart-case
+    ;; No need for explicit association, see APPLICABLE-RESTART-P.
+    (if error-string
+      (error ; of-type ??
+        "~A" error-string)
+      (apply #'error condition-datum+args)) ; use coerce-to-condition??
+    ;; Only one restart: CONTINUE.
+    (CONTINUE
+      :REPORT (lambda (stream) (format stream (report-no-new-value-string)))
+      :INTERACTIVE assert-restart-no-prompts
+      ())))
 
 (defun correctable-error (options condition)
   (let ((restarts
@@ -1343,16 +1362,10 @@
                   ;; if a clause contains an OTHERWISE or T key,
                   ;; it is treated as a normal key, as per CLHS.
                   (OTHERWISE
-                   (ERROR-OF-TYPE 'TYPE-ERROR
-                     :DATUM ,var :EXPECTED-TYPE ',expected-type
-                     (TYPE-ERROR-STRING)
-                     ,errorstring ,var))))))
+                    (ETYPECASE-FAILED ,var ,errorstring ',expected-type))))))
          (retry-loop (casename place clauselist errorstring expected-type)
            (let ((g (gensym))
-                 (h (gensym))
-                 (reporter `(lambda (stream)
-                              (format stream (report-one-new-value-string)
-                                      ',place))))
+                 (h (gensym)))
              `(BLOCK ,g
                 (TAGBODY
                   ,h
@@ -1361,31 +1374,21 @@
                       ;; if a clause contains an OTHERWISE or T key,
                       ;; it is treated as a normal key, as per CLHS.
                       (OTHERWISE
-                       (RESTART-CASE
-                          (PROGN ; no need for explicit association, see applicable-restart-p
-                            (ERROR-OF-TYPE 'TYPE-ERROR
-                              :DATUM ,place :EXPECTED-TYPE ',expected-type
-                              (TYPE-ERROR-STRING)
-                              ,errorstring
-                              ,place))
-                          ;; only one restart, will "continue" invoke it? - NO
-                          (STORE-VALUE
-                            :REPORT ,reporter
-                            :INTERACTIVE (LAMBDA () (PROMPT-FOR-NEW-VALUE ',place))
-                            (NEW-VALUE) (SETF ,place NEW-VALUE)))
+                        (CTYPECASE-FAILED ',place ,place #'(LAMBDA (NEW-VALUE) (SETF ,place NEW-VALUE))
+                                          ,errorstring ',expected-type)
                         (GO ,h)))))))))
     (defmacro etypecase (keyform &rest keyclauselist)
       (if (assoc t keyclauselist)
-          `(typecase ,keyform ,@keyclauselist)
-          (simply-error 'TYPECASE keyform keyclauselist
-                        (typecase-errorstring keyform keyclauselist)
-                        (typecase-expected-type keyclauselist))))
+        `(TYPECASE ,keyform ,@keyclauselist)
+        (simply-error 'TYPECASE keyform keyclauselist
+                      (typecase-errorstring keyform keyclauselist)
+                      (typecase-expected-type keyclauselist))))
     (defmacro ctypecase (keyplace &rest keyclauselist)
       (if (assoc t keyclauselist)
-          `(typecase ,keyplace ,@keyclauselist)
-          (retry-loop 'TYPECASE keyplace keyclauselist
-                      (typecase-errorstring keyplace keyclauselist)
-                      (typecase-expected-type keyclauselist))))
+        `(TYPECASE ,keyplace ,@keyclauselist)
+        (retry-loop 'TYPECASE keyplace keyclauselist
+                    (typecase-errorstring keyplace keyclauselist)
+                    (typecase-expected-type keyclauselist))))
     (defmacro ecase (keyform &rest keyclauselist)
       (simply-error 'CASE keyform keyclauselist
                     (case-errorstring keyform keyclauselist)
@@ -1395,6 +1398,26 @@
                   (case-errorstring keyform keyclauselist)
                   (case-expected-type keyclauselist)))
 ) )
+(defun etypecase-failed (value errorstring expected-type) ; ABI
+  (error-of-type 'type-error
+    :datum value :expected-type expected-type
+    (type-error-string)
+    errorstring value))
+(defun ctypecase-failed (place place-oldvalue place-setter errorstring expected-type) ; ABI
+  (restart-case
+    (progn ; no need for explicit association, see applicable-restart-p
+      (error-of-type 'type-error
+        :datum place-oldvalue :expected-type expected-type
+        (type-error-string)
+        errorstring
+        place-oldvalue))
+    ;; Only one restart. Call it STORE-VALUE, not CONTINUE, so that it's not
+    ;; chosen by "continue".
+    (STORE-VALUE
+      :report (lambda (stream)
+                (format stream (report-one-new-value-string) place))
+      :interactive (lambda () (prompt-for-new-value place))
+      (new-value) (funcall place-setter new-value))))
 
 ;;; 29.4.11. Debugging Utilities
 

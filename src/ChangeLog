@@ -1,3 +1,14 @@
+2005-01-01  Bruno Haible  <bruno@clisp.org>
+
+	Reduce code size of some macro expansions.
+	* condition.lisp (check-type-failed): New function.
+	(check-type): Use it in the macroexpansion.
+	(assert-failed, simple-assert-failed): New functions, extracted from
+	assert.
+	(assert): Use them in the macroexpansion.
+	(etypecase-failed, ctypecase-failed): New functions.
+	(etypecase, ctypecase, ecase, ccase): Use them in the macroexpansion.
+
 2004-12-24  Bruno Haible  <bruno@clisp.org>
 
 	New format directive "~.".
