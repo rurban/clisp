@@ -1,6 +1,7 @@
 2005-04-05  Sam Steingold  <sds@gnu.org>
 
 	* case-sensitive.lisp: add CS-COMMON-LISP to *SYSTEM-PACKAGE-LIST*
+	* exporting.lisp: add EXPORTING to *SYSTEM-PACKAGE-LIST*
 
 2005-04-05  Sam Steingold  <sds@gnu.org>
 
