@@ -1881,7 +1881,11 @@ fi
 echol "MODULES = ${MODULES} "`set | grep '^with_module_' | sed -e 's,^with_module_,,' -e 's,=.*$,,'`
 echol
 echol "# List of add-on modules that are already hardwired in the base linking set"
-echol "BASE_MODULES = i18n syscalls regexp"
+if [ -n "$USE_GETTEXT" ]; then
+  echol "BASE_MODULES = i18n syscalls regexp"
+else
+  echol "BASE_MODULES = syscalls regexp"
+fi
 echol
 echol '# Programs used by "make":'
 if [ $CROSS = true ] ; then
