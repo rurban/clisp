@@ -1080,6 +1080,8 @@ fi
 if [ "$DEBUGGING" = debug ] ; then
   if [ $TSYS = sun4 -a $XCC_GCC = true ] ; then
     XCFLAGS=$XCFLAGS' -gstabs'
+  elif [ ${HSYS} = "win32msvc" ]; then
+    XCFLAGS=$XCFLAGS' -Zi'
   else
     XCFLAGS=$XCFLAGS' -g'
   fi
