@@ -1,5 +1,10 @@
 2003-04-04  Sam Steingold  <sds@gnu.org>
 
+	* pprint.lisp (pprint-logical-block): avoid a package-lock cerror
+	Reported by Christophe Rhodes <csr21@cam.ac.uk>
+
+2003-04-04  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (c-EVAL-WHEN): use FCASE; correctly handle
 	:EXECUTE/non-top-level; :EXECUTE is now _NOT_ the same as EVAL
 

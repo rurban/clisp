@@ -145,7 +145,8 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
           'pprint-logical-block :prefix 'string *prin-line-prefix*))
       (%pprint-logical-block
        (lambda (,out obj)
-         (let ((,idx 0))
+         (declare (ignorable obj))
+         (let ((,idx 0) (*prin-level* (1+ *prin-level*)))
            (macrolet ((pprint-pop ()
                         '(cond
                           ((and *print-length* (>= ,idx *print-length*))
@@ -159,7 +160,6 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
                            (go pprint-logical-block-end))))
                       (pprint-exit-if-list-exhausted ()
                         '(unless obj (go pprint-logical-block-end))))
-             (incf *prin-level*)
              (when ,pre
                (write-string ,pre ,out)
                (pprint-indent :current 0 ,out))
