@@ -7,7 +7,7 @@ RM = rm -f
 SED = sed
 ROFF_MAN = groff -Tascii -mandoc
 
-all : avcall-i386.S avcall-i386-msvc.c avcall.h.msvc avcall-m68k.s avcall-m68k-amiga.s avcall-mips.s avcall-mips64.s avcall-sparc.S avcall-alpha.s avcall-hppa.s avcall-arm.s avcall-rs6000.s avcall-m88k.s avcall-convex.s avcall.man
+all : avcall-i386.S avcall-i386-msvc.c avcall.h.msvc avcall-m68k.s avcall-m68k-amiga.s avcall-mips.s avcall-mipsn32.s avcall-mips64.s avcall-sparc.S avcall-alpha.s avcall-hppa.s avcall-arm.s avcall-rs6000.s avcall-m88k.s avcall-convex.s avcall.man
 
 avcall-i386.S : avcall-i386.c avcall.h.in
 	$(GCC) -V 2.7.2 -b i486-linuxaout $(GCCFLAGS) -D__i386__ -fno-omit-frame-pointer -S avcall-i386.c -o avcall-i386.s
@@ -28,6 +28,9 @@ avcall-m68k-amiga.s : avcall-m68k-amiga.c avcall.h.in
 
 avcall-mips.s : avcall-mips.c avcall.h.in
 	$(GCC) -V 2.6.3 -b mips-sgi $(GCCFLAGS) -D__mips__ -fno-omit-frame-pointer -S avcall-mips.c -o avcall-mips.s
+
+avcall-mipsn32.s : avcall-mipsn32.c avcall.h.in
+	$(GCC) -V egcs-2.91.57 -b mips-sgi-irix6 $(GCCFLAGS) -D__mipsn32__ -fno-omit-frame-pointer -S avcall-mipsn32.c -o avcall-mipsn32.s
 
 avcall-mips64.s : avcall-mips64.c avcall.h.in
 	$(GCC) -V 2.6.3 -b mips-sgi -mips3 -mlong64 $(GCCFLAGS) -U__mips__ -D__mips64__ -fno-omit-frame-pointer -S avcall-mips64.c -o avcall-mips64-temp.s

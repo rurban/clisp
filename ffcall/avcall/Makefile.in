@@ -65,6 +65,9 @@ avcall-m68k.o : $(srcdir)/avcall-m68k.s
 avcall-mips.o : $(srcdir)/avcall-mips.s
 	$(CC) -c $(srcdir)/avcall-mips.s
 
+avcall-mipsn32.o : $(srcdir)/avcall-mipsn32.s
+	$(CC) -c $(srcdir)/avcall-mipsn32.s
+
 avcall-mips64.o : $(srcdir)/avcall-mips64.s
 	$(CC) -c $(srcdir)/avcall-mips64.s
 
