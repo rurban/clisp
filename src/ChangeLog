@@ -1,3 +1,8 @@
+2004-06-06  Arseny Slobodjuk  <ampy@ich.dvo.ru>
+
+	* lispbibl.d (offsetofa): Define without braces for MSVC
+	to make subr_xlength a constant.
+
 2004-06-03  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 956755 ]: NAMESTRING's second arg is non-compliant
