@@ -840,7 +840,7 @@ local uintL hashcode (object ht, object obj) {
      0 /*NOTREACHED*/ );
   # then divide by SIZE:
   var uint32 rest;
-  divu_3232_3232(code,posfixnum_to_L(TheHashtable(ht)->ht_size),_EMA_,rest = );
+  divu_3232_3232(code,posfixnum_to_L(TheHashtable(ht)->ht_size),(void),rest=);
   return rest;
 }
 
@@ -1745,7 +1745,7 @@ LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL) {
       hashcode_tuple(argcount,rest_args_pointer,0);
     var uintL hashindex;
     divu_3232_3232(code,posfixnum_to_L(TheHashtable(ht)->ht_size),
-                   _EMA_,hashindex = );
+                   (void),hashindex = );
     var object* Nptr = # pointer to the current entry
       &TheSvector(TheHashtable(ht)->ht_itable)->data[hashindex];
     loop {

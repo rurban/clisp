@@ -2,6 +2,7 @@
 
 	* int2adic.d (D_D_mal2adic_D, UDS_UDS_durch2adic_UDS):
 	avoid "warning: statement with no effect"
+	* hashtabl.d (hashcode, CLASS-TUPLE-GETHASH): ditto
 
 2002-12-01  Bruno Haible  <bruno@clisp.org>
 
