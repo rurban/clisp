@@ -1293,8 +1293,10 @@ local void get_buffers (void) {
     O(token_buff_1) = NIL; # mark buffer as extracted
   } else {
     # buffers are extracted. New ones must be allocated:
-    pushSTACK(make_ssstring(50)); # new Semi-Simple-String with Fill-Pointer=0
-    pushSTACK(make_ssbvector(50)); # new Semi-Simple-Byte-Vector with Fill-Pointer=0
+    # new Semi-Simple-String with Fill-Pointer=0 :
+    pushSTACK(make_ssstring(SEMI_SIMPLE_DEFAULT_SIZE));
+    # new Semi-Simple-Byte-Vector with Fill-Pointer=0 :
+    pushSTACK(make_ssbvector(SEMI_SIMPLE_DEFAULT_SIZE));
   }
 }
 
@@ -5527,7 +5529,7 @@ global object cons_ssstring (const object* stream_, object nl_type) {
     new_cons = TheStream(*stream_)->strm_pphelp_strings;
   } else {
     pushSTACK(new_cons);
-    pushSTACK(make_ssstring(50));
+    pushSTACK(make_ssstring(SEMI_SIMPLE_DEFAULT_SIZE));
     new_cons = allocate_cons();
     Car(new_cons) = popSTACK();
     Cdr(new_cons) = popSTACK(); # new_cons = ("" (nl . ident))
@@ -9871,7 +9873,7 @@ LISPFUN(format_tabulate,3,2,norest,nokey,0,NIL) {
       Cdr(new_cons) = Cdr(TheStream(STACK_0)->strm_pphelp_strings);
       TheStream(STACK_0)->strm_pphelp_strings = new_cons;
     } else {
-      pushSTACK(make_ssstring(50));
+      pushSTACK(make_ssstring(SEMI_SIMPLE_DEFAULT_SIZE));
       swap(object,STACK_0,STACK_1);
       var object new_cons = listof(2);
       Cdr(Cdr(new_cons)) = TheStream(STACK_0)->strm_pphelp_strings;

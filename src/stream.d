@@ -2184,8 +2184,7 @@ local void wr_ch_array_str_out (const object* stream_,
 # make_string_output_stream()
 # can trigger GC
 global object make_string_output_stream (void) {
-  # allocate small Semi-Simple-String of Length 50:
-  pushSTACK(make_ssstring(50));
+  pushSTACK(make_ssstring(SEMI_SIMPLE_DEFAULT_SIZE));
   var object stream = # new Stream, only WRITE-CHAR allowed
     allocate_stream(strmflags_wr_ch_B,strmtype_str_out,strm_len+1,0);
   stream_dummy_fill(stream);
@@ -2659,7 +2658,7 @@ LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL) {
       fehler_posfixnum(STACK_0);
   }
   # allocate small Semi-Simple-String of Length 50 :
-  pushSTACK(make_ssstring(50));
+  pushSTACK(make_ssstring(SEMI_SIMPLE_DEFAULT_SIZE));
   var object stream = # new Stream, only WRITE-CHAR allowed
     allocate_stream(strmflags_wr_ch_B,strmtype_buff_out,strm_len+2,0);
   stream_dummy_fill(stream);
