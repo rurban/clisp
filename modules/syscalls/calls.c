@@ -202,7 +202,7 @@ DEFUN(OS:PRIORITY, pid &optional which) {
   res = GetPriorityClass(handle);
   CloseHandle(handle);
   end_system_call();
-  VALUES1(check_priority_value_reverse(res));
+  VALUES1(uint32_to_I(res));
 #else
   NOTREACHED;
 #endif
