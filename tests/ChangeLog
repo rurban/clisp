@@ -1,6 +1,17 @@
+2004-09-07  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* Makefile: target tests now works with MS-VC's nmake
+	nmake BD="..\\" LEXE=.exe RM=del tests
+	It's more portable to use $(dir)file than $(dir)/file
+	
 2004-09-03  Sam Steingold  <sds@gnu.org>
 
 	* ffi.tst (c-malloc, c-free): :LIBRARY argument is now evaluated
+
+2004-09-02  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* ffi.tst (parse-c-type compiler-macro): optimize
+	`(c-array[-max]	type ,foo) and primitive types.
 
 2004-08-31  Sam Steingold  <sds@gnu.org>
 
