@@ -11,7 +11,9 @@
 #define yychar __gettextchar
 #define yydebug __gettextdebug
 #define yynerrs __gettextnerrs
-#define	NUMBER	257
+#define	LE	257
+#define	GE	258
+#define	NUMBER	259
 
 #line 1 "plural.y"
 
@@ -82,24 +84,24 @@ static void yyerror PARAMS ((const char *str));
 
 
 
-#define	YYFINAL		31
+#define	YYFINAL		39
 #define	YYFLAG		-32768
-#define	YYNTBASE	18
+#define	YYNTBASE	22
 
-#define YYTRANSLATE(x) ((unsigned)(x) <= 257 ? yytranslate[x] : 20)
+#define YYTRANSLATE(x) ((unsigned)(x) <= 259 ? yytranslate[x] : 24)
 
 static const char yytranslate[] = {     0,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-     2,     2,     7,     2,     2,     2,    12,     5,     2,    16,
-    17,    10,     8,     2,     9,     2,    11,     2,     2,     2,
-     2,     2,     2,     2,     2,     2,     2,    14,     2,     2,
-     6,     2,     3,     2,     2,     2,     2,     2,     2,     2,
+     2,     2,     7,     2,     2,     2,    16,     5,     2,    20,
+    21,    14,    12,     2,    13,     2,    15,     2,     2,     2,
+     2,     2,     2,     2,     2,     2,     2,    18,     2,     8,
+     6,     9,     3,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-     2,     2,     2,     2,     2,     2,     2,     2,     2,    15,
+     2,     2,     2,     2,     2,     2,     2,     2,     2,    19,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     4,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -114,30 +116,31 @@ static const char yytranslate[] = {     0,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-     2,     2,     2,     2,     2,     1,    13
+     2,     2,     2,     2,     2,     1,    10,    11,    17
 };
 
 #if YYDEBUG != 0
 static const short yyprhs[] = {     0,
      0,     2,     8,    12,    16,    20,    24,    28,    32,    36,
-    40,    44,    46,    48
+    40,    44,    48,    52,    56,    60,    62,    64
 };
 
-static const short yyrhs[] = {    19,
-     0,    19,     3,    19,    14,    19,     0,    19,     4,    19,
-     0,    19,     5,    19,     0,    19,     6,    19,     0,    19,
-     7,    19,     0,    19,     8,    19,     0,    19,     9,    19,
-     0,    19,    10,    19,     0,    19,    11,    19,     0,    19,
-    12,    19,     0,    15,     0,    13,     0,    16,    19,    17,
-     0
+static const short yyrhs[] = {    23,
+     0,    23,     3,    23,    18,    23,     0,    23,     4,    23,
+     0,    23,     5,    23,     0,    23,     6,    23,     0,    23,
+     7,    23,     0,    23,     8,    23,     0,    23,     9,    23,
+     0,    23,    10,    23,     0,    23,    11,    23,     0,    23,
+    12,    23,     0,    23,    13,    23,     0,    23,    14,    23,
+     0,    23,    15,    23,     0,    23,    16,    23,     0,    19,
+     0,    17,     0,    20,    23,    21,     0
 };
 
 #endif
 
 #if YYDEBUG != 0
 static const short yyrline[] = { 0,
-    74,    80,    85,    90,    95,   100,   105,   110,   115,   120,
-   125,   130,   135,   141
+    78,    84,    89,    94,    99,   104,   109,   114,   119,   124,
+   129,   134,   139,   144,   149,   154,   159,   165
 };
 #endif
 
@@ -145,37 +148,37 @@ static const short yyrline[] = { 0,
 #if YYDEBUG != 0 || defined (YYERROR_VERBOSE)
 
 static const char * const yytname[] = {   "$","error","$undefined.","'?'","'|'",
-"'&'","'='","'!'","'+'","'-'","'*'","'/'","'%'","NUMBER","':'","'n'","'('","')'",
-"start","exp", NULL
+"'&'","'='","'!'","'<'","'>'","LE","GE","'+'","'-'","'*'","'/'","'%'","NUMBER",
+"':'","'n'","'('","')'","start","exp", NULL
 };
 #endif
 
 static const short yyr1[] = {     0,
-    18,    19,    19,    19,    19,    19,    19,    19,    19,    19,
-    19,    19,    19,    19
+    22,    23,    23,    23,    23,    23,    23,    23,    23,    23,
+    23,    23,    23,    23,    23,    23,    23,    23
 };
 
 static const short yyr2[] = {     0,
      1,     5,     3,     3,     3,     3,     3,     3,     3,     3,
-     3,     1,     1,     3
+     3,     3,     3,     3,     3,     1,     1,     3
 };
 
 static const short yydefact[] = {     0,
-    13,    12,     0,     1,     0,     0,     0,     0,     0,     0,
-     0,     0,     0,     0,     0,    14,     0,     3,     4,     5,
-     6,     7,     8,     9,    10,    11,     0,     2,     0,     0,
-     0
+    17,    16,     0,     1,     0,     0,     0,     0,     0,     0,
+     0,     0,     0,     0,     0,     0,     0,     0,     0,    18,
+     0,     3,     4,     5,     6,     7,     8,     9,    10,    11,
+    12,    13,    14,    15,     0,     2,     0,     0,     0
 };
 
-static const short yydefgoto[] = {    29,
+static const short yydefgoto[] = {    37,
      4
 };
 
-static const short yypact[] = {    58,
--32768,-32768,    58,    37,    10,    58,    58,    58,    58,    58,
-    58,    58,    58,    58,    58,-32768,    25,    45,    52,    57,
-    57,    65,    65,-32768,-32768,-32768,    58,    37,     1,     2,
--32768
+static const short yypact[] = {    91,
+-32768,-32768,    91,    49,    14,    91,    91,    91,    91,    91,
+    91,    91,    91,    91,    91,    91,    91,    91,    91,-32768,
+    33,    61,    72,    81,    81,    90,    90,    90,    90,    98,
+    98,-32768,-32768,-32768,    91,    49,     1,     2,-32768
 };
 
 static const short yypgoto[] = {-32768,
@@ -183,29 +186,37 @@ static const short yypgoto[] = {-32768,
 };
 
 
-#define	YYLAST		77
+#define	YYLAST		114
 
 
 static const short yytable[] = {     5,
-    30,    31,    17,    18,    19,    20,    21,    22,    23,    24,
-    25,    26,     6,     7,     8,     9,    10,    11,    12,    13,
-    14,    15,     0,    28,     0,     0,    16,     6,     7,     8,
-     9,    10,    11,    12,    13,    14,    15,     0,    27,     6,
-     7,     8,     9,    10,    11,    12,    13,    14,    15,     8,
-     9,    10,    11,    12,    13,    14,    15,     9,    10,    11,
-    12,    13,    14,    15,    11,    12,    13,    14,    15,     0,
-     1,     0,     2,     3,    13,    14,    15
+    38,    39,    21,    22,    23,    24,    25,    26,    27,    28,
+    29,    30,    31,    32,    33,    34,     6,     7,     8,     9,
+    10,    11,    12,    13,    14,    15,    16,    17,    18,    19,
+     0,    36,     0,     0,    20,     6,     7,     8,     9,    10,
+    11,    12,    13,    14,    15,    16,    17,    18,    19,     0,
+    35,     6,     7,     8,     9,    10,    11,    12,    13,    14,
+    15,    16,    17,    18,    19,     8,     9,    10,    11,    12,
+    13,    14,    15,    16,    17,    18,    19,     9,    10,    11,
+    12,    13,    14,    15,    16,    17,    18,    19,    11,    12,
+    13,    14,    15,    16,    17,    18,    19,-32768,-32768,-32768,
+-32768,    15,    16,    17,    18,    19,     0,     1,     0,     2,
+     3,    17,    18,    19
 };
 
 static const short yycheck[] = {     3,
      0,     0,     6,     7,     8,     9,    10,    11,    12,    13,
-    14,    15,     3,     4,     5,     6,     7,     8,     9,    10,
-    11,    12,    -1,    27,    -1,    -1,    17,     3,     4,     5,
-     6,     7,     8,     9,    10,    11,    12,    -1,    14,     3,
-     4,     5,     6,     7,     8,     9,    10,    11,    12,     5,
-     6,     7,     8,     9,    10,    11,    12,     6,     7,     8,
-     9,    10,    11,    12,     8,     9,    10,    11,    12,    -1,
-    13,    -1,    15,    16,    10,    11,    12
+    14,    15,    16,    17,    18,    19,     3,     4,     5,     6,
+     7,     8,     9,    10,    11,    12,    13,    14,    15,    16,
+    -1,    35,    -1,    -1,    21,     3,     4,     5,     6,     7,
+     8,     9,    10,    11,    12,    13,    14,    15,    16,    -1,
+    18,     3,     4,     5,     6,     7,     8,     9,    10,    11,
+    12,    13,    14,    15,    16,     5,     6,     7,     8,     9,
+    10,    11,    12,    13,    14,    15,    16,     6,     7,     8,
+     9,    10,    11,    12,    13,    14,    15,    16,     8,     9,
+    10,    11,    12,    13,    14,    15,    16,     8,     9,    10,
+    11,    12,    13,    14,    15,    16,    -1,    17,    -1,    19,
+    20,    14,    15,    16
 };
 #define YYPURE 1
 
@@ -753,98 +764,126 @@ yyreduce:
   switch (yyn) {
 
 case 1:
-#line 75 "plural.y"
+#line 79 "plural.y"
 {
 	    ((struct parse_args *) arg)->res = yyvsp[0].exp;
 	  ;
     break;}
 case 2:
-#line 81 "plural.y"
+#line 85 "plural.y"
 {
 	    if ((yyval.exp = new_exp_3 (qmop, yyvsp[-4].exp, yyvsp[-2].exp, yyvsp[0].exp)) == NULL)
 	      YYABORT
 	  ;
     break;}
 case 3:
-#line 86 "plural.y"
+#line 90 "plural.y"
 {
 	    if ((yyval.exp = new_exp_2 (lor, yyvsp[-2].exp, yyvsp[0].exp)) == NULL)
 	      YYABORT
 	  ;
     break;}
 case 4:
-#line 91 "plural.y"
+#line 95 "plural.y"
 {
 	    if ((yyval.exp = new_exp_2 (land, yyvsp[-2].exp, yyvsp[0].exp)) == NULL)
 	      YYABORT
 	  ;
     break;}
 case 5:
-#line 96 "plural.y"
+#line 100 "plural.y"
 {
 	    if ((yyval.exp = new_exp_2 (equal, yyvsp[-2].exp, yyvsp[0].exp)) == NULL)
 	      YYABORT
 	  ;
     break;}
 case 6:
-#line 101 "plural.y"
+#line 105 "plural.y"
 {
 	    if ((yyval.exp = new_exp_2 (not_equal, yyvsp[-2].exp, yyvsp[0].exp)) == NULL)
 	      YYABORT
 	  ;
     break;}
 case 7:
-#line 106 "plural.y"
+#line 110 "plural.y"
+{
+	    if ((yyval.exp = new_exp_2 (less_than, yyvsp[-2].exp, yyvsp[0].exp)) == NULL)
+	      YYABORT
+	  ;
+    break;}
+case 8:
+#line 115 "plural.y"
+{
+	    if ((yyval.exp = new_exp_2 (greater_than, yyvsp[-2].exp, yyvsp[0].exp)) == NULL)
+	      YYABORT
+	  ;
+    break;}
+case 9:
+#line 120 "plural.y"
+{
+	    if ((yyval.exp = new_exp_2 (less_or_equal, yyvsp[-2].exp, yyvsp[0].exp)) == NULL)
+	      YYABORT
+	  ;
+    break;}
+case 10:
+#line 125 "plural.y"
+{
+	    if ((yyval.exp = new_exp_2 (greater_or_equal, yyvsp[-2].exp, yyvsp[0].exp)) == NULL)
+	      YYABORT
+	  ;
+    break;}
+case 11:
+#line 130 "plural.y"
 {
 	    if ((yyval.exp = new_exp_2 (plus, yyvsp[-2].exp, yyvsp[0].exp)) == NULL)
 	      YYABORT
 	  ;
     break;}
-case 8:
-#line 111 "plural.y"
+case 12:
+#line 135 "plural.y"
 {
 	    if ((yyval.exp = new_exp_2 (minus, yyvsp[-2].exp, yyvsp[0].exp)) == NULL)
 	      YYABORT
 	  ;
     break;}
-case 9:
-#line 116 "plural.y"
+case 13:
+#line 140 "plural.y"
 {
 	    if ((yyval.exp = new_exp_2 (mult, yyvsp[-2].exp, yyvsp[0].exp)) == NULL)
 	      YYABORT
 	  ;
     break;}
-case 10:
-#line 121 "plural.y"
+case 14:
+#line 145 "plural.y"
 {
 	    if ((yyval.exp = new_exp_2 (divide, yyvsp[-2].exp, yyvsp[0].exp)) == NULL)
 	      YYABORT
 	  ;
     break;}
-case 11:
-#line 126 "plural.y"
+case 15:
+#line 150 "plural.y"
 {
 	    if ((yyval.exp = new_exp_2 (module, yyvsp[-2].exp, yyvsp[0].exp)) == NULL)
 	      YYABORT
 	  ;
     break;}
-case 12:
-#line 131 "plural.y"
+case 16:
+#line 155 "plural.y"
 {
 	    if ((yyval.exp = new_exp_0 (var)) == NULL)
 	      YYABORT
 	  ;
     break;}
-case 13:
-#line 136 "plural.y"
+case 17:
+#line 160 "plural.y"
 {
 	    if ((yyval.exp = new_exp_0 (num)) == NULL)
 	      YYABORT;
 	    yyval.exp->val.num = yyvsp[0].num
 	  ;
     break;}
-case 14:
-#line 142 "plural.y"
+case 18:
+#line 166 "plural.y"
 {
 	    yyval.exp = yyvsp[-1].exp
 	  ;
@@ -1071,7 +1110,7 @@ yyerrhandle:
     }
   return 1;
 }
-#line 147 "plural.y"
+#line 171 "plural.y"
 
 
 static struct expression *
@@ -1161,6 +1200,10 @@ FREE_EXPRESSION (exp)
     case module:
     case plus:
     case minus:
+    case less_than:
+    case greater_than:
+    case less_or_equal:
+    case greater_or_equal:
     case equal:
     case not_equal:
     case land:
@@ -1187,12 +1230,6 @@ yylex (lval, pexp)
 
   while (1)
     {
-      if (exp[0] == '\\' && exp[1] == '\n')
-	{
-	  exp += 2;
-	  continue;
-	}
-
       if (exp[0] == '\0')
 	{
 	  *pexp = exp;
@@ -1237,6 +1274,22 @@ yylex (lval, pexp)
 	++exp;
       else
 	result = YYERRCODE;
+      break;
+
+    case '<':
+      if (exp[0] == '=')
+	{
+	  ++exp;
+	  result = LE;
+	}
+      break;
+
+    case '>':
+      if (exp[0] == '=')
+	{
+	  ++exp;
+	  result = GE;
+	}
       break;
 
     case 'n':
