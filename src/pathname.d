@@ -5346,7 +5346,7 @@ local void version_diff (object muster, object beispiel, bool logical,
     var object string =
       (eq(beispiel,S(Kwild)) ? O(wild_string) :
        integerp(beispiel) ? decimal_string(beispiel) # (SYS::DECIMAL-STRING beispiel)
-       : NIL;);
+       : NIL);
     push_solution_with(string);
     return;
   }
