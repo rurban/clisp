@@ -1,5 +1,9 @@
 2004-12-05  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (DYNAMIC_8BIT_VECTOR, DYNAMIC_STRING): Use 'var'.
+
+2004-12-05  Bruno Haible  <bruno@clisp.org>
+
 	* hashtabl.d (check_weak): DON'T USE LOCAL VARIABLES OF TYPE
 	gcv_object_t.
 

@@ -4391,7 +4391,7 @@ LISPFUNN(unix_executable_reader,3) { # reads #!
  check_istream(&stream);
  > stream: Input-Stream-Argument
  < stream: Input-Stream (a Stream)
- can trigger GC*/
+ can trigger GC */
 local void check_istream (gcv_object_t* stream_) {
   var object stream = *stream_;
   if (missingp(stream)) {
@@ -5071,7 +5071,7 @@ global void write_string (const gcv_object_t* stream_, object string) {
 # < stream: Stream
 # can trigger GC
 local void write_sstring_case (const gcv_object_t* stream_, object string) {
-# retrieve (READTABLE-CASE *READTABLE*):
+  # retrieve (READTABLE-CASE *READTABLE*):
   sstring_un_realloc(string);
   var object readtable;
   get_readtable(readtable = ); # current readtable
@@ -5540,11 +5540,13 @@ local uintL pphelp_string_width (object string) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
-#define LINES_INC                                               \
-  do { var object pl = Symbol_value(S(prin_lines));             \
-   if (!posfixnump(pl)) fehler_posfixnum(pl);                   \
-   if (!nullpSv(print_lines))                                   \
-     Symbol_value(S(prin_lines)) = fixnum_inc(pl,1); } while(0)
+#define LINES_INC                                     \
+  do {                                                \
+    var object pl = Symbol_value(S(prin_lines));      \
+    if (!posfixnump(pl)) fehler_posfixnum(pl);        \
+    if (!nullpSv(print_lines))                        \
+      Symbol_value(S(prin_lines)) = fixnum_inc(pl,1); \
+  } while(0)
 local void pphelp_newline (const gcv_object_t* stream_) {
   # (push (make-ssstring 50) (strm-pphelp-strings stream)) :
   cons_ssstring(stream_,NIL);
