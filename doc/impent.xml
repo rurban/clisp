@@ -70,6 +70,8 @@
 <!-- *** characters *** -->
 <!ENTITY nl-c "<keysym>#\Newline</keysym>">
 <!ENTITY ret-c "<keysym>#\Return</keysym>">
+<!ENTITY cr-c "<keycode>CR</keycode>">
+<!ENTITY lf-c "<keycode>LF</keycode>">
 
 <!-- *** packages *** -->
 <!ENTITY ext-pac "<link linkend='ext-pac'><quote>EXT</quote></link>">
@@ -95,9 +97,17 @@
 <!ENTITY traditional-opt "<ulink url='clisp.html#opt-traditional'><option>-traditional</option></ulink>">
 <!ENTITY buffered "<link linkend='buffered'><constant>:BUFFERED</constant></link>">
 <!ENTITY browser "<link linkend='browser'><constant>:BROWSER</constant></link>">
+<!ENTITY byte-t "<link linkend='byte-type'><type>BYTE</type></link>">
+<!ENTITY cd "<link linkend='cd'><function>EXT:CD</function></link>">
 <!ENTITY char-width "<link linkend='char-width'><function>EXT:CHAR-WIDTH</function></link>">
 <!ENTITY string-width "<link linkend='string-width'><function>EXT:STRING-WIDTH</function></link>">
 <!ENTITY input-char "<link linkend='input-char'><classname>SYS::INPUT-CHARACTER</classname></link>">
+<!ENTITY dkey-open "<link linkend='dir-key-open'><function>LDAP:DIR-KEY-OPEN</function></link>">
+<!ENTITY dkey-close "<link linkend='dir-key-close'><function>LDAP:DIR-KEY-CLOSE</function></link>">
+<!ENTITY dkey-open "<link linkend='dir-key-open'><function>LDAP:DIR-KEY-OPEN</function></link>">
+<!ENTITY dk-type "<link linkend='dir-key-type'>directory key type</link>">
+<!ENTITY wdkey-open "<link linkend='with-dir-key-open'><function>LDAP:WITH-DIR-KEY-OPEN</function></link>">
+<!ENTITY wdkey-search "<link linkend='with-dir-key-search'><function>LDAP:WITH-DIR-KEY-SEARCH</function></link>">
 <!ENTITY doseq "<link linkend='doseq'><function>EXT:DOSEQ</function></link>">
 <!ENTITY dohash "<link linkend='dohash'><function>EXT:DOHASH</function></link>">
 <!ENTITY eltype "<link linkend='eltype'><constant>:ELEMENT-TYPE</constant></link>">
@@ -121,6 +131,8 @@
 <!ENTITY gc "<link linkend='gc'>garbage-collect</link>">
 <!ENTITY kbd-in "<link linkend='terminal'><varname>EXT:*KEYBOARD-INPUT*</varname></link>">
 <!ENTITY lalist "<link linkend='lalist'>lambda list</link>">
+<!ENTITY letf "<link linkend='letf'><function>EXT:LETF</function></link>">
+<!ENTITY letf-star "<link linkend='letf'><function>EXT:LETF*</function></link>">
 <!ENTITY lfd "<link linkend='lfd'><function>EXT:LONG-FLOAT-DIGITS</function></link>">
 <!ENTITY line-term "<link linkend='newline'>line terminator</link>">
 <!ENTITY mapcap "<link linkend='mapcap'><function>EXT:MAPCAP</function></link>">
@@ -134,6 +146,7 @@
 <!ENTITY pr-closure "<link linkend='pr-closure'><varname>CUSTOM:*PRINT-CLOSURE*</varname></link>">
 <!ENTITY pr-indent "<link linkend='pr-indent'><varname>CUSTOM:*PRINT-INDENT-LISTS*</varname></link>">
 <!ENTITY pr-rpars "<link linkend='pr-rpars'><varname>CUSTOM:*PRINT-RPARS*</varname></link>">
+<!ENTITY probe-dir "<link linkend='probe-dir'><function>EXT:PROBE-DIRECTORY</function></link>">
 <!ENTITY rcwhp "<link linkend='rcwhp'><function>EXT:READ-CHAR-WILL-HANG-P</function></link>">
 <!ENTITY re-export "<link linkend='re-export'><function>EXT:RE-EXPORT</function></link>">
 <!ENTITY re-match "<link linkend='re-match'><function>REGEXP:MATCH</function></link>">
@@ -145,12 +158,25 @@
 <!ENTITY re-regexp-exec "<link linkend='re-regexp-exec'><function>REGEXP:REGEXP-EXEC</function></link>">
 <!ENTITY re-regexp-split "<link linkend='re-regexp-split'><function>REGEXP:REGEXP-SPLIT</function></link>">
 <!ENTITY re-with-loop-split "<link linkend='re-with-loop-split'><function>REGEXP:WITH-LOOP-SPLIT</function></link>">
-<!ENTITY socket-server "<link linkend='socket'><classname>EXT:SOCKET-SERVER</classname></link>">
-<!ENTITY socket-stream "<link linkend='socket'><classname>EXT:SOCKET-STREAM</classname></link>">
+<!ENTITY exec "<link linkend='exec'><function>EXT:EXECUTE</function></link>">
+<!ENTITY shell "<link linkend='exec'><function>EXT:SHELL</function></link>">
+<!ENTITY mk-pipe-io "<link linkend='pipe'><function>EXT:MAKE-PIPE-IO-STREAM</function></link>">
+<!ENTITY mk-pipe-in "<link linkend='pipe'><function>EXT:MAKE-PIPE-INPUT-STREAM</function></link>">
+<!ENTITY mk-pipe-out "<link linkend='pipe'><function>EXT:MAKE-PIPE-OUTPUT-STREAM</function></link>">
+<!ENTITY socket-accept "<link linkend='socket'><function>SOCKET:SOCKET-ACCEPT</function></link>">
+<!ENTITY socket-connect "<link linkend='socket'><function>SOCKET:SOCKET-CONNECT</function></link>">
+<!ENTITY socket-server "<link linkend='socket'><classname>SOCKET:SOCKET-SERVER</classname></link>">
+<!ENTITY socket-stream "<link linkend='socket'><classname>SOCKET:SOCKET-STREAM</classname></link>">
 <!ENTITY space "<link linkend='space'><function>EXT:SPACE</function></link>">
 <!ENTITY trace-val "<link linkend='trace-val'><varname>EXT:*TRACE-VALUES*</varname></link>">
+<!ENTITY uncompile "<link linkend='uncompile'><function>EXT:UNCOMPILE</function></link>">
+<!ENTITY the-env "<link linkend='the-env'><function>EXT:THE-ENVIRONMENT</function></link>">
 <!ENTITY warn-fpc "<link linkend='warn-fpc'><varname>CUSTOM:*WARN-ON-FLOATING-POINT-CONTAGION*</varname></link>">
 <!ENTITY with-kbd "<link linkend='terminal'><function>EXT:WITH-KEYBOARD</function></link>">
+<!ENTITY wr-integer "<link linkend='bin-output'><function>EXT:WRITE-INTEGER</function></link>">
+<!ENTITY wr-float "<link linkend='bin-output'><function>EXT:WRITE-FLOAT</function></link>">
+<!ENTITY rd-integer "<link linkend='bin-input'><function>EXT:READ-INTEGER</function></link>">
+<!ENTITY rd-float "<link linkend='bin-input'><function>EXT:READ-FLOAT</function></link>">
 
 <!-- *** gettext *** -->
 <!ENTITY ggettext "&gnu; <ulink url='http://www.gnu.org/software/gettext/gettext.html'>gettext</ulink>">
@@ -161,6 +187,7 @@
 <!ENTITY textdomain "<link linkend='textdomain'><function>I18N:TEXTDOMAIN</function></link>">
 <!ENTITY textdomaindir "<link linkend='textdomaindir'><function>I18N:TEXTDOMAINDIR</function></link>">
 <!ENTITY msgid "<replaceable>MSGID</replaceable>">
+<!ENTITY iconv "<link linkend='iconv'><function>iconv()</function></link>">
 
 <!-- *** FFI *** -->
 <!ENTITY c-pointer "<link linkend='c-pointer'><type>FFI:C-POINTER</type></link>">
@@ -225,11 +252,14 @@
 <!ENTITY case-sensitive-r "<replaceable>case-sensitive</replaceable>">
 <!ENTITY class-r "<replaceable>class</replaceable>">
 <!ENTITY cname-r "<replaceable>c-name</replaceable>">
+<!ENTITY command-r "<replaceable>command</replaceable>">
 <!ENTITY cplace-r "<replaceable>c-place</replaceable>">
 <!ENTITY ctype-r "<replaceable>c-type</replaceable>">
 <!ENTITY ch-r "<replaceable>char</replaceable>">
 <!ENTITY declaration-r "<replaceable>declaration</replaceable>">
 <!ENTITY digits-r "<replaceable>digits</replaceable>">
+<!ENTITY dimensions-r "<replaceable>dimensions</replaceable>">
+<!ENTITY dkey-r "<replaceable>dkey</replaceable>">
 <!ENTITY eltype-r "<replaceable>element-type</replaceable>">
 <!ENTITY encoding-r "<replaceable>encoding</replaceable>">
 <!ENTITY end-r "<replaceable>end</replaceable>">
@@ -260,9 +290,11 @@
 <!ENTITY option-r "<replaceable>option</replaceable>">
 <!ENTITY path-r "<replaceable>pathname</replaceable>">
 <!ENTITY pattern-r "<replaceable>pattern</replaceable>">
+<!ENTITY place-r "<replaceable>place</replaceable>">
 <!ENTITY pred-r "<replaceable>predicate</replaceable>">
 <!ENTITY real-r "<replaceable>real</replaceable>">
 <!ENTITY sequence-r "<replaceable>sequence</replaceable>">
+<!ENTITY size-r "<replaceable>size</replaceable>">
 <!ENTITY start-r "<replaceable>start</replaceable>">
 <!ENTITY stream-r "<replaceable>stream</replaceable>">
 <!ENTITY string-r "<replaceable>string</replaceable>">
@@ -279,6 +311,13 @@
 <!ENTITY x1-r "<replaceable>x&sub-1;</replaceable>">
 <!ENTITY xn-r "<replaceable>x&sub-n;</replaceable>">
 <!ENTITY y-r "<replaceable>y</replaceable>">
+<!ENTITY hw "<replaceable>hardware</replaceable>">
+<!ENTITY os "<replaceable>operating system</replaceable>">
+
+<!-- *** quickstart *** -->
+<!ENTITY interp-r "<replaceable>interpreter</replaceable>">
+<!ENTITY interp-args "<replaceable>interpreter-arguments</replaceable>">
+<!ENTITY clisp-cmd "<command>clisp</command>">
 
 <!ENTITY cmd-abbrev-oper-header
  " <thead><row><entry>command</entry><entry>abbreviation</entry>
@@ -298,12 +337,52 @@
 <!ENTITY elt-val-meaning-header
  " <thead><row><entry>element</entry><entry>values</entry>
          <entry>meaning</entry></row></thead>">
+<!ENTITY cc "<entry>**</entry>"> <!-- control character -->
+<!ENTITY char-table-legend "Here ** are control characters, not graphic
+  characters.  (The characters left blank here cannot be represented in
+  this character set).">
+<!ENTITY ascii-printable
+ "<row><entry>#x20</entry><entry>&nbsp;</entry><entry>!</entry>
+   <entry>&quot;</entry><entry>#</entry><entry>$</entry><entry>&#37;</entry>
+   <entry>&amp;</entry><entry>'</entry><entry>(</entry><entry>)</entry>
+   <entry>*</entry><entry>+</entry><entry>,</entry><entry>-</entry>
+   <entry>.</entry><entry>/</entry></row>
+  <row><entry>#x30</entry><entry>0</entry><entry>1</entry><entry>2</entry>
+   <entry>3</entry><entry>4</entry><entry>5</entry><entry>6</entry>
+   <entry>7</entry><entry>8</entry><entry>9</entry><entry>:</entry>
+   <entry>;</entry><entry>&lt;</entry><entry>=</entry><entry>&gt;</entry>
+   <entry>?</entry></row>
+  <row><entry>#x40</entry><entry>@</entry><entry>A</entry><entry>B</entry>
+   <entry>C</entry><entry>D</entry><entry>E</entry><entry>F</entry>
+   <entry>G</entry><entry>H</entry><entry>I</entry><entry>J</entry>
+   <entry>K</entry><entry>L</entry><entry>M</entry><entry>N</entry>
+   <entry>O</entry></row>
+  <row><entry>#x50</entry><entry>P</entry><entry>Q</entry><entry>R</entry>
+   <entry>S</entry><entry>T</entry><entry>U</entry><entry>V</entry>
+   <entry>W</entry><entry>X</entry><entry>Y</entry><entry>Z</entry>
+   <entry>[</entry><entry>\</entry><entry>]</entry><entry>^</entry>
+   <entry>_</entry></row>
+  <row><entry>#x60</entry><entry>`</entry><entry>a</entry><entry>b</entry>
+   <entry>c</entry><entry>d</entry><entry>e</entry><entry>f</entry>
+   <entry>g</entry><entry>h</entry><entry>i</entry><entry>j</entry>
+   <entry>k</entry><entry>l</entry><entry>m</entry><entry>n</entry>
+   <entry>o</entry></row>
+  <row><entry>#x70</entry><entry>p</entry><entry>q</entry><entry>r</entry>
+   <entry>s</entry><entry>t</entry><entry>u</entry><entry>v</entry>
+   <entry>w</entry><entry>x</entry><entry>y</entry><entry>z</entry>
+   <entry>{</entry><entry>|</entry><entry>}</entry><entry>~</entry>
+   <entry/></row>">
+<!ENTITY alt "<keycap>Alternate</keycap>">
+<!ENTITY ctrl "<keycap>Control</keycap>">
+<!ENTITY shift "<keycap>Shift</keycap>">
 <!ENTITY malloc "<function>malloc()</function>">
 <!ENTITY free "<function>free()</function>">
 <!ENTITY fasl-file "<filename>fas</filename>">
 <!ENTITY lisp-file "<filename>lisp</filename>">
 <!ENTITY mem-file "<filename>mem</filename>">
+<!ENTITY c-file "<filename>c</filename>">
 <!ENTITY config-file "<filename>config.lisp</filename>">
+<!ENTITY lispinit "<filename>lispinit.mem</filename>">
 
 <!-- *** pathnames *** -->
 <!ENTITY file-star "<filename>*</filename>">
