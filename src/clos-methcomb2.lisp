@@ -568,7 +568,13 @@ has already transpired."
         ;; Pick off the initial whole parameter.
         (setf combination-arguments (nthcdr 2 combination-arguments)))
       (multiple-value-bind (positional opt opt-i opt-p rest num-req)
-          (analyze-lambdalist combination-arguments)
+          ;; FIXME: combination-arguments is a 3.4.10 lambda list, not an
+          ;; 3.4.1 ordinary lambda list.
+          (analyze-lambdalist combination-arguments
+            #'(lambda (errorstring &rest arguments)
+                (error (TEXT "In ~S ~S lambda list: ~A")
+                       combination ':arguments
+                       (apply #'format nil errorstring arguments))))
         (declare (ignore opt opt-i opt-p rest))
         (when (> (setq num-req (length positional)) (length req-vars))
           (method-combination-error "invalid combination arguments: ~s."
