@@ -2336,8 +2336,10 @@ Ratio and Complex (only if SPVW_MIXED).
 # as_object(x)    oint --> object
 #if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
   #define as_oint(expr)  ((expr).one_o)
-  #if 1
+  #if defined(WIDE_STRUCT)
     #define as_object(o)  ((object){u:{one_u:(o)}})
+  #elif defined(OBJECT_STRUCT)
+    #define as_object(o)  ((object){one_o:(o)})
   #else
     extern __inline__ object as_object (register oint o)
       { register object obj; obj.one_o = o; return obj; }
