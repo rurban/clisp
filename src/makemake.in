@@ -2939,7 +2939,7 @@ if [ $CROSS = false ] ; then
   echotab "cd ${TESTSDIR} && \$(MAKE) LEXE=${LEXE}"
   echol
   echol "testsuite-all : ${TESTSDIR} lisp${LEXE} lispinit.mem"
-  echotab "cd ${TESTSDIR} && \$(MAKE) LEXE=${LEXE} complete"
+  echotab "cd ${TESTSDIR} && \$(MAKE) LEXE=${LEXE} clean complete compare"
   echol
   echol "${TESTSDIR} :"
   echotab "-mkdir ${TESTSDIR}"
