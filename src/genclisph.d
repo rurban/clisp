@@ -1660,6 +1660,7 @@ global int main()
   printf("nonreturning_function(extern, fehler, (condition_t errortype, const char * errorstring));\n");
   printf("nonreturning_function(extern, OS_error, (void));\n");
   printf("nonreturning_function(extern, OS_file_error, (object pathname));\n");
+  printf("nonreturning_function(extern, OS_filestream_error, (object stream));\n");
 # printf("nonreturning_function(extern, fehler_list, (object obj));\n");
 # printf("nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));\n");
 # printf("nonreturning_function(extern, fehler_vector, (object obj));\n");
