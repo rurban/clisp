@@ -399,7 +399,7 @@ muffle-cerrors appease-cerrors exit-on-error
 (define-condition simple-error (simple-condition error) ())
 
 ; conditions usually created by CHECK-TYPE
-(define-condition simple-type-error (type-error) ())
+(define-condition simple-type-error (simple-condition type-error) ())
 
 ; conditions usually created by WARN
 (define-condition simple-warning (simple-condition warning) ())
