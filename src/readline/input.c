@@ -42,6 +42,9 @@
 #endif /* HAVE_STDLIB_H */
 
 #if defined (HAVE_SELECT)
+#  if defined (__BEOS__)
+#    include <sys/socket.h>
+#  endif
 #  if !defined (HAVE_SYS_SELECT_H) || !defined (M_UNIX)
 #    include <sys/time.h>
 #  endif
