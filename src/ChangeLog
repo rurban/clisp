@@ -1,3 +1,12 @@
+2004-05-26  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (oint_type_mask, oint_data_shift, oint_data_mask)
+	[LINUX_NOEXEC_HEAPCODES]: Move down by one bit, so we need only 1/8th
+	of the address space for the immediate objects.
+	(immediate_object_p, machinep): Update.
+	* spvw.d (main) [LINUX_NOEXEC_HEAPCODES]: Attempt to reserve the range
+	0xC0000000..0xDFFFFFFF.
+
 2004-05-25  Bruno Haible  <bruno@clisp.org>
 
 	* eval.d (nest_var): Use fake_gcv_object. Needed for DEBUG_GCSAFETY.
