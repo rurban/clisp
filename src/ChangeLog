@@ -1,5 +1,18 @@
 1999-10-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * arilev0.d (sign_of_sint32): For SPARC64, define using shifts.
+          (sign_of_sint16): Likewise.
+          (mulu16): For SPARC64, use the builtin "umul".
+          (mulu16_): Like for SPARC, also for SPARC64.
+          (mulu24): For SPARC64, use the builtin "umul".
+          (mulu32_): Like for SPARC, also for SPARC64.
+          (divu_3216_1616, divu_3232_3232, divu_6432_3232, divu_32_rest,
+           isqrt_64_32): Like for SPARC, also for SPARC64.
+        * intlog.d (integerlength8, integerlength16, integerlength32, ord2_32):
+          Don't use SPARC32 version for SPARC64.
+
+1999-10-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * utils/unicode/Makefile: Add nls_jisx0201.c to the targets.
           In the iso-8859-* tables, don't make 0x80..0x9F invalid.
           Generate nls_koi8_r.c from the ftp.unicode.org table.
