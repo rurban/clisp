@@ -18,7 +18,10 @@ User visible changes
 * The *FEATURES* list now contains :ANSI-CL instead of :CLTL2 even when
   running without '-a' ANSI compatibility mode.
 
-* ANSI CL compliance: UPGRADED-COMPLEX-PART-TYPE implemented
+* ANSI CL compliance: function UPGRADED-COMPLEX-PART-TYPE implemented.
+
+* ANSI CL compliance: macro HANDLER-BIND invokes all handlers
+  for the condition, not just the first one.
 
 2.25.1 (2001-04-06)
 ===================
@@ -37,7 +40,7 @@ User visible changes [this is a bug-fix only release]
 * Fixed a bug: the full image and other images created with clisp-link
   exited on error instead of entering the debugger.
 
-* Fixed a bug: COMPILE-FILE-PATHNAME could returned bad results when given a
+* Fixed a bug: COMPILE-FILE-PATHNAME could return bad results when given a
   non-existent INPUT-FILE argument and an OUTPUT-FILE argument with
   non-NIL directory part.
 
