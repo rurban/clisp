@@ -33,6 +33,6 @@ Float f(Float,float,double):({5.28738e-315},-1.49167e-154,0)->{-0}
 Double f(float,Double,double):(0.1,{0.2},0.3)->{0.6}
 Double f(float,Double,double):(5.28219e-315,{-1.49167e-154},0)->{-1.49167e-154}
 T f(T,char,T):({"the"},' ',{"fox"})->{"box"}
-T f(T,char,T):({" &"},' ',{"333"})->{"b33"}
+T f(T,char,T):({" ûv"},' ',{"333"})->{"b33"}
 X f(B,char,double,B):({0.1,{1,2,3}},'',0.3,{0.2,{5,4,3}})->{"return val",''}
 X f(B,char,double,B):({1.81635e-306,{-1717986918,1,2}},'
