@@ -4396,21 +4396,20 @@ LISPFUNN(clisp_pathname_reader,3) { # reads #"
   mv_count=1; # only one value
 }
 
-# (set-dispatch-macro-character #\# #\P
-#   #'(lambda (stream sub-char n)
-#       (declare (ignore sub-char))
-#       (if *read-suppress*
-#         (progn (read stream t nil t) nil)
-#         (if n
-#           (error "~ of ~: Between # and P no number is allowed."
-#                  'read stream
-#           )
-#           (let ((obj (read stream t nil t)))
-#             (if (stringp obj)
-#               (values (parse-namestring obj))
-#               (error "~ of ~: Wrong Syntax for Pathname: #P~"
-#                      'read stream obj
-# )   ) ) ) ) ) )
+/* (set-dispatch-macro-character #\##\P
+     (lambda (stream sub-char n)
+       (declare (ignore sub-char))
+       (if *read-suppress*
+         (progn (read stream t nil t) nil)
+         (if n
+           (error "~ of ~: no infix for #P" (quote read) stream)
+           (let ((obj (read stream t nil t)))
+             (if (stringp obj)
+               (values (parse-namestring obj))
+               (if (listp obj)
+                 (apply (function make-pathname) obj)
+                 (error "~ of ~: Wrong Syntax for Pathname: #P~"
+                        (quote read) stream obj)))))))) */
 LISPFUNN(ansi_pathname_reader,3) { # reads #P
   var gcv_object_t* stream_ = test_no_infix(); # n must be NIL
   var object obj = read_recursive_no_dot(stream_); # read next Object
@@ -4418,18 +4417,21 @@ LISPFUNN(ansi_pathname_reader,3) { # reads #P
   if (!nullpSv(read_suppress)) {
     VALUES1(NIL); skipSTACK(2); return;
   }
-  obj = make_references(obj); # and unentangle references untimely (unnessecary?)
-  if (!stringp(obj)) # obj must be a String!
-    goto bad;
-  # create (pathname obj) = (values (parse-namestring obj)) :
-  pushSTACK(obj); funcall(L(parse_namestring),1); # (PARSE-NAMESTRING obj)
-  mv_count=1; skipSTACK(2); return; # only one value
- bad:
-  pushSTACK(*stream_); # STREAM-ERROR slot STREAM
-  pushSTACK(obj); # Object
-  pushSTACK(*stream_); # Stream
-  pushSTACK(S(read));
-  fehler(stream_error,GETTEXT("~ from ~: bad syntax for pathname: #P~"));
+  obj = make_references(obj); /* and unentangle references untimely */
+  if (stringp(obj)) {
+    # create (pathname obj) = (values (parse-namestring obj)) :
+    pushSTACK(obj); funcall(L(parse_namestring),1); # (PARSE-NAMESTRING obj)
+    mv_count=1; skipSTACK(2); # only one value
+  } else if (listp(obj)) {
+    apply(L(make_pathname),0,obj);  /* (APPLY (FUNCTION MAKE-PATHNAME) OBJ) */
+    mv_count=1; skipSTACK(2); /* only one value */
+  } else {
+    pushSTACK(*stream_); # STREAM-ERROR slot STREAM
+    pushSTACK(obj); # Object
+    pushSTACK(*stream_); # Stream
+    pushSTACK(S(read));
+    fehler(stream_error,GETTEXT("~ from ~: bad syntax for pathname: #P~"));
+  }
 }
 
 #if defined(UNIX) || defined(WIN32_NATIVE)
