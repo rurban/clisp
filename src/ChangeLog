@@ -1,3 +1,12 @@
+1999-06-09  Sam Steingold  <sds@goems.com>
+
+	Implemented ANSI CL Issue MACRO-FUNCTION-ENVIRONMENT:YES
+	* control.d (macro_function): optional second argument.
+	* subr.d (macro_function): ditto.
+	* compiler.lsp (macroexpand-1): pass ENV to `macro-function'
+	(subr-info): optional second argument of `macro-function'.
+	(c-form): pass ENV to `macro-function'.
+
 1999-06-08  Sam Steingold  <sds@goems.com>
 
 	* describe.lsp (apropos-do-more): new function.
