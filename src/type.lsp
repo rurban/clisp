@@ -1151,10 +1151,15 @@
   ) )   )
   ; Return the character set of an encoding (a symbol or string).
   (defun encoding-charset (encoding) (sys::%record-ref encoding 3))
-  ; Fill the cache.
+  ; Fill the cache, but cache only the results with small lists of intervals.
+  ; Some iconv based encodings have large lists of intervals (up to 5844
+  ; intervals for ISO-2022-JP-2) which are rarely used and not worth caching.
   (do-external-symbols (sym (find-package "CHARSET"))
-    (get-charset-range (encoding-charset (symbol-value sym)))
-  )
+    (let* ((charset (encoding-charset (symbol-value sym)))
+           (computed-range (get-charset-range charset))
+           (intervals (/ (length computed-range) 2)))
+      (when (>= intervals 100) (remhash charset table))
+  ) )
   ; Test whether all characters encodable in encoding1 are also encodable in
   ; encoding2.
   (defun charset-subtypep (encoding1 encoding2)

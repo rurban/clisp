@@ -1,5 +1,47 @@
 2000-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * configure: Create a libiconv subdirectory, link over the configure
+          script, and run it with --enable-static --disable-shared.
+        * win32msvc/INSTALL: Must pre-build libiconv.
+        * makemake.in (USE_LIBICONV, XCL_ICONVLIB): New variables.
+          (FILES): On Unix, add libiconv.a.
+          (LIBS): Ad $XCL_ICONVLIB.
+          (EVERY_INCLUDES_H): Add iconv.h.
+          (iconv.h, libiconv.a): New targets.
+          (clean1): Also remove libiconv.a.
+          (clean4): Also remove iconv.h.
+        * lispbibl.d (GNU_LIBICONV): Define always. Include "iconv.h".
+          (max_bytes_per_chart): Increase to 8, for ISO-2022-CN[-EXT].
+        * stream.d: Treat GNU_LIBICONV like HAVE_ICONV.
+          (CLISP_INTERNAL_CHARSET): If using GNU_LIBICONV, define to
+          "UCS-2-INTERNAL".
+          (iconv_init): New macro.
+          (iconv_mblen): After iconv_open, call iconv_init. Treat E2BIG
+          correctly.
+          (iconv_mbstowcs): After iconv_open, call iconv_init. Eliminate gcc
+          warning.
+          (iconv_wcslen): After iconv_open, call iconv_init. Treat E2BIG
+          correctly.
+          (iconv_wcstombs): After iconv_open, call iconv_init.
+          (iconv_range): Likewise.
+          (ChannelStream_init): Likewise.
+        * pseudofun.d: Treat GNU_LIBICONV like HAVE_ICONV.
+        * constsym.d: Add MACINTOSH alias. Add symbols for newly imported
+          encodings from libiconv.
+        * encoding.d: Treat GNU_LIBICONV like HAVE_ICONV.
+          (iconv_first_sym, iconv_last_sym, iconv_num_encodings): New macros.
+          (MAKE-ENCODING): For iconv-based encodings, use max_bytes_per_chart,
+          not 6.
+          (init_encodings): Define CHARSET:MACINTOSH and all symbols
+          corresponding to new imported encodings from libiconv.
+          (encoding_from_name): Map "eucJP" etc. to the new encodings.
+        * type.lsp (table filled by get-charset-range): Avoid filling the
+          cache with large interval lists (comparatively easy to compute).
+        * Makefile.devel (CONFIGURES): Add libiconv/configure.
+          (libiconv/autoconf/aclocal.m4, libiconv/configure): New rules.
+
+2000-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * utils/unicode/Makefile (ALL): Add nls_iso8859_16.c.
           (nls_iso8859_16.c): New rule.
         * nls_iso8859_16.c: New file.

@@ -6261,6 +6261,14 @@ corresponding (constant) symbol in the <code>CHARSET</code> package.
       need two bytes per character, and the remaining characters need three
       bytes per character. This is therefore, in general, the most
       space-efficient encoding of all of Unicode-16.
+<!-- #ifdef GNU_LIBICONV -->
+  <li><code>UTF-16</code>,
+      the 16-bit Unicode character set. Every character is represented as
+      two bytes.
+  <li><code>UTF-7</code>,
+      the 16-bit Unicode character set. This is a stateful 7-bit encoding.
+      Not all ASCII characters represent themselves.
+<!-- #endif /* GNU_LIBICONV */ -->
   <li><code>JAVA</code>,
       the 16-bit Unicode character set. ASCII characters represent themselves
       and need one byte per character. All other characters are represented
@@ -6323,6 +6331,11 @@ corresponding (constant) symbol in the <code>CHARSET</code> package.
   <li><code>KOI8-U</code>,
       an extension of the ASCII character set,
       a popular character set for the Ukrainian language.
+<!-- #ifdef GNU_LIBICONV -->
+  <li><code>KOI8-RU</code>,
+      an extension of the ASCII character set, suitable for Russian and/or
+      Ukrainian??
+<!-- #endif /* GNU_LIBICONV */ -->
   <li><code>JIS_X0201</code>,
       a character set for the Japanese language.
   <li><code>MAC-ARABIC</code>,
@@ -6341,7 +6354,7 @@ corresponding (constant) symbol in the <code>CHARSET</code> package.
       a platform specific extension of the ASCII character set.
   <li><code>MAC-ICELAND</code>,
       a platform specific extension of the ASCII character set.
-  <li><code>MAC-ROMAN</code>,
+  <li><code>MAC-ROMAN</code> = <code>MACINTOSH</code>,
       a platform specific extension of the ASCII character set.
   <li><code>MAC-ROMANIA</code>,
       a platform specific extension of the ASCII character set.
@@ -6436,9 +6449,64 @@ corresponding (constant) symbol in the <code>CHARSET</code> package.
       a platform specific extension of the ASCII character set.
   <li><code>NEXTSTEP</code>,
       a platform specific extension of the ASCII character set.
+<!-- #ifdef GNU_LIBICONV -->
+  <li><code>EUC-JP</code>,
+      a multibyte character set for the Japanese language.
+  <li><code>SHIFT-JIS</code>,
+      a multibyte character set for the Japanese language.
+  <li><code>CP932</code>,
+      a Microsoft variant of <code>SHIFT-JIS</code>.
+  <li><code>ISO-2022-JP</code>,
+      a stateful 7-bit multibyte character set for the Japanese language.
+  <li><code>ISO-2022-JP-2</code>,
+      a stateful 7-bit multibyte character set for the Japanese language.
+  <li><code>ISO-2022-JP-1</code>,
+      a stateful 7-bit multibyte character set for the Japanese language.
+  <li><code>EUC-CN</code>,
+      a multibyte character set for simplified Chinese.
+  <li><code>HZ</code>,
+      a stateful 7-bit multibyte character set for simplified Chinese.
+  <li><code>GBK</code>,
+      a multibyte character set for Chinese,
+  <li><code>CP936</code>,
+      a Microsoft variant of <code>GBK</code>.
+  <li><code>EUC-TW</code>,
+      a multibyte character set for traditional Chinese.
+  <li><code>BIG5</code>,
+      a multibyte character set for traditional Chinese.
+  <li><code>CP950</code>,
+      a Microsoft variant of <code>BIG5</code>.
+  <li><code>ISO-2022-CN</code>,
+      a stateful 7-bit multibyte character set for Chinese.
+  <li><code>ISO-2022-CN-EXT</code>,
+      a stateful 7-bit multibyte character set for Chinese.
+  <li><code>EUC-KR</code>,
+      a multibyte character set for Korean.
+  <li><code>CP949</code>,
+      a Microsoft variant of <code>EUC-KR</code>.
+  <li><code>ISO-2022-KR</code>,
+      a stateful 7-bit multibyte character set for Korean.
+  <li><code>ARMSCII-8</code>,
+      an extension of the ASCII character set, suitable for Armenian.
+  <li><code>GEORGIAN-ACADEMY</code>,
+      an extension of the ASCII character set, suitable for Georgian.
+  <li><code>GEORGIAN-PS</code>,
+      an extension of the ASCII character set, suitable for Georgian.
+  <li><code>TIS-620</code>,
+      an extension of the ASCII character set, suitable for Thai.
+  <li><code>MULELAO-1</code>,
+      an extension of the ASCII character set, suitable for Laotian.
+  <li><code>CP1133</code>,
+      an extension of the ASCII character set, suitable for Laotian.
+  <li><code>VISCII</code>,
+      an extension of the ASCII character set, suitable for Vietnamese.
+  <li><code>TCVN</code>,
+      an extension of the ASCII character set, suitable for Vietnamese.
+<!-- #endif /* GNU_LIBICONV */ -->
 </ul>
 
 <!-- #ifdef HAVE_ICONV -->
+<!--
 <dl>
 <dt><a name="iconv"></a><em>Platform dependent: Only on
     <strong>Unix</strong> systems having the C library function
@@ -6488,6 +6556,7 @@ because all the interesting possible encodings are already built-in.
 through iconv(), the built-in is preferred, because it is more efficient
 and available across platforms.
 </dl>
+-->
 <!-- #endif /* HAVE_ICONV */ -->
 
 <!-- #endif /* UNICODE */ -->

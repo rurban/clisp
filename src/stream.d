@@ -3523,7 +3523,7 @@ LISPFUNN(generic_stream_p,1)
           && encodingp(Symbol_value(arg))
          )
         return Symbol_value(arg);
-      #ifdef HAVE_ICONV
+      #if defined(GNU_LIBICONV) || defined(HAVE_ICONV)
       if (stringp(arg)) {
         # (make-encoding :charset arg)
         pushSTACK(arg); pushSTACK(unbound); pushSTACK(unbound); pushSTACK(unbound);
@@ -3899,7 +3899,7 @@ typedef struct strm_channel_extrafields_struct {
   void (* low_close) (object stream, object handle);
   # Fields used if the element-type is CHARACTER:
   uintL lineno;                        # line number during read, >0
-  #if defined(UNICODE) && defined(HAVE_ICONV)
+  #if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
   iconv_t iconvdesc;                   # input conversion descriptor and state
   iconv_t oconvdesc;                   # output conversion descriptor and state
   #endif
@@ -3914,7 +3914,7 @@ typedef struct strm_channel_extrafields_struct {
 #define ChannelStream_bitsize(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->bitsize
 #define ChannelStreamLow_close(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_close
 #define ChannelStream_lineno(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->lineno
-#if defined(UNICODE) && defined(HAVE_ICONV)
+#if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
 #define ChannelStream_iconvdesc(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->iconvdesc
 #define ChannelStream_oconvdesc(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->oconvdesc
 #endif
@@ -3990,27 +3990,31 @@ typedef struct strm_unbuffered_extrafields_struct {
 # Here enc_charset is a simple-string, not a symbol. The system decides
 # which encodings are available, and there is no API for getting them all.
 
-#if defined(UNICODE) && defined(HAVE_ICONV)
+#if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
 
 # Our internal encoding is UCS-2 with platform dependent endianness.
-#ifdef __GLIBC__
-  #if BIG_ENDIAN_P
-    #define CLISP_INTERNAL_CHARSET  "UNICODEBIG"
-  #else
-    #define CLISP_INTERNAL_CHARSET  "UNICODELITTLE"
-  #endif
-#elif defined(UNIX_HPUX) && BIG_ENDIAN_P
-  #define CLISP_INTERNAL_CHARSET  "ucs2"
+#ifdef GNU_LIBICONV
+  #define CLISP_INTERNAL_CHARSET  "UCS-2-INTERNAL"
 #else
-  #if BIG_ENDIAN_P
-    #define CLISP_INTERNAL_CHARSET  "UCS-2"
+  #ifdef __GLIBC__
+    #if BIG_ENDIAN_P
+      #define CLISP_INTERNAL_CHARSET  "UNICODEBIG"
+    #else
+      #define CLISP_INTERNAL_CHARSET  "UNICODELITTLE"
+    #endif
+  #elif defined(UNIX_HPUX) && BIG_ENDIAN_P
+    #define CLISP_INTERNAL_CHARSET  "ucs2"
   #else
-    #define CLISP_INTERNAL_CHARSET  "UCS-2"  # FIXME: This is probably wrong
+    #if BIG_ENDIAN_P
+      #define CLISP_INTERNAL_CHARSET  "UCS-2"
+    #else
+      #define CLISP_INTERNAL_CHARSET  "UCS-2"  # FIXME: This is probably wrong
+    #endif
   #endif
 #endif
 
 # min. bytes per character = 1
-# max. bytes per character unknown, assume it's <= 6
+# max. bytes per character unknown, assume it's <= max_bytes_per_chart
 
 global uintL iconv_mblen (object encoding, const uintB* src, const uintB* srcend);
 global void iconv_mbstowcs (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
@@ -4033,6 +4037,16 @@ global object iconv_range (object encoding, uintL start, uintL end);
 # fehler_unencodable(encoding);
   nonreturning_function(extern, fehler_unencodable, (object encoding, chart ch));
 
+# Initialize an iconv_t as we need it.
+# iconv_init(cd);
+  #ifdef GNU_LIBICONV
+    /* We want reversible conversion, no transliteration. */
+    #define iconv_init(cd)  \
+      { int zero = 0; iconvctl(cd,ICONV_SET_TRANSLITERATE,&zero); }
+  #else
+    #define iconv_init(cd)
+  #endif
+
 # Bytes to characters.
 
 global uintL iconv_mblen(encoding,src,srcend)
@@ -4050,6 +4064,7 @@ global uintL iconv_mblen(encoding,src,srcend)
         if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
         OS_error();
       }
+      iconv_init(cd);
       {
         var const char* inptr = src;
         var size_t insize = srcend-src;
@@ -4057,7 +4072,7 @@ global uintL iconv_mblen(encoding,src,srcend)
           var char* outptr = (char*)tmpbuf;
           var size_t outsize = tmpbufsize*sizeof(chart);
           var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
-          if (res == (size_t)(-1)) {
+          if (res == (size_t)(-1) && errno != E2BIG) {
             if (errno == EINVAL) # incomplete input?
               break;
             elif (errno == EILSEQ) {
@@ -4096,7 +4111,7 @@ global void iconv_mbstowcs(encoding,stream,srcp,srcend,destp,destend)
   var chart* *destp;
   var chart* destend;
   {
-    var const char* inptr = *srcp;
+    var const char* inptr = (const char*)*srcp;
     var size_t insize = srcend-*srcp;
     var char* outptr = (char*)*destp;
     var size_t outsize = (char*)destend-(char*)*destp;
@@ -4109,6 +4124,7 @@ global void iconv_mbstowcs(encoding,stream,srcp,srcend,destp,destend)
           if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
           OS_error();
         }
+        iconv_init(cd);
         while (insize > 0 && outsize > 0) {
           var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
           if (res == (size_t)(-1)) {
@@ -4156,7 +4172,7 @@ global void iconv_mbstowcs(encoding,stream,srcp,srcend,destp,destend)
             if (eq(action,S(Kignore))) {
               inptr++; insize--;
             } elif (eq(action,S(Kerror))) {
-              if (inptr > *srcp)
+              if (inptr > (const char*)*srcp)
                 break;
               OS_error();
             } else {
@@ -4193,6 +4209,7 @@ global uintL iconv_wcslen(encoding,src,srcend)
         if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
         OS_error();
       }
+      iconv_init(cd);
       {
         var const char* inptr = (const char*)src;
         var size_t insize = (char*)srcend-(char*)src;
@@ -4200,7 +4217,7 @@ global uintL iconv_wcslen(encoding,src,srcend)
           var char* outptr = (char*)tmpbuf;
           var size_t outsize = tmpbufsize;
           var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
-          if (res == (size_t)(-1)) {
+          if (res == (size_t)(-1) && errno != E2BIG) {
             if (errno == EILSEQ) { # invalid input?
               ASSERT(insize >= sizeof(chart));
               var object action = TheEncoding(encoding)->enc_tombs_error;
@@ -4228,8 +4245,6 @@ global uintL iconv_wcslen(encoding,src,srcend)
                 fehler_unencodable(encoding,*(const chart*)inptr);
               }
             } elif (errno == EINVAL) { # incomplete input?
-              NOTREACHED
-            } elif (errno == E2BIG) { # output buffer too small?
               NOTREACHED
             } else {
               var int saved_errno = errno;
@@ -4285,6 +4300,7 @@ global void iconv_wcstombs(encoding,stream,srcp,srcend,destp,destend)
           if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
           OS_error();
         }
+        iconv_init(cd);
         while (insize > 0) {
           var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
           if (res == (size_t)(-1)) {
@@ -4414,6 +4430,7 @@ global object iconv_range(encoding,start,end)
         if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
         OS_error();
       }
+      iconv_init(cd);
       end_system_call();
       {
         var uintL i1;
@@ -4475,12 +4492,12 @@ global object iconv_range(encoding,start,end)
     return stringof(2*count);
   }
 
-#endif # UNICODE && HAVE_ICONV
+#endif # UNICODE && (GNU_LIBICONV || HAVE_ICONV)
 
 # Initializes some ChannelStream fields.
 # ChannelStream_init(stream);
 # > stream: channel-stream with encoding
-#if defined(UNICODE) && defined(HAVE_ICONV)
+#if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
   local void ChannelStream_init (object stream);
   local void ChannelStream_init(stream)
     var object stream;
@@ -4496,6 +4513,7 @@ global object iconv_range(encoding,start,end)
               if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
               OS_error();
             }
+            iconv_init(cd);
             ChannelStream_iconvdesc(stream) = cd;
           } else {
             ChannelStream_iconvdesc(stream) = (iconv_t)0;
@@ -4507,6 +4525,7 @@ global object iconv_range(encoding,start,end)
               if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
               OS_error();
             }
+            iconv_init(cd);
             ChannelStream_oconvdesc(stream) = cd;
           } else {
             ChannelStream_oconvdesc(stream) = (iconv_t)0;
@@ -4523,7 +4542,7 @@ global object iconv_range(encoding,start,end)
 
 # Cleans up some ChannelStream fields.
 # ChannelStream_fini(stream);
-#if defined(UNICODE) && defined(HAVE_ICONV)
+#if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
   local void ChannelStream_fini (object stream);
   local void ChannelStream_fini(stream)
     var object stream;
@@ -6198,7 +6217,7 @@ global object iconv_range(encoding,start,end)
 # Unbuffered-Channel-Stream return to the initial state.
 # oconv_unshift_output_unbuffered(stream);
 # > stream: Unbuffered-Channel-Stream
-  #if defined(UNICODE) && defined(HAVE_ICONV)
+  #if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
     #define oconv_unshift_output_unbuffered(stream)  \
       if (ChannelStream_oconvdesc(stream) != (iconv_t)0) { \
         oconv_unshift_output_unbuffered_(stream);          \
@@ -7589,7 +7608,7 @@ typedef struct strm_i_buffered_extrafields_struct {
 # Buffered-Channel-Stream return to the initial state.
 # oconv_unshift_output_buffered(stream);
 # > stream: Buffered-Channel-Stream
-  #if defined(UNICODE) && defined(HAVE_ICONV)
+  #if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
     #define oconv_unshift_output_buffered(stream)  \
       if (ChannelStream_oconvdesc(stream) != (iconv_t)0) { \
         oconv_unshift_output_buffered_(stream);            \
@@ -8811,7 +8830,7 @@ typedef struct strm_i_buffered_extrafields_struct {
         ChannelStream_bitsize(stream) = 0; # bitsize löschen
         TheStream(stream)->strm_bitbuffer = NIL; # Bitbuffer freimachen
       }
-      #if defined(UNICODE) && defined(HAVE_ICONV)
+      #if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
       ChannelStream_iconvdesc(stream) = (iconv_t)0; # iconvdesc löschen
       ChannelStream_oconvdesc(stream) = (iconv_t)0; # oconvdesc löschen
       #endif
@@ -18980,7 +18999,7 @@ LISPFUNN(file_string_length,2)
     if (!(TheStream(stream)->strmflags & strmflags_wr_ch_B))
       fehler_illegal_streamop(S(file_string_length),stream);
     var object encoding = TheStream(stream)->strm_encoding;
-    #if defined(UNICODE) && defined(HAVE_ICONV)
+    #if defined(UNICODE) && (defined(GNU_LIBICONV) || defined(HAVE_ICONV))
     if (simple_string_p(TheEncoding(encoding)->enc_charset)) {
       # iconv-based encodings have state. Since we cannot duplicate an iconv_t
       # we have no way to know for sure how many bytes the string will span.
