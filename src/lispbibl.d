@@ -1715,6 +1715,8 @@
   #undef EAX
 # 386BSD macht "#define CBLOCK 64". Grr...
   #undef CBLOCK
+# AIX 3.2.5 does "#define hz 100". Grr...
+  #undef hz
 
 #ifdef AMIGAOS
   # Behandlung von AMIGAOS-Fehlern
