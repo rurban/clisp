@@ -1,3 +1,9 @@
+2002-04-16  Peter Burwood  <clisp@peterb.org.uk>
+
+	* autoconf/aclocal.m4 (HAVE_GETRUSAGE): check whether getrusage()
+	actually works, not just that it is present (it is present in
+	cygwin, but works only on NT, not win98)
+
 2002-04-16  Joerg-Cyril Hoehle  <Joerg-Cyril.Hoehle@t-systems.com>
 
 	* regexp.lisp (regexp-exec): correct positions for ()-group submatches
