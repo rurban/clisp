@@ -126,6 +126,9 @@ break fehler_notreached
 break SP_ueber
 break STACK_ueber
 
+break fehler
+break prepare_error
+
 info break
 
 # these should come last:
