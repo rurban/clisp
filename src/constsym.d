@@ -1370,6 +1370,7 @@ LISPSYM(simple_bit_vector,"SIMPLE-BIT-VECTOR",lisp) /* type in SEQUENCE, PREDTYP
 LISPSYM(array,"ARRAY",lisp) /* type in SEQUENCE, PREDTYPE */
 LISPSYM(simple_array,"SIMPLE-ARRAY",lisp) /* type in SEQUENCE, PREDTYPE */
 LISPSYM(sequence,"SEQUENCE",lisp) /* type for SEQUENCE */
+LISPSYM(subtype_sequence,"SUBTYPE-SEQUENCE",system) /* function for SEQUENCE */
 LISPSYM(package_error,"PACKAGE-ERROR",lisp) /* type for PACKAGE */
 LISPSYM(Kinternal,"INTERNAL",keyword) /* INTERN result in PACKAGE */
 LISPSYM(Kexternal,"EXTERNAL",keyword) /* INTERN result in PACKAGE */
