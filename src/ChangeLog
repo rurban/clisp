@@ -1,5 +1,11 @@
 2004-04-25  Bruno Haible  <bruno@clisp.org>
 
+	* record.d (check_generic_function_replacement): New function,
+	extracted from check_generic_function.
+	(check_generic_function): Turn into an inline function.
+
+2004-04-25  Bruno Haible  <bruno@clisp.org>
+
 	Appendix to 2004-03-15 patch.
 	* record.d (check_initialization_argument_list): ~ -> ~S.
 	* sequence.d (remove_op, delete_op, substitute_op): Likewise.
