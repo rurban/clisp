@@ -2211,7 +2211,17 @@ LISPFUNN(set_package_lock,2) {
 
 # (SYSTEM::CHECK-PACKAGE-LOCK function package symbol)
 LISPFUNN(check_package_lock,3) {
-  check_pack_lock(STACK_2,STACK_1,STACK_0);
+  if (mconsp(STACK_1)) { # package is a actually a clist of packages
+    var bool locked = true;
+    var object list = STACK_1;
+    while (locked && mconsp(list)) {
+      locked = pack_locked_p(Car(list));
+      list = Cdr(list);
+    }
+    if (locked) # all packages are locked --> error
+      cerror_package_locked(STACK_2,STACK_1,STACK_0);
+  } else # just one package - check it
+    check_pack_lock(STACK_2,STACK_1,STACK_0);
   skipSTACK(3);
   mv_count = 0;
 }
