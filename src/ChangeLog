@@ -1,5 +1,6 @@
 2003-09-24  John Hinsdale  <hin@alma.com>
 	* modules/oracle/oracle.lisp: connection retry logic
+	* src/makemake.in: syntax error in variable definition
 
 2003-09-24  Sam Steingold  <sds@gnu.org>
 
