@@ -1850,14 +1850,6 @@
           :generic-accessors nil)))
 (defun undefine-structure-class (name) ; ABI
   (setf (find-class name) nil))
-(defun structure-undefine-accessories (name) ; ABI
-  (macrolet ((undef (accessor)
-               `(let ((symbol (,accessor name)))
-                  (when symbol (fmakunbound symbol)))))
-    (undef class-kconstructor)
-    (mapc #'fmakunbound (class-boa-constructors name))
-    (undef class-copier)
-    (undef class-predicate)))
 
 ;; ------------- Creation of an instance of <semi-standard-class> -------------
 
