@@ -1,5 +1,37 @@
 2004-10-10  Bruno Haible  <bruno@clisp.org>
 
+	Respect user-defined methods on method-specializers.
+	* clos-genfun1.lisp (|#'method-specializers|): New variable.
+	(safe-method-specializers): New function.
+	* clos-methcomb2.lisp (method-applicable-p, sort-applicable-methods):
+	Add gf argument. Call safe-method-specializers instead of
+	std-method-specializers.
+	(long-form-method-combination-collect-duplicates): Call
+	method-specializers instead of std-method-specializers.
+	* clos-genfun2.lisp (methods-agree-p, std-add-method,
+	std-remove-method, std-find-method): Call method-specializers instead
+	of std-method-specializers.
+	(compute-dispatch): Call safe-method-specializers instead of
+	std-method-specializers.
+	(compute-applicable-methods-<standard-generic-function>): Update.
+	(compute-applicable-methods-using-classes-<standard-generic-function>,
+	compute-applicable-methods-for-set,
+	check-method-only-standard-specializers): Call safe-method-specializers
+	instead of std-method-specializers.
+	* clos-genfun4.lisp (dispatching-arg-p, dispatching-arg-type): Call
+	method-specializers instead of std-method-specializers.
+	* clos-method3.lisp (method-specializers): Redefine without fmakunbound.
+	Initialize |#'method-specializers|.
+	* clos-class5.lisp (note-ai-change, note-ii-change, note-ri-change,
+	note-uirc-change, note-uidc-change, note-si-change,
+	valid-make-instance-keywords, valid-reinitialize-instance-keywords,
+	valid-update-instance-for-redefined-class-keywords,
+	valid-update-instance-for-different-class-keywords): Call
+	method-specializers instead of std-method-specializers.
+	* describe.lisp (describe-object@generic-function): Likewise.
+
+2004-10-10  Bruno Haible  <bruno@clisp.org>
+
 	* clos-method1.lisp (method-lambda-list-to-signature): New function,
 	extracted from initialize-instance-<standard-method>.
 	(initialize-instance-<standard-method>): Use it.

@@ -286,8 +286,8 @@
 ;; Agreement on Parameter Specializers and Qualifiers
 (defun methods-agree-p (method1 method2)
   (and (equal (std-method-qualifiers method1) (std-method-qualifiers method2))
-       (specializers-agree-p (std-method-specializers method1)
-                             (std-method-specializers method2))))
+       (specializers-agree-p (method-specializers method1)
+                             (method-specializers method2))))
 
 ;; MOP p. 62 says that the lambda-list of a generic function may become
 ;; determined only at the moment when the first method is added.
@@ -357,7 +357,7 @@
   (setf (std-gf-methods gf) (cons method (std-gf-methods gf))
         (std-method-generic-function method) gf)
   ;; Step 2: Call add-direct-method for each specializer.
-  (dolist (specializer (std-method-specializers method))
+  (dolist (specializer (method-specializers method))
     (add-direct-method specializer method))
   ;; Step 3: Clear the effective method cache and the discriminating function.
   ;; (Cf. MOP p. 41 compute-discriminating-function item (iii).)
@@ -401,7 +401,7 @@
             (std-method-generic-function old-method) nil
             (std-method-from-defgeneric old-method) nil)
       ;; Step 2: Call remove-direct-method for each specializer.
-      (dolist (specializer (std-method-specializers method))
+      (dolist (specializer (method-specializers method))
         (remove-direct-method specializer method))
       ;; Step 3: Clear the effective method cache and the discriminating function.
       ;; (Cf. MOP p. 41 compute-discriminating-function item (iii).)
@@ -448,7 +448,7 @@
       ;; cf. methods-agree-p
       (dolist (method (std-gf-methods gf))
         (when (and (equal (std-method-qualifiers method) qualifiers)
-                   (specializers-agree-p (std-method-specializers method)
+                   (specializers-agree-p (method-specializers method)
                                          specializers))
           (return-from std-find-method method)))))
   (if errorp
@@ -885,7 +885,7 @@
                            (remove-if-not #'eql-specializer-p
                              (mapcar #'(lambda (m)
                                          (nth arg-index
-                                           (std-method-specializers m)))
+                                           (safe-method-specializers m gf)))
                                remaining-methods)))
                          :test #'eql))
                      (eql-caselist ; case-list for CASE
@@ -898,7 +898,7 @@
                                     #'(lambda (m)
                                         (typep object
                                           (nth arg-index
-                                            (std-method-specializers m))))
+                                            (safe-method-specializers m gf))))
                                     (the list remaining-methods))
                                   class-of-exprs)))
                          eql-cases)))
@@ -908,7 +908,7 @@
                       (remove-if
                         #'(lambda (m)
                             (eql-specializer-p
-                              (nth arg-index (std-method-specializers m))))
+                              (nth arg-index (safe-method-specializers m gf))))
                         (the list remaining-methods)))
                 ((lambda (other-cases)
                    (if eql-caselist
@@ -919,7 +919,7 @@
                            (delete-duplicates
                              (mapcar #'(lambda (m)
                                          (nth arg-index
-                                           (std-method-specializers m)))
+                                           (safe-method-specializers m gf)))
                                      remaining-methods)))))
                    ;; If all classes that are to be tested for are
                    ;; built-in-classes, then we will inline the type-dispatch,
@@ -948,7 +948,7 @@
                                  #'(lambda (m)
                                      (bc-and class
                                        (nth arg-index
-                                         (std-method-specializers m))))
+                                         (safe-method-specializers m gf))))
                                  (the list remaining-methods))
                                class-of-exprs)
                              ;; case differentiation via TYPEP
@@ -974,7 +974,7 @@
                                        #'(lambda (m)
                                            (bc-and
                                              (nth arg-index
-                                               (std-method-specializers m))
+                                               (safe-method-specializers m gf))
                                              test-class))
                                        (the list remaining-methods)))
                                   ,(built-in-subtree
@@ -987,7 +987,7 @@
                                        #'(lambda (m)
                                            (bc-and-not
                                              (nth arg-index
-                                               (std-method-specializers m))
+                                               (safe-method-specializers m gf))
                                              test-class))
                                        (the list remaining-methods))))))))
                        (built-in-subtree <t> classes remaining-methods))
@@ -1152,10 +1152,10 @@
           (let ((req-args (subseq args 0 req-num)))
             (setq methods
                   (remove-if-not #'(lambda (method)
-                                     (method-applicable-p method req-args))
+                                     (method-applicable-p method req-args gf))
                                  (the list methods)))
             ;; 2. Sort the applicable methods by precedence order:
-            (sort-applicable-methods methods (mapcar #'class-of req-args) (std-gf-argorder gf))))
+            (sort-applicable-methods methods (mapcar #'class-of req-args) (std-gf-argorder gf) gf)))
         (error (TEXT "~S: ~S has ~S required argument~:P, but only ~S arguments were passed to ~S: ~S")
                'compute-applicable-methods gf req-num (length args)
                'compute-applicable-methods args)))))
@@ -1187,7 +1187,7 @@
           ;; classes = (mapcar #'class-of required-arguments).
           (setq methods
                 (remove-if-not #'(lambda (method)
-                                   (let ((specializers (std-method-specializers method))
+                                   (let ((specializers (safe-method-specializers method gf))
                                          (applicable t) (unknown nil))
                                      (mapc #'(lambda (arg-class specializer)
                                                (if (class-p specializer)
@@ -1210,7 +1210,7 @@
                                      applicable))
                                (the list methods)))
           ;; 2. Sort the applicable methods by precedence order:
-          (values (sort-applicable-methods methods req-arg-classes (std-gf-argorder gf)) t))
+          (values (sort-applicable-methods methods req-arg-classes (std-gf-argorder gf) gf) t))
         (error (TEXT "~S: ~S has ~S required argument~:P, but ~S classes were passed to ~S: ~S")
                'compute-applicable-methods-using-classes gf req-num (length req-arg-classes)
                'compute-applicable-methods-using-classes req-arg-classes)))))
@@ -1275,7 +1275,7 @@
           ;; 1. Select the applicable methods:
           (setq methods
                 (remove-if-not #'(lambda (method)
-                                   (let ((specializers (std-method-specializers method))
+                                   (let ((specializers (safe-method-specializers method gf))
                                          (applicable t) (unknown nil))
                                      (mapc #'(lambda (arg-spec specializer)
                                                (ecase (first arg-spec)
@@ -1323,8 +1323,8 @@
             (values
               (sort (copy-list methods)
                     #'(lambda (method1 method2) ; method1 < method2 ?
-                        (let ((specializers1 (std-method-specializers method1))
-                              (specializers2 (std-method-specializers method2)))
+                        (let ((specializers1 (safe-method-specializers method1 gf))
+                              (specializers2 (safe-method-specializers method2 gf)))
                           (dolist (arg-index argument-order nil)
                             (let ((arg-spec (nth arg-index req-arg-specs))
                                   (psp1 (nth arg-index specializers1))
@@ -1362,7 +1362,7 @@
 ;; compute-applicable-methods, rather than in
 ;; compute-effective-method-as-function, but that's how the MOP specifies it.
 (defun check-method-only-standard-specializers (gf method caller)
-  (dolist (spec (std-method-specializers method))
+  (dolist (spec (safe-method-specializers method gf))
     (unless (or (class-p spec) (typep-class spec <eql-specializer>))
       (error (TEXT "~S: Invalid method specializer ~S on ~S in ~S")
         caller spec method gf))))

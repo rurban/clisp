@@ -10,8 +10,8 @@
 ;;; ---------------------------- Method Selection ----------------------------
 
 ;; CLtL2 28.1.6.2., ANSI CL 7.6.2. Applicable methods
-(defun method-applicable-p (method required-arguments)
-  (every #'typep required-arguments (std-method-specializers method)))
+(defun method-applicable-p (method required-arguments gf)
+  (every #'typep required-arguments (safe-method-specializers method gf)))
 
 ;; CLtL2 28.1.7.1., ANSI CL 7.6.6.1.2.
 ;; Sorting the applicable methods by precedence order
@@ -21,11 +21,11 @@
 ;;                              direct instances of.
 ;; > argument-order: A list of indices in the range 0..req-num-1 that
 ;;                   determines the argument order.
-(defun sort-applicable-methods (methods required-argument-classes argument-order)
+(defun sort-applicable-methods (methods required-argument-classes argument-order gf)
   (sort (copy-list methods)
         #'(lambda (method1 method2) ; method1 < method2 ?
-            (let ((specializers1 (std-method-specializers method1))
-                  (specializers2 (std-method-specializers method2)))
+            (let ((specializers1 (safe-method-specializers method1 gf))
+                  (specializers2 (safe-method-specializers method2 gf)))
               (dolist (arg-index argument-order nil)
                 (let ((arg-class (nth arg-index required-argument-classes))
                       (psp1 (nth arg-index specializers1))
@@ -843,8 +843,8 @@
         ((endp (cdr l)))
       (let ((method1 (first l))
             (method2 (second l)))
-        (if (specializers-agree-p (std-method-specializers method1)
-                                  (std-method-specializers method2))
+        (if (specializers-agree-p (method-specializers method1)
+                                  (method-specializers method2))
           ;; The specializers agree, so we know the qualifiers must differ.
           (progn
             (unless last-was-duplicate (push (cons method1 groupname) duplicates))

@@ -67,7 +67,7 @@
 ;; specializers are <t>.
 (defun dispatching-arg-p (index methods)
   (notevery #'(lambda (method)
-                (eq (nth index (std-method-specializers method)) <t>))
+                (eq (nth index (method-specializers method)) <t>))
             methods))
 (defun single-dispatching-arg (reqanz methods)
   (let ((first-dispatching-arg
@@ -80,7 +80,7 @@
 (defun dispatching-arg-type (index methods)
   `(OR ,@(remove-duplicates
            (mapcar #'(lambda (method)
-                       (nth index (std-method-specializers method)))
+                       (nth index (method-specializers method)))
                    methods)
            :test #'same-specializers-p)))
 
