@@ -1,5 +1,8 @@
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
+	* amigaaux.d: Use WIDE_SOFT instead of WIDE.
+	* spvw_allocate.d (mymalloc): Likewise.
+
 	* lispbibl.d (fake_gcv_object): New macro.
 	(SAVE_REGISTERS, finish_entry_frame, make_HANDLER_frame): Use it.
 	* eval.d (funcall_iclosure, interpret_bytecode_): Likewise.
