@@ -191,7 +191,7 @@ local void gc_mark (object obj)
     if (marked(dies_)) goto up; /* marked -> up */                      \
     mark(dies_); /* marked */                                           \
   }                                                                     \
-  { var uintL len = Record_length(dies);                                \
+  { var uintL len = Record_nonweak_length(dies);                        \
     if (len==0) goto up; /* Length 0: up again */                       \
    {var object dies_ = objectplus(dies,((soint)offsetofa(record_,recdata) << (oint_addr_shift-addr_shift)) \
     /* the "<< 1" and "/2" are a workaround against a gcc-2.7.2         \
@@ -2134,10 +2134,6 @@ local void gc_unmarkcheck (void) {
           update_STACKs();
         # Update pointers in all C stacks:
           update_back_traces();
-        # Update weak-pointers:
-          update_weakpointers_mod();
-        # Update weak kvtables:
-          update_weakkvtables_mod();
         # Update program constants:
           update_tables();
         #ifndef MORRIS_GC
@@ -2165,7 +2161,6 @@ local void gc_unmarkcheck (void) {
           #define update_unrealloc  true
           #define update_fpointer_invalid  false
           #define update_fsubr_function  false
-          #define update_weak_pointers  false  # already updated above
           #define update_ht_invalid  mark_ht_invalid
           #define update_ss_unrealloc  mark_sstring_clean
           #define update_in_unrealloc  mark_inst_clean
@@ -2177,7 +2172,6 @@ local void gc_unmarkcheck (void) {
           #undef update_in_unrealloc
           #undef update_ss_unrealloc
           #undef update_ht_invalid
-          #undef update_weak_pointers
           #undef update_fsubr_function
           #undef update_fpointer_invalid
           #undef update_unrealloc
@@ -2707,7 +2701,6 @@ local void gc_unmarkcheck (void) {
           #define update_unrealloc  false
           #define update_fpointer_invalid  false
           #define update_fsubr_function  false
-          #define update_weak_pointers  true
           #define update_ht_invalid  mark_ht_invalid
           #define update_ss_unrealloc(ptr)
           #define update_in_unrealloc(ptr)
@@ -2719,7 +2712,6 @@ local void gc_unmarkcheck (void) {
           #undef update_in_unrealloc
           #undef update_ss_unrealloc
           #undef update_ht_invalid
-          #undef update_weak_pointers
           #undef update_fsubr_function
           #undef update_fpointer_invalid
           #undef update_unrealloc
@@ -2905,10 +2897,6 @@ local void gc_unmarkcheck (void) {
           update_back_traces();
         # Update program constants:
           update_tables();
-        # Update weak-pointers:
-          update_weakpointers();
-        # Update weak kvtables:
-          update_weakkvtables();
         # update pointers in the Cons-cells:
           #define update_conspage  update_conspage_normal
           update_conses();
@@ -2918,7 +2906,6 @@ local void gc_unmarkcheck (void) {
           #define update_unrealloc  false
           #define update_fpointer_invalid  false
           #define update_fsubr_function  false
-          #define update_weak_pointers  false  # already updated above
           #define update_ht_invalid  mark_ht_invalid
           #define update_ss_unrealloc(ptr)
           #define update_in_unrealloc(ptr)
@@ -2930,7 +2917,6 @@ local void gc_unmarkcheck (void) {
           #undef update_in_unrealloc
           #undef update_ss_unrealloc
           #undef update_ht_invalid
-          #undef update_weak_pointers
           #undef update_fsubr_function
           #undef update_fpointer_invalid
           #undef update_unrealloc

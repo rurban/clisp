@@ -649,9 +649,9 @@ LISPFUNN(function_macro_expander,1) {
 
 /* UP: make a weakpointer to popSTACK()
  can trigger GC, modifies STACK */
-local object mk_weakpointer () {
-  var object wp = allocate_xrecord(0,Rectype_Weakpointer,weakpointer_length,
-                                   weakpointer_xlength,orecord_type);
+local inline object mk_weakpointer () {
+  var object wp = allocate_xrecord(0,Rectype_Weakpointer,weakpointer_length,0,
+                                   orecord_type);
   var object obj = popSTACK();
   TheWeakpointer(wp)->wp_value = obj;
   if (gcinvariant_object_p(obj)) {
@@ -712,6 +712,9 @@ LISPFUNN(set_weak_pointer_value,2)
       O(all_weakpointers) = wp;
     }
   }
+  /* If value is gc-invariant, we leave wp where it is. For removing it
+     from O(all_weakpointers), this list ought to be a doubly-linked list.
+     Anyway, the next GC will remove it from the list. */
   VALUES1(TheWeakpointer(wp)->wp_value = value);
 }
 
