@@ -15124,16 +15124,25 @@ global void init_streamvars (bool unixyp) {
   end_call();
   #endif
   {
-    var object stream = make_terminal_io();
-    define_variable(S(terminal_io),stream);      # *TERMINAL-IO*
-  }
-  {
-    var object stream = make_synonym_stream(S(terminal_io)); # Synonym-Stream to *TERMINAL-IO*
+    var object tio_stream = make_terminal_io();
+    define_variable(S(terminal_io),tio_stream);  # *TERMINAL-IO*
+    var object stream = make_synonym_stream(S(terminal_io));
     define_variable(S(query_io),stream);         # *QUERY-IO*
     define_variable(S(debug_io),stream);         # *DEBUG-IO*
-    define_variable(S(standard_input),stream);   # *STANDARD-INPUT*
-    define_variable(S(standard_output),stream);  # *STANDARD-OUTPUT*
     define_variable(S(trace_output),stream);     # *TRACE-OUTPUT*
+    if (stream_twoway_p(tio_stream)) {
+      var object in_s = TheStream(tio_stream)->strm_twoway_input;
+      var object outs = TheStream(tio_stream)->strm_twoway_output;
+      if (terminal_stream_p(in_s)) # *STANDARD-INPUT*
+        define_variable(S(standard_input),stream); # synonym stream
+      else define_variable(S(standard_input),in_s); # real stream
+      if (terminal_stream_p(outs)) # *STANDARD-OUTPUT*
+        define_variable(S(standard_output),stream); # synonym stream
+      else define_variable(S(standard_output),outs); # real stream
+    } else { # tio_stream is a terminal stream
+      define_variable(S(standard_input),stream);  # *STANDARD-INPUT*
+      define_variable(S(standard_output),stream); # *STANDARD-OUTPUT*
+    }
     #ifdef UNIX
     if (unixyp) {
       # Use another Stream for *ERROR-OUTPUT* . The file-name
@@ -15191,6 +15200,8 @@ local void fehler_value_stream (object sym) {
              || eq(sym,S(standard_input)) || eq(sym,S(standard_output))
              || eq(sym,S(error_output)) || eq(sym,S(trace_output))) {
     # Synonym-Stream to *TERMINAL-IO* as Default
+    # cf. init_streamvars(): there we do some magic for *STANDARD-INPUT*,
+    # *STANDARD-OUTPUT* and *ERROR-OUTPUT*, here we do NOT
     stream = make_synonym_stream(S(terminal_io));
   } else {
     # other Symbol, not fixable -> instant error-message:
