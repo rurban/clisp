@@ -1,6 +1,13 @@
+2002-11-01  Sam Steingold  <sds@gnu.org>
+
+	* loop.lisp (li-vars): new inline function
+	(expand-loop): check for duplicate iteration variables;
+	use ATOM for ON iteration, as per ANSI CL spec
+
 2002-10-31  Sam Steingold  <sds@gnu.org>
 
-	* error.d, lispbibl.d (fehler_lambda_expression): accept `caller' argument
+	* error.d, lispbibl.d (fehler_lambda_expression):
+	accept `caller' argument
 	* symbol.d (%PUTD): pass caller to fehler_lambda_expression()
 	* eval.d (coerce_function, apply, funcall): ditto
 
