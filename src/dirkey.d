@@ -1,4 +1,5 @@
-# directory key: win32 registry, LDAP, Gnome-config
+# CLISP: directory key: win32 registry, LDAP, Gnome-config
+# Copyright (C) 2000-2001 by Sam Steingold
 
 #ifdef DIR_KEY
 
