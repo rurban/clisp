@@ -1,3 +1,12 @@
+2002-12-13  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (kbd_last_buf): new function
+	(rd_ch_keyboard): use it to flush UnbufferedStream_bytebuf before
+	checking strm_keyboard_buffer: this fixes a bug in
+	LISTEN/READ-CHAR interaction: listen would consume the char and
+	READ-CHAR will never see it, while LISTEN will now always return T
+	Reported by Jamison Masse <jamison@redwood.snu.ac.kr>
+
 2002-12-12  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (key_event): renamed to key_event_t
