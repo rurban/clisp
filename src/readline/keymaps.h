@@ -66,6 +66,9 @@ typedef KEYMAP_ENTRY *Keymap;
 #define ISMACR 2
 
 extern KEYMAP_ENTRY_ARRAY emacs_standard_keymap, emacs_meta_keymap, emacs_ctlx_keymap;
+#if defined(__MSDOS__) || defined(__EMX__)
+extern KEYMAP_ENTRY_ARRAY emacs_dos_keymap;
+#endif
 extern KEYMAP_ENTRY_ARRAY vi_insertion_keymap, vi_movement_keymap;
 
 /* Return a new, empty keymap.

@@ -453,6 +453,9 @@ prepare_terminal_settings (meta_flag, otio, tiop)
 {
   readline_echoing_p = (otio.c_lflag & ECHO);
 
+#if defined (__EMX__)
+  tiop->c_lflag &= ~IDEFAULT;
+#endif
   tiop->c_lflag &= ~(ICANON | ECHO);
 
   if ((unsigned char) otio.c_cc[VEOF] != (unsigned char) _POSIX_VDISABLE)
@@ -534,6 +537,10 @@ rl_prep_terminal (meta_flag)
   otio = tio;
 
   prepare_terminal_settings (meta_flag, otio, &tio);
+
+#if defined(__MSDOS__) || defined(__EMX__) || defined(__CYGWIN32__)
+  _rl_eof_char = CTRL ('Z');
+#endif /* __MSDOS__ || __EMX__ || __CYGWIN32__ */
 
   if (set_tty_settings (tty, &tio) < 0)
     {

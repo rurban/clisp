@@ -1,5 +1,22 @@
 1998-10-10  Bruno Haible  <linuix.math.u-bordeaux.fr>
 
+        * readline.c (_emx_build_environ): Remove.
+          From Kai Uwe Rommel <rommel@ars.de>.
+        * emacs_keymap.c (emacs_dos_keymap): keymap for DOS.
+        * keymaps.h (emacs_dos_keymap): Declare it.
+        * histfile.c (history_filename): Use "!history" instead of ".history"
+          on DOS.
+        * rlconf.h (DEFAULT_INPUTRC): Use "/!inputrc" instead of "~/.inputrc"
+          on DOS.
+        * rltty.c (prepare_terminal_settings): Support for raw mode on DOS.
+        * rltty.c (rl_prep_terminal): Use Ctrl-Z instead of Ctrl-D as EOF
+          character on DOS.
+        * readline.c (init_terminal_io): Get the real screen size, not a dummy
+          one, from EMX.
+        * signals.c (rl_signal_handler): Support EMX.
+
+1998-10-10  Bruno Haible  <linuix.math.u-bordeaux.fr>
+
         * signals.c (rl_set_sighandler): Be careful not to throw away the
           original handler when installing rl_signal_handler and it is already
           installed.
