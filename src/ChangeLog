@@ -1,5 +1,12 @@
 2004-06-16  Bruno Haible  <bruno@clisp.org>
 
+	* documentation.lisp (documentation): For generic functions, take
+	the doc string from the generic function object, not its name.
+	((setf documentation)): For generic functions, store the doc string
+	in the generic function object, not in *documentation*.
+
+2004-06-16  Bruno Haible  <bruno@clisp.org>
+
 	* clos-genfun5.lisp ((setf generic-function-name)): New function.
 
 2004-07-29  Bruno Haible  <bruno@clisp.org>
