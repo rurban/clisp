@@ -1,7 +1,7 @@
 # -*- coding: utf-8; mode: shell-script -*-
 # Creation of the Makefile used for compiling CLISP
-# Bruno Haible 1991-2002
-# Sam Steingold 1999-2002
+# Bruno Haible 1991-2003
+# Sam Steingold 1999-2003
 
 # Simple usage:
 #        ./makemake [--with-PACKAGE] [debug] > Makefile
@@ -2929,7 +2929,7 @@ if [ $CROSS = false ] ; then
 
   for f in $LPARTS ; do
     echol "${TESTDIR}${NEXT_M}${f}.fas : ${TESTDIR}${NEXT_M}${f}.lisp lisp${LEXE} ${TESTIMAGE}"
-    echotab "\$(RUN) -M ${TESTIMAGE} -q -c ${TESTDIR}${NEXT_}${f}.lisp"
+    echotab "\$(RUN) -M ${TESTIMAGE} -q -d -c ${TESTDIR}${NEXT_}${f}.lisp"
     echol
   done
 
