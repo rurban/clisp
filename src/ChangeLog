@@ -1,3 +1,8 @@
+2002-12-19  Sam Steingold  <sds@gnu.org>
+
+	* charstrg.d (DIGIT-CHAR-P): correctly identify MATHEMATICAL_*
+	digits (* = SANS-SERIF/BOLD DOUBLE-STRUCK MONOSPACE)
+
 2002-12-18  Bruno Haible  <bruno@clisp.org>
 
 	* uni_attribute.c: Regenerated for Unicode 3.2.0 by gen-ctype.c.
