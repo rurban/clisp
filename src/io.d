@@ -4547,6 +4547,8 @@ LISPFUN(read_delimited_list,1,2,norest,nokey,0,NIL)
 LISPFUN(read_line,0,4,norest,nokey,0,NIL)
 # (READ-LINE [input-stream [eof-error-p [eof-value [recursive-p]]]]),
 # CLTL p. 378
+# This implementation always returns a simple string, if end-of-stream
+# is not encountered immediately. Some other code depends on this.
   {
     # check input-stream:
     var object* stream_ = &STACK_3;
