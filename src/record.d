@@ -792,15 +792,30 @@ LISPFUNN(allocate_std_instance,2) {
   VALUES1(instance); /* instance as value */
 }
 
-#define check_keywords(argcount,caller)                 \
-  if (argcount%2 != 0) fehler_key_odd(argcount,caller);
+/* Checks that the argcount last words on the STACK form an
+   "initialization argument list". */
+local inline void check_initialization_argument_list (uintL argcount, object caller) {
+  if (argcount%2 != 0)
+    fehler_key_odd(argcount,caller);
+  if (argcount > 0) {
+    var gcv_object_t* argptr = STACK STACKop argcount;
+    do {
+      if (!symbolp(Next(argptr))) {
+        pushSTACK(Next(argptr)); pushSTACK(caller);
+        fehler(error,"~: invalid initialization argument ~");
+      }
+      argptr skipSTACKop -2;
+      argcount -= 2;
+    } while (argcount > 0);
+  }
+}
 
 local Values do_allocate_instance (object clas);
 /* (CLOS::%ALLOCATE-INSTANCE class &rest initargs)
   returns an instance of the class.
   class must be an instance of <standard-class> or <structure-class>. */
 LISPFUN(pallocate_instance,seclass_read,1,0,rest,nokey,0,NIL) {
-  check_keywords(argcount,S(allocate_instance));
+  check_initialization_argument_list(argcount,S(allocate_instance));
   set_args_end_pointer(rest_args_pointer); /* clean up STACK */
   return_Values do_allocate_instance(popSTACK());
 }
@@ -1074,6 +1089,7 @@ local inline gcv_object_t* slot_in_arglist (const object slot, uintC argcount,
  This is the primary method of CLOS:SHARED-INITIALIZE.
  cf. clos.lisp
  (defmethod shared-initialize ((instance standard-object) slot-names &rest initargs)
+   (check-initialization-argument-list initargs 'shared-initialize)
    (dolist (slot (class-slots (class-of instance)))
      (let ((slotname (slotdef-name slot)))
        (multiple-value-bind (init-key init-value foundp)
@@ -1091,7 +1107,7 @@ local inline gcv_object_t* slot_in_arglist (const object slot, uintC argcount,
                              (cdr init)))))))))))
    instance) */
 LISPFUN(pshared_initialize,seclass_default,2,0,rest,nokey,0,NIL) {
-  check_keywords(argcount,S(shared_initialize));
+  check_initialization_argument_list(argcount,S(shared_initialize));
   argcount = argcount/2; /* number of Initarg/Value-pairs */
   { /* stack layout: instance, slot-names, argcount Initarg/Value-Pairs. */
     var object instance = Before(rest_args_pointer STACKop 1);
@@ -1177,6 +1193,7 @@ local inline void call_init_fun (object fun, object last,
  cf. clos.lisp
  (defmethod reinitialize-instance ((instance standard-object) &rest initargs
                                    &key &allow-other-keys)
+   (check-initialization-argument-list initargs 'reinitialize-instance)
    (let ((h (gethash (class-of instance) *reinitialize-instance-table*)))
      (if h
        (progn
@@ -1208,7 +1225,7 @@ LISPFUN(preinitialize_instance,seclass_default,1,0,rest,nokey,0,NIL) {
       /* calculate hash-table-entry freshly. See clos.lisp. */
       funcall(S(initial_reinitialize_instance),argcount+1); return;
     }
-    check_keywords(argcount,S(reinitialize_instance));
+    check_initialization_argument_list(argcount,S(reinitialize_instance));
     argcount = argcount/2; /* number of Initarg/Value-pairs */
     keyword_test(S(reinitialize_instance),rest_args_pointer,
                  argcount,Car(info));
@@ -1249,6 +1266,7 @@ LISPFUN(preinitialize_instance,seclass_default,1,0,rest,nokey,0,NIL) {
  cf. clos.lisp
  (defmethod initialize-instance ((instance standard-object) &rest initargs
                                  &key &allow-other-keys)
+   (check-initialization-argument-list initargs 'initialize-instance)
    (let ((h (gethash class *make-instance-table*)))
      (if h
        (if (not (eq (svref h 3) #'clos::%shared-initialize))
@@ -1284,7 +1302,7 @@ LISPFUN(pinitialize_instance,seclass_default,1,0,rest,nokey,0,NIL) {
       /* calculate hash-table-entry freshly. See clos.lisp. */
       funcall(S(initial_initialize_instance),argcount+1); return;
     }
-    check_keywords(argcount,S(initialize_instance));
+    check_initialization_argument_list(argcount,S(initialize_instance));
     argcount = argcount/2; /* number of Initarg/Value-pairs */
     return_Values do_initialize_instance(info,rest_args_pointer,argcount);
   }
@@ -1348,6 +1366,7 @@ local Values do_initialize_instance (object info,
  initargs is a list (of pairs, hopefully).
  cf. clos.lisp
  (defun %make-instance (class &rest initargs &key &allow-other-keys)
+   (check-initialization-argument-list initargs 'make-instance)
    ; take note of 28.1.9.3., 28.1.9.4. default-initargs:
    (dolist (default-initarg (class-default-initargs class))
      (let ((nothing default-initarg))
@@ -1375,7 +1394,7 @@ local Values do_initialize_instance (object info,
                ...))))
        (apply #'initial-make-instance class initargs)))) */
 LISPFUN(pmake_instance,seclass_default,1,0,rest,nokey,0,NIL) {
-  check_keywords(argcount,S(make_instance));
+  check_initialization_argument_list(argcount,S(make_instance));
   argcount = argcount/2; /* number of Initarg/Value-pairs */
   /* stack layout: class, argcount Initarg/Value-pairs. */
   { /* add default-initargs: */
