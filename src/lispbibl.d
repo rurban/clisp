@@ -5036,6 +5036,7 @@ typedef struct {
     subr_argtype_0_2,
     subr_argtype_1_2,
     subr_argtype_2_2,
+    subr_argtype_3_2,
     subr_argtype_0_3,
     subr_argtype_1_3,
     subr_argtype_2_3,
