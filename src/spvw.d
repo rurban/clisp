@@ -1518,9 +1518,9 @@ nonreturning_function (local, usage, (int exit_code)) {
   printf(GETTEXTL(" --license     - print the licensing information" NLstring));
   printf(GETTEXTL("Memory image selection:" NLstring));
   printf(GETTEXTL(" -B lisplibdir - set the installation directory" NLstring));
-  #ifdef UNIX
+ #if defined(UNIX) || defined(WIN32_NATIVE)
   printf(GETTEXTL(" -K linkingset - use this executable and memory image" NLstring));
-  #endif
+ #endif
   printf(GETTEXTL(" -M memfile    - use this memory image" NLstring));
   printf(GETTEXTL(" -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)" NLstring));
   #ifndef NO_SP_MALLOC
@@ -1878,7 +1878,7 @@ global int main (argc_t argc, char* argv[]) {
             else
               usage (1);
             break;
-         #ifdef UNIX
+         #if defined(UNIX) || defined(WIN32_NATIVE)
           case 'K': # linKing set
             OPTION_ARG;
             # This option has already been digested by clisp.c.

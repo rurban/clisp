@@ -1,3 +1,8 @@
+2003-06-15  Sam Steingold  <sds@gnu.org>
+
+	* spvw.d (main) [WIN32_NATIVE]: permit `-K'
+	clisp-link.sh now works on mingw
+
 2003-06-13  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (make_file_stream): do not push :PROBE streams onto
