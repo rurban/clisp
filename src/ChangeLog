@@ -1,5 +1,10 @@
 2002-10-13  Sam Steingold  <sds@gnu.org>
 
+	* sequence.d (MAKE-SEQUENCE): do not init strings with #\Space,
+	keep the #\Null's from MAKE-STRING
+
+2002-10-13  Sam Steingold  <sds@gnu.org>
+
 	MAPC[AR|ON|AN]/MAPL[IST] require proper lists
 	* compiler.lisp (c-MAP-on-CARs-inner, c-MAP-on-LISTs, c-MAPL):
 	use ENDP, not ATOM to check for the list end
