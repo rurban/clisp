@@ -1,3 +1,10 @@
+2003-02-03  Sam Steingold  <sds@gnu.org>
+
+	EXT:XOR checks that exactly one of its arguments is non-NIL
+	* control.d (XOR): implemented
+	* init.lisp (XOR): exported
+	* constsym.d, subr.d (xor): added
+
 2003-02-02  Sam Steingold  <sds@gnu.org>
 
 	* spvw_debug.d (nobject_out): handle pathnames and some special

@@ -277,7 +277,7 @@
 
 (export
  '(re-export make-encoding encoding encoding-charset
-   show-stack gc exit quit bye expand-form
+   show-stack gc exit quit bye expand-form xor
    probe-directory cd make-dir delete-dir default-directory dir
    xgcd exquo ! evalhook applyhook substring string-concat
    string-char make-char string-width char-width

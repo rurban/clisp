@@ -269,6 +269,7 @@ LISPFUN(constantp,1,1,norest,nokey,0,NIL)
 LISPFUNN(function_name_p,1)
 LISPFUN(parse_body,1,2,norest,nokey,0,NIL)
 LISPFUNN(keyword_test,2)
+LISPFUN(xor,0,0,rest,nokey,0,NIL)
 /* ---------- DEBUG ---------- */
 LISPFUN(read_form,1,1,norest,nokey,0,NIL)
 LISPFUN(read_eval_print,1,1,norest,nokey,0,NIL)
