@@ -744,10 +744,10 @@
       (intern (subseq str 1) *keyword-package*)
       (intern str))))
 
-(defvar *error-handler* nil
-  "*ERROR-HANDLER* should be NIL or a function which accepts the following
-arguments:
- - NIL (in case of ERROR) or a continue-format-string (in case of CERROR),
- - error-format-string,
- - more argument list for these two format strings,
- and which may return only if the first argument is /= NIL.")
+;; *ERROR-HANDLER* should be NIL or a function which accepts the following
+;; arguments:
+;;  - NIL (in case of ERROR) or a continue-format-string (in case of CERROR),
+;;  - error-format-string,
+;;  - more argument list for these two format strings,
+;;  and which may return only if the first argument is /= NIL.
+(defvar *error-handler* nil)
