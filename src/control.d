@@ -2230,8 +2230,8 @@ LISPFUNNR(function_side_effect,1)
   if (symbolp(fdef)) fdef = Symbol_function(fdef);
   /* if the argument was a constant function, then we have it now */
   var seclass_t seclass = seclass_default;
-  if (subrp(fdef)) seclass = TheSubr(fdef)->seclass;
-  else if (cclosurep(fdef)) seclass = Cclosure_seclass(fdef);
+  if (subrp(fdef)) seclass = (seclass_t)TheSubr(fdef)->seclass;
+  else if (cclosurep(fdef)) seclass = (seclass_t)Cclosure_seclass(fdef);
   VALUES1(seclass_object(seclass));
 }
 

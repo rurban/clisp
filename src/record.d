@@ -400,7 +400,7 @@ LISPFUNN(closure_set_seclass,2)
   var object closure = STACK_1;
   if (!cclosurep(closure)) fehler_cclosure(closure);
   var seclass_t new_seclass = parse_seclass(STACK_0,closure);
-  VALUES1(seclass_object(Cclosure_seclass(closure)));
+  VALUES1(seclass_object((seclass_t)Cclosure_seclass(closure)));
   Cclosure_set_seclass(closure,new_seclass);
   skipSTACK(2);
 }
