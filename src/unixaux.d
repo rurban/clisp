@@ -6,20 +6,16 @@
 # =============================================================================
 
 #ifdef NEED_OWN_UALARM
-# Ein Ersatz für die ualarm-Funktion.
-  global unsigned int ualarm (unsigned int value, unsigned int interval);
-  global unsigned int ualarm(value,interval)
-    var unsigned int value;
-    var unsigned int interval;
-    {
-      var struct itimerval itimer;
-      itimer.it_value.tv_sec = floor(value,1000000);
-      itimer.it_value.tv_usec = value % 1000000;
-      itimer.it_interval.tv_sec = floor(interval,1000000);
-      itimer.it_interval.tv_usec = interval % 1000000;
-      setitimer(ITIMER_REAL,&itimer,NULL);
-      return 0; # den Rückgabewert ignorieren wir immer.
-    }
+# an emulation of ualarm(3).
+global unsigned int ualarm (unsigned int value, unsigned int interval) {
+  var struct itimerval itimer;
+  itimer.it_value.tv_sec = floor(value,1000000);
+  itimer.it_value.tv_usec = value % 1000000;
+  itimer.it_interval.tv_sec = floor(interval,1000000);
+  itimer.it_interval.tv_usec = interval % 1000000;
+  setitimer(ITIMER_REAL,&itimer,NULL);
+  return 0; # ignore the return value
+}
 #endif
 
 # =============================================================================
@@ -508,200 +504,6 @@ int abort_dummy;
 global void abort()
   {
     abort_dummy = 1/0;
-  }
-
-# -----------------------------------------------------------------------------
-
-# The library's alarm() function is just a dummy.
-
-#include <windows.h>
-#include <signal.h>
-#include <sys/time.h>
-
-extern int _raise (int sig);
-
-static HANDLE alarm_thread = NULL;
-static struct timeval alarm_date;
-static unsigned int alarm_interval;
-
-static DWORD WINAPI do_alarm (LPVOID arg);
-static DWORD WINAPI do_alarm(arg)
-  LPVOID arg;
-  {
-    struct timeval now;
-   start:
-    gettimeofday(&now,NULL);
-    if (now.tv_sec < alarm_date.tv_sec
-        || now.tv_sec == alarm_date.tv_sec
-           && now.tv_usec < alarm_date.tv_usec) {
-      struct timeval diff;
-      diff.tv_sec = alarm_date.tv_sec - now.tv_sec;
-      if (alarm_date.tv_usec >= now.tv_usec) {
-        diff.tv_usec = alarm_date.tv_usec - now.tv_usec;
-      } else {
-        diff.tv_usec = 1000000 + alarm_date.tv_usec - now.tv_usec;
-        diff.tv_sec -= 1;
-      }
-      Sleep((DWORD)(diff.tv_sec * 1000 + (diff.tv_usec + 500) / 1000));
-    }
-    if (alarm_interval > 0) {
-      alarm_date.tv_usec += alarm_interval;
-      alarm_date.tv_sec += alarm_date.tv_usec / 1000000;
-      alarm_date.tv_usec = alarm_date.tv_usec % 1000000;
-      _raise(SIGALRM);
-      goto start;
-    } else {
-      _raise(SIGALRM);
-    }
-    alarm_thread = NULL; return 0;
-  }
-
-global unsigned int alarm (seconds)
-  unsigned int seconds;
-  {
-    struct timeval now;
-    unsigned int remaining;
-    DWORD alarm_thread_id;
-    if (alarm_thread == NULL && seconds == 0)
-      return 0;
-    gettimeofday(&now,NULL);
-    if (alarm_thread != NULL) {
-      if (now.tv_sec < alarm_date.tv_sec
-          || now.tv_sec == alarm_date.tv_sec
-             && now.tv_usec < alarm_date.tv_usec)
-        remaining = (alarm_date.tv_sec - now.tv_sec)
-                    - (alarm_date.tv_usec < now.tv_usec);
-      else
-        remaining = 0;
-      TerminateThread(alarm_thread,0); alarm_thread = NULL;
-    } else {
-      remaining = 0;
-    }
-    if (seconds > 0) {
-      now.tv_sec += seconds;
-      alarm_date = now; alarm_interval = 0;
-      alarm_thread = CreateThread(NULL,10000,do_alarm,0,0,&alarm_thread_id);
-    }
-    return remaining;
-  }
-
-global unsigned int ualarm (value, interval)
-  unsigned int value;
-  unsigned int interval;
-  {
-    struct timeval now;
-    unsigned int remaining;
-    DWORD alarm_thread_id;
-    if (alarm_thread == NULL && value == 0 && interval == 0)
-      return 0;
-    gettimeofday(&now,NULL);
-    if (alarm_thread != NULL) {
-      if (now.tv_sec < alarm_date.tv_sec
-          || now.tv_sec == alarm_date.tv_sec
-             && now.tv_usec < alarm_date.tv_usec)
-        remaining = (alarm_date.tv_sec - now.tv_sec)*1000000
-                    + alarm_date.tv_usec - now.tv_usec;
-      else
-        remaining = 0;
-      TerminateThread(alarm_thread,0); alarm_thread = NULL;
-    } else {
-      remaining = 0;
-    }
-    if (value > 0 || interval > 0) {
-      now.tv_usec += value;
-      now.tv_sec += now.tv_usec / 1000000;
-      now.tv_usec = now.tv_usec % 1000000;
-      alarm_date = now; alarm_interval = interval;
-      alarm_thread = CreateThread(NULL,10000,do_alarm,0,0,&alarm_thread_id);
-    }
-    return remaining;
-  }
-
-# -----------------------------------------------------------------------------
-
-# The library's sleep() function is not interruptible by Ctrl-C.
-
-#include <windows.h>
-#include <signal.h>
-#include <sys/time.h>
-
-static BOOL DoInterruptible (LPTHREAD_START_ROUTINE fn, LPVOID arg);
-static HANDLE interruptible_thread;
-static BOOL interrupt_handler (DWORD CtrlType);
-static BOOL interrupt_handler(CtrlType)
-  DWORD CtrlType;
-  {
-    if (CtrlType == CTRL_C_EVENT /* || CtrlType == CTRL_BREAK_EVENT */ ) {
-      # Terminate the interruptible operation, set the exitcode to 1.
-      TerminateThread(interruptible_thread,1);
-      # Invoke signal handler.
-      _raise(SIGINT);
-      # Don't invoke the other handlers (in particular, the default handler)
-      return true;
-    } else {
-      # Do invoke the other handlers.
-      return false;
-    }
-  }
-static BOOL DoInterruptible(fn,arg)
-  LPTHREAD_START_ROUTINE fn;
-  LPVOID arg;
-  {
-    HANDLE thread;
-    DWORD thread_id;
-    DWORD thread_exitcode;
-    thread = CreateThread(NULL,10000,fn,arg,0,&thread_id);
-    if (thread == NULL)
-      return false;
-    interruptible_thread = thread;
-    SetConsoleCtrlHandler((PHANDLER_ROUTINE)interrupt_handler,true);
-    WaitForSingleObject(interruptible_thread,INFINITE);
-    SetConsoleCtrlHandler((PHANDLER_ROUTINE)interrupt_handler,false);
-    GetExitCodeThread(interruptible_thread,&thread_exitcode);
-    if (thread_exitcode==0)
-      return true; # successful termination
-    else
-      return false;
-  }
-static DWORD WINAPI do_sleep(arg)
-  LPVOID arg;
-  {
-    Sleep((DWORD)arg); return 0;
-  }
-
-global unsigned int sleep (unsigned int seconds)
-  {
-    struct timeval target_time;
-    struct timeval end_time;
-    gettimeofday(&target_time,NULL); target_time.tv_sec += seconds;
-    DoInterruptible(&do_sleep,(void*)(seconds * 1000));
-    gettimeofday(&end_time,NULL);
-    if (end_time.tv_sec < target_time.tv_sec
-        || end_time.tv_sec == target_time.tv_sec
-           && end_time.tv_usec < target_time.tv_usec)
-      return (target_time.tv_sec - end_time.tv_sec)
-             - (target_time.tv_usec < end_time.tv_usec);
-    else
-      return 0;
-  }
-
-global unsigned int usleep (unsigned int useconds)
-  {
-    struct timeval target_time;
-    struct timeval end_time;
-    gettimeofday(&target_time,NULL);
-    target_time.tv_usec += useconds;
-    target_time.tv_sec += target_time.tv_usec / 1000000;
-    target_time.tv_usec = target_time.tv_usec % 1000000;
-    DoInterruptible(&do_sleep,(void*)((useconds + 500) / 1000));
-    gettimeofday(&end_time,NULL);
-    if (end_time.tv_sec < target_time.tv_sec
-        || end_time.tv_sec == target_time.tv_sec
-           && end_time.tv_usec < target_time.tv_usec)
-      return (target_time.tv_sec - end_time.tv_sec)*1000000
-             + target_time.tv_usec - end_time.tv_usec;
-    else
-      return 0;
   }
 
 # -----------------------------------------------------------------------------

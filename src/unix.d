@@ -283,9 +283,6 @@
   #endif
   # Ein Signal erst eine bestimmte Zeit später ausliefern:
   # extern_C {unsigned|} int alarm ({unsigned|} int seconds); # siehe ALARM(3V)
-  #ifdef UNIX_CYGWIN32
-    #define HAVE_UALARM  # alarm() und ualarm() siehe unixaux.d
-  #endif
   #if !defined(HAVE_UALARM) && defined(HAVE_SETITIMER)
     #define NEED_OWN_UALARM # mit setitimer() kann man ualarm() selber schreiben
     #include <sys/time.h>
@@ -293,7 +290,11 @@
     #define HAVE_UALARM
   #endif
   #ifdef HAVE_UALARM
-    extern_C unsigned int ualarm (unsigned int value, unsigned int interval); # siehe UALARM(3)
+    #ifdef UNIX_CYGWIN32
+      extern_C long ualarm (long value, long interval);
+    #else
+      extern_C unsigned int ualarm (unsigned int value, unsigned int interval);
+    #endif
   #endif
   # Die Ankunft eines Signals quittieren (aus dem Signal-Handler heraus):
   #ifdef USE_SIGACTION
