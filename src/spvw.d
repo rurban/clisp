@@ -603,6 +603,18 @@ global bool asciz_equal (const char * asciz1, const char * asciz2) {
 # -----------------------------------------------------------------------------
 #                  Other Global Helper Functions
 
+/* malloc() with error check. */
+global void* my_malloc (size_t size)
+{
+  begin_system_call();
+  var void* ptr = malloc(size);
+  end_system_call();
+  if (ptr)
+    return ptr;
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(storage_condition,GETTEXT("~: malloc() failed"));
+}
+
 #if (int_bitsize < long_bitsize)
 # passing value from longjmpl() to setjmpl()  :
   global long jmpl_value;

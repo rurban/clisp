@@ -1883,6 +1883,7 @@ int main(int argc, char* argv[])
     printf("extern object allocate_fpointer (FOREIGN foreign);\n");
     printf("#define fp_validp(ptr)  ((record_flags(ptr) & bit(7)) == 0)\n");
   #endif
+  printf("extern void* my_malloc (size_t size);\n");
   printf("#define unused %s\n",STRINGIFY(unused));
   printf("enum { seclass_foldable, seclass_no_se, seclass_read, seclass_write, seclass_default};\n");
   /* Additional stuff for modules. */
