@@ -13,15 +13,6 @@ Examples:
 (cosh #c(1d0 2d0))
 (expt 0.7877386934673366d0 0.4131787330316742d0)
 
-Passing --with-...-prefix=... configure argument to modules/.../configure
-<http://article.gmane.org/gmane.lisp.clisp.devel:13286>
-how do I add options like "--with-libpari-prefix" to configure?
-I tried putting
-AC_LIB_LINKFLAGS_BODY([pari])
-into pari/configure.in
-and it would have worked if pari/configure were passed
---with-libpari-prefix which was gived to the top-level configure.
-
 Modules on 64-bit platforms:
 <http://article.gmane.org/gmane.lisp.clisp.devel:13255>
 with debug, modules do not build:

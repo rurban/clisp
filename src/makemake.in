@@ -181,6 +181,7 @@ dvidir=''
 psdir=''
 pdfdir=''
 MODULES=''
+module_configure_flags=''
 CP='cp -p'
 LN_S='ln -s'
 HLN='ln'
@@ -235,6 +236,7 @@ while test -z "$endofargs"; do
         echol "makemake: $package: invalid package name" >&2; exit 1
       fi
       my_eval "with_`echol $package|sed s/-/_/g`=no"
+      module_configure_flags="$module_configure_flags $1"
       shift
       ;;
     -with-* | --with-*)
@@ -256,6 +258,11 @@ while test -z "$endofargs"; do
         fi
       fi
       my_eval "with_`echol $package|sed s/-/_/g`=${packopt}"
+      module_configure_flags="$module_configure_flags $1"
+      shift
+      ;;
+    --enable-* | --disable-*)
+      module_configure_flags="$module_configure_flags $1"
       shift
       ;;
     -srcdir* | --srcdir*)
@@ -1881,6 +1888,9 @@ echol "# List of add-on modules that are already hardwired in the base linking s
 # regexp: useful for scripting and text processing
 echol "BASE_MODULES = i18n syscalls regexp"
 echol
+echol "# Command line options passed to the configure files of add-on modules"
+echol "MODULE_CONFIGURE_FLAGS =${module_configure_flags}"
+echol
 echol '# Programs used by "make":'
 if [ $CROSS = true ] ; then
   echol "CC = ${CC}"
@@ -3228,7 +3238,7 @@ echol
 # Some "make"s don't support empty target lists. Hence the "anymodule".
 echol "anymodule \$(BASE_MODULES) \$(MODULES) : lisp${LEXE} lispinit.mem force modprep.fas clisp.h"
 echotab "test -d \$@ || ${SRCDIR:-${HERE}}lndir ${SRCTOPDIR_}modules/\$@ \$@"
-echotab "if test -f \$@/configure -a '!' -f \$@/config.status ; then cd \$@ ; ( cache="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache; if test -f \$\${cache} ; then . \$\${cache}; test \"\$\${ac_cv_env_CC_set}\" != set || export CC=\"\$\${ac_cv_env_CC_value}\"; ./configure --cache-file=\$\${cache}; else ./configure; fi ) ; fi"
+echotab "if test -f \$@/configure -a '!' -f \$@/config.status ; then cd \$@ ; ( cache="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache; if test -f \$\${cache} ; then . \$\${cache}; test \"\$\${ac_cv_env_CC_set}\" != set || export CC=\"\$\${ac_cv_env_CC_value}\"; ./configure --cache-file=\$\${cache} \$(MODULE_CONFIGURE_FLAGS); else ./configure \$(MODULE_CONFIGURE_FLAGS); fi ) ; fi"
 EVERY_INCLUDES_DOTS_C=''
 for f in $EVERY_INCLUDES_C $EVERY_INCLUDES_H ; do
   EVERY_INCLUDES_DOTS_C=$EVERY_INCLUDES_DOTS_C' $${dots}'$f
