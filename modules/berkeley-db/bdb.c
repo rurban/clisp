@@ -429,7 +429,28 @@ DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
   DBE_SET(lk_max_lockers,u_int32_t,I_to_uint32(check_uint32(STACK_0)));
   DBE_SET(lk_detect,u_int32_t,check_lk_detect(STACK_0));
   if (!missingp(STACK_0)) {     /* LK_CONFLICTS */
-    NOTREACHED;
+    uintL dims[2];
+   restart_LK_CONFLICTS:        /* check arguments */
+    STACK_0 = check_array(STACK_0);
+    if (2 != array_rank(STACK_0)
+        || (get_array_dimensions(STACK_0,2,dims), dims[0] != dims[1])
+        || (array_atype(STACK_0) != Atype_8Bit)) {
+      pushSTACK(NIL);           /* no PLACE */
+      pushSTACK(STACK_1);       /* TYPE-ERROR slot DATUM */
+      pushSTACK(`(ARRAY (UNSIGNED-BYTE 8) (* *))`); /* EXPECTED-TYPE */
+      pushSTACK(STACK_1); pushSTACK(`:LK_CONFLICTS`);
+      pushSTACK(TheSubr(subr_self)->name);
+      check_value(type_error,
+                  GETTEXT("~S: ~S must be a square matrix of bytes, not ~S"));
+      STACK_0 = value1;
+      goto restart_LK_CONFLICTS;
+    }
+    { /* set the conflict matrix */
+      uintL offset;
+      object data = array_displace_check(STACK_0,dims[0]*dims[1],&offset);
+      SYSCALL(dbe->set_lk_conflicts,
+              (dbe,TheSbvector(data)->data + offset,dims[0]));
+    }
   }
   skipSTACK(1);
   if (!missingp(STACK_0)) {     /* TMP_DIR */
