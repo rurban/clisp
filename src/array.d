@@ -1140,7 +1140,18 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
   # LR_2bitpack(x,y) liefert zu x,y das aus der linken Hälfte x und der
   #                  rechten Hälfte y zusammengesetzte uint_2bitpack.
   # Verwende LR_0_bitpack(y) falls x=0, LR_bitpack_0(x) falls y=0.
-  #if BIG_ENDIAN_P && (varobject_alignment%2 == 0)
+  #if defined(WIDE_HARD) && BIG_ENDIAN_P && (varobject_alignment%4 == 0)
+    # Bei Big-Endian-64-bit-Maschinen kann man gleich mit 32 Bit auf einmal
+    # arbeiten (sofern varobject_alignment durch 4 Byte teilbar ist):
+    #define bitpack  32
+    #define uint_bitpack  uint32
+    #define uint_2bitpack  uint64
+    #define R_bitpack(x)  ((uint32)(uint64)(x))
+    #define L_bitpack(x)  ((uint32)((uint64)(x)>>32))
+    #define LR_2bitpack(x,y)  (((uint64)(uint32)(x)<<32)|(uint64)(uint32)(y))
+    #define LR_0_bitpack(y)  ((uint64)(uint32)(y))
+    #define LR_bitpack_0(x)  ((uint64)(uint32)(x)<<32)
+  #elif BIG_ENDIAN_P && (varobject_alignment%2 == 0)
     # Bei Big-Endian-Maschinen kann man gleich mit 16 Bit auf einmal arbeiten
     # (sofern varobject_alignment durch 2 Byte teilbar ist):
     #define bitpack  16
