@@ -439,7 +439,7 @@
                                   (symbol-package oo))))
                           symbol)))
            symbol)
-          (when what
+          (when what ; when not yet defined, `what' is NIL
             (warn (TEXT "~a: redefining ~a ~s in ~a, was defined in ~a")
                   caller what symbol (or cur-file "top-level")
                   (or old-file "top-level")))
