@@ -20,17 +20,20 @@
   (let ((case-sensitive nil) ; flag for :CASE-SENSITIVE
         (case-inverted nil)  ; flag for :CASE-INVERTED
         (modern :DEFAULT))   ; flag for :MODERN
+    ;; Process :MODERN first, because it specifies some defaults.
+    (dolist (option options)
+      (when (listp option)
+        (case (first option)
+          (:MODERN ; CLISP extension
+           (setq modern (second option))
+           (setq case-inverted (setq case-sensitive (not (null modern))))))))
     (dolist (option options)
       (when (listp option)
         (case (first option)
           (:CASE-SENSITIVE ; CLISP extension
-           (when (second option) (setq case-sensitive t)))
+           (setq case-sensitive (not (null (second option)))))
           (:CASE-INVERTED ; CLISP extension
-           (when (second option) (setq case-inverted t)))
-          (:MODERN ; CLISP extension
-           (setq modern (second option)
-                 case-sensitive (not (null modern))
-                 case-inverted case-sensitive)))))
+           (setq case-inverted (not (null (second option))))))))
     (let ((to-string (if case-inverted #'cs-cl:string #'cl:string)))
       ;; Process options:
       (let ((size nil) ; :SIZE has been supplied
