@@ -67,7 +67,7 @@
   '(defclass slot-definition (metaobject)
      ((name          :type symbol             :initarg :name)
       (initargs      :type list               :initarg :initargs)
-      (type          :type t                  :initarg :type)
+      ($type         :type t                  :initarg :type)
       (allocation    :type symbol             :initarg :allocation)
       (inheritable-initer :type #| inheritable-slot-definition-initer |# cons
                                               :initarg inheritable-initer)
