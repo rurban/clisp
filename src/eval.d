@@ -64,7 +64,7 @@
     _(write_to_string), _(prin1_to_string), _(princ_to_string), _(write_char),
     _(write_string), _(write_line), _(terpri), _(fresh_line),
     _(finish_output), _(force_output), _(clear_output), _(line_position),
-    # LIST : 83-36 SUBRs
+    # LIST : 84-36=48 SUBRs
     /* _(car), _(cdr), _(caar), _(cadr), _(cdar), _(cddr), _(caaar), _(caadr),
     _(cadar), _(caddr), _(cdaar), _(cdadr), _(cddar), _(cdddr), _(caaaar),
     _(caaadr), _(caadar), _(caaddr), _(cadaar), _(cadadr), _(caddar),
@@ -72,7 +72,7 @@
     _(cddadr), _(cdddar), _(cddddr), _(cons), */ _(tree_equal), _(endp),
     _(list_length), _(nth), /* _(first), _(second), _(third), _(fourth), */
     _(fifth), _(sixth), _(seventh), _(eighth), _(ninth), _(tenth), /* _(rest), */
-    _(nthcdr), _(last), _(make_list), _(copy_list), _(copy_alist),
+    _(nthcdr), _(last), _(make_list), _(copy_list), _(copy_alist),_(memq),
     _(copy_tree), _(revappend), _(nreconc), _(list_nreverse), _(butlast),
     _(nbutlast), _(ldiff), _(rplaca), _(prplaca), _(rplacd), _(prplacd),
     _(subst), _(subst_if), _(subst_if_not), _(nsubst), _(nsubst_if),
