@@ -239,7 +239,6 @@ GC/Memory Management:
 
 
 CLISP ffcall on mac os X: works just fine, but the build process is screwed up
-<http://article.gmane.org/gmane.lisp.clisp.devel:13214>
 <http://article.gmane.org/gmane.lisp.clisp.devel:13397>
 
 
