@@ -2150,7 +2150,7 @@
                     (FORMAT-PPRINT-INDENT          ; #\I
                      (simple-arglist 1)
                      (push `(pprint-indent ,(if colon-p :current :block)
-                                           (or ,(formatter-next-arg) 1)
+                                           ,(or (first arglist) 0)
                                            stream)
                            forms))
                     (FORMAT-FRESH-LINE             ; #\&
