@@ -1,5 +1,9 @@
 1999-04-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * describe.lsp (describe-object): `type-of' does not need `sys::'.
+
+1999-04-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * intlog.d (I_I_logand_I): Optimize the case when either operand is a
           positive fixnum, O(1) instead of O(N).
           (I_I_lognand_I): Likewise.
