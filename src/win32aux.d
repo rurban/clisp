@@ -11,7 +11,7 @@ global Handle stdin_handle = INVALID_HANDLE_VALUE;
 global Handle stdout_handle = INVALID_HANDLE_VALUE;
 global Handle stderr_handle = INVALID_HANDLE_VALUE;
 
-/* Auxiliary event for read_helper and write_helper. */
+/* Auxiliary event for fd_read and fd_write. */
 local HANDLE aux_event;
 
 #ifndef UNICODE
@@ -370,7 +370,7 @@ global BOOL ReadConsoleInput1 (HANDLE ConsoleInput, PINPUT_RECORD Buffer,
 
 /* Reading from a file/pipe/console handle.
  This is the non-interruptible routine. */
-local int read_helper_low (HANDLE fd, void* bufarea, size_t nbyte, perseverance_t persev) {
+local int lowlevel_fd_read (HANDLE fd, void* bufarea, size_t nbyte, perseverance_t persev) {
   if (nbyte == 0)
     return 0;
  #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
@@ -449,27 +449,27 @@ local int read_helper_low (HANDLE fd, void* bufarea, size_t nbyte, perseverance_
   return done;
 }
 /* Then we make it interruptible. */
-struct full_read_params {
+struct fd_read_params {
   HANDLE fd; void* buf; size_t nbyte; perseverance_t persev;
   int retval; DWORD errcode;
 };
-local DWORD WINAPI do_read_helper (LPVOID arg) {
-  var struct full_read_params * params = (struct full_read_params *)arg;
-  params->retval = read_helper_low(params->fd,params->buf,params->nbyte,
-                                   params->persev);
+local DWORD WINAPI do_fd_read (LPVOID arg) {
+  var struct fd_read_params * params = (struct fd_read_params *)arg;
+  params->retval = lowlevel_fd_read(params->fd,params->buf,params->nbyte,
+                                    params->persev);
   if (params->retval < 0)
     params->errcode = GetLastError();
   return 0;
 }
-global int read_helper (HANDLE fd, void* buf, size_t nbyte, perseverance_t persev) {
-  var struct full_read_params params;
+global int fd_read (HANDLE fd, void* buf, size_t nbyte, perseverance_t persev) {
+  var struct fd_read_params params;
   params.fd      = fd;
   params.buf     = buf;
   params.nbyte   = nbyte;
   params.persev  = persev;
   params.retval  = 0;
   params.errcode = 0;
-  if (DoInterruptible(&do_read_helper,(void*)&params,false)) {
+  if (DoInterruptible(&do_fd_read,(void*)&params,false)) {
     if (params.retval < 0)
       SetLastError(params.errcode);
     return params.retval;
@@ -479,7 +479,7 @@ global int read_helper (HANDLE fd, void* buf, size_t nbyte, perseverance_t perse
 }
 
 /* Writing to a file/pipe/console handle. */
-global int write_helper (HANDLE fd, const void* b, size_t nbyte, perseverance_t persev)
+global int fd_write (HANDLE fd, const void* b, size_t nbyte, perseverance_t persev)
 {
   if (nbyte == 0)
     return 0;

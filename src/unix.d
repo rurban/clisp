@@ -510,12 +510,12 @@ extern int nonintr_close (int fd);
 #define CLOSE close
 #endif
 /* wrapper around the system call, get partial results and handle EINTR: */
-extern ssize_t read_helper (int fd, void* buf, size_t nbyte, perseverance_t persev);
-extern ssize_t write_helper (int fd, const void* buf, size_t nbyte, perseverance_t persev);
-#define safe_read(fd,buf,nbyte)  read_helper(fd,buf,nbyte,persev_partial)
-#define full_read(fd,buf,nbyte)  read_helper(fd,buf,nbyte,persev_full)
-#define safe_write(fd,buf,nbyte)  write_helper(fd,buf,nbyte,persev_partial)
-#define full_write(fd,buf,nbyte)  write_helper(fd,buf,nbyte,persev_full)
+extern ssize_t fd_read (int fd, void* buf, size_t nbyte, perseverance_t persev);
+extern ssize_t fd_write (int fd, const void* buf, size_t nbyte, perseverance_t persev);
+#define safe_read(fd,buf,nbyte)  fd_read(fd,buf,nbyte,persev_partial)
+#define full_read(fd,buf,nbyte)  fd_read(fd,buf,nbyte,persev_full)
+#define safe_write(fd,buf,nbyte)  fd_write(fd,buf,nbyte,persev_partial)
+#define full_write(fd,buf,nbyte)  fd_write(fd,buf,nbyte,persev_full)
 /* used by STREAM, PATHNAME, SPVW, MISC, UNIXAUX */
 
 /* inquire the terminal, window size: */
@@ -792,8 +792,8 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
     /* extern int closesocket (int socket); */
   #else
     /* Reading and writing from a socket */
-    #define sock_read(socket,buf,nbyte,persev)   read_helper(socket,buf,nbyte,persev)
-    #define sock_write(socket,buf,nbyte,persev)  write_helper(socket,buf,nbyte,persev)
+    #define sock_read(socket,buf,nbyte,persev)   fd_read(socket,buf,nbyte,persev)
+    #define sock_write(socket,buf,nbyte,persev)  fd_write(socket,buf,nbyte,persev)
     /* Closing a socket */
     #define closesocket  close
   #endif
