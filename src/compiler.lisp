@@ -1412,19 +1412,18 @@ for-value   NIL or T
                `(progn
                   (funcall (if (boundp '*warning-count*) #'c-warn 'warn) ,@args)
                   (values))))
-    (if (or (symbolp spec)
-            (and (consp spec) (symbolp (car spec))
-                 (consp (cdr spec)) (realp (cadr spec))
-                 (null (cddr spec))))
-      (let ((quality (if (consp spec) (car spec) spec)))
+    (let ((quality spec) (value 3))
+      (if (or (symbolp spec)
+              (and (consp spec) (symbolp (setq quality (car spec)))
+                   (consp (cdr spec)) (realp (setq value (cadr spec)))
+                   (null (cddr spec))))
         (if (memq quality '(COMPILATION-SPEED CL:DEBUG SAFETY SPACE SPEED))
-          (if (or (atom spec) (typep (cadr spec) '(INTEGER 0 3)))
-            ;; Canonicalize, for easier search by quality.
-              (list (if (atom spec) `(,spec 3) spec))
-              (broken (TEXT "Not a valid optimization level for ~S, should be one of 0, 1, 2, 3: ~S")
-                      quality (cadr spec)))
-          (broken (TEXT "~S is not a valid ~S quality.") 'optimize quality)))
-      (broken (TEXT "Not a valid ~S specifier: ~S") 'optimize spec))))
+          (if (typep value '(INTEGER 0 3))
+            (values quality value)
+            (broken (TEXT "Not a valid optimization level for ~S, should be one of 0, 1, 2, 3: ~S")
+                    quality value))
+          (broken (TEXT "~S is not a valid ~S quality.") 'optimize quality))
+        (broken (TEXT "Not a valid ~S specifier: ~S") 'optimize spec)))))
 
 ;; (process-declarations declspeclist) analyzes the declarations (as they come
 ;; from PARSE-BODY) and returns:
@@ -1514,9 +1513,11 @@ for-value   NIL or T
                  (OPTIMIZE
                   (setq declspec
                         (cons declspectype
+                              ;; Canonicalize, for easier search by quality.
                               (mapcan #'(lambda (x)
-                                          (multiple-value-list
-                                           (parse-optimize-quality x)))
+                                          (multiple-value-bind (q v)
+                                              (parse-optimize-quality x)
+                                            (and q `((,q ,v)))))
                                       (cdr declspec)))))
                  (DYNAMIC-EXTENT
                   (setq declspec
