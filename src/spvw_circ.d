@@ -127,53 +127,55 @@
         longjmp(bitmap->oom_context,true);
       var uintP delta = (uintP)newbase - (uintP)bitmap->base;
       bzero(newbase+bitmap->alloc_size,newsize-bitmap->alloc_size);
-      if (bitmap->base)
-        # Relocate the pointers inside the bitmap. We know that they form a tree,
+      if (bitmap->base) {
+        # Relocate the pointers inside the bitmap.
+        # We know that they form a tree,
         # therefore a recursive descent reaches every pointer exactly once.
         if (!(delta == 0)) {
           #if (mlb_levels >= 6)
-          var uintL****** p5 = (mlbitmap_base_t)newbase;
-          var uintC count5 = bit(mlbs5);
+          uintL****** p5 = (mlbitmap_base_t)newbase;
+          uintC count5 = bit(mlbs5);
           for (; count5 > 0; p5++, count5--) {
-            var uintL***** p4 = *p5;
+            uintL***** p4 = *p5;
             if (p4) {
               *p5 = p4 = (uintL*****)((uintP)p4 + delta);
           #else
-            var uintL***** p4 = (mlbitmap_base_t)newbase;
+            uintL***** p4 = (mlbitmap_base_t)newbase;
           #endif
-            var uintC count4 = bit(mlbs4);
+            { uintC count4 = bit(mlbs4);
             for (; count4 > 0; p4++, count4--) {
-              var uintL**** p3 = *p4;
+              uintL**** p3 = *p4;
               if (p3) {
                 *p4 = p3 = (uintL****)((uintP)p3 + delta);
-                var uintC count3 = bit(mlbs3);
+                { uintC count3 = bit(mlbs3);
                 for (; count3 > 0; p3++, count3--) {
-                  var uintL*** p2 = *p3;
+                  uintL*** p2 = *p3;
                   if (p2) {
                     *p3 = p2 = (uintL***)((uintP)p2 + delta);
-                    var uintC count2 = bit(mlbs2);
+                    { uintC count2 = bit(mlbs2);
                     for (; count2 > 0; p2++, count2--) {
-                      var uintL** p1 = *p2;
+                      uintL** p1 = *p2;
                       if (p1) {
                         *p2 = p1 = (uintL**)((uintP)p1 + delta);
-                        var uintC count1 = bit(mlbs1);
+                        { uintC count1 = bit(mlbs1);
                         for (; count1 > 0; p1++, count1--) {
                           var uintL* p0 = *p1;
                           if (p0) {
                             *p1 = p0 = (uintL*)((uintP)p0 + delta);
                           }
-                        }
+                        }}
                       }
-                    }
+                    }}
                   }
-                }
+                }}
               }
-            }
+            }}
           #if (mlb_levels >= 6)
             }
           }
           #endif
         }
+      }
       bitmap->base = (mlbitmap_base_t)newbase;
       bitmap->alloc_size = newsize;
       return delta;
@@ -183,47 +185,47 @@
     var mlbitmap* bitmap;
     var object obj;
     {
-      var aint addr = (aint)ThePointer(obj);
+      aint addr = (aint)ThePointer(obj);
       #if (mlb_levels >= 6)
-      var uintL******* p6 = &bitmap->base;
+      uintL******* p6 = &bitmap->base;
       if (*p6) {
-        var uintL****** p5 = &(*p6)[(addr >> mlb5) & (bit(mlbs5)-1)];
+        uintL****** p5 = &(*p6)[(addr >> mlb5) & (bit(mlbs5)-1)];
       #else
-        var uintL****** p5 = &bitmap->base;
+        uintL****** p5 = &bitmap->base;
       #endif
         if (*p5) {
-          var uintL***** p4 = &(*p5)[(addr >> mlb4) & (bit(mlbs4)-1)];
+          uintL***** p4 = &(*p5)[(addr >> mlb4) & (bit(mlbs4)-1)];
           if (*p4) {
-            var uintL**** p3 = &(*p4)[(addr >> mlb3) & (bit(mlbs3)-1)];
+            uintL**** p3 = &(*p4)[(addr >> mlb3) & (bit(mlbs3)-1)];
             if (*p3) {
-              var uintL*** p2 = &(*p3)[(addr >> mlb2) & (bit(mlbs2)-1)];
+              uintL*** p2 = &(*p3)[(addr >> mlb2) & (bit(mlbs2)-1)];
               if (*p2) {
-                var uintL** p1 = &(*p2)[(addr >> mlb1) & (bit(mlbs1)-1)];
+                uintL** p1 = &(*p2)[(addr >> mlb1) & (bit(mlbs1)-1)];
                 if (*p1) {
-                  var uintL* p0 = &(*p1)[((addr >> mlb0) / (32*sizeof(object)))
-                                         & ((bit(mlbs0)-1) / (32*sizeof(object)))];
-                  var uintL i0 = ((addr >> mlb0) / sizeof(object)) % 32;
+                  uintL* p0 = &(*p1)[((addr >> mlb0)/(32*sizeof(object)))
+                                     & ((bit(mlbs0)-1)/(32*sizeof(object)))];
+                  uintL i0 = ((addr >> mlb0)/sizeof(object)) % 32;
                   if (*p0 & bit(i0))
                     return true;
                   *p0 |= bit(i0);
                     return false;
                 }
-                var const uintL need = bit(mlbs0)/(32*sizeof(object))*sizeof(uintL);
+                {const uintL need=bit(mlbs0)/(32*sizeof(object))*sizeof(uintL);
                 if (bitmap->used_size + need > bitmap->alloc_size) {
                   var uintP delta = mlb_expand(bitmap,bitmap->used_size+need);
                   p1 = (uintL**)((char*)p1 + delta);
                 }
                 var char* room = (char*)bitmap->base+bitmap->used_size;
                 *p1 = (uintL*)room;
-                var uintL* p0 = &(*p1)[((addr >> mlb0) / (32*sizeof(object)))
-                                       & ((bit(mlbs0)-1) / (32*sizeof(object)))];
-                var uintL i0 = ((addr >> mlb0) / sizeof(object)) % 32;
+                var uintL* p0 = &(*p1)[((addr >> mlb0)/(32*sizeof(object)))
+                                       & ((bit(mlbs0)-1)/(32*sizeof(object)))];
+                var uintL i0 = ((addr >> mlb0)/sizeof(object)) % 32;
                 *p0 = bit(i0);
                 bitmap->used_size += need;
                 return false;
-              }
-              var const uintL need = bit(mlbs1)*sizeof(uintL*)
-                                     + bit(mlbs0)/(32*sizeof(object))*sizeof(uintL);
+                }}
+              { const uintL need = bit(mlbs1)*sizeof(uintL*)
+                  + bit(mlbs0)/(32*sizeof(object))*sizeof(uintL);
               if (bitmap->used_size + need > bitmap->alloc_size) {
                 var uintP delta = mlb_expand(bitmap,bitmap->used_size+need);
                 p2 = (uintL***)((char*)p2 + delta);
@@ -232,115 +234,117 @@
               *p2 = (uintL**)room; room += bit(mlbs1)*sizeof(uintL*);
               var uintL** p1 = &(*p2)[(addr >> mlb1) & (bit(mlbs1)-1)];
               *p1 = (uintL*)room;
-              var uintL* p0 = &(*p1)[((addr >> mlb0) / (32*sizeof(object)))
-                                     & ((bit(mlbs0)-1) / (32*sizeof(object)))];
-              var uintL i0 = ((addr >> mlb0) / sizeof(object)) % 32;
+              var uintL* p0 = &(*p1)[((addr >> mlb0)/(32*sizeof(object)))
+                                     & ((bit(mlbs0)-1)/(32*sizeof(object)))];
+              var uintL i0 = ((addr >> mlb0)/sizeof(object)) % 32;
               *p0 = bit(i0);
               bitmap->used_size += need;
               return false;
-            }
-            var const uintL need = bit(mlbs2)*sizeof(uintL**)
-                                   + bit(mlbs1)*sizeof(uintL*)
-                                   + bit(mlbs0)/(32*sizeof(object))*sizeof(uintL);
+            }}
+            { const uintL need = bit(mlbs2)*sizeof(uintL**)
+              + bit(mlbs1)*sizeof(uintL*)
+              + bit(mlbs0)/(32*sizeof(object))*sizeof(uintL);
             if (bitmap->used_size + need > bitmap->alloc_size) {
-              var uintP delta = mlb_expand(bitmap,bitmap->used_size+need);
+              uintP delta = mlb_expand(bitmap,bitmap->used_size+need);
               p3 = (uintL****)((char*)p3 + delta);
             }
-            var char* room = (char*)bitmap->base+bitmap->used_size;
+            { char* room = (char*)bitmap->base+bitmap->used_size;
             *p3 = (uintL***)room; room += bit(mlbs2)*sizeof(uintL**);
-            var uintL*** p2 = &(*p3)[(addr >> mlb2) & (bit(mlbs2)-1)];
+            { uintL*** p2 = &(*p3)[(addr >> mlb2) & (bit(mlbs2)-1)];
             *p2 = (uintL**)room; room += bit(mlbs1)*sizeof(uintL*);
-            var uintL** p1 = &(*p2)[(addr >> mlb1) & (bit(mlbs1)-1)];
+            { uintL** p1 = &(*p2)[(addr >> mlb1) & (bit(mlbs1)-1)];
             *p1 = (uintL*)room;
-            var uintL* p0 = &(*p1)[((addr >> mlb0) / (32*sizeof(object)))
-                                   & ((bit(mlbs0)-1) / (32*sizeof(object)))];
-            var uintL i0 = ((addr >> mlb0) / sizeof(object)) % 32;
+            { uintL* p0 = &(*p1)[((addr >> mlb0)/(32*sizeof(object)))
+                                  & ((bit(mlbs0)-1)/(32*sizeof(object)))];
+            var uintL i0 = ((addr >> mlb0)/sizeof(object)) % 32;
             *p0 = bit(i0);
             bitmap->used_size += need;
             return false;
-          }
-          var const uintL need = bit(mlbs3)*sizeof(uintL***)
-                                 + bit(mlbs2)*sizeof(uintL**)
-                                 + bit(mlbs1)*sizeof(uintL*)
-                                 + bit(mlbs0)/(32*sizeof(object))*sizeof(uintL);
+          }}}}}}
+          { const uintL need = bit(mlbs3)*sizeof(uintL***)
+              + bit(mlbs2)*sizeof(uintL**)
+              + bit(mlbs1)*sizeof(uintL*)
+              + bit(mlbs0)/(32*sizeof(object))*sizeof(uintL);
           if (bitmap->used_size + need > bitmap->alloc_size) {
-            var uintP delta = mlb_expand(bitmap,bitmap->used_size+need);
+            uintP delta = mlb_expand(bitmap,bitmap->used_size+need);
             p4 = (uintL*****)((char*)p4 + delta);
           }
-          var char* room = (char*)bitmap->base+bitmap->used_size;
+          { char* room = (char*)bitmap->base+bitmap->used_size;
           *p4 = (uintL****)room; room += bit(mlbs3)*sizeof(uintL***);
-          var uintL**** p3 = &(*p4)[(addr >> mlb3) & (bit(mlbs3)-1)];
+          { uintL**** p3 = &(*p4)[(addr >> mlb3) & (bit(mlbs3)-1)];
           *p3 = (uintL***)room; room += bit(mlbs2)*sizeof(uintL**);
-          var uintL*** p2 = &(*p3)[(addr >> mlb2) & (bit(mlbs2)-1)];
+          { uintL*** p2 = &(*p3)[(addr >> mlb2) & (bit(mlbs2)-1)];
           *p2 = (uintL**)room; room += bit(mlbs1)*sizeof(uintL*);
-          var uintL** p1 = &(*p2)[(addr >> mlb1) & (bit(mlbs1)-1)];
+          { uintL** p1 = &(*p2)[(addr >> mlb1) & (bit(mlbs1)-1)];
           *p1 = (uintL*)room;
-          var uintL* p0 = &(*p1)[((addr >> mlb0) / (32*sizeof(object)))
-                                 & ((bit(mlbs0)-1) / (32*sizeof(object)))];
-          var uintL i0 = ((addr >> mlb0) / sizeof(object)) % 32;
+          { uintL* p0 = &(*p1)[((addr >> mlb0)/(32*sizeof(object)))
+                               & ((bit(mlbs0)-1)/(32*sizeof(object)))];
+          uintL i0 = ((addr >> mlb0)/sizeof(object)) % 32;
           *p0 = bit(i0);
           bitmap->used_size += need;
           return false;
-        }
-        var const uintL need = bit(mlbs4)*sizeof(uintL****)
-                               + bit(mlbs3)*sizeof(uintL***)
-                               + bit(mlbs2)*sizeof(uintL**)
-                               + bit(mlbs1)*sizeof(uintL*)
-                               + bit(mlbs0)/(32*sizeof(object))*sizeof(uintL);
+        }}}}}}}
+        { const uintL need = bit(mlbs4)*sizeof(uintL****)
+            + bit(mlbs3)*sizeof(uintL***)
+            + bit(mlbs2)*sizeof(uintL**)
+            + bit(mlbs1)*sizeof(uintL*)
+            + bit(mlbs0)/(32*sizeof(object))*sizeof(uintL);
         if (bitmap->used_size + need > bitmap->alloc_size) {
-          var uintP delta = mlb_expand(bitmap,bitmap->used_size+need);
+          uintP delta = mlb_expand(bitmap,bitmap->used_size+need);
           #if (mlb_levels > 5)
           p5 = (uintL******)((char*)p5 + delta);
           #endif
         }
-        var char* room = (char*)bitmap->base+bitmap->used_size;
+        { char* room = (char*)bitmap->base+bitmap->used_size;
         *p5 = (uintL*****)room; room += bit(mlbs4)*sizeof(uintL****);
-        var uintL***** p4 = &(*p5)[(addr >> mlb4) & (bit(mlbs4)-1)];
+        { uintL***** p4 = &(*p5)[(addr >> mlb4) & (bit(mlbs4)-1)];
         *p4 = (uintL****)room; room += bit(mlbs3)*sizeof(uintL***);
-        var uintL**** p3 = &(*p4)[(addr >> mlb3) & (bit(mlbs3)-1)];
+        { uintL**** p3 = &(*p4)[(addr >> mlb3) & (bit(mlbs3)-1)];
         *p3 = (uintL***)room; room += bit(mlbs2)*sizeof(uintL**);
-        var uintL*** p2 = &(*p3)[(addr >> mlb2) & (bit(mlbs2)-1)];
+        { uintL*** p2 = &(*p3)[(addr >> mlb2) & (bit(mlbs2)-1)];
         *p2 = (uintL**)room; room += bit(mlbs1)*sizeof(uintL*);
-        var uintL** p1 = &(*p2)[(addr >> mlb1) & (bit(mlbs1)-1)];
+        { uintL** p1 = &(*p2)[(addr >> mlb1) & (bit(mlbs1)-1)];
         *p1 = (uintL*)room;
-        var uintL* p0 = &(*p1)[((addr >> mlb0) / (32*sizeof(object)))
-                               & ((bit(mlbs0)-1) / (32*sizeof(object)))];
-        var uintL i0 = ((addr >> mlb0) / sizeof(object)) % 32;
+        { uintL* p0 = &(*p1)[((addr >> mlb0)/(32*sizeof(object)))
+                              & ((bit(mlbs0)-1)/(32*sizeof(object)))];
+        uintL i0 = ((addr >> mlb0)/sizeof(object)) % 32;
         *p0 = bit(i0);
         bitmap->used_size += need;
         return false;
+        }}}}}}}
       #if (mlb_levels >= 6)
       }
-      var const uintL need = bit(mlbs5)*sizeof(uintL*****)
-                             + bit(mlbs4)*sizeof(uintL****)
-                             + bit(mlbs3)*sizeof(uintL***)
-                             + bit(mlbs2)*sizeof(uintL**)
-                             + bit(mlbs1)*sizeof(uintL*)
-                             + bit(mlbs0)/(32*sizeof(object))*sizeof(uintL);
+      { const uintL need = bit(mlbs5)*sizeof(uintL*****)
+          + bit(mlbs4)*sizeof(uintL****)
+          + bit(mlbs3)*sizeof(uintL***)
+          + bit(mlbs2)*sizeof(uintL**)
+          + bit(mlbs1)*sizeof(uintL*)
+          + bit(mlbs0)/(32*sizeof(object))*sizeof(uintL);
       if (bitmap->used_size + need > bitmap->alloc_size) {
-        var uintP delta = mlb_expand(bitmap,bitmap->used_size+need);
+        uintP delta = mlb_expand(bitmap,bitmap->used_size+need);
         #if (mlb_levels > 6)
         p6 = (uintL*******)((char*)p6 + delta);
         #endif
       }
-      var char* room = (char*)bitmap->base+bitmap->used_size;
+      { char* room = (char*)bitmap->base+bitmap->used_size;
       *p6 = (uintL******)room; room += bit(mlbs5)*sizeof(uintL*****);
-      var uintL****** p5 = &(*p6)[(addr >> mlb5) & (bit(mlbs5)-1)];
+      { uintL****** p5 = &(*p6)[(addr >> mlb5) & (bit(mlbs5)-1)];
       *p5 = (uintL*****)room; room += bit(mlbs4)*sizeof(uintL****);
-      var uintL***** p4 = &(*p5)[(addr >> mlb4) & (bit(mlbs4)-1)];
+      { uintL***** p4 = &(*p5)[(addr >> mlb4) & (bit(mlbs4)-1)];
       *p4 = (uintL****)room; room += bit(mlbs3)*sizeof(uintL***);
-      var uintL**** p3 = &(*p4)[(addr >> mlb3) & (bit(mlbs3)-1)];
+      { uintL**** p3 = &(*p4)[(addr >> mlb3) & (bit(mlbs3)-1)];
       *p3 = (uintL***)room; room += bit(mlbs2)*sizeof(uintL**);
-      var uintL*** p2 = &(*p3)[(addr >> mlb2) & (bit(mlbs2)-1)];
+      { uintL*** p2 = &(*p3)[(addr >> mlb2) & (bit(mlbs2)-1)];
       *p2 = (uintL**)room; room += bit(mlbs1)*sizeof(uintL*);
-      var uintL** p1 = &(*p2)[(addr >> mlb1) & (bit(mlbs1)-1)];
+      { uintL** p1 = &(*p2)[(addr >> mlb1) & (bit(mlbs1)-1)];
       *p1 = (uintL*)room;
-      var uintL* p0 = &(*p1)[((addr >> mlb0) / (32*sizeof(object)))
-                             & ((bit(mlbs0)-1) / (32*sizeof(object)))];
-      var uintL i0 = ((addr >> mlb0) / sizeof(object)) % 32;
+      { uintL* p0 = &(*p1)[((addr >> mlb0)/(32*sizeof(object)))
+                           & ((bit(mlbs0)-1)/(32*sizeof(object)))];
+      { uintL i0 = ((addr >> mlb0)/sizeof(object)) % 32;
       *p0 = bit(i0);
       bitmap->used_size += need;
       return false;
+      }}}}}}}}}
       #endif
     }
 

@@ -7196,7 +7196,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
   #ifndef MULTITHREAD
     extern void* SP_bound;
   #else
-    #define SP_bound  (current_thread()->_SP_bound);
+    #define SP_bound  (current_thread()->_SP_bound)
   #endif
   nonreturning_function(extern, SP_ueber, (void));
   #ifdef UNIX
