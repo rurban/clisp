@@ -5,6 +5,7 @@ Supported CPUs:  (Put the GNU config.guess values here.)
    i386     i486-unknown-linux (gcc)                 i386/486/586  Linux
             i386-unknown-sysv4.0 (gcc,               i386          Consensys
                 /usr/bin/cc, /usr/ucb/cc)
+            i386-pc-solaris2.6 (gcc)                 i386/486/586  Solaris
             i486-unknown-sco3.2v4.2 (gcc, cc -Of)    i386/486/586  SCO
             i386-pc-cygwin32 (gcc)                   i386/486/586  Cygwin32
             i386-pc-win32 (msvc4, msvc5)             i386/486/586  Win32
