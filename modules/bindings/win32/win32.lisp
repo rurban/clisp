@@ -269,4 +269,5 @@
 
 ;;; ==========================================================================
 
+(pushnew "WIN32" custom:*system-package-list* :test #'string=)
 (provide "win32")
