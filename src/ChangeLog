@@ -1,5 +1,11 @@
 2004-08-31  Sam Steingold  <sds@gnu.org>
 
+	* describe.lisp (describe-object@integer): do not use TYPE-OF to
+	print representation (fixnum vs bignum) because TYPE-OF returns a
+	range like (INTEGER 0 16777215)
+
+2004-08-31  Sam Steingold  <sds@gnu.org>
+
 	support (:library :default) on win32
 	* foreign.d [WIN32_NATIVE]: include <psapi.h>
 	(open_library) [WIN32_NATIVE]: accept :DEFAULT
