@@ -577,6 +577,7 @@ LISPSYM(package_use_list,"PACKAGE-USE-LIST",lisp)
 LISPSYM(package_used_by_list,"PACKAGE-USED-BY-LIST",lisp)
 LISPSYM(package_shadowing_symbols,"PACKAGE-SHADOWING-SYMBOLS",lisp)
 LISPSYM(package_lock,"PACKAGE-LOCK",ext)
+LISPSYM(package_shortest_name,"PACKAGE-SHORTEST-NAME",ext)
 LISPSYM(package_case_sensitive_p,"PACKAGE-CASE-SENSITIVE-P",ext)
 LISPSYM(package_documentation,"PACKAGE-DOCUMENTATION",system) /* ABI */
 LISPSYM(set_package_documentation,"(SETF PACKAGE-DOCUMENTATION)",system) /* ABI */
@@ -1575,6 +1576,7 @@ LISPSYM(print_rpars,"*PRINT-RPARS*",custom) /* IO variable */
 LISPSYM(print_indent_lists,"*PRINT-INDENT-LISTS*",custom) /* IO variable */
 LISPSYM(print_pretty_fill,"*PRINT-PRETTY-FILL*",custom) /* IO variable */
 LISPSYM(print_circle_table,"*PRINT-CIRCLE-TABLE*",system) /* IO variable */
+LISPSYM(print_symbol_package_prefix_shortest,"*PRINT-SYMBOL-PACKAGE-PREFIX-SHORTEST*",custom) /* IO variable */
 LISPSYM(prin_level,"*PRIN-LEVEL*",system) /* IO variable */ /* ABI */
 LISPSYM(prin_lines,"*PRIN-LINES*",system) /* IO variable */
 LISPSYM(prin_line_prefix,"*PRIN-LINE-PREFIX*",system) /* IO variable */ /* ABI */

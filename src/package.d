@@ -416,6 +416,22 @@ local bool inherited_find (object symbol, object pack) {
  8. If s is a symbol with the Home Package p /= NIL,
     then s is in ISymbols(p) U ESymbols(p). */
 
+/* UP: make sure pack_shortest_name is indeed the shortest */
+local void ensure_pack_shortest_name (object pack) {
+  var object shortest_name = ThePackage(pack)->pack_name;
+  var uintL shortest_len = Sstring_length(shortest_name);
+  var object nick_list = ThePackage(pack)->pack_nicknames;
+  while (consp(nick_list)) {
+    var object nick = Car(nick_list); nick_list = Cdr(nick_list);
+    var uintL nick_len = Sstring_length(nick);
+    if (nick_len < shortest_len) {
+      shortest_len = nick_len;
+      shortest_name = nick;
+    }
+  }
+  ThePackage(pack)->pack_shortest_name = shortest_name;
+}
+
 /* UP: Creates a new package, without testing for name-conflicts.
  make_package(name,nicknames,case_sensitive_p)
  > name: name (an immutable simple-string)
@@ -443,6 +459,7 @@ local object make_package (object name, object nicknames,
   ThePackage(pack)->pack_name = popSTACK();
   ThePackage(pack)->pack_nicknames = popSTACK();
   ThePackage(pack)->pack_docstring = NIL;
+  ensure_pack_shortest_name(pack);
   /* and insert in ALL_PACKAGES: */
   pushSTACK(pack);
   var object new_cons = allocate_cons();
@@ -1839,6 +1856,7 @@ LISPFUN(rename_package,seclass_default,2,1,norest,nokey,0,NIL) {
   ThePackage(pack)->pack_name = STACK_1;
   ThePackage(pack)->pack_nicknames = STACK_0;
   clr_break_sem_2();
+  ensure_pack_shortest_name(pack);
   skipSTACK(3);
   VALUES1(pack); /* pack as value */
 }
@@ -1881,6 +1899,12 @@ LISPFUNN(set_package_documentation,2) {
   if (!nullp(STACK_1)) STACK_1 = check_string(STACK_1);
   VALUES1(ThePackage(STACK_0)->pack_docstring = STACK_1);
   skipSTACK(2);
+}
+
+LISPFUNNR(package_shortest_name,1)
+{ /* (EXT:PACKAGE-SHORTEST-NAME package) */
+  var object pack = test_package_arg(popSTACK());
+  VALUES1(ThePackage(pack)->pack_shortest_name);
 }
 
 LISPFUNNR(package_lock,1)

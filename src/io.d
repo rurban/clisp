@@ -6847,7 +6847,12 @@ local void pr_symbol (const gcv_object_t* stream_, object sym) {
         } else {
           # print symbol with package-name and 1 or 2 package-markers
           pushSTACK(home); # save home-package
-          pr_symbol_part(stream_,ThePackage(home)->pack_name,false); # print package-name
+          pr_symbol_part(stream_, /* print package-name */
+                         ((nullpSv(print_symbol_package_prefix_shortest)
+                           || !nullpSv(print_readably))
+                          ? ThePackage(home)->pack_name
+                          : ThePackage(home)->pack_shortest_name),
+                         false);
           home = popSTACK(); # move home-package back
           case_sensitive = pack_casesensitivep(home);
           if (externalp(STACK_0,home)

@@ -247,6 +247,10 @@ User visible changes
   See <http://clisp.cons.org/impnotes.html#def-c-var> and
   <http://clisp.cons.org/impnotes.html#def-call-out> for details.
 
+* New user variable CUSTOM:*PRINT-SYMBOL-PACKAGE-PREFIX-SHORTEST*
+  allows using the shortest package (nick)name as the symbol prefix.
+  See <http://clisp.cons.org/impnotes.html#pr-sym-pack-prefix> for details.
+
 * The user commands can now be extended using CUSTOM:*USER-COMMANDS*.
   See <http://clisp.cons.org/impnotes.html#user-commands> for details.
 
