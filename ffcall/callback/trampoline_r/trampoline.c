@@ -826,6 +826,17 @@ __TR_function alloc_trampoline_r (address, data0, data1)
     ((long *) function)[6] = (long) data;
     ((long *) function)[7] = (long) address;
   }
+#define is_tramp(function)  \
+  ((long *) function)[0] == 0xE59FC014 && \
+  ((long *) function)[1] == 0xE59CC000 && \
+  ((long *) function)[2] == 0xE92D1000 && \
+  ((long *) function)[3] == 0xE59FC004 && \
+  ((long *) function)[4] == 0xE59CC000 && \
+  ((long *) function)[5] == 0xE8FD8000
+#define tramp_address(function)  \
+  ((long *) function)[7]
+#define tramp_data(function)  \
+  ((long *) function)[6]
 #endif
 #ifdef __rs6000sysv4__
   /* function:
