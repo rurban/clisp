@@ -1346,6 +1346,9 @@ local void init_object_tab (void) {
      #ifdef UNIX
       " :UNIX"
      #endif
+     #ifdef UNIX_CYGWIN32
+      " :CYGWIN"
+     #endif
      #ifdef UNIX_BEOS
       " :BEOS"
      #endif
