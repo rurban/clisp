@@ -1,5 +1,10 @@
 2004-07-10  Bruno Haible  <bruno@clisp.org>
 
+	* clos-genfun2.lisp (%make-gf): Remove function.
+	(make-fast-gf): Inline its previous definition.
+
+2004-07-10  Bruno Haible  <bruno@clisp.org>
+
 	* clos-genfun3.lisp (do-defgeneric): Remove function.
 	(defgeneric): Expand into a call to ensure-generic-function instead of
 	do-defgeneric.
