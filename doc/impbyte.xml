@@ -369,8 +369,9 @@
 <varlistentry><term><filename>places.lisp</filename></term>
  <listitem><simpara>macros using &place;s, definitions of most standard
    and extensiion &place;s</simpara></listitem></varlistentry>
-<varlistentry><term><filename>floatprint.lisp</filename></term>
- <listitem><simpara>printing floating point numbers in base 10
+<varlistentry id="floatprint-lisp"><term>&floatprint-lisp;</term>
+ <listitem><simpara>defines <link linkend="write-float-decimal"><function>SYS::WRITE-FLOAT-DECIMAL</function></link>
+   for printing floating point numbers in base 10;
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename>type.lisp</filename></term>
  <listitem><simpara>functions working with type specifiers: &typep;,
