@@ -98,8 +98,8 @@
 ;; (but yet uninitialized) method.
 ;; h = (funcall fast-function-factory method)
 ;; Returns a freshly allocated list.
-(defun method-function-initargs (method h) ; ABI
-  (if (typep-class method <standard-method>)
+(defun method-function-initargs (method-class h) ; ABI
+  (if (subclassp method-class <standard-method>)
     (list 'fast-function (car h)
           'wants-next-method-p (null (cadr h)))
     (list ':function (method-function-substitute h))))
@@ -226,7 +226,7 @@
   (cdr option))
 
 ;; Adds the function-macro definitions of CALL-NEXT-METHOD and NEXT-METHOD-P.
-(defun add-next-method-local-functions (self cont req-dummies rest-dummy body)
+(defun add-next-method-local-functions (backpointer cont req-dummies rest-dummy body)
   `(SYSTEM::FUNCTION-MACRO-LET
      ((CALL-NEXT-METHOD
         ((&REST NEW-ARGS)
@@ -234,7 +234,7 @@
            ;; argument checking in the interpreter only
            (IF (EVAL-WHEN (EVAL) T)
              (%CALL-NEXT-METHOD
-               ,self
+               ,backpointer
                ,cont
                ,(if rest-dummy
                   `(LIST* ,@req-dummies ,rest-dummy)
@@ -242,21 +242,21 @@
                NEW-ARGS)
              (IF ,cont
                (APPLY ,cont NEW-ARGS)
-               (APPLY (FUNCTION %NO-NEXT-METHOD) ,self NEW-ARGS)))
+               (APPLY (FUNCTION %NO-NEXT-METHOD) ,backpointer NEW-ARGS)))
            ,(if rest-dummy
               `(IF ,cont
                  (APPLY ,cont ,@req-dummies ,rest-dummy)
-                 (APPLY (FUNCTION %NO-NEXT-METHOD) ,self
+                 (APPLY (FUNCTION %NO-NEXT-METHOD) ,backpointer
                         ,@req-dummies ,rest-dummy))
               `(IF ,cont
                  (FUNCALL ,cont ,@req-dummies)
-                 (%NO-NEXT-METHOD ,self ,@req-dummies)))))
+                 (%NO-NEXT-METHOD ,backpointer ,@req-dummies)))))
         ((&REST NEW-ARG-EXPRS)
          (IF NEW-ARG-EXPRS
            ;; argument checking in the interpreter only
            (LIST 'IF '(EVAL-WHEN (EVAL) T)
              (LIST '%CALL-NEXT-METHOD
-               ',self
+               ',backpointer
                ',cont
                (LIST ',(if rest-dummy 'LIST* 'LIST)
                  ,@(mapcar #'(lambda (x) `',x) req-dummies)
@@ -264,21 +264,21 @@
                (CONS 'LIST NEW-ARG-EXPRS))
              (LIST 'IF ',cont
                (LIST* 'FUNCALL ',cont NEW-ARG-EXPRS)
-               (LIST* '%NO-NEXT-METHOD ',self NEW-ARG-EXPRS)))
+               (LIST* '%NO-NEXT-METHOD ',backpointer NEW-ARG-EXPRS)))
            ,(if rest-dummy
               `(LIST 'IF ',cont
                  (LIST 'APPLY ',cont
                    ,@(mapcar #'(lambda (x) `',x) req-dummies)
                    ',rest-dummy)
                  (LIST 'APPLY '(FUNCTION %NO-NEXT-METHOD)
-                   ',self
+                   ',backpointer
                    ,@(mapcar #'(lambda (x) `',x) req-dummies)
                    ',rest-dummy))
               `(LIST 'IF ',cont
                  (LIST 'FUNCALL ',cont
                    ,@(mapcar #'(lambda (x) `',x) req-dummies))
                  (LIST '%NO-NEXT-METHOD
-                   ',self
+                   ',backpointer
                    ,@(mapcar #'(lambda (x) `',x) req-dummies)))))))
       (NEXT-METHOD-P
         (() ,cont)
@@ -412,33 +412,27 @@
                         (MAPCAR #'(LAMBDA (NEXT-METHOD)
                                     (IF (TYPEP-CLASS NEXT-METHOD <METHOD>)
                                       NEXT-METHOD ; no need to quote, since self-evaluating
-                                      (LIST 'LET*
-                                        (LIST (LIST 'INITARGS
-                                                    (LIST 'LIST
-                                                          ':LAMBDA-LIST '',lambdalist
-                                                          ''SIGNATURE ,signature
-                                                          ':SPECIALIZERS '',(make-list req-num :initial-element <t>)))
-                                              (LIST 'METH
-                                                    (LIST 'APPLY
-                                                          '#'ALLOCATE-METHOD-INSTANCE
-                                                           '',(safe-gf-default-method-class gf)
-                                                          'INITARGS)))
+                                      (LIST 'LET
+                                        (LIST (LIST 'METHOD-CLASS
+                                                    '',(safe-gf-default-method-class gf))
+                                              '(BACKPOINTER (LIST NIL)))
                                         (LIST 'APPLY
-                                              '#'INITIALIZE-METHOD-INSTANCE
-                                              'METH
-                                              (LIST 'NCONC
-                                                    (LIST 'METHOD-FUNCTION-INITARGS
-                                                          'METH
-                                                          (LIST 'CONS
-                                                                (LET ((CONT (GENSYM)))
-                                                                  (LIST 'FUNCTION
-                                                                    (LIST 'LAMBDA (CONS CONT ',lambdalist)
-                                                                      (LIST 'DECLARE (LIST 'IGNORABLE CONT))
-                                                                      (ADD-NEXT-METHOD-LOCAL-FUNCTIONS 'NIL CONT ',req-vars ',rest-var
-                                                                        (CDR NEXT-METHOD)))))
-                                                                (LIST 'QUOTE '(NIL))))
-                                                    'INITARGS))
-                                        'METH)))
+                                              '#'MAKE-METHOD-INSTANCE
+                                              'METHOD-CLASS
+                                              ':LAMBDA-LIST '',lambdalist
+                                              ''SIGNATURE ,signature
+                                              ':SPECIALIZERS '',(make-list req-num :initial-element <t>)
+                                              ''BACKPOINTER 'BACKPOINTER
+                                              (LIST 'METHOD-FUNCTION-INITARGS
+                                                    'METHOD-CLASS
+                                                    (LIST 'CONS
+                                                          (LET ((CONT (GENSYM)))
+                                                            (LIST 'FUNCTION
+                                                              (LIST 'LAMBDA (CONS CONT ',lambdalist)
+                                                                (LIST 'DECLARE (LIST 'IGNORABLE CONT))
+                                                                (ADD-NEXT-METHOD-LOCAL-FUNCTIONS 'NIL CONT ',req-vars ',rest-var
+                                                                  (CDR NEXT-METHOD)))))
+                                                          (LIST 'QUOTE '(NIL))))))))
                                 NEXT-METHODS-LIST)))))
                 (LET ((CONT (GENSYM)))
                   (LIST 'LET (LIST (LIST CONT NEXT-METHODS-EM-FORM))

@@ -12,8 +12,9 @@
 
 (defmethod initialize-instance ((method method) &rest args
                                 &key ((from-defgeneric from-defgeneric) nil)
+                                     ((backpointer backpointer) nil)
                                 &allow-other-keys)
-  (declare (ignore from-defgeneric))
+  (declare (ignore from-defgeneric backpointer))
   (apply #'initialize-instance-<method> method args))
 
 (defmethod initialize-instance ((method standard-method) &rest args
@@ -27,10 +28,11 @@
                                      ((signature signature) nil)
                                      ((gf gf) nil)
                                      ((from-defgeneric from-defgeneric) nil)
+                                     ((backpointer backpointer) nil)
                                 &allow-other-keys)
   (declare (ignore qualifiers lambda-list specializers function documentation
                    fast-function wants-next-method-p signature gf
-                   from-defgeneric))
+                   from-defgeneric backpointer))
   (apply #'initialize-instance-<standard-method> method args))
 
 (defmethod initialize-instance ((method standard-accessor-method) &rest args
