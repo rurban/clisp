@@ -1418,7 +1418,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
 # > array3: dritter Bit-Array,
 # > index3: absoluter Index in array3
 # > op: Adresse der Operationsroutine
-# > count: Anzahl der zu verknüpfenden Bits
+# > count: Anzahl der zu verknüpfenden Bits, > 0
   # bit_op_fun ist eine Funktion, die zwei bitpack-Bit-Wörter verknüpft:
   typedef uint_bitpack bit_op_fun (uint_bitpack x, uint_bitpack y);
   local void bit_op (object array1, uintL index1,
@@ -1470,12 +1470,6 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
         }
       } else {
         # kompliziertere Schleife:
-        var uint_2bitpack carry1 = LR_bitpack_0((*ptr1++) << index1);
-        # carry1 hat in seinen oberen bitpack-index1 Bits (Bits 2*bitpack-1..bitpack+index1)
-        # die betroffenen Bits des 1. Words des 1. Arrays, sonst Nullen.
-        var uint_2bitpack carry2 = LR_bitpack_0((*ptr2++) << index2);
-        # carry2 hat in seinen oberen bitpack-index2 Bits (Bits 2*bitpack-1..bitpack+index2)
-        # die betroffenen Bits des 1. Words des 2. Arrays, sonst Nullen.
         var uint_2bitpack carry3 =
           LR_bitpack_0(
                        (~
@@ -1486,65 +1480,173 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
                       );
         # carry3 hat in seinen obersten index3 Bits (Bits 2*bitpack-1..2*bitpack-index3)
         # genau die Bits von *ptr3, die nicht verändert werden dürfen.
-        loop {
-          # Verknüpfungsschleife (jeweils wortweise):
-          # Nach n>=0 Schleifendurchläufen ist
-          # ptr1 und ptr2 um n+1 Words weitergerückt, also Pointer aufs
-          # nächste zu lesende Word des 1. bzw. 2. Arrays,
-          # ptr3 um n Words weitergerückt, also Pointer aufs
-          # nächste zu schreibende Word des 3. Arrays,
-          # bitpackcount = Zahl zu verknüpfender ganzer Words - n,
-          # carry1 = Übertrag vom 1. Array
-          #          (in den bitpack-index1 oberen Bits, sonst Null),
-          # carry2 = Übertrag vom 2. Array
-          #          (in den bitpack-index2 oberen Bits, sonst Null),
-          # carry3 = Übertrag noch abzuspeichernder Bits
-          #          (in den index3 oberen Bits, sonst Null).
-          var uint_bitpack temp =
-            (*op)(
-                  ( carry1 |=
-                      LR_0_bitpack(*ptr1++) # nächstes Word des 1. Arrays lesen
-                      << index1, # zum carry1 dazunehmen
-                    L_bitpack(carry1) # und davon das linke Word verwenden
-                  ),
-                  ( carry2 |=
-                      LR_0_bitpack(*ptr2++) # nächstes Word des 2. Arrays lesen
-                      << index2, # zum carry2 dazunehmen
-                    L_bitpack(carry2) # und davon das linke Word verwenden
-                  )
-                 ) ; # beide durch *op verknüpfen
-          carry1 = LR_bitpack_0(R_bitpack(carry1)); # carry1 := rechtes Word von carry1
-          carry2 = LR_bitpack_0(R_bitpack(carry2)); # carry2 := rechtes Word von carry2
-          carry3 |= LR_bitpack_0(temp) >> index3;
-          # Die oberen bitpack+index3 Bits von carry3 sind abzulegen.
-          if (bitpackcount==0)
-            break;
-          *ptr3++ = L_bitpack(carry3); # bitpack Bits davon ablegen
-          carry3 = LR_bitpack_0(R_bitpack(carry3)); # und index3 Bits für später behalten.
-          bitpackcount--;
+        # We distinguish four cases in order to avoid a memory overrun bug.
+        # The tighter loops are just an added benefit for speed.
+        if (index1 == 0) {
+          if (index2 == 0) {
+            # index1 = 0, index2 = 0.
+            loop {
+              # Verknüpfungsschleife (jeweils wortweise):
+              # Nach n>=0 Schleifendurchläufen ist
+              # ptr1 und ptr2 um n Words weitergerückt, also Pointer aufs
+              # nächste zu lesende Word des 1. bzw. 2. Arrays,
+              # ptr3 um n Words weitergerückt, also Pointer aufs
+              # nächste zu schreibende Word des 3. Arrays,
+              # bitpackcount = Zahl zu verknüpfender ganzer Words - n,
+              # carry3 = Übertrag noch abzuspeichernder Bits
+              #          (in den index3 oberen Bits, sonst Null).
+              var uint_bitpack temp =
+                (*op)(
+                      *ptr1++,
+                      *ptr2++
+                     ) ; # beide durch *op verknüpfen
+              carry3 |= LR_bitpack_0(temp) >> index3;
+              # Die oberen bitpack+index3 Bits von carry3 sind abzulegen.
+              if (bitpackcount==0)
+                break;
+              *ptr3++ = L_bitpack(carry3); # bitpack Bits davon ablegen
+              carry3 = LR_bitpack_0(R_bitpack(carry3)); # und index3 Bits für später behalten.
+              bitpackcount--;
+            }
+          } else {
+            # index1 = 0, index2 > 0.
+            var uint_2bitpack carry2 = LR_bitpack_0((*ptr2++) << index2);
+            # carry2 hat in seinen oberen bitpack-index2 Bits (Bits 2*bitpack-1..bitpack+index2)
+            # die betroffenen Bits des 1. Words des 2. Arrays, sonst Nullen.
+            loop {
+              # Verknüpfungsschleife (jeweils wortweise):
+              # Nach n>=0 Schleifendurchläufen ist
+              # ptr1 um n, und ptr2 um n+1 Words weitergerückt, also Pointer aufs
+              # nächste zu lesende Word des 1. bzw. 2. Arrays,
+              # ptr3 um n Words weitergerückt, also Pointer aufs
+              # nächste zu schreibende Word des 3. Arrays,
+              # bitpackcount = Zahl zu verknüpfender ganzer Words - n,
+              # carry2 = Übertrag vom 2. Array
+              #          (in den bitpack-index2 oberen Bits, sonst Null),
+              # carry3 = Übertrag noch abzuspeichernder Bits
+              #          (in den index3 oberen Bits, sonst Null).
+              var uint_bitpack temp =
+                (*op)(
+                      *ptr1++,
+                      ( carry2 |=
+                          LR_0_bitpack(*ptr2++) # nächstes Word des 2. Arrays lesen
+                          << index2, # zum carry2 dazunehmen
+                        L_bitpack(carry2) # und davon das linke Word verwenden
+                      )
+                     ) ; # beide durch *op verknüpfen
+              carry2 = LR_bitpack_0(R_bitpack(carry2)); # carry2 := rechtes Word von carry2
+              carry3 |= LR_bitpack_0(temp) >> index3;
+              # Die oberen bitpack+index3 Bits von carry3 sind abzulegen.
+              if (bitpackcount==0)
+                break;
+              *ptr3++ = L_bitpack(carry3); # bitpack Bits davon ablegen
+              carry3 = LR_bitpack_0(R_bitpack(carry3)); # und index3 Bits für später behalten.
+              bitpackcount--;
+            }
+          }
+        } else {
+          if (index2 == 0) {
+            # index1 > 0, index2 = 0.
+            var uint_2bitpack carry1 = LR_bitpack_0((*ptr1++) << index1);
+            # carry1 hat in seinen oberen bitpack-index1 Bits (Bits 2*bitpack-1..bitpack+index1)
+            # die betroffenen Bits des 1. Words des 1. Arrays, sonst Nullen.
+            loop {
+              # Verknüpfungsschleife (jeweils wortweise):
+              # Nach n>=0 Schleifendurchläufen ist
+              # ptr1 um n+1, und ptr2 um n Words weitergerückt, also Pointer aufs
+              # nächste zu lesende Word des 1. bzw. 2. Arrays,
+              # ptr3 um n Words weitergerückt, also Pointer aufs
+              # nächste zu schreibende Word des 3. Arrays,
+              # bitpackcount = Zahl zu verknüpfender ganzer Words - n,
+              # carry1 = Übertrag vom 1. Array
+              #          (in den bitpack-index1 oberen Bits, sonst Null),
+              # carry3 = Übertrag noch abzuspeichernder Bits
+              #          (in den index3 oberen Bits, sonst Null).
+              var uint_bitpack temp =
+                (*op)(
+                      ( carry1 |=
+                          LR_0_bitpack(*ptr1++) # nächstes Word des 1. Arrays lesen
+                          << index1, # zum carry1 dazunehmen
+                        L_bitpack(carry1) # und davon das linke Word verwenden
+                      ),
+                      *ptr2++
+                     ) ; # beide durch *op verknüpfen
+              carry1 = LR_bitpack_0(R_bitpack(carry1)); # carry1 := rechtes Word von carry1
+              carry3 |= LR_bitpack_0(temp) >> index3;
+              # Die oberen bitpack+index3 Bits von carry3 sind abzulegen.
+              if (bitpackcount==0)
+                break;
+              *ptr3++ = L_bitpack(carry3); # bitpack Bits davon ablegen
+              carry3 = LR_bitpack_0(R_bitpack(carry3)); # und index3 Bits für später behalten.
+              bitpackcount--;
+            }
+          } else {
+            # index1 > 0, index2 > 0.
+            var uint_2bitpack carry1 = LR_bitpack_0((*ptr1++) << index1);
+            # carry1 hat in seinen oberen bitpack-index1 Bits (Bits 2*bitpack-1..bitpack+index1)
+            # die betroffenen Bits des 1. Words des 1. Arrays, sonst Nullen.
+            var uint_2bitpack carry2 = LR_bitpack_0((*ptr2++) << index2);
+            # carry2 hat in seinen oberen bitpack-index2 Bits (Bits 2*bitpack-1..bitpack+index2)
+            # die betroffenen Bits des 1. Words des 2. Arrays, sonst Nullen.
+            loop {
+              # Verknüpfungsschleife (jeweils wortweise):
+              # Nach n>=0 Schleifendurchläufen ist
+              # ptr1 und ptr2 um n+1 Words weitergerückt, also Pointer aufs
+              # nächste zu lesende Word des 1. bzw. 2. Arrays,
+              # ptr3 um n Words weitergerückt, also Pointer aufs
+              # nächste zu schreibende Word des 3. Arrays,
+              # bitpackcount = Zahl zu verknüpfender ganzer Words - n,
+              # carry1 = Übertrag vom 1. Array
+              #          (in den bitpack-index1 oberen Bits, sonst Null),
+              # carry2 = Übertrag vom 2. Array
+              #          (in den bitpack-index2 oberen Bits, sonst Null),
+              # carry3 = Übertrag noch abzuspeichernder Bits
+              #          (in den index3 oberen Bits, sonst Null).
+              var uint_bitpack temp =
+                (*op)(
+                      ( carry1 |=
+                          LR_0_bitpack(*ptr1++) # nächstes Word des 1. Arrays lesen
+                          << index1, # zum carry1 dazunehmen
+                        L_bitpack(carry1) # und davon das linke Word verwenden
+                      ),
+                      ( carry2 |=
+                          LR_0_bitpack(*ptr2++) # nächstes Word des 2. Arrays lesen
+                          << index2, # zum carry2 dazunehmen
+                        L_bitpack(carry2) # und davon das linke Word verwenden
+                      )
+                     ) ; # beide durch *op verknüpfen
+              carry1 = LR_bitpack_0(R_bitpack(carry1)); # carry1 := rechtes Word von carry1
+              carry2 = LR_bitpack_0(R_bitpack(carry2)); # carry2 := rechtes Word von carry2
+              carry3 |= LR_bitpack_0(temp) >> index3;
+              # Die oberen bitpack+index3 Bits von carry3 sind abzulegen.
+              if (bitpackcount==0)
+                break;
+              *ptr3++ = L_bitpack(carry3); # bitpack Bits davon ablegen
+              carry3 = LR_bitpack_0(R_bitpack(carry3)); # und index3 Bits für später behalten.
+              bitpackcount--;
+            }
+          }
         }
         # letztes (halbes) Datenword speziell behandeln:
         # Vom letzten Word (nun in den Bits
         # 2*bitpack-index3-1..bitpack-index3 von carry3)
         # dürfen nur bitcount_rest Bits im 3. Array abgelegt werden.
-        {
-          var uint_bitpack last_carry;
-          bitcount_rest = index3+bitcount_rest;
-          # Die oberen bitcount_rest Bits ablegen:
-          if (bitcount_rest>=bitpack) {
-            *ptr3++ = L_bitpack(carry3);
-            last_carry = R_bitpack(carry3);
-            bitcount_rest -= bitpack;
-          } else {
-            last_carry = L_bitpack(carry3);
-          }
-          # Die noch übrigen bitcount_rest Bits von last_carry ablegen:
-          if (!(bitcount_rest==0))
-            *ptr3 ^=
-              (*ptr3 ^ last_carry)
-              & (~( (uint_bitpack)(bitm(bitpack)-1) >> bitcount_rest ));
-                # Bitmaske, in der die oberen bitcount_rest Bits gesetzt sind
+        bitcount_rest = index3+bitcount_rest;
+        var uint_bitpack last_carry;
+        # Die oberen bitcount_rest Bits ablegen:
+        if (bitcount_rest>=bitpack) {
+          *ptr3++ = L_bitpack(carry3);
+          last_carry = R_bitpack(carry3);
+          bitcount_rest -= bitpack;
+        } else {
+          last_carry = L_bitpack(carry3);
         }
+        # Die noch übrigen bitcount_rest Bits von last_carry ablegen:
+        if (!(bitcount_rest==0))
+          *ptr3 ^=
+            (*ptr3 ^ last_carry)
+            & (~( (uint_bitpack)(bitm(bitpack)-1) >> bitcount_rest ));
+              # Bitmaske, in der die oberen bitcount_rest Bits gesetzt sind
       }
     }
 
@@ -1733,7 +1835,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
      weiter: # Vorbereitungen sind abgeschlossen:
       # STACK_2 = bit-array1, STACK_1 = bit-array2, STACK_0 = bit-array3,
       # alle von denselben Dimensionen, mit je len Bits.
-      {
+      if (len > 0) {
         var uintL index1 = 0; # Index in Datenvektor von bit-array1
         var object array1 = # Datenvektor von bit-array1
                             (simple_bit_vector_p(Atype_Bit,STACK_2)
