@@ -35,7 +35,7 @@
 
 (defgeneric describe-object (obj stream)
   (:method
-   ((obj standard-object) (stream stream))
+   ((obj t) (stream stream))
    (case (sys::type-of obj)
      #+(or AMIGA FFI)
      (foreign-pointer
