@@ -19,6 +19,7 @@
 <!-- functions (system calls) -->
 <!ENTITY unix-f "&unix-top;/functions">
 <!ENTITY calloc "<ulink url='&unix-f;/calloc.html'><function>calloc</function></ulink>">
+<!ENTITY confstr "<ulink url='&unix-f;/confstr.html'><function>confstr</function></ulink>">
 <!ENTITY dlclose "<ulink url='&unix-f;/dlclose.html'><function>dlclose</function></ulink>">
 <!ENTITY dlopen "<ulink url='&unix-f;/dlopen.html'><function>dlopen</function></ulink>">
 <!ENTITY dlsym "<ulink url='&unix-f;/dlsym.html'><function>dlsym</function></ulink>">
