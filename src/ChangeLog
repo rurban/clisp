@@ -89,7 +89,7 @@
 	(check_symbol_special, check_funname_replacement):
 	pass :FORM to ERROR-OF-TYPE SOURCE-PROGRAM-ERROR
 	* eval.d (parse_dd, get_closure, eval1, fehler_eval_zuwenig)
-	(fehler_eval_dotted): ditto
+	(fehler_eval_dotted, fehler_eval_zuviel): ditto
 	* foreign1.lisp (DEF-C-VAR, flet/err): ditto
 	* lambdalist.lisp (err-misplaced, err-invalid, analyze-lambdalist)
 	(analyze-generic-function-lambdalist, analyze-defsetf-lambdalist)
