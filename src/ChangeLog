@@ -1,5 +1,10 @@
 2004-12-08  Bruno Haible  <bruno@clisp.org>
 
+	* stream.d (FILE-POSITION): Avoid a false GC-safety bug alert: Call
+	SET-FILL-POINTER directly, without going through funcall.
+
+2004-12-08  Bruno Haible  <bruno@clisp.org>
+
 	* stream.d (make_buffered_stream): Avoid a false GC-safety bug alert.
 	(It's not worth exploiting the fact that builtin_stream_close doesn't
 	cons for a file/pipe/socket stream.)
