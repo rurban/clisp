@@ -9307,7 +9307,16 @@ local void wr_ch_terminal3 (const gcv_object_t* stream_, object ch) {
       ssstring_push_extend(TheStream(*stream_)->strm_terminal_outbuff,c);
   }
  #endif
-  wr_ch_unbuffered_unix(stream_,ch);
+  { var object eol = TheEncoding(TheStream(*stream_)->strm_encoding)->enc_eol;
+    if (eq(eol,S(Kunix)))
+      wr_ch_unbuffered_unix(stream_,ch);
+    else if (eq(eol,S(Kmac)))
+      wr_ch_unbuffered_mac(stream_,ch);
+    else if (eq(eol,S(Kdos)))
+      wr_ch_unbuffered_dos(stream_,ch);
+    else
+      NOTREACHED;
+  }
 }
 
 # UP: Write several characters to a Terminal-Stream.
@@ -9319,7 +9328,16 @@ local void wr_ch_terminal3 (const gcv_object_t* stream_, object ch) {
 local void wr_ch_array_terminal3 (const gcv_object_t* stream_,
                                   const gcv_object_t* chararray_,
                                   uintL start, uintL len) {
-  wr_ch_array_unbuffered_unix(stream_,chararray_,start,len);
+  { var object eol = TheEncoding(TheStream(*stream_)->strm_encoding)->enc_eol;
+    if (eq(eol,S(Kunix)))
+      wr_ch_array_unbuffered_unix(stream_,chararray_,start,len);
+    else if (eq(eol,S(Kmac)))
+      wr_ch_array_unbuffered_mac(stream_,chararray_,start,len);
+    else if (eq(eol,S(Kdos)))
+      wr_ch_array_unbuffered_dos(stream_,chararray_,start,len);
+    else
+      NOTREACHED;
+  }
  #if TERMINAL_OUTBUFFERED
   {
     var object string = *chararray_;
