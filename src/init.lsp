@@ -166,6 +166,11 @@ with-standard-io-syntax with-open-file define-symbol-macro
 check-type assert etypecase ctypecase ecase ccase trace untrace step time space
 formatter
 english deutsch francais
+;; Symbol-Macros:
+*default-file-encoding*
+#+UNICODE *pathname-encoding*
+#+UNICODE *terminal-encoding*
+#+UNICODE *misc-encoding*
 ;; sonstige Markierer:
 ; EVAL-WHEN-Situationen:
 eval load compile
