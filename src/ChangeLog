@@ -1,5 +1,10 @@
 2005-01-02  Bruno Haible  <bruno@clisp.org>
 
+	* debug.d (SYS::DESCRIBE-FRAME): Call print_stack_trace with the same
+	logic as show_stack() does.
+
+2005-01-02  Bruno Haible  <bruno@clisp.org>
+
 	* debug.d (show_stack): Call print_stack_trace with the same logic
 	in the frame_up_x != NULL case as in the frame_up_x == NULL case.
 

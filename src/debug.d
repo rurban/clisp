@@ -1460,11 +1460,13 @@ LISPFUNN(describe_frame,2)
   STACK_0 = check_stream(STACK_0);
   fresh_line(&STACK_0);
   {
+    var uintL count = 0;
     var p_backtrace_t bt = back_trace;
-    unwind_back_trace(bt,FRAME);
-    if (top_of_back_trace_frame(bt) == FRAME) {
-      print_back_trace(&STACK_0,bt,0);
+    unwind_back_trace(bt,FRAME STACKop -1);
+    while (bt_beyond_stack_p(bt,FRAME)) {
+      print_back_trace(&STACK_0,bt,++count);
       terpri(&STACK_0);
+      bt = bt->bt_next;
     }
   }
   print_stackitem(&STACK_0,FRAME); /* print stack-item */
