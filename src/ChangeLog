@@ -1,3 +1,11 @@
+2001-05-30  Sam Steingold  <sds@gnu.org>
+
+	* foreign1.lisp (with-defining-c-type): new macro
+	(parse-components, c-struct-constructor): new functions
+	(parse-c-type): use the above
+	(to-c-typedecl): handle the recursive types (like linked lists)
+	(def-c-enum): make `name' a synonym for `int'
+
 2001-05-27  Sam Steingold  <sds@gnu.org>
 
 	* regexp.lisp (mregerror): FINALIZE is in EXT
