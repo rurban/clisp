@@ -62,7 +62,7 @@ document run_all_tests
 end
 
 define ansi_tests
-       run -B . -M lispinit.mem -q -norc -ansi -x "(cd \"ansi-tests/\") (load \"clispload\")"
+       run -B . -M lispinit.mem -q -norc -ansi -x "(cd \"ansi-tests/\") (load \"clispload.lsp\") (in-package \"CL-TEST\") (time (regression-test:do-tests))"
 end
 document ansi_tests
          run the gcl/ansi-test suite
