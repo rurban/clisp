@@ -933,8 +933,6 @@ LISPFUN(make_sequence,2,0,norest,key,2,
                    GETTEXT("~: :update must not be specified without :initial-element")
                   );
           }
-        if (eq(seq_type(typdescr),S(string))) # Typname = STRING ?
-          { STACK_2 = ascii_char(' '); } # initial-element := ' '
         else if (posfixnump(seq_type(typdescr))) /* type name integer? (means byte-vector) */
           { STACK_2 = Fixnum_0; } # initial-element := 0
       }

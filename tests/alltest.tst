@@ -1513,6 +1513,9 @@ CHAR-CODE-LIMIT
 (MAKE-SEQUENCE (QUOTE LIST) 4 :INITIAL-ELEMENT (QUOTE O))
 (O O O O)
 
+(equalp (make-sequence 'string 5) (make-string 5))
+t
+
 (CONCATENATE (QUOTE LIST) (QUOTE (A B C)) (QUOTE (1 2)))
 (A B C 1 2)
 
