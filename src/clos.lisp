@@ -251,3 +251,39 @@
 ;   (defun (setf foo-slot1) (new-value instance)
 ;     (accessor-typecheck instance 'foo '(setf foo-slot1))
 ;     (setf (sys::%record-ref instance 1) new-value))
+
+
+;; Extension Protocols
+
+; The MOP specifies the following individual protocols.
+; The "checks" column tells whether the CLISP code contains verifications
+; that the user added code is fulfilling the required constraints.
+; The "testsuite" column tells whether the mop.tst contains interesting
+; testcases.
+;                                                     checks  testsuite
+; add-dependent remove-dependent map-dependents         --      OK
+; add-direct-method remove-direct-method \
+;   specializer-direct-generic-functions \
+;   specializer-direct-methods                          --      OK
+; add-direct-subclass remove-direct-subclass \
+;   class-direct-subclasses                             OK      OK
+; compute-applicable-methods \
+;   compute-applicable-methods-using-classes            OK      OK
+; compute-class-precedence-list                         OK      OK
+; compute-default-initargs                              OK      OK
+; compute-discriminating-function                       OK      OK
+; compute-effective-method                              --      OK
+; compute-effective-slot-definition                     OK      OK
+; compute-slots                                         OK      OK
+; direct-slot-definition-class                          OK      OK
+; effective-slot-definition-class                       OK      OK
+; ensure-class-using-class                              OK      OK
+; ensure-generic-function-using-class                   OK      OK
+; make-method-lambda
+; reader-method-class                                   OK      OK
+; slot-value-using-class \
+;   (setf slot-value-using-class) \
+;   slot-boundp-using-class \
+;   slot-makunbound-using-class                         --      OK
+; validate-superclass                                   OK      OK
+; writer-method-class                                   OK      OK
