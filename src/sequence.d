@@ -139,6 +139,7 @@ local object valid_type1 (object name) {
   # - ([SIMPLE-]BASE-STRING [size]), [SIMPLE-]BASE-STRING ergeben STRING.
   # - ([SIMPLE-]BIT-VECTOR [size]), [SIMPLE-]BIT-VECTOR ergeben BIT-VECTOR.
   # - Zusätzlich (nicht sehr schön): [SIMPLE-]ARRAY ergibt VECTOR.
+  # - Class objects referring to built-in types are recognized as well.
   name = expand_deftype(name,false);
   if (symbolp(name)) {
     if (eq(name,S(list))) { goto expanded_unconstrained; }
@@ -215,7 +216,25 @@ local object valid_type1 (object name) {
         }
       }
     }
-  }
+  } else if_classp(name, {
+    if (eq(name,O(class_list)))
+      { name = S(list); goto expanded_unconstrained; }
+    if (eq(name,O(class_null)))
+      { pushSTACK(Fixnum_0); name = S(list); goto expanded; }
+    if (eq(name,O(class_cons)))
+      /* -1 means length at least 1 */
+      { pushSTACK(Fixnum_minus1); name = S(list); goto expanded; }
+    if (eq(name,O(class_vector)))
+      { name = S(vector); goto expanded_unconstrained; }
+    if (eq(name,O(class_string)))
+      { name = S(string); goto expanded_unconstrained; }
+    if (eq(name,O(class_bit_vector)))
+      { name = S(bit_vector); goto expanded_unconstrained; }
+    if (eq(name,O(class_array)))
+      { name = S(vector); goto expanded_unconstrained; }
+    name = TheClass(name)->classname;
+    goto expanded_unconstrained; # other classes could be DEFSTRUCT defined types
+  }, {});
   return NIL;
  expanded_unconstrained:
   pushSTACK(unbound); # no length constraint
