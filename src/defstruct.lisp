@@ -283,13 +283,11 @@
                 (PROCLAIM '(INLINE ,accessorname))
                 (DEFUN ,accessorname (OBJECT)
                   (THE ,slottype
-                    ,(if (eq type 'T)
-                       `(%STRUCTURE-REF ',name OBJECT ,offset)
-                       (if (eq type 'LIST)
-                         `(NTH ,offset OBJECT)
-                         (if (consp type)
-                           `(AREF OBJECT ,offset)
-                           `(SVREF OBJECT ,offset))))))
+                    ,(cond ((eq type 'T)
+                            `(%STRUCTURE-REF ',name OBJECT ,offset))
+                           ((eq type 'LIST) `(NTH ,offset OBJECT))
+                           ((consp type) `(AREF OBJECT ,offset))
+                           (t `(SVREF OBJECT ,offset)))))
                 (SYSTEM::%PUT ',accessorname 'SYSTEM::DEFSTRUCT-READER
                               ',name))))
           '()))

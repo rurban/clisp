@@ -833,9 +833,11 @@ local bool elt_compare (object dv1, uintL index1,
  keys using equalp recursively. */
 local bool hash_table_equalp (object ht1, object ht2)
 {
-  var uintB flags1 = record_flags(TheHashtable(ht1));
-  var uintB flags2 = record_flags(TheHashtable(ht2));
-  if (!eq(hashtable_test(flags1),hashtable_test(flags2)))
+  var uintB flags1 = ht_test_code(record_flags(TheHashtable(ht1)));
+  var uintB flags2 = ht_test_code(record_flags(TheHashtable(ht2)));
+  if (flags1 != flags2 /* same built-in test or same user-defined one */
+      || !eq(TheHashtable(ht1)->ht_test,TheHashtable(ht2)->ht_test)
+      || !eq(TheHashtable(ht1)->ht_hash,TheHashtable(ht2)->ht_hash))
     return false;
   if (!eq(TheHashtable(ht1)->ht_count,TheHashtable(ht2)->ht_count))
     return false;
