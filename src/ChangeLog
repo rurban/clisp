@@ -1,5 +1,19 @@
 2004-08-19  Sam Steingold  <sds@gnu.org>
 
+	recoverable FUNCTION-NAME and SYMBOL source checks
+	* constsym.d, subr.d (check_function_name, check_symbol): added
+	* control.d (%CHECK-FUNCTION-NAME, %CHECK-SYMBOL): implemented
+	* init.lisp (check-symbol, check-function-name): new macros
+	* clos-genfun3.lisp (defmethod, declaim-method, analyze-defgeneric):
+	use CHECK-FUNCTION-NAME
+	* compiler.lisp (compile): ditto
+	* cmacros.lisp (compiler-macro-function)
+	((setf compiler-macro-function)): CHECK-FUNCTION-NAME is now a macro
+	* documentation.lisp (documentation): ditto
+	* trace.lisp (check-traceable): ditto
+
+2004-08-19  Sam Steingold  <sds@gnu.org>
+
 	* clos-class5.lisp (change-class): avoid a compilation warning
 
 2004-08-19  Sam Steingold  <sds@gnu.org>
