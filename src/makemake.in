@@ -710,10 +710,10 @@ if [ $TSYS = master -o $TOS = win32 ] ; then
   OS_INCLUDES=$OS_INCLUDES' win32'
   if [ $TSYS = win32gcc ] ; then
     # I don't know why advapi32 is not needed here.
-    LIBS=$LIBS' -luser32 -lws2_32 -lole32 -luuid '$LIBSIGSEGV
+    LIBS=$LIBS' -luser32 -lws2_32 -lole32 -luuid -lpsapi '$LIBSIGSEGV
   else
     if [ $TSYS = win32msvc ] ; then
-      LIBS=$LIBS' user32.lib ws2_32.lib advapi32.lib'
+      LIBS=$LIBS' user32.lib ws2_32.lib advapi32.lib psapi.lib'
     fi
     LIBS=$LIBS' ole32.lib shell32.lib'
   fi
@@ -2917,7 +2917,7 @@ echol
 echol "modular : ${FILES} clisp-link linkkit modules.h modules.o makevars"
 echodummyrule modular
 echol
-echol "makevars :"
+echol "makevars : Makefile"
 echotab "(echo 'CC='\"'\"'\$(CC)'\"'\" ; echo 'CPPFLAGS='\"'\"'\$(${MODULE_CPPFLAGS_VAR})'\"'\" ; echo 'CFLAGS='\"'\"'\$(${MODULE_CFLAGS_VAR})'\"'\" ; echo 'CLFLAGS='\"'\"'\$(${MODULE_CLFLAGS_VAR})'\"'\" ; echo 'LIBS='\"'\"'lisp.a \$(LIBS)'\"'\" ; echo 'X_LIBS='\"'\"'\$(X_LIBS)'\"'\" ; echo 'RANLIB='\"'\"'\$(RANLIB)'\"'\" ; echo 'FILES='\"'\"'${FILES}'\"'\") > makevars"
 echol
 for f in clisp-link ; do

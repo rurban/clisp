@@ -538,12 +538,12 @@ MAKE-FOREIGN-STRING
    (:name "malloc") (:language :stdc) (:return-type c-pointer)
    (:library #+(and unix (not cygwin)) :DEFAULT
              #+cygwin "/bin/cygwin1.dll" ; RTLD_DEFAULT not implemented
-             #+win32 "MSVCRT"))
+             #+win32 :DEFAULT))
  (def-call-out c-free (:arguments (p c-pointer))
    (:name "free") (:language :stdc) (:return-type nil)
    (:library #+(and unix (not cygwin)) :DEFAULT
              #+cygwin "/bin/cygwin1.dll" ; RTLD_DEFAULT not implemented
-             #+win32 "MSVCRT")))
+             #+win32 :DEFAULT)))
 (c-malloc c-free)
 
 ;; this is ugly and inefficient; if you find yourself doing this,

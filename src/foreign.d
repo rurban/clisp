@@ -3589,6 +3589,9 @@ local void callback (void* data, va_alist alist)
 #if defined(HAVE_DLFCN_H)
 #include <dlfcn.h>
 #endif
+#if defined(WIN32_NATIVE)
+#include <psapi.h>
+#endif
 
 /* O(foreign_libraries) is an alist of all open libraries.
  It is a list ((string fpointer function ...) ...)
@@ -3622,6 +3625,8 @@ local void * open_library (object name, uintL version)
  open_library_restart:
  #if defined(RTLD_DEFAULT)
   if (eq(name,S(Kdefault))) return RTLD_DEFAULT;
+ #elif defined(WIN32_NATIVE)
+  if (eq(name,S(Kdefault))) return NULL;
  #endif
  #if defined(RTLD_NEXT)
   if (eq(name,S(Knext))) return RTLD_NEXT;
@@ -3656,7 +3661,17 @@ local inline void* find_name (void *handle, char *name)
   var void *ret = NULL;
   begin_system_call();
  #if defined(WIN32_NATIVE)
-  ret = (void*)GetProcAddress((HMODULE)handle,name);
+  if (handle == NULL) { /* RTLD_DEFAULT -- search all modules */
+    HANDLE cur_proc = GetCurrentProcess();
+    HMODULE *modules;
+    DWORD needed, i;
+    EnumProcessModules(cur_proc,NULL,0,&needed);
+    modules = alloca(sizeof(HMODULE)*needed);
+    if (!EnumProcessModules(cur_proc,modules,needed,&needed)) OS_error();
+    for (i=0; i < needed/sizeof(HMODULE); i++)
+      if ((ret = (void*)GetProcAddress(modules[i],name)))
+        break;
+  } else ret = (void*)GetProcAddress((HMODULE)handle,name);
  #else
   ret = dlsym(handle,name);
  #endif

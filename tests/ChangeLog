@@ -1,3 +1,7 @@
+2004-08-31  Sam Steingold  <sds@gnu.org>
+
+	* ffi.tst (c-malloc, c-free) [win32]: use :DEFAULT
+
 2004-06-24  Bruno Haible  <bruno@clisp.org>
 
 	* clos.tst: Add a test for ensure-generic-function.
