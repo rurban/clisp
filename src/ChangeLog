@@ -1,3 +1,8 @@
+2003-11-17  Sam Steingold  <sds@gnu.org>
+
+	new module: Perl Compatible Regular Expressions <http://www.pcre.org/>
+	* modules/pcre: new directory
+
 2003-12-15  Bruno Haible  <bruno@clisp.org>
 
 	* init.lisp (sys::%expand-form): Call %expand-form on the result of a

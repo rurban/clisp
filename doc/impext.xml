@@ -2196,6 +2196,10 @@ Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
   <listitem><simpara>The <ulink url="regexp.html">POSIX Regular
    Expressions</ulink> matching, compiling, executing.
  </simpara></listitem></varlistentry>
+ <varlistentry><term><link linkend="pcre">pcre</link></term>
+  <listitem><simpara>The <ulink url="http://www.pcre.org/">Perl
+     Compatible Regular Expressions</ulink> matching, compiling,
+    executing.</simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="syscalls">syscalls</link></term>
   <listitem><simpara>Use some system calls in a platform-independent way.
  </simpara></listitem></varlistentry>
@@ -2210,6 +2214,8 @@ Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
 &berkeley-db;
 
 &regexp;
+
+&pcre;
 
 &syscalls;
 
