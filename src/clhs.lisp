@@ -4,13 +4,13 @@
 
 (in-package "EXT")
 
-(export '(clhs clhs-root *browsers* *browser* read-from-file browse-url))
+(export '(clhs clhs-root read-from-file browse-url))
 
 (in-package "SYSTEM")
 
 (defvar *clhs-table* nil)       ; the hash table
 
-(defvar *browsers*              ; alist of browsers & commands
+(defvar *browsers*
   '((:netscape "netscape" "~a")
     (:netscape-remote "netscape" "-remote" "openURL(~a,new-window)")
     (:mozilla "mozilla" "~a")
@@ -24,8 +24,11 @@
     (:w3m-xterm "xterm" "-e" "w3m" "~a")
     (:mmm "mmm" "-external" "~a")
     (:mosaic "xmosaic" "~a")
-    (:emacs-w3 "gnudoit" "-q" "(w3-fetch \"~a\")")))
-(defvar *browser* nil)          ; the default browser
+    (:emacs-w3 "gnudoit" "-q" "(w3-fetch \"~a\")"))
+  "Alist of browsers and commands that invoke them.
+`~a' will be replaced with the URL to view.")
+(defvar *browser* nil
+  "The default browser - a key in `*browsers*' or a list of strings.")
 
 (defun read-from-file (file &key (out *standard-output*)
                        (package (find-package "KEYWORD")))

@@ -318,7 +318,7 @@
 (common-lisp:in-package "CUSTOM")
 
 (common-lisp:export
- '(*load-paths* *editor* *clhs-root-default*
+ '(*load-paths* *editor* *clhs-root-default* *browsers* *browser*
    *load-echo* *applyhook* *evalhook* *load-compiling* *compile-warnings*
    ;; places.lisp
    *ansi* *current-language* *lib-directory* *default-file-encoding*
