@@ -1,3 +1,36 @@
+2003-01-24  Sam Steingold  <sds@gnu.org>
+
+	READ-BYTE-ARRAY now accepts :NO-HANG keyword argument
+	* stream.d (rd_by_array_Pseudofun, rd_by_array_error)
+	(rd_by_array_dummy, read_byte_array, rd_by_array_synonym)
+	(rd_by_array_concat, rd_by_array_twoway, rd_by_array_echo)
+	(strm_unbuffered_extrafields_t/low_read_array)
+	(low_read_array_unbuffered_handle, rd_by_array_iau8_unbuffered)
+	(strm_buffered_extrafields_t/low_fill, low_fill_buffered_handle)
+	(buffered_nextbyte, read_byte_array_buffered)
+	(rd_by_array_iau8_buffered, low_read_array_unbuffered_socket)
+	(low_fill_buffered_socket, ): accept no_hang
+	(listen_handle): extracted from low_listen_unbuffered_handle()
+	(low_listen_unbuffered_handle): use listen_handle()
+	(rd_by_aux_iax_unbuffered, rd_ch_array_unbuffered): pass
+	no_hang=false to UnbufferedStreamLow_read_array()()
+	(buffered_writebyte, position_file_buffered)
+	(write_byte_array_buffered, rd_ch_buffered, listen_char_buffered)
+	(rd_ch_array_buffered, position_file_i_buffered)
+	(rd_by_aux_iax_buffered, rd_by_aux_ibx_buffered)
+	(rd_by_aux_icx_buffered, rd_by_iau8_buffered)
+	(listen_byte_ia8_buffered, WRITE_LAST_BYTE, wr_by_aux_ib_buffered)
+	(wr_by_aux_ic_buffered, logical_position_file_end)
+	(make_file_stream): pass no_hang=false to buffered_nextbyte()
+	(READ-N-BYTES, READ-INTEGER, READ-FLOAT): pass no_hang=false
+	to read_byte_array()
+	* pathname.d (copy_file_low): ditto
+	* sequence.d (READ-BYTE-SEQUENCE): accept :NO-HANG
+	* subr.d, subrkw.d (READ-BYTE-SEQUENCE): ditto
+	* gray.lisp (STREAM-READ-BYTE-SEQUENCE): ditto
+	* constsym.d (:NO-HANG): added
+	* unix.d (sock_read): define to read_helper(,,,true)
+
 2003-01-23  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (arrayrank_limit_1): set to lp_limit_1 because
