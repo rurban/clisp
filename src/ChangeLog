@@ -1,3 +1,9 @@
+1998-06-14  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
+        * configure: Always pass --with-included-gettext to gettext/configure.
+          (Because some users have libintl.a installed and some don't,
+          therefore the fact that libintl.a is present must be ignored.)
+
 1998-05-31  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
         * conditio.lsp (unbound-slot): New condition type. Export it.

@@ -1,3 +1,7 @@
+1998-06-01  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
+        * ntl/*: Upgrade from 0.10.32 to 0.10.35.
+
 1998-04-08  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 	
 	* Makefile.devel (GMSGFMT): Add --statistics.
