@@ -3261,52 +3261,54 @@ for-value   NIL or T
 ;;; (subject to syntax errors in the lambda list)
 ;;; form should be already macroexpanded.
 (defun inline-callable-function-lambda-p (form n &optional (more nil))
-  (let ((funname (function-form-funform form)))
-    ;; funname must be (LAMBDA lambdalist ...)
-    (and (lambda-form-p funname)
-         (let ((lambdalist (second funname)))
-           ;; lambdalist must be a list, with no &KEYs
-           ;; (functions with &KEYs cannot be expanded INLINE, since these
-           ;; arguments are dynamically bound to the variables.
-           ;; it is possible to speed up APPLY with GETF in assembler)
-           (and (listp lambdalist)
-                (not (position '&KEY lambdalist))
-                (not (position '&ALLOW-OTHER-KEYS lambdalist))
-                (let ((&opt-pos (position '&OPTIONAL lambdalist))
-                      (&rest-pos (position '&REST lambdalist))
-                      (&aux-pos (or (position '&AUX lambdalist)
-                                    (length lambdalist))))
-                  (if &rest-pos
-                      (or more (>= n (or &opt-pos &rest-pos)))
-                      (if more
-                          (<= n (if &opt-pos (- &aux-pos 1) &aux-pos))
-                          (if &opt-pos
-                              (<= &opt-pos n (- &aux-pos 1))
-                              (= n &aux-pos))))))))))
+  (and (function-form-p form)
+       (let ((funname (second form)))
+         ;; funname must be (LAMBDA lambdalist ...)
+         (and (lambda-form-p funname)
+              (let ((lambdalist (second funname)))
+                ;; lambdalist must be a list, with no &KEYs
+                ;; (functions with &KEYs cannot be expanded INLINE, since these
+                ;; arguments are dynamically bound to the variables.
+                ;; it is possible to speed up APPLY with GETF in assembler)
+                (and (listp lambdalist)
+                     (not (position '&KEY lambdalist))
+                     (not (position '&ALLOW-OTHER-KEYS lambdalist))
+                     (let ((&opt-pos (position '&OPTIONAL lambdalist))
+                           (&rest-pos (position '&REST lambdalist))
+                           (&aux-pos (or (position '&AUX lambdalist)
+                                         (length lambdalist))))
+                       (if &rest-pos
+                         (or more (>= n (or &opt-pos &rest-pos)))
+                         (if more
+                           (<= n (if &opt-pos (- &aux-pos 1) &aux-pos))
+                           (if &opt-pos
+                             (<= &opt-pos n (- &aux-pos 1))
+                             (= n &aux-pos)))))))))))
 (defun inline-callable-lambdabody-p (inline-lambdabody n &optional (more nil))
   (and (consp inline-lambdabody)
        (inline-callable-function-lambda-p
         `(FUNCTION (LAMBDA ,@inline-lambdabody)) n more)))
 (defun inline-callable-function-p (form n)
   (or (inline-callable-function-lambda-p form n)
-      (let ((fun (function-form-funform form)))
-        ;; fun must be a function name with an inline-definition,
-        ;; then (FUNCALL fun ...) is converted to (fun ...) compiled inline.
-        ;; see c-FUNCALL, c-FUNCTION-CALL, c-GLOBAL-FUNCTION-CALL.
-        (and fun (function-name-p fun) (null (fenv-search fun))
-             (not (and (symbolp fun)
-                       (or (special-operator-p fun) (macro-function fun))))
-             (not (declared-notinline fun))
-             (or #| ;; probably not worth it
-                 (and (in-defun fun)
-                      (multiple-value-bind
-                            (req opt rest-flag key-flag keylist allow-flag)
-                          (fdescr-signature (cons *func* nil))
-                        (declare (ignore keylist allow-flag))
-                        (and (<= req n) (or rest-flag (<= n (+ req opt)))
-                             (not key-flag))))
-                 |#
-                 (inline-callable-lambdabody-p (inline-lambdabody fun) n))))))
+      (and (function-form-p form)
+           (let ((fun (second form)))
+             ;; fun must be a function name with an inline-definition,
+             ;; then (FUNCALL fun ...) is converted to (fun ...) compiled inline.
+             ;; see c-FUNCALL, c-FUNCTION-CALL, c-GLOBAL-FUNCTION-CALL.
+             (and (function-name-p fun) (null (fenv-search fun))
+                  (not (and (symbolp fun)
+                            (or (special-operator-p fun) (macro-function fun))))
+                  (not (declared-notinline fun))
+                  (or #| ;; probably not worth it
+                      (and (in-defun fun)
+                           (multiple-value-bind
+                                (req opt rest-flag key-flag keylist allow-flag)
+                             (fdescr-signature (cons *func* nil))
+                             (declare (ignore keylist allow-flag))
+                             (and (<= req n) (or rest-flag (<= n (+ req opt)))
+                                  (not key-flag))))
+                      |#
+                      (inline-callable-lambdabody-p (inline-lambdabody fun) n)))))))
 
 ;; specially declared symbols:
 (defvar *specials*)   ; list of all symbols recently declared special
