@@ -10260,8 +10260,9 @@ LISPFUNN(make_keyboard_stream,0)
       if (nullp(mlist)) {
         end_callback();
         return NULL;
-      } else if (!mconsp(mlist)) {
-        end_callback();
+      } else if (!consp(mlist)) {
+        # This error message is self-defense against people who fiddle
+        # around with sys::completion.
         pushSTACK(mlist);       # slot DATUM of TYPE-ERROR
         pushSTACK(S(list));     # slot EXPECTED-TYPE of TYPE-ERROR
         pushSTACK(S(list));
@@ -10269,7 +10270,7 @@ LISPFUNN(make_keyboard_stream,0)
         pushSTACK(mlist);
         fehler(type_error,
                GETTEXT("Return value ~ of call to ~ is not a ~.")
-               );
+              );
       }
       begin_system_call();
       var char** array = (char**) malloc((llength(mlist)+1)*sizeof(char*));
