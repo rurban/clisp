@@ -12,12 +12,12 @@
 # Makefiles. Therefore we don't need to pass them explicitly to subdirectory
 # Makefiles, but the subdirectory Makefiles need to have the same defaults.
 # Building as a DLL not supported yet.
-STATIC=1
+DLL=0
 !if !defined(DEBUG)
 DEBUG=0
 !endif
 !if !defined(MFLAGS)
-!if $(STATIC)
+!if !$(DLL)
 MFLAGS=
 !else
 MFLAGS=-MD
@@ -75,7 +75,7 @@ handler.obj : $(srcdir)/handler.c sigsegv.h
 dispatcher.obj : $(srcdir)/dispatcher.c sigsegv.h
 	$(CC) $(CFLAGS) -c $(srcdir)/dispatcher.c
 
-!if $(STATIC)
+!if !$(DLL)
 sigsegv.lib : $(OBJECTS)
 	$(RM) sigsegv.lib
 	$(AR) $(AR_FLAGS)sigsegv.lib $(OBJECTS)
