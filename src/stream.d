@@ -14733,7 +14733,7 @@ LISPFUNN(socket_service_port,1)
     begin_system_call();
     port = resolve_service(service_name,&service_name);
     end_system_call();
-    value1 = L_to_I(port);
+    value1 = (port >= 0 ? L_to_I(port) : NIL);
     skipSTACK(1);
     mv_count=1;
   }
