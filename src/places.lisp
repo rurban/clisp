@@ -249,7 +249,9 @@
                 (every #'(lambda (argform) (commuting-forms-p var argform env))
                        argforms))))))
 ; For bootstrapping.
-(predefun compiler::fenv-search (funname fenv) nil)
+(predefun compiler::fenv-search (funname fenv)
+  (declare (ignore funname fenv))
+  nil)
 
 ; In simple function calls like (SYSTEM::%RPLACA foo #:G0) the #:G0 can be
 ; replaced directly if it occurs only once, as an argument, and the earlier
