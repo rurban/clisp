@@ -801,6 +801,16 @@ local subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz,
                                      (subr_rest_t)(ptr->rest_flag),     \
                                      (subr_key_t)(ptr->key_flag),sid)
 
+local inline void module_set_argtypes (module_t *module)
+{ /* set artype for all SUBRs in the module */
+  var subr_t* stab_ptr = module->stab; /* traverse subr_tab */
+  var subr_initdata_t *stab_init_ptr = module->stab_initdata;
+  var uintC count = *module->stab_size;
+  do { SUBR_SET_ARGTYPE(stab_ptr,stab_init_ptr);
+    stab_ptr++; stab_init_ptr++;
+  } while (--count);
+}
+
 # Verify that a code address has the C_CODE_ALIGNMENT.
 # This is important for calling make_machine_code, but it's easiest verified
 # on Fsubrs and Subrs.
@@ -872,14 +882,7 @@ local void init_subr_tab_1 (void) {
   {
     var module_t* module;
     for_modules(all_other_modules,{
-      if (*module->stab_size > 0) {
-        var subr_t* stab_ptr = module->stab; /* traverse subr_tab */
-        var subr_initdata_t *stab_init_ptr = module->stab_initdata;
-        var uintC count = *module->stab_size;
-        do { SUBR_SET_ARGTYPE(stab_ptr,stab_init_ptr);
-          stab_ptr++; stab_init_ptr++;
-        } while (--count);
-      }
+      if (*module->stab_size > 0) module_set_argtypes(module);
     });
   }
  #ifdef MAP_MEMORY_TABLES
@@ -3187,12 +3190,7 @@ global void dynload_modules (const char * library, uintC modcount,
         while (mcount-- > 0) {
           add_module(module);
           # pre-initialization, cf. init_subr_tab_1.
-          if (*module->stab_size > 0) {
-            var subr_t* ptr = module->stab; # peruse subr_tab
-            var uintC count;
-            dotimespC(count,*module->stab_size,
-                      { SUBR_SET_ARGTYPE(ptr); ptr++; });
-          }
+          if (*module->stab_size > 0) module_set_argtypes(module);
          #if (defined(MULTIMAP_MEMORY) || defined(SINGLEMAP_MEMORY)) && defined(MAP_MEMORY_TABLES)
           {
             var subr_t* newptr = (subr_t*)&subr_tab + total_subr_anz;
