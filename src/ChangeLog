@@ -1,5 +1,18 @@
 2002-09-20  Sam Steingold  <sds@gnu.org>
 
+	error reporting clean-up
+	* charstrg.d (coerce_ss, coerce_imm_ss, coerce_normal_ss)
+	(coerce_imm_normal_ss): use fehler_string() instead of explicit
+	fehler(type_error,...)
+	(test_char_arg): renamed from test_newchar_arg(), use fehler_char()
+	(STANDARD-CHAR-P, GRAPHIC-CHAR-P, CHAR-WIDTH, STRING-CHAR-P)
+	(BASE-CHAR-P, ALPHA-CHAR-P, UPPER-CASE-P, LOWER-CASE-P)
+	(BOTH-CASE-P, DIGIT-CHAR-P, ALPHANUMERICP, CHAR-CODE)
+	(CHAR-UPCASE, CHAR-DOWNCASE, CHAR-INT, CHAR-NAME, STORE-CHAR)
+	(STORE-SCHAR): use test_char_arg()
+
+2002-09-20  Sam Steingold  <sds@gnu.org>
+
 	LOAD now takes an additional :OBSOLETE-ACTION keyword
 	* init.lisp (open-for-load): new function
 	(load): use it to open the file
