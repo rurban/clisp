@@ -4675,7 +4675,7 @@ effects when being loaded, this is important as well.
    <entry>if &hw; = PC (clone) and &os; = OS/2</entry></row>
 <row><entry><constant>:WIN32</constant></entry>
    <entry>if &hw; = PC (clone) and
-             &os; = Win32 (Windows 95/98/NT/Me/2000)</entry></row>
+             &os; = Win32 (Windows 95/98/NT/Me/2000/XP)</entry></row>
 <row><entry><constant>:PC386</constant></entry>
    <entry>if &hw; = PC (clone) with a 386/486/586/686 CPU</entry></row>
 <row><entry>&unix-k;</entry>
