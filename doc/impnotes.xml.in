@@ -27,6 +27,7 @@
   <!ENTITY regexp SYSTEM "../modules/regexp/regexp.xml">
   <!ENTITY pari SYSTEM "../modules/pari/pari.xml">
   <!ENTITY pcre SYSTEM "../modules/pcre/pcre.xml">
+  <!ENTITY postgresql SYSTEM "../modules/postgresql/postgresql.xml">
   <!ENTITY rawsock SYSTEM "../modules/rawsock/rawsock.xml">
   <!ENTITY syscalls SYSTEM "../modules/syscalls/syscalls.xml">
   <!ENTITY zlib SYSTEM "../modules/zlib/zlib.xml">
@@ -167,6 +168,7 @@
 &regexp;
 &pari;
 &pcre;
+&postgresql;
 &i18n;
 &syscalls;
 &oracle;
