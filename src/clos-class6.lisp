@@ -272,8 +272,20 @@
   (:method ((class class))
     (and (class-initialized class)
          (not (null (%class-precedence-list class)))))
+  ;; CLISP extension: Convenience method on symbols.
   (:method ((name symbol))
     (class-finalized-p (find-class name))))
+
+;; MOP p. 54
+(defgeneric finalize-inheritance (class)
+  (:method ((class standard-class))
+    (finalize-class class t))
+  ;; CLISP extension: No-op method on other classes.
+  (:method ((class class))
+    class)
+  ;; CLISP extension: Convenience method on symbols.
+  (:method ((name symbol))
+    (finalize-inheritance (find-class name))))
 
 ;; MOP p. 38
 (fmakunbound 'compute-class-precedence-list)
