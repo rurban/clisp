@@ -1,3 +1,9 @@
+2004-11-17  Bruno Haible  <bruno@clisp.org>
+
+	* clos.tst: Add some tests for symbols naming forward-referenced
+	classes.
+	* mop.tst: Add some tests for forward-referenced classes.
+
 2004-11-22  Sam Steingold  <sds@gnu.org>
 
 	* setf.tst (foo22): quote (values)

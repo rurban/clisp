@@ -493,7 +493,17 @@
           (mapcar #'(lambda (c)
                       (if (defined-class-p c)
                         c
-                        (or (find-class c (not a-semi-standard-class-p)) c)))
+                        (let ((cn (if (class-p c) (class-name c) c)))
+                          (assert (symbolp cn))
+                          (if a-semi-standard-class-p
+                            ;; Need a class. Allocate a forward-referenced-class
+                            ;; if none is yet allocated.
+                            (or (get cn 'CLOSCLASS)
+                                (setf (get cn 'CLOSCLASS)
+                                      (make-instance 'forward-referenced-class
+                                        :name cn)))
+                            ;; Need a defined-class.
+                            (find-class cn)))))
                   direct-superclasses))
     (if class
       ;; Modify the class and return the modified class.
@@ -589,11 +599,22 @@
               ((atom l))
             (let ((c (car l)))
               (unless (defined-class-p c)
-                (let ((new-c (or (find-class c nil) c)))
-                  (unless (symbolp new-c)
-                    (check-allowed-superclass class new-c))
-                  (setf (car l) new-c)
-                  (when (defined-class-p new-c) ; changed from symbol to defined-class
+                (let ((new-c
+                        (let ((cn (if (class-p c) (class-name c) c)))
+                          (assert (symbolp cn))
+                          ;; Need a class. Allocate a forward-referenced-class
+                          ;; if none is yet allocated.
+                          (or (get cn 'CLOSCLASS)
+                              (setf (get cn 'CLOSCLASS)
+                                    (make-instance 'forward-referenced-class
+                                      :name cn))))))
+                  (unless (eq new-c c)
+                    (when (defined-class-p new-c)
+                      ; changed from forward-referenced-class to defined-class
+                      (check-allowed-superclass class new-c))
+                    (setf (car l) new-c)
+                    (when (class-p c)
+                      (remove-direct-subclass c class))
                     (add-direct-subclass new-c class))))))))
       (when direct-slots-p
         ;; Convert the direct-slots to <direct-slot-definition> instances.
@@ -650,11 +671,9 @@
                                 (setf (class-current-version class) new-version))
                               ;; Restore the direct-subclasses pointers.
                               (dolist (super tmp-direct-superclasses)
-                                (unless (symbolp super)
-                                  (remove-direct-subclass-internal super class)))
+                                (remove-direct-subclass-internal super class))
                               (dolist (super old-direct-superclasses)
-                                (unless (symbolp super)
-                                  (add-direct-subclass-internal super class)))
+                                (add-direct-subclass-internal super class))
                               ;; Restore the finalized-direct-subclasses pointers.
                               (dolist (super tmp-direct-superclasses)
                                 (when (semi-standard-class-p super)
@@ -831,9 +850,6 @@
     result))
 
 (defun update-subclasses-sets (class old-direct-superclasses new-direct-superclasses)
-  ;; Drop classes that are not yet defined; they have no subclasses list.
-  (setq old-direct-superclasses (remove-if #'symbolp old-direct-superclasses))
-  (setq new-direct-superclasses (remove-if #'symbolp new-direct-superclasses))
   (unless (equal old-direct-superclasses new-direct-superclasses)
     (let ((removed-direct-superclasses
             (set-difference old-direct-superclasses new-direct-superclasses))
@@ -1864,7 +1880,10 @@
                        &optional force-p
                                  ; The stack of classes being finalized now:
                                  (finalizing-now nil))
-  (when (or (defined-class-p class) (setq class (find-class class force-p)))
+  (when (or (defined-class-p class)
+            (setq class
+                  (find-class (if (class-p class) (class-name class) class)
+                              force-p)))
     (if (>= (class-initialized class) 6) ; already finalized?
       class
       (progn
@@ -1886,10 +1905,13 @@
                 ;; be nil here, otherwise an error was signaled already. So we
                 ;; have to return nil as well.
                 (return-from finalize-class nil))
-              (when (symbolp superclass) ; changed from symbol to class
-                (check-allowed-superclass class finalized-superclass))
-              (setf (car superclassesr) finalized-superclass)
-              (when (symbolp superclass) ; changed from symbol to class
+              (unless (eq superclass finalized-superclass)
+                ; changed from forward-referenced-class to defined-class
+                (assert (not (defined-class-p superclass)))
+                (assert (defined-class-p finalized-superclass))
+                (check-allowed-superclass class finalized-superclass)
+                (setf (car superclassesr) finalized-superclass)
+                (remove-direct-subclass superclass class)
                 (add-direct-subclass finalized-superclass class)))))
         ;; Now compute the class-precedence-list.
         (finalize-instance-semi-standard-class class)
@@ -2483,8 +2505,9 @@
                          *<eql-specializer>-class-version*)
 
   ;; Define the class <forward-referenced-class>.
-  (macrolet ((form () *<forward-referenced-class>-defclass*))
-               (form))
+  (setq <forward-referenced-class>
+        (macrolet ((form () *<forward-referenced-class>-defclass*))
+                     (form)))
 
 );progn
 
