@@ -1803,7 +1803,7 @@ use of this facility.</para></formalpara>
 </simpara></listitem></varlistentry></variablelist>
 
 <simplesect><title>Remarks</title> <!-- sds -->
-<para>See also the &ansi-cl; functions &compute-applicable-methods;.
+<para>See also the &ansi-cl; function &compute-applicable-methods;.
 </para></simplesect></section>
 
 <section id="compute-applicable-methods-UC">
