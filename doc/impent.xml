@@ -31,6 +31,7 @@
 <!ENTITY both-k "<constant>:BOTH</constant>">
 <!ENTITY c-k "<constant>:C</constant>">
 <!ENTITY c-NULL "<constant>NULL</constant>">
+<!ENTITY case-inverted-k "<constant>:CASE-INVERTED</constant>">
 <!ENTITY class-k "<constant>:CLASS</constant>">
 <!ENTITY compiling-k "<constant>:COMPILING</constant>">
 <!ENTITY control-k "<constant>:CONTROL</constant>">
