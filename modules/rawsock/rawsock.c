@@ -154,28 +154,28 @@ DEFUN(RAWSOCK:MAKE-SOCKADDR,family data) {
 /* ================== arpa/inet.h interface ================== */
 #if defined(HAVE_HTONL)
 DEFUN(RAWSOCK:HTONL, num) {
-  uint32_t arg = I_to_uint32(check_uint32(popSTACK()));
+  uint32 arg = I_to_uint32(check_uint32(popSTACK()));
   begin_system_call(); arg = htonl(arg); end_system_call();
   VALUES1(uint32_to_I(arg));
 }
 #endif
 #if defined(HAVE_NTOHL)
 DEFUN(RAWSOCK:NTOHL, num) {
-  uint32_t arg = I_to_uint32(check_uint32(popSTACK()));
+  uint32 arg = I_to_uint32(check_uint32(popSTACK()));
   begin_system_call(); arg = ntohl(arg); end_system_call();
   VALUES1(uint32_to_I(arg));
 }
 #endif
 #if defined(HAVE_HTONS)
 DEFUN(RAWSOCK:HTONS, num) {
-  uint16_t arg = I_to_uint16(check_uint16(popSTACK()));
+  uint16 arg = I_to_uint16(check_uint16(popSTACK()));
   begin_system_call(); arg = htons(arg); end_system_call();
   VALUES1(uint16_to_I(arg));
 }
 #endif
 #if defined(HAVE_NTOHS)
 DEFUN(RAWSOCK:NTOHS, num) {
-  uint16_t arg = I_to_uint16(check_uint16(popSTACK()));
+  uint16 arg = I_to_uint16(check_uint16(popSTACK()));
   begin_system_call(); arg = ntohs(arg); end_system_call();
   VALUES1(uint16_to_I(arg));
 }
@@ -499,7 +499,7 @@ static void configdev (rawsock_t sock, char* name, int ipaddress, int flags) {
 DEFFLAGSET(configdev_flags,IFF_PROMISC IFF_NOARP)
 DEFUN(RAWSOCK:CONFIGDEV, socket name ipaddress &key PROMISC NOARP) {
   int flags = configdev_flags();
-  uint32_t ipaddress = I_to_UL(check_uint32(STACK_0));
+  uint32 ipaddress = I_to_UL(check_uint32(STACK_0));
   rawsock_t sock = posfixnum_to_L(check_posfixnum(STACK_2));
   with_string_0(check_string(STACK_1),Symbol_value(S(utf_8)),name, {
       begin_system_call();

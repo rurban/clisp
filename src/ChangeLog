@@ -1,6 +1,7 @@
 2005-02-16  Sam Steingold  <sds@gnu.org>
 
 	* modules/rawsock/rawsock.c: use SOCKLEN_T instead of socklen_t
+	and uint.. instead of uint.._t
 
 2005-02-16  Sam Steingold  <sds@gnu.org>
 
