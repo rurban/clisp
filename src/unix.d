@@ -322,12 +322,17 @@ extern_C int raise (int sig);
 
 /* Adjustment to locale preferences: */
 #include <locale.h>
+/* declares setlocale() */
 /* used by SPVW */
 
 /* get user home directory: */
 #include <pwd.h>
-/* declares getpwnam(), getpwuid(), getuid(), user_uid, getlogin() */
+/* declares getpwnam(), getpwuid(), getuid(), getlogin() */
 /* used by PATHNAME, SPVW */
+
+/* set working directory: */
+/* chdir() - declared in <unistd.h> */
+/* used by PATHNAME */
 
 /* get working directory: */
 #include <sys/param.h>
@@ -424,8 +429,17 @@ extern_C int fstat (int fd, struct stat * buf); /* STAT(2V) */
 #endif
 /* used by PATHNAME */
 
-/* work with open() files: */
+/* create directory: */
+/* mkdir() - declared in <sys/stat.h> or <unistd.h> */
+/* used by PATHNAME */
+
+/* remove directory: */
+/* rmdir() - declared in <unistd.h> */
+/* used by PATHNAME */
+
+/* work with open files: */
 #include <fcntl.h>
+/* declares open() */
 #if defined(ACCESS_NEEDS_SYS_FILE_H) || defined(OPEN_NEEDS_SYS_FILE_H)
   #include <sys/file.h>
 #endif
@@ -499,7 +513,7 @@ extern_C int fsync (int fd); /* FSYNC(2) */
 #endif
 #ifdef EINTR
 /* wrapper around the system call, which intercepts and handles EINTR: */
-extern int nonintr_open (char* path, int flags, mode_t mode);
+extern int nonintr_open (const char* path, int flags, mode_t mode);
 extern int nonintr_close (int fd);
 #define OPEN nonintr_open
 #define CLOSE nonintr_close
@@ -603,12 +617,13 @@ extern_C const char* tgetstr (const char* id, char** area); /* TERMCAP(3X) */
 #endif
 /* used by SPVW, STREAM */
 
-/* process date/time of day: (time, localtime, gmtime) */
+/* process date/time of day: */
 #ifdef TM_IN_SYS_TIME
   #include <sys/time.h>
 #else
   #include <time.h>
 #endif
+/* declare time(), localtime(), gmtime() */
 /* used by SPVW, MISC */
 
 /* query date/time of day: */
@@ -670,6 +685,7 @@ extern_C int pipe (int fd[2]); /* PIPE(2V) */
 #ifdef HAVE_VFORK_H
   #include <vfork.h>
 #endif
+/* vfork() declared in <vfork.h> or <unistd.h> */
 extern_C int dup2 (int fd1, int fd2); /* DUP(2V) */
 #if defined(HAVE_SETPGID)
   extern_C pid_t getpid (void); /* GETPID(2V) */
@@ -682,7 +698,7 @@ extern_C int dup2 (int fd1, int fd2); /* DUP(2V) */
   #define SETSID()
 #endif
 
-/* exec*() functions are declared in unistd.h */
+/* exec*() functions are declared in <unistd.h> */
 
 /* NB: In the period between vfork() and execv()/execl()/execlp() the child
    process may access only the data in the stack and constant data,
@@ -720,7 +736,7 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
   #else
     #include <sun/netdb.h>
   #endif
-/* gethostent(3) is declared in the above files */
+/* gethostbyname() is declared in the above files */
 #endif
 #ifndef MAXHOSTNAMELEN
   #define MAXHOSTNAMELEN 64 /* see <sys/param.h> */
