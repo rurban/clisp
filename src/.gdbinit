@@ -19,15 +19,38 @@ document full
          debug the full linking set
 end
 
+define interpreted
+       file lisp.run
+       set args -B . -M interpreted.mem -q -norc
+end
+document base
+         debug the base linking set with the interpreted memory image
+end
+
 # usually we are debugging the base set
 base
 
 define zout
-        output object_out($arg0)
-        echo \n
+       output object_out($arg0)
+       echo \n
 end
 document zout
-        print the specified object with PRIN1
+         print the specified object with PRIN1
+end
+
+define xout
+       output nobject_out(0,$arg0)
+       echo \n
+end
+document xout
+         print the specified object with PRIN1
+end
+
+define run_test
+       run -B . -M lispinit.mem -q -norc -i suite/tests.lisp -x '(run-test "suite/'$arg0'.tst")'
+end
+document run_test
+         run the specified test in the test suite
 end
 
 define stack
