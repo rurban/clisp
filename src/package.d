@@ -2214,13 +2214,16 @@ LISPFUNN(check_package_lock,3) {
   if (mconsp(STACK_1)) { # package is a actually a clist of packages
     var bool locked = true;
     var object list = STACK_1;
+    # for the package list to be "locked", _all_ members must be locked
+    # non-package members means that the argument was something like
+    # (eql 1), which means unlocked: you can always redefine such methods
     while (locked && mconsp(list)) {
-      locked = pack_locked_p(Car(list));
+      locked = (packagep(Car(list)) ? pack_locked_p(Car(list)) : false);
       list = Cdr(list);
     }
     if (locked) # all packages are locked --> error
       cerror_package_locked(STACK_2,STACK_1,STACK_0);
-  } else # just one package - check it
+  } else if (packagep(STACK_1)) # just one package - check it
     check_pack_lock(STACK_2,STACK_1,STACK_0);
   skipSTACK(3);
   mv_count = 0;
