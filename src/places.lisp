@@ -1009,12 +1009,12 @@
 (defsetf sys::ansi sys::set-ansi)
 (system::%set-documentation '*ansi* 'variable
  "This symbol-macro modifies some variables for maximum ANSI CL compliance.
-Variables affected: `custom:*floating-point-contagion-ansi*',
- `custom:*merge-pathnames-ansi*', `custom:*print-pathnames-ansi*',
- `custom:*parse-namestring-ansi*',
- `custom:*sequence-count-ansi*', `custom:*coerce-fixnum-char-ansi*'.
-Invoking CLISP with `-ansi' sets this to T.
-Invoking CLISP with `-traditional' sets this to NIL.")
+Variables affected: `custom:*floating-point-contagion-ansi*´,
+ `custom:*merge-pathnames-ansi*´, `custom:*print-pathnames-ansi*´,
+ `custom:*print-space-char-ansi*´, `custom:*parse-namestring-ansi*´,
+ `custom:*sequence-count-ansi*´, `custom:*coerce-fixnum-char-ansi*´.
+Invoking CLISP with `-ansi´ sets this to T.
+Invoking CLISP with `-traditional´ sets this to NIL.")
 
 (define-symbol-macro *current-language* (sys::current-language))
 (defsetf sys::current-language sys::set-current-language)
