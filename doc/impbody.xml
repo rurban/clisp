@@ -3564,6 +3564,15 @@ is not a defined logical host yet, we proceed as follows:
   <replaceable>file-length</replaceable>)</literal>.</simpara></listitem>
 </itemizedlist>
 
+If you want <emphasis>all</emphasis> the files <emphasis>and</emphasis>
+subdirectories in the current directory, you should use
+<literal role="sexp">(&nconc; (&directory; "*/") (&directory; "*"))</literal>.
+If you want all the files and subdirectories in all the subdirectories
+under the current directory
+(similar to the &ls; <option>-R</option> &unix; command),
+use <literal role="sexp">(&nconc; (&directory; "**/")
+ (&directory; "**/*"))</literal>
+
 <!-- #ifdef UNIX -->
 <variablelist>
 <varlistentry><term>Platform dependent: &unix; platforms only.</term>
@@ -3571,7 +3580,8 @@ is not a defined logical host yet, we proceed as follows:
  non-&nil;, the function avoids endless loops that may result from
  symbolic links.</simpara></listitem></varlistentry>
 </variablelist>
-<!-- #endif --></para>
+<!-- #endif -->
+</para>
 
 <formalpara><title><function>EXT:DIR</function></title>
 <para><literal role="sexp">(<function>EXT:DIR</function> &optional-amp;
