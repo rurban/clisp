@@ -2,6 +2,7 @@
 
 	* modules.d (MODULE): silence the compiler warning about
 	module__*__init_function_*() prototype
+	* modules/regexp/regexi.c: include <stdlib.h> before "regex.h"
 
 2002-04-04  Stefan Kain  <stefan.kain@freenet.de>
 
