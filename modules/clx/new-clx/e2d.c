@@ -628,7 +628,7 @@ char *do_defun (FILE *in, FILE *out, char *line)
   result = split_args (s, arg);
 
   { char *k; for (k = name; *k; k++) *k = toupper (*k); }
-/*  fprintf (stderr, "; %s\n", name);fflush(stderr);*/
+  /*  fprintf (stderr, "; %s\n", name);fflush(stderr);*/
 
   /* Canonicalize the arg vector */
 
@@ -674,10 +674,12 @@ char *do_defun (FILE *in, FILE *out, char *line)
 
         coke = parse_body (in, result, body, 40960);
         len  = strlen (body);
+
         pepsi = body + len;
         while (pepsi != coke) { pepsi[0] = pepsi[-1]; pepsi--; }
         coke[0] = '}';          /* hack, hack */
         result = body;
+        body[len+1]=0;
 
         parse_signature (arg, &req, &opt, &restflag, &keyflag);
 
@@ -729,6 +731,7 @@ char *do_defun (FILE *in, FILE *out, char *line)
         sprintf (oi, "kw_%.5d", nn); push (oi, kw_tab);
       }
   }
+
   return result;
 }
 
