@@ -314,7 +314,7 @@
 // then Lisp xpm routines. But since the xpm library seems to be a changing
 // thing it is also a question, how we cope with them.
 //
-//  Incooperation into the FFI?
+//  Incorporation into the FFI?
 //
 // Since we use could convert now a WINDOW object into a libX11 Window object,
 // it may be worth offer this also to the FFI.  When I finished this work I
@@ -330,12 +330,12 @@
 //   color, display, screen, GC
 //
 //
-//  First I define some datatypes by providing get_xxx, make_xxx and xxx_p
-//  functions.  Note that this set is not complete, since not all functions are
-//  actually needed.  The consistent name is curel, since some macros I define
-//  later take a "type" argument, which is concatenated with 'make_' or 'get_'.
-//  This is done to make this file more dense; (Thus save me a lot of redundand
-//  typeing.)
+// First I define some data types by providing get_xxx, make_xxx and xxx_p
+// functions.  Note that this set is not complete, since not all functions are
+// actually needed.  The consistent name is crucial, since some macros I define
+// later take a "type" argument, which is concatenated with 'make_' or 'get_'.
+// This is done to make this file more dense; (Thus save me a lot of redundant
+// typing.)
 //
 //
 //   type     | dpy? | XID-P | hashed-p | Note
@@ -350,7 +350,7 @@
 //            |      |       |    be)   |
 //   DISPLAY  |  NIL | NIL   |   NIL    |
 //
-//   Class Heterarchie
+//   Class Hierarchy
 //  --------------------
 //     xlib-object --+--> xid-object --+--> DRAWABLE -+--> WINDOW
 //                   |                 |              +--> PIXMAP
@@ -593,7 +593,7 @@ local int isa_struct_p (object type, object obj)
 //  Integer data types
 // ----------------------------------------------------------------------------
 //
-// Hugh?! Thes function do not check the type?!
+// Huh?! These functions do not check the type?!
 //
 #define make_uint8(i)    uint8_to_I (i)
 #define make_uint16(i)   uint16_to_I (i)
@@ -651,20 +651,19 @@ DEFINE_INTEGER_GETTER (sint32, `XLIB::INT32`)
 #endif
 
 local uint32 get_aint32 (object obj)
-     // This is special routine, which accepts either an uint32 or a sint32.
-     // However returned is an uint32.
-     // Used by XLIB:CHANGE-PROPERTY
+// This is special routine, which accepts either an uint32 or a sint32.
+// However returned is an uint32.
+// Used by XLIB:CHANGE-PROPERTY
 {
   if (uint32_p (obj))
     return I_to_uint32 (obj);
   if (sint32_p (obj))
     return (uint32)I_to_sint32 (obj);
-  else
-    {
-      pushSTACK (obj);
-      pushSTACK (`(OR XLIB::INT32 XLIB::CARD32)`);
-      my_standard_type_error (TheSubr(subr_self)->name);
-    }
+  else {
+    pushSTACK (obj);
+    pushSTACK (`(OR XLIB::INT32 XLIB::CARD32)`);
+    my_standard_type_error (TheSubr(subr_self)->name);
+  }
 }
 
 
@@ -714,8 +713,9 @@ local object make_display (Display *dpy)
 }
 
 local object find_display (Display *display)
-     // Searched the XLIB:*DISPLAY* variable for `display', return NIL, if display was not found.
-     // Used by the error handler, the only callback code here.
+// Searched the XLIB:*DISPLAY* variable for `display',
+// return NIL, if display was not found.
+// Used by the error handler, the only callback code here.
 {
   pushSTACK (Symbol_value (`XLIB::*DISPLAYS*`));
   for (;consp (STACK_0); STACK_0 = Cdr (STACK_0))
@@ -2791,34 +2791,41 @@ defun XLIB:CREATE-WINDOW (0, 0, norest, key, 23,
   if (!missingp(STACK_9)) { attr.win_gravity           = get_gravity (STACK_9);        valuemask |= CWWinGravity; }
   if (!missingp(STACK_10)) { attr.bit_gravity          = get_gravity (STACK_10);       valuemask |= CWBitGravity; }
 
-  if (!missingp(STACK_(11))) /* :border */
-    {
-      if (eq(STACK_(11), `:COPY`))
-	{ attr.border_pixmap = CopyFromParent; valuemask |= CWBorderPixmap; }
-      else
-      if (pixmap_p (STACK_(11)))
-	{ attr.border_pixmap = get_pixmap (STACK_(11)); valuemask |= CWBorderPixmap; }
-      else
-	{ attr.border_pixel = get_uint32 (STACK_(11)); valuemask |= CWBorderPixel; }
+  if (!missingp(STACK_(11))) { /* :border */
+    if (eq(STACK_(11), `:COPY`)) {
+      attr.border_pixmap = CopyFromParent;
+      valuemask |= CWBorderPixmap;
+    } else if (pixmap_p (STACK_(11))) {
+      attr.border_pixmap = get_pixmap (STACK_(11));
+      valuemask |= CWBorderPixmap;
+    } else {
+      attr.border_pixel = get_uint32 (STACK_(11));
+      valuemask |= CWBorderPixel;
     }
+  }
 
-  if (!missingp(STACK_(12))) /* :background */
-    {
-      if (eq(STACK_(12), `:NONE`))
-	{ attr.background_pixmap = None; valuemask |= CWBackPixmap; }
-      else
-      if (eq(STACK_(12), `:PARENT-RELATIVE`))
-	{ attr.background_pixmap = ParentRelative; valuemask |= CWBackPixmap; }
-      else
-      if (pixmap_p (STACK_(12)))
-	{ attr.background_pixmap = get_pixmap (STACK_(12)); valuemask |= CWBackPixmap; }
-      else
-	{ attr.background_pixel = get_pixel (STACK_(12)); valuemask |= CWBackPixel; }
+  if (!missingp(STACK_(12))) { /* :background */
+    if (eq(STACK_(12), `:NONE`)) {
+      attr.background_pixmap = None;
+      valuemask |= CWBackPixmap;
+    } else if (eq(STACK_(12), `:PARENT-RELATIVE`)) {
+      attr.background_pixmap = ParentRelative;
+      valuemask |= CWBackPixmap;
+    } else if (pixmap_p (STACK_(12))) {
+      attr.background_pixmap = get_pixmap (STACK_(12));
+      valuemask |= CWBackPixmap;
+    } else {
+      attr.background_pixel = get_pixel (STACK_(12));
+      valuemask |= CWBackPixel;
     }
+  }
 
-  if (!missingp(STACK_(14))) /* :class */		class = get_W_class (STACK_(14));
-  if (!missingp(STACK_(15))) /* :border-width */	border_width = get_uint16 (STACK_(15));
-  if (!missingp(STACK_(16))) /* :depth */ 		depth = get_uint16 (STACK_(16));
+  if (!missingp(STACK_(14))) /* :class */
+    class = get_W_class (STACK_(14));
+  if (!missingp(STACK_(15))) /* :border-width */
+    border_width = get_uint16 (STACK_(15));
+  if (!missingp(STACK_(16))) /* :depth */
+    depth = get_uint16 (STACK_(16));
 
   if (!missingp(STACK_(17))) /* :height */ //C
     height = get_uint16 (STACK_(17));
@@ -3414,25 +3421,22 @@ defun XLIB:CREATE-GCONTEXT (0, 0, norest, key, 26,
 #undef SLOT
 
   // Handle the :clip-mask argument, :clipordering is only used if :clip-mask is a rect-seq.
-  if (boundp(STACK_4))	// :clip-mask
-    {
-      if (pixmap_p (STACK_4))
-	{ values.clip_mask = get_pixmap (STACK_4); valuemask |= GCClipMask; }
-      else
-	if (eq (STACK_4, `:NONE`) || eq (STACK_4, NIL))
-	  { values.clip_mask = None; valuemask |= GCClipMask; }
-	else
-	  non_trivial_clip_mask_p = 1;
-    }
+  if (boundp(STACK_4)) { // :clip-mask
+    if (pixmap_p (STACK_4)) {
+      values.clip_mask = get_pixmap (STACK_4); valuemask |= GCClipMask;
+    } else if (eq (STACK_4, `:NONE`) || eq (STACK_4, NIL)) {
+      values.clip_mask = None; valuemask |= GCClipMask;
+    } else
+      non_trivial_clip_mask_p = 1;
+  }
 
   // Now handle the :dashes argument, same procedure as above.
-  if (boundp(STACK_1))
-    {
-      if (uint8_p (STACK_1))	// simple argument
-	{ values.dashes = get_uint8 (STACK_1); valuemask |= GCDashList; }
-      else
-	non_trivial_dashes_p = 1;
-    }
+  if (boundp(STACK_1)) {
+    if (uint8_p (STACK_1)) { // simple argument
+      values.dashes = get_uint8 (STACK_1); valuemask |= GCDashList;
+    } else
+      non_trivial_dashes_p = 1;
+  }
 
   if (!missingp(STACK_(25))) /* :drawable */
     {
@@ -4500,8 +4504,8 @@ static int to_XChar2b (object font, XFontStruct* font_info, const chart* src, XC
       while (count > 0)
         {
           unsigned int c = as_cint(*src);
-          dst->byte1 = (c / d) + font_info->min_byte1;
-          dst->byte2 = (c % d) + font_info->min_char_or_byte2;
+          dst->byte1 = (c/d) + font_info->min_byte1;
+          dst->byte2 = (c%d) + font_info->min_char_or_byte2;
           src++; dst++; count--;
         }
     }
@@ -5845,63 +5849,49 @@ defun XLIB:ALLOC-COLOR (2)
   Colormap  cm = get_colormap_and_display (STACK_1, &dpy);
   XColor color;
 
-  if (stringp (STACK_0) || symbolp (STACK_0))
-    {
-      XColor exact_color;
+  if (stringp (STACK_0) || symbolp (STACK_0)) {
+    XColor exact_color;
 
-      with_stringable_0_tc (STACK_0, misc_encoding (), name,
-        {
-	  begin_call ();
-	  if (XAllocNamedColor (dpy, cm, name, &color, &exact_color))
-	    {
-	      end_call ();
-	      pushSTACK (make_pixel (color.pixel)); // pixel
-	      pushSTACK (make_color (&color));	    // screen color
-	      value3 = make_color (&exact_color);   // exact color
-	      value2 = popSTACK ();
-	      value1 = popSTACK ();
-	      mv_count = 3;
-	    }
-	  else
-	    {
-	      end_call ();
-	      goto failed;
-	    }
-	});
+    with_stringable_0_tc (STACK_0, misc_encoding (), name, {
+      begin_call ();
+      if (XAllocNamedColor (dpy, cm, name, &color, &exact_color)) {
+        end_call ();
+        pushSTACK (make_pixel (color.pixel)); // pixel
+        pushSTACK (make_color (&color)); // screen color
+        value3 = make_color (&exact_color); // exact color
+        value2 = popSTACK ();
+        value1 = popSTACK ();
+        mv_count = 3;
+      } else {
+        end_call ();
+        goto failed;
+      }
+    });
+  } else if (color_p (STACK_0)) {
+    get_color (dpy, STACK_0, &color);
+    begin_call ();
+    if (XAllocColor (dpy, cm, &color)) {
+      end_call ();
+
+      pushSTACK (make_pixel (color.pixel)); // pixel
+      value2 = make_color (&color); // screen color
+      value3 = STACK_1;         // exact color (what the luser gave)
+      value1 = popSTACK ();
+      mv_count = 3;
+    } else {
+      end_call ();
+      goto failed;
     }
-  else
-    if (color_p (STACK_0))
-      {
-	get_color (dpy, STACK_0, &color);
-	begin_call ();
-	if (XAllocColor (dpy, cm, &color))
-	  {
-	    end_call ();
-
-	    pushSTACK (make_pixel (color.pixel));		// pixel
-	    value2 = make_color (&color);			// screen color
-	    value3 = STACK_1;					// exact color (what the luser gave)
-	    value1 = popSTACK ();
-	    mv_count = 3;
-	  }
-	else
-	  {
-	    end_call ();
-	    goto failed;
-	  }
-      }
-    else
-      {
-	pushSTACK (STACK_0);
-	pushSTACK (`(OR STRING SYMBOL XLIB::COLOR)`);
-	my_standard_type_error (TheSubr(subr_self)->name);
-      }
+  } else {
+    pushSTACK (STACK_0);
+    pushSTACK (`(OR STRING SYMBOL XLIB::COLOR)`);
+    my_standard_type_error (TheSubr(subr_self)->name);
+  }
 
   skipSTACK (2);
   return;
 
- failed:
-  {
+ failed: {
     // I have to see what the MIT-CLX implementation does here ...
     pushSTACK (get_display_obj (STACK_1));	// display argument
     pushSTACK (STACK_1);			// color argument
@@ -6814,212 +6804,207 @@ defun XLIB:SET-SELECTION-OWNER (3, 1)
 // (If your preprocessor or your compiler can't eat this, hmm... get a new one.)
 //
 
-#define COMMON_INPUT_EVENT\
-    ESLOT2(`:WINDOW`,           window,                 window)					\
-    ESLOT2(`:CHILD`,            window,                 subwindow)				\
-    ESLOT2(`:ROOT`,             window,                 root)					\
-    ESLOT (`:X`,                sint16,                 x)					\
-    ESLOT (`:Y`,                sint16,                 y)					\
-    ESLOT (`:ROOT-X`,           sint16,                 x_root)					\
-    ESLOT (`:ROOT-Y`,           sint16,                 y_root)					\
-    ESLOT (`:STATE`,            uint16,                 state)					\
-    ESLOT (`:TIME`,             uint32,                 time)					\
+#define COMMON_INPUT_EVENT                                              \
+    ESLOT2(`:WINDOW`,           window,                 window)         \
+    ESLOT2(`:CHILD`,            window,                 subwindow)      \
+    ESLOT2(`:ROOT`,             window,                 root)           \
+    ESLOT (`:X`,                sint16,                 x)              \
+    ESLOT (`:Y`,                sint16,                 y)              \
+    ESLOT (`:ROOT-X`,           sint16,                 x_root)         \
+    ESLOT (`:ROOT-Y`,           sint16,                 y_root)         \
+    ESLOT (`:STATE`,            uint16,                 state)          \
+    ESLOT (`:TIME`,             uint32,                 time)           \
     ESLOT (`:SAME-SCREEN-P`,    bool,                   same_screen)
 
-#define ALL_EVENT_DEFS										\
-  DEF_EVENT (`:KEY-PRESS`, KeyPress, XKeyPressedEvent, xkey)					\
-    ESLOT (`:CODE`,             uint8,                  keycode)				\
-    COMMON_INPUT_EVENT										\
-    												\
-  DEF_EVENT (`:KEY-RELEASE`, KeyRelease, XKeyReleasedEvent, xkey)				\
-    ESLOT (`:CODE`,             uint8,                  keycode)				\
-    COMMON_INPUT_EVENT										\
-												\
-  DEF_EVENT (`:BUTTON-PRESS`, ButtonPress, XButtonPressedEvent, xbutton)			\
-    ESLOT (`:CODE`,             uint8,                  button)					\
-    COMMON_INPUT_EVENT										\
-    												\
-  DEF_EVENT (`:BUTTON-RELEASE`, ButtonRelease, XButtonReleasedEvent, xbutton)			\
-    ESLOT (`:CODE`,             uint8,                  button)					\
-    COMMON_INPUT_EVENT										\
-												\
-  DEF_EVENT (`:MOTION-NOTIFY`, MotionNotify, XMotionEvent, xmotion)				\
-    ESLOT (`:HINT-P`,           bool,                   is_hint)				\
-    COMMON_INPUT_EVENT										\
-												\
-  DEF_EVENT (`:ENTER-NOTIFY`, EnterNotify, XEnterWindowEvent, xcrossing)			\
-    ESLOT (`:MODE`,             crossing_mode,          mode)					\
-    ESLOT (`:KIND`,             crossing_kind,          detail)					\
-    ESLOT (`:FOCUS-P`,          bool,		        focus)					\
-    COMMON_INPUT_EVENT										\
-    												\
-  DEF_EVENT (`:LEAVE-NOTIFY`, LeaveNotify, XLeaveWindowEvent, xcrossing)			\
-    ESLOT (`:MODE`,             crossing_mode,          mode)					\
-    ESLOT (`:KIND`,             crossing_kind,          detail)					\
-    ESLOT (`:FOCUS-P`,          bool,		        focus)					\
-    COMMON_INPUT_EVENT										\
-    												\
-  DEF_EVENT (`:FOCUS-IN`, FocusIn, XFocusChangeEvent, xfocus)					\
-    ESLOT2(`:WINDOW`,		window,			window)					\
-    ESLOT (`:MODE`,             focus_mode,             mode)					\
-    ESLOT (`:KIND`,             focus_detail,           detail)					\
-												\
-  DEF_EVENT (`:FOCUS-OUT`, FocusOut, XFocusChangeEvent, xfocus)					\
-    ESLOT2(`:WINDOW`,		window,			window)					\
-    ESLOT (`:MODE`,             focus_mode,             mode)					\
-    ESLOT (`:KIND`,             focus_detail,           detail)					\
-												\
-  DEF_EVENT (`:EXPOSURE`, Expose, XExposeEvent, xexpose)					\
-    ESLOT2(`:WINDOW`,           window,                 window)					\
-    ESLOT (`:X`,                sint16,                 x)					\
-    ESLOT (`:Y`,                sint16,                 y)					\
-    ESLOT (`:WIDTH`,            sint16,                 width)					\
-    ESLOT (`:HEIGHT`,           sint16,                 height)					\
-    ESLOT (`:COUNT`,            uint16,                 count)					\
-												\
-  DEF_EVENT (`:GRAPHICS-EXPOSURE`, GraphicsExpose, XGraphicsExposeEvent, xgraphicsexpose)	\
-    ESLOT2(`:DRAWABLE`,         drawable,               drawable)				\
-    ESLOT (`:X`,                sint16,                 x)					\
-    ESLOT (`:Y`,                sint16,                 y)					\
-    ESLOT (`:WIDTH`,            sint16,                 width)					\
-    ESLOT (`:HEIGHT`,           sint16,                 height)					\
-    ESLOT (`:COUNT`,            uint16,                 count)					\
-    ESLOT (`:MAJOR`,            uint8,                  major_code)				\
-    ESLOT (`:MINOR`,            uint16,                 minor_code)				\
-												\
-  DEF_EVENT (`:KEYMAP-NOTIFY`, KeymapNotify, XKeymapEvent, xkeymap)				\
-    ESLOT2(`:WINDOW`,           window,                 window)					\
-    ESLOT3(`:KEYMAP`,           key_vector,             key_vector)				\
-												\
-  DEF_EVENT (`:MAPPING-NOTIFY`, MappingNotify, XMappingEvent, xmapping)				\
-    ESLOT (`:COUNT`,            uint8,                  count)					\
-    ESLOT (`:START`,            uint8,                  first_keycode)				\
-    ESLOT (`:REQUEST`,          mapping_request,        request)				\
-												\
-  DEF_EVENT (`:NO-EXPOSURE`, NoExpose, XNoExposeEvent, xnoexpose)				\
-    ESLOT2(`:DRAWABLE`,         drawable,               drawable)				\
-    ESLOT (`:MAJOR`,            uint8,                  major_code)				\
-    ESLOT (`:MINOR`,            uint16,                 minor_code)				\
-												\
-  DEF_EVENT (`:CIRCULATE-NOTIFY`, CirculateNotify, XCirculateEvent, xcirculate)			\
-    ESLOT2(`:WINDOW`,           window,                 window)					\
-    ESLOT (`:PLACE`,            top_or_bottom,          place)					\
-												\
-  DEF_EVENT (`:CONFIGURE-NOTIFY`, ConfigureNotify, XConfigureEvent, xconfigure)			\
-    ESLOT2(`:WINDOW`,           window,			window)					\
-    ESLOT (`:X`,                uint16,			x)					\
-    ESLOT (`:Y`,                uint16,			y)					\
-    ESLOT (`:WIDTH`,            uint16,			width)					\
-    ESLOT (`:HEIGHT`,           uint16,			height)					\
-    ESLOT (`:BORDER-WIDTH`,     uint16,			border_width)				\
-    ESLOT2(`:ABOVE-SIBLING`,    window,			above)					\
-    ESLOT (`:OVERRIDE-REDIRECT-P`,bool,			override_redirect)			\
-												\
-  DEF_EVENT (`:CREATE-NOTIFY`, CreateNotify, XCreateWindowEvent, xcreatewindow)			\
-    ESLOT2(`:PARENT`,		window,			parent)					\
-    ESLOT2(`:WINDOW`,		window,			window)					\
-    ESLOT (`:X`,		uint16,			x)					\
-    ESLOT (`:Y`,		uint16,			y)					\
-    ESLOT (`:WIDTH`,            uint16,			width)					\
-    ESLOT (`:HEIGHT`,           uint16,			height)					\
-    ESLOT (`:BORDER-WIDTH`,     uint16,			border_width)				\
-												\
-  DEF_EVENT (`:DESTROY-NOTIFY`, DestroyNotify, XDestroyWindowEvent, xdestroywindow)		\
-    ESLOT2(`:WINDOW`,		window,			window)					\
-												\
-  DEF_EVENT (`:GRAVITY-NOTIFY`, GravityNotify, XGravityEvent, xgravity)				\
-    ESLOT2(`:WINDOW`, 		window,			window)					\
-    ESLOT (`:X`,      		uint16,			x)					\
-    ESLOT (`:Y`,      		uint16,			y)					\
-												\
-  DEF_EVENT (`:MAP-NOTIFY`, MapNotify, XMapEvent, xmap)						\
-    ESLOT2(`:WINDOW`,		window,			window)					\
-    ESLOT (`:OVERRIDE-REDIRECT-P`,bool,			override_redirect)			\
-												\
-  DEF_EVENT (`:REPARENT-NOTIFY`, ReparentNotify, XReparentEvent, xreparent)			\
-    ESLOT2(`:WINDOW`,		window,			window)					\
-    ESLOT2(`:PARENT`,		window,			parent)					\
-    ESLOT (`:X`,		uint16,			x)					\
-    ESLOT (`:Y`,		uint16,			y)					\
-												\
-  DEF_EVENT (`:UNMAP-NOTIFY`, UnmapNotify, XUnmapEvent, xunmap)					\
-    ESLOT2(`:WINDOW`,		window,			window)					\
-    ESLOT (`:CONFIGURE-P`,	bool,			from_configure)				\
-												\
-  DEF_EVENT (`:VISIBILITY-NOTIFY`, VisibilityNotify, XVisibilityEvent, xvisibility)		\
-    ESLOT2(`:WINDOW`,		window,			window)					\
-    ESLOT (`:STATE`,		visibility_state,	state)					\
-												\
-  DEF_EVENT (`:CIRCULATE-REQUEST`, CirculateRequest, XCirculateRequestEvent, xcirculaterequest)	\
-    ESLOT2(`:PARENT`,		window,			parent)					\
-    ESLOT2(`:WINDOW`,		window,			window)					\
-    ESLOT (`:PLACE`,		top_or_bottom,		place)					\
-												\
-  DEF_EVENT (`:COLORMAP-NOTIFY`, ColormapNotify, XColormapEvent, xcolormap)			\
-    ESLOT2(`:WINDOW`,		window,			window)					\
-    ESLOT2(`:COLORMAP`,		colormap,		colormap)				\
-    ESLOT (`:NEW-P`,		bool,			new)					\
-    ESLOT (`:INSTALLED-P`,	bool,			state)					\
-												\
-  DEF_EVENT (`:CONFIGURE-REQUEST`, ConfigureRequest, XConfigureRequestEvent, xconfigurerequest)	\
-    ESLOT2(`:PARENT`,		window,			parent)					\
-    ESLOT2(`:WINDOW`,		window,			window)					\
-    ESLOT (`:X`,		uint16,			x)					\
-    ESLOT (`:Y`,		uint16,			y)					\
-    ESLOT (`:WIDTH`,		uint16,			width)					\
-    ESLOT (`:HEIGHT`,		uint16,			height)					\
-    ESLOT (`:BORDER-WIDTH`,	uint16,			border_width)				\
-    ESLOT (`:STACK-MODE`,	stack_mode,		detail)					\
-    ESLOT2(`:ABOVE-SIBLING`,	window,			above)					\
-    ESLOT (`:VALUE-MASK`,	uint16,			value_mask)				\
-												\
-  DEF_EVENT (`:MAP-REQUEST`, MapRequest, XMapRequestEvent, xmaprequest)				\
-    ESLOT2(`:PARENT`,		window,			parent)					\
-    ESLOT2(`:WINDOW`,		window,			window)					\
-												\
-  DEF_EVENT (`:RESIZE-REQUEST`, ResizeRequest, XResizeRequestEvent, xresizerequest)		\
-    ESLOT2(`:WINDOW`,		window,			window)					\
-    ESLOT (`:WIDTH`,		uint16,			width)					\
-    ESLOT (`:HEIGHT`,		uint16,			height)					\
-												\
-  DEF_EVENT (`:CLIENT-MESSAGE`, ClientMessage, XClientMessageEvent, xclient)			\
-    /* FIXME missing...	*/									\
-												\
-  DEF_EVENT (`:PROPERTY-NOTIFY`, PropertyNotify, XPropertyEvent, xproperty)			\
-    ESLOT2(`:WINDOW`,		window,			window)					\
-    ESLOT4(`:ATOM`,		xatom,			atom)					\
-    ESLOT (`:STATE`,		new_value_or_deleted,	state)					\
-    ESLOT (`:TIME`,		uint32,			time)					\
-												\
-  DEF_EVENT (`:SELECTION-CLEAR`, SelectionClear, XSelectionClearEvent, xselectionclear)		\
-    ESLOT2(`:WINDOW`,		window,			window)					\
-    ESLOT4(`:SELECTION`,	xatom,			selection)				\
-    ESLOT (`:TIME`,		uint32,			time)					\
-												\
-  DEF_EVENT (`:SELECTION-NOTIFY`, SelectionNotify, XSelectionEvent, xselection)			\
-    ESLOT2(`:WINDOW`,		window,			requestor)				\
-    ESLOT4(`:SELECTION`,	xatom,			selection)				\
-    ESLOT4(`:TARGET`,		xatom,			target)					\
-    ESLOT4(`:PROPERTY`,		xatom,			property)				\
-    ESLOT (`:TIME`,		uint32,			time)					\
-												\
-  DEF_EVENT (`:SELECTION-REQUEST`, SelectionRequest, XSelectionRequestEvent, xselectionrequest)	\
-    ESLOT2(`:REQUESTOR`,	window,			requestor)				\
-    ESLOT4(`:SELECTION`,	xatom,			selection)				\
-    ESLOT4(`:TARGET`,		xatom,			target)					\
-    ESLOT4(`:PROPERTY`,		xatom,			property)				\
-    ESLOT (`:TIME`,		uint32,			time)					\
+#define ALL_EVENT_DEFS                                                  \
+  DEF_EVENT (`:KEY-PRESS`, KeyPress, XKeyPressedEvent, xkey)            \
+    ESLOT (`:CODE`,             uint8,                  keycode)        \
+    COMMON_INPUT_EVENT                                                  \
+                                                                        \
+  DEF_EVENT (`:KEY-RELEASE`, KeyRelease, XKeyReleasedEvent, xkey)       \
+    ESLOT (`:CODE`,             uint8,                  keycode)        \
+    COMMON_INPUT_EVENT                                                  \
+                                                                        \
+  DEF_EVENT (`:BUTTON-PRESS`, ButtonPress, XButtonPressedEvent, xbutton) \
+    ESLOT (`:CODE`,             uint8,                  button)         \
+    COMMON_INPUT_EVENT                                                  \
+                                                                        \
+  DEF_EVENT (`:BUTTON-RELEASE`, ButtonRelease, XButtonReleasedEvent, xbutton) \
+    ESLOT (`:CODE`,             uint8,                  button)         \
+    COMMON_INPUT_EVENT                                                  \
+                                                                        \
+  DEF_EVENT (`:MOTION-NOTIFY`, MotionNotify, XMotionEvent, xmotion)     \
+    ESLOT (`:HINT-P`,           bool,                   is_hint)        \
+    COMMON_INPUT_EVENT                                                  \
+                                                                        \
+  DEF_EVENT (`:ENTER-NOTIFY`, EnterNotify, XEnterWindowEvent, xcrossing) \
+    ESLOT (`:MODE`,             crossing_mode,          mode)           \
+    ESLOT (`:KIND`,             crossing_kind,          detail)         \
+    ESLOT (`:FOCUS-P`,          bool,		        focus)          \
+    COMMON_INPUT_EVENT                                                  \
+                                                                        \
+  DEF_EVENT (`:LEAVE-NOTIFY`, LeaveNotify, XLeaveWindowEvent, xcrossing) \
+    ESLOT (`:MODE`,             crossing_mode,          mode)           \
+    ESLOT (`:KIND`,             crossing_kind,          detail)         \
+    ESLOT (`:FOCUS-P`,          bool,		        focus)          \
+    COMMON_INPUT_EVENT                                                  \
+                                                                        \
+  DEF_EVENT (`:FOCUS-IN`, FocusIn, XFocusChangeEvent, xfocus)           \
+    ESLOT2(`:WINDOW`,		window,			window)         \
+    ESLOT (`:MODE`,             focus_mode,             mode)           \
+    ESLOT (`:KIND`,             focus_detail,           detail)         \
+                                                                        \
+  DEF_EVENT (`:FOCUS-OUT`, FocusOut, XFocusChangeEvent, xfocus)         \
+    ESLOT2(`:WINDOW`,		window,			window)         \
+    ESLOT (`:MODE`,             focus_mode,             mode)           \
+    ESLOT (`:KIND`,             focus_detail,           detail)         \
+                                                                        \
+  DEF_EVENT (`:EXPOSURE`, Expose, XExposeEvent, xexpose)                \
+    ESLOT2(`:WINDOW`,           window,                 window)         \
+    ESLOT (`:X`,                sint16,                 x)              \
+    ESLOT (`:Y`,                sint16,                 y)              \
+    ESLOT (`:WIDTH`,            sint16,                 width)          \
+    ESLOT (`:HEIGHT`,           sint16,                 height)         \
+    ESLOT (`:COUNT`,            uint16,                 count)          \
+                                                                        \
+  DEF_EVENT (`:GRAPHICS-EXPOSURE`, GraphicsExpose, XGraphicsExposeEvent, xgraphicsexpose) \
+    ESLOT2(`:DRAWABLE`,         drawable,               drawable)       \
+    ESLOT (`:X`,                sint16,                 x)              \
+    ESLOT (`:Y`,                sint16,                 y)              \
+    ESLOT (`:WIDTH`,            sint16,                 width)          \
+    ESLOT (`:HEIGHT`,           sint16,                 height)         \
+    ESLOT (`:COUNT`,            uint16,                 count)          \
+    ESLOT (`:MAJOR`,            uint8,                  major_code)     \
+    ESLOT (`:MINOR`,            uint16,                 minor_code)     \
+                                                                        \
+  DEF_EVENT (`:KEYMAP-NOTIFY`, KeymapNotify, XKeymapEvent, xkeymap)     \
+    ESLOT2(`:WINDOW`,           window,                 window)         \
+    ESLOT3(`:KEYMAP`,           key_vector,             key_vector)     \
+                                                                        \
+  DEF_EVENT (`:MAPPING-NOTIFY`, MappingNotify, XMappingEvent, xmapping) \
+    ESLOT (`:COUNT`,            uint8,                  count)          \
+    ESLOT (`:START`,            uint8,                  first_keycode)  \
+    ESLOT (`:REQUEST`,          mapping_request,        request)        \
+                                                                        \
+  DEF_EVENT (`:NO-EXPOSURE`, NoExpose, XNoExposeEvent, xnoexpose)       \
+    ESLOT2(`:DRAWABLE`,         drawable,               drawable)       \
+    ESLOT (`:MAJOR`,            uint8,                  major_code)     \
+    ESLOT (`:MINOR`,            uint16,                 minor_code)     \
+                                                                        \
+  DEF_EVENT (`:CIRCULATE-NOTIFY`, CirculateNotify, XCirculateEvent, xcirculate) \
+    ESLOT2(`:WINDOW`,           window,                 window)         \
+    ESLOT (`:PLACE`,            top_or_bottom,          place)          \
+                                                                        \
+  DEF_EVENT (`:CONFIGURE-NOTIFY`, ConfigureNotify, XConfigureEvent, xconfigure) \
+    ESLOT2(`:WINDOW`,           window,			window)         \
+    ESLOT (`:X`,                uint16,			x)              \
+    ESLOT (`:Y`,                uint16,			y)              \
+    ESLOT (`:WIDTH`,            uint16,			width)          \
+    ESLOT (`:HEIGHT`,           uint16,			height)         \
+    ESLOT (`:BORDER-WIDTH`,     uint16,			border_width)   \
+    ESLOT2(`:ABOVE-SIBLING`,    window,			above)          \
+    ESLOT (`:OVERRIDE-REDIRECT-P`,bool,			override_redirect) \
+                                                                        \
+  DEF_EVENT (`:CREATE-NOTIFY`, CreateNotify, XCreateWindowEvent, xcreatewindow) \
+    ESLOT2(`:PARENT`,		window,			parent)         \
+    ESLOT2(`:WINDOW`,		window,			window)         \
+    ESLOT (`:X`,		uint16,			x)              \
+    ESLOT (`:Y`,		uint16,			y)              \
+    ESLOT (`:WIDTH`,            uint16,			width)          \
+    ESLOT (`:HEIGHT`,           uint16,			height)         \
+    ESLOT (`:BORDER-WIDTH`,     uint16,			border_width)   \
+                                                                        \
+  DEF_EVENT (`:DESTROY-NOTIFY`, DestroyNotify, XDestroyWindowEvent, xdestroywindow) \
+    ESLOT2(`:WINDOW`,		window,			window)         \
+                                                                        \
+  DEF_EVENT (`:GRAVITY-NOTIFY`, GravityNotify, XGravityEvent, xgravity) \
+    ESLOT2(`:WINDOW`, 		window,			window)         \
+    ESLOT (`:X`,      		uint16,			x)              \
+    ESLOT (`:Y`,      		uint16,			y)              \
+                                                                        \
+  DEF_EVENT (`:MAP-NOTIFY`, MapNotify, XMapEvent, xmap)                 \
+    ESLOT2(`:WINDOW`,		window,			window)         \
+    ESLOT (`:OVERRIDE-REDIRECT-P`,bool,			override_redirect) \
+                                                                        \
+  DEF_EVENT (`:REPARENT-NOTIFY`, ReparentNotify, XReparentEvent, xreparent) \
+    ESLOT2(`:WINDOW`,		window,			window)         \
+    ESLOT2(`:PARENT`,		window,			parent)         \
+    ESLOT (`:X`,		uint16,			x)              \
+    ESLOT (`:Y`,		uint16,			y)              \
+                                                                        \
+  DEF_EVENT (`:UNMAP-NOTIFY`, UnmapNotify, XUnmapEvent, xunmap)         \
+    ESLOT2(`:WINDOW`,		window,			window)         \
+    ESLOT (`:CONFIGURE-P`,	bool,			from_configure) \
+                                                                        \
+  DEF_EVENT (`:VISIBILITY-NOTIFY`, VisibilityNotify, XVisibilityEvent, xvisibility) \
+    ESLOT2(`:WINDOW`,		window,			window)         \
+    ESLOT (`:STATE`,		visibility_state,	state)          \
+                                                                        \
+  DEF_EVENT (`:CIRCULATE-REQUEST`, CirculateRequest, XCirculateRequestEvent, xcirculaterequest) \
+    ESLOT2(`:PARENT`,		window,			parent)         \
+    ESLOT2(`:WINDOW`,		window,			window)         \
+    ESLOT (`:PLACE`,		top_or_bottom,		place)          \
+                                                                        \
+  DEF_EVENT (`:COLORMAP-NOTIFY`, ColormapNotify, XColormapEvent, xcolormap) \
+    ESLOT2(`:WINDOW`,		window,			window)         \
+    ESLOT2(`:COLORMAP`,		colormap,		colormap)       \
+    ESLOT (`:NEW-P`,		bool,			new)            \
+    ESLOT (`:INSTALLED-P`,	bool,			state)          \
+                                                                        \
+  DEF_EVENT (`:CONFIGURE-REQUEST`, ConfigureRequest, XConfigureRequestEvent, xconfigurerequest) \
+    ESLOT2(`:PARENT`,		window,			parent)         \
+    ESLOT2(`:WINDOW`,		window,			window)         \
+    ESLOT (`:X`,		uint16,			x)              \
+    ESLOT (`:Y`,		uint16,			y)              \
+    ESLOT (`:WIDTH`,		uint16,			width)          \
+    ESLOT (`:HEIGHT`,		uint16,			height)         \
+    ESLOT (`:BORDER-WIDTH`,	uint16,			border_width)   \
+    ESLOT (`:STACK-MODE`,	stack_mode,		detail)         \
+    ESLOT2(`:ABOVE-SIBLING`,	window,			above)          \
+    ESLOT (`:VALUE-MASK`,	uint16,			value_mask)     \
+                                                                        \
+  DEF_EVENT (`:MAP-REQUEST`, MapRequest, XMapRequestEvent, xmaprequest) \
+    ESLOT2(`:PARENT`,		window,			parent)         \
+    ESLOT2(`:WINDOW`,		window,			window)         \
+                                                                        \
+  DEF_EVENT (`:RESIZE-REQUEST`, ResizeRequest, XResizeRequestEvent, xresizerequest) \
+    ESLOT2(`:WINDOW`,		window,			window)         \
+    ESLOT (`:WIDTH`,		uint16,			width)          \
+    ESLOT (`:HEIGHT`,		uint16,			height)         \
+                                                                        \
+  DEF_EVENT (`:CLIENT-MESSAGE`, ClientMessage, XClientMessageEvent, xclient) \
+    /* FIXME missing...	*/                                              \
+                                                                        \
+  DEF_EVENT (`:PROPERTY-NOTIFY`, PropertyNotify, XPropertyEvent, xproperty) \
+    ESLOT2(`:WINDOW`,		window,			window)         \
+    ESLOT4(`:ATOM`,		xatom,			atom)           \
+    ESLOT (`:STATE`,		new_value_or_deleted,	state)          \
+    ESLOT (`:TIME`,		uint32,			time)           \
+                                                                        \
+  DEF_EVENT (`:SELECTION-CLEAR`, SelectionClear, XSelectionClearEvent, xselectionclear) \
+    ESLOT2(`:WINDOW`,		window,			window)         \
+    ESLOT4(`:SELECTION`,	xatom,			selection)      \
+    ESLOT (`:TIME`,		uint32,			time)           \
+                                                                        \
+  DEF_EVENT (`:SELECTION-NOTIFY`, SelectionNotify, XSelectionEvent, xselection) \
+    ESLOT2(`:WINDOW`,		window,			requestor)      \
+    ESLOT4(`:SELECTION`,	xatom,			selection)      \
+    ESLOT4(`:TARGET`,		xatom,			target)         \
+    ESLOT4(`:PROPERTY`,		xatom,			property)       \
+    ESLOT (`:TIME`,		uint32,			time)           \
+                                                                        \
+  DEF_EVENT (`:SELECTION-REQUEST`, SelectionRequest, XSelectionRequestEvent, xselectionrequest) \
+    ESLOT2(`:REQUESTOR`,	window,			requestor)      \
+    ESLOT4(`:SELECTION`,	xatom,			selection)      \
+    ESLOT4(`:TARGET`,		xatom,			target)         \
+    ESLOT4(`:PROPERTY`,		xatom,			property)       \
+    ESLOT (`:TIME`,		uint32,			time)           \
 
-
-#define EMACS_IS_BROKEN \
-}
-//end of nasty zone.
 
 local int disassemble_event_on_stack (XEvent *ev, object *dpy_objf)
-     /* Disassembles an X event onto the stack and returns the number of elements
-      * push to the stack. [You can then neatly issue a funcall or list call using
-      * these stack elements.]
-      */
+/* Disassembles an X event onto the stack and returns the number of elements
+ * push to the stack. [You can then neatly issue a funcall or list call using
+ * these stack elements.] */
 {
 #define ESLOT(lispname,type,cslot)					\
 	pushSTACK ((lispname));						\
@@ -7236,9 +7221,9 @@ defun XLIB:PROCESS-EVENT (1, 0, norest, key, 5, (:HANDLER :TIMEOUT :PEEK-P :DISC
 /* 12.4  Managing the Event Queue */
 
 local void encode_event (uintC n, object event_key, Display *dpy, XEvent *ev)
-     // encodes an event, which lies in the top /n/ stack locations into ev
-     // event-key is an optional event key to use, it may also be unbound.
-     // But hey! Without an event key we could not assemble an event?!
+// encodes an event, which lies in the top /n/ stack locations into ev
+// event-key is an optional event key to use, it may also be unbound.
+// But hey! Without an event key we could not assemble an event?!
 {
   int ofs;
   int grasp (object slot)
@@ -7306,13 +7291,13 @@ local void encode_event (uintC n, object event_key, Display *dpy, XEvent *ev)
 #undef ESLOT4
 }
 
-// queue-event display event-key &rest args &key append-p send-event-p &allow-other-keys
-//
-//   The event is put at the head of the queue if append-p is nil, else the tail.
-//   Additional arguments depend on event-key, and are as specified above with
-//   declare-event, except that both resource-ids and resource objects are accepted
-//   in the event components.
-//
+/* (queue-event display event-key &rest args &key append-p send-event-p
+                &allow-other-keys)
+ The event is put at the head of the queue if append-p is nil, else
+ the tail.  Additional arguments depend on event-key, and are as
+ specified above with declare-event, except that both resource-ids and
+ resource objects are accepted in the event components. */
+
 defun XLIB:QUEUE-EVENT (0, 0, rest, nokey, 0, NIL)
 //defun XLIB:QUEUE-EVENT (2, 0, rest, key_allow, 2, (:APPEND-P :SEND-EVENT-P))
 {UNDEFINED;}
@@ -8723,13 +8708,11 @@ int xlib_error_handler (Display *display, XErrorEvent *event)
 
   if (nullp (STACK_0))
     STACK_0 = `xlib::default-error-handler`;
-  else
-    if (listp (STACK_0) || vectorp (STACK_0))  // sequencep
-      {
-	pushSTACK (fixnum (event->error_code));
-	funcall (L(aref), 2);
-	pushSTACK (value1);
-      }
+  else if (listp (STACK_0) || vectorp (STACK_0)) { // sequencep
+    pushSTACK (fixnum (event->error_code));
+    funcall (L(aref), 2);
+    pushSTACK (value1);
+  }
 
   // Build the argument list for the error handler:
   pushSTACK (STACK_1);	  // display
@@ -9150,7 +9133,7 @@ defun XLIB:SET-STANDARD-COLORMAP (6) {UNDEFINED;}
 ##endif
 // ]
 ##endif
-// Puh! That is really lots of typeing ...
+// Puh! That is really lots of typing ...
 //    ... But what don`t I do to get (hopyfully) GARNET working?
 
 // But we not yet finished, we yet to finish the libX11 :-)
