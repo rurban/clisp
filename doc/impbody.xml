@@ -3512,11 +3512,11 @@ is <emphasis>merge</emphasis> and not <emphasis>or</emphasis>.</para>
 <para>When the &host-r; argument to &load-logical-pathname-translations;
 is not a defined logical host yet, we proceed as follows:
 <orderedlist numeration="arabic">
- <listitem><simpara>If both environment variables
+ <listitem><simpara>If both &env-var;s
   <envar>LOGICAL_HOST_&host-r;_FROM</envar> and
   <envar>LOGICAL_HOST_&host-r;_TO</envar> exist, then their values
   define the map of the &host-r;.</simpara></listitem>
- <listitem><simpara>If the environment variable
+ <listitem><simpara>If the &env-var;
   <envar>LOGICAL_HOST_&host-r;</envar> exists, its value is read from,
   and the result is passed to <literal role="sexp">(&setf;
   &logical-pathname-translations;)</literal>.</simpara></listitem>
