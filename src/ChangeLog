@@ -1,5 +1,26 @@
 1999-02-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Make room in the strmflags.
+        * stream.d (strmflags_i_B, strmflags_ia_B, strmflags_ib_B,
+           strmflags_ic_B): Remove macros.
+          (decoded_eltype): kind==eltype_ch implies size==0.
+          (test_eltype_arg): When setting eltype_ch, set size = 0.
+          (strm_channel_extrafields_struct): bitsize is now unconditional.
+          (close_ichannel, close_ochannel): Test for bitsize > 0.
+          (make_unbuffered_stream): Set ChannelStream_bitsize in all cases.
+          Don't set strmflags_i...
+          (position_file_i_buffered): Dispatch on bitsize, not flags.
+          (logical_position_file_start, logical_position_file,
+           logical_position_file_end): Likewise.
+          (fill_pseudofuns_buffered): Likewise.
+          (make_buffered_stream): Set ChannelStream_bitsize in all cases.
+          Don't set strmflags_i...
+          (buffered_flush_everything): Dispatch on bitsize, not flags.
+          (closed_buffered): Test for bitsize > 0.
+          (SYSTEM::SET-STREAM-ELEMENT-TYPE): Simplify accordingly.
+
+1999-02-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Make BASE-CHAR equivalent to CHARACTER.
         * lispbibl.d (small_char_int_len): Renamed from base_char_int_len.
           (small_char_int_limit): Renamed from base_char_int_limit.
