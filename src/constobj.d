@@ -778,6 +778,7 @@
   LISPOBJ(type_output_stream,"(SATISFIES OUTPUT-STREAM-P)") # Typ für Fehlermeldung
   LISPOBJ(type_string_with_fill_pointer,"(AND STRING (SATISFIES ARRAY-HAS-FILL-POINTER-P))") # Typ für Fehlermeldung
   LISPOBJ(type_open_file_stream,"(AND FILE-STREAM (SATISFIES OPEN-STREAM-P))") # Typ für Fehlermeldung
+  LISPOBJ(strmtype_ubyte8,"(UNSIGNED-BYTE 8)") # als Stream-Element-Type
 # zu IO.D:
   # 4 Readtable-Case-Werte:
   LISPOBJ(rtcase_0,":UPCASE")
@@ -842,11 +843,9 @@
   LISPOBJ_S(printstring_fsubr,"SPECIAL-FORM")
   LISPOBJ_S(printstring_closed,"CLOSED ")
     # Namensstring zu jedem Streamtyp, adressiert durch Streamtyp:
-    LISPOBJ_S(printstring_strmtype_ch_file,"CHARACTER-FILE")
-    LISPOBJ_S(printstring_strmtype_iu_file,"UNSIGNED-BYTE-FILE")
-    LISPOBJ_S(printstring_strmtype_is_file,"SIGNED-BYTE-FILE")
+    LISPOBJ_S(printstring_strmtype_file,"BUFFERED FILE")
     #ifdef HANDLES
-    LISPOBJ_S(printstring_strmtype_handle,"FILE-HANDLE")
+    LISPOBJ_S(printstring_strmtype_handle,"UNBUFFERED FILE")
     #endif
     LISPOBJ_S(printstring_strmtype_synonym,"SYNONYM")
     LISPOBJ_S(printstring_strmtype_broad,"BROADCAST")

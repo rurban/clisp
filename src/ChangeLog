@@ -1,5 +1,41 @@
 1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (strmtype_ch_file, strmtype_iu_file, strmtype_is_file):
+          Remove enum values.
+          (strmtype_file): New enum value.
+          (strm_eltype): New stream field.
+          (strm_file_name, strm_file_truename, strm_pipe_pid,
+           strm_x11socket_connect, strm_socket_port, strm_socket_host):
+          Offset by 1.
+          (strm_ch_file_lineno): Remove obsolete macro.
+          (if_strm_bfile_p): Remove macro.
+          (case_strmtype_file): Update.
+          (strmtype_ch_file, strmtype_iu_file, strmtype_is_file): Define for
+          the sake of make_file_stream.
+        * stream.d (strm_eltype): New stream field.
+          (strm_handle_rawp, strm_handle_len): Offset by 1.
+          (make_handle_stream): Expect the element-type on the stack.
+          (strm_file_name, strm_file_truename, strm_file_extrafields,
+           strm_file_length): Offset by 1.
+          (make_file_stream): Construct and fill in the element-type.
+          (strm_pipe_pid): Offset by 1.
+          (MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM,
+           MAKE-PIPE-IO-STREAM): Update.
+          (strm_x11socket_connect): Offset by 1.
+          (SYS::MAKE-SOCKET-STREAM): Update.
+          (strm_socket_port, strm_socket_host): Offset by 1.
+          (make_socket_stream): Update.
+          (init_streamvars): Pass element type to make_handle_stream.
+          (STREAM-ELEMENT-TYPE): For strmtype_file and strmtype_handle,
+          fetch the strm_eltype field.
+          (interactive_stream_p, stream_close, closed_all_files,
+           stream_listen, finish_output, force_output, clear_output,
+           check_open_file_stream, stream_line_number): Update.
+        * io.d (pr_stream): Change printing of file and handle stream to
+          include buffered/unbuffered and the element-type.
+
+1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d (Stream): New fields strm_rd_by_array, strm_wr_by_array,
           strm_rd_ch_array, strm_wr_ch_array.
         * stream.d (rd_by_array_Pseudofun, wr_by_array_Pseudofun,

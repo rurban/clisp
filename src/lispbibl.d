@@ -5220,12 +5220,8 @@ typedef struct {
 # Nähere Typinfo:
   enum { # Die Werte dieser Aufzählung sind der Reihe nach 0,1,2,...
   # These come first, for the if_strm_file_p macro.
-                              enum_strmtype_ch_file,
-  #define strmtype_ch_file    (uintB)enum_strmtype_ch_file
-                              enum_strmtype_iu_file,
-  #define strmtype_iu_file    (uintB)enum_strmtype_iu_file
-                              enum_strmtype_is_file,
-  #define strmtype_is_file    (uintB)enum_strmtype_is_file
+                              enum_strmtype_file,
+  #define strmtype_file       (uintB)enum_strmtype_file
   #ifdef HANDLES
                               enum_strmtype_handle,
   #define strmtype_handle     (uintB)enum_strmtype_handle
@@ -5297,10 +5293,10 @@ typedef struct {
   # - die Pseudofunktionentabelle in PSEUDOFUN.D
   # anpassen!
 # weitere typspezifische Komponenten:
-  #define strm_file_name       strm_other[3] # Filename, ein Pathname oder NIL
-  #define strm_file_truename   strm_other[4] # Truename, ein nicht-Logical Pathname oder NIL
+  #define strm_eltype          strm_other[3] # CHARACTER or ([UN]SIGNED-BYTE n)
+  #define strm_file_name       strm_other[4] # Filename, ein Pathname oder NIL
+  #define strm_file_truename   strm_other[5] # Truename, ein nicht-Logical Pathname oder NIL
   #define strm_file_handle     strm_other[2] # eingepacktes Handle
-  #define strm_ch_file_lineno  strm_other[8] # Zeilennummer beim Lesen, ein Fixnum >0
   #define strm_synonym_symbol  strm_other[0]
   #define strm_broad_list      strm_other[0] # Liste von Streams
   #define strm_concat_list     strm_other[0] # Liste von Streams
@@ -5310,14 +5306,14 @@ typedef struct {
   #define strm_buff_in_fun     strm_other[0] # Lesefunktion
   #define strm_buff_out_fun    strm_other[0] # Ausgabefunktion
   #ifdef PIPES
-  #define strm_pipe_pid        strm_other[3] # Prozess-Id, ein Fixnum >=0
+  #define strm_pipe_pid        strm_other[4] # Prozess-Id, ein Fixnum >=0
   #endif
   #ifdef X11SOCKETS
-  #define strm_x11socket_connect  strm_other[3] # Liste (host display)
+  #define strm_x11socket_connect  strm_other[4] # Liste (host display)
   #endif
   #ifdef SOCKET_STREAMS
-  #define strm_socket_port     strm_other[3] # port, a fixnum >=0
-  #define strm_socket_host     strm_other[4] # host, NIL or a string
+  #define strm_socket_port     strm_other[4] # port, a fixnum >=0
+  #define strm_socket_host     strm_other[5] # host, NIL or a string
   #endif
   #ifdef GENERIC_STREAMS
   #define strm_controller_object strm_other[0] # Controller (meist CLOS-Instanz)
@@ -6146,30 +6142,14 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
       (orecordp(obj) && (Record_type(obj) == Rectype_Stream))
   #endif
 
-# Test, ob ein Stream vom Typ gebufferter File-Stream ist:
-  #define if_strm_bfile_p(strm,statement1,statement2)  \
-    switchu (TheStream(strm)->strmtype) \
-      { case strmtype_ch_file:         \
-        case strmtype_iu_file:         \
-        case strmtype_is_file:         \
-          statement1; break;           \
-        default:                       \
-          statement2; break;           \
-      }
-# wird verwendet von STREAM
-
 # Test, ob ein Stream vom Typ File-Stream ist:
   #ifdef HANDLES
     #define case_strmtype_file  \
-      case strmtype_ch_file:    \
-      case strmtype_iu_file:    \
-      case strmtype_is_file:    \
+      case strmtype_file:       \
       case strmtype_handle
   #else
     #define case_strmtype_file  \
-      case strmtype_ch_file:    \
-      case strmtype_iu_file:    \
-      case strmtype_is_file
+      case strmtype_file
   #endif
   #define if_strm_file_p(strm,statement1,statement2)  \
     switchu (TheStream(strm)->strmtype) \
@@ -11569,9 +11549,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # > STACK_1: Filename, ein Pathname
 # > STACK_0: Truename, ein Pathname
 # > direction: Modus (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
-# > type: nähere Typinfo
-#         (STRMTYPE_SCH_FILE oder STRMTYPE_CH_FILE oder
-#          STRMTYPE_IU_FILE oder STRMTYPE_IS_FILE)
+# > type: nähere Typinfo (strmtype_ch_file, strmtype_iu_file, strmtype_is_file)
 # > eltype_size: (bei Integer-Streams) Größe der Elemente in Bits,
 #         ein Fixnum >0 und <intDsize*uintWC_max
 # > append_flag: TRUE falls der Stream gleich ans Ende positioniert werden
@@ -11580,6 +11558,9 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # < STACK: aufgeräumt
 # kann GC auslösen
   extern object make_file_stream (object handle, uintB direction, uintB type, object eltype_size, boolean append_flag);
+  #define strmtype_ch_file  0
+  #define strmtype_iu_file  1
+  #define strmtype_is_file  2
 # wird verwendet von PATHNAME
 
 # Liefert einen Broadcast-Stream zum Stream stream.
