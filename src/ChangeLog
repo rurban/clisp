@@ -1,5 +1,10 @@
 2002-06-07  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/configure.in: work with autoconf-2.53
+	(GB_CHECK): removed
+
+2002-06-07  Sam Steingold  <sds@gnu.org>
+
 	do not distribute autoconf with CLISP
 	* Makefile.devel (EXCLUDE): exclude the po/tmp and autoconf cache
 	(AUTOCONF_VERSION): new exported variable
