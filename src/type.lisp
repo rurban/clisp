@@ -43,6 +43,36 @@
     (when (and cc (clos::class-p cc) (eq (clos:class-name cc) typespec))
       cc)))
 
+;; find the smallest CLOS class containing this TYPESPEC
+(defun type-class (typespec)
+  (or (cond ((symbolp typespec) (clos-class typespec))
+            ((and (consp typespec) (symbolp (car typespec)))
+             (case (car typespec)
+               ((SHORT-FLOAT SINGLE-FLOAT DOUBLE-FLOAT LONG-FLOAT)
+                (clos-class 'float))
+               ((ARRAY SIMPLE-ARRAY)
+                (let ((eltype (if (consp (cdr typespec)) (cadr typespec) '*))
+                      (dims (if (consp (cddr typespec)) (caddr typespec) '*)))
+                  (if (and (consp dims) (null (cdr dims))) ; vector
+                      (case eltype
+                        ((BIT) (clos-class 'bit-vector))
+                        ((CHARACTER BASE-CHAR) (clos-class 'string))
+                        (T (clos-class 'vector)))
+                      (clos-class 'array))))
+               (t ; handle some "canonicalizations"
+                (multiple-value-bind (type foundp)
+                    (gethash typespec
+                             #.(make-hash-table
+                                :test 'equal :initial-contents
+                                '(((OR CONS (MEMBER NIL)) . LIST)
+                                  ((OR REAL COMPLEX) . NUMBER)
+                                  ((OR LIST VECTOR) . SEQUENCE)
+                                  ((AND RATIONAL (NOT INTEGER)) . RATIO)
+                                  ((MEMBER NIL) . NULL))))
+                  (if foundp (get type 'CLOS::CLOSCLASS)
+                      (clos-class (car typespec))))))))
+      typespec))
+
 ;;; TYPEP, CLTL S. 72, S. 42-51
 (defun typep (x y &optional env &aux f) ; x = Objekt, y = Typ
   (declare (ignore env))
@@ -261,9 +291,8 @@
 (def-atomic-type SIMPLE-STRING simple-string-p)
 (def-atomic-type SIMPLE-VECTOR simple-vector-p)
 (def-atomic-type SINGLE-FLOAT single-float-p)
-(def-atomic-type STANDARD-CHAR
-  (lambda (x) (and (characterp x) (standard-char-p x)))
-)
+(defun %standard-char-p (x) (and (characterp x) (standard-char-p x)))
+(def-atomic-type STANDARD-CHAR %standard-char-p)
 (def-atomic-type CLOS:STANDARD-GENERIC-FUNCTION clos::generic-function-p)
 (def-atomic-type CLOS:STANDARD-OBJECT clos::std-instance-p)
 (def-atomic-type STREAM streamp)
@@ -728,10 +757,57 @@
 
 ;;; ===========================================================================
 
+(defun valid-interval-designator-p (hilo test)
+  "check whether the first argument is a valid interval designator"
+  (or (eq hilo '*) (funcall test hilo)
+      (and (consp hilo) (null (cdr hilo))
+           (funcall test (car hilo)))))
+
+(defun interval-mix (lo1 hi1 lo2 hi2 head)
+  "join (and/or) intervals; when disjoint or not intersecting, return nil"
+  ;; (int [lo1 hi1] [lo2 hi2]) ==
+  ;; (int [lo1 *] [* hi1] [lo2 *] [* hi2]) ==
+  ;; (int [(max lo1 lo2) *] [* (min hi1 h2)]) ==
+  ;; [(max lo1 lo2) (min hi1 hi2)]
+  (let* ((le1 (consp lo1)) (ln1 (if le1 (car lo1) lo1))
+         (le2 (consp lo2)) (ln2 (if le2 (car lo2) lo2))
+         (he1 (consp hi1)) (hn1 (if he1 (car hi1) hi1))
+         (he2 (consp hi2)) (hn2 (if he2 (car hi2) hi2)))
+    ;; BOT   LO   HI  TOP
+    (multiple-value-bind (b-lo n-lo e-lo bot)
+        (cond ((eq lo1 '*) (values lo2 ln2 le2 lo1))
+              ((eq lo2 '*) (values lo1 ln1 le1 lo2))
+              ((< ln1 ln2) (values lo2 ln2 le2 lo1))
+              ((< ln2 ln1) (values lo1 ln1 le1 lo2))
+              (le1 (values lo1 ln1 le1 lo2))
+              (t (values lo2 ln2 le2 lo1)))
+      (multiple-value-bind (b-hi n-hi e-hi top)
+          (cond ((eq hi1 '*) (values hi2 hn2 he2 hi1))
+                ((eq hi2 '*) (values hi1 hn1 he1 hi2))
+                ((< hn1 hn2) (values hi1 hn1 he1 hi2))
+                ((< hn2 hn1) (values hi2 hn2 he2 hi1))
+                (he1 (values hi2 hn2 he2 hi1))
+                (t (values hi1 hn1 he1 hi2)))
+        (case head
+          ((AND)
+           (unless (and n-lo n-hi ; no *
+                        (or (> n-lo n-hi) ; strict
+                            (and (= n-lo n-hi) ; same
+                                 (or e-hi e-lo)))) ; at least one exclusive
+             (values b-lo b-hi)))
+          ((OR)
+           (unless (and n-lo n-hi ; no *
+                        (or (> n-lo n-hi) ; strict
+                            (and (= n-lo n-hi) ; same
+                                 e-hi e-lo))) ; both exclusive
+             ;; the interval union is an interval too
+             (values bot top))))))))
+
 ;;; SUBTYPEP, the provisional version
 (defvar *canonicalize-type-prefer-clos* nil)
 (defun canonicalize-type (type &optional (*canonicalize-type-prefer-clos*
-                                          *canonicalize-type-prefer-clos*))
+                                          *canonicalize-type-prefer-clos*)
+                          &aux head)
   (setq type (expand-deftype type))
   ;; small, non-recursive simplifications
   (cond ((symbolp type)
@@ -760,9 +836,9 @@
                          (get 'SEQUENCE 'CLOS::CLOSCLASS)
                          '(OR LIST VECTOR))) ; user-defined sequences??
            (SIGNED-BYTE 'INTEGER)
-           (STANDARD-CHAR '(AND CHARACTER #-BASE-CHAR=CHARACTER (SATISFIES BASE-CHAR-P) (SATISFIES STANDARD-CHAR-P)))
+           (STANDARD-CHAR '(AND CHARACTER #-BASE-CHAR=CHARACTER (SATISFIES BASE-CHAR-P) (SATISFIES %STANDARD-CHAR-P)))
            (STRING-CHAR 'CHARACTER)
-           ((T) '(AND))
+           ((T *) '(AND))
            (UNSIGNED-BYTE '(INTEGER 0 *))
            ((ARRAY SIMPLE-ARRAY BIT-VECTOR SIMPLE-BIT-VECTOR
              STRING SIMPLE-STRING BASE-STRING SIMPLE-BASE-STRING
@@ -782,11 +858,10 @@
                     ;; if TYPE names a normal structure (i.e., (svref d 1)=T),
                     ;; it is also a CLOS class, so the above would apply
                     (if d (canonicalize-type (svref d 1))
-                        (if (or (eq type '*) (get type 'type-symbol)) type
-                            ;; by now we know that type does not name anything
-                            type))))))))
-        ((and (consp type) (symbolp (first type)))
-         (case (first type)
+                        ;; by now we know that type does not name anything
+                        type)))))))
+        ((and (consp type) (symbolp (setq head (first type))))
+         (case head
            (MEMBER ; (MEMBER &rest objects)
             (if (null (rest type)) '(OR) type))
            (EQL ; (EQL object)
@@ -797,25 +872,70 @@
                             (mapcar #'canonicalize-type (rest type))
                             :test #'equal)))
                 (cond ((null (cdr terms)) (car terms)) ; (or type), (and type)
-                      ((and (eq (first type) 'and) ; (and ... nil ...) => nil
+                      ((and (eq head 'and) ; (and ... nil ...) => nil
                             (member '(or) terms :test #'equal))
                        '(or))   ; nil
-                      ((and (eq (first type) 'or) ; (or ... t ...) => t
+                      ((and (eq head 'or) ; (or ... t ...) => t
                             (member '(and) terms) :test #'equal)
                        '(and))  ; t
-                      (t
-                       (let ((new-rest
+                      ((let ((new-rest
                               (delete-duplicates
                                ;; splice (OR (OR foo) bar) into (OR foo bar)
                                (mapcap (lambda (ty)
                                          (if (and (consp ty)
-                                                  (eq (first ty) (first type)))
+                                                  (eq (first ty) head))
                                              (rest ty) (list ty)))
                                        terms)
                                :test #'equal)))
+                         (do ((ta1 new-rest (cdr ta1)) t1) ((endp ta1))
+                           (setq t1 (car ta1))
+                           (do ((ta2 (cdr ta1) (cdr ta2)) t2) ((endp ta2))
+                             (setq t2 (car ta2))
+                             ;; can we simplify this combination?
+                             (when (and (eq head 'and)
+                                        (or (subtypep t1 `(not ,t2))
+                                            (subtypep t2 `(not ,t1))))
+                               ;; (AND disjoint types) ==> NIL
+                               (return-from canonicalize-type '(OR)))
+                             ;; eliminate redredundant redundancies
+                             (cond ((subtypep t1 t2)
+                                    (case head
+                                      (AND (setf (car ta2) t))
+                                      (OR (setf (car ta1) nil))))
+                                   ((subtypep t2 t1)
+                                    (case head
+                                      (AND (setf (car ta1) t))
+                                      (OR (setf (car ta2) nil))))
+                                   ((and (consp t1) (consp t2)
+                                         (eq (car t1) (car t2)))
+                                    (case (car t1)
+                                      ((REAL INTEGER RATIONAL FLOAT SHORT-FLOAT
+                                        SINGLE-FLOAT DOUBLE-FLOAT LONG-FLOAT)
+                                       (multiple-value-bind (top bot)
+                                           (interval-mix (second t1) (third t1)
+                                                         (second t2) (third t2)
+                                                         head)
+                                         (if top
+                                           (setf (cdr t1) `(,top ,bot)
+                                                 (car ta2) `(,head))
+                                           (when (eq head 'and)
+                                             (return-from canonicalize-type
+                                               '(OR)))))))))
+                             (when (eq head 'and)
+                               (let ((c1 (type-class t1)) (c2 (type-class t2)))
+                                 ;; FIXME: remember the list of subclasses for
+                                 ;; all classes and check them here!
+                                 (when (or (and (clos::built-in-class-p c1)
+                                                (clos::built-in-class-p c2)
+                                                (null (clos::bc-and c1 c2)))
+                                           (and (clos::class-p c1)
+                                                (symbolp c2))
+                                           (and (clos::class-p c2)
+                                                (symbolp c1)))
+                                   (return-from canonicalize-type '(OR)))))))
                          (if (equal new-rest (rest type)) type
                            (canonicalize-type
-                            (cons (first type) new-rest)))))))))
+                            (cons head new-rest)))))))))
            (NOT                 ; (NOT type)
             (let ((not-type (canonicalize-type (second type))))
               (cond ((and (consp not-type) (eq (car not-type) 'NOT))
@@ -878,6 +998,25 @@
             (let ((el-type (or (second type) '*))
                   (size (or (third type) '*)))
               `(ARRAY ,el-type (,size))))
+           ((REAL INTEGER RATIONAL FLOAT SHORT-FLOAT
+             SINGLE-FLOAT DOUBLE-FLOAT LONG-FLOAT)
+            (let ((lo (if (consp (cdr type)) (cadr type) '*))
+                  (hi (if (consp (cddr type)) (caddr type) '*))
+                  (test (get head 'SYS::TYPE-SYMBOL)))
+              (unless (and (valid-interval-designator-p lo test)
+                           (valid-interval-designator-p hi test))
+                (typespec-error 'subtypep type))
+              `(,head ,lo ,hi)))
+           ((CONS)
+            (let ((car (if (consp (cdr type)) (canonicalize-type (cadr type))
+                           t))
+                  (cdr (if (consp (cddr type)) (canonicalize-type (caddr type))
+                           t)))
+              (when (cdddr type)
+                (typespec-error 'subtypep type))
+              (cond ((or (equal '(OR) car) (equal '(OR) cdr)) '(OR))
+                    ((and (eq t car) (eq t cdr)) 'cons)
+                    (`(cons ,car ,cdr)))))
            (t type)))
         ((clos::class-p type)
          (if (and (clos::built-in-class-p type)

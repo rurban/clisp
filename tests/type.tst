@@ -307,11 +307,10 @@ T
 (SUBTYPEP (QUOTE (OR (MEMBER U I A))) (QUOTE (SATISFIES BELIEBIGER-TEST)))
 NIL
 
-(SUBTYPEP (QUOTE (SATISFIES BELIEBIGER-TEST)) (QUOTE (MEMBER U I V
-X Y)))
+(SUBTYPEP (QUOTE (SATISFIES BELIEBIGER-TEST)) (QUOTE (MEMBER U I V X Y)))
 NIL
 
-(DEFTYPE BELIEBIGER-TYP NIL (QUOTE (SATISFIES BELIEBIGER-TEST)))
+(DEFTYPE BELIEBIGER-TYP () (QUOTE (SATISFIES BELIEBIGER-TEST)))
 BELIEBIGER-TYP
 
 (NOT (NULL (TYPEP (QUOTE U) (QUOTE BELIEBIGER-TYP))))
@@ -389,6 +388,10 @@ NIL
 (multiple-value-list (subtypep 'ffi:foreign-function 'function))
 #+(and CLISP FFI)
 (T T)
+
+(multiple-value-list
+ (subtypep '(and (not boolean) standard-char) 'standard-char))
+(t t)
 
 (let ((x 1)) (ctypecase x (t 'a)))  a
 (let ((x 1)) (etypecase x (t 'a)))  a
