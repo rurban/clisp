@@ -106,7 +106,7 @@ static struct sgttyb the_ttybuff;
 void
 rl_prep_terminal ()
 {
-#ifndef __GO32__
+#ifndef MINIMAL
   int tty = fileno (rl_instream);
 
   if (terminal_prepped)
@@ -195,7 +195,7 @@ rl_prep_terminal ()
   }
 #endif /* TIOCGLTC */
 
-#if defined(__MSDOS__) || defined(__EMX__) || defined(__CYGWIN32__)
+#if defined(__MSDOS__) || defined(__EMX__) || defined(WIN32) || defined(__CYGWIN32__)
   _rl_eof_char = CTRL ('Z');
 #endif /* __MSDOS__ || __EMX__ */
 
@@ -206,14 +206,14 @@ rl_prep_terminal ()
   terminal_prepped = 1;
 
   _rl_unblock_sigint ();
-#endif /* !__GO32__ */
+#endif /* !MINIMAL */
 }
 
 /* Restore the terminal to its original state. */
 void
 rl_deprep_terminal ()
 {
-#ifndef __GO32__
+#ifndef MINIMAL
   int tty = fileno (rl_instream);
 
   if (!terminal_prepped)
@@ -239,7 +239,7 @@ rl_deprep_terminal ()
   terminal_prepped = 0;
 
   _rl_unblock_sigint ();
-#endif /* !__GO32 */
+#endif /* !MINIMAL */
 }
 
 #else  /* !defined (NEW_TTY_DRIVER) */
@@ -252,18 +252,18 @@ rl_deprep_terminal ()
 #define VTIME VEOL
 #endif
 
-#ifndef __GO32__
+#ifndef MINIMAL
 #if defined (TERMIOS_TTY_DRIVER)
 static struct termios otio;
 #else
 static struct termio otio;
 #endif /* !TERMIOS_TTY_DRIVER */
-#endif /* __GO32__ */
+#endif /* MINIMAL */
 
 void
 rl_prep_terminal ()
 {
-#ifndef __GO32__
+#ifndef MINIMAL
   int tty = fileno (rl_instream);
 #if defined (TERMIOS_TTY_DRIVER)
   struct termios tio;
@@ -296,7 +296,7 @@ rl_prep_terminal ()
   if (otio.c_cc[VEOF] != _POSIX_VDISABLE)
     _rl_eof_char = otio.c_cc[VEOF];
 
-#if defined(__MSDOS__) || defined(__EMX__) || defined(__CYGWIN32__)
+#if defined(__MSDOS__) || defined(__EMX__) || defined(WIN32) || defined(__CYGWIN32__)
   _rl_eof_char = CTRL ('Z');
 #endif /* __MSDOS__ || __EMX__ */
 
@@ -353,13 +353,13 @@ rl_prep_terminal ()
   terminal_prepped = 1;
 
   _rl_unblock_sigint ();
-#endif /* !__GO32__ */
+#endif /* !MINIMAL */
 }
 
 void
 rl_deprep_terminal ()
 {
-#ifndef __GO32__
+#ifndef MINIMAL
   int tty = fileno (rl_instream);
 
   if (!terminal_prepped)
@@ -382,7 +382,7 @@ rl_deprep_terminal ()
   terminal_prepped = 0;
 
   _rl_unblock_sigint ();
-#endif /* !__GO32__ */
+#endif /* !MINIMAL */
 }
 #endif  /* NEW_TTY_DRIVER */
 
@@ -448,7 +448,7 @@ void
 rltty_set_default_bindings (keymap)
      Keymap keymap;
 {
-#ifndef __GO32__
+#ifndef MINIMAL
 
 #if defined (NEW_TTY_DRIVER)
   struct sgttyb ttybuff;
@@ -540,9 +540,9 @@ rltty_set_default_bindings (keymap)
 #endif /* VWERASE */
     }
 #endif /* !NEW_TTY_DRIVER */
-#endif /* def __GO32__ */
+#endif /* def MINIMAL */
 
-#if defined(__MSDOS__) || defined(__EMX__) || defined(__CYGWIN32__)
+#if defined(__MSDOS__) || defined(__EMX__) || defined(WIN32) || defined(__CYGWIN32__)
   _rl_eof_char = CTRL ('Z');
 #endif /* __MSDOS__ || __EMX__ */
 }
