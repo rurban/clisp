@@ -1,5 +1,12 @@
 2004-10-13  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (unwind_back_trace): Remove unneeded #ifdef.
+	* spvw_update.d (update_back_traces): Write if (bt != NULL), not just
+	if (bt). Needed for Solaris C++.
+	* spvw_garcol.d (gc_markphase): Likewise.
+
+2004-10-13  Bruno Haible  <bruno@clisp.org>
+
 	* makemake.in (XCFLAGS): Don't add -fsingle when using a C++ compiler.
 
 2004-10-10  Bruno Haible  <bruno@clisp.org>
