@@ -451,7 +451,7 @@
   (declare (ignore environment))
   (multiple-value-bind (generic-function-class-form signature argument-precedence-order method-combo method-class-form)
       (analyze-defgeneric
-       'defgeneric function-name lambda-list
+       'defgeneric nil function-name lambda-list
        `(,@(if declare `(:declare ,declare))
          ,@(if documentation `(:documentation ,documentation))
          ,@(if argument-precedence-order

@@ -1200,7 +1200,7 @@ Long-form options are a list of method-group specifiers,
                    (apply #'format nil errorstring arguments))))
            ; Check the method-group-specifiers, then the rest.
            (let ((method-groups
-                   (parse-method-groups name method-group-specifiers))
+                   (parse-method-groups whole-form name method-group-specifiers))
                  (arguments-lambda-list nil)
                  (arguments-variables '())
                  (user-gf-variable nil)
