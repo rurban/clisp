@@ -401,6 +401,8 @@ fi
 dnl
 AC_DEFUN(CL_PCC_STRUCT_RETURN,
 [AC_CACHE_CHECK([for pcc non-reentrant struct return convention], cl_cv_c_struct_return_static, [
+save_CFLAGS="$CFLAGS"
+CFLAGS=""
 AC_TRY_RUN([typedef struct { int a; int b; int c; int d; int e; } foo;
 foo foofun () { static foo foopi = {3141,5926,5358,9793,2385}; return foopi; }
 foo* (*fun) () = (foo* (*) ()) foofun;
@@ -417,6 +419,7 @@ cl_cv_c_struct_return_static=no,
 dnl When cross-compiling, don't assume anything.
 dnl There are even weirder return value passing conventions than pcc.
 cl_cv_c_struct_return_static="guessing no")
+CFLAGS="$save_CFLAGS"
 ])
 case "$cl_cv_c_struct_return_static" in
   *yes) AC_DEFINE(__PCC_STRUCT_RETURN__) ;;
@@ -1997,7 +2000,7 @@ AC_MSG_RESULT($objdir)
 
 ## FIXME: this should be a separate macro
 ##
-AC_ARG_WITH(pic,
+AC_ARG_WITH(pic, 
 [  --with-pic              try to use only PIC/non-PIC objects [default=use both]],
 pic_mode="$withval", pic_mode=default)
 test -z "$pic_mode" && pic_mode=default
