@@ -275,6 +275,9 @@
 <!ENTITY allocation "<link linkend='allocation'><replaceable>ALLOCATION</replaceable></link>">
 <!ENTITY param-mode "<link linkend='param-mode'><replaceable>PARAM-MODE</replaceable></link>">
 <!ENTITY foreign-pointer "<classname>FFI:FOREIGN-POINTER</classname>">
+<!ENTITY foreign-address-null "<link
+linkend='fa-null'><function>FFI:FOREIGN-ADDRESS-NULL</function></link>">
+<!ENTITY f-ent "<replaceable>foreign-entity</replaceable>">
 
 <!-- *** Byte code *** -->
 <!ENTITY SP "<link linkend='vm'><literal>SP</literal></link>">
