@@ -3119,8 +3119,8 @@ LISPFUNN(generic_stream_p,1)
                         { if (events[i].EventType == KEY_EVENT
                               && events[i].Event.KeyEvent.bKeyDown
                               && events[i].Event.KeyEvent.uAsciiChar == CR)
-                            # Zeichen verfügbar
-                            { end_system_call(); return signean_null; }
+                            # Zeichen vermutlich verfügbar (außer falls Ctrl-Z)
+                            goto peek_one;
                     }   }
                     else
                     { # Look out for any Key-Down event.
@@ -3129,8 +3129,8 @@ LISPFUNN(generic_stream_p,1)
                         { if (events[i].EventType == KEY_EVENT
                               && events[i].Event.KeyEvent.bKeyDown
                               && events[i].Event.KeyEvent.uAsciiChar != 0)
-                            # Zeichen verfügbar
-                            { end_system_call(); return signean_null; }
+                            # Zeichen vermutlich verfügbar (außer falls Ctrl-Z)
+                            goto peek_one;
                     }   }
                   # kein Zeichen verfügbar
                   end_system_call(); return signean_plus;
@@ -3152,6 +3152,7 @@ LISPFUNN(generic_stream_p,1)
           case FILE_TYPE_DISK:
           default:
             # It's a file (or something unknown).
+            peek_one:
             { var uintB c;
               var int ergebnis = read(handle,&c,1); # Zeichen lesen versuchen
               if (ergebnis<0) { OS_error(); }

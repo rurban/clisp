@@ -1,5 +1,11 @@
 1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * stream.d (listen_handle) [WIN32]: When a keyboard event is pending,
+          read a character in order to test whether to return :INPUT-AVAILABLE
+          of :EOF.
+
+1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * stream.d (strm_concat_list2): Remove macro.
           (strm_concat_totallist): New macro.
           (rd_by_concat, rd_ch_concat, pk_ch_concat, listen_concat): Simplify.
