@@ -2119,8 +2119,8 @@ global int main (argc_t argc, char* argv[]) {
                 "(PRINC \"User language: \")"
                 "(PRINC (SYS::CURRENT-LANGUAGE)) (TERPRI)"
                 "(PRINC \"Machine: \") (PRINC (MACHINE-TYPE))"
-                "(PRINC \"(\") (PRINC (MACHINE-VERSION))"
-                "(PRINC \")\") (PRINC (MACHINE-INSTANCE)) (TERPRI)"
+                "(PRINC \" (\") (PRINC (MACHINE-VERSION))"
+                "(PRINC \") \") (PRINC (MACHINE-INSTANCE)) (TERPRI)"
                 "(SYS::%EXIT))";
               break;
             } else if (asciz_equal(&arg[2],"quiet")
