@@ -24,9 +24,10 @@ GROFF = nroff -man
 #PACKEXT = .tar.Z
 
 # set this if you are using GNU tar
-EXCLUDE="--exclude CVS --exclude \*.fas --exclude \*.lib --exclude \*.obj \
-         --exclude \*.exe --exclude \*.mem --exclude \*.o --exclude build \
-         --exclude .cvsignore --exclude \*~ --exclude .\#\*"
+EXCLUDE=--exclude CVS --exclude \*.fas --exclude \*.lib --exclude \*.obj  \
+        --exclude \*.exe --exclude \*.mem --exclude \*.o --exclude build  \
+        --exclude .cvsignore --exclude \*~ --exclude .\#\* --exclude html \
+	--exclude TAGS
 
 # GNU tar together with GNU gzip. Good performance.
 #PACK = tar
@@ -275,11 +276,12 @@ distrib : linux-distrib src-distrib
 # www/index.php, www/impnotes.html, www/impnotes/ have to be updated too
 
 src-distrib : src/FILES src/version.h potfiles force
-	$(MAKE) src--distrib TOPDIR=clisp-`cat src/VERSION`
+	$(MAKE) -f Makefile.devel src--distrib TOPDIR=clisp-`cat src/VERSION`
 
 src--distrib : force
 	ln -s . $(TOPDIR)
-	$(PACK) $(PACKOPT) /tmp/clispsrc$(PACKEXT) $(EXCLUDE) $(SOURCES)
+	$(PACK) $(PACKOPT) /tmp/clisp-`cat src/VERSION`$(PACKEXT) \
+		$(EXCLUDE) $(SOURCES)
 	rm -f $(TOPDIR)
 # No need for this. François Pinard doesn't like CLISP's submissions any more.
 # Doesn't matter; the KDE project's translations work independently too.
