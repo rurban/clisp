@@ -1586,7 +1586,8 @@
         (fresh-line)
         (write-string ";;")
         (write-string indent)
-        (format t (TEXT "Loading file ~A ...") filename))
+        (format t (TEXT "Loading file ~A ...") filename)
+        (elastic-newline))
       (when *load-compiling* (compiler::c-reset-globals))
       (sys::allow-read-eval input-stream t)
       ;; see `with-compilation-unit' -- `:compiling' sets a compilation unit
@@ -1605,7 +1606,11 @@
                 (case (setq obj (eval-loaded-form obj))
                   (skip (go weiter))
                   (stop (go done)))
-                (when *load-print* (when obj (print (first obj)))))
+                (when *load-print*
+                  (when obj
+                    (fresh-line)
+                    (prin1 (first obj))
+                    (elastic-newline))))
               (go weiter) done)
           (or (eq input-stream stream)
               (sys::built-in-stream-close input-stream))
@@ -1617,7 +1622,8 @@
         (fresh-line)
         (write-string ";;")
         (write-string indent)
-        (format t (TEXT "Loaded file ~A") filename))
+        (format t (TEXT "Loaded file ~A") filename)
+        (elastic-newline))
       t)))
 
 (sys::%putd 'defun              ; preliminary:

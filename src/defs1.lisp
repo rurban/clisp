@@ -563,7 +563,7 @@
           (Space (delta4 new-space1 new-space2 old-space1 old-space2 24))
           (GC-Count (- new-gccount old-gccount))
           (stream *trace-output*))
-      (terpri stream)
+      (fresh-line stream)
       (write-string "Real time: " stream)
       (write (float (/ Real-Time internal-time-units-per-second)) :stream stream)
       (write-string " sec." stream)
@@ -580,7 +580,8 @@
         (write-string "GC: " stream) (write GC-Count :stream stream)
         (write-string ", GC time: " stream)
         (write (float (/ GC-Time internal-time-units-per-second)) :stream stream)
-        (write-string " sec." stream)))))
+        (write-string " sec." stream))
+      (elastic-newline stream))))
 
 ;; (sleep N) pause for N seconds. CLTL p. 447
 (defun sleep (time)
