@@ -1,3 +1,10 @@
+2001-07-10  Sam Steingold  <sds@gnu.org>
+
+	replaced chartcopy with memcpy
+	compilation time of compile.lisp wend down 3.76%
+	* charstrg.d (chartcopy): commented out
+	* lispbibl.d (chartcopy): defined to expand to memcpy()
+
 2001-07-09  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (handle_isset): use listen_byte() for binary sockets

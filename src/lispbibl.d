@@ -10506,7 +10506,8 @@ typedef struct {
 # > chart* src: characters
 # > chart* dest: room for characters
 # > uintL len: number of characters to be copied, > 0
-  extern void chartcopy (const chart* src, chart* dest, uintL len);
+#  extern void chartcopy (const chart* src, chart* dest, uintL len);
+#define chartcopy(src,dest,len) memcpy(dest,src,len*sizeof(chart))
 # wird verwendet von ARRAY, STREAM, LISPARIT
 
 #ifdef HAVE_SMALL_SSTRING
