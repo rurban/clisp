@@ -1019,10 +1019,23 @@
   (let ((gf (%allocate-instance <standard-generic-function>)))
     (apply #'initialize-instance-<generic-function> gf args)))
 
+(defun allocate-generic-function-instance (class &rest args
+                                           &key &allow-other-keys)
+  ;; During bootstrapping, only <standard-generic-function> instances are used.
+  (declare (ignore class args))
+  (%allocate-instance <standard-generic-function>))
+
 (defun make-generic-function-instance (class &rest args ; ABI
                                        &key &allow-other-keys)
   ;; During bootstrapping, only <standard-generic-function> instances are used.
   (apply #'make-instance-<standard-generic-function> class args))
+
+;; Returns an instance of the given generic-function class that is initialized
+;; with just the name, without calling user-defined initialize-instance methods.
+(defun make-generic-function-prototype (class &rest args &key name) ; ABI
+  (declare (ignore name))
+  (let ((instance (allocate-generic-function-instance class)))
+    (apply #'shared-initialize-<generic-function> instance 't args)))
 
 ;; ======================= Installing the Dispatch Code =======================
 
