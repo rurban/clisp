@@ -1,5 +1,10 @@
 1998-12-21  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * excepsit.tst: /etc/mtab does not exist on all systems, use
+          /etc/passwd instead.
+
+1998-12-21  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * loop.tst: Added a test for `by' preceding `from' preserving the
           evaluation order.
 
