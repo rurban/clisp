@@ -1,3 +1,8 @@
+2004-04-22  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (pathname_version_maybe): define
+	(file_namestring_parts, namestring_correctly_parseable_p): use it
+
 2004-04-22  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d: Enable the use of global register variables for

@@ -501,7 +501,10 @@ local inline void rename_existing_file (char* old_pathstring,
  xpathname_version(logical,pathname)
  > pathname: pathname or logical pathname
  > logical: flag = logpathnamep(pathname)
- < result: the value of the requested component */
+ < result: the value of the requested component
+ pathname_*_maybe return the appropriate slot seen from the point of view of the
+ underlying physical file system, therefore, ever though pathname has the slot
+ version (for ANSI compliance reasons), pathname_version_maybe() returns NIL */
 #if HAS_HOST
 #define pathname_host_maybe(obj) (object)ThePathname(obj)->pathname_host
 #else
@@ -511,6 +514,11 @@ local inline void rename_existing_file (char* old_pathstring,
 #define pathname_device_maybe(obj) (object)ThePathname(obj)->pathname_device
 #else
 #define pathname_device_maybe(obj) (unused(obj), NIL)
+#endif
+#if HAS_VERSION
+#define pathname_version_maybe(obj) (object)ThePathname(obj)->pathname_version
+#else
+#define pathname_version_maybe(obj) (unused(obj), NIL)
 #endif
 
 #ifdef LOGICAL_PATHNAMES
@@ -2403,14 +2411,11 @@ local uintC file_namestring_parts (object pathname) {
        TheLogpathname(pathname)->pathname_version);
   else
  #endif
+    /* do not print version when the underlying physical file system
+       does not support it */
     return nametype_namestring_parts(ThePathname(pathname)->pathname_name,
                                      ThePathname(pathname)->pathname_type,
-                                     #if HAS_VERSION
-                                     ThePathname(pathname)->pathname_version
-                                     #else
-                                     NIL /* do not print version */
-                                     #endif
-                                    );
+                                     pathname_version_maybe(pathname));
 }
 
 /* UP: Converts pathname into string.
@@ -3152,13 +3157,10 @@ global bool namestring_correctly_parseable_p (gcv_object_t *path_)
     type = ThePathname(*path_)->pathname_type;
     goto parse_namestring_dot_file_type;
   }
-  /* name cannot be "": it is replaced with NIL by MAKE-PATHNAME */
-  #if HAS_VERSION
-  return true;
-  #else
-  /* physical pathname version is not printed, so cannot be read back! */
-  return nullp(ThePathname(*path_)->pathname_version);
-  #endif
+  /* name cannot be "": it is replaced with NIL by MAKE-PATHNAME;
+     when the underlying physical file system does not support version,
+     pathname version is not printed, so cannot be read back! */
+  return nullp(pathname_version_maybe(*path_));
 }
 #endif
 
