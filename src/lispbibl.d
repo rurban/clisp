@@ -1731,10 +1731,12 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 /* Ignoring of a value (instead of assigning it to a variable)
  unused ...
  <sigsegv.h> includes <windows.h> which uses unused! */
-#ifdef GNU     /* to prevent a gcc-warning "statement with no effect" */
+#ifndef unused                  /* win32.d defines unused */
+ #ifdef GNU     /* to prevent a gcc-warning "statement with no effect" */
   #define unused  (void)
-#else
+ #else
   #define unused
+ #endif
 #endif
 
 # Consensys and Solaris: "#define DS 3", "#define SP ESP", "#define EAX 11".
