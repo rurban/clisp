@@ -1,3 +1,8 @@
+2004-06-08  Sam Steingold  <sds@gnu.org>
+
+	* modules/regexp/regexi.c (REGEXP-EXEC): check
+	that the pattern is not NULL
+
 2004-05-15  Bruno Haible  <bruno@clisp.org>
 
 	* lisparit.d (SYS::RANDOM-POSFIXNUM): New function.
