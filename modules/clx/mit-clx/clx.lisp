@@ -82,6 +82,7 @@
 
 (pushnew :clx *features*)
 (pushnew :xlib *features*)
+(provide :clx)                  ; clue expects this
 
 (defparameter *version* "MIT R5.0")
 (pushnew :clx-mit-r4 *features*)
