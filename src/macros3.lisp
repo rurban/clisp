@@ -134,8 +134,8 @@
                     ) )
                     (let ((storetemp (gensym)))
                       (setq storetemps (cons storetemp storetemps))
-                      ; We can use subst here, because storetemp is just a variable reference.
-                      (setq stores1 (cons (subst storetemp (first SM-stores) SM-setterform) stores1))
+                      ; We can use subst-in-form here, because storetemp is just a variable reference.
+                      (setq stores1 (cons (subst-in-form storetemp (first SM-stores) SM-setterform) stores1))
                     )
                     (setq stores2 (cons SM-setterform stores2))
                 ) )
@@ -150,8 +150,8 @@
                           (,formvar ,form))
                      ,@declare
                      (UNWIND-PROTECT
-                       ; We can use subst here, because formvar is just a variable reference.
-                       (PROGN ,(subst formvar (first SM-stores) SM-setterform) ,rest-expanded)
+                       ; We can use subst-in-form here, because formvar is just a variable reference.
+                       (PROGN ,(subst-in-form formvar (first SM-stores) SM-setterform) ,rest-expanded)
                        ,SM-setterform
                    ) )
                   t
@@ -312,8 +312,8 @@
                   ) )
                   (let ((storetemp (gensym)))
                     (setq storetemps (cons storetemp storetemps))
-                    ; We can use subst here, because storetemp is just a variable reference.
-                    (setq stores1 (cons (subst storetemp (first SM-stores) SM-setterform) stores1))
+                    ; We can use subst-in-form here, because storetemp is just a variable reference.
+                    (setq stores1 (cons (subst-in-form storetemp (first SM-stores) SM-setterform) stores1))
                   )
                   (setq stores2 (cons SM-setterform stores2))
             ) ) )
@@ -325,8 +325,8 @@
                     (,(first SM-stores) ,SM-getterform)
                     (,g ,form))
                   L2
-                  ; We can use subst here, because g is just a variable reference.
-                  (cons (subst g (first SM-stores) SM-setterform) L3)
+                  ; We can use subst-in-form here, because g is just a variable reference.
+                  (cons (subst-in-form g (first SM-stores) SM-setterform) L3)
                   (cons SM-setterform L4)
             ) ) )
 ) ) ) ) ) )
