@@ -313,7 +313,7 @@
 ; SETF-METHOD-VS-SETF-METHOD:RENAME-OLD-TERMS                yes
 ; SETF-MULTIPLE-STORE-VARIABLES:ALLOW                        yes for everything but ASSERT
 ; SETF-OF-APPLY:ONLY-AREF-AND-FRIENDS                        yes
-; SETF-OF-VALUES:ADD                                         no, SHIFTF etc. don't work right with it
+; SETF-OF-VALUES:ADD                                         yes
 ; SETF-SUB-METHODS:DELAYED-ACCESS-STORES                     yes
 ; SHADOW-ALREADY-PRESENT:WORKS                               yes
 ; SHARP-COMMA-CONFUSION:REMOVE                               no

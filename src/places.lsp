@@ -1049,7 +1049,7 @@
        (values temps vals stores storeforms accessforms)
       )
     (multiple-value-bind (SM1 SM2 SM3 SM4 SM5)
-        (get-setf-method (pop placesr) env)
+        (get-setf-expansion (pop placesr) env)
       (setq temps (revappend SM1 temps))
       (setq vals (revappend SM2 vals))
       (setq stores (revappend SM3 stores))

@@ -1,3 +1,8 @@
+1998-09-10  Sam Steingold  <sds@goems.com>
+
+	* places.lsp (setf-VALUES-aux): replaced `get-setf-method' with
+	`get-setf-expansion' therefore comply with SETF-OF-VALUES:ADD.
+
 1998-09-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * spvw.d (init_object_tab): Put only keywords into *features*.
