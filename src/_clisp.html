@@ -1,15 +1,12 @@
-<!-- xml version="1.0" encoding="UTF-8" -->
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
           "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
- <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
- <meta http-equiv="keywords" content="CLISP, ANSI CL, Common Lisp"/>
+ <title>CLISP manual page </title>
  <link rev="made" href="mailto:clisp-list@lists.sourceforge.net"/>
- <link rel="stylesheet" href="clisp.css" type="text/css"/>
- <link rel="top" href="index.html" type="text/html" title="CLISP home"/>
- <title>CLISP manual page</title>
+ <meta http-equiv="Content-Type" content="text/html"/>
+ <meta http-equiv="keywords" content="CLISP, ANSI CL, Common Lisp"/>
 </head>
 <body>
 <h1>CLISP manual page</h1>
@@ -116,8 +113,6 @@ more efficiently.</p>
 This option is normally not necessary, because the installation directory
 is already built-in in the <code>clisp</code> executable.
 #endif
-Directory <var>lisplibdir</var> can be changed at run-time using the
-symbol-macro <code>*lib-directory*</code>.
 <p/></dd>
 
 #ifdef UNIX
@@ -209,23 +204,18 @@ This may be
 #endif
 #ifdef GNU_GETTEXT
 <code>english</code>, <code>deutsch</code>, <code>francais</code>,
-<code>espanol</code>, <code>dutch</code>.
+<code>espanol</code>.
 Other languages may be specified through the environment variable
 <code>LANG</code>,
 provided the corresponding message catalog is installed.
 #endif
-The language may be changed at run-time using the symbol macro
-<a href="impnotes.html#language"><code>*current-language*</code></a>,
 <p/></dd>
 
 <dt id="opt-locale"><strong><code>-N</code>
     <var>localedir</var></strong></dt>
 <dd>Specifies the base directory of locale files. <code>clisp</code>
 will search its message catalogs in
-<var>localedir</var><code>/</code><var>language</var><code>/LC_MESSAGES/clisp.mo</code>.
-This directory may be changed at run-time using the symbol macro
-<a href="impnotes.html#language"><code>*current-language*</code></a>,
-<p/></dd>
+<var>localedir</var><code>/</code><var>language</var><code>/LC_MESSAGES/clisp.mo</code>.<p/></dd>
 
 <dt id="opt-enc"><strong><code>-E</code><var>domain</var>
     <var>encoding</var></strong></dt>
@@ -236,20 +226,13 @@ which depends on the environment variables <code>LC_ALL</code>,
   <dd>affecting <a href="impnotes.html#def-file-enc"
      ><code>*default-file-encoding*</code></a>, or</dd>
  <dt><code>pathname</code>,</dt>
-  <dd>affecting <a href="impnotes.html#path-enc"
-     ><code>*pathname-encoding*</code></a>, or</dd>
+  <dd>affecting <code>*pathname-encoding*</code>, or</dd>
  <dt><code>terminal</code>,</dt>
-  <dd>affecting <a href="impnotes.html#term-enc"
-     ><code>*terminal-encoding*</code></a>, or</dd>
+  <dd>affecting <code>*terminal-encoding*</code>, or</dd>
  <dt><code>foreign</code>,</dt>
-  <dd>affecting <a href="impnotes.html#foreign-enc"
-     ><code>*foreign-encoding*</code></a>, or</dd>
+  <dd>affecting <code>*foreign-encoding*</code>, or</dd>
  <dt><code>misc</code>,</dt>
-  <dd>affecting <a href="impnotes.html#misc-enc"
-     ><code>*misc-encoding*</code></a>.</dd></dl>
- Note that these values cannot be saved in a memory inage.
- You have to use the <a href="#opt-norc">init file</a>
- to set them on startup.<p/></dd>
+  <dd>affecting <code>*misc-encoding*</code>.</dd></dl><p/></dd>
 
 <dt id="opt-quiet"><strong><code>-q</code></strong>,
     <strong><code>--quiet</code></strong>,
@@ -274,8 +257,10 @@ which depends on the environment variables <code>LC_ALL</code>,
 <p/></dd>
 
 <dt id="opt-ansi"><strong><code>-ansi</code></strong></dt>
-<dd>ANSI CL compliant: comply with the ANSI CL specification
-even where CLISP has been traditionally different.
+<dd>ANSI CL compliant: Comply with the ANSI CL specification even on
+those issues where ANSI CL is broken.
+This option is provided for maximum portability of Lisp programs,
+and is not useful for actual everyday work.
 It sets the symbol macro <code>*ansi*</code> to <code>t</code>.
 See <a href="impnotes.html#ansi">"Maximum ANSI CL compliance"</a>,
 for details.<p/></dd>
@@ -363,12 +348,8 @@ will be bound to a list of strings, representing the <var>argument</var>s.
 The first line of <var>lispfile</var> may start with <code>#!</code>,
 thus permitting <code>clisp</code> to be used as a script interpreter.
 #endif
-If <var>lispfile</var> is <code>-</code>,
-the standard input is used instead of a file.
-If <var>lispfile</var> is an empty string <code>""</code>,
-the rest of the arguments is still available in <code>*args*</code>,
-for parsing by the <code><a href="impnotes.html#image">init-function</a></code>
-of the current image.
+If <var>lispfile</var> is <code>-</code>, the standard input is used instead of
+a file.
 This option must be the last one.
 No <a href="#opt-norc">RC file</a> will be executed.<p/></dd>
 
@@ -629,7 +610,7 @@ EOF (Ctrl-\e)
 <h2 id="projects">Projects</h2>
 
 <ul>
-<li>Write on-line documentation.</li>
+<li>Writing on-line documentation.</li>
 <li>Enhance the compiler so that it can inline local functions.</li>
 <li>Specify a portable set of window and graphics operations.</li>
 <li>Add Multi-Threading capabilities, via OS threads.</li>

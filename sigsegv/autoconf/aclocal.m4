@@ -2,7 +2,7 @@ dnl local autoconf macros
 dnl Bruno Haible 2001-02-04
 dnl Marcus Daniels 1997-04-10
 dnl
-AC_PREREQ(2.52)dnl
+AC_PREREQ(2.12)dnl
 dnl
 dnl without AC_MSG_...:   with AC_MSG_... and caching:
 dnl   AC_TRY_CPP          CL_CPP_CHECK
@@ -69,8 +69,7 @@ define(CL_PROTO,
 AC_CACHE_VAL(cl_cv_proto_[$1], [$2
 cl_cv_proto_$1="$3"])
 cl_cv_proto_$1=`echo "[$]cl_cv_proto_$1" | tr -s ' ' | sed -e 's/( /(/'`
-AC_MSG_RESULT([$]{ac_t:-
-         }[$]cl_cv_proto_$1)
+AC_MSG_RESULTPROTO([$]cl_cv_proto_$1)
 ])dnl
 dnl
 dnl CL_PROTO_RET(INCLUDES, DECL, CACHE-ID, TYPE-IF-OK, TYPE-IF-FAILS)
@@ -103,19 +102,12 @@ define(CL_SILENT,
 [pushdef([AC_MSG_CHECKING],[:])dnl
 pushdef([AC_CHECKING],[:])dnl
 pushdef([AC_MSG_RESULT],[:])dnl
+pushdef([AC_MSG_RESULTPROTO],[:])dnl
 $1[]dnl
+popdef([AC_MSG_RESULTPROTO])dnl
 popdef([AC_MSG_RESULT])dnl
 popdef([AC_CHECKING])dnl
 popdef([AC_MSG_CHECKING])dnl
-])dnl
-dnl
-dnl Expands to the "extern ..." prefix used for system declarations.
-dnl AC_LANG_EXTERN()
-define(AC_LANG_EXTERN,
-[extern
-#ifdef __cplusplus
-"C"
-#endif
 ])dnl
 dnl
 AC_DEFUN(CL_CC_GCC,
@@ -148,7 +140,7 @@ AC_DEFUN(CL_PROG_INSTALL,
 # SunOS /usr/etc/install
 # IRIX /sbin/install
 # AIX /bin/install
-# AFS /usr/afsws/bin/install, which mis-handles nonexistent args
+# AFS /usr/afsws/bin/install, which mishandles nonexistent args
 # SVR4 /usr/ucb/install, which tries to use the nonexistent group "staff"
 # ./install, which can be erroneously created by make from ./install.sh.
 AC_MSG_CHECKING(for a BSD compatible install)
@@ -190,7 +182,7 @@ AC_CACHE_VAL(cl_cv_path_install,
   INSTALL="$cl_cv_path_install"
 fi
 dnl We do special magic for INSTALL instead of AC_SUBST, to get
-dnl relative paths right.
+dnl relative paths right. 
 AC_MSG_RESULT($INSTALL)
 AC_SUBST(INSTALL)dnl
 # Use test -z because SunOS4 sh mishandles braces in ${var-val}.
@@ -280,16 +272,48 @@ AC_DEFUN(CL_CANONICAL_HOST,
 dnl Set ac_aux_dir before the cache check, because AM_PROG_LIBTOOL needs it.
 ac_aux_dir=${srcdir}/$1
 dnl A substitute for AC_CONFIG_AUX_DIR_DEFAULT, so we don't need install.sh.
-ac_config_guess="$SHELL $ac_aux_dir/config.guess"
-ac_config_sub="$SHELL $ac_aux_dir/config.sub"
+ac_config_guess=$ac_aux_dir/config.guess
+ac_config_sub=$ac_aux_dir/config.sub
+AC_CACHE_CHECK(host system type, cl_cv_host, [
+dnl Mostly copied from AC_CANONICAL_HOST.
+# Make sure we can run config.sub.
+if ${CONFIG_SHELL-/bin/sh} $ac_config_sub sun4 >/dev/null 2>&1; then :
+else AC_MSG_ERROR(can not run $ac_config_sub)
+fi
+host_alias=$host
+case "$host_alias" in
+NONE)
+  case $nonopt in
+  NONE) dnl config.guess needs to compile things
+        host_alias=`export CC; ${CONFIG_SHELL-/bin/sh} $ac_config_guess` ;;
+  *)    host_alias=$nonopt ;;
+  esac ;;
+esac
+# Don't fail just because the system is not listed in GNU's database.
+if test -n "$host_alias"; then
+  host=`${CONFIG_SHELL-/bin/sh} $ac_config_sub $host_alias`
+else
+  host_alias=unknown
+  host=unknown-unknown-unknown
+fi
+cl_cv_host_alias="$host_alias"
+cl_cv_host="$host"
+])
+host_alias="$cl_cv_host_alias"
+host="$cl_cv_host"
+changequote(,)dnl
+host_cpu=`echo $host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\1/'`
+host_vendor=`echo $host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\2/'`
+host_os=`echo $host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
+changequote([,])dnl
+AC_SUBST(host)dnl
+AC_SUBST(host_cpu)dnl
+AC_SUBST(host_vendor)dnl
+AC_SUBST(host_os)dnl
 dnl We have defined $ac_aux_dir.
 AC_PROVIDE([AC_CONFIG_AUX_DIR_DEFAULT])dnl
-dnl In autoconf-2.52, a single AC_CANONICAL_HOST has the effect of inserting
-dnl the code of AC_CANONICAL_BUILD *before* CL_CANONICAL_HOST, i.e. before
-dnl ac_aux_dir has been set. To work around this, we list AC_CANONICAL_BUILD
-dnl explicitly.
-AC_CANONICAL_BUILD
-AC_CANONICAL_HOST
+dnl We have defined $host_alias and $host.
+AC_PROVIDE([AC_CANONICAL_HOST])dnl
 ])dnl
 dnl
 AC_DEFUN(CL_CANONICAL_HOST_CPU,
@@ -693,7 +717,6 @@ if test -n "$have_sigaction"; then
 AC_CACHE_CHECK(whether sigaction handlers need to be reinstalled, cl_cv_func_sigaction_reinstall, [
 AC_TRY_RUN([
 #include <stdlib.h>
-#include <string.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -902,10 +925,6 @@ CL_PROTO_RET([
 ], [int getpagesize();], cl_cv_proto_getpagesize_ret, int, size_t)
 ], [extern $cl_cv_proto_getpagesize_ret getpagesize (void);])
 AC_DEFINE_UNQUOTED(RETGETPAGESIZETYPE,$cl_cv_proto_getpagesize_ret)
-else
-dnl Otherwise we use PAGESIZE defined in <sys/param.h>.
-dnl But mingw32 doesn't have <sys/param.h>.
-AC_CHECK_HEADERS(sys/param.h)
 fi
 ])dnl
 dnl
@@ -1227,7 +1246,7 @@ dnl
 ## the same distribution terms that you use for the rest of that program.
 
 # The next line was added by Bruno Haible 2001-06-08.
-builtin([undefine],[symbols])
+undefine([symbols])
 
 # serial 46 AC_PROG_LIBTOOL
 AC_DEFUN([AC_PROG_LIBTOOL],

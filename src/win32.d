@@ -10,7 +10,7 @@
 #define CRLFstring  "\r\n"  # C-String, der BS-Newline enthält
 
 # Many Win32 API functions are declared differently when UNICODE is defined,
-# in a way which doesn't work on Win95. We don't want this, so undefine it now.
+# in a way which doesn't work on Win95. We don't want this, so undefine it now. 
 #ifdef UNICODE
   #define UNICODE_SAVED
   #undef UNICODE
@@ -21,11 +21,9 @@
   #ifdef __MINGW32__
     # `unused' is used in function declarations.
     #undef unused
-    #define ULONGLONG OS_ULONGLONG
     #define ULONG OS_ULONG
     #include <windows.h>
     #undef ULONG
-    #undef ULONGLONG
     #define unused (void)
   #else
     #include <windows.h>
@@ -169,7 +167,11 @@
   # extern BOOL PeekNamedPipe (HANDLE NamedPipe, void* Buffer, DWORD BufferSize, DWORD* BytesRead, DWORD* TotalBytesAvail, DWORD* BytesLeftThisMessage);
   # extern BOOL PurgeComm (HANDLE File, DWORD Flags);
   # extern BOOL FlushConsoleInputBuffer (HANDLE ConsoleInput);
-  #define uAsciiChar uChar.AsciiChar
+  #if defined(__MINGW32__)
+    #define uAsciiChar AsciiChar
+  #else # defined(MICROSOFT) || defined(BORLAND)
+    #define uAsciiChar uChar.AsciiChar
+  #endif
 # used by spvw.d, stream.d, pathname.d, win32aux.d
   # My private error code when Ctrl-C has been pressed.
   #define ERROR_SIGINT ERROR_SUCCESS
@@ -189,22 +191,7 @@
 # used by spvw.d, stream.d
 
 # Socket connections
-#ifdef __MINGW32__
-# this kills a warning in </usr/include/w32api/winsock.h>
-# and </usr/include/w32api/winsock2.h>:
-# "fd_set and associated macros have been defined in sys/types.
-#  This may cause runtime problems with W32 sockets"
-# Bruno said:
-# I think this warning means that read(), write() don't work on sockets
-# in mingw32.  Like on BeOS.  CLISP already handles this.
-# See the #ifs around stream.d:low_write_unbuffered_socket() etc.
-#define USE_SYS_TYPES_FD_SET
-#endif
-  #include <winsock2.h>
-  #include <ws2tcpip.h>
-#ifdef __MINGW32__
-#undef USE_SYS_TYPES_FD_SET
-#endif
+  #include <winsock.h>
   # extern int WSAStartup (WORD VersionRequested, WSADATA* WSAData);
   # extern int WSAGetLastError (void);
   # extern void WSASetLastError (int Error);
@@ -256,7 +243,7 @@
   #define CONNECT_CONST const
   #define CONNECT_ADDRLEN_T int
   #define HAVE_IPV4
-  #define HAVE_IPV6
+  #undef HAVE_IPV6
   #undef HAVE_NETINET_IN_H
   #undef HAVE_ARPA_INET_H
   #define RET_INET_ADDR_TYPE unsigned long
@@ -325,7 +312,7 @@
 
 # Getting information about the machine.
   # extern void GetSystemInfo (LPSYSTEM_INFO SystemInfo);
-  #if defined(BORLAND)
+  #if defined(BORLAND) || defined(__MINGW32__)
     #define wProcessorArchitecture u.s.wProcessorArchitecture
   #endif
 # used by misc.d

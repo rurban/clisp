@@ -1,6 +1,6 @@
 # -*- makefile -*-
 # This is the developer's makefile, not the user's makefile.
-# Do not use it unless you know exactly what you are doing!
+# Don't use it unless you know exactly what you do!
 
 
 # Some important programs:
@@ -24,10 +24,9 @@ GROFF = nroff -man
 #PACKEXT = .tar.Z
 
 # set this if you are using GNU tar
-EXCLUDE=--exclude CVS --exclude \*.fas --exclude \*.lib --exclude \*.obj  \
-        --exclude \*.exe --exclude \*.mem --exclude \*.o --exclude build  \
-        --exclude .cvsignore --exclude \*~ --exclude .\#\* --exclude html \
-	--exclude TAGS
+EXCLUDE="--exclude CVS --exclude \*.fas --exclude \*.lib --exclude \*.obj \
+         --exclude \*.exe --exclude \*.mem --exclude \*.o --exclude build \
+         --exclude .cvsignore --exclude \*~ --exclude .\#\*"
 
 # GNU tar together with GNU gzip. Good performance.
 #PACK = tar
@@ -59,7 +58,7 @@ PACKEXT = .tar.bz2
 TOPDIR = clisp
 T = $(TOPDIR)
 
-SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/clisp.spec $T/clisp.lsm $T/configure #$T/HTML-index.html
+SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/clisp.spec $T/configure #$T/HTML-index.html
 #SOURCES2 = $T/src/*
 # exclude $T/src/g*t = $T/src/gettext
 SOURCES2 = $T/src/*[^t] $T/src/[^g]*t $T/src/.??*
@@ -83,7 +82,7 @@ all : makefiles configures potfiles src/FILES src/VERSION utils/comment5.c src/i
 ffcall-i386 : ffcall/avcall/avcall-i386-msvc.c ffcall/vacall/vacall-i386-msvc.c ffcall/callback/vacall_r/vacall-i386-msvc.c
 
 htmldoc:
-	cd doc && make impnotes.html && make html && cd ..;
+	cd doc && make impnotes.html &&	cp impnotes.html ../src && cd ..;
 
 makefiles : os2/makefile win32gcc/makefile win32msvc/makefile.msvc4 win32msvc/makefile.msvc5 win32bc/makefile acorn/makefile.cc acorn/makefile.gcc
 
@@ -91,8 +90,7 @@ os2/makefile : makemake
 	./makemake os2 gcc > os2/makefile
 
 win32gcc/makefile : makemake
-	./makemake --with-dir-key --with-export-syscalls --with-dynamic-ffi \
-		win32gcc gcc > win32gcc/makefile
+	./makemake --with-dir-key win32gcc gcc > win32gcc/makefile
 
 win32msvc/makefile.msvc4 : makemake
 	./makemake --with-dir-key --with-dynamic-ffi \
@@ -120,25 +118,25 @@ CONFIGURES = src/configure src/gettext/configure modules/wildcard/configure modu
 
 configures : ffcall/autoconf/aclocal.m4 sigsegv/autoconf/aclocal.m4 $(CONFIGURES) src/gettext/config.h.in
 
-AUTOCONF_FILES = src/autoconf/aclocal.m4 src/autoconf/autoconf.m4f
+AUTOCONF_FILES = src/autoconf/aclocal.m4 src/autoconf/acgeneral.m4 src/autoconf/acspecific.m4
 
 src/configure : src/configure.in $(AUTOCONF_FILES)
-	cd src ; autoconf/autoconf -A autoconf -l autoconf
+	cd src ; autoconf/autoconf -m autoconf
 
-src/gettext/configure : src/gettext/configure.in src/gettext/aclocal.m4 src/gettext/autoconf/autoconf.m4f
+src/gettext/configure : src/gettext/configure.in src/gettext/aclocal.m4 src/gettext/autoconf/acgeneral.m4 src/gettext/autoconf/acspecific.m4
 	cd src/gettext ; $(MAKE) -f Makefile.devel configure
 
-src/gettext/config.h.in : src/gettext/configure.in src/gettext/aclocal.m4 src/gettext/autoconf/autoconf.m4f src/gettext/acconfig.h
+src/gettext/config.h.in : src/gettext/configure.in src/gettext/aclocal.m4 src/gettext/autoconf/acgeneral.m4 src/gettext/autoconf/acspecific.m4 src/gettext/acconfig.h
 	cd src/gettext ; $(MAKE) -f Makefile.devel config.h.in
 
 modules/wildcard/configure : modules/wildcard/configure.in $(AUTOCONF_FILES)
-	cd modules/wildcard ; ../../src/autoconf/autoconf -A ../../src/autoconf -l ../../src/autoconf
+	cd modules/wildcard ; ../../src/autoconf/autoconf -m ../../src/autoconf
 
 modules/regexp/configure : modules/regexp/configure.in $(AUTOCONF_FILES)
-	cd modules/regexp ; ../../src/autoconf/autoconf -A ../../src/autoconf -l ../../src/autoconf
+	cd modules/regexp ; ../../src/autoconf/autoconf -m ../../src/autoconf
 
 modules/clx/new-clx/configure : modules/clx/new-clx/configure.in $(AUTOCONF_FILES)
-	cd modules/clx/new-clx ; ../../../src/autoconf/autoconf -A ../../../src/autoconf -l ../../../src/autoconf
+	cd modules/clx/new-clx ; ../../../src/autoconf/autoconf -m ../../../src/autoconf
 
 ffcall/autoconf/aclocal.m4 : src/autoconf/aclocal.m4
 	cd ffcall ; $(MAKE) -f Makefile.devel autoconf/aclocal.m4
@@ -177,7 +175,7 @@ sigsegv/configure : sigsegv/configure.in sigsegv/autoconf/aclocal.m4 $(AUTOCONF_
 	cd sigsegv ; $(MAKE) -f Makefile.devel configure
 
 utils/hln/configure : utils/hln/configure.in $(AUTOCONF_FILES)
-	cd utils/hln ; ../../src/autoconf/autoconf -A ../../src/autoconf -l ../../src/autoconf
+	cd utils/hln ; ../../src/autoconf/autoconf -m ../../src/autoconf
 
 
 # Syntaxcheck
@@ -253,7 +251,7 @@ ffcall/callback/trampoline_r/config.h.msvc : ffcall/callback/trampoline_r/config
 	cd ffcall ; $(MAKE) -f Makefile.devel callback/trampoline_r/config.h.msvc
 
 acorn/pathname.txt : src/pathname.d
-	cat src/pathname.d | sed -e '1,/Burwood/d' | sed -e '/Components/,$$d' | sed -e 's/^# //g' -e 's/^#$$//g' > acorn/pathname.txt
+	cat src/pathname.d | sed -e '1,/Burwood/d' | sed -e '/Komponenten/,$$d' | sed -e 's/^# //g' -e 's/^#$$//g' > acorn/pathname.txt
 
 
 distrib : linux-distrib src-distrib
@@ -272,16 +270,14 @@ distrib : linux-distrib src-distrib
 # news:comp.os.linux.announce
 # http://freshmeat.net/projects/clisp/
 # https://sourceforge.net/news/submit.php?group_id=1355
-# https://www.opensourcedirectory.org/projects/clisp/
-# www/index.php, www/impnotes.html, www/impnotes/ have to be updated too
+# www/index.php has to be updated too
 
 src-distrib : src/FILES src/version.h potfiles force
-	$(MAKE) -f Makefile.devel src--distrib TOPDIR=clisp-`cat src/VERSION`
+	$(MAKE) src--distrib TOPDIR=clisp-`cat src/VERSION`
 
 src--distrib : force
 	ln -s . $(TOPDIR)
-	$(PACK) $(PACKOPT) /tmp/clisp-`cat src/VERSION`$(PACKEXT) \
-		$(EXCLUDE) $(SOURCES)
+	$(PACK) $(PACKOPT) /tmp/clispsrc$(PACKEXT) $(EXCLUDE) $(SOURCES)
 	rm -f $(TOPDIR)
 # No need for this. François Pinard doesn't like CLISP's submissions any more.
 # Doesn't matter; the KDE project's translations work independently too.

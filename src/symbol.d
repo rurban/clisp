@@ -1,5 +1,5 @@
 # Funktionen betr. Symbole für CLISP
-# Bruno Haible 1990-2001
+# Bruno Haible 1990-2000
 
 #include "lispbibl.c"
 
@@ -15,8 +15,14 @@
     var object symbol;
     {
       var object fun = Symbol_function(symbol);
-      if (eq(fun,unbound))
-        fehler_undef_function(S(symbol_function),symbol);
+      if (eq(fun,unbound)) {
+        pushSTACK(symbol); # Wert für Slot NAME von CELL-ERROR
+        pushSTACK(symbol);
+        pushSTACK(S(symbol_function));
+        fehler(undefined_function,
+               GETTEXT("~: ~ has no global function definition")
+              );
+      }
       if (consp(fun)) {
         pushSTACK(symbol); # Wert für Slot NAME von CELL-ERROR
         pushSTACK(symbol);
@@ -32,13 +38,16 @@
 # Fehlermeldung, wenn ein Symbol eine Property-Liste ungerader Länge hat.
 # fehler_plist_odd(symbol);
 # > symbol: Symbol
-  nonreturning_function(local, fehler_plist_odd, (object symbol)) {
-    pushSTACK(symbol);
-    pushSTACK(S(get));
-    fehler(error,
-           GETTEXT("~: the property list of ~ has an odd length")
-          );
-  }
+  nonreturning_function(local, fehler_plist_odd, (object symbol));
+  local void fehler_plist_odd(symbol)
+    var object symbol;
+    {
+      pushSTACK(symbol);
+      pushSTACK(S(get));
+      fehler(error,
+             GETTEXT("~: the property list of ~ has an odd length")
+            );
+    }
 
 # UP: Holt eine Property aus der Property-Liste eines Symbols.
 # get(symbol,key)
@@ -81,7 +90,7 @@ LISPFUNN(putd,2)
     var object fun = STACK_0;
     # fun muss SUBR, FSUBR, Closure oder #<MACRO expander> sein,
     # Lambda-Ausdruck ist nicht mehr gültig.
-    if (functionp(fun) || fsubrp(fun))
+    if (subrp(fun) || closurep(fun) || ffunctionp(fun) || fsubrp(fun))
       goto ok;
     elif (macrop(fun)) # #<MACRO expander> ist ok
       goto ok;

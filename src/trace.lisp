@@ -1,39 +1,36 @@
 ;; Tracer
 ;; Bruno Haible 13.2.1990, 15.3.1991, 4.4.1991
-;; German comments translated into English: Stefan Kain 2001-12-26
-;; Sam Steingold 2001-2002
 
-;; (TRACE) returns a list of traced functions
-;; (TRACE fun ...) additionally traces the functions fun, ... .
-;; Format for fun:
-;;  Either a Symbol
-;;   symbol
-;;  or a List made of a Symbol and a few Keyword-Arguments (pair-wise!)
-;;   (symbol
-;;    [:suppress-if form]   ; no Trace-Output, as long as form is true
-;;    [:step-if form]       ; Trace moves into the Stepper, if form is true
-;;    [:pre form]           ; executes form before function call
-;;    [:post form]          ; executes form after  function call
-;;    [:pre-break-if form]  ; Trace moves into break-loop before function call,
-;;                          ; if form is true
-;;    [:post-break-if form] ; Trace moves into break-loop after  function call,
-;;                          ; if form is true
-;;    [:pre-print form]     ; prints the values of form before function call
-;;    [:post-print form]    ; prints the values of form after  function call
-;;    [:print form]         ; prints the values of form before
-;;                          ; and after the function call
-;;   )
-;;   In all these forms *TRACE-FUNCTION* (the function itself),
-;;   *TRACE-ARGS* (the function arguments),
-;;   *TRACE-FORM* (the function-/macro-call as form),
-;;   and after function call also *TRACE-VALUES* (the list of values
-;;   of the function call) can be accessed,
-;;   and the function can be left with RETURN with given values.
-;; (UNTRACE) returns list of traced functions, discards the all.
-;; (UNTRACE symbol ...) discards symbol, ... from the list of traced
-;;   functions.
-;; TRACE and UNTRACE are also applicable to functions (SETF symbol) and macros,
-;;   not however applicable to locally defined functions and macros.
+; (TRACE) liefert Liste der getraceten Funktionen
+; (TRACE fun ...) tracet die Funktionen fun, ... zusätzlich.
+; Format für fun:
+;   Entweder ein Symbol
+;        symbol
+;   oder eine Liste aus einem Symbol und einigen Keyword-Argumenten (paarig!)
+;        (symbol
+;          [:suppress-if form]   ; kein Trace-Output, solange form erfüllt ist
+;          [:step-if form]       ; Trace geht in den Stepper, falls form erfüllt
+;          [:pre form]           ; führt vor Funktionsaufruf form aus
+;          [:post form]          ; führt nach Funktionsaufruf form aus
+;          [:pre-break-if form]  ; Trace geht vor Funktionsaufruf in die Break-Loop,
+;                                ; falls form erfüllt
+;          [:post-break-if form] ; Trace geht nach Funktionsaufruf in die Break-Loop,
+;                                ; falls form erfüllt
+;          [:pre-print form]     ; gibt die Werte von form vor Funktionsaufruf aus
+;          [:post-print form]    ; gibt die Werte von form nach Funktionsaufruf aus
+;          [:print form]         ; gibt die Werte von form vor und nach Funktionsaufruf aus
+;        )
+;   In all diesen Formen kann auf *TRACE-FUNCTION* (die Funktion selbst)
+;   und *TRACE-ARGS* (die Argumente an die Funktion)
+;   und *TRACE-FORM* (der Funktions-/Macro-Aufruf als Form)
+;   und nach Funktionsaufruf auch auf *TRACE-VALUES* (die Liste der Werte
+;   des Funktionsaufrufs) zugegriffen werden,
+;   und mit RETURN kann der Aufruf mit gegebenen Werten verlassen werden.
+; (UNTRACE) liefert Liste der getraceten Funktionen, streicht sie alle.
+; (UNTRACE symbol ...) streicht symbol, ... aus der Liste der getraceten
+;   Funktionen.
+; TRACE und UNTRACE sind auch auf Funktionen (SETF symbol) und auf Macros anwendbar,
+;   nicht jedoch auf lokal definierte Funktionen und Macros.
 
 (in-package "COMMON-LISP")
 (export '(trace untrace))
@@ -42,85 +39,27 @@
 (in-package "SYSTEM")
 
 (proclaim '(special *trace-function* *trace-args* *trace-form* *trace-values*))
-(defvar *traced-functions* nil) ; list of currently traced function-names
-;; So long as a function-name funname [resp. more exactly: the Symbol
-;; symbol = (get-funname-symbol funname)] are traced, the Property
-;; sys::traced-definition contains the old content of the function-cell, the
-;; Property sys::tracing-definition contains the new content of the
-;; function-cell, and the function-name is element of the list
-;; *traced-functions*.
-;; Meanwhile the content of the function-cell can change, however!
-;; At all events the following is true:
-;;  (and (fboundp symbol)
-;;       (eq (symbol-function symbol) (get symbol 'sys::tracing-definition)))
-;; ===>   (member funname *traced-functions* :test #'equal)
-;; <==>   (get symbol 'sys::traced-definition)
-(defvar *trace-level* 0) ; nesting depth for Trace-Output
+(defvar *traced-functions* nil) ; Liste der momentan getraceden Funktionsnamen
+  ; Solange ein Funktionsname funname [bzw. genauer: das Symbol
+  ; symbol = (get-funname-symbol funname)] getraced ist, enthält
+  ; die Property sys::traced-definition den alten Inhalt der Funktionszelle,
+  ; die Property sys::tracing-definition den neuen Inhalt der Funktionszelle,
+  ; und ist der Funktionsname Element der Liste *traced-functions*.
+  ; Währenddessen kann sich der Inhalt der Funktionszelle jedoch ändern!
+  ; Jedenfalls gilt stets:
+  ;        (and (fboundp symbol)
+  ;             (eq (symbol-function symbol) (get symbol 'sys::tracing-definition))
+  ;        )
+  ; ===>   (member funname *traced-functions* :test #'equal)
+  ; <==>   (get symbol 'sys::traced-definition)
+(defvar *trace-level* 0) ; Verschachtelungstiefe bei der Trace-Ausgabe
 
-(labels ((subclosure-pos (closure name)
-           (do ((length (sys::%record-length closure))
-                ;; compiler::symbol-suffix is defined in compiler.lisp
-                (nm (compiler::symbol-suffix (closure-name closure) name))
-                (pos 2 (1+ pos)) obj)
-               ((= pos length)
-                (error (TEXT "~s: no local name ~s in ~s")
-                       'local name closure))
-             (setq obj (sys::%record-ref closure pos))
-             (when (and (closurep obj) (eq nm (closure-name obj)))
-               (return pos))))
-         (force-cclosure (name)
-           (let ((closure (fdefinition name)))
-             (unless (closurep closure)
-               (error-of-type 'type-error
-                 :datum closure :expected-type 'closure
-                 (TEXT "~S: ~S must name a closure") 'local name))
-             (if (compiled-function-p closure) closure
-                 (fdefinition (compile name closure)))))
-         (local-helper (spec)
-           (do* ((spe (cdr spec) (cdr spe))
-                 (clo (force-cclosure (car spec))
-                      (sys::%record-ref clo pos))
-                 (pos (subclosure-pos clo (car spe))
-                      (subclosure-pos clo (car spe))))
-                ((endp (cdr spe)) (values clo pos)))))
-
-  (defun %local-get (spec)
-    (multiple-value-bind (clo pos) (local-helper spec)
-      (sys::%record-ref clo pos)))
-  (defun %local-set (new-def spec)
-    (unless (closurep new-def)
-      (error-of-type 'type-error
-        :datum new-def :expected-type 'closure
-        (TEXT "~S: ~S must be a closure") `((setf local) ,@spec)) new-def)
-    (multiple-value-bind (clo pos) (local-helper spec)
-      (sys::%record-store clo pos
-         (if (compiled-function-p new-def) new-def
-             (fdefinition (compile (closure-name (sys::%record-ref clo pos))
-                                   new-def)))))))
-
-(defmacro local (&rest spec)
-  "Return the closure defined locally with LABELS or FLET.
-SPEC is a list of (CLOSURE SUB-CLOSURE SUB-SUB-CLOSURE ...)
-CLOSURE must be compiled."
-  (%local-get spec))
-
-(define-setf-expander local (&rest spec)
-  "Modify the local definition (LABELS or FLET).
-This will not work with closures that use lexical variables!"
-  (let ((store (gensym "LOCAL-")))
-    (values nil nil `(,store) `(%local-set ,store ',spec)
-            `(%local-get ,spec))))
-
-;; check whether the object might name a local (LABELS or FLET) function
-(defun local-function-name-p (obj)
-  (and (consp obj) (eq 'local (car obj))))
-
-;; Functions, that the Tracer calls at runtime and that the user could
-;; trace, must be called in their untraced form.
-;; Instead of (fun arg ...) use instead (SYS::%FUNCALL '#,#'fun arg ...)
-;; or (SYS::%FUNCALL (LOAD-TIME-VALUE #'fun) arg ...).
-;; This applies for all used functions here from #<PACKAGE LISP> except for
-;; CAR, CDR, CONS, APPLY, VALUES-LIST (which are all compiled inline).
+; Funktionen, die der Tracer zur Laufzeit aufruft und die der Benutzer
+; tracen könnte, müssen in ihrer ungetraceden Form aufgerufen werden.
+; Statt (fun arg ...) verwende daher (SYS::%FUNCALL '#,#'fun arg ...)
+; oder (SYS::%FUNCALL (LOAD-TIME-VALUE #'fun) arg ...).
+; Dies gilt für alle hier verwendeten Funktionen von #<PACKAGE LISP> außer
+; CAR, CDR, CONS, APPLY, VALUES-LIST (die alle inline compiliert werden).
 
 (defmacro trace (&rest funs)
   (if (null funs)
@@ -129,130 +68,159 @@ This will not work with closures that use lexical variables!"
       (mapcar #'(lambda (fun)
                   (if (or (atom fun) (function-name-p fun))
                     (trace1 fun)
-                    (apply #'trace1 fun)))
-              funs))))
-
-(defun error-function-name (caller funname)
-  (error-of-type 'source-program-error
-    (TEXT "~s: ~s is not a function name")
-    caller funname))
+                    (apply #'trace1 fun)
+                ) )
+              funs
+    ) )
+) )
 
 (defun trace1 (funname &key (suppress-if nil) (step-if nil)
                             (pre nil) (post nil)
                             (pre-break-if nil) (post-break-if nil)
                             (pre-print nil) (post-print nil) (print nil)
-                       &aux (old-function (gensym)) (macro-flag (gensym)))
-  (unless (function-name-p funname) (error-function-name 'trace funname))
-  (check-redefinition funname 'trace "function")
+                       &aux (old-function (gensym)) (macro-flag (gensym))
+              )
+  (unless (function-name-p funname)
+    (error-of-type 'source-program-error
+      (ENGLISH "~S: function name should be a symbol, not ~S")
+      'trace funname
+  ) )
   (let ((symbolform
           (if (atom funname)
             `',funname
-            `(load-time-value (get-setf-symbol ',(second funname))))))
+            `(load-time-value (get-setf-symbol ',(second funname)))
+       )) )
     `(block nil
-       (unless (fboundp ,symbolform) ; function defined at all?
-         (warn (TEXT "~S: undefined function ~S")
-               'trace ',funname)
-         (return nil))
-       (when (special-operator-p ,symbolform) ; Special-Form: not traceable
-         (warn (TEXT "~S: cannot trace special operator ~S")
-               'trace ',funname)
-         (return nil))
+       (unless (fboundp ,symbolform) ; Funktion überhaupt definiert?
+         (warn (ENGLISH "~S: undefined function ~S")
+               'trace ',funname
+         )
+         (return nil)
+       )
+       (when (special-operator-p ,symbolform) ; Special-Form: nicht tracebar
+         (warn (ENGLISH "~S: cannot trace special operator ~S")
+               'trace ',funname
+         )
+         (return nil)
+       )
        (let* ((,old-function (symbol-function ,symbolform))
-              (,macro-flag (macrop ,old-function)))
-         (unless (eq ,old-function (get ,symbolform 'sys::tracing-definition))
-           ;; already traced?
+              (,macro-flag (consp ,old-function)))
+         (unless (eq ,old-function (get ,symbolform 'sys::tracing-definition)) ; schon getraced?
            (setf (get ,symbolform 'sys::traced-definition) ,old-function)
-           (pushnew ',funname *traced-functions* :test #'equal))
-         (format t (TEXT "~&;; Tracing ~:[function~;macro~] ~S.")
-                   ,macro-flag ',funname)
+           (pushnew ',funname *traced-functions* :test #'equal)
+         )
+         (format t (ENGLISH "~&;; Tracing ~:[function~;macro~] ~S.")
+                   ,macro-flag ',funname
+         )
          (setf (get ,symbolform 'sys::tracing-definition)
            (setf (symbol-function ,symbolform)
-             ;; new function, that replaces the original one:
-             ,(let ((newname (concat-pnames "TRACED-"
-                                            (get-funname-symbol funname)))
+             ; neue Funktion, die die ursprüngliche ersetzt:
+             ,(let ((newname (concat-pnames "TRACED-" (get-funname-symbol funname)))
                     (body
-                     `((declare (compile)
-                        (inline car cdr cons apply values-list))
-                       (let ((*trace-level* (trace-level-inc)))
-                         (block nil
-                           (unless ,suppress-if
-                             (trace-pre-output))
-                           ,@(when pre-print
-                               `((trace-print (multiple-value-list
-                                               ,pre-print))))
-                           ,@(when print
-                               `((trace-print (multiple-value-list ,print))))
-                           ,pre
-                           ,@(when pre-break-if
-                               `((when ,pre-break-if (sys::break-loop t))))
-                           (let ((*trace-values*
-                                  (multiple-value-list
-                                   (if ,step-if
-                                     (trace-step-apply)
-                                     (apply *trace-function* *trace-args*)))))
-                             ,@(when post-break-if
-                                 `((when ,post-break-if (sys::break-loop t))))
-                             ,post
-                             ,@(when print
-                                 `((trace-print (multiple-value-list ,print))))
-                             ,@(when post-print
-                                `((trace-print (multiple-value-list
-                                                ,post-print))))
-                             (unless ,suppress-if
-                               (trace-post-output))
-                             (values-list *trace-values*)))))))
+                      `((declare (compile) (inline car cdr cons apply values-list))
+                        (let ((*trace-level* (trace-level-inc)))
+                          (block nil
+                            (unless ,suppress-if
+                              (trace-pre-output)
+                            )
+                            ,@(when pre-print
+                                `((trace-print (multiple-value-list ,pre-print)))
+                              )
+                            ,@(when print
+                                `((trace-print (multiple-value-list ,print)))
+                              )
+                            ,pre
+                            ,@(when pre-break-if
+                                `((when ,pre-break-if (sys::break-loop t)))
+                              )
+                            (let ((*trace-values*
+                                    (multiple-value-list
+                                      (if ,step-if
+                                        (trace-step-apply)
+                                        (apply *trace-function* *trace-args*)
+                                 )) ) )
+                              ,@(when post-break-if
+                                  `((when ,post-break-if (sys::break-loop t)))
+                                )
+                              ,post
+                              ,@(when print
+                                  `((trace-print (multiple-value-list ,print)))
+                                )
+                              ,@(when post-print
+                                  `((trace-print (multiple-value-list ,post-print)))
+                                )
+                              (unless ,suppress-if
+                                (trace-post-output)
+                              )
+                              (values-list *trace-values*)
+                       )) ) )
+                   ))
                 `(if (not ,macro-flag)
                    (function ,newname
                      (lambda (&rest *trace-args*
-                              &aux (*trace-form*
-                                    (make-apply-form ',funname *trace-args*))
-                                   (*trace-function*
-                                    (get-traced-definition ,symbolform)))
-                       ,@body))
+                              &aux (*trace-form* (make-apply-form ',funname *trace-args*))
+                                   (*trace-function* (get-traced-definition ,symbolform))
+                             )
+                       ,@body
+                   ) )
                    (make-macro
                      (function ,newname
                        (lambda (&rest *trace-args*
                                 &aux (*trace-form* (car *trace-args*))
-                                     (*trace-function*
-                                      (macro-expander
-                                       (get-traced-definition
-                                        ,symbolform))))
-                         ,@body))))))))
-       '(,funname))))
+                                     (*trace-function* (cdr (get-traced-definition ,symbolform)))
+                               )
+                         ,@body
+                   ) ) )
+                 )
+              )
+       ) ) )
+       '(,funname)
+     )
+) )
 
-;; auxiliary functions:
-;; return next-higher Trace-Level:
+;; Hilfsfunktionen:
+; Nächsthöheres Trace-Level liefern:
 (defun trace-level-inc ()
-  (%funcall '#,#'1+ *trace-level*))
-;; fetch original function definition:
+  (%funcall '#,#'1+ *trace-level*)
+)
+; Ursprüngliche Funktionsdefinition holen:
 (defun get-traced-definition (symbol)
-  (%funcall '#,#'get symbol 'sys::traced-definition))
-;; apply, but step by step:
+  (%funcall '#,#'get symbol 'sys::traced-definition)
+)
+; Anwenden, aber durchsteppen:
 (defun trace-step-apply ()
-  ;; (eval `(step (apply ',*trace-function* ',*trace-args*)))
+  ;(eval `(step (apply ',*trace-function* ',*trace-args*)))
   (%funcall '#,#'eval
     (cons 'step
      (cons
        (cons 'apply
         (cons (cons 'quote (cons *trace-function* nil))
          (cons (cons 'quote (cons *trace-args* nil))
-          nil)))
-      nil))))
-;; build Eval-Form, that corresponds to an Apply (approximately) :
+          nil
+       )))
+      nil
+    ))
+  )
+)
+; Eval-Form bauen, die einem Apply (näherungsweise) entspricht:
 (defun make-apply-form (funname args)
   (declare (inline cons mapcar))
   (cons funname
     (mapcar #'(lambda (arg)
-                ;; (list 'quote arg)
-                (cons 'quote (cons arg nil)))
-            args)))
-;; Output before call, uses *trace-level* and *trace-form*
+                ;(list 'quote arg)
+                (cons 'quote (cons arg nil))
+              )
+            args
+  ) )
+)
+; Output vor Aufruf, benutzt *trace-level* und *trace-form*
 (defun trace-pre-output ()
   (%funcall '#,#'terpri *trace-output*)
   (%funcall '#,#'write *trace-level* :stream *trace-output* :base 10 :radix t)
   (%funcall '#,#'write-string " Trace: " *trace-output*)
-  (%funcall '#,#'prin1 *trace-form* *trace-output*))
-;; Output after call, uses *trace-level*, *trace-form* and *trace-values*
+  (%funcall '#,#'prin1 *trace-form* *trace-output*)
+)
+; Output nach Aufruf, benutzt *trace-level*, *trace-form* und *trace-values*
 (defun trace-post-output ()
   (declare (inline car cdr consp atom))
   (%funcall '#,#'terpri *trace-output*)
@@ -260,47 +228,57 @@ This will not work with closures that use lexical variables!"
   (%funcall '#,#'write-string " Trace: " *trace-output*)
   (%funcall '#,#'write (car *trace-form*) :stream *trace-output*)
   (%funcall '#,#'write-string " ==> " *trace-output*)
-  (trace-print *trace-values* nil))
-;; Output of a list of values:
+  (trace-print *trace-values* nil)
+)
+; Output einer Liste von Werten:
 (defun trace-print (vals &optional (nl-flag t))
   (when nl-flag (%funcall '#,#'terpri *trace-output*))
   (when (consp vals)
     (loop
       (let ((val (car vals)))
-        (%funcall '#,#'prin1 val *trace-output*))
+        (%funcall '#,#'prin1 val *trace-output*)
+      )
       (setq vals (cdr vals))
       (when (atom vals) (return))
-      (%funcall '#,#'write-string ", " *trace-output*))))
+      (%funcall '#,#'write-string ", " *trace-output*)
+) ) )
 
 (defmacro untrace (&rest funs)
-  `(mapcan #'untrace1
-    ,(if (null funs) `(copy-list *traced-functions*) `',funs)))
+  `(mapcan #'untrace1 ,(if (null funs) `(copy-list *traced-functions*) `',funs))
+)
 
 (defun untrace1 (funname)
   (unless (function-name-p funname)
     (error-of-type 'source-program-error
-      (TEXT "~S: function name should be a symbol, not ~S")
-      'untrace funname))
-  (check-redefinition funname 'untrace "function")
+      (ENGLISH "~S: function name should be a symbol, not ~S")
+      'untrace funname
+  ) )
   (let* ((symbol (get-funname-symbol funname))
          (old-definition (get symbol 'sys::traced-definition)))
     (prog1
       (if old-definition
-        ;; symbol was traced
+        ; symbol war getraced
         (progn
           (if (and (fboundp symbol)
-                   (eq (symbol-function symbol)
-                       (get symbol 'sys::tracing-definition)))
+                   (eq (symbol-function symbol) (get symbol 'sys::tracing-definition))
+              )
             (setf (symbol-function symbol) old-definition)
-            (warn (TEXT "~S: ~S was traced and has been redefined!")
-                  'untrace funname))
-          `(,funname))
-        ;; funname was not traced
-        '())
-      (untrace2 funname))))
+            (warn (ENGLISH "~S: ~S was traced and has been redefined!")
+                  'untrace funname
+          ) )
+          `(,funname)
+        )
+        ; funname war nicht getraced
+        '()
+      )
+      (untrace2 funname)
+) ) )
 
 (defun untrace2 (funname)
   (let ((symbol (get-funname-symbol funname)))
     (remprop symbol 'sys::traced-definition)
-    (remprop symbol 'sys::tracing-definition))
-  (setq *traced-functions* (delete funname *traced-functions* :test #'equal)))
+    (remprop symbol 'sys::tracing-definition)
+  )
+  (setq *traced-functions* (delete funname *traced-functions* :test #'equal))
+)
+

@@ -1,11 +1,10 @@
 # Additional editing of Makefiles
-/extrasub/,/^CEOF/ {
+/ac_given_INSTALL=/,/^CEOF/ {
   /^CEOF$/ i\
 # DJGPP specific Makefile changes.\
   /^aliaspath *	*=/s,:,";",g\
   /^lispdir *	*=/ c\\\\\
 lispdir = \\$(prefix)/gnu/emacs/site-lisp\
-  /^docdir *	*=/s,/doc/,/gnudocs/,g\
   /TEXINPUTS=/s,:,";",g\
   /PATH=/s,:,";",g\
   s,config\\.h\\.in,config.h-in,g\
@@ -41,21 +40,10 @@ lispdir = \\$(prefix)/gnu/emacs/site-lisp\
 # Replace (command) > /dev/null with `command > /dev/null`, since
 # parenthesized commands always return zero status in the ported Bash,
 # even if the named command doesn't exist
-# This does no longer work with autoconf 2.5, libtool 1.4 and automake 1.5.
-# /if ([^|;]*null/{
-#   s,(,`,
-#   s,),,
-#   s,;  *then,`; then,
-# }
-
-# Replace (command) > /dev/null with `command > /dev/null`, since
-# parenthesized commands always return zero status in the ported Bash,
-# even if the named command doesn't exist
-/if [^{].*null/,/ then/ {
-  /test .*null/ {
-    s,(,,
-    s,),,
-  }
+/if ([^|;]*null/{
+  s,(,`,
+  s,),,
+  s,;  *then,`; then,
 }
 
 # DOS-style absolute file names should be supported as well
@@ -95,6 +83,3 @@ lispdir = \\$(prefix)/gnu/emacs/site-lisp\
 /# Make a symlink if possible; otherwise try a hard link./,/EOF/ {
   s,;.*then, 2>/dev/null || cp -pf \$srcdir/\$ac_source \$ac_dest&,
 }
-
-# Let libtool use _libs all the time.
-/objdir=/s,\.libs,_libs,

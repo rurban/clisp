@@ -1,6 +1,3 @@
-/* -*- C -*-
- * CLISP configuration for UNIX systems
- */
 /* Bruno Haible 1992-2001 */
 
 #define UNIXCONF
@@ -30,7 +27,7 @@
 #undef void
 /* Define this as `return' if your compiler allows returning expressions of
    type `void' from functions. */
-#undef return_void
+#define return_void
 
 /* CL_LONGLONG */
 /* Define if your compiler supports the `long long' type. */
@@ -71,14 +68,14 @@
 /* CL_DIR_HEADER, CL_DIRENT_WITHOUT_NAMLEN */
 /* How to read directories: */
 /* Define if you have <dirent.h>. */
-#undef DIRENT
+#undef DIRENT   /* use <dirent.h> */
 #undef DIRENT_WITHOUT_NAMLEN
 /* Define if you don't have <dirent.h>, but have <sys/ndir.h>. */
-#undef SYSNDIR
+#undef SYSNDIR  /* use <sys/ndir.h> */
 /* Define if you don't have <dirent.h>, but have <sys/dir.h>. */
-#undef SYSDIR
+#undef SYSDIR   /* use <sys/dir.h> */
 /* Define if you don't have <dirent.h>, but have <ndir.h>. */
-#undef NDIR
+#undef NDIR     /* use <ndir.h> */
 
 /* CL_UTSNAME */
 /* Define if you have <sys/utsname.h> and it defines struct utsname. */
@@ -95,7 +92,7 @@
    either as a function or as a macro defined by <termios.h>. */
 #undef HAVE_TCGETATTR
 /* Define as const if the declaration of tcsetattr() needs const. */
-#undef TCSETATTR_CONST
+#define TCSETATTR_CONST
 /* Define if <termios.h> defines TCSAFLUSH. */
 #undef HAVE_TCSAFLUSH
 /* Define if you have <termios.h> but need <sys/ioctl.h> for `struct winsize'. */
@@ -138,7 +135,7 @@
    Don't define if strlen() is a macro. */
 #undef RETSTRLENTYPE
 /* Define as const if the declaration of strlen() needs const. */
-#undef STRLEN_CONST
+#define STRLEN_CONST
 
 /* CL_MEMSET */
 /* Define as the return type of memset(). */
@@ -180,7 +177,7 @@
 
 /* CL_SIGPROCMASK */
 /* Define as const if the declaration of sigprocmask() needs const. */
-#undef SIGPROCMASK_CONST
+#define SIGPROCMASK_CONST
 
 /* CL_SIGNAL_REINSTALL */
 /* Define if signal handlers need to be reinstalled when they are activated. */
@@ -237,29 +234,29 @@
 /* Define if <errno.h> or <stdio.h> contains a declaration for perror(). */
 #undef HAVE_PERROR_DECL
 
-/* AC_CHECK_FUNCS(strerror) */
+/* CL_STRERROR */
 /* Define if you have the strerror() function. */
 #undef HAVE_STRERROR
 
 /* CL_SYS_ERRLIST */
 /* Define as const if the declaration type of sys_errlist needs const. */
-#undef SYS_ERRLIST_CONST
+#define SYS_ERRLIST_CONST
 
 /* CL_GETENV */
 /* Define as const if the declaration of getenv() needs const. */
-#undef GETENV_CONST
+#define GETENV_CONST
 
 /* CL_PUTENV */
 /* Define if you have the putenv() function. */
 #undef HAVE_PUTENV
 /* Define as const if the declaration of putenv() needs const. */
-#undef PUTENV_CONST
+#define PUTENV_CONST
 /* Define if you have the setenv() function but not the putenv() function. */
 #undef HAVE_SETENV
 
 /* CL_SETLOCALE */
 /* Define as const if the declaration of setlocale() needs const. */
-#undef SETLOCALE_CONST
+#define SETLOCALE_CONST
 
 /* CL_RLIMIT */
 /* Define if you have the setrlimit() function. */
@@ -267,7 +264,7 @@
 /* Define as the type of `resource' in setrlimit() declaration. */
 #undef RLIMIT_RESOURCE_T
 /* Define as const if the declaration of setrlimit() needs const. */
-#undef SETRLIMIT_CONST
+#define SETRLIMIT_CONST
 
 /* AC_FUNC_VFORK */
 /* Define if you have <vfork.h>. */
@@ -279,7 +276,7 @@
 /* Define as the return type of vfork(). */
 #undef RETVFORKTYPE
 
-/* AC_CHECK_FUNCS(setsid setpgid) */
+/* CL_SETSID */
 /* Define if you have the setsid() function. */
 #undef HAVE_SETSID
 /* Define if you have the setpgid() function. */
@@ -288,20 +285,20 @@
 /* CL_EXECV */
 /* Define as const if the declaration of execv() needs const
    in the first argument. */
-#undef EXECV_CONST
+#define EXECV_CONST
 /* Define as const if the second argument of execv() needs to be declared
    as an array of pointers to constant data. */
-#undef EXECV1_CONST
+#define EXECV1_CONST
 /* Define as const if the second argument of execv() needs to be declared
    as an array of constant pointers. */
-#undef EXECV2_CONST
+#define EXECV2_CONST
 
 /* CL_EXECL */
 /* Define if the declaration of execl() needs dots. */
 #undef EXECL_DOTS
 /* Define as const if the declaration of execl() needs const
    in the second argument. */
-#undef EXECL_CONST
+#define EXECL_CONST
 
 /* CL_WAITPID */
 /* Define as the type of `pid' in waitpid() declaration. */
@@ -326,15 +323,15 @@
 
 /* CL_CHDIR */
 /* Define as const if the declaration of chdir() needs const. */
-#undef CHDIR_CONST
+#define CHDIR_CONST
 
 /* CL_MKDIR */
 /* Define as const if the declaration of mkdir() needs const. */
-#undef MKDIR_CONST
+#define MKDIR_CONST
 
 /* CL_RMDIR */
 /* Define as const if the declaration of rmdir() needs const. */
-#undef RMDIR_CONST
+#define RMDIR_CONST
 
 /* AC_HEADER_STAT */
 /* Define if the `S_IS*' macros in <sys/stat.h> do not work properly. */
@@ -346,7 +343,7 @@
 
 /* CL_STAT */
 /* Define as const if the declaration of stat() needs const. */
-#undef STAT_CONST
+#define STAT_CONST
 /* Define if the stat() function doesn't have C linkage. */
 #undef STAT_INLINE
 
@@ -354,7 +351,7 @@
 /* Define if you have the lstat() function. */
 #undef HAVE_LSTAT
 /* Define as const if the declaration of lstat() needs const. */
-#undef LSTAT_CONST
+#define LSTAT_CONST
 /* Define if the lstat() function doesn't have C linkage. */
 #undef LSTAT_INLINE
 
@@ -364,7 +361,7 @@
 /* Define as the return type of readlink(). */
 #undef RETREADLINKTYPE
 /* Define as const if the declaration of readlink() needs const. */
-#undef READLINK_CONST
+#define READLINK_CONST
 /* Define as the type of `buf' in readlink() declaration. */
 #undef READLINK_BUF_T
 /* Define as the type of `bufsiz' in readlink() declaration. */
@@ -376,7 +373,7 @@
 
 /* CL_OPENDIR */
 /* Define as const if the declaration of opendir() needs const. */
-#undef OPENDIR_CONST
+#define OPENDIR_CONST
 
 /* CL_CLOSEDIR */
 /* Define as the return type of closedir(). */
@@ -386,7 +383,7 @@
 
 /* CL_OPEN */
 /* Define as const if the declaration of open() needs const. */
-#undef OPEN_CONST
+#define OPEN_CONST
 /* Define if the declaration of open() needs dots. */
 #undef OPEN_DOTS
 
@@ -400,29 +397,19 @@
 
 /* CL_WRITE */
 /* Define as const if the declaration of write() needs const. */
-#undef WRITE_CONST
+#define WRITE_CONST
 
 /* CL_RENAME */
 /* Define as const if the declaration of rename() needs const. */
-#undef RENAME_CONST
+#define RENAME_CONST
 
 /* CL_UNLINK */
 /* Define as const if the declaration of unlink() needs const. */
-#undef UNLINK_CONST
+#define UNLINK_CONST
 
-/* AC_CHECK_FUNCS(fsync flock) */
+/* CL_FSYNC */
 /* Define if you have the fsync() system call. */
 #undef HAVE_FSYNC
-/* Define if you have the flock() system call. */
-#undef HAVE_FLOCK
-
-/* AC_CHECK_HEADERS(sys/file.h) */
-/* Define if you have sys/file.h */
-#undef HAVE_SYS_FILE_H
-
-/* AC_CHECK_FUNCS(gethostent) */
-/* Define if you have the gethostent() system call. */
-#undef HAVE_GETHOSTENT
 
 /* CL_IOCTL */
 /* Define as the type of `request' in ioctl() declaration. */
@@ -458,11 +445,11 @@
 #undef SELECT_SET_T
 /* Define as const if the declaration of select() needs const
    in the fifth argument. */
-#undef SELECT_CONST
+#define SELECT_CONST
 /* Define if you have the poll() system call but not select(). */
 #undef HAVE_POLL
 
-/* AC_CHECK_FUNCS(ualarm) */
+/* CL_UALARM */
 /* Define if you have the ualarm() function. */
 #undef HAVE_UALARM
 
@@ -470,15 +457,15 @@
 /* Define if you have the setitimer() function. */
 #undef HAVE_SETITIMER
 /* Define as const if the declaration of setitimer() needs const. */
-#undef SETITIMER_CONST
+#define SETITIMER_CONST
 
-/* AC_CHECK_FUNCS(usleep) */
+/* CL_USLEEP */
 /* Define if you have the usleep() function. */
 #undef HAVE_USLEEP
 
 /* CL_LOCALTIME */
 /* Define as const if the declaration of localtime() needs const. */
-#undef LOCALTIME_CONST
+#define LOCALTIME_CONST
 
 /* CL_GETTIMEOFDAY */
 /* Define if you have the gettimeofday() function. */
@@ -499,7 +486,7 @@
 
 /* CL_GETPWNAM */
 /* Define as const if the declaration of getpwnam() needs const. */
-#undef GETPWNAM_CONST
+#define GETPWNAM_CONST
 
 /* CL_GETPWUID */
 /* Define as the type of `uid' in getpwuid() declaration. */
@@ -515,15 +502,15 @@
 /* Define if you have gethostbyname() and either <netdb.h> or <sun/netdb.h>. */
 #undef HAVE_GETHOSTBYNAME
 /* Define as const if the declaration of gethostbyname() needs const. */
-#undef GETHOSTBYNAME_CONST
+#define GETHOSTBYNAME_CONST
 
 /* CL_CONNECT */
 /* Define as the type of `name' in connect() declaration. */
 #undef CONNECT_NAME_T
 /* Define as const if the declaration of connect() needs const. */
-#undef CONNECT_CONST
+#define CONNECT_CONST
 /* Define as the type of `addrlen' in connect() declaration. */
-#undef CONNECT_ADDRLEN_T
+#define CONNECT_ADDRLEN_T
 
 /* CL_UNIXCONN */
 /* Define if you have <sys/un.h>. */
@@ -552,11 +539,11 @@
    as empty if it is a scalar type. */
 #undef INET_ADDR_SUFFIX
 /* Define as const if the declaration of inet_addr() needs const. */
-#undef INET_ADDR_CONST
+#define INET_ADDR_CONST
 /* Define if you have <netinet/tcp.h>. */
 #undef HAVE_NETINET_TCP_H
 /* Define as const if the declaration of setsockopt() needs const. */
-#undef SETSOCKOPT_CONST
+#define SETSOCKOPT_CONST
 /* Define as the type of `optval' in setsockopt() declaration. */
 #undef SETSOCKOPT_ARG_T
 /* Define as the type of `optlen' in setsockopt() declaration. */
@@ -620,7 +607,7 @@
 /* Define if you have a working mprotect() function. */
 #undef HAVE_WORKING_MPROTECT
 /* Define as const if the declaration of mprotect() needs const. */
-#undef MPROTECT_CONST
+#define MPROTECT_CONST
 
 /* CL_SHMGET */
 /* Define as the type of `size' in shmget() declaration. */
@@ -630,7 +617,7 @@
 /* Define as the return type of shmat(). */
 #undef RETSHMATTYPE
 /* Define as const if the declaration of shmat() needs const. */
-#undef SHMAT_CONST
+#define SHMAT_CONST
 
 /* CL_SHMDT */
 /* Define as the type of `addr' in shmdt() declaration. */
@@ -654,16 +641,16 @@
 /* Define if you have the dlopen() function. */
 #undef HAVE_DLOPEN
 /* Define as const if the declaration of dlerror() needs const. */
-#undef DLERROR_CONST
+#define DLERROR_CONST
 /* Define as const if the declaration of dlsym() needs const. */
-#undef DLSYM_CONST
+#define DLSYM_CONST
 
 /* CL_ICONV */
 /* Define if you have <iconv.h>, the iconv_t type, and the
    iconv_open, iconv, iconv_close functions. */
 #undef HAVE_ICONV
 /* Define as const if the declaration of iconv() needs const. */
-#undef ICONV_CONST
+#define ICONV_CONST
 
 
 /* OS services */

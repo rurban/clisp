@@ -135,19 +135,12 @@ check : all table-from table-to ../src/iconv
 #	/* transliteration */
 	$(srcdir)/check-translit $(srcdir) Quotes UTF-8 ISO-8859-1
 	$(srcdir)/check-translit $(srcdir) Quotes UTF-8 ASCII
-	$(srcdir)/check-translitfailure $(srcdir) TranslitFail1 ISO-8859-1 ASCII
 
-table-from : table-from.@OBJEXT@ ../lib/libiconv.la
-	$(LIBTOOL_LINK) $(CC) $(LDFLAGS) table-from.@OBJEXT@ ../lib/libiconv.la -o $@
+table-from : $(srcdir)/table-from.c ../lib/libiconv.la
+	$(LIBTOOL_LINK) $(CC) $(LDFLAGS) $(INCLUDES) $(CFLAGS) $(CPPFLAGS) $(srcdir)/table-from.c ../lib/libiconv.la -o $@
 
-table-from.@OBJEXT@ : $(srcdir)/table-from.c
-	$(CC) -c $(INCLUDES) $(CFLAGS) $(CPPFLAGS) $(srcdir)/table-from.c
-
-table-to : table-to.@OBJEXT@ ../lib/libiconv.la
-	$(LIBTOOL_LINK) $(CC) $(LDFLAGS) table-to.@OBJEXT@ ../lib/libiconv.la -o $@
-
-table-to.@OBJEXT@ : $(srcdir)/table-to.c
-	$(CC) -c $(INCLUDES) $(CFLAGS) $(CPPFLAGS) $(srcdir)/table-to.c
+table-to : $(srcdir)/table-to.c ../lib/libiconv.la
+	$(LIBTOOL_LINK) $(CC) $(LDFLAGS) $(INCLUDES) $(CFLAGS) $(CPPFLAGS) $(srcdir)/table-to.c ../lib/libiconv.la -o $@
 
 # The following rule is necessary to avoid a toplevel "make -n check" failure.
 ../lib/libiconv.la :
@@ -156,7 +149,7 @@ table-to.@OBJEXT@ : $(srcdir)/table-to.c
 mostlyclean : clean
 
 clean : force
-	$(RM) *.@OBJEXT@ *.lo table-from table-to tmp-* genutf8 UTF-8.TXT core
+	$(RM) *.o *.lo table-from table-to tmp-* genutf8 UTF-8.TXT core
 	$(RM) -r .libs _libs
 
 distclean : clean

@@ -1,5 +1,5 @@
 # Encodings (character sets and conversions) for CLISP
-# Bruno Haible 1998-2001
+# Bruno Haible 1998-2000
 
 #include "lispbibl.c"
 
@@ -31,18 +31,22 @@ local char hex_table[] = "0123456789ABCDEF";
 
 # Error, when a character cannot be converted to an encoding.
 # fehler_unencodable(encoding);
-  nonreturning_function(global, fehler_unencodable, (object encoding, chart ch)) {
-    pushSTACK(code_char(ch)); # Wert für Slot DATUM von CHARSET-TYPE-ERROR
-    pushSTACK(encoding); # Wert für Slot EXPECTED-TYPE von CHARSET-TYPE-ERROR
-    pushSTACK(TheEncoding(encoding)->enc_charset);
-    pushSTACK(ascii_char(hex_table[as_cint(ch)&0x0F]));
-    pushSTACK(ascii_char(hex_table[(as_cint(ch)>>4)&0x0F]));
-    pushSTACK(ascii_char(hex_table[(as_cint(ch)>>8)&0x0F]));
-    pushSTACK(ascii_char(hex_table[(as_cint(ch)>>12)&0x0F]));
-    fehler(charset_type_error,
-           GETTEXT("Character #\\u$$$$ cannot be represented in the character set ~")
-          );
-  }
+  nonreturning_function(global, fehler_unencodable, (object encoding, chart ch));
+  global void fehler_unencodable(encoding,ch)
+    var object encoding;
+    var chart ch;
+    {
+      pushSTACK(code_char(ch)); # Wert für Slot DATUM von CHARSET-TYPE-ERROR
+      pushSTACK(encoding); # Wert für Slot EXPECTED-TYPE von CHARSET-TYPE-ERROR
+      pushSTACK(TheEncoding(encoding)->enc_charset);
+      pushSTACK(ascii_char(hex_table[as_cint(ch)&0x0F]));
+      pushSTACK(ascii_char(hex_table[(as_cint(ch)>>4)&0x0F]));
+      pushSTACK(ascii_char(hex_table[(as_cint(ch)>>8)&0x0F]));
+      pushSTACK(ascii_char(hex_table[(as_cint(ch)>>12)&0x0F]));
+      fehler(charset_type_error,
+             GETTEXT("Character #\\u$$$$ cannot be represented in the character set ~")
+            );
+    }
 
 # The range function for an encoding covering all of Unicode.
 global object all_range (object encoding, uintL start, uintL end);
@@ -207,17 +211,21 @@ global void uni32le_wcstombs (object encoding, object stream, const chart* *srcp
 
 # Error when a non-Unicode16 character was encountered.
 # fehler_uni32_invalid(encoding,code);
-  nonreturning_function(local, fehler_uni32_invalid, (object encoding, uint32 code)) {
-    var uintC count;
-    pushSTACK(TheEncoding(encoding)->enc_charset);
-    dotimespC(count,8, {
-      pushSTACK(ascii_char(hex_table[code&0x0F]));
-      code = code>>4;
-    });
-    fehler(error,
-           GETTEXT("character #x$$$$$$$$ in ~ conversion, not a Unicode-16, sorry")
-          );
-  }
+  nonreturning_function(local, fehler_uni32_invalid, (object encoding, uint32 code));
+  local void fehler_uni32_invalid(encoding,code)
+    var object encoding;
+    var uint32 code;
+    {
+      var uintC count;
+      pushSTACK(TheEncoding(encoding)->enc_charset);
+      dotimespC(count,8, {
+        pushSTACK(ascii_char(hex_table[code&0x0F]));
+        code = code>>4;
+      });
+      fehler(error,
+             GETTEXT("character #x$$$$$$$$ in ~ conversion, not a Unicode-16, sorry")
+            );
+    }
 
 global uintL uni32_mblen(encoding,src,srcend)
   var object encoding;
@@ -400,42 +408,57 @@ global void utf8_wcstombs (object encoding, object stream, const chart* *srcp, c
 
 # Error when an invalid 1-byte sequence was encountered.
 # fehler_utf8_invalid1(encoding,b1);
-  nonreturning_function(local, fehler_utf8_invalid1, (object encoding, uintB b1)) {
-    pushSTACK(TheEncoding(encoding)->enc_charset);
-    pushSTACK(ascii_char(hex_table[b1&0x0F]));
-    pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
-    fehler(error,
-           GETTEXT("invalid byte #x$$ in ~ conversion, not a Unicode-16")
-          );
-  }
+  nonreturning_function(local, fehler_utf8_invalid1, (object encoding, uintB b1));
+  local void fehler_utf8_invalid1(encoding,b1)
+    var object encoding;
+    var uintB b1;
+    {
+      pushSTACK(TheEncoding(encoding)->enc_charset);
+      pushSTACK(ascii_char(hex_table[b1&0x0F]));
+      pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
+      fehler(error,
+             GETTEXT("invalid byte #x$$ in ~ conversion, not a Unicode-16")
+            );
+    }
 
 # Error when an invalid 2-byte sequence was encountered.
 # fehler_utf8_invalid2(encoding,b1,b2);
-  nonreturning_function(local, fehler_utf8_invalid2, (object encoding, uintB b1, uintB b2)) {
-    pushSTACK(TheEncoding(encoding)->enc_charset);
-    pushSTACK(ascii_char(hex_table[b2&0x0F]));
-    pushSTACK(ascii_char(hex_table[(b2>>4)&0x0F]));
-    pushSTACK(ascii_char(hex_table[b1&0x0F]));
-    pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
-    fehler(error,
-           GETTEXT("invalid byte sequence #x$$ #x$$ in ~ conversion")
-          );
-  }
+  nonreturning_function(local, fehler_utf8_invalid2, (object encoding, uintB b1, uintB b2));
+  local void fehler_utf8_invalid2(encoding,b1,b2)
+    var object encoding;
+    var uintB b1;
+    var uintB b2;
+    {
+      pushSTACK(TheEncoding(encoding)->enc_charset);
+      pushSTACK(ascii_char(hex_table[b2&0x0F]));
+      pushSTACK(ascii_char(hex_table[(b2>>4)&0x0F]));
+      pushSTACK(ascii_char(hex_table[b1&0x0F]));
+      pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
+      fehler(error,
+             GETTEXT("invalid byte sequence #x$$ #x$$ in ~ conversion")
+            );
+    }
 
 # Error when an invalid 3-byte sequence was encountered.
 # fehler_utf8_invalid3(encoding,b1,b2,b3);
-  nonreturning_function(local, fehler_utf8_invalid3, (object encoding, uintB b1, uintB b2, uintB b3)) {
-    pushSTACK(TheEncoding(encoding)->enc_charset);
-    pushSTACK(ascii_char(hex_table[b3&0x0F]));
-    pushSTACK(ascii_char(hex_table[(b3>>4)&0x0F]));
-    pushSTACK(ascii_char(hex_table[b2&0x0F]));
-    pushSTACK(ascii_char(hex_table[(b2>>4)&0x0F]));
-    pushSTACK(ascii_char(hex_table[b1&0x0F]));
-    pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
-    fehler(error,
-           GETTEXT("invalid byte sequence #x$$ #x$$ #x$$ in ~ conversion")
-          );
-  }
+  nonreturning_function(local, fehler_utf8_invalid3, (object encoding, uintB b1, uintB b2, uintB b3));
+  local void fehler_utf8_invalid3(encoding,b1,b2,b3)
+    var object encoding;
+    var uintB b1;
+    var uintB b2;
+    var uintB b3;
+    {
+      pushSTACK(TheEncoding(encoding)->enc_charset);
+      pushSTACK(ascii_char(hex_table[b3&0x0F]));
+      pushSTACK(ascii_char(hex_table[(b3>>4)&0x0F]));
+      pushSTACK(ascii_char(hex_table[b2&0x0F]));
+      pushSTACK(ascii_char(hex_table[(b2>>4)&0x0F]));
+      pushSTACK(ascii_char(hex_table[b1&0x0F]));
+      pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
+      fehler(error,
+             GETTEXT("invalid byte sequence #x$$ #x$$ #x$$ in ~ conversion")
+            );
+    }
 
 global uintL utf8_mblen(encoding,src,srcend)
   var object encoding;
@@ -1029,14 +1052,18 @@ global object nls_range (object encoding, uintL start, uintL end);
 
 # Error when an invalid byte was encountered.
 # fehler_nls_invalid(encoding,b);
-  nonreturning_function(local, fehler_nls_invalid, (object encoding, uintB b)) {
-    pushSTACK(TheEncoding(encoding)->enc_charset);
-    pushSTACK(ascii_char(hex_table[b&0x0F]));
-    pushSTACK(ascii_char(hex_table[(b>>4)&0x0F]));
-    fehler(error,
-           GETTEXT("invalid byte #x$$ in ~ conversion")
-          );
-  }
+  nonreturning_function(local, fehler_nls_invalid, (object encoding, uintB b));
+  local void fehler_nls_invalid(encoding,b)
+    var object encoding;
+    var uintB b;
+    {
+      pushSTACK(TheEncoding(encoding)->enc_charset);
+      pushSTACK(ascii_char(hex_table[b&0x0F]));
+      pushSTACK(ascii_char(hex_table[(b>>4)&0x0F]));
+      fehler(error,
+             GETTEXT("invalid byte #x$$ in ~ conversion")
+            );
+    }
 
 global uintL nls_mblen(encoding,src,srcend)
   var object encoding;
@@ -1163,150 +1190,145 @@ global void nls_asciiext_mbstowcs(encoding,stream,srcp,srcend,destp,destend)
 
 # Characters to bytes.
 
-global uintL nls_wcslen (object encoding, const chart* src,
-                         const chart* srcend) {
-  var uintL count = srcend-src;
-  var uintL result = 0;
-  if (count > 0) {
-    var const nls_table* table = (const nls_table*)
-      TheMachine(TheEncoding(encoding)->enc_table);
-    var const unsigned char* const* cvtable = table->page_uni2charset;
-    dotimespL(count,count, {
-      var chart ch = *src++;
-      if (cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF] != 0
-          || chareq(ch,ascii(0)))
-        result++;
-      else {
-        var object action = TheEncoding(encoding)->enc_tombs_error;
-        if (eq(action,S(Kignore))) {
-        } else if (uint8_p(action)) {
-          result++;
-        } else if (!eq(action,S(Kerror))) {
-          var chart c = char_code(action);
-          var uintB b = cvtable[as_cint(c)>>8][as_cint(c)&0xFF];
-          if (b != 0 || chareq(c,ascii(0)))
+global uintL nls_wcslen(encoding,src,srcend)
+  var object encoding;
+  var const chart* src;
+  var const chart* srcend;
+  {
+    if (!eq(TheEncoding(encoding)->enc_tombs_error,S(Kignore)))
+      return (srcend-src);
+    else {
+      var uintL count = srcend-src;
+      var uintL result = 0;
+      if (count > 0) {
+        var const nls_table* table = (const nls_table*) TheMachine(TheEncoding(encoding)->enc_table);
+        var const unsigned char* const* cvtable = table->page_uni2charset;
+        dotimespL(count,count, {
+          var chart ch = *src++;
+          if (cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF] != 0 || chareq(ch,ascii(0)))
             result++;
-        }
+        });
       }
-     });
+      return result;
+    }
   }
-  return result;
-}
 
-global void nls_wcstombs (object encoding, object stream,
-                          const chart* *srcp, const chart* srcend,
-                          uintB* *destp, uintB* destend) {
-  var const chart* src = *srcp;
-  var uintB* dest = *destp;
-  var uintL scount = srcend-src;
-  var uintL dcount = destend-dest;
-  if ((scount > 0) && (dcount > 0)) {
-    var const nls_table* table = (const nls_table*)
-      TheMachine(TheEncoding(encoding)->enc_table);
-    var const unsigned char* const* cvtable = table->page_uni2charset;
-    while (scount && dcount) {
-      var chart ch = *src++; scount--;
-      var uintB b = cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF];
-      if (b != 0 || chareq(ch,ascii(0))) {
-        *dest++ = b; dcount--;
-      } else {
-        var object action = TheEncoding(encoding)->enc_tombs_error;
-        if (eq(action,S(Kignore))) {
-        } else if (uint8_p(action)) {
-          *dest++ = I_to_uint8(action); dcount--;
-        } else if (!eq(action,S(Kerror))) {
-          var chart c = char_code(action);
-          b = cvtable[as_cint(c)>>8][as_cint(c)&0xFF];
-          if (b != 0 || chareq(c,ascii(0))) {
-            *dest++ = b; dcount--;
-          } else
-            fehler_unencodable(encoding,ch);
-        } else
-          fehler_unencodable(encoding,ch);
-      }
-    };
-    *srcp = src;
-    *destp = dest;
-  }
-}
-
-# Same thing, specially optimized for ASCII extensions.
-
-global uintL nls_asciiext_wcslen (object encoding, const chart* src,
-                                  const chart* srcend) {
-  var uintL count = srcend-src;
-  var uintL result = 0;
-  if (count > 0) {
-    var const nls_table* table = (const nls_table*)
-      TheMachine(TheEncoding(encoding)->enc_table);
-    var const unsigned char* const* cvtable = table->page_uni2charset;
-    dotimespL(count,count, {
-      var chart ch = *src++;
-      if (as_cint(ch) < 0x80 || cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF] != 0)
-        result++;
-      else {
+global void nls_wcstombs(encoding,stream,srcp,srcend,destp,destend)
+  var object encoding;
+  var object stream;
+  var const chart* *srcp;
+  var const chart* srcend;
+  var uintB* *destp;
+  var uintB* destend;
+  {
+    var const chart* src = *srcp;
+    var uintB* dest = *destp;
+    var uintL count = srcend-src;
+    if (count > destend-dest)
+      count = destend-dest;
+    if (count > 0) {
+      var const nls_table* table = (const nls_table*) TheMachine(TheEncoding(encoding)->enc_table);
+      var const unsigned char* const* cvtable = table->page_uni2charset;
+      dotimespL(count,count, {
+        var chart ch = *src++;
         var uintB b = cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF];
-        if (b != 0)
-          result++;
-        else {
-          var object action = TheEncoding(encoding)->enc_tombs_error;
-          if (eq(action,S(Kignore))) {
-          } else if (uint8_p(action)) {
-            result++;
-          } else if (!eq(action,S(Kerror))) {
-            var chart c = char_code(action);
-            b = cvtable[as_cint(c)>>8][as_cint(c)&0xFF];
-            if (b != 0 || chareq(c,ascii(0)))
-              result++;
-          }
-        }
-      }
-    });
-  }
-  return result;
-}
-
-global void nls_asciiext_wcstombs (object encoding, object stream,
-                                   const chart* *srcp, const chart* srcend,
-                                   uintB* *destp, uintB* destend) {
-  var const chart* src = *srcp;
-  var uintB* dest = *destp;
-  var uintL scount = srcend-src;
-  var uintL dcount = destend-dest;
-  if ((scount > 0) && (dcount > 0)) {
-    var const nls_table* table = (const nls_table*)
-      TheMachine(TheEncoding(encoding)->enc_table);
-    var const unsigned char* const* cvtable = table->page_uni2charset;
-    while (scount && dcount) {
-      var chart ch = *src++; scount--;
-      if (as_cint(ch) < 0x80) {
-        *dest++ = (uintB)as_cint(ch); # avoid memory reference (big speedup!)
-        dcount--;
-      } else {
-        var uintB b = cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF];
-        if (b != 0) {
-          *dest++ = b; dcount--;
+        if (b != 0 || chareq(ch,ascii(0))) {
+          *dest++ = b;
         } else {
           var object action = TheEncoding(encoding)->enc_tombs_error;
           if (eq(action,S(Kignore))) {
-          } else if (uint8_p(action)) {
-            *dest++ = I_to_uint8(action); dcount--;
-          } else if (!eq(action,S(Kerror))) {
+          } elif (uint8_p(action)) {
+            *dest++ = I_to_uint8(action);
+          } elif (!eq(action,S(Kerror))) {
             var chart c = char_code(action);
             b = cvtable[as_cint(c)>>8][as_cint(c)&0xFF];
             if (b != 0 || chareq(c,ascii(0))) {
-              *dest++ = b; dcount--;
-            } else
+              *dest++ = b;
+            } else {
               fehler_unencodable(encoding,ch);
-          } else
+            }
+          } else {
             fehler_unencodable(encoding,ch);
+          }
         }
-      }
-    };
-    *srcp = src;
-    *destp = dest;
+      });
+      *srcp = src;
+      *destp = dest;
+    }
   }
-}
+
+# Same thing, specially optimized for ASCII extensions.
+
+global uintL nls_asciiext_wcslen(encoding,src,srcend)
+  var object encoding;
+  var const chart* src;
+  var const chart* srcend;
+  {
+    if (!eq(TheEncoding(encoding)->enc_tombs_error,S(Kignore)))
+      return (srcend-src);
+    else {
+      var uintL count = srcend-src;
+      var uintL result = 0;
+      if (count > 0) {
+        var const nls_table* table = (const nls_table*) TheMachine(TheEncoding(encoding)->enc_table);
+        var const unsigned char* const* cvtable = table->page_uni2charset;
+        dotimespL(count,count, {
+          var chart ch = *src++;
+          if (as_cint(ch) < 0x80 || cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF] != 0)
+            result++;
+        });
+      }
+      return result;
+    }
+  }
+
+global void nls_asciiext_wcstombs(encoding,stream,srcp,srcend,destp,destend)
+  var object encoding;
+  var object stream;
+  var const chart* *srcp;
+  var const chart* srcend;
+  var uintB* *destp;
+  var uintB* destend;
+  {
+    var const chart* src = *srcp;
+    var uintB* dest = *destp;
+    var uintL count = srcend-src;
+    if (count > destend-dest)
+      count = destend-dest;
+    if (count > 0) {
+      var const nls_table* table = (const nls_table*) TheMachine(TheEncoding(encoding)->enc_table);
+      var const unsigned char* const* cvtable = table->page_uni2charset;
+      dotimespL(count,count, {
+        var chart ch = *src++;
+        if (as_cint(ch) < 0x80) {
+          *dest++ = (uintB)as_cint(ch); # avoid memory reference (big speedup!)
+        } else {
+          var uintB b = cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF];
+          if (b != 0) {
+            *dest++ = b;
+          } else {
+            var object action = TheEncoding(encoding)->enc_tombs_error;
+            if (eq(action,S(Kignore))) {
+            } elif (uint8_p(action)) {
+              *dest++ = I_to_uint8(action);
+            } elif (!eq(action,S(Kerror))) {
+              var chart c = char_code(action);
+              b = cvtable[as_cint(c)>>8][as_cint(c)&0xFF];
+              if (b != 0 || chareq(c,ascii(0))) {
+                *dest++ = b;
+              } else {
+                fehler_unencodable(encoding,ch);
+              }
+            } else {
+              fehler_unencodable(encoding,ch);
+            }
+          }
+        }
+      });
+      *srcp = src;
+      *destp = dest;
+    }
+  }
 
 # Determining the range of encodable characters.
 global object nls_range(encoding,start,end)
@@ -1492,14 +1514,17 @@ LISPFUNN(encodingp,1)
 # Fehlermeldung, falls ein Argument kein Encoding ist:
 # > obj: Das fehlerhafte Argument
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_encoding, (object obj)) {
-    pushSTACK(obj); # TYPE-ERROR slot DATUM
-    pushSTACK(S(encoding)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
-           GETTEXT("~: argument ~ is not a character set")
-          );
-  }
+  nonreturning_function(local, fehler_encoding, (object obj));
+  local void fehler_encoding(obj)
+    var object obj;
+    {
+      pushSTACK(obj); # TYPE-ERROR slot DATUM
+      pushSTACK(S(encoding)); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("~: argument ~ is not a character set")
+            );
+    }
 
 LISPFUNN(charset_typep,2)
 # (SYSTEM::CHARSET-TYPEP object encoding)
@@ -1541,7 +1566,7 @@ LISPFUNN(charset_range,3)
     if (i1 <= i2)
       value1 = Encoding_range(encoding)(encoding,i1,i2);
     else
-      value1 = O(empty_string);
+      value1 = O(leer_string);
     mv_count=1;
     skipSTACK(3);
   }
@@ -1701,180 +1726,178 @@ LISPFUNN(charset_range,3)
 
 # Initialize the encodings.
 # init_encodings();
-global void init_encodings_1 (void) {
-  # Compile-time checks:
-  ASSERT(sizeof(chart) == sizeof(cint));
- #ifdef UNICODE
-  {
-    var object symbol = S(unicode_16_big_endian);
-    var object encoding = allocate_encoding();
-    TheEncoding(encoding)->enc_eol = S(Kunix);
-    TheEncoding(encoding)->enc_towcs_error = S(Kerror);
-    TheEncoding(encoding)->enc_tombs_error = S(Kerror);
-    TheEncoding(encoding)->enc_charset = symbol;
-    TheEncoding(encoding)->enc_mblen    = P(uni16_mblen);
-    TheEncoding(encoding)->enc_mbstowcs = P(uni16be_mbstowcs);
-    TheEncoding(encoding)->enc_wcslen   = P(uni16_wcslen);
-    TheEncoding(encoding)->enc_wcstombs = P(uni16be_wcstombs);
-    TheEncoding(encoding)->enc_range    = P(all_range);
-    TheEncoding(encoding)->min_bytes_per_char = 2;
-    TheEncoding(encoding)->max_bytes_per_char = 2;
-    define_constant(symbol,encoding);
-  }
-  {
-    var object symbol = S(unicode_16_little_endian);
-    var object encoding = allocate_encoding();
-    TheEncoding(encoding)->enc_eol = S(Kunix);
-    TheEncoding(encoding)->enc_towcs_error = S(Kerror);
-    TheEncoding(encoding)->enc_tombs_error = S(Kerror);
-    TheEncoding(encoding)->enc_charset = symbol;
-    TheEncoding(encoding)->enc_mblen    = P(uni16_mblen);
-    TheEncoding(encoding)->enc_mbstowcs = P(uni16le_mbstowcs);
-    TheEncoding(encoding)->enc_wcslen   = P(uni16_wcslen);
-    TheEncoding(encoding)->enc_wcstombs = P(uni16le_wcstombs);
-    TheEncoding(encoding)->enc_range    = P(all_range);
-    TheEncoding(encoding)->min_bytes_per_char = 2;
-    TheEncoding(encoding)->max_bytes_per_char = 2;
-    define_constant(symbol,encoding);
-  }
-  {
-    var object symbol = S(unicode_32_big_endian);
-    var object encoding = allocate_encoding();
-    TheEncoding(encoding)->enc_eol = S(Kunix);
-    TheEncoding(encoding)->enc_towcs_error = S(Kerror);
-    TheEncoding(encoding)->enc_tombs_error = S(Kerror);
-    TheEncoding(encoding)->enc_charset = symbol;
-    TheEncoding(encoding)->enc_mblen    = P(uni32_mblen);
-    TheEncoding(encoding)->enc_mbstowcs = P(uni32be_mbstowcs);
-    TheEncoding(encoding)->enc_wcslen   = P(uni32_wcslen);
-    TheEncoding(encoding)->enc_wcstombs = P(uni32be_wcstombs);
-    TheEncoding(encoding)->enc_range    = P(all_range);
-    TheEncoding(encoding)->min_bytes_per_char = 4;
-    TheEncoding(encoding)->max_bytes_per_char = 4;
-    define_constant(symbol,encoding);
-  }
-  {
-    var object symbol = S(unicode_32_little_endian);
-    var object encoding = allocate_encoding();
-    TheEncoding(encoding)->enc_eol = S(Kunix);
-    TheEncoding(encoding)->enc_towcs_error = S(Kerror);
-    TheEncoding(encoding)->enc_tombs_error = S(Kerror);
-    TheEncoding(encoding)->enc_charset = symbol;
-    TheEncoding(encoding)->enc_mblen    = P(uni32_mblen);
-    TheEncoding(encoding)->enc_mbstowcs = P(uni32le_mbstowcs);
-    TheEncoding(encoding)->enc_wcslen   = P(uni32_wcslen);
-    TheEncoding(encoding)->enc_wcstombs = P(uni32le_wcstombs);
-    TheEncoding(encoding)->enc_range    = P(all_range);
-    TheEncoding(encoding)->min_bytes_per_char = 4;
-    TheEncoding(encoding)->max_bytes_per_char = 4;
-    define_constant(symbol,encoding);
-  }
-  {
-    var object symbol = S(utf_8);
-    var object encoding = allocate_encoding();
-    TheEncoding(encoding)->enc_eol = S(Kunix);
-    TheEncoding(encoding)->enc_towcs_error = S(Kerror);
-    TheEncoding(encoding)->enc_tombs_error = S(Kerror);
-    TheEncoding(encoding)->enc_charset = symbol;
-    TheEncoding(encoding)->enc_mblen    = P(utf8_mblen);
-    TheEncoding(encoding)->enc_mbstowcs = P(utf8_mbstowcs);
-    TheEncoding(encoding)->enc_wcslen   = P(utf8_wcslen);
-    TheEncoding(encoding)->enc_wcstombs = P(utf8_wcstombs);
-    TheEncoding(encoding)->enc_range    = P(all_range);
-    TheEncoding(encoding)->min_bytes_per_char = 1;
-    TheEncoding(encoding)->max_bytes_per_char = 3;
-    define_constant(symbol,encoding);
-  }
-  {
-    var object symbol = S(java);
-    var object encoding = allocate_encoding();
-    TheEncoding(encoding)->enc_eol = S(Kunix);
-    TheEncoding(encoding)->enc_towcs_error = S(Kerror);
-    TheEncoding(encoding)->enc_tombs_error = S(Kerror);
-    TheEncoding(encoding)->enc_charset = symbol;
-    TheEncoding(encoding)->enc_mblen    = P(java_mblen);
-    TheEncoding(encoding)->enc_mbstowcs = P(java_mbstowcs);
-    TheEncoding(encoding)->enc_wcslen   = P(java_wcslen);
-    TheEncoding(encoding)->enc_wcstombs = P(java_wcstombs);
-    TheEncoding(encoding)->enc_range    = P(all_range);
-    TheEncoding(encoding)->min_bytes_per_char = 1;
-    TheEncoding(encoding)->max_bytes_per_char = 6;
-    define_constant(symbol,encoding);
-  }
- #endif
-}
-global void init_encodings_2 (void) {
- #ifdef UNICODE
-  {
-    var object symbol = nls_first_sym;
-    var const nls_table * const * ptr = &nls_tables[0];
-    var uintC count;
-    ASSERT(nls_num_encodings == sizeof(nls_tables)/sizeof(nls_tables[0]));
-    dotimesC(count,sizeof(nls_tables)/sizeof(nls_tables[0]), {
-      var object encoding = allocate_encoding();
-      TheEncoding(encoding)->enc_eol = S(Kunix);
-      TheEncoding(encoding)->enc_towcs_error = S(Kerror);
-      TheEncoding(encoding)->enc_tombs_error = S(Kerror);
-      TheEncoding(encoding)->enc_charset = symbol;
-      if ((*ptr)->is_ascii_extension) {
-        TheEncoding(encoding)->enc_mblen    = P(nls_asciiext_mblen);
-        TheEncoding(encoding)->enc_mbstowcs = P(nls_asciiext_mbstowcs);
-        TheEncoding(encoding)->enc_wcslen   = P(nls_asciiext_wcslen);
-        TheEncoding(encoding)->enc_wcstombs = P(nls_asciiext_wcstombs);
-      } else {
-        TheEncoding(encoding)->enc_mblen    = P(nls_mblen);
-        TheEncoding(encoding)->enc_mbstowcs = P(nls_mbstowcs);
-        TheEncoding(encoding)->enc_wcslen   = P(nls_wcslen);
-        TheEncoding(encoding)->enc_wcstombs = P(nls_wcstombs);
+  global void init_encodings (void);
+  global void init_encodings()
+    {
+      # Compile-time checks:
+        ASSERT(sizeof(chart) == sizeof(cint));
+      #ifdef UNICODE
+      {
+        var object symbol = S(unicode_16_big_endian);
+        var object encoding = allocate_encoding();
+        TheEncoding(encoding)->enc_eol = S(Kunix);
+        TheEncoding(encoding)->enc_towcs_error = S(Kerror);
+        TheEncoding(encoding)->enc_tombs_error = S(Kerror);
+        TheEncoding(encoding)->enc_charset = symbol;
+        TheEncoding(encoding)->enc_mblen    = P(uni16_mblen);
+        TheEncoding(encoding)->enc_mbstowcs = P(uni16be_mbstowcs);
+        TheEncoding(encoding)->enc_wcslen   = P(uni16_wcslen);
+        TheEncoding(encoding)->enc_wcstombs = P(uni16be_wcstombs);
+        TheEncoding(encoding)->enc_range    = P(all_range);
+        TheEncoding(encoding)->min_bytes_per_char = 2;
+        TheEncoding(encoding)->max_bytes_per_char = 2;
+        define_constant(symbol,encoding);
       }
-      TheEncoding(encoding)->enc_range    = P(nls_range);
-      TheEncoding(encoding)->enc_table    = make_machine(*ptr);
-      TheEncoding(encoding)->min_bytes_per_char = 1;
-      TheEncoding(encoding)->max_bytes_per_char = 1;
-      define_constant(symbol,encoding);
-      symbol = objectplus(symbol,(soint)sizeof(*TheSymbol(symbol))<<(oint_addr_shift-addr_shift));
-      ptr++;
-    });
-  }
-  # Now some aliases.
-  define_constant(S(unicode_16),Symbol_value(S(unicode_16_big_endian))); # network byte order = big endian
-  define_constant(S(unicode_32),Symbol_value(S(unicode_32_big_endian))); # network byte order = big endian
-  define_constant(S(ucs_2),Symbol_value(S(unicode_16)));
-  define_constant(S(ucs_4),Symbol_value(S(unicode_32)));
-  define_constant(S(macintosh),Symbol_value(S(mac_roman)));
-  define_constant(S(windows_1250),Symbol_value(S(cp1250)));
-  define_constant(S(windows_1251),Symbol_value(S(cp1251)));
-  define_constant(S(windows_1252),Symbol_value(S(cp1252)));
-  define_constant(S(windows_1253),Symbol_value(S(cp1253)));
-  define_constant(S(windows_1254),Symbol_value(S(cp1254)));
-  define_constant(S(windows_1255),Symbol_value(S(cp1255)));
-  define_constant(S(windows_1256),Symbol_value(S(cp1256)));
-  define_constant(S(windows_1257),Symbol_value(S(cp1257)));
-  define_constant(S(windows_1258),Symbol_value(S(cp1258)));
- #ifdef GNU_LIBICONV
-  {
-    var object symbol = iconv_first_sym;
-    var uintC count;
-    dotimesC(count,iconv_num_encodings, {
-      pushSTACK(Symbol_name(symbol));
-      pushSTACK(unbound); pushSTACK(unbound); pushSTACK(unbound);
-      C_make_encoding(); # cannot use funcall yet
-      define_constant(symbol,value1);
-      symbol = objectplus(symbol,(soint)sizeof(*TheSymbol(symbol))<<(oint_addr_shift-addr_shift));
-    });
-  }
- #endif
-  # Initialize O(internal_encoding):
-  pushSTACK(Symbol_value(S(utf_8)));
-  pushSTACK(S(Kunix));
-  pushSTACK(unbound);
-  pushSTACK(unbound);
-  C_make_encoding();
-  O(internal_encoding) = value1;
- #endif
-  # Initialize locale dependent encodings:
-  init_dependent_encodings();
-}
+      {
+        var object symbol = S(unicode_16_little_endian);
+        var object encoding = allocate_encoding();
+        TheEncoding(encoding)->enc_eol = S(Kunix);
+        TheEncoding(encoding)->enc_towcs_error = S(Kerror);
+        TheEncoding(encoding)->enc_tombs_error = S(Kerror);
+        TheEncoding(encoding)->enc_charset = symbol;
+        TheEncoding(encoding)->enc_mblen    = P(uni16_mblen);
+        TheEncoding(encoding)->enc_mbstowcs = P(uni16le_mbstowcs);
+        TheEncoding(encoding)->enc_wcslen   = P(uni16_wcslen);
+        TheEncoding(encoding)->enc_wcstombs = P(uni16le_wcstombs);
+        TheEncoding(encoding)->enc_range    = P(all_range);
+        TheEncoding(encoding)->min_bytes_per_char = 2;
+        TheEncoding(encoding)->max_bytes_per_char = 2;
+        define_constant(symbol,encoding);
+      }
+      {
+        var object symbol = S(unicode_32_big_endian);
+        var object encoding = allocate_encoding();
+        TheEncoding(encoding)->enc_eol = S(Kunix);
+        TheEncoding(encoding)->enc_towcs_error = S(Kerror);
+        TheEncoding(encoding)->enc_tombs_error = S(Kerror);
+        TheEncoding(encoding)->enc_charset = symbol;
+        TheEncoding(encoding)->enc_mblen    = P(uni32_mblen);
+        TheEncoding(encoding)->enc_mbstowcs = P(uni32be_mbstowcs);
+        TheEncoding(encoding)->enc_wcslen   = P(uni32_wcslen);
+        TheEncoding(encoding)->enc_wcstombs = P(uni32be_wcstombs);
+        TheEncoding(encoding)->enc_range    = P(all_range);
+        TheEncoding(encoding)->min_bytes_per_char = 4;
+        TheEncoding(encoding)->max_bytes_per_char = 4;
+        define_constant(symbol,encoding);
+      }
+      {
+        var object symbol = S(unicode_32_little_endian);
+        var object encoding = allocate_encoding();
+        TheEncoding(encoding)->enc_eol = S(Kunix);
+        TheEncoding(encoding)->enc_towcs_error = S(Kerror);
+        TheEncoding(encoding)->enc_tombs_error = S(Kerror);
+        TheEncoding(encoding)->enc_charset = symbol;
+        TheEncoding(encoding)->enc_mblen    = P(uni32_mblen);
+        TheEncoding(encoding)->enc_mbstowcs = P(uni32le_mbstowcs);
+        TheEncoding(encoding)->enc_wcslen   = P(uni32_wcslen);
+        TheEncoding(encoding)->enc_wcstombs = P(uni32le_wcstombs);
+        TheEncoding(encoding)->enc_range    = P(all_range);
+        TheEncoding(encoding)->min_bytes_per_char = 4;
+        TheEncoding(encoding)->max_bytes_per_char = 4;
+        define_constant(symbol,encoding);
+      }
+      {
+        var object symbol = S(utf_8);
+        var object encoding = allocate_encoding();
+        TheEncoding(encoding)->enc_eol = S(Kunix);
+        TheEncoding(encoding)->enc_towcs_error = S(Kerror);
+        TheEncoding(encoding)->enc_tombs_error = S(Kerror);
+        TheEncoding(encoding)->enc_charset = symbol;
+        TheEncoding(encoding)->enc_mblen    = P(utf8_mblen);
+        TheEncoding(encoding)->enc_mbstowcs = P(utf8_mbstowcs);
+        TheEncoding(encoding)->enc_wcslen   = P(utf8_wcslen);
+        TheEncoding(encoding)->enc_wcstombs = P(utf8_wcstombs);
+        TheEncoding(encoding)->enc_range    = P(all_range);
+        TheEncoding(encoding)->min_bytes_per_char = 1;
+        TheEncoding(encoding)->max_bytes_per_char = 3;
+        define_constant(symbol,encoding);
+      }
+      {
+        var object symbol = S(java);
+        var object encoding = allocate_encoding();
+        TheEncoding(encoding)->enc_eol = S(Kunix);
+        TheEncoding(encoding)->enc_towcs_error = S(Kerror);
+        TheEncoding(encoding)->enc_tombs_error = S(Kerror);
+        TheEncoding(encoding)->enc_charset = symbol;
+        TheEncoding(encoding)->enc_mblen    = P(java_mblen);
+        TheEncoding(encoding)->enc_mbstowcs = P(java_mbstowcs);
+        TheEncoding(encoding)->enc_wcslen   = P(java_wcslen);
+        TheEncoding(encoding)->enc_wcstombs = P(java_wcstombs);
+        TheEncoding(encoding)->enc_range    = P(all_range);
+        TheEncoding(encoding)->min_bytes_per_char = 1;
+        TheEncoding(encoding)->max_bytes_per_char = 6;
+        define_constant(symbol,encoding);
+      }
+      {
+        var object symbol = nls_first_sym;
+        var const nls_table * const * ptr = &nls_tables[0];
+        var uintC count;
+        ASSERT(nls_num_encodings == sizeof(nls_tables)/sizeof(nls_tables[0]));
+        dotimesC(count,sizeof(nls_tables)/sizeof(nls_tables[0]), {
+          var object encoding = allocate_encoding();
+          TheEncoding(encoding)->enc_eol = S(Kunix);
+          TheEncoding(encoding)->enc_towcs_error = S(Kerror);
+          TheEncoding(encoding)->enc_tombs_error = S(Kerror);
+          TheEncoding(encoding)->enc_charset = symbol;
+          if ((*ptr)->is_ascii_extension) {
+            TheEncoding(encoding)->enc_mblen    = P(nls_asciiext_mblen);
+            TheEncoding(encoding)->enc_mbstowcs = P(nls_asciiext_mbstowcs);
+            TheEncoding(encoding)->enc_wcslen   = P(nls_asciiext_wcslen);
+            TheEncoding(encoding)->enc_wcstombs = P(nls_asciiext_wcstombs);
+          } else {
+            TheEncoding(encoding)->enc_mblen    = P(nls_mblen);
+            TheEncoding(encoding)->enc_mbstowcs = P(nls_mbstowcs);
+            TheEncoding(encoding)->enc_wcslen   = P(nls_wcslen);
+            TheEncoding(encoding)->enc_wcstombs = P(nls_wcstombs);
+          }
+          TheEncoding(encoding)->enc_range    = P(nls_range);
+          TheEncoding(encoding)->enc_table    = make_machine(*ptr);
+          TheEncoding(encoding)->min_bytes_per_char = 1;
+          TheEncoding(encoding)->max_bytes_per_char = 1;
+          define_constant(symbol,encoding);
+          symbol = objectplus(symbol,(soint)sizeof(*TheSymbol(symbol))<<(oint_addr_shift-addr_shift));
+          ptr++;
+        });
+      }
+      # Now some aliases.
+      define_constant(S(unicode_16),Symbol_value(S(unicode_16_big_endian))); # network byte order = big endian
+      define_constant(S(unicode_32),Symbol_value(S(unicode_32_big_endian))); # network byte order = big endian
+      define_constant(S(ucs_2),Symbol_value(S(unicode_16)));
+      define_constant(S(ucs_4),Symbol_value(S(unicode_32)));
+      define_constant(S(macintosh),Symbol_value(S(mac_roman)));
+      define_constant(S(windows_1250),Symbol_value(S(cp1250)));
+      define_constant(S(windows_1251),Symbol_value(S(cp1251)));
+      define_constant(S(windows_1252),Symbol_value(S(cp1252)));
+      define_constant(S(windows_1253),Symbol_value(S(cp1253)));
+      define_constant(S(windows_1254),Symbol_value(S(cp1254)));
+      define_constant(S(windows_1255),Symbol_value(S(cp1255)));
+      define_constant(S(windows_1256),Symbol_value(S(cp1256)));
+      define_constant(S(windows_1257),Symbol_value(S(cp1257)));
+      define_constant(S(windows_1258),Symbol_value(S(cp1258)));
+      #ifdef GNU_LIBICONV
+      {
+        var object symbol = iconv_first_sym;
+        var uintC count;
+        dotimesC(count,iconv_num_encodings, {
+          pushSTACK(Symbol_name(symbol));
+          pushSTACK(unbound); pushSTACK(unbound); pushSTACK(unbound);
+          C_make_encoding(); # cannot use funcall yet
+          define_constant(symbol,value1);
+          symbol = objectplus(symbol,(soint)sizeof(*TheSymbol(symbol))<<(oint_addr_shift-addr_shift));
+        });
+      }
+      #endif
+      # Initialize O(internal_encoding):
+        pushSTACK(Symbol_value(S(utf_8)));
+        pushSTACK(S(Kunix));
+        pushSTACK(unbound);
+        pushSTACK(unbound);
+        C_make_encoding();
+        O(internal_encoding) = value1;
+      #endif
+      # Initialize locale dependent encodings:
+      init_dependent_encodings();
+    }
 
 # Returns an encoding specified by a name. The line-termination is OS dependent.
 # encoding_from_name(name)
@@ -2057,51 +2080,40 @@ global void init_encodings_2 (void) {
 
 # Initialize the encodings which depend on environment variables.
 # init_dependent_encodings();
-global void init_dependent_encodings(void) {
-#ifdef UNICODE
-  extern const char* argv_encoding_file; # override for *default-file-encoding*
-  extern const char* argv_encoding_pathname; # override for *pathname-encoding*
-  extern const char* argv_encoding_terminal; # override for *terminal-encoding*
-  extern const char* argv_encoding_foreign; # override for *foreign-encoding*
-  extern const char* argv_encoding_misc; # override for *misc-encoding*
-  begin_system_call();
-  var const char* locale_encoding = locale_charset(); # depends on environment variables
-  end_system_call();
-  pushSTACK(encoding_from_name(locale_encoding));
-  # Initialize each encoding as follows: If the corresponding -E....
-  # option was not given, use the locale dependent locale_charset().
-  # If it was given, use that, and if the specified encoding was invalid,
-  # use a default encoding that does not depend on the locale.
-  O(default_file_encoding) =
-    (argv_encoding_file ? encoding_from_name(argv_encoding_file) : STACK_0);
-  O(pathname_encoding) =
-    (argv_encoding_pathname ? encoding_from_name(argv_encoding_pathname)
-     : STACK_0);
- #if defined(WIN32_NATIVE)
-  { # cf libiconv/libcharset/lib/localcharset.c locale_charset()
-    var const char *enc = argv_encoding_terminal;
-    var char buf[2+10+1];
-    if (enc == NULL)
-      sprintf(enc=buf,"CP%u",GetOEMCP());
-    O(terminal_encoding) = encoding_from_name(enc);
-  }
- #else
-  O(terminal_encoding) =
-    (argv_encoding_terminal ? encoding_from_name(argv_encoding_terminal)
-     : STACK_0);
- #endif
- #if defined(HAVE_FFI) || defined(HAVE_AFFI)
-  O(foreign_encoding) =
-    (argv_encoding_foreign ? encoding_from_name(argv_encoding_foreign)
-     : STACK_0);
- #endif
-  O(misc_encoding) =
-    (argv_encoding_misc ? encoding_from_name(argv_encoding_misc) : STACK_0);
-  skipSTACK(1);
-#else # no UNICODE
-  O(default_file_encoding) = encoding_from_name(NULL);
-#endif
-}
+  global void init_dependent_encodings (void);
+  global void init_dependent_encodings()
+    {
+      #ifdef UNICODE
+        extern const char* argv_encoding_file; # override for *default-file-encoding*
+        extern const char* argv_encoding_pathname; # override for *pathname-encoding*
+        extern const char* argv_encoding_terminal; # override for *terminal-encoding*
+        extern const char* argv_encoding_foreign; # override for *foreign-encoding*
+        extern const char* argv_encoding_misc; # override for *misc-encoding*
+        begin_system_call();
+        var const char* locale_encoding = locale_charset(); # depends on environment variables
+        end_system_call();
+        pushSTACK(encoding_from_name(locale_encoding));
+        # Initialize each encoding as follows: If the corresponding -E....
+        # option was not given, use the locale dependent locale_charset().
+        # If it was given, use that, and if the specified encoding was invalid,
+        # use a default encoding that does not depend on the locale.
+        O(default_file_encoding) =
+          (argv_encoding_file ? encoding_from_name(argv_encoding_file) : STACK_0);
+        O(pathname_encoding) =
+          (argv_encoding_pathname ? encoding_from_name(argv_encoding_pathname) : STACK_0);
+        O(terminal_encoding) =
+          (argv_encoding_terminal ? encoding_from_name(argv_encoding_terminal) : STACK_0);
+        #if defined(HAVE_FFI) || defined(HAVE_AFFI)
+        O(foreign_encoding) =
+          (argv_encoding_foreign ? encoding_from_name(argv_encoding_foreign) : STACK_0);
+        #endif
+        O(misc_encoding) =
+          (argv_encoding_misc ? encoding_from_name(argv_encoding_misc) : STACK_0);
+        skipSTACK(1);
+      #else
+        O(default_file_encoding) = encoding_from_name(NULL);
+      #endif
+    }
 
 # =============================================================================
 #                                 Accessors
@@ -2228,7 +2240,7 @@ LISPFUN(convert_string_from_bytes,2,0,norest,key,2, (kw(start),kw(end)) )
       funcall(L(coerced_subseq),6);
       subr_self = old_subr_self;
       array = value1;
-      if (!bit_vector_p(Atype_8Bit,array)) { NOTREACHED; }
+      if (!bit_vector_p(Atype_8Bit,array)) { NOTREACHED }
       STACK_0 = I_I_minus_I(STACK_0,STACK_1); # end := (- end start)
       STACK_1 = Fixnum_0; # start := 0
     }

@@ -190,7 +190,7 @@
         }
         SetIoErr(0L); # Fehlercode löschen (fürs nächste Mal)
       }
-    nonreturning_function(global, OS_error, (void))
+    global void OS_error()
       {
         var uintC errcode; # Fehlernummer
         end_system_call(); # just in case
@@ -204,7 +204,8 @@
         OS_error_internal(errcode);
         end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
       }
-    nonreturning_function(global, OS_file_error, (object pathname))
+    global void OS_file_error(pathname)
+      var object pathname;
       {
         var uintC errcode; # Fehlernummer
         begin_system_call();

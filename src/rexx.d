@@ -27,11 +27,13 @@
 # Fehlermeldung wenn kein Rexx möglich
 # fehler_norexx();
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_norexx, (void)) {
-    fehler(error,
-           GETTEXT("Communication with ARexx is not possible.")
-          );
-  }
+  nonreturning_function(local, fehler_norexx, (void));
+  local void fehler_norexx()
+    {
+      fehler(error,
+             GETTEXT("Communication with ARexx isn't possible.")
+            );
+    }
 
 # Speicher freigeben, der wegen Fehler nicht freigegeben wurde.
   local UBYTE* rexxLostArgstr = NULL;
@@ -105,7 +107,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
     } else {
       functionp = true;
       # sollte (Simple-)Vector sein:
-      # evtl.: STACK_(5+1) = coerce_sequence(STACK_(5+1),S(simple_vector),true);
+      # evtl.: STACK_(5+1) = coerce_sequence(STACK_(5+1),S(simple_vector));
       if (!simple_vector_p(STACK_(5+1))) {
         pushSTACK(STACK_(5+1)); # TYPE-ERROR slot DATUM
         pushSTACK(S(simple_vector)); # TYPE-ERROR slot EXPECTED-TYPE

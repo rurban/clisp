@@ -55,26 +55,23 @@ LISPFUNN(lisp_implementation_version,0)
             ztime[11]=0;
             ye = atol(ztime+7);
           });
-          # no month ==> l_i_v_b_s must have been converted already
-          if (mo != 0) {
-            # YYYY-MM-DD HH:MM:SS
-            var char build_time[4+1+2+1+2 +1+ 2+1+2+1+2+1];
-            if (eq(unbound,Symbol_function(S(encode_universal_time)))) {
-              sprintf(build_time,"%04d-%02d-%02d %02d:%02d:%02d",
-                      ye,mo,da,ho,mi,se);
-            } else {
-              pushSTACK(fixnum(se));
-              pushSTACK(fixnum(mi));
-              pushSTACK(fixnum(ho));
-              pushSTACK(fixnum(da));
-              pushSTACK(fixnum(mo));
-              pushSTACK(fixnum(ye));
-              funcall(S(encode_universal_time),6);
-              sprintf(build_time,"%u",I_to_UL(value1));
-            }
-            O(lisp_implementation_version_built_string) =
-              ascii_to_string(build_time);
+          # YYYY-MM-DD HH:MM:SS
+          var char build_time[4+1+2+1+2 +1+ 2+1+2+1+2+1];
+          if (eq(unbound,Symbol_function(S(encode_universal_time)))) {
+            sprintf(build_time,"%04d-%02d-%02d %02d:%02d:%02d",
+                    ye,mo,da,ho,mi,se);
+          } else {
+            pushSTACK(fixnum(se));
+            pushSTACK(fixnum(mi));
+            pushSTACK(fixnum(ho));
+            pushSTACK(fixnum(da));
+            pushSTACK(fixnum(mo));
+            pushSTACK(fixnum(ye));
+            funcall(S(encode_universal_time),6);
+            sprintf(build_time,"%u",I_to_UL(value1));
           }
+          O(lisp_implementation_version_built_string) =
+            ascii_to_string(build_time);
           pushSTACK(ascii_to_string(") (built "));
           pushSTACK(O(lisp_implementation_version_built_string));
           count += 2;
@@ -267,15 +264,13 @@ LISPFUNN(get_env,1)
   mv_count=1;
 }
 
-# Creates a string concatenating an environment variable and its value.
-# Like sprintf(buffer, "%s=%s", name, value);
-local char * cat_env_var (char * buffer, const char * name, uintL namelen,
-                          const char * value, uintL valuelen) {
+local char * cat_env_var(char * buffer,const char * name,uintL namelen,
+                         const char * value,uintL valuelen) {
   memcpy(buffer,name,namelen);
   if (value != NULL) {
     buffer[namelen] = '=';
     memcpy(buffer+namelen+1,value,valuelen);
-    buffer[namelen+1+valuelen] = 0;
+    buffer[namelen+valuelen+1] = 0;
   } else
     buffer[namelen] = 0;
   return buffer;
@@ -290,7 +285,7 @@ global int clisp_setenv (const char * name, const char * value) {
   var uintL namelen = asciz_length(name);
   var uintL valuelen = (value==NULL ? 0 : asciz_length(value));
 #if defined(HAVE_PUTENV)
-  var char* buffer = (char*)malloc(namelen+1+valuelen+1);
+  var char* buffer = malloc(namelen+1+valuelen+1);
   if (!buffer)
     return -1; # no need to set errno = ENOMEM
   return putenv(cat_env_var(buffer,name,namelen,value,valuelen));
@@ -363,22 +358,18 @@ LISPFUNN(set_env,2)
   if (!stringp(STACK_0) && !nullp(STACK_0)) fehler_string(STACK_0);
   var object value = popSTACK();
   var object name = popSTACK();
-  var int ret;
+  var int error;
   with_string_0(name,O(misc_encoding),namez, {
     begin_system_call();
     if (nullp(value)) {
       if (getenv(namez))
-        ret = clisp_setenv(namez,NULL);
-      else
-        ret = 0;
-    } else {
-      with_string_0(value,O(misc_encoding),valuez, {
-        ret = clisp_setenv(namez,valuez);
-      });
-    }
+        error = clisp_setenv(namez,NULL);
+    } else with_string_0(value,O(misc_encoding),valuez, {
+      error = clisp_setenv(namez,valuez);
+    });
     end_system_call();
   });
-  if (ret) {
+  if (error) {
     pushSTACK(value);
     pushSTACK(name);
     pushSTACK(TheSubr(subr_self)->name);
@@ -458,32 +449,62 @@ LISPFUNN(registry,2)
 
 #endif
 
-LISPFUNN(software_type,0) { # (SOFTWARE-TYPE), CLTL p. 448
-  value1 = CLSTEXT("ANSI C program"); mv_count=1;
-}
+LISPFUNN(software_type,0)
+# (SOFTWARE-TYPE), CLTL S. 448
+  {
+    value1 = OLS(software_type_string); mv_count=1;
+  }
 
-LISPFUNN(software_version,0) { # (SOFTWARE-VERSION), CLTL p. 448
-#if defined(GNU)
- #if defined(__cplusplus)
-  pushSTACK(CLSTEXT("GNU C++ "));
- #else
-  pushSTACK(CLSTEXT("GNU C "));
- #endif
-  pushSTACK(O(c_compiler_version));
-  value1 = string_concat(2);
-#else
- #if defined(__cplusplus)
-  value1 = CLSTEXT("C++ compiler");
- #else
-  value1 = CLSTEXT("C compiler");
- #endif
-#endif
-  mv_count=1;
-}
+LISPFUNN(software_version,0)
+# (SOFTWARE-VERSION), CLTL S. 448
+  {
+    #if defined(GNU)
+      value1 = O(software_version_string);
+      if (nullp(value1)) { # noch unbekannt?
+        pushSTACK(OLS(c_compiler_name));
+        pushSTACK(O(c_compiler_version));
+        value1 = O(software_version_string) = string_concat(2);
+      }
+    #else
+      value1 = OLS(software_version_string);
+    #endif
+    mv_count=1;
+  }
 
-LISPFUNN(identity,1) { # (IDENTITY object), CLTL p. 448
-  value1 = popSTACK(); mv_count=1;
-}
+LISPFUNN(current_language,0)
+# (SYS::CURRENT-LANGUAGE) liefert die aktuelle Sprache.
+  {
+    #ifndef GNU_GETTEXT
+      value1 = (ENGLISH ? S(english) : NIL);
+    #else # GNU_GETTEXT
+      if (nullp(O(current_language_cache))) {
+        O(current_language_cache) = OL(current_language);
+      }
+      value1 = O(current_language_cache);
+    #endif
+    mv_count=1;
+  }
+
+LISPFUNN(language,3)
+# (SYS::LANGUAGE english deutsch francais) liefert je nach der aktuellen
+# Sprache das entsprechende Argument.
+  {
+    #ifndef GNU_GETTEXT
+      value1 = (ENGLISH ? STACK_2 : NIL);
+    #else
+      if (!stringp(STACK_2))
+        fehler_string(STACK_2);
+      value1 = localized_string(STACK_2);
+    #endif
+    mv_count=1;
+    skipSTACK(3);
+  }
+
+LISPFUNN(identity,1)
+# (IDENTITY object), CLTL S. 448
+  {
+    value1 = popSTACK(); mv_count=1;
+  }
 
 LISPFUNN(address_of,1)
 # (SYS::ADDRESS-OF object) liefert die Adresse von object

@@ -1,57 +1,52 @@
-# -*- Makefile -*- for the CLISP binaries
+# Makefile for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host brighton.podval.org as the output of the command:
-# ./makemake --with-dir-key --with-export-syscalls --with-dynamic-ffi win32gcc gcc
+# This file was created on host david as the output of the command:
+# ./makemake --with-dir-key win32gcc gcc
 
 # -------------- Start of configurable section --------------------
-
-PATH=/bin:.
 
 # Directories used by "make install":
 prefix = 
 exec_prefix = $(prefix)
-bindir  = $(exec_prefix)/bin
-mandir  = $(exec_prefix)/share/man
-htmldir = $(exec_prefix)/share/html
-dvidir  = $(exec_prefix)/share/dvi
-docdir  = $(exec_prefix)/share/doc
-lispdocdir = $(docdir)/clisp
-libdir = $(exec_prefix)/lib
-lisplibdir = $(libdir)/clisp
+bindir = $(exec_prefix)\bin
+mandir = $(exec_prefix)\man
+htmldir = $(exec_prefix)\share\html
+dvidir = $(exec_prefix)\share\dvi
+docdir = $(exec_prefix)\doc
+lispdocdir = $(docdir)\clisp
+libdir = $(exec_prefix)\lib
+lisplibdir = $(libdir)\clisp
 # The value of following variable is prepended to all the paths for
 # installation. This is useful when preparing a binary distribution.
 DESTDIR =
 
 # List of add-on modules:
 # queens               the queens function as a separate module
-# wildcard             wildcard matching
-# regexp               Unix-style regular expression matching and searching
-# postgresql           PostgreSQL interface
 # clx/mit-clx          classical X11 interface
 # If you change this after doing "make", you have to "rm -r full; make".
 MODULES =  
 
 # Programs used by "make":
-CC = gcc -mno-cygwin
-CFLAGS = -W -Wswitch -Wcomment -Wpointer-arith -Wimplicit -Wreturn-type -fomit-frame-pointer -O2 -fexpensive-optimizations -D_WIN32 -DUNICODE -DEXPORT_SYSCALLS -DDIR_KEY -DDYNAMIC_FFI -DNO_GETTEXT
+CC = gcc
+CFLAGS = -W -Wswitch -Wcomment -Wpointer-arith -Wimplicit -Wreturn-type -fomit-frame-pointer -O2 -fexpensive-optimizations -D_NO_OLDNAMES -DUNICODE -DDIR_KEY -DNO_GETTEXT
 CPP = gcc -E
 CLFLAGS =  -x none
-LIBS = libsigsegv.a libiconv.a libavcall.a libcallback.a  -luser32 -lwsock32 -lole32 -lm
+LIBS = sigsegv.lib iconv.lib  -luser32 -lwsock32 -lole32 -lwldap32
 X_LIBS = 
 
 MAKE = make
-CP = cp -p
-LN_S = ln -s
-MV = mv
-CAT = cat
-RM = -rm -f
+RM = del
+CP = copy
+LN_S = copy
+MV = ren
+CAT = type
 TOUCH = -touch
 GREP = grep
 AR = ar
 RANLIB = ranlib
 
 # Programs used by "make install":
-INSTALL = cp -p
+INSTALL = copy
 INSTALL_PROGRAM = $(INSTALL)
 INSTALL_DATA = $(INSTALL)
 
@@ -158,10 +153,7 @@ time.d \
 predtype.d \
 symbol.d \
 lisparit.d \
-i18n.d \
-foreign.d \
 win32aux.d \
-posixmisc.d \
 dirkey.d \
 lispbibl.d \
 fsubr.d \
@@ -235,7 +227,6 @@ realrand.d \
 realtran.d \
 compelem.d \
 comptran.d \
-posixmath.d \
 arilev1c.d \
 arilev1e.d \
 arilev1i.d \
@@ -270,10 +261,7 @@ time.c \
 predtype.c \
 symbol.c \
 lisparit.c \
-i18n.c \
-foreign.c \
 win32aux.c \
-posixmisc.c \
 dirkey.c \
 lispbibl.c \
 fsubr.c \
@@ -347,7 +335,6 @@ realrand.c \
 realtran.c \
 compelem.c \
 comptran.c \
-posixmath.c \
 arilev1c.c \
 arilev1e.c \
 arilev1i.c \
@@ -382,10 +369,7 @@ time.o \
 predtype.o \
 symbol.o \
 lisparit.o \
-i18n.o \
-foreign.o \
 win32aux.o \
-posixmisc.o \
 dirkey.o \
 ari80386.o
 
@@ -403,7 +387,6 @@ floatprint.lisp \
 type.lisp \
 defstruct.lisp \
 format.lisp \
-international.lisp \
 savemem.lisp \
 trace.lisp \
 cmacros.lisp \
@@ -413,7 +396,6 @@ loop.lisp \
 clos.lisp \
 disassem.lisp \
 condition.lisp \
-loadform.lisp \
 threads.lisp \
 gstream.lisp \
 xcharin.lisp \
@@ -425,7 +407,6 @@ query.lisp \
 reploop.lisp \
 dribble.lisp \
 complete.lisp \
-pprint.lisp \
 describe.lisp \
 room.lisp \
 edit.lisp \
@@ -433,14 +414,11 @@ macros3.lisp \
 clhs.lisp \
 inspect.lisp \
 gray.lisp \
-foreign1.lisp \
-posix.lisp \
 dirkey.lisp \
 german.lisp \
 french.lisp \
 spanish.lisp \
 dutch.lisp \
-deprecated.lisp \
 config.lisp
 
 FASFILES = \
@@ -457,7 +435,6 @@ floatprint.fas \
 type.fas \
 defstruct.fas \
 format.fas \
-international.fas \
 savemem.fas \
 trace.fas \
 cmacros.fas \
@@ -467,7 +444,6 @@ loop.fas \
 clos.fas \
 disassem.fas \
 condition.fas \
-loadform.fas \
 threads.fas \
 gstream.fas \
 xcharin.fas \
@@ -479,7 +455,6 @@ query.fas \
 reploop.fas \
 dribble.fas \
 complete.fas \
-pprint.fas \
 describe.fas \
 room.fas \
 edit.fas \
@@ -487,14 +462,11 @@ macros3.fas \
 clhs.fas \
 inspect.fas \
 gray.fas \
-foreign1.fas \
-posix.fas \
 dirkey.fas \
 german.fas \
 french.fas \
 spanish.fas \
 dutch.fas \
-deprecated.fas \
 config.fas
 
 TXTFILES = \
@@ -516,7 +488,6 @@ stage/floatprint.lisp \
 stage/type.lisp \
 stage/defstruct.lisp \
 stage/format.lisp \
-stage/international.lisp \
 stage/savemem.lisp \
 stage/trace.lisp \
 stage/cmacros.lisp \
@@ -526,7 +497,6 @@ stage/loop.lisp \
 stage/clos.lisp \
 stage/disassem.lisp \
 stage/condition.lisp \
-stage/loadform.lisp \
 stage/threads.lisp \
 stage/gstream.lisp \
 stage/xcharin.lisp \
@@ -538,7 +508,6 @@ stage/query.lisp \
 stage/reploop.lisp \
 stage/dribble.lisp \
 stage/complete.lisp \
-stage/pprint.lisp \
 stage/describe.lisp \
 stage/room.lisp \
 stage/edit.lisp \
@@ -546,14 +515,11 @@ stage/macros3.lisp \
 stage/clhs.lisp \
 stage/inspect.lisp \
 stage/gray.lisp \
-stage/foreign1.lisp \
-stage/posix.lisp \
 stage/dirkey.lisp \
 stage/german.lisp \
 stage/french.lisp \
 stage/spanish.lisp \
 stage/dutch.lisp \
-stage/deprecated.lisp \
 stage/config.lisp
 
 TESTFASFILES = \
@@ -570,7 +536,6 @@ stage/floatprint.fas \
 stage/type.fas \
 stage/defstruct.fas \
 stage/format.fas \
-stage/international.fas \
 stage/savemem.fas \
 stage/trace.fas \
 stage/cmacros.fas \
@@ -580,7 +545,6 @@ stage/loop.fas \
 stage/clos.fas \
 stage/disassem.fas \
 stage/condition.fas \
-stage/loadform.fas \
 stage/threads.fas \
 stage/gstream.fas \
 stage/xcharin.fas \
@@ -592,7 +556,6 @@ stage/query.fas \
 stage/reploop.fas \
 stage/dribble.fas \
 stage/complete.fas \
-stage/pprint.fas \
 stage/describe.fas \
 stage/room.fas \
 stage/edit.fas \
@@ -600,29 +563,21 @@ stage/macros3.fas \
 stage/clhs.fas \
 stage/inspect.fas \
 stage/gray.fas \
-stage/foreign1.fas \
-stage/posix.fas \
 stage/dirkey.fas \
 stage/german.fas \
 stage/french.fas \
 stage/spanish.fas \
 stage/dutch.fas \
-stage/deprecated.fas \
 stage/config.fas
 
 
 all : init allc allo lisp.exe interpreted.mem halfcompiled.mem lispinit.mem manual
 
 makemake : makemake.in
-	./config.status --file=makemake
-	chmod +x makemake
-
-unixconf.h : unixconf.h.in
-	./config.status --header=unixconf.h
+	./config.status
 
 Makefile : makemake
-	./makemake --with-dir-key --with-export-syscalls --with-dynamic-ffi win32gcc gcc > Makefile.tmp
-	$(MV) Makefile Makefile~
+	./makemake --with-dir-key win32gcc gcc > Makefile.tmp
 	$(MV) Makefile.tmp Makefile
 
 init : comment5.exe ansidecl.exe varbrace.exe txt2c.exe ccmp2c.exe modprep.exe $(DFILES) modules.h
@@ -631,7 +586,7 @@ comment5.exe : ../utils/comment5.c
 	$(CC) $(CFLAGS) $(CLFLAGS) ../utils/comment5.c -o comment5.exe
 
 ansidecl.exe : ../utils/ansidecl.d comment5.exe
-	$(LN_S) ../utils/ansidecl.d ansidecl.d
+	$(LN_S) ..\utils\ansidecl.d ansidecl.d
 	$(COMMENT5) ansidecl.d ansidecl.c
 	$(RM) ansidecl.d
 	$(CC) $(CFLAGS) $(CLFLAGS) ansidecl.c -o ansidecl.exe
@@ -643,7 +598,7 @@ varbrace.exe : ../utils/varbrace.d comment5.exe ansidecl.exe
 	$(RM) varbrace.c
 
 txt2c.exe : ../utils/txt2c.c ansidecl.exe
-	$(ANSIDECL) < ../utils/txt2c.c > txt2c.c
+	$(ANSIDECL) < ..\utils\txt2c.c > txt2c.c
 	$(CC) $(CFLAGS) $(CLFLAGS) txt2c.c -o txt2c.exe
 	$(RM) txt2c.c
 
@@ -738,17 +693,8 @@ symbol.c : symbol.d comment5.exe ansidecl.exe varbrace.exe
 lisparit.c : lisparit.d comment5.exe ansidecl.exe varbrace.exe
 	$(COMMENT5) lisparit.d | $(ANSIDECL) | $(VARBRACE) > lisparit.c
 
-i18n.c : i18n.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) i18n.d | $(ANSIDECL) | $(VARBRACE) > i18n.c
-
-foreign.c : foreign.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) foreign.d | $(ANSIDECL) | $(VARBRACE) > foreign.c
-
 win32aux.c : win32aux.d comment5.exe ansidecl.exe varbrace.exe
 	$(COMMENT5) win32aux.d | $(ANSIDECL) | $(VARBRACE) > win32aux.c
-
-posixmisc.c : posixmisc.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) posixmisc.d | $(ANSIDECL) | $(VARBRACE) > posixmisc.c
 
 dirkey.c : dirkey.d comment5.exe ansidecl.exe varbrace.exe
 	$(COMMENT5) dirkey.d | $(ANSIDECL) | $(VARBRACE) > dirkey.c
@@ -969,9 +915,6 @@ compelem.c : compelem.d comment5.exe ansidecl.exe varbrace.exe
 comptran.c : comptran.d comment5.exe ansidecl.exe varbrace.exe
 	$(COMMENT5) comptran.d | $(ANSIDECL) | $(VARBRACE) > comptran.c
 
-posixmath.c : posixmath.d comment5.exe ansidecl.exe varbrace.exe
-	$(COMMENT5) posixmath.d | $(ANSIDECL) | $(VARBRACE) > posixmath.c
-
 arilev1c.c : arilev1c.d comment5.exe ansidecl.exe varbrace.exe
 	$(COMMENT5) arilev1c.d | $(ANSIDECL) | $(VARBRACE) > arilev1c.c
 
@@ -996,12 +939,12 @@ ari80386.c : ari80386.d comment5.exe
 ari80386.s : ari80386.c
 	$(CPP) -DASM_UNDERSCORE ari80386.c > ari80386.s
 
-allo : allc spvw.o spvwtabf.o spvwtabs.o spvwtabo.o eval.o control.o encoding.o pathname.o stream.o socket.o io.o array.o hashtabl.o list.o package.o record.o sequence.o charstrg.o debug.o error.o misc.o time.o predtype.o symbol.o lisparit.o i18n.o foreign.o win32aux.o posixmisc.o dirkey.o
+allo : allc spvw.o spvwtabf.o spvwtabs.o spvwtabo.o eval.o control.o encoding.o pathname.o stream.o socket.o io.o array.o hashtabl.o list.o package.o record.o sequence.o charstrg.o debug.o error.o misc.o time.o predtype.o symbol.o lisparit.o win32aux.o dirkey.o
 
-alls : allc spvw.s spvwtabf.s spvwtabs.s spvwtabo.s eval.s control.s encoding.s pathname.s stream.s socket.s io.s array.s hashtabl.s list.s package.s record.s sequence.s charstrg.s debug.s error.s misc.s time.s predtype.s symbol.s lisparit.s i18n.s foreign.s win32aux.s posixmisc.s dirkey.s
+alls : allc spvw.s spvwtabf.s spvwtabs.s spvwtabo.s eval.s control.s encoding.s pathname.s stream.s socket.s io.s array.s hashtabl.s list.s package.s record.s sequence.s charstrg.s debug.s error.s misc.s time.s predtype.s symbol.s lisparit.s win32aux.s dirkey.s
 
 # Normally not used (just for debugging).
-alli : allc spvw.i spvwtabf.i spvwtabs.i spvwtabo.i eval.i control.i encoding.i pathname.i stream.i socket.i io.i array.i hashtabl.i list.i package.i record.i sequence.i charstrg.i debug.i error.i misc.i time.i predtype.i symbol.i lisparit.i i18n.i foreign.i win32aux.i posixmisc.i dirkey.i
+alli : allc spvw.i spvwtabf.i spvwtabs.i spvwtabo.i eval.i control.i encoding.i pathname.i stream.i socket.i io.i array.i hashtabl.i list.i package.i record.i sequence.i charstrg.i debug.i error.i misc.i time.i predtype.i symbol.i lisparit.i win32aux.i dirkey.i
 
 spvw.i : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c arilev0.c aridecl.c stdbool.h iconv.h sigsegv.h version.h
 	$(CPP) $(CFLAGS) spvw.c > spvw.i
@@ -1219,32 +1162,14 @@ symbol.s : symbol.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c 
 symbol.o : symbol.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h iconv.h sigsegv.h
 	$(CC) $(CFLAGS) -c symbol.c
 
-lisparit.i : lisparit.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c aridecl.c arilev0.c arilev1.c intelem.c intlog.c intplus.c intcomp.c intbyte.c intmal.c intdiv.c intgcd.c int2adic.c intsqrt.c intprint.c intread.c rational.c sfloat.c ffloat.c dfloat.c lfloat.c flo_konv.c flo_rest.c realelem.c realrand.c realtran.c compelem.c comptran.c posixmath.c arilev1c.c arilev1e.c arilev1i.c ari80386.c stdbool.h iconv.h sigsegv.h
+lisparit.i : lisparit.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c aridecl.c arilev0.c arilev1.c intelem.c intlog.c intplus.c intcomp.c intbyte.c intmal.c intdiv.c intgcd.c int2adic.c intsqrt.c intprint.c intread.c rational.c sfloat.c ffloat.c dfloat.c lfloat.c flo_konv.c flo_rest.c realelem.c realrand.c realtran.c compelem.c comptran.c arilev1c.c arilev1e.c arilev1i.c ari80386.c stdbool.h iconv.h sigsegv.h
 	$(CPP) $(CFLAGS) lisparit.c > lisparit.i
 
-lisparit.s : lisparit.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c aridecl.c arilev0.c arilev1.c intelem.c intlog.c intplus.c intcomp.c intbyte.c intmal.c intdiv.c intgcd.c int2adic.c intsqrt.c intprint.c intread.c rational.c sfloat.c ffloat.c dfloat.c lfloat.c flo_konv.c flo_rest.c realelem.c realrand.c realtran.c compelem.c comptran.c posixmath.c arilev1c.c arilev1e.c arilev1i.c ari80386.c stdbool.h iconv.h sigsegv.h
+lisparit.s : lisparit.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c aridecl.c arilev0.c arilev1.c intelem.c intlog.c intplus.c intcomp.c intbyte.c intmal.c intdiv.c intgcd.c int2adic.c intsqrt.c intprint.c intread.c rational.c sfloat.c ffloat.c dfloat.c lfloat.c flo_konv.c flo_rest.c realelem.c realrand.c realtran.c compelem.c comptran.c arilev1c.c arilev1e.c arilev1i.c ari80386.c stdbool.h iconv.h sigsegv.h
 	$(CC) $(CFLAGS) -S lisparit.c
 
-lisparit.o : lisparit.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c aridecl.c arilev0.c arilev1.c intelem.c intlog.c intplus.c intcomp.c intbyte.c intmal.c intdiv.c intgcd.c int2adic.c intsqrt.c intprint.c intread.c rational.c sfloat.c ffloat.c dfloat.c lfloat.c flo_konv.c flo_rest.c realelem.c realrand.c realtran.c compelem.c comptran.c posixmath.c arilev1c.c arilev1e.c arilev1i.c ari80386.c stdbool.h iconv.h sigsegv.h
+lisparit.o : lisparit.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c aridecl.c arilev0.c arilev1.c intelem.c intlog.c intplus.c intcomp.c intbyte.c intmal.c intdiv.c intgcd.c int2adic.c intsqrt.c intprint.c intread.c rational.c sfloat.c ffloat.c dfloat.c lfloat.c flo_konv.c flo_rest.c realelem.c realrand.c realtran.c compelem.c comptran.c arilev1c.c arilev1e.c arilev1i.c ari80386.c stdbool.h iconv.h sigsegv.h
 	$(CC) $(CFLAGS) -c lisparit.c
-
-i18n.i : i18n.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h iconv.h sigsegv.h
-	$(CPP) $(CFLAGS) i18n.c > i18n.i
-
-i18n.s : i18n.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h iconv.h sigsegv.h
-	$(CC) $(CFLAGS) -S i18n.c
-
-i18n.o : i18n.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h iconv.h sigsegv.h
-	$(CC) $(CFLAGS) -c i18n.c
-
-foreign.i : foreign.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c stdbool.h iconv.h sigsegv.h avcall.h callback.h
-	$(CPP) $(CFLAGS) -I../ffcall foreign.c > foreign.i
-
-foreign.s : foreign.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c stdbool.h iconv.h sigsegv.h avcall.h callback.h
-	$(CC) $(CFLAGS) -I../ffcall -S foreign.c
-
-foreign.o : foreign.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c stdbool.h iconv.h sigsegv.h avcall.h callback.h
-	$(CC) $(CFLAGS) -I../ffcall -c foreign.c
 
 win32aux.i : win32aux.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h iconv.h sigsegv.h
 	$(CPP) $(CFLAGS) win32aux.c > win32aux.i
@@ -1254,15 +1179,6 @@ win32aux.s : win32aux.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constob
 
 win32aux.o : win32aux.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h iconv.h sigsegv.h
 	$(CC) $(CFLAGS) -c win32aux.c
-
-posixmisc.i : posixmisc.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h iconv.h sigsegv.h
-	$(CPP) $(CFLAGS) posixmisc.c > posixmisc.i
-
-posixmisc.s : posixmisc.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h iconv.h sigsegv.h
-	$(CC) $(CFLAGS) -S posixmisc.c
-
-posixmisc.o : posixmisc.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h iconv.h sigsegv.h
-	$(CC) $(CFLAGS) -c posixmisc.c
 
 dirkey.i : dirkey.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h iconv.h sigsegv.h
 	$(CPP) $(CFLAGS) dirkey.c > dirkey.i
@@ -1303,40 +1219,25 @@ noreadline.o : noreadline.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c con
 ari80386.o : ari80386.s
 	$(CC) $(CFLAGS) -x assembler -c ari80386.s
 
-avcall.h : ../ffcall/avcall/avcall.h
-	-$(LN_S) ../ffcall/avcall/avcall.h avcall.h
-
-libavcall.a : ../ffcall/avcall/libavcall.a
-	-$(LN_S) ../ffcall/avcall/libavcall.a libavcall.a
-
-callback.h : ../ffcall/callback/callback.h
-	-$(LN_S) ../ffcall/callback/callback.h callback.h
-
-libcallback.a : ../ffcall/callback/libcallback.a
-	-$(LN_S) ../ffcall/callback/libcallback.a libcallback.a
-	-$(LN_S) ../ffcall/callback/vacall_r.h vacall_r.h
-	-$(LN_S) ../ffcall/callback/trampoline_r.h trampoline_r.h
-
 iconv.h : ../libiconv/include/iconv.h
-	-$(LN_S) ../libiconv/include/iconv.h iconv.h
+	-$(LN_S) ..\libiconv\include\iconv.h iconv.h
 
-libiconv.a : ../libiconv/lib/libiconv.a
-	-$(LN_S) ../libiconv/lib/libiconv.a libiconv.a
+iconv.lib : ../libiconv/lib/iconv.lib
+	-$(LN_S) ..\libiconv\lib\iconv.lib iconv.lib
 
 libcharset.h : ../libiconv/libcharset/include/libcharset.h
-	-$(LN_S) ../libiconv/libcharset/include/libcharset.h libcharset.h
+	-$(LN_S) ..\libiconv\libcharset\include\libcharset.h libcharset.h
 
-sigsegv.h libsigsegv.a :
-	-$(LN_S) ../sigsegv/sigsegv.h sigsegv.h
-	-$(LN_S) ../sigsegv/libsigsegv.a libsigsegv.a
+sigsegv.h : ../sigsegv/sigsegv.h
+	-$(LN_S) ..\sigsegv\sigsegv.h sigsegv.h
 
-data : ../utils/unicode/ftp.unicode.org/UnicodeData.txt ../src/clhs.txt
-	-$(RM) data/*
-	-mkdir data
-	cd data && $(LN_S) ../../utils/unicode/ftp.unicode.org/UnicodeData.txt .
-	cd data && $(LN_S) ../../src/clhs.txt .
+sigsegv.lib : ../sigsegv/sigsegv.lib
+	-$(LN_S) ..\sigsegv\sigsegv.lib sigsegv.lib
 
-lisp.exe : $(OBJECTS) modules.o libavcall.a libcallback.a    libiconv.a libsigsegv.a data
+UnicodeData.txt :
+	$(LN_S) ../utils\unicode\ftp.unicode.org\UnicodeData.txt UnicodeData.txt
+
+lisp.exe : $(OBJECTS) modules.o     iconv.lib sigsegv.lib UnicodeData.txt
 	$(CC) $(CFLAGS) $(CLFLAGS) $(OBJECTS) modules.o $(LIBS) -o lisp.exe
 
 
@@ -1391,9 +1292,6 @@ defstruct.fas : defstruct.lisp lisp.exe halfcompiled.mem
 format.fas : format.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c format.lisp
 
-international.fas : international.lisp lisp.exe halfcompiled.mem
-	$(RUN) -m 1000KW -M halfcompiled.mem -q -c international.lisp
-
 savemem.fas : savemem.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c savemem.lisp
 
@@ -1420,9 +1318,6 @@ disassem.fas : disassem.lisp lisp.exe halfcompiled.mem
 
 condition.fas : condition.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c condition.lisp
-
-loadform.fas : loadform.lisp lisp.exe halfcompiled.mem
-	$(RUN) -m 1000KW -M halfcompiled.mem -q -c loadform.lisp
 
 threads.fas : threads.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c threads.lisp
@@ -1457,9 +1352,6 @@ dribble.fas : dribble.lisp lisp.exe halfcompiled.mem
 complete.fas : complete.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c complete.lisp
 
-pprint.fas : pprint.lisp lisp.exe halfcompiled.mem
-	$(RUN) -m 1000KW -M halfcompiled.mem -q -c pprint.lisp
-
 describe.fas : describe.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c describe.lisp
 
@@ -1481,12 +1373,6 @@ inspect.fas : inspect.lisp lisp.exe halfcompiled.mem
 gray.fas : gray.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c gray.lisp
 
-foreign1.fas : foreign1.lisp lisp.exe halfcompiled.mem
-	$(RUN) -m 1000KW -M halfcompiled.mem -q -c foreign1.lisp
-
-posix.fas : posix.lisp lisp.exe halfcompiled.mem
-	$(RUN) -m 1000KW -M halfcompiled.mem -q -c posix.lisp
-
 dirkey.fas : dirkey.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c dirkey.lisp
 
@@ -1502,9 +1388,6 @@ spanish.fas : spanish.lisp lisp.exe halfcompiled.mem
 dutch.fas : dutch.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c dutch.lisp
 
-deprecated.fas : deprecated.lisp lisp.exe halfcompiled.mem
-	$(RUN) -m 1000KW -M halfcompiled.mem -q -c deprecated.lisp
-
 config.fas : config.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c config.lisp
 
@@ -1515,16 +1398,17 @@ halfcompiled.mem : lisp.exe $(LISPFILES) compiler.fas
 
 lispinit.mem : lisp.exe $(FASFILES)
 	-$(RM) lispinit.mem
-	$(RUN) -x "(load \"init.fas\") (saveinitmem) (exit)"
+	$(RUN) -x "(load \"init.fas\") (sys::%saveinitmem) (exit)"
+	$(MV) lispimag.mem lispinit.mem
 
 
 # Perform self-tests.
-check : test testsuite
+check : test
 
 # Test: recompile $(LISPFILES) and compare their contents.
 test : lispinit.mem stage $(TESTLISPFILES) $(TESTFASFILES)
 	comp *.fas stage
-	echo The test passed if only GENSYM differences were found.
+	REM The test passed if only GENSYM differences were found.
 
 stage :
 	-mkdir stage
@@ -1568,9 +1452,6 @@ stage/defstruct.lisp : defstruct.lisp
 stage/format.lisp : format.lisp
 	$(LN_S) format.lisp stage
 
-stage/international.lisp : international.lisp
-	$(LN_S) international.lisp stage
-
 stage/savemem.lisp : savemem.lisp
 	$(LN_S) savemem.lisp stage
 
@@ -1597,9 +1478,6 @@ stage/disassem.lisp : disassem.lisp
 
 stage/condition.lisp : condition.lisp
 	$(LN_S) condition.lisp stage
-
-stage/loadform.lisp : loadform.lisp
-	$(LN_S) loadform.lisp stage
 
 stage/threads.lisp : threads.lisp
 	$(LN_S) threads.lisp stage
@@ -1634,9 +1512,6 @@ stage/dribble.lisp : dribble.lisp
 stage/complete.lisp : complete.lisp
 	$(LN_S) complete.lisp stage
 
-stage/pprint.lisp : pprint.lisp
-	$(LN_S) pprint.lisp stage
-
 stage/describe.lisp : describe.lisp
 	$(LN_S) describe.lisp stage
 
@@ -1658,12 +1533,6 @@ stage/inspect.lisp : inspect.lisp
 stage/gray.lisp : gray.lisp
 	$(LN_S) gray.lisp stage
 
-stage/foreign1.lisp : foreign1.lisp
-	$(LN_S) foreign1.lisp stage
-
-stage/posix.lisp : posix.lisp
-	$(LN_S) posix.lisp stage
-
 stage/dirkey.lisp : dirkey.lisp
 	$(LN_S) dirkey.lisp stage
 
@@ -1678,9 +1547,6 @@ stage/spanish.lisp : spanish.lisp
 
 stage/dutch.lisp : dutch.lisp
 	$(LN_S) dutch.lisp stage
-
-stage/deprecated.lisp : deprecated.lisp
-	$(LN_S) deprecated.lisp stage
 
 stage/config.lisp : config.lisp
 	$(LN_S) config.lisp stage
@@ -1727,9 +1593,6 @@ stage/defstruct.fas : stage/defstruct.lisp lisp.exe stage/testinit.mem
 stage/format.fas : stage/format.lisp lisp.exe stage/testinit.mem
 	$(RUN) -M stage/testinit.mem -q -c stage/format.lisp
 
-stage/international.fas : stage/international.lisp lisp.exe stage/testinit.mem
-	$(RUN) -M stage/testinit.mem -q -c stage/international.lisp
-
 stage/savemem.fas : stage/savemem.lisp lisp.exe stage/testinit.mem
 	$(RUN) -M stage/testinit.mem -q -c stage/savemem.lisp
 
@@ -1756,9 +1619,6 @@ stage/disassem.fas : stage/disassem.lisp lisp.exe stage/testinit.mem
 
 stage/condition.fas : stage/condition.lisp lisp.exe stage/testinit.mem
 	$(RUN) -M stage/testinit.mem -q -c stage/condition.lisp
-
-stage/loadform.fas : stage/loadform.lisp lisp.exe stage/testinit.mem
-	$(RUN) -M stage/testinit.mem -q -c stage/loadform.lisp
 
 stage/threads.fas : stage/threads.lisp lisp.exe stage/testinit.mem
 	$(RUN) -M stage/testinit.mem -q -c stage/threads.lisp
@@ -1793,9 +1653,6 @@ stage/dribble.fas : stage/dribble.lisp lisp.exe stage/testinit.mem
 stage/complete.fas : stage/complete.lisp lisp.exe stage/testinit.mem
 	$(RUN) -M stage/testinit.mem -q -c stage/complete.lisp
 
-stage/pprint.fas : stage/pprint.lisp lisp.exe stage/testinit.mem
-	$(RUN) -M stage/testinit.mem -q -c stage/pprint.lisp
-
 stage/describe.fas : stage/describe.lisp lisp.exe stage/testinit.mem
 	$(RUN) -M stage/testinit.mem -q -c stage/describe.lisp
 
@@ -1817,12 +1674,6 @@ stage/inspect.fas : stage/inspect.lisp lisp.exe stage/testinit.mem
 stage/gray.fas : stage/gray.lisp lisp.exe stage/testinit.mem
 	$(RUN) -M stage/testinit.mem -q -c stage/gray.lisp
 
-stage/foreign1.fas : stage/foreign1.lisp lisp.exe stage/testinit.mem
-	$(RUN) -M stage/testinit.mem -q -c stage/foreign1.lisp
-
-stage/posix.fas : stage/posix.lisp lisp.exe stage/testinit.mem
-	$(RUN) -M stage/testinit.mem -q -c stage/posix.lisp
-
 stage/dirkey.fas : stage/dirkey.lisp lisp.exe stage/testinit.mem
 	$(RUN) -M stage/testinit.mem -q -c stage/dirkey.lisp
 
@@ -1838,9 +1689,6 @@ stage/spanish.fas : stage/spanish.lisp lisp.exe stage/testinit.mem
 stage/dutch.fas : stage/dutch.lisp lisp.exe stage/testinit.mem
 	$(RUN) -M stage/testinit.mem -q -c stage/dutch.lisp
 
-stage/deprecated.fas : stage/deprecated.lisp lisp.exe stage/testinit.mem
-	$(RUN) -M stage/testinit.mem -q -c stage/deprecated.lisp
-
 stage/config.fas : stage/config.lisp lisp.exe stage/testinit.mem
 	$(RUN) -M stage/testinit.mem -q -c stage/config.lisp
 
@@ -1850,44 +1698,27 @@ lispinit2.mem : lisp.exe $(TESTFASFILES)
 	$(MV) lispimag.mem lispinit2.mem
 
 
-testsuite : suite lisp.exe lispinit.mem
-	LISP="`pwd`/lisp.exe -M `pwd`/lispinit.mem -B `pwd` -Efile UTF-8 -norc"; export LISP; cd suite; $(MAKE) LISP="$$LISP"
-
-suite :
-	-mkdir suite
-	cd suite && $(LN_S) ../../tests/Makefile .
-	cd suite && $(LN_S) ../../tests/*.lisp .
-	cd suite && $(LN_S) ../../tests/*.tst .
-
-
 READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es
-IMPNOTES = impnotes.html impnotes.css clisp.png
-MANUALS = clisp.1 clisp.html $(TXTFILES) $(IMPNOTES)
+MANUALS = clisp.1 clisp.html $(TXTFILES) impnotes.html clisp.gif
 
 impnotes.html : ../doc/impnotes.html
-	$(LN_S) ../doc/impnotes.html impnotes.html
-
-impnotes.css : ../doc/impnotes.css
-	$(LN_S) ../doc/impnotes.css impnotes.css
-
-clisp.png : ../doc/clisp.png
-	$(LN_S) ../doc/clisp.png clisp.png
+	$(CP) ../doc/impnotes.html impnotes.html
 
 manual : $(READMES) $(MANUALS)
 
 manualx : manual clisp.man clisp.dvi
 
 ANNOUNCE : ../ANNOUNCE
-	-$(LN_S) ../ANNOUNCE ANNOUNCE
+	-$(LN_S) ..\ANNOUNCE ANNOUNCE
 
 COPYRIGHT : ../COPYRIGHT
-	-$(LN_S) ../COPYRIGHT COPYRIGHT
+	-$(LN_S) ..\COPYRIGHT COPYRIGHT
 
 GNU-GPL : ../GNU-GPL
-	-$(LN_S) ../GNU-GPL GNU-GPL
+	-$(LN_S) ..\GNU-GPL GNU-GPL
 
 SUMMARY : ../SUMMARY
-	-$(LN_S) ../SUMMARY SUMMARY
+	-$(LN_S) ..\SUMMARY SUMMARY
 
 README : _README lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c stdbool.h iconv.h sigsegv.h _README.de _README.en txt2c.exe
 	$(TXT2C) < _README > txt.c
@@ -1931,13 +1762,13 @@ clisp.man : clisp.1
 	$(ROFF_MAN) clisp.1 > clisp.man
 
 LISP-tutorial.txt : ../doc/LISP-tutorial.txt
-	-$(LN_S) ../doc/LISP-tutorial.txt LISP-tutorial.txt
+	-$(LN_S) ..\doc\LISP-tutorial.txt LISP-tutorial.txt
 
 CLOS-guide.txt : ../doc/CLOS-guide.txt
-	-$(LN_S) ../doc/CLOS-guide.txt CLOS-guide.txt
+	-$(LN_S) ..\doc\CLOS-guide.txt CLOS-guide.txt
 
 editors.txt : ../doc/editors.txt
-	-$(LN_S) ../doc/editors.txt editors.txt
+	-$(LN_S) ..\doc\editors.txt editors.txt
 
 
 # Distribution, to be executed on a Unix host or using Cygwin.
@@ -1955,17 +1786,10 @@ distrib : force
 	for f in lisp.exe lispinit.mem install.bat ; do \
 	  cp -p $$f $$distdir/$$f ; \
 	done ; \
-	mkdir $$distdir/data ; \
-	cp -p data/UnicodeData.txt $$distdir/data/UnicodeData.txt ; \
-	cp -p data/clhs.txt $$distdir/data/clhs.txt ; \
 	mkdir $$distdir/doc ; \
-	for f in clisp.1 clisp.man clisp.html $(TXTFILES) $(IMPNOTES) ; do \
+	for f in clisp.1 clisp.man clisp.html $(TXTFILES) impnotes.html clisp.gif ; do \
 	  if test -f $$f ; then cp -p $$f $$distdir/doc/$$f ; else cp -p `echo $$f | tr '[A-Z]' '[a-z]'` $$distdir/doc/$$f ; fi ; \
 	done ; \
-	mkdir $$distdir/emacs; \
-	cp -p ../emacs/clisp-coding.el $$distdir/emacs/clisp-coding.el ; \
-	cp -p ../emacs/clisp-indent.el $$distdir/emacs/clisp-indent.el ; \
-	cp -p ../emacs/clisp-indent.lisp $$distdir/emacs/clisp-indent.lisp ; \
 	mkdir $$distdir/src ; \
 	cp -p $(LISPFILES) install.lisp $$distdir/src/ ; \
 	chmod 755 $$distdir/. $$distdir/*/. ; \
@@ -1983,18 +1807,18 @@ clean0 : force
 # constobj.d, constpack.d, constsym.d, subr.d, fsubr.d, pseudofun.d.
 clean1 : clean0
 	-$(RM) lispbibl.h clisp.h *.i *.s *.o *.a lisp.exe clisp-link makevars stage/* suite/*
-	-$(RM) libsigsegv.* libiconv.* libavcall.* libcallback.*
+	-$(RM) sigsegv.lib iconv.lib avcall.lib callback.lib
 	-rmdir stage
 	-rmdir suite
-	-$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.html $(IMPNOTES) clisp.c distmakefile $(TXTFILES)
+	-$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.html impnotes.html clisp.c distmakefile $(TXTFILES) clreadline.3 clreadline.man clreadline.html clreadline.dvi readline.dvi
 
-# clean2 removes everything that becomes obsolete once lisp.exe
-# is recompiled without changing the bytecode format.
+# clean2 removes everything that becomes obsolete once lisp.exe is recompiled
+# without changing the bytecode format.
 clean2 : clean1
 	-$(RM) interpreted.mem halfcompiled.mem lispinit.mem lispinit2.mem
 
-# clean3 removes everything that becomes obsolete once lisp.exe
-# is recompiled. It leaves everything generated by "make allc".
+# clean3 removes everything that becomes obsolete once lisp.exe is recompiled.
+# It leaves everything generated by "make allc".
 clean3 : clean2
 	-$(RM) $(FASFILES) *.lib
 
@@ -2003,8 +1827,6 @@ clean3 : clean2
 # It leaves everything generated by "make init".
 clean4 : clean3
 	-$(RM) $(CFILES)
-	-$(RM) avcall.h
-	-$(RM) callback.h vacall_r.h trampoline_r.h
 	-$(RM) iconv.h
 	-$(RM) sigsegv.h
 	-$(RM) stdbool.h
@@ -2013,7 +1835,7 @@ clean4 : clean3
 clean5 : clean4
 	-$(RM) ANNOUNCE COPYRIGHT GNU-GPL SUMMARY
 	-$(RM) config.lisp
-	-$(RM) comment5.exe ansidecl.exe varbrace.exe ccpaux.exe deema.exe txt2c.exe ccmp2c.exe modprep.exe
+	-$(RM) comment5.exe ansidecl.exe ccpaux.exe deema.exe txt2c.exe ccmp2c.exe modprep.exe
 
 # clean6 lets us go back to "makemake > Makefile".
 clean6 : clean5

@@ -1,5 +1,5 @@
 # Top-Level-Schleife, Hilfsfunktionen für Debugger, Stepper von CLISP
-# Bruno Haible 1990-2001
+# Bruno Haible 1990-2000
 # ILISP friendliness: Marcus Daniels 8.4.1994
 # Sam Steingold 2001
 
@@ -130,35 +130,31 @@
         #       )
         #       istream
         # ) ) )
-        do {
-          # this loop is for win32 and its C-z RET abomination: after
-          # C-z (EOF) is processed, there is an empty line in the stream
-          pushSTACK(*inputstream_); pushSTACK(NIL); pushSTACK(NIL);
-          funcall(L(read_line),3); # (READ-LINE istream nil nil)
-          if (nullp(value1)) { # EOF am Zeilenanfang?
-            dynamic_unbind(); # S(key_bindings)
-            goto eof;
-          }
-        } while (Sstring_length(value1) == 0);
-        var object line = value1; # non-trivial line
-        # NB: line is a simple-string, due to our particular READ-LINE
-        # implementation.
-        { # search for line in *KEY-BINDINGS*:
+        pushSTACK(*inputstream_); pushSTACK(NIL); pushSTACK(NIL);
+        funcall(L(read_line),3); # (READ-LINE istream nil nil)
+        var object line = value1;
+        if (nullp(line)) { # EOF am Zeilenanfang?
+          dynamic_unbind(); # S(key_bindings)
+          goto eof;
+        }
+        # search for line in *KEY-BINDINGS*:
+        {
           var object alist = Symbol_value(S(key_bindings));
           var uintL input_len = Sstring_length(line);
           for (;consp(alist);alist = Cdr(alist))
             if (mconsp(Car(alist)) && simple_string_p(Car(Car(alist)))) {
-              var object key = Car(Car(alist));
-              var uintL len = Sstring_length(key);
+              object key = Car(Car(alist));
+              uintL len = Sstring_length(key);
               # check whether the line starts with the key and a whitespace
-              if ((len <= input_len) && string_eqcomp_ci(line,0,key,0,len)) {
+              if (string_eqcomp_ci(line,0,key,0,len)) {
                 if (len == input_len) goto found;
                 # now len < input_len
                 var cint ch;
                 SstringDispatch(line,
-                 { ch = as_cint(TheSstring(line)->data[len]); },
-                 { ch = as_cint(as_chart(TheSmallSstring(line)->data[len])); });
-                if (cint_white_p(ch)) {
+                 { ch=as_cint(TheSstring(line)->data[len]); },
+                 { ch=as_cint(as_chart(TheSmallSstring(line)->data[len])); });
+                if (ch == '\t' || ch == '\n' || ch == ' ' ||
+                    ch == '\r' || ch == '\f' || ch == '\v') {
                  found:
                   funcall(Cdr(Car(alist)),0); # call the appropriate function
                   dynamic_unbind(); # S(key_bindings)
@@ -167,7 +163,7 @@
               }
             }
         }
-        # create string-input-stream for this line:
+        # tweak string-input-stream for this line:
         if (nullp(value2)) {
           pushSTACK(line); pushSTACK(O(newline_string));
           line = string_concat(2); # maybe need another Newline
@@ -388,8 +384,8 @@ LISPFUN(read_eval_print,1,1,norest,nokey,0,NIL)
           dynamic_bind(S(standard_input),stream);
           dynamic_bind(S(standard_output),stream);
         }
-        dynamic_bind(S(print_escape),T); # bind *PRINT-ESCAPE* to T
-        dynamic_bind(S(print_readably),NIL); # bind *PRINT-READABLY* to NIL
+        # *PRINT-ESCAPE* an T binden:
+        dynamic_bind(S(print_escape),T);
         # Prompt aufbauen:
         {
           # (format nil "~S. Break> " SYS::*BREAK-COUNT*)
@@ -424,8 +420,7 @@ LISPFUN(read_eval_print,1,1,norest,nokey,0,NIL)
             unwind(); reset(); # -> dann zur nächsten Schleife zurück
           }
           skipSTACK(1+2); # Driver-Frame auflösen, Prompt vergessen
-          dynamic_unbind(); dynamic_unbind(); dynamic_unbind();
-          dynamic_unbind(); dynamic_unbind();
+          dynamic_unbind(); dynamic_unbind(); dynamic_unbind(); dynamic_unbind();
           skipSTACK(1);
         }
       }
@@ -878,7 +873,7 @@ LISPFUNN(the_frame,0)
             if (eq(env.go_env,nullobj)) { env.go_env = FRAME_(4); }
             if (eq(env.decl_env,nullobj)) { env.decl_env = FRAME_(5); }
             break;
-          default: NOTREACHED;
+          default: NOTREACHED
         }
         # Falls alle einzelnen Environments von env gefüllt (/=nullobj) sind,
         # ist das Environment fertig:
@@ -944,13 +939,16 @@ LISPFUNN(driver_frame_p,1)
 # fehler_evalframe(obj);
 # > subr_self: Aufrufer (ein SUBR)
 # > obj: kein EVAL/APPLY-Frame-Pointer
-  nonreturning_function(local, fehler_evalframe, (object obj)) {
-    pushSTACK(obj);
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,
-           GETTEXT("~: ~ is not a pointer to an EVAL/APPLY frame")
-          );
-  }
+  nonreturning_function(local, fehler_evalframe, (object obj));
+  local void fehler_evalframe(obj)
+    var object obj;
+    {
+      pushSTACK(obj);
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(error,
+             GETTEXT("~: ~ is not a pointer to an EVAL/APPLY frame")
+            );
+    }
 
 LISPFUNN(trap_eval_frame,2)
 # (SYS::TRAP-EVAL-FRAME framepointer flag) schaltet den Breakpoint am
@@ -1006,8 +1004,8 @@ LISPFUNN(return_from_eval_frame,2)
     unwind_upto(FRAME); # bis zum EVAL/APPLY-Frame alles auflösen, dorthin springen
   }
 
-# ------------------------------------------------------------------------- #
-#                                 Debug aux
+# ---------------------------------------------------------------------------- #
+#                                 Debughilfen
 
 # UP: Gibt das Stackitem FRAME_(0) detailliert auf den Stream aus
 # und liefert den nächsthöheren stackptr.
@@ -1036,11 +1034,11 @@ LISPFUNN(return_from_eval_frame,2)
         switch (framecode(FRAME_(0))) { # je nach Frametyp
           case TRAPPED_APPLY_frame_info:
             # getrapte APPLY-Frames:
-            write_sstring(stream_,CLSTEXT(NLstring "APPLY frame with breakpoint for call "));
+            write_sstring(stream_,OLS(showstack_string_TRAPPED_APPLY_frame)); # "¿APPLY-Frame mit Breakpoint für Aufruf "
             goto APPLY_frame;
           case APPLY_frame_info:
             # APPLY-Frames:
-            write_sstring(stream_,CLSTEXT(NLstring "APPLY frame for call "));
+            write_sstring(stream_,OLS(showstack_string_APPLY_frame)); # "¿APPLY-Frame für Aufruf "
           APPLY_frame:
             # Funktionsnamen und Argumente ausgeben:
             write_ascii_char(stream_,'('); # '(' ausgeben
@@ -1058,17 +1056,17 @@ LISPFUNN(return_from_eval_frame,2)
             break;
           case TRAPPED_EVAL_frame_info:
             # getrapte EVAL-Frames:
-            write_sstring(stream_,CLSTEXT(NLstring "EVAL frame with breakpoint for form "));
+            write_sstring(stream_,OLS(showstack_string_TRAPPED_EVAL_frame)); # "¿EVAL-Frame mit Breakpoint für Form "
             goto EVAL_frame;
           case EVAL_frame_info:
             # EVAL-Frames:
-            write_sstring(stream_,CLSTEXT(NLstring "EVAL frame for form "));
+            write_sstring(stream_,OLS(showstack_string_EVAL_frame)); # "¿EVAL-Frame für Form "
           EVAL_frame:
             prin1(stream_,FRAME_(frame_form)); # Form ausgeben
             break;
           case DYNBIND_frame_info:
             # dynamische Variablenbindungsframes:
-            write_sstring(stream_,CLSTEXT(NLstring "frame binding variables (~ = dynamically):"));
+            write_sstring(stream_,OLS(showstack_string_DYNBIND_frame)); # "¿Variablenbindungs-Frame bindet (~ = dynamisch):"
             # Bindungen ausgeben:
             FRAME skipSTACKop 1;
             until (FRAME==FRAME_top) {
@@ -1085,15 +1083,15 @@ LISPFUNN(return_from_eval_frame,2)
           #ifdef HAVE_SAVED_REGISTERS
           case CALLBACK_frame_info:
             # Callback-Register-Frames:
-            write_sstring(stream_,CLSTEXT(NLstring "CALLBACK frame"));
+            write_sstring(stream_,OLS(showstack_string_CALLBACK_frame)); # "¿CALLBACK-Frame"
             break;
           #endif
           # Variablen- und Funktionsbindungsframes:
           case VAR_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "frame binding variables "));
+            write_sstring(stream_,OLS(showstack_string_VAR_frame)); # "¿Variablenbindungs-Frame "
             #ifdef NO_symbolflags
             prin1(stream_,make_framepointer(FRAME)); # Frame-Pointer ausgeben
-            write_sstring(stream_,CLSTEXT(" binds (~ = dynamically):"));
+            write_sstring(stream_,OLS(showstack_string_binds)); # " bindet (~ = dynamisch):"
             pushSTACK(FRAME_(frame_next_env)); # weiteres Environment retten
             # Bindungen ausgeben:
             FRAME skipSTACKop frame_bindings;
@@ -1115,11 +1113,11 @@ LISPFUNN(return_from_eval_frame,2)
             goto VARFUN_frame;
             #endif
           case FUN_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "frame binding functions "));
+            write_sstring(stream_,OLS(showstack_string_FUN_frame)); # "¿Funktionsbindungs-Frame "
             goto VARFUN_frame;
           VARFUN_frame:
             prin1(stream_,make_framepointer(FRAME)); # Frame-Pointer ausgeben
-            write_sstring(stream_,CLSTEXT(" binds (~ = dynamically):"));
+            write_sstring(stream_,OLS(showstack_string_binds)); # " bindet (~ = dynamisch):"
             pushSTACK(FRAME_(frame_next_env)); # weiteres Environment retten
             # Bindungen ausgeben:
             FRAME skipSTACKop frame_bindings;
@@ -1138,7 +1136,7 @@ LISPFUNN(return_from_eval_frame,2)
             }
           VARFUN_frame_next:
             # Weiteres Environment ausgeben:
-            write_sstring(stream_,CLSTEXT(NLstring "  Next environment: "));
+            write_sstring(stream_,OLS(showstack_string_next_env)); # "¿  Weiteres Environment: "
             {
               var object env = popSTACK(); # weiteres Environment
               if (!simple_vector_p(env)) {
@@ -1164,38 +1162,38 @@ LISPFUNN(return_from_eval_frame,2)
           case CBLOCK_CTAGBODY_frame_info:
             if (simple_vector_p(Car(FRAME_(frame_ctag)))) {
               # compilierte Tagbody-Frames:
-              write_sstring(stream_,CLSTEXT(NLstring "compiled tagbody frame for "));
+              write_sstring(stream_,OLS(showstack_string_CTAGBODY_frame)); # "¿Tagbody-Frame (compiliert) für "
               prin1(stream_,Car(FRAME_(frame_ctag))); # Tag-Vektor
             } else {
               # compilierte Block-Frames:
-              write_sstring(stream_,CLSTEXT(NLstring "compiled block frame for "));
+              write_sstring(stream_,OLS(showstack_string_CBLOCK_frame)); # "¿Block-Frame (compiliert) für "
               prin1(stream_,Car(FRAME_(frame_ctag))); # Blockname
             }
             break;
           # Interpretierte Block-Frames:
           case IBLOCK_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "block frame "));
+            write_sstring(stream_,OLS(showstack_string_IBLOCK_frame)); # "¿Block-Frame "
             goto IBLOCK_frame;
           case NESTED_IBLOCK_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "nested block frame "));
+            write_sstring(stream_,OLS(showstack_string_NESTED_IBLOCK_frame)); # "¿Block-Frame (genestet) "
             goto IBLOCK_frame;
           IBLOCK_frame:
             pushSTACK(FRAME_(frame_next_env));
             prin1(stream_,make_framepointer(FRAME)); # Frame-Pointer ausgeben
-            write_sstring(stream_,CLSTEXT(" for "));
+            write_sstring(stream_,OLS(showstack_string_for1)); # " für "
             prin1(stream_,FRAME_(frame_name)); # Blockname
             goto NEXT_ENV;
           # Interpretierte Tagbody-Frames:
           case ITAGBODY_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "tagbody frame "));
+            write_sstring(stream_,OLS(showstack_string_ITAGBODY_frame)); # "¿Tagbody-Frame "
             goto ITAGBODY_frame;
           case NESTED_ITAGBODY_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "nested tagbody frame "));
+            write_sstring(stream_,OLS(showstack_string_NESTED_ITAGBODY_frame)); # "¿Tagbody-Frame (genestet) "
             goto ITAGBODY_frame;
           ITAGBODY_frame:
             pushSTACK(FRAME_(frame_next_env));
             prin1(stream_,make_framepointer(FRAME)); # Frame-Pointer ausgeben
-            write_sstring(stream_,CLSTEXT(" for"));
+            write_sstring(stream_,OLS(showstack_string_for2)); # " für"
             # Tags/Bodys ausgeben:
             FRAME skipSTACKop frame_bindings;
             until (FRAME==FRAME_top) {
@@ -1208,7 +1206,7 @@ LISPFUNN(return_from_eval_frame,2)
             }
             goto NEXT_ENV;
           NEXT_ENV: # Ausgeben eines Block- oder Tagbody-Environments STACK_0
-            write_sstring(stream_,CLSTEXT(NLstring "  Next environment: "));
+            write_sstring(stream_,OLS(showstack_string_next_env)); # "¿  Weiteres Environment: "
             {
               var object env = popSTACK();
               if (!consp(env)) {
@@ -1237,12 +1235,12 @@ LISPFUNN(return_from_eval_frame,2)
             break;
           case CATCH_frame_info:
             # Catch-Frames:
-            write_sstring(stream_,CLSTEXT(NLstring "catch frame for tag "));
+            write_sstring(stream_,OLS(showstack_string_CATCH_frame)); # "¿Catch-Frame für Tag "
             prin1(stream_,FRAME_(frame_tag)); # Tag
             break;
           case HANDLER_frame_info:
             # Handler-Frames:
-            write_sstring(stream_,CLSTEXT(NLstring "handler frame for conditions"));
+            write_sstring(stream_,OLS(showstack_string_HANDLER_frame)); # "¿Handler-Frame für Conditions"
             {
               var uintL m2 = Svector_length(Car(FRAME_(frame_handlers))); # 2*m
               var uintL i = 0;
@@ -1255,47 +1253,47 @@ LISPFUNN(return_from_eval_frame,2)
             break;
           case UNWIND_PROTECT_frame_info:
             # Unwind-Protect-Frames:
-            write_sstring(stream_,CLSTEXT(NLstring "unwind-protect frame"));
+            write_sstring(stream_,OLS(showstack_string_UNWIND_PROTECT_frame)); # "¿Unwind-Protect-Frame"
             break;
           case DRIVER_frame_info:
             # Driver-Frames:
-            write_sstring(stream_,CLSTEXT(NLstring NLstring "driver frame"));
+            write_sstring(stream_,OLS(showstack_string_DRIVER_frame)); # "¿¿Driver-Frame"
             break;
           # Environment-Frames:
           case ENV1V_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
+            write_sstring(stream_,OLS(showstack_string_ENV_frame)); # "¿Environment-Bindungs-Frame"
             write_sstring(stream_,O(showstack_string_VENV_frame)); # "¿  VAR_ENV <--> "
             prin1(stream_,FRAME_(1));
             break;
           case ENV1F_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
+            write_sstring(stream_,OLS(showstack_string_ENV_frame)); # "¿Environment-Bindungs-Frame"
             write_sstring(stream_,O(showstack_string_FENV_frame)); # "¿  FUN_ENV <--> "
             prin1(stream_,FRAME_(1));
             break;
           case ENV1B_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
+            write_sstring(stream_,OLS(showstack_string_ENV_frame)); # "¿Environment-Bindungs-Frame"
             write_sstring(stream_,O(showstack_string_BENV_frame)); # "¿  BLOCK_ENV <--> "
             prin1(stream_,FRAME_(1));
             break;
           case ENV1G_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
+            write_sstring(stream_,OLS(showstack_string_ENV_frame)); # "¿Environment-Bindungs-Frame"
             write_sstring(stream_,O(showstack_string_GENV_frame)); # "¿  GO_ENV <--> "
             prin1(stream_,FRAME_(1));
             break;
           case ENV1D_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
+            write_sstring(stream_,OLS(showstack_string_ENV_frame)); # "¿Environment-Bindungs-Frame"
             write_sstring(stream_,O(showstack_string_DENV_frame)); # "¿  DECL_ENV <--> "
             prin1(stream_,FRAME_(1));
             break;
           case ENV2VD_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
+            write_sstring(stream_,OLS(showstack_string_ENV_frame)); # "¿Environment-Bindungs-Frame"
             write_sstring(stream_,O(showstack_string_VENV_frame)); # "¿  VAR_ENV <--> "
             prin1(stream_,FRAME_(1));
             write_sstring(stream_,O(showstack_string_DENV_frame)); # "¿  DECL_ENV <--> "
             prin1(stream_,FRAME_(2));
             break;
           case ENV5_frame_info:
-            write_sstring(stream_,CLSTEXT(NLstring "frame binding environments"));
+            write_sstring(stream_,OLS(showstack_string_ENV_frame)); # "¿Environment-Bindungs-Frame"
             write_sstring(stream_,O(showstack_string_VENV_frame)); # "¿  VAR_ENV <--> "
             prin1(stream_,FRAME_(1));
             write_sstring(stream_,O(showstack_string_FENV_frame)); # "¿  FUN_ENV <--> "
@@ -1334,12 +1332,10 @@ LISPFUNN(show_stack,0)
     var object* FRAME = STACK; # läuft durch den Stack nach oben
     pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # Stream *STANDARD-OUTPUT*
     var object* stream_ = &STACK_0;
-    var uintL count = 0;
     until (eq(FRAME_(0),nullobj)) { # Nullword = oberes Stackende
       FRAME = print_stackitem(stream_,FRAME); # Stack-Item ausgeben
-      count++;
     }
-    skipSTACK(1); value1 = UL_to_I(count); mv_count=1;
+    skipSTACK(1); value1 = NIL; mv_count=0; # keine Werte
   }
 
 LISPFUNN(debug,0)

@@ -1,5 +1,5 @@
 # Array functions
-# Bruno Haible 1990-2001
+# Bruno Haible 1990-1999
 
 #include "lispbibl.c"
 #include "arilev0.c" # for bit_op, also defines mulu24 and mulu32_unchecked
@@ -230,11 +230,13 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
     }
 
 # Error, when a displaced array does not fit into its target array.
-  nonreturning_function(local, fehler_displaced_inconsistent, (void)) {
-    fehler(error,
-           GETTEXT("An array has been shortened by adjusting it while another array was displaced to it.")
-          );
-  }
+  nonreturning_function(local, fehler_displaced_inconsistent, (void));
+  local void fehler_displaced_inconsistent()
+    {
+      fehler(error,
+             GETTEXT("An array has been shortened by adjusting it while another array was displaced to it.")
+            );
+    }
 
 # Function: For an indirect array, returns the storage vector and the offset.
 # Also verifies that all elements of the array are physically present.
@@ -316,14 +318,17 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
 # Error message.
 # > obj: non-array
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_array, (object obj)) {
-    pushSTACK(obj); # slot DATUM of TYPE-ERROR
-    pushSTACK(S(array)); # slot EXPECTED-TYPE of TYPE-ERROR
-    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
-           GETTEXT("~: ~ is not an array")
-          );
-  }
+  nonreturning_function(local, fehler_array, (object obj));
+  local void fehler_array(obj)
+    var object obj;
+    {
+      pushSTACK(obj); # slot DATUM of TYPE-ERROR
+      pushSTACK(S(array)); # slot EXPECTED-TYPE of TYPE-ERROR
+      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("~: ~ is not an array")
+            );
+    }
 
 # Checks an array argument.
 # > object: argument
@@ -346,54 +351,66 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
 # > array: array
 # > argcount: (wrong) number of subscripts
 # > subr_self: caller (a SUBR)
-  nonreturning_function(local, fehler_subscript_anz, (object array, uintC argcount)) {
-    pushSTACK(arrayrank(array));
-    pushSTACK(array);
-    pushSTACK(fixnum(argcount));
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,
-           GETTEXT("~: got ~ subscripts, but ~ has rank ~")
-          );
-  }
+  nonreturning_function(local, fehler_subscript_anz, (object array, uintC argcount));
+  local void fehler_subscript_anz(array,argcount)
+    var object array;
+    var uintC argcount;
+    {
+      pushSTACK(arrayrank(array));
+      pushSTACK(array);
+      pushSTACK(fixnum(argcount));
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(error,
+             GETTEXT("~: got ~ subscripts, but ~ has rank ~")
+            );
+    }
 
 # Error message
 # > argcount: number of subscripts
 # > STACK_(argcount): array
 # > STACK_(argcount-1),...,STACK_(0): subscripts
 # > subr_self: caller (a SUBR)
-  nonreturning_function(local, fehler_subscript_type, (uintC argcount)) {
-    var object list = listof(argcount); # list of subscripts
-    # STACK_0 is now the array.
-    pushSTACK(list);
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,
-           GETTEXT("~: subscripts ~ for ~ are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))")
-          );
-  }
+  nonreturning_function(local, fehler_subscript_type, (uintC argcount));
+  local void fehler_subscript_type(argcount)
+    var uintC argcount;
+    {
+      var object list = listof(argcount); # list of subscripts
+      # STACK_0 is now the array.
+      pushSTACK(list);
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(error,
+             GETTEXT("~: subscripts ~ for ~ are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))")
+            );
+    }
 
 # Error message
 # > argcount: number of subscripts
 # > STACK_(argcount): array
 # > STACK_(argcount-1),...,STACK_(0): subscripts
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_subscript_range, (uintC argcount, uintL subscript, uintL bound)) {
-    var object list = listof(argcount); # list of subscripts
-    pushSTACK(list);
-    # On STACK: array, subscript-list.
-    pushSTACK(UL_to_I(subscript)); # slot DATUM of TYPE-ERROR
+  nonreturning_function(local, fehler_subscript_range, (uintC argcount, uintL subscript, uintL bound));
+  local void fehler_subscript_range(argcount,subscript,bound)
+    var uintC argcount;
+    var uintL subscript;
+    var uintL bound;
     {
-      var object tmp;
-      pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(bound));
-      tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
-      pushSTACK(tmp); # slot EXPECTED-TYPE of TYPE-ERROR
+      var object list = listof(argcount); # list of subscripts
+      pushSTACK(list);
+      # On STACK: array, subscript-list.
+      pushSTACK(UL_to_I(subscript)); # slot DATUM of TYPE-ERROR
+      {
+        var object tmp;
+        pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(bound));
+        tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
+        pushSTACK(tmp); # slot EXPECTED-TYPE of TYPE-ERROR
+      }
+      pushSTACK(STACK_(1+2));
+      pushSTACK(STACK_(0+3));
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("~: subscripts ~ for ~ are out of range")
+            );
     }
-    pushSTACK(STACK_(1+2));
-    pushSTACK(STACK_(0+3));
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
-           GETTEXT("~: subscripts ~ for ~ are out of range")
-          );
-  }
 
 # Überprüft Subscripts für einen AREF/STORE-Zugriff, entfernt sie vom STACK
 # und liefert den Row-Major-Index (>=0, <arraysize_limit).
@@ -445,34 +462,39 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
 # > STACK_1: Array (meist Vektor)
 # > STACK_0: (fehlerhafter) Index
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_index_type, (void)) {
-    pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
-    pushSTACK(O(type_array_index)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(STACK_(1+2));
-    pushSTACK(STACK_(0+3));
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
-           GETTEXT("~: index ~ for ~ is not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))")
-          );
-  }
+  nonreturning_function(local, fehler_index_type, (void));
+  local void fehler_index_type()
+    {
+      pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_array_index)); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(STACK_(1+2));
+      pushSTACK(STACK_(0+3));
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("~: index ~ for ~ is not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))")
+            );
+    }
 
 # Fehlermeldung
 # > STACK_1: Array (meist Vektor)
 # > STACK_0: (fehlerhafter) Index
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_index_range, (uintL bound)) {
-    var object tmp;
-    pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
-    pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(bound));
-    tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
-    pushSTACK(tmp); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(STACK_(1+2));
-    pushSTACK(STACK_(0+3));
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
-           GETTEXT("~: index ~ for ~ is out of range")
-          );
-  }
+  nonreturning_function(global, fehler_index_range, (uintL bound));
+  global void fehler_index_range(bound)
+    var uintL bound;
+    {
+      var object tmp;
+      pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
+      pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(bound));
+      tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
+      pushSTACK(tmp); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(STACK_(1+2));
+      pushSTACK(STACK_(0+3));
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("~: index ~ for ~ is out of range")
+            );
+    }
 
 # Überprüft einen Index für einen AREF/STORE-Zugriff in einen simplen Vektor.
 # test_index()
@@ -554,24 +576,28 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
             { return code_char(TheSstring(datenvektor)->data[index]); },
             { return code_char(as_chart(TheSmallSstring(datenvektor)->data[index])); }
             );
-        default: NOTREACHED;
+        default: NOTREACHED
       }
     }
 
 # Error when attempting to store an invalid value in an array.
 # fehler_store(array,value);
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_store, (object array, object value)) {
-    pushSTACK(array);
-    pushSTACK(value); # TYPE-ERROR slot DATUM
-    pushSTACK(array_element_type(array)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(STACK_(0+2)); # array
-    pushSTACK(STACK_2); # value
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
-           GETTEXT("~: ~ does not fit into ~, bad type")
-          );
-  }
+  nonreturning_function(global, fehler_store, (object array, object value));
+  global void fehler_store(array,value)
+    var object array;
+    var object value;
+    {
+      pushSTACK(array);
+      pushSTACK(value); # TYPE-ERROR slot DATUM
+      pushSTACK(array_element_type(array)); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(STACK_(0+2)); # array
+      pushSTACK(STACK_2); # value
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("~: ~ does not fit into ~, bad type")
+            );
+    }
 
 # Führt einen STORE-Zugriff aus.
 # storagevector_store(datenvektor,index,element)
@@ -656,7 +682,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
             return;
           }
           break;
-        default: NOTREACHED;
+        default: NOTREACHED
       }
       # Objekt war vom falschen Typ.
       fehler_store(STACK_0,element);
@@ -691,9 +717,11 @@ LISPFUN(store,2,0,rest,nokey,0,NIL) # (SYS::STORE array {subscript} object)
 # Fehlermeldung
 # > STACK_1: Nicht-Simple-Vector
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_svector, (void)) {
-    fehler_kein_svector(TheSubr(subr_self)->name,STACK_1);
-  }
+  nonreturning_function(local, fehler_svector, (void));
+  local void fehler_svector()
+    {
+      fehler_kein_svector(TheSubr(subr_self)->name,STACK_1);
+    }
 
 LISPFUNN(svref,2) # (SVREF simple-vector index), CLTL S. 291
   {
@@ -823,10 +851,10 @@ LISPFUNN(row_major_store,3)
             case Atype_16Bit:       # (UNSIGNED-BYTE 16)
             case Atype_32Bit:       # (UNSIGNED-BYTE 32)
               break;
-            default: NOTREACHED;
+            default: NOTREACHED
           }
           break;
-        default: NOTREACHED;
+        default: NOTREACHED
       }
       pushSTACK(S(unsigned_byte));
       pushSTACK(fixnum(bit(atype)));
@@ -1089,15 +1117,17 @@ LISPFUNN(array_displacement,1) # (ARRAY-DISPLACEMENT array), CLHS
 # Fehlermeldung
 # fehler_bit_array()
 # > STACK_0: Array, der kein Bit-Array ist
-  nonreturning_function(local, fehler_bit_array, (void)) {
-    pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
-    pushSTACK(O(type_array_bit)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(STACK_(0+2));
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
-           GETTEXT("~: ~ is not an array of bits")
-          );
-  }
+  nonreturning_function(local, fehler_bit_array, (void));
+  local void fehler_bit_array()
+    {
+      pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_array_bit)); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(STACK_(0+2));
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("~: ~ is not an array of bits")
+            );
+    }
 
 LISPFUN(bit,1,0,rest,nokey,0,NIL) # (BIT bit-array {subscript}), CLTL S. 293
   {
@@ -3010,7 +3040,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
               elt_copy_T_32Bit(dv1,index1,dv2,index2,count); return;
             case Array_type_sstring: # Simple-String
               elt_copy_T_Char(dv1,index1,dv2,index2,count); return;
-            default: NOTREACHED;
+            default: NOTREACHED
           }
           break;
         case Array_type_sbvector: # Simple-Bit-Vector
@@ -3031,7 +3061,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
               elt_copy_Bit_32Bit(dv1,index1,dv2,index2,count); return;
             case Array_type_sstring: # Simple-String
               break; # fehler_store because count > 0
-            default: NOTREACHED;
+            default: NOTREACHED
           }
           break;
         case Array_type_sb2vector:
@@ -3052,7 +3082,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
               elt_copy_2Bit_32Bit(dv1,index1,dv2,index2,count); return;
             case Array_type_sstring: # Simple-String
               break; # fehler_store because count > 0
-            default: NOTREACHED;
+            default: NOTREACHED
           }
           break;
         case Array_type_sb4vector:
@@ -3073,7 +3103,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
               elt_copy_4Bit_32Bit(dv1,index1,dv2,index2,count); return;
             case Array_type_sstring: # Simple-String
               break; # fehler_store because count > 0
-            default: NOTREACHED;
+            default: NOTREACHED
           }
           break;
         case Array_type_sb8vector:
@@ -3094,7 +3124,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
               elt_copy_8Bit_32Bit(dv1,index1,dv2,index2,count); return;
             case Array_type_sstring: # Simple-String
               break; # fehler_store because count > 0
-            default: NOTREACHED;
+            default: NOTREACHED
           }
           break;
         case Array_type_sb16vector:
@@ -3115,7 +3145,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
               elt_copy_16Bit_32Bit(dv1,index1,dv2,index2,count); return;
             case Array_type_sstring: # Simple-String
               break; # fehler_store because count > 0
-            default: NOTREACHED;
+            default: NOTREACHED
           }
           break;
         case Array_type_sb32vector:
@@ -3136,7 +3166,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
               elt_copy_32Bit_32Bit(dv1,index1,dv2,index2,count); return;
             case Array_type_sstring: # Simple-String
               break; # fehler_store because count > 0
-            default: NOTREACHED;
+            default: NOTREACHED
           }
           break;
         case Array_type_sstring: # Simple-String
@@ -3152,10 +3182,10 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
               break; # fehler_store because count > 0
             case Array_type_sstring: # Simple-String
               elt_copy_Char_Char(dv1,index1,dv2,index2,count); return;
-            default: NOTREACHED;
+            default: NOTREACHED
           }
           break;
-        default: NOTREACHED;
+        default: NOTREACHED
       }
       pushSTACK(dv2);
       var object elt1 = storagevector_aref(dv1,index1);
@@ -3439,7 +3469,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
         case Array_type_sstring: # Simple-String
           elt_move_Char(dv1,index1,dv2,index2,count);
           break;
-        default: NOTREACHED;
+        default: NOTREACHED
       }
     }
 
@@ -3449,211 +3479,227 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
 # > index: start index in dv
 # > count: number of elements to be filled
 # < result: true if element does not fit, false when done
-#define SIMPLE_FILL(p,c,e)    dotimespL(c,c, { *p++ = e; })
-global bool elt_fill (object dv, uintL index, uintL count, object element) {
-  switch (Array_type(dv)) {
-    case Array_type_svector: # Simple-Vector
-      if (count > 0) {
-        var object* ptr = &TheSvector(dv)->data[index];
-        SIMPLE_FILL(ptr,count,element);
-      }
-      break;
-  #if 0 # unoptimized
-    case Array_type_sbvector: # Simple-Bit-Vector
-      if (!uint1_p(element)) return true;
-      if (count > 0) {
-        var uint8 x = I_to_uint8(element);
-        var uint8* ptr = &TheSbvector(dv)->data[index/8];
-        dotimespL(count,count, {
-          *ptr ^= (*ptr ^ (x << ((~index)%8))) & ((bit(1)-1) << ((~index)%8));
-          index++;
-          ptr += ((index%8)==0);
-        });
-      }
-      break;
-    case Array_type_sb2vector:
-      if (!uint2_p(element)) return true;
-      if (count > 0) {
-        var uint8 x = I_to_uint8(element);
-        var uint8* ptr = &TheSbvector(dv)->data[index/4];
-        dotimespL(count,count, {
-          *ptr ^= (*ptr ^ (x << (2*((~index)%4)))) & ((bit(2)-1) << (2*((~index)%4)));
-          index++;
-          ptr += ((index%4)==0);
-        });
-      }
-      break;
-    case Array_type_sb4vector:
-      if (!uint4_p(element)) return true;
-      if (count > 0) {
-        var uint8 x = I_to_uint8(element);
-        var uint8* ptr = &TheSbvector(dv)->data[index/2];
-        dotimespL(count,count, {
-          *ptr ^= (*ptr ^ (x << (4*((~index)%2)))) & ((bit(4)-1) << (4*((~index)%2)));
-          index++;
-          ptr += ((index%2)==0);
-        });
-      }
-      break;
-    case Array_type_sb8vector:
-      if (!uint8_p(element)) return true;
-      if (count > 0) {
-        var uint8 x = I_to_uint8(element);
-        var uint8* ptr = &TheSbvector(dv)->data[index];
-        SIMPLE_FILL(ptr,count,x);
-      }
-      break;
-    case Array_type_sb16vector:
-      if (!uint16_p(element)) return true;
-      if (count > 0) {
-        var uint16 x = I_to_uint16(element);
-        var uint16* ptr = &((uint16*)&TheSbvector(dv)->data[0])[index];
-        SIMPLE_FILL(ptr,count,x);
-      }
-      break;
-    case Array_type_sb32vector:
-      if (!uint32_p(element)) return true;
-      if (count > 0) {
-        var uint32 x = I_to_uint32(element);
-        var uint32* ptr = &((uint32*)&TheSbvector(dv)->data[0])[index];
-        SIMPLE_FILL(ptr,count,x);
-      }
-      break;
-  #else # optimized: use 32-bit accesses where possible
-      var uint32 x;
-    case Array_type_sbvector: # Simple-Bit-Vector
-      if (!uint1_p(element)) return true;
-      if (count == 0) break;
-      x = I_to_uint8(element);
-      x |= x << 1;
-      x |= x << 2;
-      x |= x << 4;
-      if (index & 7) {
-        var uint8* ptr = &TheSbvector(dv)->data[index/8];
-        var uintL i = 8-(index&7);
-        if (i >= count) {
-          *ptr ^= (*ptr ^ x) & (bit(i)-bit(i-count));
+  global bool elt_fill (object dv, uintL index, uintL count, object element);
+  global bool elt_fill(dv,index,count,element)
+    var object dv;
+    var uintL index;
+    var uintL count;
+    var object element;
+    {
+      switch (Array_type(dv)) {
+        case Array_type_svector: # Simple-Vector
+          if (count > 0) {
+            var object* ptr = &TheSvector(dv)->data[index];
+            dotimespL(count,count, {
+              *ptr++ = element;
+            });
+          }
           break;
-        }
-        *ptr ^= (*ptr ^ x) & (bit(i)-1);
-        count -= i;
-        index += i;
-      }
-      index = index/8;
-      if (count & 7) {
-        var uint8* ptr = &TheSbvector(dv)->data[index+count/8];
-        *ptr ^= (*ptr ^ x) & (bit(8)-bit(8-(count&7)));
-        count = count & ~7;
-        if (count == 0) break;
-      }
-      count = count/8;
-      goto store8;
-    case Array_type_sb2vector:
-      if (!uint2_p(element)) return true;
-      if (count == 0) break;
-      x = I_to_uint8(element);
-      x |= x << 2;
-      x |= x << 4;
-      if (index & 3) {
-        var uint8* ptr = &TheSbvector(dv)->data[index/4];
-        var uintL i = 4-(index&3);
-        if (i >= count) {
-          *ptr ^= (*ptr ^ x) & (bit(2*i)-bit(2*(i-count)));
+       #if 0 # unoptimized
+        case Array_type_sbvector: # Simple-Bit-Vector
+          if (!uint1_p(element)) return true;
+          if (count > 0) {
+            var uint8 x = I_to_uint8(element);
+            var uint8* ptr = &TheSbvector(dv)->data[index/8];
+            dotimespL(count,count, {
+              *ptr ^= (*ptr ^ (x << ((~index)%8))) & ((bit(1)-1) << ((~index)%8));
+              index++;
+              ptr += ((index%8)==0);
+            });
+          }
           break;
-        }
-        *ptr ^= (*ptr ^ x) & (bit(2*i)-1);
-        count -= i;
-        index += i;
+        case Array_type_sb2vector:
+          if (!uint2_p(element)) return true;
+          if (count > 0) {
+            var uint8 x = I_to_uint8(element);
+            var uint8* ptr = &TheSbvector(dv)->data[index/4];
+            dotimespL(count,count, {
+              *ptr ^= (*ptr ^ (x << (2*((~index)%4)))) & ((bit(2)-1) << (2*((~index)%4)));
+              index++;
+              ptr += ((index%4)==0);
+            });
+          }
+          break;
+        case Array_type_sb4vector:
+          if (!uint4_p(element)) return true;
+          if (count > 0) {
+            var uint8 x = I_to_uint8(element);
+            var uint8* ptr = &TheSbvector(dv)->data[index/2];
+            dotimespL(count,count, {
+              *ptr ^= (*ptr ^ (x << (4*((~index)%2)))) & ((bit(4)-1) << (4*((~index)%2)));
+              index++;
+              ptr += ((index%2)==0);
+            });
+          }
+          break;
+        case Array_type_sb8vector:
+          if (!uint8_p(element)) return true;
+          if (count > 0) {
+            var uint8 x = I_to_uint8(element);
+            var uint8* ptr = &TheSbvector(dv)->data[index];
+            dotimespL(count,count, {
+              *ptr++ = x;
+            });
+          }
+          break;
+        case Array_type_sb16vector:
+          if (!uint16_p(element)) return true;
+          if (count > 0) {
+            var uint16 x = I_to_uint16(element);
+            var uint16* ptr = &((uint16*)&TheSbvector(dv)->data[0])[index];
+            dotimespL(count,count, {
+              *ptr++ = x;
+            });
+          }
+          break;
+        case Array_type_sb32vector:
+          if (!uint32_p(element)) return true;
+          if (count > 0) {
+            var uint32 x = I_to_uint32(element);
+            var uint32* ptr = &((uint32*)&TheSbvector(dv)->data[0])[index];
+            dotimespL(count,count, {
+              *ptr++ = x;
+            });
+          }
+          break;
+       #else # optimized: use 32-bit accesses where possible
+        var uint32 x;
+        case Array_type_sbvector: # Simple-Bit-Vector
+          if (!uint1_p(element)) return true;
+          if (count == 0) break;
+          x = I_to_uint8(element);
+          x |= x << 1;
+          x |= x << 2;
+          x |= x << 4;
+          if (index & 7) {
+            var uint8* ptr = &TheSbvector(dv)->data[index/8];
+            var uintL i = 8-(index&7);
+            if (i >= count) {
+              *ptr ^= (*ptr ^ x) & (bit(i)-bit(i-count));
+              break;
+            }
+            *ptr ^= (*ptr ^ x) & (bit(i)-1);
+            count -= i;
+            index += i;
+          }
+          index = index/8;
+          if (count & 7) {
+            var uint8* ptr = &TheSbvector(dv)->data[index+count/8];
+            *ptr ^= (*ptr ^ x) & (bit(8)-bit(8-(count&7)));
+            count = count & ~7;
+            if (count == 0) break;
+          }
+          count = count/8;
+          goto store8;
+        case Array_type_sb2vector:
+          if (!uint2_p(element)) return true;
+          if (count == 0) break;
+          x = I_to_uint8(element);
+          x |= x << 2;
+          x |= x << 4;
+          if (index & 3) {
+            var uint8* ptr = &TheSbvector(dv)->data[index/4];
+            var uintL i = 4-(index&3);
+            if (i >= count) {
+              *ptr ^= (*ptr ^ x) & (bit(2*i)-bit(2*(i-count)));
+              break;
+            }
+            *ptr ^= (*ptr ^ x) & (bit(2*i)-1);
+            count -= i;
+            index += i;
+          }
+          index = index/4;
+          if (count & 3) {
+            var uint8* ptr = &TheSbvector(dv)->data[index+count/4];
+            *ptr ^= (*ptr ^ x) & (bit(8)-bit(8-2*(count&3)));
+            count = count & ~3;
+            if (count == 0) break;
+          }
+          count = count/4;
+          goto store8;
+        case Array_type_sb4vector:
+          if (!uint4_p(element)) return true;
+          if (count == 0) break;
+          x = I_to_uint8(element);
+          x |= x << 4;
+          if (index & 1) {
+            var uint8* ptr = &TheSbvector(dv)->data[index/2];
+            *ptr ^= (*ptr ^ x) & (bit(4)-1);
+            index++;
+            if (--count == 0) break;
+          }
+          index = index/2;
+          if (count & 1) {
+            var uint8* ptr = &TheSbvector(dv)->data[index+count/2];
+            *ptr ^= (*ptr ^ x) & (bit(8)-bit(4));
+            if (--count == 0) break;
+          }
+          count = count/2;
+          goto store8;
+        case Array_type_sb8vector:
+          if (!uint8_p(element)) return true;
+          if (count == 0) break;
+          x = I_to_uint8(element);
+        store8:
+          if (index & 1) {
+            TheSbvector(dv)->data[index] = x;
+            index++;
+            if (--count == 0) break;
+          }
+          if (count & 1) {
+            TheSbvector(dv)->data[index+count-1] = x;
+            if (--count == 0) break;
+          }
+          count = count/2;
+          index = index/2;
+          x |= x << 8;
+          goto store16;
+        case Array_type_sb16vector:
+          if (!uint16_p(element)) return true;
+          if (count == 0) break;
+          x = I_to_uint16(element);
+        store16:
+          if (index & 1) {
+            ((uint16*)&TheSbvector(dv)->data[0])[index] = x;
+            index++;
+            if (--count == 0) break;
+          }
+          if (count & 1) {
+            ((uint16*)&TheSbvector(dv)->data[0])[index+count-1] = x;
+            if (--count == 0) break;
+          }
+          count = count/2;
+          index = index/2;
+          x |= x << 16;
+          goto store32;
+        case Array_type_sb32vector:
+          if (!uint32_p(element)) return true;
+          if (count == 0) break;
+          x = I_to_uint32(element);
+        store32:
+          {
+            var uint32* ptr = &((uint32*)&TheSbvector(dv)->data[0])[index];
+            dotimespL(count,count, {
+              *ptr++ = x;
+            });
+          }
+          break;
+       #endif
+        case Array_type_sstring: # Simple-String
+          if (!charp(element)) return true;
+          if (count > 0) {
+            check_sstring_mutable(dv);
+            var chart c = char_code(element);
+            var chart* ptr = &TheSstring(dv)->data[index];
+            dotimespL(count,count, {
+              *ptr++ = c;
+            });
+          }
+          break;
+        default: NOTREACHED
       }
-      index = index/4;
-      if (count & 3) {
-        var uint8* ptr = &TheSbvector(dv)->data[index+count/4];
-        *ptr ^= (*ptr ^ x) & (bit(8)-bit(8-2*(count&3)));
-        count = count & ~3;
-        if (count == 0) break;
-      }
-      count = count/4;
-      goto store8;
-    case Array_type_sb4vector:
-      if (!uint4_p(element)) return true;
-      if (count == 0) break;
-      x = I_to_uint8(element);
-      x |= x << 4;
-      if (index & 1) {
-        var uint8* ptr = &TheSbvector(dv)->data[index/2];
-        *ptr ^= (*ptr ^ x) & (bit(4)-1);
-        index++;
-        if (--count == 0) break;
-      }
-      index = index/2;
-      if (count & 1) {
-        var uint8* ptr = &TheSbvector(dv)->data[index+count/2];
-        *ptr ^= (*ptr ^ x) & (bit(8)-bit(4));
-        if (--count == 0) break;
-      }
-      count = count/2;
-      goto store8;
-    case Array_type_sb8vector:
-      if (!uint8_p(element)) return true;
-      if (count == 0) break;
-      x = I_to_uint8(element);
-  store8:
-      if (index & 1) {
-        TheSbvector(dv)->data[index] = x;
-        index++;
-        if (--count == 0) break;
-      }
-      if (count & 1) {
-        TheSbvector(dv)->data[index+count-1] = x;
-        if (--count == 0) break;
-      }
-      count = count/2;
-      index = index/2;
-      x |= x << 8;
-      goto store16;
-    case Array_type_sb16vector:
-      if (!uint16_p(element)) return true;
-      if (count == 0) break;
-      x = I_to_uint16(element);
-  store16:
-      if (index & 1) {
-        ((uint16*)&TheSbvector(dv)->data[0])[index] = x;
-        index++;
-        if (--count == 0) break;
-      }
-      if (count & 1) {
-        ((uint16*)&TheSbvector(dv)->data[0])[index+count-1] = x;
-        if (--count == 0) break;
-      }
-      count = count/2;
-      index = index/2;
-      x |= x << 16;
-      goto store32;
-    case Array_type_sb32vector:
-      if (!uint32_p(element)) return true;
-      if (count == 0) break;
-      x = I_to_uint32(element);
-  store32:
-      {
-        var uint32* ptr = &((uint32*)&TheSbvector(dv)->data[0])[index];
-        SIMPLE_FILL(ptr,count,x);
-      }
-      break;
-  #endif
-    case Array_type_sstring: # Simple-String
-      if (!charp(element)) return true;
-      if (count > 0) {
-        check_sstring_mutable(dv);
-        var chart c = char_code(element);
-        var chart* ptr = &TheSstring(dv)->data[index];
-        SIMPLE_FILL(ptr,count,c);
-      }
-      break;
-    default: NOTREACHED;
-  }
-  return false;
-}
-#undef SIMPLE_FILL
+      return false;
+    }
 
 # Function: Reverses a slice of an array, copying it into another array
 # of the same element type.
@@ -3663,184 +3709,230 @@ global bool elt_fill (object dv, uintL index, uintL count, object element) {
 # > dv2: destination storage-vector
 # > index2: start index in dv2
 # > count: number of elements to be copied, > 0
-#define SIMPLE_REVERSE(p1,p2,c)   dotimespL(c,c, { *p2-- = *p1++; })
-global void elt_reverse (object dv1, uintL index1, object dv2,
-                         uintL index2, uintL count) {
-  index2 += count-1;
-  switch (Array_type(dv1)) {
-    case Array_type_svector: { # Simple-Vector
-      var const object* ptr1 = &TheSvector(dv1)->data[index1];
-      var object* ptr2 = &TheSvector(dv2)->data[index2];
-      SIMPLE_REVERSE(ptr1,ptr2,count);
+  global void elt_reverse (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  global void elt_reverse(dv1,index1,dv2,index2,count)
+    var object dv1;
+    var uintL index1;
+    var object dv2;
+    var uintL index2;
+    var uintL count;
+    {
+      index2 += count-1;
+      switch (Array_type(dv1)) {
+        case Array_type_svector: # Simple-Vector
+          {
+            var const object* ptr1 = &TheSvector(dv1)->data[index1];
+            var object* ptr2 = &TheSvector(dv2)->data[index2];
+            dotimespL(count,count, {
+              *ptr2-- = *ptr1++;
+            });
+          }
+          break;
+        case Array_type_sbvector: # Simple-Bit-Vector
+          {
+            var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/8];
+            var uint8* ptr2 = &TheSbvector(dv2)->data[index2/8];
+            dotimespL(count,count, {
+              var uint8 value = (*ptr1 >> ((~index1)%8)) & (bit(1)-1);
+              *ptr2 ^= (*ptr2 ^ (value << ((~index2)%8))) & ((bit(1)-1) << ((~index2)%8));
+              index1++;
+              ptr1 += ((index1%8)==0);
+              ptr2 -= ((index2%8)==0);
+              index2--;
+            });
+          }
+          break;
+        case Array_type_sb2vector:
+          {
+            var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/4];
+            var uint8* ptr2 = &TheSbvector(dv2)->data[index2/4];
+            dotimespL(count,count, {
+              var uint8 value = (*ptr1 >> (2*((~index1)%4))) & (bit(2)-1);
+              *ptr2 ^= (*ptr2 ^ (value << (2*((~index2)%4)))) & ((bit(2)-1) << (2*((~index2)%4)));
+              index1++;
+              ptr1 += ((index1%4)==0);
+              ptr2 -= ((index2%4)==0);
+              index2--;
+            });
+          }
+          break;
+        case Array_type_sb4vector:
+          {
+            var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/2];
+            var uint8* ptr2 = &TheSbvector(dv2)->data[index2/2];
+            dotimespL(count,count, {
+              var uint8 value = (*ptr1 >> (4*((~index1)%2))) & (bit(4)-1);
+              *ptr2 ^= (*ptr2 ^ (value << (4*((~index2)%2)))) & ((bit(4)-1) << (4*((~index2)%2)));
+              index1++;
+              ptr1 += ((index1%2)==0);
+              ptr2 -= ((index2%2)==0);
+              index2--;
+            });
+          }
+          break;
+        case Array_type_sb8vector:
+          {
+            var const uint8* ptr1 = &TheSbvector(dv1)->data[index1];
+            var uint8* ptr2 = &TheSbvector(dv2)->data[index2];
+            dotimespL(count,count, {
+              *ptr2-- = *ptr1++;
+            });
+          }
+          break;
+        case Array_type_sb16vector:
+          {
+            var const uint16* ptr1 = &((uint16*)&TheSbvector(dv1)->data[0])[index1];
+            var uint16* ptr2 = &((uint16*)&TheSbvector(dv2)->data[0])[index2];
+            dotimespL(count,count, {
+              *ptr2-- = *ptr1++;
+            });
+          }
+          break;
+        case Array_type_sb32vector:
+          {
+            var const uint32* ptr1 = &((uint32*)&TheSbvector(dv1)->data[0])[index1];
+            var uint32* ptr2 = &((uint32*)&TheSbvector(dv2)->data[0])[index2];
+            dotimespL(count,count, {
+              *ptr2-- = *ptr1++;
+            });
+          }
+          break;
+        case Array_type_sstring: # Simple-String
+          check_sstring_mutable(dv2);
+          {
+            var chart* ptr2 = &TheSstring(dv2)->data[index2];
+            SstringDispatch(dv1,
+              {
+                var const chart* ptr1 = &TheSstring(dv1)->data[index1];
+                dotimespL(count,count, {
+                  *ptr2-- = *ptr1++;
+                });
+              },
+              {
+                var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
+                dotimespL(count,count, {
+                  *ptr2-- = as_chart(*ptr1++);
+                });
+              }
+              );
+          }
+          break;
+        default: NOTREACHED
+      }
     }
-      break;
-    case Array_type_sbvector: { # Simple-Bit-Vector
-      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/8];
-      var uint8* ptr2 = &TheSbvector(dv2)->data[index2/8];
-      dotimespL(count,count, {
-        var uint8 value = (*ptr1 >> ((~index1)%8)) & (bit(1)-1);
-        *ptr2 ^= (*ptr2 ^ (value << ((~index2)%8))) & ((bit(1)-1) << ((~index2)%8));
-        index1++;
-        ptr1 += ((index1%8)==0);
-        ptr2 -= ((index2%8)==0);
-        index2--;
-      });
-    }
-      break;
-    case Array_type_sb2vector: {
-      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/4];
-      var uint8* ptr2 = &TheSbvector(dv2)->data[index2/4];
-      dotimespL(count,count, {
-        var uint8 value = (*ptr1 >> (2*((~index1)%4))) & (bit(2)-1);
-        *ptr2 ^= (*ptr2 ^ (value << (2*((~index2)%4)))) & ((bit(2)-1) << (2*((~index2)%4)));
-        index1++;
-        ptr1 += ((index1%4)==0);
-        ptr2 -= ((index2%4)==0);
-        index2--;
-      });
-    }
-      break;
-    case Array_type_sb4vector: {
-      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1/2];
-      var uint8* ptr2 = &TheSbvector(dv2)->data[index2/2];
-      dotimespL(count,count, {
-        var uint8 value = (*ptr1 >> (4*((~index1)%2))) & (bit(4)-1);
-        *ptr2 ^= (*ptr2 ^ (value << (4*((~index2)%2)))) & ((bit(4)-1) << (4*((~index2)%2)));
-        index1++;
-        ptr1 += ((index1%2)==0);
-        ptr2 -= ((index2%2)==0);
-        index2--;
-      });
-    }
-      break;
-    case Array_type_sb8vector: {
-      var const uint8* ptr1 = &TheSbvector(dv1)->data[index1];
-      var uint8* ptr2 = &TheSbvector(dv2)->data[index2];
-      SIMPLE_REVERSE(ptr1,ptr2,count);
-    }
-      break;
-    case Array_type_sb16vector: {
-      var const uint16* ptr1 = &((uint16*)&TheSbvector(dv1)->data[0])[index1];
-      var uint16* ptr2 = &((uint16*)&TheSbvector(dv2)->data[0])[index2];
-      SIMPLE_REVERSE(ptr1,ptr2,count);
-    }
-      break;
-    case Array_type_sb32vector: {
-      var const uint32* ptr1 = &((uint32*)&TheSbvector(dv1)->data[0])[index1];
-      var uint32* ptr2 = &((uint32*)&TheSbvector(dv2)->data[0])[index2];
-      SIMPLE_REVERSE(ptr1,ptr2,count) ;
-    }
-      break;
-    case Array_type_sstring: { # Simple-String
-      check_sstring_mutable(dv2);
-      var chart* ptr2 = &TheSstring(dv2)->data[index2];
-      SstringDispatch(dv1,{
-        var const chart* ptr1 = &TheSstring(dv1)->data[index1];
-        SIMPLE_REVERSE(ptr1,ptr2,count);
-      },{
-        var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
-        dotimespL(count,count, {
-          *ptr2-- = as_chart(*ptr1++);
-        });
-      });
-    }
-      break;
-    default: NOTREACHED;
-  }
-}
-#undef SIMPLE_REVERSE
 
 # Function: Reverses a slice of an array destructively.
 # elt_nreverse(dv,index,count);
 # > dv: storage-vector
 # > index: start index in dv
 # > count: number of elements to be reversed, > 0
-#define SIMPLE_NREVERSE(type_t,ve,i1,i2,count)                  \
-  if (count > 0) {                                              \
-    var type_t* ptr1 = &((type_t*)TheSvector(ve)->data)[i1];    \
-    var type_t* ptr2 = &((type_t*)TheSvector(ve)->data)[i2];    \
-    dotimespL(count,count, {                                    \
-      var type_t tmp = *ptr1; *ptr1++ = *ptr2; *ptr2-- = tmp;   \
-    });                                                         \
-  }
-global void elt_nreverse (object dv, uintL index, uintL count) {
-  var uintL index1 = index;
-  var uintL index2 = index+count-1;
-  count = floor(count,2);
-  switch (Array_type(dv)) {
-    case Array_type_svector: # Simple-Vector
-      SIMPLE_NREVERSE(object,dv,index1,index2,count);
-      break;
-    case Array_type_sbvector: # Simple-Bit-Vector
-      if (count > 0) {
-        var uint8* ptr1 = &TheSbvector(dv)->data[index1/8];
-        var uint8* ptr2 = &TheSbvector(dv)->data[index2/8];
-        dotimespL(count,count, {
-          var uint8 x1 = (*ptr1 >> ((~index1)%8)) & (bit(1)-1);
-          var uint8 x2 = (*ptr2 >> ((~index2)%8)) & (bit(1)-1);
-          *ptr1 ^= (*ptr1 ^ (x2 << ((~index1)%8))) & ((bit(1)-1) << ((~index1)%8));
-          *ptr2 ^= (*ptr2 ^ (x1 << ((~index2)%8))) & ((bit(1)-1) << ((~index2)%8));
-          index1++;
-          ptr1 += ((index1%8)==0);
-          ptr2 -= ((index2%8)==0);
-          index2--;
-        });
+  global void elt_nreverse (object dv, uintL index, uintL count);
+  global void elt_nreverse(dv,index,count)
+    var object dv;
+    var uintL index;
+    var uintL count;
+    {
+      var uintL index1 = index;
+      var uintL index2 = index+count-1;
+      count = floor(count,2);
+      switch (Array_type(dv)) {
+        case Array_type_svector: # Simple-Vector
+          if (count > 0) {
+            var object* ptr1 = &TheSvector(dv)->data[index1];
+            var object* ptr2 = &TheSvector(dv)->data[index2];
+            dotimespL(count,count, {
+              var object tmp = *ptr1; *ptr1++ = *ptr2; *ptr2-- = tmp;
+            });
+          }
+          break;
+        case Array_type_sbvector: # Simple-Bit-Vector
+          if (count > 0) {
+            var uint8* ptr1 = &TheSbvector(dv)->data[index1/8];
+            var uint8* ptr2 = &TheSbvector(dv)->data[index2/8];
+            dotimespL(count,count, {
+              var uint8 x1 = (*ptr1 >> ((~index1)%8)) & (bit(1)-1);
+              var uint8 x2 = (*ptr2 >> ((~index2)%8)) & (bit(1)-1);
+              *ptr1 ^= (*ptr1 ^ (x2 << ((~index1)%8))) & ((bit(1)-1) << ((~index1)%8));
+              *ptr2 ^= (*ptr2 ^ (x1 << ((~index2)%8))) & ((bit(1)-1) << ((~index2)%8));
+              index1++;
+              ptr1 += ((index1%8)==0);
+              ptr2 -= ((index2%8)==0);
+              index2--;
+            });
+          }
+          break;
+        case Array_type_sb2vector:
+          if (count > 0) {
+            var uint8* ptr1 = &TheSbvector(dv)->data[index1/4];
+            var uint8* ptr2 = &TheSbvector(dv)->data[index2/4];
+            dotimespL(count,count, {
+              var uint8 x1 = (*ptr1 >> (2*((~index1)%4))) & (bit(2)-1);
+              var uint8 x2 = (*ptr2 >> (2*((~index2)%4))) & (bit(2)-1);
+              *ptr1 ^= (*ptr1 ^ (x2 << (2*((~index1)%4)))) & ((bit(2)-1) << (2*((~index1)%4)));
+              *ptr2 ^= (*ptr2 ^ (x1 << (2*((~index2)%4)))) & ((bit(2)-1) << (2*((~index2)%4)));
+              index1++;
+              ptr1 += ((index1%4)==0);
+              ptr2 -= ((index2%4)==0);
+              index2--;
+            });
+          }
+          break;
+        case Array_type_sb4vector:
+          if (count > 0) {
+            var uint8* ptr1 = &TheSbvector(dv)->data[index1/2];
+            var uint8* ptr2 = &TheSbvector(dv)->data[index2/2];
+            dotimespL(count,count, {
+              var uint8 x1 = (*ptr1 >> (4*((~index1)%2))) & (bit(4)-1);
+              var uint8 x2 = (*ptr2 >> (4*((~index2)%2))) & (bit(4)-1);
+              *ptr1 ^= (*ptr1 ^ (x2 << (4*((~index1)%2)))) & ((bit(4)-1) << (4*((~index1)%2)));
+              *ptr2 ^= (*ptr2 ^ (x1 << (4*((~index2)%2)))) & ((bit(4)-1) << (4*((~index2)%2)));
+              index1++;
+              ptr1 += ((index1%2)==0);
+              ptr2 -= ((index2%2)==0);
+              index2--;
+            });
+          }
+          break;
+        case Array_type_sb8vector:
+          if (count > 0) {
+            var uint8* ptr1 = &TheSbvector(dv)->data[index1];
+            var uint8* ptr2 = &TheSbvector(dv)->data[index2];
+            dotimespL(count,count, {
+              var uint8 tmp = *ptr1; *ptr1++ = *ptr2; *ptr2-- = tmp;
+            });
+          }
+          break;
+        case Array_type_sb16vector:
+          if (count > 0) {
+            var uint16* ptr1 = &((uint16*)&TheSbvector(dv)->data[0])[index1];
+            var uint16* ptr2 = &((uint16*)&TheSbvector(dv)->data[0])[index2];
+            dotimespL(count,count, {
+              var uint16 tmp = *ptr1; *ptr1++ = *ptr2; *ptr2-- = tmp;
+            });
+          }
+          break;
+        case Array_type_sb32vector:
+          if (count > 0) {
+            var uint32* ptr1 = &((uint32*)&TheSbvector(dv)->data[0])[index1];
+            var uint32* ptr2 = &((uint32*)&TheSbvector(dv)->data[0])[index2];
+            dotimespL(count,count, {
+              var uint32 tmp = *ptr1; *ptr1++ = *ptr2; *ptr2-- = tmp;
+            });
+          }
+          break;
+        case Array_type_sstring: # Simple-String
+          check_sstring_mutable(dv);
+          if (count > 0) {
+            var chart* ptr1 = &TheSstring(dv)->data[index1];
+            var chart* ptr2 = &TheSstring(dv)->data[index2];
+            dotimespL(count,count, {
+              var chart tmp = *ptr1; *ptr1++ = *ptr2; *ptr2-- = tmp;
+            });
+          }
+          break;
+        default: NOTREACHED
       }
-      break;
-    case Array_type_sb2vector:
-      if (count > 0) {
-        var uint8* ptr1 = &TheSbvector(dv)->data[index1/4];
-        var uint8* ptr2 = &TheSbvector(dv)->data[index2/4];
-        dotimespL(count,count, {
-          var uint8 x1 = (*ptr1 >> (2*((~index1)%4))) & (bit(2)-1);
-          var uint8 x2 = (*ptr2 >> (2*((~index2)%4))) & (bit(2)-1);
-          *ptr1 ^= (*ptr1 ^ (x2 << (2*((~index1)%4)))) & ((bit(2)-1) << (2*((~index1)%4)));
-          *ptr2 ^= (*ptr2 ^ (x1 << (2*((~index2)%4)))) & ((bit(2)-1) << (2*((~index2)%4)));
-          index1++;
-          ptr1 += ((index1%4)==0);
-          ptr2 -= ((index2%4)==0);
-          index2--;
-        });
-      }
-      break;
-    case Array_type_sb4vector:
-      if (count > 0) {
-        var uint8* ptr1 = &TheSbvector(dv)->data[index1/2];
-        var uint8* ptr2 = &TheSbvector(dv)->data[index2/2];
-        dotimespL(count,count, {
-          var uint8 x1 = (*ptr1 >> (4*((~index1)%2))) & (bit(4)-1);
-          var uint8 x2 = (*ptr2 >> (4*((~index2)%2))) & (bit(4)-1);
-          *ptr1 ^= (*ptr1 ^ (x2 << (4*((~index1)%2)))) & ((bit(4)-1) << (4*((~index1)%2)));
-          *ptr2 ^= (*ptr2 ^ (x1 << (4*((~index2)%2)))) & ((bit(4)-1) << (4*((~index2)%2)));
-          index1++;
-          ptr1 += ((index1%2)==0);
-          ptr2 -= ((index2%2)==0);
-          index2--;
-        });
-      }
-      break;
-    case Array_type_sb8vector:
-      SIMPLE_NREVERSE(uint8,dv,index1,index2,count);
-      break;
-    case Array_type_sb16vector:
-      SIMPLE_NREVERSE(uint16,dv,index1,index2,count);
-      break;
-    case Array_type_sb32vector:
-      SIMPLE_NREVERSE(uint32,dv,index1,index2,count);
-      break;
-    case Array_type_sstring: # Simple-String
-      check_sstring_mutable(dv);
-      if (count > 0) {
-        var chart* ptr1 = &TheSstring(dv)->data[index1];
-        var chart* ptr2 = &TheSstring(dv)->data[index2];
-        dotimespL(count,count,
-                  { chart tmp = *ptr1; *ptr1++ = *ptr2; *ptr2-- = tmp; });
-      }
-      break;
-    default: NOTREACHED;
-  }
-}
-#undef SIMPLE_NREVERSE
+    }
 
 # ============================================================================
 #                 Fill pointers, extendable vectors
@@ -3849,23 +3941,26 @@ global void elt_nreverse (object dv, uintL index, uintL count) {
 # array_has_fill_pointer_p(array)
 # > array: ein Array
 # < result: true, if it has a fill-pointer, else false.
-global bool array_has_fill_pointer_p (object array) {
-  if (simplep(array)) {
-    return false;
-  } else {
-    if (Iarray_flags(array) & bit(arrayflags_fillp_bit))
-      return true;
-    else
-      return false;
-  }
-}
+  global bool array_has_fill_pointer_p (object array);
+  global bool array_has_fill_pointer_p(array)
+    var object array;
+    {
+      if (simplep(array)) {
+        return false;
+      } else {
+        if (Iarray_flags(array) & bit(arrayflags_fillp_bit))
+          return true;
+        else
+          return false;
+      }
+    }
 
-# (ARRAY-HAS-FILL-POINTER-P array), CLTL p. 296
-LISPFUNN(array_has_fill_pointer_p,1) {
-  var object array = popSTACK();
-  test_array(array);
-  value1 = (array_has_fill_pointer_p(array) ? T : NIL); mv_count=1;
-}
+LISPFUNN(array_has_fill_pointer_p,1) # (ARRAY-HAS-FILL-POINTER-P array), CLTL S. 296
+  {
+    var object array = popSTACK();
+    test_array(array);
+    value1 = (array_has_fill_pointer_p(array) ? T : NIL); mv_count=1;
+  }
 
 # Überprüft, ob ein Objekt ein Vektor mit Fill-Pointer ist, und liefert
 # die Adresse des Fill-Pointers.
@@ -3955,13 +4050,6 @@ LISPFUNN(vector_pop,1) # (VECTOR-POP vector), CLTL S. 296
     }
   }
 
-# Vector will be too long -> error
-nonreturning_function(local, fehler_extension, (object extension)) {
-  pushSTACK(extension); pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,
-         GETTEXT("~: extending the vector by ~ elements makes it too long"));
-}
-
 LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
 # (VECTOR-PUSH-EXTEND new-element vector [extension]), CLTL S. 296
   {
@@ -4011,7 +4099,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
           case Atype_2Bit: case Atype_4Bit: case Atype_8Bit:
           case Atype_16Bit: case Atype_32Bit: # bei Byte-Vektoren: entsprechend
                            inc = bit(floor(14-atype,2)); break;
-          default: NOTREACHED;
+          default: NOTREACHED
         }
         # mindestens jedoch die bisherige Länge:
         if (inc<len)
@@ -4019,8 +4107,13 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       }
       var uintL newlen = len + inc; # neue Länge
       #ifndef UNIX_DEC_ULTRIX_GCCBUG
-      if (newlen > arraysize_limit_1)
-        fehler_extension(extension);
+      if (newlen > arraysize_limit_1) {
+        # Vektor würde zu lang -> Fehlermeldung
+        pushSTACK(extension); pushSTACK(TheSubr(subr_self)->name);
+        fehler(error,
+               GETTEXT("~: extending the vector by ~ elements makes it too long")
+              );
+      }
       #endif
       # Neuen Datenvektor holen. Dazu Fallunterscheidung je nach Typ:
       var object neuer_datenvektor;
@@ -4075,13 +4168,13 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
               case Atype_32Bit:
                 elt_copy_32Bit_32Bit(datenvektor,index,neuer_datenvektor,0,len);
                 break;
-              default: NOTREACHED;
+              default: NOTREACHED
             }
           }
           # new-element eintragen:
           storagevector_store(neuer_datenvektor,len,STACK_1);
           break;
-        default: NOTREACHED;
+        default: NOTREACHED
         fehler_type:
           {
             # Stackaufbau: new-element, vector.
@@ -4094,13 +4187,13 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
                   );
           }
       }
-      set_break_sem_1(); # forbid interrupts
+      set_break_sem_1(); # Unterbrechungen verbieten
       TheIarray(array)->data = neuer_datenvektor; # neuen Vektor als Datenvektor eintragen
       iarray_flags_clr(TheIarray(array),bit(arrayflags_displaced_bit)); # Displaced-Bit löschen
       TheIarray(array)->dims[2] += 1; # Fillpointer um 1 erhöhen
       TheIarray(array)->dims[1] = newlen; # neue Länge eintragen
       TheIarray(array)->totalsize = newlen; # ist auch neue totalsize
-      clr_break_sem_1(); # permit interrupts again
+      clr_break_sem_1(); # Unterbrechungen wieder zulassen
     }
     value1 = fixnum(oldfillp); mv_count=1;
     # alter Fill-Pointer als Wert
@@ -4160,17 +4253,6 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
 
 #endif
 
-# Error reporting
-# > dim: wrong dimension
-# > subr_self: caller (a SUBR)
-nonreturning_function(local, fehler_dim_type, (object dim)) {
-  pushSTACK(dim); # TYPE-ERROR slot DATUM
-  pushSTACK(O(type_array_index)); # TYPE-ERROR slot EXPECTED-TYPE
-  pushSTACK(dim);
-  pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: dimension ~ is not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"));
-}
-
 # ============================================================================
 #                    Semi-simple strings
 
@@ -4186,38 +4268,22 @@ nonreturning_function(local, fehler_dim_type, (object dim)) {
 # > uintL len: desired length, must be >0
 # < fresh: fresh semi-simple-string of the given length
 # can trigger GC
-global object make_ssstring (uintL len) {
-  if (len > arraysize_limit_1)
-    fehler_dim_type(UL_to_I(len));
-  pushSTACK(allocate_string(len));
-  var object new_array =
-    allocate_iarray(bit(arrayflags_fillp_bit)|Atype_Char,1,Array_type_string);
-  # Flags: only FILL_POINTER_BIT, element type CHARACTER, rank=1
-  TheIarray(new_array)->dims[1] = 0; # fill-pointer := 0
-  TheIarray(new_array)->totalsize =
-    TheIarray(new_array)->dims[0] = len; # length and total-size
-  TheIarray(new_array)->data = popSTACK(); # data vector
-  return new_array;
-}
-
-# Function: extend the string to length <= arraysize_limit_1 (not checked!)
-# > ssstring: a semi-simple-string
-# > size:     how much to allocate
-# < returns:  the same semi-simple-string
-# can trigger GC
-local object ssstring_extend_low (object ssstring, uintL size) {
-  pushSTACK(ssstring);
-  var object new_data = allocate_string(size);
-  ssstring = popSTACK();
-  if (TheIarray(ssstring)->dims[1] > 0)
-    chartcopy(TheSstring(TheIarray(ssstring)->data)->data,
-              TheSstring(new_data)->data,TheIarray(ssstring)->dims[1]);
-  set_break_sem_1(); # forbid interrupts
-  TheIarray(ssstring)->data = new_data;
-  TheIarray(ssstring)->totalsize = TheIarray(ssstring)->dims[0] = size;
-  clr_break_sem_1(); # permit interrupts again
-  return ssstring;
-}
+  global object make_ssstring (uintL len);
+  global object make_ssstring(len)
+    var uintL len;
+    {
+      var object new_string = allocate_string(len);
+      # neuer Normal-Simple-String dieser Länge
+      pushSTACK(new_string); # retten
+      var object new_array =
+        allocate_iarray(bit(arrayflags_fillp_bit)|Atype_Char,1,Array_type_string);
+        # Flags: nur FILL_POINTER_BIT, Elementtyp CHARACTER, Rang=1
+      TheIarray(new_array)->dims[1] = 0; # Fill-Pointer := 0
+      TheIarray(new_array)->totalsize =
+        TheIarray(new_array)->dims[0] = len; # Länge und Total-Size eintragen
+      TheIarray(new_array)->data = popSTACK(); # Datenvektor eintragen
+      return new_array;
+    }
 
 # Function: Adds a character to a semi-simple-string, thereby possibly
 # extending it.
@@ -4226,24 +4292,36 @@ local object ssstring_extend_low (object ssstring, uintL size) {
 # > ch: a character
 # < result: the same semi-simple-string
 # can trigger GC
-global object ssstring_push_extend (object ssstring, chart ch) {
-  var object sstring = TheIarray(ssstring)->data; # normal-simple-string
-  var uintL len = Sstring_length(sstring);
-  if (TheIarray(ssstring)->dims[1] >= len) { # fill-pointer >= length ?
-    len *= 2;
-    if (len > arraysize_limit_1) # cannot extend beyond arraysize_limit_1
-      len = arraysize_limit_1;
-    if (TheIarray(ssstring)->dims[1] >= len) # still no good!
-      fehler_extension(Fixnum_1);
-    ssstring = ssstring_extend_low(ssstring,len);
-    sstring = TheIarray(ssstring)->data;
-  }
-  # now sstring is still the data vector, and we have
-  # fill-pointer < length(data vector).
-  # push the character in and increase the fill-pointer:
-  TheSstring(sstring)->data[ TheIarray(ssstring)->dims[1]++ ] = ch;
-  return ssstring;
-}
+  global object ssstring_push_extend (object ssstring, chart ch);
+  global object ssstring_push_extend(ssstring,ch)
+    var object ssstring;
+    var chart ch;
+    {
+      var object sstring = TheIarray(ssstring)->data; # Datenvektor (ein Normal-Simple-String)
+      if (TheIarray(ssstring)->dims[1] # Fill-Pointer
+          >= Sstring_length(sstring) ) { # >= Länge ?
+        # ja -> String wird um den Faktor 2 länger gemacht
+        pushSTACK(ssstring); # ssstring retten
+        pushSTACK(sstring); # Datenvektor ebenfalls retten
+        var object neuer_sstring = allocate_string(2 * Sstring_length(sstring));
+        # neuer Normal-Simple-String der doppelten Länge
+        sstring = popSTACK(); # sstring zurück
+        # Stringinhalt von String sstring nach String neuer_sstring kopieren:
+        chartcopy(&TheSstring(sstring)->data[0],&TheSstring(neuer_sstring)->data[0],Sstring_length(sstring));
+        ssstring = popSTACK(); # ssstring zurück
+        set_break_sem_1(); # Unterbrechungen verbieten
+        TheIarray(ssstring)->data = neuer_sstring; # neuen String als Datenvektor abspeichern
+        TheIarray(ssstring)->totalsize =
+          TheIarray(ssstring)->dims[0] = Sstring_length(neuer_sstring); # neue Länge eintragen
+        clr_break_sem_1(); # Unterbrechungen wieder zulassen
+        sstring = neuer_sstring;
+      }
+      # Nun ist wieder sstring der Datenvektor, und es gilt
+      # Fill-Pointer < Länge(Datenvektor).
+      # Character hineinschieben und Fill-Pointer erhöhen:
+      TheSstring(sstring)->data[ TheIarray(ssstring)->dims[1]++ ] = ch;
+      return ssstring;
+    }
 
 # Function: Ensures that a semi-simple-string has at least a given length,
 # possibly extending it.
@@ -4252,22 +4330,34 @@ global object ssstring_push_extend (object ssstring, chart ch) {
 # > size: desired minimum length
 # < ergebnis: the same semi-simple-string
 # can trigger GC
-global object ssstring_extend (object ssstring, uintL needed_len) {
-  var object sstring = TheIarray(ssstring)->data; # normal simple string
-  var uintL now_len = Sstring_length(sstring); # current maximal lenth
-  if (needed_len > arraysize_limit_1) # cannot extend beyond arraysize_limit_1
-    fehler_extension(UL_to_I(needed_len-TheIarray(ssstring)->dims[1]));
-  if (needed_len > now_len) {
-    # yes -> lengthen the string at least by a factor of 2:
-    now_len *= 2;
-    if (now_len > arraysize_limit_1) # cannot extend beyond arraysize_limit_1
-      now_len = arraysize_limit_1;
-    else if (needed_len > now_len)
-      now_len = needed_len; # increase now_len
-    ssstring = ssstring_extend_low(ssstring,now_len);
-  }
-  return ssstring;
-}
+  global object ssstring_extend (object ssstring, uintL needed_len);
+  global object ssstring_extend(ssstring,needed_len)
+    var object ssstring;
+    var uintL needed_len;
+    {
+      var object sstring = TheIarray(ssstring)->data; # Datenvektor (ein Normal-Simple-String)
+      var uintL now_len = Sstring_length(sstring); # jetzige Maximal-Länge
+      if (needed_len > now_len) {
+        # ja -> String wird länger gemacht, mindestens um den Faktor 2:
+        pushSTACK(ssstring); # ssstring retten
+        pushSTACK(sstring); # Datenvektor ebenfalls retten
+        now_len = now_len * 2;
+        if (needed_len > now_len)
+          now_len = needed_len; # now_len vergrößern
+        var object neuer_sstring = allocate_string(now_len);
+        # neuer Normal-Simple-String mindestens der gewünschten und der doppelten Länge
+        sstring = popSTACK(); # sstring zurück
+        # Stringinhalt von String sstring nach String neuer_sstring kopieren:
+        chartcopy(&TheSstring(sstring)->data[0],&TheSstring(neuer_sstring)->data[0],Sstring_length(sstring));
+        ssstring = popSTACK(); # ssstring zurück
+        set_break_sem_1(); # Unterbrechungen verbieten
+        TheIarray(ssstring)->data = neuer_sstring; # neuen String als Datenvektor abspeichern
+        TheIarray(ssstring)->totalsize =
+          TheIarray(ssstring)->dims[0] = now_len; # neue Länge eintragen
+        clr_break_sem_1(); # Unterbrechungen wieder zulassen
+      }
+      return ssstring;
+    }
 
 # Function: Adds a substring to a semi-simple-string, thereby possibly
 # extending it.
@@ -4278,24 +4368,29 @@ global object ssstring_extend (object ssstring, uintL needed_len) {
 # > len: the number of characters to be pushed, starting from start
 # < result: the same semi-simple-string
 # can trigger GC
-global object ssstring_append_extend (object ssstring, object srcstring,
-                                      uintL start, uintL len) {
-  var uintL old_len = TheIarray(ssstring)->dims[1]; # length = fill-pointer
-  if (old_len + len > TheIarray(ssstring)->dims[0]) { # len bytes will not fit
-    pushSTACK(srcstring);
-    ssstring = ssstring_extend(ssstring,old_len+len);
-    srcstring = popSTACK();
-  }
-  { # push the characters in:
-    var chart* ptr = &TheSstring(TheIarray(ssstring)->data)->data[old_len];
-    SstringDispatch(srcstring,
-      { chartcopy(&TheSstring(srcstring)->data[start],ptr,len); },
-      { scintcopy(&TheSmallSstring(srcstring)->data[start],ptr,len); });
-  }
-  # increase the fill-pointer:
-  TheIarray(ssstring)->dims[1] += len;
-  return ssstring;
-}
+  global object ssstring_append_extend (object ssstring, object sstring, uintL start, uintL len);
+  global object ssstring_append_extend(ssstring,srcstring,start,len)
+    var object ssstring;
+    var object srcstring;
+    var uintL start;
+    var uintL len;
+    {
+      var uintL old_len = TheIarray(ssstring)->dims[1]; # jetzige Länge = Fill-Pointer
+      if (old_len + len > TheIarray(ssstring)->dims[0]) { # passen keine len Bytes mehr hinein
+        pushSTACK(srcstring);
+        ssstring = ssstring_extend(ssstring,old_len+len); # dann länger machen
+        srcstring = popSTACK();
+      }
+      # Zeichen hineinschieben:
+      var chart* ptr = &TheSstring(TheIarray(ssstring)->data)->data[old_len];
+      SstringDispatch(srcstring,
+        { chartcopy(&TheSstring(srcstring)->data[start],ptr,len); },
+        { scintcopy(&TheSmallSstring(srcstring)->data[start],ptr,len); }
+        );
+      # und Fill-Pointer erhöhen:
+      TheIarray(ssstring)->dims[1] = old_len + len;
+      return ssstring;
+    }
 
 # ============================================================================
 #                 Semi-simple byte vectors
@@ -4312,19 +4407,20 @@ global object ssstring_append_extend (object ssstring, object srcstring,
 # > uintL len: length (number of bytes!), must be >0
 # < result: fresh semi-simple byte-vector of the given length
 # can trigger GC
-global object make_ssbvector (uintL len) {
-  if (len > arraysize_limit_1)
-    fehler_dim_type(UL_to_I(len));
-  pushSTACK(allocate_bit_vector(Atype_8Bit,len));
-  var object new_array =
-    allocate_iarray(bit(arrayflags_fillp_bit)|Atype_8Bit,1,Array_type_b8vector);
-  # Flags: only FILL_POINTER_BIT, element type BIT, rank=1
-  TheIarray(new_array)->dims[1] = 0; # fill-pointer := 0
-  TheIarray(new_array)->totalsize =
-    TheIarray(new_array)->dims[0] = len; # length and total-size
-  TheIarray(new_array)->data = popSTACK(); # data vector
-  return new_array;
-}
+  global object make_ssbvector (uintL len);
+  global object make_ssbvector(len)
+    var uintL len;
+    {
+      pushSTACK(allocate_bit_vector(Atype_8Bit,len));
+      var object new_array =
+        allocate_iarray(bit(arrayflags_fillp_bit)|Atype_8Bit,1,Array_type_b8vector);
+        # Flags: nur FILL_POINTER_BIT, Elementtyp BIT, Rang=1
+      TheIarray(new_array)->dims[1] = 0; # Fill-Pointer := 0
+      TheIarray(new_array)->totalsize =
+        TheIarray(new_array)->dims[0] = len; # Länge und Total-Size eintragen
+      TheIarray(new_array)->data = popSTACK(); # Datenvektor eintragen
+      return new_array;
+    }
 
 # Function: Adds a byte to a semi-simple byte vector, thereby possibly
 # extending it.
@@ -4333,37 +4429,36 @@ global object make_ssbvector (uintL len) {
 # > b: byte
 # < result: the same semi-simple byte-vector
 # can trigger GC
-global object ssbvector_push_extend (object ssbvector, uintB b) {
-  var object sbvector = TheIarray(ssbvector)->data; # simple-8bit-vektor
-  var uintL len = Sbvector_length(sbvector);
-  if (TheIarray(ssbvector)->dims[1] >= len) { # fill-pointer >= length ?
-    # yes -> double the length of data vector
-    len *= 2;
-    if (len > arraysize_limit_1) # cannot extend beyond arraysize_limit_1
-      len = arraysize_limit_1;
-    if (TheIarray(ssbvector)->dims[1] >= len) # still no good!
-      fehler_extension(Fixnum_1);
-    pushSTACK(ssbvector); # save ssbvector
-    pushSTACK(sbvector); # save data vector
-    var object new_sbvector = allocate_bit_vector(Atype_8Bit,len);
-    # new simple-8bit-vector of double length
-    sbvector = popSTACK(); # restore sbvector
-    # copy the contents of sbvector into new_sbvector:
-    elt_copy_8Bit_8Bit(sbvector,0,new_sbvector,0,Sbvector_length(sbvector));
-    ssbvector = popSTACK(); # restore ssbvector
-    set_break_sem_1(); # forbid interrupts
-    TheIarray(ssbvector)->data = new_sbvector; # new bit-vektor as the data
-    TheIarray(ssbvector)->totalsize = # new length
-      TheIarray(ssbvector)->dims[0] = Sbvector_length(new_sbvector);
-    clr_break_sem_1(); # permit interrupts again
-    sbvector = new_sbvector;
-  }
-  # now sbvector is still the data vector, and we have
-  # fill-pointer < length(data vector).
-  # push the byte in and increase the fill-pointer:
-  TheSbvector(sbvector)->data[ TheIarray(ssbvector)->dims[1]++ ] = b;
-  return ssbvector;
-}
+  global object ssbvector_push_extend (object ssbvector, uintB b);
+  global object ssbvector_push_extend(ssbvector,b)
+    var object ssbvector;
+    var uintB b;
+    {
+      var object sbvector = TheIarray(ssbvector)->data; # Datenvektor (ein Simple-8Bit-Vektor)
+      if (TheIarray(ssbvector)->dims[1] # Fill-Pointer
+          >= Sbvector_length(sbvector) ) { # >= Länge ?
+        # ja -> Bit-Vektor wird um den Faktor 2 länger gemacht
+        pushSTACK(ssbvector); # ssbvector retten
+        pushSTACK(sbvector); # Datenvektor ebenfalls retten
+        var object neuer_sbvector = allocate_bit_vector(Atype_8Bit,2*Sbvector_length(sbvector));
+        # neuer Simple-8Bit-Vektor der doppelten Länge
+        sbvector = popSTACK(); # sbvector zurück
+        # Inhalt von sbvector nach neuer_sbvector kopieren:
+        elt_copy_8Bit_8Bit(sbvector,0,neuer_sbvector,0,Sbvector_length(sbvector));
+        ssbvector = popSTACK(); # ssbvector zurück
+        set_break_sem_1(); # Unterbrechungen verbieten
+        TheIarray(ssbvector)->data = neuer_sbvector; # neuen Bit-Vektor als Datenvektor abspeichern
+        TheIarray(ssbvector)->totalsize =
+          TheIarray(ssbvector)->dims[0] = Sbvector_length(neuer_sbvector); # neue Länge eintragen
+        clr_break_sem_1(); # Unterbrechungen wieder zulassen
+        sbvector = neuer_sbvector;
+      }
+      # Nun ist wieder sbvector der Datenvektor, und es gilt
+      # Fill-Pointer < Länge(Datenvektor).
+      # Character hineinschieben und Fill-Pointer erhöhen:
+      TheSbvector(sbvector)->data[ TheIarray(ssbvector)->dims[1]++ ] = b;
+      return ssbvector;
+    }
 
 # ============================================================================
 #                            MAKE-ARRAY
@@ -4374,6 +4469,22 @@ global object ssbvector_push_extend (object ssbvector, uintB b) {
 # Stackaufbau bei ADJUST-ARRAY :
 #   dims, array, element-type, initial-element, initial-contents,
 #   fill-pointer, displaced-to, displaced-index-offset.
+
+# Fehlermeldung
+# > dim: fehlerhafte Dimension
+# > subr_self: Aufrufer (ein SUBR)
+  nonreturning_function(local, fehler_dim_type, (object dim));
+  local void fehler_dim_type(dim)
+    var object dim;
+    {
+      pushSTACK(dim); # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_array_index)); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(dim);
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("~: dimension ~ is not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))")
+            );
+    }
 
 # Hilfsroutine für MAKE-ARRAY und ADJUST-ARRAY:
 # Überprüft die Dimensionen und liefert den Rang und die Gesamtgröße.
@@ -4456,7 +4567,7 @@ global object ssbvector_push_extend (object ssbvector, uintB b) {
         if (initcount > 1) { # Mehr als eine Initialisierung?
           pushSTACK(TheSubr(subr_self)->name);
           fehler(error,
-                 GETTEXT("~: ambiguous, more than one initialization specified")
+                 GETTEXT("~: ambiguous, more than one initialisation specified")
                 );
         }
       }
@@ -4503,7 +4614,7 @@ global object ssbvector_push_extend (object ssbvector, uintB b) {
         case Atype_32Bit: # simplen Bit/Byte-Vektor erzeugen
           vector = allocate_bit_vector(eltype,len);
           break;
-        default: NOTREACHED;
+        default: NOTREACHED
       }
       if (!eq(STACK_4,unbound)) # initial-element angegeben?
         if (!(len==0)) { # und Länge > 0 ?
@@ -4668,7 +4779,7 @@ local void initial_contents_aux(arg,obj)
           case Array_type_vector:
           case Array_type_svector:
             displaced_eltype = Atype_T; break;
-          default: NOTREACHED;
+          default: NOTREACHED
         }
         # displaced_eltype ist der ATYPE des :displaced-to-Arguments.
         # Gegebenen Elementtyp damit vergleichen:
@@ -5166,7 +5277,7 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
     # Array modifizieren:
     {
       var object array = STACK_6;
-      set_break_sem_1(); # forbid interrupts
+      set_break_sem_1(); # Unterbrechungen verbieten
       iarray_flags_replace(TheIarray(array),flags); # neue Flags eintragen
       TheIarray(array)->totalsize = totalsize; # neue Total-Size eintragen
       {
@@ -5191,7 +5302,7 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
       }
       # Datenvektor eintragen:
       TheIarray(array)->data = STACK_1; # displaced-to-Argument oder neuer Datenvektor
-      clr_break_sem_1(); # permit interrupts again
+      clr_break_sem_1(); # Unterbrechungen wieder zulassen
       # array als Wert:
       value1 = array; mv_count=1; skipSTACK(8);
     }

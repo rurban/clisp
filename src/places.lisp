@@ -6,22 +6,23 @@
 ;;;----------------------------------------------------------------------------
 ;;; Funktionen zur Definition und zum Ausnutzen von places:
 ;;;----------------------------------------------------------------------------
-;; Return a symbol for SYSTEM::SETF-FUNCTION
-;; the returned symbol will be interned iff the argument is.
+;; Return an un-interned symbol for SYSTEM::SETF-FUNCTION
 (defun setf-symbol (symbol)
-  (let* ((pack (symbol-package symbol))
-         (name (string-concat "(SETF " (if pack (package-name pack) "#") ":"
-                              (symbol-name symbol) ")")))
-    (if pack
-        (intern name pack)
-        (make-symbol name))))
+  (make-symbol
+    (string-concat
+      "(SETF "
+      (let ((pack (symbol-package symbol))) (if pack (package-name pack) "#"))
+      ":"
+      (symbol-name symbol)
+      ")"
+) ) )
 ;;;----------------------------------------------------------------------------
 ;; Returns the symbol which is on the property list at SYSTEM::SETF-FUNCTION
 (defun get-setf-symbol (symbol)
   (or (get symbol 'SYSTEM::SETF-FUNCTION)
       (progn
         (when (get symbol 'SYSTEM::SETF-EXPANDER)
-          (warn (TEXT "The function (~S ~S) is hidden by a SETF expander.")
+          (warn (ENGLISH "The function (~S ~S) is hidden by a SETF expander.")
                 'setf symbol
         ) )
         (setf (get symbol 'SYSTEM::SETF-FUNCTION) (setf-symbol symbol))
@@ -82,7 +83,7 @@
                             (if (keywordp argform)
                               (push argform new-access-form)
                               (error-of-type 'source-program-error
-                                (TEXT "The argument ~S to ~S should be a keyword.")
+                                (ENGLISH "The argument ~S to ~S should be a keyword.")
                                 argform (car access-form)
                             ) )
                             (let ((tempvar (gensym)))
@@ -93,8 +94,11 @@
                           (incf i)
                       ) )
                       (setq new-access-form
-                        (cons (car access-form) (nreverse new-access-form)))
-                      (let ((newval-vars (gensym-list (cadr plist-info))))
+                        (cons (car access-form) (nreverse new-access-form))
+                      )
+                      (let ((newval-vars
+                              (map-into (make-list (cadr plist-info))
+                                        #'gensym)))
                         (values
                           (nreverse tempvars)
                           (nreverse tempforms)
@@ -134,17 +138,19 @@
                 ))
         )) )
         (t (error-of-type 'source-program-error
-             (TEXT "Argument ~S is not a SETF place.")
+             (ENGLISH "Argument ~S is not a SETF place.")
              form
   )     )  )
 )
+;; backward compatibility
+(sys::%putd 'get-setf-method-multiple-value #'get-setf-expansion)
 ;;;----------------------------------------------------------------------------
 (defun get-setf-method (form &optional (env (vector nil nil)))
   (multiple-value-bind (vars vals stores store-form access-form)
       (get-setf-expansion form env)
     (unless (and (consp stores) (null (cdr stores)))
       (error-of-type 'source-program-error
-        (TEXT "SETF place ~S produces more than one store variable.")
+        (ENGLISH "SETF place ~S produces more than one store variable.")
         form
     ) )
     (values vars vals stores store-form access-form)
@@ -168,7 +174,7 @@
 (defun documentation (symbol doctype)
   (unless (function-name-p symbol)
     (error-of-type 'error
-      (TEXT "~S: first argument ~S is illegal, not a symbol")
+      (ENGLISH "~S: first argument ~S is illegal, not a symbol")
       'documentation symbol
   ) )
   (getf (get (get-funname-symbol symbol) 'SYSTEM::DOCUMENTATION-STRINGS) doctype)
@@ -176,7 +182,7 @@
 (defun SYSTEM::%SET-DOCUMENTATION (symbol doctype value)
   (unless (function-name-p symbol)
     (error-of-type 'error
-      (TEXT "~S: first argument ~S is illegal, not a symbol")
+      (ENGLISH "~S: first argument ~S is illegal, not a symbol")
       'documentation symbol
   ) )
   (setq symbol (get-funname-symbol symbol))
@@ -193,29 +199,28 @@
     (if (simple-assignment-p se sv)
       (subst `(CONS ,item ,ge) (car sv) se)
       (let* ((bindlist (mapcar #'list vr vl))
-             (tempvars (gensym-list (length sv)))
+             (tempvars (map-into (make-list (length sv)) #'gensym))
              (ns (sublis (mapcar #'(lambda (storevar tempvar)
-                                     (cons storevar
-                                           `(CONS ,storevar ,tempvar)))
-                                 sv tempvars)
-                         se)))
+                                     (cons storevar `(CONS ,storevar ,tempvar))
+                                   )
+                                 sv tempvars
+                         )
+                         se
+            ))   )
         `(MULTIPLE-VALUE-BIND ,sv ,item
            (LET* ,bindlist
              (MULTIPLE-VALUE-BIND ,tempvars ,ge
-               ,ns)))))))
+               ,ns
+         ) ) )
+) ) ) )
 ;;;----------------------------------------------------------------------------
-(eval-when (load compile eval)
-  (defun check-accessor-name (accessfn)
-    (unless (symbolp accessfn)
-      (error-of-type 'source-program-error
-        (TEXT "The name of the accessor must be a symbol, not ~S")
-        accessfn))))
 (defmacro define-setf-expander (accessfn lambdalist &body body
                                 &environment env)
-  (check-accessor-name accessfn)
-  (sys::check-redefinition
-   accessfn 'define-setf-expander
-   (and (get accessfn 'SYSTEM::SETF-EXPANDER) "SETF expander"))
+  (unless (symbolp accessfn)
+    (error-of-type 'source-program-error
+      (ENGLISH "The name of the access function must be a symbol, not ~S")
+      accessfn
+  ) )
   (multiple-value-bind (body-rest declarations docstring)
       (system::parse-body body t env)
     (if (null body-rest) (setq body-rest '(NIL)))
@@ -246,7 +251,7 @@
               (setq mainform
                 `(IF ,lengthtest
                    (ERROR-OF-TYPE 'PROGRAM-ERROR
-                     (TEXT "The SETF expander for ~S may not be called with ~S arguments.")
+                     (ENGLISH "The SETF expander for ~S may not be called with ~S arguments.")
                      (QUOTE ,accessfn) (1- (LENGTH SYSTEM::%LAMBDA-LIST))
                    )
                    ,mainform
@@ -266,12 +271,11 @@
                  ',accessfn
              ) )
 ) ) ) ) ) )
+(defmacro define-setf-method (&rest args) ; backward compatibility
+  `(DEFINE-SETF-EXPANDER ,@args)
+)
 ;;;----------------------------------------------------------------------------
 (defmacro defsetf (accessfn &rest args &environment env)
-  (check-accessor-name accessfn)
-  (sys::check-redefinition
-   accessfn 'DEFSETF
-   (and (get accessfn 'SYSTEM::SETF-EXPANDER) "SETF expander"))
   (cond ((and (consp args) (not (listp (first args))) (symbolp (first args)))
          `(EVAL-WHEN (LOAD COMPILE EVAL)
             (LET ()
@@ -284,11 +288,11 @@
                    (second args)
                    (if (cddr args)
                      (error-of-type 'source-program-error
-                       (TEXT "Too many arguments to DEFSETF: ~S")
+                       (ENGLISH "Too many arguments to DEFSETF: ~S")
                        (cdr args)
                      )
                      (error-of-type 'source-program-error
-                       (TEXT "The doc string to DEFSETF must be a string: ~S")
+                       (ENGLISH "The doc string to DEFSETF must be a string: ~S")
                        (second args)
                  ) ) )
               )
@@ -298,7 +302,7 @@
         ((and (consp args) (listp (first args)) (consp (cdr args)) (listp (second args)))
          (when (null (second args))
            (error-of-type 'source-program-error
-             (TEXT "Missing store variable in DEFSETF.")))
+             (ENGLISH "Missing store variable in DEFSETF.")))
          (multiple-value-bind (body-rest declarations docstring)
              (system::parse-body (cddr args) t env)
            (let* ((storevars (second args))
@@ -339,14 +343,11 @@
               ) )
         )) )
         (t (error-of-type 'source-program-error
-             (TEXT "Illegal syntax in DEFSETF for ~S")
+             (ENGLISH "Illegal syntax in DEFSETF for ~S")
              accessfn
 ) )     )  )
 ;;;----------------------------------------------------------------------------
 ;;; Definition of places:
-;;;----------------------------------------------------------------------------
-(defsetf package-lock SYSTEM::%SET-PACKAGE-LOCK)
-(defsetf hash-table-weak-p SYSTEM::%SET-HASH-TABLE-WEAK-P)
 ;;;----------------------------------------------------------------------------
 (defsetf aref (array &rest indices) (value)
   `(SYSTEM::STORE ,array ,@indices ,value))
@@ -355,7 +356,7 @@
   (let ((pointer (nthcdr index list)))
     (if (null pointer)
       (error-of-type 'error
-        (TEXT "(SETF (NTH ...) ...) : index ~S is too large for ~S")
+        (ENGLISH "(SETF (NTH ...) ...) : index ~S is too large for ~S")
         index list
       )
       (rplaca pointer value)
@@ -455,7 +456,7 @@
                (declare (ignore ge))
                (when (atom (cdr args))
                  (error-of-type 'source-program-error
-                   (TEXT "PSETF called with an odd number of arguments: ~S")
+                   (ENGLISH "PSETF called with an odd number of arguments: ~S")
                    form))
                `(LET* ,(mapcar #'list vr vl)
                   (MULTIPLE-VALUE-BIND ,sv ,(second args)
@@ -471,16 +472,20 @@
     (if (simple-assignment-p se sv)
       (subst `(ADJOIN ,item ,ge ,@keylist) (car sv) se)
       (let* ((bindlist (mapcar #'list vr vl))
-             (tempvars (gensym-list (length sv)))
+             (tempvars (map-into (make-list (length sv)) #'gensym))
              (ns (sublis (mapcar #'(lambda (storevar tempvar)
-                                     (cons storevar `(ADJOIN ,storevar ,tempvar
-                                                      ,@keylist)))
-                                 sv tempvars)
-                         se)))
+                                     (cons storevar `(ADJOIN ,storevar ,tempvar ,@keylist))
+                                   )
+                                 sv tempvars
+                         )
+                         se
+            ))   )
         `(MULTIPLE-VALUE-BIND ,sv ,item
            (LET* ,bindlist
              (MULTIPLE-VALUE-BIND ,tempvars ,ge
-               ,ns)))))))
+               ,ns
+         ) ) )
+) ) ) )
 ;;;----------------------------------------------------------------------------
 (defmacro remf (place indicator &environment env)
   (multiple-value-bind (SM1 SM2 SM3 SM4 SM5) (get-setf-method place env)
@@ -497,7 +502,7 @@
              ((ATOM ,var1) NIL)
            (COND ((ATOM (CDR ,var1))
                   (ERROR-OF-TYPE 'ERROR
-                    (TEXT "REMF: property list with an odd length")
+                    (ENGLISH "REMF: property list with an odd length")
                  ))
                  ((EQ (CAR ,var1) ,indicatorvar)
                   (IF ,var2
@@ -547,18 +552,18 @@
              (if (symbolp (second lambdalistr))
                (setq restvar (second lambdalistr))
                (error-of-type 'source-program-error
-                 (TEXT "In the definition of ~S: &REST variable ~S should be a symbol.")
+                 (ENGLISH "In the definition of ~S: &REST variable ~S should be a symbol.")
                  name (second lambdalistr)
              ) )
              (if (null (cddr lambdalistr))
                (return)
                (error-of-type 'source-program-error
-                 (TEXT "Only one variable is allowed after &REST, not ~S")
+                 (ENGLISH "Only one variable is allowed after &REST, not ~S")
                  lambdalistr
             )) )
             ((or (eq next '&KEY) (eq next '&ALLOW-OTHER-KEYS) (eq next '&AUX))
              (error-of-type 'source-program-error
-               (TEXT "Illegal in a DEFINE-MODIFY-MACRO lambda list: ~S")
+               (ENGLISH "Illegal in a DEFINE-MODIFY-MACRO lambda list: ~S")
                next
             ))
             ((symbolp next) (push next varlist))
@@ -566,7 +571,7 @@
              (push (first next) varlist)
             )
             (t (error-of-type 'source-program-error
-                 (TEXT "lambda list may only contain symbols and lists, not ~S")
+                 (ENGLISH "lambda list may only contain symbols and lists, not ~S")
                  next
             )  )
     ) )
@@ -683,13 +688,13 @@
                        )
                    ))
                    (t (error-of-type 'source-program-error
-                        (TEXT "Illegal SETF place: ~S")
+                        (ENGLISH "Illegal SETF place: ~S")
                         (first args)
              )     )  )
           ))
           ((oddp argcount)
            (error-of-type 'source-program-error
-             (TEXT "~S called with an odd number of arguments: ~S")
+             (ENGLISH "~S called with an odd number of arguments: ~S")
              'setf form
           ))
           (t (do* ((arglist args (cddr arglist))
@@ -702,7 +707,7 @@
 (defmacro shiftf (&whole form &rest args &environment env)
   (when (< (length args) 2)
     (error-of-type 'source-program-error
-      (TEXT "SHIFTF called with too few arguments: ~S")
+      (ENGLISH "SHIFTF called with too few arguments: ~S")
       form))
   (do* ((arglist args (cdr arglist))
         (res (list 'let* nil nil)) lf ff
@@ -742,7 +747,7 @@
       ((atom plistr) (list* indicator value plist))
     (when (atom (cdr plistr))
       (error-of-type 'error
-        (TEXT "(SETF (GETF ...) ...) : property list with an odd length")
+        (ENGLISH "(SETF (GETF ...) ...) : property list with an odd length")
     ))
     (when (eq (car plistr) indicator)
       (rplaca (cdr plistr) value)
@@ -777,7 +782,7 @@
 (defun SYSTEM::%SET-DOCUMENTATION (symbol doctype value)
   (unless (function-name-p symbol)
     (error-of-type 'error
-      (TEXT "first argument ~S is illegal, not a symbol")
+      (ENGLISH "first argument ~S is illegal, not a symbol")
       symbol
   ) )
   (setq symbol (get-funname-symbol symbol))
@@ -888,13 +893,13 @@
       )
     (setq fun (second fun))
     (error-of-type 'source-program-error
-      (TEXT "SETF APPLY is only defined for functions of the form #'symbol.")
+      (ENGLISH "SETF APPLY is only defined for functions of the form #'symbol.")
   ) )
   (multiple-value-bind (SM1 SM2 SM3 SM4 SM5)
       (get-setf-expansion (cons fun args) env)
     (unless (eq (car (last args)) (car (last SM2)))
       (error-of-type 'source-program-error
-        (TEXT "APPLY on ~S is not a SETF place.")
+        (ENGLISH "APPLY on ~S is not a SETF place.")
         fun
     ) )
     (let ((item (car (last SM1)))) ; 'item' steht für eine Argumentliste!
@@ -949,7 +954,7 @@
                (setq fun (second fun))
           )
     (error-of-type 'source-program-error
-      (TEXT "SETF FUNCALL is only defined for functions of the form #'symbol.")
+      (ENGLISH "SETF FUNCALL is only defined for functions of the form #'symbol.")
   ) )
   (get-setf-expansion (cons fun args) env)
 )
@@ -996,7 +1001,7 @@
           (get-setf-expansion f-form env)
         (unless (eql (length T-SM3) (length F-SM3))
           (error-of-type 'source-program-error
-            (TEXT "SETF place ~S expects different numbers of values in the true and branches (~D vs. ~D values).")
+            (ENGLISH "SETF place ~S expects different numbers of values in the true and branches (~D vs. ~D values).")
             (list 'IF condition t-form f-form) (length T-SM3) (length F-SM3)
         ) )
         (values
@@ -1092,16 +1097,6 @@ Variables affected: `custom:*floating-point-contagion-ansi*',
  `custom:*sequence-count-ansi*', `custom:*coerce-fixnum-char-ansi*'.
 Invoking CLISP with `-ansi' sets this to T.
 Invoking CLISP with `-traditional' sets this to NIL.")
-
-(define-symbol-macro *current-language* (sys::current-language))
-(defsetf sys::current-language sys::set-current-language)
-(system::%set-documentation '*current-language* 'variable
- "This symbol-macro determines the current language used for UI.")
-
-(define-symbol-macro *lib-directory* (sys::lib-directory))
-(defsetf sys::lib-directory sys::set-lib-directory)
-(system::%set-documentation '*lib-directory* 'variable
- "This symbol-macro determines the location where CLISP finds its data files.")
 
 (define-symbol-macro *default-file-encoding*
   (system::default-file-encoding))

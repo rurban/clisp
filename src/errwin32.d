@@ -1004,7 +1004,7 @@
           #ifdef ERROR_NESTING_NOT_ALLOWED
           case ERROR_NESTING_NOT_ALLOWED:
             errorname = "ERROR_NESTING_NOT_ALLOWED";
-            errormsg = "Cannot nest calls to LoadModule.";
+            errormsg = "Can't nest calls to LoadModule.";
             break;
           #endif
           #ifdef ERROR_BAD_PIPE
@@ -3883,7 +3883,7 @@
         # nach Möglichkeit noch ausführlicher:
         get_OS_error_info(errcode,&OS_error_internal_body);
       }
-    nonreturning_function(global, OS_error, (void))
+    global void OS_error()
       {
         var DWORD errcode;
         end_system_call(); # just in case
@@ -3897,7 +3897,8 @@
         OS_error_internal(errcode);
         end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
       }
-    nonreturning_function(global, OS_file_error, (object pathname))
+    global void OS_file_error(pathname)
+      var object pathname;
       {
         var DWORD errcode;
         begin_system_call();
@@ -3915,7 +3916,8 @@
   # Behandlung von Winsock-Fehlern
   # SOCK_error();
   # > WSAGetLastError(): Fehlercode
-    nonreturning_function(global, SOCK_error, (void))
+    nonreturning_function(global, SOCK_error, (void));
+    global void SOCK_error ()
       {
         var int errcode = WSAGetLastError();
         end_system_call();
@@ -4014,7 +4016,7 @@
             break;
           case WSAEADDRNOTAVAIL:
             errorname = "EADDRNOTAVAIL";
-            errormsg="Cannot assign requested address";
+            errormsg="Can't assign requested address";
             break;
           case WSAENETDOWN:
             errorname = "ENETDOWN";
@@ -4050,11 +4052,11 @@
             break;
           case WSAESHUTDOWN:
             errorname = "ESHUTDOWN";
-            errormsg="Cannot send after socket shutdown";
+            errormsg="Can't send after socket shutdown";
             break;
           case WSAETOOMANYREFS:
             errorname = "ETOOMANYREFS";
-            errormsg="Too many references: cannot splice";
+            errormsg="Too many references: can't splice";
             break;
           case WSAETIMEDOUT:
             errorname = "ETIMEDOUT";

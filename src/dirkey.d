@@ -1,5 +1,4 @@
-# CLISP: directory key: win32 registry, LDAP, Gnome-config
-# Copyright (C) 2000-2001 by Sam Steingold
+# directory key: win32 registry, LDAP, Gnome-config
 
 #ifdef DIR_KEY
 
@@ -7,10 +6,8 @@
 
 #ifdef WIN32_NATIVE
 #include <winreg.h>
-#ifndef __MINGW32__
 #include <winldap.h>
 #define LDAP
-#endif
 #endif
 #if defined(LDAP) && !defined(WIN32_NATIVE)
 #include <ldap.h>
@@ -311,7 +308,7 @@ local void open_reg_key (HKEY hkey, char* path, direction_t dir,
           status = RegCreateKey(hkey,path,p_hkey);
           if (status != ERROR_SUCCESS) { SetLastError(status); OS_error(); }
           break;
-        default: NOTREACHED;
+        default: NOTREACHED
       }
     } else { SetLastError(status); OS_error(); }
   }
@@ -560,8 +557,8 @@ LISPFUNN(dkey_search_iterator,3)
   skipSTACK(3);
 }
 
-local void init_iteration_node (object state, object subkey,
-                                object *new_path, object *failed_p)
+local void init_iteration_node (object state,object subkey,
+                                object *new_path,object *failed_p)
 # open HANDLE to point to DKEY\\PATH
 # compute KEY_S, ATT_S and DAT_S
 # return the full current path (itst_current)
@@ -693,7 +690,7 @@ LISPFUNN(dkey_search_next_key,1)
         skipSTACK(1);
       }
       break;
-    default: NOTREACHED;
+    default: NOTREACHED
   }
   skipSTACK(1);
   mv_count = 2;

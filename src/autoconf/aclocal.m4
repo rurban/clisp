@@ -1,9 +1,8 @@
 dnl local autoconf macros
 dnl Bruno Haible 2001-02-04
 dnl Marcus Daniels 1997-04-10
-dnl Sam Steingold 2002
 dnl
-AC_PREREQ(2.52)dnl
+AC_PREREQ(2.12)dnl
 dnl
 dnl without AC_MSG_...:   with AC_MSG_... and caching:
 dnl   AC_TRY_CPP          CL_CPP_CHECK
@@ -70,8 +69,7 @@ define(CL_PROTO,
 AC_CACHE_VAL(cl_cv_proto_[$1], [$2
 cl_cv_proto_$1="$3"])
 cl_cv_proto_$1=`echo "[$]cl_cv_proto_$1" | tr -s ' ' | sed -e 's/( /(/'`
-AC_MSG_RESULT([$]{ac_t:-
-         }[$]cl_cv_proto_$1)
+AC_MSG_RESULTPROTO([$]cl_cv_proto_$1)
 ])dnl
 dnl
 dnl CL_PROTO_RET(INCLUDES, DECL, CACHE-ID, TYPE-IF-OK, TYPE-IF-FAILS)
@@ -104,19 +102,12 @@ define(CL_SILENT,
 [pushdef([AC_MSG_CHECKING],[:])dnl
 pushdef([AC_CHECKING],[:])dnl
 pushdef([AC_MSG_RESULT],[:])dnl
+pushdef([AC_MSG_RESULTPROTO],[:])dnl
 $1[]dnl
+popdef([AC_MSG_RESULTPROTO])dnl
 popdef([AC_MSG_RESULT])dnl
 popdef([AC_CHECKING])dnl
 popdef([AC_MSG_CHECKING])dnl
-])dnl
-dnl
-dnl Expands to the "extern ..." prefix used for system declarations.
-dnl AC_LANG_EXTERN()
-define(AC_LANG_EXTERN,
-[extern
-#ifdef __cplusplus
-"C"
-#endif
 ])dnl
 dnl
 AC_DEFUN(CL_CC_GCC,
@@ -253,7 +244,6 @@ AC_SUBST(CC_NEED_MERGESTRINGS)dnl
 dnl
 AC_DEFUN(CL_AS_UNDERSCORE,
 [AC_BEFORE([$0], [CL_GLOBAL_CONSTRUCTORS])
-m4_pattern_allow([^AS_UNDERSCORE$])
 AC_CACHE_CHECK(for underscore in external names, cl_cv_prog_as_underscore, [
 cat > conftest.c <<EOF
 int foo() { return 0; }
@@ -287,7 +277,7 @@ AC_DEFUN(CL_PROG_INSTALL,
 # SunOS /usr/etc/install
 # IRIX /sbin/install
 # AIX /bin/install
-# AFS /usr/afsws/bin/install, which mis-handles nonexistent args
+# AFS /usr/afsws/bin/install, which mishandles nonexistent args
 # SVR4 /usr/ucb/install, which tries to use the nonexistent group "staff"
 # ./install, which can be erroneously created by make from ./install.sh.
 AC_MSG_CHECKING(for a BSD compatible install)
@@ -329,7 +319,7 @@ AC_CACHE_VAL(cl_cv_path_install,
   INSTALL="$cl_cv_path_install"
 fi
 dnl We do special magic for INSTALL instead of AC_SUBST, to get
-dnl relative paths right.
+dnl relative paths right. 
 AC_MSG_RESULT($INSTALL)
 AC_SUBST(INSTALL)dnl
 # Use test -z because SunOS4 sh mishandles braces in ${var-val}.
@@ -661,8 +651,9 @@ AC_SUBST(GOOD_SH)dnl
 dnl
 AC_DEFUN(CL_CONFIG_SUBDIRS,
 [dnl No AC_CONFIG_AUX_DIR_DEFAULT, so we don't need install.sh.
-AC_PROVIDE([AC_CONFIG_AUX_DIR_DEFAULT])
-AC_CONFIG_SUBDIRS([$1])dnl
+define([AC_LIST_SUBDIRS], [$1])dnl
+subdirs="AC_LIST_SUBDIRS"
+AC_SUBST(subdirs)dnl
 ])dnl
 dnl
 AC_DEFUN(CL_CANONICAL_HOST,
@@ -670,16 +661,48 @@ AC_DEFUN(CL_CANONICAL_HOST,
 dnl Set ac_aux_dir before the cache check, because AM_PROG_LIBTOOL needs it.
 ac_aux_dir=${srcdir}/$1
 dnl A substitute for AC_CONFIG_AUX_DIR_DEFAULT, so we don't need install.sh.
-ac_config_guess="$SHELL $ac_aux_dir/config.guess"
-ac_config_sub="$SHELL $ac_aux_dir/config.sub"
+ac_config_guess=$ac_aux_dir/config.guess
+ac_config_sub=$ac_aux_dir/config.sub
+AC_CACHE_CHECK(host system type, cl_cv_host, [
+dnl Mostly copied from AC_CANONICAL_HOST.
+# Make sure we can run config.sub.
+if ${CONFIG_SHELL-/bin/sh} $ac_config_sub sun4 >/dev/null 2>&1; then :
+else AC_MSG_ERROR(can not run $ac_config_sub)
+fi
+host_alias=$host
+case "$host_alias" in
+NONE)
+  case $nonopt in
+  NONE) dnl config.guess needs to compile things
+        host_alias=`export CC; ${CONFIG_SHELL-/bin/sh} $ac_config_guess` ;;
+  *)    host_alias=$nonopt ;;
+  esac ;;
+esac
+# Don't fail just because the system is not listed in GNU's database.
+if test -n "$host_alias"; then
+  host=`${CONFIG_SHELL-/bin/sh} $ac_config_sub $host_alias`
+else
+  host_alias=unknown
+  host=unknown-unknown-unknown
+fi
+cl_cv_host_alias="$host_alias"
+cl_cv_host="$host"
+])
+host_alias="$cl_cv_host_alias"
+host="$cl_cv_host"
+changequote(,)dnl
+host_cpu=`echo $host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\1/'`
+host_vendor=`echo $host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\2/'`
+host_os=`echo $host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
+changequote([,])dnl
+AC_SUBST(host)dnl
+AC_SUBST(host_cpu)dnl
+AC_SUBST(host_vendor)dnl
+AC_SUBST(host_os)dnl
 dnl We have defined $ac_aux_dir.
 AC_PROVIDE([AC_CONFIG_AUX_DIR_DEFAULT])dnl
-dnl In autoconf-2.52, a single AC_CANONICAL_HOST has the effect of inserting
-dnl the code of AC_CANONICAL_BUILD *before* CL_CANONICAL_HOST, i.e. before
-dnl ac_aux_dir has been set. To work around this, we list AC_CANONICAL_BUILD
-dnl explicitly.
-AC_CANONICAL_BUILD
-AC_CANONICAL_HOST
+dnl We have defined $host_alias and $host.
+AC_PROVIDE([AC_CANONICAL_HOST])dnl
 ])dnl
 dnl
 AC_DEFUN(CL_CANONICAL_HOST_CPU,
@@ -689,10 +712,10 @@ changequote(,)dnl
   i[4567]86 )
     host_cpu=i386
     ;;
-  alphaev[4-7] | alphaev56 | alphapca5[67] | alphaev6[78] )
+  alphaev[4-7] | alphaev56 | alphapca5[67] )
     host_cpu=alpha
     ;;
-  hppa1.0 | hppa1.1 | hppa2.0* )
+  hppa1.0 | hppa1.1 | hppa2.0 )
     host_cpu=hppa
     ;;
   powerpc )
@@ -700,9 +723,6 @@ changequote(,)dnl
     ;;
   c1 | c2 | c32 | c34 | c38 | c4 )
     host_cpu=convex
-    ;;
-  arm* )
-    host_cpu=arm
     ;;
 changequote([,])dnl
   mips )
@@ -752,10 +772,10 @@ changequote(,)dnl
   i[4567]86 )
     host_cpu=i386
     ;;
-  alphaev[4-7] | alphaev56 | alphapca5[67] | alphaev6[78] )
+  alphaev[4-7] | alphaev56 | alphapca5[67] )
     host_cpu=alpha
     ;;
-  hppa1.0 | hppa1.1 | hppa2.0* )
+  hppa1.0 | hppa1.1 | hppa2.0 )
     host_cpu=hppa
     ;;
   powerpc )
@@ -763,9 +783,6 @@ changequote(,)dnl
     ;;
   c1 | c2 | c32 | c34 | c38 | c4 )
     host_cpu=convex
-    ;;
-  arm* )
-    host_cpu=arm
     ;;
 changequote([,])dnl
   mips )
@@ -839,14 +856,12 @@ typedef void* y; y a;
 if test -n "$have_void"; then
 CL_COMPILE_CHECK([working \"return void\"], cl_cv_c_return_void,
 [void f() {} typedef void x; x g() { return f(); }], [],
-AC_DEFINE(return_void,[return]), AC_DEFINE(return_void,[]))dnl
+AC_DEFINE(return_void,[return]))dnl
 fi
 ])dnl
 dnl
 AC_DEFUN(CL_PCC_STRUCT_RETURN,
 [AC_CACHE_CHECK([for pcc non-reentrant struct return convention], cl_cv_c_struct_return_static, [
-save_CFLAGS="$CFLAGS"
-CFLAGS=""
 AC_TRY_RUN([typedef struct { int a; int b; int c; int d; int e; } foo;
 foo foofun () { static foo foopi = {3141,5926,5358,9793,2385}; return foopi; }
 foo* (*fun) () = (foo* (*) ()) foofun;
@@ -863,7 +878,6 @@ cl_cv_c_struct_return_static=no,
 dnl When cross-compiling, don't assume anything.
 dnl There are even weirder return value passing conventions than pcc.
 cl_cv_c_struct_return_static="guessing no")
-CFLAGS="$save_CFLAGS"
 ])
 case "$cl_cv_c_struct_return_static" in
   *yes) AC_DEFINE(__PCC_STRUCT_RETURN__) ;;
@@ -919,9 +933,13 @@ AC_TRY_RUN([int main()
 /* long longs don't work right with gcc-2.7.2 on m68k */
 /* long longs don't work right with gcc-2.7.2 on rs6000: avcall/tests.c gets
    miscompiled. */
+#ifdef __GNUC__
 #if defined(__m68k__) || (defined(_IBMR2) || defined(__powerpc))
-#if defined(__GNUC__) && (__GNUC__ == 2) && (__GNUC_MINOR__ <= 7)
+#if (__GNUC__ == 2)
+#if (__GNUC_MINOR__ <= 7)
   exit(1);
+#endif
+#endif
 #endif
 #endif
   { long x = 944938507; long y = 737962842; long z = 162359677;
@@ -1058,24 +1076,12 @@ dnl
 AC_DEFUN(CL_DIR_HEADER,
 [AC_BEFORE([$0], [CL_OPENDIR])dnl
 AC_BEFORE([$0], [CL_CLOSEDIR])dnl
-dnl This is mostly copied from AC_DIR_HEADER, AC_HEADER_DIRENT, AC_FUNC_CLOSEDIR_VOID.
+dnl This is mostly copied from AC_DIR_HEADER, AC_HEADER_DIRENT, AC_FUNC_CLOSEDIR_VOID
+dnl but not from AC_CHECK_HEADERS_DIRENT.
 dnl The closedir return check has been moved to CL_CLOSEDIR.
 ac_header_dirent=no
 for ac_hdr in dirent.h sys/ndir.h sys/dir.h ndir.h; do
-  ac_safe=`echo "$ac_hdr" | sed 'y%./%__%'`
-  AC_MSG_CHECKING([for $ac_hdr that defines DIR])
-  AC_CACHE_VAL(ac_cv_header_dirent_$ac_safe,
-    [AC_TRY_COMPILE([#include <sys/types.h>
-     #include <$ac_hdr>], [DIR *dirp = 0;],
-     eval "ac_cv_header_dirent_$ac_safe=yes",
-     eval "ac_cv_header_dirent_$ac_safe=no")])dnl
-  if eval "test \"`echo '$ac_cv_header_dirent_'$ac_safe`\" = yes"; then
-    AC_MSG_RESULT(yes)
-    ac_header_dirent=$ac_hdr
-    break
-  else
-    AC_MSG_RESULT(no)
-  fi
+  AC_CHECK_HEADER_DIRENT($ac_hdr, [ac_header_dirent=$ac_hdr; break])
 done
 case "$ac_header_dirent" in
 dirent.h) AC_DEFINE(DIRENT) ;;
@@ -1274,7 +1280,7 @@ if test $cl_cv_proto_strlen_macro = no; then
 CL_PROTO([strlen], [
 CL_PROTO_RET([#define strlen foo
 #include <string.h>
-], [size_t strlen();], cl_cv_proto_strlen_ret, size_t, int)
+], [int strlen();], cl_cv_proto_strlen_ret, int, size_t)
 CL_PROTO_CONST([#define strlen foo
 #include <string.h>
 ], [$cl_cv_proto_strlen_ret strlen (char* s);],
@@ -1726,7 +1732,6 @@ if test -n "$have_sigaction"; then
 AC_CACHE_CHECK(whether sigaction handlers need to be reinstalled, cl_cv_func_sigaction_reinstall, [
 AC_TRY_RUN([
 #include <stdlib.h>
-#include <string.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1934,6 +1939,9 @@ if test $cl_cv_proto_perror = yes; then
 AC_DEFINE(HAVE_PERROR_DECL)
 fi
 ])dnl
+dnl
+AC_DEFUN(CL_STRERROR,
+[AC_CHECK_FUNCS(strerror)])dnl
 dnl
 AC_DEFUN(CL_SYS_ERRLIST,
 [changequote(,)dnl
@@ -2282,6 +2290,7 @@ dnl Must use AC_TRY_LINK instead of CL_PROTO because Linux defines stat()
 dnl as an inline function in <sys/stat.h> and libc-5.0.9 doesn't define `stat',
 dnl hence when compiling in C++ mode the declaration in <sys/stat.h> and that
 dnl of CL_PROTO may not clash.
+CL_PROTO([stat], [
 dnl Just assume that `stat' is defined as an inline function if and only if
 dnl `fstat' is. We do this because if it is, in C++ mode, exactly one of the two
 dnl trial declarations `extern "C" int stat ([const] char *, struct stat *)'
@@ -2291,7 +2300,6 @@ cl_cv_proto_stat_inline=$cl_cv_proto_fstat_inline
 if test $cl_cv_proto_stat_inline = yes; then
   AC_DEFINE(STAT_INLINE)
 fi
-CL_PROTO([stat], [
 AC_TRY_LINK([
 #include <stdlib.h>
 #ifdef HAVE_UNISTD_H
@@ -2361,6 +2369,7 @@ CL_LINK_CHECK([lstat],cl_cv_func_lstat,[
 ], [return lstat("",(struct stat *)0);],
 AC_DEFINE(HAVE_LSTAT))dnl
 if test $cl_cv_func_lstat = yes; then
+CL_PROTO([lstat], [
 dnl Just assume that `lstat' is defined as an inline function if and only if
 dnl `fstat' is. We do this because if it is, in C++ mode, exactly one of the two
 dnl trial declarations `extern "C" int lstat ([const] char *, struct stat *)'
@@ -2370,7 +2379,6 @@ cl_cv_proto_lstat_inline=$cl_cv_proto_fstat_inline
 if test $cl_cv_proto_lstat_inline = yes; then
   AC_DEFINE(LSTAT_INLINE)
 fi
-CL_PROTO([lstat], [
 AC_TRY_LINK([
 #include <stdlib.h>
 #ifdef HAVE_UNISTD_H
@@ -2720,6 +2728,10 @@ CL_PROTO_CONST([
 AC_DEFINE_UNQUOTED(UNLINK_CONST,$cl_cv_proto_unlink_arg1)
 ])dnl
 dnl
+AC_DEFUN(CL_FSYNC,
+[AC_CHECK_FUNCS(fsync)]
+)dnl
+dnl
 AC_DEFUN(CL_IOCTL,
 [AC_REQUIRE([CL_TERM])dnl
 AC_REQUIRE([CL_OPENFLAGS])dnl
@@ -2947,6 +2959,10 @@ AC_CHECK_FUNCS(poll)dnl
 fi
 ])dnl
 dnl
+AC_DEFUN(CL_UALARM,
+[AC_CHECK_FUNCS(ualarm)]
+)dnl
+dnl
 AC_DEFUN(CL_SETITIMER,
 [AC_CHECK_FUNCS(setitimer)dnl
 if test $ac_cv_func_setitimer = yes; then
@@ -2963,6 +2979,10 @@ CL_PROTO_CONST([
 AC_DEFINE_UNQUOTED(SETITIMER_CONST,$cl_cv_proto_setitimer_arg2)
 fi
 ])dnl
+dnl
+AC_DEFUN(CL_USLEEP,
+[AC_CHECK_FUNCS(usleep)]
+)dnl
 dnl
 AC_DEFUN(CL_LOCALTIME,
 [CL_PROTO([localtime], [
@@ -3926,7 +3946,7 @@ int main ()
 { int shmid, i; char* addr; char* result;
   if ((shmid = shmget(IPC_PRIVATE,segsize,0400)) < 0) exit(1);
   for (i=0, addr = (char*)0x01000000; i<attaches; i++, addr += segsize)
-    if ((result = (char*)shmat(shmid,addr,SHM_RDONLY)) == (char*)(-1)) break;
+    { if ((result = shmat(shmid,addr,SHM_RDONLY)) == (char*)(-1)) break; }
   for (i=0, addr = (char*)0x01000000; i<attaches; i++, addr += segsize)
     shmdt(addr);
   shmctl(shmid,IPC_RMID,0);
@@ -4050,24 +4070,22 @@ fi
 AC_SUBST(LIBDL)
 ])dnl
 dnl
-AC_DEFUN(CL_ICONV,[
-dnl Some systems have iconv in libc, some have it in libiconv (OSF/1 and
+AC_DEFUN(CL_ICONV,
+[dnl Some systems have iconv in libc, some have it in libiconv (OSF/1 and
 dnl those with the standalone libiconv installed).
 AC_CACHE_CHECK(for iconv, cl_cv_func_iconv, [
 cl_cv_func_iconv=no
 cl_cv_lib_iconv=no
 AC_TRY_LINK([#include <stdlib.h>
-#include <iconv.h>
-],[iconv_t cd = iconv_open("",""); iconv(cd,NULL,NULL,NULL,NULL);
-iconv_close(cd);],
+#include <iconv.h>],
+[iconv_t cd = iconv_open("",""); iconv(cd,NULL,NULL,NULL,NULL); iconv_close(cd);],
 cl_cv_func_iconv=yes)
 if test "$cl_cv_func_iconv" = no; then
 cl_save_LIBS="$LIBS"
 LIBS="$LIBS -liconv"
 AC_TRY_LINK([#include <stdlib.h>
-#include <iconv.h>
-],[iconv_t cd = iconv_open("",""); iconv(cd,NULL,NULL,NULL,NULL);
-iconv_close(cd);],
+#include <iconv.h>],
+[iconv_t cd = iconv_open("",""); iconv(cd,NULL,NULL,NULL,NULL); iconv_close(cd);],
 cl_cv_lib_iconv=yes
 cl_cv_func_iconv=yes)
 LIBS="$cl_save_LIBS"
@@ -4322,33 +4340,8 @@ rm -f conftest*
 if test "$cl_cv_cplusplus_ctorprefix" '!=' unknown; then
   ac_value='"'"$cl_cv_cplusplus_ctorprefix"'"'
   AC_DEFINE_UNQUOTED(CL_GLOBAL_CONSTRUCTOR_PREFIX,$ac_value)
-AC_CACHE_CHECK(for the global destructors function prefix,
-cl_cv_cplusplus_dtorprefix, [
-cat > conftest.cc << EOF
-struct foo { foo (); ~ foo (); };
-foo foobar;
-EOF
-# look for the assembly language name in the .s file
-AC_TRY_COMMAND(${CXX-g++} $CXXFLAGS -S conftest.cc) >/dev/null 2>&1
-if grep '_GLOBAL_\$D\$foobar' conftest.s >/dev/null ; then
-  cl_cv_cplusplus_dtorprefix='_GLOBAL_$D$'
-else
-  if grep '_GLOBAL_\.D\.foobar' conftest.s >/dev/null ; then
-    cl_cv_cplusplus_dtorprefix='_GLOBAL_.D.'
-  else
-    if grep '_GLOBAL__D_foobar' conftest.s >/dev/null ; then
-      cl_cv_cplusplus_dtorprefix='_GLOBAL__D_'
-    else
-      cl_cv_cplusplus_dtorprefix=none
-    fi
-  fi
-fi
-rm -f conftest*
-])
-  if test "$cl_cv_cplusplus_dtorprefix" '!=' none; then
-    ac_value='"'"$cl_cv_cplusplus_ctorprefix"'"'
-    AC_DEFINE_UNQUOTED(CL_GLOBAL_DESTRUCTOR_PREFIX,$ac_value)
-  fi
+  ac_value=`echo "$ac_value" | sed -e 's,I,D,'`
+  AC_DEFINE_UNQUOTED(CL_GLOBAL_DESTRUCTOR_PREFIX,$ac_value)
 dnl Check whether the global constructors/destructors functions are file-scope
 dnl only by default. This is the case in egcs-1.1.2 or newer.
 AC_CACHE_CHECK(whether the global constructors function need to be exported,

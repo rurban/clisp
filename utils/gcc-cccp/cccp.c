@@ -55,8 +55,6 @@ typedef unsigned char U_CHAR;
 #include <ctype.h>
 #include <stdio.h>
 #include <signal.h>
-#include <stdlib.h>
-#include <string.h>
 
 #ifndef VMS
 #ifndef _WIN32
@@ -74,12 +72,11 @@ typedef unsigned char U_CHAR;
 #include <fcntl.h>
 #endif /* USG */
 #endif /* not VMS */
-
-#include <errno.h>		/* This defines "errno" properly */
-
+  
 /* VMS-specific definitions */
 #ifdef VMS
 #include <time.h>
+#include <errno.h>		/* This defines "errno" properly */
 #include <perror.h>		/* This defines sys_errlist/sys_nerr properly */
 #include <descrip.h>
 #define O_RDONLY	0	/* Open arg for Read/Only  */
@@ -107,11 +104,9 @@ typedef unsigned char U_CHAR;
 
 #ifndef O_RDONLY
 #define O_RDONLY 0
-#endif
+#endif 
 
-#ifndef max
 #define max(a,b) ((a) > (b) ? (a) : (b))
-#endif
 
 #ifndef S_ISREG
 #define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
@@ -139,7 +134,7 @@ struct hashnode *install ();
 struct hashnode *lookup ();
 
 char *xmalloc (), *xrealloc (), *xcalloc (), *savestring ();
-void fatal (), pfatal_with_name (), perror_with_name ();
+void fatal (), fancy_abort (), pfatal_with_name (), perror_with_name ();
 
 void macroexpand ();
 void dump_all_macros ();
@@ -149,8 +144,9 @@ void output_line_command ();
 /* Last arg to output_line_command.  */
 enum file_change_code {same_file, enter_file, leave_file};
 
-void grow_outbuf ();
+int grow_outbuf ();
 int handle_directive ();
+void memory_full ();
 
 U_CHAR *macarg1 ();
 char *macarg ();
@@ -279,9 +275,9 @@ FILE_BUF outbuf;
 /* Grow output buffer OBUF points at
    so it can hold at least NEEDED more chars.  */
 
-#define check_expand(obuf,needed)                                       \
-    if ((obuf)->length - ((obuf)->bufp - (obuf)->buf) <= (needed))      \
-      grow_outbuf(obuf,needed)
+#define check_expand(OBUF, NEEDED)  \
+  (((OBUF)->length - ((OBUF)->bufp - (OBUF)->buf) <= (NEEDED))   \
+   ? grow_outbuf ((OBUF), (NEEDED)) : 0)
 
 struct file_name_list
   {
@@ -502,7 +498,7 @@ U_CHAR is_space[256];
 
 #define SKIP_WHITE_SPACE(p) do { while (is_hor_space[*p]) p++; } while (0)
 #define SKIP_ALL_WHITE_SPACE(p) do { while (is_space[*p]) p++; } while (0)
-
+  
 int errors = 0;			/* Error counter for exit code */
 
 /* Zero means dollar signs are punctuation.
@@ -517,7 +513,7 @@ int errors = 0;			/* Error counter for exit code */
 #endif
 int dollars_in_ident = DOLLARS_IN_IDENTIFIERS;
 
-void expand_to_temp_buffer (FILE_BUF*,U_CHAR*,U_CHAR*,int);
+FILE_BUF expand_to_temp_buffer ();
 
 DEFINITION *collect_expansion ();
 
@@ -552,37 +548,13 @@ int deps_column;
    so don't look for #include "foo" the source-file directory.  */
 int ignore_srcdir;
 
-
-#ifndef _WIN32
 /* Handler for SIGPIPE.  */
+
 static void
 pipe_closed ()
 {
   fatal ("output pipe has been closed");
 }
-#endif
-
-void initialize_char_syntax (void);
-void initialize_builtins (void);
-void make_definition (U_CHAR*);
-void make_undef (U_CHAR*);
-void finclude (int,char*,FILE_BUF*);
-void deps_output (char*,int);
-int file_size_and_mode (int,int*,long int*);
-void trigraph_pcp (FILE_BUF*);
-void rescan (FILE_BUF*,int);
-void validate_else (register U_CHAR*);
-void error_from_errno (char*);
-int line_for_error (int);
-void delete_macro (HASHNODE *);
-int comp_def_part (int,U_CHAR*,int,U_CHAR*,int,int);
-int discard_comments (U_CHAR*,int,int);
-int hashf (register U_CHAR*,register int,int);
-int eval_if_expression (U_CHAR *,int);
-int parse_c_expression (char*); /* cexp.c */
-int compare_defs (DEFINITION*,DEFINITION*);
-void dump_arg_n (DEFINITION*,int);
-void dump_defn_1 (U_CHAR*,int,int);
 
 int
 main (argc, argv)
@@ -760,7 +732,7 @@ main (argc, argv)
 
       case 'D':
 	{
-	  char *p=NULL, *p1;
+	  char *p, *p1;
 
 	  if (argv[i][2] != 0)
 	    p = argv[i] + 2;
@@ -980,7 +952,7 @@ main (argc, argv)
 	  deps_target = 0;
 	  output_file = spec;
 	}
-
+      
       deps_stream = fopen (output_file, "a");
       if (deps_stream == 0)
 	pfatal_with_name (output_file);
@@ -1086,7 +1058,7 @@ main (argc, argv)
   if (fp->length > 0 && fp->buf[fp->length-1] != '\n')
     fp->buf[fp->length++] = '\n';
   fp->buf[fp->length] = '\0';
-
+  
   /* Unless inhibited, convert trigraphs in the input.  */
 
   if (!no_trigraphs)
@@ -1135,7 +1107,6 @@ main (argc, argv)
 
  perror:
   pfatal_with_name (in_fname);
-  return 0;
 }
 
 /* Pre-C-Preprocessor to translate ANSI trigraph idiocy in BUF
@@ -1147,7 +1118,7 @@ main (argc, argv)
    strings, etc. everywhere, and also makes sure that trigraphs are
    only translated in the top level of processing. */
 
-void trigraph_pcp (buf)
+trigraph_pcp (buf)
      FILE_BUF *buf;
 {
   register U_CHAR c, *fptr, *bptr, *sptr;
@@ -1216,7 +1187,7 @@ void trigraph_pcp (buf)
    (because a backslash-newline inside a comment delimiter
    would cause it not to be recognized).  */
 
-void newline_fix (bp)
+newline_fix (bp)
      U_CHAR *bp;
 {
   register U_CHAR *p = bp;
@@ -1251,7 +1222,7 @@ void newline_fix (bp)
 /* Like newline_fix but for use within a directive-name.
    Move any backslash-newlines up past any following symbol constituents.  */
 
-void name_newline_fix (bp)
+name_newline_fix (bp)
      U_CHAR *bp;
 {
   register U_CHAR *p = bp;
@@ -1319,7 +1290,7 @@ void name_newline_fix (bp)
  * explicitly, and before RECACHE, since RECACHE uses OBP.
  */
 
-void rescan (op, output_marks)
+rescan (op, output_marks)
      FILE_BUF *op;
      int output_marks;
 {
@@ -1363,9 +1334,6 @@ void rescan (op, output_marks)
   /* Record position of last `real' newline.  */
   U_CHAR *beg_of_line;
 
-  /* this has to be a global bacause of RECACHE */
-  U_CHAR *obufp_before_macroname=NULL;
-
 /* Pop the innermost input stack level, assuming it is a macro expansion.  */
 
 #define POPMACRO \
@@ -1376,14 +1344,13 @@ do { ip->macro->type = T_MACRO;		\
 /* Reload `rescan's local variables that describe the current
    level of the input stack.  */
 
-#define RECACHE                                 \
-do { ip = &instack[indepth];                    \
-     ibp = ip->bufp;                            \
-     limit = ip->buf + ip->length;              \
-     op->bufp = obp;                            \
-     check_expand (op, limit - ibp);            \
-     beg_of_line = 0;                           \
-     obufp_before_macroname += op->bufp - obp;  \
+#define RECACHE  \
+do { ip = &instack[indepth];		\
+     ibp = ip->bufp;			\
+     limit = ip->buf + ip->length;	\
+     op->bufp = obp;			\
+     check_expand (op, limit - ibp);	\
+     beg_of_line = 0;			\
      obp = op->bufp; } while (0)
 
   if (no_output && instack[indepth].fname != 0)
@@ -1877,7 +1844,7 @@ randomchar:
 	     hp = hp->next) {
 
 	  if (hp->length == ident_length) {
-            /* U_CHAR *obufp_before_macroname; has to be on top for RECACHE */
+	    U_CHAR *obufp_before_macroname;
 	    int op_lineno_before_macroname;
 	    register int i = ident_length;
 	    register U_CHAR *p = hp->name;
@@ -1930,17 +1897,17 @@ randomchar:
 	    /* If macro wants an arglist, verify that a '(' follows.
 	       first skip all whitespace, copying it to the output
 	       after the macro name.  Then, if there is no '(',
-	       decide this is not a macro call and leave things that way. */
+	       decide this is not a macro call and leave things that way.  */
 	    if ((hp->type == T_MACRO || hp->type == T_DISABLED)
 		&& hp->value.defn->nargs >= 0)
 	      {
 		while (1) {
-		  /* Scan forward over whitespace, copying it to the output. */
+		  /* Scan forward over whitespace, copying it to the output.  */
 		  if (ibp == limit && ip->macro != 0) {
 		    POPMACRO;
-  		    RECACHE;
+		    RECACHE;
 		  }
-		  /* A comment: copy it unchanged or discard it. */
+		  /* A comment: copy it unchanged or discard it.  */
 		  else if (*ibp == '/' && ibp+1 != limit && ibp[1] == '*') {
 		    if (put_out_comments) {
 		      *obp++ = '/';
@@ -1952,7 +1919,7 @@ randomchar:
 		    while (ibp + 1 != limit
 			   && !(ibp[0] == '*' && ibp[1] == '/')) {
 		      /* We need not worry about newline-marks,
-			 since they are never found in comments. */
+			 since they are never found in comments.  */
 		      if (*ibp == '\n') {
 			/* Newline in a file.  Count it.  */
 			++ip->lineno;
@@ -1980,7 +1947,7 @@ randomchar:
 			/* A newline mark, and we don't want marks
 			   in the output.  If it is newline-hyphen,
 			   discard it entirely.  Otherwise, it is
-			   newline-whitechar, so keep the whitechar. */
+			   newline-whitechar, so keep the whitechar.  */
 			obp--;
 			if (*ibp == '-')
 			  ibp++;
@@ -1990,7 +1957,7 @@ randomchar:
 			  *obp++ = *ibp++;
 			}
 		      } else {
-			/* A newline mark; copy both chars to the output. */
+			/* A newline mark; copy both chars to the output.  */
 			*obp++ = *ibp++;
 		      }
 		    }
@@ -2012,6 +1979,7 @@ randomchar:
 	    ip->bufp = ibp;
 	    op->bufp = obp;
 	    macroexpand (hp, op);
+
 	    /* Reexamine input stack, since macroexpand has pushed
 	       a new level on it.  */
 	    obp = op->bufp;
@@ -2049,9 +2017,6 @@ hashcollision:
     case T_ELIF:
       str = "elif";
       break;
-    default:
-      str = "#<invalid>";
-      break;
     }
     error_with_line (line_for_error (if_stack->lineno),
 		     "unterminated #%s conditional", str);
@@ -2068,13 +2033,13 @@ hashcollision:
  * OUTPUT_MARKS is 1 for macroexpanding a macro argument separately
  * before substitution; it is 0 for other uses.
  */
-void
-expand_to_temp_buffer (obuf, buf, limit, output_marks)
-     FILE_BUF *obuf;
+FILE_BUF
+expand_to_temp_buffer (buf, limit, output_marks)
      U_CHAR *buf, *limit;
      int output_marks;
 {
   register FILE_BUF *ip;
+  FILE_BUF obuf;
   int length = limit - buf;
   U_CHAR *buf1;
   int odepth = indepth;
@@ -2096,13 +2061,13 @@ expand_to_temp_buffer (obuf, buf, limit, output_marks)
 
   /* Set up to receive the output.  */
 
-  obuf->length = length * 2 + 100; /* Usually enough.  Why be stingy?  */
-  obuf->bufp = obuf->buf = (U_CHAR *) xmalloc (obuf->length);
-  obuf->fname = 0;
-  obuf->macro = 0;
-  obuf->free_ptr = 0;
+  obuf.length = length * 2 + 100; /* Usually enough.  Why be stingy?  */
+  obuf.bufp = obuf.buf = (U_CHAR *) xmalloc (obuf.length);
+  obuf.fname = 0;
+  obuf.macro = 0;
+  obuf.free_ptr = 0;
 
-  CHECK_DEPTH ({return;});
+  CHECK_DEPTH ({return obuf;});
 
   ++indepth;
 
@@ -2114,11 +2079,11 @@ expand_to_temp_buffer (obuf, buf, limit, output_marks)
   ip->buf = ip->bufp = buf1;
   ip->if_stack = if_stack;
 
-  ip->lineno = obuf->lineno = 1;
+  ip->lineno = obuf.lineno = 1;
 
   /* Scan the input, create the output.  */
 
-  rescan (obuf, output_marks);
+  rescan (&obuf, output_marks);
 
   /* Pop input stack to original state.  */
   --indepth;
@@ -2127,7 +2092,9 @@ expand_to_temp_buffer (obuf, buf, limit, output_marks)
     abort ();
 
   /* Record the output.  */
-  obuf->length = obuf->bufp - obuf->buf;
+  obuf.length = obuf.bufp - obuf.buf;
+
+  return obuf;
 }
 
 /*
@@ -2420,7 +2387,7 @@ static char *monthnames[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
  * expand things like __FILE__.  Place the expansion into the output
  * buffer *without* rescanning.
  */
-void special_symbol (hp, op)
+special_symbol (hp, op)
      HASHNODE *hp;
      FILE_BUF *op;
 {
@@ -2554,7 +2521,7 @@ oops:
  * Expects to see "fname" or <fname> on the input.
  */
 
-int do_include (buf, limit, op, keyword)
+do_include (buf, limit, op, keyword)
      U_CHAR *buf, *limit;
      FILE_BUF *op;
      struct directive *keyword;
@@ -2648,9 +2615,9 @@ get_filename:
   fail:
     if (retried) {
       error ("#include expects \"fname\" or <fname>");
-      return 0;
+      return;
     } else {
-      expand_to_temp_buffer (&trybuf, buf, limit, 0);
+      trybuf = expand_to_temp_buffer (buf, limit, 0);
       buf = (U_CHAR *) alloca (trybuf.bufp - trybuf.buf + 1);
       bcopy (trybuf.buf, buf, trybuf.bufp - trybuf.buf);
       limit = buf + (trybuf.bufp - trybuf.buf);
@@ -2726,7 +2693,7 @@ get_filename:
     for (ptr = dont_repeat_files; ptr; ptr = ptr->next) {
       if (!strcmp (ptr->fname, fname)) {
 	close (f);
-        return 0;			/* This file was once'd. */
+        return;				/* This file was once'd. */
       }
     }
 
@@ -2749,7 +2716,7 @@ get_filename:
 	deps_output (fname, strlen (fname));
 	deps_output (" ", 0);
       }
-    }
+    }   
 
     if (system_header_p)
       system_include_depth++;
@@ -2762,13 +2729,12 @@ get_filename:
 
     close (f);
   }
-  return 0;
 }
 
 /* Process the contents of include file FNAME, already open on descriptor F,
    with output to OP.  */
 
-void finclude (f, fname, op)
+finclude (f, fname, op)
      int f;
      char *fname;
      FILE_BUF *op;
@@ -2889,7 +2855,7 @@ BUF points to the contents of the #define command, as a continguous string.
 LIMIT points to the first character past the end of the definition.
 KEYWORD is the keyword-table entry for #define.  */
 
-int do_define (buf, limit, op, keyword)
+do_define (buf, limit, op, keyword)
      U_CHAR *buf, *limit;
      FILE_BUF *op;
      struct directive *keyword;
@@ -3076,7 +3042,7 @@ compare_defs (d1, d2)
    LAST means these parts are the last of a macro definition;
     so ignore trailing whitespace entirely.  */
 
-int comp_def_part (first, beg1, len1, beg2, len2, last)
+comp_def_part (first, beg1, len1, beg2, len2, last)
      int first;
      U_CHAR *beg1, *beg2;
      int len1, len2;
@@ -3111,7 +3077,7 @@ int comp_def_part (first, beg1, len1, beg2, len2, last)
    in that list, or -1 for a macro name that wants no argument list.
    MACRONAME is the macro name itself (so we can avoid recursive expansion)
    and NAMELEN is its length in characters.
-
+   
 Note that comments and backslash-newlines have already been deleted
 from the argument.  */
 
@@ -3381,7 +3347,7 @@ collect_expansion (buf, end, nargs, arglist)
  */
 #define FNAME_HASHSIZE 37
 
-int do_line (buf, limit, op, keyword)
+do_line (buf, limit, op, keyword)
      U_CHAR *buf, *limit;
      FILE_BUF *op;
      struct directive *keyword;
@@ -3393,7 +3359,7 @@ int do_line (buf, limit, op, keyword)
   enum file_change_code file_change = same_file;
 
   /* Expand any macros.  */
-  expand_to_temp_buffer (&tem, buf, limit, 0);
+  tem = expand_to_temp_buffer (buf, limit, 0);
 
   /* Point to macroexpanded line, which is null-terminated now.  */
   bp = tem.buf;
@@ -3401,7 +3367,7 @@ int do_line (buf, limit, op, keyword)
 
   if (!isdigit (*bp)) {
     error ("invalid format #line command");
-    return 0;
+    return;
   }
 
   /* The Newline at the end of this line remains to be processed.
@@ -3434,7 +3400,7 @@ int do_line (buf, limit, op, keyword)
       bp++;
     if (*bp != '\"') {
       error ("invalid format #line command");
-      return 0;
+      return;
     }
 
     fname_length = bp - fname;
@@ -3448,14 +3414,14 @@ int do_line (buf, limit, op, keyword)
 	file_change = leave_file;
       else {
 	error ("invalid format #line command");
-	return 0;
+	return;
       }
 
       bp++;
       SKIP_WHITE_SPACE (bp);
       if (*bp) {
 	error ("invalid format #line command");
-	return 0;
+	return;
       }
     }
 
@@ -3479,13 +3445,12 @@ int do_line (buf, limit, op, keyword)
     }
   } else if (*bp) {
     error ("invalid format #line command");
-    return 0;
+    return;
   }
 
   ip->lineno = new_lineno;
   output_line_command (ip, op, 0, file_change);
   check_expand (op, ip->length - (ip->bufp - ip->buf));
-  return 0;
 }
 
 /*
@@ -3493,7 +3458,7 @@ int do_line (buf, limit, op, keyword)
  * according to un*x /lib/cpp, it is not an error to undef
  * something that has no definitions, so it isn't one here either.
  */
-int do_undef (buf, limit, op, keyword)
+do_undef (buf, limit, op, keyword)
      U_CHAR *buf, *limit;
      FILE_BUF *op;
      struct directive *keyword;
@@ -3510,7 +3475,6 @@ int do_undef (buf, limit, op, keyword)
       warning ("undefining `%s'", hp->name);
     delete_macro (hp);
   }
-  return 0;
 }
 
 /*
@@ -3518,7 +3482,7 @@ int do_undef (buf, limit, op, keyword)
  * Use the text of the line in the error message, then terminate.
  * (We use error() because it prints the filename & line#.)
  */
-int do_error (buf, limit, op, keyword)
+do_error (buf, limit, op, keyword)
      U_CHAR *buf, *limit;
      FILE_BUF *op;
      struct directive *keyword;
@@ -3535,7 +3499,7 @@ int do_error (buf, limit, op, keyword)
 /* Remember the name of the current file being read from so that we can
    avoid ever including it again.  */
 
-int do_once ()
+do_once ()
 {
   int i;
   FILE_BUF *ip = NULL;
@@ -3555,20 +3519,18 @@ int do_once ()
       dont_repeat_files = new;
       new->fname = savestring (ip->fname);
     }
-  return 0;
 }
 
 /* #pragma and its argument line have already been copied to the output file.
    Here just check for recognized pragmas.  */
 
-int do_pragma (buf, limit)
+do_pragma (buf, limit)
      U_CHAR *buf, *limit;
 {
   while (*buf == ' ' || *buf == '\t')
     buf++;
   if (!strncmp (buf, "once", 4))
     do_once ();
-  return 0;
 }
 
 #if 0
@@ -3597,11 +3559,10 @@ nope:
 #endif
 
 /* Just ignore #sccs, on systems where we define it at all.  */
-int do_sccs ()
+do_sccs ()
 {
   if (pedantic)
     error ("ANSI C does not allow #sccs");
-  return 0;/*NOTREACHED*/
 }
 
 /*
@@ -3617,7 +3578,7 @@ int do_sccs ()
  *      or not, depending on the value from step 3.
  */
 
-int do_if (buf, limit, op, keyword)
+do_if (buf, limit, op, keyword)
      U_CHAR *buf, *limit;
      FILE_BUF *op;
      struct directive *keyword;
@@ -3627,7 +3588,6 @@ int do_if (buf, limit, op, keyword)
 
   value = eval_if_expression (buf, limit - buf);
   conditional_skip (ip, value == 0, T_IF);
-  return 0;
 }
 
 /*
@@ -3635,7 +3595,7 @@ int do_if (buf, limit, op, keyword)
  * see the comment above do_else.
  */
 
-int do_elif (buf, limit, op, keyword)
+do_elif (buf, limit, op, keyword)
      U_CHAR *buf, *limit;
      FILE_BUF *op;
      struct directive *keyword;
@@ -3645,7 +3605,7 @@ int do_elif (buf, limit, op, keyword)
 
   if (if_stack == instack[indepth].if_stack) {
     error ("#elif not within a conditional");
-    return 0;
+    return;
   } else {
     if (if_stack->type != T_IF && if_stack->type != T_ELIF) {
       error ("#elif after #else");
@@ -3669,7 +3629,6 @@ int do_elif (buf, limit, op, keyword)
       output_line_command (ip, op, 1, same_file);
     }
   }
-  return 0;
 }
 
 /*
@@ -3686,7 +3645,7 @@ eval_if_expression (buf, length)
   int value;
 
   save_defined = install ("defined", -1, T_SPEC_DEFINED, 0, -1);
-  expand_to_temp_buffer (&temp_obuf, buf, buf + length, 0);
+  temp_obuf = expand_to_temp_buffer (buf, buf + length, 0);
   delete_macro (save_defined);	/* clean up special symbol */
 
   value = parse_c_expression (temp_obuf.buf);
@@ -3701,14 +3660,14 @@ eval_if_expression (buf, length)
  * then do or don't skip to the #endif/#else/#elif depending
  * on what directive is actually being processed.
  */
-int do_xifdef (buf, limit, op, keyword)
+do_xifdef (buf, limit, op, keyword)
      U_CHAR *buf, *limit;
      FILE_BUF *op;
      struct directive *keyword;
 {
   int skip;
   FILE_BUF *ip = &instack[indepth];
-  U_CHAR *end;
+  U_CHAR *end; 
 
   /* Discard leading and trailing whitespace.  */
   SKIP_WHITE_SPACE (buf);
@@ -3733,7 +3692,6 @@ int do_xifdef (buf, limit, op, keyword)
   }
 
   conditional_skip (ip, skip, T_IF);
-  return 0;
 }
 
 /*
@@ -3925,8 +3883,6 @@ skip_if_group (ip, any)
 	    if_stack = if_stack->next;
 	    free (temp);
 	    break;
-          default:
-            break;
 	  }
 	  break;
 	}
@@ -3945,7 +3901,7 @@ skip_if_group (ip, any)
  * for missing #endif's etc. will point to the original #if.  It
  * is possible that something different would be better.
  */
-int do_else (buf, limit, op, keyword)
+do_else (buf, limit, op, keyword)
      U_CHAR *buf, *limit;
      FILE_BUF *op;
      struct directive *keyword;
@@ -3960,7 +3916,7 @@ int do_else (buf, limit, op, keyword)
 
   if (if_stack == instack[indepth].if_stack) {
     error ("#else not within a conditional");
-    return 0;
+    return;
   } else {
     if (if_stack->type != T_IF && if_stack->type != T_ELIF) {
       error ("#else after #else");
@@ -3978,13 +3934,12 @@ int do_else (buf, limit, op, keyword)
     ++if_stack->if_succeeded;	/* continue processing input */
     output_line_command (ip, op, 1, same_file);
   }
-  return 0;
 }
 
 /*
  * unstack after #endif command
  */
-int do_endif (buf, limit, op, keyword)
+do_endif (buf, limit, op, keyword)
      U_CHAR *buf, *limit;
      FILE_BUF *op;
      struct directive *keyword;
@@ -4003,14 +3958,13 @@ int do_endif (buf, limit, op, keyword)
     free (temp);
     output_line_command (&instack[indepth], op, 1, same_file);
   }
-  return 0;
 }
 
 /* When an #else or #endif is found while skipping failed conditional,
    if -pedantic was specified, this is called to warn about text after
    the command name.  P points to the first char after the command name.  */
 
-void validate_else (p)
+validate_else (p)
      register U_CHAR *p;
 {
   /* Advance P over whitespace and comments.  */
@@ -4328,7 +4282,7 @@ macroexpand (hp, op)
 
     args = (struct argdata *) alloca ((nargs + 1) * sizeof (struct argdata));
 
-    for (i = 0; i <= nargs; i++) {
+    for (i = 0; i < nargs; i++) {
       args[i].raw = args[i].expanded = (U_CHAR *) "";
       args[i].raw_length = args[i].expand_length
 	= args[i].stringified_length = 0;
@@ -4670,9 +4624,10 @@ macarg (argptr)
     register U_CHAR *buf, *lim;
     register int totlen;
 
-    expand_to_temp_buffer (&obuf, argptr->raw,
-                           argptr->raw + argptr->raw_length,
-                           1);
+    obuf = expand_to_temp_buffer (argptr->raw,
+				  argptr->raw + argptr->raw_length,
+				  1);
+
     argptr->expanded = obuf.buf;
     argptr->expand_length = obuf.length;
     argptr->free2 = obuf.buf;
@@ -4813,7 +4768,7 @@ macarg1 (start, limit, depthptr, newlines, comments)
 /* Discard comments and duplicate newlines
    in the string of length LENGTH at START,
    except inside of string constants.
-   The string is copied into itself with its beginning staying fixed.
+   The string is copied into itself with its beginning staying fixed.  
 
    NEWLINES is the number of newlines that must be duplicated.
    We assume that that much extra space is available past the end
@@ -4919,7 +4874,7 @@ discard_comments (start, length, newlines)
 /*
  * error - print error message and increment count of errors.
  */
-int error (msg, arg1, arg2, arg3)
+error (msg, arg1, arg2, arg3)
      char *msg;
 {
   int i;
@@ -4941,15 +4896,13 @@ int error (msg, arg1, arg2, arg3)
 
 /* Error including a message from `errno'.  */
 
-void error_from_errno (name)
+error_from_errno (name)
      char *name;
 {
   int i;
   FILE_BUF *ip = NULL;
-#if !defined(__CYGWIN32__) && !defined(__MINGW32__)
   extern int errno, sys_nerr;
   extern char *sys_errlist[];
-#endif
 
   for (i = indepth; i >= 0; i--)
     if (instack[i].fname != NULL) {
@@ -4960,21 +4913,18 @@ void error_from_errno (name)
   if (ip != NULL)
     fprintf (stderr, "%s:%d: ", ip->fname, ip->lineno);
 
-#if defined(__CYGWIN32__) || defined(__MINGW32__)
-  fprintf(stderr,"%s: %s\n",name,strerror(errno));
-#else
   if (errno < sys_nerr)
     fprintf (stderr, "%s: %s\n", name, sys_errlist[errno]);
   else
     fprintf (stderr, "%s: undocumented I/O error\n", name);
-#endif
 
   errors++;
+  return 0;
 }
 
 /* Print error message but don't count it.  */
 
-int warning (msg, arg1, arg2, arg3)
+warning (msg, arg1, arg2, arg3)
      char *msg;
 {
   int i;
@@ -4997,7 +4947,7 @@ int warning (msg, arg1, arg2, arg3)
   return 0;
 }
 
-int error_with_line (line, msg, arg1, arg2, arg3)
+error_with_line (line, msg, arg1, arg2, arg3)
      int line;
      char *msg;
 {
@@ -5040,7 +4990,6 @@ line_for_error (line)
       return 0;
     line1 = instack[i].lineno;
   }
-  return 0;
 }
 
 /*
@@ -5052,7 +5001,7 @@ line_for_error (line)
  * should work ok.
  */
 
-void
+int
 grow_outbuf (obuf, needed)
      register FILE_BUF *obuf;
      register int needed;
@@ -5070,7 +5019,8 @@ grow_outbuf (obuf, needed)
   if (minsize > obuf->length)
     obuf->length = minsize;
 
-  p = (U_CHAR *) xrealloc (obuf->buf, obuf->length);
+  if ((p = (U_CHAR *) xrealloc (obuf->buf, obuf->length)) == NULL)
+    memory_full ();
 
   obuf->bufp = p + (obuf->bufp - obuf->buf);
   obuf->buf = p;
@@ -5186,7 +5136,7 @@ lookup (name, len, hash)
    in the middle of reading the arguments to a call to it.
    If #undef freed the DEFINITION, that would crash.  */
 
-void delete_macro (hp)
+delete_macro (hp)
      HASHNODE *hp;
 {
 
@@ -5299,7 +5249,7 @@ dump_all_macros ()
    Discard newlines outside of strings, thus
    converting funny-space markers to ordinary spaces.  */
 
-void dump_defn_1 (base, start, length)
+dump_defn_1 (base, start, length)
      U_CHAR *base;
      int start;
      int length;
@@ -5323,7 +5273,6 @@ void dump_defn_1 (base, start, length)
    Recall that DEFN->argnames contains all the arg names
    concatenated in reverse order with comma-space in between.  */
 
-void
 dump_arg_n (defn, argnum)
      DEFINITION *defn;
      int argnum;
@@ -5342,7 +5291,7 @@ dump_arg_n (defn, argnum)
 
 /* Initialize syntactic classifications of characters.  */
 
-void initialize_char_syntax (void)
+initialize_char_syntax ()
 {
   register int i;
 
@@ -5382,7 +5331,7 @@ void initialize_char_syntax (void)
 
 /* Initialize the built-in macros.  */
 
-void initialize_builtins (void)
+initialize_builtins ()
 {
   install ("__LINE__", -1, T_SPECLINE, 0, -1);
   install ("__DATE__", -1, T_DATE, 0, -1);
@@ -5404,7 +5353,7 @@ void initialize_builtins (void)
  * If STR has anything after the identifier, then it should
  * be identifier-space-definition.
  */
-void make_definition (str)
+make_definition (str)
      U_CHAR *str;
 {
   FILE_BUF *ip;
@@ -5450,7 +5399,7 @@ void make_definition (str)
     }
     *q = 0;
   }
-
+  
   ip = &instack[++indepth];
   ip->fname = "*Initialization*";
 
@@ -5471,7 +5420,7 @@ void make_definition (str)
 }
 
 /* JF, this does the work for the -U option */
-void make_undef (str)
+make_undef (str)
      U_CHAR *str;
 {
   FILE_BUF *ip;
@@ -5499,7 +5448,7 @@ void make_undef (str)
    SIZE is the number of bytes, or 0 meaning output until a null.
    If SIZE is nonzero, we break the line first, if it is long enough.  */
 
-void deps_output (string, size)
+deps_output (string, size)
      char *string;
      int size;
 {
@@ -5602,11 +5551,15 @@ fatal (str, arg)
   exit (FATAL_EXIT_CODE);
 }
 
-#if defined(__CYGWIN32__) || defined(__MINGW32__)
-void perror_with_name (char* name) {
-  fprintf(stderr,"%s: %s: %s\n",progname,name,strerror(errno));
+/* More 'friendly' abort that prints the line and file.
+   config.h can #define abort fancy_abort if you like that sort of thing.  */
+
+void
+fancy_abort ()
+{
+  fatal ("Internal gcc abort.");
 }
-#else
+
 void
 perror_with_name (name)
      char *name;
@@ -5621,7 +5574,6 @@ perror_with_name (name)
     fprintf (stderr, "%s: undocumented I/O error\n", name);
   errors++;
 }
-#endif
 
 void
 pfatal_with_name (name)
@@ -5636,11 +5588,12 @@ pfatal_with_name (name)
 }
 
 
-#ifdef __GNUC__
-#define memory_full(size) fatal("Memory exhausted ["__func__"]: %d",size)
-#else
-#define memory_full(size) fatal("Memory exhausted: %d",size)
-#endif
+void
+memory_full ()
+{
+  fatal ("Memory exhausted.");
+}
+
 
 char *
 xmalloc (size)
@@ -5649,12 +5602,10 @@ xmalloc (size)
 #ifndef _WIN32
   extern char *malloc ();
 #endif
-  if (size >= 0) {
-    register char *ptr = malloc (size);
-    if (ptr != 0) return ptr;
-  }
-  memory_full(size);
-  return NULL;/*NOTREACHED*/
+  register char *ptr = malloc (size);
+  if (ptr != 0) return (ptr);
+  memory_full ();
+  /*NOTREACHED*/
 }
 
 char *
@@ -5665,12 +5616,10 @@ xrealloc (old, size)
 #ifndef _WIN32
   extern char *realloc ();
 #endif
-  if (size >= 0) {
-    register char *ptr = realloc (old, size);
-    if (ptr != 0) return ptr;
-  }
-  memory_full(size);
-  return NULL;/*NOTREACHED*/
+  register char *ptr = realloc (old, size);
+  if (ptr != 0) return (ptr);
+  memory_full ();
+  /*NOTREACHED*/
 }
 
 char *
@@ -5680,30 +5629,28 @@ xcalloc (number, size)
 #ifndef _WIN32
   extern char *malloc ();
 #endif
-  if (size >= 0) {
-    register int total = number * size;
-    register char *ptr = malloc (total);
-    if (ptr != 0) {
-      if (total > 100)
-        bzero (ptr, total);
-      else {
-        /* It's not too long, so loop, zeroing by longs.
-           It must be safe because malloc values are always well aligned.  */
-        register long *zp = (long *) ptr;
-        register long *zl = (long *) (ptr + total - 4);
-        register int i = total - 4;
-        while (zp < zl)
-          *zp++ = 0;
-        if (i < 0)
-          i = 0;
-        while (i < total)
-          ptr[i++] = 0;
-      }
-      return ptr;
+  register int total = number * size;
+  register char *ptr = malloc (total);
+  if (ptr != 0) {
+    if (total > 100)
+      bzero (ptr, total);
+    else {
+      /* It's not too long, so loop, zeroing by longs.
+	 It must be safe because malloc values are always well aligned.  */
+      register long *zp = (long *) ptr;
+      register long *zl = (long *) (ptr + total - 4);
+      register int i = total - 4;
+      while (zp < zl)
+	*zp++ = 0;
+      if (i < 0)
+	i = 0;
+      while (i < total)
+	ptr[i++] = 0;
     }
+    return ptr;
   }
-  memory_full(size);
-  return NULL;/*NOTREACHED*/
+  memory_full ();
+  /*NOTREACHED*/
 }
 
 char *
@@ -5761,12 +5708,12 @@ hack_vms_include_specification (fname)
 
   cp2 = Local; /* initialize */
 
-  /* We are trying to do a number of things here.  First of all, we are
-     trying to hammer the filenames into a standard format, such that later
+  /* We are trying to do a number of things here.  First of all, we are 
+     trying to hammer the filenames into a standard format, such that later 
      processing can handle them.
 
      If the file name contains something like [dir.], then it recognizes this
-     as a root, and strips the ".]".  Later processing will add whatever is
+     as a root, and strips the ".]".  Later processing will add whatever is 
      needed to get things working properly.
 
      If no device is specified, then the first directory name is taken to be
@@ -5791,9 +5738,9 @@ hack_vms_include_specification (fname)
 	    strcpy (cp, cp1);	/* Non-rooted */
 	    return;             /* trailing "]/", and not ".]/" */
 	} else {
-/*
- * The VMS part has a ".]" at the end, and this will not do.  Later
- * processing will add a second directory spec, and this would be a syntax
+/* 
+ * The VMS part has a ".]" at the end, and this will not do.  Later 
+ * processing will add a second directory spec, and this would be a syntax 
  * error.  Thus we strip the ".]", and thus merge the directory specs.
  * We also backspace cp1, so that it points to a '/'.  This inhibits the
  * generation of the 000000 root directory spec (which does not belong here

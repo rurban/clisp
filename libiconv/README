@@ -48,8 +48,6 @@ It provides support for the encodings:
         (with machine dependent endianness and alignment, and with OS and
         locale dependent semantics)
         char, wchar_t
-        The empty encoding name "" is equivalent to "char": it denotes the
-        locale dependent character encoding.
 
 It can convert from any of these encodings to any other, through Unicode
 conversion.
@@ -82,8 +80,6 @@ This library can be built and installed in two variants:
     - If you don't use automake, append extras/iconv.m4 to your aclocal.m4
       file.
     - If you do use automake, add extras/iconv.m4 to your m4 macro repository.
-    Note that 'iconv.m4' is also part of the GNU gettext package, which
-    installs it in /usr/local/share/aclocal/iconv.m4.
 
   - The libc plug/override mode. This works on GNU/Linux, Solaris and OSF/1
     systems only. It is a way to get good iconv support without having
@@ -107,9 +103,6 @@ Distribution:
 
 Homepage:
     http://clisp.cons.org/~haible/packages-libiconv.html
-
-Bug reports to:
-    <bug-gnu-libiconv@gnu.org>
 
 
 Bruno Haible <haible@clisp.cons.org>

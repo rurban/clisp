@@ -156,8 +156,6 @@ is already built-in in the
 .B clisp
 executable.
 #endif
-Directory lisplibdir can be changed at run-time using the symbol-macro
-.B *lib-directory*.
 
 #ifdef UNIX
 .TP
@@ -261,8 +259,6 @@ Other languages may be specified through the environment variable
 .BR LANG ,
 provided the corresponding message catalog is installed.
 #endif
-The language may be changed at run-time using the symbol macro
-.B *current-language*.
 
 .TP
 .BI "\-N " localedir
@@ -270,8 +266,6 @@ Specifies the base directory of locale files.
 .B clisp
 will search its message catalogs in
 .IR localedir / language /LC_MESSAGES/clisp.mo.
-The localedir may be changed at run-time using the symbol macro
-.B *current-language*.
 
 .TP
 .BI \-E "domain encoding"
@@ -325,8 +319,9 @@ character.
 
 .TP
 .B \-ansi
-ANSI CL compliant: comply with the ANSI CL specification
-even where CLISP has been traditionally different.
+ANSI CL compliant: Comply with the ANSI CL specification even on those issues
+where ANSI CL is broken. This option is provided for maximum portability of
+Lisp programs, and is not useful for actual everyday work.
 It sets the symbol macro
 .I *ansi*
 to
@@ -456,15 +451,6 @@ If
 is
 .BR "\-" ,
 the standard input is used instead of a file.
-If
-.I lispfile
-is an empty string
-.B "",
-the rest of the arguments is still available in
-.I "*args*",
-for parsing by the
-.B "init-function"
-of the current image.
 This option must be the last one. No RC file will be executed.
 
 #ifdef EMUNIX

@@ -239,10 +239,15 @@
           lst))
        (known-missing
         #+CLISP
-        '(call-method change-class
+        '(*print-miser-width* *print-pprint-dispatch* *print-lines*
+          call-method change-class copy-pprint-dispatch
           define-method-combination
           ensure-generic-function invalid-method-error method-combination
           method-combination-error make-instances-obsolete make-method
+          make-load-form make-load-form-saving-slots
+          pprint-dispatch pprint-exit-if-list-exhausted pprint-fill
+          pprint-indent pprint-linear pprint-logical-block pprint-newline
+          pprint-pop pprint-tab pprint-tabular set-pprint-dispatch
           update-instance-for-different-class
           update-instance-for-redefined-class)
         #-CLISP nil)

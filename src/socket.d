@@ -47,6 +47,7 @@
 #endif
 
 #include <errno.h>
+extern int errno;
 
 #include <stdio.h>   # declares sprintf()
 #include <string.h>  # declares strcmp(), strlen(), strcpy()
@@ -124,8 +125,6 @@
     #endif
     extern_C struct hostent * gethostbyname (GETHOSTBYNAME_CONST char* name);
   #endif
-#elif defined(HAVE_IPV6)
-  #define in6_addr in_addr6
 #endif
 
 # Converts an AF_INET address to a printable, presentable format.
@@ -152,20 +151,9 @@
   #ifdef HAVE_INET_NTOP
     #define ipv6_ntop(buffer,addr)  \
       inet_ntop(AF_INET6,&addr,buffer,45+1)
-  #elif defined(WIN32) || defined(UNIX_CYGWIN32)
-    #define ipv6_ntop(buffer,addr)  \
-     (sprintf(buffer,"%x:%x:%x:%x:%x:%x:%x:%x", \
-              ntohs(((u_short*)(addr).s6_addr)[0]), \
-              ntohs(((u_short*)(addr).s6_addr)[1]), \
-              ntohs(((u_short*)(addr).s6_addr)[2]), \
-              ntohs(((u_short*)(addr).s6_addr)[3]), \
-              ntohs(((u_short*)(addr).s6_addr)[4]), \
-              ntohs(((u_short*)(addr).s6_addr)[5]), \
-              ntohs(((u_short*)(addr).s6_addr)[6]), \
-              ntohs(((u_short*)(addr).s6_addr)[7])),buffer)
   #else
     #define ipv6_ntop(buffer,addr)  \
-     (sprintf(buffer,"%x:%x:%x:%x:%x:%x:%x:%x", \
+      sprintf(buffer,"%x:%x:%x:%x:%x:%x:%x:%x", \
               ntohs((addr).in6_u.u6_addr16[0]), \
               ntohs((addr).in6_u.u6_addr16[1]), \
               ntohs((addr).in6_u.u6_addr16[2]), \
@@ -173,7 +161,7 @@
               ntohs((addr).in6_u.u6_addr16[4]), \
               ntohs((addr).in6_u.u6_addr16[5]), \
               ntohs((addr).in6_u.u6_addr16[6]), \
-              ntohs((addr).in6_u.u6_addr16[7])),buffer)
+              ntohs((addr).in6_u.u6_addr16[7]))
   #endif
 #endif
 
@@ -631,7 +619,7 @@ local host_data * socket_getlocalname_aux(socket_handle,hd)
         ipv4_ntop(hd->hostname,addr.inaddr.sin_addr);
         hd->port = ntohs(addr.inaddr.sin_port);
         break;
-      default: NOTREACHED;
+      default: NOTREACHED
     }
     return hd;
   }
@@ -646,8 +634,6 @@ global host_data * socket_getlocalname (SOCKET socket_handle, host_data * hd,
     get_hostname(host =); # was: host = "localhost";
     ASSERT(strlen(host) <= MAXHOSTNAMELEN);
     strcpy(hd->truename,host);
-  } else {
-    hd->truename[0] = '\0';
   }
   return hd;
 }
@@ -683,7 +669,7 @@ global host_data * socket_getpeername (SOCKET socket_handle, host_data * hd,
         hp = gethostbyaddr((const char *)&addr.inaddr.sin_addr,
                            sizeof(struct in_addr),AF_INET);
       break;
-    default: NOTREACHED;
+    default: NOTREACHED
   }
   # Fill in hd->truename.
   if (hp) {
@@ -739,7 +725,7 @@ global SOCKET create_server_socket (hd, sock, port)
     var SOCKET fd;
     if (sock == INVALID_SOCKET) {
       # "0.0.0.0" allows connections from any host to our server
-      fd = with_hostname("0.0.0.0",(unsigned short)port,&bindlisten_via_ip);
+      fd = with_hostname("0.0.0.0",port,&bindlisten_via_ip);
     } else {
       var sockaddr_max addr;
       var SOCKLEN_T addrlen = sizeof(sockaddr_max);
@@ -754,7 +740,7 @@ global SOCKET create_server_socket (hd, sock, port)
         case AF_INET:
           addr.inaddr.sin_port = htons(0);
           break;
-        default: NOTREACHED;
+        default: NOTREACHED
       }
       fd = bindlisten_via_ip((struct sockaddr *)&addr,addrlen);
     }
@@ -801,7 +787,7 @@ global SOCKET create_client_socket(hostname,port)
   var const char* hostname;
   var unsigned int port;
   {
-    return with_hostname(hostname,(unsigned short)port,&connect_via_ip);
+    return with_hostname(hostname,port,&connect_via_ip);
   }
 
 # ==================== miscellaneous network related stuff ====================
@@ -833,7 +819,7 @@ local void servent_to_stack (struct servent * se) {
 }
 
 LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
-# (SOCKET:SOCKET-SERVICE-PORT &optional service-name protocol)
+# (LISP:SOCKET-SERVICE-PORT &optional service-name protocol)
 # NB: Previous versions of this functions
 #  - accepted a string containing a number, e.g. "80",
 #  - returned NIL when the port does not belong to a named service.
@@ -858,7 +844,7 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
 
   if (eq(serv,unbound) || eq(serv,S(Kdefault)) || nullp(serv)) {
     var uintL count = 0;
-    #if !defined(WIN32) && !defined(UNIX_CYGWIN32)
+    #ifndef WIN32
     begin_system_call();
     for (; (se = getservent()); count++) {
       end_system_call();
@@ -883,7 +869,7 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
     end_system_call();
     #endif
     value1 = listof(count); mv_count = 1;
-  } else if (stringp(serv)) {
+  } elif (stringp(serv)) {
     with_string_0(serv,Symbol_value(S(ascii)),serv_asciz, {
       begin_system_call();
       se = getservbyname(serv_asciz,proto);
@@ -894,7 +880,7 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
     });
     servent_to_stack(se);
     funcall(L(values),4);
-  } else if (integerp(serv)) {
+  } elif (integerp(serv)) {
     var uintL port = I_to_UL(serv);
     begin_system_call();
     se = getservbyport(htons(port),proto);
@@ -917,11 +903,11 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
 # This piece of code is under the responsibility of Sam Steingold.
 
 #define H_ERRMSG                                                           \
-        (h_errno == HOST_NOT_FOUND ? "host not found" :                    \
-         (h_errno == TRY_AGAIN ? "try again later" :                       \
-          (h_errno == NO_RECOVERY ? "a non-recoverable error occurred" :   \
-           (h_errno == NO_DATA ? "valid name, but no data for this host" : \
-            (h_errno == NO_ADDRESS ? "no IP address for this host" :       \
+	(h_errno == HOST_NOT_FOUND ? "host not found" :                    \
+	 (h_errno == TRY_AGAIN ? "try again later" :                       \
+	  (h_errno == NO_RECOVERY ? "a non-recoverable error occurred" :   \
+	   (h_errno == NO_DATA ? "valid name, but no data for this host" : \
+	    (h_errno == NO_ADDRESS ? "no IP address for this host" :       \
              "unknown error")))))
 
 #ifdef HAVE_IPV6
@@ -964,7 +950,7 @@ void print_he (struct hostent he) {
 #   list of h_addr_list
 #   addrtype
 # can trigger GC
-local void hostent_to_stack (struct hostent *he, char *buf) {
+local void hostent_to_stack (struct hostent *he,char *buf) {
   var object tmp;
   pushSTACK(ascii_to_string(he->h_name));
   ARR_TO_LIST(tmp,(he->h_aliases[ii] != NULL),
@@ -988,7 +974,7 @@ LISPFUNN(resolve_host_ipaddr_,1)
   var char buffer[MAXHOSTNAMELEN];
 
   if (nullp(arg)) {
-   #if defined(WIN32_NATIVE) || !defined(HAVE_GETHOSTENT)
+   #ifdef WIN32_NATIVE
     value1 = NIL;
    #else
     int count = 0;

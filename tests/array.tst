@@ -1,4 +1,3 @@
-;; -*- lisp -*-
 
 (FORMAT T "~%Erzeuge ein Feld mit doppeltgenauen Zahlen~%")   NIL
 
@@ -635,26 +634,19 @@ T)   T
 
 (setf (fill-pointer vmfad) 6)      6
 
-VMFAD                   #(0d0 1d0 2d0 3d0 4d0 5d0)
-
-(REVERSE VMFAD)         #(5d0 4d0 3d0 2d0 1d0 0d0)
-
-(NREVERSE VMFAD)        #(5d0 4d0 3d0 2d0 1d0 0d0)
-
-VMFAD                   #(5d0 4d0 3d0 2d0 1d0 0d0)
-
-(VECTOR-POP VMFAD)   0.0D0
-
-(VECTOR-POP VMFAD)   1.0D0
-
-(VECTOR-POP VMFAD)   2.0D0
-
-(VECTOR-POP VMFAD)   3.0D0
+(VECTOR-POP VMFAD)   5.0D0
 
 (VECTOR-POP VMFAD)   4.0D0
 
-(VECTOR-POP VMFAD)   5.0D0
+(VECTOR-POP VMFAD)   3.0D0
+
+(VECTOR-POP VMFAD)   2.0D0
+
+(VECTOR-POP VMFAD)   1.0D0
+
+(VECTOR-POP VMFAD)   0.0D0
 
 (VECTOR-PUSH-EXTEND 5.0S0 VMFAD)
 #+(or XCL GCL ALLEGRO CMU) ERROR #+(or CLISP (and AKCL (not GCL)) ECL) 0
 #-(or XCL CLISP AKCL ECL ALLEGRO CMU) UNKNOWN
+

@@ -1,6 +1,6 @@
 # Garbage collector.
 
-# ------------------------------ Specification ------------------------------
+# ------------------------------ Specification ---------------------------------
 
 # Execute a simple garbage collection.
 # can trigger GC
@@ -21,7 +21,7 @@
   local void move_conses (sintL delta);
 #endif
 
-# ------------------------------ Implementation -----------------------------
+# ------------------------------ Implementation --------------------------------
 
 # Gesamtstrategie:
 # 1. Pseudorekursives Markieren durch Setzen von garcol_bit.
@@ -139,16 +139,6 @@
         { dies = objectplus(vorg,-(soint)offsetofa(svector_,data)<<(oint_addr_shift-addr_shift)); # Svector wird aktuelles Objekt \
           vorg = vorvorg; goto up; # weiter aufsteigen          \
         }
-      #define down_weakkvt()                                      \
-        if (in_old_generation(dies,typecode(dies),0)) goto up;    \
-        { var object* dies_ = (object*)TheSvector(dies);          \
-          if (marked(dies_)) goto up;                             \
-          mark(dies_);                                            \
-        } goto up; # no elements to "sub-mark"
-      #define up_weakkvt()  \
-        { dies = objectplus(vorg,-(soint)offsetofa(svector_,data)<<(oint_addr_shift-addr_shift)); # Svector wird aktuelles Objekt \
-          vorg = vorvorg; goto up; # weiter aufsteigen          \
-        }
       #define down_record()  \
         if (in_old_generation(dies,typecode(dies),0))           \
           goto up; # ältere Generation nicht markieren          \
@@ -226,8 +216,6 @@
                   down_iarray();
                 case_svector: # simple-vector
                   down_svector();
-                case_weakkvt: # weak-key-value-table
-                  down_weakkvt();
                 case_record: # Srecord/Xrecord
                   down_record();
                 case_machine: # Maschinenadresse
@@ -269,8 +257,6 @@
                         down_nopointers(TheRecord);
                       case Rectype_Svector:
                         down_svector();
-                      case Rectype_WeakKVT:
-                        down_weakkvt();
                       case Rectype_mdarray:
                       case Rectype_bvector:
                       case Rectype_b2vector:
@@ -327,14 +313,11 @@
                     up_pair();
                   case_symbol: # Symbol
                     up_varobject(symbol_objects_offset);
-                  case_weakkvt: # weak-key-value-table
-                    up_weakkvt();
-                  case_svector: # simple-vector with at least 1 component
+                  case_svector:
+                    # simple-vector mit mindestens 1 Komponente
                     up_svector();
-                  case_mdarray: case_obvector: case_ob2vector:
-                  case_ob4vector: case_ob8vector: case_ob16vector:
-                  case_ob32vector: case_ostring: case_ovector:
-                    # non-simple arrays:
+                  case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector:
+                    # Nicht-simple Arrays:
                     up_iarray();
                   case_record: # Srecord/Xrecord
                     up_record();
@@ -389,8 +372,6 @@
       #undef down_record
       #undef up_svector
       #undef down_svector
-      #undef up_weakkvt
-      #undef down_weakkvt
       #undef up_iarray
       #undef down_iarray
       #undef down_nopointers
@@ -1425,7 +1406,7 @@
   #else
     #error "Unbekannter Wert von 'varobject_alignment'!"
   #endif
-  #if defined(GNU) && !defined(__cplusplus) # so lässt sich's besser optimieren
+  #ifdef GNU # so lässt sich's besser optimieren
     #ifdef fast_dotimesL
       #define move_aligned_p1_p2(count)  \
         dotimespL(count,count/varobject_alignment, *((uintV*)p2)++ = *((uintV*)p1)++; )
@@ -1583,7 +1564,6 @@
     { var uintL gcstart_space; # belegter Speicher bei GC-Start
       var uintL gcend_space; # belegter Speicher bei GC-Ende
       var object all_weakpointers; # Liste der aktiven Weak-Pointer
-      var object all_weakkvtables; # list of active weak key-value tables
       var object all_finalizers; # Liste der Finalisierer
       #ifdef GC_CLOSES_FILES
       var object files_to_close; # Liste der zu schließenden Files
@@ -1627,7 +1607,6 @@
       CHECK_GC_GENERATIONAL();
       # Markierungsphase:
         all_weakpointers = O(all_weakpointers); O(all_weakpointers) = Fixnum_0;
-        all_weakkvtables = O(all_weakkvtables); O(all_weakkvtables) = Fixnum_0;
         all_finalizers = O(all_finalizers); O(all_finalizers) = Fixnum_0;
         #ifdef GC_CLOSES_FILES
         files_to_close = O(open_files); O(open_files) = NIL; # O(files_to_close) = NIL;
@@ -1676,66 +1655,34 @@
         }
         gc_mark(O(open_files)); gc_mark(O(files_to_close)); # Beide Listen jetzt markieren
         #endif
-        { # (still unmarked) shorten the all_weakpointers list:
-          var object Lu = all_weakpointers;
+        # (noch unmarkierte) Liste all_weakpointers verkürzen:
+        { var object Lu = all_weakpointers;
           var object* L1 = &O(all_weakpointers);
-          while (!eq(Lu,Fixnum_0)) {
-            if (!alive(Lu)) {
-              # The weak-pointer itself is being GCed.
-              # Don't care about its contents. Remove it from the list.
-              Lu = TheWeakpointer(Lu)->wp_cdr;
-            } else if (!alive(TheWeakpointer(Lu)->wp_value)) {
-              # The referenced value is being GCed. Break the
-              # weak-pointer and remove it from the list.
-              var object next = TheWeakpointer(Lu)->wp_cdr;
-              TheWeakpointer(Lu)->wp_cdr = unbound;
-              TheWeakpointer(Lu)->wp_value = unbound;
-              Lu = next;
-            } else {
-              # The referenced value is still alive. Keep the
-              # weak-pointer in the list.
-              *L1 = Lu; L1 = &TheWeakpointer(Lu)->wp_cdr; Lu = *L1;
+          until (eq(Lu,Fixnum_0))
+            { if (!alive(Lu))
+                # The weak-pointer itself is being GCed. Don't care about its
+                # contents. Remove it from the list.
+                { Lu = TheWeakpointer(Lu)->wp_cdr; }
+                else
+                { if (!alive(TheWeakpointer(Lu)->wp_value))
+                    # The referenced value is being GCed. Break the
+                    # weak-pointer and remove it from the list.
+                    { var object next = TheWeakpointer(Lu)->wp_cdr;
+                      TheWeakpointer(Lu)->wp_cdr = unbound;
+                      TheWeakpointer(Lu)->wp_value = unbound;
+                      Lu = next;
+                    }
+                    else
+                    # The referenced value is still alive. Keep the
+                    # weak-pointer in the list.
+                    { *L1 = Lu; L1 = &TheWeakpointer(Lu)->wp_cdr; Lu = *L1; }
+                }
             }
-          }
           *L1 = Fixnum_0;
         }
         { var object L = O(all_weakpointers); # mark the list
-          while (!eq(L,Fixnum_0))
+          until (eq(L,Fixnum_0))
             { gc_mark(L); L = TheWeakpointer(L)->wp_cdr; }
-        }
-        { # (still unmarked) shorten the all_weakkvtables list:
-          var object Lu = all_weakkvtables;
-          var object* L1 = &O(all_weakkvtables);
-          while (!eq(Lu,Fixnum_0)) {
-            ASSERT(weakkvtp(Lu));
-            if (!alive(Lu)) {
-              # The weak key-value table itself is being GCed.
-              # Don't care about its contents. Remove it from the list.
-              Lu = TheWeakKVT(Lu)->wkvt_cdr;
-            } else {
-              # kill the key/value pairs where the key is dead
-              var uintL len = Weakkvt_length(Lu);
-              var uintL idx = 0;
-              var WeakKVT wt = TheWeakKVT(Lu);
-              var object* data = wt->data;
-              for (; idx < len; idx += 2) {
-                var object key = data[idx];
-                if (!eq(unbound,key)) {
-                  if (alive(key)) # mark value
-                    gc_mark(data[idx+1]);
-                  else # drop both key and value from the table
-                    data[idx] = data[idx+1] = unbound;
-                }
-              }
-              # Keep the WeakKVT in the list.
-              *L1 = Lu; L1 = &TheWeakKVT(Lu)->wkvt_cdr; Lu = *L1;
-            }
-          }
-          *L1 = Fixnum_0;
-        }
-        { var object L = O(all_weakkvtables); # mark the list
-          while (!eq(L,Fixnum_0))
-            { gc_mark(L); L = TheWeakKVT(L)->wkvt_cdr; }
         }
       # Jetzt sind alle aktiven Objekte markiert:
       # Aktive Objekte variabler Länge wie auch aktive Zwei-Pointer-Objekte tragen
@@ -1839,8 +1786,6 @@
             update_STACKs();
           # Update weak-pointers:
             update_weakpointers_mod();
-          # Update weak kvtables:
-            update_weakkvtables_mod();
           # Programmkonstanten aktualisieren:
             update_tables();
           #ifndef MORRIS_GC
@@ -2369,8 +2314,6 @@
             update_STACKs();
           # Update weak-pointers:
             update_weakpointers_mod();
-          # Update weak kvtables:
-            update_weakkvtables_mod();
           # Programmkonstanten aktualisieren:
             update_tables();
           # Pointer in den Cons-Zellen aktualisieren:
@@ -2576,8 +2519,6 @@
             #undef update_stackobj
           # Update weak-pointers:
             update_weakpointers_mod();
-          # Update weak kvtables:
-            update_weakkvtables_mod();
           # Programmkonstanten aktualisieren:
             update_tables();
           # Pointer in den Cons-Zellen aktualisieren:

@@ -1,6 +1,6 @@
 # Saving and loading of memory images.
 
-# ------------------------------ Specification -------------------------------
+# ------------------------------ Specification ---------------------------------
 
 # Saves a memory image on diskette.
 # savemem(stream);
@@ -14,7 +14,7 @@
 # This overwrites all Lisp data.
   local void loadmem (const char* filename);
 
-# ------------------------------ Implementation ------------------------------
+# ------------------------------ Implementation --------------------------------
 
 # Flags, von denen das Format eines MEM-Files abhängt:
   local uint32 memflags =
@@ -478,7 +478,6 @@
         update_conses();
         update_varobjects();
         update_weakpointers();
-        update_weakkvtables();
         #undef update_fs_function
         #undef update_fp_invalid
         #undef update_ht_invalid
@@ -507,7 +506,6 @@
         update_conses();
         update_varobjects();
         update_weakpointers();
-        update_weakkvtables();
         #undef update_fs_function
         #undef update_fp_invalid
         #undef update_ht_invalid
@@ -751,27 +749,7 @@
       if (handle<0) goto abbruch1;
       #endif
       #if defined(WIN32_NATIVE)
-      #define CYGDRIVE "/cygdrive/"
-      #define CYGDRIVE_LEN 10
-      #ifdef __MINGW32__
-      if (!strncasecmp(filename,CYGDRIVE,CYGDRIVE_LEN))
-      #else
-      if (!strncmp(filename,CYGDRIVE,CYGDRIVE_LEN)) # MS lacks strncasecmp
-      #endif
-        {
-          var uintL len = asciz_length(filename);
-          var char* newfilename = alloca(len);
-          newfilename[0] = filename[CYGDRIVE_LEN];
-          newfilename[1] = ':';
-          memcpy(newfilename+2,filename+CYGDRIVE_LEN+1,len-CYGDRIVE_LEN);
-          filename = newfilename;
-        }
-      #undef CYGDRIVE
-      #undef CYGDRIVE_LEN
-      var Handle handle = CreateFile(filename, GENERIC_READ,
-                                     FILE_SHARE_READ | FILE_SHARE_WRITE,
-                                     NULL, OPEN_EXISTING,
-                                     FILE_ATTRIBUTE_NORMAL, NULL);
+      var Handle handle = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
       if (handle==INVALID_HANDLE_VALUE) goto abbruch1;
       #endif
       end_system_call();
@@ -779,10 +757,10 @@
       return;
      abbruch1:
       {
-        var int abbruch_errno = OS_errno;
+        var int abbruch_errno = errno;
         asciz_out(program_name); asciz_out(": ");
         asciz_out_s(
-          GETTEXTL("operating system error during load of initialization file `%s'" NLstring),
+          GETTEXTL("operating system error during load of initialisation file `%s'" NLstring),
           filename
           );
         errno_out(abbruch_errno);
@@ -1254,7 +1232,7 @@
                     inc_file_offset(map_len);
                     goto block_done;
                   } else {
-                    asciz_out(GETTEXTL("Cannot map the initialization file into memory."));
+                    asciz_out(GETTEXTL("Cannot map the initialisation file into memory."));
                     #ifdef HAVE_MMAP
                     errno_out(errno);
                     #else
@@ -1333,8 +1311,6 @@
           #define update  loadmem_update
           # Update weak-pointers:
             update_weakpointers();
-          # Update weak kvtables:
-            update_weakkvtables();
           # Programmkonstanten aktualisieren:
             update_tables();
           #ifdef SINGLEMAP_MEMORY_RELOCATE
@@ -1500,9 +1476,16 @@
         O(machine_instance_string) = NIL;
       #endif
       #ifndef LANGUAGE_STATIC
+        #ifdef GNU_GETTEXT
+          # Cache von (SYS::CURRENT-LANGUAGE) löschen:
+          O(current_language_cache) = NIL;
+        #endif
         # Cache von (LISP-IMPLEMENTATION-VERSION) löschen
         # (hängt von (SYS::CURRENT-LANGUAGE) ab):
         O(lisp_implementation_version_string) = NIL;
+        #if defined(GNU)
+        O(software_version_string) = NIL;
+        #endif
       #endif
       CHECK_AVL_CONSISTENCY();
       CHECK_GC_CONSISTENCY();
@@ -1528,17 +1511,17 @@
       {
         var int abbruch_errno = OS_errno;
         asciz_out(program_name); asciz_out(": ");
-        asciz_out(GETTEXTL("operating system error during load of initialization file" NLstring));
+        asciz_out(GETTEXTL("operating system error during load of initialisation file" NLstring));
         errno_out(abbruch_errno);
       }
       goto abbruch_quit;
      abbruch2:
       asciz_out(program_name); asciz_out(": ");
-      asciz_out(GETTEXTL("initialization file was not created by this version of LISP" NLstring));
+      asciz_out(GETTEXTL("initialisation file was not created by this version of LISP" NLstring));
       goto abbruch_quit;
      abbruch3:
       asciz_out(program_name); asciz_out(": ");
-      asciz_out(GETTEXTL("not enough memory for initialization" NLstring));
+      asciz_out(GETTEXTL("not enough memory for initialisation" NLstring));
       goto abbruch_quit;
      abbruch_quit:
       # Abbruch.

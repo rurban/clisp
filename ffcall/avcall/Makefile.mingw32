@@ -1,4 +1,4 @@
-# -*-Makefile-*- for avcall
+# Makefile for avcall
 
 #### Start of system configuration section. ####
 
@@ -17,7 +17,7 @@ includedir = $(prefix)/include
 mandir = $(prefix)/man
 
 # Programs used by "make":
-CC = gcc -mno-cygwin
+CC = gcc
 CFLAGS = -O
 CPP = gcc -E
 INCLUDES = -I. -I$(srcdir)
@@ -26,7 +26,7 @@ AR = ar
 AR_FLAGS = rc
 MV = mv
 LN = cp
-RM = rm -f
+RM = del
 
 # Programs used by "make install":
 INSTALL = @INSTALL@
@@ -62,20 +62,6 @@ libavcall.a : $(OBJECTS)
 	$(RM) libavcall.a
 	$(AR) $(AR_FLAGS) libavcall.a $(OBJECTS)
 
-minitests.o : $(srcdir)/minitests.c avcall.h
-	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/minitests.c
-
-minitests.s : $(srcdir)/minitests.c avcall.h
-	$(CC) $(CFLAGS) $(INCLUDES) -S $(srcdir)/minitests.c
-
-minitests.exe : minitests.o $(OBJECTS)
-	$(CC) $(CFLAGS) minitests.o $(OBJECTS) -o minitests.exe
-
-check : all minitests.exe
-	minitests.exe > minitests.out
-	uniq -u < minitests.out > minitests.output.$(HOST)
-# You have to check by hand that minitests.output.$(HOST) is empty.
-
 tests.o : $(srcdir)/tests.c avcall.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/tests.c
 
@@ -85,7 +71,7 @@ tests.s : $(srcdir)/tests.c avcall.h
 tests.exe : tests.o $(OBJECTS)
 	$(CC) $(CFLAGS) tests.o $(OBJECTS) -o tests.exe
 
-extracheck : all tests.exe
+check : all tests.exe
 	tests.exe > tests.out
 	uniq -u < tests.out > tests.output.$(HOST)
 # You have to check by hand that tests.output.$(HOST) is empty.
@@ -95,7 +81,6 @@ mostlyclean : clean
 clean : force
 	$(RM) *.o *.a core
 	$(RM) avcall-i386.asm
-	$(RM) minitests.o minitests.s minitests.exe minitests.out
 	$(RM) tests.o tests.s tests.exe tests.out
 
 distclean : clean

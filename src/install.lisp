@@ -1,16 +1,12 @@
-;; win32 CLISP installation
-;; (c) 2001-2002  Sam Steingold, released as part of CLISP under GNU GPL.
-
 ;; load this file in the directory where your CLISP distribution is located
-;;  - to set the Registry appropriately
-;;  - to create CLISP.BAT on your desktop
+;; to set the Registry appropriately
+;; to create CLISP.BAT on your desktop
 
-(defvar *clisp-home* (substitute #\/ #\\ (namestring (default-directory))))
+(defvar *clisp-home* (namestring (default-directory)))
 (defvar *clisp-base-cmd*
-  (concatenate 'string "\"" *clisp-home* "lisp.exe\" -B \""
-               *clisp-home* "\" -M "))
+  (concatenate 'string *clisp-home* "lisp.exe -B " *clisp-home* " -M "))
 (defvar *clisp-cmd*
-  (concatenate 'string *clisp-base-cmd* "\"" *clisp-home* "lispinit.mem\""))
+  (concatenate 'string *clisp-base-cmd* *clisp-home* "lispinit.mem"))
 
 (defvar *eflags*
   (make-array 4 :element-type '(unsigned-byte 8) :initial-contents '(0 0 0 0)))
@@ -24,7 +20,7 @@
           (dir-key-value lf "EditFlags") *eflags*)
     (with-dir-key-open (ic lf "DefaultIcon" :direction :output)
       (setf (dir-key-value ic "") "%SystemRoot%\\system32\\SHELL32.dll,41"))
-    (with-dir-key-open (cc lf "Shell\\Compile_with_CLISP" :direction :output)
+    (with-dir-key-open (cc lf "shell\\Compile_with_CLISP" :direction :output)
       (setf (dir-key-value cc "") "Compile with CLISP")
       (with-dir-key-open (cmd cc "command" :direction :output)
         (setf (dir-key-value cmd "")
@@ -37,18 +33,16 @@
           (dir-key-value ff "EditFlags") *eflags*)
     (with-dir-key-open (ic ff "DefaultIcon" :direction :output)
       (setf (dir-key-value ic "") "%SystemRoot%\\system32\\SHELL32.dll,21"))
-    (with-dir-key-open (sh ff "Shell" :direction :output)
-      (setf (dir-key-value sh "") "Execute_with_CLISP")
-      (with-dir-key-open (ex sh "Execute_with_CLISP" :direction :output)
-        (setf (dir-key-value ex "") "Execute with CLISP")
-        (with-dir-key-open (cmd ex "command" :direction :output)
-          (setf (dir-key-value cmd "")
-                (concatenate 'string *clisp-cmd* " \"%1\""))))
-      (with-dir-key-open (lo sh "Load_into_CLISP" :direction :output)
-        (setf (dir-key-value lo "") "Load into CLISP")
-        (with-dir-key-open (cmd lo "command" :direction :output)
-          (setf (dir-key-value cmd "")
-                (concatenate 'string *clisp-cmd* " -i \"%1\"")))))))
+    (with-dir-key-open (ex ff "Shell\\Execute_with_CLISP" :direction :output)
+      (setf (dir-key-value ex "") "Execute with CLISP")
+      (with-dir-key-open (cmd ex "command" :direction :output)
+        (setf (dir-key-value cmd "")
+              (concatenate 'string *clisp-cmd* " \"%1\""))))
+    (with-dir-key-open (lo ff "Shell\\Load_into_CLISP" :direction :output)
+      (setf (dir-key-value lo "") "Load into CLISP")
+      (with-dir-key-open (cmd lo "command" :direction :output)
+        (setf (dir-key-value cmd "")
+              (concatenate 'string *clisp-cmd* " -i \"%1\""))))))
 
 (defun add-mem-file (dkey)
   (format t "associating CLISP with MEM files under ~s~%" (dir-key-path dkey))
@@ -57,13 +51,11 @@
           (dir-key-value mf "EditFlags") *eflags*)
     (with-dir-key-open (ic mf "DefaultIcon" :direction :output)
       (setf (dir-key-value ic "") "%SystemRoot%\\system32\\SHELL32.dll,21"))
-    (with-dir-key-open (sh mf "Shell" :direction :output)
-      (setf (dir-key-value sh "") "Run_with_CLISP")
-      (with-dir-key-open (ex sh "Run_with_CLISP" :direction :output)
-        (setf (dir-key-value ex "") "Run with CLISP")
-        (with-dir-key-open (cmd ex "command" :direction :output)
-          (setf (dir-key-value cmd "")
-                (concatenate 'string *clisp-base-cmd* " \"%1\"")))))))
+    (with-dir-key-open (ex mf "Shell\\Run_with_CLISP" :direction :output)
+      (setf (dir-key-value ex "") "Run with CLISP")
+      (with-dir-key-open (cmd ex "command" :direction :output)
+        (setf (dir-key-value cmd "")
+              (concatenate 'string *clisp-base-cmd* " \"%1\""))))))
 
 
 (with-dir-key-open (c1 :win32 "HKEY_CLASSES_ROOT")
@@ -75,9 +67,9 @@
   (add-fas-file c2)
   (add-mem-file c2))
 
-(let ((bat-file (concatenate 'string
-                             (dir-key-single-value :win32 "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders" "Common Desktop")
-                             "\\clisp.bat")))
+(let ((bat-file (merge-pathnames
+                 "Profiles/All Users/Desktop/clisp.bat"
+                 (concatenate 'string (getenv "windir") "/"))))
   (with-open-file (bat bat-file :direction :output)
     (format t "~&writing <~a>..." bat-file) (force-output)
     (format bat "@echo off~%~a %1 %2 %3 %4 %5 %6 %7 %8 %9~%" *clisp-cmd*)

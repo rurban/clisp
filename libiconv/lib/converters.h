@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1999-2002 Free Software Foundation, Inc.
+ * Copyright (C) 1999-2001 Free Software Foundation, Inc.
  * This file is part of the GNU LIBICONV Library.
  *
  * The GNU LIBICONV Library is free software; you can redistribute it
@@ -97,7 +97,6 @@ struct conv_struct {
   state_t ostate;
   /* Operation flags */
   int transliterate;
-  int discard_ilseq;
 };
 
 /*
@@ -255,6 +254,5 @@ typedef struct {
 #include "cp864.h"
 #include "cp865.h"
 #include "cp869.h"
-#include "cp1125.h"
 #endif
 

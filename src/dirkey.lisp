@@ -1,4 +1,4 @@
-;;; Copyright (C) 2000-2001 by Sam Steingold
+;;; Copyright (C) 2000 by Sam Steingold
 ;;; This is Free Software, covered by the GNU GPL (v2)
 ;;; See http://www.gnu.org/copyleft/gpl.html
 
@@ -45,10 +45,10 @@ Bind `att-iter' (if non-nil)  to a macro (using `macrolet'),
  returns `nil' when no more attributes is available.
 The search is done according to the `scope', in the sub-`path' of `dkey'."
   (unless (symbolp key-iter)
-    (error (TEXT "~S: macro name should be a symbol, not ~S")
+    (error (ENGLISH "~S: macro name should be a symbol, not ~S")
            'with-dir-key-search key-iter))
   (unless (symbolp att-iter)
-    (error (TEXT "~S: macro name should be a symbol, not ~S")
+    (error (ENGLISH "~S: macro name should be a symbol, not ~S")
            'with-dir-key-search att-iter))
   (let ((k-it (gensym "WDKS-")))
     `(let ((,k-it (dkey-search-iterator ,dkey ,path ,scope)))

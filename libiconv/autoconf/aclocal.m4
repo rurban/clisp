@@ -2,7 +2,7 @@ dnl local autoconf macros
 dnl Bruno Haible 2001-02-04
 dnl Marcus Daniels 1997-04-10
 dnl
-AC_PREREQ(2.52)dnl
+AC_PREREQ(2.12)dnl
 dnl
 dnl without AC_MSG_...:   with AC_MSG_... and caching:
 dnl   AC_TRY_CPP          CL_CPP_CHECK
@@ -69,8 +69,7 @@ define(CL_PROTO,
 AC_CACHE_VAL(cl_cv_proto_[$1], [$2
 cl_cv_proto_$1="$3"])
 cl_cv_proto_$1=`echo "[$]cl_cv_proto_$1" | tr -s ' ' | sed -e 's/( /(/'`
-AC_MSG_RESULT([$]{ac_t:-
-         }[$]cl_cv_proto_$1)
+AC_MSG_RESULTPROTO([$]cl_cv_proto_$1)
 ])dnl
 dnl
 dnl CL_PROTO_RET(INCLUDES, DECL, CACHE-ID, TYPE-IF-OK, TYPE-IF-FAILS)
@@ -103,19 +102,12 @@ define(CL_SILENT,
 [pushdef([AC_MSG_CHECKING],[:])dnl
 pushdef([AC_CHECKING],[:])dnl
 pushdef([AC_MSG_RESULT],[:])dnl
+pushdef([AC_MSG_RESULTPROTO],[:])dnl
 $1[]dnl
+popdef([AC_MSG_RESULTPROTO])dnl
 popdef([AC_MSG_RESULT])dnl
 popdef([AC_CHECKING])dnl
 popdef([AC_MSG_CHECKING])dnl
-])dnl
-dnl
-dnl Expands to the "extern ..." prefix used for system declarations.
-dnl AC_LANG_EXTERN()
-define(AC_LANG_EXTERN,
-[extern
-#ifdef __cplusplus
-"C"
-#endif
 ])dnl
 dnl
 AC_DEFUN(CL_PROG_RANLIB, [AC_CHECK_PROG(RANLIB, ranlib, ranlib, true)])dnl
@@ -129,7 +121,7 @@ AC_DEFUN(CL_PROG_INSTALL,
 # SunOS /usr/etc/install
 # IRIX /sbin/install
 # AIX /bin/install
-# AFS /usr/afsws/bin/install, which mis-handles nonexistent args
+# AFS /usr/afsws/bin/install, which mishandles nonexistent args
 # SVR4 /usr/ucb/install, which tries to use the nonexistent group "staff"
 # ./install, which can be erroneously created by make from ./install.sh.
 AC_MSG_CHECKING(for a BSD compatible install)
@@ -171,7 +163,7 @@ AC_CACHE_VAL(cl_cv_path_install,
   INSTALL="$cl_cv_path_install"
 fi
 dnl We do special magic for INSTALL instead of AC_SUBST, to get
-dnl relative paths right.
+dnl relative paths right. 
 AC_MSG_RESULT($INSTALL)
 AC_SUBST(INSTALL)dnl
 # Use test -z because SunOS4 sh mishandles braces in ${var-val}.
@@ -246,36 +238,66 @@ AC_DEFUN(CL_CANONICAL_HOST,
 dnl Set ac_aux_dir before the cache check, because AM_PROG_LIBTOOL needs it.
 ac_aux_dir=${srcdir}/$1
 dnl A substitute for AC_CONFIG_AUX_DIR_DEFAULT, so we don't need install.sh.
-ac_config_guess="$SHELL $ac_aux_dir/config.guess"
-ac_config_sub="$SHELL $ac_aux_dir/config.sub"
+ac_config_guess=$ac_aux_dir/config.guess
+ac_config_sub=$ac_aux_dir/config.sub
+AC_CACHE_CHECK(host system type, cl_cv_host, [
+dnl Mostly copied from AC_CANONICAL_HOST.
+# Make sure we can run config.sub.
+if ${CONFIG_SHELL-/bin/sh} $ac_config_sub sun4 >/dev/null 2>&1; then :
+else AC_MSG_ERROR(can not run $ac_config_sub)
+fi
+host_alias=$host
+case "$host_alias" in
+NONE)
+  case $nonopt in
+  NONE) dnl config.guess needs to compile things
+        host_alias=`export CC; ${CONFIG_SHELL-/bin/sh} $ac_config_guess` ;;
+  *)    host_alias=$nonopt ;;
+  esac ;;
+esac
+# Don't fail just because the system is not listed in GNU's database.
+if test -n "$host_alias"; then
+  host=`${CONFIG_SHELL-/bin/sh} $ac_config_sub $host_alias`
+else
+  host_alias=unknown
+  host=unknown-unknown-unknown
+fi
+cl_cv_host_alias="$host_alias"
+cl_cv_host="$host"
+])
+host_alias="$cl_cv_host_alias"
+host="$cl_cv_host"
+changequote(,)dnl
+host_cpu=`echo $host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\1/'`
+host_vendor=`echo $host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\2/'`
+host_os=`echo $host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
+changequote([,])dnl
+AC_SUBST(host)dnl
+AC_SUBST(host_cpu)dnl
+AC_SUBST(host_vendor)dnl
+AC_SUBST(host_os)dnl
 dnl We have defined $ac_aux_dir.
 AC_PROVIDE([AC_CONFIG_AUX_DIR_DEFAULT])dnl
-dnl In autoconf-2.52, a single AC_CANONICAL_HOST has the effect of inserting
-dnl the code of AC_CANONICAL_BUILD *before* CL_CANONICAL_HOST, i.e. before
-dnl ac_aux_dir has been set. To work around this, we list AC_CANONICAL_BUILD
-dnl explicitly.
-AC_CANONICAL_BUILD
-AC_CANONICAL_HOST
+dnl We have defined $host_alias and $host.
+AC_PROVIDE([AC_CANONICAL_HOST])dnl
 ])dnl
 dnl
-AC_DEFUN(CL_ICONV,[
-dnl Some systems have iconv in libc, some have it in libiconv (OSF/1 and
+AC_DEFUN(CL_ICONV,
+[dnl Some systems have iconv in libc, some have it in libiconv (OSF/1 and
 dnl those with the standalone libiconv installed).
 AC_CACHE_CHECK(for iconv, cl_cv_func_iconv, [
 cl_cv_func_iconv=no
 cl_cv_lib_iconv=no
 AC_TRY_LINK([#include <stdlib.h>
-#include <iconv.h>
-],[iconv_t cd = iconv_open("",""); iconv(cd,NULL,NULL,NULL,NULL);
-iconv_close(cd);],
+#include <iconv.h>],
+[iconv_t cd = iconv_open("",""); iconv(cd,NULL,NULL,NULL,NULL); iconv_close(cd);],
 cl_cv_func_iconv=yes)
 if test "$cl_cv_func_iconv" = no; then
 cl_save_LIBS="$LIBS"
 LIBS="$LIBS -liconv"
 AC_TRY_LINK([#include <stdlib.h>
-#include <iconv.h>
-],[iconv_t cd = iconv_open("",""); iconv(cd,NULL,NULL,NULL,NULL);
-iconv_close(cd);],
+#include <iconv.h>],
+[iconv_t cd = iconv_open("",""); iconv(cd,NULL,NULL,NULL,NULL); iconv_close(cd);],
 cl_cv_lib_iconv=yes
 cl_cv_func_iconv=yes)
 LIBS="$cl_save_LIBS"
@@ -3742,73 +3764,6 @@ AC_DEFUN([AM_PROG_NM],        [AC_PROG_NM])
 
 # This is just to silence aclocal about the macro not being used
 ifelse([AC_DISABLE_FAST_INSTALL])
-#serial 1
-
-AC_PREREQ(2.50)
-
-# The EILSEQ errno value ought to be defined in <errno.h>, according to
-# ISO C 99 and POSIX.  But some systems (like SunOS 4) don't define it,
-# and some systems (like BSD/OS) define it in <wchar.h> not <errno.h>.
-
-# Define EILSEQ as a C macro and as a substituted macro in such a way that
-# 1. on all systems, after inclusion of <errno.h>, EILSEQ is usable,
-# 2. on systems where EILSEQ is defined elsewhere, we use the same numeric
-#    value.
-
-AC_DEFUN([AC_EILSEQ],
-[
-  AC_REQUIRE([AC_PROG_CC])dnl
-
-  dnl Check for any extra headers that could define EILSEQ.
-  AC_CHECK_HEADERS(wchar.h)
-
-  AC_CACHE_CHECK([for EILSEQ], ac_cv_decl_EILSEQ, [
-    AC_EGREP_CPP(yes,[
-#include <errno.h>
-#ifdef EILSEQ
-yes
-#endif
-      ], have_eilseq=1)
-    if test -n "$have_eilseq"; then
-      dnl EILSEQ exists in <errno.h>. Don't need to define EILSEQ ourselves.
-      ac_cv_decl_EILSEQ=yes
-    else
-      AC_EGREP_CPP(yes,[
-#include <errno.h>
-#if HAVE_WCHAR_H
-#include <wchar.h>
-#endif
-#ifdef EILSEQ
-yes
-#endif
-        ], have_eilseq=1)
-      if test -n "$have_eilseq"; then
-        dnl EILSEQ exists in some other system header.
-        dnl Define it to the same value.
-        _AC_COMPUTE_INT([EILSEQ], ac_cv_decl_EILSEQ, [
-#include <errno.h>
-#if HAVE_WCHAR_H
-#include <wchar.h>
-#endif
-/* The following two lines are a workaround against an autoconf-2.52 bug.  */
-#include <stdio.h>
-#include <stdlib.h>
-])
-      else
-        dnl EILSEQ isn't defined by the system. Define EILSEQ ourselves, but
-        dnl don't define it as EINVAL, because iconv() callers want to
-        dnl distinguish EINVAL and EILSEQ.
-        ac_cv_decl_EILSEQ=ENOENT
-      fi
-    fi
-  ])
-  if test "$ac_cv_decl_EILSEQ" != yes; then
-    AC_DEFINE_UNQUOTED([EILSEQ], [$ac_cv_decl_EILSEQ],
-                       [Define as good substitute value for EILSEQ.])
-    EILSEQ="$ac_cv_decl_EILSEQ"
-    AC_SUBST(EILSEQ)
-  fi
-])
 # serial 8
 
 # From Paul Eggert.
