@@ -222,7 +222,7 @@ global bool equal (object obj1, object obj2)
           }
        #ifdef LOGICAL_PATHNAMES
         case Rectype_Logpathname:
-          /* compare logical pathnames componenten-wise, too: */
+          /* compare logical pathnames component-wise, too: */
           if (!logpathnamep(obj2)) goto no;
           {
             var gcv_object_t* ptr1 = &TheRecord(obj1)->recdata[0];
