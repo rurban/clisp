@@ -7,7 +7,7 @@
 
    Bash is free software; you can redistribute it and/or modify it
    under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 1, or (at your option)
+   the Free Software Foundation; either version 2, or (at your option)
    any later version.
 
    Bash is distributed in the hope that it will be useful, but WITHOUT
@@ -17,7 +17,7 @@
 
    You should have received a copy of the GNU General Public License
    along with Bash; see the file COPYING.  If not, write to the Free
-   Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. */
+   Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111 USA. */
 
 #if !defined (_RL_STDC_H_)
 #define _RL_STDC_H_
@@ -29,13 +29,11 @@
 	extern char *func _PROTO((char *, char *, int)); */
 
 #ifndef _PROTO
-
-#if defined (__GNUC__) || defined (__STDC__) || defined (__cplusplus)
-#define _PROTO(args) args
-#else
-#define _PROTO(args) ()
-#endif
-
+#  if defined (__GNUC__) || defined (__STDC__) || defined (__cplusplus)
+#    define _PROTO(args) args
+#  else
+#    define _PROTO(args) ()
+#  endif
 #endif
 
 #endif /* !_RL_STDC_H_ */

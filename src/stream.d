@@ -11130,7 +11130,7 @@ LISPFUNN(make_keyboard_stream,0)
         }
         end_system_call();
         #ifdef HAVE_TERMINAL3
-        if (rl_present_p && same_tty) {
+        if (rl_gnu_readline_p && same_tty) {
           # Baue einen TERMINAL3-Stream:
           pushSTACK(make_ssstring(80)); # Zeilenbuffer allozieren
           pushSTACK(make_ssstring(80)); # Zeilenbuffer allozieren
@@ -16775,6 +16775,7 @@ LISPFUNN(socket_stream_handle,1)
       rl_completion_entry_function = &lisp_completion_more;
       #ifdef NO_MATCH  # readline-2.2-clisp or newer
       _rl_comment_begin = ";";
+      _rl_enable_paren_matching(TRUE); # readline-4.1-clisp or newer
       #endif
       end_call();
       #endif
@@ -16893,7 +16894,7 @@ local void rl_memory_abort()
     # der ohne sie auskommt.
     rl_deprep_terminal(); # alle komischen ioctl()s rückgängig machen
     begin_callback(); # STACK wieder auf einen vernünftigen Wert setzen
-    rl_present_p = FALSE;
+    rl_gnu_readline_p = FALSE;
     Symbol_value(S(terminal_io)) = make_terminal_stream();
     fehler(storage_condition,
            GETTEXT("readline library: out of memory.")
