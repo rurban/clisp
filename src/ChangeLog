@@ -1,5 +1,10 @@
 2004-08-30  Sam Steingold  <sds@gnu.org>
 
+	* foreign.d (dlerror_string): fixed a segfault:
+	dlerror() may return NULL
+
+2004-08-30  Sam Steingold  <sds@gnu.org>
+
 	check array dimensions at compile time
 	* type.lisp (ensure-dim, ensure-rank): new macros
 	(ARRAY, SIMPLE-ARRAY, VECTOR, SIMPLE-VECTOR, STRING, SIMPLE-STRING)
