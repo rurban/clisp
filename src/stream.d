@@ -12728,7 +12728,10 @@ LISPFUNN(stream_element_type,1)
 LISPFUNN(interactive_stream_p,1)
 # (INTERACTIVE-STREAM-P stream), CLTL2 S. 507/508
 # stellt fest, ob stream interaktiv ist.
-  { value1 = (interactive_stream_p(popSTACK()) ? T : NIL); mv_count=1; }
+  { var object arg = popSTACK();
+    if (!streamp(arg)) { fehler_stream(arg); }
+    value1 = (interactive_stream_p(arg) ? T : NIL); mv_count=1;
+  }
 
 # UP: Schlieﬂt einen Stream.
 # stream_close(&stream);
