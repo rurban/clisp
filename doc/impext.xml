@@ -2674,7 +2674,7 @@ Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
    in the <link linkend="modprep">above example</link>.</simpara></listitem>
  <listitem><simpara>Wrap your system calls in
    <literal>begin_system_call()</literal>/<literal>end_system_call()</literal>
-   pairs. These macros, defined in &clisp-h;, save and restore
+   pairs.  These macros, defined in &clisp-h;, save and restore
    registers used by &clisp; which could be clobbered by a system call.
  </simpara></listitem>
 </itemizedlist>
@@ -2697,8 +2697,7 @@ Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
 <section id="included-modules">
    <title>Modules included in the distribution.</title>
 
-<para>The following modules come with the distribution of
-&clisp;:</para>
+<para>The following modules come with the distribution of &clisp;:</para>
 
 <variablelist>
  <varlistentry><term>bindings</term>
@@ -5049,13 +5048,13 @@ bash$
    <varlistentry><term>&input-k;</term>
     <listitem><simpara>where the program's input is to come from: either
      <constant>:TERMINAL</constant> (the standard input, default) or
-     &stream-k; (a Lisp stream to be created) or
+     &stream-k; (a Lisp &stream-t; to be created) or
      a pathname (an input file) or
      &nil; (no input at all).</simpara></listitem></varlistentry>
    <varlistentry><term>&output-k;</term>
     <listitem><simpara>where the program's output is to be sent to: either
      <constant>:TERMINAL</constant> (the standard output, default) or
-     &stream-k; (a Lisp stream to be created) or
+     &stream-k; (a Lisp &stream-t; to be created) or
      a pathname (an output file) or
      &nil; (ignore the output).</simpara></listitem></varlistentry>
    <varlistentry><term>&if-output-exists;</term>
