@@ -14699,6 +14699,7 @@ local maygc object get_standard_output_file_stream (void) {
   # On these systems make_terminal_stream() uses stdout_handle.
   var object terminal_stream = Symbol_value(S(terminal_io)); # *TERMINAL-IO*
   if (builtin_stream_p(terminal_stream)
+      && (TheStream(terminal_stream)->strmflags & strmflags_open_B)
       && (TheStream(terminal_stream)->strmflags & strmflags_wr_ch_B)
       && TheStream(terminal_stream)->strmtype == strmtype_terminal) {
     # For FRESH-LINE to work correctly, we must avoid that *TERMINAL-IO* and
@@ -14719,6 +14720,7 @@ local maygc object get_standard_error_file_stream (void) {
   # On these systems make_terminal_stream() uses stderr_handle.
   var object terminal_stream = Symbol_value(S(terminal_io)); # *TERMINAL-IO*
   if (builtin_stream_p(terminal_stream)
+      && (TheStream(terminal_stream)->strmflags & strmflags_open_B)
       && (TheStream(terminal_stream)->strmflags & strmflags_wr_ch_B)
       && TheStream(terminal_stream)->strmtype == strmtype_terminal) {
     # For FRESH-LINE to work correctly, we must avoid that *TERMINAL-IO* and
