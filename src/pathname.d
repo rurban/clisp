@@ -7773,6 +7773,8 @@ LISPFUNN(delete_file,1)
           { fehler_file_exists(S(rename_file),STACK_0); }
         pushSTACK(new_namestring);
       }}
+      # Stackaufbau: filename, newname, oldpathname, newpathname,
+      #              oldtruename, oldnamestring, newtruename, newnamestring.
       # Nun kann gefahrlos umbenannt werden:
       prepare_create(STACK_4);
       with_sstring_0(STACK_2,oldnamestring_asciz,
@@ -8046,7 +8048,7 @@ LISPFUNN(rename_file,2)
         end_system_call();
         if (handle==INVALID_HANDLE_VALUE) { OS_file_error(STACK_0); }
         return handle;
-       #endif
+      #endif
     }
 #endif
 
@@ -8248,7 +8250,7 @@ LISPFUNN(rename_file,2)
                               end_system_call();
                               if ((if_exists==3) || (if_exists==4))
                                 # :RENAME oder :RENAME-AND-DELETE -> umbenennen:
-                                { create_backup_file(namestring_asciz,(if_exists==4)); }
+                                { create_backup_file(namestring_asciz,if_exists==4); }
                             }
                         }}
                       # Datei mit CREAT erzeugen:
@@ -8274,7 +8276,7 @@ LISPFUNN(rename_file,2)
                               case 2: # NIL -> NIL
                                 goto ergebnis_NIL;
                               case 3: case 4: # :RENAME oder :RENAME-AND-DELETE -> umbenennen:
-                                create_backup_file(namestring_asciz,(if_exists==4));
+                                create_backup_file(namestring_asciz,if_exists==4);
                                 break;
                               case 6: # :APPEND
                                 append_flag = TRUE; # am Schluss ans Ende positionieren
@@ -8685,60 +8687,62 @@ LISPFUN(open,1,0,norest,key,5,\
   # STACK_0 = Pathname, dessen Subdirectories zu suchen sind
   # STACK_1 = Liste, auf die die Pathnames der matchenden Subdirectories
   #           gepusht werden
-  # > pathstring: Suchpfad als fertiger ASCIZ-String
+  # > pathstring: Suchpfad als Simple-String
   # verändert STACK_1, kann GC auslösen
-    local void subdirs (const char* pathstring);
+    local void subdirs (object pathstring);
     local void subdirs(pathstring)
-      var const char* pathstring;
+      var object pathstring;
       {
        #ifdef MSDOS
-        # Dateisuche gemäß DOS-Konvention:
-        READDIR_var_declarations;
-        # Suchanfang, suche nach Ordnern und normalen Dateien:
-        begin_system_call();
-        do {
-          READDIR_findfirst(pathstring,
-                            { end_system_call(); OS_file_error(STACK_0); },
-                            break; );
-          loop
-            { # Stackaufbau: new-pathname-list, pathname.
-              end_system_call();
-              # gefundene Datei untersuchen:
-              if (READDIR_entry_ISDIR()) # sollte ein Unterdirectory sein
-                if (!(READDIR_entry_name()[0] == '.')) # sollte nicht mit '.' anfangen
-                  # (sonst ist es wohl '.' oder '..', wird übergangen)
-                  { # in Name.Typ aufspalten, Default-Typ "" :
-                    extract(READDIR_entry_name(),O(leer_string));
-                   {var object new_cons = allocate_cons();
-                    Car(new_cons) = popSTACK(); Cdr(new_cons) = popSTACK();
-                    # new_cons = (name . type)
-                    pushSTACK(new_cons);
-                    new_cons = allocate_cons();
-                    Car(new_cons) = popSTACK();
-                    # in ein-elementiger Liste new_cons = list1 = ((name . type))
-                    pushSTACK(new_cons);
-                   }# Stackaufbau: new-pathname-list, pathname, list1.
-                    # letzten Pathname kopieren:
-                   {var object temp = copy_pathname(STACK_1);
-                    pushSTACK(temp);
-                    # und darin Directory um list1 = ((name . type)) verlängern:
-                    # (append pathname-dir list1) = (nreconc (reverse pathname-dir) list1)
-                    temp = reverse(ThePathname(temp)->pathname_directory);
-                    temp = nreconc(temp,STACK_1);
-                    ThePathname(STACK_0)->pathname_directory = temp;
-                   }# Stackaufbau: new-pathname-list, pathname, list1, newpathname.
-                    # newpathname auf die Liste new-pathname-list pushen:
-                   {var object new_cons = allocate_cons();
-                    Car(new_cons) = popSTACK(); skipSTACK(1);
-                    Cdr(new_cons) = STACK_1; STACK_1 = new_cons;
-                  }}
-              # nächstes File:
-              begin_system_call();
-              READDIR_findnext({ end_system_call(); OS_file_error(STACK_0); }, break; );
-            }
-          } while (FALSE);
-        end_system_call();
-        READDIR_end_declarations;
+        with_sstring_0(pathstring,pathstring_asciz,
+          { # Dateisuche gemäß DOS-Konvention:
+            READDIR_var_declarations;
+            # Suchanfang, suche nach Ordnern und normalen Dateien:
+            begin_system_call();
+            do {
+              READDIR_findfirst(pathstring_asciz,
+                                { end_system_call(); OS_file_error(STACK_0); },
+                                break; );
+              loop
+                { # Stackaufbau: new-pathname-list, pathname.
+                  end_system_call();
+                  # gefundene Datei untersuchen:
+                  if (READDIR_entry_ISDIR()) # sollte ein Unterdirectory sein
+                    if (!(READDIR_entry_name()[0] == '.')) # sollte nicht mit '.' anfangen
+                      # (sonst ist es wohl '.' oder '..', wird übergangen)
+                      { # in Name.Typ aufspalten, Default-Typ "" :
+                        extract(READDIR_entry_name(),O(leer_string));
+                       {var object new_cons = allocate_cons();
+                        Car(new_cons) = popSTACK(); Cdr(new_cons) = popSTACK();
+                        # new_cons = (name . type)
+                        pushSTACK(new_cons);
+                        new_cons = allocate_cons();
+                        Car(new_cons) = popSTACK();
+                        # in ein-elementiger Liste new_cons = list1 = ((name . type))
+                        pushSTACK(new_cons);
+                       }# Stackaufbau: new-pathname-list, pathname, list1.
+                        # letzten Pathname kopieren:
+                       {var object temp = copy_pathname(STACK_1);
+                        pushSTACK(temp);
+                        # und darin Directory um list1 = ((name . type)) verlängern:
+                        # (append pathname-dir list1) = (nreconc (reverse pathname-dir) list1)
+                        temp = reverse(ThePathname(temp)->pathname_directory);
+                        temp = nreconc(temp,STACK_1);
+                        ThePathname(STACK_0)->pathname_directory = temp;
+                       }# Stackaufbau: new-pathname-list, pathname, list1, newpathname.
+                        # newpathname auf die Liste new-pathname-list pushen:
+                       {var object new_cons = allocate_cons();
+                        Car(new_cons) = popSTACK(); skipSTACK(1);
+                        Cdr(new_cons) = STACK_1; STACK_1 = new_cons;
+                      }}
+                  # nächstes File:
+                  begin_system_call();
+                  READDIR_findnext({ end_system_call(); OS_file_error(STACK_0); }, break; );
+                }
+              } while (FALSE);
+            end_system_call();
+            READDIR_end_declarations;
+         });
        #endif
       }
   #
@@ -8761,9 +8765,7 @@ LISPFUN(open,1,0,norest,key,5,\
             directory_namestring_parts(pathname); # Directory-Namestring-Teile,
           pushSTACK(O(wild_wild_string)); # "*.*"
           {var object pathstring = string_concat(stringcount+1); # zusammenhängen
-           with_sstring_0(pathstring,pathstring_asciz,
-             { subdirs(pathstring_asciz); } # alle subdirs auf new-pathname-list pushen
-             );
+           subdirs(pathstring); # alle subdirs auf new-pathname-list pushen
         }}}
         skipSTACK(1); # pathname vergessen
         { var object new_pathname_list = popSTACK();
@@ -8784,6 +8786,76 @@ LISPFUN(open,1,0,norest,key,5,\
           { pathnamelist = allsubdirs(pathnamelist); }
         skipSTACK(1);
         return pathnamelist;
+      }
+  #
+  # UP: Searches files contained in a given directory.
+  # subfiles(pathstring);
+  # STACK_0 = pathname whose files are to be searched
+  # STACK_1 = list of pathnames on which the results are to be pushed
+  # STACK_(0+4) = full-flag
+  # > pathstring: path to be searched, a simple-string
+  # modifies STACK_1, kann GC auslösen
+    local void subfiles (object pathstring);
+    local void subfiles(pathstring)
+      var object pathstring;
+      {
+        #ifdef MSDOS
+          with_sstring_0(pathstring,pathstring_asciz,
+            { # Dateisuche gemäß DOS-Konvention:
+              READDIR_var_declarations;
+              # Suchanfang, suche nur nach normalen Dateien:
+              begin_system_call();
+              do {
+                READDIR_findfirst(pathstring_asciz,
+                                  { end_system_call(); OS_file_error(STACK_0); },
+                                  break;
+                                 );
+                loop
+                  { # Stackaufbau: ..., next-pathname.
+                    end_system_call();
+                    # gefundene Datei untersuchen:
+                    if (!READDIR_entry_ISDIR())
+                      { # in Name.Typ aufspalten, Default-Typ NIL :
+                        extract(READDIR_entry_name(),NIL);
+                       {# letzten Pathname kopieren und Name und Typ eintragen:
+                        var object new = copy_pathname(STACK_2);
+                        ThePathname(new)->pathname_name = popSTACK();
+                        ThePathname(new)->pathname_type = popSTACK();
+                        # Full-Flag abtesten und evtl. mehr Information besorgen:
+                        if (!nullp(STACK_(0+4)))
+                          { pushSTACK(new); # newpathname als 1. Listenelement
+                            pushSTACK(new); # newpathname als 2. Listenelement
+                            { # Uhrzeit und Datum von DOS-Format in Decoded-Time umwandeln:
+                              var decoded_time timepoint;
+                              READDIR_entry_timedate(&timepoint);
+                              pushSTACK(timepoint.Sekunden);
+                              pushSTACK(timepoint.Minuten);
+                              pushSTACK(timepoint.Stunden);
+                              pushSTACK(timepoint.Tag);
+                              pushSTACK(timepoint.Monat);
+                              pushSTACK(timepoint.Jahr);
+                              new = listof(6); # 6-elementige Liste bauen
+                            }
+                            pushSTACK(new); # als 3. Listenelement
+                            pushSTACK(UL_to_I(READDIR_entry_size())); # Länge als 4. Listenelement
+                            new = listof(4); # 4-elementige Liste bauen
+                          }
+                        # new auf die Liste new-pathname-list pushen:
+                        pushSTACK(new);
+                        {var object new_cons = allocate_cons();
+                         Car(new_cons) = popSTACK();
+                         Cdr(new_cons) = STACK_1;
+                         STACK_1 = new_cons;
+                      }}}
+                    # nächstes File:
+                    begin_system_call();
+                    READDIR_findnext({ end_system_call(); OS_file_error(STACK_0); }, break; );
+                  }
+                } while (FALSE);
+              end_system_call();
+              READDIR_end_declarations;
+            });
+        #endif
       }
   #
   local object directory_search(pathname)
@@ -8828,9 +8900,7 @@ LISPFUN(open,1,0,norest,key,5,\
                   stringcount +=
                     subdir_namestring_parts(subdir_list); # und Strings zum nächsten subdir
                  {var object pathstring = string_concat(stringcount); # zusammenhängen
-                  with_sstring_0(pathstring,pathstring_asciz,
-                    { subdirs(pathstring_asciz); } # alle subdirs auf new-pathname-list pushen
-                    );
+                  subdirs(pathstring); # alle subdirs auf new-pathname-list pushen
                   skipSTACK(1); # next-pathname vergessen
                 }}
                 else
@@ -8885,63 +8955,7 @@ LISPFUN(open,1,0,norest,key,5,\
              directory_namestring_parts(next_pathname); # Directory-Namestring-Teile (keine GC!)
            pushSTACK(name_type); stringcount += 1; # und name-type
            {var object pathstring = string_concat(stringcount); # zusammenhängen
-            #ifdef MSDOS
-              with_sstring_0(pathstring,pathstring_asciz,
-                { # Dateisuche gemäß DOS-Konvention:
-                  READDIR_var_declarations;
-                  # Suchanfang, suche nur nach normalen Dateien:
-                  begin_system_call();
-                  do {
-                    READDIR_findfirst(pathstring_asciz,
-                                      { end_system_call(); OS_file_error(STACK_0); },
-                                      break;
-                                     );
-                    loop
-                      { # Stackaufbau: ..., next-pathname.
-                        end_system_call();
-                        # gefundene Datei untersuchen:
-                        if (!READDIR_entry_ISDIR())
-                          { # in Name.Typ aufspalten, Default-Typ NIL :
-                            extract(READDIR_entry_name(),NIL);
-                           {# letzten Pathname kopieren und Name und Typ eintragen:
-                            var object new = copy_pathname(STACK_2);
-                            ThePathname(new)->pathname_name = popSTACK();
-                            ThePathname(new)->pathname_type = popSTACK();
-                            # Full-Flag abtesten und evtl. mehr Information besorgen:
-                            if (!nullp(STACK_(0+3+1)))
-                              { pushSTACK(new); # newpathname als 1. Listenelement
-                                pushSTACK(new); # newpathname als 2. Listenelement
-                                { # Uhrzeit und Datum von DOS-Format in Decoded-Time umwandeln:
-                                  var decoded_time timepoint;
-                                  READDIR_entry_timedate(&timepoint);
-                                  pushSTACK(timepoint.Sekunden);
-                                  pushSTACK(timepoint.Minuten);
-                                  pushSTACK(timepoint.Stunden);
-                                  pushSTACK(timepoint.Tag);
-                                  pushSTACK(timepoint.Monat);
-                                  pushSTACK(timepoint.Jahr);
-                                  new = listof(6); # 6-elementige Liste bauen
-                                }
-                                pushSTACK(new); # als 3. Listenelement
-                                pushSTACK(UL_to_I(READDIR_entry_size())); # Länge als 4. Listenelement
-                                new = listof(4); # 4-elementige Liste bauen
-                              }
-                            # new auf die Liste new-pathname-list pushen:
-                            pushSTACK(new);
-                            {var object new_cons = allocate_cons();
-                             Car(new_cons) = popSTACK();
-                             Cdr(new_cons) = STACK_(0+1);
-                             STACK_(0+1) = new_cons;
-                          }}}
-                        # nächstes File:
-                        begin_system_call();
-                        READDIR_findnext({ end_system_call(); OS_file_error(STACK_0); }, break; );
-                      }
-                    } while (FALSE);
-                  end_system_call();
-                  READDIR_end_declarations;
-                });
-            #endif
+            subfiles(pathstring);
           }}
           skipSTACK(1); # next-pathname vergessen
         }}
@@ -9091,6 +9105,509 @@ LISPFUN(open,1,0,norest,key,5,\
       }   }
   #endif
   #
+  #ifndef MSDOS
+  # Search for a subdirectory with a given name.
+  # directory_search_1subdir(subdir,namestring);
+  # > STACK_0 = pathname
+  # > STACK_(3+1) = new-pathname-list
+  # > subdir: the new directory component to add to the pathname, if it exists
+  # > namestring: the namestring (for the OS)
+  # < STACK_0: replaced
+  # < STACK_(3+1): augmented
+  # kann GC auslösen
+  local void directory_search_1subdir (object subdir, object namestring);
+  local void directory_search_1subdir(subdir,namestring)
+    var object subdir;
+    var object namestring;
+    { with_sstring_0(namestring,namestring_asciz,
+        { check_stat_directory(namestring_asciz,
+                               { OS_file_error(STACK_0); },
+            { # pathname kopieren und dessen Directory um subdir verlängern:
+              pushSTACK(subdir);
+             {var object pathname = pathname_add_subdir();
+              pushSTACK(pathname);
+             }# Diesen neuen Pathname vor new-pathname-list pushen:
+             {var object new_cons = allocate_cons();
+              Car(new_cons) = STACK_0;
+              Cdr(new_cons) = STACK_(3+1);
+              STACK_(3+1) = new_cons;
+            }});
+        });
+    }
+  #endif
+  #
+  #ifdef UNIX
+  # Returns a truename dependent hash code for a directory.
+  # directory_search_hashcode()
+  # STACK_0 = dir_namestring
+  # STACK_1 = pathname
+  # < result: a hash code, or nullobj if the directory does not exist
+  # kann GC auslösen
+  local object directory_search_hashcode (void);
+  local object directory_search_hashcode()
+    { pushSTACK(STACK_0); # Directory-Name
+      pushSTACK(O(punkt_string)); # und "."
+     {var object namestring = string_concat(2); # zusammenhängen
+      var struct stat status;
+      with_sstring_0(namestring,namestring_asciz,
+        { begin_system_call();
+          if (!( stat(namestring_asciz,&status) ==0)) # Information holen
+            { if (!(errno==ENOENT)) { end_system_call(); OS_file_error(STACK_1); }
+              end_system_call();
+              FREE_DYNAMIC_ARRAY(namestring_asciz);
+              return nullobj;
+            }
+          end_system_call();
+        });
+      # Eintrag existiert (welch Wunder...)
+      pushSTACK(UL_to_I(status.st_dev)); # Device-Nummer und
+      pushSTACK(UL_to_I(status.st_ino)); # Inode-Nummer
+      {var object new_cons = allocate_cons(); # zusammenconsen
+       Cdr(new_cons) = popSTACK(); Car(new_cons) = popSTACK();
+       return new_cons;
+    }}}
+  #endif
+  #
+  #if defined(UNIX) || defined(RISCOS)
+  # Tests whether a directory entry actually exists.
+  # (It could be a link pointing to nowhere, or an undesired directory.)
+  # directory_search_direntry_ok(namestring,&statbuf)
+  # STACK_2 = pathname
+  # < result: TRUE and statbuf filled, or FALSE.
+  local boolean directory_search_direntry_ok (object namestring, struct stat * statbuf);
+  local boolean directory_search_direntry_ok(namestring,statbuf)
+    var object namestring;
+    var struct stat * statbuf;
+    { var boolean exists = TRUE;
+      with_sstring_0(namestring,namestring_asciz,
+        { begin_system_call();
+          if (!( stat_for_search(namestring_asciz,statbuf) ==0))
+            { if (!((errno==ENOENT) || (errno==ELOOP_VALUE)))
+                { end_system_call(); OS_file_error(STACK_2); }
+              end_system_call();
+              exists = FALSE;
+            }
+          end_system_call();
+        });
+      return exists;
+    }
+  #endif
+  #
+  # Scans an entire directory.
+  # directory_search_scandir(recursively,next_task);
+  # Stackaufbau: result-list, pathname, name&type, subdir-list, pathname-list,
+  #              new-pathname-list, ht, pathname-list-rest, pathnames-to-insert,
+  #              pathname, dir_namestring.
+  local void directory_search_scandir (boolean recursively, signean next_task);
+  local void directory_search_scandir(recursively,next_task)
+    var boolean recursively;
+    var signean next_task;
+    {
+      #if defined(UNIX) || defined(RISCOS)
+        { var object namestring;
+          #ifdef UNIX
+          pushSTACK(STACK_0); # Directory-Name
+          pushSTACK(O(punkt_string)); # und "."
+          namestring = string_concat(2); # zusammenhängen
+          #endif
+          #ifdef RISCOS
+          var object wildcard_mask;
+          namestring = STACK_0; # Directory-Name
+          namestring = subsstring(namestring,0,Sstring_length(namestring)-1); # Directory-Name ohne '.' am Schluss
+          # Statt wildcard_match() selber aufzurufen, überlassen wir das dem Betriebssystem:
+          wildcard_mask = (next_task<0 ? Car(STACK_(1+4+3)) : STACK_(2+4+3));
+          #endif
+          # Directory absuchen:
+         {var DIR* dirp;
+          set_break_sem_4();
+          #ifdef UNIX
+          with_sstring_0(namestring,namestring_asciz,
+            { begin_system_call();
+              dirp = opendir(namestring_asciz); # Directory öffnen
+              end_system_call();
+            });
+          #endif
+          #ifdef RISCOS
+          with_sstring_0(namestring,namestring_asciz,
+            with_sstring_0(wildcard_mask,wildcard_mask_asciz,
+              { # In wildcard_mask_asciz die Wildchar-Characters '?' ins synonyme '#' umwandeln:
+                { var uintB* ptr = wildcard_mask_asciz;
+                  while (*ptr != '\0') { if (*ptr == '?') { *ptr = '#'; } ptr++; }
+                }
+                begin_system_call();
+                dirp = opendir(namestring_asciz,wildcard_mask_asciz); # Directory zum Suchen öffnen
+                end_system_call();
+              }););
+          #endif
+          if (dirp == (DIR*)NULL) { OS_file_error(STACK_1); }
+          loop
+            { var SDIRENT* dp;
+              begin_system_call();
+              errno = 0;
+              dp = readdir(dirp); # nächsten Directory-Eintrag holen
+              if (dp == (SDIRENT*)NULL) # Error oder Directory zu Ende
+                { if (!(errno==0)) { end_system_call(); OS_file_error(STACK_1); }
+                  end_system_call();
+                  break;
+                }
+              end_system_call();
+              # Directory-Eintrag in String umwandeln:
+             {var object direntry;
+              {var uintL direntry_len;
+               #if defined(UNIX_CYGWIN32)
+               # Neither d_reclen nor d_namlen present in DIR structure.
+               direntry_len = asciz_length(dp->d_name);
+               #elif defined(DIRENT_WITHOUT_NAMLEN) || defined(__USE_GNU)
+               # Unter UNIX_LINUX reichte früher direntry_len := dp->d_reclen, aber
+               # i.a. ist direntry_len := min(dp->d_reclen,asciz_length(dp->d_name))
+               # nötig. Die GNU libc ist buggy: macht "#define d_namlen d_reclen",
+               # ebenso die Linux libc-5.0.9.
+               {var const uintB* ptr = (const uintB*)(&dp->d_name[0]);
+                var uintL count;
+                direntry_len = 0;
+                dotimesL(count,dp->d_reclen,
+                  { if (*ptr == '\0') break;
+                    ptr++; direntry_len++;
+                  });
+               }
+               #else
+               direntry_len = dp->d_namlen;
+               #endif
+               direntry = make_string((const uintB*)(&dp->d_name[0]),direntry_len);
+              }
+              #ifndef RISCOS
+              # "." und ".." übergehen:
+              if (!(equal(direntry,O(punkt_string))
+                    || equal(direntry,O(punktpunkt_string))
+                 ) )
+              #endif
+                { pushSTACK(direntry);
+                  # Stackaufbau: ..., pathname, dir_namestring, direntry.
+                  # Feststellen, ob es ein Directory oder ein File ist:
+                  pushSTACK(STACK_1); # Directory-Namestring
+                  pushSTACK(direntry); # direntry
+                 {var object namestring = string_concat(2); # zusammenhängen
+                  # Information holen:
+                  var struct stat status;
+                  if (directory_search_direntry_ok(namestring,&status))
+                    { # Eintrag existiert und ist nicht unerwünscht.
+                      if (S_ISDIR(status.st_mode)) # Ist es ein Directory?
+                        # Eintrag ist ein Directory.
+                        { if (recursively) # alle rekursiven Subdirectories gewünscht?
+                            # ja -> zu einem Pathname machen und auf
+                            # pathnames-to-insert pushen (wird nachher
+                            # vor pathname-list-rest eingefügt):
+                            { pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); # pathname und direntry
+                             {var object pathname = pathname_add_subdir();
+                              pushSTACK(pathname);
+                             }# Diesen neuen Pathname vor pathname-to-insert pushen:
+                             {var object new_cons = allocate_cons();
+                              Car(new_cons) = popSTACK();
+                              Cdr(new_cons) = STACK_(0+3);
+                              STACK_(0+3) = new_cons;
+                            }}
+                          if (next_task<0)
+                            {
+                              #ifndef RISCOS
+                              # (car subdir-list) mit direntry matchen:
+                              if (wildcard_match(Car(STACK_(1+4+3)),STACK_0))
+                              #endif
+                                # Subdirectory matcht -> zu einem Pathname
+                                # machen und auf new-pathname-list pushen:
+                                { pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); # pathname und direntry
+                                 {var object pathname = pathname_add_subdir();
+                                  pushSTACK(pathname);
+                                 }# Diesen neuen Pathname vor new-pathname-list pushen:
+                                 {var object new_cons = allocate_cons();
+                                  Car(new_cons) = popSTACK();
+                                  Cdr(new_cons) = STACK_(3+3);
+                                  STACK_(3+3) = new_cons;
+                            }   }}
+                        }
+                        else
+                        # Eintrag ist ein (halbwegs) normales File.
+                        { if (next_task>0)
+                            {
+                              #ifndef RISCOS
+                              # name&type mit direntry matchen:
+                              if (wildcard_match(STACK_(2+4+3),STACK_0))
+                              #endif
+                                # File matcht -> zu einem Pathname machen
+                                # und auf result-list pushen:
+                                {
+                                  #ifndef PATHNAME_RISCOS
+                                  pushSTACK(STACK_0); # direntry
+                                  split_name_type(1); # in Name und Typ aufspalten
+                                  {var object pathname = copy_pathname(STACK_(2+2));
+                                   ThePathname(pathname)->pathname_type = popSTACK(); # Typ einsetzen
+                                   ThePathname(pathname)->pathname_name = popSTACK(); # Name einsetzen
+                                   pushSTACK(pathname);
+                                   pushSTACK(pathname);
+                                  }
+                                  #else # PATHNAME_RISCOS
+                                  {var object pathname = copy_pathname(STACK_2);
+                                   pushSTACK(pathname);
+                                   if (name_and_type && nullp(ThePathname(pathname)->pathname_type))
+                                     # Move the last subdir into the type slot of the pathname.
+                                     { # subdirs := (butlast subdirs) = (nreverse (cdr (reverse subdirs)))
+                                       var object subdirs = reverse(ThePathname(pathname)->pathname_directory);
+                                       pathname = STACK_0;
+                                       ThePathname(pathname)->pathname_type = Car(subdirs);
+                                       ThePathname(pathname)->pathname_directory = nreverse(Cdr(subdirs));
+                                     }
+                                   ThePathname(pathname)->pathname_name = STACK_1; # direntry
+                                   pushSTACK(pathname);
+                                  }
+                                  #endif
+                                  # Truename bilden (symbolische Links auflösen):
+                                  assure_dir_exists(TRUE,FALSE);
+                                  if (file_exists(_EMA_)) # falls File (immer noch...) existiert
+                                    { if (!nullp(STACK_(0+5+4+3+2))) # :FULL gewünscht?
+                                        with_stat_info(); # ja -> STACK_0 erweitern
+                                      # und STACK_0 vor result-list pushen:
+                                     {var object new_cons = allocate_cons();
+                                      Car(new_cons) = STACK_0;
+                                      Cdr(new_cons) = STACK_(4+4+3+2);
+                                      STACK_(4+4+3+2) = new_cons;
+                                    }}
+                                  skipSTACK(2);
+                            }   }
+                    }   }
+                  skipSTACK(1); # direntry vergessen
+            }}  }}
+          begin_system_call();
+          if (CLOSEDIR(dirp)) { end_system_call(); OS_file_error(STACK_1); }
+          end_system_call();
+          clr_break_sem_4();
+        }}
+      #endif
+      #ifdef AMIGAOS
+        # Directory absuchen:
+        { var object namestring = OSdirnamestring(STACK_0);
+          with_sstring_0(namestring,namestring_asciz,
+            { set_break_sem_4();
+              begin_system_call();
+             {var BPTR lock = Lock(namestring_asciz,ACCESS_READ);
+              var LONGALIGNTYPE(struct FileInfoBlock) fib;
+              var struct FileInfoBlock * fibptr = LONGALIGN(&fib);
+              if (lock==BPTR_NULL)
+                { end_system_call(); OS_file_error(STACK_1); }
+              if (! Examine(lock,fibptr) )
+                { UnLock(lock); end_system_call(); OS_file_error(STACK_1); }
+              loop
+                { if (! ExNext(lock,fibptr) ) # Error oder Directory zu Ende?
+                    break;
+                  end_system_call();
+                  # Directory-Eintrag in String umwandeln:
+                 {var object direntry = asciz_to_string(&fibptr->fib_FileName[0]);
+                  pushSTACK(direntry);
+                  # Stackaufbau: ..., pathname, dir_namestring, direntry.
+                  # Feststellen, ob es ein Directory oder ein File ist:
+                  {var boolean isdir;
+                   if (fibptr->fib_DirEntryType == ST_SOFTLINK)
+                     { # Einen Lock auf das Ziel holen und Examine ausführen:
+                       # das geht, denn Lock() löst Links auf (bzw. versucht es)
+                       pushSTACK(STACK_1); pushSTACK(STACK_(0+1));
+                      {var object direntry_namestring = string_concat(2);
+                       with_sstring_0(direntry_namestring,direntry_namestring_asciz,
+                         {  begin_system_call();
+                            # TODO olddir = CurrentDir(lock); ... CurrentDir(olddir)
+                          { var BPTR direntry_lock = Lock(direntry_namestring_asciz,ACCESS_READ);
+                            if (direntry_lock==BPTR_NULL)
+                              switch (IoErr())
+                                { case ERROR_OBJECT_NOT_FOUND:
+                                  case ERROR_DEVICE_NOT_MOUNTED: # user canceled requester
+                                    end_system_call();
+                                    FREE_DYNAMIC_ARRAY(direntry_namestring_asciz);
+                                    goto skip_direntry; # direntry vergessen und ignorieren
+                                  default:
+                                    end_system_call(); OS_file_error(STACK_2);
+                                }
+                           {var LONGALIGNTYPE(struct FileInfoBlock) direntry_status;
+                            var struct FileInfoBlock * statusptr = LONGALIGN(&direntry_status);
+                            if (! Examine(direntry_lock,statusptr) )
+                              { UnLock(direntry_lock); end_system_call(); OS_file_error(STACK_2); }
+                            UnLock(direntry_lock);
+                            end_system_call();
+                            isdir = (statusptr->fib_DirEntryType >= 0);
+                         }}});
+                     }}
+                     else
+                     { isdir = (fibptr->fib_DirEntryType >= 0); }
+                   if (isdir)
+                     # Eintrag ist ein Directory.
+                     { if (recursively) # alle rekursiven Subdirectories gewünscht?
+                         # ja -> zu einem Pathname machen und auf
+                         # pathnames-to-insert pushen (wird nachher
+                         # vor pathname-list-rest eingefügt):
+                         { pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); # pathname und direntry
+                          {var object pathname = pathname_add_subdir();
+                           pushSTACK(pathname);
+                          }# Diesen neuen Pathname vor pathname-to-insert pushen:
+                          {var object new_cons = allocate_cons();
+                           Car(new_cons) = popSTACK();
+                           Cdr(new_cons) = STACK_(0+3);
+                           STACK_(0+3) = new_cons;
+                         }}
+                       if (next_task<0)
+                         { # (car subdir-list) mit direntry matchen:
+                           if (wildcard_match(Car(STACK_(1+4+3)),STACK_0))
+                             # Subdirectory matcht -> zu einem Pathname
+                             # machen und auf new-pathname-list pushen:
+                             { pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); # pathname und direntry
+                              {var object pathname = pathname_add_subdir();
+                               pushSTACK(pathname);
+                              }# Diesen neuen Pathname vor new-pathname-list pushen:
+                              {var object new_cons = allocate_cons();
+                               Car(new_cons) = popSTACK();
+                               Cdr(new_cons) = STACK_(3+3);
+                               STACK_(3+3) = new_cons;
+                         }   }}
+                     }
+                     else
+                     # Eintrag ist ein (halbwegs) normales File.
+                     { if (next_task>0)
+                         { # name&type mit direntry matchen:
+                           if (wildcard_match(STACK_(2+4+3),STACK_0))
+                             # File matcht -> zu einem Pathname machen
+                             # und auf result-list pushen:
+                             { pushSTACK(STACK_0); # direntry
+                               split_name_type(1); # in Name und Typ aufspalten
+                              {var object pathname = copy_pathname(STACK_(2+2));
+                               ThePathname(pathname)->pathname_type = popSTACK(); # Typ einsetzen
+                               ThePathname(pathname)->pathname_name = popSTACK(); # Name einsetzen
+                               pushSTACK(pathname);
+                               pushSTACK(pathname);
+                              }
+                              assure_dir_exists(TRUE,FALSE); # Truename bilden (symbolische Links auflösen)
+                              { if (!nullp(STACK_(0+5+4+3+2))) # :FULL gewünscht?
+                                  with_stat_info(); # ja -> STACK_0 erweitern
+                                # und STACK_0 vor result-list pushen:
+                               {var object new_cons = allocate_cons();
+                                Car(new_cons) = STACK_0;
+                                Cdr(new_cons) = STACK_(4+4+3+2);
+                                STACK_(4+4+3+2) = new_cons;
+                              }}
+                              skipSTACK(2);
+                     }   }   }
+                  }
+                  skip_direntry:
+                  skipSTACK(1); # direntry vergessen
+                  begin_system_call();
+                }}
+              UnLock(lock);
+              if (!(IoErr()==ERROR_NO_MORE_ENTRIES))
+                { end_system_call(); OS_file_error(STACK_1); }
+              end_system_call();
+              clr_break_sem_4();
+            }});
+        }
+      #endif
+      #if defined(MSDOS) || defined(WIN32_NATIVE)
+        pushSTACK(STACK_0); # Directory-Name
+        pushSTACK(READDIR_wildnametype_suffix); # und "*.*" bzw. "*"
+        { var object namestring = string_concat(2); # zusammenhängen
+          with_sstring_0(namestring,namestring_asciz,
+            { # Directory absuchen, gemäß DOS-Konvention bzw. Win32-Konvention:
+              READDIR_var_declarations;
+              # Suchanfang, suche nach Ordnern und normalen Dateien:
+              begin_system_call();
+              do {
+                READDIR_findfirst(namestring_asciz,
+                                  { end_system_call(); OS_file_error(STACK_1); },
+                                  break; );
+                loop
+                  { end_system_call();
+                   {# Directory-Eintrag in String umwandeln:
+                    var object direntry = asciz_to_string(READDIR_entry_name());
+                    # "." und ".." übergehen:
+                    if (!(equal(direntry,O(punkt_string))
+                          || equal(direntry,O(punktpunkt_string))
+                       ) )
+                      { pushSTACK(direntry);
+                        # Stackaufbau: ..., pathname, dir_namestring, direntry.
+                        if (READDIR_entry_ISDIR()) # Ist es ein Directory?
+                          # Eintrag ist ein Directory.
+                          { if (recursively) # alle rekursiven Subdirectories gewünscht?
+                              # ja -> zu einem Pathname machen und auf
+                              # pathnames-to-insert pushen (wird nachher
+                              # vor pathname-list-rest eingefügt):
+                              { pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); # pathname und direntry
+                               {var object pathname = pathname_add_subdir();
+                                pushSTACK(pathname);
+                               }# Diesen neuen Pathname vor pathname-to-insert pushen:
+                               {var object new_cons = allocate_cons();
+                                Car(new_cons) = popSTACK();
+                                Cdr(new_cons) = STACK_(0+3);
+                                STACK_(0+3) = new_cons;
+                              }}
+                            if (next_task<0)
+                              { # (car subdir-list) mit direntry matchen:
+                                if (wildcard_match(Car(STACK_(1+4+3)),STACK_0))
+                                  # Subdirectory matcht -> zu einem Pathname
+                                  # machen und auf new-pathname-list pushen:
+                                  { pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); # pathname und direntry
+                                   {var object pathname = pathname_add_subdir();
+                                    pushSTACK(pathname);
+                                   }# Diesen neuen Pathname vor new-pathname-list pushen:
+                                   {var object new_cons = allocate_cons();
+                                    Car(new_cons) = popSTACK();
+                                    Cdr(new_cons) = STACK_(3+3);
+                                    STACK_(3+3) = new_cons;
+                              }   }}
+                          }
+                          else
+                          # Eintrag ist ein (halbwegs) normales File.
+                          { if (next_task>0)
+                              { # name&type mit direntry matchen:
+                                if (wildcard_match(STACK_(2+4+3),STACK_0))
+                                  # File matcht -> zu einem Pathname machen
+                                  # und auf result-list pushen:
+                                  { pushSTACK(STACK_0); # direntry
+                                    split_name_type(1); # in Name und Typ aufspalten
+                                   {var object new = copy_pathname(STACK_(2+2));
+                                    ThePathname(new)->pathname_type = popSTACK(); # Typ einsetzen
+                                    ThePathname(new)->pathname_name = popSTACK(); # Name einsetzen
+                                    # Full-Flag abtesten und evtl. mehr Information besorgen:
+                                    if (!nullp(STACK_(0+5+4+3))) # :FULL gewünscht?
+                                      { pushSTACK(new); # newpathname als 1. Listenelement
+                                        pushSTACK(new); # newpathname als 2. Listenelement
+                                        { # Uhrzeit und Datum von DOS-Format in Decoded-Time umwandeln:
+                                          var decoded_time timepoint;
+                                          READDIR_entry_timedate(&timepoint);
+                                          pushSTACK(timepoint.Sekunden);
+                                          pushSTACK(timepoint.Minuten);
+                                          pushSTACK(timepoint.Stunden);
+                                          pushSTACK(timepoint.Tag);
+                                          pushSTACK(timepoint.Monat);
+                                          pushSTACK(timepoint.Jahr);
+                                          new = listof(6); # 6-elementige Liste bauen
+                                        }
+                                        pushSTACK(new); # als 3. Listenelement
+                                        pushSTACK(UL_to_I(READDIR_entry_size())); # Länge als 4. Listenelement
+                                        new = listof(4); # 4-elementige Liste bauen
+                                      }
+                                    pushSTACK(new);
+                                   }# und STACK_0 vor result-list pushen:
+                                   {var object new_cons = allocate_cons();
+                                    Car(new_cons) = popSTACK();
+                                    Cdr(new_cons) = STACK_(4+4+3);
+                                    STACK_(4+4+3) = new_cons;
+                          }   }   }}
+                        skipSTACK(1); # direntry vergessen
+                      }
+                    # nächstes File:
+                    begin_system_call();
+                    READDIR_findnext({ end_system_call(); OS_file_error(STACK_1); }, break; );
+                  }}
+                } while (FALSE);
+              end_system_call();
+              READDIR_end_declarations;
+            });
+        }
+      #endif
+    }
+  #
   local object directory_search(pathname)
     var object pathname;
     {
@@ -9201,7 +9718,7 @@ LISPFUN(open,1,0,norest,key,5,\
           # pathname-list durchgehen und dabei neue Liste aufbauen:
           pushSTACK(NIL);
           #ifdef UNIX
-          if (!nullp(STACK_(1+5+1))) # ;CIRCLE-Flag abfragen
+          if (!nullp(STACK_(1+5+1))) # :CIRCLE-Flag abfragen
             { # Hash-Tabelle aller bisher abgesuchten Directories (jeweils
               # als Cons (dev . ino)) führen:
               pushSTACK(S(Ktest)); pushSTACK(S(equal));
@@ -9209,19 +9726,16 @@ LISPFUN(open,1,0,norest,key,5,\
               pushSTACK(value1);
             }
             else
-            { pushSTACK(NIL); }
-          #define H 1
-          #else
-          #define H 0
           #endif
-          pushSTACK(STACK_(0+1+H));
+            { pushSTACK(NIL); }
+          pushSTACK(STACK_(0+2));
           loop
-            { # Stackaufbau: ..., new-pathname-list, [ht,] pathname-list-rest.
+            { # Stackaufbau: ..., new-pathname-list, ht, pathname-list-rest.
               var object pathname_list_rest = STACK_0;
               if (atomp(pathname_list_rest)) break;
               STACK_0 = Cdr(pathname_list_rest); # Liste verkürzen
               pushSTACK(NIL); # pathnames-to-insert := NIL
-              # Stackaufbau: ..., new-pathname-list, [ht,] pathname-list-rest, pathnames-to-insert.
+              # Stackaufbau: ..., new-pathname-list, ht, pathname-list-rest, pathnames-to-insert.
              {var object pathname = Car(pathname_list_rest); # nächstes Directory
               pushSTACK(pathname); # in den Stack
               # Versuche, die Task ein wenig abzukürzen:
@@ -9234,16 +9748,16 @@ LISPFUN(open,1,0,norest,key,5,\
                         # und STACK_0 vor result-list pushen:
                         {var object new_cons = allocate_cons();
                          Car(new_cons) = popSTACK();
-                         Cdr(new_cons) = STACK_(4+(1+H+2));
-                         STACK_(4+(1+H+2)) = new_cons;
+                         Cdr(new_cons) = STACK_(4+4);
+                         STACK_(4+4) = new_cons;
                         }
                         goto next_pathname;
                       #if !(defined(MSDOS) || defined(WIN32_NATIVE))
                       case 1: # In diesem pathname nach einem File sehen
                         ThePathname(pathname)->pathname_name = # Name (/=NIL) einsetzen
-                          ThePathname(STACK_(3+(1+H+2)+1))->pathname_name;
+                          ThePathname(STACK_(3+4+1))->pathname_name;
                         ThePathname(pathname)->pathname_type = # Typ einsetzen
-                          ThePathname(STACK_(3+(1+H+2)+1))->pathname_type;
+                          ThePathname(STACK_(3+4+1))->pathname_type;
                         pushSTACK(pathname);
                         #ifdef PATHNAME_RISCOS
                         if (name_and_type && nullp(ThePathname(pathname)->pathname_type))
@@ -9261,13 +9775,13 @@ LISPFUN(open,1,0,norest,key,5,\
                         if (file_exists(_EMA_)) # falls File existiert
                         #endif
                           # result-list erweitern:
-                          { if (!nullp(STACK_(0+5+(1+H+2)+2))) # :FULL gewünscht?
+                          { if (!nullp(STACK_(0+5+4+2))) # :FULL gewünscht?
                               { with_stat_info(); } # ja -> STACK_0 erweitern
                             # und STACK_0 vor result-list pushen:
                            {var object new_cons = allocate_cons();
                             Car(new_cons) = STACK_0;
-                            Cdr(new_cons) = STACK_(4+(1+H+2)+2);
-                            STACK_(4+(1+H+2)+2) = new_cons;
+                            Cdr(new_cons) = STACK_(4+4+2);
+                            STACK_(4+4+2) = new_cons;
                           }}
                         skipSTACK(2);
                         goto next_pathname;
@@ -9276,7 +9790,7 @@ LISPFUN(open,1,0,norest,key,5,\
                       case -1: # In diesem pathname nach einem Subdirectory sehen
                         { var object namestring = assure_dir_exists(TRUE,FALSE); # Links auflösen, Directory-Namestring
                           pushSTACK(namestring); # Directory-Namestring
-                          {var object subdir = Car(STACK_(1+(1+H+2)+1+1)); # (car subdir-list)
+                          {var object subdir = Car(STACK_(1+4+1+1)); # (car subdir-list)
                            #if defined(PATHNAME_AMIGAOS) || defined(PATHNAME_RISCOS)
                            if (eq(subdir,S(Kparent))) # für Parent-Directory
                              {
@@ -9293,21 +9807,7 @@ LISPFUN(open,1,0,norest,key,5,\
                           }
                           namestring = string_concat(2); # zusammenhängen
                           # Information holen:
-                          with_sstring_0(namestring,namestring_asciz,
-                            { check_stat_directory(namestring_asciz,
-                                                   { OS_file_error(STACK_0); },
-                                { # pathname kopieren und dessen Directory um
-                                  # (car subdir-list) verlängern:
-                                  pushSTACK(Car(STACK_(1+(1+H+2)+1)));
-                                 {var object pathname = pathname_add_subdir();
-                                  pushSTACK(pathname);
-                                 }# Diesen neuen Pathname vor new-pathname-list pushen:
-                                 {var object new_cons = allocate_cons();
-                                  Car(new_cons) = STACK_0;
-                                  Cdr(new_cons) = STACK_(H+2+1);
-                                  STACK_(H+2+1) = new_cons;
-                                }});
-                            });
+                          directory_search_1subdir(Car(STACK_(1+4+1)),namestring);
                         }
                         skipSTACK(1);
                         goto next_pathname;
@@ -9318,471 +9818,40 @@ LISPFUN(open,1,0,norest,key,5,\
               {{var object dir_namestring = assure_dir_exists(TRUE,FALSE); # Links auflösen, Directory-Name bilden
                 pushSTACK(dir_namestring); # retten
                }# Stackaufbau: ..., pathname, dir_namestring.
-               #ifdef UNIX
-                if (!nullp(STACK_(1+5+(1+H+2)+2))) # ;CIRCLE-Flag abfragen
+                #ifdef UNIX
+                if (!nullp(STACK_(1+5+4+2))) # ;CIRCLE-Flag abfragen
                   { # pathname in der Hash-Tabelle suchen:
-                    pushSTACK(STACK_0); # Directory-Name
-                    pushSTACK(O(punkt_string)); # und "."
-                    {var object namestring = string_concat(2); # zusammenhängen
-                     var struct stat status;
-                     with_sstring_0(namestring,namestring_asciz,
-                       { begin_system_call();
-                         if (!( stat(namestring_asciz,&status) ==0)) # Information holen
-                           { if (!(errno==ENOENT)) { end_system_call(); OS_file_error(STACK_1); }
-                             end_system_call();
-                             # Eintrag existiert doch nicht (das kann uns
-                             # wohl nur bei symbolischen Links passieren)
-                             # -> wird übergangen
-                             FREE_DYNAMIC_ARRAY(namestring_asciz);
-                             skipSTACK(2); goto next_pathname;
-                           }
-                         end_system_call();
-                       });
-                     # Eintrag existiert (welch Wunder...)
-                     pushSTACK(UL_to_I(status.st_dev)); # Device-Nummer und
-                     pushSTACK(UL_to_I(status.st_ino)); # Inode-Nummer
-                     {var object new_cons = allocate_cons(); # zusammenconsen
-                      Cdr(new_cons) = popSTACK(); Car(new_cons) = popSTACK();
-                      # und in der Hash-Tabelle aufsuchen und ablegen:
-                      if (!nullp(shifthash(STACK_(2+2),new_cons,T)))
-                        # war schon drin -> wird übergangen
-                        { skipSTACK(2); goto next_pathname; }
-                  } }}
-               #endif
+                    var object hashcode = directory_search_hashcode();
+                    if (eq(hashcode,nullobj))
+                      { # Eintrag existiert doch nicht (das kann uns
+                        # wohl nur bei symbolischen Links passieren)
+                        # -> wird übergangen
+                        skipSTACK(2); goto next_pathname;
+                      }
+                    # und in der Hash-Tabelle aufsuchen und ablegen:
+                    if (!nullp(shifthash(STACK_(2+2),hashcode,T)))
+                      # war schon drin -> wird übergangen
+                      { skipSTACK(2); goto next_pathname; }
+                  }
+                #endif
                 if (next_task==0)
                   # Pathname STACK_1 vor result-list pushen:
                   {var object new_cons = allocate_cons();
                    Car(new_cons) = STACK_1;
-                   Cdr(new_cons) = STACK_(4+(1+H+2)+2);
-                   STACK_(4+(1+H+2)+2) = new_cons;
+                   Cdr(new_cons) = STACK_(4+4+2);
+                   STACK_(4+4+2) = new_cons;
                   }
-               #if defined(UNIX) || defined(RISCOS)
-               { var object namestring;
-                 #ifdef UNIX
-                 pushSTACK(STACK_0); # Directory-Name
-                 pushSTACK(O(punkt_string)); # und "."
-                 namestring = string_concat(2); # zusammenhängen
-                 #endif
-                 #ifdef RISCOS
-                 var object wildcard_mask;
-                 namestring = STACK_0; # Directory-Name
-                 namestring = subsstring(namestring,0,Sstring_length(namestring)-1); # Directory-Name ohne '.' am Schluss
-                 # Statt wildcard_match() selber aufzurufen, überlassen wir das dem Betriebssystem:
-                 wildcard_mask = (next_task<0 ? Car(STACK_(1+(1+H+2)+3)) : STACK_(2+(1+H+2)+3));
-                 #endif
-                 # Directory absuchen:
-                {var DIR* dirp;
-                 set_break_sem_4();
-                 #ifdef UNIX
-                 with_sstring_0(namestring,namestring_asciz,
-                   { begin_system_call();
-                     dirp = opendir(namestring_asciz); # Directory öffnen
-                     end_system_call();
-                   });
-                 #endif
-                 #ifdef RISCOS
-                 with_sstring_0(namestring,namestring_asciz,
-                   with_sstring_0(wildcard_mask,wildcard_mask_asciz,
-                     { # In wildcard_mask_asciz die Wildchar-Characters '?' ins synonyme '#' umwandeln:
-                       { var uintB* ptr = wildcard_mask_asciz;
-                         while (*ptr != '\0') { if (*ptr == '?') { *ptr = '#'; } ptr++; }
-                       }
-                       begin_system_call();
-                       dirp = opendir(namestring_asciz,wildcard_mask_asciz); # Directory zum Suchen öffnen
-                       end_system_call();
-                     }););
-                 #endif
-                 if (dirp == (DIR*)NULL) { OS_file_error(STACK_1); }
-                 loop
-                   { var SDIRENT* dp;
-                     begin_system_call();
-                     errno = 0;
-                     dp = readdir(dirp); # nächsten Directory-Eintrag holen
-                     if (dp == (SDIRENT*)NULL) # Error oder Directory zu Ende
-                       { if (!(errno==0)) { end_system_call(); OS_file_error(STACK_1); }
-                         end_system_call();
-                         break;
-                       }
-                     end_system_call();
-                     # Directory-Eintrag in String umwandeln:
-                    {var object direntry;
-                     {var uintL direntry_len;
-                      #if defined(UNIX_CYGWIN32)
-                      # Neither d_reclen nor d_namlen present in DIR structure.
-                      direntry_len = asciz_length(dp->d_name);
-                      #elif defined(DIRENT_WITHOUT_NAMLEN) || defined(__USE_GNU)
-                      # Unter UNIX_LINUX reichte früher direntry_len := dp->d_reclen, aber
-                      # i.a. ist direntry_len := min(dp->d_reclen,asciz_length(dp->d_name))
-                      # nötig. Die GNU libc ist buggy: macht "#define d_namlen d_reclen",
-                      # ebenso die Linux libc-5.0.9.
-                      {var const uintB* ptr = (const uintB*)(&dp->d_name[0]);
-                       var uintL count;
-                       direntry_len = 0;
-                       dotimesL(count,dp->d_reclen,
-                         { if (*ptr == '\0') break;
-                           ptr++; direntry_len++;
-                         });
-                      }
-                      #else
-                      direntry_len = dp->d_namlen;
-                      #endif
-                      direntry = make_string((const uintB*)(&dp->d_name[0]),direntry_len);
-                     }
-                     #ifndef RISCOS
-                     # "." und ".." übergehen:
-                     if (!(equal(direntry,O(punkt_string))
-                           || equal(direntry,O(punktpunkt_string))
-                        ) )
-                     #endif
-                       { pushSTACK(direntry);
-                         # Stackaufbau: ..., pathname, dir_namestring, direntry.
-                         # Feststellen, ob es ein Directory oder ein File ist:
-                         pushSTACK(STACK_1); # Directory-Namestring
-                         pushSTACK(direntry); # direntry
-                        {var object namestring = string_concat(2); # zusammenhängen
-                         # Information holen:
-                         var boolean exists = TRUE;
-                         var struct stat status;
-                         with_sstring_0(namestring,namestring_asciz,
-                           { begin_system_call();
-                             if (!( stat_for_search(namestring_asciz,&status) ==0))
-                               { if (!((errno==ENOENT) || (errno==ELOOP_VALUE)))
-                                   { end_system_call(); OS_file_error(STACK_2); }
-                                 end_system_call();
-                                 # Eintrag existiert doch nicht oder ist unerwünscht
-                                 # -> wird übergangen
-                                 exists = FALSE;
-                               }
-                             end_system_call();
-                           });
-                         if (exists)
-                           { # Eintrag existiert (welch Wunder...)
-                             if (S_ISDIR(status.st_mode)) # Ist es ein Directory?
-                               # Eintrag ist ein Directory.
-                               { if (recursively) # alle rekursiven Subdirectories gewünscht?
-                                   # ja -> zu einem Pathname machen und auf
-                                   # pathnames-to-insert pushen (wird nachher
-                                   # vor pathname-list-rest eingefügt):
-                                   { pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); # pathname und direntry
-                                    {var object pathname = pathname_add_subdir();
-                                     pushSTACK(pathname);
-                                    }# Diesen neuen Pathname vor pathname-to-insert pushen:
-                                    {var object new_cons = allocate_cons();
-                                     Car(new_cons) = popSTACK();
-                                     Cdr(new_cons) = STACK_(0+3);
-                                     STACK_(0+3) = new_cons;
-                                   }}
-                                 if (next_task<0)
-                                   {
-                                     #ifndef RISCOS
-                                     # (car subdir-list) mit direntry matchen:
-                                     if (wildcard_match(Car(STACK_(1+(1+H+2)+3)),STACK_0))
-                                     #endif
-                                       # Subdirectory matcht -> zu einem Pathname
-                                       # machen und auf new-pathname-list pushen:
-                                       { pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); # pathname und direntry
-                                        {var object pathname = pathname_add_subdir();
-                                         pushSTACK(pathname);
-                                        }# Diesen neuen Pathname vor new-pathname-list pushen:
-                                        {var object new_cons = allocate_cons();
-                                         Car(new_cons) = popSTACK();
-                                         Cdr(new_cons) = STACK_(H+2+3);
-                                         STACK_(H+2+3) = new_cons;
-                                   }   }}
-                               }
-                               else
-                               # Eintrag ist ein (halbwegs) normales File.
-                               { if (next_task>0)
-                                   {
-                                     #ifndef RISCOS
-                                     # name&type mit direntry matchen:
-                                     if (wildcard_match(STACK_(2+(1+H+2)+3),STACK_0))
-                                     #endif
-                                       # File matcht -> zu einem Pathname machen
-                                       # und auf result-list pushen:
-                                       {
-                                         #ifndef PATHNAME_RISCOS
-                                         pushSTACK(STACK_0); # direntry
-                                         split_name_type(1); # in Name und Typ aufspalten
-                                         {var object pathname = copy_pathname(STACK_(2+2));
-                                          ThePathname(pathname)->pathname_type = popSTACK(); # Typ einsetzen
-                                          ThePathname(pathname)->pathname_name = popSTACK(); # Name einsetzen
-                                          pushSTACK(pathname);
-                                          pushSTACK(pathname);
-                                         }
-                                         #else # PATHNAME_RISCOS
-                                         {var object pathname = copy_pathname(STACK_2);
-                                          pushSTACK(pathname);
-                                          if (name_and_type && nullp(ThePathname(pathname)->pathname_type))
-                                            # Move the last subdir into the type slot of the pathname.
-                                            { # subdirs := (butlast subdirs) = (nreverse (cdr (reverse subdirs)))
-                                              var object subdirs = reverse(ThePathname(pathname)->pathname_directory);
-                                              pathname = STACK_0;
-                                              ThePathname(pathname)->pathname_type = Car(subdirs);
-                                              ThePathname(pathname)->pathname_directory = nreverse(Cdr(subdirs));
-                                            }
-                                          ThePathname(pathname)->pathname_name = STACK_1; # direntry
-                                          pushSTACK(pathname);
-                                         }
-                                         #endif
-                                         # Truename bilden (symbolische Links auflösen):
-                                         assure_dir_exists(TRUE,FALSE);
-                                         if (file_exists(_EMA_)) # falls File (immer noch...) existiert
-                                           { if (!nullp(STACK_(0+5+(1+H+2)+3+2))) # :FULL gewünscht?
-                                               with_stat_info(); # ja -> STACK_0 erweitern
-                                             # und STACK_0 vor result-list pushen:
-                                            {var object new_cons = allocate_cons();
-                                             Car(new_cons) = STACK_0;
-                                             Cdr(new_cons) = STACK_(4+(1+H+2)+3+2);
-                                             STACK_(4+(1+H+2)+3+2) = new_cons;
-                                           }}
-                                         skipSTACK(2);
-                                   }   }
-                           }   }
-                         skipSTACK(1); # direntry vergessen
-                   }}  }}
-                 begin_system_call();
-                 if (CLOSEDIR(dirp)) { end_system_call(); OS_file_error(STACK_1); }
-                 end_system_call();
-                 clr_break_sem_4();
-               }}
-               #endif
-               #ifdef AMIGAOS
-                # Directory absuchen:
-               { var object namestring = OSdirnamestring(STACK_0);
-                 with_sstring_0(namestring,namestring_asciz,
-                   { set_break_sem_4();
-                     begin_system_call();
-                    {var BPTR lock = Lock(namestring_asciz,ACCESS_READ);
-                     var LONGALIGNTYPE(struct FileInfoBlock) fib;
-                     var struct FileInfoBlock * fibptr = LONGALIGN(&fib);
-                     if (lock==BPTR_NULL)
-                       { end_system_call(); OS_file_error(STACK_1); }
-                     if (! Examine(lock,fibptr) )
-                       { UnLock(lock); end_system_call(); OS_file_error(STACK_1); }
-                     loop
-                       { if (! ExNext(lock,fibptr) ) # Error oder Directory zu Ende?
-                           break;
-                         end_system_call();
-                         # Directory-Eintrag in String umwandeln:
-                        {var object direntry = asciz_to_string(&fibptr->fib_FileName[0]);
-                         pushSTACK(direntry);
-                         # Stackaufbau: ..., pathname, dir_namestring, direntry.
-                         # Feststellen, ob es ein Directory oder ein File ist:
-                         {var boolean isdir;
-                          if (fibptr->fib_DirEntryType == ST_SOFTLINK)
-                            { # Einen Lock auf das Ziel holen und Examine ausführen:
-                              # das geht, denn Lock() löst Links auf (bzw. versucht es)
-                              pushSTACK(STACK_1); pushSTACK(STACK_(0+1));
-                             {var object direntry_namestring = string_concat(2);
-                              with_sstring_0(direntry_namestring,direntry_namestring_asciz,
-                                {  begin_system_call();
-                                   # TODO olddir = CurrentDir(lock); ... CurrentDir(olddir)
-                                 { var BPTR direntry_lock = Lock(direntry_namestring_asciz,ACCESS_READ);
-                                   if (direntry_lock==BPTR_NULL)
-                                     switch (IoErr())
-                                       { case ERROR_OBJECT_NOT_FOUND:
-                                         case ERROR_DEVICE_NOT_MOUNTED: # user canceled requester
-                                           end_system_call();
-                                           FREE_DYNAMIC_ARRAY(direntry_namestring_asciz);
-                                           goto skip_direntry; # direntry vergessen und ignorieren
-                                         default:
-                                           end_system_call(); OS_file_error(STACK_2);
-                                       }
-                                  {var LONGALIGNTYPE(struct FileInfoBlock) direntry_status;
-                                   var struct FileInfoBlock * statusptr = LONGALIGN(&direntry_status);
-                                   if (! Examine(direntry_lock,statusptr) )
-                                     { UnLock(direntry_lock); end_system_call(); OS_file_error(STACK_2); }
-                                   UnLock(direntry_lock);
-                                   end_system_call();
-                                   isdir = (statusptr->fib_DirEntryType >= 0);
-                                }}});
-                            }}
-                            else
-                            { isdir = (fibptr->fib_DirEntryType >= 0); }
-                          if (isdir)
-                            # Eintrag ist ein Directory.
-                            { if (recursively) # alle rekursiven Subdirectories gewünscht?
-                                # ja -> zu einem Pathname machen und auf
-                                # pathnames-to-insert pushen (wird nachher
-                                # vor pathname-list-rest eingefügt):
-                                { pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); # pathname und direntry
-                                 {var object pathname = pathname_add_subdir();
-                                  pushSTACK(pathname);
-                                 }# Diesen neuen Pathname vor pathname-to-insert pushen:
-                                 {var object new_cons = allocate_cons();
-                                  Car(new_cons) = popSTACK();
-                                  Cdr(new_cons) = STACK_(0+3);
-                                  STACK_(0+3) = new_cons;
-                                }}
-                              if (next_task<0)
-                                { # (car subdir-list) mit direntry matchen:
-                                  if (wildcard_match(Car(STACK_(1+(1+H+2)+3)),STACK_0))
-                                    # Subdirectory matcht -> zu einem Pathname
-                                    # machen und auf new-pathname-list pushen:
-                                    { pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); # pathname und direntry
-                                     {var object pathname = pathname_add_subdir();
-                                      pushSTACK(pathname);
-                                     }# Diesen neuen Pathname vor new-pathname-list pushen:
-                                     {var object new_cons = allocate_cons();
-                                      Car(new_cons) = popSTACK();
-                                      Cdr(new_cons) = STACK_(H+2+3);
-                                      STACK_(H+2+3) = new_cons;
-                                }   }}
-                            }
-                            else
-                            # Eintrag ist ein (halbwegs) normales File.
-                            { if (next_task>0)
-                                { # name&type mit direntry matchen:
-                                  if (wildcard_match(STACK_(2+(1+H+2)+3),STACK_0))
-                                    # File matcht -> zu einem Pathname machen
-                                    # und auf result-list pushen:
-                                    { pushSTACK(STACK_0); # direntry
-                                      split_name_type(1); # in Name und Typ aufspalten
-                                     {var object pathname = copy_pathname(STACK_(2+2));
-                                      ThePathname(pathname)->pathname_type = popSTACK(); # Typ einsetzen
-                                      ThePathname(pathname)->pathname_name = popSTACK(); # Name einsetzen
-                                      pushSTACK(pathname);
-                                      pushSTACK(pathname);
-                                     }
-                                     assure_dir_exists(TRUE,FALSE); # Truename bilden (symbolische Links auflösen)
-                                     { if (!nullp(STACK_(0+5+(1+H+2)+3+2))) # :FULL gewünscht?
-                                         with_stat_info(); # ja -> STACK_0 erweitern
-                                       # und STACK_0 vor result-list pushen:
-                                      {var object new_cons = allocate_cons();
-                                       Car(new_cons) = STACK_0;
-                                       Cdr(new_cons) = STACK_(4+(1+H+2)+3+2);
-                                       STACK_(4+(1+H+2)+3+2) = new_cons;
-                                     }}
-                                     skipSTACK(2);
-                            }   }   }
-                         }
-                         skip_direntry:
-                         skipSTACK(1); # direntry vergessen
-                         begin_system_call();
-                       }}
-                     UnLock(lock);
-                     if (!(IoErr()==ERROR_NO_MORE_ENTRIES))
-                       { end_system_call(); OS_file_error(STACK_1); }
-                     end_system_call();
-                     clr_break_sem_4();
-                   }});
-               }
-               #endif
-               #if defined(MSDOS) || defined(WIN32_NATIVE)
-                pushSTACK(STACK_0); # Directory-Name
-                pushSTACK(READDIR_wildnametype_suffix); # und "*.*" bzw. "*"
-               {var object namestring = string_concat(2); # zusammenhängen
-                with_sstring_0(namestring,namestring_asciz,
-                  { # Directory absuchen, gemäß DOS-Konvention bzw. Win32-Konvention:
-                    READDIR_var_declarations;
-                    # Suchanfang, suche nach Ordnern und normalen Dateien:
-                    begin_system_call();
-                    do {
-                      READDIR_findfirst(namestring_asciz,
-                                        { end_system_call(); OS_file_error(STACK_1); },
-                                        break; );
-                      loop
-                        { end_system_call();
-                         {# Directory-Eintrag in String umwandeln:
-                          var object direntry = asciz_to_string(READDIR_entry_name());
-                          # "." und ".." übergehen:
-                          if (!(equal(direntry,O(punkt_string))
-                                || equal(direntry,O(punktpunkt_string))
-                             ) )
-                            { pushSTACK(direntry);
-                              # Stackaufbau: ..., pathname, dir_namestring, direntry.
-                              if (READDIR_entry_ISDIR()) # Ist es ein Directory?
-                                # Eintrag ist ein Directory.
-                                { if (recursively) # alle rekursiven Subdirectories gewünscht?
-                                    # ja -> zu einem Pathname machen und auf
-                                    # pathnames-to-insert pushen (wird nachher
-                                    # vor pathname-list-rest eingefügt):
-                                    { pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); # pathname und direntry
-                                     {var object pathname = pathname_add_subdir();
-                                      pushSTACK(pathname);
-                                     }# Diesen neuen Pathname vor pathname-to-insert pushen:
-                                     {var object new_cons = allocate_cons();
-                                      Car(new_cons) = popSTACK();
-                                      Cdr(new_cons) = STACK_(0+3);
-                                      STACK_(0+3) = new_cons;
-                                    }}
-                                  if (next_task<0)
-                                    { # (car subdir-list) mit direntry matchen:
-                                      if (wildcard_match(Car(STACK_(1+(1+H+2)+3)),STACK_0))
-                                        # Subdirectory matcht -> zu einem Pathname
-                                        # machen und auf new-pathname-list pushen:
-                                        { pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); # pathname und direntry
-                                         {var object pathname = pathname_add_subdir();
-                                          pushSTACK(pathname);
-                                         }# Diesen neuen Pathname vor new-pathname-list pushen:
-                                         {var object new_cons = allocate_cons();
-                                          Car(new_cons) = popSTACK();
-                                          Cdr(new_cons) = STACK_(H+2+3);
-                                          STACK_(H+2+3) = new_cons;
-                                    }   }}
-                                }
-                                else
-                                # Eintrag ist ein (halbwegs) normales File.
-                                { if (next_task>0)
-                                    { # name&type mit direntry matchen:
-                                      if (wildcard_match(STACK_(2+(1+H+2)+3),STACK_0))
-                                        # File matcht -> zu einem Pathname machen
-                                        # und auf result-list pushen:
-                                        { pushSTACK(STACK_0); # direntry
-                                          split_name_type(1); # in Name und Typ aufspalten
-                                         {var object new = copy_pathname(STACK_(2+2));
-                                          ThePathname(new)->pathname_type = popSTACK(); # Typ einsetzen
-                                          ThePathname(new)->pathname_name = popSTACK(); # Name einsetzen
-                                          # Full-Flag abtesten und evtl. mehr Information besorgen:
-                                          if (!nullp(STACK_(0+5+(1+H+2)+3))) # :FULL gewünscht?
-                                            { pushSTACK(new); # newpathname als 1. Listenelement
-                                              pushSTACK(new); # newpathname als 2. Listenelement
-                                              { # Uhrzeit und Datum von DOS-Format in Decoded-Time umwandeln:
-                                                var decoded_time timepoint;
-                                                READDIR_entry_timedate(&timepoint);
-                                                pushSTACK(timepoint.Sekunden);
-                                                pushSTACK(timepoint.Minuten);
-                                                pushSTACK(timepoint.Stunden);
-                                                pushSTACK(timepoint.Tag);
-                                                pushSTACK(timepoint.Monat);
-                                                pushSTACK(timepoint.Jahr);
-                                                new = listof(6); # 6-elementige Liste bauen
-                                              }
-                                              pushSTACK(new); # als 3. Listenelement
-                                              pushSTACK(UL_to_I(READDIR_entry_size())); # Länge als 4. Listenelement
-                                              new = listof(4); # 4-elementige Liste bauen
-                                            }
-                                          pushSTACK(new);
-                                         }# und STACK_0 vor result-list pushen:
-                                         {var object new_cons = allocate_cons();
-                                          Car(new_cons) = popSTACK();
-                                          Cdr(new_cons) = STACK_(4+(1+H+2)+3);
-                                          STACK_(4+(1+H+2)+3) = new_cons;
-                                }   }   }}
-                              skipSTACK(1); # direntry vergessen
-                            }
-                          # nächstes File:
-                          begin_system_call();
-                          READDIR_findnext({ end_system_call(); OS_file_error(STACK_1); }, break; );
-                        }}
-                      } while (FALSE);
-                    end_system_call();
-                    READDIR_end_declarations;
-                  });
-               }
-               #endif
+                directory_search_scandir(recursively,next_task);
               }
               skipSTACK(2); # pathname und dir-namestring vergessen
               next_pathname: ;
-             }# Stackaufbau: ..., new-pathname-list, [ht,] pathname-list-rest, pathnames-to-insert.
+             }# Stackaufbau: ..., new-pathname-list, ht, pathname-list-rest, pathnames-to-insert.
               # Vor dem Weiterrücken mit pathname-list-rest :
               # pathname-list-rest := (nreconc pathnames-to-insert pathname-list-rest) :
              {var object pathnames_to_insert = popSTACK();
               STACK_0 = nreconc(pathnames_to_insert,STACK_0);
             }}
-          skipSTACK(H+1); # leere pathname-list-rest und evtl. Hash-Tabelle vergessen
-          #undef H
+          skipSTACK(2); # leere pathname-list-rest und Hash-Tabelle vergessen
           # new-pathname-list umdrehen, ersetzt die geleerte pathname-list:
           {var object new_pathname_list = popSTACK();
            STACK_0 = nreverse(new_pathname_list); # neue pathname-list
@@ -9929,7 +9998,7 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
        # Stackaufbau: pathname, subdircons, pathname.
        {var object dir_namestring =
           (resolve_links ? assure_dir_exists(FALSE,FALSE) : assume_dir_exists());
-        # Baue Subdir-String des Subdir fürs Betriebssystem:
+        # Baue Subdir-String fürs Betriebssystem:
         STACK_0 = dir_namestring; # bisheriger Directory-Namestring als 1. String
         {var uintC stringcount =
            subdir_namestring_parts(STACK_1); # und Strings zum letzten Subdir
