@@ -807,42 +807,43 @@
     #endif
     #ifdef STACK_register
       #define SAVE_STACK_register(registers)     \
-              registers->STACK_register_contents = STACK_reg;
+              registers->STACK_register_contents = STACK_reg
       #define RESTORE_STACK_register(registers)  \
-              STACK_reg = registers->STACK_register_contents;
+              STACK_reg = registers->STACK_register_contents
     #else
       #define SAVE_STACK_register(registers)
       #define RESTORE_STACK_register(registers)
     #endif
     #ifdef mv_count_register
       #define SAVE_mv_count_register(registers)     \
-              registers->mv_count_register_contents = mv_count_reg;
+              registers->mv_count_register_contents = mv_count_reg
       #define RESTORE_mv_count_register(registers)  \
-              mv_count_reg = registers->mv_count_register_contents;
+              mv_count_reg = registers->mv_count_register_contents
     #else
       #define SAVE_mv_count_register(registers)
       #define RESTORE_mv_count_register(registers)
     #endif
     #ifdef value1_register
       #define SAVE_value1_register(registers)     \
-              registers->value1_register_contents = value1_reg;
+              registers->value1_register_contents = value1_reg
       #define RESTORE_value1_register(registers)  \
-              value1_reg = registers->value1_register_contents;
+              value1_reg = registers->value1_register_contents
     #else
       #define SAVE_value1_register(registers)
       #define RESTORE_value1_register(registers)
     #endif
     #ifdef subr_self_register
       #define SAVE_subr_self_register(registers)     \
-              registers->subr_self_register_contents = subr_self_reg;
+              registers->subr_self_register_contents = subr_self_reg
       #define RESTORE_subr_self_register(registers)  \
-              subr_self_reg = registers->subr_self_register_contents;
+              subr_self_reg = registers->subr_self_register_contents
     #else
       #define SAVE_subr_self_register(registers)
       #define RESTORE_subr_self_register(registers)
     #endif
-    #define SAVE_REGISTERS(inner_statement)  \
-      { var struct registers * registers = alloca(sizeof(struct registers)); \
+    #define SAVE_REGISTERS(inner_statement)                                  \
+      do {                                                                   \
+        var struct registers * registers = alloca(sizeof(struct registers)); \
         SAVE_STACK_register(registers);                                      \
         SAVE_mv_count_register(registers);                                   \
         SAVE_value1_register(registers);                                     \
@@ -853,9 +854,10 @@
           finish_frame(CALLBACK);                                            \
         }                                                                    \
         callback_saved_registers = registers;                                \
-      }
-    #define RESTORE_REGISTERS(inner_statement)  \
-      { var struct registers * registers = callback_saved_registers;          \
+      } while(0)
+    #define RESTORE_REGISTERS(inner_statement)                                \
+      do {                                                                    \
+        var struct registers * registers = callback_saved_registers;          \
         if (!(framecode(STACK_0) == CALLBACK_frame_info)) abort();            \
         callback_saved_registers = (struct registers *)(aint)as_oint(STACK_1);\
         skipSTACK(2);                                                         \
@@ -864,7 +866,7 @@
         RESTORE_mv_count_register(registers);                                 \
         RESTORE_value1_register(registers);                                   \
         RESTORE_subr_self_register(registers);                                \
-      }
+      } while(0)
   #endif
   # Saving the STACK (for asynchronous interrupts).
   # If STACK is a global variable or lies in a register which is left
@@ -1555,26 +1557,26 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
   #define dotimes_check_sizeof(countvar,type)
 #endif
 #define dotimesW(countvar_from_dotimesW,count_from_dotimesW,statement_from_dotimesW) \
-  { dotimes_check_sizeof(countvar_from_dotimesW,uintW); \
+  do { dotimes_check_sizeof(countvar_from_dotimesW,uintW); \
     dotimesW_(countvar_from_dotimesW,count_from_dotimesW,statement_from_dotimesW); \
-  }
+  } while(0)
 #define dotimespW(countvar_from_dotimespW,count_from_dotimespW,statement_from_dotimespW) \
-  { dotimes_check_sizeof(countvar_from_dotimespW,uintW); \
+  do { dotimes_check_sizeof(countvar_from_dotimespW,uintW); \
     dotimespW_(countvar_from_dotimespW,count_from_dotimespW,statement_from_dotimespW); \
-  }
+  } while(0)
 #define dotimesL(countvar_from_dotimesL,count_from_dotimesL,statement_from_dotimesL) \
-  { dotimes_check_sizeof(countvar_from_dotimesL,uintL); \
+  do { dotimes_check_sizeof(countvar_from_dotimesL,uintL); \
     dotimesL_(countvar_from_dotimesL,count_from_dotimesL,statement_from_dotimesL); \
-  }
+  } while(0)
 #define dotimespL(countvar_from_dotimespL,count_from_dotimespL,statement_from_dotimespL) \
-  { dotimes_check_sizeof(countvar_from_dotimespL,uintL); \
+  do { dotimes_check_sizeof(countvar_from_dotimespL,uintL); \
     dotimespL_(countvar_from_dotimespL,count_from_dotimespL,statement_from_dotimespL); \
-  }
+  } while(0)
 # doconsttimes(count,statement);
 # executes a statement count times (count times the code!),
 # where count is a constant-expression >=0, <=8.
-#define doconsttimes(count_from_doconsttimes,statement_from_doconsttimes)  \
-    { if (0 < (count_from_doconsttimes)) { statement_from_doconsttimes; } \
+#define doconsttimes(count_from_doconsttimes,statement_from_doconsttimes) \
+ do { if (0 < (count_from_doconsttimes)) { statement_from_doconsttimes; } \
       if (1 < (count_from_doconsttimes)) { statement_from_doconsttimes; } \
       if (2 < (count_from_doconsttimes)) { statement_from_doconsttimes; } \
       if (3 < (count_from_doconsttimes)) { statement_from_doconsttimes; } \
@@ -1582,13 +1584,13 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
       if (5 < (count_from_doconsttimes)) { statement_from_doconsttimes; } \
       if (6 < (count_from_doconsttimes)) { statement_from_doconsttimes; } \
       if (7 < (count_from_doconsttimes)) { statement_from_doconsttimes; } \
-    }
+ } while(0)
 # DOCONSTTIMES(count,macroname);
 # calls the macro macroname count times (count times the code!),
 # where count is a constant-expression >=0, <=8.
 # And macroname will get the values 0,...,count-1 in sequence.
 #define DOCONSTTIMES(count_from_DOCONSTTIMES,macroname_from_DOCONSTTIMES)  \
-    { if (0 < (count_from_DOCONSTTIMES)) { macroname_from_DOCONSTTIMES((0 < (count_from_DOCONSTTIMES) ? 0 : 0)); } \
+ do { if (0 < (count_from_DOCONSTTIMES)) { macroname_from_DOCONSTTIMES((0 < (count_from_DOCONSTTIMES) ? 0 : 0)); } \
       if (1 < (count_from_DOCONSTTIMES)) { macroname_from_DOCONSTTIMES((1 < (count_from_DOCONSTTIMES) ? 1 : 0)); } \
       if (2 < (count_from_DOCONSTTIMES)) { macroname_from_DOCONSTTIMES((2 < (count_from_DOCONSTTIMES) ? 2 : 0)); } \
       if (3 < (count_from_DOCONSTTIMES)) { macroname_from_DOCONSTTIMES((3 < (count_from_DOCONSTTIMES) ? 3 : 0)); } \
@@ -1596,7 +1598,7 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
       if (5 < (count_from_DOCONSTTIMES)) { macroname_from_DOCONSTTIMES((5 < (count_from_DOCONSTTIMES) ? 5 : 0)); } \
       if (6 < (count_from_DOCONSTTIMES)) { macroname_from_DOCONSTTIMES((6 < (count_from_DOCONSTTIMES) ? 6 : 0)); } \
       if (7 < (count_from_DOCONSTTIMES)) { macroname_from_DOCONSTTIMES((7 < (count_from_DOCONSTTIMES) ? 7 : 0)); } \
-    }
+ } while(0)
 
 # From here on  uintC means an unsigned integer type, that'll allow
 # easy counting. Subset relation: uintW <= uintC <= uintL.
@@ -1718,11 +1720,11 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 
 # execute statement in case of an interruption (Ctrl-C pressed):
 # interruptp(statement);
-#define interruptp(statement) \
-    { # Ctrl-C signal test and delete:                                  \
+#define interruptp(statement)                                           \
+  do { /* Ctrl-C signal test and delete: */                             \
       if (SetSignal(0L,(ULONG)(SIGBREAKF_CTRL_C)) & (SIGBREAKF_CTRL_C)) \
         { statement }                                                   \
-    }
+  } while(0)
 # see AMIGA.D and exec.library/SetSignal
 # used by EVAL, IO, SPVW, STREAM
 
@@ -3890,19 +3892,19 @@ typedef symbol_ *  Symbol;
 
 # Define symbol as constant with given value val.
 # val must not trigger the GC!
-  #define define_constant(sym,val)  \
-    {var Symbol sym_from_define_constant = TheSymbol(sym); \
-     set_const_flag(sym_from_define_constant);             \
-     sym_from_define_constant->symvalue = (val);           \
-    }
+  #define define_constant(sym,val)                              \
+    do { var Symbol sym_from_define_constant = TheSymbol(sym);  \
+         set_const_flag(sym_from_define_constant);              \
+         sym_from_define_constant->symvalue = (val);            \
+    } while(0)
 
 # Define symbol as variable and initialize it with a given value val.
 # val must not trigger the GC!
-  #define define_variable(sym,val)  \
-    {var Symbol sym_from_define_variable = TheSymbol(sym); \
-     set_special_flag(sym_from_define_variable);           \
-     sym_from_define_variable->symvalue = (val);           \
-    }
+  #define define_variable(sym,val)                              \
+    do { var Symbol sym_from_define_variable = TheSymbol(sym);  \
+         set_special_flag(sym_from_define_variable);            \
+         sym_from_define_variable->symvalue = (val);            \
+    } while(0)
 
 # Remove flag-bits of a symbol:
 #if defined(NO_symbolflags)
@@ -4561,19 +4563,19 @@ typedef struct {
   #define cslen(encoding,src,srclen)  \
     Encoding_wcslen(encoding)(encoding,src,(src)+(srclen))
   #define cstombs(encoding,src,srclen,dest,destlen)  \
-    { var const chart* _srcptr = (src);                             \
+    do { var const chart* _srcptr = (src);                          \
       var const chart* _srcendptr = _srcptr+(srclen);               \
       var uintB* _destptr = (dest);                                 \
       var uintB* _destendptr = _destptr+(destlen);                  \
       Encoding_wcstombs(encoding)(encoding,nullobj,&_srcptr,_srcendptr,&_destptr,_destendptr); \
       ASSERT((_srcptr == _srcendptr) && (_destptr == _destendptr)); \
-    }
+    } while(0)
 #else
   #define cslen(encoding,src,srclen)  (srclen)
   #define cstombs(encoding,src,srclen,dest,destlen)  \
-    { ASSERT((srclen) == (destlen));                                   \
-      begin_system_call(); memcpy(dest,src,srclen); end_system_call(); \
-    }
+    do { ASSERT((srclen) == (destlen));                                   \
+         begin_system_call(); memcpy(dest,src,srclen); end_system_call(); \
+    } while(0)
 #endif
 
 #ifdef FOREIGN
@@ -5885,41 +5887,48 @@ typedef struct {
 
 # Test for real number
 #ifdef TYPECODES
-  #define if_realp(obj,statement1,statement2)  \
-    {var object obj_from_if_realp = (obj);                      \
-     var tint type_from_if_realp = typecode(obj_from_if_realp); \
-     if ( (type_from_if_realp & bit(number_bit_t))              \
-          && !(type_from_if_realp==complex_type) )              \
-       { statement1 } else { statement2 }                       \
-    }
+  #define if_realp(obj,statement1,statement2)                           \
+    do {                                                                \
+      var object obj_from_if_realp = (obj);                             \
+      var tint type_from_if_realp = typecode(obj_from_if_realp);        \
+      if ( (type_from_if_realp & bit(number_bit_t))                     \
+           && !(type_from_if_realp==complex_type) )                     \
+        { statement1 } else { statement2 }                              \
+    } while(0)
 #else
-  #define if_realp(obj,statement1,statement2)  \
-    if (((as_oint(obj) & ((4 << imm_type_shift) | immediate_bias)) == fixnum_type) \
-        || (varobjectp(obj)                    \
-            && ((uintB)(Record_type(obj)-Rectype_Bignum) <= Rectype_Ratio-Rectype_Bignum))) \
-      { statement1 } else { statement2 }
+  #define if_realp(obj,statement1,statement2)                           \
+    do { if (((as_oint(obj) & ((4 << imm_type_shift) | immediate_bias)) \
+              == fixnum_type)                                           \
+             || (varobjectp(obj)                                        \
+                 && ((uintB)(Record_type(obj)-Rectype_Bignum) <=        \
+                     Rectype_Ratio-Rectype_Bignum)))                    \
+           { statement1 } else { statement2 }                           \
+    } while(0)
 #endif
 
 # Test for rational number
 #ifdef TYPECODES
-  #define if_rationalp(obj,statement1,statement2)  \
-    {var object obj_from_if_rationalp = (obj);                          \
-     var tint type_from_if_rationalp = typecode(obj_from_if_rationalp); \
-     if ( (!(type_from_if_rationalp==complex_type))                     \
-          &&                                                            \
-          ((type_from_if_rationalp &                                    \
-            ~((fixnum_type|bignum_type|ratio_type|bit(sign_bit_t)) & ~(fixnum_type&bignum_type&ratio_type)) \
-           ) == (fixnum_type&bignum_type&ratio_type)                    \
-        ) )                                                             \
-       { statement1 } else { statement2 }                               \
-    }
+  #define if_rationalp(obj,statement1,statement2)                        \
+    do {                                                                 \
+      var object obj_from_if_rationalp = (obj);                          \
+      var tint type_from_if_rationalp = typecode(obj_from_if_rationalp); \
+      if ((type_from_if_rationalp != complex_type)                       \
+           && ((type_from_if_rationalp &                                 \
+                ~((fixnum_type|bignum_type|ratio_type|bit(sign_bit_t))   \
+                  & ~(fixnum_type&bignum_type&ratio_type)))              \
+               == (fixnum_type&bignum_type&ratio_type)))                 \
+        { statement1 } else { statement2 }                               \
+    } while(0)
 #else
-  #define if_rationalp(obj,statement1,statement2)  \
-    if (((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias)) == fixnum_type) \
-        || (varobjectp(obj)                            \
-            && ((Record_type(obj) == Rectype_Bignum)   \
-                || (Record_type(obj) == Rectype_Ratio)))) \
-      { statement1 } else { statement2 }
+  #define if_rationalp(obj,statement1,statement2)                        \
+    do { if (((as_oint(obj) & ((6 << imm_type_shift) | immediate_bias))  \
+              == fixnum_type)                                            \
+             || (varobjectp(obj)                                         \
+                 && ((Record_type(obj) == Rectype_Bignum)                \
+                     || (Record_type(obj) == Rectype_Ratio))))           \
+           { statement1 } else { statement2 }                            \
+    } while(0)
+
 #endif
 
 # Test for Integer
@@ -6564,17 +6573,17 @@ typedef struct {
     } internal_time;
     #define ticks_per_second  1000000UL  # 1 Tick = 1 mu-sec
     #define sub_internal_time(x,y, z)  # z:=x-y  \
-      { (z).tv_sec = (x).tv_sec - (y).tv_sec;                   \
+      do { (z).tv_sec = (x).tv_sec - (y).tv_sec;                \
         if ((x).tv_usec < (y).tv_usec)                          \
           { (x).tv_usec += ticks_per_second; (z).tv_sec -= 1; } \
         (z).tv_usec = (x).tv_usec - (y).tv_usec;                \
-      }
+      } while(0)
     #define add_internal_time(x,y, z)  # z:=x+y  \
-      { (z).tv_sec = (x).tv_sec + (y).tv_sec;                   \
+      do { (z).tv_sec = (x).tv_sec + (y).tv_sec;                \
         (z).tv_usec = (x).tv_usec + (y).tv_usec;                \
         if ((z).tv_usec >= ticks_per_second)                    \
           { (z).tv_usec -= ticks_per_second; (z).tv_sec += 1; } \
-      }
+      } while(0)
   #endif
   #ifdef TIME_WIN32
     typedef # struct _FILETIME { DWORD dwLowDateTime; DWORD dwHighDateTime; }
@@ -6582,15 +6591,15 @@ typedef struct {
             internal_time;
     #define ticks_per_second  10000000UL  # 1 Tick = 0.1 mu-sec
     #define sub_internal_time(x,y, z)  # z:=x-y  \
-      { (z).dwHighDateTime = (x).dwHighDateTime - (y).dwHighDateTime;         \
+      do { (z).dwHighDateTime = (x).dwHighDateTime - (y).dwHighDateTime;      \
         if ((x).dwLowDateTime < (y).dwLowDateTime) { (z).dwHighDateTime -= 1;}\
         (z).dwLowDateTime = (x).dwLowDateTime - (y).dwLowDateTime;            \
-      }
+      } while(0)
     #define add_internal_time(x,y, z)  # z:=x+y  \
-      { (z).dwHighDateTime = (x).dwHighDateTime + (y).dwHighDateTime;         \
+      do { (z).dwHighDateTime = (x).dwHighDateTime + (y).dwHighDateTime;      \
         (z).dwLowDateTime = (x).dwLowDateTime + (y).dwLowDateTime;            \
         if ((z).dwLowDateTime < (x).dwLowDateTime) { (z).dwHighDateTime += 1;}\
-      }
+      } while(0)
   #endif
 #endif
 
@@ -6958,23 +6967,23 @@ All other long words on the LISP-Stack are LISP-objects.
 #define _SP_(n)  (((SPint*)SP()) + SPoffset SPop (uintP)(n))
 #if !(defined(GNU) && (defined(MC680X0)) && !defined(NO_ASM)) # generally
   #define SP_(n)  (((SPint*)SP())[SPoffset SPop (uintP)(n)])
-  #define skipSP(n)  \
-    {var register SPint* sp = (SPint*)SP(); \
-     sp skipSPop (uintP)(n);                \
-     setSP(sp);                             \
-    }
-  #define pushSP(item)  \
-    {var register SPint* sp = (SPint*)SP();                                \
-     sp skipSPop -1;                                                       \
-     setSP(sp);             # First decrease SP (because of a possible interrupt!) \
-     sp[SPoffset] = (item); # then insert item as top-of-SP                \
-    }
-  #define popSP(item_allocation)  \
-    {var register SPint* sp = (SPint*)SP();                                \
-     item_allocation sp[SPoffset]; # at first fetch top-of-SP              \
-     sp skipSPop 1;                                                        \
-     setSP(sp);                   # then (danger of interrupt!) increse SP \
-    }
+  #define skipSP(n)                             \
+    do { var register SPint* sp = (SPint*)SP(); \
+         sp skipSPop (uintP)(n);                \
+         setSP(sp);                             \
+    } while(0)
+  #define pushSP(item)                                                     \
+    do { var register SPint* sp = (SPint*)SP();                            \
+         sp skipSPop -1;                                                   \
+         setSP(sp); # First decrease SP (because of a possible interrupt!) \
+         sp[SPoffset] = (item); /* then insert item as top-of-SP */        \
+    } while(0)
+  #define popSP(item_allocation)                                        \
+    do { var register SPint* sp = (SPint*)SP();                         \
+         item_allocation sp[SPoffset]; # First fetch top-of-SP       \
+         sp skipSPop 1;                                                 \
+         setSP(sp); # then (danger of interrupt!) increase SP           \
+    } while(0)
 #endif
 #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
   # With GNU on as 680X0 SP is in a register. Thus access and
@@ -6987,18 +6996,18 @@ All other long words on the LISP-Stack are LISP-objects.
       __item;                                       \
      })
   #define skipSP(n)  \
-    {var register uintL __n = sizeof(SPint) * (n);                            \
+    do { var register uintL __n = sizeof(SPint) * (n);  \
      __asm__ __volatile__ ("addl %0,"REGISTER_PREFIX"sp" : : "g" (__n) : "sp" ); \
-    }
+    } while(0)
   #define pushSP(item)  \
-    {var register SPint __item = (item);                                      \
+    do { var register SPint __item = (item); \
      __asm__ __volatile__ ("movel %0,"REGISTER_PREFIX"sp@-" : : "g" (__item) : "sp" ); \
-    }
+    } while(0)
   #define popSP(item_allocation)  \
-    {var register SPint __item;                                              \
+    do {  var register SPint __item; \
      __asm__ __volatile__ ("movel "REGISTER_PREFIX"sp@+,%0" : "=r" (__item) : : "sp" ); \
      item_allocation __item;                                                 \
-    }
+    } while(0)
 #endif
 # An sp_jmp_buf is exactly the same as a jmp_buf,
 # except that on Irix 6.5 in 32-bit mode, a jmp_buf has alignment 8,
@@ -7028,8 +7037,8 @@ typedef SPint sp_jmp_buf[jmpbufsize];
   # a global register variable, but access functions externally in assembler
   #define STACK  _getSTACK()
   extern_C object* _getSTACK (void);
-  #define setSTACK(allocation)  \
-    { var object* tempSTACK; _setSTACK(temp##allocation); } # hem, yuck!
+  #define setSTACK(allocation)  /* hem, yuck! */ \
+    do { var object* tempSTACK; _setSTACK(temp##allocation); } while(0)
   extern_C void _setSTACK (void* new_STACK);
 #else
   #define setSTACK(allocation)  allocation
@@ -7582,14 +7591,16 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
 #define allocate_cclosure_copy(oldclos)  \
   allocate_closure(Cclosure_length(oldclos))
 # do_cclosure_copy(newclos,oldclos);
-#define do_cclosure_copy(newclos,oldclos) do {                          \
-    var object* newptr = &((Srecord)TheCclosure(newclos))->recdata[0];  \
-    var object* oldptr = &((Srecord)TheCclosure(oldclos))->recdata[0];  \
-    var uintC count;                                                    \
-    dotimespC(count,Cclosure_length(oldclos),                           \
-      { *newptr++ = *oldptr++; }                                        \
-      );                                                                \
-  } while(0)
+#define do_cclosure_copy(newclos,oldclos)               \
+  memcpy(&((Srecord)TheCclosure(newclos))->recdata[0],  \
+         &((Srecord)TheCclosure(oldclos))->recdata[0],  \
+         Cclosure_length(oldclos)*sizeof(Srecord))
+/* do {                            \
+    var object* newptr = &((Srecord)TheCclosure(newclos))->recdata[0];    \
+    var object* oldptr = &((Srecord)TheCclosure(oldclos))->recdata[0];    \
+    var uintC count;                                                      \
+    dotimespC(count,Cclosure_length(oldclos),{ *newptr++ = *oldptr++; }); \
+    } while(0) */
 # is used by EVAL, IO, RECORD
 
 # UP: allocates Structure
@@ -8962,29 +8973,27 @@ re-enters the corresponding top-level loop.
 # STACK_to_mv(count)
 # count: number of objects, < mv_limit.
 #if !defined(VALUE1_EXTRA)
-  #define STACK_to_mv(countx)  \
-    { var uintC count = (countx);                            \
-      mv_count = count;                                      \
-      if (count == 0)                                        \
-        { value1 = NIL; }                                    \
-        else                                                 \
-        { object* mvp = &mv_space[count]; # pointer behind space for last value \
-          dotimespC(count,count, { *--mvp = popSTACK(); } ); \
-    }   }
+  #define STACK_to_mv(countx)                                   \
+    do { var uintC count = (countx);                            \
+      mv_count = count;                                         \
+      if (count == 0) value1 = NIL;                             \
+      else { # pointer behind space for last value              \
+       object* mvp = &mv_space[count];                          \
+       dotimespC(count,count, { *--mvp = popSTACK(); } );       \
+    }  } while(0)
 #else
-  #define STACK_to_mv(countx)  \
-    { var uintC count = (countx);                                \
-      mv_count = count;                                          \
-      if (count == 0)                                            \
-        { value1 = NIL; }                                        \
-        else                                                     \
-        { count--;                                               \
-          if (count > 0)                                         \
-            { object* mvp = &mv_space[1+count]; # pointer behind space for last value \
-              dotimespC(count,count, { *--mvp = popSTACK(); } ); \
-            }                                                    \
-          value1 = popSTACK();                                   \
-    }   }
+  #define STACK_to_mv(countx)                                   \
+    do { var uintC count = (countx);                            \
+      mv_count = count;                                         \
+      if (count == 0) value1 = NIL;                             \
+      else {                                                    \
+        count--;                                                \
+        if (count > 0) { # pointer behind space for last value  \
+          object* mvp = &mv_space[1+count];                     \
+          dotimespC(count,count, { *--mvp = popSTACK(); } );    \
+        }                                                       \
+        value1 = popSTACK();                                    \
+    }  } while(0)
 #endif
 # is used by EVAL, CONTROL
 
@@ -8995,27 +9004,25 @@ re-enters the corresponding top-level loop.
 # STACK-Overflow is checked.
 # modifies STACK
 #if !defined(VALUE1_EXTRA)
-  #define mv_to_STACK()  \
-    { var uintC count = mv_count;                           \
-      if (count==0) ; # no values-> nothing onto the STACK  \
-        else                                                \
-        { var object* mvp = &mv_space[0];                   \
-          dotimespC(count,count, { pushSTACK(*mvp++); } );  \
-          check_STACK();                                    \
-    }   }
+  #define mv_to_STACK()                                         \
+    do { var uintC count = mv_count;                            \
+         if (count!=0) { # no values-> nothing onto the STACK   \
+           var object* mvp = &mv_space[0];                      \
+           dotimespC(count,count, { pushSTACK(*mvp++); } );     \
+           check_STACK();                                       \
+    }  } while(0)
 #else
-  #define mv_to_STACK()  \
-    { var uintC count = mv_count;                              \
-      if (count==0) ; # no values -> nothing onto the STACK    \
-        else                                                   \
-        { pushSTACK(value1);                                   \
-          count--;                                             \
-          if (count > 0)                                       \
-            { var object* mvp = &mv_space[1];                  \
-              dotimespC(count,count, { pushSTACK(*mvp++); } ); \
-            }                                                  \
-          check_STACK();                                       \
-    }   }
+  #define mv_to_STACK()                                         \
+    do { var uintC count = mv_count;                            \
+         if (count!=0) { # no values -> nothing onto the STACK  \
+           pushSTACK(value1);                                   \
+           count--;                                             \
+           if (count > 0) {                                     \
+             var object* mvp = &mv_space[1];                    \
+             dotimespC(count,count, { pushSTACK(*mvp++); } );   \
+           }                                                    \
+          check_STACK();                                        \
+    }  } while(0)
 #endif
 # is used by EVAL, CONTROL
 
@@ -9023,62 +9030,58 @@ re-enters the corresponding top-level loop.
 # list_to_mv(list,fehler_statement)
 # fehler_statement: if there's an error (too many values).
 #if !defined(VALUE1_EXTRA)
-  #define list_to_mv(lst,fehler_statement)  \
-    {var object l = (lst);                                                   \
-     var uintC count = 0;                                                    \
-     if (atomp(l))                                                           \
-       value1 = NIL;                                                         \
-       else                                                                  \
-       { var object* mvp = &mv_space[0];                                     \
-         *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
-         *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
-         *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
-         do { *mvp++ = Car(l); l = Cdr(l);                                   \
-              count++; if (count==mv_limit) { fehler_statement; }            \
-            }                                                                \
-            while (consp(l));                                                \
-       }                                                                     \
-     mv_fertig:                                                              \
-     if (!nullp(l)) { subr_self = L(values_list); fehler_proper_list(l); }   \
-     mv_count = count;                                                       \
-    }
+  #define list_to_mv(lst,fehler_statement)                                 \
+    do { var object l = (lst);                                             \
+     var uintC count = 0;                                                  \
+     if (atomp(l)) value1 = NIL;                                           \
+     else {                                                                \
+       var object* mvp = &mv_space[0];                                     \
+       *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
+       *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
+       *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
+       do { *mvp++ = Car(l); l = Cdr(l);                                   \
+            count++; if (count==mv_limit) { fehler_statement; }            \
+       } while (consp(l));                                                 \
+     }                                                                     \
+     mv_fertig:                                                            \
+     if (!nullp(l)) { subr_self = L(values_list); fehler_proper_list(l); } \
+     mv_count = count;                                                     \
+    } while(0)
 #else
-  #define list_to_mv(lst,fehler_statement)  \
-    {var object l = (lst);                                                   \
-     var uintC count = 0;                                                    \
-     if (atomp(l))                                                           \
-       value1 = NIL;                                                         \
-       else                                                                  \
-       { value1 = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
-        {var object* mvp = &mv_space[1];                                     \
-         *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
-         *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
-         do { *mvp++ = Car(l); l = Cdr(l);                                   \
-              count++; if (count==mv_limit) { fehler_statement; }            \
-            }                                                                \
-            while (consp(l));                                                \
-       }}                                                                    \
-     mv_fertig:                                                              \
-     if (!nullp(l)) { subr_self = L(values_list); fehler_proper_list(l); }   \
-     mv_count = count;                                                       \
-    }
+  #define list_to_mv(lst,fehler_statement)                                  \
+    do { var object l = (lst);                                              \
+     var uintC count = 0;                                                   \
+     if (atomp(l)) value1 = NIL;                                            \
+     else {                                                                 \
+       value1 = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig;  \
+       {var object* mvp = &mv_space[1];                                     \
+        *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
+        *mvp++ = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
+        do { *mvp++ = Car(l); l = Cdr(l);                                   \
+             count++; if (count==mv_limit) { fehler_statement; }            \
+        } while (consp(l));                                                 \
+     }}                                                                     \
+     mv_fertig:                                                             \
+     if (!nullp(l)) { subr_self = L(values_list); fehler_proper_list(l); }  \
+     mv_count = count;                                                      \
+    } while(0)
 #endif
 # is used by EVAL, CONTROL
 
 # Gives the list of the multiple values on -(STACK).
 # mv_to_list()
 # can trigger GC
-#define mv_to_list()  \
-  { mv_to_STACK(); # at first all values onto the stack           \
-    pushSTACK(NIL); # head of the list                            \
-    { var uintC count;                                            \
-      dotimesC(count,mv_count, # until all values have been used: \
-        { var object l = allocate_cons(); # new cell              \
-          Cdr(l) = popSTACK(); # list so far                      \
-          Car(l) = STACK_0; # next value                          \
-          STACK_0 = l; # save new cons                            \
-        });                                                       \
-  } }
+#define mv_to_list()                                                    \
+  do { mv_to_STACK(); # at first all values onto the stack              \
+    pushSTACK(NIL); # head of the list                                  \
+    { var uintC count;                                                  \
+      dotimesC(count,mv_count, { # until all values have been used:     \
+          var object l = allocate_cons(); # new cell                    \
+          Cdr(l) = popSTACK(); # list so far                            \
+          Car(l) = STACK_0; # next value                                \
+          STACK_0 = l; # save new cons                                  \
+        });                                                             \
+  } } while(0)
 # is used by EVAL, CONTROL, DEBUG
 
 # Error message if there are too many values
@@ -9547,15 +9550,15 @@ typedef struct {
 # Makes a Frame for all 5 Environments
 # make_ENV5_frame();
 # decreases STACK by 5
-#define make_ENV5_frame()  \
-  {var object* top_of_frame = STACK; \
-   pushSTACK(aktenv.decl_env);       \
-   pushSTACK(aktenv.go_env);         \
-   pushSTACK(aktenv.block_env);      \
-   pushSTACK(aktenv.fun_env);        \
-   pushSTACK(aktenv.var_env);        \
-   finish_frame(ENV5);               \
-  }
+#define make_ENV5_frame()                       \
+  do { var object* top_of_frame = STACK;        \
+       pushSTACK(aktenv.decl_env);              \
+       pushSTACK(aktenv.go_env);                \
+       pushSTACK(aktenv.block_env);             \
+       pushSTACK(aktenv.fun_env);               \
+       pushSTACK(aktenv.var_env);               \
+       finish_frame(ENV5);                      \
+  } while(0)
 # is used by EVAL, CONTROL, DEBUG
 
 # Finishes a Frame with entry point and places jump-point here.
@@ -9566,14 +9569,14 @@ typedef struct {
 # > reentry_statement: what is to be done immediately after re-entry.
 # decreases STACK by 1
 #define finish_entry_frame(frametype,returner,retval_allocation,reentry_statement)  \
-  { pushSTACK(as_object((aint)(returner))); # SP onto the Stack               \
+  do { pushSTACK(as_object((aint)(returner))); # SP onto the Stack            \
     pushSTACK(nullobj); # dummy onto the Stack, until re-entry is permitted   \
     begin_setjmp_call();                                                      \
     if ((retval_allocation setjmpspl(returner))!=0) # set point for returner  \
       { end_longjmp_call(); LONGJMP_RESTORE_mv_count(); LONGJMP_RESTORE_value1(); reentry_statement } # after re-entry \
-      else                                                                    \
+    else                                                                      \
       { end_setjmp_call(); STACK_0 = framebottomword(frametype##_frame_info,top_of_frame,STACK); } \
-  }
+  } while(0)
 # is used by EVAL, CONTROL, DEBUG
 
 # Jumps to a Frame with entry point that starts at STACK.
@@ -9583,12 +9586,12 @@ typedef struct {
 # The multiple values are passed.
 # enter_frame_at_STACK();
 #define enter_frame_at_STACK() \
-  { var sp_jmp_buf* returner = (sp_jmp_buf*)(aint)as_oint(STACK_(frame_SP)); # the returner of finish_entry_frame \
+  do { var sp_jmp_buf* returner = (sp_jmp_buf*)(aint)as_oint(STACK_(frame_SP)); # the returner of finish_entry_frame \
     LONGJMP_SAVE_value1(); LONGJMP_SAVE_mv_count(); \
     begin_longjmp_call(); \
     longjmpspl(&!*returner,(aint)returner); # jump to there, pass own addess (/=0) \
     NOTREACHED; \
-  }
+  } while(0)
 # is used by EVAL
 
 # Makes a HANDLER-Frame with C-Handler.
@@ -9600,18 +9603,18 @@ typedef struct {
 # > sp_jmp_buf* returner: longjmp-Buffer for re-entry
 # > reentry_statement: what is to be done right after the re-entry.
 #define make_HANDLER_frame(types_labels_vector_list,handler,sp_arg)  \
-  { var object* top_of_frame = STACK;      \
-    pushSTACK(types_labels_vector_list);   \
-    pushSTACK(make_machine_code(handler)); \
-    pushSTACK(as_object((aint)(sp_arg)));  \
-    finish_frame(HANDLER);                 \
-  }
+  do { var object* top_of_frame = STACK;      \
+       pushSTACK(types_labels_vector_list);   \
+       pushSTACK(make_machine_code(handler)); \
+       pushSTACK(as_object((aint)(sp_arg)));  \
+       finish_frame(HANDLER);                 \
+  } while(0)
 #define make_HANDLER_entry_frame(types_labels_vector_list,handler,returner,reentry_statement)  \
-  { var object* top_of_frame = STACK;                        \
-    pushSTACK(types_labels_vector_list);                     \
-    pushSTACK(make_machine_code(handler));                   \
-    finish_entry_frame(HANDLER,returner,,reentry_statement); \
-  }
+  do { var object* top_of_frame = STACK;                        \
+       pushSTACK(types_labels_vector_list);                     \
+       pushSTACK(make_machine_code(handler));                   \
+       finish_entry_frame(HANDLER,returner,,reentry_statement); \
+  } while(0)
 #define unwind_HANDLER_frame()  skipSTACK(4)
 
 # UP: Applies a function to its arguments.
@@ -9910,8 +9913,8 @@ extern object coerce_function (object obj);
 # > val: the new value
 # decreases STACK by 3 entries
 # modifies STACK
-#define dynamic_bind(variable,val_to_use)  \
-  { var object* top_of_frame = STACK;         \
+#define dynamic_bind(variable,val_to_use)     \
+  do { var object* top_of_frame = STACK;      \
     var object sym_to_bind = (variable);      \
     # Create frame :                          \
     pushSTACK(Symbol_value(sym_to_bind));     \
@@ -9919,7 +9922,7 @@ extern object coerce_function (object obj);
     finish_frame(DYNBIND);                    \
     # modify value                            \
     Symbol_value(sym_to_bind) = (val_to_use); \
-  }
+  } while(0)
 # is used by IO, EVAL, DEBUG, ERROR
 
 # Unbinds a dynamic variable-bindings frame for one variable.
@@ -9938,13 +9941,12 @@ extern object coerce_function (object obj);
 # implicit_progn(body,default)
 # Executes body as implicit PROGN. If the body is empty, the value is the default one.
 # can trigger GC
-#define implicit_progn(body,default)  \
-  do { var object rest = (body);                                       \
-    if atomp(rest)                                                     \
-      { value1 = (default); mv_count=1; } # default as value           \
-      else                                                             \
-        do { pushSTACK(Cdr(rest)); eval(Car(rest)); rest=popSTACK(); } \
-           while (consp(rest));                                        \
+#define implicit_progn(body,default)                                      \
+  do { var object rest = (body);                                          \
+    if atomp(rest) { value1 = (default); mv_count=1; } # default as value \
+    else                                                                  \
+      do { pushSTACK(Cdr(rest)); eval(Car(rest)); rest=popSTACK(); }      \
+      while (consp(rest));                                                \
   } while(0)
 # is used by EVAL, CONTROL
 
@@ -10083,13 +10085,13 @@ extern object ascii_to_string (const char * asciz);
 # executes the statement.
 #if 0
   #define with_string_0(string,encoding,ascizvar,statement)  \
-    { var char* ascizvar = TheAsciz(string_to_asciz(string,encoding)); \
-      statement                                                        \
-    }
+    do { var char* ascizvar = TheAsciz(string_to_asciz(string,encoding)); \
+         statement                                                        \
+    } while(0)
   #define with_sstring_0  with_string_0
 #else
   #define with_string_0(string,encoding,ascizvar,statement)  \
-    { var uintL ascizvar##_len;                                           \
+    do { var uintL ascizvar##_len;                                        \
       var uintL ascizvar##_offset;                                        \
       var object ascizvar##_string = unpack_string_ro(string,&ascizvar##_len,&ascizvar##_offset); \
       var const chart* ptr1;                                              \
@@ -10102,9 +10104,9 @@ extern object ascii_to_string (const char * asciz);
        statement                                                          \
       }                                                                   \
       FREE_DYNAMIC_ARRAY(ascizvar##_data);                                \
-    }}
+    }} while(0)
   #define with_sstring_0(string,encoding,ascizvar,statement)  \
-    { var object ascizvar##_string = (string);                            \
+    do { var object ascizvar##_string = (string);                         \
       var uintL ascizvar##_len = Sstring_length(ascizvar##_string);       \
       var const chart* ptr1;                                              \
       unpack_sstring_alloca(ascizvar##_string,ascizvar##_len,0, ptr1=);   \
@@ -10116,7 +10118,7 @@ extern object ascii_to_string (const char * asciz);
        statement                                                          \
       }                                                                   \
       FREE_DYNAMIC_ARRAY(ascizvar##_data);                                \
-    }}
+    }} while(0)
 #endif
 # is used by PATHNAME, MISC, FOREIGN
 
@@ -10134,7 +10136,7 @@ extern object ascii_to_string (const char * asciz);
 # binds the variable charptr pointing to it and the variable len to its length,
 # and executes the statement.
 #define with_string(string,encoding,charptrvar,lenvar,statement)  \
-  { var uintL charptrvar##_len;                                           \
+  do { var uintL charptrvar##_len;                                        \
     var uintL charptrvar##_offset;                                        \
     var object charptrvar##_string = unpack_string_ro(string,&charptrvar##_len,&charptrvar##_offset); \
     var const chart* ptr1;                                                \
@@ -10146,9 +10148,9 @@ extern object ascii_to_string (const char * asciz);
      statement                                                            \
     }                                                                     \
     FREE_DYNAMIC_ARRAY(charptrvar##_data);                                \
-  }}
+  }} while(0)
 #define with_sstring(string,encoding,charptrvar,lenvar,statement)  \
-  { var object charptrvar##_string = (string);                            \
+  do { var object charptrvar##_string = (string);                         \
     var uintL charptrvar##_len = Sstring_length(charptrvar##_string);     \
     var const chart* ptr1;                                                \
     unpack_sstring_alloca(charptrvar##_string,charptrvar##_len,0, ptr1=); \
@@ -10159,7 +10161,7 @@ extern object ascii_to_string (const char * asciz);
      statement                                                            \
     }                                                                     \
     FREE_DYNAMIC_ARRAY(charptrvar##_data);                                \
-  }}
+  }} while(0)
 # is used by PATHNAME
 
 # ####################### ARRBIBL for ARRAY.D ############################## #
@@ -10838,7 +10840,7 @@ extern object shifthash (object ht, object obj, object value);
 # Calls 'statement', where key and value are a pair from the table.
 # The first form is necessary, if the statement can trigger GC.
 #define map_hashtable(ht,key,value,statement)  \
-  { var object ht_from_map_hashtable = (ht);                              \
+  do { var object ht_from_map_hashtable = (ht);                           \
     var uintL index_from_map_hashtable =                                  \
       2*posfixnum_to_L(TheHashtable(ht_from_map_hashtable)->ht_maxcount); \
     pushSTACK(TheHashtable(ht_from_map_hashtable)->ht_kvtable);           \
@@ -10852,9 +10854,9 @@ extern object shifthash (object ht, object obj, object value);
               statement;                                                  \
       } }   }                                                             \
     skipSTACK(1);                                                         \
-  }
+  } while(0)
 #define map_hashtable_nogc(ht,key,value,statement)  \
-  { var object ht_from_map_hashtable = (ht);                              \
+  do { var object ht_from_map_hashtable = (ht);                           \
     var uintL index_from_map_hashtable =                                  \
       posfixnum_to_L(TheHashtable(ht_from_map_hashtable)->ht_maxcount);   \
     var object* KVptr_from_map_hashtable =                                \
@@ -10867,7 +10869,7 @@ extern object shifthash (object ht, object obj, object value);
             { var object value = KVptr_from_map_hashtable[1];             \
               statement;                                                  \
       } }   }                                                             \
-  }
+  } while(0)
 # is used by IO
 
 # ######################### IOBIBL for IO.D ############################## #
