@@ -2438,6 +2438,34 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
       #define oint_data_mask 0x00000000FFFFFFFFUL
     #endif
   #endif
+  #if defined(AMD64) && defined(UNIX_LINUX)
+    # Code address range:    0x000000004xxxxxxx
+    # Malloc address range:  0x000000004xxxxxxx
+    # Shared libraries:      0x0000002A95xxxxxx
+    #if 1 /* slightly faster than the other one */
+      # Bits 63..48 = type code, Bits 47..0 = address
+      #define oint_type_shift 48
+      #define oint_type_len 16
+      #define oint_type_mask 0xFFFF000000000000UL
+      #define oint_addr_shift 0
+      #define oint_addr_len 48
+      #define oint_addr_mask 0x0000FFFFFFFFFFFFUL
+      #define oint_data_shift 0
+      #define oint_data_len 32
+      #define oint_data_mask 0x00000000FFFFFFFFUL
+    #else
+      # Bits 63..40 = Typcode, Bits 39..0 = address
+      #define oint_type_shift 40
+      #define oint_type_len 24
+      #define oint_type_mask 0xFFFFFF0000000000UL
+      #define oint_addr_shift 0
+      #define oint_addr_len 64
+      #define oint_addr_mask 0x000000FFFFFFFFFFUL
+      #define oint_data_shift 0
+      #define oint_data_len 32
+      #define oint_data_mask 0x00000000FFFFFFFFUL
+    #endif
+  #endif
 #elif defined(WIDE_SOFT)
   # separate one 32-bit word for typcode and address.
   #if WIDE_ENDIANNESS
@@ -2533,7 +2561,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
 #endif
 
 
-#if (oint_addr_shift == 0) && (addr_shift == 0) && defined(TYPECODES) && !defined(WIDE_SOFT) && !(defined(SUN3) && !defined(UNIX_SUNOS4) && !defined(WIDE_SOFT))
+#if (oint_addr_shift == 0) && (addr_shift == 0) && defined(TYPECODES) && !defined(WIDE_SOFT) && !(defined(SUN3) && !defined(UNIX_SUNOS4) && !defined(WIDE_SOFT)) && !(defined(AMD64) && defined(UNIX_LINUX))
 # If the address bits are the lower ones and not WIDE_SOFT,
 # memory mapping may be possible.
 
