@@ -4912,7 +4912,7 @@ global object iconv_range(encoding,start,end)
           }
           #endif
         }
-        dotimesL(count,count, { *bitbufferptr++ = 0; } );
+        memset(bitbufferptr,0,count);
       }
       (*finisher)(stream,bitsize,bytesize);
     }
@@ -4950,7 +4950,7 @@ global object iconv_range(encoding,start,end)
           until (wert == 0) {
             *bitbufferptr++ = (uint8)(wert^sign); wert = wert>>8; count--;
           }
-          dotimesL(count,count, { *bitbufferptr++ = (uint8)sign; } );
+          memset(bitbufferptr,(uint8)sign,count);
         } else {
           # obj ist ein Bignum
           var uintL len = (uintL)Bignum_length(obj);
@@ -4995,7 +4995,7 @@ global object iconv_range(encoding,start,end)
            ok: ;
           }
           #endif
-          dotimesL(count,count, { *bitbufferptr++ = (uintB)sign; } );
+          memset(bitbufferptr,(uintB)sign,count);
         }
       }
       (*finisher)(stream,bitsize,bytesize);
@@ -6624,6 +6624,10 @@ typedef struct strm_i_buffered_extrafields_struct {
 #define BufferedStream_eofposition(stream)  \
   ((strm_i_buffered_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->eofposition
 
+#define Truename_or_Self(stream)                                \
+ (nullp(TheStream(stream)->strm_file_truename) ? stream :       \
+  TheStream(stream)->strm_file_truename)
+
 # File-Stream allgemein
 # =====================
 
@@ -6768,9 +6772,8 @@ typedef struct strm_i_buffered_extrafields_struct {
         pushSTACK(stream);
         builtin_stream_close(&STACK_0); # file close
         clr_break_sem_4(); # no more UNIX operations are active
-        # Report the error: FILE-ERROR slot PATHNAME:
-        pushSTACK(!nullp(TheStream(STACK_0)->strm_file_truename) ?
-                  TheStream(STACK_0)->strm_file_truename : STACK_0);
+        # Report the error
+        pushSTACK(Truename_or_Self(STACK_0)); # FILE-ERROR slot PATHNAME
         pushSTACK(STACK_(0+1)); # stream
         fehler(file_error,
                GETTEXT("Closed ~ because disk is full.")
@@ -6957,9 +6960,7 @@ typedef struct strm_i_buffered_extrafields_struct {
   local void fehler_position_beyond_EOF(stream)
     var object stream;
     {
-      pushSTACK(!nullp(TheStream(stream)->strm_file_truename) ?
-                TheStream(stream)->strm_file_truename :
-                stream); # FILE-ERROR slot PATHNAME
+      pushSTACK(Truename_or_Self(stream)); # FILE-ERROR slot PATHNAME
       pushSTACK(stream);
       fehler(file_error,
              GETTEXT("cannot position ~ beyond EOF")
@@ -7062,12 +7063,10 @@ typedef struct strm_i_buffered_extrafields_struct {
           - BufferedStream_index(stream);
         if (available > len)
           available = len;
-        # Alle verfügbaren Bytes kopieren:
-        {
-          var uintL count;
-          dotimespL(count,available, { *byteptr++ = *ptr++; } );
-        }
-        # index incrementieren:
+        # copy all available bytes:
+        memcpy(byteptr,ptr,available);
+        byteptr += available;
+        # increment index:
         BufferedStream_index(stream) += available;
         len -= available;
       } while (len > 0);
@@ -7134,13 +7133,11 @@ typedef struct strm_i_buffered_extrafields_struct {
           }
           if (next > remaining)
             next = remaining;
-          # next Bytes in den Buffer kopieren:
-          {
-            var uintL count;
-            ptr = &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[BufferedStream_index(stream)];
-            dotimespL(count,next, { *ptr++ = *byteptr++; } );
+          # copy the next bytes in the buffer:
+          memcpy(&TheSbvector(TheStream(stream)->strm_buffered_buffer)
+                 ->data[BufferedStream_index(stream)],byteptr,next);
+          byteptr += next;
           BufferedStream_modified(stream) = true;
-          }
           remaining = remaining - next;
           # increment index and eofindex:
           BufferedStream_index(stream) += next;
@@ -8683,9 +8680,7 @@ typedef struct strm_i_buffered_extrafields_struct {
             TheStream(stream)->strmflags &= ~strmflags_wr_by_B; # Stream Read-Only machen
             pushSTACK(stream);
             builtin_stream_close(&STACK_0);
-            # STACK_0 = STREAM-ERROR slot STREAM
-            pushSTACK(!nullp(TheStream(STACK_0)->strm_file_truename) ?
-                      TheStream(STACK_0)->strm_file_truename : STACK_0);
+            pushSTACK(Truename_or_Self(STACK_0)); # STREAM-ERROR slot STREAM
             fehler(stream_error,
                    GETTEXT("file ~ is not an integer file")
                   );
@@ -13130,10 +13125,7 @@ typedef struct {
       var uintC count;
       var uintB* tmp = *pp;
       dotimesC(count,curr->bot - curr->top, { pp[0] = pp[1]; pp++; } );
-      {
-        var uintB* p = tmp;
-        dotimesC(count,cols, { *p++ = filler; } );
-      }
+      memset(tmp,filler,cols);
       *pp = tmp;
     }
   local void scroll_up (void);
@@ -13160,10 +13152,7 @@ typedef struct {
       var uintC count;
       var uintB* tmp = *pp;
       dotimesC(count,curr->bot - curr->top, { pp[0] = pp[-1]; pp--; } );
-      {
-        var uintB* p = tmp;
-        dotimesC(count,cols, { *p++ = filler; } );
-      }
+      memset(tmp,filler,cols);
       *pp = tmp;
     }
   local void scroll_down (void);
@@ -13226,24 +13215,12 @@ typedef struct {
     {
       var int n = x2-x1;
       if (n>0) {
-        {
-          var uintB* sp = &curr->image[y][x1];
-          var uintC count;
-          dotimespC(count,n, { *sp++ = ' '; } );
-        }
+        memset(&curr->image[y][x1],' ',n);
         #if WANT_ATTR
-        {
-          var uintB* ap = &curr->attr[y][x1];
-          var uintC count;
-          dotimespC(count,n, { *ap++ = 0; } );
-        }
+        memset(&curr->attr[y][x1],0,n);
         #endif
         #if WANT_CHARSET
-        {
-          var uintB* fp = &curr->font[y][x1];
-          var uintC count;
-          dotimespC(count,n, { *fp++ = 0; } );
-        }
+        memset(&curr->font[y][x1],0,n);
         #endif
       }
     }
@@ -13270,24 +13247,12 @@ typedef struct {
     {
       var int n = x2-x1;
       if (n>0) {
-        {
-          var uintB* sp = &curr->image[y][x1];
-          var uintC count;
-          dotimespC(count,n, { *sp++ = ' '; } );
-        }
+        memset(&curr->image[y][x1],' ',n);
         #if WANT_ATTR
-        {
-          var uintB* ap = &curr->attr[y][x1];
-          var uintC count;
-          dotimespC(count,n, { *ap++ = 0; } );
-        }
+        memset(&curr->attr[y][x1],0,n);
         #endif
         #if WANT_CHARSET
-        {
-          var uintB* fp = &curr->font[y][x1];
-          var uintC count;
-          dotimespC(count,n, { *fp++ = 0; } );
-        }
+        memset(&curr->font[y][x1],0,n);
         #endif
         if ((x2==cols) && CEcap) {
           gofromto(curr->y,curr->x,y,x1); curr->y = y; curr->x = x1;
@@ -13417,27 +13382,12 @@ typedef struct {
     var int y;
     {
       if (cols > 0) {
-        {
-          var uintB* p1 = &curr->image[y][0];
-          var uintB* p2 = &old_image_y[0];
-          var uintC count;
-          dotimespC(count,cols, { *p2++ = *p1++; } );
-        }
+        memcpy(&old_image_y[0],&curr->image[y][0],cols);
         #if WANT_ATTR
-        {
-          var uintB* p1 = &curr->attr[y][0];
-          var uintB* p2 = &old_attr_y[0];
-          var uintC count;
-          dotimespC(count,cols, { *p2++ = *p1++; } );
-        }
+        memcpy(&old_attr_y[0],&curr->attr[y][0],cols);
         #endif
         #if WANT_CHARSET
-        {
-          var uintB* p1 = &curr->font[y][0];
-          var uintB* p2 = &old_font_y[0];
-          var uintC count;
-          dotimespC(count,cols, { *p2++ = *p1++; } );
-        }
+        memcpy(&old_font_y[0],&curr->font[y][0],cols);
         #endif
       }
     }
@@ -13477,27 +13427,21 @@ typedef struct {
         # neuen Zeileninhalt bilden:
         {
           var uintB* p1 = &curr->image[y][x];
-          var uintB* p2 = &old_image[x];
-          var uintC count;
           *p1++ = c;
-          dotimesC(count,cols-1-x, { *p1++ = *p2++; } );
+          memcpy(p1,&old_image[x],cols-1-x);
         }
         #if WANT_ATTR
         {
           var uintB* p1 = &curr->attr[y][x];
-          var uintB* p2 = &old_attr[x];
-          var uintC count;
           *p1++ = curr->curr_attr;
-          dotimesC(count,cols-1-x, { *p1++ = *p2++; } );
+          memcpy(p1,&old_attr[x],cols-1-x);
         }
         #endif
         #if WANT_CHARSET
         {
           var uintB* p1 = &curr->font[y][x];
-          var uintB* p2 = &old_font[x];
-          var uintC count;
           *p1++ = term_charset; # = curr->charsets[curr->curr_charset]
-          dotimesC(count,cols-1-x, { *p1++ = *p2++; } );
+          memcpy(p1,&old_font[x],cols-1-x);
         }
         #endif
         # Zeile anzeigen:
@@ -13525,27 +13469,21 @@ typedef struct {
       # neuen Zeileninhalt bilden:
       {
         var uintB* p1 = &curr->image[y][x];
-        var uintB* p2 = &old_image[x];
-        var uintC count;
-        dotimespC(count,n, { *p1++ = ' '; } );
-        dotimesC(count,cols-x-n, { *p1++ = *p2++; } );
+        memset(p1,' ',n);
+        memcpy(p1+n,&old_image[x],cols-x-n);
       }
       #if WANT_ATTR
       {
         var uintB* p1 = &curr->attr[y][x];
-        var uintB* p2 = &old_attr[x];
-        var uintC count;
-        dotimespC(count,n, { *p1++ = 0; } );
-        dotimesC(count,cols-x-n, { *p1++ = *p2++; } );
+        memset(p1,0,n);
+        memcpy(p1+n,&old_attr[x],cols-x-n);
       }
       #endif
       #if WANT_CHARSET
       {
         var uintB* p1 = &curr->font[y][x];
-        var uintB* p2 = &old_font[x];
-        var uintC count;
-        dotimespC(count,n, { *p1++ = 0; } );
-        dotimesC(count,cols-x-n, { *p1++ = *p2++; } );
+        memset(p1,0,n);
+        memcpy(p1+n,&old_font[x],cols-x-n);
       }
       #endif
       if (CICcap && (n > 1)) {
@@ -13644,27 +13582,21 @@ typedef struct {
       # neuen Zeileninhalt bilden:
       {
         var uintB* p1 = &curr->image[y][x];
-        var uintB* p2 = &old_image[x];
-        var uintC count;
-        dotimesC(count,cols-x-n, { *p1++ = *p2++; } );
-        dotimespC(count,n, { *p1++ = ' '; } );
+        memcpy(p1,&old_image[x],cols-x-n);
+        memset(p1+cols-x-n,' ',n);
       }
       #if WANT_ATTR
       {
         var uintB* p1 = &curr->attr[y][x];
-        var uintB* p2 = &old_attr[x];
-        var uintC count;
-        dotimesC(count,cols-x-n, { *p1++ = *p2++; } );
-        dotimespC(count,n, { *p1++ = 0; } );
+        memcpy(p1,&old_attr[x],cols-x-n);
+        memset(p1+cols-x-n,0,n);
       }
       #endif
       #if WANT_CHARSET
       {
         var uintB* p1 = &curr->font[y][x];
-        var uintB* p2 = &old_font[x];
-        var uintC count;
-        dotimesC(count,cols-x-n, { *p1++ = *p2++; } );
-        dotimespC(count,n, { *p1++ = 0; } );
+        memcpy(p1,&old_font[x],cols-x-n);
+        memset(p1+cols-x-n,0,n);
       }
       #endif
       if (CDCcap && ((n>1) || !DCcap)) {
@@ -13975,18 +13907,13 @@ typedef struct {
       UPcost = cap_cost(UPcap);
       CRcost = cap_cost(CRcap);
       # Hilfs-Datenstrukturen bereitstellen:
-      {
-        var uintB* ptr = (uintB*) malloc(cols*sizeof(uintB));
-        var uintC count;
-        blank = ptr;
-        dotimespC(count,cols, { *ptr++ = ' '; } );
-      }
+      blank = (uintB*) malloc(cols*sizeof(uintB));
+      memset(blank,' ',cols);
       #if WANT_ATTR || WANT_CHARSET
       {
         var uintB* ptr = (uintB*) malloc(cols*sizeof(uintB));
-        var uintC count;
         null = ptr;
-        dotimespC(count,cols, { *ptr++ = 0; } );
+        memset(ptr,0,cols);
       }
       #endif
       #if WANT_INSERT_1CHAR || WANT_INSERT_CHAR || WANT_DELETE_CHAR
@@ -15021,11 +14948,7 @@ local inline void create_input_pipe(command)
       # command in den Stack kopieren:
       var uintL command_length = asciz_length(command)+1;
       var DYNAMIC_ARRAY(command_data,char,command_length);
-      {
-        var const char* ptr1 = command;
-        var char* ptr2 = &command_data[0];
-        dotimespL(command_length,command_length, { *ptr2++ = *ptr1++; } );
-      }
+      memcpy(command_data,command,command_length);
       begin_system_call();
       # Pipe aufbauen:
       if (!( pipe(handles) ==0)) {
@@ -15259,11 +15182,7 @@ local inline void create_output_pipe(command)
       # command in den Stack kopieren:
       var uintL command_length = asciz_length(command)+1;
       var DYNAMIC_ARRAY(command_data,char,command_length);
-      {
-        var const char* ptr1 = command;
-        var char* ptr2 = &command_data[0];
-        dotimespL(command_length,command_length, { *ptr2++ = *ptr1++; } );
-      }
+      memcpy(command_data,command,command_length);
       begin_system_call();
       if (!( pipe(handles) ==0)) {
         FREE_DYNAMIC_ARRAY(command_data); OS_error();
@@ -15422,11 +15341,7 @@ local inline void create_io_pipe(command)
       # command in den Stack kopieren:
       var uintL command_length = asciz_length(command)+1;
       var DYNAMIC_ARRAY(command_data,char,command_length);
-      {
-        var const char* ptr1 = command;
-        var char* ptr2 = &command_data[0];
-        dotimespL(command_length,command_length, { *ptr2++ = *ptr1++; } );
-      }
+      memcpy(command_data,command,command_length);
       begin_system_call();
       # Pipes aufbauen:
       if (!( pipe(in_handles) ==0)) {
@@ -15454,7 +15369,7 @@ local inline void create_io_pipe(command)
             if ( CLOSE(out_handles[0]) ==0) # Wir wollen nur über stdin_handle lesen
               if ( CLOSE(in_handles[1]) ==0) # Wir wollen nur über stdout_handle schreiben
                 if ( CLOSE(out_handles[1]) ==0) # Wir wollen auf die Pipe nicht schreiben
-                  # (Muss das dem Betriebssystem sagen, damit - wenn der Child
+                 # (Muss das dem Betriebssystem sagen, damit - wenn der Child
                   # die Pipe geleert hat - der Parent-Prozess und nicht etwa der
                   # Child-Prozess aufgerufen wird, um die Pipe zu wieder zu füllen.)
                   if ( CLOSE(in_handles[0]) ==0) { # Wir wollen von der Pipe nicht lesen
@@ -18895,7 +18810,7 @@ LISPFUN(write_integer,3,1,norest,nokey,0,NIL)
             }
             #endif
           }
-          dotimesL(count,count, { *bitbufferptr++ = 0; } );
+          memset(bitbufferptr,0,count);
         }
         break;
       case eltype_is:
@@ -18920,7 +18835,7 @@ LISPFUN(write_integer,3,1,norest,nokey,0,NIL)
             until (wert == 0) {
               *bitbufferptr++ = (uint8)(wert^sign); wert = wert>>8; count--;
             }
-            dotimesL(count,count, { *bitbufferptr++ = (uint8)sign; } );
+            memset(bitbufferptr,(uint8)sign,count);
           } else {
             # obj ist ein Bignum
             var uintL len = (uintL)Bignum_length(obj);
@@ -18942,7 +18857,7 @@ LISPFUN(write_integer,3,1,norest,nokey,0,NIL)
               #undef CHECK_NEXT_BYTE
               s_len_ok:
               # obj im Bitbuffer ablegen:
-              count = count - len;
+             count = count - len;
               dotimespL(len,len, { *bitbufferptr++ = *--ptr; } );
             }
             #else
@@ -18966,7 +18881,7 @@ LISPFUN(write_integer,3,1,norest,nokey,0,NIL)
               s_ok: ;
             }
             #endif
-            dotimesL(count,count, { *bitbufferptr++ = (uintB)sign; } );
+            memset(bitbufferptr,(uint8)sign,count);
           }
         }
         break;
@@ -19441,10 +19356,8 @@ LISPFUNN(defgray,1)
 # (SYS::%DEFGRAY fundamental-stream-classes)
 # Initializes O(class_fundamental*_stream).
   {
-    var const object* ptr1 = &TheSvector(STACK_0)->data[0];
-    var object* ptr2 = &O(class_fundamental_stream);
-    var uintC count;
-    dotimesC(count,Svector_length(STACK_0), { *ptr2++ = *ptr1++; });
+    memcpy(&O(class_fundamental_stream),&TheSvector(STACK_0)->data[0],
+           sizeof(object)*Svector_length(STACK_0));
     value1 = NIL; mv_count=0; skipSTACK(1);
   }
 
