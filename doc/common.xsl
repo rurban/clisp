@@ -23,6 +23,13 @@
  <span class="{@role}"><xsl:apply-imports/></span>
 </xsl:template>
 
+<xsl:template match="emphasis[@role = 'plat-dep']">
+ <span class="{@role}">
+  <xsl:text>Platform Dependent: </xsl:text>
+  <xsl:apply-imports/>
+ </span>
+</xsl:template>
+
 <xsl:template match="isbn" mode="bibliography.mode">
  <xsl:text>ISBN&#160;</xsl:text>
  <xsl:apply-templates mode="bibliography.mode"/>

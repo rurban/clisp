@@ -31,6 +31,13 @@
  </fo:inline>
 </xsl:template>
 
+<xsl:template match="emphasis[@role = 'plat-dep']">
+ <fo:inline>
+  <xsl:text>Platform Dependent: </xsl:text>
+  <xsl:apply-imports/>
+ </fo:inline>
+</xsl:template>
+
 <xsl:param name="title.margin.left" select="'1pc'"/>
 <xsl:param name="ulink.footnotes" select="1"/>
 
