@@ -143,8 +143,8 @@ directory-namestring host-namestring enough-namestring user-homedir-pathname
 open rename-file delete-file probe-file file-write-date file-author
 file-position file-length file-string-length load directory
 ensure-directories-exist
-error cerror warn break compile compile-file disassemble
-documentation  variable structure type ; drei Dokumentations-Typen
+error cerror warn break compile compile-file disassemble with-compilation-unit
+documentation variable structure type ; drei Dokumentations-Typen
 describe inspect room ed dribble apropos apropos-list get-decoded-time
 get-universal-time decode-universal-time encode-universal-time
 get-internal-run-time get-internal-real-time sleep lisp-implementation-type
