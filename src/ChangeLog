@@ -1,3 +1,9 @@
+2002-04-21  Sam Steingold  <sds@gnu.org>
+
+	* cfgamiga.lisp, cfgdos.lisp, cfgsunux.lisp, cfgunix.lisp:
+	* cfgwin32.lisp, cfgacorn.lisp (*clhs-root-default*):
+	restore the DEFVAR lost on 2002-04-12
+
 2002-04-18  Sam Steingold  <sds@gnu.org>
 
 	fixed bug [ 543072 ]: make-encoding :input-action on bad input
