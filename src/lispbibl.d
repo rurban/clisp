@@ -4146,8 +4146,13 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
     #define char_int(char_from_char_int)  \
       ((cint)(untype(char_from_char_int)))
   #else
-    #define char_int(char_from_char_int)  \
-      ((cint)(as_oint(char_from_char_int)>>oint_data_shift))
+    #if (char_type>>oint_data_shift)==0 || (char_int_len<=16)
+      #define char_int(char_from_char_int)  \
+        ((cint)(as_oint(char_from_char_int)>>oint_data_shift))
+    #else
+      #define char_int(char_from_char_int)  \
+        ((cint)((as_oint(char_from_char_int)>>oint_data_shift)&(bitm(oint_data_len)-1)))
+    #endif
   #endif
 #else
   # If oint_data_shift=0, untype does not need to shift. If also
