@@ -1,5 +1,5 @@
 /*
- * CLISP: GDBM <http://www.gnu.org/software/gdbm/>
+ * CLISP: Berkeley-DB <http://www.sleepycat.com/docs/api_c/>
  * Copyright (C) 2003-2004 by Sam Steingold
  */
 
@@ -8,7 +8,7 @@
 #include "clisp.h"
 
 #ifndef FOREIGN
-#error "GDBM required CLISP FOREIGN CPP macro"
+#error "Berkeley-DB requires CLISP FOREIGN CPP macro"
 #endif
 
 #include "config.h"
