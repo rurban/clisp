@@ -166,8 +166,7 @@
                                     "type"
   )      )
   #+(or CLISP ALLEGRO CMU)
-  (run-test "conditions" #'(lambda (stream log) (do-test stream log nil)))
+  (run-test "conditions" #'do-test nil)
   (run-test "excepsit" #'do-errcheck)
   t
 )
-
