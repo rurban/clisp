@@ -107,7 +107,7 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
 ;;;
 
 (defvar *inspect-frontend* :tty) ; the default frontend
-(defvar *inspect-browser* :netscape) ; the default browser
+(defvar *inspect-browser* nil)  ; the default browser
 (defvar *inspect-print-lines* 5) ; default for `*print-lines*'
 (defvar *inspect-print-level* 5) ; default for `*print-level*'
 (defvar *inspect-print-length* 10) ; default for `*print-length*'
@@ -469,13 +469,18 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
                 (return (values socket id com))))))))
 
 (clos:defmethod inspect-frontend ((insp inspection) (frontend (eql :http)))
-  (do ((server (let ((server (socket-server)))
-                 (when (> *inspect-debug* 0)
-                   (format t "~&%s: server: ~s~%" 'inspect-frontend server))
-                 (browse-url (format nil "http://127.0.0.1:~d/0/:s"
-                                     (socket-server-port server))
-                             :browser *inspect-browser*)
-                 server))
+  (do ((server
+        (let* ((server (socket-server)) (port (socket-server-port server))
+               (host (machine-instance)))
+          (when (> *inspect-debug* 0)
+            (format t "~&%s: server: ~s~%" 'inspect-frontend server))
+          (if *inspect-browser*
+              (browse-url (format nil "http://127.0.0.1:~d/0/:s" port)
+                          :browser *inspect-browser*)
+              (format
+               t "~& * please point your browser at <http://~a:~d/0/:s>~%"
+               (subseq host 0 (position #\Space host)) port))
+          server))
        sock id com)
       ((eq com :q) (socket-server-close server))
     (setf (values sock id com) (http-command server))
