@@ -35,7 +35,7 @@
 (defstruct (slotted-class (:inherit class) (:predicate nil) (:copier nil)
                           (:conc-name "CLASS-"))
   slots                    ; list of all slots (as effective-slot-definitions)
-  default-initargs         ; default-initargs (as alist initarg -> initer)
+  default-initargs         ; default-initargs (as alist initarg -> (form function))
   valid-initargs           ; list of valid initargs
   instance-size)           ; number of slots of the direct instances + 1
 
@@ -45,7 +45,7 @@
 (defstruct (standard-class (:inherit slotted-class) (:conc-name "CLASS-"))
   current-version          ; most recent class-version, points back to this class
   direct-slots             ; list of all freshly added slots (as direct-slot-definition instances)
-  direct-default-initargs  ; freshly added default-initargs (as plist)
+  direct-default-initargs  ; freshly added default-initargs (as alist initarg -> (form function))
   direct-accessors         ; automatically generated accessor methods (as plist)
   fixed-slot-locations     ; flag whether to guarantee same slot locations in all subclasses
   instantiated             ; true if an instance has already been created
@@ -281,7 +281,7 @@
                                            (push (first list) arglist)
                                            (push (second list) formlist))
                                          (mapcan #'(lambda (arg form)
-                                                     `(',arg (CONS ',form ,(make-initfunction-form form arg))))
+                                                     `((LIST ',arg ',form ,(make-initfunction-form form arg))))
                                                  (nreverse arglist) (nreverse formlist)))))))
                           (return))
                          (:DOCUMENTATION
@@ -373,14 +373,15 @@
                 (setf (slot-definition-initfunction old) (slot-definition-initfunction new))
                 (setf (slot-definition-documentation old) (slot-definition-documentation new))))
             ;; Store new default-initargs:
-            (do ((l-old (class-direct-default-initargs class) (cddr l-old))
-                 (l-new direct-default-initargs (cddr l-new)))
+            (do ((l-old (class-direct-default-initargs class) (cdr l-old))
+                 (l-new direct-default-initargs (cdr l-new)))
                 ((null l-new))
-              (let ((old (second l-old))
-                    (new (second l-new)))
-                ;; Move initer new destructively into the initer old:
+              (let ((old (cdar l-old))
+                    (new (cdar l-new)))
+                ;; Move initform and initfunction from new destructively into
+                ;; the old one:
                 (setf (car old) (car new))
-                (setf (cdr old) (cdr new))))
+                (setf (cadr old) (cadr new))))
             ;; NB: These modifications are automatically inherited by the
             ;; subclasses of class! Due to <inheritable-slot-definition-initer>
             ;; and <inheritable-slot-definition-doc>.
@@ -463,8 +464,8 @@
 (defun equal-default-initargs (initargs1 initargs2)
   (or (and (null initargs1) (null initargs2))
       (and (consp initargs1) (consp initargs2)
-           (eq (first initargs1) (first initargs2))
-           (equal-default-initargs (cddr initargs1) (cddr initargs2)))))
+           (eq (car (first initargs1)) (car (first initargs2)))
+           (equal-default-initargs (cdr initargs1) (cdr initargs2)))))
 
 (defun add-default-superclass (direct-superclasses default-superclass)
   ;; Sometimes one wants to coerce a certain superclass.
@@ -616,10 +617,10 @@
   ;; CLtL2 28.1.3.3., ANSI CL 4.3.4.2. Inheritance of Class Options
   (setf (class-default-initargs class)
         (remove-duplicates
-          (mapcan
+          (mapcap
             #'(lambda (c)
                 (when (standard-class-p c)
-                  (plist-to-alist (class-direct-default-initargs c))))
+                  (class-direct-default-initargs c)))
             (class-precedence-list class))
           :key #'car
           :from-end t))
@@ -1271,7 +1272,7 @@
       (setf (class-slots class) (append (class-slots class) more-slots))))
   (setf (class-default-initargs class)
         (remove-duplicates
-          (append (plist-to-alist direct-default-initargs)
+          (append direct-default-initargs
                   (mapcap
                     #'(lambda (c)
                         (when (structure-class-p c)

@@ -549,8 +549,7 @@
         (setq initargs
               (append initargs
                 (list (car default-initarg)
-                      (let ((init (cdr default-initarg)))
-                        (if (car init) (funcall (car init)) (cdr init)))))))))
+                      (funcall (caddr default-initarg))))))))
   #||
   ;; CLtL2 28.1.9.2., ANSI CL 7.1.2. Validity of initialization arguments
   (sys::keyword-test initargs
