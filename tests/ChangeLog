@@ -1,3 +1,7 @@
+2002-02-23  Sam Steingold  <sds@gnu.org>
+
+	* clos.tst: test REINITIALIZE-INSTANCE
+
 2002-02-20  Sam Steingold  <sds@gnu.org>
 
 	* eval20.tst: added an EVAL-WHEN test

@@ -63,6 +63,30 @@ foo
 (fmakunbound 'foo)
 foo
 
+(x-val (reinitialize-instance a :x 20))
+20
+
+(x-val (reinitialize-instance a :x 30))
+30
+
+(x-val (reinitialize-instance a :x 50))
+50
+
+(x-val (reinitialize-instance a :x 80))
+80
+
+(x-val (reinitialize-instance a :y 20))
+80
+
+(y-val (reinitialize-instance a :x 30))
+20
+
+(x-val (reinitialize-instance a :y 50))
+30
+
+(y-val (reinitialize-instance a :x 80))
+50
+
 (defparameter b (make-instance (find-class '<C2>) :x 10 :y 20 :z 30))
 B
 
