@@ -12,13 +12,14 @@ vacall:
 	save	%sp, -448, %sp
 	!$PROLOGUE$ 1
 	add	%fp, 2223, %o1
-	std	%f0, [%fp+1903]
+	sethi	%hi(vacall_function), %o3
 	stx	%i5, [%o1-8]
 	stx	%i0, [%o1-48]
 	stx	%i1, [%o1-40]
 	stx	%i2, [%o1-32]
 	stx	%i3, [%o1-24]
 	stx	%i4, [%o1-16]
+	std	%f0, [%fp+1903]
 	std	%f2, [%fp+1911]
 	std	%f4, [%fp+1919]
 	std	%f6, [%fp+1927]
@@ -45,12 +46,11 @@ vacall:
 	st	%f17, [%fp+1867]
 	st	%f19, [%fp+1871]
 	st	%f21, [%fp+1875]
-	st	%f23, [%fp+1879]
-	sethi	%hi(vacall_function), %o0
 	add	%o1, -48, %o1
-	ldx	[%o0+%lo(vacall_function)], %o2
+	st	%f23, [%fp+1879]
 	add	%fp, 1775, %o0
 	stx	%o1, [%fp+1783]
+	ldx	[%o3+%lo(vacall_function)], %o2
 	st	%f25, [%fp+1883]
 	st	%f27, [%fp+1887]
 	st	%f29, [%fp+1891]
@@ -757,4 +757,4 @@ vacall:
 	nop
 .LLfe1:
 	.size	 vacall,.LLfe1-vacall
-	.ident	"GCC: (GNU) 2.95 19990714 (prerelease)"
+	.ident	"GCC: (GNU) 2.95.2 19991024 (release)"
