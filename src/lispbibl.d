@@ -8000,27 +8000,23 @@ extern void back_trace_check (const struct backtrace_t *bt,
 #endif
 #define BT_CHECK1(l)  BT_CHECK(back_trace,l)
 
-#ifdef __cplusplus
+#if defined(DEBUG_BACKTRACE) && defined(__cplusplus)
 struct p_backtrace_t {
   const struct backtrace_t * ba_tr_p;
   p_backtrace_t (void* bt) { ba_tr_p = (struct backtrace_t*)bt; }
   /* assignment should check for circularities */
   p_backtrace_t& operator= (const struct backtrace_t *bt) {
-    if (this->ba_tr_p == bt) return *this;
-    BT_CHECK(bt,"=: new value");
-    BT_CHECK(ba_tr_p,"=: current value");
-    this->ba_tr_p = bt;
+    if (this->ba_tr_p != bt) {
+      BT_CHECK(bt,"=: new value");
+      BT_CHECK(ba_tr_p,"=: current value");
+      this->ba_tr_p = bt;
+    }
     return *this;
   };
   /* back_trace->foo means back_trace.ba_tr_p->foo */
   const struct backtrace_t* operator-> () {
     BT_CHECK(ba_tr_p,"->");
     return this->ba_tr_p;
-  };
-  /* cast p_backtrace_t to bool */
-  operator const bool () const {
-    BT_CHECK(ba_tr_p,"(bool)");
-    return (ba_tr_p != NULL);
   };
   /* cast p_backtrace_t to struct backtrace_t* */
   operator const struct backtrace_t* () const {
