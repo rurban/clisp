@@ -2524,8 +2524,8 @@ for-value   NIL or T
         ((null keyargs)
          (cond (wrong-key
                 (c-warn (TEXT "keyword ~S is not allowed for function ~S.~
-                             ~%The only allowed keyword~:[s are ~{~S~#[~; and ~S~:;, ~]~}~; is ~{~S~}~].")
-                        wrong-key fun (eql (length keylist) 1) keylist)
+                             ~%The only allowed keyword~[s are~; is~:;s are~] ~{~S~#[~; and ~S~:;, ~]~}.")
+                        wrong-key fun (length keylist) keylist)
                 NIL)
                (t 'STATIC-KEYS)))
       (let ((key (first keyargs)))
