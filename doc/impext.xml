@@ -1943,9 +1943,9 @@ returns two values:
 
 <para><command>clisp-link</command> needs a directory containing:
 <itemizedlist>
-  <listitem><simpara><filename>modules.d</filename></simpara></listitem>
-  <listitem><simpara><filename>modules.c</filename></simpara></listitem>
-  <listitem><simpara><filename>clisp.h</filename></simpara></listitem>
+  <listitem><simpara><filename>#P"modules.d"</filename></simpara></listitem>
+  <listitem><simpara><filename>#P"modules.c"</filename></simpara></listitem>
+  <listitem><simpara>&clisp-h;</simpara></listitem>
 </itemizedlist>
 <command>clisp-link</command> expects to find these files in a
 subdirectory <filename>linkkit/</filename> of the current directory.
@@ -2188,13 +2188,52 @@ Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
 (assuming you &export;ed <literal>MY-FUNCTION-NAME</literal> from
  <quote role="package">MY-PACKAGE</quote>).</para>
 
-<para>Another useful macro is <function>DEFVAR</function> which lets
- you create a GC-visible object.</para>
+<para>Another useful macros are:
+ <variablelist><varlistentry><term><function>DEFVAR</function></term>
+   <listitem><simpara>create a GC-visible private object
+  </simpara></listitem></varlistentry>
+  <varlistentry><term><function>DEFFLAGSET</function></term>
+   <listitem><simpara>define a &c-lang; function which will remove
+     several flag arguments from the &STACK; and return the combined flag
+     value</simpara></listitem></varlistentry>
+</variablelist></para>
+
 <para>See <filename>modules/syscalls</filename> and other included
  modules for more examples and file <filename>modprep.lisp</filename>
  for full documentation.</para>
 <warning><para>If you manipulate Lisp objects, you need to watch for
   <link linkend="gc-safety">GC-safety</link>.</para></warning>
+</section>
+
+<section id="clisp-h"><title>clisp.h</title>
+
+<para>If your module is written in &c-lang;, you will probably want
+ to <literal>#include "clisp.h"</literal> to access &clisp; objects.
+ You will certainly need to read &clisp-h; and the code in
+ <link linkend="included-modules">included modules</link>, but here are
+ some important hints that you will need to keep in mind:
+<itemizedlist>
+ <listitem><simpara>Lisp objects have type <type>object</type>.
+ </simpara></listitem>
+ <listitem><simpara>Variables of this type are invalidated by
+   <link linkend="gc-safety">memory allocation</link> and must be saved
+   on the &STACK; using macros <function>pushSTASH()</function>,
+   <function>popSTACK()</function> and <function>skipSTACK()</function>.
+ </simpara></listitem>
+ <listitem><simpara>Access object slots using the
+   approprate <function>TheFoo()</function> macro, e.g.,
+   <function>TheCons(my_cons)-&gt;Car</function>, but first check the
+   type with <function>consp()</function>.</simpara></listitem>
+ <listitem><simpara>Arguments are passed on the &STACK;, as illustrated
+   in the <link linkend="modprep">above example</link>.</simpara></listitem>
+ <listitem><simpara>Wrap your system calls in
+   <literal>begin_system_call()</literal>/<literal>end_system_call()</literal>
+   pairs. These macros, defined in &clisp-h;, save and restore
+   registers used by &clisp; which could be clobbered by a system call.
+ </simpara></listitem>
+</itemizedlist>
+</para>
+
 </section>
 
 <section id="exporting"><title>Exporting</title>

@@ -92,31 +92,20 @@ DEFUN(PCRE::PCRE-FREE,fp)
   } else VALUES1(NIL);
 }
 
+DEFFLAGSET(pcre_compile_flags,  PCRE_CASELESS PCRE_MULTILINE PCRE_DOTALL \
+           PCRE_EXTENDED PCRE_ANCHORED PCRE_DOLLAR_ENDONLY PCRE_EXTRA   \
+           PCRE_NOTBOL PCRE_NOTEOL PCRE_UNGREEDY PCRE_NOTEMPTY          \
+           PCRE_NO_AUTO_CAPTURE)
 DEFUN(PCRE:PCRE-COMPILE,string &key :STUDY :IGNORE-CASE :MULTILINE :DOTALL \
       :EXTENDED :ANCHORED :DOLLAR-ENDONLY :EXTRA :NOTBOL :NOTEOL :UNGREADY \
       :NOTEMPTY :NO-AUTO-CAPTURE)
 { /* compile the pattern, return PATTERN struct */
-  int options = PCRE_UTF8
-    | (missingp(STACK_(11)) ? 0 : PCRE_CASELESS)
-    | (missingp(STACK_10)   ? 0 : PCRE_MULTILINE)
-    | (missingp(STACK_9)    ? 0 : PCRE_DOTALL)
-    | (missingp(STACK_8)    ? 0 : PCRE_EXTENDED)
-    | (missingp(STACK_7)    ? 0 : PCRE_ANCHORED)
-    | (missingp(STACK_6)    ? 0 : PCRE_DOLLAR_ENDONLY)
-    | (missingp(STACK_5)    ? 0 : PCRE_EXTRA)
-    | (missingp(STACK_4)    ? 0 : PCRE_NOTBOL)
-    | (missingp(STACK_3)    ? 0 : PCRE_NOTEOL)
-    | (missingp(STACK_2)    ? 0 : PCRE_UNGREEDY)
-    | (missingp(STACK_1)    ? 0 : PCRE_NOTEMPTY)
-#  if defined(PCRE_NO_AUTO_CAPTURE)
-    | (missingp(STACK_0)    ? 0 : PCRE_NO_AUTO_CAPTURE)
-#  endif
-    ;
-  bool study = !missingp(STACK_(12));
+  int options = PCRE_UTF8 | pcre_compile_flags();
+  bool study = !missingp(STACK_0);
   const char *error_message;
   int error_offset;
   pcre *compiled_pattern;
-  gcv_object_t *string = &STACK_(13);
+  gcv_object_t *string = &STACK_1;
  pcre_compile_restart:
   with_string_0(check_string(*string),Symbol_value(S(utf_8)),pattern, {
       begin_system_call();
@@ -152,7 +141,7 @@ DEFUN(PCRE:PCRE-COMPILE,string &key :STUDY :IGNORE-CASE :MULTILINE :DOTALL \
     else pushSTACK(NIL);
   } else pushSTACK(NIL);
   funcall(`PCRE::MAKE-PAT`,2);
-  skipSTACK(14);
+  skipSTACK(2);
 }
 
 /* can trigger GC */
@@ -331,23 +320,19 @@ DEFUN(PCRE:PCRE-NAME-TO-INDEX,pattern name)
   skipSTACK(2);
 }
 
+DEFFLAGSET(pcre_exec_flags, PCRE_ANCHORED PCRE_NOTBOL PCRE_NOTEOL PCRE_NOTEMPTY)
 DEFUN(PCRE:PCRE-EXEC,pattern subject &key :BOOLEAN                      \
       :OFFSET :ANCHORED :NOTBOL :NOTEOL :NOTEMPTY)
 { /* match the SUBJECT string against a pre-compiled PATTERN;
      return a vector of MATCH structures or NIL if no matches */
-  int options =
-    (missingp(STACK_3) ? 0 : PCRE_ANCHORED) |
-    (missingp(STACK_2) ? 0 : PCRE_NOTBOL) |
-    (missingp(STACK_1) ? 0 : PCRE_NOTEOL) |
-    (missingp(STACK_0) ? 0 : PCRE_NOTEMPTY);
-  int offset = missingp(STACK_4) ? 0
-    : posfixnum_to_L(check_posfixnum(STACK_5));
-  bool bool_p = !missingp(STACK_5);
+  int options = pcre_exec_flags();
+  int offset = posfixnum_default(popSTACK());
+  bool bool_p = !missingp(STACK_0);
   int *ovector;
   int capture_count, ovector_size, ret;
   pcre *c_pat;
   pcre_extra *study;
-  skipSTACK(6); /* drop all options */
+  skipSTACK(1); /* drop all options */
   check_pattern(STACK_1,&c_pat,&study);
   begin_system_call();
   ret = pcre_fullinfo(c_pat,study,PCRE_INFO_CAPTURECOUNT,&capture_count);
