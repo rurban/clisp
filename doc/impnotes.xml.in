@@ -24,7 +24,7 @@
  * package (CL-USER)   == quote
  -->
 
-<book><title>CLISP implementation notes</title>
+<book><title>Implementation Notes for &gnu; &clisp;.</title>
 
 <bookinfo>
  <legalnotice><para>These notes are covered by the &gnu; &gfdl;:</para>
@@ -64,7 +64,7 @@
  <textobject><phrase>[CLISP icon]</phrase></textobject>
 </inlinemediaobject></title>
 
-<subtitle>Last modified: 2001-09-13</subtitle>
+<subtitle>Last modified: 2001-09-21</subtitle>
 
 <para>These notes discuss the &clisp; implementation of &cl; by
 <blockquote><address><honorific>Dr</honorific> <firstname>Bruno</firstname> <surname>Haible</surname>
@@ -114,7 +114,7 @@
    <ulink url="&clhs;/Body/chap-2.html">[CLHS-2]</ulink></tocentry>
  <tocentry linkend="eval">Evaluation and Compilation
    <ulink url="&clhs;/Body/chap-3.html">[CLHS-3]</ulink></tocentry>
- <tocentry linkend="types">Types and Classes
+ <tocentry linkend="types-classes">Types and Classes
    <ulink url="&clhs;/Body/chap-4.html">[CLHS-4]</ulink></tocentry>
  <tocentry linkend="data">Data and Control Flow
    <ulink url="&clhs;/Body/chap-5.html">[CLHS-5]</ulink></tocentry>
