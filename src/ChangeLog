@@ -1,5 +1,10 @@
 2005-02-14  Sam Steingold  <sds@gnu.org>
 
+	* init.lisp (open-for-load): open the file only if there is no
+	directory with this name
+
+2005-02-14  Sam Steingold  <sds@gnu.org>
+
 	* modules/pcre/Makefile.in, modules/regexp/Makefile.in:
 	* modules/rawsock/Makefile.in (DISTRIBFILES): added preload.lisp
 

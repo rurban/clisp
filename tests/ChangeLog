@@ -1,5 +1,10 @@
 2005-02-14  Sam Steingold  <sds@gnu.org>
 
+	* path.tst: check that we can load "foo.lisp"
+	when "foo/" is also present
+
+2005-02-14  Sam Steingold  <sds@gnu.org>
+
 	* macro8.tst: check that declaration processing does not modify code
 
 2005-02-14  Bruno Haible  <bruno@clisp.org>
