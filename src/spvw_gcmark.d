@@ -169,26 +169,30 @@ local void gc_mark (object obj)
   { dies = objectplus(vorg,-(soint)offsetofa(record_,recdata)<<(oint_addr_shift-addr_shift)); /* record becomes current object */ \
     vorg = vorvorg; goto up; /* go further up */  \
   }
+#ifdef HEAPCODES
 #define down_subr()                                                     \
-  { var gcv_object_t* dies_ = (gcv_object_t*)pointerplus(TheSubr(dies),subr_const_offset);\
+  if (in_old_generation(dies,typecode(dies),0))                         \
+    goto up; /* do not mark older generation */                         \
+  { var gcv_object_t* dies_ = (gcv_object_t*)TheSubr(dies);             \
     if (marked(dies_)) goto up; /* marked -> up */                      \
-    /* mark later */                                                    \
+    MARK(dies_); /* marked */                                           \
   }                                                                     \
-  { var object dies_ = objectplus(dies,(soint)(subr_const_offset+(subr_const_anz-1)*sizeof(gcv_object_t))<<(oint_addr_shift-addr_shift)); \
+  { var object dies_ = objectplus(dies,((soint)offsetofa(record_,recdata) << (oint_addr_shift-addr_shift)) \
+      + ((soint)subr_length * (soint)sizeof(gcv_object_t) << (oint_addr_shift-addr_shift)) \
+      - ((soint)sizeof(gcv_object_t) << (oint_addr_shift-addr_shift)) ); \
     /* start with the last pointer */                                   \
     var object nachf = *(gcv_object_t*)TheSubr(dies_); /* successor */  \
     *(gcv_object_t*)TheSubr(dies_) = vorg; /* store predecessor */      \
-    /* mark first pointer (and thus the SUBR itself) : */               \
-    MARK(pointerplus(TheSubr(dies),subr_const_offset));                 \
+    mark(&((Record)TheSubr(dies))->recdata[0]); /* mark first pointer */ \
     vorg = dies_; /* current object becomes new predecessor */          \
     dies = nachf; /* predecessor becomes current object */              \
     goto down; /* and descent */                                        \
   }
 #define up_subr()                                                       \
-  { MARK(TheSubr(vorg)); /* mark again */                               \
-    dies = objectplus(vorg,-(soint)subr_const_offset<<(oint_addr_shift-addr_shift)); /* SUBR becomes current object */ \
-    vorg = vorvorg; goto up; /* go further up */                        \
+  { dies = objectplus(vorg,-(soint)offsetofa(record_,recdata)<<(oint_addr_shift-addr_shift)); /* SUBR becomes current object */ \
+    vorg = vorvorg; goto up; /* go further up */  \
   }
+#endif
 
  down: /* entry for further descent.
           dies = object to be marked (engl. this),
@@ -230,6 +234,7 @@ local void gc_mark (object obj)
     case_lrecord: /* Lrecord */
       down_lrecord();
     case_sxrecord: /* Srecord/Xrecord */
+    case_subr: /* SUBR */
       down_sxrecord();
     case_machine: /* machine address */
     case_char: /* character */
@@ -241,8 +246,6 @@ local void gc_mark (object obj)
    #endif
       /* These are direct objects, no pointers. */
       goto up;
-    case_subr: /* SUBR */
-      down_subr();
     default: /* These are no objects. */
       /*NOTREACHED*/ abort();
   }
@@ -351,9 +354,8 @@ local void gc_mark (object obj)
       case_lrecord: /* Lrecord */
         up_lrecord();
       case_sxrecord: /* Srecord/Xrecord */
-        up_sxrecord();
       case_subr: /* SUBR */
-        up_subr();
+        up_sxrecord();
       case_sstring: /* simple-string */
         { var object vorg_ = objectplus(vorg,-(soint)sistring_data_offset<<(oint_addr_shift-addr_shift));
           if (sstring_reallocatedp(TheSstring(vorg_)))
@@ -389,12 +391,12 @@ local void gc_mark (object obj)
     switch (as_oint(vorg) & nonimmediate_bias_mask) {
       case cons_bias: /* Cons */
         up_pair();
-      case subr_bias: /* SUBR */
-        up_subr();
       case varobject_bias:
         /* This works only because all varobjects have the same
            objects_offset! */
         up_sxrecord();
+      case subr_bias: /* SUBR */
+        up_subr();
       default: /* these are no objects. */
         /*NOTREACHED*/ abort();
     }

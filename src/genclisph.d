@@ -931,7 +931,7 @@ int main(int argc, char* argv[])
   emit_typedef(buf,"Instance");
   printf("typedef void Values;\n"); /* emit_typedef useless: no sizeof(void) */
   emit_typedef_f("Values (*%s)()","lisp_function_t");
-  sprintf(buf,"struct { lisp_function_t function; gcv_object_t name%s; gcv_object_t keywords%s; uintW argtype; uintW req_anz; uintW opt_anz; uintB rest_flag; uintB key_flag; uintW key_anz; uintW seclass; } %%s",attribute_aligned_object,attribute_aligned_object);
+  sprintf(buf,"struct { XRECORD_HEADER gcv_object_t name%s; gcv_object_t keywords%s; lisp_function_t function; uintW argtype; uintW req_anz; uintW opt_anz; uintB rest_flag; uintB key_flag; uintW key_anz; uintW seclass; } %%s",attribute_aligned_object,attribute_aligned_object);
 #if defined(HEAPCODES) && (alignment_long < 4) && defined(GNU)
   strcat(buf," __attribute__ ((aligned (4)))");
 #endif
@@ -1493,10 +1493,12 @@ int main(int argc, char* argv[])
  #ifdef TYPECODES
   printf1("#define subr_tab_ptr_as_object(subr_addr)  (type_constpointer_object(%d,subr_addr))\n",(tint)subr_type);
  #else
-  #ifdef WIDE_AUXI
+  #if defined(WIDE_AUXI)
   printf1("#define subr_tab_ptr_as_object(subr_addr)  as_object_with_auxi((aint)(subr_addr)+%d)\n",subr_bias);
-  #else
+  #elif defined(OBJECT_STRUCT)
   printf1("#define subr_tab_ptr_as_object(subr_addr)  as_object((oint)(subr_addr)+%d)\n",subr_bias);
+  #else
+  printf1("#define subr_tab_ptr_as_object(subr_addr)  objectplus(subr_addr,%d)\n",subr_bias);
   #endif
  #endif
   printf("#define L(name)  subr_tab_ptr_as_object(&subr_tab.D_##name)\n");
@@ -1688,7 +1690,11 @@ int main(int argc, char* argv[])
   printf("#define LISPFUN_B(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  extern Values C_##name subr_##rest_flag##_function_args\n");
   printf("#define subr_norest_function_args  (void)\n");
   printf("#define subr_rest_function_args  (uintC argcount, object* rest_args_pointer)\n");
-  printf("#define LISPFUN_F(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { (lisp_function_t)(&C_##name), nullobj, nullobj, 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, sec},\n");
+#ifdef TYPECODES
+  printf4("#define LISPFUN_F(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { { nullobj }, %d,%d,%d,%d, nullobj, nullobj, (lisp_function_t)(&C_##name), 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, sec},\n", Rectype_Subr, 0, subr_length, subr_xlength);
+#else
+  printf1("#define LISPFUN_F(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { nullobj, %d, nullobj, nullobj, (lisp_function_t)(&C_##name), 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, sec},\n", xrecord_tfl(Rectype_Subr,0,subr_length,subr_xlength));
+#endif
   printf("#define LISPFUN  LISPFUN_B\n");
 #ifdef UNICODE
   printf("extern object n_char_to_string (const char* charptr, uintL len, object encoding);\n");
