@@ -14303,5 +14303,11 @@ extern object decimal_string (object x);
 
 #endif
 
+# ######################## BUILTBIBL for BUILT.D ######################### #
+
+/* Returns a multiline string containing some info about the flags with which
+   the executable was built. */
+extern const char * built_flags ();
+
 /*************************************************************************/
 

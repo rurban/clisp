@@ -41,7 +41,8 @@ DSOURCES = \
     realelem realrand realtran compelem comptran \
  affi \
  foreign \
- unixaux win32aux
+ unixaux win32aux \
+ built
 
 # Keep this in the same order as the LPARTS variable in makemake.in !
 LISPSOURCES = init defseq backquote defmacro macros1 macros2 defs1 \
