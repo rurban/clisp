@@ -107,11 +107,12 @@ vacall-arm.o : vacall-arm.s
 vacall-arm.s : $(srcdir)/vacall-arm.S
 	$(CPP) $(ASPFLAGS) $(srcdir)/vacall-arm.S | grep -v '^ *#line' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,//,@,g' -e 's,\$$,#,g' > vacall-arm.s
 
-vacall-rs6000.o : $(srcdir)/vacall-rs6000-aix.old.s $(srcdir)/vacall-rs6000-aix.new.s $(srcdir)/vacall-rs6000-sysv4.s
+vacall-rs6000.o : $(srcdir)/vacall-rs6000-aix.old.s $(srcdir)/vacall-rs6000-aix.new.s $(srcdir)/vacall-rs6000-sysv4.s $(srcdir)/vacall-rs6000-linux.s $(srcdir)/vacall-rs6000-macos.s
 	case "$(OS)" in \
 	  aix3*) syntax=aix.old;; \
 	  aix*) syntax=aix.new;; \
 	  linux* | netbsd*) syntax=linux;; \
+	  macos* | darwin*) syntax=macos;; \
 	  *) syntax=sysv4;; \
 	esac; \
 	$(CC) @GCC_X_NONE@ -c $(srcdir)/vacall-rs6000-$${syntax}.s ; \
