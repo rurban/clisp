@@ -350,6 +350,13 @@ February 17
         return it)
 4
 
+(LET ((IT 'Z)) (LOOP FOR X IN '(A NIL B C D) IF X COLLECT IT END COLLECT IT))
+(A Z Z B Z C Z D Z)
+
+(LET ((IT 'Z)) (LOOP FOR X IN '(A NIL B C D) WHEN X COLLECT IT AND COLLECT IT))
+(A Z B Z C Z D Z)
+
+
 (loop for i in '(1 2 3 4 5 6)
       thereis (and (> i 3) i))
 4
