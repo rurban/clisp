@@ -373,8 +373,9 @@ local bool parse_doc_decl (object body, bool permit_doc_string) {
   var bool to_compile = parse_dd(body);
   if (!permit_doc_string && !nullp(value3)) {
     pushSTACK(value1); pushSTACK(value2); pushSTACK(value3); /* save */
-    pushSTACK(CLSTEXT("doc-string is not allowed here and will be ignored: ~S"));
-    pushSTACK(body); funcall(S(warn),2);
+    pushSTACK(NIL); pushSTACK(body);
+    STACK_1 = CLSTEXT("doc-string is not allowed here and will be ignored: ~S");
+    funcall(S(warn),2);
     value3 = popSTACK(); value2 = popSTACK(); value1 = popSTACK();
   }
   return to_compile;

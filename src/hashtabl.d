@@ -1543,10 +1543,10 @@ local object rehash (object ht) {
 /* Warn if a hash table is rehashed because of a GC, degrading performance.
  can trigger GC */
 local void warn_forced_gc_rehash (object ht) {
-  pushSTACK(CLSTEXT("Performance/scalability warning: The hash table ~S needs "
+  pushSTACK(NIL); pushSTACK(ht);
+  STACK_1 = CLSTEXT("Performance/scalability warning: The hash table ~S needs "
                     "to be rehashed after a garbage collection, since it "
-                    "contains key whose hash code is not GC-invariant."));
-  pushSTACK(ht);
+                    "contains key whose hash code is not GC-invariant.");
   funcall(S(warn),2);
 }
 
@@ -1696,11 +1696,10 @@ local inline bool hashcode_gc_invariant_p (object ht, object obj) {
 /* Warn if adding an key to a hash table degrades its performance.
  can trigger GC */
 local void warn_key_forces_gc_rehash (object ht, object key) {
-  pushSTACK(CLSTEXT("Performance/scalability warning: The hash table ~S must "
+  pushSTACK(NIL); pushSTACK(ht); pushSTACK(key);
+  STACK_2 = CLSTEXT("Performance/scalability warning: The hash table ~S must "
                     "be rehashed after each garbage collection, since its "
-                    "key ~S has a hash code that is not GC-invariant."));
-  pushSTACK(ht);
-  pushSTACK(key);
+                    "key ~S has a hash code that is not GC-invariant.");
   funcall(S(warn),3);
 }
 
