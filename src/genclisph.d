@@ -1637,7 +1637,7 @@ int main(int argc, char* argv[])
   printf("extern uintC module_count;\n");
   emit_typedef("struct { const char* packname; const char* symname; }","subr_initdata_t");
   emit_typedef("struct { const char* initstring; }","object_initdata_t");
-  strcpy(buf,"struct module_t { const char* name; subr_t* stab; const uintC* stab_size; gcv_object_t* otab; const uintC* otab_size; bool initialized; const subr_initdata_t* stab_initdata; const object_initdata_t* otab_initdata; void (*initfunction1) (struct module_t *); void (*initfunction2) (struct module_t *); void (*exitfunction) (struct module_t *);");
+  strcpy(buf,"struct module_t { const char* name; subr_t* stab; const uintC* stab_size; gcv_object_t* otab; const uintC* otab_size; bool initialized; const subr_initdata_t* stab_initdata; const object_initdata_t* otab_initdata; void (*initfunction1) (struct module_t *); void (*initfunction2) (struct module_t *); void (*finifunction) (struct module_t *);");
 #ifdef DYNAMIC_MODULES
   strcat(buf," struct module_t * next;");
 #endif

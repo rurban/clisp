@@ -1,5 +1,10 @@
 2004-11-03  Sam Steingold  <sds@gnu.org>
 
+	* foreign1.lisp, lispbibl.d, genclisph.d, spvw.d, utils/modprep.lisp:
+	renamed exitfunction to finifunction for consistency
+
+2004-11-03  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (copy_file_low): use fd_read() and
 	fd_write() instead of read_helper() and write_helper()
 	* modules/bindings/glibc/linux.lisp: ditto
