@@ -648,13 +648,13 @@ global host_data * socket_getpeername(socket_handle,hd)
         case AF_INET6:
           ipv6_ntop(hd->hostname,addr.inaddr6.sin6_addr);
           hd->port = ntohs(addr.inaddr6.sin6_port);
-          hp = gethostbyaddr((const char *)&addr.inaddr6.sin6_addr,sizeof(struct sockaddr_in6),AF_INET6);
+          hp = gethostbyaddr((const char *)&addr.inaddr6.sin6_addr,sizeof(struct in6_addr),AF_INET6);
           break;
         #endif
         case AF_INET:
           ipv4_ntop(hd->hostname,addr.inaddr.sin_addr);
           hd->port = ntohs(addr.inaddr.sin_port);
-          hp = gethostbyaddr((const char *)&addr.inaddr.sin_addr,sizeof(struct sockaddr_in),AF_INET);
+          hp = gethostbyaddr((const char *)&addr.inaddr.sin_addr,sizeof(struct in_addr),AF_INET);
           break;
         default: NOTREACHED
       }

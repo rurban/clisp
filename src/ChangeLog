@@ -1,3 +1,11 @@
+1999-07-15  Jörg Höhle <Joerg.Hoehle@gmd.de>
+
+        * affi.d (SYSTEM::MEM-WRITE): No need to check for integerp(wert),
+          it is done later during conversion.
+
+        * socket.d (socket_getpeername): Fix the length argument to
+          gethostbyaddr.
+
 1999-07-15  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * record.d (FINALIZE): Call coerce_function.

@@ -536,7 +536,6 @@ LISPFUN(mem_write,3,1,norest,nokey,0,NIL)
           { *(aint*)address = (aint)TheFpointer(wert)->fp_pointer; }
         else goto bad_arg;
       }
-    elif (!integerp(wert)) goto bad_arg;
     elif (posfixnump(type))
       { var ULONG value = I_to_UL(wert);
         switch (posfixnum_to_L(type))
