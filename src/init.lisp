@@ -371,7 +371,8 @@
 
 (use-package '("CLOS") "COMMON-LISP")
 (ext:re-export "CLOS" "COMMON-LISP")
-(let ((clos-extra '(generic-flet generic-labels no-primary-method)))
+(let ((clos-extra '(generic-flet generic-labels no-primary-method
+                    class-prototype class-finalized-p finalize-inheritance)))
   ;; not in ANSI - export separately, after `re-export' above
   (export clos-extra "CLOS")
   ;; so that they are available in CL-USER even though it does not use CLOS

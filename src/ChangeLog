@@ -1,3 +1,22 @@
+2003-04-06  Sam Steingold  <sds@gnu.org>
+
+	implemented ANSI CLOS class forward definition
+	* clos.lisp (defclass): do not require that the parents exist
+	(*finalizing-now*): new variable
+	(class-finalize): new function
+	(ensure-class): consider the class to exist already only if it
+	has been finalized
+	(finalize-instance-standard-class): move all finalizations here
+	(initialize-instance-standard-class): call it
+	(print-object): when printing a class object, print its
+	finalization status and the number of redefinitions
+	(class-finalized-p, finalize-inheritance): new MOP generics
+	* constsym.d (CLASS-FINALIZE): added
+	* init.lisp (class-prototype, class-finalized-p)
+	(finalize-inheritance): re-export from EXT
+	* record.d (do_allocate_instance, %MAKE-INSTANCE): call
+	CLASS-FINALIZE when the CLASS-PRECEDENCE-LIST is void
+
 2003-04-05  Sam Steingold  <sds@gnu.org>
 
 	Implemented ANSI CL ENSURE-GENERIC-FUNCTION
@@ -6,7 +25,7 @@
 	(do-defgeneric): do not remove the existing methods;
 	check signature congruence instead
 	(make-instance-standard-class, make-instance-structure-class):
-	use (SETF FDEFINITON) instead of DEFUN: this avoids 2 warnigns,
+	use (SETF FDEFINITON) instead of DEFUN: this avoids 2 warnings,
 	and should speed things up a tiny little bit
 	* init.lisp (ensure-generic-function): export
 
