@@ -108,6 +108,11 @@
 (defmacro-special unless (test &body forms)
   `(IF (NOT ,test) (PROGN ,@forms)))
 
+;; DECLARE is a special form in CLISP, so it should provide a macroexpansion
+(defmacro-special declare (&body ignore)
+  (declare (ignore ignore))
+  nil)
+
 (defmacro return (&optional return-value)
   `(RETURN-FROM NIL ,return-value))
 
