@@ -1,5 +1,9 @@
 2005-01-22  Bruno Haible  <bruno@clisp.org>
 
+	* compiler.lisp: Indentation fixes.
+
+2005-01-22  Bruno Haible  <bruno@clisp.org>
+
 	* compiler.lisp (*toplevel-name*): New variable.
 	(compile-toplevel-form): Drop (declare (special *toplevel-name*)).
 
