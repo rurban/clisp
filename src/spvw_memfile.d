@@ -204,7 +204,7 @@
          {var sintL ergebnis = full_write(handle,(RW_BUF_T)buf,len); \
           if (!(ergebnis==(sintL)(len)))                             \
             { end_system_call();                                     \
-              stream_close(&STACK_0);                                \
+              builtin_stream_close(&STACK_0);                        \
               if (ergebnis<0) { OS_file_error(TheStream(STACK_0)->strm_file_truename); } # Fehler aufgetreten?  \
               pushSTACK(TheStream(STACK_0)->strm_file_truename); # Wert für Slot PATHNAME von FILE-ERROR \
               fehler(file_error,                                     \
@@ -364,7 +364,7 @@
         { begin_system_call();
          {var sintL ergebnis = lseek(handle,0,SEEK_CUR); # File-Position holen
           end_system_call();
-          if (ergebnis<0) { stream_close(&STACK_0); OS_file_error(TheStream(STACK_0)->strm_file_truename); } # Fehler?
+          if (ergebnis<0) { builtin_stream_close(&STACK_0); OS_file_error(TheStream(STACK_0)->strm_file_truename); } # Fehler?
           WRITE_page_alignment(ergebnis);
         }}
        #endif
@@ -491,7 +491,7 @@
       #undef WRITE
       # Stream schließen (Stream-Buffer ist unverändert, aber dadurch wird
       # auch das Handle beim Betriebssystem geschlossen):
-      stream_close(&STACK_0);
+      builtin_stream_close(&STACK_0);
       skipSTACK(1);
     }}
 

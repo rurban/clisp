@@ -934,8 +934,9 @@ for-value   NIL oder T
        system::string-input-stream-index make-string-output-stream
        get-output-stream-string system::make-string-push-stream
        system::string-stream-p input-stream-p output-stream-p
-       stream-element-type stream-external-format close read-byte write-byte
-       file-position file-length
+       system::built-in-stream-element-type stream-external-format
+       system::built-in-stream-close read-byte write-byte file-position
+       file-length
        system::%putd system::%proclaim-constant get getf get-properties
        system::%putplist system::%put remprop symbol-package symbol-plist
        symbol-name keywordp gensym system::special-variable-p gensym
@@ -1061,6 +1062,8 @@ for-value   NIL oder T
           (both-case-p 1 0 nil nil nil)
           (boundp 1 0 nil nil nil)
           (system::broadcast-stream-p 1 0 nil nil nil)
+          (system::built-in-stream-close 1 0 nil (:abort) nil)
+          (system::built-in-stream-element-type 1 0 nil nil nil)
           (butlast 1 1 nil nil nil)
           (byte 2 0 nil nil nil)
           (byte-position 1 0 nil nil nil)
@@ -1125,7 +1128,6 @@ for-value   NIL oder T
           (clos::class-tuple-gethash 2 0 t nil nil)
           (clear-input 0 1 nil nil nil)
           (clear-output 0 1 nil nil nil)
-          (close 1 0 nil (:abort) nil)
           (system::closure-codevec 1 0 nil nil nil)
           (system::closure-consts 1 0 nil nil nil)
           (system::closure-name 1 0 nil nil nil)
@@ -1556,7 +1558,6 @@ for-value   NIL oder T
           (system::store 2 0 t nil nil)
           (system::store-char 3 0 nil nil nil)
           (system::store-schar 3 0 nil nil nil)
-          (stream-element-type 1 0 nil nil nil)
           (stream-external-format 1 0 nil nil nil)
           (streamp 1 0 nil nil nil)
           (string 1 0 nil nil nil)
@@ -3693,8 +3694,9 @@ der Docstring (oder NIL).
                  ECHO-STREAM-OUTPUT-STREAM MAKE-STRING-INPUT-STREAM
                  SYSTEM::STRING-INPUT-STREAM-INDEX MAKE-STRING-OUTPUT-STREAM
                  SYSTEM::MAKE-STRING-PUSH-STREAM MAKE-BUFFERED-INPUT-STREAM
-                 MAKE-BUFFERED-OUTPUT-STREAM OPEN-STREAM-P INPUT-STREAM-P
-                 OUTPUT-STREAM-P STREAM-ELEMENT-TYPE FILE-LENGTH
+                 MAKE-BUFFERED-OUTPUT-STREAM SYSTEM::BUILT-IN-STREAM-OPEN-P
+                 INPUT-STREAM-P OUTPUT-STREAM-P SYSTEM::BUILT-IN-STREAM-ELEMENT-TYPE
+                 FILE-LENGTH
                  GET GETF GET-PROPERTIES SYMBOL-PACKAGE SYMBOL-PLIST KEYWORDP
                  SYSTEM::SPECIAL-VARIABLE-P GENSYM
                  FFLOOR FCEILING FTRUNCATE FROUND

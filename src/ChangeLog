@@ -1,5 +1,30 @@
 1999-04-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (builtin_stream_close): Renamed from stream_close.
+        * stream.d (close_synonym): Call CLOSE instead of stream_close.
+          (low_flush_buffered_handle, make_file_stream): Update.
+          (SYSTEM::BUILT-IN-STREAM-OPEN-P): Renamed from OPEN-STREAM-P.
+          Stricter argument check.
+          (SYSTEM::BUILT-IN-STREAM-ELEMENT-TYPE): Renamed from
+          STREAM-ELEMENT-TYPE. Stricter argument check.
+          (SYSTEM::BUILT-IN-STREAM-SET-ELEMENT-TYPE): Renamed from
+          SYSTEM::SET-STREAM-ELEMENT-TYPE. Stricter argument check.
+          (builtin_stream_close): Renamed from stream_close.
+          (close_some_files): Update.
+          (SYSTEM::BUILT-IN-STREAM-CLOSE): Renamed from CLOSE. Stricter
+          argument check.
+        * debug.d (LOAD): Update.
+        * misc.d (MACHINE-TYPE, MACHINE-VERSION): Update.
+        * pathname.d (DELETE-FILE): Update.
+        * spvw_memfile.d (WRITE, savemem): Update.
+        * eval.d (FUNTAB): Update.
+        * compiler.lsp (funtab, subr-info, c-DIRECT-FUNCTION-CALL): Likewise.
+        * init.lsp (load): Call sys::built-in-stream-close instead of close.
+        * gstream.lsp: Exports symbols from the Gray proposal.
+          (close, open-stream-p, stream-element-type,
+           (setf stream-element-type)): New generic functions.
+        * places.lsp (stream-element-type): Remove defsetf.
+
         Distinguish built-in and other streams.
         * lispbibl.d (builtin_stream_p): Renamed from streamp.
           (streamp): New macro.

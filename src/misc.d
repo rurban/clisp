@@ -76,7 +76,7 @@ LISPFUNN(machinetype,0)
             pushSTACK(value1); pushSTACK(NIL); pushSTACK(NIL);
             funcall(L(read_line),3); # (READ-LINE stream NIL NIL)
             pushSTACK(value1); # Ergebnis (kann auch NIL sein) retten
-            stream_close(&STACK_1); # Stream schlieﬂen
+            builtin_stream_close(&STACK_1); # Stream schlieﬂen
             if (!nullp(STACK_0))
               { erg = string_upcase(STACK_0); } # in Groﬂbuchstaben umwandeln
               else
@@ -129,7 +129,7 @@ LISPFUNN(machine_version,0)
             pushSTACK(value1); pushSTACK(NIL); pushSTACK(NIL);
             funcall(L(read_line),3); # (READ-LINE stream NIL NIL)
             pushSTACK(value1); # Ergebnis (kann auch NIL sein) retten
-            stream_close(&STACK_1); # Stream schlieﬂen
+            builtin_stream_close(&STACK_1); # Stream schlieﬂen
             funcall(L(string_upcase),1); skipSTACK(1); # in Groﬂbuchstaben umwandeln
           #endif
           erg = value1;
