@@ -575,6 +575,7 @@ t
       (loop
         (multiple-value-bind (more? symbol accessibility pkg)
             (generator-fn)
+          (declare (ignore pkg))
           (unless more? (return))
           (let ((l (multiple-value-list (find-symbol (symbol-name symbol)
                                                      package))))
@@ -588,11 +589,114 @@ t
     t))
 test-package-iterator
 
-(test-package-iterator :common-lisp-user)
-t
+(compile 'test-package-iterator) test-package-iterator
 
-(test-package-iterator :common-lisp)
-t
+(test-package-iterator :common-lisp-user) t
+
+(test-package-iterator :common-lisp)      t
+
+(progn ; from gcl/ansi-test
+(defconstant +fail-count-limit+ 20)
+(defmacro test-with-package-iterator (package-list-expr &rest symbol-types)
+  "Build an expression that tests the with-package-iterator form."
+  (let ((name (gensym))
+        (cht-var (gensym))
+        (pkg-list-var (gensym)))
+    `(let ((,cht-var (make-hash-table))
+           (,pkg-list-var ,package-list-expr)
+           (fail-count 0))
+       (with-package-iterator (,name ,pkg-list-var
+                                     ,@(copy-list symbol-types))
+         ;; For each symbol, check that name is returning appropriate things
+         (loop
+           (block fail
+             (multiple-value-bind (more sym access pkg)
+                 (,name)
+               (unless more (return nil))
+               (setf (gethash sym ,cht-var) t)  ;; note presence of symbol
+               ;; Check that its access status is in the list,
+               ;;  that pkg is a package,
+               ;;  that the symbol is in the package,
+               ;;  and that (in the package) it has the correct access type
+               (unless (member access (quote ,(copy-list symbol-types)))
+                 (unless (> fail-count +fail-count-limit+)
+                   (format t "Bad access type: ~S ==> ~A~%" sym access))
+                 (when (= fail-count +fail-count-limit+)
+                   (format t "Further messages suppressed~%"))
+                 (incf fail-count)
+                 (return-from fail nil))
+
+               (unless (packagep pkg)
+                 (unless (> fail-count +fail-count-limit+)
+                   (format t "Not a package: ~S ==> ~S~%" sym pkg))
+                 (when (= fail-count +fail-count-limit+)
+                   (format t "Further messages suppressed~%"))
+                 (incf fail-count)
+                 (return-from fail nil))
+               (multiple-value-bind (sym2 access2)
+                   (find-symbol (symbol-name sym) pkg)
+                 (unless (or (eq sym sym2)
+                             (member sym2 (package-shadowing-symbols pkg)))
+                   (unless (> fail-count +fail-count-limit+)
+                     (format t "Not same symbol: ~S ~S~%" sym sym2))
+                   (when (= fail-count +fail-count-limit+)
+                     (format t "Further messages suppressed~%"))
+                   (incf fail-count)
+                   (return-from fail nil))
+                 (unless (eq access access2)
+                   (unless (> fail-count +fail-count-limit+)
+                     (format t "Not same access type: ~S ~S ~S~%"
+                             sym access access2))
+                   (when (= fail-count +fail-count-limit+)
+                     (format t "Further messages suppressed~%"))
+                   (incf fail-count)
+                   (return-from fail nil)))))))
+       ;; now, check that each symbol in each package has
+       ;; been properly found
+       (loop
+         for p in ,pkg-list-var do
+           (block fail
+             (do-symbols (sym p)
+               (multiple-value-bind (sym2 access)
+                   (find-symbol (symbol-name sym) p)
+                 (unless (eq sym sym2)
+                   (unless (> fail-count +fail-count-limit+)
+                     (format t "Not same symbol (2): ~S ~S~%"
+                             sym sym2))
+                   (when (= fail-count +fail-count-limit+)
+                     (format t "Further messages suppressed~%"))
+                   (incf fail-count)
+                   (return-from fail nil))
+                 (unless (or (not (member access
+                                          (quote ,(copy-list symbol-types))))
+                             (gethash sym ,cht-var))
+                   (format t "Symbol not found: ~S~%" sym)
+                   (incf fail-count)
+                   (return-from fail nil))))))
+       (or (zerop fail-count) fail-count))))
+(defun with-package-iterator-internal (packages)
+  (test-with-package-iterator packages :internal))
+(compile 'with-package-iterator-internal)
+(defun with-package-iterator-external (packages)
+  (test-with-package-iterator packages :external))
+(compile 'with-package-iterator-external)
+(defun with-package-iterator-inherited (packages)
+  (test-with-package-iterator packages :inherited))
+(compile 'with-package-iterator-inherited)
+(defun with-package-iterator-all (packages)
+  (test-with-package-iterator packages :internal :external :inherited))
+(compile 'with-package-iterator-all)
+t)t
+
+(with-package-iterator-internal (list (find-package "COMMON-LISP-USER"))) t
+(with-package-iterator-external (list (find-package "COMMON-LISP-USER"))) t
+(with-package-iterator-inherited (list (find-package "COMMON-LISP-USER"))) t
+(with-package-iterator-all (list (find-package "COMMON-LISP-USER"))) t
+
+(with-package-iterator-internal (list (find-package "COMMON-LISP"))) t
+(with-package-iterator-external (list (find-package "COMMON-LISP"))) t
+(with-package-iterator-inherited (list (find-package "COMMON-LISP"))) t
+(with-package-iterator-all (list (find-package "COMMON-LISP"))) t
 
 (format t "End of file")
 nil
