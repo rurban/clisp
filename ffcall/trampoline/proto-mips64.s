@@ -1,4 +1,4 @@
-	.file	1 "proto.c"
+	.file	1 "proto64.c"
 	.set	nobopt
 	.abicalls
 gcc2_compiled.:
@@ -13,27 +13,28 @@ __gnu_compiled_c:
 	.text
 	.ent	tramp
 tramp:
-	.frame	$sp,32,$31		# vars= 0, regs= 2/0, args= 16, extra= 8
-	.mask	0x90000000,-4
+	.frame	$sp,56,$31		# vars= 0, regs= 2/0, args= 32, extra= 8
+	.mask	0x90000000,-8
 	.fmask	0x00000000,0
 	.set	noreorder
 	.cpload	$25
 	.set	reorder
-	subu	$sp,$sp,32
-	.cprestore 16
-	li	$2,1934950400			# 0x73550000
-	ori	$2,$2,0x4711
-	sw	$31,28($sp)
-	sw	$28,24($sp)
-	sw	$2,305419896
-	li	$25,-1161904448
+	dsubu	$sp,$sp,56
+	.cprestore 32
+	dli	$2,0x1234567813578765
+	dli	$3,0x7355471143622155
+	sd	$31,48($sp)
+	sd	$28,40($sp)
+	sd	$3,0($2)
+	dli	$2,0xbabebec0dea0ffab
+	move	$25,$2
 	jal	$31,$25
-	lw	$31,28($sp)
+	ld	$31,48($sp)
 	#nop
 	.set	noreorder
 	.set	nomacro
 	j	$31
-	addu	$sp,$sp,32
+	daddu	$sp,$sp,56
 	.set	macro
 	.set	reorder
 
@@ -47,7 +48,6 @@ jump:
 	.set	noreorder
 	.cpload	$25
 	.set	reorder
-	li	$2,-1161953280			# 0xbabe0000
-	ori	$2,$2,0xbec0
+	dli	$2,0xbabebec0dea0ffab
 	j	$2
 	.end	jump

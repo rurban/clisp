@@ -47,4 +47,4 @@ jump:
 	 nop
 .LLfe2:
 	.size	 jump,.LLfe2-jump
-	.ident	"GCC: (GNU) 2.95 19990714 (prerelease)"
+	.ident	"GCC: (GNU) 2.95.2 19991024 (release)"
