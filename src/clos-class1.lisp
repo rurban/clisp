@@ -84,6 +84,9 @@
       ($documentation      ; string or NIL
         :type (or string null)
         :initarg :documentation)
+      ($listeners          ; list of objects to be notified upon a change
+        :type list
+        :initform nil)
       ($initialized        ; set to true when the class is initialized
         :type boolean
         :initform nil))
@@ -101,7 +104,8 @@
 (defconstant *<class>-direct-default-initargs-location* 11)
 (defconstant *<class>-default-initargs-location* 12)
 (defconstant *<class>-documentation-location* 13)
-(defconstant *<class>-initialized-location* 14)
+(defconstant *<class>-listeners-location* 14)
+(defconstant *<class>-initialized-location* 15)
 
 ;; Preliminary accessors.
 (defun class-classname (object)
@@ -150,6 +154,10 @@
   (sys::%record-ref object *<class>-documentation-location*))
 (defun (setf class-documentation) (new-value object)
   (setf (sys::%record-ref object *<class>-documentation-location*) new-value))
+(defun class-listeners (object)
+  (sys::%record-ref object *<class>-listeners-location*))
+(defun (setf class-listeners) (new-value object)
+  (setf (sys::%record-ref object *<class>-listeners-location*) new-value))
 (defun class-initialized (object)
   (sys::%record-ref object *<class>-initialized-location*))
 (defun (setf class-initialized) (new-value object)
@@ -191,6 +199,7 @@
     (when (eq situation 't) ; called from initialize-instance?
       (setf (class-direct-subclasses-table class) nil)
       (setf (class-slot-location-table class) empty-ht)
+      (setf (class-listeners class) nil)
       (setf (class-initialized class) nil)))
   (if (or (eq situation 't) name-p)
     ; No need to check the name: any name is valid.
@@ -279,7 +288,7 @@
      (:fixed-slot-locations)))
 (defvar *<built-in-class>-class-version* (make-class-version))
 
-(defconstant *<built-in-class>-instance-size* 15)
+(defconstant *<built-in-class>-instance-size* 16)
 
 ;;; ===========================================================================
 
@@ -306,11 +315,11 @@
      (:fixed-slot-locations)))
 
 ;; Fixed slot locations.
-(defconstant *<slotted-class>-subclass-of-stablehash-p-location* 15)
-(defconstant *<slotted-class>-generic-accessors-location* 16)
-(defconstant *<slotted-class>-direct-accessors-location* 17)
-(defconstant *<slotted-class>-valid-initargs-location* 18)
-(defconstant *<slotted-class>-instance-size-location* 19)
+(defconstant *<slotted-class>-subclass-of-stablehash-p-location* 16)
+(defconstant *<slotted-class>-generic-accessors-location* 17)
+(defconstant *<slotted-class>-direct-accessors-location* 18)
+(defconstant *<slotted-class>-valid-initargs-location* 19)
+(defconstant *<slotted-class>-instance-size-location* 20)
 
 ;; Preliminary accessors.
 (defun class-subclass-of-stablehash-p (object)
@@ -365,7 +374,7 @@
 (defvar *<structure-class>-class-version* (make-class-version))
 
 ;; Fixed slot locations.
-(defconstant *<structure-class>-names-location* 20)
+(defconstant *<structure-class>-names-location* 21)
 
 ;; Preliminary accessors.
 (defun class-names (object)
@@ -373,7 +382,7 @@
 (defun (setf class-names) (new-value object)
   (setf (sys::%record-ref object *<structure-class>-names-location*) new-value))
 
-(defconstant *<structure-class>-instance-size* 21)
+(defconstant *<structure-class>-instance-size* 22)
 
 ;;; ===========================================================================
 
@@ -404,12 +413,12 @@
      (:fixed-slot-locations)))
 
 ;; Fixed slot locations.
-(defconstant *<semi-standard-class>-current-version-location* 20)
-(defconstant *<semi-standard-class>-funcallablep-location* 21)
-(defconstant *<semi-standard-class>-fixed-slot-locations-location* 22)
-(defconstant *<semi-standard-class>-instantiated-location* 23)
-(defconstant *<semi-standard-class>-finalized-direct-subclasses-location* 24)
-(defconstant *<semi-standard-class>-prototype-location* 25)
+(defconstant *<semi-standard-class>-current-version-location* 21)
+(defconstant *<semi-standard-class>-funcallablep-location* 22)
+(defconstant *<semi-standard-class>-fixed-slot-locations-location* 23)
+(defconstant *<semi-standard-class>-instantiated-location* 24)
+(defconstant *<semi-standard-class>-finalized-direct-subclasses-location* 25)
+(defconstant *<semi-standard-class>-prototype-location* 26)
 
 ;; Preliminary accessors.
 (defun class-current-version (object)
@@ -449,7 +458,7 @@
      (:fixed-slot-locations)))
 (defvar *<standard-class>-class-version* (make-class-version))
 
-(defconstant *<standard-class>-instance-size* 26)
+(defconstant *<standard-class>-instance-size* 27)
 
 ;;; ===========================================================================
 
