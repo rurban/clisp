@@ -559,9 +559,9 @@ English, German, French, Spanish, Dutch and Russian.
 
 <!-- #ifdef /* HAVE_ICONV */ -->
 <variablelist>
-<varlistentry id="iconv"><term>Platform dependent: Only on &gnu; systems
+<varlistentry id="iconv"><term><emphasis role="plat-dep">Only on &gnu; systems
   with &glibc; 2.2 or better and other systems (&unix; and &win32;)
-  on which the &libiconv; &c-lang; library has been installed</term>
+  on which the &libiconv; &c-lang; library has been installed</emphasis></term>
 <listitem><simpara>The character sets provided by the library function
  &iconv; can also be used as encodings.  To create such an encoding,
  call &make-encoding; with the character set name (a string) as the
@@ -2000,8 +2000,8 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 </section>
 
 <section id="mod-dynload"><title>Function &mod-dynload;</title>
-<subtitle>Platform dependent: some &unix; platforms only, compiled &with;
- configure flag <option>--with-dynamic-modules</option>.</subtitle>
+<subtitle><emphasis role="plat-dep">Some &unix; platforms only, compiled &with;
+ configure flag <option>--with-dynamic-modules</option>.</emphasis></subtitle>
 
 <note><para>Dynamic loading does not work on all operating systems
 (&dlopen; is required)</para></note>
@@ -2243,8 +2243,8 @@ bash$ ./build-dir/clisp &opt-K; full
 
 <!-- #ifdef DYNAMIC_FFI -->
 <section id="dffi"><title>The Foreign Function Call Facility</title>
-<subtitle>Platform dependent: many &unix;, &win32; platforms
-only.</subtitle>
+<subtitle><emphasis role="plat-dep">Many &unix;, &win32; platforms
+  only.</emphasis></subtitle>
 
 <para>A foreign function description is written as a Lisp file, and when
  compiled it produces a &c-file; file which is then compiled by the
@@ -3628,7 +3628,7 @@ disabled at once upon close by sharing their &foreign-pointer; using
 <!-- #ifdef HAVE_AFFI -->
 
 <section id="affi"><title>The Amiga Foreign Function Call Facility</title>
-<subtitle>Platform dependent: no platform supports this currently.</subtitle>
+<subtitle>&no-platform-only;</subtitle>
 
 <formalpara><title>Another Foreign Function Interface</title>
 <para>All symbols relating to the simple foreign function interface are
@@ -4392,8 +4392,8 @@ input will be available.</para></formalpara>
 <!-- #endif -->
 
 <section id="quickstart-desktop"><title>Desktop Environments</title>
- <subtitle>Platform dependent: &win32;, &gnome;, &kde;, &macosx; desktop
-  platforms only.</subtitle>
+ <subtitle><emphasis role="plat-dep">&win32;, &gnome;, &kde;, &macosx;
+  desktop platforms only.</emphasis></subtitle>
 
 <note id="quickstart-desktop-win32"><title>Notations</title>
 <para>Although we use &win32;-specific notation, these techniques work
@@ -4430,7 +4430,8 @@ input will be available.</para></formalpara>
 
 <section id="quickstart-linux">
  <title>Associating extensions with &clisp; via kernel</title>
- <subtitle>Platform dependent: &linux; platforms only.</subtitle>
+ <subtitle><emphasis role="plat-dep">&linux; platforms
+   only.</emphasis></subtitle>
 
 <para>You have to build your kernel with
  <option>CONFIG_BINFMT_MISC=y</option> and

@@ -58,3 +58,7 @@ h6 { font-size: 110%; }
 /* necessary when <programlisting> is in a centered table cell */
 .programlisting
 { text-align: left; }
+
+/* platform dependencies */
+.plat-dep
+{ background-color: lightcyan; color: darkred; }
