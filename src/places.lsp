@@ -325,10 +325,10 @@
               FRANCAIS "Une variable de résultat doit être précisée dans DEFSETF.")))
          (multiple-value-bind (body-rest declarations docstring)
              (system::parse-body (cddr args) t env)
-           (let* (arg-count
+           (let* ((storevars (second args))
+                  arg-count
                   (setter
                     (let* ((lambdalist (first args))
-                           (storevars (second args))
                            (SYSTEM::%ARG-COUNT 0)
                            (SYSTEM::%MIN-ARGS 0)
                            (SYSTEM::%RESTP nil)
