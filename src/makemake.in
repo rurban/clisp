@@ -1356,6 +1356,7 @@ if [ -n "$with_unicode" ] ; then
   NLS_INCLUDES=$NLS_INCLUDES' nls_cp1250 nls_cp1251 nls_cp1252 nls_cp1253'
   NLS_INCLUDES=$NLS_INCLUDES' nls_cp1254 nls_cp1255 nls_cp1256 nls_cp1257'
   NLS_INCLUDES=$NLS_INCLUDES' nls_cp1258'
+  NLS_INCLUDES=$NLS_INCLUDES' nls_hp_roman8'
   NLS_INCLUDES=$NLS_INCLUDES' nls_nextstep'
 fi
 
