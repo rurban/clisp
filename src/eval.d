@@ -790,8 +790,7 @@ local inline gcv_object_t* symbol_env_search (object sym, object venv)
 LISPFUN(special_variable_p,seclass_read,1,1,norest,nokey,0,NIL)
 { /* (SYS::SPECIAL-VARIABLE-P symbol &optional environment)
      check whether the symbol is a special variable or a constant
-     missing or NIL environment means null environment
-     environment T means the current environment */
+     missing or NIL environment means null environment */
   var object symbol = check_symbol(STACK_1);
   var object env = STACK_0; skipSTACK(2);
   if (constantp(TheSymbol(symbol)) || special_var_p(TheSymbol(symbol))) {
@@ -799,21 +798,18 @@ LISPFUN(special_variable_p,seclass_read,1,1,norest,nokey,0,NIL)
   } else if (missingp(env)) {
     value1 = NIL;
   } else {
-    if (eq(env,T)) env = aktenv.var_env;
-    else if (simple_vector_p(env)) {
+    if (simple_vector_p(env)) {
       var uintL len = Svector_length(env);
-      if (len == 5)
+      if (len == 2 || len == 5)
         env = TheSvector(env)->data[0]; /* venv */
-      else if (len%2)           /* odd length! */
+      else
         fehler_environment(env);
-      /* it is not at all clear that we should accept VENV directly;
-         we do, for now... */
     }
-    { var gcv_object_t *binding = symbol_env_search(symbol,env);
-      if ((binding != NULL) && eq(*binding,specdecl))
-        value1 = T;
-      else value1 = NIL;
-    }
+    var gcv_object_t *binding = symbol_env_search(symbol,env);
+    if ((binding != NULL) && eq(*binding,specdecl))
+      value1 = T;
+    else
+      value1 = NIL;
   }
   mv_count = 1;
 }
