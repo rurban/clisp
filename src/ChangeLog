@@ -1,5 +1,9 @@
 1998-07-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d: Add a comment about CFLAGS.
+
+1998-07-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d: Don't use CPU registers when compiling for MULTITHREAD,
           for the moment.
           (SP_register, ASM_get_SP_register): Define.
