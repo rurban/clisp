@@ -601,7 +601,7 @@ Supplies some HTTP/1.0 headers and calls `with-html-output'."
                 (browser *inspect-browser*))
   (let* ((*print-array* nil) (*print-pretty* t)
          (*print-circle* t) (*print-escape* t)
-         #-clisp (*print-lines* *inspect-print-lines*)
+         (*print-lines* *inspect-print-lines*)
          (*print-level* *inspect-print-level*)
          (*print-length* *inspect-print-length*)
          (*package* (make-package (gensym "INSPECT-TMP-PACKAGE-")))

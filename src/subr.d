@@ -397,18 +397,18 @@ LISPFUN(read_from_string,1,2,norest,key,3,
 LISPFUN(parse_integer,1,0,norest,key,4,
         (kw(start),kw(end),kw(radix),kw(junk_allowed)) )
 LISPFUNN(print_structure,2)
-LISPFUN(write,1,0,norest,key,14,
+LISPFUN(write,1,0,norest,key,15,
         (kw(case),kw(level),kw(length),kw(gensym),kw(escape),kw(radix),
          kw(base),kw(array),kw(circle),kw(pretty),kw(closure),kw(readably),
-         kw(right_margin),kw(stream)))
+         kw(lines),kw(right_margin),kw(stream)))
 LISPFUN(prin1,1,1,norest,nokey,0,NIL)
 LISPFUN(print,1,1,norest,nokey,0,NIL)
 LISPFUN(pprint,1,1,norest,nokey,0,NIL)
 LISPFUN(princ,1,1,norest,nokey,0,NIL)
-LISPFUN(write_to_string,1,0,norest,key,13,
+LISPFUN(write_to_string,1,0,norest,key,14,
         (kw(case),kw(level),kw(length),kw(gensym),kw(escape),kw(radix),
          kw(base),kw(array),kw(circle),kw(pretty),kw(closure),kw(readably),
-         kw(right_margin)))
+         kw(lines),kw(right_margin)))
 LISPFUNN(prin1_to_string,1)
 LISPFUNN(princ_to_string,1)
 LISPFUN(write_char,1,1,norest,nokey,0,NIL)

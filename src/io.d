@@ -5046,6 +5046,7 @@ local void pr_hex8 (const object* stream_, uintP x) {
 # *PRINT-READABLY* /= NIL causes among other things implicitely the same as
 # *PRINT-ESCAPE* = T, *PRINT-BASE* = 10, *PRINT-RADIX* = T,
 # *PRINT-CIRCLE* = T, *PRINT-LEVEL* = NIL, *PRINT-LENGTH* = NIL,
+# *PRINT-LINES* = NIL,
 # *PRINT-GENSYM* = T, *PRINT-ARRAY* = T, *PRINT-CLOSURE* = T.
 
 # error-message when *PRINT-READABLY* /= NIL.
@@ -5532,6 +5533,8 @@ local void pphelp_newline (const object* stream_) {
   # Line-Position := 0, Modus := multi-liner :
   TheStream(stream)->strm_pphelp_lpos = Fixnum_0;
   TheStream(stream)->strm_pphelp_modus = mehrzeiler;
+  if (!nullp(S(print_lines)))
+    Symbol_value(S(prin_lines)) = fixnum_inc(Symbol_value(S(prin_lines)),1);
 }
 
 #define PPHELP_STREAM_P(str) \
@@ -5636,6 +5639,12 @@ local void klammer_zu (const object* stream_) {
     dynamic_unbind();
   }
 }
+
+/* forward declarations for *PRINT-LINES* */
+local bool check_lines_limit (void);
+local void double_dots (const object*);
+#define CHECK_LINES_LIMIT(finally) \
+  if (check_lines_limit()) { double_dots(stream_); finally; }
 
 # Justify
 # -------
@@ -5819,6 +5828,7 @@ local void justify_end_eng (const object* stream_) {
           spaces(stream_,Symbol_value(S(prin_lm))); # SYS::*PRIN-LM* Spaces
         }
       }
+      CHECK_LINES_LIMIT(break);
     }
     skipSTACK(2); # forget empty remaining list and the old line-position
     # unbind bindings of JUSTIFY_START:
@@ -5920,6 +5930,7 @@ local void justify_end_weit (const object* stream_) {
         break;
       pphelp_newline(stream_); # start new line
       spaces(stream_,Symbol_value(S(prin_lm))); # SYS::*PRIN-LM* Spaces
+      CHECK_LINES_LIMIT(break);
     }
     stream = *stream_;
     # restore line-position:
@@ -6102,6 +6113,52 @@ local uintL get_print_length (void) {
           : ~(uintL)0);           # no -> limit "infinite"
 }
 
+# UP: abbreviate the remainder with "..."
+# triple_dots(&stream);
+# > stream: stream
+# < stream: stream
+# can trigger GC
+local void triple_dots (const object* stream_) {
+  JUSTIFY_LAST(true);
+  write_ascii_char(stream_,'.');
+  write_ascii_char(stream_,'.');
+  write_ascii_char(stream_,'.');
+}
+#define CHECK_LENGTH_LIMIT(test,finally) \
+  if (test) { triple_dots(stream_); finally; }
+
+# ------------------ sub-routines for *PRINT-LINES* ------------------------
+
+# UP: check whether we are the end of the rope for *PRINT-LINES*
+# check_lines_limit()
+# < result: true if it is time to print ".." and bail out
+local bool check_lines_limit (void) {
+  var object limit = Symbol_value(S(print_lines)); # *PRINT-LINES*
+  if (test_value(S(print_readably)) || !posfixnump(limit))
+    return false;
+  var object now = Symbol_value(S(prin_lines)); # SYS::*PRIN-LINES*
+  if (!posfixnump(now))
+    return true;
+  var uintL max_lines = posfixnum_to_L(limit);
+  var uintL cur_lines = posfixnum_to_L(now);
+  printf("check_lines_limit: [max: %d] [cur: %d]\n",max_lines,cur_lines);
+  return max_lines <= cur_lines;
+}
+
+# UP: abbreviate the remainder with ".."
+# double_dots(&stream);
+# > stream: stream
+# < stream: stream
+# can trigger GC
+local void double_dots (const object* stream_) {
+  JUSTIFY_LAST(true);
+  if (!eq(Symbol_value(S(prin_lines)),S(Kend))) {
+    write_ascii_char(stream_,'.');
+    write_ascii_char(stream_,'.');
+    Symbol_value(S(prin_lines)) = S(Kend); # do not print anything else
+  }
+}
+
 # ------------------ sub-routines for *PRINT-CIRCLE* ------------------------
 
 # UP: finds out, if an object has to be printed in #n= or #n# -
@@ -6261,7 +6318,7 @@ local void pr_enter_1 (const object* stream_,object obj,pr_routine_t* pr_xxx) {
               || chareq(TheSstring(TheIarray(firststring)->data)->data[0],ascii(NL))) # or Newline at the beginning?
             goto skip_first_NL; # into the loop
         }
-        if (eq(Symbol_value(S(prin_l1)),Fixnum_0)) # oder ab Position 0 ?
+        if (eq(Symbol_value(S(prin_l1)),Fixnum_0)) # or at position 0 ?
           goto skip_first_NL; # into the loop
       }
       do {
@@ -6343,21 +6400,23 @@ local void pr_enter (const object* stream_,object obj,pr_routine_t* pr_xxx) {
     } else {
       pr_enter_1(stream_,obj,pr_xxx);
     }
-  } else { # no -> non-recursiver call
+  } else { # no -> non-recursive call
 #if STACKCHECKP
     var object* STACKbefore = STACK; # save STACK for later
 #endif
     dynamic_bind(S(prin_level),Fixnum_0); # bind SYS::*PRIN-LEVEL* to 0
+    dynamic_bind(S(prin_lines),Fixnum_0); # bind SYS::*PRIN-LINES* to 0
     dynamic_bind(S(prin_bqlevel),Fixnum_0); # bind SYS::*PRIN-BQLEVEL* to 0
     dynamic_bind(S(prin_l1),Fixnum_0); # bind SYS::*PRIN-L1* to 0 (for Pretty-Print)
     dynamic_bind(S(prin_lm),Fixnum_0); # bind SYS::*PRIN-LM* to 0 (for Pretty-Print)
     dynamic_bind(S(prin_traillength),Fixnum_0); # bind SYS::*PRIN-TRAILLENGTH*
     pr_enter_2(stream_,obj,pr_xxx);
-    dynamic_unbind();
-    dynamic_unbind();
-    dynamic_unbind();
-    dynamic_unbind();
-    dynamic_unbind();
+    dynamic_unbind(); # SYS::*PRIN-TRAILLENGTH*
+    dynamic_unbind(); # SYS::*PRIN-LM*
+    dynamic_unbind(); # SYS::*PRIN-L1*
+    dynamic_unbind(); # SYS::*PRIN-BQLEVEL*
+    dynamic_unbind(); # SYS::*PRIN-LINES*
+    dynamic_unbind(); # SYS::*PRIN-LEVEL*
 #if STACKCHECKP
     # check, if Stack is cleaned:
     if (!(STACK == STACKbefore))
@@ -6411,6 +6470,10 @@ local uintC pr_external_1 (object stream) {
     # *PRINT-READABLY* enforces *PRINT-LENGTH* = NIL :
     if (test_value(S(print_length))) {
       dynamic_bind(S(print_length),NIL); count++;
+    }
+    # *PRINT-READABLY* enforces *PRINT-LINES* = NIL :
+    if (test_value(S(print_lines))) {
+      dynamic_bind(S(print_lines),NIL); count++;
     }
     # *PRINT-READABLY* enforces *PRINT-GENSYM* = T :
     if (!test_value(S(print_gensym))) {
@@ -7040,20 +7103,6 @@ local void pr_list (const object* stream_,object list) {
     pr_cons(stream_,list);
 }
 
-# UP: abbreviate the remainder with "..."
-# triple_dots(&stream);
-# > stream: stream
-# < stream: stream
-# can trigger GC
-local void triple_dots (const object* stream_) {
-  JUSTIFY_LAST(true);
-  write_ascii_char(stream_,'.');
-  write_ascii_char(stream_,'.');
-  write_ascii_char(stream_,'.');
-}
-#define CHECK_LENGTH_LIMIT(test,finally) \
-  if (test) { triple_dots(stream_); finally; }
-
 # UP: print a Cons to a stream.
 # pr_cons(&stream,list);
 # > list: cons
@@ -7079,6 +7128,8 @@ local void pr_cons (const object* stream_,object list) {
     JUSTIFY_START(1);
     # test for attaining of *PRINT-LENGTH* :
     CHECK_LENGTH_LIMIT(length_limit==0,goto end_of_list);
+    # test for attaining of *PRINT-LINES* :
+    CHECK_LINES_LIMIT(goto end_of_list);
     loop {
       # print the CAR from here
       list = *list_; *list_ = Cdr(list); # shorten list
@@ -7093,6 +7144,8 @@ local void pr_cons (const object* stream_,object list) {
         goto dotted_list;
       # check for attaining *PRINT-LENGTH* :
       CHECK_LENGTH_LIMIT(length >= length_limit,goto end_of_list);
+      # check for attaining *PRINT-LINES* :
+      CHECK_LINES_LIMIT(goto end_of_list);
       # check, if dotted-list-notation is necessary:
       list = *list_;
       if (!(circle_p(list) == (circle_info_t*)NULL)) # necessary because of circularity?
@@ -7427,6 +7480,8 @@ local void pr_vector (const object* stream_,object v) {
           JUSTIFY_SPACE;
         # check for attaining of *PRINT-LENGTH* :
         CHECK_LENGTH_LIMIT(length >= length_limit,break);
+        # test for attaining of *PRINT-LINES* :
+        CHECK_LINES_LIMIT(break);
         JUSTIFY_LAST(len==1);
         # print vector-element:
         prin_object(stream_,storagevector_aref(*sv_,index));
@@ -7604,6 +7659,8 @@ local void pr_array_recursion (pr_array_locals_t* locals, uintL depth) {
         JUSTIFY_SPACE;
       # check for attaining of *PRINT-LENGTH* :
       CHECK_LENGTH_LIMIT(length >= locals->length_limit,break);
+      # test for attaining of *PRINT-LINES* :
+      CHECK_LINES_LIMIT(break);
       JUSTIFY_LAST(count==1);
       # print sub-array:
       # (recursively, with decreased depth, and locals->info.index
@@ -7883,7 +7940,9 @@ local void pr_structure_default (const object* stream_, object structure) {
           # check for attaining of *PRINT-LENGTH* :
           CHECK_LENGTH_LIMIT(length >= length_limit,
                              skipSTACK(1); # forget slot
-                             break)
+                             break);
+          # test for attaining of *PRINT-LINES* :
+          CHECK_LINES_LIMIT(skipSTACK(1);break);
           JUSTIFY_LAST(!some_printable_slots(STACK_1));
           var object* slot_ = &STACK_0; # there is the slot
           JUSTIFY_START(0);
@@ -7928,6 +7987,8 @@ local void pr_structure_default (const object* stream_, object structure) {
       JUSTIFY_SPACE; # print Space
       # check for attaining of *PRINT-LENGTH* :
       CHECK_LENGTH_LIMIT(length >= length_limit,break);
+      # test for attaining of *PRINT-LINES* :
+      CHECK_LINES_LIMIT(break);
       JUSTIFY_LAST(len==1);
       length++; # increase index
       # print component:
@@ -8073,6 +8134,8 @@ local void pr_record_ab (const object* stream_, const object* obj_,
     JUSTIFY_SPACE; # print Space
     # check for attaining of *PRINT-LENGTH* :
     CHECK_LENGTH_LIMIT(length >= length_limit,break);
+    # test for attaining of *PRINT-LINES* :
+    CHECK_LINES_LIMIT(break);
     JUSTIFY_LAST(index+1 >= len);
     # print component:
     prin_object(stream_,TheRecord(*obj_)->recdata[index]);
@@ -8097,6 +8160,8 @@ local void pr_record_rest (const object* stream_, object obj, uintL length) {
     JUSTIFY_SPACE; # print Space
     # check for attaining of *PRINT-LENGTH* :
     CHECK_LENGTH_LIMIT(length >= length_limit,break);
+    # test for attaining of *PRINT-LINES* :
+    CHECK_LINES_LIMIT(break);
     {
       var object list = STACK_0;
       STACK_0 = Cdr(list); # shorten list
@@ -8156,6 +8221,8 @@ local void pr_record_descr (const object* stream_, object obj,
         CHECK_LENGTH_LIMIT(length >= length_limit,
                            skipSTACK(1); # forget slot
                            break);
+        # test for attaining of *PRINT-LINES* :
+        CHECK_LINES_LIMIT(skipSTACK(1);break);
         JUSTIFY_LAST(matomp(STACK_1));
         var object* slot_ = &STACK_0; # there's the slot
         JUSTIFY_START(0);
@@ -8245,6 +8312,8 @@ local void pr_orecord (const object* stream_,object obj) {
             JUSTIFY_SPACE; # print Space
             # check for attaining of *PRINT-LENGTH* :
             CHECK_LENGTH_LIMIT(length >= length_limit,goto kvtable_end);
+            # test for attaining of *PRINT-LINES* :
+            CHECK_LINES_LIMIT(goto kvtable_end);
             JUSTIFY_LAST(count==0);
             { # print Hash-Test:
               var uintB flags = record_flags(TheHashtable(*obj_));
@@ -8268,6 +8337,8 @@ local void pr_orecord (const object* stream_,object obj) {
               JUSTIFY_SPACE; # print Space
               # check for attaining of *PRINT-LENGTH* :
               CHECK_LENGTH_LIMIT(length >= length_limit,break);
+              # test for attaining of *PRINT-LINES* :
+              CHECK_LINES_LIMIT(break);
               count--;
               JUSTIFY_LAST(count==0);
               # create Cons (Key . Value) and print:
@@ -9047,6 +9118,8 @@ local void pr_cclosure_codevector (const object* stream_,object codevec) {
           JUSTIFY_SPACE;
         # check for attaining of *PRINT-LENGHT*:
         CHECK_LENGTH_LIMIT(length >= length_limit,break);
+        # test for attaining of *PRINT-LINES* :
+        CHECK_LINES_LIMIT(break);
         JUSTIFY_LAST(len==1 || length+1 >= length_limit);
         codevec = *codevec_;
         var uintL index = length;
@@ -9294,20 +9367,22 @@ local void test_ostream (void) {
 #   *PRINT-PRETTY*        |
 #   *PRINT-CLOSURE*       |
 #   *PRINT-READABLY*      |
+#   *PRINT-LINES*         |
 #   *PRINT-RIGHT-MARGIN* -+
 # first Print-Variable:
 #define first_print_var  S(print_case)
 # number of Print-Variables:
-#define print_vars_anz  13
+#define print_vars_anz  14
 
 # UP: for WRITE and WRITE-TO-STRING
 # > STACK_(print_vars_anz+1): Object
 # > STACK_(print_vars_anz)..STACK_(1): Arguments to the Print-Variables
 # > STACK_0: Stream
 local void write_up (void) {
-  var object* argptr = args_end_pointer STACKop (1+print_vars_anz+1); # Pointer over the Keyword-Arguments
+  # Pointer over the Keyword-Arguments
+  var object* argptr = args_end_pointer STACKop (1+print_vars_anz+1);
   var object obj = NEXT(argptr); # first Argument = Object
-# pind the specified Variable:
+  # bind the specified Variable:
   var uintC bindcount = 0; # number of bindings
   {
     var object sym = first_print_var; # loops over the Symbols
@@ -9328,13 +9403,13 @@ local void write_up (void) {
   dotimesC(bindcount,bindcount, { dynamic_unbind(); } );
 }
 
-LISPFUN(write,1,0,norest,key,14,\
+LISPFUN(write,1,0,norest,key,15,\
         (kw(case),kw(level),kw(length),kw(gensym),kw(escape),kw(radix),\
          kw(base),kw(array),kw(circle),kw(pretty),kw(closure),kw(readably),\
-         kw(right_margin),kw(stream)))
+         kw(lines),kw(right_margin),kw(stream)))
 # (WRITE object [:stream] [:escape] [:radix] [:base] [:circle] [:pretty]
 #               [:level] [:length] [:case] [:gensym] [:array] [:closure]
-#               [:readably] [:right-margin]),
+#               [:readably] [:lines] [:right-margin]),
 # CLTL p. 382
   {
     # stack layout: object, Print-Variablen-Arguments, Stream-Argument.
@@ -9450,17 +9525,17 @@ LISPFUN(princ,1,1,norest,nokey,0,NIL)
 # (defun write-to-string (object &rest args
 #                                &key escape radix base circle pretty level
 #                                     length case gensym array closure
-#                                     readably right-margin)
+#                                     readably lines right-margin)
 #   (with-output-to-string (stream)
 #     (apply #'write object :stream stream args)
 # ) )
-LISPFUN(write_to_string,1,0,norest,key,13,\
+LISPFUN(write_to_string,1,0,norest,key,14,\
         (kw(case),kw(level),kw(length),kw(gensym),kw(escape),kw(radix),\
          kw(base),kw(array),kw(circle),kw(pretty),kw(closure),kw(readably),\
-         kw(right_margin)))
+         kw(lines),kw(right_margin)))
 # (WRITE-TO-STRING object [:escape] [:radix] [:base] [:circle] [:pretty]
 #                         [:level] [:length] [:case] [:gensym] [:array]
-#                         [:closure] [:readably] [:right-margin]),
+#                         [:closure] [:readably] [:lines] [:right-margin]),
 # CLTL p. 383
   {
     pushSTACK(make_string_output_stream()); # String-Output-Stream
