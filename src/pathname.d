@@ -8320,11 +8320,16 @@ local void make_launch_pipe (int istack, bool parent_inputp,
   }
 }
 
-#ifdef UNIX
-#define NORMAL_PRIORITY_CLASS 0
-#define HIGH_PRIORITY_CLASS -10
-#define IDLE_PRIORITY_CLASS  10
-#define CloseHandle(h) (close(h)==0)
+/* on cygwin, <sigsegv.h> includes <windows.h> therefore *_PRIORITY_CLASS
+   macros are already defined */
+#if !defined(NORMAL_PRIORITY_CLASS)
+  #define NORMAL_PRIORITY_CLASS 0
+  #define HIGH_PRIORITY_CLASS -10
+  #define IDLE_PRIORITY_CLASS  10
+  #define MY_LOCAL_PRIORITY_CLASSES
+#endif
+#if defined(UNIX)
+  #define CloseHandle(h) (close(h)==0)
 #endif
 /* paranoidal close */
 #define ParaClose(h) if (!CloseHandle(h)) { end_system_call(); OS_error(); }
@@ -8566,11 +8571,14 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
   skipSTACK(10);
 }
 
-#ifdef UNIX
-#undef NORMAL_PRIORITY_CLASS
-#undef HIGH_PRIORITY_CLASS
-#undef IDLE_PRIORITY_CLASS
-#undef CloseHandle
+#if defined(MY_LOCAL_PRIORITY_CLASSES)
+  #undef MY_LOCAL_PRIORITY_CLASSES
+  #undef NORMAL_PRIORITY_CLASS
+  #undef HIGH_PRIORITY_CLASS
+  #undef IDLE_PRIORITY_CLASS
+#endif
+#if defined(UNIX)
+  #undef CloseHandle
 #endif
 
 #undef ParaClose

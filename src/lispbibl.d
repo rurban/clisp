@@ -991,14 +991,6 @@
   #define switchu  switch
 #endif
 
-# Ignoring of a value (instead of assigning it to a variable)
-# unused ...
-#ifdef GNU # to prevent a gcc-warning "statement with no effect"
-  #define unused  (void)
-#else
-  #define unused
-#endif
-
 # Ignore C++ keyword.
 #define export export_sym
 
@@ -1727,8 +1719,22 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 #endif # UNIX || WIN32
 
 #if (defined(UNIX) || defined(WIN32_NATIVE)) && !defined(NO_SIGSEGV)
-  # Support for fault handling.
+  /* Support for fault handling. */
   #include <sigsegv.h>
+  #if defined(UNIX_CYGWIN32)
+    /* <sigsegv.h> includes <windows.h> */
+    #undef WIN32
+    #undef INVALID_HANDLE_VALUE
+  #endif
+#endif
+
+/* Ignoring of a value (instead of assigning it to a variable)
+ unused ...
+ <sigsegv.h> includes <windows.h> which uses unused! */
+#ifdef GNU     /* to prevent a gcc-warning "statement with no effect" */
+  #define unused  (void)
+#else
+  #define unused
 #endif
 
 # Consensys and Solaris: "#define DS 3", "#define SP ESP", "#define EAX 11".
