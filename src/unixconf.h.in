@@ -262,6 +262,10 @@
 /* Define as const if the declaration of setlocale() needs const. */
 #undef SETLOCALE_CONST
 
+/* AM_LC_MESSAGES */
+/* Define if your <locale.h> file defines LC_MESSAGES. */
+#undef HAVE_LC_MESSAGES
+
 /* CL_RLIMIT */
 /* Define if you have the setrlimit() function. */
 #undef HAVE_SETRLIMIT
