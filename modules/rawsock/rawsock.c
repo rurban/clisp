@@ -16,6 +16,7 @@
 #if defined(STDC_HEADERS)
 # include <stdio.h>
 # include <unistd.h>
+# include <string.h>            /* for memcpy(3) */
 #endif
 #if defined(HAVE_SYS_SOCKET_H)
 # include <sys/socket.h>
@@ -29,11 +30,11 @@
 #if defined(HAVE_LINUX_IF_PACKET_H)
 # include <linux/if_packet.h>
 #endif
-#if defined(HAVE_NETINET_IF_ETHER_H)
-# include <netinet/if_ether.h>
-#endif
 #if defined(HAVE_NET_IF_H)
 # include <net/if.h>
+#endif
+#if defined(HAVE_NETINET_IF_ETHER_H)
+# include <netinet/if_ether.h>
 #endif
 #if defined(HAVE_SYS_IOCTL_H)
 # include <sys/ioctl.h>
@@ -102,6 +103,8 @@ static object make_sockaddr (void) {
   funcall(`RAWSOCK::MAKE-SA`,1);
   return value1;
 }
+
+static int check_socket_domain (object arg);
 
 DEFUN(RAWSOCK:MAKE-SOCKADDR,family data) {
   int family = check_socket_domain(STACK_1);
