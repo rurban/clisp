@@ -27,6 +27,7 @@
 ; Now DEFGENERIC, DEFMETHOD work. DEFCLASS works fully.
 (load "clos-genfun5")
 (load "clos-method3")
+(load "clos-methcomb3")
 (load "clos-slots2")
 (load "clos-slotdef2")
 (load "clos-stablehash2")
@@ -39,6 +40,7 @@
 (load "clos-specializer3")
 (load "clos-class6")
 (load "clos-method4")
+(load "clos-methcomb4")
 (load "clos-print")
 (load "documentation")
 

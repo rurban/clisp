@@ -305,7 +305,7 @@
            ;; or, in the case of invocation from ensure-generic-function,
            ;; a method-combination object with options.
            (let ((designator (cadr option)))
-             (if (or (method-combination-p designator)
+             (if (or (typep designator <method-combination>)
                      (and designator (symbolp designator)))
                  (setf method-combination (rest option))
                  (error-of-type 'sys::source-program-error
