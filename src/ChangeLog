@@ -1,3 +1,7 @@
+2001-11-07  Sam Steingold  <sds@gnu.org>
+
+	* init.lisp (search-file): handle the extension-less situations
+
 2001-11-05  Sam Steingold  <sds@gnu.org>
 
 	* debug.d (read_form): keep calling READ-LINE until a non-empty
