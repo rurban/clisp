@@ -10992,7 +10992,7 @@ The function make-closure is required.
                        (if pos (max 1 (- tab pos)) 2))
                      stream))
 (defun disassemble-closure (closure &optional (stream *standard-output*))
-  (terpri stream)
+  (fresh-line stream)
   (terpri stream)
   (format stream (TEXT "Disassembly of function ~S") (closure-name closure))
   (multiple-value-bind (req-anz opt-anz rest-p
@@ -11078,7 +11078,7 @@ The function make-closure is required.
               (if (eq commentp 'string)
                 (write-string comment stream)
                 (prin1 comment stream)))))))
-    (terpri stream)))
+    (elastic-newline stream)))
 
 ;; Creates a trampoline bytecode vector for jumping to a given function.
 ;; Used by set-funcallable-instance-function.

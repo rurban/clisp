@@ -669,7 +669,7 @@
   LISPOBJ_S(prompt_string,"> ")
   LISPOBJ_S(breakprompt_string,". Break> ")
   # various strings for description of the stack:
-  LISPOBJ_S(showstack_string_lisp_obj,NLstring "- ")
+  LISPOBJ_S(showstack_string_lisp_obj,"- ")
   LISPOBJ_S(showstack_string_bindung,NLstring "  | ")
   LISPOBJ_S(showstack_string_zuord," <--> ")
   LISPOBJ_S(showstack_string_zuordtag," --> ")
