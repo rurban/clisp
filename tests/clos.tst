@@ -3828,6 +3828,7 @@ T
   (foo115 3 4))
 (3 4)
 
+#¦
 ;; Check that invalid print-object methods yield a warning.
 (progn
   (defclass foo128 () ())
@@ -3840,6 +3841,7 @@ T
     nil))
 #+CLISP WARNING
 #-CLISP NIL
+|#
 
 ;; Test against bug in clos::%call-next-method and FUNCALL&SKIP&RETGF.
 (progn
