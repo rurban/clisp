@@ -10,8 +10,8 @@ while it is possible to distribute commercial applications compiled
 with GNU CLISP.
 The user interface comes in German, English, French, Spanish, Dutch
 and Russian.
-GNU CLISP includes an interpreter, a compiler, a debugger, most
-of CLOS, a foreign language interface and a socket interface.
+GNU CLISP includes an interpreter, a compiler, a debugger, CLOS,
+a foreign language interface, sockets, i18n, fast bignums and more.
 An X11 interface is available through CLX, Garnet, CLUE/CLIO.
 GNU CLISP runs Maxima, ACL2 and many other Common Lisp packages.
 
