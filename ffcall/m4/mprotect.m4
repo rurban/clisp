@@ -51,7 +51,7 @@ mprotect_prog="$mprotect_prog"'
   char* fault_address = area + pagesize*7/2;
 '
 if test -z "$no_mprotect"; then
-AC_TRY_RUN([$mprotect_prog
+AC_TRY_RUN(GL_NOCRASH[$mprotect_prog
   nocrash_init();
   if (mprotect(page_align(fault_address),pagesize,PROT_NONE) < 0) exit(0);
   foo = *fault_address; /* this should cause an exception or signal */
@@ -61,7 +61,7 @@ AC_TRY_RUN([$mprotect_prog
 )
 fi
 if test -z "$no_mprotect"; then
-AC_TRY_RUN([$mprotect_prog
+AC_TRY_RUN(GL_NOCRASH[$mprotect_prog
   nocrash_init();
   if (mprotect(page_align(fault_address),pagesize,PROT_NONE) < 0) exit(0);
   *fault_address = 'z'; /* this should cause an exception or signal */
@@ -71,7 +71,7 @@ AC_TRY_RUN([$mprotect_prog
 )
 fi
 if test -z "$no_mprotect"; then
-AC_TRY_RUN([$mprotect_prog
+AC_TRY_RUN(GL_NOCRASH[$mprotect_prog
   nocrash_init();
   if (mprotect(page_align(fault_address),pagesize,PROT_READ) < 0) exit(0);
   *fault_address = 'z'; /* this should cause an exception or signal */
@@ -81,7 +81,7 @@ AC_TRY_RUN([$mprotect_prog
 )
 fi
 if test -z "$no_mprotect"; then
-AC_TRY_RUN([$mprotect_prog
+AC_TRY_RUN(GL_NOCRASH[$mprotect_prog
   nocrash_init();
   if (mprotect(page_align(fault_address),pagesize,PROT_READ) < 0) exit(1);
   if (mprotect(page_align(fault_address),pagesize,PROT_READ|PROT_WRITE) < 0) exit(1);
