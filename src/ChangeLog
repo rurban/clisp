@@ -1,3 +1,7 @@
+2001-08-05  Bruno Haible  <haible@clisp.cons.org>
+
+	* pathname.d (PARSE-NAMESTRING): Verify consp before accessing Cdr.
+
 2001-07-31  Arseny Slobodjuck <ampy@crosswinds.net>
 	    Sam Steingold  <sds@gnu.org>
 
