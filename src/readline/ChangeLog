@@ -1,3 +1,8 @@
+1998-10-12  Bruno Haible  <linuix.math.u-bordeaux.fr>
+
+        * Makefile.in: Rewrite the dependency lines, one rule per target.
+          (Otherwise "make -r bind.o" [GNU make] doesn't compile bind.c.)
+
 1998-10-10  Bruno Haible  <linuix.math.u-bordeaux.fr>
 
         * readline.c (_emx_build_environ): Remove.
