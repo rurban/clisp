@@ -959,9 +959,6 @@ if [ $XCC_GCC = true ] ; then
   else
     XCLFLAGS=''
   fi
-  if [ "$TSYSOS" = darwin ] ; then
-    XCFLAGS=$XCFLAGS' --traditional-cpp'
-  fi
   # Override any "-x c++" options which may be present in $XCC or $XCFLAGS.
   XCLFLAGS=$XCLFLAGS' -x none'
   XCC_NOOPTFLAGS=' -O0'
