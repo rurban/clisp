@@ -273,7 +273,7 @@
 //   Also having this implemenation should  gain a big  plus against GCL.  (IMHO
 // gcl is very bad code compared to CLISP! [gcl is actually akcl]) flame,flame.
 //
-// BTW It should be fun to write the graph.d and stdwin.d routines on top of CLX!
+// BTW It should be fun to write the graph.d routines on top of CLX!
 
 
 // --- FUTURE ---
