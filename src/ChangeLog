@@ -1,3 +1,20 @@
+2004-06-09  Bruno Haible  <bruno@clisp.org>
+
+	* clos-methcomb1.lisp (method-combination): Change calling convention
+	of expander.
+	* clos-methcomb2.lisp (build-effective-method-function-form): Renamed
+	from compute-effective-method-function. Take arguments-lambda-list as
+	additional argument.
+	(compute-effective-method-as-function-form): After calling the
+	expander, call build-effective-method-function-form.
+	(standard-method-combination-expander): Return two values now, instead
+	of the entire function-form.
+	(compute-short-form-effective-method-form): Likewise. Simplify.
+	(short-form-method-combination-expander): Don't call
+	compute-effective-method-function on the result.
+	(long-form-method-combination-expander): Likewise.
+	(define-method-combination): Update.
+
 2004-05-29  Bruno Haible  <bruno@clisp.org>
 
 	Make the class-precedence-list computation customizable.

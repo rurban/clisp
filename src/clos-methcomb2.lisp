@@ -251,17 +251,17 @@
                     (ADD-NEXT-METHOD-LOCAL-FUNCTIONS 'NIL CONT ',req-vars ',rest-var
                       (CDR METHOD))))))))))))
 
-(defun compute-effective-method-function (generic-function combination methods
-                                          effective-method-form)
-  "Given the generic function, its combination, and the effective method form,
-constructs and compiles the lambda form for the correct arguments
-and with the next-method support."
+(defun build-effective-method-function-form (generic-function combination methods
+                                             effective-method-form
+                                             combination-arguments-lambda-list)
+  "Given the generic function, its combination, and the effective method form
+and the arguments-lambda-list specifying variables for it, constructs the
+function form for the effective method, including correct arguments and with
+the next-method support."
   (multiple-value-bind (lambdalist lambdalist-keypart firstforms apply-fun apply-args macrodefs)
       (effective-method-code-bricks generic-function methods)
     (declare (ignore lambdalist-keypart))
     (let* ((declarations (method-combination-declarations combination))
-           (combination-arguments-lambda-list
-             (method-combination-arguments-lambda-list combination))
            (ef-fun
              (if (and (consp effective-method-form)
                       (eq (first effective-method-form) 'CALL-METHOD)
@@ -393,8 +393,13 @@ and with the next-method support."
 
 (defun compute-effective-method-as-function-form (gf combination methods)
   ;; Apply method combination:
-  (funcall (method-combination-expander combination)
-           gf combination methods (method-combination-options combination)))
+  (multiple-value-bind (effective-method-form effective-method-options)
+      (funcall (method-combination-expander combination)
+               gf combination (method-combination-options combination) methods)
+    ;; Build a function form around the inner form:
+    (build-effective-method-function-form gf combination methods
+      effective-method-form
+      (cdr (assoc ':ARGUMENTS effective-method-options)))))
 
 ;;; ----------------------- Standard Method Combination -----------------------
 
@@ -423,62 +428,52 @@ and with the next-method support."
       (nreverse after-methods)
       (nreverse around-methods))))
 
-(defun standard-method-combination-expander (gf combination methods options)
+(defun standard-method-combination-expander (gf combination options methods)
   (declare (ignore combination))
   (declare (ignore options)) ; already checked in check-options
-  (multiple-value-bind (lambdalist lambdalist-keypart firstforms apply-fun apply-args macrodefs)
-      (effective-method-code-bricks gf methods)
-    (declare (ignore lambdalist-keypart apply-fun apply-args))
-    ;; Split up into individual method types.
-    (multiple-value-bind
-          (primary-methods before-methods after-methods around-methods)
-        (partition-method-list methods)
-      (when (null primary-methods)
-        (return-from standard-method-combination-expander
-          (no-method-caller 'no-primary-method gf)))
-      ;; Combine methods into an "effective method":
-      (labels ((ef-1 (primary-methods before-methods after-methods
-                      around-methods)
-                 (if (null around-methods)
-                   (ef-2 primary-methods before-methods after-methods)
-                   (let ((next-ef
-                           (ef-1 primary-methods before-methods
-                                 after-methods (rest around-methods))))
-                     `(CALL-METHOD ,(first around-methods)
-                        ,(list `(MAKE-METHOD ,next-ef))))))
-               (forms-for-invoking-sequentially (methods)
-                 (mapcar #'(lambda (method)
-                             `(CALL-METHOD ,method))
-                         methods))
-               (ef-2 (primary-methods before-methods after-methods)
-                 (let ((next-ef (ef-3 primary-methods after-methods)))
-                   (if (null before-methods)
-                     next-ef
-                     `(PROGN
-                        ; most-specific-first:
-                        ,@(forms-for-invoking-sequentially before-methods)
-                        ,next-ef))))
-               (ef-3 (primary-methods after-methods)
-                 (let ((next-ef (ef-4 primary-methods)))
-                   (if (null after-methods)
-                     next-ef
-                     `(MULTIPLE-VALUE-PROG1
-                        ,next-ef
-                        ; most-specific-last:
-                        ,@(forms-for-invoking-sequentially (reverse after-methods))))))
-               (ef-4 (primary-methods)
-                 `(CALL-METHOD ,(first primary-methods) ,(rest primary-methods))))
-        (let* ((ef-form (ef-1 primary-methods before-methods after-methods
-                              around-methods))
-               (ef-fun (if (and (eq (first ef-form) 'CALL-METHOD)
-                                (typep (second ef-form) <method>)
-                                (not (std-method-wants-next-method-p (second ef-form))))
-                         (std-method-function (second ef-form))
-                         `#'(LAMBDA ,lambdalist
-                              ,@firstforms
-                              (MACROLET ,macrodefs
-                                ,ef-form)))))
-          ef-fun)))))
+  ;; Split up into individual method types.
+  (multiple-value-bind (primary-methods before-methods after-methods around-methods)
+      (partition-method-list methods)
+    (when (null primary-methods)
+      (return-from standard-method-combination-expander
+        (let ((rest-variable (gensym)))
+          (values `(APPLY #'NO-PRIMARY-METHOD ',gf ,rest-variable)
+                  `((:ARGUMENTS &WHOLE ,rest-variable))))))
+    ;; Combine methods into an "effective method":
+    (labels ((ef-1 (primary-methods before-methods after-methods
+                    around-methods)
+               (if (null around-methods)
+                 (ef-2 primary-methods before-methods after-methods)
+                 (let ((next-ef
+                         (ef-1 primary-methods before-methods
+                               after-methods (rest around-methods))))
+                   `(CALL-METHOD ,(first around-methods)
+                      ,(list `(MAKE-METHOD ,next-ef))))))
+             (forms-for-invoking-sequentially (methods)
+               (mapcar #'(lambda (method)
+                           `(CALL-METHOD ,method))
+                       methods))
+             (ef-2 (primary-methods before-methods after-methods)
+               (let ((next-ef (ef-3 primary-methods after-methods)))
+                 (if (null before-methods)
+                   next-ef
+                   `(PROGN
+                      ; most-specific-first:
+                      ,@(forms-for-invoking-sequentially before-methods)
+                      ,next-ef))))
+             (ef-3 (primary-methods after-methods)
+               (let ((next-ef (ef-4 primary-methods)))
+                 (if (null after-methods)
+                   next-ef
+                   `(MULTIPLE-VALUE-PROG1
+                      ,next-ef
+                      ; most-specific-last:
+                      ,@(forms-for-invoking-sequentially (reverse after-methods))))))
+             (ef-4 (primary-methods)
+               `(CALL-METHOD ,(first primary-methods) ,(rest primary-methods))))
+      (values
+        (ef-1 primary-methods before-methods after-methods around-methods)
+        '()))))
 
 (defun standard-method-combination-check-method-qualifiers (gf method-combo method)
   ;; CLtL2 28.1.7.2., 28.1.7.4., ANSI CL 7.6.6.2., 7.6.6.4. Method qualifiers
@@ -523,19 +518,25 @@ and with the next-method support."
         (unless (memq order '(:most-specific-first :most-specific-last))
           (invalid-sort-order-error 'order order))))))
 
-(defun compute-short-form-effective-method-form (combination options methods)
-  (flet ((partition-short-form-method-list (combination methods order)
+(defun compute-short-form-effective-method-form (gf combination options methods)
+  (destructuring-bind (&optional (order ':most-specific-first)) options
+    (let ((operator (method-combination-operator combination)))
+      (multiple-value-bind (primary around)
            (let ((primary-methods '())
                  (around-methods '())
                  (qualifier (method-combination-name combination)))
              (dolist (method methods)
                (let ((quals (std-method-qualifiers method)))
                  (if (equal quals '(:around))
-                     (push method around-methods)
-                     (push method primary-methods))))
-             (unless primary-methods
-               (method-combination-error (TEXT "no applicable primary methods.")))
+                   (push method around-methods)
+                   (push method primary-methods))))
+             (when (null primary-methods)
+               (return-from compute-short-form-effective-method-form
+                 (let ((rest-variable (gensym)))
+                   (values `(APPLY #'NO-PRIMARY-METHOD ',gf ,rest-variable)
+                           `((:ARGUMENTS &WHOLE ,rest-variable))))))
              ;; check that all qualifiers are singular and correct
+             ;; FIXME: move this check to check-method-qualifiers
              (dolist (method primary-methods)
                (let ((qualifiers (std-method-qualifiers method)))
                  (unless (and (null (rest qualifiers))
@@ -544,35 +545,24 @@ and with the next-method support."
                     method (TEXT "qualifiers ~s not permitted for combination ~s.")
                     qualifiers qualifier))))
              (values
-              (ecase order
-                (:most-specific-first (nreverse primary-methods))
-                (:most-specific-last primary-methods))
-              (nreverse around-methods)))))
-    (destructuring-bind (&optional (order ':most-specific-first)) options
-      (let ((operator (method-combination-operator combination)))
-        (multiple-value-bind (primary around)
-            (partition-short-form-method-list combination methods order)
-          (flet ((call-methods (methods)
-                   (mapcar #'(lambda (method) `(call-method ,method))
-                           methods)))
-            (let ((form
-                   (if (or (rest primary)
-                           (not (method-combination-identity-with-one-argument
-                                 combination)))
-                     `(,operator ,@(call-methods primary))
-                     `(call-method ,(first primary)))))
-              (when around
-                (setq form
-                      `(call-method ,(first around)
-                                    (,@(rest around) (make-method ,form)))))
-              form)))))))
+               (ecase order
+                 (:most-specific-first (nreverse primary-methods))
+                 (:most-specific-last primary-methods))
+               (nreverse around-methods)))
+        (let ((form
+                (if (and (null (rest primary))
+                         (method-combination-identity-with-one-argument combination))
+                  `(CALL-METHOD ,(first primary))
+                  `(,operator ,@(mapcar #'(lambda (method) `(CALL-METHOD ,method)) primary)))))
+          (when around
+            (setq form `(CALL-METHOD ,(first around)
+                                     (,@(rest around) (make-method ,form)))))
+          (values form '()))))))
 
 (defun short-form-method-combination-expander
-    (*method-combination-generic-function* *method-combination* methods options)
-  (compute-effective-method-function
-    *method-combination-generic-function* *method-combination* methods
-    (compute-short-form-effective-method-form
-      *method-combination* options methods)))
+    (*method-combination-generic-function* *method-combination* options methods)
+  (compute-short-form-effective-method-form
+    *method-combination-generic-function* *method-combination* options methods))
 
 (defun short-form-method-combination-check-method-qualifiers (gf method-combo method)
   (standard-method-combination-check-method-qualifiers gf method-combo method)
@@ -606,9 +596,9 @@ and with the next-method support."
 (defun long-form-method-combination-expander
     (*method-combination-generic-function* *method-combination* methods options
      long-expander)
-  (compute-effective-method-function
-    *method-combination-generic-function* *method-combination* methods
-    (apply long-expander *method-combination-generic-function* methods options)))
+  (values
+    (apply long-expander *method-combination-generic-function* methods options)
+    `((:ARGUMENTS ,@(method-combination-arguments-lambda-list *method-combination*)))))
 
 (defun long-form-method-combination-call-next-method-allowed (gf method-combo method)
   (declare (ignore gf method-combo method))
@@ -993,7 +983,7 @@ Long-form options are a list of method-group specifiers,
                                 (,check-options-lambda)))))
                     :EXPANDER
                       #'(LAMBDA (,gf-variable ,combination-variable
-                                 ,methods-variable ,options-variable)
+                                 ,options-variable ,methods-variable)
                           (LONG-FORM-METHOD-COMBINATION-EXPANDER
                             ,gf-variable ,combination-variable
                             ,methods-variable ,options-variable
