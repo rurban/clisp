@@ -4,6 +4,7 @@
 	the default.
 	* i18n/gettext.c (check_locale_category): Use LC_MESSAGES as default.
 	* berkeley-db/bdb.c: Make all DEFCHECKER defaults explicit.
+	* rawsock/rawsock.c: Likewise.
 
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
