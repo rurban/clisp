@@ -981,7 +981,7 @@ LISPFUN(lcm,0,0,rest,nokey,0,NIL)
 LISPFUNN(exp,1) {
   check_number(STACK_0);
   if (complexp(STACK_0))
-    pushSTACK(N_N_contagion_R(TheComplex(STACK_0)->c_real,
+    pushSTACK(R_R_contagion_R(TheComplex(STACK_0)->c_real,
                               TheComplex(STACK_0)->c_imag));
   else pushSTACK(STACK_0);
   VALUES1(N_exp_N(STACK_1,true,&STACK_0));
