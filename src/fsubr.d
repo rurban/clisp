@@ -16,13 +16,8 @@
     extern fsubr_function C_##name;
 
 # Expander für die Konstruktion der Deklaration der C-Funktion:
-  #ifdef ANSI
-    #define LISPSPECFORM_B(name,req_anz,opt_anz,body_flag)  \
-      global Values C_##name (void)
-  #else
-    #define LISPSPECFORM_B(name,req_anz,opt_anz,body_flag)  \
-      global Values C_##name ()
-  #endif
+  #define LISPSPECFORM_B(name,req_anz,opt_anz,body_flag)  \
+    global Values C_##name (void)
 
 # Expander für die Deklaration der FSUBR-Tabelle:
   #define LISPSPECFORM_C(name,req_anz,opt_anz,body_flag)  \
