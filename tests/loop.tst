@@ -10,6 +10,7 @@
       collect (list x y))
 ((1 NIL) (2 1) (3 2) (4 3) (5 4) (6 5) (7 6) (8 7) (9 8))
 
+;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-2-1-1-1.html>
 (with-output-to-string (*standard-output*)
   (loop as i from 1 to 5
         do (print i)))
@@ -49,6 +50,7 @@
 4 
 5 "
 
+;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-2-1-2-1.html>
 (with-output-to-string (*standard-output*)
   (loop for item in '(1 2 3 4 5) by #'cddr
         do (print item)))
@@ -61,6 +63,7 @@
       unless (eq item 'B) sum x)
 4
 
+;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-2-1-3-1.html>
 (loop for sublist on '(a b c d)
       collect sublist)
 ((A B C D) (B C D) (C D) (D))
@@ -91,6 +94,7 @@
       collect j)
 (0 1 2 3 4)
 
+;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-2-1-4-1.html>
 (loop for item = 1 then (+ item 10)
       repeat 5
       collect item)
@@ -100,6 +104,7 @@
       collect char)
 (#\H #\e #\l #\l #\o)
 
+;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-4-1.html>
 (with-output-to-string (*standard-output*)
   (loop repeat 3
         do (write-line "What I say three times is true")))
@@ -114,11 +119,11 @@ What I say three times is true
 ""
 
 #| ;; FOR clauses should come before WHILE clauses
-(let ((stack '(a b c d e f)))
+ (let ((stack '(a b c d e f)))
   (loop while stack
         for item = (length stack) then (pop stack)
         collect item))
-(6 A B C D E F)
+ (6 A B C D E F)
 |#
 
 (loop for i fixnum from 3
@@ -138,6 +143,7 @@ T
       thereis (when (> i 10) i))
 11
 
+;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-4-2.html>
 (with-output-to-string (*standard-output*)
   (loop for i from 0 to 10
         always (< i 9)
@@ -273,6 +279,8 @@ February 17
         finally (return result)))
 1
 
+;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-2-2.html>
+;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-2-2-1.html>
 (loop with a = 1
       with b = (+ a 2)
       with c = (+ b 3)
@@ -710,7 +718,7 @@ nil
 (2 2 2 2)
 
 ;;; Tests from ANSI CL section 6.1.2.1.1.
-
+;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-2-1-1.html>
 (let ((x 1)) (loop for i from x by (incf x) to 10 collect i))
 (1 3 5 7 9)
 
