@@ -1,6 +1,6 @@
 /*
  * EVAL, APPLY and bytecode interpreter for CLISP
- * Bruno Haible 1990-2003
+ * Bruno Haible 1990-2004
  * Sam Steingold 1998-2004
  * German comments translated into English: Stefan Kain 2001-08-13
  */
@@ -5728,11 +5728,15 @@ global Values funcall (object fun, uintC args_on_stack)
   #ifndef byteptr_register
     #define byteptr_in  byteptr
   #endif
-#ifdef DEBUG_SPVW
-#define ERROR(label) do{ fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__); goto label; }while(0)
-#else
-#define ERROR(label) goto label
-#endif
+  #ifdef DEBUG_SPVW
+    #define ERROR(label)  \
+      do {                                              \
+        fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__); \
+        goto label;                                     \
+      } while(0)
+  #else
+    #define ERROR(label)  goto label
+  #endif
   local Values interpret_bytecode_ (object closure_in, Sbvector codeptr, const uintB* byteptr_in)
   {
     # situate argument closure in register:
