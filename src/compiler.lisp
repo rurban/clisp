@@ -9827,7 +9827,8 @@ The function make-closure is required.
 
 ;; Common-Lisp-Function COMPILE
 (defun compile (name &optional (definition nil svar)
-                     &aux (macro-flag nil) (trace-flag nil) (save-flag nil))
+                     &aux (macro-flag nil) (trace-flag nil) (save-flag nil)
+                #+clisp-debug (*form* definition))
   (unless (function-name-p name)
     (error-of-type 'error
       (TEXT "Name of function to be compiled must be a symbol, not ~S")
