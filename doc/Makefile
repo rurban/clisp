@@ -1,7 +1,7 @@
 # CLISP Implementation Notes generation
 # (c) 2000-2004 Sam Steingold
 
-DTDVER=4.2
+DTDVER=4.3
 IMPNOTES=cl-ent.xml clhs-ent.xml impbody.xml impent.xml mop.xml		\
 	impext.xml impissue.xml impbyte.xml unix-ent.xml mop-ent.xml	\
 	../modules/dirkey/dirkey.xml ../modules/syscalls/syscalls.xml	\
@@ -14,16 +14,12 @@ RM=/bin/rm -f
 # DOC=$(shell pwd)
 
 ifneq (,$(filter Windows%,$(OS)))
-XMLHOME=c:/doc/xml
-NSGMLS=d:/gnu/sp/bin/nsgmls.exe
-XMLSOC=d:/gnu/sp/pubtext/xml.soc
+XMLSOC=/usr/share/OpenSP/xml.soc
 JAVAXML=c:/java
-JAVA=/cygdrive/c/java/jdk1.3/bin/java.exe
+JAVA=/cygdrive/c/java/bin/java.exe
 SEP=;
-DTD=$(XMLHOME)/db4xml/docbookx.dtd
+DTD=/usr/share/docbook-xml$(DTDVER)/docbookx.dtd
 else
-XMLHOME=/usr/local/src/xml
-NSGMLS=nsgmls
 # XMLSOC=/usr/local/src/sp/pubtext/xml.soc
 XMLSOC=/usr/share/sgml/xml.soc
 JAVAXML=/usr/local/src/xml
@@ -31,6 +27,7 @@ JAVA=java
 SEP=:
 DTD=/usr/share/sgml/docbook/xml-dtd-$(DTDVER)/docbookx.dtd
 endif
+NSGMLS=onsgmls
 
 XALAN=$(JAVAXML)/xalan-j_2_0_0
 SAXON=$(JAVAXML)/saxon
@@ -41,13 +38,14 @@ CLASSPATH=$(XALAN)/bin/xerces.jar$(SEP)$(XALAN)/bin/xalan.jar$(SEP)$(SAXON)/saxo
 TEXI2HTML=makeinfo --verbose --no-split --no-headers --html $< -o $@
 
 #DIST=cvs2.cons.org:/home/ftp/pub/lisp/clisp/snapshots
-DIST=podval:~/public_html/data
+DIST=podval:~/public_html/clisp
 
 # this is the original DTD
 # when processing with a tool which can get the DTD from the net,
 # e.g., (open)jade, you can use this definition,
 # otherwise you have to stick with the local DTDs
-DTD=http://www.oasis-open.org/docbook/xml/$(DTDVER)/docbookx.dtd
+#DTD=http://www.oasis-open.org/docbook/xml/$(DTDVER)/docbookx.dtd
+DTD=http://www.docbook.org/xml/$(DTDVER)/docbookx.dtd
 
 # to generate HTML, you will need:
 # http://xml.apache.org/xalan-j
@@ -107,8 +105,8 @@ impnotes.xml: impnotes.xml.in $(IMPNOTES) ../src/VERSION Makefile
 	$(FILLIN) $< > $@
 
 check: impnotes.xml $(IMPNOTES) clisp.xml
-	$(NSGMLS) -s -wxml -c$(XMLSOC) impnotes.xml
-	$(NSGMLS) -s -wxml -c$(XMLSOC) clisp.xml
+	$(NSGMLS) -s -e -g -c$(XMLSOC) impnotes.xml
+	$(NSGMLS) -s -e -g -c$(XMLSOC) clisp.xml
 	xmllint --noout --valid --postvalid --timing --noent clisp.xml
 	xmllint --noout --valid --postvalid --timing --noent impnotes.xml
 
@@ -120,7 +118,7 @@ impnotes.html: impnotes.xml $(IMPNOTES) common.xsl pile.xsl $(OLINK)
 		-o $@ pile.xsl $<
 #	cp impnotes.html impnotes-saved.html
 #	tidy -config tidy.conf -f tidy.err impnotes.html || true
-#	egrep -Hn 'NAME="[A-Z0-9]*"' $@ || true
+	egrep -Hn 'id="id[0-9]*"' $@ || true
 	(test -n "$(DIST)" && scp -p impnotes.html impnotes.css $(DIST)/ && \
 	 test -d "../build/" && cd ../build && make clisp.html && \
 	 make clisp.1 && scp -p clisp.1 clisp.html $(DIST)) || true
@@ -142,7 +140,7 @@ html: impnotes.xml $(IMPNOTES) common.xsl chunk.xsl pile.xsl clisp.xml $(OLINK)
 	rm -f _clisp-1.html
 #	time xmlto xhtml -o $@/ -m chunk.xsl $<
 #	time docbook2html --dsl impnotes.dsl -o $@ $<
-#	egrep -Hnr 'NAME="[A-Z0-9]*"' $@ || true
+	egrep -Hnr 'id="id[0-9]*"' $@ || true
 	(test -n "$(DIST)" && scp -p html/*.html impnotes.css \
 	 $(DIST)/impnotes/;) || true
 
