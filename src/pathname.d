@@ -2238,7 +2238,7 @@ LISPFUN(translate_logical_pathname,seclass_default,1,0,norest,key,1,
     pushSTACK(value1);
     /* stack layout: pathname, ht. */
     loop {
-      if (!nullp(shifthash(STACK_0,STACK_1,T))) {
+      if (!nullp(shifthash(STACK_0,STACK_1,T,true))) {
         /* STACK_1 = pathname; -- FILE-ERROR slot PATHNAME */
         STACK_0 = STACK_1;
         pushSTACK(S(translate_logical_pathname));
@@ -7466,7 +7466,7 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
             skipSTACK(2); goto next_pathname;
           }
           /* and locate in the hash-table and store: */
-          if (!nullp(shifthash(STACK_(2+2),hashcode,T))) {
+          if (!nullp(shifthash(STACK_(2+2),hashcode,T,true))) {
             /* was already inside -> will be skipped */
             skipSTACK(2); goto next_pathname;
           }

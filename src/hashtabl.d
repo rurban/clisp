@@ -2478,18 +2478,23 @@ LISPFUNN(puthash,3)
  > ht: hash-table
  > obj: object
  > value: new value
+ > allowgc: whether GC is allowed during hash lookup
+            (should be true if the hash-table has a user-defined test or
+             if the hash-table is not known to already contain a value for obj)
  < result: old value
- can trigger GC */
-global maygc object shifthash (object ht, object obj, object value) {
+ can trigger GC - if allowgc is true */
+global /*maygc*/ object shifthash (object ht, object obj, object value, bool allowgc) {
+  GCTRIGGER_IF(allowgc, GCTRIGGER3(ht,obj,value));
   var gcv_object_t* KVptr;
   var gcv_object_t* Iptr;
   pushSTACK(ht); pushSTACK(obj); pushSTACK(value); /* save args */
   /* search key obj in the hash-table: */
-  if (hash_lookup(ht,obj,true,&KVptr,&Iptr)) { /* found -> replace value: */
+  if (hash_lookup(ht,obj,allowgc,&KVptr,&Iptr)) { /* found -> replace value: */
     var object oldvalue = KVptr[1];
     KVptr[1] = STACK_0; skipSTACK(3);
     return oldvalue;
   } else { /* not found -> build new entry: */
+    ASSERT(allowgc);
     var object freelist;
     hash_prepare_store(2,1);  /* ht==STACK_2, obj==STACK_1 */
     hash_store(STACK_1,STACK_0); /* build entry */
