@@ -368,6 +368,92 @@ global BOOL ReadConsoleInput1 (HANDLE ConsoleInput, PINPUT_RECORD Buffer,
 }
 
 
+/* Determines whether ReadFile() on a file/pipe/console handle will hang.
+   Returns 0 for yes, 1 for no (or 2 for known EOF or 3 for available byte),
+   -1 for unknown. */
+global int fd_read_wont_hang_p (HANDLE fd)
+{
+  # This is pretty complex. To test this, create a file "listen.lisp"
+  # containing the code
+  #   (tagbody 1 (prin1 (listen *terminal-io*)) (sys::%sleep 0 500) (go 1))
+  # and execute "lisp.exe -q -i listen.lisp" with redirected standard input.
+  switch (GetFileType(fd)) {
+    case FILE_TYPE_CHAR:
+      {
+        var DWORD nevents;
+        if (GetNumberOfConsoleInputEvents(fd,&nevents)) { # It's a console.
+          if (nevents==0)
+            return 0;
+          var INPUT_RECORD* events =
+            (INPUT_RECORD*)alloca(nevents*sizeof(INPUT_RECORD));
+          var DWORD nevents_read;
+          var DWORD mode;
+          if (!PeekConsoleInput(fd,events,nevents,&nevents_read)) {
+            OS_error();
+          }
+          if (nevents_read==0)
+            return 0;
+          if (!GetConsoleMode(fd,&mode)) {
+            OS_error();
+          }
+          if (mode & ENABLE_LINE_INPUT) {
+            # Look out for a Key-Down event corresponding to CR/LF.
+            var DWORD i;
+            for (i = 0; i < nevents_read; i++) {
+              if (events[i].EventType == KEY_EVENT
+                  && events[i].Event.KeyEvent.bKeyDown
+                  && events[i].Event.KeyEvent.uAsciiChar == CR)
+                # probably a byte available (except if it is Ctrl-Z)
+                return -1;
+            }
+          } else { # Look out for any Key-Down event.
+            var DWORD i;
+            for (i = 0; i < nevents_read; i++) {
+              if (events[i].EventType == KEY_EVENT
+                  && events[i].Event.KeyEvent.bKeyDown
+                  && events[i].Event.KeyEvent.uAsciiChar != 0)
+                # probably a byte available (except if it is Ctrl-Z)
+                return -1;
+            }
+          }
+          return 0;
+        } else if (!(GetLastError()==ERROR_INVALID_HANDLE)) {
+          OS_error();
+        }
+      }
+      # Not a console.
+      switch (WaitForSingleObject(fd,0)) {
+        case WAIT_OBJECT_0: # a byte is available, or EOF
+          return 1;
+        case WAIT_TIMEOUT:
+          return 0;
+        default:
+          OS_error();
+      }
+    case FILE_TYPE_DISK:
+      return 1;
+    case FILE_TYPE_PIPE:
+      {
+        var DWORD nbytes;
+        if (PeekNamedPipe(fd,NULL,0,NULL,&nbytes,NULL)) { # input pipe
+          if (nbytes > 0)
+            return 3;
+          else
+            return 0;
+        } else if (GetLastError()==ERROR_BROKEN_PIPE) { # EOF reached
+          return 2;
+        } else if (GetLastError()==ERROR_ACCESS_DENIED) { # output pipe
+          # => fake EOF.
+          return 2;
+        } else {
+          OS_error();
+        }
+      }
+    default: # It's a file (or something unknown).
+      return -1;
+  }
+}
+
 /* Reading from a file/pipe/console handle.
  This is the non-interruptible routine. */
 local int lowlevel_fd_read (HANDLE fd, void* bufarea, size_t nbyte, perseverance_t persev) {
@@ -379,6 +465,15 @@ local int lowlevel_fd_read (HANDLE fd, void* bufarea, size_t nbyte, perseverance
   var char* buf = (char*) bufarea;
   var int done = 0;
   do {
+    if (persev == persev_immediate || persev == persev_bonus) {
+      int wont_hang = fd_read_wont_hang_p(fd);
+      if (wont_hang == 0)
+        break;
+      if (wont_hang < 0) {
+        if (persev == persev_bonus)
+          break;
+      }
+    }
     var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
     var OVERLAPPED overlap;
     var DWORD nchars;
@@ -478,6 +573,18 @@ global int fd_read (HANDLE fd, void* buf, size_t nbyte, perseverance_t persev) {
   }
 }
 
+/* Determines whether WriteFile() to a file/pipe/console handle will hang.
+   Returns 1 for yes, 0 for no, -1 for unknown. */
+local inline int fd_write_will_hang_p (HANDLE fd)
+{
+  switch (GetFileType(fd)) {
+    case FILE_TYPE_DISK:
+      return 0;
+    default:
+      return -1;
+  }
+}
+
 /* Writing to a file/pipe/console handle. */
 global int fd_write (HANDLE fd, const void* b, size_t nbyte, perseverance_t persev)
 {
@@ -514,6 +621,15 @@ global int fd_write (HANDLE fd, const void* b, size_t nbyte, perseverance_t pers
   var int done = 0;
   do {
     /* Possibly check for Ctrl-C here ?? */
+    if (persev == persev_immediate || persev == persev_bonus) {
+      int will_hang = fd_write_will_hang_p(fd);
+      if (will_hang > 0)
+        break;
+      if (will_hang < 0) {
+        if (persev == persev_bonus)
+          break;
+      }
+    }
     var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
     var OVERLAPPED overlap;
     var DWORD nchars;
@@ -557,6 +673,32 @@ global int fd_write (HANDLE fd, const void* b, size_t nbyte, perseverance_t pers
   return done;
 }
 
+/* Determines whether recv() on a socket will hang.
+   Returns 1 for yes, 0 for no, -1 for unknown. */
+local inline int sock_read_will_hang_p (int fd)
+{
+  # Use select() with readfds = singleton set {fd}
+  # and timeout = zero interval.
+  var fd_set handle_set; # set of handles := {fd}
+  var struct timeval zero_time; # time interval := 0
+  FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
+ restart_select:
+  zero_time.tv_sec = 0; zero_time.tv_usec = 0;
+  var int result = select(FD_SETSIZE,&handle_set,NULL,NULL,&zero_time);
+  if (result<0) {
+    if (sock_errno_is(EINTR))
+      goto restart_select;
+    SOCK_error();
+  } else {
+    # result = number of handles in handle_set for which read() would
+    # return without blocking.
+    if (result==0)
+      return 1;
+  }
+  # Now we know that recv() will return immediately.
+  return 0;
+}
+
 /* Reading from a socket.
    This is the non-interruptible routine. */
 local int lowlevel_sock_read (SOCKET fd, void* b, size_t nbyte, perseverance_t persev)
@@ -570,25 +712,17 @@ local int lowlevel_sock_read (SOCKET fd, void* b, size_t nbyte, perseverance_t p
   var int done = 0;
   do {
     if (persev == persev_immediate || persev == persev_bonus) {
-      # Use select() with readfds = singleton set {fd}
-      # and timeout = zero interval.
-      var fd_set handle_set; # set of handles := {fd}
-      var struct timeval zero_time; # time interval := 0
-      FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
-     restart_select:
-      zero_time.tv_sec = 0; zero_time.tv_usec = 0;
-      var int result = select(FD_SETSIZE,&handle_set,NULL,NULL,&zero_time);
-      if (result<0) {
-        if (sock_errno_is(EINTR))
-          goto restart_select;
-        SOCK_error();
-      } else {
-        # result = number of handles in handle_set for which read() would
-        # return without blocking.
-        if (result==0)
-          break;
+      int will_hang = sock_read_will_hang_p(fd);
+      if (will_hang > 0)
+        break;
+      if (will_hang < 0) {
+        #if 1
+          NOTREACHED;
+        #else
+          if (persev == persev_bonus)
+            break;
+        #endif
       }
-      # Now we know that recv() will return immediately.
     }
     var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
     var int retval = recv(fd,buf,limited_nbyte,0);
@@ -638,6 +772,32 @@ global int sock_read (SOCKET fd, void* buf, size_t nbyte, perseverance_t persev)
   }
 }
 
+/* Determines whether send() on a socket will hang.
+   Returns 1 for yes, 0 for no, -1 for unknown. */
+local inline int sock_write_will_hang_p (int fd)
+{
+  # Use select() with writefds = singleton set {fd}
+  # and timeout = zero interval.
+  var fd_set handle_set; # set of handles := {fd}
+  var struct timeval zero_time; # time interval := 0
+  FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
+ restart_select:
+  zero_time.tv_sec = 0; zero_time.tv_usec = 0;
+  var int result = select(FD_SETSIZE,NULL,&handle_set,NULL,&zero_time);
+  if (result<0) {
+    if (sock_errno_is(EINTR))
+      goto restart_select;
+    SOCK_error();
+  } else {
+    # result = number of handles in handle_set for which write() would
+    # return without blocking.
+    if (result==0)
+      return 1;
+  }
+  # Now we know that send() will return immediately.
+  return 0;
+}
+
 /* Writing to a socket.
    This is the non-interruptible routine. */
 local int lowlevel_sock_write (SOCKET fd, const void* b, size_t nbyte, perseverance_t persev)
@@ -651,25 +811,17 @@ local int lowlevel_sock_write (SOCKET fd, const void* b, size_t nbyte, persevera
   var int done = 0;
   do {
     if (persev == persev_immediate || persev == persev_bonus) {
-      # Use select() with writefds = singleton set {fd}
-      # and timeout = zero interval.
-      var fd_set handle_set; # set of handles := {fd}
-      var struct timeval zero_time; # time interval := 0
-      FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
-     restart_select:
-      zero_time.tv_sec = 0; zero_time.tv_usec = 0;
-      var int result = select(FD_SETSIZE,NULL,&handle_set,NULL,&zero_time);
-      if (result<0) {
-        if (sock_errno_is(EINTR))
-          goto restart_select;
-        SOCK_error();
-      } else {
-        # result = number of handles in handle_set for which write() would
-        # return without blocking.
-        if (result==0)
-          break;
+      int will_hang = sock_write_will_hang_p(fd);
+      if (will_hang > 0)
+        break;
+      if (will_hang < 0) {
+        #if 1
+          NOTREACHED;
+        #else
+          if (persev == persev_bonus)
+            break;
+        #endif
       }
-      # Now we know that send() will return immediately.
     }
     var int limited_nbyte = (nbyte <= MAX_IO ? nbyte : MAX_IO);
     var int retval = send(fd,buf,limited_nbyte,0);

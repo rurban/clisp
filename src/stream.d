@@ -4769,102 +4769,29 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
     }
   }
   #elif defined(WIN32_NATIVE)
-  # This is pretty complex. To test this, create a file "listen.lisp"
-  # containing the code
-  #   (tagbody 1 (prin1 (listen *terminal-io*)) (sys::%sleep 0 500) (go 1))
-  # and execute "lisp.exe -q -i listen.lisp" with redirected standard input.
   begin_system_call();
-  switch (GetFileType(handle)) {
-    case FILE_TYPE_CHAR: {
-      var DWORD nevents;
-      if (GetNumberOfConsoleInputEvents(handle,&nevents)) { # It's a console.
-        if (nevents==0) {
-          end_system_call(); return ls_wait;
-        }
-        var INPUT_RECORD* events =
-          (INPUT_RECORD*)alloca(nevents*sizeof(INPUT_RECORD));
-        var DWORD nevents_read;
-        var DWORD mode;
-        if (!PeekConsoleInput(handle,events,nevents,&nevents_read)) {
-          OS_error();
-        }
-        if (nevents_read==0) {
-          end_system_call(); return ls_wait;
-        }
-        if (!GetConsoleMode(handle,&mode)) {
-          OS_error();
-        }
-        if (mode & ENABLE_LINE_INPUT) {
-          # Look out for a Key-Down event corresponding to CR/LF.
-          var DWORD i;
-          for (i = 0; i < nevents_read; i++) {
-            if (events[i].EventType == KEY_EVENT
-                && events[i].Event.KeyEvent.bKeyDown
-                && events[i].Event.KeyEvent.uAsciiChar == CR)
-              # probably a byte available (except if it is Ctrl-Z)
-              goto peek_one;
-          }
-        } else { # Look out for any Key-Down event.
-          var DWORD i;
-          for (i = 0; i < nevents_read; i++) {
-            if (events[i].EventType == KEY_EVENT
-                && events[i].Event.KeyEvent.bKeyDown
-                && events[i].Event.KeyEvent.uAsciiChar != 0)
-              # probably a byte available (except if it is Ctrl-Z)
-              goto peek_one;
-          }
-        }
-        end_system_call(); return ls_wait;
-      } else if (!(GetLastError()==ERROR_INVALID_HANDLE)) {
-        OS_error();
-      }
-    }
-      # Not a console.
-      switch (WaitForSingleObject(handle,0)) {
-        case WAIT_OBJECT_0: # a byte is available, or EOF
-          break;
-        case WAIT_TIMEOUT:
-          end_system_call(); return ls_wait;
-        default:
-          OS_error();
-      }
-      /*FALLTHROUGH*/
-    case FILE_TYPE_DISK:
-    default: # It's a file (or something unknown).
-  peek_one: {
-      # try to read a byte
-      var uintB b;
-      var int result = read(handle,&b,1);
-      if (result<0) {
-        OS_error();
-      }
-      end_system_call();
-      if (result==0) {
-        return ls_eof;
-      } else {
-        if (byte) *byte = b;
-        return ls_avail;
-      }
-    }
-    case FILE_TYPE_PIPE: {
-      var DWORD nbytes;
-      if (PeekNamedPipe(handle,NULL,0,NULL,&nbytes,NULL)) { # input pipe
-        end_system_call();
-        if (nbytes > 0)
-          return ls_avail;
-        else
-          return ls_wait;
-      } else if (GetLastError()==ERROR_BROKEN_PIPE) { # EOF reached
-        end_system_call();
-        return ls_eof;
-      } else if (GetLastError()==ERROR_ACCESS_DENIED) { # output pipe
-        # => fake EOF.
-        end_system_call();
-        return ls_eof;
-      } else { # What about sockets??
-        OS_error();
-      }
-    }
+  int wont_hang = fd_read_wont_hang_p(handle);
+  if (wont_hang == 0) {
+    end_system_call(); return ls_wait;
+  }
+  if (wont_hang == 2) {
+    end_system_call(); return ls_eof;
+  }
+  if (wont_hang == 3) {
+    end_system_call(); return ls_avail;
+  }
+  # try to read a byte
+  var uintB b;
+  var int result = read(handle,&b,1);
+  if (result<0) {
+    OS_error();
+  }
+  end_system_call();
+  if (result==0) {
+    return ls_eof;
+  } else {
+    if (byte) *byte = b;
+    return ls_avail;
   }
   #endif
 }

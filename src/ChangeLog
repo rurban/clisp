@@ -1,3 +1,29 @@
+2004-10-31  Bruno Haible  <bruno@clisp.org>
+
+	* unixaux.d (fd_read_will_hang_p): New function, extracted from
+	fd_read.
+	(fd_read): Use it. Handle persev_bonus correctly.
+	(fd_write_will_hang_p): New function, extracted from fd_write.
+	(fd_write): Use it. Handle persev_bonus correctly.
+	(sock_read_will_hang_p): New function, extracted from sock_read.
+	(sock_read): Use it.
+	(sock_write_will_hang_p): New function, extracted from sock_write.
+	(sock_write): Use it. Handle persev_bonus correctly.
+	* win32.d (fd_read_wont_hang_p): New declaration.
+	* win32aux.d (fd_read_wont_hang_p): New function, extracted from
+	listen_handle.
+	(lowlevel_fd_read): Use it. Handle persev_immediate, persev_bonus
+	correctly.
+	(fd_write_will_hang_p): New function.
+	(fd_write): Use it. Handle persev_immediate, persev_bonus correctly.
+	(sock_read_will_hang_p): New function, extracted from
+	lowlevel_sock_read.
+	(lowlevel_sock_read): Use it.
+	(sock_write_will_hang_p): New function, extracted from
+	lowlevel_sock_write.
+	(lowlevel_sock_write): Use it. Handle persev_bonus correctly.
+	* stream.d (listen_handle) [WIN32_NATIVE]: Use fd_read_will_hang_p.
+
 2004-10-17  Bruno Haible  <bruno@clisp.org>
 
 	Remove initff slot from structure-effective-slot-definition.
