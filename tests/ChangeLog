@@ -1,3 +1,8 @@
+1999-02-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * alltest.tst: CHAR-CODE-LIMIT value now depends on UNICODE feature.
+        * characters.tst: Likewise.
+
 1999-01-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * alltest.tst: Add a test for GET-DISPATCH-MACRO-CHARACTER.
