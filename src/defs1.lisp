@@ -227,8 +227,7 @@
 ;; Auxiliary version of MEMBER, which applies the :KEY argument also to items
 (defun sys::member1 (item list &rest rest &key test test-not key)
   (declare (ignore test test-not))
-  (unless key (setq key #'identity))
-  (apply #'member (funcall key item) list rest))
+  (apply #'member (if key (funcall key item) item) list rest))
 
 (defun union (list1 list2 &rest rest &key test test-not key)
   (declare (ignore test test-not key))
