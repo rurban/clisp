@@ -576,7 +576,7 @@
 
 # UP: Liefert den Namen eines Zeichens.
 # char_name(code)
-# > uintB code: Ascii-Code eines Zeichens
+# > chart code: Code eines Zeichens
 # < ergebnis: Simple-String (Name dieses Zeichens) oder NIL
   global object char_name (chart code);
   global object char_name(code)
@@ -1532,10 +1532,10 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
 # > STACK_1: optionales :start2-Argument
 # > STACK_0: optionales :end2-Argument
 # > subr_self: Aufrufer (ein SUBR)
-# < uintB* charptr1: Ab hier kommen die angesprochenen Characters im String1
-# < uintB* charptr1+1: Ab hier kommen die Characters im String1
+# < chart* charptr1: Ab hier kommen die angesprochenen Characters im String1
+# < chart* charptr1+1: Ab hier kommen die Characters im String1
 # < uintL len1: Anzahl der angesprochenen Characters im String1
-# < uintB* charptr2: Ab hier kommen die angesprochenen Characters im String2
+# < chart* charptr2: Ab hier kommen die angesprochenen Characters im String2
 # < uintL len2: Anzahl der angesprochenen Characters im String2
 # < ergebnis: Wert des :start2-Arguments
 # erhöht STACK um 6
