@@ -168,7 +168,7 @@
   #endif
 #endif
 
-/* for system call module */
+/* for syscalls & rawsock modules */
 global object addr_to_string (short type, char *addr) {
   char buffer[MAXHOSTNAMELEN];
  #ifdef HAVE_IPV6
@@ -346,7 +346,7 @@ global struct hostent* resolve_host (object arg) {
     he = gethostbyaddr((char*)&ip,sizeof(uint32),AF_INET);
     end_system_call();
   } else
-      fehler_string_integer(arg);
+    fehler_string_integer(arg);
   return he;
 }
 
