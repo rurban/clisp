@@ -247,7 +247,7 @@ extern int shmctl ();
 #include <mips/cachectl.h>
 #else
 #ifdef linux
-#include <linux/cachectl.h>
+#include <asm/cachectl.h>
 #else
 #ifdef HAVE_SYS_CACHECTL_H
 #include <sys/cachectl.h>
