@@ -27,12 +27,6 @@
 /* have <dirent.h>? */
 #undef DIRENT
 
-/* declaration of dlerror() needs const */
-#undef DLERROR_CONST
-
-/* declaration of dlsym() needs const */
-#undef DLSYM_CONST
-
 /* Define to 1 if 'double' division by zero raises an exception. */
 #undef DOUBLE_DIV0_EXCEPTION
 
@@ -92,11 +86,24 @@
    */
 #undef HAVE_DCGETTEXT
 
+/* Define to 1 if you have the declaration of `rl_already_prompted', and to 0
+   if you don't. */
+#undef HAVE_DECL_RL_ALREADY_PROMPTED
+
+/* Define to 1 if you have the `dlclose' function. */
+#undef HAVE_DLCLOSE
+
+/* Define to 1 if you have the `dlerror' function. */
+#undef HAVE_DLERROR
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
-/* have dlopen() */
+/* Define to 1 if you have the `dlopen' function. */
 #undef HAVE_DLOPEN
+
+/* Define to 1 if you have the `dlsym' function. */
+#undef HAVE_DLSYM
 
 /* have the FIONREAD ioctl() */
 #undef HAVE_FIONREAD
@@ -238,7 +245,7 @@
 /* have raise() function */
 #undef HAVE_RAISE
 
-/* have readline() */
+/* have a working modern GNU readline */
 #undef HAVE_READLINE
 
 /* Define to 1 if you have the <readline/readline.h> header file. */
@@ -261,6 +268,9 @@
 
 /* have <fpu_control.h> and it declares the __setfpucw() function */
 #undef HAVE_SETFPUCW
+
+/* Define to 1 if you have the `setitimer' function. */
+#undef HAVE_SETITIMER
 
 /* Define to 1 if you have the `setpgid' function. */
 #undef HAVE_SETPGID
@@ -483,10 +493,6 @@
 
 /* declaration of putenv() needs const */
 #undef PUTENV_CONST
-
-/* declaration of filename_completion_function() needs const in the first
-   argument */
-#undef READLINE_CONST
 
 /* The readline built-in filename completion function, either
    rl_filename_completion_function() or filename_completion_function() */
