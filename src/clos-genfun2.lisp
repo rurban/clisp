@@ -79,6 +79,47 @@
       (funcall errfunc (TEXT "In the ~S argument, only ~S declarations are permitted, not ~S")
                keyword 'optimize declspec))))
 
+;; CLtL2 28.1.6.4., ANSI CL 7.6.4. Congruent Lambda-lists
+(defun check-signature-congruence (gf method
+                                   &optional (gf-sign (std-gf-signature gf))
+                                             (m-sign (std-method-signature method)))
+  (unless (= (sig-req-num m-sign) (sig-req-num gf-sign))
+    (error-of-type 'error
+      (TEXT "~S has ~D, but ~S has ~D required parameter~:P")
+      method (sig-req-num m-sign) gf (sig-req-num gf-sign)))
+  (unless (= (sig-opt-num m-sign) (sig-opt-num gf-sign))
+    (error-of-type 'error
+      (TEXT "~S has ~D, but ~S has ~D optional parameter~:P")
+      method (sig-opt-num m-sign) gf (sig-opt-num gf-sign)))
+  (when (and (sig-rest-p m-sign) (not (sig-rest-p gf-sign)))
+    (error-of-type 'error
+      (TEXT "~S accepts &REST or &KEY, but ~S does not.")
+      method gf))
+  (when (and (sig-rest-p gf-sign) (not (sig-rest-p m-sign)))
+    (error-of-type 'error
+      (TEXT "~S accepts &REST or &KEY, but ~S does not.")
+      gf method))
+  (when (sig-keys-p gf-sign)    ; gf has keywords?
+    ;; yes ==> method must accept it
+    (unless (if (sig-keys-p m-sign)
+              (or (sig-allow-p m-sign) ; keywords match
+                  (subsetp (sig-keywords gf-sign) (sig-keywords m-sign)))
+              (sig-rest-p m-sign)) ; method must have &rest!
+      (error-of-type 'error
+        (TEXT "~S does not accept the keywords ~S of ~S")
+        method (sig-keywords gf-sign) gf))))
+
+;; CLtL2 28.1.7.2., 28.1.7.4., ANSI CL 7.6.6.2., 7.6.6.4. Method qualifiers
+(defun check-method-qualifiers (gf method
+                                &optional (method-combination (std-gf-method-combination gf)))
+  (funcall (method-combination-check-method-qualifiers method-combination)
+           gf method-combination method))
+(defun invalid-method-qualifiers-error (gf method)
+  (error-of-type 'program-error
+    (TEXT "~S method combination, used by ~S, does not allow the method qualifiers ~:S: ~S")
+    (method-combination-name (std-gf-method-combination gf)) gf
+    (std-method-qualifiers method) method))
+
 ;; Initialization of a <standard-generic-function> instance.
 (defun shared-initialize-<standard-generic-function> (gf situation &rest args
                                                       &key (name nil name-p)
@@ -110,7 +151,15 @@
               (error (TEXT "(~S ~S) for generic function ~S: ~A")
                      (if (eq situation 't) 'initialize-instance 'shared-initialize)
                      'standard-generic-function (funcallable-name gf)
-                     (apply #'format nil errorstring arguments))))))
+                     (apply #'format nil errorstring arguments)))))
+    (unless (eq situation 't)
+      ;; ANSI CL description of ENSURE-GENERIC-FUNCTION says "If ... the new
+      ;; value [for the :lambda-list argument] is congruent with the lambda
+      ;; lists of all existing methods or there are no methods, the value is
+      ;; changed; otherwise an error is signaled.
+      (unless (equalp signature (std-gf-signature gf))
+        (dolist (method (std-gf-methods gf))
+          (check-signature-congruence gf method signature)))))
   (when (or (eq situation 't) method-class-p)
     ; Check the method-class.
     (unless method-class-p
@@ -141,7 +190,11 @@
       (error (TEXT "(~S ~S) for generic function ~S: The ~S argument should be a ~S object, not ~S")
              (if (eq situation 't) 'initialize-instance 'shared-initialize)
              'standard-generic-function (funcallable-name gf)
-             ':method-combination 'method-combination method-combination)))
+             ':method-combination 'method-combination method-combination))
+    (unless (eq situation 't)
+      (unless (eq method-combination (std-gf-method-combination gf))
+        (dolist (method (std-gf-methods gf))
+          (check-method-qualifiers gf method method-combination)))))
   (when (or (eq situation 't) documentation-p)
     ; Check the documentation.
     (unless (or (null documentation) (stringp documentation))
@@ -183,6 +236,8 @@
     (setf (std-gf-effective-method-cache gf) '()))
   ; Now allow the user to call the generic-function-xxx accessor functions.
   (setf (std-gf-initialized gf) t)
+  ; And allow the user to call gf.
+  (finalize-fast-gf gf)
   gf)
 
 (defun initialize-instance-<standard-generic-function> (gf &rest args
@@ -387,9 +442,7 @@
 ;; Generic functions with optimized dispatch:
 
 (defun make-fast-gf (generic-function-class name lambda-list argument-precedence-order method-class declspecs documentation)
-  (let ((gf (%make-gf generic-function-class name lambda-list argument-precedence-order method-class declspecs documentation)))
-    (finalize-fast-gf gf)
-    gf))
+  (%make-gf generic-function-class name lambda-list argument-precedence-order method-class declspecs documentation))
 
 (let ((prototype-factory-table
         (make-hash-table :key-type '(cons fixnum boolean) :value-type '(cons function (simple-array (unsigned-byte 8) (*)))

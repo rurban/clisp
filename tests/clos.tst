@@ -3789,3 +3789,10 @@ T
   (ensure-generic-function 'foo114 :declarations '((optimize (speed 3))))
   (generic-function-declarations #'foo114))
 ((OPTIMIZE (SPEED 3)))
+
+;; Check that ensure-generic-function without :lambda-list argument works.
+(progn
+  (ensure-generic-function 'foo115)
+  (defmethod foo115 (x y) (list x y))
+  (foo115 3 4))
+(3 4)
