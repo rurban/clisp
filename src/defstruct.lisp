@@ -8,7 +8,7 @@
 #| Explanation of the appearing data types:
 
    (get name 'DEFSTRUCT-DESCRIPTION) =
-     #(names type size keyword-constructor slotlist defaultfun0 defaultfun1 ...)
+     #(names type size keyword-constructor slotlist directslotlist defaultfun0 defaultfun1 ...)
 
    names is a coding of the INCLUDE-nesting for Structure name:
    names = (name_1 ... name_i-1 name_i) with name=name_1,
@@ -26,7 +26,7 @@
 
    slotlist is a packed description of the slots of a structure:
    slotlist = ({slot}*)
-   slot = an instance of structure-direct-slot-definition, containing:
+   slot = an instance of structure-effective-slot-definition, containing:
          name - the slotname,
          initargs - a list containing the initialization argument,
               or NIL for the pseudo-slot containing the structure name in
@@ -61,6 +61,10 @@
 
    if type = T, the Structure-Name occupies the slot 0, but is not mentioned
      in the slotlist, because there is nothing to do for its initialization.
+
+   directslotlist is a packed description of the non-inherited slots.
+   Like above, except instances of structure-direct-slot-definition,
+   with a readers and writers list but without an offset.
 |#
 
 (defun make-ds-slot (name initargs offset initer initff type readonly)
@@ -518,6 +522,7 @@
         (initial-offset                    0)
         (docstring                         nil)
         (slotargs                          docstring-and-slotargs)
+        (directslotlist                    nil)
          size
         (include-skip                      0)
         (inherited-slot-count              0)
@@ -525,6 +530,7 @@
         (slotdefaultvars                   nil)
         (slotdefaultfuns                   nil)
         (slotdefaultslots                  nil)
+        (slotdefaultdirectslots            nil)
          constructor-forms                      )
     ;; check name-and-options:
     (when (listp name-and-options)
@@ -721,6 +727,7 @@
                         slotdefaultfuns)
                       (push variable slotdefaultvars)
                       (push slot slotdefaultslots)
+                      (push nil slotdefaultdirectslots)
                       (setf (clos::slot-definition-inheritable-initer slot)
                             (cons initform nil)) ; FIXME
                       (setf (clos::structure-effective-slot-definition-initff slot)
@@ -844,17 +851,31 @@
                 (push variable slotdefaultvars)
                 (setq initfunction nil ; FIXME
                       initfunctionform variable)))
-            (push (make-ds-slot slotname
-                                (list (intern (symbol-name slotname)
-                                              *keyword-package*)) ; initargs
-                                offset ; location
-                                (cons initform initfunction)
-                                initfunctionform
-                                ;; The following are defstruct specific.
-                                type read-only)
-                  slotlist)
-            (unless (constantp initform)
-              (push (car slotlist) slotdefaultslots))))
+            (let ((initer (cons initform initfunction))
+                  (initargs (list (intern (symbol-name slotname) *keyword-package*)))
+                  (accessorname (ds-accessor-name slotname conc-name-option)))
+              (push (clos::make-instance-<structure-direct-slot-definition>
+                      clos::<structure-direct-slot-definition>
+                      :name slotname
+                      :initform initform
+                      :initfunction initfunction
+                      :initargs initargs
+                      :type type
+                      'clos::inheritable-initer initer
+                      :readers (list accessorname)
+                      :writers (if read-only '() (list `(SETF ,accessorname))))
+                    directslotlist)
+              (push (make-ds-slot slotname
+                                  initargs
+                                  offset ; location
+                                  initer
+                                  initfunctionform
+                                  ;; The following are defstruct specific.
+                                  type read-only)
+                    slotlist)
+              (unless (constantp initform)
+                (push (car slotlist) slotdefaultslots)
+                (push (car directslotlist) slotdefaultdirectslots)))))
         (incf offset))
       (setq size offset))
     ;; size = total length of the structure
@@ -862,6 +883,7 @@
     (setq slotdefaultfuns (nreverse slotdefaultfuns))
     (setq slotdefaultvars (nreverse slotdefaultvars))
     (setq slotdefaultslots (nreverse slotdefaultslots))
+    (setq slotdefaultdirectslots (nreverse slotdefaultdirectslots))
     ;; the slots in slotlist are now sorted in ascending order again.
     (setq constructor-forms
       (mapcar
@@ -877,12 +899,17 @@
                  slotlist))))
         constructor-option-list))
     ;; constructor-forms = list of forms, that define the constructors.
-    (let ((index 5))
-      (mapc #'(lambda (slot)
-                (setf (clos::structure-effective-slot-definition-initff slot)
-                      `(SVREF (GET ',name 'DEFSTRUCT-DESCRIPTION) ,index))
+    (let ((index 6))
+      (mapc #'(lambda (slot directslot)
+                (let ((initfunctionform
+                        `(SVREF (GET ',name 'DEFSTRUCT-DESCRIPTION) ,index)))
+                  (setf (clos::structure-effective-slot-definition-initff slot)
+                        initfunctionform)
+                  (when directslot
+                    (setf (clos::structure-direct-slot-definition-initff directslot)
+                          initfunctionform)))
                 (incf index))
-            slotdefaultslots))
+            slotdefaultslots slotdefaultdirectslots))
     ;; now, slotlist contains no more slotdefaultvars.
     `(EVAL-WHEN (LOAD COMPILE EVAL)
        (LET ()
@@ -897,6 +924,16 @@
                                            (let ((i (position slot slotdefaultslots)))
                                              (if i (nth i slotdefaultvars) nil))))
                                      slotlist))
+                         (LIST
+                           ,@(mapcan #'(lambda (directslot)
+                                         (if directslot
+                                           (list
+                                             (clos::make-load-form-<structure-direct-slot-definition>
+                                               directslot
+                                               (let ((i (position directslot slotdefaultdirectslots)))
+                                                 (if i (nth i slotdefaultvars) nil))))
+                                           '()))
+                                     directslotlist))
                          ,@slotdefaultvars)))
          ,(if (eq type-option 'T)
             `(CLOS::DEFINE-STRUCTURE-CLASS ',name)
