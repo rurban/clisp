@@ -1,3 +1,7 @@
+2001-07-13  Bruno Haible  <haible@clisp.cons.org>
+
+	* io.d (char_reader): do not search for hyphens.
+
 2001-07-13  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (bitbuff_is_I): fixed the bin i/o for (signed-byte n)
