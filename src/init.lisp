@@ -408,15 +408,14 @@
                 ((atom rec) (sys::puthash symbol *documentation* rec))))))
     value)))
 
-(proclaim '(special *load-truename* custom:*suppress-check-redefinition*))
-(setq *load-truename* nil custom:*suppress-check-redefinition* nil)
+(proclaim '(special *load-truename* custom:*suppress-check-redefinition*
+            *current-source-file*))
+(setq *load-truename* nil custom:*suppress-check-redefinition* nil
+      *current-source-file* nil)
 
 (sys::%putd 'sys::check-redefinition
   (function sys::check-redefinition (lambda (symbol caller what)
-    ;; when *LOAD-COMPILING*, *COMPILING* is T,
-    ;; *COMPILE-FILE-TRUENAME* is NIL, and *LOAD-TRUENAME* is good
-    (let ((cur-file (or (when compiler::*compiling* *compile-file-truename*)
-                        *load-truename*))
+    (let ((cur-file *current-source-file*)
           ;; distinguish between undefined and defined at top-level
           (old-file (getf (gethash symbol *documentation*) 'sys::file)))
       (unless (or custom:*suppress-check-redefinition*
@@ -1347,6 +1346,7 @@
          (*load-pathname* (if (pathnamep filename) filename nil))
          (*load-truename*
           (if (pathnamep filename) (truename filename) nil))
+         (*current-source-file* *load-truename*)
          #+ffi (ffi::*foreign-language* ffi::*foreign-language*)
          (*package* *package*) ; bind *PACKAGE*
          (*readtable* *readtable*) ; bind *READTABLE*

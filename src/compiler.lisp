@@ -68,6 +68,7 @@
           sys::*compiling* sys::*compiling-from-file* sys::*inline-functions*
           sys::*venv* sys::*fenv* sys::*benv* sys::*genv* sys::*denv*
           sys::*toplevel-environment* sys::*toplevel-denv*
+          sys::*current-source-file*
           COMPILER::C-PROCLAIM COMPILER::C-PROCLAIM-CONSTANT
           COMPILER::EVAL-WHEN-COMPILE
           COMPILER::C-DEFUN COMPILER::C-PROVIDE COMPILER::C-REQUIRE))
@@ -10197,21 +10198,22 @@ The function make-closure is required.
               (open listing :direction :output)
               (if (streamp listing) listing nil))))
       (unwind-protect
-        (let ((*compile-file-pathname* file)
-              (*compile-file-truename* (truename file))
-              (*compile-file-lineno1* nil)
-              (*compile-file-lineno2* nil)
-              (*fasoutput-stream* ; a Stream or NIL
-               (if new-output-stream
-                   (open output-file :direction :output)
-                   (if (streamp output-file) output-file nil)))
-              (*liboutput-stream* ; a Stream or NIL
-               (if new-output-stream
-                   (open liboutput-file :direction :output) nil))
-              (*coutput-stream* nil) ; a Stream or NIL at the moment
-              (*ffi-module* nil) ; NIL at the moment
-              (*load-forms* (make-hash-table :test 'eq))
-              (compilation-successful nil))
+        (let* ((*compile-file-pathname* file)
+               (*compile-file-truename* (truename file))
+               (*current-source-file* *compile-file-truename*)
+               (*compile-file-lineno1* nil)
+               (*compile-file-lineno2* nil)
+               (*fasoutput-stream* ; a Stream or NIL
+                (if new-output-stream
+                    (open output-file :direction :output)
+                    (if (streamp output-file) output-file nil)))
+               (*liboutput-stream* ; a Stream or NIL
+                (if new-output-stream
+                    (open liboutput-file :direction :output) nil))
+               (*coutput-stream* nil) ; a Stream or NIL at the moment
+               (*ffi-module* nil) ; NIL at the moment
+               (*load-forms* (make-hash-table :test 'eq))
+               (compilation-successful nil))
           (when *fasoutput-stream* (sys::allow-read-eval *fasoutput-stream* t))
           (when *liboutput-stream* (sys::allow-read-eval *liboutput-stream* t))
           (unwind-protect
