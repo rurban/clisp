@@ -25,17 +25,17 @@ such as your local &regex-h; manual and &emacs; info pages.</para>
   &end-r;)</code> is considered.
   <example id="ex-re-match"><title>&re-match;</title>
    <programlisting>
-    (&re-match; "quick" "The quick brown fox jumped quickly.")
-     <literal role="data">#S(&match-t; :START 4 :END 9)</literal>
-    (&re-match; "quick" "The quick brown fox jumped quickly." :start 8)
-     <literal role="data">#S(&match-t; :START 27 :END 32)</literal>
-    (&re-match; "quick" "The quick brown fox jumped quickly." :start 8 :end 30)
-     &nil;
-    (&re-match; "\\([a-z]*\\)[0-9]*\\(bar\\)" "foo12bar")
-     <literal role="data">#S(&match-t; :START 0 :END 8) ;</literal>
-     <literal role="data">#S(&match-t; :START 0 :END 3) ;</literal>
-     <literal role="data">#S(&match-t; :START 5 :END 8)</literal>
-  </programlisting></example>
+(&re-match; "quick" "The quick brown fox jumped quickly.")
+<computeroutput>#S(&match-t; :START 4 :END 9)</computeroutput>
+(&re-match; "quick" "The quick brown fox jumped quickly." :start 8)
+<computeroutput>#S(&match-t; :START 27 :END 32)</computeroutput>
+(&re-match; "quick" "The quick brown fox jumped quickly." :start 8 :end 30)
+<computeroutput>&nil;</computeroutput>
+(&re-match; "\\([a-z]*\\)[0-9]*\\(bar\\)" "foo12bar")
+<computeroutput>#S(&match-t; :START 0 :END 8)</computeroutput> ;
+<computeroutput>#S(&match-t; :START 0 :END 3)</computeroutput> ;
+<computeroutput>#S(&match-t; :START 5 :END 8)</computeroutput>
+</programlisting></example>
 </para></listitem></varlistentry>
 
 <varlistentry id="re-match-access">
@@ -47,11 +47,10 @@ such as your local &regex-h; manual and &emacs; info pages.</para>
 <varlistentry id="re-match-string">
  <term><code>(&re-match-string; &string-r; &match-r;)</code></term>
  <listitem><simpara>Extracts the substring of &string-r; corresponding
-  to the given pair of start and end indices of &match-r;.
-  The result is shared with &string-r;.
-  If you want a freshly consed &string-t;, use &copy-seq; or
-  <code>(&coerce; (&re-match-string; ...) '&simple-string-t;)</code>.
-</simpara></listitem></varlistentry>
+   to the given pair of start and end indices of &match-r;.
+   The result is shared with &string-r;.
+   If you want a &fresh; &string-t;, use &copy-seq; or
+   &coerce; to &simple-string-t;.</simpara></listitem></varlistentry>
 
 <varlistentry id="re-regexp-quote"><term><code>(&re-regexp-quote;
    &string-r; &optional-amp; <replaceable>extended</replaceable>)</code></term>
@@ -60,10 +59,10 @@ such as your local &regex-h; manual and &emacs; info pages.</para>
   This allows you to request an exact string match when calling a
   function that wants a &reg-exp;.
   <example id="ex-re-quote"><title>&re-regexp-quote;</title>
-   <programlisting>
-    (regexp-quote "^The cat$")
-     <returnvalue>"\\^The cat\\$"</returnvalue>
-   </programlisting></example>
+   <programlisting language="lisp">
+(regexp-quote "^The cat$")
+<computeroutput>"\\^The cat\\$"</computeroutput>
+  </programlisting></example>
   One use of &re-regexp-quote; is to combine an exact string match with
   context described as a &reg-exp;.
   When <replaceable>extended</replaceable> is non-&nil;, also
