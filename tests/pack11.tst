@@ -506,6 +506,40 @@ t
 (find "PROVIDE-TEST" *modules* :test #'string=)
 "PROVIDE-TEST"
 
+;; <HS>/Body/mac_with-package-iterator.html
+ (defun test-package-iterator (package)
+   (unless (packagep package)
+     (setq package (find-package package)))
+   (let ((all-entries '())
+         (generated-entries '()))
+     (do-symbols (x package) 
+       (multiple-value-bind (symbol accessibility) 
+           (find-symbol (symbol-name x) package)
+         (push (list symbol accessibility) all-entries)))
+     (with-package-iterator (generator-fn package 
+                             :internal :external :inherited)
+       (loop     
+         (multiple-value-bind (more? symbol accessibility pkg)
+             (generator-fn)
+           (unless more? (return))
+           (let ((l (multiple-value-list (find-symbol (symbol-name symbol) 
+                                                      package))))
+             (unless (equal l (list symbol accessibility))
+               (error "Symbol ~S not found as ~S in package ~A [~S]"
+                      symbol accessibility (package-name package) l))
+             (push l generated-entries)))))
+     (unless (and (subsetp all-entries generated-entries :test #'equal)
+                  (subsetp generated-entries all-entries :test #'equal))
+      (error "Generated entries and Do-Symbols entries don't correspond"))
+     t))
+test-package-iterator
+
+(test-package-iterator :user)
+t
+
+(test-package-iterator :lisp)
+t
+
 (format t "End of file")
 nil
 
