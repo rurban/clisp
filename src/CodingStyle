@@ -226,6 +226,12 @@ changes, O(version) needs to be bumped, thus declaring previously compiled
 "; ABI" in the *.lisp source code or "/* ABI */" in constsym.d, to make the
 developers aware.
 
+                             Newline Output
+                             --------------
+
+All output by the system must start with a fresh-line and must be terminated
+with an elastic newline. See doc/Newline-Convention.txt for the rationale.
+
                             Change Management
                             -----------------
 
