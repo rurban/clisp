@@ -24,7 +24,7 @@ INCLUDES = -I. -I$(srcdir)
 ASPFLAGS = -DASM_UNDERSCORE
 AR = ar
 AR_FLAGS = rc
-RM = del
+RM = rm -f
 LN = cp
 
 # Programs used by "make install":
