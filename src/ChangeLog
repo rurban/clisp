@@ -3,6 +3,7 @@
 	* makemake.in (VERSION): compute reliably
 	* configure.in (AC_INIT): pre-release 2.32.90
 	(AC_COPYRIGHT): updated the year
+	* Makefile.devel (htmldoc): make man pages also
 
 2004-03-08  Bruno Haible  <bruno@clisp.org>
 

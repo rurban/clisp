@@ -84,7 +84,7 @@ ffcall-i386 : ffcall/avcall/avcall-i386-msvc.c          \
 	ffcall/callback/vacall_r/vacall-i386-msvc.c
 
 htmldoc:
-	cd doc && make impnotes.html && make html && cd ..;
+	cd doc && make all && make html && cd ..;
 
 makefiles :                                                                \
 	win32msvc/makefile.msvc4 win32msvc/makefile.msvc7                  \
