@@ -1,3 +1,7 @@
+2004-08-07  Bruno Haible  <bruno@clisp.org>
+
+	* clos.tst: Add one more test.
+
 2004-06-13  Bruno Haible  <bruno@clisp.org>
 
 	* type.tst: Update SUBTYPEP test to match the fact that the user can

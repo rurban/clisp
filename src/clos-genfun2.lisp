@@ -799,8 +799,9 @@
         ;; "A method that has &rest but not &key does not affect the
         ;;   set of acceptable keyword arguments."
         (setq signatures (delete-if-not #'sig-keys-p signatures))
-        ;; No method with &key ==> no restriction on the arguments
-        (unless (null signatures)
+        ;; No &key in the generic function, and no method with &key ==>
+        ;; no restriction on the arguments.
+        (when (or (sig-keys-p signature) signatures)
           ;; "If the lambda-list of any applicable method ... contains
           ;;  &allow-other-keys, all keyword arguments are accepted."
           (unless (some #'sig-allow-p signatures)
