@@ -1,4 +1,3 @@
-#line 1 "intparam.d"
 /*
  * Bestimmung einiger Maschinen-Parameter und -Abhängigkeiten
  * und Ausgabe in ein Include-File
