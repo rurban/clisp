@@ -1,5 +1,9 @@
 Version  Date            New features
 
+2.33.2   2004-06-02      portability: RedHat Fedora Linux/x86
+
+2.33.1   2004-05-22      bug-fixes, portability: gcc 3.4
+
 2.33     2004-03-17      CUSTOM:*APROPOS-MATCHER*, EXT:MOD-EXPT, EXT:ARGV,
                          GRAY:STREAM-POSITION, DEFINE-METHOD-COMBINATION,
                          portability: removed Acorn/Amiga/OS2, fixed UNIXes
