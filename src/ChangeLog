@@ -1,7 +1,11 @@
+2005-03-16  Sam Steingold  <sds@gnu.org>
+
+	* modules/regexp/Makefile.in (regex.o): removed -Dclisp
+
 2005-03-14  Bruno Haible  <bruno@clisp.org>
 
-	* modules/syscalls/calls.c (POSIX::STREAM-LOCK): Make it compile with
-	g++ 3.3 and 3.4.
+	* modules/syscalls/calls.c (POSIX::STREAM-LOCK): Make it compile
+	with g++ 3.3 and 3.4.
 
 2005-03-14  Bruno Haible  <bruno@clisp.org>
 
