@@ -1,5 +1,10 @@
 2002-01-15  Sam Steingold  <sds@gnu.org>
 
+	* defs2.lisp (with-standard-io-syntax): bind
+	SYSTEM::*PRIN-LINE-PREFIX* to NIL
+
+2002-01-15  Sam Steingold  <sds@gnu.org>
+
 	* describe.lisp (describe): flush the pending output _before_
 	increasing indentation
 	(describe-object) [symbol]: handle unbound special variables too
