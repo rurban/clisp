@@ -52,6 +52,8 @@ Other:
                          gdb-4.17 based
       src/newreadline/   another modified GNU readline library,
                          bash-1.14.7 based
+      src/newnewreadline/  yet another modified GNU readline library,
+                         readline-2.2.1 based
       modules/clx/       the CLX library, an interface to X11,
                          roughly equivalent to the libX11
       modules/wildcard/  foreign language module for wildcard matching

@@ -46,7 +46,7 @@ T = $(TOPDIR)
 
 SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/configure #$T/HTML-index.html
 #SOURCES2 = $T/src/*
-# exclude $T/src/g*t $T/src/*ne = $T/src/gettext $T/src/readline $T/src/newreadline
+# exclude $T/src/g*t $T/src/*ne = $T/src/gettext $T/src/readline $T/src/newreadline $T/src/newnewreadline
 SOURCES2 = $T/src/*[^et] $T/src/[^g]*t $T/src/*[^n]e $T/src/.??*
 # exclude $T/src/gettext/*o/*p = $T/src/gettext/po/tmp
 SOURCES3 = $T/src/gettext/*[^o] $T/src/gettext/po/*[^p]
@@ -273,6 +273,7 @@ src--distrib : force
 	$(PACK) $(PACKOPT) /tmp/clispsrc$(PACKEXT) $(SOURCES)
 	$(PACK) $(PACKOPT) /tmp/clispsrc-readline$(PACKEXT) $T/src/readline
 	$(PACK) $(PACKOPT) /tmp/clispsrc-newreadline$(PACKEXT) $T/src/newreadline
+	$(PACK) $(PACKOPT) /tmp/clispsrc-newnewreadline$(PACKEXT) $T/src/newnewreadline
 	$(PACK) $(PACKOPT) /tmp/clispsrc-queens$(PACKEXT) $T/modules/queens
 	$(PACK) $(PACKOPT) /tmp/clispsrc-wildcard$(PACKEXT) $T/modules/wildcard
 	$(PACK) $(PACKOPT) /tmp/clispsrc-regexp$(PACKEXT) $T/modules/regexp
