@@ -1,7 +1,11 @@
+2004-10-24  Sam Steingold  <sds@gnu.org>
+
+	* modules/i18n/gettext.c (LANGUAGE-INFORMATION): new function
+
 2004-10-23  Sam Steingold  <sds@gnu.org>
 
 	new module I18N for user program internationalization
-	* module/i18n: new directory
+	* modules/i18n: new directory
 	* subr.d, constsym.d (i18n_gettext, i18n_ngettext, i18n_textdomain)
 	(i18n_set_textdomain, i18n_textdomaindir, i18n_set_textdomaindir):
 	removed
