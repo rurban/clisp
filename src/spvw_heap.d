@@ -24,6 +24,7 @@ typedef struct {
   # _Page reserve; # a reserve-page ??
   # heap for objects of fixed length:
   Pages lastused; # a cache for the last used page
+  uintL misaligned; # a misalignment that must be applied to all objects
 } Heap;
 
   #define map_heap(heap,pagevar,statement)  \
@@ -106,7 +107,8 @@ typedef struct {
 #                                     reaches until heap_gen0_end.
 # the generation 1 (newer generation) begins at     heap_gen1_start,
 #                                     reaches until heap_end.
-# heap_gen0_start and heap_gen1_start are divisible by physpagesize.
+# heap_gen0_start and heap_gen1_start are divisible by physpagesize or
+# (for mem.varobjects) == varobjects_misaligned mod physpagesize.
 # Between heap_gen0_end and heap_gen1_start is a gap of
 # less than a page.
 # heap_start is either = heap_gen0_start or = heap_gen1_start.
@@ -116,7 +118,8 @@ typedef struct {
 # For mem.varobjects:
 #   generation 1 (newer generation)   begins at     heap_gen1_start,
 #                                     reaches until heap_end.
-#   heap_gen0_start and heap_gen1_start are divisible by physpagesize.
+#   heap_gen0_start and heap_gen1_start are divisible by physpagesize or
+#   == varobjects_misaligned mod physpagesize.
 #   Between heap_gen0_end and heap_gen1_start is a gap of
 #   less than a page.
 #   heap_start is either = heap_gen0_start or = heap_gen1_start.
