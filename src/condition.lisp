@@ -465,42 +465,34 @@ abort continue muffle-warning store-value use-value
 (defvar *break-on-signals* nil)
 
 #|
-; This would be a possible implementation. However, it forces too many
-; variables into closures although in the most frequent case - no condition
-; at all - they won't be needed. Furthermore, it conses too much.
+;; This would be a possible implementation. However, it forces too many
+;; variables into closures although in the most frequent case - no condition
+;; at all - they won't be needed. Furthermore, it conses too much.
 
-; List of active invocations of HANDLER-BIND.
-(defvar *handler-clusters* '())
+;; List of active invocations of HANDLER-BIND.
+ (defvar *handler-clusters* '())
 
 ;; HANDLER-BIND, CLtL2 p. 898
-(defmacro handler-bind (clauses &body body)
+ (defmacro handler-bind (clauses &body body)
   `(LET ((*HANDLER-CLUSTERS*
            (CONS
              (LIST ,@(mapcar #'(lambda (clause)
                                  (let ((type (first clause))
                                        (function-form (second clause)))
-                                   `(CONS ',type ,function-form)
-                               ) )
-                             clauses
-                     )
-             )
-             *HANDLER-CLUSTERS*
-        )) )
-     (PROGN ,@body)
-   )
-)
+                                   `(CONS ',type ,function-form)))
+                             clauses))
+             *HANDLER-CLUSTERS*)))
+     (PROGN ,@body)))
 
 ;; SIGNAL, CLtL2 p. 888
-(defun signal (datum &rest arguments)
+ (defun signal (datum &rest arguments)
   (let ((condition
-          (coerce-to-condition datum arguments 'signal
-                               'simple-condition ; CLtL2 p. 918 specifies this
-       )) )
+         ;; CLtL2 p. 918 specifies this
+         (coerce-to-condition datum arguments 'signal 'simple-condition)))
     (when (typep condition *break-on-signals*)
       ; Enter the debugger prior to signalling the condition
       (restart-case (invoke-debugger condition)
-        (continue ())
-    ) )
+        (continue ())))
     ; CLtL2 p. 884: "A handler is executed in the dynamic context of the
     ; signaler, except that the set of available condition handlers will
     ; have been rebound to the value that was active at the time the condition
@@ -511,10 +503,8 @@ abort continue muffle-warning store-value use-value
         (dolist (handler (pop *handler-clusters*))
           (when (typep condition (car handler))
             (funcall (cdr handler) condition)
-            (return)
-    ) ) ) )
-    nil
-) )
+            (return)))))
+    nil))
 
 |#
 
@@ -663,22 +653,17 @@ abort continue muffle-warning store-value use-value
                    ; before invoking the restart
 )
 #| ; We could also define it as a CLOS class:
-(clos:defclass restart ()
+ (clos:defclass restart ()
   (name            :initarg :name            :reader restart-name)
   (test            :initarg :test            :reader restart-test
-                   :initform #'default-restart-test
-  )
+                   :initform #'default-restart-test)
   (invoke-tag      :initarg :invoke-tag      :reader restart-invoke-tag
-                   :initform nil
-  )
+                   :initform nil)
   (invoke-function :initarg :invoke-function :reader restart-invoke-function)
   (report          :initarg :report          :reader restart-report
-                   :initform nil
-  )
+                   :initform nil)
   (interactive     :initarg :interactive     :reader restart-interactive
-                   :initform #'default-restart-interactive
-  )
-)
+                   :initform #'default-restart-interactive))
 |#
 
 ;; Printing restarts
@@ -693,14 +678,13 @@ abort continue muffle-warning store-value use-value
         (prin1 (restart-name restart) stream)
 ) ) ) )
 #| ; If RESTART were a CLOS class:
-(clos:defmethod clos:print-object ((restart restart) stream)
+ (clos:defmethod clos:print-object ((restart restart) stream)
   (if (or *print-escape* *print-readably*)
     (clos:call-next-method)
     (let ((report-function (restart-report restart)))
       (if report-function
         (funcall report-function stream)
-        (prin1 (restart-name restart) stream)
-) ) ) )
+        (prin1 (restart-name restart) stream)))))
 |#
 
 ;; Expands to the equivalent of `(MAKE-RESTART :NAME name ...)
@@ -1411,7 +1395,7 @@ abort continue muffle-warning store-value use-value
 
 ;; ERROR, CLtL2 p. 886
 #| ; is in error.d
-(defun error (errorstring &rest args)
+ (defun error (errorstring &rest args)
   (if (or *error-handler* (not *use-clcs*))
     (progn
       (if *error-handler*
@@ -1419,15 +1403,11 @@ abort continue muffle-warning store-value use-value
         (progn
           (terpri *error-output*)
           (write-string "*** - " *error-output*)
-          (apply #'format *error-output* errorstring args)
-      ) )
-      (funcall *break-driver* nil)
-    )
+          (apply #'format *error-output* errorstring args)))
+      (funcall *break-driver* nil))
     (let ((condition (coerce-to-condition errorstring args 'error 'simple-error)))
       (signal condition)
-      (invoke-debugger condition)
-    )
-) )
+      (invoke-debugger condition))))
 |#
 
 ;; CERROR, CLtL2 p. 887
@@ -1567,7 +1547,7 @@ error occurs, the CONTINUE restart is silently invoked."
   `(HANDLER-BIND ((ERROR #'MUFFLE-CERROR))
      ,@body))
 #|| ; This works as well, but looks more like a hack.
-(defmacro muffle-cerrors (&body body)
+ (defmacro muffle-cerrors (&body body)
   (let ((old-debugger-hook (gensym)))
     `(LET* ((,old-debugger-hook *DEBUGGER-HOOK*)
             (*DEBUGGER-HOOK*
