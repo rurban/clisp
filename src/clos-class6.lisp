@@ -56,8 +56,8 @@
   (:method ((class defined-class))
     (check-class-initialized class 1)
     (class-classname class))
-  (:method ((class forward-referenced-class))
-    (class-classname class)))
+  (:method ((class forward-reference-to-class))
+    (slot-value class '$classname)))
 ; No extended method check because this GF is specified in ANSI CL.
 ;(initialize-extended-method-check #'class-name)
 ;; MOP p. 92
@@ -78,17 +78,21 @@
 
 ;; Not in MOP.
 (defun class-direct-subclasses-table (class)
-  (accessor-typecheck class 'potential-class 'class-direct-subclasses-table)
-  (sys::%record-ref class *<potential-class>-direct-subclasses-location*))
+  (accessor-typecheck class 'super-class 'class-direct-subclasses-table)
+  (if (potential-class-p class)
+    (sys::%record-ref class *<potential-class>-direct-subclasses-location*)
+    (slot-value class '$direct-subclasses)))
 (defun (setf class-direct-subclasses-table) (new-value class)
-  (accessor-typecheck class 'potential-class '(setf class-direct-subclasses-table))
-  (setf (sys::%record-ref class *<potential-class>-direct-subclasses-location*) new-value))
+  (accessor-typecheck class 'super-class '(setf class-direct-subclasses-table))
+  (if (potential-class-p class)
+    (setf (sys::%record-ref class *<potential-class>-direct-subclasses-location*) new-value)
+    (setf (slot-value class '$direct-subclasses) new-value)))
 ;; MOP p. 76
 (defgeneric class-direct-subclasses (class)
   (:method ((class defined-class))
     (check-class-initialized class 2)
     (list-direct-subclasses class))
-  (:method ((class forward-referenced-class))
+  (:method ((class forward-reference-to-class))
     (list-direct-subclasses class)))
 
 ;; MOP p. 76
@@ -96,10 +100,10 @@
   (:method ((class defined-class))
     (check-class-initialized class 2)
     (sys::%record-ref class *<defined-class>-direct-superclasses-location*))
-  (:method ((class forward-referenced-class))
+  (:method ((class forward-reference-to-class))
     ;; Broken MOP. Any use of this method is a bug.
     (warn (TEXT "~S being called on ~S, but class ~S is not yet defined.")
-          'class-direct-superclasses class (class-classname class))
+          'class-direct-superclasses class (class-name class))
     '()))
 (initialize-extended-method-check #'class-direct-superclasses)
 ;; Not in MOP.
@@ -131,10 +135,10 @@
   (:method ((class defined-class))
     (check-class-initialized class 2)
     (sys::%record-ref class *<defined-class>-direct-slots-location*))
-  (:method ((class forward-referenced-class))
+  (:method ((class forward-reference-to-class))
     ;; Broken MOP. Any use of this method is a bug.
     (warn (TEXT "~S being called on ~S, but class ~S is not yet defined.")
-          'class-direct-slots class (class-classname class))
+          'class-direct-slots class (class-name class))
     '()))
 (initialize-extended-method-check #'class-direct-slots)
 ;; Not in MOP.
@@ -166,10 +170,10 @@
   (:method ((class defined-class))
     (check-class-initialized class 2)
     (sys::%record-ref class *<defined-class>-direct-default-initargs-location*))
-  (:method ((class forward-referenced-class))
+  (:method ((class forward-reference-to-class))
     ;; Broken MOP. Any use of this method is a bug.
     (warn (TEXT "~S being called on ~S, but class ~S is not yet defined.")
-          'class-direct-default-initargs class (class-classname class))
+          'class-direct-default-initargs class (class-name class))
     '()))
 (initialize-extended-method-check #'class-direct-default-initargs)
 ;; Not in MOP.
@@ -354,7 +358,7 @@
 (defgeneric class-finalized-p (class)
   (:method ((class defined-class))
     (= (class-initialized class) 6))
-  (:method ((class forward-referenced-class))
+  (:method ((class forward-reference-to-class))
     nil)
   ;; CLISP extension: Convenience method on symbols.
   (:method ((name symbol))
@@ -446,12 +450,12 @@
 
 ;; MOP p. 32
 (defgeneric add-direct-subclass (class subclass)
-  (:method ((class potential-class) (subclass potential-class))
+  (:method ((class super-class) (subclass potential-class))
     (add-direct-subclass-internal class subclass)))
 
 ;; MOP p. 90
 (defgeneric remove-direct-subclass (class subclass)
-  (:method ((class potential-class) (subclass potential-class))
+  (:method ((class super-class) (subclass potential-class))
     (remove-direct-subclass-internal class subclass)))
 
 ;;; ===========================================================================
