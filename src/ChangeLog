@@ -1,3 +1,7 @@
+2004-12-16  John Hinsdale  <hin@alma.com>
+
+	* modules/oracle/orafns.c: Better error reporting of parse errors
+
 2004-12-16  Sam Steingold  <sds@gnu.org>
 
 	* spvw_memfile.d (loadmem_from_handle): clarified an error message
