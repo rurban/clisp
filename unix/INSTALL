@@ -23,7 +23,12 @@ some platforms can be found in file unix/PLATFORMS.
          CC="gcc -Wall"
          export CC
 
-2. Choose the name of a directory in which to build CLISP.
+2. (Recommended)
+   Install a few libraries on which CLISP relies:
+   - GNU libiconv (not needed on systems with glibc 2.2 or newer),
+   - GNU libsigsegv
+
+3. Choose the name of a directory in which to build CLISP.
    (This allows you to build CLISP with different compilers on the same
    machine or for different architectures in the same filesystem, sharing
    the same source.)
@@ -48,7 +53,7 @@ some platforms can be found in file unix/PLATFORMS.
 
          ./configure /tmp/with-gcc-wall
 
-3. The previous step printed a recommendation how to continue. Follow
+4. The previous step printed a recommendation how to continue. Follow
    the recommendation: Go to this directory
 
          cd with-gcc-wall
@@ -67,10 +72,10 @@ some platforms can be found in file unix/PLATFORMS.
 
          ./makemake --help
 
-4. If you wish to build CLISP with add-on modules, edit Makefile and change
+5. If you wish to build CLISP with add-on modules, edit Makefile and change
    the line defining the MODULES variable.
 
-5. Type
+6. Type
 
          make config.lisp
 
@@ -84,7 +89,7 @@ some platforms can be found in file unix/PLATFORMS.
    For platform specific adjustment of the makefile, take a look at the
    PLATFORMS file.
 
-6. Type
+7. Type
 
          make
 
@@ -112,7 +117,7 @@ some platforms can be found in file unix/PLATFORMS.
          cd ..
    and go back to step 1.
 
-7. (Optionally)
+8. (Optionally)
    Two more tests for CLISP. Let the compiler (now compiled!) recompile itself:
 
          make test
@@ -121,8 +126,8 @@ some platforms can be found in file unix/PLATFORMS.
 
          make testsuite
 
-8. Edit the `prefix' variable in the makefile (you could also have specified
-   it as command line option --prefix=... to `configure' in step 2), then type
+9. Edit the `prefix' variable in the makefile (you could also have specified
+   it as command line option --prefix=... to `configure' in step 3), then type
 
          make install
 
@@ -137,9 +142,9 @@ some platforms can be found in file unix/PLATFORMS.
    You can chose which liking set to run by using "-K" option of clisp
    (see <http://clisp.cons.org/clisp.html#opt-link-set>)
 
-9. If you want other people to benefit from your work, you can make a binary
+10. If you want other people to benefit from your work, you can make a binary
    distribution of CLISP for your platform which we will distribute.
-   To do this, make sure you have executed step 6 above, adjust the definitions
+   To do this, make sure you have executed step 7 above, adjust the definitions
    of ROFF_MAN, PACK, PACKOPT, PACKEXT in the makefile, then type
 
           make distrib
@@ -150,7 +155,7 @@ some platforms can be found in file unix/PLATFORMS.
    If you want to distribute the binaries, recall that you have to accompany
    them with full source; see the files COPYING and GNU-GPL.
 
-10. The last thing to do:
+11. The last thing to do:
 
          cd ..
 
@@ -159,6 +164,7 @@ Authors:
 
         Bruno Haible
         Michael Stoll
+        Sam Steingold
 
 Email: clisp-list@lists.sourceforge.net
 

@@ -64,7 +64,7 @@ SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/clisp.sp
 #SOURCES2 = $T/src/*
 SOURCES2 = $T/src/*[^t] $T/src/[^g]*t $T/src/.??*
 SOURCES3 = $T/src/po/*[^p]
-SOURCES4 = $T/ffcall $T/sigsegv $T/libcharset $T/utils
+SOURCES4 = $T/ffcall $T/libcharset $T/utils
 SOURCES5 = $T/unix $T/os2 $T/win32msvc $T/win32bc $T/amiga $T/acorn $T/nextapp
 SOURCES6 = $T/modules
 SOURCES7 = $T/tests $T/emacs $T/doc $T/Makefile.devel
@@ -118,10 +118,10 @@ CONFIGURES = src/configure \
 	ffcall/trampoline/configure ffcall/callback/configure \
 	ffcall/callback/vacall_r/configure \
 	ffcall/callback/trampoline_r/configure \
-	sigsegv/configure utils/hln/configure \
+	utils/hln/configure \
 	libcharset/configure
 
-configures : ffcall/autoconf/aclocal.m4 sigsegv/autoconf/aclocal.m4 $(CONFIGURES)
+configures : ffcall/autoconf/aclocal.m4 $(CONFIGURES)
 
 src/autoconf/aclocal.m4 : $(wildcard src/m4/*.m4)
 	cd src ; aclocal --acdir=m4 --output=autoconf/aclocal.m4
@@ -166,12 +166,6 @@ ffcall/callback/vacall_r/configure : ffcall/callback/vacall_r/configure.in ffcal
 
 ffcall/callback/trampoline_r/configure : ffcall/callback/trampoline_r/configure.in ffcall/autoconf/aclocal.m4 $(AUTOCONF_FILES)
 	cd ffcall ; $(MAKE) -f Makefile.devel callback/trampoline_r/configure
-
-sigsegv/autoconf/aclocal.m4 : src/autoconf/aclocal.m4
-	cd sigsegv ; $(MAKE) -f Makefile.devel autoconf/aclocal.m4
-
-sigsegv/configure : sigsegv/configure.in sigsegv/autoconf/aclocal.m4 $(AUTOCONF_FILES)
-	cd sigsegv ; $(MAKE) -f Makefile.devel configure
 
 utils/hln/configure : utils/hln/configure.in $(AUTOCONF_FILES)
 	cd utils/hln ; $(AUTOCONF) --include ../../src/autoconf

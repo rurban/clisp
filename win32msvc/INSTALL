@@ -14,6 +14,8 @@ development environment, using native system calls
         set Lib=%MSDEVDIR%\VC98\lib
         set PATH=%MSDEVDIR%\VC98\bin;%MSDEVDIR%\Common\MSDev98\Bin;%PATH%
 
+   Build a few recommended libraries: libiconv and libsigsegv.
+
    Then build a few tools and libraries:
 
         cd utils
@@ -27,10 +29,6 @@ development environment, using native system calls
         cd ..
 
         cd libcharset
-        nmake -f Makefile.msvc check
-        cd ..
-
-        cd sigsegv
         nmake -f Makefile.msvc check
         cd ..
 
