@@ -3637,12 +3637,11 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
 <variablelist>
  <varlistentry id="sose"><term><literal role="sexp">(&sose; &optional-amp;
                  [<replaceable>port-or-socket</replaceable>])</literal></term>
-  <listitem><simpara>This function creates a socket, binds a port to the
-   socket, and then listens for connect attempts.  The server exists to
-   watch for client connect attempts.  The optional argument is either a
-   port (positive &fixnum-t;) or a &socket-stream; (from whose peer the
-   connections will be made).
-  </simpara></listitem></varlistentry>
+  <listitem><simpara>This function creates a socket an binds a port to
+    the socket.  The server exists to watch for client connect attempts.
+    The optional argument is either a port (positive &fixnum-t;) or a
+    &socket-stream; (from whose peer the connections will be made).
+ </simpara></listitem></varlistentry>
  <varlistentry id="sose-close"><term><literal role="sexp">(&sose-close;
                  &sose-r;)</literal></term>
   <listitem><simpara>Closes down the server socket.
@@ -3650,10 +3649,12 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
     &socket-server;s are closed at &gc;ion.  You should not rely on
     this however, because &gc;ion times are not deterministic.
  </simpara></listitem></varlistentry>
- <varlistentry id="sose-port"><term><literal role="sexp">(&sose-port;
-                 &sose-r;)</literal></term>
-  <listitem><simpara>Returns the port which was bound using
-   &sose;.</simpara></listitem></varlistentry>
+ <varlistentry id="sose-hopo">
+  <term><literal role="sexp">(&sose-host; &sose-r;)</literal></term>
+  <term><literal role="sexp">(&sose-port; &sose-r;)</literal></term>
+  <listitem><simpara>Returns the host mask indicating which hosts can
+    connect to this server and the port which was bound using &sose;.
+ </simpara></listitem></varlistentry>
  <varlistentry id="so-wait"><term><literal role="sexp">(&so-wait; &sose-r;
                  &timeout-opt;)</literal></term>
   <listitem id="timeout-opt"><simpara>Wait for a fixed time for a connection
@@ -3699,7 +3700,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
     <quote>status</quote> to be &t; if a connection is available, i.e.,
     is &so-accept; will not block, and &nil; otherwise.</simpara>
    <para>Additionally, for a &socket-stream;, we define
-    <quote>status</quote> in the given direction (one of &input-k;,
+    <quote>status</quote> in the given &direction-r; (one of &input-k;,
     &output-k;, and &io-k;) to be
     <variablelist id="so-status-values">
      <title>Possible status values for various directions:</title>
@@ -3775,8 +3776,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
   <term><literal role="sexp">(&sost-host; &sost-r;)</literal></term>
   <term><literal role="sexp">(&sost-port; &sost-r;)</literal></term>
   <listitem><simpara>These two functions return information about the
-    &socket-stream;.  For a server, &sost-host; returns &nil;.
- </simpara></listitem></varlistentry>
+    &socket-stream;.</simpara></listitem></varlistentry>
  <varlistentry id="service-port"><term><literal role="sexp">(&service-port;
                  &optional-amp; <replaceable>service-name</replaceable>
                  (<replaceable>protocol</replaceable> "tcp"))</literal></term>
@@ -3814,7 +3814,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    &direction-r; can be &input-k; or &output-k;.
    Note that you should still call &close; after you are done with your
    &sost-r;; this is best accomplished by using &with-open-stream;.</simpara>
-   <para>All &socket-stream;s are &io-k; streams (i.e., both
+   <para>All &socket-stream;s are &bidi-s;s (i.e., both
    &input-stream-p; and &output-stream-p; return &t; for them).
    &sost-shut; <emphasis>breaks</emphasis> this:
    the invariant is that whenever
@@ -4603,7 +4603,7 @@ are returned in an &alist;.</para>
 <!-- #ifdef UNIX -->
 <varlistentry><term>Platform dependent: &unix; platforms only.</term>
 <listitem><para>When running under the &X;, you can create
-  a &bidi-s; using the function <emphasis
+  a &bidi-s;, which uses a new dedicated xterm, using the function <emphasis
   role="strong"><function>EXT:MAKE-XTERM-IO-STREAM</function></emphasis>:
 <programlisting>
   (&setq; &error-output-var;

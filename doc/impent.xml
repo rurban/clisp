@@ -203,7 +203,8 @@
 <!ENTITY run-cmd "<link linkend='run-prog'><function>EXT:RUN-SHELL-COMMAND</function></link>">
 <!ENTITY sose "<link linkend='sose'><function>SOCKET:SOCKET-SERVER</function></link>">
 <!ENTITY sose-close "<link linkend='sose-close'><function>SOCKET:SOCKET-SERVER-CLOSE</function></link>">
-<!ENTITY sose-port "<link linkend='sose-port'><function>SOCKET:SOCKET-SERVER-PORT</function></link>">
+<!ENTITY sose-host "<link linkend='sose-hopo'><function>SOCKET:SOCKET-SERVER-HOST</function></link>">
+<!ENTITY sose-port "<link linkend='sose-hopo'><function>SOCKET:SOCKET-SERVER-PORT</function></link>">
 <!ENTITY so-wait "<link linkend='so-wait'><function>SOCKET:SOCKET-WAIT</function></link>">
 <!ENTITY timeout-opt "&optional-amp; <link linkend='timeout-opt'>[<replaceable>seconds</replaceable> [<replaceable>microseconds</replaceable>]]</link>">
 <!ENTITY timeout-k "<link linkend='timeout-k'><constant>:TIMEOUT</constant></link>">
